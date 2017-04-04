@@ -1,0 +1,208 @@
+#
+# Copyright (c) 2013-2014 Red Hat.
+# Copyright (c) 2007 Aconex.  All Rights Reserved.
+# Copyright (c) 2000,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+# Common build rules for gmake
+#
+ifndef _BUILDRULES_INCLUDED_
+_BUILDRULES_INCLUDED_ = 1
+
+ifndef _BUILDDEFS_INCLUDED_
+include $(TOPDIR)/src/include/builddefs
+endif
+
+#
+# Standard targets
+#
+ifdef CMDTARGET
+$(CMDTARGET) : $(SUBDIRS) $(OBJECTS)
+	$(CCF) -o $(CMDTARGET) $(LDFLAGS) $(OBJECTS) $(LDLIBS)
+endif
+ifdef CXXMDTARGET
+$(CXXMDTARGET) : $(SUBDIRS) $(OBJECTS)
+	$(CXXF) -o $(CXXMDTARGET) $(LDFLAGS) $(OBJECTS) $(LDLIBS)
+endif
+
+# GNU make has a built-in recipe for .cc / .C / .cpp, but not for .cxx -> .o
+.cxx.o:
+	$(CXXF) $(CXXFLAGS) -c $< -o $@
+.SUFFIXES: .cxx
+
+ifdef LIBTARGET
+ifneq (, $(filter linux freebsd kfreebsd netbsd openbsd mingw gnu, $(TARGET_OS)))
+_SHAREDOPTS	= -shared -Wl,-soname,$(LIBTARGET)
+endif
+ifeq ($(TARGET_OS), solaris)
+_SHAREDOPTS	= -shared -fpic
+endif
+ifeq ($(TARGET_OS), darwin)
+# libtool doesnt understand -dynamiclib so we need both
+_SHAREDOPTS	= -fPIC -dynamic -dynamiclib -flat_namespace -undefined suppress -headerpad_max_install_names -arch i386
+ifeq ($(PACKAGE_DISTRIBUTION), cocoa)
+_SHAREDOPTS	+= -arch x86_64
+endif
+endif
+ifeq ($(TARGET_OS), aix)
+_SHAREDOPTS	= -qmkshrobj
+endif
+
+ifdef VERSION_SCRIPT
+ifneq ($(INVISIBILITY),)
+ifeq ($(TARGET_OS), darwin)
+# Mac OS X ld(1) takes a different format for the symbols file
+# EXPORTS	= $(VERSION_SCRIPT).darwin
+# _SHAREDOPTS	+=  -Wl,-exported_symbols_list $(EXPORTS)
+# LDIRT		+= $(EXPORTS)
+else
+ifeq ($(TARGET_OS), solaris)
+EXPORTS		= $(VERSION_SCRIPT).solaris
+_SHAREDOPTS	+= -Wl,-M $(EXPORTS)
+LDIRT		+= $(EXPORTS)
+else
+EXPORTS		= $(VERSION_SCRIPT)
+_SHAREDOPTS	+= -Wl,--version-script=$(EXPORTS)
+endif
+endif
+endif
+endif
+
+ifneq ($(EXPORTS), $(VERSION_SCRIPT))
+$(EXPORTS) : $(VERSION_SCRIPT)
+	$(EXPORTS_MAKERULE)
+endif
+
+$(LIBTARGET) : $(SUBDIRS) $(OBJECTS) $(EXPORTS)
+	$(CC) $(LDFLAGS) $(_SHAREDOPTS) -o $(LIBTARGET) $(OBJECTS) $(LDLIBS) $(LIB_FOR_DLOPEN) $(LIB_FOR_BASENAME)
+endif
+
+ifdef STATICLIBTARGET
+$(STATICLIBTARGET) : $(SUBDIRS) $(OBJECTS)
+ifeq ($(TARGET_OS), darwin)
+	libtool -static -o $(STATICLIBTARGET) $?
+else
+	$(AR) cr $(STATICLIBTARGET) $?
+endif
+endif
+
+ifdef WINDOWLINKS
+windowlinks:
+	@for l in $(WINDOWLINKS) ; do \
+	    if [ ! -L $$l -a ! -f $$l ] ; then \
+		$(LN_S) $(WINDOW)_$$l $$l ; \
+	    fi \
+	done
+endif
+
+# Suffix rule to support transition for YFILES to OBJECTS
+%.tab.h : %.y
+	$(YACC) -d -b `basename $< .y` $<
+
+%.tab.c : %.y
+	$(YACC) -d -b `basename $< .y` $<
+
+# Dealing with quirks of the various packaging mechanisms
+%.py: %.python
+	rm -f $@
+	$(LN_S) $< $@
+
+%.pl: %.perl
+	rm -f $@
+	$(LN_S) $< $@
+
+# Suffix rule to support transition for XML to PDF (books)
+%.pdf:	%.xml
+ifeq ($(BOOK_TOOLCHAIN),publican)
+	$(PUBLICAN) build --langs=en-US --formats=pdf
+endif
+ifeq ($(BOOK_TOOLCHAIN),xmlto)
+	$(XMLTO) --with-fop pdf $^
+endif
+ifeq ($(BOOK_TOOLCHAIN),dblatex)
+	$(DBLATEX) --type pdf $^
+endif
+
+ifeq ($(TARGET_OS), mingw)
+#
+# .exe rule for Windows
+#
+.SUFFIXES:	.exe
+.o.exe:
+	$(CCF) -o $* $(LDFLAGS) $(OBJECTS) $(LDLIBS)
+endif
+
+clean clobber :: $(SUBDIRS) $(PRO_SUBDIRS) $(SNIA_SUBDIRS)
+	rm -rf $(DIRT)
+	@rm -fr $(DIRDIRT)
+	$(SUBDIRS_MAKERULE)
+
+realclean distclean: clean
+	rm -f $(TOPDIR)/src/include/builddefs \
+	      $(TOPDIR)/src/include/pcp.conf \
+	      $(TOPDIR)/src/include/pcp/config.h \
+	      $(TOPDIR)/src/include/pcp/configsz.h \
+	      $(TOPDIR)/src/include/pcp/platform_defs.h \
+	      $(TOPDIR)/src/include/pcp/pmdbg.h
+	rm -f $(TOPDIR)/build/GNUlocaldefs
+	rm -f $(TOPDIR)/pcp.lsm
+
+#
+# Never blow away subdirs
+#
+ifdef SUBDIRS
+.PRECIOUS: $(SUBDIRS)
+endif
+
+endif
+
+$(_FORCE):
+
+# The depend target does not depend on any other targets (even though it
+# actually depends on CFILES and HFILES). This is because there are several
+# places where we generate header files (e.g. domain.h is generated for each
+# subdir below src/pmdas, and domain.h in turn depends on src/pmns/stdpmid,
+# which itself a generated file ...). As a result, you can't run make
+# depend after make clobber, because the generated files will be missing.
+# 
+# So running makedepend is for development use when you change a header
+# somewhere and you need to be sure everything that depends on that header
+# will be remade properly.
+
+.PHONY : depend $(_FORCE)
+
+depend : $(SUBDIRS)
+	$(SUBDIRS_MAKERULE)
+	touch dep
+	$(MAKEDEPEND) -fdep -- $(CFLAGS) -- $(CFILES)
+
+#
+# include dep, but only if it exists
+-include dep
+
+# Support for building multiple versions of the same library
+ifneq ($(PCP_ALTLIBS),)
+$(PCP_ALTLIBS): 
+	rm -rf $@
+	mkdir $@
+	cp GNUlocaldefs.$@ $@/GNUlocaldefs
+	$(MAKE) -C src SLDEST=../$@ SLSRC=../src libsrc_symlinks
+endif
+
+libsrc_symlinks:
+	test -n "$(SLDEST)" -a -d $(SLDEST)
+	for f in $(SRCFILES); do \
+	    if [ -e $(SLDEST)/$$f -a ! -L $(SLDEST)/$$f ] ; then \
+		echo "$$f exists in $(SLDEST) and not a symlink"; exit 1; \
+	    fi; \
+	    rm -f $(SLDEST)/$$f; $(LN_S) $(SLSRC)/$$f $(SLDEST)/$$f || exit 1; \
+	done

@@ -1,0 +1,80 @@
+#pmieconf-rules 1
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(5)
+# 
+
+rule	filesys.buffer_cache
+	summary	= "$rule$"
+	predicate =
+"some_host (
+    100 * ( kernel.all.io.lread $hosts$ -
+	    kernel.all.io.bread $hosts$
+	/ kernel.all.io.lread $hosts$ ) < $threshold$
+    && kernel.all.io.lread $hosts$ > $min_lread$ Kbytes/sec
+)"
+	enabled	= yes
+	version	= 1
+	help	=
+"Some filesystem read activity (at least min_lread Kbytes per
+second of logical reads), and the read hit ratio in the buffer
+cache is below threshold percent.
+Note:  It is possible for the read hit ratio to be negative
+(more phsical reads than logical reads) - this can be as a
+result of:
+ o  XLV striped volumes, where blocks span stripe boundaries;
+ o  very large files, where the disk controller has to read
+    blocks indirectly (multiple block reads to find a single
+    data block result);
+ o  file system read-ahead pre-fetching blocks which are not
+    subsequently read.";
+
+string	rule
+	default	= "Low buffer cache read hit ratio"
+	modify	= no
+	display	= no;
+
+percent	threshold
+	default	= 50
+	help	=
+"The minimum acceptable buffer cache read hit ratio, expressed as a
+percentage.  Values may be in the range 0 (nothing is read from the
+cache and poor performance is expected) to 100 (all reads come from
+the cache, no disk I/O required and good performance expected).";
+
+double	min_lread
+	default = 512
+	help =
+"Unless at least min_lread Kbytes per second are passing across the
+logical filesystem read interface the rule will not be true.";
+
+string	action_expand
+	default	= %v%rcach@%h
+	display	= no
+	modify	= no;
+
+string	email_expand
+	default	= "host: %h buffer cache read hit ratio: %v%"
+	display	= no
+	modify	= no;
+
+
+# Configuration info specific to non-PCP tools follows...
+# 
+
+# for SGI Embedded Support Partner integration:
+string	esp_type
+	default	= "0x200049"
+	display	= no
+	modify	= no;
+
+# for EnlightenDSM integration:
+string	enln_test
+	default	= filesys.buffer_cache
+	display	= no
+	modify = no;
+string	enln_units
+	default	= %rcach
+	display	= no
+	modify = no;
+
+# 
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(5)

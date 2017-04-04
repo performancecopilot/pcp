@@ -1,0 +1,15 @@
+[Unit]
+Description=Performance Metrics Web Daemon
+Documentation=man:pmwebd(8)
+Wants=avahi-daemon.service
+After=network.target avahi-daemon.service pmcd.service
+ 
+[Service]
+Type=forking
+Restart=always
+ExecStart=@PCP_RC_DIR@/pmwebd start
+ExecStop=@PCP_RC_DIR@/pmwebd stop
+PIDFile=@PCP_RUN_DIR@/pmwebd.pid
+ 
+[Install]
+WantedBy=multi-user.target

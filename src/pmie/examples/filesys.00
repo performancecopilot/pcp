@@ -1,0 +1,14 @@
+//
+// Either the /tmp or the /usr filesystem being
+// more than 95% full
+//
+
+delta = 5 mins;		// often enough for file system fullness?
+
+tmp_full =
+    $fsys.free #'/dev/root' / $fsys.capacity #'/dev/root' < 0.05
+    -> syslog "/dev/root filesystem (almost) full";
+
+usr_full =
+    $fsys.free #'/dev/usr' / $fsys.capacity #'/dev/usr' < 0.05
+    -> syslog "/dev/usr filesystem (almost) full";

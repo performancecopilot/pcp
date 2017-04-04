@@ -1,0 +1,344 @@
+'\"! tbl | mmdoc
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2016 Red Hat.
+.\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMLOGSUMMARY 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmlogsummary\f1 \- calculate averages of metrics stored in a set of PCP archives
+.SH SYNOPSIS
+\f3pmlogsummary\f1
+[\f3\-abfFHiIlmMNsvxyz\f1]
+[\f3\-B\f1 \f2nbins\f1]
+[\f3\-n\f1 \f2pmnsfile\f1]
+[\f3\-p\f1 \f2precision\f1]
+[\f3\-S\f1 \f2starttime\f1]
+[\f3\-T\f1 \f2endtime\f1]
+[\f3\-Z\f1 \f2timezone\f1]
+\f2archive\f1
+[\f2metricname\f1 ...]
+.SH DESCRIPTION
+.B pmlogsummary
+prints statistical information about metrics of numeric type contained within
+the files of a set of Performance Co-Pilot (PCP) archive logs.  The default output prints
+time averages for both counter and non-counter metrics.
+The set of archive logs is identified by
+.IR archive ,
+which is a comma-separated list of names, each
+of which may be the base name of an archive or the name of a directory containing
+one or more archives.
+The archive logs are typically created using
+.BR pmlogger (1).
+.PP
+The metrics of interest are named in the
+.I metricname
+arguments.
+If
+.I metricname
+is a non-leaf node in the Performance Metrics Name Space (\c
+.BR pmns (5)),
+then
+.B pmlogsummary
+will recursively descend the PMNS and report on all leaf nodes.
+If no
+.I metricname
+argument is given, the root of the namespace is used.
+.PP
+Normally
+.B pmlogsummary
+operates on the default
+.BR pmns (5),
+however if the
+.B \-n
+option is specified an alternative namespace is loaded
+from the file
+.IR pmnsfile .
+.PP
+The command line options
+.B \-S
+and
+.B \-T
+can be used to specify a time window over which metrics should be summarized.
+These options are common to most Performance Co-Pilot tools and are fully
+described in
+.BR PCPIntro (1).
+.PP
+The remaining options control the specific information to be reported.
+Metrics with counter semantics are converted to rates before being
+evaluated.
+.TP
+.B \-a
+Print all information.  This is equivalent to
+.BR \-blmMy .
+.TP
+.B \-b
+Print both forms of averaging, that is both stochastic and time averaging.
+.TP
+.B \-B
+Print the approximate distribution of values, using histogram bins such
+that the value range (minimum - maximum) for each metric is divided
+equally into
+.I nbins
+bins, and each bin accumulates the frequency of observed values in the
+corresponding range.
+Refer to the ``OUTPUT FORMAT'' section below for a description of how the
+distribution of values is reported).
+.TP
+.B \-f
+Spreadsheet format \- the tab character is used to delimit each field
+printed.  This option is intended to allow
+.B pmlogsummary
+output to be imported directly into common spreadsheet applications.
+.TP
+.B \-F
+Spreadsheet format \- the comma character is used to delimit each field
+printed.  This option is intended to allow
+.B pmlogsummary
+output to be imported directly into common spreadsheet applications which
+support the Comma Separated Value (.csv) format.
+.TP
+.B \-H
+Print a one-line header at the start showing what each field represents.
+.TP
+.B \-l
+Also print the archive label, showing the log format version,
+the time and date for the start and end of the archive time window,
+and the host from which the performance metrics values were collected.
+.TP
+.B \-i
+Also print the time at which the minimum value was logged.  The format of this
+timestamp is described in the ``OUTPUT FORMAT'' section below.
+.TP
+.B \-I
+Also print the time at which the maximum value was logged.  The format of this
+timestamp is described in the ``OUTPUT FORMAT'' section below.
+.TP
+.B \-m
+Also print the minimum logged value for each metric.
+.TP
+.B \-M
+Also print the maximum logged value for each metric.
+.TP
+.B \-s
+Print (only) the sum of all logged values for each metric.
+.TP
+.B \-N
+Suppress any warnings resulting from individual archive fetches (default).
+.TP
+.B \-p
+Print all floating point numbers with 
+.I precision
+digits after the decimal place.
+.TP
+.B \-v
+Report (verbosely) on warnings resulting from individual archive fetches.
+.TP
+.B \-x
+Print stochastic averages instead of the default (time averages).
+.TP
+.B \-y
+Also print the number of samples encountered in the set of archives for each metric.
+.PP
+By default,
+.B pmlogsummary
+reports the time of day according to the local timezone on the
+system where
+.B pmlogsummary
+is run.
+The
+.B \-Z
+option changes the timezone to
+.I timezone
+in the format of the environment variable
+.B TZ
+as described in
+.BR environ (7).
+The
+.B \-z
+option changes the timezone to the local timezone at the
+host that is the source of the performance metrics, as specified in
+the label record of the archive log.
+.SH OUTPUT FORMAT
+The
+.B pmlogsummary
+output format is spartan as it is intended to be post-processed with
+standard tools.  This means that there is no annotation associated with each
+output field which would make processing harder.  The intention is that
+.B pmlogsummary
+output be massaged into a format which can be used by a spreadsheet program,
+is suitable for inclusion in a web page, or whatever.
+.PP
+For each metric,
+.B pmlogsummary
+produces a single output line as follows:
+.PP
+.in 1.0i
+.ft CW
+.nf
+\f2metricname\f1  \f2value(s)\f1 \f2units\f1
+.fi
+.ft R
+.in
+.PP
+For metrics with multiple instances, 
+.B pmlogsummary
+produces multiple lines of output as follows:
+.PP
+.in 1.0i
+.ft CW
+.nf
+\f2metricname\f1 ["\f2instance 1\f1"] \f2value(s)\f1 \f2units\f1
+\f2metricname\f1 ["\f2instance 2\f1"] \f2value(s)\f1 \f2units\f1
+\f2metricname\f1 ["\f2instance N\f1"] \f2value(s)\f1 \f2units\f1
+.fi
+.ft R
+.in
+.PP
+The printed \f2value(s)\f1 for each metric always follow this order:
+stochastic average, time average, minimum, minimum timestamp, maximum,
+maximum timestamp, count, [bin 1 range], bin 1 count, ... [bin
+.I nbins
+range], bin
+.I nbins
+count.
+The individual values for each metric are space-separated (unless the
+.B \-f
+option is used).
+.PP
+All counter metrics which are measured in units of time will be converted
+to seconds before being rate converted and used in the
+.B pmlogsummary
+calculations.  The values calculated for these metrics are also printed
+in seconds.
+.PP
+The units will be displayed in the format described by
+.BR pmUnitsStr (3).
+.PP
+Given either of the
+.B -i
+or
+.B -I
+options,
+.B pmlogsummary
+produces two different timestamp formats, depending on the
+interval over which it is run.
+For an interval greater than 24 hours, the date is displayed in addition
+to the time at which the maxima and/or minima occurred.
+If the extent of the data being checked is less than 24 hours,
+a more precise format is used (time is displayed with millisecond
+precision, but without the date).
+.PP
+.SH NOTES
+The average for an individual metric is calculated as follows:
+.PP
+Non-counter metrics are averaged using stochastic averaging -
+each observation has an equal weighting towards
+the calculation of the average (the sum of all values divided
+by the total number of values, for each metric).
+.PP
+Counter metrics are averaged using time averaging (by default),
+but the
+.B \-x
+option can be used to specify that counters be averaged using 
+the stochastic method instead.  When calculating a time average,
+the sum of the product of each sample value multiplied by the time difference
+between each sample, is divided by the total time over which
+that metric was logged.
+.PP
+Counter metrics whose measurements do not span 90% of the set of archives will be
+printed with the metric name prefixed by an asterisk (*).
+.PP
+.SH EXAMPLE
+.sp
+.nf
+$ pmlogsummary \-aN \-p 1 \-B 3 surf network.interface.out.bytes
+Log Label (Log Format Version 1)
+Performance metrics from host www.sgi.com
+  commencing Tue Jan 14 20:50:50.317 1997
+  ending     Wed Jan 29 10:13:07.387 1997
+network.interface.out.bytes ["xpi0"] 202831.3 202062.5 20618.7 \e
+	1235067.7 971 [<=425435.0] 912 [<=830251.4] 42 [<=1235067.7] \e
+	17 byte / sec
+network.interface.out.bytes ["xpi1"] 0.0 0.0 0.0 0.0 1033 [<=0.0] \e
+	1033 [] 0 [] 0 byte / sec
+network.interface.out.bytes ["et0"] 0.0 0.0 0.0 0.0 1033 [<=0.0] \e
+	1033 [] 0 [] 0 byte / sec
+network.interface.out.bytes ["lo0"] 899.0 895.2 142.6 9583.1 1031 \e
+	[<=3289.4] 1027 [<=6436.2] 3 [<=9583.1] 1 byte / sec
+.fi
+.sp
+A description of each field in the first line of statistical output, which
+describes one instance of the network.interface.out.bytes metric,
+follows:
+.TS
+box,center;
+cf(R) | cf(R)
+lf(CW) | lf(R).
+Field	Meaning
+_
+["xpi0"]	instance name
+202831.3	stochastic average
+202062.5	time average
+20618.7	minimum value
+1235067.7	maximum value
+971	total number of values for this instance
+[<=425435.0]	range for first bin  (20618.7-425435.0)
+912	number of values in first bin
+[<=830251.4]	range for second bin  (425435.0-830251.4)
+42	number of values in second bin
+[<=1235067.7]	range for third bin  (830251.4-1235067.7)
+17	number of values in third bin
+byte / sec	base units for this metric
+.TE
+.SH FILES
+.PD 0
+.TP 10
+.BI $PCP_VAR_DIR/pmns/ *
+default PMNS specification files
+.TP
+.BI $PCP_LOG_DIR/pmlogger/ hostname
+Default directory for PCP archives containing performance
+metric values collected from the host
+.IR hostname .
+.PD
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.I /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (5).
+.SH SEE ALSO
+.BR PCPIntro (1),
+.BR pmchart (1),
+.BR pmdumptext (1),
+.BR pmlogextract (1),
+.BR pmlogger (1),
+.BR pmrep (1),
+.BR pmval (1),
+.BR PMAPI (3),
+.BR pmUnitsStr (3)
+and
+.BR pmns (5).
+.SH DIAGNOSTICS
+All are generated on standard error and are intended to be self-
+explanatory.

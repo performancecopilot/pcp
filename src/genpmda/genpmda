@@ -1,0 +1,1026 @@
+#! /bin/sh
+#
+# Copyright (c) 2005 Silicon Graphics, Inc.  All Rights Reserved.
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+# 
+
+prog=`basename $0`
+
+usage()
+{
+    cat <<EOFEOF
+Usage: $prog [-d] [-s stdpmid] [-D domain] [-t topdir] [-n pmns] [-o dir] [-v] -i IAM -c config
+Required options:
+  -c config     required: input config file, see example below
+  -i IAM        required: pmda name "IAM", must appear in stdpmid
+                          or -D domain number may be given.
+
+Other options:
+  -D domain     domain number to use (if -s is not given)
+  -d            generate an Install script for a daemon PMDA (default is DSO)
+  -t topdir     use "topdir" in generated GNUmakefile (default "../../..")
+  -n pmns       use "pmns" as root of pmns (default matches -i flag)
+  -s stdpmid    path to stdpmid (default "../../pmns/stdpmid")
+  -o dir        directory for generated source (default "./generated")
+  -v            verbose
+
+Example config file (for the required -c option):
+Notes:
+    EXAMPLE must appear in src/pmns/stdpmid
+    Generate the "example" pmda: genpmda -D 99 -v -i EXAMPLE -c example.conf
+
+example {
+    metric
+}
+
+example.metric {
+    ##  metric                  string
+    ##  pmid                    EXAMPLE:SOME_CLUSTER_NAME:0
+    ##  indom                   PM_INDOM_NULL
+    ##  type                    PM_TYPE_STRING
+    ##  units                   PMDA_PMUNITS(0,0,0,0,0,0)
+    ##  semantics               PM_SEM_DISCRETE
+    ##  briefhelptext           one line help text for example.metric.string
+    ##  helptext                long help text for example.metric.string
+    ##  helptext                This is the second line of the long help text
+    ##  helptext                and this is the third line.
+    ##  fetch                   function example_string_fetch_callback
+    ##  code                    /* optional code for this metric */ 
+    ##  code                    atom->cp = "hello world";
+    ##  endmetric
+}
+EOFEOF
+
+    exit 1
+}
+
+dflag=false
+Dflag=""
+iflag=""
+sflag="../../pmns/stdpmid"
+tflag="../../.."
+oflag="generated"
+nflag=""
+verbose=false
+
+while getopts "c:vdD:s:t:i:n:o:" c
+do
+    case $c
+    in
+
+	D)	Dflag="$OPTARG"
+		;;
+
+	d)	dflag=true
+		;;
+
+	c)	cflag="$OPTARG"
+		;;
+
+	i)	iflag="$OPTARG"
+		;;
+
+	s)	sflag="$OPTARG"
+		;;
+
+	t)	tflag="$OPTARG"
+		;;
+
+	n)	nflag="$OPTARG"
+		;;
+
+	o)	oflag="$OPTARG"
+		;;
+
+	v)	verbose=true
+		;;
+
+	\?)	usage
+		;;
+    esac
+done
+
+[ -z "$iflag" ] && usage
+[ ! -f "$cflag" ] && echo "Error: config \"$cflag\" not found" && usage
+
+IAM=`echo $iflag | tr a-z A-Z`
+iam=`echo $IAM | tr A-Z a-z`
+[ -z "$nflag" ] && nflag="$iam"
+config="$cflag"
+
+for stdpmid in $sflag $tflag/src/pmns/stdpmid ../pmns/stdpmid ../../pmns/stdpmid
+do
+    [ -f "$stdpmid" ] && break
+done
+$verbose && [ -f "$stdpmid" ] && echo Found stdpmid in \"$stdpmid\"
+[ ! -f "$stdpmid" ] && echo Error: could not find \"stdpmid\" && usage
+domain=`awk '/^#define[ \t]*'$IAM'/ {print $3}' $stdpmid`
+if [ -z "$Dflag" ]
+then
+    [ -z "$domain" ] && echo "Error: domain for \"$IAM\" not found in ../../pmns/stdpmid, please use -D" && usage
+else
+    domain="$Dflag"
+fi
+
+[ ! -d $oflag ] && mkdir $oflag && $verbose && echo "created output directory \"$oflag\""
+
+#
+# Generate domain.h
+#
+cat <<EOFEOF >$oflag/domain.h
+/*
+ * Generated code, do not edit!
+ */
+#define $IAM $domain
+EOFEOF
+$verbose && echo Wrote $oflag/domain.h
+
+#
+# Generate (the beginning of) pmda.c
+#
+cat <<EOFEOF >$oflag/pmda.c
+/*
+ * Generated code, do not edit!
+ */
+#include <stdio.h>
+#include <limits.h>
+#include <ctype.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include "pmapi.h"
+#include "impl.h"
+#include "pmda.h"
+#include "domain.h"
+#include "metrictab.h"
+#include "clusters.h"
+
+static int              _isDSO = 1;     /* =0 I am a daemon */
+
+EOFEOF
+$verbose && echo Wrote $oflag/pmda.c
+
+gnumakefile=GNUmakefile.new
+gnumakefile_g=GNUmakefile.generic.new
+install_g=install-generic.new
+
+#
+# Generate Install, Remove and Makefile.install
+#
+cat <<EOFEOF >$oflag/Install
+#! /bin/sh
+. \$PCP_DIR/etc/pcp.env
+. \$PCP_SHARE_DIR/lib/pmdaproc.sh
+
+iam=$iam
+pmda_interface=3
+EOFEOF
+
+if $dflag
+then
+    cat <<EOFEOF >>$oflag/Install
+# controls for daemon PMDA installation procedures
+#
+daemon_opt=true
+dso_opt=false
+pipe_opt=true
+socket_opt=false
+
+EOFEOF
+else
+    cat <<EOFEOF >>$oflag/Install
+# controls for DSO installation procedures
+#
+daemon_opt=false
+dso_opt=true
+pipe_opt=false
+socket_opt=false
+
+EOFEOF
+fi
+
+cat <<EOFEOF >>$oflag/Install
+#
+# override "choose mode"
+__choose_mode()
+{
+    do_pmda=true
+}
+
+#
+# override "choose IPC method"
+__choose_ipc()
+{
+    ipc_type=pipe
+    type="pipe  binary       \$PCP_PMDAS_DIR/\$iam/pmda\$iam"
+}
+
+# Do it
+#
+pmdaSetup
+cat domain.h clusters.h pmns | \$PCP_BINADM_DIR/pmgcc -DPCP_PMNS >\$tmp/pmns
+pmns_source=\$tmp/pmns
+pmns_name=\$iam
+
+pmdaInstall
+
+exit 0
+EOFEOF
+$verbose && echo Wrote $oflag/Install
+
+cat <<EOFEOF >$oflag/Remove
+#! /bin/sh
+. \$PCP_DIR/etc/pcp.env
+. \$PCP_SHARE_DIR/lib/pmdaproc.sh
+
+iam=$iam
+pmdaSetup
+pmdaRemove
+
+exit 0
+EOFEOF
+$verbose && echo Wrote $oflag/Remove
+
+cat <<"EOFEOF" >$oflag/Makefile.install
+SHELL   = sh
+TARGETS =
+LDIRT   = *.log *.pag *.dir
+
+default: $(TARGETS)
+
+install:        default
+
+clobber:
+	rm -f $(LDIRT) $(TARGETS)
+EOFEOF
+$verbose && echo Wrote $oflag/Makefile.install
+
+#
+# Generate metrictab.[ch]
+#
+awk '
+BEGIN {
+    mt_h="'$oflag'/metrictab.h"
+    mt_c="'$oflag'/metrictab.c"
+    pmda_c="'$oflag'/pmda.c"
+    clusters_h="'$oflag'/clusters.h"
+    pmns="'$oflag'/pmns"
+    cfiles="CFILES"
+    init_c="init.c.new"
+
+    printf "/* Generated code, do not edit! */\n\n" >mt_c
+    printf "/* Generated code, do not edit! */\n\n" >mt_h
+    printf "#include \"pmapi.h\"\n" >>mt_c
+    printf "#include \"impl.h\"\n" >>mt_c
+    printf "#include \"pmda.h\"\n" >>mt_c
+    printf "#include \"metrictab.h\"\n\n" >>mt_c
+    printf "#include \"clusters.h\"\n\n" >>mt_c
+    printf "/*\n * Metric Table\n */\npmdaMetric metrictab[] = {\n" >>mt_c
+
+    printf "init.c" >cfiles
+    printf "/*\n" >init_c
+    printf " * local initialization for the %s PMDA\n", "'$IAM'" >>init_c
+    printf " * ADD CODE HERE\n" >>init_c
+    printf " */\n" >>init_c
+
+    printf "#include <stdio.h>\n" >>init_c
+    printf "#include <limits.h>\n" >>init_c
+    printf "#include <ctype.h>\n" >>init_c
+    printf "#include <sys/types.h>\n" >>init_c
+    printf "#include <sys/stat.h>\n" >>init_c
+    printf "#include <fcntl.h>\n" >>init_c
+    printf "#include \"pmapi.h\"\n" >>init_c
+    printf "#include \"impl.h\"\n" >>init_c
+    printf "#include \"pmda.h\"\n" >>init_c
+    printf "#include \"'$oflag'/domain.h\"\n" >>init_c
+    printf "#include \"'$oflag'/metrictab.h\"\n" >>init_c
+    printf "#include \"'$oflag'/clusters.h\"\n" >>init_c
+    printf "\n" >>init_c
+    printf "void\n%s_local_init(pmdaInterface *dispatch)\n", "'$iam'" >>init_c
+    printf "{\n" >>init_c
+    printf "\t/* add code for local initialization here, if required */\n" >>init_c
+    printf "}\n" >>init_c
+}
+
+/.*{$/ {
+    nonleaf = $1
+}
+
+$1 == "##" && $2 == "metric" {
+    metric = nonleaf"."$3
+    metriclist[metric] = metric
+    leafmetric[metric] = $3
+    nmetrics++
+}
+
+$1 == "##" && $2 == "pmid" {
+    pmid[metric] = $3
+    n = split(pmid[metric], id, ":")
+    current_cluster = id[2]
+    cluster[metric] = current_cluster
+    item[metric] = id[3]
+    s = metric
+    gsub("\\.", "_", s)
+    m = "METRIC_"s
+    if (seen_metric_macro[m]) {
+    	printf "FATAL ERROR: cluster_metric \"%s\" is not unique,\n", m
+	printf "Conflicts with metric \"%s\"\n", seen_metric_macro[m]
+	exit 1
+    }
+    seen_metric_macro[m] = metric
+    metric_macro[metric] = m
+}
+
+$1 == "##" && $2 == "code" {
+    thiscode=$3
+    for (i=4; i <= NF; i++)
+    	thiscode = thiscode " " $i
+    if (!code[metric])
+    	code[metric] = "\t\t"thiscode;
+    else
+	code[metric] = code[metric]"\n\t\t"thiscode
+}
+
+$1 == "##" && $2 == "type" {
+    type[metric] = $3
+}
+
+$1 == "##" && $2 == "units" {
+    units[metric] = $3
+}
+
+$1 == "##" && $2 == "semantics" {
+    semantics[metric] = $3
+}
+
+$1 == "##" && $2 == "indom" {
+    indom[metric] = $3
+    if (indom[metric] != "PM_INDOM_NULL" && !seen_indom[indom[metric]]) {
+        printf "#define %s      %d\n", indom[metric], nindoms >>mt_h
+        seen_indom[indom[metric]]++
+        nindoms++
+        indoms[nindoms] = indom[metric]
+	indom_cluster[$3] = current_cluster
+    }
+}
+
+$1 == "##" && $2 == "endmetric" {
+    printf "\t/* %s */\n", metric >>mt_c
+    printf "\t{ (void *)fetch_%s,\n", cluster[metric] >>mt_c
+    printf "\t{PMDA_PMID(%s,%s),\n", cluster[metric], metric_macro[metric] >>mt_c
+    printf "\t %s, %s, %s, %s }, },\n\n",
+    	type[metric], indom[metric], semantics[metric], units[metric] >>mt_c
+}
+
+END {
+    printf "};\n" >>mt_c
+
+    if (nindoms > 0) {
+	printf "\npmdaIndom indomtab[] = {\n" >>mt_c
+	for (i=1; i <= nindoms; i++)
+	    printf "    { %s, 0, NULL },\n", indoms[i] >>mt_c
+	printf "};\n" >>mt_c
+    }
+
+    printf "\n#define NMETRICS %d\n", nmetrics >>mt_h
+    printf "extern pmdaMetric metrictab[NMETRICS];\n" >>mt_h
+
+    printf "\n#define NINDOMS %d\n", nindoms >>mt_h
+    if (nindoms > 0) {
+	printf "extern pmdaIndom indomtab[NINDOMS];\n" >>mt_h
+    }
+
+    #
+    # Generate clusters.h and first part of pmns
+    #
+    printf "/* Generated code, do not edit! */\n\n" >pmns
+    printf "/* Generated code, do not edit! */\n\n" >clusters_h
+    printf "#ifndef _CLUSTER_H\n" >>clusters_h
+    printf "#define _CLUSTER_H\n" >>clusters_h
+    clustercnt = 0
+    for (m in cluster) {
+    	c = cluster[m]
+    	if (seencluster[c])
+	    continue;
+	seencluster[c] = 1
+	printf "\n/*\n" >>clusters_h
+	printf " * Metrics in the \"%s\" cluster\n", c >>clusters_h
+	printf " */\n" >>clusters_h
+	printf "#define %s\t\t\t%d\n", c, clustercnt >>clusters_h
+	for (metric in metriclist) {
+	    if (cluster[metric] == c) {
+		printf "#define %s\t%s /* %s */\n", metric_macro[metric], item[metric], metric >>clusters_h
+	    }
+	}
+
+	clustercnt++
+    }
+    printf "\n\n#ifndef PCP_PMNS\n" >>clusters_h
+    printf "#define NCLUSTERS\t\t\t%d\n\n", clustercnt >>clusters_h
+
+    #
+    # Generate the refresh method in pmda.c
+    #
+    for (m in cluster) {
+    	c = cluster[m]
+    	seencluster[c] = 0;
+    }
+    printf "\nstatic void\n%s_refresh(int *need_refresh)\n{\n", "'$iam'" >>pmda_c
+    for (m in cluster) {
+    	c = cluster[m]
+    	if (seencluster[c])
+	    continue;
+	seencluster[c] = 1
+	printf "extern void refresh_%s(void);\n", c >>mt_h
+	printf "    if (need_refresh[%s])\n\trefresh_%s();\n", c, c >>pmda_c
+    }
+    printf "}\n\n" >>pmda_c
+
+    #
+    # Generate the instance method in pmda.c
+    #
+    for (m in cluster) {
+    	c = cluster[m]
+    	seencluster[c] = 0;
+    }
+    printf "static int\n" >>pmda_c
+    printf "%s_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaExt *pmda)\n", "'$iam'" >>pmda_c
+    printf "{\n" >>pmda_c
+    printf "    __pmInDom_int       *indomp = (__pmInDom_int *)&indom;\n" >>pmda_c
+    printf "    int                 need_refresh[NCLUSTERS];\n" >>pmda_c
+    printf "\n" >>pmda_c
+    printf "    memset(need_refresh, 1, sizeof(need_refresh));\n" >>pmda_c
+    printf "    /* TODO: only refresh some clusters */\n" >>pmda_c
+    printf "    %s_refresh(need_refresh);\n", "'$iam'" >>pmda_c
+    printf "\n" >>pmda_c
+    printf "    return pmdaInstance(indom, inst, name, result, pmda);\n" >>pmda_c
+    printf "}\n\n" >>pmda_c
+
+    #
+    # Generate the fetch method in pmda.c
+    #
+    printf "int\n" >>pmda_c
+    printf "%s_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)\n", "'$iam'" >>pmda_c
+    printf "{\n" >>pmda_c
+    printf "    int         i;\n" >>pmda_c
+    printf "    int         need_refresh[NCLUSTERS];\n" >>pmda_c
+    printf "\n" >>pmda_c
+    printf "    memset(need_refresh, 0, sizeof(need_refresh));\n" >>pmda_c
+    printf "    for (i=0; i < numpmid; i++) {\n" >>pmda_c
+    printf "        __pmID_int *idp = (__pmID_int *)&(pmidlist[i]);\n" >>pmda_c
+    printf "        if (idp->cluster >= 0 && idp->cluster < NCLUSTERS) {\n" >>pmda_c
+    printf "            need_refresh[idp->cluster]++;\n" >>pmda_c
+    printf "        }\n" >>pmda_c
+    printf "    }\n" >>pmda_c
+    printf "\n" >>pmda_c
+    printf "    %s_refresh(need_refresh);\n", "'$iam'" >>pmda_c
+    printf "    return pmdaFetch(numpmid, pmidlist, resp, pmda);\n" >>pmda_c
+    printf "}\n\n" >>pmda_c
+
+    #
+    # Generate the generic fetch callback in pmda.c
+    #
+    printf "static int\n" >>pmda_c
+    printf "%s_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)\n", "'$iam'" >>pmda_c
+    printf "{\n" >>pmda_c
+
+    printf "\tint (*fetchfunction)(pmdaMetric *, unsigned int, pmAtomValue *) =\n">>pmda_c
+    printf "\t\t(int (*)(pmdaMetric *, unsigned int, pmAtomValue *)) mdesc->m_user;\n">>pmda_c
+    printf "\treturn (*fetchfunction)(mdesc, inst, atom);\n" >>pmda_c
+    printf "}\n\n", pmda_c >>pmda_c
+
+    #
+    # Generate the init method in pmda.c
+    #
+    printf "void\n" >>pmda_c
+    printf "%s_init(pmdaInterface *dp)\n", "'$iam'" >>pmda_c
+    printf "{\n" >>pmda_c
+    printf "    int\tneed_refresh[NCLUSTERS];\n" >>pmda_c
+    printf "    extern void\t%s_local_init(pmdaInterface *);\n", "'$iam'" >>pmda_c
+    printf "\n" >>pmda_c
+    printf "    if (_isDSO) {\n" >>pmda_c
+    printf "        char helppath[MAXPATHLEN];\n" >>pmda_c
+    printf "        snprintf(helppath, sizeof(helppath), \"%%s/pmdas/'$iam'/help\",\n" >>pmda_c
+    printf "             pmGetConfig(\"PCP_VAR_DIR\"));\n" >>pmda_c
+    printf "        pmdaDSO(dp, PMDA_INTERFACE_4, \"%s DSO\", helppath);\n", "'$iam'" >>pmda_c
+    printf "    }\n" >>pmda_c
+    printf "\n" >>pmda_c
+    printf "    if (dp->status != 0)\n" >>pmda_c
+    printf "         return;\n" >>pmda_c
+    printf "\n" >>pmda_c
+    printf "    dp->version.two.instance = %s_instance;\n", "'$iam'" >>pmda_c
+    printf "    dp->version.two.fetch = %s_fetch;\n", "'$iam'" >>pmda_c
+    printf "    pmdaSetFetchCallBack(dp, %s_fetchCallBack);\n", "'$iam'" >>pmda_c
+    printf "\n" >>pmda_c
+    printf "    /* local initialization, see init.c */\n" >>pmda_c
+    printf "    %s_local_init(dp);\n", "'$iam'" >>pmda_c
+    printf "\n" >>pmda_c
+    printf "    /* initially refresh all clusters */\n" >>pmda_c
+    printf "    memset(need_refresh, 1, sizeof(need_refresh));\n" >>pmda_c
+    printf "    %s_refresh(need_refresh);\n", "'$iam'" >>pmda_c
+    printf "\n" >>pmda_c
+    if (nindoms > 0) {
+	printf "    pmdaInit(dp, indomtab, sizeof(indomtab)/sizeof(indomtab[0]), metrictab,\n" >>pmda_c
+	printf "             sizeof(metrictab)/sizeof(metrictab[0]));\n" >>pmda_c
+    }
+    else {
+	printf "    pmdaInit(dp, NULL, 0, metrictab,\n" >>pmda_c
+	printf "             sizeof(metrictab)/sizeof(metrictab[0]));\n" >>pmda_c
+    }
+    printf "}\n" >>pmda_c
+
+    #
+    # Generate usage() and main() for the daemon PMDA
+    #
+    printf "\nstatic void\n" >>pmda_c
+    printf "usage(void)\n" >>pmda_c
+    printf "{\n" >>pmda_c
+    printf "    fprintf(stderr, \"Usage: %%s [options]\\n\\n\", pmProgname);\n" >>pmda_c
+    printf "    fputs(\"Options:\\n\"\n" >>pmda_c
+    printf "          \"  -d domain  use domain (numeric) for metrics domain of PMDA\\n\"\n" >>pmda_c
+    printf "          \"  -l logfile write log into logfile rather than using default log name\\n\",\n" >>pmda_c
+    printf "          stderr);\n" >>pmda_c
+    printf "    exit(1);\n" >>pmda_c
+    printf "}\n" >>pmda_c
+    printf "\n" >>pmda_c
+    printf "int\n" >>pmda_c
+    printf "main(int argc, char **argv)\n" >>pmda_c
+    printf "{\n" >>pmda_c
+    printf "    int                 err = 0;\n" >>pmda_c
+    printf "    int                 c = 0;\n" >>pmda_c
+    printf "    pmdaInterface       dispatch;\n" >>pmda_c
+    printf "    char                helppath[MAXPATHLEN];\n" >>pmda_c
+    printf "\n" >>pmda_c
+    printf "    __pmSetProgname(argv[0]);\n" >>pmda_c
+    printf "\n" >>pmda_c
+    printf "    _isDSO = 0;\n" >>pmda_c
+    printf "\n" >>pmda_c
+    printf "    snprintf(helppath, sizeof(helppath), \"%%s/pmdas/'$iam'/help\", pmGetConfig(\"PCP_VAR_DIR\"));\n" >>pmda_c
+    printf "    pmdaDaemon(&dispatch, PMDA_INTERFACE_4, pmProgname, '$IAM', \"'$iam'.log\", helppath);\n" >>pmda_c
+    printf "\n" >>pmda_c
+    printf "    if ((c = pmdaGetOpt(argc, argv, \"D:d:l:?\", &dispatch, &err)) != EOF)\n" >>pmda_c
+    printf "        err++;\n" >>pmda_c
+    printf "\n" >>pmda_c
+    printf "    if (err)\n" >>pmda_c
+    printf "        usage();\n" >>pmda_c
+    printf "\n" >>pmda_c
+    printf "    pmdaOpenLog(&dispatch);\n" >>pmda_c
+    printf "    '$iam'_init(&dispatch);\n" >>pmda_c
+    printf "    pmdaConnect(&dispatch);\n" >>pmda_c
+    printf "    pmdaMain(&dispatch);\n" >>pmda_c
+    printf "\n" >>pmda_c
+    printf "    exit(0);\n" >>pmda_c
+    printf "}\n" >>pmda_c
+
+    #
+    # Generate the refresh and fetch methods for each cluster
+    #
+    for (m in cluster) {
+    	c = cluster[m]
+    	seencluster[c] = 0;
+    }
+    for (m in cluster) {
+    	c = cluster[m]
+    	if (seencluster[c])
+	    continue;
+	seencluster[c] = 1
+
+	fetch_c = c".c.new"
+	printf " %s.c", c >>cfiles
+
+	printf "/*\n" >>fetch_c
+	printf " * Originally generated from \"%s\" using genpmda(1).\n","'$config'" >>fetch_c
+	printf " *\n" >>fetch_c
+	printf " * Refresh and fetch methods for the \"%s\" cluster.\n", c >>fetch_c
+	printf " */\n" >>fetch_c
+	printf "#include <stdio.h>\n" >>fetch_c
+	printf "#include <limits.h>\n" >>fetch_c
+	printf "#include <ctype.h>\n" >>fetch_c
+	printf "#include <sys/types.h>\n" >>fetch_c
+	printf "#include <sys/stat.h>\n" >>fetch_c
+	printf "#include <fcntl.h>\n" >>fetch_c
+	printf "#include \"pmapi.h\"\n" >>fetch_c
+	printf "#include \"impl.h\"\n" >>fetch_c
+	printf "#include \"pmda.h\"\n" >>fetch_c
+	printf "#include \"'$oflag'/domain.h\"\n" >>fetch_c
+	printf "#include \"'$oflag'/metrictab.h\"\n" >>fetch_c
+	printf "#include \"'$oflag'/clusters.h\"\n" >>fetch_c
+
+	printf "\nvoid\nrefresh_%s(void)\n", c >>fetch_c
+	printf "{\n" >>fetch_c
+
+	z = 0
+	if (nindoms > 0) {
+	    for (i in indoms) {
+		this = indoms[i];
+	    	if (indom_cluster[this] == c) {
+		    printf "\tpmInDom indom_%s = indomtab[%s].it_indom;\n", this, this >>fetch_c
+		    z++
+		}
+	    }
+	    if (z > 0)
+		printf "\tstatic int first = 1;\n" >>fetch_c
+	}
+	printf "\n" >>fetch_c
+	if (z > 0) {
+	    printf "\t/* initialize the instance domain cache(s) */\n" >>fetch_c
+	    printf "\tif (first) {\n" >>fetch_c
+	    for (i in indoms) {
+		this = indoms[i];
+	    	if (indom_cluster[this] == c) {
+		    printf "\t\tpmdaCacheOp(indom_%s, PMDA_CACHE_LOAD);\n", this >>fetch_c
+		}
+	    }
+	    printf "\t\tfirst = 0;\n" >>fetch_c
+	    printf "\t}\n" >>fetch_c
+	}
+
+	printf "\n" >>fetch_c
+	if (z > 0) {
+	    for (i in indoms) {
+		this = indoms[i];
+	    	if (indom_cluster[this] == c) {
+		    printf "\t/* inactivate all instances in the %s instance domain */\n", this >>fetch_c
+		    printf "\tpmdaCacheOp(indom_%s, PMDA_CACHE_INACTIVE);\n", this >>fetch_c
+		    printf "\n" >>fetch_c
+		    printf "\t/*\n" >>fetch_c
+		    printf "\t * Add code here to refresh the %s instance domain.\n", this >>fetch_c
+		    printf "\t * Basically, walk your data and activate each instance, e.g.\n" >>fetch_c
+		    printf "\t * inst = pmdaCacheStore(indom_%s, PMDA_CACHE_ADD, name, p);\n", this >>fetch_c
+		    printf "\t * where \"name\" is a char buffer naming each instance\n" >>fetch_c
+		    printf "\t * and \"p\" points to private anonymous data.\n" >>fetch_c
+		    printf "\t */\n" >>fetch_c
+		    printf "\t/* ADD CODE HERE */\n\n\n" >>fetch_c
+
+		    printf "\n" >>fetch_c
+		    printf "\t/*\n" >>fetch_c
+		    printf "\t * Flush the cache for the indom_%s indom. This is\n", this >>fetch_c
+		    printf "\t * only strictly needed if there are any _new_ instances.\n" >>fetch_c
+		    printf "\t */\n", this >>fetch_c
+		    printf "\tpmdaCacheOp(indom_%s, PMDA_CACHE_SAVE);\n", this >>fetch_c
+		}
+	    }
+	}
+	else {
+	    printf "\t/*\n" >>fetch_c
+	    printf "\t * Add code here to refresh your data for this cluster\n" >>fetch_c
+	    printf "\t * (no instance domains are defined for this cluster)\n" >>fetch_c
+	    printf "\t */\n\n" >>fetch_c
+	    printf "\t/* ADD CODE HERE */\n\n\n" >>fetch_c
+	}
+
+	printf "}\n" >>fetch_c
+
+	#
+	# Generate the skeletal fetch callback function for each cluster
+	# and the commented skeletal fetch code for each metric.
+	#
+	printf "extern int fetch_%s(pmdaMetric *, unsigned int, pmAtomValue *);\n", c >>clusters_h
+	printf "\nint\nfetch_%s(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)\n", c >>fetch_c
+	printf "{\n" >>fetch_c
+	printf "\t__pmID_int\t*idp = (__pmID_int *)&(mdesc->m_desc.pmid);\n" >>fetch_c
+	printf "\tvoid\t\t*p = NULL;\n" >>fetch_c
+	printf "\tint\t\tsts = 1; /* return value, success is the default */\n" >>fetch_c
+
+	printf "\n\tif (inst != PM_INDOM_NULL) {\n" >>fetch_c
+	printf "\t\tif (pmdaCacheLookup(mdesc->m_desc.indom, inst, NULL, (void **)&p) != PMDA_CACHE_ACTIVE || !p)\n" >>fetch_c
+	printf "\t\t\treturn PM_ERR_INST;\n" >>fetch_c
+	printf "\t}\n\n" >>fetch_c
+	printf "\t/*\n" >>fetch_c
+	printf "\t * p now points to the private data for this instance that was\n" >>fetch_c
+	printf "\t * previously stored in refresh_%s(), or will be NULL\n", c >>fetch_c
+	printf "\t * if this is a singular instance domain.\n" >>fetch_c
+	printf "\t */\n" >>fetch_c
+
+	printf "\n\tswitch(idp->item) {\n" >>fetch_c
+	for (metric in metriclist) {
+	    if (cluster[metric] != c)
+	    	continue
+	    printf "\tcase %s:\n", metric_macro[metric] >>fetch_c
+	    printf "\t\t/*\n" >>fetch_c
+	    printf "\t\t * Fetch code for metric \"" metric "\"\n" >>fetch_c
+	    printf "\t\t *    PMID     : " pmid[metric] "\n" >>fetch_c
+	    printf "\t\t *    Type     : " type[metric] "\n" >>fetch_c
+	    printf "\t\t *    Indom    : " indom[metric] "\n" >>fetch_c
+	    printf "\t\t *    Units    : " units[metric] "\n" >>fetch_c
+	    printf "\t\t *    Semantics: " semantics[metric] "\n" >>fetch_c
+	    printf "\t\t */\n" >>fetch_c
+	    if (code[metric])
+	    	printf "%s\n", code[metric] >>fetch_c
+	    else if (type[metric] == "PM_TYPE_32")
+		printf "\t\tatom->l = 0; /* ADD CODE HERE */\n" >>fetch_c
+	    else if (type[metric] == "PM_TYPE_U32")
+		printf "\t\tatom->ul = 0; /* ADD CODE HERE */\n" >>fetch_c
+	    else if (type[metric] == "PM_TYPE_64")
+		printf "\t\tatom->ll = 0; /* ADD CODE HERE */\n" >>fetch_c
+	    else if (type[metric] == "PM_TYPE_U64")
+		printf "\t\tatom->ull = 0; /* ADD CODE HERE */\n" >>fetch_c
+	    else if (type[metric] == "PM_TYPE_FLOAT")
+		printf "\t\tatom->f = 0; /* ADD CODE HERE */\n" >>fetch_c
+	    else if (type[metric] == "PM_TYPE_DOUBLE")
+		printf "\t\tatom->d = 0; /* ADD CODE HERE */\n" >>fetch_c
+	    else if (type[metric] == "PM_TYPE_STRING")
+		printf "\t\tatom->cp = \"string value\"; /* ADD CODE HERE */\n" >>fetch_c
+	    else if (type[metric] == "PM_TYPE_AGGREGATE")
+		printf "\t\tatom->vp = NULL; /* ADD CODE HERE */\n" >>fetch_c
+	    else if (type[metric] == "PM_TYPE_AGGREGATE_STATIC")
+		printf "\t\tatom->vp = NULL; /* ADD CODE HERE */\n" >>fetch_c
+	    else if (type[metric] == "PM_TYPE_EVENT")
+		printf "\t\tatom->vp = NULL; /* ADD CODE HERE */\n" >>fetch_c
+
+	    printf "\t\tbreak;\n\n" >>fetch_c
+	}
+	printf "\tdefault:\n" >>fetch_c
+	printf "\t\tsts = PM_ERR_PMID;\n" >>fetch_c
+	printf "\t\tbreak;\n" >>fetch_c
+	printf "\t}\n", c >>fetch_c
+	printf "\n", c >>fetch_c
+	printf "\t/*\n", c >>fetch_c
+	printf "\t * Return value:\n", c >>fetch_c
+	printf "\t *   < 0 error\n", c >>fetch_c
+	printf "\t *   = 0 no values available\n", c >>fetch_c
+	printf "\t *   > 0 success\n", c >>fetch_c
+	printf "\t */\n", c >>fetch_c
+	printf "\treturn sts;\n" >>fetch_c
+	printf "}\n" >>fetch_c
+    }
+
+    printf "#endif /* PCP_PMNS */\n" >>clusters_h
+    printf "\n#endif /* _CLUSTER_H */\n" >>clusters_h
+    printf "\n" >>cfiles
+
+}' $config
+$verbose && echo Wrote $oflag/clusters.h
+$verbose && echo Wrote $oflag/metrictab.h
+$verbose && echo Wrote $oflag/metrictab.c
+
+#
+# Generate remainder of pmns
+#
+awk '
+$1 == "##" {
+    if ($2 == "metric")
+	metric = $3
+    else if ($2 == "pmid")
+	printf "\t%s\t\t%s\n", metric, $3
+    next
+}
+{
+    print
+}' <$config >>$oflag/pmns
+$verbose && echo Wrote $oflag/pmns
+
+#
+# Generate dummy root pmns
+#
+cat <<EOFEOF >$oflag/root
+/*
+ * Generated code, do not edit!
+ */
+#define PCP_PMNS
+#include "domain.h"
+#include "clusters.h"
+
+root { $nflag }
+
+#include "pmns"
+EOFEOF
+$verbose && echo Wrote $oflag/root
+
+#
+# Generate help text
+#
+awk '
+/.*{$/ {
+    nonleaf = $1
+}
+$1 == "##" {
+    if ($2 == "metric")
+	metric = $3
+    else if ($2 == "briefhelptext") {
+	printf "@ %s.%s", nonleaf, metric
+	for (i=3; i <= NF; i++)
+	    printf " %s", $i
+	printf "\n"
+    }
+    else if ($2 == "helptext") {
+	for (i=3; i <= NF; i++)
+	    if (i == 3)
+		printf "%s", $i
+	    else
+		printf " %s", $i
+	printf "\n"
+    }
+}' <$config >$oflag/help
+$verbose && echo Wrote $oflag/help
+
+#
+# Generate generic install script
+#
+cat << EOFEOF >$install_g
+#! /bin/sh
+
+usage()
+{
+	echo "Usage: \$0 [-m mode] [-d dir] [-f srcfile -t destfile]"
+	echo "Required options: both -f and -t, or just -d"
+	exit 1
+}
+
+mdflag="755"
+mflag="644"
+
+while getopts "m:d:f:t:v" c
+do
+    case \$c
+    in
+
+	m)	mflag="\$OPTARG"
+		mdflag=\$mflag
+		;;
+
+	d)	dflag="\$OPTARG"
+		;;
+
+	f)	fflag="\$OPTARG"
+		;;
+
+	t)	tflag="\$OPTARG"
+		;;
+
+	\?)	usage
+		;;
+    esac
+done
+
+[ -z "\$fflag" -a -z "\$dflag" ] && usage
+[ -z "\$fflag" -a ! -z "\$tflag" ] && usage
+[ ! -z "\$fflag" -a -z "\$tflag" ] && usage
+[ ! -z "\$dflag" ] && mkdir \$dflag && chmod \$mdflag \$dflag
+[ ! -z "\$fflag" ] && cp \$fflag \$tflag && chmod \$mflag \$tflag
+
+exit 0
+EOFEOF
+chmod 755 $install_g
+
+#
+# Generate GNUmakefile
+#
+cat << EOFEOF >$gnumakefile
+TOPDIR = $tflag
+include \$(TOPDIR)/src/include/builddefs
+
+IAM	= $iam
+CMDTARGET= pmda\$(IAM)
+LIBTARGET= pmda_\$(IAM).so
+TARGETS	= \$(CMDTARGET) \$(LIBTARGET)
+
+CFILES	= `cat CFILES`
+HFILES  =
+
+GCFILES = $oflag/metrictab.c $oflag/pmda.c
+GHFILES = $oflag/domain.h $oflag/metrictab.h
+GSRCFILES = $oflag/help $oflag/root $oflag/pmns \
+          $oflag/Makefile.install $oflag/Install \
+	  $oflag/Remove $oflag/clusters.h
+
+OBJECTS	+= \$(GCFILES:.c=.o)
+LCFLAGS =
+LLDLIBS	= \$(PCP_PMDALIB)
+
+PMDADIR = \$(PCP_PMDAS_DIR)/\$(IAM)
+LDIRT	= generated *.o \$(TARGETS) *.log *.dir *.pag pcp
+
+default: pcp help.pag help.dir \$(TARGETS)
+
+include \$(BUILDRULES)
+
+install: default
+	\$(INSTALL) -m 755 -d \$(PCP_VAR_DIR)
+	\$(INSTALL) -m 755 -d \$(PCP_VAR_DIR)/pmdas
+	\$(INSTALL) -m 755 -d \$(PMDADIR)
+	\$(INSTALL) -m 755 \$(CMDTARGET) \$(PMDADIR)/\$(CMDTARGET)
+	\$(INSTALL) -m 755 \$(LIBTARGET) \$(PMDADIR)/\$(LIBTARGET)
+	\$(INSTALL) -m 755 $oflag/Install \$(PMDADIR)/Install
+	\$(INSTALL) -m 755 $oflag/Remove \$(PMDADIR)/Remove
+	\$(INSTALL) -m 644 $oflag/Makefile.install \$(PMDADIR)/Makefile
+	\$(INSTALL) -m 644 $oflag/pmns \$(PMDADIR)/pmns
+	\$(INSTALL) -m 644 $oflag/root \$(PMDADIR)/root
+	\$(INSTALL) -m 644 $oflag/domain.h \$(PMDADIR)/domain.h
+	\$(INSTALL) -m 644 $oflag/clusters.h \$(PMDADIR)/clusters.h
+	\$(INSTALL) -m 644 $oflag/help \$(PMDADIR)/help
+	\$(INSTALL) -m 644 help.pag \$(PMDADIR)/help.pag
+	\$(INSTALL) -m 644 help.dir \$(PMDADIR)/help.dir
+
+pcp:
+	ln -s \$(TOPDIR)/src/include pcp
+
+help.dir help.pag : $oflag/help
+	\$(NEWHELP) -n $oflag/root -v 2 -o help < $oflag/help
+
+\$(GCFILES) \$(GHFILES) \$(GSRCFILES) : $config
+	\$(GENPMDA) -v -i $IAM -c $config
+
+default_pro: default
+
+install_pro: install
+EOFEOF
+
+#
+# Generate GNUmakefile.generic
+#
+cat << EOFEOF >$gnumakefile_g
+IAM	= $iam
+CONFIG  = $config
+DOMAIN	= $domain
+
+include /etc/pcp.conf
+INSTALL ?= ./install-generic
+GENPMDA ?= /usr/bin/genpmda
+CMDTARGET= pmda\$(IAM)
+LIBTARGET= pmda_\$(IAM).so
+TARGETS	= \$(CMDTARGET) \$(LIBTARGET)
+
+CFILES	= `cat CFILES`
+
+GCFILES = $oflag/metrictab.c $oflag/pmda.c
+GHFILES = $oflag/domain.h $oflag/metrictab.h
+GSRCFILES = $oflag/help $oflag/root $oflag/pmns \
+            $oflag/Makefile.install $oflag/Install \
+	    $oflag/Remove $oflag/clusters.h
+
+OBJECTS	= \$(CFILES:.c=.o) \$(GCFILES:.c=.o)
+CFLAGS = -I/usr/include/pcp
+LLDLIBS	= -lpcp_pmda -lpcp
+
+PMDADIR = \$(PCP_PMDAS_DIR)/\$(IAM)
+LDIRT	= generated *.o \$(TARGETS) *.log *.dir *.pag *.o
+
+default: help.pag help.dir \$(TARGETS)
+
+install: default
+	\$(INSTALL) -m 755 -d \$(PCP_VAR_DIR)
+	\$(INSTALL) -m 755 -d \$(PCP_VAR_DIR)/pmdas
+	\$(INSTALL) -m 755 -d \$(PMDADIR)
+	\$(INSTALL) -m 755 -f \$(CMDTARGET) \$(PMDADIR)/\$(CMDTARGET)
+	\$(INSTALL) -m 755 -f \$(LIBTARGET) \$(PMDADIR)/\$(LIBTARGET)
+	\$(INSTALL) -m 755 -f $oflag/Install \$(PMDADIR)/Install
+	\$(INSTALL) -m 755 -f $oflag/Remove \$(PMDADIR)/Remove
+	\$(INSTALL) -m 644 -f $oflag/Makefile.install \$(PMDADIR)/Makefile
+	\$(INSTALL) -m 644 -f $oflag/pmns \$(PMDADIR)/pmns
+	\$(INSTALL) -m 644 -f $oflag/root \$(PMDADIR)/root
+	\$(INSTALL) -m 644 -f $oflag/domain.h \$(PMDADIR)/domain.h
+	\$(INSTALL) -m 644 -f $oflag/clusters.h \$(PMDADIR)/clusters.h
+	\$(INSTALL) -m 644 -f $oflag/help \$(PMDADIR)/help
+	\$(INSTALL) -m 644 -f help.pag \$(PMDADIR)/help.pag
+	\$(INSTALL) -m 644 -f help.dir \$(PMDADIR)/help.dir
+
+help.dir help.pag : $oflag/help
+	\$(PCP_BINADM_DIR)/newhelp -n $oflag/root -v 2 -o help < $oflag/help
+
+\$(GCFILES) \$(GHFILES) \$(GSRCFILES) : \$(CONFIG)
+	\$(GENPMDA) -s \$(PCP_VAR_DIR)/pmns/stdpmid -D \$(DOMAIN) -d -v -i \$(IAM) -c \$(CONFIG)
+
+\$(CMDTARGET): \$(OBJECTS)
+	cc -o \$(CMDTARGET) \$(OBJECTS) \$(LLDLIBS)
+
+\$(LIBTARGET): \$(OBJECTS)
+	cc  -shared -Wl,-soname,\$(LIBTARGET) -o \$(LIBTARGET) \$(OBJECTS) \$(LLDLIBS) -ldl
+
+clean clobber:
+	rm -rf \$(LDIRT)
+EOFEOF
+
+
+#
+# What needs to be merged?
+#
+for f in *.new
+do
+    b=`basename $f .new`
+    if [ -f "$b" ]
+    then
+        if diff "$b" "$f" >/dev/null 2>&1
+	then
+	    rm -f $f
+	    $verbose && echo "Unchanged $b"
+	else
+	    echo "MERGE required, gdiff $b $f"
+	fi
+    else
+	mv $f $b
+	$verbose && echo "Wrote $b"
+    fi
+done
+
+rm -f CFILES
+exit 0

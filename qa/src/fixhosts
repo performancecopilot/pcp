@@ -1,0 +1,47 @@
+#!/bin/sh
+#
+# For QA ... 
+#
+
+if grep '155.0.17.0	pcpqa-4-00.sgi.com' /etc/hosts >/dev/null
+then
+    # already done
+    exit 0
+fi
+
+tmp=/var/tmp/$$
+trap "rm -f $tmp; exit 0" 0 1 2 3 15
+
+awk </dev/null >$tmp '
+BEGIN	{
+		print ""
+		print "# bogus entries for PCP QA, added by qa/src/fixhosts"
+		print "#"
+		print "# ipv4"
+		# see chkacc1.c or chkacc2.c for why this makes sense
+		for (host = 0; host < 32; host++)
+		    printf "155.%d.%d.%d	pcpqa-4-%02d.sgi.com\n", host*3, 17+host, host, host
+		#print "# ipv6"
+		#for (host = 0; host < 32; host++)
+		    #printf "fec0::%x:%x:%x:%x:%x:%x	pcpqa-6-%02d.sgi.com\n", host*3, 17+host, host, host*3, 17+host, host, host
+		# this lot from chkacc3.c
+		a[0] = 0; a[1] = 37; a[2] = 235; a[3] = 126
+		b[0] = 0; b[1] = 201; b[2] = 77; b[3] = 127
+		c[0] = 0; c[1] = 15; c[2] = 191; c[3] = 64
+		d[0] = 0; d[1] = 1; d[2] = 127; d[3] = 254
+		host = 0
+		for (i = 0; i < 4; i++) {
+		    for (j = 0; j < 4; j++) {
+			for (k = 0; k < 4; k++) {
+			    for (l = 0; l < 4; l++) {
+				printf "%d.%d.%d.%d	pcpqa-%03d.sgi.com\n", a[i], b[j], c[k], d[l], host
+				host++
+			    }
+			}
+		    }
+		}
+	}'
+
+sudo sh -c "cat $tmp >>/etc/hosts"
+
+

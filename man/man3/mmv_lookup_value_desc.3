@@ -1,0 +1,69 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2009 Max Matveev
+.\" Copyright (c) 2009 Aconex.  All Rights Reserved.
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.\"
+.TH MMV_LOOKUP_VALUE_DESC 3 "" "Performance Co-Pilot"
+.SH NAME
+\f3mmv_lookup_value_desc\f1 - find a value in the Memory Mapped Value file
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.br
+#include <pcp/mmv_stats.h>
+.sp
+.ad l
+.hy 0
+.in +8n
+.ti -8n
+pmAtomValue *mmv_lookup_value_desc(void *\fIaddr\fP, const char *\fImetric\fP, const\ char\ *\fIinst\fP);
+.sp
+.in
+.hy
+.ad
+cc ... \-lpcp_mmv \-lpcp
+.ft 1
+.SH DESCRIPTION
+.P
+\f3mmv_lookup_value_desc\f1 searches for the value of the instance 
+identified by the external instance name \f2inst\f1 of the metric
+\f2metric\f1 in the \f3MMV\f1(5) file.
+\f2addr\f1 is the address returned from \f3mmv_stats_init\f1().
+.P
+The pointer returned points to a pmAtomValue union, which is
+defined as follows:
+.P
+.nf
+    typedef union {
+        __int32_t   l;      /* 32-bit signed */
+        __uint32_t  ul;     /* 32-bit unsigned */
+        __int64_t   ll;     /* 64-bit signed */
+        __uint64_t  ull;    /* 64-bit unsigned */
+        float       f;      /* 32-bit floating point */
+        double      d;      /* 64-bit floating point */
+        char         *cp;   /* char ptr */
+	pmValueBlock *vbp;  /* pmValueBlock ptr */
+    } pmAtomValue;
+.fi
+.P
+MMV string values should be set using either of the
+\f3mmv_set_string\f1 or \f3mmv_set_strlen\f1 routines.
+.SH RETURNS
+The function returns the address inside of the memory mapped region
+on success or NULL on failure.
+.SH SEE ALSO
+.BR mmv_stats_init (3),
+.BR mmv_inc_value (3)
+and
+.BR mmv (5).

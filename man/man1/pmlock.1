@@ -1,0 +1,41 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMLOCK 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmlock\f1 \- simple file-based mutex
+.\" literals use .B or \f3
+.\" arguments use .I or \f2
+.SH SYNOPSIS
+.B $PCP_BINADM_DIR/pmlock
+[
+.B \-v
+]
+.I file
+.SH DESCRIPTION
+.B pmlock
+attempts to acquire an exclusive lock by creating
+.I file
+with a mode of 0.
+.PP
+The exit status is 0 for success, 1 for failure.
+.PP
+To release the lock, unlink
+.IR file .
+.PP
+In the event of a failure, the
+.B \-v
+option produces an explanatory message on
+.IR stdout .

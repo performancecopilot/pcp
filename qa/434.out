@@ -1,0 +1,127 @@
+QA output created by 434
+pmval: Cannot connect to PMCD on host "no.such.host.pcp.io": No route to host
+no.such.host.pcp.io - exit status 1
+pmval: Cannot open archive "no.such.archive": No such file or directory
+no.such.archive - exit status 1
+pmval: pmLookupName(no.such.metric): Unknown metric name
+no.such.metric - exit status 1
+pmval: instance no.such.instance not available
+no.such.instance - exit status 1
+pmval: error - no metricname specified
+Usage: pmval [options] metricname
+
+General options:
+  -A TIME, --align=TIME align sample times on natural boundaries
+  -a FILE, --archive=FILE
+                        metrics source is a PCP log archive
+  -g, --guimode         start in GUI mode with new time control
+  -h HOST, --host=HOST  metrics source is PMCD on host
+  -n FILE, --namespace=FILE
+                        use an alternative PMNS
+  -O TIME, --origin=TIME
+                        initial sample time within the time window
+  -p N, --guiport=N     port for connection to existing time control
+  -S TIME, --start=TIME start of the time window
+  -s N, --samples=N     terminate after this many samples
+  -T TIME, --finish=TIME
+                        end of the time window
+  -t DELTA, --interval=DELTA
+                        sampling interval
+  -Z TZ, --timezone=TZ  set reporting timezone
+  -z, --hostzone        set reporting timezone to local time of metrics source
+  -V, --version         display version number and exit
+  -?, --help            show this usage message and exit
+  -K SPEC, --spec-local=SPEC
+                        optional additional PMDA spec for local connection
+  -L, --local-PMDA      metrics source is local connection to a PMDA
+  --container=NAME      specify an individual container to be queried
+  --derived=FILE        load derived metric definitions from FILE(s)
+
+Reporting options:
+  -d, --delay           delay, pause between updates for archive replay
+  -f N, --precision=N   fixed output format with N digits precision
+  -i INST, --instances=INST
+                        comma-separated metrics instance list
+  -r, --raw             output raw counter values (no rate conversion)
+  -U FILE, --nointerp=FILE
+                        non-interpolated fetching; ignores interval
+  -v, --verbose         increase diagnostic output
+  -w N, --width=N       set the width of each column of output
+  -x VALUE, --filter=VALUE
+                        store to the metric before fetching (filter)
+usage - exit status 1
+
+metric:    sample.seconds
+HOST
+semantics: cumulative counter (converting to rate)
+units:     sec (converting to time utilization)
+samples:   0
+counter -s 0 - exit status 0
+
+metric:    sample.seconds
+HOST
+semantics: cumulative counter (converting to rate)
+units:     sec (converting to time utilization)
+samples:   1
+NUMBER
+counter -s 1 - exit status 0
+
+metric:    sample.seconds
+HOST
+semantics: cumulative counter (converting to rate)
+units:     sec (converting to time utilization)
+samples:   2
+interval:  0.10 sec
+NUMBER
+NUMBER
+counter -s 2 - exit status 0
+
+metric:    sample.seconds
+HOST
+semantics: cumulative counter
+units:     sec
+samples:   0
+counter -r -s 0 - exit status 0
+
+metric:    sample.seconds
+HOST
+semantics: cumulative counter
+units:     sec
+samples:   1
+NUMBER
+counter -r -s 1 - exit status 0
+
+metric:    sample.seconds
+HOST
+semantics: cumulative counter
+units:     sec
+samples:   2
+interval:  0.10 sec
+NUMBER
+NUMBER
+counter -r -s 2 - exit status 0
+
+metric:    sample.long.ten
+HOST
+semantics: instantaneous value
+units:     none
+samples:   0
+instantaneuos -s 0 - exit status 0
+
+metric:    sample.long.ten
+HOST
+semantics: instantaneous value
+units:     none
+samples:   1
+NUMBER
+instantaneuos -s 1 - exit status 0
+
+metric:    sample.long.ten
+HOST
+semantics: instantaneous value
+units:     none
+samples:   2
+interval:  0.10 sec
+NUMBER
+NUMBER
+instantaneuos -s 2 - exit status 0

@@ -1,0 +1,12 @@
+QA output created by 711
+==> Checking sadist/891688-dash-time.xml
+sar2pcp thinks sadist/891688-dash-time.xml is going well so far
+Note: timezone set to local timezone of host "very.elastic.org" from archive
+
+Log Label (Log Format Version 2)
+Performance metrics from host very.elastic.org
+  commencing Mon Dec 31 05:10:01.000 2012
+  ending     Mon Dec 31 05:10:01.000 2012
+kernel.all.pswitch		1272.700	0.000	1272.700	1272.700	1	count / sec
+hinv.ncpu		1.000	0.000	1.000	1.000	1	none
+pminfo reports no issues in sadist/891688-dash-time.xml

@@ -1,0 +1,668 @@
+.\" Copyright (c) 2016, Red Hat.  All Rights Reserved.
+.\" Copyright (c) 2006, Ken McDonell.  All Rights Reserved.
+.\" Copyright (c) 2008, Aconex.  All Rights Reserved.
+.\" Copyright (c) 2014-2016, Red Hat.
+.TH PMCHART 1 "" "Performance Co-Pilot"
+.SH NAME
+\f3pmchart\f1 \- strip chart tool for Performance Co-Pilot
+.SH SYNOPSIS
+\f3pmchart\f1
+[\f3\-CVWz\f1]
+[\f3\-A\f1 \f2align\f1]
+[\f3\-a\f1 \f2archive\f1]
+[\f3\-c\f1 \f2configfile\f1]
+[\f3\-f\f1 \f2fontfamily\f1]
+[\f3\-F\f1 \f2fontsize\f1]
+[\f3\-g\f1 \f2geometry\f1]
+[\f3\-h\f1 \f2host\f1]
+[\f3\-o\f1 \f2outfile\f1]
+[\f3\-O\f1 \f2offset\f1]
+[\f3\-p\f1 \f2port\f1]
+[\f3\-s\f1 \f2samples\f1]
+[\f3\-S\f1 \f2starttime\f1]
+[\f3\-T\f1 \f2endtime\f1]
+[\f3\-t\f1 \f2interval\f1]
+[\f3\-v\f1 \f2visible\f1]
+[\f3\-Z\f1 \f2timezone\f1]
+[\f3\-geometry\f1 \f2geometry\f1]
+[\f2sources\f1...]
+.SH DESCRIPTION
+.B pmchart
+is a graphical utility that plots performance metrics values
+available through the facilities of the Performance Co-Pilot (PCP).
+Multiple charts can be displayed simultaneously, either aligned
+on the unified time axis (X-axis), and through the use of multiple
+interface Tabs.
+.PP
+Metric values can be sourced from one or more live hosts
+(simultaneously).  Alternatively, one or more sets of PCP archives
+can be used as a source of historical data.
+See
+.BR PCPIntro (1)
+for an in-depth discussion of the capabilities of the PCP
+framework, many of which are used by
+.B pmchart.
+.PP
+Many aspects of the behaviour of
+.B pmchart
+can be customised through the interface.
+In particular, the use of "views" (refer to the section describing
+VIEWS later in this document)
+allows predefined sets of metrics and charting parameters
+like colors, scaling, titles, legends, and so on to be stored for
+later use, or use with different hosts and sets of archives.
+In addition, the Preferences dialog allows customisations to the
+rest of the
+.B pmchart
+user interface to be saved and restored between different invocations
+of the tool.
+This allows the default background color, highlight color, contents
+and location of the toolbar, and many other aspects to be configured.
+.PP
+.B pmchart
+makes extensive use of the
+.BR pmtime (1)
+utility for time control, refer to the
+.B pmtime
+manual page for further details of its operation.
+.PP
+Options which control the default source, timing and layout of the
+.B pmchart
+window are as follows:
+.TP 5
+.B \-a
+Performance metric values are retrieved from the set of Performance Co-Pilot
+(PCP) archive logs identified by this option, by default. The argument is
+a comma-separated list of names, each of which may be the base name of an
+archive or the name of a directory containing one or more archives. The
+resulting set of archives will be the source of the performance metrics.
+The initial Tab created will be an archive mode Tab.
+Multiple
+.B \-a
+options can be presented, and the resulting list of sets of archives is used
+for sourcing metric values.
+Any \f2sources\f1 listed on the command line are assumed to be sets of archives
+if this option is used.
+.TP
+.B \-c
+.I configfile
+specifies an initial view to load, using the default source of metrics.
+Multiple
+.B \-c
+views can be specified, and they will all be opened in the
+default Tab with the default source of metrics.
+.TP
+.B \-C
+Used with 
+.BR \-c ,
+the view(s) are parsed, any errors are reported, and the tool exits.
+This is primarily intended for testing purposes.
+If a second
+.B \-C
+option is presented,
+.B pmchart 
+also connects to
+.BR pmcd (1)
+to check the semantics of metrics.
+.TP
+.B \-f
+Specify the default font
+.I family
+to be used in several chart components,
+such as the chart title, legend, and Y-axis label.
+The default value is "Sans Serif".
+This setting does not affect the rest of the user interface, where
+the value is inherited from the environment in which
+.B pmchart
+operates, and differs according to the look-and-feel of each
+platform.
+.TP
+.B \-F
+Specify the default font
+.I point
+size to be used in several chart components,
+such as the chart title, legend, and Y-axis label.
+The default is platform dependent, but is either 7, 8 or 9.
+This setting does not affect the rest of the user interface.
+.TP
+.B \-g
+Generate image with the specified
+.I geometry
+(width and height).
+This option is only useful when used in conjunction with the
+.B \-o
+option for generating an output image.
+The
+.I geometry
+argument takes the form "WxH" (e.g. 240x120).
+When NOT using the
+.B \-o
+flag, to specify the display window geometry, use
+.B \-geometry
+.I geometry
+where
+.I geometry
+specifies the desired window width, height and optional placement.
+.TP
+.B \-h
+Current performance metric values are retrieved from the nominated
+.I host
+machine by default.
+Multiple
+.B \-h
+options can be presented, and the list of hosts is used for sourcing
+metric values.
+Any \f2sources\f1 listed on the command line are assumed to be hosts
+if this option is used.
+.TP
+.B \-o
+Generate an image file named
+.IR outfile ,
+and then exit.
+This is most useful when run with a set of archives and one or more views.
+The generated image will be in the format specified as the file
+extension (automatically determined from
+.IR outfile ).
+If no extension can be determined, then the GIF format is used and
+the generated file is named with this extension.
+The supported image file formats include: bmp, jpeg, jpg, png, ppm,
+tif, tiff, xbm, and xpm.
+.TP
+.B \-p
+.I port
+number for connection to an existing
+.B pmtime
+time control process.
+.TP
+.B \-s
+Specifies the number of
+.I samples
+that will be retained before discarding old data (replaced by
+new values at the current time position).
+This value can subsequently be modified through the Edit Tab
+dialog.
+.TP
+.B \-t
+Sets the inital update
+.I interval
+to something other than the default 1 second.
+The
+.I interval
+argument follows the syntax described in
+.BR PCPIntro (1),
+and in the simplest form may be an unsigned integer (the implied
+units in this case are seconds).
+.TP
+.B \-v
+Sets the inital visible
+.I samples
+that will be displayed in all charts in the default Tab.
+This value must be less than or equal to the total number
+of samples retained (the
+.B \-s
+value).
+.TP
+.B \-V
+Display pmchart version number and exit
+.TP
+.B \-W
+Export images using an opaque(white) background
+.TP
+.B \-Z
+By default,
+.B pmtime
+reports the time of day according to the local timezone on the system
+where
+.B pmchart is run.
+The
+.B \-Z
+option changes the timezone to
+.I timezone
+in the format of the environment variable TZ as described in
+.BR environ (7).
+.TP
+.B \-z
+Change the reporting timezone to the local timezone at the host
+that is the source of the performance metrics, as identified via
+either the
+.B \-h
+or
+.B \-a
+options.
+.PP
+The
+.BR \-S ,
+.BR \-T ,
+.B \-O
+and
+.B \-A
+options may be used to define a time window to
+restrict the samples retrieved, set an initial origin within the time
+window, or specify a "natural" alignment of the sample  times;  refer
+to
+.BR PCPIntro (1)
+for a complete description of these options.
+.SH VIEWS
+The primary
+.B pmchart
+configuration file is the "view", which allows the metadata
+associated with one or more charts to be saved in the filesystem.
+This metadata describes all aspects of the charts, including
+which PCP metrics and instances are to be used, which hosts, which
+colors, the chart titles, use of chart legends, and much more.
+.PP
+From a conceptual point of view, there are two classes of view.
+These views share the same configuration file format \- refer
+to a later section for a complete description of this format.
+The differences lie in where they are installed and how they
+are manipulated.
+.PP
+The first class, the "system" view, is simply any view that is
+installed as part of the
+.B pmchart
+package.
+These are stored in
+.I $PCP_VAR_DIR/config/pmchart.
+When the
+.I "File\(->Open View"
+dialog is displayed, it is these views that are initially listed.
+The system views cannot be modified by a normal user, and should
+not be modified even by a user with suitable privileges, as they
+will be overwritten during an upgrade.
+.PP
+The second class of view is the "user" view.
+These views are created on-the-fly using the
+.I "File\(->Save View"
+dialog.
+This is a mechanism for individual users to save their commonly
+used views.
+Access to these views is achieved through the
+.I "File\(->Open View"
+dialog, as with the system views.
+Once the dialog is opened, the list of views can be toggled between
+user and system views by clicking on the two toggle buttons in the
+top right corner.
+User views are stored in
+.I $HOME/.pcp/pmchart.
+.SH TABS
+.B pmchart
+provides the common user interface concept of the Tab, which
+is most prevalent in modern web browsers.
+Tabs allow
+.B pmchart
+to update many more charts than the available screen real estate
+allows, by providing a user interface mechanism to stack (and
+switch between) different vertical sets of charts.
+Switching between Tabs is achieved by clicking on the Tab labels,
+which are located along the top of the display beneath the Menu
+and Tool bars).
+.PP
+Each Tab has a mode of operation (either live or archive \-
+.B pmchart
+can support both modes simultaneously), the total number of
+samples and currently visible points, and a label describing
+the Tab which is displayed at the top of the
+.B pmchart
+window.
+New Tabs can be created using the
+.I "File\(->Add Tab"
+dialog.
+.PP
+In order to save on vertical screen real estate, note that the user
+interface element for changing between different Tabs (and its label)
+are only displayed when more than one Tab exists.
+A Tab can be dismissed using the
+.I "File\(->Close Tab"
+menu, which removes the current Tab and any charts it contained.
+.SH IMAGES and PRINTING
+A static copy of the currently displayed vertical series of charts
+can be captured in two ways.
+.PP
+When the intended display device is the screen, the
+.I "File\(->Export"
+menu option should be used.
+This allows exporting the charts in a variety of image formats,
+including PNG, JPEG, GIF, and BMP.
+The image size can be scaled up or down in any dimension.
+.PP
+Alternatively, when the intended display device is paper, the
+.I "File\(->Print"
+menu option can be used.
+This supports the usual set of printing options (choice of printer,
+grayscale/color, landscape/portrait, scaling to different paper sizes,
+etc),
+and in addition allows printing to the intermediate printer formats
+of PostScript and Portable Document Format (PDF).
+.SH RECORDING
+It is possible to make a recording of a set of displayed charts,
+for later playback through
+.B pmchart
+or any of the other Performance Co-Pilot tools.
+The
+.I "Record\(->Start"
+functionality is simple to configure through the user interface,
+and allows fine-tuning of the recording process (including record
+frequencies that differ to the
+.B pmchart
+update interval, alternate file locations, etc).
+.PP
+.B pmchart
+produces recordings that are compatible with the PCP
+.BR pmafm (1)
+replay mechanism, for later playback via a new instance of
+.BR pmchart .
+In addition, when recording through
+.B pmchart
+one can also replay the recording immediately, as on termination
+of the recording (through the
+.I "Record\(->Stop"
+menu item), an archive mode Tab will be created with the captured view.
+.PP
+Once recording is active in a Live Tab, the Time Control status
+button in the bottom left corner of the
+.B pmchart
+window is displayed with a distinctive red dot.
+At any time during a
+.B pmchart
+recording session, the amount of space used in the filesystem by
+that recording can be displayed using the
+.I "Record\(->Query"
+menu item.
+.PP
+Finally, the
+.I "Record\(->Detach"
+menu option provides a mechanism whereby the recording process can
+be completely divorced from the running
+.B pmchart
+process, and allowed to continue on when
+.B pmchart
+exits.
+A dialog displaying the current size and estimated rate of growth for
+the recording is presented.
+On the other hand, if
+.B pmchart
+is terminated while recording is in process, then the recording process
+will prompt the user to choose immediate cessation of recording or for
+it to continue on independently.
+.PP
+All of the record mode services available from
+.B pmchart
+are implemented with the assistance of the base Performance Co-Pilot
+logging services \- refer to
+.BR pmlogger (1)
+and
+.BR pmafm (1)
+for an extensive description of the capabilities of these tools.
+.SH CONFIGURATION FILE SYNTAX
+.de ES
+.ft CW
+.nf
+.in +0.5i
+..
+.de EE
+.ft R
+.br
+.in
+.fi
+..
+.PP
+.B pmchart
+loads predefined chart configurations (or "views") from external
+files that conform to the following rules.  In the descriptions below
+keywords (shown in \f(CBbold\fP) may appear in upper, lower or
+mixed case, elements shown in \f(CW[stuff]\fP are optional, and
+user-supplied elements are shown as \f(CW<other stuff>\fP.
+A vertical bar (|) is used where syntactic elements are alternatives.
+Quotes (")
+may be used to enclose lexical elements that may contain white space,
+such as titles, labels and instance names.
+.IP 1. 0.3i
+The first line defines the configuration file type and should be
+.ES
+\f(CB#kmchart\fP
+.EE
+although
+.B pmchart
+provides backwards compatibility for the older
+.B pmchart
+view formats with an initial line of
+.ES
+\f(CB#pmchart\fP
+.EE
+.IP 2. 0.3i
+After the first line, lines beginning with "#" as the first
+non-white space character are treated as comments and skipped.
+Similarly blank lines are skipped.
+.IP 3. 0.3i
+The next line should be
+.ES
+\f(CBversion\fP <n> <host-clause>
+.EE
+where \f(CW<n>\fP depends on the configuration file type, and
+is \f(CB1\fP for \f(CBpmchart\fP else \f(CB1.1\fP, \f(CB1.2\fP or
+\f(CB2.0\fP for \f(CBpmchart\fP.
+.RS
+The \f(CW<host-clause>\fP part is optional (and ignored)
+for \fBpmchart\fP configuration
+files, but required for the \fBpmchart\fP configuration files, and
+is of the form
+.ES
+\f(CBhost\fP \f(CBliteral\fP
+.EE
+or
+.ES
+\f(CBhost\fP \f(CBdynamic\fP
+.EE
+.RE
+.IP 4. 0.3i
+A configuration contains one or more charts defined as follows:
+.ES
+\f(CBchart\fP [\f(CBtitle\fP <title>] \f(CBstyle\fP <style> <options>
+.EE
+If specified, the title will appear centred and above the graph area
+of the chart.
+The \f(CW<title>\fP is usually enclosed in quotes (") and if it
+contains the sequence "%h" this will be replaced by the short form
+of the hostname for the default source of metrics at the time
+this chart was loaded.  Alternatively, "%H" can be used to insert
+the full host name.  If the hostname appears to be an inet or IPv6
+address, no shortening will be attempted; it will be used as-is in
+both replacement cases.
+After the view is loaded, the title visibility and setting
+can be manipulated using the
+.I "Chart Title"
+text box in the
+.I "Edit\(->Chart"
+dialog.
+.RS
+.PP
+The \f(CW<style>\fP controls the initial plotting style of the chart, and
+should be one of the keywords \f(CBplot\fP (line graph), \f(CBbar\fP,
+\f(CBstacking\fP (stacked bar),
+\f(CBarea\fP or \f(CButilization\fP.
+After the view is loaded, the plotting style can be changed using the
+.I "Edit\(->Chart"
+Style dropdown list.
+.PP
+The \f(CW<options>\fP are zero or more of the optional elements:
+.ES
+[\f(CBscale\fP [from] <ymin> [to] <ymax>] [\f(CBlegend\fP <onoff>]
+.EE
+If \f(CBscale\fP is specified, the vertical scaling is set for all plots
+in the chart to a y-range defined by \f(CW<ymin>\fP and \f(CW<ymax>\fP.
+Otherwise the
+vertical axis will be autoscaled based on the values currently being
+plotted.
+.PP
+\f(CW<onoff>\fP is one of the keywords \f(CBon\fP or \f(CBoff\fP and the
+\f(CBlegend\fP clause controls the presence or absence of the plot
+legend below the graph area.  The default is for the legend to be shown.
+After the view is loaded, the legend visibility
+can be toggled using the
+.I "Show Legend"
+button in the
+.I "Edit\(->Chart"
+dialog.
+.RE
+.IP 5. 0.3i
+.B pmchart
+supports a \f(CBglobal\fP clause to specify the dimensions of the
+top-level window (using the \f(CBwidth\fP and \f(CBheight\fP keywords),
+the number of visible points (\f(CBpoints\fP keyword) and the starting
+X and Y axis positions on the screen (\f(CBxpos\fP and \f(CBypos\fP
+keywords).
+Each of these \f(CBglobal\fP attributes takes an integer value as the
+sole qualifier.
+.IP 6. 0.3i
+Each \f(CBchart\fP has one or more plots associated with it, as
+defined by one of the following specifications:
+.ES
+\f(CBplot\fP
+    [\f(CBlegend\fP <title>] [\f(CBcolor\fP <colorspec>] [\f(CBhost\fP <hostspec>]
+    \f(CBmetric\fP <metricname>
+    [ \f(CBinstance\fP <inst> | \f(CBmatching\fP <pat> | \f(CBnot-matching\fP <pat> ]
+.EE
+.RS
+.PP
+The keyword \f(CBplot\fP may be replaced with the keyword
+\f(CBoptional-plot\fP, in which case if the source of performance data
+does not include the specified performance metric and/or instance,
+then this plot is silently dropped from the chart.
+.PP
+If specified, the title will appear in the chart legend.
+The \f(CW<title>\fP is usually enclosed in quotes (") and it may
+contain one or more wildcard characters which will be expanded
+using metric name, instance name, and host name for the plot.
+The wildcards are "%i" (short unique instance name, up to the first
+whitespace), "%I" (full instance name), "%h" (short host name, up
+to the first dot), %H (full host name), "%m" (metric name shortened
+to the final two PMNS components), and "%M" (full metric name).
+.PP
+For older
+.B pmchart
+configuration files, the keyword \f(CBtitle\fP must be used instead of
+\f(CBlegend\fP.
+Nowadays
+.B pmchart
+supports either keyword.
+.PP
+The \f(CBcolor\fP clause is optional for newer
+.B pmchart
+configuration files, but it was mandatory in the original
+.B pmchart
+configuration file format.
+\f(CW<colorspec>\fP may be one of the following:
+.ES
+\f(CB#\-cycle\fP
+\f(CBrgbi:\fPrr\f(CB:\fPgg\f(CB:\fPbb
+\f(CB#\fPrgb
+\f(CB#\fPrrggbb
+\f(CB#\fPrrrgggbbb
+\f(CB#\fPrrrrggggbbbb
+<Xcolor>
+.EE
+where each of \f(CWr\fP, \f(CWg\fP and \f(CWb\fP are hexadecimal
+digits (0-9 and A-F) representing respectively the red, green and
+blue color components.
+\f(CW<Xcolor>\fP is one of the color names from the X color database,
+e.g. \f(CBred\fP or \f(CBsteelblue\fP, see also the output from
+.BR showrgb (1).
+.PP
+The "color" \f(CB#\-cycle\fP specifies that
+.B pmchart
+should use the next in a pallet of colors that it uses cyclically
+for each chart.  This is the default if the \f(CBcolor\fP clause
+is omitted.
+.PP
+The \f(CW<hostspec>\fP in the \f(CBhost\fP clause may be a hostname,
+an IP address or an asterisk (*); the latter is used to mean the
+default source of performance metrics.
+For older
+.B pmchart
+configuration files, the \f(CBhost\fP clause must be present, for new
+.B pmchart
+configuration files it is optional, and if missing the default source
+of performance metrics will be used.
+.PP
+The optional instance specification,
+.IP (a) 0.3i
+is omitted in which case one plot will be created for every instance of
+the \f(CW<metricname>\fP metric
+.IP (b) 0.3i
+starts with \f(CBinstance\fP, in which case only the instance
+named \f(CW<inst>\fP will be plotted
+.IP (c) 0.3i
+starts with \f(CBmatching\fP, in which case all instances whose
+names match the pattern \f(CW<pat>\fP will be plotted; the pattern
+uses extended regular expression notation in the style of
+.BR egrep (1)
+(refer to the PMCD view for an example)
+.IP (d) 0.3i
+starts with \f(CBnot-matching\fP, in which case all instances whose
+names
+.B do " " not
+match the pattern \f(CW<pat>\fP will be plotted; the pattern
+uses extended regular expression notation in the style of
+.BR egrep (1)
+(refer to the Netbytes view for an example)
+.PP
+.B pmchart
+uses a bizarre syntactic notation where \f(CW<inst>\fP and
+\f(CW<pat>\fP extend from the first non-white space character to the
+end of the input line.  For
+.B pmchart
+configuration files these elements are either delimited by white
+space, or enclosed in quotes (").
+.RE
+.IP 7. 0.3i
+The optional \f(CBtab\fP directive can be used to create views with
+multiple charts which span multiple Tabs.  The syntax is as follows:
+.ES
+\f(CBtab\fP <label> [\f(CBhost\fP <host>] [\f(CBpoints\fP <points> [\f(CBsamples\fP <samples>]]
+.EE
+.RS
+.ES
+.PP
+All chart specifications following this keyword will be created
+on the new Tab, until the end of the configuration file or until
+another \f(CBtab\fP keyword is encountered.
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.I /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (5).
+.PP
+Of particular note, the
+.B $PCP_XCONFIRM_PROG
+setting is explicitly and unconditionally overridden by
+.B pmchart.
+This is set to the
+.BR pmconfirm (1),
+utility, in order that some popup dialogs (particularly in the
+area of Recording) maintain a consistent look-and-feel with the
+rest of the
+.B pmchart
+application.
+.SH SEE ALSO
+.BR pmtime (1),
+.BR pmconfirm (1),
+.BR pmdumptext (1),
+.BR PCPIntro (1),
+.BR pmafm (1),
+.BR pmrep (1),
+.BR pmval (1),
+.BR pmcd (1),
+.BR pminfo (1),
+.BR pcp.conf (5),
+.BR pcp.env (5)
+and
+.BR pmns (5).

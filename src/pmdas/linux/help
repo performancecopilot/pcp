@@ -1,0 +1,1568 @@
+#
+# Copyright (c) 2000,2004-2008 Silicon Graphics, Inc.  All Rights Reserved.
+# Portions Copyright (c) International Business Machines Corp., 2002
+# Portions Copyright (c) 2007-2009 Aconex.  All Rights Reserved.
+# Portions Copyright (c) 2013-2016 Red Hat.
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+# Linux PMDA help file in the ASCII format
+#
+# lines beginning with a # are ignored
+# lines beginning @ introduce a new entry of the form
+#  @ metric_name oneline-text
+#  help text goes
+#  here over multiple lines
+#  ...
+#
+# the metric_name is decoded against the default PMNS -- as a special case,
+# a name of the form NNN.MM (for numeric NNN and MM) is interpreted as an
+# instance domain identification, and the text describes the instance domain
+#
+# blank lines before the @ line are ignored
+#
+
+@ 60.0 set of all processors
+@ 60.1 set of all disks
+@ 60.2 load averages for 1, 5, and 15 minutes
+@ 60.3 set of network interfaces
+@ 60.5 mounted block-device-backed filesystem
+@ 60.6 swap devices
+@ 60.7 network filesystem (NFS) v2 operations
+@ 60.8 network filesystem (NFS) v3 operations
+@ 60.10 set of all disk partitions
+@ 60.11 SCSI devices
+@ 60.12 kernel memory slabs
+@ 60.14 network filesystem (NFS) v4 client operations
+@ 60.15 network filesystem (NFS) v4 server operations
+@ 60.17 network interface addresses (inet and ipv6)
+@ 60.18 temporary filesystem (tempfs) mounts
+@ 60.19 non-uniform memory access (NUMA) nodes
+@ 60.23 internet control message protocol (ICMP) message types
+@ 60.24 device mapper driver devices
+@ 60.25 multi-device driver devices
+@ 60.26 persistent per-processor interrupt IDs
+@ 60.27 persistent per-processor softirq IDs
+@ 60.28 IPC shm_stat shared memory IDs
+@ 60.29 IPC msg_stat message queue IDs
+@ 60.30 IPC sem_stat semaphore IDs
+@ 60.31 buddyinfo memory fragmentation sets, per-NUMA-node
+@ 60.32 zoneinfo memory types, per-NUMA-node
+
+@ kernel.uname.release release level of the running kernel
+Release level of the running kernel as reported via the release[]
+value returned from uname(2) or uname -r.
+
+See also pmda.uname.
+
+@ kernel.uname.version version level (build number) and build date of the running kernel
+Version level of the running kernel as reported by the version[]
+value returned from uname(2) or uname -v.  Usually a build number
+followed by a build date.
+
+See also pmda.uname.
+
+@ kernel.uname.sysname name of the implementation of the operating system
+Name of the implementation of the running operating system as reported
+by the sysname[] value returned from uname(2) or uname -s.  Usually
+"Linux".
+
+See also pmda.uname.
+
+@ kernel.uname.machine name of the hardware type the system is running on
+Name of the hardware type the system is running on as reported by the machine[]
+value returned from uname(2) or uname -m, e.g. "i686".
+
+See also pmda.uname.
+
+@ kernel.uname.nodename host name of this node on the network
+Name of this node on the network as reported by the nodename[]
+value returned from uname(2) or uname -n.  Usually a synonym for
+the host name.
+
+See also pmda.uname.
+
+@ kernel.uname.distro Linux distribution name
+The Linux distribution name, as determined by a number of heuristics.
+For example:
++ on Fedora, the contents of /etc/fedora-release
++ on RedHat, the contents of /etc/redhat-release
+
+@ kernel.percpu.cpu.user percpu user CPU time metric from /proc/stat, including guest CPU time
+@ kernel.percpu.cpu.vuser percpu user CPU time metric from /proc/stat, excluding guest CPU time
+@ kernel.percpu.cpu.nice percpu nice user CPU time metric from /proc/stat, including guest CPU time
+@ kernel.percpu.cpu.vnice percpu nice user CPU time metric from /proc/stat, excluding guest CPU time
+@ kernel.percpu.cpu.sys percpu sys CPU time metric from /proc/stat
+@ kernel.percpu.cpu.idle percpu idle CPU time metric from /proc/stat
+@ kernel.percpu.cpu.wait.total percpu wait CPU time
+Per-CPU I/O wait CPU time - time spent with outstanding I/O requests.
+
+@ kernel.percpu.cpu.intr percpu interrupt CPU time 
+Total time spent processing interrupts on each CPU (this includes
+both soft and hard interrupt processing time).
+
+@ kernel.percpu.cpu.irq.soft percpu soft interrupt CPU time 
+Per-CPU soft interrupt CPU time (deferred interrupt handling code,
+not run in the initial interrupt handler).
+
+@ kernel.percpu.cpu.irq.hard percpu hard interrupt CPU time 
+Per-CPU hard interrupt CPU time ("hard" interrupt handling code
+is the code run directly on receipt of the initial hardware
+interrupt, and does not include "soft" interrupt handling code
+which is deferred until later).
+
+@ kernel.percpu.cpu.steal percpu CPU steal time 
+Per-CPU time when the CPU had a runnable process, but the hypervisor
+(virtualisation layer) chose to run something else instead.
+
+@ kernel.percpu.cpu.guest percpu guest CPU time
+Per-CPU time spent running (virtual) guest operating systems.
+
+@ kernel.percpu.cpu.guest_nice percpu nice guest CPU time
+Per-CPU nice time spent running (virtual) guest operating systems.
+
+@ kernel.all.interrupts.errors interrupt error count from /proc/interrupts
+This is a global counter (normally converted to a count/second)
+for any and all errors that occur while handling interrupts.
+
+@ disk.dev.read per-disk read operations
+Cumulative number of disk read operations since system boot time (subject
+to counter wrap).
+
+@ disk.dev.write per-disk write operations
+Cumulative number of disk write operations since system boot time (subject
+to counter wrap).
+
+@ disk.dev.total per-disk total (read+write) operations
+Cumulative number of disk read and write operations since system boot
+time (subject to counter wrap).
+
+@ disk.dev.blkread per-disk block read operations
+Cumulative number of disk block read operations since system boot time
+(subject to counter wrap).
+
+@ disk.dev.blkwrite per-disk block write operations
+Cumulative number of disk block write operations since system boot time
+(subject to counter wrap).
+
+@ disk.dev.blktotal per-disk total (read+write) block operations
+Cumulative number of disk block read and write operations since system
+boot time (subject to counter wrap).
+
+@ disk.dev.read_bytes per-disk count of bytes read
+@ disk.dev.write_bytes per-disk count of bytes written
+@ disk.dev.total_bytes per-disk count of total bytes read and written
+
+@ disk.dev.scheduler per-disk I/O scheduler
+The name of the I/O scheduler in use for each device.  The scheduler
+is part of the block layer in the kernel, and attempts to optimise the
+I/O submission patterns using various techniques (typically, sorting
+and merging adjacent requests into larger ones to reduce seek activity,
+but certainly not limited to that).
+
+@ disk.dev.avactive per-disk count of active time
+Counts the number of milliseconds for which at least one I/O is in
+progress for each device.
+
+When converted to a rate, this metric represents the average utilization of
+the disk during the sampling interval.  A value of 0.5 (or 50%) means the
+disk was active (i.e. busy) half the time.
+
+@ disk.dev.read_rawactive per-disk raw count of read response time
+For each completed read on each disk the response time (queue time plus
+service time) in milliseconds is added to the associated instance of
+this metric.
+
+When converted to a normalized rate, the value represents the time average
+of the number of outstanding reads for a disk.  When divided by the number
+of completed reads for a disk (disk.dev.read), the value represents the
+stochastic average of the read response (or wait) time for that disk.
+
+It is suitable mainly for use in calculations with other metrics,
+e.g. mirroring the results from existing performance tools:
+
+ iostat.dev.r_await = delta(disk.dev.read_rawactive) / delta(disk.dev.read)
+
+@ disk.dev.write_rawactive per-disk raw count of write response time
+For each completed write on each disk the response time (queue time plus
+service time) in milliseconds is added to the associated instance of
+this metric.
+
+When converted to a normalized rate, the value represents the time
+average of the number of outstanding writes for a disk.  When divided by
+the number of completed writes for a disk (disk.dev.write), the value
+represents the stochastic average of the write response (or wait)
+time for that disk.
+
+It is suitable mainly for use in calculations with other metrics,
+e.g. mirroring the results from existing performance tools:
+
+ iostat.dev.w_await = delta(disk.dev.write_rawactive) / delta(disk.dev.write)
+
+@ disk.dev.total_rawactive per-disk raw count of I/O response time
+For each completed I/O on each disk the response time (queue time plus
+service time) in milliseconds is added to the associated instance of
+this metric.
+
+When converted to a normalized rate, the value represents the time average
+of the number of outstanding I/Os for a disk.  When divided by the number
+of completed I/Os for a disk (disk.dev.total), the value represents the
+stochastic average of the I/O response (or wait) time for that disk.
+
+It is suitable mainly for use in calculations with other metrics,
+e.g. mirroring the results from existing performance tools:
+
+ iostat.dev.await = delta(disk.dev.total_rawactive) / delta(disk.dev.total)
+
+@ disk.dev.aveq per-disk time averaged count of request queue length
+When converted to a rate, this metric represents the time averaged disk
+request queue length during the sampling interval.  A value of 2.5 (or 250%)
+represents a time averaged queue length of 2.5 requests during the sampling
+interval.
+
+@ disk.dev.read_merge per-disk count of merged read requests
+Count of read requests that were merged with an already queued read request.
+
+@ disk.dev.write_merge per-disk count of merged write requests
+Count of write requests that were merged with an already queued write request.
+
+@ disk.dm.read per-device-mapper device read operations
+@ disk.dm.write per-device-mapper device write operations
+@ disk.dm.total per-device-mapper device total (read+write) operations
+@ disk.dm.blkread per-device-mapper device block read operations
+@ disk.dm.blkwrite per-device-mapper device block write operations
+@ disk.dm.blktotal per-device-mapper device total (read+write) block operations
+@ disk.dm.read_bytes per-device-mapper device count of bytes read
+@ disk.dm.write_bytes per-device-mapper device count of bytes written
+@ disk.dm.total_bytes per-device-mapper device count of total bytes read and written
+@ disk.dm.read_merge per-device-mapper device count of merged read requests
+@ disk.dm.write_merge per-device-mapper device count of merged write requests
+@ disk.dm.avactive per-device-mapper device count of active time
+Counts the number of milliseconds for which at least one I/O is in
+progress for each device-mapper device.
+
+When converted to a rate, this metric represents the average utilization
+of the device during the sampling interval.  A value of 0.5 (or 50%)
+means the device was active (i.e. busy) half the time.
+
+@ disk.dm.aveq per-device-mapper device time averaged count of request queue length
+
+@ disk.dm.read_rawactive per-device-mapper raw count of read response time
+For each completed read on each device-mapper device the response time
+(queue time plus service time) in milliseconds is added to the associated
+instance of this metric.
+
+When converted to a normalized rate, the value represents the time
+average of the number of outstanding reads for a device-mapper device.
+When divided by the number of completed reads for a device-mapper device
+(disk.dm.read), the value represents the stochastic average of the read
+response (or wait) time for that device.
+
+It is suitable mainly for use in calculations with other metrics,
+e.g. mirroring the results from existing performance tools:
+
+ iostat.dm.r_await = delta(disk.dm.read_rawactive) / delta(disk.dm.read)
+
+@ disk.dm.write_rawactive per-device-mapper raw count of write response time
+For each completed write on each device-mapper device the response time
+(queue time plus service time) in milliseconds is added to the associated
+instance of this metric.
+
+When converted to a normalized rate, the value represents the time
+average of the number of outstanding writes for a device-mapper device.
+When divided by the number of completed writes for a device-mapper device
+(disk.dm.write), the value represents the stochastic average of the
+write response (or wait) time for that device.
+
+It is suitable mainly for use in calculations with other metrics,
+e.g. mirroring the results from existing performance tools:
+
+ iostat.dm.w_await = delta(disk.dm.write_rawactive) / delta(disk.dm.write)
+
+@ disk.dm.total_rawactive per-device-mapper raw count of I/O response time
+For each completed I/O on each device-mapper device the response time
+(queue time plus service time) in milliseconds is added to the associated
+instance of this metric.
+
+When converted to a normalized rate, the value represents the time
+average of the number of outstanding I/Os for a device-mapper device.
+When divided by the number of completed I/Os for a device-mapper device
+(disk.dm.total), the value represents the stochastic average of the I/O
+response (or wait) time for that device-mapper device.
+
+It is suitable mainly for use in calculations with other metrics,
+e.g. mirroring the results from existing performance tools:
+
+ iostat.dm.await = delta(disk.dm.total_rawactive) / delta(disk.dm.total)
+
+@ hinv.map.dmname per-device-mapper device persistent name mapping to dm-[0-9]*
+
+@ disk.md.read per-multi-device device read operations
+@ disk.md.write per-multi-device device write operations
+@ disk.md.total per-multi-device device total (read+write) operations
+@ disk.md.blkread per-multi-device device block read operations
+@ disk.md.blkwrite per-multi-device device block write operations
+@ disk.md.blktotal per-multi-device device total (read+write) block operations
+@ disk.md.read_bytes per-multi-device device count of bytes read
+@ disk.md.write_bytes per-multi-device device count of bytes written
+@ disk.md.total_bytes per-multi-device device count of total bytes read and written
+@ disk.md.read_merge per-multi-device device count of merged read requests
+@ disk.md.write_merge per-multi-device device count of merged write requests
+@ disk.md.avactive per-multi-device device count of active time
+Counts the number of milliseconds for which at least one I/O is in
+progress for each multi-device device.
+
+When converted to a rate, this metric represents the average utilization
+of the device during the sampling interval.  A value of 0.5 (or 50%)
+means the device was active (i.e. busy) half the time.
+
+@ disk.md.aveq per-multi-device device time averaged count of request queue length
+
+@ disk.md.read_rawactive per-multi-device raw count of read response time
+For each completed read on each multi-device device the response time
+(queue time plus service time) in milliseconds is added to the associated
+instance of this metric.
+
+When converted to a normalized rate, the value represents the time
+average of the number of outstanding reads for a multi-device device.
+When divided by the number of completed reads for a multi-device device
+(disk.md.read), the value represents the stochastic average of the read
+response (or wait) time for that device.
+
+It is suitable mainly for use in calculations with other metrics,
+e.g. mirroring the results from existing performance tools:
+
+ iostat.md.r_await = delta(disk.md.read_rawactive) / delta(disk.md.read)
+
+@ disk.md.write_rawactive per-multi-device raw count of write response time
+For each completed write on each multi-device device the response time
+(queue time plus service time) in milliseconds is added to the associated
+instance of this metric.
+
+When converted to a normalized rate, the value represents the time
+average of the number of outstanding writes for a multi-device device.
+When divided by the number of completed writes for a multi-device device
+(disk.md.write), the value represents the stochastic average of the
+write response (or wait) time for that device.
+
+It is suitable mainly for use in calculations with other metrics,
+e.g. mirroring the results from existing performance tools:
+
+ iostat.md.w_await = delta(disk.md.write_rawactive) / delta(disk.md.write)
+
+@ disk.md.total_rawactive per-multi-device raw count of I/O response time
+For each completed I/O on each multi-device device the response time
+(queue time plus service time) in milliseconds is added to the associated
+instance of this metric.
+
+When converted to a normalized rate, the value represents the time
+average of the number of outstanding I/Os for a multi-device device.
+When divided by the number of completed I/Os for a multi-device device
+(disk.md.total), the value represents the stochastic average of the I/O
+response (or wait) time for that multi-device device.
+
+It is suitable mainly for use in calculations with other metrics,
+e.g. mirroring the results from existing performance tools:
+
+ iostat.md.await = delta(disk.md.total_rawactive) / delta(disk.md.total)
+
+@ disk.md.status per-multi-device "mdadm --test --detail <device>" return code
+@ hinv.map.mdname per-multi-device device persistent name mapping to md[0-9]*
+
+@ disk.all.read_merge total count of merged read requests, summed for all disks
+Total count of read requests that were merged with an already queued read request.
+
+@ disk.all.write_merge total count of merged write requests, summed for all disks
+Total count of write requests that were merged with an already queued write request.
+
+@ disk.all.avactive total count of active time, summed for all disks
+Counts the number of milliseconds for which at least one I/O is in
+progress on each disk, summed across all disks.
+
+When converted to a rate and divided by the number of disks (hinv.ndisk),
+this metric represents the average utilization of all disks during the
+sampling interval.  A value of 0.25 (or 25%) means that on average every
+disk was active (i.e. busy) one quarter of the time.
+
+@ disk.all.read_rawactive raw count of read response time, summed for all disks
+For each completed read on every disk the response time (queue time plus
+service time) in milliseconds is added to this metric.
+
+When converted to a normalized rate, the value represents the time average
+of the number of outstanding reads across all disks.  When divided
+by the number of completed reads for all disks (disk.all.read), value
+represents the stochastic average of the read response (or wait) time
+across all disks.
+
+It is suitable mainly for use in calculations with other metrics,
+e.g. mirroring the results from existing performance tools:
+
+ iostat.all.r_await = delta(disk.all.read_rawactive) / delta(disk.all.read)
+
+@ disk.all.write_rawactive raw count of write response time, summed for all disks
+For each completed write on every disk the response time (queue time
+plus service time) in milliseconds is added to this metric.
+
+When converted to a normalized rate, the value represents the time average
+of the number of outstanding writes across all disks.  When divided by
+the number of completed writes for all disks (disk.all.write), value
+represents the stochastic average of the write response (or wait) time
+across all disks.
+
+@ disk.all.total_rawactive raw count of I/O response time, summed for all disks
+For each completed I/O on every disk the response time (queue time
+plus service time) in milliseconds is added to this metric.
+
+When converted to a normalized rate, the value represents the time average
+of the number of outstanding I/Os across all disks.  When divided by
+the number of completed I/Os for all disks (disk.all.total), value
+represents the stochastic average of the I/O response (or wait) time
+across all disks.
+
+@ disk.all.aveq total time averaged count of request queue length, summed for all disks
+When converted to a rate, this metric represents the average across all disks
+of the time averaged request queue length during the sampling interval.  A
+value of 1.5 (or 150%) suggests that (on average) each all disk experienced a
+time averaged queue length of 1.5 requests during the sampling interval.
+
+@ disk.all.read total read operations, summed for all disks
+Cumulative number of disk read operations since system boot time
+(subject to counter wrap), summed over all disk devices.
+
+@ disk.all.write total write operations, summed for all disks
+Cumulative number of disk read operations since system boot time
+(subject to counter wrap), summed over all disk devices.
+
+@ disk.all.total total (read+write) operations, summed for all disks
+Cumulative number of disk read and write operations since system boot
+time (subject to counter wrap), summed over all disk devices.
+
+@ disk.all.blkread block read operations, summed for all disks
+Cumulative number of disk block read operations since system boot time
+(subject to counter wrap), summed over all disk devices.
+
+@ disk.all.blkwrite block write operations, summed for all disks
+Cumulative number of disk block write operations since system boot time
+(subject to counter wrap), summed over all disk devices.
+
+@ disk.all.blktotal total (read+write) block operations, summed for all disks
+Cumulative number of disk block read and write operations since system
+boot time (subject to counter wrap), summed over all disk devices.
+
+@ disk.all.read_bytes count of bytes read for all disk devices
+@ disk.all.write_bytes count of bytes written for all disk devices
+@ disk.all.total_bytes total count of bytes read and written for all disk devices
+
+@ disk.partitions.read read operations metric for storage partitions
+Cumulative number of disk read operations since system boot time
+(subject to counter wrap) for individual disk partitions or logical
+volumes.
+
+@ disk.partitions.write write operations metric for storage partitions
+Cumulative number of disk write operations since system boot time
+(subject to counter wrap) for individual disk partitions or logical
+volumes.
+
+@ disk.partitions.total total (read+write) I/O operations metric for storage partitions
+Cumulative number of disk read and write operations since system boot
+time (subject to counter wrap) for individual disk partitions or
+logical volumes.
+
+@ disk.partitions.blkread block read operations metric for storage partitions
+Cumulative number of disk block read operations since system boot time
+(subject to counter wrap) for individual disk partitions or logical
+volumes.
+
+@ disk.partitions.blkwrite block write operations metric for storage partitions
+Cumulative number of disk block write operations since system boot time
+(subject to counter wrap) for individual disk partitions or logical
+volumes.
+
+@ disk.partitions.blktotal total (read+write) block operations metric for storage partitions
+Cumulative number of disk block read and write operations since system
+boot time (subject to counter wrap) for individual disk partitions or
+logical volumes.
+
+@ disk.partitions.read_bytes number of bytes read for storage partitions
+Cumulative number of bytes read since system boot time (subject to
+counter wrap) for individual disk partitions or logical volumes.
+
+@ disk.partitions.write_bytes number of bytes written for storage partitions
+Cumulative number of bytes written since system boot time (subject to
+counter wrap) for individual disk partitions or logical volumes.
+
+@ disk.partitions.total_bytes total number of bytes read and written for storage partitions
+Cumulative number of bytes read and written since system boot time
+(subject to counter wrap) for individual disk partitions or logical
+volumes.
+
+@ disk.partitions.read_merge per-disk-partition count of merged read requests
+
+@ disk.partitions.write_merge per-disk-partition count of merged write requests
+
+@ disk.partitions.avactive per-disk-partition device count of active time
+Counts the number of milliseconds for which at least one I/O is in
+progress for each disk partition.
+
+When converted to a rate, this metric represents the average utilization
+of the disk partition during the sampling interval.  A value of 0.5
+(or 50%) means the disk partition was active (i.e. busy) half the time.
+
+@ disk.partitions.aveq per-disk-partition device time averaged count of request queue length
+
+@ disk.partitions.read_rawactive per-disk-partition raw count of read response time
+For each completed read on each disk partition the response time
+(queue time plus service time) in milliseconds is added to the associated
+instance of this metric.
+
+When converted to a normalized rate, the value represents the time average
+of the number of outstanding reads for a disk partition.  When divided by
+the number of completed reads for a disk partition (disk.partitions.read),
+the value represents the stochastic average of the read response (or wait)
+time for that disk partition.
+
+It is suitable mainly for use in calculations with other metrics,
+e.g. mirroring the results from existing performance tools:
+
+ iostat.partitions.r_await = delta(disk.partitions.read_rawactive) /
+                             delta(disk.partitions.read)
+
+@ disk.partitions.write_rawactive per-disk-partition raw count of write response time
+For each completed write on each disk partition the response time
+(queue time plus service time) in milliseconds is added to the associated
+instance of this metric.
+
+When converted to a normalized rate, the value represents the time
+average of the number of outstanding writes for a disk partition.
+When divided by the number of completed writes for a disk partition
+(disk.partitions.write), the value represents the stochastic average of
+the write response (or wait) time for that disk partition.
+
+It is suitable mainly for use in calculations with other metrics,
+e.g. mirroring the results from existing performance tools:
+
+ iostat.partitions.w_await = delta(disk.partitions.write_rawactive) /
+                             delta(disk.partitions.write)
+
+@ disk.partitions.total_rawactive per-disk-partition raw count of I/O response time
+For each completed I/O on each disk partition the response time (queue
+time plus service time) in milliseconds is added to the associated
+instance of this metric.
+
+When converted to a normalized rate, the value represents the time
+average of the number of outstanding I/Os for a disk partition.
+When divided by the number of completed I/Os for a disk partition
+(disk.partitions.total), the value represents the stochastic average of
+the I/O response (or wait) time for that disk partition.
+
+@ swap.pagesin pages read from swap devices due to demand for physical memory
+@ swap.pagesout pages written to swap devices due to demand for physical memory
+@ swap.in number of swap in operations
+@ swap.out number of swap out operations
+@ kernel.all.pswitch context switches metric from /proc/stat
+@ kernel.all.sysfork fork rate metric from /proc/stat
+@ kernel.all.running number of currently running processes from /proc/stat
+@ kernel.all.blocked number of currently blocked processes from /proc/stat
+@ kernel.all.intr interrupt count metric from /proc/stat
+The value is the first value from the intr field in /proc/stat,
+which is a counter of the total number of interrupts processed.
+The value is normally converted to a rate (count/second).
+This counter usually increases by at least HZ/second,
+i.e. the clock interrupt rate, wehich is usually 100/second.
+
+See also kernel.percpu.intr and kernel.percpu.interrupts to get
+the breakdown of interrupt count by interrupt type and which CPU
+processed each one.
+
+@ kernel.percpu.intr interrupt count metric from /proc/interrupts
+Aggregate count of each CPUs interrupt processing count, calculated
+as the sum of all interrupt types in /proc/interrupts for each CPU.
+
+@ mem.physmem total system memory metric reported by /proc/meminfo
+The value of this metric corresponds to the "MemTotal" field
+reported by /proc/meminfo. Note that this does not necessarily
+correspond to actual installed physical memory - there may
+be areas of the physical address space mapped as ROM in
+various peripheral devices and the bios may be mirroring
+certain ROMs in RAM.
+@ mem.freemem free system memory metric from /proc/meminfo
+@ mem.buddyinfo.pages fragmented page count from /proc/buddyinfo
+@ mem.buddyinfo.total page fragmentation size from /proc/buddyinfo
+@ mem.util.used used memory metric from /proc/meminfo
+Used memory is the difference between mem.physmem and mem.freemem.
+@ mem.util.free free memory metric from /proc/meminfo
+Alias for mem.freemem.
+@ mem.util.available available memory from /proc/meminfo
+The amount of memory that is available for a new workload,
+without pushing the system into swap. Estimated from MemFree,
+Active(file), Inactive(file), and SReclaimable, as well as the "low"
+watermarks from /proc/zoneinfo.
+
+@ mem.util.shared shared memory metric from /proc/meminfo
+Shared memory metric. Currently always zero on Linux 2.4 kernels
+and has been removed from 2.6 kernels.
+@ mem.util.bufmem I/O buffers metric from /proc/meminfo
+Memory allocated for buffer_heads.
+@ mem.util.cached page cache metric from /proc/meminfo
+Memory used by the page cache, including buffered file data.
+This is in-memory cache for files read from the disk (the pagecache)
+but doesn't include SwapCached.
+@ mem.util.other unaccounted memory
+Memory that is not free (i.e. has been referenced) and is not cached.
+mem.physmem - mem.util.free - mem.util.cached - mem.util.buffers
+@ mem.util.active Kbytes on the active page list (recently referenced pages)
+Memory that has been used more recently and usually not reclaimed unless
+absolutely necessary.
+@ mem.util.inactive Kbytes on the inactive page list (candidates for discarding)
+Memory which has been less recently used.  It is more eligible to be
+reclaimed for other purposes
+@ mem.util.swapCached Kbytes in swap cache, from /proc/meminfo
+Memory that once was swapped out, is swapped back in but still also
+is in the swapfile (if memory is needed it doesn't need to be swapped
+out AGAIN because it is already in the swapfile. This saves I/O)
+@ mem.util.highTotal Kbytes in high memory, from /proc/meminfo
+This is apparently an i386 specific metric, and seems to be always zero
+on ia64 architecture (and possibly others). On i386 arch (at least),
+highmem is all memory above ~860MB of physical memory. Highmem areas
+are for use by userspace programs, or for the pagecache. The kernel
+must use tricks to access this memory, making it slower to access
+than lowmem.
+@ mem.util.highFree Kbytes free high memory, from /proc/meminfo
+See mem.util.highTotal. Not used on ia64 arch (and possibly others).
+@ mem.util.lowTotal Kbytes in low memory total, from /proc/meminfo
+Lowmem is memory which can be used for everything that highmem can be
+used for, but it is also availble for the kernel's use for its own
+data structures. Among many other things, it is where everything
+from the Slab is allocated.  Bad things happen when you're out of lowmem.
+(this may only be true on i386 architectures).
+@ mem.util.lowFree Kbytes free low memory, from /proc/meminfo
+See mem.util.lowTotal
+@ mem.util.swapTotal Kbytes swap, from /proc/meminfo
+total amount of swap space available
+@ mem.util.swapFree Kbytes free swap, from /proc/meminfo
+Memory which has been evicted from RAM, and is temporarily on the disk
+@ mem.util.dirty Kbytes in dirty pages, from /proc/meminfo
+Memory which is waiting to get written back to the disk
+@ mem.util.writeback Kbytes in writeback pages, from /proc/meminfo
+Memory which is actively being written back to the disk
+@ mem.util.mapped Kbytes in mapped pages, from /proc/meminfo
+files which have been mmaped, such as libraries
+@ mem.util.slab Kbytes in slab memory, from /proc/meminfo
+in-kernel data structures cache
+@ mem.util.commitLimit Kbytes limit for address space commit, from /proc/meminfo
+The static total, in Kbytes, available for commitment to address 
+spaces. Thus, mem.util.committed_AS may range up to this total. Normally 
+the kernel overcommits memory, so this value may exceed mem.physmem
+@ mem.util.committed_AS Kbytes committed to address spaces, from /proc/meminfo
+An estimate of how much RAM you would need to make a 99.99% guarantee
+that there never is OOM (out of memory) for this workload. Normally
+the kernel will overcommit memory. That means, say you do a 1GB malloc,
+nothing happens, really. Only when you start USING that malloc memory
+you will get real memory on demand, and just as much as you use.
+@ mem.util.pageTables Kbytes in kernel page tables, from /proc/meminfo
+@ mem.util.reverseMaps Kbytes in reverse mapped pages, from /proc/meminfo
+@ mem.util.cache_clean Kbytes cached and not dirty or writeback, derived from /proc/meminfo
+@ mem.util.anonpages Kbytes in user pages not backed by files, from /proc/meminfo
+@ mem.util.bounce Kbytes in bounce buffers, from /proc/meminfo
+@ mem.util.NFS_Unstable Kbytes in NFS unstable memory, from /proc/meminfo
+@ mem.util.slabReclaimable Kbytes in reclaimable slab pages, from /proc/meminfo
+@ mem.util.slabUnreclaimable Kbytes in unreclaimable slab pages, from /proc/meminfo
+@ mem.util.active_anon anonymous Active list LRU memory
+@ mem.util.inactive_anon anonymous Inactive list LRU memory
+@ mem.util.active_file file-backed Active list LRU memory
+@ mem.util.inactive_file file-backed Inactive list LRU memory
+@ mem.util.unevictable kbytes of memory that is unevictable
+@ mem.util.mlocked kbytes of memory that is pinned via mlock()
+@ mem.util.shmem kbytes of shmem
+@ mem.util.kernelStack kbytes of memory used for kernel stacks
+@ mem.util.hugepagesTotal a count of total hugepages
+@ mem.util.hugepagesFree a count of free hugepages
+@ mem.util.hugepagesRsvd a count of reserved hugepages
+@ mem.util.hugepagesSurp a count of surplus hugepages
+@ mem.util.directMap4k amount of memory that is directly mapped in 4kB pages
+@ mem.util.directMap2M amount of memory that is directly mapped in 2MB pages
+@ mem.util.directMap1G amount of memory that is directly mapped in 1GB pages
+@ mem.util.vmallocTotal amount of kernel memory allocated via vmalloc
+@ mem.util.vmallocUsed amount of used vmalloc memory
+@ mem.util.vmallocChunk amount of vmalloc chunk memory
+@ mem.util.mmap_copy amount of mmap_copy space (non-MMU kernels only)
+@ mem.util.quicklists amount of memory in the per-CPU quicklists
+@ mem.util.corrupthardware amount of memory in hardware corrupted pages
+@ mem.util.anonhugepages amount of memory in anonymous huge pages
+
+User memory (Kbytes) in pages not backed by files, e.g. from malloc()
+@ mem.numa.util.total per-node total memory
+@ mem.numa.util.free per-node free memory
+@ mem.numa.util.used per-node used memory
+@ mem.numa.util.active per-node Active list LRU memory
+@ mem.numa.util.inactive per-node Inactive list LRU memory
+@ mem.numa.util.active_anon per-node anonymous Active list LRU memory
+@ mem.numa.util.inactive_anon per-node anonymous Inactive list LRU memory
+@ mem.numa.util.active_file per-node file-backed Active list LRU memory
+@ mem.numa.util.inactive_file per-node file-backed Inactive list LRU memory
+@ mem.numa.util.highTotal per-node highmem total
+@ mem.numa.util.highFree per-node highmem free
+@ mem.numa.util.lowTotal per-node lowmem total
+@ mem.numa.util.lowFree per-node lowmem free
+@ mem.numa.util.unevictable per-node Unevictable memory
+@ mem.numa.util.mlocked per-node count of Mlocked memory
+@ mem.numa.util.dirty per-node dirty memory
+@ mem.numa.util.writeback per-node count of memory locked for writeback to stable storage
+@ mem.numa.util.filePages per-node count of memory backed by files
+@ mem.numa.util.mapped per-node mapped memory
+@ mem.numa.util.anonpages per-node anonymous memory
+@ mem.numa.util.shmem per-node amount of shared memory
+@ mem.numa.util.kernelStack per-node memory used as kernel stacks
+@ mem.numa.util.pageTables per-node memory used for pagetables
+@ mem.numa.util.NFS_Unstable per-node memory holding NFS data that needs writeback
+@ mem.numa.util.bounce per-node memory used for bounce buffers
+@ mem.numa.util.writebackTmp per-node temporary memory used for writeback
+@ mem.numa.util.slab per-node memory used for slab objects
+@ mem.numa.util.slabReclaimable per-node memory used for slab objects that can be reclaimed
+@ mem.numa.util.slabUnreclaimable per-node memory used for slab objects that is unreclaimable
+@ mem.numa.util.hugepagesTotal per-node total count of hugepages
+@ mem.numa.util.hugepagesFree per-node count of free hugepages
+@ mem.numa.util.hugepagesSurp per-node count of surplus hugepages
+@ mem.numa.alloc.hit per-node count of times a task wanted alloc on local node and succeeded
+@ mem.numa.alloc.miss per-node count of times a task wanted alloc on local node but got another node
+@ mem.numa.alloc.foreign count of times a task on another node alloced on that node, but got this node
+@ mem.numa.alloc.interleave_hit count of times interleaving wanted to allocate on this node and succeeded
+@ mem.numa.alloc.local_node count of times a process ran on this node and got memory on this node
+@ mem.numa.alloc.other_node count of times a process ran on this node and got memory from another node
+@ mem.numa.max_bandwidth maximum memory bandwidth supported on each numa node
+Maximum memory bandwidth supported on each numa node. It makes use of a
+bandwith.conf file which has the bandwidth information for each node :
+node_num:bandwidth
+The node_num must match with any node in sysfs/devices/system/node directory.
+And, the bandwidth is expressed in terms of MBps. This config file should be
+filled up manually after running some bandwidth saturation benchmark tools.
+@ mem.vmstat.nr_dirty number of pages in dirty state
+Instantaneous number of pages in dirty state, from /proc/vmstat
+@ mem.vmstat.nr_dirty_background_threshold background writeback threshold
+@ mem.vmstat.nr_dirty_threshold dirty throttling threshold
+@ mem.vmstat.nr_dirtied count of pages dirtied
+Count of pages entering dirty state, from /proc/vmstat
+@ mem.vmstat.nr_writeback number of pages in writeback state
+Instantaneous number of pages in writeback state, from /proc/vmstat
+@ mem.vmstat.nr_unstable number of pages in unstable state
+Instantaneous number of pages in unstable state, from /proc/vmstat
+@ mem.vmstat.nr_page_table_pages number of page table pages
+Instantaneous number of page table pages, from /proc/vmstat
+@ mem.vmstat.nr_mapped number of mapped pagecache pages
+Instantaneous number of mapped pagecache pages, from /proc/vmstat
+See also mem.vmstat.nr_anon for anonymous mapped pages.
+@ mem.vmstat.nr_slab number of slab pages
+Instantaneous number of slab pages, from /proc/vmstat
+This counter was retired in 2.6.18 kernels, and is now the sum of
+mem.vmstat.nr_slab_reclaimable and mem.vmstat.nr_slab_unreclaimable.
+@ mem.vmstat.nr_written count of pages written out
+Count of pages written out, from /proc/vmstat
+@ mem.vmstat.numa_foreign count of foreign NUMA zone allocations
+@ mem.vmstat.numa_hit count of successful allocations from preferred NUMA zone
+@ mem.vmstat.numa_interleave count of interleaved NUMA allocations
+@ mem.vmstat.numa_local count of successful allocations from local NUMA zone
+@ mem.vmstat.numa_miss count of unsuccessful allocations from preferred NUMA zona
+@ mem.vmstat.numa_other count of unsuccessful allocations from local NUMA zone
+@ mem.vmstat.pgpgin page in operations
+Count of page in operations since boot, from /proc/vmstat
+@ mem.vmstat.pgpgout page out operations
+Count of page out operations since boot, from /proc/vmstat
+@ mem.vmstat.pswpin pages swapped in
+Count of pages swapped in since boot, from /proc/vmstat
+@ mem.vmstat.pswpout pages swapped out
+Count of pages swapped out since boot, from /proc/vmstat
+@ mem.vmstat.pgalloc_high high mem page allocations
+Count of high mem page allocations since boot, from /proc/vmstat
+@ mem.vmstat.pgalloc_normal normal mem page allocations
+Count of normal mem page allocations since boot, from /proc/vmstat
+@ mem.vmstat.pgalloc_dma dma mem page allocations
+Count of dma mem page allocations since boot, from /proc/vmstat
+@ mem.vmstat.pgalloc_dma32 dma32 mem page allocations
+Count of dma32 mem page allocations since boot, from /proc/vmstat
+@ mem.vmstat.pgalloc_movable movable mem page allocations
+Count of movable mem page allocations since boot, from /proc/vmstat
+@ mem.vmstat.pgfree page free operations
+Count of page free operations since boot, from /proc/vmstat
+@ mem.vmstat.pgactivate pages moved from inactive to active
+Count of pages moved from inactive to active since boot, from /proc/vmstat
+@ mem.vmstat.pgdeactivate pages moved from active to inactive
+Count of pages moved from active to inactive since boot, from /proc/vmstat
+@ mem.vmstat.pgfault page major and minor fault operations
+Count of page major and minor fault operations since boot, from /proc/vmstat
+@ mem.vmstat.pgmajfault major page fault operations
+Count of major page fault operations since boot, from /proc/vmstat
+@ mem.vmstat.pgrefill_high high mem pages inspected in refill_inactive_zone
+Count of high mem pages inspected in refill_inactive_zone since boot,
+from /proc/vmstat
+@ mem.vmstat.pgrefill_normal normal mem pages inspected in refill_inactive_zone
+Count of normal mem pages inspected in refill_inactive_zone since boot,
+from /proc/vmstat
+@ mem.vmstat.pgrefill_dma dma mem pages inspected in refill_inactive_zone
+Count of dma mem pages inspected in refill_inactive_zone since boot,
+from /proc/vmstat
+@ mem.vmstat.pgrefill_dma32 dma32 mem pages inspected in refill_inactive_zone
+Count of dma32 mem pages inspected in refill_inactive_zone since boot,
+from /proc/vmstat
+@ mem.vmstat.pgrefill_movable movable mem pages inspected in refill_inactive_zone
+Count of movable mem pages inspected in refill_inactive_zone since boot,
+from /proc/vmstat
+@ mem.vmstat.pgsteal_high high mem pages reclaimed
+Count of high mem pages reclaimed since boot, from /proc/vmstat
+@ mem.vmstat.pgsteal_normal normal mem pages reclaimed
+Count of normal mem pages reclaimed since boot, from /proc/vmstat
+@ mem.vmstat.pgsteal_dma dma mem pages reclaimed
+Count of dma mem pages reclaimed since boot, from /proc/vmstat
+@ mem.vmstat.pgsteal_dma32 dma32 mem pages reclaimed
+Count of dma32 mem pages reclaimed since boot, from /proc/vmstat
+@ mem.vmstat.pgsteal_movable movable mem pages reclaimed
+Count of movable mem pages reclaimed since boot, from /proc/vmstat
+@ mem.vmstat.pgscan_kswapd_high high mem pages scanned by kswapd
+Count of high mem pages scanned by kswapd since boot, from /proc/vmstat
+@ mem.vmstat.pgscan_kswapd_normal normal mem pages scanned by kswapd
+Count of normal mem pages scanned by kswapd since boot, from /proc/vmstat
+@ mem.vmstat.pgscan_kswapd_dma dma mem pages scanned by kswapd
+Count of dma mem pages scanned by kswapd since boot, from /proc/vmstat
+@ mem.vmstat.pgscan_kswapd_dma32 dma32 mem pages scanned by kswapd
+Count of dma32 mem pages scanned by kswapd since boot, from /proc/vmstat
+@ mem.vmstat.pgscan_kswapd_movable movable mem pages scanned by kswapd
+Count of movable mem pages scanned by kswapd since boot, from /proc/vmstat
+@ mem.vmstat.pgscan_direct_high high mem pages scanned
+Count of high mem pages scanned since boot, from /proc/vmstat
+@ mem.vmstat.pgscan_direct_normal normal mem pages scanned
+Count of normal mem pages scanned since boot, from /proc/vmstat
+@ mem.vmstat.pgscan_direct_dma dma mem pages scanned
+Count of dma mem pages scanned since boot, from /proc/vmstat
+@ mem.vmstat.pgscan_direct_dma32 dma32 mem pages scanned
+Count of dma32 mem pages scanned since boot, from /proc/vmstat
+@ mem.vmstat.pgscan_direct_movable 
+Count of movable mem pages scanned since boot, from /proc/vmstat
+@ mem.vmstat.pginodesteal pages reclaimed via inode freeing
+Count of pages reclaimed via inode freeing since boot, from /proc/vmstat
+@ mem.vmstat.slabs_scanned slab pages scanned
+Count of slab pages scanned since boot, from /proc/vmstat
+@ mem.vmstat.kswapd_steal pages reclaimed by kswapd
+Count of pages reclaimed by kswapd since boot, from /proc/vmstat
+@ mem.vmstat.kswapd_low_wmark_hit_quickly count of times low watermark reached quickly
+Count of times kswapd reached low watermark quickly, from /proc/vmstat
+@ mem.vmstat.kswapd_high_wmark_hit_quickly count of times high watermark reached quickly
+Count of times kswapd reached high watermark quickly, from /proc/vmstat
+@ mem.vmstat.kswapd_skip_congestion_wait count of times kswapd skipped waiting on device congestion
+Count of times kswapd skipped waiting due to device congestion as a
+result of being under the low watermark, from /proc/vmstat
+@ mem.vmstat.kswapd_inodesteal pages reclaimed via kswapd inode freeing
+Count of pages reclaimed via kswapd inode freeing since boot, from
+/proc/vmstat
+@ mem.vmstat.pageoutrun kswapd calls to page reclaim
+Count of kswapd calls to page reclaim since boot, from /proc/vmstat
+@ mem.vmstat.allocstall direct reclaim calls
+Count of direct reclaim calls since boot, from /proc/vmstat
+@ mem.vmstat.pgrotated pages rotated to tail of the LRU
+Count of pages rotated to tail of the LRU since boot, from /proc/vmstat
+@mem.vmstat.nr_anon_pages number of anonymous mapped pagecache pages
+Instantaneous number of anonymous mapped pagecache pages, from /proc/vmstat
+See also mem.vmstat.mapped for other mapped pages.
+@mem.vmstat.nr_anon_transparent_hugepages number of anonymous transparent huge pages
+Instantaneous number of anonymous transparent huge pages, from /proc/vmstat
+@mem.vmstat.nr_bounce number of bounce buffer pages
+Instantaneous number of bounce buffer pages, from /proc/vmstat
+@mem.vmstat.nr_slab_reclaimable reclaimable slab pages
+Instantaneous number of reclaimable slab pages, from /proc/vmstat.
+@mem.vmstat.nr_slab_unreclaimable unreclaimable slab pages
+Instantaneous number of unreclaimable slab pages, from /proc/vmstat.
+@mem.vmstat.nr_vmscan_write pages written by VM scanner from LRU
+Count of pages written from the LRU by the VM scanner, from /proc/vmstat.
+The VM is supposed to minimise the number of pages which get written
+from the LRU (for IO scheduling efficiency, and for high reclaim-success
+rates).
+@ mem.vmstat.htlb_buddy_alloc_fail huge TLB page buddy allocation failures
+Count of huge TLB page buddy allocation failures, from /proc/vmstat
+@ mem.vmstat.htlb_buddy_alloc_success huge TLB page buddy allocation successes
+Count of huge TLB page buddy allocation successes, from /proc/vmstat
+@ mem.vmstat.nr_active_anon number of active anonymous memory pages
+@ mem.vmstat.nr_active_file number of active file memory memory pages
+@ mem.vmstat.nr_free_pages number of free pages
+@ mem.vmstat.nr_inactive_anon number of inactive anonymous memory pages
+@ mem.vmstat.nr_inactive_file number of inactive file memory pages
+@ mem.vmstat.nr_isolated_anon number of isolated anonymous memory pages
+@ mem.vmstat.nr_isolated_file number of isolated file memory pages
+@ mem.vmstat.nr_kernel_stack number of pages of kernel stack
+@ mem.vmstat.nr_mlock number of pages under mlock
+@ mem.vmstat.nr_shmem number of shared memory pages
+@ mem.vmstat.nr_unevictable number of unevictable pages
+@ mem.vmstat.nr_writeback_temp number of temporary writeback pages
+@ mem.vmstat.compact_blocks_moved count of compact blocks moved
+@ mem.vmstat.compact_fail count of unsuccessful compactions for high order allocations
+@ mem.vmstat.compact_pagemigrate_failed count of pages unsuccessfully compacted
+@ mem.vmstat.compact_pages_moved count of pages successfully moved for compaction
+@ mem.vmstat.compact_stall count of failures to even start compacting
+@ mem.vmstat.compact_success count of successful compactions for high order allocations
+@ mem.vmstat.thp_fault_alloc transparent huge page fault allocations
+@ mem.vmstat.thp_fault_fallback transparent huge page fault fallbacks
+@ mem.vmstat.thp_collapse_alloc transparent huge page collapse allocations
+@ mem.vmstat.thp_collapse_alloc_failed transparent huge page collapse failures
+@ mem.vmstat.thp_split count of transparent huge page splits
+@ mem.vmstat.thp_zero_page_alloc count of transparent huge page zeroed page allocations
+@ mem.vmstat.thp_zero_page_alloc_failed count of transparent huge page zeroed page allocation failures
+@ mem.vmstat.unevictable_pgs_cleared count of unevictable pages cleared
+@ mem.vmstat.unevictable_pgs_culled count of unevictable pages culled
+@ mem.vmstat.unevictable_pgs_mlocked count of mlocked unevictable pages
+@ mem.vmstat.unevictable_pgs_mlockfreed count of unevictable pages mlock freed
+@ mem.vmstat.unevictable_pgs_munlocked count of unevictable pages munlocked
+@ mem.vmstat.unevictable_pgs_rescued count of unevictable pages rescued
+@ mem.vmstat.unevictable_pgs_scanned count of unevictable pages scanned
+@ mem.vmstat.unevictable_pgs_stranded count of unevictable pages stranded
+@ mem.vmstat.zone_reclaim_failed number of zone reclaim failures
+@ mem.vmstat.balloon_inflate count of virt guest balloon page inflations
+@ mem.vmstat.balloon_deflate number of virt guest balloon page deflations
+@ mem.vmstat.balloon_migrate number of virt guest balloon page migrations
+@ mem.zoneinfo.free free space in each zone for each NUMA node
+
+@ swap.length total swap available metric from /proc/meminfo
+@ swap.used swap used metric from /proc/meminfo
+@ swap.free swap free metric from /proc/meminfo
+@ kernel.all.load 1, 5 and 15 minute load average
+@ kernel.all.nusers number of user sessions on system
+@ kernel.all.cpu.user total user CPU time from /proc/stat for all CPUs, including guest CPU time
+@ kernel.all.cpu.vuser total user CPU time from /proc/stat for all CPUs, excluding guest CPU time
+@ kernel.all.cpu.intr total interrupt CPU time from /proc/stat for all CPUs
+Total time spent processing interrupts on all CPUs.
+This value includes both soft and hard interrupt processing time.
+@ kernel.all.cpu.wait.total total wait CPU time from /proc/stat for all CPUs
+@ kernel.all.cpu.nice total nice user CPU time from /proc/stat for all CPUs, including guest time
+@ kernel.all.cpu.vnice total nice user CPU time from /proc/stat for all CPUs, excluding guest time
+@ kernel.all.cpu.sys total sys CPU time from /proc/stat for all CPUs
+@ kernel.all.cpu.idle total idle CPU time from /proc/stat for all CPUs
+@ kernel.all.cpu.irq.soft soft interrupt CPU time from /proc/stat for all CPUs
+Total soft interrupt CPU time (deferred interrupt handling code,
+not run in the initial interrupt handler).
+@ kernel.all.cpu.irq.hard hard interrupt CPU time from /proc/stat for all CPUs
+Total hard interrupt CPU time ("hard" interrupt handling code
+is the code run directly on receipt of the initial hardware
+interrupt, and does not include "soft" interrupt handling code
+which is deferred until later).
+@ kernel.all.cpu.steal total virtualisation CPU steal time for all CPUs
+Total CPU time when a CPU had a runnable process, but the hypervisor
+(virtualisation layer) chose to run something else instead.
+@ kernel.all.cpu.guest total virtual guest CPU time for all CPUs
+Total CPU time spent running virtual guest operating systems.
+@ kernel.all.cpu.guest_nice total virtual guest CPU nice time for all CPUs
+Total CPU nice time spent running virtual guest operating systems.
+@ kernel.pernode.cpu.user total user CPU time from /proc/stat for each node, including guest CPU time
+@ kernel.pernode.cpu.vuser total user CPU time from /proc/stat for each node, excluding guest CPU time
+@ kernel.pernode.cpu.intr total interrupt CPU time from /proc/stat for each node
+@ kernel.pernode.cpu.wait.total total wait CPU time from /proc/stat for each node
+@ kernel.pernode.cpu.nice total nice user CPU time from /proc/stat for each node, including guest time
+@ kernel.pernode.cpu.vnice total nice user CPU time from /proc/stat for each node, excluding guest time
+@ kernel.pernode.cpu.sys total sys CPU time from /proc/stat for each node
+@ kernel.pernode.cpu.idle total idle CPU time from /proc/stat for each node
+@ kernel.pernode.cpu.irq.soft soft interrupt CPU time from /proc/stat for each node
+@ kernel.pernode.cpu.irq.hard hard interrupt CPU time from /proc/stat for each node
+@ kernel.pernode.cpu.steal total virtualisation CPU steal time for each node
+@ kernel.pernode.cpu.guest total virtual guest CPU time for each node
+@ kernel.pernode.cpu.guest_nice total virtual nice guest CPU time for each node
+
+@ hinv.ninterface number of active (up) network interfaces
+@ network.interface.in.bytes network recv read bytes from /proc/net/dev per network interface
+bytes column on the "Receive" side of /proc/net/dev (stats->rx_bytes counter in
+rtnl_link_stats64)
+@ network.interface.in.packets network recv read packets from /proc/net/dev per network interface
+packets column on the "Receive" side of /proc/net/dev
+(stats->rx_packets counter in rtnl_link_stats64)
+@ network.interface.in.errors network recv read errors from /proc/net/dev per network interface
+errors column on the "Receive" side of /proc/net/dev
+(stats->rx_errors counter in rtnl_link_stats64)
+@ network.interface.in.drops network recv read drops from /proc/net/dev per network interface
+drop column on the "Receive" side of /proc/net/dev
+(stats->{rx_dropped + rx_missed_errors} counters in rtnl_link_stats64)
+rx_dropped are the dropped packets due to no space in linux buffers and rx_missed
+are due to the receiver NIC missing a packet.
+Not all NICS use the rx_missed_errors counter.
+@ network.interface.in.mcasts network recv multicast packets from /proc/net/dev per network interface
+multicast column on the "Receive" side of /proc/net/dev
+(stats->multicast counter in rtnl_link_stats64)
+@ network.interface.in.fifo network recv fifo overrun errors from /proc/net/dev per network interface
+fifo column on the "Receive" side of /proc/net/dev
+(stats->rx_fifo_errors counter in rtnl_link_stats64)
+@ network.interface.in.frame network recv frames errors from /proc/net/dev per network interface
+frame column on the "Receive" side of /proc/net/dev
+(stats->{rx_length_errors + rx_over_errors + rx_crc_errors + rx_frame_errors}
+counters in rtnl_link_stats64)
+@ network.interface.in.compressed network recv compressed from /proc/net/dev per network interface
+compressed column on the "Receive" side of /proc/net/dev
+(stats->rx_compressed counter in rtnl_link_stats64).
+Almost exclusively used for CSLIP or HDLC devices
+@ network.interface.out.bytes network send bytes from /proc/net/dev per network interface
+bytes column on the "Transmit" side of /proc/net/dev
+(stats->tx_bytes counter in rtnl_link_stats64)
+@ network.interface.out.packets network send packets from /proc/net/dev per network interface
+packets column on the "Transmit" side of /proc/net/dev
+(stats->tx_packets counter in rtnl_link_stats64)
+@ network.interface.out.errors network send errors from /proc/net/dev per network interface
+errors column on the "Transmit" side of /proc/net/dev
+(stats->tx_errors counter in rtnl_link_stats64)
+@ network.interface.out.drops network send drops from /proc/net/dev per network interface
+drop column on the "Transmit" side of /proc/net/dev
+(stats->tx_dropped counter in rtnl_link_stats64)
+@ network.interface.out.fifo network send fifos from /proc/net/dev per network interface
+fifo column on the "Transmit" side of /proc/net/dev
+(stats->tx_fifo_errors counter in rtnl_link_stats64)
+@ network.interface.collisions network send collisions from /proc/net/dev per network interface
+colls column on the "Transmit" side of /proc/net/dev
+(stats->collisions counter in rtnl_link_stats64).
+Counter only valid for outgoing packets.
+@ network.interface.out.carrier network send carrier from /proc/net/dev per network interface
+carrier column on the "Transmit" side of /proc/net/dev
+(stats->{tx_carrier_errors + tx_aborted_errors + tx_window_errors +
+tx_heartbeat_errors} counters in rtnl_link_stats64).
+@ network.interface.out.compressed network send compressed from /proc/net/dev per network interface
+compressed column on the "Transmit" side of /proc/net/dev
+(stats->tx_compressed counter in rtnl_link_stats64).
+Almost exclusively used for CSLIP or HDLC devices
+@ network.interface.total.bytes network total (in+out) bytes from /proc/net/dev per network interface
+@ network.interface.total.packets network total (in+out) packets from /proc/net/dev per network interface
+@ network.interface.total.errors network total (in+out) errors from /proc/net/dev per network interface
+@ network.interface.total.drops network total (in+out) drops from /proc/net/dev per network interface
+@ network.interface.total.mcasts network total (in) mcasts from /proc/net/dev per network interface
+Linux does not account for outgoing mcast packets per device, so this counter
+is identical to the incoming mcast metric.
+@ network.interface.mtu maximum transmission unit on network interface
+@ network.interface.speed interface speed in megabytes per second
+The linespeed on the network interface, as reported by the kernel,
+scaled from Megabits/second to Megabytes/second.
+See also network.interface.baudrate for the bytes/second value.
+@ network.interface.baudrate interface speed in bytes per second
+The linespeed on the network interface, as reported by the kernel,
+scaled up from Megabits/second to bits/second and divided by 8 to convert
+to bytes/second.
+See also network.interface.speed for the Megabytes/second value.
+@ network.interface.duplex value one for half or two for full duplex interface
+@ network.interface.up boolean for whether interface is currently up or down
+@ network.interface.running boolean for whether interface has resources allocated
+@ network.interface.inet_addr string INET interface address (ifconfig style)
+@ network.interface.ipv6_addr string IPv6 interface address (ifconfig style)
+@ network.interface.ipv6_scope string IPv6 interface scope (ifconfig style)
+@ network.interface.hw_addr hardware address (from sysfs)
+@ network.sockstat.tcp.inuse instantaneous number of tcp sockets currently in use
+@ network.sockstat.tcp.highest highest number of tcp sockets in use at any one time since boot
+@ network.sockstat.tcp.util instantaneous tcp socket utilization (100 * inuse/highest)
+@ network.sockstat.udp.inuse instantaneous number of udp sockets currently in use
+@ network.sockstat.udp.highest highest number of udp sockets in use at any one time since boot
+@ network.sockstat.udp.util instantaneous udp socket utilization (100 * inuse/highest)
+@ network.sockstat.raw.inuse instantaneous number of raw sockets currently in use
+@ network.sockstat.raw.highest highest number of raw sockets in use at any one time since boot
+@ network.sockstat.raw.util instantaneous raw socket utilization (100 * inuse/highest)
+@ network.softnet.processed number of packets (not including netpoll) received by the interrupt handler
+@ network.softnet.dropped number of packets that were dropped because netdev_max_backlog was exceeded
+@ network.softnet.time_squeeze number of times ksoftirq ran out of netdev_budget or time slice with work remaining
+@ network.softnet.cpu_collision number of times that two cpus collided trying to get the device queue lock
+@ network.softnet.received_rps number of times rps_trigger_softirq has been called
+@ network.softnet.flow_limit_count softnet_data flow limit counter
+@ network.softnet.percpu.processed number of packets (not including netpoll) received by the interrupt handler
+@ network.softnet.percpu.dropped number of packets that were dropped because netdev_max_backlog was exceeded
+@ network.softnet.percpu.time_squeeze number of times ksoftirq ran out of netdev_budget or time slice with work remaining
+@ network.softnet.percpu.cpu_collision number of times that two cpus collided trying to get the device queue lock
+@ network.softnet.percpu.received_rps number of times rps_trigger_softirq has been called
+@ network.softnet.percpu.flow_limit_count softnet_data flow limit counter
+The network stack has to drop packets when a receive processing a CPUs
+backlog reaches netdev_max_backlog.  The flow_limit_count counter is
+the number of times very active flows have dropped their traffic earlier
+to maintain capacity for other less active flows.
+
+@ network.ip6.inreceives count of ip6 inreceives
+@ network.ip6.inhdrerrors count of ip6 inhdrerrors
+@ network.ip6.intoobigerrors count of ip6 intoobigerrors
+@ network.ip6.innoroutes count of ip6 innoroutes
+@ network.ip6.inaddrerrors count of ip6 inaddrerrors
+@ network.ip6.inunknownprotos count of ip6 inunknownprotos
+@ network.ip6.intruncatedpkts count of ip6 intruncatedpkts
+@ network.ip6.indiscards count of ip6 indiscards
+@ network.ip6.indelivers count of ip6 indelivers
+@ network.ip6.outforwdatagrams count of ip6 outforwdatagrams
+@ network.ip6.outrequests count of ip6 outrequests
+@ network.ip6.outdiscards count of ip6 outdiscards
+@ network.ip6.outnoroutes count of ip6 outnoroutes
+@ network.ip6.reasmtimeout count of ip6 reasmtimeout
+@ network.ip6.reasmreqds count of ip6 reassembly requireds
+@ network.ip6.reasmoks count of ip6 reassembly oks
+@ network.ip6.reasmfails count of ip6 reassembly failures
+@ network.ip6.fragoks count of ip6 fragmentation oks
+@ network.ip6.fragfails count of ip6 fragmentation failures
+@ network.ip6.fragcreates count of ip6 fragmentation creations
+@ network.ip6.inmcastpkts count of ip6 multicast packets in
+@ network.ip6.outmcastpkts count of ip6 multicast packets out
+@ network.ip6.inoctets count of ip6 octets in
+@ network.ip6.outoctets count of ip6 octets out
+@ network.ip6.inmcastoctets count of ip6 multicast octets in
+@ network.ip6.outmcastoctets count of ip6 multicast octets out
+@ network.ip6.inbcastoctets count of ip6 broadcast octets in
+@ network.ip6.outbcastoctets count of ip6 broadcast octets uot
+@ network.ip6.innoectpkts count of ip6 packets received with NOECT
+@ network.ip6.inect1pkts count of ip6 packets received with ECT(1)
+@ network.ip6.inect0pkts count of ip6 packets received with ECT(0)
+@ network.ip6.incepkts count of ip6 Congestion Experimented packets in
+@ network.icmp6.inmsgs count of icmp6 inmsgs
+@ network.icmp6.inerrors count of icmp6 inerrors
+@ network.icmp6.outmsgs count of icmp6 outmsgs
+@ network.icmp6.outerrors count of icmp6 outerrors
+@ network.icmp6.incsumerrors count of icmp6 incsumerrors
+@ network.icmp6.indestunreachs count of icmp6 indestunreachs
+@ network.icmp6.inpkttoobigs count of icmp6 inpkttoobigs
+@ network.icmp6.intimeexcds count of icmp6 intimeexcds
+@ network.icmp6.inparmproblems count of icmp6 inparmprobs
+@ network.icmp6.inechos count of icmp6 inechos
+@ network.icmp6.inechoreplies count of icmp6 inechoreplies
+@ network.icmp6.ingroupmembqueries count of icmp6 ingroupmembqueries
+@ network.icmp6.ingroupmembresponses count of icmp6 ingroupmembresponses
+@ network.icmp6.ingroupmembreductions count of icmp6 ingroupmembreductions
+@ network.icmp6.inroutersolicits count of icmp6 inroutersolicits
+@ network.icmp6.inrouteradvertisements count of icmp6 inrouteradvertisements
+@ network.icmp6.inneighborsolicits count of icmp6 inneighborsolicits
+@ network.icmp6.inneighboradvertisements count of icmp6 inneighboradvertisements
+@ network.icmp6.inredirects count of icmp6 inredirects
+@ network.icmp6.inmldv2reports count of icmp6 inmldv2reports
+@ network.icmp6.outdestunreachs count of icmp6 outdestunreachs
+@ network.icmp6.outpkttoobigs count of icmp6 outpkttoobigs
+@ network.icmp6.outtimeexcds count of icmp6 outtimeexcds
+@ network.icmp6.outparmproblems count of icmp6 outparmproblems
+@ network.icmp6.outechos count of icmp6 outechos
+@ network.icmp6.outechoreplies count of icmp6 outechoreplies
+@ network.icmp6.outgroupmembqueries count of icmp6 outgroupmembqueries
+@ network.icmp6.outgroupmembresponses count of icmp6 outgroupmembresponses
+@ network.icmp6.outgroupmembreductions count of icmp6 outgroupmembreductions
+@ network.icmp6.outroutersolicits count of icmp6 outroutersolicits
+@ network.icmp6.outrouteradvertisements count of icmp6 outrouteradvertisements
+@ network.icmp6.outneighborsolicits count of icmp6 outneighborsolicits
+@ network.icmp6.outneighboradvertisements count of icmp6 outneighboradvertisements
+@ network.icmp6.outredirects count of icmp6 outredirects
+@ network.icmp6.outmldv2reports count of icmp6 outmldv2reports
+@ network.udp6.indatagrams count of udp6 indatagrams
+@ network.udp6.noports count of udp6 noports
+@ network.udp6.inerrors count of udp6 inerrors
+@ network.udp6.outdatagrams count of udp6 outdatagrams
+@ network.udp6.rcvbuferrors count of udp6 rcvbuferrors
+@ network.udp6.sndbuferrors count of udp6 sndbuferrors
+@ network.udp6.incsumerrors count of udp6 incsumerrors
+@ network.udp6.ignoredmulti count of udp6 ignoredmulti
+@ network.udplite6.indatagrams count of udplite6 indatagrams
+@ network.udplite6.noports count of udplite6 noports
+@ network.udplite6.inerrors count of udplite6 inerrors
+@ network.udplite6.outdatagrams count of udplite6 outdatagrams
+@ network.udplite6.rcvbuferrors count of udplite6 receive buffer errors
+@ network.udplite6.sndbuferrors count of udplite6 send buffer errors
+@ network.udplite6.incsumerrors count of udplite6 in checksum errors
+
+@ hinv.physmem total system memory metric from /proc/meminfo
+@ hinv.pagesize Memory page size
+The memory page size of the running kernel in bytes.
+@ hinv.hugepagesize Huge page size from /proc/meminfo
+The memory huge page size of the running kernel in bytes.
+@ hinv.ncpu number of CPUs in the system
+@ hinv.ndisk number of disks in the system
+@ hinv.nfilesys number of (local) file systems currently mounted
+@ hinv.nnode number of NUMA nodes in the system
+@ hinv.map.scsi list of active SCSI devices
+There is one string value for each SCSI device active in the system,
+as extracted from /proc/scsi/scsi. The external instance name
+for each device is in the format scsiD:C:I:L where
+D is controller number, C is channel number, I is device ID
+and L is the SCSI LUN number for the device. The values for this
+metric are the actual device names (sd[a-z] are SCSI disks, st[0-9]
+are SCSI tapes and scd[0-9] are SCSI CD-ROMS.
+@ filesys.capacity Total capacity of mounted filesystem (Kbytes)
+@ filesys.used Total space used on mounted filesystem (Kbytes)
+@ filesys.free Total space free on mounted filesystem (Kbytes)
+@ filesys.maxfiles Inodes capacity of mounted filesystem
+@ filesys.usedfiles Number of inodes allocated on mounted filesystem
+@ filesys.freefiles Number of unallocated inodes on mounted filesystem
+@ filesys.mountdir File system mount point
+@ filesys.full Percentage of filesystem in use
+@ filesys.blocksize Size of each block on mounted filesystem (Bytes)
+@ filesys.avail Total space free to non-superusers on mounted filesystem (Kbytes)
+@ filesys.readonly Indicates whether a filesystem is mounted readonly
+@ tmpfs.capacity Total capacity of mounted tmpfs filesystem (Kbytes)
+@ tmpfs.used Total space used on mounted tmpfs filesystem (Kbytes)
+@ tmpfs.free Total space free on mounted tmpfs filesystem (Kbytes)
+@ tmpfs.maxfiles Inodes capacity of mounted tmpfs filesystem
+@ tmpfs.usedfiles Number of inodes allocated on mounted tmpfs filesystem
+@ tmpfs.freefiles Number of unallocated inodes on mounted tmpfs filesystem
+@ tmpfs.full Percentage of tmpfs filesystem in use
+@ swapdev.free physical swap free space
+@ swapdev.length physical swap size
+@ swapdev.maxswap maximum swap length (same as swapdev.length on Linux)
+@ swapdev.vlength virtual swap size (always zero on Linux)
+Virtual swap size (always zero on Linux since Linux does not support
+virtual swap).
+
+This metric is retained on Linux for interoperability with PCP monitor
+tools running on IRIX.
+
+@ swapdev.priority swap resource priority
+@ nfs.client.calls cumulative total of client NFSv2 requests
+@ nfs.client.reqs cumulative total of client NFSv2 requests by request type
+@ nfs.server.calls cumulative total of server NFSv2 requests
+@ nfs.server.reqs cumulative total of client NFSv2 requests by request type
+@ nfs3.client.calls cumulative total of client NFSv3 requests
+@ nfs3.client.reqs cumulative total of client NFSv3 requests by request type
+@ nfs3.server.calls cumulative total of server NFSv3 requests
+@ nfs3.server.reqs cumulative total of client NFSv3 requests by request type
+@ nfs4.client.calls cumulative total of client NFSv4 requests
+@ nfs4.client.reqs cumulative total for each client NFSv4 request type
+@ nfs4.server.calls cumulative total of server NFSv4 operations, plus NULL requests
+@ nfs4.server.reqs cumulative total for each server NFSv4 operation, and for NULL requests
+@ rpc.client.rpccnt cumulative total of client RPC requests
+@ rpc.client.rpcretrans cumulative total of client RPC retransmissions
+@ rpc.client.rpcauthrefresh cumulative total of client RPC auth refreshes
+@ rpc.client.netcnt cumulative total of client RPC network layer requests
+@ rpc.client.netudpcnt cumulative total of client RPC UDP network layer requests
+@ rpc.client.nettcpcnt cumulative total of client RPC TCP network layer requests
+@ rpc.client.nettcpconn cumulative total of client RPC TCP network layer connection requests
+@ rpc.server.rpccnt cumulative total of server RPC requests
+@ rpc.server.rpcerr cumulative total of server RPC errors
+@ rpc.server.rpcbadfmt cumulative total of server RPC bad format errors
+@ rpc.server.rpcbadauth cumulative total of server RPC bad auth errors
+@ rpc.server.rpcbadclnt cumulative total of server RPC bad client errors
+@ rpc.server.rchits cumulative total of request-reply-cache hits
+@ rpc.server.rcmisses cumulative total of request-reply-cache misses
+@ rpc.server.rcnocache cumulative total of uncached request-reply-cache requests
+@ rpc.server.fh_cached cumulative total of file handle cache requests
+@ rpc.server.fh_valid cumulative total of file handle cache validations
+@ rpc.server.fh_fixup cumulative total of file handle cache fixup validations
+@ rpc.server.fh_lookup cumulative total of file handle cache new lookups
+@ rpc.server.fh_stale cumulative total of stale file handle cache errors
+@ rpc.server.fh_concurrent cumulative total of concurrent file handle cache requests
+@ rpc.server.netcnt cumulative total of server RPC network layer requests
+@ rpc.server.netudpcnt cumulative total of server RPC UDP network layer requests
+@ rpc.server.nettcpcnt cumulative total of server RPC TCP network layer requests
+@ rpc.server.nettcpconn cumulative total of server RPC TCP network layer connection requests
+@ rpc.server.fh_anon cumulative total anonymous file dentries returned
+@ rpc.server.fh_nocache_dir count of directory file handles not found cached
+@ rpc.server.fh_nocache_nondir count of non-directory file handles not found cached
+@ rpc.server.io_read cumulative count of bytes returned from read requests
+@ rpc.server.io_write cumulative count of bytes passed into write requests
+@ rpc.server.th_cnt available nfsd threads
+@ rpc.server.th_fullcnt number of times the last free nfsd thread was used
+@ rpc.server.ra_size size of read-ahead params cache
+@ rpc.server.ra_hits count of read-ahead params cache hits
+@ rpc.server.ra_misses count of read-ahead params cache misses
+
+@ network.ip.forwarding count of ip forwarding
+@ network.ip.defaultttl count of ip defaultttl
+@ network.ip.inreceives count of ip inreceives
+@ network.ip.inhdrerrors count of ip inhdrerrors
+@ network.ip.inaddrerrors count of ip inaddrerrors
+@ network.ip.forwdatagrams count of ip forwdatagrams
+@ network.ip.inunknownprotos count of ip inunknownprotos
+@ network.ip.indiscards count of ip indiscards
+@ network.ip.indelivers count of ip indelivers
+@ network.ip.outrequests count of ip outrequests
+@ network.ip.outdiscards count of ip outdiscards
+@ network.ip.outnoroutes count of ip outnoroutes
+@ network.ip.reasmtimeout count of ip reasmtimeout
+@ network.ip.reasmreqds count of ip reasmreqds
+@ network.ip.reasmoks count of ip reasmoks
+@ network.ip.reasmfails count of ip reasmfails
+@ network.ip.fragoks count of ip fragoks
+@ network.ip.fragfails count of ip fragfails
+@ network.ip.fragcreates count of ip fragcreates
+@ network.icmp.inmsgs count of icmp inmsgs
+@ network.icmp.inerrors count of icmp inerrors
+@ network.icmp.indestunreachs count of icmp indestunreachs
+@ network.icmp.intimeexcds count of icmp intimeexcds
+@ network.icmp.inparmprobs count of icmp inparmprobs
+@ network.icmp.insrcquenchs count of icmp insrcquenchs
+@ network.icmp.inredirects count of icmp inredirects
+@ network.icmp.inechos count of icmp inechos
+@ network.icmp.inechoreps count of icmp inechoreps
+@ network.icmp.intimestamps count of icmp intimestamps
+@ network.icmp.intimestampreps count of icmp intimestampreps
+@ network.icmp.inaddrmasks count of icmp inaddrmasks
+@ network.icmp.inaddrmaskreps count of icmp inaddrmaskreps
+@ network.icmp.outmsgs count of icmp outmsgs
+@ network.icmp.outerrors count of icmp outerrors
+@ network.icmp.outdestunreachs count of icmp outdestunreachs
+@ network.icmp.outtimeexcds count of icmp outtimeexcds
+@ network.icmp.outparmprobs count of icmp outparmprobs
+@ network.icmp.outsrcquenchs count of icmp outsrcquenchs
+@ network.icmp.outredirects count of icmp outredirects
+@ network.icmp.outechos count of icmp outechos
+@ network.icmp.outechoreps count of icmp outechoreps
+@ network.icmp.outtimestamps count of icmp outtimestamps
+@ network.icmp.outtimestampreps count of icmp outtimestampreps
+@ network.icmp.outaddrmasks count of icmp outaddrmasks
+@ network.icmp.outaddrmaskreps count of icmp outaddrmaskreps
+@ network.icmp.incsumerrors count of icmp in checksum errors
+@ network.icmpmsg.intype count of icmp message types recvd
+@ network.icmpmsg.outtype count of icmp message types sent
+@ network.tcp.rtoalgorithm the restransmission timeout algorithm in use
+@ network.tcp.rtomin minimum retransmission timeout
+@ network.tcp.rtomax maximum retransmission timeout
+@ network.tcp.maxconn limit on tcp connections
+@ network.tcp.activeopens count of tcp activeopens
+@ network.tcp.passiveopens count of tcp passiveopens
+@ network.tcp.attemptfails count of tcp attemptfails
+@ network.tcp.estabresets count of tcp estabresets
+@ network.tcp.currestab current established tcp connections
+@ network.tcp.insegs count of tcp segments received
+@ network.tcp.outsegs count of tcp segments sent
+@ network.tcp.retranssegs count of tcp segments retransmitted
+@ network.tcp.inerrs count of tcp segments received in error
+@ network.tcp.outrsts count of tcp segments sent with RST flag
+@ network.tcp.incsumerrors count of tcp segments received with checksum errors
+@ network.tcpconn.established Number of established connections
+@ network.tcpconn.syn_sent Number of SYN_SENT connections
+@ network.tcpconn.syn_recv Number of SYN_RECV connections
+@ network.tcpconn.fin_wait1 Number of FIN_WAIT1 connections
+@ network.tcpconn.fin_wait2 Number of FIN_WAIT2 connections
+@ network.tcpconn.time_wait Number of TIME_WAIT connections
+@ network.tcpconn.close Number of CLOSE connections
+@ network.tcpconn.close_wait Number of CLOSE_WAIT connections
+@ network.tcpconn.last_ack Number of LAST_ACK connections
+@ network.tcpconn.listen Number of LISTEN connections
+@ network.tcpconn.closing Number of CLOSING connections
+@ network.udp.indatagrams count of udp indatagrams
+@ network.udp.noports count of udp noports
+@ network.udp.inerrors count of udp inerrors
+@ network.udp.outdatagrams count of udp outdatagrams
+@ network.udp.recvbuferrors count of udp receive buffer errors
+@ network.udp.sndbuferrors count of udp send buffer errors
+@ network.udp.incsumerrors count of udp in checksum errors
+@ network.udplite.indatagrams count of udplite indatagrams
+@ network.udplite.noports count of udplite noports
+@ network.udplite.inerrors count of udplite inerrors
+@ network.udplite.outdatagrams count of udplite outdatagrams
+@ network.udplite.recvbuferrors count of udplite receive buffer errors
+@ network.udplite.sndbuferrors count of udplite send buffer errors
+@ network.udplite.incsumerrors count of udplite in checksum errors
+
+@ network.ip.innoroutes Number of IP datagrams discarded due to no routes in forwarding path
+@ network.ip.intruncatedpkts Number of IP datagrams discarded due to frame not carrying enough data
+@ network.ip.inmcastpkts Number of received IP multicast datagrams
+@ network.ip.outmcastpkts Number of sent IP multicast datagrams
+@ network.ip.inbcastpkts Number of received IP broadcast datagrams
+@ network.ip.outbcastpkts Number of sent IP bradcast datagrams
+@ network.ip.inoctets Number of received octets
+@ network.ip.outoctets Number of sent octets
+@ network.ip.inmcastoctets Number of received IP multicast octets
+@ network.ip.outmcastoctets Number of sent IP multicast octets
+@ network.ip.inbcastoctets Number of received IP broadcast octets
+@ network.ip.outbcastoctets Number of sent IP broadcast octets
+@ network.ip.csumerrors Number of IP datagrams with checksum errors
+@ network.ip.noectpkts Number of packets received with NOECT
+@ network.ip.ect1pkts Number of packets received with ECT(1)
+@ network.ip.ect0pkts Number of packets received with ECT(0)
+@ network.ip.cepkts Number of packets received with Congestion Experimented
+
+@ network.tcp.syncookiessent Number of sent SYN cookies
+@ network.tcp.syncookiesrecv Number of received SYN cookies
+@ network.tcp.syncookiesfailed Number of failed SYN cookies
+@ network.tcp.embryonicrsts Number of resets received for embryonic SYN_RECV sockets
+@ network.tcp.prunecalled Number of packets pruned from receive queue because of socket buffer overrun
+@ network.tcp.rcvpruned Number of packets pruned from receive queue
+@ network.tcp.ofopruned Number of packets dropped from out-of-order queue because of socket buffer overrun
+@ network.tcp.outofwindowicmps Number of dropped out of window ICMPs
+@ network.tcp.lockdroppedicmps Number of dropped ICMP because socket was locked
+@ network.tcp.arpfilter Number of arp packets filtered
+@ network.tcp.timewaited Number of TCP sockets finished time wait in fast timer
+@ network.tcp.timewaitrecycled Number of time wait sockets recycled by time stamp
+@ network.tcp.timewaitkilled Number of TCP sockets finished time wait in slow timer
+@ network.tcp.pawspassiverejected Number of passive connections rejected because of timestamp
+@ network.tcp.pawsactiverejected Number of active connections rejected because of timestamp
+@ network.tcp.pawsestabrejected Number of packets rejects in established connections because of timestamp
+@ network.tcp.delayedacks Number of delayed acks sent
+@ network.tcp.delayedacklocked Number of delayed acks further delayed because of locked socket
+@ network.tcp.delayedacklost Number of times quick ack mode was activated times
+@ network.tcp.listenoverflows Number of times the listen queue of a socket overflowed
+@ network.tcp.listendrops Number of SYNs to LISTEN sockets dropped
+@ network.tcp.prequeued Number of packets directly queued to recvmsg prequeue
+@ network.tcp.directcopyfrombacklog Number of bytes directly in process context from backlog
+@ network.tcp.directcopyfromprequeue Number of bytes directly received in process context from prequeue
+@ network.tcp.prequeueddropped Number of packets dropped from prequeue
+@ network.tcp.hphits Number of packet headers predicted
+@ network.tcp.hphitstouser Number of packets header predicted and directly queued to user
+@ network.tcp.pureacks Number of acknowledgments not containing data payload received
+@ network.tcp.hpacks Number of predicted acknowledgments
+@ network.tcp.renorecovery Number of times recovered from packet loss due to fast retransmit
+@ network.tcp.sackrecovery Number of times recovered from packet loss by selective acknowledgements
+@ network.tcp.sackreneging Number of bad SACK blocks received
+@ network.tcp.fackreorder Number of times detected reordering using FACK
+@ network.tcp.sackreorder Number of times detected reordering using SACK
+@ network.tcp.renoreorder Number of times detected reordering using reno fast retransmit
+@ network.tcp.tsreorder Number of times detected reordering times using time stamp
+@ network.tcp.fullundo Number of congestion windows fully recovered without slow start
+@ network.tcp.partialundo Number of congestion windows partially recovered using Hoe heuristic
+@ network.tcp.dsackundo Number of congestion windows recovered without slow start using DSACK
+@ network.tcp.lossundo Number of congestion windows recovered without slow start after partial ack
+@ network.tcp.lostretransmit Number of retransmits lost
+@ network.tcp.renofailures Number of timeouts after reno fast retransmit
+@ network.tcp.sackfailures Number of timeouts after SACK recovery
+@ network.tcp.lossfailures Number of timeouts in loss state
+@ network.tcp.fastretrans Number of fast retransmits
+@ network.tcp.forwardretrans Number of forward retransmits
+@ network.tcp.slowstartretrans Number of retransmits in slow start
+@ network.tcp.timeouts Number of other TCP timeouts
+@ network.tcp.lossprobes Number of sent TCP loss probes
+@ network.tcp.lossproberecovery Number of TCP loss probe recoveries
+@ network.tcp.renorecoveryfail Number of reno fast retransmits failed
+@ network.tcp.sackrecoveryfail Number of SACK retransmits failed
+@ network.tcp.schedulerfail Number of times receiver scheduled too late for direct processing
+@ network.tcp.rcvcollapsed Number of packets collapsed in receive queue due to low socket buffer
+@ network.tcp.dsackoldsent Number of DSACKs sent for old packets
+@ network.tcp.dsackofosent Number of DSACKs sent for out of order packets
+@ network.tcp.dsackrecv Number of DSACKs received
+@ network.tcp.dsackoforecv Number of DSACKs for out of order packets received
+@ network.tcp.abortondata Number of connections reset due to unexpected data
+@ network.tcp.abortonclose Number of connections reset due to early user close
+@ network.tcp.abortonmemory Number of connections aborted due to memory pressure
+@ network.tcp.abortontimeout Number of connections aborted due to timeout
+@ network.tcp.abortonlinger Number of connections aborted after user close in linger timeout
+@ network.tcp.abortfailed Number of times unable to send RST due to no memory
+@ network.tcp.memorypressures Numer of times TCP ran low on memory
+@ network.tcp.sackdiscard Number of SACKs discarded
+@ network.tcp.dsackignoredold Number of ignored old duplicate SACKs
+@ network.tcp.dsackignorednoundo Number of ignored duplicate SACKs with undo_marker not set
+@ network.tcp.spuriousrtos Number of FRTO's successfully detected spurious RTOs
+@ network.tcp.md5notfound Number of times MD5 hash expected but not found
+@ network.tcp.md5unexpected Number of times MD5 hash unexpected but found
+@ network.tcp.sackshifted Number of SACKs shifted
+@ network.tcp.sackmerged Number of SACKs merged
+@ network.tcp.sackshiftfallback Number of SACKs fallbacks
+@ network.tcp.backlogdrop Number of frames dropped because of full backlog queue
+@ network.tcp.minttldrop Number of frames dropped when TTL is under the minimum
+@ network.tcp.deferacceptdrop Number of dropped ACK frames when socket is in SYN-RECV state
+Due to SYNACK retrans count lower than defer_accept value
+
+@ network.tcp.iprpfilter Number of packets dropped in input path because of rp_filter settings
+@ network.tcp.timewaitoverflow Number of occurences of time wait bucket overflow
+@ network.tcp.reqqfulldocookies Number of times a SYNCOOKIE was replied to client
+@ network.tcp.reqqfulldrop Number of times a SYN request was dropped due to disabled syncookies
+@ network.tcp.retransfail Number of failed tcp_retransmit_skb() calls
+@ network.tcp.rcvcoalesce Number of times tried to coalesce the receive queue
+@ network.tcp.ofoqueue Number of packets queued in OFO queue
+@ network.tcp.ofodrop Number of packets meant to be queued in OFO but dropped due to limits hit
+Number of packets meant to be queued in OFO but dropped because socket rcvbuf
+limit reached.
+@ network.tcp.ofomerge Number of packets in OFO that were merged with other packets
+@ network.tcp.challengeack Number of challenge ACKs sent (RFC 5961 3.2)
+@ network.tcp.synchallenge Number of challenge ACKs sent in response to SYN packets
+@ network.tcp.fastopenactive Number of successful active fast opens
+@ network.tcp.fastopenactivefail Number of fast open attempts failed due to remote not accepting it or time outs
+@ network.tcp.fastopenpassive Number of successful passive fast opens
+@ network.tcp.fastopenpassivefail Number of passive fast open attempts failed
+@ network.tcp.fastopenlistenoverflow Number of times the fastopen listen queue overflowed
+@ network.tcp.fastopencookiereqd Number of fast open cookies requested
+@ network.tcp.spuriousrtxhostqueues Number of times that the fast clone is not yet freed in tcp_transmit_skb()
+@ network.tcp.busypollrxpackets Number of low latency application-fetched packets
+@ network.tcp.autocorking Number of times stack detected skb was underused and its flush was deferred
+@ network.tcp.fromzerowindowadv Number of times window went from zero to non-zero
+@ network.tcp.tozerowindowadv Number of times window went from non-zero to zero
+@ network.tcp.wantzerowindowadv Number of times zero window announced
+@ network.tcp.synretrans Number of SYN-SYN/ACK retransmits
+Number of SYN-SYN/ACK retransmits to break down retransmissions in SYN, fast/timeout
+retransmits.
+@ network.tcp.origdatasent Number of outgoing packets with original data
+Excluding retransmission but including data-in-SYN). This counter is different from
+TcpOutSegs because TcpOutSegs also tracks pure ACKs. TCPOrigDataSent is
+more useful to track the TCP retransmission rate.
+
+@ pmda.uname identity and type of current system
+Identity and type of current system.  The concatenation of the values
+returned from utsname(2), also similar to uname -a.
+
+See also the kernel.uname.* metrics
+
+@ pmda.version build version of Linux PMDA
+@ hinv.map.cpu_num logical to physical CPU mapping for each CPU
+@ hinv.map.cpu_node logical CPU to NUMA node mapping for each CPU
+@ hinv.machine machine name, IP35 if SGI SNIA, else simply linux
+@ hinv.cpu.clock clock rate in Mhz for each CPU as reported by /proc/cpuinfo
+@ hinv.cpu.vendor manufacturer of each CPU as reported by /proc/cpuinfo
+@ hinv.cpu.model model number of each CPU as reported by /proc/cpuinfo
+@ hinv.cpu.model_name model name of each CPU as reported by /proc/cpuinfo
+@ hinv.cpu.stepping stepping of each CPU as reported by /proc/cpuinfo
+@ hinv.cpu.cache primary cache size of each CPU as reported by /proc/cpuinfo
+@ hinv.cpu.bogomips bogo mips rating for each CPU as reported by /proc/cpuinfo
+@ hinv.cpu.flags Hardware capability flags for each CPU as reported by /proc/cpuinfo
+@ hinv.cpu.cache_alignment Cache alignment for each CPU as reported by /proc/cpuinfo
+@ hinv.cpu.online CPU online state from /sys/devices/system/cpu/*/online
+@ hinv.node.online NUMA node online state from /sys/devices/system/node/*/online
+@ kernel.all.hz value of HZ (jiffies/second) for the currently running kernel
+@ kernel.all.uptime time the current kernel has been running
+@ kernel.all.idletime time the current kernel has been idle since boot
+@ kernel.all.lastpid most recently allocated process id
+@ kernel.all.runnable total number of processes in the (per-CPU) run queues
+@ kernel.all.nprocs total number of processes (lightweight)
+@ mem.slabinfo.objects.active number of active objects in each cache
+@ mem.slabinfo.objects.total total number of objects in each cache
+@ mem.slabinfo.objects.size size of individual objects of each cache
+@ mem.slabinfo.slabs.active number of active slabs comprising each cache
+@ mem.slabinfo.slabs.total total number of slabs comprising each cache
+@ mem.slabinfo.slabs.pages_per_slab number of pages in each slab
+@ mem.slabinfo.slabs.objects_per_slab number of objects in each slab
+@ mem.slabinfo.slabs.total_size total number of bytes allocated for active objects in each slab
+@ ipc.sem.max_semmap  maximum number of entries in a semaphore map (from semctl(..,IPC_INFO,..))
+@ ipc.sem.max_semid maximum number of semaphore identifiers (from semctl(..,IPC_INFO,..))
+@ ipc.sem.max_sem maximum number of semaphores in system (from semctl(..,IPC_INFO,..))
+@ ipc.sem.num_undo number of undo structures in system (from semctl(..,IPC_INFO,..))
+@ ipc.sem.max_perid maximum number of semaphores per identifier (from semctl(..,IPC_INFO,..))
+@ ipc.sem.max_ops maximum number of operations per semop call (from semctl(..,IPC_INFO,..))
+@ ipc.sem.max_undoent maximum number of undo entries per process (from semctl(..,IPC_INFO,..))
+@ ipc.sem.sz_semundo size of struct sem_undo (from semctl(..,IPC_INFO,..))
+@ ipc.sem.max_semval semaphore maximum value (from semctl(..,IPC_INFO,..))
+@ ipc.sem.max_exit adjust on exit maximum value (from semctl(..,IPC_INFO,..))
+@ ipc.sem.used_sem number of semaphore sets currently on the system (from semctl(..,SEM_INFO,..))
+@ ipc.sem.tot_sem number of semaphores in all sets on the system (from semctl(..,SEM_INFO,..))
+@ ipc.sem.key key of these semaphore (from msgctl(..,SEM_STAT,..))
+@ ipc.sem.owner username of owner (from msgctl(..,SEM_STAT,..))
+@ ipc.sem.perms access permissions (from msgctl(..,SEM_STAT,..))
+@ ipc.sem.nsems number of semaphore (from semctl(..,SEM_STAT,..))
+@ ipc.msg.sz_pool size of message pool in kilobytes (from msgctl(..,IPC_INFO,..))
+@ ipc.msg.mapent number of entries in a message map (from msgctl(..,IPC_INFO,..))
+@ ipc.msg.max_msgsz maximum size of a message in bytes (from msgctl(..,IPC_INFO,..))
+@ ipc.msg.max_defmsgq default maximum size of a message queue (from msgctl(..,IPC_INFO,..))
+@ ipc.msg.max_msgqid maximum number of message queue identifiers (from msgctl(..,IPC_INFO,..))
+@ ipc.msg.max_msgseg message segment size (from msgctl(..,IPC_INFO,..))
+@ ipc.msg.num_smsghdr number of system message headers (from msgctl(..,IPC_INFO,..))
+@ ipc.msg.max_seg maximum number of message segments (from msgctl(..,IPC_INFO,..))
+@ ipc.msg.used_queues number of message queues that currently exist (from msgctl(..,MSG_INFO,..))
+@ ipc.msg.tot_msg total number of messages in all queues (from msgctl(..,MSG_INFO,..))
+@ ipc.msg.tot_bytes number of bytes in all messages in all queues (from msgctl(..,MSG_INFO,..))
+@ ipc.msg.key name of these messages slot (from msgctl(..,MSG_STAT,..))
+@ ipc.msg.owner username of owner (from msgctl(..,MSG_STAT,..))
+@ ipc.msg.perms access permissions (from msgctl(..,MSG_STAT,..))
+@ ipc.msg.msgsz used size in bytes (from msgctl(..,MSG_STAT,..))
+@ ipc.msg.messages number of messages currently queued (from msgctl(..,MSG_STAT,..))
+@ ipc.shm.max_segsz maximum shared segment size in bytes (from shmctl(..,IPC_INFO,..))
+@ ipc.shm.min_segsz minimum shared segment size in bytes (from shmctl(..,IPC_INFO,..))
+@ ipc.shm.max_seg maximum number of shared segments in system (from shmctl(..,IPC_INFO,..))
+@ ipc.shm.max_segproc maximum number of shared segments per process (from shmctl(..,IPC_INFO,..))
+@ ipc.shm.max_shmsys maximum amount of shared memory in system in pages (from shmctl(..,IPC_INFO,..))
+@ ipc.shm.tot total number of shared memory pages (from shmctl(..,SHM_INFO,..))
+@ ipc.shm.rss number of resident shared memory pages (from shmctl(..,SHM_INFO,..))
+@ ipc.shm.swp number of swapped shared memory pages (from shmctl(..,SHM_INFO,..))
+@ ipc.shm.used_ids number of currently existing segments (from shmctl(..,SHM_INFO,..))
+@ ipc.shm.swap_attempts number of swap attempts (from shmctl(..,SHM_INFO,..))
+@ ipc.shm.swap_successes number of swap successes (from shmctl(..,SHM_INFO,..))
+@ ipc.shm.key Key supplied to shmget (from shmctl(.., SHM_STAT, ..))
+@ ipc.shm.owner share memory segment owner (rom shmctl(.., SHM_STAT, ..))
+@ ipc.shm.perms operation perms (from shmctl(.., SHM_STAT, ..))
+@ ipc.shm.segsz size of segment (bytes) (from shmctl(.., SHM_STAT, ..))
+@ ipc.shm.nattch no. of current attaches (from shmctl(.., SHM_STAT, ..))
+@ ipc.shm.status share memory segment status (from shmctl(.., SHM_STAT, ..))
+
+@ vfs.files.count number of in-use file structures
+@ vfs.files.free number of available file structures
+@ vfs.files.max hard maximum on number of file structures
+@ vfs.inodes.count number of in-use inode structures
+@ vfs.inodes.free number of available inode structures
+@ vfs.dentry.count number of in-use dentry structures
+@ vfs.dentry.free number of available dentry structures
+
+@ sysfs.kernel.uevent_seqnum counter of the number of uevents processed by the udev subsystem

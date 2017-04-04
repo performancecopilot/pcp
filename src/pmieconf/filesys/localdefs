@@ -1,0 +1,51 @@
+ALL_RULES = buffer_cache dnlc_miss filling
+
+LOCAL_RULES = $(ALL_RULES)
+
+# Metrics missing from Linux
+#
+# rule: buffer_cache
+#   kernel.all.io.bread -12357 Unknown metric name
+#   kernel.all.io.lread -12357 Unknown metric name
+#
+# rule: dnlc_miss
+#   name_cache.enters -12357 Unknown metric name
+#   name_cache.misses -12357 Unknown metric name
+#   name_cache.removes -12357 Unknown metric name
+#   name_cache.searches -12357 Unknown metric name
+#
+ifeq ($(TARGET_OS), linux)
+LOCAL_RULES = filling
+endif
+
+# Metrics missing from Mac OS X
+#
+# rule: buffer_cache
+#   kernel.all.io.bread -12357 Unknown metric name
+#   kernel.all.io.lread -12357 Unknown metric name
+#
+# rule: dnlc_miss
+#   name_cache.enters -12357 Unknown metric name
+#   name_cache.misses -12357 Unknown metric name
+#   name_cache.removes -12357 Unknown metric name
+#   name_cache.searches -12357 Unknown metric name
+#
+ifeq ($(TARGET_OS), darwin)
+LOCAL_RULES = filling
+endif
+
+# Metrics missing from Solaris
+# 
+# rule: dnlc_miss
+#   name_cache.enters -12357 Unknown metric name
+#   name_cache.misses -12357 Unknown metric name
+#   name_cache.removes -12357 Unknown metric name
+#   name_cache.searches -12357 Unknown metric name
+#
+# rule: filling
+#   filesys.capacity -12357 Unknown metric name
+#   filesys.used -12357 Unknown metric name
+#
+ifeq ($(TARGET_OS), solaris)
+LOCAL_RULES = buffer_cache
+endif

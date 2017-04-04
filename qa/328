@@ -1,0 +1,63 @@
+#! /bin/sh
+# PCP QA Test No. 328
+# pmlogextract grok new archives with embedded <mark>s
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+_check()
+{
+    echo
+    pmdumplog -z $tmp 2>&1 | grep '<mark>' >$tmp.merge
+    cat $tmp.one $tmp.other \
+    | diff -c - $tmp.merge \
+    | sed \
+	-e 's/^\*\*\* Standard .*/*** concatenated from input archives/' \
+	-e 's/^\*\*\* -.*/*** concatenated from input archives/' \
+	-e 's/^--- \/.*/--- merged archive/'
+}
+
+# deal with an annoying libc error ... using TZ=:Australia/Melbourne
+# causes the -z option to report the wrong time, at least for some
+# times of the year
+#
+TZ=EST-10
+export TZ
+
+# real QA test starts here
+
+echo
+echo 'marks in one archive ...'
+pmdumplog -z archives/19970807.09.54 2>&1 | grep '<mark>' >$tmp.one
+cat $tmp.one
+
+echo
+echo 'marks in other archive ...'
+pmdumplog -z archives/19970807.09.59 2>&1 | grep '<mark>' >$tmp.other
+cat $tmp.other
+
+echo
+echo 'pmlogextract ... and marks ... and diffs (expect an extra one in the middle)'
+pmlogextract archives/19970807.09.54 archives/19970807.09.59 $tmp
+_check
+
+echo
+echo 'pmlogextract ... and marks ... and diffs (expect an extra one in the middle)'
+rm -f $tmp.0 $tmp.meta $tmp.index
+pmlogextract archives/19970807.09.54 archives/19970807.09.59 $tmp
+_check
+
+# success, all done
+status=0
+exit

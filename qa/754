@@ -1,0 +1,70 @@
+#!/bin/sh
+# PCP QA Test No. 754
+# Exercise the Unbound PMDA.
+#
+# Copyright (c) 2014-2015 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.python
+
+python_path=`which $python`
+pmda_path="$PCP_PMDAS_DIR/unbound"
+pmda_script="$pmda_path/pmdaunbound.python"
+test -f "$pmda_script" || _notrun "pmdaunbound not supported"
+$python -c "from pcp import pmda" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "python pcp pmda module not installed"
+
+_cleanup()
+{
+    cd $here
+    rm -rf $tmp.*
+    $sudo rm -f /tmp/unbound-qa.txt	# from test.sh
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    tee -a $seq.full | \
+    sed \
+	-e "s;$PCP_PMDAS_DIR;\$PCP_PMDAS_DIR;" \
+	-e '/pmResult/s/ .* numpmid/ ... numpmid/' \
+	-e '/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]/s/[^ ]*/TIMESTAMP/' \
+	-e "s;$python_path;\$PCP_PYTHON_PROG;" \
+	-e "s;$python;python;" \
+    #end
+}
+
+_filter_result()
+{
+    _filter | _filter_dumpresult
+}
+
+domain=132
+test="$here/unbound"
+$sudo rm -f unbound.log /tmp/unbound-qa.txt	 # the latter from test.sh
+export UNBOUND_STATS="$here/unbound/test.sh"
+
+# real QA test starts here
+PCP_PYTHON_PMNS=root $python "$pmda_script" > $tmp.root
+
+echo "== Testing unbound metric values" | tee -a $seq.full
+cat > $tmp.fetch <<End-of-File
+open pipe $python_path $pmda_script
+getdesc on
+End-of-File
+cat $here/unbound/metrics.list | \
+while read metric
+do
+    echo fetch $metric >> $tmp.fetch
+done
+dbpmda -n $tmp.root -ie < $tmp.fetch 2>&1 | _filter
+test -f unbound.log && cat unbound.log >> $seq.full
+
+status=0
+exit

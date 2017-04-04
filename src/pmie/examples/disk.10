@@ -1,0 +1,23 @@
+//
+// A subset of the disks on a particular host are either busy
+// (more than 30 I/Os per second averaged over these disks) or one
+// disk is busy (more than 50 I/Os per second) with write-dominated
+// (more than 75%) activity
+
+delta = 10 sec;
+
+myhost = "moomba";			// the host of interest
+mydisks = "#dks1d1 #dks1d2 #dks3d2";	// the disks of interest on this host
+
+metric = "disk.dev";
+
+disk_group_busy =
+    (
+	avg_inst ( $metric.total :$myhost $mydisks ) > 10 count/sec ||
+	some_inst (
+	    $metric.total :$myhost $mydisks > 50 count/sec &&
+	    $metric.write :$myhost $mydisks >
+		3 * $metric.write :$myhost $mydisks
+	)
+    )
+	    -> alarm "Busy disks: $mydisks on host: $myhost)"; 

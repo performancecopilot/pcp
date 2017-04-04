@@ -1,0 +1,33 @@
+#! /bin/sh
+# PCP QA Test No. 197
+# pmNewContext used to leak file descriptors across an exec()
+# The close-on-exec flag is now set to prevent this.
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+trap "rm -f $tmp.*; exit" 0 1 2 3 15
+
+# real QA test starts here
+src/context_fd_leak 4 >$tmp.out
+
+# invocation 1:     at startup, next free file descriptor = 3    at exit,    next free file descriptor = 9
+#
+# expected range for the exit fd is >=4 and <= 12 ... depends on how
+# libpcp is built, version of nss/nspr installed, ... but it needs to
+# be the _same_ for all lines of output
+#
+$PCP_AWK_PROG <$tmp.out '
+BEGIN				{ n = 0 }
+/free file descriptor = /	{ if (n == 0 && $NF >=4 && $NF <=12) { n = $NF }
+				  if (n == $NF) $NF = "OK"
+				}
+				{ print }'

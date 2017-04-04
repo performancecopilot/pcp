@@ -1,0 +1,395 @@
+QA output created by 206
+
+pmval args: -U -r
+
+metric:    hinv.ncpu
+archive:   tmparch/gap
+host:      HOST
+start:     START_TIME
+end:       END_TIME
+semantics: discrete instantaneous value
+units:     none
+samples:   all
+TIME VALUE
+TIME VALUE
+TIME VALUE
+TIME VALUE
+TIME VALUE
+TIME VALUE
+TIME VALUE
+TIME VALUE
+TIME VALUE
+TIME VALUE
+TIME  Archive logging suspended
+TIME VALUE
+TIME VALUE
+TIME VALUE
+TIME VALUE
+TIME VALUE
+TIME VALUE
+TIME VALUE
+TIME VALUE
+TIME VALUE
+TIME VALUE
+
+pmval args: -a -r
+
+metric:    hinv.ncpu
+archive:   tmparch/gap
+host:      HOST
+start:     START_TIME
+end:       END_TIME
+semantics: discrete instantaneous value
+units:     none
+samples:   10
+interval:  2.00 sec
+TIME VALUE
+TIME VALUE
+TIME VALUE
+TIME VALUE
+TIME VALUE
+TIME  No values available
+TIME  No values available
+TIME VALUE
+TIME VALUE
+TIME VALUE
+
+pmval args: -a
+
+metric:    hinv.ncpu
+archive:   tmparch/gap
+host:      HOST
+start:     START_TIME
+end:       END_TIME
+semantics: discrete instantaneous value
+units:     none
+samples:   10
+interval:  2.00 sec
+TIME VALUE
+TIME VALUE
+TIME VALUE
+TIME VALUE
+TIME VALUE
+TIME  No values available
+TIME  No values available
+TIME VALUE
+TIME VALUE
+TIME VALUE
+
+pmval args: -U -r
+
+metric:    pmcd.pdu_in.total
+archive:   tmparch/gap
+host:      HOST
+start:     START_TIME
+end:       END_TIME
+semantics: cumulative counter
+units:     count
+samples:   all
+TIME VALUE
+TIME VALUE
+TIME VALUE
+TIME VALUE
+TIME VALUE
+TIME VALUE
+TIME VALUE
+TIME VALUE
+TIME VALUE
+TIME VALUE
+TIME  Archive logging suspended
+TIME VALUE
+TIME VALUE
+TIME VALUE
+TIME VALUE
+TIME VALUE
+TIME VALUE
+TIME VALUE
+TIME VALUE
+TIME VALUE
+TIME VALUE
+
+pmval args: -a -r
+
+metric:    pmcd.pdu_in.total
+archive:   tmparch/gap
+host:      HOST
+start:     START_TIME
+end:       END_TIME
+semantics: cumulative counter
+units:     count
+samples:   10
+interval:  2.00 sec
+TIME VALUE
+TIME VALUE
+TIME VALUE
+TIME VALUE
+TIME VALUE
+TIME  No values available
+TIME  No values available
+TIME VALUE
+TIME VALUE
+TIME VALUE
+
+pmval args: -a
+
+metric:    pmcd.pdu_in.total
+archive:   tmparch/gap
+host:      HOST
+start:     START_TIME
+end:       END_TIME
+semantics: cumulative counter (converting to rate)
+units:     count (converting to count / sec)
+samples:   10
+interval:  2.00 sec
+TIME VALUE
+TIME VALUE
+TIME VALUE
+TIME VALUE
+TIME  No values available
+TIME  No values available
+TIME  No values available
+TIME VALUE
+TIME VALUE
+TIME VALUE
+TIME VALUE
+
+pmval args: -U -r
+
+metric:    pmcd.pdu_in.fetch
+archive:   tmparch/gap
+host:      HOST
+start:     START_TIME
+end:       END_TIME
+semantics: cumulative counter
+units:     count
+samples:   all
+TIME VALUE
+TIME VALUE
+TIME VALUE
+TIME VALUE
+TIME VALUE
+TIME VALUE
+TIME VALUE
+TIME VALUE
+TIME VALUE
+TIME VALUE
+TIME  Archive logging suspended
+TIME VALUE
+TIME VALUE
+TIME VALUE
+TIME VALUE
+TIME VALUE
+TIME VALUE
+TIME VALUE
+TIME VALUE
+TIME VALUE
+TIME VALUE
+
+pmval args: -a -r
+
+metric:    pmcd.pdu_in.fetch
+archive:   tmparch/gap
+host:      HOST
+start:     START_TIME
+end:       END_TIME
+semantics: cumulative counter
+units:     count
+samples:   10
+interval:  2.00 sec
+TIME VALUE
+TIME VALUE
+TIME VALUE
+TIME VALUE
+TIME VALUE
+TIME  No values available
+TIME  No values available
+TIME VALUE
+TIME VALUE
+TIME VALUE
+
+pmval args: -a
+
+metric:    pmcd.pdu_in.fetch
+archive:   tmparch/gap
+host:      HOST
+start:     START_TIME
+end:       END_TIME
+semantics: cumulative counter (converting to rate)
+units:     count (converting to count / sec)
+samples:   10
+interval:  2.00 sec
+TIME VALUE
+TIME VALUE
+TIME VALUE
+TIME VALUE
+TIME  No values available
+TIME  No values available
+TIME  No values available
+TIME VALUE
+TIME VALUE
+TIME VALUE
+TIME VALUE
+
+pmval args: -U -r
+
+metric:    pmcd.numagents
+archive:   tmparch/gap
+host:      HOST
+start:     START_TIME
+end:       END_TIME
+semantics: instantaneous value
+units:     none
+samples:   all
+TIME VALUE
+TIME VALUE
+TIME VALUE
+TIME VALUE
+TIME VALUE
+TIME VALUE
+TIME VALUE
+TIME VALUE
+TIME VALUE
+TIME VALUE
+TIME  Archive logging suspended
+TIME VALUE
+TIME VALUE
+TIME VALUE
+TIME VALUE
+TIME VALUE
+TIME VALUE
+TIME VALUE
+TIME VALUE
+TIME VALUE
+TIME VALUE
+
+pmval args: -a -r
+
+metric:    pmcd.numagents
+archive:   tmparch/gap
+host:      HOST
+start:     START_TIME
+end:       END_TIME
+semantics: instantaneous value
+units:     none
+samples:   10
+interval:  2.00 sec
+TIME VALUE
+TIME VALUE
+TIME VALUE
+TIME VALUE
+TIME VALUE
+TIME  No values available
+TIME  No values available
+TIME VALUE
+TIME VALUE
+TIME VALUE
+
+pmval args: -a
+
+metric:    pmcd.numagents
+archive:   tmparch/gap
+host:      HOST
+start:     START_TIME
+end:       END_TIME
+semantics: instantaneous value
+units:     none
+samples:   10
+interval:  2.00 sec
+TIME VALUE
+TIME VALUE
+TIME VALUE
+TIME VALUE
+TIME VALUE
+TIME  No values available
+TIME  No values available
+TIME VALUE
+TIME VALUE
+TIME VALUE
+
+pmval args: -U -r
+
+metric:    sample.bin
+archive:   tmparch/gap
+host:      HOST
+start:     START_TIME
+end:       END_TIME
+semantics: instantaneous value
+units:     none
+samples:   all
+
+                bin-100     bin-200     bin-300     bin-400     bin-500     bin-600     bin-700     bin-800     bin-900 
+TIME VALUE         200           ?         400           ?           ?           ?           ?           ? 
+TIME VALUE         200           ?         400           ?           ?           ?           ?           ? 
+TIME VALUE         200           ?         400           ?           ?           ?           ?           ? 
+TIME VALUE         200           ?         400           ?           ?           ?           ?           ? 
+TIME VALUE         200           ?         400           ?           ?           ?           ?           ? 
+TIME VALUE         200           ?         400           ?           ?           ?           ?           ? 
+TIME VALUE         200           ?         400           ?           ?           ?           ?           ? 
+TIME VALUE         200           ?         400           ?           ?           ?           ?           ? 
+TIME VALUE         200           ?         400           ?           ?           ?           ?           ? 
+TIME VALUE         200           ?         400           ?           ?           ?           ?           ? 
+TIME  Archive logging suspended
+
+                bin-100     bin-200     bin-300     bin-400     bin-500     bin-600     bin-700     bin-800     bin-900 
+TIME VALUE           ?         300         400           ?           ?           ?           ?           ? 
+TIME VALUE           ?         300         400           ?           ?           ?           ?           ? 
+TIME VALUE           ?         300         400           ?           ?           ?           ?           ? 
+TIME VALUE           ?         300         400           ?           ?           ?           ?           ? 
+TIME VALUE           ?         300         400           ?           ?           ?           ?           ? 
+TIME VALUE           ?         300         400           ?           ?           ?           ?           ? 
+TIME VALUE           ?         300         400           ?           ?           ?           ?           ? 
+TIME VALUE           ?         300         400           ?           ?           ?           ?           ? 
+TIME VALUE           ?         300         400           ?           ?           ?           ?           ? 
+TIME VALUE           ?         300         400           ?           ?           ?           ?           ? 
+
+pmval args: -a -r
+
+metric:    sample.bin
+archive:   tmparch/gap
+host:      HOST
+start:     START_TIME
+end:       END_TIME
+semantics: instantaneous value
+units:     none
+samples:   10
+interval:  2.00 sec
+
+                bin-100     bin-200     bin-300     bin-400     bin-500     bin-600     bin-700     bin-800     bin-900 
+TIME VALUE         200           ?         400           ?           ?           ?           ?           ? 
+TIME VALUE         200           ?         400           ?           ?           ?           ?           ? 
+TIME VALUE         200           ?         400           ?           ?           ?           ?           ? 
+TIME VALUE         200           ?         400           ?           ?           ?           ?           ? 
+TIME VALUE         200           ?         400           ?           ?           ?           ?           ? 
+TIME  No values available
+TIME  No values available
+
+                bin-100     bin-200     bin-300     bin-400     bin-500     bin-600     bin-700     bin-800     bin-900 
+TIME VALUE           ?         300         400           ?           ?           ?           ?           ? 
+TIME VALUE           ?         300         400           ?           ?           ?           ?           ? 
+TIME VALUE           ?         300         400           ?           ?           ?           ?           ? 
+
+pmval args: -a
+
+metric:    sample.bin
+archive:   tmparch/gap
+host:      HOST
+start:     START_TIME
+end:       END_TIME
+semantics: instantaneous value
+units:     none
+samples:   10
+interval:  2.00 sec
+
+                bin-100     bin-200     bin-300     bin-400     bin-500     bin-600     bin-700     bin-800     bin-900 
+TIME VALUE         200           ?         400           ?           ?           ?           ?           ? 
+TIME VALUE         200           ?         400           ?           ?           ?           ?           ? 
+TIME VALUE         200           ?         400           ?           ?           ?           ?           ? 
+TIME VALUE         200           ?         400           ?           ?           ?           ?           ? 
+TIME VALUE         200           ?         400           ?           ?           ?           ?           ? 
+TIME  No values available
+TIME  No values available
+
+                bin-100     bin-200     bin-300     bin-400     bin-500     bin-600     bin-700     bin-800     bin-900 
+TIME VALUE           ?         300         400           ?           ?           ?           ?           ? 
+TIME VALUE           ?         300         400           ?           ?           ?           ?           ? 
+TIME VALUE           ?         300         400           ?           ?           ?           ?           ? 

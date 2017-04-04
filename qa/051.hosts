@@ -1,0 +1,14 @@
+# Need to customize this for the local environment
+#
+# Each $remote_x must be assigned to a valid hostname that can be
+# looked up using the local DNS ... they do _not_ have to have PCP
+# installed nor pmcd(1) running ... but they _do_ need to map to five
+# unique IP addresses
+#
+# Used in setup.051 and 051.
+#
+remote_1=www.sgi.com
+remote_2=www.aconex.com
+remote_3=support.sgi.com
+remote_4=oss.sgi.com
+remote_5=sourceforge.net

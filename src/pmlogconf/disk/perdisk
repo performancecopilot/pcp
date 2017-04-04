@@ -1,0 +1,10 @@
+#pmlogconf-setup 2.0
+ident	per spindle disk activity
+force	available
+	disk.dev.read
+	disk.dev.write
+	disk.dev.total
+	disk.dev.read_bytes
+	disk.dev.write_bytes
+	disk.dev.total_bytes
+	disk.dev.avactive

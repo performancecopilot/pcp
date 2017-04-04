@@ -1,0 +1,28 @@
+#! /bin/sh
+# PCP QA Test No. 318
+# pmie botch in handling time macros
+#
+# Copyright (c) 2007 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.*
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+cat <<'End-of-File' \
+| pmie -A 1min -t 1min -z -v -a archives/20041125.0 2>&1 \
+| fgrep -v "evaluator exiting"
+$minute;
+$hour;
+$minute > 34 -> print "OK1";
+pmcd.license + $minute > pmcd.license + 34 -> print "OK2";
+End-of-File

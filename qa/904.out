@@ -1,0 +1,22 @@
+QA output created by 904
+Running as localhost
+pmGetChildren:
+['one', 'ten', 'hundred', 'million', 'write_me', 'bin', 'bin_ctr']
+pmGetChildrenStatus:
+(['one', 'ten', 'hundred', 'million', 'write_me', 'bin', 'bin_ctr'], [0, 0, 0, 0, 0, 0, 0])
+sample.long.one
+sample.long.ten
+sample.long.hundred
+sample.long.million
+sample.long.write_me
+sample.long.bin
+sample.long.bin_ctr
+pmTraversePMNS: 7
+
+-- stderr --
+.
+----------------------------------------------------------------------
+TEST TIMING
+
+OK
+-- ====== --

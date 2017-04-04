@@ -1,0 +1,972 @@
+QA output created by 872
+
+== Checking inet network metrics from procnet-snmp-2.6.32
+
+network.icmp.inaddrmaskreps
+    value 0
+
+network.icmp.inaddrmasks
+    value 0
+
+network.icmp.incsumerrors
+No value(s) available!
+
+network.icmp.indestunreachs
+    value 3114
+
+network.icmp.inechoreps
+    value 1
+
+network.icmp.inechos
+    value 0
+
+network.icmp.inerrors
+    value 0
+
+network.icmp.inmsgs
+    value 3115
+
+network.icmp.inparmprobs
+    value 0
+
+network.icmp.inredirects
+    value 0
+
+network.icmp.insrcquenchs
+    value 0
+
+network.icmp.intimeexcds
+    value 0
+
+network.icmp.intimestampreps
+    value 0
+
+network.icmp.intimestamps
+    value 0
+
+network.icmp.outaddrmaskreps
+    value 0
+
+network.icmp.outaddrmasks
+    value 0
+
+network.icmp.outdestunreachs
+    value 3038
+
+network.icmp.outechoreps
+    value 0
+
+network.icmp.outechos
+    value 6
+
+network.icmp.outerrors
+    value 0
+
+network.icmp.outmsgs
+    value 3044
+
+network.icmp.outparmprobs
+    value 0
+
+network.icmp.outredirects
+    value 0
+
+network.icmp.outsrcquenchs
+    value 0
+
+network.icmp.outtimeexcds
+    value 0
+
+network.icmp.outtimestampreps
+    value 0
+
+network.icmp.outtimestamps
+    value 0
+
+network.ip.cepkts
+No value(s) available!
+
+network.ip.csumerrors
+No value(s) available!
+
+network.ip.defaultttl
+    value 64
+
+network.ip.ect0pkts
+No value(s) available!
+
+network.ip.ect1pkts
+No value(s) available!
+
+network.ip.forwarding
+    value 1
+
+network.ip.forwdatagrams
+    value 133866
+
+network.ip.fragcreates
+    value 0
+
+network.ip.fragfails
+    value 0
+
+network.ip.fragoks
+    value 0
+
+network.ip.inaddrerrors
+    value 0
+
+network.ip.inbcastoctets
+No value(s) available!
+
+network.ip.inbcastpkts
+No value(s) available!
+
+network.ip.indelivers
+    value 198351
+
+network.ip.indiscards
+    value 0
+
+network.ip.inhdrerrors
+    value 0
+
+network.ip.inmcastoctets
+No value(s) available!
+
+network.ip.inmcastpkts
+No value(s) available!
+
+network.ip.innoroutes
+No value(s) available!
+
+network.ip.inoctets
+No value(s) available!
+
+network.ip.inreceives
+    value 396926
+
+network.ip.intruncatedpkts
+No value(s) available!
+
+network.ip.inunknownprotos
+    value 0
+
+network.ip.noectpkts
+No value(s) available!
+
+network.ip.outbcastoctets
+No value(s) available!
+
+network.ip.outbcastpkts
+No value(s) available!
+
+network.ip.outdiscards
+    value 0
+
+network.ip.outmcastoctets
+No value(s) available!
+
+network.ip.outmcastpkts
+No value(s) available!
+
+network.ip.outnoroutes
+    value 16
+
+network.ip.outoctets
+No value(s) available!
+
+network.ip.outrequests
+    value 352043
+
+network.ip.reasmfails
+    value 0
+
+network.ip.reasmoks
+    value 0
+
+network.ip.reasmreqds
+    value 0
+
+network.ip.reasmtimeout
+    value 0
+
+network.udp.incsumerrors
+No value(s) available!
+
+network.udp.indatagrams
+    value 76584
+
+network.udp.inerrors
+    value 0
+
+network.udp.noports
+    value 0
+
+network.udp.outdatagrams
+    value 76586
+
+network.udp.recvbuferrors
+    value 0
+
+network.udp.sndbuferrors
+    value 0
+
+network.udplite.incsumerrors
+No value(s) available!
+
+network.udplite.indatagrams
+    value 0
+
+network.udplite.inerrors
+    value 0
+
+network.udplite.noports
+    value 0
+
+network.udplite.outdatagrams
+    value 0
+
+network.udplite.recvbuferrors
+    value 0
+
+network.udplite.sndbuferrors
+    value 0
+
+== done
+
+== Checking inet network metrics from procnet-snmp-3.19.0
+
+network.icmp.inaddrmaskreps
+    value 0
+
+network.icmp.inaddrmasks
+    value 0
+
+network.icmp.incsumerrors
+    value 0
+
+network.icmp.indestunreachs
+    value 8292
+
+network.icmp.inechoreps
+    value 11524
+
+network.icmp.inechos
+    value 9284
+
+network.icmp.inerrors
+    value 4310
+
+network.icmp.inmsgs
+    value 29161
+
+network.icmp.inparmprobs
+    value 0
+
+network.icmp.inredirects
+    value 0
+
+network.icmp.insrcquenchs
+    value 0
+
+network.icmp.intimeexcds
+    value 40
+
+network.icmp.intimestampreps
+    value 0
+
+network.icmp.intimestamps
+    value 0
+
+network.icmp.outaddrmaskreps
+    value 0
+
+network.icmp.outaddrmasks
+    value 0
+
+network.icmp.outdestunreachs
+    value 51623
+
+network.icmp.outechoreps
+    value 9284
+
+network.icmp.outechos
+    value 11600
+
+network.icmp.outerrors
+    value 0
+
+network.icmp.outmsgs
+    value 72528
+
+network.icmp.outparmprobs
+    value 0
+
+network.icmp.outredirects
+    value 0
+
+network.icmp.outsrcquenchs
+    value 0
+
+network.icmp.outtimeexcds
+    value 0
+
+network.icmp.outtimestampreps
+    value 0
+
+network.icmp.outtimestamps
+    value 0
+
+network.ip.cepkts
+No value(s) available!
+
+network.ip.csumerrors
+No value(s) available!
+
+network.ip.defaultttl
+    value 64
+
+network.ip.ect0pkts
+No value(s) available!
+
+network.ip.ect1pkts
+No value(s) available!
+
+network.ip.forwarding
+    value 1
+
+network.ip.forwdatagrams
+    value 0
+
+network.ip.fragcreates
+    value 0
+
+network.ip.fragfails
+    value 0
+
+network.ip.fragoks
+    value 0
+
+network.ip.inaddrerrors
+    value 0
+
+network.ip.inbcastoctets
+No value(s) available!
+
+network.ip.inbcastpkts
+No value(s) available!
+
+network.ip.indelivers
+    value 55863982
+
+network.ip.indiscards
+    value 0
+
+network.ip.inhdrerrors
+    value 0
+
+network.ip.inmcastoctets
+No value(s) available!
+
+network.ip.inmcastpkts
+No value(s) available!
+
+network.ip.innoroutes
+No value(s) available!
+
+network.ip.inoctets
+No value(s) available!
+
+network.ip.inreceives
+    value 55946598
+
+network.ip.intruncatedpkts
+No value(s) available!
+
+network.ip.inunknownprotos
+    value 0
+
+network.ip.noectpkts
+No value(s) available!
+
+network.ip.outbcastoctets
+No value(s) available!
+
+network.ip.outbcastpkts
+No value(s) available!
+
+network.ip.outdiscards
+    value 160
+
+network.ip.outmcastoctets
+No value(s) available!
+
+network.ip.outmcastpkts
+No value(s) available!
+
+network.ip.outnoroutes
+    value 721
+
+network.ip.outoctets
+No value(s) available!
+
+network.ip.outrequests
+    value 92067342
+
+network.ip.reasmfails
+    value 0
+
+network.ip.reasmoks
+    value 0
+
+network.ip.reasmreqds
+    value 0
+
+network.ip.reasmtimeout
+    value 0
+
+network.udp.incsumerrors
+    value 0
+
+network.udp.indatagrams
+    value 3146810
+
+network.udp.inerrors
+    value 0
+
+network.udp.noports
+    value 1556
+
+network.udp.outdatagrams
+    value 3509409
+
+network.udp.recvbuferrors
+    value 0
+
+network.udp.sndbuferrors
+    value 0
+
+network.udplite.incsumerrors
+    value 0
+
+network.udplite.indatagrams
+    value 0
+
+network.udplite.inerrors
+    value 0
+
+network.udplite.noports
+    value 0
+
+network.udplite.outdatagrams
+    value 0
+
+network.udplite.recvbuferrors
+    value 0
+
+network.udplite.sndbuferrors
+    value 0
+
+== done
+
+== Checking ipv6 network metrics from procnet-snmp6-2.6.32
+
+network.icmp6.incsumerrors
+    value 0
+
+network.icmp6.indestunreachs
+    value 0
+
+network.icmp6.inechoreplies
+    value 0
+
+network.icmp6.inechos
+    value 0
+
+network.icmp6.inerrors
+    value 0
+
+network.icmp6.ingroupmembqueries
+    value 0
+
+network.icmp6.ingroupmembreductions
+    value 0
+
+network.icmp6.ingroupmembresponses
+    value 0
+
+network.icmp6.inmldv2reports
+    value 0
+
+network.icmp6.inmsgs
+    value 3
+
+network.icmp6.inneighboradvertisements
+    value 3
+
+network.icmp6.inneighborsolicits
+    value 0
+
+network.icmp6.inparmproblems
+    value 0
+
+network.icmp6.inpkttoobigs
+    value 0
+
+network.icmp6.inredirects
+    value 0
+
+network.icmp6.inrouteradvertisements
+    value 0
+
+network.icmp6.inroutersolicits
+    value 0
+
+network.icmp6.intimeexcds
+    value 0
+
+network.icmp6.outdestunreachs
+    value 0
+
+network.icmp6.outechoreplies
+    value 0
+
+network.icmp6.outechos
+    value 0
+
+network.icmp6.outerrors
+    value 0
+
+network.icmp6.outgroupmembqueries
+    value 0
+
+network.icmp6.outgroupmembreductions
+    value 39
+
+network.icmp6.outgroupmembresponses
+    value 0
+
+network.icmp6.outmldv2reports
+    value 0
+
+network.icmp6.outmsgs
+    value 80
+
+network.icmp6.outneighboradvertisements
+    value 0
+
+network.icmp6.outneighborsolicits
+    value 0
+
+network.icmp6.outparmproblems
+    value 0
+
+network.icmp6.outpkttoobigs
+    value 0
+
+network.icmp6.outredirects
+    value 28
+
+network.icmp6.outrouteradvertisements
+    value 13
+
+network.icmp6.outroutersolicits
+    value 0
+
+network.icmp6.outtimeexcds
+    value 0
+
+network.ip6.fragcreates
+    value 0
+
+network.ip6.fragfails
+    value 0
+
+network.ip6.fragoks
+    value 0
+
+network.ip6.inaddrerrors
+    value 0
+
+network.ip6.inbcastoctets
+    value 0
+
+network.ip6.incepkts
+    value 0
+
+network.ip6.indelivers
+    value 7
+
+network.ip6.indiscards
+    value 2314
+
+network.ip6.inect0pkts
+    value 0
+
+network.ip6.inect1pkts
+    value 0
+
+network.ip6.inhdrerrors
+    value 0
+
+network.ip6.inmcastoctets
+    value 893928
+
+network.ip6.inmcastpkts
+    value 18594
+
+network.ip6.innoectpkts
+    value 0
+
+network.ip6.innoroutes
+    value 0
+
+network.ip6.inoctets
+    value 1129567
+
+network.ip6.inreceives
+    value 20912
+
+network.ip6.intoobigerrors
+    value 0
+
+network.ip6.intruncatedpkts
+    value 0
+
+network.ip6.inunknownprotos
+    value 0
+
+network.ip6.outbcastoctets
+    value 0
+
+network.ip6.outdiscards
+    value 0
+
+network.ip6.outforwdatagrams
+    value 0
+
+network.ip6.outmcastoctets
+    value 7272
+
+network.ip6.outmcastpkts
+    value 108
+
+network.ip6.outnoroutes
+    value 13
+
+network.ip6.outoctets
+    value 5424
+
+network.ip6.outrequests
+    value 84
+
+network.ip6.reasmfails
+    value 0
+
+network.ip6.reasmoks
+    value 0
+
+network.ip6.reasmreqds
+    value 0
+
+network.ip6.reasmtimeout
+    value 0
+
+network.udp6.ignoredmulti
+    value 0
+
+network.udp6.incsumerrors
+    value 0
+
+network.udp6.indatagrams
+    value 0
+
+network.udp6.inerrors
+    value 0
+
+network.udp6.noports
+    value 0
+
+network.udp6.outdatagrams
+    value 0
+
+network.udp6.rcvbuferrors
+    value 0
+
+network.udp6.sndbuferrors
+    value 0
+
+network.udplite6.incsumerrors
+    value 0
+
+network.udplite6.indatagrams
+    value 0
+
+network.udplite6.inerrors
+    value 0
+
+network.udplite6.noports
+    value 0
+
+network.udplite6.outdatagrams
+    value 0
+
+network.udplite6.rcvbuferrors
+    value 0
+
+network.udplite6.sndbuferrors
+    value 0
+
+== done
+
+== Checking ipv6 network metrics from procnet-snmp6-3.19.0
+
+network.icmp6.incsumerrors
+    value 0
+
+network.icmp6.indestunreachs
+    value 1192
+
+network.icmp6.inechoreplies
+    value 0
+
+network.icmp6.inechos
+    value 0
+
+network.icmp6.inerrors
+    value 1188
+
+network.icmp6.ingroupmembqueries
+    value 0
+
+network.icmp6.ingroupmembreductions
+    value 0
+
+network.icmp6.ingroupmembresponses
+    value 0
+
+network.icmp6.inmldv2reports
+    value 0
+
+network.icmp6.inmsgs
+    value 1230
+
+network.icmp6.inneighboradvertisements
+    value 38
+
+network.icmp6.inneighborsolicits
+    value 0
+
+network.icmp6.inparmproblems
+    value 0
+
+network.icmp6.inpkttoobigs
+    value 0
+
+network.icmp6.inredirects
+    value 0
+
+network.icmp6.inrouteradvertisements
+    value 0
+
+network.icmp6.inroutersolicits
+    value 0
+
+network.icmp6.intimeexcds
+    value 0
+
+network.icmp6.outdestunreachs
+    value 1192
+
+network.icmp6.outechoreplies
+    value 0
+
+network.icmp6.outechos
+    value 0
+
+network.icmp6.outerrors
+    value 0
+
+network.icmp6.outgroupmembqueries
+    value 0
+
+network.icmp6.outgroupmembreductions
+    value 499671
+
+network.icmp6.outgroupmembresponses
+    value 0
+
+network.icmp6.outmldv2reports
+    value 0
+
+network.icmp6.outmsgs
+    value 502234
+
+network.icmp6.outneighboradvertisements
+    value 0
+
+network.icmp6.outneighborsolicits
+    value 0
+
+network.icmp6.outparmproblems
+    value 0
+
+network.icmp6.outpkttoobigs
+    value 0
+
+network.icmp6.outredirects
+    value 306
+
+network.icmp6.outrouteradvertisements
+    value 1065
+
+network.icmp6.outroutersolicits
+    value 0
+
+network.icmp6.outtimeexcds
+    value 0
+
+network.ip6.fragcreates
+    value 0
+
+network.ip6.fragfails
+    value 0
+
+network.ip6.fragoks
+    value 0
+
+network.ip6.inaddrerrors
+    value 0
+
+network.ip6.inbcastoctets
+    value 0
+
+network.ip6.incepkts
+    value 0
+
+network.ip6.indelivers
+    value 13412990
+
+network.ip6.indiscards
+    value 0
+
+network.ip6.inect0pkts
+    value 0
+
+network.ip6.inect1pkts
+    value 0
+
+network.ip6.inhdrerrors
+    value 0
+
+network.ip6.inmcastoctets
+    value 13346397
+
+network.ip6.inmcastpkts
+    value 47932
+
+network.ip6.innoectpkts
+    value 13460884
+
+network.ip6.innoroutes
+    value 0
+
+network.ip6.inoctets
+    value 102044242908
+
+network.ip6.inreceives
+    value 13460884
+
+network.ip6.intoobigerrors
+    value 0
+
+network.ip6.intruncatedpkts
+    value 0
+
+network.ip6.inunknownprotos
+    value 0
+
+network.ip6.outbcastoctets
+    value 0
+
+network.ip6.outdiscards
+    value 1
+
+network.ip6.outforwdatagrams
+    value 0
+
+network.ip6.outmcastoctets
+    value 24107572
+
+network.ip6.outmcastpkts
+    value 501351
+
+network.ip6.outnoroutes
+    value 71487
+
+network.ip6.outoctets
+    value 102055075867
+
+network.ip6.outrequests
+    value 13915185
+
+network.ip6.reasmfails
+    value 0
+
+network.ip6.reasmoks
+    value 0
+
+network.ip6.reasmreqds
+    value 0
+
+network.ip6.reasmtimeout
+    value 0
+
+network.udp6.ignoredmulti
+    value 0
+
+network.udp6.incsumerrors
+    value 0
+
+network.udp6.indatagrams
+    value 481081
+
+network.udp6.inerrors
+    value 0
+
+network.udp6.noports
+    value 4
+
+network.udp6.outdatagrams
+    value 481085
+
+network.udp6.rcvbuferrors
+    value 0
+
+network.udp6.sndbuferrors
+    value 0
+
+network.udplite6.incsumerrors
+    value 0
+
+network.udplite6.indatagrams
+    value 0
+
+network.udplite6.inerrors
+    value 0
+
+network.udplite6.noports
+    value 0
+
+network.udplite6.outdatagrams
+    value 0
+
+network.udplite6.rcvbuferrors
+    value 0
+
+network.udplite6.sndbuferrors
+    value 0
+
+== done
+

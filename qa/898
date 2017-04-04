@@ -1,0 +1,63 @@
+#!/bin/sh
+# PCP QA Test No. 898
+# pmlogmv botch in arg parsing
+#
+# Copyright (c) 2014 Ken McDonell.  All Rights Reserved.
+#
+
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+mkdir $tmp.mv
+for i in 20140417.00.25 20140417.00.55
+do
+    for ext in 0 index meta
+    do
+	cp tmparch/foo.$ext $tmp.mv/$i.$ext
+    done
+done
+
+# real QA test starts here
+cd $tmp.mv
+echo "arg is .0 file name case"
+pmlogmv -N 20140417.00.25.0 destination
+
+echo
+echo "arg is .index file name case"
+pmlogmv -N 20140417.00.25.index destination
+
+echo
+echo "arg is .meta file name case"
+pmlogmv -N 20140417.00.25.meta destination
+
+echo
+echo "arg is unique prefix case"
+pmlogmv -N 20140417.00.25 destination
+
+echo
+echo "arg is ambiguous prefix cases"
+pmlogmv -N 20140417.00 destination
+rm 20140417.00.55.0
+pmlogmv -N 20140417.00 destination
+rm 20140417.00.55.index
+pmlogmv -N 20140417.00 destination
+
+echo
+echo "bogus filename case"
+touch 20140417.00.25.bozo
+pmlogmv -N 20140417.00.25.bozo destination
+
+# success, all done
+status=0
+
+exit

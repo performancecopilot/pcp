@@ -1,0 +1,7 @@
+#pmlogconf-setup 2.0
+ident	XLV operations and bytes per volume
+probe	xlv.read
+	xlv.read
+	xlv.write
+	xlv.read_bytes
+	xlv.write_bytes

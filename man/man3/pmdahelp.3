@@ -1,0 +1,102 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMDAHELP 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmdaOpenHelp\f1,
+\f3pmdaGetHelp\f1,
+\f3pmdaGetInDomHelp\f1,
+\f3pmdaCloseHelp\f1 \- help text support for a PMDA
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.br
+#include <pcp/impl.h>
+.br
+#include <pcp/pmda.h>
+.sp
+int pmdaOpenHelp(const char *\fIfname\fP);
+.br
+char *pmdaGetHelp(int \fIhandle\fP, pmID \fIpmid\fP, int \fItype\fP);
+.br
+char *pmdaGetInDomHelp(int \fIhandle\fP, pmInDom \fIindom\fP, int \fItype\fP);
+.br
+void pmdaCloseHelp(int \fIhandle\fP);
+.sp
+cc ... \-lpcp_pmda \-lpcp
+.ft 1
+.SH DESCRIPTION
+As part of the Performance Metrics Domain Agent (PMDA) API (see
+.BR PMDA (3)),
+this group of routines is used to implement the processing of a PMDA's metric
+help information.
+.PP
+These routines are really intended for internal use, and should not
+need to be called directly from any PMDA code.
+.PP
+Briefly, the base name of the help text file (as created by
+.BR newhelp (1))
+is passed in via a
+.B \-h
+command line option for a daemon PMDA or as an argument to
+.BR pmdaDaemon (3)
+or
+.BR pmdaDSO (3).
+Then
+.B pmdaOpenHelp
+is called from
+.BR pmdaInit (3)
+and returns a
+.I handle
+that is used in subsequent calls to identify a particular help
+text collection (each PMDA typically has only one such collection).
+.PP
+Requests for help text are passed to
+.BR pmdaText (3)
+which calls
+.B pmdaGetHelp
+or
+.B pmdaGetInDomHelp
+as required.
+.PP
+Other than error cases in
+.BR pmdaOpenHelp ,
+.B pmdaCloseHelp
+is not called.
+.SH DIAGNOSTICS
+.B pmdaOpenHelp
+returns a negative value for failure, suitable for decoding with
+.BR pmErrStr (3).
+.B pmdaGetHelp
+and
+.B pmdaGetInDomHelp
+return NULL if the corresponding help text does not exist.
+.SH CAVEAT
+The PMDA must be using 
+.B PMDA_PROTOCOL_2 
+or later, as specified in the call to 
+.BR pmdaDSO (3)
+or 
+.BR pmdaDaemon (3).
+.SH SEE ALSO
+.BR newhelp (1),
+.BR PMAPI (3),
+.BR PMDA (3),
+.BR pmdaDaemon (3),
+.BR pmdaDSO (3),
+.BR pmdaInit (3),
+.BR pmdaText (3)
+and
+.BR pmErrStr (3).

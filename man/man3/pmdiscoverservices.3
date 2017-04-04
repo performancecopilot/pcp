@@ -1,0 +1,218 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2014 Red Hat.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMDISCOVERSERVICES 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmDiscoverServices\f1 \- discover PCP services on the network
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.sp
+.nf
+int pmDiscoverServices(const char *\fIservice\fP, const char *\fImechanism\fP, char ***\fIurls\fP);
+.fi
+.sp
+#include <pcp/impl.h>
+.sp
+.nf
+int __pmDiscoverServicesWithOptions(const char *\fIservice\fP, const char *\fImechanism\fP, const char *\fIoptionsString\fP, const volatile unsigned *\fIflags\fP, char ***\fIurls\fP);
+.fi
+.sp
+cc ... \-lpcp
+.ft 1
+.SH DESCRIPTION
+.de CW
+.ie t \f(CW\\$1\f1\\$2
+.el \fI\\$1\f1\\$2
+..
+Given a PCP service name, as identified by
+.IR service ,
+and using the type of discovery optionally specified in
+.IR mechanism ,
+.B pmDiscoverServices
+returns, via
+.IR urls ,
+a list of URLs representing the services discovered on the network.
+.PP 
+The internal function
+.B __pmDiscoverServicesWithOptions
+performs the same function and adds arguments for global options and a mechanism
+for interrupting the discovery process.
+.PP
+The
+.BR pmfind (1)
+utility provides command line access to both of these interfaces.
+.PP
+Calling
+.sp
+pmDiscoverServices(\fIservice\fP, \fImechanism\fP, \fIurls\fP)
+.sp
+is equivalent to calling
+.sp
+__pmDiscoverServicesWithOptions(\fIservice\fP, \fImechanism\fP, NULL, NULL, \fIurls\fP);
+.PP 
+.I service
+specifies the PCP service to be discovered. Currently supported services are
+.B PM_SERVER_SERVICE_SPEC,
+.B PM_PROXY_SERVICE_SPEC
+and
+.B PM_WEBD_SERVICE_SPEC,
+which search for
+.BR pmcd (1),
+.BR pmproxy (1),
+and
+.BR pmwebd (1),
+servers respectively.
+.PP 
+.IR mechanism
+specifies the style of discovery to be used.
+.PP
+The currently supported mechanisms are:
+.TP
+.B avahi
+This searches for services which are broadcasting using mDNS via
+.BR avahi-daemon (8).
+An optional suffix \fB",timeout=N"\fP may be added
+to specify the discovery timeout in floating-point multiples of one
+second.  The default timeout is 0.5 seconds, which may be overridden
+by the \fBAVAHI_DISCOVERY_TIMEOUT\fP environment variable, also
+specified in floating-point multiples of one second. If both are specified, then
+the value specified in the environment variable takes precedence.
+.TP
+.B probe=<net-address>/<mask-bits>
+Actively probes the given subnet for the requested PCP service(s).
+<net-address> is an inet or ipv6
+network address and <mask-bits> is the number of bits used to define the
+subnet. For example, 192.168.1.0/24 defines an 8 bit subnet consisting of the
+addresses 192.168.1.0 through 192.168.1.255.
+An optional suffix \fB",maxThreads=N"\fP may be added to limit the number of
+threads used while probing. The default is no fixed limit, which is to say that
+the process' rlimits for the number of threads and open file descriptors
+will be respected. An optional suffix \fB",timeout=N"\fP may be added
+to specify the timeout for each connection attempt in floating-point multiples
+of one second.  The default timeout is 20 milliseconds.
+.PP
+.IR mechanism
+may also be NULL, which means to use all available discovery mechanisms.
+.PP 
+For
+.B __pmDiscoverServicesWithOptions,
+.IR optionsString
+specifies global options to be applied to the discovery process. Options are
+comma-separated and may be one or more of the following:
+.TP
+.B resolve
+This requests that DNS name resolution be attempted for the addresses of any
+discovered services.
+.TP
+.B timeout=N
+This specifies a timeout period after which the discovery process will be
+interrupted. N is a floating point number representing the number of seconds
+before timing out.
+.PP
+.IR optionsString
+may also be NULL, which means that no global options are specified.
+.PP 
+For
+.B __pmDiscoverServicesWithOptions,
+.IR flags
+specifies a pointer to an object of type \fIunsigned\fR which is a bit mask of
+options/status flags for the discovery process. The supported
+flags are:
+.TP
+.B PM_SERVICE_DISCOVERY_RESOLVE
+Specifying this flag is equivalent to specifying \fIresolve\fR in the
+\fIoptionsString\fR
+.TP
+.B PM_SERVICE_DISCOVERY_INTERRUPTED
+This flag must be unset when calling
+.B __pmDiscoverServicesWithOptions
+but may be set asynchronously (by an interrupt handler, for example) in order
+to interrupt the service discovery process.
+.PP
+.IR flags
+may also be NULL, which indicates that no flags are set.
+.PP 
+.B pmDiscoverServices
+and
+.B __pmDiscoverServicesWithOptions
+will return the number of services discovered, else a value
+less than zero for an error.
+The value zero indicates that no services were discovered.
+.PP
+The resulting list of pointers,
+.IR urls ,
+.B and
+the values
+(the URLs) that the pointers reference will have been
+allocated by
+.B pmDiscoverServices
+or
+.B __pmDiscoverServicesWithOptions
+with a single call to
+.BR malloc (3),
+and it is the
+responsibility of the
+.B pmDiscoverServices
+or
+.B __pmDiscoverServicesWithOptions
+caller to
+.BR free (\c
+.IR urls )
+to release the space
+when it is no longer required.
+.PP
+When an error occurs, or no services are discovered,
+.I urls
+is undefined (no space will have been
+allocated, and so calling
+.BR free (3)
+is a singularly bad idea).
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.I /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (5).
+Values for these variables may be obtained programmatically
+using the
+.BR pmGetConfig (3)
+function.
+.SH SEE ALSO
+.BR PMAPI (3),
+.BR pmcd (1),
+.BR pmproxy (1),
+.BR pmwebd (1),
+.BR pmfind (1),
+.BR pmGetConfig (3),
+.BR pcp.conf (5),
+.BR pcp.env (5)
+and
+.BR avahi-daemon (8).
+.SH DIAGNOSTICS
+.IP \f3-EINVAL\f1
+An invalid argument has been specified.
+.IP \f3-ENOMEM\f1
+Unable to allocate memory required to process the request.
+.IP \f3-EOPNOTSUPP\f1
+The specified \fImechanism\fP is not supported.

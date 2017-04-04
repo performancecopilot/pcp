@@ -1,0 +1,1047 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2016 Red Hat.  All Rights Reserved.
+.\" Copyright (c) 2011 Ken McDonell.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMLOGREWRITE 1 "" "Performance Co-Pilot"
+.SH NAME
+\f3pmlogrewrite\f1 \- rewrite Performance Co-Pilot archives
+.SH SYNOPSIS
+\f3$PCP_BINADM_DIR/pmlogrewrite\f1
+[\f3\-Cdiqsvw \f1]
+[\f3\-c\f1 \f2config\f1]
+\f2inlog\f1 [\f2outlog\f1]
+.SH DESCRIPTION
+.de KW
+\\f(BI\\$1\\fP\\$2
+..
+.B pmlogrewrite
+reads a set of Performance Co-Pilot (PCP) archive logs
+identified by
+.I inlog
+and creates a PCP archive log in
+.IR outlog .
+Under normal usage, the
+.B \-c
+option will be used to nominate a configuration file or files
+that contains specifications (see the
+.B "REWRITING RULES SYNTAX"
+section below)
+that describe how the data and metadata from
+.I inlog
+should be transformed to produce
+.IR outlog .
+.PP
+The typical uses for
+.B pmlogrewrite
+would be to accommodate the evolution of Performance Metric Domain Agents
+(PMDAs) where the names, metadata and semantics of metrics and their associated
+instance domains may change over time, e.g. promoting the type of a metric
+from a 32-bit to a 64-bit integer, or renaming a group of metrics.
+Refer to the
+.B EXAMPLES
+section for some additional use cases.
+.PP
+.B pmlogrewrite
+is most useful where PMDA changes, or errors in the production environment,
+result in archives that cannot be combined with
+.BR pmlogextract (1).
+By pre-processing the archives with
+.B pmlogrewrite
+the resulting archives may be able to be merged with
+.BR pmlogextract (1).
+.PP
+The input
+.I inlog
+must be a set of PCP archive logs
+created by
+.BR pmlogger (1),
+or possibly one of the tools that read and create PCP archives, e.g.
+.BR pmlogextract (1)
+and
+.BR pmlogreduce (1).
+.I inlog
+is a comma-separated list of names, each
+of which may be the base name of an archive or the name of a directory containing
+one or more archives.
+.PP
+If no
+.B \-c
+option is specified, then the default behavior simply creates
+.I outlog
+as a copy of
+.IR inlog .
+This is a little more complicated than
+.BR cat (1),
+as each PCP archive is made up of several physical files.
+.PP
+While
+.B pmlogrewrite
+may be used to repair some data consistency issues in PCP archives,
+there is also a class of repair tasks that cannot be handled by
+.B pmlogrewrite
+and
+.BR pmloglabel (1)
+may be a useful tool in these cases.
+.SH COMMAND LINE OPTIONS
+The command line options for
+.B pmlogrewrite
+are as follows:
+.TP 7
+.B \-C
+Parse the rewriting rules and quit.
+.I outlog
+is not created.
+When
+.B \-C
+is specified, this also sets
+.B \-v
+and
+.B \-w
+so that all warnings and verbose messages are displayed as
+.I config
+is parsed.
+.TP 7
+.BI \-c " config"
+If
+.I config
+is a file or symbolic link,
+read and parse rewriting rules from there.
+If
+.I config
+is a directory, then all of the files or symbolic links in that
+directory (excluding those beginning with a period ``.'') will
+be used to provide the rewriting rules.
+Multiple
+.B \-c
+options are allowed.
+.TP 7
+.B \-d
+Desperate mode.  Normally if a fatal error occurs, all trace of
+the partially written PCP archive
+.I outlog
+is removed.  With the
+.B \-d
+option, the partially created
+.I outlog
+archive log is not removed.
+.TP 7
+.B \-i
+Rather than creating
+.IR outlog ,
+.I inlog
+is rewritten in place when the
+.B \-i
+option is used.
+A new archive is created using temporary file names and then renamed to 
+.I inlog
+in such a way that
+if any errors (not warnings) are encountered,
+.I inlog
+remains unaltered.
+.TP 7
+.B \-q
+Quick mode, where if there are no rewriting actions to be
+performed (none of the global data, instance domains or metrics
+from
+.I inlog
+will be changed), then
+.B pmlogrewrite
+will exit (with status 0, so success) immediately after parsing
+the configuration file(s) and
+.I outlog
+is not created.
+.TP 7
+.B \-s
+When the ``units'' of a metric are changed, if the dimension in terms
+of space, time and count is unaltered, then the scaling factor is being changed,
+e.g. BYTE to KBYTE, or MSEC\u\s-3-1\s0\d to USEC\u\s-3-1\s0\d, or the
+composite MBYTE.SEC\u\s-3-1\s0\d to KBYTE.USEC\u\s-3-1\s0\d.
+The
+motivation may be (a) that the original metadata was wrong but the
+values in
+.I inlog
+are correct, or (b) the metadata is changing so the values need
+to change as well.  The default
+.B pmlogrewrite
+behaviour matches case (a).  If case (b) applies, then use the
+.B \-s
+option and the values of all the
+metrics with a scale factor change in each result will be rescaled.
+For finer control over value rescaling refer to
+the
+.KW RESCALE
+option for the
+.KW UNITS
+clause of the metric rewriting rule described below.
+.TP 7
+.BI \-v
+Increase verbosity of diagnostic output.
+.TP 7
+.BI \-w
+Emit warnings.  Normally
+.B pmlogrewrite
+remains silent for any warning that is not fatal and
+it is expected that for a particular archive, some (or indeed, all)
+of the rewriting specifications may not apply.  For example, changes to
+a PMDA may be captured in a set of rewriting rules, but a single archive
+may not contain all of the modified metrics nor all of the modified
+instance domains and/or instances.  Because these cases are expected,
+they do not prevent
+.B pmlogrewrite
+executing, and rules that do not apply to
+.I inlog
+are silently ignored by default.
+Similarly, some rewriting rules may involve no change because
+the metadata in
+.I inlog
+already matches the intent of the rewriting rule to correct data
+from a previous version of a PMDA.
+The
+.B \-w
+flag forces warnings to be emitted for all of these cases.
+.PP
+The argument
+.I outlog
+is required in all cases, except when
+.B \-i
+is specified.
+.SH REWRITING RULES SYNTAX
+A configuration file
+contains zero or more rewriting rules as defined below.
+.PP
+Keywords and special punctuation characters are shown below in
+.KW bolditalic
+font and are case-insensitive, so
+.KW METRIC ,
+.KW metric
+and
+.KW Metric
+are all equivalent in rewriting rules.
+.PP
+The character ``#'' introduces
+a comment and the remainder of the line is ignored.  Otherwise the
+input is relatively free format with optional white space (spaces, tabs or
+newlines) between lexical items in the rules.
+.PP
+A
+.B global
+rewriting rule has the form:
+.PP
+.KW GLOBAL
+.KW {
+.I globalspec
+\&...
+.KW }
+.PP
+where
+.I globalspec
+is zero or more of the following clauses:
+.RS +4n
+.PP
+.KW HOSTNAME
+.KW ->
+.I hostname
+.RS +4n
+.PP
+Modifies the label records in the
+.I outlog
+PCP archive, so that the metrics will appear to have
+been collected from the host
+.IR hostname .
+.RE
+.PP
+.KW TIME
+.KW ->
+.I delta
+.RS +4n
+.PP
+Both metric values and the instance domain metadata in a PCP
+archive carry timestamps.
+This clause forces all the timestamps to be adjusted by
+.IR delta ,
+where
+.I delta
+is an optional sign ``+'' (the default) or ``\-'', an optional number of
+hours followed by a colon ``:'', an optional number of minutes followed by a 
+colon ``:'', a number of seconds, an optional fraction of seconds following
+a period ``.''.  The simplest example would be ``30'' to increase the
+timestamps by 30 seconds.  A more complex example would be ``\-23:59:59.999''
+to move the timestamps backwards by one millisecond less than one day.
+.RE
+.PP
+.KW TZ
+.KW ->
+\f(BI"\fP\fItimezone\fP\f(BI"\fP
+.RS +4n
+.PP
+Modifies the label records in the
+.I outlog
+PCP archive, so that the metrics will appear to have been
+collected from a host with a local timezone of
+.IR timezone .
+.I timezone
+must be enclosed in quotes, and should conform to the valid
+timezone syntax rules for the local platform.
+.RE
+.RE
+.PP
+An
+.B indom
+rewriting rule modifies an instance domain and has the form:
+.PP
+.KW INDOM
+\fIdomain\fP\f(BI.\fP\fIserial\fP
+.KW {
+.I indomspec
+\&...
+.KW }
+.PP
+where
+.I domain
+and
+.I serial
+identify one or more existing instance domains from
+.I inlog
+\- typically
+.I domain
+would be an integer in the range 1 to 510
+and
+.I serial
+would be an integer in the range 0 to 4194304.
+.PP
+As a special
+case
+.I serial
+could be an asterisk ``*'' which means the rule applies to every
+instance domain with a domain number of
+.IR domain .
+.PP
+If a designated instance domain is not in
+.I inlog
+the rule has no effect.
+.PP
+The
+.I indomspec
+is zero or more of the following clauses:
+.RS +4n
+.PP
+.KW INAME
+"\fIoldname\fP"
+.KW ->
+"\fInewname\fP"
+.RS +4n
+.PP
+The instance identified by the external instance name
+.I oldname
+is renamed to
+.IR newname .
+Both
+.I oldname
+and
+.I newname
+must be enclosed in quotes.
+.PP
+As a special case, the new name may be the keyword
+.KW DELETE
+(with no quotes), and then the instance
+.I oldname
+will be expunged from
+.I outlog
+which removes it from the instance domain metadata and removes all
+values of this instance for all the associated metrics.
+.PP
+If the instance names contain any embedded
+spaces then special care needs to be taken in respect of the
+PCP instance naming rule that treats the leading non-space
+part of the instance name as the unique portion of the name for
+the purposes of matching and ensuring uniqueness within an
+instance domain, refer to
+.BR pmdaInstance (3)
+for a discussion of this issue.
+.PP
+As an illustration, consider the hypothetical instance domain for a metric
+which contains 2 instances with the following names:
+.RS +4
+.ft CW
+.nf
+red
+eek urk
+.fi
+.ft P
+.RE
+.PP
+Then some possible
+.KW INAME
+clauses might be:
+.TP +10n
+\f(CW"eek" -> "yellow like a flower"\fP
+Acceptable,
+.I oldname
+"eek" matches the "eek urk" instance.
+.TP +10n
+\f(CW"red" -> "eek"\fP
+Error,
+.I newname
+"eek" matches the existing "eek urk"
+instance.
+.TP +10n
+\f(CW"eek urk" -> "red of another hue"\fP
+Error,
+.I newname
+"red of another hue" matches the existing "red"
+instance.
+.RE
+.PP
+.KW INDOM
+.KW ->
+\fInewdomain\fP\f(BI.\fP\fInewserial\fP
+.RS +4n
+.PP
+Modifies the metadata for the instance domain and every metric associated
+with the instance domain.
+As a special case,
+.I newserial
+could be an asterisk ``*'' which means use
+.I serial
+from the 
+.B indom
+rewriting rule, although this is most useful when
+.I serial
+is also an asterisk.
+So for example:
+.RS +4n
+.ft CW
+indom 29.* { indom -> 109.* }
+.ft P
+.RE
+will move all instance domains from domain 29 to domain 109.
+.RE
+.PP
+.KW INDOM
+.KW ->
+.KW DUPLICATE
+\fInewdomain\fP\f(BI.\fP\fInewserial\fP
+.RS +4n
+.PP
+A special case of the previous
+.KW INDOM
+clause where the instance domain is a duplicate copy of the
+\fIdomain\fP\f(BI.\fP\fIserial\fP instance domain from the
+.I indom
+rewriting rule, and then any
+mapping rules are applied to the copied
+\fInewdomain\fP\f(BI.\fP\fInewserial\fP instance domain.  This is
+useful when a PMDA is split and the same instance domain needs to
+be replicated for domain \fIdomain\fP and domain \fInewdomain\fP.
+So for example if the metrics
+.I foo.one
+and
+.I foo.two
+are both defined over instance domain 12.34, and
+.I foo.two
+is moved to another PMDA using domain 27, then the
+following rewriting rules could be used:
+.RS +4n
+.ft CW
+indom 12.34 { indom -> duplicate 27.34 }
+.br
+metric foo.two { indom -> 27.34 pmid -> 27.*.*  }
+.ft P
+.RE
+.RE
+.PP
+.KW INST
+\fIoldid\fP
+.KW ->
+\fInewid\fP
+.RS +4n
+.PP
+The instance identified by the internal instance identifier
+.I oldid
+is renumbered to
+.IR newid .
+Both
+.I oldid
+and
+.I newid
+are integers in the range 0 to 2\u\s-331\s0\d-1.
+.PP
+As a special case,
+.I newid
+may be the keyword
+.KW DELETE
+and then the instance
+.I oldid
+will be expunged from
+.I outlog
+which removes it from the instance domain metadata and removes all
+values of this instance for all the associated metrics.
+.RE
+.RE
+.PP
+A
+.B metric
+rewriting rule has the form:
+.PP
+.KW METRIC
+.I metricid
+.KW {
+.I metricspec
+\&...
+.KW }
+.PP
+where
+.I metricid
+identifies one or more existing metrics from
+.I inlog
+using either a metric name, or the internal encoding for a metric's PMID as
+\fIdomain\fP\f(BI.\fP\fIcluster\fP\f(BI.\fP\fIitem\fP.
+In the latter case, typically
+.I domain
+would be an integer in the range 1 to 510,
+.I cluster
+would be an integer in the range 0 to 4095,
+and
+.I item
+would be an integer in the range 0 to 1023.
+.PP
+As special
+cases
+.I item
+could be an asterisk ``*'' which means the rule applies to every
+metric with a domain number of
+.I domain
+and a cluster number of
+.IR cluster ,
+or
+.I cluster
+could be an asterisk which means the rule applies to every
+metric with a domain number of
+.I domain
+and an item number of
+.IR item ,
+or both
+.I cluster
+and
+.I item
+could be asterisks, and rule applies to every metric with a domain
+number of
+.IR domain .
+.PP
+If a designated metric is not in
+.I inlog
+the rule has no effect.
+.PP
+The
+.I metricspec
+is zero or more of the following clauses:
+.RS +4n
+
+.PP
+.KW DELETE
+.RS +4n
+.PP
+The metric is completely removed from
+.IR outlog ,
+both the metadata and all values in results are expunged.
+.RE
+
+.PP
+.KW INDOM
+.KW ->
+\fInewdomain\fP\f(BI.\fP\fInewserial\fP [
+.I pick
+]
+.RS +4n
+.PP
+Modifies the metadata to change the instance domain for this metric.
+The new instance domain must exist in
+.IR outlog .
+.PP
+The optional
+.I pick
+clause may be used to select one input value, or compute an aggregate
+value from the instances in an input result, or assign an internal
+instance identifier to a single output value.
+If no
+.I pick
+clause is specified, the default behaviour is to copy all input values
+from each input result to
+an output result, however if the input instance domain is singular
+(indom
+.BR PM_INDOM_NULL )
+then the one output value must be assigned an internal instance
+identifier, which is 0 by default, unless over-ridden by a
+.KW INST
+or
+.KW INAME
+clause as defined below.
+.PP
+The choices for
+.I pick
+are as follows:
+.TP +12n
+\f(BIOUTPUT FIRST\fP
+choose the value of the first instance from each input result
+.TP +12n
+\f(BIOUTPUT LAST\fP
+choose the value of the last instance from each input result
+.TP +12n
+\f(BIOUTPUT INST\fP \fIinstid\fP
+choose the value of the instance with internal instance identifier
+.I instid
+from each result; the sequence of rewriting rules ensures the
+.KW OUTPUT
+processing happens before instance identifier renumbering
+from any associated
+.B indom
+rule, so
+.I instid
+should be one of the internal instance identifiers that appears in
+.I inlog
+.TP +12n
+\f(BIOUTPUT INAME\fP "\fIname\fP"
+choose the value of the instance with
+.I name
+for its external instance name
+from each result; the sequence of rewriting rules ensures the
+.KW OUTPUT 
+processing happens before instance renaming
+from any associated
+.B indom
+rule, so
+.I name
+should be one of the external instance names that appears in
+.I inlog
+.TP +12n
+\f(BIOUTPUT MIN\fP
+choose the smallest value in each result (metric type must be numeric
+and output instance will be 0 for a non-singular instance domain)
+.TP +12n
+\f(BIOUTPUT MAX\fP
+choose the largest value in each result (metric type must be numeric
+and output instance will be 0 for a non-singular instance domain)
+.TP +12n
+\f(BIOUTPUT SUM\fP
+choose the sum of all values in each result (metric type must be numeric
+and output instance will be 0 for a non-singular instance domain)
+.TP +12n
+\f(BIOUTPUT AVG\fP
+choose the average of all values in each result (metric type must be numeric
+and output instance will be 0 for a non-singular instance domain)
+.PP
+If the input instance domain is singular
+(indom
+.BR PM_INDOM_NULL )
+then independent of any
+.I pick
+specifications, there is at most one value in each input result and
+so
+.KW FIRST ,
+.KW LAST ,
+.KW MIN ,
+.KW MAX ,
+.KW SUM
+and
+.KW AVG
+are all equivalent and the output instance identifier will be 0.
+.PP
+In general it is an error to specify a rewriting action for the
+same metadata or result values more than once, e.g. more than one
+.KW INDOM
+clause for the same instance domain.  The one exception is the possible
+interaction between the
+.KW INDOM
+clauses in the
+.B indom
+and
+.B metric
+rules.
+For example the metric
+.I sample.bin
+is defined over the instance domain 29.2 in
+.I inlog
+and the following is acceptable (albeit redundant):
+.RS +4n
+.ft CW
+.nf
+indom 29.* { indom -> 109.* }
+metric sample.bin { indom -> 109.2 }
+.fi
+.ft P
+.RE
+However the following is an error, because the instance domain for
+.I sample.bin
+has two conflicting definitions:
+.RS +4n
+.ft CW
+.nf
+indom 29.* { indom -> 109.* }
+metric sample.bin { indom -> 123.2 }
+.fi
+.ft P
+.RE
+.RE
+
+.PP
+.KW INDOM
+.KW ->
+.KW NULL [
+.I pick
+]
+.RS +4n
+.PP
+The metric (which must have been
+previously defined over an instance domain) is being modified to
+be a singular metric.  This involves a metadata change and collapsing
+all results for this metric so that multiple values become one value.
+.PP
+The optional
+.I pick
+part of the clause defines how the one value for each result
+should be calculated and follows the same rules as described for the
+non-NULL
+.KW INDOM
+case above.
+.PP
+In the absence of
+.IR pick ,
+the default is
+.KW "OUTPUT FIRST" .
+.RE
+
+.PP
+.KW NAME
+.KW ->
+.I newname
+.RS +4n
+.PP
+Renames the metric in the PCP archive's metadata that supports
+the Performance Metrics Name Space (PMNS).
+.I newname
+should not match any existing name in the archive's PMNS and must
+follow the syntactic rules for valid metric names as outlined in
+.BR pmns (5).
+.RE
+
+.PP
+.KW PMID
+.KW ->
+\fInewdomain\fP\f(BI.\fP\fInewcluster\fP\f(BI.\fP\fInewitem\fP
+.RS +4n
+.PP
+Modifies the metadata and results to renumber the metric's PMID.
+As special cases,
+.I newcluster
+could be an asterisk ``*'' which means use
+.I cluster
+from the 
+.B metric
+rewriting rule and/or
+.I item
+could be an asterisk which means use
+.I item
+from the 
+.B metric
+rewriting rule.
+This is most useful when
+.I cluster
+and/or
+.I item
+is also an asterisk.
+So for example:
+.RS +4n
+.ft CW
+metric 30.*.* { pmid -> 123.*.* }
+.ft P
+.RE
+will move all metrics from domain 30 to domain 123.
+.RE
+
+.PP
+.KW SEM
+.KW ->
+.I newsem
+.RS +4n
+.PP
+Change the semantics of the metric.
+.I newsem
+should be the XXX part of the name of one of the
+.B PM_SEM_XXX
+macros defined in <pcp/pmapi.h> or
+.BR pmLookupDesc (3),
+e.g.
+.KW COUNTER
+for
+.BR PM_TYPE_COUNTER .
+.PP
+No data value rewriting is performed as a result of the
+.KW SEM
+clause, so the usefulness
+is limited to cases where a version of the associated
+PMDA was exporting incorrect semantics for the metric.
+.BR pmlogreduce (1)
+may provide an alternative in cases where re-computation of result
+values is desired.
+.RE
+
+.PP
+.KW TYPE
+.KW ->
+.I newtype
+.RS +4n
+.PP
+Change the type of the metric which alters the metadata and may change the
+encoding of values in results.
+.I newtype
+should be the XXX part of the name of one of the
+.B PM_TYPE_XXX
+macros defined in <pcp/pmapi.h> or
+.BR pmLookupDesc (3),
+e.g.
+.KW FLOAT
+for
+.BR PM_TYPE_FLOAT .
+.PP
+Type conversion is only supported for cases where the old and new
+metric type is numeric, so
+.BR PM_TYPE_STRING ,
+.B PM_TYPE_AGGREGATE
+and
+.B PM_TYPE_EVENT
+are not allowed.
+Even for the numeric cases, some conversions may produce run-time errors,
+e.g. integer overflow, or attempting to rewrite a negative value into
+an unsigned type.
+.RE
+
+.PP
+.KW TYPE
+.KW IF
+.I oldtype
+.KW ->
+.I newtype
+.RS +4n
+.PP
+The same as the preceding
+.KW TYPE
+clause, except the type of the metric is only changed to
+.I newtype
+if the type of the metric in
+.I inlog
+is
+.I oldtype.
+.PP
+This useful in cases where the type of
+.I metricid
+in
+.I inlog
+may be platform dependent and so more than one type rewriting rule is
+required.
+.RE
+
+.PP
+.KW UNITS
+.KW ->
+.I newunits
+[
+.KW RESCALE
+]
+.RS +4n
+.PP
+.I newunits
+is six values separated by commas.  The first 3 values describe the
+dimension of the metric along the dimensions of space, time and count; these
+are integer values, usually 0, 1 or \-1.  The remaining 3 values describe
+the scale of the metric's values in the dimensions of space, time and
+count.
+Space scale values should be 0 (if the space dimension is 0), else
+the XXX part of the name of one of the
+.B PM_SPACE_XXX
+macros, e.g.
+.KW KBYTE
+for
+.BR PM_TYPE_KBYTE .
+Time scale values should be 0 (if the time dimension is 0), else
+the XXX part of the name of one of the
+.B PM_TIME_XXX
+macros, e.g.
+.KW SEC
+for
+.BR PM_TIME_SEC .
+Count scale values should be 0 (if the time dimension is 0), else
+.KW ONE
+for
+.BR PM_COUNT_ONE .
+.PP
+The
+.BR PM_SPACE_XXX ,
+.B PM_TIME_XXX
+and
+.B PM_COUNT_XXX
+macros are defined in <pcp/pmapi.h> or
+.BR pmLookupDesc (3).
+.PP
+When the scale is changed (but the dimension is
+unaltered) the optional keyword
+.KW RESCALE
+may be used to chose value rescaling as per the
+.B \-s
+command line option, but applied to just this metric.
+.RE
+
+.PP
+When changing the domain number for a metric or instance domain,
+the new domain number will usually match an existing PMDA's domain
+number.  If this is not the case, then the new domain number
+should not be randomly chosen; consult
+.B $PCP_VAR_DIR/pmns/stdpmid
+for domain numbers that are already assigned to PMDAs.
+.SH EXAMPLES
+.PP
+To promote the values of the per-disk IOPS metrics to 64-bit to
+allow aggregation over a long time period for capacity
+planning, or because the PMDA has changed to export 64-bit counters
+and we want to convert old archives so they can be processed
+alongside new archives.
+.RS +4
+.ft CW
+.nf
+metric disk.dev.read { type -> U64 }
+metric disk.dev.write { type -> U64 }
+metric disk.dev.total { type -> U64 }
+.fi
+.ft P
+.RE
+.PP
+The instances associated with the load average metric
+.B kernel.all.load
+could be renamed and renumbered by the
+rules below.
+.RS +4
+.ft CW
+.nf
+# for the Linux PMDA, the kernel.all.load metric is defined
+# over instance domain 60.2
+indom 60.2 {
+    inst 1 -> 60 iname "1 minute" -> "60 second"
+    inst 5 -> 300 iname "5 minute" -> "300 second"
+    inst 15 -> 900 iname "15 minute" -> "900 second"
+}
+.fi
+.ft P
+.RE
+.PP
+If we decide to split the ``proc'' metrics out of the Linux PMDA, this
+will involve changing the domain number for the PMID of these metrics
+and the associated instance domains.  The rules below would rewrite an
+old archive to match the changes after the PMDA split.
+.RS +4
+.ft CW
+.nf
+# all Linux proc metrics are in 7 clusters
+metric 60.8.* { pmid -> 123.*.* }
+metric 60.9.* { pmid -> 123.*.* }
+metric 60.13.* { pmid -> 123.*.* }
+metric 60.24.* { pmid -> 123.*.* }
+metric 60.31.* { pmid -> 123.*.* }
+metric 60.32.* { pmid -> 123.*.* }
+metric 60.51.* { pmid -> 123.*.* }
+# only one instance domain for Linux proc metrics
+indom 60.9 { indom -> 123.0 }
+.fi
+.ft P
+.RE
+.PP
+If the metric foo.count_em was exported as a native ``long'' then it
+could be a 32-bit integer on some platforms and a 64-bit integer on
+other platforms.  Subsequent investigations show the value is in
+fact unsigned, so the following rules could be used.
+.RS +4
+.ft CW
+.nf
+metric foo.count_em {
+	type if 32 -> U32
+	type if 64 -> U64
+}
+.fi
+.ft P
+.RE
+.SH FILES
+.PD 0
+For each of the
+.I inlog
+and
+.I outlog
+archive logs, several physical files are used.
+.TP 10
+\f2archive\f3.meta
+metadata (metric descriptions, instance domains, etc.) for the archive log
+.TP
+\f2archive\f3.0
+initial volume of metrics values (subsequent volumes have suffixes
+.BR 1 ,
+.BR 2 ,
+\&...).
+.TP
+\f2archive\f3.index
+temporal index to support rapid random access to the other files in the
+archive log.
+.PD
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.I /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (5).
+.SH SEE ALSO
+.BR PCPIntro (1),
+.BR pmdaInstance (3),
+.BR pmdumplog (1),
+.BR pmlogger (1),
+.BR pmlogextract (1),
+.BR pmloglabel (1),
+.BR pmlogreduce (1),
+.BR pmLookupDesc (3),
+.BR pmns (5),
+.BR pcp.conf (5)
+and
+.BR pcp.env (5).
+.SH DIAGNOSTICS
+All error conditions detected by
+.B pmlogrewrite
+are reported on
+.I stderr
+with textual (if sometimes terse) explanation.
+.PP
+Should the input archive log be corrupted (this can happen
+if the
+.B pmlogger
+instance writing the log suddenly dies), then
+.B pmlogrewrite
+will detect and report the position of the corruption in the file,
+and any subsequent information from that archive log will not be processed.
+.PP
+If any error is detected,
+.B pmlogrewrite
+will exit with a non-zero status.

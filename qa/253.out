@@ -1,0 +1,223 @@
+QA output created by 253
+No errors here ...
+
+myname.const = 123456
+myname.a = sample.bin / 50
+myname.b = 3*sample.bin
+myname.c = sample.bin + sample.bucket*2 - (sample.bin + 100) - sample.bucket
+
+=== myname.const ===
+myname.const
+=== -d myname.const ===
+
+myname.const
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+=== -f myname.const ===
+
+myname.const
+    value 123456
+
+=== myname.a ===
+myname.a
+=== -d myname.a ===
+
+myname.a
+    Data Type: double  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+=== -f myname.a ===
+
+myname.a
+    inst [100 or "bin-100"] value 2
+    inst [200 or "bin-200"] value 4
+    inst [300 or "bin-300"] value 6
+    inst [400 or "bin-400"] value 8
+    inst [500 or "bin-500"] value 10
+    inst [600 or "bin-600"] value 12
+    inst [700 or "bin-700"] value 14
+    inst [800 or "bin-800"] value 16
+    inst [900 or "bin-900"] value 18
+
+=== myname ===
+myname.const
+myname.a
+myname.b
+myname.c
+=== -d myname ===
+
+myname.const
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+
+myname.a
+    Data Type: double  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+
+myname.b
+    Data Type: 32-bit unsigned int  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+
+myname.c
+    Data Type: 32-bit unsigned int  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+=== -f myname ===
+
+myname.const
+    value 123456
+
+myname.a
+    inst [100 or "bin-100"] value 2
+    inst [200 or "bin-200"] value 4
+    inst [300 or "bin-300"] value 6
+    inst [400 or "bin-400"] value 8
+    inst [500 or "bin-500"] value 10
+    inst [600 or "bin-600"] value 12
+    inst [700 or "bin-700"] value 14
+    inst [800 or "bin-800"] value 16
+    inst [900 or "bin-900"] value 18
+
+myname.b
+    inst [100 or "bin-100"] value 300
+    inst [200 or "bin-200"] value 600
+    inst [300 or "bin-300"] value 900
+    inst [400 or "bin-400"] value 1200
+    inst [500 or "bin-500"] value 1500
+    inst [600 or "bin-600"] value 1800
+    inst [700 or "bin-700"] value 2100
+    inst [800 or "bin-800"] value 2400
+    inst [900 or "bin-900"] value 2700
+
+myname.c
+    inst [100 or "bin-100"] value 0
+    inst [200 or "bin-200"] value 100
+    inst [300 or "bin-300"] value 200
+    inst [400 or "bin-400"] value 300
+    inst [500 or "bin-500"] value 400
+    inst [600 or "bin-600"] value 500
+    inst [700 or "bin-700"] value 600
+    inst [800 or "bin-800"] value 700
+    inst [900 or "bin-900"] value 800
+
+=== myname.a sample.milliseconds ===
+myname.a
+sample.milliseconds
+=== -d myname.a sample.milliseconds ===
+
+myname.a
+    Data Type: double  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+
+sample.milliseconds
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: millisec
+=== -f myname.a sample.milliseconds ===
+
+myname.a
+    inst [100 or "bin-100"] value 2
+    inst [200 or "bin-200"] value 4
+    inst [300 or "bin-300"] value 6
+    inst [400 or "bin-400"] value 8
+    inst [500 or "bin-500"] value 10
+    inst [600 or "bin-600"] value 12
+    inst [700 or "bin-700"] value 14
+    inst [800 or "bin-800"] value 16
+    inst [900 or "bin-900"] value 18
+
+sample.milliseconds
+value <number>
+
+=== sample.milliseconds myname.b ===
+sample.milliseconds
+myname.b
+=== -d sample.milliseconds myname.b ===
+
+sample.milliseconds
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: millisec
+
+myname.b
+    Data Type: 32-bit unsigned int  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+=== -f sample.milliseconds myname.b ===
+
+sample.milliseconds
+value <number>
+
+myname.b
+    inst [100 or "bin-100"] value 300
+    inst [200 or "bin-200"] value 600
+    inst [300 or "bin-300"] value 900
+    inst [400 or "bin-400"] value 1200
+    inst [500 or "bin-500"] value 1500
+    inst [600 or "bin-600"] value 1800
+    inst [700 or "bin-700"] value 2100
+    inst [800 or "bin-800"] value 2400
+    inst [900 or "bin-900"] value 2700
+
+=== sample.milliseconds myname.a myname.b sample.milliseconds myname.c ===
+sample.milliseconds
+myname.a
+myname.b
+sample.milliseconds
+myname.c
+=== -d sample.milliseconds myname.a myname.b sample.milliseconds myname.c ===
+
+sample.milliseconds
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: millisec
+
+myname.a
+    Data Type: double  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+
+myname.b
+    Data Type: 32-bit unsigned int  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+
+sample.milliseconds
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: millisec
+
+myname.c
+    Data Type: 32-bit unsigned int  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+=== -f sample.milliseconds myname.a myname.b sample.milliseconds myname.c ===
+
+sample.milliseconds
+value <number>
+
+myname.a
+    inst [100 or "bin-100"] value 2
+    inst [200 or "bin-200"] value 4
+    inst [300 or "bin-300"] value 6
+    inst [400 or "bin-400"] value 8
+    inst [500 or "bin-500"] value 10
+    inst [600 or "bin-600"] value 12
+    inst [700 or "bin-700"] value 14
+    inst [800 or "bin-800"] value 16
+    inst [900 or "bin-900"] value 18
+
+myname.b
+    inst [100 or "bin-100"] value 300
+    inst [200 or "bin-200"] value 600
+    inst [300 or "bin-300"] value 900
+    inst [400 or "bin-400"] value 1200
+    inst [500 or "bin-500"] value 1500
+    inst [600 or "bin-600"] value 1800
+    inst [700 or "bin-700"] value 2100
+    inst [800 or "bin-800"] value 2400
+    inst [900 or "bin-900"] value 2700
+
+sample.milliseconds
+value <number>
+
+myname.c
+    inst [100 or "bin-100"] value 0
+    inst [200 or "bin-200"] value 100
+    inst [300 or "bin-300"] value 200
+    inst [400 or "bin-400"] value 300
+    inst [500 or "bin-500"] value 400
+    inst [600 or "bin-600"] value 500
+    inst [700 or "bin-700"] value 600
+    inst [800 or "bin-800"] value 700
+    inst [900 or "bin-900"] value 800

@@ -1,0 +1,1020 @@
+QA output created by 885
+== Checking CPU hardware metrics from cpuinfo-1cpu-alpha (1 CPU)
+
+hinv.cpu.clock
+    inst [0 or "cpu0"] value 499.71442
+
+hinv.cpu.vendor
+    inst [0 or "cpu0"] value "unknown"
+
+hinv.cpu.model
+    inst [0 or "cpu0"] value "EV56"
+
+hinv.cpu.stepping
+    inst [0 or "cpu0"] value "0"
+
+hinv.cpu.cache
+No value(s) available!
+
+hinv.cpu.bogomips
+    inst [0 or "cpu0"] value 992.88
+
+hinv.cpu.model_name
+    inst [0 or "cpu0"] value "EV56"
+
+hinv.cpu.flags
+    inst [0 or "cpu0"] value "unknown"
+
+hinv.cpu.cache_alignment
+No value(s) available!
+
+== done
+
+== Checking CPU hardware metrics from cpuinfo-1cpu-g3ibook (1 CPU)
+
+hinv.cpu.clock
+No value(s) available!
+
+hinv.cpu.vendor
+    inst [0 or "cpu0"] value "unknown"
+
+hinv.cpu.model
+    inst [0 or "cpu0"] value "unknown"
+
+hinv.cpu.stepping
+    inst [0 or "cpu0"] value "1.18 (pvr 7000 0112)"
+
+hinv.cpu.cache
+No value(s) available!
+
+hinv.cpu.bogomips
+    inst [0 or "cpu0"] value 1389.36
+
+hinv.cpu.model_name
+    inst [0 or "cpu0"] value "unknown"
+
+hinv.cpu.flags
+    inst [0 or "cpu0"] value "unknown"
+
+hinv.cpu.cache_alignment
+No value(s) available!
+
+== done
+
+== Checking CPU hardware metrics from cpuinfo-1cpu-powermac (1 CPU)
+
+hinv.cpu.clock
+No value(s) available!
+
+hinv.cpu.vendor
+    inst [0 or "cpu0"] value "unknown"
+
+hinv.cpu.model
+    inst [0 or "cpu0"] value "unknown"
+
+hinv.cpu.stepping
+    inst [0 or "cpu0"] value "3.3 (pvr 0004 0303)"
+
+hinv.cpu.cache
+No value(s) available!
+
+hinv.cpu.bogomips
+    inst [0 or "cpu0"] value 239.2
+
+hinv.cpu.model_name
+    inst [0 or "cpu0"] value "unknown"
+
+hinv.cpu.flags
+    inst [0 or "cpu0"] value "unknown"
+
+hinv.cpu.cache_alignment
+No value(s) available!
+
+== done
+
+== Checking CPU hardware metrics from cpuinfo-1cpu-ppc-cPCI405 (1 CPU)
+
+hinv.cpu.clock
+No value(s) available!
+
+hinv.cpu.vendor
+    inst [0 or "cpu0"] value "unknown"
+
+hinv.cpu.model
+    inst [0 or "cpu0"] value "unknown"
+
+hinv.cpu.stepping
+    inst [0 or "cpu0"] value "0.196 (pvr 4011 00c4)"
+
+hinv.cpu.cache
+No value(s) available!
+
+hinv.cpu.bogomips
+    inst [0 or "cpu0"] value 198.33
+
+hinv.cpu.model_name
+    inst [0 or "cpu0"] value "unknown"
+
+hinv.cpu.flags
+    inst [0 or "cpu0"] value "unknown"
+
+hinv.cpu.cache_alignment
+No value(s) available!
+
+== done
+
+== Checking CPU hardware metrics from cpuinfo-1cpu-ppc-pcippc2 (1 CPU)
+
+hinv.cpu.clock
+No value(s) available!
+
+hinv.cpu.vendor
+    inst [0 or "cpu0"] value "GESPAC"
+
+hinv.cpu.model
+    inst [0 or "cpu0"] value "unknown"
+
+hinv.cpu.stepping
+    inst [0 or "cpu0"] value "131.2"
+
+hinv.cpu.cache
+No value(s) available!
+
+hinv.cpu.bogomips
+    inst [0 or "cpu0"] value 600.15002
+
+hinv.cpu.model_name
+    inst [0 or "cpu0"] value "unknown"
+
+hinv.cpu.flags
+    inst [0 or "cpu0"] value "unknown"
+
+hinv.cpu.cache_alignment
+No value(s) available!
+
+== done
+
+== Checking CPU hardware metrics from cpuinfo-2cpu-s390x-linux-2.6.32 (2 CPU)
+
+hinv.cpu.clock
+No value(s) available!
+
+hinv.cpu.vendor
+    inst [0 or "cpu0"] value "IBM/S390"
+    inst [1 or "cpu1"] value "IBM/S390"
+
+hinv.cpu.model
+    inst [0 or "cpu0"] value "unknown"
+    inst [1 or "cpu1"] value "unknown"
+
+hinv.cpu.stepping
+    inst [0 or "cpu0"] value "unknown"
+    inst [1 or "cpu1"] value "unknown"
+
+hinv.cpu.cache
+No value(s) available!
+
+hinv.cpu.bogomips
+    inst [0 or "cpu0"] value 2913
+    inst [1 or "cpu1"] value 2913
+
+hinv.cpu.model_name
+    inst [0 or "cpu0"] value "unknown"
+    inst [1 or "cpu1"] value "unknown"
+
+hinv.cpu.flags
+    inst [0 or "cpu0"] value "esan3 zarch stfle msa ldisp eimm dfp etf3eh highgprs"
+    inst [1 or "cpu1"] value "esan3 zarch stfle msa ldisp eimm dfp etf3eh highgprs"
+
+hinv.cpu.cache_alignment
+No value(s) available!
+
+== done
+
+== Checking CPU hardware metrics from cpuinfo-2cpu-umax-s900dp (2 CPU)
+
+hinv.cpu.clock
+No value(s) available!
+
+hinv.cpu.vendor
+    inst [0 or "cpu0"] value "unknown"
+    inst [1 or "cpu1"] value "unknown"
+
+hinv.cpu.model
+    inst [0 or "cpu0"] value "unknown"
+    inst [1 or "cpu1"] value "unknown"
+
+hinv.cpu.stepping
+    inst [0 or "cpu0"] value "2.2 (pvr 0009 0202)"
+    inst [1 or "cpu1"] value "2.4 (pvr 0009 0204)"
+
+hinv.cpu.cache
+No value(s) available!
+
+hinv.cpu.bogomips
+    inst [0 or "cpu0"] value 398.95001
+    inst [1 or "cpu1"] value 398.95001
+
+hinv.cpu.model_name
+    inst [0 or "cpu0"] value "unknown"
+    inst [1 or "cpu1"] value "unknown"
+
+hinv.cpu.flags
+    inst [0 or "cpu0"] value "unknown"
+    inst [1 or "cpu1"] value "unknown"
+
+hinv.cpu.cache_alignment
+No value(s) available!
+
+== done
+
+== Checking CPU hardware metrics from cpuinfo-32cpu-4830 (32 CPU)
+
+hinv.cpu.clock
+    inst [0 or "cpu0"] value 2128.0371
+    inst [1 or "cpu1"] value 2128.0371
+    inst [2 or "cpu2"] value 2128.0371
+    inst [3 or "cpu3"] value 2128.0371
+    inst [4 or "cpu4"] value 2128.0371
+    inst [5 or "cpu5"] value 2128.0371
+    inst [6 or "cpu6"] value 2128.0371
+    inst [7 or "cpu7"] value 2128.0371
+    inst [8 or "cpu8"] value 2128.0371
+    inst [9 or "cpu9"] value 2128.0371
+    inst [10 or "cpu10"] value 2128.0371
+    inst [11 or "cpu11"] value 2128.0371
+    inst [12 or "cpu12"] value 2128.0371
+    inst [13 or "cpu13"] value 2128.0371
+    inst [14 or "cpu14"] value 2128.0371
+    inst [15 or "cpu15"] value 2128.0371
+    inst [16 or "cpu16"] value 2128.0371
+    inst [17 or "cpu17"] value 2128.0371
+    inst [18 or "cpu18"] value 2128.0371
+    inst [19 or "cpu19"] value 2128.0371
+    inst [20 or "cpu20"] value 2128.0371
+    inst [21 or "cpu21"] value 2128.0371
+    inst [22 or "cpu22"] value 2128.0371
+    inst [23 or "cpu23"] value 2128.0371
+    inst [24 or "cpu24"] value 2128.0371
+    inst [25 or "cpu25"] value 2128.0371
+    inst [26 or "cpu26"] value 2128.0371
+    inst [27 or "cpu27"] value 2128.0371
+    inst [28 or "cpu28"] value 2128.0371
+    inst [29 or "cpu29"] value 2128.0371
+    inst [30 or "cpu30"] value 2128.0371
+    inst [31 or "cpu31"] value 2128.0371
+
+hinv.cpu.vendor
+    inst [0 or "cpu0"] value "GenuineIntel"
+    inst [1 or "cpu1"] value "GenuineIntel"
+    inst [2 or "cpu2"] value "GenuineIntel"
+    inst [3 or "cpu3"] value "GenuineIntel"
+    inst [4 or "cpu4"] value "GenuineIntel"
+    inst [5 or "cpu5"] value "GenuineIntel"
+    inst [6 or "cpu6"] value "GenuineIntel"
+    inst [7 or "cpu7"] value "GenuineIntel"
+    inst [8 or "cpu8"] value "GenuineIntel"
+    inst [9 or "cpu9"] value "GenuineIntel"
+    inst [10 or "cpu10"] value "GenuineIntel"
+    inst [11 or "cpu11"] value "GenuineIntel"
+    inst [12 or "cpu12"] value "GenuineIntel"
+    inst [13 or "cpu13"] value "GenuineIntel"
+    inst [14 or "cpu14"] value "GenuineIntel"
+    inst [15 or "cpu15"] value "GenuineIntel"
+    inst [16 or "cpu16"] value "GenuineIntel"
+    inst [17 or "cpu17"] value "GenuineIntel"
+    inst [18 or "cpu18"] value "GenuineIntel"
+    inst [19 or "cpu19"] value "GenuineIntel"
+    inst [20 or "cpu20"] value "GenuineIntel"
+    inst [21 or "cpu21"] value "GenuineIntel"
+    inst [22 or "cpu22"] value "GenuineIntel"
+    inst [23 or "cpu23"] value "GenuineIntel"
+    inst [24 or "cpu24"] value "GenuineIntel"
+    inst [25 or "cpu25"] value "GenuineIntel"
+    inst [26 or "cpu26"] value "GenuineIntel"
+    inst [27 or "cpu27"] value "GenuineIntel"
+    inst [28 or "cpu28"] value "GenuineIntel"
+    inst [29 or "cpu29"] value "GenuineIntel"
+    inst [30 or "cpu30"] value "GenuineIntel"
+    inst [31 or "cpu31"] value "GenuineIntel"
+
+hinv.cpu.model
+    inst [0 or "cpu0"] value "47"
+    inst [1 or "cpu1"] value "47"
+    inst [2 or "cpu2"] value "47"
+    inst [3 or "cpu3"] value "47"
+    inst [4 or "cpu4"] value "47"
+    inst [5 or "cpu5"] value "47"
+    inst [6 or "cpu6"] value "47"
+    inst [7 or "cpu7"] value "47"
+    inst [8 or "cpu8"] value "47"
+    inst [9 or "cpu9"] value "47"
+    inst [10 or "cpu10"] value "47"
+    inst [11 or "cpu11"] value "47"
+    inst [12 or "cpu12"] value "47"
+    inst [13 or "cpu13"] value "47"
+    inst [14 or "cpu14"] value "47"
+    inst [15 or "cpu15"] value "47"
+    inst [16 or "cpu16"] value "47"
+    inst [17 or "cpu17"] value "47"
+    inst [18 or "cpu18"] value "47"
+    inst [19 or "cpu19"] value "47"
+    inst [20 or "cpu20"] value "47"
+    inst [21 or "cpu21"] value "47"
+    inst [22 or "cpu22"] value "47"
+    inst [23 or "cpu23"] value "47"
+    inst [24 or "cpu24"] value "47"
+    inst [25 or "cpu25"] value "47"
+    inst [26 or "cpu26"] value "47"
+    inst [27 or "cpu27"] value "47"
+    inst [28 or "cpu28"] value "47"
+    inst [29 or "cpu29"] value "47"
+    inst [30 or "cpu30"] value "47"
+    inst [31 or "cpu31"] value "47"
+
+hinv.cpu.stepping
+    inst [0 or "cpu0"] value "2"
+    inst [1 or "cpu1"] value "2"
+    inst [2 or "cpu2"] value "2"
+    inst [3 or "cpu3"] value "2"
+    inst [4 or "cpu4"] value "2"
+    inst [5 or "cpu5"] value "2"
+    inst [6 or "cpu6"] value "2"
+    inst [7 or "cpu7"] value "2"
+    inst [8 or "cpu8"] value "2"
+    inst [9 or "cpu9"] value "2"
+    inst [10 or "cpu10"] value "2"
+    inst [11 or "cpu11"] value "2"
+    inst [12 or "cpu12"] value "2"
+    inst [13 or "cpu13"] value "2"
+    inst [14 or "cpu14"] value "2"
+    inst [15 or "cpu15"] value "2"
+    inst [16 or "cpu16"] value "2"
+    inst [17 or "cpu17"] value "2"
+    inst [18 or "cpu18"] value "2"
+    inst [19 or "cpu19"] value "2"
+    inst [20 or "cpu20"] value "2"
+    inst [21 or "cpu21"] value "2"
+    inst [22 or "cpu22"] value "2"
+    inst [23 or "cpu23"] value "2"
+    inst [24 or "cpu24"] value "2"
+    inst [25 or "cpu25"] value "2"
+    inst [26 or "cpu26"] value "2"
+    inst [27 or "cpu27"] value "2"
+    inst [28 or "cpu28"] value "2"
+    inst [29 or "cpu29"] value "2"
+    inst [30 or "cpu30"] value "2"
+    inst [31 or "cpu31"] value "2"
+
+hinv.cpu.cache
+    inst [0 or "cpu0"] value 24576
+    inst [1 or "cpu1"] value 24576
+    inst [2 or "cpu2"] value 24576
+    inst [3 or "cpu3"] value 24576
+    inst [4 or "cpu4"] value 24576
+    inst [5 or "cpu5"] value 24576
+    inst [6 or "cpu6"] value 24576
+    inst [7 or "cpu7"] value 24576
+    inst [8 or "cpu8"] value 24576
+    inst [9 or "cpu9"] value 24576
+    inst [10 or "cpu10"] value 24576
+    inst [11 or "cpu11"] value 24576
+    inst [12 or "cpu12"] value 24576
+    inst [13 or "cpu13"] value 24576
+    inst [14 or "cpu14"] value 24576
+    inst [15 or "cpu15"] value 24576
+    inst [16 or "cpu16"] value 24576
+    inst [17 or "cpu17"] value 24576
+    inst [18 or "cpu18"] value 24576
+    inst [19 or "cpu19"] value 24576
+    inst [20 or "cpu20"] value 24576
+    inst [21 or "cpu21"] value 24576
+    inst [22 or "cpu22"] value 24576
+    inst [23 or "cpu23"] value 24576
+    inst [24 or "cpu24"] value 24576
+    inst [25 or "cpu25"] value 24576
+    inst [26 or "cpu26"] value 24576
+    inst [27 or "cpu27"] value 24576
+    inst [28 or "cpu28"] value 24576
+    inst [29 or "cpu29"] value 24576
+    inst [30 or "cpu30"] value 24576
+    inst [31 or "cpu31"] value 24576
+
+hinv.cpu.bogomips
+    inst [0 or "cpu0"] value 4256.0698
+    inst [1 or "cpu1"] value 4255.8701
+    inst [2 or "cpu2"] value 4255.8701
+    inst [3 or "cpu3"] value 4255.8701
+    inst [4 or "cpu4"] value 4256.0698
+    inst [5 or "cpu5"] value 4255.8701
+    inst [6 or "cpu6"] value 4255.8701
+    inst [7 or "cpu7"] value 4255.8701
+    inst [8 or "cpu8"] value 4256.0698
+    inst [9 or "cpu9"] value 4255.8701
+    inst [10 or "cpu10"] value 4255.8701
+    inst [11 or "cpu11"] value 4255.8701
+    inst [12 or "cpu12"] value 4256.0698
+    inst [13 or "cpu13"] value 4255.8701
+    inst [14 or "cpu14"] value 4255.8701
+    inst [15 or "cpu15"] value 4255.8701
+    inst [16 or "cpu16"] value 4256.0698
+    inst [17 or "cpu17"] value 4255.8701
+    inst [18 or "cpu18"] value 4255.8701
+    inst [19 or "cpu19"] value 4255.8701
+    inst [20 or "cpu20"] value 4256.0698
+    inst [21 or "cpu21"] value 4255.8701
+    inst [22 or "cpu22"] value 4255.8701
+    inst [23 or "cpu23"] value 4255.8701
+    inst [24 or "cpu24"] value 4256.0698
+    inst [25 or "cpu25"] value 4255.8701
+    inst [26 or "cpu26"] value 4255.8701
+    inst [27 or "cpu27"] value 4255.8701
+    inst [28 or "cpu28"] value 4256.0698
+    inst [29 or "cpu29"] value 4255.8701
+    inst [30 or "cpu30"] value 4255.8701
+    inst [31 or "cpu31"] value 4255.8701
+
+hinv.cpu.model_name
+    inst [0 or "cpu0"] value "Intel(R) Xeon(R) CPU E7- 4830  @ 2.13GHz"
+    inst [1 or "cpu1"] value "Intel(R) Xeon(R) CPU E7- 4830  @ 2.13GHz"
+    inst [2 or "cpu2"] value "Intel(R) Xeon(R) CPU E7- 4830  @ 2.13GHz"
+    inst [3 or "cpu3"] value "Intel(R) Xeon(R) CPU E7- 4830  @ 2.13GHz"
+    inst [4 or "cpu4"] value "Intel(R) Xeon(R) CPU E7- 4830  @ 2.13GHz"
+    inst [5 or "cpu5"] value "Intel(R) Xeon(R) CPU E7- 4830  @ 2.13GHz"
+    inst [6 or "cpu6"] value "Intel(R) Xeon(R) CPU E7- 4830  @ 2.13GHz"
+    inst [7 or "cpu7"] value "Intel(R) Xeon(R) CPU E7- 4830  @ 2.13GHz"
+    inst [8 or "cpu8"] value "Intel(R) Xeon(R) CPU E7- 4830  @ 2.13GHz"
+    inst [9 or "cpu9"] value "Intel(R) Xeon(R) CPU E7- 4830  @ 2.13GHz"
+    inst [10 or "cpu10"] value "Intel(R) Xeon(R) CPU E7- 4830  @ 2.13GHz"
+    inst [11 or "cpu11"] value "Intel(R) Xeon(R) CPU E7- 4830  @ 2.13GHz"
+    inst [12 or "cpu12"] value "Intel(R) Xeon(R) CPU E7- 4830  @ 2.13GHz"
+    inst [13 or "cpu13"] value "Intel(R) Xeon(R) CPU E7- 4830  @ 2.13GHz"
+    inst [14 or "cpu14"] value "Intel(R) Xeon(R) CPU E7- 4830  @ 2.13GHz"
+    inst [15 or "cpu15"] value "Intel(R) Xeon(R) CPU E7- 4830  @ 2.13GHz"
+    inst [16 or "cpu16"] value "Intel(R) Xeon(R) CPU E7- 4830  @ 2.13GHz"
+    inst [17 or "cpu17"] value "Intel(R) Xeon(R) CPU E7- 4830  @ 2.13GHz"
+    inst [18 or "cpu18"] value "Intel(R) Xeon(R) CPU E7- 4830  @ 2.13GHz"
+    inst [19 or "cpu19"] value "Intel(R) Xeon(R) CPU E7- 4830  @ 2.13GHz"
+    inst [20 or "cpu20"] value "Intel(R) Xeon(R) CPU E7- 4830  @ 2.13GHz"
+    inst [21 or "cpu21"] value "Intel(R) Xeon(R) CPU E7- 4830  @ 2.13GHz"
+    inst [22 or "cpu22"] value "Intel(R) Xeon(R) CPU E7- 4830  @ 2.13GHz"
+    inst [23 or "cpu23"] value "Intel(R) Xeon(R) CPU E7- 4830  @ 2.13GHz"
+    inst [24 or "cpu24"] value "Intel(R) Xeon(R) CPU E7- 4830  @ 2.13GHz"
+    inst [25 or "cpu25"] value "Intel(R) Xeon(R) CPU E7- 4830  @ 2.13GHz"
+    inst [26 or "cpu26"] value "Intel(R) Xeon(R) CPU E7- 4830  @ 2.13GHz"
+    inst [27 or "cpu27"] value "Intel(R) Xeon(R) CPU E7- 4830  @ 2.13GHz"
+    inst [28 or "cpu28"] value "Intel(R) Xeon(R) CPU E7- 4830  @ 2.13GHz"
+    inst [29 or "cpu29"] value "Intel(R) Xeon(R) CPU E7- 4830  @ 2.13GHz"
+    inst [30 or "cpu30"] value "Intel(R) Xeon(R) CPU E7- 4830  @ 2.13GHz"
+    inst [31 or "cpu31"] value "Intel(R) Xeon(R) CPU E7- 4830  @ 2.13GHz"
+
+hinv.cpu.flags
+    inst [0 or "cpu0"] value "fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good xtopology nonstop_tsc aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic popcnt aes lahf_lm arat dts tpr_shadow vnmi flexpriority ept vpid"
+    inst [1 or "cpu1"] value "fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good xtopology nonstop_tsc aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic popcnt aes lahf_lm arat dts tpr_shadow vnmi flexpriority ept vpid"
+    inst [2 or "cpu2"] value "fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good xtopology nonstop_tsc aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic popcnt aes lahf_lm arat dts tpr_shadow vnmi flexpriority ept vpid"
+    inst [3 or "cpu3"] value "fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good xtopology nonstop_tsc aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic popcnt aes lahf_lm arat dts tpr_shadow vnmi flexpriority ept vpid"
+    inst [4 or "cpu4"] value "fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good xtopology nonstop_tsc aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic popcnt aes lahf_lm arat dts tpr_shadow vnmi flexpriority ept vpid"
+    inst [5 or "cpu5"] value "fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good xtopology nonstop_tsc aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic popcnt aes lahf_lm arat dts tpr_shadow vnmi flexpriority ept vpid"
+    inst [6 or "cpu6"] value "fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good xtopology nonstop_tsc aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic popcnt aes lahf_lm arat dts tpr_shadow vnmi flexpriority ept vpid"
+    inst [7 or "cpu7"] value "fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good xtopology nonstop_tsc aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic popcnt aes lahf_lm arat dts tpr_shadow vnmi flexpriority ept vpid"
+    inst [8 or "cpu8"] value "fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good xtopology nonstop_tsc aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic popcnt aes lahf_lm arat dts tpr_shadow vnmi flexpriority ept vpid"
+    inst [9 or "cpu9"] value "fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good xtopology nonstop_tsc aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic popcnt aes lahf_lm arat dts tpr_shadow vnmi flexpriority ept vpid"
+    inst [10 or "cpu10"] value "fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good xtopology nonstop_tsc aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic popcnt aes lahf_lm arat dts tpr_shadow vnmi flexpriority ept vpid"
+    inst [11 or "cpu11"] value "fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good xtopology nonstop_tsc aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic popcnt aes lahf_lm arat dts tpr_shadow vnmi flexpriority ept vpid"
+    inst [12 or "cpu12"] value "fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good xtopology nonstop_tsc aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic popcnt aes lahf_lm arat dts tpr_shadow vnmi flexpriority ept vpid"
+    inst [13 or "cpu13"] value "fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good xtopology nonstop_tsc aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic popcnt aes lahf_lm arat dts tpr_shadow vnmi flexpriority ept vpid"
+    inst [14 or "cpu14"] value "fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good xtopology nonstop_tsc aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic popcnt aes lahf_lm arat dts tpr_shadow vnmi flexpriority ept vpid"
+    inst [15 or "cpu15"] value "fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good xtopology nonstop_tsc aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic popcnt aes lahf_lm arat dts tpr_shadow vnmi flexpriority ept vpid"
+    inst [16 or "cpu16"] value "fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good xtopology nonstop_tsc aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic popcnt aes lahf_lm arat dts tpr_shadow vnmi flexpriority ept vpid"
+    inst [17 or "cpu17"] value "fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good xtopology nonstop_tsc aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic popcnt aes lahf_lm arat dts tpr_shadow vnmi flexpriority ept vpid"
+    inst [18 or "cpu18"] value "fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good xtopology nonstop_tsc aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic popcnt aes lahf_lm arat dts tpr_shadow vnmi flexpriority ept vpid"
+    inst [19 or "cpu19"] value "fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good xtopology nonstop_tsc aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic popcnt aes lahf_lm arat dts tpr_shadow vnmi flexpriority ept vpid"
+    inst [20 or "cpu20"] value "fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good xtopology nonstop_tsc aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic popcnt aes lahf_lm arat dts tpr_shadow vnmi flexpriority ept vpid"
+    inst [21 or "cpu21"] value "fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good xtopology nonstop_tsc aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic popcnt aes lahf_lm arat dts tpr_shadow vnmi flexpriority ept vpid"
+    inst [22 or "cpu22"] value "fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good xtopology nonstop_tsc aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic popcnt aes lahf_lm arat dts tpr_shadow vnmi flexpriority ept vpid"
+    inst [23 or "cpu23"] value "fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good xtopology nonstop_tsc aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic popcnt aes lahf_lm arat dts tpr_shadow vnmi flexpriority ept vpid"
+    inst [24 or "cpu24"] value "fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good xtopology nonstop_tsc aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic popcnt aes lahf_lm arat dts tpr_shadow vnmi flexpriority ept vpid"
+    inst [25 or "cpu25"] value "fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good xtopology nonstop_tsc aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic popcnt aes lahf_lm arat dts tpr_shadow vnmi flexpriority ept vpid"
+    inst [26 or "cpu26"] value "fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good xtopology nonstop_tsc aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic popcnt aes lahf_lm arat dts tpr_shadow vnmi flexpriority ept vpid"
+    inst [27 or "cpu27"] value "fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good xtopology nonstop_tsc aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic popcnt aes lahf_lm arat dts tpr_shadow vnmi flexpriority ept vpid"
+    inst [28 or "cpu28"] value "fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good xtopology nonstop_tsc aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic popcnt aes lahf_lm arat dts tpr_shadow vnmi flexpriority ept vpid"
+    inst [29 or "cpu29"] value "fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good xtopology nonstop_tsc aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic popcnt aes lahf_lm arat dts tpr_shadow vnmi flexpriority ept vpid"
+    inst [30 or "cpu30"] value "fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good xtopology nonstop_tsc aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic popcnt aes lahf_lm arat dts tpr_shadow vnmi flexpriority ept vpid"
+    inst [31 or "cpu31"] value "fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good xtopology nonstop_tsc aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic popcnt aes lahf_lm arat dts tpr_shadow vnmi flexpriority ept vpid"
+
+hinv.cpu.cache_alignment
+    inst [0 or "cpu0"] value 64
+    inst [1 or "cpu1"] value 64
+    inst [2 or "cpu2"] value 64
+    inst [3 or "cpu3"] value 64
+    inst [4 or "cpu4"] value 64
+    inst [5 or "cpu5"] value 64
+    inst [6 or "cpu6"] value 64
+    inst [7 or "cpu7"] value 64
+    inst [8 or "cpu8"] value 64
+    inst [9 or "cpu9"] value 64
+    inst [10 or "cpu10"] value 64
+    inst [11 or "cpu11"] value 64
+    inst [12 or "cpu12"] value 64
+    inst [13 or "cpu13"] value 64
+    inst [14 or "cpu14"] value 64
+    inst [15 or "cpu15"] value 64
+    inst [16 or "cpu16"] value 64
+    inst [17 or "cpu17"] value 64
+    inst [18 or "cpu18"] value 64
+    inst [19 or "cpu19"] value 64
+    inst [20 or "cpu20"] value 64
+    inst [21 or "cpu21"] value 64
+    inst [22 or "cpu22"] value 64
+    inst [23 or "cpu23"] value 64
+    inst [24 or "cpu24"] value 64
+    inst [25 or "cpu25"] value 64
+    inst [26 or "cpu26"] value 64
+    inst [27 or "cpu27"] value 64
+    inst [28 or "cpu28"] value 64
+    inst [29 or "cpu29"] value 64
+    inst [30 or "cpu30"] value 64
+    inst [31 or "cpu31"] value 64
+
+== done
+
+== Checking CPU hardware metrics from cpuinfo-32cpu-amd-6132 (32 CPU)
+
+hinv.cpu.clock
+    inst [0 or "cpu0"] value 2200.072
+    inst [1 or "cpu1"] value 2200.072
+    inst [2 or "cpu2"] value 2200.072
+    inst [3 or "cpu3"] value 2200.072
+    inst [4 or "cpu4"] value 2200.072
+    inst [5 or "cpu5"] value 2200.072
+    inst [6 or "cpu6"] value 2200.072
+    inst [7 or "cpu7"] value 2200.072
+    inst [8 or "cpu8"] value 2200.072
+    inst [9 or "cpu9"] value 2200.072
+    inst [10 or "cpu10"] value 2200.072
+    inst [11 or "cpu11"] value 2200.072
+    inst [12 or "cpu12"] value 2200.072
+    inst [13 or "cpu13"] value 2200.072
+    inst [14 or "cpu14"] value 2200.072
+    inst [15 or "cpu15"] value 2200.072
+    inst [16 or "cpu16"] value 2200.072
+    inst [17 or "cpu17"] value 2200.072
+    inst [18 or "cpu18"] value 2200.072
+    inst [19 or "cpu19"] value 2200.072
+    inst [20 or "cpu20"] value 2200.072
+    inst [21 or "cpu21"] value 2200.072
+    inst [22 or "cpu22"] value 2200.072
+    inst [23 or "cpu23"] value 2200.072
+    inst [24 or "cpu24"] value 2200.072
+    inst [25 or "cpu25"] value 2200.072
+    inst [26 or "cpu26"] value 2200.072
+    inst [27 or "cpu27"] value 2200.072
+    inst [28 or "cpu28"] value 2200.072
+    inst [29 or "cpu29"] value 2200.072
+    inst [30 or "cpu30"] value 2200.072
+    inst [31 or "cpu31"] value 2200.072
+
+hinv.cpu.vendor
+    inst [0 or "cpu0"] value "AuthenticAMD"
+    inst [1 or "cpu1"] value "AuthenticAMD"
+    inst [2 or "cpu2"] value "AuthenticAMD"
+    inst [3 or "cpu3"] value "AuthenticAMD"
+    inst [4 or "cpu4"] value "AuthenticAMD"
+    inst [5 or "cpu5"] value "AuthenticAMD"
+    inst [6 or "cpu6"] value "AuthenticAMD"
+    inst [7 or "cpu7"] value "AuthenticAMD"
+    inst [8 or "cpu8"] value "AuthenticAMD"
+    inst [9 or "cpu9"] value "AuthenticAMD"
+    inst [10 or "cpu10"] value "AuthenticAMD"
+    inst [11 or "cpu11"] value "AuthenticAMD"
+    inst [12 or "cpu12"] value "AuthenticAMD"
+    inst [13 or "cpu13"] value "AuthenticAMD"
+    inst [14 or "cpu14"] value "AuthenticAMD"
+    inst [15 or "cpu15"] value "AuthenticAMD"
+    inst [16 or "cpu16"] value "AuthenticAMD"
+    inst [17 or "cpu17"] value "AuthenticAMD"
+    inst [18 or "cpu18"] value "AuthenticAMD"
+    inst [19 or "cpu19"] value "AuthenticAMD"
+    inst [20 or "cpu20"] value "AuthenticAMD"
+    inst [21 or "cpu21"] value "AuthenticAMD"
+    inst [22 or "cpu22"] value "AuthenticAMD"
+    inst [23 or "cpu23"] value "AuthenticAMD"
+    inst [24 or "cpu24"] value "AuthenticAMD"
+    inst [25 or "cpu25"] value "AuthenticAMD"
+    inst [26 or "cpu26"] value "AuthenticAMD"
+    inst [27 or "cpu27"] value "AuthenticAMD"
+    inst [28 or "cpu28"] value "AuthenticAMD"
+    inst [29 or "cpu29"] value "AuthenticAMD"
+    inst [30 or "cpu30"] value "AuthenticAMD"
+    inst [31 or "cpu31"] value "AuthenticAMD"
+
+hinv.cpu.model
+    inst [0 or "cpu0"] value "9"
+    inst [1 or "cpu1"] value "9"
+    inst [2 or "cpu2"] value "9"
+    inst [3 or "cpu3"] value "9"
+    inst [4 or "cpu4"] value "9"
+    inst [5 or "cpu5"] value "9"
+    inst [6 or "cpu6"] value "9"
+    inst [7 or "cpu7"] value "9"
+    inst [8 or "cpu8"] value "9"
+    inst [9 or "cpu9"] value "9"
+    inst [10 or "cpu10"] value "9"
+    inst [11 or "cpu11"] value "9"
+    inst [12 or "cpu12"] value "9"
+    inst [13 or "cpu13"] value "9"
+    inst [14 or "cpu14"] value "9"
+    inst [15 or "cpu15"] value "9"
+    inst [16 or "cpu16"] value "9"
+    inst [17 or "cpu17"] value "9"
+    inst [18 or "cpu18"] value "9"
+    inst [19 or "cpu19"] value "9"
+    inst [20 or "cpu20"] value "9"
+    inst [21 or "cpu21"] value "9"
+    inst [22 or "cpu22"] value "9"
+    inst [23 or "cpu23"] value "9"
+    inst [24 or "cpu24"] value "9"
+    inst [25 or "cpu25"] value "9"
+    inst [26 or "cpu26"] value "9"
+    inst [27 or "cpu27"] value "9"
+    inst [28 or "cpu28"] value "9"
+    inst [29 or "cpu29"] value "9"
+    inst [30 or "cpu30"] value "9"
+    inst [31 or "cpu31"] value "9"
+
+hinv.cpu.stepping
+    inst [0 or "cpu0"] value "1"
+    inst [1 or "cpu1"] value "1"
+    inst [2 or "cpu2"] value "1"
+    inst [3 or "cpu3"] value "1"
+    inst [4 or "cpu4"] value "1"
+    inst [5 or "cpu5"] value "1"
+    inst [6 or "cpu6"] value "1"
+    inst [7 or "cpu7"] value "1"
+    inst [8 or "cpu8"] value "1"
+    inst [9 or "cpu9"] value "1"
+    inst [10 or "cpu10"] value "1"
+    inst [11 or "cpu11"] value "1"
+    inst [12 or "cpu12"] value "1"
+    inst [13 or "cpu13"] value "1"
+    inst [14 or "cpu14"] value "1"
+    inst [15 or "cpu15"] value "1"
+    inst [16 or "cpu16"] value "1"
+    inst [17 or "cpu17"] value "1"
+    inst [18 or "cpu18"] value "1"
+    inst [19 or "cpu19"] value "1"
+    inst [20 or "cpu20"] value "1"
+    inst [21 or "cpu21"] value "1"
+    inst [22 or "cpu22"] value "1"
+    inst [23 or "cpu23"] value "1"
+    inst [24 or "cpu24"] value "1"
+    inst [25 or "cpu25"] value "1"
+    inst [26 or "cpu26"] value "1"
+    inst [27 or "cpu27"] value "1"
+    inst [28 or "cpu28"] value "1"
+    inst [29 or "cpu29"] value "1"
+    inst [30 or "cpu30"] value "1"
+    inst [31 or "cpu31"] value "1"
+
+hinv.cpu.cache
+    inst [0 or "cpu0"] value 512
+    inst [1 or "cpu1"] value 512
+    inst [2 or "cpu2"] value 512
+    inst [3 or "cpu3"] value 512
+    inst [4 or "cpu4"] value 512
+    inst [5 or "cpu5"] value 512
+    inst [6 or "cpu6"] value 512
+    inst [7 or "cpu7"] value 512
+    inst [8 or "cpu8"] value 512
+    inst [9 or "cpu9"] value 512
+    inst [10 or "cpu10"] value 512
+    inst [11 or "cpu11"] value 512
+    inst [12 or "cpu12"] value 512
+    inst [13 or "cpu13"] value 512
+    inst [14 or "cpu14"] value 512
+    inst [15 or "cpu15"] value 512
+    inst [16 or "cpu16"] value 512
+    inst [17 or "cpu17"] value 512
+    inst [18 or "cpu18"] value 512
+    inst [19 or "cpu19"] value 512
+    inst [20 or "cpu20"] value 512
+    inst [21 or "cpu21"] value 512
+    inst [22 or "cpu22"] value 512
+    inst [23 or "cpu23"] value 512
+    inst [24 or "cpu24"] value 512
+    inst [25 or "cpu25"] value 512
+    inst [26 or "cpu26"] value 512
+    inst [27 or "cpu27"] value 512
+    inst [28 or "cpu28"] value 512
+    inst [29 or "cpu29"] value 512
+    inst [30 or "cpu30"] value 512
+    inst [31 or "cpu31"] value 512
+
+hinv.cpu.bogomips
+    inst [0 or "cpu0"] value 4400.1401
+    inst [1 or "cpu1"] value 4400.1401
+    inst [2 or "cpu2"] value 4400.1401
+    inst [3 or "cpu3"] value 4400.1401
+    inst [4 or "cpu4"] value 4400.1401
+    inst [5 or "cpu5"] value 4400.1401
+    inst [6 or "cpu6"] value 4400.1401
+    inst [7 or "cpu7"] value 4400.1401
+    inst [8 or "cpu8"] value 4400.4302
+    inst [9 or "cpu9"] value 4400.4302
+    inst [10 or "cpu10"] value 4400.4302
+    inst [11 or "cpu11"] value 4400.4302
+    inst [12 or "cpu12"] value 4400.4302
+    inst [13 or "cpu13"] value 4400.4302
+    inst [14 or "cpu14"] value 4400.4302
+    inst [15 or "cpu15"] value 4400.4302
+    inst [16 or "cpu16"] value 4400.4502
+    inst [17 or "cpu17"] value 4400.4502
+    inst [18 or "cpu18"] value 4400.4502
+    inst [19 or "cpu19"] value 4400.4502
+    inst [20 or "cpu20"] value 4400.4502
+    inst [21 or "cpu21"] value 4400.4502
+    inst [22 or "cpu22"] value 4400.4502
+    inst [23 or "cpu23"] value 4400.4502
+    inst [24 or "cpu24"] value 4400.46
+    inst [25 or "cpu25"] value 4400.46
+    inst [26 or "cpu26"] value 4400.46
+    inst [27 or "cpu27"] value 4400.46
+    inst [28 or "cpu28"] value 4400.46
+    inst [29 or "cpu29"] value 4400.46
+    inst [30 or "cpu30"] value 4400.46
+    inst [31 or "cpu31"] value 4400.46
+
+hinv.cpu.model_name
+    inst [0 or "cpu0"] value "AMD Opteron(tm) Processor 6132 HE"
+    inst [1 or "cpu1"] value "AMD Opteron(tm) Processor 6132 HE"
+    inst [2 or "cpu2"] value "AMD Opteron(tm) Processor 6132 HE"
+    inst [3 or "cpu3"] value "AMD Opteron(tm) Processor 6132 HE"
+    inst [4 or "cpu4"] value "AMD Opteron(tm) Processor 6132 HE"
+    inst [5 or "cpu5"] value "AMD Opteron(tm) Processor 6132 HE"
+    inst [6 or "cpu6"] value "AMD Opteron(tm) Processor 6132 HE"
+    inst [7 or "cpu7"] value "AMD Opteron(tm) Processor 6132 HE"
+    inst [8 or "cpu8"] value "AMD Opteron(tm) Processor 6132 HE"
+    inst [9 or "cpu9"] value "AMD Opteron(tm) Processor 6132 HE"
+    inst [10 or "cpu10"] value "AMD Opteron(tm) Processor 6132 HE"
+    inst [11 or "cpu11"] value "AMD Opteron(tm) Processor 6132 HE"
+    inst [12 or "cpu12"] value "AMD Opteron(tm) Processor 6132 HE"
+    inst [13 or "cpu13"] value "AMD Opteron(tm) Processor 6132 HE"
+    inst [14 or "cpu14"] value "AMD Opteron(tm) Processor 6132 HE"
+    inst [15 or "cpu15"] value "AMD Opteron(tm) Processor 6132 HE"
+    inst [16 or "cpu16"] value "AMD Opteron(tm) Processor 6132 HE"
+    inst [17 or "cpu17"] value "AMD Opteron(tm) Processor 6132 HE"
+    inst [18 or "cpu18"] value "AMD Opteron(tm) Processor 6132 HE"
+    inst [19 or "cpu19"] value "AMD Opteron(tm) Processor 6132 HE"
+    inst [20 or "cpu20"] value "AMD Opteron(tm) Processor 6132 HE"
+    inst [21 or "cpu21"] value "AMD Opteron(tm) Processor 6132 HE"
+    inst [22 or "cpu22"] value "AMD Opteron(tm) Processor 6132 HE"
+    inst [23 or "cpu23"] value "AMD Opteron(tm) Processor 6132 HE"
+    inst [24 or "cpu24"] value "AMD Opteron(tm) Processor 6132 HE"
+    inst [25 or "cpu25"] value "AMD Opteron(tm) Processor 6132 HE"
+    inst [26 or "cpu26"] value "AMD Opteron(tm) Processor 6132 HE"
+    inst [27 or "cpu27"] value "AMD Opteron(tm) Processor 6132 HE"
+    inst [28 or "cpu28"] value "AMD Opteron(tm) Processor 6132 HE"
+    inst [29 or "cpu29"] value "AMD Opteron(tm) Processor 6132 HE"
+    inst [30 or "cpu30"] value "AMD Opteron(tm) Processor 6132 HE"
+    inst [31 or "cpu31"] value "AMD Opteron(tm) Processor 6132 HE"
+
+hinv.cpu.flags
+    inst [0 or "cpu0"] value "fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm 3dnowext 3dnow constant_tsc rep_good nonstop_tsc extd_apicid amd_dcm pni monitor cx16 popcnt lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt nodeid_msr npt lbrv svm_lock nrip_save pausefilter"
+    inst [1 or "cpu1"] value "fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm 3dnowext 3dnow constant_tsc rep_good nonstop_tsc extd_apicid amd_dcm pni monitor cx16 popcnt lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt nodeid_msr npt lbrv svm_lock nrip_save pausefilter"
+    inst [2 or "cpu2"] value "fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm 3dnowext 3dnow constant_tsc rep_good nonstop_tsc extd_apicid amd_dcm pni monitor cx16 popcnt lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt nodeid_msr npt lbrv svm_lock nrip_save pausefilter"
+    inst [3 or "cpu3"] value "fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm 3dnowext 3dnow constant_tsc rep_good nonstop_tsc extd_apicid amd_dcm pni monitor cx16 popcnt lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt nodeid_msr npt lbrv svm_lock nrip_save pausefilter"
+    inst [4 or "cpu4"] value "fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm 3dnowext 3dnow constant_tsc rep_good nonstop_tsc extd_apicid amd_dcm pni monitor cx16 popcnt lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt nodeid_msr npt lbrv svm_lock nrip_save pausefilter"
+    inst [5 or "cpu5"] value "fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm 3dnowext 3dnow constant_tsc rep_good nonstop_tsc extd_apicid amd_dcm pni monitor cx16 popcnt lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt nodeid_msr npt lbrv svm_lock nrip_save pausefilter"
+    inst [6 or "cpu6"] value "fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm 3dnowext 3dnow constant_tsc rep_good nonstop_tsc extd_apicid amd_dcm pni monitor cx16 popcnt lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt nodeid_msr npt lbrv svm_lock nrip_save pausefilter"
+    inst [7 or "cpu7"] value "fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm 3dnowext 3dnow constant_tsc rep_good nonstop_tsc extd_apicid amd_dcm pni monitor cx16 popcnt lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt nodeid_msr npt lbrv svm_lock nrip_save pausefilter"
+    inst [8 or "cpu8"] value "fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm 3dnowext 3dnow constant_tsc rep_good nonstop_tsc extd_apicid amd_dcm pni monitor cx16 popcnt lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt nodeid_msr npt lbrv svm_lock nrip_save pausefilter"
+    inst [9 or "cpu9"] value "fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm 3dnowext 3dnow constant_tsc rep_good nonstop_tsc extd_apicid amd_dcm pni monitor cx16 popcnt lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt nodeid_msr npt lbrv svm_lock nrip_save pausefilter"
+    inst [10 or "cpu10"] value "fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm 3dnowext 3dnow constant_tsc rep_good nonstop_tsc extd_apicid amd_dcm pni monitor cx16 popcnt lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt nodeid_msr npt lbrv svm_lock nrip_save pausefilter"
+    inst [11 or "cpu11"] value "fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm 3dnowext 3dnow constant_tsc rep_good nonstop_tsc extd_apicid amd_dcm pni monitor cx16 popcnt lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt nodeid_msr npt lbrv svm_lock nrip_save pausefilter"
+    inst [12 or "cpu12"] value "fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm 3dnowext 3dnow constant_tsc rep_good nonstop_tsc extd_apicid amd_dcm pni monitor cx16 popcnt lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt nodeid_msr npt lbrv svm_lock nrip_save pausefilter"
+    inst [13 or "cpu13"] value "fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm 3dnowext 3dnow constant_tsc rep_good nonstop_tsc extd_apicid amd_dcm pni monitor cx16 popcnt lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt nodeid_msr npt lbrv svm_lock nrip_save pausefilter"
+    inst [14 or "cpu14"] value "fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm 3dnowext 3dnow constant_tsc rep_good nonstop_tsc extd_apicid amd_dcm pni monitor cx16 popcnt lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt nodeid_msr npt lbrv svm_lock nrip_save pausefilter"
+    inst [15 or "cpu15"] value "fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm 3dnowext 3dnow constant_tsc rep_good nonstop_tsc extd_apicid amd_dcm pni monitor cx16 popcnt lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt nodeid_msr npt lbrv svm_lock nrip_save pausefilter"
+    inst [16 or "cpu16"] value "fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm 3dnowext 3dnow constant_tsc rep_good nonstop_tsc extd_apicid amd_dcm pni monitor cx16 popcnt lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt nodeid_msr npt lbrv svm_lock nrip_save pausefilter"
+    inst [17 or "cpu17"] value "fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm 3dnowext 3dnow constant_tsc rep_good nonstop_tsc extd_apicid amd_dcm pni monitor cx16 popcnt lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt nodeid_msr npt lbrv svm_lock nrip_save pausefilter"
+    inst [18 or "cpu18"] value "fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm 3dnowext 3dnow constant_tsc rep_good nonstop_tsc extd_apicid amd_dcm pni monitor cx16 popcnt lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt nodeid_msr npt lbrv svm_lock nrip_save pausefilter"
+    inst [19 or "cpu19"] value "fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm 3dnowext 3dnow constant_tsc rep_good nonstop_tsc extd_apicid amd_dcm pni monitor cx16 popcnt lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt nodeid_msr npt lbrv svm_lock nrip_save pausefilter"
+    inst [20 or "cpu20"] value "fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm 3dnowext 3dnow constant_tsc rep_good nonstop_tsc extd_apicid amd_dcm pni monitor cx16 popcnt lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt nodeid_msr npt lbrv svm_lock nrip_save pausefilter"
+    inst [21 or "cpu21"] value "fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm 3dnowext 3dnow constant_tsc rep_good nonstop_tsc extd_apicid amd_dcm pni monitor cx16 popcnt lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt nodeid_msr npt lbrv svm_lock nrip_save pausefilter"
+    inst [22 or "cpu22"] value "fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm 3dnowext 3dnow constant_tsc rep_good nonstop_tsc extd_apicid amd_dcm pni monitor cx16 popcnt lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt nodeid_msr npt lbrv svm_lock nrip_save pausefilter"
+    inst [23 or "cpu23"] value "fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm 3dnowext 3dnow constant_tsc rep_good nonstop_tsc extd_apicid amd_dcm pni monitor cx16 popcnt lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt nodeid_msr npt lbrv svm_lock nrip_save pausefilter"
+    inst [24 or "cpu24"] value "fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm 3dnowext 3dnow constant_tsc rep_good nonstop_tsc extd_apicid amd_dcm pni monitor cx16 popcnt lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt nodeid_msr npt lbrv svm_lock nrip_save pausefilter"
+    inst [25 or "cpu25"] value "fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm 3dnowext 3dnow constant_tsc rep_good nonstop_tsc extd_apicid amd_dcm pni monitor cx16 popcnt lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt nodeid_msr npt lbrv svm_lock nrip_save pausefilter"
+    inst [26 or "cpu26"] value "fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm 3dnowext 3dnow constant_tsc rep_good nonstop_tsc extd_apicid amd_dcm pni monitor cx16 popcnt lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt nodeid_msr npt lbrv svm_lock nrip_save pausefilter"
+    inst [27 or "cpu27"] value "fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm 3dnowext 3dnow constant_tsc rep_good nonstop_tsc extd_apicid amd_dcm pni monitor cx16 popcnt lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt nodeid_msr npt lbrv svm_lock nrip_save pausefilter"
+    inst [28 or "cpu28"] value "fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm 3dnowext 3dnow constant_tsc rep_good nonstop_tsc extd_apicid amd_dcm pni monitor cx16 popcnt lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt nodeid_msr npt lbrv svm_lock nrip_save pausefilter"
+    inst [29 or "cpu29"] value "fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm 3dnowext 3dnow constant_tsc rep_good nonstop_tsc extd_apicid amd_dcm pni monitor cx16 popcnt lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt nodeid_msr npt lbrv svm_lock nrip_save pausefilter"
+    inst [30 or "cpu30"] value "fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm 3dnowext 3dnow constant_tsc rep_good nonstop_tsc extd_apicid amd_dcm pni monitor cx16 popcnt lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt nodeid_msr npt lbrv svm_lock nrip_save pausefilter"
+    inst [31 or "cpu31"] value "fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm 3dnowext 3dnow constant_tsc rep_good nonstop_tsc extd_apicid amd_dcm pni monitor cx16 popcnt lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt nodeid_msr npt lbrv svm_lock nrip_save pausefilter"
+
+hinv.cpu.cache_alignment
+    inst [0 or "cpu0"] value 64
+    inst [1 or "cpu1"] value 64
+    inst [2 or "cpu2"] value 64
+    inst [3 or "cpu3"] value 64
+    inst [4 or "cpu4"] value 64
+    inst [5 or "cpu5"] value 64
+    inst [6 or "cpu6"] value 64
+    inst [7 or "cpu7"] value 64
+    inst [8 or "cpu8"] value 64
+    inst [9 or "cpu9"] value 64
+    inst [10 or "cpu10"] value 64
+    inst [11 or "cpu11"] value 64
+    inst [12 or "cpu12"] value 64
+    inst [13 or "cpu13"] value 64
+    inst [14 or "cpu14"] value 64
+    inst [15 or "cpu15"] value 64
+    inst [16 or "cpu16"] value 64
+    inst [17 or "cpu17"] value 64
+    inst [18 or "cpu18"] value 64
+    inst [19 or "cpu19"] value 64
+    inst [20 or "cpu20"] value 64
+    inst [21 or "cpu21"] value 64
+    inst [22 or "cpu22"] value 64
+    inst [23 or "cpu23"] value 64
+    inst [24 or "cpu24"] value 64
+    inst [25 or "cpu25"] value 64
+    inst [26 or "cpu26"] value 64
+    inst [27 or "cpu27"] value 64
+    inst [28 or "cpu28"] value 64
+    inst [29 or "cpu29"] value 64
+    inst [30 or "cpu30"] value 64
+    inst [31 or "cpu31"] value 64
+
+== done
+
+== Checking CPU hardware metrics from cpuinfo-4cpu-alpha (4 CPU)
+
+hinv.cpu.clock
+    inst [0 or "cpu0"] value 499.71442
+    inst [1 or "cpu1"] value 499.71442
+    inst [2 or "cpu2"] value 499.71442
+    inst [3 or "cpu3"] value 499.71442
+
+hinv.cpu.vendor
+    inst [0 or "cpu0"] value "unknown"
+    inst [1 or "cpu1"] value "unknown"
+    inst [2 or "cpu2"] value "unknown"
+    inst [3 or "cpu3"] value "unknown"
+
+hinv.cpu.model
+    inst [0 or "cpu0"] value "EV56"
+    inst [1 or "cpu1"] value "EV56"
+    inst [2 or "cpu2"] value "EV56"
+    inst [3 or "cpu3"] value "EV56"
+
+hinv.cpu.stepping
+    inst [0 or "cpu0"] value "0"
+    inst [1 or "cpu1"] value "0"
+    inst [2 or "cpu2"] value "0"
+    inst [3 or "cpu3"] value "0"
+
+hinv.cpu.cache
+No value(s) available!
+
+hinv.cpu.bogomips
+    inst [0 or "cpu0"] value 992.88
+    inst [1 or "cpu1"] value 992.88
+    inst [2 or "cpu2"] value 992.88
+    inst [3 or "cpu3"] value 992.88
+
+hinv.cpu.model_name
+    inst [0 or "cpu0"] value "EV56"
+    inst [1 or "cpu1"] value "EV56"
+    inst [2 or "cpu2"] value "EV56"
+    inst [3 or "cpu3"] value "EV56"
+
+hinv.cpu.flags
+    inst [0 or "cpu0"] value "unknown"
+    inst [1 or "cpu1"] value "unknown"
+    inst [2 or "cpu2"] value "unknown"
+    inst [3 or "cpu3"] value "unknown"
+
+hinv.cpu.cache_alignment
+No value(s) available!
+
+== done
+
+== Checking CPU hardware metrics from cpuinfo-4cpu-ia64-linux-2.6.32 (4 CPU)
+
+hinv.cpu.clock
+    inst [0 or "cpu0"] value 1594.007
+    inst [1 or "cpu1"] value 1594.007
+    inst [2 or "cpu2"] value 1594.007
+    inst [3 or "cpu3"] value 1594.007
+
+hinv.cpu.vendor
+    inst [0 or "cpu0"] value "GenuineIntel"
+    inst [1 or "cpu1"] value "GenuineIntel"
+    inst [2 or "cpu2"] value "GenuineIntel"
+    inst [3 or "cpu3"] value "GenuineIntel"
+
+hinv.cpu.model
+    inst [0 or "cpu0"] value "0"
+    inst [1 or "cpu1"] value "0"
+    inst [2 or "cpu2"] value "0"
+    inst [3 or "cpu3"] value "0"
+
+hinv.cpu.stepping
+    inst [0 or "cpu0"] value "7"
+    inst [1 or "cpu1"] value "7"
+    inst [2 or "cpu2"] value "7"
+    inst [3 or "cpu3"] value "7"
+
+hinv.cpu.cache
+No value(s) available!
+
+hinv.cpu.bogomips
+    inst [0 or "cpu0"] value 3186.6799
+    inst [1 or "cpu1"] value 3186.6799
+    inst [2 or "cpu2"] value 3186.6799
+    inst [3 or "cpu3"] value 3186.6799
+
+hinv.cpu.model_name
+    inst [0 or "cpu0"] value "Dual-Core Intel(R) Itanium(R) Processor 9040"
+    inst [1 or "cpu1"] value "Dual-Core Intel(R) Itanium(R) Processor 9040"
+    inst [2 or "cpu2"] value "Dual-Core Intel(R) Itanium(R) Processor 9040"
+    inst [3 or "cpu3"] value "Dual-Core Intel(R) Itanium(R) Processor 9040"
+
+hinv.cpu.flags
+    inst [0 or "cpu0"] value "branchlong, 16-byte atomic ops"
+    inst [1 or "cpu1"] value "branchlong, 16-byte atomic ops"
+    inst [2 or "cpu2"] value "branchlong, 16-byte atomic ops"
+    inst [3 or "cpu3"] value "branchlong, 16-byte atomic ops"
+
+hinv.cpu.cache_alignment
+No value(s) available!
+
+== done
+
+== Checking CPU hardware metrics from cpuinfo-8cpu-aarch64-linux-3.17.0 (8 CPU)
+
+hinv.cpu.clock
+No value(s) available!
+
+hinv.cpu.vendor
+    inst [0 or "cpu0"] value "0x50"
+    inst [1 or "cpu1"] value "0x50"
+    inst [2 or "cpu2"] value "0x50"
+    inst [3 or "cpu3"] value "0x50"
+    inst [4 or "cpu4"] value "0x50"
+    inst [5 or "cpu5"] value "0x50"
+    inst [6 or "cpu6"] value "0x50"
+    inst [7 or "cpu7"] value "0x50"
+
+hinv.cpu.model
+    inst [0 or "cpu0"] value "0x0"
+    inst [1 or "cpu1"] value "0x0"
+    inst [2 or "cpu2"] value "0x0"
+    inst [3 or "cpu3"] value "0x0"
+    inst [4 or "cpu4"] value "0x0"
+    inst [5 or "cpu5"] value "0x0"
+    inst [6 or "cpu6"] value "0x0"
+    inst [7 or "cpu7"] value "0x0"
+
+hinv.cpu.stepping
+    inst [0 or "cpu0"] value "0"
+    inst [1 or "cpu1"] value "0"
+    inst [2 or "cpu2"] value "0"
+    inst [3 or "cpu3"] value "0"
+    inst [4 or "cpu4"] value "0"
+    inst [5 or "cpu5"] value "0"
+    inst [6 or "cpu6"] value "0"
+    inst [7 or "cpu7"] value "0"
+
+hinv.cpu.cache
+No value(s) available!
+
+hinv.cpu.bogomips
+No value(s) available!
+
+hinv.cpu.model_name
+    inst [0 or "cpu0"] value "APM X-Gene Mustang board"
+    inst [1 or "cpu1"] value "APM X-Gene Mustang board"
+    inst [2 or "cpu2"] value "APM X-Gene Mustang board"
+    inst [3 or "cpu3"] value "APM X-Gene Mustang board"
+    inst [4 or "cpu4"] value "APM X-Gene Mustang board"
+    inst [5 or "cpu5"] value "APM X-Gene Mustang board"
+    inst [6 or "cpu6"] value "APM X-Gene Mustang board"
+    inst [7 or "cpu7"] value "APM X-Gene Mustang board"
+
+hinv.cpu.flags
+    inst [0 or "cpu0"] value "fp asimd evtstrm"
+    inst [1 or "cpu1"] value "fp asimd evtstrm"
+    inst [2 or "cpu2"] value "fp asimd evtstrm"
+    inst [3 or "cpu3"] value "fp asimd evtstrm"
+    inst [4 or "cpu4"] value "fp asimd evtstrm"
+    inst [5 or "cpu5"] value "fp asimd evtstrm"
+    inst [6 or "cpu6"] value "fp asimd evtstrm"
+    inst [7 or "cpu7"] value "fp asimd evtstrm"
+
+hinv.cpu.cache_alignment
+No value(s) available!
+
+== done
+

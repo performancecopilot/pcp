@@ -1,0 +1,234 @@
+#! /bin/sh
+# PCP QA Test No. 322
+# pmlogger (assorted) and pmlc (PCP 2.0) version compatibility
+# any host version ... see 374 for 64-bit host version
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+rm -f $seq.full
+
+_filter()
+{
+    _filter_pmdumplog \
+    | sed \
+	-e '/^pmlogger .* on host .* is logging metrics from host .*/d' \
+	-e '/^PMCD host/d' \
+	-e '/^TIMESTAMP started/d' \
+    | $PCP_AWK_PROG '
+/datax/				{ skip = 3 }
+skip > 0			{ skip--; next }
+$1 == "log" && $2 == "size"	{ if ($3 > 100 && $3 <= 200) $3 = "more than 100"
+				  else if ($3 > 200 && $3 <= 300) $3 = "more than 200"
+				}
+				{ print }'
+}
+
+_remote_signal()
+{
+    host="$1"
+    pid="$2"
+    base="$3"
+
+    cat <<end-of-file >$tmp.cmd
+. \$PCP_DIR/etc/pcp.env
+\$PCP_BINADM_DIR/pmsignal -s TERM $pid
+sleep 1
+\$PCP_BINADM_DIR/pmsignal -s KILL $pid
+test -k \$PCP_TMP_DIR/pmlogger || sudo chmod o-w \$PCP_TMP_DIR/pmlogger
+rm -f /tmp/$base.*
+end-of-file
+    scp -q $tmp.cmd pcpqa@$host:$tmp.cmd
+    ssh -q pcpqa@$host /bin/sh $tmp.cmd >/dev/null 2>&1
+    ssh -q pcpqa@$host "rm -f $tmp.cmd"
+}
+
+_speak_to_me()
+{
+    host=$1
+    pid=''
+    base=''
+    cat <<'End-of-File' | ssh -q pcpqa@$host sh >$tmp.tmp 2>$tmp.err
+if [ -r $PCP_DIR/etc/pcp.env ]
+then
+    . $PCP_DIR/etc/pcp.env
+else
+    echo "Error: unable to read $PCP_DIR/etc/pcp.env!" >&2
+    exit 1
+fi
+sudo rm -rf /tmp/$$ /tmp/$$.*
+echo "log mandatory on once { hinv.ncpu }" >/tmp/$$.config
+echo >>/tmp/$$.config
+echo "[access]" >>/tmp/$$.config
+echo "allow * : all;" >>/tmp/$$.config
+test -k $PCP_TMP_DIR/pmlogger || sudo chmod o+w $PCP_TMP_DIR/pmlogger
+( pmlogger -L -c /tmp/$$.config -l /tmp/$$.log /tmp/$$ </dev/null >/dev/null 2>&1 ) &
+echo pid=$! base=$$
+End-of-File
+
+    echo >>$seq.full
+    echo "stdout from ssh to $host ..." >>$seq.full
+    cat $tmp.tmp >>$seq.full
+    echo >>$seq.full
+    echo "stderr from ssh to $host ..." >>$seq.full
+    cat $tmp.err >>$seq.full
+
+    eval `cat $tmp.tmp`
+
+    if [ -z "$pid" ]
+    then
+	echo "Arrgh ... failed to get remote pmlogger pid for host $host"
+	exit
+    fi
+
+    if [ -z "$base" ]
+    then
+	echo "Arrgh ... failed to get remote archive basename for host $host"
+	exit
+    fi
+
+    for i in 1 2 3 4 5 6 7 8 9 10
+    do
+	( echo ; echo "iteration $i" ) >>$seq.full
+	if echo quit | pmlc -h $host $pid 2>&1 | tee -a $seq.full | grep 'Connected to' >/dev/null
+	then
+	    break
+	else
+	    if [ $i = 10 ]
+	    then
+		echo "Arrgh ... pmlogger (pid=$pid) on host $host failed to start after 20 seconds"
+		ssh -q pcpqa@$host "ps | grep $pid"
+		ssh -q pcpqa@$host "ls -l /tmp/$base.*"
+		ssh -q pcpqa@$host "cat /tmp/$base.log"
+		exit 1
+	    fi
+	fi
+	sleep 2
+    done
+
+    # the success cases
+    #
+    cat <<End-of-File | pmlc 2>&1 | _filter
+connect $pid@$host
+status
+new volume
+status
+flush
+# singular, all instances
+query { pmcd.simabi pmcd.control.register }
+# some instances
+query pmcd.agent.type ["sample" "pmcd" "sampledso"]
+# non-leaf
+query pmcd.pdu_in
+# logging
+log mandatory on once pmcd.agent.type ["sample" "pmcd"]
+End-of-File
+
+    # stopping and starting again should be enough to allow pmlogger
+    # to have logged the metrics from the last request ... except the
+    # pmlc control port socket may not have been ripped down, so
+    # sleep some
+    #
+    sleep 2
+
+    echo "after first pmlc session ..." >>$seq.full
+    ssh -q pcpqa@$host "ps | grep $pid" >>$seq.full 2>&1
+    ssh -q pcpqa@$host "ls -l /tmp/$base.*" >>$seq.full 2>&1
+    ssh -q pcpqa@$host "cat /tmp/$base.log" >>$seq.full 2>&1
+
+    cat <<End-of-File | pmlc 2>&1 | _filter
+connect $pid@$host
+log mandatory off pmcd.agent.type ["sampledso"]
+query pmcd.agent.type ["sample" "pmcd" "sampledso"]
+End-of-File
+
+    echo "after second pmlc session ..." >>$seq.full
+    ssh -q pcpqa@$host "ps | grep $pid" >>$seq.full 2>&1
+    ssh -q pcpqa@$host "ls -l /tmp/$base.*" >>$seq.full 2>&1
+    ssh -q pcpqa@$host "cat /tmp/$base.log" >>$seq.full 2>&1
+
+    # the failures
+    #
+    # echo "log mandatory on once proc" | pmlc -h $host $pid -D1
+    echo "connect 0@$host" | pmlc 2>&1 | _filter
+
+    # cleanup
+    #
+    if [ ! -z "$host" ]
+    then
+	_remote_signal $host $pid $base
+	pid=''
+	base=''
+    fi
+}
+
+_cleanup()
+{
+    if $need_clean
+    then
+	if [ ! -z "$pid" -a ! -z "$base" -a ! -z "$host" ]
+	then
+	    _remote_signal $host $pid $base
+	    pid=''
+	    base=''
+	fi
+	need_clean=false
+    fi
+    rm -f $tmp.*
+}
+
+need_clean=true
+status=1	# failure is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+host=''
+pid=''
+base=''
+
+# the v1 host may be on the other side of the planet
+#
+PMCD_CONNECT_TIMEOUT=30
+PMCD_REQUEST_TIMEOUT=30
+export PMCD_CONNECT_TIMEOUT PMCD_REQUEST_TIMEOUT
+
+# real QA test starts here
+
+# strickly speaking need a pcp>=2 host, but with an old 2.7.8 host in
+# the QA farm, we might pick that, and there is one less metric below
+# pmcd.pdu_in in the PMNS, which causes slightly different output
+# for the
+#	query pmcd.pdu_in
+# below ... so best to avoid that.
+#
+type="-v pcp>=3"
+echo
+echo "=== pmlogger host type: $type ==="
+host=`./getpmcdhosts -L -n 1 $type`
+if [ -z "$host" ]
+then
+    echo "./getpmcdhosts failed to find a suitable host" >$seq.notrun
+    exit
+else
+    echo "$type => $host" >>$seq.full
+    _speak_to_me $host
+fi
+
+# output version depends on the PCP version at the _remote_ host
+# not the local host as is normally the case
+#
+REMOTE_VER=`pmprobe -v -h $host pmcd.version \
+    | sed -e 's/"$//' -e 's/.*"//' \
+    | $PCP_AWK_PROG -F. '{printf "%02d%02d%02d\n",$1,$2,$3}'`
+echo "host=$host REMOTE_VER=$REMOTE_VER" >>$seq.full
+
+# success, all done
+status=0
+exit

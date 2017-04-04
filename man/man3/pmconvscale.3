@@ -1,0 +1,124 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMCONVSCALE 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmConvScale\f1 \- rescale a performance metric value
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.sp
+.ad l
+.hy 0
+.in +8n
+.ti -8n
+int pmConvScale(int \fItype\fP, const pmAtomValue *\fIival\fP, const\ pmUnits\ *\fIiunit\fP, pmAtomValue\ *\fIoval\fP, const\ pmUnits\ *\fIounit\fP);
+.sp
+.in
+.hy
+.ad
+cc ... \-lpcp
+.ft 1
+.SH DESCRIPTION
+.de CW
+.ie t \f(CW\\$1\f1\\$2
+.el \fI\\$1\f1\\$2
+..
+All performance metric values may be encoded in a
+.CW pmAtomValue
+union, defined as follows;
+.PP
+.ft CW
+.nf
+.in +0.5i
+typedef union {
+    __int32_t    l;     /* 32-bit signed */
+    __uint32_t   ul;    /* 32-bit unsigned */
+    __int64_t    ll;    /* 64-bit signed */
+    __uint64_t   ull;   /* 64-bit unsigned */
+    float        f;     /* 32-bit floating point */
+    double       d;     /* 64-bit floating point */
+    char         *cp;   /* char ptr */
+    pmValueBlock *vbp;  /* pmValueBlock ptr */
+} pmAtomValue;
+.in
+.fi
+.ft 1
+.PP
+The encoding of a performance metric's dimensionality and scale uses
+a
+.CW pmUnits
+structure; see
+.BR pmLookupDesc (3).
+.PP
+Given a performance metric value pointed to by
+.I ival
+multiply it by a scale factor and return the value in
+.IR oval .
+The scaling takes place from the units defined by
+.I iunit
+into the units defined by
+.IR ounit .
+Both input and output units must have the same dimensionality.
+.PP
+The performance metric type for both input and output values is determined by
+.IR type ,
+the value for which
+is typically extracted from a
+.CW pmDesc
+structure, following a call to
+.BR pmLookupDesc (3)
+for a particular performance metric.
+.PP
+.B pmConvScale
+is most useful when values returned via
+.BR pmFetch (3),
+(and possibly extracted using
+.BR pmExtractValue (3))
+need to be normalized
+into some canonical scale and units for the purposes of computation.
+.PP
+As a special case, if all components of the dimension are zero, then
+this is treated as synonymous with a ``count'' dimension of one,
+and so the ``count'' scale components determine the relative scaling.
+This accommodates the case where performance metrics are
+dimensionless, without special case handling on the part of the caller.
+.SH SEE ALSO
+.BR PMAPI (3),
+.BR pmAtomStr (3),
+.BR pmExtractValue (3),
+.BR pmFetch (3),
+.BR pmLookupDesc (3),
+.BR pmPrintValue (3),
+.BR pmTypeStr (3)
+and
+.BR pmUnitsStr (3).
+.SH DIAGNOSTICS
+.P
+.B PM_ERR_CONV
+.IP
+.I iunit
+and
+.I ounit
+have different dimensionality, or have inappropriate
+.I type
+.P
+.B PM_ERR_UNIT
+.IP
+Inappropriate
+.I iunit
+or
+.I ounit
+parameter

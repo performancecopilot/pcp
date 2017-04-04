@@ -1,0 +1,204 @@
+QA output created by 383
+As Installed ...
+parse: assuming file cisco/hugh-800 contains output from "show int" command
+Interface a0(0) is on host cisco/hugh-800
+Interface e0(1) is on host cisco/hugh-800
+Sleeping while sproc does the work ... SIGINT to terminate
+Starting sproc ...
+cisco[0] host: cisco/hugh-800 username: user passwd: pw prompt: adsl> intf: 0-a0 1-e0
+grab_cisco(cisco/hugh-800:a0):
+show int a0
+Extracted 5 values ...
+bandwidth: 100000 bytes/sec
+recent rate (bytes/sec): 123 in 456 out
+total bytes: 4242 in 1313 out ? out_bcast
+
+grab_cisco(cisco/hugh-800:e0):
+show int e0
+Extracted 5 values ...
+bandwidth: 1250000 bytes/sec
+recent rate (bytes/sec): 125 in 250 out
+total bytes: 2802084 in 1969425 out ? out_bcast
+
+
+==================
+With -U option ...
+parse: assuming file cisco/hugh-800 contains output from "show int" command
+Interface a0(0) is on host cisco/hugh-800
+Interface e0(1) is on host cisco/hugh-800
+Sleeping while sproc does the work ... SIGINT to terminate
+Starting sproc ...
+cisco[0] host: cisco/hugh-800 username: user passwd: pw prompt: adsl> intf: 0-a0 1-e0
+grab_cisco(cisco/hugh-800:a0):
+show int a0
+Extracted 5 values ...
+bandwidth: 100000 bytes/sec
+recent rate (bytes/sec): 123 in 456 out
+total bytes: 4242 in 1313 out ? out_bcast
+
+grab_cisco(cisco/hugh-800:e0):
+show int e0
+Extracted 5 values ...
+bandwidth: 1250000 bytes/sec
+recent rate (bytes/sec): 125 in 250 out
+total bytes: 2802084 in 1969425 out ? out_bcast
+
+
+==================
+With -P option ...
+parse: assuming file cisco/hugh-800 contains output from "show int" command
+Interface a0(0) is on host cisco/hugh-800
+Interface e0(1) is on host cisco/hugh-800
+Sleeping while sproc does the work ... SIGINT to terminate
+Starting sproc ...
+cisco[0] host: cisco/hugh-800 username: user passwd: pw prompt: adsl> intf: 0-a0 1-e0
+grab_cisco(cisco/hugh-800:a0):
+show int a0
+Extracted 5 values ...
+bandwidth: 100000 bytes/sec
+recent rate (bytes/sec): 123 in 456 out
+total bytes: 4242 in 1313 out ? out_bcast
+
+grab_cisco(cisco/hugh-800:e0):
+show int e0
+Extracted 5 values ...
+bandwidth: 1250000 bytes/sec
+recent rate (bytes/sec): 125 in 250 out
+total bytes: 2802084 in 1969425 out ? out_bcast
+
+
+==================
+With -s option ...
+parse: assuming file cisco/hugh-800 contains output from "show int" command
+Interface a0(0) is on host cisco/hugh-800
+Interface e0(1) is on host cisco/hugh-800
+Sleeping while sproc does the work ... SIGINT to terminate
+Starting sproc ...
+cisco[0] host: cisco/hugh-800 username: user passwd: pw prompt: adsl> intf: 0-a0 1-e0
+grab_cisco(cisco/hugh-800:a0):
+show int a0
+Extracted 5 values ...
+bandwidth: 100000 bytes/sec
+recent rate (bytes/sec): 123 in 456 out
+total bytes: 4242 in 1313 out ? out_bcast
+
+grab_cisco(cisco/hugh-800:e0):
+show int e0
+Extracted 5 values ...
+bandwidth: 1250000 bytes/sec
+recent rate (bytes/sec): 125 in 250 out
+total bytes: 2802084 in 1969425 out ? out_bcast
+
+
+==================
+With -U and -P options ...
+parse: assuming file cisco/hugh-800 contains output from "show int" command
+Interface a0(0) is on host cisco/hugh-800
+Interface e0(1) is on host cisco/hugh-800
+Sleeping while sproc does the work ... SIGINT to terminate
+Starting sproc ...
+cisco[0] host: cisco/hugh-800 username: user passwd: pw prompt: adsl> intf: 0-a0 1-e0
+grab_cisco(cisco/hugh-800:a0):
+show int a0
+Extracted 5 values ...
+bandwidth: 100000 bytes/sec
+recent rate (bytes/sec): 123 in 456 out
+total bytes: 4242 in 1313 out ? out_bcast
+
+grab_cisco(cisco/hugh-800:e0):
+show int e0
+Extracted 5 values ...
+bandwidth: 1250000 bytes/sec
+recent rate (bytes/sec): 125 in 250 out
+total bytes: 2802084 in 1969425 out ? out_bcast
+
+
+==================
+With -U and -s options ...
+parse: assuming file cisco/hugh-800 contains output from "show int" command
+Interface a0(0) is on host cisco/hugh-800
+Interface e0(1) is on host cisco/hugh-800
+Sleeping while sproc does the work ... SIGINT to terminate
+Starting sproc ...
+cisco[0] host: cisco/hugh-800 username: user passwd: pw prompt: adsl> intf: 0-a0 1-e0
+grab_cisco(cisco/hugh-800:a0):
+show int a0
+Extracted 5 values ...
+bandwidth: 100000 bytes/sec
+recent rate (bytes/sec): 123 in 456 out
+total bytes: 4242 in 1313 out ? out_bcast
+
+grab_cisco(cisco/hugh-800:e0):
+show int e0
+Extracted 5 values ...
+bandwidth: 1250000 bytes/sec
+recent rate (bytes/sec): 125 in 250 out
+total bytes: 2802084 in 1969425 out ? out_bcast
+
+
+==================
+With -P and -s options ...
+parse: assuming file cisco/hugh-800 contains output from "show int" command
+Interface a0(0) is on host cisco/hugh-800
+Interface e0(1) is on host cisco/hugh-800
+Sleeping while sproc does the work ... SIGINT to terminate
+Starting sproc ...
+cisco[0] host: cisco/hugh-800 username: user passwd: pw prompt: adsl> intf: 0-a0 1-e0
+grab_cisco(cisco/hugh-800:a0):
+show int a0
+Extracted 5 values ...
+bandwidth: 100000 bytes/sec
+recent rate (bytes/sec): 123 in 456 out
+total bytes: 4242 in 1313 out ? out_bcast
+
+grab_cisco(cisco/hugh-800:e0):
+show int e0
+Extracted 5 values ...
+bandwidth: 1250000 bytes/sec
+recent rate (bytes/sec): 125 in 250 out
+total bytes: 2802084 in 1969425 out ? out_bcast
+
+
+==================
+With -U, -P and -s options ...
+parse: assuming file cisco/hugh-800 contains output from "show int" command
+Interface a0(0) is on host cisco/hugh-800
+Interface e0(1) is on host cisco/hugh-800
+Sleeping while sproc does the work ... SIGINT to terminate
+Starting sproc ...
+cisco[0] host: cisco/hugh-800 username: user passwd: pw prompt: adsl> intf: 0-a0 1-e0
+grab_cisco(cisco/hugh-800:a0):
+show int a0
+Extracted 5 values ...
+bandwidth: 100000 bytes/sec
+recent rate (bytes/sec): 123 in 456 out
+total bytes: 4242 in 1313 out ? out_bcast
+
+grab_cisco(cisco/hugh-800:e0):
+show int e0
+Extracted 5 values ...
+bandwidth: 1250000 bytes/sec
+recent rate (bytes/sec): 125 in 250 out
+total bytes: 2802084 in 1969425 out ? out_bcast
+
+
+==================
+Some error checking ...
+parse: assuming file cisco/hugh-800 contains output from "show int" command
+Interface a0(0) is on host cisco/hugh-800
+parse: conflicting usernames ("user" and "baduser") for cisco "cisco/hugh-800"
+parse: assuming file cisco/hugh-800 contains output from "show int" command
+Interface a0(0) is on host cisco/hugh-800
+parse: conflicting user-level passwords ("pw" and "badpw") for cisco "cisco/hugh-800"
+parse: assuming file cisco/hugh-800 contains output from "show int" command
+Interface a0(0) is on host cisco/hugh-800
+parse: conflicting user-level prompts ("adsl>" and "badprompt") for cisco "cisco/hugh-800"
+parse: assuming file cisco/hugh-800 contains output from "show int" command
+Interface a0(0) is on host cisco/hugh-800
+parse: conflicting usernames ("user" and "baduser") for cisco "cisco/hugh-800"
+parse: assuming file cisco/hugh-800 contains output from "show int" command
+Interface a0(0) is on host cisco/hugh-800
+parse: conflicting user-level passwords ("pw" and "badpw") for cisco "cisco/hugh-800"
+parse: assuming file cisco/hugh-800 contains output from "show int" command
+Interface a0(0) is on host cisco/hugh-800
+parse: conflicting user-level prompts ("adsl>" and "badprompt") for cisco "cisco/hugh-800"

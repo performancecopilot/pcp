@@ -1,0 +1,93 @@
+#! /bin/sh
+# PCP QA Test No. 033
+# check filesys metrics for root fs
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ $PCP_PLATFORM = solaris ] && _notrun "No filesys metrics for Solaris"
+
+rm -f $seq.out
+if [ $PCP_PLATFORM = darwin ]
+then
+    ln $seq.out.4 $seq.out
+else
+    # assume linux-like
+    #
+    if pmprobe filesys.readonly >/dev/null
+    then
+	ln $seq.out.3 $seq.out
+    else
+	ln $seq.out.1 $seq.out
+    fi
+fi
+
+status=1	# failure is the default
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+rm -f $seq.full
+
+# real QA test starts here
+root=`df / | $PCP_AWK_PROG 'NR == 2 { print $1 }'`
+echo "root=$root" >>$seq.full
+if [ -z "$root" ]
+then
+    echo "Arrgh, cannot get device for root fs from df(1) ..."
+    df /
+    exit
+fi
+if [ -L "$root" ]
+then
+    if which realpath >/dev/null 2>&1
+    then
+	symroot=`realpath $root`
+    else
+	symroot=`ls -l $root | sed -e 's/.*-> //'`
+	if [ -z "$symroot" ]
+	then
+	    echo "Arrgh, cannot get symlink for device for root fs ..."
+	    ls -l $root
+	    exit
+	fi
+	case "$symroot"
+	in
+	    ../*)
+		# handle case like ...
+		# /dev/disk/by-uuid/467793a8-5191-4940-90fb-38a6f28b035d -> ../../sda1
+		dir=`dirname $root`
+		while true
+		do
+		    case "$symroot"
+		    in
+		    	../*)
+			    dir=`echo $dir | sed -e 's@/[^/]*$@@'`
+			    symroot=`echo $symroot | sed -e 's@\.\./\([^.]\)@\1@'`
+			    ;;
+			*)
+			    symroot=${dir}/${symroot}
+			    break
+			    ;;
+		    esac
+		done
+		;;
+	esac
+    fi
+else
+    symroot="$root"
+fi
+echo "symroot=$symroot" >>$seq.full
+pminfo -f filesys \
+| egrep "(^filesys)|\"$root\"|/dev/root|$symroot\"" \
+| _filter_dumpresult 2>&1 > $tmp.out
+
+cat $tmp.out
+
+status=0
+exit

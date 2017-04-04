@@ -1,0 +1,133 @@
+#! /bin/sh
+# PCP QA Test No. 602
+# PCP 2.2 duplicate of 348 (exercise trace PMDA options)
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ -f $PCP_PMDAS_DIR/trace/pmdatrace ] || _notrun "trace pmda not installed"
+
+_cleanup()
+{
+    if [ -n "$savedtracehost" ]
+    then
+	PCP_TRACE_HOST=$savedtracehost; export PCP_TRACE_HOST
+    fi
+    rm -f $tmp.*
+    exit $status
+}
+
+status=1	# failure is the default!
+trap "_cleanup" 0 1 2 3 15
+
+if [ -n "$PCP_TRACE_HOST" ]
+then
+    savedtracehost=$PCP_TRACE_HOST; unset PCP_TRACE_HOST
+fi
+
+pminfo trace >/dev/null 2>&1
+remove=$?
+
+cat <<EOF > $tmp.conf1
+n
+
+
+
+no
+1 -1 0
+-1
+7
+0
+34
+foo
+3
+
+EOF
+
+cat <<EOF > $tmp.conf2
+n
+
+
+
+yes
+no
+1 -2 1
+0
+0
+foo
+-4
+
+EOF
+
+cat <<EOF > $tmp.default
+n
+
+
+
+
+
+EOF
+
+# real QA test starts here
+
+cd $PCP_PMDAS_DIR/trace
+
+_filter_trace_usage()
+{
+    # drop the (new) -M option so we have consistent output
+    grep -v 'user account'
+}
+
+echo "--- Usage message ---"
+./pmdatrace -\? 2>&1 | _filter_trace_usage
+echo
+
+echo "--- Bad units specification #1 ---"
+./pmdatrace -U 1,1,1 2>&1 | _filter_trace_usage
+echo
+
+echo "--- Bad units specification #2 ---"
+./pmdatrace -U 1,,1,1,1,1 2>&1 | _filter_trace_usage
+echo
+
+echo "--- Bad units specification #3 ---"
+./pmdatrace -U 1,3,foo,3,4,1 2>&1 | _filter_trace_usage
+echo
+
+_filter_trace_install()
+{
+    # some warnings are *expected* - no trace values yet
+    _filter_pmda_install | sed \
+	-e 's/ *[0-9]+ warnings,//g'
+}
+
+# Check units changes #1 ...
+$sudo ./Install -R / <$tmp.conf1 2>&1 | _filter_trace_install
+_wait_for_pmcd
+pminfo -d trace.observe.value
+
+# Check units changes #1 ...
+$sudo ./Install -R / <$tmp.conf2 2>&1 | _filter_trace_install
+_wait_for_pmcd
+pminfo -d trace.counter.value
+
+# Check a default install ...
+$sudo ./Install -R / <$tmp.default 2>&1 | _filter_trace_install
+_wait_for_pmcd
+pminfo -d trace.observe.value trace.counter.value
+
+[ $remove -eq 1 ] && $sudo $PCP_PMDAS_DIR/trace/Remove >/dev/null 2>&1
+
+cd $here
+
+# success, all done
+status=0
+exit

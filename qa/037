@@ -1,0 +1,47 @@
+#! /bin/sh
+# PCP QA Test No. 037
+# exercise meta-data services from an archive
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+
+# format of the line to match ...
+# refcnt 2 vol 0 offset 132 (vol 0) serial 1 origin 804982618.523843 delta 5
+#
+_filter()
+{
+    sed -e '/^refcnt/s/=/ /g' \
+	-e 's/tifd=[0-9]*/tifd=N/g' \
+	-e 's/mdfd=[0-9]*/mdfd=N/g' \
+	-e 's/mfd=[0-9]*/mfd=N/g' \
+    | $PCP_AWK_PROG '
+$1 == "refcnt" && $11 == "origin"	{ if (t == 0) {
+					    t = $12
+					    $12 = "TIME"
+					  } 
+					  else {
+					    if (t == $12)
+						$12 = "SAME TIME"
+					    else
+						$12 = "botch! " t "!=" $12
+					  }
+					}
+					{ print }'
+}
+
+trap "rm -f $tmp.*; exit" 0 1 2 3 15
+
+# real QA test starts here
+for arch in tmparch/foo tmparch/bar tmparch/mv-foo tmparch/mv-bar tmparch/noti-foo tmparch/noti-bar
+do
+    echo
+    echo "Archive $arch"
+    src/xlog -v -a $arch | _filter | src/hex2nbo
+done

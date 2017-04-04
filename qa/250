@@ -1,0 +1,130 @@
+#! /bin/sh
+# PCP QA Test No. 250
+# Rebuild -u should be idempotent in this case
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+
+rm -f $seq.out
+if [ $PCP_PLATFORM = linux -o $PCP_PLATFORM = darwin -o $PCP_PLATFORM = solaris ]
+then
+    ln $seq.out.3 $seq.out
+else
+    _notrun "Need qualified output for $PCP_PLATFORM"
+fi
+
+status=1	# failure is the default!
+trap "cd $here; rm -rf $tmp; exit \$status" 0 1 2 3 15
+
+_copy_Rebuild()
+{
+    scr_src=$PCP_VAR_DIR/pmns/
+    cp $scr_src/Rebuild $1
+    if [ -f $scr_src/Xlate-irix-names ]
+    then
+	cp $scr_src/Xlate-irix-names $1
+    fi
+}
+
+_filter()
+{
+    sed \
+	-e "s;$tmp;TMP;g"
+}
+
+_remove_rebuild()
+{
+    rm -f $1/Rebuild 
+    if [ -f $1/Xlate-irix-names ]
+    then
+	rm -f $1/Xlate-irix-names
+    fi
+}
+
+# real QA test starts here
+mkdir $tmp
+cd $tmp
+
+cat >irix-root <<End-of-File
+	irix
+End-of-File
+
+cat >irix-pmns <<End-of-File
+irix {
+	bar
+	foo
+}
+irix.foo {
+	one	1:1:1
+	two	1:1:2
+	mumble
+}
+irix.bar {
+	three	1:1:3
+}
+irix.foo.mumble {
+	four	1:1:4
+}
+End-of-File
+
+cat >root <<End-of-File
+root {
+	irix
+	snarf
+	ten	10:1:1
+}
+irix {
+	bar
+	foo
+}
+irix.bar {
+	three	1:1:3
+}
+irix.foo.mumble {
+	four	1:1:4
+}
+irix.foo {
+	one	1:1:1
+	two	1:1:2
+	mumble
+}
+snarf {
+	eleven 11:1:1
+}
+End-of-File
+
+pminfo -m -n root | LC_COLLATE=POSIX sort >ref
+
+ls -l root >before
+ls >>before
+
+echo "Initial files inventory ..."
+touch after
+ls
+
+echo
+echo "Without root.bin ..."
+
+_copy_Rebuild .
+$sudo ./Rebuild -u \
+| _filter
+_remove_rebuild .
+
+ls -l root >after
+ls | sed '/^after$/d' >>after
+
+echo "File state differences ..."
+diff before after
+
+echo "PMNS differences ..."
+pminfo -m -n root | LC_COLLATE=POSIX sort | diff ref -
+
+status=0
+exit

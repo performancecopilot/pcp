@@ -1,0 +1,81 @@
+#! /bin/sh
+# PCP QA Test No. 643
+# concurrent PMDA removals trash the PMNS?
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ -d $PCP_PMDAS_DIR/trivial ] || _notrun "trivial PMDA directory is not installed"
+
+signal=$PCP_BINADM_DIR/pmsignal
+status=0	# success is the default!
+$sudo rm -rf $tmp.*
+done_clean=false
+
+install_on_cleanup=false
+pminfo trivial >/dev/null 2>&1 && install_on_cleanup=true
+
+_cleanup()
+{
+    if $done_clean
+    then
+	:
+    else
+	( cd $PCP_PMDAS_DIR/trivial ; $sudo $PCP_MAKE_PROG >/dev/null 2>&1 )
+	if $install_on_cleanup
+	then
+	    ( cd $PCP_PMDAS_DIR/trivial; $sudo ./Install </dev/null >/dev/null 2>&1 )
+	else
+	    ( cd $PCP_PMDAS_DIR/trivial; $sudo ./Remove </dev/null >/dev/null 2>&1 )
+	fi
+	_restore_config $PCP_PMCDCONF_PATH
+	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+	_wait_for_pmcd
+	_wait_for_pmlogger
+	done_clean=true
+    fi
+    $sudo rm -f $tmp.*
+    exit $status
+}
+
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# copy the pmcd config file to restore state later.
+_save_config $PCP_PMCDCONF_PATH
+
+# real QA test starts here
+cd $PCP_PMDAS_DIR/trivial
+unset ROOT TOOLROOT MAKEFLAGS
+$sudo ./Remove </dev/null >/dev/null 2>&1
+pminfo -n $PCP_VAR_DIR/pmns/root >$tmp.pmns.start
+
+for i in 1 2 3 4 5
+do
+    $sudo ./Remove </dev/null >$tmp.out.$i 2>&1 &
+done
+
+wait
+
+for i in 1 2 3 4 5
+do
+    echo
+    echo "=== remove #$i ==="
+    _filter_pmda_install <$tmp.out.$i
+done
+
+echo
+echo "=== PMNS differences (none expected) ==="
+pminfo -n $PCP_VAR_DIR/pmns/root \
+| diff - $tmp.pmns.start
+echo
+
+# success, all done
+exit

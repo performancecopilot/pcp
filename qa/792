@@ -1,0 +1,53 @@
+#!/bin/sh
+# PCP QA Test No. 792
+# test $PCP_DEBUG
+#
+# Copyright (c) 2015 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e '/^_/s/: .*/: .../' \
+    | _filter_dumpresult
+}
+
+# real QA test starts here
+echo "=== all -D options ==="
+pminfo -D profile,fetch,context -v sample.long >/dev/null 2>$tmp.err
+_filter <$tmp.err
+
+echo
+echo '=== all $PCP_DEBUG options ==='
+n=`pmdbg -D profile,fetch,context | sed -e 's/.* = //'`
+PCP_DEBUG=$n pminfo -v sample.long >/dev/null 2>$tmp.err
+_filter <$tmp.err
+
+echo
+echo '=== both -D and $PCP_DEBUG options with full overlap ==='
+n=`pmdbg -D profile,fetch,context | sed -e 's/.* = //'`
+PCP_DEBUG=$n pminfo -D profile,fetch,context -v sample.long >/dev/null 2>$tmp.err
+_filter <$tmp.err
+
+echo
+echo '=== both -D and $PCP_DEBUG options with no overlap ==='
+n=`pmdbg -D profile,context | sed -e 's/.* = //'`
+PCP_DEBUG=$n pminfo -D fetch -v sample.long >/dev/null 2>$tmp.err
+_filter <$tmp.err
+
+# success, all done
+status=0
+
+exit

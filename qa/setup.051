@@ -1,0 +1,633 @@
+#! /bin/sh
+#
+
+. $PCP_DIR/etc/pcp.env
+. ./common.check
+
+# get valid hostnames: $remote_1, $remote_2, etc.
+#
+. ./051.hosts
+
+host=`hostname`
+if [ -z "$host" ]
+then
+    echo "Cannot discover local host name!"
+    exit 1
+fi
+
+ipaddr=`_host_to_ipaddr $host`
+if [ -z "$ipaddr" ]
+then
+    echo "Cannot translate hostname ($host) to an IP address!"
+    exit 1
+fi
+
+rm -rf 051.work
+mkdir 051.work
+cd 051.work
+
+##############################################################################
+# The die.* tests die automatically by themselves.
+
+cat >die.001 <<End-of-File
+# Test whitespace in "[access]" token
+
+sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
+
+[access]
+
+die!
+End-of-File
+
+cat >die.002 <<End-of-File
+# Test whitespace in "[access]" token
+
+sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
+
+[ access]
+
+die!
+End-of-File
+
+cat >die.003 <<End-of-File
+# Test whitespace in "[access]" token
+
+sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
+
+[ access ]
+
+die!
+End-of-File
+
+cat >die.004 <<End-of-File
+# Test whitespace in "[access]" token
+
+sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
+
+[ 
+# what the &^*%# is this doing here!?
+access
+ ]
+
+die!
+End-of-File
+
+cat >die.005 <<End-of-File
+# Test missing host list
+
+sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
+
+[access]
+allow : all;
+
+die!
+End-of-File
+
+cat >die.006 <<End-of-File
+# Test missing comma in host list
+
+sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
+
+[access]
+allow $remote_1 $remote_2: all;
+
+die!
+End-of-File
+
+cat >die.007 <<End-of-File
+# Test extra comma in host list
+
+sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
+
+[access]
+allow $remote_1,: all;
+
+die!
+End-of-File
+
+cat >die.008 <<End-of-File
+# Test missing colon after host list
+
+sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
+
+[access]
+allow $remote_1 all;
+
+die!
+End-of-File
+
+cat >die.009 <<End-of-File
+# Test extra comma and missing colon after host list
+
+sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
+
+[access]
+allow $remote_1, all;
+
+die!
+End-of-File
+
+cat >die.010 <<End-of-File
+# Test missing semicolon
+
+sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
+
+[access]
+allow $remote_1: all
+
+die!
+End-of-File
+
+cat >die.011 <<End-of-File
+# Test statement with lotsa whitespace and comments interspersed.
+
+sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
+
+[access]
+# I think
+   allow#that I
+#will never
+	   $remote_1
+
+
+
+#see
+  	:   #a thing as beautiful
+all
+# as
+# the bottom of my in-tray
+
+;
+
+    	die here!
+End-of-File
+
+cat >die.012 <<End-of-File
+# Test all operation types.
+
+sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
+
+[access]
+
+allow $remote_1 : fetch;
+allow $remote_1 : store;
+allow $remote_1 : all;
+allow $remote_1 : maximum 666 connections;
+
+die!
+End-of-File
+
+cat >die.013 <<End-of-File
+# Test all operations in a single permission list.
+
+sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
+
+[access]
+allow $remote_1: fetch, store, maximum 666 connections;
+
+die!
+End-of-File
+
+cat >die.014 <<End-of-File
+# Test clash of "all" with a specific operation.
+
+sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
+
+[access]
+allow $remote_1: all, fetch;
+
+die!
+End-of-File
+
+cat >die.015 <<End-of-File
+# Test that "all" works with a connection limit.
+
+sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
+
+[access]
+allow $remote_1: all, maximum 666 connections;
+
+die!
+End-of-File
+
+cat >die.016 <<End-of-File
+# Test that specific operations work with a connection limit.
+
+sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
+
+[access]
+allow $remote_1: fetch, store, maximum 666 connections;
+
+die!
+End-of-File
+
+cat >die.017 <<End-of-File
+# Test that a connection limit fails in a disallow.
+
+sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
+
+[access]
+disallow $remote_1: store, maximum 666 connections;
+
+die!
+End-of-File
+
+cat >die.018 <<End-of-File
+# Test that a connection limit fails in a disallow with except.
+
+sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
+
+[access]
+disallow $remote_1: all except fetch, maximum 666 connections;
+
+die!
+End-of-File
+
+cat >die.019 <<End-of-File
+# Test that a connection limit is OK in an allow with an except.
+
+sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
+
+[access]
+allow $remote_1: all except store, maximum 666 connections;
+
+die!
+End-of-File
+
+cat >die.020 <<End-of-File
+# Test that a bogus hostname is detected
+
+sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
+
+[access]
+allow error...mebourne : fetch;
+
+die!
+End-of-File
+
+cat >die.021 <<End-of-File
+# Test a no such host condition
+#
+sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
+
+[access]
+allow nosuchhost.melbourne.sgi.com : fetch;
+
+die!
+End-of-File
+
+cat >die.022 <<End-of-File
+# Test that a bogus IP address
+
+sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
+
+[access]
+allow 192.2.3.999 : fetch;
+
+die!
+End-of-File
+
+cat >die.023 <<End-of-File
+# Test bad wildcard detection in IP address
+
+sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
+
+[access]
+allow 192.*.2 : fetch;
+
+die!
+End-of-File
+
+cat >die.024 <<End-of-File
+# Test embedded wildcard detection in host name
+
+sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
+
+[access]
+allow *.melbourne : fetch;
+
+die!
+End-of-File
+
+cat >die.025 <<End-of-File
+# Test wildcard detection in textual host name
+
+sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
+
+[access]
+allow melbourne.* : fetch;
+
+die!
+End-of-File
+
+cat >die.026 <<End-of-File
+# Test range check for IP address components
+
+sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
+
+[access]
+allow 192.-1.* : fetch;
+allow 192.256.* : fetch;
+
+die!
+End-of-File
+
+cat >die.027 <<End-of-File
+# Test "reinforcing" of permissions
+
+sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
+
+[access]
+allow $remote_1 : fetch;
+allow $remote_1 : fetch;
+
+die!
+End-of-File
+
+cat >die.028 <<End-of-File
+# Test contradictory permissions
+
+sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
+
+[access]
+allow $remote_1 : fetch;
+disallow $remote_1 : fetch;
+
+die!
+End-of-File
+
+cat >die.029 <<End-of-File
+# Test contradictory permissions with host aliasing (IP and name)
+
+sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
+
+[access]
+allow $host : all;
+disallow $ipaddr : fetch;
+
+die!
+End-of-File
+
+cat >die.030 <<End-of-File
+# Test contradictory permissions with host aliasing (different names)
+
+sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
+
+[access]
+allow $remote_1 : all;
+disallow $remote_1 : fetch;
+
+die!
+End-of-File
+
+cat >die.031 <<End-of-File
+# Test mutually exclusive host lists
+
+sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
+
+[access]
+allow $remote_1, $remote_2 : all;
+disallow $remote_3, $remote_4 : store;
+
+die!
+End-of-File
+
+cat >die.032 <<End-of-File
+# Test overlapping host lists
+
+sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
+
+[access]
+allow $remote_1, $remote_2 : all;
+allow $remote_3, $remote_2 : fetch, store;
+
+die!
+End-of-File
+
+cat >die.033 <<End-of-File
+# Test overlapping host lists with conflict
+
+sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
+
+[access]
+allow $remote_1, $remote_4, $remote_2 : all;
+disallow $remote_3, $remote_2, $remote_5 : store;
+
+die!
+End-of-File
+
+cat >die.034 <<End-of-File
+# Test overlapping host lists with conflicting connection counts
+
+sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
+
+[access]
+allow $remote_1, $remote_4, $remote_2 : all, maximum 30 connections;
+allow $remote_3, $remote_2, $remote_5 : fetch, store, maximum 10 connections;
+
+die!
+End-of-File
+
+cat >die.035 <<End-of-File
+# Test various levels of wildcarding
+
+sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
+
+[access]
+allow 192.68.139.105:	all;
+allow 192.68.139.*:	all, maximum 666 connections;
+allow 192.68.*:		all except store, maximum 555 connections;
+allow 192.*:		fetch, store, maximum 444 connections;
+allow *:		fetch, maximum 333 connections;
+
+die!
+End-of-File
+
+cat >die.036 <<End-of-File
+# Test various levels of wildcarding with several similar setups
+
+sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
+
+[access]
+allow 192.68.139.105:	all;
+allow 192.68.139.*:	all, maximum 666 connections;
+allow 192.68.*:		all except store, maximum 555 connections;
+allow 192.*:		fetch, store, maximum 444 connections;
+allow *:		fetch, maximum 333 connections;
+
+allow 193.68.139.105:	all;
+allow 193.68.139.*:	all, maximum 666 connections;
+allow 193.68.*:		all except store, maximum 555 connections;
+allow 193.*:		fetch, store, maximum 444 connections;
+
+allow 194.68.139.105:	all;
+allow 194.68.139.*:	all, maximum 666 connections;
+allow 194.68.*:		all except store, maximum 555 connections;
+allow 194.*:		fetch, store, maximum 444 connections;
+
+die!
+End-of-File
+
+cat >die.037 <<End-of-File
+# Test reinforcing of disallows
+
+sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
+
+[access]
+disallow $remote_1: fetch;
+disallow $remote_1: store;
+disallow $remote_1: all;
+
+die!
+End-of-File
+
+cat >die.038 <<End-of-File
+# Test detection of multiple conflicting explicit connections limits
+
+sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
+
+[access]
+allow $remote_1: maximum 5 connections, fetch, maximum 666 connections;
+
+die!
+End-of-File
+
+cat >die.039 <<End-of-File
+# Test detection of connections limits immediately after "all except"
+
+sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
+
+[access]
+allow $remote_1: all except maximum 5 connections;
+
+die!
+End-of-File
+
+cat >die.040 <<End-of-File
+# Test unlimited connections access spec.
+
+sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
+
+[access]
+allow $remote_1: unlimited connections;
+
+die!
+End-of-File
+
+cat >die.041 <<End-of-File
+# Test clash of unlimited connections with explicit maximum
+
+sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
+
+[access]
+allow $remote_1: unlimited connections;
+allow $remote_1: fetch, maximum 666 connections;
+
+die!
+End-of-File
+
+cat >die.042 <<End-of-File
+# Test reinforcing of unlimited connections
+
+sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
+
+[access]
+allow $remote_1: store, unlimited connections;
+allow $remote_1: fetch, unlimited connections;
+
+die!
+End-of-File
+
+# Note: no quotes around "End-Of-File" or $host and $ipaddr not expanded
+
+cat >die.043 <<End-of-File
+# Test conflicts with localhost aliasing
+
+sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
+
+[access]
+allow localhost: all;
+disallow $host: fetch;
+disallow $ipaddr : store;
+
+die!
+End-of-File
+
+cat >die.044 <<End-of-File
+# Check that log advisory and log mandatory no longer work
+
+sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
+
+[access]
+allow $remote_1 : log advisory;
+allow $remote_1 : log mandatory;
+
+die!
+End-of-File
+
+cat >die.045 <<End-of-File
+# Test invalid and valid operations in a single permission list.
+
+sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
+
+[access]
+allow $remote_1: fetch, store, log advisory, log mandatory, maximum 666 connections;
+
+die!
+End-of-File
+
+##############################################################################
+# The kill.* tests must be killed as they leave pmcd running.
+
+cat >kill.001 <<End-of-File
+# Test various special case tokens and the parser
+
+tricky		128	pipe	binary		\\
+			cat "whacko name" \\
+			more  	 		 params x-D x-R x-d 43\\
+21 back\\\\slash "broken\\
+string" \\
+abc:def 1;2;3 zzz "#abc\\"def" "x \\"y\\" z" \\#abc #and a comment\\
+to_end
+End-of-File
+
+#
+cat >filter.kill.001 <<'End-of-File'
+#! /bin/sh
+#
+# Filter log from kill.001
+
+. $PCP_DIR/etc/pcp.env
+
+echo "This is  `basename $0` "
+echo
+sed -e '/No such file/s/^cat:/Cannot open/' \
+| tee kill.001.$$ \
+| grep -v "Cannot open" \
+| sed -e 's/^$//' \
+	-e '/^[A-Z][a-z][a-z] [A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9] [0-9][0-9][0-9][0-9]$/d' \
+        -e '/^Log for pmcd on/s/ on .*/ on .../' \
+        -e '/^Log finished/s/finished .*/finished .../' \
+	-e 's/^\[[A-Z].. [A-Z]..  *[0-9][0-9]* ..:..:..]/[DATE]/' \
+	-e '/pmcd([0-9][0-9]*)/s//pmcd(PID)/' \
+	-e '/pcp\[[0-9][0-9]*]/s//pcp[PID]/' \
+        -e '/^pmcd: PID/s/= .*/= PID/' \
+	-e '/pmcd caught SIG.* from pid=/s/=[0-9][0-9]*/=N/g' \
+| $PCP_AWK_PROG '
+/pipe cmd=/		{ $4 = "FD"; $5 = "FD" }
+/ok .* INADDR_ANY/	{ $2 = "FD" }
+/ok .*pmcd.socket$/	{ next }
+/^tricky/	{ for ( i = 1 ; i <= NF ; i++ )
+		    if ( i == 3 ) printf "PID " ; else printf "%s ", $i 
+		    printf "\n"
+		    next
+		}
+			{ print }
+'
+echo
+echo 'dummy cat agent should have produced "Cannot open" messages:'
+grep "Cannot open" kill.001.$$
+rm kill.001.$$
+End-of-File
+
+chmod u+x filter.kill.001

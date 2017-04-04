@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+        <key>CFBundleGetInfoString</key>
+        <string>Performance Co-Pilot @package_version@</string>
+        <key>CFBundleIdentifier</key>
+        <string>com.sgi.pkg.pcp</string>
+        <key>CFBundleName</key>
+        <string>Performance Co-Pilot</string>
+        <key>CFBundleShortVersionString</key>
+        <string>@package_version@</string>
+	<key>IFMajorVersion</key>
+	<integer>@package_major@</integer>
+	<key>IFMinorVersion</key>
+	<integer>@package_minor@</integer>
+	<key>IFPkgFlagAllowBackRev</key>
+	<true/>
+	<key>IFPkgFlagAuthorizationAction</key>
+	<string>RootAuthorization</string>
+	<key>IFPkgFlagDefaultLocation</key>
+	<string>/tmp/pcp</string>
+	<key>IFPkgFlagInstallFat</key>
+	<false/>
+	<key>IFPkgFlagIsRequired</key>
+	<true/>
+	<key>IFPkgFlagOverwritePermissions</key>
+	<true/>
+	<key>IFPkgFlagRelocatable</key>
+	<false/>
+	<key>IFPkgFlagRestartAction</key>
+	<string>NoRestart</string>
+	<key>IFPkgFlagRootVolumeOnly</key>
+	<true/>
+	<key>IFPkgFlagUpdateInstalledLanguages</key>
+	<false/>
+	<key>IFPkgFlagUseUserMask</key>
+	<false/>
+	<key>IFPkgFormatVersion</key>
+	<real>0.1@build_date@</real>
+        <key>IFRequirementDicts</key>
+        <array>
+                <dict>
+                        <key>Level</key>
+                        <string>requires</string>
+                        <key>SpecType</key>
+                        <string>plist</string>
+                        <key>SpecArgument</key>
+                        <string>/System/Library/CoreServices/SystemVersion.plist</string>
+                        <key>SpecProperty</key>
+                        <string>ProductVersion</string>
+                        <key>TestOperator</key>
+                        <string>&gt;=</string>
+                        <key>TestObject</key>
+                        <string>10.@macosx_version@</string>
+                        <key>LabelKey</key>
+                        <string>OsVerLabelKey</string>
+                        <key>TitleKey</key>
+                        <string>OsVerTitleKey</string>
+                        <key>MessageKey</key>
+                        <string>Need MacOS X version 10.@macosx_version@ or higher</string>
+                </dict>
+        </array>
+</dict>
+</plist>

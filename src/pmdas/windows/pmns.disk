@@ -1,0 +1,52 @@
+disk {
+    all
+    dev
+}
+
+disk.all {
+    read		WINDOWS:0:15
+    write		WINDOWS:0:16
+    total		WINDOWS:0:17
+    split_io		WINDOWS:0:132
+    read_bytes		WINDOWS:0:18
+    write_bytes		WINDOWS:0:19
+    total_bytes		WINDOWS:0:20
+    read_time		WINDOWS:0:214
+    write_time		WINDOWS:0:215
+    total_time		WINDOWS:0:216
+    average
+}
+
+disk.dev {
+    read		WINDOWS:0:21
+    write		WINDOWS:0:22
+    total		WINDOWS:0:23
+    split_io		WINDOWS:0:133
+    read_bytes		WINDOWS:0:24
+    write_bytes		WINDOWS:0:25
+    total_bytes		WINDOWS:0:26
+    idle		WINDOWS:0:68
+    queue_len		WINDOWS:0:101
+    read_time		WINDOWS:0:217
+    write_time		WINDOWS:0:218
+    total_time		WINDOWS:0:219
+    average
+}
+
+disk.all.average {
+    read_bytes		WINDOWS:0:220
+    write_bytes		WINDOWS:0:221
+    total_bytes		WINDOWS:0:222
+    read_time		WINDOWS:0:223
+    write_time		WINDOWS:0:224
+    total_time		WINDOWS:0:225
+}
+
+disk.dev.average {
+    read_bytes		WINDOWS:0:226
+    write_bytes		WINDOWS:0:227
+    total_bytes		WINDOWS:0:228
+    read_time		WINDOWS:0:229
+    write_time		WINDOWS:0:230
+    total_time		WINDOWS:0:231
+}

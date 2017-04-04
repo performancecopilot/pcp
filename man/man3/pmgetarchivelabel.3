@@ -1,0 +1,124 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2016 Red Hat.
+.\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMGETARCHIVELABEL 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmGetArchiveLabel\f1 \- fetch the label record from a set of performance metrics archive logs
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.sp
+int pmGetArchiveLabel(pmLogLabel *\fIlp\fP);
+.sp
+cc ... \-lpcp
+.ft 1
+.SH DESCRIPTION
+.de CW
+.ie t \f(CW\\$1\f1\\$2
+.el \fI\\$1\f1\\$2
+..
+Within the framework of the
+Performance Co-Pilot (PCP), archive logs of performance metrics values
+may be accumulated and saved using the program
+.BR pmlogger (1).
+.PP
+The routine
+.B pmGetArchiveLabel
+may be used to fetch the label record from a set of archive logs that has already
+been opened using
+.BR pmNewContext (3),
+or
+.BR pmDupContext (3),
+and thereby associated with the current
+Performance Metrics Application Programming Interface (PMAPI)
+context.
+.PP
+The result returned via the pointer
+.I lp
+is a structure that must be pre-allocated by the caller
+and has the following format (defined in
+.BR pmapi.h ).
+.PP
+.in +0.2i
+.ft CW
+.nf
+/*
+ * Label Record at the start of every log file
+ */
+typedef struct {
+  int        ll_magic;    /* PM_LOG_MAGIC | log format version no. */
+  pid_t      ll_pid;      /* PID of logger */
+  struct timeval ll_start;/* start of this log */
+  char       ll_hostname[PM_LOG_MAXHOSTLEN]; /* name of collection host */
+  char       ll_tz[40];   /* $TZ at collection host */
+} pmLogLabel;
+.fi
+.ft 1
+.in
+.PP
+For an application, the most useful information from the archive label
+is likely to be in the fields
+.CW ll_start ,
+.CW ll_hostname
+or
+.CW ll_tz .
+.PP
+Note that the size of the
+.CW ll_hostname
+field is
+.CW PM_LOG_MAXHOSTLEN
+(64 bytes)
+which is less than
+.BR MAXHOSTNAMELEN
+(see
+.BR gethostbyname (3))
+on some platforms.
+These semantics are necessary to retain backwards compatibility with the
+PCP archive file format.
+.PP
+.B pmGetArchiveLabel
+returns zero for success.
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.I /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (5).
+Values for these variables may be obtained programmatically
+using the
+.BR pmGetConfig (3)
+function.
+.SH SEE ALSO
+.BR pmlogger (1),
+.BR PMAPI (3),
+.BR pmDupContext (3),
+.BR pmGetConfig (3),
+.BR pmNewContext (3),
+.BR pcp.conf (5)
+and
+.BR pcp.env (5).
+.SH DIAGNOSTICS
+.IP \f3PM_ERR_NOCONTEXT\f1
+the current PMAPI context
+is either invalid, or not associated with a set of archive logs

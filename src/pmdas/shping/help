@@ -1,0 +1,137 @@
+#
+# Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+# 
+# shping PMDA help file in the ASCII format
+#
+# lines beginning with a # are ignored
+# lines beginning @ introduce a new entry of the form
+#  @ metric_name oneline-text
+#  help text goes
+#  here over multiple lines
+#  ...
+#
+# the metric_name is decoded against the default PMNS -- as a special case,
+# a name of the form NNN.MM (for numeric NNN and MM) is interpreted as an
+# instance domain identification, and the text describes the instance domain
+#
+# blank lines before the @ line are ignored
+#
+
+@ 19.0 shping command instance domain
+There is one instance for each command run by the shping PMDA.
+
+The external instance name comes from the "tag" in the shping PMDA
+configuration file.  The internal instance number is the ordinal
+command number in the configuration file.
+
+@ shping.error command execution error code for shping PMDA
+As each command is executed, if there is a problem, the error
+code or cause is stored in shping.error.
+
+The interpretation of the value for shping.error depends on
+shping.status as follows:
+
+    If shping.status is 1 (the command was run but returned a non-zero
+    exit status) then shping.error is the exit status.
+
+    If shping.status is 2 (the command was run but was terminated by
+    a signal) then shping.error is the signal number.
+
+    If shping.status is 3 (the command did not complete) then
+    shping.error is a PCP error codes: see pmerr(1).  Of particular
+    relevance is -12353 (PM_ERR_TIMEOUT) when the command failed to
+    complete in the time specified by shping.control.timeout.
+
+    If shping.status is 4 (the commands was not run) then shping.error
+    is the value of the system error code.
+
+    Otherwise shping.error will be zero.
+
+@ shping.status command execution status for shping PMDA
+As each command is executed, the success or failure is encoded in
+shping.status, using the following values:
+
+   -1   PMDA is initializing and command has not been run yet
+    0	command completed and exit status was 0
+    1	command completed and exit status was non-zero
+    2	command was run but terminated by a signal
+    3	command was run but did not complete (usually a timeout)
+    4   command was not run due to some system error or resource
+	availability
+
+@ shping.time.real elapsed time for a command
+This metric records the elapsed time in milliseconds for the most recent
+execution of each command to be run by the shping PMDA.
+
+Care should be used when interpreting the value if the corresponding
+value for shping.status is non-zero, as the command may not have run to
+completion.  If the command timed out, shping.time.real will be -1.
+
+@ shping.time.cpu_usr user mode CPU time for a command
+This metric records the user mode CPU time in milliseconds for the most
+recent execution of each command to be run by the shping PMDA.
+
+Care should be used when interpreting the value if the corresponding
+value for shping.status is non-zero, as the command may not have run to
+completion.  If the command timed out, shping.time.cpu_usr will be -1.
+
+@ shping.time.cpu_sys system mode CPU time for a command
+This metric records the system mode CPU time in milliseconds for the most
+recent execution of each command to be run by the shping PMDA.
+
+Care should be used when interpreting the value if the corresponding
+value for shping.status is non-zero, as the command may not have run to
+completion.  If the command timed out, shping.time.cpu_sys will be -1.
+
+@ shping.cmd commands run by shping PMDA
+The text of each sh(1) command run by the shping PMDA.
+
+@ shping.control.numcmd number of commands in the group to be run by the shping PMDA
+
+@ shping.control.cycles number of times the command group has been run by the shping PMDA
+
+@ shping.control.cycletime shping PMDA cycle time
+All commands are run by the shping PMDA are executed one after another
+in a group, and the group is run once per "cycle" time.  This metric
+reports the cycle time in seconds.
+
+The cycle time may be changed dynamically by modifying this metric
+with pmstore(1).
+
+@ shping.control.timeout shping PMDA timeout period
+The number of seconds the shping PMDA is willing to wait before
+considering a single command to have timed out and killing it off.
+
+The time out interval may be changed dynamically by modifying this
+metric with pmstore(1).
+
+@ shping.control.debug shping PMDA debug flag
+The debug flag for the shping PMDA (see pmdbg(1)).  All trace and
+diagnostic files are created in $PCP_LOG_DIR/pmcd.
+
+The debug flags DBG_TRACE_APPL0 (2048) and DBG_TRACE_APPL1 (4096)
+may be used as follows:
+
+DBG_TRACE_APPL0	- additional trace messages associated with the running
+		  of each command appear in shping.log
+
+DBG_TRACE_APPL1	- the standard output and standard error of each command
+		  is appended to shping.out (instead of the default
+		  /dev/null)
+
+The debug flags may be changed dynamically by modifying this
+metric with pmstore(1), e.g.
+	$ pmstore shping.control.debug 6144
+would enable both of the diagnostic traces associated with
+DBG_TRACE_APPL0 and DBG_TRACE_APPL1.
+

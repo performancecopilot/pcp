@@ -1,0 +1,134 @@
+#!/bin/sh
+#
+# Recipes for making badti-* family of archives.
+# 
+# Every one is based on a version of ../src/ok-foo, with binary editing using
+# bvi (or similar) and cut-n-paste with dd.
+#
+# This is the good temporal index
+#
+# Timestamp    Log Vol    end(meta)     end(log)     offset
+#                                                         0 <- label record
+# 04:34:32.257       0          132          132	132
+# 04:34:33.248       0          350          284	152
+# 04:34:40.258       0          851         1768	172
+#                                                       191 <- EOF
+
+src=../src/ok-foo
+
+tmp=/var/tmp/$$
+trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+
+if [ $# -eq 0 ]
+then
+    # Set up for a new badti-X archive
+    #
+    X=`ls badti-*.index 2>/dev/null | tail -1 | sed -e 's/badti-//' -e 's/\.index//'`
+    if [ -z "$X" ]
+    then
+	X=1
+    else
+	X=`expr $X + 1`
+    fi
+elif [ $# -eq 1 ]
+then
+    X="$1"
+    rm -f badti-$X.*
+else
+    echo "Usage: mkbadti [case#]"
+    exit 1
+fi
+
+# byte offsets into ok-foo.index
+# 0	start label record
+# 132	start entry[1]
+# 152	start entry[2]
+# 172	start entry[3]
+#
+# within an entry
+# +0	timestamp.tv_sec
+# +4	timestamp.tv_usec
+# +8	volume
+# +12	metadata offset
+# +16	log offset
+#
+case $X
+in
+    1)	# index broken in the middle of an entry
+	dd if=$src.index of=badti-$X.index bs=1 count=162
+	;;
+
+    2)	# entry[1] volume is negative
+	# entry[2] tv_usec in timestamp is >99999
+	# entry[3] tv_sec in timestamp is negative
+	# entry[3] tv_usec in timestamp is negative
+	cp $src.index badti-$X.index
+	echo '140s\\....\\FFFFFFFF\\' >$tmp.ex
+	echo '156s\\....\\000F4240\\' >>$tmp.ex
+	echo '172s\\....\\FFFFFFFE\\' >>$tmp.ex
+	echo '176s\\....\\FFFFFFFC\\' >>$tmp.ex
+	;;
+
+    3)	# entry[2] volume -> non existant file, and then volume goes backwards
+	# entry[2] meta and log offsets past end of file
+	cp $src.index badti-$X.index
+	echo '160s\\....\\00000002\\' >$tmp.ex
+	echo '144s\\....\\00000354\\' >>$tmp.ex
+	echo '148s\\....\\000007B9\\' >>$tmp.ex
+	;;
+
+    4)	# entry[1] meta and log offsets point into label record
+	# entry[2] timestamp goes backwards
+	cp $src.index badti-$X.index
+	echo '144s\\....\\00000083\\' >$tmp.ex
+	echo '148s\\....\\00000001\\' >>$tmp.ex
+	echo '152s\\....\\2FAF0800\\' >>$tmp.ex
+	;;
+
+    *)
+	echo "Error: no recipe for badti-$X"
+	exit 1
+	;;
+
+esac
+
+if [ -f $tmp.ex ]
+then
+    echo 'w' >>$tmp.ex
+    echo 'q' >>$tmp.ex
+
+    for file in badti-$X.*
+    do
+	if which bvi >/dev/null 2>&1
+	then
+	    bvi -f $tmp.ex $file
+	else
+	    echo "bvi not installed"
+	    echo "Need to apply the equivalent of this binary editing to $file"
+	    cat $tmp.ex
+	fi
+    done
+
+fi
+
+for file in badti-$X.0 badti-$X.meta badti-$X.index
+do
+    if [ -f $file ]
+    then
+	:
+    else
+	target=`echo $file | sed -e "s/badti-$X\./..\/src\/ok-foo./"`
+	if cp $target $file
+	then
+	    :
+	else
+	    echo "Failed: cp $target $file"
+	    exit 1
+	fi
+    fi
+done
+
+echo "badti-$X created."
+
+exit
+

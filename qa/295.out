@@ -1,0 +1,17 @@
+QA output created by 295
+all clients started
+expect N connects and N-3 disconnect, thanks to pmie
+N connects
+N-3 disconnects
+
+kill off a client ...
+N connects
+N-2 disconnects
+
+kill off a client ...
+N connects
+N-1 disconnects
+
+kill off a client ...
+N connects
+N-0 disconnects

@@ -1,0 +1,134 @@
+#!/bin/sh
+# PCP QA Test No. 416
+# news pmda ... exercise perl PMDA bits-n-bobs
+#
+# Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+perl -e "use PCP::PMDA" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "perl PCP::PMDA module not installed"
+[ -f $PCP_PMDAS_DIR/news/pmdanews.pl ] || _notrun "news pmda not installed"
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+here=`pwd`
+
+_filter()
+{
+    sed \
+	-e "s;$tmp;TMP;g" \
+	-e "s;/[a-zA-Z0-9_/.\-]*/perl;PERL;" \
+	-e "s;$PCP_PMDAS_DIR;PCP_PMDAS_DIR;" \
+	-e '/^Log for pmdanews/s/ on .*/ on .../' \
+	-e '/^Log finished/s/ed .*/ed .../' \
+	-e '/^pmResult dump/{
+s/ 0x[0-9a-f][0-9a-f]* / ADDR /
+s/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]\.[0-9][0-9][0-9]/TIMESTAMP/
+}'
+}
+
+# Made more compilcated by non-determinism in the output from
+# the PMNS traversal commands "traverse" and "children".
+# Need to slice output horizontally, sort some sections then
+# concatenate sections .. yuk.
+#
+_filter2()
+{
+    rm -f $tmp.0 $tmp.1 $tmp.2 $tmp.3 $tmp.4
+    ${PCP_AWK_PROG} '
+BEGIN		{ part=0 }
+		{ outname = "'$tmp.'" part
+		  print $0 >outname
+		}
+part==0 && /^Metric: news$/			{ part=1; next }
+part==1 && /> children news.articles$/		{ part=2; next }
+part==2 && /^Metric: news.articles$/		{ part=3; next }
+part==3 && /> children news.articles.count$/	{ part=4; next }'
+
+    [ -f $tmp.1 ] && LC_COLLATE=POSIX sort -o $tmp.1 $tmp.1
+    [ -f $tmp.1 ] && LC_COLLATE=POSIX sort -o $tmp.3 $tmp.3
+
+    for i in 0 1 2 3 4
+    do
+	[ -f $tmp.$i ] && cat $tmp.$i
+    done
+}
+
+cat >$tmp.pmns <<End-of-File
+/* need local pmns in case the news PMDA is not installed */
+root {
+    news
+}
+
+news {
+	articles
+	readers
+}
+
+news.articles {
+	total		28:0:201
+	count		28:0:301
+	last		28:0:302
+}
+
+news.readers {
+	xrn		28:0:113
+	rn		28:0:111
+	nnrpd		28:0:101
+	trn		28:0:112
+	vn		28:0:114
+}
+End-of-File
+
+home=$PCP_PMDAS_DIR
+if [ ! -d $home/news ]
+then
+    echo "Where is $home/news?"
+    exit 1
+fi
+cd $home/news
+
+# real QA test starts here
+
+cat <<End-of-File | $sudo TERM=ansi sh -c ". /etc/pcp.env; dbpmda -ie -n $tmp.pmns" >$tmp.out 2>&1
+open pipe `which perl` `pwd`/pmdanews.pl
+traverse news
+children news.articles
+children news.articles.count
+pmid news.articles.total
+fetch news.articles.total
+desc news.articles.count
+instance 28.0
+fetch news.articles.count
+profile 28.0 none
+profile 28.0 add 2
+profile 28.0 add 4
+getdesc on
+fetch news.articles.count
+close
+quit
+End-of-File
+
+cat $tmp.out >>$here/$seq.full
+_filter <$tmp.out | _filter2
+
+# ensure news pmda is all done ...
+#
+sleep 3
+
+echo
+echo "=== news.log ==="
+_filter <news.log
+
+# success, all done
+status=0
+exit

@@ -1,0 +1,4 @@
+#pmlogconf-setup 2.0
+ident	Instrumented applications summary information
+probe	mmv.control.files > 0 ? include : exclude
+	mmv

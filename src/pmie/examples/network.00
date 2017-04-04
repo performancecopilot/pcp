@@ -1,0 +1,10 @@
+//
+// Report when some interface has seen more than 15 errors per second
+// on at least 3 of the last 4 observations
+//
+// Rule donated by Kevin Wang at Silicon Graphics
+//
+
+some_host some_inst 75%_sample (
+	network.interface.total.errors $HOSTS @0..3 > 15
+) -> print 5 min "high network interface errors" "%h[%i] %v errors/sec ";

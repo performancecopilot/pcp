@@ -1,0 +1,5 @@
+QA output created by 197
+invocation 1: at startup, next free file descriptor = 3 at exit, next free file descriptor = OK
+invocation 2: at startup, next free file descriptor = 3 at exec, next free file descriptor = OK
+invocation 3: at startup, next free file descriptor = 3 at exec, next free file descriptor = OK
+invocation 4: at startup, next free file descriptor = 3 at exec, next free file descriptor = OK

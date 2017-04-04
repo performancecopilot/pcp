@@ -1,0 +1,165 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2014 Red Hat.
+.\" Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMUNPACKEVENTRECORDS 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmUnpackEventRecords\f1 \- unpack event records
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.sp
+int pmUnpackEventRecords(pmValueSet *\fIvsp\fP, int \fIidx\fP, pmResult ***\fIrap\fP);
+.sp
+int pmUnpackHighResEventRecords(pmValueSet *\fIvsp\fP, int \fIidx\fP, pmHighResResult ***\fIhrap\fP);
+.sp
+cc ... \-lpcp
+.ft 1
+.SH DESCRIPTION
+.de CW
+.ie t \f(CW\\$1\f1\\$2
+.el \fI\\$1\f1\\$2
+..
+Event records are encoded as a packed array of records within a
+.I pmResult
+using a container metric with a value of type
+.B PM_TYPE_EVENT ,
+and a
+.I pmHighResResult
+when using a metric of type
+.BR PM_TYPE_HIGHRES_EVENT .
+.PP
+.B pmUnpackEventRecords
+and
+.B pmUnpackHighResEventRecords
+may be used to unpack event records from a metric value
+identified by
+.I vsp
+and
+.IR idx .
+If the metric has a singular value,
+.I idx
+should be 0, else the ordinal instance value identified by
+.I idx
+will be unpacked, i.e. vsp->vlist[idx].
+The unpacked records are turned into either
+.I pmResult
+or
+.I pmHighResResult
+structures, one per event record and one metric per event parameter, and
+.I rap
+is returned as a pointer to an array (NULL pointer terminated) of
+pointers to the result structures.
+.PP
+The only difference between the two result types is the timestamp scale;
+the
+.I pmHighResResult
+allows for nanosecond precision, whereas
+.I pmResult
+allows for microsecond resolution.
+.PP
+Some control information from the packed event records is unpacked
+into additional ``anonymous'' metrics as follows:
+.TP 4n
+1.
+If the event record has a non-zero flags value, then the corresponding
+.IR pmResult / pmHighResResult
+will have the flags value encoded with the additional metric
+.B event.flags
+that is inserted ahead of all other event parameters.
+.TP 4n
+2.
+If the event record flag is set to
+.BR PM_EVENT_FLAG_MISSED ,
+then the corresponding
+.IR pmResult / pmHighResResult
+will have one metric
+.B event.missed
+with a value that equals the number of event records ``missed'' because
+either the PMDA could not keep up, or the PMAPI client did not collect
+the event records fast enough.
+.PP
+.B pmUnpackEventRecords
+returns the number of
+.I pmResult
+structures as the return value, which is >= 0 for success.
+Similarly,
+.B pmUnpackHighResEventRecords
+returns the number of
+.I pmHighResResult
+structures as the return value, which is >= 0 for success.
+.PP
+.I rap
+and the associated
+.I pmResult
+structures may be freed using the convenience function
+.BR pmFreeEventResult (3).
+.PP
+Similarly, the
+.I hrap
+and the associated
+.I pmHighResResult
+structures may be freed using the convenience function
+.BR pmFreeHighResEventResult .
+.SH "RETURN VALUE"
+The following errors are possible:
+.TP 10n
+PM_ERR_CONV
+The values associated with
+.I vsp
+are not encoded using the format PM_VAL_DPTR or PM_VAL_SPTR, or
+the flags at the head of the event record has an unexpected value.
+.TP 10n
+PM_ERR_INST
+The value associated with
+.I vsp
+is not singular as expected.
+.TP 10n
+PM_ERR_TYPE
+.I vsp
+is not a value of type
+.BR PM_TYPE_EVENT .
+.TP 10n
+PM_ERR_TOOSMALL
+The value identified by
+.I vbp
+is not legal because the value length is less than the minimum size,
+or the number of event records encoded in the (value header)
+.IR pmEventArray / pmEventHighResArray
+structure is negative, or the number of missed event records in the
+array is negative.
+.TP 10n
+PM_ERR_TOOBIG
+Either
+.B vsp
+indicates more than one value is present (all the event records
+are expected to be packed in a single metric value), or
+when unpacking the event records, the processing continues past the end of
+the enclosing value.  Indicates corruption of the packed event record.
+.TP 10n
+PM_ERR_TYPE
+Event parameters must have one of the arithmetic types, else
+.BR PM_TYPE_AGGREGATE ,
+.B PM_TYPE_STRING
+or
+.BR PM_TYPE_AGGREGATE_STATIC .
+.TP 10n
+other values < 0
+refer to
+.BR pmErrStr (3).
+.SH SEE ALSO
+.BR PMAPI (3)
+and
+.BR pmFreeEventResult (3).

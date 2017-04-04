@@ -1,0 +1,10 @@
+ZBXPCP_1.0 {
+  global:
+    zbx_module_init;
+    zbx_module_api_version;
+    zbx_module_item_list;
+    zbx_module_item_timeout;
+    zbx_module_uninit;
+
+  local: *;
+};

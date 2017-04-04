@@ -1,0 +1,14 @@
+Package Name: @package_name@
+Package VRMF: @package_version@.@package_release@
+Update: N
+Fileset
+  Fileset Name: @package_name@.rte
+  Fileset VRMF: @package_version@.@package_release@
+  Fileset Description: Performance Co-Pilot (http://www.pcp.io)
+  Bosboot required: N
+  License agreement acceptance required: N
+  Name of license agreement:
+  Include license files in this package: N
+  License file path:
+  Requisites:
+  Files

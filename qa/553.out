@@ -1,0 +1,139 @@
+QA output created by 553
+== Testing volume instance domain
+dbpmda> open pipe $PCP_PYTHON_PROG $PCP_PMDAS_DIR/gluster/pmdagluster.python
+Start python PMDA: $PCP_PYTHON_PROG $PCP_PMDAS_DIR/gluster/pmdagluster.python
+dbpmda> instance 118.0
+pmInDom: 118.0
+[  0] inst: 0 name: "gv0"
+dbpmda> 
+== Testing volume information metrics
+dbpmda> open pipe $PCP_PYTHON_PROG $PCP_PMDAS_DIR/gluster/pmdagluster.python
+Start python PMDA: $PCP_PYTHON_PROG $PCP_PMDAS_DIR/gluster/pmdagluster.python
+dbpmda> getdesc on
+dbpmda> desc gluster.volume.dist.count
+PMID: 118.2.1
+    Data Type: 32-bit int  InDom: 118.0 0x1d800000
+    Semantics: instant  Units: none
+dbpmda> desc gluster.volume.stripe.count
+PMID: 118.2.2
+    Data Type: 32-bit int  InDom: 118.0 0x1d800000
+    Semantics: instant  Units: none
+dbpmda> desc gluster.volume.replica.count
+PMID: 118.2.3
+    Data Type: 32-bit int  InDom: 118.0 0x1d800000
+    Semantics: instant  Units: none
+dbpmda> fetch gluster.volume.dist.count
+PMID(s): 118.2.1
+pmResult ... numpmid: 1
+  118.2.1 (<noname>): numval: 1 valfmt: 0 vlist[]:
+    inst [0 or ???] value 1
+dbpmda> fetch gluster.volume.stripe.count
+PMID(s): 118.2.2
+pmResult ... numpmid: 1
+  118.2.2 (<noname>): numval: 1 valfmt: 0 vlist[]:
+    inst [0 or ???] value 2
+dbpmda> fetch gluster.volume.replica.count
+PMID(s): 118.2.3
+pmResult ... numpmid: 1
+  118.2.3 (<noname>): numval: 1 valfmt: 0 vlist[]:
+    inst [0 or ???] value 3
+dbpmda> 
+== Testing volume control metric store
+dbpmda> open pipe $PCP_PYTHON_PROG $PCP_PMDAS_DIR/gluster/pmdagluster.python
+Start python PMDA: $PCP_PYTHON_PROG $PCP_PMDAS_DIR/gluster/pmdagluster.python
+dbpmda> getdesc on
+dbpmda> desc gluster.volume.profile
+PMID: 118.2.0
+    Data Type: 32-bit int  InDom: 118.0 0x1d800000
+    Semantics: instant  Units: none
+dbpmda> fetch gluster.volume.profile
+PMID(s): 118.2.0
+pmResult ... numpmid: 1
+  118.2.0 (<noname>): numval: 1 valfmt: 0 vlist[]:
+    inst [0 or ???] value 1
+dbpmda> store gluster.volume.profile "1"
+PMID: 118.2.0
+Getting description...
+Getting Result Structure...
+118.2.0: 1 -> 1
+Sending Result...
+dbpmda> store gluster.volume.profile "0"
+PMID: 118.2.0
+Getting description...
+Getting Result Structure...
+118.2.0: 1 -> 0
+Sending Result...
+dbpmda> 
+start gv0 - test 553
+stop gv0 - test 553
+== Testing brick instance domain
+dbpmda> open pipe $PCP_PYTHON_PROG $PCP_PMDAS_DIR/gluster/pmdagluster.python
+Start python PMDA: $PCP_PYTHON_PROG $PCP_PMDAS_DIR/gluster/pmdagluster.python
+dbpmda> instance 118.1
+pmInDom: 118.1
+[  0] inst: 0 name: "smash.scott.net.au:/export/brick1/glusterdev1"
+dbpmda> 
+== Testing brick throughput metrics
+dbpmda> open pipe $PCP_PYTHON_PROG $PCP_PMDAS_DIR/gluster/pmdagluster.python
+Start python PMDA: $PCP_PYTHON_PROG $PCP_PMDAS_DIR/gluster/pmdagluster.python
+dbpmda> getdesc on
+dbpmda> desc gluster.brick.read_bytes
+PMID: 118.0.0
+    Data Type: 64-bit unsigned int  InDom: 118.1 0x1d800001
+    Semantics: counter  Units: byte
+dbpmda> fetch gluster.brick.read_bytes
+PMID(s): 118.0.0
+pmResult ... numpmid: 1
+  118.0.0 (<noname>): numval: 1 valfmt: 1 vlist[]:
+    inst [0 or ???] value 42
+dbpmda> desc gluster.brick.write_bytes
+PMID: 118.0.1
+    Data Type: 64-bit unsigned int  InDom: 118.1 0x1d800001
+    Semantics: counter  Units: byte
+dbpmda> fetch gluster.brick.write_bytes
+PMID(s): 118.0.1
+pmResult ... numpmid: 1
+  118.0.1 (<noname>): numval: 1 valfmt: 1 vlist[]:
+    inst [0 or ???] value 24
+dbpmda> 
+== Testing brick file operation latency metrics
+dbpmda> open pipe $PCP_PYTHON_PROG $PCP_PMDAS_DIR/gluster/pmdagluster.python
+Start python PMDA: $PCP_PYTHON_PROG $PCP_PMDAS_DIR/gluster/pmdagluster.python
+dbpmda> getdesc on
+dbpmda> desc gluster.brick.latency.getxattr.avg
+PMID: 118.1.74
+    Data Type: float  InDom: 118.1 0x1d800001
+    Semantics: instant  Units: microsec
+dbpmda> desc gluster.brick.latency.getxattr.min
+PMID: 118.1.72
+    Data Type: 64-bit unsigned int  InDom: 118.1 0x1d800001
+    Semantics: instant  Units: microsec
+dbpmda> desc gluster.brick.latency.getxattr.max
+PMID: 118.1.73
+    Data Type: 64-bit unsigned int  InDom: 118.1 0x1d800001
+    Semantics: instant  Units: microsec
+dbpmda> desc gluster.brick.latency.getxattr.count
+PMID: 118.1.75
+    Data Type: 64-bit unsigned int  InDom: 118.1 0x1d800001
+    Semantics: counter  Units: count
+dbpmda> fetch gluster.brick.latency.getxattr.avg
+PMID(s): 118.1.74
+pmResult ... numpmid: 1
+  118.1.74 (<noname>): numval: 1 valfmt: 1 vlist[]:
+    inst [0 or ???] value 101.4
+dbpmda> fetch gluster.brick.latency.getxattr.min
+PMID(s): 118.1.72
+pmResult ... numpmid: 1
+  118.1.72 (<noname>): numval: 1 valfmt: 1 vlist[]:
+    inst [0 or ???] value 68
+dbpmda> fetch gluster.brick.latency.getxattr.max
+PMID(s): 118.1.73
+pmResult ... numpmid: 1
+  118.1.73 (<noname>): numval: 1 valfmt: 1 vlist[]:
+    inst [0 or ???] value 134
+dbpmda> fetch gluster.brick.latency.getxattr.count
+PMID(s): 118.1.75
+pmResult ... numpmid: 1
+  118.1.75 (<noname>): numval: 1 valfmt: 1 vlist[]:
+    inst [0 or ???] value 2
+dbpmda> 

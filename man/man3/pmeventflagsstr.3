@@ -1,0 +1,68 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMEVENTFLAGSSTR 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmEventFlagsStr\f1,
+\f3pmEventFlagsStr_r\f1 \- convert an event record flags value into a string
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.sp
+const char *pmEventFlagsStr(int \fIflags\fP);
+.br
+char *pmEventFlagsStr_r(int \fIflags\fP, char *\fIbuf\fP, int \fIbuflen\fP);
+.sp
+cc ... \-lpcp
+.ft 1
+.SH DESCRIPTION
+.de CW
+.ie t \f(CW\\$1\f1\\$2
+.el \fI\\$1\f1\\$2
+..
+For use in error and diagnostic messages,
+.B pmEventFlagsStr
+returns a `human readable' version of
+the value
+.IR flags ,
+assuming this to be the
+.B er_flags
+field of a
+.B pmEventRecord
+or
+.BR pmEventHighResRecord .
+The
+.B pmEventFlagsStr_r
+function does the same, but stores the result in a user-supplied buffer
+.I buf
+of length
+.IR buflen ,
+which should have room for at least 64 bytes.
+.PP
+The string value result from
+.B pmEventFlagsStr
+is held in a single static buffer, so the returned value is
+only valid until the next call to
+.BR pmEventFlagsStr .
+.SH NOTES
+.B pmEventFlagsStr
+returns a pointer to a static buffer and hence is not thread-safe.
+Multi-threaded applications should use
+.B pmEventFlagsStr_r
+instead.
+.SH SEE ALSO
+.BR PMAPI (3)
+and
+.BR pmdaEventAddRecord (3).

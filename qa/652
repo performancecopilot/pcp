@@ -1,0 +1,120 @@
+#! /bin/sh
+# PCP QA Test No. 652
+# checks basic pmdasystemd functionality
+#
+# Copyright (c) 2012 Red Hat, Inc.  All Rights Reserved.
+#
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ -d $PCP_VAR_DIR/pmdas/systemd ] || _notrun "systemd PMDA not installed"
+which systemd-cat >/dev/null 2>&1 || _notrun no systemd-cat
+which journalctl >/dev/null 2>&1 || _notrun no journalctl
+journal_version=`journalctl --version | grep ^systemd | awk '{print $2}'`
+[ "$journal_version" -ge 193 ] || _notrun journalctl too old "$journal_version"
+
+_cleanup()
+{
+    _restore_pmda_install $iam
+    $sudo rm -fr $tmp.dir
+    $sudo rm -f $tmp.*
+    exit $status
+}
+
+_filter()
+{
+    sed \
+	-e "s,$tmp,TMPFILE,g" \
+	-e "s,$PCP_VAR_DIR,PCP_VAR_DIR,g" \
+	-e 's/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]\.[0-9][0-9][0-9]/TIMESTAMP/g'
+}
+
+_filter_probe()
+{
+    sed \
+	-e 's/^\(systemd.journal.count 1\) [0-9][0-9]*/\1 COUNT/g' \
+	-e 's/^\(systemd.journal.bytes 1\) [0-9][0-9]*/\1 BYTES/g'
+}
+
+_filter_events()
+{
+    fgrep 'MESSAGE=yo'
+}
+
+_filter_events_raw()
+{
+    fgrep '4d4553534147453d796f'
+}
+
+_filter_pmda_warning()
+{
+    # drop the adm-user-doesn't-exist warnings, optional blank line
+    fgrep -v 'Warning:' | grep . | 
+    grep -v "Starting pm.*"  # don't fuss about what pcp daemons are default-on 
+}
+
+
+iam=systemd
+status=1	# failure is the default!
+trap "_cleanup" 0 1 2 3 15
+
+$sudo rm -fr $tmp.dir
+$sudo rm -f $tmp.* $seq.full
+
+#debug# exec 2>$seq.full
+#debug# set -x # trace this test case
+
+# real QA test starts here
+_prepare_pmda_install $iam
+
+# install PMDA accepting the defaults (esp config file)
+$sudo ./Remove </dev/null >>$here/$seq.full 2>&1
+$sudo ./Install </dev/null >$tmp.out 2>&1
+_wait_for_pmcd
+cat $tmp.out >>$here/$seq.full
+cat $tmp.out | _filter_pcp_stop | _filter_pmda_install | _filter_pmda_warning | _filter
+
+# want to make sure PMDA is really healthy ... on vm02 we got
+# this far but the PMDA was dead ...
+#
+numval=`pmprobe -v systemd.numclients | tee -a $here/$seq.full | $PCP_AWK_PROG '{print $2}'`
+if [ "$numval" -lt 0 ]
+then
+    echo "Arrgh ... PMDA is not well!"
+    pminfo -f systemd
+    ps "$PCP_PS_ALL_FLAGS" | egrep "[p]m[cd]|[P]ID"
+    echo "=== PMDA's log ==="
+    cat $PCP_LOG_DIR/pmcd/systemd.log
+    echo "=== ==="
+    echo "=== pmcd's log ==="
+    cat $PCP_LOG_DIR/pmcd/pmcd.log
+    exit
+fi
+
+echo | tee -a $here/$seq.full
+echo "=== 1. scalar metrics  ===" | tee -a $here/$seq.full
+pmprobe -v systemd | tee -a $here/$seq.full | _filter_probe
+
+echo | tee -a $here/$seq.full
+echo "=== 2. journald.records  ===" | tee -a $here/$seq.full
+(pmsleep 2.5; echo yo-$seq-2 | systemd-cat) &
+pmevent -T 5 systemd.journal.records | tee -a $here/$seq.full | _filter_events
+
+echo | tee -a $here/$seq.full
+echo "=== 3. journald.records  ===" | tee -a $here/$seq.full
+(pmsleep 2.5; echo yo-$seq-3 | systemd-cat) &
+pmevent -T 5 systemd.journal.records_raw | tee -a $here/$seq.full | _filter_events_raw
+
+# remove PMDA to ensure proper cleanup (in case it wasnt already installed beforehand)
+$sudo ./Remove </dev/null >>$here/$seq.full 2>&1
+
+$sudo journalctl --lines=4 MESSAGE=yo-$seq-2 MESSAGE=yo-$seq-3 >>$here/$seq.full
+cat $PCP_LOG_DIR/pmcd/systemd.log >>$here/$seq.full
+
+status=0
+exit

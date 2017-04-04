@@ -1,0 +1,75 @@
+QA output created by 088
+
+                bin-100     bin-500     bin-700     bin-900 
+TIMESTAMP             ?           ?           ?         900 
+TIMESTAMP             ?         500           ?           ? 
+TIMESTAMP           100           ?           ?           ? 
+archive:   tmparch/bar
+metric:    sampledso.bin
+samples:   all
+semantics: instantaneous value
+units:     none
+
+                bin-100     bin-500     bin-700     bin-900 
+TIMESTAMP           100         500           ?           ? 
+TIMESTAMP           100         500           ?         900 
+TIMESTAMP     No values available
+archive:   tmparch/bar
+interval:  0.50 sec
+metric:    sampledso.bin
+samples:   11
+semantics: instantaneous value
+units:     none
+
+                bin-100     bin-500     bin-700     bin-900 
+TIMESTAMP             ?           ?           ?         900 
+TIMESTAMP             ?         500           ?           ? 
+TIMESTAMP           100           ?           ?           ? 
+archive:   tmparch/mv-bar
+metric:    sampledso.bin
+samples:   all
+semantics: instantaneous value
+units:     none
+
+                bin-100     bin-500     bin-700     bin-900 
+TIMESTAMP           100         500           ?           ? 
+TIMESTAMP           100         500           ?         900 
+TIMESTAMP     No values available
+archive:   tmparch/mv-bar
+interval:  0.50 sec
+metric:    sampledso.bin
+samples:   11
+semantics: instantaneous value
+units:     none
+
+                bin-100     bin-500     bin-700     bin-900 
+TIMESTAMP             ?           ?           ?         900 
+TIMESTAMP             ?         500           ?           ? 
+TIMESTAMP           100           ?           ?           ? 
+archive:   tmparch/noti-bar
+metric:    sampledso.bin
+samples:   all
+semantics: instantaneous value
+units:     none
+
+                bin-100     bin-500     bin-700     bin-900 
+TIMESTAMP           100         500           ?           ? 
+TIMESTAMP           100         500           ?         900 
+TIMESTAMP     No values available
+archive:   tmparch/noti-bar
+interval:  0.50 sec
+metric:    sampledso.bin
+samples:   11
+semantics: instantaneous value
+units:     none
+Note: timezone set to local timezone of host "rattle" from archive
+
+metric:    sampledso.bin
+archive:   archives/late
+host:      rattle
+start:     Sat Jun 14 23:23:02 1997
+end:       Sat Jun 14 23:23:08 1997
+semantics: instantaneous value
+units:     none
+samples:   1
+23:23:02.851  No values available

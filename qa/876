@@ -1,0 +1,96 @@
+#!/bin/sh
+# PCP QA Test No. 876
+# Exercise pmdaxfs quota metrics (project quota).
+#
+# Copyright (c) 2013 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+which mkfs.xfs >/dev/null 2>&1 || _notrun "XFS utilities not installed"
+pmprobe -I pmcd.agent.type 2>&1 | grep '"xfs"' >/dev/null
+test $? -eq 0 || _notrun "XFS PMDA metrics not available"
+if $sudo modprobe xfs >$tmp.out 2>&1
+then
+    rm -f $tmp.out
+else
+    msg=`cat $tmp.out`
+    rm -f $tmp.out
+    _notrun "XFS module not present: $msg"
+fi
+cat /proc/filesystems | awk '{ print $1 }' | grep '^xfs$' >/dev/null
+test $? -eq 0 || _notrun "XFS kernel support unavailable"
+# check for any loopback devices, cowardly abort this test if any exist
+loopcount=`$sudo losetup -a | wc -l`
+[ $loopcount -eq 0 ] || _notrun "System has loop devices already, bailing"
+
+_cleanup()
+{
+    cd $here
+    if [ -f $tmp.oprojects ]
+    then
+	$sudo mv $tmp.oprojects /etc/projects
+    elif [ -f $tmp.projects ]
+    then
+	$sudo rm /etc/projects
+    fi
+
+    $sudo umount $tmp.xfsmount >/dev/null 2>&1
+    # dodge kernel race conditions (losetup -d)
+    for i in 1 2 3 4 5
+    do
+	loopcount=`$sudo losetup -a | wc -l`
+	[ $loopcount -eq 0 ] && break
+	( $sudo losetup -d /dev/loop0 ) >/dev/null 2>&1
+	sync
+	sleep $i
+    done
+    rm -rf $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+echo "creating a filesystem"
+mkfs.xfs -dfile,size=256m,name=$tmp.xfsfile > /dev/null || exit 1
+
+echo "creating a mount point"
+mkdir -p $tmp.xfsmount || exit 1
+
+echo "creating a project map"
+test -f /etc/projects && $sudo mv /etc/projects $tmp.oprojects
+echo "0:$tmp.xfsmount" > $tmp.projects
+$sudo cp $tmp.projects /etc/projects
+
+echo "mounting xfs filesystem"
+$sudo mount -t xfs -o loop,prjquota $tmp.xfsfile $tmp.xfsmount
+
+# stash a copy of metric values for debugging
+pminfo -f quota 2>&1 > $seq.full
+
+echo "checking metric values"
+pmprobe -v quota > $tmp.out
+echo "== state metrics:"
+for metric in quota.state.project.accounting quota.state.project.enforcement
+do
+    grep $metric $tmp.out | \
+    awk '\
+	$2 < 1 { print "'$metric' FAIL" } \
+	$2 > 0 { print "'$metric' PASS" } \
+	END {}'
+done
+echo "== project metrics:"
+cat $tmp.out | grep quota.project
+
+# success, all done
+status=0
+
+exit

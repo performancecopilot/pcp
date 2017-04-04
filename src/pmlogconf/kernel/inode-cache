@@ -1,0 +1,7 @@
+#pmlogconf-setup 2.0
+ident	kernel name cache (namei, iget, etc) activity
+probe	kernel.all.io.namei
+	kernel.all.io.iget
+	kernel.all.io.namei
+	kernel.all.io.dirblk
+	name_cache

@@ -1,0 +1,192 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2012 Red Hat.
+.\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.\" I am variants ...
+.ds ia txmon
+.ds IA TXMON
+.ds Ia Txmon
+.TH PMDATXMON 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmdatxmon\f1 \- \*(ia performance metrics domain agent (PMDA)
+.SH SYNOPSIS
+\f3$PCP_PMDAS_DIR/\*(ia/pmda\*(ia\f1
+[\f3\-d\f1 \f2domain\f1]
+[\f3\-l\f1 \f2logfile\f1]
+[\f3\-U\f1 \f2username\f1]
+\f2tx_type\f1 ...
+.br
+\f3$PCP_PMDAS_DIR/\*(ia/txrecord\f1
+[\f3\-l\f1]
+.br
+\f3$PCP_PMDAS_DIR/\*(ia/txrecord\f1
+\f2tx_type servtime\f1 [\f2tx_type servtime\f1 ... ]
+.br
+\f3$PCP_PMDAS_DIR/\*(ia/genload\f1
+.SH DESCRIPTION
+.B pmda\*(ia
+is an example Performance Metrics Domain Agent (PMDA) which exports
+a small number of performance metrics from a simulated transaction
+monitor.
+.PP
+The \*(ia PMDA is
+shipped as both binary and source code and is designed to be
+an aid for PMDA developers;
+the \*(ia PMDA demonstrates how performance
+data can be exported from an application (in this case
+.BR txrecord )
+to the PCP infrastructure via a shared memory segment.
+As a matter of convenience,
+.B pmda\*(ia
+creates (and destroys on exit) the shared memory segment.
+.PP
+The
+.I tx_type
+arguments are arbitrary unique tags used to identify different
+transaction types.
+.PP
+The
+.B txrecord
+application simulates the processing of one or more transactions identified
+by
+.I tx_type
+and with an observed service time of
+.I servtime .
+.PP
+With the
+.B \-l
+option,
+.B txrecord
+displays the current summary of the transaction activity from
+the shared memory segment.
+.PP
+.B genload
+is a shell and
+.BR awk (1)
+script that acts as a front-end to
+.B txrecord
+to generate a constant load of simulated transaction activity.
+.PP
+A brief description of the
+.B pmda\*(ia
+command line options follows:
+.TP 5
+.B \-d
+It is absolutely crucial that the performance metrics
+.I domain
+number specified here is unique and consistent.
+That is,
+.I domain
+should be different for every PMDA on the one host, and the same
+.I domain
+number should be used for the same PMDA on all hosts.
+.TP
+.B \-l
+Location of the log file.  By default, a log file named
+.I \*(ia.log
+is written in the current directory of
+.BR pmcd (1)
+when
+.B pmda\*(ia
+is started, i.e.
+.BR $PCP_LOG_DIR/pmcd .
+If the log file cannot
+be created or is not writable, output is written to the standard error instead.
+.TP 5
+.B \-U
+User account under which to run the agent.
+The default is the unprivileged "pcp" account in current versions of PCP,
+but in older versions the superuser account ("root") was used by default.
+.SH INSTALLATION
+If you want access to the names, help text and values for the \*(ia
+performance metrics, do the following as root:
+.PP
+.ft CW
+.nf
+.in +0.5i
+# cd $PCP_PMDAS_DIR/\*(ia
+# ./Install
+.in
+.fi
+.ft 1
+.PP
+You will be prompted for the
+.I tx_type
+tags.
+.PP
+If you want to undo the installation, do the following as root:
+.PP
+.ft CW
+.nf
+.in +0.5i
+# cd $PCP_PMDAS_DIR/\*(ia
+# ./Remove
+.in
+.fi
+.ft 1
+.PP
+.B pmda\*(ia
+is launched by
+.BR pmcd (1)
+and should never be executed directly.
+The Install and Remove scripts notify
+.BR pmcd (1)
+when the agent is installed or removed.
+.SH FILES
+.PD 0
+.TP 10
+.B $PCP_PMCDCONF_PATH
+command line options used to launch
+.B pmda\*(ia
+.TP
+.B $PCP_PMDAS_DIR/\*(ia/help
+default help text file for the \*(ia metrics
+.TP
+.B $PCP_PMDAS_DIR/\*(ia/Install
+installation script for the
+.B pmda\*(ia
+agent
+.TP
+.B $PCP_PMDAS_DIR/\*(ia/Remove
+undo installation script for the 
+.B pmda\*(ia
+agent
+.TP
+.B $PCP_LOG_DIR/pmcd/\*(ia.log
+default log file for error messages and other information from
+.B pmda\*(ia
+.PD
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.B /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (5).
+.SH SEE ALSO
+.BR PCPIntro (1),
+.BR pmcd (1),
+.BR pmdasample (1),
+.BR pmdatrivial (1),
+.BR txmonvis (1)
+and
+.BR PMDA (3).

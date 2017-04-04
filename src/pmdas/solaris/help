@@ -1,0 +1,725 @@
+#
+# Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+# 
+# Solaris PMDA help file in the ASCII format
+#
+# lines beginning with a # are ignored
+# lines beginning @ introduce a new entry of the form
+#  @ metric_name oneline-text
+#  help text goes
+#  here over multiple lines
+#  ...
+#
+# the metric_name is decoded against the default PMNS -- as a special case,
+# a name of the form NNN.MM (for numeric NNN and MM) is interpreted as an
+# instance domain identification, and the text describes the instance domain
+#
+# blank lines before the @ line are ignored
+#
+
+@ kernel.all.cpu.idle Amount of time CPUs were idle
+@ kernel.all.cpu.user Amount of time spent executing userspace tasks
+@ kernel.all.cpu.sys Amount of time spent executing kernel code
+@ kernel.all.cpu.wait.total Amount of time CPU spent waiting for events
+@ kernel.percpu.cpu.user Amount of time spent executing userspace tasks by each CPU
+@ kernel.percpu.cpu.idle Amount of time each CPU was idle
+@ kernel.percpu.cpu.sys Amount of time each CPU spent executing kernel code
+@ kernel.percpu.cpu.wait.total Amount of time each CPU spent waiting for events
+@ disk.all.read Number of read requests aggregated across all disks
+@ disk.all.write Number of write requests aggregated across all disks
+@ disk.all.total Number of IO requests aggregated across all disks
+@ disk.all.read_bytes Number of bytes read from all disks
+@ disk.all.write_bytes Number of bytes written to all disk
+@ disk.all.total_bytes Number of bytes transferred to and from all disks
+@ disk.dev.read Number of read requests for each individual disk
+@ disk.dev.write Number of write requests for each individual disk
+@ disk.dev.total Number of IO requests for each individual disk
+@ disk.dev.read_bytes Number of bytes read from each individual disk
+@ disk.dev.write_bytes Number of bytes written to each individual disk
+@ disk.dev.total_bytes Number of bytes transferred to and from each individual disk
+@ network.interface.mtu Maximum Transmission Unit of a network interface
+Maximum Transmision Unit is the largest size of IP datagram which can be
+transferred over the data link.
+@ network.interface.in.bytes Number of bytes received by a network interface
+@ network.interface.in.errors Number of receive errors per network interface
+Number of receive errors per network interface. The errors counted towards
+this metric are: IP header errors, packets larger then the link MTU, packets
+delivered to the unknown address, packets sent to the unknown IP protocol,
+truncated packets, packets discarded due to not having a route for
+the destination.
+@ network.interface.in.drops Number of packets droped by a network interface
+Number of packets discared due to lack of space during the input processing.
+@ network.interface.in.delivers Number of packets delivered to ULPs
+Number of packets delivered for further processing by the upper-layer
+protocols.
+@ network.interface.in.bcasts Number of broadcast packets received by a network interface
+@ network.interface.in.packets Number of IP packets received by a network interface
+@ network.interface.in.mcasts Number of multicast packets received by a network interface
+@ network.interface.out.packets Number of packets sent by a network interface
+@ network.interface.out.bytes Number of bytes sent by a network interface
+@ network.interface.out.errors Number of send errors per network interface
+@ network.interface.out.bcasts Number of broadcast packets sent by a network interface
+@ network.interface.out.mcasts Number of multicast packets sent by a network interface
+@ network.interface.out.drops Number of packets discared by a network interface
+Number of packets discared due to lack of space during the output processing.
+@ network.udp.ipackets Number of UDP packets received
+@ network.udp.opackets Number of UDP packets sent
+@ network.udp.ierrors Number of receive errors in UDP processing
+@ network.udp.oerrors Number of send erros in UDP processing
+@ network.udp.noports Number of UDP packets received on unknown UDP port
+Number of UDP packets received for which here is no port can be found.
+This counter is reported on the per-interface basis and aggregated by the PMDA.
+
+@ network.udp.overflows Number of UDP packets droped due to queue overflow
+Number of UDP packets droped due to queue overflow.
+This counter is reported on the per-interface basis and aggregated by the PMDA.
+
+@zpool.capacity	Total capacity of a zpool in bytes
+@zpool.used Total space used on a pool
+@zpool.checksum_errors Number of checksum errors per zpool
+@zpool.self_healed Number of bytes healed
+@zpool.in.bytes	Counter of bytes read from a zpool
+@zpool.out.bytes Counter of bytes written to a zpool
+@zpool.in.ops Counter of reads per zpool
+@zpool.out.ops Counter of writes per zpool
+@zpool.in.errors Counter of read errors per zpool
+@zpool.out.errors Counter of write errors per zpool
+@zpool.state Current state of zpool
+@zpool.state_int vs_aux << 8 | vs_state
+
+@zfs.available Amount of space available to the dataset
+The amount of space available to the dataset (a filesystem, 
+a snapshot or a volume) and all its children. This is usually
+the amount of space available in the zpool which houses the
+dataset.
+
+@zfs.used.total Amount of space used by the dataset and its children
+The amount of space consumed by the filesystem, snapshot or
+volume and all its children. This amount does not include
+any reservation made by the dataset itself but do include
+the reservation of the children.
+
+@zfs.used.byme Amount of space used by the dataset itself.
+This amount exclude any space used by the children of this dataset
+or any of its snapshots.
+
+@zfs.used.bysnapshots Amount of space used by the snapshots of the dataset
+The amount of space consumed by the snapshots of this dataset.
+
+@zfs.used.bychildren Amount of space used by decendents of the dataset
+The amount of space consumed by all the decendants of this dataset.
+
+@zfs.quota Maximum amount of space a dataset can use
+Quotas are used to restrict the growth of the datasets. If
+the quota is set to 0 then the size of the dataset is limited only
+by the size of the pool which houses this dataset.
+
+@zfs.reservation Minimum amount of space guaranteed to a dataset
+The amount of space which dataset and its decendents are guaranteed
+to be available for them to use. This amount of taken off the quota
+of the parent of the dataset.
+
+@zfs.compression Compression ratio of the dataset
+Compression ratio is expressed as multiplier. To estimate how much data
+will be used by the uncompressed data multiply the amount of space used
+by the dataset by the compression ratio.
+
+@zfs.copies Number of redundant copies of data
+The number of redundant copies does not include any copies made as
+part of the pool redundancy.
+
+@zfs.recordsize Recommendend block size for files in filesystems
+By using recommended block size applications which deal with fixed size
+records can improve I/O performance.
+
+@zfs.used.byrefreservation Space used by refreservation
+The amount of space used by a refreservation set on this
+filesystem,  which would be freed if the refreservation was
+removed.
+
+@zfs.refreservation Minimum amount of space guaranteed to a filesystem
+The minimum amount of space guaranteed to a dataset, not
+including its descendents. Unlike reservation refreservation is
+counted towards the total used space of a dataset.
+
+@zfs.refquota Amount of space a filesystem can consume
+The hard limit on the amount of space a filesystem but not its descendants
+can consume from the pool.
+
+@zfs.referenced Amount of space referenced by the filesystem
+The amount of data that is accessible by  the filesystem. The data
+may be shared with other datasets in the pool.
+
+@zfs.nsnapshots Number of snapshots in the filesystem
+
+@zfs.snapshot.compression Compression ratio of the data in the snapshot
+Compression ratio is expressed as multiplier. To estimate how much data
+will be used by the uncompressed data multiply the amount of space used
+by the snapshot by the compression ratio.
+
+@zfs.snapshot.used Amount of space used by the snapshot
+
+@zfs.snapshot.referenced Amount of space referenced by the snapshot
+The amount of data that is accessible by  the snapshot. The data
+may be shared with other datasets in the filesystem.
+
+
+@zpool.perdisk.state Current state per disk in zpool
+@zpool.perdisk.state_int vs_aux << 8 | vs_state
+@zpool.perdisk.checksum_errors Number of checksum errors per disk in zpool
+@zpool.perdisk.self_healed Number of bytes healed per disk in zpool
+@zpool.perdisk.in.errors Counter of read errors per disk in zpool
+@zpool.perdisk.out.errors Counter of write errors per disk in zpool
+
+@network.link.in.errors Number of input errors per link
+Counts input errors per link
+@network.link.in.packets Numbe of datagrams received by a link
+@network.link.in.bytes Number of bytes received by a link
+Counts number of bytes received by a link. For the physical links
+this is the raw counter of bytes received, for the aggregated links
+this is the number of bytes received by all links in the aggregation
+group
+@network.link.in.bcasts Number of broadcast datagrams received by a link
+@network.link.in.mcasts Number of multicast datagrams
+Counts multicast datagram recieved by a link.
+@network.link.in.nobufs Number of inpit packets discared
+Counts number of packets discared because of failure to allocate buffers
+@network.link.out.errors Number of output errors per link
+@network.link.out.packets Number of packets sent from a link
+@network.link.out.bytes Number of bytes sent from a link
+@network.link.out.bcasts Number of broadcast datagrams sent from a link
+@network.link.out.mcasts Number of multicast datagrams sent from a link
+@network.link.out.nobufs Number of output packets discared
+Counts number of packets discared because of failure to allocate buffers
+@network.link.collisions Number of collisions detected per link
+@network.link.state Link state
+1 - Link is up, 2 - Link is down, 0 - unknown state
+@network.link.duplex Link duplex
+1 - Half duplex, 2 - Full duplex
+@network.link.speed Link speed in bytes per second
+@hinv.pagesize Memory page size
+The memory page size of the running kernel in bytes.
+@hinv.physmem Total physical system memory
+Total physical system memory size rounded down to the nearest page size
+boundary
+@pmda.uname identity and type of current system
+Identity and type of current system.  The concatenation of the values
+returned from utsname(2), also similar to uname -a.
+@kernel.fsflush.scanned Number of pages scanned by fsflush daemon
+@kernel.fsflush.examined Number of pages examined by fsflush daemon
+@kernel.fsflush.coalesced Number of pages coalesced into larger page
+@kernel.fsflush.modified Number of modified pages written to disk
+@kernel.fsflush.locked Number of pages locked by fsflush daemon
+Pages which were considered to be on interest for further examination
+are locked before deciding if they could be coalesced, released or flushed
+to disk.
+@kernel.fsflush.released Number of free pages released by fsflush daemon
+@kernel.fsflush.time Amount of time fsflush daemon spent doing its work
+@mem.physmem Total physical system memory
+Total physical system memory size rounded down to the nearest page size
+boundary. This metric is the same as hinv.physmem but uses different
+units.
+@mem.freemem Amount of free memory in the system
+@mem.lotsfree Paging theshold
+If freemem fails below the lostfree threshold then paging out daemon
+starts its activity. Default value for lotsfree is 1/64 of physical memory
+or 512K (which ever is larger).
+@mem.availrmem Amount of resident memory in the system
+
+@kernel.all.io.bread Physical block reads across all CPUs
+This metric is only updated if reading or writing to UFS mounted filesystems,
+reads and writes to ZFS do not update this metric.
+@kernel.all.io.bwrite Physical block writes across all CPUs
+This metric is only updated if reading or writing to UFS mounted filesystems,
+reads and writes to ZFS do not update this metric.
+@kernel.all.io.lread Logical block reads across all CPUs
+This metric is only updated if reading or writing to UFS mounted filesystems,
+reads and writes to ZFS do not update this metric.
+@kernel.all.io.lwrite Logical block writes across all CPUs
+This metric is only updated if reading or writing to UFS mounted filesystems,
+reads and writes to ZFS do not update this metric.
+@kernel.all.io.phread Raw I/O reads across all CPUs
+@kernel.all.io.phwrite Raw I/O writes across all CPUs
+@kernel.all.io.intr Device interrupts across all CPUs
+
+@kernel.percpu.io.bread Physical block reads
+This metric is only updated if reading or writing to UFS mounted filesystems,
+reads and writes to ZFS do not update this metric.
+@kernel.percpu.io.bwrite Physical block writes
+This metric is only updated if reading or writing to UFS mounted filesystems,
+reads and writes to ZFS do not update this metric.
+@kernel.percpu.io.lread Logical block reads
+This metric is only updated if reading or writing to UFS mounted filesystems,
+reads and writes to ZFS do not update this metric.
+@kernel.percpu.io.lwrite Logical block writes
+This metric is only updated if reading or writing to UFS mounted filesystems,
+reads and writes to ZFS do not update this metric.
+@kernel.percpu.io.phread Raw I/O reads
+@kernel.percpu.io.phwrite Raw I/O writes
+@kernel.percpu.io.intr Device interrupts
+
+@hinv.ncpu Number of CPUs in the system
+@hinv.ndisk Number of disks in the system
+
+@kernel.all.trap Traps across all CPUs
+@kernel.all.pswitch Context switches across all CPUs
+@kernel.all.syscall Total number of system calls across all CPUs
+@kernel.all.sysexec Total number of calls from exec(2) family across all CPUs
+@kernel.all.sysfork Total number of new processes created across all CPUs
+@kernel.all.sysvfork Total number of new processes created across all CPUs
+Unlike fork vfork does not copy all the virtual memory of the parent
+process into the child process and is mostly used to create new system context
+for execve(2). vfork(2) calls are not counted towards kernel.all.sysfork.
+@kernel.all.sysread Total number of system calls from read(2) family across all CPUs
+@kernel.all.syswrite Total number of system calls from write (2) family across all CPUs
+
+@kernel.percpu.trap Traps on each CPUs
+@kernel.percpu.pswitch Context switches on each CPUs
+@kernel.percpu.syscall Total number of system calls on each CPU
+@kernel.percpu.sysexec Total number of calls from exec(2) family on each CPU
+@kernel.percpu.sysfork Total number of new processes created on each CPU
+@kernel.percpu.sysvfork Total number of new processes created on each CPU
+Unlike fork vfork does not copy all the virtual memory of the parent
+process into the child process and is mostly used to create new system context
+for execve(2). vfork(2) calls are not counted towards kernel.percpu.sysfork.
+@kernel.percpu.sysread Total number of system calls from read(2) family on each CPU
+@kernel.percpu.syswrite Total number of system calls from write (2) family on each CPU
+
+@kernel.all.load Classic load average for 1, 5 and 15 minute intervals
+
+@kernel.all.cpu.wait.io	Time spent waiting for I/O across all CPUs
+This metric is not updated by OpenSolaris kernel.
+@kernel.all.cpu.wait.pio Time spent wait for polled I/O across all CPUs
+This metric is not updated by OpenSolaris kernel.
+@kernel.all.cpu.wait.swap Time spent wait for swap across all CPUs
+This metric is not updated by OpenSolaris kernel.
+@kernel.percpu.cpu.wait.io Time spent waiting for I/O on per-CPU basis
+This metric is not updated by OpenSolaris kernel.
+@kernel.percpu.cpu.wait.pio Time spent waiting for polled I/O on per-CPU basis
+This metric is not updated by OpenSolaris kernel.
+@kernel.percpu.cpu.wait.swap Time spent waiting swap on per-CPU basis
+This metric is not updated by OpenSolaris kernel.
+
+@zfs.arc.size Total amount of memory used by ZFS ARC
+@zfs.arc.min_size Lower limit of them amount of memory for ZFS ARC
+@zfs.arc.max_size Upper limit of the amount of memory for ZFS ARC
+The default is to use 7/8 of total physical memory.
+@zfs.arc.mru_size Amount of memory used by the most recently used pages
+@zfs.arc.target_size "Ideal" size of the cached based on aging
+@zfs.arc.hits.total Number of times data is found in the cache
+@zfs.arc.hits.mfu Number of times data is found in the most frequently used buffers
+@zfs.arc.hits.mru Number of times data is found in the most recently used buffers
+@zfs.arc.hits.mfu_ghost Number of times MFU ghost buffer is accessed
+A ghost buffer is a buffer which is no longer cached but is still
+linked into the hash.
+@zfs.arc.hits.mru_ghost Number of times MRU ghost buffer is accessed
+A ghost buffer is a buffer which is no longer cached but is still
+linked into the hash.
+@zfs.arc.hits.demand_data Number of times file data is found in the cache
+ARC statistics provide separate counters for demand vs prefetch
+and data vs metadata accesses: demand is a result of the direct
+request for a particular data, prefetch is a result of speculative
+request for a particular data.
+@zfs.arc.hits.demand_metadata Number of times filesystem metadata is found in the cache
+ARC statistics provide separate counters for demand vs prefetch
+and data vs metadata accesses: demand is a result of the direct
+request for a particular data, prefetch is a result of speculative
+request for a particular data.
+@zfs.arc.hits.prefetch_data Number of times speculative request for data is satisfied from the cache
+ARC statistics provide separate counters for demand vs prefetch
+and data vs metadata accesses: demand is a result of the direct
+request for a particular data, prefetch is a result of speculative
+request for a particular data.
+@zfs.arc.hits.prefetch_metadata Number of times speculative request for metadata is satisfied from the cache
+ARC statistics provide separate counters for demand vs prefetch
+and data vs metadata accesses: demand is a result of the direct
+request for a particular data, prefetch is a result of speculative
+request for a particular data.
+@zfs.arc.misses.total Number of times the data is not found in the cache
+@zfs.arc.misses.demand_data Number of times file data is not found in the cache
+ARC statistics provide separate counters for demand vs prefetch
+and data vs metadata accesses: demand is a result of the direct
+request for a particular data, prefetch is a result of speculative
+request for a particular data.
+@zfs.arc.misses.demand_metadata Number of times filesystem metadata is not found in the cache
+ARC statistics provide separate counters for demand vs prefetch
+and data vs metadata accesses: demand is a result of the direct
+request for a particular data, prefetch is a result of speculative
+request for a particular data.
+@zfs.arc.misses.prefetch_data Number of times speculatively accessed file data is not found in the cache
+ARC statistics provide separate counters for demand vs prefetch
+and data vs metadata accesses: demand is a result of the direct
+request for a particular data, prefetch is a result of speculative
+request for a particular data.
+@zfs.arc.misses.prefetch_metadata Number of times speculatively accessed filesystem metadata is not found in the cache
+ARC statistics provide separate counters for demand vs prefetch
+and data vs metadata accesses: demand is a result of the direct
+request for a particular data, prefetch is a result of speculative
+request for a particular data.
+@pmda.prefetch.time Amount of time spent extracting information about a group of metrics
+Each metric belongs to a prefetch group. When a client asks for the metric
+to be fetched the information for the group must be extracted from the kernel.
+@pmda.prefetch.count Number of times each group of metrics was updated
+
+@pmda.metric.time Amount of time spent extracting information about individual metrics
+Requesting multiple instances of the same metrics counts against the metric
+itself and not against the individual instances
+@pmda.metric.count Number of times individual metrics have been fetched
+Requesting multiple instances of the same metrics counts as multiple hits
+against the metric itself
+
+@disk.all.wait.time	Amount of time IO requests spent waiting for service
+Amount of time IO transactions spent waiting to be serviced, i.e. the
+transaction has been accepted for processing but for which the processing
+has not yet begun. Each transaction waiting for processing adds to
+to the total time which means that if multiple transactions are waiting then
+total time for the sampling interval may be larger then the interval.
+
+@disk.dev.wait.time	Amount of time IO requests spent waiting for service
+Amount of time IO transactions spent waiting to be serviced, i.e. the
+transaction has been accepted for processing but for which the processing
+has not yet begun. Each transaction waiting for processing adds to
+to the total time which means that if multiple transactions are waiting then
+total time for the sampling interval may be larger then the interval.
+
+@disk.all.wait.count	Number of transactions waiting to be serviced
+Number of transactions accepted for processing but for which the processing
+has not yet begun.
+@disk.dev.wait.count	Number of transactions waiting to be serviced
+Number of transactions accepted for processing but for which the processing
+has not yet begun.
+
+@disk.all.run.time	Amount of time spent processing IO requests
+@disk.dev.run.time	Amount of time spent processing IO requests
+@disk.all.run.count	Number of transactions being processed
+@disk.dev.run.count	Number of transactions being processed
+
+
+# from i86pc/os/cpuid.c
+#                /*
+#                 * 8bit APIC IDs on dual core Pentiums
+#                 * look like this:
+#                 *
+#                 * +-----------------------+------+------+
+#                 * | Physical Package ID   |  MC  |  HT  |
+#                 * +-----------------------+------+------+
+#                 * <------- chipid -------->
+#                 * <------- coreid --------------->
+#                 *                         <--- clogid -->
+#                 *                         <------>
+#                 *                         pkgcoreid
+#                 *
+#                 * Where the number of bits necessary to
+#                 * represent MC and HT fields together equals
+#                 * to the minimum number of bits necessary to
+#                 * store the value of cpi->cpi_ncpu_per_chip.
+#                 * Of those bits, the MC part uses the number
+#                 * of bits necessary to store the value of
+#                 * cpi->cpi_ncore_per_chip.
+#                 */
+#
+@hinv.cpu.brand Marketing name of CPU
+@hinv.cpu.clock Current CPU clock frequency
+On CPUs which support dynamic clock frequency changes current clock frequency
+could differ from the nominal ("maximum") clock frequency specified by
+the manufacturer.
+@hinv.cpu.maxclock Maximum clock frequency supported by CPU
+Nominal CPU clock frequency as specified by the manufacturer.
+@hinv.cpu.frequencies List of clock frequencies supported by CPU
+@hinv.cpu.implementation Details of CPU implementation
+@hinv.cpu.chip_id Chip or Socket identifier of the CPU
+Logical CPUs can share single chip identifier
+@hinv.cpu.clog_id Logical core identifier
+Logical cores identifier combines identifiers of the CPU core and
+virtual CPU identifier (aka hyperthread identifier).
+@hinv.cpu.core_id CPU core identifier
+CPU core identifire combines chip identifier and per-chip core
+identifier. If cores support more the one virtual CPU per core
+then same core identifier is shared across several virtual
+CPUs.
+@hinv.cpu.pkg_core_id Per-chip core identifier
+This identifier is used to identify individual cores within the
+package. If a core support more the one virtual CPU per core
+then same core identifier is shared across several virtual
+CPUs.
+@hinv.cpu.cstate Current CPU idle state
+@hinv.cpu.maxcstates Maximum number of idle state supported by the CPU
+Information about cstate is available in kstat(1m).
+@hinv.cpu.ncores Number of CPU cores per physical chip
+@hinv.cpu.ncpus Number of virtual CPUs per physical chip
+
+@disk.dev.errors.soft Number of soft errors per device
+@disk.dev.errors.hard Number of hard errors per device
+@disk.dev.errors.transport Number of transport errors per device
+@disk.dev.errors.media Number of media errors per device
+@disk.dev.errors.recoverable Number of recoverable errors per device
+@disk.dev.errors.notready Number of times device reported as not ready
+@disk.dev.errors.nodevice Number of times device was found missing
+@disk.dev.errors.badrequest Number of illegal requests per device
+@disk.dev.errors.pfa Number of times failure prediction threshold has been exceeded
+@hinv.disk.vendor Device Vendor
+Can be reported as ATA if SATA device is behind SAS expander
+@hinv.disk.product Device name
+Vendor's device name (up-to 16 characters long)
+@hinv.disk.revision Device Revision
+@hinv.disk.serial Device Serial Number
+@hinv.disk.capacity Device Capacity
+For removable devices capacity of the media is reported.
+
+@kernel.fs.vnops.access Number of VOP_ACCESS calls per filesystem
+VOP_ACCESS is used by access(2) system call.
+@kernel.fs.vnops.addmap Number of VOP_ADDMAP calls per filesystem
+VOP_ADDMAP is used to manage reference counting of the vnode used by
+mmap(2) operations.
+@kernel.fs.vnops.close Number of VOP_CLOSE calls per filesystem
+VOP_CLOSE is called every time a close(2) system call is called
+@kernel.fs.vnops.cmp Number of VOP_CMP calls per filesystem
+VOP_CMP is used to check if two vnodes are "equal" to each other, i.e.
+both refer to the same filesystem object.
+@kernel.fs.vnops.create Number of VOP_CREATE calls per filesystem
+VOP_CREATE is used to create regular files and device or FIFO nodes.
+@kernel.fs.vnops.delmap Number of VOP_DELMAP calls
+VOP_DELMAP is used to destroy a previously created memory-mapped region
+of a file.
+@kernel.fs.vnops.dispose Number ot VOP_DISPOSE calls per filesystem
+VOP_DISPOSE is used to dispose(free or invalidate) of a page associated
+with a file.
+@kernel.fs.vnops.dump Number of VOP_DUMP calls per filesystem
+VOP_DUMP is used to transfer data from the frozen kernel directly
+to the dump device
+@kernel.fs.vnops.dumpctl Number of VOP_DUMPCTL calls per filesystem
+VOP_DUMPCTL sets up context used by VOP_DUMP call. It is used to
+allocate, free or search for data blocks on the dump device.
+@kernel.fs.vnops.fid Number of VOP_FID calls per filesystem
+VOP_FID is used to get file identifier which can be used instead of the
+file name in some operations. NFS server is one known user of this vnode
+operation.
+@kernel.fs.vnops.frlock Number of VOP_FRLOCK calls per filesystem
+VOP_FRLOCK is used to implement file record locking used by flock(2)
+@kernel.fs.vnops.fsync Number of VOP_FSYNC calls per filesystem
+VOP_FSYNC is used to implement fsync(2) system call which flushes
+data for a specific file to disk.
+@kernel.fs.vnops.getattr Number of VOP_GETATTR calls per filesystem
+VOP_GETATTR is used to extract vnode attributes. It use used as part of
+many system calls which manipulate file attributes, e.g. chmod(2), stat(2),
+utimes(2) etc.
+@kernel.fs.vnops.getpage Number of VOP_GETPAGE calls per filesystem
+VOP_GETPAGE is used to allocate pages (could be several at a time) to cover
+a region in a file.
+@kernel.fs.vnops.getsecattr Number of VOP_GETSECATTR calls per filesystem
+VOP_GETSECATTR used to extract ACL entires associated with a file.
+@kernel.fs.vnops.inactive Number of VOP_INACTIVE calls per filesystem
+VOP_INACTIVE is used to destroy vnode before it is removed from the
+cache or reused.
+@kernel.fs.vnops.ioctl Number of VOP_IOCTL calls per filesystem
+VOP_IOCTL is used to implement ioctl(2) system call.
+@kernel.fs.vnops.link Number of VOP_LINK calls per filesystem
+VOP_LINK is used to implement support for hard links
+@kernel.fs.vnops.lookup Number of VOP_LOOKUP calls per filesystem
+VOP_LOOKUP is used to translate filename to vnode.
+@kernel.fs.vnops.map Number of VOP_MAP calls per filesystem
+VOP_MAP is used to create a new memory-mapped region of a file
+@kernel.fs.vnops.mkdir Number of VOP_MKDIR calls per filesystem
+VOP_MKDIR is used to create directories
+@kernel.fs.vnops.open Number of VOP_OPEN calls per filesystem
+VOP_OPEN is called every time open(2) system call is called.
+@kernel.fs.vnops.pageio Number of VOP_PAGEIO calls per filesystem
+VOP_PAGEIO is similar to VOP_GETPAGE and VOP_PUTPAGE and can be used when
+either of the other two are less efficient, e.g. in the case when pages
+will be reused after the IO is done.
+@kernel.fs.vnops.pathconf Number of VOP_PATHCONF calls per filesystem
+VOP_PATHCONF is used to obtain information about filesystem's parameters
+reported by pathconf(2) system call
+@kernel.fs.vnops.poll Number of VOP_POLL calls per filesystem
+VOP_POLL is used to implement pool(2) system call
+@kernel.fs.vnops.putpage Number of VOP_PUTPAGE calls per filesystem
+VOP_PUTPAGE is used to release pages which have been used to hold
+data from a file
+@kernel.fs.vnops.read Number of VOP_READ calls per filesystem
+VOP_READ is used to implement read(2) system call
+@kernel.fs.vnops.readdir Number of VOP_READDIR calls per filesystem
+VOP_READDIR is used to read directory entries
+@kernel.fs.vnops.readlink Number of VOP_READLINK calls per filesystem
+VOP_READLINK is used to read the information about the target of the symbolic
+link
+@kernel.fs.vnops.realvp Number of VOP_REALVP calls per filesystem
+VOP_REALVP is used to traverse stacking filesystems and extract information
+about the vnode which refers to the "real" filesystem object.
+@kernel.fs.vnops.remove Number of VOP_REMOVE calls per filesystem
+VOP_REMOVE is used to remove entires from a directory.
+@kernel.fs.vnops.rename Number of VOP_RENAME calls per filesystem
+VOP_RENAME is used to implement rename(2) system call
+@kernel.fs.vnops.rmdir Number of VOP_RMDIR calls per filesystem
+VOP_RMDIR is used to implement rmdir(2) system call
+@kernel.fs.vnops.rwlock Number of VOP_RWLOCK calls per filesystem
+VOP_RWLOCK and VOP_RWUNLOCK are used to protect access to vnode data.
+@kernel.fs.vnops.rwunlock Number of VOP_RWUNLOCK calls per filesystem
+VOP_RWLOCK and VOP_RWUNLOCK are used to protect access to vnode data.
+@kernel.fs.vnops.seek Number of VOP_SEEK calls per filesystem
+VOP_SEEK is used by lseek(2). Because vnodes can be shared across multiple
+instances of vfile VOP_SEEK does not usually change the position of the
+file pointer, it instead used to verify the offset before it is changed.
+@kernel.fs.vnops.setattr Number of VOP_SETATTR calls per filesystem
+VOP_SETATTR is used to change vnode attributes which are modified by system
+calls like chmod(2), chown(2), utimes(2) etc.
+@kernel.fs.vnops.setfl  Number of VOP_SETFL calls per filesystem
+VOP_SETFL is used to implement fcntl(2) F_SETFL option.
+Currently only sockfs pseudo filesystem is implementing this vnode operation.
+@kernel.fs.vnops.setsecattr Number of VOP_SETSECATTR calls per filesystem
+VOP_SETSECATTR is used to change ACL entries
+@kernel.fs.vnops.shrlock Number of VOP_SHRLOCK calls per filesystem
+VOP_SHRLOCK is usually used to implement CIFS and NLMv3 shared reservations.
+@kernel.fs.vnops.space Number of VOP_SPACE calls per filesystem
+VOP_SPACE is used to provide optimized support for growing and shrinking the files.
+F_FREESP option of fcntl(2) is using this vnode operation to implment ftruncate(3c)
+function.
+@kernel.fs.vnops.symlink Number of VOP_SYMLINK calls per filesystem
+VOP_SYMLINK is used to create symbolic links.
+@kernel.fs.vnops.vnevent Number of VOP_VNEVENT calls per filesystem
+VIP_VNEVENT is used to check if a filesystem support vnode event
+notifications for operations which change the names of the files.
+@kernel.fs.vnops.write Number of VOP_WRITE calls per filesystem
+VOP_WRITE is used to implement write(2) system call
+@kernel.fs.read_bytes Number of bytes read from a specific filesystem
+@kernel.fs.readdir_bytes Number of bytes containting directory entires read from a specific filesystem
+@kernel.fs.write_bytes Number of bytes written to a specific filesystem
+
+@kernel.fstype.vnops.access Number of VOP_ACCESS calls for all filesystems of a given type
+VOP_ACCESS is used by access(2) system call.
+@kernel.fstype.vnops.addmap Number of VOP_ADDMAP calls for all filesystems of a given type
+VOP_ADDMAP is used to manage reference counting of the vnode used by
+mmap(2) operations.
+@kernel.fstype.vnops.close Number of VOP_CLOSE calls for the specific filesystem
+VOP_CLOSE is called every time a close(2) system call is called
+@kernel.fstype.vnops.cmp Number of VOP_CMP calls for the specific filesystem
+VOP_CMP is used to check if two vnodes are "equal" to each other, i.e.
+both refer to the same filesystem object.
+@kernel.fstype.vnops.create Number of VOP_CREATE calls for all filesystems of a given type
+VOP_CREATE is used to create regular files and device or FIFO nodes.
+@kernel.fstype.vnops.delmap Number of VOP_DELMAP was called
+VOP_DELMAP is used to destroy a previously created memory-mapped region
+of a file.
+@kernel.fstype.vnops.dispose Number ot VOP_DISPOSE calls for all filesystems of a given type
+VOP_DISPOSE is used to dispose(free or invalidate) of a page associated
+with a file.
+@kernel.fstype.vnops.dump Number of VOP_DUMP calls for all filesystems of a given type
+VOP_DUMP is used to transfer data from the frozen kernel directly
+to the dump device
+@kernel.fstype.vnops.dumpctl Number of VOP_DUMPCTL calls for all filesystems of a given type
+VOP_DUMPCTL sets up context used by VOP_DUMP call. It is used to
+allocate, free or search for data blocks on the dump device.
+@kernel.fstype.vnops.fid Number of VOP_FID calls for all filesystems of a given type
+VOP_FID is used to get file identifier which can be used instead of the
+file name in some operations. NFS server is one known user of this vnode
+operation.
+@kernel.fstype.vnops.frlock Number of time VOP_FRLOCK calls for all filesystems of a given type
+VOP_FRLOCK is used to implement file record locking used by flock(2)
+@kernel.fstype.vnops.fsync Number of VOP_FSYNC calls for all filesystems of a given type
+VOP_FSYNC is used to implement fsync(2) system call which flushes
+data for a specific file to disk.
+@kernel.fstype.vnops.getattr Number of VOP_GETATTR calls for all filesystems of a given type
+VOP_GETATTR is used to extract vnode attributes. It use used as part of
+many system calls which manipulate file attributes, e.g. chmod(2), stat(2),
+utimes(2) etc.
+@kernel.fstype.vnops.getpage Number of VOP_GETPAGE calls for all filesystems of a given type
+VOP_GETPAGE is used to allocate pages (could be several at a time) to cover
+a region in a file.
+@kernel.fstype.vnops.getsecattr Number of VOP_GETSECATTR calls for all filesystems of a given type
+VOP_GETSECATTR used to extract ACL entires associated with a file.
+@kernel.fstype.vnops.inactive Number of VOP_INACTIVE calls for all filesystems of a given type
+VOP_INACTIVE is used to destroy vnode before it is removed from the
+cache or reused.
+@kernel.fstype.vnops.ioctl Number of VOP_IOCTL calls for all filesystems of a given type
+VOP_IOCTL is used to implement ioctl(2) system call.
+@kernel.fstype.vnops.link Number of VOP_LINK calls for all filesystems of a given type
+VOP_LINK is used to implement support for hard links
+@kernel.fstype.vnops.lookup Number of VOP_LOOKUP calls for all filesystems of a given type
+VOP_LOOKUP is used to translate filename to vnode.
+@kernel.fstype.vnops.map Number of VOP_MAP calls for all filesystems of a given type
+VOP_MAP is used to create a new memory-mapped region of a file
+@kernel.fstype.vnops.mkdir Number of VOP_MKDIR calls for all filesystems of a given type
+VOP_MKDIR is used to create directories
+@kernel.fstype.vnops.open Number of VOP_OPEN calls for all filesystems of a given type
+VOP_OPEN is called every time open(2) system call is called.
+@kernel.fstype.vnops.pageio Number of VOP_PAGEIO calls for all filesystems of a given type
+VOP_PAGEIO is similar to VOP_GETPAGE and VOP_PUTPAGE and can be used when
+either of the other two are less efficient, e.g. in the case when pages
+will be reused after the IO is done.
+@kernel.fstype.vnops.pathconf Number of VOP_PATHCONF calls for all filesystems of a given type
+VOP_PATHCONF is used to obtain information about filesystem's parameters
+reported by pathconf(2) system call
+@kernel.fstype.vnops.poll Number of VOP_POLL calls for all filesystems of a given type
+VOP_POLL is used to implement pool(2) system call
+@kernel.fstype.vnops.putpage Number of VOP_PUTPAGE calls for all filesystems of a given type
+VOP_PUTPAGE is used to release pages which have been used to hold
+data from a file
+@kernel.fstype.vnops.read Number of VOP_READ calls for all filesystems of a given type
+VOP_READ is used to implement read(2) system call
+@kernel.fstype.vnops.readdir Number of VOP_READDIR calls for all filesystems of a given type
+VOP_READDIR is used to read directory entries
+@kernel.fstype.vnops.readlink Number of VOP_READLINK calls for all filesystems of a given type
+VOP_READLINK is used to read the information about the target of the symbolic
+link
+@kernel.fstype.vnops.realvp Number of VOP_REALVP calls for all filesystems of a given type
+VOP_REALVP is used to traverse stacking filesystems and extract information
+about the vnode which refers to the "real" filesystem object.
+@kernel.fstype.vnops.remove Number of VOP_REMOVE calls for all filesystems of a given type
+VOP_REMOVE is used to remove entires from a directory.
+@kernel.fstype.vnops.rename Number of VOP_RENAME calls for all filesystems of a given type
+VOP_RENAME is used to implement rename(2) system call
+@kernel.fstype.vnops.rmdir Number of VOP_RMDIR calls for all filesystems of a given type
+VOP_RMDIR is used to implement rmdir(2) system call
+@kernel.fstype.vnops.rwlock Number of VOP_RWLOCK calls for all filesystems of a given type
+VOP_RWLOCK and VOP_RWUNLOCK are used to protect access to vnode data.
+@kernel.fstype.vnops.rwunlock Number of VOP_RWUNLOCK calls for all filesystems of a given type
+VOP_RWLOCK and VOP_RWUNLOCK are used to protect access to vnode data.
+@kernel.fstype.vnops.seek Number of VOP_SEEK calls for all filesystems of a given type
+VOP_SEEK is used by lseek(2). Because vnodes can be shared across multiple
+instances of vfile VOP_SEEK does not usually change the position of the
+file pointer, it instead used to verify the offset before it is changed.
+@kernel.fstype.vnops.setattr Number of VOP_SETATTR calls for all filesystems of a given type
+VOP_SETATTR is used to change vnode attributes which are modified by system
+calls like chmod(2), chown(2), utimes(2) etc.
+@kernel.fstype.vnops.setfl  Number of VOP_SETFL calls for all filesystems of a given type
+VOP_SETFL is used to implement fcntl(2) F_SETFL option.
+Currently only sockfs pseudo filesystem is implementing this vnode operation.
+@kernel.fstype.vnops.setsecattr Number of VOP_SETSECATTR calls for all filesystems of a given type
+VOP_SETSECATTR is used to change ACL entries
+@kernel.fstype.vnops.shrlock Number of VOP_SHRLOCK calls for all filesystems of a given type
+VOP_SHRLOCK is usually used to implement CIFS and NLMv3 shared reservations.
+@kernel.fstype.vnops.space Number of VOP_SPACE calls for all filesystems of a given type
+VOP_SPACE is used to provide optimized support for growing and shrinking the files.
+F_FREESP option of fcntl(2) is using this vnode operation to implment ftruncate(3c)
+function.
+@kernel.fstype.vnops.symlink Number of VOP_SYMLINK calls for all filesystems of a given type
+VOP_SYMLINK is used to create symbolic links.
+@kernel.fstype.vnops.vnevent Number of VOP_VNEVENT calls for all filesystems of a given type
+VIP_VNEVENT is used to check if a filesystem support vnode event
+notifications for operations which change the names of the files.
+@kernel.fstype.vnops.write Number of VOP_WRITE calls for all filesystems of a given type
+VOP_WRITE is used to implement write(2) system call
+@kernel.fstype.read_bytes Bytes read from all filesystems of a given type
+@kernel.fstype.readdir_bytes Bytes read for directory entries from all filesystems of a given type
+@kernel.fstype.write_bytes Bytes written to all filesystems of a given type
+
+@hinv.disk.devlink Disk name in the descriptive format
+Solaris uses symbolic links under /dev to provide access to device nodes via
+"descriptive" names like /dev/dsk/cXtYdZsN. This metrics provides a
+translation from a "descriptive" name to instances in the disk instance
+domain.
+
+The name is always the name of the first minor device for a particular disk
+and includes the slice information.
+
+NOTE! Fetching this metric is expensive - several system calls are made
+      to fetch each instance.

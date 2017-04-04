@@ -1,0 +1,71 @@
+#! /bin/sh
+# PCP QA Test No. 118
+# check totals for disk metrics
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+
+trap "rm -f $tmp.*; exit" 0 1 2 3 15
+signal=$PCP_BINADM_DIR/pmsignal
+
+echo checking disk.all metrics against sum of disk.dev metrics
+
+# here are the exercises
+cat > $tmp.config << \EOF
+delta = 1 sec;
+
+// 10 below is  percentage difference
+//
+iopsTolerance = "10 * (sum_inst disk.dev.total) / 100";
+blkTolerance = "10 * (sum_inst disk.dev.blktotal) / 100";
+actTolerance = "10 * (sum_inst disk.dev.active) / 100";
+rspTolerance = "10 * (sum_inst disk.dev.response) / 100";
+
+(disk.all.read - sum_inst disk.dev.read) > $iopsTolerance ||
+sum_inst disk.dev.read - disk.all.read > $iopsTolerance
+-> print "disk.all.read off from sum disk.dev.read, delta: %v";
+
+(disk.all.write - sum_inst disk.dev.write) > $iopsTolerance ||
+sum_inst disk.dev.write - disk.all.write > $iopsTolerance
+-> print "disk.all.write off from sum disk.dev.write, delta: %v";
+
+(disk.all.total - sum_inst disk.dev.total) > $iopsTolerance ||
+sum_inst disk.dev.total - disk.all.total > $iopsTolerance
+-> print "disk.all.total off by more than 8% from sum disk.dev.total, delta: %v";
+
+(disk.all.blkread - sum_inst disk.dev.blkread) > $blkTolerance ||
+sum_inst disk.dev.blkread - disk.all.blkread > $blkTolerance
+-> print "disk.all.blkread off by more than 8% from sum disk.dev.blkread, delta: %v";
+
+(disk.all.blkwrite - sum_inst disk.dev.blkwrite) > $blkTolerance ||
+sum_inst disk.dev.blkwrite - disk.all.blkwrite > $blkTolerance
+-> print "disk.all.blkwrite off by more than 8% from sum disk.dev.blkwrite, delta: %v";
+
+(disk.all.blktotal - sum_inst disk.dev.blktotal) > $blkTolerance ||
+sum_inst disk.dev.blktotal - disk.all.blktotal > $blkTolerance
+-> print "disk.all.blktotal off by more than 8% from sum disk.dev.blktotal, delta: %v";
+
+(disk.all.active - sum_inst disk.dev.active) > $actTolerance ||
+sum_inst disk.dev.active - disk.all.active > $actTolerance
+-> print "disk.all.active off by more than 8% from sum disk.dev.active, delta: %v";
+
+(disk.all.response - sum_inst disk.dev.response) > $rspTolerance ||
+sum_inst disk.dev.response - disk.all.response > $rspTolerance
+-> print "disk.all.response off by more than 8% from sum disk.dev.response, delta: %v";
+EOF
+
+/bin/sh ./disk-work >$tmp.workload.out 2>&1 &
+KILL_PID=$!
+
+pmie -T 20 $tmp.config >$tmp.out 2>$tmp.err
+
+$signal -s TERM $KILL_PID
+cat $tmp.out 
+cat $tmp.err | _show_pmie_exit

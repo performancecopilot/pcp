@@ -1,0 +1,64 @@
+QA output created by 849
+
+Test: 00 [expect: parser syntax error]
+load: using config file TMP.pmie.00
+yylex() -> IDENT "sample.long.ten"
+yylex() -> OPERATOR "=="
+yylex() -> STRING "foo"
+pmie: syntax error - near line 3 of file TMP.pmie.00
+operands have mixed string and arithmetic types
+relExpr: ADDR000 ADDR001 failed ...
+Expr dump @ ADDR002
+  op=1 (<fetch node>) arg1=(nil) arg2=(nil) parent=(nil)
+  eval=cndFetch_1 metrics=ADDR003 ring=ADDR004
+  valid=0 cardinality[H,I,T]=[1,1,1] tspan=1
+  nsmpls=1 nvals=1 sem=INSTANT units=
+Expr dump @ ADDR005
+  op=80 (<nop node>) arg1=(nil) arg2=(nil) parent=(nil)
+  eval=(nil)() metrics=(nil) ring=ADDR006
+  valid=1 cardinality[H,I,T]=[-1,-1,-1] tspan=4
+  nsmpls=1 nvals=1 sem=CHAR units=
+  smpls[0].ptr ADDR006 "foo"
+yylex() -> OPERATOR "->"
+yylex() -> RESERVED-WORD "print"
+yylex() -> STRING "blah"
+yylex() -> END-OF-RULE
+
+Test: 01 [expect: 3 samples x 5 metric values to be reported]
+[DATE] pmie(PID) Info: evaluator exiting
+expr_1: 1000000
+expr_2: "hullo world!"
+expr_3: 100 200 300 400 500 600 700 800 900
+expr_4: "100" "200" "300" "400" "500" "600" "700" "800" "900"
+expr_5: "400"
+
+expr_1: 1000000
+expr_2: "hullo world!"
+expr_3: 100 200 300 400 500 600 700 800 900
+expr_4: "100" "200" "300" "400" "500" "600" "700" "800" "900"
+expr_5: "400"
+
+expr_1: 1000000
+expr_2: "hullo world!"
+expr_3: 100 200 300 400 500 600 700 800 900
+expr_4: "100" "200" "300" "400" "500" "600" "700" "800" "900"
+expr_5: "400"
+
+
+Test: 02 [expect: all true values to be reported]
+[DATE] pmie(PID) Info: evaluator exiting
+expr_1: true
+expr_2: true
+expr_3: true
+expr_4: true
+expr_5: true true true true true true true true true
+
+
+Test: 03 [expect: several OK #N msgs]
+[DATE] pmie(PID) Info: evaluator exiting
+DATE: OK #1 @ inst: bin-300
+DATE: OK #2 @ inst: bin-900
+DATE: OK #3 @ inst: bin-100 bin-200 bin-400 bin-500 bin-600 bin-700 bin-800 bin-900
+DATE: OK #4 @ inst: bin-200 bin-300 bin-400 bin-500 bin-600 bin-700 bin-800 bin-900
+DATE: OK #5 @ inst: bin-100 bin-200 bin-300 bin-400 bin-500 bin-600 bin-700 bin-800 bin-900
+DATE: OK #6

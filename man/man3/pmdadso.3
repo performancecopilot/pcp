@@ -1,0 +1,135 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMDADSO 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmdaDSO\f1 \- initialize the PMDA to run as a DSO
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.br
+#include <pcp/impl.h>
+.br
+#include <pcp/pmda.h>
+.sp
+.ad l
+.hy 0
+.in +8n
+.ti -8n
+int pmdaDSO(pmdaInterface *\fIdispatch\fP, int \fIinterface\fP, char\ *\fIname\fP, char\ *\fIhelptext\fP);
+.sp
+.in
+.hy
+.ad
+cc ... \-lpcp_pmda \-lpcp
+.ft 1
+.SH DESCRIPTION
+.B pmdaDSO
+initializes the
+.B pmdaInterface
+structure to use the
+.I interface
+extensions,
+assuming the 
+.BR PMDA (3)
+is to be run as a DSO.  The
+.B pmdaInterface
+structure is initialized with:
+.TP 15
+.I name
+The name of the agent.
+.TP
+.I helptext
+The default path to the help text (see 
+.BR pmdaText (3)).
+If no help text is installed, or you are not using
+.BR pmdaText (3),
+then this should be set to NULL.
+.PP
+The callbacks are initialized to 
+.BR pmdaProfile (3),
+.BR pmdaFetch (3),
+.BR pmdaDesc (3),
+.BR pmdaText (3),
+.BR pmdaInstance (3)
+and
+.BR pmdaStore (3).
+.PP
+The
+.I interface
+structure also contains the 
+.I domain
+of the
+.BR PMDA (3),
+which is defined in the
+.BR pmcd (1)
+configuration file. The
+.I domain
+is used to initialize the metric and instance descriptors (see 
+.BR pmdaInit (3)).
+.SH DIAGNOSTICS
+.TP 15
+.B Incompatible version of pmcd detected
+When
+.BR pmcd (1)
+creates the
+.B pmdaInterface
+structure, the
+.I dispatch.comm.version
+field is set to the highest protocol that
+.BR pmcd (1)
+understands.  This message indicates that the
+.BR pmcd (1)
+process does not understand the protocol used by
+.BR pmdaDSO .
+.TP
+.B Unable to allocate memory for pmdaExt structure
+In addition, 
+.I dispatch->status
+is set to a value less than zero.
+.SH CAVEAT
+The PMDA must be using
+.B PMDA_INTERFACE_2
+or later.
+.PP
+Once
+.B pmdaDSO
+has been called, it is expected that the
+.B pmdaInterface
+structure pointed to by
+.I dispatch
+will remain accessible to the 
+routines in
+.I libpcp_pmda
+(not reclaimed off the stack,
+not freed or oherwise released, etc.).
+If the caller needs to move or relocate the
+.B pmdaInterface
+structure for any reason, then after the move
+.BR pmdaInterfaceMoved (3)
+must be called to resestablish the internal integrity of the
+.I pmdaInterface
+structure at the new location before any other routine in
+.I libpcp_pmda
+is called.
+.SH SEE ALSO
+.BR pmcd (1),
+.BR PMAPI (3),
+.BR PMDA (3),
+.BR pmdaDaemon (3),
+.BR pmdaInit (3),
+.BR pmdaInterfaceMoved (3)
+and
+.BR pmdaText (3).

@@ -1,0 +1,554 @@
+#
+# Copyright (c) 2013 Red Hat.
+# Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+# 
+# pmcd PMDA help file in the ASCII format
+#
+# lines beginning with a # are ignored
+# lines beginning @ introduce a new entry of the form
+#  @ metric_name oneline-text
+#  help text goes
+#  here over multiple lines
+#  ...
+#
+# the metric_name is decoded against the default PMNS -- as a special case,
+# a name of the form NNN.MM (for numeric NNN and MM) is interpreted as an
+# instance domain identification, and the text describes the instance domain
+#
+# blank lines before the @ line are ignored
+#
+
+@ 2.1 Instance domain "pmloggers" from PMCD PMDA
+This is the list of currently active pmlogger instances on the same
+machine as this PMCD.  The instance names are the process IDs of the
+pmlogger instances.  The primary pmlogger has an extra instance with the
+instance name "primary" and an instance id of zero (in addition to its
+normal process id instance).
+
+@ 2.2 pmcd control register Instance Domain
+One instance per pmcd control register.
+
+The internal instance identifiers are the numbers 0 to 15.
+The external instance names are he ASCII equivalent of the internal
+instance identifiers.
+
+@ 2.3 PMDA Instance Domain
+One instance per PMDA managed by PMCD.  The external and internal instance
+identifiers are taken from the first two fields of the PMDA specification
+in $PCP_PMCDCONF_PATH.
+
+@ 2.4 pmie Instance Domain
+One instance per running pmie process.  The internal and external instance
+identifiers are the process IDs of the pmie instances.
+
+@ 2.5 buffer pool Instance Domain
+The instances are as follows:
+
+  1024  1024-byte PDU buffers managed by __pmFindPDUBuf, __pmPinPDUBuf
+	and __pmUnpinPDUBuf
+  2048  2-Kbyte PDU buffers managed by __pmFindPDUBuf, __pmPinPDUBuf
+	and __pmUnpinPDUBuf
+  4096  3-Kbyte or 4-Kbyte PDU buffers managed by __pmFindPDUBuf,
+	__pmPinPDUBuf and __pmUnpinPDUBuf
+  8192  5-Kbyte, 6-Kbyte, 7-Kbyte or 8-Kbyte PDU buffers managed by
+	__pmFindPDUBuf, __pmPinPDUBuf and __pmUnpinPDUBuf
+  8192+ PDU buffers larger that 8-Kbyte managed by __pmFindPDUBuf,
+	__pmPinPDUBuf and __pmUnpinPDUBuf
+
+@ 2.6 client Instance Domain
+One instance per identified, connected PMAPI client application.
+
+@ pmcd.numagents Number of agents (PMDAs) currently connected to PMCD
+The number of agents (PMDAs) currently connected to PMCD.  This may differ
+from the number of agents configured in $PCP_PMCDCONF_PATH if agents have
+terminated and/or been timed-out by PMCD.
+
+@ pmcd.numclients Number of clients currently connected to PMCD
+The number of connections open to client programs retrieving information
+from PMCD.
+
+@ pmcd.datasize Space allocated for PMCD and DSO agents' data segment (K)
+This metric returns the amount of memory in kilobytes allocated for the
+data segment of PMCD and any DSO agents (PMDAs) that it has loaded.
+
+This is handy for tracing memory utilization (and leaks) in DSOs during
+development.
+
+@ pmcd.buf.alloc Allocated buffers in internal memory pools
+This metric returns the number of allocated buffers for the various buffer
+pools used by pmcd.
+
+This is handy for tracing memory utilization (and leaks) in DSOs during
+development.
+
+@ pmcd.buf.free Free buffers in internal memory pools
+This metric returns the number of free buffers for the various buffer
+pools used by pmcd.
+
+This is handy for tracing memory utilization (and leaks) in DSOs during
+development.
+
+@ pmcd.control.timeout Timeout interval for slow/hung agents (PMDAs)
+PDU exchanges with agents (PMDAs) managed by PMCD are subject to timeouts
+which detect and clean up slow or disfunctional agents.  This metric
+returns the current timeout period in seconds being used for the agents.
+If the value is zero, timeouts are not being used.  This corresponds to
+the -t option described in the man page, pmcd(1).
+
+It is possible to store a new timeout value into this metric.  Storing zero
+will turn off timeouts.  Subsequent storing of a non-zero value will turn
+on the timeouts again.
+
+@ pmcd.control.debug Current value of PMCD debug flags
+The current value of the PMCD debug flags.  This is a bit-wise OR of the
+flags described in the output of pmdbg -l.  The PMCD-specific flags are:
+
+    DBG_TRACE_APPL0       2048  Trace agent & client I/O and termination
+    DBG_TRACE_APPL1       4096  Trace host access control
+    DBG_TRACE_APPL2       8192  Trace config file scanner and parser
+
+It is possible to store values into this metric.  Diagnostic output is
+written to the PMCD log file (usually $PCP_LOG_DIR/pmcd/pmcd.log).
+
+Setting this metric to -1 terminates PMCD.
+
+@ pmcd.pdu_in.total Total PDUs received by PMCD
+Running total of all BINARY mode PDUs received by the PMCD from clients
+and agents.
+
+@ pmcd.pdu_in.error ERROR PDUs received by PMCD
+Running total of BINARY mode ERROR PDUs received by the PMCD from
+clients and agents.
+
+@ pmcd.pdu_in.result RESULT PDUs received by PMCD
+Running total of BINARY mode RESULT PDUs received by the PMCD from
+clients and agents.
+
+@ pmcd.pdu_in.profile PROFILE PDUs received by PMCD
+Running total of BINARY mode PROFILE PDUs received by the PMCD from
+clients and agents.
+
+@ pmcd.pdu_in.fetch FETCH PDUs received by PMCD
+Running total of BINARY mode FETCH PDUs received by the PMCD from
+clients and agents.
+
+@ pmcd.pdu_in.desc_req DESC_REQ PDUs received by PMCD
+Running total of BINARY mode DESC_REQ PDUs received by the PMCD from
+clients and agents.
+
+@ pmcd.pdu_in.desc DESC PDUs received by PMCD
+Running total of BINARY mode DESC PDUs received by the PMCD from
+clients and agents.
+
+@ pmcd.pdu_in.instance_req INSTANCE_REQ PDUs received by PMCD
+Running total of BINARY mode INSTANCE_REQ PDUs received by the PMCD
+from clients and agents.
+
+@ pmcd.pdu_in.instance INSTANCE PDUs received by PMCD
+Running total of BINARY mode INSTANCE PDUs received by the PMCD from
+clients and agents.
+
+@ pmcd.pdu_in.text_req TEXT_REQ PDUs received by PMCD
+Running total of BINARY mode TEXT_REQ PDUs received by the PMCD from
+clients and agents.
+
+@ pmcd.pdu_in.text TEXT PDUs received by PMCD
+Running total of BINARY mode TEXT PDUs received by the PMCD from
+clients and agents.
+
+@ pmcd.pdu_in.control_req CONTROL_REQ PDUs received by PMCD
+Running total of BINARY mode CONTROL_REQ PDUs received by the PMCD from
+clients and agents.
+
+@ pmcd.pdu_in.creds CREDS PDUs received by PMCD
+Running total of BINARY mode CREDS PDUs received by the PMCD from
+clients and agents.
+
+@ pmcd.pdu_in.pmns_ids PMNS_IDS PDUs received by PMCD
+Running total of BINARY mode PMNS_IDS PDUs received by the PMCD from
+clients and agents.
+
+@ pmcd.pdu_in.pmns_names PMNS_NAMES PDUs received by PMCD
+Running total of BINARY mode PMNS_NAMES PDUs received by the PMCD from
+clients and agents.
+
+@ pmcd.pdu_in.pmns_child PMNS_CHILD PDUs received by PMCD
+Running total of BINARY mode PMNS_CHILD PDUs received by the PMCD from
+clients and agents.
+
+@ pmcd.pdu_in.pmns_traverse PMNS_TRAVERSE PDUs received by PMCD
+Running total of BINARY mode PMNS_TRAVERSE PDUs received by the PMCD from
+clients and agents.
+
+@ pmcd.pdu_in.auth AUTH PDUs received by PMCD
+Running total of BINARY mode AUTH PDUs received by the PMCD from
+clients and agents.  These PDUs are used for authentication.
+
+@ pmcd.pdu_out.total Total PDUs sent by PMCD
+Running total of all BINARY mode PDUs sent by the PMCD to clients and
+agents.
+
+@ pmcd.pdu_out.error ERROR PDUs sent by PMCD
+Running total of BINARY mode ERROR PDUs sent by the PMCD to clients and
+agents.
+
+@ pmcd.pdu_out.result RESULT PDUs sent by PMCD
+Running total of BINARY mode RESULT PDUs sent by the PMCD to clients
+and agents.
+
+@ pmcd.pdu_out.profile PROFILE PDUs sent by PMCD
+Running total of BINARY mode PROFILE PDUs sent by the PMCD to clients
+and agents.
+
+@ pmcd.pdu_out.fetch FETCH PDUs sent by PMCD
+Running total of BINARY mode FETCH PDUs sent by the PMCD to clients and
+agents.
+
+@ pmcd.pdu_out.desc_req DESC_REQ PDUs sent by PMCD
+Running total of BINARY mode DESC_REQ PDUs sent by the PMCD to clients
+and agents.
+
+@ pmcd.pdu_out.desc DESC PDUs sent by PMCD
+Running total of BINARY mode DESC PDUs sent by the PMCD to clients and
+agents.
+
+@ pmcd.pdu_out.instance_req INSTANCE_REQ PDUs sent by PMCD
+Running total of BINARY mode INSTANCE_REQ PDUs sent by the PMCD to
+clients and agents.
+
+@ pmcd.pdu_out.instance INSTANCE PDUs sent by PMCD
+Running total of BINARY mode INSTANCE PDUs sent by the PMCD to clients
+and agents.
+
+@ pmcd.pdu_out.text_req TEXT_REQ PDUs sent by PMCD
+Running total of BINARY mode TEXT_REQ PDUs sent by the PMCD to clients
+and agents.
+
+@ pmcd.pdu_out.text TEXT PDUs sent by PMCD
+Running total of BINARY mode TEXT PDUs sent by the PMCD to clients and
+agents.
+
+@ pmcd.pdu_out.control_req CONTROL_REQ PDUs sent by PMCD
+Running total of BINARY mode CONTROL_REQ PDUs sent by the PMCD to
+clients and agents.
+
+@ pmcd.pdu_out.creds CREDS PDUs sent by PMCD
+Running total of BINARY mode CREDS PDUs sent by the PMCD to clients
+and agents.
+
+@ pmcd.pdu_out.pmns_ids PMNS_IDS PDUs sent by PMCD
+Running total of BINARY mode PMNS_IDS PDUs sent by the PMCD to clients
+and agents.
+
+@ pmcd.pdu_out.pmns_names PMNS_NAMES PDUs sent by PMCD
+Running total of BINARY mode PMNS_NAMES PDUs sent by the PMCD to clients
+and agents.
+
+@ pmcd.pdu_out.pmns_child PMNS_CHILD PDUs sent by PMCD
+Running total of BINARY mode PMNS_CHILD PDUs sent by the PMCD to clients
+and agents.
+
+@ pmcd.pdu_out.pmns_traverse PMNS_TRAVERSE PDUs sent by PMCD
+Running total of BINARY mode PMNS_TRAVERSE PDUs sent by the PMCD to clients
+and agents.
+
+@ pmcd.pdu_out.auth AUTH PDUs sent by PMCD
+Running total of BINARY mode AUTH PDUs sent by the PMCD to clients
+and agents.  These PDUs are used for authentication.
+
+@ pmcd.pmlogger.host host where active pmlogger is running
+The fully qualified domain name of the host on which a pmlogger
+instance is running.
+
+The instance names are process IDs of the active pmloggers.  The
+primary pmlogger has an extra instance with the instance name "primary"
+and an instance id of zero (in addition to its normal process id
+instance).
+
+@ pmcd.pmlogger.port control port for active pmlogger
+Each pmlogger instance has a port for receiving log control
+information.  This metric is a list of the active pmlogger control
+ports on the same machine as this PMCD (i.e. the host identified in the
+corresponding pmcd.pmlogger.host metric).
+
+The instance names are process IDs of the active pmloggers.  The
+primary pmlogger has an extra instance with the instance name "primary"
+and an instance id of zero (in addition to its normal process id
+instance).
+
+@ pmcd.pmlogger.archive full pathname to archive basename for active pmlogger
+The full pathname through the filesystem on the corresponding host
+(pmcd.pmlogger.host) that is the base name for the archive log files.
+
+The instance names are process IDs of the active pmloggers.  The
+primary pmlogger has an extra instance with the instance name "primary"
+and an instance id of zero (in addition to its normal process id
+instance).
+
+@ pmcd.pmlogger.pmcd_host host from which active pmlogger is fetching metrics
+The fully qualified domain name of the host from which a pmlogger
+instance is fetching metrics to be archived.
+
+The instance names are process IDs of the active pmloggers.  The
+primary pmlogger has an extra instance with the instance name "primary"
+and an instance id of zero (in addition to its normal process id
+instance).
+
+@ pmcd.timezone local $TZ
+Value for the $TZ environment variable where the PMCD is running.
+Enables determination of "local" time for timestamps returned via
+PMCD from a remote host.
+
+@ pmcd.sighups count of SIGHUP signals pmcd has received
+
+@ pmcd.hostname local hostname
+A reasonably unique identifier of the PMCD installation, for use
+by pmlogger or other tools to identify the source principal of
+the data (as distinct from identifying the connection/protocol
+used to reach it).
+
+@ pmcd.simabi Procedure call model and ABI version of this PMCD
+SIM is the subprogram interface model (originally from the MIPS object
+code formats), and ABI is the application binary interface.  Both
+relate to the way the PMCD binary was compiled and linked.
+
+Usually DSO PMDAs must be compiled and linked in the same way before
+they can be used with PMCD.
+
+On some platforms this metric is not available.
+
+@ pmcd.version PMCD version
+
+@ pmcd.control.register a vector of registers that may be set by users
+A vector of 16 32-bit registers that are identified by the instance
+identifiers 0 through 15.
+
+The register contents are initially zero, but may be subsequently
+modified to be an arbitrary value using pmStore(3) or pmstore(1).
+
+The values are not used internally, but rather act as a repository into
+which operational information might be stored, and then exported to
+modify the behavior of client programs, e.g. inhibit pmie(1) rule
+firing, or trigger a status indicator.  In this way,
+pmcd.control.register acts like a primitive bulletin board.
+
+Example use might be as follows
+    register[0]	telephone no. of person assigned to current system problem
+    register[1]	telephone no. of person assigned to current network problem
+    register[2]	ORACLE database is down
+    register[3]	backup in progress
+    register[4]	shopping days to Christmas
+
+@ pmcd.control.traceconn control PMCD connection event tracing
+Set to 1 to enable PMCD event tracing for all connection-related
+events for clients and PMDAs.
+
+Set to 0 to disable PMCD connection event tracing.
+
+@ pmcd.control.tracepdu control PMCD PDU event tracing
+Set to 1 to enable PMCD event tracing for all PDUs sent and received
+by PMCD.
+
+Set to 0 to disable PMCD PDU event tracing.
+
+@ pmcd.control.tracenobuf control buffering of PMCD event tracing
+Set to 1 to enable unbuffered PMCD event tracing, where each event is
+reported as it happens.
+
+Set to 0 to enable buffering of PMCD event traces (this is the default),
+and event traces will only be dumped or reported when an error occurs or
+a value is stored into the PCP metric pmcd.control.dumptrace.
+
+@ pmcd.control.tracebufs number of buffers for PMCD event tracing
+Defaults to 20.  May be changed dynamically.
+
+@ pmcd.control.dumptrace force dump of PMCD event tracing buffers
+Storing any value into this metric causes the PMCD event trace buffers to
+be dumped to PMCD's log file.
+
+@ pmcd.control.sighup force PMCD reset via SIGHUP
+Storing any value into this metric causes PMCD to be reset by sending
+itself a SIGHUP signal.
+
+On reset (either by storing into pmcd.control.sighup or by sending PMCD a
+SIGHUP directly), PMCD will restart any failed PMDAs and reload the PMNS
+if it has been changed.
+
+@ pmcd.control.dumpconn force dump of PMCD client connections
+Storing any value into this metric causes the details of the current PMCD
+client connections to be dumped to PMCD's log file.
+
+@ pmcd.agent.type PMDA type
+From $PCP_PMCDCONF_PATH, this metric encodes the PMDA type as follows:
+	(x << 1) | y
+where "x" is the IPC type between PMCD and the PMDA, i.e. 0 for DSO, 1
+for socket or 2 for pipe, and "y" is the message passing style, i.e.
+0 for binary or 1 for ASCII.
+
+@ pmcd.agent.status PMDA status
+This metric encodes the current status of each PMDA.  The default value
+is 0 if the PMDA is active.
+
+Other values encode various degrees of PMDA difficulty in three bit fields
+(bit 0 is the low-order bit) as follows:
+
+bits 7..0
+    1   the PMDA is connected, but not yet "ready" to accept requests
+        from the PMDA
+    2   the PMDA has exited of its own accord
+    4   some error prevented the PMDA being started
+    8   PMCD stopped communication with the PMDA due to a protocol or
+        timeout error
+
+bits 15..8
+        the exit() status from the PMDA
+
+bits 23..16
+        the number of the signal that terminated the PMDA
+
+@ pmcd.services running PCP services on the local host
+A space-separated string representing all running PCP services with PID
+files in $PCP_RUN_DIR (such as pmcd itself, pmproxy and a few others).
+
+@ pmcd.openfds highest PMCD file descriptor
+The highest file descriptor index used by PMCD for a Client or PMDA
+connection.
+
+@ pmcd.pmie.numrules number of rules being evaluated
+The total number of rules being evaluated by each pmie process.
+
+@ pmcd.pmie.eval.true count of pmie predicates evaluated to true
+The predicate part of a pmie rule can be said to evaluate to either true,
+false, or not known.  This metric is a cumulative count of the number of
+rules which have evaluated to true for each pmie instance.
+
+@ pmcd.pmie.eval.false count of pmie predicates evaluated to false
+The predicate part of a pmie rule can be said to evaluate to either true,
+false, or not known.  This metric is a cumulative count of the number of
+rules which have evaluated to false for each pmie instance.
+
+@ pmcd.pmie.eval.unknown count of pmie predicates not evaluated
+The predicate part of a pmie rule can be said to evaluate to either true,
+false, or not known.  This metric is a cumulative count of the number of
+rules which have not been successfully evaluated.  This could be due to not
+yet having sufficient values to evaluate the rule, or a metric fetch may
+have been unsuccessful in retrieving current values for metrics required
+for evaluation of the rule.
+
+@ pmcd.pmie.eval.expected expected rate of rule evaluations
+This is the expected rate of evaluation of pmie rules.  The value is
+calculated once when pmie starts, and is the number of pmie rules divided
+by the average time interval over which they are to be evaluated.
+
+@ pmcd.pmie.eval.actual count of actual rule evaluations
+A cumulative count of the pmie rules which have been evaluated.
+
+This value is incremented once for each evaluation of each rule.
+
+@ pmcd.pmie.actions count of rules evaluating to true
+A cumulative count of the evaluated pmie rules which have evaluated to true.
+
+This value is incremented once each time an action is executed.  This value
+will always be less than or equal to pmcd.pmie.eval.true because predicates
+which have evaluated to true may be suppressed in the action part of the
+pmie rule, in which case this counter will not be incremented.
+
+@ pmcd.pmie.configfile configuration file name
+The full path in the filesystem to the configuration file containing the
+rules being evaluated by each pmie instance.
+
+If the configuration file was supplied on the standard input, then this
+metric will have the value "<stdin>".  If multiple configuration files were
+given to pmie, then the value of this metric will be the first configuration
+file specified.
+
+@ pmcd.pmie.pmcd_host default hostname for pmie instance
+The default host from which pmie is fetching metrics.  This is either the
+hostname given to pmie on the command line or the local host.  Note that this
+does not consider host names specified in the pmie configuration file (these
+are considered non-default and can be more than one per pmie instance).
+All daemon pmie instances started through pmie_check(1) will have their
+default host passed in on their command line.
+
+@ pmcd.pmie.logfile filename of pmie instance event log
+The file to which each instance of pmie is writting events.  No two pmie
+instances can share the same log file.  If no logfile was specified when
+pmie was started, this metrics has the value "<none>".  All daemon pmie
+instances started through pmie_check(1) must have an associated log file.
+
+@ pmcd.build build version for installed PCP package
+Minor part of the PCP build version numbering.  For example on Linux
+with RPM packaging, if the PCP RPM version is pcp-2.5.99-20070323 then
+pmcd.build returns the string "20070323".
+
+@ pmcd.client.whoami optional identification information for clients of pmcd
+This metric is defined over an instance domain containing one entry
+per active client of pmcd.  The instance number is a sequence number
+for each client (restarts at 0 each time pmcd is restarted).  The value
+of the metric by default is the IP address of the client.
+
+Clients can optionally use pmStore to modify their own "whoami" string
+to provide more useful information about the client.
+
+@ pmcd.client.start_date date and time client connected to pmcd
+The date and time in ctime(2) format on which the client connected
+to pmcd.
+
+@ pmcd.client.container name of container (if any) being analysed
+The name of the container (if any) associated with this context at
+the time of the fetch request.  The container name can be set when
+establishing a PMAPI context, or by storing into this metric using
+the pmStore interface.
+
+@ pmcd.cputime.total CPU time used by pmcd and DSO PMDAs
+Sum of user and system time since pmcd started.
+
+@ pmcd.cputime.per_pdu_in average CPU time per PDU received by pmcd
+When first requested it is the average since pmcd started, so
+pmcd.cputime.total divided by pmcd.pdu_in.total.
+
+Subsequent fetches by a PMAPI client will return the average CPU
+time per PDU received by pmcd (for all clients) since the last time
+the PMAPI client fetched this metric.
+
+@ pmcd.feature.secure status of secure_sockets protocol feature in pmcd
+A value of zero indicates no support, one indicates actively available
+(including configuration and validity of the server side certificates).
+
+@ pmcd.feature.compress status of protocol compression feature in pmcd
+A value of zero indicates no support, one indicates actively available.
+
+@ pmcd.feature.ipv6 status of Internet Protocol Version 6 support in pmcd
+A value of zero indicates no support, one indicates actively available.
+
+@ pmcd.feature.authentication status of per-user authentication support
+A value of zero indicates no support, one indicates actively available.
+
+@ pmcd.feature.creds_required status of required credentials support
+A value of zero indicates no support, one indicates actively available.
+
+@ pmcd.feature.unix_domain_sockets status of unix domain socket support
+A value of zero indicates no support, one indicates actively available.
+
+@ pmcd.feature.service_discovery status of service advertising and discovery
+A value of zero indicates no support, one indicates actively available.
+
+@ pmcd.feature.containers status of support for containers in pmcd
+A value of zero indicates no support, one indicates actively available.
+
+@ pmcd.feature.local status of localhost-only mode of operation in pmcd
+A value of zero indicates not enabled, one indicates the localhost-only
+mode of operation is active.
+
+@ pmcd.feature.client_cert_required status of required client certificate
+A value of zero indicates not required, one indicates required.

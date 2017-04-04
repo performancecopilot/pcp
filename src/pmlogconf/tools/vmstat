@@ -1,0 +1,90 @@
+#pmlogconf-setup 2.0
+ident   metrics used by the vmstat(1) command
+probe	kernel.uname.sysname ~ Linux ? include : exclude
+
+# -s --------------------------------------------------
+
+        mem.util.active 		# K active memory
+	mem.util.inactive  		# K inactive memory
+        mem.freemem 			# K free memory
+        mem.util.bufmem  		# K buffer memory
+        mem.util.cached 		# K swap cache
+        mem.util.swapTotal 		# K total swap
+        				#- K used swap
+        mem.util.swapFree 		# K free swap
+	kernel.all.cpu.user		# non-nice user cpu ticks
+	kernel.all.cpu.nice		# nice user cpu ticks
+	kernel.all.cpu.sys		# system cpu ticks
+	kernel.all.cpu.idle		# idle cpu ticks
+	kernel.all.cpu.wait.total	# IO-wait cpu ticks
+	kernel.all.cpu.irq.hard		# IRQ cpu ticks
+	kernel.all.cpu.irq.soft		# softirq cpu ticks
+	kernel.all.cpu.steal		# stolen cpu ticks
+        mem.vmstat.pgpgin 		# pages paged in
+        mem.vmstat.pgpgout		# pages paged out
+        mem.vmstat.pswpin		# pages swapped in
+        mem.vmstat.pswpout		# pages swapped out
+        kernel.all.intr			# interrupts
+        kernel.all.pswitch		# CPU context switches
+        				# - boot time
+        kernel.all.sysfork		# forks
+
+# -a --------------------------------------------------
+	kernel.all.running		# r: processes running or waiting for run time.
+	kernel.all.blocked		# b: processes in uninterruptible sleep.
+	mem.vmstat.nr_mapped		# swpd: the amount of virtual memory used.
+	mem.util.free			# free: the amount of idle memory.
+	mem.util.bufmem			# buff: the amount of memory used as buffers.
+	mem.util.cached			# cache: the amount of memory used as cache.
+	mem.util.inactive		# inact: the amount of inactive memory. (-a option)
+	mem.util.active			# active: the amount of active memory. (-a option)
+
+	swap.in				# si: Amount of memory swapped in from disk (/s).
+	swap.pagesout			# so: Amount of memory swapped to disk (/s).
+					# - bi: Blocks received from a block device (blocks/s).
+					# - bo: Blocks sent to a block device (blocks/s).
+	kernel.all.intr			# in: The number of interrupts per second, including the clock.
+	kernel.all.pswitch		# cs: The number of context switches per second.
+	kernel.all.cpu.user		# us: Time spent running non-kernel code. (user time, including nice time)
+	kernel.all.cpu.sys		# sy: Time spent running kernel code. (system time)
+	kernel.all.idletime		# id: Time spent idle.
+	kernel.all.cpu.wait.total	# wa: Time spent waiting for IO.
+	kernel.all.cpu.steal		# st: Time stolen from a virtual machine.
+
+# -d --------------------------------------------------
+
+	disk.partitions.read		# total: Total reads completed successfully
+			 		# - merged: grouped reads (resulting in one I/O)
+	disk.partitions.blkread		# sectors: Sectors read successfully
+					# - ms: milliseconds spent reading
+	disk.partitions.write		# total: Total writes completed successfully
+					# - merged: grouped writes (resulting in one I/O)
+	disk.partitions.blkwrite	# sectors: Sectors written successfully
+					# - ms: milliseconds spent writing
+					# cur: I/O in progress
+					# - s: seconds spent for I/O
+
+# -D --------------------------------------------------
+
+	disk.all.read			# total: Total reads completed successfully
+	disk.all.read_merge		# merged: grouped reads (resulting in one I/O)
+	disk.all.blkread		# sectors: Sectors read successfully
+	disk.all.read_rawactive		# ms: milliseconds spent reading
+	disk.all.write			# total: Total writes completed successfully
+	disk.all.write_merge		# merged: grouped writes (resulting in one I/O)
+	disk.all.blkwrite		# sectors: Sectors written successfully
+	disk.all.read_rawactive		# ms: milliseconds spent writing
+					# cur: I/O in progress
+	disk.all.avactive       	# s: seconds spent for I/O
+
+	disk.dev.read			# total: Total reads completed successfully
+	disk.dev.read_merge		# merged: grouped reads (resulting in one I/O)
+	disk.dev.blkread		# sectors: Sectors read successfully
+	disk.dev.read_rawactive		# ms: milliseconds spent reading
+	disk.dev.write			# total: Total writes completed successfully
+	disk.dev.write_merge		# merged: grouped writes (resulting in one I/O)
+	disk.dev.blkwrite		# sectors: Sectors written successfully
+	disk.dev.read_rawactive		# ms: milliseconds spent writing
+					# cur: I/O in progress
+	disk.dev.avactive       	# s: seconds spent for I/O
+

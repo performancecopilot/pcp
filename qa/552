@@ -1,0 +1,29 @@
+#!/bin/sh
+# PCP QA Test No. 552
+# Exercise pmNewContext parameter handling botch
+#
+# Copyright (c) 2013 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+echo "Checking pmNewContext with an empty hostname"
+pmprobe -h ''
+
+echo "Checking pmNewContext with an empty filename"
+pmprobe -a ''
+
+# success, all done
+status=0
+
+exit

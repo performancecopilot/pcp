@@ -1,0 +1,56 @@
+#!/bin/sh
+# PCP QA Test No. 785
+# Basic checkout of the pcp-atopsar(1) utility.
+#
+# Copyright (c) 2015 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ -f $PCP_BINADM_DIR/pcp-atopsar ] || _notrun "system monitoring tools not installed"
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s/^slick  3.19.0-rc7-nathans+.*/HOST-SUMMARY-LINE/g" \
+    #end
+} 
+
+# real QA test starts here
+allopts="-t1 -z"
+
+echo; echo == Processor metrics
+pcp $allopts atopsar -r $here/archives/pcp-atop	-c | _filter
+
+echo; echo == Disk metrics
+pcp $allopts atopsar -r $here/archives/pcp-atop -d | _filter
+
+echo; echo == Network metrics
+pcp $allopts atopsar -r $here/archives/pcp-atop -i | _filter
+
+echo; echo == Memory metrics
+pcp $allopts atopsar -r $here/archives/pcp-atop -m | _filter
+
+echo; echo == Checking sample count and interval
+export PCP_ARCHIVE=$here/archives/pcp-atop
+pcp -z atopsar -m 2 3 > $tmp.mem1
+pcp -z -t 2 -s 3 atopsar -m > $tmp.mem2
+unset PCP_ARCHIVE
+test -s $tmp.mem1 || echo "Unexpected empty file 1"
+test -s $tmp.mem2 || echo "Unexpected empty file 2"
+diff $tmp.mem1 $tmp.mem2 && echo OK
+
+# success, all done
+echo; echo "== Done"
+status=0
+exit

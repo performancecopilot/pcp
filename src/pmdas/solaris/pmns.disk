@@ -1,0 +1,58 @@
+disk {
+	all
+	dev
+}
+
+disk.all {
+    read		SOLARIS:SCLR_DISK:0
+    write		SOLARIS:SCLR_DISK:1
+    total		SOLARIS:SCLR_DISK:2
+    read_bytes		SOLARIS:SCLR_DISK:3
+    write_bytes		SOLARIS:SCLR_DISK:4
+    total_bytes		SOLARIS:SCLR_DISK:5
+    wait
+    run
+}
+
+disk.all.wait {
+    time		SOLARIS:SCLR_DISK:6
+    count		SOLARIS:SCLR_DISK:7
+}
+
+disk.all.run {
+    time		SOLARIS:SCLR_DISK:8
+    count		SOLARIS:SCLR_DISK:9
+}
+
+disk.dev {
+    read		SOLARIS:SCLR_DISK:10
+    write		SOLARIS:SCLR_DISK:11
+    total		SOLARIS:SCLR_DISK:12
+    read_bytes		SOLARIS:SCLR_DISK:13
+    write_bytes		SOLARIS:SCLR_DISK:14
+    total_bytes		SOLARIS:SCLR_DISK:15
+    wait
+    run
+    errors
+}
+
+disk.dev.wait {
+	time		SOLARIS:SCLR_DISK:16
+	count		SOLARIS:SCLR_DISK:17
+}
+disk.dev.run {
+	time		SOLARIS:SCLR_DISK:18
+	count		SOLARIS:SCLR_DISK:19
+}
+
+disk.dev.errors {
+	soft		SOLARIS:SCLR_DISK:21
+	hard		SOLARIS:SCLR_DISK:22
+	transport	SOLARIS:SCLR_DISK:23
+	media		SOLARIS:SCLR_DISK:24
+	recoverable	SOLARIS:SCLR_DISK:25
+	notready	SOLARIS:SCLR_DISK:26
+	nodevice	SOLARIS:SCLR_DISK:27
+	badrequest	SOLARIS:SCLR_DISK:28
+	pfa		SOLARIS:SCLR_DISK:29
+}

@@ -1,0 +1,36 @@
+#! /bin/sh
+#
+# translate to the new pmns names (drop irix. prefix etc)
+#
+# Usage: xlate_2_new_pmns [file ...]
+#
+# Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+_map()
+{
+    sed \
+	-e 's/^/ /' \
+	-e 's/\([^a-zA-Z0-9_.]\)irix\.numa/\1origin.numa/g' \
+	-e 's/\([^a-zA-Z0-9_.]\)irix\.node/\1origin.node/g' \
+	-e 's/\([^a-zA-Z0-9_.]\)irix\./\1/g' \
+	-e 's/\([^a-zA-Z0-9_.]\)resource\.name_cache/\1name_cache/g' \
+	-e 's/\([^a-zA-Z0-9_.]\)resource\.buffer_cache/\1buffer_cache/g' \
+	-e 's/\([^a-zA-Z0-9_.]\)resource\.vnodes/\1vnodes/g' \
+	-e 's/\([^a-zA-Z0-9_.]\)resource\.efs/\1efs/g' \
+	-e 's/^ //'
+}
+
+if [ $# -eq 0 ]
+then
+    _map
+else
+    tmp=/var/tmp/$$
+    trap "rm -f $tmp; exit 0" 0 1 2 3 15
+    for file
+    do
+	_map <$file >$tmp
+	cp $tmp $file
+    done
+fi
+

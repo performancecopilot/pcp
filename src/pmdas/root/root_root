@@ -1,0 +1,37 @@
+/*
+ * Copyright (c) 2014-2015 Red Hat.
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+ * for more details.
+ */
+
+#ifndef ROOT
+#define ROOT 1
+#endif
+
+root {
+    containers
+}
+
+containers {
+    engine		ROOT:0:0
+    name		ROOT:0:1
+    pid			ROOT:0:2
+    state
+    cgroup		ROOT:0:6
+}
+
+containers.state {
+    running		ROOT:0:3
+    paused		ROOT:0:4
+    restarting		ROOT:0:5
+}
+
+#undef ROOT

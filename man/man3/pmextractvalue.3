@@ -1,0 +1,259 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMEXTRACTVALUE 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmExtractValue\f1 \- extract a performance metric value from a pmResult structure
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.sp
+.ad l
+.hy 0
+.in +8n
+.ti -8n
+int pmExtractValue(int \fIvalfmt\fP, const pmValue *\fIival\fP, int\ \fIitype\fP, pmAtomValue\ *\fIoval\fP, int\ \fIotype\fP);
+.sp
+.in
+.hy
+.ad
+cc ... \-lpcp
+.ft 1
+.SH DESCRIPTION
+.de CW
+.ie t \f(CW\\$1\f1\\$2
+.el \fI\\$1\f1\\$2
+..
+The
+.CW pmValue
+structure is embedded within the
+.CW pmResult
+structure that is used to return one or more performance metrics;
+see
+.BR pmFetch (3).
+.PP
+All performance metric values may be encoded in a
+.CW pmAtomValue
+union, defined as follows;
+.PP
+.ft CW
+.nf
+.in +0.5i
+typedef union {
+    __int32_t    l;     /* 32-bit signed */
+    __uint32_t   ul;    /* 32-bit unsigned */
+    __int64_t    ll;    /* 64-bit signed */
+    __uint64_t   ull;   /* 64-bit unsigned */
+    float        f;     /* 32-bit floating point */
+    double       d;     /* 64-bit floating point */
+    char         *cp;   /* char ptr */
+    pmValueBlock *vbp;  /* pmValueBlock ptr */
+} pmAtomValue;
+.in
+.fi
+.ft 1
+.PP
+The routine
+.B pmExtractValue
+provides a convenient mechanism for extracting values from the 
+.CW pmValue
+part of a
+.CW pmResult
+structure, optionally converting the data type, and making the result 
+available to the application programmer.
+.PP
+.I itype 
+defines the data type of the input value held in
+.I ival
+according to the storage format defined by
+.I valfmt
+(see
+.BR pmFetch (3)).
+.I otype
+defines the data type of the result to be placed in
+.IR oval .
+.PP
+The value for
+.I itype
+is typically extracted from a
+.CW pmDesc
+structure, following a call to
+.BR pmLookupDesc (3)
+for a particular performance metric.
+.PP
+The
+.I otype
+value should be one of the defined
+.BR PM_TYPE_ ...
+values, that have a
+1:1 correspondence with the fields in the
+.CW pmAtomValue
+union.
+.PP
+Normally the
+.I valfmt
+parameter would be plucked from the same
+.CW pmResult
+structure that provides the
+.I ival
+parameter, and if
+.I valfmt
+specifies
+.BR PM_VAL_INSITU ,
+then the
+following types are not allowed, as these cannot be encoded in 32-bits;
+.BR __int64_t ,
+.BR __uint64_t , 
+.BR double ,
+.B char *
+and
+.B void *
+(the corresponding
+.I itype
+values are
+.BR PM_TYPE_64 ,
+.BR PM_TYPE_U64 ,
+.BR PM_TYPE_DOUBLE ,
+.BR PM_TYPE_STRING ,
+.B PM_TYPE_AGGREGATE
+and
+.B PM_TYPE_EVENT
+respectively).
+If
+.I valfmt
+specifies
+.BR PM_VAL_PTR ,
+then the value will be extracted from the associated
+.CW pmValueBlock
+structure, and the
+.BR __int32_t ,
+.B __uint32_t
+and
+.B float
+options (\c
+.I itype
+being 
+.BR PM_TYPE_32 ,
+.B PM_TYPE_U32
+and
+.B PM_TYPE_FLOAT
+respectively) are not allowed, as
+.B PM_VAL_INSITU
+is the appropriate encoding for these.
+.PP
+The following table defines the various possibilities for the type
+conversion -- the input type (\c
+.IR itype )
+is shown vertically, and the output type (\c
+.IR otype )
+is shown horizontally.
+Y means the conversion is always acceptable, N means the conversion can never be performed (the function returns 
+.BR PM_ERR_CONV ),
+P means the conversion may lose accuracy (but no error status is returned),
+T means the result may be subject to high-order truncation (in which case
+the function returns
+.BR PM_ERR_TRUNC )
+and S means the conversion may be impossible due to the
+sign of the input value (in which case the function returns
+.BR PM_ERR_SIGN ).
+If an error occurs, the value represented by
+.I oval
+will be zero (or
+.BR NULL ).
+.PP
+Note that although some of the conversions involving the types
+.B PM_TYPE_STRING
+and
+.B PM_TYPE_AGGREGATE
+are indeed possible, but are marked N \- the rationale
+is that
+.B pmExtractValue
+should not be attempting to duplicate functionality
+already available in the C library via
+.BR sscanf (3)
+and
+.BR sprintf (3).
+.PP
+No conversion involving the type
+.B PM_TYPE_EVENT
+is supported.
+.PP
+.ft CW
+.nf
+      | 32  |  U32  | 64  |  U64  | FLOAT | DBLE | STRNG | AGGR | EVENT
+======|=====|=======|=====|=======|=======|======|=======|======|=======
+32    |  Y  |   S   |  Y  |   S   |   P   |  P   |   N   |  N   |   N
+U32   |  T  |   Y   |  Y  |   Y   |   P   |  P   |   N   |  N   |   N
+64    |  T  |  T,S  |  Y  |   S   |   P   |  P   |   N   |  N   |   N
+U64   |  T  |   T   |  T  |   Y   |   P   |  P   |   N   |  N   |   N
+FLOAT | P,T | P,T,S | P,T | P,T,S |   Y   |  Y   |   N   |  N   |   N
+DBLE  | P,T | P,T,S | P,T | P,T,S |   P   |  Y   |   N   |  N   |   N
+STRNG |  N  |   N   |  N  |   N   |   N   |  N   |   Y   |  N   |   N
+AGGR  |  N  |   N   |  N  |   N   |   N   |  N   |   N   |  Y   |   N
+EVENT |  N  |   N   |  N  |   N   |   N   |  N   |   N   |  N   |   N
+.fi
+.ft 1
+.PP
+In the cases where multiple conversion errors could occur, the first
+encountered error will be notified, and the order of checking is not defined.
+.PP
+If the output conversion is to one of the pointer types, i.e. \c
+.I otype
+is
+.B PM_TYPE_STRING
+or
+.BR PM_TYPE_AGGREGATE ,
+then the value buffer will have been allocated by
+.BR pmExtractValue (3)
+using
+.BR malloc (3),
+and it is the caller's responsibility to free the space when it is no longer
+required.
+.PP
+Although this function appears rather complex, it has been constructed to
+assist the development of performance tools that wish to convert values,
+whose type is only known via the
+.CW type
+field in a 
+.CW pmDesc
+structure, into a canonical type for local processing.
+See the
+.BR pmFetchGroup
+functions for a simpler alternative.
+.SH SEE ALSO
+.BR PMAPI (3),
+.BR pmAtomStr (3),
+.BR pmConvScale (3),
+.BR pmFetch (3),
+.BR pmFetchGroup (3),
+.BR pmLookupDesc (3),
+.BR pmPrintValue (3),
+.BR pmTypeStr (3),
+.BR pmUnitsStr (3)
+and
+.BR pmUnpackEventRecords (3).
+.SH DIAGNOSTICS
+.P
+.B PM_ERR_CONV
+.IP
+Impossible conversion, marked by N in above table
+.P
+.B PM_ERR_TRUNC
+.IP
+High-order truncation occurred
+.P
+.B PM_ERR_SIGN
+.IP
+Conversion of negative value to unsigned type attempted

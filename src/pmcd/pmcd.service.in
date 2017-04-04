@@ -1,0 +1,16 @@
+[Unit]
+Description=Performance Metrics Collector Daemon
+Documentation=man:pmcd(8)
+Wants=avahi-daemon.service
+After=local-fs.target network.target avahi-daemon.service
+Before=zabbix-agent.service
+ 
+[Service]
+Type=forking
+Restart=always
+ExecStart=@PCP_RC_DIR@/pmcd start
+ExecStop=@PCP_RC_DIR@/pmcd stop
+PIDFile=@PCP_RUN_DIR@/pmcd.pid
+ 
+[Install]
+WantedBy=multi-user.target

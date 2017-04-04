@@ -1,0 +1,25 @@
+#
+# dynamic help file
+#
+
+@ dynamic.numinsts number of instances
+The number of instances currently being exported
+
+@ dynamic.discrete instance id as a string
+The instance identifier exported as a string
+
+@ dynamic.instant counter as a instaneous value
+The counter for the instance exported as an instaneous value
+
+@ dynamic.counter counter as a counter
+The counter for the instance exported as a counter
+
+@ dynamic.control.add add an instance
+Storing the instance id of an instance not currently exported
+will all that instance to the indom.
+
+@ dynamic.control.del delete an instance
+Storing the instance id of an instance that is currently being
+exported will remove that instance from the indom. Storing a negative
+number will cause all instances to be removed.
+

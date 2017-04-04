@@ -1,0 +1,210 @@
+#
+# Common shell routines for testing security extensions
+# Copyright (c) 2012-2014 Red Hat.
+#
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+usersdb=${HOME}/.pki/nssdb
+collectordb=$tmp/pki/nssdb
+collectorpw=$tmp/pki/nssdb/pass
+PCP_SECURE_DB_METHOD=${PCP_SECURE_DB_METHOD-'sql:'}
+certopts="-d $PCP_SECURE_DB_METHOD$collectordb -f $collectorpw -z $tmp.rand"
+
+userid=`id -u`
+groupid=`id -g`
+username=`id -u -n`
+groupname=`id -g -n`
+
+qahost=`_get_fqdn`
+hostname=`hostname | sed -e 's/\..*//'`
+
+nss_notrun_checks()
+{
+    _get_libpcp_config
+    [ "$secure_sockets" = "true" ] || _notrun "Secure sockets not supported"
+    which certutil >/dev/null 2>&1 || _notrun "certutil not installed (NSS tools)"
+    [ -c /dev/urandom ] || _notrun "No random number generator special file found"
+
+    fips=false	# testing for exposure to Red Hat bug 1035509
+    fipsfile=/proc/sys/crypto/fips_enabled
+    if [ -f $fipsfile ]
+    then
+	test `cat $fipsfile` -ne 0 && fips=true
+    fi
+    $fips && _notrun "FIPS mode interacts badly with system NSS databases"
+}
+
+nss_cleanup()
+{
+    unset PCP_SECURE_SOCKETS
+
+    # restore any modified pmcd configuration file
+    if test -f $PCP_PMCDOPTIONS_PATH.$seq
+    then
+	_restore_config $PCP_PMCDOPTIONS_PATH
+    fi
+
+    # restore user certificate DB from existing installation
+    if test -d $usersdb.$seq
+    then
+	_restore_config $usersdb
+    fi
+}
+
+# backup pmcd configuration and certificate DBs from existing installation
+nss_backup()
+{
+    for f in $PCP_PMCDOPTIONS_PATH $usersdb
+    do
+	[ -e $f ] && _save_config $f
+    done
+}
+
+nss_filter_pminfo()
+{
+    sed \
+	-e "s/$hostname/HOST/g" \
+	-e "s/$qahost/QAHOST/g" \
+	-e "/^SHA1 fingerprint is .*/d" \
+	-e 's/value [0-9][0-9]*/value NUMBER/' \
+	-e "/Cannot connect to PMCD on host/s/Unknown code ___f 13/Peer's Certificate issuer is not recognized./" \
+	-e "/Cannot connect to PMCD on host/s/Unknown code ___f 10/Peer's certificate has an invalid signature./"
+}
+
+nss_setup_randomness()
+{
+    dd if=/dev/urandom of=$tmp.rand bs=1 count=10000 >/dev/null 2>&1
+}
+
+nss_subject_name()
+{
+    fqdn=$1
+    host=$2
+    echo $fqdn | sed -e "s/^$host\./dc=/g" -e 's/\./,dc=/g'
+}
+
+nss_setup_certificates()
+{
+    certdomain=`nss_subject_name $qahost $hostname`
+
+    echo "setup_certificates host details:" >> $here/$seq.full
+    echo "HOST=$hostname" >> $here/$seq.full
+    echo "QAHOST=$qahost" >> $here/$seq.full
+    echo "DOMAIN=$certdomain" >> $here/$seq.full
+
+    # create self-signed (-x) server certificate locally
+    echo "== Creating local certificates" | tee -a $here/$seq.full
+    $sudo certutil $certopts -S -x \
+	-n "Local CA certificate" -s "CN=\"Local PCP Installation, $certdomain\""  \
+	-t "CT,,"  >> $here/$seq.full 2>&1
+    sleep 1 # so that the next cert does not get the same serial number
+    $sudo certutil $certopts -S \
+	-n "PCP Collector certificate" -s "CN=\"PCP Collector\"" \
+	-c "Local CA certificate" -8 "$qahost,$hostname" \
+	-t "P,," >> $here/$seq.full 2>&1
+    echo "== Certificate DB and local certificates created" | tee -a $here/$seq.full
+
+    # export ascii copy of the certificate for later use
+    $sudo certutil $certopts -L -n "Local CA certificate" -a > $tmp.cacert.asc
+    cat $tmp.cacert.asc >> $here/$seq.full
+}
+
+nss_setup_collector()
+{
+    withcerts=$1
+    fqdn=$2
+    host=$3
+    force_client_cert=$4
+
+    # prepare new locations for certificates
+    $sudo rm -fr $collectordb
+    $sudo mkdir -p -m 0755 $collectordb
+
+    # prepare password file for certificates
+    echo "$seq.password" > $tmp.password
+    $sudo mv $tmp.password $collectorpw
+
+    echo "== Creating empty certificate DB" | tee -a $here/$seq.full
+    $sudo certutil $certopts -N
+
+    $withcerts && nss_setup_certificates $fqdn $host
+
+    if [ -d $collectordb ]
+    then
+	$sudo chmod -R 0644 $collectordb/*
+	$sudo chown -R pcp:pcp $collectordb
+    fi
+
+    if [ -n "$force_client_cert" ]
+    then
+	cert_option="-Q"
+    fi
+
+    cat <<End-Of-File >$tmp.options
+# Dummy lines added by PCP QA test $seq
+#
+-l $tmp.pmcd.log
+-C $PCP_SECURE_DB_METHOD$collectordb
+-P $collectorpw
+$cert_option
+End-Of-File
+    $sudo cp $tmp.options $PCP_PMCDOPTIONS_PATH
+    grp=root
+    case $PCP_PLATFORM
+    in
+	freebsd|netbsd|openbsd)
+		grp=wheel
+		;;
+    esac
+    $sudo chown root:$grp $PCP_PMCDOPTIONS_PATH
+    echo "Start pmcd, modified \$PCP_PMCDOPTIONS_PATH (pmcd.options):" | tee -a $here/$seq.full
+    $sudo $PCP_RC_DIR/pcp restart | tee -a $here/$seq.full >$tmp.out
+    _wait_for_pmcd
+    grep -i 'starting pmcd' $tmp.out | sed -e "s/$$/MYPID/" | _filter_pcp_start
+    echo "Checking pmcd.log for unexpected messages" | tee -a $here/$seq.full
+    egrep 'Error:|Info:' $tmp.pmcd.log
+    cat $tmp.pmcd.log >> $here/$seq.full
+    echo "--- end of pmcd.log ---" >> $here/$seq.full
+}
+
+nss_setup_empty_userdb()
+{
+    $sudo rm -fr $usersdb
+    echo > $tmp.empty
+    mkdir -p -m 0755 $usersdb
+    certutil -N -d $PCP_SECURE_DB_METHOD$usersdb -f $tmp.empty
+}
+
+nss_import_cert_userdb()
+{
+    certutil -A -d $PCP_SECURE_DB_METHOD$usersdb -n "Local CA certificate" -t "CT,," -a -i $tmp.cacert.asc
+}
+
+find_users()
+{
+    limit=$1
+    tail -n $limit /etc/passwd | $PCP_AWK_PROG -F: '{ print  $1 }'
+}
+
+find_groups()
+{
+    limit=$1
+    tail -n $limit /etc/group | $PCP_AWK_PROG -F: '{ print  $1 }'
+}
+
+filter_sample_log_credentials()
+{
+    grep Info $PCP_LOG_DIR/pmcd/sample.log | \
+    sed \
+	-e '/processid=/d' \
+        -e '/ctx=[0-9][0-9]*/s//ctx=N/' \
+        -e "s/userid=$userid/userid=UID/g" \
+        -e "s/groupid=$groupid/groupid=GID/g" \
+        -e "s/username=$username/username=USER/g" \
+        -e '/pmdasample([0-9][0-9]*)/s//pmdasample(PID)/' \
+        -e 's/^\[[A-Z].. [A-Z]..  *[0-9][0-9]* ..:..:..]/[DATETIME]/'
+}

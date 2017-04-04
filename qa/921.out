@@ -1,0 +1,60 @@
+QA output created by 921
++++ no args
+7556 values for kernel.all.nprocs
+7562 values for hinv.ncpu
+3 values for pmcd.numagents
+3 <mark> records
+7565 timestamps
+
++++ -M
+7556 values for kernel.all.nprocs
+7562 values for hinv.ncpu
+3 values for pmcd.numagents
+3 <mark> records
+7565 timestamps
+
++++ pmcd.numagents
+0 values for kernel.all.nprocs
+0 values for hinv.ncpu
+3 values for pmcd.numagents
+0 <mark> records
+3 timestamps
+
++++ -M pmcd.numagents
+0 values for kernel.all.nprocs
+0 values for hinv.ncpu
+3 values for pmcd.numagents
+3 <mark> records
+6 timestamps
+
++++ -Mxz pmcd.numagents
+Note: timezone set to local timezone of host "super.elastic.org" from archive
+
+
+Sat Jan 11 10:48:09.957 2014  <mark>
+
+Sat Jan 11 10:49:47.697 2014  2.0.2 (pmcd.numagents): value 4
+
+Sun Jan 12 10:48:47.695 2014  <mark>
+
+Sun Jan 12 10:50:27.000 2014  2.0.2 (pmcd.numagents): value 4
+
+Sun Jan 12 17:47:27.000 2014  <mark>
+
+Sun Jan 12 17:48:50.231 2014  2.0.2 (pmcd.numagents): value 4
+
++++ -Mxxz pmcd.numagents
+Note: timezone set to local timezone of host "super.elastic.org" from archive
+
+
+Sat Jan 11 10:48:09.957 2014 (60600.356759)  <mark>
+
+Sat Jan 11 10:49:47.697 2014 (60698.097516)  2.0.2 (pmcd.numagents): value 4
+
+Sun Jan 12 10:48:47.695 2014 (147038.094897)  <mark>
+
+Sun Jan 12 10:50:27.000 2014 (147137.399874)  2.0.2 (pmcd.numagents): value 4
+
+Sun Jan 12 17:47:27.000 2014 (172157.400461)  <mark>
+
+Sun Jan 12 17:48:50.231 2014 (172240.631520)  2.0.2 (pmcd.numagents): value 4

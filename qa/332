@@ -1,0 +1,63 @@
+#!/bin/sh
+# PCP QA Test No. 332
+# Interp mode (similar to qa/095, but with purify) (see also 394)
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_filter()
+{
+    $PCP_AWK_PROG '
+BEGIN			{ skip = 1 }
+/^===/			{ print; next }
+/ Purify /		{ skip = 0 }
+/^FIU/			{ skip = 2; next }
+/^[^ 	]/ && skip == 2	{ skip = 0 }
+skip == 0		{ print }' \
+    | sed \
+	-e '/MLK/s/0x.*/ADDR/' \
+	-e 's/\[.*\]/[...]/' \
+	-e 's/__start/START  /' \
+	-e 's/__istart/START   /' \
+	-e '/Memory leaked:/s/([0-9][0-9.]*%)/(PERCENT)/g'
+}
+
+_check_purify src/interp3
+
+status=1	# failure is the default!
+trap "cd $here; rm -rf $tmp; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+_setup_purify src/interp3
+
+for arch in tmparch/bigbin
+do
+    for delta in 2 0.012
+    do
+	echo
+	echo "=== $arch delta=$delta ==="
+	_run_purify -a $here/$arch -t $delta | _filter
+    done
+done
+
+for arch in tmparch/noti-foo
+do
+    for delta in 0.5 1.0 2.0
+    do
+	echo
+	echo "=== $arch delta=$delta ==="
+	_run_purify -a $here/$arch -t $delta | _filter
+    done
+done
+
+# all done
+status=0
+exit

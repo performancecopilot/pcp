@@ -1,0 +1,49 @@
+#!/bin/sh
+# PCP QA Test No. 957
+# Run valgrind on the Linux kernel PMDA metrics
+#
+# Copyright (c) 2014 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_check_valgrind
+pmns=$PCP_VAR_DIR/pmns/root_linux
+[ -f $pmns ] || _notrun "Cannot find the Linux PMDA namespace root"
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e '/No value.s. available/d' \
+	-e '/Metric not supported by this version of monitored application/d' \
+	-e '/^Warning: noted but unhandled ioctl/d' \
+	-e '/^This could cause spurious value errors/d' \
+	-e '/^See README_MISSING_SYSCALL_OR_IOCTL/d' \
+    #
+}
+
+# real QA test starts here
+pmda="-Kclear -Kadd,60,$PCP_PMDAS_DIR/linux/pmda_linux.so,linux_init"
+trees=`pminfo -n $pmns | $PCP_AWK_PROG -F. '{ print $1 }' | sort -u`
+
+for subtree in $trees
+do
+    echo
+    echo "=== CHECKING SUBTREE: $subtree"
+    echo
+    _run_valgrind pminfo -v -L $pmda $subtree 2>&1 | _filter
+done
+
+# success, all done
+status=0
+exit

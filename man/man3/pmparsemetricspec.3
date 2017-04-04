@@ -1,0 +1,115 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMPARSEMETRICSPEC 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmParseMetricSpec\f1,
+\f3pmFreeMetricSpec\f1 \- uniform metric specification parser
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.sp
+.ad l
+.hy 0
+.in +8n
+.ti -8n
+int pmParseMetricSpec(const char *\fIstring\fP, int \fIisarch\fP, char\ *\fIsource\fP, pmMetricSpec\ **\fIrsltp\fP, char\ **\fIerrmsg\fP);
+.br
+.ti -8n
+void pmFreeMetricSpec(pmMetricSpec *\fIrslt\fP);
+.sp
+.in
+.hy
+.ad
+cc ... \-lpcp
+.ft 1
+.SH DESCRIPTION
+.B pmParseMetricSpec
+accepts a
+.B string
+specifying the name of a PCP performance metric, and optionally
+the source (either a hostname or a PCP archive log filename)
+and instances for that metric.
+The syntax is described in
+.BR PCPIntro (1).
+.PP
+If neither \fBhost\fR nor \fBarchive\fR component
+of the metric specification is provided, the \fBisarch\fR
+and \fBsource\fR arguments are used to fill in the returned
+.B pmMetricSpec
+structure.
+.PP
+The
+.B pmMetricSpec
+structure that is returned via
+.B rsltp
+represents the parsed
+.B string
+and has the following
+declaration:
+.PP
+.nf
+.ft CW
+    typedef struct {
+        int     isarch;      /* source type: 0 -> live host, 1 -> archive, 2 -> local context */
+        char    *source;     /* name of source host or archive */
+        char    *metric;     /* name of metric */
+        int     ninst;       /* number of instances, 0 -> all */
+        char    *inst[1];    /* array of instance names */
+    } pmMetricSpec;
+.fi
+.PP
+.B pmParseMetricSpec
+returns 0 if the given
+.B string
+was successfully parsed.  In this case all the storage allocated by
+.B pmParseMetricSpec
+can be released by a single call to
+.BR free (3)
+using the address returned from
+.B pmMetricSpec
+via
+.BR rsltp .
+The convenience macro
+.B pmFreeMetricSpec
+is a thinly disguised wrapper for
+.BR free (3).
+.PP
+.B pmParseMetricSpec
+returns
+.B PM_ERR_GENERIC
+and a dynamically allocated error message string in
+.BR errmsg ,
+if the given
+.B string
+does not parse.  Be sure to
+.BR free (3)
+the error message string in this situation.
+.PP
+In the case of an error,
+.B rsltp
+is undefined.
+In the case of success,
+.B errmsg
+is undefined.
+If
+.B "rsltp->ninst"
+is 0, then
+.B "rsltp->inst[0]"
+is undefined.
+.SH SEE ALSO
+.BR PMAPI (3)
+and
+.BR pmLookupName (3).

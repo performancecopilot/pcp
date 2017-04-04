@@ -1,0 +1,63 @@
+#pmieconf-rules 1
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(5)
+
+rule	shping.status
+	summary	= "$rule$"
+	enumerate = hosts
+	predicate =
+"some_inst (
+    shping.status $hosts$ @0 > 0 && shping.status $hosts$ @1 == 0
+)"
+	enabled	= no
+	version	= 1
+	help	=
+"An application or service being monitored by the shping PMDA was
+previously probed successfully and the probe has either failed, or
+not responded within a timeout period (as defined by the PCP metric
+shping.control.timeout) during the last sample interval.
+
+If this rule is enabled, the shping PMDA should be installed; see
+$PCP_PMDAS_DIR/shping/README and pmdashping(1).
+
+If some application or service is not available then the
+corresponding line should be commented out of the shping
+configuration file ($PCP_PMDAS_DIR/shping/shping.conf by default)
+and the shping PMDA restarted.";
+
+string	rule
+	default	= "Shell-ping PMDA application or service probe failure"
+	modify	= no
+	display	= no;
+
+string	action_expand
+	default	= %i
+	display	= no
+	modify	= no;
+
+string	email_expand
+	default	= "application or service: %i"
+	display	= no
+	modify	= no;
+
+
+# Configuration info specific to non-PCP tools follows...
+# 
+
+# for SGI Embedded Support Partner integration:
+string	esp_type
+	default	= "0x200090"
+	display	= no
+	modify	= no;
+
+# for EnlightenDSM integration:
+string	enln_test
+	default = shping.status
+	display = no
+	modify = no;
+string	enln_units
+	default = exit_status
+	display = no
+	modify = no;
+
+# 
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(5)

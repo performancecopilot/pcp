@@ -1,0 +1,57 @@
+QA output created by 824
+Note: timezone set to local timezone of host "mortenb.oslo.sgi.com" from archive
+
+Log Label (Log Format Version 2)
+Performance metrics from host mortenb.oslo.sgi.com
+  commencing Thu Nov 25 00:10:06.248 2004
+  ending     Thu Nov 25 00:58:06.250 2004
+Archive timezone: CET-1
+PID for pmlogger: 7553
+
+=== no -S or -T ===
+Note: timezone set to local timezone of host "mortenb.oslo.sgi.com" from archive
+
+Log Label (Log Format Version 2)
+Performance metrics from host mortenb.oslo.sgi.com
+  commencing Thu Nov 25 00:10:06.248 2004
+  ending     Thu Nov 25 00:58:06.250 2004
+metric	time_average	minimum	minimum_time	maximum	maximum_time	count	units
+mem.freemem		143870.068	1672.000	00:11:06.305	148808.000	00:12:06.279	48	Kbyte
+disk.partitions.write	["ram0"]	0.000	0.000	00:11:06.305	0.000	00:11:06.305	47	count / sec
+disk.partitions.write	["ram1"]	0.000	0.000	00:11:06.305	0.000	00:11:06.305	47	count / sec
+
+=== with -S @00:15 ===
+Note: timezone set to local timezone of host "mortenb.oslo.sgi.com" from archive
+
+Log Label (Log Format Version 2)
+Performance metrics from host mortenb.oslo.sgi.com
+  commencing Thu Nov 25 00:15:00.000 2004
+  ending     Thu Nov 25 00:58:06.250 2004
+metric	time_average	minimum	minimum_time	maximum	maximum_time	count	units
+mem.freemem		146844.465	145792.000	00:55:06.251	148552.000	00:15:06.251	44	Kbyte
+disk.partitions.write	["ram0"]	0.000	0.000	00:15:06.251	0.000	00:15:06.251	43	count / sec
+disk.partitions.write	["ram1"]	0.000	0.000	00:15:06.251	0.000	00:15:06.251	43	count / sec
+
+=== with -T @00:45 ===
+Note: timezone set to local timezone of host "mortenb.oslo.sgi.com" from archive
+
+Log Label (Log Format Version 2)
+Performance metrics from host mortenb.oslo.sgi.com
+  commencing Thu Nov 25 00:10:06.248 2004
+  ending     Thu Nov 25 00:45:00.000 2004
+metric	time_average	minimum	minimum_time	maximum	maximum_time	count	units
+mem.freemem		142875.040	1672.000	00:11:06.305	148808.000	00:12:06.279	34	Kbyte
+disk.partitions.write	["ram0"]	0.000	0.000	00:11:06.305	0.000	00:11:06.305	33	count / sec
+disk.partitions.write	["ram1"]	0.000	0.000	00:11:06.305	0.000	00:11:06.305	33	count / sec
+
+=== with -S @00:15 and -T @00:45 ===
+Note: timezone set to local timezone of host "mortenb.oslo.sgi.com" from archive
+
+Log Label (Log Format Version 2)
+Performance metrics from host mortenb.oslo.sgi.com
+  commencing Thu Nov 25 00:15:00.000 2004
+  ending     Thu Nov 25 00:45:00.000 2004
+metric	time_average	minimum	minimum_time	maximum	maximum_time	count	units
+mem.freemem		147148.137	146312.000	00:40:06.251	148552.000	00:15:06.251	30	Kbyte
+disk.partitions.write	["ram0"]	0.000	0.000	00:15:06.251	0.000	00:15:06.251	29	count / sec
+disk.partitions.write	["ram1"]	0.000	0.000	00:15:06.251	0.000	00:15:06.251	29	count / sec

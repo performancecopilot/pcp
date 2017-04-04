@@ -1,0 +1,48 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMUNLOADNAMESPACE 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmUnloadNameSpace\f1 \- unload a local performance metrics name space for an application
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.sp
+void pmUnloadNameSpace(void);
+.sp
+cc ... \-lpcp
+.ft 1
+.SH DESCRIPTION
+If one has previously loaded a local Name Space using
+.BR pmLoadNameSpace (3)
+or
+.BR pmLoadASCIINameSpace (3),
+then calling
+.BR pmUnloadNameSpace (3)
+will free up the memory associated with the Name Space and force all
+subsequent PMNS routine calls to use the distributed PMNS.
+If
+.BR pmUnloadNameSpace (3)
+is called before calling
+.BR pmLoadNameSpace (3)
+or
+.BR pmLoadASCIINameSpace (3),
+then it will effectively do nothing.
+.SH SEE ALSO
+.BR PMAPI (3),
+.BR pmLoadASCIINameSpace (3),
+.BR pmLoadNameSpace (3)
+and
+.BR pmns (5).

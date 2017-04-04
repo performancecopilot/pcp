@@ -1,0 +1,7 @@
+#kmchart
+version 1
+
+chart title "Load Average [%h]" style plot antialiasing off
+    plot title "1 min" metric kernel.all.load instance "1 minute"
+    plot title "5 min" metric kernel.all.load instance "5 minute"
+    plot title "15 min"metric kernel.all.load instance "15 minute"

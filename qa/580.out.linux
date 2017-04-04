@@ -1,0 +1,21 @@
+QA output created by 580
+kernel.all.load:
+pm*InDom: inst=[15] iname=<15 minute> reverse lookup: inst=[15]
+pmGetInDom:
+   [15] <15 minute>
+proc.psinfo.pid:
+pm*InDom: inst=[1] iname=<ONE init> reverse lookup: inst=[1]
+pmGetInDom:
+   [1] <ONE init>
+sample.needprofile:
+pm*InDom: inst=[4] iname=<fat bald bastard> reverse lookup: inst=[4]
+pmGetInDom:
+   [4] <fat bald bastard>
+sampledso.needprofile:
+pm*InDom: inst=[4] iname=<fat bald bastard> reverse lookup: inst=[4]
+pmGetInDom:
+   [4] <fat bald bastard>
+sample.bin:
+pm*InDom: inst=[500] iname=<bin-500> reverse lookup: inst=[500]
+pmGetInDom:
+   [500] <bin-500>

@@ -1,0 +1,239 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.\" add in the -me strings for super and subscripts
+.ie n \{\
+.       ds [ \u\x'-0.25v'
+.       ds ] \d
+.       ds { \d\x'0.25v'
+.       ds } \u
+.\}
+.el \{\
+.       ds [ \v'-0.4m'\x'-0.2m'\s-3
+.       ds ] \s0\v'0.4m'
+.       ds { \v'0.4m'\x'0.2m'\s-3
+.       ds } \s0\v'-0.4m'
+.\}
+.TH PMLOOKUPDESC 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmLookupDesc\f1 \- obtain a description for a performance metric
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.sp
+.nf
+int pmLookupDesc(pmID \fIpmid\fP, pmDesc *\fIdesc\fP);
+.fi
+.sp
+cc ... \-lpcp
+.ft 1
+.SH DESCRIPTION
+.de CW
+.ie t \f(CW\\$1\f1\\$2
+.el \fI\\$1\f1\\$2
+..
+Given a Performance Metrics Identifier (PMID) as
+.IR pmid ,
+fill in the given
+.CW pmDesc
+structure, pointed to by the parameter
+.IR desc ,
+from the current
+Performance Metrics Application Programming Interface (PMAPI)
+context.
+.PP
+The
+.CW pmDesc
+structure provides all of the information required to describe and
+manipulate a
+performance metric via the 
+PMAPI, and has the following declaration.
+.PP
+.ft CW
+.nf
+.in +0.5i
+/* Performance Metric Descriptor */
+typedef struct {
+    pmID    pmid;   /* unique identifier */
+    int     type;   /* base data type (see below) */
+    pmInDom indom;  /* instance domain */
+    int     sem;    /* semantics of value (see below) *
+    pmUnits units;  /* dimension and units (see below) */
+} pmDesc;
+
+/* pmDesc.type -- data type of metric values */
+#define PM_TYPE_NOSUPPORT        \-1    /* not impl. in this version */
+#define PM_TYPE_32               0    /* 32-bit signed integer */
+#define PM_TYPE_U32              1    /* 32-bit unsigned integer */
+#define PM_TYPE_64               2    /* 64-bit signed integer */
+#define PM_TYPE_U64              3    /* 64-bit unsigned integer */
+#define PM_TYPE_FLOAT            4    /* 32-bit floating point */
+#define PM_TYPE_DOUBLE           5    /* 64-bit floating point */
+#define PM_TYPE_STRING           6    /* array of char */
+#define PM_TYPE_AGGREGATE        7    /* arbitrary binary data */
+#define PM_TYPE_AGGREGATE_STATIC 8    /* static pointer to aggregate */
+#define PM_TYPE_EVENT            9    /* packed pmEventArray */
+#define PM_TYPE_UNKNOWN          255  /* used in pmValueBlock, not pmDesc */
+
+
+/* pmDesc.sem -- semantics/interpretation of metric values */
+#define PM_SEM_COUNTER  1  /* cumulative ctr (monotonic incr) */
+#define PM_SEM_INSTANT  3  /* instant. value continuous domain */
+#define PM_SEM_DISCRETE 4  /* instant. value discrete domain */
+.in
+.fi
+.ft 1
+.PP
+The
+.CW type
+field in the 
+.CW pmDesc
+describes various encodings (or formats) for a metric's value.
+.PP
+If a value is
+counted in the underlying base instrumentation with less than 32 bits of
+integer precision, it is the responsibility of the Performance Metrics
+Domain Agent (PMDA) to promote the value to a 32-bit integer before it is
+exported into the Performance Metrics Collection Subsystem (PMCS);
+i.e. applications above the PMAPI never have to deal with 8-bit and 16-bit
+counters.
+.PP
+If the value of a performance metric is of type
+.BR PM_TYPE_AGGREGATE ,
+.BR PM_TYPE_AGGREGATE_STATIC,
+.B PM_TYPE_EVENT
+or
+.BR PM_TYPE_STRING ,
+the interpretation of the value is unknown to the PMCS.
+In these cases, the
+application using the value, and the PMDA providing the value must have some
+common understanding about how the value is structured and interpreted.
+.PP
+Each
+value for a performance metric is assumed to be drawn from a set of values that
+can be described in terms of their dimensionality and scale by a compact
+encoding as follows.
+The dimensionality is defined by a power, or index, in
+each of 3 orthogonal dimensions, namely Space, Time and Count
+(or Events, which are dimensionless).
+For example I/O throughput might be represented as
+.ti 1i
+.CW "\0\0\0\0\0\0\0\0\0\0-1"
+.ti 1i
+.CW "Space.Time"
+.br
+while the
+running total of system calls is
+.CW "Count" ,
+memory allocation is
+.CW Space
+and average
+service time is
+.ti 1i
+.CW "\0\0\0\0\0\0\0\0\0\0-1"
+.ti 1i
+.CW "Time.Count"
+.br
+In each dimension there are a number
+of common scale values that may be used to better encode ranges that might
+otherwise exhaust the precision of a 32-bit value.
+This information is encoded
+in the
+.CW pmUnits
+structure which is embedded in the
+.CW pmDesc
+structure.
+.PP
+.ft CW
+.nf
+.in +0.5i
+/*
+ * Encoding for the units (dimensions Time and Space) and scale
+ * for Performance Metric Values
+ *
+ * For example, a pmUnits struct of
+ *      { 1, \-1, 0, PM_SPACE_MBYTE, PM_TIME_SEC, 0 }
+ * represents Mbytes/sec, while 
+ *      { 0, 1, \-1, 0, PM_TIME_HOUR, 6 }
+ * represents hours/million-events
+ */
+typedef struct {
+    int dimSpace:4;             /* space dimension */
+    int dimTime:4;              /* time dimension */
+    int dimCount:4;             /* event dimension */
+    unsigned int scaleSpace:4;  /* one of PM_SPACE_* below */
+    unsigned int scaleTime:4;   /* one of PM_TIME_* below */
+    int scaleCount:4;           /* one of PM_COUNT_* below */
+} pmUnits;                      /* dimensional units and scale of value */
+
+/* pmUnits.scaleSpace */
+#define PM_SPACE_BYTE   0       /* bytes */
+#define PM_SPACE_KBYTE  1       /* Kilobytes (1024) */
+#define PM_SPACE_MBYTE  2       /* Megabytes (1024^2) */
+#define PM_SPACE_GBYTE  3       /* Gigabytes (1024^3) */
+#define PM_SPACE_TBYTE  4       /* Terabytes (1024^4) */
+/* pmUnits.scaleTime */
+#define PM_TIME_NSEC    0       /* nanoseconds */
+#define PM_TIME_USEC    1       /* microseconds */
+#define PM_TIME_MSEC    2       /* milliseconds */
+#define PM_TIME_SEC     3       /* seconds */
+#define PM_TIME_MIN     4       /* minutes */
+#define PM_TIME_HOUR    5       /* hours */
+/*
+ * pmUnits.scaleCount (e.g. count events, syscalls, interrupts,
+ * etc.) these are simply powers of 10, and not enumerated here,
+ * e.g. 6 for 10^6, or \-3 for 10^\-3
+ */
+#define PM_COUNT_ONE    0       /* 1 */
+.in
+.fi
+.ft 1
+.PP
+Special routines (e.g. \c
+.BR pmExtractValue (3),
+.BR pmConvScale (3))
+are provided to manipulate values in
+conjunction with the
+.CW pmUnits
+structure that defines the dimension and scale of the values for a particular
+performance metric.
+.PP
+Below the PMAPI, the information required to complete the 
+.CW pmDesc
+structure, is fetched from the PMDAs, and in this way the format
+and scale of performance metrics may change dynamically, as
+the PMDAs and their underlying
+instrumentation evolve with time.
+In particular, when some metrics suddenly
+become 64-bits long, or change their units from Mbytes to Gbytes,
+well-written applications
+using the services provided by the PMAPI will continue
+to function correctly.
+.SH SEE ALSO
+.BR PMAPI (3),
+.BR pmAtomStr (3),
+.BR pmConvScale (3),
+.BR pmExtractValue (3),
+.BR pmGetConfig (3),
+.BR pmTypeStr (3),
+.BR pmUnitsStr (3),
+.BR pcp.conf (5)
+and
+.BR pcp.env (5).
+.SH DIAGNOSTICS
+.IP \f3PM_ERR_PMID\f1
+The requested PMID is not known to the PMCS
+.IP \f3PM_ERR_NOAGENT\f1
+The PMDA responsible for providing the metric is currently not available

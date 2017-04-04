@@ -1,0 +1,13 @@
+#pmlogconf-setup 2.0
+ident	metrics used by the pcp-free(1) command
+probe	kernel.uname.sysname ~ Linux ? include : exclude
+	mem.util.free
+	mem.util.shared
+	mem.util.bufmem
+	mem.util.cached
+	mem.util.highFree
+	mem.util.highTotal
+	mem.util.lowFree
+	mem.util.lowTotal
+	mem.util.swapFree
+	mem.util.swapTotal

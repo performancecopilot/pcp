@@ -1,0 +1,67 @@
+#! /bin/sh
+# PCP QA Test No. 143
+# pmnsdel fails for x.x
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+trap "cd $here; rm -rf $tmp; exit" 0 1 2 3 15
+
+# real QA test starts here
+mkdir $tmp
+cd $tmp
+cat >root <<End-of-File
+root {
+    x
+}
+#include "x"
+End-of-File
+
+cat >x <<End-of-File
+x {
+    x
+    y	1:1:1
+}
+#include "x.x"
+End-of-File
+
+cat >x.x <<End-of-File
+x.x {
+    x
+    y	2:2:2
+}
+#include "x.x.x"
+End-of-File
+
+cat >x.x.x <<End-of-File
+x.x.x {
+    y	3:3:3
+}
+End-of-File
+
+echo "=== PMNS from pminfo ==="
+pminfo -n root
+
+for path in x.x.x x.x x
+do
+    echo "=== remove $path ==="
+    pmnsdel -n root $path
+    for file in root x x.x x.x.x
+    do
+	[ ! -f $file ] && continue
+	echo "----------"
+	echo "  $file"
+	echo "----------"
+	cat $file
+    done
+    echo "=== PMNS from pminfo ==="
+    pminfo -n root
+done

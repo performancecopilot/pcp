@@ -1,0 +1,312 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2016 Red Hat.
+.\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMSETMODE 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmSetMode\f1 \- set collection time parameters for the current PMAPI context
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.sp
+int pmSetMode(int \fImode\fP, const struct timeval *\fIwhen\fP, int \fIdelta\fP);
+.sp
+cc ... \-lpcp
+.ft 1
+.SH DESCRIPTION
+.de CW
+.ie t \f(CW\\$1\f1\\$2
+.el \fI\\$1\f1\\$2
+..
+.B pmSetMode
+is used to define the collection time and/or mode for accessing
+performance metrics and meta-data in the current
+Performance Metrics Application Programming Interface (PMAPI)
+context.
+This mode affects the semantics of subsequent calls to the following
+PMAPI routines: 
+.BR pmFetch (3),
+.BR pmFetchArchive (3),
+.BR pmLookupDesc (3),
+.BR pmGetInDom (3),
+.BR pmLookupInDom (3)
+and
+.BR pmNameInDom (3).
+.PP
+If
+.I mode
+is
+.B PM_MODE_LIVE
+then all information is returned from the active pool of performance metrics
+as of the time that the PMAPI call is made, and the other two parameters to
+.B pmSetMode
+are ignored.
+.B PM_MODE_LIVE
+is the default mode when a new PMAPI context of type
+.B PM_CONTEXT_HOST
+is created.
+.PP
+If the
+.I mode
+is not
+.BR PM_MODE_LIVE ,
+then the
+.I when
+parameter defines a time origin, and all requests for meta-data (metric
+descriptions and instance identifiers from the instance domains) will be
+processed to reflect the state of the meta-data as of the time origin, i.e. we
+use the last state of this information at, or before, the time origin.
+.PP
+If the
+.I mode
+is
+.B PM_MODE_INTERP
+then, in the case of
+.BR pmFetch (3),
+the underlying code will use an interpolation scheme to compute the values of
+the metrics from the values recorded for times in the proximity of the time
+origin.
+A
+.I mode
+of
+.B PM_MODE_INTERP
+may only be used with an archive context.
+.PP
+If the
+.I mode
+is
+.B PM_MODE_FORW
+then, in the case of
+.BR pmFetch (3),
+the collection of recorded metric values will be scanned in a forwards
+direction in time, until values for at least one of the requested metrics is
+located after the time origin, and then all requested metrics stored in the
+set of archives at that time will be returned with the corresponding timestamp.
+A
+.I mode
+of
+.B PM_MODE_FORW
+may only be used with an archive context.
+.PP
+If the
+.I mode
+is
+.B PM_MODE_BACK
+then, the situation is the same as for
+.BR PM_MODE_FORW ,
+except a
+.BR pmFetch (3)
+will be serviced by scanning the collection of recorded metrics in a backwards
+direction in time for metrics before the time origin.
+A
+.I mode
+of
+.B PM_MODE_BACK
+may only be used with an archive context.
+.PP
+If the
+.I mode
+is
+.B PM_MODE_FORW
+or
+.BR PM_MODE_BACK ,
+and no qualifying metrics can be found in the requested direction of searching
+before the end or start of the set of archive
+logs is found, then
+.BR pmFetch (3)
+returns the special error indicator,
+.BR PM_ERR_EOL .
+.PP
+For
+.IR mode s
+other than
+.BR PM_MODE_LIVE ,
+after each successful 
+.BR pmFetch (3),
+the time origin is reset to the timestamp returned via the
+.CW pmResult
+structure from
+.BR pmFetch (3).
+.PP
+The
+.B pmSetMode
+parameter
+.I delta
+defines an additional number of time units that should be used to adjust the
+time origin (forwards or backwards), after the new time origin from the
+.CW pmResult
+has been determined.
+This automatic adjustment of the time origin only occurs when the
+.I mode
+is
+.BR PM_MODE_INTERP ,
+and the adjustment is applied, even if the
+.BR pmFetch (3)
+fails because the time origin is outside the range defined by
+the records in a set of archive logs, i.e. returns
+.BR PM_ERR_EOL .
+.P
+.PP
+By default
+.I delta
+is interpreted as milliseconds (but see the LARGE DELTA VALUES
+section below).
+.PP
+Using these
+.I mode
+options, an application can implement replay, playback, fast forward, reverse,
+etc. for performance metric values held in the set of archive logs by alternating calls
+to
+.B pmSetMode
+and
+.BR pmFetch (3).
+.PP
+As a special case, if
+.I when
+is
+.B NULL
+then the
+.I mode
+and
+.I delta
+arguments are used as described above, but the current time in the archive
+is not altered.
+.SH EXAMPLES
+The following code fragment may be used to dump just those values
+recorded in an archive in correct temporal sequence, for a selected set of
+performance metrics; this uses the default collection time mechanisms.
+.PP
+.ft CW
+.nf
+.in +0.5i
+pmNewContext(PM_CONTEXT_ARCHIVE, "myarchive");
+while (pmFetch(npmid, pmidlist, &result) != PM_ERR_EOL) {
+    /*
+     * process real metric values as of result->timestamp
+     */
+    \&. . .
+    pmFreeResult(result);
+}
+.in
+.fi
+.ft 1
+.PP
+Alternatively, to replay interpolated metrics from the log in reverse
+chronological order, at 10 second intervals (of recorded time), the following
+code fragment could be used.
+.PP
+.ft CW
+.nf
+.in +0.5i
+struct timeval mytime;
+
+mytime.tv_sec = 0x7fffffff; /* or use pmGetArchiveEnd(&mtime) */
+pmSetMode(PM_MODE_BACK, &mytime, 0);
+pmFetchArchive(&result);
+mytime = result->timestamp;
+pmFreeResult(result);
+pmSetMode(PM_MODE_INTERP | PM_XTB_SET(PM_TIME_SEC), &mytime, \-10);
+
+while (pmFetch(numpmid, pmidlist, &result) != PM_ERR_EOL) {
+    /*
+     * process interpolated metric values as of
+     * result->timestamp
+     */
+    \&. . .
+    pmFreeResult(result);
+}
+.in
+.fi
+.ft 1
+.SH LARGE DELTA VALUES
+Because
+.I delta
+is an
+.I int
+and treated as milliseconds by default there is a limit on the maximum
+absolute value of
+.I delta
+that can be specified with this default interpretation, namely about 24 days if a signed
+.I int
+has 31 bits of precision.
+To accommodate longer values of
+.I delta
+the high-order bits of the
+.I mode
+parameter is also used to optionally set the units of time for the
+.I delta
+parameter. To specify the units of time use the
+.B PM_XTB_SET 
+macro with one of the values
+.BR PM_TIME_NSEC ,
+.BR PM_TIME_MSEC ,
+.BR PM_TIME_SEC ,
+etc.
+to set the
+.I mode
+as follows:
+.P
+.in +0.5i
+PM_MODE_INTERP | PM_XTB_SET(PM_TIME_XXXX)
+.PP
+The following code shows how this could be done if the desired
+.I delta
+is initially encoded in
+.I interval
+(a struct timeval).
+.PP
+.ft CW
+.nf
+.in +0.5i
+struct timeval interval;
+int mode;
+
+mode = ...
+
+if (abs(interval.tv_sec / (3600*24)) <= 24) {
+    /* default encoding of milliseconds is fine */
+    mode = PM_MODE_INTERP;
+    delta = interval.tv_sec * 1000 + (interval.tv_usec + 500)/ 1000;
+}
+else {
+    /* encode delta in units of seconds */
+    mode = PM_MODE_INTERP | PM_XTB_SET(PM_TIME_SEC);
+    delta = interval.tv_sec + (interval.tv_usec + 500000)/ 1000000;
+}
+.in
+.fi
+.ft
+.PP
+For millisecond encoding of
+.IR delta ,
+using
+.B PM_XTB_SET(PM_TIME_MSEC)
+is functionally equivalent to not using
+.B PM_XTB_SET
+at all.
+.SH "SEE ALSO"
+.BR PMAPI (3),
+.BR pmFetch (3),
+.BR pmFetchArchive (3),
+.BR pmGetInDom (3),
+.BR pmLookupDesc (3),
+.BR pmLookupInDom (3)
+and
+.BR pmNameInDom (3).
+.SH DIAGNOSTICS
+.IP \f3PM_ERR_MODE\f1
+The
+.I mode
+parameter is invalid

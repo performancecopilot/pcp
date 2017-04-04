@@ -1,0 +1,74 @@
+#!/bin/sh
+# PCP QA Test No. 383
+# command line option parsing for cisco PMDA
+#
+# Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
+# Copyright (c) 2015 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+status=0	# success is the default!
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ -f $PCP_PMDAS_DIR/cisco/pmdacisco ] || _notrun "cisco pmda not installed"
+
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+
+echo "As Installed ..."
+$PCP_PMDAS_DIR/cisco/parse cisco/hugh-800:a0@user?pw!adsl\> cisco/hugh-800:e0
+
+echo
+echo "=================="
+echo "With -U option ..."
+$PCP_PMDAS_DIR/cisco/parse -U user cisco/hugh-800:a0?pw!adsl\> cisco/hugh-800:e0
+
+echo
+echo "=================="
+echo "With -P option ..."
+$PCP_PMDAS_DIR/cisco/parse -P pw cisco/hugh-800:a0@user!adsl\> cisco/hugh-800:e0
+
+echo
+echo "=================="
+echo "With -s option ..."
+$PCP_PMDAS_DIR/cisco/parse -s adsl\> cisco/hugh-800:a0@user?pw cisco/hugh-800:e0
+
+echo
+echo "=================="
+echo "With -U and -P options ..."
+$PCP_PMDAS_DIR/cisco/parse -U user -P pw cisco/hugh-800:a0!adsl\> cisco/hugh-800:e0
+
+echo
+echo "=================="
+echo "With -U and -s options ..."
+$PCP_PMDAS_DIR/cisco/parse -U user -s adsl\> cisco/hugh-800:a0?pw cisco/hugh-800:e0
+
+echo
+echo "=================="
+echo "With -P and -s options ..."
+$PCP_PMDAS_DIR/cisco/parse -P pw -s adsl\> cisco/hugh-800:a0@user cisco/hugh-800:e0
+
+echo
+echo "=================="
+echo "With -U, -P and -s options ..."
+$PCP_PMDAS_DIR/cisco/parse -U user -P pw -s adsl\> cisco/hugh-800:a0 cisco/hugh-800:e0
+
+echo
+echo "=================="
+echo "Some error checking ..."
+$PCP_PMDAS_DIR/cisco/parse cisco/hugh-800:a0@user?pw!adsl\> cisco/hugh-800:e0@baduser
+$PCP_PMDAS_DIR/cisco/parse cisco/hugh-800:a0@user?pw!adsl\> cisco/hugh-800:e0?badpw
+$PCP_PMDAS_DIR/cisco/parse cisco/hugh-800:a0@user?pw!adsl\> cisco/hugh-800:e0!badprompt
+$PCP_PMDAS_DIR/cisco/parse -U user cisco/hugh-800:a0@user?pw!adsl\> cisco/hugh-800:e0@baduser
+$PCP_PMDAS_DIR/cisco/parse -P pw cisco/hugh-800:a0@user?pw!adsl\> cisco/hugh-800:e0?badpw
+$PCP_PMDAS_DIR/cisco/parse -s adsl\> cisco/hugh-800:a0@user?pw!adsl\> cisco/hugh-800:e0!badprompt
+
+# success, all done
+exit

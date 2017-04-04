@@ -1,0 +1,27 @@
+QA output created by 1021
+
+*** 1: Line <N> - Create two groups ***
+
+*** 2: Line <N> - Create an archive context in both groups, but to different hosts ***
+QmcGroup::use: No direct match for context "archives/oview-short" (type 2).
+QmcGroup::use: Creating new context for "archives/oview-short"
+QmcSource::getSource: Creating new source for archives/oview-short
+QmcSource::QmcSource: Created context 0 to archive "archives/oview-short"
+QmcSource::dupContext: Using original context for archive "archives/oview-short"
+QmcGroup::use: Added context 0: archive "archives/oview-short" has 0 metrics
+QmcGroup::use: No direct match for context "archives/rattle" (type 2).
+QmcGroup::use: Creating new context for "archives/rattle"
+QmcSource::getSource: Creating new source for archives/rattle
+QmcSource::QmcSource: Created context 1 to archive "archives/rattle"
+QmcSource::dupContext: Using original context for archive "archives/rattle"
+QmcGroup::use: Added context 0: archive "archives/rattle" has 0 metrics
+
+*** 3: Line <N> - Try to create a host context to snort in group1 ***
+QmcGroup::use: No direct match for context "snort" (type 1).
+QmcGroup::use: Using current context 0 (handle = 0) for archive "archives/oview-short"
+
+*** 4: Line <N> - Try to create a host context to snort in group2 ***
+QmcGroup::use: No direct match for context "snort" (type 1).
+qmc_hosts: Error: No archives were specified for host "snort"
+QmcSource::delContext: No contexts remain, removing archive "archives/rattle"
+QmcSource::delContext: No contexts remain, removing archive "archives/oview-short"

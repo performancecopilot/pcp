@@ -1,0 +1,4 @@
+#pmlogconf-setup 2.0
+ident	Origin hubs
+probe	hw.hub.nasid
+	hw.hub

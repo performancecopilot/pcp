@@ -1,0 +1,5 @@
+#kmchart
+version 1
+
+chart title "File System Fullness % [%h]" style plot
+	plot legend "%i" metric filesys.full not-matching "/dev/shm|/dev$"

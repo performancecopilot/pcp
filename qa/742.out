@@ -1,0 +1,10 @@
+QA output created by 742
+
+uptime output, at archive start
+ 11:36:51 up  5:01, 10 users,  load average: 0.50, 0.37, 0.36
+
+uptime output, at archive end
+ 11:36:59 up  5:01, 12 users,  load average: 0.46, 0.36, 0.36
+
+uptime output, at archive start, forw-fetch needed
+ 10:42:43 up 1 min, 1 user,  load average: 0.86, 0.39, 0.14

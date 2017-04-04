@@ -1,0 +1,106 @@
+/*
+ * Metrics for lmsensors PMDA
+ * 
+ * Original implementation by Troy Dawson (dawson@fnal.gov)
+ *  
+ * Copyright (c) 2001 Silicon Graphics, Inc.  All Rights Reserved.
+ * 
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+ * for more details.
+ * 
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+ */
+
+lmsensors {
+	n_total		LMSENSORS:0:0
+	n_lm75		LMSENSORS:0:1
+	n_lm79		LMSENSORS:0:2
+	n_lm87		LMSENSORS:0:3
+	n_w83781d	LMSENSORS:0:4
+	n_mtp008  	LMSENSORS:0:5
+	lm75
+	lm79
+	lm87
+	w83781d
+	mtp008
+}
+
+lmsensors.lm75 {
+        temp	LMSENSORS:1:0
+}
+ 
+lmsensors.lm79 {
+	fan1     LMSENSORS:2:0
+	fan2     LMSENSORS:2:1
+	fan3     LMSENSORS:2:2
+	fan_div  LMSENSORS:2:3
+	temp     LMSENSORS:2:4
+	alarms   LMSENSORS:2:5
+	VCore1   LMSENSORS:2:6
+	VCore2   LMSENSORS:2:7
+	p33V     LMSENSORS:2:8
+	p5V      LMSENSORS:2:9
+	p12V     LMSENSORS:2:10
+	n12V     LMSENSORS:2:11
+	n5V      LMSENSORS:2:12
+	vid      LMSENSORS:2:13
+} 
+
+lmsensors.lm87 {
+	fan1          LMSENSORS:3:0
+	fan2          LMSENSORS:3:1
+	temp1         LMSENSORS:3:2
+	CPUtemp       LMSENSORS:3:3
+	Vccp1         LMSENSORS:3:4
+	Vccp2         LMSENSORS:3:5
+	p25V          LMSENSORS:3:6
+	p33V          LMSENSORS:3:7
+	p5V           LMSENSORS:3:8
+	p12V          LMSENSORS:3:9
+	vid           LMSENSORS:3:10
+}
+
+lmsensors.w83781d {
+	fan1          LMSENSORS:4:0
+	fan2          LMSENSORS:4:1
+	fan3          LMSENSORS:4:2
+	fan_div       LMSENSORS:4:3
+	temp1         LMSENSORS:4:4
+	temp2         LMSENSORS:4:5
+	temp3         LMSENSORS:4:6
+	alarms        LMSENSORS:4:7
+	beep          LMSENSORS:4:8
+	VCore1        LMSENSORS:4:9
+	VCore2        LMSENSORS:4:10
+	p33V          LMSENSORS:4:11
+	p5V           LMSENSORS:4:12
+	p12V          LMSENSORS:4:13
+	n12V          LMSENSORS:4:14
+	n5V           LMSENSORS:4:15
+	vid           LMSENSORS:4:16
+}
+
+lmsensors.mtp008 {
+	fan1          LMSENSORS:5:0
+	fan2          LMSENSORS:5:1
+	fan3          LMSENSORS:5:2
+	temp1         LMSENSORS:5:3
+	temp2         LMSENSORS:5:4
+	VCore1        LMSENSORS:5:5
+	VCore2        LMSENSORS:5:6
+	p33V          LMSENSORS:5:7
+	p12V          LMSENSORS:5:8
+	n12V          LMSENSORS:5:9
+	vid           LMSENSORS:5:10
+	vtt           LMSENSORS:5:11
+}
+

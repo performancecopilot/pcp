@@ -1,0 +1,8 @@
+QA output created by 614
+[TMP.pmns_hyphen:2] Error Parsing ASCII PMNS: Expected NAME or }
+    proc-nprocs 3:0:0
+    ^
+pminfo: Cannot load namespace from "TMP.pmns_hyphen": Problems parsing PMNS definitions
+proc_nprocs
+event.flags
+event.missed

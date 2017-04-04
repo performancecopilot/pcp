@@ -1,0 +1,208 @@
+#! /bin/sh
+# PCP QA Test No. 269 (formerly 269, 406)
+# To test out wrapping for pmval
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+signal=$PCP_BINADM_DIR/pmsignal
+status=1	# failure is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+rm -f $seq.full
+
+_reset()
+{
+    pmstore sample.control -1 > /dev/null
+    $sudo $signal -a -s HUP pmcd
+    _wait_for_pmcd
+}
+
+
+_check_wrap_off()
+{
+    tee -a $seq.full |\
+    $PCP_AWK_PROG -v expected=$tmp.expected -v debug=$debug -v tolerance=$tolerance  -v num_samples=$num_samples -v mismatch_limit=$mismatch_limit '
+    BEGIN {
+	if (debug == "true")
+	    debug=1;
+	else
+	    debug = 0;
+    }
+    NF == 1 {
+	i++;
+	sts = getline val < expected;
+	if (debug)
+	    print "Read expected value:", val;
+	if (sts < 0)
+	    print "Error: error in  reading expected value";
+	if (sts == 0)
+	    print "Error: eof encountered in  reading expected value";
+
+	if (i == 1) {
+	    # ignore the first one
+	    next;
+        }
+
+	if (debug)
+	    print "Comparing:", val, $1
+        if (val == $1) {
+	    if (debug) print "match";
+        }
+	else if ((val-tolerance) <= $1 && $1 <= (val+tolerance)) {
+	    if (debug) print "match";
+	}
+	else if (val < 0) {
+	    if  ($1 == "?" ){
+		if (debug) print "match";
+	    }
+	    else {
+		print "Missing wrap !";
+		print "Got ", $1, " instead";
+		mismatch++;
+	    }
+	}
+	else {
+	    mismatch++;
+	    if (debug || mismatch_limit==0)
+		print "mismatch: ", $1, val;
+	}
+   }
+   END {
+        if (i < num_samples) {
+	    print "Did not process enough samples";
+	    print "Processed:", i, "expected:", num_samples;
+	}
+	if (mismatch > mismatch_limit) {
+	    print "Too many mismatches";
+	    print "Number of mismatches = ", mismatch;
+	}
+	else {
+	    print "Enough Matched ok";
+	}
+   }
+'
+}
+
+
+
+_check_wrap_on()
+{
+    tee -a $seq.full |\
+    $PCP_AWK_PROG -v expected=$tmp.expected -v debug=$debug -v tolerance=$tolerance -v num_samples=$num_samples -v mismatch_limit=$mismatch_limit '
+    BEGIN {
+	if (debug == "true")
+	    debug=1;
+	else
+	    debug = 0;
+	# just use 1st value
+	sts = getline val < expected;
+	if (debug)
+	    print "Read expected value:", val;
+	if (sts < 0)
+	    print "Error: error in  reading expected value";
+	if (sts == 0)
+	    print "Error: eof encountered in  reading expected value";
+    }
+    NF == 1 {
+	i++;
+	if (i == 1) {
+	    # ignore the first one
+	    next;
+        }
+	if (debug)
+	    print "Comparing:", val, $1
+        if (val == $1) {
+	    if (debug) print "match";
+        }
+	else if ((val-tolerance) <= $1 && $1 <= (val+tolerance)) {
+	    if (debug) print "match";
+	}
+	else if ($1 == "?" ){
+	    print "Error: no wrapping allowed";
+	    mismatch++;
+	}
+	else {
+	    mismatch++;
+	    if (debug || mismatch_limit == 0)
+		print "mismatch: ", $1, val;
+	}
+   }
+   END {
+        if (i < num_samples) {
+	    print "Did not process enough samples";
+	    print "Processed:", i, "expected:", num_samples;
+	}
+	if (mismatch > mismatch_limit) {
+	    print "Too many mismatches";
+	    print "Number of mismatches = ", mismatch;
+	}
+	else {
+	    print "Enough Matched ok";
+	}
+   }
+'
+}
+
+_test_pmval()
+{
+    _metric=$1
+    pmval -s$num_samples sample.wrap.$_metric |
+    sed -e 's/!/?/' 
+}
+
+_wrap_off()
+{
+    unset PCP_COUNTER_WRAP
+    echo "--- Wrapping OFF ---"
+}
+
+_wrap_on()
+{
+    PCP_COUNTER_WRAP=
+    export PCP_COUNTER_WRAP
+    echo "--- Wrapping ON ---"
+}
+
+# real QA test starts here
+
+debug=false
+num_samples=10
+tolerance="0.15e+09" # implies error of about 0.15 second
+mismatch_limit=1 # allow 1 mismatch
+
+# src/wrap_int -n $num_samples >$tmp.expected
+cat << 'End-of-File' >$tmp.expected
+1.074e+09
+-3.221e+09
+1.074e+09
+1.074e+09
+1.074e+09
+-3.221e+09
+1.074e+09
+1.074e+09
+1.074e+09
+-3.221e+09
+End-of-File
+
+metric="long"
+echo "--- Testing pmval ---"
+echo "--- Testing pmval ---" >> $seq.full
+_reset
+_wrap_off
+_test_pmval $metric | _check_wrap_off 
+_wrap_on
+echo "-----------------------" >> $seq.full
+_test_pmval $metric | _check_wrap_on
+
+# success, all done
+status=0
+exit

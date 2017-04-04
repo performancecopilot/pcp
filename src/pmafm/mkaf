@@ -1,0 +1,141 @@
+#!/bin/sh
+#
+# Copyright (c) 1995-2001,2004 Silicon Graphics, Inc.  All Rights Reserved.
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+# 
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+#
+
+# Get standard environment
+. $PCP_DIR/etc/pcp.env
+
+_usage()
+{
+    echo "Usage: mkaf [findopts] filename ..."
+}
+
+# check for magic numbers in a file that indicate it is a PCP archive
+#
+# if file(1) was reliable, this would be much easier, ... sigh
+#
+# if you need to change this, make consistent changes in all these
+# places:
+#	_check_file() in src/pmafm/mkaf
+#	_is_archive() in src/pmafm/pmafm
+#	_is_archive() in src/pmview/front-ends/pmview-args
+#
+_is_archive()
+{
+    dd ibs=1 count=7 if="$1" 2>/dev/null | od -X | $PCP_AWK_PROG '
+BEGIN						{ sts = 1 }
+NR == 1 && NF == 5 && $2 == "0000" && $3 == "0084" && $4 == "5005" && $5 == "2600" { sts = 0 }
+NR == 1 && NF == 5 && $2 == "0000" && $3 == "8400" && $4 == "0550" && $5 == "0026" { sts = 0 }
+NR == 1 && NF == 3 && $2 == "00000084" && $3 == "50052600" { sts = 0 }
+NR == 1 && NF == 3 && $2 == "84000000" && $3 == "00260550" { sts = 0 }
+END						{ exit sts }'
+    return $?
+}
+
+if [ $# -eq 0 ]
+then
+    _usage
+    exit 1
+fi
+
+tmp=`mktemp -d /tmp/pcp.XXXXXXXXX` || exit 1
+status=0
+trap "rm -rf $tmp; exit \$status" 0 1 2 3 15
+findopts=""
+
+while [ $# -gt 0 ]
+do
+    case $1
+    in
+	-?)
+	    _usage
+	    exit 1
+	    ;;
+	-*)
+	    findopts="$findopts $1"
+	    ;;
+
+	*)
+	    if [ -d $1 ]
+	    then
+		[ -z "$findopts" ] && findopts="-follow"
+		$PCP_ECHO_PROG >&2 $PCP_ECHO_N "Searching \"find $1 $findopts ...\" $PCP_ECHO_C"
+		find $1 $findopts -type f -print \
+		| while read file
+		do
+		    if _is_archive $file
+		    then
+			echo $file >>$tmp/base
+		    fi
+		done
+		$PCP_ECHO_PROG >&2 " done"
+	    elif [ ! -f $1 ]
+	    then
+		echo >&2 "mkaf: $1: No such file"
+	    elif _is_archive $1
+	    then
+		echo $1 >>$tmp/base
+	    else
+		echo >&2 "mkaf: $1: Not a PCP archive file"
+	    fi
+	    ;;
+
+    esac
+
+    shift
+done
+
+
+if [ ! -s $tmp/base ]
+then
+    echo >&2 "mkaf: Warning: no PCP archives found, so no folio created"
+    status=1
+    exit
+fi
+
+host=somehost
+which hostname >/dev/null 2>&1 && host=`hostname`
+
+cat <<End-of-File
+PCPFolio
+Version: 1
+# use pmafm(1) to process this PCP archive folio
+#
+Created: on $host at `date`
+Creator: pmchart
+# 		Host			Basename
+#
+End-of-File
+
+sed <$tmp/base \
+    -e 's/\.[0-9][0-9]*$//' \
+    -e 's/\.meta$//' \
+    -e 's/\.index$//' \
+| sort -u \
+| while read base
+do
+    host=`pmdumplog -l $base 2>&1 | sed -n -e '/^Performance metrics/s/.* host //p'`
+    if [ -z "$host" ]
+    then
+	echo >&2 "mkaf: Warning: cannot extract hostname from archive \"$base\" ... skipped"
+    else
+	printf "%-15s %-23s %s\n" "Archive:" "$host" "$base"
+    fi
+done
+
+exit

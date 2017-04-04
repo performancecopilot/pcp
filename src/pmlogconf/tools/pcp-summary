@@ -1,0 +1,17 @@
+#pmlogconf-setup 2.0
+ident	metrics used by the pcp(1) command
+force	include
+delta	once
+	hinv.ncpu
+	hinv.ndisk
+	hinv.nnode
+	hinv.physmem
+	pmda.uname
+	pmcd.numagents
+	pmcd.numclients
+	pmcd.services
+	pmcd.version
+	pmcd.build
+	pmcd.agent.status
+	pmcd.pmlogger
+	pmcd.pmie

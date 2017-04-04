@@ -1,0 +1,94 @@
+QA output created by 026
+
+Default Context
+metric: sample.colour
+
+Oneline Text: Metrics with a "saw-tooth" trend over time
+
+Oneline InDomText: Instance domain "colour" for sample PMDA
+
+Help Text: This metric has 3 instances, designated "red", "green" and "blue".
+
+The value of the metric is monotonic increasing in the range N to
+N+100, then back to N.  The different instances have different N
+values, namely 100 (red), 200 (green) and 300 (blue).
+
+The underlying counter starts at 0 and is incremented once
+for each pmFetch() to this metric and/or sample.mirage and/or
+sample.mirage_longlong.
+
+Use pmStore() to modify the underlying counter (independent of which
+instance or instances are used).
+
+Help InDomText: Universally 3 instances, "red" (0), "green" (1) and "blue" (3).
+
+Default Context
+metric: sample.byte_ctr
+
+Oneline Text: counter byte counter
+pmLookupInDomText: Unknown or illegal metric identifier
+
+Help Text: value increments randomly in the range (0,1023) bytes per fetch
+pmLookupInDomText: Unknown or illegal metric identifier
+
+New Context
+metric: sample.colour
+
+Oneline Text: Metrics with a "saw-tooth" trend over time
+
+Oneline InDomText: Instance domain "colour" for sample PMDA
+
+Help Text: This metric has 3 instances, designated "red", "green" and "blue".
+
+The value of the metric is monotonic increasing in the range N to
+N+100, then back to N.  The different instances have different N
+values, namely 100 (red), 200 (green) and 300 (blue).
+
+The underlying counter starts at 0 and is incremented once
+for each pmFetch() to this metric and/or sample.mirage and/or
+sample.mirage_longlong.
+
+Use pmStore() to modify the underlying counter (independent of which
+instance or instances are used).
+
+Help InDomText: Universally 3 instances, "red" (0), "green" (1) and "blue" (3).
+
+New Context
+metric: sample.byte_ctr
+
+Oneline Text: counter byte counter
+pmLookupInDomText: Unknown or illegal metric identifier
+
+Help Text: value increments randomly in the range (0,1023) bytes per fetch
+pmLookupInDomText: Unknown or illegal metric identifier
+
+Dup Context
+metric: sample.colour
+
+Oneline Text: Metrics with a "saw-tooth" trend over time
+
+Oneline InDomText: Instance domain "colour" for sample PMDA
+
+Help Text: This metric has 3 instances, designated "red", "green" and "blue".
+
+The value of the metric is monotonic increasing in the range N to
+N+100, then back to N.  The different instances have different N
+values, namely 100 (red), 200 (green) and 300 (blue).
+
+The underlying counter starts at 0 and is incremented once
+for each pmFetch() to this metric and/or sample.mirage and/or
+sample.mirage_longlong.
+
+Use pmStore() to modify the underlying counter (independent of which
+instance or instances are used).
+
+Help InDomText: Universally 3 instances, "red" (0), "green" (1) and "blue" (3).
+
+Dup Context
+metric: sample.byte_ctr
+
+Oneline Text: counter byte counter
+pmLookupInDomText: Unknown or illegal metric identifier
+
+Help Text: value increments randomly in the range (0,1023) bytes per fetch
+pmLookupInDomText: Unknown or illegal metric identifier

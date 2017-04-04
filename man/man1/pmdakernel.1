@@ -1,0 +1,155 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2014 Red Hat.
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.TH "KERNEL PMDAS" 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmdaaix\f1,
+\f3pmdadarwin\f1,
+\f3pmdafreebsd\f1,
+\f3pmdalinux\f1,
+\f3pmdanetbsd\f1,
+\f3pmdasolaris\f1,
+\f3pmdawindows\f1 \- operating system kernel performance metrics domain agents
+.SH SYNOPSIS
+\f3$PCP_PMDAS_DIR/aix/pmdaaix\f1
+[\f3\-d\f1 \f2domain\f1]
+[\f3\-l\f1 \f2logfile\f1]
+[\f3\-U\f1 \f2username\f1]
+.br
+\f3$PCP_PMDAS_DIR/darwin/pmdadarwin\f1
+[\f3\-d\f1 \f2domain\f1]
+[\f3\-l\f1 \f2logfile\f1]
+[\f3\-U\f1 \f2username\f1]
+.br
+\f3$PCP_PMDAS_DIR/freebsd/pmdafreebsd\f1
+[\f3\-d\f1 \f2domain\f1]
+[\f3\-l\f1 \f2logfile\f1]
+[\f3\-U\f1 \f2username\f1]
+.br
+\f3$PCP_PMDAS_DIR/linux/pmdalinux\f1
+[\f3\-d\f1 \f2domain\f1]
+[\f3\-l\f1 \f2logfile\f1]
+[\f3\-U\f1 \f2username\f1]
+.br
+\f3$PCP_PMDAS_DIR/netbsd/pmdanetbsd\f1
+[\f3\-d\f1 \f2domain\f1]
+[\f3\-l\f1 \f2logfile\f1]
+[\f3\-U\f1 \f2username\f1]
+.br
+\f3$PCP_PMDAS_DIR/solaris/pmdasolaris\f1
+[\f3\-d\f1 \f2domain\f1]
+[\f3\-l\f1 \f2logfile\f1]
+[\f3\-U\f1 \f2username\f1]
+.br
+\f3$PCP_PMDAS_DIR/windows/pmdawindows\f1
+[\f3\-d\f1 \f2domain\f1]
+[\f3\-l\f1 \f2logfile\f1]
+[\f3\-U\f1 \f2username\f1]
+.SH DESCRIPTION
+Each supported platform has a kernel Performance Metrics Domain
+Agent (PMDA) which extracts performance metrics from the kernel
+of that platfrom.
+A variety of platform-specific metrics are available, with an
+equally varied set of access mechanisms - typically this involves
+special system calls, or reading from files in kernel virtual
+filesystems such as the Linux
+.I sysfs
+and
+.I procfs
+filesystems.
+.PP
+The platform kernel PMDA is one of the most critical components
+of the PCP installation, and must be as efficient and reliable
+as possible.
+In all installations the default kernel PMDA will be installed
+as a shared library and thus executes directly within the
+.BR pmcd (1)
+process.
+This slightly reduces overheads associated with querying the
+metadata and values associated with these metrics (no message
+passing is required).
+.PP
+Unlike many other PMDAs, the kernel PMDA exports a number of
+metric namespace subtrees, such as kernel, network, swap, mem,
+ipc, filesys, nfs, disk and hinv (hardware inventory).
+.PP
+Despite usually running as shared libraries, most installations
+also include a stand-alone executable for the kernel PMDA.
+This is to aid profiling and debugging activities, with
+.BR dbpmda (1)
+for example.
+In this case (but not for shared libraries), the following
+command line options are available:
+.TP 5
+.B \-d
+It is absolutely crucial that the performance metrics
+.I domain
+number specified here is unique and consistent.
+That is,
+.I domain
+should be different for every PMDA on the one host, and the same
+.I domain
+number should be used for the same PMDA on all hosts.
+.TP
+.B \-l
+Location of the log file.  By default, a log file named
+.I [platform].log
+is written in the current directory of
+.BR pmcd (1)
+when
+.B pmda[platform]
+is started, i.e.
+.BR $PCP_LOG_DIR/pmcd .
+If the log file cannot
+be created or is not writable, output is written to the standard error instead.
+.TP
+.B \-U
+User account under which to run the agent.
+The default is the unprivileged "pcp" account in current versions of PCP,
+but in older versions the superuser account ("root") was used by default.
+.SH INSTALLATION
+Access to the names, help text and values for the kernel performance
+metrics is available by default - unlike most other agents, no action
+is required to enable them and they should not be removed.
+.SH FILES
+.PD 0
+.TP 10
+.B $PCP_PMDAS_DIR/[platform]/help
+default help text file for the the kernel metrics
+.TP 10
+.B $PCP_LOG_DIR/pmcd/[platform].log
+default log file for error messages and other information from
+the kernel PMDA.
+.PD
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.I /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (5).
+.SH SEE ALSO
+.BR PCPIntro (1),
+.BR dbpmda (1)
+.BR pmcd (1),
+.BR pcp.conf (5)
+and
+.BR pcp.env (5).

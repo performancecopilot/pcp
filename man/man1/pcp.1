@@ -1,0 +1,217 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2014-2016 Red Hat.
+.\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PCP 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pcp\f1,
+\f3pcp-summary\f1 \- run a command or summarize an installation
+.SH SYNOPSIS
+.ft 3
+\f3pcp\f1
+[pcp options...]
+pcp-\f2command\f1
+[command options...]
+.br
+\f3pcp\f1
+[\f3\-P\f1]
+[\f3\-a\f1 \f2archive\f1]
+[\f3\-h\f1 \f2host\f1]
+[\f3\-n\f1 \f2pmnsfile\f1]
+.ft 1
+.SH DESCRIPTION
+The
+.B pcp
+command is used in one of two modes.
+By default, it summarizes the Performance Co-Pilot (PCP) installation
+on the local host.
+This mode can also be used to summarize the installation from a remote
+.IR host ,
+or a historical installation from a set of PCP
+.IR archives .
+This mode indirectly invokes the
+.B pcp-summary
+.I command
+(in the absence of any other requested command).
+.PP
+Alternatively, a
+.I command
+can be passed to
+.B pcp
+to run, again possibly in the context of a remote
+.I host
+or set of historical
+.IR archives .
+.SH "COMMAND MODE"
+When
+.B pcp
+is invoked with a command to run, it will search for the named
+.IR command 
+in
+.B $PCP_BINADM_DIR
+and also
+.B $HOME/.pcp/bin
+(these are usually scripts, and are installed with a "pcp-" prefix).
+This mode of operation allows system performance tools to be
+implemented using
+.BR PMAPI (3)
+services, while still preserving all of their usual command line
+options.
+These options are thus (indirectly) augmented with the standard PCP
+option set, as described in
+.BR PCPIntro (1).
+.PP
+This provides a convenient mechanism for obtaining retrospective or
+remote monitoring capabilities while preserving the behaviour of the
+system tools.
+.PP
+For example, the
+.BR pcp-free (1)
+utility can be invoked as follows, for recorded data from host
+.IR munch :
+.PP
+.nf
+.ft CW
+$ pcp \-a $PCP_LOG_DIR/pmlogger/\fImunch\fP/20140317 \-O 11:35:50am \fBfree \-m\fP
+             total       used       free     shared    buffers     cached
+Mem:         23960      14554       9406          0        176       2137
+-/+ buffers/cache:      12240      11720
+Swap         12047          0      12047
+.ft R
+.fi
+.PP
+A complete list of the available and installed tools is provided
+along with the
+.BR pcp (1)
+usage message, but some examples include:
+.BR pcp-free (1),
+.BR pcp-uptime (1)
+and
+.BR pcp-numastat (1).
+.SH "SUMMARY MODE"
+The
+summary report includes: the OS version, a summary of the hardware inventory,
+the local timezone, the PCP software version, the state of the
+.BR pmcd (1)
+process and associated Performance Metrics Domain Agents
+(PMDAs), as well as information about any PCP archive loggers (\c
+.BR pmlogger (1))
+and PCP inference engines (\c
+.BR pmie (1))
+that are running.
+.PP
+With no arguments,
+.B pcp
+reports on the local host, however the
+following options are accepted:
+.IP "\f3\-a\f1 \f2archive\f1"
+Report the PCP
+configuration as described in the set of PCP archive logs,
+.IR archive ,
+which is a comma-separated list of names, each
+of which may be the base name of an archive or the name of a directory containing
+one or more archives.
+.IP "\f3\-h\f1 \f2host\f1"
+Report the PCP configuration on 
+.I host
+rather than the local host.
+.IP "\f3\-n\f1 \f2pmnsfile\f1"
+Load an alternative Performance Metrics Name Space
+.RB ( pmns (5))
+from the file
+.IR pmnsfile .
+.IP \f3\-P\f1
+Display
+.B pmie
+performance information \- counts of rules evaluating to true, false, or
+indeterminate, as well as the expected rate of rule calculation, for each
+.B pmie
+process running on the default host.
+Refer to the individual metric help text for full details on these values.
+.PP
+All of the displayed values are performance
+.I metric
+values and further information for each can be obtained using the command:
+.in 1.0i
+.ft CW
+.nf
+
+$ pminfo \-dtT \f2metric\f1
+
+.fi
+.ft R
+.in
+The complete set of
+.IR metric s
+required by
+.B pcp
+to produce its output is contained in
+.BR $PCP_VAR_DIR/config/pmlogconf/tools/pcp-summary .
+.SH FILES
+.PD 0
+.TP 10
+.B $HOME/.pcp/bin
+Per-user location for
+.I command
+scripts.
+.TP
+.B $PCP_BINADM_DIR
+System location for installed
+.I command
+scripts.
+.TP
+.B $PCP_VAR_DIR/config/pmlogconf/tools/pcp-summary
+.BR pmlogconf (1)
+configuration file for collecting all of the metrics required by
+.BR pcp .
+.PD
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.B /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (5).
+.SH SEE ALSO
+.BR PCPIntro (1),
+.BR pcp-free (1),
+.BR pcp-numastat (1),
+.BR pcp-python (1),
+.BR pcp-uptime (1),
+.BR pcp-verify (1),
+.BR pmcd (1),
+.BR pmie (1),
+.BR pmlogconf (1),
+.BR pmlogger (1),
+.BR pcp.conf (5)
+and
+.BR pcp.env (5).
+.SH DIAGNOSTICS
+.B pcp 
+will terminate with an exit status of 
+.B 1
+if 
+.B pmcd
+on the target host could not be reached or the set of archives could not be opened, 
+or
+.B 2
+for any other error.

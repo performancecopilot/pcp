@@ -1,0 +1,680 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2016 Red Hat.
+.\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\" 
+.TH PCPINTRO 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3PCPIntro\f1 \- introduction to the Performance Co-Pilot (PCP) libraries
+.SH INTRODUCTION
+Performance Co-Pilot (PCP) is a toolkit designed for monitoring
+and managing system-level performance.
+.PP
+The PCP libraries support the APIs required to create new performance
+monitoring tools and new agents (or PMDAs) to export performance data.
+The
+.B libpcp
+library is used in both cases.  The
+.B libpcp_pmda
+library is used only for PMDAs.
+.PP
+Individual library routines are documented in their own manual page entries.
+.PP
+Most routines return an integer value; greater than equal to zero for
+success and less than zero for an error.  The error codes have
+symbolic names defined in
+.BR <pcp/pmapi.h> .
+Other negative values are used to encode errors that can be mapped to
+the traditional
+.I errno
+values defined in
+.BR <errno.h> ,
+with the value negated.
+To translate all PCP error codes into useful messages use
+either
+.BR pmerr (1)
+or
+.BR pmErrStr (3);
+the latter may also be used to decode the
+.I \-errno
+cases.
+.SH "GENERAL ERRORS"
+These common errors may occur in various PCP interactions.
+.TP 4n
+.B PM_ERR_TIMEOUT
+.I "Timeout waiting for a response from PMCD"
+.br
+Many interactions between PCP applications involve
+synchronous message passing, and these are subject to
+timeout constraints.  These errors are most frequently
+encountered when using network connections with slow
+data rates or long latencies.
+.RS
+.PP
+For client\-\c
+.B pmcd
+timeouts, refer to
+.BR PCPIntro (1)
+for environment variables that may be used to modify
+the timeout thresholds.
+For
+.BR pmcd -PMDA
+timeouts refer to the
+.B \-t
+and
+.B \-q
+options of
+.BR pmcd (1)
+and the PCP metric
+.B pmcd.control.timeout
+that can be dynamically changed with
+.BR pmstore (1).
+.RE
+.TP
+.B PM_ERR_APPVERSION
+.I "Metric not supported by this version of monitored application"
+.br
+Some performance metrics are unavailable from specific versions
+of the associated PMDA, or may be unavailable because the underlying
+instrumentation has changed or is not installed or is not enabled.
+This error is used in results from
+.BR pmFetch (3)
+to indicate these situations.
+.TP
+.B PM_ERR_IPC
+.I "IPC protocol failure"
+.br
+Generic protocol failure
+on a pipe or socket connecting two PCP applications, eg. client\-\c
+.BR pmcd ,
+or client\-\c
+.BR pmtime ,
+or PMDA\-\c
+.B pmcd
+or
+.BR pmlc \- pmlogger .
+.TP
+.B PM_ERR_TEXT
+.I "Oneline or help text is not available"
+.br
+Set by a PMDA, and passed back to a PCP client,
+to indicate that the PMDA is unable to supply the
+requested metric or instance domain help text.
+.TP
+.B PM_ERR_VALUE
+.I "Missing metric value(s)"
+.br
+This error is used for a number of conditions in which the value
+of a performance metric is inappropriate for the context in
+which it is being used, eg.
+.RS
+.IP (a) 4n
+Bad value for the metric
+.B pmcd.timezone
+when trying to set the timezone via
+.BR pmNewContextZone (3)
+for a remote or archive context.
+.IP (b)
+Attempting to interpolate values for a metric with non-numeric data
+type from a set of PCP archives.
+.IP (c)
+A bad
+.I result
+data structure passed to
+.BR pmStore (3).
+.RE
+.TP
+.B PM_ERR_NAME
+.I "Unknown metric name"
+.br
+Just what the message says.
+.TP
+.B PM_ERR_PMID
+.I "Unknown or illegal metric identifier"
+.br
+Just what the message says.
+.TP
+.B PM_ERR_INDOM
+.I "Unknown or illegal instance domain identifier"
+.br
+A request nominates an instance domain that is unknown
+or
+.BR PM_INDOM_NULL .
+May occur as a consequence of
+the instance domain identifier passed by a PCP client to
+.BR pmGetInDom (3),
+.BR pmLookupInDom (3),
+.BR pmNameInDom (3),
+.BR pmGetInDomArchive (3),
+.BR pmLookupInDomArchive (3),
+.BR pmNameInDomArchive (3)
+or a request passed from
+.BR pmcd (1)
+to a PMDA.
+.TP
+.B PM_ERR_EOF
+.I "IPC channel closed"
+.br
+End of file on a pipe or socket connecting two PCP applications, eg. client\-\c
+.BR pmcd ,
+or client\-\c
+.B pmtime
+or PMDA\-\c
+.BR pmcd.
+.TP
+.B PM_ERR_NOCONTEXT
+.I "Attempt to use an illegal context"
+.br
+Typically caused by a PCP client that tries to make calls before
+calling
+.BR pmNewContext (3)
+or after calling
+.BR pmDestroyContext (3).
+.TP
+.B PM_ERR_PERMISSION
+.I "No permission to perform requested operation"
+.br
+PCP-specific access controls apply to
+.BR pmcd (1)
+and
+.BR pmlogger (1).
+Platform-specific permission errors are returned as
+.BR \-EPERM .
+.TP
+.B PM_ERR_CONV
+.I "Impossible value or scale conversion"
+.br
+Some value conversion requests are illegal, eg. bad debug flag symbolic name
+for
+.B \-D
+option, or asking
+.BR pmExtractValue (3)
+to translate non-numeric data types to numbers and
+.IR vice " " versa .
+.TP
+.B PM_ERR_TRUNC
+.I "Truncation in value conversion"
+.br
+Some conversion requests to
+.BR pmExtractValue (3)
+cannot be performed based on the metric types and values involved,
+in this case conversion would result in loss of precision.
+.TP
+.B PM_ERR_SIGN
+.I "Negative value in conversion to unsigned"
+.br
+Some conversion requests to
+.BR pmExtractValue (3)
+cannot be performed based on the metric types and values involved,
+in this case converting a negative value to an unsigned value.
+.TP
+.B PM_ERR_TYPE
+.I "Unknown or illegal metric type"
+.br
+The metric type is held in the metric descriptor and sometimes
+encoded in the metric values returned from a call to
+.BR pmFetch (3).
+Legal values for the metric type are defined by the
+.B PM_TYPE_*
+macros in
+.BR <pcp/pmapi.h> .
+.TP
+.B PM_ERR_UNIT
+.I "Illegal pmUnits specification"
+.br
+Some conversion requests to
+.BR pmConvScale (3)
+cannot be performed due to illegal or incompatible specifications
+of the source and destination units.
+.TP
+.B PM_ERR_PROFILE
+.I "Explicit instance identifier(s) required"
+.br
+Some PMDAs, especially the
+.B proc
+PMDA, will not return ``all instances'' for a
+.BR pmFetch (3)
+request due to the cost.  The client must explicitly built an instance
+profile using
+.BR pmAddProfile (3)
+and/or
+.BR pmDelProfile (3)
+before calling
+.BR pmFetch (3).
+See also the
+.B \-F
+option to
+.BR pminfo (1).
+.TP
+.B PM_ERR_INST
+.I "Unknown or illegal instance identifier"
+.br
+A request to a PMDA nominates an instance that is unknown.
+May occur as a consequence of the profile established prior
+to a
+.BR pmFetch (3)
+call, or an explicit instance name or identifier to
+.BR pmLookupInDom (3)
+or
+.BR pmNameInDom (3).
+.TP
+.B PM_ERR_MODE
+.I "Illegal mode specification"
+.br
+Illegal
+.I mode
+argument to
+.BR pmSetMode (3).
+.TP
+.B PM_ERR_PROFILESPEC
+.I "NULL pmInDom with non-NULL instlist"
+.br
+Bad arguments passed from a PCP client to
+.BR pmAddProfile (3).
+.TP
+.B PM_ERR_TOOSMALL
+.I "Insufficient elements in list"
+.br
+Parameter passing error by caller specifying a list with less than
+one element to
+.BR pmFetch (3),
+.BR pmLookupName (3)
+or
+.BR pmStore (3).
+.TP
+.B PM_ERR_THREAD
+.I "Operation not supported for multi-threaded applications"
+.br
+As documented in
+.BR PMAPI (3)
+and elsewhere, some
+.B libpcp
+routines are intended solely for use from single-threaded applications.
+.TP
+.B PM_ERR_TOOBIG
+.I "Result size exceeded"
+.br
+Indicates a fatal error in the message (or PDU) passing protocol between
+two PCP applications.  This is an internal error, and other than
+an exotic networking failure, should not occur.
+.TP
+.B PM_ERR_RESET
+.I "PMCD reset or configuration change"
+.br
+Not used.
+.RS
+.PP
+Refer to
+.BR pmFetch (3)
+for an alternative mechanism that may be used to notify
+a PCP client when
+.BR pmcd (1)
+has experienced one or more configuration changes since the
+last request from the client.  Usually these changes involve
+a change to the namespace exported via
+.B pmcd
+and/or changes to the PMDAs under
+.BR pmcd 's
+control.
+.RE
+.TP
+.B PM_ERR_FAULT
+.I "QA fault injected"
+.br
+Used only for PCP Quality Assurance (QA) testing.
+.TP
+.B PM_ERR_NYI
+.I "Functionality not yet implemented"
+.br
+Self explanatory and rarely used.
+.TP
+.B PM_ERR_GENERIC
+.I "Generic error, already reported above"
+.br
+Rarely used, this error may be returned when the error condition
+is a consequent of some earlier returned error and a more precise
+characterization is not possible.
+.SH "CLIENT-PMCD ERRORS"
+These errors may occur in the interactions between a PCP client and
+.BR pmcd (1)
+providing real-time performance data.
+.TP
+.B PM_ERR_NOAGENT
+.I "No PMCD agent for domain of request"
+.br
+A request sent to
+.BR pmcd (1)
+requires information from an agent or PMDA that does not exist.
+Usually this means the namespace being used by the client application
+contains metric names from a previously installed PMDA.
+.TP
+.B PM_ERR_CONNLIMIT
+.I "PMCD connection limit for this host exceeded"
+.br
+The client connection limit for
+.BR pmcd (1)
+is controlled by the optional
+.B access
+controls in
+.IR $PCP_PMCDCONF_PATH .
+By default there is no limit imposed by the PCP code, and this
+error would not be seen.
+.TP
+.B PM_ERR_AGAIN
+.I "Try again. Information not currently available"
+.br
+Used to notify a PCP client that
+the PMDA responsible for delivering the information is temporarily
+unavailable.
+See also
+.BR PM_ERR_PMDANOTREADY .
+.TP
+.B PM_ERR_NOPROFILE
+.I "Missing profile - protocol botch"
+.br
+Internal error in the communication between a client application
+and
+.BR pmcd (1)
+\- should not occur.
+.SH "CLIENT-ARCHIVE ERRORS"
+These errors may occur in the interactions between a PCP client and
+the library routines that provide historical
+performance data from PCP archives created by
+.BR pmlogger (1).
+.TP
+.B PM_ERR_LOGFILE
+.I "Missing archive file"
+.br
+Each PCP archive consists of multiple physical files as described
+in
+.BR pmlogger (1).
+This error occurs when one of the physical files is missing or
+cannot be opened for reading.
+.TP
+.B PM_ERR_EOL
+.I "End of PCP archive log"
+.br
+An attempt is made to read past the end file of the last volume
+of a set of PCP archives, or past the
+end of the time window (as specified with a 
+.B \-T
+option) for a set of PCP archives.
+.TP
+.B PM_ERR_NOTHOST
+.I "Operation requires context with host source of metrics"
+.br
+Operations involving help text (ie. \c
+.BR pmLookupText (3)
+and
+.BR pmLookupInDomText (3))
+or calls to
+.BR pmStore (3)
+require a host context and are not supported for PCP archives.
+.TP
+.B PM_ERR_LOGREC
+.I "Corrupted record in a PCP archive log"
+.br
+PCP archives can become corrupted for a variety of reasons,
+but the most common is premature termination of
+.BR pmlogger (1)
+without flushing its output buffers.
+.TP
+.B PM_ERR_LABEL
+.I "Illegal label record at start of a PCP archive log file"
+.br
+Each physical file in a PCP archive should begin with a common
+label record.  This is a special case of
+.B PM_ERR_LOGREC
+errors.
+.TP
+.B PM_ERR_NODATA
+.I "Empty archive log file"
+.br
+An empty physical file can never be part of a valid PCP archive
+(at least the label record should be present).
+This is a special case of
+.B PM_ERR_LOGREC
+errors.
+.TP
+.B PM_ERR_NOTARCHIVE
+.I "Operation requires context with archive source of metrics"
+.br
+A call to one of the archive variant routines, i.e. \c
+.BR pmFetchArchive (3),
+.BR pmGetInDomArchive (3),
+.BR pmLookupInDomArchive (3)
+or
+.BR pmNameInDomArchive (3),
+when the current context is not associated with a set of PCP archives.
+.TP
+.B PM_ERR_PMID_LOG
+.I "Metric not defined in the PCP archive log"
+.br
+A PCP client has requested information about a metric,
+and there is no corresponding information in the set of PCP archives.
+This should not happen for well-behaved PCP clients.
+.TP
+.B PM_ERR_INDOM_LOG
+.I "Instance domain identifier not defined in the PCP archive log"
+.br
+A PCP client has requested information about an instance domain
+for one or more performance metrics,
+and there is no corresponding information in the set of PCP archives.
+If the client is using metric descriptors from the set of archives
+to identify the instance domain, this is less likely to happen.
+.RS
+.PP
+Because instance domains may vary over time, clients may
+need to use the variant routines
+.BR pmGetInDomArchive (3)
+or
+.BR pmLookupInDomArchive (3)
+or
+.BR pmNameInDomArchive (3)
+to manipulate the union of the instances in an instance domain over the life
+of an archive.
+.RE
+.TP
+.B PM_ERR_INST_LOG
+.I "Instance identifier not defined in the PCP archive log"
+.br
+A PCP client has requested information about a specific instance
+of a performance metric,
+and there is no corresponding information in the set of PCP archives.
+If the client is using instance names from the instance
+domain in the set of archives
+(rather than hard-coded instance names) and instance identifiers
+from the results returned by
+.BR pmFetch (3)
+or
+.BR pmFetchArchive (3)
+this is less likely to happen.
+.RS
+.PP
+Because instance domains may vary over time, clients may
+need to use the variant routines
+.BR pmLookupInDomArchive (3)
+or
+.BR pmNameInDomArchive (3)
+to manipulate the union of the instances in an instance domain over the life
+of an archive.
+.RE
+.TP
+.B PM_ERR_LOGOVERLAP
+.I "Archives overlap in time"
+.br
+When using a context associated with a set of archives, the archives in the
+set may not overlap in time.
+.TP
+.B PM_ERR_LOGHOST
+.I "Archives differ by host"
+.br
+When using a context associated with a set of archives, the archives in the
+set must all have been generated on the same host.
+.TP
+.B PM_ERR_LOGTIMEZONE
+.I "Archives differ by time zone"
+.br
+When using a context associated with a set of archives, the archives in the
+set must all have been generated using the same time zone.
+.TP
+.B PM_ERR_LOGCHANGETYPE
+.I "The type of a metric differs among archives"
+.br
+When using a context associated with a set of archives, the type of each metric
+must be same in all of the archives.
+.TP
+.B PM_ERR_LOGCHANGESEM
+.I "The semantics of a metric differs among archives"
+.br
+When using a context associated with a set of archives, the semantics of each
+metric must be same in all of the archives.
+.TP
+.B PM_ERR_LOGCHANGEINDOM
+.I "The instance domain of a metric differs among archives"
+.br
+When using a context associated with a set of archives, the instance domain
+of each metric must be same in all of the archives.
+.TP
+.B PM_ERR_LOGCHANGEUNITS
+.I "The units of a metric differs among archives"
+.br
+When using a context associated with a set of archives, the units
+of each metric must be same in all of the archives.
+.SH "TIME CONTROL ERRORS"
+These errors may occur in the interactions between a GUI PCP client and
+the time control services provided by
+.BR pmtime (1).
+.TP
+.B PM_ERR_ISCONN
+.I "Already Connected"
+.br
+A PCP client application called
+.BR pmTimeConnect (3)
+when already connected to a
+.BR pmtime (1)
+instance.
+.TP
+.B PM_ERR_NOTCONN
+.I "Not Connected"
+.br
+A PCP client application called one of the time control routines
+.BR pmTime* (3)
+when not currently connected to any
+.BR pmtime (1)
+instance.
+.TP
+.B PM_ERR_NEEDPORT
+.I "A non-null port name is required"
+.br
+If a shared
+.BR pmtime (1)
+instance is being created
+the
+.I port
+argument to
+.BR pmTimeConnect (3)
+must not be invalid.
+.SH "NAMESPACE ERRORS"
+These errors may occur in the processing of PCP namespace operations.
+A PCP namespace, see
+.BR pmns (5),
+provides the external
+names and the internal identifiers for the available performance metrics.
+.TP
+.B PM_ERR_NONLEAF
+.I "Metric name is not a leaf in PMNS"
+.br
+The metric name passed to
+.BR pmLookupName (3)
+names a non-terminal path in the namespace, i.e. a group of metrics
+rather than a single metric.
+.TP
+.B PM_ERR_DUPPMNS
+.I "Attempt to reload the PMNS"
+.br
+When using an explicit local namespace, it is illegal to call
+either of
+.BR pmLoadNameSpace (3)
+or
+.BR pmLoadASCIINameSpace (3)
+more than once.
+.TP
+.B PM_ERR_PMNS
+.I "Problems parsing PMNS definitions"
+.br
+Only occurs when an ASCII namespace is explicitly loaded.
+.TP
+.B PM_ERR_NOPMNS
+.I "PMNS not accessible"
+.br
+Only occurs when an ASCII namespace is explicitly loaded.
+.SH "PMCD-PMDA ERRORS"
+These error codes are used in the interactions between
+.BR pmcd (1)
+and the PMDAs that provide the performance data.
+.TP
+.B PM_ERR_PMDANOTREADY
+.I "PMDA is not yet ready to respond to requests"
+.br
+Some PMDAs have long initialization or reset times, and will respond
+to
+.BR pmcd (1)
+with this error if they are busy at the moment.  This error translates
+to
+.B PM_ERR_AGAIN
+for the PCP client who made the request to
+.BR pmcd 
+which caused the initial request to the PMDA.
+At some later time the PMDA will inform
+.B pmcd
+(see
+.BR PM_ERR_PMDAREADY )
+that it is now ready to process requests, and client
+requests will begin to succeed.
+.TP
+.B PM_ERR_PMDAREADY
+.I "PMDA is now responsive to requests"
+.br
+Used by PMDAs to asynchronously inform
+.BR pmcd (1)
+that they are now willing to resume processing requests.
+See also
+.BR PM_ERR_PMDANOTREADY .
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.I /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (5).
+Values for these variables may be obtained programmatically
+using the
+.BR pmGetConfig (3)
+function.
+.SH SEE ALSO
+.BR pmerr (1),
+.BR PMAPI (3),
+.BR pmErrStr (3),
+.BR pmGetConfig (3),
+.BR pcp.conf (5)
+and
+.BR pcp.env (5).

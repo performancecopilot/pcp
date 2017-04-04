@@ -1,0 +1,581 @@
+#!/usr/bin/env perl
+#
+# Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+
+use strict;
+use warnings;
+
+use XML::TokeParser;
+use Getopt::Std;
+use Date::Parse;
+use Date::Format;
+use PCP::LogImport;
+
+# Spreadsheet::Read is not include in some distros, so we give some
+# hints here, rather than dying with
+# Can't locate Spreadsheet/Read in @INC ...
+#
+eval
+{
+    require Spreadsheet::Read;
+    Spreadsheet::Read->import();
+};
+
+if ($@) {
+    # failed
+    die "Error: Perl module Spreadsheet::Read needs to be installed either from\nyour distro or downloaded and installed from CPAN\n";
+}
+
+my $skip_rows = 0;	# N from <sheet heading="N">
+my $in_metric = 0;	# XML parser context state ... in <metric> element
+my $in_data = 0;	# XML parser context state ... in <data> element
+my $idx = -1;		# index into columns of spreadsheet
+my $stamp_idx = -1;	# column containing the datetime info
+my %indom_map = ();	# key=metricname value=indom
+my %inst_map = ();	# key=indom value=last_inst_assigned, and
+			# key=indom.instance value=inst
+my @handle = ();	# pmi* handles, one per metric-instance pair
+my $sheet;
+
+my $zone = "UTC";	# default timezone
+my $label_zone;
+my $datefmt = "DMY";	# default order of date fields
+my %options;		# for command line arguments
+
+sub dodate($)
+{
+    # convert datetime format DD[/-]MM[/-]YY[YY] HH:MM[:SS] from spreadsheet
+    # parsers into the ISO-8601 dates that Date::Parse
+    # seems to be able to parse correctly ... this would appear to
+    # have to be YYYY-MM-DDTHH:MM:SS.000000 and then pass the timezone
+    # as the second parameter to str2time()
+    #
+    my ($datetime) = @_;
+    # date separators may be - or /, space separates date from time, time
+    # separators are :
+    my @field = split(/[ :\/-]/, $datetime);
+    my $mm;
+    my $yy;
+    my $dd;
+
+    if ($#field == 4) {
+	# assume :SS is missing, set seconds to 00
+	push(@field, "00");
+    }
+
+    if ($#field != 5) {
+	print "dodate: bad datetime format: \"$datetime\" => ";
+	foreach (@field) { print " $_"; }
+	print "\n";
+	exit(1);
+    }
+
+    if ($datefmt eq "DMY") {
+	$dd = $field[0]; $mm = $field[1]; $yy = $field[2];
+    }
+    elsif ($datefmt eq "MDY") {
+	$mm = $field[0]; $dd = $field[1]; $yy = $field[2];
+    }
+    elsif ($datefmt eq "YMD") {
+	$yy = $field[0]; $mm = $field[1]; $dd = $field[2];
+    }
+
+    # get into cannonical DD, MM and YYYY format
+    if ($dd < 10 && $dd !~ /^0/) { $dd .= "0" };	# add leading zero
+    if ($mm < 10 && $mm !~ /^0/) { $mm .= "0" };	# add leading zero
+    if ($yy < 100) {
+	# terrible Y2K hack ... will stop working in 2080
+	if ($yy <= 80) { $yy += 2000; }
+	else { $yy += 1900; }
+    }
+
+    my $tstr = $yy . "-" . $mm . "-" . $dd . "T" . $field[3] . ":" . $field[4] . ":" . $field[5];
+    if (!defined(str2time($tstr, $zone))) {
+        print "sheet2pcp: Failed to verify time formatted as $tstr ($zone)\n";
+        exit(1);
+    }
+    return $tstr;
+}
+
+# process the mapfile and set up the metadata and handles needed
+# by the main loop
+#
+sub domap($)
+{
+    my ($mapfile) = @_;
+    my $sts = 0;
+    my $pmid;
+    my $indom;
+    my $units;
+    my $type;
+    my $sem;
+    my $name;
+    my $instance;
+    my $lsts;
+
+    my $parser = XML::TokeParser->new($mapfile, Noempty => 1);
+    if (!defined($parser)) {
+	print "sheet2pcp: Failed to open mapfile \"$mapfile\"\n";
+	exit(1);
+    }
+
+    while (defined(my $token = $parser->get_token())) {
+	if ($token->is_start_tag) {
+	    if ($token->tag eq "sheet") {
+		foreach my $a (keys %{$token->attr}) {
+		    if ($a eq "heading") {
+			$skip_rows = $token->attr->{heading};
+		    }
+		    elsif ($a eq "hostname") {
+			if (pmiSetHostname($token->attr->{hostname}) < 0) {
+			    print "Mapfile Warning: failed to set hostname " . $token->attr->{hostname} . ": " . pmiErrStr(-1) . "\n";
+			}
+		    }
+		    elsif ($a eq "timezone") {
+			$zone = $token->attr->{timezone};
+		    }
+		    elsif ($a eq "datefmt") {
+			if ($token->attr->{datefmt} eq "DMY" ||
+			    $token->attr->{datefmt} eq "MDY" ||
+			    $token->attr->{datefmt} eq "YMD") {
+			    $datefmt = $token->attr->{datefmt};
+			}
+			else {
+			    print "Mapfile Error: bad format for attribute datefmt=\"" . $token->attr->{datefmt} . "\"\n";
+			    $sts++;
+			}
+		    }
+		    else {
+			print "Mapfile Error: attribute $a=\"" . $token->attr->{$a} . "\" not expected for <sheet> tag\n";
+			$sts++;
+		    }
+		}
+	    }
+	    elsif ($token->tag eq "metric") {
+		$in_metric = 1;
+		# defaults ...
+		$pmid = PM_ID_NULL;
+		$indom = PM_INDOM_NULL;
+		$units = pmiUnits(0,0,0,0,0,0);
+		$type = PM_TYPE_FLOAT;
+		$sem = PM_SEM_INSTANT;
+		$name = undef;
+		$lsts = $sts;
+		foreach my $a (keys %{$token->attr}) {
+		    if ($a eq "pmid") {
+			my $value = $token->attr->{pmid};
+			if ($value =~ /^[0-9]+\.[0-9]+\.[0-9]+$/ ||
+			    $value =~ /^PMI_DOMAIN\.[0-9]+\.[0-9]+$/) {
+			    # expected N.N.N or PMI_DOMAIN.N.N format
+			    my @args = split(/\./, $value);
+			    $args[0] = PMI_DOMAIN if $args[0] eq "PMI_DOMAIN";
+			    $pmid = pmid_build($args[0],$args[1],$args[2]);
+			}
+			elsif ($value eq "PM_ID_NULL") {
+			    # accept literal default value
+			    $pmid = PM_ID_NULL;
+			}
+			else {
+			    print "Mapfile Error: bad format for attribute pmid=\"$value\"\n";
+			    $sts++;
+			}
+		    }
+		    elsif ($a eq "indom") {
+			my $value = $token->attr->{indom};
+			if ($value =~ /^[0-9]+\.[0-9]+$/ ||
+			    $value =~ /^PMI_DOMAIN\.[0-9]+$/) {
+			    # expected N.N or PMI_DOMAIN.N format
+			    my @args = split(/\./, $value);
+			    $args[0] = PMI_DOMAIN if $args[0] eq "PMI_DOMAIN";
+			    $indom = pmInDom_build($args[0],$args[1]);
+			}
+			elsif ($value eq "PM_INDOM_NULL") {
+			    # accept literal default value
+			    $indom = PM_INDOM_NULL;
+			}
+			else {
+			    print "Mapfile Error: bad format for attribute indom=\"$value\"\n";
+			    $sts++;
+			}
+		    }
+		    elsif ($a eq "units") {
+			my $value = $token->attr->{units};
+			my @args = split(/,/, $value);
+			if ($#args != 5) {
+			    print "Mapfile Error: bad format for attribute units=\"$value\"\n";
+			    $sts++;
+			}
+			else {
+			    for (my $i = 0; $i < 6; $i++) {
+				$_ = eval($args[$i]);
+				if (!defined($_)) {
+				    print "Mapfile Error: bad component ($args[$i]) for attribute units=\"$value\"\n";
+				    $sts++;
+				}
+				else {
+				    $args[$i] = $_;
+				}
+			    }
+			    if ($sts == 0) {
+				$units = pmiUnits($args[0], $args[1], $args[2],
+					    $args[3], $args[4], $args[5]);
+			    }
+			}
+		    }
+		    elsif ($a eq "type") {
+			my $value = $token->attr->{type};
+			$_ = eval($value);
+			if (!defined($_)) {
+			    print "Mapfile Error: bad value for attribute type=\"$value\"\n";
+			    $sts++;
+			}
+			else {
+			    $type = $_;
+			}
+		    }
+		    elsif ($a eq "sem") {
+			my $value = $token->attr->{sem};
+			$_ = eval($value);
+			if (!defined($_)) {
+			    print "Mapfile Error: bad value for attribute sem=\"$value\"\n";
+			    $sts++;
+			}
+			else {
+			    $sem = $_;
+			}
+		    }
+		    else {
+			print "Mapfile Error: attribute $a=\"" . $token->attr->{$a} . "\" not expected for <metric> tag\n";
+			$sts++;
+		    }
+		}
+	    }
+	    elsif ($token->tag eq "data") {
+		$in_data = 1;
+		$idx++;
+		$name = undef;
+		$instance = undef;
+		$lsts = $sts;
+		foreach my $a (keys %{$token->attr}) {
+		    print "Mapfile Error: attribute $a=\"" . $token->attr->{$a} . "\" not expected for <data> tag\n";
+		    $sts++;
+		}
+	    }
+	    elsif ($token->tag eq "datetime") {
+		$idx++;
+		$stamp_idx = $idx;
+		foreach my $a (keys %{$token->attr}) {
+		    print "Mapfile Error: attribute $a=\"" . $token->attr->{$a} . "\" not expected for <datetime> tag\n";
+		    $sts++;
+		}
+	    }
+	    elsif ($token->tag eq "skip") {
+		$idx++;
+		foreach my $a (keys %{$token->attr}) {
+		    print "Mapfile Error: attribute $a=\"" . $token->attr->{$a} . "\" not expected for <skip> tag\n";
+		    $sts++;
+		}
+	    }
+	    else {
+		print "Mapfile Error: unexpected start tag " . $token->raw . "\n";
+		$sts++;
+	    }
+	}
+	elsif ($token->is_end_tag) {
+	    if ($token->tag eq "sheet") {
+		if ($stamp_idx == -1) {
+		    print "Mapfile Error: missing <datetime> element\n";
+		    $sts++;
+		}
+		elsif ($idx < 1) {
+		    print "Mapfile Error: no <data> element\n";
+		    $sts++;
+		}
+		# all finished, nothing more to be done
+	    }
+	    elsif ($token->tag eq "metric") {
+		if (defined($name)) {
+		    if ($lsts == $sts) {
+			# no errors in this <metric ...>name</metric> element
+			if (pmiAddMetric($name, $pmid, $type, $indom, $sem, $units) < 0) {
+			    print "Mapfile Error: failed to define metric $name: " . pmiErrStr(-1) . "\n";
+			    $sts++;
+			}
+			else {
+			    # need metric name => indom for <data> later
+			    #
+			    $indom_map{$name} = $indom;
+			}
+		    }
+		}
+		else {
+		    print "Mapfile Error: missing metric name in <metric> element\n";
+		    $sts++;
+		}
+		$in_metric = 0;
+	    }
+	    elsif ($token->tag eq "data") {
+		if (defined($name)) {
+		    if ($lsts == $sts) {
+			# no errors in this <data ...>metricspec</data> element
+			$indom = $indom_map{$name};
+			if (defined($indom)) {
+			    if (defined($instance)) {
+				if (!defined($inst_map{$indom . $instance})) {
+				    # first time for this instance and indom
+				    my $inst;
+				    if (defined($inst_map{$indom})) {
+					$inst_map{$indom}++;
+					$inst = $inst_map{$indom};
+				    }
+				    else {
+					# first time for this indom
+					$inst_map{$indom} = 0;
+					$inst = 0;
+				    }
+				    if (pmiAddInstance($indom, $instance, $inst) < 0) {
+					print "Mapfile Error: failed to define instance \"$instance\" ($inst) for metric $name: " . pmiErrStr(-1) . "\n";
+					$sts++;
+				    }
+				    else {
+					# add new instance for indom
+					$inst_map{$indom . $instance} = $inst;
+				    }
+				}
+				my $h = pmiGetHandle($name, $instance);
+				if ($h < 0) {
+				    die "pmiGetHandle: failed to create handle for metricspec $name" . "[" . $instance . "]: " . pmiErrStr($sts) . "\n";
+				    $sts++;
+				}
+				else {
+				    push(@handle, $h);
+				}
+			    }
+			    else {
+				my $h = pmiGetHandle($name, "");
+				if ($h < 0) {
+				    die "pmiGetHandle: failed to create handle for metricspec $name: " . pmiErrStr($sts) . "\n";
+				}
+				else {
+				    push(@handle, $h);
+				}
+			    }
+			}
+			else {
+			    print "Mapfile Error: metric name ($name) in <data> element not defined in earlier <metric> element\n";
+			    $sts++;
+			}
+		    }
+		}
+		else {
+		    print "Mapfile Error: missing metricspec in <data> element\n";
+		    $sts++;
+		}
+		$in_data = 0;
+	    }
+	    elsif ($token->tag eq "datetime" || $token->tag eq "skip") {
+		# -1 flags this a column to be skipped
+		push(@handle, -1);
+	    }
+	    else {
+		print "Mapfile Error: unexpected end tag " . $token->raw . "\n";
+		$sts++;
+	    }
+	}
+	elsif ($token->is_text) {
+	    if ($in_metric || $in_data) {
+		$name = $token->text;
+		$name =~ s/^\s+//;
+		$name =~ s/\s+$//;
+		if ($in_data) {
+		    my @field = split(/\[/, $name);
+		    if ($#field > 1) {
+			print "Mapfile Error: extra [ in metricspec \"" . $token->text . "\" in <data> element\n";
+			$sts++;
+		    }
+		    else {
+			if (defined($field[1])) {
+			    $name = $field[0];
+			    $instance = $field[1];
+			    if ($instance =~ /]$/) {
+				$instance =~ s/]$//;
+			    }
+			    else {
+				print "Mapfile Error: missing ] in metricspec \"" . $token->text . "\" in <data> element\n";
+				$sts++;
+			    }
+			}
+		    }
+		}
+	    }
+	    else {
+		print "Mapfile Error: unexpected text \"" . $token->text . "\"\n";
+		$sts++;
+	    }
+	}
+	elsif ($token->is_comment) {
+	    # <!--pmiDump--> is special, silently ignore other comments
+	    pmiDump() if $token->text eq "pmiDump";
+
+	}
+	elsif ($token->is_pi) {
+	    print "Mapfile Warning: unexpected process instruction (ignored) " . $token->raw . "\n";
+	}
+    }
+    if ($sts != 0) {
+	print "Abandoned after $sts mapfile error";
+	print "s" if $sts > 1;
+	print "\n";
+	exit(0);
+    }
+}
+
+my $sts = getopts('h:Z:', \%options);
+
+if (!defined($sts) || $#ARGV != 2) {
+    print "Usage: sheet2pcp [-h host] [-Z timezone] infile mapfile outfile\n";
+    exit(1);
+}
+
+if (exists($options{Z})) {
+    $zone = $options{Z};
+    if ($zone !~ /^[-+][0-9][0-9][0-9][0-9]$/) {
+	print "sheet2pcp: Illegal -Z value, must be +NNNN or -NNNN\n";
+	exit(1);
+    }
+}
+
+# initialize the output archive so we can add the metadata from the mapfile
+#
+pmiStart($ARGV[2], 0);
+
+if (exists($options{h})) {
+    if (pmiSetHostname($options{h}) < 0) {
+	print "sheet2pcp: Warning: failed to set hostname from -h " . $options{h} . ": " . pmiErrStr(-1) . "\n";
+    }
+}
+
+# all the hard work is done here ...
+#
+domap($ARGV[1]);
+
+# Serious strangeness here ...
+# the Perl Date::Parse and Date::Format routines appear to
+# only work with timezones of the format +NNNN or -NNNN
+# ("UTC" is an exception)
+#
+# PCP expects a $TZ style timezone in the archive label, so
+# we have to make up a PCP-xx:xx timezone ... note this
+# invloves a sign reversal!
+#
+$label_zone = $zone;
+if ($zone =~ /^[-+][0-9][0-9][0-9][0-9]/) {
+    $label_zone =~ s/^\+/PCP-/;
+    $label_zone =~ s/^-/PCP+/;
+    $label_zone =~ s/(..)$/:$1/;
+}
+elsif ($zone ne "UTC") {
+    print "sheet2pcp: Warning: unexpected timezone ($zone), reverting to UTC\n";
+    $zone = "UTC";
+    $label_zone = "UTC";
+}
+if (pmiSetTimezone($label_zone) < 0) {
+    print "Mapfile Warning: failed to set timezone \"" . $label_zone . "\": " . pmiErrStr(-1) . "\n";
+}
+
+if ($ARGV[0] =~ /\.csv$/) {
+    system("perl -MText::CSV_XS -e 1 >/dev/null 2>&1") == 0 or
+	die "Perl Text::CSV_XS module not installed";
+    $sheet = ReadData($ARGV[0]);
+}
+elsif ($ARGV[0] =~ /\.ods$/ || $ARGV[0] =~ /\.sxc$/) {
+    system("perl -MArchive::Zip -e 1 >/dev/null 2>&1") == 0 or
+	die "Perl Archive::Zip module not installed";
+    system("perl -MSpreadsheet::ReadSXC -e 1 >/dev/null 2>&1") == 0 or
+	die "Perl Spreadsheet::ReadSXC module not installed";
+    $sheet = ReadData($ARGV[0], dtfmt => "yyyy-mm-dd");
+}
+elsif ($ARGV[0] =~ /\.xls$/) {
+    system("perl -MOLE::Storage_Lite -e 1 >/dev/null 2>&1") == 0 or
+	die "Perl OLE::Storage_Lite module not installed";
+    system("perl -MSpreadsheet::ParseExcel -e 1 >/dev/null 2>&1") == 0 or
+	die "Perl Spreadsheet::ParseExcel module not installed";
+    $sheet = ReadData($ARGV[0], dtfmt => "yyyy-mm-dd");
+}
+elsif ($ARGV[0] =~ /\.xlsx$/) {
+    system("perl -MOLE::Storage_Lite -e 1 >/dev/null 2>&1") == 0 or
+	die "Perl OLE::Storage_Lite module not installed";
+    system("perl -MSpreadsheet::ParseExcel -e 1 >/dev/null 2>&1") == 0 or
+	die "Perl Spreadsheet::ParseExcel module not installed";
+    system("perl -MSpreadsheet::XLSX -e 1 >/dev/null 2>&1") == 0 or
+	die "Perl Spreadsheet::XLSX module not installed";
+    $sheet = ReadData($ARGV[0], dtfmt => "yyyy-mm-dd");
+}
+else {
+    print "sheet2pcp: Error: No clue how to deduce format of spreadsheet $ARGV[0]\n";
+    print "File extension must be one of: .csv, .ods, .xls, .xlsx\n";
+    exit(1);
+}
+
+if (!defined($sheet)) {
+    print "sheet2pcp: Failed to open spreadsheet \"$ARGV[0]\"\n";
+    exit(1);
+}
+
+#debug# print "maxrow=$sheet->[1]{maxrow} maxcol=$sheet->[1]{maxcol}\n";
+#debug# print "mapfile " . ($idx+1) . " columns, timestamp @ column " . $stamp_idx . "\n";
+
+if ($sheet->[1]{maxcol} != $idx+1) {
+    print "sheet2pcp: Warning: columns from mapfile (" . ($idx+1) . ") not equal to columns from spreadsheet (" . $sheet->[1]{maxcol} . "), some data will not be exported\n";
+}
+
+for (my $row = 1; $row <= $sheet->[1]{maxrow}; $row++) {
+    my $stamp = undef;
+    if ($skip_rows) {
+	$skip_rows--;
+	next;
+    }
+    for (my $col = 1; $col <= $sheet->[1]{maxcol}; $col++) {
+	my $cell = cr2cell($col, $row);
+	# ignore columns after last one in mapfile
+	next if  ($col > $idx+1);
+	#debug# print "$cell = $sheet->[1]{$cell}\n"
+	if (!defined($handle[$col-1])) {
+	    pmiDump();
+	    die "No handle[] entry for cell[" . $cell . "].  Check Handles in dump above.\n";
+	}
+	if (!defined($sheet->[1]{$cell})) {
+	    print "Warning: cell[" . $cell . "] empty, but data expected\n";
+	}
+	else {
+	    if ($col == $stamp_idx+1) {
+		$stamp = dodate($sheet->[1]{$cell});
+		#debug# print $sheet->[1]{$cell} . " -> " . $stamp . "\n";
+	    }
+	    elsif ($handle[$col-1] != -1) {
+		pmiPutValueHandle($handle[$col-1], $sheet->[1]{$cell}) >= 0
+		    or die "pmiPutValueHandle: failed at cell[" . $cell . "]: " . pmiErrStr(-1) . "\n";
+	    }
+	}
+    }
+    if (!defined($stamp)) {
+	die "Error: no datetime at row[ " . $row . "]";
+    }
+    pmiWrite(str2time($stamp, $zone), 0) >= 0
+	or die "pmiWrite: at row[ ". $row . "] ($stamp): " . pmiErrStr(-1) . "\n";
+}
+
+pmiEnd();
+
+exit(0);

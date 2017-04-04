@@ -1,0 +1,110 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMDELPROFILE 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmDelProfile\f1 \- delete instance(s) from the current PMAPI instance profile
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.sp
+int pmDelProfile(pmInDom \fIindom\fP, int \fInuminst\fP, int *\fIinstlist\fP);
+.sp
+cc ... \-lpcp
+.ft 1
+.SH DESCRIPTION
+.de CW
+.ie t \f(CW\\$1\f1\\$2
+.el \fI\\$1\f1\\$2
+..
+The set of instances for performance metrics returned from a
+.BR pmFetch (3)
+call may be filtered or restricted using an instance profile.
+There is one instance profile for each context the application
+creates at the Performance Metrics Application Programming Interface (PMAPI),
+and each instance profile may include instances from one or more
+instance domains (see
+.BR pmLookupDesc (3)).
+.PP
+.B pmDelProfile
+may be used to
+delete instance specifications from the instance profile of the current
+PMAPI context.
+.PP
+In the simplest variant, the list of instances identified by the
+.I instlist
+argument for the
+.I indom
+instance domain are removed from the instance
+profile.
+The list of instance identifiers contains
+.I numinst
+values.
+.PP
+The
+.I indom
+value would normally be extracted from a call to
+.BR pmLookupDesc (3)
+for a particular performance metric, and the instances in
+.I instlist
+would typically be determined by calls to
+.BR pmGetInDom (3)
+or
+.BR pmLookupInDom (3).
+.PP
+If
+.I indom
+equals
+.B PM_INDOM_NULL
+or
+.I numinst
+is zero,
+then all instance domains are selected for deletion.  If
+.I instlist
+is
+.CW "NULL" ,
+then all instances in the selected domain(s) are removed
+from the profile.
+.PP
+To disable all available instances in all domains, use
+.CW "pmDelProfile(PM_INDOM_NULL, 0, NULL)" .
+This is the only situation in which
+.I indom
+may be
+.BR PM_INDOM_NULL .
+.SH SEE ALSO
+.BR pmAddProfile (3),
+.BR PMAPI (3),
+.BR pmFetch (3),
+.BR pmGetInDom (3),
+.BR pmLookupDesc (3),
+.BR pmLookupInDom (3),
+.BR pmNewContext (3),
+.BR pmUseContext (3)
+and
+.BR pmWhichContext (3).
+.SH DIAGNOSTICS
+.IP \f3PM_ERR_PROFILESPEC\f1
+.I indom
+was
+.B PM_INDOM_NULL
+and
+.I instlist
+was not empty
+.SH CAVEAT
+It is possible to delete non-existent instance domains and non-existent
+instances from an instance profile.  None of the routines that use the instance
+profile will ever issue an error if you do this.  The cost of checking, when
+checking is possible, outweighs any benefits.

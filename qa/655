@@ -1,0 +1,76 @@
+#! /bin/sh
+# PCP QA Test No. 655
+# checks extended pmdagfs2 functionality (gfs2_tracepoints)
+# Requires GFS2 support in the kernel and gfs2_utils installed,
+# else the test will not run.
+#
+# Copyright (c) 2013 - 2014 Red Hat, Inc. All Rights Reserved.
+#
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.gfs2
+
+# Attempt to set up the gfs2 pmda test enviroment
+_gfs2_filesystem_support_tests
+_debugfs_mount_tests
+_gfs2_tracepoints_support_tests
+_setup_gfs2_tracepoints false
+
+# check for any loopback devices, cowardly abort this test if any exist
+loopcount=`$sudo losetup -a | wc -l`
+[ $loopcount -eq 0 ] || _notrun "System has loop devices already, bailing"
+
+iam=gfs2
+status=1 # failure is the default!
+trap "_cleanup $iam" 0 1 2 3 15
+
+$sudo rm -fr $tmp.*.dir
+$sudo rm -f $tmp.* $seq.full
+touch $here/$seq.full
+
+# real QA test starts here
+_prepare_pmda_install $iam
+_install_pmda | _filter_gfs2
+_setup_gfs2_mounts
+_gfs2_sysfs_support_tests
+
+cd $here
+_setup_gfs2_tracepoints true
+
+echo
+echo "=== Check for successful install of pmda ===" | tee -a $here/$seq.full
+pminfo -v gfs2 > /dev/null || _fail "install failed?"
+
+echo
+echo "=== Check gfs2 metrics for all filesystems ===" | tee -a $here/$seq.full
+pminfo -dfmtT gfs2.glstats | _gfs2_filter_pminfo
+
+echo
+echo "=== Check gfs2 metrics for all filesystems ===" | tee -a $here/$seq.full
+pminfo -dfmtT gfs2.tracepoints | _gfs2_filter_pminfo
+
+echo
+echo "=== Check gfs2 metrics for all filesystems ===" | tee -a $here/$seq.full
+pminfo -dfmtT gfs2.worst_glock | _gfs2_filter_pminfo
+
+echo
+echo "=== Check gfs2 metrics for all filesystems ===" | tee -a $here/$seq.full
+pminfo -dfmtT gfs2.control | _gfs2_filter_pminfo
+
+echo
+echo "=== check functionality of pmstore (off) ===" | tee -a $here/$seq.full
+pmstore gfs2.control.tracepoints.all 0 | sed \
+    -e 's/old value=[0-9]/OLD VALUE/'
+
+echo
+echo "=== check functionality of pmstore (on) === " | tee -a $here/$seq.full
+pmstore gfs2.control.tracepoints.all 1 | sed \
+     -e 's/old value=[0-9]/OLD VALUE/'
+
+echo
+echo "=== Removing the GFS2 PMDA ===" | tee -a $here/$seq.full
+_remove_pmda
+
+status=0
+exit

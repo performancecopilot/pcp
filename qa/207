@@ -1,0 +1,142 @@
+#! /bin/sh
+# PCP QA Test No. 207
+# Simple PMNS exerciser after dynamic PMNS changes
+#
+# Copyright (c) 2009 Ken McDonell.  All Rights Reserved.
+# 
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.*
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed -e "s;$tmp;TMP;g"
+}
+
+cat <<'End-of-File' >$tmp.pmns
+root {
+    power
+    simple
+    set
+    dynamic
+}
+
+power {
+    zero	1:1:1
+    one		2:2:2
+    two		4:4:4
+    three	8:8:8
+    four	16:16:16
+    five	32:32:32
+    six		64:64:64
+    seven	128:128:128
+    eight	256:256:256
+    nine	510:512:512
+    ten		510:1024:1023
+    eleven	510:2048:1023
+}
+
+simple {
+    first	0:0:0
+    last	510:4095:1023
+}
+
+set {
+    first	0:0:1
+    last	510:4095:1022
+}
+
+dynamic {
+    first	0:*:*
+    last	510:*:*
+}
+End-of-File
+
+# real QA test starts here
+echo "=== Limits on PMID fields ==="
+pminfo -n $tmp.pmns -m
+
+echo
+echo "=== Error cases ==="
+cat <<'End-of-File' >$tmp.pmns
+root {
+    reserved_domain	511:0:0
+}
+End-of-File
+pminfo -n $tmp.pmns -m 2>&1 | _filter
+
+echo
+cat <<'End-of-File' >$tmp.pmns
+root {
+    big_domain	512:0:0
+}
+End-of-File
+pminfo -n $tmp.pmns -m 2>&1 | _filter
+
+echo
+cat <<'End-of-File' >$tmp.pmns
+root {
+    big_cluster	0:4096:0
+}
+End-of-File
+pminfo -n $tmp.pmns -m 2>&1 | _filter
+
+echo
+cat <<'End-of-File' >$tmp.pmns
+root {
+    big_serial	0:0:1024
+}
+End-of-File
+pminfo -n $tmp.pmns -m 2>&1 | _filter
+
+echo
+cat <<'End-of-File' >$tmp.pmns
+root {
+    bad_domain	x:1:1
+}
+End-of-File
+pminfo -n $tmp.pmns -m 2>&1 | _filter
+
+echo
+cat <<'End-of-File' >$tmp.pmns
+root {
+    bad_cluster	1:x:1
+}
+End-of-File
+pminfo -n $tmp.pmns -m 2>&1 | _filter
+
+echo
+cat <<'End-of-File' >$tmp.pmns
+root {
+    bad_serial	1:1:x
+}
+End-of-File
+pminfo -n $tmp.pmns -m 2>&1 | _filter
+
+echo
+cat <<'End-of-File' >$tmp.pmns
+root {
+    dyn_bad_cluster	13:0:*
+}
+End-of-File
+pminfo -n $tmp.pmns -m 2>&1 | _filter
+
+echo
+cat <<'End-of-File' >$tmp.pmns
+root {
+    dyn_bad_serial	13:*:0
+}
+End-of-File
+pminfo -n $tmp.pmns -m 2>&1 | _filter
+
+# success, all done
+exit

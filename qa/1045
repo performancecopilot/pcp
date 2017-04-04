@@ -1,0 +1,147 @@
+#! /bin/sh
+# PCP QA Test No. 1045 (formerly 526)
+# exercise pmieconf version control (pmie config/rules)
+#
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+which pmieconf >/dev/null 2>&1 || _notrun "No pmieconf binary installed"
+
+_filter_date()
+{
+    # ctime format: Thu Dec 17 15:26:15 1998
+    sed -e 's/[A-Z][a-z][a-z] [A-Z][a-z][a-z] *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9] [0-9][0-9][0-9][0-9]/[DATE]/g' \
+        -e "s@$PCP_BINADM_DIR/pmpost@pmpost@"
+}
+
+_filter_pmie()
+{
+    if [ $PCP_PLATFORM = darwin ]
+    then
+	sed \
+	    -e '/metric swap.pagesout not in namespace/d' \
+	    -e '/pmLookupName failed: Unknown metric name/d'
+    elif [ $PCP_PLATFORM = solaris ]
+    then
+	sed \
+	    -e '/metric swap.pagesout not in namespace/d' \
+	    -e '/metric filesys.used not in namespace/d' \
+	    -e '/metric filesys.capacity not in namespace/d' \
+	    -e '/metric filesys.used not in namespace/d' \
+	    -e '/pmLookupName failed: Unknown metric name/d'
+    else
+	cat
+    fi
+}
+
+status=1	# failure is the default!
+$sudo rm -f $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+cat > $tmp.pmie <<EOF
+// pmieconf-pmie 0 ./pconf
+// end
+EOF
+echo
+echo "=== check unsupported pmie config  version"
+pmieconf -F -r ./pconf -f $tmp.pmie 2>$tmp.stderr
+sed -e "s/$seq-$$/[SEQ-PID]/g" $tmp.stderr
+echo status=$?
+
+cat > $tmp.pmie <<EOF
+// pmieconf-pmie 1 ./pconf
+// 1 filesys.buffer_cache threshold = 81.500%
+// 1 filesys.buffer_cache hosts = "moomba wobbly"
+// 1 filesys.buffer_cache sss_action = yes
+// 1 filesys.buffer_cache user_command = "$PCP_BINADM_DIR/pmpost \$rule\$^ %v@%h"
+// 1 filesys.buffer_cache holdoff = 20
+// 2 filesys.buffer_cache holdoff = 20
+// 2 filesys.buffer_cache delta = 1908
+// 3 filesys.buffer_cache enabled = yes
+// 1 filesys.capacity delta = 60
+// 1 network.interface_bytes holdoff = 30
+// 1 network.tcp_dropped_conns holdoff = 30
+// 1 network.tcp_retransmit holdoff = 30
+// end
+
+// 1 cpu.aggregate_util
+sample.float.one;
+
+// 1 cpu.load_average
+sample.float.ten;
+
+// 1 filesys.buffer_cache
+sample.float.hundred;
+EOF
+cp $tmp.pmie $tmp.pmie1
+
+echo
+echo "=== check that unneeded changes for unsupported versions are dumped"
+pmieconf -r ./pconf -f $tmp.pmie1 m filesys.buffer_cache sss_action no >/dev/null
+echo status=$?
+pmie -C $tmp.pmie1 >$tmp.out 2>&1
+sts=$?
+_filter_pmie <$tmp.out
+echo status=$sts
+_filter_date < $tmp.pmie1
+
+# APPEND this to the above file
+cat >> $tmp.pmie <<EOF
+// 2 filesys.buffer_cache
+sample.drift;
+
+sample.double.one;
+EOF
+cp $tmp.pmie $tmp.pmie2
+
+echo
+echo "=== check that changes for unsupported versions are moved to end"
+pmieconf -r ./pconf -f $tmp.pmie2 m network.interface_bytes holdoff 40 >/dev/null
+echo status=$?
+pmie -C $tmp.pmie2 >$tmp.out 2>&1
+sts=$?
+_filter_pmie <$tmp.out
+echo status=$sts
+_filter_date < $tmp.pmie2
+
+cp $tmp.pmie $tmp.pmie3
+( echo "before pmieconf"; ( [ -f ./pconf/cpu/load_average ] && ls -l ./pconf/cpu/load_average ) ) >>$seq.full
+$sudo mv ./pconf/cpu/load_average $tmp.load
+echo
+echo "=== check that changes for unsupported rules are moved to end"
+pmieconf -r ./pconf -f $tmp.pmie3 m filesys.buffer_cache holdoff 120 >/dev/null
+( echo "after pmieconf"; ( [ -f ./pconf/cpu/load_average ] && ls -l ./pconf/cpu/load_average ) ) >>$seq.full
+$sudo mv $tmp.load ./pconf/cpu/load_average
+( echo "after restore"; ( [ -f ./pconf/cpu/load_average ] && ls -l ./pconf/cpu/load_average ) ) >>$seq.full
+echo status=$?
+pmie -C $tmp.pmie3 >$tmp.out 2>&1
+sts=$?
+_filter_pmie <$tmp.out
+echo status=$sts
+_filter_date < $tmp.pmie3
+
+# debug check ... someone's clobbering pconf
+#
+if `which git >/dev/null 2>&1`
+then
+    if git config --get remote.origin.url >/dev/null
+    then
+	# assume we're in a git repository, but may be older version of
+	# git (so -s does not work)
+	git status | grep pconf
+    fi
+fi
+
+# success, all done
+status=0
+exit

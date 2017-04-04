@@ -1,0 +1,41 @@
+#! /bin/sh
+# PCP QA Test No. 111
+# time conversion error for some proc metrics
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+
+# real QA test starts here
+pmcd_pid=`grep "pmcd: PID" $PCP_PMCDLOG_PATH | $PCP_AWK_PROG '{ print $4 }'`
+
+for metric in \
+    proc.psinfo.start proc.psinfo.time proc.pstatus.utime proc.pstatus.stime \
+    proc.pstatus.cutime proc.pstatus.cstime proc.psusage.tstamp \
+    proc.psusage.starttime proc.psusage.utime proc.psusage.stime
+do
+    pmval -t 0.025 -s 500 -i $pmcd_pid $metric >$tmp.$metric 2>&1 &
+done
+
+wait
+
+for metric in \
+    proc.psinfo.start proc.psinfo.time proc.pstatus.utime proc.pstatus.stime \
+    proc.pstatus.cutime proc.pstatus.cstime proc.psusage.tstamp \
+    proc.psusage.starttime proc.psusage.utime proc.psusage.stime
+do
+    echo $metric
+    grep '.-' $tmp.$metric \
+    | sed \
+	-e '/[0-9]E-[0-9]/d' \
+	-e '/Unknown metric/d'
+done

@@ -1,0 +1,33 @@
+#! /bin/sh
+# PCP QA Test No. 592
+# test new "sample.many.{count,int}" metric
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+cleanup()
+{
+	pmstore sample.many.count 5
+}
+
+trap "cleanup ; rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+
+pminfo -t sample.many.count
+pminfo -t sample.many.int
+
+pminfo -f sample.many.count
+pminfo -f sample.many.int
+pmstore sample.many.count 13
+pminfo -f sample.many.count
+pminfo -f sample.many.int
+

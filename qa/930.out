@@ -1,0 +1,130 @@
+QA output created by 930
+--- DELETE sample.bin
+event.flags PMID: 511.0.1
+event.missed PMID: 511.0.2
+pmcd.pmlogger.archive PMID: 2.3.2
+pmcd.pmlogger.host PMID: 2.3.3
+pmcd.pmlogger.port PMID: 2.3.0
+sample.colour PMID: 29.0.5
+sample.drift PMID: 29.0.7
+sample.dupnames.two.lights PMID: 29.0.46
+sample.dupnames.two.seconds PMID: 29.0.2
+sample.lights PMID: 29.0.46
+sample.long.bin PMID: 29.0.103
+sample.long.bin_ctr PMID: 29.0.104
+sample.long.hundred PMID: 29.0.12
+sample.long.million PMID: 29.0.13
+sample.long.one PMID: 29.0.10
+sample.long.ten PMID: 29.0.11
+sample.long.write_me PMID: 29.0.14
+sample.longlong.bin PMID: 29.0.109
+sample.longlong.bin_ctr PMID: 29.0.110
+sample.longlong.hundred PMID: 29.0.22
+sample.longlong.million PMID: 29.0.23
+sample.longlong.one PMID: 29.0.20
+sample.longlong.ten PMID: 29.0.21
+sample.longlong.write_me PMID: 29.0.24
+sample.seconds PMID: 29.0.2
+sampledso.event.highres_records PMID: 30.0.139
+sampledso.event.param_32 PMID: 30.0.128
+sampledso.event.param_64 PMID: 30.0.130
+sampledso.event.param_aggregate PMID: 30.0.135
+sampledso.event.param_double PMID: 30.0.133
+sampledso.event.param_float PMID: 30.0.132
+sampledso.event.param_string PMID: 30.0.134
+sampledso.event.param_u32 PMID: 30.0.129
+sampledso.event.param_u64 PMID: 30.0.131
+sampledso.event.records PMID: 30.0.136
+sampledso.event.type PMID: 30.0.127
+
+--- change NAME for sample.dupnames.two.lights
+alias.for.lights PMID: 29.0.46
+event.flags PMID: 511.0.1
+event.missed PMID: 511.0.2
+pmcd.pmlogger.archive PMID: 2.3.2
+pmcd.pmlogger.host PMID: 2.3.3
+pmcd.pmlogger.port PMID: 2.3.0
+sample.bin PMID: 29.0.6
+sample.colour PMID: 29.0.5
+sample.drift PMID: 29.0.7
+sample.dupnames.three.bin PMID: 29.0.6
+sample.dupnames.two.bin PMID: 29.0.6
+sample.dupnames.two.seconds PMID: 29.0.2
+sample.lights PMID: 29.0.46
+sample.long.bin PMID: 29.0.103
+sample.long.bin_ctr PMID: 29.0.104
+sample.long.hundred PMID: 29.0.12
+sample.long.million PMID: 29.0.13
+sample.long.one PMID: 29.0.10
+sample.long.ten PMID: 29.0.11
+sample.long.write_me PMID: 29.0.14
+sample.longlong.bin PMID: 29.0.109
+sample.longlong.bin_ctr PMID: 29.0.110
+sample.longlong.hundred PMID: 29.0.22
+sample.longlong.million PMID: 29.0.23
+sample.longlong.one PMID: 29.0.20
+sample.longlong.ten PMID: 29.0.21
+sample.longlong.write_me PMID: 29.0.24
+sample.seconds PMID: 29.0.2
+sampledso.event.highres_records PMID: 30.0.139
+sampledso.event.param_32 PMID: 30.0.128
+sampledso.event.param_64 PMID: 30.0.130
+sampledso.event.param_aggregate PMID: 30.0.135
+sampledso.event.param_double PMID: 30.0.133
+sampledso.event.param_float PMID: 30.0.132
+sampledso.event.param_string PMID: 30.0.134
+sampledso.event.param_u32 PMID: 30.0.129
+sampledso.event.param_u64 PMID: 30.0.131
+sampledso.event.records PMID: 30.0.136
+sampledso.event.type PMID: 30.0.127
+
+--- change PMID for sample.dupnames.three.bin
+event.flags PMID: 511.0.1
+event.missed PMID: 511.0.2
+pmcd.pmlogger.archive PMID: 2.3.2
+pmcd.pmlogger.host PMID: 2.3.3
+pmcd.pmlogger.port PMID: 2.3.0
+sample.bin PMID: 123.456.7
+sample.colour PMID: 29.0.5
+sample.drift PMID: 29.0.7
+sample.dupnames.three.bin PMID: 123.456.7
+sample.dupnames.two.bin PMID: 123.456.7
+sample.dupnames.two.lights PMID: 29.0.46
+sample.dupnames.two.seconds PMID: 29.0.2
+sample.lights PMID: 29.0.46
+sample.long.bin PMID: 29.0.103
+sample.long.bin_ctr PMID: 29.0.104
+sample.long.hundred PMID: 29.0.12
+sample.long.million PMID: 29.0.13
+sample.long.one PMID: 29.0.10
+sample.long.ten PMID: 29.0.11
+sample.long.write_me PMID: 29.0.14
+sample.longlong.bin PMID: 29.0.109
+sample.longlong.bin_ctr PMID: 29.0.110
+sample.longlong.hundred PMID: 29.0.22
+sample.longlong.million PMID: 29.0.23
+sample.longlong.one PMID: 29.0.20
+sample.longlong.ten PMID: 29.0.21
+sample.longlong.write_me PMID: 29.0.24
+sample.seconds PMID: 29.0.2
+sampledso.event.highres_records PMID: 30.0.139
+sampledso.event.param_32 PMID: 30.0.128
+sampledso.event.param_64 PMID: 30.0.130
+sampledso.event.param_aggregate PMID: 30.0.135
+sampledso.event.param_double PMID: 30.0.133
+sampledso.event.param_float PMID: 30.0.132
+sampledso.event.param_string PMID: 30.0.134
+sampledso.event.param_u32 PMID: 30.0.129
+sampledso.event.param_u64 PMID: 30.0.131
+sampledso.event.records PMID: 30.0.136
+sampledso.event.type PMID: 30.0.127
+
+--- change SEM for sample.dupnames.two.seconds
+
+sample.seconds PMID: 29.0.2
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: sec
+
+sample.dupnames.two.seconds PMID: 29.0.2
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: sec

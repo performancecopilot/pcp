@@ -1,0 +1,217 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2012 Red Hat.
+.\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMDATRACE 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmdatrace\f1 \- application-level transaction performance metrics domain agent
+.SH SYNOPSIS
+\f3$PCP_PMDAS_DIR/trace/pmdatrace\f1
+[\f3\-d\f1 \f2domain\f1]
+[\f3\-l\f1 \f2logfile\f1]
+[\f3\-A\f1 \f2access\f1]
+[\f3\-I\f1 \f2port\f1]
+[\f3\-M\f1 \f2username\f1]
+[\f3\-N\f1 \f2buckets\f1]
+[\f3\-T\f1 \f2period\f1]
+[\f3\-U\f1 \f2units\f1]
+.br
+.SH DESCRIPTION
+.B pmdatrace
+is a Performance Metrics Domain Agent (PMDA) which exports transaction
+performance metrics from application processes which use the
+.I pcp_trace
+library described in
+.BR pmdatrace (3).
+.PP
+A brief description of the
+.B pmdatrace
+command line options follows:
+.TP 5
+.B \-d
+It is absolutely crucial that the performance metrics
+.I domain
+number specified here is unique and consistent.
+That is,
+.I domain
+should be different for every PMDA on the one host, and the same
+.I domain
+number should be used for the same PMDA on all hosts.
+.TP 5
+.B \-l
+Location of the log file.  By default, a log file named
+.I trace.log
+is written in the current directory of
+.BR pmcd (1)
+when
+.B pmdatrace
+is started, i.e.
+.BR $PCP_LOG_DIR/pmcd .
+If the log file cannot
+be created or is not writable, output is written to the standard error instead.
+.TP 5
+.B \-A
+Host-based access control for
+.BR pmdatrace .
+.I access
+must be either an allow or deny specification, using either
+allow:hostspec:maxconns or disallow:hostspec, where `allow' and `disallow' are
+keywords, `hostspec' is a host specification conforming to the format used by
+both
+.BR pmcd (1)
+and
+.BR pmlogger (1),
+and `maxconns' is the maximum number of connections allowed from a given
+`hostspec'.
+Using a maximum connections of zero specifies an unlimited number of
+connections for the accompanying `hostspec'.
+.TP 5
+.B \-I
+Communicate with
+.I pcp_trace
+clients via the given Internet
+.IR port .
+This can alternatively be specified by setting 
+.B $PCP_TRACE_PORT
+in the environment to some valid port number (use of the
+.B \-I
+option overrides this).
+The default port number is 4323.
+.TP 5
+.B \-T
+\f2period\f1 defines the aggregation period used to compute the recent
+averages and extrema.
+Specified as a time interval using the syntax described in
+.BR PCPIntro (1)
+for the common
+.B \-t
+PCP argument, e.g. \c
+.B "30 seconds"
+or
+.BR "1 min" .
+The default is 60 seconds.
+.TP 5
+.B \-M
+User account under which to run the agent.
+The default is the unprivileged "pcp" account in current versions of PCP,
+but in older versions the superuser account ("root") was used by default.
+.TP 5
+.B \-N
+Internally, the aggregation \f2period\f1 is divided into \f2bucket\f1
+divisions, and the rolling average is recomputed every
+\f2period\f1/\f2bucket\f1 seconds.
+For example, the defaults correspond to \-T 60 and \-N 12, which means
+the average is recomputed every five seconds for a period covering the
+prior 60 seconds.
+.TP 5
+.B \-U
+This option allows the dimension and scale associated with the observation
+value metric to be configured.
+\f2units\f1 is a comma-separated string of six integer values, which are the
+space dimension, time dimension, count dimension, space scale, time scale, and
+count scale, respectively.
+The default dimension and scale is ``none'', which is equivalent to
+presenting ``0,0,0,0,0,0'' as the argument to \-U.
+The units associated with a metric are most easily viewed using the \-d
+(metric description) option to
+.BR pminfo (1).
+The Install script described below steps through this option quite explicitly,
+so it is recommended that the Install script be used for building up the
+\f2units\f1 specification.
+.PP
+Essentially, the exported metrics provide statistics on the time for
+completion of each transaction, and an average count of transactions completed
+and watch points passed over a given time \f2period\f1.
+.PP
+.SH INSTALLATION
+In order for a host to export the names, help text and values for the Trace
+performance metrics, do the following as root:
+.PP
+.ft CW
+.nf
+.in +0.5i
+# cd $PCP_PMDAS_DIR/trace
+# ./Install
+.in
+.fi
+.ft 1
+.PP
+If you want to undo the installation, do the following as root:
+.PP
+.ft CW
+.nf
+.in +0.5i
+# cd $PCP_PMDAS_DIR/trace
+# ./Remove
+.in
+.fi
+.ft 1
+.PP
+.B pmdatrace
+is launched by
+.BR pmcd (1)
+and should never be executed directly.
+The Install and Remove scripts notify
+.BR pmcd (1)
+when the agent is installed or removed.
+.SH FILES
+.PD 0
+.TP 10
+.B $PCP_PMCDCONF_PATH
+command line options used to launch
+.B pmdatrace
+.TP 10
+.B $PCP_PMDAS_DIR/trace/help
+default help text file for the trace metrics
+.TP 10
+.B $PCP_DEMOS_DIR/trace/*
+example programs which use the
+.I pcp_trace
+library
+.TP 10
+.B $PCP_PMDAS_DIR/trace/Install
+installation script for the
+.B pmdatrace
+agent
+.TP 10
+.B $PCP_PMDAS_DIR/trace/Remove
+undo installation script for
+.B pmdatrace
+.TP 10
+.B $PCP_LOG_DIR/pmcd/trace.log
+default log file for error messages and other information from
+.B pmdatrace
+.PD
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.B /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (5).
+.SH SEE ALSO
+.BR PCPIntro (1),
+.BR pmcd (1),
+.BR pmtrace (1),
+.BR PMAPI (3)
+and
+.BR pmdatrace (3).

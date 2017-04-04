@@ -1,0 +1,119 @@
+#!/bin/sh
+# PCP QA Test No. 518
+# pcp -P workout
+#
+# Copyright (c) 2012 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "$sudo rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+cat <<End-of-File >$tmp.pmie
+hinv.ncpu > 0 -> print "we have cpus, no surprise here!";
+hinv.ncpu < 0 -> print "whoa ... no cpus!";
+End-of-File
+
+# real QA test starts here
+
+# prefer to run as "pcp", must ensure we can write stats files
+# to PCP_TMP_DIR which is no longer a world-writable directory
+#
+user=pcp
+id pcp >/dev/null 2>/dev/null || user=root
+$sudo -u $user pmie -t 0.25sec -T 3sec -c $tmp.pmie 2>$tmp.err >$tmp.out &
+pid=$!
+
+# let stats accumulate via rule firings
+sleep 2
+
+# NB: For a naive exact match, there is a race condition here, as
+# 518.out expects exactly three evaluation rounds to be complete by the
+# time the following operation is invoked.  If sudo/pmie is too slow,
+# it'll lose the race (actions<5).  If this thread is too slow, pmie
+# will go ahead (actions>5).  So we tolerate values in the range 4,5,6-9
+# for the true, false and action counts, but the counts for each must
+# be equal.
+
+# pcp -P output ...
+#     pmie: bozo-vm: /tmp/518-28812.pmie (2 rules)
+#           evaluations true=5 false=5 unknown=0 (actions=2)
+#           expected evaluation rate=8.00 rules/sec
+#           bozo-vm: /var/log/pcp/pmmgr/bozo-vm/config.pmie (12 rules)
+#           evaluations true=0 false=3 unknown=9 (actions=0)
+#           expected evaluation rate=0.10 rules/sec
+#
+# want our pmie, not any other pmie processes
+# map = -> '= ' and )$ -> ' )' for evaluations line
+# map rules) -> rule) to dodge pluralization
+#
+# wrinkle is line breaks in the output formatting of pcp(1) ...
+#     pmie: bozo-laptop: /var/log/pcp/pmmgr/bozo-laptop/config.pmie
+#           (12 rules)
+#
+debug=false
+pcp -P \
+| tee -a $seq.full \
+| sed \
+    -e '/:/{
+:loop
+N
+s/\n[ 	]*\(.*([0-9][0-9]* rules\)/ \1/
+}' \
+| sed \
+    -e '/^  *evaluations / {
+s/=/= /g
+s/)$/ )/
+}' \
+    -e 's/rules)$/rule)/' \
+| tee $tmp.dbg.1 \
+| $PCP_AWK_PROG '
+/pmie: .* rule\)/		{ state=1 }
+'$debug' == "true"		{ print "state=" state " want=" want ": " $0 }
+state==1 && /'`echo $tmp.pmie | sed -e s@/@\\\\\\\\/@g`' \(2 rule\)/	{ print; want = 1; next }
+state==1 && / \(actions=/	{ if ($3 == $5 && $5 == $9) {
+				      if ($3 >= 4 && $3 <= 9) $3 = "OK"
+				      if ($5 >= 4 && $5 <= 9) $5 = "OK"
+				      if ($9 >= 4 && $9 <= 9) $9 = "OK"
+				  }
+				}
+state==1 && / rule\)/		{ want = 0 }
+want==1		{ print }' \
+| tee $tmp.dbg.2 \
+| sed \
+    -e '/^evaluations / {
+s/= /=/g
+s/ )$/)/
+}' \
+    -e "s;$tmp;TMP;" \
+    -e "s;/privateTMP;TMP;g" \
+    -e '/TMP/{
+s/ (.*//
+s/.*:/HOST:/
+}'
+
+wait
+
+echo >>$seq.full
+echo "=== pmie stdout ===" >>$seq.full
+cat $tmp.out >>$seq.full
+echo >>$seq.full
+echo "=== pmie stderr ===" >>$seq.full
+cat $tmp.err >>$seq.full
+echo >>$seq.full
+echo "=== filter after sed ===" >>$seq.full
+cat $tmp.dbg.1 >>$seq.full
+echo >>$seq.full
+echo "=== filter after awk ===" >>$seq.full
+cat $tmp.dbg.2 >>$seq.full
+
+status=0
+exit

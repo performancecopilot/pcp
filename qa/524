@@ -1,0 +1,99 @@
+#!/bin/sh
+# PCP QA Test No. 524
+# pmlogger silently exits when started in a directory that is
+# not writeable
+#
+# Copyright (c) 2013 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; chmod 755 $tmp.home; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+# _check log archive
+#
+_check()
+{
+    if [ -f $1 ]
+    then
+	_filter_pmlogger_log <$1
+    else
+	echo "Error: no pmlogger.log created"
+    fi
+
+    if [ -f $2.0 -a -f $2.meta ]
+    then
+	pmdumplog $2 sampledso.colour \
+	| _filter_pmdumplog \
+	| sed -e '/green/s/[0-9][0-9]*$/NUMBER/'
+    else
+	echo "Error: no TEST archive created"
+    fi
+
+    for type in out err
+    do
+	if [ -f $tmp.$type ]
+	then
+	    if [ -s $tmp.$type ]
+	    then
+		echo "std$type contains ..."
+		_filter_pmlogger_log <$tmp.$type
+	    else
+		echo "std$type is empty"
+	    fi
+	else
+	    echo "Error: std$type not created!"
+	fi
+    done
+}
+
+mkdir $tmp.home
+cat >$tmp.home/config <<End-of-File
+log mandatory on 1 sec {
+    sampledso.colour["green"]
+}
+End-of-File
+
+# real QA test starts here
+cd $tmp.home
+echo "default case ... should work"
+rm -f $tmp.out $tmp.err
+$PCP_BINADM_DIR/pmlogger -s 2 -c ./config -l ./pmlogger.log ./TEST >$tmp.out 2>$tmp.err
+_check ./pmlogger.log ./TEST
+
+echo
+echo "make current directory non-writeable and try again"
+rm -f TEST.* pmlogger.log
+rm -f $tmp.out $tmp.err
+chmod 555 .
+$PCP_BINADM_DIR/pmlogger -s 2 -c ./config -l ./pmlogger.log ./TEST >$tmp.out 2>$tmp.err
+_check ./pmlogger.log ./TEST
+
+echo
+echo "now try with log somewhere writeable"
+rm -f TEST.* $tmp.log
+rm -f $tmp.out $tmp.err
+chmod 555 .
+$PCP_BINADM_DIR/pmlogger -s 2 -c ./config -l $tmp.log ./TEST >$tmp.out 2>$tmp.err
+_check $tmp.log ./TEST
+
+echo
+echo "and finally with the archive somewhere writeable"
+rm -f $tmp.TEST.* pmlogger.log
+rm -f $tmp.out $tmp.err
+chmod 555 .
+$PCP_BINADM_DIR/pmlogger -s 2 -c ./config -l ./pmlogger.log $tmp.TEST >$tmp.out 2>$tmp.err
+_check ./pmlogger.log $tmp.TEST
+
+# success, all done
+status=0
+
+exit

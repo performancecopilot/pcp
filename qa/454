@@ -1,0 +1,168 @@
+#!/bin/sh
+# PCP QA Test No. 454
+# Check parsing of PMCD config file with errors
+#
+# Copyright (c) 2011 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+export PCP_PMCDCONF_PATH=$tmp.conf
+export PMCD_SOCKET=$tmp.pmcd.socket
+
+cat <<End-of-File >$tmp.conf
+# no entry point _or_ pathname
+first	1	dso
+End-of-File
+pmcd -v
+
+cat <<End-of-File >$tmp.conf
+# spaces, but no pathname
+first	1	dso	first_init           
+first	1	dso	first_init      no_leading_slash
+End-of-File
+pmcd -v
+
+cat <<End-of-File >$tmp.conf
+first	1	dso	first_init      /first/pmda/dso extra arguments
+# bad protocol
+first	1	socket	foonet		/someplace/mypmda
+# bad pmda ipc type
+foo	1	foo	binary		mypmda
+# no socket name/number
+first	1	socket	unix
+# bad socket name
+first	1	socket	inet no_such_service
+# bad type
+first	1	pipe	not-binary
+# bad domain
+second	foo	pipe	binary		mypmda
+third	100000	pipe	binary		mypmda
+# command missing
+first	1	pipe	binary
+foo	1	pipe	binary		mypmda
+# duplicate domain
+bar	1	pipe	binary		mypmda
+End-of-File
+pmcd -v
+
+cat <<End-of-File >$tmp.conf
+# unterminated quote
+first	1	pipe	binary		mypmda "foo""
+End-of-File
+pmcd -v
+
+cat <<End-of-File >$tmp.conf
+first	1	pipe	binary		mypmda with is a very long list of args\
+123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789\
+123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789\
+123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789\
+123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789\
+123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789\
+123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789\
+123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789\
+123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789\
+123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789\
+123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789\
+123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789\
+123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789\
+123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789\
+123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789\
+123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789\
+123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789\
+123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789\
+123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789\
+123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789\
+123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789\
+123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789\
+123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789\
+123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789\
+123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789\
+123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789\
+123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789\
+123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789\
+123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789\
+123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789\
+123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789\
+the end
+End-of-File
+pmcd -v
+
+cat <<End-of-File >$tmp.conf
+first	1	pipe	binary		mypmda "foo
+End-of-File
+pmcd -v
+
+cat <<End-of-File >$tmp.conf
+sample	29	pipe	binary		$PCP_PMDAS_DIR/sample/pmdasample -d 29
+# empty access control section
+[access]
+End-of-File
+pmcd -v
+
+# access control cases not checked in QA 051
+#
+
+cat <<End-of-File >$tmp.conf
+sample	29	pipe	binary		$PCP_PMDAS_DIR/sample/pmdasample -d 29
+[access
+End-of-File
+pmcd -v
+
+cat <<End-of-File >$tmp.conf
+sample	29	pipe	binary		$PCP_PMDAS_DIR/sample/pmdasample -d 29
+[foo
+End-of-File
+pmcd -v
+
+cat <<End-of-File >$tmp.conf
+sample	29	pipe	binary		$PCP_PMDAS_DIR/sample/pmdasample -d 29
+[ foo
+End-of-File
+pmcd -v
+
+cat <<End-of-File >$tmp.conf
+sample	29	pipe	binary		$PCP_PMDAS_DIR/sample/pmdasample -d 29
+[access]
+allow localhost ;
+allow "unix:" ;
+allow localhost : ;
+allow "local:" : ;
+allow localhost : fetch, ;
+disallow localhist, 127.0.0.* : all except all;
+disallow "unix:" , "local:" : all except all;
+disallow 127.0.* : all, store;
+allow localhost : fetch, maximum 7 connections, store, maximum 3 connections;
+allow "local:" : fetch, maximum 7 connections, store, maximum 3 connections;
+allow localhost : fetch, maximum foo connections;
+allow "local:" : fetch, maximum foo connections;
+End-of-File
+pmcd -v
+
+cat <<End-of-File >$tmp.conf
+sample	29	pipe	binary		$PCP_PMDAS_DIR/sample/pmdasample -d 29
+[access]
+allow localhost : store
+End-of-File
+pmcd -v
+
+cat <<End-of-File >$tmp.conf
+sample	29	pipe	binary		$PCP_PMDAS_DIR/sample/pmdasample -d 29
+[access]
+allow localhost, 127.0.0.1
+End-of-File
+pmcd -v
+
+# success, all done
+exit

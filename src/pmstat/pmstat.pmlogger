@@ -1,0 +1,24 @@
+# pmlogger(1) configuration file suitable for pmstat(1)
+#
+
+log mandatory on default {
+    kernel.all.load   
+    swap.used            
+    mem.util.free        
+    mem.util.bufmem      
+    mem.util.cached      
+    swap.pagesin              
+    swap.pagesout             
+    disk.all.blkread     
+    disk.all.blkwrite    
+    kernel.all.intr      
+    kernel.all.pswitch   
+    kernel.all.cpu.nice  
+    kernel.all.cpu.user  
+    kernel.all.cpu.intr
+    kernel.all.cpu.sys
+    kernel.all.cpu.idle
+    kernel.all.cpu.wait.total
+    kernel.all.cpu.steal
+}
+

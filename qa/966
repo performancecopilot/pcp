@@ -1,0 +1,79 @@
+#!/bin/sh
+# PCP QA Test No. 966
+# Test that pmcd still starts, but with secure connections disabled, if NSS fails to initialize.
+#
+# Copyright (c) 2014 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.secure
+nss_notrun_checks
+
+_cleanup()
+{
+    nss_cleanup
+
+    $sudo $PCP_RC_DIR/pcp restart 2>&1 | _filter_pcp_stop | _filter_pcp_start
+    _wait_for_pmcd
+    _wait_for_pmlogger
+
+    $sudo rm -f $tmp.*
+    $sudo rm -fr $tmp
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+$sudo $PCP_RC_DIR/pcp stop | _filter_pcp_stop
+
+# Remove the initialized NSS cert db and exit with failure.
+# Passed to nss_setup_collector in order to start pmcd
+# with a missing cert db.
+missing_certs()
+{
+    $sudo rm -fr $collectordb
+    return 1
+}
+
+# real QA test starts here
+nss_backup
+nss_setup_randomness
+
+# Set up secure connection environment
+sleep 2
+nss_setup_collector true $qahost $hostname
+
+# make the new certificate visible to just this user
+echo "checking client, user certificate only.  should pass..."
+nss_setup_empty_userdb
+nss_import_cert_userdb
+export PCP_SECURE_SOCKETS=1
+yes | pminfo -h $hostname -f hinv.ncpu 2>&1 | tee -a $seq.full | nss_filter_pminfo
+unset PCP_SECURE_SOCKETS
+
+# verify that pmcd still starts and accepts insecure connections if the NSS configuration
+# has been corrupted.
+nss_setup_collector missing_certs 2>&1 | \
+    sed -e "s|$collectordb|COLLECTORDB|" \
+        -e 's/^\[.*\] pmcd([0-9][0-9]*)/[DATE] pmcd(PID)/'
+
+echo "checking client, secure connection.  should fail..." | tee -a $seq.full
+export PCP_SECURE_SOCKETS=1
+yes | pminfo -h $hostname -f hinv.ncpu 2>&1 | tee -a $seq.full | nss_filter_pminfo
+unset PCP_SECURE_SOCKETS
+
+echo "checking client, insecure connection.  should pass..."
+unset PCP_SECURE_SOCKETS
+yes | pminfo -h $hostname -f hinv.ncpu 2>&1 | tee -a $seq.full | nss_filter_pminfo
+
+echo "checking client, connecting via 'local:'.  should pass..."
+unset PCP_SECURE_SOCKETS
+yes | pminfo -h local: -f hinv.ncpu 2>&1 | tee -a $seq.full | nss_filter_pminfo
+
+_cleanup
+
+# success, all done
+status=0
+exit

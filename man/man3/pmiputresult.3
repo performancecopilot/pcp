@@ -1,0 +1,82 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMIPUTRESULT 3 "" "Performance Co-Pilot"
+.SH NAME
+\f3pmiPutResult\f1 \- add a data record to a LOGIMPORT archive
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.br
+#include <pcp/impl.h>
+.br
+#include <pcp/import.h>
+.sp
+int pmiPutResult(const pmResult *\fIresult\fP);
+.sp
+cc ... \-lpcp_import \-lpcp
+.ft 1
+.SH DESCRIPTION
+As part of the Performance Co-Pilot Log Import API (see
+.BR LOGIMPORT (3)),
+.B pmiPutResult
+provides an interface for developers familiar with the internal
+PCP data structures to create output archives directly.
+.PP
+By building the
+.B pmResult
+data structure directly, then calling
+.B pmiPutResult
+the developer avoids calls to
+.BR pmiPutValue (3)
+and/or
+.BR pmiPutValueHandle (3)
+followed by a call to
+.BR pmiWrite (3)
+for each record written to the archive.
+.PP
+Any metrics and instances appearing in the
+.I result
+must have been defined by prior calls to
+.BR pmiAddMetric (3)
+and
+.BR pmiAddInstance (3).
+.PP
+.B pmiPutResult
+will arrange for any new metadata (metrics and/or instance domain changes)
+covered by
+.I result
+to be also written to the PCP archive.
+.PP
+Because of the complexity of the
+.B pmResult
+data structure, this routine is not available in the Perl
+interface to the LOGIMPORT services.
+.SH DIAGNOSTICS
+.B pmiPutResult
+returns zero on success else a negative value that can be turned into an
+error message by calling
+.BR pmiErrStr (3).
+.SH SEE ALSO
+.BR LOGIMPORT (3),
+.BR PMAPI (3),
+.BR pmiAddInstance (3),
+.BR pmiAddMetric (3),
+.BR pmiErrStr (3),
+.BR pmiPutValue (3),
+.BR pmiPutValueHandle (3),
+.BR pmiSetTimezone (3)
+and
+.BR pmiWrite (3).

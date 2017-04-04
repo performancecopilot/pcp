@@ -1,0 +1,47 @@
+#! /bin/sh
+# PCP QA Test No. 028
+# pmnscomp and pmLoadNameSpace for various peculiar name spaces
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=0
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+cat >$tmp.src <<End-of-File
+root {
+    empty
+    me		1:2:0
+    you		1:2:1
+    level_one
+}
+
+level_one {
+    us		1:3:0
+    them	1:3:1
+    aliens	1:3:2
+    level_two
+}
+
+level_one.level_two {
+    empty
+}
+
+empty {
+}
+
+level_one.level_two.empty {
+}
+End-of-File
+
+echo "Load ascii ..."
+pminfo -n $tmp.src

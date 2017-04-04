@@ -1,0 +1,21 @@
+#!/bin/sh
+# PCP QA Test No. 1028
+# Exercise pmdumptext handling of config files with no final EOL
+#
+seq=`basename $0`
+echo "QA output created by $seq"
+
+status=1	# failure is the default!
+. ./common.qt
+trap "_cleanup_qt; exit \$status" 0 1 2 3 15
+
+which pmdumptext >/dev/null 2>&1 || _notrun "pmdumptext not installed"
+
+# real QA test starts here
+echo "Silence is golden"
+$PCP_ECHO_PROG $PCP_ECHO_N "hinv.ncpu" > $tmp.conf
+pmdumptext -s 1 -c $tmp.conf >/dev/null
+status=$?
+
+# success, all done
+exit

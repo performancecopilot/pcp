@@ -1,0 +1,112 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMADDPROFILE 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmAddProfile\f1 \- add instance(s) to the current PMAPI instance profile
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.sp
+int pmAddProfile(pmInDom \fIindom\fP, int \fInuminst\fP, int *\fIinstlist\fP);
+.sp
+cc ... \-lpcp
+.ft 1
+.SH DESCRIPTION
+.de CW
+.ie t \f(CW\\$1\f1\\$2
+.el \fI\\$1\f1\\$2
+..
+The set of instances for performance metrics returned from a
+.BR pmFetch (3)
+call may be filtered or restricted using an instance profile.
+There is one instance profile for each context the application
+creates at the Performance Metrics Application Programming Interface 
+.RB ( PMAPI (3)),
+and each instance profile may include instances from one or more
+instance domains (see
+.BR pmLookupDesc (3)).
+.PP
+.B pmAddProfile
+may be used to
+add new instance specifications to the instance profile of the current
+PMAPI context.
+.PP
+In the simplest variant, the list of instances identified by the
+.I instlist
+argument for the
+.I indom
+instance domain are added to the instance profile.
+The list of instance
+identifiers contains
+.I numinst
+values.
+.PP
+The
+.I indom
+value would normally be extracted from a call to
+.BR pmLookupDesc (3)
+for a particular performance metric, and the instances in
+.I instlist
+would typically be determined by calls to
+.BR pmGetInDom (3)
+or
+.BR pmLookupInDom (3).
+.PP
+To select all instances in all instance domains, use
+
+.in 1.0i
+.nf
+.ft CW
+pmAddProfile(PM_INDOM_NULL, 0, (int *)0)
+.ft
+.fi
+.in
+
+This is the only case where
+.I indom
+may be equal to
+.BR PM_INDOM_NULL .
+If
+.I numinst
+is zero, or
+.I instlist
+is NULL, then all instances in
+.I indom
+are selected.
+.SH SEE ALSO
+.BR PMAPI (3),
+.BR pmDelProfile (3),
+.BR pmFetch (3),
+.BR pmGetInDom (3),
+.BR pmLookupDesc (3),
+.BR pmLookupInDom (3),
+.BR pmNewContext (3),
+.BR pmUseContext (3)
+and
+.BR pmWhichContext (3).
+.SH DIAGNOSTICS
+.IP \f3PM_ERR_PROFILESPEC\f1
+.I indom
+was
+.B PM_INDOM_NULL
+and
+.I instlist
+was not empty
+.SH CAVEAT
+It is possible to add non-existent instance domains and non-existent instances
+to an instance profile.  None of the routines that use the instance profile
+will ever issue an error if you do this.  The cost of checking, when checking
+is possible, outweighs any benefits.

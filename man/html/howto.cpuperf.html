@@ -1,0 +1,444 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<!--
+ (c) Copyright 2000-2004 Silicon Graphics Inc. All rights reserved.
+ Permission is granted to copy, distribute, and/or modify this document
+ under the terms of the Creative Commons Attribution-Share Alike, Version
+ 3.0 or any later version published by the Creative Commons Corp. A copy
+ of the license is available at
+ http://creativecommons.org/licenses/by-sa/3.0/us/ .
+-->
+<HTML>
+<HEAD>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8">
+	<meta http-equiv="content-style-type" content="text/css">
+	<link href="pcpdoc.css" rel="stylesheet" type="text/css">
+	<link href="images/pcp.ico" rel="icon" type="image/ico">
+	<TITLE>Understanding system-level processor performance</TITLE>
+</HEAD>
+<BODY LANG="en-AU" TEXT="#000060" DIR="LTR">
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0 STYLE="page-break-before: always">
+	<TR> <TD WIDTH=64 HEIGHT=64><FONT COLOR="#000080"><A HREF="http://pcp.io/"><IMG SRC="images/pcpicon.png" ALT="pmcharticon" ALIGN=TOP WIDTH=64 HEIGHT=64 BORDER=0></A></FONT></TD>
+	<TD WIDTH=1><P>&nbsp;&nbsp;&nbsp;&nbsp;</P></TD>
+	<TD WIDTH=500><P ALIGN=LEFT><A HREF="index.html"><FONT COLOR="#cc0000">Home</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="lab.pmchart.html"><FONT COLOR="#cc0000">Charts</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="timecontrol.html"><FONT COLOR="#cc0000">Time Control</FONT></A></P></TD>
+	</TR>
+</TABLE>
+<H1 ALIGN=CENTER STYLE="margin-top: 0.48cm; margin-bottom: 0.32cm"><FONT SIZE=7>Understanding measures of system-level processor performance</FONT></H1>
+<TABLE WIDTH="15%" BORDER=0 CELLPADDING=5 CELLSPACING=10 ALIGN=RIGHT>
+	<TR><TD BGCOLOR="#e2e2e2"><PRE><IMG SRC="images/system-search.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;<I>Tools</I><BR>
+sar
+mpstat
+pmchart
+pcp-atop
+pcp-atopsar
+pcp-uptime
+</PRE></TD></TR>
+</TABLE>
+<P>This chapter of the Performance Co-Pilot tutorial provides guidance
+on how to interpret and understand the various measures of system-level 
+processor (CPU) performance.</P>
+<P>All modern operating systems collect processor resource utilization at both
+the <B>process</B>-level and the <B>system</B>-level.&nbsp;&nbsp;This tutorial
+relates specifically to the <B>system</B>-level metrics.</P>
+<P>For an explanation of Performance Co-Pilot terms and acronyms, consult 
+the <A HREF="glossary.html">PCP glossary</A></P>
+
+<P><BR></P>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH="100%" BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>How the system-level CPU time is computed</B></FONT></P></TD></TR>
+</TABLE>
+<P>
+Utilities like <I>mpstat</I>, <I>sar</I> and Performance Co-Pilot (PCP) use a
+common collection of system-level CPU performance instrumentation from the kernel. 
+This instrumentation is based upon statistical sampling of the state of <B>each</B>
+CPU in the kernel's software clock interrupt routine which is commonly called
+100 times (PCP metric <I><TT>kernel.all.hz</TT></I>) per second on every CPU.</P>
+<P>
+At each observation a CPU is attributed a quantum of 10 milliseconds of 
+elapsed time to one of several counters based on the current state of 
+the code executing on that CPU.</P>
+<P>
+This sort of statistical sampling is subject to some anomalies, 
+particularly when activity is strongly correlated with the clock 
+interrupts, however the distribution of observations over several 
+seconds or minutes is often an accurate reflection of the true 
+distribution of CPU time. The kernel profiling mechanisms offer higher
+resolution should that be required, however that is beyond the scope
+of this document.</P>
+<P>
+The CPU state is determined by considering what the CPU was doing just 
+before the clock interrupt, as follows:</P>
+<OL>
+    <LI>
+    If executing a userspace task (i.e. above the kernel system call
+    interface for some program) then
+    <UL>
+        <LI>
+        If executing with modified scheduling priority, the state is
+        <B>nice</B>.
+        <LI>
+        Otherwise the state is <B>user</B>.
+    </UL>
+    <LI>
+    If servicing an interrupt, then the state is <B>irq</B>.
+    <LI>
+    If this is a virtual CPU being made to wait involuntarily for a real
+    CPU (i.e. while the hypervisor services another virtual processor),
+    the state is <B>steal</B>.  (Linux only)
+    <LI>
+    If executing a hypervisor guest (Linux only), then
+    <UL>
+        <LI>
+        If executing with modified scheduling priority, the state is
+        both <B>nice</B> and <B>guest_nice</B>.
+        <LI>
+        Otherwise the state is both <B>user</B> and <B>guest</B>.
+    <LI>
+    If otherwise executing code in the kernel (i.e. below the system call
+    interface, or a kernel task), then the state is <B>kernel</B>. 
+    <LI>
+    Otherwise if some I/O is pending, then the state is <B>wait</B>.
+    <LI>
+    Otherwise the state is <B>idle</B>.
+</OL>
+<P>
+These states are mutually exclusive and complete, so exactly one state 
+is assigned for each CPU at each clock interrupt.</P>
+<P>
+The kernel agent for PCP exports the following metrics:</P>
+<CENTER>
+<TABLE BORDER="1">
+    <CAPTION ALIGN="BOTTOM"><B>Table 1: Raw PCP CPU metrics</B></CAPTION>
+    <TR VALIGN="TOP">
+        <TH>PCP Metric</TH>
+        <TH>Semantics</TH>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD><I><TT>kernel.all.cpu.user</TT></I></TD>
+        <TD>Time counted when in <B>user</B> state.</TD>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD><I><TT>kernel.all.cpu.nice</TT></I></TD>
+        <TD>Time counted when in <B>nice</B> state.  (Linux / UNIX)</TD>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD><I><TT>kernel.all.cpu.sys</TT></I></TD>
+        <TD>Time counted when in <B>kernel</B> state.</TD>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD><I><TT>kernel.all.cpu.intr</TT></I></TD>
+        <TD>Time counted when in <B>irq</B> state.</TD>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD><I><TT>kernel.all.cpu.steal</TT></I></TD>
+        <TD>Time counted when in <B>steal</B> state.  (Linux only)</TD>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD><I><TT>kernel.all.cpu.wait.total</TT></I></TD>
+        <TD>Time counted when in <B>wait</B> state.  (Linux / UNIX)</TD>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD><I><TT>kernel.all.cpu.idle</TT></I></TD>
+        <TD>Time counted when in <B>idle</B> state.</TD>
+    </TR>
+</TABLE>
+</CENTER>
+<P>
+These metrics are all &quot;counters&quot;, in units of milliseconds 
+(cumulative since system boot time).
+When displayed with most PCP tools they are &quot;rate converted&quot;
+(sampled periodically and the differences between consecutive values 
+converted to time utilization in units of milliseconds-per-second over
+the sample interval).
+Since the raw values are aggregated across all CPUs, the time utilization
+for any of the metrics above is in the range 0 to N*1000 for an N CPU system; 
+for some PCP tools this is reported as a percentage in the range 0 to N*100
+percent.</P>
+
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
+	<TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Using <I>pmchart</I> to display CPU activity (aggregated over all CPUs).<BR>
+<PRE><B>
+$ pmchart -c CPU
+</B></PRE>
+<CENTER>
+<IMG SRC="images/linux-cpu.png" ALT="" BORDER=0>
+</CENTER>
+</TD></TR>
+</TABLE>
+
+<P><BR></P>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH="100%" BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>Interrupts</B></FONT></P></TD></TR>
+</TABLE>
+<P>On Linux, the <B>irq</B> state is further subdivided into components
+describing different stages of kernel interrupt handling:</P>
+<OL>
+    <LI>
+    If executing deferred interrupt handling code, the state is <B>softirq</B>.
+    <LI>
+    Otherwise the state is <B>hardirq</B>.
+</OL>
+<P>
+The Linux kernel agent for PCP exports the following CPU interrupt
+metrics, the sum of which approximately equals <I><TT>kernel.all.cpu.intr</TT></I>:</P>
+<CENTER>
+<TABLE BORDER="1">
+    <CAPTION ALIGN="BOTTOM"><B>Table 2: Raw PCP CPU interrupt metrics</B></CAPTION>
+    <TR VALIGN="TOP">
+        <TH>PCP Metric</TH>
+        <TH>Semantics</TH>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD><I><TT>kernel.all.cpu.irq.soft</TT></I></TD>
+        <TD>Time counted in <B>softirq</B> state.</TD>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD><I><TT>kernel.all.cpu.irq.hard</TT></I></TD>
+        <TD>Time counted in <B>hardirq</B> state.</TD>
+    </TR>
+</TABLE>
+</CENTER>
+<P>
+
+<P><BR></P>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH="100%" BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>Virtualization</B></FONT></P></TD></TR>
+</TABLE>
+<P>
+On Linux, several additions to the processor utilization metrics from
+other platforms have been made, allowing finer-grained observation of
+the effects of virtualization.</P>
+<P>
+In a virtual environment processor cycles are shared amongst virtual
+guests on a physical host.
+If a guest displays a high <B>steal</B> time, then cycles are being taken
+from that guest to serve other purposes.
+This indicates one of two possible things:
+</P>
+<UL>
+    <LI>
+    Either the guest is using more than its share of cycles
+    <LI>
+    Or the physical server (which may be a hosting provider) is overloaded.
+</UL>
+<P>
+As described earlier the <B>user</B> and <B>nice</B> processor states are
+reported <I>inclusive</I> of virtualization guest state.
+There are PCP metrics allowing these states to be observed separately.</P>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
+	<TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Using <I>pmchart</I> to display separate guest CPU activity (compared to inclusive).<BR>
+<PRE><B>
+$ pmchart -c CPU -c vCPU
+</B></PRE>
+<CENTER>
+<IMG SRC="images/linux-virt-cpu.png" ALT="" BORDER=0>
+</CENTER>
+</TD></TR>
+</TABLE>
+
+<P>
+<CENTER>
+<TABLE BORDER="1">
+    <CAPTION ALIGN="BOTTOM"><B>Table 3: Raw PCP virtualization user time split</B></CAPTION>
+    <TR VALIGN="TOP">
+        <TD><I><TT>kernel.all.cpu.vuser</TT></I></TD>
+        <TD>User time when not running a virtual guest, default scheduling priority.</TD>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD><I><TT>kernel.all.cpu.guest</TT></I></TD>
+        <TD>User time when running a guest, default scheduling priority.</TD>
+    </TR>
+</TABLE>
+</CENTER>
+</P>
+<P>
+<CENTER>
+<TABLE BORDER="1">
+    <CAPTION ALIGN="BOTTOM"><B>Table 4: Raw PCP virtualization nice time split</B></CAPTION>
+    <TR VALIGN="TOP">
+        <TD><I><TT>kernel.all.cpu.vnice</TT></I></TD>
+        <TD>User time when not running a virtual guest, modified scheduling priority.</TD>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD><I><TT>kernel.all.cpu.guest_nice</TT></I></TD>
+        <TD>User time when running a guest, modified scheduling priority.</TD>
+    </TR>
+</TABLE>
+</CENTER>
+</P>
+
+<P><BR></P>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH="100%" BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>The per-CPU variants</B></FONT></P></TD></TR>
+</TABLE>
+<P>
+Inside the kernel, most of the metrics described above are actually
+accumulated per-CPU for reasons of efficiency (to reduce the locking 
+overheads and minimize dirty cache-line traffic).</P>
+<P>
+PCP exports the per-CPU versions of the system-wide metrics with metric 
+names formed by replacing <B><I><TT>all</TT></I></B> by <B><I><TT>percpu</TT></I></B>, 
+e.g. <I><TT>kernel.percpu.cpu.user</TT></I>.</P>
+<P>
+Note that on some multiprocessor UNIX platforms with one I/O pending,
+<B>all</B> otherwise idle CPUs will be assigned the <B>wait</B> state.
+This may lead to an over-estimate of the I/O wait time, as discussed in the 
+companion <A HREF="howto.diskperf.html">How to understand measures of 
+disk performance</A> document.
+This is not the case on Linux, however, where pre-CPU request queues
+track counts of processes in I/O wait state.</P>
+<P>
+The <I>pcp-atop</I> and <I>pcp-atopsar</I> tools can be used to report
+the per-CPU utilization metrics, the latter in a fashion similar to the
+<I>mpstat</I> <B>-I CPU</B> option.
+<P>
+
+<P><BR></P>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH="100%" BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>Reconciling mpstat, sar -u and PCP CPU performance metrics</B></FONT></P></TD></TR>
+</TABLE>
+<P>
+The <I>mpstat</I> and <I>sar</I> metrics are scaled based on the number of CPUs
+and expressed in percentages, PCP metrics are in units of milliseconds per 
+second after rate conversion; this explains the PCP metric <I><TT>hinv.ncpu</TT></I>
+ and the constants 100 and 1000 in the expressions below.</P>
+<P>
+When run without options, <I>sar</I> reports the following:</P>
+<CENTER>
+<TABLE BORDER="1">
+    <CAPTION ALIGN="BOTTOM"><B>Table 5: PCP and sar (default) metric equivalents</B></CAPTION>
+    <TR>
+        <TH><I>sar</I><BR> metric</TH>
+        <TH>PCP equivalent (assuming rate conversion)</TH>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD><I><TT>%user</TT></I></TD>
+        <TD>100 * <I><TT>kernel.all.cpu.user</TT></I> / (<I><TT>hinv.ncpu</TT></I> * 1000)</TD>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD><I><TT>%nice</TT></I></TD>
+        <TD>100 * <I><TT>kernel.all.cpu.nice</TT></I> / (<I><TT>hinv.ncpu</TT></I> * 1000)</TD>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD><I><TT>%system</TT></I></TD>
+        <TD>100 * (<I><TT>kernel.all.cpu.sys</TT></I> + <I><TT>kernel.all.cpu.intr</TT></I>) / (<I><TT>hinv.ncpu</TT></I> * 1000)</TD>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD><I><TT>%iowait</TT></I></TD>
+        <TD>100 * <I><TT>kernel.all.cpu.wait.total</TT></I> / (<I><TT>hinv.ncpu</TT></I> * 1000)</TD>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD><I><TT>%steal</TT></I></TD>
+        <TD>100 * <I><TT>kernel.all.cpu.steal</TT></I> / (<I><TT>hinv.ncpu</TT></I> * 1000)</TD>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD><I><TT>%idle</TT></I></TD>
+        <TD>100 * <I><TT>kernel.all.cpu.idle</TT></I> / (<I><TT>hinv.ncpu</TT></I> * 1000)</TD>
+    </TR>
+</TABLE>
+</CENTER>
+<P>
+On the other hand, <I>mpstat</I>, and <I>sar</I> with the <B>-u ALL</B> option,
+report the following:</P>
+<CENTER>
+<TABLE BORDER="1">
+    <CAPTION ALIGN="BOTTOM"><B>Table 6: PCP and mpstat (sar -u ALL) metric equivalents</B></CAPTION>
+    <TR>
+        <TH><I>mpstat</I><BR> metric</TH>
+        <TH>PCP equivalent (assuming rate conversion)</TH>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD><I><TT>%usr</TT></I></TD>
+        <TD>100 * <I><TT>kernel.all.cpu.vuser</TT></I> / (<I><TT>hinv.ncpu</TT></I> * 1000)</TD>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD><I><TT>%nice</TT></I></TD>
+        <TD>100 * <I><TT>kernel.all.cpu.vnice </TT></I> / (<I><TT>hinv.ncpu</TT></I> * 1000)</TD>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD><I><TT>%sys</TT></I></TD>
+        <TD>100 * <I><TT>kernel.all.cpu.sys</TT></I> / (<I><TT>hinv.ncpu</TT></I> * 
+            1000)</TD>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD><I><TT>%iowait</TT></I></TD>
+        <TD>100 * <I><TT>kernel.all.cpu.wait.total</TT></I> / (<I><TT>hinv.ncpu</TT></I> * 1000)</TD>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD><I><TT>%steal</TT></I></TD>
+        <TD>100 * <I><TT>kernel.all.cpu.steal</TT></I> / (<I><TT>hinv.ncpu</TT></I> * 1000)</TD>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD><I><TT>%irq</TT></I></TD>
+        <TD>100 * <I><TT>kernel.all.cpu.irq.hard</TT></I> / (<I><TT>hinv.ncpu</TT></I> * 1000)</TD>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD><I><TT>%soft</TT></I></TD>
+        <TD>100 * <I><TT>kernel.all.cpu.irq.soft</TT></I> / (<I><TT>hinv.ncpu</TT></I> * 1000)</TD>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD><I><TT>%guest</TT></I></TD>
+        <TD>100 * <I><TT>kernel.all.cpu.guest</TT></I> / (<I><TT>hinv.ncpu</TT></I> * 1000)</TD>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD><I><TT>%gnice</TT></I></TD>
+        <TD>100 * <I><TT>kernel.all.cpu.guest_nice</TT></I> / (<I><TT>hinv.ncpu</TT></I> * 1000)</TD>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD><I><TT>%idle</TT></I></TD>
+        <TD>100 * <I><TT>kernel.all.cpu.idle</TT></I> / (<I><TT>hinv.ncpu</TT></I> * 1000)</TD>
+    </TR>
+</TABLE>
+</CENTER>
+
+<P><BR></P>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH="100%" BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>The load average</B></FONT></P></TD></TR>
+</TABLE>
+<P>
+The &quot;load average&quot; is reported by <I>pcp-uptime</I>, <I>pcp-atop</I>, etc.
+and the PCP metric <I><TT>kernel.all.load</TT></I>.</P>
+
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
+	<TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Using <I>pcp-uptime</I> to display historical uptime and load average measures.<BR>
+<PRE><B>
+$ source /etc/pcp.conf
+$ tar xzf $PCP_DEMOS_DIR/tutorials/cpuperf.tgz
+
+$ pcp --origin 'Tuesday 4:30pm' --archive cpuperf/system -z uptime
+ 16:30:07 up  5:15, 11 users,  load average: 1.59, 1.54, 1.23
+</B></PRE>
+</TD></TR>
+</TABLE>
+
+<P>
+The load average is an indirect measure of the demand for CPU 
+resources. It is calculated using the previous load average (<I>load</I>) 
+the sum of the currently runnable processes (<I>nr_active</I>), and an
+exponential dampening expression, e.g. for the &quot;1 minute&quot; average,
+the expression is:</P>
+<PRE>
+load = exp(-5/60) * load + (1 - exp(-5/60)) * nr_active
+</PRE>
+<P>
+The three load averages use different exponential constants and are all 
+re-computed every 5 seconds.</P>
+<P>
+On Linux, <I>nr_active</I> is computed as the sum across all processors
+(i.e. using per-CPU counters) of the number of running tasks and the number
+of uninterruptible tasks.</P>
+<P>
+Note that the &quot;run queue length&quot; (reported by the <B>-q</B> option
+of <I>sar</I>) uses the aggregation across all processors of the number of
+running tasks only (does not include uninterruptible tasks).
+This is the <I><TT>kernel.all.runnable</TT></I> PCP metric.</P>
+
+<P><BR></P>
+<HR>
+<CENTER>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0>
+	<TR> <TD WIDTH="50%"><P>Copyright &copy; 2007-2010 <A HREF="http://www.aconex.com/"><FONT COLOR="#000060">Aconex</FONT></A><BR>Copyright &copy; 2000-2004 <A HREF="http://www.sgi.com/"><FONT COLOR="#000060">Silicon Graphics Inc</FONT></A></P></TD>
+	<TD WIDTH="50%"><P ALIGN=RIGHT><A HREF="http://pcp.io/"><FONT COLOR="#000060">PCP Site</FONT></A><BR>Copyright &copy; 2012-2016 <A HREF="http://www.redhat.com/"><FONT COLOR="#000060">Red Hat</FONT></A></P></TD> </TR>
+</TABLE>
+</CENTER>
+</BODY>
+</HTML>

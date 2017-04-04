@@ -1,0 +1,26 @@
+#!/bin/sh
+# PCP QA Test No. 708
+# Exercise python PMI layer
+#
+# Copyright (c) 2012 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.python
+
+status=1	# failure is the default!
+$sudo rm -f $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+$python -c 'from pcp import pmi' 2>/dev/null
+test $? -eq 0 || _notrun 'Python pcp pmi module is not installed'
+
+# real QA test starts here
+$python $here/src/test_pmi.py $tmp.pcplog >$seq.full 2>&1
+grep OK $seq.full
+
+# success, all done
+status=$?
+exit

@@ -1,0 +1,11 @@
+QA output created by 478
+0 (0) -> No error
+-(0) (0) -> No error
+
+__pmFaultInject(libpcp/err.c:1) ntrip=1 INJECT
+=== Fault Injection Summary Report ===
+libpcp/err.c:1: guard trip>0, 1 trips, 1 faults
+12345 (12345) -> No such PMAPI error code (12345)
+-(12345) (-12345) -> Generic error, already reported above
+12344 (12344) -> No such PMAPI error code (12344)
+-(12344) (-12344) -> Unknown error 12344

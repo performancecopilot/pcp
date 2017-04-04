@@ -1,0 +1,57 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMISETHOSTNAME 3 "" "Performance Co-Pilot"
+.SH NAME
+\f3pmiSetHostname\f1 \- set the source host name for a LOGIMPORT archive
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.br
+#include <pcp/impl.h>
+.br
+#include <pcp/import.h>
+.sp
+int pmiSetHostname(const char *\fIvalue\fP);
+.sp
+cc ... \-lpcp_import \-lpcp
+.ft 1
+.SH "Perl SYNOPSIS"
+.ft 3
+use PCP::LogImport;
+.sp
+pmiSetHostname($\fIvalue\fP);
+.ft 1
+.SH DESCRIPTION
+As part of the Performance Co-Pilot Log Import API (see
+.BR LOGIMPORT (3)),
+.B pmiSetHostname
+sets the source hostname in the current context to be
+.IR value .
+.PP
+In the absence of a call to
+.B pmiSetHostname
+the source hostname defaults to the hostname of the localhost.
+.SH DIAGNOSTICS
+.B pmiSetHostname
+returns zero on success else a negative value that can be turned into an
+error message by calling
+.BR pmiErrStr (3).
+.SH SEE ALSO
+.BR LOGIMPORT (3),
+.BR pmiErrStr (3),
+.BR pmiSetTimezone (3)
+and
+.BR pmiStart (3).

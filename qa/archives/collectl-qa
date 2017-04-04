@@ -1,0 +1,11 @@
+PCPFolio
+Version: 1
+# use pmafm(1) to process this PCP Archive Folio
+#
+Created: on toium at Mon Jul 20 14:18:34 2015
+Creator: pmcollectl
+#               Host                    Basename
+#
+Archive:        toium                   YWhcCi.toium
+# Created by /usr/bin/pmcollectl -f collectl-qa -c5 
+#

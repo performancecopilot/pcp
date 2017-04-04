@@ -1,0 +1,74 @@
+#
+# Common sh(1) procedures to be used in PCP rc scripts
+#
+# Minimalist version - use this if your system's init script regime
+# does not follow the "chkconfig + runlevel" model.
+#
+# Copyright (c) 2000,2003 Silicon Graphics, Inc.  All Rights Reserved.
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+# 
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+# 
+
+# source the PCP configuration environment variables
+. $PCP_DIR/etc/pcp.env
+
+# These functions use chkconfig if available, else tolerate missing chkconfig
+# command (as on SUSE) by manipulating symlinks in /etc/rc.d directly.
+#
+# Usage:
+#
+# is_chkconfig_on : return 0 if $1 is chkconfig "on" else 1
+# chkconfig_on    : chkconfig $1 "on"
+# chkconfig_off   : chkconfig $1 "off"
+# chkconfig_on_msg: echo a message about how to chkconfig $1 on
+#
+
+#
+# Return 0 if $1 is chkconfig "on" (enabled) at the current run level
+# Handles missing chkconfig command and other assorted atrocities.
+#
+is_chkconfig_on()
+{
+    return 0
+}
+
+#
+# chkconfig "on" $1
+# Handles missing chkconfig command.
+# (this is used by the pcp rpm %post script)
+#
+chkconfig_on()
+{
+    :
+}
+
+#
+# chkconfig "off" $1
+# Handles missing chkconfig command.
+# (this is used by the pcp rpm %preun script)
+#
+chkconfig_off()
+{
+    :
+}
+
+#
+# Echo a message about how to chkconfig $1 "on"
+# Tolerates missing chkconfig command
+#
+chkconfig_on_msg()
+{
+    :
+}

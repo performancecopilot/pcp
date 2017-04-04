@@ -1,0 +1,128 @@
+#!/bin/sh
+# PCP QA Test No. 316
+# exercise pmParseInterval
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+_args()
+{
+    _a=`echo "$1" | sed -e 's/ /\\\\ /g'`
+    shift
+    for s
+    do
+	arg="$arg $_a$s"
+	S=`echo "$s" | tr '[a-z]' '[A-Z]'`
+	arg="$arg $_a$S"
+    done
+}
+
+do_msec()
+{
+    arg=""
+    for a
+    do
+	_args "$a" millisecond milliseconds msec msecs
+    done
+    # sed needed for arithmetic precision and rounding differences between machines
+    #
+    eval src/parseinterval $arg \
+    | sed \
+	-e 's/0.122999 sec/0.123000 sec/' \
+	-e 's/0.009122 sec/0.009123 sec/' \
+	-e 's/0.007999 sec/0.008000 sec/'
+}
+
+do_sec()
+{
+    arg=""
+    for a
+    do
+	_args "$a" second seconds sec secs s
+    done
+    eval src/parseinterval $arg
+    for a
+    do
+	src/parseinterval "$a"
+    done
+}
+
+do_min()
+{
+    arg=""
+    for a
+    do
+	_args "$a" minute minutes min mins m
+    done
+    eval src/parseinterval $arg
+}
+
+do_hour()
+{
+    arg=""
+    for a
+    do
+	_args "$a" hour hours hr hrs h
+    done
+    eval src/parseinterval $arg
+}
+
+do_day()
+{
+    arg=""
+    for a
+    do
+	_args "$a" day d
+    done
+    eval src/parseinterval $arg
+}
+
+# real QA test starts here
+
+echo
+echo "milliseconds ..."
+do_msec 123 45.67 8. "   9.123   "
+
+echo
+echo "seconds ..."
+do_sec 123 45.67 8. "   9.123   "
+
+echo 
+echo "minutes ..."
+do_min 60 1.25 2. "   0.16666667  "
+
+echo
+echo "hours ..."
+do_hour 2 1.5 10. "   0.333333333333  "
+
+echo
+echo "days ..."
+do_day 1 1.5 10. "   0.083333333333  "
+
+echo
+echo "some hybrids ..."
+src/parseinterval 1min30sec 1d1h1m1s1msec "1.5 hr 10 min 15 sec" \
+| sed \
+    -e 's/90061.000999 sec/90061.001000 sec/'
+src/parseinterval "1 2 3 4 5 6 7 8 9 10" 55seconds
+
+echo
+echo "some errors ..."
+src/parseinterval 123+sec 123.456.789min "4minutes 30secoonds" sec "123sec min" \
+| sed \
+    -e 's/170.796000/170.795999/'
+
+# success, all done
+status=0
+exit

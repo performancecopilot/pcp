@@ -1,0 +1,6 @@
+#kmchart
+version 1
+
+chart title "Cisco Data Rate [%h]" style plot
+	plot legend "In %i" metric cisco.rate_in
+	plot legend "Out %i" metric cisco.rate_out

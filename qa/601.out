@@ -1,0 +1,75 @@
+QA output created by 601
+Installing the "trace" Performance Metrics Domain Agent (PMDA) ...
+
+Use the default installation [y]? 
+Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+[...install files, make output...]
+Updating the PMCD control file, and notifying PMCD ...
+Check trace metrics have appeared ... 20 metrics and 6 values
+Note: some warnings are expected until trace API calls are made - refer to
+      the man pages for pmtrace(1) and pmdatrace(3) for further details.
+Initial values: period=60,interval=12
+=== TRANSACTIONS ===
+Waiting for buffers to rotate (1/3) ...
+Waiting for buffers to rotate (2/3) ...
+Waiting for buffers to rotate (3/3) ...
+
+trace.transact.count
+    inst [1 or "sleep1"] value 3
+    inst [2 or "sleep2"] value 1
+    inst [3 or "third sleep"] value 2
+
+trace.transact.min_time
+    inst [1 or "sleep1"] value 1
+    inst [2 or "sleep2"] value 3
+    inst [3 or "third sleep"] value 2
+
+trace.transact.max_time
+    inst [1 or "sleep1"] value 2
+    inst [2 or "sleep2"] value 3
+    inst [3 or "third sleep"] value 2
+Finished checking trace.transact.rate
+Finished checking trace.transact.ave_time
+=== OBSERVATIONS ===
+Waiting for buffers to rotate (1/3) ...
+Waiting for buffers to rotate (2/3) ...
+Waiting for buffers to rotate (3/3) ...
+
+trace.observe.count
+    inst [1 or "obs1"] value 5
+    inst [2 or "obs2"] value 1
+
+trace.observe.value
+    inst [1 or "obs1"] value 240
+    inst [2 or "obs2"] value 0.765
+Finished checking trace.observe.rate
+=== COUNTERS ===
+Waiting for buffers to rotate (1/3) ...
+Waiting for buffers to rotate (2/3) ...
+Waiting for buffers to rotate (3/3) ...
+
+trace.counter.count
+    inst [1 or "cnt1"] value 5
+    inst [2 or "cnt2"] value 1
+
+trace.counter.value
+    inst [1 or "cnt1"] value 240
+    inst [2 or "cnt2"] value 0.765
+Finished checking trace.counter.rate
+=== POINT ===
+
+trace.point.count
+    inst [1 or "good point"] value 1
+
+trace.point.rate
+    inst [1 or "good point"] value 0.016666668
+Finished checking trace.point
+Checking sample programs build - make succeeded.
+
+trace.transact.count
+    inst [1 or "sleep1"] value 3
+    inst [2 or "sleep2"] value 1
+    inst [3 or "third sleep"] value 2
+    inst [4 or "simple"] value 1
+    inst [5 or "ascanbe"] value 1

@@ -1,0 +1,719 @@
+#!/usr/bin/env perl
+#
+# Copyright (c) 2012-2013 Red Hat.
+# Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+
+use strict;
+use warnings;
+
+use XML::TokeParser;
+use Date::Parse;
+use Date::Format;
+use PCP::LogImport;
+
+my $sample = 0;
+my $stamp;
+my $zone = 'UTC';	# timestamps from sadf are in UTC by default
+my $parser;
+my %handlemap;		# pmi* handles, one per metric-instance pair
+my %instmap;		# ensures we don't add duplicate indom/instance pairs
+my $putsts = 0;		# pmiPutValue() errors are only checked @ end of loop
+my $in_cpu_load = 0;
+my $snarf_text = 0;
+my $snarf_name;
+my $save_text;
+my $interface;
+my $disk_all_total;
+my $disk_all_total_bytes;
+
+sub dodate($)
+{
+    # convert datetime format YYYY-MM-DD from sadf into the format
+    # DD-Mmm-YYYY that Date::Parse seems to be able to parse correctly
+    #
+    my ($datetime) = @_;
+    my @fields = split(/-/, $datetime);
+    my $mm;
+    my %mm_map = (
+	'01' => 'Jan', '02' => 'Feb', '03' => 'Mar', '04' => 'Apr',
+	'05' => 'May', '06' => 'Jun', '07' => 'Jul', '08' => 'Aug',
+	'09' => 'Sep', '10' => 'Oct', '11' => 'Nov', '12' => 'Dec',
+    );
+    $#fields == 2 or die "dodate: bad datetime format: \"$datetime\"\n";
+    $mm = $fields[1];
+    if ($mm < 10 && $mm !~ /^0/) { $mm = "0" . $mm };	# add leading zero
+    defined($mm_map{$mm}) or die "dodate: bad month in datetime: \"$datetime\"\n";
+    return $fields[2] . '-' . $mm_map{$mm} . '-' . $fields[0];
+}
+
+sub dotime($)
+{
+    # convert time format HH-MM-SS from a few 10.x sysstat versions
+    # into the format HH:MM:SS that Date::Parse (reasonably) expects
+    #
+    my ($daytime) = @_;
+    $daytime =~ s/-/:/g;
+    return $daytime;
+}
+
+sub dovalue($)
+{
+    # convert string to floating point value:  "0,00" / "0.00" / undef
+    # (unusual LC_NUMERIC settings put comma instead of decimal point)
+    # fail to convert (or attempt arithmetic on unconverted values) =>
+    # e.g. 'Argument "\x{31}\x{2c}..." isn't numeric in addition (+)'
+    #
+    my ($value) = @_;
+    return $value unless defined($value);
+    $value =~ s/,/./g; 
+    return $value;
+}
+
+my %warning_tags;	# XML tags we do not know and will issue warnings about
+
+# sort these ones to help keep track of 'em
+my %skipped_tags = (	# XML tags we know about, but have no metric to map yet
+	'boot' => 1,
+	'bufpg' => 1,
+	'campg' => 1,
+	'comments' => 1,
+	'commit-percent' => 1,
+	'cpu' => 1,
+	'cpufreq' => 1,
+	'cpu-frequency' => 1,
+	'cpu-weighted-frequency' => 1,
+	'cpuwfreq' => 1,
+	'disk' => 1,
+	'dquot-sz' => 1,
+	'dquot-sz-percent' => 1,
+	'fan' => 1,
+	'fan-speed' => 1,
+	'file-date' => 1,
+	'filesystems' => 1,
+	'file-utc-time' => 1,
+	'frmpg' => 1,
+	'hugepages' => 1,
+	'hugfree' => 1,
+	'hugused' => 1,
+	'hugused-percent' => 1,
+	'inactive' => 1,
+	'interrupts' => 1,
+	'int-global' => 1,
+	'int-proc' => 1,
+	'irqcpu' => 1,
+	'machine' => 1,
+	'memory' => 1,
+	'memused-percent' => 1,
+	'network' => 1,
+	'power-management' => 1,
+	'pgtbl' => 1,
+	'pty-nr' => 1,
+	'release' => 1,
+	'restarts' => 1,
+	'rtsig-sz' => 1,
+	'rtsig-sz-percent' => 1,
+	'serial' => 1,
+	'slab' => 1,
+	'statistics' => 1,
+	'super-sz' => 1,
+	'super-sz-percent' => 1,
+	'swpcad-percent' => 1,
+	'swpused' => 1,
+	'swpused-percent' => 1,
+	'sysdata-version' => 1,
+	'sysname' => 1,
+	'sysstat' => 1,
+	'temp' => 1,
+	'temperature' => 1,
+	'tty' => 1,
+	'usb' => 1,
+	'usb-devices' => 1,
+	'vmused' => 1,
+);
+
+# Register metrics with a singular value.
+#
+sub register_single($)
+{
+    my ($name) = @_;
+    my $units = pmiUnits(0,0,0,0,0,0);
+    my $type = PM_TYPE_FLOAT;
+    my $sts;
+
+    if ($name eq 'kernel.all.pswitch' || $name eq 'kernel.all.intr' ||
+        $name eq 'swap.pagesin' || $name eq 'swap.pagesout' ||
+	$name eq 'mem.vmstat.pgpgin' || $name eq 'mem.vmstat.pgpgout' ||
+	$name eq 'mem.vmstat.pgfault' || $name eq 'mem.vmstat.pgmajfault' ||
+	$name eq 'mem.vmstat.pgfree' || $name eq 'disk.all.total' ||
+	$name eq 'disk.all.read' || $name eq 'disk.all.write') {
+	$units = pmiUnits(0,-1,1,0,PM_TIME_SEC,PM_COUNT_ONE);
+    }
+    elsif ($name =~ /^mem\.util\./) {
+	$units = pmiUnits(1,0,0,PM_SPACE_KBYTE,0,0);
+	$type = PM_TYPE_U64;
+    }
+    elsif ($name =~ /disk\.all\..*bytes/) {
+	$units = pmiUnits(1,-1,0,PM_SPACE_KBYTE,PM_TIME_SEC,0);
+    }
+    elsif ($name =~ /^vfs\./) {
+	$type = PM_TYPE_U32;
+    }
+    $sts = pmiAddMetric($name, PM_ID_NULL, $type, PM_INDOM_NULL, PM_SEM_INSTANT, $units);
+    die "pmiAddMetric($name, ...): " . pmiErrStr($sts) . "\n" unless ($sts == 0);
+}
+
+# Register metrics with multiple values.
+#
+sub register_multi($$)
+{
+    my ($name,$indom) = @_;
+    my $units = pmiUnits(0,0,0,0,0,0);
+    my $type = PM_TYPE_FLOAT;
+    my $sts;
+
+    if ($name eq 'proc.runq.runnable' || $name eq 'proc.nprocs') {
+	$units = pmiUnits(0,0,1,0,0,PM_COUNT_ONE);
+	$type = PM_TYPE_U32;
+    }
+    elsif ($name =~ /disk\.dev\..*bytes/ ||
+	   $name =~ /network\.interface\..*\.bytes/) {
+	$units = pmiUnits(1,-1,0,PM_SPACE_KBYTE,PM_TIME_SEC,0);
+    }
+    elsif ($name eq 'disk.dev.total' || $name eq 'disk.dev.read' ||
+           $name eq 'disk.dev.write' || $name =~ /network\.interface\./) {
+	$units = pmiUnits(0,-1,1,0,PM_TIME_SEC,PM_COUNT_ONE);
+    }
+    elsif ($name =~ /filesys\..*files/) {
+	$units = pmiUnits(0,0,1,0,0,PM_COUNT_ONE);
+	$type = PM_TYPE_U64;
+    }
+    elsif ($name =~ /filesys\./) {
+	$units = pmiUnits(1,0,0,PM_SPACE_MBYTE,0,0);
+	$type = PM_TYPE_U32;
+    }
+    $sts = pmiAddMetric($name, PM_ID_NULL, $type, $indom, PM_SEM_INSTANT, $units);
+    die "pmiAddMetric($name, ...): " . pmiErrStr(-1) . "\n" unless ($sts == 0);
+}
+
+# Wrapper for pmiPutValueHandle() - used for non-indom-null metrics.
+# If first time this instance has been seen for this indom, add it to
+# the instance domain, and get a handle and add it to the handlemap.
+# Finally add the given value into the current result for the archive.
+#
+sub putinst($$$$)
+{
+    my ($name,$indom,$instance,$value) = @_;
+    my $handlekey = $name . '/' . $instance;
+    my $instkey = $indom . '-' . $instance;
+    my ($handle,$sts);
+
+    return unless defined($value);
+
+    # instmap{} holds the last allocated inst number with $indom as the
+    # key, and marks the instance as known with $indom . $instance as the
+    # key
+    if (!defined($instmap{$instkey})) {
+	my $inst;
+	if (defined($instmap{$indom})) {
+	    $instmap{$indom}++;
+	    $inst = $instmap{$indom};
+	}
+	else {
+	    $instmap{$indom} = 0;
+	    $inst = 0;
+	}
+	$sts = pmiAddInstance($indom, $instance, $inst);
+	die "pmiAddInstance([$name], $instance, $inst): " . pmiErrStr($sts) . "\n" unless ($sts >= 0);
+	$instmap{$instkey} = $inst;
+    }
+    $handle = $handlemap{$handlekey};
+    if (!defined($handle)) {
+	if (!defined($handlemap{$name})) {
+	    register_multi($name, $indom);
+	    $handlemap{$name} = -1;	# invalid handle for no-instance lookup
+	}
+	$sts = pmiGetHandle($name, $instance);
+	die "pmiGetHandle($name, $instance): " . pmiErrStr($sts) . "\n" unless ($sts >= 0);
+	$handlemap{$handlekey} = $handle = $sts;
+    }
+    $sts = pmiPutValueHandle($handle, dovalue($value));
+    if ($sts < 0 && $putsts == 0) { $putsts = $sts };
+}
+
+# Wrapper for pmiPutValueHandle() - used for indom-null metrics only.
+#
+sub put($$)
+{
+    my ($name,$value) = @_;
+    my ($handle,$sts);
+
+    return unless defined($value);
+
+    $handle = $handlemap{$name};
+    if (!defined($handle)) {
+	register_single($name);
+	$sts = pmiGetHandle($name, '');
+	$sts >= 0 or die "pmiGetHandle($name, ...): " . pmiErrStr($sts) . "\n";
+	$handlemap{$name} = $handle = $sts;
+    }
+    $sts = pmiPutValueHandle($handle, dovalue($value));
+    if ($sts < 0 && $putsts == 0) { $putsts = $sts };
+}
+
+if ($#ARGV != 1) {
+    print STDERR "Usage: sar2pcp infile outfile\n";
+    exit(1);
+}
+
+if ($ARGV[0] =~ /\.xml$/i) {
+    my $sts = open(XMLDATA, '<', $ARGV[0]);
+    if (!defined($sts)) {
+	print STDERR "sar2pcp: " .
+		"Failed to open sadf XML file \"$ARGV[0]\": $!\n";
+	exit(1);
+    }
+} else {
+    my $sadf = 'sadf';
+    $sadf = $ENV{SADF} if defined($ENV{SADF});
+    my $pid = open(XMLDATA, '-|', "$sadf -x $ARGV[0] -- -A");
+    if (!defined($pid)) {
+	print STDERR "sar2pcp: " .
+		"Failed to launch $sadf to convert \"$ARGV[0]\" to XML\n";
+	exit(1);
+    }
+}
+if (eof(XMLDATA)) {
+    print STDERR "sar2pcp: XML document from $ARGV[0] contains no data\n";
+    exit(1);
+}
+
+$parser = XML::TokeParser->new(\*XMLDATA, Noempty => 1);
+if (!defined($parser)) {
+    print STDERR "sar2pcp: Failed to open input stream for \"$ARGV[0]\"\n";
+    exit(1);
+}
+
+pmiStart($ARGV[1], 0);
+
+while (defined(my $token = $parser->get_token())) {
+    if ($token->is_start_tag) {
+	if ($token->tag eq 'timestamp') {
+	    $stamp = dodate($token->attr->{'date'}) . ' ' . dotime($token->attr->{'time'});
+	    $sample++;
+	    $putsts = 0;
+	}
+	elsif ($token->tag eq 'cpu-load' || $token->tag eq 'cpu-load-all') {
+	    $in_cpu_load = 1;
+	}
+	elsif ($token->tag eq 'cpu' && $in_cpu_load) {
+	    # <cpu number="all" usr="2.00" nice="0.00" sys="1.20"
+	    #  iowait="0.00" steal="0.00" irq="0.00" soft="0.00"
+	    #  guest="0.00" idle="96.79"/>
+	    # <cpu number="0" usr="2.00" .../>
+	    # Take care: some are missing, some attribute names change!
+	    #
+	    my ($usr, $sys, $nice, $wait, $irq, $soft, $intr, $guest, $steal, $idle);
+
+	    $usr = $token->attr->{'usr'};
+	    $usr = $token->attr->{'user'} unless defined($usr); # name change
+	    $usr = dovalue($usr) / 100 if defined($usr);
+	    $sys = $token->attr->{'sys'};
+	    $sys = $token->attr->{'system'} unless defined($sys); # name change
+	    $sys = dovalue($sys) / 100 if defined($sys);
+	    $idle = $token->attr->{'idle'};
+	    $idle = dovalue($idle) / 100 if defined($idle);
+	    $nice = $token->attr->{'nice'};
+	    $nice = dovalue($nice) / 100 if defined($nice);
+	    $wait = $token->attr->{'iowait'};
+	    $wait = dovalue($wait) / 100 if defined($wait);
+
+	    $irq  = dovalue($token->attr->{'irq'});
+	    $soft = dovalue($token->attr->{'soft'});
+	    $intr = ($irq + $soft) / 100 unless (!defined($irq) || !defined($soft));
+
+	    $guest = $token->attr->{'guest'};
+	    $guest = dovalue($guest) / 100 if defined($guest);
+	    $steal = $token->attr->{'steal'};
+	    $steal = dovalue($steal) / 100 if defined($steal);
+
+	    if ($token->attr->{'number'} eq 'all') {
+		put('kernel.all.cpu.user', $usr);
+		put('kernel.all.cpu.nice', $nice);
+		put('kernel.all.cpu.sys', $sys);
+		put('kernel.all.cpu.wait.total', $wait);
+		put('kernel.all.cpu.steal', $steal);
+		put('kernel.all.cpu.intr', $intr);
+		put('kernel.all.cpu.guest', $guest);
+		put('kernel.all.cpu.idle', $idle);
+	    }
+	    else {
+		my $instance = 'cpu' . $token->attr->{'number'};
+		my $indom = pmInDom_build(PMI_DOMAIN, 0);
+
+		putinst('kernel.percpu.cpu.user', $indom, $instance, $usr);
+		putinst('kernel.percpu.cpu.nice', $indom, $instance, $nice);
+		putinst('kernel.percpu.cpu.sys', $indom, $instance, $sys);
+		putinst('kernel.percpu.cpu.wait.total', $indom, $instance, $wait);
+		putinst('kernel.percpu.cpu.steal', $indom, $instance, $steal);
+		putinst('kernel.percpu.cpu.intr', $indom, $instance, $intr);
+		putinst('kernel.percpu.cpu.guest', $indom, $instance, $guest);
+		putinst('kernel.percpu.cpu.idle', $indom, $instance, $idle);
+	    }
+	}
+	elsif ($token->tag eq 'process-and-context-switch' ||
+		$token->tag eq 'processes' || $token->tag eq 'context-switch') {
+	    # <process-and-context-switch per="second" proc="0.00"
+	    #  cswch="652.10"/>
+	    put('kernel.all.pswitch', $token->attr->{'cswch'});
+	    # pro tem skip proc
+	}
+	elsif ($token->tag eq 'irq') {
+	    # <irq intr="sum" value="230.46"/>
+	    if ($token->attr->{'intr'} eq 'sum') {
+		put('kernel.all.intr', $token->attr->{'value'});
+	    }
+	    # skip all other intr counts for now
+	}
+	elsif ($token->tag eq 'swap-pages') {
+	    # <swap-pages per="second" pswpin="0.00" pswpout="0.00"/>
+	    put('swap.pagesin', $token->attr->{'pswpin'});
+	    put('swap.pagesout', $token->attr->{'pswpout'});
+	}
+	elsif ($token->tag eq 'paging') {
+	    # <paging per="second" pgpgin="0.00" pgpgout="8.82" fault="49.50"
+	    #  majflt="0.00" pgfree="94.19" pgscank="0.00" pgscand="0.00"
+	    #  pgsteal="0.00" vmeff-percent="0.00"/>
+	    put('mem.vmstat.pgpgin', $token->attr->{'pgpgin'});
+	    put('mem.vmstat.pgpgout', $token->attr->{'pgpgout'});
+	    put('mem.vmstat.pgfault', $token->attr->{'fault'});
+	    put('mem.vmstat.pgmajfault', $token->attr->{'majflt'});
+	    put('mem.vmstat.pgfree', $token->attr->{'pgfree'});
+	    # pro tem skip pgscank, pgscand, pgsteal and vmeff-percent
+	}
+	elsif ($token->tag eq 'io') {
+	    # <io per="second">
+	    # no metric values from attribute data, all tags
+	}
+	elsif ($token->tag eq 'tps') {
+	    # <tps>0.80</tps>
+	    # no metric values from attribute data, all tags
+	}
+	elsif ($token->tag eq 'io-reads') {
+	    # <io-reads rtps="0.00" bread="0.00"/>
+	    # assume blocks are 512 bytes
+	    my $iops = dovalue($token->attr->{'rtps'});
+	    if (defined($iops)) {
+		put('disk.all.read', $iops);
+		$disk_all_total = $iops;
+	    }
+	    my $bytes = dovalue($token->attr->{'bread'});
+	    if (defined($bytes)) {
+		put('disk.all.read_bytes', $bytes / 2);
+		$disk_all_total_bytes = $bytes;
+	    }
+	}
+	elsif ($token->tag eq 'io-writes') {
+	    # <io-writes wtps="0.80" bwrtn="17.64"/>
+	    # assume blocks are 512 bytes
+	    my $iops = dovalue($token->attr->{'wtps'});
+	    if (defined($iops)) {
+		$disk_all_total += $iops;
+		put('disk.all.write', $iops);
+		put('disk.all.total', $disk_all_total);
+	    }
+	    my $bytes = dovalue($token->attr->{'bwrtn'});
+	    if (defined($bytes)) {
+		put('disk.all.write_bytes', $bytes / 2);
+		$disk_all_total_bytes += $bytes;
+		put('disk.all.total_bytes', $disk_all_total_bytes / 2);
+	    }
+	}
+	elsif ($token->tag eq 'memfree') {
+	    # <memfree>78896</memfree>
+	    $snarf_name = 'mem.util.free';
+	    $snarf_text = 1;
+	}
+	elsif ($token->tag eq 'memused') {
+	    # <memused>947232</memused>
+	    $snarf_name = 'mem.util.used';
+	    $snarf_text = 1;
+	}
+	elsif ($token->tag eq 'buffers') {
+	    # <buffers>165296</buffers>
+	    $snarf_name = 'mem.util.bufmem';
+	    $snarf_text = 1;
+	}
+	elsif ($token->tag eq 'cached') {
+	    # <cached>368644</cached>
+	    $snarf_name = 'mem.util.cached';
+	    $snarf_text = 1;
+	}
+	elsif ($token->tag eq 'anonpg') {
+	    # <anonpg>1903776</anonpg>
+	    $snarf_name = 'mem.util.anonpages';
+	    $snarf_text = 1;
+	}
+	elsif ($token->tag eq 'kstack') {
+	    # <kstack>10544</kstack>
+	    $snarf_name = 'mem.util.kernelStack';
+	    $snarf_text = 1;
+	}
+	# pro tem skip <commit-percent> (see pminfo -tT mem.util.commitLimit|committed_AS)
+	elsif ($token->tag eq 'commit') {
+	    # <commit>5947956</commit>
+	    $snarf_name = 'mem.util.commit';
+	    $snarf_text = 1;
+	}
+	elsif ($token->tag eq 'active') {
+	    # <active>6444892</active>
+	    $snarf_name = 'mem.util.active';
+	    $snarf_text = 1;
+	}
+	elsif ($token->tag eq 'inactive') {
+	    # <inactive>3885484</inactive>
+	    $snarf_name = 'mem.util.inactive';
+	    $snarf_text = 1;
+	}
+	elsif ($token->tag eq 'dirty') {
+	    # <dirty>208</dirty>
+	    $snarf_name = 'mem.util.dirty';
+	    $snarf_text = 1;
+	}
+	elsif ($token->tag eq 'swpfree') {
+	    # <swpfree>1920808</swpfree>
+	    $snarf_name = 'mem.util.swapFree';
+	    $snarf_text = 1;
+	}
+	# pro tem skip <swpused>
+	elsif ($token->tag eq 'swpcad') {
+	    # <swpcad>19208</swpcad>
+	    $snarf_name = 'mem.util.swapCached';
+	    $snarf_text = 1;
+	}
+	# pro tem skip <frmpg>, <bufpg> and <campg>
+	elsif ($token->tag eq 'kernel') {
+	    # <kernel dentunusd="86251" file-nr="9696" inode-nr="86841"
+	    #  pty-nr="123"/>
+	    # depending on sadc version, these may be attributes
+	    # or separate tags (below).
+	    put('vfs.dentry.count', $token->attr->{'dentunusd'});
+	    put('vfs.files.count', $token->attr->{'file-nr'});
+	    put('vfs.inodes.count', $token->attr->{'inode-nr'});
+	    # pro tem skip pty-nr
+	}
+	elsif ($token->tag eq 'dentunusd') {
+	    # <dentunusd>75415</dentunusd>
+	    $snarf_name = 'vfs.dentry.count';
+	    $snarf_text = 1;
+	}
+	elsif ($token->tag eq 'file-nr' || $token->tag eq 'file-sz') {
+	    # <file-nr>4608</file-nr>
+	    # metric defined already (above - different XML output versions!)
+	    $snarf_name = 'vfs.files.count';
+	    $snarf_text = 1;
+	}
+	elsif ($token->tag eq 'inode-nr' || $token->tag eq 'inode-sz') {
+	    # <inode-nr>72802</inode-nr>
+	    # metric defined already (above - different XML output versions!)
+	    $snarf_name = 'vfs.inodes.count';
+	    $snarf_text = 1;
+	}
+	# pro tem skip pty-nr
+	elsif ($token->tag eq 'queue') {
+	    my $indom = pmInDom_build(PMI_DOMAIN, 1);
+	    put('proc.runq.runnable', $token->attr->{'runq-sz'});
+	    put('proc.nprocs', $token->attr->{'plist-sz'});
+	    putinst('kernel.all.load', $indom, '1 minute', $token->attr->{'ldavg-1'});
+	    putinst('kernel.all.load', $indom, '5 minute', $token->attr->{'ldavg-5'});
+	    putinst('kernel.all.load', $indom, '15 minute', $token->attr->{'ldavg-15'});
+	}
+	elsif ($token->tag eq 'disk-device') {
+	    # <disk-device dev="dev8-0" tps="0.00" rd_sec="0.00" wr_sec="0.00"
+	    #  avgrq-sz="0.00" avgqu-sz="0.00" await="0.00" svctm="0.00"
+	    #  util-percent="0.00"/>
+	    my $instance = 'disk' . $token->attr->{'dev'};
+	    my $indom = pmInDom_build(PMI_DOMAIN, 2);
+	    my ($read_bytes, $write_bytes, $percent);
+
+	    putinst('disk.dev.total', $indom, $instance, $token->attr->{'tps'});
+	    # 512-byte sectors/sec
+	    $percent = dovalue($token->attr->{'util-percent'});
+	    $read_bytes = dovalue($token->attr->{'rd_sec'});
+	    $write_bytes = dovalue($token->attr->{'wr_sec'});
+	    if (defined($read_bytes)) {
+		putinst('disk.dev.read_bytes', $indom, $instance, $read_bytes / 2);
+	    }
+	    if (defined($write_bytes)) {
+		putinst('disk.dev.write_bytes', $indom, $instance, $write_bytes / 2);
+	    }
+	    if (defined($read_bytes) && defined($write_bytes)) {
+		putinst('disk.dev.total_bytes', $indom, $instance,
+			($read_bytes + $write_bytes) / 2);
+	    }
+	    if (defined($percent)) {
+		putinst('disk.dev.avactive', $indom, $instance, $percent / 100);
+	    }
+	    putinst('disk.dev.avrqsz', $indom, $instance, dovalue($token->attr->{'avgrq-sz'}));
+	    putinst('disk.dev.avqsz', $indom, $instance, dovalue($token->attr->{'avgqu-sz'}));
+	    putinst('disk.dev.await', $indom, $instance, dovalue($token->attr->{'await'}));
+	    putinst('disk.dev.svctm', $indom, $instance, dovalue($token->attr->{'svctm'}));
+	    # TODO disk.all aggregation?
+	}
+	elsif ($token->tag eq 'net-device') {
+	    # <net-device iface="eth0">
+	    $interface = $token->attr->{'iface'};
+	}
+	elsif ($token->tag eq 'net-dev') {
+	    # <net-dev iface="eth0" rxpck="0.00" txpck="0.00" rxkB="0.00"
+	    #  txkB="0.00" rxcmp="0.00" txcmp="0.00" rxmcst="0.00"/>
+	    my $indom = pmInDom_build(PMI_DOMAIN, 4);
+	    my $iface = $token->attr->{'iface'};
+	    $interface = $iface if (defined($iface));	# else it comes from net-device
+
+	    putinst('network.interface.in.packets', $indom, $interface, $token->attr->{'rxpck'});
+	    putinst('network.interface.out.packets', $indom, $interface, $token->attr->{'txpck'});
+	    putinst('network.interface.in.bytes', $indom, $interface, $token->attr->{'rxkB'});
+	    putinst('network.interface.out.bytes', $indom, $interface, $token->attr->{'txkB'});
+	    # pro tem skip rxcmp, txcmp, rxmcst
+	}
+	elsif ($token->tag eq 'net-edev') {
+	    # <net-edev iface="eth0" rxerr="0.00" txerr="0.00" coll="0.00"
+	    #  rxdrop="0.00" txdrop="0.00" txcarr="0.00" rxfram="0.00"
+	    #  rxfifo="0.00" txfifo="0.00"/>
+	    my $indom = pmInDom_build(PMI_DOMAIN, 4);
+	    my $iface = $token->attr->{'iface'};
+	    $interface = $iface if (defined($iface));	# else it comes from net-device
+
+	    putinst('network.interface.in.errors', $indom, $interface, $token->attr->{'rxerr'});
+	    putinst('network.interface.out.errors', $indom, $interface, $token->attr->{'txerr'});
+	    putinst('network.interface.collisions', $indom, $interface, $token->attr->{'coll'});
+	    putinst('network.interface.in.drops', $indom, $interface, $token->attr->{'rxdrop'});
+	    putinst('network.interface.out.drops', $indom, $interface, $token->attr->{'txdrop'});
+	    putinst('network.interface.out.carrier', $indom, $interface, $token->attr->{'txcarr'});
+	    putinst('network.interface.in.frame', $indom, $interface, $token->attr->{'rxfram'});
+	    putinst('network.interface.in.fifo', $indom, $interface, $token->attr->{'rxfifo'});
+	    putinst('network.interface.out.fifo', $indom, $interface, $token->attr->{'txfifo'});
+	}
+	elsif ($token->tag eq 'net-nfs' || $token->tag eq 'net-nfsd' ||
+	       $token->tag eq 'net-sock' || $token->tag eq 'net-sock6' ||
+	       $token->tag eq 'net-ip' || $token->tag eq 'net-eip' ||
+	       $token->tag eq 'net-ip6' || $token->tag eq 'net-eip6' ||
+	       $token->tag eq 'net-icmp' || $token->tag eq 'net-eicmp' ||
+	       $token->tag eq 'net-icmp6' || $token->tag eq 'net-eicmp6' ||
+	       $token->tag eq 'net-tcp' || $token->tag eq 'net-etcp' ||
+	       $token->tag eq 'net-udp' || $token->tag eq 'net-udp6') {
+	    # skip all the network protocol stats for now
+	    next;
+	}
+	elsif ($token->tag eq 'host') {
+	    # <host nodename="bozo">
+	    pmiSetHostname($token->attr->{'nodename'}) >= 0
+		or die "pmiSetHostname($token->attr->{'nodename'}): " . pmiErrStr(-1) . "\n";
+	    pmiSetTimezone($zone) >= 0
+		or die "pmiSetTimezone($zone): " . pmiErrStr(-1) . "\n";
+	}
+	elsif ($token->tag eq 'number-of-cpus') {
+	    # <number-of-cpus>1</number-of-cpus>
+	    $snarf_name = 'hinv.ncpu';
+	    $snarf_text = 2;
+	}
+	elsif ($token->tag eq 'filesystem') {
+	    # <filesystem fsname="/dev/sda8" MBfsfree="429418" MBfsused="39806" fsused-percent="8.48" ufsused-percent="13.57" Ifree="30318480" Iused="204912" Iused-percent="0.67"/>
+	    my $instance = $token->attr->{'fsname'};
+	    my $indom = pmInDom_build(PMI_DOMAIN, 5);
+	    my ($free, $used);
+	    $free = dovalue($token->attr->{'MBfsfree'});
+	    $used = dovalue($token->attr->{'MBfsused'});
+	    if (defined($free) && defined($used)) {
+		putinst('filesys.capacity', $indom, $instance, $used+$free);
+	    }
+	    putinst('filesys.free', $indom, $instance, $free);
+	    putinst('filesys.used', $indom, $instance, $used);
+	    $free = dovalue($token->attr->{'Ifree'});
+	    $used = dovalue($token->attr->{'Iused'});
+	    if (defined($free) && defined($used)) {
+		putinst('filesys.maxfiles', $indom, $instance, $used+$free);
+	    }
+	    putinst('filesys.freefiles', $indom, $instance, $free);
+	    putinst('filesys.usedfiles', $indom, $instance, $used);
+	}
+	elsif (!defined($skipped_tags{$token->tag})) {
+	    $warning_tags{$token->tag} = 1;
+	}
+	if ($putsts != 0) {
+	    my $tag = $token->tag;
+	    die "pmiPutValue: Failed @ $stamp on $tag: " . pmiErrStr($putsts) . "\n";
+	}
+	next;
+    }
+    elsif ($token->is_end_tag) {
+	#debug# print "end: " . $token->tag . "\n";
+	if ($token->tag eq 'timestamp') {
+	    #debug# my ($ss,$mm,$hh,$day,$month,$year,$zone) = strptime($stamp, "+1000");
+	    #debug# print "stamp: $stamp time: " . str2time($stamp) . " pieces: ss=$ss mm=$mm hh=$hh dd=$day month=$month year=$year";
+	    #debug# if (defined($zone)) { print " zone=$zone"; }
+	    #debug# print "\n";
+	    pmiWrite(str2time($stamp, $zone), 0) >= 0
+		or die "pmiWrite: @ $stamp: " . pmiErrStr(-1) . "\n";
+	}
+	elsif ($token->tag eq 'cpu-load' || $token->tag eq 'cpu-load-all') {
+	    $in_cpu_load = 0;
+	}
+	elsif ($token->tag eq 'number-of-cpus') {
+	    # log metric once ... don't create or use handle
+	    # value snarfed in $save_text
+	    pmiAddMetric($snarf_name, PM_ID_NULL, PM_TYPE_U32, PM_INDOM_NULL,
+				PM_SEM_DISCRETE, pmiUnits(0,0,0,0,0,0)) == 0
+		or die "pmiAddMetric(hinv.ncpu, ...): " . pmiErrStr(-1) . "\n";
+	    pmiPutValue($snarf_name, '', $save_text) >= 0
+		or die "pmiPutValue(hinv.ncpu,,$save_text): " . pmiErrStr(-1) . "\n";
+	}
+    }
+    elsif ($token->is_text) {
+	if ($snarf_text == 1) {
+	    put($snarf_name, $token->text);
+	    $snarf_text = 0;
+	}
+	elsif ($snarf_text == 2) {
+	    $save_text = $token->text;
+	    $snarf_text = 0;
+	}
+	else {
+	    #debug# print "text: " . $token->text . "\n";
+	    ;
+	}
+	next;
+    }
+    elsif ($token->is_comment) {
+	#debug# print "comment: " . $token->text . "\n";
+	next;
+    }
+    elsif ($token->is_pi) {
+	#debug# print "process instruction: " . $token->target . "\n";
+	next;
+    }
+}
+
+if (%warning_tags) {
+    my @warned = keys %warning_tags;
+    my $nwarns = $#warned + 1;
+    print STDERR
+	"PCP archive produced, but $nwarns unrecognised tag(s) detected in ".
+	"$sample samples:\n\t";
+    print STDERR '"', pop(@warned), '"';
+    while (@warned) { print STDERR ', "', pop(@warned), '"'; }
+    print STDERR "\n";
+}
+
+pmiEnd();

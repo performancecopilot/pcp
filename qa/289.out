@@ -1,0 +1,139 @@
+QA output created by 289
+Note: timezone set to local timezone of host "sandpit" from archive
+
+archive archives/mark-bug
+startTime: Wed Jul  9 12:09:16.933192
+endTime  : Wed Jul  9 12:12:11.621362
+samples=60 delta=2000ms
+forwards  @ Wed Jul  9 12:09:16.933192 vset[0]->numval=0
+forwards  @ Wed Jul  9 12:09:16.933192 vset[1]->numval=0
+fetch OK forwards  @ Wed Jul  9 12:09:18.933192
+fetch OK forwards  @ Wed Jul  9 12:09:20.933192
+fetch OK forwards  @ Wed Jul  9 12:09:22.933192
+fetch OK forwards  @ Wed Jul  9 12:09:24.933192
+fetch OK forwards  @ Wed Jul  9 12:09:26.933192
+fetch OK forwards  @ Wed Jul  9 12:09:28.933192
+fetch OK forwards  @ Wed Jul  9 12:09:30.933192
+fetch OK forwards  @ Wed Jul  9 12:09:32.933192
+fetch OK forwards  @ Wed Jul  9 12:09:34.933192
+fetch OK forwards  @ Wed Jul  9 12:09:36.933192
+fetch OK forwards  @ Wed Jul  9 12:09:38.933192
+fetch OK forwards  @ Wed Jul  9 12:09:40.933192
+fetch OK forwards  @ Wed Jul  9 12:09:42.933192
+fetch OK forwards  @ Wed Jul  9 12:09:44.933192
+fetch OK forwards  @ Wed Jul  9 12:09:46.933192
+fetch OK forwards  @ Wed Jul  9 12:09:48.933192
+fetch OK forwards  @ Wed Jul  9 12:09:50.933192
+fetch OK forwards  @ Wed Jul  9 12:09:52.933192
+fetch OK forwards  @ Wed Jul  9 12:09:54.933192
+fetch OK forwards  @ Wed Jul  9 12:09:56.933192
+fetch OK forwards  @ Wed Jul  9 12:09:58.933192
+fetch OK forwards  @ Wed Jul  9 12:10:00.933192
+fetch OK forwards  @ Wed Jul  9 12:10:02.933192
+fetch OK forwards  @ Wed Jul  9 12:10:04.933192
+fetch OK forwards  @ Wed Jul  9 12:10:06.933192
+fetch OK forwards  @ Wed Jul  9 12:10:08.933192
+fetch OK forwards  @ Wed Jul  9 12:10:10.933192
+fetch OK forwards  @ Wed Jul  9 12:10:12.933192
+fetch OK forwards  @ Wed Jul  9 12:10:14.933192
+fetch OK forwards  @ Wed Jul  9 12:10:16.933192
+fetch OK forwards  @ Wed Jul  9 12:10:18.933192
+fetch OK forwards  @ Wed Jul  9 12:10:20.933192
+fetch OK forwards  @ Wed Jul  9 12:10:22.933192
+fetch OK forwards  @ Wed Jul  9 12:10:24.933192
+fetch OK forwards  @ Wed Jul  9 12:10:26.933192
+fetch OK forwards  @ Wed Jul  9 12:10:28.933192
+fetch OK forwards  @ Wed Jul  9 12:10:30.933192
+fetch OK forwards  @ Wed Jul  9 12:10:32.933192
+fetch OK forwards  @ Wed Jul  9 12:10:34.933192
+fetch OK forwards  @ Wed Jul  9 12:10:36.933192
+fetch OK forwards  @ Wed Jul  9 12:10:38.933192
+fetch OK forwards  @ Wed Jul  9 12:10:40.933192
+fetch OK forwards  @ Wed Jul  9 12:10:42.933192
+fetch OK forwards  @ Wed Jul  9 12:10:44.933192
+fetch OK forwards  @ Wed Jul  9 12:10:46.933192
+fetch OK forwards  @ Wed Jul  9 12:10:48.933192
+fetch OK forwards  @ Wed Jul  9 12:10:50.933192
+fetch OK forwards  @ Wed Jul  9 12:10:52.933192
+fetch OK forwards  @ Wed Jul  9 12:10:54.933192
+forwards  @ Wed Jul  9 12:10:56.933192 vset[0]->numval=0
+forwards  @ Wed Jul  9 12:10:56.933192 vset[1]->numval=0
+forwards  @ Wed Jul  9 12:10:58.933192 vset[0]->numval=0
+forwards  @ Wed Jul  9 12:10:58.933192 vset[1]->numval=0
+forwards  @ Wed Jul  9 12:11:00.933192 vset[0]->numval=0
+forwards  @ Wed Jul  9 12:11:00.933192 vset[1]->numval=0
+forwards  @ Wed Jul  9 12:11:02.933192 vset[0]->numval=0
+forwards  @ Wed Jul  9 12:11:02.933192 vset[1]->numval=0
+forwards  @ Wed Jul  9 12:11:04.933192 vset[0]->numval=0
+forwards  @ Wed Jul  9 12:11:04.933192 vset[1]->numval=0
+fetch OK forwards  @ Wed Jul  9 12:11:06.933192
+fetch OK forwards  @ Wed Jul  9 12:11:08.933192
+fetch OK forwards  @ Wed Jul  9 12:11:10.933192
+fetch OK forwards  @ Wed Jul  9 12:11:12.933192
+fetch OK forwards  @ Wed Jul  9 12:11:14.933192
+fetch OK rewinding @ Wed Jul  9 12:11:14.933192
+fetch OK rewinding @ Wed Jul  9 12:11:12.933192
+fetch OK rewinding @ Wed Jul  9 12:11:10.933192
+fetch OK rewinding @ Wed Jul  9 12:11:08.933192
+fetch OK rewinding @ Wed Jul  9 12:11:06.933192
+rewinding @ Wed Jul  9 12:11:04.933192 vset[0]->numval=0
+rewinding @ Wed Jul  9 12:11:04.933192 vset[1]->numval=0
+rewinding @ Wed Jul  9 12:11:02.933192 vset[0]->numval=0
+rewinding @ Wed Jul  9 12:11:02.933192 vset[1]->numval=0
+rewinding @ Wed Jul  9 12:11:00.933192 vset[0]->numval=0
+rewinding @ Wed Jul  9 12:11:00.933192 vset[1]->numval=0
+rewinding @ Wed Jul  9 12:10:58.933192 vset[0]->numval=0
+rewinding @ Wed Jul  9 12:10:58.933192 vset[1]->numval=0
+rewinding @ Wed Jul  9 12:10:56.933192 vset[0]->numval=0
+rewinding @ Wed Jul  9 12:10:56.933192 vset[1]->numval=0
+fetch OK rewinding @ Wed Jul  9 12:10:54.933192
+fetch OK rewinding @ Wed Jul  9 12:10:52.933192
+fetch OK rewinding @ Wed Jul  9 12:10:50.933192
+fetch OK rewinding @ Wed Jul  9 12:10:48.933192
+fetch OK rewinding @ Wed Jul  9 12:10:46.933192
+fetch OK rewinding @ Wed Jul  9 12:10:44.933192
+fetch OK rewinding @ Wed Jul  9 12:10:42.933192
+fetch OK rewinding @ Wed Jul  9 12:10:40.933192
+fetch OK rewinding @ Wed Jul  9 12:10:38.933192
+fetch OK rewinding @ Wed Jul  9 12:10:36.933192
+fetch OK rewinding @ Wed Jul  9 12:10:34.933192
+fetch OK rewinding @ Wed Jul  9 12:10:32.933192
+fetch OK rewinding @ Wed Jul  9 12:10:30.933192
+fetch OK rewinding @ Wed Jul  9 12:10:28.933192
+fetch OK rewinding @ Wed Jul  9 12:10:26.933192
+fetch OK rewinding @ Wed Jul  9 12:10:24.933192
+fetch OK rewinding @ Wed Jul  9 12:10:22.933192
+fetch OK rewinding @ Wed Jul  9 12:10:20.933192
+fetch OK rewinding @ Wed Jul  9 12:10:18.933192
+fetch OK rewinding @ Wed Jul  9 12:10:16.933192
+fetch OK rewinding @ Wed Jul  9 12:10:14.933192
+fetch OK rewinding @ Wed Jul  9 12:10:12.933192
+fetch OK rewinding @ Wed Jul  9 12:10:10.933192
+fetch OK rewinding @ Wed Jul  9 12:10:08.933192
+fetch OK rewinding @ Wed Jul  9 12:10:06.933192
+fetch OK rewinding @ Wed Jul  9 12:10:04.933192
+fetch OK rewinding @ Wed Jul  9 12:10:02.933192
+fetch OK rewinding @ Wed Jul  9 12:10:00.933192
+fetch OK rewinding @ Wed Jul  9 12:09:58.933192
+fetch OK rewinding @ Wed Jul  9 12:09:56.933192
+fetch OK rewinding @ Wed Jul  9 12:09:54.933192
+fetch OK rewinding @ Wed Jul  9 12:09:52.933192
+fetch OK rewinding @ Wed Jul  9 12:09:50.933192
+fetch OK rewinding @ Wed Jul  9 12:09:48.933192
+fetch OK rewinding @ Wed Jul  9 12:09:46.933192
+fetch OK rewinding @ Wed Jul  9 12:09:44.933192
+fetch OK rewinding @ Wed Jul  9 12:09:42.933192
+fetch OK rewinding @ Wed Jul  9 12:09:40.933192
+fetch OK rewinding @ Wed Jul  9 12:09:38.933192
+fetch OK rewinding @ Wed Jul  9 12:09:36.933192
+fetch OK rewinding @ Wed Jul  9 12:09:34.933192
+fetch OK rewinding @ Wed Jul  9 12:09:32.933192
+fetch OK rewinding @ Wed Jul  9 12:09:30.933192
+fetch OK rewinding @ Wed Jul  9 12:09:28.933192
+fetch OK rewinding @ Wed Jul  9 12:09:26.933192
+fetch OK rewinding @ Wed Jul  9 12:09:24.933192
+fetch OK rewinding @ Wed Jul  9 12:09:22.933192
+fetch OK rewinding @ Wed Jul  9 12:09:20.933192
+fetch OK rewinding @ Wed Jul  9 12:09:18.933192
+rewinding @ Wed Jul  9 12:09:16.933192 vset[0]->numval=0
+rewinding @ Wed Jul  9 12:09:16.933192 vset[1]->numval=0

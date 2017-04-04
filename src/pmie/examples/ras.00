@@ -1,0 +1,11 @@
+//
+// For Origin systems, sequence number errors are not indicative of
+// a problem, but persistent checkbit and/or retry errors may indicate
+// a CrayLink interconnect problem.
+//
+some_inst ( all_sample (
+    hw.router.perport.cb_errors @0..2 > 0 || 
+    hw.router.perport.retry_errors @0..2 > 0
+) )
+    ->  alarm 30mins "CrayLink SN and/or Retry errors: " "%i ";
+

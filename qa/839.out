@@ -1,0 +1,27 @@
+QA output created by 839
+Basic verification
+** DEBUG: pmdadmcache(1), status=0
+** DEBUG: pmdajbd2(1), status=0
+** DEBUG: pmdalinux(1), status=0
+** DEBUG: pmdammv(1), status=0
+** DEBUG: pmdapmcd(1), status=0
+** DEBUG: pmdapostgresql(1), status=0
+** DEBUG: pmdaproc(1), status=f0008
+== FAIL: the pmdaproc(1) was timed out by pmcd.
+** DEBUG: pmdaroot(1), status=0
+** DEBUG: pmdasample(1), status=0
+** DEBUG: pmdasampledso(1), status=0
+** DEBUG: pmdasimple(1), status=0
+** DEBUG: pmdaxfs(1), status=0
+** DEBUG: pmdazswap(1), status=0
+** DEBUG: completed basic installation checks
+Secure verification
+** DEBUG: completed secure install verification
+Containers verification
+** DEBUG: verified pmdalinux installed
+** DEBUG: verified pmdaroot installed
+** DEBUG: verified pmdaroot running
+== FAIL: the pmdalinux(1) is running as a DSO.
+	Containers namespace operations cannot function.
+	Check man page, Install daemon PMDA /var/lib/pcp/pmdas/pmdas/linux.
+** DEBUG: completed containers verification

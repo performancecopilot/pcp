@@ -1,0 +1,824 @@
+<ui version="4.0" >
+ <class>PmTimeLive</class>
+ <widget class="QMainWindow" name="PmTimeLive" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>310</width>
+    <height>155</height>
+   </rect>
+  </property>
+  <property name="sizePolicy" >
+   <sizepolicy>
+    <hsizetype>0</hsizetype>
+    <vsizetype>0</vsizetype>
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="minimumSize" >
+   <size>
+    <width>310</width>
+    <height>155</height>
+   </size>
+  </property>
+  <property name="maximumSize" >
+   <size>
+    <width>310</width>
+    <height>155</height>
+   </size>
+  </property>
+  <property name="windowTitle" >
+   <string>PCP Live Time Control</string>
+  </property>
+  <property name="windowIcon" >
+   <iconset resource="pmtime.qrc" >:/images/pmtime.png</iconset>
+  </property>
+  <property name="windowIconText" >
+   <string/>
+  </property>
+  <property name="toolTip" >
+   <string/>
+  </property>
+  <property name="whatsThis" >
+   <string>&lt;b>Live Time Control&lt;/b>&lt;br>
+A time server, sending time related information (current time,
+metric value fetch interval, timezone) to one or more client
+programs (e.g. pmchart, pmval, etc).</string>
+  </property>
+  <widget class="QWidget" name="widget" >
+   <layout class="QGridLayout" >
+    <property name="margin" >
+     <number>9</number>
+    </property>
+    <property name="spacing" >
+     <number>6</number>
+    </property>
+    <item row="0" column="0" >
+     <layout class="QHBoxLayout" >
+      <property name="margin" >
+       <number>0</number>
+      </property>
+      <property name="spacing" >
+       <number>6</number>
+      </property>
+      <item>
+       <layout class="QVBoxLayout" >
+        <property name="margin" >
+         <number>0</number>
+        </property>
+        <property name="spacing" >
+         <number>6</number>
+        </property>
+        <item>
+         <widget class="QLabel" name="textLabel1" >
+          <property name="whatsThis" >
+           <string>&lt;b>Sampling interval&lt;/b>&lt;br>
+Numeric values entered into these fields will form the number of
+days, hours, minutes, seconds, and/or milliseconds between PCP
+metric value samples in Time Control client programs
+(e.g. pmchart, pmval, etc).</string>
+          </property>
+          <property name="text" >
+           <string>Interval</string>
+          </property>
+          <property name="alignment" >
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+          <property name="wordWrap" >
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="textLabel2" >
+          <property name="whatsThis" >
+           <string>&lt;b>Time Position&lt;/b>&lt;br>
+This text field displays the current time position.  This value is
+sent to clients (e.g. pmchart, pmval) of this Time Control
+program to synchronise them in terms of the progression of time
+and also with respect to any "play mode" changes requested.</string>
+          </property>
+          <property name="text" >
+           <string>Time</string>
+          </property>
+          <property name="alignment" >
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+          <property name="wordWrap" >
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="textLabel3" >
+          <property name="whatsThis" >
+           <string>&lt;b>Live Control&lt;/b>&lt;br>
+Pressing the Stop/Play controls will begin/block the advancement
+of time, as seen by the Time Control program and all of its clients
+(e.g. pmchart, pmval, etc).  Time will advance in increments of thecurrent Interval.</string>
+          </property>
+          <property name="text" >
+           <string>Control</string>
+          </property>
+          <property name="alignment" >
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+          <property name="wordWrap" >
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QVBoxLayout" >
+        <property name="margin" >
+         <number>0</number>
+        </property>
+        <property name="spacing" >
+         <number>6</number>
+        </property>
+        <item>
+         <layout class="QHBoxLayout" >
+          <property name="margin" >
+           <number>0</number>
+          </property>
+          <property name="spacing" >
+           <number>6</number>
+          </property>
+          <item>
+           <widget class="QLineEdit" name="lineEditDelta" >
+            <property name="sizePolicy" >
+             <sizepolicy>
+              <hsizetype>1</hsizetype>
+              <vsizetype>0</vsizetype>
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize" >
+             <size>
+              <width>98</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="maximumSize" >
+             <size>
+              <width>98</width>
+              <height>32767</height>
+             </size>
+            </property>
+            <property name="toolTip" >
+             <string comment="Time interval between performance metric value samples" >Sampling interval</string>
+            </property>
+            <property name="whatsThis" >
+             <string>&lt;b>Sampling interval&lt;/b>&lt;br>
+Numeric values entered into these fields will form the number of
+hours, minutes and/or seconds between PCP metric value
+samples in Time Control client programs (e.g. pmchart, pmval, etc).</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QComboBox" name="comboBoxDelta" >
+            <property name="whatsThis" >
+             <string>&lt;b>Sampling interval units&lt;/b>&lt;br>
+Displays the units in which the sampling interval is entered.
+Metric values can be sampled in days, hours, minutes, seconds
+or milliseconds in Time Control client programs (e.g. pmchart,
+pmval, etc).</string>
+            </property>
+            <property name="currentIndex" >
+             <number>1</number>
+            </property>
+            <item>
+             <property name="text" >
+              <string>Milliseconds</string>
+             </property>
+            </item>
+            <item>
+             <property name="text" >
+              <string>Seconds</string>
+             </property>
+            </item>
+            <item>
+             <property name="text" >
+              <string>Minutes</string>
+             </property>
+            </item>
+            <item>
+             <property name="text" >
+              <string>Hours</string>
+             </property>
+            </item>
+            <item>
+             <property name="text" >
+              <string>Days</string>
+             </property>
+            </item>
+            <item>
+             <property name="text" >
+              <string>Weeks</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="lineEditCtime" >
+          <property name="sizePolicy" >
+           <sizepolicy>
+            <hsizetype>1</hsizetype>
+            <vsizetype>0</vsizetype>
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize" >
+           <size>
+            <width>200</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="maximumSize" >
+           <size>
+            <width>32767</width>
+            <height>32767</height>
+           </size>
+          </property>
+          <property name="acceptDrops" >
+           <bool>false</bool>
+          </property>
+          <property name="toolTip" >
+           <string comment="This is the current time position as seen by all pmtime clients (e.g. pmchart, pmval, etc)" >Current date and time display</string>
+          </property>
+          <property name="whatsThis" >
+           <string>&lt;b>Time Position&lt;/b>&lt;br>
+This text field displays the current time position.  This value is
+sent to clients (e.g. pmchart, pmval) of this Time Control
+program to synchronise them in terms of the progression of time
+and also with respect to any "play mode" changes requested.</string>
+          </property>
+          <property name="readOnly" >
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" >
+          <property name="margin" >
+           <number>0</number>
+          </property>
+          <property name="spacing" >
+           <number>6</number>
+          </property>
+          <item>
+           <widget class="QToolButton" name="buttonStop" >
+            <property name="sizePolicy" >
+             <sizepolicy>
+              <hsizetype>0</hsizetype>
+              <vsizetype>0</vsizetype>
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize" >
+             <size>
+              <width>54</width>
+              <height>36</height>
+             </size>
+            </property>
+            <property name="whatsThis" >
+             <string>&lt;b>Stop&lt;/b>&lt;br>
+Pressing this button will stop the advancement of time, as seen
+by the Time Control program and all of its clients (e.g. pmchart,
+pmval, etc).  Unless stopped, time advances in increments of the
+current Interval.</string>
+            </property>
+            <property name="text" >
+             <string/>
+            </property>
+            <property name="iconSize" >
+             <size>
+              <width>52</width>
+              <height>32</height>
+             </size>
+            </property>
+            <property name="shortcut" >
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QToolButton" name="buttonPlay" >
+            <property name="sizePolicy" >
+             <sizepolicy>
+              <hsizetype>0</hsizetype>
+              <vsizetype>0</vsizetype>
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize" >
+             <size>
+              <width>54</width>
+              <height>36</height>
+             </size>
+            </property>
+            <property name="whatsThis" >
+             <string>&lt;b>Play&lt;/b>&lt;br>
+Pressing this button will begin the advancement of time, as seen
+by the Time Control program and all of its clients (e.g. pmchart,
+pmval, etc).  Time will advance in increments of the current
+Interval.</string>
+            </property>
+            <property name="text" >
+             <string/>
+            </property>
+            <property name="iconSize" >
+             <size>
+              <width>52</width>
+              <height>32</height>
+             </size>
+            </property>
+            <property name="shortcut" >
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer>
+            <property name="orientation" >
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeType" >
+             <enum>QSizePolicy::Expanding</enum>
+            </property>
+            <property name="sizeHint" >
+             <size>
+              <width>29</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </item>
+    <item row="1" column="0" >
+     <spacer>
+      <property name="orientation" >
+       <enum>Qt::Vertical</enum>
+      </property>
+      <property name="sizeType" >
+       <enum>QSizePolicy::MinimumExpanding</enum>
+      </property>
+      <property name="sizeHint" >
+       <size>
+        <width>20</width>
+        <height>0</height>
+       </size>
+      </property>
+     </spacer>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="MenuBar" >
+   <property name="geometry" >
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>310</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="Help" >
+    <property name="title" >
+     <string>&amp;Help</string>
+    </property>
+    <addaction name="helpManualAction" />
+    <addaction name="separator" />
+    <addaction name="helpAboutAction" />
+    <addaction name="helpAboutQtAction" />
+    <addaction name="helpSeeAlsoAction" />
+    <addaction name="separator" />
+    <addaction name="helpWhats_ThisAction" />
+   </widget>
+   <widget class="QMenu" name="File" >
+    <property name="title" >
+     <string>&amp;File</string>
+    </property>
+    <addaction name="fileHideAction" />
+   </widget>
+   <widget class="QMenu" name="Options" >
+    <property name="title" >
+     <string>&amp;Options</string>
+    </property>
+    <widget class="QMenu" name="optionsDetailAction" >
+     <property name="whatsThis" >
+      <string>&lt;b>Options|Detail&lt;/b>&lt;br>
+Click this menu item to allow extended precision in time
+reporting to be enabled.  Optionally, milliseconds and year can
+be displayed in the current time position, and days and milliseconds
+can be displayed in the current time interval.</string>
+     </property>
+     <property name="title" >
+      <string>&amp;Detail</string>
+     </property>
+     <addaction name="optionsDetailShow_MillisecondsAction" />
+     <addaction name="optionsDetailShow_YearAction" />
+    </widget>
+    <widget class="QMenu" name="optionsTimezoneAction" >
+     <property name="windowIcon" >
+      <iconset resource="pmtime.qrc" >:/images/internet-web-browser.png</iconset>
+     </property>
+     <property name="whatsThis" >
+      <string>&lt;b>Options|Timezone&lt;/b>&lt;br>
+Click on this menu item to display a list of available timezones,
+from which to choose.  The timezone selected will be made the
+new reporting timezone for all client programs (e.g. pmchart,
+pmval, etc) and affects the display of timestamps in the clients
+and also in the Time Control program itself.</string>
+     </property>
+     <property name="title" >
+      <string>&amp;Timezone</string>
+     </property>
+     <property name="icon" >
+      <iconset resource="pmtime.qrc" >:/images/internet-web-browser.png</iconset>
+     </property>
+    </widget>
+    <addaction name="optionsTimezoneAction" />
+    <addaction name="optionsDetailAction" />
+    <addaction name="optionsShowConsoleAction" />
+   </widget>
+   <addaction name="File" />
+   <addaction name="Options" />
+   <addaction name="separator" />
+   <addaction name="Help" />
+  </widget>
+  <action name="helpAboutAction" >
+   <property name="icon" >
+    <iconset resource="pmtime.qrc" >:/images/pmtime.png</iconset>
+   </property>
+   <property name="text" >
+    <string>&amp;About</string>
+   </property>
+   <property name="iconText" >
+    <string>About pmtime</string>
+   </property>
+   <property name="whatsThis" >
+    <string>&lt;b>Help|About&lt;/b>&lt;br>
+Click this menu option to bring up the About &lt;i>pmtime&lt;/i> dialog with version, author, and licensing information.</string>
+   </property>
+   <property name="shortcut" >
+    <string/>
+   </property>
+  </action>
+  <action name="fileHideAction" >
+   <property name="icon" >
+    <iconset resource="pmtime.qrc" >:/images/edit-clear.png</iconset>
+   </property>
+   <property name="text" >
+    <string>&amp;Hide</string>
+   </property>
+   <property name="iconText" >
+    <string>Hide Live Time Control window</string>
+   </property>
+   <property name="toolTip" >
+    <string>Hide Live Time Control window</string>
+   </property>
+   <property name="whatsThis" >
+    <string>&lt;b>File|Hide&lt;/b>&lt;br>
+Click on this menu option to dismiss the Time Control window,
+for the time being.  As the Time Control serves one or
+more client programs (which are completely reliant on the Time
+Controls), this action does not end the Time Control program.
+Rather, it simply removes the window from the visible set.&lt;br>
+The client programs will typically provide a mechanism for making
+the Time Controls visible.</string>
+   </property>
+   <property name="shortcut" >
+    <string>Ctrl+H</string>
+   </property>
+  </action>
+  <action name="optionsDetailShow_MillisecondsAction" >
+   <property name="checkable" >
+    <bool>true</bool>
+   </property>
+   <property name="text" >
+    <string>Show &amp;Milliseconds</string>
+   </property>
+   <property name="iconText" >
+    <string>Show Milliseconds in Time</string>
+   </property>
+   <property name="whatsThis" >
+    <string>&lt;b>Options|Detail|Milliseconds&lt;/b>&lt;br>
+Display millisecond precision (or not) in the current time interval and
+position.</string>
+   </property>
+   <property name="shortcut" >
+    <string>Ctrl+M</string>
+   </property>
+  </action>
+  <action name="optionsDetailShow_YearAction" >
+   <property name="checkable" >
+    <bool>true</bool>
+   </property>
+   <property name="text" >
+    <string>Show &amp;Year</string>
+   </property>
+   <property name="iconText" >
+    <string>Show Year in Time</string>
+   </property>
+   <property name="whatsThis" >
+    <string>&lt;b>Options|Detail|Year&lt;/b>&lt;br>
+Display the year (or not) in the current time position.</string>
+   </property>
+   <property name="shortcut" >
+    <string>Ctrl+Y</string>
+   </property>
+  </action>
+  <action name="optionsShowConsoleAction" >
+   <property name="text" >
+    <string>&amp;Show Console</string>
+   </property>
+   <property name="iconText" >
+    <string>Show Diagnostic Console</string>
+   </property>
+   <property name="whatsThis" >
+    <string>&lt;b>Option|Show Console&lt;/b>&lt;br>
+Click here to display the diagnostic console with whatever debug
+information has been sent there.  This menu option is available
+only when the -D command line option is in use, which allows a
+level of runtime verbosity to be configured (default is "none").</string>
+   </property>
+   <property name="shortcut" >
+    <string>Ctrl+C</string>
+   </property>
+  </action>
+  <action name="helpAboutQtAction" >
+   <property name="text" >
+    <string>About Qt</string>
+   </property>
+   <property name="iconText" >
+    <string>About Qt</string>
+   </property>
+   <property name="whatsThis" >
+    <string>&lt;b>Help|About Qt&lt;/b>&lt;br>
+Click on this menu option to bring up the See Also dialog, with author and website information about Qt - which provides software infrastructure on which this tool was built.</string>
+   </property>
+  </action>
+  <action name="helpSeeAlsoAction" >
+   <property name="text" >
+    <string>See Also</string>
+   </property>
+   <property name="iconText" >
+    <string>See Also</string>
+   </property>
+   <property name="whatsThis" >
+    <string>&lt;b>Help|See Also&lt;/b>&lt;br>
+Click on this menu option to bring up the See Also dialog, with author and website information about PCP, Qwt, and Qt - all of which provide software infrastructure on which this tool was built.</string>
+   </property>
+  </action>
+  <action name="helpWhats_ThisAction" >
+   <property name="icon" >
+    <iconset resource="pmtime.qrc" >:/images/whatsthis.png</iconset>
+   </property>
+   <property name="text" >
+    <string>What's This?</string>
+   </property>
+   <property name="iconText" >
+    <string>"What's This?" context sensitive help</string>
+   </property>
+   <property name="whatsThis" >
+    <string>&lt;b>Help|What's This&lt;/b>&lt;br>
+Click this menu option to invoke a small question mark that is attached to the mouse pointer.  Click on a feature which you would like more information about.  A popup box appears with more information about the feature.</string>
+   </property>
+   <property name="shortcut" >
+    <string>Shift+F1</string>
+   </property>
+  </action>
+  <action name="helpManualAction" >
+   <property name="text" >
+    <string>&amp;Manual</string>
+   </property>
+   <property name="iconText" >
+    <string>Manual</string>
+   </property>
+   <property name="shortcut" >
+    <string>F1</string>
+   </property>
+  </action>
+ </widget>
+ <layoutdefault spacing="6" margin="11" />
+ <includes>
+  <include location="local" >pmtime.h</include>
+  <include location="local" >console.h</include>
+  <include location="local" >timezone.h</include>
+ </includes>
+ <resources>
+  <include location="pmtime.qrc" />
+ </resources>
+ <connections>
+  <connection>
+   <sender>fileHideAction</sender>
+   <signal>triggered()</signal>
+   <receiver>PmTimeLive</receiver>
+   <slot>hideWindow()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>helpAboutAction</sender>
+   <signal>triggered()</signal>
+   <receiver>PmTimeLive</receiver>
+   <slot>helpAbout()</slot>
+  </connection>
+  <connection>
+   <sender>helpAboutQtAction</sender>
+   <signal>triggered()</signal>
+   <receiver>PmTimeLive</receiver>
+   <slot>helpAboutQt()</slot>
+  </connection>
+  <connection>
+   <sender>helpSeeAlsoAction</sender>
+   <signal>triggered()</signal>
+   <receiver>PmTimeLive</receiver>
+   <slot>helpSeeAlso()</slot>
+  </connection>
+  <connection>
+   <sender>buttonPlay</sender>
+   <signal>clicked()</signal>
+   <receiver>PmTimeLive</receiver>
+   <slot>play_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonStop</sender>
+   <signal>clicked()</signal>
+   <receiver>PmTimeLive</receiver>
+   <slot>stop_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>optionsDetailShow_MillisecondsAction</sender>
+   <signal>triggered()</signal>
+   <receiver>PmTimeLive</receiver>
+   <slot>clickShowMsec()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>optionsDetailShow_YearAction</sender>
+   <signal>triggered()</signal>
+   <receiver>PmTimeLive</receiver>
+   <slot>clickShowYear()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>optionsShowConsoleAction</sender>
+   <signal>triggered()</signal>
+   <receiver>PmTimeLive</receiver>
+   <slot>showConsole()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>comboBoxDelta</sender>
+   <signal>activated(int)</signal>
+   <receiver>PmTimeLive</receiver>
+   <slot>changeDelta(int)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>helpWhats_ThisAction</sender>
+   <signal>triggered()</signal>
+   <receiver>PmTimeLive</receiver>
+   <slot>whatsThis()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>lineEditDelta</sender>
+   <signal>returnPressed()</signal>
+   <receiver>PmTimeLive</receiver>
+   <slot>lineEditDelta_validate()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>lineEditDelta</sender>
+   <signal>textChanged(QString)</signal>
+   <receiver>PmTimeLive</receiver>
+   <slot>lineEditDelta_changed(QString)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>helpManualAction</sender>
+   <signal>triggered()</signal>
+   <receiver>PmTimeLive</receiver>
+   <slot>helpManual()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

@@ -1,0 +1,37 @@
+#! /bin/sh
+# PCP QA Test No. 132
+# exercise the new -L (linger) option to pmlogger
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+trap "$sudo rm -f $tmp $tmp.*; exit" 0 1 2 3 15
+
+# real QA test starts here
+$sudo rm -f $tmp.*
+pmlogger -c /dev/null $tmp 2>&1 \
+| _filter_pmlogger_log
+
+$sudo rm -f $tmp.*
+_start_up_pmlogger -L -c /dev/null -l $tmp.log -s1 $tmp >$tmp.out 2>&1
+logger_pid=$pid
+
+# this sleep is necessary to allow pmlogger to start up properly
+# before running pmlc
+pmsleep 1.1
+
+pmlc <<End-of-File
+connect $logger_pid
+log mandatory on 10 msec sample.bin
+End-of-File
+
+_wait_pmlogger_end $logger_pid
+_filter_pmlogger_log <$tmp.log

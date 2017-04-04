@@ -1,0 +1,27 @@
+QA output created by 892
+
+== checking loop pmcd access, expecting success
+
+pmcd.feature.local
+    value 0
+
+== checking ipv6 pmcd access, expecting success
+
+pmcd.feature.local
+    value 0
+
+== changing default setup to local host only
+
+Waiting for pmcd to terminate ...
+Starting pmcd ... 
+
+== checking loop pmcd access, expecting success
+
+pmcd.feature.local
+    value 1
+
+== checking bad pmcd access, expect no values
+pminfo: Cannot connect to PMCD on host "pcp://[IPV6ADDR]": Connection refused
+Waiting for pmcd to terminate ...
+Starting pmcd ... 
+Starting pmlogger ... 

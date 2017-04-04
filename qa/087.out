@@ -1,0 +1,1474 @@
+QA output created by 087
+
+=== archives/ok-interp ===
+
+interpolate 50, 1 seconds appart
+Warning: pmLookupDesc(sample.drift): Metric not defined in the PCP archive log
+
+sample 1, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 2, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 3, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 4, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 5, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 6, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 7, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 8, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 9, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 10, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 11, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 12, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 13, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 14, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 15, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 16, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 17, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 18, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 19, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 20, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 21, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 22, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 23, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 24, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 25, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 26, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 27, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 28, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 29, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 30, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 31, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 32, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 33, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 34, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 35, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 36, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 37, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 38, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 39, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 40, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 41, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 42, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 43, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 44, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 45, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 46, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 47, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 48, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 49, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+50 samples required 30-50 log reads
+
+interpolate 20, 4 seconds appart
+Warning: pmLookupDesc(sample.drift): Metric not defined in the PCP archive log
+
+sample 1, delta time=4.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 4000 +/- 40
+
+sample 2, delta time=4.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 4000 +/- 40
+
+sample 3, delta time=4.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 4000 +/- 40
+
+sample 4, delta time=4.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 4000 +/- 40
+
+sample 5, delta time=4.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 4000 +/- 40
+
+sample 6, delta time=4.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 4000 +/- 40
+
+sample 7, delta time=4.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 4000 +/- 40
+
+sample 8, delta time=4.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 4000 +/- 40
+
+sample 9, delta time=4.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 4000 +/- 40
+
+sample 10, delta time=4.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 4000 +/- 40
+
+sample 11, delta time=4.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 4000 +/- 40
+
+sample 12, delta time=4.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 4000 +/- 40
+
+sample 13, delta time=4.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 4000 +/- 40
+
+sample 14, delta time=4.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 4000 +/- 40
+
+sample 15, delta time=4.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 4000 +/- 40
+
+sample 16, delta time=4.000 secs
+sample.seconds: no current values 
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 4000 +/- 40
+sample[17] pmFetch: End of PCP archive log
+
+17 samples required 30-50 log reads
+
+interpolate 16, 5 seconds appart
+Warning: pmLookupDesc(sample.drift): Metric not defined in the PCP archive log
+
+sample 1, delta time=5.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 5000 +/- 40
+
+sample 2, delta time=5.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 5000 +/- 40
+
+sample 3, delta time=5.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 5000 +/- 40
+
+sample 4, delta time=5.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 5000 +/- 40
+
+sample 5, delta time=5.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 5000 +/- 40
+
+sample 6, delta time=5.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 5000 +/- 40
+
+sample 7, delta time=5.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 5000 +/- 40
+
+sample 8, delta time=5.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 5000 +/- 40
+
+sample 9, delta time=5.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 5000 +/- 40
+
+sample 10, delta time=5.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 5000 +/- 40
+
+sample 11, delta time=5.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 5000 +/- 40
+
+sample 12, delta time=5.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 5000 +/- 40
+
+sample 13, delta time=5.000 secs
+sample.seconds: no current values 
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 5000 +/- 40
+sample[14] pmFetch: End of PCP archive log
+
+14 samples required 30-50 log reads
+
+interpolate 10, 8 seconds appart
+Warning: pmLookupDesc(sample.drift): Metric not defined in the PCP archive log
+
+sample 1, delta time=8.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 8000 +/- 60
+
+sample 2, delta time=8.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 8000 +/- 60
+
+sample 3, delta time=8.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 8000 +/- 60
+
+sample 4, delta time=8.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 8000 +/- 60
+
+sample 5, delta time=8.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 8000 +/- 60
+
+sample 6, delta time=8.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 8000 +/- 60
+
+sample 7, delta time=8.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 8000 +/- 60
+
+sample 8, delta time=8.000 secs
+sample.seconds: no current values 
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 8000 +/- 60
+sample[9] pmFetch: End of PCP archive log
+
+9 samples required 30-50 log reads
+
+interpolate 8, 10 seconds appart
+Warning: pmLookupDesc(sample.drift): Metric not defined in the PCP archive log
+
+sample 1, delta time=10.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 10000 +/- 60
+
+sample 2, delta time=10.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 10000 +/- 60
+
+sample 3, delta time=10.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 10000 +/- 60
+
+sample 4, delta time=10.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 10000 +/- 60
+
+sample 5, delta time=10.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 10000 +/- 60
+
+sample 6, delta time=10.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 10000 +/- 60
+sample[7] pmFetch: End of PCP archive log
+
+7 samples required 30-50 log reads
+
+=== archives/ok-mv-interp ===
+
+interpolate 50, 1 seconds appart
+Warning: pmLookupDesc(sample.drift): Metric not defined in the PCP archive log
+
+sample 1, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 2, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 3, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 4, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 5, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 6, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 7, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 8, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 9, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 10, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 11, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 12, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 13, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 14, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 15, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 16, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 17, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 18, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 19, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 20, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 21, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 22, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 23, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 24, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 25, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 26, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 27, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 28, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 29, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 30, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 31, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 32, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 33, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 34, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 35, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 36, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 37, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 38, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 39, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 40, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 41, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 42, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 43, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 44, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 45, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 46, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 47, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 48, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 49, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+50 samples required 30-50 log reads
+
+interpolate 20, 4 seconds appart
+Warning: pmLookupDesc(sample.drift): Metric not defined in the PCP archive log
+
+sample 1, delta time=4.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 4000 +/- 40
+
+sample 2, delta time=4.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 4000 +/- 40
+
+sample 3, delta time=4.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 4000 +/- 40
+
+sample 4, delta time=4.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 4000 +/- 40
+
+sample 5, delta time=4.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 4000 +/- 40
+
+sample 6, delta time=4.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 4000 +/- 40
+
+sample 7, delta time=4.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 4000 +/- 40
+
+sample 8, delta time=4.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 4000 +/- 40
+
+sample 9, delta time=4.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 4000 +/- 40
+
+sample 10, delta time=4.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 4000 +/- 40
+
+sample 11, delta time=4.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 4000 +/- 40
+
+sample 12, delta time=4.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 4000 +/- 40
+
+sample 13, delta time=4.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 4000 +/- 40
+
+sample 14, delta time=4.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 4000 +/- 40
+
+sample 15, delta time=4.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 4000 +/- 40
+
+sample 16, delta time=4.000 secs
+sample.seconds: no current values 
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 4000 +/- 40
+sample[17] pmFetch: End of PCP archive log
+
+17 samples required 30-50 log reads
+
+interpolate 16, 5 seconds appart
+Warning: pmLookupDesc(sample.drift): Metric not defined in the PCP archive log
+
+sample 1, delta time=5.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 5000 +/- 40
+
+sample 2, delta time=5.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 5000 +/- 40
+
+sample 3, delta time=5.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 5000 +/- 40
+
+sample 4, delta time=5.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 5000 +/- 40
+
+sample 5, delta time=5.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 5000 +/- 40
+
+sample 6, delta time=5.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 5000 +/- 40
+
+sample 7, delta time=5.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 5000 +/- 40
+
+sample 8, delta time=5.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 5000 +/- 40
+
+sample 9, delta time=5.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 5000 +/- 40
+
+sample 10, delta time=5.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 5000 +/- 40
+
+sample 11, delta time=5.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 5000 +/- 40
+
+sample 12, delta time=5.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 5000 +/- 40
+
+sample 13, delta time=5.000 secs
+sample.seconds: no current values 
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 5000 +/- 40
+sample[14] pmFetch: End of PCP archive log
+
+14 samples required 30-50 log reads
+
+interpolate 10, 8 seconds appart
+Warning: pmLookupDesc(sample.drift): Metric not defined in the PCP archive log
+
+sample 1, delta time=8.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 8000 +/- 60
+
+sample 2, delta time=8.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 8000 +/- 60
+
+sample 3, delta time=8.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 8000 +/- 60
+
+sample 4, delta time=8.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 8000 +/- 60
+
+sample 5, delta time=8.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 8000 +/- 60
+
+sample 6, delta time=8.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 8000 +/- 60
+
+sample 7, delta time=8.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 8000 +/- 60
+
+sample 8, delta time=8.000 secs
+sample.seconds: no current values 
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 8000 +/- 60
+sample[9] pmFetch: End of PCP archive log
+
+9 samples required 30-50 log reads
+
+interpolate 8, 10 seconds appart
+Warning: pmLookupDesc(sample.drift): Metric not defined in the PCP archive log
+
+sample 1, delta time=10.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 10000 +/- 60
+
+sample 2, delta time=10.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 10000 +/- 60
+
+sample 3, delta time=10.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 10000 +/- 60
+
+sample 4, delta time=10.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 10000 +/- 60
+
+sample 5, delta time=10.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 10000 +/- 60
+
+sample 6, delta time=10.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 10000 +/- 60
+sample[7] pmFetch: End of PCP archive log
+
+7 samples required 30-50 log reads
+
+=== archives/ok-noti-interp ===
+
+interpolate 50, 1 seconds appart
+Warning: pmLookupDesc(sample.drift): Metric not defined in the PCP archive log
+
+sample 1, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 2, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 3, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 4, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 5, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 6, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 7, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 8, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 9, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 10, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 11, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 12, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 13, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 14, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 15, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 16, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 17, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 18, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 19, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 20, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 21, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 22, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 23, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 24, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 25, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 26, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 27, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 28, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 29, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 30, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 31, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 32, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 33, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 34, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 35, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 36, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 37, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 38, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 39, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 40, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 41, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 42, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 43, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 44, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 45, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 46, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 47, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 48, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+sample 49, delta time=1.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 1000 +/- 20
+
+50 samples required 30-50 log reads
+
+interpolate 20, 4 seconds appart
+Warning: pmLookupDesc(sample.drift): Metric not defined in the PCP archive log
+
+sample 1, delta time=4.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 4000 +/- 40
+
+sample 2, delta time=4.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 4000 +/- 40
+
+sample 3, delta time=4.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 4000 +/- 40
+
+sample 4, delta time=4.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 4000 +/- 40
+
+sample 5, delta time=4.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 4000 +/- 40
+
+sample 6, delta time=4.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 4000 +/- 40
+
+sample 7, delta time=4.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 4000 +/- 40
+
+sample 8, delta time=4.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 4000 +/- 40
+
+sample 9, delta time=4.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 4000 +/- 40
+
+sample 10, delta time=4.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 4000 +/- 40
+
+sample 11, delta time=4.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 4000 +/- 40
+
+sample 12, delta time=4.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 4000 +/- 40
+
+sample 13, delta time=4.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 4000 +/- 40
+
+sample 14, delta time=4.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 4000 +/- 40
+
+sample 15, delta time=4.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 4000 +/- 40
+
+sample 16, delta time=4.000 secs
+sample.seconds: no current values 
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 4000 +/- 40
+sample[17] pmFetch: End of PCP archive log
+
+17 samples required 30-50 log reads
+
+interpolate 16, 5 seconds appart
+Warning: pmLookupDesc(sample.drift): Metric not defined in the PCP archive log
+
+sample 1, delta time=5.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 5000 +/- 40
+
+sample 2, delta time=5.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 5000 +/- 40
+
+sample 3, delta time=5.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 5000 +/- 40
+
+sample 4, delta time=5.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 5000 +/- 40
+
+sample 5, delta time=5.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 5000 +/- 40
+
+sample 6, delta time=5.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 5000 +/- 40
+
+sample 7, delta time=5.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 5000 +/- 40
+
+sample 8, delta time=5.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 5000 +/- 40
+
+sample 9, delta time=5.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 5000 +/- 40
+
+sample 10, delta time=5.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 5000 +/- 40
+
+sample 11, delta time=5.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 5000 +/- 40
+
+sample 12, delta time=5.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 5000 +/- 40
+
+sample 13, delta time=5.000 secs
+sample.seconds: no current values 
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 5000 +/- 40
+sample[14] pmFetch: End of PCP archive log
+
+14 samples required 30-50 log reads
+
+interpolate 10, 8 seconds appart
+Warning: pmLookupDesc(sample.drift): Metric not defined in the PCP archive log
+
+sample 1, delta time=8.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 8000 +/- 60
+
+sample 2, delta time=8.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 8000 +/- 60
+
+sample 3, delta time=8.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 8000 +/- 60
+
+sample 4, delta time=8.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 8000 +/- 60
+
+sample 5, delta time=8.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 8000 +/- 60
+
+sample 6, delta time=8.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 8000 +/- 60
+
+sample 7, delta time=8.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 8000 +/- 60
+
+sample 8, delta time=8.000 secs
+sample.seconds: no current values 
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 8000 +/- 60
+sample[9] pmFetch: End of PCP archive log
+
+9 samples required 30-50 log reads
+
+interpolate 8, 10 seconds appart
+Warning: pmLookupDesc(sample.drift): Metric not defined in the PCP archive log
+
+sample 1, delta time=10.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 10000 +/- 60
+
+sample 2, delta time=10.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 10000 +/- 60
+
+sample 3, delta time=10.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 10000 +/- 60
+
+sample 4, delta time=10.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 10000 +/- 60
+
+sample 5, delta time=10.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 10000 +/- 60
+
+sample 6, delta time=10.000 secs
+sample.seconds: value OK
+sample.drift: current error Metric not defined in the PCP archive log 
+sample.milliseconds: delta: 10000 +/- 60
+sample[7] pmFetch: End of PCP archive log
+
+7 samples required 30-50 log reads

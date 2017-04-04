@@ -1,0 +1,130 @@
+#!/usr/bin/env pmpython
+#
+# Copyright (C) 2015 Red Hat Inc.
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+
+import sys
+import unittest
+import time
+
+from pcp import pmapi
+import cpmapi as c_api
+
+
+def test_pmfg_live(self, typed, target):
+    # Any errors hereabouts trigger pmErr exceptions -> implicit fail
+    pmfg = pmapi.fetchgroup(typed, target)
+    tt = pmfg.extend_timestamp()
+    v1 = pmfg.extend_item("hinv.ncpu") # infer type
+    v2 = pmfg.extend_item("kernel.all.load", c_api.PM_TYPE_FLOAT, instance="1 minute")
+
+    # some type errors
+    self.assertRaises(Exception, lambda : pmfg.extend_item(2, 0))  # type error
+    self.assertRaises(Exception, lambda : pmfg.extend_item('kernel.all.load', 2))  # missing indom
+    self.assertRaises(Exception, lambda : pmfg.extend_item('hinv.ncpu', -999))  # type-id error
+    self.assertRaises(Exception, lambda : pmfg.extend_item('kernel.all.load', "chicken salad")) # type error
+
+    pmfg.fetch() # to get a cpu count into v1
+    vv1 = pmfg.extend_indom("kernel.percpu.cpu.idle", c_api.PM_TYPE_64, scale="s/100s", maxnum=v1()-1)
+    vv2 = pmfg.extend_indom("kernel.percpu.cpu.idle", scale="s/100s", maxnum=v1()) # infer type
+    vv3 = pmfg.extend_indom("sample.bogus_bin", c_api.PM_TYPE_32, scale="instant")
+    # would be nice if there were a non-sample useful event source available by default
+    vv4 = pmfg.extend_event("sample.event.records", instance="fungus", field="sample.event.param_double")
+
+    for i in range(0, 4):
+        pmfg.fetch()
+        print ("time: %s" % tt())
+        print ("cpus: %d" % v1())
+        self.assertTrue(v1() >= 0)
+        print ("load average: %f" % v2())
+        self.assertTrue(v2() >= 0)
+
+        self.assertRaises(pmapi.pmErr, vv1) # PM_ERR_TOOBIG
+
+        if i > 0: # rate conversion eats first value
+            for icode, iname, value in vv2():
+                print ("cpu idle %s: %d %%" % (iname, value()))
+                self.assertTrue(value() >= 0 and value() <= 125) # >100% sometimes seen at short intervals
+
+        for icode, iname, value in vv3():
+            print ("bin %d %s: %d" % (icode, iname, value()))
+            self.assertTrue(value() == icode)
+
+        for ts, num in vv4():
+            print ("sample.event.param_double @%s : %s" % (ts, num()))
+            self.assertTrue(num() == 8 or num() == -9)
+
+        time.sleep(0.5)
+
+    # garbage collector will take care of it
+    #del pmfg
+
+
+
+def test_pmfg_pmns(self, typed, target):
+    metrics = []
+    pmfg = pmapi.fetchgroup(typed, target)
+    def callback(name):
+        vv = pmfg.extend_indom(name, c_api.PM_TYPE_STRING, scale="instant") # no rate conversion
+        metrics.append((name, vv))
+
+    pmfg.get_context().pmTraversePMNS("sample.long", callback)
+    self.assertTrue(len(metrics) == 7)
+
+    for _ in range(3):
+        pmfg.fetch()
+        for name, vv in metrics:
+            print("metric %s" % name)
+            for icode, iname, ival in vv():
+                print ("icode %d iname %s ival %s" % (icode, iname, ival()))
+                # a few random assertions
+                if name == 'sample.long.ten':
+                    self.assertTrue(ival() == '10') # string conversion
+                elif name == 'sample.long.bin_ctr':
+                    self.assertTrue(ival() == ('%s' % icode)) # no rate conversion
+
+
+def test_pmfg_interleaved(self):
+    # check that interleaved fetches to pmfgs of different archives don't interfere
+
+    archives = ["archives/multi-vm00", "archives/multi-vm01", "archives/multi-vm02"]
+    logger_instances = ["13034", "13035", "13036"] # pmcd.pmlogger.host indoms in those archives
+    pmfgs = [pmapi.fetchgroup(c_api.PM_CONTEXT_ARCHIVE, a) for a in archives]
+    timestamps = [fg.extend_timestamp() for fg in pmfgs]
+    # need -some- metrics to let pmFetch succeed without PM_ERR_TOOSMALL
+    metrics1 = [fg.extend_item("hinv.physmem") for fg in pmfgs]
+    metrics2 = [fg.extend_item("pmcd.pmlogger.archive",instance=inst) for (fg,inst) in zip(pmfgs,logger_instances)] # DISCRETE, logged-once
+
+    for i in range(5):
+        for (archive,fg,ts,m1,m2) in zip(archives,pmfgs,timestamps,metrics1,metrics2):
+            fg.fetch()
+            print ('archive %s timestamp %s logger.archive=%s' % (archive, ts(), m2()))
+            if i > 0:
+                print ('physmem=%d' % m1()) # not available until second+ fetch
+            for (fg2,ts2) in zip(pmfgs,timestamps):
+                if fg == fg2:
+                    self.assertTrue(ts() == ts2()) # same archive - same timestamp!
+                else:
+                    self.assertFalse(ts() == ts2()) # no two archive timestamps are identical
+
+
+class TestSequenceFunctions(unittest.TestCase):
+    def test_pmfg(self):
+        test_pmfg_live(self, c_api.PM_CONTEXT_HOST, "local:")
+        test_pmfg_pmns(self, c_api.PM_CONTEXT_HOST, "local:")
+        test_pmfg_interleaved(self)
+
+if __name__ == '__main__':
+    STS = unittest.main()
+    sys.exit(STS)
+

@@ -1,0 +1,106 @@
+QA output created by 888
+
+ipc.shm.tot
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: byte
+    value 36864
+
+ipc.shm.rss
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: byte
+    value 409600
+
+ipc.shm.swp
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: byte
+    value 36864000
+
+ipc.shm.used_ids
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+    value 2
+
+ipc.shm.swap_attempts
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+    value 4
+
+ipc.shm.swap_successes
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+    value 3
+
+ipc.shm.key
+    Data Type: string  InDom: 60.28 0xf00001c
+    Semantics: discrete  Units: none
+    inst [0 or "0"] value "0x00000457"
+
+ipc.shm.owner
+    Data Type: string  InDom: 60.28 0xf00001c
+    Semantics: discrete  Units: none
+    inst [0 or "0"] value "root"
+
+ipc.shm.perms
+    Data Type: 32-bit unsigned int  InDom: 60.28 0xf00001c
+    Semantics: instant  Units: none
+    inst [0 or "0"] value 570
+
+ipc.shm.segsz
+    Data Type: 32-bit unsigned int  InDom: 60.28 0xf00001c
+    Semantics: discrete  Units: byte
+    inst [0 or "0"] value 666
+
+ipc.shm.nattch
+    Data Type: 32-bit unsigned int  InDom: 60.28 0xf00001c
+    Semantics: instant  Units: none
+    inst [0 or "0"] value 777
+
+ipc.shm.status
+    Data Type: string  InDom: 60.28 0xf00001c
+    Semantics: instant  Units: none
+    inst [0 or "0"] value "dest"
+
+ipc.msg.key
+    Data Type: string  InDom: 60.29 0xf00001d
+    Semantics: discrete  Units: none
+    inst [0 or "0"] value "0x00000457"
+
+ipc.msg.owner
+    Data Type: string  InDom: 60.29 0xf00001d
+    Semantics: discrete  Units: none
+    inst [0 or "0"] value "root"
+
+ipc.msg.perms
+    Data Type: 32-bit unsigned int  InDom: 60.29 0xf00001d
+    Semantics: instant  Units: none
+    inst [0 or "0"] value 570
+
+ipc.msg.msgsz
+    Data Type: 32-bit unsigned int  InDom: 60.29 0xf00001d
+    Semantics: discrete  Units: byte
+    inst [0 or "0"] value 666
+
+ipc.msg.messages
+    Data Type: 32-bit unsigned int  InDom: 60.29 0xf00001d
+    Semantics: instant  Units: none
+    inst [0 or "0"] value 777
+
+ipc.sem.key
+    Data Type: string  InDom: 60.30 0xf00001e
+    Semantics: discrete  Units: none
+    inst [0 or "0"] value "0x00000457"
+
+ipc.sem.owner
+    Data Type: string  InDom: 60.30 0xf00001e
+    Semantics: discrete  Units: none
+    inst [0 or "0"] value "root"
+
+ipc.sem.perms
+    Data Type: 32-bit unsigned int  InDom: 60.30 0xf00001e
+    Semantics: instant  Units: none
+    inst [0 or "0"] value 570
+
+ipc.sem.nsems
+    Data Type: 32-bit unsigned int  InDom: 60.30 0xf00001e
+    Semantics: instant  Units: none
+    inst [0 or "0"] value 999

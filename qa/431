@@ -1,0 +1,45 @@
+#!/bin/sh
+# PCP QA Test No. 431
+# Derived metrics and PM_TYPE_STRING and PM_TYPE_AGGREGATE
+#
+# Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_filter()
+{
+    sed \
+	-e 's/[0-2][0-9]:[0-5][0-9]:[0-5][0-9]\.[0-9][0-9][0-9]/TIMESTAMP/g'
+}
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+echo "=== This should work ==="
+echo "my.string = sample.string.hullo" >$tmp.config
+echo "my.aggr = sample.aggregate.hullo" >>$tmp.config
+pminfo -c $tmp.config -f my | _filter
+pminfo -c $tmp.config -f my | _filter
+
+echo
+echo "=== These should NOT work ==="
+echo "my.bad_1 = sample.string.hullo - sample.aggregate.hullo" >$tmp.config
+echo "my.bad_2 = 1 + sample.string.hullo" >>$tmp.config
+echo "my.bad_3 = sample.aggregate.hullo * 1024" >>$tmp.config
+echo "my.bad_4 = (sample.long.ten + 1) + sample.string.hullo" >>$tmp.config
+echo "my.bad_5 = sample.aggregate.hullo - (sample.long.ten + 1)" >>$tmp.config
+echo "my.bad_6 = sample.long.ten + (1 + sample.string.hullo)" >>$tmp.config
+echo "my.bad_7 = sample.long.ten + (sample.string.hullo * 128)" >>$tmp.config
+pminfo -c $tmp.config -f my
+
+# success, all done
+exit

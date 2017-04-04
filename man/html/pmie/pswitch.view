@@ -1,0 +1,14 @@
+#kmchart
+version 1
+
+chart title "CPU Utilization" style utilization
+	plot legend "User" color #2d2de2 metric kernel.all.cpu.user
+	plot legend "Kernel" color #e71717 metric kernel.all.cpu.sys
+	optional-plot legend "Nice" color #c2f3c2 metric kernel.all.cpu.nice
+	optional-plot legend "Intr" color #cdcd00 metric kernel.all.cpu.intr
+	optional-plot legend "Wait" color #00cdcd metric kernel.all.cpu.wait.total
+	optional-plot legend "Steal" color #fba2f5 metric kernel.all.cpu.steal
+	plot legend "Idle" color #16d816 metric kernel.all.cpu.idle
+
+chart title "Context Switch Rate" style plot
+	plot color yellow metric kernel.all.pswitch

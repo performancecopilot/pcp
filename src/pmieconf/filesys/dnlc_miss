@@ -1,0 +1,72 @@
+#pmieconf-rules 1
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(5)
+#
+
+rule	filesys.dnlc_miss
+	default	= "$rule$"
+	predicate =
+"some_host (
+    100 * ( name_cache.misses $hosts$ +
+	    name_cache.enters $hosts$ +
+	    name_cache.removes $hosts$ )
+	/ name_cache.searches $hosts$ > $threshold$
+    && name_cache.searches $hosts$
+	> $min_lookup$ count/sec
+)"
+	enabled	= no
+	version	= 1
+	help	=
+"With at least min_lookup directory name cache (DNLC) lookups per
+second being performed, threshold percent of lookups result in
+cache misses.";
+
+string	rule
+	default	= "High directory name cache miss rate"
+	modify	= no
+	display	= no;
+
+percent	threshold
+	default	= 90
+	help	=
+"Threshold percent of total directory name cache lookups are resulting
+in cache misses, in the range 0 (all accesses are satisified in the
+cache) to 100 (no accesses are satisifed in the cache)."; 
+
+double	min_lookup
+	default = 100
+	help	=
+"Minimum number of name cache lookups per second before considering
+whether these lookups are stressing the cache or not.";
+
+string	action_expand
+	default	= "%v%miss@%h"
+	display	= no
+	modify	= no;
+
+string	email_expand
+	default	= "host: %h name cache misses: %v%"
+	display	= no
+	modify	= no;
+
+
+# Configuration info specific to non-PCP tools follows...
+# 
+
+# for SGI Embedded Support Partner integration:
+string	esp_type
+	default	= "0x200040"
+	display	= no
+	modify	= no;
+
+# for EnlightenDSM integration:
+string	enln_test
+	default	= filesys.dnlc_miss
+	display	= no
+	modify = no;
+string	enln_units
+	default	= %miss
+	display	= no
+	modify = no;
+
+# 
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(5)

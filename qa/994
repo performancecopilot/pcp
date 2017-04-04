@@ -1,0 +1,142 @@
+#!/bin/sh
+# PCP QA Test No. 994
+# Try to check permissions of package artifacts.
+#
+# With a single --fix option, is silent except if there is a problem
+# and repairs any damage (this is used from check).
+#
+# See src/mkpermslist and src/permslist.
+#
+# Copyright (c) 2013 Ken McDonell.  All Rights Reserved.
+#
+
+fix=false
+[ $# -eq 1 -a "$1" = "--fix" ] && fix=true
+
+seq=`basename $0`
+$fix || echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+if [ ! -f src/permslist ]
+then
+    echo "Arrgh .. src/permslist is missing.  Need to"
+    echo "	$ cd src; ./mkpermslist"
+    echo "in a git tree containg the PCP source and then try again."
+    status=1
+    exit
+fi
+
+root_group=root
+case $PCP_PLATFORM
+in
+    freebsd|netbsd|openbsd|darwin)
+	    root_group=wheel
+	    ;;
+esac
+
+# real QA test starts here
+
+# permslist format ...
+# src/pmdas/mmv/GNUmakefile|1777|root|root|/var/tmp/mmv
+# but also need to expand PCP env vars we expect to find
+sed -e 's/ /\\ /g' -e 's/|/ /g' <src/permslist \
+    -e 's@$(PCP_USER)@'$PCP_USER@g \
+    -e 's@$(PCP_GROUP)@'$PCP_GROUP@g \
+    -e 's@$(PCP_PMLOGGERCONTROL_PATH)@'$PCP_PMLOGGERCONTROL_PATH@g \
+    -e 's@$(PCP_PMIECONTROL_PATH)@'$PCP_PMIECONTROL_PATH@g \
+    -e 's@$(PCP_TMP_DIR)@'$PCP_TMP_DIR@g \
+    -e 's@$(PCP_LOG_DIR)@'$PCP_LOG_DIR@g \
+    -e 's@$(PCP_VAR_DIR)@'$PCP_VAR_DIR@g \
+    -e 's@$(PCP_RUN_DIR)@'$PCP_RUN_DIR@g \
+    -e 's@$(PCP_NSSDB_DIR)@'$PCP_NSSDB_DIR@g \
+    -e 's@$(PCP_SHARE_DIR)@'$PCP_SHARE_DIR@g \
+    -e 's@$(PCP_SYSCONF_DIR)@'$PCP_SYSCONF_DIR@g \
+| while read makefile mode owner group target optional
+do
+    if [ ! -f "$target" -a ! -d "$target" ]
+    then
+	[ -z "$optional" ] && \
+	    echo "Error: $target: not found, should have been installed from $makefile"
+    else
+	_mode=""
+	_owner=""
+	_group=""
+	if [ $PCP_PLATFORM = linux -o $PCP_PLATFORM = solaris ]
+	then
+	    # stat line of interest ...
+	    # Access: (1777/drwxrwxrwt)  Uid: (  0/  root)   Gid: (  0/  root)
+	    #
+	    eval `stat $target | sed -n -e '/^Access:.*Uid:.*Gid:/{
+s/Access: *(/_mode=/
+s/\/.*) *Uid: *( *[0-9][0-9]*\/ */ _owner=/
+s/) *Gid: *( *[0-9][0-9]*\/ */ _group=/
+s/).*//
+s/=0*/=/g
+p
+}'`
+	elif [ $PCP_PLATFORM = freebsd -o $PCP_PLATFORM = darwin -o $PCP_PLATFORM = netbsd -o $PCP_PLATFORM = openbsd ]
+	then
+	    # stat line of interest ...
+	    # _mode=-rw-r--r-- _user=kenj _group=kenj
+	    eval `stat -f '_mode=%Sp _owner=%Su _group=%Sg' $target`
+	    _mode=`echo $_mode | sed -e 's/.//' -e 's/---/0/g' -e 's/r--/4/g' -e 's/r-x/5/g' -e 's/rw-/6/g' -e 's/rwx/7/g'`
+	else
+	    echo "Arrgh, need stat(1) handling for $PCP_PLATFORM"
+	    status=1
+	    break
+	fi
+	if [ -z "$_mode" -o -z "$_owner" -o -z "$_group" ]
+	then
+	    echo "Arrgh, failed to extract mode, owner and group from stat(1) output ..."
+	    stat $target
+	    status=1
+	    break
+	fi
+	[ "$group" = root ] && group="$root_group"
+	#debug# echo "$target: mode: have $_mode expect $mode"
+	#debug# echo "$target: owner: have $_owner expect $owner"
+	#debug# echo "$target: group: have $_group expect $group"
+	if [ "$_mode" != "$mode" ]
+	then
+	    echo "$target: wrong mode: expected $mode (from $makefile), found $_mode"
+	    $fix && ( $sudo chmod $mode $target ; echo "Fixed." )
+	fi
+	if [ "$_owner" != "$owner" ]
+	then
+	    echo "$target: wrong owner: expected $owner (from $makefile), found $_owner"
+	    $fix && ( $sudo chown $owner $target ; echo "Fixed." )
+	fi
+	if [ "$_group" != "$group" ]
+	then
+	    echo "$target: wrong group: expected $group (from $makefile), found $_group"
+	    $fix && ( $sudo chgrp $group $target ; echo "Fixed." )
+	fi
+    fi
+done
+
+# Now expect only root owned things below $PCP_SYSCONF_DIR,
+# except for nssdb which has ownership $PCP_USER:$PCP_GROUP
+# (pmproxy is both client and server and needs r/w access).
+#
+find $PCP_SYSCONF_DIR ! -user root | \
+    grep -v "^$PCP_NSSDB_DIR" \
+    > $tmp.out
+if [ -s $tmp.out ]
+then
+    echo "Arrgh ... these files should be owned by root"
+    cat $tmp.out | xargs ls -ld
+    $fix && ( ( cat $tmp.out | xargs $sudo chown root:$root_group ) ; echo "Fixed." )
+fi
+
+# success, all done
+status=0
+
+exit

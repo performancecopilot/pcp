@@ -1,0 +1,27 @@
+Example Expressions and Rules for pmie(1)
+
+The files in this directory contain a number of sample rules
+for the Performance Co-Pilot inference engine pmie(1).
+
+In some cases the rules could be used directly.  In others the
+rules would require customization (host names, thresholds, rule
+evaluation frequency, choose a suitable alarm/action, etc) before
+they could be used at a particular site.
+
+Each file contains a set of related rules as follows:
+
+CPU		general CPU utilization and saturation monitoring
+
+DISK		general disk utilization and saturation monitoring
+
+FILESYS		general file system monitoring
+
+RAS		simple reliability and availability monitoring
+		(see also the shping PMDA, pmdashping(1))
+
+UAG		examples from the Performance Co-Pilot User's and
+		Administrator's Guide
+
+UPM		examples from the Performance Co-Pilot Programmer's
+		Guide
+

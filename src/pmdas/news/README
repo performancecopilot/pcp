@@ -1,0 +1,58 @@
+Usenet News PMDA
+================
+
+This PMDA is a sample, that illustrates how a simple PMDA might be
+constructed using the Perl PMDA API.
+
+Although the metrics supported are simple, the framework in the script
+pmdanews is quite general, and could be re-used to implement other
+PMDAs.
+
+Metrics
+=======
+
+Once the PMDA has been installed, the following command will list all
+the available metrics and their explanatory "help" text:
+
+	$ pminfo -fT news
+
+Installation
+============
+
+ +  # cd $PCP_PMDAS_DIR/news
+
+ +  Check that there is no clash in the Performance Metrics Domain
+    defined in ./domain.h and the other PMDAs currently in use (see
+    $PCP_PMCDCONF_PATH).  If there is, edit ./domain.h to choose another
+    domain number.
+
+ +  Then simply use
+
+	# ./Install
+
+    and choose both the "collector" and "monitor" installation
+    configuration options.
+
+ +  By default the script pmdanews operates on a small test-case copy a
+    news "active" file, installed from here into
+    $PCP_PMDAS_DIR/news/active.  If you wish to use a more realistic base
+    of Usenet data, edit pmdanews.pl to make it use your "live active"
+    groups, then
+
+	# ./Install.
+
+De-installation
+===============
+
+ +  Simply use
+
+	# cd $PCP_PMDAS_DIR/news
+	# ./Remove
+
+Troubleshooting
+===============
+
+ +  After installing or restarting the agent, the PMCD log file
+    ($PCP_LOG_DIR/pmcd/pmcd.log) and the PMDA log file
+    ($PCP_LOG_DIR/pmcd/news.log) should be checked for any warnings
+    or errors.

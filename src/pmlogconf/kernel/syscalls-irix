@@ -1,0 +1,12 @@
+#pmlogconf-setup 2.0
+ident	context switches, total syscalls and counts for selected calls (e.g. read, write, fork, exec, select) over all CPUs [Irix]
+probe	kernel.all.syscall values ? available : exclude
+	kernel.all.pswitch
+	kernel.all.syscall
+	kernel.all.sysexec
+	kernel.all.sysfork
+	kernel.all.sysread
+	kernel.all.syswrite
+	kernel.all.kswitch
+	kernel.all.kpreempt
+	kernel.all.sysioctl

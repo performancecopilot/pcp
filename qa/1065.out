@@ -1,0 +1,70 @@
+QA output created by 1065
+=== std out ===
+pdubuf size 4
+unpin (HEX) -> 0
+unpin (HEX) -> 0
+unpin (HEX) -> 0
+unpin (HEX) -> 1
+unpin (HEX) -> 1
+unpin (HEX) -> 0
+pdubuf size 12
+unpin (HEX) -> 0
+unpin (HEX) -> 0
+unpin (HEX) -> 0
+unpin (HEX) -> 1
+unpin (HEX) -> 1
+unpin (HEX) -> 0
+pdubuf size 15
+unpin (HEX) -> 0
+unpin (HEX) -> 0
+unpin (HEX) -> 0
+unpin (HEX) -> 1
+unpin (HEX) -> 1
+unpin (HEX) -> 0
+pdubuf size 16
+unpin (HEX) -> 0
+unpin (HEX) -> 0
+unpin (HEX) -> 0
+unpin (HEX) -> 1
+unpin (HEX) -> 1
+unpin (HEX) -> 0
+pdubuf size 400
+unpin (HEX) -> 0
+unpin (HEX) -> 0
+unpin (HEX) -> 0
+unpin (HEX) -> 1
+unpin (HEX) -> 1
+unpin (HEX) -> 0
+pdubuf size 1024
+unpin (HEX) -> 0
+unpin (HEX) -> 0
+unpin (HEX) -> 0
+unpin (HEX) -> 1
+unpin (HEX) -> 1
+unpin (HEX) -> 0
+=== std err ===
+__pmFindPDUBuf(DEBUG)
+   pinned pdubuf[size](pincnt): HEX...HEX[4](2)
+__pmFindPDUBuf(DEBUG)
+__pmFindPDUBuf(DEBUG)
+   pinned pdubuf[size](pincnt): HEX...HEX[12](2)
+__pmFindPDUBuf(DEBUG)
+__pmFindPDUBuf(DEBUG)
+   pinned pdubuf[size](pincnt): HEX...HEX[15](2)
+__pmFindPDUBuf(DEBUG)
+__pmFindPDUBuf(DEBUG)
+   pinned pdubuf[size](pincnt): HEX...HEX[16](2)
+__pmFindPDUBuf(DEBUG)
+__pmFindPDUBuf(DEBUG)
+   pinned pdubuf[size](pincnt): HEX...HEX[400](2)
+__pmFindPDUBuf(DEBUG)
+__pmFindPDUBuf(DEBUG)
+   pinned pdubuf[size](pincnt): HEX...HEX[1024](2)
+__pmFindPDUBuf(DEBUG)
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/pdubufbounds
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...

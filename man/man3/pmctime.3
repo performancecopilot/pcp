@@ -1,0 +1,83 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMCTIME 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmCtime\f1 \- format the date and time for a reporting timezone
+.SH "C SYNOPSIS"
+.ft 3
+#include <time.h>
+.br
+#include <pcp/pmapi.h>
+.sp
+char *pmCtime(const time_t *\fIclock\fP, char *\fIbuf\fP);
+.sp
+cc ... \-lpcp
+.ft 1
+.SH DESCRIPTION
+.B pmCtime
+is very similar to
+.BR ctime (3),
+except the timezone used is the current ``reporting timezone'' (rather than the
+default
+.B TZ
+environment variable scheme), and the result is returned into a
+caller-declared buffer (rather than a private buffer).
+.PP
+Like
+.BR ctime (3)
+the time to be converted is passed via
+.IR clock ,
+and 
+the result in
+.I buf
+is fixed width fields in the format:
+.PP
+.in +1i
+Fri Sep 13 00:00:00 1986\en\e0
+.PP
+The result buffer
+.I buf
+must be at least 26 bytes long, and no attempt is made to check this.
+.B pmCtime
+returns
+.I buf
+as the value of the function.
+.PP
+The default current reporting timezone is as defined by the
+.B TZ
+environment variable, so
+.B pmCtime
+and
+.BR ctime (3)
+will initially produce similar encoding of the date and time.
+.PP
+Use
+.BR pmNewZone (3),
+.BR pmNewContextZone (3)
+or
+.BR pmUseZone (3)
+to establish a new current reporting timezone that will effect
+.B pmCtime
+but not
+.BR ctime (3).
+.SH SEE ALSO
+.BR ctime (3),
+.BR PMAPI (3),
+.BR pmLocaltime (3),
+.BR pmNewContextZone (3),
+.BR pmNewZone (3)
+and
+.BR pmUseZone (3).

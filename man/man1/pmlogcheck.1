@@ -1,0 +1,201 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMLOGCHECK 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmlogcheck\f1 \- checks for invalid data in a PCP archive
+.SH SYNOPSIS
+\f3pmlogcheck\f1
+[\f3\-lz\f1]
+[\f3\-n\f1 \f2pmnsfile\f1]
+[\f3\-S\f1 \f2start\f1]
+[\f3\-T\f1 \f2finish\f1]
+[\f3\-Z\f1 \f2timezone\f1]
+\f2archive\f1
+.SH DESCRIPTION
+.B pmlogcheck
+prints information about the nature of any invalid data which it detects
+in the files of a PCP archive.
+.PP
+The archive has the base name
+.I archive
+and must have been previously created using
+.BR pmlogger (1).
+.PP
+Normally
+.B pmlogcheck
+operates on the default Performance Metrics Name Space (\c
+.BR pmns (5)),
+however if the
+.B \-n
+option is specified an alternative namespace is loaded
+from the file
+.IR pmnsfile .
+.PP
+The command line options
+.B \-S
+and
+.B \-T
+can be used to specify a time window over which metrics should be checked
+in Pass 3 (see below).
+These options are common to many Performance Co-Pilot tools and are fully
+described in
+.BR PCPIntro (1).
+.PP
+The
+.B \-l
+option prints the archive label, showing the log format version,
+the time and date for the start and (current) end of the archive, and
+the host from which the performance metrics values were collected.
+.PP
+By default,
+.B pmlogcheck
+reports the time of day according to the local timezone on the
+system where
+.B pmlogcheck
+is run.
+The
+.B \-Z
+option changes the timezone to
+.I timezone
+in the format of the environment variable
+.B TZ
+as described in
+.BR environ (7).
+The
+.B \-z
+option changes the timezone to the local timezone at the
+host that is the source of the performance metrics, as specified in
+the label record of the archive log.
+.PP
+The checking proceeds in a number of passes, each designed to validate
+progressively more complex semantic relationships between the information
+in a PCP archive.
+.SH Pass 0
+Each physical file of the PCP archive is processed to ensure the label
+records are valid and consistent, and that each file contains an
+integral number of physical records with correct header and trailer
+fields.
+.PP
+Any errors at this stage are usually fatal.  The PCP archive is
+probably damaged beyond repair, and no more passes of
+.B pmlogcheck
+are attempted.
+.SH Pass 1
+Validates the integrity of the temporal index, usually
+.IB archive .index\c
+\&.
+.PP
+As the temporal index is (strictly speaking) optional, errors at this
+stage are handled by marking the index as bad and ignoring it for
+the remainder of the
+.B pmlogcheck
+passes.
+.PP
+Permanent repair can be achieved by removing the temporal index file
+and then making a copy of the PCP archive using
+.BR pmlogrewrite (1)
+or
+.BR pmlogextract (1).
+This will create a new temporal index for the copied archive as a side-effect.
+.SH Pass 2
+Validates the integrity of the metadata file, usually
+.IB archive .meta\c
+\&.
+.SH Pass 3
+Validates the integrity of each of the log volumes of the PCP archive, usually
+.IB archive .0\c
+,
+.IB archive .1\c
+, etc.
+.PP
+There is some basic integrity checks to ensure the encoding of
+values for each metric remains consistent and the values are well formed
+across all the observations in the archive.
+.PP
+Also the timestamps for the observations are expected to be
+monotonically increasing as the archive is tranversed.
+.PP
+Additional attention is given to
+counter metrics (\c
+.I type
+from
+.BR pmLookupDesc (3)
+is
+.BR PM_SEM_COUNTER )
+which are expected to have monotonically increasing values.
+If the values are not monotonic increasing this may suggest
+a counter wrap has happened or there has been some interruption
+or reset to
+the underlying source of the performance data that is no captured in
+the archive.
+.PP
+For each counter metric which has been detected as having wrapped at some
+point in the archive,
+.B pmlogcheck
+produces output describing the metric name (with instance identifiers where
+appropriate), the internal storage type for the metric, the value of the
+metric before the counter wrap (with its associated timestamp), and the value of
+the metric after the wrap (also with a timestamp).
+.PP
+.B pmlogcheck
+produces two different timestamp formats, depending on the interval over
+which it is run.  For an interval greater than 24 hours, the date is displayed
+in addition to the time at which the counter wrap occurred.
+If the extent of the data being checked is less than 24 hours, a more
+precise format is used (time is displayed with millisecond precision, but
+without the date).
+.PP
+.SH FILES
+.PD 0
+.TP 10
+.BI $PCP_VAR_DIR/pmns/ *
+default PMNS specification files
+.TP
+.BI $PCP_LOG_DIR/pmlogger/ hostname
+default directory for PCP archives containing performance data collected
+from the host
+.IR hostname .
+.PD
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.I /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (5).
+.SH SEE ALSO
+.BR PCPIntro (1),
+.BR pmdumplog (1),
+.BR pmlogextract (1),
+.BR pmlogger (1),
+.BR pmlogrewrite (1),
+.BR pmlogsummary (1),
+.BR pmval (1),
+.BR pmLookupDesc (3),
+.BR pcp.conf (5),
+.BR pcp.env (5)
+and
+.BR pmns (5).
+.SH DIAGNOSTICS
+All are generated on standard error and are intended to be self-
+explanatory.

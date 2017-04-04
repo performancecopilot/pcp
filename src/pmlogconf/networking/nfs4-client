@@ -1,0 +1,4 @@
+#pmlogconf-setup 2.0
+ident	NFS v4 client stats
+probe	nfs4.client.reqs values ? include : available
+	nfs4.client

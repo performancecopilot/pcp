@@ -1,0 +1,341 @@
+'\"! tbl | mmdoc
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMDATRACE 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmtracebegin\f1,
+\f3pmtraceend\f1,
+\f3pmtraceabort\f1,
+\f3pmtracepoint\f1,
+\f3pmtraceobs\f1,
+\f3pmtracecounter\f1,
+\f3pmtracestate\f1,
+\f3pmtraceerrstr\f1 \- application-level performance instrumentation services
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/trace.h>
+.sp
+.nf
+int pmtracebegin(const char *\fItag\fP);
+int pmtraceend(const char *\fItag\fP);
+int pmtraceabort(const char *\fItag\fP);
+int pmtracepoint(const char *\fItag\fP);
+int pmtraceobs(const char *\fItag\fP, double \fIvalue\fP);
+int pmtracecounter(const char *\fItag\fP, double \fIvalue\fP);
+char *pmtraceerrstr(int \fIcode\fP);
+int pmtracestate(int \fIflags\fP);
+.fi
+.sp
+cc ... \-lpcp_trace
+.ft 1
+.SH "FORTRAN SYNOPSIS"
+.ft 3
+.nf
+character*(*) \fItag\fP
+integer \fIcode\fP
+integer \fIflags\fP
+integer \fIstate\fP
+character*(*) \fIestr\fP
+real*8 \fIvalue\fP
+.fi
+.sp
+.nf
+\fIcode\fP = pmtracebegin(\fItag\fP)
+\fIcode\fP = pmtraceend(\fItag\fP)
+\fIcode\fP = pmtraceabort(\fItag\fP)
+\fIcode\fP = pmtracepoint(\fItag\fP)
+\fIcode\fP = pmtraceobs(\fItag\fP, \fIvalue\fP)
+\fIcode\fP = pmtracecounter(\fItag\fP, \fIvalue\fP)
+pmtraceerrstr(\fIcode\fP, \fIestr\fP)
+\fIstate\fP = pmtracestate(\fIflags\fP)
+.fi
+.sp
+.nf
+f77 ... \-lpcp_trace  \f1or\f3  f90 ... \-lpcp_trace
+.fi
+.ft 1
+.SH "JAVA SYNOPSIS"
+.ft 3
+.nf
+.sp
+import sgi.pcp.trace;
+.sp
+.nf
+int trace.pmtracebegin(String \fItag\fP);
+int trace.pmtraceend(String \fItag\fP);
+int trace.pmtraceabort(String \fItag\fP);
+int trace.pmtracepoint(String \fItag\fP);
+int trace.pmtraceobs(String \fItag\fP, double \fIvalue\fP);
+int trace.pmtracecounter(String \fItag\fP, double \fIvalue\fP);
+String trace.pmtraceerrstr(int \fIcode\fP);
+int trace.pmtracestate(int \fIflags\fP);
+.fi
+.sp
+.ft 1
+.SH DESCRIPTION
+.de CW
+.ie t \f(CW\\$1\f1\\$2
+.el \fI\\$1\f1\\$2
+..
+The
+.I pcp_trace
+library functions provide a mechanism for identifying sections of a program
+as transactions or events for use by the trace Performance Metrics Domain Agent
+(refer to
+.BR pmdatrace (1)
+and
+.BR PMDA (3)).
+.PP
+The monitoring of transactions using the Performance Co-Pilot (PCP)
+infrastructure is initiated through a call to 
+.BR pmtracebegin .
+Time will be recorded from the end of each
+.B pmtracebegin
+call to the start of the following call to
+.BR pmtraceend ,
+where the same \f2tag\f1 identifier is used in both calls.
+Following from this, no visible recording will occur until at least one call to 
+.B pmtraceend
+is made referencing a \f2tag\f1 previously used in a call to
+.BR pmtracebegin .
+.PP
+A transaction which is currently in progress can be cancelled by calling
+.BR pmtraceabort .
+No transaction data gathered for that particular transaction will be exported,
+although data from previous and subsequent successful transactions with that
+.I tag
+name are still exported.  This is most useful when an error condition
+arises during transaction processing and the transaction does not run to
+completion.
+.PP
+The \f2tag\f1 argument to 
+.BR pmtracebegin ,
+.B pmtraceend
+and
+.B pmtraceabort
+is used to uniquely identify each transaction within the
+.I pcp_trace
+library and later by the trace PMDA as the instance domain identifiers for the
+transaction performance metrics which it exports.
+These routines are most useful when used around blocks of code which are
+likely to be executed a number of times over some relatively long time
+period (in a daemon process, for example).
+.PP
+.B pmtracebegin
+has two distinct roles \- firstly as the initiator of a new transaction,
+and secondly as a mechanism for setting a new start time.
+Similarly,
+.B pmtraceend
+is used to register a new \f2tag\f1 and its initial state with the trace
+PMDA, or alternatively to update the statistics which the PMDA currently
+associates with the given \f2tag\f1.
+.PP
+A second form of program instrumentation can be obtained from
+.BR pmtracepoint .
+This is a simpler form of monitoring as it exports only the number of times
+that a particular point in a program has been passed.  This differs to the
+transaction monitoring offered by
+.B pmtracebegin
+and
+.BR pmtraceend ,
+which exports a running count of successful transaction completions as well as
+statistics on the time interval between the start and end points of each
+transaction.
+This function is most useful when start and end points are not well defined.
+Examples of this would be when the code branches in such a way that a transaction
+cannot be clearly identified, or when processing does not follow a transactional
+model, or the desired instrumentation is akin to event rates rather than event
+service times.
+.PP
+The
+.BR pmtraceobs
+and
+.BR pmtracecounter
+functions have similar semantics to
+.BR pmtracepoint ,
+but also allow an arbitrary numeric \f2value\f1 to be passed to the trace
+PMDA.
+The most recent \f2value\f1 for each \f2tag\f1 is then immediately available
+from the PMDA.  The only difference between
+.BR pmtraceobs
+and
+.BR pmtracecounter
+is that the value exported via
+.BR pmtracecounter
+is assumed to be a monotonically increasing counter value (e.g. the number
+of bytes read from a socket), whereas the value exported via
+.BR pmtraceobs
+can be any value at all.
+.PP
+.B pmtracestate
+allows the application to set state \f2flags\f1 which are honoured by
+subsequent calls to the \f2pcp_trace\f1 library routines.
+There are currently two types of flag \- debugging flags and the asynchronous
+protocol flag.  A single call may specify a number of \f2flags\f1 together,
+combined using a (bitwise) logical OR operation, and overrides the previous
+state setting.
+.PP
+The debugging flags to
+.B pmtracestate
+cause \f2pcp_trace\f1 to print diagnostic messages
+on the standard output stream at important processing points.
+The default protocol used between the trace PMDA and individual \f2pcp_trace\f1
+client applications is a synchronous protocol, which allows for dropped
+connections to be reestablished at a later stage should this become possible.
+An asynchronous protocol is also available which does not provide the
+reconnection capability, but which does away with much of the overhead
+inherent in synchronous communication.
+This behaviour can be toggled using the
+.B pmtracestate
+call, but must be called before other calls to the library.  This
+differs to the debugging state behaviour, which can be altered at any time.
+.B pmtracestate
+returns the previous state (setting prior to being called).
+.PP
+The following table describes each of the
+.B pmtracestate
+\f2flags\f1 - examples of the use of these flags in each supported language are
+given in the demo applications (refer to the ``FILES'' section below).
+.TS
+box,center;
+cf(R) | cf(R)
+lf(CW) | lf(R).
+State Flags	Semantics
+_
+0  NONE	Synchronous PDUs and no diagnostics (default)
+1  API	Shows processing just below the API (debug)
+2  COMMS	Shows network-related activity (debug)
+4  PDU	Shows app<->PMDA IPC traffic (debug)
+8  PDUBUF	Shows internal IPC buffer management (debug)
+16 NOAGENT	No PMDA communications at all (debug)
+32 ASYNC	Use the asynchronous PDU protocol (control)
+.TE
+.PP
+Should any of the
+.I pcp_trace
+library functions return a negative value,
+an error has occurred.  This can be diagnosed further using the
+.B pmtraceerrstr
+routine, which takes the negative return value as its \f2code\f1 argument,
+and in the C-callable interface returns a pointer to the associated error
+message.
+This points into a static error table, and should therefore not be passed to
+.BR free (3).
+The Fortran-callable interface has a slightly different syntax, requiring the
+destination character array to be passed in as the second argument.
+The Java-callable interface returns a UTF-8 string, created using the JNI
+(Java Native Interface) routine
+.BR NewStringUTF .
+.SH ENVIRONMENT
+The
+.I pcp_trace
+routines communicate with the trace PMDA via a socket connection, which by
+default uses TCP/IP port number 4323.  This can be over-ridden by setting
+\f3PCP_TRACE_PORT\f1 to a different port number when the application is
+started.  The host where the trace PMDA is running is by default the
+localhost, but this can be changed using \f3PCP_TRACE_HOST\f1.
+When attempting to connect to a remote trace PMDA, after some specified time
+interval has elapsed, the connection attempt will be aborted and an error
+status will be returned.  The default timeout interval is 3 seconds, and this
+can be modified by setting \f3PCP_TRACE_TIMEOUT\f1 in the environment to a
+real number of seconds for the desired timeout.  This is most useful in cases
+where the remote host is at the end of a slow network, requiring longer
+latencies to establish the connection correctly.
+.SH NOTES
+The \f2pcp_trace\f1 Java class interface has been developed and verified using
+version 1.1 of the Java Native Interface (JNI) specification.
+.SH FILES
+.TP 10
+.B $PCP_DEMOS_DIR/trace/*.c
+Sample C programs and source for
+.BR pmtrace (1).
+Use
+.BR make (1)
+to build these programs.
+.TP
+.B $PCP_DEMOS_DIR/trace/fapp1.f
+Sample Fortran program.
+Call `make fortran77' or `make fortran90' to build this program.
+.TP
+.B $PCP_DEMOS_DIR/trace/japp1.java
+Sample Java program.
+`make java' builds the java class file.
+.TP
+.B /usr/java/classes/sgi/pcp/trace.java
+Java trace class definition.
+.PD
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.I /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (5).
+Values for these variables may be obtained programmatically
+using the
+.IR pmGetConfig (3)
+function.
+.SH SEE ALSO
+.B file:$PCP_DOC_DIR/Tutorial/trace.html,
+.B pcp.man.tutorial,
+Provided the,
+.BR make (1),
+.BR pmcd (1),
+.BR pmdatrace (1),
+.BR pmprobe (1),
+.BR pmtrace (1),
+Relevant information is also available from the on-line PCP Tutorial,
+subsystem from the PCP images has been installed, access the URL
+and
+from your web browser.
+.SH DIAGNOSTICS
+A negative return value from a \f2pcp_trace\f1 function indicates that an
+error has occurred \- if this is the case, the return value can be passed
+to 
+.B pmtraceerrstr
+to obtain the associated error message.
+.PP
+Success is indicated by a return value of zero.
+.PP
+.B pmtracestate
+also returns an integer representing the state \f2flags\f1 which were set
+prior to the call.
+.SH CAVEAT
+.P
+Applications that use
+.BR gethostbyname (3)
+should exercise caution because the static fields in
+.I "struct hostent"
+may not be preserved across some
+.I pcp_trace
+calls.
+In particular,
+.BR pmtracebegin ,
+.BR pmtraceend ,
+.BR pmtracepoint ,
+.BR pmtracecounter ,
+and
+.B pmtraceobs
+may all call
+.BR gethostbyname (3)
+internally.

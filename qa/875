@@ -1,0 +1,38 @@
+#!/bin/sh
+# PCP QA Test No. 875
+# Exercise parsing of unix: and local: hostspec suffixes.
+#
+# Copyright (c) 2013 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_check_valgrind
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter_socket()
+{
+    sed -e "s,$PCP_RUN_DIR,/PCP_RUN_DIR,g"
+}
+
+# real QA test starts here
+
+_run_valgrind src/parsehostattrs local:where/am/i.sock
+_run_valgrind src/parsehostattrs local://tmp/holey.sock?user=pcpqa\&compress
+_run_valgrind src/parsehostattrs local:? | _filter_socket
+
+_run_valgrind src/parsehostattrs unix://tmp/holey.sock?compress\&exclusive
+_run_valgrind src/parsehostattrs unix://?compress | _filter_socket
+
+# success, all done
+status=0
+exit

@@ -1,0 +1,50 @@
+#! /bin/sh
+# PCP QA Test No. 384
+# pmcd PMDA botched the pdu_{in,out}.total metrics
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+
+for t in pdu_in pdu_out
+do
+    echo "=== pmcd.$t ==="
+    pminfo -b 100 -f pmcd.$t 2>&1 >$tmp.tmp
+    sed -e "s/pmcd.$t.//" <$tmp.tmp \
+    | $PCP_AWK_PROG '
+BEGIN		{ pmda_total = -1; my_total = 0; snarf = 0 }
+$1 == "total"	{ snarf = 1; next }
+$1 == "value"	{ if (snarf) {
+		    pmda_total = $2
+		    snarf = 0;
+		  }
+		  else
+		    my_total += $2
+		}
+END		{ if (pmda_total == my_total) {
+			print "totals match"
+		  }
+		  else {
+			print "Error! 'pmcd.$t'.total " pmda_total " != sum('pmcd.$t'.other) " my_total
+			print "Here is what pminfo reported ..."
+			system("sed -e \"s/^/    /\" '$tmp.tmp'")
+		  }
+		}'
+
+done
+
+# success, all done
+status=0
+exit

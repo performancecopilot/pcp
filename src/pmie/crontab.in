@@ -1,0 +1,8 @@
+#
+# Performance Co-Pilot crontab entries for a monitored site
+# with one or more pmie instances running
+#
+# daily processing of pmie logs (with compression enabled)
+08     0  *  *  *  @user@  @path@/pmie_daily -X xz -x 3
+# every 30 minutes, check pmie instances are running
+28,58  *  *  *  *  @user@  @path@/pmie_check -C

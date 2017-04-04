@@ -1,0 +1,218 @@
+QA output created by 745
+
+Testing behaviour with no nvidia library available
+=== std out ===
+
+nvidia.numcards PMID: 120.0.0 [Number of Graphics Cards]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+Help:
+The number of NVIDIA Graphics cards installed in this system
+    value 0
+
+nvidia.gpuid PMID: 120.0.1 [GPU ID]
+    Data Type: 32-bit unsigned int  InDom: 120.0 0x1e000000
+    Semantics: instant  Units: none
+Help:
+Zero indexed id of this NVIDIA card
+No value(s) available!
+
+nvidia.cardname PMID: 120.0.2 [GPU Name]
+    Data Type: string  InDom: 120.0 0x1e000000
+    Semantics: instant  Units: none
+Help:
+The name of the graphics card
+No value(s) available!
+
+nvidia.busid PMID: 120.0.3 [Card Bus ID]
+    Data Type: string  InDom: 120.0 0x1e000000
+    Semantics: instant  Units: none
+Help:
+The Bus ID as reported by the NVIDIA tools, not lspci
+No value(s) available!
+
+nvidia.temp PMID: 120.0.4 [The temperature of the card]
+    Data Type: 32-bit unsigned int  InDom: 120.0 0x1e000000
+    Semantics: instant  Units: none
+Help:
+The Temperature of the GPU on the NVIDIA card in degrees celcius.
+No value(s) available!
+
+nvidia.fanspeed PMID: 120.0.5 [Fanspeed]
+    Data Type: 32-bit unsigned int  InDom: 120.0 0x1e000000
+    Semantics: instant  Units: none
+Help:
+Speed of the GPU fan as a percentage of the maximum
+No value(s) available!
+
+nvidia.perfstate PMID: 120.0.6 [NVIDIA performance state]
+    Data Type: 32-bit unsigned int  InDom: 120.0 0x1e000000
+    Semantics: instant  Units: none
+Help:
+The PX performance state as reported from NVML.  Value is an integer
+which should range from 0 (maximum performance) to 15 (minimum).  If
+the state is unknown the reported value will be 32, however.
+No value(s) available!
+
+nvidia.gpuactive PMID: 120.0.7 [Percentage of GPU utilization]
+    Data Type: 32-bit unsigned int  InDom: 120.0 0x1e000000
+    Semantics: instant  Units: none
+Help:
+Percentage of time over the past sample period during which one or more
+kernels was executing on the GPU.
+No value(s) available!
+
+nvidia.memactive PMID: 120.0.8 [Percentage of time spent accessing memory]
+    Data Type: 32-bit unsigned int  InDom: 120.0 0x1e000000
+    Semantics: instant  Units: none
+Help:
+Percent of time over the past sample period during which global (device)
+memory was being read or written.  This metric shows if the memory is
+actively being accesed, and is not correlated to storage amount used.
+No value(s) available!
+
+nvidia.memused PMID: 120.0.9 [Allocated FB memory]
+    Data Type: 64-bit unsigned int  InDom: 120.0 0x1e000000
+    Semantics: instant  Units: byte
+Help:
+Amount of GPU FB memory that has currently been allocated, in bytes.
+Note that the driver/GPU always sets aside a small amount of memory
+for bookkeeping. 
+No value(s) available!
+
+nvidia.memtotal PMID: 120.0.10 [Total FB memory available]
+    Data Type: 64-bit unsigned int  InDom: 120.0 0x1e000000
+    Semantics: discrete  Units: byte
+Help:
+The total amount of GPU FB memory available on the card, in bytes.
+No value(s) available!
+
+nvidia.memfree PMID: 120.0.11 [Unallocated FB memory]
+    Data Type: 64-bit unsigned int  InDom: 120.0 0x1e000000
+    Semantics: instant  Units: byte
+Help:
+Amount of GPU FB memory that is not currently allocated, in bytes.
+No value(s) available!
+=== std err ===
+pminfo[PID] Info: NVIDIA NVML library currently unavailable
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -L -K clear -K add,120,nvidia/pmda_nvidia.DSO,nvidia_init -dfmtT -n nvidia/root nvidia
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+Testing behaviour with QA wrapper nvidia library
+=== std out ===
+
+nvidia.numcards PMID: 120.0.0 [Number of Graphics Cards]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+Help:
+The number of NVIDIA Graphics cards installed in this system
+    value 2
+
+nvidia.gpuid PMID: 120.0.1 [GPU ID]
+    Data Type: 32-bit unsigned int  InDom: 120.0 0x1e000000
+    Semantics: instant  Units: none
+Help:
+Zero indexed id of this NVIDIA card
+    inst [0 or "gpu0"] value 0
+    inst [1 or "gpu1"] value 1
+
+nvidia.cardname PMID: 120.0.2 [GPU Name]
+    Data Type: string  InDom: 120.0 0x1e000000
+    Semantics: instant  Units: none
+Help:
+The name of the graphics card
+    inst [0 or "gpu0"] value "GeForce 100M Series"
+    inst [1 or "gpu1"] value "Quadro FX 200M Series"
+
+nvidia.busid PMID: 120.0.3 [Card Bus ID]
+    Data Type: string  InDom: 120.0 0x1e000000
+    Semantics: instant  Units: none
+Help:
+The Bus ID as reported by the NVIDIA tools, not lspci
+    inst [0 or "gpu0"] value "0:1:0x2:3:4"
+    inst [1 or "gpu1"] value "20:21:0x2:23:24"
+
+nvidia.temp PMID: 120.0.4 [The temperature of the card]
+    Data Type: 32-bit unsigned int  InDom: 120.0 0x1e000000
+    Semantics: instant  Units: none
+Help:
+The Temperature of the GPU on the NVIDIA card in degrees celcius.
+    inst [0 or "gpu0"] value 6
+    inst [1 or "gpu1"] value 26
+
+nvidia.fanspeed PMID: 120.0.5 [Fanspeed]
+    Data Type: 32-bit unsigned int  InDom: 120.0 0x1e000000
+    Semantics: instant  Units: none
+Help:
+Speed of the GPU fan as a percentage of the maximum
+    inst [0 or "gpu0"] value 5
+    inst [1 or "gpu1"] value 25
+
+nvidia.perfstate PMID: 120.0.6 [NVIDIA performance state]
+    Data Type: 32-bit unsigned int  InDom: 120.0 0x1e000000
+    Semantics: instant  Units: none
+Help:
+The PX performance state as reported from NVML.  Value is an integer
+which should range from 0 (maximum performance) to 15 (minimum).  If
+the state is unknown the reported value will be 32, however.
+    inst [0 or "gpu0"] value 9
+    inst [1 or "gpu1"] value 29
+
+nvidia.gpuactive PMID: 120.0.7 [Percentage of GPU utilization]
+    Data Type: 32-bit unsigned int  InDom: 120.0 0x1e000000
+    Semantics: instant  Units: none
+Help:
+Percentage of time over the past sample period during which one or more
+kernels was executing on the GPU.
+    inst [0 or "gpu0"] value 7
+    inst [1 or "gpu1"] value 27
+
+nvidia.memactive PMID: 120.0.8 [Percentage of time spent accessing memory]
+    Data Type: 32-bit unsigned int  InDom: 120.0 0x1e000000
+    Semantics: instant  Units: none
+Help:
+Percent of time over the past sample period during which global (device)
+memory was being read or written.  This metric shows if the memory is
+actively being accesed, and is not correlated to storage amount used.
+    inst [0 or "gpu0"] value 8
+    inst [1 or "gpu1"] value 28
+
+nvidia.memused PMID: 120.0.9 [Allocated FB memory]
+    Data Type: 64-bit unsigned int  InDom: 120.0 0x1e000000
+    Semantics: instant  Units: byte
+Help:
+Amount of GPU FB memory that has currently been allocated, in bytes.
+Note that the driver/GPU always sets aside a small amount of memory
+for bookkeeping. 
+    inst [0 or "gpu0"] value 104857600
+    inst [1 or "gpu1"] value 6442450944
+
+nvidia.memtotal PMID: 120.0.10 [Total FB memory available]
+    Data Type: 64-bit unsigned int  InDom: 120.0 0x1e000000
+    Semantics: discrete  Units: byte
+Help:
+The total amount of GPU FB memory available on the card, in bytes.
+    inst [0 or "gpu0"] value 268435456
+    inst [1 or "gpu1"] value 8589934592
+
+nvidia.memfree PMID: 120.0.11 [Unallocated FB memory]
+    Data Type: 64-bit unsigned int  InDom: 120.0 0x1e000000
+    Semantics: instant  Units: byte
+Help:
+Amount of GPU FB memory that is not currently allocated, in bytes.
+    inst [0 or "gpu0"] value 163577856
+    inst [1 or "gpu1"] value 2147483648
+=== std err ===
+pminfo[PID] Info: Successfully loaded NVIDIA NVML library
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -L -K clear -K add,120,nvidia/pmda_nvidia.DSO,nvidia_init -dfmtT -n nvidia/root nvidia
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...

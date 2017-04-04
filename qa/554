@@ -1,0 +1,42 @@
+#!/bin/sh
+# PCP QA Test No. 554
+# security hole via system() from pmie
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+trap "rm -f $tmp.* /tmp/ls; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+echo "expect /tmp/ls ..."
+echo
+
+cd /tmp
+$sudo rm -f ls
+cat <<End-of-File >ls
+#!/bin/sh
+echo "Bingo! ... I have a shell now"
+id
+End-of-File
+chmod 755 ls
+
+PATH=.:$PATH
+export PATH
+cat <<End-of-File | $sudo pmie -t 2 -T 1 2>/dev/null
+hinv.ncpu > 0 -> shell "ls /tmp/ls";
+End-of-File
+
+sleep 2
+
+# success, all done
+status=0
+exit

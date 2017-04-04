@@ -1,0 +1,96 @@
+#!/bin/sh
+# PCP QA Test No. 769
+# Check if the "chkconfig" controls and tests for the init scripts
+# and as used in the QA tests really work.
+#
+# Copyright (c) 2014 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+# chconfig controls just don't work on some platforms ...
+#
+[ -f /etc/gentoo-release ] && _notrun "chkconfig does not work for Gentoo"
+[ -f /etc/slackware-version ] && _notrun "chkconfig does not work for Slackware"
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full $seq.out
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+VERBOSE_CONFIG=false
+PMWEBD_INSTALLED=false
+PMMGR_INSTALLED=false
+FULL_LIST="pmcd pmie pmlogger pmproxy"
+
+. $PCP_SHARE_DIR/lib/rc-proc.sh
+
+_check_chk()
+{
+    if is_chkconfig_on $1
+    then
+	echo "is_chkconfig_on $1 returns true"
+    else
+	echo "is_chkconfig_on $1 returns false"
+    fi
+}
+
+ln -f $seq.out.1 $seq.out || exit 1
+if [ -f $PCP_BINADM_DIR/pmwebd ]
+then
+    PMWEBD_INSTALLED=true
+    FULL_LIST="pmcd pmie pmlogger pmproxy pmwebd"
+    ln -f $seq.out.2 $seq.out || exit 1
+fi
+if [ -f $PCP_BINADM_DIR/pmmgr ]
+then
+    PMMGR_INSTALLED=true
+    if $PMWEBD_INSTALLED ;
+    then
+	FULL_LIST="pmcd pmie pmlogger pmmgr pmproxy pmwebd"
+	ln -f $seq.out.4 $seq.out || exit 1
+    else
+	FULL_LIST="pmcd pmie pmlogger pmmgr pmproxy"
+	ln -f $seq.out.3 $seq.out || exit 1
+    fi
+    
+fi
+
+# real QA test starts here
+
+VERBOSE_CONFIG=true
+is_chkconfig_on pmie >>$seq.full
+VERBOSE_CONFIG=false
+
+for svc in $FULL_LIST
+do
+    save=off
+    is_chkconfig_on $svc && save=on
+    echo "initial state for $svc: $save" >>$seq.full
+    for state in off on
+    do
+	echo "=== $svc $state ==="
+	if [ -f $PCP_RC_DIR/$svc ]
+	then
+	    _change_config $svc $state
+	    _check_chk $svc
+	else
+	    # fake output when init script not installed
+	    #
+	    xpect=true
+	    [ $state = off ] && xpect=false
+	    echo "is_chkconfig_on $svc returns $xpect"
+	fi
+    done
+    [ -f $PCP_RC_DIR/$svc ] && _change_config $svc $save
+done
+
+# success, all done
+status=0
+
+exit

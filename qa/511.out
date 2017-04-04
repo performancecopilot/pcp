@@ -1,0 +1,33 @@
+QA output created by 511
+==> Checking sadist/859117-rhel5.bin
+sar2pcp thinks sadist/859117-rhel5.bin is going well so far
+pmdumplog approved of the sadist/859117-rhel5.bin conversion
+pmlogsummary approved of the sadist/859117-rhel5.bin conversion
+==> Checking sadist/859117-rhel5.xml
+sar2pcp thinks sadist/859117-rhel5.xml is going well so far
+pmdumplog approved of the sadist/859117-rhel5.xml conversion
+pmlogsummary approved of the sadist/859117-rhel5.xml conversion
+==> Checking sadist/f16-sa20.bin
+sar2pcp thinks sadist/f16-sa20.bin is going well so far
+pmdumplog approved of the sadist/f16-sa20.bin conversion
+pmlogsummary approved of the sadist/f16-sa20.bin conversion
+==> Checking sadist/fche-csb6-rhel6.bin
+sar2pcp thinks sadist/fche-csb6-rhel6.bin is going well so far
+pmdumplog approved of the sadist/fche-csb6-rhel6.bin conversion
+pmlogsummary approved of the sadist/fche-csb6-rhel6.bin conversion
+==> Checking sadist/fche-csb6-rhel6.xml
+sar2pcp thinks sadist/fche-csb6-rhel6.xml is going well so far
+pmdumplog approved of the sadist/fche-csb6-rhel6.xml conversion
+pmlogsummary approved of the sadist/fche-csb6-rhel6.xml conversion
+==> Checking sadist/rhel5-sa20.bin
+sar2pcp thinks sadist/rhel5-sa20.bin is going well so far
+pmdumplog approved of the sadist/rhel5-sa20.bin conversion
+pmlogsummary approved of the sadist/rhel5-sa20.bin conversion
+==> Checking sadist/smash-rhel5.xml
+sar2pcp thinks sadist/smash-rhel5.xml is going well so far
+pmdumplog approved of the sadist/smash-rhel5.xml conversion
+pmlogsummary approved of the sadist/smash-rhel5.xml conversion
+==> Checking sadist/smash-rhel6.xml
+sar2pcp thinks sadist/smash-rhel6.xml is going well so far
+pmdumplog approved of the sadist/smash-rhel6.xml conversion
+pmlogsummary approved of the sadist/smash-rhel6.xml conversion

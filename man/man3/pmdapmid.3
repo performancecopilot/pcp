@@ -1,0 +1,81 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+.\" Copyright (c) 2009 Ken McDonell.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMDAPMID 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmdaPMID\f1 \- translate a dynamic performance metric name into a PMID
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.br
+#include <pcp/impl.h>
+.br
+#include <pcp/pmda.h>
+.sp
+int pmdaPMID(char *\fIname\fP, pmID *\fIpmid\fP, pmdaExt *\fIpmda\fP);
+.sp
+cc ... \-lpcp_pmda \-lpcp
+.ft 1
+.SH DESCRIPTION
+As part of the Performance Metrics Domain Agent (PMDA) API (see
+.BR PMDA (3)),
+.BR pmdaPMID
+is the generic callback for translating a dynamic metric
+.I name
+into a PMID (\c
+.IR pmid ).
+.PP
+Because implementing dynamic performance metrics requires specific
+PMDA support, and the facility is an optional component of a PMDA (most
+PMDAs do
+.B not
+support dynamic performance metrics),
+.B pmdaPMID
+is a skeleton implementation that returns
+.BR PM_ERR_NAME .
+.PP
+A PMDA that supports dynamic performance metrics will provide a private
+callback that replaces
+.B pmdaPMID
+(by assignment to
+.I version.four.pmid
+of the
+.I pmdaInterface
+structure)
+and implements the translation from a dynamic performance metric
+.I name
+into the associated
+.IR pmid .
+.SH DIAGNOSTICS
+.B pmdaPMID
+returns
+.B PM_ERR_NAME
+if the name is not recognized or cannot be translated, else returns 0.
+.SH CAVEAT
+The PMDA must be using 
+.B PMDA_PROTOCOL_4 
+or later, as specified in the call to 
+.BR pmdaDSO (3)
+or 
+.BR pmdaDaemon (3).
+.SH SEE ALSO
+.BR PMAPI (3),
+.BR PMDA (3),
+.BR pmdaDaemon (3),
+.BR pmdaDSO (3),
+.BR pmdaMain (3)
+and
+.BR pmLookupName (3).

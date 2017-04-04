@@ -1,0 +1,44 @@
+#! /bin/sh
+# PCP QA Test No. 043
+# error encoding in numval within pmResult
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_filter()
+{
+    sed \
+	-e '/pmResult/s/ .* numpmid/ ... numpmid/' \
+	-e 's/ value -*[0-9][0-9]*$/ value INTEGER/' \
+	-e 's/Permission denied/No permission to perform requested operation/'
+}
+
+_cleanup()
+{
+    _restore_primary_logger
+    rm -f $tmp.*
+    exit $status
+}
+
+status=1
+rm -f $seq.full
+trap "_cleanup" 0 1 2 3 15
+
+# real QA test starts here
+_change_config pmcd on
+_change_config pmlogger on
+_writable_primary_logger
+$sudo $PCP_RC_DIR/pcp restart >/dev/null 2>&1
+_wait_for_pmlogger
+
+src/chknumval | _filter
+status=0
+exit

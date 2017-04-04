@@ -1,0 +1,117 @@
+#!/bin/sh
+#
+# Make a QA test variant based on PCP version
+#
+
+if [ -f localconfig ]
+then
+    . ./localconfig
+    echo "Current QA being configured for PCP before PCP_VER=$PCP_VER"
+else
+    echo "No localconfig, run mk.localconfig first"
+    exit 1
+fi
+
+tmp=/var/tmp/$$
+rm -f $tmp.*
+sts=0
+trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
+
+for seq
+do
+    case "$seq"
+    in
+	?)	seq=00$seq
+		;;
+	??)	seq=0$seq
+		;;
+    esac
+
+    if [ ! -f "$seq.out" ]
+    then
+	echo "$seq: No current $seq.out file ... giving up"
+	sts=1
+	exit
+    fi
+
+    files=`echo ${seq}* \
+		| sed \
+		    -e 's/^/ /' \
+		    -e 's/$/ /' \
+		    -e "s/ $seq / /" \
+		    -e "s/ $seq\.out / /" \
+		    -e "s/ $seq\.full / /" \
+		    -e "s/ $seq\.full.ok / /" \
+		    -e "s/ $seq\.out.bad / /"\
+		    -e "s/ $seq\.out.bak / /"\
+		    -e 's/^ //' \
+		    -e 's/ $//'`
+    if [ -n "$files" ]
+    then
+	echo "$seq: Unexpected extra files ($files) ... giving up"
+	sts=1
+	exit
+    fi
+
+    rm -f $tmp.1 $tmp.2 $tmp.tmp
+    awk <$seq '
+state == 0 && NF == 0	{ state = 1 }
+state == 0		{ print >"'"$tmp.1"'"; next }
+state == 1 && /^seq=/	{ next }
+state == 1 && /QA output created by/	{ next }
+state == 1 && /^#/	{ next }
+state == 1 && /^\. /	{ next }
+state == 1 && NF == 0	{ next }
+state == 1		{ state = 2 }
+state == 2		{ print >"'"$tmp.2"'"; next }
+'
+    touch $tmp.tmp
+    [ -f $tmp.1 ] && cat $tmp.1 >>$tmp.tmp
+    cat <<End-of-File >>$tmp.tmp
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=\`basename \$0\`
+
+rm -f \$seq.out
+if [ \$PCP_VER -lt $PCP_VER ]
+then
+    ln \$seq.out.1 \$seq.out || exit 1
+else
+    ln \$seq.out.2 \$seq.out || exit 1
+fi
+
+echo "QA output created by \$seq"
+
+End-of-File
+    [ -f $tmp.2 ] && cat $tmp.2 >>$tmp.tmp
+
+    #debug# gdiff $seq $tmp.tmp
+    
+    cp $tmp.tmp $seq
+    git mv $seq.out $seq.out.1
+    cp $seq.out.1 $seq.out.2
+    git add $seq.out.2
+
+    if grep "^$seq.out\$" .gitignore >/dev/null 2>&1
+    then
+	echo "$seq.out: Warning: already in .gitignore"
+    else
+	echo "$seq.out" >>.gitignore
+    fi
+
+    echo "OK: $seq modified, $seq.out -> $seq.out.1, new $seq.out.2 needs editing"
+
+done
+
+# cut, sort, paste .gitignore
+#
+grep -v '^[0-9][0-9]*\.out$' .gitignore >$tmp.1
+grep '^[0-9][0-9]*\.out$' .gitignore | sort -n >$tmp.2
+cat $tmp.1 $tmp.2 >.gitignore
+
+# will be remade as needed
+rm -f qa_outfiles

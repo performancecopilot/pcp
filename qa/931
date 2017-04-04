@@ -1,0 +1,28 @@
+#!/bin/sh
+# PCP QA Test No. 931
+# crash in interp.c as per
+# http://oss.sgi.com/bugzilla/show_bug.cgi?id=1100
+#
+# Copyright (c) 2015 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+#
+pmval -z -a archives/archive-20141125-000009 -t 1min -f 1 network.interface.in.bytes
+
+# success, all done
+status=0
+
+exit

@@ -1,0 +1,56 @@
+#pmieconf-rules 1
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(5)
+# 
+
+rule	webping.slow_response
+	default	= "$rule$"
+	enumerate = hosts
+	predicate =
+"some_inst (
+    webping.perurl.time.total $hosts$ $urls$
+	> $threshold$ seconds
+)"
+	enabled	= yes
+	version = 1
+	help	=
+"The retrieval of at least one URL by the webping agent took longer than
+threshold seconds at the most recent attempt.";
+
+string	rule
+	default	= "Slow response to webping request"
+	display	= no
+	modify	= no;
+
+double	threshold
+	default	= 8
+	help=
+"Threshold on the maximum acceptable web server response time, in
+seconds.
+The possible range of values for the threshold may be very large,
+e.g. 0.5 to 20 seconds or more, and the most appropriate value depends
+on the response time to fetch the URLs (the transmission time is
+included), the network latency between the webping agent and the web
+servers, and the loading of the web servers.";
+
+string	action_expand
+	default	= "%vsecs[%i]@%h"
+	display	= no
+	modify	= no;
+
+string	email_expand
+	default = "host: %h web server response for %i: %vsecs"
+	display = no
+	modify  = no;
+
+
+# Configuration info specific to non-PCP tools follows...
+# 
+
+# for SGI Embedded Support Partner integration:
+string  esp_type
+	default	= "0x2000AA"
+	display	= no
+	modify	= no;
+
+# 
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(5)

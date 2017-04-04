@@ -1,0 +1,35 @@
+QA output created by 328
+
+marks in one archive ...
+09:54:54.682  <mark>
+09:54:59.171  <mark>
+
+marks in other archive ...
+09:59:49.007  <mark>
+09:59:53.523  <mark>
+
+pmlogextract ... and marks ... and diffs (expect an extra one in the middle)
+
+*** concatenated from input archives
+--- merged archive
+***************
+*** 1,4 ****
+--- 1,5 ----
+  09:54:54.682  <mark>
+  09:54:59.171  <mark>
++ 09:55:01.679  <mark>
+  09:59:49.007  <mark>
+  09:59:53.523  <mark>
+
+pmlogextract ... and marks ... and diffs (expect an extra one in the middle)
+
+*** concatenated from input archives
+--- merged archive
+***************
+*** 1,4 ****
+--- 1,5 ----
+  09:54:54.682  <mark>
+  09:54:59.171  <mark>
++ 09:55:01.679  <mark>
+  09:59:49.007  <mark>
+  09:59:53.523  <mark>

@@ -1,0 +1,93 @@
+#!/bin/sh
+# PCP QA Test No. 335
+#
+# Checkout derived metrics with whacky instance domain changes
+#
+# Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+if grep -q 'pmRegisterDerived' $PCP_INC_DIR/pmapi.h
+then
+    :
+else
+    echo "No derived metric support" >$seq.notrun
+    echo "$seq: [not run] `cat $seq.notrun`"
+    exit 0
+fi
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter_store()
+{
+    sed -e 's/old value=[0-9][0-9]*/old value=N/'
+}
+
+# Derived metric expr dump from 0x8513a48...
+# expr node 0x867eb68 type=PLUS left=0x867eb98 right=0x867ed28
+_filter()
+{
+    cat $tmp.out >>$seq.full
+    awk <$tmp.out >$tmp.sed '
+BEGIN				{ n = 0 }
+$1 == "expr" && $2 == "node" && $3 ~ /^0x/	{ print "s/" $3 "/<addr-" n ">/"; n++ }
+				{ next }'
+    echo "=== sed ===" >>$seq.full
+    cat $tmp.sed >>$seq.full
+    sed -f $tmp.sed <$tmp.out \
+    | sed \
+	-e '/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]/s/[^ ]*.*numpmid/TIMESTAMP ... numpmid/' \
+	-e 's/=0x0 /=(nil) /g' \
+	-e '/^host:.*$/s/.*/HOST/' \
+	-e "s;$tmp;TMP;"
+# -e 's/ val=[0-9][0-9]*/ val=<number>/g'
+}
+
+# real QA test starts here
+pmstore sample.scramble.version 0 | _filter_store
+for i in 1 2 3 4 5 6
+do
+    pminfo -f sample.scramble.bin
+done >$tmp.orig
+
+echo "=== original ===" >>$seq.full
+cat $tmp.orig >>$seq.full
+
+cat <<End-of-File >$tmp.config
+my.scramble.bin = sample.scramble.bin
+my.scramble.delta = delta(sample.scramble.bin)
+End-of-File
+export PCP_DERIVED_CONFIG=$tmp.config
+pmstore sample.scramble.version 0 | _filter_store
+for i in 1 2 3 4 5 6
+do
+    pminfo -f my.scramble.bin
+done >$tmp.new
+
+echo >>$seq.full
+echo "=== derived ===" >>$seq.full
+cat $tmp.new >>$seq.full
+
+echo "diffs ... expect only names to be different"
+diff $tmp.orig $tmp.new
+
+echo
+echo "delta() check ..."
+pmstore sample.scramble.version 0 | _filter_store
+#debug# pmval -Dderive,appl2,pdu,fetch -s 5 -t 0.25 my.scramble.delta
+pmval -Dderive,appl2 -s 5 -t 0.25 my.scramble.delta >$tmp.out 2>$tmp.err
+cat $tmp.out >>$tmp.err
+mv $tmp.err $tmp.out
+_filter
+
+# success, all done
+exit

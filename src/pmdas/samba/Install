@@ -1,0 +1,51 @@
+#! /bin/sh
+#
+# Copyright (c) 2009 Aconex.  All Rights Reserved.
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+# 
+# Install the Samba PMDA
+#
+
+. $PCP_DIR/etc/pcp.env
+. $PCP_SHARE_DIR/lib/pmdaproc.sh
+
+iam=samba
+perl_opt=true
+daemon_opt=false
+
+if ! test -x /usr/sbin/smbd; then
+    echo "Samba \"smbd\" daemon is not installed"
+    status=1
+    exit
+fi
+/usr/sbin/smbd -b | egrep 'WITH_PROFILE|HAVE_PROFILE' >/dev/null
+if test $? -ne 0; then
+    echo "Samba \"smbd\" not built with profiling support"
+    status=1
+    exit
+fi
+
+if ! test -x /usr/bin/smbcontrol; then
+    echo "Samba \"smbcontrol\" tool is not installed"
+    status=1
+    exit
+fi
+/usr/bin/smbcontrol smbd profile on
+if test $? -ne 0; then
+    echo "Samba \"smbcontrol\" failed to enable profiling"
+    status=1
+    exit
+fi
+
+pmdaSetup
+pmdaInstall
+exit

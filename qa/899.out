@@ -1,0 +1,279 @@
+QA output created by 899
+== Host list (multi) ==
+End of option processing
+Options structure dump:
+    version: 2
+    flags: 0x7 (init,done,multi)
+    errors: 0
+    context: 0x1 (host)
+    nhosts: 3
+    hosts: www.acme.com,foo.bar.org,oss.sgi.com
+    narchives: 0
+    start: -
+    finish: -
+    origin: -
+    interval: -
+    align_optarg: -
+    start_optarg: -
+    finish_optarg: -
+    origin_optarg: -
+    guiport_optarg: -
+    timezone: -
+    samples: 0
+    guiport: 0
+    guiflag: 0
+    tzflag: 0
+    Lflag: 0
+== Host list (single) ==
+End of option processing
+Options structure dump:
+    version: 2
+    flags: 0x7 (init,done,multi)
+    errors: 0
+    context: 0x1 (host)
+    nhosts: 1
+    hosts: www.acme.com
+    narchives: 0
+    start: -
+    finish: -
+    origin: -
+    interval: -
+    align_optarg: -
+    start_optarg: -
+    finish_optarg: -
+    origin_optarg: -
+    guiport_optarg: -
+    timezone: -
+    samples: 0
+    guiport: 0
+    guiflag: 0
+    tzflag: 0
+    Lflag: 0
+== Archive list (multi) ==
+End of option processing
+Options structure dump:
+    version: 2
+    flags: 0x7 (init,done,multi)
+    errors: 0
+    context: 0x2 (archive)
+    nhosts: 0
+    narchives: 3
+    archives: log1,log2,log3
+    start: -
+    finish: -
+    origin: -
+    interval: -
+    align_optarg: -
+    start_optarg: -
+    finish_optarg: -
+    origin_optarg: -
+    guiport_optarg: -
+    timezone: -
+    samples: 0
+    guiport: 0
+    guiflag: 0
+    tzflag: 0
+    Lflag: 0
+== Archive list (single) ==
+End of option processing
+Options structure dump:
+    version: 2
+    flags: 0x7 (init,done,multi)
+    errors: 0
+    context: 0x2 (archive)
+    nhosts: 0
+    narchives: 1
+    archives: log1
+    start: -
+    finish: -
+    origin: -
+    interval: -
+    align_optarg: -
+    start_optarg: -
+    finish_optarg: -
+    origin_optarg: -
+    guiport_optarg: -
+    timezone: -
+    samples: 0
+    guiport: 0
+    guiflag: 0
+    tzflag: 0
+    Lflag: 0
+== Archive Folio (single) ==
+End of option processing
+Options structure dump:
+    version: 2
+    flags: 0x7 (init,done,multi)
+    errors: 0
+    context: 0x2 (archive)
+    nhosts: 0
+    narchives: 1
+    archives: HERE/archives/20071023-08-06-36
+    start: -
+    finish: -
+    origin: -
+    interval: -
+    align_optarg: -
+    start_optarg: -
+    finish_optarg: -
+    origin_optarg: -
+    guiport_optarg: -
+    timezone: -
+    samples: 0
+    guiport: 0
+    guiflag: 0
+    tzflag: 0
+    Lflag: 0
+== Archive Folio (multi) ==
+End of option processing
+Options structure dump:
+    version: 2
+    flags: 0x7 (init,done,multi)
+    errors: 0
+    context: 0x2 (archive)
+    nhosts: 0
+    narchives: 2
+    archives: TMPDIR/20140624.10.52,TMPDIR/20140624.00.10
+    start: -
+    finish: -
+    origin: -
+    interval: -
+    align_optarg: -
+    start_optarg: -
+    finish_optarg: -
+    origin_optarg: -
+    guiport_optarg: -
+    timezone: -
+    samples: 0
+    guiport: 0
+    guiflag: 0
+    tzflag: 0
+    Lflag: 0
+== Archive Folio (binary) ==
+Warning: runtime error detected
+getoptions: archive folio BAD has bad magic
+End of option processing
+Options structure dump:
+    version: 2
+    flags: 0x17 (init,done,multi,runtime_err)
+    errors: 1
+    context: 0x0 (-)
+    nhosts: 0
+    narchives: 0
+    start: -
+    finish: -
+    origin: -
+    interval: -
+    align_optarg: -
+    start_optarg: -
+    finish_optarg: -
+    origin_optarg: -
+    guiport_optarg: -
+    timezone: -
+    samples: 0
+    guiport: 0
+    guiflag: 0
+    tzflag: 0
+    Lflag: 0
+== Archive Folio (badmagic) ==
+Warning: runtime error detected
+getoptions: archive folio TMP.badmagic has bad magic
+End of option processing
+Options structure dump:
+    version: 2
+    flags: 0x17 (init,done,multi,runtime_err)
+    errors: 1
+    context: 0x0 (-)
+    nhosts: 0
+    narchives: 0
+    start: -
+    finish: -
+    origin: -
+    interval: -
+    align_optarg: -
+    start_optarg: -
+    finish_optarg: -
+    origin_optarg: -
+    guiport_optarg: -
+    timezone: -
+    samples: 0
+    guiport: 0
+    guiflag: 0
+    tzflag: 0
+    Lflag: 0
+== Archive Folio (version2) ==
+Warning: runtime error detected
+getoptions: unknown version archive folio TMP.version2
+End of option processing
+Options structure dump:
+    version: 2
+    flags: 0x17 (init,done,multi,runtime_err)
+    errors: 1
+    context: 0x0 (-)
+    nhosts: 0
+    narchives: 0
+    start: -
+    finish: -
+    origin: -
+    interval: -
+    align_optarg: -
+    start_optarg: -
+    finish_optarg: -
+    origin_optarg: -
+    guiport_optarg: -
+    timezone: -
+    samples: 0
+    guiport: 0
+    guiflag: 0
+    tzflag: 0
+    Lflag: 0
+== Archive Folio (nohost) ==
+Warning: runtime error detected
+getoptions: missing path on archive folio line 3
+End of option processing
+Options structure dump:
+    version: 2
+    flags: 0x17 (init,done,multi,runtime_err)
+    errors: 1
+    context: 0x0 (-)
+    nhosts: 0
+    narchives: 0
+    start: -
+    finish: -
+    origin: -
+    interval: -
+    align_optarg: -
+    start_optarg: -
+    finish_optarg: -
+    origin_optarg: -
+    guiport_optarg: -
+    timezone: -
+    samples: 0
+    guiport: 0
+    guiflag: 0
+    tzflag: 0
+    Lflag: 0
+== Archive Folio (empty) ==
+End of option processing
+Options structure dump:
+    version: 2
+    flags: 0x7 (init,done,multi)
+    errors: 0
+    context: 0x0 (-)
+    nhosts: 0
+    narchives: 0
+    start: -
+    finish: -
+    origin: -
+    interval: -
+    align_optarg: -
+    start_optarg: -
+    finish_optarg: -
+    origin_optarg: -
+    guiport_optarg: -
+    timezone: -
+    samples: 0
+    guiport: 0
+    guiflag: 0
+    tzflag: 0
+    Lflag: 0

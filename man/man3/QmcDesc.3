@@ -1,0 +1,96 @@
+'\"macro stdmacro
+.\" Copyright (c) 2005 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.TH QMC_DESC 3 "SGI" "Performance Co-Pilot"
+.SH NAME
+\f3QmcDesc\f1 \- container for a metric description
+.SH "C++ SYNOPSIS"
+.ft 3
+#include <QmcDesc.h>
+.sp
+CC ... \-lqmc \-lpcp 
+.ft 1
+.SH DESCRIPTION
+A
+.B QmcDesc
+object is a container for a metric descriptor 
+.RB ( pmDesc ", see " PMAPI (3))
+and units.
+.SH "CONSTRUCTORS & DESTRUCTOR"
+.TP 4
+.B "~QmcDesc();"
+Destructor.
+.TP
+.B "QmcDesc(pmID pmid);"
+Construct a container for the descriptor for 
+.IR pmid .
+The descriptor is obtained from the current
+.BR PMAPI (3)
+context using
+.BR pmLookupDesc (3).
+.SH DESCRIPTION
+.TP 4
+.B "int status() const;"
+A status less than zero indicates that the descriptor could not be obtained,
+the
+.BR PMAPI (3)
+error is encoded in the result.
+.TP
+.B "pmID id() const;"
+Return the
+.B pmID
+for this descriptor.
+.TP
+.B "pmDesc desc() const;"
+Return a copy of the actual metric descriptor.
+.TP
+.B "const pmDesc *descPtr() const;"
+Return a pointer to the actual descriptor to avoid using a pointer to a
+temporary.
+.SH UNITS
+.TP 4
+.B "const QString &units() const;"
+The complete unit string for this descriptor.
+.TP
+.B "const QString &abvUnits() const;"
+The unit string using abbreviations.
+.TP
+.B "bool useScaleUnits() const;"
+Returns
+.B true
+if the units have been set by a call to
+.BR QmcDesc::setScaleUnits .
+.TP
+.B "const pmUnits &scaleUnits() const;"
+Return the scaling units for this descriptor.
+.TP
+.B "void setScaleUnits(const pmUnits &units);"
+Set the scaling units for this descriptor.
+.SH SEE ALSO
+.BR PMAPI (3),
+.BR QMC (3),
+.BR pmflush (3),
+.BR pmLookupDesc (3)
+and
+.BR pmprintf (3).
+.SH DIAGNOSTICS
+Error messages are generated using
+.BR pmprintf (3)
+but are not flushed. It is the responsibility of the user to call
+.BR pmflush (3)
+to output any messages.
+.PP
+Additional diagnostics may be activated by adding
+.B DBG_TRACE_PMC
+to the global
+.IR pmDebug .

@@ -1,0 +1,39 @@
+#!/bin/sh
+#
+# Very ugly picker for executables from a build.
+#
+# Problem is that /var/lib/pcp/testsuite/qa is populated from the
+# packaging, but in a build context the qmc headers are defined in
+# ../../src/libpcp_qmc/src but the qmc library and the standard
+# PCP headers are not in ../../src they are out in the build area
+# c/o Makepkgs
+#
+
+if [ -z "$PCP_DIR" ]
+then
+    . /etc/pcp.env
+else
+    . "$PCP_DIR"/etc/pcp.env
+fi
+
+builddir=''
+for builddir in ../../build/deb/pcp-$PCP_VERSION/qa/qt $PCP_VAR_DIR/testsuite/qt ''
+do
+    [ -n "$builddir" -a -d "$builddir" ] && break
+done
+
+for x in qmc_*
+do
+    [ -x $x/$x ] && continue
+    $PCP_ECHO_PROG $PCP_ECHO_N "Hunting for $x executable ... $PCP_ECHO_C"
+    if [ -z "$builddir" ]
+    then
+	echo "no build dir, not found"
+    elif [ -x $builddir/$x/$x ]
+    then
+	cp $builddir/$x/$x $x/$x
+	echo OK
+    else
+	echo "not found"
+    fi
+done

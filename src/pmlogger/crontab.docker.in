@@ -1,0 +1,11 @@
+#
+# Performance Co-Pilot crontab entries for a monitored site with one or more
+# pmlogger instances running in the pcp-pmlogger Docker container. Note this
+# is run by the host cron service, hence the docker exec calls.
+#
+# daily processing of archive logs (with compression enabled)
+10     0  *  *  *  root  docker exec pcp-pmlogger @path@/pmlogger_daily -X xz -x 3 >/dev/null 2>&1; exit 0
+# every 30 minutes, check pmlogger instances are running
+25,55  *  *  *  *  root  docker exec pcp-pmlogger @path@/pmlogger_check -C >/dev/null 2>&1; exit 0
+# for DEBUGGING use, uncomment the following
+# */10  *  *  *  *   root  docker exec pcp-pmlogger @path@/pmpost "pcp-pmlogger cron is active" >/dev/null 2>&1; exit 0

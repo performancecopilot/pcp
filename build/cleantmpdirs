@@ -1,0 +1,50 @@
+# Function to do all of the temporary dir/file migration work
+#
+_clean_tmpdirs()
+{
+    #
+    # Usage: _clean_tmpdirs [-v] new_dir old_dir ...
+    #
+    # Move temporary directories (which may be actively in use as
+    # with pmdammv files) from one temporary directory to another
+    # so as to transparently upgrade without loss of service.
+    #
+    # -v option is verbose mode for debugging
+    #
+
+    _verbose=false
+    if [ $# -gt 0 -a X"$1" = "X-v" ]
+    then
+        _verbose=true
+        shift
+    fi
+
+    if [ $# -lt 2 ]
+    then
+        echo >&2 "Usage: _clean_tmpdirs [-v] new_dir old_dir subdirs ..."
+        return
+    fi
+
+    _new_tmp_dir="$1"
+    _old_tmp_dir="$2"
+
+    [ "$_new_tmp_dir" != "$old_tmp_dir" ] || return
+
+    for _subdir
+    do
+        d="$_old_tmp_dir/$_subdir"
+        test -d "$d" -a -k "$d" || continue
+        cd "$d" || continue
+        for f in * ; do
+            [ "$f" != "*" ] || continue
+            source="$d/$f"
+            target="$_new_tmp_dir/$_subdir/$f"
+            [ "$source" != "$target" ] || continue
+            [ ! -f "$target" ] || continue
+            $_verbose && echo + mv -fu "$source" "$target"
+            mv -fu "$source" "$target" || true
+        done
+        $_verbose && echo + rmdir "$d"
+        cd && rmdir "$d" 2>/dev/null || true
+    done
+}

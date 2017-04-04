@@ -1,0 +1,281 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMDUMPLOG 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmdumplog\f1 \- dump internal details of a performance metrics archive log
+.SH SYNOPSIS
+\f3pmdumplog\f1
+[\f3\-adilLmMrstxz\f1]
+[\f3\-n\f1 \f2pmnsfile\f1]
+[\f3\-S\f1 \f2starttime\f1]
+[\f3\-T\f1 \f2endtime\f1]
+[\f3\-Z\f1 \f2timezone\f1]
+\f2archive\f1
+[\f2metricname\f1 ...]
+.br
+\f3pmdumplog\f1
+[\f3\-v\f1 \f2file\f1]
+.SH DESCRIPTION
+.B pmdumplog
+dumps assorted control, metadata, index and state information from
+the files of a Performance Co-Pilot (PCP) archive log.
+The archive log has the base name
+.I archive
+and must have been previously created using
+.BR pmlogger (1).
+.PP
+Normally
+.B pmdumplog
+operates on the distributed Performance Metrics Name Space (PMNS), however
+if the
+.B \-n
+option is specified an alternative local PMNS is loaded
+from the file
+.IR pmnsfile.
+.PP
+If any
+.I metricname
+arguments appear, the report will be restricted to information relevant
+to the named performance metrics.
+If
+.I metricname
+is a non-leaf node in the namespace (see \c
+.BR pmns (5)),
+then
+.B pmdumplog
+will recursively descend the archive's namespace and report on all leaf nodes.
+.PP
+The options control the specific information to be reported.
+.TP 5
+.B \-a
+Report everything, i.e. the flags
+.BR \-d ,
+.BR \-i ,
+.BR \-l ,
+.BR \-m ,
+.BR \-s
+and
+.BR \-t .
+.TP
+.B \-d
+Display the metadata and descriptions for those performance metrics
+that appear at least once in the archive:
+see
+.BR pmLookupDesc (3)
+for more details on the metadata describing metrics.
+.TP
+.B \-i
+Display the instance domains, and any variations in their instance
+members over the duration of the archive: see
+.BR pmGetInDom (3)
+for more details on instance domains.
+.TP
+.B \-l
+Dump the archive label, showing the log format version,
+the time and date for the start and (current) end of the archive, and
+the host from which the performance metrics values were collected.
+.TP
+.B \-L
+Like
+.BR \-l ,
+just a little more verbose.
+.TP
+.B \-m
+Print the values for the performance metrics from the archive.
+This is the default display option.
+.RS +5n
+.P
+Metrics without an instance domain are reported as:
+.br
+.ti +2n
+[\fItimestamp\fR] \fImetric-id\fR (\fImetric-name\fR): \fBvalue1\fR \fIvalue2\fR
+.P
+Metrics with an instance domain are reported as:
+.br
+.ti +2n
+[\fItimestamp\fR] \fImetric-id\fR (\fImetric-name\fR):
+.br
+.ti +6n
+\fBinst\fR [\fIinternal-id\fR \fBor\fR "\fIexternal-id\fR"]
+\fBvalue1\fR \fIvalue2\fR
+.P
+The \fItimestamp\fR is only reported for the first metric in
+a group of metrics sharing the same timestamp.
+.RE
+.TP
+.B \-M
+If no
+.I metricname
+is specified then
+.I <mark> 
+records are reported when they are found in the
+.IR archive .
+If
+.I metricname
+arguments are specified, then
+.I <mark>
+records are not reported by default.
+The
+.B \-M
+option forces
+.I <mark>
+records to be reported, even when
+.I metricname
+arguments are specified.
+.RS +5n
+.P
+.I <mark>
+records are inserted into a PCP archive log by
+.BR pmlogger (1),
+.BR pmlogextract (1),
+and similar tools to indicate a temporal discontinuity in the
+time-series of metric values.
+.RE
+.TP
+.B \-r
+Process the archive in reverse order, from most recent to oldest
+recorded metric values.
+.TP
+.B \-S
+When using the
+.B \-m
+option, the report will be restricted to those records logged at or after
+.IR starttime .
+Refer to
+.BR PCPIntro (1)
+for a complete description of the syntax for
+.IR starttime .
+.TP
+.B \-s
+Report the size in bytes of each physical record in the archive.
+.TP
+.B \-T
+When using the
+.B \-m
+option, the report will be restricted to those records logged before or at
+.IR endtime .
+Refer to
+.BR PCPIntro (1)
+for a complete description of the syntax for
+.IR endtime .
+.TP
+.B \-t
+Dump the temporal index that is used to provide accelerated access
+to large archive files.
+.RS
+.PP
+The integrity of the index will also be checked.  If the index is
+found to be corrupted, the ``*.index'' file can be renamed or removed
+and the archive will still be accessible, however retrievals may take longer
+without the index.  Note however that a corrupted temporal index is
+usually indicative of a deeper malaise that may infect all files in a
+PCP archive.
+.RE
+.TP
+.B \-v
+Verbose mode.  Dump the records from a physical archive file in
+hexadecimal format.
+In this
+case
+.I file
+is the name of a single file, usually a basename (as would otherwise
+appear as the
+.I archive
+command line argument), concatenated with ``.'' followed by one of
+.B meta
+(the metadata),
+.B index
+(the temporal index), or
+a digit (one of the volumes of metric values).
+.sp 1.5v
+Use of
+.B \-v
+precludes the use of all other options and arguments.
+.TP
+.B \-x
+Extended timestamp reporting format that includes the day of the week, day of the month,
+month and year in addition to the (default) hours, minutes and seconds time.
+This is useful for archives that span multiple days.
+.RS +5n
+.PP
+A second
+\-x
+option will also report the timestamp as an offset from the start of the
+archive in units of seconds.
+This is useful in conjunction with debug diagnostics from the
+archive handling routines in
+.IR libpcp .
+.RE
+.PP
+By default,
+.B pmdumplog
+reports the time of day according to the local timezone on the
+system where
+.B pmdumplog
+is run.
+The
+.B \-Z
+option changes the timezone to
+.I timezone
+in the format of the environment variable
+.B TZ
+as described in
+.BR environ (7).
+The
+.B \-z
+option changes the timezone to the local timezone at the
+host that is the source of the performance metrics, as specified in
+the label record of the archive log.
+.SH FILES
+.PD 0
+.TP 10
+.BI $PCP_VAR_DIR/pmns/ *
+default local PMNS specification files
+.TP
+.BI $PCP_LOG_DIR/pmlogger/ hostname
+Default directory for PCP archives containing performance
+metric values collected from the host
+.IR hostname .
+.PD
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.I /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (5).
+.SH SEE ALSO
+.BR PCPIntro (1),
+.BR pmlogcheck (1),
+.BR pmlogger (1),
+.BR pmlogger_check (1),
+.BR pmlogger_daily (1),
+.BR pmloglabel (1),
+.BR pmlogextract (1),
+.BR PMAPI (3),
+.BR pmGetInDom (3),
+.BR pmLookupDesc (3),
+.BR pcp.conf (5),
+.BR pcp.env (5)
+and
+.BR pmns (5).

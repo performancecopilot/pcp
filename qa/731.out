@@ -1,0 +1,471 @@
+QA output created by 731
+== Running valgrind for cgroup fetch - cgroups-root-001.tgz
+=== std out ===
+Metrics ...
+cgroup.blkio.all.io_merged.async
+cgroup.blkio.all.io_merged.read
+cgroup.blkio.all.io_merged.sync
+cgroup.blkio.all.io_merged.total
+cgroup.blkio.all.io_merged.write
+cgroup.blkio.all.io_queued.async
+cgroup.blkio.all.io_queued.read
+cgroup.blkio.all.io_queued.sync
+cgroup.blkio.all.io_queued.total
+cgroup.blkio.all.io_queued.write
+cgroup.blkio.all.io_service_bytes.async
+cgroup.blkio.all.io_service_bytes.read
+cgroup.blkio.all.io_service_bytes.sync
+cgroup.blkio.all.io_service_bytes.total
+cgroup.blkio.all.io_service_bytes.write
+cgroup.blkio.all.io_service_time.async
+cgroup.blkio.all.io_service_time.read
+cgroup.blkio.all.io_service_time.sync
+cgroup.blkio.all.io_service_time.total
+cgroup.blkio.all.io_service_time.write
+cgroup.blkio.all.io_serviced.async
+cgroup.blkio.all.io_serviced.read
+cgroup.blkio.all.io_serviced.sync
+cgroup.blkio.all.io_serviced.total
+cgroup.blkio.all.io_serviced.write
+cgroup.blkio.all.io_wait_time.async
+cgroup.blkio.all.io_wait_time.read
+cgroup.blkio.all.io_wait_time.sync
+cgroup.blkio.all.io_wait_time.total
+cgroup.blkio.all.io_wait_time.write
+cgroup.blkio.all.sectors
+cgroup.blkio.all.throttle.io_service_bytes.async
+cgroup.blkio.all.throttle.io_service_bytes.read
+cgroup.blkio.all.throttle.io_service_bytes.sync
+cgroup.blkio.all.throttle.io_service_bytes.total
+cgroup.blkio.all.throttle.io_service_bytes.write
+cgroup.blkio.all.throttle.io_serviced.async
+cgroup.blkio.all.throttle.io_serviced.read
+cgroup.blkio.all.throttle.io_serviced.sync
+cgroup.blkio.all.throttle.io_serviced.total
+cgroup.blkio.all.throttle.io_serviced.write
+cgroup.blkio.all.time
+cgroup.blkio.dev.io_merged.async
+cgroup.blkio.dev.io_merged.read
+cgroup.blkio.dev.io_merged.sync
+cgroup.blkio.dev.io_merged.total
+cgroup.blkio.dev.io_merged.write
+cgroup.blkio.dev.io_queued.async
+cgroup.blkio.dev.io_queued.read
+cgroup.blkio.dev.io_queued.sync
+cgroup.blkio.dev.io_queued.total
+cgroup.blkio.dev.io_queued.write
+cgroup.blkio.dev.io_service_bytes.async
+cgroup.blkio.dev.io_service_bytes.read
+cgroup.blkio.dev.io_service_bytes.sync
+cgroup.blkio.dev.io_service_bytes.total
+cgroup.blkio.dev.io_service_bytes.write
+cgroup.blkio.dev.io_service_time.async
+cgroup.blkio.dev.io_service_time.read
+cgroup.blkio.dev.io_service_time.sync
+cgroup.blkio.dev.io_service_time.total
+cgroup.blkio.dev.io_service_time.write
+cgroup.blkio.dev.io_serviced.async
+cgroup.blkio.dev.io_serviced.read
+cgroup.blkio.dev.io_serviced.sync
+cgroup.blkio.dev.io_serviced.total
+cgroup.blkio.dev.io_serviced.write
+cgroup.blkio.dev.io_wait_time.async
+cgroup.blkio.dev.io_wait_time.read
+cgroup.blkio.dev.io_wait_time.sync
+cgroup.blkio.dev.io_wait_time.total
+cgroup.blkio.dev.io_wait_time.write
+cgroup.blkio.dev.sectors
+cgroup.blkio.dev.throttle.io_service_bytes.async
+cgroup.blkio.dev.throttle.io_service_bytes.read
+cgroup.blkio.dev.throttle.io_service_bytes.sync
+cgroup.blkio.dev.throttle.io_service_bytes.total
+cgroup.blkio.dev.throttle.io_service_bytes.write
+cgroup.blkio.dev.throttle.io_serviced.async
+cgroup.blkio.dev.throttle.io_serviced.read
+cgroup.blkio.dev.throttle.io_serviced.sync
+cgroup.blkio.dev.throttle.io_serviced.total
+cgroup.blkio.dev.throttle.io_serviced.write
+cgroup.blkio.dev.time
+cgroup.cpuacct.stat.system
+cgroup.cpuacct.stat.user
+cgroup.cpuacct.usage
+cgroup.cpuacct.usage_percpu
+cgroup.cpusched.cfs_period
+cgroup.cpusched.cfs_quota
+cgroup.cpusched.periods
+cgroup.cpusched.shares
+cgroup.cpusched.throttled
+cgroup.cpusched.throttled_time
+cgroup.cpuset.cpus
+cgroup.cpuset.mems
+cgroup.memory.failcnt
+cgroup.memory.limit
+cgroup.memory.stat.active_anon
+cgroup.memory.stat.active_file
+cgroup.memory.stat.cache
+cgroup.memory.stat.inactive_anon
+cgroup.memory.stat.inactive_file
+cgroup.memory.stat.mapped_file
+cgroup.memory.stat.pgfault
+cgroup.memory.stat.pgmajfault
+cgroup.memory.stat.pgpgin
+cgroup.memory.stat.pgpgout
+cgroup.memory.stat.recent.rotated_anon
+cgroup.memory.stat.recent.rotated_file
+cgroup.memory.stat.recent.scanned_anon
+cgroup.memory.stat.recent.scanned_file
+cgroup.memory.stat.rss
+cgroup.memory.stat.rss_huge
+cgroup.memory.stat.swap
+cgroup.memory.stat.total.active_anon
+cgroup.memory.stat.total.active_file
+cgroup.memory.stat.total.cache
+cgroup.memory.stat.total.inactive_anon
+cgroup.memory.stat.total.inactive_file
+cgroup.memory.stat.total.mapped_file
+cgroup.memory.stat.total.pgfault
+cgroup.memory.stat.total.pgmajfault
+cgroup.memory.stat.total.pgpgin
+cgroup.memory.stat.total.pgpgout
+cgroup.memory.stat.total.rss
+cgroup.memory.stat.total.rss_huge
+cgroup.memory.stat.total.swap
+cgroup.memory.stat.total.unevictable
+cgroup.memory.stat.total.writeback
+cgroup.memory.stat.unevictable
+cgroup.memory.stat.writeback
+cgroup.memory.usage
+cgroup.mounts.count
+cgroup.mounts.subsys
+cgroup.netclass.classid
+cgroup.subsys.count
+cgroup.subsys.enabled
+cgroup.subsys.hierarchy
+cgroup.subsys.num_cgroups
+
+and 629 instance values.
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -L -K clear -K add,3,PCP_PMDAS_DIR/proc/pmda_proc.so,proc_init -d -f cgroup
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+== Running valgrind on blkio for multiple fetches - cgroups-root-001.tgz
+== Running valgrind on cpuacct for multiple fetches - cgroups-root-001.tgz
+== Running valgrind on cpusched for multiple fetches - cgroups-root-001.tgz
+== Running valgrind on cpuset for multiple fetches - cgroups-root-001.tgz
+== Running valgrind on memory for multiple fetches - cgroups-root-001.tgz
+== Running valgrind on mounts for multiple fetches - cgroups-root-001.tgz
+== Running valgrind on netclass for multiple fetches - cgroups-root-001.tgz
+== Running valgrind on subsys for multiple fetches - cgroups-root-001.tgz
+
+== done
+
+== Running valgrind for cgroup fetch - cgroups-root-002.tgz
+=== std out ===
+Metrics ...
+cgroup.blkio.all.io_merged.async
+cgroup.blkio.all.io_merged.read
+cgroup.blkio.all.io_merged.sync
+cgroup.blkio.all.io_merged.total
+cgroup.blkio.all.io_merged.write
+cgroup.blkio.all.io_queued.async
+cgroup.blkio.all.io_queued.read
+cgroup.blkio.all.io_queued.sync
+cgroup.blkio.all.io_queued.total
+cgroup.blkio.all.io_queued.write
+cgroup.blkio.all.io_service_bytes.async
+cgroup.blkio.all.io_service_bytes.read
+cgroup.blkio.all.io_service_bytes.sync
+cgroup.blkio.all.io_service_bytes.total
+cgroup.blkio.all.io_service_bytes.write
+cgroup.blkio.all.io_service_time.async
+cgroup.blkio.all.io_service_time.read
+cgroup.blkio.all.io_service_time.sync
+cgroup.blkio.all.io_service_time.total
+cgroup.blkio.all.io_service_time.write
+cgroup.blkio.all.io_serviced.async
+cgroup.blkio.all.io_serviced.read
+cgroup.blkio.all.io_serviced.sync
+cgroup.blkio.all.io_serviced.total
+cgroup.blkio.all.io_serviced.write
+cgroup.blkio.all.io_wait_time.async
+cgroup.blkio.all.io_wait_time.read
+cgroup.blkio.all.io_wait_time.sync
+cgroup.blkio.all.io_wait_time.total
+cgroup.blkio.all.io_wait_time.write
+cgroup.blkio.all.sectors
+cgroup.blkio.all.throttle.io_service_bytes.async
+cgroup.blkio.all.throttle.io_service_bytes.read
+cgroup.blkio.all.throttle.io_service_bytes.sync
+cgroup.blkio.all.throttle.io_service_bytes.total
+cgroup.blkio.all.throttle.io_service_bytes.write
+cgroup.blkio.all.throttle.io_serviced.async
+cgroup.blkio.all.throttle.io_serviced.read
+cgroup.blkio.all.throttle.io_serviced.sync
+cgroup.blkio.all.throttle.io_serviced.total
+cgroup.blkio.all.throttle.io_serviced.write
+cgroup.blkio.all.time
+cgroup.blkio.dev.io_merged.async
+cgroup.blkio.dev.io_merged.read
+cgroup.blkio.dev.io_merged.sync
+cgroup.blkio.dev.io_merged.total
+cgroup.blkio.dev.io_merged.write
+cgroup.blkio.dev.io_queued.async
+cgroup.blkio.dev.io_queued.read
+cgroup.blkio.dev.io_queued.sync
+cgroup.blkio.dev.io_queued.total
+cgroup.blkio.dev.io_queued.write
+cgroup.blkio.dev.io_service_bytes.async
+cgroup.blkio.dev.io_service_bytes.read
+cgroup.blkio.dev.io_service_bytes.sync
+cgroup.blkio.dev.io_service_bytes.total
+cgroup.blkio.dev.io_service_bytes.write
+cgroup.blkio.dev.io_service_time.async
+cgroup.blkio.dev.io_service_time.read
+cgroup.blkio.dev.io_service_time.sync
+cgroup.blkio.dev.io_service_time.total
+cgroup.blkio.dev.io_service_time.write
+cgroup.blkio.dev.io_serviced.async
+cgroup.blkio.dev.io_serviced.read
+cgroup.blkio.dev.io_serviced.sync
+cgroup.blkio.dev.io_serviced.total
+cgroup.blkio.dev.io_serviced.write
+cgroup.blkio.dev.io_wait_time.async
+cgroup.blkio.dev.io_wait_time.read
+cgroup.blkio.dev.io_wait_time.sync
+cgroup.blkio.dev.io_wait_time.total
+cgroup.blkio.dev.io_wait_time.write
+cgroup.blkio.dev.sectors
+cgroup.blkio.dev.throttle.io_service_bytes.async
+cgroup.blkio.dev.throttle.io_service_bytes.read
+cgroup.blkio.dev.throttle.io_service_bytes.sync
+cgroup.blkio.dev.throttle.io_service_bytes.total
+cgroup.blkio.dev.throttle.io_service_bytes.write
+cgroup.blkio.dev.throttle.io_serviced.async
+cgroup.blkio.dev.throttle.io_serviced.read
+cgroup.blkio.dev.throttle.io_serviced.sync
+cgroup.blkio.dev.throttle.io_serviced.total
+cgroup.blkio.dev.throttle.io_serviced.write
+cgroup.blkio.dev.time
+cgroup.cpuacct.stat.system
+cgroup.cpuacct.stat.user
+cgroup.cpuacct.usage
+cgroup.cpuacct.usage_percpu
+cgroup.cpusched.cfs_period
+cgroup.cpusched.cfs_quota
+cgroup.cpusched.periods
+cgroup.cpusched.shares
+cgroup.cpusched.throttled
+cgroup.cpusched.throttled_time
+cgroup.cpuset.cpus
+cgroup.cpuset.mems
+cgroup.memory.failcnt
+cgroup.memory.limit
+cgroup.memory.stat.active_anon
+cgroup.memory.stat.active_file
+cgroup.memory.stat.cache
+cgroup.memory.stat.inactive_anon
+cgroup.memory.stat.inactive_file
+cgroup.memory.stat.mapped_file
+cgroup.memory.stat.pgfault
+cgroup.memory.stat.pgmajfault
+cgroup.memory.stat.pgpgin
+cgroup.memory.stat.pgpgout
+cgroup.memory.stat.recent.rotated_anon
+cgroup.memory.stat.recent.rotated_file
+cgroup.memory.stat.recent.scanned_anon
+cgroup.memory.stat.recent.scanned_file
+cgroup.memory.stat.rss
+cgroup.memory.stat.rss_huge
+cgroup.memory.stat.swap
+cgroup.memory.stat.total.active_anon
+cgroup.memory.stat.total.active_file
+cgroup.memory.stat.total.cache
+cgroup.memory.stat.total.inactive_anon
+cgroup.memory.stat.total.inactive_file
+cgroup.memory.stat.total.mapped_file
+cgroup.memory.stat.total.pgfault
+cgroup.memory.stat.total.pgmajfault
+cgroup.memory.stat.total.pgpgin
+cgroup.memory.stat.total.pgpgout
+cgroup.memory.stat.total.rss
+cgroup.memory.stat.total.rss_huge
+cgroup.memory.stat.total.swap
+cgroup.memory.stat.total.unevictable
+cgroup.memory.stat.total.writeback
+cgroup.memory.stat.unevictable
+cgroup.memory.stat.writeback
+cgroup.memory.usage
+cgroup.mounts.count
+cgroup.mounts.subsys
+cgroup.netclass.classid
+cgroup.subsys.count
+cgroup.subsys.enabled
+cgroup.subsys.hierarchy
+cgroup.subsys.num_cgroups
+
+and 263 instance values.
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -L -K clear -K add,3,PCP_PMDAS_DIR/proc/pmda_proc.so,proc_init -d -f cgroup
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+== Running valgrind for cgroup fetch - cgroups-root-003.tgz
+=== std out ===
+Metrics ...
+cgroup.blkio.all.io_merged.async
+cgroup.blkio.all.io_merged.read
+cgroup.blkio.all.io_merged.sync
+cgroup.blkio.all.io_merged.total
+cgroup.blkio.all.io_merged.write
+cgroup.blkio.all.io_queued.async
+cgroup.blkio.all.io_queued.read
+cgroup.blkio.all.io_queued.sync
+cgroup.blkio.all.io_queued.total
+cgroup.blkio.all.io_queued.write
+cgroup.blkio.all.io_service_bytes.async
+cgroup.blkio.all.io_service_bytes.read
+cgroup.blkio.all.io_service_bytes.sync
+cgroup.blkio.all.io_service_bytes.total
+cgroup.blkio.all.io_service_bytes.write
+cgroup.blkio.all.io_service_time.async
+cgroup.blkio.all.io_service_time.read
+cgroup.blkio.all.io_service_time.sync
+cgroup.blkio.all.io_service_time.total
+cgroup.blkio.all.io_service_time.write
+cgroup.blkio.all.io_serviced.async
+cgroup.blkio.all.io_serviced.read
+cgroup.blkio.all.io_serviced.sync
+cgroup.blkio.all.io_serviced.total
+cgroup.blkio.all.io_serviced.write
+cgroup.blkio.all.io_wait_time.async
+cgroup.blkio.all.io_wait_time.read
+cgroup.blkio.all.io_wait_time.sync
+cgroup.blkio.all.io_wait_time.total
+cgroup.blkio.all.io_wait_time.write
+cgroup.blkio.all.sectors
+cgroup.blkio.all.throttle.io_service_bytes.async
+cgroup.blkio.all.throttle.io_service_bytes.read
+cgroup.blkio.all.throttle.io_service_bytes.sync
+cgroup.blkio.all.throttle.io_service_bytes.total
+cgroup.blkio.all.throttle.io_service_bytes.write
+cgroup.blkio.all.throttle.io_serviced.async
+cgroup.blkio.all.throttle.io_serviced.read
+cgroup.blkio.all.throttle.io_serviced.sync
+cgroup.blkio.all.throttle.io_serviced.total
+cgroup.blkio.all.throttle.io_serviced.write
+cgroup.blkio.all.time
+cgroup.blkio.dev.io_merged.async
+cgroup.blkio.dev.io_merged.read
+cgroup.blkio.dev.io_merged.sync
+cgroup.blkio.dev.io_merged.total
+cgroup.blkio.dev.io_merged.write
+cgroup.blkio.dev.io_queued.async
+cgroup.blkio.dev.io_queued.read
+cgroup.blkio.dev.io_queued.sync
+cgroup.blkio.dev.io_queued.total
+cgroup.blkio.dev.io_queued.write
+cgroup.blkio.dev.io_service_bytes.async
+cgroup.blkio.dev.io_service_bytes.read
+cgroup.blkio.dev.io_service_bytes.sync
+cgroup.blkio.dev.io_service_bytes.total
+cgroup.blkio.dev.io_service_bytes.write
+cgroup.blkio.dev.io_service_time.async
+cgroup.blkio.dev.io_service_time.read
+cgroup.blkio.dev.io_service_time.sync
+cgroup.blkio.dev.io_service_time.total
+cgroup.blkio.dev.io_service_time.write
+cgroup.blkio.dev.io_serviced.async
+cgroup.blkio.dev.io_serviced.read
+cgroup.blkio.dev.io_serviced.sync
+cgroup.blkio.dev.io_serviced.total
+cgroup.blkio.dev.io_serviced.write
+cgroup.blkio.dev.io_wait_time.async
+cgroup.blkio.dev.io_wait_time.read
+cgroup.blkio.dev.io_wait_time.sync
+cgroup.blkio.dev.io_wait_time.total
+cgroup.blkio.dev.io_wait_time.write
+cgroup.blkio.dev.sectors
+cgroup.blkio.dev.throttle.io_service_bytes.async
+cgroup.blkio.dev.throttle.io_service_bytes.read
+cgroup.blkio.dev.throttle.io_service_bytes.sync
+cgroup.blkio.dev.throttle.io_service_bytes.total
+cgroup.blkio.dev.throttle.io_service_bytes.write
+cgroup.blkio.dev.throttle.io_serviced.async
+cgroup.blkio.dev.throttle.io_serviced.read
+cgroup.blkio.dev.throttle.io_serviced.sync
+cgroup.blkio.dev.throttle.io_serviced.total
+cgroup.blkio.dev.throttle.io_serviced.write
+cgroup.blkio.dev.time
+cgroup.cpuacct.stat.system
+cgroup.cpuacct.stat.user
+cgroup.cpuacct.usage
+cgroup.cpuacct.usage_percpu
+cgroup.cpusched.cfs_period
+cgroup.cpusched.cfs_quota
+cgroup.cpusched.periods
+cgroup.cpusched.shares
+cgroup.cpusched.throttled
+cgroup.cpusched.throttled_time
+cgroup.cpuset.cpus
+cgroup.cpuset.mems
+cgroup.memory.failcnt
+cgroup.memory.limit
+cgroup.memory.stat.active_anon
+cgroup.memory.stat.active_file
+cgroup.memory.stat.cache
+cgroup.memory.stat.inactive_anon
+cgroup.memory.stat.inactive_file
+cgroup.memory.stat.mapped_file
+cgroup.memory.stat.pgfault
+cgroup.memory.stat.pgmajfault
+cgroup.memory.stat.pgpgin
+cgroup.memory.stat.pgpgout
+cgroup.memory.stat.recent.rotated_anon
+cgroup.memory.stat.recent.rotated_file
+cgroup.memory.stat.recent.scanned_anon
+cgroup.memory.stat.recent.scanned_file
+cgroup.memory.stat.rss
+cgroup.memory.stat.rss_huge
+cgroup.memory.stat.swap
+cgroup.memory.stat.total.active_anon
+cgroup.memory.stat.total.active_file
+cgroup.memory.stat.total.cache
+cgroup.memory.stat.total.inactive_anon
+cgroup.memory.stat.total.inactive_file
+cgroup.memory.stat.total.mapped_file
+cgroup.memory.stat.total.pgfault
+cgroup.memory.stat.total.pgmajfault
+cgroup.memory.stat.total.pgpgin
+cgroup.memory.stat.total.pgpgout
+cgroup.memory.stat.total.rss
+cgroup.memory.stat.total.rss_huge
+cgroup.memory.stat.total.swap
+cgroup.memory.stat.total.unevictable
+cgroup.memory.stat.total.writeback
+cgroup.memory.stat.unevictable
+cgroup.memory.stat.writeback
+cgroup.memory.usage
+cgroup.mounts.count
+cgroup.mounts.subsys
+cgroup.netclass.classid
+cgroup.subsys.count
+cgroup.subsys.enabled
+cgroup.subsys.hierarchy
+cgroup.subsys.num_cgroups
+
+and 5118 instance values.
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -L -K clear -K add,3,PCP_PMDAS_DIR/proc/pmda_proc.so,proc_init -d -f cgroup
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...

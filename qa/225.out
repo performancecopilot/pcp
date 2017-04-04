@@ -1,0 +1,646 @@
+QA output created by 225
+No syntax errors here ...
+pmRegisterDerived: name="event.flags" expr="anon(PM_TYPE_U32)"
+parse(1) state=P_INIT type=L_ANON "anon("
+parse(1) state=P_FUNC_OP type=L_NAME "PM_TYPE_U32"
+parse(1) state=P_FUNC_END type=L_RPAREN ")"
+parse(1) state=P_LEAF type=L_EOF ""
+pmRegisterDerived: register metric[0] event.flags = anon(PM_TYPE_U32)
+Derived metric expr dump from <addr->...
+expr node <addr-> type=ANON left=<addr-1> right=(nil) save_last=0
+expr node <addr-1> type=NUMBER left=(nil) right=(nil) save_last=1 [PM_TYPE_U32] master=1
+pmRegisterDerived: name="event.missed" expr="anon(PM_TYPE_U32)"
+parse(1) state=P_INIT type=L_ANON "anon("
+parse(1) state=P_FUNC_OP type=L_NAME "PM_TYPE_U32"
+parse(1) state=P_FUNC_END type=L_RPAREN ")"
+parse(1) state=P_LEAF type=L_EOF ""
+pmRegisterDerived: register metric[1] event.missed = anon(PM_TYPE_U32)
+Derived metric expr dump from <addr-2>...
+expr node <addr-2> type=ANON left=<addr-3> right=(nil) save_last=0
+expr node <addr-3> type=NUMBER left=(nil) right=(nil) save_last=1 [PM_TYPE_U32] master=1
+pmLoadDerivedConfig("TMP.config")
+pmRegisterDerived: name="myname.a" expr="disk.dev.read"
+parse(1) state=P_INIT type=L_NAME "disk.dev.read"
+parse(1) state=P_LEAF type=L_EOF ""
+pmRegisterDerived: register metric[2] myname.a = disk.dev.read
+Derived metric expr dump from <addr-4>...
+expr node <addr-4> type=NAME left=(nil) right=(nil) save_last=0 [disk.dev.read] master=1
+pmRegisterDerived: name="myname.b" expr="disk.dev.read + disk.dev.write"
+parse(1) state=P_INIT type=L_NAME "disk.dev.read"
+parse(1) state=P_LEAF type=L_PLUS "+"
+parse(1) state=P_BINOP type=L_NAME "disk.dev.write"
+parse(1) state=P_LEAF type=L_EOF ""
+pmRegisterDerived: register metric[3] myname.b = disk.dev.read + disk.dev.write
+Derived metric expr dump from <addr-5>...
+expr node <addr-5> type=PLUS left=<addr-6> right=<addr-7> save_last=0
+expr node <addr-6> type=NAME left=(nil) right=(nil) save_last=0 [disk.dev.read] master=1
+expr node <addr-7> type=NAME left=(nil) right=(nil) save_last=0 [disk.dev.write] master=1
+pmRegisterDerived: name="myname.c" expr="disk.dev.read + disk.dev.write + sample.long.writeme"
+parse(1) state=P_INIT type=L_NAME "disk.dev.read"
+parse(1) state=P_LEAF type=L_PLUS "+"
+parse(1) state=P_BINOP type=L_NAME "disk.dev.write"
+parse(1) state=P_LEAF type=L_PLUS "+"
+parse(1) state=P_BINOP type=L_NAME "sample.long.writeme"
+parse(1) state=P_LEAF type=L_EOF ""
+pmRegisterDerived: register metric[4] myname.c = disk.dev.read + disk.dev.write + sample.long.writeme
+Derived metric expr dump from <addr-8>...
+expr node <addr-8> type=PLUS left=<addr-9> right=<addr-12> save_last=0
+expr node <addr-9> type=PLUS left=<addr-10> right=<addr-11> save_last=0
+expr node <addr-10> type=NAME left=(nil) right=(nil) save_last=0 [disk.dev.read] master=1
+expr node <addr-11> type=NAME left=(nil) right=(nil) save_last=0 [disk.dev.write] master=1
+expr node <addr-12> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.writeme] master=1
+pmRegisterDerived: name="myname.d" expr="(disk.dev.read)"
+parse(1) state=P_INIT type=L_LPAREN "("
+parse(2) state=P_INIT type=L_NAME "disk.dev.read"
+parse(2) state=P_LEAF type=L_RPAREN ")"
+parse(1) state=P_LEAF_PAREN type=L_EOF ""
+pmRegisterDerived: register metric[5] myname.d = (disk.dev.read)
+Derived metric expr dump from <addr-13>...
+expr node <addr-13> type=NAME left=(nil) right=(nil) save_last=0 [disk.dev.read] master=1
+pmRegisterDerived: name="myname.e" expr="2 * disk.dev.write + sample.long.writeme"
+parse(1) state=P_INIT type=L_NUMBER "2"
+parse(1) state=P_LEAF type=L_STAR "*"
+parse(1) state=P_BINOP type=L_NAME "disk.dev.write"
+parse(1) state=P_LEAF type=L_PLUS "+"
+parse(1) state=P_BINOP type=L_NAME "sample.long.writeme"
+parse(1) state=P_LEAF type=L_EOF ""
+pmRegisterDerived: register metric[6] myname.e = 2 * disk.dev.write + sample.long.writeme
+Derived metric expr dump from <addr-14>...
+expr node <addr-14> type=PLUS left=<addr-15> right=<addr-18> save_last=0
+expr node <addr-15> type=STAR left=<addr-16> right=<addr-17> save_last=0
+expr node <addr-16> type=NUMBER left=(nil) right=(nil) save_last=0 [2] master=1
+expr node <addr-17> type=NAME left=(nil) right=(nil) save_last=0 [disk.dev.write] master=1
+expr node <addr-18> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.writeme] master=1
+pmRegisterDerived: name="myname.f" expr="2 + disk.dev.write * sample.long.writeme"
+parse(1) state=P_INIT type=L_NUMBER "2"
+parse(1) state=P_LEAF type=L_PLUS "+"
+parse(1) state=P_BINOP type=L_NAME "disk.dev.write"
+parse(1) state=P_LEAF type=L_STAR "*"
+parse(1) state=P_BINOP type=L_NAME "sample.long.writeme"
+parse(1) state=P_LEAF type=L_EOF ""
+pmRegisterDerived: register metric[7] myname.f = 2 + disk.dev.write * sample.long.writeme
+Derived metric expr dump from <addr-19>...
+expr node <addr-19> type=PLUS left=<addr-20> right=<addr-21> save_last=0
+expr node <addr-20> type=NUMBER left=(nil) right=(nil) save_last=0 [2] master=1
+expr node <addr-21> type=STAR left=<addr-22> right=<addr-23> save_last=0
+expr node <addr-22> type=NAME left=(nil) right=(nil) save_last=0 [disk.dev.write] master=1
+expr node <addr-23> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.writeme] master=1
+pmRegisterDerived: name="myname.g" expr="( 2 + disk.dev.write ) * sample.long.writeme"
+parse(1) state=P_INIT type=L_LPAREN "("
+parse(2) state=P_INIT type=L_NUMBER "2"
+parse(2) state=P_LEAF type=L_PLUS "+"
+parse(2) state=P_BINOP type=L_NAME "disk.dev.write"
+parse(2) state=P_LEAF type=L_RPAREN ")"
+parse(1) state=P_LEAF_PAREN type=L_STAR "*"
+parse(1) state=P_BINOP type=L_NAME "sample.long.writeme"
+parse(1) state=P_LEAF type=L_EOF ""
+pmRegisterDerived: register metric[8] myname.g = ( 2 + disk.dev.write ) * sample.long.writeme
+Derived metric expr dump from <addr-24>...
+expr node <addr-24> type=STAR left=<addr-25> right=<addr-28> save_last=0
+expr node <addr-25> type=PLUS left=<addr-26> right=<addr-27> save_last=0
+expr node <addr-26> type=NUMBER left=(nil) right=(nil) save_last=0 [2] master=1
+expr node <addr-27> type=NAME left=(nil) right=(nil) save_last=0 [disk.dev.write] master=1
+expr node <addr-28> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.writeme] master=1
+pmRegisterDerived: name="myname.h" expr="2 + ( disk.dev.write * sample.long.writeme )"
+parse(1) state=P_INIT type=L_NUMBER "2"
+parse(1) state=P_LEAF type=L_PLUS "+"
+parse(1) state=P_BINOP type=L_LPAREN "("
+parse(2) state=P_INIT type=L_NAME "disk.dev.write"
+parse(2) state=P_LEAF type=L_STAR "*"
+parse(2) state=P_BINOP type=L_NAME "sample.long.writeme"
+parse(2) state=P_LEAF type=L_RPAREN ")"
+parse(1) state=P_LEAF_PAREN type=L_EOF ""
+pmRegisterDerived: register metric[9] myname.h = 2 + ( disk.dev.write * sample.long.writeme )
+Derived metric expr dump from <addr-29>...
+expr node <addr-29> type=PLUS left=<addr-30> right=<addr-31> save_last=0
+expr node <addr-30> type=NUMBER left=(nil) right=(nil) save_last=0 [2] master=1
+expr node <addr-31> type=STAR left=<addr-32> right=<addr-33> save_last=0
+expr node <addr-32> type=NAME left=(nil) right=(nil) save_last=0 [disk.dev.write] master=1
+expr node <addr-33> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.writeme] master=1
+pmRegisterDerived: name="myname.i" expr="(disk.dev.write+disk.dev.read)*(sample.long.one+sample.long.ten)"
+parse(1) state=P_INIT type=L_LPAREN "("
+parse(2) state=P_INIT type=L_NAME "disk.dev.write"
+parse(2) state=P_LEAF type=L_PLUS "+"
+parse(2) state=P_BINOP type=L_NAME "disk.dev.read"
+parse(2) state=P_LEAF type=L_RPAREN ")"
+parse(1) state=P_LEAF_PAREN type=L_STAR "*"
+parse(1) state=P_BINOP type=L_LPAREN "("
+parse(2) state=P_INIT type=L_NAME "sample.long.one"
+parse(2) state=P_LEAF type=L_PLUS "+"
+parse(2) state=P_BINOP type=L_NAME "sample.long.ten"
+parse(2) state=P_LEAF type=L_RPAREN ")"
+parse(1) state=P_LEAF_PAREN type=L_EOF ""
+pmRegisterDerived: register metric[10] myname.i = (disk.dev.write+disk.dev.read)*(sample.long.one+sample.long.ten)
+Derived metric expr dump from <addr-34>...
+expr node <addr-34> type=STAR left=<addr-35> right=<addr-38> save_last=0
+expr node <addr-35> type=PLUS left=<addr-36> right=<addr-37> save_last=0
+expr node <addr-36> type=NAME left=(nil) right=(nil) save_last=0 [disk.dev.write] master=1
+expr node <addr-37> type=NAME left=(nil) right=(nil) save_last=0 [disk.dev.read] master=1
+expr node <addr-38> type=PLUS left=<addr-39> right=<addr-40> save_last=0
+expr node <addr-39> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.one] master=1
+expr node <addr-40> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.ten] master=1
+pmRegisterDerived: name="myname.j" expr="(disk.dev.write*disk.dev.read)+(sample.long.one*sample.long.ten)"
+parse(1) state=P_INIT type=L_LPAREN "("
+parse(2) state=P_INIT type=L_NAME "disk.dev.write"
+parse(2) state=P_LEAF type=L_STAR "*"
+parse(2) state=P_BINOP type=L_NAME "disk.dev.read"
+parse(2) state=P_LEAF type=L_RPAREN ")"
+parse(1) state=P_LEAF_PAREN type=L_PLUS "+"
+parse(1) state=P_BINOP type=L_LPAREN "("
+parse(2) state=P_INIT type=L_NAME "sample.long.one"
+parse(2) state=P_LEAF type=L_STAR "*"
+parse(2) state=P_BINOP type=L_NAME "sample.long.ten"
+parse(2) state=P_LEAF type=L_RPAREN ")"
+parse(1) state=P_LEAF_PAREN type=L_EOF ""
+pmRegisterDerived: register metric[11] myname.j = (disk.dev.write*disk.dev.read)+(sample.long.one*sample.long.ten)
+Derived metric expr dump from <addr-41>...
+expr node <addr-41> type=PLUS left=<addr-42> right=<addr-45> save_last=0
+expr node <addr-42> type=STAR left=<addr-43> right=<addr-44> save_last=0
+expr node <addr-43> type=NAME left=(nil) right=(nil) save_last=0 [disk.dev.write] master=1
+expr node <addr-44> type=NAME left=(nil) right=(nil) save_last=0 [disk.dev.read] master=1
+expr node <addr-45> type=STAR left=<addr-46> right=<addr-47> save_last=0
+expr node <addr-46> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.one] master=1
+expr node <addr-47> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.ten] master=1
+pmRegisterDerived: name="myname.k" expr="sample.long.one + sample.long.ten + sample.long.hundred + sample.long.million + sample.longlong.one + sample.longlong.ten + sample.longlong.hundred + sample.longlong.million"
+parse(1) state=P_INIT type=L_NAME "sample.long.one"
+parse(1) state=P_LEAF type=L_PLUS "+"
+parse(1) state=P_BINOP type=L_NAME "sample.long.ten"
+parse(1) state=P_LEAF type=L_PLUS "+"
+parse(1) state=P_BINOP type=L_NAME "sample.long.hundred"
+parse(1) state=P_LEAF type=L_PLUS "+"
+parse(1) state=P_BINOP type=L_NAME "sample.long.million"
+parse(1) state=P_LEAF type=L_PLUS "+"
+parse(1) state=P_BINOP type=L_NAME "sample.longlong.one"
+parse(1) state=P_LEAF type=L_PLUS "+"
+parse(1) state=P_BINOP type=L_NAME "sample.longlong.ten"
+parse(1) state=P_LEAF type=L_PLUS "+"
+parse(1) state=P_BINOP type=L_NAME "sample.longlong.hundred"
+parse(1) state=P_LEAF type=L_PLUS "+"
+parse(1) state=P_BINOP type=L_NAME "sample.longlong.million"
+parse(1) state=P_LEAF type=L_EOF ""
+pmRegisterDerived: register metric[12] myname.k = sample.long.one + sample.long.ten + sample.long.hundred + sample.long.million + sample.longlong.one + sample.longlong.ten + sample.longlong.hundred + sample.longlong.million
+Derived metric expr dump from <addr-48>...
+expr node <addr-48> type=PLUS left=<addr-49> right=<addr-62> save_last=0
+expr node <addr-49> type=PLUS left=<addr-50> right=<addr-61> save_last=0
+expr node <addr-50> type=PLUS left=<addr-51> right=<addr-60> save_last=0
+expr node <addr-51> type=PLUS left=<addr-52> right=<addr-59> save_last=0
+expr node <addr-52> type=PLUS left=<addr-53> right=<addr-58> save_last=0
+expr node <addr-53> type=PLUS left=<addr-54> right=<addr-57> save_last=0
+expr node <addr-54> type=PLUS left=<addr-55> right=<addr-56> save_last=0
+expr node <addr-55> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.one] master=1
+expr node <addr-56> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.ten] master=1
+expr node <addr-57> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.hundred] master=1
+expr node <addr-58> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.million] master=1
+expr node <addr-59> type=NAME left=(nil) right=(nil) save_last=0 [sample.longlong.one] master=1
+expr node <addr-60> type=NAME left=(nil) right=(nil) save_last=0 [sample.longlong.ten] master=1
+expr node <addr-61> type=NAME left=(nil) right=(nil) save_last=0 [sample.longlong.hundred] master=1
+expr node <addr-62> type=NAME left=(nil) right=(nil) save_last=0 [sample.longlong.million] master=1
+pmRegisterDerived: name="myname.l" expr="sample.long.one + sample.long.ten + sample.long.hundred + sample.long.million - sample.longlong.one - sample.longlong.ten - sample.longlong.hundred - sample.longlong.million"
+parse(1) state=P_INIT type=L_NAME "sample.long.one"
+parse(1) state=P_LEAF type=L_PLUS "+"
+parse(1) state=P_BINOP type=L_NAME "sample.long.ten"
+parse(1) state=P_LEAF type=L_PLUS "+"
+parse(1) state=P_BINOP type=L_NAME "sample.long.hundred"
+parse(1) state=P_LEAF type=L_PLUS "+"
+parse(1) state=P_BINOP type=L_NAME "sample.long.million"
+parse(1) state=P_LEAF type=L_MINUS "-"
+parse(1) state=P_BINOP type=L_NAME "sample.longlong.one"
+parse(1) state=P_LEAF type=L_MINUS "-"
+parse(1) state=P_BINOP type=L_NAME "sample.longlong.ten"
+parse(1) state=P_LEAF type=L_MINUS "-"
+parse(1) state=P_BINOP type=L_NAME "sample.longlong.hundred"
+parse(1) state=P_LEAF type=L_MINUS "-"
+parse(1) state=P_BINOP type=L_NAME "sample.longlong.million"
+parse(1) state=P_LEAF type=L_EOF ""
+pmRegisterDerived: register metric[13] myname.l = sample.long.one + sample.long.ten + sample.long.hundred + sample.long.million - sample.longlong.one - sample.longlong.ten - sample.longlong.hundred - sample.longlong.million
+Derived metric expr dump from <addr-63>...
+expr node <addr-63> type=MINUS left=<addr-64> right=<addr-77> save_last=0
+expr node <addr-64> type=MINUS left=<addr-65> right=<addr-76> save_last=0
+expr node <addr-65> type=MINUS left=<addr-66> right=<addr-75> save_last=0
+expr node <addr-66> type=MINUS left=<addr-67> right=<addr-74> save_last=0
+expr node <addr-67> type=PLUS left=<addr-68> right=<addr-73> save_last=0
+expr node <addr-68> type=PLUS left=<addr-69> right=<addr-72> save_last=0
+expr node <addr-69> type=PLUS left=<addr-70> right=<addr-71> save_last=0
+expr node <addr-70> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.one] master=1
+expr node <addr-71> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.ten] master=1
+expr node <addr-72> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.hundred] master=1
+expr node <addr-73> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.million] master=1
+expr node <addr-74> type=NAME left=(nil) right=(nil) save_last=0 [sample.longlong.one] master=1
+expr node <addr-75> type=NAME left=(nil) right=(nil) save_last=0 [sample.longlong.ten] master=1
+expr node <addr-76> type=NAME left=(nil) right=(nil) save_last=0 [sample.longlong.hundred] master=1
+expr node <addr-77> type=NAME left=(nil) right=(nil) save_last=0 [sample.longlong.million] master=1
+pmRegisterDerived: name="myname.m" expr="sample.long.one * sample.longlong.one + sample.long.ten * sample.longlong.ten"
+parse(1) state=P_INIT type=L_NAME "sample.long.one"
+parse(1) state=P_LEAF type=L_STAR "*"
+parse(1) state=P_BINOP type=L_NAME "sample.longlong.one"
+parse(1) state=P_LEAF type=L_PLUS "+"
+parse(1) state=P_BINOP type=L_NAME "sample.long.ten"
+parse(1) state=P_LEAF type=L_STAR "*"
+parse(1) state=P_BINOP type=L_NAME "sample.longlong.ten"
+parse(1) state=P_LEAF type=L_EOF ""
+pmRegisterDerived: register metric[14] myname.m = sample.long.one * sample.longlong.one + sample.long.ten * sample.longlong.ten
+Derived metric expr dump from <addr-78>...
+expr node <addr-78> type=PLUS left=<addr-79> right=<addr-82> save_last=0
+expr node <addr-79> type=STAR left=<addr-80> right=<addr-81> save_last=0
+expr node <addr-80> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.one] master=1
+expr node <addr-81> type=NAME left=(nil) right=(nil) save_last=0 [sample.longlong.one] master=1
+expr node <addr-82> type=STAR left=<addr-83> right=<addr-84> save_last=0
+expr node <addr-83> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.ten] master=1
+expr node <addr-84> type=NAME left=(nil) right=(nil) save_last=0 [sample.longlong.ten] master=1
+pmRegisterDerived: name="myname.n" expr="sample.long.one + sample.longlong.one * sample.long.ten + sample.longlong.ten"
+parse(1) state=P_INIT type=L_NAME "sample.long.one"
+parse(1) state=P_LEAF type=L_PLUS "+"
+parse(1) state=P_BINOP type=L_NAME "sample.longlong.one"
+parse(1) state=P_LEAF type=L_STAR "*"
+parse(1) state=P_BINOP type=L_NAME "sample.long.ten"
+parse(1) state=P_LEAF type=L_PLUS "+"
+parse(1) state=P_BINOP type=L_NAME "sample.longlong.ten"
+parse(1) state=P_LEAF type=L_EOF ""
+pmRegisterDerived: register metric[15] myname.n = sample.long.one + sample.longlong.one * sample.long.ten + sample.longlong.ten
+Derived metric expr dump from <addr-85>...
+expr node <addr-85> type=PLUS left=<addr-86> right=<addr-91> save_last=0
+expr node <addr-86> type=PLUS left=<addr-87> right=<addr-88> save_last=0
+expr node <addr-87> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.one] master=1
+expr node <addr-88> type=STAR left=<addr-89> right=<addr-90> save_last=0
+expr node <addr-89> type=NAME left=(nil) right=(nil) save_last=0 [sample.longlong.one] master=1
+expr node <addr-90> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.ten] master=1
+expr node <addr-91> type=NAME left=(nil) right=(nil) save_last=0 [sample.longlong.ten] master=1
+pmRegisterDerived: name="myname.ABC.k42.x_1_3" expr="disk.dev.write*disk.dev.read	+	sample.long.one*sample.long.ten	"
+parse(1) state=P_INIT type=L_NAME "disk.dev.write"
+parse(1) state=P_LEAF type=L_STAR "*"
+parse(1) state=P_BINOP type=L_NAME "disk.dev.read"
+parse(1) state=P_LEAF type=L_PLUS "+"
+parse(1) state=P_BINOP type=L_NAME "sample.long.one"
+parse(1) state=P_LEAF type=L_STAR "*"
+parse(1) state=P_BINOP type=L_NAME "sample.long.ten"
+parse(1) state=P_LEAF type=L_EOF ""
+pmRegisterDerived: register metric[16] myname.ABC.k42.x_1_3 = disk.dev.write*disk.dev.read	+	sample.long.one*sample.long.ten	
+Derived metric expr dump from <addr-92>...
+expr node <addr-92> type=PLUS left=<addr-93> right=<addr-96> save_last=0
+expr node <addr-93> type=STAR left=<addr-94> right=<addr-95> save_last=0
+expr node <addr-94> type=NAME left=(nil) right=(nil) save_last=0 [disk.dev.write] master=1
+expr node <addr-95> type=NAME left=(nil) right=(nil) save_last=0 [disk.dev.read] master=1
+expr node <addr-96> type=STAR left=<addr-97> right=<addr-98> save_last=0
+expr node <addr-97> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.one] master=1
+expr node <addr-98> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.ten] master=1
+pmRegisterDerived: name="myname.o" expr="sample.long.one * sample.longlong.one + sample.long.ten * sample.longlong.ten + sample.long.hundred * sample.longlong.hundred + sample.long.million * sample.longlong.million"
+parse(1) state=P_INIT type=L_NAME "sample.long.one"
+parse(1) state=P_LEAF type=L_STAR "*"
+parse(1) state=P_BINOP type=L_NAME "sample.longlong.one"
+parse(1) state=P_LEAF type=L_PLUS "+"
+parse(1) state=P_BINOP type=L_NAME "sample.long.ten"
+parse(1) state=P_LEAF type=L_STAR "*"
+parse(1) state=P_BINOP type=L_NAME "sample.longlong.ten"
+parse(1) state=P_LEAF type=L_PLUS "+"
+parse(1) state=P_BINOP type=L_NAME "sample.long.hundred"
+parse(1) state=P_LEAF type=L_STAR "*"
+parse(1) state=P_BINOP type=L_NAME "sample.longlong.hundred"
+parse(1) state=P_LEAF type=L_PLUS "+"
+parse(1) state=P_BINOP type=L_NAME "sample.long.million"
+parse(1) state=P_LEAF type=L_STAR "*"
+parse(1) state=P_BINOP type=L_NAME "sample.longlong.million"
+parse(1) state=P_LEAF type=L_EOF ""
+pmRegisterDerived: register metric[17] myname.o = sample.long.one * sample.longlong.one + sample.long.ten * sample.longlong.ten + sample.long.hundred * sample.longlong.hundred + sample.long.million * sample.longlong.million
+Derived metric expr dump from <addr-99>...
+expr node <addr-99> type=PLUS left=<addr-100> right=<addr-111> save_last=0
+expr node <addr-100> type=PLUS left=<addr-101> right=<addr-108> save_last=0
+expr node <addr-101> type=PLUS left=<addr-102> right=<addr-105> save_last=0
+expr node <addr-102> type=STAR left=<addr-103> right=<addr-104> save_last=0
+expr node <addr-103> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.one] master=1
+expr node <addr-104> type=NAME left=(nil) right=(nil) save_last=0 [sample.longlong.one] master=1
+expr node <addr-105> type=STAR left=<addr-106> right=<addr-107> save_last=0
+expr node <addr-106> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.ten] master=1
+expr node <addr-107> type=NAME left=(nil) right=(nil) save_last=0 [sample.longlong.ten] master=1
+expr node <addr-108> type=STAR left=<addr-109> right=<addr-110> save_last=0
+expr node <addr-109> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.hundred] master=1
+expr node <addr-110> type=NAME left=(nil) right=(nil) save_last=0 [sample.longlong.hundred] master=1
+expr node <addr-111> type=STAR left=<addr-112> right=<addr-113> save_last=0
+expr node <addr-112> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.million] master=1
+expr node <addr-113> type=NAME left=(nil) right=(nil) save_last=0 [sample.longlong.million] master=1
+pmRegisterDerived: name="myname.p" expr="pmcd.pdu_in.total / ( pmcd.pdu_in.total + pmcd.pdu_out.total )"
+parse(1) state=P_INIT type=L_NAME "pmcd.pdu_in.total"
+parse(1) state=P_LEAF type=L_SLASH "/"
+parse(1) state=P_BINOP type=L_LPAREN "("
+parse(2) state=P_INIT type=L_NAME "pmcd.pdu_in.total"
+parse(2) state=P_LEAF type=L_PLUS "+"
+parse(2) state=P_BINOP type=L_NAME "pmcd.pdu_out.total"
+parse(2) state=P_LEAF type=L_RPAREN ")"
+parse(1) state=P_LEAF_PAREN type=L_EOF ""
+pmRegisterDerived: register metric[18] myname.p = pmcd.pdu_in.total / ( pmcd.pdu_in.total + pmcd.pdu_out.total )
+Derived metric expr dump from <addr-114>...
+expr node <addr-114> type=SLASH left=<addr-115> right=<addr-116> save_last=0
+expr node <addr-115> type=NAME left=(nil) right=(nil) save_last=0 [pmcd.pdu_in.total] master=1
+expr node <addr-116> type=PLUS left=<addr-117> right=<addr-118> save_last=0
+expr node <addr-117> type=NAME left=(nil) right=(nil) save_last=0 [pmcd.pdu_in.total] master=1
+expr node <addr-118> type=NAME left=(nil) right=(nil) save_last=0 [pmcd.pdu_out.total] master=1
+pmRegisterDerived: name="myname.biggest.const" expr="4294967295"
+parse(1) state=P_INIT type=L_NUMBER "4294967295"
+parse(1) state=P_LEAF type=L_EOF ""
+pmRegisterDerived: register metric[19] myname.biggest.const = 4294967295
+Derived metric expr dump from <addr-119>...
+expr node <addr-119> type=NUMBER left=(nil) right=(nil) save_last=0 [4294967295] master=1
+__dmchildren: name="", omitting invalid child "myname.a"
+__dmchildren: name="", omitting invalid child "myname.b"
+__dmchildren: name="", omitting invalid child "myname.c"
+__dmchildren: name="", omitting invalid child "myname.d"
+__dmchildren: name="", omitting invalid child "myname.e"
+__dmchildren: name="", omitting invalid child "myname.f"
+__dmchildren: name="", omitting invalid child "myname.g"
+__dmchildren: name="", omitting invalid child "myname.h"
+__dmchildren: name="", omitting invalid child "myname.i"
+__dmchildren: name="", omitting invalid child "myname.j"
+__dmchildren: name="", omitting invalid child "myname.k"
+__dmchildren: name="", omitting invalid child "myname.l"
+__dmchildren: name="", omitting invalid child "myname.m"
+__dmchildren: name="", omitting invalid child "myname.n"
+__dmchildren: name="", omitting invalid child "myname.ABC.k42.x_1_3"
+__dmchildren: name="", omitting invalid child "myname.o"
+__dmchildren: name="", omitting invalid child "myname.p"
+__dmchildren: name="", omitting invalid child "myname.biggest.const"
+pmGetChildren(name="") 1 regular children, 1 derived children
+__dmchildren: name="local_pmns_no_pmcd_connection", omitting invalid child "myname.a"
+__dmchildren: name="local_pmns_no_pmcd_connection", omitting invalid child "myname.b"
+__dmchildren: name="local_pmns_no_pmcd_connection", omitting invalid child "myname.c"
+__dmchildren: name="local_pmns_no_pmcd_connection", omitting invalid child "myname.d"
+__dmchildren: name="local_pmns_no_pmcd_connection", omitting invalid child "myname.e"
+__dmchildren: name="local_pmns_no_pmcd_connection", omitting invalid child "myname.f"
+__dmchildren: name="local_pmns_no_pmcd_connection", omitting invalid child "myname.g"
+__dmchildren: name="local_pmns_no_pmcd_connection", omitting invalid child "myname.h"
+__dmchildren: name="local_pmns_no_pmcd_connection", omitting invalid child "myname.i"
+__dmchildren: name="local_pmns_no_pmcd_connection", omitting invalid child "myname.j"
+__dmchildren: name="local_pmns_no_pmcd_connection", omitting invalid child "myname.k"
+__dmchildren: name="local_pmns_no_pmcd_connection", omitting invalid child "myname.l"
+__dmchildren: name="local_pmns_no_pmcd_connection", omitting invalid child "myname.m"
+__dmchildren: name="local_pmns_no_pmcd_connection", omitting invalid child "myname.n"
+__dmchildren: name="local_pmns_no_pmcd_connection", omitting invalid child "myname.ABC.k42.x_1_3"
+__dmchildren: name="local_pmns_no_pmcd_connection", omitting invalid child "myname.o"
+__dmchildren: name="local_pmns_no_pmcd_connection", omitting invalid child "myname.p"
+__dmchildren: name="local_pmns_no_pmcd_connection", omitting invalid child "myname.biggest.const"
+pmGetChildren(name="local_pmns_no_pmcd_connection") 0 regular children, no derived children (Unknown metric name)
+__dmchildren: name="event", omitting invalid child "myname.a"
+__dmchildren: name="event", omitting invalid child "myname.b"
+__dmchildren: name="event", omitting invalid child "myname.c"
+__dmchildren: name="event", omitting invalid child "myname.d"
+__dmchildren: name="event", omitting invalid child "myname.e"
+__dmchildren: name="event", omitting invalid child "myname.f"
+__dmchildren: name="event", omitting invalid child "myname.g"
+__dmchildren: name="event", omitting invalid child "myname.h"
+__dmchildren: name="event", omitting invalid child "myname.i"
+__dmchildren: name="event", omitting invalid child "myname.j"
+__dmchildren: name="event", omitting invalid child "myname.k"
+__dmchildren: name="event", omitting invalid child "myname.l"
+__dmchildren: name="event", omitting invalid child "myname.m"
+__dmchildren: name="event", omitting invalid child "myname.n"
+__dmchildren: name="event", omitting invalid child "myname.ABC.k42.x_1_3"
+__dmchildren: name="event", omitting invalid child "myname.o"
+__dmchildren: name="event", omitting invalid child "myname.p"
+__dmchildren: name="event", omitting invalid child "myname.biggest.const"
+pmGetChildren(name="event") no regular children (Unknown metric name), 2 derived children
+pmGetChildren(name="event.flags") no regular children (Unknown metric name), derived leaf
+pmGetChildren(name="event.missed") no regular children (Unknown metric name), derived leaf
+local_pmns_no_pmcd_connection
+event.flags
+event.missed
+
+Syntax errors ...
+pmRegisterDerived: name="event.flags" expr="anon(PM_TYPE_U32)"
+parse(1) state=P_INIT type=L_ANON "anon("
+parse(1) state=P_FUNC_OP type=L_NAME "PM_TYPE_U32"
+parse(1) state=P_FUNC_END type=L_RPAREN ")"
+parse(1) state=P_LEAF type=L_EOF ""
+pmRegisterDerived: register metric[0] event.flags = anon(PM_TYPE_U32)
+Derived metric expr dump from <addr->...
+expr node <addr-> type=ANON left=<addr-1> right=(nil) save_last=0
+expr node <addr-1> type=NUMBER left=(nil) right=(nil) save_last=1 [PM_TYPE_U32] master=1
+pmRegisterDerived: name="event.missed" expr="anon(PM_TYPE_U32)"
+parse(1) state=P_INIT type=L_ANON "anon("
+parse(1) state=P_FUNC_OP type=L_NAME "PM_TYPE_U32"
+parse(1) state=P_FUNC_END type=L_RPAREN ")"
+parse(1) state=P_LEAF type=L_EOF ""
+pmRegisterDerived: register metric[1] event.missed = anon(PM_TYPE_U32)
+Derived metric expr dump from <addr-2>...
+expr node <addr-2> type=ANON left=<addr-3> right=(nil) save_last=0
+expr node <addr-3> type=NUMBER left=(nil) right=(nil) save_last=1 [PM_TYPE_U32] master=1
+pmLoadDerivedConfig("TMP.config")
+pmRegisterDerived: name="myname.a" expr="sample.long.one +"
+parse(1) state=P_INIT type=L_NAME "sample.long.one"
+parse(1) state=P_LEAF type=L_PLUS "+"
+parse(1) state=P_BINOP type=L_EOF ""
+[TMP.config:1] Error: pmRegisterDerived(myname.a, ...) syntax error
+ sample.long.one +
+                 ^
+End of input
+pmRegisterDerived: name="myname.b" expr="sample.long.one sample.long.ten"
+parse(1) state=P_INIT type=L_NAME "sample.long.one"
+parse(1) state=P_LEAF type=L_NAME "sample.long.ten"
+[TMP.config:2] Error: pmRegisterDerived(myname.b, ...) syntax error
+ sample.long.one sample.long.ten
+                 ^              
+Arithmetic operator expected
+pmRegisterDerived: name="myname.c" expr="sample.long.one**sample.long.ten"
+parse(1) state=P_INIT type=L_NAME "sample.long.one"
+parse(1) state=P_LEAF type=L_STAR "*"
+parse(1) state=P_BINOP type=L_STAR "*"
+[TMP.config:3] Error: pmRegisterDerived(myname.c, ...) syntax error
+sample.long.one**sample.long.ten
+                ^               
+Terminal element or function name or '(' expected
+[TMP.config:4] Error: pmLoadDerivedConfig: derived metric name missing
+=
+[TMP.config:5] Error: pmLoadDerivedConfig: missing ``='' after derived metric name
+myname.d
+[TMP.config:6] Error: pmLoadDerivedConfig: expression missing
+myname.e =
+[TMP.config:7] Error: pmLoadDerivedConfig: missing ``='' after derived metric name
+myname.e sample.long.one + sample.long.ten
+[TMP.config:8] Error: pmLoadDerivedConfig: illegal derived metric name (bad-name-xyz)
+[TMP.config:9] Error: pmLoadDerivedConfig: illegal derived metric name (123_really_bad_name)
+[TMP.config:10] Error: pmLoadDerivedConfig: illegal derived metric name (tricky._bad_name)
+pmRegisterDerived: name="myname.f" expr="pmcd.pdu_in.total / ( pmcd.pdu_in.total + pmcd.pdu_out.total"
+parse(1) state=P_INIT type=L_NAME "pmcd.pdu_in.total"
+parse(1) state=P_LEAF type=L_SLASH "/"
+parse(1) state=P_BINOP type=L_LPAREN "("
+parse(2) state=P_INIT type=L_NAME "pmcd.pdu_in.total"
+parse(2) state=P_LEAF type=L_PLUS "+"
+parse(2) state=P_BINOP type=L_NAME "pmcd.pdu_out.total"
+parse(2) state=P_LEAF type=L_EOF ""
+[TMP.config:11] Error: pmRegisterDerived(myname.f, ...) syntax error
+  pmcd.pdu_in.total / ( pmcd.pdu_in.total + pmcd.pdu_out.total
+                                                             ^
+End of input
+pmRegisterDerived: name="myname.g" expr="pmcd.pdu_in.total / ( pmcd.pdu_in.total + pmcd.pdu_out.total ) )"
+parse(1) state=P_INIT type=L_NAME "pmcd.pdu_in.total"
+parse(1) state=P_LEAF type=L_SLASH "/"
+parse(1) state=P_BINOP type=L_LPAREN "("
+parse(2) state=P_INIT type=L_NAME "pmcd.pdu_in.total"
+parse(2) state=P_LEAF type=L_PLUS "+"
+parse(2) state=P_BINOP type=L_NAME "pmcd.pdu_out.total"
+parse(2) state=P_LEAF type=L_RPAREN ")"
+parse(1) state=P_LEAF_PAREN type=L_RPAREN ")"
+[TMP.config:12] Error: pmRegisterDerived(myname.g, ...) syntax error
+  pmcd.pdu_in.total / ( pmcd.pdu_in.total + pmcd.pdu_out.total ) )
+                                                                 ^
+Unexpected ')'
+pmRegisterDerived: name="myname.a" expr="1"
+parse(1) state=P_INIT type=L_NUMBER "1"
+parse(1) state=P_LEAF type=L_EOF ""
+pmRegisterDerived: register metric[2] myname.a = 1
+Derived metric expr dump from <addr-4>...
+expr node <addr-4> type=NUMBER left=(nil) right=(nil) save_last=0 [1] master=1
+pmRegisterDerived: name="myname.a" expr="dup.name.a"
+[TMP.config:14] Error: pmRegisterDerived(myname.a, ...) syntax error
+ dup.name.a
+ ^         
+Duplicate derived metric name
+pmRegisterDerived: name="myname.h" expr="4294967296"
+parse(1) state=P_INIT type=L_NUMBER "4294967296"
+[TMP.config:15] Error: pmRegisterDerived(myname.h, ...) syntax error
+ 4294967296
+ ^         
+Constant value too large
+pmRegisterDerived: name="myname.gcov.a" expr="foo = bar"
+parse(1) state=P_INIT type=L_NAME "foo"
+parse(1) state=P_LEAF type=L_ERROR "=oo"
+[TMP.config:17] Error: pmRegisterDerived(myname.gcov.a, ...) syntax error
+ foo = bar
+     ^    
+Illegal character
+pmRegisterDerived: name="myname.gcov.b" expr="sample.longlong.million + sample.longlong.million + sample.longlong.million + sample.longlong.million + sample.longlong.million + sample.longlong.million + sample.longlong.million + sample.longlong.million + sample.longlong.million + sample.longlong.million + sample.longlong.million + "bogus""
+parse(1) state=P_INIT type=L_NAME "sample.longlong.million"
+parse(1) state=P_LEAF type=L_PLUS "+"
+parse(1) state=P_BINOP type=L_NAME "sample.longlong.million"
+parse(1) state=P_LEAF type=L_PLUS "+"
+parse(1) state=P_BINOP type=L_NAME "sample.longlong.million"
+parse(1) state=P_LEAF type=L_PLUS "+"
+parse(1) state=P_BINOP type=L_NAME "sample.longlong.million"
+parse(1) state=P_LEAF type=L_PLUS "+"
+parse(1) state=P_BINOP type=L_NAME "sample.longlong.million"
+parse(1) state=P_LEAF type=L_PLUS "+"
+parse(1) state=P_BINOP type=L_NAME "sample.longlong.million"
+parse(1) state=P_LEAF type=L_PLUS "+"
+parse(1) state=P_BINOP type=L_NAME "sample.longlong.million"
+parse(1) state=P_LEAF type=L_PLUS "+"
+parse(1) state=P_BINOP type=L_NAME "sample.longlong.million"
+parse(1) state=P_LEAF type=L_PLUS "+"
+parse(1) state=P_BINOP type=L_NAME "sample.longlong.million"
+parse(1) state=P_LEAF type=L_PLUS "+"
+parse(1) state=P_BINOP type=L_NAME "sample.longlong.million"
+parse(1) state=P_LEAF type=L_PLUS "+"
+parse(1) state=P_BINOP type=L_NAME "sample.longlong.million"
+parse(1) state=P_LEAF type=L_PLUS "+"
+parse(1) state=P_BINOP type=L_ERROR """
+[TMP.config:19] Error: pmRegisterDerived(myname.gcov.b, ...) syntax error
+ sample.longlong.million + sample.longlong.million + sample.longlong.million + sample.longlong.million + sample.longlong.million + sample.longlong.million + sample.longlong.million + sample.longlong.million + sample.longlong.million + sample.longlong.million + sample.longlong.million + "bogus"
+                                                                                                                                                                                                                                                                                               ^      
+Illegal character
+pmRegisterDerived: name="myname.gcov.c" expr="sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million + "bogus""
+parse(1) state=P_INIT type=L_NAME "sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million"
+parse(1) state=P_LEAF type=L_PLUS "+"
+parse(1) state=P_BINOP type=L_ERROR """
+[TMP.config:20] Error: pmRegisterDerived(myname.gcov.c, ...) syntax error
+ sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million + "bogus"
+                                                                                                                                                                                                                                                                                                                           ^      
+Illegal character
+pmRegisterDerived: name="myname.gcov.d" expr="3 * space"
+parse(1) state=P_INIT type=L_NUMBER "3"
+parse(1) state=P_LEAF type=L_STAR "*"
+parse(1) state=P_BINOP type=L_NAME "space"
+parse(1) state=P_LEAF type=L_EOF ""
+pmRegisterDerived: register metric[3] myname.gcov.d = 3 * space
+Derived metric expr dump from <addr-5>...
+expr node <addr-5> type=STAR left=<addr-6> right=<addr-7> save_last=0
+expr node <addr-6> type=NUMBER left=(nil) right=(nil) save_last=0 [3] master=1
+expr node <addr-7> type=NAME left=(nil) right=(nil) save_last=0 [space] master=1
+pmRegisterDerived: name="myname.gcov.e" expr="tab"
+parse(1) state=P_INIT type=L_NAME "tab"
+parse(1) state=P_LEAF type=L_EOF ""
+pmRegisterDerived: register metric[4] myname.gcov.e = tab
+Derived metric expr dump from <addr-8>...
+expr node <addr-8> type=NAME left=(nil) right=(nil) save_last=0 [tab] master=1
+pmRegisterDerived: name="myname.gcov.f" expr="( 1 + foo + ( ?"
+parse(1) state=P_INIT type=L_LPAREN "("
+parse(2) state=P_INIT type=L_NUMBER "1"
+parse(2) state=P_LEAF type=L_PLUS "+"
+parse(2) state=P_BINOP type=L_NAME "foo"
+parse(2) state=P_LEAF type=L_PLUS "+"
+parse(2) state=P_BINOP type=L_LPAREN "("
+parse(3) state=P_INIT type=L_ERROR "?"
+[TMP.config:23] Error: pmRegisterDerived(myname.gcov.f, ...) syntax error
+ ( 1 + foo + ( ?
+               ^
+Illegal character
+pmRegisterDerived: name="myname.gcov.g" expr="/"
+parse(1) state=P_INIT type=L_SLASH "/"
+[TMP.config:24] Error: pmRegisterDerived(myname.gcov.g, ...) syntax error
+ /
+ ^
+Terminal element or function name or '(' expected
+pmRegisterDerived: name="myname.bad.a" expr="rat(disk.dev.read)"
+parse(1) state=P_INIT type=L_NAME "rat"
+parse(1) state=P_LEAF type=L_LPAREN "("
+[TMP.config:27] Error: pmRegisterDerived(myname.bad.a, ...) syntax error
+ rat(disk.dev.read)
+    ^              
+Arithmetic operator expected
+pmRegisterDerived: name="myname.bad.b" expr="*"
+parse(1) state=P_INIT type=L_STAR "*"
+[TMP.config:28] Error: pmRegisterDerived(myname.bad.b, ...) syntax error
+ *
+ ^
+Terminal element or function name or '(' expected
+pmRegisterDerived: name="myname.bad.c" expr="sum(sample.bin) - +1"
+parse(1) state=P_INIT type=L_SUM "sum("
+parse(1) state=P_FUNC_OP type=L_NAME "sample.bin"
+parse(1) state=P_FUNC_END type=L_RPAREN ")"
+parse(1) state=P_LEAF type=L_MINUS "-"
+parse(1) state=P_BINOP type=L_PLUS "+"
+[TMP.config:29] Error: pmRegisterDerived(myname.bad.c, ...) syntax error
+ sum(sample.bin) - +1
+                   ^ 
+Terminal element or function name or '(' expected
+pmRegisterDerived: name="myname.bad.d" expr="sum(sample.bin) - min(1*sample.bin)"
+parse(1) state=P_INIT type=L_SUM "sum("
+parse(1) state=P_FUNC_OP type=L_NAME "sample.bin"
+parse(1) state=P_FUNC_END type=L_RPAREN ")"
+parse(1) state=P_LEAF type=L_MINUS "-"
+parse(1) state=P_BINOP type=L_MIN "min("
+parse(1) state=P_FUNC_OP type=L_NUMBER "1"
+[TMP.config:30] Error: pmRegisterDerived(myname.bad.d, ...) syntax error
+ sum(sample.bin) - min(1*sample.bin)
+                       ^            
+Metric name expected
+pmRegisterDerived: name="myname.bad.e" expr="sum(sample.bin) - min((sample.bin)"
+parse(1) state=P_INIT type=L_SUM "sum("
+parse(1) state=P_FUNC_OP type=L_NAME "sample.bin"
+parse(1) state=P_FUNC_END type=L_RPAREN ")"
+parse(1) state=P_LEAF type=L_MINUS "-"
+parse(1) state=P_BINOP type=L_MIN "min("
+parse(1) state=P_FUNC_OP type=L_LPAREN "("
+[TMP.config:31] Error: pmRegisterDerived(myname.bad.e, ...) syntax error
+ sum(sample.bin) - min((sample.bin)
+                       ^           
+Metric name expected
+__dmchildren: name="", omitting invalid child "myname.a"
+__dmchildren: name="", omitting invalid child "myname.gcov.d"
+__dmchildren: name="", omitting invalid child "myname.gcov.e"
+pmGetChildren(name="") 1 regular children, 1 derived children
+__dmchildren: name="local_pmns_no_pmcd_connection", omitting invalid child "myname.a"
+__dmchildren: name="local_pmns_no_pmcd_connection", omitting invalid child "myname.gcov.d"
+__dmchildren: name="local_pmns_no_pmcd_connection", omitting invalid child "myname.gcov.e"
+pmGetChildren(name="local_pmns_no_pmcd_connection") 0 regular children, no derived children (Unknown metric name)
+__dmchildren: name="event", omitting invalid child "myname.a"
+__dmchildren: name="event", omitting invalid child "myname.gcov.d"
+__dmchildren: name="event", omitting invalid child "myname.gcov.e"
+pmGetChildren(name="event") no regular children (Unknown metric name), 2 derived children
+pmGetChildren(name="event.flags") no regular children (Unknown metric name), derived leaf
+pmGetChildren(name="event.missed") no regular children (Unknown metric name), derived leaf
+local_pmns_no_pmcd_connection
+event.flags
+event.missed
+pmRegisterDerived: register metric[0] event.flags = anon(PM_TYPE_U32)
+pmRegisterDerived: register metric[1] event.missed = anon(PM_TYPE_U32)
+Derived metric initialization from $PCP_DERIVED_CONFIG
+Warning: derived metrics path component: /no/such/file: No such file or directory
+__dmopencontext: bind metric[0] event.flags
+__dmopencontext: bind metric[1] event.missed
+Error: no.such.metric: Unknown metric name

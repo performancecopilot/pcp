@@ -1,0 +1,27 @@
+QA output created by 946
+-m avahi
+Discovered pmcd servers:
+Sought pmproxy servers
+Sought pmwebd servers
+Exit status: 0
+-s pmcd -m avahi -r
+Discovered pmcd servers:
+Exit status: 0
+-q -m avahi
+Exit status: 0
+-q -s pmcd -m avahi
+Exit status: 0
+-q -s pmcd -m avahi,timeout=5.0
+Exit status: 0
+-q -s pmcd -m avahi with AVAHI_DISCOVERY_TIMEOUT=5
+Exit status: 0
+-m all
+Discovered pmcd servers:
+Sought pmproxy servers
+Sought pmwebd servers
+Exit status: 0
+-m all --resolve
+Discovered pmcd servers:
+Sought pmproxy servers
+Sought pmwebd servers
+Exit status: 0

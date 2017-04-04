@@ -1,0 +1,41 @@
+#!/bin/sh
+# PCP QA Test No. 829
+# Exercise the pcp-dmcache(1) command using an archive.
+#
+# Copyright (c) 2014 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.python
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+pcp_dmcache="$PCP_BINADM_DIR/pcp-dmcache"
+test -x $pcp_dmcache || _notrun "No pcp-dmcache(1) installed"
+pcp_dmcache="$python $pcp_dmcache"
+
+# real QA test starts here
+echo 'All output'
+PCP_ARCHIVE=archives/dm-io PCP_HOSTZONE=1 $pcp_dmcache
+echo
+
+echo 'One device'
+pcp -z --archive archives/dm-io dmcache dmcache1
+echo
+
+echo 'One device, five samples, ten seconds offset'
+pcp -z --archive archives/dm-io -s 5 -S+10sec dmcache dmcache1
+echo
+
+echo 'One device, IOPS mode, header every 50 lines'
+pcp -z --archive archives/dm-io dmcache -i --repeat 50 dmcache1
+echo
+
+# success, all done
+status=0
+
+exit

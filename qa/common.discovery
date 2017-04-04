@@ -1,0 +1,79 @@
+#
+# Common shell routines for testing service discovery
+# Copyright (c) 2014 Red Hat.
+#
+
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_filter_discovery_sought()
+{
+    # Only pmcd is guaranteed to be running, but other services may also be.
+    # Transform two cases - no servers vs found servers - into deterministic
+    # output for the --all invocations
+    sed \
+	-e 's/No \(pmproxy servers\) discovered/Sought \1/g' \
+	-e 's/No \(pmwebd servers\) discovered/Sought \1/g' \
+	-e 's/Discovered \(pmproxy servers\):/Sought \1/g' \
+	-e 's/Discovered \(pmwebd servers\):/Sought \1/g' \
+    # end
+}
+
+_filter_discovery_unresolved()
+{
+    tee -a $here/$seq.full \
+    | sed -e '/  pcp:/d;
+	    /  proxy:/d;
+	    /  http:/d' \
+    | _filter_discovery_sought
+}
+
+_filter_discovery_resolved()
+{
+    # Pass unresolved urls, filter the resolved ones.
+    tee -a $here/$seq.full \
+    | sed -e '/  pcp:\/\/[0-9]\+\.[0-9]\+\.[0-9]\+\.[0-9]\+/{p;b};
+	    /  proxy:\/\/[0-9]\+\.[0-9]\+\.[0-9]\+\.[0-9]\+/{p;b};
+	    /  http:\/\/[0-9]\+\.[0-9]\+\.[0-9]\+\.[0-9]\+/{p;b};
+	    /  pcp:/d;
+	    /  proxy:/d;
+	    /  http:/d' \
+    | _filter_discovery_sought \
+    | _filter_discovery_unresolvable
+}
+
+_filter_discovery_unresolvable()
+{
+    # For each unresolved address in the response, see if we can resolve
+    # it using dig(1). If not, filter it out as an unresolvable result.
+    # Oherwise, leave it in as an erroneous result.
+    while read line
+    do
+	# If the line is an unresolved service, then see if we can resolve it
+	# using dig(1).
+	if echo $line | grep -q -e '^pcp://' -e '^proxy://' -e '^http://';
+	then
+	    addr=`echo $line |
+                  sed -e 's|pcp://\(.*\):[0-9]\+|\1|'`
+
+	    # If dig(1) can not resolve this address, then it is a correctly
+	    # unresolved address. Filter it out. Otherwise keep it as an
+	    # erroneously unresolved address.
+	    dug=`dig -x $addr +short`
+	    [ -z "$dug" ] && continue
+	fi
+
+	# Keep this line
+	echo $line
+    done
+}
+
+_control_service_discovery()
+{
+    # Stop any peripheral long-running PCP services (anything not pmcd)
+    # that might be advertising on the network, potentially interfering
+    # with a test.  List of services here should match PM_SERVER_*_SPEC
+    # from <pcp/pmapi.h> (all except PM_SERVER_SERVICE_SPEC)
+    $sudo $PCP_BINADM_DIR/pmsignal -a pmproxy pmwebd
+}

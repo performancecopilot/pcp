@@ -1,0 +1,56 @@
+#! /bin/sh
+# PCP QA Test No. 008
+# exercise disk statistics on localhost
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+# NOTE
+#	This test depends on the the local hostname and the disk configuration.
+#	To generate a new validated output file ...
+#		$ touch 008.out.`hostname | sed -e 's/\..*//'`
+#		$ ./remake 008
+#		$ mv 008.out 008.out.`hostname | sed -e 's/\..*//'`
+#	and check that the comments and the output match up.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+# need per-host checked in results
+#
+host=`hostname | sed -e 's/\..*//'`
+rm -f $seq.out
+case $host
+in
+    bozo)
+    	# (CD drive) sdf comes and goes
+	if pmprobe -I disk.dev.total | grep sdf >/dev/null
+	then
+	    ln $seq.out.bozo+cd $seq.out
+	else
+	    ln $seq.out.bozo $seq.out
+	fi
+	;;
+    *)
+	[ -f $seq.out.$host ] || \
+	    _notrun "No qualified results file ($seq.out.$host) for the localhost"
+	ln $seq.out.$host $seq.out
+	;;
+esac
+
+trap "rm -f $tmp.*; exit" 0 1 2 3 15
+
+PMCD_CONNECT_TIMEOUT=60
+PMCD_REQUEST_TIMEOUT=60
+export PMCD_CONNECT_TIMEOUT PMCD_REQUEST_TIMEOUT
+
+src/disk_test \
+| sed \
+    -e '/pmResult/s/ .* numpmid/ ... numpmid/' \
+    -e '/ value /s/ value .*/ value .../'
+

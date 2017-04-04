@@ -1,0 +1,119 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\" 
+.TH PMATOMSTR 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmAtomStr\f1,
+\f3pmAtomStr_r\f1 \- convert a performance metric value into a string
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.sp
+const char *pmAtomStr(const pmAtomValue *\fIavp\fP, int \fItype\fP);
+.br
+char *pmAtomStr_r(const pmAtomValue *\fIavp\fP, int \fItype\fP, char *\fIbuf\fP, int \fIbuflen\fP);
+.sp
+cc ... \-lpcp
+.ft 1
+.SH DESCRIPTION
+.de CW
+.ie t \f(CW\\$1\f1\\$2
+.el \fI\\$1\f1\\$2
+..
+All performance metric values may be encoded in a
+.CW pmAtomValue
+union, defined as follows;
+.PP
+.ft CW
+.nf
+.in +0.5i
+typedef union {
+    __int32_t    l;     /* 32-bit signed */
+    __uint32_t   ul;    /* 32-bit unsigned */
+    __int64_t    ll;    /* 64-bit signed */
+    __uint64_t   ull;   /* 64-bit unsigned */
+    float        f;     /* 32-bit floating point */
+    double       d;     /* 64-bit floating point */
+    char         *cp;   /* char ptr */
+    pmValueBlock *vbp;  /* pmValueBlock ptr */
+} pmAtomValue;
+.in
+.fi
+.ft 1
+.PP
+Given the performance metric value pointed to by
+.IR avp ,
+and a performance metric type defined by
+.IR type ,
+.B pmAtomStr
+will generate the corresponding metric value as a string,
+suitable for diagnostic or report output.
+The
+.B pmAtomStr_r
+function does the same, but stores the result in a user-supplied buffer
+.I buf
+of length
+.IR buflen ,
+which should have room for at least 80 bytes.
+.PP
+The value for
+.I type
+is typically extracted from a
+.CW pmDesc
+structure, following a call to
+.BR pmLookupDesc (3)
+for a particular performance metric.
+.PP
+If the
+.I type
+is
+.B PM_TYPE_STRING
+values longer than 38 characters will be truncated after 34 characters,
+and truncation shown with ellipsis ``...'' at the end of the value.
+.PP
+If the
+.I type
+is
+.B PM_TYPE_AGGREGATE
+then up to the first three 32-bit words are displayed as hexadecimal values.
+.PP
+If the
+.I type
+is
+.B PM_TYPE_EVENT
+then a summary of the number of event records found in the value
+is generated.
+.PP
+The return value from
+.B pmAtomStr
+is held in a single static buffer, so
+the returned value is only valid until the next call
+to
+.BR pmAtomStr .
+.SH NOTES
+.B pmAtomStr
+returns a pointer to a static buffer and hence is not thread-safe.
+Multi-threaded applications should use
+.B pmAtomStr_r
+instead.
+.SH SEE ALSO
+.BR PMAPI (3),
+.BR pmConvScale (3),
+.BR pmExtractValue (3),
+.BR pmLookupDesc (3),
+.BR pmPrintValue (3),
+.BR pmTypeStr (3)
+and
+.BR pmUnitsStr (3).

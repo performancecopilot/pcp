@@ -1,0 +1,184 @@
+QA output created by 750
+Preparing RPM package
+Installing qaplayer
+
+metric:    rpm.arch
+host:      HOST
+semantics: instantaneous value
+units:     none
+samples:   1
+
+qaplayer-1.0-1.noarch 
+             "noarch" 
+
+metric:    rpm.buildhost
+host:      HOST
+semantics: instantaneous value
+units:     none
+samples:   1
+
+qaplayer-1.0-1.noarch 
+"BUILDHOST" 
+
+metric:    rpm.buildtime
+host:      HOST
+semantics: instantaneous value
+units:     sec
+samples:   1
+full label for instance[0]: qaplayer-1.0-1.noarch
+
+qaplayer-1. 
+ TIMESTAMP 
+
+metric:    rpm.description
+host:      HOST
+semantics: instantaneous value
+units:     none
+samples:   1
+
+qaplayer-1.0-1.noarch 
+"It slices!  It dices!  It's a QA player app that
+can't be beat.  By using the resonant frequency
+of the QA itself, it is able to simulate 20X
+oversampling.  This leads to sound quality that
+cannot be equaled with more mundane software..." 
+
+metric:    rpm.epoch
+host:      HOST
+semantics: instantaneous value
+units:     none
+samples:   1
+full label for instance[0]: qaplayer-1.0-1.noarch
+
+qaplayer-1. 
+          0 
+
+metric:    rpm.group
+host:      HOST
+semantics: instantaneous value
+units:     none
+samples:   1
+
+qaplayer-1.0-1.noarch 
+ "Applications/Sound" 
+
+metric:    rpm.installtime
+host:      HOST
+semantics: instantaneous value
+units:     sec
+samples:   1
+full label for instance[0]: qaplayer-1.0-1.noarch
+
+qaplayer-1. 
+ TIMESTAMP 
+
+metric:    rpm.license
+host:      HOST
+semantics: instantaneous value
+units:     none
+samples:   1
+
+qaplayer-1.0-1.noarch 
+                "GPL" 
+
+metric:    rpm.packager
+host:      HOST
+semantics: instantaneous value
+units:     none
+samples:   1
+
+qaplayer-1.0-1.noarch 
+"Santa Claus <sclaus@northpole.com>" 
+
+metric:    rpm.release
+host:      HOST
+semantics: instantaneous value
+units:     none
+samples:   1
+
+qaplayer-1.0-1.noarch 
+                  "1" 
+
+metric:    rpm.size
+host:      HOST
+semantics: instantaneous value
+units:     byte
+samples:   1
+
+qaplayer-1.0-1.noarch 
+                    0 
+
+metric:    rpm.sourcerpm
+host:      HOST
+semantics: instantaneous value
+units:     none
+samples:   1
+
+qaplayer-1.0-1.noarch 
+"qaplayer-1.0-1.src.rpm" 
+
+metric:    rpm.summary
+host:      HOST
+semantics: instantaneous value
+units:     none
+samples:   1
+
+qaplayer-1.0-1.noarch 
+"A QA player app that rocks!" 
+
+metric:    rpm.url
+host:      HOST
+semantics: instantaneous value
+units:     none
+samples:   1
+
+qaplayer-1.0-1.noarch 
+"http://www.gnomovision.com/qaplayer/qaplayer.html" 
+
+metric:    rpm.vendor
+host:      HOST
+semantics: instantaneous value
+units:     none
+samples:   1
+
+qaplayer-1.0-1.noarch 
+"White Socks Software, Inc." 
+
+metric:    rpm.version
+host:      HOST
+semantics: instantaneous value
+units:     none
+samples:   1
+
+qaplayer-1.0-1.noarch 
+                "1.0" 
+
+metric:    rpm.name
+host:      HOST
+semantics: instantaneous value
+units:     none
+samples:   1
+
+qaplayer-1.0-1.noarch 
+           "qaplayer" 
+
+Total bytes check: OK
+Total count check: OK
+Removing qaplayer
+pmval: instance qaplayer-1.0-1.noarch not available
+pmval: instance qaplayer-1.0-1.noarch not available
+pmval: instance qaplayer-1.0-1.noarch not available
+pmval: instance qaplayer-1.0-1.noarch not available
+pmval: instance qaplayer-1.0-1.noarch not available
+pmval: instance qaplayer-1.0-1.noarch not available
+pmval: instance qaplayer-1.0-1.noarch not available
+pmval: instance qaplayer-1.0-1.noarch not available
+pmval: instance qaplayer-1.0-1.noarch not available
+pmval: instance qaplayer-1.0-1.noarch not available
+pmval: instance qaplayer-1.0-1.noarch not available
+pmval: instance qaplayer-1.0-1.noarch not available
+pmval: instance qaplayer-1.0-1.noarch not available
+pmval: instance qaplayer-1.0-1.noarch not available
+pmval: instance qaplayer-1.0-1.noarch not available
+pmval: instance qaplayer-1.0-1.noarch not available
+pmval: instance qaplayer-1.0-1.noarch not available

@@ -1,0 +1,26 @@
+QA output created by 496
+=== baseline ===
+Warning [TMP.conf.all, line 21]
+Metric: sample.longlong.bin_ctr (29.0.110): type: PM_TYPE_64: No change
+
+=== one config file ===
+Warning [TMP.conf.all, line 21]
+Metric: sample.longlong.bin_ctr (29.0.110): type: PM_TYPE_64: No change
+
+=== three config files ===
+Warning [TMP.conf.2, line 11]
+Metric: sample.longlong.bin_ctr (29.0.110): type: PM_TYPE_64: No change
+
+=== config dir with regular files ===
+Warning [TMP.conf.dir/SEQ-PID.conf.2, line 11]
+Metric: sample.longlong.bin_ctr (29.0.110): type: PM_TYPE_64: No change
+
+=== config dir with symlinks files and hidden files ===
+Warning [TMP.conf.dir/SEQ-PID.conf.2, line 11]
+Metric: sample.longlong.bin_ctr (29.0.110): type: PM_TYPE_64: No change
+
+=== config dir unhide bad file ===
+Metric: sample.longlong.bin_ctr (29.0.110): type: PM_TYPE_64: No change
+Metric: sampledso.ulong.hundred (30.0.95): type: PM_TYPE_U32: No change
+Warning [TMP.conf.dir/SEQ-PID.conf.2, line 11]
+Warning [TMP.conf.dir/SEQ-PID.conf.4, line 1]

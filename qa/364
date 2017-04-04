@@ -1,0 +1,144 @@
+#!/bin/sh
+# PCP QA Test No. 364
+# pmlogconf metric accessibility
+#
+# Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+# see if unix domain sockets are available (permissions)
+_get_libpcp_config
+target="-h localhost"
+$unix_domain_sockets && target="-h unix:"
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter_solaris()
+{
+    if [ $PCP_PLATFORM != solaris ]
+    then
+	cat
+    else
+	sed \
+	    -e '/^disk.dev.avactive .* Unknown metric name/d' \
+	    -e '/^network.icmp.* Unknown metric name/d' \
+	    -e '/^network.igmp.* Unknown metric name/d' \
+	    -e '/^network.ip.* Unknown metric name/d' \
+	    -e '/^network.tcp.* Unknown metric name/d' \
+	    -e '/^network.udp.* Unknown metric name/d' \
+	    -e '/^filesys.* Unknown metric name/d' \
+	    -e '/^swap .* Unknown metric name/d' \
+	    -e '/^swap.pages.* Unknown metric name/d' \
+	    -e '/^swapdev .* Unknown metric name/d' \
+	# solaris
+    fi
+}
+
+_filter_darwin()
+{
+    if [ $PCP_PLATFORM != darwin ]
+    then
+	cat
+    else
+	sed \
+	    -e '/^disk\.dev\.avactive .* Unknown metric name/d' \
+	    -e '/^disk\.all\.avactive .* Unknown metric name/d' \
+	    -e '/^disk\.partitions\..* Unknown metric name/d' \
+	    -e '/^hinv\.nnode .* Unknown metric name/d' \
+	    -e '/^network\.icmp .* Unknown metric name/d' \
+	    -e '/^network\.igmp .* Unknown metric name/d' \
+	    -e '/^network\.ip .* Unknown metric name/d' \
+	    -e '/^network\.tcp .* Unknown metric name/d' \
+	    -e '/^network\.udp .* Unknown metric name/d' \
+	    -e '/^network\.udplite .* Unknown metric name/d' \
+	    -e '/^swap .* Unknown metric name/d' \
+	    -e '/^swap\..* .* Unknown metric name/d' \
+	    -e '/^swapdev .* Unknown metric name/d' \
+	    -e '/^proc\..* Unknown metric name/d' \
+	    -e '/^kernel\.all\.intr .* Unknown metric name/d' \
+	    -e '/^kernel\.all\.nusers .* Unknown metric name/d' \
+	    -e '/^kernel\.all\.pswitch .* Unknown metric name/d' \
+	    -e '/^mem\.util\.bufmem .* Unknown metric name/d' \
+	    -e '/^mem\.util\.cached .* Unknown metric name/d' \
+	# darwin
+    fi
+}
+
+_filter_linux()
+{
+    # pcp-atop uses metrics not supported on some kernels
+    if [ $PCP_PLATFORM != linux ]
+    then
+	cat
+    else
+	sed \
+	    -e '/^network.softnet.* Metric not supported/d' \
+	    -e '/^proc.namespaces.* Metric not supported/d' \
+	# linux
+    fi
+}
+
+# remove all known platform-dependencies from output
+# (ideally leaving any genuine failures behind)
+#
+_filter()
+{
+    # these are always-on in older oss versions of pcp
+    sed \
+       -e '/^disk.dev.avg_disk.active .* metric name/d' \
+       -e '/^disk.all.avg_disk.active .* metric name/d' \
+       -e '/^disk.dev.bytes .* Unknown metric name/d' \
+       -e '/^disk.all.bytes .* Unknown metric name/d' \
+       -e '/^network.igmp .* Unknown metric name/d' \
+       -e '/^nfs.* Unknown metric name/d' \
+       -e '/^rpc.* Unknown metric name/d' \
+       -e '/^nfsclient.* Unknown metric name/d' \
+       -e '/^elasticsearch.search.all.* Metric not supported/d' \
+       -e '/^oracle.* Information not currently available/d' \
+       -e '/^swap.in .* Metric not supported/d' \
+       -e '/^swap.out .* Metric not supported/d' \
+    | _filter_linux | _filter_solaris | _filter_darwin
+}
+
+# real QA test starts here
+pmlogconf $tmp.conf >$tmp.out 2>&1
+cat $tmp.out >$seq.full
+
+sed -e 's/:n:/:y:/' <$tmp.conf >$tmp.tmp
+mv $tmp.tmp $tmp.conf
+
+yes '' | pmlogconf $tmp.conf >$tmp.out
+( echo && echo "== TMP.OUT" ) >>$seq.full
+cat $tmp.out >>$seq.full
+( echo && echo "== TMP.CONF") >>$seq.full
+cat $tmp.conf >>$seq.full
+( echo && echo "== FILTERED") >>$seq.full
+
+sed -n <$tmp.conf \
+    -e '/^[ 	]/{
+s/^[ 	]*//
+s/[ 	].*//
+/^#/d
+p
+}' \
+| LC_COLLATE=POSIX sort \
+| uniq \
+| tee -a $seq.full \
+| xargs pmprobe $target \
+| _filter \
+| $PCP_AWK_PROG '
+$2 >= 0		{ next }
+		{ print }'
+
+echo Silence is golden
+# success, all done
+exit

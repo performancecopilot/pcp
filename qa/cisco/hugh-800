@@ -1,0 +1,59 @@
+Trying 192.168.1.254...
+Connected to cisco-800.localdomain.
+Escape character is '^]'.
+
+Username: hugh
+Password: 
+
+pp-adsl>
+pp-adsl>terminal length 0
+pp-adsl>show int a0
+ATM0 is down, line protocol is down 
+  Hardware is PQUICC_SAR (with Alcatel ADSL Module)
+  MTU 1500 bytes, sub MTU 1500, BW 800 Kbit, DLY 80 usec, 
+     reliability 0/255, txload 1/255, rxload 1/255
+  Encapsulation ATM, loopback not set
+  Encapsulation(s): AAL5  AAL2, PVC mode
+  10 maximum active VCs, 1024 VCs per VP, 0 current VCCs
+  VC Auto Creation Disabled.
+  VC idle disconnect time: 300 seconds
+  Last input never, output never, output hang never
+  Last clearing of "show interface" counters never
+  Input queue: 0/208/0/0 (size/max/drops/flushes); Total output drops: 0
+  Queueing strategy: Per VC Queueing
+  5 minute input rate 984 bits/sec, 0 packets/sec
+  5 minute output rate 3648 bits/sec, 0 packets/sec
+     0 packets input, 4242 bytes, 0 no buffer
+     Received 0 broadcasts, 0 runts, 0 giants, 0 throttles
+     0 input errors, 0 CRC, 0 frame, 0 overrun, 0 ignored, 0 abort
+     0 packets output, 1313 bytes, 0 underruns
+     0 output errors, 0 collisions, 1 interface resets
+     0 output buffer failures, 0 output buffers swapped out
+pp-adsl>show int e0
+Ethernet0 is up, line protocol is up 
+  Hardware is PQUICC Ethernet, address is 0004.27fd.74d7 (bia 0004.27fd.74d7)
+  Description: *** Private LAN ***                                
+  Internet address is 192.168.1.254/24
+  MTU 1500 bytes, BW 10000 Kbit, DLY 1000 usec, 
+     reliability 255/255, txload 1/255, rxload 1/255
+  Encapsulation ARPA, loopback not set
+  Keepalive set (10 sec)
+  Half-duplex, 10Mb/s
+  ARP type: ARPA, ARP Timeout 04:00:00
+  Last input 00:00:00, output 00:00:00, output hang never
+  Last clearing of "show interface" counters never
+  Input queue: 1/32/0/0 (size/max/drops/flushes); Total output drops: 0
+  Queueing strategy: fifo
+  Output queue: 0/100 (size/max)
+  5 minute input rate 1000 bits/sec, 1 packets/sec
+  5 minute output rate 2000 bits/sec, 2 packets/sec
+     27856 packets input, 2802084 bytes, 0 no buffer
+     Received 7060 broadcasts, 0 runts, 0 giants, 0 throttles
+     0 input errors, 0 CRC, 0 frame, 0 overrun, 0 ignored
+     0 input packets with dribble condition detected
+     32011 packets output, 1969425 bytes, 0 underruns
+     0 output errors, 1 collisions, 0 interface resets
+     0 babbles, 0 late collision, 3 deferred
+     0 lost carrier, 0 no carrier
+     0 output buffer failures, 0 output buffers swapped out
+pp-adsl>quit

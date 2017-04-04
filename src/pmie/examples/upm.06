@@ -1,0 +1,10 @@
+delta = 10 mins;	// force evaluation once every 10 minutes from here on
+
+// If either the / or the /usr filesystem is more than 95% full, display
+// an alarm popup, but not if it has already been displayed during the last
+// 24 hours
+//
+filesys.free #'/dev/root' / filesys.capacity #'/dev/root' < 0.05
+    -> alarm 24 hour "root filesystem (almost) full";
+filesys.free #'/dev/usr' / filesys.capacity #'/dev/usr' < 0.05
+    -> alarm 24 hour "/usr filesystem (almost) full";

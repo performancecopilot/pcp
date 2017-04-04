@@ -1,0 +1,49 @@
+#! /bin/sh
+# PCP QA Test No. 339
+# pmie failure to deal with aggregate operators bound to %v expressions
+#
+# Copyright (c) 2009 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.*
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    _filter_pmie_log \
+    | sed \
+	-e 's/v=[0-9][0-9.]*/v=NUMBER/' \
+    | LC_COLLATE=POSIX sort -u
+}
+
+# real QA test starts here
+cat <<'End-of-File' | pmie -t 1sec -T 4sec >$tmp.out 2>&1
+test1 = (kernel.all.load #'1 minute') <= sum_inst(kernel.all.load)
+-> print "TEST1: Left-most single value: v=%v";
+test2 = sum_inst(kernel.all.load) >= (kernel.all.load #'1 minute')
+-> print "TEST2: Left-most sum_inst: v=%v";
+test3 = max_inst(kernel.all.load) >= kernel.all.load #'1 minute'
+-> print "TEST3: Left-most max_inst: v=%v";
+test4 = min_inst(kernel.all.load) <= (kernel.all.load #'1 minute')
+-> print "TEST4: Left-most min_inst: v=%v";
+test5 = avg_inst(kernel.all.load) >= 0
+-> print "TEST5: Left-most avg_inst: v=%v";
+test6 = max_sample(kernel.all.load #'1 minute' @0..1) >= kernel.all.load #'1 minute'
+-> print "TEST6: Left-most max_sample: v=%v";
+test7 = min_sample(kernel.all.load #'1 minute' @0..1) <= (kernel.all.load #'1 minute')
+-> print "TEST7: Left-most min_sample: v=%v";
+End-of-File
+
+_filter <$tmp.out
+
+# success, all done
+exit

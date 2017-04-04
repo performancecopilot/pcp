@@ -1,0 +1,40 @@
+#! /bin/sh
+# PCP QA Test No. 276
+# check tools with indoms that have bizarre instance names, e.g.
+# @fcsw=asg-fcsw8:port=007
+#
+# Copyright (c) 2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+. ./common.config
+
+rm -f $seq.out
+which pmchart >/dev/null 2>&1
+if [ $? -eq 0 ]
+then
+    _check_display
+    ln $seq.out.pcpgui $seq.out
+else
+    # pcp-gui tools not installed
+    ln $seq.out.nongui $seq.out
+fi
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.*
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+if [ -z "$DISPLAY" ]
+then
+    export DISPLAY=$PCPQA_CLOSE_X_SERVER
+fi
+src/grind-tools -v -a archives/fcsw_indom fcsw.port.bytes_out 2>&1 | _filter_views
+status=$?
+exit

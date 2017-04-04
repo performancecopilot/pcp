@@ -1,0 +1,38 @@
+#! /bin/sh
+# PCP QA Test No. 089
+# interpolate a monotonic increasing value
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+
+trap "rm -f $tmp.*; exit" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e '/^$/d' \
+	-e '/^[^0-9]/d' \
+    | $PCP_AWK_PROG '
+$2 <= 0.95 || $2 >= 1.05	{ print "oops: " $0; next }
+				{ print "rate close to 1" }'
+}
+
+# real QA test starts here
+
+# get the time of the fifth sample ... we skip the first few to ensure
+# things have stablized after pmlogger startup
+#
+first_time=`pmval -U tmparch/bar -s5 sampledso.milliseconds | tail -1 | cut -f1 -d ' '`
+
+# there are 70 samples in tmparch/bar, 65 after skipping the first 5 and
+# the logging interval is 0.1 sec ... so more than enough for the
+# 485 samples x 0.01 sec needed for pmval
+#
+pmval -S "@$first_time" -t 0.01 -s 485 -a tmparch/bar sampledso.milliseconds 2>/dev/null | _filter

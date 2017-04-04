@@ -1,0 +1,114 @@
+#!/bin/sh
+#
+# Trawl pcp-daily log directories looking for _all_ the failures
+# for one or more tests
+#
+
+tmp=/var/tmp/$$
+sts=0
+trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
+
+_usage()
+{
+    echo "Usage: $0 [options] seq ..."
+    echo "Options:"
+    echo "  -f    show me seq.full if it exists"
+    echo "  -l    run show-me -l"
+    sts=1
+    exit
+}
+
+full=false
+verbose=false
+show_me_opts=''
+while getopts 'fl?' p
+do
+    case "$p"
+    in
+	f)	full=true
+		;;
+
+	l)	show_me_opts="$show_me_opts -l"
+		;;
+	?)	_usage
+		# NOTREACHED
+    esac
+done
+shift `expr $OPTIND - 1`
+[ $# -ge 1 ] || _usage
+
+cd $HOME
+
+for seq
+do
+    case "$seq"
+    in
+	[0-9])
+		seq=00$seq
+		;;
+	[0-9][0-9])
+		seq=0$seq
+		;;
+    esac
+    base=''
+    echo >$tmp.sum
+    find $HOME/Logs/by-vm -name "$seq.out.bad" \
+    | sort \
+    | while read bad
+    do
+	sum=`shasum <$bad | sed -e 's/ .*//'`
+	host=`echo "$bad" | sed -e "s;^$HOME/Logs/by-vm/;;" -e 's/\/.*//'`
+	cd `dirname $bad`
+	rm -f $tmp.ok
+	for log in `ls -r ../????-??-??`
+	do
+	    if grep '^Failures: ' $log >$tmp.fail
+	    then
+		# found a Failures: line ... is our test included in the
+		# last Failures: line?
+		#
+		if tail -1 $tmp.fail | grep " $seq" >/dev/null
+		then
+		    touch $tmp.ok
+		fi
+		break
+	    fi
+	done
+	if [ ! -f $tmp.ok ]
+	then
+	    # cleanup because test was subsequently made to pass?
+	    #
+	    echo -n "$seq: not a failure in any $host daily log ... clean up? [n] "
+	    read ans </dev/tty
+	    if [ -n "$ans" -a "$ans" = y ]
+	    then
+		rm $seq.*
+	    fi
+	    continue
+	fi
+	if grep " $sum" <$tmp.sum >/dev/null 2>&1
+	then
+	    match_host=`grep " $sum" <$tmp.sum | sed -e 's/ .*//' -e 1q`
+	    echo "$host: same $seq.out.bad as $match_host"
+	else
+	    for qabits in \
+		common common.check common.config common.filter common.install.cisco \
+		common.pcpweb common.product common.rc common.setup localconfig \
+		group show-me
+	    do
+		if [ -L $qabits ]
+		then
+		    :
+		else
+		    rm -f $qabits
+		    ln -s $HOME/src/pcp/qa/$qabits $qabits
+		fi
+	    done
+	    echo -n "$host-"
+	    show-me $show_me_opts $seq
+	    $full && [ -f $seq.full ] && less $seq.full </dev/tty
+	fi
+	echo $host $sum >>$tmp.sum
+	#debug# cat $tmp.sum
+    done
+done

@@ -1,0 +1,200 @@
+'\"macro stdmacro
+.\" Copyright (c) 2005 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.TH QMC_INDOM 3 "SGI" "Performance Co-Pilot"
+.SH NAME
+\f3QmcIndom\f1 \- container for a instance domain description
+.SH "C++ SYNOPSIS"
+.ft 3
+#include <QmcIndom.h>
+.sp
+CC ... \-lqmc \-lpcp 
+.ft 1
+.SH DESCRIPTION
+A
+.B QmcIndom
+object represents a
+.BR PMAPI (3)
+instance domain.  This includes a description of all the instances
+in the instance domain.
+.PP
+A
+.B QmcInstance
+is a structure used to describe each instance in the instance domain.  This
+includes:
+.PP
+.in 1.0i
+- internal identifier. If this is less than zero, the instance is treated as a
+NULL entry in the instance table.
+
+- external name
+
+- reference count, ie. the number of
+.B QmcMetric
+objects referring to this instance.
+
+- the likely position of the instance in the
+.B pmResult
+from a 
+.BR pmFetch (3).
+This is also used to indicate the position of the next NULL instance
+in the instance table, if this entry is also NULL.
+
+- a flag indicating if the instance was in the last
+.BR pmGetInDom (3).
+.in
+.PP
+The 
+.B QmcIndom
+object has a list of
+.B QmcInstance
+structures, and various flags and counters to support dynamic instance domains
+where instances may come and go with each fetch and efficient profile
+generation.
+.in
+.SH CONSTRUCTORS
+.TP 4
+.B "QmcIndom::QmcIndom(int type, QmcDesc &desc);"
+Calls 
+.BR pmGetInDom (3)
+and
+.BR pmGetInDomArchive (3)
+for host and archive contexts to obtain the entire instance list for the
+instance domain of
+.I type
+and identified in
+.IR desc .
+.SH "DYNAMIC INDOMS"
+The support of dynamic instance domains for live contexts is complex since many
+metrics may be referencing any of the instances in the domain.  Therefore the
+instance list may be sparse as the position of instances in the list must be maintained.
+.PP
+When the instance domain is updated, instances may be removed from the list if
+they are not in the new instance list (as returned by
+.BR pmGetInDom (3))
+and is not referenced by any metrics. Each instance in the new list is then
+compared with the old list to determine which instances are still active, and
+any new instances need to be added.  An instance is considered the same if both
+the internal and external identifiers are the same.  New instances are first
+inserted into positions of deleted instances before being appended to the list.
+.PP
+This algorithm is expensive (potentially O(N^2)).
+.TP 4
+.B "bool changed() const;"
+Returns 
+.B true
+if the instance domain may have changed in the last fetch.
+.TP
+.B "void newFetch();"
+Reset the flags that may have indicated that the instance domain had changed.
+This is called by 
+.BR QmcContext::fetch .
+.TP
+.B "void hasChanged();"
+Set the flags to indicate that the instance domain may have changed.  This is
+called by
+.BR QmcMetric::extractValues .
+.TP
+.B "int update();"
+Update the instance domain as described above. On subsequent calls, before the
+next fetch, this method will remove any instances that are no longer referenced
+without updating the instance list with a
+.BR pmGetInDom (3)
+call.
+.TP
+.B "uint_t numInsts() const;"
+Returns the number of instances that are not NULL.
+.TP
+.B "uint_t numActiveInsts() const;"
+Returns the number of instances that are active according to the last
+.B QmcIndom::update
+call.
+.TP
+.B "uint_t listLen() const;"
+Returns the length of the instance list, including NULL instances.
+.SH "PROFILES"
+The algorithm for determining the most compact profile uses the number of
+instances
+.RB ( _instances.length() ),
+the number of referenced instances
+.RB ( _count ),
+the number of active instances
+.RB ( _numActive )
+and the number of referenced active instances
+.RB ( _numActiveRef ).
+.PP
+.in 1.5i
+.ft CW
+.nf
+if (all active instances are referenced
+    or there are no active instances)
+
+        request all instances implicitly
+
+else if (the number of referenced instances
+         is less than the number of active
+         instances that are not referenced)
+
+        delete all instances from profile
+        add all referenced instances
+
+else
+
+        add all instances to profile
+        delete all instances that are not referenced 
+.fi
+.ft R
+.in
+.TP 4
+.B "bool diffProfile() const;"
+Returns
+.B true
+if the profile has potentially changed since the last call to
+.BR QmcIndom::genProfile .
+.TP
+.B "int genProfile();"
+Generates a new profile for the instance domain. a
+.BR PMAPI (3)
+error code is returned if the profile failed.
+.SH SEE ALSO
+.BR PMAPI (3),
+.BR QMC (3),
+.BR QmcContext (3),
+.BR QmcDesc (3),
+.BR QmcMetric (3),
+.BR pmFetch (3),
+.BR pmflush (3),
+.BR pmGetInDom (3),
+.BR pmGetInDomArchive (3)
+and
+.BR pmprintf (3).
+.SH DIAGNOSTICS
+Error messages are generated using
+.BR pmprintf (3)
+but are not flushed. It is the responsibility of the user to call
+.BR pmflush (3)
+to output any messages.
+.PP
+Additional diagnostics may be activated by adding 
+.B DBG_TRACE_PMC
+and
+.B DBG_TRACE_INDOM
+to the global
+.IR pmDebug .
+.SH BUGS
+User's have no control over the algorithm used to generate the profile. In
+the case of 
+.I proc
+metrics, an implicit profile could be generated if all process instances are
+required, even though this will result in no values being returned in the
+fetch.

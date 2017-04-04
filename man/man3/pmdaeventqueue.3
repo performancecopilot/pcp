@@ -1,0 +1,194 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2015 Red Hat.
+.\" Copyright (c) 2011-2012 Nathan Scott.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMDAEVENTQUEUE 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+.ad l
+\f3pmdaEventNewQueue\f1,
+\f3pmdaEventNewActiveQueue\f1,
+\f3pmdaEventQueueHandle\f1,
+\f3pmdaEventQueueAppend\f1,
+\f3pmdaEventQueueShutdown\f1,
+\f3pmdaEventQueueRecords\f1,
+\f3pmdaEventQueueClients\f1,
+\f3pmdaEventQueueCounter\f1,
+\f3pmdaEventQueueBytes\f1,
+\f3pmdaEventQueueMemory\f1 \- utilities for PMDAs managing event queues
+.br
+.ad
+.SH "C SYNOPSIS"
+.ft 3
+.nf
+#include <pcp/pmapi.h>
+#include <pcp/pmda.h>
+.fi
+.sp
+.ad l
+.hy 0
+.in +8n
+.ti -8n
+int pmdaEventNewQueue(const char *\fIname\fP, size_t \fImaxmem\fP);
+.br
+.ti -8n
+int pmdaEventNewActiveQueue(const char *\fIname\fP, size_t \fImaxmem\fP,  int \fInclients\fP);
+.br
+.ti -8n
+int pmdaEventQueueHandle(const char *\fIname\fP);
+.br
+.ti -8n
+int pmdaEventQueueAppend(int \fIhandle\fP, void *\fIbuffer\fP, size_t \fIbytes\fP, struct timeval *\fItv\fP);
+.br
+.ti -8n
+int pmdaEventQueueShutdown(int \fIhandle\fP);
+.br
+.sp
+.in
+.hy
+.ad
+.in +8n
+.ti -8n
+typedef int (*pmdaEventDecodeCallBack)(int, void *, int, struct timeval *, void *);
+.br
+.ti -8n
+int pmdaEventQueueRecords(int \fIhandle\fP, pmAtomValue *\fIavp\fP, int \fIcontext\fP, pmdaEventDecodeCallBack \fIdecoder\fP, void *\fIdata\fP);
+.br
+.ti -8n
+int pmdaEventQueueClients(int \fIhandle\fP, pmAtomValue *\fIavp\fP);
+.br
+.ti -8n
+int pmdaEventQueueCounter(int \fIhandle\fP, pmAtomValue *\fIavp\fP);
+.br
+.ti -8n
+int pmdaEventQueueBytes(int \fIhandle\fP, pmAtomValue *\fIavp\fP);
+.br
+.ti -8n
+int pmdaEventQueueMemory(int \fIhandle\fP, pmAtomValue *\fIavp\fP);
+.sp
+.in
+.hy
+.ad
+cc ... \-lpcp_pmda \-lpcp
+.ft 1
+.SH DESCRIPTION
+.de CW
+.ie t \f(CW\\$1\f1\\$2
+.el \fI\\$1\f1\\$2
+..
+A Performance Metrics Domain Agent (PMDA) that exports event records
+must effectively act an event multiplexer.
+Events consumed by the PMDA may have to be forwarded on to any number
+of monitoring tools (or "client contexts").
+These tools may be requesting events at different sampling intervals,
+and are very unlikely to request an event at the exact moment it arrives
+at the PMDA, making some form of event buffering and queueing scheme a
+necessity.
+Events must be held by the PMDA until either all registered clients
+have been sent them, or until a memory limit has been reached by the
+PMDA at which point it must discard older events as new ones arrive.
+.PP
+The routines described here are designed to assist the PMDA developer
+in managing both client contexts and queues of events at a high level.
+These fit logically above lower level primitives, such as those
+described in
+.BR pmdaEventNewArray (3),
+and shield the average PMDA from the details of directly building event
+record arrays for individual client contexts.
+.PP
+The PMDA registers a new queue of events using either
+.B pmdaEventNewQueue
+or
+.BR pmdaEventNewActiveQueue .
+These are passed an identifying
+.I name
+(for diagnostic purposes, and for subsequent lookup by
+.BR pmdaEventQueueLookup )
+and
+.IR maxmem ,
+an upper bound on the memory (in bytes) that can be consumed by events
+in this queue, before beginning to discard them (resulting in "missed"
+events for any client that has not kept up).
+If a queue is dynamically allocated (such that the PMDA may already have
+clients connected) the
+.B pmdaEventNewActiveQueue
+interface should be used, with the additional
+.I numclients
+parameter indicating the count of active client connections.
+The return is a negative error code on failure, suitable for decoding
+by the
+.BR pmErrStr (3)
+routine.
+Any non-negative value indicates success, and provides a
+.I handle
+suitable for passing into the other API routines.
+.PP
+For each new event received by the PMDA, the
+.B pmdaEventQueueAppend
+routine should be called, placing that event into the queue identified
+by
+.IR handle .
+The event itself must be contained in the passed in
+.IR buffer ,
+having
+.I bytes
+length.
+The timestamp associated with the event (time at which the event
+occurred) is passed in via the final
+.I tv
+parameter.
+.PP
+In the PMDAs specific implementation of its fetch callback, when values
+for an event metric have been requested, the
+.BR pmdaEventQueueRecords
+routine should be used.
+It is passed the queue
+.I handle
+and the
+.I avp
+pmAtomValue structure to fill with event records, for the client making
+that fetch request (identified by the 
+.I context
+parameter).
+Finally, the PMDA must also pass in an event decoding routine, which is
+responsible for decoding the fields of a single event into the individual
+event parameters of that event.
+The
+.I data
+parameter is an opaque cookie that can be used to pass situation-specific
+information into each
+.I decoder
+invocation.
+.PP
+Under some situations it is useful for the PMDA to export state about
+the queues under its control.
+The accessor routines \- 
+.BR pmdaEventQueueClients ,
+.BR pmdaEventQueueCounter ,
+.BR pmdaEventQueueBytes
+and
+.BR pmdaEventQueueMemory
+provide a mechanism for querying a queue by its
+.I handle
+and filling in a
+.B pmAtomValue
+structure that the
+.B pmdaFetchCallBack
+method should return.
+.SH SEE ALSO
+.BR PMAPI (3),
+.BR PMDA (3),
+.BR pmdaEventNewClient (3)
+and
+.BR pmdaEventNewArray (3).

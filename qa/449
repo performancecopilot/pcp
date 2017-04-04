@@ -1,0 +1,94 @@
+#!/bin/sh
+# PCP QA Test No. 449
+# basic multi-threaded checkout
+#
+# Copyright (c) 2011 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_get_libpcp_config
+$multi_threaded || _notrun "No libpcp threading support"
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "$sudo rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter1()
+{
+    tee -a $seq.full \
+    | sed \
+	-e 's/Permission denied/No permission to perform requested operation/'
+}
+
+_filter2()
+{
+    $PCP_AWK_PROG '
+$7 == "localhost"	{ sub(/^[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*$/,"IPADDR",$4)
+			  sub(/^[0-9a-f:][0-9a-f:]*%[0-9a-z]+$/,"IPADDR",$4)
+			  sub(/^[0-9a-f:][0-9a-f:]*$/,"IPADDR",$4)
+			  sub(/^[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*$/,"IPMASK",$5)
+			  sub(/^[0-9a-f:][0-9a-f:]*$/,"IPMASK",$5) }
+			{ print }'
+}
+
+_filter3()
+{
+    #     b                4194304 1.0.0 0x00400000
+    sed \
+	-e '/0x[0-9a-f][0-9a-f]*$/{
+s/ 0x[0-9a-f][0-9a-f]*$//
+s/ [0-9][0-9]* / /
+}'
+}
+
+_filter4()
+{
+    # traverse: found 1346 metrics, sts 29
+    $PCP_AWK_PROG '
+BEGIN			{ first = 1 }
+$1 == "traverse:" && $3 ~ /[0-9][0-9]*/ && $6 ~ /[0-9][0-9]*/	{
+			  if (first) {
+			    found = $3
+			    sts = $6
+			  }
+			  if ($3 == found && $6 == sts) {
+			    $3 = "MYNUMBER"
+			    $6 = "MYSTS"
+			  }
+			}
+			{ print }' \
+| LC_COLLATE=POSIX sort \
+| uniq
+}
+
+
+# real QA test starts here
+echo "=== __pmMultiThreaded ===" | tee -a $seq.full
+src/multithread0 | LC_COLLATE=POSIX sort
+
+echo | tee -a $seq.full
+echo "=== PM_CONTEXT_LOCAL ===" | tee -a $seq.full
+$sudo src/multithread1 >$tmp.out
+$sudo cat $tmp.out | _filter1 | LC_COLLATE=POSIX sort
+
+echo | tee -a $seq.full
+echo "=== PM_SCOPE_AF and PM_SCOPE_ACL ===" | tee -a $seq.full
+$sudo src/multithread2 | _filter2
+
+echo | tee -a $seq.full
+echo "=== PMNS concurrency ===" | tee -a $seq.full
+src/multithread3 $tmp.pmns | tee -a $seq.full | _filter3
+
+echo | tee -a $seq.full
+echo "=== PMNS Load/Unload & Traverse concurrency ===" | tee -a $seq.full
+src/multithread4 | tee -a $seq.full | _filter4
+
+# success, all done
+exit

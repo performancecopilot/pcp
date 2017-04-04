@@ -1,0 +1,51 @@
+#! /bin/sh
+# PCP QA Test No. 114
+# Checks proc.psinfo.wchan_s matches the wait channel reported by ps
+# Only runs on linux.
+#
+# Copyright (c) 2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ $PCP_PLATFORM = linux ] || _notrun "tests pmdalinux functionality"
+pminfo proc.nprocs >/dev/null 2>&1 || _notrun "proc PMDA not installed"
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.*
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+process="[k]eventd"
+ps=`ps -elf | grep $process | awk '{print $11}'`
+pcp=`pminfo -f proc.psinfo.wchan_s | grep $process \
+| sed -e 's/"//g' | awk '{print $NF}'`
+
+echo "=== ps ===" >$seq.full
+ps -elf >>$seq.full
+echo >>$seq.full
+echo "=== pminfo ===" >>$seq.full
+pminfo -f proc.psinfo.wchan_s >>$seq.full
+
+#
+# ps truncates the wchan string
+awk -v ps="$ps" -v pcp="$pcp" '
+END {
+    len=length(ps)
+    s = substr(pcp, 1, length(ps))
+    if (ps != s) {
+        printf "FAIL ps=\"%s\" pminfo=\"%s\"\n", ps, pcp
+        exit 1
+    }
+    print "Succeeded"
+    exit 0
+}' </dev/null
+status=$?
+
+exit

@@ -1,0 +1,152 @@
+#!/bin/sh
+# PCP QA Test No. 750
+# Exercise the RPM Package Manager PMDA
+#
+# Copyright (c) 2013-2014 Red Hat.
+#
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.rpm
+_rpm_support_tests
+
+status=1	# failure is the default!
+fqdn=`_get_fqdn`
+hostname=`hostname`
+$sudo rm -fr $tmp.* $seq.full
+trap "_rpm_cleanup" 0 1 2 3 15
+
+filter_pmval()
+{
+    sed \
+	-e "s/^ *\"$fqdn\"/\"BUILDHOST\"/g" \
+	-e "s/^ *\"$hostname\"/\"BUILDHOST\"/g" \
+	-e 's/^ [0-9][0-9]* $/ TIMESTAMP /g' \
+	-e "s/^host:      $hostname$/host:      HOST/g" \
+    # end
+}
+
+report_package()
+{
+    inst="$1-$2"
+
+    pmval -s 1 rpm.arch -i $inst	2>&1 | filter_pmval | tee -a $seq.full
+    pmval -s 1 rpm.buildhost -i $inst	2>&1 | filter_pmval | tee -a $seq.full
+    pmval -s 1 rpm.buildtime -i $inst	2>&1 | filter_pmval | tee -a $seq.full
+    pmval -s 1 rpm.description -i $inst	2>&1 | filter_pmval | tee -a $seq.full
+    pmval -s 1 rpm.epoch -i $inst	2>&1 | filter_pmval | tee -a $seq.full
+    pmval -s 1 rpm.group -i $inst	2>&1 | filter_pmval | tee -a $seq.full
+    pmval -s 1 rpm.installtime -i $inst	2>&1 | filter_pmval | tee -a $seq.full
+    pmval -s 1 rpm.license -i $inst	2>&1 | filter_pmval | tee -a $seq.full
+    pmval -s 1 rpm.packager -i $inst	2>&1 | filter_pmval | tee -a $seq.full
+    pmval -s 1 rpm.release -i $inst	2>&1 | filter_pmval | tee -a $seq.full
+    pmval -s 1 rpm.size -i $inst	2>&1 | filter_pmval | tee -a $seq.full
+    pmval -s 1 rpm.sourcerpm -i $inst	2>&1 | filter_pmval | tee -a $seq.full
+    pmval -s 1 rpm.summary -i $inst	2>&1 | filter_pmval | tee -a $seq.full
+    pmval -s 1 rpm.url -i $inst		2>&1 | filter_pmval | tee -a $seq.full
+    pmval -s 1 rpm.vendor -i $inst	2>&1 | filter_pmval | tee -a $seq.full
+    pmval -s 1 rpm.version -i $inst	2>&1 | filter_pmval | tee -a $seq.full
+    pmval -s 1 rpm.name -i $inst	2>&1 | filter_pmval | tee -a $seq.full
+}
+
+package_totals_before()
+{
+    pre_bytes=`pmprobe -v rpm.total.bytes | tee $tmp.tmp | awk '$2==1 { print $3 }'`
+    if [ -z "$pre_bytes" ]
+    then
+	echo "Error: failed to get pre_bytes from pmprobe output ..."
+	cat $tmp.tmp
+	pre_bytes=0
+    fi
+    pre_count=`pmprobe -v rpm.total.count | tee $tmp.tmp | awk '$2==1 { print $3 }'`
+    if [ -z "$pre_count" ]
+    then
+	echo "Error: failed to get pre_count from pmprobe output ..."
+	cat $tmp.tmp
+	pre_count=0
+    fi
+}
+
+package_totals_after()
+{
+    post_bytes=`pmprobe -v rpm.total.bytes | tee $tmp.tmp | awk '$2==1 { print $3 }'`
+    if [ -z "$post_bytes" ]
+    then
+	echo "Error: failed to get post_bytes from pmprobe output ..."
+	cat $tmp.tmp
+	post_bytes=0
+    fi
+    post_count=`pmprobe -v rpm.total.count | tee $tmp.tmp | awk '$2==1 { print $3 }'`
+    if [ -z "$post_count" ]
+    then
+	echo "Error: failed to get post_count from pmprobe output ..."
+	cat $tmp.tmp
+	post_count=0
+    fi
+
+    diff_bytes=`expr $post_bytes - $pre_bytes`
+    echo "bytes diff: $post_bytes - $pre_bytes = $diff_bytes" >> $seq.full
+    pminfo -f rpm.size >> $seq.full
+
+    diff_count=`expr $post_count - $pre_count`
+    echo "count diff: $post_count - $pre_count = $diff_count" >> $seq.full
+
+    echo
+    if [ $diff_bytes -ge 0 ]
+    then
+	echo Total bytes check: OK
+    else
+	echo Total bytes check: FAIL - $diff_bytes delta
+    fi
+
+    if [ $diff_count -eq 1 ]
+    then
+	echo Total count check: OK
+    else
+	echo Total count check: FAIL - $diff_count delta
+    fi
+}
+
+# real QA test starts here
+
+_rpm_pmda_prepare
+_rpm_package_prepare
+
+# give PMDA a chance to get started
+#
+rm -f $tmp.ok
+for i in 1 2 3 4 5 6 7 8 9 10
+do
+    if [ `pmprobe -v rpm.total.bytes | tee -a $seq.full | $PCP_AWK_PROG '{print $2}'` -ge 0 ]
+    then
+	touch $tmp.ok
+	break
+    else
+	sleep 2
+    fi
+done
+
+if [ -f $tmp.ok ]
+then
+    :
+else
+    echo "Arrg ... rpm PMDA failed to get going after 20 seconds ..."
+    pmprobe -v rpm.total.bytes
+    cat $PCP_LOG_DIR/pmcd/rpm.log
+    status=1
+    exit
+fi
+
+package_totals_before
+_rpm_package_install
+_rpm_package_install_await
+report_package qaplayer 1.0-1.noarch
+package_totals_after
+
+_rpm_package_remove
+_rpm_package_remove_await
+report_package qaplayer 1.0-1.noarch
+
+# success, all done
+status=0
+exit

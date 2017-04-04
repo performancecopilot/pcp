@@ -1,0 +1,79 @@
+#!/bin/sh
+# PCP QA Test No. 973
+# Exercise the zswap PMDA using the running kernel.
+#
+# Copyright (c) 2014,2016 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ -f $PCP_PMDAS_DIR/zswap/pmdazswap.python ] || _notrun "zswap pmda not installed"
+$sudo test -d /sys/kernel/debug/zswap || _notrun "No kernel support for zswap"
+
+status=1	# failure is the default!
+$sudo rm -f $tmp.* $seq.full
+
+_filter_zswap()
+{
+    # filter metric values for deterministic output
+    tee -a $here/$seq.full | sed \
+        -e 's/value [0-9][0-9]*/value NUMBER/'
+}
+
+pmdazswap_remove()
+{
+    echo
+    echo "=== remove $iam agent ==="
+    $sudo ./Remove >$tmp.out 2>&1
+    _filter_pmda_remove <$tmp.out
+}
+
+pmdazswap_install()
+{
+    # start from a known starting point
+    cd $PCP_PMDAS_DIR/zswap
+    $sudo ./Remove >/dev/null 2>&1
+
+    echo
+    echo "=== $iam agent installation ==="
+    $sudo ./Install </dev/null >$tmp.out 2>&1
+    # Check zswap metrics have appeared ... X metrics and Y values
+    _filter_pmda_install <$tmp.out \
+    | sed \
+        -e 's/[0-9][0-9]* warnings, //' \
+    | $PCP_AWK_PROG '
+/Check zswap metrics have appeared/    { if ($7 >= 8 && $7 <= 20) $7 = "X"
+                                         if ($10 >= 8 && $10 <= 20) $10 = "Y"
+                                       }
+                                       { print }'
+}
+
+_prepare_pmda zswap
+
+# note: _restore_systemd_restart pmcd done in _cleanup_pmda()
+trap "_cleanup_pmda zswap; exit \$status" 0 1 2 3 15
+
+_stop_systemd_restart pmcd
+
+# real QA test starts here
+pmdazswap_install
+
+# pmcd should have been started by the Install process - check
+if pminfo -v zswap > $tmp.info 2> $tmp.err
+then
+    :
+else
+    echo "... failed! ... here is the Install log ..."
+    cat $tmp.out
+fi
+cat $tmp.info $tmp.err | _filter_zswap
+
+pmdazswap_remove
+status=0
+exit

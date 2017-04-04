@@ -1,0 +1,14 @@
+//
+// Some read activity through the buffer cache and the cache read
+// hit ratio is less than 80%
+// (lots of file system reads causing physical I/O)
+//
+
+delta = 1 min;			// check every minute
+
+blkio = "kernel.all.io";
+poor_read_hits =
+    (($blkio.lread - $blkio.bread) / $blkio.lread) < 0.8 && $blkio.lread > 100
+	-> alarm 20 min "poor buffer cache read hit ratio (%v)";
+	    // Note:	%v in alarm string is bound to the left most
+	    //		expression in the predicate

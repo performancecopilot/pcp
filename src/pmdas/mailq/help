@@ -1,0 +1,48 @@
+#
+# Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+# 
+# mailq PMDA help file in the ASCII format
+#
+# lines beginning with a # are ignored
+# lines beginning @ introduce a new entry of the form
+#  @ metric_name oneline-text
+#  help text goes
+#  here over multiple lines
+#  ...
+#
+# the metric_name is decoded against the default PMNS -- as a special case,
+# a name of the form NNN.MM (for numeric NNN and MM) is interpreted as an
+# instance domain identification, and the text describes the instance domain
+#
+# blank lines before the @ line are ignored
+#
+
+@ MAILQ.1 Instance domain used to "bin" messages based on how long they have been deferred
+
+
+@ mailq.length Number of messages in the queue
+The total number of messages in the mail queue.
+
+@ mailq.deferred Histogram of pending messages based on how long they have been deferred
+Counts of the number of messages in the sendmail queue grouped by
+how long the mail delivery has been deferred.
+
+The groups are based on the how long a message has been in the
+queue:
+    1-week	at least a week
+    3-days	at least 3 days and less than a week
+    1-day	at least one day and less than 3 days
+    8-hours	more than 8 hours and less than one day
+    4-hours	between 4 and 8 hours
+    1-hour	between 1 and 4 hours
+    recent	less than an hour

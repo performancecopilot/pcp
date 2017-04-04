@@ -1,0 +1,2249 @@
+<ui version="4.0" >
+ <class>ChartDialog</class>
+ <widget class="QDialog" name="ChartDialog" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>612</width>
+    <height>457</height>
+   </rect>
+  </property>
+  <property name="focusPolicy" >
+   <enum>Qt::WheelFocus</enum>
+  </property>
+  <property name="windowTitle" >
+   <string>New Chart</string>
+  </property>
+  <property name="windowIcon" >
+   <iconset resource="pmchart.qrc" >:/images/pmchart.png</iconset>
+  </property>
+  <property name="sizeGripEnabled" >
+   <bool>true</bool>
+  </property>
+  <layout class="QGridLayout" >
+   <property name="margin" >
+    <number>9</number>
+   </property>
+   <property name="spacing" >
+    <number>6</number>
+   </property>
+   <item row="0" column="1" >
+    <widget class="QTabWidget" name="tabWidget" >
+     <property name="sizePolicy" >
+      <sizepolicy>
+       <hsizetype>3</hsizetype>
+       <vsizetype>3</vsizetype>
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="currentIndex" >
+      <number>0</number>
+     </property>
+     <widget class="QWidget" name="Widget2" >
+      <attribute name="title" >
+       <string>Chart</string>
+      </attribute>
+      <layout class="QGridLayout" >
+       <property name="margin" >
+        <number>9</number>
+       </property>
+       <property name="spacing" >
+        <number>6</number>
+       </property>
+       <item row="0" column="0" >
+        <layout class="QVBoxLayout" >
+         <property name="margin" >
+          <number>0</number>
+         </property>
+         <property name="spacing" >
+          <number>6</number>
+         </property>
+         <item>
+          <spacer>
+           <property name="orientation" >
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeType" >
+            <enum>QSizePolicy::Fixed</enum>
+           </property>
+           <property name="sizeHint" >
+            <size>
+             <width>20</width>
+             <height>1</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <layout class="QGridLayout" >
+           <property name="margin" >
+            <number>0</number>
+           </property>
+           <property name="spacing" >
+            <number>6</number>
+           </property>
+           <item row="2" column="1" >
+            <widget class="QComboBox" name="colorSchemeComboBox" >
+             <property name="whatsThis" >
+              <string>Drop down llist of available color schemes.  The color scheme determines the initial color for each new plot added to a chart.</string>
+             </property>
+             <item>
+              <property name="text" >
+               <string>Default Scheme</string>
+              </property>
+             </item>
+             <item>
+              <property name="text" >
+               <string>New Scheme...</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+           <item row="1" column="1" >
+            <widget class="QComboBox" name="typeComboBox" >
+             <property name="whatsThis" >
+              <string>Drop down list of chart styles, specifying how the values in a chart should be displayed</string>
+             </property>
+             <item>
+              <property name="text" >
+               <string>Line Plot</string>
+              </property>
+             </item>
+             <item>
+              <property name="text" >
+               <string>Bar Plot</string>
+              </property>
+             </item>
+             <item>
+              <property name="text" >
+               <string>Stacked Bar</string>
+              </property>
+             </item>
+             <item>
+              <property name="text" >
+               <string>Area Plot</string>
+              </property>
+             </item>
+             <item>
+              <property name="text" >
+               <string>Utilization</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+           <item row="2" column="0" >
+            <widget class="QLabel" name="colorSchemeLabel" >
+             <property name="whatsThis" >
+              <string>Drop down llist of available color schemes.  The color scheme determines the initial color for each new plot added to a chart.</string>
+             </property>
+             <property name="text" >
+              <string>Colors:</string>
+             </property>
+             <property name="alignment" >
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="1" >
+            <layout class="QHBoxLayout" >
+             <property name="margin" >
+              <number>0</number>
+             </property>
+             <property name="spacing" >
+              <number>6</number>
+             </property>
+             <item>
+              <spacer>
+               <property name="orientation" >
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeType" >
+                <enum>QSizePolicy::Fixed</enum>
+               </property>
+               <property name="sizeHint" >
+                <size>
+                 <width>21</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
+              <widget class="QRadioButton" name="legendOn" >
+               <property name="sizePolicy" >
+                <sizepolicy>
+                 <hsizetype>0</hsizetype>
+                 <vsizetype>0</vsizetype>
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="whatsThis" >
+                <string>Enables or disables the chart legend, which shows the mapping between plot names and colors</string>
+               </property>
+               <property name="text" >
+                <string>On</string>
+               </property>
+               <property name="checked" >
+                <bool>true</bool>
+               </property>
+               <property name="autoExclusive" >
+                <bool>false</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer>
+               <property name="orientation" >
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeType" >
+                <enum>QSizePolicy::Fixed</enum>
+               </property>
+               <property name="sizeHint" >
+                <size>
+                 <width>16</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
+              <widget class="QRadioButton" name="legendOff" >
+               <property name="sizePolicy" >
+                <sizepolicy>
+                 <hsizetype>0</hsizetype>
+                 <vsizetype>0</vsizetype>
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="whatsThis" >
+                <string>Enables or disables the chart legend, which  shows the mapping between plot names and colors</string>
+               </property>
+               <property name="text" >
+                <string>Off</string>
+               </property>
+               <property name="autoExclusive" >
+                <bool>false</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer>
+               <property name="orientation" >
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" >
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+            </layout>
+           </item>
+           <item row="3" column="0" >
+            <widget class="QLabel" name="legendTextLabel" >
+             <property name="whatsThis" >
+              <string>Enables or disables the chart legend, which  shows the mapping between plot names and colors</string>
+             </property>
+             <property name="text" >
+              <string>Legend:</string>
+             </property>
+             <property name="alignment" >
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+             <property name="wordWrap" >
+              <bool>false</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="0" >
+            <widget class="QLabel" name="antiAliasingTextLabel" >
+             <property name="whatsThis" >
+              <string>Enable or disable chart rendering with antialiasing.  This affects the way in which charts are drawn, in particular line plots are less "blocky" when rendered this way.  Also, the black like around bar plots are drawn more accurately with antialiasing enabled.</string>
+             </property>
+             <property name="text" >
+              <string>Antialiasing:</string>
+             </property>
+             <property name="alignment" >
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+             <property name="wordWrap" >
+              <bool>false</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="1" >
+            <layout class="QHBoxLayout" >
+             <item>
+              <spacer>
+               <property name="orientation" >
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeType" >
+                <enum>QSizePolicy::Fixed</enum>
+               </property>
+               <property name="sizeHint" >
+                <size>
+                 <width>21</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
+              <widget class="QRadioButton" name="antiAliasingAuto" >
+               <property name="sizePolicy" >
+                <sizepolicy vsizetype="Fixed" hsizetype="Fixed" >
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="whatsThis" >
+                <string>Enable or disable chart rendering with antialiasing automatically, based on the chart style chosen.  Line plots will be drawn anti-aliased as this gives a color exactly matching that requested, and bar plots are drawn anti-aliased so their outlines are correctly rendered.</string>
+               </property>
+               <property name="text" >
+                <string>Auto</string>
+               </property>
+               <property name="checked" >
+                <bool>true</bool>
+               </property>
+               <property name="autoExclusive" >
+                <bool>false</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer>
+               <property name="orientation" >
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeType" >
+                <enum>QSizePolicy::Fixed</enum>
+               </property>
+               <property name="sizeHint" >
+                <size>
+                 <width>14</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
+              <widget class="QRadioButton" name="antiAliasingOn" >
+               <property name="sizePolicy" >
+                <sizepolicy>
+                 <hsizetype>0</hsizetype>
+                 <vsizetype>0</vsizetype>
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="whatsThis" >
+                <string>Enable or disable chart rendering with antialiasing.  This affects the way in which charts are drawn, in particular line plots are less "blocky" when rendered this way.  Also, the black like around bar plots are drawn more accurately with antialiasing enabled.</string>
+               </property>
+               <property name="text" >
+                <string>On</string>
+               </property>
+               <property name="autoExclusive" >
+                <bool>false</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer>
+               <property name="orientation" >
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeType" >
+                <enum>QSizePolicy::Fixed</enum>
+               </property>
+               <property name="sizeHint" >
+                <size>
+                 <width>21</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
+              <widget class="QRadioButton" name="antiAliasingOff" >
+               <property name="sizePolicy" >
+                <sizepolicy>
+                 <hsizetype>0</hsizetype>
+                 <vsizetype>0</vsizetype>
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="whatsThis" >
+                <string>Enable or disable chart rendering with antialiasing.  This affects the way in which charts are drawn, in particular line plots are less "blocky" when rendered this way.  Also, the black like around bar plots are drawn more accurately with antialiasing enabled.</string>
+               </property>
+               <property name="text" >
+                <string>Off</string>
+               </property>
+               <property name="autoExclusive" >
+                <bool>false</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer>
+               <property name="orientation" >
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" >
+                <size>
+                 <width>5</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+            </layout>
+           </item>
+           <item row="0" column="1" >
+            <widget class="QLineEdit" name="titleLineEdit" >
+             <property name="whatsThis" >
+              <string>Add or modifiy the chart title (description)</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="0" >
+            <widget class="QLabel" name="titleTextLabel" >
+             <property name="whatsThis" >
+              <string>Add or modifiy the chart title (description)</string>
+             </property>
+             <property name="text" >
+              <string>Title:</string>
+             </property>
+             <property name="alignment" >
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+             <property name="wordWrap" >
+              <bool>false</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0" >
+            <widget class="QLabel" name="styleLabel" >
+             <property name="whatsThis" >
+              <string>Drop down list of chart styles, specifying how the values in a chart should be displayed</string>
+             </property>
+             <property name="text" >
+              <string>Style:</string>
+             </property>
+             <property name="alignment" >
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+             <property name="wordWrap" >
+              <bool>false</bool>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <spacer>
+           <property name="orientation" >
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeType" >
+            <enum>QSizePolicy::Fixed</enum>
+           </property>
+           <property name="sizeHint" >
+            <size>
+             <width>20</width>
+             <height>16</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QGroupBox" name="yAxisGroupBox" >
+           <property name="sizePolicy" >
+            <sizepolicy>
+             <hsizetype>7</hsizetype>
+             <vsizetype>7</vsizetype>
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="whatsThis" >
+            <string>When enabled, autoscaling causes the Values axis to be scaled based on the minimum and maximum observed values.  When disabled, the minimum and maximum points on the Values Axis specified here are always used (even if the values observed lie outside that range).</string>
+           </property>
+           <property name="title" >
+            <string>Values Axis</string>
+           </property>
+           <layout class="QGridLayout" >
+            <property name="margin" >
+             <number>9</number>
+            </property>
+            <property name="spacing" >
+             <number>6</number>
+            </property>
+            <item row="0" column="0" >
+             <layout class="QGridLayout" >
+              <property name="margin" >
+               <number>0</number>
+              </property>
+              <property name="spacing" >
+               <number>6</number>
+              </property>
+              <item row="2" column="0" >
+               <widget class="QLabel" name="maxTextLabel" >
+                <property name="enabled" >
+                 <bool>false</bool>
+                </property>
+                <property name="text" >
+                 <string>Maximum:</string>
+                </property>
+                <property name="wordWrap" >
+                 <bool>false</bool>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1" >
+               <layout class="QHBoxLayout" >
+                <property name="margin" >
+                 <number>0</number>
+                </property>
+                <property name="spacing" >
+                 <number>6</number>
+                </property>
+                <item>
+                 <widget class="QDoubleSpinBox" name="yAxisMinimum" >
+                  <property name="enabled" >
+                   <bool>false</bool>
+                  </property>
+                  <property name="maximum" >
+                   <double>1000000000.000000000000000</double>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <spacer>
+                  <property name="orientation" >
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" >
+                   <size>
+                    <width>40</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+               </layout>
+              </item>
+              <item row="1" column="0" >
+               <widget class="QLabel" name="minTextLabel" >
+                <property name="enabled" >
+                 <bool>false</bool>
+                </property>
+                <property name="text" >
+                 <string>Minimum:</string>
+                </property>
+                <property name="wordWrap" >
+                 <bool>false</bool>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1" >
+               <layout class="QHBoxLayout" >
+                <property name="margin" >
+                 <number>0</number>
+                </property>
+                <property name="spacing" >
+                 <number>6</number>
+                </property>
+                <item>
+                 <spacer>
+                  <property name="orientation" >
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeType" >
+                   <enum>QSizePolicy::Fixed</enum>
+                  </property>
+                  <property name="sizeHint" >
+                   <size>
+                    <width>21</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+                <item>
+                 <widget class="QRadioButton" name="autoScaleOn" >
+                  <property name="sizePolicy" >
+                   <sizepolicy>
+                    <hsizetype>0</hsizetype>
+                    <vsizetype>0</vsizetype>
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="text" >
+                   <string>On</string>
+                  </property>
+                  <property name="checked" >
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <spacer>
+                  <property name="orientation" >
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeType" >
+                   <enum>QSizePolicy::Fixed</enum>
+                  </property>
+                  <property name="sizeHint" >
+                   <size>
+                    <width>16</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+                <item>
+                 <widget class="QRadioButton" name="autoScaleOff" >
+                  <property name="sizePolicy" >
+                   <sizepolicy>
+                    <hsizetype>0</hsizetype>
+                    <vsizetype>0</vsizetype>
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="text" >
+                   <string>Off</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <spacer>
+                  <property name="orientation" >
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" >
+                   <size>
+                    <width>40</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+               </layout>
+              </item>
+              <item row="2" column="1" >
+               <layout class="QHBoxLayout" >
+                <property name="margin" >
+                 <number>0</number>
+                </property>
+                <property name="spacing" >
+                 <number>6</number>
+                </property>
+                <item>
+                 <widget class="QDoubleSpinBox" name="yAxisMaximum" >
+                  <property name="enabled" >
+                   <bool>false</bool>
+                  </property>
+                  <property name="maximum" >
+                   <double>1000000000.000000000000000</double>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <spacer>
+                  <property name="orientation" >
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" >
+                   <size>
+                    <width>40</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+               </layout>
+              </item>
+              <item row="0" column="0" >
+               <widget class="QLabel" name="autoScale" >
+                <property name="sizePolicy" >
+                 <sizepolicy>
+                  <hsizetype>0</hsizetype>
+                  <vsizetype>0</vsizetype>
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="text" >
+                 <string>Auto-Scale:</string>
+                </property>
+                <property name="wordWrap" >
+                 <bool>false</bool>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item row="1" column="0" >
+             <widget class="QCheckBox" name="rateConvertCheckBox" >
+              <property name="text" >
+               <string>Rate convert counter metrics</string>
+              </property>
+              <property name="checked" >
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <spacer>
+           <property name="orientation" >
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeType" >
+            <enum>QSizePolicy::MinimumExpanding</enum>
+           </property>
+           <property name="sizeHint" >
+            <size>
+             <width>20</width>
+             <height>16</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="Widget3" >
+      <attribute name="title" >
+       <string>Metrics</string>
+      </attribute>
+      <layout class="QGridLayout" >
+       <property name="margin" >
+        <number>9</number>
+       </property>
+       <property name="spacing" >
+        <number>6</number>
+       </property>
+       <item row="0" column="1" >
+        <layout class="QVBoxLayout" >
+         <property name="margin" >
+          <number>0</number>
+         </property>
+         <property name="spacing" >
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="QTreeWidget" name="availableMetricsTreeWidget" >
+           <property name="font" >
+            <font>
+             <pointsize>10</pointsize>
+            </font>
+           </property>
+           <property name="cursor" >
+            <cursor>0</cursor>
+           </property>
+           <property name="mouseTracking" >
+            <bool>true</bool>
+           </property>
+           <property name="whatsThis" >
+            <string>Complete list of metrics and instances which can be added to a new or current chart</string>
+           </property>
+           <property name="frameShape" >
+            <enum>QFrame::StyledPanel</enum>
+           </property>
+           <property name="verticalScrollBarPolicy" >
+            <enum>Qt::ScrollBarAsNeeded</enum>
+           </property>
+           <property name="alternatingRowColors" >
+            <bool>true</bool>
+           </property>
+           <property name="selectionMode" >
+            <enum>QAbstractItemView::ExtendedSelection</enum>
+           </property>
+           <property name="rootIsDecorated" >
+            <bool>false</bool>
+           </property>
+           <property name="uniformRowHeights" >
+            <bool>true</bool>
+           </property>
+           <property name="columnCount" >
+            <number>1</number>
+           </property>
+           <column>
+            <property name="text" >
+             <string>Available Metrics</string>
+            </property>
+           </column>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="availableMetricLineEdit" >
+           <property name="font" >
+            <font>
+             <pointsize>10</pointsize>
+             <weight>75</weight>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="whatsThis" >
+            <string>Complete metric name of the currently selected metric in the Available Metrics list</string>
+           </property>
+           <property name="text" >
+            <string/>
+           </property>
+           <property name="readOnly" >
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item row="0" column="0" >
+        <layout class="QVBoxLayout" >
+         <property name="margin" >
+          <number>0</number>
+         </property>
+         <property name="spacing" >
+          <number>0</number>
+         </property>
+         <item>
+          <spacer>
+           <property name="orientation" >
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeType" >
+            <enum>QSizePolicy::Fixed</enum>
+           </property>
+           <property name="sizeHint" >
+            <size>
+             <width>20</width>
+             <height>16</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QPushButton" name="metricInfoButton" >
+           <property name="sizePolicy" >
+            <sizepolicy>
+             <hsizetype>0</hsizetype>
+             <vsizetype>0</vsizetype>
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="maximumSize" >
+            <size>
+             <width>32</width>
+             <height>32</height>
+            </size>
+           </property>
+           <property name="toolTip" >
+            <string>Metric Info</string>
+           </property>
+           <property name="whatsThis" >
+            <string>Display information about a metric selected from either of the Chart Plots or Available Metrics lists.  This includes metric descriptor, help text (if available), and value at the current time position.</string>
+           </property>
+           <property name="text" >
+            <string/>
+           </property>
+           <property name="icon" >
+            <iconset resource="pmchart.qrc" >:/images/help-browser.png</iconset>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer>
+           <property name="orientation" >
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeType" >
+            <enum>QSizePolicy::Fixed</enum>
+           </property>
+           <property name="sizeHint" >
+            <size>
+             <width>20</width>
+             <height>10</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QPushButton" name="metricSearchButton" >
+           <property name="enabled" >
+            <bool>true</bool>
+           </property>
+           <property name="sizePolicy" >
+            <sizepolicy>
+             <hsizetype>0</hsizetype>
+             <vsizetype>0</vsizetype>
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="maximumSize" >
+            <size>
+             <width>32</width>
+             <height>32</height>
+            </size>
+           </property>
+           <property name="toolTip" >
+            <string>Metric Search</string>
+           </property>
+           <property name="whatsThis" >
+            <string>Search for metrics using a regular expression on metric/instance names.</string>
+           </property>
+           <property name="text" >
+            <string/>
+           </property>
+           <property name="icon" >
+            <iconset resource="pmchart.qrc" >:/images/system-search.png</iconset>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer>
+           <property name="orientation" >
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" >
+            <size>
+             <width>20</width>
+             <height>40</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QPushButton" name="metricDeleteButton" >
+           <property name="sizePolicy" >
+            <sizepolicy>
+             <hsizetype>0</hsizetype>
+             <vsizetype>0</vsizetype>
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize" >
+            <size>
+             <width>32</width>
+             <height>32</height>
+            </size>
+           </property>
+           <property name="maximumSize" >
+            <size>
+             <width>32</width>
+             <height>32</height>
+            </size>
+           </property>
+           <property name="toolTip" >
+            <string>Remove plot from chart</string>
+           </property>
+           <property name="whatsThis" >
+            <string>Remove the current selected plot(s) from the Chart Plots list.  When OK is pressed, these plots will be removed from the current chart.</string>
+           </property>
+           <property name="text" >
+            <string/>
+           </property>
+           <property name="icon" >
+            <iconset resource="pmchart.qrc" >:/images/process-stop.png</iconset>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer>
+           <property name="orientation" >
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeType" >
+            <enum>QSizePolicy::Fixed</enum>
+           </property>
+           <property name="sizeHint" >
+            <size>
+             <width>20</width>
+             <height>10</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QPushButton" name="metricAddButton" >
+           <property name="sizePolicy" >
+            <sizepolicy>
+             <hsizetype>0</hsizetype>
+             <vsizetype>0</vsizetype>
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize" >
+            <size>
+             <width>32</width>
+             <height>32</height>
+            </size>
+           </property>
+           <property name="maximumSize" >
+            <size>
+             <width>32</width>
+             <height>32</height>
+            </size>
+           </property>
+           <property name="toolTip" >
+            <string>Insert plot into chart</string>
+           </property>
+           <property name="whatsThis" >
+            <string>Add a new plot into the Chart Plots list.  When OK is pressed, this plot will be added to the new or current chart.</string>
+           </property>
+           <property name="text" >
+            <string/>
+           </property>
+           <property name="icon" >
+            <iconset resource="pmchart.qrc" >:/images/go-previous.png</iconset>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer>
+           <property name="orientation" >
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" >
+            <size>
+             <width>20</width>
+             <height>41</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QPushButton" name="sourceButton" >
+           <property name="sizePolicy" >
+            <sizepolicy>
+             <hsizetype>0</hsizetype>
+             <vsizetype>0</vsizetype>
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize" >
+            <size>
+             <width>32</width>
+             <height>32</height>
+            </size>
+           </property>
+           <property name="maximumSize" >
+            <size>
+             <width>32</width>
+             <height>32</height>
+            </size>
+           </property>
+           <property name="toolTip" >
+            <string>Add new host</string>
+           </property>
+           <property name="whatsThis" >
+            <string>Add new metric source (host or archive) from which additional Available Metrics can be found for plotting.</string>
+           </property>
+           <property name="text" >
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer>
+           <property name="orientation" >
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeType" >
+            <enum>QSizePolicy::Fixed</enum>
+           </property>
+           <property name="sizeHint" >
+            <size>
+             <width>20</width>
+             <height>51</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="TabPage" >
+      <attribute name="title" >
+       <string>Plots</string>
+      </attribute>
+      <layout class="QGridLayout" >
+       <property name="margin" >
+        <number>9</number>
+       </property>
+       <property name="spacing" >
+        <number>6</number>
+       </property>
+       <item row="0" column="0" >
+        <layout class="QHBoxLayout" >
+         <property name="margin" >
+          <number>0</number>
+         </property>
+         <property name="spacing" >
+          <number>6</number>
+         </property>
+         <item>
+          <layout class="QVBoxLayout" >
+           <property name="margin" >
+            <number>0</number>
+           </property>
+           <property name="spacing" >
+            <number>0</number>
+           </property>
+           <item>
+            <widget class="QPushButton" name="revertColorButton" >
+             <property name="sizePolicy" >
+              <sizepolicy>
+               <hsizetype>0</hsizetype>
+               <vsizetype>0</vsizetype>
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize" >
+              <size>
+               <width>32</width>
+               <height>32</height>
+              </size>
+             </property>
+             <property name="maximumSize" >
+              <size>
+               <width>32</width>
+               <height>32</height>
+              </size>
+             </property>
+             <property name="toolTip" >
+              <string>Revert to previous color</string>
+             </property>
+             <property name="statusTip" >
+              <string>Change back to the previous plot color, as displayed in the frame below.</string>
+             </property>
+             <property name="text" >
+              <string/>
+             </property>
+             <property name="icon" >
+              <iconset resource="pmchart.qrc" >:/images/go-jump.png</iconset>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QedColorShowLabel" name="revertColorLabel" >
+             <property name="sizePolicy" >
+              <sizepolicy>
+               <hsizetype>0</hsizetype>
+               <vsizetype>0</vsizetype>
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize" >
+              <size>
+               <width>32</width>
+               <height>32</height>
+              </size>
+             </property>
+             <property name="maximumSize" >
+              <size>
+               <width>32</width>
+               <height>32</height>
+              </size>
+             </property>
+             <property name="frameShape" >
+              <enum>QFrame::Panel</enum>
+             </property>
+             <property name="frameShadow" >
+              <enum>QFrame::Sunken</enum>
+             </property>
+             <property name="lineWidth" >
+              <number>2</number>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer>
+             <property name="orientation" >
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeType" >
+              <enum>QSizePolicy::Fixed</enum>
+             </property>
+             <property name="sizeHint" >
+              <size>
+               <width>20</width>
+               <height>8</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
+            <widget class="QedColorShowLabel" name="applyColorLabel" >
+             <property name="sizePolicy" >
+              <sizepolicy>
+               <hsizetype>0</hsizetype>
+               <vsizetype>0</vsizetype>
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize" >
+              <size>
+               <width>32</width>
+               <height>32</height>
+              </size>
+             </property>
+             <property name="maximumSize" >
+              <size>
+               <width>32</width>
+               <height>32</height>
+              </size>
+             </property>
+             <property name="frameShape" >
+              <enum>QFrame::Panel</enum>
+             </property>
+             <property name="frameShadow" >
+              <enum>QFrame::Sunken</enum>
+             </property>
+             <property name="lineWidth" >
+              <number>2</number>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="applyColorButton" >
+             <property name="sizePolicy" >
+              <sizepolicy>
+               <hsizetype>0</hsizetype>
+               <vsizetype>0</vsizetype>
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize" >
+              <size>
+               <width>32</width>
+               <height>32</height>
+              </size>
+             </property>
+             <property name="maximumSize" >
+              <size>
+               <width>32</width>
+               <height>32</height>
+              </size>
+             </property>
+             <property name="toolTip" >
+              <string>Apply new plot color</string>
+             </property>
+             <property name="whatsThis" >
+              <string>Change the color of the currently selected plot in the Chart Plots list.</string>
+             </property>
+             <property name="text" >
+              <string/>
+             </property>
+             <property name="icon" >
+              <iconset resource="pmchart.qrc" >:/images/go-previous.png</iconset>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" >
+           <property name="margin" >
+            <number>0</number>
+           </property>
+           <property name="spacing" >
+            <number>6</number>
+           </property>
+           <item>
+            <widget class="QedColorPicker" name="colorPicker" >
+             <property name="sizePolicy" >
+              <sizepolicy>
+               <hsizetype>0</hsizetype>
+               <vsizetype>0</vsizetype>
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize" >
+              <size>
+               <width>176</width>
+               <height>176</height>
+              </size>
+             </property>
+             <property name="maximumSize" >
+              <size>
+               <width>176</width>
+               <height>176</height>
+              </size>
+             </property>
+             <property name="frameShape" >
+              <enum>QFrame::Panel</enum>
+             </property>
+             <property name="frameShadow" >
+              <enum>QFrame::Sunken</enum>
+             </property>
+             <property name="lineWidth" >
+              <number>2</number>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QedColorLuminancePicker" native="1" name="luminancePicker" >
+             <property name="sizePolicy" >
+              <sizepolicy>
+               <hsizetype>0</hsizetype>
+               <vsizetype>0</vsizetype>
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize" >
+              <size>
+               <width>24</width>
+               <height>176</height>
+              </size>
+             </property>
+             <property name="maximumSize" >
+              <size>
+               <width>24</width>
+               <height>176</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <spacer>
+           <property name="orientation" >
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" >
+            <size>
+             <width>16</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
+       <item row="1" column="0" >
+        <layout class="QVBoxLayout" >
+         <property name="margin" >
+          <number>0</number>
+         </property>
+         <property name="spacing" >
+          <number>6</number>
+         </property>
+         <item>
+          <layout class="QHBoxLayout" >
+           <property name="margin" >
+            <number>0</number>
+           </property>
+           <property name="spacing" >
+            <number>6</number>
+           </property>
+           <item>
+            <layout class="QGridLayout" >
+             <property name="margin" >
+              <number>0</number>
+             </property>
+             <property name="spacing" >
+              <number>6</number>
+             </property>
+             <item row="0" column="2" >
+              <widget class="QLabel" name="saturationTextLabel" >
+               <property name="font" >
+                <font>
+                 <pointsize>10</pointsize>
+                </font>
+               </property>
+               <property name="toolTip" >
+                <string>Saturation</string>
+               </property>
+               <property name="text" >
+                <string>S:</string>
+               </property>
+               <property name="alignment" >
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+               <property name="wordWrap" >
+                <bool>false</bool>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="0" >
+              <widget class="QLabel" name="redTextLabel" >
+               <property name="font" >
+                <font>
+                 <pointsize>10</pointsize>
+                </font>
+               </property>
+               <property name="toolTip" >
+                <string>Red</string>
+               </property>
+               <property name="text" >
+                <string>R:</string>
+               </property>
+               <property name="alignment" >
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+               <property name="wordWrap" >
+                <bool>false</bool>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="1" >
+              <widget class="QedColSpinBox" name="rEd" >
+               <property name="toolTip" >
+                <string>Red</string>
+               </property>
+               <property name="alignment" >
+                <set>Qt::AlignRight</set>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="5" >
+              <widget class="QedColSpinBox" name="bEd" >
+               <property name="toolTip" >
+                <string>Blue</string>
+               </property>
+               <property name="alignment" >
+                <set>Qt::AlignRight</set>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="0" >
+              <widget class="QLabel" name="hueTextLabel" >
+               <property name="font" >
+                <font>
+                 <pointsize>10</pointsize>
+                </font>
+               </property>
+               <property name="toolTip" >
+                <string>Hue</string>
+               </property>
+               <property name="text" >
+                <string>H:</string>
+               </property>
+               <property name="alignment" >
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+               <property name="wordWrap" >
+                <bool>false</bool>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="3" >
+              <widget class="QedColSpinBox" name="gEd" >
+               <property name="toolTip" >
+                <string>Green</string>
+               </property>
+               <property name="alignment" >
+                <set>Qt::AlignRight</set>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="4" >
+              <widget class="QLabel" name="blueTextLabel" >
+               <property name="font" >
+                <font>
+                 <pointsize>10</pointsize>
+                </font>
+               </property>
+               <property name="toolTip" >
+                <string>Blue</string>
+               </property>
+               <property name="text" >
+                <string>B:</string>
+               </property>
+               <property name="alignment" >
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+               <property name="wordWrap" >
+                <bool>false</bool>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="2" >
+              <widget class="QLabel" name="greenTextLabel" >
+               <property name="font" >
+                <font>
+                 <pointsize>10</pointsize>
+                </font>
+               </property>
+               <property name="toolTip" >
+                <string>Green</string>
+               </property>
+               <property name="text" >
+                <string>G:</string>
+               </property>
+               <property name="alignment" >
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+               <property name="wordWrap" >
+                <bool>false</bool>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="3" >
+              <widget class="QedColSpinBox" name="sEd" >
+               <property name="toolTip" >
+                <string>Saturation</string>
+               </property>
+               <property name="alignment" >
+                <set>Qt::AlignRight</set>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1" >
+              <widget class="QedColSpinBox" name="hEd" >
+               <property name="toolTip" >
+                <string>Hue</string>
+               </property>
+               <property name="whatsThis" >
+                <string/>
+               </property>
+               <property name="alignment" >
+                <set>Qt::AlignRight</set>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="5" >
+              <widget class="QedColSpinBox" name="vEd" >
+               <property name="toolTip" >
+                <string>Value</string>
+               </property>
+               <property name="alignment" >
+                <set>Qt::AlignRight</set>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="4" >
+              <widget class="QLabel" name="valueTextLabel" >
+               <property name="font" >
+                <font>
+                 <pointsize>10</pointsize>
+                </font>
+               </property>
+               <property name="toolTip" >
+                <string>Value</string>
+               </property>
+               <property name="text" >
+                <string>V:</string>
+               </property>
+               <property name="alignment" >
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+               <property name="wordWrap" >
+                <bool>false</bool>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <spacer>
+             <property name="orientation" >
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" >
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QGridLayout" >
+           <property name="margin" >
+            <number>0</number>
+           </property>
+           <property name="spacing" >
+            <number>6</number>
+           </property>
+           <item row="1" column="0" >
+            <widget class="QLabel" name="plotLabelLabel" >
+             <property name="toolTip" >
+              <string>Label to use in chart legend for the currently selected Chart Plot.</string>
+             </property>
+             <property name="whatsThis" >
+              <string>Label to use in chart legend for the currently selected Chart Plot.</string>
+             </property>
+             <property name="text" >
+              <string>Plot Label:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1" >
+            <widget class="QedColLineEdit" name="colorLineEdit" >
+             <property name="sizePolicy" >
+              <sizepolicy>
+               <hsizetype>0</hsizetype>
+               <vsizetype>0</vsizetype>
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="toolTip" >
+              <string>Color specification string (e.g. RGB hex value)</string>
+             </property>
+             <property name="whatsThis" >
+              <string>Directly edit the color specification string (e.g. RGB hex value) using this text box.  This color can then be used to set the color of the currently selected plot in the Chart Plots list using the left arrow button above.</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="0" >
+            <widget class="QLabel" name="plotColorLabel" >
+             <property name="toolTip" >
+              <string>Color specification string (e.g. RGB hex value)</string>
+             </property>
+             <property name="whatsThis" >
+              <string>Directly edit the color specification string (e.g. RGB hex value) using this text box.  This color can then be used to set the color of the currently selected plot in the Chart Plots list using the left arrow button above.</string>
+             </property>
+             <property name="text" >
+              <string>Plot Color:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="2" >
+            <spacer>
+             <property name="orientation" >
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" >
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item row="1" column="1" colspan="2" >
+            <widget class="QLineEdit" name="plotLabelLineEdit" >
+             <property name="toolTip" >
+              <string>Label to use in chart legend for the currently selected Chart Plot.</string>
+             </property>
+             <property name="whatsThis" >
+              <string>Label to use in chart legend for the currently selected Chart Plot.</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <spacer>
+           <property name="orientation" >
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" >
+            <size>
+             <width>20</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+   <item row="0" column="0" >
+    <layout class="QVBoxLayout" >
+     <property name="margin" >
+      <number>0</number>
+     </property>
+     <property name="spacing" >
+      <number>0</number>
+     </property>
+     <item>
+      <widget class="QTreeWidget" name="chartMetricsTreeWidget" >
+       <property name="sizePolicy" >
+        <sizepolicy>
+         <hsizetype>3</hsizetype>
+         <vsizetype>3</vsizetype>
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="font" >
+        <font>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
+       <property name="cursor" >
+        <cursor>0</cursor>
+       </property>
+       <property name="mouseTracking" >
+        <bool>true</bool>
+       </property>
+       <property name="whatsThis" >
+        <string>List of plots for either a new chart or the currently selected chart</string>
+       </property>
+       <property name="frameShape" >
+        <enum>QFrame::StyledPanel</enum>
+       </property>
+       <property name="verticalScrollBarPolicy" >
+        <enum>Qt::ScrollBarAsNeeded</enum>
+       </property>
+       <property name="alternatingRowColors" >
+        <bool>true</bool>
+       </property>
+       <property name="selectionMode" >
+        <enum>QAbstractItemView::ExtendedSelection</enum>
+       </property>
+       <property name="rootIsDecorated" >
+        <bool>false</bool>
+       </property>
+       <column>
+        <property name="text" >
+         <string>Chart Plots</string>
+        </property>
+       </column>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="chartMetricLineEdit" >
+       <property name="sizePolicy" >
+        <sizepolicy>
+         <hsizetype>7</hsizetype>
+         <vsizetype>0</vsizetype>
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="font" >
+        <font>
+         <pointsize>10</pointsize>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="whatsThis" >
+        <string>Displays the full metric name of the currently selected chart plot</string>
+       </property>
+       <property name="text" >
+        <string/>
+       </property>
+       <property name="readOnly" >
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="1" column="0" colspan="2" >
+    <layout class="QHBoxLayout" >
+     <property name="margin" >
+      <number>0</number>
+     </property>
+     <property name="spacing" >
+      <number>6</number>
+     </property>
+     <item>
+      <spacer>
+       <property name="orientation" >
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeType" >
+        <enum>QSizePolicy::Expanding</enum>
+       </property>
+       <property name="sizeHint" >
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="buttonApply" >
+       <property name="text" >
+        <string>&amp;Apply</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer" >
+       <property name="orientation" >
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeType" >
+        <enum>QSizePolicy::Fixed</enum>
+       </property>
+       <property name="autoDefault" >
+        <bool>true</bool>
+       </property>
+       <property name="sizeHint" >
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="buttonOk" >
+       <property name="text" >
+        <string>&amp;OK</string>
+       </property>
+       <property name="shortcut" >
+        <string/>
+       </property>
+       <property name="autoDefault" >
+        <bool>true</bool>
+       </property>
+       <property name="default" >
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="buttonCancel" >
+       <property name="text" >
+        <string>&amp;Cancel</string>
+       </property>
+       <property name="shortcut" >
+        <string/>
+       </property>
+       <property name="autoDefault" >
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QedColorShowLabel</class>
+   <extends>QFrame</extends>
+   <header>qed_colorpicker.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QedColLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>qed_colorpicker.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QedColSpinBox</class>
+   <extends>QSpinBox</extends>
+   <header>qed_colorpicker.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QedColorLuminancePicker</class>
+   <extends>QWidget</extends>
+   <header>qed_colorpicker.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QedColorPicker</class>
+   <extends>QFrame</extends>
+   <header>qed_colorpicker.h</header>
+  </customwidget>
+ </customwidgets>
+ <includes>
+  <include location="local" >chart.h</include>
+  <include location="local" >namespace.h</include>
+  <include location="local" >qed_colorpicker.h</include>
+ </includes>
+ <resources>
+  <include location="pmchart.qrc" />
+ </resources>
+ <connections>
+  <connection>
+   <sender>buttonApply</sender>
+   <signal>clicked()</signal>
+   <receiver>ChartDialog</receiver>
+   <slot>buttonApply_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonOk</sender>
+   <signal>clicked()</signal>
+   <receiver>ChartDialog</receiver>
+   <slot>buttonOk_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonCancel</sender>
+   <signal>clicked()</signal>
+   <receiver>ChartDialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>metricInfoButton</sender>
+   <signal>clicked()</signal>
+   <receiver>ChartDialog</receiver>
+   <slot>metricInfoButtonClicked()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>metricDeleteButton</sender>
+   <signal>clicked()</signal>
+   <receiver>ChartDialog</receiver>
+   <slot>metricDeleteButtonClicked()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>metricAddButton</sender>
+   <signal>clicked()</signal>
+   <receiver>ChartDialog</receiver>
+   <slot>metricAddButtonClicked()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>sourceButton</sender>
+   <signal>clicked()</signal>
+   <receiver>ChartDialog</receiver>
+   <slot>sourceButtonClicked()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>applyColorButton</sender>
+   <signal>clicked()</signal>
+   <receiver>ChartDialog</receiver>
+   <slot>applyColorButtonClicked()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>revertColorButton</sender>
+   <signal>clicked()</signal>
+   <receiver>ChartDialog</receiver>
+   <slot>revertColorButtonClicked()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>legendOn</sender>
+   <signal>clicked()</signal>
+   <receiver>ChartDialog</receiver>
+   <slot>legendOnClicked()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>legendOff</sender>
+   <signal>clicked()</signal>
+   <receiver>ChartDialog</receiver>
+   <slot>legendOffClicked()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>autoScaleOn</sender>
+   <signal>clicked()</signal>
+   <receiver>ChartDialog</receiver>
+   <slot>autoScaleOnClicked()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>autoScaleOff</sender>
+   <signal>clicked()</signal>
+   <receiver>ChartDialog</receiver>
+   <slot>autoScaleOffClicked()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>yAxisMinimum</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>ChartDialog</receiver>
+   <slot>yAxisMinimumValueChanged(double)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>yAxisMaximum</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>ChartDialog</receiver>
+   <slot>yAxisMaximumValueChanged(double)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>rateConvertCheckBox</sender>
+   <signal>clicked()</signal>
+   <receiver>ChartDialog</receiver>
+   <slot>rateConvertClicked()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>plotLabelLineEdit</sender>
+   <signal>editingFinished()</signal>
+   <receiver>ChartDialog</receiver>
+   <slot>plotLabelLineEdit_editingFinished()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>471</x>
+     <y>295</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>302</x>
+     <y>213</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>metricSearchButton</sender>
+   <signal>clicked()</signal>
+   <receiver>ChartDialog</receiver>
+   <slot>metricSearchButtonClicked()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>303</x>
+     <y>118</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>302</x>
+     <y>213</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>colorSchemeComboBox</sender>
+   <signal>currentIndexChanged(int)</signal>
+   <receiver>ChartDialog</receiver>
+   <slot>colorSchemeComboBox_currentIndexChanged(int)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>464</x>
+     <y>131</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>302</x>
+     <y>213</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>availableMetricsTreeWidget</sender>
+   <signal>doubleClicked(QModelIndex)</signal>
+   <receiver>ChartDialog</receiver>
+   <slot>availableMetricsTreeWidget_doubleClicked(QModelIndex)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>334</x>
+     <y>48</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>305</x>
+     <y>213</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>antiAliasingOn</sender>
+   <signal>clicked()</signal>
+   <receiver>ChartDialog</receiver>
+   <slot>antiAliasingOnClicked()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>425</x>
+     <y>194</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>305</x>
+     <y>228</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>antiAliasingOff</sender>
+   <signal>clicked()</signal>
+   <receiver>ChartDialog</receiver>
+   <slot>antiAliasingOffClicked()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>492</x>
+     <y>194</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>305</x>
+     <y>228</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>antiAliasingAuto</sender>
+   <signal>clicked()</signal>
+   <receiver>ChartDialog</receiver>
+   <slot>antiAliasingAutoClicked()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>560</x>
+     <y>194</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>305</x>
+     <y>228</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

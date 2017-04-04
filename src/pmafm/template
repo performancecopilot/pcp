@@ -1,0 +1,49 @@
+PCPFolio
+Version: 1
+
+Created: on hostname at ctime	#abitrary string
+Creator: pmchart [config]
+
+# use pmfolio(1) to process this PCP Archive Folio
+#
+
+# Notes
+#
+# 0. first two lines are "magic", and know to various scripts and
+#    tools
+#
+# 1. blank lines are skipped, # introduces a comment line ... more
+#    strictly, after the first two lines, only lines containing one
+#    of the magic keyword strings ("Created: ", "Creator: " and
+#    "Archive: " are ever looked at
+#
+# 2. in the Created: line, hostname should be the hostname where the
+#    creator pmlogger instances were running, and ctime should be
+#    the creator's local time in ctime(3) format ... both are for
+#    annotation, so do not worry too much about them ... pmfolio's
+#    "list" command echoes this line verbatim
+#
+# 3. [config] is optional, and if present is used to replay with the
+#    Creator using all of the archives in the folio ... e.g. pmchart's
+#    config file for all of the charts that were visible when "record"
+#    mode started.  Creator: is expected to be one of "pmchart",
+#    "pmview", or "cron.pmdaily" ... yes, this will happen!
+#
+# 4. for a Basename of eek, expect to find
+#	eek.meta
+#	eek.index
+#	eek.0
+#	eek.1, ...	[ maybe ]
+#	eek.pmlogger	[ maybe, pmlogger config used to create _this_ archive ]
+
+# 		Host			Basename
+#
+Archive:	gonzo			12345a
+Archive:	moomba.melbourne	12345b
+Archive:	bozo			/no/such/files
+Archive:	gonzo			/mylogs/gonzo/960619
+Archive:	gonzo			/mylogs/gonzo/960620
+Archive:	gonzo			/mylogs/gonzo/960621
+Archive:	gonzo			/mylogs/gonzo/960622
+Archive:	brutus			/mylogs/brutus/960624
+Archive:	brutus			/mylogs/brutus/960625

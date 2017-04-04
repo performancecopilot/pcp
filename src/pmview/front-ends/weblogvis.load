@@ -1,0 +1,103 @@
+#!/bin/sh
+# Copyright (c) 2001 Silicon Graphics, Inc.  All Rights Reserved.
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+
+# Load up a Web server to show off/QA weblogvis
+#
+
+tmp=/tmp/$$
+trap "rm -f $tmp.*; killall -9 load; exit" 0 1 2 3 15
+
+i=0
+
+# specular
+#
+cat >$tmp.$i <<End-of-File
+GET http://155.11.225.108/file8k.html
+GET http://155.11.225.108/file15k.html
+End-of-File
+webping -c $tmp.$i -I0 -q &
+i=`expr $i + 1`
+
+cat >$tmp.$i <<End-of-File
+GET http://155.11.225.108/file15k.html
+End-of-File
+webping -c $tmp.$i -I0 -q &
+i=`expr $i + 1`
+
+# specular IP alias
+#
+cat >$tmp.$i <<End-of-File
+GET http://155.11.225.118/file45k.html
+End-of-File
+webping -c $tmp.$i -I0 -q &
+i=`expr $i + 1`
+
+cat >$tmp.$i <<End-of-File
+GET http://155.11.225.118/file15k.html
+GET http://155.11.225.118/file45k.html
+End-of-File
+webping -c $tmp.$i -I0 -q &
+i=`expr $i + 1`
+
+cat >$tmp.$i <<End-of-File
+GET http://155.11.225.118/file45k.html
+End-of-File
+webping -c $tmp.$i -I0 -q &
+i=`expr $i + 1`
+
+# specular proxy
+#
+cat >$tmp.$i <<End-of-File
+GET http://boing/file15k.html
+End-of-File
+webping -c $tmp.$i -I0 -q -P specular:8080 &
+i=`expr $i + 1`
+
+cat >$tmp.$i <<End-of-File
+GET http://boing/file0k.html
+GET http://boing/file0k.html
+GET http://boing/file115k.html
+End-of-File
+webping -c $tmp.$i -I0 -q -P specular:8080 &
+i=`expr $i + 1`
+
+# specular socks
+#
+cat >$tmp.$i <<End-of-File
+GET http://155.11.225.108/file500k.html
+GET http://boing/file500k.html
+End-of-File
+webping -c $tmp.$i -I0 -q -S specular:8080 &
+i=`expr $i + 1`
+
+# specular ftp-socks
+#
+cat >$tmp.$i <<End-of-File
+GET ftp://155.11.225.108/pub/README
+End-of-File
+webping -c $tmp.$i -I0 -q -S specular:8080 &
+i=`expr $i + 1`
+
+# specular ftp
+#
+cat >$tmp.$i <<End-of-File
+GET ftp://155.11.225.108/pub/README
+End-of-File
+webping -c $tmp.$i -I0 -q &
+i=`expr $i + 1`
+
+wait

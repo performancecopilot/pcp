@@ -1,0 +1,283 @@
+#! /bin/sh
+# PCP QA Test No. 282
+# Error handling in $PCP_RC_DIR/pcp
+#
+# Copyright (c) 2014 Red Hat.
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+case $PCP_PLATFORM
+in
+    linux|darwin|solaris|freebsd)
+	;;
+    *)
+	_notrun "$PCP_PLATFORM is not yet supported in test $seq"
+	;;
+esac
+
+status=1	# failure is the default!
+_needclean=true
+sleepy=false
+
+LOCALHOST=`hostname`
+LOGGING_DIR=$PCP_LOG_DIR/pmlogger
+CHECK=`which pmlogger_check`
+[ -z "$CHECK" -o ! -x "$CHECK" ] && \
+    _notrun "Cannot find an executable pmlogger_check: \"$CHECK\""
+
+_poke_pmcd()
+{
+    $sudo $PCP_RC_DIR/pcp restart 2>&1 \
+    | tee -a $seq.full \
+    | sed \
+	-e '/ root .* .usr.etc.pmcd /s/.*/-- ps output line --/' \
+	-e '/UID .* PID /d' \
+	-e '/USER .* PID /d' \
+	-e "s/$LOCALHOST/HOST/g" \
+	-e 's|local:/*|HOST|g' \
+    | _filter_pcp_start \
+    | _filter_pmcd_log \
+    | _filter_cron_scripts \
+    | sed \
+	-e 's/\(install the pcp.sw.base\) .*/\1 ... PCP 2.0 or later .../' \
+	-e 's/.*\(consult PMLOGGER.CHECK(1), else\)/        ... \1/' \
+	-e '/root.*.PCP_BINADM_DIR.pmcd/s/.*/-- ps output line --/' \
+	-e '/pcp.*.PCP_BINADM_DIR.pmcd/s/.*/-- ps output line --/' \
+	-e '/^failed (status=1)/d' \
+	-e '/^Waiting for pmcd/s/\.\.\.[. ]*$/DOTS/' \
+	-e '/^$/d'
+
+    can_wait=5
+    i=0
+    while [ $i -lt $can_wait ]
+    do
+	clients=`pmprobe pmcd.numclients 2>/dev/null | sed -e 's/.* //'`
+	if [ $i -eq 0 ]
+	then
+	    echo >>$seq.full
+	    echo "+ pmprobe pmcd.numclients" >>$seq.full
+	    pmprobe pmcd.numclients >>$seq.full 2>&1
+	    echo "clients=\"$clients\"" >>$seq.full
+	fi
+	[ ! -z "$clients" ] && [ "$clients" -gt 0 ] && break
+	sleep 1
+	i=`expr $i + 1`
+    done
+    
+    $PCP_ECHO_PROG $PCP_ECHO_N "=== probe pmcd: ""$PCP_ECHO_C"
+    x=`pmprobe pmcd.control.debug 2>&1 | sed -e "s/$LOCALHOST/HOST/g" -e 's|local:/*|HOST|g'`
+    if [ "$x" = "pmcd.control.debug 1" ]
+    then
+	$PCP_ECHO_PROG OK
+    else
+	$PCP_ECHO_PROG "$x"
+    fi
+}
+
+_poke_pmcd_n_logger()
+{
+    pmafm $LOGGING_DIR/$LOCALHOST/Latest remove >$tmp.cmd 2>&1 \
+    && $sudo sh $tmp.cmd
+    _poke_pmcd
+
+    can_wait=5
+    i=0
+    while [ $i -lt $can_wait ]
+    do
+	if pmlc -P </dev/null 2>&1 | grep "Connected to.* pmlogger" >/dev/null
+	then
+	    sleep 2
+	    break
+	fi
+	sleep 2
+	i=`expr $i + 1`
+    done
+
+    $PCP_ECHO_PROG $PCP_ECHO_N "=== probe pmlogger: ""$PCP_ECHO_C"
+    x=`echo connect primary | pmlc 2>&1 | sed -e "s/$LOCALHOST/HOST/g" -e 's|local:/*|HOST|g'`
+    sleep 2
+    if [ -z "$x" ]
+    then
+	$PCP_ECHO_PROG OK
+    else
+	$PCP_ECHO_PROG "$x"
+        if $sleepy 
+        then
+            echo go check the logs while I wait a couple of minutes
+            sleep 240
+        fi
+    fi
+}
+
+_interrupt()
+{
+    status=1
+}
+
+_save_setup()
+{
+	for file in $PCP_PMCDCONF_PATH \
+		$CHECK $PCP_PMLOGGERCONTROL_PATH \
+		$PCP_PMLOGGEROPTIONS_PATH
+	do
+	    [ -f $file.$seq ] && $sudo rm -f $file.$seq
+	    [ -f $file ] && $sudo cp -p $file $file.$seq
+	done
+	for dir in $PCP_PMLOGGERCONTROL_PATH.d
+	do
+	    [ -d $dir.$seq ] && $sudo rm -fr $dir.$seq
+	    [ -d $dir ] && $sudo cp -a $dir $dir.$seq
+	done
+}
+
+_cleanup()
+{
+    trap "" 0 1 2 3 15
+    if $_needclean
+    then
+	echo
+	echo "Restore the state of the universe ..."
+	for file in $PCP_PMCDCONF_PATH \
+		$CHECK $PCP_PMLOGGERCONTROL_PATH \
+		$PCP_PMLOGGEROPTIONS_PATH
+	do
+	    if [ -f $file.$seq ]
+	    then
+		$sudo rm -f $file
+		$sudo cp -p $file.$seq $file
+		$sudo rm -f $file.$seq
+	    fi
+	done
+	for dir in $PCP_PMLOGGERCONTROL_PATH.d
+	do
+	    if [ -d $dir.$seq ]
+	    then
+		$sudo rm -fr $dir
+		$sudo cp -a $dir.$seq $dir
+		$sudo rm -fr $dir.$seq
+	    fi
+	done
+	[ -f $PCP_PMCD_PROG.$seq ] && \
+	$sudo mv -f $PCP_PMCD_PROG.$seq $PCP_PMCD_PROG
+
+	pmafm $LOGGING_DIR/$LOCALHOST/Latest remove >$tmp.cmd 2>&1 \
+	&& $sudo sh $tmp.cmd
+	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+	_wait_for_pmcd
+	_needclean=false
+    fi
+    $sudo rm -fr $tmp.*
+    exit $status
+}
+
+trap "_cleanup" 0
+trap "_interrupt; _cleanup" 1 2 3 15
+
+rm -f $seq.full
+touch $seq.full
+
+_exercise_rc_scripts()
+{
+    echo
+    echo '=== expect error: no $PCP_PMCDCONF_PATH ==='
+    $sudo rm -f $PCP_PMCDCONF_PATH
+    _poke_pmcd
+
+    if [ $PCP_PLATFORM = linux ]
+    then
+	cat <<End-of-File >$tmp.out
+# from qa/$seq
+linux	60	dso	linux_init	$PCP_PMDAS_DIR/linux/pmda_linux.so
+pmcd	2	dso	pmcd_init	$PCP_PMDAS_DIR/pmcd/pmda_pmcd.so
+End-of-File
+    elif [ $PCP_PLATFORM = darwin ]
+    then
+	cat <<End-of-File >$tmp.out
+# from qa/$seq
+darwin	78	dso	darwin_init	$PCP_PMDAS_DIR/darwin/pmda_darwin.dylib
+pmcd	2	dso	pmcd_init	$PCP_PMDAS_DIR/pmcd/pmda_pmcd.dylib
+End-of-File
+    elif [ $PCP_PLATFORM = solaris ]
+    then
+	cat <<End-of-File >$tmp.out
+# from qa/$seq
+solaris	75	dso	solaris_init	$PCP_PMDAS_DIR/solaris/pmda_solaris.so
+pmcd	2	dso	pmcd_init	$PCP_PMDAS_DIR/pmcd/pmda_pmcd.so
+End-of-File
+    elif [ $PCP_PLATFORM = freebsd ]
+    then
+	cat <<End-of-File >$tmp.out
+freebsd	85	dso	freebsd_init	$PCP_PMDAS_DIR/freebsd/pmda_freebsd.so
+pmcd	2	dso	pmcd_init	$PCP_PMDAS_DIR/pmcd/pmda_pmcd.so
+End-of-File
+    else
+	echo "Arrgh ... need pmcd.conf for $PCP_PLATFORM"
+	exit 1
+    fi
+
+    $sudo cp $tmp.out $PCP_PMCDCONF_PATH
+
+    echo
+    echo "=== simple case, no frills, no errors ==="
+    _poke_pmcd_n_logger
+
+    echo
+    echo "=== expected failure: a mere mortal ==="
+    osudo="$sudo"
+    sudo=''
+    _poke_pmcd
+    sudo="$osudo"
+    echo "=== start again ==="
+    _poke_pmcd_n_logger
+
+    echo 
+    echo "=== expect 2 x connect failure: pmcd is true(1), so hard for pmlogger ==="
+    $sudo mv -f $PCP_PMCD_PROG $PCP_PMCD_PROG.$seq
+    $sudo cp `which true` $PCP_PMCD_PROG
+    _poke_pmcd_n_logger
+    $sudo mv -f $PCP_PMCD_PROG.$seq $PCP_PMCD_PROG
+    echo "=== start again ==="
+    _poke_pmcd_n_logger
+
+    echo "=== expect difficulty terminating pmcd ... it has been sent a SIGSTOP ==="
+    pid=`_get_pids_by_name pmcd`
+    if [ -z "$pid" ]
+    then
+	echo "Arrgh ... cannot find PID for pmcd!"
+	ps $PCP_PS_ALL_FLAGS
+	exit
+    fi
+    #DEBUG# ps $PCP_PS_ALL_FLAGS
+
+    $sudo kill -STOP $pid
+    _poke_pmcd
+
+    echo 
+    echo "=== expect warning: PMLOGGER.CHECK moved, so no pmlogger ==="
+    $sudo rm $CHECK 
+    _poke_pmcd_n_logger
+    $sudo cp -p $CHECK.$seq $CHECK
+    _disable_loggers
+
+    echo 
+    echo "=== expect error: pmlogger/control moved, so no pmlogger ==="
+    $sudo rm -f $PCP_PMLOGGERCONTROL_PATH
+    _poke_pmcd_n_logger
+}
+
+# real QA test starts here
+_save_setup
+_disable_loggers
+_exercise_rc_scripts
+
+# success, all done
+status=0
+exit

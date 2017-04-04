@@ -1,0 +1,242 @@
+#!/bin/sh
+# PCP QA Test No. 738
+# Exercise pmlogmv
+#
+# Copyright (c) 2014 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+mkdir $tmp
+cd $tmp
+trap "cd $here; rm -rf $tmp.* $tmp; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    # there are a lot of bizarre quoting variants for ln(1) and rm(1)
+    # error messages!
+    sed \
+	-e '/^[rwx.-]* /s/.* /... ls data ... /' \
+	-e 's/`'"/'/g" \
+	-e 's/‘'"/'/g" \
+	-e 's/’'"/'/g" \
+	-e '/^ln: .*Permission/{
+s/creating hard link //
+s/failed to create hard link //
+'"s/' to '/' => '/"'
+'"s/'.* => '//"'
+'"s/'//g"'
+s@new/@@
+}' \
+	-e '/^rm: .*Permission/{
+s/cannot remove //
+'"s/'//g"'
+}' \
+    | _filter_ls
+}
+
+# ls(1) does not have the same format for error messages, sigh.
+#
+# Note on second sed expression ... need to handle GNU coreutils
+# brain damage from newer versions of ls(1) and remove ' quotes
+# from lines like ...
+# ls: cannot access 'foo*': No such file or directory
+#
+_filter_ls()
+{
+    sed \
+	-e '/ls: [^ ]*\*: No such/s/ls: /ls: cannot access /' \
+	-e "/: No such file /s/ '\([^']*\)': No/ \1: No/" \
+    # done
+}
+
+# real QA test starts here
+#
+
+echo "=== Usage, no input files, incomplete input archive ==="
+pmlogmv
+sts=$?
+[ $sts -eq 0 ] || echo exit status $sts
+pmlogmv foo
+sts=$?
+[ $sts -eq 0 ] || echo exit status $sts
+pmlogmv foo bar
+sts=$?
+[ $sts -eq 0 ] || echo exit status $sts
+cp $here/tmparch/foo.0 .
+pmlogmv foo bar >$tmp.out 2>&1
+sts=$?
+_filter <$tmp.out
+[ $sts -eq 0 ] || echo exit status $sts
+rm foo.0
+cp $here/tmparch/foo.meta .
+pmlogmv foo bar >$tmp.out 2>&1
+sts=$?
+_filter <$tmp.out
+[ $sts -eq 0 ] || echo exit status $sts
+rm -f foo.* bar.*
+
+echo
+echo "=== non-pcp archives and output files already exist ==="
+cp $here/tmparch/foo.* .
+touch foo.frog
+pmlogmv -V foo bar >$tmp.out 2>&1
+sts=$?
+_filter <$tmp.out
+[ $sts -eq 0 ] || echo exit status $sts
+ls foo* bar* 2>&1 | _filter_ls
+rm -f foo.* bar.*
+cp $here/tmparch/foo.* .
+for i in 0 index meta
+do
+    echo "--- bar.$i already exists ---"
+    cp $here/tmparch/bar.$i .
+    pmlogmv -V foo bar >$tmp.out 2>&1
+    sts=$?
+    _filter <$tmp.out
+    [ $sts -eq 0 ] || echo exit status $sts
+    ls foo* bar* 2>&1 | _filter_ls
+    rm bar.$i
+done
+rm -f foo.* bar.*
+
+echo
+echo "=== simplest case ==="
+cp $here/tmparch/foo.* .
+pmlogmv -NV foo bar >$tmp.out 2>&1
+sts=$?
+_filter <$tmp.out
+[ $sts -eq 0 ] || echo exit status $sts
+pmlogmv -V foo bar >$tmp.out 2>&1
+sts=$?
+_filter <$tmp.out
+[ $sts -eq 0 ] || echo exit status $sts
+for part in 0 index meta
+do
+    if cmp $here/tmparch/foo.$part bar.$part
+    then
+	:
+    else
+	echo "Arrgh ... input foo.$part not the same as output bar.$part"
+	ls -l $here/tmparch/foo.$part bar.$part
+    fi
+done
+ls foo* bar* 2>&1 | _filter_ls
+rm -f foo.* bar.*
+
+echo
+echo "=== single oldfile name cases ==="
+for ext in meta 0 index
+do
+    echo "--- foo.$ext ---"
+    cp $here/tmparch/foo.* .
+    pmlogmv -V foo.$ext bar >$tmp.out 2>&1
+    sts=$?
+    _filter <$tmp.out
+    [ $sts -eq 0 ] || echo exit status $sts
+    for part in 0 index meta
+    do
+	if cmp $here/tmparch/foo.$part bar.$part
+	then
+	    :
+	else
+	    echo "Arrgh ... input foo.$part not the same as output bar.$part"
+	    ls -l $here/tmparch/foo.$part bar.$part
+	fi
+    done
+    ls foo* bar* 2>&1 | _filter_ls
+    rm -f foo.* bar.*
+done
+
+echo
+echo "=== multi-volume case ==="
+cp $here/tmparch/mv-foo.* .
+cp mv-foo.2 mv-foo.123456789
+pmlogmv -V mv-foo bar >$tmp.out 2>&1
+sts=$?
+_filter <$tmp.out
+[ $sts -eq 0 ] || echo exit status $sts
+for opart in 0 1 2 123456789 index meta
+do
+    npart=$opart
+    [ "$opart" = 123456789 ] && opart=2
+    if cmp $here/tmparch/mv-foo.$opart bar.$npart
+    then
+	:
+    else
+	echo "Arrgh ... input mv-foo.$opart not the same as output bar.$npart"
+	ls -l $here/tmparch/mv-foo.$opart bar.$npart
+    fi
+done
+ls foo* bar* 2>&1 | _filter_ls
+rm -f foo.* bar.*
+
+echo
+echo "=== old and new in different directories =="
+mkdir new
+cp $here/tmparch/mv-foo.* .
+pmlogmv -V mv-foo new/mv-foo >$tmp.out 2>&1
+sts=$?
+_filter <$tmp.out
+[ $sts -eq 0 ] || echo exit status $sts
+for part in 0 1 2 index meta
+do
+    if cmp $here/tmparch/mv-foo.$part new/mv-foo.$part
+    then
+	:
+    else
+	echo "Arrgh ... input mv-foo.$part not the same as output new/mv-foo.$part"
+	ls -l $here/tmparch/mv-foo.$part new/mv-foo.$part
+    fi
+done
+ls foo* new/* 2>&1 | _filter_ls
+rm -rf foo.* new
+
+echo
+echo "=== error case for ln failing ==="
+mkdir new
+chmod u-w,g-w,o-w new
+cp $here/tmparch/mv-foo.* .
+pmlogmv -V mv-foo new/mv-foo >$tmp.out 2>&1
+sts=$?
+_filter <$tmp.out
+[ $sts -eq 0 ] || echo exit status $sts
+ls mv-foo* new/* 2>&1 | _filter_ls
+rm -rf foo.* new
+
+echo
+echo "=== error case for rm failing ==="
+mkdir new
+chmod u-w,g-w,o-w .
+cp $here/tmparch/mv-foo.* .
+pmlogmv -V mv-foo new/mv-foo >$tmp.out 2>&1
+sts=$?
+_filter <$tmp.out
+[ $sts -eq 0 ] || echo exit status $sts
+ls mv-foo* new/* 2>&1 | _filter_ls
+chmod u+w,g+w,o+w .
+rm -rf mv-foo.* new
+
+echo
+echo "=== Frank's error case rm failing after first file ==="
+cp $here/tmparch/mv-foo.* .
+ln mv-foo.2 mv-foo.3
+pmlogmv -V mv-foo mv-bar >$tmp.out 2>&1
+sts=$?
+_filter <$tmp.out
+[ $sts -eq 0 ] || echo exit status $sts
+ls mv-foo* mv-bar* 2>&1 | _filter_ls
+rm -rf mv-foo.* mv-bar.*
+
+# success, all done
+status=0
+
+exit

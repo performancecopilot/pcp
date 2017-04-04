@@ -1,0 +1,6 @@
+#kmchart
+version 1
+
+chart title "Logical Swap Allocation [%h]" style stacking
+	optional-plot legend "Free" color #16e116 metric swap.free
+	optional-plot legend "Used" color #e71717 metric swap.used

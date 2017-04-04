@@ -1,0 +1,81 @@
+#pmieconf-rules 1
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(5)
+# 
+
+rule	memory.exhausted
+	summary	= "$rule$"
+	# first conjunct for %v, second is real condition...
+	predicate =
+"some_host (
+    ( avg_sample ( swap.pagesout $hosts$ @0..9 ) ) > 0 &&
+    $pct$ %_sample swap.pagesout $hosts$ @0..9 >= $threshold$
+)"
+	enabled	= yes
+	version	= 1
+	help	=
+"The system is swapping modified pages out of main memory to the
+swap partitions, and has been doing this at the rate of at least
+threshold pages swapped out per second for at least pct of the last
+10 samples, ie. sustained page out activity.";
+
+double	threshold
+	default	= 5
+	help	=
+"Threshold rate of pages swapped out per second.";
+
+percent	pct
+	default	= 30
+	help	=
+"Percentage of the last 10 observations with at least threshold
+pages swapped out per second required to make the rule true.";
+
+string	rule
+	default	= "Severe demand for real memory"
+	modify	= no
+	display	= no;
+
+string	action_expand
+	default	= "%vpgsout/s@%h"
+	modify	= no
+	display	= no;
+
+string	email_expand
+	default	= "host: %h recent average: %v pageouts/sec"
+	display	= no
+	modify	= no;
+
+
+# Configuration info specific to non-PCP tools follows...
+# 
+
+# for SGI Embedded Support Partner integration:
+string	esp_type
+	default	= "0x20004B"
+	display	= no
+	modify	= no;
+
+# for HP OpenView integration:
+string	ov_severity
+	display	= no
+	default	= "Critical";
+
+# for CA/Unicenter TNG integration:
+string	tngfw_color
+	display	= no
+	default	= "Red";
+
+# for EnlightenDSM integration:
+string	enln_test
+	default	= memory.exhausted
+	display	= no
+	modify = no;
+string	enln_units
+	default	= pgsout/s
+	display	= no
+	modify = no;
+unsigned	enln_severity
+	display = no
+	default = 5;
+
+# 
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(5)

@@ -1,0 +1,94 @@
+#!/bin/sh
+# PCP QA Test No. 378
+#
+# pmie with multiple -a arguments
+# - problem reported by Jason Rappleye @ NASA
+#
+# Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_filter()
+{
+    sed -e '/ Info: evaluator exiting/d'
+}
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+echo "just one archive (kenj-pc-1) ..."
+cat <<End-of-File \
+| pmie -z -A 1min -t 60 -a archives/kenj-pc-1 2>&1 \
+| _filter
+kernel.all.load #'1 minute' > 1.5 -> print "%h: %v";
+End-of-File
+
+echo
+echo "expect error as same host ..."
+cat <<End-of-File \
+| pmie -z -A 1min -t 60 -a archives/kenj-pc-1 -a archives/kenj-pc-2 2>&1 \
+| _filter
+kernel.all.load #'1 minute' > 1.5 -> print "%h: %v";
+End-of-File
+
+echo
+echo "other archive (naslog) ..."
+cat <<End-of-File \
+| pmie -z -A 1min -t 60 -a archives/naslog 2>&1 \
+| _filter
+kernel.all.load #'1 minute' > 1.5 -> print "%h: %v";
+End-of-File
+
+echo
+echo "and now together kenj-pc-1 first ..."
+cat <<End-of-File \
+| pmie -z -A 1min -t 60 -a archives/kenj-pc-1 -a archives/naslog 2>&1 \
+| _filter
+kernel.all.load #'1 minute' > 1.5 -> print "%h: %v";
+End-of-File
+
+echo
+echo "and now together naslog first ..."
+cat <<End-of-File \
+| pmie -z -A 1min -t 60 -a archives/naslog -a archives/kenj-pc-1 2>&1 \
+| _filter
+kernel.all.load #'1 minute' > 1.5 -> print "%h: %v";
+End-of-File
+
+echo
+echo "two rules, host-specific (naslog first) ..."
+cat <<End-of-File \
+| pmie -z -A 1min -t 60 -a archives/naslog -a archives/kenj-pc-1 2>&1 \
+| _filter
+kernel.all.load :'kenj-pc' #'1 minute' > 1.5 -> print "%h: %v";
+kernel.all.load :snort #'1 minute' > 1.5 -> print "%h: %v";
+End-of-File
+
+echo
+echo "and now with some_host ... only one value ever available, so >"
+echo "condition is always false and some_host never gets a chance"
+echo "... expect no output"
+cat <<End-of-File \
+| pmie -z -A 1min -t 60 -a archives/naslog -a archives/kenj-pc-1 2>&1 \
+| _filter
+some_host ( kernel.all.load :'kenj-pc' :snort  #'1 minute' ) > 1.5 -> print "%h: %v";
+End-of-File
+
+echo
+echo "... and it does not matter which order the archives are given"
+cat <<End-of-File \
+| pmie -z -A 1min -t 60 -a archives/kenj-pc-1 -a archives/naslog 2>&1 \
+| _filter
+some_host ( kernel.all.load :'kenj-pc' :snort  #'1 minute' ) > 1.5 -> print "%h: %v";
+End-of-File
+
+# success, all done
+exit

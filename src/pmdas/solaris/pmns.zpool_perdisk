@@ -1,0 +1,16 @@
+zpool.perdisk {
+	state		SOLARIS:SCLR_ZPOOL_PERDISK:0
+	state_int	SOLARIS:SCLR_ZPOOL_PERDISK:1
+	checksum_errors	SOLARIS:SCLR_ZPOOL_PERDISK:2
+	self_healed	SOLARIS:SCLR_ZPOOL_PERDISK:3
+	in
+	out
+}
+
+zpool.perdisk.in {
+	errors		SOLARIS:SCLR_ZPOOL_PERDISK:4
+}
+
+zpool.perdisk.out {
+	errors		SOLARIS:SCLR_ZPOOL_PERDISK:5
+}

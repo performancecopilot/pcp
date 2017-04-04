@@ -1,0 +1,18 @@
+QA output created by 823
+Creating temporary sasldb, add user running QA to it
+Verify saslpasswd2 has successfully added a new user
+USER@HOST: userPassword
+Ensure pmcd can read the password file
+Start pmcd with this shiny new sasldb
+Enabling sample PMDA tracing
+sample.control old value=0 new value=16777216
+Verifying SASL authentication for new client (FAIL)
+sample.control -21357 Authentication - authentication failure
+Verifying SASL authentication for new client (PASS)
+sample.control 1 16777216
+[DATETIME] pmdasample(PID) Info: Attribute: ctx=N groupid=GID
+[DATETIME] pmdasample(PID) Info: Attribute: ctx=N userid=UID
+[DATETIME] pmdasample(PID) Info: Attribute: ctx=N username=USER
+Waiting for pmcd to terminate ...
+Starting pmcd ... 
+Starting pmlogger ... 

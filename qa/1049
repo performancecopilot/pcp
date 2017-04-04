@@ -1,0 +1,57 @@
+#! /bin/sh
+# PCP QA Test No. 1049 (formerly 552)
+# make sure that installed pmie rule files are syntactically OK.
+#
+# Copyright (c) 2015 Red Hat.
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ -f $PCP_PMDAS_DIR/shping/pmdashping ] || _notrun "shping pmda not installed"
+[ -f $PCP_PMDAS_DIR/cisco/pmdacisco ] || _notrun "cisco pmda not installed"
+[ -f $PCP_PMDAS_DIR/dm/pmdadm ] || _notrun "dm pmda not installed"
+which pmieconf >/dev/null 2>&1 || _notrun "No pmieconf binary installed"
+
+status=1	# failure is the default!
+username=`id -u -n`
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# Some metrics unavailable by default, so skip the associated rules
+#
+cat >$tmp.cmd <<EOF
+modify all enabled yes
+modify shping enabled no
+modify cisco enabled no
+modify dmthin enabled no
+EOF
+
+# real QA test starts here
+echo "running pmieconf with default rules..."
+( cat $tmp.cmd; echo quit ) | pmieconf -f $tmp.eek
+echo "status=$?"
+
+echo "running pmie..."
+pmieargs="-C"
+id pcp >/dev/null 2>&1 && pmieargs="$pmieargs -U $username"
+pmie $pmieargs -c $tmp.eek -l $tmp.pmielog
+echo "status=$?"
+echo "pmie log file..."
+cat $tmp.pmielog | _filter_pmie_log
+
+echo "--- pmieconf input ---" >$seq.full
+cat $tmp.cmd >>$seq.full
+echo "--- pmie input ---" >>$seq.full
+cat $tmp.eek >>$seq.full
+echo "--- pmie output ---" >>$seq.full
+cat $tmp.pmielog >>$seq.full
+
+# success, all done
+status=0
+exit

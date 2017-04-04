@@ -1,0 +1,90 @@
+#!/bin/sh
+# PCP QA Test No. 493
+# pmlogrewrite serious rewriting cases
+#
+# Copyright (c) 2011 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+which pmlogrewrite >/dev/null 2>&1 || _notrun "pmlogrewrite not installed"
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s;$tmp;TMP;g" \
+	-e "s/^\([+-][+-][+-] TMP\...t*\).*/\1/"
+}
+
+_cmp()
+{
+    if [ ! -f "$1.0" ]
+    then
+	echo "Arrgh ... $1.0 missing" | _filter
+	return
+    fi
+    if [ ! -f "$2.0" ]
+    then
+	echo "Arrgh ... $2.0 missing" | _filter
+	return
+    fi
+    pmval -zr -f 1 -w 12 -U $1 $3 2>$tmp.err | tee -a $seq.full | _filter >$tmp.in
+    cat $tmp.err >>$seq.full
+    pmval -zr -f 1 -w 12 -U $2 $3 2>$tmp.err | tee -a $seq.full | _filter >$tmp.out
+    cat $tmp.err >>$seq.full
+    echo
+    echo "=== pmval $3 diffs ==="
+    diff -u $tmp.in $tmp.out | _filter
+}
+
+# real QA test starts here
+
+cat <<End-of-File >$tmp.conf
+metric sample.ulong.bin_ctr {
+    indom -> NULL output MIN
+    type -> DOUBLE
+    units -> 1,0,0,BYTE,0,0
+}
+metric sample.ulonglong.bin_ctr {
+    indom -> NULL output MAX
+    type -> 32
+    units -> 1,0,0,BYTE,0,0
+}
+metric sampledso.double.bin_ctr {
+    indom -> NULL output AVG
+    type -> FLOAT
+}
+metric sample.float.bin_ctr {
+    indom -> NULL output SUM
+    type -> U64
+}
+metric sample.longlong.bin_ctr {
+    indom -> NULL output FIRST
+    type -> 64
+    units -> 1,-1,0,KBYTE,SEC,0
+}
+indom 29.2 { inst 200 -> DELETE }
+indom 30.2 { inst 800 -> DELETE }
+End-of-File
+rm -f $tmp.new.*
+cat $tmp.conf >>$seq.full
+pmlogrewrite -ws -c $tmp.conf archives/rewrite $tmp.new 2>$tmp.err | _filter
+cat $tmp.err >>$seq.full
+for m in sample.ulong.bin_ctr sample.ulonglong.bin_ctr \
+    sampledso.double.bin_ctr sample.float.bin_ctr sample.longlong.bin_ctr
+do
+    _cmp archives/rewrite $tmp.new $m
+done
+
+# success, all done
+exit

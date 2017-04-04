@@ -1,0 +1,568 @@
+#!/bin/sh
+#
+# Copyright (c) 1995-2000,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+# 
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+# 
+
+# Get standard environment
+. $PCP_DIR/etc/pcp.env
+
+_usage()
+{
+    echo "Usage: pmafm folioname [command [arg ...]]"
+}
+
+_help()
+{
+    echo \
+'PCP Archive Folio Manager
+
+Commands:
+  archives		- select all archives
+  archives N[,...]	- select archives with these ordinal numbers
+  archives name[,...]	- select archives with these names
+  check			- integrity check for folio
+  help			- this message
+  hosts 		- select archives for all hosts (the default)
+  hosts hostname[,...]	- select archives for just these hosts
+  list [verbose]	- display folio contents
+  quit			- exit
+  remove		- echo the sh(1) command to delete all files
+			  associated with the folio
+  repeat tool [arg ...]	- execute a known PCP tool on each archive in turn
+  replay		- replay archives using the tool that created the folio
+  [run] tool [arg ...]	- execute a known PCP tool on the selected archives
+  selections		- list selected archives
+  
+Selection:
+  If specified, both the "archives" and the "hosts" selection criteria
+  are applied as a conjunction.'
+}
+
+if [ $# -lt 1 ]
+then
+    _usage 1>&2
+    exit 1
+fi
+
+if [ ! -f $1 ]
+then
+    if [ "X$1" = "X-?" -o "X$1" = "X--help" ]
+    then
+	_usage 1>&2
+	echo
+	_help 1>&2
+    else
+	echo "pmafm: cannot open folio \"$1\"" 1>&2
+    fi
+    exit 1
+fi
+
+_FOLIOPATH=`dirname $1`
+if [ "$_FOLIOPATH" = "." ]
+then
+    _FOLIOPATH=""
+elif [ -d $_FOLIOPATH ]
+then
+    _TMP=`pwd`
+    cd $_FOLIOPATH
+    _FOLIOPATH=`pwd`/
+    cd $_TMP
+fi
+_FOLIO="$1"
+_FOLIONAME=`basename $_FOLIO`
+
+# if file(1) worked everywhere we could use that ... sigh.
+#
+if grep '^PCPFolio' $1 >/dev/null && grep '^Version:' $1 >/dev/null
+then
+    :
+else
+    echo "pmafm: \"${_FOLIOPATH}$_FOLIONAME\" is not in PCP archive folio format" 1>&2
+    exit 1
+fi
+
+_HOSTS=""
+_ALL_HOSTS=`$PCP_AWK_PROG <$_FOLIO '$1 == "Archive:" { printf " %s",$2 }'; echo | sort -u`
+_ARCHIVES=""
+_ALL_ARCHIVES=`$PCP_AWK_PROG <$_FOLIO '$1 == "Archive:" { printf " %s",$3 }'; echo`
+_DEBUG=false
+export _DEBUG _FOLIO _HOSTS _ALL_HOSTS _ARCHIVES _ALL_ARCHIVES
+
+_SINGLE=""
+_MULTI=""
+_REPLAY=""
+_SPECIAL=""
+
+# collect names of known tools, and "run" scripts for each
+#
+for config in $PCP_VAR_DIR/config/pmafm/* $HOME/.pcp/pmafm/*
+do
+    if [ "$config" = $PCP_VAR_DIR/config/pmafm/'*' ]
+    then
+	echo "pmafm: Warning: no PCP tool configurations in $PCP_VAR_DIR/config/pmafm/"
+    elif [ "$config" = $HOME/.pcp/pmafm/'*' ]
+    then
+	# no user defined list of tools
+	:
+    else
+	SINGLE=""
+	MULTI=""
+	REPLAY=""
+	SPECIAL=""
+	. $config
+	[ ! -z "$SINGLE" ] && _SINGLE="$_SINGLE $SINGLE"
+	[ ! -z "$MULTI" ] && _MULTI="$_MULTI $MULTI"
+	[ ! -z "$REPLAY" ] && _REPLAY="$_REPLAY $REPLAY"
+	[ ! -z "$SPECIAL" ] && _SPECIAL="$_SPECIAL $SPECIAL"
+    fi
+done
+
+tmp=`mktemp -d /tmp/pcp.XXXXXXXXX` || exit 1
+trap "rm -rf $tmp; exit" 0 1 2 3 15
+
+# check for magic numbers in a file that indicate it is a PCP archive
+#
+# if file(1) was reliable, this would be much easier, ... sigh
+#
+# if you need to change this, make consistent changes in all these
+# places:
+#	_check_file() in src/pmafm/mkaf
+#	_is_archive() in src/pmafm/pmafm
+#	_is_archive() in src/pmview/front-ends/pmview-args
+#
+_check_file()
+{
+    if [ ! -f "$1" ]
+    then
+	echo "No such file: $1" >>$tmp/base
+    else
+	dd ibs=1 count=7 if="$1" 2>/dev/null | od -X | $PCP_AWK_PROG '
+BEGIN						{ sts = 1 }
+NR == 1 && NF == 5 && $2 == "0000" && $3 == "0084" && $4 == "5005" && $5 == "2600" { sts = 0 }
+NR == 1 && NF == 5 && $2 == "0000" && $3 == "8400" && $4 == "0550" && $5 == "0026" { sts = 0 }
+NR == 1 && NF == 3 && $2 == "00000084" && $3 == "50052600" { sts = 0 }
+NR == 1 && NF == 3 && $2 == "84000000" && $3 == "00260550" { sts = 0 }
+END						{ exit sts }'
+	if [ $? -eq 1 ]
+	then
+	    echo "Not a PCP archive file: $1" >>$tmp/base
+	fi
+    fi
+}
+
+_check()
+{
+    sed -n '/^Archive:/p' <$_FOLIO \
+    | while read xxx host arch
+    do
+	rm -f $tmp/base
+	path=`_fix_arch_path "" $arch`
+	$PCP_ECHO_PROG $PCP_ECHO_N "Archive: $path ... ""$PCP_ECHO_C"
+	_check_file $path.index
+	_check_file $path.meta
+	_check_file $path.0
+	if [ ! -s $tmp/base ]
+	then
+	    realhost=`pmdumplog -l $path | sed -n -e '/^Performance metrics/s/.* host //p'`
+	    [ "X$host" != "X$realhost" ] && \
+		echo "Hostname mismatch: folio=$host archive=$realhost" >>$tmp/base
+	fi
+	if [ -s $tmp/base ]
+	then
+	    echo "Errors"
+	    sed -e 's/^/	/' $tmp/base
+	else
+		echo "OK"
+	fi
+    done
+}
+
+_dir()
+{
+    echo
+    echo "PCP Archive Folio: $_FOLIONAME"
+    [ ! -z "$_FOLIOPATH" ] && echo "Folio Directory: $_FOLIOPATH"
+    $PCP_AWK_PROG <$_FOLIO '
+$1 == "Created:"	{ print; next }
+$1 == "Creator:"	{ print; next }'
+    echo
+    echo "Ordinal Hostname             Archive Basename"
+    i=1
+    sed -n '/^Archive:/p' $_FOLIO \
+    | while read xxx host archive
+    do
+	printf "  [%3s] %-20s %s\n" $i $host $archive
+	[ "X$1" = "Xverbose" ] && pmdumplog -l `_fix_arch_path "" $archive` | sed -e 's/^/	/'
+	i=`expr $i + 1`
+    done
+}
+
+# $1 is separater
+#
+_fix_arch_path()
+{
+    sep="$1"
+    shift
+    archlist=""
+    for arch
+    do
+	if [ ! -z "$_FOLIOPATH" ]
+	then
+	    case $arch
+	    in
+		/*)
+		    ;;
+		*)
+		    arch=${_FOLIOPATH}$arch
+		    ;;
+	    esac
+	fi
+	if [ -z "$archlist" ]
+	then
+	    archlist="$arch"
+	else
+	    archlist="${archlist}${sep}$arch"
+	fi
+    done
+
+    echo $archlist
+}
+
+_get_archlist()
+{
+    if [ -z "$_ARCHIVES" ]
+    then
+	archlist="$_ALL_ARCHIVES"
+    else
+	archlist="$_ARCHIVES"
+    fi
+
+    if [ ! -z "$_HOSTS" ]
+    then
+	newlist=""
+	for arch in $archlist
+	do
+	    host=`$PCP_AWK_PROG <$_FOLIO '$3 == "'$arch'" { print $2; exit }'`
+	    if echo "$_HOSTS " | grep " $host " >/dev/null
+	    then
+		newlist="$newlist $arch"
+	    fi
+	done
+	archlist=$newlist
+    fi
+
+    echo $archlist
+}
+
+_replay()
+{
+    _CREATOR=""
+    _REPLAY_CONFIG=""
+    eval `sed -n <$_FOLIO -e '/^Creator:/{
+s/Creator:[ 	]*//
+s/^/_CREATOR=/
+s/[ 	][ 	]*/ _REPLAY_CONFIG=/
+p
+}'`
+    if [ -z "$_CREATOR" ]
+    then
+	echo "Error: cannot determine folio creator"
+	return
+    else
+	if [ ! -z "$_REPLAY_CONFIG" ]
+	then
+	    _REPLAY_CONFIG=`_fix_arch_path "" "$_REPLAY_CONFIG"`
+	    echo "Configuration File: $_REPLAY_CONFIG"
+	    if [ ! -f "$_REPLAY_CONFIG" ]
+	    then
+		echo "Error: cannot find Configuration File"
+		return
+	    fi
+	fi
+    fi
+
+    if echo "$_REPLAY " | grep " $_CREATOR " >/dev/null
+    then
+    	if [ -z "$_REPLAY_CONFIG" ]
+	then
+	    _run $_CREATOR
+	else
+	    _run $_CREATOR -c $_REPLAY_CONFIG
+	fi
+    else
+	echo "Error: I don't know how to replay a folio created by \"$_CREATOR\""
+	echo "       ... choose a PCP tool and use the \"run\" command to replay"
+    fi
+}
+
+_known()
+{
+    echo "Known PCP tools:"
+    echo "$_SINGLE$_MULTI" \
+    | sed -e 's/^ *//' \
+    | tr ' ' '\012' \
+    | sort \
+    | fmt \
+    | sed -e 's/^/	/'
+}
+
+_run()
+{
+    tool=$1
+    tool_basename=`basename $tool`
+    shift
+    archlist=`_get_archlist`
+    if [ -z "$archlist" ]
+    then
+	echo "Error: no selected archives"
+	return
+    fi
+
+    if $_REPEAT || ( echo "$_SINGLE " | grep " $tool_basename " >/dev/null )
+    then
+	n_arch=`echo $archlist | wc -w | sed -e 's/  *//g'`
+	[ "$n_arch" -gt 1 ] && echo "Note: running $tool serially, once per archive"
+	for arch in $archlist
+	do
+	    $PCP_AWK_PROG <$_FOLIO '$3 == "'$arch'" { printf "Host: %s",$2; exit }'
+	    path=`_fix_arch_path "" "$arch"`
+	    echo " Archive: $path"
+	    # arrgh ... special case for pmdumplog where -a is something else
+	    # and archive comes last ... sigh
+	    #
+	    _done=false
+	    if [ ! -z "$_SPECIAL" ]
+	    then
+		for special in $_SPECIAL
+		do
+		    if [ "$tool_basename" = "$special" ]
+		    then
+			$tool $* $path
+			_done=true
+			break
+		    fi
+		done
+	    fi
+
+	    if $_done
+	    then
+		:
+	    else
+		$tool -a $path $*
+	    fi
+	done
+    elif echo "$_MULTI " | grep " $tool_basename " >/dev/null
+    then
+	$tool -a `_fix_arch_path " -a " $archlist` $*
+    elif [ "X$tool" = "X_show_me_" ]
+    then
+	for arch in $archlist
+	do
+	    path=`_fix_arch_path "" "$arch"`
+	    echo "Archive: $path"
+	done
+    else
+	echo "Sorry, don't know how to run \"$tool\" ..."
+    fi
+}
+
+_MORE=true
+while $_MORE
+do
+    if [ $# -gt 1 ]
+    then
+	shift
+	cmd="$1"
+	shift
+	args=$*
+	_MORE=false
+    else
+	$PCP_ECHO_PROG $PCP_ECHO_N "pmafm> ""$PCP_ECHO_C"
+	read cmd args
+	if [ $? -ne 0 ]
+	then
+	    echo
+	    break
+	elif [ -z "$cmd" ]
+	then
+	    continue
+	fi
+    fi
+
+    _REPEAT=false
+    if echo "$_SINGLE $_MULTI " | grep " $cmd " >/dev/null
+    then
+	# recognized command
+	_run $cmd $args
+    else
+	case $cmd
+	in
+
+	    a|ar|arch|archi|archiv|archive|archives)
+		    case $args
+		    in
+			'')
+			    _ARCHIVES=""
+			    ;;
+			*)
+			    _ARCHIVES=""
+			    for arch in `echo $args | sed -e 's/,/ /g'`
+			    do
+				_TMP=`$PCP_AWK_PROG <$_FOLIO '
+    $1 == "Archive:"	{ if ("'$arch'" == $3) {
+				print $3
+				exit
+			      }
+			      i++
+			      if ("'$arch'" == i) {
+				print $3
+				exit
+			      }
+			    }'`
+				if [ -z "$_TMP" ]
+				then
+				    echo "Warning: archive \"$arch\" not in folio ... ignored"
+				else
+				    _ARCHIVES="$_ARCHIVES $_TMP"
+				fi
+			    done
+			    ;;
+		    esac
+		    ;;
+
+	    c|ch|che|chec|check)
+		    _check
+		    ;;
+
+	    d|de|deb|debu|debug)
+		    if $_DEBUG
+		    then
+			_DEBUG=false
+			set -
+		    else
+			_DEBUG=true
+			set -x
+		    fi
+		    ;;
+
+	    \?|he|hel|help)
+		    _help
+		    ;;
+
+	    ho|hos|host|hosts)
+		    case $args
+		    in
+			'')
+			    _HOSTS=""
+			    ;;
+			*)
+			    _HOSTS=""
+			    for host in `echo $args | sed -e 's/,/ /g'`
+			    do
+				if echo "$_ALL_HOSTS " | grep " $host " >/dev/null
+				then
+				    _HOSTS="$_HOSTS $host"
+				else
+				    echo "Warning: host \"$host\" not in folio ... ignored"
+				fi
+			    done
+			    ;;
+		    esac
+		    ;;
+
+	    l|li|lis|list)
+		    case $args
+		    in
+			v|ve|ver|verb|verbo|verbos|verbose)
+			    _dir verbose
+			    ;;
+			'')
+			    _dir
+			    ;;
+			*)
+			    echo "Illegal option \"$args\" ... ignored"
+			    _dir
+			    ;;
+		    esac
+		    [ ! -z "$_HOSTS" ] && echo "Host Selections:$_HOSTS"
+		    [ ! -z "$_ARCHIVES" ] && echo "Archive Selections:$_ARCHIVES"
+		    ;;
+
+	    q|qu|qui|quit)
+		    break
+		    ;;
+
+	    ru|run|repe|repea|repeat)
+		    case $cmd
+		    in
+			repe|repea|repeat)
+			_REPEAT=true
+			;;
+		    esac
+		    tool=`echo "$args" | sed -e 's/ .*//'`
+		    tool_basename=`basename $tool`
+		    if [ -z "$tool" ]
+		    then
+			echo "Error: missing PCP tool name"
+			_known
+		    elif [ "X$tool" = 'X?' ]
+		    then
+			_known
+		    elif echo "$_SINGLE $_MULTI " | grep " $tool_basename " >/dev/null
+		    then
+			_run $args
+		    else
+			echo "Error: Unknown PCP tool: $tool"
+			_known
+		    fi
+		    ;;
+
+	    rem|remo|remov|remove)
+		    [ ! -z "$_FOLIOPATH" ] && $PCP_ECHO_PROG $PCP_ECHO_N "( cd $_FOLIOPATH; ""$PCP_ECHO_C"
+		    $PCP_ECHO_PROG $PCP_ECHO_N "rm -f $_FOLIONAME""$PCP_ECHO_C"
+		    $PCP_AWK_PROG <$_FOLIO '$1 == "Creator:" && NF > 2	{ printf " %s",$3; exit }'
+		    for arch in $_ALL_ARCHIVES
+		    do
+			$PCP_ECHO_PROG $PCP_ECHO_N " $arch.log $arch.config $arch.meta $arch.index""$PCP_ECHO_C"
+			path=`_fix_arch_path "" $arch`
+			pmdumplog -t $path 2>/dev/null \
+			| $PCP_AWK_PROG '/^[0-9][0-9]:/ { print $2 }' \
+			| sort -u \
+			| while read vol
+			do
+			    $PCP_ECHO_PROG $PCP_ECHO_N " $arch.$vol""$PCP_ECHO_C"
+			done
+		    done
+		    [ ! -z "$_FOLIOPATH" ] && $PCP_ECHO_PROG $PCP_ECHO_N " )""$PCP_ECHO_C"
+		    echo
+		    ;;
+
+	    repl|repla|replay)
+		    _replay
+		    ;;
+
+	    s|se|sel|sele|selec|select|selecti|selectio|selection|selections)
+		    _run _show_me_
+		    ;;
+
+	    *)
+		    echo "Unknown command \"$cmd\" ... enter \"help\" for more information"
+		    ;;
+	esac
+    fi
+done
+

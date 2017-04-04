@@ -1,0 +1,11 @@
+- incorporate label checking logic from pmloglabel/pmloglabel.c
+
+- see existing src/pmlogsummary/pmlogcheck.c
+
+- conditional checking from pmNewContext with PM_CONTEXT_ARCHIVE,
+  based on an environment variable (or maybe even a type modifier
+  to pmNewContext, in the flavor of PM_CTXFLAG_SECURE)
+
+- consideration for repair
+  (a) automatic
+  (b) interactive

@@ -1,0 +1,64 @@
+QA output created by 722
+
+== Host, expect pass:
+== Test ==
+Hosts: ['localhost']
+Archives: None
+pass
+
+== Host list, expect pass:
+== Test ==
+Hosts: ['localhost']
+Archives: None
+pass
+
+== Host list, expect fail:
+== Test ==
+Hosts: ['localhost', 'unix:']
+Archives: None
+fail
+
+== Host list, expect pass:
+== Test ==
+Hosts: ['unix:', 'local:', 'localhost']
+Archives: None
+pass
+
+== Container, expect pass:
+== Test ==
+Hosts: None
+Archives: None
+Container: abc012345
+pass
+
+== Local PMDA, expect pass:
+== Test ==
+Hosts: None
+Archives: None
+Local PMDA: True
+pass
+
+== Local PMDA, expect fail:
+== Test ==
+Hosts: None
+Archives: None
+Local PMDA: True
+fail
+
+== Archive list, expect pass:
+== Test ==
+Hosts: None
+Archives: ['archives/pcp-atop']
+pass
+
+== Archive list, expect pass:
+== Test ==
+Hosts: None
+Archives: ['archives/pcp-free,archives/pcp-uptime']
+pass
+
+== Folio, expect pass:
+== Test ==
+Hosts: None
+Archives: None
+pass

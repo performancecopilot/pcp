@@ -1,0 +1,175 @@
+#! /bin/sh
+# PCP QA Test No. 294
+# Basic pmproxy functionality
+#
+# Copyright (c) 2005 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+which pmdumptext >/dev/null 2>&1 || _notrun "No installed pmdumptext binary"
+
+#debug# tmp=`pwd`/tmp
+signal=$PCP_BINADM_DIR/pmsignal
+status=1	# failure is the default!
+username=`id -u -n`
+$sudo rm -rf $tmp.*
+trap "_cleanup; rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+rm -f $seq.out
+case $PCP_PLATFORM
+in
+    darwin)
+	ln $seq.out.darwin $seq.out || exit 1
+	;;
+    *)
+	ln $seq.out.default $seq.out || exit 1
+	;;
+esac
+
+_cleanup()
+{
+    $sudo $signal -a pmproxy >/dev/null 2>&1
+    $sudo $PCP_RC_DIR/pmproxy restart >/dev/null 2>&1
+}
+
+_filter()
+{
+    sed \
+	-e '/hinv/s/ [0-9][0-9]*$/ N/' \
+	-e '/^[A-Z][a-z][a-z] [A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9]/{
+# pmdumptext
+s//DATE/
+s/	[0-9][0-9.]*/	N/g
+}' \
+	-e '/^\[[A-Z][a-z][a-z] [A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9]]/{
+# pmie trailer
+s//[DATE]/
+s/([0-9][0-9]*)/(PID)/
+}' \
+	-e '/expr_1/s/  *[0-9][0-9.]*/ N/g' \
+	-e '/^@ [A-Z][a-z][a-z] [A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9] [0-9][[0-9][0-9][0-9]/{
+# pmstat header1
+s//@ DATE/
+}' \
+	-e '/^   1 min   swpd   free   buff  cache   pi   po   bi   bo   in   cs  us  sy  id/{
+# pmstat header3
+s//   1 min   swpd   free   buff  cache   si   so   bi   bo   in   cs  us  sy  id/
+}' \
+	-e '/[0-9?][0-9.Km]*  *[0-9?][0-9.Km]*  *[0-9?][0-9.Km]*  *[0-9?][0-9.Km]*  *[0-9?][0-9.Km]*/{
+# pmstat data
+s/  *?/ ?/g
+s/  *[0-9][0-9.Km]*/ N/g
+}' \
+    | _filter_me
+}
+
+_filter_me()
+{
+    sed \
+	-e "s/`hostname`/MY_HOSTNAME/g" \
+	-e "s/`hostname | sed -e 's/\..*//'`/MY_HOSTNAME/" \
+	-e "s/local:/MY_HOSTNAME/" \
+	-e "s/localhost\.localdomain/MY_HOSTNAME/" \
+	-e "s/localhost/MY_HOSTNAME/" \
+	-e "s#$PCP_VAR_DIR#PCP_VAR_DIR#g" \
+	-e "s#$PCP_SYSCONF_DIR/pmlogger/config.pmstat#TMP.logger.config#g" \
+	-e "s,$tmp.config,TMP.logger.config,g" \
+	-e "s#$tmp#TMP#g"
+}
+
+_filter_pmproxy()
+{
+    sed \
+	-e '/^__pmSetSocketIPC: fd=/d' \
+	-e '/^__pmSetDataIPC:/d' \
+	-e '/^__pmDataIPC: /d' \
+	-e '/^IPC table fd/d' \
+
+}
+
+_do()
+{
+    echo
+    echo "+++ $* +++" | tee -a $seq.full | _filter_me
+    if which $1 >/dev/null 2>&1
+    then
+	eval $* 2>&1 | tee -a $seq.full | _filter
+	connects=`grep AcceptNewClient $tmp.log | wc -l | sed -e 's/  *//g'`
+	disconnects=`grep DeleteClient $tmp.log | wc -l | sed -e 's/  *//g'`
+	difference=$(($connects - $disconnects))
+	echo "N connects"
+	echo "N-$difference disconnects"
+    else
+	echo "Skipped, no $1 binary installed"
+    fi
+}
+
+_do_config()
+{
+    cat >$tmp.config <<End-of-File
+log advisory on default {
+    kernel.all.load
+    swap.used
+    mem.util.free
+    mem.util.bufmem
+    mem.bufmem
+    mem.util.cached
+    swap.in
+    swap.pagesin
+    swap.out
+    swap.pagesout
+    disk.all.blkread
+    disk.all.blkwrite
+    kernel.all.intr
+    kernel.all.intr.non_vme
+    kernel.all.pswitch
+    kernel.all.cpu
+}
+End-of-File
+}
+
+$sudo $PCP_RC_DIR/pmproxy stop >/dev/null 2>&1
+$sudo $signal -a pmproxy >/dev/null 2>&1
+
+proxyargs="-Dcontext"
+id pcp >/dev/null 2>&1 && proxyargs="$proxyargs -U $username"
+$PCP_BINADM_DIR/pmproxy $proxyargs -l $tmp.log 2>&1 | _filter_pmproxy
+
+PMPROXY_HOST=localhost
+export PMPROXY_HOST
+
+rm -f $seq.full
+
+# real QA test starts here
+_do pminfo -h $PMPROXY_HOST -d pmcd.agent
+_do pminfo -h $PMPROXY_HOST -f sample.hordes
+_do pmprobe -v -h localhost hinv.ncpu
+_do pmval -h `hostname` -t 0.5 -s 3 sample.bin
+
+echo "kernel.all.load;" >$tmp.in
+_do pmie -h $PMPROXY_HOST -c $tmp.in -v -t 0.5 -T 1.5 
+echo "kernel.all.cpu.user :localhost;" >$tmp.in
+_do pmie -h $PMPROXY_HOST -c $tmp.in -v -t 0.5 -T 1.5 
+_do pmdumptext -h `hostname` -t 0.5 -s 2 sample.string.hullo
+_do pmdumptext -t 0.5 -s 2 localhost:sample.string.hullo
+_do pmdumptext -t 0.5 -s 2 `hostname`:kernel.all.load
+
+# Note: there used to be special casing for Darwin/Solaris platforms
+# here.  This is wrong, pmstat must still run on these platforms and
+# produce no values for some columns.
+
+_do pmstat -h $PMPROXY_HOST -t 0.5 -s 2
+_do_config 
+_do pmlogger -h localhost -c $tmp.config -t 0.5sec -s 3 -l $tmp.logger.log $tmp.arch
+_do pmstat -S +0.25sec -t 0.5sec -a $tmp.arch -z
+
+# success, all done
+status=0
+exit

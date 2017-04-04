@@ -1,0 +1,30 @@
+#!/bin/sh
+#
+# Generic script to be run before installing PCP from a tarball
+#
+
+if [ ! -f /etc/pcp.conf ]
+then
+    echo "No /etc/pcp.conf ... assume PCP not installed or disabled"
+    exit 0
+fi
+
+# The new place ... this should match the setting in /etc/pcp.conf
+# _after_ the installation
+#
+PCP_SYSCONF_DIR=@pcp_sysconf_dir@
+# and same here ...
+#
+PCP_LOG_DIR=@pcp_log_dir@
+[ -d "$PCP_LOG_DIR" ] || mkdir "$PCP_LOG_DIR"
+
+# and some other things we need ...
+#
+PCP_RC_DIR=@pcp_rc_dir@
+PCP_PMCDCONF_PATH=@pcp_pmcdconf_path@
+PCP_PMCDOPTIONS_PATH=@pcp_pmcdoptions_path@
+PCP_PMCDRCLOCAL_PATH=@pcp_pmcdrclocal_path@
+PCP_PMIECONTROL_PATH=@pcp_pmiecontrol_path@
+PCP_PMLOGGERCONTROL_PATH=@pcp_pmloggercontrol_path@
+PCP_PMPROXYOPTIONS_PATH=@pcp_pmproxyoptions_path@
+PCP_PMWEBDOPTIONS_PATH=@pcp_pmwebdoptions_path@

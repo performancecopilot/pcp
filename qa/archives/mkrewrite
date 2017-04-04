@@ -1,0 +1,33 @@
+#!/bin/sh
+#
+# Recipe to remake rewrite archive
+#
+
+rm -f rewrite.0 rewrite.index rewrite.meta
+
+. $PCP_DIR/etc/pcp.env
+
+cat <<End-of-File | $PCP_BINADM_DIR/pmlogger -s 5 -l rewrite.log rewrite
+log mandatory on 150msec {
+    sampledso.long.bin_ctr[100,200,800,900]
+    sample.float.bin_ctr
+    sampledso.double.hundred
+    sample.longlong.bin_ctr
+    sampledso.bin[100,200,800,900]
+    sample.part_bin
+    sampledso.long.hundred
+    sample.ulonglong.hundred
+}
+
+log mandatory on 125msec {
+    sample.ulong.bin_ctr
+    sampledso.milliseconds
+    sample.ulonglong.bin_ctr
+    sampledso.float.hundred
+    sample.bin
+    sampledso.part_bin
+    sampledso.ulong.hundred
+    sampledso.double.bin_ctr[100,200,800,900]
+    sampledso.longlong.hundred
+}
+End-of-File

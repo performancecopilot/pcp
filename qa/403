@@ -1,0 +1,49 @@
+#! /bin/sh
+# PCP QA Test No. 403
+# check some ASCII tools handling of failed fetches causing pmFetch to
+# return a null pmResult.
+# Bug #541380
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+arch=archives/541380_v2
+
+status=1	# failure is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+
+$sudo rm -f core*
+
+# -n src/root_irix because there are no metric descriptors (hence no PMNS)
+# in this archive
+#
+pmprobe -v -n src/root_irix -a $arch hinv.nrouter >$tmp.out 2>&1
+pminfo -f -n src/root_irix -a $arch hinv.nrouter  >$tmp.out 2>&1
+pmval -s 1 -n src/root_irix -a $arch hinv.nrouter >$tmp.out 2>$tmp.err
+cat $tmp.err
+
+if [ "`echo core*`" != "core*" ]
+then
+    $PCP_ECHO_PROG $PCP_ECHO_N "Dumped core! (saved as""$PCP_ECHO_C"
+    for c in core*
+    do
+	$sudo mv $c $seq.$c
+	$PCP_ECHO_PROG $PCP_ECHO_N " $seq.$c""$PCP_ECHO_C"
+    done
+    echo ")"
+    exit
+fi
+
+# success, all done
+status=0
+exit

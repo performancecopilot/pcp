@@ -1,0 +1,178 @@
+QA output created by 447
+
+=== -t 0.1 -s 4 sampledso.event.records ===
+host:      localhost
+samples:   4
+interval:  0.10 sec
+sampledso.event.records[fungus]: 0 event records
+sampledso.event.records[bogus]: 2 event records
+  TIMESTAMP --- event record [0] flags 0x1 (point) ---
+    sampledso.event.param_string "fetch #0"
+  TIMESTAMP --- event record [1] flags 0x1 (point) ---
+    sampledso.event.param_string "bingo!"
+sampledso.event.records[fungus]: 1 event records
+  TIMESTAMP --- event record [0] flags 0x1 (point) ---
+sampledso.event.records[bogus]: 1 event records
+  TIMESTAMP --- event record [0] flags 0x1 (point) ---
+    sampledso.event.param_string "fetch #1"
+sampledso.event.records[fungus]: 2 event records
+  TIMESTAMP --- event record [0] flags 0x1 (point) ---
+    sampledso.event.type 1
+  TIMESTAMP --- event record [1] flags 0x1 (point) ---
+    sampledso.event.type 2
+    sampledso.event.param_64 -3
+sampledso.event.records[bogus]: 1 event records
+  TIMESTAMP --- event record [0] flags 0x1 (point) ---
+    sampledso.event.param_string "fetch #2"
+sampledso.event.records[fungus]: 5 event records
+  TIMESTAMP --- event record [0] flags 0x1a (start,id,parent) ---
+    sampledso.event.type 4
+    sampledso.event.param_u64 5
+    sampledso.event.param_string "6"
+  TIMESTAMP --- event record [1] flags 0x1 (point) ---
+    sampledso.event.type 7
+    sampledso.event.param_double 8
+    sampledso.event.param_double -9
+  TIMESTAMP --- event record [2] flags 0x4 (end) ---
+    sampledso.event.type 10
+    sampledso.event.param_u64 11
+    sampledso.event.param_string "twelve"
+    sampledso.event.param_string "thirteen"
+    sampledso.event.param_32 -14
+    sampledso.event.param_u32 15
+  TIMESTAMP --- event record [3] flags 0x80000000 (missed) ---
+    ==> 7 missed event records
+  TIMESTAMP --- event record [4] flags 0x1 (point) ---
+    sampledso.event.type 16
+    sampledso.event.param_float -17
+    sampledso.event.param_aggregate [0103070f1f3f7fff]
+sampledso.event.records[bogus]: 2 event records
+  TIMESTAMP --- event record [0] flags 0x1 (point) ---
+    sampledso.event.param_string "fetch #3"
+  TIMESTAMP --- event record [1] flags 0x1 (point) ---
+    sampledso.event.param_string "bingo!"
+
+=== -t 0.1 -s 4 sampledso.event.records[fungus,bogus] ===
+host:      localhost
+samples:   4
+interval:  0.10 sec
+sampledso.event.records[fungus]: 0 event records
+sampledso.event.records[bogus]: 2 event records
+  TIMESTAMP --- event record [0] flags 0x1 (point) ---
+    sampledso.event.param_string "fetch #0"
+  TIMESTAMP --- event record [1] flags 0x1 (point) ---
+    sampledso.event.param_string "bingo!"
+sampledso.event.records[fungus]: 1 event records
+  TIMESTAMP --- event record [0] flags 0x1 (point) ---
+sampledso.event.records[bogus]: 1 event records
+  TIMESTAMP --- event record [0] flags 0x1 (point) ---
+    sampledso.event.param_string "fetch #1"
+sampledso.event.records[fungus]: 2 event records
+  TIMESTAMP --- event record [0] flags 0x1 (point) ---
+    sampledso.event.type 1
+  TIMESTAMP --- event record [1] flags 0x1 (point) ---
+    sampledso.event.type 2
+    sampledso.event.param_64 -3
+sampledso.event.records[bogus]: 1 event records
+  TIMESTAMP --- event record [0] flags 0x1 (point) ---
+    sampledso.event.param_string "fetch #2"
+sampledso.event.records[fungus]: 5 event records
+  TIMESTAMP --- event record [0] flags 0x1a (start,id,parent) ---
+    sampledso.event.type 4
+    sampledso.event.param_u64 5
+    sampledso.event.param_string "6"
+  TIMESTAMP --- event record [1] flags 0x1 (point) ---
+    sampledso.event.type 7
+    sampledso.event.param_double 8
+    sampledso.event.param_double -9
+  TIMESTAMP --- event record [2] flags 0x4 (end) ---
+    sampledso.event.type 10
+    sampledso.event.param_u64 11
+    sampledso.event.param_string "twelve"
+    sampledso.event.param_string "thirteen"
+    sampledso.event.param_32 -14
+    sampledso.event.param_u32 15
+  TIMESTAMP --- event record [3] flags 0x80000000 (missed) ---
+    ==> 7 missed event records
+  TIMESTAMP --- event record [4] flags 0x1 (point) ---
+    sampledso.event.type 16
+    sampledso.event.param_float -17
+    sampledso.event.param_aggregate [0103070f1f3f7fff]
+sampledso.event.records[bogus]: 2 event records
+  TIMESTAMP --- event record [0] flags 0x1 (point) ---
+    sampledso.event.param_string "fetch #3"
+  TIMESTAMP --- event record [1] flags 0x1 (point) ---
+    sampledso.event.param_string "bingo!"
+
+=== -t 0.1 -s 4 -i fungus,bogus sampledso.event.records ===
+host:      localhost
+samples:   4
+interval:  0.10 sec
+sampledso.event.records[fungus]: 0 event records
+sampledso.event.records[bogus]: 2 event records
+  TIMESTAMP --- event record [0] flags 0x1 (point) ---
+    sampledso.event.param_string "fetch #0"
+  TIMESTAMP --- event record [1] flags 0x1 (point) ---
+    sampledso.event.param_string "bingo!"
+sampledso.event.records[fungus]: 1 event records
+  TIMESTAMP --- event record [0] flags 0x1 (point) ---
+sampledso.event.records[bogus]: 1 event records
+  TIMESTAMP --- event record [0] flags 0x1 (point) ---
+    sampledso.event.param_string "fetch #1"
+sampledso.event.records[fungus]: 2 event records
+  TIMESTAMP --- event record [0] flags 0x1 (point) ---
+    sampledso.event.type 1
+  TIMESTAMP --- event record [1] flags 0x1 (point) ---
+    sampledso.event.type 2
+    sampledso.event.param_64 -3
+sampledso.event.records[bogus]: 1 event records
+  TIMESTAMP --- event record [0] flags 0x1 (point) ---
+    sampledso.event.param_string "fetch #2"
+sampledso.event.records[fungus]: 5 event records
+  TIMESTAMP --- event record [0] flags 0x1a (start,id,parent) ---
+    sampledso.event.type 4
+    sampledso.event.param_u64 5
+    sampledso.event.param_string "6"
+  TIMESTAMP --- event record [1] flags 0x1 (point) ---
+    sampledso.event.type 7
+    sampledso.event.param_double 8
+    sampledso.event.param_double -9
+  TIMESTAMP --- event record [2] flags 0x4 (end) ---
+    sampledso.event.type 10
+    sampledso.event.param_u64 11
+    sampledso.event.param_string "twelve"
+    sampledso.event.param_string "thirteen"
+    sampledso.event.param_32 -14
+    sampledso.event.param_u32 15
+  TIMESTAMP --- event record [3] flags 0x80000000 (missed) ---
+    ==> 7 missed event records
+  TIMESTAMP --- event record [4] flags 0x1 (point) ---
+    sampledso.event.type 16
+    sampledso.event.param_float -17
+    sampledso.event.param_aggregate [0103070f1f3f7fff]
+sampledso.event.records[bogus]: 2 event records
+  TIMESTAMP --- event record [0] flags 0x1 (point) ---
+    sampledso.event.param_string "fetch #3"
+  TIMESTAMP --- event record [1] flags 0x1 (point) ---
+    sampledso.event.param_string "bingo!"
+
+=== -t 0.1 -s 4 sampledso.event.no_indom_records ===
+host:      localhost
+samples:   4
+interval:  0.10 sec
+sampledso.event.no_indom_records: 2 event records
+  TIMESTAMP --- event record [0] flags 0x1 (point) ---
+    sampledso.event.param_string "fetch #0"
+  TIMESTAMP --- event record [1] flags 0x1 (point) ---
+    sampledso.event.param_string "bingo!"
+sampledso.event.no_indom_records: 1 event records
+  TIMESTAMP --- event record [0] flags 0x1 (point) ---
+    sampledso.event.param_string "fetch #1"
+sampledso.event.no_indom_records: 1 event records
+  TIMESTAMP --- event record [0] flags 0x1 (point) ---
+    sampledso.event.param_string "fetch #2"
+sampledso.event.no_indom_records: 2 event records
+  TIMESTAMP --- event record [0] flags 0x1 (point) ---
+    sampledso.event.param_string "fetch #3"
+  TIMESTAMP --- event record [1] flags 0x1 (point) ---
+    sampledso.event.param_string "bingo!"

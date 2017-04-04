@@ -1,0 +1,83 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMLOOKUPINDOMTEXT 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmLookupInDomText\f1 \- return text describing a performance metrics instance domain
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.sp
+.nf
+int pmLookupInDomText(pmInDom \fIindom\fP, int \fIlevel\fP, char **\fIbuffer\fP);
+.fi
+.sp
+cc ... \-lpcp
+.ft 1
+.SH DESCRIPTION
+.de CW
+.ie t \f(CW\\$1\f1\\$2
+.el \fI\\$1\f1\\$2
+..
+Provided the source of metrics from
+the current
+Performance Metrics Application Programming Interface (PMAPI)
+context is a host,
+retrieve descriptive text about the performance
+metrics instance domain identified by
+.IR indom .
+.PP
+The value for the instance domain
+.I indom
+is typically extracted from a
+.CW pmDesc
+structure, following a call to
+.BR pmLookupDesc (3)
+for a particular performance metric.
+.PP
+The argument
+.I level
+should be 
+.BR PM_TEXT_ONELINE
+for a one-line summary, else
+.BR PM_TEXT_HELP
+for a more verbose description, suited to a help dialog. 
+.PP
+The space pointed to by
+.I buffer
+will have been allocated in
+.B pmLookupInDomText
+with
+.BR malloc (3),
+and it is the responsibility of the caller to
+.BR free (3)
+the space when it is no longer required.
+.PP
+.B pmLookupInDomText
+returns zero on success.
+.SH SEE ALSO
+.BR chkhelp (1),
+.BR newhelp (1),
+.BR PMAPI (3),
+.BR pmGetConfig (3),
+.BR pmLookupDesc (3),
+.BR pmLookupText (3),
+.BR pcp.conf (5)
+and
+.BR pcp.env (5).
+.SH DIAGNOSTICS
+.IP \f3PM_ERR_NOTHOST\f1
+if the current PMAPI context is an archive log
+(help and one-line text is not maintained in the archive logs)

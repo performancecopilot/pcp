@@ -1,0 +1,23 @@
+<?xml version='1.0'?>
+<!DOCTYPE bookinfo PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "pcp-programmers-guide.ent">
+%BOOK_ENTITIES;
+]>
+
+<bookinfo id="pcp-programmers-guide">
+	<title>pcp-programmers-guide</title>
+	<subtitle>Performance Co-Pilot Programmer's Guide</subtitle>
+	<edition>3</edition>
+	<productname>PCP</productname>
+	<productnumber>3</productnumber>
+        <pubsnumber>1</pubsnumber>
+	<abstract>
+		<para>
+			This guide describes how to use the APIs offered by
+			the Performance Co-Pilot (PCP) performance analysis toolkit.
+		</para>
+	</abstract>
+ 	<xi:include href="Legal_Notice.xml" xmlns:xi="http://www.w3.org/2001/XInclude" />
+<!-- <xi:include href="Common_Content/Legal_Notice.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>-->
+	<xi:include href="Author_Group.xml" xmlns:xi="http://www.w3.org/2001/XInclude" />
+</bookinfo>

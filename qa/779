@@ -1,0 +1,63 @@
+#!/bin/sh
+# PCP QA Test No. 779
+# Exercise semantic checks for early use of pmdaConnect() by a PMDA in C
+#
+# Copyright (c) 2014 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+MYPORT=`_get_port tcp 543210 543220`
+
+_filter()
+{
+    sed \
+	-e 's/[A-Z][a-z][a-z] [A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9] [0-9][0-9][0-9][0-9]$/DATE/' \
+	-e 's/[A-Z][a-z][a-z] [A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9]/DATE/' \
+	-e 's/badpmda([1-9][0-9]*) /badpmda(PID) /' \
+	-e "s;$MYPORT;MYPORT;g" \
+	-e "s;$tmp;TMP;g"
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+echo "open pipe src/badpmda -c 0" \
+| dbpmda >$tmp.out 2>$tmp.err
+cat $tmp.out $tmp.err | _filter
+
+echo
+echo "open pipe src/badpmda -c 1" \
+| dbpmda >$tmp.out 2>$tmp.err
+cat $tmp.out $tmp.err | _filter
+
+echo
+src/badpmda -c 2 -p $MYPORT </dev/null >$tmp.out 2>$tmp.err &
+sleep 1
+echo "open socket inet $MYPORT" \
+| dbpmda >$tmp.out1 2>$tmp.err1
+wait
+cat $tmp.out $tmp.err | _filter
+cat $tmp.out1 $tmp.err1 | _filter
+
+echo
+src/badpmda -c 3 -s $tmp.socket </dev/null >$tmp.out 2>$tmp.err &
+sleep 1
+echo "open socket unix $tmp.socket" \
+| dbpmda >$tmp.out1 2>$tmp.err1
+wait
+cat $tmp.out $tmp.err | _filter
+cat $tmp.out1 $tmp.err1 | _filter
+
+# success, all done
+status=0
+
+exit

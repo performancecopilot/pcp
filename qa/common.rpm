@@ -1,0 +1,215 @@
+#
+# Copyright (c) 2013-2014 Red Hat.
+#
+# Common pre-test checking and settings for pmdarpm QA. Handles
+# setup for the basic environment needed for all RPM PMDA tests.
+#
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_rpm_support_tests()
+{
+    [ -f /etc/slackware-version ] && _notrun "No don't exercise rpm bits on Slackware"
+    which rpmbuild >/dev/null 2>&1 || _notrun "No rpmbuild binary found"
+    test -x "$PCP_PMDAS_DIR/rpm/pmdarpm" || _notrun "pmdarpm not installed"
+}
+
+_rpm_pmda_prepare()
+{
+    _prepare_pmda_install rpm
+    cd $PCP_PMDAS_DIR/rpm
+    $sudo ./Install </dev/null >> $here/$seq.full 2>&1
+    cd $here
+}
+
+_rpm_pmda_restore()
+{
+    _restore_pmda_install rpm
+    cd $here
+}
+
+_remove_rpm_pmda()
+{
+    cd $PCP_PMDAS_DIR/rpm
+    $sudo ./Remove < /dev/null >> $here/$seq.full 2>&1
+    cd $here
+}
+
+#
+# Build a spec file and source tarball for a test RPM.
+# Sample specfile based on the Maximum RPM book example
+# cos I'm too lame to come up with my own lame example.
+#
+# If successful sets variables on return for later use:
+# $rpm_{bin,dbg,src}_pkg $rpm_spec $rpm_name
+#
+_rpm_package_prepare()
+{
+    echo "Preparing RPM package"
+    dir=$tmp.build.dir
+    mkdir -p $dir
+
+    tgz=qaplayer-1.0.tgz
+    tar=$dir/$tgz
+    usr=`id -u -n`
+    grp=`id -g -n`
+
+    # prepare the spec file
+    cat >$dir/qaplayer.spec <<End-of-file
+Summary: A QA player app that rocks!
+Name: qaplayer
+Version: 1.0
+Release: 1
+License: GPL
+BuildArch: noarch
+Group: Applications/Sound
+Source: $tgz
+URL: http://www.gnomovision.com/qaplayer/qaplayer.html
+Distribution: WSS Linux
+Vendor: White Socks Software, Inc.
+Packager: Santa Claus <sclaus@northpole.com>
+BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-$usr
+
+%description
+It slices!  It dices!  It's a QA player app that
+can't be beat.  By using the resonant frequency
+of the QA itself, it is able to simulate 20X
+oversampling.  This leads to sound quality that
+cannot be equaled with more mundane software...
+
+%prep
+%setup
+
+%clean
+rm -Rf \$RPM_BUILD_ROOT
+
+%build
+%install
+mkdir -p \$RPM_BUILD_ROOT/%{_localstatedir}/qaplayer
+
+%files
+%defattr(-,$usr,$grp)
+%dir %{_localstatedir}/qaplayer
+End-of-file
+
+    echo file: $dir/qaplayer.spec >> $here/$seq.full
+    cat $dir/qaplayer.spec >> $here/$seq.full
+
+    # prepare a source tarball
+    mkdir qaplayer-1.0 2>/dev/null
+    ln $seq qaplayer-1.0/$seq 2>/dev/null
+    tar czf $dir/qaplayer-1.0.tgz qaplayer-1.0/$seq
+    rm -fr qaplayer-1.0
+
+    # prepare an installable RPM
+    rpmbuild -ba \
+	--define "_topdir $dir" \
+	--define '_builddir %{_topdir}' \
+	--define '_sourcedir %{_topdir}' \
+	--define '_rpmdir %{_topdir}' \
+	--define '_srcrpmdir %{_topdir}' \
+	--define '_specdir %{_topdir}' \
+	--define '_rpmfilename %%{NAME}-%%{VERSION}-%%{RELEASE}.noarch.rpm' \
+	$dir/qaplayer.spec >> $here/$seq.full 2>&1
+
+    rpm_dbg_pkg=$dir/qaplayer-debuginfo-1.0-1.noarch.rpm
+    rpm_bin_pkg=$dir/qaplayer-1.0-1.noarch.rpm
+    rpm_src_pkg=$dir/qaplayer-1.0-1.src.rpm
+    rpm_spec=$dir/qaplayer.spec
+    rpm_name=qaplayer
+    rpm_inst=qaplayer-1.0-1.noarch
+}
+
+_rpm_prepare_check()
+{
+    if [ "X$rpm_name" = "X" -o "X$rpm_inst" = "X" ]
+    then
+	echo "QA test bug - _rpm_package_prepare not yet done?"
+	exit 1
+    fi
+}
+
+_rpm_package_install()
+{
+    if [ "X$rpm_name" != "X" ]
+    then
+        rpm -q $rpm_name >/dev/null 2>&1
+	if [ $? -eq 0 ]
+	then
+	    echo "$rpm_name already installed!?!"
+	else
+	    echo "Installing $rpm_name" | tee -a $here/$seq.full
+	    echo "RPM pathname: $rpm_bin_pkg" >> $here/$seq.full
+	    echo "count before from rpm(1): `$sudo rpm -qa | wc -l | sed -e 's/  *//g'`" >> $seq.full
+	    $sudo rpm -i $rpm_bin_pkg >> $here/$seq.full 2>&1
+	    $sudo rpm -qa >> $seq.full 2>&1
+	    echo "count after from rpm(1): `$sudo rpm -qa | wc -l | sed -e 's/  *//g'`" >> $seq.full
+	fi
+    fi
+}
+
+_rpm_package_install_await()
+{
+    countdown=300	# 30 seconds
+
+    _rpm_prepare_check
+    while [ $countdown -gt 0 ]
+    do
+	pminfo -f rpm.arch | grep -q "or \"$rpm_inst\"]" && return 0
+	pmsleep 0.1 
+	countdown=`expr $countdown - 1`
+    done
+
+    echo "rpm_package_install_await gave up awaiting $rpm_inst install!"
+    exit 1
+}
+
+_rpm_package_remove()
+{
+    if [ "X$rpm_name" != "X" ]
+    then
+	if rpm -q $rpm_name >/dev/null 2>&1
+	then
+	    echo "Removing $rpm_name" | tee -a $here/$seq.full
+	    $sudo rpm -e $rpm_name >> $here/$seq.full 2>&1
+	fi
+    fi
+}
+
+_rpm_package_remove_await()
+{
+    countdown=150	# 15 seconds
+
+    _rpm_prepare_check
+    while [ $countdown -gt 0 ]
+    do
+	pminfo -f rpm.arch | grep -q "or \"$rpm_inst\"]" || return 0
+	pmsleep 0.1 
+	countdown=`expr $countdown - 1`
+    done
+
+    echo "rpm_package_remove_await gave up awaiting $rpm_name removal!"
+    exit 1
+}
+
+
+_rpm_cleanup()
+{
+    $remove_on_cleanup && _remove_rpm_pmda
+
+    # replace the pmcd setup with original
+    _rpm_pmda_restore
+
+    # remove any newly installed RPM
+    _rpm_package_remove
+
+    $sudo rm -fr $tmp.*.dir
+    $sudo rm -f $tmp.*
+    exit $status
+}
+
+remove_on_cleanup=true
+pminfo rpm >/dev/null 2>&1 && remove_on_cleanup=false

@@ -1,0 +1,30 @@
+QA output created by 305
+"" "" true
+"" "a" false
+"" "ab" false
+"" "ab cd" false
+"" "ab de" false
+
+"a" "" false
+"a" "a" true
+"a" "ab" false
+"a" "ab cd" false
+"a" "ab de" false
+
+"ab" "" false
+"ab" "a" false
+"ab" "ab" true
+"ab" "ab cd" true
+"ab" "ab de" true
+
+"ab cd" "" false
+"ab cd" "a" false
+"ab cd" "ab" true
+"ab cd" "ab cd" true
+"ab cd" "ab de" true
+
+"ab de" "" false
+"ab de" "a" false
+"ab de" "ab" true
+"ab de" "ab cd" true
+"ab de" "ab de" true

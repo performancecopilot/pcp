@@ -1,0 +1,94 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMPARSETIME 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3__pmParseTime\f1 \- parse time point specification
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.br
+#include <pcp/impl.h>
+.sp
+.ad l
+.hy 0
+.in +8n
+.ti -8n
+int __pmParseTime(const char *\fIstring\fP, struct timeval *\fIlogStart\fP, struct\ timeval\ *\fIlogEnd\fP, struct\ timeval\ *\fIrslt\fP, char\ **\fIerrMsg\fP);
+.sp
+.in
+.hy
+.ad
+cc ... \-lpcp
+.ft 1
+.SH DESCRIPTION
+.B __pmParseTime
+is designed to encapsulate the interpretation of a time point specification in
+command line switches for use by the PCP client tools. 
+.P
+This function expects to be called with the time point specification as
+.BR string .
+If the tool is running against PCP archive(s), you also
+need to supply the start time of the first (only) archive as
+.BR logStart ,
+and the end of the last (only) archive as
+.BR logEnd .
+See
+.BR pmGetArchiveLabel (3)
+and
+.BR pmGetArchiveEnd (3)
+for how to obtain values for these parameters.
+If the tool is running against a live feed of performance data,
+.B logStart
+should be the current time (but could be aligned on the next second
+for example), while
+.B logEnd
+should have its tv_sec component set to INT_MAX.
+.P
+The
+.B rslt
+structure must be allocated before calling
+.BR __pmParseTime .
+.P
+You also need to set the current PCP reporting time zone to correctly
+reflect the \-z and \-Z command line parameters before calling
+.BR __pmParseTime .
+See
+.BR pmUseZone (3)
+and friends for information on how this is done.
+.P
+If the conversion is successful,
+.B __pmParseTime
+returns 0, and fills in
+.B rslt
+with the time value defined by the input
+parameters.  If the argument strings could not be parsed, it returns \-1
+and a dynamically allocated error message string in
+.BR errMsg .
+Be sure to
+.BR free (3)
+this error message string.
+.SH SEE ALSO
+.BR PMAPI (3),
+.BR pmGetArchiveEnd (3),
+.BR pmGetArchiveLabel (3),
+.BR pmNewContextZone (3),
+.BR pmNewZone (3),
+.BR pmParseInterval (3),
+.BR pmParseTimeWindow (3),
+.BR pmUseZone (3),
+.BR __pmConvertTime (3)
+and
+.BR __pmParseCtime (3).

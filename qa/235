@@ -1,0 +1,127 @@
+#! /bin/sh
+# PCP QA Test No. 235
+# exercise pmnsmerge error handling, and null operation
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=0
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+echo "+++ Errors +++"
+mkdir $tmp.dir
+cd $tmp.dir
+echo 'root {
+}' >null
+echo
+echo "=== no args ==="
+pmnsmerge
+echo
+echo "=== only 1 arg ==="
+pmnsmerge out-pmns
+echo
+echo "=== no such input file ==="
+pmnsmerge no-such-input out-pmns
+touch out-pmns
+echo
+echo "=== output file exists ==="
+pmnsmerge null out-pmns
+rm -f out-pmns
+chmod u-w .
+echo
+echo "=== cannot create output file ==="
+pmnsmerge null out-pmns
+chmod u+w .
+
+echo 'root {
+bogus - this is not correct
+}' >in
+echo
+echo "=== syntax error in input ==="
+pmnsmerge in out-pmns
+
+rm -f out-pmns
+echo 'root {
+    me		1:2:3
+}' >one
+echo 'root {
+    same_pmid	1:2:3
+}' >two
+echo
+echo "=== duplicate PMID in same group =="
+pmnsmerge one two out-pmns
+
+rm -f out-pmns
+echo 'root {
+    me		1:2:3
+}' >one
+echo 'root {
+    sub
+}
+sub {
+    same_pmid	1:2:3
+}' >two
+echo
+echo "=== duplicate PMID in different groups =="
+pmnsmerge one two out-pmns
+
+echo
+echo "+++ Warnings +++"
+rm -f out-pmns
+echo 'root {
+    me		1:2:3
+}' >one
+echo 'root {
+    me		4:5:6
+}' >two
+echo
+echo "=== PMID changed =="
+pmnsmerge one two out-pmns
+
+echo
+echo "+++ Null operations +++"
+
+rm -f out-pmns
+pminfo -n null
+echo
+echo "=== single null input PMNS ==="
+pmnsmerge -v null out-pmns
+cat out-pmns
+pminfo -n out-pmns
+
+rm -f out-pmns
+cp null one
+cp null two
+echo
+echo "=== multiple null input PMNSs ==="
+pmnsmerge null one two out-pmns
+cat out-pmns
+pminfo -n out-pmns
+
+rm -f out-pmns
+echo '#define _DATESTAMP 19961101
+root {
+}' >three
+echo '#define _DATESTAMP 19961102
+root {
+}' >four
+echo '#define _DATESTAMP 19961205
+root {
+}' >five
+echo
+echo "=== 3 have _DATESTAMPS, 3 do not ==="
+pmnsmerge -vv null one five four two three out-pmns
+cat out-pmns
+pminfo -n out-pmns
+
+# all done
+exit

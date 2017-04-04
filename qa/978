@@ -1,0 +1,107 @@
+#!/bin/sh
+# PCP QA Test No. 978
+# Exercise pmgetopt(1) functionality.
+#
+# Copyright (c) 2014 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+cat > $tmp.config1 <<EOF
+# getopts: A:a:D:gh:Ln:O:p:PS:s:T:t:Z:z?
+# Usage: [options] [[...] command [...]]
+
+Summary Options:
+  --archive
+  --host
+  --namespace
+  -P,--pmie            display pmie evaluation statistics
+  --help
+
+Command Options:
+  --host
+  --namespace
+  --align
+  --archive
+  -g            start in GUI mode with new time control
+  -n=FILE       use an alternative PMNS
+  -O=TIME       initial sample time within the time window
+  -p=N          port for connection to existing time control
+  -S=TIME       start of the time window
+  -s=N          terminate after this many samples
+  -T=TIME       end of the time window
+  -t=DELTA      sampling interval
+  --timezone
+  -z            set reporting timezone to local time of metrics source
+# End
+
+Anything beyond "End" will simply be appended to the usage message.
+
+Anything at all.
+EOF
+
+# verify basic handling of a series of options passed in
+echo == verify usage message generation
+pmgetopt --config=$tmp.config1 --usage --progname=pcp
+echo == verify handling of -a xxx -h yyy
+pmgetopt < $tmp.config1 -- -a xxx -h yyy
+echo == verify handling of -z -g --timezone TZ
+pmgetopt < $tmp.config1 -- -z -g --timezone TZ
+
+# verify automatic generation of getopt string and all short/long opt combos
+cat > $tmp.config2 <<EOF
+# Usage: [options] archive
+
+Options:
+  --align
+  --origin
+  --namespace
+  -d, --delay                    pause between updates for archive replay
+  -f=N,--fixed=N                 fixed output format with N digits precision
+  --origin=TIME                  initial sample time within the time window
+  -t=DELTA, --samples=delta      sampling interval
+  -r,--raw                       output raw counter values (no rate conversion)
+  -s=N                           terminate after this many samples
+  -u                             non-interpolated fetching; ignores interval
+  --width                        set the width of each column of output
+  --help
+EOF
+
+echo == verify usage message generation without getopt
+opts2="--config=$tmp.config2 --progname=pcpqa"
+pmgetopt $opts2 --usage
+echo == verify handling of mixing short and long options
+pmgetopt $opts2 -- --delay -f 5 /a/b/pcplog
+echo == verify handling of spaces and single quotes
+pmgetopt $opts2 -- "/a/b/pcp log" "/c/d/foo'bar"
+echo == verify handling of an invalid option
+pmgetopt $opts2 -- -x /a/b/pcplog
+
+# verify automatic generation of getopt string and extra long opt combos
+cat > $tmp.config3 <<EOF
+Options:
+  --host-list
+  --archive-list
+  --archive-folio
+  --help
+EOF
+
+echo == verify handling of archive folios and host/archive lists
+opts3="--config=$tmp.config3 --progname=pcpqa"
+pmgetopt $opts3 --usage
+pmgetopt $opts3 -- --archive-folio=20071023-08-06-36.folio
+
+# success, all done
+status=0
+exit

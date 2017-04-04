@@ -1,0 +1,244 @@
+#! /bin/sh
+# Copyright (c) 1997-2001 Silicon Graphics, Inc.  All Rights Reserved.
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+
+tmp=/tmp/$$
+trap "rm -f $tmp.*; exit" 0 1 2 3  15
+rm -f $tmp.*
+
+. $PCP_DIR/etc/pcp.env
+. $PCP_SHARE_DIR/lib/pmview-args
+
+_usage()
+{
+    echo >$tmp.msg 'Usage: '$prog' [options]
+
+options:
+  -c   version    Monitor NFS version (integer) client metrics [default 2]
+  -m   maxrate    maximum request rate expected (integer) [default 120]
+  -s   version    Monitor NFS version (integer) server metrics [default 2]
+  -V              verbose/diagnostic output  
+
+pmview(1) options:'
+
+    _pmview_usage >>$tmp.msg
+    echo >>$tmp.msg
+    echo 'Default title is: NFS Version 2 Request Traffic for host' >>$tmp.msg
+    _pmview_info -f $tmp.msg
+}
+
+max=120
+client=2
+server=2
+type=total
+Type=Total
+verbose=false
+version=2
+
+# build WM_COMMAND X(1) property for restart after login/logout
+#
+echo -n "pmview Version 2.1 \"nfsvis\"" >$tmp.conf
+for arg
+do
+    echo -n " \"$arg\"" >>$tmp.conf
+done
+
+_pmview_args "$@"
+
+if [ -n "$otherArgs" ]
+then
+    while getopts "?c:m:s:v:V" c $otherArgs
+    do
+	case $c
+	in
+	    c)
+		client=$OPTARG
+		if [ "$client" != 2 -a "$client" != 3 ]
+		then
+		    _pmview_error "$prog: only NFS 2 and NFS 3 client metrics supported"
+		    # NOTREACHED
+		fi
+		;;
+	    m)
+		_pmview_unsigned $c
+		max=$OPTARG
+		;;
+	    s)
+		server=$OPTARG
+		if [ "$server" != 2 -a "$server" != 3 ]
+		then
+		    _pmview_error "$prog: only NFS 2 and NFS 3 server metrics supported"
+		    # NOTREACHED
+		fi
+		;;
+
+	    v)
+		version=$OPTARG
+		if [ $version = "1" ]
+		then
+		    _pmview_warning "$prog: pmview version 1 no longer supported, using version 2"
+		    version=2
+		elif [ $version != "2" ]
+		then
+		    _pmview_error "$prog: only version 2 supported for -v"
+		    # NOTREACHED
+		fi
+		;;
+
+	    V)
+		verbose=true
+		;;
+	    ?)
+		_usage
+		exit 1
+		;;
+	esac
+    done
+    set - $otherArgs
+    shift `expr $OPTIND - 1`
+    if [ $# -gt 0 ]
+    then
+	_usage
+	exit 1
+    fi
+fi
+
+if [ "$client" = "2" ]
+then
+    # NFS V2 client stats
+    #
+    if _pmview_fetch_indom nfs.client.reqs
+    then
+	:
+    else
+	_pmview_fetch_fail "get NFS Version 2 client metrics"
+	# NOTREACHED
+    fi
+else
+    # NFS V3 client stats
+    #
+    if _pmview_fetch_indom nfs3.client.reqs
+    then
+	:
+    else
+	_pmview_fetch_fail "get NFS Version 3 client metrics"
+	# NOTREACHED
+    fi
+fi 
+
+# handle fsstat alias statfs
+#
+c_statfs=statfs
+grep fsstat $tmp.pmview_result >/dev/null && c_statfs=fsstat
+
+if [ "$server" = "2" ]
+then
+    # NFS V2 server stats
+    #
+    if _pmview_fetch_indom nfs.server.reqs
+    then
+	:
+    else
+	_pmview_fetch_fail "get NFS Version 2 server metrics"
+	# NOTREACHED
+    fi
+else
+    # NFS V3 server stats
+    #
+    if _pmview_fetch_indom nfs3.server.reqs
+    then
+	:
+    else
+	_pmview_fetch_fail "get NFS Verion 3 server metrics"
+	# NOTREACHED
+    fi
+fi 
+
+# handle fsstat alias statfs
+#
+s_statfs=statfs
+grep fsstat $tmp.pmview_result >/dev/null && s_statfs=fsstat
+
+if [ -z "$titleArg" ]
+then
+    titleArg="SGI PCP : NFS Client V$client & Server V$server Request Traffic for host $host"
+fi
+
+
+cat << End-of-File >> $tmp.conf
+
+#
+# nfsvis
+#
+_colorlist colors (red1 green1 blue1)
+_grid hide (
+	_label 2 0 _down _large "Client"
+	_bar 0 0 _east _groupByMetric (
+		_metrics (
+End-of-File
+
+if [ "$client" = "2" ]
+then
+    cat << End-of-File >> $tmp.conf
+			nfs.client.reqs[create,remove,rename,link,symlink,mkdir,rmdir] $max "dir"
+			nfs.client.reqs[getattr,setattr,lookup,readdir,$c_statfs,root] $max "attr"
+			nfs.client.reqs[readlink,read,write,wrcache] $max "data"
+		)
+		_baseLabel "Requests by NFS2 Client\nNormalized to $max requests / second"
+End-of-File
+else
+    cat << End-of-File >> $tmp.conf
+			nfs3.client.reqs[create,remove,rename,link,symlink,mkdir,rmdir,mknod] $max "dir"
+			nfs3.client.reqs[getattr,setattr,lookup,readdir,$c_statfs,access,readdir+,fsinfo,pathconf] $max "attr"
+			nfs3.client.reqs[readlink,read,write,commit] $max "data"
+		)
+		_baseLabel "Requests by NFS3 Client\nNormalized to $max requests / second"
+End-of-File
+fi
+cat << End-of-File >> $tmp.conf
+		_colorlist colors
+	)
+	_label 2 2 _down _large "Server"
+	_bar 0 2 _east (
+		_metrics (
+End-of-File
+if [ "$server" = "2" ]
+then
+    cat << End-of-File >> $tmp.conf
+			nfs.server.reqs[create,remove,rename,link,symlink,mkdir,rmdir] $max "dir"
+			nfs.server.reqs[getattr,setattr,lookup,readdir,$s_statfs,root] $max "attr"
+			nfs.server.reqs[readlink,read,write,wrcache] $max "data"
+		)
+		_baseLabel "Requests to NFS2 Server\nNormalized to $max requests / second"
+End-of-File
+else
+    cat << End-of-File >> $tmp.conf
+			nfs3.server.reqs[create,remove,rename,link,symlink,mkdir,rmdir,mknod] $max "dir"
+			nfs3.server.reqs[getattr,setattr,lookup,readdir,$s_statfs,access,readdir+,fsinfo,pathconf] $max "attr"
+			nfs3.server.reqs[readlink,read,write,commit] $max "data"
+		)
+		_baseLabel "Requests to NFS3 Server\nNormalized to $max requests / second"
+End-of-File
+fi
+
+cat << End-of-File >> $tmp.conf
+		_colorlist colors
+	)
+)
+End-of-File
+
+$verbose && cat $tmp.conf
+
+eval $PMVIEW <$tmp.conf $args -title "'$titleArg'" -xrm "'*iconName:nfsvis'"
+
+exit

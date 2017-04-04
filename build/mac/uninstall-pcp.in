@@ -1,0 +1,70 @@
+#!/bin/sh
+#
+# Copyright (c) 2003-2004 Silicon Graphics, Inc.  All Rights Reserved.
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+# 
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+#
+
+if [ $USER != "root" ]
+then
+    echo "Only the root user can uninstall PCP, try the following command instead:"
+    echo "    sudo $0"
+    exit 1
+fi
+
+@echo@ @echo_n@ "Are you sure you want to uninstall PCP? [y/n] @echo_c@"
+read answer
+
+if [ "X$answer" != "Xy" -a "X$answer" != "XY" ]
+then
+    echo "Uninstall cancelled."
+    exit 1
+fi
+
+here=`pwd`
+BINADM_DIR="@pcp_binadm_dir@"
+
+if [ "$here" = "$BINADM_DIR" -o "$here" = `dirname $BINADM_DIR` ]
+then
+    echo "Do not run $0 from $BINADM_DIR, uninstall cancelled."
+    exit 1
+fi
+
+echo "Stopping PCP..."
+/Library/StartupItems/pcp/pcp stop
+sleep 5
+
+if [ -x $BINADM_DIR/install-pcp -a -r $BINADM_DIR/idb ]
+then
+    echo "Removing Receipts"
+    if [ -d /Library/Receipts/pcp-*.pkg ]; then
+	rm -rf /Library/Receipts/pcp-*.pkg
+    fi
+    echo "Uninstall in background to remove all running scripts"
+    # Copy to /tmp since inst will remove itself and this script
+    cp $BINADM_DIR/install-pcp $BINADM_DIR/idb /tmp
+    # create tidy up script
+    echo '#!/bin/sh' > /tmp/_pcp_tidy.sh
+    echo '/tmp/install-pcp -r -l /var/log/pcp_inst.log /tmp/idb && /bin/rm -rf /Library/Receipts/pcp-*' >> /tmp/_pcp_tidy.sh
+    echo '/bin/rm -f /tmp/install-pcp /tmp/idb /tmp/_pcp_tidy.sh' >> /tmp/_pcp_tidy.sh
+    echo 'echo Done' >> /tmp/_pcp_tidy.sh
+    chmod u+x /tmp/_pcp_tidy.sh
+    # Run remove, overriding this shell
+    exec /tmp/_pcp_tidy.sh
+else
+    echo "Unable to find $BINADM_DIR/install-pcp. Remove failed"
+    exit 1
+fi
+

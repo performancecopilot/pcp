@@ -1,0 +1,706 @@
+QA output created by 754
+== Testing unbound metric values
+dbpmda> open pipe $PCP_PYTHON_PROG $PCP_PMDAS_DIR/unbound/pmdaunbound.python
+Start python PMDA: $PCP_PYTHON_PROG $PCP_PMDAS_DIR/unbound/pmdaunbound.python
+dbpmda> getdesc on
+dbpmda> fetch unbound.histogram.262144_000000_to_524288_000000
+PMID(s): 132.0.139
+pmResult ... numpmid: 1
+  132.0.139 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 0
+dbpmda> fetch unbound.histogram.131072_000000_to_262144_000000
+PMID(s): 132.0.138
+pmResult ... numpmid: 1
+  132.0.138 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 1
+dbpmda> fetch unbound.histogram.065536_000000_to_131072_000000
+PMID(s): 132.0.137
+pmResult ... numpmid: 1
+  132.0.137 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 0
+dbpmda> fetch unbound.histogram.032768_000000_to_065536_000000
+PMID(s): 132.0.136
+pmResult ... numpmid: 1
+  132.0.136 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 1
+dbpmda> fetch unbound.histogram.016384_000000_to_032768_000000
+PMID(s): 132.0.135
+pmResult ... numpmid: 1
+  132.0.135 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 0
+dbpmda> fetch unbound.histogram.008192_000000_to_016384_000000
+PMID(s): 132.0.134
+pmResult ... numpmid: 1
+  132.0.134 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 1
+dbpmda> fetch unbound.histogram.004096_000000_to_008192_000000
+PMID(s): 132.0.133
+pmResult ... numpmid: 1
+  132.0.133 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 0
+dbpmda> fetch unbound.histogram.002048_000000_to_004096_000000
+PMID(s): 132.0.132
+pmResult ... numpmid: 1
+  132.0.132 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 1
+dbpmda> fetch unbound.histogram.001024_000000_to_002048_000000
+PMID(s): 132.0.131
+pmResult ... numpmid: 1
+  132.0.131 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 37
+dbpmda> fetch unbound.histogram.000512_000000_to_001024_000000
+PMID(s): 132.0.130
+pmResult ... numpmid: 1
+  132.0.130 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 885
+dbpmda> fetch unbound.histogram.000256_000000_to_000512_000000
+PMID(s): 132.0.129
+pmResult ... numpmid: 1
+  132.0.129 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 17641
+dbpmda> fetch unbound.histogram.000128_000000_to_000256_000000
+PMID(s): 132.0.128
+pmResult ... numpmid: 1
+  132.0.128 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 141866
+dbpmda> fetch unbound.histogram.000064_000000_to_000128_000000
+PMID(s): 132.0.127
+pmResult ... numpmid: 1
+  132.0.127 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 487390
+dbpmda> fetch unbound.histogram.000032_000000_to_000064_000000
+PMID(s): 132.0.126
+pmResult ... numpmid: 1
+  132.0.126 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 858380
+dbpmda> fetch unbound.histogram.000016_000000_to_000032_000000
+PMID(s): 132.0.125
+pmResult ... numpmid: 1
+  132.0.125 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 1772412
+dbpmda> fetch unbound.histogram.000008_000000_to_000016_000000
+PMID(s): 132.0.124
+pmResult ... numpmid: 1
+  132.0.124 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 2277107
+dbpmda> fetch unbound.histogram.000004_000000_to_000008_000000
+PMID(s): 132.0.123
+pmResult ... numpmid: 1
+  132.0.123 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 1886682
+dbpmda> fetch unbound.histogram.000002_000000_to_000004_000000
+PMID(s): 132.0.122
+pmResult ... numpmid: 1
+  132.0.122 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 4826350
+dbpmda> fetch unbound.histogram.000001_000000_to_000002_000000
+PMID(s): 132.0.121
+pmResult ... numpmid: 1
+  132.0.121 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 2659788
+dbpmda> fetch unbound.histogram.000000_524288_to_000001_000000
+PMID(s): 132.0.120
+pmResult ... numpmid: 1
+  132.0.120 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 2355377
+dbpmda> fetch unbound.histogram.000000_262144_to_000000_524288
+PMID(s): 132.0.119
+pmResult ... numpmid: 1
+  132.0.119 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 9671299
+dbpmda> fetch unbound.histogram.000000_131072_to_000000_262144
+PMID(s): 132.0.118
+pmResult ... numpmid: 1
+  132.0.118 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 28646089
+dbpmda> fetch unbound.histogram.000000_065536_to_000000_131072
+PMID(s): 132.0.117
+pmResult ... numpmid: 1
+  132.0.117 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 23726997
+dbpmda> fetch unbound.histogram.000000_032768_to_000000_065536
+PMID(s): 132.0.116
+pmResult ... numpmid: 1
+  132.0.116 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 54298001
+dbpmda> fetch unbound.histogram.000000_016384_to_000000_032768
+PMID(s): 132.0.115
+pmResult ... numpmid: 1
+  132.0.115 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 17840715
+dbpmda> fetch unbound.histogram.000000_008192_to_000000_016384
+PMID(s): 132.0.114
+pmResult ... numpmid: 1
+  132.0.114 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 9176654
+dbpmda> fetch unbound.histogram.000000_004096_to_000000_008192
+PMID(s): 132.0.113
+pmResult ... numpmid: 1
+  132.0.113 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 1396586
+dbpmda> fetch unbound.histogram.000000_002048_to_000000_004096
+PMID(s): 132.0.112
+pmResult ... numpmid: 1
+  132.0.112 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 267255
+dbpmda> fetch unbound.histogram.000000_001024_to_000000_002048
+PMID(s): 132.0.111
+pmResult ... numpmid: 1
+  132.0.111 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 857511
+dbpmda> fetch unbound.histogram.000000_000512_to_000000_001024
+PMID(s): 132.0.110
+pmResult ... numpmid: 1
+  132.0.110 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 3717701
+dbpmda> fetch unbound.histogram.000000_000256_to_000000_000512
+PMID(s): 132.0.109
+pmResult ... numpmid: 1
+  132.0.109 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 2113810
+dbpmda> fetch unbound.histogram.000000_000128_to_000000_000256
+PMID(s): 132.0.108
+pmResult ... numpmid: 1
+  132.0.108 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 13292
+dbpmda> fetch unbound.histogram.000000_000064_to_000000_000128
+PMID(s): 132.0.107
+pmResult ... numpmid: 1
+  132.0.107 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 2850
+dbpmda> fetch unbound.histogram.000000_000032_to_000000_000064
+PMID(s): 132.0.106
+pmResult ... numpmid: 1
+  132.0.106 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 1446
+dbpmda> fetch unbound.histogram.000000_000016_to_000000_000032
+PMID(s): 132.0.105
+pmResult ... numpmid: 1
+  132.0.105 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 646
+dbpmda> fetch unbound.histogram.000000_000008_to_000000_000016
+PMID(s): 132.0.104
+pmResult ... numpmid: 1
+  132.0.104 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 364
+dbpmda> fetch unbound.histogram.000000_000004_to_000000_000008
+PMID(s): 132.0.103
+pmResult ... numpmid: 1
+  132.0.103 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 5
+dbpmda> fetch unbound.histogram.000000_000002_to_000000_000004
+PMID(s): 132.0.102
+pmResult ... numpmid: 1
+  132.0.102 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 1
+dbpmda> fetch unbound.histogram.000000_000001_to_000000_000002
+PMID(s): 132.0.101
+pmResult ... numpmid: 1
+  132.0.101 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 0
+dbpmda> fetch unbound.histogram.000000_000000_to_000000_000001
+PMID(s): 132.0.100
+pmResult ... numpmid: 1
+  132.0.100 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 50031917
+dbpmda> fetch unbound.mem.mod.validator
+PMID(s): 132.0.99
+pmResult ... numpmid: 1
+  132.0.99 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 5767327
+dbpmda> fetch unbound.mem.mod.iterator
+PMID(s): 132.0.98
+pmResult ... numpmid: 1
+  132.0.98 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 16533
+dbpmda> fetch unbound.mem.cache.message
+PMID(s): 132.0.97
+pmResult ... numpmid: 1
+  132.0.97 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 3489660942
+dbpmda> fetch unbound.mem.cache.rrset
+PMID(s): 132.0.96
+pmResult ... numpmid: 1
+  132.0.96 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 6979321816
+dbpmda> fetch unbound.mem.total.sbrk
+PMID(s): 132.0.95
+pmResult ... numpmid: 1
+  132.0.95 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 932696064
+dbpmda> fetch unbound.num.query.edns.DO
+PMID(s): 132.0.94
+pmResult ... numpmid: 1
+  132.0.94 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 24823419
+dbpmda> fetch unbound.num.query.edns.present
+PMID(s): 132.0.93
+pmResult ... numpmid: 1
+  132.0.93 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 37857200
+dbpmda> fetch unbound.num.query.flags.CD
+PMID(s): 132.0.92
+pmResult ... numpmid: 1
+  132.0.92 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 20798561
+dbpmda> fetch unbound.num.query.flags.AD
+PMID(s): 132.0.91
+pmResult ... numpmid: 1
+  132.0.91 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 1451
+dbpmda> fetch unbound.num.query.flags.Z
+PMID(s): 132.0.90
+pmResult ... numpmid: 1
+  132.0.90 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 1
+dbpmda> fetch unbound.num.query.flags.RA
+PMID(s): 132.0.89
+pmResult ... numpmid: 1
+  132.0.89 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 5925778
+dbpmda> fetch unbound.num.query.flags.RD
+PMID(s): 132.0.88
+pmResult ... numpmid: 1
+  132.0.88 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 3936152736
+dbpmda> fetch unbound.num.query.flags.TC
+PMID(s): 132.0.87
+pmResult ... numpmid: 1
+  132.0.87 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 0
+dbpmda> fetch unbound.num.query.flags.AA
+PMID(s): 132.0.86
+pmResult ... numpmid: 1
+  132.0.86 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 122829
+dbpmda> fetch unbound.num.query.flags.QR
+PMID(s): 132.0.85
+pmResult ... numpmid: 1
+  132.0.85 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 0
+dbpmda> fetch unbound.num.query.ipv6
+PMID(s): 132.0.84
+pmResult ... numpmid: 1
+  132.0.84 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 3766719
+dbpmda> fetch unbound.num.query.tcp
+PMID(s): 132.0.83
+pmResult ... numpmid: 1
+  132.0.83 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 559352
+dbpmda> fetch unbound.num.query.opcode.QUERY
+PMID(s): 132.0.82
+pmResult ... numpmid: 1
+  132.0.82 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 3936174726
+dbpmda> fetch unbound.num.query.class.other
+PMID(s): 132.0.81
+pmResult ... numpmid: 1
+  132.0.81 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 2228057
+dbpmda> fetch unbound.num.query.class.ANY
+PMID(s): 132.0.80
+pmResult ... numpmid: 1
+  132.0.80 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 55765
+dbpmda> fetch unbound.num.query.class.CLASS240
+PMID(s): 132.0.79
+pmResult ... numpmid: 1
+  132.0.79 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 0
+dbpmda> fetch unbound.num.query.class.CLASS115
+PMID(s): 132.0.78
+pmResult ... numpmid: 1
+  132.0.78 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 0
+dbpmda> fetch unbound.num.query.class.CLASS65
+PMID(s): 132.0.77
+pmResult ... numpmid: 1
+  132.0.77 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 0
+dbpmda> fetch unbound.num.query.class.CLASS6
+PMID(s): 132.0.76
+pmResult ... numpmid: 1
+  132.0.76 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 413817
+dbpmda> fetch unbound.num.query.class.CH
+PMID(s): 132.0.75
+pmResult ... numpmid: 1
+  132.0.75 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 940
+dbpmda> fetch unbound.num.query.class.IN
+PMID(s): 132.0.74
+pmResult ... numpmid: 1
+  132.0.74 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 3933476130
+dbpmda> fetch unbound.num.query.class.CLASS0
+PMID(s): 132.0.73
+pmResult ... numpmid: 1
+  132.0.73 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 19
+dbpmda> fetch unbound.num.query.type.other
+PMID(s): 132.0.72
+pmResult ... numpmid: 1
+  132.0.72 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 1747063
+dbpmda> fetch unbound.num.query.type.ANY
+PMID(s): 132.0.71
+pmResult ... numpmid: 1
+  132.0.71 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 7847351
+dbpmda> fetch unbound.num.query.type.AXFR
+PMID(s): 132.0.70
+pmResult ... numpmid: 1
+  132.0.70 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 6
+dbpmda> fetch unbound.num.query.type.IXFR
+PMID(s): 132.0.69
+pmResult ... numpmid: 1
+  132.0.69 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 0
+dbpmda> fetch unbound.num.query.type.TKEY
+PMID(s): 132.0.68
+pmResult ... numpmid: 1
+  132.0.68 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 0
+dbpmda> fetch unbound.num.query.type.TYPE123
+PMID(s): 132.0.67
+pmResult ... numpmid: 1
+  132.0.67 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 0
+dbpmda> fetch unbound.num.query.type.TYPE119
+PMID(s): 132.0.66
+pmResult ... numpmid: 1
+  132.0.66 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 0
+dbpmda> fetch unbound.num.query.type.TYPE117
+PMID(s): 132.0.65
+pmResult ... numpmid: 1
+  132.0.65 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 0
+dbpmda> fetch unbound.num.query.type.TYPE110
+PMID(s): 132.0.64
+pmResult ... numpmid: 1
+  132.0.64 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 0
+dbpmda> fetch unbound.num.query.type.EUI64
+PMID(s): 132.0.63
+pmResult ... numpmid: 1
+  132.0.63 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 0
+dbpmda> fetch unbound.num.query.type.TYPE103
+PMID(s): 132.0.62
+pmResult ... numpmid: 1
+  132.0.62 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 0
+dbpmda> fetch unbound.num.query.type.SPF
+PMID(s): 132.0.61
+pmResult ... numpmid: 1
+  132.0.61 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 18474
+dbpmda> fetch unbound.num.query.type.TYPE97
+PMID(s): 132.0.60
+pmResult ... numpmid: 1
+  132.0.60 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 0
+dbpmda> fetch unbound.num.query.type.TYPE76
+PMID(s): 132.0.59
+pmResult ... numpmid: 1
+  132.0.59 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 0
+dbpmda> fetch unbound.num.query.type.TYPE67
+PMID(s): 132.0.58
+pmResult ... numpmid: 1
+  132.0.58 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 0
+dbpmda> fetch unbound.num.query.type.TYPE65
+PMID(s): 132.0.57
+pmResult ... numpmid: 1
+  132.0.57 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 0
+dbpmda> fetch unbound.num.query.type.TLSA
+PMID(s): 132.0.56
+pmResult ... numpmid: 1
+  132.0.56 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 10
+dbpmda> fetch unbound.num.query.type.DNSKEY
+PMID(s): 132.0.55
+pmResult ... numpmid: 1
+  132.0.55 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 115878
+dbpmda> fetch unbound.num.query.type.NSEC
+PMID(s): 132.0.54
+pmResult ... numpmid: 1
+  132.0.54 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 392
+dbpmda> fetch unbound.num.query.type.RRSIG
+PMID(s): 132.0.53
+pmResult ... numpmid: 1
+  132.0.53 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 382
+dbpmda> fetch unbound.num.query.type.SSHFP
+PMID(s): 132.0.52
+pmResult ... numpmid: 1
+  132.0.52 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 35
+dbpmda> fetch unbound.num.query.type.DS
+PMID(s): 132.0.51
+pmResult ... numpmid: 1
+  132.0.51 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 138059
+dbpmda> fetch unbound.num.query.type.A6
+PMID(s): 132.0.50
+pmResult ... numpmid: 1
+  132.0.50 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 200198
+dbpmda> fetch unbound.num.query.type.NAPTR
+PMID(s): 132.0.49
+pmResult ... numpmid: 1
+  132.0.49 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 95790
+dbpmda> fetch unbound.num.query.type.ATMA
+PMID(s): 132.0.48
+pmResult ... numpmid: 1
+  132.0.48 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 0
+dbpmda> fetch unbound.num.query.type.SRV
+PMID(s): 132.0.47
+pmResult ... numpmid: 1
+  132.0.47 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 27651828
+dbpmda> fetch unbound.num.query.type.AAAA
+PMID(s): 132.0.46
+pmResult ... numpmid: 1
+  132.0.46 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 183502051
+dbpmda> fetch unbound.num.query.type.RT
+PMID(s): 132.0.45
+pmResult ... numpmid: 1
+  132.0.45 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 0
+dbpmda> fetch unbound.num.query.type.ISDN
+PMID(s): 132.0.44
+pmResult ... numpmid: 1
+  132.0.44 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 378
+dbpmda> fetch unbound.num.query.type.X25
+PMID(s): 132.0.43
+pmResult ... numpmid: 1
+  132.0.43 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 419
+dbpmda> fetch unbound.num.query.type.AFSDB
+PMID(s): 132.0.42
+pmResult ... numpmid: 1
+  132.0.42 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 395
+dbpmda> fetch unbound.num.query.type.RP
+PMID(s): 132.0.41
+pmResult ... numpmid: 1
+  132.0.41 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 375
+dbpmda> fetch unbound.num.query.type.TXT
+PMID(s): 132.0.40
+pmResult ... numpmid: 1
+  132.0.40 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 14960654
+dbpmda> fetch unbound.num.query.type.MX
+PMID(s): 132.0.39
+pmResult ... numpmid: 1
+  132.0.39 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 1894729
+dbpmda> fetch unbound.num.query.type.MINFO
+PMID(s): 132.0.38
+pmResult ... numpmid: 1
+  132.0.38 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 0
+dbpmda> fetch unbound.num.query.type.HINFO
+PMID(s): 132.0.37
+pmResult ... numpmid: 1
+  132.0.37 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 390
+dbpmda> fetch unbound.num.query.type.PTR
+PMID(s): 132.0.36
+pmResult ... numpmid: 1
+  132.0.36 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 48662135
+dbpmda> fetch unbound.num.query.type.WKS
+PMID(s): 132.0.35
+pmResult ... numpmid: 1
+  132.0.35 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 454
+dbpmda> fetch unbound.num.query.type.NULL
+PMID(s): 132.0.34
+pmResult ... numpmid: 1
+  132.0.34 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 92
+dbpmda> fetch unbound.num.query.type.MR
+PMID(s): 132.0.33
+pmResult ... numpmid: 1
+  132.0.33 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 0
+dbpmda> fetch unbound.num.query.type.MG
+PMID(s): 132.0.32
+pmResult ... numpmid: 1
+  132.0.32 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 0
+dbpmda> fetch unbound.num.query.type.MB
+PMID(s): 132.0.31
+pmResult ... numpmid: 1
+  132.0.31 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 0
+dbpmda> fetch unbound.num.query.type.SOA
+PMID(s): 132.0.30
+pmResult ... numpmid: 1
+  132.0.30 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 27742543
+dbpmda> fetch unbound.num.query.type.CNAME
+PMID(s): 132.0.29
+pmResult ... numpmid: 1
+  132.0.29 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 110655
+dbpmda> fetch unbound.num.query.type.MF
+PMID(s): 132.0.28
+pmResult ... numpmid: 1
+  132.0.28 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 0
+dbpmda> fetch unbound.num.query.type.MD
+PMID(s): 132.0.27
+pmResult ... numpmid: 1
+  132.0.27 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 0
+dbpmda> fetch unbound.num.query.type.NS
+PMID(s): 132.0.26
+pmResult ... numpmid: 1
+  132.0.26 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 1432002
+dbpmda> fetch unbound.num.query.type.A
+PMID(s): 132.0.25
+pmResult ... numpmid: 1
+  132.0.25 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 3619150729
+dbpmda> fetch unbound.num.query.type.TYPE0
+PMID(s): 132.0.24
+pmResult ... numpmid: 1
+  132.0.24 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 898950
+dbpmda> fetch unbound.num.rrset.bogus
+PMID(s): 132.0.23
+pmResult ... numpmid: 1
+  132.0.23 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 115784
+dbpmda> fetch unbound.num.answer.bogus
+PMID(s): 132.0.22
+pmResult ... numpmid: 1
+  132.0.22 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 222350
+dbpmda> fetch unbound.num.answer.secure
+PMID(s): 132.0.21
+pmResult ... numpmid: 1
+  132.0.21 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 115793230
+dbpmda> fetch unbound.num.answer.rcode.nodata
+PMID(s): 132.0.20
+pmResult ... numpmid: 1
+  132.0.20 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 96575036
+dbpmda> fetch unbound.num.answer.rcode.REFUSED
+PMID(s): 132.0.19
+pmResult ... numpmid: 1
+  132.0.19 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 2663611
+dbpmda> fetch unbound.num.answer.rcode.NXDOMAIN
+PMID(s): 132.0.18
+pmResult ... numpmid: 1
+  132.0.18 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 250652034
+dbpmda> fetch unbound.num.answer.rcode.SERVFAIL
+PMID(s): 132.0.17
+pmResult ... numpmid: 1
+  132.0.17 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 102220543
+dbpmda> fetch unbound.num.answer.rcode.FORMERR
+PMID(s): 132.0.16
+pmResult ... numpmid: 1
+  132.0.16 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 6957
+dbpmda> fetch unbound.num.answer.rcode.NOERROR
+PMID(s): 132.0.15
+pmResult ... numpmid: 1
+  132.0.15 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 3580637399
+dbpmda> fetch unbound.unwanted.replies
+PMID(s): 132.0.14
+pmResult ... numpmid: 1
+  132.0.14 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 391862
+dbpmda> fetch unbound.unwanted.queries
+PMID(s): 132.0.13
+pmResult ... numpmid: 1
+  132.0.13 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 0
+dbpmda> fetch unbound.total.recursion.time.median
+PMID(s): 132.0.12
+pmResult ... numpmid: 1
+  132.0.12 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 0.047496799
+dbpmda> fetch unbound.total.recursion.time.avg
+PMID(s): 132.0.11
+pmResult ... numpmid: 1
+  132.0.11 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 1.010404
+dbpmda> fetch unbound.total.requestlist.current.user
+PMID(s): 132.0.10
+pmResult ... numpmid: 1
+  132.0.10 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 905
+dbpmda> fetch unbound.total.requestlist.current.all
+PMID(s): 132.0.9
+pmResult ... numpmid: 1
+  132.0.9 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 1800
+dbpmda> fetch unbound.total.requestlist.exceeded
+PMID(s): 132.0.8
+pmResult ... numpmid: 1
+  132.0.8 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 2
+dbpmda> fetch unbound.total.requestlist.overwritten
+PMID(s): 132.0.7
+pmResult ... numpmid: 1
+  132.0.7 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 0
+dbpmda> fetch unbound.total.requestlist.max
+PMID(s): 132.0.6
+pmResult ... numpmid: 1
+  132.0.6 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 2713
+dbpmda> fetch unbound.total.requestlist.avg
+PMID(s): 132.0.5
+pmResult ... numpmid: 1
+  132.0.5 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 198.55299
+dbpmda> fetch unbound.total.num.recursivereplies
+PMID(s): 132.0.4
+pmResult ... numpmid: 1
+  132.0.4 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 219047040
+dbpmda> fetch unbound.total.num.prefetch
+PMID(s): 132.0.3
+pmResult ... numpmid: 1
+  132.0.3 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 50853979
+dbpmda> fetch unbound.total.num.cachemiss
+PMID(s): 132.0.2
+pmResult ... numpmid: 1
+  132.0.2 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 219048184
+dbpmda> fetch unbound.total.num.cachehits
+PMID(s): 132.0.1
+pmResult ... numpmid: 1
+  132.0.1 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 3717517590
+dbpmda> fetch unbound.total.num.queries
+PMID(s): 132.0.0
+pmResult ... numpmid: 1
+  132.0.0 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 3936565774
+dbpmda> 

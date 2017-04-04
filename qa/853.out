@@ -1,0 +1,402 @@
+QA output created by 853
+=== simple cases ===
+----------------------
+# 1 "<stdin>"
+# 1 "TMP.inc"
+
+
+text from .inc file
+# 2 "<stdin>"
+Firstly, there is the mumble and "fumble" ...
+
+what about urk ? expect this to be \u\r\k not \e\e\k
+
+urk at start of line
+at end of line urk
+text from .in file
+
+not-defined if-part
+
+
+
+
+
+
+defined else-part
+
+Text at end of file.
+----------------------
+# 1 "<stdin>"
+# 1 "TMP.inc"
+
+
+text from .inc file
+# 2 "<stdin>"
+Firstly, there is the mumble and "fumble" ...
+
+what about urk ? expect this to be \u\r\k not \e\e\k
+
+urk at start of line
+at end of line urk
+text from .in file
+
+
+
+not-defined else-part
+
+
+defined if-part
+
+
+
+Text at end of file.
+----------------------
+
+=== expansion with -r ===
+----------------------
+# 1 "<stdin>"
+# 1 "TMP.inc"
+
+
+text from .inc file
+# 2 "<stdin>"
+Firstly, there is the mumble ...
+
+what about eek ? expect this to be \u\r\k not \e\e\k
+
+eek at start of line
+at end of line eek
+text from .in file
+
+not-defined if-part
+
+
+
+
+
+
+defined else-part
+
+Text at end of file.
+----------------------
+# 1 "<stdin>"
+# 1 "TMP.inc"
+<<macro eek="urk"
+
+<<macro mumble="mumble and "fumble""
+
+text from .inc file
+# 2 "<stdin>"
+Firstly, there is the mumble ...
+
+<<name="%eek"
+<<value="urk"
+<<increased obuf[] to 256 chars
+what about urk ? expect this to be \u\r\k not \e\e\k
+<<name="%{eek}"
+<<value="urk"
+and what about urk ? expect this to be \u\r\k not \e\e\k
+
+<<name="%eek"
+<<value="urk"
+urk <percent>eek at start of line
+<<name="%eek"
+<<value="urk"
+<percent>eek at end of line urk
+<<name="%{eek}"
+<<value="urk"
+urk <percent>{eek} at start of line
+<<name="%{eek}"
+<<value="urk"
+<percent>{eek} at end of line urk
+text from .in file
+<<lines: in 14 out 16 (modified 6) substitutions: 6
+Check lines in and out ...
+in: 11 + 3
+out: 16
+----------------------
+
+=== -D on command line cases ===
+----------------------
+# 1 "<stdin>"
+# 1 "TMP.inc"
+
+
+blah=blah=blah=... from .inc file
+# 2 "<stdin>"
+Firstly, there is the mumble and "fumble" ...
+
+what about urk ? expect this to be \u\r\k not \e\e\k
+
+urk at start of line
+at end of line urk
+blah=blah=blah=... from .in file
+
+not-defined if-part
+
+
+
+
+
+
+defined else-part
+
+Text at end of file.
+----------------------
+# 1 "<stdin>"
+# 1 "TMP.inc"
+
+
+blah blah blah ... from .inc file
+# 2 "<stdin>"
+Firstly, there is the mumble and "fumble" ...
+
+what about urk ? expect this to be \u\r\k not \e\e\k
+
+urk at start of line
+at end of line urk
+blah blah blah ... from .in file
+
+not-defined if-part
+
+
+
+
+
+
+defined else-part
+
+Text at end of file.
+----------------------
+
+=== error cases ===
+----------------------
+# 1 "<stdin>"
+foo
+
+
+pmcpp: <stdin>:
+pmcpp: Error: End of input and no matching %endif for %ifdef or %ifndef at line 2
+----------------------
+# 1 "<stdin>"
+%macro value with embedded newline - bad
+pmcpp: <stdin>[2]: %define multi 'one line
+pmcpp: Error: Unterminated value string in %define
+----------------------
+# 1 "<stdin>"
+# exposed #else outside #if ... scope
+test
+pmcpp: <stdin>[3]: #else
+pmcpp: Error: No matching #ifdef or #ifndef for #else
+----------------------
+
+=== macro name and corner-case expansion tests ===
+----------------------
+# 1 "<stdin>"
+
+What about urk?  [expect urk]
+----------------------
+# 1 "<stdin>"
+<<macro long_macro_name_and_short_value="!"
+
+<<macro x="^a very long macro value to be sure, to be sure$"
+
+<<name="%"
+<<name="%{long_macro_name_and_short_value}"
+<<value="!"
+<<increased obuf[] to 256 chars
+<<name="%{long_macro_name_and_short_value}"
+<<value="!"
+<<name="%{long_macro_name_and_short_value}"
+<<value="!"
+<<name="%"
+<<name="%"
+<<name="%"
+some text %!!!% [expect %!!!%]
+<<name="%x"
+<<value="^a very long macro value to be sure, to be sure$"
+<<name="%x"
+<<value="^a very long macro value to be sure, to be sure$"
+<<name="%x"
+<<value="^a very long macro value to be sure, to be sure$"
+[expect ^...$^...$^...$] ^a very long macro value to be sure, to be sure$^a very long macro value to be sure, to be sure$^a very long macro value to be sure, to be sure$
+<<lines: in 4 out 5 (modified 2) substitutions: 6
+----------------------
+# 1 "<stdin>"
+<<macro Llanfairpwllgwyngyllgogerychwyrndrobwllllantysiliogogogoch="LLanfair"
+
+<<doubled ibuf[] to 512 chars
+<<doubled ibuf[] to 1024 chars
+<<name="The"
+<<name="town"
+<<name="of"
+<<name="Llanfairpwllgwyngyllgogerychwyrndrobwllllantysiliogogogoch"
+<<value="LLanfair"
+<<increased obuf[] to 1024 chars
+<<name="is"
+<<name="a"
+<<name="village"
+<<name="in"
+<<name="Wales"
+<<name="and"
+<<name="is"
+<<name="famous"
+<<name="for"
+<<name="being"
+<<name="apparently"
+<<name="the"
+<<name="longest"
+<<name="place"
+<<name="name"
+<<name="in"
+<<name="the"
+<<name="world"
+<<name="There"
+<<name="are"
+<<name="lots"
+<<name="of"
+<<name="web"
+<<name="pages"
+<<name="mentioning"
+<<name="Llanfairpwllgwyngyllgogerychwyrndrobwllllantysiliogogogoch"
+<<value="LLanfair"
+<<name="Locally"
+<<name="Llanfairpwllgwyngyllgogerychwyrndrobwllllantysiliogogogoch"
+<<value="LLanfair"
+<<name="is"
+<<name="just"
+<<name="too"
+<<name="much"
+<<name="of"
+<<name="a"
+<<name="mouthful"
+<<name="and"
+<<name="so"
+<<name="it"
+<<name="is"
+<<name="truncated"
+<<name="from"
+<<name="Llanfairpwllgwyngyllgogerychwyrndrobwllllantysiliogogogoch"
+<<value="LLanfair"
+<<name="to"
+<<name="Llanfair"
+<<name="With"
+<<name="one"
+<<name="more"
+<<name="mention"
+<<name="of"
+<<name="Llanfairpwllgwyngyllgogerychwyrndrobwllllantysiliogogogoch"
+<<value="LLanfair"
+<<name="I"
+<<name="think"
+<<name="this"
+<<name="line"
+<<name="will"
+<<name="be"
+<<name="long"
+<<name="enough"
+The town of LLanfair is a village in Wales and is famous for being apparently the longest place name in the world.  There are lots of web pages mentioning LLanfair.  Locally LLanfair is just too much of a mouthful and so it is truncated from "LLanfair" to "Llanfair".  With one more mention of LLanfair, I think this line will be long enough.
+<<name="Phew"
+<<name="that"
+<<name="was"
+<<name="a"
+<<name="long"
+<<name="input"
+<<name="line"
+<<name="chars"
+Phew that was a long input line ... 593 chars!
+<<lines: in 3 out 4 (modified 1) substitutions: 5
+----------------------
+
+=== conditionals, bells and whistles ===
+----------------------
+# 1 "<stdin>"
+# 1 "TMP.freq"
+
+
+# 2 "<stdin>"
+
+log mandatory on 1minute {
+    disk.dev
+}
+
+
+
+
+
+
+
+
+----------------------
+# 1 "<stdin>"
+# 1 "TMP.freq"
+
+
+# 2 "<stdin>"
+
+log mandatory on 1minute {
+    disk.dev
+}
+
+
+
+log mandatory on 15 sec {
+    kernel.all.cpu.user
+    kernel.all.cpu.sys
+}
+
+----------------------
+
+=== -I tests ===
+----------------------
+# 1 "a"
+# 1 "b"
+Text from b.
+# 2 "a"
+Text from a.
+<<lines: in 3 out 5 (modified 0) substitutions: 0
+----------------------
+# 1 "a"
+<<include "./b"?
+<<include "/var/lib/pcp/pmns/b"?
+pmcpp: a[1]: #include <b>
+pmcpp: Error: Cannot open file for #include
+----------------------
+# 1 "a"
+<<include "./b"?
+<<include "sub/b"?
+# 1 "sub/b"
+Text from b.
+# 2 "a"
+Text from a.
+<<lines: in 3 out 5 (modified 0) substitutions: 0
+----------------------
+# 1 "a"
+<<include "./b"?
+<<include "sub/b"?
+# 1 "sub/b"
+<<include "./c-foobar"?
+<<include "sub/c-foobar"?
+<<include "sub/sub-sub/c-foobar"?
+# 1 "sub/sub-sub/c-foobar"
+Text from c-foobar.
+# 2 "sub/b"
+Text from b.
+# 2 "a"
+Text from a.
+<<lines: in 5 out 8 (modified 0) substitutions: 0
+----------------------
+# 1 "sub/a"
+<<include "sub/b"?
+# 1 "sub/b"
+<<include "sub/c-foobar"?
+# 1 "sub/c-foobar"
+Text from c-foobar.
+# 2 "sub/b"
+Text from b.
+# 2 "sub/a"
+Text from a.
+<<lines: in 5 out 8 (modified 0) substitutions: 0
+----------------------
+expect no diff lines ...
+----------------------

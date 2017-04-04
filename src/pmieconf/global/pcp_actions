@@ -1,0 +1,89 @@
+#pmieconf-rules 1
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(5)
+# 
+
+# action definitions applicable to all rules follow
+# 
+# o  $rule$ defined locally & contains the "message" to be propagated
+#
+# o  $*_expand$ often overridden locally & contains the part of the
+#    action string which is rule-semantics specific and will be expanded
+#    possibly multiple times on truthful evaluation of the predicate to
+#    contain values/instances/hosts which matched,e.g:
+#    "%v@%h" might expand to "1.1@moomba 1.7@rattle 4.5@wobbly" if all
+#    the rule is true for all of the hosts moomba, rattle and wobbly.
+#
+#    some common alternatives:
+#	%i@%h		(inst@host)
+#	%h		(host)
+#	%v[%i]@%h	(value:inst@host)
+#	%v%@%h		(value%@host)
+# 
+
+string	global.action_expand
+	display	= no
+	modify	= no
+	default = "%v@%h";	# (value@host)
+
+string	global.email_expand
+	display	= no
+	modify	= no
+	default = "%v@%h";	# (value@host)
+
+
+shell	global.user_action
+	enabled	= no
+	default	= "$user_command$"
+	help	=
+"Execute \"user_command\" when the rule condition is true";
+
+string	global.user_command
+	default = "echo $rule$^ $action_expand$"
+	help	=
+"Shell (sh(1)) command line to execute when rule condition is true
+and \"user_action\" is enabled.";
+
+
+shell	global.email_action
+	enabled	= no
+	default	= "pmie_email '$email_recipients$|$rule$^|$email_expand$^'"
+	help	=
+"A mail message will be sent to \"email_recipients\" when the rule
+condition is true.";
+
+string	global.email_recipients
+	default = "root"
+	help	=
+"Space separated list of e-mail addresses for notification from the
+\"email_action\" when it is enabled";
+
+
+shell	global.pcplog_action
+	enabled	= no
+	default	= "pmpost pmie: $rule$^ $action_expand$"
+	help	=
+"The PCP notices file $PCP_LOG_DIR/NOTICES will be updated when
+the rule condition is true.";
+
+
+syslog	global.syslog_action
+	enabled	= yes
+	default	= "$syslog_prefix$$rule$^ $action_expand$"
+	help	=
+"The system log file (usually /var/log/messages) will be updated
+when the rule condition is true.";
+
+string	global.syslog_prefix
+	display	= no
+	modify	= no
+	default	= "";
+
+# for SGI Embedded Support Partner integration, use:
+#	$ pmieconf modify global syslog_prefix '$esp_prefix$'
+string	global.esp_prefix
+	display	= no
+	modify	= no
+	default = "|\\\\$($esp_type$)";
+
+# 
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(5)

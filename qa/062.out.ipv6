@@ -1,0 +1,1194 @@
+QA output created by 062
+testing single op for all ops...
+
+
+Host access list:
+00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 Cur/MaxCons host-spec                               host-mask                               lvl host-name
+== == == == == == == == == == == == == == == == == == == == == == == == == == == == == == == == =========== ======================================= ======================================= === ==============
+ n                                                                                                  0     0 155.0.17.0                              255.255.255.255                           0 155.0.17.0
+    n                                                                                               0     0 155.3.18.1                              255.255.255.255                           0 155.3.18.1
+       n                                                                                            0     0 155.6.19.2                              255.255.255.255                           0 155.6.19.2
+          n                                                                                         0     0 155.9.20.3                              255.255.255.255                           0 155.9.20.3
+             n                                                                                      0     0 155.12.21.4                             255.255.255.255                           0 155.12.21.4
+                n                                                                                   0     0 155.15.22.5                             255.255.255.255                           0 155.15.22.5
+                   n                                                                                0     0 155.18.23.6                             255.255.255.255                           0 155.18.23.6
+                      n                                                                             0     0 155.21.24.7                             255.255.255.255                           0 155.21.24.7
+                         n                                                                          0     0 155.24.25.8                             255.255.255.255                           0 155.24.25.8
+                            n                                                                       0     0 155.27.26.9                             255.255.255.255                           0 155.27.26.9
+                               n                                                                    0     0 155.30.27.10                            255.255.255.255                           0 155.30.27.10
+                                  n                                                                 0     0 155.33.28.11                            255.255.255.255                           0 155.33.28.11
+                                     n                                                              0     0 155.36.29.12                            255.255.255.255                           0 155.36.29.12
+                                        n                                                           0     0 155.39.30.13                            255.255.255.255                           0 155.39.30.13
+                                           n                                                        0     0 155.42.31.14                            255.255.255.255                           0 155.42.31.14
+                                              n                                                     0     0 155.45.32.15                            255.255.255.255                           0 155.45.32.15
+                                                 n                                                  0     0 155.48.33.16                            255.255.255.255                           0 155.48.33.16
+                                                    n                                               0     0 155.51.34.17                            255.255.255.255                           0 155.51.34.17
+                                                       n                                            0     0 155.54.35.18                            255.255.255.255                           0 155.54.35.18
+                                                          n                                         0     0 155.57.36.19                            255.255.255.255                           0 155.57.36.19
+                                                             n                                      0     0 155.60.37.20                            255.255.255.255                           0 155.60.37.20
+                                                                n                                   0     0 155.63.38.21                            255.255.255.255                           0 155.63.38.21
+                                                                   n                                0     0 155.66.39.22                            255.255.255.255                           0 155.66.39.22
+                                                                      n                             0     0 155.69.40.23                            255.255.255.255                           0 155.69.40.23
+                                                                         n                          0     0 155.72.41.24                            255.255.255.255                           0 155.72.41.24
+                                                                            n                       0     0 155.75.42.25                            255.255.255.255                           0 155.75.42.25
+                                                                               n                    0     0 155.78.43.26                            255.255.255.255                           0 155.78.43.26
+                                                                                  n                 0     0 155.81.44.27                            255.255.255.255                           0 155.81.44.27
+                                                                                     n              0     0 155.84.45.28                            255.255.255.255                           0 155.84.45.28
+                                                                                        n           0     0 155.87.46.29                            255.255.255.255                           0 155.87.46.29
+                                                                                           n        0     0 155.90.47.30                            255.255.255.255                           0 155.90.47.30
+                                                                                              n     0     0 155.93.48.31                            255.255.255.255                           0 155.93.48.31
+
+
+
+Host access list:
+00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 Cur/MaxCons host-spec                               host-mask                               lvl host-name
+== == == == == == == == == == == == == == == == == == == == == == == == == == == == == == == == =========== ======================================= ======================================= === ==============
+ n                                                                                                  0     0 155.0.17.0                              255.255.255.255                           0 155.0.17.0
+    n                                                                                               0     0 155.3.18.1                              255.255.255.255                           0 155.3.18.1
+       n                                                                                            0     0 155.6.19.2                              255.255.255.255                           0 155.6.19.2
+          n                                                                                         0     0 155.9.20.3                              255.255.255.255                           0 155.9.20.3
+             n                                                                                      0     0 155.12.21.4                             255.255.255.255                           0 155.12.21.4
+                n                                                                                   0     0 155.15.22.5                             255.255.255.255                           0 155.15.22.5
+                   n                                                                                0     0 155.18.23.6                             255.255.255.255                           0 155.18.23.6
+                      n                                                                             0     0 155.21.24.7                             255.255.255.255                           0 155.21.24.7
+                         n                                                                          0     0 155.24.25.8                             255.255.255.255                           0 155.24.25.8
+                            n                                                                       0     0 155.27.26.9                             255.255.255.255                           0 155.27.26.9
+                               n                                                                    0     0 155.30.27.10                            255.255.255.255                           0 155.30.27.10
+                                  n                                                                 0     0 155.33.28.11                            255.255.255.255                           0 155.33.28.11
+                                     n                                                              0     0 155.36.29.12                            255.255.255.255                           0 155.36.29.12
+                                        n                                                           0     0 155.39.30.13                            255.255.255.255                           0 155.39.30.13
+                                           n                                                        0     0 155.42.31.14                            255.255.255.255                           0 155.42.31.14
+                                              n                                                     0     0 155.45.32.15                            255.255.255.255                           0 155.45.32.15
+                                                 n                                                  0     0 155.48.33.16                            255.255.255.255                           0 155.48.33.16
+                                                    n                                               0     0 155.51.34.17                            255.255.255.255                           0 155.51.34.17
+                                                       n                                            0     0 155.54.35.18                            255.255.255.255                           0 155.54.35.18
+                                                          n                                         0     0 155.57.36.19                            255.255.255.255                           0 155.57.36.19
+                                                             n                                      0     0 155.60.37.20                            255.255.255.255                           0 155.60.37.20
+                                                                n                                   0     0 155.63.38.21                            255.255.255.255                           0 155.63.38.21
+                                                                   n                                0     0 155.66.39.22                            255.255.255.255                           0 155.66.39.22
+                                                                      n                             0     0 155.69.40.23                            255.255.255.255                           0 155.69.40.23
+                                                                         n                          0     0 155.72.41.24                            255.255.255.255                           0 155.72.41.24
+                                                                            n                       0     0 155.75.42.25                            255.255.255.255                           0 155.75.42.25
+                                                                               n                    0     0 155.78.43.26                            255.255.255.255                           0 155.78.43.26
+                                                                                  n                 0     0 155.81.44.27                            255.255.255.255                           0 155.81.44.27
+                                                                                     n              0     0 155.84.45.28                            255.255.255.255                           0 155.84.45.28
+                                                                                        n           0     0 155.87.46.29                            255.255.255.255                           0 155.87.46.29
+                                                                                           n        0     0 155.90.47.30                            255.255.255.255                           0 155.90.47.30
+                                                                                              n     0     0 155.93.48.31                            255.255.255.255                           0 155.93.48.31
+
+
+testing all except one op for all ops...
+
+
+Host access list:
+00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 Cur/MaxCons host-spec                               host-mask                               lvl host-name
+== == == == == == == == == == == == == == == == == == == == == == == == == == == == == == == == =========== ======================================= ======================================= === ==============
+    n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n     0     0 155.0.17.0                              255.255.255.255                           0 155.0.17.0
+ n     n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n     0     1 155.3.18.1                              255.255.255.255                           0 155.3.18.1
+ n  n     n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n     0     2 155.6.19.2                              255.255.255.255                           0 155.6.19.2
+ n  n  n     n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n     0     3 155.9.20.3                              255.255.255.255                           0 155.9.20.3
+ n  n  n  n     n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n     0     4 155.12.21.4                             255.255.255.255                           0 155.12.21.4
+ n  n  n  n  n     n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n     0     5 155.15.22.5                             255.255.255.255                           0 155.15.22.5
+ n  n  n  n  n  n     n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n     0     6 155.18.23.6                             255.255.255.255                           0 155.18.23.6
+ n  n  n  n  n  n  n     n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n     0     7 155.21.24.7                             255.255.255.255                           0 155.21.24.7
+ n  n  n  n  n  n  n  n     n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n     0     8 155.24.25.8                             255.255.255.255                           0 155.24.25.8
+ n  n  n  n  n  n  n  n  n     n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n     0     9 155.27.26.9                             255.255.255.255                           0 155.27.26.9
+ n  n  n  n  n  n  n  n  n  n     n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n     0    10 155.30.27.10                            255.255.255.255                           0 155.30.27.10
+ n  n  n  n  n  n  n  n  n  n  n     n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n     0    11 155.33.28.11                            255.255.255.255                           0 155.33.28.11
+ n  n  n  n  n  n  n  n  n  n  n  n     n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n     0    12 155.36.29.12                            255.255.255.255                           0 155.36.29.12
+ n  n  n  n  n  n  n  n  n  n  n  n  n     n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n     0    13 155.39.30.13                            255.255.255.255                           0 155.39.30.13
+ n  n  n  n  n  n  n  n  n  n  n  n  n  n     n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n     0    14 155.42.31.14                            255.255.255.255                           0 155.42.31.14
+ n  n  n  n  n  n  n  n  n  n  n  n  n  n  n     n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n     0    15 155.45.32.15                            255.255.255.255                           0 155.45.32.15
+ n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n     n  n  n  n  n  n  n  n  n  n  n  n  n  n  n     0    16 155.48.33.16                            255.255.255.255                           0 155.48.33.16
+ n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n     n  n  n  n  n  n  n  n  n  n  n  n  n  n     0    17 155.51.34.17                            255.255.255.255                           0 155.51.34.17
+ n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n     n  n  n  n  n  n  n  n  n  n  n  n  n     0    18 155.54.35.18                            255.255.255.255                           0 155.54.35.18
+ n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n     n  n  n  n  n  n  n  n  n  n  n  n     0    19 155.57.36.19                            255.255.255.255                           0 155.57.36.19
+ n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n     n  n  n  n  n  n  n  n  n  n  n     0    20 155.60.37.20                            255.255.255.255                           0 155.60.37.20
+ n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n     n  n  n  n  n  n  n  n  n  n     0    21 155.63.38.21                            255.255.255.255                           0 155.63.38.21
+ n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n     n  n  n  n  n  n  n  n  n     0    22 155.66.39.22                            255.255.255.255                           0 155.66.39.22
+ n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n     n  n  n  n  n  n  n  n     0    23 155.69.40.23                            255.255.255.255                           0 155.69.40.23
+ n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n     n  n  n  n  n  n  n     0    24 155.72.41.24                            255.255.255.255                           0 155.72.41.24
+ n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n     n  n  n  n  n  n     0    25 155.75.42.25                            255.255.255.255                           0 155.75.42.25
+ n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n     n  n  n  n  n     0    26 155.78.43.26                            255.255.255.255                           0 155.78.43.26
+ n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n     n  n  n  n     0    27 155.81.44.27                            255.255.255.255                           0 155.81.44.27
+ n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n     n  n  n     0    28 155.84.45.28                            255.255.255.255                           0 155.84.45.28
+ n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n     n  n     0    29 155.87.46.29                            255.255.255.255                           0 155.87.46.29
+ n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n     n     0    30 155.90.47.30                            255.255.255.255                           0 155.90.47.30
+ n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n        0    31 155.93.48.31                            255.255.255.255                           0 155.93.48.31
+
+
+
+Host access list:
+00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 Cur/MaxCons host-spec                               host-mask                               lvl host-name
+== == == == == == == == == == == == == == == == == == == == == == == == == == == == == == == == =========== ======================================= ======================================= === ==============
+    n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n     0     0 155.0.17.0                              255.255.255.255                           0 155.0.17.0
+ n     n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n     1     1 155.3.18.1                              255.255.255.255                           0 155.3.18.1
+ n  n     n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n     2     2 155.6.19.2                              255.255.255.255                           0 155.6.19.2
+ n  n  n     n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n     3     3 155.9.20.3                              255.255.255.255                           0 155.9.20.3
+ n  n  n  n     n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n     4     4 155.12.21.4                             255.255.255.255                           0 155.12.21.4
+ n  n  n  n  n     n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n     5     5 155.15.22.5                             255.255.255.255                           0 155.15.22.5
+ n  n  n  n  n  n     n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n     6     6 155.18.23.6                             255.255.255.255                           0 155.18.23.6
+ n  n  n  n  n  n  n     n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n     7     7 155.21.24.7                             255.255.255.255                           0 155.21.24.7
+ n  n  n  n  n  n  n  n     n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n     8     8 155.24.25.8                             255.255.255.255                           0 155.24.25.8
+ n  n  n  n  n  n  n  n  n     n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n     9     9 155.27.26.9                             255.255.255.255                           0 155.27.26.9
+ n  n  n  n  n  n  n  n  n  n     n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n    10    10 155.30.27.10                            255.255.255.255                           0 155.30.27.10
+ n  n  n  n  n  n  n  n  n  n  n     n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n    11    11 155.33.28.11                            255.255.255.255                           0 155.33.28.11
+ n  n  n  n  n  n  n  n  n  n  n  n     n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n    12    12 155.36.29.12                            255.255.255.255                           0 155.36.29.12
+ n  n  n  n  n  n  n  n  n  n  n  n  n     n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n    13    13 155.39.30.13                            255.255.255.255                           0 155.39.30.13
+ n  n  n  n  n  n  n  n  n  n  n  n  n  n     n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n    14    14 155.42.31.14                            255.255.255.255                           0 155.42.31.14
+ n  n  n  n  n  n  n  n  n  n  n  n  n  n  n     n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n    15    15 155.45.32.15                            255.255.255.255                           0 155.45.32.15
+ n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n     n  n  n  n  n  n  n  n  n  n  n  n  n  n  n    16    16 155.48.33.16                            255.255.255.255                           0 155.48.33.16
+ n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n     n  n  n  n  n  n  n  n  n  n  n  n  n  n    17    17 155.51.34.17                            255.255.255.255                           0 155.51.34.17
+ n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n     n  n  n  n  n  n  n  n  n  n  n  n  n    18    18 155.54.35.18                            255.255.255.255                           0 155.54.35.18
+ n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n     n  n  n  n  n  n  n  n  n  n  n  n    19    19 155.57.36.19                            255.255.255.255                           0 155.57.36.19
+ n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n     n  n  n  n  n  n  n  n  n  n  n    20    20 155.60.37.20                            255.255.255.255                           0 155.60.37.20
+ n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n     n  n  n  n  n  n  n  n  n  n    21    21 155.63.38.21                            255.255.255.255                           0 155.63.38.21
+ n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n     n  n  n  n  n  n  n  n  n    22    22 155.66.39.22                            255.255.255.255                           0 155.66.39.22
+ n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n     n  n  n  n  n  n  n  n    23    23 155.69.40.23                            255.255.255.255                           0 155.69.40.23
+ n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n     n  n  n  n  n  n  n    24    24 155.72.41.24                            255.255.255.255                           0 155.72.41.24
+ n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n     n  n  n  n  n  n    25    25 155.75.42.25                            255.255.255.255                           0 155.75.42.25
+ n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n     n  n  n  n  n    26    26 155.78.43.26                            255.255.255.255                           0 155.78.43.26
+ n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n     n  n  n  n    27    27 155.81.44.27                            255.255.255.255                           0 155.81.44.27
+ n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n     n  n  n    28    28 155.84.45.28                            255.255.255.255                           0 155.84.45.28
+ n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n     n  n    29    29 155.87.46.29                            255.255.255.255                           0 155.87.46.29
+ n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n     n    30    30 155.90.47.30                            255.255.255.255                           0 155.90.47.30
+ n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n  n       31    31 155.93.48.31                            255.255.255.255                           0 155.93.48.31
+
+
+testing all combinations of ops in a range...
+set 001 for host 0.0.0.0
+set 002 for host 0.0.0.1
+set 003 for host 0.0.0.127
+set 004 for host 0.0.0.254
+set 005 for host 0.0.15.0
+set 006 for host 0.0.15.1
+set 007 for host 0.0.15.127
+set 008 for host 0.0.15.254
+set 009 for host 0.0.191.0
+set 00a for host 0.0.191.1
+set 00b for host 0.0.191.127
+set 00c for host 0.0.191.254
+set 00d for host 0.0.64.0
+set 00e for host 0.0.64.1
+set 00f for host 0.0.64.127
+set 010 for host 0.0.64.254
+set 111 for host 0.201.0.0
+set 112 for host 0.201.0.1
+set 113 for host 0.201.0.127
+set 114 for host 0.201.0.254
+set 115 for host 0.201.15.0
+set 116 for host 0.201.15.1
+set 117 for host 0.201.15.127
+set 118 for host 0.201.15.254
+set 119 for host 0.201.191.0
+set 11a for host 0.201.191.1
+set 11b for host 0.201.191.127
+set 11c for host 0.201.191.254
+set 11d for host 0.201.64.0
+set 11e for host 0.201.64.1
+set 11f for host 0.201.64.127
+set 120 for host 0.201.64.254
+set 221 for host 0.77.0.0
+set 222 for host 0.77.0.1
+set 223 for host 0.77.0.127
+set 224 for host 0.77.0.254
+set 225 for host 0.77.15.0
+set 226 for host 0.77.15.1
+set 227 for host 0.77.15.127
+set 228 for host 0.77.15.254
+set 229 for host 0.77.191.0
+set 22a for host 0.77.191.1
+set 22b for host 0.77.191.127
+set 22c for host 0.77.191.254
+set 22d for host 0.77.64.0
+set 22e for host 0.77.64.1
+set 22f for host 0.77.64.127
+set 230 for host 0.77.64.254
+set 331 for host 0.127.0.0
+set 332 for host 0.127.0.1
+set 333 for host 0.127.0.127
+set 334 for host 0.127.0.254
+set 335 for host 0.127.15.0
+set 336 for host 0.127.15.1
+set 337 for host 0.127.15.127
+set 338 for host 0.127.15.254
+set 339 for host 0.127.191.0
+set 33a for host 0.127.191.1
+set 33b for host 0.127.191.127
+set 33c for host 0.127.191.254
+set 33d for host 0.127.64.0
+set 33e for host 0.127.64.1
+set 33f for host 0.127.64.127
+set 340 for host 0.127.64.254
+set 041 for host 37.0.0.0
+set 042 for host 37.0.0.1
+set 043 for host 37.0.0.127
+set 044 for host 37.0.0.254
+set 045 for host 37.0.15.0
+set 046 for host 37.0.15.1
+set 047 for host 37.0.15.127
+set 048 for host 37.0.15.254
+set 049 for host 37.0.191.0
+set 04a for host 37.0.191.1
+set 04b for host 37.0.191.127
+set 04c for host 37.0.191.254
+set 04d for host 37.0.64.0
+set 04e for host 37.0.64.1
+set 04f for host 37.0.64.127
+set 050 for host 37.0.64.254
+set 051 for host 37.201.0.0
+set 052 for host 37.201.0.1
+set 053 for host 37.201.0.127
+set 054 for host 37.201.0.254
+set 055 for host 37.201.15.0
+set 056 for host 37.201.15.1
+set 057 for host 37.201.15.127
+set 058 for host 37.201.15.254
+set 059 for host 37.201.191.0
+set 05a for host 37.201.191.1
+set 05b for host 37.201.191.127
+set 05c for host 37.201.191.254
+set 05d for host 37.201.64.0
+set 05e for host 37.201.64.1
+set 05f for host 37.201.64.127
+set 060 for host 37.201.64.254
+set 061 for host 37.77.0.0
+set 062 for host 37.77.0.1
+set 063 for host 37.77.0.127
+set 064 for host 37.77.0.254
+set 065 for host 37.77.15.0
+set 066 for host 37.77.15.1
+set 067 for host 37.77.15.127
+set 068 for host 37.77.15.254
+set 069 for host 37.77.191.0
+set 06a for host 37.77.191.1
+set 06b for host 37.77.191.127
+set 06c for host 37.77.191.254
+set 06d for host 37.77.64.0
+set 06e for host 37.77.64.1
+set 06f for host 37.77.64.127
+set 070 for host 37.77.64.254
+set 071 for host 37.127.0.0
+set 072 for host 37.127.0.1
+set 073 for host 37.127.0.127
+set 074 for host 37.127.0.254
+set 075 for host 37.127.15.0
+set 076 for host 37.127.15.1
+set 077 for host 37.127.15.127
+set 078 for host 37.127.15.254
+set 079 for host 37.127.191.0
+set 07a for host 37.127.191.1
+set 07b for host 37.127.191.127
+set 07c for host 37.127.191.254
+set 07d for host 37.127.64.0
+set 07e for host 37.127.64.1
+set 07f for host 37.127.64.127
+set 080 for host 37.127.64.254
+set 081 for host 235.0.0.0
+set 082 for host 235.0.0.1
+set 083 for host 235.0.0.127
+set 084 for host 235.0.0.254
+set 085 for host 235.0.15.0
+set 086 for host 235.0.15.1
+set 087 for host 235.0.15.127
+set 088 for host 235.0.15.254
+set 089 for host 235.0.191.0
+set 08a for host 235.0.191.1
+set 08b for host 235.0.191.127
+set 08c for host 235.0.191.254
+set 08d for host 235.0.64.0
+set 08e for host 235.0.64.1
+set 08f for host 235.0.64.127
+set 090 for host 235.0.64.254
+set 091 for host 235.201.0.0
+set 092 for host 235.201.0.1
+set 093 for host 235.201.0.127
+set 094 for host 235.201.0.254
+set 095 for host 235.201.15.0
+set 096 for host 235.201.15.1
+set 097 for host 235.201.15.127
+set 098 for host 235.201.15.254
+set 099 for host 235.201.191.0
+set 09a for host 235.201.191.1
+set 09b for host 235.201.191.127
+set 09c for host 235.201.191.254
+set 09d for host 235.201.64.0
+set 09e for host 235.201.64.1
+set 09f for host 235.201.64.127
+set 0a0 for host 235.201.64.254
+set 0a1 for host 235.77.0.0
+set 0a2 for host 235.77.0.1
+set 0a3 for host 235.77.0.127
+set 0a4 for host 235.77.0.254
+set 0a5 for host 235.77.15.0
+set 0a6 for host 235.77.15.1
+set 0a7 for host 235.77.15.127
+set 0a8 for host 235.77.15.254
+set 0a9 for host 235.77.191.0
+set 0aa for host 235.77.191.1
+set 0ab for host 235.77.191.127
+set 0ac for host 235.77.191.254
+set 0ad for host 235.77.64.0
+set 0ae for host 235.77.64.1
+set 0af for host 235.77.64.127
+set 0b0 for host 235.77.64.254
+set 0b1 for host 235.127.0.0
+set 0b2 for host 235.127.0.1
+set 0b3 for host 235.127.0.127
+set 0b4 for host 235.127.0.254
+set 0b5 for host 235.127.15.0
+set 0b6 for host 235.127.15.1
+set 0b7 for host 235.127.15.127
+set 0b8 for host 235.127.15.254
+set 0b9 for host 235.127.191.0
+set 0ba for host 235.127.191.1
+set 0bb for host 235.127.191.127
+set 0bc for host 235.127.191.254
+set 0bd for host 235.127.64.0
+set 0be for host 235.127.64.1
+set 0bf for host 235.127.64.127
+set 0c0 for host 235.127.64.254
+set 0c1 for host 126.0.0.0
+set 0c2 for host 126.0.0.1
+set 0c3 for host 126.0.0.127
+set 0c4 for host 126.0.0.254
+set 0c5 for host 126.0.15.0
+set 0c6 for host 126.0.15.1
+set 0c7 for host 126.0.15.127
+set 0c8 for host 126.0.15.254
+set 0c9 for host 126.0.191.0
+set 0ca for host 126.0.191.1
+set 0cb for host 126.0.191.127
+set 0cc for host 126.0.191.254
+set 0cd for host 126.0.64.0
+set 0ce for host 126.0.64.1
+set 0cf for host 126.0.64.127
+set 0d0 for host 126.0.64.254
+set 0d1 for host 126.201.0.0
+set 0d2 for host 126.201.0.1
+set 0d3 for host 126.201.0.127
+set 0d4 for host 126.201.0.254
+set 0d5 for host 126.201.15.0
+set 0d6 for host 126.201.15.1
+set 0d7 for host 126.201.15.127
+set 0d8 for host 126.201.15.254
+set 0d9 for host 126.201.191.0
+set 0da for host 126.201.191.1
+set 0db for host 126.201.191.127
+set 0dc for host 126.201.191.254
+set 0dd for host 126.201.64.0
+set 0de for host 126.201.64.1
+set 0df for host 126.201.64.127
+set 0e0 for host 126.201.64.254
+set 0e1 for host 126.77.0.0
+set 0e2 for host 126.77.0.1
+set 0e3 for host 126.77.0.127
+set 0e4 for host 126.77.0.254
+set 0e5 for host 126.77.15.0
+set 0e6 for host 126.77.15.1
+set 0e7 for host 126.77.15.127
+set 0e8 for host 126.77.15.254
+set 0e9 for host 126.77.191.0
+set 0ea for host 126.77.191.1
+set 0eb for host 126.77.191.127
+set 0ec for host 126.77.191.254
+set 0ed for host 126.77.64.0
+set 0ee for host 126.77.64.1
+set 0ef for host 126.77.64.127
+set 0f0 for host 126.77.64.254
+set 0f1 for host 126.127.0.0
+set 0f2 for host 126.127.0.1
+set 0f3 for host 126.127.0.127
+set 0f4 for host 126.127.0.254
+set 0f5 for host 126.127.15.0
+set 0f6 for host 126.127.15.1
+set 0f7 for host 126.127.15.127
+set 0f8 for host 126.127.15.254
+set 0f9 for host 126.127.191.0
+set 0fa for host 126.127.191.1
+set 0fb for host 126.127.191.127
+set 0fc for host 126.127.191.254
+set 0fd for host 126.127.64.0
+set 0fe for host 126.127.64.1
+set 0ff for host 126.127.64.127
+expect error, perm=256 (>255):
+set 400 for host 126.127.64.254
+
+
+Host access list:
+00 01 02 03 04 05 06 07 08 09 Cur/MaxCons host-spec                               host-mask                               lvl host-name
+== == == == == == == == == == =========== ======================================= ======================================= === ==============
+ n  y  y  y  y  y  y  y  y  y     0     0 0.0.0.0                                 255.255.255.255                           0 0.0.0.0
+ y  n  y  y  y  y  y  y  y  y     0     0 0.0.0.1                                 255.255.255.255                           0 0.0.0.1
+ n  n  y  y  y  y  y  y  y  y     0     0 0.0.0.127                               255.255.255.255                           0 0.0.0.127
+ y  y  n  y  y  y  y  y  y  y     0     0 0.0.0.254                               255.255.255.255                           0 0.0.0.254
+ n  y  n  y  y  y  y  y  y  y     0     0 0.0.15.0                                255.255.255.255                           0 0.0.15.0
+ y  n  n  y  y  y  y  y  y  y     0     0 0.0.15.1                                255.255.255.255                           0 0.0.15.1
+ n  n  n  y  y  y  y  y  y  y     0     0 0.0.15.127                              255.255.255.255                           0 0.0.15.127
+ y  y  y  n  y  y  y  y  y  y     0     0 0.0.15.254                              255.255.255.255                           0 0.0.15.254
+ n  y  y  n  y  y  y  y  y  y     0     0 0.0.191.0                               255.255.255.255                           0 0.0.191.0
+ y  n  y  n  y  y  y  y  y  y     0     0 0.0.191.1                               255.255.255.255                           0 0.0.191.1
+ n  n  y  n  y  y  y  y  y  y     0     0 0.0.191.127                             255.255.255.255                           0 0.0.191.127
+ y  y  n  n  y  y  y  y  y  y     0     0 0.0.191.254                             255.255.255.255                           0 0.0.191.254
+ n  y  n  n  y  y  y  y  y  y     0     0 0.0.64.0                                255.255.255.255                           0 0.0.64.0
+ y  n  n  n  y  y  y  y  y  y     0     0 0.0.64.1                                255.255.255.255                           0 0.0.64.1
+ n  n  n  n  y  y  y  y  y  y     0     0 0.0.64.127                              255.255.255.255                           0 0.0.64.127
+ y  y  y  y  n  y  y  y  y  y     0     0 0.0.64.254                              255.255.255.255                           0 0.0.64.254
+ n  y  y  y  n  y  y  y  n  y     0     0 0.201.0.0                               255.255.255.255                           0 0.201.0.0
+ y  n  y  y  n  y  y  y  n  y     0     0 0.201.0.1                               255.255.255.255                           0 0.201.0.1
+ n  n  y  y  n  y  y  y  n  y     0     0 0.201.0.127                             255.255.255.255                           0 0.201.0.127
+ y  y  n  y  n  y  y  y  n  y     0     0 0.201.0.254                             255.255.255.255                           0 0.201.0.254
+ n  y  n  y  n  y  y  y  n  y     0     0 0.201.15.0                              255.255.255.255                           0 0.201.15.0
+ y  n  n  y  n  y  y  y  n  y     0     0 0.201.15.1                              255.255.255.255                           0 0.201.15.1
+ n  n  n  y  n  y  y  y  n  y     0     0 0.201.15.127                            255.255.255.255                           0 0.201.15.127
+ y  y  y  n  n  y  y  y  n  y     0     0 0.201.15.254                            255.255.255.255                           0 0.201.15.254
+ n  y  y  n  n  y  y  y  n  y     0     0 0.201.191.0                             255.255.255.255                           0 0.201.191.0
+ y  n  y  n  n  y  y  y  n  y     0     0 0.201.191.1                             255.255.255.255                           0 0.201.191.1
+ n  n  y  n  n  y  y  y  n  y     0     0 0.201.191.127                           255.255.255.255                           0 0.201.191.127
+ y  y  n  n  n  y  y  y  n  y     0     0 0.201.191.254                           255.255.255.255                           0 0.201.191.254
+ n  y  n  n  n  y  y  y  n  y     0     0 0.201.64.0                              255.255.255.255                           0 0.201.64.0
+ y  n  n  n  n  y  y  y  n  y     0     0 0.201.64.1                              255.255.255.255                           0 0.201.64.1
+ n  n  n  n  n  y  y  y  n  y     0     0 0.201.64.127                            255.255.255.255                           0 0.201.64.127
+ y  y  y  y  y  n  y  y  n  y     0     0 0.201.64.254                            255.255.255.255                           0 0.201.64.254
+ n  y  y  y  y  n  y  y  y  n     0     0 0.77.0.0                                255.255.255.255                           0 0.77.0.0
+ y  n  y  y  y  n  y  y  y  n     0     0 0.77.0.1                                255.255.255.255                           0 0.77.0.1
+ n  n  y  y  y  n  y  y  y  n     0     0 0.77.0.127                              255.255.255.255                           0 0.77.0.127
+ y  y  n  y  y  n  y  y  y  n     0     0 0.77.0.254                              255.255.255.255                           0 0.77.0.254
+ n  y  n  y  y  n  y  y  y  n     0     0 0.77.15.0                               255.255.255.255                           0 0.77.15.0
+ y  n  n  y  y  n  y  y  y  n     0     0 0.77.15.1                               255.255.255.255                           0 0.77.15.1
+ n  n  n  y  y  n  y  y  y  n     0     0 0.77.15.127                             255.255.255.255                           0 0.77.15.127
+ y  y  y  n  y  n  y  y  y  n     0     0 0.77.15.254                             255.255.255.255                           0 0.77.15.254
+ n  y  y  n  y  n  y  y  y  n     0     0 0.77.191.0                              255.255.255.255                           0 0.77.191.0
+ y  n  y  n  y  n  y  y  y  n     0     0 0.77.191.1                              255.255.255.255                           0 0.77.191.1
+ n  n  y  n  y  n  y  y  y  n     0     0 0.77.191.127                            255.255.255.255                           0 0.77.191.127
+ y  y  n  n  y  n  y  y  y  n     0     0 0.77.191.254                            255.255.255.255                           0 0.77.191.254
+ n  y  n  n  y  n  y  y  y  n     0     0 0.77.64.0                               255.255.255.255                           0 0.77.64.0
+ y  n  n  n  y  n  y  y  y  n     0     0 0.77.64.1                               255.255.255.255                           0 0.77.64.1
+ n  n  n  n  y  n  y  y  y  n     0     0 0.77.64.127                             255.255.255.255                           0 0.77.64.127
+ y  y  y  y  n  n  y  y  y  n     0     0 0.77.64.254                             255.255.255.255                           0 0.77.64.254
+ n  y  y  y  n  n  y  y  n  n     0     0 0.127.0.0                               255.255.255.255                           0 0.127.0.0
+ y  n  y  y  n  n  y  y  n  n     0     0 0.127.0.1                               255.255.255.255                           0 0.127.0.1
+ n  n  y  y  n  n  y  y  n  n     0     0 0.127.0.127                             255.255.255.255                           0 0.127.0.127
+ y  y  n  y  n  n  y  y  n  n     0     0 0.127.0.254                             255.255.255.255                           0 0.127.0.254
+ n  y  n  y  n  n  y  y  n  n     0     0 0.127.15.0                              255.255.255.255                           0 0.127.15.0
+ y  n  n  y  n  n  y  y  n  n     0     0 0.127.15.1                              255.255.255.255                           0 0.127.15.1
+ n  n  n  y  n  n  y  y  n  n     0     0 0.127.15.127                            255.255.255.255                           0 0.127.15.127
+ y  y  y  n  n  n  y  y  n  n     0     0 0.127.15.254                            255.255.255.255                           0 0.127.15.254
+ n  y  y  n  n  n  y  y  n  n     0     0 0.127.191.0                             255.255.255.255                           0 0.127.191.0
+ y  n  y  n  n  n  y  y  n  n     0     0 0.127.191.1                             255.255.255.255                           0 0.127.191.1
+ n  n  y  n  n  n  y  y  n  n     0     0 0.127.191.127                           255.255.255.255                           0 0.127.191.127
+ y  y  n  n  n  n  y  y  n  n     0     0 0.127.191.254                           255.255.255.255                           0 0.127.191.254
+ n  y  n  n  n  n  y  y  n  n     0     0 0.127.64.0                              255.255.255.255                           0 0.127.64.0
+ y  n  n  n  n  n  y  y  n  n     0     0 0.127.64.1                              255.255.255.255                           0 0.127.64.1
+ n  n  n  n  n  n  y  y  n  n     0     0 0.127.64.127                            255.255.255.255                           0 0.127.64.127
+ y  y  y  y  y  y  n  y  n  n     0     0 0.127.64.254                            255.255.255.255                           0 0.127.64.254
+ n  y  y  y  y  y  n  y           0     0 37.0.0.0                                255.255.255.255                           0 37.0.0.0
+ y  n  y  y  y  y  n  y           0     0 37.0.0.1                                255.255.255.255                           0 37.0.0.1
+ n  n  y  y  y  y  n  y           0     0 37.0.0.127                              255.255.255.255                           0 37.0.0.127
+ y  y  n  y  y  y  n  y           0     0 37.0.0.254                              255.255.255.255                           0 37.0.0.254
+ n  y  n  y  y  y  n  y           0     0 37.0.15.0                               255.255.255.255                           0 37.0.15.0
+ y  n  n  y  y  y  n  y           0     0 37.0.15.1                               255.255.255.255                           0 37.0.15.1
+ n  n  n  y  y  y  n  y           0     0 37.0.15.127                             255.255.255.255                           0 37.0.15.127
+ y  y  y  n  y  y  n  y           0     0 37.0.15.254                             255.255.255.255                           0 37.0.15.254
+ n  y  y  n  y  y  n  y           0     0 37.0.191.0                              255.255.255.255                           0 37.0.191.0
+ y  n  y  n  y  y  n  y           0     0 37.0.191.1                              255.255.255.255                           0 37.0.191.1
+ n  n  y  n  y  y  n  y           0     0 37.0.191.127                            255.255.255.255                           0 37.0.191.127
+ y  y  n  n  y  y  n  y           0     0 37.0.191.254                            255.255.255.255                           0 37.0.191.254
+ n  y  n  n  y  y  n  y           0     0 37.0.64.0                               255.255.255.255                           0 37.0.64.0
+ y  n  n  n  y  y  n  y           0     0 37.0.64.1                               255.255.255.255                           0 37.0.64.1
+ n  n  n  n  y  y  n  y           0     0 37.0.64.127                             255.255.255.255                           0 37.0.64.127
+ y  y  y  y  n  y  n  y           0     0 37.0.64.254                             255.255.255.255                           0 37.0.64.254
+ n  y  y  y  n  y  n  y           0     0 37.201.0.0                              255.255.255.255                           0 37.201.0.0
+ y  n  y  y  n  y  n  y           0     0 37.201.0.1                              255.255.255.255                           0 37.201.0.1
+ n  n  y  y  n  y  n  y           0     0 37.201.0.127                            255.255.255.255                           0 37.201.0.127
+ y  y  n  y  n  y  n  y           0     0 37.201.0.254                            255.255.255.255                           0 37.201.0.254
+ n  y  n  y  n  y  n  y           0     0 37.201.15.0                             255.255.255.255                           0 37.201.15.0
+ y  n  n  y  n  y  n  y           0     0 37.201.15.1                             255.255.255.255                           0 37.201.15.1
+ n  n  n  y  n  y  n  y           0     0 37.201.15.127                           255.255.255.255                           0 37.201.15.127
+ y  y  y  n  n  y  n  y           0     0 37.201.15.254                           255.255.255.255                           0 37.201.15.254
+ n  y  y  n  n  y  n  y           0     0 37.201.191.0                            255.255.255.255                           0 37.201.191.0
+ y  n  y  n  n  y  n  y           0     0 37.201.191.1                            255.255.255.255                           0 37.201.191.1
+ n  n  y  n  n  y  n  y           0     0 37.201.191.127                          255.255.255.255                           0 37.201.191.127
+ y  y  n  n  n  y  n  y           0     0 37.201.191.254                          255.255.255.255                           0 37.201.191.254
+ n  y  n  n  n  y  n  y           0     0 37.201.64.0                             255.255.255.255                           0 37.201.64.0
+ y  n  n  n  n  y  n  y           0     0 37.201.64.1                             255.255.255.255                           0 37.201.64.1
+ n  n  n  n  n  y  n  y           0     0 37.201.64.127                           255.255.255.255                           0 37.201.64.127
+ y  y  y  y  y  n  n  y           0     0 37.201.64.254                           255.255.255.255                           0 37.201.64.254
+ n  y  y  y  y  n  n  y           0     0 37.77.0.0                               255.255.255.255                           0 37.77.0.0
+ y  n  y  y  y  n  n  y           0     0 37.77.0.1                               255.255.255.255                           0 37.77.0.1
+ n  n  y  y  y  n  n  y           0     0 37.77.0.127                             255.255.255.255                           0 37.77.0.127
+ y  y  n  y  y  n  n  y           0     0 37.77.0.254                             255.255.255.255                           0 37.77.0.254
+ n  y  n  y  y  n  n  y           0     0 37.77.15.0                              255.255.255.255                           0 37.77.15.0
+ y  n  n  y  y  n  n  y           0     0 37.77.15.1                              255.255.255.255                           0 37.77.15.1
+ n  n  n  y  y  n  n  y           0     0 37.77.15.127                            255.255.255.255                           0 37.77.15.127
+ y  y  y  n  y  n  n  y           0     0 37.77.15.254                            255.255.255.255                           0 37.77.15.254
+ n  y  y  n  y  n  n  y           0     0 37.77.191.0                             255.255.255.255                           0 37.77.191.0
+ y  n  y  n  y  n  n  y           0     0 37.77.191.1                             255.255.255.255                           0 37.77.191.1
+ n  n  y  n  y  n  n  y           0     0 37.77.191.127                           255.255.255.255                           0 37.77.191.127
+ y  y  n  n  y  n  n  y           0     0 37.77.191.254                           255.255.255.255                           0 37.77.191.254
+ n  y  n  n  y  n  n  y           0     0 37.77.64.0                              255.255.255.255                           0 37.77.64.0
+ y  n  n  n  y  n  n  y           0     0 37.77.64.1                              255.255.255.255                           0 37.77.64.1
+ n  n  n  n  y  n  n  y           0     0 37.77.64.127                            255.255.255.255                           0 37.77.64.127
+ y  y  y  y  n  n  n  y           0     0 37.77.64.254                            255.255.255.255                           0 37.77.64.254
+ n  y  y  y  n  n  n  y           0     0 37.127.0.0                              255.255.255.255                           0 37.127.0.0
+ y  n  y  y  n  n  n  y           0     0 37.127.0.1                              255.255.255.255                           0 37.127.0.1
+ n  n  y  y  n  n  n  y           0     0 37.127.0.127                            255.255.255.255                           0 37.127.0.127
+ y  y  n  y  n  n  n  y           0     0 37.127.0.254                            255.255.255.255                           0 37.127.0.254
+ n  y  n  y  n  n  n  y           0     0 37.127.15.0                             255.255.255.255                           0 37.127.15.0
+ y  n  n  y  n  n  n  y           0     0 37.127.15.1                             255.255.255.255                           0 37.127.15.1
+ n  n  n  y  n  n  n  y           0     0 37.127.15.127                           255.255.255.255                           0 37.127.15.127
+ y  y  y  n  n  n  n  y           0     0 37.127.15.254                           255.255.255.255                           0 37.127.15.254
+ n  y  y  n  n  n  n  y           0     0 37.127.191.0                            255.255.255.255                           0 37.127.191.0
+ y  n  y  n  n  n  n  y           0     0 37.127.191.1                            255.255.255.255                           0 37.127.191.1
+ n  n  y  n  n  n  n  y           0     0 37.127.191.127                          255.255.255.255                           0 37.127.191.127
+ y  y  n  n  n  n  n  y           0     0 37.127.191.254                          255.255.255.255                           0 37.127.191.254
+ n  y  n  n  n  n  n  y           0     0 37.127.64.0                             255.255.255.255                           0 37.127.64.0
+ y  n  n  n  n  n  n  y           0     0 37.127.64.1                             255.255.255.255                           0 37.127.64.1
+ n  n  n  n  n  n  n  y           0     0 37.127.64.127                           255.255.255.255                           0 37.127.64.127
+ y  y  y  y  y  y  y  n           0     0 37.127.64.254                           255.255.255.255                           0 37.127.64.254
+ n  y  y  y  y  y  y  n           0     0 235.0.0.0                               255.255.255.255                           0 235.0.0.0
+ y  n  y  y  y  y  y  n           0     0 235.0.0.1                               255.255.255.255                           0 235.0.0.1
+ n  n  y  y  y  y  y  n           0     0 235.0.0.127                             255.255.255.255                           0 235.0.0.127
+ y  y  n  y  y  y  y  n           0     0 235.0.0.254                             255.255.255.255                           0 235.0.0.254
+ n  y  n  y  y  y  y  n           0     0 235.0.15.0                              255.255.255.255                           0 235.0.15.0
+ y  n  n  y  y  y  y  n           0     0 235.0.15.1                              255.255.255.255                           0 235.0.15.1
+ n  n  n  y  y  y  y  n           0     0 235.0.15.127                            255.255.255.255                           0 235.0.15.127
+ y  y  y  n  y  y  y  n           0     0 235.0.15.254                            255.255.255.255                           0 235.0.15.254
+ n  y  y  n  y  y  y  n           0     0 235.0.191.0                             255.255.255.255                           0 235.0.191.0
+ y  n  y  n  y  y  y  n           0     0 235.0.191.1                             255.255.255.255                           0 235.0.191.1
+ n  n  y  n  y  y  y  n           0     0 235.0.191.127                           255.255.255.255                           0 235.0.191.127
+ y  y  n  n  y  y  y  n           0     0 235.0.191.254                           255.255.255.255                           0 235.0.191.254
+ n  y  n  n  y  y  y  n           0     0 235.0.64.0                              255.255.255.255                           0 235.0.64.0
+ y  n  n  n  y  y  y  n           0     0 235.0.64.1                              255.255.255.255                           0 235.0.64.1
+ n  n  n  n  y  y  y  n           0     0 235.0.64.127                            255.255.255.255                           0 235.0.64.127
+ y  y  y  y  n  y  y  n           0     0 235.0.64.254                            255.255.255.255                           0 235.0.64.254
+ n  y  y  y  n  y  y  n           0     0 235.201.0.0                             255.255.255.255                           0 235.201.0.0
+ y  n  y  y  n  y  y  n           0     0 235.201.0.1                             255.255.255.255                           0 235.201.0.1
+ n  n  y  y  n  y  y  n           0     0 235.201.0.127                           255.255.255.255                           0 235.201.0.127
+ y  y  n  y  n  y  y  n           0     0 235.201.0.254                           255.255.255.255                           0 235.201.0.254
+ n  y  n  y  n  y  y  n           0     0 235.201.15.0                            255.255.255.255                           0 235.201.15.0
+ y  n  n  y  n  y  y  n           0     0 235.201.15.1                            255.255.255.255                           0 235.201.15.1
+ n  n  n  y  n  y  y  n           0     0 235.201.15.127                          255.255.255.255                           0 235.201.15.127
+ y  y  y  n  n  y  y  n           0     0 235.201.15.254                          255.255.255.255                           0 235.201.15.254
+ n  y  y  n  n  y  y  n           0     0 235.201.191.0                           255.255.255.255                           0 235.201.191.0
+ y  n  y  n  n  y  y  n           0     0 235.201.191.1                           255.255.255.255                           0 235.201.191.1
+ n  n  y  n  n  y  y  n           0     0 235.201.191.127                         255.255.255.255                           0 235.201.191.127
+ y  y  n  n  n  y  y  n           0     0 235.201.191.254                         255.255.255.255                           0 235.201.191.254
+ n  y  n  n  n  y  y  n           0     0 235.201.64.0                            255.255.255.255                           0 235.201.64.0
+ y  n  n  n  n  y  y  n           0     0 235.201.64.1                            255.255.255.255                           0 235.201.64.1
+ n  n  n  n  n  y  y  n           0     0 235.201.64.127                          255.255.255.255                           0 235.201.64.127
+ y  y  y  y  y  n  y  n           0     0 235.201.64.254                          255.255.255.255                           0 235.201.64.254
+ n  y  y  y  y  n  y  n           0     0 235.77.0.0                              255.255.255.255                           0 235.77.0.0
+ y  n  y  y  y  n  y  n           0     0 235.77.0.1                              255.255.255.255                           0 235.77.0.1
+ n  n  y  y  y  n  y  n           0     0 235.77.0.127                            255.255.255.255                           0 235.77.0.127
+ y  y  n  y  y  n  y  n           0     0 235.77.0.254                            255.255.255.255                           0 235.77.0.254
+ n  y  n  y  y  n  y  n           0     0 235.77.15.0                             255.255.255.255                           0 235.77.15.0
+ y  n  n  y  y  n  y  n           0     0 235.77.15.1                             255.255.255.255                           0 235.77.15.1
+ n  n  n  y  y  n  y  n           0     0 235.77.15.127                           255.255.255.255                           0 235.77.15.127
+ y  y  y  n  y  n  y  n           0     0 235.77.15.254                           255.255.255.255                           0 235.77.15.254
+ n  y  y  n  y  n  y  n           0     0 235.77.191.0                            255.255.255.255                           0 235.77.191.0
+ y  n  y  n  y  n  y  n           0     0 235.77.191.1                            255.255.255.255                           0 235.77.191.1
+ n  n  y  n  y  n  y  n           0     0 235.77.191.127                          255.255.255.255                           0 235.77.191.127
+ y  y  n  n  y  n  y  n           0     0 235.77.191.254                          255.255.255.255                           0 235.77.191.254
+ n  y  n  n  y  n  y  n           0     0 235.77.64.0                             255.255.255.255                           0 235.77.64.0
+ y  n  n  n  y  n  y  n           0     0 235.77.64.1                             255.255.255.255                           0 235.77.64.1
+ n  n  n  n  y  n  y  n           0     0 235.77.64.127                           255.255.255.255                           0 235.77.64.127
+ y  y  y  y  n  n  y  n           0     0 235.77.64.254                           255.255.255.255                           0 235.77.64.254
+ n  y  y  y  n  n  y  n           0     0 235.127.0.0                             255.255.255.255                           0 235.127.0.0
+ y  n  y  y  n  n  y  n           0     0 235.127.0.1                             255.255.255.255                           0 235.127.0.1
+ n  n  y  y  n  n  y  n           0     0 235.127.0.127                           255.255.255.255                           0 235.127.0.127
+ y  y  n  y  n  n  y  n           0     0 235.127.0.254                           255.255.255.255                           0 235.127.0.254
+ n  y  n  y  n  n  y  n           0     0 235.127.15.0                            255.255.255.255                           0 235.127.15.0
+ y  n  n  y  n  n  y  n           0     0 235.127.15.1                            255.255.255.255                           0 235.127.15.1
+ n  n  n  y  n  n  y  n           0     0 235.127.15.127                          255.255.255.255                           0 235.127.15.127
+ y  y  y  n  n  n  y  n           0     0 235.127.15.254                          255.255.255.255                           0 235.127.15.254
+ n  y  y  n  n  n  y  n           0     0 235.127.191.0                           255.255.255.255                           0 235.127.191.0
+ y  n  y  n  n  n  y  n           0     0 235.127.191.1                           255.255.255.255                           0 235.127.191.1
+ n  n  y  n  n  n  y  n           0     0 235.127.191.127                         255.255.255.255                           0 235.127.191.127
+ y  y  n  n  n  n  y  n           0     0 235.127.191.254                         255.255.255.255                           0 235.127.191.254
+ n  y  n  n  n  n  y  n           0     0 235.127.64.0                            255.255.255.255                           0 235.127.64.0
+ y  n  n  n  n  n  y  n           0     0 235.127.64.1                            255.255.255.255                           0 235.127.64.1
+ n  n  n  n  n  n  y  n           0     0 235.127.64.127                          255.255.255.255                           0 235.127.64.127
+ y  y  y  y  y  y  n  n           0     0 235.127.64.254                          255.255.255.255                           0 235.127.64.254
+ n  y  y  y  y  y  n  n           0     0 126.0.0.0                               255.255.255.255                           0 126.0.0.0
+ y  n  y  y  y  y  n  n           0     0 126.0.0.1                               255.255.255.255                           0 126.0.0.1
+ n  n  y  y  y  y  n  n           0     0 126.0.0.127                             255.255.255.255                           0 126.0.0.127
+ y  y  n  y  y  y  n  n           0     0 126.0.0.254                             255.255.255.255                           0 126.0.0.254
+ n  y  n  y  y  y  n  n           0     0 126.0.15.0                              255.255.255.255                           0 126.0.15.0
+ y  n  n  y  y  y  n  n           0     0 126.0.15.1                              255.255.255.255                           0 126.0.15.1
+ n  n  n  y  y  y  n  n           0     0 126.0.15.127                            255.255.255.255                           0 126.0.15.127
+ y  y  y  n  y  y  n  n           0     0 126.0.15.254                            255.255.255.255                           0 126.0.15.254
+ n  y  y  n  y  y  n  n           0     0 126.0.191.0                             255.255.255.255                           0 126.0.191.0
+ y  n  y  n  y  y  n  n           0     0 126.0.191.1                             255.255.255.255                           0 126.0.191.1
+ n  n  y  n  y  y  n  n           0     0 126.0.191.127                           255.255.255.255                           0 126.0.191.127
+ y  y  n  n  y  y  n  n           0     0 126.0.191.254                           255.255.255.255                           0 126.0.191.254
+ n  y  n  n  y  y  n  n           0     0 126.0.64.0                              255.255.255.255                           0 126.0.64.0
+ y  n  n  n  y  y  n  n           0     0 126.0.64.1                              255.255.255.255                           0 126.0.64.1
+ n  n  n  n  y  y  n  n           0     0 126.0.64.127                            255.255.255.255                           0 126.0.64.127
+ y  y  y  y  n  y  n  n           0     0 126.0.64.254                            255.255.255.255                           0 126.0.64.254
+ n  y  y  y  n  y  n  n           0     0 126.201.0.0                             255.255.255.255                           0 126.201.0.0
+ y  n  y  y  n  y  n  n           0     0 126.201.0.1                             255.255.255.255                           0 126.201.0.1
+ n  n  y  y  n  y  n  n           0     0 126.201.0.127                           255.255.255.255                           0 126.201.0.127
+ y  y  n  y  n  y  n  n           0     0 126.201.0.254                           255.255.255.255                           0 126.201.0.254
+ n  y  n  y  n  y  n  n           0     0 126.201.15.0                            255.255.255.255                           0 126.201.15.0
+ y  n  n  y  n  y  n  n           0     0 126.201.15.1                            255.255.255.255                           0 126.201.15.1
+ n  n  n  y  n  y  n  n           0     0 126.201.15.127                          255.255.255.255                           0 126.201.15.127
+ y  y  y  n  n  y  n  n           0     0 126.201.15.254                          255.255.255.255                           0 126.201.15.254
+ n  y  y  n  n  y  n  n           0     0 126.201.191.0                           255.255.255.255                           0 126.201.191.0
+ y  n  y  n  n  y  n  n           0     0 126.201.191.1                           255.255.255.255                           0 126.201.191.1
+ n  n  y  n  n  y  n  n           0     0 126.201.191.127                         255.255.255.255                           0 126.201.191.127
+ y  y  n  n  n  y  n  n           0     0 126.201.191.254                         255.255.255.255                           0 126.201.191.254
+ n  y  n  n  n  y  n  n           0     0 126.201.64.0                            255.255.255.255                           0 126.201.64.0
+ y  n  n  n  n  y  n  n           0     0 126.201.64.1                            255.255.255.255                           0 126.201.64.1
+ n  n  n  n  n  y  n  n           0     0 126.201.64.127                          255.255.255.255                           0 126.201.64.127
+ y  y  y  y  y  n  n  n           0     0 126.201.64.254                          255.255.255.255                           0 126.201.64.254
+ n  y  y  y  y  n  n  n           0     0 126.77.0.0                              255.255.255.255                           0 126.77.0.0
+ y  n  y  y  y  n  n  n           0     0 126.77.0.1                              255.255.255.255                           0 126.77.0.1
+ n  n  y  y  y  n  n  n           0     0 126.77.0.127                            255.255.255.255                           0 126.77.0.127
+ y  y  n  y  y  n  n  n           0     0 126.77.0.254                            255.255.255.255                           0 126.77.0.254
+ n  y  n  y  y  n  n  n           0     0 126.77.15.0                             255.255.255.255                           0 126.77.15.0
+ y  n  n  y  y  n  n  n           0     0 126.77.15.1                             255.255.255.255                           0 126.77.15.1
+ n  n  n  y  y  n  n  n           0     0 126.77.15.127                           255.255.255.255                           0 126.77.15.127
+ y  y  y  n  y  n  n  n           0     0 126.77.15.254                           255.255.255.255                           0 126.77.15.254
+ n  y  y  n  y  n  n  n           0     0 126.77.191.0                            255.255.255.255                           0 126.77.191.0
+ y  n  y  n  y  n  n  n           0     0 126.77.191.1                            255.255.255.255                           0 126.77.191.1
+ n  n  y  n  y  n  n  n           0     0 126.77.191.127                          255.255.255.255                           0 126.77.191.127
+ y  y  n  n  y  n  n  n           0     0 126.77.191.254                          255.255.255.255                           0 126.77.191.254
+ n  y  n  n  y  n  n  n           0     0 126.77.64.0                             255.255.255.255                           0 126.77.64.0
+ y  n  n  n  y  n  n  n           0     0 126.77.64.1                             255.255.255.255                           0 126.77.64.1
+ n  n  n  n  y  n  n  n           0     0 126.77.64.127                           255.255.255.255                           0 126.77.64.127
+ y  y  y  y  n  n  n  n           0     0 126.77.64.254                           255.255.255.255                           0 126.77.64.254
+ n  y  y  y  n  n  n  n           0     0 126.127.0.0                             255.255.255.255                           0 126.127.0.0
+ y  n  y  y  n  n  n  n           0     0 126.127.0.1                             255.255.255.255                           0 126.127.0.1
+ n  n  y  y  n  n  n  n           0     0 126.127.0.127                           255.255.255.255                           0 126.127.0.127
+ y  y  n  y  n  n  n  n           0     0 126.127.0.254                           255.255.255.255                           0 126.127.0.254
+ n  y  n  y  n  n  n  n           0     0 126.127.15.0                            255.255.255.255                           0 126.127.15.0
+ y  n  n  y  n  n  n  n           0     0 126.127.15.1                            255.255.255.255                           0 126.127.15.1
+ n  n  n  y  n  n  n  n           0     0 126.127.15.127                          255.255.255.255                           0 126.127.15.127
+ y  y  y  n  n  n  n  n           0     0 126.127.15.254                          255.255.255.255                           0 126.127.15.254
+ n  y  y  n  n  n  n  n           0     0 126.127.191.0                           255.255.255.255                           0 126.127.191.0
+ y  n  y  n  n  n  n  n           0     0 126.127.191.1                           255.255.255.255                           0 126.127.191.1
+ n  n  y  n  n  n  n  n           0     0 126.127.191.127                         255.255.255.255                           0 126.127.191.127
+ y  y  n  n  n  n  n  n           0     0 126.127.191.254                         255.255.255.255                           0 126.127.191.254
+ n  y  n  n  n  n  n  n           0     0 126.127.64.0                            255.255.255.255                           0 126.127.64.0
+ y  n  n  n  n  n  n  n           0     0 126.127.64.1                            255.255.255.255                           0 126.127.64.1
+ n  n  n  n  n  n  n  n           0     0 126.127.64.127                          255.255.255.255                           0 126.127.64.127
+ y  y  y  y  y  y  y  y           0     0 126.127.64.254                          255.255.255.255                           0 126.127.64.254
+                         n  n     0     0 38.202.16.0                             255.255.255.0                             1 38.202.16.*
+                         y  n     0     0 38.202.0.0                              255.255.0.0                               2 38.202.*
+                         n  y     0     0 38.0.0.0                                255.0.0.0                                 3 38.*
+                         y  y     0     0 0.0.0.0                                 0.0.0.0                                   4 .*
+
+
+got 001 for host 0.0.0.0
+got 002 for host 0.0.0.1
+got 003 for host 0.0.0.127
+got 004 for host 0.0.0.254
+got 005 for host 0.0.15.0
+got 006 for host 0.0.15.1
+got 007 for host 0.0.15.127
+got 008 for host 0.0.15.254
+got 009 for host 0.0.191.0
+got 00a for host 0.0.191.1
+got 00b for host 0.0.191.127
+got 00c for host 0.0.191.254
+got 00d for host 0.0.64.0
+got 00e for host 0.0.64.1
+got 00f for host 0.0.64.127
+got 010 for host 0.0.64.254
+got 111 for host 0.201.0.0
+got 112 for host 0.201.0.1
+got 113 for host 0.201.0.127
+got 114 for host 0.201.0.254
+got 115 for host 0.201.15.0
+got 116 for host 0.201.15.1
+got 117 for host 0.201.15.127
+got 118 for host 0.201.15.254
+got 119 for host 0.201.191.0
+got 11a for host 0.201.191.1
+got 11b for host 0.201.191.127
+got 11c for host 0.201.191.254
+got 11d for host 0.201.64.0
+got 11e for host 0.201.64.1
+got 11f for host 0.201.64.127
+got 120 for host 0.201.64.254
+got 221 for host 0.77.0.0
+got 222 for host 0.77.0.1
+got 223 for host 0.77.0.127
+got 224 for host 0.77.0.254
+got 225 for host 0.77.15.0
+got 226 for host 0.77.15.1
+got 227 for host 0.77.15.127
+got 228 for host 0.77.15.254
+got 229 for host 0.77.191.0
+got 22a for host 0.77.191.1
+got 22b for host 0.77.191.127
+got 22c for host 0.77.191.254
+got 22d for host 0.77.64.0
+got 22e for host 0.77.64.1
+got 22f for host 0.77.64.127
+got 230 for host 0.77.64.254
+got 331 for host 0.127.0.0
+got 332 for host 0.127.0.1
+got 333 for host 0.127.0.127
+got 334 for host 0.127.0.254
+got 335 for host 0.127.15.0
+got 336 for host 0.127.15.1
+got 337 for host 0.127.15.127
+got 338 for host 0.127.15.254
+got 339 for host 0.127.191.0
+got 33a for host 0.127.191.1
+got 33b for host 0.127.191.127
+got 33c for host 0.127.191.254
+got 33d for host 0.127.64.0
+got 33e for host 0.127.64.1
+got 33f for host 0.127.64.127
+got 340 for host 0.127.64.254
+got 041 for host 37.0.0.0
+got 042 for host 37.0.0.1
+got 043 for host 37.0.0.127
+got 044 for host 37.0.0.254
+got 045 for host 37.0.15.0
+got 046 for host 37.0.15.1
+got 047 for host 37.0.15.127
+got 048 for host 37.0.15.254
+got 049 for host 37.0.191.0
+got 04a for host 37.0.191.1
+got 04b for host 37.0.191.127
+got 04c for host 37.0.191.254
+got 04d for host 37.0.64.0
+got 04e for host 37.0.64.1
+got 04f for host 37.0.64.127
+got 050 for host 37.0.64.254
+got 051 for host 37.201.0.0
+got 052 for host 37.201.0.1
+got 053 for host 37.201.0.127
+got 054 for host 37.201.0.254
+got 055 for host 37.201.15.0
+got 056 for host 37.201.15.1
+got 057 for host 37.201.15.127
+got 058 for host 37.201.15.254
+got 059 for host 37.201.191.0
+got 05a for host 37.201.191.1
+got 05b for host 37.201.191.127
+got 05c for host 37.201.191.254
+got 05d for host 37.201.64.0
+got 05e for host 37.201.64.1
+got 05f for host 37.201.64.127
+got 060 for host 37.201.64.254
+got 061 for host 37.77.0.0
+got 062 for host 37.77.0.1
+got 063 for host 37.77.0.127
+got 064 for host 37.77.0.254
+got 065 for host 37.77.15.0
+got 066 for host 37.77.15.1
+got 067 for host 37.77.15.127
+got 068 for host 37.77.15.254
+got 069 for host 37.77.191.0
+got 06a for host 37.77.191.1
+got 06b for host 37.77.191.127
+got 06c for host 37.77.191.254
+got 06d for host 37.77.64.0
+got 06e for host 37.77.64.1
+got 06f for host 37.77.64.127
+got 070 for host 37.77.64.254
+got 071 for host 37.127.0.0
+got 072 for host 37.127.0.1
+got 073 for host 37.127.0.127
+got 074 for host 37.127.0.254
+got 075 for host 37.127.15.0
+got 076 for host 37.127.15.1
+got 077 for host 37.127.15.127
+got 078 for host 37.127.15.254
+got 079 for host 37.127.191.0
+got 07a for host 37.127.191.1
+got 07b for host 37.127.191.127
+got 07c for host 37.127.191.254
+got 07d for host 37.127.64.0
+got 07e for host 37.127.64.1
+got 07f for host 37.127.64.127
+got 080 for host 37.127.64.254
+got 081 for host 235.0.0.0
+got 082 for host 235.0.0.1
+got 083 for host 235.0.0.127
+got 084 for host 235.0.0.254
+got 085 for host 235.0.15.0
+got 086 for host 235.0.15.1
+got 087 for host 235.0.15.127
+got 088 for host 235.0.15.254
+got 089 for host 235.0.191.0
+got 08a for host 235.0.191.1
+got 08b for host 235.0.191.127
+got 08c for host 235.0.191.254
+got 08d for host 235.0.64.0
+got 08e for host 235.0.64.1
+got 08f for host 235.0.64.127
+got 090 for host 235.0.64.254
+got 091 for host 235.201.0.0
+got 092 for host 235.201.0.1
+got 093 for host 235.201.0.127
+got 094 for host 235.201.0.254
+got 095 for host 235.201.15.0
+got 096 for host 235.201.15.1
+got 097 for host 235.201.15.127
+got 098 for host 235.201.15.254
+got 099 for host 235.201.191.0
+got 09a for host 235.201.191.1
+got 09b for host 235.201.191.127
+got 09c for host 235.201.191.254
+got 09d for host 235.201.64.0
+got 09e for host 235.201.64.1
+got 09f for host 235.201.64.127
+got 0a0 for host 235.201.64.254
+got 0a1 for host 235.77.0.0
+got 0a2 for host 235.77.0.1
+got 0a3 for host 235.77.0.127
+got 0a4 for host 235.77.0.254
+got 0a5 for host 235.77.15.0
+got 0a6 for host 235.77.15.1
+got 0a7 for host 235.77.15.127
+got 0a8 for host 235.77.15.254
+got 0a9 for host 235.77.191.0
+got 0aa for host 235.77.191.1
+got 0ab for host 235.77.191.127
+got 0ac for host 235.77.191.254
+got 0ad for host 235.77.64.0
+got 0ae for host 235.77.64.1
+got 0af for host 235.77.64.127
+got 0b0 for host 235.77.64.254
+got 0b1 for host 235.127.0.0
+got 0b2 for host 235.127.0.1
+got 0b3 for host 235.127.0.127
+got 0b4 for host 235.127.0.254
+got 0b5 for host 235.127.15.0
+got 0b6 for host 235.127.15.1
+got 0b7 for host 235.127.15.127
+got 0b8 for host 235.127.15.254
+got 0b9 for host 235.127.191.0
+got 0ba for host 235.127.191.1
+got 0bb for host 235.127.191.127
+got 0bc for host 235.127.191.254
+got 0bd for host 235.127.64.0
+got 0be for host 235.127.64.1
+got 0bf for host 235.127.64.127
+got 0c0 for host 235.127.64.254
+got 0c1 for host 126.0.0.0
+got 0c2 for host 126.0.0.1
+got 0c3 for host 126.0.0.127
+got 0c4 for host 126.0.0.254
+got 0c5 for host 126.0.15.0
+got 0c6 for host 126.0.15.1
+got 0c7 for host 126.0.15.127
+got 0c8 for host 126.0.15.254
+got 0c9 for host 126.0.191.0
+got 0ca for host 126.0.191.1
+got 0cb for host 126.0.191.127
+got 0cc for host 126.0.191.254
+got 0cd for host 126.0.64.0
+got 0ce for host 126.0.64.1
+got 0cf for host 126.0.64.127
+got 0d0 for host 126.0.64.254
+got 0d1 for host 126.201.0.0
+got 0d2 for host 126.201.0.1
+got 0d3 for host 126.201.0.127
+got 0d4 for host 126.201.0.254
+got 0d5 for host 126.201.15.0
+got 0d6 for host 126.201.15.1
+got 0d7 for host 126.201.15.127
+got 0d8 for host 126.201.15.254
+got 0d9 for host 126.201.191.0
+got 0da for host 126.201.191.1
+got 0db for host 126.201.191.127
+got 0dc for host 126.201.191.254
+got 0dd for host 126.201.64.0
+got 0de for host 126.201.64.1
+got 0df for host 126.201.64.127
+got 0e0 for host 126.201.64.254
+got 0e1 for host 126.77.0.0
+got 0e2 for host 126.77.0.1
+got 0e3 for host 126.77.0.127
+got 0e4 for host 126.77.0.254
+got 0e5 for host 126.77.15.0
+got 0e6 for host 126.77.15.1
+got 0e7 for host 126.77.15.127
+got 0e8 for host 126.77.15.254
+got 0e9 for host 126.77.191.0
+got 0ea for host 126.77.191.1
+got 0eb for host 126.77.191.127
+got 0ec for host 126.77.191.254
+got 0ed for host 126.77.64.0
+got 0ee for host 126.77.64.1
+got 0ef for host 126.77.64.127
+got 0f0 for host 126.77.64.254
+got 0f1 for host 126.127.0.0
+got 0f2 for host 126.127.0.1
+got 0f3 for host 126.127.0.127
+got 0f4 for host 126.127.0.254
+got 0f5 for host 126.127.15.0
+got 0f6 for host 126.127.15.1
+got 0f7 for host 126.127.15.127
+got 0f8 for host 126.127.15.254
+got 0f9 for host 126.127.191.0
+got 0fa for host 126.127.191.1
+got 0fb for host 126.127.191.127
+got 0fc for host 126.127.191.254
+got 0fd for host 126.127.64.0
+got 0fe for host 126.127.64.1
+got 0ff for host 126.127.64.127
+got 000 for host 126.127.64.254
+got 000 for host 1.1.1.1
+got 000 for host 1.1.1.2
+got 000 for host 1.1.1.128
+got 000 for host 1.1.1.255
+got 000 for host 1.1.16.1
+got 000 for host 1.1.16.2
+got 000 for host 1.1.16.128
+got 000 for host 1.1.16.255
+got 000 for host 1.1.192.1
+got 000 for host 1.1.192.2
+got 000 for host 1.1.192.128
+got 000 for host 1.1.192.255
+got 000 for host 1.1.65.1
+got 000 for host 1.1.65.2
+got 000 for host 1.1.65.128
+got 000 for host 1.1.65.255
+got 000 for host 1.202.1.1
+got 000 for host 1.202.1.2
+got 000 for host 1.202.1.128
+got 000 for host 1.202.1.255
+got 000 for host 1.202.16.1
+got 000 for host 1.202.16.2
+got 000 for host 1.202.16.128
+got 000 for host 1.202.16.255
+got 000 for host 1.202.192.1
+got 000 for host 1.202.192.2
+got 000 for host 1.202.192.128
+got 000 for host 1.202.192.255
+got 000 for host 1.202.65.1
+got 000 for host 1.202.65.2
+got 000 for host 1.202.65.128
+got 000 for host 1.202.65.255
+got 000 for host 1.78.1.1
+got 000 for host 1.78.1.2
+got 000 for host 1.78.1.128
+got 000 for host 1.78.1.255
+got 000 for host 1.78.16.1
+got 000 for host 1.78.16.2
+got 000 for host 1.78.16.128
+got 000 for host 1.78.16.255
+got 000 for host 1.78.192.1
+got 000 for host 1.78.192.2
+got 000 for host 1.78.192.128
+got 000 for host 1.78.192.255
+got 000 for host 1.78.65.1
+got 000 for host 1.78.65.2
+got 000 for host 1.78.65.128
+got 000 for host 1.78.65.255
+got 000 for host 1.128.1.1
+got 000 for host 1.128.1.2
+got 000 for host 1.128.1.128
+got 000 for host 1.128.1.255
+got 000 for host 1.128.16.1
+got 000 for host 1.128.16.2
+got 000 for host 1.128.16.128
+got 000 for host 1.128.16.255
+got 000 for host 1.128.192.1
+got 000 for host 1.128.192.2
+got 000 for host 1.128.192.128
+got 000 for host 1.128.192.255
+got 000 for host 1.128.65.1
+got 000 for host 1.128.65.2
+got 000 for host 1.128.65.128
+got 000 for host 1.128.65.255
+got 100 for host 38.1.1.1
+got 100 for host 38.1.1.2
+got 100 for host 38.1.1.128
+got 100 for host 38.1.1.255
+got 100 for host 38.1.16.1
+got 100 for host 38.1.16.2
+got 100 for host 38.1.16.128
+got 100 for host 38.1.16.255
+got 100 for host 38.1.192.1
+got 100 for host 38.1.192.2
+got 100 for host 38.1.192.128
+got 100 for host 38.1.192.255
+got 100 for host 38.1.65.1
+got 100 for host 38.1.65.2
+got 100 for host 38.1.65.128
+got 100 for host 38.1.65.255
+got 200 for host 38.202.1.1
+got 200 for host 38.202.1.2
+got 200 for host 38.202.1.128
+got 200 for host 38.202.1.255
+got 300 for host 38.202.16.1
+got 300 for host 38.202.16.2
+got 300 for host 38.202.16.128
+got 300 for host 38.202.16.255
+got 200 for host 38.202.192.1
+got 200 for host 38.202.192.2
+got 200 for host 38.202.192.128
+got 200 for host 38.202.192.255
+got 200 for host 38.202.65.1
+got 200 for host 38.202.65.2
+got 200 for host 38.202.65.128
+got 200 for host 38.202.65.255
+got 100 for host 38.78.1.1
+got 100 for host 38.78.1.2
+got 100 for host 38.78.1.128
+got 100 for host 38.78.1.255
+got 100 for host 38.78.16.1
+got 100 for host 38.78.16.2
+got 100 for host 38.78.16.128
+got 100 for host 38.78.16.255
+got 100 for host 38.78.192.1
+got 100 for host 38.78.192.2
+got 100 for host 38.78.192.128
+got 100 for host 38.78.192.255
+got 100 for host 38.78.65.1
+got 100 for host 38.78.65.2
+got 100 for host 38.78.65.128
+got 100 for host 38.78.65.255
+got 100 for host 38.128.1.1
+got 100 for host 38.128.1.2
+got 100 for host 38.128.1.128
+got 100 for host 38.128.1.255
+got 100 for host 38.128.16.1
+got 100 for host 38.128.16.2
+got 100 for host 38.128.16.128
+got 100 for host 38.128.16.255
+got 100 for host 38.128.192.1
+got 100 for host 38.128.192.2
+got 100 for host 38.128.192.128
+got 100 for host 38.128.192.255
+got 100 for host 38.128.65.1
+got 100 for host 38.128.65.2
+got 100 for host 38.128.65.128
+got 100 for host 38.128.65.255
+got 000 for host 236.1.1.1
+got 000 for host 236.1.1.2
+got 000 for host 236.1.1.128
+got 000 for host 236.1.1.255
+got 000 for host 236.1.16.1
+got 000 for host 236.1.16.2
+got 000 for host 236.1.16.128
+got 000 for host 236.1.16.255
+got 000 for host 236.1.192.1
+got 000 for host 236.1.192.2
+got 000 for host 236.1.192.128
+got 000 for host 236.1.192.255
+got 000 for host 236.1.65.1
+got 000 for host 236.1.65.2
+got 000 for host 236.1.65.128
+got 000 for host 236.1.65.255
+got 000 for host 236.202.1.1
+got 000 for host 236.202.1.2
+got 000 for host 236.202.1.128
+got 000 for host 236.202.1.255
+got 000 for host 236.202.16.1
+got 000 for host 236.202.16.2
+got 000 for host 236.202.16.128
+got 000 for host 236.202.16.255
+got 000 for host 236.202.192.1
+got 000 for host 236.202.192.2
+got 000 for host 236.202.192.128
+got 000 for host 236.202.192.255
+got 000 for host 236.202.65.1
+got 000 for host 236.202.65.2
+got 000 for host 236.202.65.128
+got 000 for host 236.202.65.255
+got 000 for host 236.78.1.1
+got 000 for host 236.78.1.2
+got 000 for host 236.78.1.128
+got 000 for host 236.78.1.255
+got 000 for host 236.78.16.1
+got 000 for host 236.78.16.2
+got 000 for host 236.78.16.128
+got 000 for host 236.78.16.255
+got 000 for host 236.78.192.1
+got 000 for host 236.78.192.2
+got 000 for host 236.78.192.128
+got 000 for host 236.78.192.255
+got 000 for host 236.78.65.1
+got 000 for host 236.78.65.2
+got 000 for host 236.78.65.128
+got 000 for host 236.78.65.255
+got 000 for host 236.128.1.1
+got 000 for host 236.128.1.2
+got 000 for host 236.128.1.128
+got 000 for host 236.128.1.255
+got 000 for host 236.128.16.1
+got 000 for host 236.128.16.2
+got 000 for host 236.128.16.128
+got 000 for host 236.128.16.255
+got 000 for host 236.128.192.1
+got 000 for host 236.128.192.2
+got 000 for host 236.128.192.128
+got 000 for host 236.128.192.255
+got 000 for host 236.128.65.1
+got 000 for host 236.128.65.2
+got 000 for host 236.128.65.128
+got 000 for host 236.128.65.255
+got 000 for host 127.1.1.1
+got 000 for host 127.1.1.2
+got 000 for host 127.1.1.128
+got 000 for host 127.1.1.255
+got 000 for host 127.1.16.1
+got 000 for host 127.1.16.2
+got 000 for host 127.1.16.128
+got 000 for host 127.1.16.255
+got 000 for host 127.1.192.1
+got 000 for host 127.1.192.2
+got 000 for host 127.1.192.128
+got 000 for host 127.1.192.255
+got 000 for host 127.1.65.1
+got 000 for host 127.1.65.2
+got 000 for host 127.1.65.128
+got 000 for host 127.1.65.255
+got 000 for host 127.202.1.1
+got 000 for host 127.202.1.2
+got 000 for host 127.202.1.128
+got 000 for host 127.202.1.255
+got 000 for host 127.202.16.1
+got 000 for host 127.202.16.2
+got 000 for host 127.202.16.128
+got 000 for host 127.202.16.255
+got 000 for host 127.202.192.1
+got 000 for host 127.202.192.2
+got 000 for host 127.202.192.128
+got 000 for host 127.202.192.255
+got 000 for host 127.202.65.1
+got 000 for host 127.202.65.2
+got 000 for host 127.202.65.128
+got 000 for host 127.202.65.255
+got 000 for host 127.78.1.1
+got 000 for host 127.78.1.2
+got 000 for host 127.78.1.128
+got 000 for host 127.78.1.255
+got 000 for host 127.78.16.1
+got 000 for host 127.78.16.2
+got 000 for host 127.78.16.128
+got 000 for host 127.78.16.255
+got 000 for host 127.78.192.1
+got 000 for host 127.78.192.2
+got 000 for host 127.78.192.128
+got 000 for host 127.78.192.255
+got 000 for host 127.78.65.1
+got 000 for host 127.78.65.2
+got 000 for host 127.78.65.128
+got 000 for host 127.78.65.255
+got 000 for host 127.128.1.1
+got 000 for host 127.128.1.2
+got 000 for host 127.128.1.128
+got 000 for host 127.128.1.255
+got 000 for host 127.128.16.1
+got 000 for host 127.128.16.2
+got 000 for host 127.128.16.128
+got 000 for host 127.128.16.255
+got 000 for host 127.128.192.1
+got 000 for host 127.128.192.2
+got 000 for host 127.128.192.128
+got 000 for host 127.128.192.255
+got 000 for host 127.128.65.1
+got 000 for host 127.128.65.2
+got 000 for host 127.128.65.128
+got 000 for host 127.128.65.255

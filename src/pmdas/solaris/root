@@ -1,0 +1,42 @@
+/*
+ * fake "root" for validating the local PMNS subtree
+ */
+
+#include <stdpmid>
+#include "clusters.h"
+
+root {
+	kernel
+	disk
+	mem
+	network
+	hinv
+	zpool
+	zfs
+	pmda
+}
+
+pmda {
+	uname SOLARIS:0:107
+	prefetch
+	metric
+}
+
+pmda.prefetch {
+	time	SOLARIS:4095:0
+	count	SOLARIS:4095:1
+}
+
+pmda.metric {
+	time	SOLARIS:4095:2
+	count	SOLARIS:4095:3
+}
+
+#include "pmns.kernel"
+#include "pmns.disk"
+#include "pmns.mem"
+#include "pmns.network"
+#include "pmns.hinv"
+#include "pmns.zpool"
+#include "pmns.zfs"
+#include "pmns.zpool_perdisk"

@@ -1,0 +1,5 @@
+#kmchart
+version 1
+
+chart style plot antialiasing off
+	plot color #ffff00 metric pmda.metric.count instance "kernel.all.cpu.wait.total"

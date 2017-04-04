@@ -1,0 +1,101 @@
+Revision history for Perl extension PCP::PMDA.
+
+1.15  Thu Sep  5 11:22:34 EST 2013
+	- Fix a subtle reference counting problem in the hash
+	  indom code.
+        - Consistently use unsigned type to index the indom
+	  table.
+
+1.14  Tue Jul 10 11:40:14 EST 2012
+	- Add support for hash-based indom handling via PMDA
+	  cache interfaces in libpcp_pmda.  This introduces a
+	  routine for looking up opaque PMDA data from instid
+	  (pmda_inst_lookup) suitable for fetch callback use.
+	- Fix pmda_inst_name interface used by dtsrun PMDA -
+	  using an incorrect value for indom lookup.  This is
+	  now consistent with the other instance interfaces,
+	  and dtsrun PMDA (not widely used) has been fixed.
+	- Fix instance interface arguments - no current PMDA
+	  makes use of this, but if one did (pmdaoracle will)
+	  it would be given the internal indom identifier and
+	  not the handle given to all other indom interfaces.
+	- Remove unused parameters to internal preinstance()
+	  and prefetch() routines, no visible effect for any
+	  PMDAs but the wrapper code becomes more readable.
+	- Fix help file handling which (for current gcc/perl
+	  combinations at least) was using potentially-freed
+	  memory.
+
+1.13  Thu Oct 20 11:50:18 EST 2011
+	- Add an interface to allow a PMDA to drop privileges.
+	- Fix pmda_long and pmda_ulong 32-bit detection.
+
+1.12  Fri Jul 22 11:15:41 EST 2011
+	- Ensure local fetch and instance wrapper routines
+	  are always called.  Otherwise refresh interface
+	  doesn't work, and pmns_refresh may not be called
+	  in all situations where it should be.
+
+1.11  Wed May 11 21:04:09 EST 2011
+	- Make file tail non-blocking so it can be used for
+	  named pipes as well as regular files.
+
+1.10  Thu Nov 25 03:30:18 EST 2010
+	- Convert to using dynamic namespace interfaces.
+	- Added metric and indom table clearing interfaces.
+
+1.09  Sun Aug  1 09:04:38 EST 2010
+	- Fix memory leak in fetch routine string handling.
+
+1.08  Thu Nov 19 10:37:26 EST 2009
+	- Fix typo on name export for pmda_inst_name.
+	- Add a fast path lookup in pmda_inst_name for direct
+	  instance identifier to offset case (common).
+	- When tailing logfiles, seek to end initially so we
+	  don't spend potentially copious amounts of time on
+	  scanning the entire log file - we only want events
+	  that happen after PMDA startup to be counted too.
+
+1.07  Fri Aug 21 09:27:51 EST 2009
+	- Add helper routines to determine native long sizes.
+
+1.06  Wed Jul 22 12:49:43 EST 2009
+	- Ensure the process runs in its own process group,
+	  and block SIGTERM in atexit handler.  This resolves
+	  a regression in the 1.05 fix for reaping children.
+
+1.05  Tue Jul  8 16:19:49 EST 2009
+	- Explicitly free all local temporaries immediately
+	  for routines that call Perl from C (fixes memleak).
+	- Fix an off-by-one when handling long input lines.
+	- Terminate any children started by the PMDA at exit.
+
+1.04  Mon Jul  6 11:08:20 EST 2009
+	- Rewrote PMNS file generation to use libpcp routines.
+
+1.03  Wed Jun 10 14:53:05 EST 2009
+	- Incorporated Win32 build changes (paths, etc).
+	- Remove (unneeded) use of hsearch and <search.h>.
+
+1.02  Tue Jun  2 17:16:25 EST 2009
+	- Implemented log file rotation and host reconnect handling.
+	- Generally improved the file "tail" mode of operation.
+
+1.01  Fri Feb 13 17:33:31 EST 2009
+	- Added simple instance name lookup routine.
+
+1.00  Thu Aug 20 08:48:14 EST 2008
+	- Added several API components, 1st stable version.
+
+0.04  Mon Feb 25 15:01:33 EST 2008
+	- Smaller, but still incompatible, API refinements.
+
+0.03  Sun Feb 24 09:06:39 EST 2008
+	- API changes, moved existing Perl PMDAs out into PCP.
+
+0.02  Wed Feb 20 16:38:38 EST 2008
+	- port forward to Perl API changes (circa Perl 5.6).
+
+0.01  Mon Sep 20 09:01:16 EST 1999
+	- original version; created by h2xs 1.18
+

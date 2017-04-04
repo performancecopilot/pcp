@@ -1,0 +1,157 @@
+#! /bin/sh
+# PCP QA Test No. 215
+# libpcp_socks + pmsocks testing
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+. ./common.config
+
+if [ "`pmsocks echo ok 2>&1`" != ok ]
+then
+    echo "pmsocks is not installed and/or not configured" >$seq.notrun
+    echo "$seq: [not run] `cat $seq.notrun`"
+    exit 0
+fi
+
+rm -f $seq.out
+if [ $PCP_PLATFORM = linux ]
+then
+    ln $seq.out.linux $seq.out
+else
+    echo "Warning: no validated output for $PCP_PLATFORM"
+fi
+
+status=0
+signal=$PCP_BINADM_DIR/pmsignal
+trap "_interrupt; rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+_interrupt()
+{
+    [ "X$KILLER" != "X" ] && $signal -s TERM $KILLER
+}
+
+_filter()
+{
+    egrep '(Rconnect direct)|(debug)|(value)|(^[ 0-9]*$)' \
+	| sed -e 's/ret=0,.*/no error/' \
+	| sed -e 's/discrete instantaneous/DISCRETE or INSTANTANEOUS/' \
+	| sed -e 's/instantaneous/DISCRETE or INSTANTANEOUS/'
+}
+
+# real QA test starts here
+otherhost=`./getpmcdhosts -L -n 1 2>$tmp.out`
+if [ -z "$otherhost" ]
+then
+    echo "Cannot find a suitable remote pmcd host" >$seq.notrun
+    echo "$seq: [not run] `cat $seq.notrun`"
+    exit
+fi
+dname=`pmhostname | sed -e 's/^[a-z0-9]*\.//'`
+if ! grep sgi $dname >/dev/null
+then
+    echo "QA host is not in the SGI domain" >$seq.notrun
+    echo "$seq: [not run] `cat $seq.notrun`"
+    exit
+fi
+[ -n "$PCPQA_SOCKS_SERVER" ] || _notrun 'PCPQA_SOCKS_SERVER is not set in ./common.config'
+
+SOCKS_SERVER=$PCPQA_SOCKS_SERVER
+SOCKS_NS=`_host_to_ipaddr $SOCKS_SERVER`
+SOCKS_DEBUG=
+PMCD_CONNECT_TIMEOUT=120
+PMCD_REQUEST_TIMEOUT=120
+export SOCKS_SERVER SOCKS_NS SOCKS_DEBUG PMCD_CONNECT_TIMEOUT PMCD_REQUEST_TIMEOUT
+rm -f $seq.full
+touch $seq.full
+
+KILLER=""
+for host in www.sgi.com.au $otherhost localhost
+do
+    for i in 1 2
+    do
+	rm -f $tmp.${host}_${i}*
+	echo "log advisory on once pmcd.control" \
+		| pmsocks pmlogger -h $host -l $tmp.${host}_$i.log $tmp.${host}_$i >$tmp.${host}_$i.err 2>&1 &
+	KILLER="$KILLER $!"
+    done
+done
+
+echo "pmlogger launch, waiting ..."
+p=1
+for host in www.sgi.com.au $otherhost localhost
+do
+    for i in 1 2
+    do
+	pid=`echo $KILLER | $PCP_AWK_PROG '{ x='"$p"'; print $x }'`
+	_wait_for_pmlogger $pid $tmp.${host}_$i.log 120
+	p=`expr $p + 1`
+    done
+done
+
+for host in localhost $otherhost www.sgi.com.au
+do
+    for i in 1 2
+    do
+	echo
+	if [ $host = $otherhost ]
+	then
+	    echo "=== pmlogger for OTHERHOST #$i connection ==="
+	    echo "=== pmlogger for OTHERHOST #$i connection ===" >>$seq.full
+	else
+	    echo "=== pmlogger for $host #$i connection ==="
+	    echo "=== pmlogger for $host #$i connection ===" >>$seq.full
+	fi
+	cat $tmp.${host}_$i.err $tmp.${host}_$i.log | _filter
+	cat $tmp.${host}_$i.err $tmp.${host}_$i.log >> $seq.full
+	pmdumplog -l $tmp.${host}_$i | _filter_pmdumplog
+    done
+done
+
+
+$signal -s TERM $KILLER
+sleep 2
+KILLER=
+
+
+echo
+echo "=== localhost pmval connection ==="
+echo "=== localhost pmval connection ===" >>$seq.full
+pmsocks pmval -s1 -t 0.1 pmcd.control.debug 2>&1 \
+	| tee -a $seq.full | _filter
+
+echo
+echo "=== hostname local pmval connection ==="
+echo "=== hostname local pmval connection ===" >>$seq.full
+pmsocks pmval -s1 -t 0.1 -h `hostname` pmcd.control.debug 2>&1 \
+	| tee -a $seq.full | _filter
+
+for host in $otherhost www.sgi.com.au
+do
+    echo
+    if [ $host = $otherhost ]
+    then
+	echo "=== host OTHERHOST pmval connection ==="
+	echo "=== host OTHERHOST pmval connection ===" >>$seq.full
+    else
+	echo "=== host $host pmval connection ==="
+	echo "=== host $host pmval connection ===" >>$seq.full
+    fi
+    pmsocks pmval -s1 -t 0.1 -h $host pmcd.control.debug 2>&1 \
+	| tee -a $seq.full | _filter
+done
+
+# optional stuff if your test has verbose output to help resolve problems
+echo
+echo "If failure, check $seq.full (this) and $seq.full.ok (reference)"
+
+# all done
+exit

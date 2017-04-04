@@ -1,0 +1,25 @@
+#pmchart
+#
+# Web Statistics (data volume)
+#
+# This file is installed by the script $PCP_PMDAS_DIR/weblog/Install
+#
+Version 2.0 host dynamic
+
+Chart Title "Bytes sent by HTTP method" Style stacking
+    Plot Color rgbi:1.0/1.0/0.0 Host * Metric web.allservers.bytes.get
+    Plot Color rgbi:0.0/1.0/1.0 Host * Metric web.allservers.bytes.post
+    Plot Color rgbi:1.0/0.0/1.0 Host * Metric web.allservers.bytes.head
+    Plot Color rgbi:1.0/1.0/0.6 Host * Metric web.allservers.bytes.other
+Chart Title "Bytes sent by request size" Style stacking
+    Plot Color rgbi:0.6/1.0/0.6 Host * Metric web.allservers.bytes.size.le3k
+    Plot Color rgbi:0.8/0.6/1.0 Host * Metric web.allservers.bytes.size.le10k
+    Plot Color rgbi:1.0/0.65/0.3 Host * Metric web.allservers.bytes.size.le30k
+    Plot Color rgbi:0.3/1.0/0.3 Host * Metric web.allservers.bytes.size.le100k
+    Plot Color rgbi:0.65/0.3/1.0 Host * Metric web.allservers.bytes.size.le300k
+    Plot Color rgbi:1.0/0.5/0.0 Host * Metric web.allservers.bytes.size.le1m
+    Plot Color rgbi:0.0/1.0/0.0 Host * Metric web.allservers.bytes.size.le3m
+    Plot Color rgbi:0.6/0.0/0.9 Host * Metric web.allservers.bytes.size.gt3m
+
+#
+# Created Thu Jul  2 10:47:51 1998

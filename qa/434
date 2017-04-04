@@ -1,0 +1,66 @@
+#!/bin/sh
+# PCP QA Test No. 434
+# pmval exit status
+#
+# Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed <$1 \
+	-e '/^  *[0-9][0-9.]* *$/s/.*/NUMBER/' \
+	-e '/^host:.*$/s/.*/HOST/'
+}
+
+# real QA test starts here
+pmval -h no.such.host.pcp.io any.old.metric
+sts=$?
+echo "no.such.host.pcp.io - exit status $sts"
+pmval -a no.such.archive any.old.metric
+sts=$?
+echo "no.such.archive - exit status $sts"
+pmval no.such.metric
+sts=$?
+echo "no.such.metric - exit status $sts"
+pmval -i no.such.instance sample.bin
+sts=$?
+echo "no.such.instance - exit status $sts"
+pmval 
+sts=$?
+echo "usage - exit status $sts"
+
+for s in 0 1 2
+do
+    pmval -t 0.1 -s $s sample.seconds >$tmp.out
+    sts=$?
+    _filter $tmp.out
+    echo "counter -s $s - exit status $sts"
+done
+
+for s in 0 1 2
+do
+    pmval -r -t 0.1 -s $s sample.seconds >$tmp.out
+    sts=$?
+    _filter $tmp.out
+    echo "counter -r -s $s - exit status $sts"
+done
+
+for s in 0 1 2
+do
+    pmval -t 0.1 -s $s sample.long.ten >$tmp.out
+    sts=$?
+    _filter $tmp.out
+    echo "instantaneuos -s $s - exit status $sts"
+done

@@ -1,0 +1,10 @@
+LIBRARY tdh.dll
+EXPORTS
+DllInstall
+TdhGetProperty@28
+TdhGetPropertySize@24
+TdhGetEventMapInformation@16
+TdhQueryProviderFieldInformation@24
+TdhGetEventInformation@20
+TdhEnumerateProviderFieldInformation@16
+TdhEnumerateProviders@8

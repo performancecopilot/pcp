@@ -1,0 +1,85 @@
+QA output created by 235
++++ Errors +++
+
+=== no args ===
+Usage: pmnsmerge [options] infile [...] outfile
+
+Options:
+  -a                    process files in order, ignoring embedded _DATESTAMP control lines
+  -d, --dupok           duplicate names for the same PMID are allowed [default]
+  -f, --force           force overwriting of the output file if it exists
+  -x, --nodups          duplicate names for the same PMID are not allowed
+  -v, --verbose         verbose, echo input file names as processed
+  -?, --help            show this usage message and exit
+
+=== only 1 arg ===
+Usage: pmnsmerge [options] infile [...] outfile
+
+Options:
+  -a                    process files in order, ignoring embedded _DATESTAMP control lines
+  -d, --dupok           duplicate names for the same PMID are allowed [default]
+  -f, --force           force overwriting of the output file if it exists
+  -x, --nodups          duplicate names for the same PMID are not allowed
+  -v, --verbose         verbose, echo input file names as processed
+  -?, --help            show this usage message and exit
+
+=== no such input file ===
+pmnsmerge: Error: cannot open input PMNS file "no-such-input"
+
+=== output file exists ===
+pmnsmerge: Error: output PMNS file "out-pmns" already exists!
+You must either remove it first, or use -f
+
+=== cannot create output file ===
+pmnsmerge: Error: cannot create output PMNS file "out-pmns": Permission denied
+
+=== syntax error in input ===
+[in:2] Error Parsing ASCII PMNS: Expected NAME, PMID or }
+    bogus - this is not correct
+          ^
+pmnsmerge: Error: pmLoadASCIINameSpace(in, 1): Problems parsing PMNS definitions
+
+=== duplicate PMID in same group ==
+
+=== duplicate PMID in different groups ==
+
++++ Warnings +++
+
+=== PMID changed ==
+pmnsmerge: Warning: performance metric "me" has multiple PMIDs.
+... using PMID 1.2.3 and ignoring PMID 4.5.6
+
++++ Null operations +++
+event.flags
+event.missed
+
+=== single null input PMNS ===
+null:
+root {
+}
+event.flags
+event.missed
+
+=== multiple null input PMNSs ===
+root {
+}
+event.flags
+event.missed
+
+=== 3 have _DATESTAMPS, 3 do not ===
+arg[0] null _DATESTAMP=(null)
+arg[1] one _DATESTAMP=(null)
+arg[2] two _DATESTAMP=(null)
+arg[3] three _DATESTAMP=19961101
+arg[4] four _DATESTAMP=19961102
+arg[5] five _DATESTAMP=19961205
+null:
+one:
+two:
+three:
+four:
+five:
+root {
+}
+event.flags
+event.missed

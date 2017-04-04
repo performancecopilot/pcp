@@ -1,0 +1,7 @@
+QA output created by 047
+== extract values from pmdalinux
+== extract values from docker
+== comparing values
+hw_addr matches
+inet_addr matches
+== removing container

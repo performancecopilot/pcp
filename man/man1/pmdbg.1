@@ -1,0 +1,101 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMDBG 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmdbg\f1 \- translate Performance Co-Pilot debug control flags
+.\" literals use .B or \f3
+.\" arguments use .I or \f2
+.SH SYNOPSIS
+\f3pmdbg\f1
+\f2code\f1 ...
+.br
+\f3pmdbg\f1
+\f3\-l\f1
+.br
+\f3pmdbg\f1
+\f3\-D\f1 \f2name\f1[,\f2name\f1 ...]
+.SH DESCRIPTION
+The components of the Performance Co-Pilot (PCP) use
+a global vector of bit-fields
+to control diagnostic and debug output.
+.PP
+.B pmdbg
+with a
+.B \-l
+argument prints out the mnemonic and decimal values of all
+the bit-fields in the debug control vector.
+.PP
+.B pmdbg
+with a
+.B \-D
+argument parses the list of
+\fInames\fP(s) using
+.BR __pmParseDebug (3)
+and reports the corresponding decimal value.  This is most useful
+when debugging and wanting to set the internal value of the
+control vector (\c
+.BR pmDebug )
+via a debugger, e.g.
+.BR gdb (1).
+.PP
+In the alternative usage, the
+.I code
+arguments are values for the debug vector, and the bit-fields that
+are enabled by each of these values is listed.
+.PP
+Each
+.I code
+may be an integer, a hexadecimal value or a hexadecimal value prefixed
+by either ``0x'' or ``0X''.
+.PP
+Most applications using the facilities of the PCP support
+a
+.BI \-D N
+command-line syntax to enable debug control.
+.B pmdbg
+is designed to help choose an appropriate value for
+.IR N .
+.PP
+Alternatively the initial value of the debug control flags may be set
+to a value
+.I N
+using the environment variable
+.BR $PCP_DEBUG .
+If both mechanisms are used the effect is additive, so the resultant flags are
+those set via
+.B $PCP_DEBUG
+combined with those set via any
+.B \-D
+command line options.
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.I /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (5).
+.SH SEE ALSO
+.BR PCPIntro (1),
+.BR pcp.conf (5)
+and
+.BR pcp.env (5).

@@ -1,0 +1,30 @@
+#!/bin/sh
+# PCP QA Test No. 737
+# Exercise time interfaces in python PMAPI wrapper module.
+#
+# Copyright (c) Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.python
+
+$python -c "from pcp import pmapi" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "python pcp pmapi module not installed"
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter_utc()
+{
+    sed -e 's/UTC+0/UTC/g' -e 's/UTC-0/UTC/g'
+}
+
+# real QA test starts here
+$python src/test_pcp_time.py | _filter_utc
+
+# success, all done
+status=0
+exit

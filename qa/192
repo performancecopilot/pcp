@@ -1,0 +1,60 @@
+#! /bin/sh
+# PCP QA Test No. 192
+# sending 2 DESC_REQ PDUs back to back
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+LOCALHOST=`hostname`
+_needclean=true
+status=0
+
+_interrupt()
+{
+    status=1
+}
+
+if [ -d $PCP_LOG_DIR/pmlogger ]
+then
+    LOGGING_DIR=$PCP_LOG_DIR/pmlogger
+else
+    LOGGING_DIR=$PCP_LOG_DIR
+fi
+
+_cleanup()
+{
+    if $_needclean
+    then
+	pmafm $LOGGING_DIR/$LOCALHOST/Latest remove >$tmp.cmd 2>&1 \
+	&& $sudo sh $tmp.cmd
+	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+	_wait_for_pmcd
+	_wait_for_pmlogger
+	_needclean=false
+    fi
+    rm -f $tmp.*
+    exit $status
+}
+
+trap "_cleanup" 0
+trap "_interrupt; _cleanup" 1 2 3 15
+
+# real QA test starts here
+$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+_wait_for_pmcd
+
+PMCD_REQUEST_TIMEOUT=2; export PMCD_REQUEST_TIMEOUT
+
+src/descreqX2 2>&1 \
+| _filter_pmcd_log
+
+_filter_pmcd_log <$PCP_PMCDLOG_PATH \
+| grep '^->'

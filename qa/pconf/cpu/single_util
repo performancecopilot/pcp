@@ -1,0 +1,36 @@
+#pmieconf-rules 1
+#
+
+rule	cpu.single_util
+	default	= "$rule$"
+	predicate =
+"some_host (
+    some_inst (
+        kernel.percpu.cpu.user $hosts$ +
+        kernel.percpu.cpu.sys $hosts$ +
+        kernel.percpu.cpu.intr $hosts$
+            > $threshold$ / 100
+    )
+)"
+	enabled	= no
+	version	= 1
+	help	=
+"The average processor utilization for at least one CPU exceeded
+threshold percent during the last sample interval.";
+
+string	rule
+	default	= "single processor saturation"
+	modify	= no
+	display	= no;
+
+percent	threshold
+	default	= 95
+	help	=
+"Threshold percentage for CPU saturation, in the range 0 (idle)
+to 100 (completely busy)";
+
+string	action_expand
+	default	= %i@%h
+	display	= no
+	modify	= no;
+

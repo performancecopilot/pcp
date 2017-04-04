@@ -1,0 +1,9 @@
+QA output created by 1026
+[ 1] MULTI:hinv.ncpu
+[ 2] SINGLE:hinv.ncpu
+
+    1     2
+MULTI:hinv.ncpu SINGLE:hinv.ncpu
+N 1
+pmdumptext: Unable to open /tmp/1026-TMP.not_here: No such file or directory
+              Units	  util

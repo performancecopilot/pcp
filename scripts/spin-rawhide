@@ -1,0 +1,134 @@
+#!/bin/sh
+
+answer_yes_or_no()
+{
+    read ANSWER
+    [ "$ANSWER" = "no" -o "$ANSWER" = n ] && return 1
+    [ "$ANSWER" = "yes" -o "$ANSWER" = y ] && return 0
+    echo "Please answer \"yes\" or \"no\""
+    answer_yes_or_no
+    return $?
+}
+
+fail_and_bail()
+{
+    echo "Error: $@"
+    exit 1
+}
+
+### Lets do some sanity checks first
+for command in bower fedpkg git gulp node npm
+do
+    which $command >/dev/null 2>&1 || fail_and_bail "$command not installed"
+done
+
+### Create the directory we'll be working in
+DIR=`mktemp -d pcpXXX -p /tmp/`; cd $DIR
+
+# We need to differentiate between upstream sources and the later
+# used distro sources hence the specific checkout to pcp-git
+
+git clone git://git.pcp.io/pcp.git pcp-git
+# git clone git@github.com:performancecopilot/pcp pcp-git
+cd pcp-git
+
+# We need to use --global for the NAME and USER vars as we're
+# assuming this script can be run from anywhere (ie, not in an
+# already existing git repo)
+DATE=`date +"%a %b %d %Y"`
+TAG_DATE=`date +"%Y%m%d"`
+NAME=`git config --get-all user.name`
+EMAIL=`git config --get-all user.email`
+PCP_MAJOR_VERSION=`grep "^PACKAGE_MAJOR" VERSION.pcp | cut -f2 -d"="`
+PCP_MINOR_VERSION=`grep "^PACKAGE_MINOR" VERSION.pcp | cut -f2 -d"="`
+PCP_REVISION=`grep "^PACKAGE_REVISION" VERSION.pcp | cut -f2 -d"="`
+PCP_FULL_VERSION=`echo $PCP_MAJOR_VERSION.$PCP_MINOR_VERSION.$PCP_REVISION`
+CHANGELOG_VERSION=`echo $PCP_FULL_VERSION`
+GIT_DESCRIBE=`git describe | rev | cut -f1 -d"g" | rev`
+PCP_WEB_JS=`grep "^Source*" build/rpm/fedora.spec | grep "webjs" | cut -f2 -d" " | rev | cut -f1 -d"/" | rev`
+VECTOR=`grep "^Source*" build/rpm/fedora.spec | grep "vector" | cut -f2 -d" " | rev | cut -f1 -d"/" | rev`
+
+# Checkout the fedora sources pcp
+cd ..
+fedpkg co pcp
+cd pcp
+
+GIT_VERSION_TAG=`echo 0.${TAG_DATE}git${GIT_DESCRIBE}`
+
+git diff pcp.spec ../pcp-git/build/rpm/fedora.spec > ../spec-diff
+
+if [ -s ../spec-diff ]; then
+    CHANGELOG_PRESENT=`grep \%changelog ../spec-diff`
+    # the space in front of %changelog is because its a diff context line
+    if [ "$CHANGELOG_PRESENT" == " %changelog" ]; then
+	# We don't need to know the difference in spec changelogs
+	# changelogs should only ever grow, make sure we also trim the %changelog
+	# context lines as well
+	sed -i '/\%changelog/,$d' ../spec-diff
+	tac ../spec-diff | sed '1,3d' | tac > spec-diff
+	mv spec-diff ../spec-diff
+    fi
+    # end changelog diff if
+    cat ../spec-diff
+    echo "The above changes will apply to the fedora git tree,"
+    echo -n "would you like to apply the patch? (yes/no): "
+    answer_yes_or_no
+    APPLY_DIFF=$?
+    if [ "$APPLY_DIFF" == 0 ]; then
+	patch -p1 pcp.spec < ../spec-diff
+    fi
+    cd ..
+fi
+
+cd pcp-git
+
+git archive --prefix=pcp-$CHANGELOG_VERSION/ -o ../pcp/pcp-$CHANGELOG_VERSION-$GIT_VERSION_TAG.tar.gz HEAD
+
+# if $VECTOR is empty, then we don't need to git archive it separately.
+if [ ! -z $VECTOR ]; then
+    cd ..
+    # git clone git@github.com:netflix/vector.git vector
+    git clone https://github.com/Netflix/vector.git vector
+    cd vector
+    ../pcp-git/scripts/build-vector
+    VECTOR_GIT_DESCRIBE=`git describe | rev | cut -f1 -d"g" | rev`
+    VECTOR=`echo vector-${TAG_DATE}git${VECTOR_GIT_DESCRIBE}.tar.gz`
+    cd dist && tar czf ../../pcp/$VECTOR *
+    cd ..
+fi
+
+# if $PCP_WEB_JS is empty, then we don't need to git archive it separately.
+if [ ! -z $PCP_WEB_JS ]; then
+    cd ..
+    # git clone git@github.com:performancecopilot/pcp-webjs.git pcp-webjs
+    git clone git://sourceware.org/git/pcpfans.git --branch=webjs pcp-webjs
+    cd pcp-webjs
+    WEB_GIT_DESCRIBE=`git describe --always | rev | cut -f1 -d"g" | rev`
+    PCP_WEB_JS=`echo pcp-webjs-${TAG_DATE}git${WEB_GIT_DESCRIBE}.src.tar.gz`
+    git archive --prefix=pcp-webjs/ -o ../pcp/$PCP_WEB_JS HEAD
+fi
+
+# fedpackage stuff
+cd ../pcp
+
+sed -i "s/Release:.*/Release: $GIT_VERSION_TAG\%\{\?dist\}/" pcp.spec
+sed -i "s/^Source0:.*/Source0: %{name}-%{version}-$GIT_VERSION_TAG.tar.gz/" pcp.spec
+sed -i "s/^Source2:.*/Source2: $PCP_WEB_JS/" pcp.spec
+sed -i "s/^Source1:.*/Source1: $VECTOR/" pcp.spec
+sed -i "s/%global buildversion.*/%global buildversion 0/" pcp.spec
+sed -i "s/^Version:.*/Version: $PCP_FULL_VERSION/" pcp.spec
+
+# make note in the comments if any differences from upstream fedora.spec have been merged
+if [ "$APPLY_DIFF" == 0 ]; then
+    sed -i "s/\%changelog/\%changelog\n* $DATE $NAME <$EMAIL> - $CHANGELOG_VERSION-$GIT_VERSION_TAG\n- Automated weekly rawhide release\n- Applied spec changes from upstream git\n/" pcp.spec
+else
+    sed -i "s/\%changelog/\%changelog\n* $DATE $NAME <$EMAIL> - $CHANGELOG_VERSION-$GIT_VERSION_TAG\n- Automated weekly rawhide release\n/" pcp.spec
+fi
+
+echo "Please ensure that you have an up to date fedoraproject SSL certificate, you can achieve this by running fedora-cert -n"
+echo `pwd`
+fedpkg new-sources pcp-$CHANGELOG_VERSION-$GIT_VERSION_TAG.tar.gz $PCP_WEB_JS $VECTOR
+
+fedpkg commit -m "Automated weekly pcp rawhide release: $GIT_VERSION_TAG" -p
+
+fedpkg build

@@ -1,0 +1,76 @@
+Performance Co-Pilot PMDA for Monitoring Cisco Routers
+======================================================
+
+This PMDA is capable of collecting throughput measures from Cisco
+routers throughout a network.
+
+The PMDA needs to be configured to collect performance data from a
+designated set of interfaces on nominated Cisco routers.  There is one
+instance of the metrics for nominated each router-interface pair.
+
+Metrics
+=======
+
+The file ./help contains descriptions for all of the metrics exported
+by this PMDA.
+
+Once the PMDA has been installed, the following command will list all
+the available metrics and their explanatory "help" text:
+
+	$ pminfo -fT cisco
+
+Installation
+============
+
+ +  # cd $PCP_PMDAS_DIR/cisco
+
+ +  Check that there is no clash in the Performance Metrics Domain
+    defined in ./domain.h and the other PMDAs currently in use (see
+    $PCP_PMCDCONF_PATH).  If there is, edit ./domain.h to choose another
+    domain number.
+
+ +  The Cisco PMDA is one that polls the Cisco routers, and caches the
+    most recent value for the performance metrics.  The cached values
+    are the ones returned via the PMCD to clients requesting Cisco
+    performance metrics.  The default polling rate is once every two
+    minutes to each Cisco interface being monitored, if you wish to
+    change this, edit Install and change the value of pollrate near the
+    start of the script.
+
+ +  Then simply use
+
+	# ./Install
+
+    and choose both the "collector" and "monitor" installation
+    configuration options.
+
+    You will be prompted to identify the Cisco routers and
+    interfaces you wish to monitor.
+
+De-installation
+===============
+
+ +  Simply use
+
+	# cd $PCP_PMDAS_DIR/cisco
+	# ./Remove
+
+Troubleshooting
+===============
+
+ +  After installing or restarting the agent, the PMCD log file
+    ($PCP_LOG_DIR/pmcd/pmcd.log) and the PMDA log file
+    ($PCP_LOG_DIR/pmcd/cisco.log) should be checked for any warnings
+    or errors.
+
+ +  The configured interfaces on a particular Cisco may be discovered
+    using the $PCP_PMDAS_DIR/cisco/probe application.  See pmdacisco(1)
+    for more details.
+
+ +  The $PCP_PMDAS_DIR/cisco/parse application supports the same
+    command line options as pmdacisco for identifying interfaces on
+    Cisco devices and shares the parser for the output from the Cisco
+    "show interface" command; this application may be used to gain
+    diagnostic traces of the interaction between the parser code and
+    the Cisco device in the event that metrics values are not being
+    returned by the Cisco PMDA.  See pmdacisco(1) for more details.

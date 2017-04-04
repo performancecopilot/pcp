@@ -1,0 +1,191 @@
+#!/bin/sh
+# PCP QA Test No. 365
+# Errors in pmcd.conf [acccess] that should not prevent pmcd starting
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.check
+. ./common.filter
+
+rm -f $seq.out
+_get_libpcp_config
+if $ipv6 ; then
+    ln $seq.out.ipv6 $seq.out || exit 1
+else
+    ln $seq.out.nonipv6 $seq.out || exit 1
+fi
+
+_cleanup()
+{
+    if $done_clean
+    then
+	:
+    else
+	if [ -f $tmp.pmcd.conf ]
+	then
+	    $sudo cp $tmp.pmcd.conf $PCP_PMCDCONF_PATH
+	    rm -f $tmp.pmcd.conf
+	fi
+	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+	_wait_for_pmcd
+	_wait_for_pmlogger
+	done_clean=true
+    fi
+    rm -f $tmp.*
+}
+
+status=1
+done_clean=false
+$sudo rm -rf $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+qahost=`hostname`
+eval `./getpmcdhosts -L -n 2 2>$tmp.out | sed -e 's/^/other1=/' -e 's/ / other2=/'`
+echo "other1=$other1" >$seq.full
+echo "other2=$other2" >>$seq.full
+echo "qahost=$qahost" >>$seq.full
+[ -z "$other1" ] && _notrun "Cannot find first remote host running pmcd"
+[ -z "$other2" ] && _notrun "Cannot find second remote host running pmcd"
+
+# real QA test starts here
+home=$PCP_PMDAS_DIR
+
+# copy the pmcd config file to restore state later.
+cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf
+
+if [ $PCP_PLATFORM = linux ]
+then
+    cat <<End-of-File >$tmp.tmp
+# from qa/$seq
+#
+linux	60	dso	linux_init	$PCP_PMDAS_DIR/linux/pmda_linux.so
+pmcd	2	dso	pmcd_init	$PCP_PMDAS_DIR/pmcd/pmda_pmcd.so
+
+End-of-File
+elif [ $PCP_PLATFORM = darwin ]
+then
+    cat <<End-of-File >$tmp.tmp
+# from qa/$seq
+#
+darwin	78	dso	darwin_init	$PCP_PMDAS_DIR/darwin/pmda_darwin.dylib
+pmcd	2	dso	pmcd_init	$PCP_PMDAS_DIR/pmcd/pmda_pmcd.dylib
+
+End-of-File
+elif [ $PCP_PLATFORM = solaris ]
+then
+    cat <<End-of-File >$tmp.tmp
+# from qa/$seq
+#
+solaris	75	dso	solaris_init	$PCP_PMDAS_DIR/solaris/pmda_solaris.so
+pmcd	2	dso	pmcd_init	$PCP_PMDAS_DIR/pmcd/pmda_pmcd.so
+
+End-of-File
+elif [ $PCP_PLATFORM = freebsd ]
+then
+    cat <<End-of-File >$tmp.tmp
+# from qa/$seq
+#
+freebsd	85	dso	freebsd_init	$PCP_PMDAS_DIR/freebsd/pmda_freebsd.so
+pmcd	2	dso	pmcd_init	$PCP_PMDAS_DIR/pmcd/pmda_pmcd.so
+
+End-of-File
+else
+    echo "Arrgh ... need pmcd.conf for $PCP_PLATFORM"
+    exit 1
+fi
+
+cat <<End-of-File >>$tmp.tmp
+
+[access]
+allow no.such.host.pcp.io : all;
+allow nohost.engr.sgi.com, $qahost : all;
+allow $other1, no.such.host.pcp.io, localhost : fetch;
+allow localhost, $other2, nohost.melbourne.sgi.com : store;
+allow "local:" , "unix:" : all;
+End-of-File
+
+echo >>$tmp.tmp
+echo "# from qa/$seq" >>$tmp.tmp
+
+$sudo cp $tmp.tmp $PCP_PMCDCONF_PATH
+echo >>$seq.full
+echo "=== pmcd.conf ===" >>$seq.full
+cat $PCP_PMCDCONF_PATH >>$seq.full
+
+echo "=== pmcd restarting ===" >>$seq.full
+$sudo $PCP_RC_DIR/pcp restart 2>>$seq.full | _filter_pcp_start
+_wait_for_pmcd
+_wait_for_pmlogger
+echo "=== pmcd restarted ===" >>$seq.full
+
+cat $PCP_PMCDLOG_PATH >>$seq.full
+echo >>$seq.full
+echo "=== pmcd.log ===" >>$seq.full
+_filter_pmcd_log <$PCP_PMCDLOG_PATH \
+| sed \
+-e '/^linux/{
+s/     [12] dso/1-or-2 dso/
+s/lib=\/usr\//lib=\/usr-or-var\//
+s/lib=\/var\//lib=\/usr-or-var\//
+}' \
+-e 's/__pmGetAddrInfo/gethostbyname/g' \
+-e 's/__pmGetHostByName/gethostbyname/g' \
+-e '/gethostbyname(/s/ Unknown host/ No address associated with name/' \
+-e '/gethostbyname(/s/ Host name lookup failure/ No address associated with name/' \
+-e '/gethostbyname(/s/ Resolver Error 0 (no error)/ No address associated with name/' \
+-e "/$qahost\$/"'{
+s/ [0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]* / LOCALIP  /
+s/  */ /g
+}' \
+-e "/$other1\$/"'{
+s/ [0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]* / OTHERIP1 /
+s/  */ /g
+}' \
+-e "/$other2\$/"'{
+s/ [0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]* / OTHERIP2 /
+s/  */ /g
+}' \
+-e "s/$qahost\$/LOCALHOST/g" \
+-e "s/$other1\$/OTHERHOST1/g" \
+-e "s/$other2\$/OTHERHOST2/g" \
+-e '/UNIX_DOMAIN_SOCKET/d' \
+-e '/1 unix:$/d' \
+-e '/error sending Conn ACK PDU/d' \
+-e "s/[0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f]/<hexnum>/" \
+| $PCP_AWK_PROG '
+$8 ~ /^[A-Z]+HOST[12]*$/ && $5 ~ /^[0-9a-f]/ {
+		  sub(/^[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*$/,"<ipaddr>",$5)
+		  sub(/^[0-9a-f:][0-9a-f:]*%[0-9a-z]+$/,"<ipaddr>",$5)
+		  sub(/^[0-9a-f:][0-9a-f:]*$/,"<ipaddr>",$5)
+		}
+		{ print }'
+
+status=0
+echo "check pmcd is up and we can get local access" >>$seq.full
+if pmprobe hinv.ncpu >>$seq.full 2>&1
+then
+    :
+else
+    echo "pmcd check FAILED"
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep pmcd
+    status=1
+fi
+echo "check primary pmlogger is running" >>$seq.full
+pmlc -P </dev/null 2>&1 \
+| tee -a $seq.full \
+| if grep 'Connected to primary pmlogger' >/dev/null
+then
+    :
+else
+    echo "primary pmlogger check FAILED"
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep pmlogger
+    status=1
+fi
+
+exit

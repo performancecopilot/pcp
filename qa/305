@@ -1,0 +1,61 @@
+#! /bin/sh
+# PCP QA Test No. 305
+# PV 939998 affecting pmgadgets instance cache
+#
+
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.*
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+
+
+src/matchInstanceName "" ""
+src/matchInstanceName "" "a"
+src/matchInstanceName "" "ab"
+src/matchInstanceName "" "ab cd"
+src/matchInstanceName "" "ab de"
+
+echo
+
+src/matchInstanceName "a" ""
+src/matchInstanceName "a" "a"
+src/matchInstanceName "a" "ab"
+src/matchInstanceName "a" "ab cd"
+src/matchInstanceName "a" "ab de"
+
+echo
+
+src/matchInstanceName "ab" ""
+src/matchInstanceName "ab" "a"
+src/matchInstanceName "ab" "ab"
+src/matchInstanceName "ab" "ab cd"
+src/matchInstanceName "ab" "ab de"
+
+echo
+
+src/matchInstanceName "ab cd" ""
+src/matchInstanceName "ab cd" "a"
+src/matchInstanceName "ab cd" "ab"
+src/matchInstanceName "ab cd" "ab cd"
+src/matchInstanceName "ab cd" "ab de"
+
+echo 
+
+src/matchInstanceName "ab de" ""
+src/matchInstanceName "ab de" "a"
+src/matchInstanceName "ab de" "ab"
+src/matchInstanceName "ab de" "ab cd"
+src/matchInstanceName "ab de" "ab de"
+
+# success, all done
+exit

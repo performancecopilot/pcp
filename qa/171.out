@@ -1,0 +1,25 @@
+QA output created by 171
+metrics_a[0]: sample.long.one 29.0.10
+metrics_a[1]: kernel.all.syscall 1.10.19
+metrics_b[0]: sample.long.one 29.0.10
+metrics_b[1]: kernel.all.sysexec 1.10.20
+Start at: 14:36:16.341
+
+Pass One: rewind and fetch metrics_a until end of log
+sample   0 time=14:36:16.341 correct result
+sample   1 time=14:36:18.341 correct result
+sample   2 time=14:36:20.341 correct result
+sample   3 time=14:36:22.341 correct result
+sample   4 time=14:36:24.341 correct result
+sample   5 time=14:36:26.341 correct result
+sample   6 time=14:36:28.341 correct result
+sample   7 time=14:36:30.341 correct result
+Pass Two: rewind and fetch metrics_b until end of log
+sample   0 time=14:36:16.341 correct result
+sample   1 time=14:36:18.341 correct result
+sample   2 time=14:36:20.341 correct result
+sample   3 time=14:36:22.341 correct result
+sample   4 time=14:36:24.341 correct result
+sample   5 time=14:36:26.341 correct result
+sample   6 time=14:36:28.341 correct result
+sample   7 time=14:36:30.341 correct result

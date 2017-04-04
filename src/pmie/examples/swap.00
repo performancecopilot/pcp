@@ -1,0 +1,23 @@
+//
+// report when swap > 50-75% full and when swap > 75% full
+//
+// Rules donated by Kevin Wang at Silicon Graphics
+//
+// note: the sort hack '9999999' to keep the header first; later
+//       removed by sed
+// note: -o option to ps(1) requires IRIX 6.2 or later ... for IRIX 5.3
+//       this would have to be re-written using ps -el
+
+SWAP="swap";
+some_host (
+	($SWAP.free $HOSTS / $SWAP.length $HOSTS) * 100 <  50 &&
+	($SWAP.free $HOSTS / $SWAP.length $HOSTS) * 100 >= 25
+) -> print 10 min "swap more than half-full: " "%h: %v% free " &
+     shell 10 min "rsh -n guest@%h /sbin/ps -eo 'ruser=UID,pid=PID,ppid=PPID,pcpu=%CPU,sz=9999999SZ,rss=RSS,stime=STIME,time=TIME,args=CMD' | sort +4 -nr | sed -e 's/9999999SZ /    SZ:/' | /usr/sbin/Mail -s '%h swap more than half-full (%v% free)' $MINDER &";
+
+some_host (
+	($SWAP.free $HOSTS / $SWAP.length $HOSTS) * 100 <  25
+) -> print 10 min "swap almost full: " "%h: %v% free " &
+     shell 10 min "rsh -n guest@%h /sbin/ps -eo 'ruser=UID,pid=PID,ppid=PPID,pcpu=%CPU,sz=9999999SZ,rss=RSS,stime=STIME,time=TIME,args=CMD' | sort +4 -nr | sed -e 's/9999999SZ /    SZ:/' | /usr/sbin/Mail -s '%h swap almost full (%v% free)' $MINDER &";
+
+

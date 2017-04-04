@@ -1,0 +1,6 @@
+# Placeholder for local build customization
+#
+# Used to be used to set TARGET_VENDOR, TARGET_CPU, BUILD_VENDOR,
+# BUILD_CPU and BUILD_OS, but these are no longer used in the PCP
+# build process
+#

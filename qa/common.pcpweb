@@ -1,0 +1,112 @@
+#!/bin/sh
+#
+# Common pre-test checking for weblog and webping PCP QA tests
+#
+# Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_installed()
+{
+    versions $1 | fgrep $1 > /dev/null 2>&1
+}
+
+_remove_pmda()
+{
+    ( cd $PCP_PMDAS_DIR/$1 ; $sudo ./Remove ) 2>&1
+    _pmda_installed $1 $PCP_PMCDCONF_PATH \
+        && _fail "couldn't install $1 pmda"
+}
+
+_install_pmda()
+{
+    ( cd $PCP_PMDAS_DIR/$1 ; $sudo ./Install < /dev/null ) 2>&1
+    _pmda_installed $1 $PCP_PMCDCONF_PATH \
+        || _fail "couldn't install $1 pmda"
+}
+
+_save_state()
+{
+    $sudo cp $PCP_PMCDCONF_PATH $PCP_PMCDCONF_PATH.$seq \
+        || _fail "couldn't save pmcd.conf"
+        
+    if [ -f $PCP_VAR_DIR/config/web/webping.conf ]
+    then
+        $sudo cp $PCP_VAR_DIR/config/web/webping.conf $PCP_VAR_DIR/config/web/webping.conf.$seq \
+            || _fail "couldn't save webping.conf"
+    fi
+    
+    if [ -f $PCP_VAR_DIR/config/web/webdefaults ]
+    then
+        $sudo cp $PCP_VAR_DIR/config/web/webdefaults $PCP_VAR_DIR/config/web/webdefaults.$seq \
+            || _fail "couldn't save webdefaults"
+    fi
+}
+
+_pmda_installed()
+{
+    grep "^$1" "$2" >/dev/null
+}
+
+_restore_state()
+{
+    if [ -f $PCP_PMCDCONF_PATH.$seq ] 
+    then
+
+        # reset pmda installation state   
+        for pmda in weblog webping
+        do
+            if _pmda_installed $pmda $PCP_PMCDCONF_PATH.$seq
+            then
+                _pmda_installed $pmda $PCP_PMCDCONF_PATH \
+                    || _install_pmda $pmda > /dev/null
+            else
+                _pmda_installed $pmda $PCP_PMCDCONF_PATH \
+                    && _remove_pmda $pmda > /dev/null
+            fi
+        done
+
+        # copy back saved configuration files
+        if [ -f $PCP_PMCDCONF_PATH.$seq ]
+	then
+            $sudo cp $PCP_PMCDCONF_PATH.$seq $PCP_PMCDCONF_PATH
+	    $sudo rm $PCP_PMCDCONF_PATH.$seq
+	fi
+            
+        [ -f $PCP_VAR_DIR/config/web/webping.conf.$seq ] \
+            && $sudo mv $PCP_VAR_DIR/config/web/webping.conf.$seq $PCP_VAR_DIR/config/web/webping.conf
+
+        [ -f $PCP_VAR_DIR/config/web/webdefaults.$seq ] \
+            && $sudo mv $PCP_VAR_DIR/config/web/webdefaults.$seq $PCP_VAR_DIR/config/web/webdefaults
+
+        # restart pmcd to pick up new configuration
+        $sudo $PCP_BINADM_DIR/pmsignal -a -s HUP pmcd
+        _wait_for_pmcd
+    fi
+
+}
+
+_pmget()
+{
+    pminfo -f $1 | $PCP_AWK_PROG '/^ *value/ { print $2 }' \
+        || _fail "Couldn't get value for $1"
+}
+
+_pmcount()
+{
+    pminfo $1 | grep -c .
+}
+
+_require_pmda()
+{    
+    _pmda_installed $1 $PCP_PMCDCONF_PATH \
+        || _install_pmda $1 > /dev/null
+}
+
+##############################################################################
+
+unset ROOT

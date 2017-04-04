@@ -1,0 +1,144 @@
+#! /bin/sh
+# PCP QA Test No. 100
+# exercise the logging state compatibility matrix for pmlc ...
+# initial: singular metric request: different singular metric
+#
+# Copyright (c) 2014 Red Hat.
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+trap "$sudo rm -f $tmp $tmp.*; exit" 0 1 2 3 15
+
+_filter_pmlc()
+{
+    sed \
+	-e '/connect /{
+s/connect [0-9][0-9]*/connect PID/
+s/@.*/@HOSTNAME/
+}' \
+	-e '/Connected /{
+s/ on port [0-9][0-9]*//
+s/ pid [0-9][0-9]*//
+s/ at .*/ at HOSTNAME/
+}' \
+	-e 's/ nl /    /' \
+	-e "/timed out/d" \
+	-e 's/Version [0-9].*/Version VERSION/' \
+    | $PCP_AWK_PROG '
+/pmlc commands/		{ skip = 1; print "[command summary deleted ...]" }
+/metric-name/		{ skip = 0; next }
+skip == 1		{ next }
+			{ print }'
+}
+
+_filter_logger()
+{
+    _filter_pmlogger_log \
+    | sed \
+	-e '/AF event queue/d'
+}
+
+_filter_dump()
+{
+    _filter_pmdumplog \
+    | sed \
+	-e '/^$/d' \
+	-e '/pmResult/s/ .* numpmid/ ... numpmid/' \
+	-e '/inst /{
+s/inst \[[0-9][0-9]* or "dks..."]/inst [DISK]/
+s;inst \[[0-9][0-9]* or "/dev/[^"]*"];inst [DISK];
+s;inst \[[0-9][0-9]* or ".*/dbs/.*\.dbf"];inst [FILE];
+}' \
+	-e '/value /{
+s/value [0-9][0-9]*\.[0-9][0-9]*e.[0-9][0-9]*/value NUMBER/
+s/value [0-9][0-9]*\.[0-9][0-9]*/value NUMBER/
+s/value [0-9][0-9]*e.[0-9][0-9]*/value NUMBER/
+s/value [0-9][0-9]*/value NUMBER/
+s/value \[.*]/value AGGREGATE/
+s/value ".*"/value STRING/
+}' \
+	-e "/pmcd\.pmlogger\./s/$logger_pid/LOGGER_PID/g" \
+	-e '/pmcd\.pmlogger\.port/s/value .*/value PORT/' \
+	-e '/pmcd\.pmlogger\.host/s/value ".*/value "HOST"/' \
+	-e '/pmcd\.pmlogger\.archive/s/value ".*/value "PATH"/'
+}
+
+_do_cmds()
+{
+    for ctl in mandatory advisory
+    do
+	for state in "on once" maybe off
+	do
+	    [ "$ctl $state" = "advisory maybe" ] && continue
+	    for req_ctl in mandatory advisory
+	    do
+		for req_state in "on once" maybe off
+		do
+		    [ "$req_ctl $req_state" = "advisory maybe" ] && continue
+		    ( echo "# setup"; \
+		      echo "log mandatory maybe { sample.seconds sample.drift }"; \
+		      echo "# $ctl $state -> $req_ctl $req_state"; \
+		      echo "log $ctl $state sample.seconds"; \
+		    ) | pmlc -ie $1
+		    sleep 1
+		    ( echo "log $req_ctl $req_state sample.drift"; \
+		      echo "query { sample.seconds sample.drift }"; \
+		    ) | pmlc -ie $1
+		    sleep 1
+		    # need sleeps to allow pmlogger to get a look in and
+		    # to allow the pmlogger socket to be closed so the
+		    # next pmlc invocation can get connected
+		done
+	    done
+	done
+    done
+}
+
+x=3
+
+# real QA test starts here
+$sudo rm -f $tmp.0 $tmp.meta $tmp.index
+
+# start pmlogger with the expected number of samples plus a few more
+# to detect extra log output
+#
+_start_up_pmlogger -t 0.5sec -L -s 30 -c /dev/null -l $tmp.log $tmp >$tmp.err 2>&1
+logger_pid=$pid
+
+sleep 2
+_do_cmds $logger_pid >$tmp.out 2>&1
+
+# this chews up any remaining samples quickly so pmlogger terminates
+#
+echo "log mandatory on 25 msec sample.long.one" \
+| pmlc -ie $logger_pid >>$tmp.out 2>&1
+
+_filter_pmlc <$tmp.out
+
+# wait for pmlogger to terminate
+#
+_wait_pmlogger_end $logger_pid
+cat $tmp.err $tmp.log | _filter_logger
+
+echo
+if [ -s $tmp.0 ]
+then
+    echo "Uniq filtered entries from pmdumplog ..."
+    pmdumplog $tmp \
+    | _filter_dump \
+    | sed -e 's/TIMESTAMP//' -e 's/^  *//' \
+    | LC_COLLATE=POSIX sort -u
+    pmdumplog $tmp >$seq.full 2>&1
+else
+    echo "Archive log is empty"
+fi
+
+exit

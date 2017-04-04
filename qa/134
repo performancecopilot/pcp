@@ -1,0 +1,197 @@
+#! /bin/sh
+# PCP QA Test No. 134
+# Check pmGetArchiveEnd for multi-volume logs
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+trap "$sudo rm -f $tmp.*; exit" 0 1 2 3 15
+signal=$PCP_BINADM_DIR/pmsignal
+
+_do_ls()
+{
+    eval `cat $tmp.last`
+    $PCP_AWK_PROG '
+/Cannot/	{ print; next }
+		{ print $9,$5,"bytes" }' \
+    | sed -e "s;$tmp;MYLOG;" \
+    | $PCP_AWK_PROG '
+BEGIN		{ l0='$l0'; l1='$l1' }
+$1 ~ /\.1$/	{ if (l1 == 0) {
+		      if ($2 == 132)
+		          print $1,"initial OK"
+		      else
+			  print $1,"initial BAD - ",$2
+		  }
+		  else if (l1 == $2)
+		          print $1,"unchanged"
+		  else
+		          print $1,"incr",$2-l1,"bytes"
+		  l1=$2
+		  next
+		}
+$1 ~ /\.0$/	{ if (l0 == 0) {
+		      if ($2 > 200 && $2 < 400)
+		          print $1,"initial OK"
+		      else
+			  print $1,"initial BAD - ",$2
+		  }
+		  else if (l0 == $2)
+		          print $1,"unchanged"
+		  else
+		          print $1,"incr",$2-l0,"bytes"
+		  l0=$2
+		  next
+		}
+		{ print }
+END		{ print "l0=" l0 " l1=" l1 >"'$tmp.last'" }'
+    echo "end _do_ls $tmp.last: `cat $tmp.last`" >>$seq.full
+
+}
+
+_do_time()
+{
+    tstamp=`wc -l <$tmp.sed | sed -e 's/  *//g'`
+    tstamp=`expr $tstamp - 2`
+    sed >$tmp.tmp \
+	-e "s;$tmp;MYLOG;" \
+	-e 's/from host .*/from host LOCALHOST/' \
+	-e "/\"$logger_pid\"/s/$logger_pid/LOGGER_PID/g" \
+	-e '/pmcd.pmlogger.port/s/value .*/value PORT/' \
+	-e '/pmcd.pmlogger.host/s/value ".*/value "HOST"/' \
+	-e '/pmcd.pmlogger.archive/s/value ".*/value "PATH"/'
+    sed -n <$tmp.tmp \
+      -e 's/.*\([0-9][0-9]:[0-9][0-9]:[0-9][0-9].[0-9][0-9][0-9]\).*/\1/p' \
+    | LC_COLLATE=POSIX sort -u \
+    | while read time
+    do
+    	if grep $time $tmp.sed >/dev/null
+	then
+	    :
+	else
+	    echo "s/$time/TIMESTAMP-$tstamp/g" >>$tmp.sed
+	    tstamp=`expr $tstamp + 1`
+	fi
+    done
+
+    sed -f $tmp.sed $tmp.tmp \
+    | $PCP_AWK_PROG '
+$1 ~ /TIMESTAMP/ && NF == 4	{ print $1 "     " $2 "       OFFSET       OFFSET"; next }
+				{ print }'
+}
+
+_do_metrics()
+{
+    echo "Metrics in archive:"
+    egrep 'sample|pmcd' \
+    | sed -e 's/.*(//' -e 's/).*//' -e 's/^/    /'
+}
+
+# real QA test starts here
+$sudo rm -f $tmp.* $seq.full
+
+echo 's/ [A-Z][a-z][a-z] [A-Z][a-z][a-z] .. / month-day /g' >$tmp.sed
+echo 's/ [12][0-9][0-9][0-9]$/ year/' >>$tmp.sed
+echo "l0=0 l1=0" >$tmp.last
+echo "init $tmp.last: `cat $tmp.last`" >>$seq.full
+
+_start_up_pmlogger -L -c /dev/null -l $tmp.log $tmp
+_wait_for_pmlogger $pid $tmp.log
+
+echo
+echo "=== logger started, nothing logged ==="
+echo "=== logger started, nothing logged ===" >>$seq.full
+LC_TIME=POSIX ls -l $tmp.? 2>&1 | tee -a $seq.full | _do_ls
+pmdumplog -lt $tmp 2>&1 | tee -a $seq.full | _do_time
+pmdumplog $tmp | tee -a $seq.full | _do_metrics
+
+pmlc <<End-of-File
+connect $pid
+log mandatory on once pmcd.control.register["0"]
+End-of-File
+pmsleep 1.1
+echo flush | pmlc $pid >/dev/null
+
+echo
+echo "=== first volume, one result ==="
+echo "=== first volume, one result ===" >>$seq.full
+LC_TIME=POSIX ls -l $tmp.? | tee -a $seq.full | _do_ls
+pmdumplog -lt $tmp | tee -a $seq.full | _do_time
+pmdumplog $tmp | tee -a $seq.full | _do_metrics
+
+pmlc <<End-of-File
+connect $pid
+new volume
+End-of-File
+pmsleep 1.1
+
+echo
+echo "=== second empty volume ==="
+echo "=== second empty volume ===" >>$seq.full
+LC_TIME=POSIX ls -l $tmp.? | tee -a $seq.full | _do_ls
+pmdumplog -lt $tmp | tee -a $seq.full | _do_time
+pmdumplog $tmp | tee -a $seq.full | _do_metrics
+
+pmlc <<End-of-File
+connect $pid
+log mandatory on once pmcd.control.register["0"]
+End-of-File
+pmsleep 1.1
+echo flush | pmlc $pid >/dev/null
+
+echo
+echo "=== second volume, one result ==="
+echo "=== second volume, one result ===" >>$seq.full
+LC_TIME=POSIX ls -l $tmp.? | tee -a $seq.full | _do_ls
+pmdumplog -lt $tmp | tee -a $seq.full | _do_time
+pmdumplog $tmp | tee -a $seq.full | _do_metrics
+
+pmlc <<End-of-File
+connect $pid
+log mandatory on once { 
+    pmcd.control.debug
+    pmcd.control.timeout
+    sample.bin
+}
+End-of-File
+pmsleep 1.1
+pmlc <<End-of-File
+connect $pid
+log mandatory on once pmcd.control.register["0"]
+End-of-File
+pmsleep 1.1
+echo flush | pmlc $pid >/dev/null
+
+echo
+echo "=== second volume, second + third result ==="
+echo "=== second volume, second + third result ===" >>$seq.full
+LC_TIME=POSIX ls -l $tmp.? | tee -a $seq.full | _do_ls
+pmdumplog -lt $tmp | tee -a $seq.full | _do_time
+pmdumplog $tmp | tee -a $seq.full | _do_metrics
+
+$sudo $signal -s TERM $pid
+_wait_pmlogger_end $pid
+
+echo
+echo "=== logger done ==="
+echo "=== logger done ===" >>$seq.full
+LC_TIME=POSIX ls -l $tmp.? | tee -a $seq.full | _do_ls
+pmdumplog -lt $tmp | tee -a $seq.full | _do_time
+pmdumplog $tmp | tee -a $seq.full | _do_metrics
+
+# save the archive files for post-mortem test failure analysis
+#
+for i in 0 1 meta index
+do
+    cp ${tmp}.$i $seq.full.$i
+done
+
+exit 0

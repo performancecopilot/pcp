@@ -1,0 +1,134 @@
+#! /bin/sh
+# PCP QA Test No. 154
+# what the hell is chkhelp supposed to do?
+#
+# Copyright (c) 2015 Red Hat.
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ -f $PCP_PMDAS_DIR/cisco/pmdacisco ] || _notrun "cisco pmda not installed"
+
+_filter_illegal()
+{
+    sed \
+	-e '/illegal key/s/(-*[0-9][0-9]*)/(SIZE)/' \
+	-e "s;$tmp;TMP;g"
+}
+
+_filter_chk()
+{
+    sed \
+	-e '/-v version/d' \
+	-e "s;$PCP_PMDAS_DIR;\$PCP_PMDAS_DIR;"
+}
+
+trap "rm -f $tmp.*; exit" 0 1 2 3 15
+
+# real QA test starts here
+
+cleanup=false
+if [ ! -f $PCP_PMDAS_DIR/cisco/help.pag ]
+then
+    # no compiled help text, so the cisco PMDA has never been installed
+    # here ... the only way to make this file appear is Install and Remove
+    # the PMDA ... this should be a no-op, but may take a while
+    #
+    cd $PCP_PMDAS_DIR/cisco
+    unset ROOT MAKEFLAGS
+    $sudo ./Install </dev/null >/dev/null 2>&1
+    cd $here
+    if [ ! -f $PCP_PMDAS_DIR/cisco/help.pag ]
+    then
+	echo "Arrggh, need $PCP_PMDAS_DIR/cisco/help.pag and cannot remake it!"
+	exit 1
+    fi
+    cleanup=true
+fi
+$sudo chmod 644 $PCP_PMDAS_DIR/cisco/help.*
+
+echo
+echo bad dbf
+dd if=/dev/zero ibs=1024 count=4 of=$tmp.pag >/dev/null 2>&1
+cp $tmp.pag $tmp.dir
+echo "chkhelp bad-helpfile"
+chkhelp $tmp >$tmp.out 2>&1
+status=$?
+_filter_illegal <$tmp.out
+echo status=$status
+echo "chkhelp -p bad-helpfile"
+chkhelp -p $tmp >$tmp.out 2>&1
+status=$?
+_filter_illegal <$tmp.out
+echo status=$status
+echo "chkhelp bad-helpfile cisco.rate_in"
+chkhelp $tmp cisco.rate_in 2>&1 | _filter_illegal
+echo status=$?
+
+echo
+echo "some usage failures ..."
+echo 'chkhelp -i $PCP_PMDAS_DIR/cisco/help cisco.rate_in'
+chkhelp -i $PCP_PMDAS_DIR/cisco/help cisco.rate_in 2>&1 \
+| _filter_chk
+echo 'chkhelp -p $PCP_PMDAS_DIR/cisco/help cisco.rate_in'
+chkhelp -p $PCP_PMDAS_DIR/cisco/help cisco.rate_in 2>&1 \
+| _filter_chk
+echo 'chkhelp -ip $PCP_PMDAS_DIR/cisco/help cisco.rate_in'
+chkhelp -ip $PCP_PMDAS_DIR/cisco/help cisco.rate_in 2>&1 \
+| _filter_chk
+
+echo
+echo "debug trace ..."
+echo 'chkhelp -D 2048 $PCP_PMDAS_DIR/cisco/help'
+chkhelp -D 2048 $PCP_PMDAS_DIR/cisco/help 2>&1 \
+| _filter_chk
+
+echo
+echo "exercise options ..."
+
+for h in "" -H
+do
+    for o in "" -O
+    do
+	for i in "" -i
+	do
+	    for p in "" -p
+	    do
+		for metric in "" cisco.rate_in "cisco.rate_in cisco.rate_out"
+		do
+		    if [ "X$p" = "X-p" -o "X$i" = "X-i" ]
+		    then
+			[ "X$metric" != X ] && continue
+		    fi
+		    echo
+		    echo "args: $h $o $i $p $metric"
+		    chkhelp $h $o $i $p \
+			  -n $PCP_PMDAS_DIR/cisco/root \
+                          $PCP_PMDAS_DIR/cisco/help $metric >$tmp.out 2>&1
+                    status=$?
+                    _filter_chk <$tmp.out
+		    echo status=$status
+		done
+	    done
+	done
+    done
+done
+
+if $cleanup
+then
+    # see comments above when help.pag created for cisco PMDA
+    #
+    cd $PCP_PMDAS_DIR/cisco
+    unset ROOT MAKEFLAGS
+    $sudo ./Remove </dev/null >/dev/null 2>&1
+    cd $here
+fi
+
+exit 0

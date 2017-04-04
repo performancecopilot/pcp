@@ -1,0 +1,173 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMLOOKUPNAME 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmLookupName\f1 \- translate performance metric names into PMIDs
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.sp
+.nf
+int pmLookupName(int \fInumpmid\fP, char **\fInamelist\fP, pmID *\fIpmidlist\fP);
+.fi
+.sp
+cc ... \-lpcp
+.ft 1
+.SH DESCRIPTION
+.PP
+Given a list in
+.I namelist
+containing
+.I numpmid
+full pathnames for performance metrics from a Performance Metrics Name
+Space (PMNS),
+.B pmLookupName
+returns the list of associated
+Performance Metric Identifiers (PMIDs) via 
+.IR pmidlist .
+.PP
+The result from
+.B pmLookupName
+depends on the presence of any lookup failures, their severity and the
+number of metrics being looked up.
+.IP 1. 4n
+If there are no lookup failures, the return value will be
+.IR numpmid .
+.IP 2. 4n
+If a fatal error is encountered, the return value will be less than 0.
+For example
+.BR PM_ERR_TOOSMALL ,
+.B PM_ERR_NOPMNS
+or
+.BR PM_ERR_IPC .
+.IP 3. 4n
+If
+.I numpmid
+is greater than one and non-fatal error(s) are encountered, the
+return value is the number of metric names that have successfully been
+looked up (greater than or equal to zero and less than or equal to
+.IR numpmid ).
+.IP 4. 4n
+If
+.I numpmid
+is one and a non-fatal error is encountered, the return value is the
+error code (less than zero).
+.PP
+When errors are encountered, any metrics that cannot be looked up
+result in the corresponding element of
+.I pmidlist 
+being set to
+.BR PM_ID_NULL .
+.PP
+The slightly convoluted error protocol allows bulk lookups, then
+probing for more error details in the case of a specific failure,
+as shown in the
+.B EXAMPLES
+section below.
+.PP
+Note that the error protocol guarantees there is a 1:1 relationship
+between the elements of
+.I namelist
+and
+.IR pmidlist ,
+hence both lists contain exactly
+.I numpmid
+elements.
+For this reason, the caller is expected to have pre-allocated a suitably
+sized array for
+.IR pmidlist .
+.SH EXAMPLE
+.nf
+.ft CW
+#include <pcp/pmapi.h>
+
+#define NUMPMID 5
+char 	*names[] = { "sample.bin",
+		     "sample",
+		     "sample.bog",
+		     "sample.secret.bar",
+		     "sample.secret.bar.bad"
+		   };
+pmID	pmids[NUMPMID];
+
+int
+main(int argc, char **argv)
+{
+    int	sts;
+    int	numpmid = NUMPMID;
+
+    pmNewContext(PM_CONTEXT_HOST, "local:");
+
+    sts = pmLookupName(numpmid, names, pmids);
+
+    if (sts < 0) {
+	fprintf(stderr, "pmLookupName failed: %s\n", pmErrStr(sts));
+	exit(1);
+    }
+    if (sts != numpmid) {
+	/*
+	 * some of the lookups failed ... report the reason(s)
+	 */
+	int	i;
+
+	for (i = 0; i < numpmid; i++) {
+	    if (pmids[i] != PM_ID_NULL) continue;
+	    /* this one failed */
+	    sts = pmLookupName(1, &names[i], &pmids[i]);
+	    fprintf(stderr, "%s: lookup failed: %s\n", names[i], pmErrStr(sts));
+	}
+	exit(1);
+    }
+
+    /* all good ... */
+    ...
+}
+
+.ft
+.fi
+.SH SEE ALSO
+.BR PMAPI (3),
+.BR pmGetChildren (3),
+.BR pmGetChildrenStatus (3),
+.BR pmGetConfig (3),
+.BR pmLoadNameSpace (3),
+.BR pmNameID (3),
+.BR pmNewContext (3),
+.BR pcp.conf (5)
+and
+.BR pcp.env (5).
+.SH DIAGNOSTICS
+.IP \f3PM_ERR_TOOSMALL\f1
+.I numpmid
+must be at least 1
+.IP \f3PM_ERR_NOPMNS\f1
+Failed to access a PMNS for operation.
+Note that if the application hasn't a priori called 
+.BR pmLoadNameSpace (3)
+and wants to use the distributed PMNS, then a call to
+.B pmLookupName
+must be made after the creation of a context (see 
+.BR pmNewContext (3)).
+.IP \f3PM_ERR_NAME\f1
+.I namelist[0]
+does not correspond to a valid metric name in the PMNS.
+.IP \f3PM_ERR_NONLEAF\f1
+.I namelist[0]
+refers to a node in the PMNS but it was
+not a leaf node.
+.IP \f3PM_ERR_*\f1
+Other diagnostics are for protocol failures when
+accessing the distributed PMNS.

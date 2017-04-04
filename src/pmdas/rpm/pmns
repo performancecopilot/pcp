@@ -1,0 +1,38 @@
+rpm {
+    arch	RPM:1:0
+    buildhost	RPM:1:1
+    buildtime	RPM:1:2
+    description	RPM:1:3
+    epoch	RPM:1:4
+    group	RPM:1:5
+    installtime	RPM:1:6
+    license	RPM:1:7
+    packager	RPM:1:8
+    release	RPM:1:9
+    size	RPM:1:10
+    sourcerpm	RPM:1:11
+    summary	RPM:1:12
+    url		RPM:1:13
+    vendor	RPM:1:14
+    version	RPM:1:15
+    name	RPM:1:16
+    refresh
+    datasize	RPM:0:4
+    total
+}
+
+rpm.refresh {
+    count	RPM:0:0
+    time
+}
+
+rpm.refresh.time {
+    user        RPM:0:1
+    sys         RPM:0:2
+    elapsed	RPM:0:3
+}
+
+rpm.total {
+    count       RPM:2:0
+    bytes       RPM:2:1
+}

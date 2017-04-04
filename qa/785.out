@@ -1,0 +1,80 @@
+QA output created by 785
+
+== Processor metrics
+
+HOST-SUMMARY-LINE
+
+-------------------------- analysis date: 2015/09/25 --------------------------
+
+11:03:19  cpu  %usr %nice %sys %irq %softirq  %steal %guest  %wait %idle  _cpu_
+11:03:19  ......................... logging restarted .........................
+
+11:03:21  cpu  %usr %nice %sys %irq %softirq  %steal %guest  %wait %idle  _cpu_
+11:03:21  all     4     0    1    0        0       0      0      2   392
+            0     1     0    0    0        0       0      0      1    98
+            1     1     0    0    0        0       0      0      0    98
+            2     1     0    0    0        0       0      0      1    97
+            3     1     0    0    0        0       0      0      0    99
+11:03:22  all     2     0    2    0        0       0      0      0   395
+            0     2     0    2    0        0       0      0      0    96
+            1     0     0    1    0        0       0      0      0    99
+            2     0     0    0    0        0       0      0      0   100
+            3     1     0    0    0        0       0      0      0    99
+11:03:23  all     5     0    3    0        0       0      0      9   384
+            0     2     0    2    0        0       0      0      0    96
+            1     0     0    0    0        0       0      0      0   100
+            2     0     0    0    0        0       0      0      0   100
+            3     1     0    0    0        0       0      0      8    91
+
+== Disk metrics
+
+HOST-SUMMARY-LINE
+
+-------------------------- analysis date: 2015/09/25 --------------------------
+
+11:03:19  disk           busy read/s KB/read  writ/s KB/writ avque avserv _dsk_
+11:03:19  ......................... logging restarted .........................
+
+11:03:21  disk           busy read/s KB/read  writ/s KB/writ avque avserv _dsk_
+11:03:21  sda              0%    0.2    18.1     0.2    14.6  14.9   6.23 ms
+11:03:22  
+11:03:23  sda              1%    0.0     0.0     0.2    57.0   1.0  41.50 ms
+
+== Network metrics
+
+HOST-SUMMARY-LINE
+
+-------------------------- analysis date: 2015/09/25 --------------------------
+
+11:03:19  interf busy ipack/s opack/s iKbyte/s oKbyte/s imbps ombps maxmbps_if_
+11:03:19  ......................... logging restarted .........................
+
+11:03:21  interf busy ipack/s opack/s iKbyte/s oKbyte/s imbps ombps maxmbps_if_
+11:03:21  p2p1      ? 391124.0 275266.0   142586   101417  1168   830       0  
+          wlp2s0    ?     0.0     0.0        0        0     0     0       0  
+          lo        ? 60894.0 60894.0    72880    72880   597   597       0  
+          tun0      ?  5917.0  6220.0     2159      591    17     4       0  
+          ocker0    ?     0.0     0.0        0        0     0     0       0  
+11:03:22  p2p1      ?     3.0     0.0        0        0     0     0       0  
+          lo        ?     8.0     8.0        1        1     0     0       0  
+11:03:23  p2p1      ?     3.0     0.0        0        0     0     0       0  
+          lo        ?     1.0     1.0        0        0     0     0       0  
+
+== Memory metrics
+
+HOST-SUMMARY-LINE
+
+-------------------------- analysis date: 2015/09/25 --------------------------
+
+11:03:19  memtotal memfree buffers cached dirty slabmem  swptotal swpfree _mem_
+11:03:19  ......................... logging restarted .........................
+
+11:03:21  memtotal memfree buffers cached dirty slabmem  swptotal swpfree _mem_
+11:03:21     3849M    196M    275M  1553M    0M    357M  13989884M 13980592M
+11:03:22     3849M    195M    275M  1553M    0M    358M  13989884M 13980592M
+11:03:23     3849M    195M    275M  1553M    0M    358M  13989884M 13980592M
+
+== Checking sample count and interval
+OK
+
+== Done

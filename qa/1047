@@ -1,0 +1,94 @@
+#! /bin/sh
+# PCP QA Test No. 1047 (formerly 528)
+# rules file syntax parsing & value/type checking
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+which pmieconf >/dev/null 2>&1 || _notrun "No pmieconf binary installed"
+
+status=1	# failure is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+cat > $tmp.pmie <<EOF
+// pmieconf-pmie 1 $tmp.test
+// end
+EOF
+
+cat > $tmp.rules <<EOF
+#pmieconf-rules 1
+
+EOF
+
+_run_pmieconf()
+{
+    pmieconf -f $tmp.pmie -r $tmp.test list all >$tmp.out 2>&1
+    pstatus=$?
+    sed -e "s/$seq-$$/[SEQ-PID]/g" $tmp.out
+    echo status=$pstatus
+}
+
+
+# real QA test starts here
+
+echo
+echo "=== basic sanity check (pmieconf should fail with no rules)"
+cat $tmp.rules - > $tmp.test <<EOF
+string	global.foo
+	default = 100;
+EOF
+_run_pmieconf
+
+
+echo
+echo "=== non-existant type"
+cat $tmp.rules - > $tmp.test <<EOF
+foo	global.bloo
+	default = moo;
+EOF
+_run_pmieconf
+
+
+echo
+echo "=== 5 bad rulefile syntax tests"
+cat $tmp.rules - > $tmp.test <<EOF
+string	global.bloo
+	default moo;
+EOF
+_run_pmieconf
+
+cat $tmp.rules - > $tmp.test <<EOF
+=	global.bloo
+	default = "";
+EOF
+_run_pmieconf
+
+cat $tmp.rules - > $tmp.test <<EOF
+percent	global.bloo
+	sometext = blat;
+EOF
+_run_pmieconf
+
+cat $tmp.rules - > $tmp.test <<EOF
+percent	global.joe enabled = yes
+EOF
+_run_pmieconf
+
+cat $tmp.rules - > $tmp.test <<EOF
+string	bloo
+	default "missing rule";
+EOF
+_run_pmieconf
+
+
+# success, all done
+status=0
+exit

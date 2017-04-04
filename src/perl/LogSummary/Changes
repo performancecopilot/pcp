@@ -1,0 +1,8 @@
+Revision history for Perl extension PCP::LogSummary.
+
+1.01  Web Mar  4 10:48:37 2009
+	- updated excel-export demo to remove unwanted dependency
+
+1.00  Fri Nov 28 09:20:55 2008
+	- original version created
+

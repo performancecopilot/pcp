@@ -1,0 +1,44 @@
+QA output created by 500
+
+pmnewlog args: -V -L -c null -p ... -D pdu one
+Looking for pmlogger (process PID) ... found
+-- ps line removed --
+Getting logged host name from pmlogger (process PID) ... done
+Terminating pmlogger (process PID) ... signal stuff ... done
+Launching new pmlogger in directory "TMP" as ...
+pmlogger -L -D pdu -l pmlogger.log -h HOST -c null one
+Waiting for new pmlogger to start ... done
+New pmlogger status ...
+pmlogger [PID] ...
+
+pmnewlog args: -V -L -c null -p ... -r one
+Looking for pmlogger (process PID) ... found
+-- ps line removed --
+Terminating pmlogger (process PID) ... signal stuff ... done
+Launching new pmlogger in directory "TMP" as ...
+pmlogger -L -r -l pmlogger.log -h HOST -c null one
+Waiting for new pmlogger to start ... done
+New pmlogger status ...
+pmlogger [PID] ...
+
+pmnewlog args: -V -L -c null -p ... -t 5sec one
+Looking for pmlogger (process PID) ... found
+-- ps line removed --
+Terminating pmlogger (process PID) ... signal stuff ... done
+Launching new pmlogger in directory "TMP" as ...
+pmlogger -L -t 5sec -l pmlogger.log -h HOST -c null one
+Waiting for new pmlogger to start ... done
+New pmlogger status ...
+pmlogger [PID] ...
+
+pmnewlog args: -V -L -c null -p ... -v 100k one
+Looking for pmlogger (process PID) ... found
+-- ps line removed --
+Terminating pmlogger (process PID) ... signal stuff ... done
+Launching new pmlogger in directory "TMP" as ...
+pmlogger -L -v 100k -l pmlogger.log -h HOST -c null one
+Waiting for new pmlogger to start ... done
+New pmlogger status ...
+pmlogger [PID] ...
+
+expect none of my pmloggers to be running ...

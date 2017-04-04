@@ -1,0 +1,227 @@
+#!/bin/sh
+# PCP QA Test No. 483
+# check pmlogrewrite config parser - metric clauses
+#
+# Copyright (c) 2011 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+which pmlogrewrite >/dev/null 2>&1 || _notrun "pmlogrewrite not installed"
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s;$tmp;TMP;g"
+}
+
+# real QA test starts here
+cat <<End-of-File >$tmp.conf
+global {
+    hostname -> whizz-bang.engr.sgi.com
+    tz -> "GMT+10"
+    time -> 10
+}
+
+indom 1.5 {
+    indom -> 1.10
+    iname "15 minute" -> "forever"
+    inst 15 -> 9999
+}
+
+metric hinv.ndisk {
+    pmid -> 1.2.3
+}
+
+metric 1.18.3 {
+    pmid -> 4.5.6
+}
+End-of-File
+rm -f $tmp.new.*
+pmlogrewrite -C -c $tmp.conf archives/src-rattle $tmp.new 2>&1 | _filter
+
+for m in 1.18.3 '1.18.*' '1.*.*' hinv.ndisk 42.42.42 foo.bar \
+    'hinv.ndisk { type->64 } metric no.such.metric' \
+    'no.such.metric { type->64 } metric no.such.other.metric { type->64 } metric 1.18.3'
+do
+    echo
+    echo "=== metric $m { type->U32 } ==="
+    echo "metric $m { type->U32 }" >$tmp.conf
+    rm -f $tmp.new.*
+    pmlogrewrite -w -C -c $tmp.conf archives/src-rattle $tmp.new 2>&1 | _filter
+done
+
+for m in '60.*.*'
+do
+    echo
+    echo "=== metric $m { type->U32 } ==="
+    echo "metric $m { type->U32 }" >$tmp.conf
+    rm -f $tmp.new.*
+    pmlogrewrite -w -C -c $tmp.conf archives/ac15 $tmp.new 2>&1 | _filter
+done
+
+# pmid exercises
+for p in 42.42.42 1.18.2 2.3.2 foo '1.*.*' '2.*.*'
+do
+    echo
+    echo "=== metric hinv.ncpu { pmid -> $p } ==="
+    echo "metric hinv.ncpu { pmid -> $p }" >$tmp.conf
+    rm -f $tmp.new.*
+    pmlogrewrite -w -C -c $tmp.conf archives/src-rattle $tmp.new 2>&1 | _filter
+done
+
+# name exercises
+for n in foo.bar.mumble.fratz "blah blah blah" 'hinv.*' hinv.ndisk hinv.ncpu
+do
+    echo
+    echo "=== metric hinv.ndisk { name -> $n } ==="
+    echo "metric hinv.ndisk { name -> $n }" >$tmp.conf
+    rm -f $tmp.new.*
+    pmlogrewrite -w -C -c $tmp.conf archives/src-rattle $tmp.new 2>&1 | _filter
+done
+
+# type exercises
+for t in 32 U32 64 u64 Float double STRING 123 foo.bar \
+    'U32 type -> float' 'U64 type -> DOUBLE'
+do
+    echo
+    echo "=== metric hinv.ncpu { type -> $t } ==="
+    echo "metric hinv.ncpu { type -> $t }" >$tmp.conf
+    rm -f $tmp.new.*
+    pmlogrewrite -w -C -c $tmp.conf archives/src-rattle $tmp.new 2>&1 | _filter
+done
+
+# indom exercises
+for i in 2.1 1.3 '42.*' foo 1.5 '1.*' '5.6 indom -> 7.8' \
+    NULL 'NULL output first' 'NULL output last' 'NULL output inst 5' \
+    'NULL output min' 'NULL output max' 'NULL output avg' \
+    '2.1 output inst 123' \
+    '42.42 } indom 1.5 { indom -> 33.33 '
+do
+    echo
+    echo "=== metric irix.kernel.all.load { indom -> $i } ==="
+    echo "metric irix.kernel.all.load { indom -> $i }" >$tmp.conf
+    rm -f $tmp.new.*
+    pmlogrewrite -w -C -c $tmp.conf archives/src-rattle $tmp.new 2>&1 | _filter
+done
+echo
+echo "=== metric pmcd.pmlogger.port { indom -> 60.* } ==="
+echo "metric pmcd.pmlogger.port { indom -> 60.* }" >$tmp.conf
+rm -f $tmp.new.*
+pmlogrewrite -w -C -c $tmp.conf archives/20041125 $tmp.new 2>&1 | _filter
+echo
+echo "=== metric hinv.ndisk { indom -> 1.5 } ==="
+echo "metric hinv.ndisk { indom -> 1.5 }" >$tmp.conf
+rm -f $tmp.new.*
+pmlogrewrite -w -C -c $tmp.conf archives/src-rattle $tmp.new 2>&1 | _filter
+echo
+echo "=== metric hinv.ndisk { indom -> 1.5 output inst 15 } ==="
+echo "metric hinv.ndisk { indom -> 1.5 output inst 15 }" >$tmp.conf
+rm -f $tmp.new.*
+pmlogrewrite -w -C -c $tmp.conf archives/src-rattle $tmp.new 2>&1 | _filter
+
+# sem exercises
+for s in Discrete COUNTER INSTANT instanty NULL 'COUNTER sem -> INSTANT'
+do
+    echo
+    echo "=== metric 2.3.2 { sem -> $s } ==="
+    echo "metric 2.3.2 { sem -> $s }" >$tmp.conf
+    rm -f $tmp.new.*
+    pmlogrewrite -w -C -c $tmp.conf archives/src-rattle $tmp.new 2>&1 | _filter
+done
+
+# units exercises
+for u in '1,0,0,BYTE,0,0' '0,1,0,0,SEC,0' '0,0,1,0,0,ONE' \
+	'1,-1,0,EBYTE,HOUR,0' '1,-1,0,PBYTE,MIN,0' '1,-1,0,TBYTE,SEC,0' \
+	'1,-1,0,GBYTE,MSEC,0' '1,-1,0,MBYTE,USEC,0' '1,-1,0,KBYTE,NSEC,0' \
+	'1,0,-1,KBYTE,0,ONE' '0,-1,1,0,MSEC,2' \
+	'1,0,0,BYTE,0,0 units -> 0,1,0,0,SEC,0' \
+	'0,0,0,0,0,0'
+do
+    echo
+    echo "=== metric hinv.ncpu { units -> $u } ==="
+    echo "metric hinv.ncpu { units -> $u }" >$tmp.conf
+    rm -f $tmp.new.*
+    pmlogrewrite -w -C -c $tmp.conf archives/src-rattle $tmp.new 2>&1 | _filter
+done
+for u in '1,0,0,BYTE,0,0' '1,0,0,BYTE,0,0 RESCALE'  \
+	'1,-1,0,KBYTE,SEC,0' '1,-1,0,KBYTE,SEC,0 rescale'
+do
+    echo
+    echo "=== metric sampledso.long.bin_ctr { units -> $u } ==="
+    echo "metric sampledso.long.bin_ctr { units -> $u }" >$tmp.conf
+    rm -f $tmp.new.*
+    pmlogrewrite -wC -c $tmp.conf archives/rewrite $tmp.new 2>&1 | _filter
+    rm -f $tmp.new.*
+    pmlogrewrite -swC -c $tmp.conf archives/rewrite $tmp.new 2>&1 | _filter
+done
+
+# delete exercises
+for m in hinv.ncpu 2.3.2 '2.3.*' '1.*.*'
+do
+    echo
+    echo "=== metric $m { delete } ==="
+    echo "metric $m { delete }" >$tmp.conf
+    rm -f $tmp.new.*
+    pmlogrewrite -C -c $tmp.conf archives/src-rattle $tmp.new 2>&1 | _filter
+done
+
+# conflicting metric specs
+for o in 'delete pmid->1.2.3' 'pmid->1.2.3 delete' \
+	'delete name -> foo.bar' 'name -> foo.bar delete' \
+	'delete type -> U64' 'type -> U64 delete' \
+	'delete indom -> NULL' 'indom -> NULL delete' \
+	'delete sem -> INSTANT' 'sem -> INSTANT delete' \
+	'delete sem -> COUNTER' 'sem -> COUNTER delete'
+do
+    echo
+    echo "=== metric 1.18.3 { $o } ==="
+    echo "metric 1.18.3 { $o }" >$tmp.conf
+    rm -f $tmp.new.*
+    pmlogrewrite -w -C -c $tmp.conf archives/src-rattle $tmp.new 2>&1 | _filter
+done
+
+# multi-clause examples
+cat <<End-of-File >$tmp.conf
+indom 1.* {
+    indom -> 42.*
+}
+metric 1.*.* {
+    pmid -> 42.*.*
+}
+metric 1.18.3 {
+    name -> foo.bar
+    type -> 64
+    indom -> 42.5
+    sem -> DISCRETE
+    units -> 0,0,0,0,0,0
+}
+End-of-File
+rm -f $tmp.new.*
+pmlogrewrite -w -C -c $tmp.conf archives/src-rattle $tmp.new 2>&1 | _filter
+
+# metric walk and star exercises
+for m in 1.*.*  1.18.* 2.3.2
+do
+    for x in 7.*.* 8.9.* 10.11.12
+    do
+	echo
+	echo "=== metric $m { pmid -> $x } ==="
+	echo "metric $m { pmid -> $x }" >$tmp.conf
+	rm -f $tmp.new.*
+	pmlogrewrite -C -c $tmp.conf archives/src-rattle $tmp.new 2>&1 | _filter
+    done
+done
+
+# success, all done
+exit

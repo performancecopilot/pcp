@@ -1,0 +1,30 @@
+#! /bin/sh
+# PCP QA Test No. 293
+# pmstat field overflow from APAC => new scaling and formatting
+# pv:939275
+#
+# Copyright (c) 2005 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_filter()
+{
+    sed -e '/Warning: using metric .* instead of /d'
+}
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.*
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+pmstat -z -a archives/ac15 2>&1 | _filter
+
+# success, all done
+exit

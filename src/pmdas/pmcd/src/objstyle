@@ -1,0 +1,88 @@
+#! /bin/sh
+#
+# Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+# 
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+#
+# identify the objstyle of linux platforms other than ia32 and ia64.
+
+echo 'int main(){return 0;}' >dummy.c
+cc -c dummy.c
+
+# we've had bad experience with file(1) and compiled "magic" files
+# on assorted Linux versions ... try to use the uncompiled magic
+# file if possible
+#
+# if you need to modify this, make consistent changes in
+#	src/pmdas/pmcd/src/objstyle
+#	qa/605
+#
+magic=''
+for file in /usr/share/misc/magic /usr/share/file/magic /usr/share/magic \
+	/etc/magic
+do
+    if [ -f "$file" ]
+    then
+	# found a file, check it contains some definitions ...
+	nl=`sed -e '/^#/d' -e '/^[ 	]*$/d' <"$file" | wc -l | sed -e 's/ //g'`
+	if [ "$nl" -gt 0 ]
+	then
+	    magic=$file
+	    break
+	fi
+    fi
+done
+
+# sample file output
+#
+# ia32 laptop
+# dummy.o: ELF 32-bit LSB relocatable, Intel 80386, version 1 (SYSV), not stripped
+#
+# Mac OS X
+# pmcd.o: Mach-O universal binary with 2 architectures
+# pmcd.o (for architecture i386):	Mach-O object i386
+# pmcd.o (for architecture x86_64):	Mach-O 64-bit object x86_64
+#
+# dummy.o: Mach-O 64-bit object x86_64
+#
+# SLES10
+# dummy.o: ELF 64-bit LSB relocatable, IA-64 (Intel 64 bit architecture), version 1 (SYSV), not stripped
+#
+
+if [ -n "$magic" ]
+then
+    file -m $magic dummy.o
+else
+    file dummy.o
+fi \
+| ( sed -n \
+    -e '/ ELF /{
+s/^[^,]*, //
+s/, .*//
+s/ *([^)]*)//
+s/ //
+s/x86-64/x86_64/
+p
+}' \
+    -e '/object/{
+s/[ 	]*$//
+s/.*[ 	]//
+p
+}' \
+| tr '[\012]' '[+]' \
+; echo ) \
+| sed -e 's/+$//'
+
+rm -f dummy.[co]

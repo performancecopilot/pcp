@@ -1,0 +1,48 @@
+#!/bin/sh
+#
+# Import PCP services into SMF but do not start them - let admin do it
+# when she's ready.
+#
+
+export PATH=/usr/sbin:$PATH
+
+if [ -f /etc/pcp.conf ]
+then
+    # for all the configuration files we know about, try to keep 
+    # any local modifications, and salt away file with a .orig
+    # suffix for a subsequent upgrade
+    #
+    . /etc/pcp.conf
+    for conf in \
+	$PCP_PMCDCONF_PATH $PCP_PMCDOPTIONS_PATH $PCP_PMCDRCLOCAL_PATH \
+	$PCP_PMIECONTROL_PATH $PCP_PMLOGGERCONTROL_PATH \
+	$PCP_PMPROXYOPTIONS_PATH $PCP_PMWEBDOPTIONS_PATH
+    do
+	if [ -f $conf.pre -a -f $conf ]
+	then
+	    if cmp -s $conf.pre $conf
+	    then
+		cp $conf $conf.orig
+		rm $conf.pre
+	    else
+		# restore local modifications ...
+		cp $conf $conf.orig
+		mv $conf.pre $conf
+	    fi
+	elif [ -f $conf ]
+	then
+	    cp $conf $conf.orig
+	fi
+    done
+fi
+
+chown -R pcp:pcp /var/log/pcp/pmcd 2>/dev/null
+chown -R pcp:pcp /var/log/pcp/pmlogger 2>/dev/null
+chown -R pcp:pcp /var/log/pcp/pmie 2>/dev/null
+chown -R pcp:pcp /var/log/pcp/pmwebd 2>/dev/null
+chown -R pcp:pcp /var/log/pcp/pmproxy 2>/dev/null
+
+touch /var/lib/pcp/pmns/.NeedRebuild 2>/dev/null
+chmod 644 /var/lib/pcp/pmns/.NeedRebuild 2>/dev/null
+svccfg import /var/svc/manifest/application/pcp.xml
+

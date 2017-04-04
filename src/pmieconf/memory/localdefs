@@ -1,0 +1,29 @@
+ALL_RULES	= swap_low exhausted
+
+LOCAL_RULES = $(ALL_RULES)
+
+# Metrics missing from Mac OS X
+#
+# rule: swap_low
+#   swap.free -12357 Unknown metric name
+#   swap.length -12357 Unknown metric name
+#
+# rule: exhausted
+#   swap.pagesout -12357 Unknown metric name
+#
+ifeq ($(TARGET_OS), darwin)
+LOCAL_RULES =
+endif
+
+# Metrics missing from Solaris
+#
+# rule: exhausted
+#   swap.pagesout -12357 Unknown metric name
+#
+# rule: swap_low
+#   swap.free -12357 Unknown metric name
+#   swap.length -12357 Unknown metric name
+#
+ifeq ($(TARGET_OS), solaris)
+LOCAL_RULES =
+endif

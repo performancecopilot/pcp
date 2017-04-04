@@ -1,0 +1,46 @@
+QA output created by 155
+sample.not_ready old value=0 new value=5
+-- THESE SHOULD RETURN PM_ERR_AGAIN --
+
+descriptor request:
+sample.long.ten: pmLookupDesc: Try again. Information not currently available
+
+short help text request:
+sample.long.ten One-line Help: Error: Try again. Information not currently available
+
+
+long help text request:
+
+sample.long.ten
+Full Help: Error: Try again. Information not currently available
+
+fetch request:
+sample.long.one: Try again. Information not currently available
+sampledso.long.one: 1
+
+store request:
+pmStore: Try again. Information not currently available
+
+-- THESE SHOULD SUCCEED --
+
+descriptor request:
+
+sample.long.ten
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+
+short help text request:
+sample.long.ten [10 as a 32-bit integer]
+
+long help text request:
+
+sample.long.ten
+Help:
+10 as a 32-bit integer
+
+fetch request:
+sample.long.one: 1
+sampledso.long.one: 1
+
+store request:
+pmStore: ok

@@ -1,0 +1,240 @@
+QA output created by 646
+
+== Version 1 interfaces
+MMV file   = $PCP_TMP_DIR/mmv/test-PID
+Version    = 1
+Generated  = TIMESTAMP
+TOC count  = 5
+Cluster    = 0
+Process    = PID
+Flags      = 0x0 (none)
+
+TOC[0]: offset 40, indoms offset 120 (2 entries)
+  [1/120] 2 instances, starting at offset 184
+       shorttext=We can be heroes
+       helptext=We can be heroes, just for one day
+  [2/152] 3 instances, starting at offset 344
+       (no shorttext)
+       (no helptext)
+
+TOC[1]: offset 56, instances offset 184 (5 entries)
+  [1/184] instance = [0 or "zero"]
+  [1/264] instance = [1 or "hero"]
+  [2/344] instance = [0 or "bird"]
+  [2/424] instance = [1 or "tree"]
+  [2/504] instance = [2 or "eggs"]
+
+TOC[2]: toc offset 72, metrics offset 584 (6 entries)
+  [1/584] counter
+       type=32-bit unsigned int (0x1), sem=counter (0x1), pad=0x0
+       units=count
+       (no indom)
+       shorttext=test counter metric
+       helptext=Yes, this is a test counter metric
+  [2/688] discrete
+       type=32-bit int (0x0), sem=discrete (0x4), pad=0x0
+       units=
+       (no indom)
+       shorttext=test discrete metric
+       helptext=Yes, this is a test discrete metric
+  [3/792] indom
+       type=32-bit unsigned int (0x1), sem=instant (0x3), pad=0x0
+       units=count
+       indom=1
+       (no shorttext)
+       (no helptext)
+  [4/896] interval
+       type=elapsed (0x9), sem=counter (0x1), pad=0x0
+       units=microsec
+       indom=2
+       (no shorttext)
+       (no helptext)
+  [5/1000] string
+       type=string (0x6), sem=instant (0x3), pad=0x0
+       units=
+       (no indom)
+       (no shorttext)
+       (no helptext)
+  [6/1104] strings
+       type=string (0x6), sem=instant (0x3), pad=0x0
+       units=
+       indom=1
+       shorttext=test string metrics
+       helptext=Yes, this is a test string metric with instances
+
+TOC[3]: offset 88, values offset 1208 (10 entries)
+  [1/1208] counter = 41
+  [2/1240] discrete = 42
+  [3/1272] indom[0 or "zero"] = 43
+  [3/1304] indom[1 or "hero"] = 0
+  [4/1336] interval[0 or "bird"] = 0 (value=0/extra=0)
+  [4/1368] interval[1 or "tree"] = 0 (value=0/extra=0)
+  [4/1400] interval[2 or "eggs"] = N (value=N/extra=0)
+  [5/1432] string = "g'day world"
+  [6/1464] strings[0 or "zero"] = "00oo00"
+  [6/1496] strings[1 or "hero"] = ""
+
+TOC[4]: offset 104, string offset 1528 (11 entries)
+  [1/1528] g'day world
+  [2/1784] 00oo00
+  [3/2040] 
+  [4/2296] test counter metric
+  [5/2552] Yes, this is a test counter metric
+  [6/2808] test discrete metric
+  [7/3064] Yes, this is a test discrete metric
+  [8/3320] test string metrics
+  [9/3576] Yes, this is a test string metric with instances
+  [10/3832] We can be heroes
+  [11/4088] We can be heroes, just for one day
+MMV file   = $PCP_TMP_DIR/mmv/notest-PID
+Version    = 1
+Generated  = TIMESTAMP
+TOC count  = 2
+Cluster    = 0
+Process    = PID
+Flags      = 0x0 (none)
+Bad TOC[0]: invalid entry count 0
+Bad TOC[1]: invalid entry count 0
+MMV file   = $PCP_TMP_DIR/mmv/simple-PID
+Version    = 1
+Generated  = TIMESTAMP
+TOC count  = 2
+Cluster    = 123
+Process    = PID
+Flags      = 0x0 (none)
+
+TOC[0]: toc offset 40, metrics offset 72 (1 entries)
+  [1/72] simple.counter
+       type=32-bit unsigned int (0x1), sem=counter (0x1), pad=0x0
+       units=count
+       (no indom)
+       (no shorttext)
+       (no helptext)
+
+TOC[1]: offset 56, values offset 176 (1 entries)
+  [1/176] simple.counter = 42
+
+== Version 2 interfaces
+MMV file   = $PCP_TMP_DIR/mmv/test-PID
+Version    = 1
+Generated  = TIMESTAMP
+TOC count  = 5
+Cluster    = 0
+Process    = PID
+Flags      = 0x0 (none)
+
+TOC[0]: offset 40, indoms offset 120 (2 entries)
+  [1/120] 2 instances, starting at offset 184
+       shorttext=We can be heroes
+       helptext=We can be heroes, just for one day
+  [2/152] 3 instances, starting at offset 344
+       (no shorttext)
+       (no helptext)
+
+TOC[1]: offset 56, instances offset 184 (5 entries)
+  [1/184] instance = [0 or "zero"]
+  [1/264] instance = [1 or "hero"]
+  [2/344] instance = [0 or "bird"]
+  [2/424] instance = [1 or "tree"]
+  [2/504] instance = [2 or "eggs"]
+
+TOC[2]: toc offset 72, metrics offset 584 (6 entries)
+  [1/584] counter
+       type=32-bit unsigned int (0x1), sem=counter (0x1), pad=0x0
+       units=count
+       (no indom)
+       shorttext=test counter metric
+       helptext=Yes, this is a test counter metric
+  [2/688] discrete
+       type=32-bit int (0x0), sem=discrete (0x4), pad=0x0
+       units=
+       (no indom)
+       shorttext=test discrete metric
+       helptext=Yes, this is a test discrete metric
+  [3/792] indom
+       type=32-bit unsigned int (0x1), sem=instant (0x3), pad=0x0
+       units=count
+       indom=1
+       (no shorttext)
+       (no helptext)
+  [4/896] interval
+       type=elapsed (0x9), sem=counter (0x1), pad=0x0
+       units=microsec
+       indom=2
+       (no shorttext)
+       (no helptext)
+  [5/1000] string
+       type=string (0x6), sem=instant (0x3), pad=0x0
+       units=
+       (no indom)
+       (no shorttext)
+       (no helptext)
+  [6/1104] strings
+       type=string (0x6), sem=instant (0x3), pad=0x0
+       units=
+       indom=1
+       shorttext=test string metrics
+       helptext=Yes, this is a test string metric with instances
+
+TOC[3]: offset 88, values offset 1208 (10 entries)
+  [1/1208] counter = 41
+  [2/1240] discrete = 42
+  [3/1272] indom[0 or "zero"] = 43
+  [3/1304] indom[1 or "hero"] = 0
+  [4/1336] interval[0 or "bird"] = 0 (value=0/extra=0)
+  [4/1368] interval[1 or "tree"] = 0 (value=0/extra=0)
+  [4/1400] interval[2 or "eggs"] = N (value=N/extra=0)
+  [5/1432] string = "g'day world"
+  [6/1464] strings[0 or "zero"] = "00oo00"
+  [6/1496] strings[1 or "hero"] = ""
+
+TOC[4]: offset 104, string offset 1528 (11 entries)
+  [1/1528] g'day world
+  [2/1784] 00oo00
+  [3/2040] 
+  [4/2296] test counter metric
+  [5/2552] Yes, this is a test counter metric
+  [6/2808] test discrete metric
+  [7/3064] Yes, this is a test discrete metric
+  [8/3320] test string metrics
+  [9/3576] Yes, this is a test string metric with instances
+  [10/3832] We can be heroes
+  [11/4088] We can be heroes, just for one day
+MMV file   = $PCP_TMP_DIR/mmv/notest-PID
+Version    = 1
+Generated  = TIMESTAMP
+TOC count  = 2
+Cluster    = 0
+Process    = PID
+Flags      = 0x0 (none)
+Bad TOC[0]: invalid entry count 0
+Bad TOC[1]: invalid entry count 0
+MMV file   = $PCP_TMP_DIR/mmv/simple2-PID
+Version    = 2
+Generated  = TIMESTAMP
+TOC count  = 3
+Cluster    = 321
+Process    = PID
+Flags      = 0x0 (none)
+
+TOC[0]: toc offset 40, metrics offset 88 (2 entries)
+  [1/88] simple2.counter
+       type=32-bit unsigned int (0x1), sem=counter (0x1), pad=0x0
+       units=count
+       (no indom)
+       (no shorttext)
+       (no helptext)
+  [1/136] simple2.metric.with.a.much.longer.metric.name.forcing.version2.format
+       type=64-bit unsigned int (0x3), sem=counter (0x1), pad=0x0
+       units=count
+       (no indom)
+       (no shorttext)
+       (no helptext)
+
+TOC[1]: offset 56, values offset 184 (2 entries)
+  [1/184] simple2.counter = 0
+  [1/216] simple2.metric.with.a.much.longer.metric.name.forcing.version2.format = 0
+
+TOC[2]: offset 72, string offset 248 (2 entries)
+  [1/248] simple2.counter
+  [2/504] simple2.metric.with.a.much.longer.metric.name.forcing.version2.format

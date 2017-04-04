@@ -1,0 +1,210 @@
+#! /bin/sh
+# PCP QA Test No. 199
+# check out trivial PMDA
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+signal=$PCP_BINADM_DIR/pmsignal
+status=1
+install_on_cleanup=false
+pminfo trivial >/dev/null 2>&1 && install_on_cleanup=true
+
+_cleanup()
+{
+
+    if $sudo $PCP_MAKE_PROG >$tmp.out 2>&1
+    then
+	:
+    else
+	cat $tmp.out
+	echo "Arrgh, cleanup make failed"
+	exit
+    fi
+
+    _restore_config $PCP_VAR_DIR/pmns/root
+
+    if diff $PCP_PMCDCONF_PATH.$seq $PCP_PMCDCONF_PATH > /dev/null 2>&1
+    then
+	_restore_config $PCP_PMCDCONF_PATH
+    else
+
+
+	if $install_on_cleanup
+	then
+# do a default install which ensures the pmns and any views are installed
+	    $sudo ./Install </dev/null >/dev/null 2>&1
+	else
+# leave the landscape clean like you found it
+	    $sudo ./Remove >/dev/null 2>&1
+	fi
+
+# PMDA may have been installed differently to default. As everything is
+# installed we can use the old pmcd.conf file to restore state.
+
+	if diff $PCP_PMCDCONF_PATH.$seq $PCP_PMCDCONF_PATH > /dev/null 2>&1
+	then
+	    _restore_config $PCP_PMCDCONF_PATH
+	else
+	    _restore_config $PCP_PMCDCONF_PATH
+	    $sudo $signal -a -s HUP pmcd
+	fi
+    fi
+
+    rm -f $tmp.*
+    exit $status
+}
+
+trap "_cleanup" 0 1 2 3 15
+
+_filter()
+{
+    _filter_pmda_install
+}
+
+# real QA test starts here
+home=$PCP_PMDAS_DIR
+iam=trivial
+if [ ! -d $home/$iam ]
+then
+    echo "Where is $home/$iam?"
+    exit 1
+fi
+cd $home/$iam
+unset ROOT MAKEFLAGS
+
+# copy some config file to restore state later.
+_save_config $PCP_PMCDCONF_PATH
+_save_config $PCP_VAR_DIR/pmns/root
+
+if $sudo $PCP_MAKE_PROG clobber >$tmp.out 2>&1
+then
+    :
+else
+    cat $tmp.out
+    echo "Arrgh, make clobber failed"
+    exit
+fi
+
+if $sudo $PCP_MAKE_PROG >$tmp.out 2>&1
+then
+    :
+else
+    cat $tmp.out
+    echo "Arrgh, make failed"
+    exit
+fi
+
+# start from a known starting point
+$sudo ./Remove >/dev/null 2>&1
+
+echo
+echo "=== pipe daemon agent ==="
+$sudo ./Remove >$tmp.out 2>&1
+echo 'both
+daemon
+pipe' | $sudo ./Install >>$tmp.out 2>&1
+
+_filter <$tmp.out
+
+if pminfo -v trivial
+then
+    :
+else
+    echo "... failed! ... here is the Install log ..."
+    cat $tmp.out
+fi
+
+echo
+echo "=== Unix socket daemon agent ==="
+$sudo ./Remove >$tmp.out 2>&1
+echo 'both
+daemon
+socket
+Unix
+'"$tmp.fifo" | $sudo ./Install >>$tmp.out 2>&1
+echo 'both
+daemon
+socket
+Unix
+'"$tmp.fifo" | $sudo ./Install >>$tmp.out 2>&1
+
+_filter <$tmp.out
+
+if pminfo -v trivial
+then
+    :
+else
+    echo "... failed! ... here is the Install log ..."
+    cat $tmp.out
+fi
+
+echo
+echo "=== Internet socket daemon agent ==="
+$sudo ./Remove >$tmp.out 2>&1
+
+# pick a tcp port that is not in use
+#
+port=`_get_port tcp 5670 5689`
+if [ -z "$port" ]
+then
+    echo "Arrgh ... no free TCP port in the range 5670 ... 5689"
+    exit 1
+fi
+
+echo 'both
+daemon
+socket
+Internet
+'$port | $sudo ./Install >>$tmp.out 2>&1
+
+# use next port this time
+port=`expr $port + 1`
+
+echo 'both
+daemon
+socket
+Internet
+'$port | $sudo ./Install >>$tmp.out 2>&1
+
+_filter <$tmp.out
+
+if pminfo -v trivial
+then
+    :
+else
+    echo "... failed! ... here is the Install log ..."
+    cat $tmp.out
+fi
+
+echo
+echo "=== dso agent ==="
+$sudo ./Remove >$tmp.out 2>&1
+echo 'both
+dso' | $sudo ./Install >>$tmp.out 2>&1
+echo 'both
+dso' | $sudo ./Install >>$tmp.out 2>&1
+
+_filter <$tmp.out
+
+if pminfo -v trivial
+then
+    :
+else
+    echo "... failed! ... here is the Install log ..."
+    cat $tmp.out
+fi
+
+$sudo ./Remove >$tmp.out 2>&1
+_filter <$tmp.out
+
+status=0
+exit

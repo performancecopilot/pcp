@@ -1,0 +1,54 @@
+QA output created by 717
+
+=== simple agent installation ===
+You will need to choose an appropriate configuration for installation of
+the "simple" Performance Metrics Domain Agent (PMDA).
+
+  collector	collect performance statistics on this system
+  monitor	allow this system to monitor local and/or remote systems
+  both		collector and monitor configuration for this system
+
+Please enter c(ollector) or m(onitor) or b(oth) [b] Install simple as a daemon or python or perl or dso agent? [daemon] Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+[...install files, make output...]
+Updating the PMCD control file, and notifying PMCD ...
+Check simple metrics have appeared ... 5 metrics and 9 values
+
+=== fetch and check values ===
+fetch pmprobe #1 - defaults
+check pmprobe #1 - defaults
+simple.now shows 3 value(s)
+simple.time.sys shows 1 value(s)
+simple.time.user shows 1 value(s)
+simple.color shows 3 value(s)
+simple.numfetch shows 1 value(s), 2 fetches so far
+fetch pmprobe #2 - twotimes
+check pmprobe #2 - twotimes
+simple.now shows 2 value(s)
+simple.time.sys shows 1 value(s)
+simple.time.user shows 1 value(s)
+simple.color shows 3 value(s)
+simple.numfetch shows 1 value(s), 3 fetches so far
+fetch pmprobe #3 - onetime
+check pmprobe #3 - onetime
+simple.now shows 1 value(s)
+simple.time.sys shows 1 value(s)
+simple.time.user shows 1 value(s)
+simple.color shows 3 value(s)
+simple.numfetch shows 1 value(s), 4 fetches so far
+fetch pmprobe #4 - notime
+check pmprobe #4 - notime
+simple.now shows 0 value(s)
+simple.time.sys shows 1 value(s)
+simple.time.user shows 1 value(s)
+simple.color shows 3 value(s)
+simple.numfetch shows 1 value(s), 5 fetches so far
+=== remove simple agent ===
+Culling the Performance Metrics Name Space ...
+simple ... done
+Updating the PMCD control file, and notifying PMCD ...
+[...removing files...]
+Check simple metrics have gone away ... OK
+Waiting for pmcd to terminate ...
+Starting pmcd ... 
+Starting pmlogger ... 

@@ -1,0 +1,1315 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2012-2016 Red Hat.
+.\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMCD 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmcd\f1 \- performance metrics collector daemon
+.SH SYNOPSIS
+\f3pmcd\f1
+[\f3\-AfQSv\f1]
+[\f3\-c\f1 \f2config\f1]
+[\f3\-C\f1 \f2dirname\f1]
+[\f3\-H\f1 \f2hostname\f1]
+[\f3\-i\f1 \f2ipaddress\f1]
+[\f3\-l\f1 \f2logfile\f1]
+[\f3\-L\f1 \f2bytes\f1]
+[\f3\-M\f1 \f2certname\f1]
+[\f3\-\f1[\f3n\f1|\f3N\f1] \f2pmnsfile\f1]
+[\f3\-p\f1 \f2port\f1[,\f2port\f1 ...]]
+[\f3\-P\f1 \f2passfile\f1]
+[\f3\-q\f1 \f2timeout\f1]
+[\f3\-s\f1 \f2sockname\f1]
+[\f3\-T\f1 \f2traceflag\f1]
+[\f3\-t\f1 \f2timeout\f1]
+[\f3\-U\f1 \f2username\f1]
+[\f3\-x\f1 \f2file\f1]
+.SH DESCRIPTION
+.B pmcd
+is the collector used by the Performance Co-Pilot (see
+.BR PCPIntro (1))
+to gather performance metrics
+on a system.
+As a rule, there must be an instance of
+.B pmcd
+running on a system for any performance metrics to be available to the
+PCP.
+.PP
+.B pmcd
+accepts connections from client applications running either on
+the same machine or remotely and provides them with metrics and other related
+information from the machine that
+.B pmcd
+is executing on.
+.B pmcd
+delegates most of this request servicing to
+a collection of Performance Metrics Domain Agents 
+(or just agents), where each agent is responsible for a particular group of
+metrics, known as the domain of the agent.  For example the
+.B postgresql
+agent is responsible for
+reporting information relating to the PostgreSQL database,
+such as the transaction and query counts, indexing and replication statistics,
+and so on.
+.PP
+The agents may be processes started by
+.BR pmcd ,
+independent processes or Dynamic Shared Objects (DSOs, see
+.BR dlopen (3))
+attached to
+.BR pmcd 's
+address space.
+The configuration section below describes how connections to
+agents are specified.
+.PP
+The options to
+.B pmcd
+are as follows.
+.TP
+.B \-A
+Disable service advertisement.
+By default,
+.B pmcd
+will advertise its presence on the network using any available mechanisms
+(such as Avahi/DNS-SD), assisting remote monitoring tools with finding it.
+These mechanisms are disabled with this option.
+.TP
+\f3\-c\f1 \f2config\f1
+On startup
+.B pmcd
+uses a configuration file from either the
+.IR $PCP_PMCDCONF_PATH ,
+configuration variable in
+.IR /etc/pcp.conf ,
+or an environment variable of the same name.
+However, these values may be overridden with
+.I config
+using this option.
+The format of this configuration file is described below.
+.TP
+\f3\-C\f1 \f2dirname\f1
+Specify the path to the Network Security Services certificate database,
+for (optional) secure connections.
+The default is
+.BR /etc/pki/nssdb .
+Refer also to the \f3\-P\f1 option.
+If it does not already exist, this database can be created using the
+.B certutil
+utility.
+This process and other certificate database maintenance information
+is provided in the
+.BR PCPIntro (1)
+manual page and the online PCP tutorials.
+.TP
+.B \-f
+By default
+.B pmcd
+is started as a daemon.
+The
+.B \-f
+option indicates that it should run in the foreground.
+This is most useful when trying to diagnose problems with misbehaving
+agents.
+.TP
+\f3\-H\f1 \f2hostname\f1
+This option can be used to set the hostname that 
+.B pmcd
+will use to represent this instance of itself.
+This is used by client tools like
+.BR pmlogger (1)
+when reporting on the (possibly remote) host.
+If this option is not set, the pmcd.hostname metric will match that 
+returned by
+.BR pmhostname (1).
+Refer to the manual page for that tool for full details on how the hostname is
+evaluated.
+.TP
+\f3\-i\f1 \f2ipaddress\f1
+This option is usually only used on hosts with more than one network
+interface.  If no
+.B \-i
+options are specified
+.B pmcd
+accepts connections made to any of its host's IP (Internet Protocol) addresses.
+The
+.B \-i
+option is used to specify explicitly an IP address that connections should be
+accepted on.
+.I ipaddress
+should be in the standard dotted form (e.g. 100.23.45.6).  The
+.B \-i
+option may be used multiple times to define a list of IP addresses.
+Connections made to any other IP addresses the host has will be refused.  This
+can be used to limit connections to one network interface if the host is a
+network gateway.  It is also useful if the host takes over the IP address of
+another host that has failed.  In such a situation only the standard IP
+addresses of the host should be given (not the ones inherited from the failed
+host).  This allows PCP applications to determine that a host has failed,
+rather than connecting to the host that has assumed the identity of the failed
+host.
+.TP
+\f3\-l\f1 \f2logfile\f1
+By default a log file named
+.I pmcd.log
+is written in the directory
+.BR $PCP_LOG_DIR/pmcd .
+The
+.B \-l
+option causes the log file to be written to
+.I logfile
+instead of the default.
+If the log file cannot be created or is not writable, output is
+written to the standard error instead.
+.TP
+\f3\-L\f1 \f2bytes\f1
+.IR PDU s 
+received by 
+.B pmcd 
+from monitoring clients are restricted to a
+maximum size of 65536 bytes by default to defend against Denial of
+Service attacks.  The 
+.B \-L 
+option may be used to change the maximum incoming 
+.I PDU 
+size.
+.TP
+\f3\-M\f1 \f2certname\f1
+By default, pmcd will try to use a certificate called
+.B "PCP Collector certificate" .
+The
+.B \-M
+option allows this to be changed.
+.TP
+\f3\-n\f1 \f2pmnsfile\f1
+Normally
+.B pmcd
+loads the default Performance Metrics Name Space (PMNS) from
+.BR $PCP_VAR_DIR/pmns/root ,
+however if the
+.B \-n
+option is specified an alternative namespace is loaded
+from the file
+.IR pmnsfile .
+.TP
+\f3\-N\f1 \f2pmnsfile\f1
+Same function as
+.BR \-n ,
+except for the handling of
+duplicate Performance Metric Identifiers (PMIDs) in
+.I pmnsfile
+\- duplicate names are allowed with
+.BR \-n
+they are not allowed with
+.BR \-N .
+.TP
+\f3\-P\f1 \f2passfile\f1
+Specify the path to a file containing the Network Security Services certificate
+database password for (optional) secure connections, and for databases that are
+password protected.
+Refer also to the \f3\-C\f1 option.
+When using this option, great care should be exercised to ensure appropriate
+ownership ("pcp" user, typically) and permissions on this file (0400, so as to
+be unreadable by any user other than the user running the
+.B pmcd
+process).
+.TP
+\f3\-q\f1 \f2timeout\f1
+The pmcd to agent version exchange protocol (new in PCP 2.0 - introduced to
+provide backward compatibility) uses this timeout to specify how long pmcd
+should wait before assuming that no version response is coming from an agent.
+If this timeout is reached, the agent is assumed to be an agent which does
+not understand the PCP 2.0 protocol.
+The default timeout interval is five seconds,
+but the
+.B \-q
+option allows an alternative timeout interval (which must be greater than
+zero) to be specified.  The unit of time is seconds.
+.TP
+.B \-Q
+Require that all remote client connections provide a certficate. 
+.TP
+.B \-S
+Require that all client connections provide user credentials.
+This means that only unix domain sockets, or authenticated connections are
+permitted (requires secure sockets support).
+If any user or group access control requirements are specified in the pmcd
+configuration file, then this mode of operation is automatically entered,
+whether the \f3\-S\f1 flag is specified or not.
+.TP
+\f3\-s\f1 \f2sockname\f1
+Specify the path to a local unix domain socket (for platforms supporting this
+socket family only).
+The default value is
+.IR $PCP_RUN_DIR/pmcd.socket .
+.TP
+\f3\-t\f1 \f2timeout\f1
+To prevent misbehaving clients or agents from hanging the entire Performance Metrics
+Collection System (PMCS),
+.B pmcd
+uses timeouts on PDU exchanges with clients and agents running as processes.
+By
+default the timeout interval is five seconds.
+The
+.B \-t
+option allows an alternative timeout interval in seconds to be specified.
+If
+.I timeout
+is zero, timeouts are turned off.
+It is almost impossible to use the debugger
+interactively on an agent unless timeouts have been turned off for its "parent"
+.BR pmcd .
+.RS
+.PP
+Once
+.B pmcd
+is running, the timeout may be dynamically
+modified by storing an integer value (the timeout in seconds)
+into the metric
+.B pmcd.control.timeout
+via
+.BR pmstore (1).
+.RE
+.TP
+\f3\-T\f1 \f2traceflag\f1
+To assist with error diagnosis for agents and/or clients of
+.B pmcd
+that are not behaving correctly, an internal event tracing
+mechanism is supported within
+.BR pmcd .
+The value of
+.I traceflag
+is interpreted as a bit field with the following control functions:
+.RS
+.TP 4n
+.PD 0
+.B 1
+enable client connection tracing
+.TP
+.B 2
+enable PDU tracing
+.TP
+.B 256
+unbuffered event tracing
+.PD
+.PP
+By default, event tracing is buffered using
+a circular buffer that is over-written as new
+events are recorded.  The default
+buffer size holds the last 20 events, although this number
+may be over-ridden by using
+.BR pmstore (1)
+to modify the metric
+.BR "pmcd.control.tracebufs" .
+.PP
+Similarly once
+.B pmcd
+is running, the event tracing control
+may be dynamically
+modified by storing 1 (enable) or
+0 (disable) into the metrics
+.BR pmcd.control.traceconn ,
+.B pmcd.control.tracepdu
+and
+.BR pmcd.control.tracenobuf .
+These metrics map to the bit fields associated with the
+.I traceflag
+argument for the
+.B \-T
+option.
+.PP
+When operating in buffered mode,
+the event trace buffer will be dumped whenever an agent connection is
+terminated by
+.BR pmcd ,
+or when any value is stored into the metric
+.B pmcd.control.dumptrace
+via
+.BR pmstore (1).
+.PP
+In unbuffered mode,
+.B every
+event will be reported when it occurs.
+.RE
+.TP
+\f3\-U\f1 \f2username\f1
+User account under which to run
+.BR pmcd .
+The default is the unprivileged "pcp" account in current versions of PCP,
+but in older versions the superuser account ("root") was used by default.
+.TP
+\f3\-v\f1
+Verify the
+.B pmcd
+configuration file, reporting on any errors then exiting with a status
+indicating verification success or failure.
+.TP
+\f3\-x\f1 \f2file\f1
+Before the
+.B pmcd
+.I logfile
+can be opened, 
+.B pmcd
+may encounter a fatal error which prevents it from starting.  By default, the
+output describing this error is sent to
+.B /dev/tty
+but it may redirected to 
+.IR file .
+.PP
+If a PDU exchange with an agent times out, the agent has violated the
+requirement that it delivers metrics with little or no delay.
+This is deemed a
+protocol failure and the agent is disconnected from
+.BR pmcd .
+Any subsequent requests for information from the agent will fail with a status
+indicating that there is no agent to provide it.
+.PP
+It is possible to specify access control to
+.B pmcd
+based on users, groups and hosts.
+This allows one to prevent users, groups of users, and certain hosts from
+accessing the metrics provided by
+.B pmcd
+and is described in more detail in the Section on ACCESS CONTROL below.
+.SH CONFIGURATION
+On startup
+.B pmcd
+looks for a configuration file named
+.IR $PCP_PMCDCONF_PATH .
+This file specifies which agents cover which performance metrics domains and
+how
+.B pmcd
+should make contact with the agents.
+An optional section specifying access controls may follow the agent
+configuration data.
+.PP
+\f3Warning\f1:
+.B pmcd
+is usually started as part of the boot sequence and runs initially as root.
+The configuration file may contain shell commands to create agents,
+which will be executed by root.
+To prevent security breaches the configuration file should
+be writable only by root.
+The use of absolute path names is also recommended.
+.PP
+The case of the reserved words in the configuration file is unimportant, but
+elsewhere, the case is preserved.
+.PP
+Blank lines and comments are permitted (even encouraged) in the configuration
+file.
+A comment begins with a ``#''
+character and finishes at the end of the line.
+A line may be continued by
+ensuring that the last character on the line is a ``\\''
+(backslash).
+A comment on a continued line ends at the end of the continued
+line.
+Spaces may be included in lexical elements by enclosing the entire
+element in double quotes.
+A double quote preceded by a backslash is always a
+literal double quote.
+A ``#''
+in double quotes or preceded by a backslash is treated literally rather than as
+a comment delimiter.
+Lexical elements and separators are described further in
+the following sections.
+.SH "AGENT CONFIGURATION"
+Each line of the agent configuration section of the configuration file contains
+details of how to connect
+.B pmcd
+to one of its agents and specifies which metrics domain the agent deals with.
+An agent may be attached as a DSO, or via a socket, or a pair
+of pipes.
+.PP
+Each line of the agent configuration section of the configuration file must be
+either an agent specification, a comment, or a blank line.
+Lexical elements
+are separated by whitespace characters, however a single agent specification
+may not be broken across lines unless a
+.B \\\\\&
+(backslash) is used to continue the line.
+.PP
+Each agent specification must start with a textual label (string) followed by
+an integer in the range 1 to 510.
+The label is a tag used to refer to the
+agent and the integer specifies the domain for which the agent supplies data.
+This domain identifier corresponds to the domain portion of the PMIDs handled
+by the agent.
+Each agent must have a unique label and domain identifier.
+.PP
+For DSO agents a line of the form:
+.TP
+\&
+\f2label\f1 \f2domain-no\f1 \f3dso\f1 \f2entry-point\f1 \f2path\f1
+.PP
+should appear.
+Where,
+.TP 14
+.PD 0
+.I label
+is a string identifying the agent
+.TP 14
+.I domain-no
+is an unsigned integer specifying the agent's domain in the range 1 to 510
+.TP 14
+.I entry-point
+is the name of an initialization function which will be called when the DSO is
+loaded
+.TP 14
+.I path
+designates the location of the DSO and this is expected
+to be an absolute pathname.
+.B pmcd
+is only able to load DSO agents that have the same
+.I simabi
+(Subprogram Interface Model ABI, or calling conventions) as it does (i.e. only
+one of the
+.I simabi
+versions will be applicable).  The
+.I simabi
+version of a running
+.B pmcd
+may be determined by fetching
+.BR pmcd.simabi .
+Alternatively, the
+.BR file (1)
+command may be used to determine the
+.I simabi
+version from the
+.B pmcd
+executable.
+.PD
+.IP "" 14
+For a relative
+.I path
+the environment variable
+.B PMCD_PATH
+defines a colon (:) separated list of directories to search
+when trying to locate the agent DSO.  The default
+search path is
+.BR "$PCP_SHARE_DIR/lib:/usr/pcp/lib" .
+.PP
+For agents providing socket connections, a line of the form
+.TP
+\&
+\f2label\f1 \f2domain-no\f1 \f3socket\f1 \f2addr-family\f1 \f2address\f1 [ \f2command\f1 ]
+.PP
+should appear.
+Where,
+.TP 14
+.PD 0
+.I label
+is a string identifying the agent
+.TP 14
+.I domain-no
+is an unsigned integer specifying the agent's domain in the range 1 to 510
+.TP 14
+.I addr-family
+designates whether the socket is in the
+.B AF_INET,
+.B AF_INET6
+or
+.B AF_UNIX
+domain, and the corresponding
+values for this parameter are
+.B inet,
+.B ipv6
+and
+.B unix
+respectively.
+.TP 14
+.I address
+specifies the address of the socket within the previously
+specified
+.I addr-family.
+For 
+.B unix
+sockets, the address should be the name of an agent's socket on the
+local host (a valid address for the UNIX domain).
+For
+.B inet
+and
+.B ipv6
+sockets, the address may be either a port number or a port name which may be
+used to connect to an agent on the local host.
+There is no syntax for
+specifying an agent on a remote host as a
+.B pmcd
+deals only with agents on the same machine.
+.TP 14
+.I command
+is an optional parameter used to specify a command line to start the agent when
+.B pmcd
+initializes.
+If
+.I command
+is not present,
+.B pmcd
+assumes that the specified agent has
+already been created.
+The
+.I command
+is considered to start from the first non-white character after the socket
+address and finish at the next newline that isn't preceded by a backslash.
+After a
+.BR fork (2)
+the
+.I command
+is passed unmodified to
+.BR execve (2)
+to instantiate the agent.
+.PD
+.PP
+For agents interacting with the 
+.B pmcd
+via stdin/stdout, a line of the form:
+.TP
+\&
+\f2label\f1 \f2domain-no\f1 \f3pipe\f1 \f2protocol\f1 \f2command\f1
+.PP
+should appear.
+Where,
+.TP 14
+.PD 0
+.I label
+is a string identifying the agent
+.TP 14
+.I domain-no
+is an unsigned integer specifying the agent's domain
+.TP 14
+.I protocol
+The value for this parameter should be
+.BR binary .
+.sp
+.IP
+Additionally, the \f2protocol\fP can include the \f3notready\fP keyword
+to indicate that the agent must be marked as not being ready to process
+requests from \f3pmcd\f1. The agent will explicitly notify the \f3pmcd\fP
+when it is ready to process the requests by sending \f3PM_ERR_PMDAREADY\fP 
+PDU.
+.PD
+.TP 14
+.I command
+specifies a command line to start the agent when
+.B pmcd
+initializes.
+Note that
+.I command
+is mandatory for pipe-based agents.
+The
+.I command
+is considered to start from the first non-white character after the
+.I protocol
+parameter and finish at the next newline that isn't preceded by a backslash.
+After a
+.BR fork (2)
+the
+.I command
+is passed unmodified to
+.BR execve (2)
+to instantiate the agent.
+.SH "ACCESS CONTROL CONFIGURATION"
+The access control section of the configuration file is optional, but if
+present it must follow the agent configuration data.
+The case of reserved words is ignored, but elsewhere case is preserved.
+Lexical elements in the access control section are separated by whitespace
+or the special delimiter characters:
+square brackets (``['' and ``]''),
+braces (``{'' and ``}''),
+colon (``:''),
+semicolon (``;'')
+and
+comma (``,'').
+The special characters are not treated as special in the agent configuration
+section.
+Lexical elements may be quoted (double quotes) as necessary.
+.PP
+The access control section of the file must start with a line of the form:
+.TP
+.B [access]
+.PP
+Leading and trailing whitespace may appear around and within the brackets and
+the case of the
+.B access
+keyword is ignored.
+No other text may appear on the line except a trailing comment.
+.PP
+Following this line, the remainder of the configuration file should contain
+lines that allow or disallow operations from particular hosts or groups of
+hosts.
+.PP
+There are two kinds of operations that occur via
+.BR pmcd :
+.TP 15
+.B fetch
+allows retrieval of information from
+.BR pmcd .
+This may be information about a metric (e.g. its description, instance domain
+or help text) or a value for a metric.
+.TP 15
+.B store
+allows
+.B pmcd
+to be used to store metric values in agents that permit store operations.
+This may be the actual value of the metric (e.g. resetting a counter to
+zero).  Alternatively, it may be a value used by the PMDA to introduce a
+change to some aspect of monitoring of that metric (e.g. server side event
+filtering) \- possibly even only for the active client tool performing the
+store operation, and not others.
+.PP
+Access to
+.B pmcd
+can be granted in three ways - by user, group of users, or at a host level.
+In the latter, all users on a host are granted the same level of access,
+unless the user or group access control mechanism is also in use.
+.PP
+User names and group names will be verified using the local
+.B /etc/passwd
+and
+.B /etc/groups
+files (or an alternative directory service), using the
+.BR getpwent (3)
+and
+.BR getgrent (3)
+routines.
+.PP
+Hosts may be identified by name, IP address, IPv6 address or by the special host
+specifications ``"unix:"'' or ``"local:"''. ``"unix:"'' refers to
+.B pmcd's
+unix domain socket, on supported platforms. ``"local:"'' is equivalent to
+specifying ``"unix:"'' and ``localhost``.
+.PP
+Wildcards may also be specified by ending the host identifier with the
+single wildcard character ``*'' as the last-given component of an
+address. The wildcard ``".*"'' refers to all inet (IPv4) addresses.
+The wildcard ``":*"'' refers to all IPv6 addresses.
+If an IPv6 wildcard contains a ``::''
+component, then the final ``*'' refers to the final 16 bits of the address only, otherwise it
+refers to the remaining unspecified bits of the address.
+.PP
+The wildcard ``*'' refers to all users, groups or host addresses,
+including ``"unix:"''.
+Names of users, groups or hosts may not be wildcarded.
+.PP
+The following are all valid host identifiers:
+.de CS
+.in +0.5i
+.ft CW
+.nf
+..
+.de CE
+.fi
+.ft 1
+.in
+..
+.PP
+.CS
+boing
+localhost
+giggle.melbourne.sgi.com
+129.127.112.2
+129.127.114.*
+129.*
+\&.*
+fe80::223:14ff:feaf:b62c
+fe80::223:14ff:feaf:*
+fe80:*
+:*
+"unix:"
+"local:"
+*
+.CE
+.PP
+The following are not valid host identifiers:
+.PP
+.CS
+*.melbourne
+129.127.*.*
+129.*.114.9
+129.127*
+fe80::223:14ff:*:*
+fe80::223:14ff:*:b62c
+fe80*
+.CE
+.PP
+The first example is not allowed because only (numeric) IP addresses may
+contain a wildcard.
+The second and fifth examples are not valid because there is more than
+one wildcard character.
+The third and sixth contain an embedded wildcard, the fourth and seventh
+have a wildcard character that is not the last component of
+the address (the last components are \f(CW127*\f1 and \f(CWfe80*\f1 respectively).
+.PP
+The name
+.B localhost
+is given special treatment to make the behavior of host wildcarding
+consistent.
+Rather than being 127.0.0.1 and ::1, it is mapped to the primary inet and IPv6 addresses
+associated with the name of the host on which
+.B pmcd
+is running.
+Beware of this when running
+.B pmcd
+on multi-homed hosts.
+.PP
+Access for users, groups or hosts are allowed or disallowed by specifying
+statements of the form:
+.TP
+\&
+\f3allow users\f1 \f2userlist\f1 \f3:\f1 \f2operations\f1 \f3;\f1
+.br
+\f3disallow users\f1 \f2userlist\f1 \f3:\f1 \f2operations\f1 \f3;\f1
+.br
+\f3allow groups\f1 \f2grouplist\f1 \f3:\f1 \f2operations\f1 \f3;\f1
+.br
+\f3disallow groups\f1 \f2grouplist\f1 \f3:\f1 \f2operations\f1 \f3;\f1
+.br
+\f3allow hosts\f1 \f2hostlist\f1 \f3:\f1 \f2operations\f1 \f3;\f1
+.br
+\f3disallow hosts\f1 \f2hostlist\f1 \f3:\f1 \f2operations\f1 \f3;\f1
+.PP
+.TP 14
+.IR list
+.IR userlist ,
+.I grouplist
+and
+.I hostlist
+are comma separated lists of one or more users, groups or host identifiers.
+.TP 14
+.I operations
+is a comma separated list of the operation types described above,
+.B all
+(which allows/disallows all operations), or
+.B all except
+.I operations
+(which allows/disallows all operations except those listed).
+.PP
+Either plural or singular forms of
+.BR users ,
+.BR groups ,
+and
+.B hosts
+keywords are allowed.
+If this keyword is omitted, a default of
+.B hosts
+will be used.
+This behaviour is for backward-compatibility only, it is preferable to be explicit.
+.PP
+Where no specific
+.B allow
+or
+.B disallow
+statement applies to an operation, the default is to allow the
+operation from all users, groups and hosts.
+In the trivial case when there is no access control section in
+the configuration file, all operations from all users, groups,
+and hosts are permitted.
+.PP
+If a new connection to
+.B pmcd
+is attempted by a user, group or host that is not permitted to perform any
+operations, the connection will be closed immediately after an error response
+.B PM_ERR_PERMISSION
+has been sent to the client attempting the connection.
+.PP
+Statements with the same level of wildcarding specifying identical hosts may
+not contradict each other.
+For example if a host named
+.B clank
+had an IP address of 129.127.112.2, specifying the following two rules would be
+erroneous:
+.PP
+.CS
+allow host clank : fetch, store;
+disallow host 129.127.112.2 : all except fetch;
+.CE
+.PP
+because they both refer to the same host, but disagree as to whether the
+.B fetch
+operation is permitted from that host.
+.PP
+Statements containing more specific host specifications override less specific
+ones according to the level of wildcarding.
+For example a rule of the form
+.PP
+.CS
+allow host clank : all;
+.CE
+.PP
+overrides
+.PP
+.CS
+disallow host 129.127.112.* : all except fetch;
+.CE
+.PP
+because the former contains a specific host name (equivalent to a fully
+specified IP address), whereas the latter has a wildcard.
+In turn, the latter would override
+.PP
+.CS
+disallow host * : all;
+.CE
+.PP
+It is possible to limit the number of connections from a user, group or host to
+.BR pmcd .
+This may be done by adding a clause of the form
+.TP
+\&
+\f3maximum\f1 \f2n\f1 \f3connections\f1
+.PP
+to the
+.I operations
+list of an
+.B allow
+statement.
+Such a clause may not be used in a
+.B disallow
+statement.
+Here,
+.I n
+is the maximum number of connections that will be accepted from the user, group
+or host matching the identifier(s) used in the statement.
+.PP
+An access control statement with a list of user, group or host identifiers is
+equivalent to a set of access control statements, with each specifying one of
+the identifiers in the list and all with the same access controls (both permissions
+and connection limits).
+A group should be used if you want users to contribute to a shared connection limit.
+A wildcard should be used if you want hosts to contribute to a shared connection limit.
+.PP
+When a
+new client requests a connection, and
+.B pmcd
+has determined that the client has permission to connect, it searches the
+matching list of access control statements for the most specific match
+containing a connection limit.
+For brevity, this will be called the limiting
+statement.
+If there is no limiting statement, the client is granted a
+connection.
+If there is a limiting statement and the number of
+.B pmcd
+clients with user ID, group ID, or IP addresses that match the identifier in
+the limiting statement is less than the connection limit in the statement,
+the connection is allowed.
+Otherwise the connection limit has been reached and the client is
+refused a connection.
+.PP
+Group access controls and the wildcarding in host identifiers means that once
+.B pmcd
+actually accepts a connection from a client, the connection may contribute to
+the current connection count of more than one access control statement \- the
+client's host may match more than one access control statement, and similarly
+the user ID may be in more than one group.
+This may be significant for subsequent connection requests.
+.PP
+Note that
+.B pmcd
+enters a mode where it runs effectively with a higher-level of security as
+soon as a user or group access control section is added to the configuration.
+In this mode only authenticated connections are allowed \- either from a SASL
+authenticated connection, or a Unix domain socket (which implicitly passes
+client credentials).
+This is the same mode that is entered explicitly using the \f3\-S\f1 option.
+Assuming permission is allowed, one can determine whether
+.B pmcd
+is running in this mode by querying the value of the
+.I pmcd.feature.creds_required
+metric.
+.PP
+Note also that because most specific match semantics are used when checking the
+connection limit, for the host-based access control case, priority is given
+to clients with more specific host identifiers.
+It is also possible to exceed connection limits in some situations.
+Consider the following:
+.IP
+allow host clank : all, maximum 5 connections;
+.br
+allow host * : all except store, maximum 2 connections;
+.PP
+This says that only 2 client connections at a time are permitted for all
+hosts other than "clank", which is permitted 5.
+If a client from host "boing" is the first to connect to
+.BR pmcd ,
+its connection is checked against the second statement (that is the most
+specific match with a connection limit).
+As there are no other clients, the
+connection is accepted and contributes towards the limit for only the second
+statement above.
+If the next client connects from "clank", its connection is
+checked against the limit for the first statement.
+There are no other
+connections from "clank", so the connection is accepted.
+Once this connection
+is accepted, it counts towards
+.B both
+statements' limits because "clank" matches the host identifier in both
+statements.
+Remember that the decision to accept a new connection is made
+using only the most specific matching access control statement with a
+connection limit.
+Now, the connection limit for the second statement has been
+reached.
+Any connections from hosts other than "clank" will be refused.
+.PP
+If instead,
+.B pmcd
+with no clients saw three successive connections arrived from "boing", the
+first two would be accepted and the third refused.
+After that, if a connection
+was requested from "clank" it would be accepted.
+It matches the first
+statement, which is more specific than the second, so the connection limit in
+the first is used to determine that the client has the right to connect.
+Now
+there are 3 connections contributing to the second statement's connection
+limit.
+Even though the connection limit for the second statement has been
+exceeded, the earlier connections from "boing" are maintained.
+The connection
+limit is only checked at the time a client attempts a connection rather than
+being re-evaluated every time a new client connects to
+.BR pmcd .
+.PP
+This gentle scheme is designed to allow reasonable limits to be imposed
+on a first come first served basis, with specific exceptions.
+.PP
+As illustrated by the example above, a client's connection is honored once it
+has been accepted.
+However,
+.B pmcd
+reconfiguration (see the next section) re-evaluates all the connection counts
+and will cause client connections to be dropped where connection limits have
+been exceeded.
+.SH "RECONFIGURING PMCD"
+If the configuration file has been changed or if an agent is not responding
+because it has terminated or the PMNS has been changed,
+.B pmcd
+may be reconfigured by sending it a SIGHUP, as in
+.PP
+.CS
+# pmsignal \-a \-s HUP pmcd
+.CE
+.PP
+When
+.B pmcd
+receives a SIGHUP, it checks the configuration file for changes.
+If the file
+has been modified, it is reparsed and the contents become the new
+configuration.
+If there are errors in the configuration file, the existing
+configuration is retained and the contents of the file are ignored.
+Errors are reported in the 
+.B pmcd
+log file.
+.PP
+It also checks the PMNS file for changes. If the PMNS file has been
+modified, then it is reloaded.
+Use of
+.BR tail (1)
+on the log file is recommended while reconfiguring
+.BR pmcd .
+.PP
+If the configuration for an agent has changed (any parameter except the agent's
+label is different), the agent is restarted.
+Agents whose configurations do not change are not
+restarted.
+Any existing agents
+not present in the new configuration are terminated.
+Any deceased agents are that are still listed are
+restarted.
+.PP
+Sometimes it is necessary to restart an agent that is still running, but
+malfunctioning.
+Simply stop the agent (e.g. using SIGTERM from
+.BR pmsignal (1)),
+then send
+.B pmcd
+a SIGHUP, which will cause the agent to be restarted.
+.SH "STARTING AND STOPPING PMCD"
+Normally,
+.B pmcd
+is started automatically at boot time and stopped when the
+system is being brought down.
+Under certain circumstances it is necessary to start or stop
+.B pmcd
+manually.
+To do this one must become superuser and type
+.PP
+.CS
+# $PCP_RC_DIR/pmcd start
+.CE
+.PP
+to start
+.BR pmcd ,
+or
+.PP
+.CS
+# $PCP_RC_DIR/pmcd stop
+.CE
+.PP
+to stop
+.BR pmcd .
+Starting
+.B pmcd
+when it is already running is the same as stopping
+it and then starting it again.
+.PP
+Sometimes it may be necessary to restart
+.B pmcd
+during another phase of the boot process.
+Time-consuming parts of the boot
+process are often put into the background to allow the system to become
+available sooner (e.g. mounting huge databases).
+If an agent run by
+.B pmcd
+requires such a task to complete before it can run properly, it is necessary to
+restart or reconfigure
+.B pmcd
+after the task completes.
+Consider, for example, the case of mounting a
+database in the background while booting.
+If the PMDA which provides the
+metrics about the database cannot function until the database is mounted and
+available but
+.B pmcd
+is started before the database is ready, the PMDA will fail (however
+.B pmcd
+will still service requests for metrics from other domains).
+If the database
+is initialized by running a shell script, adding a line to the end of the
+script to reconfigure
+.B pmcd
+(by sending it a SIGHUP) will restart the PMDA (if it exited because it
+couldn't connect to the database).
+If the PMDA didn't exit in such a situation
+it would be necessary to restart
+.B pmcd
+because if the PMDA was still running
+.B pmcd
+would not restart it.
+.P
+Normally
+.B pmcd
+listens for client connections on TCP/IP port number 44321
+(registered at
+.IR http://www.iana.org/ ).
+Either the environment
+variable
+.B PMCD_PORT
+or the
+.B \-p
+command line option
+may be used to specify alternative port number(s) when
+.B pmcd
+is started; in each case, the specification is a comma-separated list
+of one or more numerical port numbers.  Should both methods be used
+or multiple
+.B \-p
+options appear on the command line,
+.B pmcd
+will listen on the union of the set of ports specified via all
+.B \-p
+options and the
+.B PMCD_PORT
+environment variable.
+If non-default ports are used with
+.B pmcd
+care should be taken to ensure that
+.B PMCD_PORT
+is also set in the environment of any client application that
+will connect to
+.BR pmcd ,
+or that the extended host specification syntax is used
+(see
+.BR PCPIntro (1)
+for details).
+.SH FILES
+.PD 0
+.TP 10
+.I $PCP_PMCDCONF_PATH
+default configuration file
+.TP
+.I $PCP_PMCDOPTIONS_PATH
+command line options to
+.B pmcd
+when launched from
+.B $PCP_RC_DIR/pmcd
+All the command line option lines should start with a hyphen as
+the first character.
+.TP
+.B $PCP_SYSCONFIG_DIR/pmcd
+additional environment variables that will be set when
+.B pmcd
+executes.
+Only settings of the form "PMCD_VARIABLE=value" will be honoured.
+.TP
+.B \&./pmcd.log
+(or
+.B $PCP_LOG_DIR/pmcd/pmcd.log
+when started automatically)
+.TP
+.B $PCP_RUN_DIR/pmcd.pid
+contains an ascii decimal representation of the process ID of 
+.B pmcd
+, when it's running.
+.br
+All messages and diagnostics are directed here
+.TP
+.B /etc/pki/nssdb
+default Network Security Services (NSS) certificate database
+directory, used for optional Secure Socket Layer connections.
+This database can be created and queried using the NSS
+.B certutil
+tool, amongst others.
+.TP
+.B /etc/passwd
+user names, user identifiers and primary group identifiers, used for access control specifications
+.TP
+.B /etc/groups
+group names, group identifiers and group members, used for access control specifications
+.PD
+.SH ENVIRONMENT
+In addition to the PCP environment variables described in the
+.B "PCP ENVIRONMENT"
+section below, the 
+.B PMCD_PORT
+variable is also recognised
+as the TCP/IP port for incoming connections
+(default 
+.IR 44321 ),
+and the
+.B PMCD_SOCKET
+variable is also recognised
+as the path to be used for the Unix domain socket.
+.PP
+If set to the value 1, the
+.B PMCD_LOCAL
+environment variable will cause
+.B pmcd
+to run in a localhost-only mode of operation, where it binds only
+to the loopback interface.
+The
+.I pmcd.feature.local
+metric can be queried to determine if
+.B pmcd
+is running in this mode.
+.PP
+The
+.B PMCD_MAXPENDING
+variable can be set to indicate the maximum length to which the queue
+of pending client connections may grow.
+.PP
+The
+.B PMCD_ROOT_AGENT
+variable controls whether or not
+.B pmcd
+or
+.B pmdaroot
+(when available), start subsequent pmdas.  When set to a non-zero value,
+.B pmcd
+will opt to have
+.B pmdaroot
+start, and stop, PMDAs.
+.PP
+The
+.B PMCD_RESTART_AGENTS
+variable determines the behaviour of
+.B pmcd
+in the presence of child PMDAs that have been observed to exit (this is a
+typical response in the presence of very large, usually domain-induced,
+PDU latencies).
+When set to a non-zero value,
+.B pmcd
+will attempt to restart such PMDAS once every minute.
+When set to zero, it uses the original behaviour of just logging the failure.
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.B /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (5).
+.SH DIAGNOSTICS
+If
+.B pmcd
+is already running the message "Error: OpenRequestSocket bind: Address may already be in use" will appear.
+This may also appear if
+.B pmcd
+was shutdown with an outstanding request from a client.
+In this case, a
+request socket has been left in the TIME_WAIT state and until the system closes
+it down (after some timeout period) it will not be possible to run
+.BR pmcd .
+.PP
+In addition to the standard
+.B PCP
+debugging flags, see
+.BR pmdbg (1),
+.B pmcd
+currently uses
+.B DBG_TRACE_APPL0
+for tracing I/O and termination of agents,
+.B DBG_TRACE_APPL1
+for tracing access control and
+.B DBG_TRACE_APPL2
+for tracing the configuration file scanner and parser.
+.SH CAVEATS
+.B pmcd
+does not explicitly terminate its children (agents), it only
+closes their pipes.
+If an agent never checks for a closed pipe it may not terminate.
+.PP
+The configuration file parser will only read lines of less than 1200
+characters.
+This is intended to prevent accidents with binary files.
+.PP
+The timeouts controlled by the
+.B \-t
+option apply to IPC between
+.B pmcd
+and the PMDAs it spawns.  This is independent of settings of the
+environment variables
+.B PMCD_CONNECT_TIMEOUT
+and
+.B PMCD_REQUEST_TIMEOUT
+(see
+.BR PCPIntro (1))
+which may be used respectively to control timeouts for client applications
+trying to connect to
+.B pmcd
+and trying to receive information from
+.BR pmcd .
+.SH SEE ALSO
+.BR PCPIntro (1),
+.BR pmdbg (1),
+.BR pmerr (1),
+.BR pmgenmap (1),
+.BR pminfo (1),
+.BR pmrep (1),
+.BR pmstat (1),
+.BR pmstore (1),
+.BR pmval (1),
+.BR getpwent (3),
+.BR getgrent (3),
+.BR pcp.conf (5),
+and
+.BR pcp.env (5).

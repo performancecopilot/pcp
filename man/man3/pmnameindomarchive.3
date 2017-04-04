@@ -1,0 +1,90 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2016 Red Hat.
+.\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMNAMEINDOMARCHIVE 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmNameInDomArchive\f1 \- translate an instance identifier into an instance name
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.sp
+int pmNameInDomArchive(pmInDom \fIindom\fP, int \fIinst\fP, char **\fIname\fP);
+.sp
+cc ... \-lpcp
+.ft 1
+.SH DESCRIPTION
+.de CW
+.ie t \f(CW\\$1\f1\\$2
+.el \fI\\$1\f1\\$2
+..
+Provided that the current
+Performance Metrics Application Programming Interface (PMAPI)
+context is associated with a set of archive logs,
+.B pmNameInDomArchive
+will scan the union of all the instance domain metadata
+for the instance domain
+.IR indom ,
+locate the first instance with the internal instance identifier given
+by 
+.IR inst ,
+and return the full external instance identification via
+.IR name .
+.PP
+This routine is a specialized version of the more general PMAPI
+routine
+.BR pmNameInDom .
+.PP
+The value for the instance domain
+.I indom
+is typically extracted from a
+.CW pmDesc
+structure, following a call to
+.BR pmLookupDesc (3)
+for a particular performance metric.
+.PP
+The space for the value of
+.I name
+will have been allocated in
+.B pmNameInDomArchive
+with
+.BR malloc (3),
+and it is the responsibility of the caller to
+.BR free (3)
+the space when it is no longer required.
+.PP
+.B pmNameInDomArchive
+returns zero on success.
+.SH SEE ALSO
+.BR PMAPI (3),
+.BR pmGetConfig (3),
+.BR pmGetInDomArchive (3),
+.BR pmLookupInDomArchive (3),
+.BR pmNameInDom (3),
+.BR pcp.conf (5)
+and
+.BR pcp.env (5).
+.SH DIAGNOSTICS
+.IP \f3PM_ERR_NOTARCHIVE\f1
+the current PMAPI context is not associated with a set of archive logs
+.IP \f3PM_ERR_INDOM_LOG\f1
+.I indom
+is not a defined instance domain identifier for the set of archive logs
+.IP \f3PM_ERR_INST_LOG\f1
+the instance identifier
+.I inst
+is not known for the instance domain
+.I indom
+in the set of archive logs

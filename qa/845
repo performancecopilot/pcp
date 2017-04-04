@@ -1,0 +1,94 @@
+#!/bin/sh
+# PCP QA Test No. 845
+# Exercise the mounts PMDA Install/Remove and basic functionality.
+#
+# Copyright (c) 2015-2016 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.python
+
+[ -d $PCP_PMDAS_DIR/mounts ] || _notrun "mounts PMDA directory is not installed"
+
+[ $PCP_PLATFORM = mingw -o $PCP_PLATFORM = darwin ] && \
+    _notrun "Test only valid on platforms with a mount table"
+
+[ -n "$PCP_PYTHON_PROG" ] || _notrun "no acceptable python to run src/fsstats.python"
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+
+_filter_mounts()
+{
+    # cull some default mounts, non-deterministic values
+    # all systems will have "/" and not "/not-here" so we
+    # keep those, but /boot and /afs we'll filter out.
+    #
+    sed \
+	-e '/\/boot/d' \
+	-e '/\/afs/d' \
+	-e 's/ value ".*"$/ value VALUE/g' \
+	-e 's/ value [0-9.]*$/ value NUMBER/g' \
+   #end
+}
+
+pmdamounts_remove()
+{
+    echo
+    echo "=== remove mounts agent ==="
+    $sudo ./Remove >$tmp.out 2>&1
+    _filter_pmda_remove <$tmp.out
+}
+
+pmdamounts_install()
+{
+    # start from known starting points
+    cd $PCP_PMDAS_DIR/mounts
+    $sudo ./Remove >/dev/null 2>&1
+
+    echo
+    echo "=== mounts agent installation ==="
+    $sudo ./Install </dev/null >$tmp.out 2>&1
+    cat $tmp.out >>$here/$seq.full
+    # Check mounts metrics have appeared ... X metrics and Y values
+    _filter_pmda_install <$tmp.out \
+    | sed \
+        -e 's/[0-9][0-9]* warnings, //' \
+    | $PCP_AWK_PROG '
+/Check mounts metrics have appeared/    { if ($7 = 4) $7 = "X"
+                                          if ($10 = 4) $10 = "Y"
+                                        }
+                                        { print }'
+}
+
+_prepare_pmda mounts
+
+# note: _restore_systemd_restart pmcd done in _cleanup_pmda()
+trap "_cleanup_pmda mounts; exit \$status" 0 1 2 3 15
+
+_stop_systemd_restart pmcd
+
+# real QA test starts here
+pmdamounts_install
+
+echo "=== verify mounts values ===" | tee -a $here/$seq.full
+if pminfo -f mounts > $tmp.info 2> $tmp.err
+then
+    rootdev=`pminfo -f mounts.device | grep '"/"' | awk '{ print $6 }'`
+    echo "rootdev=$rootdev" >>$here/$seq.full
+    eval $python $here/src/fsstats.python $rootdev "/" | \
+    while read metric filesys mounts
+    do
+	_within_tolerance $metric $filesys $mounts 1% -v 	# allow +/-1%
+    done
+else
+    echo "... failed! ... here is the Install log ..."
+    cat $tmp.out
+fi
+cat $tmp.info $tmp.err | _filter_mounts
+
+pmdamounts_remove
+status=0
+exit

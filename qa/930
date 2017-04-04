@@ -1,0 +1,63 @@
+#!/bin/sh
+# PCP QA Test No. 930
+# Check pmlogrewrite with duplicate names in the PMNS
+#
+# Copyright (c) 2015 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+# sample.seconds
+# sample.lights
+# sample.dupnames.three.bin
+
+echo "--- DELETE sample.bin" | tee -a $seq.full
+cat <<End-of-File >$tmp.config
+metric sample.bin { delete }
+End-of-File
+pmlogrewrite -c $tmp.config -Dappl0,appl1,appl2 archives/foo+ $tmp 2>>$seq.full
+pminfo -m -a $tmp | LC_COLLATE=POSIX sort
+pmdumplog -a $tmp >>$seq.full
+
+echo | tee -a $seq.full
+echo "--- change NAME for sample.dupnames.two.lights" | tee -a $seq.full
+cat <<End-of-File >$tmp.config
+metric sample.dupnames.two.lights { name -> alias.for.lights }
+End-of-File
+rm -f $tmp.0 $tmp.meta $tmp.index
+pmlogrewrite -c $tmp.config -Dappl0,appl1,appl2 archives/foo+ $tmp 2>>$seq.full
+pminfo -m -a $tmp | LC_COLLATE=POSIX sort
+
+echo | tee -a $seq.full
+echo "--- change PMID for sample.dupnames.three.bin" | tee -a $seq.full
+cat <<End-of-File >$tmp.config
+metric sample.dupnames.three.bin { pmid -> 123.456.007 }
+End-of-File
+rm -f $tmp.0 $tmp.meta $tmp.index
+pmlogrewrite -c $tmp.config -Dappl0,appl1,appl2 archives/foo+ $tmp 2>>$seq.full
+pminfo -m -a $tmp | LC_COLLATE=POSIX sort
+
+echo | tee -a $seq.full
+echo "--- change SEM for sample.dupnames.two.seconds" | tee -a $seq.full
+cat <<End-of-File >$tmp.config
+metric sample.dupnames.two.seconds { sem -> DISCRETE }
+End-of-File
+rm -f $tmp.0 $tmp.meta $tmp.index
+pmlogrewrite -c $tmp.config -Dappl0,appl1,appl2 archives/foo+ $tmp 2>>$seq.full
+pminfo -md -a $tmp sample.seconds sample.dupnames.two.seconds
+
+# success, all done
+status=0
+
+exit

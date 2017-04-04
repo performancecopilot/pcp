@@ -1,0 +1,121 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2009 Silicon Graphics, Inc.  All Rights Reserved.
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.TH PMDAIB 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmdaib\f1 \- Infiniband performance metrics domain agent (PMDA)
+.SH SYNOPSYS
+\f3$PCP_PMDAS_DIR/infiniband/pmdaib\f1
+[\f3\-c\f1 \f2configFile\f1]
+[\f3\-D\f1 \f2debug\f1]
+[\f3\-d\f1 \f2domain\f1]
+[\f3\-l\f1 \f2logfile\f1]
+[\f3\-w\f1]
+.SH DESCRIPTION
+.B pmdaib
+is a Performance Metrics Domain Agent (PMDA) which exports information and
+performance metrics about local Infiniband HCAs and local or remote Infiniband GUIDs.
+.PP
+A brief description of the
+.B pmdaib
+command line options follows:
+.TP 5
+.B \-c
+Location of the config file.  By default, the config file is named
+.BR $PCP_PMDAS_DIR/infiniband/config.
+See
+.BR "CONFIG FILE"
+for more information.
+.TP
+.B -D
+A debug values, as specified by
+.B pmdbg (1)
+.TP
+.B \-d
+Specify an alternate performance metrics
+.I domain
+number.  Almost never necessary.
+.TP
+.B \-l
+Location of the log file.  By default, a log file named
+.I ib.log
+is written to
+.BR $PCP_LOG_DIR/pmcd .
+If the log file cannot be created or is not writable, output
+is written to the standard error instead.
+.TP
+.B \-w
+Write out the default config file to
+.BR $PCP_PMDAS_DIRS/infiniband
+and exit immediately.  The written config file will contain the local HCA ports.
+It will not overwrite an existing file.  This argument should only be used to create
+the template config file and should never appear in
+.I pmcd.conf.
+See
+.BR "CONFIG FILE"
+for more information on the file format and on monitoring
+remote GUIDs.
+.SH CONFIG FILE
+By default, the PMDA will operate without using a config file.  In this mode of operation
+the local HCA ports will be monitored.  Note that if a new HCA is added to the machine that
+instance domain naming may change because it will always be based on the kernel's naming.
+.PP
+In cases where this is not acceptable, or in the case where monitoring remote Infiniband
+ports is required, a config file must be created.  A "template" file can be created by
+running the
+.B pmdaib
+daemon with the
+.B \-w
+argument.  This will create a config file with the local ports and GUIDs.
+.PP
+If the config file is
+.I executable
+then it will be run and the output will be used as the config file.
+.PP
+The config file is composed of line-based records.  Blank lines and everything after
+the
+.I hash (#)
+character are ignored.  Each line has 6 fields:
+.PP
+[\f3instName\f1] [\f3portGUID\f1] [\f3portNum\f1] via [\f3localPortName\f1]:[\f3localPortNum\f1]
+.PP
+The first field is used to give a static instance name to the Infiniband port that
+has a specific GUID.  All of the other fields must be properly specified in order
+to monitor a particular port.
+.PP
+For example, to monitor port 1 of the local HCA called 'mthca0' a possible config file
+line would be:
+.PP
+myPort1 0xdeadbeef01234567 1 via mthca0:1
+.PP
+Remote ports can be easily monitored by specifying the GUID of the HCA or switch and
+specifying the remote port number.  The \f3localPortName\f1:\f3localPortNum\f1 tuple
+specifies which local HCA and port to use as the "first hop" in contacting the remote
+GUID.  E.g., to monitor port 13 of a remote switch which is connected to the fabric
+on the first port of the second HCA:
+.PP
+switch13 0xfeeffeefabcdabcd 13 via mthca1:1
+.SH LOCAL CONTEXT
+The Infiniband pmda also supports accessing the metrics via
+.B PM_CONTEXT_LOCAL
+when using the PMAPI interface.  In order to use the Infiniband pmda in this way,
+set the environment variable
+.B PMDA_LOCAL_IB
+prior to calling
+.B pmNewContext(3).
+.SH SEE ALSO
+.BR pmcd(1),
+.BR PMAPI(3),
+.BR pmContextNew(3),
+.BR ibnetdiscover(8).

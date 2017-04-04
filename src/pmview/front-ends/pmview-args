@@ -1,0 +1,625 @@
+# Copyright (c) 1995-2005 Silicon Graphics, Inc.  All Rights Reserved.
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+
+prog=`basename $0`
+
+PMVIEW=pmview
+PMPROBE=pmprobe
+CONFIRM="$PCP_XCONFIRM_PROG"
+ECHONL="echo -n"
+_multiple_sources=false
+
+#
+# Standard usage and command-line argument parsing for pmview front ends.
+# This file should be included by pmview front end scripts to present a
+# consistent interface. See pmview(1), dkvis(1), mpvis(1) and nfsvis(1)
+# for more information on their respective interfaces.
+#
+
+#
+# The front end scripts should call _pmview_usage after their own usage 
+# information in a subroutine called _usage. The _usage subroutine may be 
+# called by either _pmview_note or _pmview_args.
+#
+_pmview_usage()
+{
+  if $_multiple_sources
+  then
+      echo -n '
+  -A align      align sample times on natural boundaries
+  -a archive[,archive...]
+                metrics source is one or more PCP archive logs
+  -C            check configuration file and exit
+  -h host[,host...] metrics source is PMCD on one or more hosts'
+
+  else
+
+      echo -n '
+  -A align      align sample times on natural boundaries
+  -a archive    metrics source is a PCP archive log
+  -C            check configuration file and exit
+  -h host       metrics source is PMCD on host'
+
+  fi
+
+  echo '
+  -n pmnsfile   use an alternative PMNS
+  -O offset     initial offset into the time window
+  -p port       port name for connection to existing time control
+  -S starttime  start of the time window
+  -T endtime    end of the time window
+  -t interval   sample interval [default 2.0 seconds]
+  -x version    use pmlaunch(5) version [default version 2.0]
+  -z            set reporting timezone to local time of metrics source
+  -Z timezone   set reporting timezone
+
+  -display      display-string
+  -geometry     geometry-string
+  -name         name-string
+  -title        title-string
+  -xrm          resource'
+}
+
+# Most front-end scripts can handle input from only one source, and
+# hence only one -h or -a option.
+#
+# For those than can handle multiple sources, they should call
+# _pmview_multiple_sources_are_ok before calling _pmview_args to
+# enable the following extensions to the -a and -h options:
+#	-a a1 -a a2 ...		multiple -a options
+#	-h h1 -h h2 ...		multiple -h options
+#	-a a1,a2,...		multiple archives with the -a option
+#	-h h1,h2,...		multiple hosts with the -h option
+#
+_pmview_multiple_sources_are_ok()
+{
+    _multiple_sources=true
+}
+
+# check for magic numbers in a file that indicate it is a PCP archive
+#
+# if file(1) was reliable, this would be much easier, ... sigh
+#
+# if you need to change this, make consistent changes in all these
+# places:
+#	_check_file() in src/pmafm/mkaf
+#	_is_archive() in src/pmafm/pmafm
+#	_is_archive() in src/pmview/front-ends/pmview-args
+#
+_is_archive()
+{
+    case "$PCP_PLATFORM" in 
+    irix)
+	dd ibs=1 count=7 if="$1" 2>/dev/null | od -X | $PCP_AWK_PROG '
+NR == 1 && $2 == "00000084" && $3 == "50052600" { exit 0 }
+					    { exit 1 }'
+	;;
+    linux)
+	dd ibs=1 count=7 if="$1" 2>/dev/null | od -x | $PCP_AWK_PROG '
+NR == 1 && NF == 5 && $2 == "0000" && $3 == "0084" && $4 == "5005" && $5 == "2600" { exit 0 }
+NR == 1 && NF == 5 && $2 == "0000" && $3 == "8400" && $4 == "0550" && $5 == "0026" { exit 0 }
+
+						{ exit 1 }'
+	;;
+    esac
+    return $?
+}
+
+# One of the first actions of a front end script should be to call 
+# _pmview_args. It sets the following variables:
+#
+# host		the first host specified with -h (if any) in the format
+#			hostname
+#		else the host from the first archive in the format
+#			hostname (Archive archivename)
+# arch		the first archive specified with -a (if any).
+#		All archives are passed on to pmview with one -a
+#		argument per archive via $args
+# numsource	Number of metrics sources (hosts or archives)
+# args          The list of args that pmview will comprehend and use.
+# otherArgs     The arguments pmview will not understand and should be
+#               handled by the front end script.
+# titleArg	The title the user prefers. If empty, the title should be
+#               provided by the front end script.
+# prog		The name of the program.
+# namespace	The namespace (including the flag) if specified, else empty
+#               eg "-n foo"
+# msource       The default metrics source, whether live or an archive,
+#		including the flag. e.g. "-h blah" or "-a first_archive".
+#		Taken from the first encountered -a or -h option.
+#
+# sourcelist	space separated list of hosts or archives
+#
+_pmview_args()
+{
+
+_seen_host=false
+_seen_arch=false
+host=""
+arch=""
+numsource=0
+args=""
+otherArgs=""
+titleArg=""
+namespace=""
+msource=""
+
+if [ $# -eq 1 -a '$1' = '-\?' ]
+then
+   _usage
+   exit 0
+fi
+
+while [ $# -gt 0 ]
+do
+    case $1
+    in
+	-g*|-di*|-name|-xrm)
+	    # assume an X11 argument
+	    if [ $# -lt 2 ]
+	    then
+		_pmview_note Usage-Error error "$prog: X-11 option $1 requires one argument"
+		#NOTREACHED
+	    fi
+	    args="$args $1 '$2'"
+	    shift
+	    ;;
+
+	-title)
+	    # assume an X11 argument
+	    if [ $# -lt 2 ]
+	    then
+		_pmview_note Usage-Error error "$prog: Option $1 requires one argument"
+		#NOTREACHED
+		exit 1
+	    fi
+	    titleArg="$2"
+	    shift
+	    ;;
+
+	-A|-D|-O|-p|-S|-T|-t|-x|-Z)
+	    if [ $# -lt 2 ]
+	    then
+		_pmview_note Usage-Error error "$prog: Option $1 requires one argument"
+		#NOTREACHED
+	    fi
+	    args="$args $1 '$2'"
+	    shift
+	    ;;
+
+	-A*|-D*|-O*|-p*|-S*|-T*|-t*|-Z*|-C|-z)
+	    args="$args $1"
+	    ;;
+
+	-a)
+	    if $_seen_host
+	    then
+		_pmview_note Usage-Error error "$prog: Only one of the -h or -a options may be specified"
+		#NOTREACHED
+	    fi
+	    if [ $# -lt 2 ]
+	    then
+		_pmview_note Usage-Error error "$prog: Option $1 requires one argument"
+		#NOTREACHED
+	    fi
+	    for _archbase in `echo "$2" | sed -e 's/,/ /g'`
+	    do
+		if [ $numsource -gt 0 -a $_multiple_sources = false ]
+		then
+		    _pmview_note Usage-Error error "$prog: Only one -a option may be specified"
+		    # NOTREACHED
+		fi
+		if _is_archive $_archbase 2>&1
+		then
+		    _archbase=`echo $_archbase | sed -e 's/\.[^.]*$//'`
+		fi
+		# at least $_archbase.0 and $_archbase.meta have to be here
+		#
+		if _is_archive $_archbase.0 && _is_archive $_archbase.meta
+		then
+		    :
+		else
+		    _pmview_note Error error "$prog: \"$_archbase\" is not the basename of a valid PCP archive"
+		    #NOTREACHED
+		fi
+		if [ -z "$arch" ]
+		then
+		    # first archive seen
+		    #
+		    arch=$_archbase
+		    msource="-a $_archbase"
+		    host=`pmdumplog -l $arch \
+			| $PCP_AWK_PROG '/^Performance/ {print $5}' \
+			| sed -e 's/,//g'`
+		    [ "X$host" = X ] && host="unknown host"
+		    host="$host (Archive $arch)"
+		fi
+
+		# pmview(1) can handle multiple -a options, so
+		# pass _all_ archive names back to the caller both as
+		# -a options via $args and in $sourcelist (counted by
+		# $numsource).
+		#
+		# Note: multiple -h options are handled slightly
+		#	differently, see also the comments for -h below.
+		#
+
+		args="$args -a $_archbase"
+		if [ -z "$sourcelist" ]; then
+		    sourcelist=$_archbase
+		else
+		    sourcelist="$sourcelist $_archbase"
+		fi
+		numsource=`expr $numsource + 1`
+	    done
+	    _seen_arch=true
+	    shift
+	    ;;	
+
+	-h)
+	    if $_seen_arch
+	    then
+		_pmview_note Usage-Error error "$prog: Only one of the -h or -a options may be specified"
+		#NOTREACHED
+	    fi
+	    if [ $# -lt 2 ]
+	    then
+		_pmview_note Usage-Error error "$prog: Option $1 requires one argument"
+		#NOTREACHED
+	    fi
+	    for _host in `echo "$2" | sed -e 's/,/ /g'`
+	    do
+		if [ $numsource -gt 0 -a $_multiple_sources = false ]
+		then
+		    _pmview_note Usage-Error error "$prog: Only one -h option may be specified"
+		    # NOTREACHED
+		fi
+		if [ -z "$host" ]
+		then
+		    host=$_host
+		    msource="-h $_host"
+
+		    # pmview(1) can handle only one -h options, so
+		    # pass the _first_ host name back to the caller as a
+		    # -h option via $args and _all_ hostnames via
+		    # $sourcelist (counted by $numsource).
+		    #
+		    # Note: multiple -a options are handled slightly
+		    #	differently, see also the comments for -a above.
+		    #
+
+		    args="$args -h $_host"
+		fi
+		if [ -z "$sourcelist" ]; then
+		    sourcelist=$_host
+		else
+		    sourcelist="$sourcelist $_host"
+		fi
+		numsource=`expr $numsource + 1`
+	    done
+	    _seen_host=true
+	    shift
+	    ;;	
+
+	-n)
+	    if [ $# -lt 2 ]
+	    then
+		_pmview_note Usage-Error error "$prog: Option $1 requires one argument"
+		#NOTREACHED
+	    fi
+	    namespace="-n $2"
+	    args="$args -n $2"
+	    shift
+	    ;;
+
+	*)
+	    otherArgs="$otherArgs $1"
+	    ;;
+
+    esac
+    shift
+
+done
+
+if [ -z "$host" ]
+then
+    host=`pmhostname`
+    msource="-h $host"
+fi
+}
+
+# standard fatal error reporting
+# Usage: _pmview_error message goes in here
+#        _pmview_error -f file
+#
+_pmview_error()
+{
+    _pmview_note Error error $*
+}
+
+# standard warning
+# Usage: _pmview_warning message goes in here
+#        _pmview_warning -f file
+#
+_pmview_warning()
+{
+    _pmview_note Warning warning $*
+}
+
+# standard info
+# Usage: _pmview_info message goes in here
+#        _pmview_info -f file
+#
+_pmview_info()
+{
+    _pmview_note Info info $*
+}
+
+# generic notifier
+# Usage: _pmview_note tag icon args ...
+#
+_pmview_note()
+{
+    tag=$1; shift
+    icon=$1; shift
+    button=""
+    [ $tag = Error ] && button="-B Quit"
+    [ $tag = Usage-Error ] && button="-B Quit -b Usage"
+
+    [ X"$PCP_STDERR" = XDISPLAY -a -z "$DISPLAY" ] && unset PCP_STDERR
+
+    if [ $# -eq 2 -a "X$1" = X-f ]
+    then
+	case "$PCP_STDERR"
+	in
+	    DISPLAY)
+		ans=`$CONFIRM -icon $icon -file $2 -useslider -header "$tag $prog" $button 2>&1`
+		;;
+	    '')
+		echo "$tag:" >&2
+		cat $2 >&2
+		ans=Quit
+		;;
+	    *)
+		echo "$tag:" >>$PCP_STDERR
+		cat $2 >>$PCP_STDERR
+		ans=Quit
+		;;
+	esac
+    else
+	case "$PCP_STDERR"
+	in
+	    DISPLAY)
+		ans=`$CONFIRM -icon $icon -t "$*" -noframe -header "$tag $prog" $button 2>&1`
+		;;
+	    '')
+		echo "$tag: $*" >&2
+		ans=Quit
+		;;
+	    *)
+		echo "$tag: $*" >>$PCP_STDERR
+		ans=Quit
+		;;
+	esac
+    fi
+
+    if [ $tag = Usage-Error ]
+    then
+	[ $ans = Usage ] && _usage
+	tag=Error
+    fi
+
+    [ $tag = Error ] && exit 1
+}
+
+# used internally by _pmview_cache_fetch() and _pmview_fetch()
+#
+_pmview_probe()
+{
+    flag=$1
+    shift
+    ( echo $* \
+      ; echo "-----" \
+      ; ( $PMPROBE $namespace $msource $flag $* 2>$tmp.pmview_err \
+	  | tee -a $tmp.pmview_fetch \
+	) \
+    ) \
+    | tr ' ' '\012' \
+    | sed -e 's/"//g' \
+    | $PCP_AWK_PROG '
+BEGIN		{ last = 0 }
+$1 == "-----"	{ state = 1; next }
+state == 0	{ metric[last] = pat[last] = $1
+		  # deal with arguments that are non-terminals in the PMNS
+		  # so pmprobe a.b => a.b.c a.b.c.x a.b.d etc
+		  gsub("\\.", "\\.", pat[last])
+		  pat[last] = "^" pat[last] "\\."
+		  last++
+		  next
+		}
+state > 0	{ for (i = 0; i < last; i++) {
+		    if (metric[i] == $1 ||  match($1, pat[i]) > 0) {
+			# new matching metric name
+			name=$1
+			state=2
+			next
+		    }
+		  }
+		}
+state == 2	{ if ($1 > 0) state = 3
+		  else state = 1
+		  next
+		}
+state == 3	{ printf("%s%s|%s\n", "'"$flag|$msource|"'",name,$1) }'
+}
+
+# Fetch metrics and cache result
+# input
+#   $1                 - pmprobe flag
+#   $*                 - 1 or more metrics
+# output
+#   $tmp.pmview_cache  - cached values, with this format
+#	            pmprobe flag|metric source|metric name|pmprobe result
+#
+_pmview_cache_fetch()
+{
+    flag=$1
+    shift
+    _pmview_probe $flag $* >>$tmp.pmview_cache
+
+    return 0
+}
+
+# Fetch metrics
+#
+# input
+#   $1                 - pmprobe flag
+#   $2                 - metric name
+# output
+#   $number            - number of values
+#   $tmp.pmview_result - values
+#
+_pmview_fetch()
+{
+    flag=$1
+    metric=$2
+    rm -f $tmp.pmview_fetch $tmp.pmview_result
+    if [ -s $tmp.pmview_cache ]
+    then
+	$PCP_AWK_PROG -F\| \
+	    <$tmp.pmview_cache >$tmp.pmview_result \
+'
+$1 == "'"$flag"'" && $2 == "'"$msource"'" && $3 == "'"$metric"'" { print $4 }'
+    fi
+
+    if [ ! -s $tmp.pmview_result ]
+    then
+	# cache miss, forced to probe
+	#
+	_pmview_probe $flag $metric \
+	| $PCP_AWK_PROG -F\| >$tmp.pmview_result '{print $4}'
+    fi
+
+    if [ -s $tmp.pmview_result ]
+    then
+	number=`wc -l <$tmp.pmview_result | sed -e 's/ //g'`
+    else
+	if [ -s $tmp.pmview_fetch ]
+	then
+	    check=`cut -d ' ' -f 2 $tmp.pmview_fetch`
+	    if [ "$check" = "$metric" ]
+	    then
+		# *.pmview_fetch looks valid, extract numval from 2nd field
+		#
+		number=`cut -d ' ' -f 2 $tmp.pmview_fetch`
+	    else
+		# *.pmview_fetch exists, but does not contain
+		# pmprobe output, more than likely this is some
+		# sort of fatal error message ... but _real_ message
+		# is likely to be in *.pmview_err
+		#
+		[ -s $tmp.pmview_err ] && mv $tmp.pmview_err $tmp.pmview_fetch
+		number=-1
+	    fi
+	else
+	    number=-1
+	    mv $tmp.pmview_err $tmp.pmview_fetch
+	fi
+    fi
+    if [ $number -le 0 ]
+    then
+	rm -f $tmp.pmview_result
+	return 1
+    fi
+
+    return 0
+}
+
+# Fetch the metric values
+#
+# input
+#   $1                 - metric name
+# output
+#   $number            - number of values
+#   $tmp.pmview_result - values
+#
+_pmview_fetch_values()
+{
+    _pmview_fetch -v $1
+    return $?
+}
+
+# Fetch the metric instance list
+#
+# input
+#   $1                 - metric name
+# output
+#   $number            - number of instances
+#   $tmp.pmview_result - instances
+#
+_pmview_fetch_indom()
+{
+    _pmview_fetch -I $1
+    return $?
+}
+
+# Convert pmprobe/pminfo error message into something useful and
+# consistent
+#
+_pmview_fetch_mesg()
+{
+    $PCP_AWK_PROG '
+$1 == "pmprobe:"	{ $1 = "'$prog':"; print; exit }
+$1 == "pminfo:"		{ $1 = "'$prog':"; print; exit }
+$1 == "Error:"		{ $1 = ":"; 
+			  printf("%s: %s%s\n", "'$prog'", metric, $0); exit }
+$1 == "inst"		{ exit }
+NF == 1			{ metric = $1; next }
+NF == 0			{ next }
+NF == 2 && $2 == "0"	{ printf("%s: %s: No values available\n", "'$prog'", $1); exit}
+			{ $2 = ":"; print "'$prog': " $0; exit}' \
+    | sed "s/ : /: /" \
+    | fmt
+}
+
+# Generate error metric for failed fetch
+#
+_pmview_fetch_fail()
+{
+    cat $tmp.pmview_fetch | _pmview_fetch_mesg >> $tmp.msg
+    echo "$prog: Failed to $1 from host \"$host\"" | fmt >> $tmp.msg
+    _pmview_error -f $tmp.msg
+    # NOTREACHED
+}
+
+# Generate warning message for failed fetch
+#
+_pmview_fetch_warn()
+{
+    cat $tmp.pmview_fetch | _pmview_fetch_mesg >> $tmp.msg
+    echo "$prog: Failed to $1 from host \"$host\"" | fmt >> $tmp.msg
+    _pmview_warning -f $tmp.msg
+    rm -f $tmp.msg
+}
+
+# Check that $OPTARG for option $1 is a positive integer
+# ...note the creative use of unary - to prevent leading signs
+#
+_pmview_unsigned()
+{
+    if [ "X-$OPTARG" != "X`expr 0 + -$OPTARG 2>/dev/null`" ]
+    then
+	_pmview_error "$prog: -$1 option must have a positive integral argument"
+	# NOTREACHED
+    fi
+}

@@ -1,0 +1,38 @@
+QA output created by 454
+pmcd config[line 2]: Error: expected DSO entry point
+pmcd config[line 2]: Error: expected DSO pathname
+pmcd config[line 3]: Error: path "no_leading_slash" to PMDA is not absolute
+pmcd config[line 1]: Error: too many parameters for DSO
+pmcd config[line 3]: Error: expected socket address domain (`inet', `ipv6', or `unix')
+pmcd config[line 5]: Error: expected `dso', `socket' or `pipe'
+pmcd config[line 7]: Error: expected socket port name or number
+pmcd config[line 9]: Error: failed to get port number for port name no_such_service
+pmcd config[line 11]: Error: pipe PDU type expected (`binary')
+pmcd config[line 13]: Error: expected domain number for "second" agent
+pmcd config[line 14]: Error: Illegal domain number (100000) for "third" agent
+pmcd config[line 16]: Error: command to create pipe agent expected.
+pmcd config[line 19]: Error: domain number for "bar" agent clashes with "foo" agent
+pmcd config[line 2]: Error: unterminated quoted string
+pmcd config: Can't continue, giving up
+pmcd config[line 1]: Error: ridiculously long line (2200 characters)
+pmcd config: Can't continue, giving up
+pmcd config[line 1]: Error: unterminated quoted string
+pmcd config: Can't continue, giving up
+pmcd config[line 4]: Error: no valid statements in [access] section
+pmcd config[line 3]: Error: ']' expected
+pmcd config[line 2]: Error: "access" keyword expected
+pmcd config[line 2]: Error: "access" keyword expected
+pmcd config[line 3]: Error: ',' or ':' expected after "localhost"
+pmcd config[line 4]: Error: ',' or ':' expected after "unix:"
+pmcd config[line 5]: Error: empty or incomplete permissions list
+pmcd config[line 6]: Error: empty or incomplete permissions list
+pmcd config[line 7]: Error: misplaced (trailing) ',' in permission list
+pmcd config[line 8]: Error: can't have "all" within an "all except"
+pmcd config[line 9]: Error: can't have "all" within an "all except"
+pmcd config[line 10]: Error: can't have "all" mixed with specific permissions
+pmcd config[line 11]: Error: connection limit already specified
+pmcd config[line 12]: Error: connection limit already specified
+pmcd config[line 13]: Error: maximum connection limit must be a positive number
+pmcd config[line 14]: Error: maximum connection limit must be a positive number
+pmcd config[line 4]: Error: ',' or ';' expected in permission list
+pmcd config[line 4]: Error: ',' or ':' expected after "127.0.0.1"

@@ -1,0 +1,48 @@
+#!/bin/sh
+#
+# Copyright (c) 2003-2004 Silicon Graphics, Inc.  All Rights Reserved.
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+# 
+
+/Library/StartupItems/pcp/pcp stop
+
+if [ -f /etc/pcp.conf ]
+then
+    # for all the configuration files we know about, the goal is it
+    # have files with a .pre suffix unless we're certain they have
+    # not been locally altered
+    #
+    . /etc/pcp.conf
+    for conf in \
+	$PCP_PMCDCONF_PATH $PCP_PMCDOPTIONS_PATH $PCP_PMCDRCLOCAL_PATH \
+	$PCP_PMIECONTROL_PATH $PCP_PMLOGGERCONTROL_PATH \
+	$PCP_PMPROXYOPTIONS_PATH $PCP_PMWEBDOPTIONS_PATH
+    do
+	if [ -f $conf.orig -a -f $conf ]
+	then
+	    if cmp -s $conf.orig $conf
+	    then
+		# file not changed since installation
+		rm $conf.orig
+	    else
+		cp $conf $conf.pre
+		rm $conf.orig
+	    fi
+	elif [ -f $conf ]
+	then
+	    cp $conf $conf.pre
+	fi
+    done
+fi
+
+exit 0
+

@@ -1,0 +1,327 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2016 Red Hat.
+.\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMLOGREDUCE 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmlogreduce\f1 \- temporal reduction of Performance Co-Pilot archives
+.SH SYNOPSIS
+\f3$PCP_BINADM_DIR/pmlogreduce\f1
+[\f3\-z\f1]
+[\f3\-A\f1 \f2align\f1]
+[\f3\-S\f1 \f2starttime\f1]
+[\f3\-s\f1 \f2samples\f1]
+[\f3\-T\f1 \f2endtime\f1]
+[\f3\-t\f1 \f2interval\f1]
+[\f3\-v\f1 \f2volsamples\f1]
+[\f3\-Z\f1 \f2timezone\f1]
+\f2input\f1 \f2output\f1 
+.SH DESCRIPTION
+.B pmlogreduce
+reads one set of Performance Co-Pilot (PCP) archives
+identified by
+.I input
+and creates a temporally reduced PCP archive in
+.IR output .
+.I input
+is a comma-separated list of names, each
+of which may be the base name of an archive or the name of a directory containing
+one or more archives.
+The 
+data reduction involves statistical and temporal reduction of samples with
+an output sampling
+interval defined by the
+.B \-t
+option in the
+.I output
+archive (independent of the sampling intervals in the
+.I input
+archives), and is further controlled by
+other command line arguments.
+.PP
+For some metrics, temporal data reduction is not going to be helpful,
+so for metrics with types
+.B PM_TYPE_AGGREGATE
+or
+.BR PM_TYPE_EVENT ,
+a warning is issued if these metrics are found in
+.I input
+and they will be skipped and not appear in the
+.I output
+archive.
+.SH COMMAND LINE OPTIONS
+The command line options for
+.B pmlogreduce
+are as follows:
+.PP
+.TP 7
+.BI \-A " align"
+Specify a ``natural'' alignment of the output sample times; refer
+to
+.BR PCPIntro (1).
+.PP
+.TP 7
+.BI \-S " starttime"
+Define the start of a time window to restrict the samples retrieved
+from the
+.I input
+archives; refer to
+.BR PCPIntro (1).
+.PP
+.TP 7
+.BI \-s " samples"
+The argument
+.I samples
+defines the number of samples to be written to
+.IR output .
+If
+.I samples
+is 0 or
+.B -s
+is not specified,
+.B pmlogreduce
+will sample until the end of the set of PCP archives,
+or the end of the time window as specified by
+.BR -T ,
+whichever comes first.  The
+.B -s
+option will override the
+.B -T
+option if it occurs sooner.
+.PP
+.TP 7
+.BI \-T " endtime"
+Define the termination of a time window to restrict the samples
+retrieved from the
+.I input
+archives; refer to
+.BR PCPIntro (1).
+.PP
+.TP 7
+.BI \-v " volsamples"
+The
+.I output
+archive is potentially a multi-volume data set, and the
+.B \-v
+option causes
+.B pmlogreduce
+to start a new volume after
+.I volsamples
+log records have been written to the
+.I output
+archive.
+.RS 7
+.PP
+Independent of any
+.B \-v
+option, each volume of an archive is limited to no more than
+2^31 bytes, so
+.I pmlogreduce
+will automatically create a new volume for the archive before
+this limit is reached.
+.RE
+.PP
+.TP 7
+.BI \-t " interval"
+Consecutive samples in the
+.I output
+archive will appear with a time delta defined by
+.IR interval ;
+refer to
+.BR PCPIntro (1).
+Note the default value is 600 (seconds, i.e. 10 minutes).
+.PP
+.TP 7
+.BI \-Z " timezone"
+Use
+.I timezone
+when displaying the date and time, or interpreting the
+.B \-S
+and
+.B \-T
+options.
+.I Timezone
+is in the format of the environment variable
+.B TZ
+as described in
+.BR environ (7).
+.PP
+.TP 7
+.B \-z
+Use the local timezone of the host from the
+.I input
+archives when displaying the date and time, or interpreting the
+.B \-S
+and
+.B \-T
+options.
+The default is to initially use the timezone of the local host.
+.SH DATA REDUCTION
+.PP
+The statistical and temporal reduction follows the following rules:
+.TP 4m
+1.
+Consecutive records from
+.I input
+are read without interpolation, and at most one output record
+is written for each
+.IR interval ,
+summarizing the performance data over that period.
+.TP 4m
+2.
+If the semantics of a metric indicates it is
+.B instantaneous
+or
+.B discrete
+then
+.I output
+value is computed as the arithmetic mean of the observations (if any)
+over each
+.IR interval .
+.TP 4m
+3.
+If the semantics of a metric indicates it is a
+.B counter
+then the following transformations are applied:
+.RS +4m
+.nr PD 0
+.TP 4m
+a)
+Metrics with 32-bit precision are promoted to 64-bit precision.
+.TP 4m
+b)
+Any counter wrap (overflow) is noted, and appropriate adjustment made
+in the value of the metric over each
+.IR interval .
+This will be correct in the case of a single counter wrap, but will
+silently
+.B underestimate
+in the case where more than one counter wrap occurs between consecutive
+observations in the
+.I input
+archives, and silently
+.B overestimate
+in the case where a counter is reset occurs between consecutive
+observations in the
+.I input
+archives; unfortunately these situations cannot be detected, but
+are believed to be rare events for the sort of production monitoring
+environments where
+.B pmlogreduce
+is most likely to be deployed.
+.RE
+.PD
+.TP 4m
+4.
+Any changes in instance domains, and indeed all metadata, is preserved.
+.TP 4m
+5.
+Any ``mark'' records in the
+.I input
+archives (as created by
+.BR pmlogextract (1))
+will be preserved in the
+.I output
+archive, so periods where no data is available are maintained, and data
+interpolation will
+.B not
+occur across these periods when the
+.I output
+archive is subsequently processed with PCP applications.
+.SH FILES
+.PD 0
+For each of the
+.I input
+and
+.I output
+archives, several physical files are used.
+.TP 10
+\f2archive\f3.meta
+metadata (metric descriptions, instance domains, etc.) for the archive log
+.TP
+\f2archive\f3.0
+initial volume of metrics values (subsequent volumes have suffixes
+.BR 1 ,
+.BR 2 ,
+\&...) \- for
+.I input
+these files may have been previously compressed with
+.BR bzip2 (1)
+or
+.BR gzip (1)
+and thus may have an additional
+.B .bz2
+or
+.B .gz
+suffix.
+.TP
+\f2archive\f3.index
+temporal index to support rapid random access to the other files in the
+archive log.
+.PD
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.I /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (5).
+.SH SEE ALSO
+.BR PCPIntro (1),
+.BR pmdumplog (1),
+.BR pmlc (1),
+.BR pmlogextract (1),
+.BR pmlogger (1),
+.BR pcp.conf (5)
+and
+.BR pcp.env (5).
+.SH DIAGNOSTICS
+All error conditions detected by
+.B pmlogreduce
+are reported on
+.I stderr
+with textual (if sometimes terse) explanation.
+.PP
+Should the
+.I input
+archives be corrupted (this can happen
+if the
+.B pmlogger
+instance writing the archive suddenly dies), then
+.B pmlogreduce
+will detect and report the position of the corruption in the file,
+and any subsequent information from the
+.I input
+archives will not be processed.
+.PP
+If any error is detected,
+.B pmlogreduce
+will exit with a non-zero status.
+.SH CAVEATS
+.PP
+The preamble metrics (pmcd.pmlogger.archive, pmcd.pmlogger.host,
+and pmcd.pmlogger.port), which are automatically recorded by
+.B pmlogger
+at the start of the archive, may not be present in the archive output by
+.BR pmlogreduce .
+These metrics are only relevant while the archive is being created,
+and have no significance once recording has finished.

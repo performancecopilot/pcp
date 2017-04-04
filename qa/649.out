@@ -1,0 +1,71 @@
+QA output created by 649
+
+=== mmv agent installation ===
+You will need to choose an appropriate configuration for installation of
+the "mmv" Performance Metrics Domain Agent (PMDA).
+
+  collector	collect performance statistics on this system
+  monitor	allow this system to monitor local and/or remote systems
+  both		collector and monitor configuration for this system
+
+Please enter c(ollector) or m(onitor) or b(oth) [b] Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+[...install files, make output...]
+Updating the PMCD control file, and notifying PMCD ...
+Check mmv metrics have appeared ... 3 metrics and 3 values
+
+=== Listing with a valid process and with prefix ===
+mmv.test.strings 2 "00oo00" ""
+mmv.test.string 1 "g'day world"
+mmv.test.indom 2 43 0
+mmv.test.discrete 1 42
+mmv.test.counter 1 41
+mmv.control.files 1 1
+mmv.control.debug 1 0
+mmv.control.reload 1 0
+=== Listing with a valid process and without prefix ===
+mmv.strings 2 "00oo00" ""
+mmv.string 1 "g'day world"
+mmv.indom 2 43 0
+mmv.discrete 1 42
+mmv.counter 1 41
+mmv.control.files 1 1
+mmv.control.debug 1 0
+mmv.control.reload 1 0
+=== Listing with a valid process and sentinel flag set ===
+mmv.strings 1 "00oo00"
+mmv.string 1 "g'day world"
+mmv.indom 2 43 0
+mmv.discrete 1 42
+mmv.counter 1 41
+mmv.control.files 1 1
+mmv.control.debug 1 0
+mmv.control.reload 1 0
+=== Listing without a valid process ===
+mmv.control.files 1 0
+mmv.control.debug 1 0
+mmv.control.reload 1 0
+
+=== remove mmv agent ===
+Culling the Performance Metrics Name Space ...
+mmv ... done
+Updating the PMCD control file, and notifying PMCD ...
+[...removing files...]
+Check mmv metrics have gone away ... OK
+
+=== mmv agent re-installation ===
+You will need to choose an appropriate configuration for installation of
+the "mmv" Performance Metrics Domain Agent (PMDA).
+
+  collector	collect performance statistics on this system
+  monitor	allow this system to monitor local and/or remote systems
+  both		collector and monitor configuration for this system
+
+Please enter c(ollector) or m(onitor) or b(oth) [b] Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+[...install files, make output...]
+Updating the PMCD control file, and notifying PMCD ...
+Check mmv metrics have appeared ... 3 metrics and 3 values
+Waiting for pmcd to terminate ...
+Starting pmcd ... 
+Starting pmlogger ... 

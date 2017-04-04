@@ -1,0 +1,30 @@
+QA output created by 600
+XYZ-11 -> XYZ-11
+ABC-10 -> ABC-10
+In March daylight saving is off, and the time is 01 March 2000 22:00 ABC
+In September daylight saving is off, and the time is 01 September 2000 22:00 ABC
+
+ABC-10:01:02XYZ-11:03:04,M12.5.0/3:04:05,M7.1.0/2:06:07 -> ABC-10:01
+In March daylight saving is off, and the time is 01 March 2000 22:01 ABC
+In September daylight saving is off, and the time is 01 September 2000 22:01 ABC
+
+ABC-10:00:00XYZ-11:00:00,M12.5.0/3:00:00,M7.5.0/2:00:00 -> ABC-10XYZ-11,M12.5.0/3,M7.5.0/2
+In March daylight saving is on, and the time is 01 March 2000 23:00 XYZ
+In September daylight saving is off, and the time is 01 September 2000 22:00 ABC
+
+ABC-10XYZ-11,M12.5.0/3:00:00,M7.1.0/2:00:00 -> ABC-10XYZ-11,M12.5.0/3,M7.1.0/2
+In March daylight saving is on, and the time is 01 March 2000 23:00 XYZ
+In September daylight saving is off, and the time is 01 September 2000 22:00 ABC
+
+ABC-10XYZ-11,M12.5.0/3:01:02,M7.1.0/2:03:04 -> ABC-10
+In March daylight saving is off, and the time is 01 March 2000 22:00 ABC
+In September daylight saving is off, and the time is 01 September 2000 22:00 ABC
+
+ABC-10 -> ABC-10
+In March daylight saving is off, and the time is 01 March 2000 22:00 ABC
+In September daylight saving is off, and the time is 01 September 2000 22:00 ABC
+
+:Someplace/Somewhere -> Someplace/Somewhere
+In March daylight saving is off, and the time is 01 March 2000 12:00 Someplace/Somewhere
+In September daylight saving is off, and the time is 01 September 2000 12:00 Someplace/Somewhere
+

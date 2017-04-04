@@ -1,0 +1,82 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2016 Red Hat.
+.\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMCONVERTTIME 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3__pmConvertTime\f1 \- convert \fBtm\fR structure to \fBtimeval\fR structure
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.br
+#include <pcp/impl.h>
+.sp
+.ad l
+.hy 0
+.in +8n
+.ti -8n
+int __pmConvertTime(struct tm *\fItmin\fP, struct timeval *\fIorigin\fP, struct\ timeval\ *\fIrslt\fP);
+.sp
+.in
+.hy
+.ad
+cc ... \-lpcp
+.ft 1
+.SH DESCRIPTION
+.B __pmConvertTime
+accepts a
+.B tm
+structure that has been filled in by
+.BR __pmParseCtime (3)
+and a reference time point
+.BR origin ,
+and fills in the given
+.B rslt
+structure with the time the user meant when he specified a partial
+.B ctime
+or positive or negative time
+.BR interval .
+.PP
+Typically, the argument
+.B origin
+is the start time for a set of  PCP archive logs, unless the user specified
+a negative
+.B interval
+offset, in which case it is the end
+time of the log.
+.PP
+.B __pmConvertTime
+returns 0 if successful.  
+It returns \-1 and writes an error message to
+.BR stderr ,
+if an error is detected.
+.PP
+Use
+.BR pmNewZone (3),
+.BR pmNewContextZone (3)
+or
+.BR pmUseZone (3)
+to establish a new current timezone that will effect
+.BR __pmConvertTime .
+.SH SEE ALSO
+.BR PMAPI (3),
+.BR pmNewContextZone (3),
+.BR pmNewZone (3),
+.BR pmParseInterval (3),
+.BR pmParseTimeWindow (3),
+.BR pmUseZone (3),
+.BR __pmParseCtime (3)
+and
+.BR __pmParseTime (3).

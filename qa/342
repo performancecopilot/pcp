@@ -1,0 +1,59 @@
+#!/bin/sh
+# PCP QA Test No. 342
+# dbpmda with new open socket command
+#
+# Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=0	# success is the default!
+username=`id -u -n`
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+_await_file()
+{
+    file=$1
+    done=0
+
+    for t in 0.01 0.02 0.05 0.1 0.5 1 2
+    do
+	pmsleep $t
+	[ -e "$file" ] && return
+    done
+    echo "Giving up waiting for file $file to appear"
+    exit 1
+}
+
+_filter()
+{
+    _filter_dumpresult \
+    | sed -e "s;$tmp.socket;MYSOCKET;"
+}
+
+pmdaargs="-d 29 -l $tmp.log -u $tmp.socket"
+id pcp >/dev/null 2>&1 && pmdaargs="$pmdaargs -U $username"
+
+# real QA test starts here
+$PCP_PMDAS_DIR/sample/pmdasample $pmdaargs &
+_await_file $tmp.socket
+
+cat <<End-of-File | dbpmda -ie 2>&1 | _filter
+open socket $tmp.socket
+getdesc on
+fetch sample.colour
+desc sample.colour
+profile 29.1 none
+profile 29.1 add 2
+fetch sample.colour
+End-of-File
+
+# success, all done
+exit

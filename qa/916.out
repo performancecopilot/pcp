@@ -1,0 +1,9 @@
+QA output created by 916
+Merge dupname-a and dupname-b (expect fail)
+pmlogextract: Error: metric PMID 60.18.0: name changed from hinv.cpu.clock, hinv.cpu.clock to hinv.cpu.block, hinv.cpu.clock!
+Archive "TMP.one" not created.
+Merge dupname-b and dupname-c (expect fail)
+pmlogextract: Error: metric PMID 60.18.0: name changed from hinv.cpu.block, hinv.cpu.clock to hinv.cpu.clock!
+Archive "TMP.two" not created.
+Merge dupname-c and dupname-a (expect pass)
+Archive "TMP.three" is OK.

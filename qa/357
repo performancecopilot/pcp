@@ -1,0 +1,49 @@
+#! /bin/sh
+# PCP QA Test No. 357
+# Exercise __pmNumberStr()
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+for i in \
+	0.4321 4.321 43.21 432.1 4321 43210 \
+	0 \
+	0.00001 0.0001 0.001 0.01 0.1 1.0 10.0 100.0 1000.0 10000.0 \
+	1000000.0 10000000.0 100000000.0 1000000000.0 10000000000.0 \
+	100000000000.0 1000000000000.0 10000000000000.0 \
+	0.005 0.0051 \
+	9.995 9.9951 \
+	99.995 99.9951 \
+	999.95 999.951 \
+	999995           9999951 \
+	9999500          99995100 \
+	99995000         999951000 \
+	999950000        9999510000 \
+	9999500000       99995100000 \
+	99995000000      999951000000 \
+	999950000000     9999510000000 \
+	9999500000000    99995100000000 \
+	99995000000000   999951000000000 \
+	999950000000000  9999510000000000 \
+	9999500000000000 99995100000000000
+do
+    echo $i | $PCP_AWK_PROG '{printf("%18s = ", $1); }'
+    src/numberstr $i
+    echo -$i | $PCP_AWK_PROG '{printf("%18s = ", $1); }'
+    src/numberstr -$i
+done
+
+# success, all done
+status=0
+exit

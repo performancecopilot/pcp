@@ -1,0 +1,9 @@
+//
+// Unusual usr-sys split when some CPU is more than 20% in usr mode
+// and sys mode is at least 1.5 times usr mode
+//
+cpu_usr_sys =
+    some_inst (
+	$percpu.cpu.sys > $percpu.cpu.user * 1.5 && $percpu.cpu.user > 0.2
+    )
+	->  alarm "Unusual sys time: " "%i ";

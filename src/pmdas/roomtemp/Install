@@ -1,0 +1,53 @@
+#! /bin/sh
+#
+# Copyright (c) 2000,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+# Install the roomtemp PMDA and/or PMNS
+#
+
+. $PCP_DIR/etc/pcp.env
+. $PCP_SHARE_DIR/lib/pmdaproc.sh
+
+iam=roomtemp
+pmda_interface=2
+pmdaSetup
+
+if $do_pmda
+then
+    if [ -c /dev/ttyf1 ]
+    then
+	# reasonable first guess for IRIX
+	#
+	tty=/dev/ttyf1
+    elif [ -c /dev/ttyS0 ]
+    then
+	# reasonable first guess for COM port on a Linux laptop
+	#
+	tty=/dev/ttyS0
+    fi
+
+    while true
+    do
+	$PCP_ECHO_PROG $PCP_ECHO_N "Serial line for Dallas device?  ""$PCP_ECHO_C"
+	[ ! -z "$tty" ] && $PCP_ECHO_PROG $PCP_ECHO_N "[$tty] ""$PCP_ECHO_C"
+	read ans
+	[ ! -z "$ans" ] && tty="$ans"
+	[ ! -z "$tty" ] && break
+	echo
+	echo "Ahem, you must answer the question ..."
+    done
+    args="$tty"
+fi
+
+pmdaInstall
+exit

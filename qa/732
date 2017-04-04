@@ -1,0 +1,43 @@
+#!/bin/sh
+# PCP QA Test No. 732
+# Exercise the Linux kernel NFS/RPC metrics.
+#
+# Copyright (c) 2014 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ $PCP_PLATFORM = linux ] || _notrun "Linux NFS/RPC test, only works with Linux"
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; $sudo rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+root=$tmp.root
+export LINUX_STATSPATH=$root
+pmda=$PCP_PMDAS_DIR/linux/pmda_linux.so,linux_init
+
+for tgz in $here/linux/nfsrpc-*.tgz
+do
+    $sudo rm -fr $root
+    mkdir $root || _fail "root in use when processing $tgz"
+    cd $root
+    tar xzf $tgz
+    base=`basename $tgz`
+
+    echo "== Checking metric descriptors and values - $base"
+    pminfo -L -K clear -K add,60,$pmda -f rpc nfs nfs3 nfs4
+    echo && echo "== done" && echo
+    cd $here
+done
+
+# success, all done
+status=0
+exit

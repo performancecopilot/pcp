@@ -1,0 +1,287 @@
+QA output created by 080
+sum of archives/omen.client ...
+41308 archives/omen.client.0
+24558 archives/omen.client.index
+04838 archives/omen.client.meta
+
+-- -t 0.2 -s 4 --
+
+metric:    sample.milliseconds
+HOST
+semantics: cumulative counter (converting to rate)
+units:     millisec (converting to time utilization)
+samples:   4
+interval:  0.20 sec
+close to one
+close to one
+close to one
+close to one
+
+-- -r -t 0.2 -s 4 --
+
+metric:    sample.milliseconds
+HOST
+semantics: cumulative counter
+units:     millisec
+samples:   4
+interval:  0.20 sec
+number, not one
+number, not one
+number, not one
+number, not one
+
+-- -z -U ... --
+Note: timezone set to local timezone of host "omen" from archive
+
+metric:    kernel.all.load
+archive:   archives/omen.client
+host:      omen
+start:     Wed Feb 28 16:49:14 2001
+end:       Wed Feb 28 16:50:04 2001
+semantics: instantaneous value
+units:     none
+samples:   all
+
+                 1 minute      5 minute     15 minute 
+16:49:19.031       0.0                ?        0.0    
+16:49:24.030    5.957E-02             ?     3.906E-03 
+16:49:29.040    5.566E-02             ?     2.930E-03 
+16:49:34.039    5.176E-02             ?     1.953E-03 
+16:49:39.039    4.785E-02             ?     9.766E-04 
+16:49:44.039    4.102E-02             ?        0.0    
+16:49:49.038    3.809E-02             ?        0.0    
+16:49:54.037    3.516E-02             ?        0.0    
+16:49:59.037    3.223E-02             ?        0.0    
+16:50:04.037    2.734E-02             ?        0.0    
+
+-- -z -S @16:49:20 -T @16:49:40 -a ... --
+Note: timezone set to local timezone of host "omen" from archive
+
+metric:    kernel.all.load
+archive:   archives/omen.client
+host:      omen
+start:     Wed Feb 28 16:49:20 2001
+end:       Wed Feb 28 16:49:40 2001
+semantics: instantaneous value
+units:     none
+samples:   21
+interval:  1.00 sec
+
+                 1 minute      5 minute     15 minute 
+16:49:20.000       0.0                ?        0.0    
+16:49:21.000       0.0                ?        0.0    
+16:49:22.000       0.0                ?        0.0    
+16:49:23.000       0.0                ?        0.0    
+16:49:24.000       0.0                ?        0.0    
+16:49:25.000    5.957E-02             ?     3.906E-03 
+16:49:26.000    5.957E-02             ?     3.906E-03 
+16:49:27.000    5.957E-02             ?     3.906E-03 
+16:49:28.000    5.957E-02             ?     3.906E-03 
+16:49:29.000    5.957E-02             ?     3.906E-03 
+16:49:30.000    5.566E-02             ?     2.930E-03 
+16:49:31.000    5.566E-02             ?     2.930E-03 
+16:49:32.000    5.566E-02             ?     2.930E-03 
+16:49:33.000    5.566E-02             ?     2.930E-03 
+16:49:34.000    5.566E-02             ?     2.930E-03 
+16:49:35.000    5.176E-02             ?     1.953E-03 
+16:49:36.000    5.176E-02             ?     1.953E-03 
+16:49:37.000    5.176E-02             ?     1.953E-03 
+16:49:38.000    5.176E-02             ?     1.953E-03 
+16:49:39.000    5.176E-02             ?     1.953E-03 
+16:49:40.000    4.785E-02             ?     9.766E-04 
+
+-- -z -S @16:49:20 -T 20sec -a ... --
+Note: timezone set to local timezone of host "omen" from archive
+
+metric:    kernel.all.load
+archive:   archives/omen.client
+host:      omen
+start:     Wed Feb 28 16:49:20 2001
+end:       Wed Feb 28 16:49:40 2001
+semantics: instantaneous value
+units:     none
+samples:   21
+interval:  1.00 sec
+
+                 1 minute      5 minute     15 minute 
+16:49:20.000       0.0                ?        0.0    
+16:49:21.000       0.0                ?        0.0    
+16:49:22.000       0.0                ?        0.0    
+16:49:23.000       0.0                ?        0.0    
+16:49:24.000       0.0                ?        0.0    
+16:49:25.000    5.957E-02             ?     3.906E-03 
+16:49:26.000    5.957E-02             ?     3.906E-03 
+16:49:27.000    5.957E-02             ?     3.906E-03 
+16:49:28.000    5.957E-02             ?     3.906E-03 
+16:49:29.000    5.957E-02             ?     3.906E-03 
+16:49:30.000    5.566E-02             ?     2.930E-03 
+16:49:31.000    5.566E-02             ?     2.930E-03 
+16:49:32.000    5.566E-02             ?     2.930E-03 
+16:49:33.000    5.566E-02             ?     2.930E-03 
+16:49:34.000    5.566E-02             ?     2.930E-03 
+16:49:35.000    5.176E-02             ?     1.953E-03 
+16:49:36.000    5.176E-02             ?     1.953E-03 
+16:49:37.000    5.176E-02             ?     1.953E-03 
+16:49:38.000    5.176E-02             ?     1.953E-03 
+16:49:39.000    5.176E-02             ?     1.953E-03 
+16:49:40.000    4.785E-02             ?     9.766E-04 
+
+-- -z -S +15s -T -10s -a ... --
+Note: timezone set to local timezone of host "omen" from archive
+
+metric:    kernel.all.load
+archive:   archives/omen.client
+host:      omen
+start:     Wed Feb 28 16:49:29 2001
+end:       Wed Feb 28 16:49:54 2001
+semantics: instantaneous value
+units:     none
+samples:   26
+interval:  1.00 sec
+
+                 1 minute      5 minute     15 minute 
+16:49:29.035    5.957E-02             ?     3.906E-03 
+16:49:30.035    5.566E-02             ?     2.930E-03 
+16:49:31.035    5.566E-02             ?     2.930E-03 
+16:49:32.035    5.566E-02             ?     2.930E-03 
+16:49:33.035    5.566E-02             ?     2.930E-03 
+16:49:34.035    5.566E-02             ?     2.930E-03 
+16:49:35.035    5.176E-02             ?     1.953E-03 
+16:49:36.035    5.176E-02             ?     1.953E-03 
+16:49:37.035    5.176E-02             ?     1.953E-03 
+16:49:38.035    5.176E-02             ?     1.953E-03 
+16:49:39.035    5.176E-02             ?     1.953E-03 
+16:49:40.035    4.785E-02             ?     9.766E-04 
+16:49:41.035    4.785E-02             ?     9.766E-04 
+16:49:42.035    4.785E-02             ?     9.766E-04 
+16:49:43.035    4.785E-02             ?     9.766E-04 
+16:49:44.035    4.785E-02             ?     9.766E-04 
+16:49:45.035    4.102E-02             ?        0.0    
+16:49:46.035    4.102E-02             ?        0.0    
+16:49:47.035    4.102E-02             ?        0.0    
+16:49:48.035    4.102E-02             ?        0.0    
+16:49:49.035    4.102E-02             ?        0.0    
+16:49:50.035    3.809E-02             ?        0.0    
+16:49:51.035    3.809E-02             ?        0.0    
+16:49:52.035    3.809E-02             ?        0.0    
+16:49:53.035    3.809E-02             ?        0.0    
+16:49:54.035    3.809E-02             ?        0.0    
+
+-- -Z UTC -S +15s -T -10s -a ... --
+Note: timezone set to "TZ=UTC"
+
+metric:    kernel.all.load
+archive:   archives/omen.client
+host:      omen
+start:     Wed Feb 28 05:49:29 2001
+end:       Wed Feb 28 05:49:54 2001
+semantics: instantaneous value
+units:     none
+samples:   26
+interval:  1.00 sec
+
+                 1 minute      5 minute     15 minute 
+05:49:29.035    5.957E-02             ?     3.906E-03 
+05:49:30.035    5.566E-02             ?     2.930E-03 
+05:49:31.035    5.566E-02             ?     2.930E-03 
+05:49:32.035    5.566E-02             ?     2.930E-03 
+05:49:33.035    5.566E-02             ?     2.930E-03 
+05:49:34.035    5.566E-02             ?     2.930E-03 
+05:49:35.035    5.176E-02             ?     1.953E-03 
+05:49:36.035    5.176E-02             ?     1.953E-03 
+05:49:37.035    5.176E-02             ?     1.953E-03 
+05:49:38.035    5.176E-02             ?     1.953E-03 
+05:49:39.035    5.176E-02             ?     1.953E-03 
+05:49:40.035    4.785E-02             ?     9.766E-04 
+05:49:41.035    4.785E-02             ?     9.766E-04 
+05:49:42.035    4.785E-02             ?     9.766E-04 
+05:49:43.035    4.785E-02             ?     9.766E-04 
+05:49:44.035    4.785E-02             ?     9.766E-04 
+05:49:45.035    4.102E-02             ?        0.0    
+05:49:46.035    4.102E-02             ?        0.0    
+05:49:47.035    4.102E-02             ?        0.0    
+05:49:48.035    4.102E-02             ?        0.0    
+05:49:49.035    4.102E-02             ?        0.0    
+05:49:50.035    3.809E-02             ?        0.0    
+05:49:51.035    3.809E-02             ?        0.0    
+05:49:52.035    3.809E-02             ?        0.0    
+05:49:53.035    3.809E-02             ?        0.0    
+05:49:54.035    3.809E-02             ?        0.0    
+
+-- -z -S @16:49:20 -T 10 arch/... --
+Note: timezone set to local timezone of host "omen" from archive
+
+metric:    kernel.all.load
+archive:   archives/omen.client
+host:      omen
+start:     Wed Feb 28 16:49:20 2001
+end:       Wed Feb 28 16:49:30 2001
+semantics: instantaneous value
+units:     none
+samples:   11
+interval:  1.00 sec
+
+                 1 minute      5 minute     15 minute 
+16:49:20.000       0.0                ?        0.0    
+16:49:21.000       0.0                ?        0.0    
+16:49:22.000       0.0                ?        0.0    
+16:49:23.000       0.0                ?        0.0    
+16:49:24.000       0.0                ?        0.0    
+16:49:25.000    5.957E-02             ?     3.906E-03 
+16:49:26.000    5.957E-02             ?     3.906E-03 
+16:49:27.000    5.957E-02             ?     3.906E-03 
+16:49:28.000    5.957E-02             ?     3.906E-03 
+16:49:29.000    5.957E-02             ?     3.906E-03 
+16:49:30.000    5.566E-02             ?     2.930E-03 
+
+-- -z -S @16:49:20 -T 10 arch/...[...] --
+Note: timezone set to local timezone of host "omen" from archive
+
+metric:    kernel.all.load
+archive:   archives/omen.client
+host:      omen
+start:     Wed Feb 28 16:49:20 2001
+end:       Wed Feb 28 16:49:30 2001
+semantics: instantaneous value
+units:     none
+samples:   11
+interval:  1.00 sec
+
+                 1 minute     15 minute 
+16:49:20.000       0.0           0.0    
+16:49:21.000       0.0           0.0    
+16:49:22.000       0.0           0.0    
+16:49:23.000       0.0           0.0    
+16:49:24.000       0.0           0.0    
+16:49:25.000    5.957E-02     3.906E-03 
+16:49:26.000    5.957E-02     3.906E-03 
+16:49:27.000    5.957E-02     3.906E-03 
+16:49:28.000    5.957E-02     3.906E-03 
+16:49:29.000    5.957E-02     3.906E-03 
+16:49:30.000    5.566E-02     2.930E-03 
+
+-- -z -S 15 -A 1 -T10 -a ... --
+Note: timezone set to local timezone of host "omen" from archive
+
+metric:    kernel.all.load
+archive:   archives/omen.client
+host:      omen
+start:     Wed Feb 28 16:49:30 2001
+end:       Wed Feb 28 16:49:40 2001
+semantics: instantaneous value
+units:     none
+samples:   11
+interval:  1.00 sec
+
+                 1 minute      5 minute     15 minute 
+16:49:30.000    5.566E-02             ?     2.930E-03 
+16:49:31.000    5.566E-02             ?     2.930E-03 
+16:49:32.000    5.566E-02             ?     2.930E-03 
+16:49:33.000    5.566E-02             ?     2.930E-03 
+16:49:34.000    5.566E-02             ?     2.930E-03 
+16:49:35.000    5.176E-02             ?     1.953E-03 
+16:49:36.000    5.176E-02             ?     1.953E-03 
+16:49:37.000    5.176E-02             ?     1.953E-03 
+16:49:38.000    5.176E-02             ?     1.953E-03 
+16:49:39.000    5.176E-02             ?     1.953E-03 
+16:49:40.000    4.785E-02             ?     9.766E-04 

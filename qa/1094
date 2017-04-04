@@ -1,0 +1,68 @@
+#!/bin/sh
+# PCP QA Test No. 1094
+# Exercise _do_dir_and_arg() (for scripts run from cron)
+#
+# Copyright (c) 2015 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+# _do_dir_and_args is hidden here ...
+#
+. $PCP_SHARE_DIR/lib/utilproc.sh
+
+_error()
+{
+    echo "[<stdin>:$line]"
+    echo "Error: $@"
+}
+
+# real QA test starts here
+
+# don't use date +%Y ... so test will not fail next year!
+export year=`date +2015`
+export mydir=/some/path
+line=1
+
+cat <<'End-of-File' | while read stuff dir args
+preamble$(blah)`foo`$bar /some/path -c someconfig
+preamble$(blah)`foo`$bar ${mydir}/xyz -c someconfig
+preamble$(blah)`foo`$bar /xyz${mydir} -c someconfig
+preamble$(blah)`foo`$bar /xyz$mydir -c someconfig
+preamble$(blah)`foo`$bar $(echo /some/path) -c someconfig
+preamble$(blah)`foo`$bar $( echo /some/path ) -c someconfig
+preamble$(blah)`foo`$bar "/some/path/$(date +2015)" -c someconfig
+preamble$(blah)`foo`$bar " /some/path/$(date +2015) " -c someconfig
+preamble$(blah)`foo`$bar `echo /some/path` -c someconfig
+preamble$(blah)`foo`$bar ` echo /some/path ` -c someconfig
+preamble$(blah)`foo`$bar "/some/path/`date +2015`" -c someconfig
+preamble$(blah)`foo`$bar $(bad command -c someconfig
+preamble$(blah)`foo`$bar `bad command -c someconfig
+preamble$(blah)`foo`$bar "bad string -c someconfig
+preamble$(blah)`foo`$bar "embedded_backquote`date +2015`.postfix" -c someconfig
+preamble$(blah)`foo`$bar bad_embedded_backquote`date +2015`.postfix -c someconfig
+preamble$(blah)`foo`$bar "embedded_cmd\$(date +2015).postfix" -c someconfig
+preamble$(blah)`foo`$bar bad_embedded_cmd\$(date +2015).postfix -c someconfig
+End-of-File
+do
+    echo
+    echo "input \$dir |$dir| \$args |$args|"
+    _do_dir_and_args
+    echo "processed \$dir |$dir| \$args |$args|"
+    line=`expr $line + 1`
+done
+
+# success, all done
+status=0
+
+exit

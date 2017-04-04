@@ -1,0 +1,147 @@
+'\"macro stdmacro
+.TH PMDASUMMARY 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmdasummary\f1 \- summary performance metrics domain agent (PMDA)
+.SH SYNOPSIS
+\f3$PCP_PMDAS_DIR/summary/pmdasummary\f1
+[\f3\-d\f1 \f2domain\f1]
+[\f3\-h\f1 \f2helpfile\f1]
+[\f3\-l\f1 \f2logfile\f1]
+[\f3\-U\f1 \f2username\f1]
+\f2pmie-command-line\f1
+.SH DESCRIPTION
+.B pmdasummary
+is a Performance Metrics Domain Agent (PMDA) which derives
+performance metrics values from values made available by other PMDAs.
+.B pmdasummary
+consists of two processes:
+.TP
+.B pmie process
+The inference engine for performance values
+.BR pmie (1)
+is used to periodically sample values for the base metrics and compute
+the derived values.
+This process is launched with the given \f2pmie-command-line\f1 arguments
+by the main process, described below.
+.TP
+.B main process
+The main process reads and buffers the values computed by
+.BR pmie (1)
+and makes them available to the performance metrics collector daemon
+.BR pmcd (1).
+.PP
+A brief description of the
+.B pmdasummary
+command line options follows:
+.TP 5
+.B \-d
+It is absolutely crucial that the performance metrics
+.I domain
+number specified here is unique and consistent.
+That is,
+.I domain
+should be different for every PMDA on the one host, and the same
+.I domain
+number should be used for the same PMDA on all hosts.
+.TP 5
+.B \-h
+This option specifies an alternative help text file
+.I helpfile
+for describing the metrics that
+.B pmdasummary
+represents.
+.TP 5
+.B \-l
+Location of the log file.  By default, a log file named
+.I summary.log
+is written in the current directory of
+.BR pmcd (1)
+when
+.B pmdasummary
+is started, i.e.
+.BR $PCP_LOG_DIR/pmcd .
+If the log file cannot
+be created or is not writable, output is written to the standard error instead.
+.TP 5
+.B \-U
+User account under which to run the agent.
+The default is the unprivileged "pcp" account in current versions of PCP,
+but in older versions the superuser account ("root") was used by default.
+.SH INSTALLATION
+If you want access to the names, help text and values for the summary
+performance metrics, do the following as root:
+.PP
+.ft CW
+.nf
+.in +0.5i
+# cd $PCP_PMDAS_DIR/summary
+# ./Install
+.in
+.fi
+.ft 1
+.PP
+If you want to undo the installation, do the following as root:
+.PP
+.ft CW
+.nf
+.in +0.5i
+# cd $PCP_PMDAS_DIR/summary
+# ./Remove
+.in
+.fi
+.ft 1
+.PP
+.B pmdasummary
+is launched by
+.BR pmcd (1)
+and should never be executed directly.
+The Install and Remove scripts notify
+.BR pmcd (1)
+when the agent is installed or removed.
+.SH FILES
+.PD 0
+.TP 10
+.B $PCP_PMCDCONF_PATH
+command line options used to launch
+.B pmdasummary
+.TP 10
+.B $PCP_PMDAS_DIR/summary/expr.pmie
+default
+.BR pmie (1)
+expressions defining the summary metrics
+.TP 10
+.B $PCP_PMDAS_DIR/summary/help
+default help text for the summary metrics
+.TP 10
+.B $PCP_PMDAS_DIR/summary/Install
+installation script for the
+.B pmdasummary
+agent
+.TP 10
+.B $PCP_PMDAS_DIR/summary/Remove
+undo installation script for the 
+.B pmdasummary
+agent
+.TP 10
+.B $PCP_LOG_DIR/pmcd/summary.log
+default log file for error messages and other information from
+.B pmdasummary
+.PD
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.B /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (5).
+.SH SEE ALSO
+.BR pmcd (1)
+and
+.BR pmie (1).

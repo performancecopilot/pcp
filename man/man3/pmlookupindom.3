@@ -1,0 +1,77 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMLOOKUPINDOM 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmLookupInDom\f1 \- translate an instance name into an instance identifier
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.sp
+.nf
+int pmLookupInDom(pmInDom \fIindom\fP, const char *\fIname\fP);
+.fi
+.sp
+cc ... \-lpcp
+.ft 1
+.SH DESCRIPTION
+.de CW
+.ie t \f(CW\\$1\f1\\$2
+.el \fI\\$1\f1\\$2
+..
+For the instance domain
+.IR indom ,
+in the current
+Performance Metrics Application Programming Interface (PMAPI)
+context,
+locate the instance with the external identification given by
+.IR name ,
+and return the internal instance identifier. 
+.PP
+Only the leading
+non-space characters of
+.I name
+will be used to identify the instance.
+.PP
+The value for the instance domain
+.I indom
+is typically extracted from a
+.CW pmDesc
+structure, following a call to
+.BR pmLookupDesc (3)
+for a particular performance metric.
+.PP
+.B pmLookupInDom
+will return a positive instance identifier on success.
+.SH SEE ALSO
+.BR PMAPI (3),
+.BR pmGetConfig (3),
+.BR pmGetInDom (3),
+.BR pmLookupDesc (3),
+.BR pmLookupInDomArchive (3),
+.BR pmNameInDom (3),
+.BR pcp.conf (5)
+and
+.BR pcp.env (5).
+.SH DIAGNOSTICS
+.IP \f3PM_ERR_INDOM\f1
+.I indom
+is not a valid instance domain identifier
+.IP \f3PM_ERR_INST\f1
+The external instance
+.I name
+is not known for the instance domain
+.I indom
+in the current PMAPI context

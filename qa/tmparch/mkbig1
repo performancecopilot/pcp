@@ -1,0 +1,78 @@
+#!/bin/sh
+# 
+# remake the big1 archive.
+# Needs a lot of disk space, so is guarded by df check ... output
+# archive is used by multiple tests.  If return code is non-zero,
+# then output is suitable for a notrun message.
+#
+# Copyright (c) 2012 Red Hat.
+# Copyright (c) 2011 Ken McDonell.  All Rights Reserved.
+#
+
+[ -f ../common.rc ] && cd ..	# from tmparch directory
+. ./common.rc	# for $sudo, $tmp, $here and pcp.env
+. ./common.check
+
+# cleanup any archives in the old location (not tmparch)
+$sudo rm -f big1.*
+
+# don't recreate the archive unless we really have to
+[ -s tmparch/big1.0 -a -s tmparch/big1.1 -a -s tmparch/big1.index -a -s tmparch/big1.meta ] && exit 0
+
+# 10GB should keep us out of trouble
+free=`_check_freespace 10240`
+if [ -n "$free" ]
+then
+    echo $free
+    exit 1
+fi
+
+status=1
+iam=mkbig1
+$sudo rm -rf $tmp.*
+trap "_cleanup; rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+_cleanup()
+{
+    if [ ! -f $tmp.done ]
+    then
+	cd $here/pmdas/bigun
+	$sudo ./Remove >>$here/tmparch/$iam.log
+	cd $here
+	touch $tmp.done
+    fi
+}
+
+cd $here/pmdas/bigun
+make >$here/tmparch/$iam.log 2>&1
+$sudo ./Install </dev/null >>$here/tmparch/$iam.log
+if [ $? != 0 ]
+then
+    echo "bigun pmda Install failed ... see $here/tmparch/$iam.log"
+    exit
+fi
+if pmprobe bigun 2>&1 | tee -a $here/tmparch/$iam.log | grep ' [0-9]$'
+then
+    :
+else
+    echo "bigun pmda Install failed ... see $here/tmparch/$iam.log"
+    exit
+fi
+cd $here
+
+cat <<End-of-File >$tmp.config
+log mandatory on default {
+    bigun
+    sample.hordes
+}
+End-of-File
+
+$sudo rm -f big1.*
+pmlogger -r -c $tmp.config -l $tmp.out -t 10msec -s 2049 tmparch/big1
+echo >>$here/tmparch/$iam.log
+cat $tmp.out >>$here/tmparch/$iam.log
+echo >>$here/tmparch/$iam.log
+ls -l tmparch/big1.* >>$here/tmparch/$iam.log
+
+status=0
+exit

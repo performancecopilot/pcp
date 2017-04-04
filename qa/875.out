@@ -1,0 +1,71 @@
+QA output created by 875
+=== std out ===
+pmParseHostAttrsSpec("local:where/am/i.sock", ...)
+host[0]: "/where/am/i.sock"
+local
+pmUnparseHostAttrsSpec("local:where/am/i.sock") -> "local://where/am/i.sock"
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/parsehostattrs local:where/am/i.sock
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+=== std out ===
+pmParseHostAttrsSpec("local://tmp/holey.sock?user=pcpqa&compress", ...)
+host[0]: "/tmp/holey.sock"
+compress
+username=pcpqa
+local
+pmUnparseHostAttrsSpec("local://tmp/holey.sock?user=pcpqa&compress") -> "local://tmp/holey.sock?compress&username=pcpqa"
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/parsehostattrs local://tmp/holey.sock?user=pcpqa&compress
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+=== std out ===
+pmParseHostAttrsSpec("local:?", ...)
+host[0]: "/PCP_RUN_DIR/pmcd.socket"
+local
+pmUnparseHostAttrsSpec("local:?") -> "local://PCP_RUN_DIR/pmcd.socket"
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/parsehostattrs local:?
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+=== std out ===
+pmParseHostAttrsSpec("unix://tmp/holey.sock?compress&exclusive", ...)
+host[0]: "/tmp/holey.sock"
+exclusive
+compress
+unixsock
+pmUnparseHostAttrsSpec("unix://tmp/holey.sock?compress&exclusive") -> "unix://tmp/holey.sock?exclusive&compress"
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/parsehostattrs unix://tmp/holey.sock?compress&exclusive
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+=== std out ===
+pmParseHostAttrsSpec("unix://?compress", ...)
+host[0]: "/PCP_RUN_DIR/pmcd.socket"
+compress
+unixsock
+pmUnparseHostAttrsSpec("unix://?compress") -> "unix://PCP_RUN_DIR/pmcd.socket?compress"
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/parsehostattrs unix://?compress
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...

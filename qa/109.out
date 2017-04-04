@@ -1,0 +1,33 @@
+QA output created by 109
+== pmclient variant ==
+Host: ...
+  CPU  Free Mem   Disk     Load Average
+ Util  (Mbytes)   IOPS INTEGER Min INTEGER Min
+ FLOAT FLOAT INTEGER FLOAT FLOAT
+ FLOAT FLOAT INTEGER FLOAT FLOAT
+ FLOAT FLOAT INTEGER FLOAT FLOAT
+...
+Host: ...
+  CPU  Busy    Busy  Free Mem   Disk     Load Average
+ Util   CPU    Util  (Mbytes)   IOPS INTEGER Min INTEGER Min
+ FLOAT INTEGER FLOAT FLOAT INTEGER FLOAT FLOAT
+ FLOAT INTEGER FLOAT FLOAT INTEGER FLOAT FLOAT
+ FLOAT INTEGER FLOAT FLOAT INTEGER FLOAT FLOAT
+== pmclient done ==
+
+== pmclient_fg variant ==
+Host: ...
+  CPU  Free Mem   Disk     Load Average
+ Util  (Mbytes)   IOPS INTEGER Min INTEGER Min
+ FLOAT FLOAT INTEGER FLOAT FLOAT
+ FLOAT FLOAT INTEGER FLOAT FLOAT
+ FLOAT FLOAT INTEGER FLOAT FLOAT
+...
+Host: ...
+  CPU  Busy    Busy  Free Mem   Disk     Load Average
+ Util   CPU    Util  (Mbytes)   IOPS INTEGER Min INTEGER Min
+ FLOAT INTEGER FLOAT FLOAT INTEGER FLOAT FLOAT
+ FLOAT INTEGER FLOAT FLOAT INTEGER FLOAT FLOAT
+ FLOAT INTEGER FLOAT FLOAT INTEGER FLOAT FLOAT
+== pmclient_fg done ==
+

@@ -1,0 +1,33 @@
+#! /bin/sh
+# PCP QA Test No. 031
+# general exerciser for local PCP
+#
+# NOTE: Output from 031 is also used by:
+#   qa/112
+#   qa/257
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+rm -f $seq.out $seq.full
+if [ ! -f $seq.out.$PCP_PLATFORM ]
+then
+    echo "Error: no validated output for this platform ($seq.out.$PCP_PLATFORM)"
+    exit 1
+fi
+ln $seq.out.$PCP_PLATFORM $seq.out
+
+trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+
+# real QA test starts here
+
+#debug# src/torture_api -Dappl0 -v 2>&1 | tee $seq.full | _filter_torture_api
+src/torture_api -v 2>&1 | tee $seq.full | _filter_torture_api

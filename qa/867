@@ -1,0 +1,54 @@
+#!/bin/sh
+# PCP QA Test No. 867
+# Exercise libpcp_web HTTP client interfaces.
+#
+# Copyright (c) 2016 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.webapi
+which pmwebd >/dev/null 2>&1 || _notrun "pmwebd not installed"
+[ -f "$PCP_SHARE_DIR/webapps/index.html" ] || _notrun "No webapps installed"
+
+signal=$PCP_BINADM_DIR/pmsignal
+status=1	# failure is the default!
+username=`id -u -n`
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "cd $here; _cleanup; exit \$status" 0 1 2 3 15
+
+_cleanup()
+{
+    [ -z "$webpid" ] || $signal $webpid
+    $sudo rm -fr $tmp.dir
+    $sudo rm -f $tmp.*
+}
+
+unset http_proxy
+unset HTTP_PROXY
+webport=`_find_free_port`
+
+# real QA test starts here
+pmwebd -U $username -P -l $tmp.out -p $webport 2>$tmp.err &
+webpid=$!
+_wait_for_pmwebd $webport
+
+echo "pmwebd pid=$webpid port=$webport" >>$seq.full
+
+echo "== Check simple path fetch" | tee -a $seq.full
+$here/src/httpfetch "http://localhost:$webport/index.html" 2>&1 >> $seq.full
+[ $? -eq 0 ] && echo OK
+
+echo "== Exercise http redirect" | tee -a $seq.full
+$here/src/httpfetch "http://localhost:$webport" 2>&1 >> $seq.full
+[ $? -eq 0 ] && echo OK
+
+echo "--- pmwebd log ---" >>$seq.full
+cat $tmp.out >>$seq.full
+echo "--- pmwebd stderr ---" >>$seq.full
+cat $tmp.err >>$seq.full
+
+# success, all done
+status=0
+exit

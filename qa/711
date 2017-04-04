@@ -1,0 +1,72 @@
+#!/bin/sh
+# PCP QA Test No. 711
+#
+# Exercise sar2pcp for RH BZ 891688
+# Copyright (c) 2012 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+which sadf >/dev/null 2>&1 || _notrun "sadf not installed (sysstat package)"
+which sar2pcp >/dev/null 2>&1 || _notrun "sar2pcp not installed"
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+logcheck()
+{
+    safile="$1"
+    pcplog="$2"
+
+    # should be no errors/warnings and pcp tools should also not fail
+    pmlogsummary -z -f -a $pcplog
+    [ $? -eq 0 ] && echo "pminfo reports no issues in $safile"
+}
+
+# backwards compatibility route - silence is golden
+silence()
+{
+    safile="$1"
+    echo "sar2pcp thinks $safile is going well so far"
+    echo "pmlogsummary approved of the $safile conversion"
+}
+
+# real QA test starts here
+cd $here
+rm -f $seq.full
+
+for sadist in 891688-dash-time.xml
+do
+    safile="sadist/$sadist"
+    echo "==> Checking $safile" | tee -a $seq.full
+    pcplog=$tmp.pcplog
+    sar2pcp $safile $pcplog > $tmp.out 2>&1
+    sts=$?
+
+    # this seems to be a common sadf fail message;
+    # happens when the installed sysutils is old:
+    grep 'Invalid system activity file' $tmp.out >/dev/null
+    if [ $? -eq 0 ]
+    then
+	echo "$safile is not parsable by the installed sysutils" >>$seq.full
+	silence $safile
+    else
+	[ $sts -eq 0 ] && echo "sar2pcp thinks $safile is going well so far"
+	logcheck $safile $pcplog
+
+	# should be no warnings from perl either
+	grep 'uninitialized value' $tmp.out
+    fi
+    rm -f $tmp.pcplog.*
+done
+
+# success, all done
+status=0
+exit

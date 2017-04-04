@@ -1,0 +1,130 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMTRIMNAMESPACE 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmTrimNameSpace\f1 \- prune a performance metrics name space
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.sp
+int pmTrimNameSpace(void);
+.sp
+cc ... \-lpcp
+.ft 1
+.SH DESCRIPTION
+In some (rare) cases it is helpful to prune the
+Performance Metrics Name Space (PMNS) to match the available
+metrics.
+.PP
+The default PMNS that is accessible
+to a
+Performance Metrics Application Programming Interface (PMAPI)
+client is provided by the current PMAPI context:
+.IP \(bu 3n
+for a PMAPI context of type
+.B PM_CONTEXT_HOST
+the PMNS is provided by
+.BR pmcd (1)
+on the associated host and no pruning is required
+.IP \(bu 3n
+for a PMAPI context of type
+.B PM_CONTEXT_ARCHIVE
+the PMNS is stored within the associated
+Performance Co-Pilot (PCP) archive log and no pruning is required
+.IP \(bu 3n
+for a PMAPI context of type
+.B PM_CONTEXT_LOCAL
+at the first PMAPI call requiring access to the PMNS it
+is loaded from the default local location
+.B $PCP_VAR_DIR/pmns/root
+(or
+.BR $PMNS_DEFAULT )
+and no pruning is required.
+.PP
+If the default PMNS is in effect then calling
+.B pmTrimNameSpace
+is a no-op and returns zero with no change to the PMNS.
+.PP
+PMAPI clients also have the option of over-riding the default PMNS
+by loading a
+.I local
+PMNS from a file (see
+.BR pmns (5)
+for the format) by calling
+.BR pmLoadASCIINameSpace (3)
+or
+.BR pmLoadNameSpace (3)
+and this is when some PMNS pruning
+.I may
+be useful.
+.PP
+If a
+.I local
+PMNS is in effect when
+.B pmTrimNameSpace
+is called then the first action
+is to restore the PMNS to the state as of the completion of the last
+.BR pmLoadASCIINameSpace (3)
+or
+.BR pmLoadNameSpace (3),
+so that the effects of consecutive calls to
+.B pmTrimNameSpace
+are
+.B not
+additive.
+.PP
+The subsequent
+actions of
+.B pmTrimNameSpace
+depend on the type of the current PMAPI context.
+.IP \(bu 3n
+For a context of type
+.B PM_CONTEXT_ARCHIVE
+the
+.I local
+PMNS is trimmed to exclude
+metrics for which no description can
+be found in the PCP archive log.
+The PMNS is further trimmed to remove empty subtrees that do not contain any
+performance metric.
+Since PCP archives usually contain some subset
+of all metrics named in a PMNS,
+.B pmTrimNameSpace
+effectively prunes the application's PMNS to contain only the
+names of the metrics in the archive.
+.IP \(bu 3n
+For a context of type
+.B PM_CONTEXT_HOST
+or
+.B PM_CONTEXT_LOCAL
+no further action is required.
+.PP
+On success,
+.B pmTrimNameSpace
+returns zero.
+.SH SEE ALSO
+.BR pmlogger (1),
+.BR PMAPI (3),
+.BR pmLoadASCIINameSpace (3),
+.BR pmLoadNameSpace (3),
+.BR pmNewContext (3)
+and
+.BR pmns (5).
+.SH DIAGNOSTICS
+.IP \f3PM_ERR_NOPMNS\f1
+there has been some earlier problem with establishing the relevant PMNS
+.IP \f3PM_ERR_NOCONTEXT\f1
+the current PMAPI context is invalid

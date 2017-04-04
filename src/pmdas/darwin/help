@@ -1,0 +1,202 @@
+#
+# Copyright (c) 2004 Silicon Graphics, Inc.  All Rights Reserved.
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+# 
+# MacOS X PMDA help file in the ASCII format
+#
+# lines beginning with a # are ignored
+# lines beginning @ introduce a new entry of the form
+#  @ metric_name oneline-text
+#  help test goes
+#  here over multiple lines
+#  ...
+#
+# the metric_name is decoded against the default PMNS -- as a special case,
+# a name of the form NNN.MM (for numeric NNN and MM) is interpreted as an
+# instance domain identification, and the text describes the instance domain
+#
+# blank lines before the @ line are ignored
+#
+@ kernel.uname.release release level of the running kernel
+@ kernel.uname.version version level (build number) and build date of the running kernel
+@ kernel.uname.sysname name of the implementation of the operating system
+@ kernel.uname.machine name of the hardware type the system is running on
+@ kernel.uname.nodename host name of this node on the network
+
+@ kernel.all.cpu.user total user time for all processors
+@ kernel.all.cpu.nice total nice time for all processors
+@ kernel.all.cpu.sys total system time for all processors
+@ kernel.all.cpu.idle total idle time for all processors
+@ kernel.all.load 1, 5 and 15 minute load average
+@ kernel.all.uptime time the current kernel has been running
+@ kernel.all.hz value of HZ (jiffies/second) for the currently running kernel
+@ hinv.ncpu number of processors 
+@ kernel.percpu.cpu.user percpu user processor time metric
+@ kernel.percpu.cpu.nice percpu nice user processor time metric
+@ kernel.percpu.cpu.sys percpu system processor time metric
+@ kernel.percpu.cpu.idle percpu idle processor time metric
+
+@ hinv.physmem total system memory
+@ hinv.pagesize system memory page size
+@ mem.physmem total system memory metric
+@ mem.freemem total pages free in the system
+@ mem.active the total pages currently in use and pageable
+@ mem.inactive the total pages on the inactive list
+@ mem.pages.freemem total number of free pages in the system
+@ mem.pages.active the number of pages currently in use and pageable
+@ mem.pages.inactive the number of pages on the inactive list
+@ mem.pages.reactivated the number of pages that have been moved from inactive to active list
+@ mem.pages.wired the total number of pages wired down (cannot be paged out)
+@ mem.pages.faults the number of times the "vm_fault" routine has been called
+@ mem.pages.cow_faults the number of faults that caused a page to be copied
+@ mem.pages.zero_filled the number of pages that have been zero-filled on demand
+@ mem.pageins the number of requests for pages from a pager
+@ mem.pageouts the number of pages that have been paged out
+@ mem.cache_hits the number of object cache hits
+@ mem.cache_lookups the number of object cache lookups
+@ mem.util.wired wired memory
+@ mem.util.active active memory
+@ mem.util.inactive inactive memory
+@ mem.util.used used memory
+Equals mem.util.wired + mem.util.active + mem.util.inactive.
+@ mem.util.free free memory
+
+@ hinv.nfilesys number of file systems currently mounted
+@ filesys.capacity total capacity of mounted filesystem (Kbytes)
+@ filesys.used total space used on mounted filesystem (Kbytes)    
+@ filesys.free total space free on mounted filesystem (Kbytes)
+@ filesys.usedfiles number of inodes allocated on mounted filesystem
+@ filesys.freefiles number of unallocated inodes on mounted filesystem
+@ filesys.mountdir file system mount point
+@ filesys.full percentage of filesystem in use       
+@ filesys.blocksize size of each block on mounted filesystem (Bytes)
+@ filesys.avail total space free to non-superusers on mounted filesystem (Kbytes)
+@ filesys.type filesystem type name for each mounted filesystem
+
+@ hinv.ndisk number of disks in the system
+
+@ hinv.machine Machine model
+Same value as hw.model from sysctl, or Model Identifier from the
+"About This Mac" dialog.
+
+@ disk.dev.read per-disk read operations
+Cumulative number of disk read operations since system boot time (subject
+to counter wrap).
+
+@ disk.dev.write per-disk write operations
+Cumulative number of disk write operations since system boot time (subject
+to counter wrap).
+
+@ disk.dev.total per-disk total (read+write) operations
+Cumulative number of disk read and write operations since system boot
+time (subject to counter wrap).
+
+@ disk.dev.read_bytes per-disk count of bytes read
+@ disk.dev.write_bytes per-disk count of bytes written
+@ disk.dev.total_bytes per-disk count bytes read and written
+@ disk.dev.blkread per-disk block read operations
+Cumulative number of disk block read operations since system boot time
+(subject to counter wrap).
+
+@ disk.dev.blkwrite per-disk block write operations
+Cumulative number of disk block write operations since system boot time
+(subject to counter wrap).
+
+@ disk.dev.blktotal per-disk total (read+write) block operations
+Cumulative number of disk block read and write operations since system
+boot time (subject to counter wrap).
+
+@ disk.dev.read_time i dunno either
+@ disk.dev.write_time i dunno either
+@ disk.dev.total_time i dunno either
+@ disk.all.read_time i dunno either
+@ disk.all.write_time i dunno either
+@ disk.all.total_time i dunno either
+
+@ disk.all.read total read operations, summed for all disks
+Cumulative number of disk read operations since system boot time
+(subject to counter wrap), summed over all disk devices.
+
+@ disk.all.write total write operations, summed for all disks
+Cumulative number of disk read operations since system boot time
+(subject to counter wrap), summed over all disk devices.
+
+@ disk.all.total total read and write operations, summed for all disks
+Cumulative number of disk read and write operations since system boot
+time (subject to counter wrap), summed over all disk devices.
+
+@ disk.all.blkread block read operations, summed for all disks
+Cumulative number of disk block read operations since system boot time
+(subject to counter wrap), summed over all disk devices.
+
+@ disk.all.blkwrite block write operations, summed for all disks
+Cumulative number of disk block write operations since system boot time
+(subject to counter wrap), summed over all disk devices.
+
+@ disk.all.blktotal total (read+write) block operations, summed for all disks
+Cumulative number of disk block read and write operations since system
+boot time (subject to counter wrap), summed over all disk devices.
+
+@ disk.all.read_bytes count of bytes read for all disk devices
+@ disk.all.write_bytes count of bytes written for all disk devices
+@ disk.all.total_bytes count of bytes read and written for all disk devices
+
+@ network.interface.in.bytes network receive read bytes
+@ network.interface.in.packets network receive read packets
+@ network.interface.in.errors network receive read errors
+@ network.interface.in.drops connections dropped on input
+@ network.interface.in.mcasts network receive multicasts
+@ network.interface.out.bytes network send write bytes
+@ network.interface.out.packets network send write packets
+@ network.interface.out.errors network send write errors
+@ network.interface.out.mcasts network send multicasts
+@ network.interface.collisions network send collisions for CDMA interfaces
+@ network.interface.mtu maximum transmission size for network interfaces
+@ network.interface.baudrate line speed for network interfaces
+@ network.interface.total.bytes total network bytes received and sent
+@ network.interface.total.packets total network packets received and sent
+@ network.interface.total.errors total network errors on receive and send
+@ network.interface.total.drops total network connections dropped
+@ network.interface.total.mcasts total network multicasts
+
+@ nfs3.client.calls
+@ nfs3.client.reqs
+@ nfs3.server.calls
+@ nfs3.server.reqs
+@ rpc.client.rpccnt
+@ rpc.client.rpcretrans
+@ rpc.client.rpctimeouts
+@ rpc.client.rpcinvalid
+@ rpc.client.rpcunexpected
+@ rpc.client.attrcache.hits
+@ rpc.client.attrcache.misses
+@ rpc.client.lookupcache.hits
+@ rpc.client.lookupcache.misses
+@ rpc.client.biocache.read.hits
+@ rpc.client.biocache.read.misses
+@ rpc.client.biocache.write.hits
+@ rpc.client.biocache.write.misses
+@ rpc.client.biocache.readlink.hits
+@ rpc.client.biocache.readlink.misses
+@ rpc.client.biocache.readdir.hits
+@ rpc.client.biocache.readdir.misses
+@ rpc.client.direofcache.hits
+@ rpc.client.direofcache.misses
+@ rpc.server.retfailed
+@ rpc.server.faults
+@ rpc.server.cache.inprog
+@ rpc.server.cache.nonidem
+@ rpc.server.cache.idem
+@ rpc.server.cache.misses
+@ rpc.server.vopwrites
+@ rpc.server.pageins
+@ rpc.server.pageouts

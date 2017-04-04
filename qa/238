@@ -1,0 +1,53 @@
+#! /bin/sh
+# PCP QA Test No. 238
+# pmnsmerge with group at deep level of PMNS and intervening
+# levels missing
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=0
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+mkdir $tmp.dir
+cd $tmp.dir
+
+echo >r1 '/*
+ * Test PMNS #1
+ */
+
+root {
+}'
+
+echo >r2 '/*
+ * Test PMNS #2
+ */
+
+#define _DATESTAMP 961108
+
+root {
+    foo
+}
+foo {
+    bar
+}
+foo.bar {
+    mumble
+}
+foo.bar.mumble {
+    fumble	1:2:3
+}'
+
+rm -f out-pmns
+pmnsmerge r1 r2 out-pmns
+cat out-pmns
+pminfo -n out-pmns

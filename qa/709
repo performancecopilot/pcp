@@ -1,0 +1,139 @@
+#!/bin/sh
+# PCP QA Test No. 709
+# Exercise the python collectl implementation
+#
+# Copyright (c) 2012-2014, Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.python
+
+case $PCP_PLATFORM
+in
+    linux)
+	    ;;
+    *)
+	    _notrun "pmcollectl not expected to work for PCP_PLATFORM $PCP_PLATFORM"
+	    # NOTREACHED
+	    ;;
+esac
+
+status=0	# success is the default!
+$sudo rm -fr $tmp.* $seq.full
+trap "cd $here; rm -fr $tmp.*; exit \$status" 0 1 2 3 15
+
+remove_extra_whitespace()
+{
+    sed \
+	-e 's/>>>.*<<<//g' \
+	-e 's/[0-9]/9/g' \
+	-e 's/9[9]*/9/g' \
+	-e 's/  *$//' \
+	-e '/^ *$/d' \
+	-e 's/  */ /g' \
+	-e 's/^ *//' \
+	-e 's/RECORD.*$/RECORD/' \
+	-e 's/<-*Int/<-Int/' \
+	-e 's/Int-*>/Int->/' \
+    # end
+}
+
+remove_extra_columns()
+{
+    sed \
+	-e 's/^ *//' \
+	-e 's/ [a-zA-Z0-9 ]* *$//' \
+	-e 's/^#<-*-/#<--/g' \
+	-e 's/-*->/--->/g' \
+    # end
+}
+
+# using a given metric (arg1), check that each of its instances
+# exists in output file (arg2).
+#
+check_instances()
+{
+    metric=$1
+    file=$2
+    eval set -- `pmprobe -I $metric`
+    [ $? -eq 0 ] || exit 1
+    shift  # skip metric name
+    shift  # skip instance count
+    while [ $# -gt 0 ]
+    do
+	instance="$1"
+	shift
+	grep -q "$instance" $file && continue
+	echo "Instance $instance of $metric is missing from $file!"
+    done
+}
+
+_run()
+{
+    echo | tee -a $here/$seq.full
+    echo "=== $* ===" | tee -a $here/$seq.full
+    $PYCOLLECTL $* 2>&1 \
+    | tee -a $here/$seq.full \
+    | remove_extra_whitespace
+}
+
+# real QA test starts here
+mkdir $tmp.$seq
+cd $tmp.$seq
+
+PYCOLLECTL=pmcollectl.py	# developer version
+which $PYCOLLECTL >/dev/null 2>&1
+if [ $? -ne 0 ]; then
+    PYCOLLECTL=pmcollectl	# installed version
+    which $PYCOLLECTL >$tmp.cmd 2>&1 || _notrun "pmcollectl not installed"
+    PYCOLLECTL=`cat $tmp.cmd`
+    PYCOLLECTL="$python $PYCOLLECTL"
+fi
+
+args="-c 2 -i 0.1"
+
+_run $args -sc
+_run $args -sd
+_run $args -sn
+_run $args -sj | remove_extra_columns
+_run $args -sm
+_run $args -sc --verbose
+_run $args -sd --verbose
+_run $args -sn --verbose
+_run $args -sm --verbose
+
+$PYCOLLECTL $args -sN > $tmp.net 2>&1 
+check_instances network.interface.total.bytes $tmp.net
+
+$PYCOLLECTL $args -sD > $tmp.disk 2>&1 
+check_instances disk.dev.total_bytes $tmp.disk
+
+# need a generic way to test these on any system
+#_run $args -sC
+#_run $args -sJ
+#_run $args -sCD
+_run $args
+_run $args --verbose
+_run $args -scd
+_run $args -scd --verbose
+
+# test playback
+interval=0.1
+$PYCOLLECTL -sdDcCnNjJm -f test.pmcollectl -c10 -i $interval
+logargs="-c 2 -i $interval -p test.pmcollectl"
+_run $logargs -sd
+_run $logargs -sc
+_run $logargs -sn
+_run $logargs -sm
+_run $logargs -sd --verbose
+_run $logargs -sc --verbose
+_run $logargs -sn --verbose
+_run $logargs -sm --verbose
+
+eval `pmafm test.pmcollectl remove`
+
+# success, all done
+status=0
+exit

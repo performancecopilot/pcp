@@ -1,0 +1,81 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMIGETHANDLE3 "" "Performance Co-Pilot"
+.SH NAME
+\f3pmiGetHandle\f1 \- define a handle for a metric-instance pair
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.br
+#include <pcp/impl.h>
+.br
+#include <pcp/import.h>
+.sp
+int pmiGetHandle(const char *\fIname\fP, const char *\fIinstance\fP);
+.sp
+cc ... \-lpcp_import \-lpcp
+.ft 1
+.SH "Perl SYNOPSIS"
+.ft 3
+use PCP::LogImport;
+.sp
+$\fIhandle\fP = pmiGetHandle($\fIname\fP, $\fIinstance\fP);
+.ft 1
+.SH DESCRIPTION
+As part of the Performance Co-Pilot Log Import API (see
+.BR LOGIMPORT (3)),
+.B pmiGetHandle
+creates a handle for a given
+metric and instance.  The handle is returned as the value from the
+.B pmiGetHandle
+call and can be used in subsequent calls to
+.BR pmiPutValueHandle (3).
+.PP
+The metric's
+.I name
+should match one defined earlier in a call to
+.BR pmiAddMetric (3).
+.PP
+For singular metrics (those defined with an instance domain of
+.BR PM_INDOM_NULL ),
+the
+.I instance
+should be NULL or an empty string, otherwise
+.I instance
+should match the name of an instance defined earlier in a call
+to
+.BR pmiAddInstance (3)
+for the metric's instance domain.
+.PP
+When combined with
+.BR pmiPutValueHandle (3),
+the use of handles provide a performance improvement over the
+alternative lookup for a metric name and an instance name for
+each data value that is required for
+.BR pmiPutValue (3).
+.SH DIAGNOSTICS
+On failure
+.B pmiGetHandle
+returns a negative value that can be turned into an
+error message by calling
+.BR pmiErrStr (3).
+.SH SEE ALSO
+.BR LOGIMPORT (3),
+.BR pmiAddInstance (3),
+.BR pmiAddMetric (3),
+.BR pmiErrStr (3)
+and
+.BR pmiPutValueHandle (3).

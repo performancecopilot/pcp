@@ -1,0 +1,132 @@
+/*
+ * Event Tracing for Windows performance metrics namespace
+ *
+ * Copyright (c) 2011 Nathan Scott.  All Rights Reserved.
+ * 
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+ * for more details.
+ */
+
+etw {
+    kernel
+}
+
+etw.kernel {
+    process
+}
+
+etw.kernel.process {
+    start
+    exit
+    thread
+    image_load
+    image_unload
+}
+
+etw.kernel.process.start {
+    count		ETW:0:0
+    records		ETW:0:1
+    numclients		ETW:0:2
+    queuemem		ETW:0:3
+    params
+}
+
+etw.kernel.process.start.params {
+    activityid		ETW:0:10
+    pid			ETW:0:11
+    parentid		ETW:0:12
+    starttime		ETW:0:13
+    session		ETW:0:14
+    image_name		ETW:0:15
+}
+
+etw.kernel.process.exit {
+    count		ETW:0:20
+    records		ETW:0:21
+    numclients		ETW:0:22
+    queuemem		ETW:0:23
+    params
+}
+
+etw.kernel.process.exit.params {
+    activityid		ETW:0:30
+    pid			ETW:0:31
+    parentid		ETW:0:32
+    starttime		ETW:0:33
+    exittime		ETW:0:34
+    exitcode		ETW:0:35
+    handle_count	ETW:0:36
+    commit_charge	ETW:0:37
+    commit_peak		ETW:0:38
+    image_name		ETW:0:39
+}
+
+etw.kernel.process.thread {
+    start
+    stop
+}
+
+etw.kernel.process.thread.start {
+    count		ETW:0:50
+    records		ETW:0:51
+    numclients		ETW:0:52
+    queuemem		ETW:0:53
+    params
+}
+
+etw.kernel.process.thread.start.params {
+    activityid		ETW:0:60
+    tid			ETW:0:61
+    pid			ETW:0:62
+}
+
+etw.kernel.process.thread.stop {
+    count		ETW:0:70
+    records		ETW:0:71
+    numclients		ETW:0:72
+    queuemem		ETW:0:73
+    params
+}
+
+etw.kernel.process.thread.stop.params {
+    activityid		ETW:0:80
+    tid			ETW:0:81
+    pid			ETW:0:82
+}
+
+etw.kernel.process.image_load {
+    count		ETW:0:90
+    records		ETW:0:91
+    numclients 		ETW:0:92
+    queuemem		ETW:0:93
+    params
+}
+
+etw.kernel.process.image_load.params {
+    activityid		ETW:0:100
+    pid			ETW:0:101
+    name		ETW:0:102
+    size		ETW:0:103
+}
+
+etw.kernel.process.image_unload {
+    count		ETW:0:110
+    records 		ETW:0:111
+    numclients		ETW:0:112
+    queuemem		ETW:0:113
+    params
+}
+
+etw.kernel.process.image_unload.params {
+    activityid		ETW:0:120
+    pid			ETW:0:121
+    name		ETW:0:122
+    size		ETW:0:123
+}

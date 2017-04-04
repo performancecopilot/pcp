@@ -1,0 +1,69 @@
+#!/bin/sh
+# PCP QA Test No. 253
+#
+# Derived Metrics and archives
+#
+# Copyright (c) 2009 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+if grep -q 'pmRegisterDerived' $PCP_INC_DIR/pmapi.h
+then
+    :
+else
+    echo "No derived metric support" >$seq.notrun
+    echo "$seq: [not run] `cat $seq.notrun`"
+    exit 0
+fi
+
+unset PCP_DERIVED_CONFIG
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e '/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]/s/[^ ]*.*numpmid/TIMESTAMP ... numpmid/' \
+    | $PCP_AWK_PROG '
+/milliseconds/		{ want = 1 }
+want == 1 && $1 == "value"	{ $2 = "<number>" }
+NF == 0			{ want = 0 }
+			{ print }'
+}
+
+# real QA test starts here
+
+echo "No errors here ..."
+cat <<End-of-File >$tmp.config
+myname.const = 123456
+myname.a = sample.bin / 50
+myname.b = 3*sample.bin
+myname.c = sample.bin + sample.bucket*2 - (sample.bin + 100) - sample.bucket
+End-of-File
+echo
+cat $tmp.config
+
+for args in myname.const myname.a myname "myname.a sample.milliseconds" \
+	"sample.milliseconds myname.b" "sample.milliseconds myname.a myname.b sample.milliseconds myname.c"
+do
+    echo
+    echo "=== $args ==="
+    pminfo -c $tmp.config -a tmparch/bigbin $args 2>&1 | _filter
+    echo "=== -d $args ==="
+    pminfo -c $tmp.config -a tmparch/bigbin -d $args 2>&1 | _filter
+    echo "=== -f $args ==="
+    pminfo -c $tmp.config -a tmparch/bigbin -f $args 2>&1 | _filter
+done
+
+# success, all done
+exit
+

@@ -1,0 +1,286 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMCONTROLLOG 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3__pmControlLog\f1 \- enable, disable or enquire about logging of performance
+metrics
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.br
+#include <pcp/impl.h>
+.sp
+.ad l
+.hy 0
+.in +8n
+.ti -8n
+int __pmControlLog(int \fIfd\fP, const pmResult *\fIrequest\fP, int\ \fIcontrol\fP, int\ \fIstate\fP, int\ \fIdelta\fP, pmResult\ **\fIstatus\fP);
+.sp
+.in
+.hy
+.ad
+cc ... \-lpcp
+.ft 1
+.SH DESCRIPTION
+.de CW
+.ie t \f(CW\\$1\fR\\$2
+.el \fI\\$1\fR\\$2
+..
+.B __pmControlLog
+may be used to enable or disable the archive logging for particular performance
+metrics, as identified by the
+.I request
+parameter;
+see
+.BR pmFetch (3)
+for an explanation of the
+.CW pmResult
+structure.
+.PP
+The application must have previously issued a call to
+.BR __pmConnectLogger (3)
+to establish a control-port connection
+to the
+.BR pmlogger (1)
+instance to whom the control request is to be directed, and
+.I fd
+(the result from
+.BR __pmConnectLogger (3))
+identifies this connection.
+.PP
+Within
+.IR request ,
+only the details of the performance metrics and their associated
+instances will be used, i.e.
+the values of the metrics, if any, will be ignored.
+.I request
+would typically be constructed as the result of an earlier call to
+.BR pmFetch (3).
+For metrics with a singular value (having an instance domain of
+.BR PM_INDOM_NULL )
+the corresponding
+.CW pmValueSet
+should have the value one in the
+.CW numval
+field and
+.B PM_IN_NULL
+as the
+.CW inst
+field of the single
+.CW pmValue
+supplied.
+If multiple explicit instances are to be logged, the
+.CW numval
+field of the
+.CW pmValueSet
+should contain the number of instances supplied and the
+.CW inst
+fields of the
+.CW pmValue
+structures should contain specific instance identifiers (which may not have the
+reserved value
+.BR PM_IN_NULL ).
+.PP
+If the
+.CW numval
+field within any of the
+.CW pmValueSet
+structures in
+.I request
+has a value of zero, it indicates that all available instances of the metric
+should be used.  Enumeration of the instance domain is deferred until the
+logger fetches the metric prior to writing it to the log, rather than being
+performed when the
+.B __pmControlLog
+request is received.  This is useful for metrics with instance domains that
+change over time.  It is an error to specify
+.CW numval
+equal to zero if the corresponding metric has a singular value (no instance
+domain).
+.PP
+There are several sorts of logging control available, namely mandatory or
+advisory, as defined by the
+.I control
+argument, and on, off or maybe as defined by the
+.I state
+argument. These different types of control may be used to ensure that some
+performance metrics can be guaranteed to always be in the log, while others may
+be dynamically enabled or disabled as determined by the level and type of
+system activity.
+.PP
+The actual action to be performed is defined by the combination of
+.I control
+and
+.I state
+as follows.
+If
+.I control
+is
+.B PM_LOG_MANDATORY
+and
+.I state
+is
+.BR PM_LOG_ON ,
+then logging is enabled.
+If
+.I control
+is
+.B PM_LOG_MANDATORY
+and
+.I state
+is
+.BR PM_LOG_OFF ,
+then logging is disabled.
+If
+.I control
+is
+.B PM_LOG_MANDATORY
+and
+.I state
+is
+.BR PM_LOG_MAYBE ,
+then subsequent advisory controls will be honored.  If the logging state prior
+to the request was mandatory (on or off), the state is changed to advisory off.
+If the logging state was already advisory (either on or off), it remains
+unchanged.  If
+.I control
+is
+.B PM_LOG_ADVISORY
+and the last mandatory control for the metric was 
+.BR PM_LOG_MAYBE ,
+then logging is enabled or disabled as specified by the
+.I state
+argument, i.e. 
+.B PM_LOG_ON
+or
+.BR PM_LOG_OFF .
+When the arguments
+.I state
+and
+.I control
+specify a request to change the logging behavior, the 
+argument
+.I delta
+defines the logging interval in milliseconds to be applied to all metrics and
+instances identified in
+.IR request .
+.PP
+The result argument
+.I status
+returns the current logging state for each of the nominated performance
+metrics.  There is a 1:1 correspondence between the elements of
+.I request
+and
+.IR status.
+For metrics in
+.I request
+that have
+.CW pmValueSet s
+with
+.CW numval
+equal to zero, the corresponding
+.CW pmValueSet
+in
+.IR result 
+will contain a value for each available instance at the time of the call.  Each
+metric value in
+.I status
+will have the current logging state encoded in it.  The detailed outcome of the
+operation for each metric can be determined by comparing these values to that
+requested via
+.IR control ,
+.I state
+and
+.IR delta .
+.PP
+Macros defined in
+.B <pcp/impl.h>
+may be used to extract the state and logging interval from the returned metric
+values.
+.B PMLC_GET_ON
+returns true if logging is on, or false if it is off;
+.B PMLC_GET_MAND
+returns true if logging is mandatory, or false if it is advisory;
+.B PMLC_GET_INLOG
+returns true if the metric has been logged at least once, or false otherwise;
+.B PMLC_GET_AVAIL
+returns true if the metric was available from its source the last time it was
+supposed to be logged, or false if it was unavailable; and
+.B PMLC_GET_DELTA
+returns the current logging interval for the metric (in milliseconds).
+.B PMLC_MAX_DELTA
+defines the greatest
+.I delta 
+that can be returned in an encoded metric value.
+.PP
+As a special case, when
+.I control
+is
+.BR PM_LOG_ENQUIRE ,
+.I state
+and
+.I delta
+are ignored, and
+.I status
+returns the current logging state of the nominated performance metrics (this
+variant makes no changes to the logging state).
+.PP
+If the value of the logging interval is 0, either for
+.I delta
+in a request to change state to
+.BR PM_LOG_ON ,
+or encoded in the value returned from
+.BR PM_LOG_ENQUIRE ,
+then this corresponds to the special ``once only'' logging of metrics
+that appear once in the archive log, and are never logged again.
+.PP
+.B __pmControlLog
+returns zero on success.
+.SH NOTE
+This routine is not thread-safe as there is no serialization on the
+use of the communication channel between the sending of the request
+and receiving the reply.
+It is assumed that the caller is single-threaded,
+which is true for the only current user of this routine, namely
+.BR pmlc (1).
+.SH SEE ALSO
+.BR pmlc (1),
+.BR pmlogger (1),
+.BR PMAPI (3),
+.BR pmFetch (3)
+and
+.BR __pmConnectLogger (3).
+.SH DIAGNOSTICS
+.IP \f3PM_ERR_TOOSMALL\f1
+The number of metrics in
+.I request
+is less than one.
+.IP \f3PM_ERR_VALUE\f1
+One or more of the
+.CW pmValueSet s
+in
+.I request
+had
+.CW numval
+(the number of instances) less than one.
+.IP \f3EINVAL\f1
+An invalid combination of
+.I control
+and
+.I state
+was specified, or
+.I delta
+was negative.

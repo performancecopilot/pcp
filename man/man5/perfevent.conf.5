@@ -1,0 +1,116 @@
+'\"! tbl | mmdoc
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2014 Joe White.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PERFEVENT.CONF 5 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3perfevent.conf\f1 \- the Performance Co-Pilot perfevent PMDA configuration file
+.\" literals use .B or \f3
+.\" arguments use .I or \f2
+.SH SYNOPSIS
+.I $PCP_PMDAS_DIRS/perfevent/perfevent.conf
+.SH DESCRIPTION
+The perfevent.conf configuration file defines which hardware performance counters
+are enabled by the perfevent PMDA.
+.PP
+The configuration file contains a list of events that should be enabled for
+each PMU. The perfevent PMDA detects which PMUs present and programs the
+configured events. If multiple PMUs are available, the
+perfevent PMDA uses the order of the entries in the configuration file to
+determine which PMU settings to use. The entries at the top of the
+configuration file have higher precedence.  Only one PMU configuration setting
+is used. The configuration file may also contain perf derived events. A derived
+event has a list of events which must be listed as base events. The values for
+the counters in the derived events are aggregated and displayed.
+.SH FILE FORMAT
+The file consists of one or more groups of PMUs and the events that go with them.
+.PP
+The PMU identification string is enclosed in brackets and one or more events are listed below, one per line.
+.PP
+.RS
+.B ["PMU identification string"]
+.RE
+.RS
+.B EVENT_NAME [CPU OPTION]
+.RE
+.RS
+.B ...
+.RE
+.PP
+For derived events, one or more groups of events can be specified where, counters in one group can be specific to one architecture and the counters in other group can be specific to some other architecture. Else, only one group can be specified. EVENT_NAME_1, EVENT_NAME_2 etc. belong to group 1 and EVENT_NAME_3, EVENT_NAME_4 belong to group 2 and so on. If any of the event in the first group is not available, entire group will be discarded. And, the next group will be checked. The first group with all the events available will be activated and monitored. The derived perf event is enclosed in brackets along with :derived as a suffix. Note that the EVENT_NAME listed under derived event must be present as a base event in the configuration file. And, all the events under a particular derived perf event group must have the same CPU_OPTION. || acts as a separator for different groups inside a single derived event. The syntax is :
+.PP
+.RS
+.B [event:derived]
+.RE
+.RS
+.B EVENT_NAME_1 [CPU_OPTION] [scale]
+.RE
+.RS
+.B EVENT_NAME_2 [CPU_OPTION] [scale]
+.RE
+.RS
+.B ...
+.RE
+.RS
+.B ||
+.RE
+.RS
+.B EVENT_NAME_3 [CPU_OPTION] [scale]
+.RE
+.RS
+.B EVENT_NAME_4 [CPU_OPTION] [scale]
+.RE
+.RS
+.B ...
+.RE
+.RS
+
+.PP
+The available event cpu options are as follows:
+.TP
+.B cpu 
+to add the counter to all cpus in the system 
+.TP
+.B cpu_rr 
+to add to one of the cpus in a round-robin allocation strategy
+.TP
+.B node
+to add the counter to the first cpu in each numa node
+.TP
+.B node_rr
+to add the counter to the cpus in each numa node in a round-robin allocation strategy
+.TP
+.B [N] 
+where N is the numerical digit of the CPU index
+.PP
+if the CPU option is absent then the event is programmed on all cpus.
+.PP
+.B scale
+is applicable for the counters in derived events. If scale is given, the counters will be scaled to their respective values. The options are as follows :
+.TP
+.B a float value
+Can be a simple float value, or a value in scientific notation.
+.TP
+.B perf_scale
+The scale will be taken from the kernel sysfs scale file entry for that event. Its generally specified in
+.B /sys/bus/event_source/device/events/<event_name>.scale
+.PP
+If no scale is given, the default scale will be taken as 1.0.
+.PP
+Blank lines are ignored. Lines that begin with the # sign are ignored.
+.PP
+Multiple, comma separated, PMUs may be specified in the PMU definition.
+.SH SEE ALSO
+.BR pmdaperfevent (1).

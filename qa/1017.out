@@ -1,0 +1,329 @@
+QA output created by 1017
+*** Create a single fetch group ***
+
+*** Simple metric ***
+QmcSource::getSource: Creating new source for HOST
+QmcSource::QmcSource: Created context 0 to host "HOST"
+QmcGroup::createLocalContext: Default context to host "HOST"
+QmcSource::dupContext: Using original context for host "HOST"
+QmcGroup::use: Using current context 0 (handle = 0) for host "HOST"
+QmcContext::lookupDesc: Add descriptor for <pmid for hinv.ncpu>
+HOST:hinv.ncpu from host "HOST" with scale = 0 and units = none
+hinv.ncpu = Missing metric value(s)
+
+*** Metric with an Indom ***
+QmcGroup::use: Using current context 0 (handle = 0) for host "HOST"
+QmcContext::lookupDesc: Add descriptor for <pmid for sample.bin>
+QmcContext::lookupInDom: Add indom for <indom for sample.bin>
+HOST:sample.bin["bin-100", "bin-200", "bin-300", "bin-400", "bin-500", "bin-600", "bin-700", "bin-800", "bin-900"] from host "HOST" with scale = 0 and units = none
+sample.bin: 9 instances
+  [100 or "bin-100" (0)] = Missing metric value(s)
+  [200 or "bin-200" (1)] = Missing metric value(s)
+  [300 or "bin-300" (2)] = Missing metric value(s)
+  [400 or "bin-400" (3)] = Missing metric value(s)
+  [500 or "bin-500" (4)] = Missing metric value(s)
+  [600 or "bin-600" (5)] = Missing metric value(s)
+  [700 or "bin-700" (6)] = Missing metric value(s)
+  [800 or "bin-800" (7)] = Missing metric value(s)
+  [900 or "bin-900" (8)] = Missing metric value(s)
+
+*** proc style specific instance ***
+QmcGroup::use: Using current context 0 (handle = 0) for host "HOST"
+QmcContext::lookupDesc: Add descriptor for <pmid for kernel.all.load>
+QmcContext::lookupInDom: Add indom for <indom for kernel.all.load>
+QmcIndom::lookup: inst "1"(0) matched to "1 minute"(0)
+QmcIndom::lookup: inst "5"(1) matched to "5 minute"(1)
+HOST:kernel.all.load["1 minute", "5 minute"] from host "HOST" with scale = 0 and units = none
+kernel.all.load: 2 instances
+  [1 or "1 minute" (0)] = Missing metric value(s)
+  [5 or "5 minute" (1)] = Missing metric value(s)
+
+*** String metric ***
+QmcGroup::use: Using current context 0 (handle = 0) for host "HOST"
+QmcContext::lookupDesc: Add descriptor for <pmid for sample.string.hullo>
+HOST:sample.string.hullo from host "HOST" with scale = 0 and units = none
+sample.string.hullo = Missing metric value(s)
+
+*** Rate converted metric ***
+QmcGroup::use: Using current context 0 (handle = 0) for host "HOST"
+QmcContext::lookupDesc: Add descriptor for <pmid for sample.seconds>
+HOST:sample.seconds from host "HOST" with scale = 0 and units = sec / second
+sample.seconds = Missing metric value(s)
+
+*** Bogus metric ***
+QmcGroup::use: Using current context 0 (handle = 0) for host "HOST"
+qmc_metric: Error: HOST:bogus.metric: Unknown metric name
+
+*** Bogus instance ***
+QmcGroup::use: Using current context 0 (handle = 0) for host "HOST"
+QmcContext::lookupPMID: Matched "kernel.all.load" to id <pmid for kernel.all.load>
+QmcContext::lookupDesc: Reusing descriptor <pmid for kernel.all.load>
+QmcContext::lookupInDom: Reusing indom <indom for kernel.all.load>
+qmc_metric: Error: HOST:kernel.all.load[2]: Unknown or illegal instance identifier
+
+*** Group 1 Fetch 1 ***
+QmcGroup::fetch: 1 contexts
+QmcIndom::genProfile: id = NNN, count = 9, numInsts = 9, active = 9, activeRef = 9: ALL ptr = 0x0
+QmcIndom::genProfile: id = NNN, count = 2, numInsts = 3, active = 3, activeRef = 2: DELETE ptr = 0x########
+QmcContext::fetch: fetching context host "HOST" has 5 metrics
+QmcContext::fetch: Updating metrics
+QmcGroup::fetch: Done
+hinv.ncpu = VALUE none
+sample.bin: 9 instances
+  [100 or "bin-100" (0)] = 100 none
+  [200 or "bin-200" (1)] = 200 none
+  [300 or "bin-300" (2)] = 300 none
+  [400 or "bin-400" (3)] = 400 none
+  [500 or "bin-500" (4)] = 500 none
+  [600 or "bin-600" (5)] = 600 none
+  [700 or "bin-700" (6)] = 700 none
+  [800 or "bin-800" (7)] = 800 none
+  [900 or "bin-900" (8)] = 900 none
+kernel.all.load: 2 instances
+  [1 or "1 minute" (0)] = NUMBER none
+  [5 or "5 minute" (1)] = NUMBER none
+sample.string.hullo = hullo world!
+sample.seconds = Missing metric value(s)
+
+*** Group 1 Fetch 2 ***
+QmcGroup::fetch: 1 contexts
+QmcContext::fetch: fetching context host "HOST" has 5 metrics
+QmcContext::fetch: Updating metrics
+QmcGroup::fetch: Done
+hinv.ncpu = VALUE none
+sample.bin: 9 instances
+  [100 or "bin-100" (0)] = 100 none
+  [200 or "bin-200" (1)] = 200 none
+  [300 or "bin-300" (2)] = 300 none
+  [400 or "bin-400" (3)] = 400 none
+  [500 or "bin-500" (4)] = 500 none
+  [600 or "bin-600" (5)] = 600 none
+  [700 or "bin-700" (6)] = 700 none
+  [800 or "bin-800" (7)] = 800 none
+  [900 or "bin-900" (8)] = 900 none
+kernel.all.load: 2 instances
+  [1 or "1 minute" (0)] = NUMBER none
+  [5 or "5 minute" (1)] = NUMBER none
+sample.string.hullo = hullo world!
+sample.seconds = NUMBER sec / second
+
+*** Remove an instance ***
+kernel.all.load: 1 instance
+  [5 or "5 minute" (1)] = NUMBER none
+
+*** Group 1 Fetch 3 ***
+QmcGroup::fetch: 1 contexts
+QmcIndom::genProfile: id = NNN, count = 1, numInsts = 3, active = 3, activeRef = 1: ADD ptr = 0x########
+QmcContext::fetch: fetching context host "HOST" has 5 metrics
+QmcContext::fetch: Updating metrics
+QmcGroup::fetch: Done
+hinv.ncpu = VALUE none
+sample.bin: 9 instances
+  [100 or "bin-100" (0)] = 100 none
+  [200 or "bin-200" (1)] = 200 none
+  [300 or "bin-300" (2)] = 300 none
+  [400 or "bin-400" (3)] = 400 none
+  [500 or "bin-500" (4)] = 500 none
+  [600 or "bin-600" (5)] = 600 none
+  [700 or "bin-700" (6)] = 700 none
+  [800 or "bin-800" (7)] = 800 none
+  [900 or "bin-900" (8)] = 900 none
+kernel.all.load: 1 instance
+  [5 or "5 minute" (1)] = NUMBER none
+sample.string.hullo = hullo world!
+sample.seconds = NUMBER sec / second
+
+*** Add an instance ***
+QmcIndom::lookup: inst "15"(2) matched to "15 minute"(2)
+kernel.all.load: 2 instances
+  [5 or "5 minute" (1)] = NUMBER none
+  [15 or "15 minute" (2)] = Missing metric value(s)
+
+*** Group 1 Fetch 4 ***
+QmcGroup::fetch: 1 contexts
+QmcIndom::genProfile: id = NNN, count = 2, numInsts = 3, active = 3, activeRef = 2: DELETE ptr = 0x########
+QmcContext::fetch: fetching context host "HOST" has 5 metrics
+QmcContext::fetch: Updating metrics
+QmcGroup::fetch: Done
+hinv.ncpu = VALUE none
+sample.bin: 9 instances
+  [100 or "bin-100" (0)] = 100 none
+  [200 or "bin-200" (1)] = 200 none
+  [300 or "bin-300" (2)] = 300 none
+  [400 or "bin-400" (3)] = 400 none
+  [500 or "bin-500" (4)] = 500 none
+  [600 or "bin-600" (5)] = 600 none
+  [700 or "bin-700" (6)] = 700 none
+  [800 or "bin-800" (7)] = 800 none
+  [900 or "bin-900" (8)] = 900 none
+kernel.all.load: 2 instances
+  [5 or "5 minute" (1)] = NUMBER none
+  [15 or "15 minute" (2)] = NUMBER none
+sample.string.hullo = hullo world!
+sample.seconds = NUMBER sec / second
+
+*** Creating a new group ***
+
+*** Adding a metric with a dynamic indom ***
+QmcSource::getSource: Matched HOST to source 0
+QmcGroup::createLocalContext: Default context to host "HOST"
+QmcSource::dupContext: host "HOST" duplicated, handle[1] = 1
+QmcGroup::use: Using current context 0 (handle = 1) for host "HOST"
+QmcContext::lookupDesc: Add descriptor for 253.2.4
+QmcContext::lookupInDom: Add indom for 253.1
+HOST:simple.now["sec"] from host "HOST" with scale = 0 and units = none
+simple.now: 1 instance
+  [0 or "sec" (0)] = Missing metric value(s)
+
+*** Group 2 Fetch 1 ***
+QmcGroup::fetch: 1 contexts
+QmcIndom::genProfile: id = NNN, count = 1, numInsts = 1, active = 1, activeRef = 1: ALL ptr = 0x0
+QmcContext::fetch: fetching context host "HOST" has 1 metrics
+QmcContext::fetch: Updating metrics
+QmcGroup::fetch: Done
+simple.now: 1 instance
+  [0 or "sec" (0)] = VALUE none
+
+*** Change the indom ***
+
+*** Group 2 Fetch 2 ***
+QmcGroup::fetch: 1 contexts
+QmcContext::fetch: fetching context host "HOST" has 1 metrics
+QmcContext::fetch: Updating metrics
+QmcGroup::fetch: Done
+simple.now: 1 instance (indom has changed)
+  [0 or "sec" (0)] = VALUE none
+
+*** Updating indom ***
+QmcIndom::update: Updating indom 253.1: Got 3 instances (vs 1)
+QmcMetric::updateIndom: HOST:simple.now: Had 1 instances, now have 3
+simple.now: 3 instances (indom has changed)
+  [0 or "sec" (0)] = VALUE none
+  [1 or "min" (1)] = Missing metric value(s)
+  [2 or "hour" (2)] = Missing metric value(s)
+253.1: 3 instances (0 NULL)
+  [I] = "sec" (1 refs) active
+  [J] = "min" (1 refs) active
+  [K] = "hour" (1 refs) active
+
+*** Group 2 Fetch 3 ***
+QmcGroup::fetch: 1 contexts
+QmcIndom::genProfile: id = NNN, count = 3, numInsts = 3, active = 3, activeRef = 3: ALL ptr = 0x0
+QmcContext::fetch: fetching context host "HOST" has 1 metrics
+QmcContext::fetch: Updating metrics
+QmcGroup::fetch: Done
+simple.now: 3 instances
+  [0 or "sec" (0)] = VALUE none
+  [1 or "min" (1)] = VALUE none
+  [2 or "hour" (2)] = VALUE none
+
+*** Remove instance from PMDA ***
+
+*** Group 2 Fetch 4 ***
+QmcGroup::fetch: 1 contexts
+QmcContext::fetch: fetching context host "HOST" has 1 metrics
+QmcMetric::extractValues: HOST:simple.now["min"]: Missing metric value(s)
+QmcContext::fetch: Updating metrics
+QmcGroup::fetch: Done
+simple.now: 3 instances (indom has changed)
+  [0 or "sec" (0)] = VALUE none
+  [1 or "min" (1)] = Missing metric value(s)
+  [2 or "hour" (2)] = VALUE none
+
+*** Remove an instance ***
+simple.now: 2 instances (indom has changed)
+  [0 or "sec" (0)] = VALUE none
+  [2 or "hour" (2)] = VALUE none
+253.1: 3 instances (0 NULL)
+  [I] = "sec" (1 refs) active
+  [J] = "min" (0 refs) active
+  [K] = "hour" (1 refs) active
+
+*** Updating indom ***
+QmcIndom::update: Updating indom 253.1: Got 2 instances (vs 3)
+simple.now: 2 instances (indom has changed)
+  [0 or "sec" (0)] = VALUE none
+  [2 or "hour" (2)] = VALUE none
+253.1: 2 instances (1 NULL)
+  [I] = "sec" (1 refs) active
+  NULL -> -1
+  [K] = "hour" (1 refs) active
+
+*** Group 2 Fetch 5 ***
+QmcGroup::fetch: 1 contexts
+QmcIndom::genProfile: id = NNN, count = 2, numInsts = 2, active = 2, activeRef = 2: ALL ptr = 0x0
+QmcContext::fetch: fetching context host "HOST" has 1 metrics
+QmcContext::fetch: Updating metrics
+QmcGroup::fetch: Done
+simple.now: 2 instances
+  [0 or "sec" (0)] = VALUE none
+  [2 or "hour" (2)] = VALUE none
+
+*** Add another metric with the same indom ***
+QmcGroup::use: Using current context 0 (handle = 1) for host "HOST"
+QmcContext::lookupPMID: Matched "simple.now" to id 253.2.4
+QmcContext::lookupDesc: Reusing descriptor 253.2.4
+QmcContext::lookupInDom: Reusing indom 253.1
+HOST:simple.now["sec", "hour"] from host "HOST" with scale = 0 and units = none
+simple.now: 2 instances
+  [0 or "sec" (0)] = Missing metric value(s)
+  [2 or "hour" (2)] = Missing metric value(s)
+253.1: 2 instances (1 NULL)
+  [I] = "sec" (2 refs) active
+  NULL -> -1
+  [K] = "hour" (2 refs) active
+
+*** Group 2 Fetch 6 ***
+QmcGroup::fetch: 1 contexts
+QmcContext::fetch: fetching context host "HOST" has 2 metrics
+QmcContext::fetch: Updating metrics
+QmcGroup::fetch: Done
+simple.now: 2 instances
+  [0 or "sec" (0)] = VALUE none
+  [2 or "hour" (2)] = VALUE none
+simple.now: 2 instances
+  [0 or "sec" (0)] = VALUE none
+  [2 or "hour" (2)] = VALUE none
+
+*** Add an instance to the PMDA ***
+
+*** Group 2 Fetch 7 ***
+QmcGroup::fetch: 1 contexts
+QmcContext::fetch: fetching context host "HOST" has 2 metrics
+QmcContext::fetch: Updating metrics
+QmcGroup::fetch: Done
+simple.now: 2 instances (indom has changed)
+  [0 or "sec" (0)] = VALUE none
+  [2 or "hour" (2)] = VALUE none
+simple.now: 2 instances (indom has changed)
+  [0 or "sec" (0)] = VALUE none
+  [2 or "hour" (2)] = VALUE none
+
+*** Updating indom ***
+QmcIndom::update: Updating indom 253.1: Got 3 instances (vs 2)
+QmcMetric::updateIndom: HOST:simple.now: Had 2 instances, now have 3
+simple.now: 3 instances (indom has changed)
+  [0 or "sec" (0)] = VALUE none
+  [1 or "min" (1)] = Missing metric value(s)
+  [2 or "hour" (2)] = VALUE none
+253.1: 3 instances (0 NULL)
+  [I] = "sec" (2 refs) active
+  [J] = "min" (1 refs) active
+  [K] = "hour" (2 refs) active
+
+*** Group 2 Fetch 8 ***
+QmcGroup::fetch: 1 contexts
+QmcIndom::genProfile: id = NNN, count = 3, numInsts = 3, active = 3, activeRef = 3: ALL ptr = 0x0
+QmcContext::fetch: fetching context host "HOST" has 2 metrics
+QmcContext::fetch: Updating metrics
+QmcGroup::fetch: Done
+simple.now: 2 instances (indom has changed)
+  [0 or "sec" (0)] = VALUE none
+  [2 or "hour" (2)] = VALUE none
+simple.now: 3 instances (indom has changed)
+  [0 or "sec" (0)] = VALUE none
+  [1 or "min" (1)] = VALUE none
+  [2 or "hour" (2)] = VALUE none
+
+*** Exiting ***
+QmcSource::delContext: No contexts remain, removing host "HOST"

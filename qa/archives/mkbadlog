@@ -1,0 +1,144 @@
+#!/bin/sh
+#
+# Recipes for making badlog-* family of archives.
+# 
+# Every one is based on a version of ../src/ok-foo, with binary editing using
+# bvi (or similar) and cut-n-paste with dd.
+#
+
+src=../src/ok-foo
+
+tmp=/var/tmp/$$
+trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+
+if [ $# -eq 0 ]
+then
+    # Set up for a new badlog-X archive
+    #
+    X=`ls badlog-*.0 2>/dev/null | tail -1 | sed -e 's/badlog-//' -e 's/\.0//'`
+    if [ -z "$X" ]
+    then
+	X=1
+    else
+	X=`expr $X + 1`
+    fi
+elif [ $# -eq 1 ]
+then
+    X="$1"
+    rm -f badlog-$X.*
+else
+    echo "Usage: mkbadlog [case#]"
+    exit 1
+fi
+
+# byte offsets into ok-foo.0
+# 0	start label record
+# 132	start record[1] (preamble)
+# 284	start record[2]
+# 496	start record[3]
+# 708	start record[4]
+# 920	start record[5]
+#
+# within an record (after the first)
+# +0	length header
+# +4	timestamp.tv_sec
+# +8	timestamp.tv_usec
+# +12	numpmid
+# +16	pmid[0] sample.lights 0x740002E
+# +20	numval[0] (1)
+# +24	valfmt[0] (1)
+# +28	inst[0][0] (-1)
+# +32	
+# +36	pmid[1] sample.drift 0x7400007
+# +40	numval[1] (1)
+# +44	valfmt[1] (0)
+# +48	inst[1][0] (-1)
+# +52	value
+# +56	pmid[2] sample.bin 0x7400006
+# +60	numval[2] (9)
+# +64	valfmt[2] (0)
+# +68	inst[2][0] (100)
+# +72	value 100
+# ...
+# +132	inst[2][8] (900)
+# +136	value 900
+# +140	pmid[3] sample.colour 0x7400005
+# +144	numval[3] (3)
+# +148	valfmt[3] (0)
+# +152	inst[3][0] (0)
+# +156	value (for red)
+# +160	inst[3][1] (1)
+# +164	value (for green)
+# +168	inst[3][2] (2)
+# +172	value (for blue)
+# +176	pmid[4] sample.seconds 0x7400002
+# +180	numval[4] (1)
+# +184	valfmt[4] (0)
+# +188	inst[4][0] (-1)
+# +192	value
+# +196 ... value block for sample.lights 
+#
+
+case $X
+in
+    1)	# log broken in the middle of an entry
+	dd if=$src.0 of=badlog-$X.0 bs=1 count=700
+	;;
+
+    2)	# counter goes backwards in record[4] 900 = 708+192
+	cp $src.0 badlog-$X.0
+	echo '900s\\....\\00000001\\' >$tmp.ex
+	;;
+
+    3)	# timestamp goes backwards at record[3] 500 = 496+4
+	cp $src.0 badlog-$X.0
+	echo '500s\\....\\2FAF0800\\' >$tmp.ex
+	;;
+
+    *)
+	echo "Error: no recipe for badlog-$X"
+	exit 1
+	;;
+
+esac
+
+if [ -f $tmp.ex ]
+then
+    echo 'w' >>$tmp.ex
+    echo 'q' >>$tmp.ex
+
+    for file in badlog-$X.*
+    do
+	if which bvi >/dev/null 2>&1
+	then
+	    bvi -f $tmp.ex $file
+	else
+	    echo "bvi not installed"
+	    echo "Need to apply the equivalent of this binary editing to $file"
+	    cat $tmp.ex
+	fi
+    done
+
+fi
+
+for file in badlog-$X.0 badlog-$X.meta badlog-$X.index
+do
+    if [ -f $file ]
+    then
+	:
+    else
+	target=`echo $file | sed -e "s/badlog-$X\./..\/src\/ok-foo./"`
+	if cp $target $file
+	then
+	    :
+	else
+	    echo "Failed: cp $target $file"
+	    exit 1
+	fi
+    fi
+done
+
+echo "badlog-$X created."
+
+exit
+

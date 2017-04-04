@@ -1,0 +1,583 @@
+#!/bin/sh
+#
+# Copyright (c) 2013-2015 Red Hat.
+# Copyright (c) 2000-2008 Silicon Graphics, Inc.  All Rights Reserved.
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+# 
+# Start or Stop the Performance Co-Pilot Collection Daemon (PMCD)
+#
+# The following is for chkconfig on RedHat based systems
+# chkconfig: 2345 95 05
+# description: pmcd is the collection daemon for the Performance Co-Pilot (PCP)
+#
+# The following is for insserv(1) based systems,
+# e.g. SuSE, where chkconfig is a perl script.
+### BEGIN INIT INFO
+# Provides:          pmcd
+# Required-Start:    $local_fs
+# Should-Start:      $network $remote_fs $syslog $time
+# Required-Stop:     $local_fs
+# Should-Stop:       $network $remote_fs $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Control pmcd (the collection daemon for PCP)
+# Description:       Configure and control pmcd (the collection daemon for the Performance Co-Pilot)
+### END INIT INFO
+
+. $PCP_DIR/etc/pcp.env
+. $PCP_SHARE_DIR/lib/rc-proc.sh
+
+PMCD=$PCP_BINADM_DIR/pmcd
+PMCDOPTS=$PCP_PMCDOPTIONS_PATH
+PCPLOCAL=$PCP_PMCDRCLOCAL_PATH
+PMCDENVS=$PCP_SYSCONFIG_DIR/pmcd
+RUNDIR=$PCP_LOG_DIR/pmcd
+prog=$PCP_RC_DIR/`basename $0`
+
+tmp=`mktemp -d /var/tmp/pcp.XXXXXXXXX` || exit 1
+status=1
+trap "rm -rf $tmp; exit \$status" 0 1 2 3 15
+
+case "$PCP_PLATFORM"
+in
+    mingw)
+	# nothing we can usefully do here, skip the test
+	#
+	IAM=0
+	;;
+
+    *)
+	# standard Unix/Linux style test
+	#
+	ID=id
+	IAM=`$ID -u 2>/dev/null`
+	if [ -z "$IAM" ]
+	then
+	    # do it the hardway
+	    #
+	    IAM=`$ID | sed -e 's/.*uid=//' -e 's/(.*//'`
+	fi
+	;;
+esac
+
+_pmcd_logfile()
+{
+default=$RUNDIR/pmcd.log
+$PCP_AWK_PROG <$PMCDOPTS '
+BEGIN		{ logf = "'$default'" }
+$1 == "-l"	{ if (NF > 1) logf = $2 }
+END		{ print logf }'
+}
+
+_reboot_setup()
+{
+    # base directories and house-keeping for daemon processes
+    #
+    # For most packages, $PCP_RUN_DIR is included in the package,
+    # but for Debian and cases where /var/run is a mounted filesystem
+    # it may not exist, so create it here before it is used to create
+    # any pid/lock files
+    #
+    # $PCP_RUN_DIR creation is also done in pmlogger_daily, but if pmcd
+    # is running, we'd expect do this one first
+    #
+    if [ ! -d "$PCP_RUN_DIR" ]
+    then
+	mkdir -p -m 775 "$PCP_RUN_DIR"
+	chown $PCP_USER:$PCP_GROUP "$PCP_RUN_DIR"
+    fi
+
+    # setup and clean up base directories and house-keeping for tracking
+    # pmlogger instances ... needs to be done here because pmcd needs the
+    # information, even if no pmlogger instances are started (and even if
+    # $PCP_RC_DIR/pmlogger is not run)
+    #
+    if [ ! -d "$PCP_TMP_DIR/pmlogger" ]
+    then
+	mkdir -p -m 775 "$PCP_TMP_DIR/pmlogger"
+	chown $PCP_USER:$PCP_GROUP "$PCP_TMP_DIR/pmlogger"
+    else
+	rm -rf $tmp/ent $tmp/pid
+	here=`pwd`
+	cd "$PCP_TMP_DIR/pmlogger"
+	_get_pids_by_name pmlogger | sort >$tmp/pid
+	ls [0-9]* 2>&1 | sed -e '/\[0-9]\*/d' \
+	| sed -e 's/[ 	][ 	]*//g' | sort >$tmp/ent
+	# remove entries without a pmlogger process
+	#
+	rm -f `comm -23 $tmp/ent $tmp/pid`
+	rm -f $tmp/ent $tmp/pid
+	# if primary is now a broken symlink, cleanup (-e follows symlinks)
+	#
+	[ ! -e primary ] && rm -f primary
+	cd "$here"
+    fi
+
+    # Rebuild PMNS?
+    #
+    PMNSDIR=$PCP_VAR_DIR/pmns
+
+    rebuild=false
+    if [ -d $PMNSDIR -a \( -f $PMNSDIR/.NeedRebuild -o ! -f $PMNSDIR/root \) ]
+    then
+	rebuild=true
+    else
+	num=`find $PMNSDIR -newer $PMNSDIR/root -iname 'root_*' 2>/dev/null | wc -l`
+	[ "$num" -gt 0 ] && rebuild=true
+    fi
+
+    if $rebuild
+    then
+	if [ -x $PMNSDIR/Rebuild ]
+	then
+	    $ECHO $PCP_ECHO_N "Rebuilding PMNS ..." "$PCP_ECHO_C"
+	    here=`pwd`
+	    cd $PMNSDIR
+	    ./Rebuild -u $REBUILDOPT
+	    $RC_STATUS -v
+	    # The 'root' file does not get updated when data did not change,
+	    # so we must touch it to update date.
+	    [ $? -eq 0 ] && { rm -f .NeedRebuild; touch root; }
+	    cd "$here"
+	fi
+    fi
+}
+
+# Note: _pmda_setup() is run only once per rc script invocation ...
+#       even though this may call Install and/or Remove scripts
+#       for multiple PMDAs which may in turn (recursively) call
+#       the rc script
+#
+_pmda_setup()
+{
+    # Auto-Install and/or Auto-Remove PMDAs?
+    #
+    if [ -d "$PCP_PMDAS_DIR" ]
+    then
+	here=`pwd`
+	cd "$PCP_PMDAS_DIR"
+	_pmda_enact Remove Removing
+	_pmda_enact Install Installing
+	cd "$here"
+    fi
+}
+
+# Take automated setup action (Install or Remove) for PMDAs
+#
+_pmda_enact()
+{
+    action=$1
+    verb=$2
+
+    for file in */.Need$action
+    do
+	[ "$file" = "*/.Need$action" ] && break
+	pmda=`dirname $file`
+	if [ -d "$pmda" -a -f "$pmda/.Need$action" ]
+	then
+	    cd $pmda
+	    $PCP_ECHO_PROG "$verb $pmda PMDA ..."
+
+	    # rename marker file _before_ calling action script because
+	    # that script might call this start script recursively, and
+	    # we don't want to get stuck in an infinite loop.
+	    # 
+	    rm -f .Need${action}.sav
+	    mv .Need${action} .Need${action}.sav
+	    if ./${action} </dev/null >/dev/null
+	    then
+		# success
+		$PCP_BINADM_DIR/pmpost "PMDA setup: automated $action: $pmda"
+		rm -f .Need$action.sav
+	    else
+		# put the file back, maybe we'll be luckier next time
+		$PCP_BINADM_DIR/pmpost "PMDA setup: automated $action FAILED (exit=$?): $pmda"
+		mv .Need$action.sav .Need$action
+	    fi
+	    cd "$PCP_PMDAS_DIR"
+	fi
+    done
+}
+
+_start_pmcheck()
+{
+    if [ ! -z "$PMCD_WAIT_TIMEOUT" ]
+    then
+	wait_option="-t $PMCD_WAIT_TIMEOUT" 
+    else 
+	wait_option=''
+    fi
+
+    if pmcd_wait $wait_option
+    then
+	:
+    else
+	status=$?
+	message="pmcd_wait failed in $prog: exit status: $status"
+	$PCP_SYSLOG_PROG -p daemon.warning "$message"
+	$PCP_BINADM_DIR/pmpost "$message"
+	$RC_STATUS -v
+	exit
+    fi
+}
+
+# Use $PCP_PMCDCONF_PATH to find and terminate pipe/socket PMDAs.
+#
+_killpmdas()
+{
+    if [ ! -f $PCP_PMCDCONF_PATH ]
+    then
+	echo "$prog:"'
+Warning: pmcd control file '"$PCP_PMCDCONF_PATH"' is missing, cannot identify PMDAs
+         to be terminated.'
+	return
+    fi
+
+    # First join up continued lines in config file, then find processes
+    $PCP_AWK_PROG < $PCP_PMCDCONF_PATH '
+/\\\\$/		{ printf "%s ", substr($0, 0, length($0) - 1); next }
+		{ print }' \
+| $PCP_AWK_PROG '
+$1 ~ /^#/				{ next }
+tolower($3) == "pipe" && NF > 4		{ $1=$2=$3=$4=""; print $0; next }
+tolower($3) == "socket" && NF > 5	{ $1=$2=$3=$4=$5=""; print $0; next }
+' > $tmp/pmdas
+
+    cat $tmp/pmdas | while read pmda
+    do
+	_get_pids_by_name -a "$pmda" >$tmp/tmp
+	[ -s $tmp/tmp ] || continue
+	pmsignal -s TERM `cat $tmp/tmp` > /dev/null 2>&1 &
+    done
+    wait
+
+    # Give PMDAs some time after SIGTERM to exit cleanly, then SIGKILL
+    pmsleep 0.1
+
+    cat $tmp/pmdas | while read pmda
+    do
+	_get_pids_by_name -a "$pmda" >$tmp/tmp
+	[ -s $tmp/tmp ] || continue
+	pmsignal -s KILL `cat $tmp/tmp` > /dev/null 2>&1 &
+    done
+    wait
+}
+
+_shutdown()
+{
+    # Is pmcd running?
+    #
+    _get_pids_by_name pmcd >$tmp/tmp
+    if [ ! -s $tmp/tmp ]
+    then
+ 	[ "$1" = verbose ] && echo "$prog: pmcd not running"
+	rm -f $PCP_RUN_DIR/pmcd.pid $PCP_RUN_DIR/pmcd.socket
+	return 0
+    fi
+    pidlist="`cat $tmp/tmp`"
+    suffix=''
+    if [ "`wc -l <$tmp/tmp | sed -e 's/ //g'`" -ne 1 ]
+    then
+ 	[ "$1" = verbose ] && echo "$prog: warning more than one pmcd running: $pidlist"
+	suffix='es'
+    fi
+
+    # If pmcd is running but we can't find a pidfile, or a logfile at the
+    # configured or default location, assume this script is being run via
+    # a chroot build environment (and hence we do not want to signal pmcd).
+    #
+    logf=`_pmcd_logfile`
+    [ -f $logf ] || logf=$RUNDIR/pmcd.log
+    if [ ! -f $PCP_RUN_DIR/pmcd.pid -a ! -f $logf ]
+    then
+	echo "PMCD process$suffix ... $pidlist"
+        echo "$prog:
+Warning: found no $PCP_RUN_DIR/pmcd.pid
+         and no $logf.
+         Assuming an uninstall from a chroot: pmcd not killed.
+         If this is incorrect, \"pmsignal -s TERM $pidlist\"  can be used."
+        exit
+    elif [ -f $PCP_RUN_DIR/pmcd.pid ]
+    then
+	runpid=`cat $PCP_RUN_DIR/pmcd.pid`
+	for pid in $pidlist
+	do
+	    if [ "$runpid" != "$pid" ]
+	    then
+		echo "PMCD process ... $pid"
+		echo "$prog:
+Warning: process ID in $PCP_RUN_DIR/pmcd.pid ($runpid) is different.
+         Check logfile $logf. When you are ready to proceed,
+	 remove $PCP_RUN_DIR/pmcd.pid before retrying."
+		exit
+	    fi
+	done
+    else
+	# no $PCP_RUN_DIR/pmcd.pid ... use $pidlist from _get_pids_by_name()
+	#
+	runpid=''
+    fi
+
+    # Send pmcd a SIGTERM, which is noted as a pending shutdown.
+    # When finished the currently active request, pmcd will close any
+    # connections, wait for any agents, and then exit.
+    # On failure, resort to SIGKILL.
+    #
+    $ECHO $PCP_ECHO_N "Waiting for pmcd to terminate ...""$PCP_ECHO_C"
+    delay=200	# tenths of a second
+    for SIG in TERM KILL
+    do
+	if [ -z "$runpid" ]
+	then
+	    pmsignal -s $SIG $pidlist > /dev/null 2>&1
+	else
+	    pmsignal -s $SIG $runpid >/dev/null 2>&1
+	    rm -f $PCP_RUN_DIR/pmcd.pid $PCP_RUN_DIR/pmcd.socket
+	fi
+	while [ $delay -gt 0 ]
+	do
+	    _get_pids_by_name pmcd >$tmp/tmp
+	    [ ! -s $tmp/tmp ] && break 2
+	    pmsleep 0.1
+	    delay=`expr $delay - 1`
+	    [ "$SIG" = "TERM" ] && [ `expr $delay % 10` -eq 0 ] \
+		&& $ECHO $PCP_ECHO_N ".""$PCP_ECHO_C"
+	done
+	echo
+	echo "Process ..."
+	if [ "$SIG" = "TERM" ]
+	then
+	    $PCP_PS_PROG $PCP_PS_ALL_FLAGS >$tmp/ps
+	    sed 1q $tmp/ps
+	    for pid in `cat $tmp/tmp`
+	    do
+	        $PCP_AWK_PROG <$tmp/ps "\$2 == $pid { print }"
+	    done
+	    echo "$prog: Warning: Forcing pmcd to terminate!"
+	    delay=20
+	else
+	    cat $tmp/tmp
+	    echo "$prog: Warning: pmcd won't die!"
+	    exit
+	fi
+    done
+    _killpmdas
+    $RC_STATUS -v
+    $PCP_BINADM_DIR/pmpost "stop pmcd from $prog"
+}
+
+_usage()
+{
+    echo "Usage: $prog [-v] {start|restart|condrestart|stop|status|reload|force-reload}"
+}
+
+VERBOSE_CTL=on
+while getopts v c
+do
+    case $c
+    in
+	v)  # force verbose ... for historical reasons only as $VERBOSE_CTL
+	    # is always "on"
+	    ;;
+	
+	*)
+	    _usage
+	    exit 1
+	    ;;
+    esac
+done
+shift `expr $OPTIND - 1`
+
+if [ $VERBOSE_CTL = on ]
+then				# For a verbose startup and shutdown
+    ECHO=$PCP_ECHO_PROG
+    REBUILDOPT=''
+    VFLAG='-v'
+else				# For a quiet startup and shutdown
+    ECHO=:
+    REBUILDOPT=-s
+    VFLAG=
+fi
+
+if [ "$IAM" != 0 -a "$1" != "status" ]
+then
+    if [ -n "$PCP_DIR" ]
+    then
+	: running in a non-default installation, do not need to be root
+    else
+	echo "$prog:"'
+Error: You must be root (uid 0) to start or stop the Performance Co-Pilot pmcd.'
+	exit
+    fi
+fi
+
+# First reset status of this service
+$RC_RESET
+ 
+# Return values acc. to LSB for all commands but status:
+# 0 - success
+# 1 - misc error
+# 2 - invalid or excess args
+# 3 - unimplemented feature (e.g. reload)
+# 4 - insufficient privilege
+# 5 - program not installed
+# 6 - program not configured
+#
+# Note that starting an already running service, stopping
+# or restarting a not-running service as well as the restart
+# with force-reload (in case signalling is not supported) are
+# considered a success.
+case "$1" in
+
+  'start'|'restart'|'condrestart'|'reload'|'force-reload')
+	if [ "$1" = "condrestart" ] && ! is_chkconfig_on pmcd
+	then
+	    status=0
+	    exit
+	fi
+	_shutdown quietly
+
+	# Clean the environment for PMCD:
+	# PMCD and PMDA messages should go to stderr, not the GUI notifiers
+	# Clients in these scripts should test PMCD status without TLS/SSL.
+	#
+	unset PCP_STDERR PCP_SECURE_SOCKETS
+
+	_reboot_setup
+
+	if [ -x $PMCD ]
+	then
+	    if [ ! -f $PCP_PMCDCONF_PATH ]
+	    then
+		echo "$prog:"'
+Error: pmcd control file '"$PCP_PMCDCONF_PATH"' is missing, cannot start pmcd.'
+		exit
+	    fi
+	    if [ ! -d "$RUNDIR" ]
+	    then
+		mkdir -p -m 775 "$RUNDIR"
+		chown $PCP_USER:$PCP_GROUP "$RUNDIR"
+	    fi
+	    cd "$RUNDIR"
+
+	    # salvage the previous versions of any PMCD and PMDA logfiles
+	    #
+	    for log in pmcd `sed -e '/^#/d' -e '/\[access\]/q' -e 's/[ 	].*//' <$PCP_PMCDCONF_PATH`
+	    do
+		if [ -f $log.log ]
+		then
+		    rm -f $log.log.prev
+		    mv $log.log $log.log.prev
+		fi
+	    done
+
+	    $ECHO $PCP_ECHO_N "Starting pmcd ..." "$PCP_ECHO_C"
+
+	    # only consider variables which start with PMCD
+	    `sed -n 's/^PMCD/export PMCD/p' < $PMCDENVS 2>/dev/null`
+
+	    # only consider lines which start with a hyphen
+	    # get rid of the -f option
+	    # ensure multiple lines concat onto 1 line
+	    OPTS=`sed <$PMCDOPTS 2>/dev/null \
+			    -e '/^[^-]/d' \
+			    -e 's/^/ /' \
+			    -e 's/$/ /' \
+			    -e 's/ -f / /g' \
+			    -e 's/^ //' \
+			    -e 's/ $//' \
+		    | tr '\012' ' ' `
+
+	    if ! $PMCD --verify $OPTS
+	    then
+		echo $prog: pmcd --verify $OPTS failed, cannot start pmcd.
+		exit
+	    fi
+	    $PMCD $OPTS
+            _start_pmcheck
+	    $RC_STATUS -v
+
+	    # auto-install and/or auto-removal of PMDAs may trigger
+	    # a recursive call into this script to restart pmcd,
+	    # so be careful to only run _pmda_setup once and do other
+	    # tasks related to the initial script invocation only once
+	    #
+	    if [ -z "$PMDA_SETUP_RUNNING" ]
+	    then
+		# not a recursive call ...
+
+		$PCP_BINADM_DIR/pmpost "start pmcd from $prog"
+
+		# site-local customisations after PMCD startup
+		[ -x $PCPLOCAL ] && $PCPLOCAL $VFLAG start
+
+		# auto install/remove any PMDAs ... this may trigger the
+		# recursion and setting $PMDA_SETUP_RUNNING in the
+		# environment is the guard
+		#
+		PMDA_SETUP_RUNNING=yes _pmda_setup &
+
+		# container environment
+		if [ -n "$PCP_CONTAINER_IMAGE" ]
+		then
+		    # in a container, _pmda_setup cannot run indefinitely -
+		    # if it did then the pmpause signal handler would reap
+		    # the _pmda_setup child and exit.
+		    wait
+
+		    # finally, stop here when running as a container
+		    exec $PCP_BINADM_DIR/pmpause
+		fi
+	    else
+		$PCP_BINADM_DIR/pmpost "start pmcd from PMDA setup called from $prog"
+	    fi
+
+	fi
+	status=0
+        ;;
+
+  'stop')
+	# site-local customisations before pmcd shutdown
+	#
+	[ -x $PCPLOCAL ] && $PCPLOCAL $VFLAG stop
+	_shutdown verbose
+	status=0
+        ;;
+
+  'status')
+	# NOTE: $RC_CHECKPROC returns LSB compliant status values.
+	$ECHO $PCP_ECHO_N "Checking for pmcd:" "$PCP_ECHO_C"
+        if [ -r /etc/rc.status ]
+        then
+            # SuSE
+            $RC_CHECKPROC $PMCD
+            $RC_STATUS -v
+            status=$?
+        else
+            # not SuSE
+            $RC_CHECKPROC $PMCD
+            status=$?
+            if [ $status -eq 0 ]
+            then
+                $ECHO running
+            else
+                $ECHO stopped
+            fi
+        fi
+	;;
+
+  *)
+	[ -z "$PCP_CONTAINER_IMAGE" ] || exec "$@"
+	_usage
+        ;;
+esac
+

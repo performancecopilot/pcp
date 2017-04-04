@@ -1,0 +1,101 @@
+#! /bin/sh
+# PCP QA Test No. 262
+# assorted PM_CONTEXT_LOCAL sanity checks
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+. ./common.config
+
+[ -n "$PCPQA_SOCKS_SERVER" ] || _notrun 'PCPQA_SOCKS_SERVER is not set in ./common.config'
+
+if [ "`pmsocks echo ok 2>&1`" != ok ]
+then
+    _notrun "pmsocks is not installed and/or not configured"
+fi
+
+_filter_number()
+{
+    sed \
+	-e '/using .* kmem interface/d' \
+	-e 's/^/ /' \
+	-e '/^ #/s/#.*/# .../' \
+	-e 's/  *[0-9][0-9]*\.[0-9]*/ NUMBER/g' \
+	-e 's/  *[0-9][0-9]*/ NUMBER/g' \
+	-e 's/:[0-9][0-9]/:NUMBER/g' \
+	-e 's/NUMBER[kmgKMG]/NUMBER/g' \
+	-e 's/   pi   po   bi/  si  so    bi/' \
+	-e 's/^ //' \
+	-e 's/[ 	][ 	]*/ /g' \
+	-e 's/Mon\|Tue\|Wed\|Thu\|Fri\|Sat\|Sun/DAY/' \
+	-e 's/Jan\|Feb\|Mar\|Apr\|May\|Jun\|Jul\|Aug\|Sep\|Oct\|Nov\|Dec/MONTH/' 
+}
+
+status=1	# failure is the default!
+trap "$sudo rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+SOCKS_SERVER=$PCPQA_SOCKS_SERVER
+PMCD_CONNECT_TIMEOUT=30
+PMCD_REQUEST_TIMEOUT=30
+
+rm -f  $seq.out
+if [ $PCP_PLATFORM = linux ]
+then
+    PROG=pmstat
+    cp $seq.linux $seq.out
+else
+    _notrun "Need qualified output for $PCP_PLATFORM"
+fi
+
+export SOCKS_SERVER PMCD_CONNECT_TIMEOUT PMCD_REQUEST_TIMEOUT PROG
+
+# real QA test starts here
+
+echo
+echo "=== $PROG + PM_CONTEXT_HOST ==="
+$PROG -t1 -s1 2>&1 | _filter_number
+
+echo
+echo "=== $PROG + PM_CONTEXT_LOCAL ==="
+$sudo_local_ctx $PROG -L -t1 -s1 2>&1 | _filter_number | _filter_pmcd_log
+
+echo
+echo "=== $PROG + PM_CONTEXT_HOST + pmsocks ==="
+$sudo pmsocks $PROG -t1 -s1 2>&1 | _filter_number
+
+echo
+echo "=== $PROG + PM_CONTEXT_LOCAL + pmsocks ==="
+$sudo_local_ctx pmsocks $PROG -L -t1 -s1 2>&1 | _filter_number | _filter_pmcd_log
+
+echo
+echo "Expect no error messages or ?'s from pmie"
+
+echo
+echo "=== pmie + PM_CONTEXT_HOST ==="
+cat >$tmp.conf <<'End-of-File'
+kernel.all.load;
+hinv.ncpu
+End-of-File
+pmie -v -t1 -T2 <$tmp.conf 2>$tmp.err | _filter_number > $tmp.out
+cat $tmp.out $tmp.err | _show_pmie_errors
+
+echo
+echo "=== pmie + PM_CONTEXT_HOST + pmsocks ==="
+cat >$tmp.conf <<'End-of-File'
+kernel.all.load;
+hinv.ncpu
+End-of-File
+pmsocks pmie -v -t1 -T2 <$tmp.conf 2>$tmp.err | _filter_number > $tmp.out
+cat $tmp.out $tmp.err | _show_pmie_errors
+
+# success, all done
+status=0
+exit

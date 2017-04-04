@@ -1,0 +1,287 @@
+QA output created by 897
+
+=== allow * : enquire ===
+show loggers
+The following pmloggers are running on local::
+    primary (LOGGER_PID) ...
+connect QA_LOGGER_PID
+status
+pmlogger [QA_LOGGER_PID] on host local: is logging metrics from host HOST
+PMCD host        HOST
+log started      DATESTAMP
+last log entry   DATESTAMP
+current time     DATE
+log volume       NUMBER
+log size         NUMBER
+query { sample.colour sample.long.one }
+sample.colour
+    adv  off nl              [0 or "red"]
+    adv  off nl              [1 or "green"]
+    adv  off nl              [2 or "blue"]
+
+sample.long.one
+    adv  off nl             
+
+# need mandatory
+flush
+new volume
+Error: No permission to perform requested operation
+log advisory on 5sec sample.long.one
+Error receiving response from pmlogger: No permission to perform requested operation
+log mandatory off sample.colour
+Error receiving response from pmlogger: No permission to perform requested operation
+connect QA_LOGGER_PID
+# check
+query { sample.colour sample.long.one }
+sample.colour
+    adv  off nl              [0 or "red"]
+    adv  off nl              [1 or "green"]
+    adv  off nl              [2 or "blue"]
+
+sample.long.one
+    adv  off nl             
+
+
+=== allow * : advisory ===
+show loggers
+The following pmloggers are running on local::
+    primary (LOGGER_PID) ...
+connect QA_LOGGER_PID
+status
+pmlogger [QA_LOGGER_PID] on host local: is logging metrics from host HOST
+PMCD host        HOST
+log started      DATESTAMP
+last log entry   DATESTAMP
+current time     DATE
+log volume       NUMBER
+log size         NUMBER
+query { sample.colour sample.long.one }
+sample.colour
+    adv  off nl              [0 or "red"]
+    adv  off nl              [1 or "green"]
+    adv  off nl              [2 or "blue"]
+
+sample.long.one
+    adv  off nl             
+
+# need mandatory
+flush
+new volume
+Error: No permission to perform requested operation
+log advisory on 5sec sample.long.one
+log mandatory off sample.colour
+Error receiving response from pmlogger: No permission to perform requested operation
+connect QA_LOGGER_PID
+# check
+query { sample.colour sample.long.one }
+sample.colour
+    adv  off nl              [0 or "red"]
+    adv  off nl              [1 or "green"]
+    adv  off nl              [2 or "blue"]
+
+sample.long.one
+    adv  on           5 sec 
+
+
+=== allow * : mandatory ===
+show loggers
+The following pmloggers are running on local::
+    primary (LOGGER_PID) ...
+connect QA_LOGGER_PID
+status
+pmlogger [QA_LOGGER_PID] on host local: is logging metrics from host HOST
+PMCD host        HOST
+log started      DATESTAMP
+last log entry   DATESTAMP
+current time     DATE
+log volume       NUMBER
+log size         NUMBER
+query { sample.colour sample.long.one }
+sample.colour
+    adv  off nl              [0 or "red"]
+    adv  off nl              [1 or "green"]
+    adv  off nl              [2 or "blue"]
+
+sample.long.one
+    adv  off nl             
+
+# need mandatory
+flush
+new volume
+New log volume 1
+log advisory on 5sec sample.long.one
+Error receiving response from pmlogger: No permission to perform requested operation
+log mandatory off sample.colour
+connect QA_LOGGER_PID
+# check
+query { sample.colour sample.long.one }
+sample.colour
+    mand off nl              [0 or "red"]
+    mand off nl              [1 or "green"]
+    mand off nl              [2 or "blue"]
+
+sample.long.one
+    adv  off nl             
+
+
+=== allow * : enquire,advisory ===
+show loggers
+The following pmloggers are running on local::
+    primary (LOGGER_PID) ...
+connect QA_LOGGER_PID
+status
+pmlogger [QA_LOGGER_PID] on host local: is logging metrics from host HOST
+PMCD host        HOST
+log started      DATESTAMP
+last log entry   DATESTAMP
+current time     DATE
+log volume       NUMBER
+log size         NUMBER
+query { sample.colour sample.long.one }
+sample.colour
+    adv  off nl              [0 or "red"]
+    adv  off nl              [1 or "green"]
+    adv  off nl              [2 or "blue"]
+
+sample.long.one
+    adv  off nl             
+
+# need mandatory
+flush
+new volume
+Error: No permission to perform requested operation
+log advisory on 5sec sample.long.one
+log mandatory off sample.colour
+Error receiving response from pmlogger: No permission to perform requested operation
+connect QA_LOGGER_PID
+# check
+query { sample.colour sample.long.one }
+sample.colour
+    adv  off nl              [0 or "red"]
+    adv  off nl              [1 or "green"]
+    adv  off nl              [2 or "blue"]
+
+sample.long.one
+    adv  on           5 sec 
+
+
+=== allow * : enquire,mandatory ===
+show loggers
+The following pmloggers are running on local::
+    primary (LOGGER_PID) ...
+connect QA_LOGGER_PID
+status
+pmlogger [QA_LOGGER_PID] on host local: is logging metrics from host HOST
+PMCD host        HOST
+log started      DATESTAMP
+last log entry   DATESTAMP
+current time     DATE
+log volume       NUMBER
+log size         NUMBER
+query { sample.colour sample.long.one }
+sample.colour
+    adv  off nl              [0 or "red"]
+    adv  off nl              [1 or "green"]
+    adv  off nl              [2 or "blue"]
+
+sample.long.one
+    adv  off nl             
+
+# need mandatory
+flush
+new volume
+New log volume 1
+log advisory on 5sec sample.long.one
+Error receiving response from pmlogger: No permission to perform requested operation
+log mandatory off sample.colour
+connect QA_LOGGER_PID
+# check
+query { sample.colour sample.long.one }
+sample.colour
+    mand off nl              [0 or "red"]
+    mand off nl              [1 or "green"]
+    mand off nl              [2 or "blue"]
+
+sample.long.one
+    adv  off nl             
+
+
+=== allow * : advisory,mandatory ===
+show loggers
+The following pmloggers are running on local::
+    primary (LOGGER_PID) ...
+connect QA_LOGGER_PID
+status
+pmlogger [QA_LOGGER_PID] on host local: is logging metrics from host HOST
+PMCD host        HOST
+log started      DATESTAMP
+last log entry   DATESTAMP
+current time     DATE
+log volume       NUMBER
+log size         NUMBER
+query { sample.colour sample.long.one }
+sample.colour
+    adv  off nl              [0 or "red"]
+    adv  off nl              [1 or "green"]
+    adv  off nl              [2 or "blue"]
+
+sample.long.one
+    adv  off nl             
+
+# need mandatory
+flush
+new volume
+New log volume 1
+log advisory on 5sec sample.long.one
+log mandatory off sample.colour
+connect QA_LOGGER_PID
+# check
+query { sample.colour sample.long.one }
+sample.colour
+    mand off nl              [0 or "red"]
+    mand off nl              [1 or "green"]
+    mand off nl              [2 or "blue"]
+
+sample.long.one
+    adv  on           5 sec 
+
+
+=== allow * : enquire,advisory,mandatory ===
+show loggers
+The following pmloggers are running on local::
+    primary (LOGGER_PID) ...
+connect QA_LOGGER_PID
+status
+pmlogger [QA_LOGGER_PID] on host local: is logging metrics from host HOST
+PMCD host        HOST
+log started      DATESTAMP
+last log entry   DATESTAMP
+current time     DATE
+log volume       NUMBER
+log size         NUMBER
+query { sample.colour sample.long.one }
+sample.colour
+    adv  off nl              [0 or "red"]
+    adv  off nl              [1 or "green"]
+    adv  off nl              [2 or "blue"]
+
+sample.long.one
+    adv  off nl             
+
+# need mandatory
+flush
+new volume
+New log volume 1
+log advisory on 5sec sample.long.one
+log mandatory off sample.colour
+connect QA_LOGGER_PID
+# check
+query { sample.colour sample.long.one }
+sample.colour
+    mand off nl              [0 or "red"]
+    mand off nl              [1 or "green"]
+    mand off nl              [2 or "blue"]
+
+sample.long.one
+    adv  on           5 sec 
+

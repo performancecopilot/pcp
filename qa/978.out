@@ -1,0 +1,71 @@
+QA output created by 978
+== verify usage message generation
+Usage: pcp [options] [[...] command [...]]
+
+Summary Options:
+  -a FILE, --archive=FILE
+                        metrics source is a PCP log archive
+  -h HOST, --host=HOST  metrics source is PMCD on host
+  -n FILE, --namespace=FILE
+                        use an alternative PMNS
+  -P, --pmie            display pmie evaluation statistics
+  -?, --help            show this usage message and exit
+
+Command Options:
+  -h HOST, --host=HOST  metrics source is PMCD on host
+  -n FILE, --namespace=FILE
+                        use an alternative PMNS
+  -A TIME, --align=TIME align sample times on natural boundaries
+  -a FILE, --archive=FILE
+                        metrics source is a PCP log archive
+  -g                    start in GUI mode with new time control
+  -n FILE               use an alternative PMNS
+  -O TIME               initial sample time within the time window
+  -p N                  port for connection to existing time control
+  -S TIME               start of the time window
+  -s N                  terminate after this many samples
+  -T TIME               end of the time window
+  -t DELTA              sampling interval
+  -Z TZ, --timezone=TZ  set reporting timezone
+  -z                    set reporting timezone to local time of metrics source
+
+Anything beyond "End" will simply be appended to the usage message.
+
+Anything at all.
+== verify handling of -a xxx -h yyy
+-a 'xxx' -h 'yyy'
+== verify handling of -z -g --timezone TZ
+-z -g -Z 'TZ'
+== verify usage message generation without getopt
+Usage: pcpqa [options] archive
+
+Options:
+  -A TIME, --align=TIME align sample times on natural boundaries
+  -O TIME, --origin=TIME
+                        initial sample time within the time window
+  -n FILE, --namespace=FILE
+                        use an alternative PMNS
+  -d, --delay           pause between updates for archive replay
+  -f N, --fixed=N       fixed output format with N digits precision
+  --origin=TIME         initial sample time within the time window
+  -t delta, --samples=delta
+                        sampling interval
+  -r, --raw             output raw counter values (no rate conversion)
+  -s N                  terminate after this many samples
+  -u                    non-interpolated fetching; ignores interval
+  --width               set the width of each column of output
+  -?, --help            show this usage message and exit
+== verify handling of mixing short and long options
+-d -f '5' -- '/a/b/pcplog'
+== verify handling of spaces and single quotes
+-- '/a/b/pcp log' '/c/d/foo'\''bar'
+== verify handling of an invalid option
+-? -- '/a/b/pcplog'
+== verify handling of archive folios and host/archive lists
+Usage: pcpqa [options]
+Options:
+  --host-list=HOSTS     comma-separated list of metric source hosts
+  --archive-list=FILES  comma-separated list of metric source archives
+  --archive-folio=FILE  read metric source archives from a folio
+  -?, --help            show this usage message and exit
+--archive-folio '20071023-08-06-36.folio'

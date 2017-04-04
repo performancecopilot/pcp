@@ -1,0 +1,17 @@
+QA archives that are dynamically created.
+
+These archives are used to exercise pmlogger and the other tools
+that create archives, and as such they are not checked into the
+git tree.
+
+This includes the archive families foo, bar, bigbin, interp, gap and
+dodgey, along with some variants (truncbin and reduce-gap) and the
+multivolume (mv-*) variants and the no index (noti-*) variants.
+
+The archives here will tend to persist ... they are made once from
+the QA ../check script using the "make setup" target.  To clean up
+and force the archives to be recreated you can:
+
+	$ make clean; make setup
+
+See also ../archives for the static QA archives.

@@ -1,0 +1,32 @@
+#
+# Definitions of libraries required to build libpcp.
+# Note: used elsewhere in the build to link statically with libpcp
+#
+
+ifeq "$(ENABLE_SECURE)" "true"
+LIBPCP_LDLIBS += $(LIB_FOR_SSL) $(LIB_FOR_NSS) $(LIB_FOR_NSPR) $(LIB_FOR_SASL)
+LIBPCP_CFLAGS += $(NSSCFLAGS) $(NSPRCFLAGS) $(SASLCFLAGS)
+endif
+
+ifeq "$(ENABLE_AVAHI)" "true"
+LIBPCP_LDLIBS += $(LIB_FOR_AVAHI)
+LIBPCP_CFLAGS += $(AVAHICFLAGS)
+endif
+
+ifeq "$(TARGET_OS)" "mingw"
+LIBPCP_LDLIBS += -lpsapi -lws2_32
+endif
+
+ifeq "$(TARGET_OS)" "solaris"
+# enables standards compliant thread-safe interfaces (accounts.c)
+LIBPCP_CFLAGS += -D_POSIX_PTHREAD_SEMANTICS
+LIBPCP_LDLIBS += $(PLDLIBS)
+endif
+
+ifeq "$(LIB_FOR_BASENAME)" "-lpcp"
+# don't need to be linked to myself in this case!
+LIB_FOR_BASENAME =
+endif
+
+LIBPCP_LDLIBS	+= $(PCPLIB_EXTRAS)
+

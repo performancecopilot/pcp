@@ -1,0 +1,79 @@
+#! /bin/sh
+# PCP QA Test No. 355
+# try to reproduce bug #517713
+#
+# Copyright (c) 2015 Red Hat.
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ -f $PCP_PMDAS_DIR/trace/pmdatrace ] || _notrun "trace pmda not installed"
+
+_cleanup()
+{
+    cd $here
+    if [ -n "$savedtracehost" ]
+    then
+	PCP_TRACE_HOST=$savedtracehost; export PCP_TRACE_HOST
+    fi
+    rm -f $tmp.*
+    exit $status
+}
+
+status=1	# failure is the default!
+trap "_cleanup" 0 1 2 3 15
+
+if [ -n "$PCP_TRACE_HOST" ]
+then
+    savedtracehost=$PCP_TRACE_HOST; unset PCP_TRACE_HOST
+fi
+
+_countinst()
+{
+    fgrep ' value ' | sed -e 's/.* value //g' | $PCP_AWK_PROG '
+BEGIN   { sum = 0 }
+        { if (NF == 1) sum = sum + $1 }
+END     { printf "%d\n",sum }'
+}
+
+pminfo trace >/dev/null 2>&1
+remove=$?
+
+_filter_trace_install()
+{
+    # some warnings are *expected* - no trace values yet
+    _filter_pmda_install | sed \
+	-e 's/ *[0-9]+ warnings,//g'
+}
+
+cd $PCP_PMDAS_DIR/trace
+$sudo ./Install -R / </dev/null 2>&1 | _filter_trace_install
+_wait_for_pmcd
+
+# real QA test starts here
+$here/src/torture_trace
+
+sleep 2
+
+echo "QA test counters:"
+$PCP_ECHO_PROG $PCP_ECHO_N "    pmtraceobs      ""$PCP_ECHO_C"
+pminfo -f trace.observe.count | _countinst
+
+$PCP_ECHO_PROG $PCP_ECHO_N "    pmtracepoint    ""$PCP_ECHO_C"
+pminfo -f trace.point.count | _countinst
+
+$PCP_ECHO_PROG $PCP_ECHO_N "    pmtracetransact ""$PCP_ECHO_C"
+pminfo -f trace.transact.count | _countinst
+
+[ $remove -eq 1 ] && $sudo $PCP_PMDAS_DIR/trace/Remove >/dev/null 2>&1
+
+# success, all done
+status=0
+exit

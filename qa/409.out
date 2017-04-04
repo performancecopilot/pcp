@@ -1,0 +1,64 @@
+QA output created by 409
+sample.event.param_64: pmFetch: End of PCP archive log
+sample.event.param_aggregate: pmFetch: End of PCP archive log
+sample.event.param_float: pmFetch: End of PCP archive log
+sample.event.param_u32: pmFetch: End of PCP archive log
+sample.event.param_32: pmFetch: End of PCP archive log
+sample.event.param_double: pmFetch: End of PCP archive log
+sample.event.param_string: pmFetch: End of PCP archive log
+sample.event.param_u64: pmFetch: End of PCP archive log
+sample.event.type: pmFetch: End of PCP archive log
+
+sample.event.records
+    value [5 event records (7 missed) timestamps TIMESTAMP...TIMESTAMP]
+    --- event record [0] timestamp TIMESTAMP ---
+    sample.event.type (29.0.127)
+        value 4
+    sample.event.param_u64 (29.0.131)
+        value 5
+    sample.event.param_string (29.0.134)
+        value "6"
+    --- event record [1] timestamp TIMESTAMP ---
+    sample.event.type (29.0.127)
+        value 7
+    sample.event.param_double (29.0.133)
+        value 8
+    sample.event.param_double (29.0.133)
+        value -9
+    --- event record [2] timestamp TIMESTAMP flags 0x2 (start) ---
+    sample.event.type (29.0.127)
+        value 10
+    sample.event.param_u64 (29.0.131)
+        value 11
+    sample.event.param_string (29.0.134)
+        value "twelve"
+    sample.event.param_string (29.0.134)
+        value "thirteen"
+    sample.event.param_32 (29.0.128)
+        value -14
+    sample.event.param_u32 (29.0.129)
+        value 15
+    --- event record [3] timestamp TIMESTAMP flags 0x80000000 (missed) ---
+        ==> 7 missed event records
+    --- event record [4] timestamp TIMESTAMP ---
+    sample.event.type (29.0.127)
+        value 16
+    sample.event.param_float (29.0.132)
+        value -17
+    sample.event.param_aggregate (29.0.135)
+        value [blob]
+
+pmcd.pmlogger.archive
+        inst blah, blah, blah
+
+pmcd.pmlogger.port
+        inst blah, blah, blah
+
+pmcd.pmlogger.host
+        inst blah, blah, blah
+
+event.flags
+No value(s) available!
+
+event.missed
+No value(s) available!

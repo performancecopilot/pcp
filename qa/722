@@ -1,0 +1,72 @@
+#!/bin/sh
+# PCP QA Test No. 722
+# Exercise various python mechanisms for setting sources
+# (hosts, archives) via the pmOptions class interfaces.
+#
+# Copyright (c) 2015-2016 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.python
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+_check_stderr()
+{
+    if [ -s $tmp.stderr ]
+    then
+	echo fail
+	cat $tmp.stderr >>$here/$seq.full
+    else
+	echo pass
+    fi
+    rm -f $tmp.stderr 
+}
+
+# real QA test starts here
+script="$python $here/src/test_set_source.python"
+
+echo && echo == Host, expect pass:
+TEST_SET_HOST=localhost $script 2>$tmp.stderr
+_check_stderr
+echo && echo == Host list, expect pass:
+TEST_SET_HOSTLIST=localhost $script 2>$tmp.stderr
+_check_stderr
+echo && echo == Host list, expect fail:
+TEST_SET_HOSTLIST=localhost,unix: $script 2>$tmp.stderr
+_check_stderr
+echo && echo == Host list, expect pass:
+TEST_SET_MULTI=1 TEST_SET_HOSTLIST=unix:,local:,localhost $script 2>$tmp.stderr
+_check_stderr
+
+echo && echo == Container, expect pass:
+TEST_SET_CONTAINER=abc012345 $script 2>$tmp.stderr
+_check_stderr
+
+echo && echo == Local PMDA, expect pass:
+TEST_SET_LOCALPMDA=true TEST_SET_SPECLOCAL=clear $script 2>$tmp.stderr
+_check_stderr
+
+echo && echo == Local PMDA, expect fail:
+TEST_SET_LOCALPMDA=true TEST_SET_SPECLOCAL=add, $script 2>$tmp.stderr
+_check_stderr
+
+echo && echo == Archive list, expect pass:
+TEST_SET_ARCHIVELIST=archives/pcp-atop $script 2>$tmp.stderr
+_check_stderr
+echo && echo == Archive list, expect pass:
+TEST_SET_ARCHIVELIST=archives/pcp-free,archives/pcp-uptime $script 2>$tmp.stderr
+_check_stderr
+
+cd $here/archives
+echo && echo == Folio, expect pass:
+TEST_SET_ARCHIVEFOLIO=pcp-atop.folio $script 2>$tmp.stderr
+_check_stderr
+
+# success, all done
+status=0
+exit

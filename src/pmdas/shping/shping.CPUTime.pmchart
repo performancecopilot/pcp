@@ -1,0 +1,11 @@
+#pmchart
+Version 2.0 host dynamic
+
+Chart Title "User CPU Time for shping Commands" Style plot
+	Plot Color #-cycle Host * Metric shping.time.cpu_usr Matching .*
+
+Chart Title "System CPU Time for shping Commands" Style plot
+	Plot Color #-cycle Host * Metric shping.time.cpu_sys Matching .*
+
+#
+# CPU time (user and system) for commands run by the shping PMDA

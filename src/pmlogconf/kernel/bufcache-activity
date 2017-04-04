@@ -1,0 +1,10 @@
+#pmlogconf-setup 2.0
+ident	kernel buffer cache reads, writes, hits and misses
+probe	kernel.all.io.bread
+	kernel.all.io.bread
+	kernel.all.io.bwrite
+	kernel.all.io.lread
+	kernel.all.io.lwrite
+	kernel.all.io.phread
+	kernel.all.io.phwrite
+	kernel.all.io.wcancel

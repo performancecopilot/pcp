@@ -1,0 +1,16 @@
+/*
+ * fake "root" for validating the local PMNS subtree
+ */
+
+#include <stdpmid>
+
+root { 
+        gfs2 
+
+}
+
+#ifndef GFS2
+#define GFS2 115
+#endif
+
+#include "pmns"

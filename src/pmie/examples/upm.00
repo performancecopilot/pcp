@@ -1,0 +1,6 @@
+//
+// If the total context switch rate exceeds 10000 per second per CPU
+// then display an alarm notifier
+//
+kernel.all.pswitch / hinv.ncpu > 10000 count/sec
+    -> alarm "high context switch rate %v";

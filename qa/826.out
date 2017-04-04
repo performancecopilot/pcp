@@ -1,0 +1,41 @@
+QA output created by 826
+== Checking max metric value with no bandwidth.conf
+
+mem.numa.max_bandwidth
+No value(s) available!
+
+== Checking max metric value with bad bandwidth.conf
+Version missing at the start of PCP_PMDAS_DIR/linux/bandwidth.conf
+
+mem.numa.max_bandwidth
+No value(s) available!
+
+== Checking max metric value on config file with new version
+Unsupported PCP_PMDAS_DIR/linux/bandwidth.conf version '99', current version: 1.0
+
+mem.numa.max_bandwidth
+No value(s) available!
+
+== Checking max metric value with good bandwidth.conf
+
+mem.numa.max_bandwidth
+    inst [0 or "node0"] value 1024
+
+== Checking max metric value with multinode bandwidth.conf
+
+mem.numa.max_bandwidth
+    inst [0 or "node0"] value 1024
+    inst [1 or "node1"] value 1024
+
+== Checking max metric value with one bad node in bandwidth.conf
+Unknown node 'node11' in PCP_PMDAS_DIR/linux/bandwidth.conf
+
+mem.numa.max_bandwidth
+    inst [0 or "node0"] value 1024
+
+== Checking max metric value with multiple bad nodes in bandwidth.conf
+Unknown node 'xyz' in PCP_PMDAS_DIR/linux/bandwidth.conf
+
+mem.numa.max_bandwidth
+No value(s) available!
+

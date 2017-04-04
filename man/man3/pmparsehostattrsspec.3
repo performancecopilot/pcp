@@ -1,0 +1,248 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2013 Red Hat.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.TH PMPARSEHOSTATTRSSPEC 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3__pmParseHostAttrsSpec\f1,
+\f3__pmUnparseHostAttrsSpec\f1,
+\f3__pmFreeHostAttrsSpec\f1,
+\f3__pmFreeAttrsSpec\f1 \- host and attributes specification parser
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.br
+#include <pcp/impl.h>
+.sp
+.ad l
+.hy 0
+.in +8n
+.ti -8n
+int __pmParseHostAttrsSpec(const char *\fIstring\fP, pmHostSpec **\fIhostsp\fP, int\ *\fIcount\fP, __pmHashCtl\ *\fIattrs\fP, char\ **\fIerrmsg\fP);
+.br
+.ti -8n
+int __pmUnparseHostAttrsSpec(pmHostSpec *\fIhostsp\fP, int\ *\fIcount\fP, __pmHashCtl\ *\fIattrs\fP, char\ *\fIstring\fP, size_t \fIsize\fP);
+.br
+.ti -8n
+void __pmFreeHostAttrsSpec(pmHostSpec *\fIhosts\fP, int \fIcount\fP, __pmHashCtl\ *\fIattrs\fP);
+.br
+.ti -8n
+void __pmFreeAttrsSpec(__pmHashCtl\ *\fIattrs\fP);
+.sp
+.in
+.hy
+.ad
+cc ... \-lpcp
+.ft 1
+.SH DESCRIPTION
+.B __pmParseHostAttrsSpec
+accepts a
+.B string
+specifying the location of a PCP performance metric collector daemon,
+and any attributes that should be associated with the connection to that
+daemon.
+.PP
+The syntax allows the optional specification of a protocol (native PCP
+protocol, encrypted PCP protocol or unix domain socket protocol).
+.PP
+If the specified protocol is native PCP protocol, or encrypted PCP protocol,
+an initial
+.BR pmcd (1)
+hostname with optional port numbers and optional proxy host,
+and optional attributes which are to be associated with the connection may be specified.
+Some examples follow:
+.PP
+.in +0.5i
+.nf
+.ft CW
+pcp://nas1.servers.com:44321@firewalls.r.us?compress
+pcps://nas1.servers.com?user=otto&pass=blotto&compress
+.ft R
+.fi
+.in
+.PP
+If the specified protocol is a unix domain socket protocol, the path
+to the socket in the local file system may be specified along with
+optional attributes which are to be associated with the connection.
+For example:
+.PP
+.in +0.5i
+.nf
+.ft CW
+unix://$PCP_RUN_DIR/pmcd.socket:?compress
+local://my/local/pmcd.socket:?user=otto&pass=blotto&compress
+.ft R
+.fi
+.in
+.PP
+If the optional protocol component is not specified, then the default
+setting will be used - which is the native PCP binary protocol.
+However, this can still be overwritten via the environment as described
+in
+.BR PCPIntro (1).
+If the protocol prefix is specified, it must be one of either "pcp://"
+(clear), "pcps://" (secure, encrypted), "unix://" (authenticated local)
+or "local://" ("unix://" then "pcp://").
+.PP
+The path specified for the "unix://" and "local://" protocols will always be
+interpreted as an absolute path name. For example, the following are all
+interpreted identically as
+.IR $PCP_RUN_DIR/pmcd.socket .
+.PP
+.in +0.5i
+.nf
+.ft CW
+unix://$PCP_RUN_DIR/pmcd.socket
+unix:/$PCP_RUN_DIR/pmcd.socket
+unix:$PCP_RUN_DIR/pmcd.socket
+.ft R
+.fi
+.in
+.PP
+Refer to
+.BR __pmParseHostSpec (3)
+for further details of the host and proxy host components.
+.PP
+If any optional connection attributes are to be specified, these are
+separated from the hostname component via the '?' character.
+Each attribute is separated by the '&' character, and each can be
+either a simple attribute flag (such as "compress") or a name=value
+pair (such as "username=fred").
+.PP
+.B __pmParseHostAttrsSpec
+takes a null-terminated host-and-attributes specification
+.B string
+and returns an array of 
+.B pmHostSpec
+structures, where the array has
+.B count
+entries, and an
+.B attrs
+hash table containing any attributes (including the
+optional protocol, if it was specified).
+.PP
+Full details of the
+.B pmHostSpec
+structures are provided in
+.BR __pmParseHostSpec (3).
+.PP
+The
+.B __pmHashCtl
+structure that is filled out on return via
+.BR attributes ,
+represents each individual attribute in the specification
+.B string
+with any associated value.
+It should be considered an opaque structure and should be zeroed
+beforehand.
+.PP
+The returned hash table control structure can be iterated using
+one of the supplied iteration mechanisms \-
+.B __pmHashWalkCB
+(a callback-based mechanism)
+or
+.B __pmHashWalk
+(a simple procedural mechanism).
+These provide access to the individual hash nodes, as
+.B __pmHashNode
+entries, which provide access to decoded attributes and their
+(optional) values.
+.PP
+.nf
+.ft CW
+    typedef struct __pmHashNode {
+        __pmHashNode    *next;    /* next node in hash bucket (internal) */
+        unsigned int    key;      /* key identifying particular attribute */
+        void            *data;    /* attributes value (optional, string) */
+    } __pmHashNode;
+.fi
+.PP
+There are a set number of valid attributes, however these may be
+extended in future releases as new connection parameters become
+needed.
+These can be identified via the PCP_ATTR_* macros in the PCP header
+files.
+.PP
+.B __pmUnparseHostSpec
+performs the inverse operation, creating a
+.B string
+representation from
+.B hosts
+and
+.B attributes
+structures.
+The size of the supplied
+.B string
+buffer must be provided by the caller using the
+.B size
+parameter.
+.SH "RETURN VALUE"
+If the given
+.B string
+is successfully parsed
+.B __pmParseHostAttrsSpec
+returns zero.
+In this case the dynamic storage allocated by
+.B __pmParseHostAttrsSpec
+can be released by calling
+.B __pmFreeHostAttrsSpec
+using the addresses returned from
+.B __pmParseHostAttrsSpec
+.P
+Alternatively, the
+.B hosts
+and
+.B attributes
+memory can be freed separately, using
+.BR __pmFreeHostSpec (3)
+and
+.BR __pmFreeAttrsSpec .
+.P
+.B __pmParseHostAttrsSpec
+returns
+.B PM_ERR_GENERIC
+and a dynamically allocated error message string in
+.BR errmsg ,
+if the given
+.B string
+does not parse, and the user-supplied
+.B errmsg
+pointer is non-null.
+Be sure to
+.BR free (3)
+the error message string in this situation.
+.PP
+In the case of an error, both
+.B hosts
+and
+.B attributes
+are undefined.
+In the case of success,
+.B errmsg
+is undefined.
+.PP
+On success
+.B __pmUnparseHostAttrsSpec
+returns a positive value indicating the number of characters written
+into the supplied buffer.
+However, if the supplied buffer was too small, a negative status code of
+.B \-E2BIG
+will be returned.
+.SH SEE ALSO
+.BR pmcd (1),
+.BR pmproxy (1),
+.BR pmchart (1),
+.BR __pmParseHostSpec (3),
+.BR PMAPI (3)
+and
+.BR pmNewContext (3).

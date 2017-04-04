@@ -1,0 +1,66 @@
+#!/bin/sh
+# PCP QA Test No. 933
+# Exercise fix for RH BZ #1372550
+#
+# Copyright (c) 2016 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ $PCP_PLATFORM = linux ] || _notrun "Linux proc PMDA specific test"
+
+signal=$PCP_BINADM_DIR/pmsignal
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_cleanup()
+{
+    if [ -n "$pid" ]
+    then
+        $signal -s TERM $pid
+        wait
+        pid=""
+    fi
+    cd $here; rm -rf $tmp.*
+}
+
+# real QA test starts here
+
+# Use the stopped runq metric as its less likely to be
+# interfered with than some of the other metrics (like
+# sleeping, runnable, etc) via other system activity.
+#
+pmsleep 10 &
+pid=$!
+pmsleep 0.1	# some time for sleep process to start
+base=`pmprobe -v proc.runq.stopped | awk '{ print $3 }'`
+
+kill -STOP $pid
+pmsleep 0.1	# some time for process to stop
+stop=`pmprobe -v proc.runq.stopped | awk '{ print $3 }'`
+
+kill -CONT $pid
+pmsleep 0.1	# some time for process to continue
+cont=`pmprobe -v proc.runq.stopped | awk '{ print $3 }'`
+
+echo "stopped counts:" > $seq.full
+echo "base = $base" >> $seq.full
+echo "stop = $stop" >> $seq.full
+echo "cont = $cont" >> $seq.full
+
+echo Silence is golden
+# STOP should cause a jump in the number of stopped processes
+[ $stop -gt $base ] || echo "Unexpected $stop (stop) le $base (base)"
+# CONT should cause a drop in the number of stopped processes
+[ $stop -gt $cont ] || echo "Unexpected $stop (stop) le $cont (cont)"
+
+# success, all done
+status=0
+exit

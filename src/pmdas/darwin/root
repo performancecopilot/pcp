@@ -1,0 +1,15 @@
+#include <stdpmid>
+
+root {
+    kernel
+    pmda
+    mem
+    hinv
+    filesys
+    disk
+    network
+    nfs3
+    rpc
+}
+
+#include "pmns" 

@@ -1,0 +1,129 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2014 Red Hat.
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.TH PMFIND 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmfind\f1 \- find PCP services on the network
+.SH SYNOPSIS
+\f3pmfind\f1
+[\f3\-q\f1]
+[\f3\-m\f1 \f2mechanism\f1]
+[\f3\-s\f1 \f2service\f1]
+[\f3\-r\f1]
+[\f3\-t\f1 \f2timeout\f1]
+.SH DESCRIPTION
+.B pmfind
+searches for instances of the specified PCP service being advertised on the
+network and prints a list of URLs corresponding to the services discovered.
+.PP
+By default
+.B pmfind
+will search for all supported PCP services, however a specific PCP
+.I service
+to discover can be specified using the
+.B \-s
+option. Supported services are
+.BR pmcd (1),
+.BR pmproxy (1)
+and
+.BR pmwebd (1) .
+.PP
+The
+.B \-m
+option sets the
+.I mechanism
+that
+.B pmfind
+uses when performing service discovery.
+By default, or if the keyword "all" is specified, every available
+mechanism will be used (iteratively). Supported mechanisms are:
+.TP
+.B avahi
+Searches for services which are broadcasting using mDNS via
+.BR avahi-daemon(8).
+An optional suffix \fB",timeout=N"\fP may be added to limit the amount of
+time waiting for the avahi-daemon. N is a floating point number
+specifying the number of seconds to wait. The default is 0.5 seconds.
+This timeout may also be specified by setting the environment variable
+.B AVAHI_DISCOVERY_TIMEOUT
+to the desired number of seconds. If both are specified, then
+the value specified in the environment variable takes precedence.
+.TP
+.B probe=<net-address>/<mask-bits>
+Actively probes the given subnet for the requested PCP service(s).
+<net-address> is an inet or ipv6
+network address and <mask-bits> is the number of bits used to define the
+subnet. For example, 192.168.1.0/24 defines an 8 bit subnet consisting of the
+addresses 192.168.1.0 through 192.168.1.255.
+An optional suffix \fB",maxThreads=N"\fP may be added to limit the number of
+threads used while probing. The default is the value of FD_SETSIZE or the
+number of addresses in the subnet, whichever is less.
+An optional suffix \fB",timeout=N"\fP may be added to limit the amount of
+time waiting for each connection attempt. N is a floating point number
+specifying the number of seconds to wait. The default is 20ms.
+.PP
+The
+.B \-r
+option requests that DNS name resolution be attempted for the addresses of any
+discovered services. The default is to display the network addresses of any
+discovered services.
+.PP
+The
+.B \-t
+option sets the maximum amount of time that
+.B pmfind
+will take before interrupting the service discovery. The argument is a floating
+point number representing the number of seconds before timing out. The default
+is to take as much time as is needed to complete the process.
+.PP
+The
+.B \-q
+option suppresses all output on the standard output stream.
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.I /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (5).
+.SH DIAGNOSTICS
+The value of the exit status from the command is zero when services were
+successfully located, one if no services were found, and two if an error
+occurred.
+.PP
+In the event of an error, a message will be generated on standard error
+that is intended to be self-explanatory.
+.SH SIGNALS
+.B pmfind
+will interrupt the service discovery process when one of the following
+signals is received: SIGHUP, SIGPIPE, SIGINT, SIGTERM, SIGXFSZ, SIGXCPU.
+.B pmfind
+will report any results which were discovered up to point of the interruption.
+.SH SEE ALSO
+.BR PCPIntro (1),
+.BR pmcd (1),
+.BR pmproxy (1),
+.BR pmwebd (1),
+.BR PMAPI (3),
+.BR pmDiscoverServices (3),
+.BR pcp.conf (5)
+and
+.BR pcp.env (5).

@@ -1,0 +1,236 @@
+#!/bin/sh
+# PCP QA Test No. 362
+#
+# pmlogconf-setup exerciser
+#
+# Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+if [ -f $PCP_BINADM_DIR/pmlogconf-setup ]
+then
+    :
+else
+    echo "pmlogconf-setup not installed" >$seq.notrun
+    echo "$seq: [not run] `cat $seq.notrun`"
+    exit 0
+fi
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+_doit()
+{
+    echo
+    echo "--- group file ---"
+    cat $tmp.grp
+    $PCP_BINADM_DIR/pmlogconf-setup $tmp.grp 2>$tmp.err >$tmp.out
+    xsts=$?
+    echo "--- pmlogconf-setup stdout ---"
+    sed -e "s;$tmp;TMP;" <$tmp.out
+    echo "--- exit status=$xsts ---"
+    if [ -s $tmp.err ]
+    then
+	echo "--- pmlogconf-setup stderr ---"
+	sed -e "s;$tmp;TMP;" <$tmp.err
+    fi
+}
+
+# real QA test starts here
+cat <<'End-of-File' >$tmp.grp
+#pmlogconf-setup 2.0
+ident	Bad metric name
+probe	no.such.metric
+End-of-File
+_doit
+
+cat <<'End-of-File' >$tmp.grp
+#pmlogconf-setup 2.0
+ident	Good metric name - default everything
+probe	sample.secret.foo.bar.three
+End-of-File
+_doit
+
+cat <<'End-of-File' >$tmp.grp
+#pmlogconf-setup 2.0
+ident	Good metric name - no values
+probe	sample.noinst values
+End-of-File
+_doit
+
+cat <<'End-of-File' >$tmp.grp
+#pmlogconf-setup 2.0
+ident	Good metric name - has values
+probe	sample.secret.foo.bar.three values
+End-of-File
+_doit
+
+cat <<'End-of-File' >$tmp.grp
+#pmlogconf-setup 2.0
+ident	Good metric name - exists and non-default rules
+probe	sample.secret.foo.bar.three exists ? available : exclude
+End-of-File
+_doit
+
+cat <<'End-of-File' >$tmp.grp
+#pmlogconf-setup 2.0
+ident	Good metric name - exists and explicit default rules
+probe	sample.secret.foo.bar.three values ? include : exclude
+End-of-File
+_doit
+
+cat <<'End-of-File' >$tmp.grp
+#pmlogconf-setup 2.0
+ident	Good metric name - exists and regex
+probe	sample.secret.foo.bar.three ~ 3
+End-of-File
+_doit
+
+cat <<'End-of-File' >$tmp.grp
+#pmlogconf-setup 2.0
+ident	Good metric name - exists and regex and non-default rules
+probe	sample.secret.foo.bar.three ~ 3 ? available : exclude
+End-of-File
+_doit
+
+cat <<'End-of-File' >$tmp.grp
+#pmlogconf-setup 2.0
+ident	Bad: metric name exists and regex - missing operand
+probe	sample.secret.foo.bar.three ~ 
+End-of-File
+_doit
+
+cat <<'End-of-File' >$tmp.grp
+#pmlogconf-setup 2.0
+ident	Bad: metric exists - not ? as expected
+probe	hinv.ncpu exists foobar
+End-of-File
+_doit
+
+cat <<'End-of-File' >$tmp.grp
+#pmlogconf-setup 2.0
+ident	Bad: metric exists - state rule missing an argument
+probe	hinv.ncpu exists ? include :
+End-of-File
+_doit
+
+cat <<'End-of-File' >$tmp.grp
+#pmlogconf-setup 2.0
+ident	Bad: metric exists - state rule extra arguments
+probe	hinv.ncpu exists ? include : exclude foo
+End-of-File
+_doit
+
+cat <<'End-of-File' >$tmp.grp
+#pmlogconf-setup 2.0
+ident	Bad: metric exists - state rule not : where expected
+probe	hinv.ncpu exists ? include foo exclude
+End-of-File
+_doit
+
+cat <<'End-of-File' >$tmp.grp
+#pmlogconf-setup 2.0
+ident	Bad: metric exists - state rule illegal success state
+probe	hinv.ncpu exists ? foo : exclude
+End-of-File
+_doit
+
+cat <<'End-of-File' >$tmp.grp
+#pmlogconf-setup 2.0
+ident	Bad: metric exists - state rule illegal failure state
+probe	hinv.ncpu exists ? available : foo
+End-of-File
+_doit
+
+cat <<'End-of-File' >$tmp.grp
+#pmlogconf-setup 2.0
+ident	Good - force available
+force	available
+End-of-File
+_doit
+
+cat <<'End-of-File' >$tmp.grp
+#pmlogconf-setup 2.0
+ident	Good - regex match and include
+probe	sample.string.hullo ~ ^h[eu]llo.world!$
+End-of-File
+_doit
+
+cat <<'End-of-File' >$tmp.grp
+#pmlogconf-setup 2.0
+ident	Good - notregex nomatch and exclude
+probe	sample.bin !~ [1-9]00 ? include : exclude
+End-of-File
+_doit
+
+cat <<'End-of-File' >$tmp.grp
+#pmlogconf-setup 2.0
+ident	Good - if bazillions of CPUs include, else available
+probe	hinv.ncpu > 1000 ? include : available
+End-of-File
+_doit
+
+cat <<'End-of-File' >$tmp.grp
+#pmlogconf-setup 2.0
+ident	Good - include
+probe	sample.bin < 101 ? include : exclude
+End-of-File
+_doit
+
+cat <<'End-of-File' >$tmp.grp
+#pmlogconf-setup 2.0
+ident	Good - include
+probe	sample.bin <= 100 ? include : exclude
+End-of-File
+_doit
+
+cat <<'End-of-File' >$tmp.grp
+#pmlogconf-setup 2.0
+ident	Good - include
+probe	sample.bin == 400 ? include : exclude
+End-of-File
+_doit
+
+cat <<'End-of-File' >$tmp.grp
+#pmlogconf-setup 2.0
+ident	Good - include
+probe	sample.bin != 100 ? include : exclude
+End-of-File
+_doit
+
+cat <<'End-of-File' >$tmp.grp
+#pmlogconf-setup 2.0
+ident	Good - include
+probe	sample.bin >= 900 ? include : exclude
+End-of-File
+_doit
+
+cat <<'End-of-File' >$tmp.grp
+#pmlogconf-setup 2.0
+ident	Good - include
+probe	sample.bin > 899 ? include : exclude
+End-of-File
+_doit
+
+cat <<'End-of-File' >$tmp.grp
+#pmlogconf-setup 2.0
+ident	Example from pmlogconf(1) man page
+ident	... more descripton
+delta	1 minute
+probe	sample.secret.foo.one values ? include : exclude
+	sample.secret.foo.one
+	sample.secret.foo.bar	# non-leaf in the PMNS
+	sample.colour [ red green ]
+End-of-File
+_doit
+
+# success, all done
+exit

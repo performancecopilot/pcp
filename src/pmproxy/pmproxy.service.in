@@ -1,0 +1,14 @@
+[Unit]
+Description=Proxy for Performance Metrics Collector Daemon
+Documentation=man:pmproxy(8)
+After=local-fs.target network.target pmcd.service
+
+[Service]
+Type=forking
+Restart=always
+ExecStart=@PCP_RC_DIR@/pmproxy start
+ExecStop=@PCP_RC_DIR@/pmproxy stop
+PIDFile=@PCP_RUN_DIR@/pmproxy.pid
+
+[Install]
+WantedBy=multi-user.target

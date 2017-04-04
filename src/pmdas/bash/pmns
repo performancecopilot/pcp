@@ -1,0 +1,36 @@
+/*
+ * Metrics for bash xtrace PMDA
+ *
+ * Copyright (c) 2012 Nathan Scott.
+ * 
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+ * for more details.
+ */
+
+bash {
+    xtrace
+}
+
+bash.xtrace {
+    numclients		BASH:0:0
+    maxmem		BASH:0:1
+    queuemem		BASH:0:2
+    count		BASH:0:3
+    records		BASH:0:4
+    parameters
+}
+
+bash.xtrace.parameters {
+    pid			BASH:0:5
+    parent		BASH:0:6
+    lineno		BASH:0:7
+    function		BASH:0:8
+    command		BASH:0:9
+}

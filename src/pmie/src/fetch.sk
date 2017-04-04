@@ -1,0 +1,564 @@
+/*
+ * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2015 Red Hat
+ * 
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+ * for more details.
+ * 
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+ */
+
+/***********************************************************************
+ * skeleton: fetch.sk - fetch metric values
+ ***********************************************************************/
+
+/*
+ *  operator: cndFetch
+ */
+
+static int
+indom_changed(Metric *m)
+{
+    int		changed = 0;
+    int		j;
+
+    /* check for changes in the instance domain */
+    if (m->vset == NULL || m->vset->numval <= 0) {
+	if (m->m_idom > 0)
+	    changed = 1;
+    }
+    else {
+	if (m->vset->numval != m->m_idom)
+	    changed = 1;
+	else {
+	    for (j = 0; j < m->m_idom; j++) {
+		if (m->iids[j] != m->vset->vlist[j].inst) {
+		    changed = 1;
+		    break;
+		}
+	    }
+	}
+    }
+
+    if (changed) {
+	int		old;
+	int		new;
+	int		numval;
+	char		**inames;
+	int		*iids;
+	int		sts;
+	int		handle = -1;
+	int		old_handle = -1;
+	char		**get_inames;
+	int		*get_iids;
+	int		numinst = -1;
+
+	if (m->vset == NULL || m->vset->numval <= 0)
+	    numval = 0;
+	else
+	    numval = m->vset->numval;
+
+	/* build new inames[] and iids[] */
+	if (numval > 0) {
+	    inames = (char **)alloc(numval * sizeof(char *));
+	    iids = (int *)alloc(numval * sizeof(int));
+	    if (numval > m->m_idom && m->desc.sem == PM_SEM_COUNTER) {
+		/* more instances, so expand the val array */
+		m->vals = (double *)ralloc(m->vals, numval * sizeof(double));
+		for (j = m->m_idom; j < numval; j++)
+		    m->vals[j] = 0;
+	    }
+	}
+	else {
+	    inames = NULL;
+	    iids = NULL;
+	}
+
+	for (new = 0; new < numval; new++) {
+	    for (old = 0; old < m->m_idom; old++) {
+		if (m->iids[old] == m->vset->vlist[new].inst)
+		    break;
+	    }
+	    if (old < m->m_idom) {
+		/* in both lists */
+		inames[new] = m->inames[old];
+		m->inames[old] = NULL;
+		iids[new] = m->iids[old];
+		if (m->desc.sem == PM_SEM_COUNTER && new != old) {
+		    /* swap vals[] */
+		    double	d;
+		    d = m->vals[new];
+		    m->vals[new] = m->vals[old];
+		    m->vals[old] = d;
+		}
+	    }
+	    else {
+		/* new one */
+		inames[new] = NULL;
+		iids[new] = m->vset->vlist[new].inst;
+	    }
+	}
+
+	/*
+	 * clean up old inames and iids, the install new ones
+	 */
+	if (m->m_idom > 0 && m->inames != NULL) {
+	    for (old = 0; old < m->m_idom; old++) {
+		if (m->inames[old] != NULL) free(m->inames[old]);
+	    }
+	}
+	if (m->inames != NULL)
+	    free(m->inames);
+	if (m->iids != NULL)
+	    free(m->iids);
+	m->inames = inames;
+	m->iids = iids;
+	m->m_idom = numval;
+
+	for (new = 0; new < m->m_idom; new++) {
+	    if (m->inames[new] == NULL) {
+		if (handle < 0) {
+		    /* set up temporary context */
+		    if (old_handle < 0)
+			old_handle = pmWhichContext();
+		    handle = newContext(&m->hname, symName(m->hconn));
+		}
+		if (handle < 0) {
+		    sts = -1;
+		}
+		else {
+		    if (archives) {
+			if ((sts = pmNameInDomArchive(m->desc.indom, m->iids[new], &m->inames[new])) < 0) {
+			    __pmNotifyErr(LOG_ERR, "metric %s from %s: instance domain not "
+				"available in archive\npmNameInDomArchive failed: %s\n",
+				symName(m->mname), findsource(symName(m->hname),symName(m->hconn)), pmErrStr(sts));
+			}
+		    }
+		    else {
+			if (numinst == -1) {
+			    if ((sts = pmGetInDom(m->desc.indom, &get_iids, &get_inames)) < 0) {
+				__pmNotifyErr(LOG_ERR, "metric %s from %s: instance domain not (currently) available\n"
+				    "pmGetInDom failed: %s\n",
+				    symName(m->mname), findsource(symName(m->hname),symName(m->hconn)), pmErrStr(sts));
+			    }
+			    else
+				numinst = sts;
+			}
+			sts = -1;
+			for (j = 0; j < numinst; j++) {
+			    if (m->iids[new] == get_iids[j]) {
+				m->inames[new] = sdup(get_inames[j]);
+				sts = 0;
+				break;
+			    }
+			}
+		    }
+		}
+		if (sts < 0) {
+		    /* ugly, but not much choice */
+		    m->inames[new] = sdup("inst#xxxxxxxxxxxx?");
+		    sprintf(m->inames[new], "inst#%d?", m->iids[new]);
+		}
+
+		if (m->desc.sem == PM_SEM_COUNTER)
+		    m->vals[new] = 0;
+	    }
+	}
+	if (handle >= 0) {
+	    pmDestroyContext(handle);
+	    if (old_handle >= 0)
+		pmUseContext(old_handle);
+	}
+	if (numinst > 0) {
+	    /* pmGetInDom returned some instances above */
+	    free(get_iids);
+	    free(get_inames);
+	}
+#if PCP_DEBUG
+	if (pmDebug & DBG_TRACE_APPL2) {
+	    fprintf(stderr, "indom_changed: %s from %s\n",
+		    symName(m->mname), symName(m->hname));
+	    if (m->m_idom < 1) fprintf(stderr, "  %d instances!\n", m->m_idom);
+	    for (j = 0; j < m->m_idom; j++) {
+		fprintf(stderr, "  indom[%d] %d \"%s\"\n",
+			j, m->iids[j], m->inames[j]);
+	    }
+	}
+#endif
+    }
+
+    return changed;
+}
+
+/* null instance domain - so 1 instance only */
+void
+cndFetch_1(Expr *x)
+{
+    Metric	*m = x->metrics;
+    double	*op;
+    char	**op_s;
+    RealTime	stamp = 0;
+    pmAtomValue	a;
+    double	t;
+    int		i, j;
+    int		dorate = 0;
+
+    ROTATE(x)
+    x->valid++;
+    op = (double *)x->smpls[0].ptr;
+    op_s = (char **)x->smpls[0].ptr;
+
+    if (m->desc.sem == PM_SEM_COUNTER) {
+	/* need rate conversion, unless some parent node is CND_INSTANT */
+	Expr	*p = x->parent;
+	dorate = 1;
+	while (p != NULL) {
+	    if (p->op == CND_INSTANT) {
+		dorate = 0;
+		break;
+	    }
+	    p = p->parent;
+	}
+    }
+
+    for (i = 0; i < x->hdom; i++) {
+	/* extract value */
+	if (m->vset && m->vset->numval == 1) {
+	    if (m->desc.type == PM_TYPE_STRING) {
+		if (*op_s != NULL)
+		    free(*op_s);
+		*op_s = strdup(m->vset->vlist[0].value.pval->vbuf);
+#if PCP_DEBUG
+		if (pmDebug & DBG_TRACE_APPL2) {
+		    fprintf(stderr, "cndFetch_1(" PRINTF_P_PFX "%p): %s from %s = \"%s\" (" PRINTF_P_PFX "%p)\n",
+			    x, symName(m->mname), symName(m->hname), *op_s, *op_s);
+		}
+#endif
+		op_s++;
+	    }
+	    else {
+		pmExtractValue(m->vset->valfmt, &m->vset->vlist[0], m->desc.type, &a, PM_TYPE_DOUBLE);
+		*op = m->conv * a.d;
+#if PCP_DEBUG
+		if (pmDebug & DBG_TRACE_APPL2) {
+		    fprintf(stderr, "cndFetch_1(" PRINTF_P_PFX "%p): %s from %s = %g",
+			    x, symName(m->mname), symName(m->hname), *op);
+		    if (m->conv != 1) fprintf(stderr, " (unconv = %g)", a.d);
+		    fputc('\n', stderr);
+		}
+#endif
+		op++;
+	    }
+	}
+	else {
+	    /* no value */
+	    x->valid = 0;
+	    for (j = i; j < x->hdom; j++) {
+		m->stomp = 0;
+		m->vset = NULL;
+		m++;
+	    }
+	    return;
+	}
+	m->vset = NULL;
+
+	/*
+	 * rate computation ... only relevant for numeric values, 
+	 * so op was updated above and op_s was not used above
+	 */
+	if (dorate) {
+	    op--;
+	    if (m->m_idom > 0) {
+		t = *op - m->vals[0];
+		if (t < 0.0 && dowrap) {
+		    switch (m->desc.type) {
+			case PM_TYPE_32:
+			case PM_TYPE_U32:
+			    t += (double)UINT_MAX+1;
+			    break;
+			case PM_TYPE_64:
+			case PM_TYPE_U64:
+			    t += (double)ULONGLONG_MAX+1;
+			    break;
+		    }
+		}
+		t /= (m->stamp - m->stomp);
+		m->vals[0] = *op;
+		if (t < 0.0) x->valid = 0;
+		else *op = t;
+		op++;
+	    }
+	    if (m->stomp == 0) x->valid = 0;
+	    m->stomp = m->stamp;
+	}
+
+	/* pick up most recent timestamp */
+	if (m->stamp > stamp) stamp = m->stamp;
+
+	m++;
+    }
+    x->smpls[0].stamp = stamp;
+}
+
+void
+cndFetch_all(Expr *x)
+{
+    Metric	*m = x->metrics;
+    double	*op;
+    char	**op_s;
+    RealTime	stamp = 0;
+    pmAtomValue	a;
+    double	t;
+    int		fix_idom = 0;
+    int		i, j;
+    int		dorate = 0;
+
+    ROTATE(x)
+
+    /* preliminary scan through Metrics */
+    for (i = 0; i < x->hdom; i++) {
+	/* check for different instances */
+	if (indom_changed(m)) {
+	    fix_idom = 1;
+	    m->stomp = 0;
+	}
+	m++;
+    }
+
+    if (fix_idom) {
+	/*
+	 * propagate indom changes up the expression tree
+	 * and reshape the ring buffer if required
+	 */
+	instFetchExpr(x);
+    }
+
+    /*
+     * even if ring buffer reshaped in instFetchExpr(), we're
+     * about to populate it with another set of values, so bump
+     * valid counter
+     */
+    x->valid++;
+
+    m = x->metrics;
+
+    if (m->desc.sem == PM_SEM_COUNTER) {
+	/* need rate conversion, unless some parent node is CND_INSTANT */
+	Expr	*p = x->parent;
+	dorate = 1;
+	while (p != NULL) {
+	    if (p->op == CND_INSTANT) {
+		dorate = 0;
+		break;
+	    }
+	    p = p->parent;
+	}
+    }
+
+    /* extract values */
+    op = (double *)x->smpls[0].ptr;
+    op_s = (char **)x->smpls[0].ptr;
+
+    for (i = 0; i < x->hdom; i++) {
+
+	/* extract values from m->vset */
+	for (j = 0; j < m->m_idom; j++) {
+	    if (m->desc.type == PM_TYPE_STRING) {
+		if (*op_s != NULL)
+		    free(*op_s);
+		*op_s = strdup(m->vset->vlist[j].value.pval->vbuf);
+#if PCP_DEBUG
+		if (pmDebug & DBG_TRACE_APPL2) {
+		    fprintf(stderr, "cndFetch_all(" PRINTF_P_PFX "%p): %s[%s] from %s = \"%s\" (" PRINTF_P_PFX "%p)\n",
+			    x, symName(m->mname), m->inames[j], symName(m->hname), *op_s, *op_s);
+		}
+#endif
+		op_s++;
+	    }
+	    else {
+		pmExtractValue(m->vset->valfmt, &m->vset->vlist[j], m->desc.type, &a, PM_TYPE_DOUBLE);
+		*op = m->conv * a.d;
+#if PCP_DEBUG
+		if (pmDebug & DBG_TRACE_APPL2) {
+		    fprintf(stderr, "cndFetch_all(" PRINTF_P_PFX "%p): %s[%s] from %s = %g",
+			    x, symName(m->mname), m->inames[j], symName(m->hname), *op);
+		    if (m->conv != 1) fprintf(stderr, " (unconv = %g)", a.d);
+		    fputc('\n', stderr);
+		}
+#endif
+		op++;
+	    }
+	}
+	m->vset = NULL;
+
+	/*
+	 * rate computation ... only relevant for numeric values, 
+	 * so op was updated above and op_s was not used above
+	 */
+	if (dorate) {
+	    op -= m->m_idom;
+	    for (j = 0; j < m->m_idom; j++) {
+		t = *op - m->vals[j];
+		if (t < 0.0 && dowrap) {
+		    switch (m->desc.type) {
+			case PM_TYPE_32:
+			case PM_TYPE_U32:
+			    t += (double)UINT_MAX+1;
+			    break;
+			case PM_TYPE_64:
+			case PM_TYPE_U64:
+			    t += (double)ULONGLONG_MAX+1;
+			    break;
+		    }
+		}
+		t /= (m->stamp - m->stomp);
+		m->vals[j] = *op;
+		if (t < 0.0) x->valid = 0;
+		else *op = t;
+		op++;
+	    }
+	    if (m->stomp == 0) x->valid = 0;
+	    m->stomp = m->stamp;
+	}
+
+	/* pick up most recent timestamp */
+	if (m->stamp > stamp) stamp = m->stamp;
+
+	m++;
+    }
+    x->smpls[0].stamp = stamp;
+}
+
+void
+cndFetch_n(Expr *x)
+{
+    Metric	*m = x->metrics;
+    double	*op;
+    char	**op_s;
+    RealTime	stamp = 0;
+    pmAtomValue	a;
+    double	t;
+    int		i, j, k;
+    int		dorate = 0;
+
+    ROTATE(x)
+    x->valid++;
+    op = (double *)x->smpls[0].ptr;
+    op_s = (char **)x->smpls[0].ptr;
+
+    if (m->desc.sem == PM_SEM_COUNTER) {
+	/* need rate conversion, unless some parent node is CND_INSTANT */
+	Expr	*p = x->parent;
+	dorate = 1;
+	while (p != NULL) {
+	    if (p->op == CND_INSTANT) {
+		dorate = 0;
+		break;
+	    }
+	    p = p->parent;
+	}
+    }
+
+    for (i = 0; i < x->hdom; i++) {
+	/* no values */
+	if ((m->vset == NULL) || (m->vset->numval < 0)) {
+	    x->valid = 0;
+	    for (j = i; j < x->hdom; j++) {
+		m->stomp = 0;
+		m->vset = NULL;
+		m++;
+	    }
+	    return;
+	}
+
+	/* extract values */
+	for (j = 0; j < m->m_idom; j++) {
+	    for (k = 0; k < m->vset->numval; k++) {
+		if (m->iids[j] == m->vset->vlist[k].inst) {
+		    if (m->desc.type == PM_TYPE_STRING) {
+			if (*op_s != NULL)
+			    free(*op_s);
+			*op_s = strdup(m->vset->vlist[k].value.pval->vbuf);
+#if PCP_DEBUG
+			if (pmDebug & DBG_TRACE_APPL2) {
+			    fprintf(stderr, "cndFetch_n(" PRINTF_P_PFX "%p): %s[%s] from %s = \"%s\" (" PRINTF_P_PFX "%p)\n",
+				    x, symName(m->mname), m->inames[j], symName(m->hname), *op_s, *op_s);
+			}
+#endif
+			op_s++;
+		    }
+		    else {
+			pmExtractValue(m->vset->valfmt, &m->vset->vlist[k], m->desc.type, &a, PM_TYPE_DOUBLE);
+			*op = m->conv * a.d;
+#if PCP_DEBUG
+			if (pmDebug & DBG_TRACE_APPL2) {
+			    fprintf(stderr, "cndFetch_n(" PRINTF_P_PFX "%p): %s[%s] from %s = %g",
+				    x, symName(m->mname), m->inames[j], symName(m->hname), *op);
+			    if (m->conv != 1) fprintf(stderr, " (unconv = %g)", a.d);
+			    fputc('\n', stderr);
+			}
+#endif
+			op++;
+		    }
+		    break;
+		}
+	    }
+
+	    /* missing value */
+	    if (k == m->vset->numval) {
+		x->valid = 0;
+		m->stomp = 0;
+		m->vset = NULL;
+		return;
+	    }
+	}
+	m->vset = NULL;
+
+	/*
+	 * rate computation ... only relevant for numeric values, 
+	 * so op was updated above and op_s was not used above
+	 */
+	if (dorate) {
+	    op -= m->m_idom;
+	    for (j = 0; j < m->m_idom; j++) {
+		t = *op - m->vals[j];
+		if (t < 0.0 && dowrap) {
+		    switch (m->desc.type) {
+			case PM_TYPE_32:
+			case PM_TYPE_U32:
+			    t += (double)UINT_MAX+1;
+			    break;
+			case PM_TYPE_64:
+			case PM_TYPE_U64:
+			    t += (double)ULONGLONG_MAX+1;
+			    break;
+		    }
+		}
+		t /= (m->stamp - m->stomp);
+		m->vals[j] = *op;
+		if (t < 0.0) x->valid = 0;
+		else *op = t;
+		op++;
+	    }
+	    if (m->stomp == 0) x->valid = 0;
+	    m->stomp = m->stamp;
+	}
+
+	/* pick up most recent timestamp */
+	if (m->stamp > stamp) stamp = m->stamp;
+
+	m++;
+    }
+    x->smpls[0].stamp = stamp;
+}
+
+

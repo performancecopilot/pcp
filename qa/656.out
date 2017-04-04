@@ -1,0 +1,303 @@
+QA output created by 656
+
+=== Unpacking fake root === 
+
+=== Valgrind check cifs metrics for all filesystems ===
+=== std out ===
+
+cifs.session PMID: 121.0.0 [Number of sessions]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help:
+Count of the number of active CIFS sessions.
+    value 1
+
+cifs.shares PMID: 121.0.1 [Number of shares]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help:
+Number of unqiue shares which are currently mounted on the system.
+    value 3
+
+cifs.buffer PMID: 121.0.2 [SMB request/response buffer]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help:
+Number of transactions currently in the SMB request/response buffer.
+    value 1
+
+cifs.pool_size PMID: 121.0.3 [SMB request/response pool size]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help:
+The total pool size for the SMB request/response buffer.
+    value 5
+
+cifs.small_buffer PMID: 121.0.4 [SMB small request/response buffer]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help:
+Number of transactions currently in the SMB small request/response buffer.
+    value 1
+
+cifs.small_pool_size PMID: 121.0.5 [SMB small request/response bool size]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help:
+The total pool size for the SMB small request/response buffer.
+    value 30
+
+cifs.mid_operations PMID: 121.0.6 [Pending network operations (MIDs)]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help:
+Total number of pending network operations (MIDs).
+    value 0
+
+cifs.total_operations PMID: 121.0.7 [CIFS operations]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help:
+The total number of CIFS operations
+    value 0
+
+cifs.total_reconnects PMID: 121.0.8 [CIFS share re-connects]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help:
+The total number of CIFS share reconnects.
+    value 0
+
+cifs.vfs_operations PMID: 121.0.9 [VFS operations]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help:
+The total number of Virtual File System operations.
+    value 291
+
+cifs.vfs_operations_max PMID: 121.0.10 [Max VFS operations.]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help:
+The max number of con-current Virtial File System operations allowed at
+one time.
+    value 2
+
+cifs.fs.connected PMID: 121.1.0 [File system connection status.]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+The connection status for each file system mounted, 0 corresponds to a file
+system which is currently disconnected. 1 corresponds to a file system which
+is connected.
+    inst [0 or "\\192.168.122.153\cifs-three"] value 1
+    inst [1 or "\\192.168.122.153\cifs-two"] value 1
+    inst [2 or "\\192.168.122.153\cifs-one"] value 1
+
+cifs.fs.smbs PMID: 121.1.1 [CIFS server operations.]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Number of CIFS server operations for each mounted CIFS filesystem.
+    inst [0 or "\\192.168.122.153\cifs-three"] value 37
+    inst [1 or "\\192.168.122.153\cifs-two"] value 37
+    inst [2 or "\\192.168.122.153\cifs-one"] value 50
+
+cifs.fs.oplock_breaks PMID: 121.1.2 [Number of oplock breaks.]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Total number of operation lock breaks for each file system.
+    inst [0 or "\\192.168.122.153\cifs-three"] value 0
+    inst [1 or "\\192.168.122.153\cifs-two"] value 0
+    inst [2 or "\\192.168.122.153\cifs-one"] value 0
+
+cifs.fs.read PMID: 121.1.3 [Read operations]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Total number of read operations per filesystem mounted.
+    inst [0 or "\\192.168.122.153\cifs-three"] value 0
+    inst [1 or "\\192.168.122.153\cifs-two"] value 0
+    inst [2 or "\\192.168.122.153\cifs-one"] value 2
+
+cifs.fs.read_bytes PMID: 121.1.4 [Read bytes]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Total number of read bytes (throughput) for each mounted CIFS file system
+in KB.
+    inst [0 or "\\192.168.122.153\cifs-three"] value 0
+    inst [1 or "\\192.168.122.153\cifs-two"] value 0
+    inst [2 or "\\192.168.122.153\cifs-one"] value 0
+
+cifs.fs.write PMID: 121.1.5 [Write operations]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Total number of write operations per filesystem mounted.
+    inst [0 or "\\192.168.122.153\cifs-three"] value 0
+    inst [1 or "\\192.168.122.153\cifs-two"] value 0
+    inst [2 or "\\192.168.122.153\cifs-one"] value 0
+
+cifs.fs.write_bytes PMID: 121.1.6 [Write bytes]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Total number of write bytes (throughput) for each mounted CIFS file system
+in KB.
+    inst [0 or "\\192.168.122.153\cifs-three"] value 0
+    inst [1 or "\\192.168.122.153\cifs-two"] value 0
+    inst [2 or "\\192.168.122.153\cifs-one"] value 0
+
+cifs.fs.flushes PMID: 121.1.7 [Cache flushes]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Number of file system cache flushes.
+    inst [0 or "\\192.168.122.153\cifs-three"] value 0
+    inst [1 or "\\192.168.122.153\cifs-two"] value 0
+    inst [2 or "\\192.168.122.153\cifs-one"] value 0
+
+cifs.fs.locks PMID: 121.1.8 [Number of lock]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Total number of open locks for each mounted CIFS file system.
+    inst [0 or "\\192.168.122.153\cifs-three"] value 0
+    inst [1 or "\\192.168.122.153\cifs-two"] value 0
+    inst [2 or "\\192.168.122.153\cifs-one"] value 0
+
+cifs.fs.hard_links PMID: 121.1.9 [Hard links created]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Total number of hard links created for each file system.
+    inst [0 or "\\192.168.122.153\cifs-three"] value 0
+    inst [1 or "\\192.168.122.153\cifs-two"] value 0
+    inst [2 or "\\192.168.122.153\cifs-one"] value 0
+
+cifs.fs.sym_links PMID: 121.1.10 [Symbolic links created]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Total number of symbolic links created for each mounted file system.
+    inst [0 or "\\192.168.122.153\cifs-three"] value 0
+    inst [1 or "\\192.168.122.153\cifs-two"] value 0
+    inst [2 or "\\192.168.122.153\cifs-one"] value 0
+
+cifs.ops.open PMID: 121.1.11 [Open operations]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Total number of file open operations per mounted file system.
+    inst [0 or "\\192.168.122.153\cifs-three"] value 0
+    inst [1 or "\\192.168.122.153\cifs-two"] value 0
+    inst [2 or "\\192.168.122.153\cifs-one"] value 0
+
+cifs.ops.close PMID: 121.1.12 [Close operations]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Total number of file close operations per mounted file system.
+    inst [0 or "\\192.168.122.153\cifs-three"] value 0
+    inst [1 or "\\192.168.122.153\cifs-two"] value 0
+    inst [2 or "\\192.168.122.153\cifs-one"] value 3
+
+cifs.ops.delete PMID: 121.1.13 [Delete operations]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Total number of file delete operations per mounted file system.
+    inst [0 or "\\192.168.122.153\cifs-three"] value 0
+    inst [1 or "\\192.168.122.153\cifs-two"] value 0
+    inst [2 or "\\192.168.122.153\cifs-one"] value 0
+
+cifs.ops.posix_open PMID: 121.1.14 [Posix open operations]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Total number of posix file open operations per file system.
+    inst [0 or "\\192.168.122.153\cifs-three"] value 0
+    inst [1 or "\\192.168.122.153\cifs-two"] value 0
+    inst [2 or "\\192.168.122.153\cifs-one"] value 3
+
+cifs.ops.posix_mkdir PMID: 121.1.15 [Posix mkdir operations]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Total number of posix directory creation operations per file system.
+    inst [0 or "\\192.168.122.153\cifs-three"] value 0
+    inst [1 or "\\192.168.122.153\cifs-two"] value 0
+    inst [2 or "\\192.168.122.153\cifs-one"] value 0
+
+cifs.ops.mkdir PMID: 121.1.16 [mkdir operations]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Total number of directory creation operations per file system.
+    inst [0 or "\\192.168.122.153\cifs-three"] value 0
+    inst [1 or "\\192.168.122.153\cifs-two"] value 0
+    inst [2 or "\\192.168.122.153\cifs-one"] value 0
+
+cifs.ops.rmdir PMID: 121.1.17 [rmdir operations]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Total number of directory removal operations per file system.
+    inst [0 or "\\192.168.122.153\cifs-three"] value 0
+    inst [1 or "\\192.168.122.153\cifs-two"] value 0
+    inst [2 or "\\192.168.122.153\cifs-one"] value 0
+
+cifs.ops.rename PMID: 121.1.18 [rename operations]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Total number of rename operations per file system.
+    inst [0 or "\\192.168.122.153\cifs-three"] value 0
+    inst [1 or "\\192.168.122.153\cifs-two"] value 0
+    inst [2 or "\\192.168.122.153\cifs-one"] value 0
+
+cifs.ops.t2_rename PMID: 121.1.19 [t2 rename operations]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Total number of t2 rename operations per file system.
+    inst [0 or "\\192.168.122.153\cifs-three"] value 0
+    inst [1 or "\\192.168.122.153\cifs-two"] value 0
+    inst [2 or "\\192.168.122.153\cifs-one"] value 0
+
+cifs.ops.find_first PMID: 121.1.20 [FindFirst requests]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Total number of FindFirst requests to the server
+    inst [0 or "\\192.168.122.153\cifs-three"] value 22
+    inst [1 or "\\192.168.122.153\cifs-two"] value 22
+    inst [2 or "\\192.168.122.153\cifs-one"] value 26
+
+cifs.ops.find_next PMID: 121.1.21 [FindNext requests]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Total number of FindNext requests to the server
+    inst [0 or "\\192.168.122.153\cifs-three"] value 0
+    inst [1 or "\\192.168.122.153\cifs-two"] value 0
+    inst [2 or "\\192.168.122.153\cifs-one"] value 0
+
+cifs.ops.find_close PMID: 121.1.22 [FindClose requests]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Total number of FindClose requests to the server
+    inst [0 or "\\192.168.122.153\cifs-three"] value 0
+    inst [1 or "\\192.168.122.153\cifs-two"] value 0
+    inst [2 or "\\192.168.122.153\cifs-one"] value 0
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -L -K clear -K add,121,/var/lib/pcp/pmdas/cifs/pmda_cifs.so,cifs_init -dfmtT -n /var/lib/pcp/pmdas/cifs/root cifs
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...

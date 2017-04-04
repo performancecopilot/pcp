@@ -1,0 +1,48 @@
+#! /bin/sh
+# PCP QA Test No. 1050 (formerly 553)
+# check line length in pmieconf default rules
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+which pmieconf >/dev/null 2>&1 || _notrun "No pmieconf binary installed"
+
+status=1	# failure is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+_length_check()
+{
+    sed -e 's/	/        /g' \
+    | $PCP_AWK_PROG '
+$1 == "rule:"	{ rule = $0 }
+    {
+	line = $0
+	if (length(line) > '$1') {
+	    print rule
+	    print "text is too long: "
+	    print
+	}
+    }'
+}
+
+# real QA test starts here
+echo
+echo "=== Checking help text ==="
+pmieconf -f $tmp.pmie help all | _length_check 80
+echo
+echo "=== Checking predicate ==="
+# (increased from 80 to 96 because of the white space to the
+#  left of the real prodicate text, in pmieconf output).
+pmieconf -f $tmp.pmie list all predicate | _length_check 96
+
+# success, all done
+status=0
+exit

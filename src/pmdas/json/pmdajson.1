@@ -1,0 +1,111 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2015 Red Hat.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMDAJSON 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmdajson\f1 \- JSON PMDA
+.SH DESCRIPTION
+\fBpmdajson\fR is a Performance Metrics Domain Agent (PMDA) which exports 
+metrics from arbitrary sources generating Javascript Object Notation (JSON)
+syntax, describing metric metadata and values.
+.PP
+Further details on the JSON format can be found at http://www.json.org
+.SH JSON DATA SOURCES
+\fBpmdajson\fR searches the directories listed in the "directory_list"
+and "trusted_directory_list" config file options, looking for files
+called "metadata.json". These JSON metadata files describe the names,
+types, etc. of their associated JSON data. For example, let's assume
+the following simple JSON data file:
+.PP
+.nf
+.fam C
+  {
+    "string_value": "testing, 1, 2, 3",
+    "read_count": 0
+  }
+.fam T
+.fi
+.PP
+The associated metadata file would look like the following:
+.PP
+.nf
+.fam C
+  {
+    "metrics": [
+      {
+        "name": "string_value",
+        "pointer": "/string_value",
+        "type": "string",
+      },
+      {
+        "name": "read_count",
+        "pointer": "/read_count",
+        "type": "integer",
+        "description": "Times values read"
+      }
+    ]
+  }
+.fam T
+.fi
+.PP
+For more details on the JSON metadata format, see the README file
+included with \fBpmdajson\fR.
+.SH SECURITY MODEL
+JSON sources that come from "directory_list" config file option
+aren't "trusted", and any command that needs to be run to get JSON
+data is run as user "nobody".
+.PP
+JSON sources that come from "trusted_directory_list" config file
+option are trusted, and any command that needs to be run to get
+JSON data is run as user "root".
+.PP
+For more details on security, see the README file
+included with \fBpmdajson\fR.
+.SH INSTALLATION
+Install the json PMDA by using the Install script as root:
+.PP
+      # cd $PCP_PMDAS_DIR/json
+.br
+      # ./Install
+.PP
+To uninstall, do the following as root:
+.PP
+      # cd $PCP_PMDAS_DIR/json
+.br
+      # ./Remove
+.PP
+\fBpmdajson\fR is launched by \fIpmcd\fR(1) and should never be executed 
+directly. The Install and Remove scripts notify \fIpmcd\fR(1) when the 
+agent is installed or removed.
+.SH FILES
+.IP "\fB$PCP_PMDAS_DIR/json/Install\fR" 4 
+installation script for the \fBpmdajson\fR agent 
+.IP "\fB$PCP_PMDAS_DIR/json/Remove\fR" 4 
+undo installation script for the \fBpmdajson\fR agent 
+.IP "\fB$PCP_PMDAS_DIR/json/config.json\fR" 4
+configuration file for the \fBpmdajson\fR agent
+.IP "\fB$PCP_LOG_DIR/pmcd/json.log\fR" 4 
+default log file for error messages from \fBpmdajson\fR 
+.SH PCP ENVIRONMENT
+Environment variables with the prefix \fBPCP_\fR are used to parameterize
+the file and directory names used by \fBPCP\fR. On each installation, the
+file \fB/etc/pcp.conf\fR contains the local values for these variables. 
+The \fB$PCP_CONF\fR variable may be used to specify an alternative 
+configuration file, as described in \fIpcp.conf\fR(5).
+.SH SEE ALSO
+.BR pmcd (1),
+.BR pminfo (1)
+and
+.BR pmprobe (1).

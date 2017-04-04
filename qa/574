@@ -1,0 +1,62 @@
+#!/bin/sh
+# PCP QA Test No. 574
+# Tests out the api (uses torture_api) in archive mode.
+# Main motivation is to test the PMNS in archives for distrib-PMNS.
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+rm -f $seq.out
+if [ -f $seq.out.$PCP_PLATFORM ]
+then
+    ln $seq.out.$PCP_PLATFORM $seq.out || exit 1
+else
+    _notrun "Need qualified output for $PCP_PLATFORM"
+fi
+
+status=1	# failure is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+rm -rf $seq.full
+rm -f $tmp.*
+
+#
+# Create new style version 2 log which includes
+# full-path names in the meta-data.
+#
+cat <<EOF >>$tmp.conf 
+#
+# pmlogger(1) configuration file 
+# used for torture_api
+#
+log advisory on 1 secs {
+EOF
+# generate the metric names
+    src/torture_api -i -m >>$tmp.conf
+    cat <<EOF >>$tmp.conf 
+}
+EOF
+cat $tmp.conf >$seq.full
+echo "---" >>$seq.full
+
+pmlogger -c $tmp.conf -V2 -s 1 -l $tmp.pmlog $tmp.logv2
+
+cat $tmp.pmlog >>$seq.full
+echo "---" >>$seq.full
+pminfo -a $tmp.logv2 >>$seq.full
+
+src/torture_api -i -v -s2 -a $tmp.logv2 2>&1 | _filter_torture_api
+
+
+# success, all done
+status=0
+exit

@@ -1,0 +1,572 @@
+#! /bin/sh
+#
+# Copyright (c) 1997-2005 Silicon Graphics, Inc.  All Rights Reserved.
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+
+tmp=/tmp/$$
+trap "rm -f $tmp.*; exit" 0 1 2 3  15
+rm -f $tmp.*
+
+. $PCP_DIR/etc/pcp.env
+. $PCP_SHARE_DIR/lib/pmview-args
+
+_usage()
+{
+    echo >$tmp.msg 'Usage: '$prog' [options] [diskid ...]
+
+options:
+  -b              display data throughput (Kbytes/sec) rather than IOPs
+  -m maxrate      maximum activity expected (integer)
+		  [default 150 IOPs (without -b) or 2048 Kbytes/sec (with -b)]
+  -r              display only the read activity
+  -V              verbose/diagnostic output
+  -w              display only the write activity
+  -X ndisk        limit layout to at most this many disks per row, set
+  		  to 0 for no limit [default 12]
+  -Y nctl         limit layout to at most this many controllers per column
+  		  before starting a new group of controllers, set to 0
+		  for no limit [default 16]
+
+pmview(1) options:'
+
+    _pmview_usage >> $tmp.msg
+    echo >> $tmp.msg
+    echo 'Default title is: Total Disk Activity (IOPS) for Host' >> $tmp.msg
+    _pmview_info -f $tmp.msg
+}
+
+verbose=false
+type=total
+Type=Total
+Thru=IOPS
+max=''
+force=false
+maxnctl=16
+maxndisk=12
+diskargs=
+debug=false
+
+# build WM_COMMAND X(1) property for restart after login/logout
+#
+echo -n "pmview Version 2.1 \"dkvis\"" >$tmp.conf
+for arg
+do
+    echo -n " \"$arg\"" >>$tmp.conf
+done
+
+_pmview_args "$@"
+
+if [ -n "$otherArgs" ]
+then
+    while getopts "?bdm:R:rv:VX:Y:w" c $otherArgs
+    do
+	case $c
+	in
+	    b)
+		Thru="Kbytes/sec"
+		;;
+	    d)
+		debug=true
+		;;
+	    m)
+		_pmview_unsigned $c
+		max=$OPTARG
+		;;
+	    r)
+		if [ $type != total ]
+		then
+		    _pmview_error "$prog: only one -r or -w option may be specified"
+		    # NOTREACHED
+		fi
+		type=read
+		Type=Read
+		;;
+
+	    v)
+		if [ $OPTARG = "1" ]
+		then
+		    _pmview_warning "$prog: pmview version 1 no longer supported, using version 2"
+		elif [ $OPTARG != "2" ]
+		then
+		    _pmview_error "$prog: only version 2 supported for -v"
+		    # NOTREACHED
+		fi
+		;;
+
+	    V)
+		verbose=true
+		;;
+	    w)
+		if [ $type != total ]
+		then
+		    _pmview_error "$prog: only one -r or -w option may be specified"
+		    # NOTREACHED
+		fi
+		type=write
+		Type=Write
+		;;
+	    X)
+		_pmview_unsigned $c
+		maxndisk=$OPTARG
+		;;
+	    [YR])
+		# used to be -R, so support both for backwards compatibility
+		_pmview_unsigned $c
+		maxnctl=$OPTARG
+		force=true
+		;;
+	    ?)
+		_usage
+		exit 1
+		;;
+
+	esac
+    done
+    set -- $otherArgs
+    shift `expr $OPTIND - 1`
+
+    [ $# -gt 0 ] && diskargs=$@
+fi
+
+if [ "$Thru" != "IOPS" ]
+then
+    case $type
+    in
+	read)
+		type=read_bytes
+		;;
+	write)
+		type=write_bytes
+		;;
+	*)
+                if pminfo $msource disk.dev.total_bytes >/dev/null 2>&1
+                then
+                    type=total_bytes
+                else
+                    type=bytes
+                fi
+                ;;
+    esac
+fi
+
+# default max depends on -b or not
+#
+if [ "$Thru" != "IOPS" ]
+then
+    [ -z "$max" ] && max=2048
+else
+    [ -z "$max" ] && max=150
+fi
+
+pminfo -f $msource $namespace disk.dev.$type >$tmp.info 2>$tmp.err
+if [ -s $tmp.err ]
+then
+    cat $tmp.err | _pmview_fetch_mesg >> $tmp.msg
+    echo "$prog: Failed to get disk inventory from host \"$host\"" | fmt >> $tmp.msg
+    _pmview_error -f $tmp.msg
+    # NOTREACHED
+fi
+
+$PCP_AWK_PROG < $tmp.info -F'"' '/inst/ { print $2 }' > $tmp.disks
+
+if [ ! -s $tmp.disks ]
+then
+    cat $tmp.info | _pmview_fetch_mesg >> $tmp.msg
+    echo "$prog: Failed to get disk inventory from host \"$host\"" | fmt >> $tmp.msg
+    _pmview_error -f $tmp.msg
+    # NOTREACHED
+fi
+
+if [ ! -z "$diskargs" ]
+then
+    rm -f $tmp.tmp $tmp.msg
+    for dk in $diskargs
+    do
+	if echo "$dk" | grep '[.[^]' >/dev/null
+	then
+	    # assume egrep(1) regular expression
+	    #
+	    if egrep "$dk" $tmp.disks >>$tmp.tmp
+	    then
+	        # found some matches
+		#
+		:
+	    else
+		echo "$prog: pattern \"$dk\" does not match any disks ..." >$tmp.msg
+	    fi
+	elif grep "^$dk\$" $tmp.disks >/dev/null
+	then
+	    echo $dk >>$tmp.tmp
+	else
+	    echo "$prog: disk \"$dk\" not in the disk inventory ..." >$tmp.msg
+	fi
+    done
+    if [ -s $tmp.msg ]
+    then
+	echo "Disks on host \"$host\" are:" >> $tmp.msg
+	fmt $tmp.disks | sed -e 's/^/    /' >> $tmp.msg
+	_pmview_error -f $tmp.msg
+	# NOTREACHED
+    fi
+    mv $tmp.tmp $tmp.disks
+fi
+
+if $debug
+then
+    echo "Disks ..."
+    cat $tmp.disks
+fi
+
+ndisk=`wc -l <$tmp.disks | sed -e 's/ //g'`
+
+if [ "$ndisk" -lt 1 ]
+then
+    echo "$prog: Cannot get disk inventory for host \"$host\"\n" > $tmp.msg
+    cat $tmp.info >> $tmp.msg
+    _pmview_error -f $tmp.msg
+    # NOTREACHED
+fi
+
+cat << end-of-file >> $tmp.conf
+
+#
+# dkvis
+#
+end-of-file
+
+if $verbose
+then
+    echo "# Disk Inventory:" >> $tmp.conf
+    fmt <$tmp.disks | sed -e 's/^/#    /' >> $tmp.conf
+fi
+cp $tmp.disks $tmp.in
+
+# get controller-based order
+#
+# the mapping is controlled by the here-is document below, where each
+# (non-comment) line contains three fields separated by tabs:
+#  1. pattern to match disk names (must match the start of a disk indom name)
+#     - don't bother escaping / (fixed up later)
+#     - <n> is expanded to \([0-9][0-9]*\) later
+#     - <h> is expanded to \([0-9a-f][0-9a-f]*\) later
+#  2. controller-tag ... construction from literals and substrings (in sed
+#     syntax, so \1, \2, etc) from the pattern
+#  3. sort field order ... constructed from the ordinal labels of the
+#     substrings in the pattern (comma separated) ... "n" is appended
+#     for numerical sorting
+#
+# so the control line
+# dks<n>d<n>l*\([0-9]*\)		dks\1		1n,2n,3n
+#
+# will first turn disk indom names like dks14d3, dks14d3l2, dks14d3l10,
+# dks14d2, dks10d7, dks10d10 and dks10d1 into records like
+#
+# dks14 14  3    dks14d3
+# dks14 14  3  2 dks14d3l2
+# dks14 14  3 10 dks14d3l10
+# dks14 14  2    dks14d2
+# dks10 10  7    dks10d7
+# dks10 10  1 10 dks10d110
+# dks10 10  1    dks10d1
+# --+-- -+ -+ -+ ----+----
+#   |    |  |  |     |
+#   |    |  |  |     +-- full disk name
+#   |    |  |  +-- 3rd sort key (lun, may be missing)
+#   |    |  +-- 2nd sort key (target)
+#   |    +-- 1st sort key (controller)
+#   +-- controller-tag for dkvis scene and used for grouping "related"
+#       disks
+#
+# and generate a sort(1) key of the form "+1n -2 +2n -3 +3n -4"
+#
+# after sorting this list becomes
+#
+# dks10 10  1    dks10d1
+# dks10 10  1 10 dks10d110
+# dks10 10  7    dks10d7
+# dks14 14  2    dks14d2
+# dks14 14  3    dks14d3
+# dks14 14  3  2 dks14d3l2
+# dks14 14  3 10 dks14d3l10
+#
+# and after grouping based on the common controller-tag and stripping
+# the sort fields this becomes
+#
+# dks10 dks10d1 dks10d110 dks10d7
+# dks14 dks14d2 dks14d3 dks14d3l2 dks14d3l10
+#
+sed >$tmp.ctl <<'End-of-File' \
+    -e '/^#/d' \
+    -e 's/		*/	/g' \
+    -e 's/\//\\\//g' \
+    -e 's/<n>/\\([0-9][0-9]*\\)/g' \
+    -e 's/<h>/\\([0-9a-f][0-9a-f]*\\)/g' \
+    -e 's/^/^/'
+# Linux 2.2, no sard, IDE and SCSI
+sd\([a-z]\)+hd\([abcd]\)		sd+hd		1
+# Linux IDE, no devfs
+hd\([abcd]\)				hd		1
+# Linux IDE, with devfs
+ide/host<n>/bus<n>/target<n>/lun<n>	ide\1b\2	1n,2n,3n,4n
+# Linux SCSI, no devfs
+sd\([a-z]\)				sd		1
+# Linux XSCSI, dual port HBA, with devfs
+# e.g. xscsi/pci00.01.0-1/target2/lun0/disc (and similar for fabric device)
+xscsi/pci<h>\.<h>\.<n>-<n>/target<n>/lun<n>	xscsi\1.\2	1,2,3n,4n,5n,6n
+xscsi/pci<h>\.<h>\.<n>-<n>/node<h>/lun<n>	xscsi\1.\2	1,2,3n,4n,5,6n
+# Linux XSCSI, single port HBA, with devfs
+# e.g. xscsi/pci05.01.0/target2/lun0/disc (and similar for fabric device)
+xscsi/pci<h>\.<h>\.<n>/target<n>/lun<n>	xscsi\1.\2	1,2,3n,4n,5n
+xscsi/pci<h>\.<h>\.<n>/node<h>/lun<n>	xscsi\1.\2	1,2,3n,4,5n
+# Linux SCSI, with devfs
+scsi/host<n>/bus<n>/target<n>/lun<n>	scsi\1b\2	1n,2n,3n,4n
+# Linux Mylex RAID, no devfs
+rd/c<n>d<n>				dac		1n,2n
+# Linux Mylex RAID, with devfs (old style)
+dac960/c<n>d<n>				dac		1n,2n
+# Linux Mylex RAID, with devfs (new style)
+dac960/host<n>/disc<n>			dac		1n,2n
+# IRIX Firewire
+# two name formats: first is IRIX before 6.5.11, second is 6.5.11 or later
+/hw/rdisk/1394/\([^/]*\)/lun<n>vol/c<n>p<n>	1394c\3	3n,2n,1,2n
+1394/\([^/]*\)/lun<n>vol/c<n>p<n>	1394c\3	3n,2n,1,2n
+# IRIX SCSI, note l<n> is missing for LUN 0, so pattern is a little different
+# at the end
+dks<n>d<n>l*\([0-9]*\)			dks\1		1n,2n,3n
+# IRIX FC
+\(................\)/lun<n>/c<n>p<n>	fc\3p\4		3n,4n,1,2n
+# Linux direct attach xscsi
+# e.g. xscsi/pci15.01.0-2/target4/lun0/disc
+xscsi/pci<n>\.\(..\)\.\(.*\)/target<n>/lun<n>	xscsi\1b\2	1n,2,3,4n,5n
+# Linux fabric attach xscsi
+# e.g. xscsi/pci04.01.0/node50060946700083e9/port1/lun0/disc
+xscsi/pci<n>\.\(..\)\.\(.*\)/node\(................\)/port<n>/lun<n>	xfc\1b\2	1n,2,3,4,5n,6n
+# Linux IDA, with devfs
+ida/disc<n>				ida		1n
+# Old style IRIX Jaguar drives
+jag<n>d<n>				jag\1		1n,2n
+# Old style IRIX RAID drives
+rad<n>d<n>				rad\1		1n,2n
+End-of-File
+
+if $debug
+then
+    echo "Control lines ..."
+    cat $tmp.ctl
+fi
+
+nctl=`wc -l <$tmp.ctl | sed -e 's/ //g'`
+i=1
+
+# loop once per contol line in $tmp.ctl ...
+#	- select matching disks
+#	- generate the sort keys with the disk names
+#	- sort and group by the controller-tag
+#	- remove the matching lists from consideration
+#
+while [ $i -le $nctl ]
+do
+    $PCP_AWK_PROG -F'	' <$tmp.ctl '
+NR == '$i'	{ print "/" $1 "/p" >"'$tmp.sed-in'"
+		  print "/" $1 "/!p" >"'$tmp.sed-out'"
+		  nfld = split($3,fld,/,/)
+		  maxfld = 1
+		  for (i = 1; i <= nfld; i++) {
+		      if (fld[i] > maxfld) maxfld = fld[i]
+		      printf "+%s -%d ",fld[i],fld[i]+1 >"'$tmp.sort-arg'"
+		  }
+		  print "" >"'$tmp.sort-arg'"
+		  printf "%s","s/" $1 "/" $2 >"'$tmp.sed-key'"
+		  for (i = 1; i <= maxfld; i++) {
+		      printf " \\%d",i >"'$tmp.sed-key'"
+		  }
+		  print " &/" >"'$tmp.sed-key'"
+		  exit
+		}'
+
+    sed -n -f $tmp.sed-in <$tmp.in \
+    | sed -f $tmp.sed-key >$tmp.key
+    sort `cat $tmp.sort-arg` $tmp.key \
+    | $PCP_AWK_PROG >>$tmp.order '
+BEGIN		{ ctl = "" }
+$1 != ctl	{ if (NR > 1) print ""
+		  ctl = $1
+		  ndisk = 0
+		  printf "%s",ctl
+		}
+		{ ndisk++
+                  if ('"$maxndisk"' > 0 && ndisk > '"$maxndisk"') {
+		      print ""
+		      printf "%s",ctl
+		      ndisk = 1
+		  }
+		  printf " %s",$NF
+		}
+END		{ if (NR > 0) print "" }'
+    sed -n -f $tmp.sed-out <$tmp.in >$tmp.out
+    mv $tmp.out $tmp.in
+
+    i=`expr $i + 1`
+done
+
+# any leftovers do not match any control pattern
+#
+if [ -s $tmp.in ]
+then
+    echo "$prog: The following disk names do not match a known controller pattern," >$tmp.warn
+    echo "and they will be ungrouped in the scene:" >>$tmp.warn
+    fmt <$tmp.in | sed -e 's/^/    /' >>$tmp.warn
+    _pmview_warning -f $tmp.warn
+    sed -e 's/.*/& &/' <$tmp.in >>$tmp.order
+fi
+
+nctl=`wc -l <$tmp.order | sed -e 's/ //g'`
+
+# shape the base geometry for the scene ... there are groups, each with
+# $maxnctl controller rows, and the groups are arranged in a grid that
+# is $nrow groups deep and $ncol groups across
+#
+if [ $nctl -le $maxnctl ]
+then
+    # less than $maxnctl controller rows, so just one group
+    #
+    ncol=1
+    nrow=1
+else
+    # have some shaping to do ... assume each group is $maxnctl controller
+    # rows deep and as wide as the maximum number of disks per controller
+    # row, then square up the scene and maybe adjust $maxnctl
+    #
+    eval `$PCP_AWK_PROG <$tmp.order '
+START	{ maxdk = 0 }
+	{ if (NF - 1 > maxdk) maxdk = NF - 1 }
+END	{
+	  if ('"$nctl"' % "'$maxnctl'" == 0)
+	      ngrp = '"$nctl"' / "'$maxnctl'"
+	  else
+	      ngrp = int('"$nctl"' / "'$maxnctl'") + 1
+	  # add 2 to maxdk as an estimate of the label length in units of
+	  # displayed blocks, i.e. the label is about as long as the width
+	  # of 2 blocks
+	  ncol = int(0.5 + sqrt(ngrp)*'"$maxnctl"'/(maxdk + 2))
+	  if (ncol < 1) ncol = 1
+	  if (ngrp % ncol == 0)
+	      nrow = ngrp / ncol
+	  else
+	      nrow = int(ngrp / ncol) + 1
+	  # use all of the space in the base layout
+	  ngrp = nrow * ncol
+	  # make all the groups have the same number of controller rows
+	  if ('"$nctl"' % ngrp == 0)
+	      maxnctl = '"$nctl"' / ngrp
+	  else
+	      maxnctl = int('"$nctl"' / ngrp) + 1
+	  print "ncol=" ncol " nrow=" nrow " maxnctl=" maxnctl 
+	}'`
+fi
+
+#DEBUG echo "nctl=$nctl maxnctl=$maxnctl ncol=$ncol nrow=$nrow"
+
+# heuristic hack for pmlaunch
+#
+if [ "$nctl" -gt 6 ]
+then
+    group="_groupByInst"
+else
+    group="_groupByMetric"
+fi
+
+if [ -z "$titleArg" ]
+then
+    titleArg="$Type Disk Activity ($Thru) for Host $host"
+fi
+
+#
+# pmview 2.0
+#
+
+echo '
+_grid (' >> $tmp.conf
+
+$PCP_AWK_PROG -v io=$Type -v max=$max -v group=$group -v thru="$Thru" <$tmp.order '
+BEGIN	{ row = 0; col = 0; cnt = 0; type = ""; ctl = ""
+	  start_ctl = ""; label = ""; last_label = ""; last_ctl = ""
+	  color[0] = "green"
+	  color[1] = "blue"
+	  color[2] = "red"
+	  color[3] = "cyan"
+	  color[4] = "violet"
+	  color[5] = "yellow"
+          ncol = 5
+          colorlist = ""
+	}
+
+function dumpLabel(start, last)
+{
+  printf("    _baseLabel \"%s Activity for Disks on ", io)
+  if (start != last)
+    printf("Controllers %s to %s", start, last)
+  else
+    printf("Controller %s", start)
+  printf("\\nNormalized to %s %s\"\n", max, thru)
+  printf("    _colorlist (%s )\n", colorlist )
+  colorlist = ""
+}
+
+	{ if (cnt % '"$maxnctl"' == 0) {
+	    if (cnt > 0) {
+		print "    )"
+		dumpLabel(start_ctl, last_ctl)
+		print "  )"
+	    }
+	    printf("\n  _bar %d %d north %s (\n", 2*col, 2*row, group)
+	    print "    _metrics ("
+	    start_ctl = $1
+	    row++
+	    if (row >= '"$nrow"') {
+		col++
+		row = 0
+	    }
+	  }
+	  printf("        disk.dev.'$type'[")
+
+	  for (d = 2; d <= NF; d++) {
+	    if (d == 2)
+		printf("%s", $d)
+	    else
+		printf(",%s", $d)
+	  }
+	  printf("] %s \"%s\"\n", max, $1)
+	  if ($1 != last_ctl) {
+	    # new controller, change colors
+	    ncol++
+	    if (ncol > 5)
+		ncol = 0
+	  }
+	  colorlist = colorlist " " color[ncol]
+	  last_ctl = $1
+	  cnt++
+	}
+END	{ if (cnt > 0) {
+	    print "    )"
+	    dumpLabel(start_ctl, last_ctl)
+	    print "  )"
+	  }
+	  print ")"
+	}' >> $tmp.conf
+
+$verbose && cat $tmp.conf
+
+eval $PMVIEW <$tmp.conf $args -title "'$titleArg'" # -xrm "'*iconName:dkvis'"
+
+exit

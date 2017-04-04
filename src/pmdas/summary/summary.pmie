@@ -1,0 +1,40 @@
+//
+// summary metrics
+//
+// these expressions are evaluated by pmie(1)
+//
+// use the default interval between expression evaluation (currently
+// 10 seconds), and re-configure via -t command line arg to pmie
+// (see Install)
+
+// CPU utilization
+//
+cpuse   = "(kernel.percpu.cpu.sys + kernel.percpu.cpu.user)";
+ncpu    = "hinv.ncpu";
+
+// average CPU utilization
+summary.cpu.util = avg_inst $cpuse;
+
+// proportion of CPUs that are busy
+summary.cpu.busy = (count_inst $cpuse > 0.7) / $ncpu;
+
+// Disk utilization
+//
+diskio  = "disk.dev.total";
+ndisk   = "hinv.ndisk";
+
+// average spindle activity
+summary.disk.iops = avg_inst ($diskio);
+
+// proportion of disk spindles that are busy
+summary.disk.busy = (count_inst $diskio > 40) / $ndisk;
+
+// Network interface utilization
+//
+netio   = "network.interface.total.packets";
+
+// average network interface activity
+summary.netif.packets = avg_inst ($netio);
+
+// proportion of network interfaces that are busy
+summary.netif.busy = (count_inst $netio > 400) / (count_inst $netio >= 0);

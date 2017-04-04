@@ -1,0 +1,80 @@
+#! /bin/sh
+# PCP QA Test No. 239
+# pmnsmerge with embedded cpp(1) controls
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=0
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+mkdir $tmp.dir
+cd $tmp.dir
+
+echo >r1 'root {
+}'
+
+cat <<End-of-File >r2
+/*
+ * Irix pmns for Irix 6.4
+ * frozen on 21 November 1996.
+ */
+
+#define _STARTVERSION 961121
+
+root {
+#include "irix-root"
+}
+
+#include "irix-pmns"
+End-of-File
+
+cat <<End-of-File >irix-root
+    hinv
+End-of-File
+
+cat <<End-of-File >irix-pmns
+/*
+ * libirixpmda Performance Metrics Name Space Definition
+ *
+ * $Header: /plroot/eoe/pcp-1.0-melb/.RCS/PL/qa/RCS/239,v 1.6 2002/10/22 18:12:29 kenmcd Exp $
+ */
+
+hinv {
+    ncpu		1:18:2
+    cpuclock		1:26:1
+    dcache		1:26:2
+    icache		1:26:3
+    secondarycache	1:26:4
+    physmem		1:26:5
+    pmeminterleave	1:26:6
+    ndisk		1:26:7
+    nnode		1:26:8
+    nrouter		1:38:0
+    nrouterport		1:38:11
+    interconnect	1:38:13
+    map
+}
+
+hinv.map {
+    cpu			1:28:79
+    disk		1:80:13
+    node		1:39:49
+    router		1:38:1
+    routerport		1:38:12
+}
+End-of-File
+
+rm -f out-pmns
+pmnsmerge r1 r2 out-pmns
+cat out-pmns
+pminfo -n out-pmns -m | LC_COLLATE=POSIX sort

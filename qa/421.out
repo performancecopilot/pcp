@@ -1,0 +1,17 @@
+QA output created by 421
+Installing the "trace" Performance Metrics Domain Agent (PMDA) ...
+
+Use the default installation [y]? 
+Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+[...install files, make output...]
+Updating the PMCD control file, and notifying PMCD ...
+Check trace metrics have appeared ... 20 metrics and 6 values
+Note: some warnings are expected until trace API calls are made - refer to
+      the man pages for pmtrace(1) and pmdatrace(3) for further details.
+
+trace.transact.count
+No value(s) available!
+
+trace.transact.count
+    inst [1 or "foo"] value 1

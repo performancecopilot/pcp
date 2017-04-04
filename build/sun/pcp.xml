@@ -1,0 +1,173 @@
+<?xml version="1.0"?>
+<!DOCTYPE service_bundle SYSTEM "/usr/share/lib/xml/dtd/service_bundle.dtd.1">
+<!--
+    Copyright (c) 2009 Max Matveev.  All rights reserved.
+-->
+
+<service_bundle type='manifest' name='pcp'>
+
+<service name='application/pcp/pcp' type='service' version='1'>
+	<create_default_instance enabled='false' />
+	<single_instance />
+	<dependency name='root' grouping='require_all' restart_on='none'
+	    type='service'>
+		<service_fmri value='svc:/system/filesystem/local:default'/>
+		<service_fmri value='svc:/milestone/network:default'/>
+	</dependency>
+	<exec_method type='method' name='start' exec='/etc/init.d/pcp start'
+	    timeout_seconds='60' />
+	<exec_method type='method' name='stop' exec='/etc/init.d/pcp stop'
+	    timeout_seconds='60' />
+	<property_group name='startd' type='framework'>
+	    <propval name='ignore_error' type='astring' value='core' />
+	</property_group>
+	<stability value='Unstable' />
+	<template>
+		<common_name>
+			<loctext xml:lang='C'>
+				Performance Co-Pilot Legacy scripts
+			</loctext>
+		</common_name>
+		<documentation>
+			<manpage title='pcpinfo' section='1'
+				manpath='/usr/share/man' />
+		</documentation>
+	</template>
+</service>
+
+<service name='application/pcp/pmcd' type='service' version='1'>
+	<create_default_instance enabled='false' />
+	<single_instance />
+	<dependency name='root' grouping='require_all' restart_on='none'
+	    type='service'>
+		<service_fmri value='svc:/system/filesystem/local:default'/>
+		<service_fmri value='svc:/milestone/network:default'/>
+	</dependency>
+	<exec_method type='method' name='start' exec='/etc/init.d/pmcd start'
+	    timeout_seconds='60' />
+	<exec_method type='method' name='stop' exec='/etc/init.d/pmcd stop'
+	    timeout_seconds='60' />
+	<property_group name='startd' type='framework'>
+	    <propval name='ignore_error' type='astring' value='core' />
+	</property_group>
+	<stability value='Unstable' />
+	<template>
+		<common_name>
+			<loctext xml:lang='C'>
+				Performance Co-Pilot Collector Daemon
+			</loctext>
+		</common_name>
+		<documentation>
+			<manpage title='pmcd' section='1'
+				manpath='/usr/share/man' />
+		</documentation>
+	</template>
+</service>
+
+<service name='application/pcp/pmlogger' type='service' version='1'>
+	<create_default_instance enabled='false' />
+	<single_instance />
+	<dependency name='root' grouping='require_all' restart_on='none'
+	    type='service'>
+		<service_fmri value='svc:/system/filesystem/local:default'/>
+		<service_fmri value='svc:/milestone/network:default'/>
+	</dependency>
+	<exec_method type='method' name='start' exec='/etc/init.d/pmlogger start'
+	    timeout_seconds='60' />
+	<exec_method type='method' name='stop' exec='/etc/init.d/pmlogger stop'
+	    timeout_seconds='60' />
+	<property_group name='startd' type='framework'>
+	    <propval name='ignore_error' type='astring' value='core' />
+	</property_group>
+	<stability value='Unstable' />
+	<template>
+		<common_name>
+			<loctext xml:lang='C'>
+				Performance Co-Pilot Logger
+			</loctext>
+		</common_name>
+		<documentation>
+			<manpage title='pmlogger' section='1'
+				manpath='/usr/share/man' />
+		</documentation>
+	</template>
+</service>
+
+<service name='application/pcp/pmie' type='service' version='1'>
+	<create_default_instance enabled='false' />
+	<single_instance />
+	<dependency name='root' grouping='require_all' restart_on='none'
+	    type='service'>
+		<service_fmri value='svc:/system/filesystem/local:default'/>
+		<service_fmri value='svc:/milestone/network:default'/>
+	</dependency>
+	<exec_method type='method' name='start' exec='/etc/init.d/pmie start'
+	    timeout_seconds='60' />
+	<exec_method type='method' name='stop' exec='/etc/init.d/pmie stop'
+	    timeout_seconds='60' />
+	<stability value='Unstable' />
+	<template>
+		<common_name>
+			<loctext xml:lang='C'>
+				Performance Co-Pilot Inference Engine
+			</loctext>
+		</common_name>
+		<documentation>
+			<manpage title='pmie' section='1'
+				manpath='/usr/share/man' />
+		</documentation>
+	</template>
+</service>
+
+<service name='application/pcp/pmwebd' type='service' version='1'>
+	<create_default_instance enabled='false' />
+	<single_instance />
+	<dependency name='root' grouping='require_all' restart_on='none'
+	    type='service'>
+		<service_fmri value='svc:/system/filesystem/local:default'/>
+		<service_fmri value='svc:/milestone/network:default'/>
+	</dependency>
+	<exec_method type='method' name='start' exec='/etc/init.d/pmwebd start'
+	    timeout_seconds='60' />
+	<exec_method type='method' name='stop' exec='/etc/init.d/pmwebd stop'
+	    timeout_seconds='60' />
+	<stability value='Unstable' />
+	<template>
+		<common_name>
+			<loctext xml:lang='C'>
+				Performance Co-Pilot Web Daemon
+			</loctext>
+		</common_name>
+		<documentation>
+			<manpage title='pmwebd' section='1'
+				manpath='/usr/share/man' />
+		</documentation>
+	</template>
+</service>
+
+<service name='application/pcp/pmproxy' type='service' version='1'>
+	<create_default_instance enabled='false' />
+	<single_instance />
+	<dependency name='root' grouping='require_all' restart_on='none'
+	    type='service'>
+		<service_fmri value='svc:/system/filesystem/local:default'/>
+		<service_fmri value='svc:/milestone/network:default'/>
+	</dependency>
+	<exec_method type='method' name='start' exec='/etc/init.d/pmproxy start'
+	    timeout_seconds='60' />
+	<exec_method type='method' name='stop' exec='/etc/init.d/pmproxy stop'
+	    timeout_seconds='60' />
+	<stability value='Unstable' />
+	<template>
+		<common_name>
+			<loctext xml:lang='C'>
+				Performance Co-Pilot Proxy Daemon
+			</loctext>
+		</common_name>
+		<documentation>
+			<manpage title='pmproxy' section='1'
+				manpath='/usr/share/man' />
+		</documentation>
+	</template>
+</service>
+</service_bundle>

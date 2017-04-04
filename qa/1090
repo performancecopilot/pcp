@@ -1,0 +1,130 @@
+#!/bin/sh
+# PCP QA Test No. 1090
+# Reproduce https://github.com/performancecopilot/pcp/issues/14
+#
+# Copyright (c) 2015 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get webapi glue (includes standard environment, filters and checks)
+. ./common.webapi
+
+which curl >/dev/null 2>&1 || _notrun "No curl binary installed"
+[ -f ${PCP_BINADM_DIR}/pmwebd ] || _notrun "pmwebd package not installed"
+
+_cleanup()
+{
+    cd $here
+    $sudo $PCP_RC_DIR/pmwebd stop >>$here/$seq.full 2>&1
+    $sudo $PCP_RC_DIR/pcp start >>$here/$seq.full 2>&1
+    _wait_for_pmcd
+    _wait_for_pmlogger
+    rm -rf $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_dump_curl()
+{
+    echo "$1 curl ..." >>$here/$seq.full
+    echo "<stdout>" >>$here/$seq.full
+    ( cat $tmp.out; echo ) >>$here/$seq.full
+    echo "<stderr>" >>$here/$seq.full
+    ( cat $tmp.err; echo ) >>$here/$seq.full
+}
+
+_get_context()
+{
+    # get a pmapi context reference from pmwebd
+    #
+    curl -s http://localhost:44323/pmapi/context?hostspec=localhost >$tmp.out 2>$tmp.err
+    _dump_curl context
+    # get context from a line like in $tmp.out
+    # { "context": 2062287553 }
+    ( cat $tmp.out; echo ) | $PCP_AWK_PROG '$2 == "\"context\":" { print $3 }'
+}
+
+_get_metrics()
+{
+    # fetch metrics from context $1
+    #
+    curl -s http://localhost:44323/pmapi/"$1"/_metric?prefix=sample.long >$tmp.out 2>$tmp.err
+    _dump_curl metrics
+    # metrics are in lines like  ...
+    # {"name":"sample.long.one","text-oneline":"1 as a 32-bit integer","text-help":"1 as a 32-bit integer","pmid":121634826,"sem":"instant","units":"","type":"32"},
+    ( cat $tmp.out; echo ) \
+    | grep '^{"name":' $tmp.out | sed -e 's/"text-help".*/.../' >$tmp.metrics
+    if [ -s $tmp.metrics ]
+    then
+	echo "Got these metrics ..."
+	cat $tmp.metrics
+    else
+	echo "Failed to get metrics ..."
+	cat $tmp.out; echo
+    fi
+}
+
+$sudo $PCP_RC_DIR/pmwebd stop >>$here/$seq.full 2>&1
+$sudo $PCP_RC_DIR/pmwebd start
+_wait_for_pmwebd 44323
+
+# real QA test starts here
+ctx1=`_get_context`
+echo "ctx1=$ctx1" >>$here/$seq.full
+if [ -z "$ctx1" ]
+then
+    echo "Arrg, failed to get context number from ..."
+    cat $tmp.out; echo
+    exit
+fi
+echo "Got first context number."
+_get_metrics $ctx1
+
+# kill off pmcd
+echo "Killing off pmcd ..."
+$sudo $PCP_RC_DIR/pmcd stop 2>&1 | _filter_pcp_stop
+
+echo "Retrying first context ..."
+_get_metrics $ctx1
+
+ctx2=`_get_context`
+echo "ctx2=$ctx2" >>$here/$seq.full
+if [ -n "$ctx2" ]
+then
+    echo "Warning: got second context number from ..."
+    cat $tmp.out; echo
+    # ok, even though this is wrong (although it used to be that way),
+    # let's try and get some metrics ...
+    #
+    _get_metrics $ctx2
+else
+    echo "No context number, as expected."
+fi
+
+# start pmcd
+echo "Restarting pmcd ..."
+$sudo $PCP_RC_DIR/pmcd start 2>&1 | _filter_pcp_stop
+_wait_for_pmcd
+
+ctx3=`_get_context`
+echo "ctx3=$ctx3" >>$here/$seq.full
+if [ -z "$ctx3" ]
+then
+    echo "Arrg, failed to get context number from ..."
+    cat $tmp.out; echo
+    exit
+fi
+echo "Got third context number."
+_get_metrics $ctx3
+
+echo "Retrying first context ..."
+_get_metrics $ctx1
+
+# success, all done
+status=0
+
+exit

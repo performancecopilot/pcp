@@ -1,0 +1,99 @@
+#!/usr/bin/env pmpython
+#
+# Copyright (C) 2012-2016 Red Hat.
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+
+import os
+import sys
+import cpmapi as capi
+from pcp import pmapi
+
+class Test(object):
+    def __init__(self):
+        self.context = None
+        self.opts = self.options()
+
+    def options(self):
+        opts = pmapi.pmOptions()
+
+        opts.pmSetShortOptions("a:h:D?")
+        opts.pmSetLongOptionArchive()      # -a/--archive
+        opts.pmSetLongOptionArchiveList()  # --archive-list
+        opts.pmSetLongOptionArchiveFolio() # --archive-folio
+        opts.pmSetLongOptionContainer()    # --container
+        opts.pmSetLongOptionHost()         # -h/--host
+        opts.pmSetLongOptionHostList()     # --host-list
+        opts.pmSetLongOptionDebug()        # -D/--debug
+        opts.pmSetLongOptionHelp()         # -?/--help
+
+        if os.environ.get('TEST_SET_MULTI') != None:
+            opts.pmSetOptionFlags(capi.PM_OPTFLAG_MULTI)
+
+        value = os.environ.get('TEST_SET_HOST')
+        if value != None:
+            opts.pmSetOptionHost(value)
+
+        value = os.environ.get('TEST_SET_HOSTLIST')
+        if value != None:
+            opts.pmSetOptionHostList(value)
+
+        value = os.environ.get('TEST_SET_ARCHIVE')
+        if value != None:
+            opts.pmSetOptionArchive(value)
+
+        value = os.environ.get('TEST_SET_ARCHIVELIST')
+        if value != None:
+            opts.pmSetOptionArchiveList(value)
+
+        value = os.environ.get('TEST_SET_FOLIO')
+        if value != None:
+            opts.pmSetOptionArchiveFolio(value)
+
+        value = os.environ.get('TEST_SET_CONTAINER')
+        if value != None:
+            opts.pmSetOptionContainer(value)
+
+        value = os.environ.get('TEST_SET_SPECLOCAL')
+        if value != None:
+            opts.pmSetOptionSpecLocal(value)
+
+        value = os.environ.get('TEST_SET_LOCALPMDA')
+        if value != None:
+            opts.pmSetOptionLocalPMDA()
+
+        return opts
+
+
+    def connect(self):
+        """ Establish a PMAPI context to archive(s) or host(s) """
+        print("== Test ==")
+        print("Hosts: %s" % self.opts.pmGetOptionHosts())
+        print("Archives: %s" % self.opts.pmGetOptionArchives())
+        container = self.opts.pmGetOptionContainer()
+        if container:
+            print("Container: %s" % (container))
+        localpmda = self.opts.pmGetOptionLocalPMDA()
+        if localpmda:
+            print("Local PMDA: %s" % (str(localpmda)))
+        try:
+            self.context = pmapi.pmContext.fromOptions(self.opts, sys.argv)
+        except pmapi.pmErr as error:
+            if container and str(error).find("Operation not supported") == -1:
+                print(str(error))
+
+if __name__ == '__main__':
+    try:
+        test = Test()
+        test.connect()
+    except pmapi.pmUsageErr as usage:
+        usage.message()

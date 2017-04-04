@@ -1,0 +1,9 @@
+//
+// Macro for use ...
+//
+bc = "buffer_cache";
+// Using the above macro; If the buffer cache is in use (more than 50 read
+// requests) with hit ratio less than 90%, then popup an alarm
+//
+$bc.getblks > 50 && $bc.getfound / $bc.getblks < 0.9
+    -> alarm "poor buffer cache hit rate";

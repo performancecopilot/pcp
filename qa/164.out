@@ -1,0 +1,190 @@
+QA output created by 164
+=== first sample ===
+10:38:24.370  60.0.4 (disk.dev.read):
+                inst [0 or "hda"] value 96303
+                inst [7 or "hdc"] value 0
+              60.0.5 (disk.dev.write):
+                inst [0 or "hda"] value 42923
+                inst [7 or "hdc"] value 0
+              60.0.6 (disk.dev.blkread):
+                inst [0 or "hda"] value 2112563
+                inst [7 or "hdc"] value 0
+              60.0.7 (disk.dev.blkwrite):
+                inst [0 or "hda"] value 983756
+                inst [7 or "hdc"] value 0
+              60.0.28 (disk.dev.total):
+                inst [0 or "hda"] value 139226
+                inst [7 or "hdc"] value 0
+              60.0.36 (disk.dev.blktotal):
+                inst [0 or "hda"] value 3096319
+                inst [7 or "hdc"] value 0
+              60.0.38 (disk.dev.read_bytes):
+                inst [0 or "hda"] value 1056281
+                inst [7 or "hdc"] value 0
+              60.0.39 (disk.dev.write_bytes):
+                inst [0 or "hda"] value 491878
+                inst [7 or "hdc"] value 0
+              60.0.40 (disk.dev.total_bytes):
+                inst [0 or "hda"] value 1548159
+                inst [7 or "hdc"] value 0
+              60.0.46 (disk.dev.avactive):
+                inst [0 or "hda"] value 4857027
+                inst [7 or "hdc"] value 0
+              60.0.47 (disk.dev.aveq):
+                inst [0 or "hda"] value 34199140
+                inst [7 or "hdc"] value 0
+
+=== last sample ===
+10:40:04.330  60.0.4 (disk.dev.read):
+                inst [0 or "hda"] value 102305
+                inst [7 or "hdc"] value 21
+              60.0.5 (disk.dev.write):
+                inst [0 or "hda"] value 44347
+                inst [7 or "hdc"] value 0
+              60.0.6 (disk.dev.blkread):
+                inst [0 or "hda"] value 2202507
+                inst [7 or "hdc"] value 128
+              60.0.7 (disk.dev.blkwrite):
+                inst [0 or "hda"] value 1013120
+                inst [7 or "hdc"] value 0
+              60.0.28 (disk.dev.total):
+                inst [0 or "hda"] value 146652
+                inst [7 or "hdc"] value 21
+              60.0.36 (disk.dev.blktotal):
+                inst [0 or "hda"] value 3215627
+                inst [7 or "hdc"] value 128
+              60.0.38 (disk.dev.read_bytes):
+                inst [0 or "hda"] value 1101253
+                inst [7 or "hdc"] value 64
+              60.0.39 (disk.dev.write_bytes):
+                inst [0 or "hda"] value 506560
+                inst [7 or "hdc"] value 0
+              60.0.40 (disk.dev.total_bytes):
+                inst [0 or "hda"] value 1607813
+                inst [7 or "hdc"] value 64
+              60.0.46 (disk.dev.avactive):
+                inst [0 or "hda"] value 4956399
+                inst [7 or "hdc"] value 204
+              60.0.47 (disk.dev.aveq):
+                inst [0 or "hda"] value 39774254
+                inst [7 or "hdc"] value 204
+
+=== pmval ===
+Note: timezone set to local timezone of host "kenj-pc" from archive
+
+metric:    disk.dev.total
+archive:   archives/kenj-pc-diskstat
+host:      kenj-pc
+start:     Mon Mar 14 10:38:24 2005
+end:       Mon Mar 14 10:40:04 2005
+semantics: cumulative counter (converting to rate)
+units:     count (converting to count / sec)
+samples:   10
+interval:  10.00 sec
+
+                           hda                   hdc    
+10:38:34.382              76.60                  0.0    
+10:38:44.382              69.40                  0.0    
+10:38:54.382              70.80                  0.0    
+10:39:04.382              72.10                  0.0    
+10:39:14.382              78.70                  0.0    
+10:39:24.382              73.50                  0.0    
+10:39:34.382              68.50                  0.0    
+10:39:44.382              72.70                  0.0    
+10:39:54.382              84.30                  0.9000 
+
+pmval: pmFetch: End of PCP archive log
+
+=== diskstat ===
+Note: timezone set to local timezone of host "kenj-pc" from archive
+
+Archive: archives/kenj-pc-diskstat, Host: kenj-pc, Mon Mar 14 10:38:34 2005
+         %busy r+w/s   Kb/s   w/s  wKb/s  tavq device
+10:38:34  95.6    77    637     2      5   2.4 hda
+           0.0     0      0     0      0   0.0 hdc
+
+10:38:44  99.0    69    936     1      5   1.8 hda
+           0.0     0      0     0      0   0.0 hdc
+
+10:38:54  99.8    71    473     3     84   6.3 hda
+           0.0     0      0     0      0   0.0 hdc
+
+10:39:04  99.9    72    518    23    225  37.4 hda
+           0.0     0      0     0      0   0.0 hdc
+
+10:39:14 100.0    79    538    15    175  87.1 hda
+           0.0     0      0     0      0   0.0 hdc
+
+10:39:24  99.9    74    480    24    196  71.8 hda
+           0.0     0      0     0      0   0.0 hdc
+
+10:39:34 100.0    69    534    14    204  71.9 hda
+           0.0     0      0     0      0   0.0 hdc
+
+10:39:44 100.0    73    495    17    165 108.3 hda
+           0.0     0      0     0      0   0.0 hdc
+
+         %busy r+w/s   Kb/s   w/s  wKb/s  tavq device
+10:39:54 100.0    84    726    20    143 102.5 hda
+           0.8     1      2     0      0   0.0 hdc
+
+=== diskstat -i ===
+Note: timezone set to local timezone of host "kenj-pc" from archive
+
+Archive: archives/kenj-pc-diskstat, Host: kenj-pc, Mon Mar 14 10:38:34 2005
+         %busy r+w/s   Kb/s   w/s  wKb/s  tavq device
+10:38:34  95.6    77    637     2      5   2.4 hda
+
+10:38:44  99.0    69    936     1      5   1.8 hda
+
+10:38:54  99.8    71    473     3     84   6.3 hda
+
+10:39:04  99.9    72    518    23    225  37.4 hda
+
+10:39:14 100.0    79    538    15    175  87.1 hda
+
+10:39:24  99.9    74    480    24    196  71.8 hda
+
+10:39:34 100.0    69    534    14    204  71.9 hda
+
+10:39:44 100.0    73    495    17    165 108.3 hda
+
+10:39:54 100.0    84    726    20    143 102.5 hda
+           0.8     1      2     0      0   0.0 hdc
+
+=== diskstat -x ===
+Note: timezone set to local timezone of host "kenj-pc" from archive
+
+Archive: archives/kenj-pc-diskstat, Host: kenj-pc, Mon Mar 14 10:38:34 2005
+         %busy r+w/s   Kb/s   w/s  wKb/s  tavq device
+10:38:34  95.6    77    637     2      5   2.4 hda
+           0.0     0      0     0      0   0.0 hdc
+
+10:38:44  99.0    69    936     1      5   1.8 hda
+           0.0     0      0     0      0   0.0 hdc
+
+10:38:54  99.8    71    473     3     84   6.3 hda
+           0.0     0      0     0      0   0.0 hdc
+
+10:39:04  99.9    72    518    23    225  37.4 hda
+           0.0     0      0     0      0   0.0 hdc
+
+10:39:14 100.0    79    538    15    175  87.1 hda
+           0.0     0      0     0      0   0.0 hdc
+
+10:39:24  99.9    74    480    24    196  71.8 hda
+           0.0     0      0     0      0   0.0 hdc
+
+10:39:34 100.0    69    534    14    204  71.9 hda
+           0.0     0      0     0      0   0.0 hdc
+
+10:39:44 100.0    73    495    17    165 108.3 hda
+           0.0     0      0     0      0   0.0 hdc
+
+         %busy r+w/s   Kb/s   w/s  wKb/s  tavq device
+10:39:54 100.0    84    726    20    143 102.5 hda
+           0.8     1      2     0      0   0.0 hdc
+
+         %busy r+w/s   Kb/s   w/s  wKb/s  tavq device
+Average   99.3    74    593    13    134  54.4 hda
+           0.1     0      0     0      0   0.0 hdc

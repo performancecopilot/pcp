@@ -1,0 +1,6 @@
+QA output created by 543
+DATE: DATESTAMP
+TIME start pmcd from $PCP_RC_DIR/pcp
+TIME pmie: busy disk spindle 49.4:dks0d1@rattle
+DATE: DATESTAMP
+TIME stop pmcd from $PCP_RC_DIR/pcp

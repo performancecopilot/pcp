@@ -1,0 +1,341 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2016 Red Hat.
+.\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMSTAT 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pcp\-vmstat\f1,
+\f3pmstat\f1 \- high-level system performance overview
+.\" literals use .B or \f3
+.\" arguments use .I or \f2
+.SH SYNOPSIS
+\f3pcp\f1 [\f2pcp\ options\f1] \f3vmstat\f1 [\f2interval\f1 [\f2samples\f1]]
+.P
+\f3pmstat\f1
+[\f3\-gLlPxz\f1]
+[\f3\-A\f1 \f2align\f1]
+[\f3\-a\f1 \f2archive\f1]
+[\f3\-h\f1 \f2host\f1]
+[\f3\-H\f1 \f2file\f1]
+[\f3\-n\f1 \f2pmnsfile\f1]
+[\f3\-O\f1 \f2offset\f1]
+[\f3\-p\f1 \f2port\f1]
+[\f3\-S\f1 \f2starttime\f1]
+[\f3\-s\f1 \f2samples\f1]
+[\f3\-T\f1 \f2endtime\f1]
+[\f3\-t\f1 \f2interval\f1]
+[\f3\-Z\f1 \f2timezone\f1]
+.SH DESCRIPTION
+.B pmstat
+provides a one line summary of system performance every
+.I interval
+unit of time (the default is 5 seconds).
+.B pmstat
+is intended to monitor system performance at the highest level,
+after which other tools may be used to examine subsystems in which
+potential performance problems may be observed in greater detail.
+.P
+.B pcp-vmstat
+is a simple wrapper for use with the
+.BR pcp (1)
+command, providing a more familiar command line format for some
+users.
+It also enables the extended reporting option by default, see the
+.I \-x
+option below.
+.P
+Multiple hosts may be monitored by supplying more than
+one host with multiple
+.B \-h
+flags (for live monitoring) or by providing a name of the hostlist file, where
+each line contain one host name, with
+.B \-H,
+or multiple
+.B \-a
+flags (for retrospective monitoring from sets of archives).
+.P
+The
+.B \-t
+option may be used to change the default reporting
+.IR interval .
+The
+.I interval
+argument follows the syntax described in
+.BR PCPIntro (1),
+and in the simplest form may be an unsigned integer (the implied
+units in this case are seconds).
+.PP
+By default,
+.B pmstat
+fetches metrics by connecting to the Performance Metrics Collector
+Daemon (PMCD) on the local host.  If the
+.B \-L
+option is specified, then
+.BR pmcd (1)
+is bypassed, and metrics are fetched from PMDAs on the local host
+using the standalone
+.B PM_CONTEXT_LOCAL
+variant of
+.BR pmNewContext (3).
+When the
+.B \-h
+option is specified,
+.B pmstat
+connects to the
+.BR pmcd (1)
+on
+.I host
+and fetches metrics from there.
+As mentioned above, multiple hosts may be monitored
+by supplying multiple
+.B \-h
+flags.
+.PP
+Alternatively, if the
+.B \-a
+option is used, the metrics are retrieved from the Performance Co-Pilot
+archive log files identified by
+.IR archive ,
+which is a comma-separated list of names, each
+of which may be the base name of an archive or the name of a directory containing
+one or more archives.
+Multiple sets of archives may be replayed by supplying multiple
+.B \-a
+flags.
+When the
+.B \-a
+flag is used,
+the
+.B \-P
+flag may also be used to pause the output after each interval.
+.PP
+Standalone mode can only connect to the local host, using a set of archives implies
+a host name, and nominating a host precludes using an archive, so the options
+.BR \-L ,
+.B \-a 
+and
+.B \-h
+are mutually exclusive.
+.PP
+Normally
+.B pmstat
+operates on the default Performance Metrics Name Space (PMNS), however
+if the
+.B \-n
+option is specified an alternative namespace is loaded
+from the file
+.IR pmnsfile .
+.PP
+If the
+.B \-s
+the option is specified, 
+.I samples
+defines the number of samples to be retrieved and reported.
+If
+.I samples
+is 0 or
+.B \-s
+is not specified, 
+.B pmstat
+will sample and report continuously \- this is the default behavior.
+.PP
+When processing a set of archives,
+.B pmstat
+may relinquish its own timing control, and operate as a ``slave'' of a
+.BR pmtime (1)
+process that uses a GUI dialog to provide timing control.
+In this case, either the
+.B \-g
+option should be used to start
+.B pmstat
+as the sole slave of a new
+.BR pmtime (1)
+instance, or
+.B \-p
+should be used to attach
+.B pmstat
+to an existing
+.BR pmtime (1)
+instance via the IPC channel identified by the port argument.
+.PP
+The
+.BR \-S ,
+.BR \-T ,
+.BR \-O
+and
+.B \-A
+options may be used to define a time window to restrict the
+samples retrieved, set an initial origin within the time window,
+or specify a ``natural'' alignment of the sample times; refer to
+.BR PCPIntro (1)
+for a complete description of these options.
+.PP
+The
+.B \-l
+option prints the last 7 characters of a hostname in summaries involving
+more than one host (when more than one
+.B \-h
+option has been specified on the command line).
+.PP
+The
+.B \-x
+option (extended CPU metrics) causes two additional CPU metrics to be
+reported, namely wait for I/O ("wa") and virtualisation steal time ("st").
+.PP
+The output from
+.B pmstat
+is directed to standard output, and the columns
+in the report are interpreted as follows:
+.PP
+.TP 10
+.B loadavg
+The 
+.I "1 minute"
+load average.
+.TP
+.B memory
+The \f3swpd\fP column indicates average swap space used during the interval,
+in Kbytes.
+The \f3free\fP column indicates average free memory during the interval,
+in Kbytes.
+The \f3buff\fP column indicates average buffer memory in use during the interval,
+in Kbytes.
+The \f3cache\fP column indicates average cached memory in use during the interval,
+in Kbytes.
+.RS
+.PP
+If the values become large, they are reported as Mbytes
+.BR "" ( m " suffix)"
+or Gbytes
+.BR "" ( g " suffix)."
+.RE
+.TP
+.B swap
+The metrics in this area of the kernel instrumentation are of
+varying value.  We try to report the average number of \f3pages\fP
+that are paged in (\f3pi\fP) and out (\f3po\fP) per second during
+the interval.
+If the corresponding page swapping metrics are unavailable, we report
+the average rate per second
+of swap \f3operations\fP in (\f3si\fP) and out (\f3so\fP) during the interval.
+It is normal for the ``in'' values to be non-zero, but the system
+is suffering memory stress if the ``out'' values are non-zero over
+an extended period.
+.RS
+.PP
+If the values become large, they are reported as thousands of
+operations per second
+.BR "" ( K " suffix)"
+or millions of operations per second
+.BR "" ( M " suffix)."
+.RE
+.TP
+.B io
+The \f3bi\fP and \f3bo\fP columns indicate the average rate per second
+of block input and block output operations (respectfully) during the interval.
+Unless all file systems have a 1 Kbyte block size, these
+rates do not directly indicate Kbytes transferred.
+.RS
+.PP
+If the values become large, they are reported as thousands of
+operations per second
+.BR "" ( K " suffix)"
+or millions of operations per second
+.BR "" ( M " suffix)."
+.RE
+.TP
+.B system
+Interrupt rate (\f3in\fP) and
+context switch rate (\f3cs\fP).
+Rates are expressed as average operations per second during the interval.
+Note that the interrupt rate is normally at least
+.I HZ
+(the clock interrupt rate, usually 100)
+interrupts per second.
+.RS
+.PP
+If the values become large, they are reported as thousands of
+operations per second
+.BR "" ( K " suffix)"
+or millions of operations per second
+.BR "" ( M " suffix)."
+.RE
+.TP
+.B cpu
+Percentage of CPU time spent executing user and "nice user" code (\f3us\fP),
+system and interrupt processing code (\f3sy\fP), idle loop (\f3id\fP).
+.P
+If any values for the associated performance metrics are unavailable,
+the value appears as ``?'' in the output.
+.PP
+By default,
+.B pmstat
+reports the time of day according to the local timezone on the
+system where
+.B pmstat
+is run.
+The
+.B \-Z
+option changes the timezone to
+.I timezone
+in the format of the environment variable
+.B TZ
+as described in
+.BR environ (7).
+The
+.B \-z
+option changes the timezone to the local timezone at the
+host that is the source of the performance metrics, as identified via
+either the
+.B \-h
+or
+.B \-a
+options.
+.SH FILES
+.PD 0
+.TP 10
+.BI $PCP_VAR_DIR/pmns/ *
+default PMNS specification files
+.TP
+.BI $PCP_VAR_DIR/config/pmlogger/config.pmstat
+.BR pmlogger (1)
+configuration for creating an archive suitable for replay with
+.B pmstat
+.PD
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.I /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (5).
+.SH SEE ALSO
+.BR PCPIntro (1),
+.BR pmclient (1),
+.BR pmtime (1),
+.BR PMAPI (3),
+.BR pmNewContext (3),
+.BR pcp.conf (5)
+and
+.BR pcp.env (5).
+.SH DIAGNOSTICS
+All are generated on standard error, and are intended to be self-explanatory.

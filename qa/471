@@ -1,0 +1,40 @@
+#! /bin/sh
+# PCP QA Test No. 471
+# test fix for #621699 pcp scripts should check the user has root access
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+
+cat << EOFEOF > $tmp.script
+#! /bin/sh
+. $PCP_SHARE_DIR/lib/pmdaproc.sh
+_check_userroot
+EOFEOF
+
+chmod 755 $tmp.script
+
+echo "1. testing _check_userroot as a normal user (error is expected)"
+$tmp.script
+
+echo
+echo
+
+echo "2. testing _check_userroot as the root user (no output expected)"
+$sudo $tmp.script
+
+# success, all done
+status=0
+exit

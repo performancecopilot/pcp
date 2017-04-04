@@ -1,0 +1,39 @@
+#
+# broken help file
+# help is provided for all metrics except broken.bad.help
+#
+
+@ broken.valid.one calls to fetch callback
+The number of calls to the PMDA-supplied fetch callback function.
+
+@ broken.valid.two has instance domain
+Valid metric with an instance domain.
+
+@ broken.valid.three has another instance domain
+Valid instance domain with non-sequential serial number.
+
+@ broken.bad.type illegal data type
+Data type in pmDesc is set to PM_TYPE_NOSUPPORT.
+
+@ broken.bad.semantics semantics too high
+Metric semantics set to -1.
+
+@ broken.bad.scale scale too high
+Scale of metrics beyond defined range.
+
+@ broken.bad.indom undefined indom
+The indom is set beyond the bounds of the indom table.
+
+@ broken.no.fetch no fetch method implemented
+The fetch callback does not handle this metric.
+
+@ broken.no.shorthelp
+There is no short help for the metric
+
+@ broken.no.longhelp no long help
+
+@ broken.no.instfetch missing fetch for one instance
+One instance is not supported by fetch callback
+
+@ broken.no.instances empty inst list
+The inst list is empty

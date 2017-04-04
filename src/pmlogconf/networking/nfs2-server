@@ -1,0 +1,4 @@
+#pmlogconf-setup 2.0
+ident	NFS v2 server stats
+probe	nfs.server.reqs values ? include : available
+	nfs.server

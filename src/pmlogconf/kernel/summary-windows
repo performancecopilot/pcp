@@ -1,0 +1,15 @@
+#pmlogconf-setup 2.0
+ident	summary kernel performance data [Windows]
+probe	mem.pool.paged_bytes exists ? include : exclude
+	mem.available
+	mem.committed_bytes
+	mem.pool.paged_bytes
+	mem.pool.non_paged_bytes
+	mem.page_faults
+	mem.page_reads
+	mem.page_writes
+	mem.pages_total
+	disk.dev.idle
+	disk.dev.queue_len
+	filesys.full
+

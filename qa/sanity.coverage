@@ -1,0 +1,44 @@
+pmcd		002, 068 (stop/start), 359, 155 (not ready protocol),
+		246 (stop/start)
+		[and many other tests implicitly]
+pminfo		002, 359, 256, 263, 345, 403, 246
+pmprobe		569, 210, 403
+libpcp		001 (pdu encode/decode), 004 (live contexts), 005 (archive
+		contexts), 007 (optFetch), 010 (pmExtractValue), 024
+		(context juggling), 026 (help text), 027 (scale and units
+		routines), 031 (torture_api), 048 (archive fetch), 074
+		(pmFetch), 077 (timezones), 087 (interpolate mode),
+		091 (interpolate backwards), 146 (pmNameAll), 249
+		(derived metrics), 256 (derived metrics, torture_pmns),
+		263 (derived metrics), 299 (pmParseMetricSpec), 574 (pmns
+		in archives)
+libpcp_pmda	201 (cache routines), 210 (dynamic metrics)
+		[and many other tests implicitly]
+libpcp_mmv	646
+libpcp_trace	355, 246
+libpcp_gui	354 (record mode)
+pmie		055, 210, 548 (nomatch_inst)
+pmlogger	034, 085, 234
+pmdumplog	059, 127, 184, 234
+compressed logs	435, 436, 437
+pmlogger_check	280
+pmlogger_daily	338
+pmnewlog	184
+pmlc		107
+pmval		080, 403
+dbpmda		137
+pmstore		015, 246
+pmtrace		246
+newhelp		278
+chkhelp		154
+folios		153 (pmafm/mkaf)
+pmnscomp	112
+pmlogreduce	127
+pmlogextract	178, 234
+pmlogsummary	234
+dynamic pmns	207, 208, 210
+local context	232 (torture_indom), 345 (derived & dynamic metrics)
+pmieconf	1044
+event records	385, 397, 401, 404, 407
+pmimport	369, 371, 372
+perl		241 (PCP::MMV), 416 (PCP::PMDA)

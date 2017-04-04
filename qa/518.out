@@ -1,0 +1,4 @@
+QA output created by 518
+HOST: TMP.pmie
+evaluations true=OK false=OK unknown=0 (actions=OK)
+           expected evaluation rate=8.00 rules/sec

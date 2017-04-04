@@ -1,0 +1,32 @@
+#kmchart
+version 1
+
+# CPU view
+chart title "CPU Utilization [%h]" style utilization
+	plot legend "User" color #2d2de2 metric kernel.all.cpu.user
+	plot legend "Sys" color #e71717 metric kernel.all.cpu.sys
+	optional-plot legend "Nice" color #c2f3c2 metric kernel.all.cpu.nice
+	optional-plot legend "Intr" color #cdcd00 metric kernel.all.cpu.intr
+	optional-plot legend "Wait" color #00cdcd metric kernel.all.cpu.wait.total
+	optional-plot legend "Steal" color #fba2f5 metric kernel.all.cpu.steal
+	plot legend "Idle" color #16d816 metric kernel.all.cpu.idle
+
+chart title "Average Load [%h]" style plot antialiasing off
+	plot legend "1 min" metric kernel.all.load instance "1 minute"
+	plot legend "# cpus" metric hinv.ncpu
+
+# Disk view
+chart title "IOPS over all Disks [%h]" style stacking
+	plot legend "Reads" color yellow metric disk.all.read
+	plot legend "Writes" color violet metric disk.all.write
+
+# Netbytes view
+chart title "Network Interface Bytes [%h]" style stacking
+	plot legend "in %i" metric network.interface.in.bytes not-matching "^lo|^sl|^ppp|^sit|^gif|^stf|^wlt|^vmnet|^MS TCP Loopback interface"
+	plot legend "out %i" metric network.interface.out.bytes not-matching "^lo|^sl|^ppp|^sit|^gif|^stf|^wlt|^vmnet|^MS TCP Loopback interface"
+
+chart title "Real Memory Usage [%h]" style stacking
+	optional-plot color #9cffab metric mem.util.cached
+	optional-plot color #fe68ad metric mem.util.bufmem
+	optional-plot color #ffae2c metric mem.util.other
+	plot color #00ff00 metric mem.util.free

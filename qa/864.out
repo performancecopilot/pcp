@@ -1,0 +1,4 @@
+QA output created by 864
+#<--------CPU--------><----------Disks-----------><----------Network---------->
+#cpu sys inter ctxsw KBRead Reads KBWrit Writes KBIn PktIn KBOut PktOut
+ NN NN NN NN NN NN NN NN NN NN NN NN

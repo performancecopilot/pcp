@@ -1,0 +1,1413 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2012-2016 Red Hat.
+.\" Copyright (c) 2008 Aconex, Inc.  All Rights Reserved.
+.\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PCPINTRO 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3PCPIntro\f1 \- introduction to the Performance Co-Pilot (PCP)
+.SH INTRODUCTION
+.de CW
+.ie t \f(CW\\$1\f1\\$2
+.el \fI\\$1\f1\\$2
+..
+The Performance Co-Pilot (PCP) is a toolkit designed for monitoring
+and managing system-level performance.
+These services are distributed and scalable 
+to accommodate the most complex system configurations and performance 
+problems.
+.PP
+PCP supports many different platforms, including (but not limited
+to) Linux, MacOSX, Solaris and Windows.
+From a high-level PCP can be considered to contain two classes of
+software utility:
+.IP "\fIPCP Collectors\fR" 8
+These are the parts of PCP that collect and extract
+performance data from various sources, e.g. the operating system kernel.
+.IP "\fIPCP Monitors\fR" 8
+These are the parts of PCP that display data collected from
+hosts (or archives) that have the
+.I "PCP Collector"
+installed.
+Many monitor tools are available as part of the core PCP release,
+while other (typically graphical) monitoring tools are available
+separately in the PCP GUI package.
+.PP
+This manual entry describes the high-level features and
+options common to most PCP utilities available on all platforms.
+.SH OVERVIEW
+The PCP architecture is distributed in the 
+sense that any PCP tool may be executing remotely.  On
+the host (or hosts) being monitored, each domain of performance
+metrics, whether the kernel, a service layer, a database management system, a web server, an application,  etc.
+requires a Performance Metrics Domain Agent (PMDA)
+which is responsible for collecting performance 
+measurements from that domain.
+All PMDAs
+are controlled by the Performance Metrics Collector Daemon
+.RB ( pmcd (1))
+on the same host.
+.PP
+Client applications (the monitoring tools) connect to
+.BR pmcd (1),
+which
+acts as a router for requests, by
+forwarding requests to the appropriate
+PMDA and returning the responses to the clients.
+Clients may also access performance data from sets of PCP archives
+(created using
+.BR pmlogger (1))
+for retrospective analysis.
+.SS Security philosophy
+PCP redistributes a wealth of performance information within
+a host and across its networks.  The following security
+philosophy underlies the setting of several
+.I defaults
+that control how much information is sent and received.
+.PP
+By default, the information exposed by PMCD about a host is
+approximately of the same level of confidentiality as available
+to a completely unprivileged user on that host.  So, performance
+data that is available to be
+.I read
+completely freely on a machine may be made available by PMCD to
+the network.
+.PP
+However, the host running PMCD and its network is
+.I not
+assumed to run only friendly applications.  Therefore,
+.I write
+type operations, including from the local host, are not
+permitted by default.
+.PP
+These defaults may be overridden (expanded or reduced) in several
+ways, including by specifying network ACLs in
+.BR pmcd.conf ,
+activating non-default PMDAs, or by using PMCD connections
+that pass user credentials.  For example, some PMDAs automatically
+provide greater information for particular credentialed users or groups.
+.PP
+.SS Applications
+The following performance monitoring applications are primarily console
+based, typically run directly from the command line, and are just a
+small subset of the tools available as part of the base PCP package.
+.PP
+Each tool or command is documented completely in its own reference page.
+.TP
+.B pmstat
+Outputs an ASCII high-level summary of system performance.
+.TP
+.B pmie
+An inference engine that can evaluate predicate-action rules to perform
+alarms and automate system management tasks.
+.TP
+.B pminfo
+Interrogate specific performance metrics and the metadata that
+describes them.
+.TP
+.B pmlogger
+Generates PCP
+archives of performance metrics suitable for replay by most
+PCP tools.
+.TP
+.B pmrep
+Highly customizable performance metrics reporter with support
+for various different output modes.
+.TP
+.B pmval
+Simple periodic reporting for some or all instances of a performance
+metric, with optional VCR time control.
+.PP
+If the PCP GUI package is installed then
+the following additional tools are available.
+.TP
+.B pmchart
+Displays trends over time of arbitrarily selected performance metrics from
+one or more hosts.
+.TP
+.B pmtime
+Time control utility for coordinating the time between multiple tools
+(including pmchart and pmval).
+.TP
+.B pmdumptext
+Produce ASCII reports for arbitrary combinations of performance
+metrics.
+.SH COMMON COMMAND LINE ARGUMENTS
+There is a set of common command line arguments that are used consistently
+by most PCP tools.
+.TP
+.BI "\-a " archive
+Performance metric information is retrospectively retrieved 
+from the set of Performance Co-Pilot (PCP) archives identified by
+.IR archive ,
+previously generated by 
+.BR pmlogger (1).  See
+.BR pcp-archive (5)
+for format documentation.
+The
+.B \-a
+and
+.B \-h
+options are mutually exclusive.
+.RS
+.PP
+.I archive
+is a comma-separated list of names, each
+of which may be the name of a directory containing one or more archives,
+the base name common to all of the physical files created
+by an instance of
+.BR pmlogger (1),
+or any one of the physical files, e.g.
+.I /path/to/myarchives
+(directory) or
+.I myarchive
+(base name) or
+.IB myarchive .meta
+(the metadata file) or
+.IB myarchive .index
+(the temporal index) or
+.IB myarchive .0
+(the first data volume of
+.IR archive )
+or
+.IB myarchive .0.bz2
+or
+.IB myarchive .0.bz
+(the first data volume compressed with
+.BR bzip2 (1))
+or
+.IB myarchive .0.gz
+or
+.IB myarchive .0.Z
+or
+.IB myarchive .0.z
+(the first data volume compressed with
+.BR gzip (1)),
+.IB myarchive .1
+or
+.IB myarchive .3.bz2
+or
+.IB myarchive .42.gz
+etc.
+.RE
+.TP
+.BI "\-h " hostname
+Unless directed to another host by the
+.B \-h
+option,
+or to a set of archives by the
+.B \-a
+option,
+the source of performance metrics will be
+the Performance Metrics Collector Daemon (PMCD)
+on the local host.
+Refer to the
+.B "PMCD HOST SPECIFICATION"
+section later for further details on the many
+options available when forming the
+.I hostname
+specification, as well as a detailed description of
+the default local host connection.
+The
+.B \-a
+and
+.B \-h
+options are mutually exclusive.
+.TP
+.BI "\-s " samples
+The argument
+.I samples
+defines the number of samples to be retrieved and reported.
+If
+.I samples
+is 0 or
+.B \-s
+is not specified, the application
+will sample and report continuously (in real time mode) or until the end
+of the set of PCP archives (in archive mode).
+.TP
+.B \-z
+Change the reporting timezone to the local timezone at the
+host that is the source of the performance metrics, as identified via
+either the
+.B \-h
+or
+.B \-a
+options.
+.TP
+.BI "\-Z " timezone
+By default, applications
+report the time of day according to the local timezone on the
+system where
+the application is executed.
+The
+.B \-Z
+option changes the timezone to
+.I timezone
+in the format of the environment variable
+.B TZ
+as described in
+.BR environ (7).
+.SH INTERVAL SPECIFICATION AND ALIGNMENT
+Most PCP tools operate with periodic sampling or
+reporting, and the
+.B \-t
+and
+.B \-A
+options may be used to control the duration of the sample interval
+and the alignment of the sample times.
+.TP
+.BI "\-t " interval
+.RS
+Set the update or reporting interval.
+.PP
+The
+.I interval
+argument
+is specified as a sequence of one or more elements of the form
+.nf
+.in +1.0i
+\f2number\f1[\f2units\f1]
+.in
+.fi
+where \f2number\f1 is an integer or floating point constant (parsed using
+.BR strtod (3))
+and the optional \f2units\f1 is one of:
+.BR seconds ,
+.BR second ,
+.BR secs ,
+.BR sec ,
+.BR s ,
+.BR minutes ,
+.BR minute ,
+.BR mins ,
+.BR min ,
+.BR m ,
+.BR hours ,
+.BR hour ,
+.BR h ,
+.BR days ,
+.B day
+and
+.BR d .
+If the
+.I unit
+is empty,
+.B second
+is assumed.
+.PP
+In addition, the upper case (or mixed case) version of any of the
+above is also acceptable.
+.PP
+Spaces anywhere in the
+.I interval
+are ignored, so
+.BR "4 days 6 hours 30 minutes" ,
+.BR "4day6hour30min" ,
+.B "4d6h30m"
+and
+.B "4d6.5h"
+are all equivalent.
+.PP
+Multiple specifications are additive, e.g. ``\fB1hour 15mins 30secs\fR''
+is interpreted as 3600+900+30 seconds.
+.RE
+.TP
+.BI "\-A " align
+.RS
+By default samples are not necessarily aligned on
+any natural unit of time.  The
+.B \-A
+option may be used to force the initial sample to be aligned on the
+boundary of a natural time unit.
+For example
+.BR "\-A 1sec" ,
+.B "\-A 30min"
+and
+.B "-A 1hour"
+specify alignment on whole seconds, half and whole hours respectively.
+.PP
+The
+.I align
+argument follows the syntax for an
+.I interval
+argument described above for the
+.B \-t
+option.
+.PP
+Note that alignment occurs by advancing the time as required, and that
+.B \-A
+acts as a modifier to advance both the start of the time window
+(see the next section)
+and the origin time (if the
+.B \-O
+option is specified).
+.RE
+.SH TIME WINDOW SPECIFICATION
+Many PCP tools are designed to operate in some time window of interest,
+e.g. to define a termination time for real-time monitoring or to
+define a start and end time within a set of PCP archive logs.
+.PP
+In the absence of the
+.B \-O
+and
+.B \-A
+options to specify an initial sample time origin
+and time alignment (see above), the PCP application
+will retrieve the first sample at the start of the time window.
+.PP
+The following options may be used to specify a time window of interest.
+.TP
+.BI "\-S " starttime
+.RS
+By default the time window commences immediately in real-time mode,
+or coincides with time at the start of the set of PCP archive logs
+in archive mode.
+The
+.B \-S
+option may be used to specify a later time
+for the start of the time window.
+.P
+The
+.I starttime
+parameter may be given in one of
+three forms (\c
+.I interval
+is the same as for the
+.B \-t
+option as described above,
+.I datetime
+is described below):
+.TP
+\f2interval\f1
+To specify an offset from the current time (in real-time mode) or
+the beginning of a set of PCP archives (in archive mode) simply specify the
+interval of time as the argument.  For example
+.B "\-S 30min"
+will set the start of the time window to be exactly 30 minutes from now in
+real-time mode, or
+exactly 30 minutes from
+the start of a set of PCP archives.
+.TP
+\-\f2interval\f1
+To specify an offset from the end of a set of PCP archive logs, prefix the
+\f2interval\f1 argument with a minus sign.  In this case, the
+start of the time window precedes
+the time at the end of the set of archives by the given interval.
+For example
+.B "\-S \-1hour"
+will set the start of the time window to be exactly one hour before the
+time of the last sample in a set of PCP archive logs.
+.TP
+@\f2datetime\f1
+To specify the calendar date and time (local time in the reporting timezone)
+for the start of the time window, use the datetime
+syntax preceded by an at sign.  Refer to the datetime description below
+for detailed information.
+.RE
+.TP
+.BI "\-T " endtime
+.RS
+By default the end of the time window is unbounded
+(in real-time mode) or aligned with the time at the end of a set of PCP archive
+logs (in archive mode).
+The
+.B \-T
+option may be used to specify an earlier time for
+the end of the time window.
+.PP
+The
+.I endtime
+parameter may be given in one of
+three forms (\c
+.I interval
+is the same as for the
+.B \-t
+option as described above,
+.I datetime
+is described below):
+.TP
+\f2interval\f1
+To specify an offset from the start of the time window
+simply use the interval of time as the argument.  For example
+.B "\-T 2h30m"
+will set the end of the time window to be 2 hours and 30 minutes after
+the start of the time window.
+.TP
+\-\f2interval\f1
+To specify an offset back from the time at the end of a set of PCP archive logs,
+prefix the \f2interval\f1 argument with a minus sign.  For example
+.B "\-T \-90m"
+will set the end of the time window to be 90 minutes before the time of
+the last sample in a set of PCP archive logs.
+.TP
+@\f2datetime\f1
+To specify the calendar date and time (local time in the reporting timezone)
+for the end of the time window, use the datetime
+syntax preceded by an at sign.  Refer to the datetime description below
+for detailed information.
+.RE
+.TP
+.BI "\-O " origin
+.RS
+By default samples are fetched from the start of the
+time window (see description of
+.B \-S
+option) to the end of the time window (see description of
+.B \-T
+option).
+The
+.B \-O
+option allows the specification of an origin within the time window
+to be used as the initial sample time.  This
+is useful for interactive use of a PCP tool with the
+.BR pmtime (1)
+VCR replay facility.
+.PP
+The \f2origin\f1 argument accepted by
+.B \-O
+conforms to the same syntax and semantics as the
+.I starttime
+argument for the
+.B \-T
+option.
+.PP
+For example
+.B "\-O -0"
+specifies that the initial position should be at the end of the
+time window; this is most useful when wishing to replay ``backwards''
+within the time window.
+.RE
+.PP
+The \f2datetime\f1 argument for the
+.BR \-O ,
+.B \-S
+and
+.B \-T
+options consists of: 
+.br
+.ti +1i
+.B "date time zone day relative"
+.br
+A date can be one of:
+YY-MM-DD, MM/DD/YY, DD Month YYYY, or Month DD YYYY.
+A time can be one of: HH:MM:SS, HH:MM.  HH:MM can use either the
+12 hour (via an am or pm suffix) or 24 hour convention.
+A day of the
+week can be a spelled out day of the week, optionally preceded by an
+ordinal number such as second tuesday.  A zone is a time zone value as
+specified by the
+.B tzselect(1)
+command.  A relative time can be a time
+unit that is: preceded by a cardinal number such as 1 year or 2 months,
+preceded by one of the time words this or last, or succeeded by the time word ago.
+A relative time can also be one of the time words: yesterday, today, tomorrow, now.
+Examples of datetime strings are: 
+.BR "1996-03-04 13:07:47 EST Mon" ,
+.BR "1996-03-05 14:07:47 EST -1hour" ,
+.BR "Mon Mar  4 13:07:47 1996" ,
+.BR "Mar 4 1996" ,
+.BR "Mar 4" , 
+.BR "Mar" , 
+.B "13:07:50" 
+or
+.BR "13:08" .
+.PP
+For any missing low order fields, the default value of
+0 is assumed for hours, minutes and seconds, 1 for day of the month and Jan for months.
+Hence, the following are equivalent:
+.B "\-S '@ Mar 1996'"
+and
+.BR "\-S '@ Mar 1 00:00:00 1996'" .
+.PP
+If any high order fields are missing, they are filled in by
+starting with the
+year, month and day from the current time (real-time mode) or
+the time at the beginning of the set of PCP archive logs (archive mode)
+and advancing the
+time until it matches the fields that are specified.
+So, for example if the time window starts by default at
+``Mon Mar 4 13:07:47 1996'',
+then
+.B "\-S @13:10"
+corresponds to 13:10:00 on Mon Mar 4, 1996,
+while
+.B "\-S @10:00"
+corresponds to 10:00:00 on Tue Mar 5, 1996 (note this is the
+following day).
+.PP
+For greater precision than afforded by
+.BR datetime (3),
+the seconds component may be a floating point number.
+.PP
+If a timezone is not included in a
+.I datetime
+then there ares several interpretations available depending
+on the other command line options used.
+The default is to use the local timezone on the system where
+the PCP tool is being run.
+A
+.B \-Z
+option specifies an explicit timezone, else a
+.B \-z
+option changes the timezone to the local timezone at the host
+that is the source of the performance metrics.
+.SH "PERFORMANCE METRICS \- NAMES AND IDENTIFIERS"
+The number of performance metric names supported by PCP on most
+platforms ranges from many hundreds to several thousand.
+The PCP libraries and applications use an internal
+identification scheme that unambiguously associates a single
+integer with each known performance metric.
+This integer is known as the Performance Metric Identifier, or PMID.
+Although not a requirement,
+PMIDs tend to have global consistency across
+all systems, so a particular performance metric usually has the same
+PMID.
+.PP
+For all users and most applications, direct use of the PMIDs would be inappropriate
+(e.g. this would limit the range of accessible metrics, make the code
+hard to maintain, force the user interface to be particularly baroque,
+etc.).
+Hence a Performance Metrics Name Space (PMNS)
+is used to provide external names and
+a hierarchic classification for performance metrics.
+A PMNS is
+represented as a tree, with each node having a label, a pointer to
+either a PMID (for leaf nodes) or a set of descendent
+nodes in the PMNS (for non-leaf nodes).
+.PP
+A node label must begin with
+an alphabetic character, followed by zero or more characters drawn
+from the alphabetics, the digits and character \`_\' (underscore).
+For alphabetic characters in a node label, upper and
+lower case are distinguished.
+.PP
+By convention, the name of a performance metric is constructed by
+concatenation of the node labels on a path through the PMNS from the
+root node to a leaf node, with a ``.'' as a separator.
+The root node in
+the PMNS is unlabeled, so all names begin with the label associated
+with one of the descendent nodes below the root node of the PMNS, e.g. \c
+.CW "kernel.percpu.syscall".
+Typically (although this is not a requirement)
+there would be at most one name for each PMID in a PMNS.
+For example
+.CW kernel.all.cpu.idle
+and
+.CW disk.dev.read
+are the unique names for two distinct performance
+metrics, each with a unique PMID.
+.PP
+Groups of related PMIDs may be named
+by naming a non-leaf node in the PMNS tree, e.g. \c
+.CW disk .
+.PP
+The default local PMNS used by
+.B pmcd
+is located at
+.B $PCP_VAR_DIR/pmns/root
+however the environment
+variable
+.B PMNS_DEFAULT
+may be set to the full pathname of a different PMNS which will
+then be used as the default local PMNS.
+.PP
+Most applications do not use the local PMNS directly,
+but rather import parts of the PMNS as required from the
+same place that performance metrics are fetched, i.e. from
+.BR pmcd (1)
+for live monitoring or from a set of PCP archives for retrospective
+monitoring.
+.PP
+To explore the PMNS
+use
+.BR pminfo (1),
+or if the PCP GUI package is installed the New Chart and Metric Search
+windows within
+.BR pmchart (1).
+.SH PERFORMANCE METRIC SPECIFICATIONS
+In configuration files and (to a lesser extent) command line options,
+metric specifications adhere to the following syntax rules.
+.PP
+If the source of performance metrics is real-time from
+.BR pmcd (1)
+then the accepted
+syntax is
+.br
+.ti +1i
+\fIhost\fB:\fImetric\fB[\fIinstance1\fB,\fIinstance2\fB,\fR...\fB]\fR
+.PP
+If the source of performance metrics is a set of PCP archive logs then the
+accepted syntax
+is
+.br
+.ti +1i
+\fIarchive\fB/\fImetric\fB[\fIinstance1\fB,\fIinstance2\fB,\fR...\fB]\fR
+.PP
+The
+.IB host :\fR,
+.IB archive /
+and
+\fB[\fIinstance1\fB,\fIinstance2\fB,\fR...\fB]\fR
+components are all optional.
+.PP
+The
+.B ,
+delimiter in the list of instance names
+may be replaced by white space.
+.PP
+Special characters in
+.I instance
+names may be escaped by surrounding the name in double quotes or preceding
+the character with a backslash.
+.PP
+White space is ignored everywhere except within a quoted
+.I instance
+name.
+.PP
+An empty
+.I instance
+is silently ignored, and in particular
+``\fB[]\fR'' is the same as no
+.IR instance ,
+while ``\fB[one,,,two]\fR'' is parsed as specifying just
+the two instances ``\fBone\fP'' and ``\fBtwo\fP''.
+.PP
+As a special case, if the
+.B host
+is the single character ``@'' then this refers to a 
+.B PM_CONTEXT_LOCAL
+source, see
+.BR pmNewContext (3).
+.SH SECURE PMCD CONNECTIONS
+Since PCP version 3.6.11, a monitor can explicitly request
+a secure connection to a collector host running
+.BR pmcd (1)
+or
+.BR pmproxy (1)
+using the PM_CTXFLAG_SECURE context flag.
+If the PCP Collector host supports this feature - refer to the
+pmcd.feature.secure metric for confirmation of this - a TLS/SSL
+(Transport Layer Security or Secure Sockets Layer) connection
+can be established which uses public key cryptography and related
+techniques.
+These features aim to prevent eavesdropping and data tampering
+from a malicious third party, as well as providing server-side
+authentication (confident identification of a server by a client)
+which can be used to guard against man-in-the-middle attacks.
+.PP
+A secure
+.B pmcd
+connection requires use of certificate-based authentication.
+The security features offered by
+.B pmcd
+and
+.B pmproxy
+are implemented using the Network Security Services (NSS) APIs and
+utilities.
+The NSS
+.BR certutil
+tool can be used to create certificates suitable for establishing
+trust between PCP monitor and collector hosts.
+.PP
+A complete description is beyond the scope of this document, refer
+to the
+.BR "PCP ENVIRONMENT" ,
+.B "FILES"
+and
+.B "SEE ALSO"
+sections for detailed information.
+This includes links to tutorials on the steps involved in setting up the
+available security features.
+.SH PMCD HOST SPECIFICATION
+In the absence of an explicit host name specification, most tools
+will default to the local host in live update mode.
+In PCP releases since 3.8.4 onward, this results in an efficient
+local protocol being selected \- typically a Unix domain socket.
+If this option is used (which can also be explicitly requested
+via the
+.I unix:
+host specification described below), it is important to note that all
+connections will be automatically authenticated. In other words, the
+credentials of the user invoking a client tool will automatically be
+made available to
+.BR pmcd (1)
+and all of its PMDAs, on the users behalf, such that results can be
+customized to the privilege levels of individual users.
+.PP
+Names of remote hosts running the
+.BR pmcd (1)
+daemon can of course also be provided to request a remote host be used.
+The most basic form of 
+.B pmcd
+host specification is a simple host name, possibly including the
+domain name if necessary.
+However, this can be extended in a number of ways to further refine
+attributes of the connection made to
+.BR pmcd .
+.PP
+The
+.B pmcd
+port number and also optional
+.BR pmproxy (1)
+hostname and its port number, can be given as part of the host
+specification, since PCP version 3.0.
+These supersede (and override) the old-style PMCD_PORT, PMPROXY_HOST
+and PMPROXY_PORT environment variables.
+.PP
+The following are valid hostname specifications that specify connections to
+.B pmcd
+on host
+.I nas1.servers.com
+with/without a list of ports, with/without a
+.BR pmproxy (1)
+connection through a firewall, and with IPv6 and IPv4 addresses as shown.
+.PP
+.in +0.5i
+.nf
+.ft CW
+$ pcp \-h nas1.servers.com:44321,4321@firewall.servers.com:44322
+$ pcp \-h nas1.servers.com:44321@firewall.servers.com:44322
+$ pcp \-h nas1.servers.com:44321@firewall.servers.com
+$ pcp \-h nas1.servers.com@firewall.servers.com
+$ pcp \-h nas1.servers.com:44321
+$ pcp \-h [fe80::2ad2:44ff:fe88:e4f1%p2p1]
+$ pcp \-h 192.168.0.103
+.ft R
+.fi
+.in
+.PP
+In addition, ``connection attributes'' can also be specified.
+These include username, password (can be given interactively
+and may depend on the authentication mechanism employed),
+whether to target a specific running container, whether to use
+secure (encrypted) or native (naked) protocol, and so on.
+The previous examples all default to native protocol, and use
+no authentication.
+This can be altered, as in the following examples.
+.PP
+.in +0.5i
+.nf
+.ft CW
+$ pcp \-h pcps://app2.servers.com?container=cae8e6edc0d5
+$ pcp \-h pcps://nas1.servers.com:44321?username=tanya&method=gssapi
+$ pcp \-h pcps://nas2.servers.com@firewalls.r.us?method=plain
+$ pcp \-h pcp://nas3.servers.com
+$ pcp \-h 192.168.0.103?container=cae8e6edc0d5,method=digest-md5
+$ pcp \-h unix:
+$ pcp \-h local:
+.ft R
+.fi
+.in
+.PP
+The choice of authentication method, and other resulting parameters like
+username, optionally password, etc, depends on the SASL2 configuration
+used by each (remote)
+.BR pmcd .
+Tutorials are available specifying various aspects of configuring the
+authentication module(s) used, these fine details are outside the scope
+of this document.
+.PP
+In all situations, host names can be used interchangeably with IPv4 or IPv6
+addressing (directly), as shown above.  In the case of an IPv6 address, the
+full address must be enclosed by square brackets and the scope (interface)
+must also be specified.
+.PP
+The final
+.I local:
+example above is now the default for most tools.
+This connection is an automatically authenticated local host connection
+on all platforms that support Unix domain sockets.  No password is required
+and authentication is automatic.  This is also the most efficient (lowest
+overhead) communication channel available.
+.PP
+The difference between
+.I unix:
+and
+.I local:
+is that the former is a strict Unix domain socket specification (connection
+fails if it cannot connect that way),
+whereas the latter has a more forgiving fallback to using
+.I localhost
+(i.e. a regular Inet socket connection is used when Unix domain socket
+connections are unavailable).
+.SH ENVIRONMENT
+In addition to the PCP run-time environment and configuration variables
+described in the 
+.B "PCP ENVIRONMENT"
+section below,
+the following environment variables apply to all installations.
+.PP
+Note that most uses of these environment variables are optimized to
+check the environment only the first time the variable might be used.
+As the environment usually is not checked again, the only safe
+strategy is to ensure all PCP-related environment variables are
+set before the first call into any of the PCP libraries.
+.TP
+.B PCP_ALLOW_BAD_CERT_DOMAIN
+When set, allow clients to accept certificates with mismatched
+domain names with no prompt when they are sent by 
+.B pmcd
+or other server components.  See
+.B PCP_SECURE_SOCKETS.
+.TP
+.B PCP_ALLOW_SERVER_SELF_CERT
+When set, allow clients to accept self-signed certificates with
+no prompt when they are sent by
+.B pmcd
+or other server components.  See
+.B PCP_SECURE_SOCKETS.
+.TP
+.B PCP_CONSOLE
+When set, this changes the default console from
+.I /dev/tty
+(on Unix)
+or
+.I CON:
+(on Windows)
+to be the specified console.
+The special value of
+.I none
+can be used to indicate no console is available for use.
+This is used in places where console-based tools need to interact
+with the user, and in particular is used when authentication is
+being performed.
+.TP
+.B PCP_DEBUG
+When set, this variable provides an alternate way to initialize
+the value used to control diagnostic and debug output (the default
+value is 0 to suppress this output).
+The value for
+.B $PCP_DEBUG
+should be a decimal integer, see
+.BR pmdbg (1)
+for a description of the supported values.
+.TP
+.B PCP_DERIVED_CONFIG
+When set, this variable defines a colon separated list of
+files and/or directories (the syntax is the same as for the
+.B $PATH
+variable for
+.BR sh (1)).
+The components are expanded into a list of files as follows: 
+if a component of
+.B $PCP_DERIVED_CONFIG
+is a file, then that file is added to the list, else if a component
+is a directory then recursive descent is used to enumerate all
+files below that directory and these are added to the list.
+.RS
+.PP
+Each file in the resulting list is assumed to 
+contain
+definitions of derived metrics as per the syntax described in
+.BR pmLoadDerivedConfig (3),
+and these are loaded in order.
+.PP
+Derived metrics may be used to extend the available metrics with
+new (derived) metrics using simple arithmetic expressions.
+.PP
+If 
+.B PCP_DERIVED_CONFIG
+is set, the derived metric definitions are processed automatically
+as each new source of performance metrics is established (i.e. each
+time a
+.BR pmNewContext (3)
+is called) or when requests are made against the PMNS.
+.PP
+Any component in the
+.B $PCP_DERIVED_CONFIG
+list or the expanded list of files that is not a file, or is not a directory
+or is not accessible (due to permissions or a bad symbolic link) will
+be silently ignored.
+.RE
+.TP
+.B PCP_SECURE_SOCKETS
+When set, this variable forces any monitor tool connections to be
+established using the certificate-based secure sockets feature.
+If the connections cannot be established securely, they will fail.
+.TP
+.B PCP_SECURE_DB_METHOD
+With secure socket connections, the certificate and key database is
+stored using the
+.B sql:
+method by default.  Use
+.B PCP_SECURE_DB_METHOD
+to override the default, most usually setting the value to the empty
+string (for the older database methods).
+.TP
+.B PCP_SECURE_DB_PATH
+When set, this variable specifies an alternate certficate database
+path for client tools.  Similar to the action of the -C option for 
+.BR pmcd (1)
+and
+.BR pmproxy (1).
+.TP
+.B PCP_STDERR
+Many PCP tools support the environment variable
+.BR PCP_STDERR ,
+which can be used to
+control where error messages are sent.
+When unset, the default behavior is that
+``usage'' messages and option parsing errors are
+reported on standard error, other messages after
+initial startup are sent to the default destination for the tool,
+i.e. standard error for ASCII tools, or a dialog for GUI tools.
+.RS
+.PP
+If
+.B PCP_STDERR
+is set to the literal value
+.B DISPLAY
+then all messages will be displayed in a dialog.
+This is used for any tools launched from the a Desktop environment.
+.PP
+If
+.B PCP_STDERR
+is set to any other value, the value is assumed to
+be a filename, and all messages will be written there.
+.RE
+.TP
+.B PMCD_CONNECT_TIMEOUT
+When attempting to connect to a remote
+.BR pmcd (1)
+on a machine that is booting,
+the connection attempt
+could potentially block for a long time until the remote machine
+finishes its initialization.
+Most PCP applications and some of the PCP library routines
+will abort and return an error if the connection has not been established after
+some specified interval has elapsed.  The default interval is 5
+seconds.  This may be modified by setting
+.B PMCD_CONNECT_TIMEOUT
+in the environment to a real number of seconds for the
+desired timeout.
+This is most useful in cases where the remote host is at
+the end of a slow network, requiring longer latencies to
+establish the connection correctly.
+.TP
+.B PMCD_RECONNECT_TIMEOUT
+When a monitor or client application loses a connection to a
+.BR pmcd (1),
+the connection may be re-established by calling
+a service routine in the PCP library.
+However, attempts to reconnect are controlled by a back-off
+strategy to avoid flooding the network with reconnection
+requests.
+By default, the back-off delays are 5, 10, 20, 40 and 80
+seconds for consecutive reconnection requests from a client
+(the last delay will be repeated for any further
+attempts after the fifth).
+Setting the environment variable
+.B PMCD_RECONNECT_TIMEOUT
+to a comma separated list of positive integers will re-define
+the back-off delays, e.g. setting
+.B PMCD_RECONNECT_TIMEOUT
+to ``1,2'' will back-off for 1 second, then attempt another
+connection request every 2 seconds thereafter.
+.TP
+.B PMCD_REQUEST_TIMEOUT
+For monitor or client applications connected to
+.BR pmcd (1),
+there is a possibility of the application "hanging" on a request
+for performance metrics or metadata or help text.
+These delays may become severe if the system
+running
+.B pmcd
+crashes, or the network connection is lost.  By setting the environment
+variable
+.B PMCD_REQUEST_TIMEOUT
+to a number of seconds, requests to
+.B pmcd
+will timeout after this number of seconds.  The default behavior is
+to be willing to wait 10 seconds for a response from every
+.B pmcd
+for all applications.
+.TP
+.B PMCD_WAIT_TIMEOUT
+.br
+When
+.BR pmcd (1)
+is started from
+.B $PCP_RC_DIR/pcp
+then the primary instance of
+.BR pmlogger (1)
+will be started if the configuration flag
+.B pmlogger
+is
+.BR chkconfig (8)
+enabled and
+.B pmcd
+is running and accepting connections.
+.RS
+.PP
+The check on
+.BR pmcd 's
+readiness will wait up to
+.B PMCD_WAIT_TIMEOUT
+seconds.
+If
+.B pmcd
+has a long startup time (such as on a very large
+system), then 
+.B PMCD_WAIT_TIMEOUT
+can be set to provide a maximum wait longer than the default 60 seconds.
+.RE
+.TP
+.B PMNS_DEFAULT
+If set, then interpreted as the
+full pathname to be used as the default local PMNS for
+.BR pmLoadNameSpace (3).
+Otherwise, the default local PMNS is located at
+.B $PCP_VAR_DIR/pcp/pmns/root
+for base PCP installations.
+.TP
+.B PCP_COUNTER_WRAP
+Many of the performance metrics exported from PCP agents have the
+semantics of
+.I counter
+meaning they are expected to be monotonically increasing.
+Under some circumstances, one value of these metrics may smaller
+than the previously fetched value.
+This can happen when a counter of finite precision overflows, or
+when the PCP agent has been reset or restarted, or when the
+PCP agent is exporting values from some
+underlying instrumentation that is subject to some asynchronous
+discontinuity.
+
+The environment variable
+.B PCP_COUNTER_WRAP
+may be set to indicate that all such cases of a decreasing ``counter''
+should be treated
+as a counter overflow, and hence the values are assumed to have
+wrapped once in the interval between consecutive samples.
+This ``wrapping'' behavior was the default in earlier PCP versions, but
+by default has been disabled in PCP release from version 1.3 on.
+.TP
+.B PMDA_PATH
+The
+.B PMDA_PATH
+environment variable
+may be used to modify the search path used by
+.BR pmcd (1)
+and
+.BR pmNewContext (3)
+(for
+.B PM_CONTEXT_LOCAL
+contexts) when searching for a daemon or DSO PMDA.
+The syntax follows that for
+.B PATH
+in
+.BR sh (1),
+i.e. a colon separated list of directories,
+and the default search path is ``/var/pcp/lib:/usr/pcp/lib'',
+(or ``/var/lib/pcp/lib'' on Linux, depending on the value
+of the $PCP_VAR_DIR environment variable).
+.TP
+.B PMCD_PORT
+The TPC/IP port(s) used by
+.BR pmcd (1)
+to create the socket for incoming connections and requests, was
+historically 4321 and more recently the officially registered port
+44321; in the current release,
+.B both
+port numbers are used by default as a transitional arrangement.
+This may be over-ridden by setting
+.B PMCD_PORT
+to a different port number, or a comma-separated list of port numbers.
+If a non-default port is used when
+.B pmcd
+is started, then
+every monitoring application connecting to that
+.B pmcd
+must also have
+.B PMCD_PORT
+set in their environment before attempting a connection.
+.PP
+The following environment variables are relevant to installations
+in which 
+.BR pmlogger (1),
+the PCP archive logger, is used.
+.TP
+.B PMLOGGER_PORT
+The environment variable
+.B PMLOGGER_PORT
+may be used to change the base TCP/IP port number used by
+.BR pmlogger (1)
+to create the socket to which
+.BR pmlc (1)
+instances will try and connect.
+The default base port number is 4330.
+When used,
+.B PMLOGGER_PORT
+should be set in the environment before
+.B pmlogger
+is executed.
+.TP
+.B PMLOGGER_REQUEST_TIMEOUT
+When
+.BR pmlc (1)
+connects to
+.BR pmlogger (1),
+there is a remote possibility of
+.BR pmlc
+\&"hanging" on a request
+for information as a consequence of a failure of the network or
+.BR pmlogger .
+By setting the environment
+variable
+.B PMLOGGER_REQUEST_TIMEOUT
+to a number of seconds, requests to
+.B pmlogger
+will timeout after this number of seconds.  The default behavior is
+to be willing to wait forever for a response from each request to a
+.BR pmlogger .
+When used,
+.B PMLOGGER_REQUEST_TIMEOUT
+should be set in the environment before
+.B pmlc
+is executed.
+.PP
+If you have the PCP product installed, then the following
+environment variables are relevant to the Performance Metrics
+Domain Agents (PMDAs).
+.TP
+.B PMDA_LOCAL_PROC
+Use this variable has been deprecated and it is now ignored.
+If the ``proc'' PMDA is configured as a DSO for use with
+.BR pmcd (1)
+on the local host then all of the ``proc'' metrics will be
+available to applications using a
+.B PM_CONTEXT_LOCAL
+context.
+.RS
+.PP
+The previous behaviour was that
+if this variable was set, then a context established with the
+.I type
+of
+.B PM_CONTEXT_LOCAL
+will have access to the ``proc'' PMDA to retrieve performance metrics
+about individual processes.
+.RE
+.TP
+.B PMDA_LOCAL_SAMPLE
+Use this variable has been deprecated and it is now ignored.
+If the ``sample'' PMDA is configured as a DSO for use with
+.BR pmcd (1)
+on the local host then all of the ``sample'' metrics will be
+available to applications using a
+.B PM_CONTEXT_LOCAL
+context.
+.RS
+.PP
+The previous behaviour was that
+if this variable was set, then a context established with the
+.I type
+of
+.B PM_CONTEXT_LOCAL
+will have access to the ``sample'' PMDA if this optional PMDA has
+been installed locally.
+.RE
+.TP
+.B PMIECONF_PATH
+If set,
+.BR pmieconf (1)
+will form its
+.BR pmieconf (5)
+specification (set of parameterized
+.BR pmie (1)
+rules) using all valid
+.B pmieconf
+files found below each subdirectory in this
+colon-separated list of subdirectories.  If not set, the default is
+.BR $PCP_VAR_DIR/config/pmieconf .
+.SH FILES 
+.PD 0
+.TP 10
+.B /etc/pcp.conf
+Configuration file for the PCP runtime environment,
+see
+.BR pcp.conf (5).
+.TP
+.B /etc/pki/nssdb
+Optionally contains a Network Security Services database with a
+"PCP Collector" certificate providing trusted identification for
+the collector host.
+.TP
+.B $HOME/.pcp
+User-specific directories containing configuration files for
+customisation of the various monitor tools, such as
+.BR pmchart (1).
+.TP
+.B $HOME/.pki/nssdb
+A shared Network Security Services (NSS) database directory
+containing per-user certificates identifying known valid remote
+.B pmcd
+collector hosts.
+The NSS
+.B certutil
+tool is one of several that can be used to maintain this database.
+.TP
+.B $PCP_RC_DIR/pcp
+Script for starting and stopping
+.BR pmcd (1).
+.TP
+.B $PCP_PMCDCONF_PATH
+Control file for
+.BR pmcd (1).
+.TP
+.B $PCP_PMCDOPTIONS_PATH
+Command line options passed to
+.BR pmcd (1)
+when it is started from
+.BR $PCP_RC_DIR/pcp .
+All the command line option lines should start with a hyphen as
+the first character.
+This file can also contain environment variable settings of
+the form "VARIABLE=value".
+.TP
+.B $PCP_BINADM_DIR
+Location of PCP utilities for collecting and maintaining PCP archives, PMDA
+help text, PMNS files etc.
+.TP
+.B $PCP_PMDAS_DIR
+Parent directory of the installation directory for Dynamic Shared Object (DSO) PMDAs.
+.TP
+.B $PCP_RUN_DIR/pmcd.pid
+If pmcd is running, this file contains an ascii decimal representation of its
+process ID.
+.TP
+.B $PCP_LOG_DIR/pmcd
+Default location of log files for
+.BR pmcd (1),
+current directory for running PMDAs.
+Archives generated by
+.BR pmlogger (1)
+are generally below
+.BR $PCP_LOG_DIR/pmlogger .
+.TP
+.B $PCP_LOG_DIR/pmcd/pmcd.log
+Diagnostic and status log for the current running
+.BR pmcd (1)
+process.
+The first place to look when there are problems associated
+with
+.BR pmcd .
+.TP
+.B $PCP_LOG_DIR/pmcd/pmcd.log.prev
+Diagnostic and status log for the previous
+.BR pmcd (1)
+instance.
+.TP
+.B $PCP_LOG_DIR/NOTICES
+Log of 
+.BR pmcd (1)
+and 
+PMDA starts, stops, additions and removals.
+.TP
+.B $PCP_VAR_DIR/config
+Contains directories of configuration files for several PCP tools.
+.TP
+.B $PCP_SYSCONF_DIR/pmcd/rc.local
+Local script for controlling PCP boot, shutdown and restart actions.
+.TP
+.B $PCP_VAR_DIR/pmns
+Directory containing the set of PMNS files for all installed PMDAs.
+.TP
+.B $PCP_VAR_DIR/pmns/root
+The ASCII
+.BR pmns (5)
+exported by
+.BR pmcd (1)
+by default.  This PMNS is be the super set of all other PMNS files
+installed in
+.BR $PCP_VAR_DIR/pmns .
+.PP
+In addition, if the PCP product is installed the following
+files and directories are relevant.
+.TP
+.B $PCP_LOG_DIR/NOTICES
+In addition to the 
+.BR pmcd (1)
+and PMDA activity, may be used to log alarms and notices from
+.BR pmie (1)
+via
+.BR pmpost (1).
+.TP
+.B $PCP_PMLOGGERCONTROL_PATH
+Control file for
+.BR pmlogger (1)
+instances launched from
+.B $PCP_RC_DIR/pcp
+and/or managed by
+.BR pmlogger_check (1)
+and
+.BR pmlogger_daily (1)
+as part of a production PCP archive collection setup.
+.PD
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.B /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (5).
+.SH SEE ALSO
+.BR pmcd (1),
+.BR pmie (1),
+.BR pmie_daily (1),
+.BR pminfo (1),
+.BR pmlc (1),
+.BR pmlogger (1),
+.BR pmlogger_daily (1),
+.BR pmrep (1),
+.BR pmstat (1),
+.BR pmval (1),
+.BR pcp (1),
+.BR pcp.conf (5),
+.BR pcp.env (5),
+.BR pmns (5)
+and
+.BR chkconfig (8).
+.PP
+If the PCP GUI package is installed, then the
+following entries are also relevant:
+.br
+.BR pmchart (1),
+.BR pmtime (1),
+and
+.BR pmdumptext (1).
+.PP
+If the secure sockets extensions have been enabled, then the
+following references are also relevant:
+.br
+.I "http://www.pcp.io/documentation.html"
+.br
+.I "http://www.mozilla.org/projects/security/pki/nss/#documentation"
+.br
+.I "http://www.mozilla.org/projects/security/pki/nss/tools/certutil.html"
+.PP
+Also refer to the books 
+.I "Performance Co-Pilot User's and Administrator's Guide"
+and
+.IR "Performance Co-Pilot Programmer's Guide"
+which can be found at http://www.pcp.io/

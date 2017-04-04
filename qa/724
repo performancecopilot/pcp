@@ -1,0 +1,41 @@
+#!/bin/sh
+# PCP QA Test No. 724
+# Test using the pmfind app for usage errors
+#
+# Copyright (c) 2014 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_get_libpcp_config
+$service_discovery || _notrun "No support for service discovery"
+
+# Make sure that at least one of the supported discovery mechanisms is available.
+discovery_available=false
+avahi-daemon --check 2>/dev/null && discovery_available=true
+$discovery_available || _notrun "No discovery mechanisms are available"
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+
+echo "Unknown service"
+pmfind -s unknown
+echo "Exit status: $?"
+
+echo "Unknown mechanism"
+pmfind -m unknown
+echo "Exit status: $?"
+
+# success, all done
+status=0
+
+exit

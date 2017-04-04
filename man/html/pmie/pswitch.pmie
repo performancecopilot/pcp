@@ -1,0 +1,5 @@
+// Sample interval
+delta = 5 sec;
+
+// If context switch rate exceeds 2000 per second, display an alarm notifier.
+kernel.all.pswitch > 2000 count/sec -> alarm "high context switch rate";

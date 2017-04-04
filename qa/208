@@ -1,0 +1,82 @@
+#! /bin/sh
+# PCP QA Test No. 208
+#
+# Exercise dynamic PMNS features
+#
+# Copyright (c) 2009 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+if grep -q ' RESERVED_DO_NOT_USE[ 	]*511' $PCP_VAR_DIR/pmns/stdpmid
+then
+    :
+else
+    echo "No support for dynamic PMNS entries" >$seq.notrun
+    echo "$seq: [not run] `cat $seq.notrun`"
+    exit 0
+fi
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.*
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e '/value /s//xalue /' \
+    | _filter_dumpresult \
+    | sed \
+	-e 's/xalue /value /' \
+	-e '/Name space load:/s/[0-9][0-9.]*/NNN/'
+}
+
+# real QA test starts here
+echo "=== PMNS_LOCAL ==="
+
+for name in sample.secret sample.secret.bar sample.secret.foo.one
+do
+    src/torture_pmns -xb -v -s 1 -n $PCP_VAR_DIR/pmns/root $name \
+| _filter
+done
+
+echo
+echo "=== PMNS_REMOTE (daemon PMDA) ==="
+
+for name in sample.secret \
+	sample.secret.bar \
+	sample.secret.foo \
+	sample.secret.foo.one \
+	sample.secret.foo.bar \
+	sample.secret.foo.bar.grunt \
+	sample.secret.foo.bar.grunt.snort \
+	sample.secret.foo.bar.grunt.snort.huff.puff.seven
+do
+    src/torture_pmns -b -v $name \
+| _filter
+done
+
+echo
+echo "=== PMNS_REMOTE (DSO PMDA) ==="
+
+for name in sampledso.secret \
+	sampledso.secret.bar \
+	sampledso.secret.foo \
+	sampledso.secret.foo.one \
+	sampledso.secret.foo.bar \
+	sampledso.secret.foo.bar.grunt \
+	sampledso.secret.foo.bar.grunt.snort \
+	sampledso.secret.foo.bar.grunt.snort.huff.puff.seven
+do
+    src/torture_pmns -b -v $name \
+| _filter
+done
+
+# success, all done
+exit

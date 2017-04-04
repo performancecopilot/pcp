@@ -1,0 +1,306 @@
+/*
+ * Web Performance Metric Domain (PMD) Identifiers
+ *
+ * Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+ * 
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+ * for more details.
+ * 
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+ *
+ * Cluster numbers are used by agent to indicate:
+ *
+ * 0 - Does not require any servers to be updated
+ * 1 - Requires all servers to be updated
+ * 2 - Requires only this server to be updated
+ *
+ * Changes to this file must also be carried into the help file and weblog.c
+ * (especially the meta table, web_fetch and web_store).
+ *
+ */
+
+web {
+    config
+    allservers
+    perserver
+}
+
+web.config {
+    numservers		WEBSERVER:0:0	/* in the PMDA configuration file */
+    catchup		WEBSERVER:0:1	/* maximum catch-up period (secs) */
+    catchuptime		WEBSERVER:0:2	/* time spent in catchup (msecs) */
+    check		WEBSERVER:0:3	/* inactivity period (secs), before
+					   trying to re-open files */
+}
+
+web.allservers {
+    numwatched		WEBSERVER:0:4	/* number to be watched */
+    numalive		WEBSERVER:0:5	/* number of the watched servers 
+    					   that are apparently alive */
+    requests
+    bytes
+    errors		WEBSERVER:1:6
+}
+
+web.allservers.requests {
+    total		WEBSERVER:1:7	
+    get			WEBSERVER:1:8
+    head		WEBSERVER:1:9
+    post		WEBSERVER:1:10
+    other		WEBSERVER:1:11
+    size
+    client
+    cached
+    uncached
+}
+
+web.allservers.bytes {
+    total		WEBSERVER:1:12	
+    get			WEBSERVER:1:13
+    head		WEBSERVER:1:14
+    post		WEBSERVER:1:15
+    other		WEBSERVER:1:16
+    size
+    cached
+    uncached
+}
+
+web.allservers.requests.size {
+    zero		WEBSERVER:1:17
+    le3k		WEBSERVER:1:18
+    le10k		WEBSERVER:1:19
+    le30k		WEBSERVER:1:20
+    le100k		WEBSERVER:1:21
+    le300k		WEBSERVER:1:22
+    le1m		WEBSERVER:1:23
+    le3m		WEBSERVER:1:24
+    gt3m		WEBSERVER:1:25
+    unknown		WEBSERVER:1:66
+}
+
+web.allservers.bytes.size {
+    zero		WEBSERVER:1:26
+    le3k		WEBSERVER:1:27
+    le10k		WEBSERVER:1:28
+    le30k		WEBSERVER:1:29
+    le100k		WEBSERVER:1:30
+    le300k		WEBSERVER:1:31
+    le1m		WEBSERVER:1:32
+    le3m		WEBSERVER:1:33
+    gt3m		WEBSERVER:1:34
+}
+
+web.allservers.requests.client {
+    total		WEBSERVER:3:1	
+}
+
+web.allservers.requests.cached {
+    total		WEBSERVER:3:11
+    size
+}
+
+web.allservers.requests.cached.size {
+    zero		WEBSERVER:3:12
+    le3k		WEBSERVER:3:13
+    le10k		WEBSERVER:3:14
+    le30k		WEBSERVER:3:15
+    le100k		WEBSERVER:3:16
+    le300k		WEBSERVER:3:17
+    le1m		WEBSERVER:3:18
+    le3m		WEBSERVER:3:19
+    gt3m		WEBSERVER:3:20
+    unknown		WEBSERVER:3:21
+}
+
+web.allservers.requests.uncached {
+    total		WEBSERVER:3:31
+    size
+}
+
+web.allservers.requests.uncached.size {
+    zero		WEBSERVER:3:32
+    le3k		WEBSERVER:3:33
+    le10k		WEBSERVER:3:34
+    le30k		WEBSERVER:3:35
+    le100k		WEBSERVER:3:36
+    le300k		WEBSERVER:3:37
+    le1m		WEBSERVER:3:38
+    le3m		WEBSERVER:3:39
+    gt3m		WEBSERVER:3:40
+    unknown		WEBSERVER:3:41
+}
+
+web.allservers.bytes.cached {
+    total		WEBSERVER:3:51
+    size
+}
+
+web.allservers.bytes.cached.size {
+    zero		WEBSERVER:3:52
+    le3k		WEBSERVER:3:53
+    le10k		WEBSERVER:3:54
+    le30k		WEBSERVER:3:55
+    le100k		WEBSERVER:3:56
+    le300k		WEBSERVER:3:57
+    le1m		WEBSERVER:3:58
+    le3m		WEBSERVER:3:59
+    gt3m		WEBSERVER:3:60
+}
+
+web.allservers.bytes.uncached {
+    total		WEBSERVER:3:71
+    size
+}
+
+web.allservers.bytes.uncached.size {
+    zero		WEBSERVER:3:72
+    le3k		WEBSERVER:3:73
+    le10k		WEBSERVER:3:74
+    le30k		WEBSERVER:3:75
+    le100k		WEBSERVER:3:76
+    le300k		WEBSERVER:3:77
+    le1m		WEBSERVER:3:78
+    le3m		WEBSERVER:3:79
+    gt3m		WEBSERVER:3:80
+}
+
+web.perserver {
+    watched		WEBSERVER:0:35	/* is this server being watched? */
+    numlogs		WEBSERVER:2:36	/* number of logs I can read */
+    requests
+    bytes
+    errors		WEBSERVER:2:37
+    logidletime		WEBSERVER:2:68
+}
+
+web.perserver.requests {
+    total		WEBSERVER:2:38	/* per server */
+    get			WEBSERVER:2:39
+    head		WEBSERVER:2:40
+    post		WEBSERVER:2:41
+    other		WEBSERVER:2:42
+    size
+    client
+    cached
+    uncached
+}
+
+web.perserver.bytes {
+    total		WEBSERVER:2:43	/* per server */
+    get			WEBSERVER:2:44
+    head		WEBSERVER:2:45
+    post		WEBSERVER:2:46
+    other		WEBSERVER:2:47
+    size
+    cached
+    uncached
+}
+
+web.perserver.requests.size {
+    zero		WEBSERVER:2:48
+    le3k		WEBSERVER:2:49
+    le10k		WEBSERVER:2:50
+    le30k		WEBSERVER:2:51
+    le100k		WEBSERVER:2:52
+    le300k		WEBSERVER:2:53
+    le1m		WEBSERVER:2:54
+    le3m		WEBSERVER:2:55
+    gt3m		WEBSERVER:2:56
+    unknown		WEBSERVER:2:67
+}
+
+web.perserver.bytes.size {
+    zero		WEBSERVER:2:57
+    le3k		WEBSERVER:2:58
+    le10k		WEBSERVER:2:59
+    le30k		WEBSERVER:2:60
+    le100k		WEBSERVER:2:61
+    le300k		WEBSERVER:2:62
+    le1m		WEBSERVER:2:63
+    le3m		WEBSERVER:2:64
+    gt3m		WEBSERVER:2:65
+}
+
+web.perserver.requests.client {
+    total		WEBSERVER:4:1	
+}
+
+web.perserver.requests.cached {
+    total		WEBSERVER:4:11
+    size
+}
+
+web.perserver.requests.cached.size {
+    zero		WEBSERVER:4:12
+    le3k		WEBSERVER:4:13
+    le10k		WEBSERVER:4:14
+    le30k		WEBSERVER:4:15
+    le100k		WEBSERVER:4:16
+    le300k		WEBSERVER:4:17
+    le1m		WEBSERVER:4:18
+    le3m		WEBSERVER:4:19
+    gt3m		WEBSERVER:4:20
+    unknown		WEBSERVER:4:21
+}
+
+web.perserver.requests.uncached {
+    total		WEBSERVER:4:31
+    size
+}
+
+web.perserver.requests.uncached.size {
+    zero		WEBSERVER:4:32
+    le3k		WEBSERVER:4:33
+    le10k		WEBSERVER:4:34
+    le30k		WEBSERVER:4:35
+    le100k		WEBSERVER:4:36
+    le300k		WEBSERVER:4:37
+    le1m		WEBSERVER:4:38
+    le3m		WEBSERVER:4:39
+    gt3m		WEBSERVER:4:40
+    unknown		WEBSERVER:4:41
+}
+
+web.perserver.bytes.cached {
+    total		WEBSERVER:4:51
+    size
+}
+
+web.perserver.bytes.cached.size {
+    zero		WEBSERVER:4:52
+    le3k		WEBSERVER:4:53
+    le10k		WEBSERVER:4:54
+    le30k		WEBSERVER:4:55
+    le100k		WEBSERVER:4:56
+    le300k		WEBSERVER:4:57
+    le1m		WEBSERVER:4:58
+    le3m		WEBSERVER:4:59
+    gt3m		WEBSERVER:4:60
+}
+
+web.perserver.bytes.uncached {
+    total		WEBSERVER:4:71
+    size
+}
+
+web.perserver.bytes.uncached.size {
+    zero		WEBSERVER:4:72
+    le3k		WEBSERVER:4:73
+    le10k		WEBSERVER:4:74
+    le30k		WEBSERVER:4:75
+    le100k		WEBSERVER:4:76
+    le300k		WEBSERVER:4:77
+    le1m		WEBSERVER:4:78
+    le3m		WEBSERVER:4:79
+    gt3m		WEBSERVER:4:80
+}
+

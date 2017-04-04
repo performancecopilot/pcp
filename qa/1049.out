@@ -1,0 +1,12 @@
+QA output created by 1049
+running pmieconf with default rules...
+status=0
+running pmie...
+status=0
+pmie log file...
+Log for pmie on HOST started DATE
+
+pmie: PID,HOST
+
+
+Log finished DATE

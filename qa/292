@@ -1,0 +1,99 @@
+#! /bin/sh
+# PCP QA Test No. 292
+# duplicate/alias base name resolution by pmlogger_check
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_filter()
+{
+    sed \
+	-e '/host:/s/ [^ ].*/ HOST/' \
+	-e '/start:/s/ [^ ].*/ DATE/' \
+	-e '/end:/s/ [^ ].*/ DATE/' \
+	-e 's/^..:..:..\..../TIMESTAMP   /' \
+	-e "s/^TIMESTAMP *$debug$/TIMESTAMP     DEBUG/g"
+}
+
+_cleanup()
+{
+    if [ ! -f $tmp.cleanup ]
+    then
+	$signal -a -s TERM pmlogger >/dev/null 2>&1
+	$sudo $PCP_BINADM_DIR/pmlogger_check
+	_wait_for_pmlogger
+	touch $tmp.cleanup
+    fi
+}
+
+signal="$sudo $PCP_BINADM_DIR/pmsignal"
+status=0	# success is the default!
+trap "_cleanup; cd $here; $sudo rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
+
+debug=`pmprobe -v pmcd.control.debug | $PCP_AWK_PROG '{ print $3 }'`
+
+rm -rf $tmp
+mkdir $tmp
+chmod ugo+w $tmp
+cd $tmp
+
+echo >control '# PCP archive logging configuration/control - for qa/'$seq'
+#
+$version=1.1
+LOCALHOSTNAME	n   n	'`pwd`'	-c ./config'
+
+echo "log mandatory on once pmcd.control.debug" >config
+
+touch pmcheck.log
+chmod ugo+w pmcheck.log
+
+# real QA test starts here
+echo "start pmlogger ..."
+$sudo $PCP_BINADM_DIR/pmlogger_check -V -c control >>pmcheck.log 2>&1
+
+for i in 1 2 3 4
+do
+    echo "kill and restart pmlogger ..."
+    $signal -a -s TERM pmlogger
+    $sudo $PCP_BINADM_DIR/pmlogger_check -V -c control >>pmcheck.log 2>&1
+done
+$signal -a -s TERM pmlogger
+
+echo
+echo "Checking ..."
+for seq in 00 01
+do
+    if [ "`echo *-$seq.index`" != "*-$seq.index" ]
+    then
+	echo "Found at least one \"-$seq\" suffix"
+    else
+	echo "No \"-$seq\" suffix found!"
+	status=1
+    fi
+done
+
+if [ $status = 1 ]
+then
+    echo
+    echo "Hmm ... this is what we got"
+    ls -l
+    echo "=== pmlogger.log==="
+    cat pmlogger.log
+    echo "=== pmcheck.log==="
+    cat pmcheck.log
+fi
+
+echo
+echo "merge 'em together ..."
+$sudo $PCP_BINADM_DIR/pmlogextract *.0 out
+pmval -U out pmcd.control.debug | _filter
+
+exit

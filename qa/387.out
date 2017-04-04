@@ -1,0 +1,31 @@
+QA output created by 387
+=== std out ===
+***iteration 0***
+---pre-unload---
+PMNS location = 2
+---post-unload---
+PMNS location = 2
+---post-load---
+PMNS location = 1
+***iteration 1***
+---pre-unload---
+PMNS location = 1
+---post-unload---
+PMNS location = 2
+---post-load---
+PMNS location = 1
+***iteration 2***
+---pre-unload---
+PMNS location = 1
+---post-unload---
+PMNS location = 2
+---post-load---
+PMNS location = 1
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/pmnsunload -i 3
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...

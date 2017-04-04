@@ -1,0 +1,693 @@
+QA output created by 732
+== Checking metric descriptors and values - nfsrpc-root-001.tgz
+
+rpc.client.rpccnt
+    value 1
+
+rpc.client.rpcretrans
+    value 2
+
+rpc.client.rpcauthrefresh
+    value 3
+
+rpc.client.netcnt
+    value 1
+
+rpc.client.netudpcnt
+    value 2
+
+rpc.client.nettcpcnt
+    value 3
+
+rpc.client.nettcpconn
+    value 4
+
+rpc.server.rpccnt
+    value 57
+
+rpc.server.rpcerr
+    value 0
+
+rpc.server.rpcbadfmt
+    value 0
+
+rpc.server.rpcbadauth
+    value 0
+
+rpc.server.rpcbadclnt
+    value 0
+
+rpc.server.rchits
+    value 0
+
+rpc.server.rcmisses
+    value 16
+
+rpc.server.rcnocache
+    value 41
+
+rpc.server.fh_cached
+    value 0
+
+rpc.server.fh_valid
+    value 0
+
+rpc.server.fh_fixup
+    value 0
+
+rpc.server.fh_lookup
+    value 0
+
+rpc.server.fh_stale
+    value 0
+
+rpc.server.fh_concurrent
+    value 0
+
+rpc.server.netcnt
+    value 57
+
+rpc.server.netudpcnt
+    value 0
+
+rpc.server.nettcpcnt
+    value 57
+
+rpc.server.nettcpconn
+    value 57
+
+rpc.server.fh_anon
+    value 0
+
+rpc.server.fh_nocache_dir
+    value 0
+
+rpc.server.fh_nocache_nondir
+    value 0
+
+rpc.server.io_read
+    value 0
+
+rpc.server.io_write
+    value 0
+
+rpc.server.th_cnt
+    value 16
+
+rpc.server.th_fullcnt
+    value 0
+
+rpc.server.ra_size
+    value 32
+
+rpc.server.ra_hits
+    value 10
+
+rpc.server.ra_misses
+    value 5683
+
+nfs.client.calls
+    value 0
+
+nfs.client.reqs
+    inst [0 or "null"] value 0
+    inst [1 or "getattr"] value 0
+    inst [2 or "setattr"] value 0
+    inst [3 or "root"] value 0
+    inst [4 or "lookup"] value 0
+    inst [5 or "readlink"] value 0
+    inst [6 or "read"] value 0
+    inst [7 or "wrcache"] value 0
+    inst [8 or "write"] value 0
+    inst [9 or "create"] value 0
+    inst [10 or "remove"] value 0
+    inst [11 or "rename"] value 0
+    inst [12 or "link"] value 0
+    inst [13 or "symlink"] value 0
+    inst [14 or "mkdir"] value 0
+    inst [15 or "rmdir"] value 0
+    inst [16 or "readdir"] value 0
+    inst [17 or "statfs"] value 0
+
+nfs.server.calls
+    value 0
+
+nfs.server.reqs
+    inst [0 or "null"] value 0
+    inst [1 or "getattr"] value 0
+    inst [2 or "setattr"] value 0
+    inst [3 or "root"] value 0
+    inst [4 or "lookup"] value 0
+    inst [5 or "readlink"] value 0
+    inst [6 or "read"] value 0
+    inst [7 or "wrcache"] value 0
+    inst [8 or "write"] value 0
+    inst [9 or "create"] value 0
+    inst [10 or "remove"] value 0
+    inst [11 or "rename"] value 0
+    inst [12 or "link"] value 0
+    inst [13 or "symlink"] value 0
+    inst [14 or "mkdir"] value 0
+    inst [15 or "rmdir"] value 0
+    inst [16 or "readdir"] value 0
+    inst [17 or "statfs"] value 0
+
+nfs3.client.calls
+    value 0
+
+nfs3.client.reqs
+    inst [0 or "null"] value 0
+    inst [1 or "getattr"] value 0
+    inst [2 or "setattr"] value 0
+    inst [3 or "lookup"] value 0
+    inst [4 or "access"] value 0
+    inst [5 or "readlink"] value 0
+    inst [6 or "read"] value 0
+    inst [7 or "write"] value 0
+    inst [8 or "create"] value 0
+    inst [9 or "mkdir"] value 0
+    inst [10 or "symlink"] value 0
+    inst [11 or "mknod"] value 0
+    inst [12 or "remove"] value 0
+    inst [13 or "rmdir"] value 0
+    inst [14 or "rename"] value 0
+    inst [15 or "link"] value 0
+    inst [16 or "readdir"] value 0
+    inst [17 or "readdir+"] value 0
+    inst [18 or "statfs"] value 0
+    inst [19 or "fsinfo"] value 0
+    inst [20 or "pathconf"] value 0
+    inst [21 or "commit"] value 0
+
+nfs3.server.calls
+    value 0
+
+nfs3.server.reqs
+    inst [0 or "null"] value 0
+    inst [1 or "getattr"] value 0
+    inst [2 or "setattr"] value 0
+    inst [3 or "lookup"] value 0
+    inst [4 or "access"] value 0
+    inst [5 or "readlink"] value 0
+    inst [6 or "read"] value 0
+    inst [7 or "write"] value 0
+    inst [8 or "create"] value 0
+    inst [9 or "mkdir"] value 0
+    inst [10 or "symlink"] value 0
+    inst [11 or "mknod"] value 0
+    inst [12 or "remove"] value 0
+    inst [13 or "rmdir"] value 0
+    inst [14 or "rename"] value 0
+    inst [15 or "link"] value 0
+    inst [16 or "readdir"] value 0
+    inst [17 or "readdir+"] value 0
+    inst [18 or "statfs"] value 0
+    inst [19 or "fsinfo"] value 0
+    inst [20 or "pathconf"] value 0
+    inst [21 or "commit"] value 0
+
+nfs4.client.calls
+    value 0
+
+nfs4.client.reqs
+    inst [0 or "null"] value 0
+    inst [1 or "read"] value 0
+    inst [2 or "write"] value 0
+    inst [3 or "commit"] value 0
+    inst [4 or "open"] value 0
+    inst [5 or "open_conf"] value 0
+    inst [6 or "open_noat"] value 0
+    inst [7 or "open_dgrd"] value 0
+    inst [8 or "close"] value 0
+    inst [9 or "setattr"] value 0
+    inst [10 or "fsinfo"] value 0
+    inst [11 or "renew"] value 0
+    inst [12 or "setclntid"] value 0
+    inst [13 or "confirm"] value 0
+    inst [14 or "lock"] value 0
+    inst [15 or "lockt"] value 0
+    inst [16 or "locku"] value 0
+    inst [17 or "access"] value 0
+    inst [18 or "getattr"] value 0
+    inst [19 or "lookup"] value 0
+    inst [20 or "lookup_root"] value 0
+    inst [21 or "remove"] value 0
+    inst [22 or "rename"] value 0
+    inst [23 or "link"] value 0
+    inst [24 or "symlink"] value 0
+    inst [25 or "create"] value 0
+    inst [26 or "pathconf"] value 0
+    inst [27 or "statfs"] value 0
+    inst [28 or "readlink"] value 0
+    inst [29 or "readdir"] value 0
+    inst [30 or "server_caps"] value 0
+    inst [31 or "delegreturn"] value 0
+    inst [32 or "getacl"] value 0
+    inst [33 or "setacl"] value 0
+    inst [34 or "fs_locations"] value 0
+    inst [35 or "rel_lkowner"] value 0
+    inst [36 or "secinfo"] value 0
+    inst [37 or "fsid_present"] value 0
+    inst [38 or "exchange_id"] value 0
+    inst [39 or "create_ses"] value 0
+    inst [40 or "destroy_ses"] value 0
+    inst [41 or "sequence"] value 0
+    inst [42 or "get_lease_t"] value 0
+    inst [43 or "reclaim_comp"] value 0
+    inst [44 or "layoutget"] value 0
+    inst [45 or "getdevinfo"] value 0
+    inst [46 or "layoutcommit"] value 0
+    inst [47 or "secinfononam"] value 0
+    inst [48 or "test_stateid"] value 0
+    inst [49 or "free_stateid"] value 0
+    inst [50 or "getdevlist"] value 0
+    inst [51 or "bind_ses"] value 0
+    inst [52 or "destroy_clntid"] value 0
+    inst [53 or "seek"] value 0
+    inst [54 or "allocate"] value 0
+    inst [55 or "deallocate"] value 0
+
+nfs4.server.calls
+    value 250
+
+nfs4.server.reqs
+    inst [1 or "op0-unused"] value 0
+    inst [2 or "op1-unused"] value 0
+    inst [3 or "op2-future"] value 0
+    inst [4 or "access"] value 5
+    inst [5 or "close"] value 0
+    inst [6 or "commit"] value 0
+    inst [7 or "create"] value 0
+    inst [8 or "delegpurge"] value 0
+    inst [9 or "delegreturn"] value 0
+    inst [10 or "getattr"] value 33
+    inst [11 or "getfh"] value 3
+    inst [12 or "link"] value 0
+    inst [13 or "lock"] value 0
+    inst [14 or "lockt"] value 0
+    inst [15 or "locku"] value 0
+    inst [16 or "lookup"] value 6
+    inst [17 or "lookup_root"] value 0
+    inst [18 or "nverify"] value 0
+    inst [19 or "open"] value 0
+    inst [20 or "openattr"] value 0
+    inst [21 or "open_conf"] value 0
+    inst [22 or "open_dgrd"] value 0
+    inst [23 or "putfh"] value 52
+    inst [24 or "putpubfh"] value 0
+    inst [25 or "putrootfh"] value 1
+    inst [26 or "read"] value 0
+    inst [27 or "readdir"] value 2
+    inst [28 or "readlink"] value 0
+    inst [29 or "remove"] value 14
+    inst [30 or "rename"] value 0
+    inst [31 or "renew"] value 1
+    inst [32 or "restorefh"] value 0
+    inst [33 or "savefh"] value 0
+    inst [34 or "secinfo"] value 0
+    inst [35 or "setattr"] value 0
+    inst [36 or "setcltid"] value 1
+    inst [37 or "setcltidconf"] value 1
+    inst [38 or "verify"] value 0
+    inst [39 or "write"] value 0
+    inst [40 or "rellockowner"] value 0
+    inst [41 or "bc_ctl"] value 0
+    inst [42 or "bind_conn"] value 0
+    inst [43 or "exchange_id"] value 0
+    inst [44 or "create_ses"] value 0
+    inst [45 or "destroy_ses"] value 0
+    inst [46 or "free_stateid"] value 0
+    inst [47 or "getdirdeleg"] value 0
+    inst [48 or "getdevinfo"] value 0
+    inst [49 or "getdevlist"] value 0
+    inst [50 or "layoutcommit"] value 0
+    inst [51 or "layoutget"] value 0
+    inst [52 or "layoutreturn"] value 0
+    inst [53 or "secinfononam"] value 32
+    inst [54 or "sequence"] value 0
+    inst [55 or "set_ssv"] value 0
+    inst [56 or "test_stateid"] value 0
+    inst [57 or "want_deleg"] value 0
+    inst [58 or "destroy_clid"] value 0
+    inst [59 or "reclaim_comp"] value 99
+    inst [60 or "allocate"] value 0
+    inst [61 or "copy"] value 0
+    inst [62 or "copy_notify"] value 0
+    inst [63 or "deallocate"] value 0
+    inst [64 or "io_advise"] value 0
+    inst [65 or "layouterror"] value 0
+    inst [66 or "layoutstats"] value 0
+    inst [67 or "offload_cancel"] value 0
+    inst [68 or "offload_status"] value 0
+    inst [69 or "read_plus"] value 0
+    inst [70 or "seek"] value 0
+    inst [71 or "write_same"] value 0
+
+== done
+
+== Checking metric descriptors and values - nfsrpc-root-002.tgz
+
+rpc.client.rpccnt
+    value 14415
+
+rpc.client.rpcretrans
+    value 0
+
+rpc.client.rpcauthrefresh
+    value 14415
+
+rpc.client.netcnt
+    value 1
+
+rpc.client.netudpcnt
+    value 2
+
+rpc.client.nettcpcnt
+    value 3
+
+rpc.client.nettcpconn
+    value 4
+
+rpc.server.rpccnt
+    value 1796938178
+
+rpc.server.rpcerr
+    value 0
+
+rpc.server.rpcbadfmt
+    value 0
+
+rpc.server.rpcbadauth
+    value 0
+
+rpc.server.rpcbadclnt
+    value 0
+
+rpc.server.rchits
+    value 14
+
+rpc.server.rcmisses
+    value 277482605
+
+rpc.server.rcnocache
+    value 1519481075
+
+rpc.server.fh_cached
+    value 0
+
+rpc.server.fh_valid
+    value 0
+
+rpc.server.fh_fixup
+    value 0
+
+rpc.server.fh_lookup
+    value 0
+
+rpc.server.fh_stale
+    value 5208
+
+rpc.server.fh_concurrent
+    value 0
+
+rpc.server.netcnt
+    value 471073134
+
+rpc.server.netudpcnt
+    value 0
+
+rpc.server.nettcpcnt
+    value 471089819
+
+rpc.server.nettcpconn
+    value 471089819
+
+rpc.server.fh_anon
+    value 0
+
+rpc.server.fh_nocache_dir
+    value 0
+
+rpc.server.fh_nocache_nondir
+    value 0
+
+rpc.server.io_read
+    value 3197575487
+
+rpc.server.io_write
+    value 677537481
+
+rpc.server.th_cnt
+    value 128
+
+rpc.server.th_fullcnt
+    value 1196
+
+rpc.server.ra_size
+    value 256
+
+rpc.server.ra_hits
+    value 1089064507
+
+rpc.server.ra_misses
+    value 1410044
+
+nfs.client.calls
+    value 0
+
+nfs.client.reqs
+    inst [0 or "null"] value 0
+    inst [1 or "getattr"] value 0
+    inst [2 or "setattr"] value 0
+    inst [3 or "root"] value 0
+    inst [4 or "lookup"] value 0
+    inst [5 or "readlink"] value 0
+    inst [6 or "read"] value 0
+    inst [7 or "wrcache"] value 0
+    inst [8 or "write"] value 0
+    inst [9 or "create"] value 0
+    inst [10 or "remove"] value 0
+    inst [11 or "rename"] value 0
+    inst [12 or "link"] value 0
+    inst [13 or "symlink"] value 0
+    inst [14 or "mkdir"] value 0
+    inst [15 or "rmdir"] value 0
+    inst [16 or "readdir"] value 0
+    inst [17 or "statfs"] value 0
+
+nfs.server.calls
+    value 152
+
+nfs.server.reqs
+    inst [0 or "null"] value 0
+    inst [1 or "getattr"] value 152
+    inst [2 or "setattr"] value 0
+    inst [3 or "root"] value 0
+    inst [4 or "lookup"] value 0
+    inst [5 or "readlink"] value 0
+    inst [6 or "read"] value 0
+    inst [7 or "wrcache"] value 0
+    inst [8 or "write"] value 0
+    inst [9 or "create"] value 0
+    inst [10 or "remove"] value 0
+    inst [11 or "rename"] value 0
+    inst [12 or "link"] value 0
+    inst [13 or "symlink"] value 0
+    inst [14 or "mkdir"] value 0
+    inst [15 or "rmdir"] value 0
+    inst [16 or "readdir"] value 0
+    inst [17 or "statfs"] value 0
+
+nfs3.client.calls
+    value 4976
+
+nfs3.client.reqs
+    inst [0 or "null"] value 0
+    inst [1 or "getattr"] value 1047
+    inst [2 or "setattr"] value 0
+    inst [3 or "lookup"] value 268
+    inst [4 or "access"] value 1377
+    inst [5 or "readlink"] value 0
+    inst [6 or "read"] value 0
+    inst [7 or "write"] value 800
+    inst [8 or "create"] value 1
+    inst [9 or "mkdir"] value 0
+    inst [10 or "symlink"] value 0
+    inst [11 or "mknod"] value 0
+    inst [12 or "remove"] value 1376
+    inst [13 or "rmdir"] value 0
+    inst [14 or "rename"] value 0
+    inst [15 or "link"] value 0
+    inst [16 or "readdir"] value 3
+    inst [17 or "readdir+"] value 100
+    inst [18 or "statfs"] value 0
+    inst [19 or "fsinfo"] value 2
+    inst [20 or "pathconf"] value 1
+    inst [21 or "commit"] value 1
+
+nfs3.server.calls
+    value 470568228
+
+nfs3.server.reqs
+    inst [0 or "null"] value 1
+    inst [1 or "getattr"] value 219996357
+    inst [2 or "setattr"] value 556065
+    inst [3 or "lookup"] value 24059461
+    inst [4 or "access"] value 43520164
+    inst [5 or "readlink"] value 606473
+    inst [6 or "read"] value 150260668
+    inst [7 or "write"] value 28056897
+    inst [8 or "create"] value 545340
+    inst [9 or "mkdir"] value 198181
+    inst [10 or "symlink"] value 3708
+    inst [11 or "mknod"] value 0
+    inst [12 or "remove"] value 412742
+    inst [13 or "rmdir"] value 104649
+    inst [14 or "rename"] value 177365
+    inst [15 or "link"] value 10
+    inst [16 or "readdir"] value 4940
+    inst [17 or "readdir+"] value 255357
+    inst [18 or "statfs"] value 152
+    inst [19 or "fsinfo"] value 3
+    inst [20 or "pathconf"] value 0
+    inst [21 or "commit"] value 1809695
+
+nfs4.client.calls
+    value 14414
+
+nfs4.client.reqs
+    inst [0 or "null"] value 0
+    inst [1 or "read"] value 1
+    inst [2 or "write"] value 2974
+    inst [3 or "commit"] value 2
+    inst [4 or "open"] value 4166
+    inst [5 or "open_conf"] value 2
+    inst [6 or "open_noat"] value 0
+    inst [7 or "open_dgrd"] value 0
+    inst [8 or "close"] value 4164
+    inst [9 or "setattr"] value 1374
+    inst [10 or "fsinfo"] value 2
+    inst [11 or "renew"] value 7
+    inst [12 or "setclntid"] value 2
+    inst [13 or "confirm"] value 2
+    inst [14 or "lock"] value 1
+    inst [15 or "lockt"] value 0
+    inst [16 or "locku"] value 1
+    inst [17 or "access"] value 1387
+    inst [18 or "getattr"] value 67
+    inst [19 or "lookup"] value 8
+    inst [20 or "lookup_root"] value 1
+    inst [21 or "remove"] value 1
+    inst [22 or "rename"] value 0
+    inst [23 or "link"] value 0
+    inst [24 or "symlink"] value 0
+    inst [25 or "create"] value 3
+    inst [26 or "pathconf"] value 1
+    inst [27 or "statfs"] value 0
+    inst [28 or "readlink"] value 0
+    inst [29 or "readdir"] value 244
+    inst [30 or "server_caps"] value 3
+    inst [31 or "delegreturn"] value 0
+    inst [32 or "getacl"] value 0
+    inst [33 or "setacl"] value 0
+    inst [34 or "fs_locations"] value 0
+    inst [35 or "rel_lkowner"] value 1
+    inst [36 or "secinfo"] value 0
+    inst [37 or "fsid_present"] value 0
+    inst [38 or "exchange_id"] value 0
+    inst [39 or "create_ses"] value 0
+    inst [40 or "destroy_ses"] value 0
+    inst [41 or "sequence"] value 0
+    inst [42 or "get_lease_t"] value 0
+    inst [43 or "reclaim_comp"] value 0
+    inst [44 or "layoutget"] value 0
+    inst [45 or "getdevinfo"] value 0
+    inst [46 or "layoutcommit"] value 0
+    inst [47 or "secinfononam"] value 0
+    inst [48 or "test_stateid"] value 0
+    inst [49 or "free_stateid"] value 0
+    inst [50 or "getdevlist"] value 0
+    inst [51 or "bind_ses"] value 0
+    inst [52 or "destroy_clntid"] value 0
+    inst [53 or "seek"] value 0
+    inst [54 or "allocate"] value 0
+    inst [55 or "deallocate"] value 0
+
+nfs4.server.calls
+    value 24258
+
+nfs4.server.reqs
+    inst [1 or "op0-unused"] value 0
+    inst [2 or "op1-unused"] value 0
+    inst [3 or "op2-future"] value 0
+    inst [4 or "access"] value 1389
+    inst [5 or "close"] value 1380
+    inst [6 or "commit"] value 2
+    inst [7 or "create"] value 3
+    inst [8 or "delegpurge"] value 0
+    inst [9 or "delegreturn"] value 0
+    inst [10 or "getattr"] value 7164
+    inst [11 or "getfh"] value 1384
+    inst [12 or "link"] value 0
+    inst [13 or "lock"] value 1
+    inst [14 or "lockt"] value 0
+    inst [15 or "locku"] value 1
+    inst [16 or "lookup"] value 8
+    inst [17 or "lookup_root"] value 0
+    inst [18 or "nverify"] value 0
+    inst [19 or "open"] value 1382
+    inst [20 or "openattr"] value 0
+    inst [21 or "open_conf"] value 1
+    inst [22 or "open_dgrd"] value 0
+    inst [23 or "putfh"] value 7181
+    inst [24 or "putpubfh"] value 0
+    inst [25 or "putrootfh"] value 1
+    inst [26 or "read"] value 1
+    inst [27 or "readdir"] value 1
+    inst [28 or "readlink"] value 0
+    inst [29 or "remove"] value 1
+    inst [30 or "rename"] value 0
+    inst [31 or "renew"] value 5
+    inst [32 or "restorefh"] value 0
+    inst [33 or "savefh"] value 0
+    inst [34 or "secinfo"] value 0
+    inst [35 or "setattr"] value 1374
+    inst [36 or "setcltid"] value 2
+    inst [37 or "setcltidconf"] value 2
+    inst [38 or "verify"] value 0
+    inst [39 or "write"] value 2974
+    inst [40 or "rellockowner"] value 1
+    inst [41 or "bc_ctl"] value 0
+    inst [42 or "bind_conn"] value 0
+    inst [43 or "exchange_id"] value 0
+    inst [44 or "create_ses"] value 0
+    inst [45 or "destroy_ses"] value 0
+    inst [46 or "free_stateid"] value 0
+    inst [47 or "getdirdeleg"] value 0
+    inst [48 or "getdevinfo"] value 0
+    inst [49 or "getdevlist"] value 0
+    inst [50 or "layoutcommit"] value 0
+    inst [51 or "layoutget"] value 0
+    inst [52 or "layoutreturn"] value 0
+    inst [53 or "secinfononam"] value 0
+    inst [54 or "sequence"] value 0
+    inst [55 or "set_ssv"] value 0
+    inst [56 or "test_stateid"] value 0
+    inst [57 or "want_deleg"] value 0
+    inst [58 or "destroy_clid"] value 0
+    inst [59 or "reclaim_comp"] value 0
+    inst [60 or "allocate"] value 0
+    inst [61 or "copy"] value 0
+    inst [62 or "copy_notify"] value 0
+    inst [63 or "deallocate"] value 0
+    inst [64 or "io_advise"] value 0
+    inst [65 or "layouterror"] value 0
+    inst [66 or "layoutstats"] value 0
+    inst [67 or "offload_cancel"] value 0
+    inst [68 or "offload_status"] value 0
+    inst [69 or "read_plus"] value 0
+    inst [70 or "seek"] value 0
+    inst [71 or "write_same"] value 0
+
+== done
+

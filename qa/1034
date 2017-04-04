@@ -1,0 +1,79 @@
+#!/bin/sh
+# PCP QA Test No. 1034
+# Exercise the named PMDA Install/Remove processes.
+#
+# Copyright (c) 2016 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ -f $PCP_PMDAS_DIR/named/pmdanamed.pl ] || _notrun "named pmda not installed"
+stats="/var/named/data/named_stats.txt"
+[ -f $stats -o -f /var/named/chroot$stats ] || _notrun "no named stats file(s)"
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+
+_filter_named()
+{
+    cat -
+}
+
+pmdanamed_remove()
+{
+    echo
+    echo "=== remove named agent ==="
+    $sudo ./Remove >$tmp.out 2>&1
+    _filter_pmda_remove <$tmp.out
+}
+
+pmdanamed_install()
+{
+    # start from known starting points
+    cd $PCP_PMDAS_DIR/named
+    $sudo ./Remove >/dev/null 2>&1
+    $sudo $PCP_RC_DIR/pmcd stop 2>&1 | _filter_pcp_stop
+
+    echo
+    echo "=== named agent installation ==="
+    $sudo ./Install </dev/null >$tmp.out 2>&1
+    cat $tmp.out >>$here/$seq.full
+    # Check named metrics have appeared ... X metrics and Y values
+    _filter_pmda_install <$tmp.out \
+    | sed \
+        -e '/^Waiting for pmcd/s/\.\.\.[. ]*$/DOTS/' \
+        -e 's/[0-9][0-9]* warnings, //' \
+    | $PCP_AWK_PROG '
+/Check named metrics have appeared/    { if ($7 >= 1 && $7 <= 1) $7 = "X"
+                                         if ($10 >= 0 && $10 <= 80) $10 = "Y"
+                                       }
+                                       { print }'
+}
+
+_prepare_pmda named
+# note: _restore_systemd_restart pmcd done in _cleanup_pmda()
+trap "_cleanup_pmda named; exit \$status" 0 1 2 3 15
+
+_stop_systemd_restart pmcd
+
+# real QA test starts here
+pmdanamed_install
+
+if pminfo -v named > $tmp.info 2> $tmp.err
+then
+    :
+else
+    echo "... failed! ... here is the Install log ..."
+    cat $tmp.out
+fi
+cat $tmp.info $tmp.err | _filter_named
+
+pmdanamed_remove
+status=0
+exit

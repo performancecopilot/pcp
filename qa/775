@@ -1,0 +1,64 @@
+#!/bin/sh
+# PCP QA Test No. 775
+# Test using the pmfind app to find pmcd servers
+#
+# Copyright (c) 2014 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.discovery
+
+_get_libpcp_config
+$service_discovery || _notrun "No support for service discovery"
+
+# Make sure that at least one of the supported discovery mechanisms is available.
+discovery_available=false
+avahi-daemon --check 2>/dev/null && discovery_available=true
+$discovery_available || _notrun "No discovery mechanisms are available"
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+_control_service_discovery
+
+echo "No arguments" | tee -a $here/$seq.full
+pmfind | _filter_discovery_unresolved
+echo "Exit status: $?"
+
+echo "-s pmcd -r" | tee -a $here/$seq.full
+pmfind -s pmcd -r | _filter_discovery_resolved
+echo "Exit status: $?"
+
+echo "-m all" | tee -a $here/$seq.full
+pmfind -m all | _filter_discovery_unresolved
+echo "Exit status: $?"
+
+echo "-s pmcd -m all --resolve" | tee -a $here/$seq.full
+pmfind -s pmcd -m all --resolve | _filter_discovery_resolved
+echo "Exit status: $?"
+
+echo "-q" | tee -a $here/$seq.full
+pmfind -q
+echo "Exit status: $?"
+
+echo "-q -s pmcd" | tee -a $here/$seq.full
+pmfind -q -s pmcd
+echo "Exit status: $?"
+
+echo "-q -m all" | tee -a $here/$seq.full
+pmfind -q -m all
+echo "Exit status: $?"
+
+echo "-q -s pmcd -m all" | tee -a $here/$seq.full
+pmfind -q -s pmcd -m all
+echo "Exit status: $?"
+
+# success, all done
+status=0
+
+exit

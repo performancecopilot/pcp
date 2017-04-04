@@ -1,0 +1,108 @@
+Performance Co-Pilot PMDA for Monitoring GFS2 Filesystems
+=========================================================
+
+This PMDA is capable of collecting glock statistics from GFS2 filesystems
+mounted on the system in both local and clustered configurations.
+
+The PMDA collects its data from the trace-point output given by GFS2 as
+the filesystem is working, this information is provided in userland
+through debugfs. In order for pmdagfs2 to be able to provide any metric
+data the user must have debugfs mounted and at least on GFS2 filesystem
+mounted on the system to be monitored.
+
+As mentioned above the PMDA can be used both situations where GFS2
+filesystems are mounted as local filesystems and in cluster configurations
+where GFS2 is used as a shared disk filesystem. When the PMDA is being
+used in conjunction with a locally mounted filesystem (no clustering) only
+a base number of metrics will be available to provide metric information
+back to PMCD, these metrics can be recognised by their lack of
+corresponding “control” metrics.
+
+For configurations where GFS2 is used in a clustered environment the
+additional “cluster only” metrics are able to collect data through the
+cache control mechanism of the cluster. This data being passed between
+cluster nodes regarding the state of glocks is unavailable in local
+filesystem configurations leading the requirement for a cluster
+configuration for these metrics.
+
+For more information on GFS2 or cluster setups please visit www.redhat.com
+
+Metrics
+=======
+
+The file ./help contains descriptions for all of the metrics which are
+exposed by this PMDA.
+
+Once the PMDA has been installed, the following command will list all of
+the available metrics and their explanatory “help” text:
+
+    + # $ pminfo -fT gfs2
+
+Installation
+============
+
+    + # cd $PCP_PMDAS_DIR/gfs2
+
+    + Check that there is no clash in the Performance Metrics Domain
+      defined in ./domain.h and the other PMDA's currently in use (see
+      $PCP_PMCDCONF_PATH). If there is, edit ./domain.h to choose another
+      domain number (This should only be an issue on installations with
+      third party PMDA's installed as the domain number given has been
+      reserved for the GFS2 PMDA with base PCP installations).
+
+    + Then simply use
+
+        # ./Install
+
+ 	and choose both the “collector” and “monitor” installation
+        configuration options.
+
+Configuration
+=============
+
+Some of the metrics provided by the PMDA can be configured to whether they
+are turned on or off with regards to collecting metric data. These metrics
+are distinguished by having a corresponding “control” metric.
+
+Identification of these metrics which have this control can be found by
+issuing the following command.
+
+    + $ pminfo -fT gfs2.control
+
+The metrics given as output through pminfo in this way can be controlled
+by setting their metric value to either 0 (Off: no collection of metric 
+data) or 1 (On: collection of metric data) using the provided command
+pmstore whilst specifying the metric to set the value for and a valid
+value.
+
+    + $ pmstore gfs2.control.tracepoints.all 1
+
+Any metrics without a corresponding control metric cannot have their
+functionality toggled in this way.
+
+De-Installation
+===============
+
+    + Simply use
+
+        # cd $PCP_PMDAS_DIR/gfs2
+        #./Remove
+
+Troubleshooting
+===============
+
+    + After installing or restarting the agent, the PMCD log file
+      ($PCP_LOG_DIR/pmcd/pmcd.log) and the PMDA log file
+      ($PCP_LOG_DIR/PMCD/gfs2.log) should be checked for any warnings or
+      errors.
+
+    + In an event where no values are being returned for most of the 
+      metrics check ensure that both debugfs is mounted, metrics with 
+      control options are enabled and your distribution supports the 
+      full range of GFS2 trace-points.
+
+          $ mount -t debugfs none /sys/kernel/debug
+
+          $ pminfo -f gfs2.control
+
+          $ pmstore gfs2.control.tracepoints.all 1

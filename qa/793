@@ -1,0 +1,140 @@
+#!/bin/sh
+# PCP QA Test No. 793
+# pmlogger_check and pmlogger_daily with shell components in the dir field
+# of the control file
+#
+# Copyright (c) 2015 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; _cleanup; exit \$status" 0 1 2 3 15
+signal=$PCP_BINADM_DIR/pmsignal
+
+_filter()
+{
+    sed \
+	-e 's/\.\.\.*/[dots]/' \
+	-e "s/$FULLLOCALHOST/LOCALHOST/g" \
+	-e "s/$LOCALHOST/LOCALHOST/g" \
+	-e "s/localhost/LOCALHOST/g" \
+	-e "s/local:/LOCALHOST/g" \
+	-e 's/control:[0-9][0-9]*]/control:LINE]/' \
+	-e 's;/usr/var;/var;g' \
+	-e "s;$tmp;TMP;g" \
+	-e '/Duplicate/d' \
+	-e '/Roll [^ ]*\/NOTICES /d' \
+	-e '/Start new [^ ]*\/NOTICES$/d' \
+	-e '/Restarting/s/process [0-9][0-9]*/process PID/' \
+	-e '/Looking for pmlogger/s/process [0-9][0-9]*/process PID/' \
+	-e '/Terminating pmlogger/s/process [0-9][0-9]*/process PID/' \
+	-e '/^pmlogger \[/{
+s/\[[0-9][0-9]*/[PID/
+s/from host .*/from host .../
+}' \
+	-e '/Latest folio created/s/ [0-9][0-9][0-9][0-9][01][0-9][0-3][0-9]\.[0-5][0-9]\.[0-5][0-9]/ DATE.TIME/' \
+	-e '/^pmlogger -m/s/ [0-9][0-9][0-9][0-9][01][0-9][0-3][0-9]\.[0-5][0-9]\.[0-5][0-9]/ DATE.TIME/' \
+	-e '/^pcp /s/ .*/ .../' \
+	-e '/^PMCD host /s/host .*/host .../' \
+	-e '/^log started /s/started .*/started .../' \
+	-e '/^last log entry /s/entry .*/entry .../' \
+	-e '/^current time /s/time .*/time .../' \
+	-e '/^log size /s/size .*/size .../' \
+    | _filter_cron_scripts
+}
+
+_stop_loggers()
+{
+    $sudo $signal -a -s TERM pmlogger
+}
+
+_cleanup()
+{
+    echo
+    echo "Cleaning up"
+
+    _stop_loggers >/dev/null 2>&1
+
+    cd # get out of tmp directory so we can delete it
+    $sudo rm -rf $tmp
+
+    $sudo $PCP_BINADM_DIR/pmlogger_check
+    _wait_for_pmlogger
+}
+
+_setup()
+{
+    _stop_loggers >/dev/null 2>&1
+    cd
+    rm -rf $tmp
+    mkdir $tmp
+    qatmp=$tmp
+    export qatmp
+}
+
+cat >$tmp.config <<End-of-File
+log mandatory on 1 sec {
+    hinv.ndisk
+    hinv.ncpu
+}
+End-of-File
+
+# real QA test starts here
+
+_setup
+
+# control file
+#
+cat >$tmp/control <<End-of-File
+\$version=1.1
+\$A=A
+#
+# $qatmp from the caller's environment
+# $A from the control file above
+LOCALHOSTNAME	n   n	\$qatmp/\$A -c $tmp.config
+LOCALHOSTNAME	n   n	\$(echo $qatmp/B) -c $tmp.config
+LOCALHOSTNAME	n   n	"$qatmp/\`echo c | tr '[a-z]' '[A-Z]'\`" -c $tmp.config
+End-of-File
+
+echo "pmlogger_check #1" | tee -a $here/$seq.full
+$sudo $PCP_BINADM_DIR/pmlogger_check -V -c $tmp/control -l $tmp/log
+[ -s $tmp/log ] && $sudo cat $tmp/log | tee -a $here/$seq.full | _filter
+for x in A B C
+do
+    ls $tmp/$x >>$here/$seq.full
+    echo `ls $tmp/$x | grep "\.meta" | wc -l | sed -e 's/ //g'` archives in TMP/$x
+done
+
+sleep 2
+_stop_loggers >/dev/null 2>&1
+
+echo "pmlogger_check #2" | tee -a $here/$seq.full
+$sudo $PCP_BINADM_DIR/pmlogger_check -V -c $tmp/control -l $tmp/log
+[ -s $tmp/log ] && $sudo cat $tmp/log | tee -a $here/$seq.full | _filter
+for x in A B C
+do
+    ls $tmp/$x >>$here/$seq.full
+    echo `ls $tmp/$x | grep "\.meta" | wc -l | sed -e 's/ //g'` archives in TMP/$x
+done
+
+echo
+echo "pmlogger_daily"
+$sudo $PCP_BINADM_DIR/pmlogger_daily -V -c $tmp/control -l $tmp/log
+[ -s $tmp/log ] && $sudo cat $tmp/log | tee -a $here/$seq.full | _filter
+for x in A B C
+do
+    ls $tmp/$x >>$here/$seq.full
+    echo `ls $tmp/$x | grep "\.meta" | wc -l | sed -e 's/ //g'` archives in TMP/$x
+done
+
+# success, all done
+status=0
+exit

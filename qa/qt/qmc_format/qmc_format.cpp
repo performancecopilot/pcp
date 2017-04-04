@@ -1,0 +1,37 @@
+//
+// Test QmcMetric::formatValue routines
+//
+
+#include <QTextStream>
+#include <qmc.h>
+#include <qmc_context.h>
+#include <qmc_metric.h>
+
+QTextStream cerr(stderr);
+QTextStream cout(stdout);
+
+int
+main(int argc, char *argv[])
+{
+    double	d;
+    char	*endptr;
+
+    pmProgname = basename(argv[0]);
+    if (argc != 2) {
+	cerr << "Usage: " << pmProgname << " double" << endl;
+	exit(1);
+	/*NOTREACHED*/
+    }
+
+    d = strtod(argv[1], &endptr);
+    if (endptr != NULL && endptr[0] != '\0') {
+	cerr << pmProgname << ": argument \"" << argv[1] 
+	     << "\" must be a double (\"" << endptr << "\")" << endl;
+	exit(1);
+	/*NOTREACHED*/
+    }
+
+    cout << QmcMetric::formatNumber(d) << endl;
+
+    return 0;
+}

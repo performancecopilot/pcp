@@ -1,0 +1,6 @@
+#kmchart
+version 1
+chart title "QA Units BAD - byte / msec and count/sec" style plot
+    plot metric sample.mirage_longlong instance "m-00"
+    plot metric sample.write_me
+

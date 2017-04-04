@@ -1,0 +1,54 @@
+#!/bin/sh
+# PCP QA Test No. 441
+# check 2^31 volume switching for pmlogger
+#
+# Copyright (c) 2011 Ken McDonell.  All Rights Reserved.
+# Copyright (c) 2012 Red Hat.
+#
+# check-group-include: pmlogger
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=0	# success is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+rm -f $seq.full
+./tmparch/mkbig1 > $seq.full 2>&1
+[ $? -eq 0 ] || _notrun `cat $seq.full`
+
+# expect 2 volumes, and both < 2^31 bytes in size
+#
+limit=2147483648
+nvol=`ls tmparch/big1.? | wc -l | sed -e 's/ //g'`
+if [ $nvol -ne 2 ]
+then
+    ls -l tmparch/big1.?
+    echo "Error: expecting 2 volumes, found $nvol"
+    status=1
+fi
+
+for vol in tmparch/big1.?
+do
+    size=`_filesize $vol`
+    if [ -z "$size" ]
+    then
+	stat $vol
+	echo "Error: cannot extract size for volume $vol"
+	status=1
+    elif [ "$size" -ge $limit ]
+    then
+	ls -l $vol
+	echo "Error: size ($size) exceeds limit ($limit)"
+	status=1
+    fi
+done
+
+# success, all done
+exit

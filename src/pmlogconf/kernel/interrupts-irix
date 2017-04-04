@@ -1,0 +1,8 @@
+#pmlogconf-setup 2.0
+ident	interrupts [Irix]
+probe	kernel.all.intr.vme
+	kernel.all.intr.vme
+	kernel.all.intr.non_vme
+	kernel.all.tty.recvintr
+	kernel.all.tty.xmitintr
+	kernel.all.tty.mdmintr

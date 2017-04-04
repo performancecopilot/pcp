@@ -1,0 +1,264 @@
+Notes on using the PCP QA Suite
+===============================
+
+Preliminaries
+-------------
+
+    The PCP QA Suite is designed with a philosophy that it is trying to
+    exercise the code in a context that is as close as possible to that
+    which an end-user would experience. For this reason, the PCP software to
+    be tested should be installed in the "usual" places, with the "usual"
+    permissions and operate on the "usual" ports.
+
+    In particular the QA Suite does not execute PCP applications like pmcd,
+    pmlogger, pminfo, pmie, pmval, etc from the source tree.  Rather they
+    need to have been built and packaged and installed on the local system
+    prior to starting any QA.  Refer to the ../Makepkgs script for a recipe
+    that may be used to build packages for a variety of platforms.
+
+    Further the PCP QA Suite exercises and tests aspects of the PCP
+    packaging, use of certain local accounts, interaction with system
+    daemons, init systems, a number of PCP-related system administrative
+    functions, e.g. to stop and start PCP services.  Refer to the notes
+    on sudo below.
+
+    But this also means the QA Suite may alter existing system configuration
+    files, and this introduces some risk, so PCP QA should not be run
+    on production systems.  Historically we have used developer systems
+    and dedicated QA systems for running the full QA Suite - VMs are
+    particularly well-suited to this task.
+
+    In addition to the base PCP package installation, the sample and simple
+    PMDAs need to be installed (however the QA infrastructure will take
+    care of this, e.g. by running ./check 0).
+
+Basic getting started
+---------------------
+
+    There is some local configuration needed ... check the file
+    "common.config" ... this script uses heuristics to set a number of
+    interesting variables, specifically:
+
+    $PCPQA_CLOSE_X_SERVER
+	The $DISPLAY setting for an X server that is willing to accept
+	connections from X clients running on the local machine.  This is
+	optional, and if not set any QA tests dependent on this will
+	be skipped.
+
+    $PCPQA_FAR_PMCD
+	The hostname for a host running pmcd, but the host is preferably
+	a long way away (over a WAN) for timing test.  This is optional,
+	and if not set any QA tests dependent on this will be skipped.
+
+    $PCPQA_HYPHEN_HOST
+	The hostname for a host running pmcd, with a hyphen (-) in the
+	hostname.  This is optional, and if not set any QA tests dependent
+	on this will be skipped.
+
+    Next, mk.qa_hosts is a script that includes heuristics for selecting
+    and sorting the list of potential remote PCP QA hosts (qa_hosts.master).
+    Refer to the comments in qa_hosts.master, and make appropriate changes.
+
+    For each of the potential remote PCP QA hosts, the following must be
+    set up:
+
+    (a) PCP installed from packages,
+    (b) pmcd(1) running,
+    (c) a login for the user "pcpqa" needs to be created, and then set
+        up in such a way that ssh/scp will work without the need for any
+        password, i.e. these sorts of commands
+	    $ ssh pcpqa@pcp-qa-host some-command
+	    $ scp some-file pcpqa@pcp-qa-host:some-dir
+        must work correctly when run from the local host.  The "pcpqa"
+        user's environment must also be initialized so that their shell's
+        path includes all of the PCP binary directories (identify these
+        with $ grep BIN /etc/pcp.conf), so that all PCP commands are
+        executable without full pathnames.  Of most concern would be
+        auxilliary directory (usually /usr/pcp/bin, /usr/share/pcp/bin or
+        /usr/libexec/pcp/bin) where commands like pmlogger(1), pmhostname(1),
+        mkaf(1), etc.) are installed. And finally, the "pcpqa" user needs
+	to be included in the group "pcp".
+
+    Once you've modified common.config and qa_hosts.master, then run
+    "chk.setup" to validate the settings.
+
+    For test 051 we need five local hostnames that are valid, although PCP
+    does not need to be installed there, nor pmcd(1) running.  The five
+    hosts listed in 051.hosts (the comments at the start of this file
+    explain what is required) should suffice for most installations.
+
+    The PCP QA tests are designed to be run by a non-root user.  Where root
+    privileges are needed, e.g. to stop or start pmcd, install/remove
+    PMDAs, etc. the "sudo" application is used.  When using sudo for QA,
+    your current or pcpqa user needs to be able to execute commands as
+    root without being prompted for a password.  This can be achieved by
+    adding the following line to the /etc/sudoers file (or in more recent
+    versions of sudo, a /etc/sudoers.d/pcpqa file):
+
+	pcpqa   ALL=(ALL) NOPASSWD: ALL
+
+    Some tests are graphical, and wish to make use of your display.
+    For authentication to success, you may find you need to perform some
+    access list updates, e.g. "xhost +local:" for such tests to pass
+    (e.g. test 325).
+
+    You can now verify your QA setup, by running:
+
+	./check 000
+
+    The first time you run "check" (see below) it will descend into the
+    src directory (see below) and make all of the QA test programs and
+    dynamic PCP archives, so some patience may be required.
+
+    If test 000 fails, it may be that you have locally developed PMDAs
+    or optional PMDAs installed.  Edit common.filter, and modify the
+    _filter_top_pmns() procedure to strip the top-level name components
+    for any new metric names (there are lots of examples already there)
+    ... if these are distributed (shipped) PMDAs, please update the list.
+
+    Firewalls can get in the way.  In addition to the standard pmcd port(s)
+    (TCP ports 44321, 44322 and 44323) one needs to open ports to allow
+    incoming connections and outgoing connections on a range of ports
+    for pmdatrace, pmlogger connections via pmlc, and some QA tests.
+    Opening the TCP range 4320 to 4350 (inclusive) should suffice.
+
+    If the avahi services are to be tested, then the firewall also needs
+    to allow mDNS traffic (UDP, port 5353), for both external and internal
+    connections.
+
+
+Doing the Real Work
+-------------------
+
+    check ...
+	This script runs tests and verifies the output.  In general, test NNN
+	is expected to terminate with an exit status of 0, no core file and
+	produce output that matches that in the file NNN.out ... failures
+	leave the current output in NNN.out.bad, and may leave a more
+	verbose trace that is useful for diagnosing failures in NNN.full.
+
+	The command line options to check are:
+
+	NNN	run test NNN (leading zeros will be added as necessary to
+		the test sequence number, so 00N and N are equivalent)
+
+	NNN-	all tests >= NNN
+
+	NNN-MMM	all tests in the range NNN ... MMM
+
+	-l	diffs in line mode (the default is to use xdiff or similar)
+
+	-n	show me, do not run any tests
+
+	-q	quick mode, by-pass the initial setup integrity checks
+		(recommended that you do not use this the first time, nor
+		if the last run test failed)
+
+	-g xxx	include tests from a named group (xxx) ... refer to the
+		"groups" file
+
+	-x xxx	exclude tests from a named group (xxx) ... refer to the
+		"groups" file
+
+	If none of the NNN variants or -g is specified, then the default
+	is to run all tests.
+
+	Each of the NNN scripts that may be run by check follows the same
+	basic scheme:
+
+	- include some optional shell procedures and set variables to
+	  define the local configuration options
+	- optionally, check the run-time environment to see if it makes
+	  sense to run the test at all, and if not echo the reason to the
+	  file NNN.notrun and exit ... check will notice the NNN.notrun
+	  file and skip any testing of the exit status or comparison
+	  of output
+	- define $tmp as a prefix to be used for all temporary files, and
+	  install a trap handler to remove temporary files when the scipt
+	  exits
+	- optionally, check the run-time environment to choose one of
+	  a number of expected output formats, and link the selected
+	  file to NNN.out ... if the same output is expected in all
+	  environments, the NNN.out file will already exist as part of
+	  the PCP QA distribution
+	- run the test
+	- optionally save all the output in the file NNN.full ... this
+	  is only useful for debugging test failures
+	- filter the output to produce deterministic output that will
+	  match NNN.out if the test has been successful
+
+    remake NNN
+	This script creates a new NNN.out file.  Since the NNN.out files
+	are precious, and reflect the state of the qualified and expected
+	output, they should typically not be changed unless some change
+	has been made to the NNN script or the filters it uses.
+
+    new
+	Make sure "group" is writeable, then run "new" to create the
+	skeletal framework of a new test.
+
+	It is strongly suggested that you base your test on an existing test
+	... pay particular attention to making the output deterministic
+	so the test uses the "not run" protocols (see 009 and check for
+	examples) to avoid running the test (and hence failing) if an
+	optional application, feature or platform is not available, and
+	uses appropriate filters (see common.filter for lots of useful
+	filters already packaged as shell procedures).
+
+    show-me ...
+	Report differences between the NNN.out and NNN.out.bad files.
+	By default, uses all of the NNN.out.bad files in the current
+	directory, but can also specify test numbers or ranges of test
+	numbers on the command line.
+
+	Other options may be used to fetch good and bad output files from
+	various exotic remote locations (refer to the script).
+
+
+Make in the src Directory
+-----------------------------
+
+    The src directory contains a number of test applications that are
+    designed to exercise some of the more exotic corners of the PCP
+    functionality.
+
+    In making these applications, you may see this ...
+
+	Error: trace_dev.h and ../../src/include/trace_dev.h are different!
+	make: [trace_dev.h] Error 1 (ignored)
+
+    this is caused by the source for the pcp_trace library being out of sync
+    with the src applications.  If this happens, please ...
+
+    1. cd src
+    2. diff -u trace_dev.h ../../src/include/trace_dev.h
+       and mail the differences to pcp@groups.io so we can refine the
+       Makefiles to avoid cosmetic differences
+    3. mv trace_dev.h trace_dev.h.orig
+       cp ../../src/include/trace_dev.h trace_dev.h
+    4. make
+
+
+008 Issues
+----------
+
+    Test 008 depends on the local disk configuration, so you need to
+    make your own 008.out file (or rather a variant that 008 will link to
+    008.out when the test is run).  Refer to the 008 script, but here is
+    the basic recipe:
+
+	$ touch 008.out.`hostname`
+	$ ./remake 008
+	$ mv 008.out 008.out.`hostname`
+
+    Be aware that it can be adversely influenced by temporary disks like
+    USB sticks, mobile phones, or other transient storage that may come
+    and go in your test systems.
+
+
+Fixes
+-----
+    
+    If you find something that does not work, and fix it, or create
+    additional QA tests, please send the details to pcp@groups.io.
+

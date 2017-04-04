@@ -1,0 +1,109 @@
+#! /bin/sh
+# PCP QA Test No. 029
+# pmTrimNameSpace() exerciser
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+# Note that pmTrimNameSpace would not be used much any
+# more since pcp2.0 with pmns in archives.
+# However, still provided in API.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+trap "$sudo rm -f $tmp.*; exit" 0 1 2 3 15
+
+#
+# Get rid of some new sampledso metrics which
+# would make the test vary.
+# Can do this since the point of the test is 
+# testing out pmTrimNameSpace
+# --tes
+#
+_filter()
+{
+    sed \
+	-e '/sampledso\.dynamic/d' \
+	-e '/sampledso\.many/d' \
+	-e '/sampledso\.bigid/d' \
+	-e '/sampledso\.byte_/d' \
+	-e '/sampledso\.kbyte_/d' \
+	-e '/sampledso\.datasize/d' \
+	-e '/sampledso\.darkness/d' \
+	-e '/sampledso\.secret/d' \
+    | LC_COLLATE=POSIX sort
+}
+
+
+# real QA test starts here
+pmdumplog -d archives/ok-mv-bar | _sort_pmdumplog_d
+
+echo
+echo "=== no current context => error? ==="
+src/chktrim 2>&1 | _filter
+
+echo
+echo "=== current archive context ==="
+src/chktrim -a archives/ok-mv-bar 2>&1 | _filter
+
+echo
+echo "=== current host context ==="
+src/chktrim -h local: 2>&1 | _filter
+
+echo
+echo "=== current LOCAL context ==="
+$sudo_local_ctx src/chktrim -L 2>&1 | _filter
+
+cat <<End-of-File >$tmp.pmns
+root {
+    sampledso
+}
+sampledso {
+    bin			30:0:6
+    dupnames
+    fungus
+    humus		4:5:6
+}
+sampledso.dupnames {
+    two
+    three
+}
+sampledso.dupnames.two {
+    bin			30:0:6
+    mould		7:8:9
+}
+sampledso.dupnames.three {
+    slime		10:11:12
+}
+sampledso.fungus {
+    bogus		1:2:3
+}
+End-of-File
+
+echo
+echo "+++ Using this PMNS via -n ... +++"
+pminfo -n $tmp.pmns -m \
+| LC_COLLATE=POSIX sort
+
+echo
+echo "=== no current context => error? ==="
+src/chktrim -n $tmp.pmns 2>&1 | _filter
+
+echo
+echo "=== current archive context ==="
+src/chktrim -n $tmp.pmns -a archives/ok-mv-bar 2>&1 | _filter
+
+echo
+echo "=== current host context ==="
+src/chktrim -h local: 2>&1 | _filter
+
+echo
+echo "=== current LOCAL context ==="
+$sudo_local_ctx src/chktrim -L 2>&1 | _filter
+

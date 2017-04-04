@@ -1,0 +1,98 @@
+'\"macro stdmacro
+.TH TELNET-PROBE 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3telnet-probe\f1 \- lightweight telnet-like port probe
+.SH SYNOPSIS
+\f3$PCP_BINADM_DIR/telnet-probe\f1
+[\f3\-c\f1]
+[\f3\-v\f1]
+\f2host\f1 \f2port\f1
+.SH DESCRIPTION
+.B telnet-probe
+allows the
+.BR pmdashping (1)
+daemons to establish connections to arbitrary local and remote
+service-providing daemons so that response time and service
+availability information can be obtained.
+.PP
+The required
+.I host
+and
+.I port
+number arguments have the same meaning as their
+.BR telnet (1)
+equivalents.
+.PP
+The
+.B \-c
+option causes
+.B telnet-probe
+to perform a
+.BR connect (2)
+only.
+This skips the
+.BR read (2)
+and
+.BR write (2)
+exercise that would otherwise be done after connecting (see below).
+.PP
+The
+.B \-v
+option causes
+.B telnet-probe
+to be verbose while operating.
+.PP
+Once the telnet connection has been established,
+.B telnet-probe
+reads from
+.I stdin
+until end-of-file, and writes all the input data to the
+telnet connection.
+Next,
+.B telnet-probe
+will read from the telnet connection until end-of-file,
+discarding whatever data it receives.
+Then
+.B telnet-probe
+exits.
+.PP
+To operate successfully, the input passed via
+.B telnet-probe
+to the remote service must be sufficient to cause the remote service to
+close the connection when the last line of input has been processed,
+e.g. ending with ``quit'' when probing SMTP on port 25.
+.PP
+By default
+.B telnet-probe
+will not produce any output, unless there is an error in which case
+a diagnostic message can be displayed (in verbose mode only) and the
+exit status will be non-zero indicating a failure.
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.I /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (5).
+.SH DIAGNOSTICS
+If
+.B telnet-probe
+succeeds, then 0 will be returned.
+If the attempt to establish a connection fails or is terminated, then
+a non-zero exit status is returned.
+.SH SEE ALSO
+.BR PCPintro (1),
+.BR pmdashping (1),
+.BR pmie (1),
+.BR telnet (1),
+.BR connect (2),
+.BR read (2)
+and
+.BR write (2).

@@ -1,0 +1,619 @@
+#
+# Copyright (c) 2012-2016 Red Hat.
+# Copyright (c) 2009 Aconex.  All Rights Reserved.
+# Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+#DBG    = -DPCP_DEBUG -DDEBUG -DMALLOC_AUDIT -g
+DBG     = -DPCP_DEBUG -DDEBUG -g
+
+DEBUG   = $(DBG)
+
+HAVE_64	= $(shell test `uname -m | sed -e 's/.*64/64/g'` = "64" && echo 1 || echo 0)
+
+CFILES = disk_test.c exercise.c context_test.c chkoptfetch.c \
+	xval.c xxx.c chkopenlog.c chkconnect.c t_fetch.c clienttimeout.c \
+	hp-mib.c agenttimeout.c chkctx2.c pmcdgone.c chkhelp.c \
+	scale.c chktrim.c store.c torture_api.c logcontrol.c xlog.c \
+	hex2nbo.c chknumval.c xarch.c eofarch.c defctx.c chkacc1.c chkacc2.c \
+	chkacc3.c storepast.c pmdashutdown.c exertz.c badpmcdpmid.c \
+	permfetch.c archinst.c pmlcmacro.c whichtimezone.c eol.c \
+	interp0.c interp1.c interp2.c interp3.c interp4.c \
+	pcp_lite_crash.c compare.c mkfiles.c nameall.c nullinst.c \
+	storepdu.c fetchpdu.c badloglabel.c interp_bug2.c interp_bug.c \
+	xmktime.c descreqX2.c recon.c torture_indom.c \
+	fetchrate.c stripmark.c pmnsinarchives.c \
+	endian.c chk_memleak.c chk_metric_types.c mark-bug.c \
+	pmnsunload.c parsemetricspec.c parseinterval.c \
+	pducheck.c pducrash.c pdu-server.c \
+	pmprintf.c pmsocks_objstyle.c numberstr.c \
+	read-bf.c write-bf.c slow_af.c indom.c tztest.c \
+	multifetch.c pmconvscale.c torture-eol.c \
+	crashpmcd.c dumb_pmda.c torture_cache.c wrap_int.c \
+	matchInstanceName.c torture_pmns.c \
+	mmv_genstats.c mmv_instances.c mmv_poke.c mmv_noinit.c mmv_nostats.c \
+	record.c record-setarg.c clientid.c killparent.c grind_ctx.c \
+	pmdacache.c check_import.c unpack.c hrunpack.c aggrstore.c atomstr.c \
+	semstr.c grind_conv.c getconfig.c err.c torture_logmeta.c keycache.c \
+	keycache2.c pmdaqueue.c drain-server.c template.c anon-sa.c \
+	username.c rtimetest.c getcontexthost.c badpmda.c chkputlogresult.c \
+	churnctx.c badUnitsStr_r.c units-parse.c rootclient.c derived.c \
+	lookupnametest.c getversion.c pdubufbounds.c statvfs.c storepmcd.c \
+	github-50.c archfetch.c fetchloop.c sortinst.c fetchgroup.c \
+	loadderived.c sum16.c badmmv.c multictx.c mmv_simple.c \
+	mmv2_genstats.c mmv2_instances.c mmv2_nostats.c mmv2_simple.c \
+	httpfetch.c json_test.c check_pmiend_fdleak.c
+
+ifeq ($(shell test -f ../localconfig && echo 1), 1)
+include ../localconfig
+else
+ifeq ($(shell cd ..; ( $(MAKE) localconfig >/dev/null && echo 1 )), 1)
+include ../localconfig
+else
+$(error Cannot make qa/localconfig)
+endif
+endif
+
+ifeq ($(shell test $(PCP_VER) -ge 3600 && echo 1), 1)
+CFILES += multithread0.c multithread1.c multithread2.c multithread3.c \
+	multithread4.c multithread5.c multithread6.c multithread7.c \
+	multithread8.c multithread9.c multithread10.c \
+	exerlock.c
+else
+MYFILES += multithread0.c multithread1.c multithread2.c multithread3.c \
+	multithread4.c multithread5.c multithread6.c multithread7.c \
+	multithread8.c multithread9.c multithread10.c \
+	exerlock.c
+LDIRT += multithread0 multithread1 multithread2 multithread3 \
+	multithread4 multithread5 multithread6 multithread7 \
+	multithread8 multithread9 multithread10 \
+	exerlock
+endif
+
+ifeq ($(shell test $(PCP_VER) -ge 3700 && echo 1), 1)
+CFILES += hashwalk.c
+else
+MYFILES += hashwalk.c
+LDIRT += hashwalk
+endif
+
+ifeq ($(shell test $(PCP_VER) -ge 3800 && echo 1), 1)
+CFILES += parsehostattrs.c parsehostspec.c check_import_name.c
+else
+MYFILES += parsehostattrs.c parsehostspec.c check_import_name.c
+LDIRT += parsehostattrs parsehostspec check_import_name
+endif
+
+ifeq ($(shell test $(PCP_VER) -ge 3802 && echo 1), 1)
+CFILES += chkacc4.c
+else
+MYFILES += chkacc4.c
+LDIRT += chkacc4
+endif
+
+ifeq ($(shell test $(PCP_VER) -ge 3901 && echo 1), 1)
+CFILES += getoptions.c
+else
+MYFILES += getoptions.c
+LDIRT += getoptions
+endif
+
+ifeq ($(shell test -f /usr/include/pcp/fault.h && echo 1), 1)
+# only make these ones if the fault injection version of libpcp
+# appears to have been installed (assumes PCP >= 3.5), and then
+# only for the setup target (so not in the build)
+#
+XTRATARGETS += check_fault_injection exercise_fault
+endif
+MYFILES += check_fault_injection.c exercise_fault.c
+LDIRT += check_fault_injection exercise_fault
+
+POSIXFILES = \
+	ipc.c proc_test.c context_fd_leak.c arch_maxfd.c torture_trace.c \
+	779246.c 
+
+TRACEFILES = \
+	obs.c tstate.c tabort.c 
+
+PERLFILES = \
+	batch_import.perl check_import.perl import_limit_test.perl
+# not installed:
+PLFILES = $(shell echo $(PERLFILES) | sed -e 's/\.perl/.pl/g')
+
+ifeq "$(HAVE_PYTHON)" "true"
+PYTHONFILES = \
+	test_pcp.python test_pmcc.python \
+	test_pmi.python check_import.python \
+	test_mmv.python test_webapi.python \
+	test_pcp_options.python test_pcp_getopts.python \
+	test_pcp_time.python test_pmnswalk.python \
+	pmapi_exceptions.python fsstats.python procpid.python \
+	test_set_source.python test_pmda_memleak.python \
+	test_webcontainers.python test_webprocesses.python \
+        test_pmfg.python
+# not installed:
+PYFILES = $(shell echo $(PYTHONFILES) | sed -e 's/\.python/.py/g')
+LDIRT += $(PYFILES)
+else
+PYTHONFILES =
+PYFILES =
+endif
+
+ifneq "$(TARGET_OS)" "mingw"
+CFILES += $(POSIXFILES) $(TRACEFILES)
+else
+MYFILES += $(POSIXFILES) $(TRACEFILES)
+endif
+
+MYFILES += \
+	err_v1.dump \
+	root_irix root_pmns tiny.pmns sgi.bf versiondefs \
+	pthread_barrier.h pv.c qa_test.c qa_timezone.c \
+	permslist \
+	qa_shmctl.c qa_sem_msg_ctl.c \
+	qa_shmctl_stat.c qa_msgctl_stat.c qa_semctl_stat.c
+
+MYSCRIPTS = grind-tools ipcs_clear show-args fixhosts mkpermslist \
+	memcachestats.pl
+
+PSCRIPTS = $(PERLFILES) $(PYTHONFILES)
+
+CFILES_TARGETS = $(CFILES)
+
+TARGETS = $(subst broken_pmda,,$(basename $(CFILES_TARGETS))) \
+	chkctx2_lite template \
+	fetchrate_lite pv
+
+ifeq "$(TARGET_OS)" "linux"
+TARGETS += qa_shmctl.$(DSOSUFFIX) qa_sem_msg_ctl.$(DSOSUFFIX) \
+	qa_shmctl_stat.$(DSOSUFFIX) qa_msgctl_stat.$(DSOSUFFIX) \
+	qa_semctl_stat.$(DSOSUFFIX)
+endif
+
+ifeq ($(HAVE_64), 1)
+TARGETS	+= pv64
+endif
+
+LCFLAGS = -DHAVE_TRACE
+LLDLIBS	= $(LDFLAGS) $(PCPLIB)
+
+ifneq ($(NVIDIAQALIB),)
+LIBTARGET = true
+MYCFILES += nvidia-ml.c
+LDIRT += nvidia-ml.o
+LCFLAGS += $(NVIDIACFLAGS)
+TARGETS += $(NVIDIAQALIB)
+endif
+
+# libpcp_trace is ready
+TRACELIB	= $(LLDLIBS) -lpcp_trace
+
+# all archives, except the ones checked into the source tree,
+# then add executables beyond $(TARGETS)
+#
+LDIRT	+= *.log domain.h help.pag help.dir \
+	big[0-2].[0-2] big[0-2].index big[0-2].meta \
+	chkctx2_lite.c fetchrate_lite.c \
+	localconfig.h gmon.out \
+	$(TARGETS)
+
+.ORDER:	torture_api \
+	chkctx2 fetchrate
+
+default default_pcp: \
+	$(CFILES_TARGETS) $(TARGETS) \
+	$(SRCARCHPART) \
+	$(PLFILES) $(PYFILES) \
+	ipcs_clear
+
+setup: default $(XTRATARGETS)
+
+$(TARGETS):
+
+include $(BUILDRULES)
+
+# remove just the binaries, not the archives
+#
+clean-exec:
+	rm -f $(TARGETS)
+	rm -f $(OBJECTS)
+	rm -f pv64
+
+OBJECTS = $(shell echo $(CFILES) | sed -e 's/\.c/.o/g')
+
+# make just the archives, not the binaries
+#
+arch:	$(SRCARCHPART)
+
+# --- do NOT need libpcp
+#
+
+statvfs:	statvfs.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ statvfs.c
+
+pause:	pause.c
+	$(CCF) $(CDEFS) -o pause pause.c
+
+errmap: errmap.c
+	$(CCF) $(CDEFS) -o errmap errmap.c
+
+cpuload:	cpuload.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ cpuload.c
+
+load_o2000:	load_o2000.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ load_o2000.c
+
+chain:	chain.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ chain.c
+
+syscall:	syscall.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ syscall.c
+
+getpagesize:	getpagesize.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ getpagesize.c
+
+rdwr:	rdwr.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ rdwr.c
+
+spawn:	spawn.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ spawn.c
+
+diowr:	diowr.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ diowr.c
+
+endian:	endian.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ endian.c
+
+pmlcmacro:	pmlcmacro.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ pmlcmacro.c
+
+sys5_ipc:	sys5_ipc.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ sys5_ipc.c
+
+stripmark: stripmark.c
+	$(CCF) $(CDEFS) -o $@ stripmark.c
+
+anon-sa: anon-sa.c
+	$(CCF) $(CDEFS) -o $@ anon-sa.c
+
+# --- need libpcp
+#
+
+template:	template.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ template.c $(LDLIBS)
+
+exercise:	exercise.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ exercise.c  $(LDLIBS)
+
+chkacc1:	chkacc1.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ chkacc1.c $(LDLIBS)
+
+chkacc2:	chkacc2.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ chkacc2.c $(LDLIBS)
+
+chkacc3:	chkacc3.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ chkacc3.c $(LDLIBS)
+
+ipc:	ipc.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ ipc.c  $(LDLIBS)
+
+chk_memleak:	chk_memleak.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ chk_memleak.c $(LDLIBS)
+
+chknumval:	chknumval.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ chknumval.c  $(LDLIBS)
+
+logcontrol:	logcontrol.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ logcontrol.c  $(LDLIBS)
+
+numberstr: numberstr.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ numberstr.c $(LDLIBS)
+
+pmcdgone:	pmcdgone.c localconfig.h
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ pmcdgone.c  $(LDLIBS)
+
+slow_af:	slow_af.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ slow_af.c  $(LDLIBS)
+
+mmv_poke:	mmv_poke.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ mmv_poke.c $(LDLIBS)
+
+# --- need libpcp but also PM_CONTEXT_LOCAL
+#
+
+fetchrate_lite:	fetchrate_lite.c
+	rm -f $@
+	$(CCF) $(CDEFS) -DLITE=1 -o $@ fetchrate_lite.c $(LDLIBS)
+
+fetchrate_lite.c:	fetchrate.c
+	rm -f $@
+	ln -s fetchrate.c fetchrate_lite.c
+
+chkctx2_lite:	chkctx2_lite.c
+	rm -f $@
+	$(CCF) $(CDEFS) -DLITE=1 -o $@ chkctx2_lite.c $(LDLIBS)
+
+chkctx2_lite.c:	chkctx2.c
+	rm -f $@
+	ln -s chkctx2.c chkctx2_lite.c
+
+hp-mib: hp-mib.c
+	rm -f $@
+	$(CCF) $(CDEFS) -DLITE=1 -o $@ hp-mib.c $(LDLIBS)
+
+pcp_lite_crash: pcp_lite_crash.c
+	rm -f $@
+	$(CCF) $(CDEFS) -DLITE=1 -o $@ pcp_lite_crash.c $(LDLIBS)
+
+store: store.c
+	rm -f $@
+	$(CCF) $(CDEFS) -DLITE=1 -o $@ store.c $(LDLIBS)
+
+# --- need libpcp_pmda
+#
+
+domain.h:	$(PCP_VAR_DIR)/pmns/stdpmid
+	rm -f $@
+	echo "/*" >domain.h
+	echo " * built from $(PCP_VAR_DIR)/pmns/stdpmid on `date`" >>domain.h
+	echo " */" >>domain.h
+	sed -n -e 's/[ 	]*$$//' -e '/define[ 	]BROKEN[ 	]/s/.*[ 	]/#define BROKEN /p' $(PCP_VAR_DIR)/pmns/stdpmid >>domain.h
+	sed -n -e 's/[ 	]*$$//' -e '/define[ 	]DYNAMIC[ 	]/s/.*[ 	]/#define DYNAMIC /p' $(PCP_VAR_DIR)/pmns/stdpmid >>domain.h
+
+pmdashutdown:	pmdashutdown.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $@.c $(LDLIBS) -lpcp_pmda
+
+dumb_pmda: dumb_pmda.c
+	$(CCF) $(LCDEFS) $(LCOPTS) -o $@ $@.c $(LDLIBS) -lpcp_pmda
+
+pmdacache: pmdacache.c
+	$(CCF) $(LCDEFS) $(LCOPTS) -o $@ $@.c $(LDLIBS) -lpcp_pmda
+
+pmdaqueue: pmdaqueue.c
+	$(CCF) $(LCDEFS) $(LCOPTS) -o $@ $@.c $(LDLIBS) -lpcp_pmda
+
+rootclient: rootclient.c
+	$(CCF) $(LCDEFS) $(LCOPTS) -o $@ $@.c $(LDLIBS) -lpcp_pmda
+
+atomstr: atomstr.c
+	$(CCF) $(LCDEFS) $(LCOPTS) -o $@ $@.c $(LDLIBS) -lpcp_pmda
+
+semstr: semstr.c
+	$(CCF) $(LCDEFS) $(LCOPTS) -o $@ $@.c $(LDLIBS) -lpcp_pmda
+
+keycache: keycache.c
+	$(CCF) $(LCDEFS) $(LCOPTS) -o $@ $@.c $(LDLIBS) -lpcp_pmda
+
+keycache2: keycache2.c
+	$(CCF) $(LCDEFS) $(LCOPTS) -o $@ $@.c $(LDLIBS) -lpcp_pmda
+
+badpmda: badpmda.c
+	$(CCF) $(LCDEFS) $(LCOPTS) -o $@ $@.c $(LDLIBS) -lpcp_pmda
+
+torture_cache:	torture_cache.o 
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $@.o $(LDLIBS) -lpcp_pmda
+
+# --- need libpcp_gui
+#
+
+record:	record.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $@.c $(LDLIBS) -lpcp_gui
+
+record-setarg: record-setarg.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $@.c $(LDLIBS) -lpcp_gui
+
+# --- need libpcp_mmv
+#
+mmv%:	mmv%.o
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $@.c $(LDLIBS) -lpcp_mmv
+
+# --- need extra libraries
+#
+pducheck:	pducheck.o 
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ pducheck.o  $(TRACELIB) $(LDLIBS) -lpcp_pmda
+
+pducrash:	pducrash.o 
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ pducrash.o  $(TRACELIB) $(LDLIBS)
+
+pdu-server:	pdu-server.o
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ pdu-server.o  $(TRACELIB) $(LDLIBS)
+
+obs:	obs.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ obs.c $(TRACELIB) 
+
+torture_trace:	torture_trace.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ torture_trace.c $(LIB_FOR_PTHREADS) $(TRACELIB) 
+
+tstate:	tstate.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ tstate.c $(TRACELIB) 
+
+tabort:	tabort.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ tabort.c $(TRACELIB) 
+
+# --- need libpcp_import
+#
+
+check_import:	check_import.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $@.c $(LDLIBS) -lpcp_import
+
+check_import_name:	check_import_name.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $@.c $(LDLIBS) -lpcp_import
+
+check_pmiend_fdleak:	check_pmiend_fdleak.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $@.c $(LDLIBS) -lpcp_import
+
+# --- need libpcp_web
+#
+
+httpfetch:	httpfetch.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $@.c $(LDLIBS) -lpcp_pmda -lpcp_web
+json_test:	json_test.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $@.c $(LDLIBS) -lpcp_pmda -lpcp_web
+
+# --- need libpcp_fault
+#
+
+check_fault_injection: check_fault_injection.c
+	rm -f $@
+	$(CCF) $(CDEFS) -DPM_FAULT_INJECTION=1 -o $@ $@.c -lpcp_fault -lpcp -lpcp_pmda
+
+exercise_fault: exercise_fault.c
+	rm -f $@
+	$(CCF) $(CDEFS) -DPM_FAULT_INJECTION=1 -o $@ $@.c -lpcp_fault -lpcp -lpcp_pmda
+
+# --- need lib for pthreads
+#
+
+multithread0:	multithread0.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $@.c $(LIB_FOR_PTHREADS) $(LDLIBS)
+
+multithread1:	multithread1.c
+	rm -f $@
+ifeq "$(TARGET_OS)" "darwin"
+	@# see comments in multithread1.c to explain this crock
+	$(CCF) $(CDEFS) -Ddarwin_hack=1 -o $@ $@.c $(LIB_FOR_PTHREADS) -framework CoreFoundation $(LDLIBS)
+else
+	$(CCF) $(CDEFS) -o $@ $@.c $(LIB_FOR_PTHREADS) $(LDLIBS)
+endif
+
+multithread2:	multithread2.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $@.c $(LIB_FOR_PTHREADS) $(LDLIBS)
+
+multithread3:	multithread3.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $@.c $(LIB_FOR_PTHREADS) $(LDLIBS)
+
+multithread4:	multithread4.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $@.c $(LIB_FOR_PTHREADS) $(LDLIBS)
+
+multithread5:	multithread5.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $@.c $(LIB_FOR_PTHREADS) $(LDLIBS)
+
+multithread6:	multithread6.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $@.c $(LIB_FOR_PTHREADS) $(LDLIBS)
+
+multithread7:	multithread7.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $@.c $(LIB_FOR_PTHREADS) $(LDLIBS)
+
+multithread8:	multithread8.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $@.c $(LIB_FOR_PTHREADS) $(LDLIBS)
+
+multithread9:	multithread9.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $@.c $(LIB_FOR_PTHREADS) $(LDLIBS)
+
+multithread10:	multithread10.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $@.c $(LIB_FOR_PTHREADS) $(LDLIBS)
+
+exerlock:	exerlock.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $@.c $(LIB_FOR_PTHREADS) $(LDLIBS)
+
+# --- binary format dependencies
+#
+
+ifeq ($(HAVE_64), 1)
+pv64: pv.c
+	$(CCF) $(CDEFS) -o $@ pv.c $(LDLIBS)
+endif
+
+# -- archives
+#
+
+torture_indom: torture_indom.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ torture_indom.c $(LDLIBS)
+
+torture_pmns: torture_pmns.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ torture_pmns.c $(LDLIBS)
+
+units-parse: units-parse.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ units-parse.c $(LDLIBS)
+
+# --- miscellaneous
+#
+qa_timezone.$(DSOSUFFIX):	qa_timezone.o
+	$(LD) -shared -o $@ -nostdlib $<
+
+qa_shmctl.$(DSOSUFFIX):	 qa_shmctl.c
+	$(CCF) $(LDFLAGS) -shared -o $@ qa_shmctl.c
+	@rm -f qa_shmctl.o
+
+qa_msgctl_stat.$(DSOSUFFIX):	 qa_msgctl_stat.c
+	$(CCF) $(LDFLAGS) -shared -o $@ qa_msgctl_stat.c
+	@rm -f qa_msgctl_stat.o
+
+qa_semctl_stat.$(DSOSUFFIX):	 qa_semctl_stat.c
+	$(CCF) $(LDFLAGS) -shared -o $@ qa_semctl_stat.c
+	@rm -f qa_semctl_stat.o
+
+qa_shmctl_stat.$(DSOSUFFIX):	 qa_shmctl_stat.c
+	$(CCF) $(LDFLAGS) -shared -o $@ qa_shmctl_stat.c
+	@rm -f qa_shmctl_stat.o
+
+qa_sem_msg_ctl.$(DSOSUFFIX):	 qa_sem_msg_ctl.c
+	$(CCF) $(LDFLAGS) -shared -o $@ qa_sem_msg_ctl.c
+	@rm -f qa_sem_msg_ctl.o
+
+ifneq ($(NVIDIAQALIB),)
+$(NVIDIAQALIB):	nvidia-ml.o
+	$(CC) $(LDFLAGS) $(_SHAREDOPTS) -o $@ $<
+endif
+
+arch_maxfd.o:	localconfig.h
+scale.o:	localconfig.h
+
+bozo:
+	@echo TARGETS=$(TARGETS)

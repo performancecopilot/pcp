@@ -1,0 +1,54 @@
+#!/usr/bin/perl -w
+
+use strict;
+use Getopt::Long;
+
+my $specfile = 'pcp.spec';
+if (@ARGV) {
+    GetOptions (
+	'spec=s'	=> \$specfile,
+    );
+}
+
+open(my $fh, '<:encoding(UTF-8)', $specfile)
+    or die "Could not open '$specfile' $!";
+
+# state variables
+my $state = 'before-changelog';
+my $entry = '';
+my $discard = 0;
+
+# process the specfile
+while (my $row = <$fh>) {
+    if ($state eq 'before-changelog') {
+	# handful of special cases toward the start of the spec
+	$row =~ s#ftp://oss.sgi.com#ftp://ftp.pcp.io#;
+	$row =~ s#^Release: .*%\{\?dist\}#Release: \%\{buildversion}%{?dist}#;
+	$row =~ s#%{name}-%{version}-.*\.tar\.gz#ftp://ftp.pcp.io/projects/pcp/download/%{name}-%{version}.src.tar.gz#;
+
+	print $row;
+    }
+
+    if ($row =~ '^%changelog') {
+	$state = 'within-changelog';
+	next;	# report the heading (above) & continue
+    } elsif ($state eq 'before-changelog') {
+	next;	# not yet reached the changelog section
+    }
+
+    # separate out the changelog entries, discard the weekly ones 
+    if ($row =~ '^\* ') {
+	# first deal with any previous entry
+	print $entry if ($entry ne '' and $discard == 0);
+	# now begin capturing this new entry
+	$state = 'capturing-entry';
+	$entry = $row;
+	$discard = 0;
+    } elsif ($row =~ 'Automated weekly rawhide release') {
+	$discard = 1;
+    } else {
+	$entry .= $row;
+    }
+}
+print $entry if ($entry ne '' and $discard == 0);
+close $fh;

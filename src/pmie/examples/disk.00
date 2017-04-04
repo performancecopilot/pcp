@@ -1,0 +1,28 @@
+//
+// Any disk performing more than 40 I/Os per second, sustained over
+// at least 30 seconds is probably busy
+//
+delta = 30 seconds;
+disk_busy =
+    some_inst (
+	$disk.dev.total > 40 count/sec
+    )
+    -> shell 15 mins "Mail -s 'Heavy sustained disk traffic' sysadm </dev/null";
+
+// Try and catch bursts of activity ... more than 60 I/Os per second
+// for at least 25% of 8 consecutive 3 second samples
+//
+delta = 3 sec;
+disk_burst =
+    some_inst (
+	25%_sample (
+	    $disk.dev.total @0..7 > 60 count/sec
+	)
+    )
+    -> alarm 5 mins "Disk Burst? " "%i ";
+
+// any SCSI disk controller performing more than 3 Mbytes per sec is busy
+//
+some_inst $disk.ctl.blktotal * 0.5 > 3 Mbyte/sec
+    -> alarm "Busy Disk Controller: " "%i ";
+

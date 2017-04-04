@@ -1,0 +1,171 @@
+Windows PMDA
+============
+
+This PMDA collects performance data from a Microsoft Windows kernel.
+
+Metrics
+=======
+
+The help text is exported from the kernel via the PDH (Performance
+Data Helper) APIs.  To view the help text, install the PMDA, then
+the following command will list all the available metrics and their
+explanatory "help" text:
+
+ $ pminfo -fT kernel disk mem network filesys sqlserver hinv pmda process
+
+Installation
+============
+
+ +  # cd $PCP_PMDAS_DIR/windows
+
+ +  Check that there is no clash in the Performance Metrics Domain
+    defined in ./domain.h and the other PMDAs currently in use (see
+    $PCP_PMCDCONF_PATH).  If there is, edit ./domain.h to choose another
+    domain number.
+
+ +  Then simply use
+
+	# ./Install
+
+    and choose both the "collector" and "monitor" installation
+    configuration options -- everything else is automated.
+
+De-installation
+===============
+
+ +  Simply use
+
+        # cd $PCP_PMDAS_DIR/windows
+	# ./Remove
+
+Troubleshooting
+===============
+
+ +  After installing or restarting the agent, the PMCD log file
+    ($PCP_LOG_DIR/pmcd/pmcd.log) and the PMDA log file
+    ($PCP_LOG_DIR/pmcd/windows.log) should be checked for any warnings
+    or errors.
+
+Adding New Metrics
+==================
+
+The following steps should be followed when adding new metrics ... this
+assumes the MinGW gcc compiler is being used.
+
+a. Make sure you know what you've currently got, so on the target system
+   $ ./pdhlist | ./pdhmatch >status-quo
+
+b. Pick the Pdh paths you're interested in (drop the hostname prefix,
+   add the (*/*#*) or * patterns as appropriate.  Beware that metrics
+   with multiple instances are reported multiple times ... for example
+
+	SQLServer:Cache Manager\Cache Hit Ratio
+	SQLServer:Cache Manager(_Total)\Cache Hit Ratio
+	SQLServer:Cache Manager(*/*#*)\Cache Hit Ratio
+
+   of these, the first pattern must not be used ... use the second one
+   if you want the "over all instances" totals, and the last one gives
+   the per instance metrics.
+
+c. Choose a PMID ... use the next unused number in sequence ... check
+   metricdesc[] in pmda.c, you want the PMDA_PMID(0,x) macro from the
+   last entry in the table, and the number you're after is x+1 (x+1 =
+   81 for my example).
+
+d. Choose a name and where to put the new metric in the namespace ...
+   edit the appropriate pmns.* file (let's assume you're adding to one
+   of the existing Pdh groups, rather than creating a new one which is
+   more complicated), adding an appropriate entry using x+1 from above
+   for the last component of the PMID.  Something like this in
+   pmns.sqlserver
+
+	sqlserver {
+	    ...
+	    cache_mgr			// new line
+	}
+
+	...
+
+	// all new lines from here down
+
+	sqlserver.cache_mgr {
+	    all
+	    percache
+	}
+
+	sqlserver.cache_mgr.all {
+	    cache_hit_ratio	WINDOWS:0:81
+	}
+
+	sqlserver.cache_mgr.cache {
+	    cache_hit_ratio	WINDOWS:0:82
+	}
+
+
+   Write the modified pmns file.
+
+   Check you've got it right with
+
+   	$ pminfo -m -n root sqlserver.cache_mgr
+	sqlserver.cache_mgr.all.cache_hit_ratio PMID: 79.0.81
+	sqlserver.cache_mgr.cache.cache_hit_ratio PMID: 79.0.82
+
+e. Metric semantics ... you'll need a complete metricdesc[i]
+   initializer from pmda.c ... pick one that is similar, copy, paste
+   at the end of the table initialization and update PMDA_PMID(0,y)
+   with x+1 from step a.
+
+   To help with "similar" here are some examples:
+
+   kernel.all.cpu.user - unsigned 64-bit counter in units of microseconds
+
+   network.interface.in.bytes - unsigned 32-bit counter in units of
+       bytes with one value per network interface
+
+   mem.available - unsigned 64-bit instantaneous value in units of
+       Mbytes
+
+   sqlserver.buf_mgr.cache_hit_ratio - floating point value
+       representing a cache hit ratio, returned in the range 0.0 to
+       1.0
+
+   Be careful with '\' in the Pdh patterns.  Replace them with '\\' in the
+   string initializer used here.
+
+   My new metrics are cache hit ratios
+
+    /* sqlserver.cache_mgr.all.cache_hit_ratio */
+	{ { PMDA_PMID(0,81), PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) }, M_OPTIONAL, 0, 0, 0, NULL,
+	  "\\SQLServer:Cache Manager(_Total)\\Cache Hit Ratio"
+	},
+    /* sqlserver.cache_mgr.cache.cache_hit_ratio */
+	{ { PMDA_PMID(0,82), PM_TYPE_FLOAT, SQL_CACHE_INDOM, PM_SEM_INSTANT,
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) }, M_OPTIONAL, 0, 0, 0, NULL,
+	  "\\SQLServer:Cache Manager(*/*#*)\\Cache Hit Ratio"
+	},
+
+f. If you've added a new instance domain (SQL_CACHE_INDOM in the case
+   above, this needs to be handled):
+     i. add a new header #define line (use the next ordinal number), e.g.
+	#define SQL_CACHE_INDOM	5
+    ii. add a new entry to indomtab[] in pmda.c, e.g.
+	{ SQL_CACHE_INDOM, 0, NULL },
+   iii. add a new entry to indomtab[] in instance.c, e.g.
+	SQL_CACHE_INDOM,
+    iv. add new code in the switch of check_instance() in instance.c
+        to parse the Pdh instance name to extract a PCP instance name
+	and assign an instance number ... it is strongly suggested
+	that you study the ones already there, steal and modify the
+	one that is closest to your new instance
+
+g. Make and upgrade (assuming you're on the target machine and not
+   interested in packaging)
+
+   	$ make
+	$ su
+	# /etc/pcp stop
+	# make install
+	# cd $PCP_VAR_DIR/pmdas/windows
+	# ./Install
+

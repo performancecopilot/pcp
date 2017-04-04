@@ -1,0 +1,52 @@
+#!gmake
+#
+# Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+# NB: this file is renamed GNUmakefile upon installation into $PCP_VAR_DIR/testsuite.
+# It is only for executing the testsuite.
+
+ifdef PCP_CONF
+include $(PCP_CONF)
+else
+include $(PCP_DIR)/etc/pcp.conf
+endif
+PATH	= $(shell . $(PCP_DIR)/etc/pcp.env; echo $$PATH)
+include $(PCP_INC_DIR)/builddefs
+
+SUBDIRS = src pmdas cisco gluster pconf sadist collectl nfsclient named \
+	  archives views qt linux unbound cifs gpfs lustre ganglia \
+	  postfix perl json slurm tmparch sheet
+ifeq "$(PMDA_PERFEVENT)" "true"
+SUBDIRS += perfevent
+endif
+ifeq "$(HAVE_PYTHON)" "true"
+SUBDIRS += secure mic
+endif
+
+default default_pcp setup: $(SUBDIRS) localconfig new remake check qa_hosts
+	$(QA_SUBDIRS_MAKERULE)
+
+LDIRT += 051.work 134.full.* \
+         *.bak *.bad *.core *.full *.notrun *.raw *.o core a.out core.* \
+	 *.log eek* urk* so_locations tmp.* gmon.out oss.qa.tar.gz \
+	 *.full.ok *.new rc_cron_check.clean \
+	  make.out qa_hosts localconfig localconfig.h check.time
+	# these ones are links to the real files created when the associated
+	# test is run
+LDIRT += $(shell [ -f .gitignore ] && grep '\.out$$' .gitignore)
+
+qa_hosts:	qa_hosts.master mk.qa_hosts
+	PATH=$(PATH); ./mk.qa_hosts
+
+localconfig:
+	PATH=$(PATH); ./mk.localconfig
+
+install_pcp install: 
+	@echo The PCP QA testsuite is already installed.
+	false
+
+include $(BUILDRULES)
+
+# Local variables:
+# mode: makefile
+# End:

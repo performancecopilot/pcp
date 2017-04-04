@@ -1,0 +1,113 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMGETINDOM 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmGetInDom\f1 \- get instance identifiers for a performance metrics instance domain
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.sp
+.nf
+int pmGetInDom(pmInDom \fIindom\fP, int **\fIinstlist\fP, char ***\fInamelist\fP);
+.fi
+.sp
+cc ... \-lpcp
+.ft 1
+.SH DESCRIPTION
+.de CW
+.ie t \f(CW\\$1\f1\\$2
+.el \fI\\$1\f1\\$2
+..
+In the current
+Performance Metrics Application Programming Interface (PMAPI)
+context,
+locate the description of the instance domain
+.IR indom ,
+and return via
+.I instlist
+the internal instance identifiers for all instances,
+and via
+.I namelist
+the full external identifiers for all instances.
+The number of instances found is returned as the function value 
+(else less than zero to indicate an error).
+.PP
+The value for the instance domain
+.I indom
+is typically extracted from a
+.CW pmDesc
+structure, following a call to
+.BR pmLookupDesc (3)
+for a particular performance metric.
+.PP
+The resulting lists of instance identifiers (\c
+.I instlist
+and
+.IR namelist ),
+and the names that the elements of
+.I namelist
+point to, will have been allocated by
+.B pmGetInDom
+with two calls to 
+.BR malloc (3),
+and it is the responsibility of the caller to
+.CW free(instlist)
+and
+.CW free(namelist)
+to release the space when it is no longer required.
+.PP
+When the result of
+.B pmGetInDom
+is less than one, both
+.I instlist
+and
+.I namelist
+are undefined (no space will have been allocated,
+and so calling 
+.BR free (3)
+is a singularly bad idea).
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.I /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (5).
+Values for these variables may be obtained programmatically
+using the
+.BR pmGetConfig (3)
+function.
+.SH SEE ALSO
+.BR PMAPI (3),
+.BR pmGetConfig (3),
+.BR pmGetInDomArchive (3),
+.BR pmLookupDesc (3),
+.BR pmLookupInDom (3),
+.BR pmNameInDom (3),
+.BR pcp.conf (5)
+and
+.BR pcp.env (5).
+.SH DIAGNOSTICS
+.IP \f3PM_ERR_INDOM\f1
+.I indom
+is not a valid instance domain identifier

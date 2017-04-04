@@ -1,0 +1,42 @@
+#!/bin/sh
+# PCP QA Test No. 453
+# Check Perl PCP::LogSummary
+#
+# Copyright (c) 2011 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+perl -e "use PCP::LogSummary" >/dev/null 2>&1
+test $? -eq 0 || _notrun "PCP::LogSummary perl module is not installed"
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+cat <<'End-of-File' >$tmp.pl
+use PCP::LogSummary;
+
+my $archive = 'archives/snort-disks.0';
+my @metrics = ( 'disk.dev.read', 'disk.dev.read_bytes' );
+my $hdl = PCP::LogSummary->new($archive, \@metrics);
+
+foreach my $metric ( sort keys %$hdl ) {
+    my $summary = $$hdl{$metric};
+    print("metric=", $metric, "\n");
+    print("  average=", $$summary{'average'}, "\n");
+    print("  samples=", $$summary{'samples'}, "\n");
+}
+End-of-File
+
+# real QA test starts here
+perl $tmp.pl
+
+# success, all done
+exit

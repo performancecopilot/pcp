@@ -1,0 +1,7 @@
+Readme
+NVIDIA PMDA
+===========
+
+The NVIDIA PMDA is a PCP module for gathering metrics on the performance of
+NVIDIA graphics cards. It uses the NVIDIA Management Library (NVML) to query
+the states of attached cards.

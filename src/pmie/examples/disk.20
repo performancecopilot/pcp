@@ -1,0 +1,13 @@
+//
+// Assume the / and /usr file systems are on different partitions
+// of the same disk (/dev/dsk0d1 in the example below).
+// Add an entry to the file $PCP_LOG_DIR/NOTICES when this disk is
+// busy and either of the file systems is more than 90% full.
+//
+// Suggestion from: Steve Daniels (steve@houdini.denver.sgi.com)
+
+delta = 60;
+
+( filesys.full #'/dev/root' > 90 || filesys.full #'/dev/usr' > 90 )
+&& disk.dev.total #'dks0d1' > 40 count/sec
+    -> shell 15min "/usr/pcp/bin/pmpost 'dks0d1 busy when / or /usr nearly full'";

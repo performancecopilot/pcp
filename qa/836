@@ -1,0 +1,47 @@
+#!/bin/sh
+# PCP QA Test No. 836
+# Exercise pmdiff(1) script functionality.
+#
+# Copyright (c) 2014 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed -e "s,$here,PATH,g"
+}
+
+# real QA test starts here
+echo "== simple comparison, defaults"
+pmdiff -z $here/archives/section-a $here/archives/section-b | _filter
+echo
+
+echo "== change the comparison ratio"
+pmdiff -z -q 1.5 $here/archives/section-a $here/archives/section-b | _filter
+echo
+
+echo "== change the report precision"
+pmdiff -z -p 5 $here/archives/section-a $here/archives/section-b | _filter
+echo
+
+echo "== skip the excluded metrics report"
+pmdiff -z --skip-excluded $here/archives/section-a $here/archives/section-b | _filter
+echo
+
+echo "== skip the missing metrics report"
+pmdiff -z --skip-missing $here/archives/section-a $here/archives/section-c | _filter
+
+# success, all done
+status=0
+exit

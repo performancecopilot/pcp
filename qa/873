@@ -1,0 +1,30 @@
+#!/bin/sh
+# PCP QA Test No. 873
+# check kernel.pernode.cpu metrics on single CPU systems
+# (see commit 4ea1e0b7758660514fcae3117112bf1db4818ba0)
+#
+# Copyright (c) 2015 Mark Goodwin <mgoodwin@redhat.com>.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+ncpu=$(pmprobe -v hinv.ncpu | awk '{print $NF}')
+[ $ncpu -eq 1 ] || _notrun only tested on single CPU systems
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+pmprobe -v kernel.pernode.cpu.user kernel.all.cpu.user \
+| tee -a $seq.full \
+| awk '/\.pernode/ {pernode=$NF} /\.all/ {all=$NF} END {if (pernode != all) {print "fail"; exit(1);}}'
+
+status=$?
+exit

@@ -1,0 +1,53 @@
+QA output created by 058
+
+metric:    sample.longlong.million
+HOST
+semantics: instantaneous value
+units:     none
+samples:   2
+interval:  1.00 sec
+              1000000
+              1000000
+
+metric:    sample.bin
+HOST
+semantics: instantaneous value
+units:     none
+samples:   2
+interval:  1.00 sec
+
+    bin-100     bin-200     bin-300     bin-400     bin-500     bin-600     bin-700     bin-800     bin-900 
+        100         200         300         400         500         600         700         800         900 
+        100         200         300         400         500         600         700         800         900 
+
+metric:    sample.part_bin
+HOST
+semantics: instantaneous value
+units:     none
+samples:   2
+interval:  1.00 sec
+
+    bin-100     bin-200     bin-300     bin-400     bin-500     bin-600     bin-700     bin-800     bin-900 
+        100           ?         300           ?         500           ?         700           ?         900 
+        100           ?         300           ?         500           ?         700           ?         900 
+
+metric:    sample.bogus_bin
+HOST
+semantics: instantaneous value
+units:     none
+samples:   2
+interval:  1.00 sec
+
+    bin-100     bin-200     bin-300     bin-400     bin-500     bin-600     bin-700     bin-800     bin-900 
+        100           ?         300           ?         500           ?         700           ?         900 
+Warning: value=250, but instance=250 is unknown
+Warning: value=450, but instance=450 is unknown
+Warning: value=650, but instance=650 is unknown
+Warning: value=850, but instance=850 is unknown
+
+    bin-100     bin-200     bin-300     bin-400     bin-500     bin-600     bin-700     bin-800     bin-900 
+        100           ?         300           ?         500           ?         700           ?         900 
+Warning: value=250, but instance=250 is unknown
+Warning: value=450, but instance=450 is unknown
+Warning: value=650, but instance=650 is unknown
+Warning: value=850, but instance=850 is unknown

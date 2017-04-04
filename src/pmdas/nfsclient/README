@@ -1,0 +1,7 @@
+*** PLEASE NOTE ***
+
+This PMDA exports NFS client metrics on Linux, sourced from
+/proc/self/mountstats.  If it is the NFS server metrics you
+are after, look into the Linux kernel PMDA (pmdalinux) - in
+particular the nfs.*, nfs3.*, nfs4.* and rpc.* metrics.
+

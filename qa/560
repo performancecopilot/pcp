@@ -1,0 +1,76 @@
+#!/bin/sh
+# PCP QA Test No. 560
+# #681487 error handling in pmdaproc.sh dialogs
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ -d $PCP_PMDAS_DIR/simple ] || _notrun "simple PMDA directory is not installed"
+
+status=1	# failure is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+cd $PCP_PMDAS_DIR/simple
+
+unset ROOT MAKEFLAGS
+
+$sudo $PCP_MAKE_PROG clobber >/dev/null 2>&1
+$sudo $PCP_MAKE_PROG >/dev/null 2>&1
+
+_filter_make()
+{
+    sed \
+	-e '/In function .vpmprintf./d' \
+	-e '/warning: the use of .tempnam./d' \
+	-e '/make: Nothing to be done/d'
+}
+
+cat <<End-of-File | $sudo ./Install -e >$tmp.out 2>&1
+foo
+both
+foo
+daemon
+foo
+socket
+foo
+Unix
+
+Internet
+
+End-of-File
+
+sed <$tmp.out \
+    -e 's/or perl //g' \
+    -e 's/or python //g' \
+    -e 's/daemon or dso,/"daemon" or "dso",/g' \
+    | _filter_pmda_install \
+    | _filter_make
+
+echo "in \$PCP_PMCDCONF_PATH ..."
+sed -n "/^simple/s;$PCP_PMDAS_DIR;\$PCP_PMDAS_DIR;p" <$PCP_PMCDCONF_PATH
+
+$sudo ./Remove
+
+echo
+if $sudo $PCP_MAKE_PROG >$tmp.tmp 2>$tmp.err
+then
+    cat $tmp.err | _filter_make
+else
+    cat $tmp.tmp
+    echo "make prior to Install failed!"
+fi
+$sudo ./Install </dev/null >$tmp.out 2>&1
+grep 'Check' $tmp.out
+
+# success, all done
+status=0
+exit

@@ -1,0 +1,56 @@
+#pmieconf-rules 1
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(5)
+# 
+
+rule	webping.no_response
+	default	= "$rule$"
+	enumerate = hosts
+	predicate =
+"some_inst (
+    webping.perurl.kbytes $hosts$ $urls$ @1 -
+	webping.perurl.kbytes $hosts$ $urls$ @0 > 0
+    && webping.perurl.kbytes $hosts$ $urls$ @0 == 0
+)"
+	enabled	= yes
+	version = 1
+	help	=
+"The retrieval of at least one URL by the webping agent failed on the
+most recent attempt, but succeeded on the previous attempt.";
+
+string	rule
+	default	= "No response to webping request"
+	display	= no
+	modify	= no;
+
+string	action_expand
+	default	= "%i@%h"
+	display	= no
+	modify	= no;
+
+string	email_expand
+	default = "host: %h no web server response for %i"
+	display = no
+	modify  = no;
+
+
+# Configuration info specific to non-PCP tools follows...
+# 
+
+# for SGI Embedded Support Partner integration:
+string  esp_type
+	default	= "0x2000AB"
+	display	= no
+	modify	= no;
+
+# for HP OpenView integration:
+string	ov_severity
+	display = no
+	default	= "Critical";
+
+# for CA/Unicenter TNG integration:
+string	tngfw_color
+	display	= no
+	default	= "Red";
+
+# 
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(5)

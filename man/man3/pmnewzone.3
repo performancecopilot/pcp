@@ -1,0 +1,60 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMNEWZONE 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmNewZone\f1 \- establish a reporting timezone
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.sp
+int pmNewZone(const char *\fItz\fP);
+.sp
+cc ... \-lpcp
+.ft 1
+.SH DESCRIPTION
+The current reporting timezone affects the timezone used by
+.BR pmCtime (3)
+and
+.BR pmLocaltime (3).
+.PP
+The argument
+.I tz
+defines a timezone string, in the format described for the
+.B TZ
+environment variable, see
+.BR environ (7).
+.PP
+.B pmNewZone
+sets the current reporting timezone, and returns a value that may be
+used in a subsequent call to
+.BR pmUseZone (3)
+to restore this reporting timezone.
+.SH SEE ALSO
+.BR PMAPI (3),
+.BR pmCtime (3),
+.BR pmGetConfig (3),
+.BR pmLocaltime (3),
+.BR pmNewContextZone (3),
+.BR pmUseZone (3),
+.BR pmWhichZone (3),
+.BR pcp.conf (5),
+.BR pcp.env (5)
+and
+.BR environ (7).
+.SH DIAGNOSTICS
+A return value less than zero indicates a fatal error from a system call,
+most likely
+.BR malloc (3).

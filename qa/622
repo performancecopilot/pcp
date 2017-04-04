@@ -1,0 +1,68 @@
+#! /bin/sh
+# PCP QA Test No. 622
+# Test for the ability for pmie(1) to accept hyphens in host names, but
+# not metric names.
+#
+# This is in response to test 503, which did not allow for the fact that
+# a hostname may have a hyphen in it!  By the way, test 503 should be
+# fixed (by now) to allow for hosts with hyphens in their names... this
+# test shows how the config file ought to have been built.
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+. ./common.config
+
+status=1	# failure is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+$sudo rm -f $seq.full
+
+[ -z "$PCPQA_HYPHEN_HOST" ] && _notrun 'PCPQA_HYPHEN_HOST is not set in ./common.config'
+echo "PCPQA_HYPHEN_HOST=$PCPQA_HYPHEN_HOST" >>$seq.full
+if ping -w 2 $PCPQA_HYPHEN_HOST >>$seq.full 2>&1
+then
+    # seems to be alive, check if pmcd is responding
+    #
+    if pminfo -h $PCPQA_HYPHEN_HOST -f pmda.version >>$seq.full 2>&1
+    then
+	# OK
+	:
+    else
+	_notrun "pmcd on host $PCPQA_HYPHEN_HOST is not responding"
+	# NOTREACHED
+    fi
+
+else
+    _notrun "host $PCPQA_HYPHEN_HOST is not responding"
+    # NOTREACHED
+fi
+
+# shell functs for QA test
+
+mkPMIEConfig() {
+	cat >$tmp.rule <<EOF
+delta = 1 sec;
+one = 'sample.long.no-hyphen' :'$PCPQA_HYPHEN_HOST';
+EOF
+}
+
+
+# real QA test starts here
+
+mkPMIEConfig
+pmie -D APPL0 -C -c $tmp.rule 2>&1 \
+| sed \
+    -e "s,/tmp/$seq-[0-9]*\.rule,TMPFILE," \
+    -e '/pmLookupName failed: /d' \
+    -e "s/$PCPQA_HYPHEN_HOST/PCPQA_HYPHEN_HOST/g"
+
+# success, all done
+status=0
+exit

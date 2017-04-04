@@ -1,0 +1,1283 @@
+QA output created by 787
+log records: 7565
+
+=== hinv.ncpu ===
+
++++ forwards +++
+Note: timezone set to local timezone of host "super.elastic.org" from archive
+
+metric:    hinv.ncpu
+archive:   archives/bug-1044
+host:      super.elastic.org
+start:     Fri Jan 10 18:00:00 2014
+end:       Mon Jan 13 08:59:49 2014
+semantics: discrete instantaneous value
+units:     none
+samples:   63
+interval:  3600.00 sec
+18:00:00.000          4
+19:00:00.000          4
+20:00:00.000          4
+21:00:00.000          4
+22:00:00.000          4
+23:00:00.000          4
+00:00:00.000          4
+01:00:00.000          4
+02:00:00.000          4
+03:00:00.000          4
+04:00:00.000          4
+05:00:00.000          4
+06:00:00.000          4
+07:00:00.000          4
+08:00:00.000          4
+09:00:00.000          4
+10:00:00.000          4
+11:00:00.000          4
+12:00:00.000          4
+13:00:00.000          4
+14:00:00.000          4
+15:00:00.000          4
+16:00:00.000          4
+17:00:00.000          4
+18:00:00.000          4
+19:00:00.000          4
+20:00:00.000          4
+21:00:00.000          4
+22:00:00.000          4
+23:00:00.000          4
+00:00:00.000          4
+01:00:00.000          4
+02:00:00.000          4
+03:00:00.000          4
+04:00:00.000          4
+05:00:00.000          4
+06:00:00.000          4
+07:00:00.000          4
+08:00:00.000          4
+09:00:00.000          4
+10:00:00.000          4
+11:00:00.000          4
+12:00:00.000          4
+13:00:00.000          4
+14:00:00.000          4
+15:00:00.000          4
+16:00:00.000          4
+17:00:00.000          4
+18:00:00.000          4
+19:00:00.000          4
+20:00:00.000          4
+21:00:00.000          4
+22:00:00.000          4
+23:00:00.000          4
+00:00:00.000          4
+01:00:00.000          4
+02:00:00.000          4
+03:00:00.000          4
+04:00:00.000          4
+05:00:00.000          4
+06:00:00.000          4
+07:00:00.000          4
+08:00:00.000          4
+log reads: 7448
+
++++ backwards +++
+metric[0]: hinv.ncpu
+
+sample 1, delta time=-3600.000 secs
+hinv.ncpu: 
+value[0]: 4
+
+sample 2, delta time=-3600.000 secs
+hinv.ncpu: 
+value[0]: 4
+
+sample 3, delta time=-3600.000 secs
+hinv.ncpu: 
+value[0]: 4
+
+sample 4, delta time=-3600.000 secs
+hinv.ncpu: 
+value[0]: 4
+
+sample 5, delta time=-3600.000 secs
+hinv.ncpu: 
+value[0]: 4
+
+sample 6, delta time=-3600.000 secs
+hinv.ncpu: 
+value[0]: 4
+
+sample 7, delta time=-3600.000 secs
+hinv.ncpu: 
+value[0]: 4
+
+sample 8, delta time=-3600.000 secs
+hinv.ncpu: 
+value[0]: 4
+
+sample 9, delta time=-3600.000 secs
+hinv.ncpu: 
+value[0]: 4
+
+sample 10, delta time=-3600.000 secs
+hinv.ncpu: 
+value[0]: 4
+
+sample 11, delta time=-3600.000 secs
+hinv.ncpu: 
+value[0]: 4
+
+sample 12, delta time=-3600.000 secs
+hinv.ncpu: 
+value[0]: 4
+
+sample 13, delta time=-3600.000 secs
+hinv.ncpu: 
+value[0]: 4
+
+sample 14, delta time=-3600.000 secs
+hinv.ncpu: 
+value[0]: 4
+
+sample 15, delta time=-3600.000 secs
+hinv.ncpu: 
+value[0]: 4
+
+sample 16, delta time=-3600.000 secs
+hinv.ncpu: 
+value[0]: 4
+
+sample 17, delta time=-3600.000 secs
+hinv.ncpu: 
+value[0]: 4
+
+sample 18, delta time=-3600.000 secs
+hinv.ncpu: 
+value[0]: 4
+
+sample 19, delta time=-3600.000 secs
+hinv.ncpu: 
+value[0]: 4
+
+sample 20, delta time=-3600.000 secs
+hinv.ncpu: 
+value[0]: 4
+
+sample 21, delta time=-3600.000 secs
+hinv.ncpu: 
+value[0]: 4
+
+sample 22, delta time=-3600.000 secs
+hinv.ncpu: 
+value[0]: 4
+
+sample 23, delta time=-3600.000 secs
+hinv.ncpu: 
+value[0]: 4
+
+sample 24, delta time=-3600.000 secs
+hinv.ncpu: 
+value[0]: 4
+
+sample 25, delta time=-3600.000 secs
+hinv.ncpu: 
+value[0]: 4
+
+sample 26, delta time=-3600.000 secs
+hinv.ncpu: 
+value[0]: 4
+
+sample 27, delta time=-3600.000 secs
+hinv.ncpu: 
+value[0]: 4
+
+sample 28, delta time=-3600.000 secs
+hinv.ncpu: 
+value[0]: 4
+
+sample 29, delta time=-3600.000 secs
+hinv.ncpu: 
+value[0]: 4
+
+sample 30, delta time=-3600.000 secs
+hinv.ncpu: 
+value[0]: 4
+
+sample 31, delta time=-3600.000 secs
+hinv.ncpu: 
+value[0]: 4
+
+sample 32, delta time=-3600.000 secs
+hinv.ncpu: 
+value[0]: 4
+
+sample 33, delta time=-3600.000 secs
+hinv.ncpu: 
+value[0]: 4
+
+sample 34, delta time=-3600.000 secs
+hinv.ncpu: 
+value[0]: 4
+
+sample 35, delta time=-3600.000 secs
+hinv.ncpu: 
+value[0]: 4
+
+sample 36, delta time=-3600.000 secs
+hinv.ncpu: 
+value[0]: 4
+
+sample 37, delta time=-3600.000 secs
+hinv.ncpu: 
+value[0]: 4
+
+sample 38, delta time=-3600.000 secs
+hinv.ncpu: 
+value[0]: 4
+
+sample 39, delta time=-3600.000 secs
+hinv.ncpu: 
+value[0]: 4
+
+sample 40, delta time=-3600.000 secs
+hinv.ncpu: 
+value[0]: 4
+
+sample 41, delta time=-3600.000 secs
+hinv.ncpu: 
+value[0]: 4
+
+sample 42, delta time=-3600.000 secs
+hinv.ncpu: 
+value[0]: 4
+
+sample 43, delta time=-3600.000 secs
+hinv.ncpu: 
+value[0]: 4
+
+sample 44, delta time=-3600.000 secs
+hinv.ncpu: 
+value[0]: 4
+
+sample 45, delta time=-3600.000 secs
+hinv.ncpu: 
+value[0]: 4
+
+sample 46, delta time=-3600.000 secs
+hinv.ncpu: 
+value[0]: 4
+
+sample 47, delta time=-3600.000 secs
+hinv.ncpu: 
+value[0]: 4
+
+sample 48, delta time=-3600.000 secs
+hinv.ncpu: 
+value[0]: 4
+
+sample 49, delta time=-3600.000 secs
+hinv.ncpu: 
+value[0]: 4
+
+sample 50, delta time=-3600.000 secs
+hinv.ncpu: 
+value[0]: 4
+
+sample 51, delta time=-3600.000 secs
+hinv.ncpu: 
+value[0]: 4
+
+sample 52, delta time=-3600.000 secs
+hinv.ncpu: 
+value[0]: 4
+
+sample 53, delta time=-3600.000 secs
+hinv.ncpu: 
+value[0]: 4
+
+sample 54, delta time=-3600.000 secs
+hinv.ncpu: 
+value[0]: 4
+
+sample 55, delta time=-3600.000 secs
+hinv.ncpu: 
+value[0]: 4
+
+sample 56, delta time=-3600.000 secs
+hinv.ncpu: 
+value[0]: 4
+
+sample 57, delta time=-3600.000 secs
+hinv.ncpu: 
+value[0]: 4
+
+sample 58, delta time=-3600.000 secs
+hinv.ncpu: 
+value[0]: 4
+
+sample 59, delta time=-3600.000 secs
+hinv.ncpu: 
+value[0]: 4
+
+sample 60, delta time=-3600.000 secs
+hinv.ncpu: 
+value[0]: 4
+
+sample 61, delta time=-3600.000 secs
+hinv.ncpu: 
+value[0]: 4
+
+sample 62, delta time=-3600.000 secs
+hinv.ncpu: 
+value[0]: 4
+
+sample 63, delta time=-3600.000 secs
+hinv.ncpu: 
+value[0]: 4
+sample[64] pmFetch: End of PCP archive log
+
+64 samples required 7565 log reads
+
+=== kernel.all.nprocs ===
+
++++ forwards +++
+Note: timezone set to local timezone of host "super.elastic.org" from archive
+
+metric:    kernel.all.nprocs
+archive:   archives/bug-1044
+host:      super.elastic.org
+start:     Fri Jan 10 18:00:00 2014
+end:       Mon Jan 13 08:59:49 2014
+semantics: instantaneous value
+units:     none
+samples:   63
+interval:  3600.00 sec
+18:00:00.000        444
+19:00:00.000        436
+20:00:00.000        436
+21:00:00.000        442
+22:00:00.000        426
+23:00:00.000       1082
+00:00:00.000       1283
+01:00:00.000        788
+02:00:00.000        637
+03:00:00.000        639
+04:00:00.000        637
+05:00:00.000        642
+06:00:00.000        635
+07:00:00.000        638
+08:00:00.000        635
+09:00:00.000        651
+10:00:00.000        651
+11:00:00.000        647
+12:00:00.000        636
+13:00:00.000        638
+14:00:00.000        646
+15:00:00.000        656
+16:00:00.000        648
+17:00:00.000        634
+18:00:00.000        634
+19:00:00.000        645
+20:00:00.000        636
+21:00:00.000        636
+22:00:00.000        635
+23:00:00.000        636
+00:00:00.000        636
+01:00:00.000        637
+02:00:00.000        633
+03:00:00.000        636
+04:00:00.000        630
+05:00:00.000        638
+06:00:00.000        634
+07:00:00.000        636
+08:00:00.000        638
+09:00:00.000        845
+10:00:00.000        843
+11:00:00.000        688
+12:00:00.000        687
+13:00:00.000        686
+14:00:00.000        689
+15:00:00.000        690
+16:00:00.000        686
+17:00:00.000        686
+18:00:00.000       1101
+19:00:00.000       1091
+20:00:00.000        788
+21:00:00.000        788
+22:00:00.000        786
+23:00:00.000        793
+00:00:00.000        786
+01:00:00.000        782
+02:00:00.000        795
+03:00:00.000        786
+04:00:00.000        785
+05:00:00.000        789
+06:00:00.000        789
+07:00:00.000        785
+08:00:00.000        942
+log reads: 7448
+
++++ backwards +++
+metric[0]: kernel.all.nprocs
+
+sample 1, delta time=-3600.000 secs
+kernel.all.nprocs: 
+value[0]: 942
+
+sample 2, delta time=-3600.000 secs
+kernel.all.nprocs: 
+value[0]: 785
+
+sample 3, delta time=-3600.000 secs
+kernel.all.nprocs: 
+value[0]: 789
+
+sample 4, delta time=-3600.000 secs
+kernel.all.nprocs: 
+value[0]: 789
+
+sample 5, delta time=-3600.000 secs
+kernel.all.nprocs: 
+value[0]: 785
+
+sample 6, delta time=-3600.000 secs
+kernel.all.nprocs: 
+value[0]: 786
+
+sample 7, delta time=-3600.000 secs
+kernel.all.nprocs: 
+value[0]: 795
+
+sample 8, delta time=-3600.000 secs
+kernel.all.nprocs: 
+value[0]: 782
+
+sample 9, delta time=-3600.000 secs
+kernel.all.nprocs: 
+value[0]: 786
+
+sample 10, delta time=-3600.000 secs
+kernel.all.nprocs: 
+value[0]: 793
+
+sample 11, delta time=-3600.000 secs
+kernel.all.nprocs: 
+value[0]: 786
+
+sample 12, delta time=-3600.000 secs
+kernel.all.nprocs: 
+value[0]: 788
+
+sample 13, delta time=-3600.000 secs
+kernel.all.nprocs: 
+value[0]: 788
+
+sample 14, delta time=-3600.000 secs
+kernel.all.nprocs: 
+value[0]: 1091
+
+sample 15, delta time=-3600.000 secs
+kernel.all.nprocs: 
+value[0]: 1101
+
+sample 16, delta time=-3600.000 secs
+kernel.all.nprocs: 
+value[0]: 686
+
+sample 17, delta time=-3600.000 secs
+kernel.all.nprocs: 
+value[0]: 686
+
+sample 18, delta time=-3600.000 secs
+kernel.all.nprocs: 
+value[0]: 690
+
+sample 19, delta time=-3600.000 secs
+kernel.all.nprocs: 
+value[0]: 689
+
+sample 20, delta time=-3600.000 secs
+kernel.all.nprocs: 
+value[0]: 686
+
+sample 21, delta time=-3600.000 secs
+kernel.all.nprocs: 
+value[0]: 687
+
+sample 22, delta time=-3600.000 secs
+kernel.all.nprocs: 
+value[0]: 688
+
+sample 23, delta time=-3600.000 secs
+kernel.all.nprocs: 
+value[0]: 843
+
+sample 24, delta time=-3600.000 secs
+kernel.all.nprocs: 
+value[0]: 845
+
+sample 25, delta time=-3600.000 secs
+kernel.all.nprocs: 
+value[0]: 638
+
+sample 26, delta time=-3600.000 secs
+kernel.all.nprocs: 
+value[0]: 636
+
+sample 27, delta time=-3600.000 secs
+kernel.all.nprocs: 
+value[0]: 634
+
+sample 28, delta time=-3600.000 secs
+kernel.all.nprocs: 
+value[0]: 638
+
+sample 29, delta time=-3600.000 secs
+kernel.all.nprocs: 
+value[0]: 630
+
+sample 30, delta time=-3600.000 secs
+kernel.all.nprocs: 
+value[0]: 636
+
+sample 31, delta time=-3600.000 secs
+kernel.all.nprocs: 
+value[0]: 633
+
+sample 32, delta time=-3600.000 secs
+kernel.all.nprocs: 
+value[0]: 637
+
+sample 33, delta time=-3600.000 secs
+kernel.all.nprocs: 
+value[0]: 636
+
+sample 34, delta time=-3600.000 secs
+kernel.all.nprocs: 
+value[0]: 636
+
+sample 35, delta time=-3600.000 secs
+kernel.all.nprocs: 
+value[0]: 635
+
+sample 36, delta time=-3600.000 secs
+kernel.all.nprocs: 
+value[0]: 636
+
+sample 37, delta time=-3600.000 secs
+kernel.all.nprocs: 
+value[0]: 636
+
+sample 38, delta time=-3600.000 secs
+kernel.all.nprocs: 
+value[0]: 645
+
+sample 39, delta time=-3600.000 secs
+kernel.all.nprocs: 
+value[0]: 634
+
+sample 40, delta time=-3600.000 secs
+kernel.all.nprocs: 
+value[0]: 634
+
+sample 41, delta time=-3600.000 secs
+kernel.all.nprocs: 
+value[0]: 648
+
+sample 42, delta time=-3600.000 secs
+kernel.all.nprocs: 
+value[0]: 656
+
+sample 43, delta time=-3600.000 secs
+kernel.all.nprocs: 
+value[0]: 646
+
+sample 44, delta time=-3600.000 secs
+kernel.all.nprocs: 
+value[0]: 638
+
+sample 45, delta time=-3600.000 secs
+kernel.all.nprocs: 
+value[0]: 636
+
+sample 46, delta time=-3600.000 secs
+kernel.all.nprocs: 
+value[0]: 647
+
+sample 47, delta time=-3600.000 secs
+kernel.all.nprocs: 
+value[0]: 651
+
+sample 48, delta time=-3600.000 secs
+kernel.all.nprocs: 
+value[0]: 651
+
+sample 49, delta time=-3600.000 secs
+kernel.all.nprocs: 
+value[0]: 635
+
+sample 50, delta time=-3600.000 secs
+kernel.all.nprocs: 
+value[0]: 638
+
+sample 51, delta time=-3600.000 secs
+kernel.all.nprocs: 
+value[0]: 635
+
+sample 52, delta time=-3600.000 secs
+kernel.all.nprocs: 
+value[0]: 642
+
+sample 53, delta time=-3600.000 secs
+kernel.all.nprocs: 
+value[0]: 637
+
+sample 54, delta time=-3600.000 secs
+kernel.all.nprocs: 
+value[0]: 639
+
+sample 55, delta time=-3600.000 secs
+kernel.all.nprocs: 
+value[0]: 637
+
+sample 56, delta time=-3600.000 secs
+kernel.all.nprocs: 
+value[0]: 788
+
+sample 57, delta time=-3600.000 secs
+kernel.all.nprocs: 
+value[0]: 1283
+
+sample 58, delta time=-3600.000 secs
+kernel.all.nprocs: 
+value[0]: 1082
+
+sample 59, delta time=-3600.000 secs
+kernel.all.nprocs: 
+value[0]: 426
+
+sample 60, delta time=-3600.000 secs
+kernel.all.nprocs: 
+value[0]: 442
+
+sample 61, delta time=-3600.000 secs
+kernel.all.nprocs: 
+value[0]: 436
+
+sample 62, delta time=-3600.000 secs
+kernel.all.nprocs: 
+value[0]: 436
+
+sample 63, delta time=-3600.000 secs
+kernel.all.nprocs: 
+value[0]: 444
+sample[64] pmFetch: End of PCP archive log
+
+64 samples required 7565 log reads
+
+=== pmcd.numagents ===
+
++++ forwards +++
+Note: timezone set to local timezone of host "super.elastic.org" from archive
+
+metric:    pmcd.numagents
+archive:   archives/bug-1044
+host:      super.elastic.org
+start:     Fri Jan 10 18:00:00 2014
+end:       Mon Jan 13 08:59:49 2014
+semantics: instantaneous value
+units:     none
+samples:   63
+interval:  3600.00 sec
+18:00:00.000  No values available
+19:00:00.000  No values available
+20:00:00.000  No values available
+21:00:00.000  No values available
+22:00:00.000  No values available
+23:00:00.000  No values available
+00:00:00.000  No values available
+01:00:00.000  No values available
+02:00:00.000  No values available
+03:00:00.000  No values available
+04:00:00.000  No values available
+05:00:00.000  No values available
+06:00:00.000  No values available
+07:00:00.000  No values available
+08:00:00.000  No values available
+09:00:00.000  No values available
+10:00:00.000  No values available
+11:00:00.000  No values available
+12:00:00.000  No values available
+13:00:00.000  No values available
+14:00:00.000  No values available
+15:00:00.000  No values available
+16:00:00.000  No values available
+17:00:00.000  No values available
+18:00:00.000  No values available
+19:00:00.000  No values available
+20:00:00.000  No values available
+21:00:00.000  No values available
+22:00:00.000  No values available
+23:00:00.000  No values available
+00:00:00.000  No values available
+01:00:00.000  No values available
+02:00:00.000  No values available
+03:00:00.000  No values available
+04:00:00.000  No values available
+05:00:00.000  No values available
+06:00:00.000  No values available
+07:00:00.000  No values available
+08:00:00.000  No values available
+09:00:00.000  No values available
+10:00:00.000  No values available
+11:00:00.000  No values available
+12:00:00.000  No values available
+13:00:00.000  No values available
+14:00:00.000  No values available
+15:00:00.000  No values available
+16:00:00.000  No values available
+17:00:00.000  No values available
+18:00:00.000  No values available
+19:00:00.000  No values available
+20:00:00.000  No values available
+21:00:00.000  No values available
+22:00:00.000  No values available
+23:00:00.000  No values available
+00:00:00.000  No values available
+01:00:00.000  No values available
+02:00:00.000  No values available
+03:00:00.000  No values available
+04:00:00.000  No values available
+05:00:00.000  No values available
+06:00:00.000  No values available
+07:00:00.000  No values available
+08:00:00.000  No values available
+log reads: 13266
+
++++ backwards +++
+metric[0]: pmcd.numagents
+
+sample 1, delta time=-3600.000 secs
+pmcd.numagents: no current values no prior values 
+
+sample 2, delta time=-3600.000 secs
+pmcd.numagents: no current values no prior values 
+
+sample 3, delta time=-3600.000 secs
+pmcd.numagents: no current values no prior values 
+
+sample 4, delta time=-3600.000 secs
+pmcd.numagents: no current values no prior values 
+
+sample 5, delta time=-3600.000 secs
+pmcd.numagents: no current values no prior values 
+
+sample 6, delta time=-3600.000 secs
+pmcd.numagents: no current values no prior values 
+
+sample 7, delta time=-3600.000 secs
+pmcd.numagents: no current values no prior values 
+
+sample 8, delta time=-3600.000 secs
+pmcd.numagents: no current values no prior values 
+
+sample 9, delta time=-3600.000 secs
+pmcd.numagents: no current values no prior values 
+
+sample 10, delta time=-3600.000 secs
+pmcd.numagents: no current values no prior values 
+
+sample 11, delta time=-3600.000 secs
+pmcd.numagents: no current values no prior values 
+
+sample 12, delta time=-3600.000 secs
+pmcd.numagents: no current values no prior values 
+
+sample 13, delta time=-3600.000 secs
+pmcd.numagents: no current values no prior values 
+
+sample 14, delta time=-3600.000 secs
+pmcd.numagents: no current values no prior values 
+
+sample 15, delta time=-3600.000 secs
+pmcd.numagents: no current values no prior values 
+
+sample 16, delta time=-3600.000 secs
+pmcd.numagents: no current values no prior values 
+
+sample 17, delta time=-3600.000 secs
+pmcd.numagents: no current values no prior values 
+
+sample 18, delta time=-3600.000 secs
+pmcd.numagents: no current values no prior values 
+
+sample 19, delta time=-3600.000 secs
+pmcd.numagents: no current values no prior values 
+
+sample 20, delta time=-3600.000 secs
+pmcd.numagents: no current values no prior values 
+
+sample 21, delta time=-3600.000 secs
+pmcd.numagents: no current values no prior values 
+
+sample 22, delta time=-3600.000 secs
+pmcd.numagents: no current values no prior values 
+
+sample 23, delta time=-3600.000 secs
+pmcd.numagents: no current values no prior values 
+
+sample 24, delta time=-3600.000 secs
+pmcd.numagents: no current values no prior values 
+
+sample 25, delta time=-3600.000 secs
+pmcd.numagents: no current values no prior values 
+
+sample 26, delta time=-3600.000 secs
+pmcd.numagents: no current values no prior values 
+
+sample 27, delta time=-3600.000 secs
+pmcd.numagents: no current values no prior values 
+
+sample 28, delta time=-3600.000 secs
+pmcd.numagents: no current values no prior values 
+
+sample 29, delta time=-3600.000 secs
+pmcd.numagents: no current values no prior values 
+
+sample 30, delta time=-3600.000 secs
+pmcd.numagents: no current values no prior values 
+
+sample 31, delta time=-3600.000 secs
+pmcd.numagents: no current values no prior values 
+
+sample 32, delta time=-3600.000 secs
+pmcd.numagents: no current values no prior values 
+
+sample 33, delta time=-3600.000 secs
+pmcd.numagents: no current values no prior values 
+
+sample 34, delta time=-3600.000 secs
+pmcd.numagents: no current values no prior values 
+
+sample 35, delta time=-3600.000 secs
+pmcd.numagents: no current values no prior values 
+
+sample 36, delta time=-3600.000 secs
+pmcd.numagents: no current values no prior values 
+
+sample 37, delta time=-3600.000 secs
+pmcd.numagents: no current values no prior values 
+
+sample 38, delta time=-3600.000 secs
+pmcd.numagents: no current values no prior values 
+
+sample 39, delta time=-3600.000 secs
+pmcd.numagents: no current values no prior values 
+
+sample 40, delta time=-3600.000 secs
+pmcd.numagents: no current values no prior values 
+
+sample 41, delta time=-3600.000 secs
+pmcd.numagents: no current values no prior values 
+
+sample 42, delta time=-3600.000 secs
+pmcd.numagents: no current values no prior values 
+
+sample 43, delta time=-3600.000 secs
+pmcd.numagents: no current values no prior values 
+
+sample 44, delta time=-3600.000 secs
+pmcd.numagents: no current values no prior values 
+
+sample 45, delta time=-3600.000 secs
+pmcd.numagents: no current values no prior values 
+
+sample 46, delta time=-3600.000 secs
+pmcd.numagents: no current values no prior values 
+
+sample 47, delta time=-3600.000 secs
+pmcd.numagents: no current values no prior values 
+
+sample 48, delta time=-3600.000 secs
+pmcd.numagents: no current values no prior values 
+
+sample 49, delta time=-3600.000 secs
+pmcd.numagents: no current values no prior values 
+
+sample 50, delta time=-3600.000 secs
+pmcd.numagents: no current values no prior values 
+
+sample 51, delta time=-3600.000 secs
+pmcd.numagents: no current values no prior values 
+
+sample 52, delta time=-3600.000 secs
+pmcd.numagents: no current values no prior values 
+
+sample 53, delta time=-3600.000 secs
+pmcd.numagents: no current values no prior values 
+
+sample 54, delta time=-3600.000 secs
+pmcd.numagents: no current values no prior values 
+
+sample 55, delta time=-3600.000 secs
+pmcd.numagents: no current values no prior values 
+
+sample 56, delta time=-3600.000 secs
+pmcd.numagents: no current values no prior values 
+
+sample 57, delta time=-3600.000 secs
+pmcd.numagents: no current values no prior values 
+
+sample 58, delta time=-3600.000 secs
+pmcd.numagents: no current values no prior values 
+
+sample 59, delta time=-3600.000 secs
+pmcd.numagents: no current values no prior values 
+
+sample 60, delta time=-3600.000 secs
+pmcd.numagents: no current values no prior values 
+
+sample 61, delta time=-3600.000 secs
+pmcd.numagents: no current values no prior values 
+
+sample 62, delta time=-3600.000 secs
+pmcd.numagents: no current values no prior values 
+
+sample 63, delta time=-3600.000 secs
+pmcd.numagents: no current values no prior values 
+sample[64] pmFetch: End of PCP archive log
+
+64 samples required 12911 log reads
+
+=== pmcd.numagents converted to discrete semantics ===
+Note: timezone set to local timezone of host "super.elastic.org" from archive
+
+metric:    pmcd.numagents
+archive:   TMP
+host:      super.elastic.org
+start:     Fri Jan 10 18:00:00 2014
+end:       Mon Jan 13 08:59:49 2014
+semantics: discrete instantaneous value
+units:     none
+samples:   63
+interval:  3600.00 sec
+18:00:00.000  No values available
+19:00:00.000  No values available
+20:00:00.000  No values available
+21:00:00.000  No values available
+22:00:00.000  No values available
+23:00:00.000  No values available
+00:00:00.000  No values available
+01:00:00.000  No values available
+02:00:00.000  No values available
+03:00:00.000  No values available
+04:00:00.000  No values available
+05:00:00.000  No values available
+06:00:00.000  No values available
+07:00:00.000  No values available
+08:00:00.000  No values available
+09:00:00.000  No values available
+10:00:00.000  No values available
+11:00:00.000          4
+12:00:00.000          4
+13:00:00.000          4
+14:00:00.000          4
+15:00:00.000          4
+16:00:00.000          4
+17:00:00.000          4
+18:00:00.000          4
+19:00:00.000          4
+20:00:00.000          4
+21:00:00.000          4
+22:00:00.000          4
+23:00:00.000          4
+00:00:00.000          4
+01:00:00.000          4
+02:00:00.000          4
+03:00:00.000          4
+04:00:00.000          4
+05:00:00.000          4
+06:00:00.000          4
+07:00:00.000          4
+08:00:00.000          4
+09:00:00.000          4
+10:00:00.000          4
+11:00:00.000          4
+12:00:00.000          4
+13:00:00.000          4
+14:00:00.000          4
+15:00:00.000          4
+16:00:00.000          4
+17:00:00.000          4
+18:00:00.000          4
+19:00:00.000          4
+20:00:00.000          4
+21:00:00.000          4
+22:00:00.000          4
+23:00:00.000          4
+00:00:00.000          4
+01:00:00.000          4
+02:00:00.000          4
+03:00:00.000          4
+04:00:00.000          4
+05:00:00.000          4
+06:00:00.000          4
+07:00:00.000          4
+08:00:00.000          4
+log reads: 13266
+
+=== all metrics at once ===
+pmie: timezone set to local timezone from archives/bug-1044
+hinv_ncpu (Fri Jan 10 18:00:00 2014): 4
+kernel_all_nprocs (Fri Jan 10 18:00:00 2014): 444
+pmcd_numagents (Fri Jan 10 18:00:00 2014): ?
+
+hinv_ncpu (Fri Jan 10 19:00:00 2014): 4
+kernel_all_nprocs (Fri Jan 10 19:00:00 2014): 436
+pmcd_numagents (Fri Jan 10 19:00:00 2014): ?
+
+hinv_ncpu (Fri Jan 10 20:00:00 2014): 4
+kernel_all_nprocs (Fri Jan 10 20:00:00 2014): 436
+pmcd_numagents (Fri Jan 10 20:00:00 2014): ?
+
+hinv_ncpu (Fri Jan 10 21:00:00 2014): 4
+kernel_all_nprocs (Fri Jan 10 21:00:00 2014): 442
+pmcd_numagents (Fri Jan 10 21:00:00 2014): ?
+
+hinv_ncpu (Fri Jan 10 22:00:00 2014): 4
+kernel_all_nprocs (Fri Jan 10 22:00:00 2014): 426
+pmcd_numagents (Fri Jan 10 22:00:00 2014): ?
+
+hinv_ncpu (Fri Jan 10 23:00:00 2014): 4
+kernel_all_nprocs (Fri Jan 10 23:00:00 2014): 1082
+pmcd_numagents (Fri Jan 10 23:00:00 2014): ?
+
+hinv_ncpu (Sat Jan 11 00:00:00 2014): 4
+kernel_all_nprocs (Sat Jan 11 00:00:00 2014): 1283
+pmcd_numagents (Sat Jan 11 00:00:00 2014): ?
+
+hinv_ncpu (Sat Jan 11 01:00:00 2014): 4
+kernel_all_nprocs (Sat Jan 11 01:00:00 2014): 788
+pmcd_numagents (Sat Jan 11 01:00:00 2014): ?
+
+hinv_ncpu (Sat Jan 11 02:00:00 2014): 4
+kernel_all_nprocs (Sat Jan 11 02:00:00 2014): 637
+pmcd_numagents (Sat Jan 11 02:00:00 2014): ?
+
+hinv_ncpu (Sat Jan 11 03:00:00 2014): 4
+kernel_all_nprocs (Sat Jan 11 03:00:00 2014): 639
+pmcd_numagents (Sat Jan 11 03:00:00 2014): ?
+
+hinv_ncpu (Sat Jan 11 04:00:00 2014): 4
+kernel_all_nprocs (Sat Jan 11 04:00:00 2014): 637
+pmcd_numagents (Sat Jan 11 04:00:00 2014): ?
+
+hinv_ncpu (Sat Jan 11 05:00:00 2014): 4
+kernel_all_nprocs (Sat Jan 11 05:00:00 2014): 642
+pmcd_numagents (Sat Jan 11 05:00:00 2014): ?
+
+hinv_ncpu (Sat Jan 11 06:00:00 2014): 4
+kernel_all_nprocs (Sat Jan 11 06:00:00 2014): 635
+pmcd_numagents (Sat Jan 11 06:00:00 2014): ?
+
+hinv_ncpu (Sat Jan 11 07:00:00 2014): 4
+kernel_all_nprocs (Sat Jan 11 07:00:00 2014): 638
+pmcd_numagents (Sat Jan 11 07:00:00 2014): ?
+
+hinv_ncpu (Sat Jan 11 08:00:00 2014): 4
+kernel_all_nprocs (Sat Jan 11 08:00:00 2014): 635
+pmcd_numagents (Sat Jan 11 08:00:00 2014): ?
+
+hinv_ncpu (Sat Jan 11 09:00:00 2014): 4
+kernel_all_nprocs (Sat Jan 11 09:00:00 2014): 651
+pmcd_numagents (Sat Jan 11 09:00:00 2014): ?
+
+hinv_ncpu (Sat Jan 11 10:00:00 2014): 4
+kernel_all_nprocs (Sat Jan 11 10:00:00 2014): 651
+pmcd_numagents (Sat Jan 11 10:00:00 2014): ?
+
+hinv_ncpu (Sat Jan 11 11:00:00 2014): 4
+kernel_all_nprocs (Sat Jan 11 11:00:00 2014): 647
+pmcd_numagents (Sat Jan 11 11:00:00 2014): ?
+
+hinv_ncpu (Sat Jan 11 12:00:00 2014): 4
+kernel_all_nprocs (Sat Jan 11 12:00:00 2014): 636
+pmcd_numagents (Sat Jan 11 12:00:00 2014): ?
+
+hinv_ncpu (Sat Jan 11 13:00:00 2014): 4
+kernel_all_nprocs (Sat Jan 11 13:00:00 2014): 638
+pmcd_numagents (Sat Jan 11 13:00:00 2014): ?
+
+hinv_ncpu (Sat Jan 11 14:00:00 2014): 4
+kernel_all_nprocs (Sat Jan 11 14:00:00 2014): 646
+pmcd_numagents (Sat Jan 11 14:00:00 2014): ?
+
+hinv_ncpu (Sat Jan 11 15:00:00 2014): 4
+kernel_all_nprocs (Sat Jan 11 15:00:00 2014): 656
+pmcd_numagents (Sat Jan 11 15:00:00 2014): ?
+
+hinv_ncpu (Sat Jan 11 16:00:00 2014): 4
+kernel_all_nprocs (Sat Jan 11 16:00:00 2014): 648
+pmcd_numagents (Sat Jan 11 16:00:00 2014): ?
+
+hinv_ncpu (Sat Jan 11 17:00:00 2014): 4
+kernel_all_nprocs (Sat Jan 11 17:00:00 2014): 634
+pmcd_numagents (Sat Jan 11 17:00:00 2014): ?
+
+hinv_ncpu (Sat Jan 11 18:00:00 2014): 4
+kernel_all_nprocs (Sat Jan 11 18:00:00 2014): 634
+pmcd_numagents (Sat Jan 11 18:00:00 2014): ?
+
+hinv_ncpu (Sat Jan 11 19:00:00 2014): 4
+kernel_all_nprocs (Sat Jan 11 19:00:00 2014): 645
+pmcd_numagents (Sat Jan 11 19:00:00 2014): ?
+
+hinv_ncpu (Sat Jan 11 20:00:00 2014): 4
+kernel_all_nprocs (Sat Jan 11 20:00:00 2014): 636
+pmcd_numagents (Sat Jan 11 20:00:00 2014): ?
+
+hinv_ncpu (Sat Jan 11 21:00:00 2014): 4
+kernel_all_nprocs (Sat Jan 11 21:00:00 2014): 636
+pmcd_numagents (Sat Jan 11 21:00:00 2014): ?
+
+hinv_ncpu (Sat Jan 11 22:00:00 2014): 4
+kernel_all_nprocs (Sat Jan 11 22:00:00 2014): 635
+pmcd_numagents (Sat Jan 11 22:00:00 2014): ?
+
+hinv_ncpu (Sat Jan 11 23:00:00 2014): 4
+kernel_all_nprocs (Sat Jan 11 23:00:00 2014): 636
+pmcd_numagents (Sat Jan 11 23:00:00 2014): ?
+
+hinv_ncpu (Sun Jan 12 00:00:00 2014): 4
+kernel_all_nprocs (Sun Jan 12 00:00:00 2014): 636
+pmcd_numagents (Sun Jan 12 00:00:00 2014): ?
+
+hinv_ncpu (Sun Jan 12 01:00:00 2014): 4
+kernel_all_nprocs (Sun Jan 12 01:00:00 2014): 637
+pmcd_numagents (Sun Jan 12 01:00:00 2014): ?
+
+hinv_ncpu (Sun Jan 12 02:00:00 2014): 4
+kernel_all_nprocs (Sun Jan 12 02:00:00 2014): 633
+pmcd_numagents (Sun Jan 12 02:00:00 2014): ?
+
+hinv_ncpu (Sun Jan 12 03:00:00 2014): 4
+kernel_all_nprocs (Sun Jan 12 03:00:00 2014): 636
+pmcd_numagents (Sun Jan 12 03:00:00 2014): ?
+
+hinv_ncpu (Sun Jan 12 04:00:00 2014): 4
+kernel_all_nprocs (Sun Jan 12 04:00:00 2014): 630
+pmcd_numagents (Sun Jan 12 04:00:00 2014): ?
+
+hinv_ncpu (Sun Jan 12 05:00:00 2014): 4
+kernel_all_nprocs (Sun Jan 12 05:00:00 2014): 638
+pmcd_numagents (Sun Jan 12 05:00:00 2014): ?
+
+hinv_ncpu (Sun Jan 12 06:00:00 2014): 4
+kernel_all_nprocs (Sun Jan 12 06:00:00 2014): 634
+pmcd_numagents (Sun Jan 12 06:00:00 2014): ?
+
+hinv_ncpu (Sun Jan 12 07:00:00 2014): 4
+kernel_all_nprocs (Sun Jan 12 07:00:00 2014): 636
+pmcd_numagents (Sun Jan 12 07:00:00 2014): ?
+
+hinv_ncpu (Sun Jan 12 08:00:00 2014): 4
+kernel_all_nprocs (Sun Jan 12 08:00:00 2014): 638
+pmcd_numagents (Sun Jan 12 08:00:00 2014): ?
+
+hinv_ncpu (Sun Jan 12 09:00:00 2014): 4
+kernel_all_nprocs (Sun Jan 12 09:00:00 2014): 845
+pmcd_numagents (Sun Jan 12 09:00:00 2014): ?
+
+hinv_ncpu (Sun Jan 12 10:00:00 2014): 4
+kernel_all_nprocs (Sun Jan 12 10:00:00 2014): 843
+pmcd_numagents (Sun Jan 12 10:00:00 2014): ?
+
+hinv_ncpu (Sun Jan 12 11:00:00 2014): 4
+kernel_all_nprocs (Sun Jan 12 11:00:00 2014): 688
+pmcd_numagents (Sun Jan 12 11:00:00 2014): ?
+
+hinv_ncpu (Sun Jan 12 12:00:00 2014): 4
+kernel_all_nprocs (Sun Jan 12 12:00:00 2014): 687
+pmcd_numagents (Sun Jan 12 12:00:00 2014): ?
+
+hinv_ncpu (Sun Jan 12 13:00:00 2014): 4
+kernel_all_nprocs (Sun Jan 12 13:00:00 2014): 686
+pmcd_numagents (Sun Jan 12 13:00:00 2014): ?
+
+hinv_ncpu (Sun Jan 12 14:00:00 2014): 4
+kernel_all_nprocs (Sun Jan 12 14:00:00 2014): 689
+pmcd_numagents (Sun Jan 12 14:00:00 2014): ?
+
+hinv_ncpu (Sun Jan 12 15:00:00 2014): 4
+kernel_all_nprocs (Sun Jan 12 15:00:00 2014): 690
+pmcd_numagents (Sun Jan 12 15:00:00 2014): ?
+
+hinv_ncpu (Sun Jan 12 16:00:00 2014): 4
+kernel_all_nprocs (Sun Jan 12 16:00:00 2014): 686
+pmcd_numagents (Sun Jan 12 16:00:00 2014): ?
+
+hinv_ncpu (Sun Jan 12 17:00:00 2014): 4
+kernel_all_nprocs (Sun Jan 12 17:00:00 2014): 686
+pmcd_numagents (Sun Jan 12 17:00:00 2014): ?
+
+hinv_ncpu (Sun Jan 12 18:00:00 2014): 4
+kernel_all_nprocs (Sun Jan 12 18:00:00 2014): 1101
+pmcd_numagents (Sun Jan 12 18:00:00 2014): ?
+
+hinv_ncpu (Sun Jan 12 19:00:00 2014): 4
+kernel_all_nprocs (Sun Jan 12 19:00:00 2014): 1091
+pmcd_numagents (Sun Jan 12 19:00:00 2014): ?
+
+hinv_ncpu (Sun Jan 12 20:00:00 2014): 4
+kernel_all_nprocs (Sun Jan 12 20:00:00 2014): 788
+pmcd_numagents (Sun Jan 12 20:00:00 2014): ?
+
+hinv_ncpu (Sun Jan 12 21:00:00 2014): 4
+kernel_all_nprocs (Sun Jan 12 21:00:00 2014): 788
+pmcd_numagents (Sun Jan 12 21:00:00 2014): ?
+
+hinv_ncpu (Sun Jan 12 22:00:00 2014): 4
+kernel_all_nprocs (Sun Jan 12 22:00:00 2014): 786
+pmcd_numagents (Sun Jan 12 22:00:00 2014): ?
+
+hinv_ncpu (Sun Jan 12 23:00:00 2014): 4
+kernel_all_nprocs (Sun Jan 12 23:00:00 2014): 793
+pmcd_numagents (Sun Jan 12 23:00:00 2014): ?
+
+hinv_ncpu (Mon Jan 13 00:00:00 2014): 4
+kernel_all_nprocs (Mon Jan 13 00:00:00 2014): 786
+pmcd_numagents (Mon Jan 13 00:00:00 2014): ?
+
+hinv_ncpu (Mon Jan 13 01:00:00 2014): 4
+kernel_all_nprocs (Mon Jan 13 01:00:00 2014): 782
+pmcd_numagents (Mon Jan 13 01:00:00 2014): ?
+
+hinv_ncpu (Mon Jan 13 02:00:00 2014): 4
+kernel_all_nprocs (Mon Jan 13 02:00:00 2014): 795
+pmcd_numagents (Mon Jan 13 02:00:00 2014): ?
+
+hinv_ncpu (Mon Jan 13 03:00:00 2014): 4
+kernel_all_nprocs (Mon Jan 13 03:00:00 2014): 786
+pmcd_numagents (Mon Jan 13 03:00:00 2014): ?
+
+hinv_ncpu (Mon Jan 13 04:00:00 2014): 4
+kernel_all_nprocs (Mon Jan 13 04:00:00 2014): 785
+pmcd_numagents (Mon Jan 13 04:00:00 2014): ?
+
+hinv_ncpu (Mon Jan 13 05:00:00 2014): 4
+kernel_all_nprocs (Mon Jan 13 05:00:00 2014): 789
+pmcd_numagents (Mon Jan 13 05:00:00 2014): ?
+
+hinv_ncpu (Mon Jan 13 06:00:00 2014): 4
+kernel_all_nprocs (Mon Jan 13 06:00:00 2014): 789
+pmcd_numagents (Mon Jan 13 06:00:00 2014): ?
+
+hinv_ncpu (Mon Jan 13 07:00:00 2014): 4
+kernel_all_nprocs (Mon Jan 13 07:00:00 2014): 785
+pmcd_numagents (Mon Jan 13 07:00:00 2014): ?
+
+hinv_ncpu (Mon Jan 13 08:00:00 2014): 4
+kernel_all_nprocs (Mon Jan 13 08:00:00 2014): 942
+pmcd_numagents (Mon Jan 13 08:00:00 2014): ?
+
+log reads: 14947

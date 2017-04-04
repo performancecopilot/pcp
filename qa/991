@@ -1,0 +1,50 @@
+#!/bin/sh
+# PCP QA Test No. 991
+# Exercise the pcp-free(1) command using an archive
+#
+# Copyright (c) 2014-2015 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.python
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+pcp_free="$PCP_BINADM_DIR/pcp-free"
+test -x $pcp_free || _notrun "No pcp-free(1) installed"
+pcp_free="$python $pcp_free"
+
+# real QA test starts here
+echo && echo === free output, at first sample
+PCP_ARCHIVE="archives/pcp-free" PCP_HOSTZONE=1 PCP_ORIGIN=1 $pcp_free
+
+archive_first="-a archives/pcp-free -z -O +1"
+archive_last="-a archives/pcp-free -z -O -0"
+
+echo && echo === free output, at last sample
+pcp $archive_last free
+
+echo && echo === free output, bytes
+pcp $archive_first free -b
+
+echo && echo === free output, megabytes
+pcp $archive_first free -m
+
+echo && echo === free output, gigabytes
+pcp $archive_first free -g
+
+echo && echo === free output, totals + in megabytes
+pcp $archive_first free -t -m
+
+echo && echo === free output, compat + low/high detail
+pcp $archive_first free -o -l
+
+echo && echo === free output, multiple samples
+pcp $archive_first free -c 2 -s 2.5
+
+status=0
+exit

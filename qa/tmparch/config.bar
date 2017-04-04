@@ -1,0 +1,18 @@
+#
+# this one is for the util progs and QA
+#
+
+log mandatory on 100 msec {
+    sampledso.bin["bin-100"]
+    sampledso.milliseconds
+}
+
+log mandatory on 500 msec {
+    sampledso.bin["bin-500"]
+    sampledso.milliseconds
+}
+
+log mandatory on 900 msec {
+    sampledso.bin["bin-900"]
+    sampledso.milliseconds
+}

@@ -1,0 +1,80 @@
+Apache PMDA
+===========
+
+Export information from apache server info.
+
+Author: Michal Kara
+
+To use this PMDA, you must be running Apache 1.3.2 or later (for the
+extended statistics).
+
+First configure your apache http server to enable status support.
+The full procedure is documented at
+http://www.apache.org/docs/mod/mod_status.html 
+
+Edit /etc/apache2/mods-enabled/status.conf and enable the following:
+
+<Location /server-status>
+  SetHandler server-status
+  Allow from all
+</Location>
+ExtendedStatus On
+
+Note: you may wish to restrict access to the server status reports to
+the local host only. See the Apache web site for instructions.
+
+You will need to stop and restart your Apache server after making
+this change:
+# apachectl restart
+
+Metrics
+=======
+
+The file ./help contains descriptions for all of the metrics exported
+by this PMDA.
+
+Once the PMDA has been installed, the following command will list all
+the available metrics and their explanatory "help" text:
+
+	$ pminfo -fT apache
+
+The metrics give basic information about Apache performance and about usage of
+server threads.
+
+Installation
+============
+
+ +  # cd $PCP_PMDAS_DIR/apache
+
+ +  Check that there is no clash in the Performance Metrics Domain
+    defined in ./domain.h and the other PMDAs currently in use (see
+    $PCP_PMCDCONF_PATH).  If there is, edit ./domain.h to choose another
+    domain number.
+
+ +  Then simply use
+
+	# ./Install
+
+    and optionally specify the port number where Apache is running.
+    Everything else is automated.
+
+De-installation
+===============
+
+ +  Simply use
+
+	# cd $PCP_PMDAS_DIR/apache
+	# ./Remove
+
+Troubleshooting
+===============
+
+ +  After installing or restarting the agent, the PMCD log file
+    ($PCP_LOG_DIR/pmcd/pmcd.log) and the PMDA log file
+    ($PCP_LOG_DIR/pmcd/apache.log) should be checked for any warnings
+    or errors.
+
+Credits
+=======
+
+Original PMDA was written by Michal Kara.

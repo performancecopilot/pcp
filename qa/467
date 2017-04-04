@@ -1,0 +1,60 @@
+#!/bin/sh
+# PCP QA Test No. 467
+# Check dynamic metrics work with PMAPI clients - DSO PMDA version
+# pmdumptext test from 210
+#
+# Copyright (c) 2009,2011 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+grep -q ' RESERVED_DO_NOT_USE[ 	]*511' $PCP_VAR_DIR/pmns/stdpmid || \
+    _notrun "No support for dynamic PMNS entries"
+which pmdumptext >/dev/null 2>&1 || _notrun "pmdumptext not installed"
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.*
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+rm -f $seq.full
+
+_filter_dumptext()
+{
+    _filter_pmdumptext \
+    | sed -e '/^Time[ 	]/s/[ 	]local::/ HOST:/g' \
+    | sed -e '/^Time[ 	]/s/[ 	][^:]*:/ HOST:/g' \
+    | $PCP_AWK_PROG '
+NR == 1		{ for (i = 1; i <= NF; i++) {
+		    if ($i ~ /\.max\.redirect/)
+			state[i] = 0
+		    else
+			state[i] = 1
+		  }
+		}
+		{ for (i = 1; i <= NF; i++) {
+		    if (state[i]) printf "%s ",$i
+		  }
+		  print ""
+		}'
+}
+
+_do() {
+    echo
+    echo "== $* =="
+    pmdumptext -H -s 3 $* | _filter_dumptext
+}
+
+# real QA test starts here
+
+echo "PMNS traversal tests ..."
+pminfo sampledso | grep '\.secret\.' | LC_COLLATE=POSIX sort
+_do sampledso.secret
+_do sampledso.secret.bar sampledso.secret.foo
+_do sampledso.secret.foo.bar.grunt
+
+exit

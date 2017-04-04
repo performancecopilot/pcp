@@ -1,0 +1,29 @@
+QA output created by 564
+# $version=1.1    
++ export version; version=1.1    
++ cd TMP/SEQ-PID.distdir
+
+=== daily maintenance of PCP archives for host dist.engr ===
+
+pmlogger_daily: Error: no pmlogger instance running for host "dist.engr"
+[TMP/SEQ-PID.ctl:3] ... logging for host "dist.engr" unchanged
+
+Archive files older than 14 days being removed ...
+    FIVEMONTHS.0 FIVEMONTHS.index FIVEMONTHS.meta
++ rm -f FIVEMONTHS.0 FIVEMONTHS.index FIVEMONTHS.meta
+Archive files older than 3 days being compressed ...
+    FIVEMONTHS.0 FIVEDAYS.0
++ bzip2 FIVEMONTHS.0 FIVEDAYS.0
++ cd TMP/SEQ-PID.relaydir
+
+=== daily maintenance of PCP archives for host relay.engr ===
+
+pmlogger_daily: Error: no pmlogger instance running for host "relay.engr"
+[TMP/SEQ-PID.ctl:4] ... logging for host "relay.engr" unchanged
+
+Archive files older than 14 days being removed ...
+    FIVEMONTHS.0 FIVEMONTHS.index FIVEMONTHS.meta
++ rm -f FIVEMONTHS.0 FIVEMONTHS.index FIVEMONTHS.meta
+Archive files older than 3 days being compressed ...
+    FIVEMONTHS.0 FIVEDAYS.0 FIVEDAYS.1
++ bzip2 FIVEMONTHS.0 FIVEDAYS.0 FIVEDAYS.1

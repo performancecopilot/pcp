@@ -1,0 +1,39 @@
+           CPU0       CPU1       CPU2       CPU3       CPU4       CPU5       CPU6       CPU7       
+  0:         38          0          0          0          0          0          0          0  IR-IO-APIC   2-edge      timer
+  1:         10         11          7          5          2          7          2          1  IR-IO-APIC   1-edge      i8042
+  8:          0          1          0          0          0          0          0          0  IR-IO-APIC   8-edge      rtc0
+  9:        322         79         14         29        206         65         14         27  IR-IO-APIC   9-fasteoi   acpi
+ 12:        669        204        411        430         64        123         41         45  IR-IO-APIC  12-edge      i8042
+ 16:         13          4          2          3          3          3          2          1  IR-IO-APIC  16-fasteoi   ehci_hcd:usb3, mmc0
+ 18:          0          0          0          0          0          0          0          0  IR-IO-APIC  18-fasteoi   i801_smbus
+ 23:         14          3          0          3          1          4          2          6  IR-IO-APIC  23-fasteoi   ehci_hcd:usb4
+ 24:          0          0          0          0          0          0          0          0  DMAR-MSI   0-edge      dmar0
+ 25:          0          0          0          0          0          0          0          0  DMAR-MSI   1-edge      dmar1
+ 27:     836947     368771      86379      84935      71356      61231      59367      47157  IR-PCI-MSI 512000-edge      0000:00:1f.2
+ 28:    1206282      65009     178349      63472     144415      55875      92424      49796  IR-PCI-MSI 327680-edge      xhci_hcd
+ 29:    3249898     727145     103573     204127      93052     157195      78865     122291  IR-PCI-MSI 409600-edge      enp0s25
+ 30:        249         54         51         42         32         37         40         42  IR-PCI-MSI 524288-edge      nvkm
+ 31:     535491     101812      97997      89277      72963      71434      58086      60455  IR-PCI-MSI 32768-edge      i915
+ 32:          6          0          0          1          1         12          5          0  IR-PCI-MSI 360448-edge      mei_me
+ 33:    1469469     144536      72660      67411      30996      54462      55834      36640  IR-PCI-MSI 1572864-edge      iwlwifi
+ 34:         46        165         28         96          0         18          4         59  IR-PCI-MSI 442368-edge      snd_hda_intel
+ 35:        312        386        570        223         24         51         63        476  IR-PCI-MSI 49152-edge      snd_hda_intel
+NMI:        553        288        586        286        607        216        389        203   Non-maskable interrupts
+LOC:   18017794    5791007   18785621    5656822   18296406    5364275   18002503    5946670   Local timer interrupts
+SPU:          0          0          0          0          0          0          0          0   Spurious interrupts
+PMI:        553        288        586        286        607        216        389        203   Performance monitoring interrupts
+IWI:          1          0          1          1          0          0          0          0   IRQ work interrupts
+RTR:          0          0          0          0          0          0          0          0   APIC ICR read retries
+RES:     448998     206937     333675     153696     325565     143760     326484     145869   Rescheduling interrupts
+CAL:      60497      66829      59929      56784      61385      64420      49034      58256   Function call interrupts
+TLB:     280553     186882     319241     187637     351230     213259     369334     186595   TLB shootdowns
+TRM:          0          0          0          0          0          0          0          0   Thermal event interrupts
+THR:          0          0          0          0          0          0          0          0   Threshold APIC interrupts
+DFR:          0          0          0          0          0          0          0          0   Deferred Error APIC interrupts
+MCE:          0          0          0          0          0          0          0          0   Machine check exceptions
+MCP:       2525       2525       2525       2525       2525       2525       2525       2525   Machine check polls
+HYP:          0          0          0          0          0          0          0          0   Hypervisor callback interrupts
+ERR:          0
+MIS:          0
+PIN:          0          0          0          0          0          0          0          0   Posted-interrupt notification event
+PIW:          0          0          0          0          0          0          0          0   Posted-interrupt wakeup event

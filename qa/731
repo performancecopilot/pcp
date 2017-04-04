@@ -1,0 +1,74 @@
+#!/bin/sh
+# PCP QA Test No. 731
+# Valgrind access checking for the Linux cgroups metrics
+#
+# Copyright (c) 2014 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ $PCP_PLATFORM = linux ] || _notrun "cgroups test, only works with Linux"
+_check_valgrind
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; $sudo rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    cat >$tmp.out
+    sed -e 1q $tmp.out
+    echo "Metrics ..."
+    grep '^cgroup' $tmp.out | LC_COLLATE=POSIX sort
+    nvalue=`grep 'inst \[' <$tmp.out | wc -l | sed -e 's/ //g'`
+    echo
+    echo "and $nvalue instance values."
+    $PCP_AWK_PROG <$tmp.out '
+/^=== std err ===/	{ want = 1 }
+want == 1		{ print }' \
+    | sed -e "s,$PCP_PMDAS_DIR/,PCP_PMDAS_DIR/,g"
+}
+
+# real QA test starts here
+root=$tmp.root
+export PROC_STATSPATH=$root
+pmda=$PCP_PMDAS_DIR/proc/pmda_proc.so,proc_init
+trees=`pminfo cgroup | awk -F. '{ print $2 }' | sort -u`
+
+for tgz in $here/linux/cgroups-*.tgz
+do
+    $sudo rm -fr $root
+    mkdir $root || _fail "root in use when processing $tgz"
+    cd $root
+    tar xzf $tgz
+    base=`basename $tgz`
+
+    echo "== Running valgrind for cgroup fetch - $base"
+    cd $here
+    _run_valgrind pminfo -L -K clear -K add,3,$pmda -d -f cgroup 2>&1 \
+    | tee -a $seq.full \
+    | _filter
+
+    # takes too long to verify everything, so check just first
+    echo $base | grep -q 001 || continue
+
+    for tree in $trees
+    do
+	name=`pminfo cgroup.$tree | sed 1q`
+	echo "== Running valgrind on $tree for multiple fetches - $base"
+	_run_valgrind pmval -L -K clear -K add,3,$pmda -s 1099 -t 0.00001 $name >/dev/null
+	echo "checked cgroup tree $tree via metric $metric" >> $seq.full
+    done
+
+    echo && echo "== done" && echo
+done
+
+# success, all done
+status=0
+exit

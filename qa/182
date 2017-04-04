@@ -1,0 +1,88 @@
+#! /bin/sh
+# PCP QA Test No. 182
+# pmlogger gets SIGPIPE if pmlc goes away unexpectedly
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+signal=$PCP_BINADM_DIR/pmsignal
+trap "$sudo rm -f $tmp.*; $sudo $signal -s TERM \$pid; exit" 0 1 2 3 15
+
+# just like the kill builtin, just do it quietly
+_silent_kill()
+{
+    if [ $# -eq 1 ]
+    then
+	(( $sudo $signal $1 )&) >/dev/null 2>&1
+    else
+	echo "_silent_kill: needs 1 arg, not $#"
+    fi
+}
+
+_filter_date()
+{
+    sed <$1 \
+	-e 's/[A-Z][a-z][a-z] [A-Z][a-z][a-z] .. /MONTH-DAY /' \
+	-e 's/[0-9][0-9]:[0-9][0-9]:[0-9][0-9] /TIME /' \
+	-e 's/ [12][0-9][0-9][0-9]/ YEAR/'
+}
+
+_filter_errs()
+{
+    _filter_pmlogger_log \
+    | sed \
+	-e '/^MONTH-/d' \
+	-e '/Error: do_control:/d'
+}
+
+# real QA test starts here
+_start_up_pmlogger -L -c /dev/null -l $tmp.log $tmp
+_wait_for_pmlogger $pid $tmp.log 10
+
+cat <<End-of-File >$tmp.cmd
+pmlc <<E-O-F >>$tmp.out
+connect $pid
+query kernel
+query kernel
+E-O-F
+End-of-File
+
+for i in 1 2 3
+do
+    echo "=== start and abort pmlc ==="
+    echo >>$tmp.out
+    echo "=== iteration $i ===" >>$tmp.out
+    ( sh $tmp.cmd & eval echo '$!' >$tmp.pid ) &
+
+    pmsleep 2.5
+    pmlc_pid=`cat $tmp.pid`
+    [ ! -z "$pmlc_pid" ] && _silent_kill $pmlc_pid
+    pmsleep 1.1
+    have=`ps $PCP_PS_ALL_FLAGS | $PCP_AWK_PROG '$2 == '"$pmlc_pid"' { print }' \
+	  | wc -l | sed -e 's/  *//g'`
+    echo "$have pmlc processes are running"
+    [ $have -gt 0 ] && ps $PCP_PS_ALL_FLAGS | grep pmlc | grep -v grep
+
+    # ready to accept again on the socket?
+    #
+    pmsleep 2.5
+
+done
+
+echo
+echo "=== pmlogger log ==="
+_filter_date $tmp.log | _filter_errs
+
+# for debugging
+#
+cp $tmp.out $seq.full
+
+exit 0

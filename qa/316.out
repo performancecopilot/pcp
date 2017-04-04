@@ -1,0 +1,205 @@
+QA output created by 316
+
+milliseconds ...
+"123millisecond" Time: 0.123000 sec
+"123MILLISECOND" Time: 0.123000 sec
+"123milliseconds" Time: 0.123000 sec
+"123MILLISECONDS" Time: 0.123000 sec
+"123msec" Time: 0.123000 sec
+"123MSEC" Time: 0.123000 sec
+"123msecs" Time: 0.123000 sec
+"123MSECS" Time: 0.123000 sec
+"45.67millisecond" Time: 0.045670 sec
+"45.67MILLISECOND" Time: 0.045670 sec
+"45.67milliseconds" Time: 0.045670 sec
+"45.67MILLISECONDS" Time: 0.045670 sec
+"45.67msec" Time: 0.045670 sec
+"45.67MSEC" Time: 0.045670 sec
+"45.67msecs" Time: 0.045670 sec
+"45.67MSECS" Time: 0.045670 sec
+"8.millisecond" Time: 0.008000 sec
+"8.MILLISECOND" Time: 0.008000 sec
+"8.milliseconds" Time: 0.008000 sec
+"8.MILLISECONDS" Time: 0.008000 sec
+"8.msec" Time: 0.008000 sec
+"8.MSEC" Time: 0.008000 sec
+"8.msecs" Time: 0.008000 sec
+"8.MSECS" Time: 0.008000 sec
+"   9.123   millisecond" Time: 0.009123 sec
+"   9.123   MILLISECOND" Time: 0.009123 sec
+"   9.123   milliseconds" Time: 0.009123 sec
+"   9.123   MILLISECONDS" Time: 0.009123 sec
+"   9.123   msec" Time: 0.009123 sec
+"   9.123   MSEC" Time: 0.009123 sec
+"   9.123   msecs" Time: 0.009123 sec
+"   9.123   MSECS" Time: 0.009123 sec
+
+seconds ...
+"123second" Time: 123.000000 sec
+"123SECOND" Time: 123.000000 sec
+"123seconds" Time: 123.000000 sec
+"123SECONDS" Time: 123.000000 sec
+"123sec" Time: 123.000000 sec
+"123SEC" Time: 123.000000 sec
+"123secs" Time: 123.000000 sec
+"123SECS" Time: 123.000000 sec
+"123s" Time: 123.000000 sec
+"123S" Time: 123.000000 sec
+"45.67second" Time: 45.670000 sec
+"45.67SECOND" Time: 45.670000 sec
+"45.67seconds" Time: 45.670000 sec
+"45.67SECONDS" Time: 45.670000 sec
+"45.67sec" Time: 45.670000 sec
+"45.67SEC" Time: 45.670000 sec
+"45.67secs" Time: 45.670000 sec
+"45.67SECS" Time: 45.670000 sec
+"45.67s" Time: 45.670000 sec
+"45.67S" Time: 45.670000 sec
+"8.second" Time: 8.000000 sec
+"8.SECOND" Time: 8.000000 sec
+"8.seconds" Time: 8.000000 sec
+"8.SECONDS" Time: 8.000000 sec
+"8.sec" Time: 8.000000 sec
+"8.SEC" Time: 8.000000 sec
+"8.secs" Time: 8.000000 sec
+"8.SECS" Time: 8.000000 sec
+"8.s" Time: 8.000000 sec
+"8.S" Time: 8.000000 sec
+"   9.123   second" Time: 9.123000 sec
+"   9.123   SECOND" Time: 9.123000 sec
+"   9.123   seconds" Time: 9.123000 sec
+"   9.123   SECONDS" Time: 9.123000 sec
+"   9.123   sec" Time: 9.123000 sec
+"   9.123   SEC" Time: 9.123000 sec
+"   9.123   secs" Time: 9.123000 sec
+"   9.123   SECS" Time: 9.123000 sec
+"   9.123   s" Time: 9.123000 sec
+"   9.123   S" Time: 9.123000 sec
+"123" Time: 123.000000 sec
+"45.67" Time: 45.670000 sec
+"8." Time: 8.000000 sec
+"   9.123   " Time: 9.123000 sec
+
+minutes ...
+"60minute" Time: 3600.000000 sec
+"60MINUTE" Time: 3600.000000 sec
+"60minutes" Time: 3600.000000 sec
+"60MINUTES" Time: 3600.000000 sec
+"60min" Time: 3600.000000 sec
+"60MIN" Time: 3600.000000 sec
+"60mins" Time: 3600.000000 sec
+"60MINS" Time: 3600.000000 sec
+"60m" Time: 3600.000000 sec
+"60M" Time: 3600.000000 sec
+"1.25minute" Time: 75.000000 sec
+"1.25MINUTE" Time: 75.000000 sec
+"1.25minutes" Time: 75.000000 sec
+"1.25MINUTES" Time: 75.000000 sec
+"1.25min" Time: 75.000000 sec
+"1.25MIN" Time: 75.000000 sec
+"1.25mins" Time: 75.000000 sec
+"1.25MINS" Time: 75.000000 sec
+"1.25m" Time: 75.000000 sec
+"1.25M" Time: 75.000000 sec
+"2.minute" Time: 120.000000 sec
+"2.MINUTE" Time: 120.000000 sec
+"2.minutes" Time: 120.000000 sec
+"2.MINUTES" Time: 120.000000 sec
+"2.min" Time: 120.000000 sec
+"2.MIN" Time: 120.000000 sec
+"2.mins" Time: 120.000000 sec
+"2.MINS" Time: 120.000000 sec
+"2.m" Time: 120.000000 sec
+"2.M" Time: 120.000000 sec
+"   0.16666667  minute" Time: 10.000000 sec
+"   0.16666667  MINUTE" Time: 10.000000 sec
+"   0.16666667  minutes" Time: 10.000000 sec
+"   0.16666667  MINUTES" Time: 10.000000 sec
+"   0.16666667  min" Time: 10.000000 sec
+"   0.16666667  MIN" Time: 10.000000 sec
+"   0.16666667  mins" Time: 10.000000 sec
+"   0.16666667  MINS" Time: 10.000000 sec
+"   0.16666667  m" Time: 10.000000 sec
+"   0.16666667  M" Time: 10.000000 sec
+
+hours ...
+"2hour" Time: 7200.000000 sec
+"2HOUR" Time: 7200.000000 sec
+"2hours" Time: 7200.000000 sec
+"2HOURS" Time: 7200.000000 sec
+"2hr" Time: 7200.000000 sec
+"2HR" Time: 7200.000000 sec
+"2hrs" Time: 7200.000000 sec
+"2HRS" Time: 7200.000000 sec
+"2h" Time: 7200.000000 sec
+"2H" Time: 7200.000000 sec
+"1.5hour" Time: 5400.000000 sec
+"1.5HOUR" Time: 5400.000000 sec
+"1.5hours" Time: 5400.000000 sec
+"1.5HOURS" Time: 5400.000000 sec
+"1.5hr" Time: 5400.000000 sec
+"1.5HR" Time: 5400.000000 sec
+"1.5hrs" Time: 5400.000000 sec
+"1.5HRS" Time: 5400.000000 sec
+"1.5h" Time: 5400.000000 sec
+"1.5H" Time: 5400.000000 sec
+"10.hour" Time: 36000.000000 sec
+"10.HOUR" Time: 36000.000000 sec
+"10.hours" Time: 36000.000000 sec
+"10.HOURS" Time: 36000.000000 sec
+"10.hr" Time: 36000.000000 sec
+"10.HR" Time: 36000.000000 sec
+"10.hrs" Time: 36000.000000 sec
+"10.HRS" Time: 36000.000000 sec
+"10.h" Time: 36000.000000 sec
+"10.H" Time: 36000.000000 sec
+"   0.333333333333  hour" Time: 1199.1000000 sec
+"   0.333333333333  HOUR" Time: 1199.1000000 sec
+"   0.333333333333  hours" Time: 1199.1000000 sec
+"   0.333333333333  HOURS" Time: 1199.1000000 sec
+"   0.333333333333  hr" Time: 1199.1000000 sec
+"   0.333333333333  HR" Time: 1199.1000000 sec
+"   0.333333333333  hrs" Time: 1199.1000000 sec
+"   0.333333333333  HRS" Time: 1199.1000000 sec
+"   0.333333333333  h" Time: 1199.1000000 sec
+"   0.333333333333  H" Time: 1199.1000000 sec
+
+days ...
+"1day" Time: 86400.000000 sec
+"1DAY" Time: 86400.000000 sec
+"1d" Time: 86400.000000 sec
+"1D" Time: 86400.000000 sec
+"1.5day" Time: 129600.000000 sec
+"1.5DAY" Time: 129600.000000 sec
+"1.5d" Time: 129600.000000 sec
+"1.5D" Time: 129600.000000 sec
+"10.day" Time: 864000.000000 sec
+"10.DAY" Time: 864000.000000 sec
+"10.d" Time: 864000.000000 sec
+"10.D" Time: 864000.000000 sec
+"   0.083333333333  day" Time: 7199.1000000 sec
+"   0.083333333333  DAY" Time: 7199.1000000 sec
+"   0.083333333333  d" Time: 7199.1000000 sec
+"   0.083333333333  D" Time: 7199.1000000 sec
+
+some hybrids ...
+"1min30sec" Time: 90.000000 sec
+"1d1h1m1s1msec" Time: 90061.001000 sec
+"1.5 hr 10 min 15 sec" Time: 6015.000000 sec
+"1 2 3 4 5 6 7 8 9 10" Time: 55.000000 sec
+"55seconds" Time: 55.000000 sec
+
+some errors ...
+"123+sec" Error:
+123+sec
+   ^ -- unexpected value
+"123.456.789min" Time: 170.795999 sec
+"4minutes 30secoonds" Error:
+4minutes 30secoonds
+           ^ -- unexpected value
+"sec" Error:
+sec
+^ -- unexpected value
+"123sec min" Error:
+123sec min
+       ^ -- unexpected value

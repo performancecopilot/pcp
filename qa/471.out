@@ -1,0 +1,6 @@
+QA output created by 471
+1. testing _check_userroot as a normal user (error is expected)
+Error: You must be root (uid 0) to update the PCP collector configuration.
+
+
+2. testing _check_userroot as the root user (no output expected)

@@ -1,0 +1,5 @@
+//
+// Examples from the pmie(1) man page
+//
+
+delta = 1 sec;		// force evaluation once per second

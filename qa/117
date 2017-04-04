@@ -1,0 +1,187 @@
+#! /bin/sh
+# PCP QA Test No. 117
+# Verify network.ip statistics (Non-linux version, see 216 for Linux version)
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+if [ $PCP_PLATFORM = linux ]
+then
+    _notrun "network.ip checks for linux done in test 216"
+elif [ $PCP_PLATFORM = darwin -o $PCP_PLATFORM = solaris ]
+then
+    _notrun "no network.ip metrics for $PCP_PLATFORM"
+fi
+
+compare=`pwd`/src/compare
+rm -rf $tmp.*
+
+trap "rm -rf $tmp.*" 0 1 2 3 15
+
+if [ ! -x $compare ]
+then
+    echo "Can't find compare, giving up"
+    exit 1
+fi
+
+if pminfo network.ip >/dev/null
+then
+    :
+else
+    echo "pminfo network.ip not working, giving up"
+    exit 1
+fi
+
+# real QA test starts here
+ns1=$tmp.netstat1
+pcp=$tmp.pcp
+ns2=$tmp.netstat2
+
+rm -f $seq.full
+rm -rf $ns1 $pcp $ns2
+
+_get_netstat()
+{
+    netstat -s -p ip \
+	| tee -a $seq.full \
+	| $PCP_AWK_PROG '
+	    NR > 1	    {
+			    print $1
+	    # This used to be a bit nasty because some lines contain
+	    # another number in parentheses with surrounding text in
+	    # some cases ... no longer an issue me thinks
+	    #
+			    #for (i = 2; i <= NF; i++) {
+				#n = match($i, /[0-9][0-9]*/);
+				#if ( n > 0 )
+				    #print $i
+			    #}
+			}' \
+	| tr -d '()'
+}
+
+echo "=== First netstat ===" >>$seq.full
+_get_netstat >$ns1
+
+# Fetch metrics in the same order as they appear in netstat output
+#
+# ip:
+# 	584532 total packets received
+# 	0 bad header checksums
+# 	0 with size smaller than minimum
+# 	0 with data size < data length
+# 	0 with header length < data size
+# 	0 with data length < header length
+# 	0 with bad options
+# 	0 fragments received
+# 	0 fragments dropped
+# 	0 fragments dropped after timeout
+# 	584387 packets for this host
+# 	283 packets recvd for unknown/unsupported protocol
+# 	0 packets forwarded  (forwarding enabled)
+# 	145 packets not forwardable
+# 	0 redirects sent
+# 	1009836 packets sent from this host
+# 	0 output packets dropped due to no bufs, etc.
+# 	0 output packets discarded due to no route
+# 	0 datagrams fragmented
+# 	0 fragments created
+# 	0 datagrams that can't be fragmented
+# 	0 fragments dropped due to overlap (and ipv4_strict_reassembly = 1)
+# 	0 fragments dropped because they introduced gaps (and ipv4_strict_reassembly = 1)
+# 
+
+ip=network.ip
+
+#
+cat <<END >$tmp.metrics
+$ip.total
+$ip.badsum
+$ip.toosmall
+$ip.tooshort
+$ip.badhlen
+$ip.badlen
+$ip.badoptions
+$ip.fragments
+$ip.fragdropped
+$ip.fragtimeout
+$ip.delivered
+$ip.noproto
+$ip.forward
+$ip.cantforward
+$ip.redirect
+$ip.localout
+$ip.odropped
+$ip.noroute
+$ip.fragmented
+$ip.ofragments
+$ip.cantfrag
+$ip.strictreassoverlapfrags
+$ip.strictreassgapfrags
+END
+
+echo '#!/bin/sh' >$tmp.pminfo.sh
+$PCP_ECHO_PROG $PCP_ECHO_N 'true'"$PCP_ECHO_C" >>$tmp.pminfo.sh
+$PCP_AWK_PROG < $tmp.metrics >>$tmp.pminfo.sh '
+line % 5 == 0	{ printf " || exit 1\npminfo -f "; line++; }
+		{ printf "%s ", $1; line++; }
+END		{ print " || exit 1" }
+'
+
+echo "=== pminfo ===" >>$seq.full
+if sh $tmp.pminfo.sh \
+    | tee -a $seq.full \
+    | sed -e '/^No/s/.*/    value -666/' \
+    | grep ' value ' \
+    | $PCP_AWK_PROG '{ print $2 }' \
+    > $pcp
+then
+    :
+else
+    echo "pminfo fetches failed, giving up"
+    exit 1
+fi
+
+echo "=== Second netstat ===" >>$seq.full
+_get_netstat >$ns2
+
+nm=`wc -l $tmp.metrics | $PCP_AWK_PROG '{print $1}'`
+nn=`wc -l $ns2  | $PCP_AWK_PROG '{print $1}'`
+if [ $nm -lt $nn ]
+then
+    echo "Update list! fewer metrics ($nm) than netstat statistics ($nn)"
+elif [ $nm -gt $nn ]
+then
+    echo "Update list! more metrics ($nm) than netstat statistics ($nn)"
+fi
+
+echo "#!/bin/sh" >>$tmp.sh
+echo "sts=0" >>$tmp.sh
+paste -d"   \n" $ns1 $pcp $ns2 $tmp.metrics \
+| tee $tmp.debug \
+    | $PCP_AWK_PROG ' {
+	      printf "if '$compare' %d %d %d; then :; else ", $1, $2, $3;
+	      printf "sts=1; echo \"%s = %d out of range %d..%d\"; fi\n", $4, $2, $1, $3
+	    }' \
+    >>$tmp.sh
+echo "exit $sts" >>$tmp.sh
+chmod u+x $tmp.sh
+
+# for debugging
+# if sh -x $tmp.sh
+
+if sh $tmp.sh
+then
+    exit 0
+else
+    echo "Bad network.ip metrics"
+    exit 1
+fi

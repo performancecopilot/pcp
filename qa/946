@@ -1,0 +1,66 @@
+#!/bin/sh
+# PCP QA Test No. 946
+# Test using the pmfind app to find pmcd servers using the avahi discovery mechanism
+#
+# Copyright (c) 2014 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.discovery
+
+_get_libpcp_config
+$service_discovery || _notrun "No support for service discovery"
+
+# Make sure that the avahi mechanism is available.
+discovery_available=false
+avahi-daemon --check 2>/dev/null && discovery_available=true
+$discovery_available || _notrun "avahi discovery mechanism is not available"
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+_control_service_discovery
+
+echo "-m avahi" | tee -a $here/$seq.full
+pmfind -m avahi | tee -a $here/$seq.full | _filter_discovery_unresolved
+echo "Exit status: $?"
+
+echo "-s pmcd -m avahi -r" | tee -a $here/$seq.full
+pmfind -s pmcd -m avahi -r | tee -a $here/$seq.full | _filter_discovery_resolved
+echo "Exit status: $?"
+
+echo "-q -m avahi"
+pmfind -q -m avahi
+echo "Exit status: $?"
+
+echo "-q -s pmcd -m avahi"
+pmfind -q -s pmcd -m avahi
+echo "Exit status: $?"
+
+echo "-q -s pmcd -m avahi,timeout=5.0"
+pmfind -q -s pmcd -m avahi,timeout=5.0
+# up to 5 seconds may elapse here
+echo "Exit status: $?"
+
+echo "-q -s pmcd -m avahi with AVAHI_DISCOVERY_TIMEOUT=5"
+AVAHI_DISCOVERY_TIMEOUT=5 pmfind -q -s pmcd -m avahi
+# up to 5 seconds may elapse here
+echo "Exit status: $?"
+
+echo "-m all" | tee -a $here/$seq.full
+pmfind -m all | tee -a $here/$seq.full | _filter_discovery_unresolved
+echo "Exit status: $?"
+
+echo "-m all --resolve" | tee -a $here/$seq.full
+pmfind -m all --resolve | tee -a $here/$seq.full | _filter_discovery_resolved
+echo "Exit status: $?"
+
+# success, all done
+status=0
+
+exit

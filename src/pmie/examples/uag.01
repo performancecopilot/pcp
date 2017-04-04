@@ -1,0 +1,4 @@
+//
+// total disk write percentage
+//
+wrt_pct = (disk.all.write / disk.all.total) * 100;

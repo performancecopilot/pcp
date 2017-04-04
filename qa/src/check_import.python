@@ -1,0 +1,73 @@
+#!/usr/bin/env pmpython
+""" Python test case for Log Import API wrapper module
+"""
+#
+# Copyright (C) 2012-2014 Red Hat Inc.
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+
+import sys
+import math
+import time
+import cpmapi
+from pcp import pmi
+from pcp import pmapi
+
+def check_import(archive, hostname, timezone):
+    """ Test body - check many of the Log Import API wrapper interfaces
+    """
+    log = pmi.pmiLogImport(archive)
+    log.pmiSetHostname(hostname)
+    log.pmiSetTimezone(timezone)
+
+    domain = 60  # Linux kernel
+    pmid = log.pmiID(domain, 2, 0)
+    indom = log.pmiInDom(domain, 2)
+    units = log.pmiUnits(0, 0, 0, 0, 0, 0)
+
+    # create a metric with no instances (hinv.ncpu)
+    log.pmiAddMetric("hinv.ncpu", cpmapi.PM_ID_NULL, cpmapi.PM_TYPE_U32,
+                cpmapi.PM_INDOM_NULL, cpmapi.PM_SEM_DISCRETE, units)
+
+    # give it a value
+    log.pmiPutValue("hinv.ncpu", "", "%d" % 42)
+
+    # create a metric with instances (kernel.all.load)
+    log.pmiAddMetric("kernel.all.load", pmid,
+                cpmapi.PM_TYPE_FLOAT, indom, cpmapi.PM_SEM_INSTANT, units)
+    log.pmiAddInstance(indom, "1 minute", 1)
+    log.pmiAddInstance(indom, "5 minute", 5)
+    log.pmiAddInstance(indom, "15 minute", 15)
+
+    # give them values
+    log.pmiPutValue("kernel.all.load", "1 minute", "%f" % 0.01)
+    log.pmiPutValue("kernel.all.load", "5 minute", "%f" % 0.05)
+    log.pmiPutValue("kernel.all.load", "15 minute", "%f" % 0.15)
+
+    timetuple = math.modf(time.time())
+    useconds = int(timetuple[0] * 1000000)
+    seconds = int(timetuple[1])
+    log.pmiWrite(seconds, useconds)
+
+    # write a <mark>
+    log.pmiPutMark()
+
+    del log
+
+if __name__ == '__main__':
+
+    if (len(sys.argv) != 2):
+        print("Usage: " + sys.argv[0] + " <path>")
+        sys.exit(1)
+
+    check_import(sys.argv[1], "www.abc.com", "EST-10")
+

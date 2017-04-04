@@ -1,0 +1,308 @@
+#! /bin/sh
+# PCP QA Test No. 635
+# Check Linux network.interface metrics
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ $PCP_PLATFORM = linux ] || _notrun "Depends on Linux netstat -ai output format"
+
+case `hostname`
+in
+    vm24)
+	    # netstat -ai is just wrong here ... /proc/net/dev and netstat -ai
+	    # do not agree
+	    _notrun "netstat -ai broken on vm24"
+	    ;;
+esac
+
+status=0	# success is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# sample output
+#kenj-pc 68% netstat -ai
+#Kernel Interface table
+#Iface   MTU Met    RX-OK RX-ERR RX-DRP RX-OVR    TX-OK TX-ERR TX-DRP TX-OVR Flg
+#eth0   1500   0     5212      0      0      0     3080      2      0      0 BRU
+#lo     3924   0   164293      0      0      0   164293      0      0      0 LRU
+#
+# vm24 i686 openSUSE 13.1
+#Kernel Interface table
+#Iface   MTU Met    RX-OK RX-ERR RX-DRP RX-OVR    TX-OK TX-ERR TX-DRP TX-OVR Flg
+#ens3   1500   0     5174      0      0      1     2731      0      0      0 BMRU
+#lo    65536   0     2524      0      0      0     2524      0      0      0 LRU
+#
+#
+# Grab the netstat statistics.  Get name and mtu:
+#
+_netstat_i_1()
+{
+    netstat -ai \
+    | tee -a $seq.full \
+    | sed -e 's/\*/ /' \
+    | $PCP_AWK_PROG '
+BEGIN	{ iface = -1; mtu = -1; hdr = 0 }
+/Kernel Interface table/	{ next }
+hdr==0	{ for (i = 0; i <= NF; i++) {
+		if ($i == "Iface") iface = i
+		if ($i == "MTU") mtu = i
+	  }
+	  if (iface == -1 || mtu == -1) {
+	    print "Botch: bad iface/mtu header line:",iface,mtu
+	    exit(0);
+	  }
+	  hdr = 1
+	  next
+	}
+hdr==1	{ print $iface, $mtu }'
+}
+
+# Then recv packets, recv errors, recv drops, xmit packets, xmit errors
+# and xmit drops.
+#
+#Iface     MTU Met   RX-OK RX-ERR RX-DRP RX-OVR   TX-OK TX-ERR TX-DRP TX-OVR Flg
+#eth0       1500   0 12263928      0      0      0 3273749      0      0      0 BMRU
+#lo        16436   0 3489788      0      0      0 3489788      0      0      0 LRU
+#
+# Note1: fifo metric from /proc/net/dev is ?-OVR visible in netstat
+# Note2: "Met" column may not be there!
+#
+_netstat_i_2()
+{
+    netstat -ai \
+    tee -a $seq.full \
+    | sed \
+	-e 's/\*/ /' \
+    | $PCP_AWK_PROG '
+BEGIN	{ rx = -1; rx_err = -1; rx_drp = -1; rx_ovr = -1
+	  tx = -1; tx_err = -1; tx_drp = -1; tx_ovr = -1
+	  hdr = 0
+	}
+/Kernel Interface table/	{ next }
+hdr==0	{ for (i = 0; i <= NF; i++) {
+		if ($i == "RX-OK") rx = i
+		if ($i == "RX-ERR") rx_err = i
+		if ($i == "RX-DRP") rx_drp = i
+		if ($i == "RX-OVR") rx_ovr = i
+		if ($i == "TX-OK") tx = i
+		if ($i == "TX-ERR") tx_err = i
+		if ($i == "TX-DRP") tx_drp = i
+		if ($i == "TX-OVR") tx_ovr = i
+	  }
+	  if (rx == -1 || rx_err == -1 || rx_drp == -1 || rx_ovr == -1 ||
+	      tx == -1 || tx_err == -1 || tx_drp == -1 || tx_ovr == -1) {
+	    print "Botch: bad rx/txheader line:",rx,rx_err,rx_drp,rx_ovr,tx,tx_err,tx_drp,tx_ovr
+	    exit(0);
+	  }
+	  hdr = 1
+	  next
+	}
+hdr==1	{ print $rx, $rx_err, $rx_drp, $rx_ovr, $tx, $tx_err, $tx_drp, $tx_ovr }'
+}
+
+# real QA test starts here
+echo >$seq.full
+
+# Get the list of network interfaces from ifconfig
+# Need uniq because may have one interface appearing moer than once
+# (e.g. br1 and br1:avahi which become 2 br1 lines otherwise).
+#
+ifconfig -a \
+    | sed -n -e '/^[^ 	]/{
+s/[: 	].*//
+p
+}' \
+    | LC_COLLATE=POSIX sort \
+    | uniq \
+    > $tmp.net.indom
+
+pminfo -f network.interface.total.drops \
+    | $PCP_AWK_PROG '
+	/ inst /	{ print $4 }
+			{ next } ' \
+    | tr -d '"]' \
+    | LC_COLLATE=POSIX sort \
+    > $tmp.pcp.indom
+
+if diff $tmp.pcp.indom $tmp.net.indom >$tmp.indom.diff
+then
+    :
+else
+    echo "Instance domains for network.interface.total.drops are different:"
+    diff -u $tmp.pcp.indom $tmp.net.indom
+    echo "PCP instance domain ..." >>$seq.full
+    cat $tmp.pcp.indom >>$seq.full
+    echo "netstat instance domain ..." >>$seq.full
+    cat $tmp.net.indom >>$seq.full
+    status=1
+fi
+
+# Metrics to test.  All of these should be counters.
+#	out.qlength, out.qmax
+# are excluded because they're instantaneous values.
+#
+cat >$tmp.metrics <<END
+in.errors
+in.packets
+in.drops
+in.fifo
+out.errors
+out.packets
+out.drops
+out.fifo
+END
+
+echo >>$seq.full
+echo "=== netstat for first i/f name and mtu ===" >>$seq.full
+_netstat_i_1 > $tmp.net.1a
+echo "===" >>$seq.full
+cat $tmp.net.1a >>$seq.full
+
+echo >>$seq.full
+echo "=== netstat for first counts ===" >>$seq.full
+_netstat_i_2 > $tmp.net.1b
+echo "===" >>$seq.full
+cat $tmp.net.1b >>$seq.full
+
+# and stick 'em together (just lick and press)
+#
+paste $tmp.net.1a $tmp.net.1b \
+    | LC_COLLATE=POSIX sort \
+    >$tmp.net.1
+
+# Now get the metrics
+#
+echo >>$seq.full
+echo "=== pminfo ==" >>$seq.full
+for m in `cat $tmp.metrics`
+do
+    pminfo -f network.interface.$m \
+    | tee -a $seq.full \
+    | $PCP_AWK_PROG '
+	/ inst /	{ print $4, $6 }
+			{ next } ' \
+    | tr -d '"]' \
+    | LC_COLLATE=POSIX sort \
+    > $tmp.vals.$m.1
+done
+
+otherhost=`./getpmcdhosts -L -n 1 2>$tmp.out`
+[ -z "$otherhost" ] && _notrun `cat $tmp.out`
+
+# Generate a bit of network traffic
+#
+$sudo ping -f -c 100 localhost >/dev/null 2>&1 &
+$sudo ping -f -c 100 $otherhost >/dev/null 2>&1 &
+sleep 3
+
+for m in `cat $tmp.metrics`
+do
+    pminfo -f network.interface.$m \
+	| $PCP_AWK_PROG '
+	    / inst /	{ print $4, $6 }
+			{ next } ' \
+	| tr -d '"]' \
+	| LC_COLLATE=POSIX sort \
+	> $tmp.vals.$m.2
+
+    LC_COLLATE=POSIX join -1 1 -2 1 -o 1.2,2.2,1.1 -t' ' $tmp.vals.$m.1 $tmp.vals.$m.2 >$tmp.vals
+    while read v1 v2 inst
+    do
+	if [ $v2 -lt $v1 ]
+	then
+	    echo "$m[\"$inst\"] decreased from $v1 to $v2!"
+	    status=1
+	fi
+    done <$tmp.vals
+
+done
+
+# Grab another batch of netstat statistics.  Get name and mtu:
+#
+echo >>$seq.full
+echo "=== netstat for second i/f name and mtu ===" >>$seq.full
+_netstat_i_1 > $tmp.net.2a
+echo "===" >>$seq.full
+cat $tmp.net.2a >>$seq.full
+
+# Then recv packets, recv errors, recv drops, xmit packets, xmit errors
+# and xmit drops.
+#
+echo >>$seq.full
+echo "=== netstat for second counts ===" >>$seq.full
+_netstat_i_2 > $tmp.net.2b
+echo "===" >>$seq.full
+cat $tmp.net.2b >>$seq.full
+
+# and stick 'em together (just lick and press)
+#
+paste $tmp.net.2a $tmp.net.2b \
+    | LC_COLLATE=POSIX sort \
+    >$tmp.net.2
+
+$PCP_AWK_PROG < $tmp.net.1 '
+	{
+	    print $1, $3 >"'$tmp.net.in.packets.1'"
+	    print $1, $4 >"'$tmp.net.in.errors.1'"
+	    print $1, $5 >"'$tmp.net.in.drops.1'"
+	    print $1, $6 >"'$tmp.net.in.fifo.1'"
+	    print $1, $7 >"'$tmp.net.out.packets.1'"
+	    print $1, $8 >"'$tmp.net.out.errors.1'"
+	    print $1, $9 >"'$tmp.net.out.drops.1'"
+	    print $1, $10 >"'$tmp.net.out.fifo.1'"
+	}'
+
+$PCP_AWK_PROG < $tmp.net.2 '
+	{
+	    print $3 >"'$tmp.net.in.packets.2'"
+	    print $4 >"'$tmp.net.in.errors.2'"
+	    print $5 >"'$tmp.net.in.drops.2'"
+	    print $6 >"'$tmp.net.in.fifo.2'"
+	    print $7 >"'$tmp.net.out.packets.2'"
+	    print $8 >"'$tmp.net.out.errors.2'"
+	    print $9 >"'$tmp.net.out.drops.2'"
+	    print $10 >"'$tmp.net.out.fifo.2'"
+	}'
+
+# Bring the two netstat snaps together and check the pminfo data falls
+# within the netstat data.
+#
+for m in `cat $tmp.metrics`
+do
+    [ ! -f $tmp.net.$m.1 ] && continue
+
+    echo "--- $tmp.net.$m.1 ---" >>$seq.full
+    cat $tmp.net.$m.1 >>$seq.full
+    echo "--- $tmp.net.$m.2 ---" >>$seq.full
+    cat $tmp.net.$m.2 >>$seq.full
+    echo "---" >>$seq.full
+    paste $tmp.net.$m.1 $tmp.net.$m.2 > $tmp.net
+
+    echo '' >>$seq.full
+    echo "=== $m pminfo ===" >>$seq.full
+    cat $tmp.vals.$m.2 >>$seq.full
+    echo "--- $m netstat ---" >>$seq.full
+    cat $tmp.net >>$seq.full
+    LC_COLLATE=POSIX join -1 1 -2 1 -o 1.1,2.2,1.2,2.3 $tmp.vals.$m.2 $tmp.net >$tmp.all
+
+    while read inst nv1 pcp nv2
+    do
+	if src/compare $nv1 $pcp $nv2
+	then
+	    :
+	else
+	    echo "network.interface.$m[\"$inst\"] value $pcp not in range $nv1..$nv2"
+	    status=1
+	fi
+    done <$tmp.all
+done
+
+exit

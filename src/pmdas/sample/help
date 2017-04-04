@@ -1,0 +1,757 @@
+#
+# Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+# 
+# sample PMDA help file in the ASCII format
+#
+# lines beginning with a # are ignored
+# lines beginning @ introduce a new entry of the form
+#  @ metric_name oneline-text
+#  help text goes
+#  here over multiple lines
+#  ...
+#
+# the metric_name is decoded against the default PMNS -- as a special case,
+# a name of the form NNN.MM (for numeric NNN and MM) is interpreted as an
+# instance domain identification, and the text describes the instance domain
+#
+# blank lines before the @ line are ignored
+#
+
+@ SAMPLE.1 Instance domain "colour" for sample PMDA
+Universally 3 instances, "red" (0), "green" (1) and "blue" (3).
+
+@ SAMPLE.2 Instance domain "bin" for sample PMDA
+Universally 9 instances numbered 100 .. 900 in steps of 100, and named
+"bin-100" .. "bin-900"
+
+@ SAMPLE.3 Instance domain "mirage" for sample PMDA
+Random number of instances, that change with time.  Instance "m-00" (0)
+is always present, while the others are numbered 1 .. 49 and named "m-01"
+.. "m-99"
+
+@ SAMPLE.4 Instance domain "family" for sample PMDA.
+A fixed set of instances:
+    "colleen", "terry", "emma", "cathy" and "fat bald bastard"
+
+@ SAMPLE.5 Instance domain "hordes" for sample PMDA.
+A relatively large instance domain, with hundreds of numeric instances.
+
+@ SAMPLE.6 Instance domain "dodgey" for sample PMDA.
+Instances for an unreliable instance domain, where the instances can
+under certain conditions (random or controlled) return holes, errors,
+and other interesting scenarios for testing.  A sample.dodgey.control
+metric store controls this instance domain.
+
+@ SAMPLE.7 Instance domain "dynamic" for sample PMDA.
+Instances come from $PCP_PMDAS_DIR/sample/dynamic.indom, if it exists.
+
+@ SAMPLE.8 Instance domain "many" for sample PMDA.
+A varable size set of instances controlled by sample.many.count
+
+@ SAMPLE.9 Instance domain "scramble" for sample PMDA.
+Several constant instances, instances reordered on successive pmFetch
+calls, and sometimes (probability 0.33) some instances are missing.
+
+@ SAMPLE.10 Instance domain "events" for sample PMDA.
+Instances "fungus" and "bogus" for testing event metrics indoms.
+
+@ sample.control A control variable for the "sample" PMDA
+This control variable may be modified using pmStore().
+The allowed values are
+    0	disable debugging output in the PMDA
+    >0	set pmDebug to this value to enable debugging output
+    -1	force the PMDA to terminate
+
+@ sample.daemon_pid Process id of PMDA daemon
+The process id of PMDA daemon, -1 if the daemon is a DSO.
+
+@ sample.seconds Elapsed time (seconds)
+The elapsed time since the PMDA started, in seconds, i.e. as returned
+by time(2).
+
+@ sample.milliseconds Elapsed time (milliseconds)
+The elapsed time since the PMDA started, in milliseconds, i.e. as
+returned by gettimeofday(2), and then adjusted from microseconds
+to milliseconds.
+
+@ sample.load Hypothetical load
+The hypothetical load is always 42!
+
+@ sample.colour Metrics with a "saw-tooth" trend over time
+This metric has 3 instances, designated "red", "green" and "blue".
+
+The value of the metric is monotonic increasing in the range N to
+N+100, then back to N.  The different instances have different N
+values, namely 100 (red), 200 (green) and 300 (blue).
+
+The underlying counter starts at 0 and is incremented once
+for each pmFetch() to this metric and/or sample.mirage and/or
+sample.mirage_longlong.
+
+Use pmStore() to modify the underlying counter (independent of which
+instance or instances are used).
+
+@ sample.darkness No values available
+Defined over the same instance domain as sample.colour, but this
+metric returns the "No values available" error for every fetch.
+
+@ sample.bin Several constant instances
+9 instances labelled "bin-100" thru "bin-900", each with an
+initial value of 100 thru 900.
+
+pmstore(1) may be used to change the values of some or all of
+the instances, but note this will also change the values of the
+metrics that share the same underlying values, i.e. sample.bucket,
+sample.part_bin, sample.bogus_bin, sample.scramble.bin
+sample.long.bin, sample.long.bin_ctr, sample.ulong.bin,
+sample.ulong.bin_ctr, sample.longlong.bin, sample.longlong.bin_ctr,
+sample.ulonglong.bin, sample.ulonglong.bin_ctr, sample.float.bin,
+sample.float.bin_ctr, sample.double.bin, sample.double.bin_ctr
+and sample.string.bin.
+
+@ sample.bucket Several constant instances
+9 instances labelled "bin-100" thru "bin-900", each with a constant
+value of 100 thru 900.  This is an alias for sample.bin, but with
+a different PMID.
+
+@ sample.part_bin Several constant instances
+5 instances labelled "bin-100" thru "bin-900", each with a constant
+value of 100 thru 900.  This is defined over the same domain as
+sample.part, but half of the instances are missing.
+
+@ sample.bogus_bin Several constant instances
+9 instances labelled "bin-100" thru "bin-900", each with a constant
+value of 100 thru 900.  This is defined over the same domain as
+sample.part, half the values are for instances not in the instance
+domain.
+
+@ sample.drift A random trended metric
+This metric returns a random value (expected mean is approximately 200),
+subject to a trending pattern such that the sequence is mainly monotonic,
+with a change in direction after on average 4 consecutive samples.
+
+Use pmStore() to modify the instantaneous value, which becomes the new
+expected mean.
+
+@ sample.step A step function (instantaneous)
+This metric changes magnitude every 30 seconds, between a base value and
+3 times the base value.
+
+The metric has "instantaneous" semantics.  See also sample.step_counter.
+
+Use pmStore() to modify the base value.
+
+@ sample.step_counter A step function (counter)
+This metric changes magnitude every 30 seconds, between a base value and
+3 times the base value.
+
+The metric has "counter" semantics.  See also sample.step.
+
+Use pmStore() to modify the base value.
+
+@ sample.needprofile Metrics that need an explicit profile
+Simulate behaviour similar to the "proc" PMDA where metrics values are
+only available if an explicit instance profile is provided.
+
+@ sample.lights Traffic lights.
+A singular metric that has a discrete string value, namely "red",
+"yellow" or "green".  There is some persistance in the value, so
+consecutive fetches are likely to return the same value, however over a
+long period of time all values are equally probable.
+
+@ sample.magnitude Powers of two.
+A singular metric that has a discrete integer value, namely 1, 2, 4, 8,
+16, 32 or 64.  There is some persistance in the value, so consecutive
+fetches are likely to return the same value, however over a long period
+of time all values are equally probable.
+
+@ sample.pdu Total PDU count
+Count of PDUs received or transmitted.
+
+Use pmStore() to reset the counter to 0, independent of the value passed
+to pmStore().
+
+@ sample.recv_pdu Count of PDUs received
+Count of PDUs received.
+
+Use pmStore() to reset the counter to 0, independent of the value passed
+to pmStore().
+
+@ sample.xmit_pdu Count of PDUs transmitted
+Count of PDUs transmitted.
+
+Use pmStore() to reset the counter to 0, independent of the value passed
+to pmStore().
+
+@ sample.mirage Simple saw-tooth rate, but instances come and go
+The metric is a rate (Kbytes/sec) that varies in a saw-tooth distribution
+over time.  Different instances of the metric have different baselines
+for the saw-tooth, but all have an max-to-min range of 100.
+
+What makes this metric interesting is that instances come and go (not
+more often than once every 10 seconds however).  Instance 0 is always
+present, but the other instances 1 thru 49 come and go in a cyclic
+pattern with a large random component influencing when each instance
+appears and disappears.
+
+The underlying counter starts at 0 and is incremented once
+for each pmFetch() to this metric and/or sample.colour and/or
+sample.mirage_longlong.
+
+Use pmStore() to modify the underlying counter (independent of which
+instance or instances are used).
+
+@ sample.mirage_longlong Simple saw-tooth rate, but instances come and go
+The metric is a rate (bytes/msec) that varies in a saw-tooth distribution
+over time.  Different instances of the metric have different baselines
+for the saw-tooth, but all have an max-to-min range of 100,000,000.
+
+What makes this metric interesting is that instances come and go (not more
+often than once every 10 seconds however).  Instance 0 is always present,
+but the other instances 1 thru 49 come and go in a cyclic pattern with
+a large random component influencing when each instance appears and
+disappears.
+
+The underlying counter starts at 0 and is incremented once for each
+pmFetch() to this metric and/or sample.mirage and/or sample.colour.
+
+Use pmStore() to modify the underlying counter (independent of which
+instance or instances are used).
+
+@ sample.write_me Modifiable, but otherwise constant.
+This metric has a 32-bit integer value of 2, unless changed via pmStore.
+The metric has semantics of rate, and units of events per second.
+
+@ sample.sysinfo Aggregate containing system accounting structures
+This metric has an aggregate value containing the following struct:
+    struct {
+        int		len;
+        struct sysinfo	sysinfo;
+    };
+
+The len field contains the size of the structure enclosing it.
+The sysinfo field contains various system accounting structures, summed over
+all CPUs, as returned by
+    sysmp(MP_SAGET, MPSA_SINFO, ...);
+
+See /usr/include/sys/sysinfo.h for the definition of the sysinfo struct.
+
+@ sample.noinst No instance available
+For testing, only.  This metric is known, but no value is ever available
+
+@ sample.long.one 1 as a 32-bit integer
+@ sample.long.ten 10 as a 32-bit integer
+@ sample.long.hundred 100 as a 32-bit integer
+@ sample.long.million 1000000 as a 32-bit integer
+@ sample.long.write_me a 32-bit integer that can be modified
+@ sample.long.bin like sample.bin but type 32
+@ sample.long.bin_ctr like sample.bin but type 32, SEM_COUNTER and SPACE_KBYTE
+
+@ sample.ulong.one 1 as a 32-bit unsigned integer
+@ sample.ulong.ten 10 as a 32-bit unsigned integer
+@ sample.ulong.hundred 100 as a 32-bit unsigned integer
+@ sample.ulong.million 1000000 as a 32-bit unsigned integer
+@ sample.ulong.write_me a 32-bit unsigned integer that can be modified
+@ sample.ulong.bin like sample.bin but type U32
+@ sample.ulong.bin_ctr like sample.bin but type U32, SEM_COUNTER and SPACE_KBYTE
+
+@ sample.ulong.count.base count scale is 1, value is 42,000,000
+@ sample.ulong.count.deca count scale is 10, value is 4,200,000
+@ sample.ulong.count.hecto count scale is 10, value is 420,000
+@ sample.ulong.count.kilo count scale is 10, value is 42,000
+@ sample.ulong.count.mega count scale is 10, value is 42
+
+@ sample.longlong.one 1 as a 64-bit integer
+@ sample.longlong.ten 10 as a 64-bit integer
+@ sample.longlong.hundred 100 as a 64-bit integer
+@ sample.longlong.million 1000000 as a 64-bit integer
+@ sample.longlong.write_me a 64-bit integer that can be modified
+@ sample.longlong.bin like sample.bin but type 64
+@ sample.longlong.bin_ctr like sample.bin but type 64, SEM_COUNTER and SPACE_KBYTE
+
+@ sample.ulonglong.one 1 as a 64-bit unsigned integer
+@ sample.ulonglong.ten 10 as a 64-bit unsigned integer
+@ sample.ulonglong.hundred 100 as a 64-bit unsigned integer
+@ sample.ulonglong.million 1000000 as a 64-bit unsigned integer
+@ sample.ulonglong.write_me a 64-bit unsigned integer that can be modified
+@ sample.ulonglong.bin like sample.bin but type U64
+@ sample.ulonglong.bin_ctr like sample.bin but type U64, SEM_COUNTER and SPACE_KBYTE
+
+@ sample.float.one 1 as a 32-bit floating point value
+@ sample.float.ten 10 as a 32-bit floating point value
+@ sample.float.hundred 100 as a 32-bit floating point value
+@ sample.float.million 1000000 as a 32-bit floating point value
+@ sample.float.write_me a 32-bit floating-point value that can be modified
+@ sample.float.bin like sample.bin but type FLOAT
+@ sample.float.bin_ctr like sample.bin but type FLOAT, SEM_COUNTER and SPACE_KBYTE
+
+@ sample.double.one 1 as a 64-bit floating point value
+@ sample.double.ten 10 as a 64-bit floating point value
+@ sample.double.hundred 100 as a 64-bit floating point value
+@ sample.double.million 1000000 as a 64-bit floating point value
+@ sample.double.write_me a 64-bit floating-point value that can be modified
+@ sample.double.bin like sample.bin but type DOUBLE
+@ sample.double.bin_ctr like sample.bin but type DOUBLE, SEM_COUNTER and SPACE_KBYTE
+
+@ sample.string.null a zero length string
+@ sample.string.hullo K&R have a lot to answer for
+@ sample.string.write_me a string value that can be modified
+@ sample.string.bin a string-valued version of sample.bin
+
+@ sample.aggregate.null a zero length aggregate
+@ sample.aggregate.hullo K&R have a lot to answer for
+@ sample.aggregate.write_me a aggregate value that can be modified
+
+@ sample.hordes.one 500 instances
+Value of the metric is the instance identifier.
+@ sample.hordes.two 500 instances
+Value of the metric is 500 - the instance identifier.
+
+@ sample.bad.unknown Not known to the PMDA
+In the PMNS, but the sample agent pretends it does not know about this one.
+@ sample.bad.nosupport Not supported in this version of the PMDA
+Type is PM_NOSUPPORT, fetch returns PM_ERR_APPVERSION
+@ sample.bad.novalues Scalar with no values, ever
+
+@ sample.not_ready interval (in seconds) during which PMDA does not respond to PDUs
+Store a positive number of seconds as the value of this metric. The
+following PDU received will result in the following sequence of events:
+  1. return an error PDU with PM_ERR_PMDANOTREADY to pmcd
+  2. sleep for the given number of seconds
+  3. sends an error PDU with PM_ERR_PMDAREADY to pmcd
+If everything went as planned, sample.not_ready returns to 0, otherwise it
+has a negative error code as value.
+
+@ sample.wrap.long long counter that wraps
+The metric value increments by INT_MAX / 2 - 1 (from <limits.h>) every
+time it is fetched.
+
+@ sample.wrap.ulong unsigned long counter that wraps
+The metric value increments by UINT_MAX / 2 - 1 (from <limits.h>) every
+time it is fetched.
+
+@ sample.wrap.longlong long long counter that wraps
+The metric value increments by LONGLONG_MAX / 2 - 1 (from <limits.h>)
+every time it is fetched.
+
+@ sample.wrap.ulonglong unsigned long long counter that wraps
+The metric value increments by ULONGLONG_MAX / 2 - 1 (from <limits.h>)
+every time it is fetched.
+
+@ sample.dodgey.value 5 unreliable instances
+The metric is a set of 5 instantaneous values, drawn at random from the
+range 0 to 100.  The number of instances "visible" is controlled by
+sample.dodgey.control.
+
+@ sample.dodgey.control control values retured for sample.dodgey.value
+If sample.dodgey.control is <= 0, then this is returned as the "numval"
+component in the pmResult (0 => no values available, less than 0 =>
+various errors).
+
+If sample.dodgey.control is between 1 and 5 (inclusive), then this many
+of the values will be "visible".  The values will be selected in order
+from the underlying 5 instances.
+
+If sample.dodgey.control is > 5, then at random times (between 1 and
+sample.dodgey.control fetches of the metric), the number of instances
+available is changed according to the following probabilities ...
+  0.9 some number of instances in the range 0 to 5, selected at random
+      from the underlying 5 instances.
+  0.1 error (PM_ERR_NOAGENT or PM_ERR_AGAIN or PM_ERR_APPVERSION)
+
+@ sample.rapid count very quickly
+Base counter increments by 8*10^7 per fetch.  Result is 10 x base counter.
+
+@ sample.scale_step.bytes_up count up by powers of 2, wrap back to one at 10 Tbytes
+
+@ sample.scale_step.bytes_down count down by powers of 2, wrap back to 10 Tbytes at 1
+
+@ sample.scale_step.count_up count up by powers of 10, wrap back to 1 at 10e12
+
+@ sample.scale_step.count_down count down by powers of 10, wrap back to 10e12 at 1
+
+@ sample.scale_step.time_up_secs count up seconds by multiples of 10, wrap back to 1 second at 1 day
+
+@ sample.scale_step.time_up_nanosecs count up nanoseconds by multiples of 10, wrap back to 1 nanosecond at 1 day
+
+@ sample.scale_step.none_up count up dimensionless by multiples of 10, wrap back to 1 at 10 million
+
+@ sample.const_rate.value constant rate counter
+A counter that changes with constant rate between fetches.
+
+The rate is set by storing the desired rate (counts per second)
+into sample.const_rate.gradient
+
+@ sample.const_rate.gradient rate per second to set sample.const_rate.value, writable
+
+@ sample.error_code Arbitrary PMAPI error code for sample.error_check
+The metrics sample.error_code and sample.error_check are used in tandem
+as follows:
+    if sample.error_code is < 0, then any attempt to retrieve
+    information about sample.error_check will return a
+    sample.error_code as a PMAPI error from the PMDA.
+
+Use pmstore(1) to change sample.error_code.
+
+@ sample.error_check Return PMAPI error code from sample.error_code
+The metrics sample.error_code and sample.error_check are used in tandem
+as follows:
+    if sample.error_code is < 0, then any attempt to retrieve
+    information about sample.error_check will return a
+    sample.error_code as a PMAPI error from the PMDA.
+
+Otherwise sample.error_check is a boring metric that always has
+the value 0.
+
+@ sample.dynamic.counter counter metric with dynamic indom
+Instances come from $PCP_PMDAS_DIR/sample/dynamic.indom, if it exists.
+Each line in this file is
+	internal_id external_id
+
+This metric increments each time this instance has been seen when scanning
+the dynamic.indom file, and resets to zero each time the instance appears.
+
+@ sample.dynamic.discrete discrete metric with dynamic indom
+Instances come from $PCP_PMDAS_DIR/sample/dynamic.indom, if it exists.
+Each line in this file is
+	internal_id external_id
+
+This metric increments each time this instance has been seen when scanning
+the dynamic.indom file, and resets to zero each time the instance appears.
+
+@ sample.dynamic.instant instant metric with dynamic indom
+Instances come from $PCP_PMDAS_DIR/sample/dynamic.indom, if it exists.
+Each line in this file is
+	internal_id external_id
+
+This metric increments each time this instance has been seen when scanning
+the dynamic.indom file, and resets to zero each time the instance appears.
+
+@ sample.many.count number of instances in sample.many.int's domain
+store a value in sample.many.count to change the number of instances
+that appear in sample.many.int's instance domain
+
+@ sample.many.int variable sized instance domain
+store a value in sample.many.count to change the number of instances
+that appear in sample.many.int's instance domain
+
+@ sample.bigid a metric with item number bigger then 2^9
+
+@ sample.byte_ctr counter byte counter
+value increments randomly in the range (0,1023) bytes per fetch
+
+@ sample.byte_rate instantaneous bytes/second 
+random value in the range (0,1023), so avg value is 512 bytes/second
+
+@ sample.kbyte_ctr counter Kbytes/second
+value increments randomly in the range (0,1023) Kbytes per fetch
+
+@ sample.kbyte_rate instantaneous Kbytes/second
+random value in the range (0,1023), so avg value is 512 Kbytes/second
+
+@ sample.byte_rate_perhour instantaneous bytes/hour
+random value in the range (0,1023), so avg value is 512 bytes/hour
+
+@ sample.dynamic.meta.metric metric with modifiable metadata
+See sample.dynamic.meta.pmdesc for the metrics that can be modified to
+change the metadata for this metric.
+The value of this metric is always 42.
+
+@ sample.dynamic.meta.pmdesc.type pmDesc.type for sample.dynamic.meta.metric
+One of these values:
+PM_TYPE_NOSUPPORT       -1      /* not implemented in this version */
+PM_TYPE_32              0       /* 32-bit signed integer */
+PM_TYPE_U32             1       /* 32-bit unsigned integer */
+PM_TYPE_64              2       /* 64-bit signed integer */
+PM_TYPE_U64             3       /* 64-bit unsigned integer */
+PM_TYPE_FLOAT           4       /* 32-bit floating point */
+PM_TYPE_DOUBLE          5       /* 64-bit floating point */
+PM_TYPE_STRING          6       /* array of char */
+PM_TYPE_AGGREGATE       7       /* arbitrary binary data (aggregate) */
+PM_TYPE_AGGREGATE_STATIC 8      /* static pointer to aggregate */
+PM_TYPE_UNKNOWN         255     /* used in pmValueBlock, not pmDesc */
+
+Defaults to PM_TYPE_32.
+
+@ sample.dynamic.meta.pmdesc.indom pmDesc.indom for sample.dynamic.meta.metric
+Defaults to PM_INDOM_NULL (0xffffffff).
+
+@ sample.dynamic.meta.pmdesc.sem pmDesc.sem for sample.dynamic.meta.metric
+One of these values:
+PM_SEM_COUNTER  1       /* cumulative counter (monotonic increasing) */
+PM_SEM_INSTANT  3       /* instantaneous value, continuous domain */
+PM_SEM_DISCRETE 4       /* instantaneous value, discrete domain */
+
+Defaults to PM_SEM_DISCRETE.
+
+@ sample.dynamic.meta.pmdesc.units pmDesc.units for sample.dynamic.meta.metric
+6 x 4-bit values, from least-significant bit to most-significant bit:
+dimSpace:
+   -1, 0, 1
+dimTime:
+   -1, 0, 1
+dimCount:
+   0, 1
+scaleSpace:
+    PM_SPACE_BYTE   0       /* bytes */
+    PM_SPACE_KBYTE  1       /* Kilobytes (1024) */
+    PM_SPACE_MBYTE  2       /* Megabytes (1024^2) */
+    PM_SPACE_GBYTE  3       /* Gigabytes (1024^3) */
+    PM_SPACE_TBYTE  4       /* Terabytes (1024^4) */
+    PM_SPACE_PBYTE  5       /* Petabytes (1024^5) */
+    PM_SPACE_EBYTE  6       /* Exabytes  (1024^6) */
+scaleTime:
+    PM_TIME_NSEC    0       /* nanoseconds */
+    PM_TIME_USEC    1       /* microseconds */
+    PM_TIME_MSEC    2       /* milliseconds */
+    PM_TIME_SEC     3       /* seconds */
+    PM_TIME_MIN     4       /* minutes */
+    PM_TIME_HOUR    5       /* hours */
+scaleCount:
+    PM_COUNT_ONE    0       /* 1 */
+
+Defaults to { 1, -1, 0, PM_SPACE_BYTE, PM_TIME_SEC, 0 }
+
+@ sample.datasize Space allocated for PMDA's data segment
+This metric returns the amount of memory in kilobytes allocated for the
+data segment of the PMDA.
+
+This is handy for tracing memory utilization (and leaks) in libpcp_pmda.
+
+@ SAMPLE.0.1000 dynamic *.secret.bar metric
+Value "foo".
+
+@ SAMPLE.0.1001 dynamic *.secret.foo.one metric
+Value 1.
+
+@ SAMPLE.0.1002 dynamic *.secret.foo.two metric
+Value 2.
+
+@ SAMPLE.0.1003 dynamic *.secret.foo.bar.three metric
+Value 3.
+
+@ SAMPLE.0.1004 dynamic *.secret.foo.bar.four metric
+Value 4.
+
+@ SAMPLE.0.1005 dynamic *.secret.foo.bar.grunt.five metric
+Value 5.
+
+@ SAMPLE.0.1006 dynamic *.secret.foo.bar.grunt.snort.six metric
+Value 6.
+
+@ SAMPLE.0.1007 dynamic *.secret.foo.bar.grunt.snort.huff.puff.seven metric
+Value 7.
+
+@ sample.scramble.bin Several constant instances, instances scrambled
+Like sample.bin, except
+1. instances are missing with probability 0.33
+2. order of the instances from pmFetch is random
+
+Designed to help testing instance matching between pmFetch calls
+for PCP clients.
+
+@ sample.scramble.version Current state version and reset for sample.scramble.bin
+To make the order of instances seen from sample.scramble.bin
+deterministic, use pmstore(1) to trigger a reset.
+
+@ sample.percontext.control.ctx Number of PMAPI contexts seen
+One more than the highest PMAPI context number from PMCD.
+
+@ sample.percontext.control.active Number of active PMAPI contexts
+
+@ sample.percontext.control.start Number of new PMAPI contexts seen
+Incremented each time a new PMAPI context is seen from PMCD.
+
+sample.percontext.control.start - sample.percontext.control.end
+should equal sample.percontext.control.active.
+
+@ sample.percontext.control.end Number of PMAPI contexts closed
+Incremented each time PMCD closes a PMAPI context.
+
+sample.percontext.control.start - sample.percontext.control.end
+should equal sample.percontext.control.active.
+
+@ sample.percontext.pdu Total PDU count for the client context
+Count of PDUs received from or transmitted to the current PMAPI client
+context.
+
+Use pmStore() to reset the counter to 0, independent of the value passed
+to pmStore().
+
+@ sample.percontext.recv_pdu Count of PDUs received from the client context
+Count of PDUs received from the current PMAPI client context.
+
+Use pmStore() to reset the counter to 0, independent of the value passed
+to pmStore().
+
+@ sample.percontext.xmit_pdu Count of PDUs transmitted
+Count of PDUs transmitted to the current PMAPI client context.
+
+Use pmStore() to reset the counter to 0, independent of the value passed
+to pmStore().
+
+@ sample.event.records Dummy event records
+Dummy event records are generated in a fixed pattern to help QA.
+
+Once all setups have been returned, the cycle is repeated.
+
+See event.reset to exert explicit control over the next batch of event
+records to be returned.
+
+@ sample.event.no_indom_records More dummy event records
+Like sample.event.records but without the instance domain.
+
+@ sample.event.reset reset event record state
+Used for QA, should take one of the values 0, 1, 2 or 3
+to determine which of the dummy event record setups will
+be returned for the next fetch of event.records.
+
+@ sample.event.highres_records Dummy highres timestamp event records
+Dummy high resolution event records generated in a fixed pattern to help QA.
+
+Once all setups have been returned, the cycle is repeated.
+
+See event.reset_highres to exert explicit control over the next batch of event
+records to be returned.
+
+@ sample.event.reset_highres reset highres event record state
+Used for QA, should take one of the values 0, 1, 2 or 3
+to determine which of the dummy event record setups will
+be returned for the next fetch of event.highres_records.
+
+@ sample.event.type event type parameter for event records
+
+@ sample.event.param_32 32 parameter for event records
+
+@ sample.event.param_u32 U32 parameter for event records
+
+@ sample.event.param_64 64 parameter for event records
+
+@ sample.event.param_u64 U64 parameter for event records
+
+@ sample.event.param_float FLOAT parameter for event records
+
+@ sample.event.param_double DOUBLE parameter for event records
+
+@ sample.event.param_string STRING parameter for event records
+
+@ sample.event.param_aggregate AGGREGATE parameter for event records
+
+@ sample.negative.ctr.m_32 32-bit integer counter metric with negative value
+A metric with the semantics of PM_SEM_COUNTER, a type of PM_TYPE_32
+and negative values that by default start at -10000 and are incremented
+each time one of the sample.negative.*.m_32 metrics are fetched.
+
+Maybe be reset with pmStore, but this will reset the value for all
+of the sample.negative.*.m_32 metrics (they share the same underlying
+counter).
+
+@ sample.negative.ctr.m_64 64-bit integer counter metric with negative value
+A metric with the semantics of PM_SEM_COUNTER, a type of PM_TYPE_64
+and negative values that by default start at -10000 and are incremented
+each time one of the sample.negative.*.m_64 metrics are fetched.
+
+Maybe be reset with pmStore, but this will reset the value for all
+of the sample.negative.*.m_64 metrics (they share the same underlying
+counter).
+
+@ sample.negative.ctr.m_float float counter metric with negative value
+A metric with the semantics of PM_SEM_COUNTER, a type of PM_TYPE_FLOAT
+and negative values that by default start at -10000 and are incremented
+each time one of the sample.negative.*.m_float metrics are fetched.
+
+Maybe be reset with pmStore, but this will reset the value for all of
+the sample.negative.*.m_float metrics (they share the same underlying
+counter).
+
+@ sample.negative.ctr.m_double double counter metric with negative value
+A metric with the semantics of PM_SEM_COUNTER, a type of PM_TYPE_DOUBLE
+and negative values that by default start at -10000 and are incremented
+each time one of the sample.negative.*.m_double metrics are fetched.
+
+Maybe be reset with pmStore, but this will reset the value for all of
+the sample.negative.*.m_double metrics (they share the same underlying
+counter).
+
+@ sample.negative.instant.m_32 32-bit integer instantaneous metric with negative value
+A metric with the semantics of PM_SEM_INSTANT, a type of PM_TYPE_32
+and negative values that by default start at -10000 and are incremented
+each time one of the sample.negative.*.m_32 metrics are fetched.
+
+Maybe be reset with pmStore, but this will reset the value for all
+of the sample.negative.*.m_32 metrics (they share the same underlying
+counter).
+
+@ sample.negative.instant.m_64 64-bit integer instantaneous metric with negative value
+A metric with the semantics of PM_SEM_INSTANT, a type of PM_TYPE_64
+and negative values that by default start at -10000 and are incremented
+each time one of the sample.negative.*.m_64 metrics are fetched.
+
+Maybe be reset with pmStore, but this will reset the value for all
+of the sample.negative.*.m_64 metrics (they share the same underlying
+counter).
+
+@ sample.negative.instant.m_float float instantaneous metric with negative value
+A metric with the semantics of PM_SEM_INSTANT, a type of PM_TYPE_FLOAT
+and negative values that by default start at -10000 and are incremented
+each time one of the sample.negative.*.m_float metrics are fetched.
+
+Maybe be reset with pmStore, but this will reset the value for all of
+the sample.negative.*.m_float metrics (they share the same underlying
+counter).
+
+@ sample.negative.instant.m_double double instantaneous metric with negative value
+A metric with the semantics of PM_SEM_INSTANT, a type of PM_TYPE_DOUBLE
+and negative values that by default start at -10000 and are incremented
+each time one of the sample.negative.*.m_double metrics are fetched.
+
+Maybe be reset with pmStore, but this will reset the value for all of
+the sample.negative.*.m_double metrics (they share the same underlying
+counter).
+
+@ sample.negative.discrete.m_32 32-bit integer discrete metric with negative value
+A metric with the semantics of PM_SEM_DISCRETE, a type of PM_TYPE_32
+and negative values that by default start at -10000 and are incremented
+each time one of the sample.negative.*.m_32 metrics are fetched.
+
+Maybe be reset with pmStore, but this will reset the value for all
+of the sample.negative.*.m_32 metrics (they share the same underlying
+counter).
+
+@ sample.negative.discrete.m_64 64-bit integer discrete metric with negative value
+A metric with the semantics of PM_SEM_DISCRETE, a type of PM_TYPE_64
+and negative values that by default start at -10000 and are incremented
+each time one of the sample.negative.*.m_64 metrics are fetched.
+
+Maybe be reset with pmStore, but this will reset the value for all
+of the sample.negative.*.m_64 metrics (they share the same underlying
+counter).
+
+@ sample.negative.discrete.m_float float discrete metric with negative value
+A metric with the semantics of PM_SEM_DISCRETE, a type of PM_TYPE_FLOAT
+and negative values that by default start at -10000 and are incremented
+each time one of the sample.negative.*.m_float metrics are fetched.
+
+Maybe be reset with pmStore, but this will reset the value for all of
+the sample.negative.*.m_float metrics (they share the same underlying
+counter).
+
+@ sample.negative.discrete.m_double double discrete metric with negative value
+A metric with the semantics of PM_SEM_DISCRETE, a type of
+PM_TYPE_DOUBLE and negative values that by default start at -10000
+and are incremented each time one of the sample.negative.*.m_double
+metrics are fetched.
+
+Maybe be reset with pmStore, but this will reset the value for all of
+the sample.negative.*.m_double metrics (they share the same underlying
+counter).

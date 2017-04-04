@@ -1,0 +1,12 @@
+# fake for testing
+# the metrics should be as follows
+# news.articles.total	1000
+# news.articles.last	 100   0   0  200 1101 3795 7130
+# news.articles.count	   0   0   0  100  100  700  100
+comp.sys.sgi 0100 0100 y
+comp.sys.sgi.graphics 0000 0000 y
+comp.sys.sgi.hardware 0000 0000 y
+sgi.bad-attitude 3795 3095 y
+sgi.bugs.sherwood 1101 1001 y
+sgi.engr.all 0200 0100 y
+sgi.general 7130 7030 y

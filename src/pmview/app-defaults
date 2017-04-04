@@ -1,0 +1,207 @@
+! Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+!
+! This program is free software; you can redistribute it and/or modify it
+! under the terms of the GNU General Public License as published by the
+! Free Software Foundation; either version 2 of the License, or (at your
+! option) any later version. 
+!
+! This program is distributed in the hope that it will be useful, but
+! WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+! or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+! for more details.
+!
+! You should have received a copy of the GNU General Public License along
+! with this program; if not, write to the Free Software Foundation, Inc.,
+! 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+!
+
+
+!
+!Activate schemes and sgi mode by default
+!
+PmView+*useSchemes: all
+PmView+*sgiMode: true
+
+#ifdef __linux
+!
+! default fonts
+!
+PmView+*defaultFontList: -*-helvetica-bold-o-*-*-*-140-75-75-*-*-iso8859-1
+PmView+*form*fontList: -*-helvetica-medium-r-*-*-*-120-75-75-*-*-iso8859-1
+PmView+*form.scaleText.fontList: -*-helvetica-medium-r-*-*-*-140-75-75-*-*-iso8859-1
+PmView+*form.timeLabel.fontList: -*-helvetica-medium-r-*-*-*-140-75-75-*-*-iso8859-1
+PmView+*form.metricLabel.fontList: -*-helvetica-medium-r-*-*-*-140-75-75-*-*-iso8859-1
+#endif
+!
+!SGI Style guide specifies explicit focus within PmView+s
+!
+PmView+*keyboardFocusPolicy: explicit
+
+!
+! Menus
+!
+PmView+*title:  Performance Metrics Viewer
+PmView+*fileMenu.labelString:  File
+PmView+*fileMenu.mnemonic:  F
+PmView+*recordButton.labelString:  Record
+PmView+*recordButton.mnemonic:  R
+PmView+*recordButton.accelerator:  Ctrl<Key>R
+PmView+*recordButton.acceleratorText:  Ctrl+R
+PmView+*saveButton.labelString:  Save
+PmView+*saveButton.mnemonic:  S
+PmView+*saveButton.accelerator:  Ctrl<Key>S
+PmView+*saveButton.acceleratorText:  Ctrl+S
+PmView+*printButton.labelString:  Print
+PmView+*printButton.mnemonic:  P
+PmView+*printButton.accelerator:  Ctrl<Key>P
+PmView+*printButton.acceleratorText:  Ctrl+P
+PmView+*exitButton.labelString:  Quit
+PmView+*exitButton.mnemonic:  Q
+PmView+*exitButton.accelerator:  Ctrl<Key>Q
+PmView+*exitButton.acceleratorText:  Ctrl+Q
+PmView+*optionsMenu.labelString:  Options
+PmView+*optionsMenu.mnemonic:  O
+PmView+*showVCRButton.labelString:  Show Time Control
+PmView+*showVCRButton.mnemonic:  T
+PmView+*showVCRButton.accelerator:  Ctrl<Key>T
+PmView+*showVCRButton.acceleratorText:  Ctrl+T
+PmView+*newVCRButton.mnemonic:  N
+PmView+*newVCRButton.labelString:  New Time Control
+PmView+*newVCRButton.accelerator:  Ctrl<Key>N
+PmView+*newVCRButton.acceleratorText:  Ctrl+N
+
+PmView+*launchMenu.labelString:  Launch
+PmView+*launchMenu.mnemonic:  L
+
+PmView+*helpPane.labelString:  Help
+PmView+*helpPane.mnemonic:  H
+PmView+*help_click_for_help.labelString:  Click For Help
+PmView+*help_click_for_help.mnemonic:  C
+PmView+*help_click_for_help.accelerator:  Shift<Key>F1
+PmView+*help_click_for_help.acceleratorText:  Shift+F1
+PmView+*help_overview.labelString:  Overview
+PmView+*help_overview.mnemonic:  O
+PmView+*help_index.labelString:  Index
+PmView+*help_index.mnemonic:  I
+PmView+*help_keys_and_short.labelString:  Keys and Shortcuts
+PmView+*help_keys_and_short.mnemonic:  K
+PmView+*help_prod_info.labelString:  Product Information
+PmView+*help_prod_info.mnemonic:  P
+PmView+*overviewButton.labelString:  Overview
+PmView+*overviewButton.mnemonic:  O
+PmView+*indexButton.labelString:  Index
+PmView+*indexButton.mnemonic:  I
+
+!
+! Scale Thumb Wheel (see SgThumbWheel(3))
+! These resources control the coarseness of the scale wheel (which is
+! logarithmic).  These settings force the wheel to have no maximum or 
+! minimum value and is reasonably fine near the center (scale of 1.0):
+!
+! PmView+*scaleWheel.homePosition:  0
+! PmView+*scaleWheel.maximum:  0
+! PmView+*scaleWheel.minimum:  0
+! PmView+*scaleWheel.unitsPerRotation:  100
+!
+! These settings force a minimum and maximum value which is not as fine
+! for values near the center:
+!
+! PmView+*scaleWheel.homePosition:  0
+! PmView+*scaleWheel.maximum:  80
+! PmView+*scaleWheel.minimum:  -80
+! PmView+*scaleWheel.angleRange:  240
+!
+PmView+*scaleText.value:  1.0000
+PmView+*scaleLabel.labelString:  Scale
+PmView+*scaleWheel.homePosition:  0
+PmView+*scaleWheel.maximum:  0
+PmView+*scaleWheel.minimum:  0
+PmView+*scaleWheel.unitsPerRotation:  100
+PmView+*scaleWheel.angleRange:  240
+
+!
+! Default label text
+!
+PmView+*metricLabel.labelString: \n
+PMView*timeLabel.labelString:
+
+!
+! Background color of read-only labels
+!
+!PmView+*readOnlyBackground: Black
+
+!
+! Maximum value before saturation
+! The default of 1.05 allows for 5% error in the time delta when
+! determining rates, before values are deemed saturated.
+!
+PmView+*saturation: 1.05
+
+!
+! Use fast anti-aliasing
+! See SoXtRenderArea(3)
+!
+PmView+*antiAliasSmooth: tree
+
+!
+! Number of anti-aliasing passes: 1 to 255. Only 1 pass disables antialiasing.
+PmView+*antiAliasPasses: 1
+
+!
+! Title, geometry etc.
+!
+PmView+*vkwindow.title: Performance Metrics Viewer
+PmView+*vkwindow.geometry: 512x512
+
+!
+! Better handling of limited colors with pixmaps 
+!
+PmView+*silenceWarnings: true
+PmView+*xpmColorCloseness: 113512
+
+!
+! Dialogs
+!
+PmView+*fileSelectionDialog.width: 358
+PmView+*fileSelectionDialog.height: 417
+
+!
+! Help
+!
+*helpSubSys:      pcp_eoe.books.PmViewHelp
+*helpTitle:	  pmview Help
+
+!
+! Layout - can be overridden in configuration files
+!
+
+! Grid, Bar and Stack object base borders
+PmView+*baseBorderWidth: 8
+PmView+*baseBorderDepth: 8
+
+! Height of Grid, Bar and Stack bases
+PmView+*baseHeight: 2
+
+! Color of base plane
+PmView+*baseColor: rgbi:0.15/0.15/0.15
+
+! Spacing between Bar blocks
+PmView+*barSpaceWidth: 8
+PmView+*barSpaceDepth: 8
+
+! Spacing between Bar base and labels
+PmView+*barSpaceLabel: 6
+
+! Width and depth of Bar blocks
+PmView+*barLength: 28
+PmView+*barHeight: 80
+
+! Margin around a Label
+PmView+*labelMargin: 5
+
+! Color of labels
+PmView+*labelColor: rgbi:1.0/1.0/1.0
+
+! Width and depth of Grid columns and rows
+PmView+*gridMinWidth: 20
+PmView+*gridMinDepth: 20

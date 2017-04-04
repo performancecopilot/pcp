@@ -1,0 +1,33 @@
+#!/bin/sh
+# PCP QA Test No. 877
+# Exercise several PMCD connection timeout interfaces. 
+#
+# Copyright (c) 2015 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+echo "== early intervention"
+src/clienttimeout -p -s -C -S -P
+echo "== modify after context"
+src/clienttimeout -C -S -P -r 1 -c 2
+echo "== late setting only"
+src/clienttimeout -S -P -r 0.5 -c 0.2
+echo "== initial env vars"
+PMCD_CONNECT_TIMEOUT=150 PMCD_REQUEST_TIMEOUT=60 \
+src/clienttimeout -p -S -P -r 0.5 -c 0.2
+
+# success, all done
+status=0
+exit

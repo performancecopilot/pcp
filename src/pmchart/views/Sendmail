@@ -1,0 +1,10 @@
+#kmchart
+version 1
+
+chart title "Sendmail Bytes [%h]" style plot
+	plot legend "Recv" color #137bfe metric sendmail.total.bytes_from
+	plot legend "Sent" color #fefa1a metric sendmail.total.bytes_to
+
+chart title "Sendmail Mail Items [%h]" style plot
+	plot legend "Recv" color #1e1cfe metric sendmail.total.msgs_from
+	plot legend "Sent" color #fe9913 metric sendmail.total.msgs_to

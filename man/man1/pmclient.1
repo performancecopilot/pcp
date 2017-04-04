@@ -1,0 +1,205 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2016 Red Hat.
+.\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMCLIENT 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmclient\f1,
+\f3pmclient_fg\f1 \- a simple performance metrics client
+.\" literals use .B or \f3
+.\" arguments use .I or \f2
+.SH SYNOPSIS
+\f3pmclient\f1
+[\f3\-a\f1 \f2archive\f1]
+[\f3\-h\f1 \f2host\f1]
+[\f3\-n\f1 \f2pmnsfile\f1]
+[\f3\-P\f1]
+[\f3\-S\f1 \f2numsec\f1]
+[\f3\-s\f1 \f2samples\f1]
+[\f3\-t\f1 \f2interval\f1]
+[\f3\-Z\f1 \f2timezone\f1]
+[\f3\-z\f1]
+.SH DESCRIPTION
+.B pmclient
+and
+.B pmclient_fg
+are simple clients that use the Performance Metrics Application
+Programming Interface (PMAPI) to report some high-level system
+performance metrics.
+.PP
+The real value of these tools 
+is as sample clients using the
+.BR PMAPI (3),
+interfaces and to this end the source
+code is included with
+the Performance Co-Pilot (PCP) package (see
+.BR PCPIntro (1)),
+and is typically installed in
+.IR /usr/share/pcp/demos/pmclient .
+.PP
+The
+.B pmclient_fg
+program
+differs to
+.B pmclient
+in that it uses the fetchgroup API extension to the PMAPI,
+see
+.BR pmFetchGroup (3).
+.PP
+Normally
+.B pmclient
+operates on the distributed Performance Metrics Name Space (PMNS),
+however if the
+.B \-n
+option is specified an alternative local PMNS is loaded from the file
+.IR pmnsfile .
+.PP
+Unless directed to another host by the
+.B \-h
+option, or to an archive by the
+.B \-a
+option,
+.B pmclient
+will contact the Performance Metrics Collector Daemon (PMCD)
+on the local host to obtain the required information.
+The argument to
+.B \-a
+is a comma-separated list of names, each
+of which may be the base name of an archive or the name of a directory containing
+one or more archives.
+The
+.B \-a
+and
+.B \-h
+options are mutually exclusive.
+.PP
+By default,
+.B pmclient
+reports the time of day according to the local timezone on the
+system where
+.B pmclient
+is run.
+The
+.B \-Z
+option changes the timezone to
+.I timezone
+in the format of the environment variable
+.B TZ
+as described in
+.BR environ (7).
+The
+.B \-z
+option changes the timezone to the local timezone at the host that
+is the source of the performance metrics, as identified via either the
+.B \-h
+or
+.B \-a
+options.
+.PP
+Other options control the specific information to be reported.
+.TP
+\f3\-P\f1
+The default behavior for replaying a set of archives, is to replay at
+full speed.  The
+.B \-P
+option may be used in conjunction with a set of archives, to request that
+the prevailing real-time delay be applied between samples (see
+.BR \-t )
+to effect a pause.
+.TP
+\f3\-S\f1 \f2numsec\f1
+The
+.B \-S
+option may be used in conjunction with a set of archives to request that
+display start at the time
+.I numsec
+seconds from the start of the set of archives.
+.TP
+\f3\-s\f1 \f2samples\f1
+The argument
+.I samples
+defines the number of samples to be retrieved and reported.
+If samples is 0 or
+.B \-s
+is not specified,
+.B pmclient
+will sample and report continuously (in real time mode)
+or until the end of the set of PCP archives (in archive mode).
+.TP
+\f3\-t\f1 \f2interval\f1
+The default update \f2interval\f1 may be set to something other than the
+default 5 seconds.
+The
+.I interval
+argument follows the syntax described in
+.BR PCPIntro (1),
+and in the simplest form may be an unsigned integer (the implied
+units in this case are seconds).
+.PP
+The output from
+.B pmclient
+is directed to standard output, and lists
+.IP + 3
+Aggregate CPU utilization, in the range 0 to 1.
+.IP +
+If the system has more than 1 CPU, the ordinal
+number of the busiest CPU, in the range 0 to ...
+.IP +
+If the system has more than 1 CPU, the CPU utilization for the busiest CPU.
+.IP +
+Real free memory in Mbytes.
+.IP +
+Aggregate physical disk I/O operations per second (IOPS).
+.IP +
+Load average over the last 1 minute and over the last 15 minutes.
+.PP
+.SH FILES
+.PD 0
+.TP 10
+.B $PCP_DEMOS_DIR/pmclient
+source code, documentation, configuration files and Makefile
+when the PCP development package is installed
+.PD
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.I /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (5).
+.SH SEE ALSO
+.BR PCPIntro (1),
+.BR pmcd (1),
+.BR pmchart (1),
+.BR pmdumptext (1),
+.BR pmgenmap (1),
+.BR pminfo (1),
+.BR pmrep (1),
+.BR pmstat (1),
+.BR pmval (1),
+.BR PMAPI (3),
+.BR pmFetchGroup (3),
+.BR pcp.conf (5)
+and
+.BR pcp.env (5).
+.SH DIAGNOSTICS
+All are generated on standard error, and are intended to be self-explanatory.

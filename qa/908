@@ -1,0 +1,44 @@
+#!/bin/sh
+# PCP QA Test No. 906
+# Verify indom help text across all installed PMDAs.
+#
+# Copyright (c) 2016 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "cd $here; $sudo rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+pminfo -d | \
+	grep InDom: | \
+	grep -v PM_INDOM_NULL | \
+	sed -e 's/.* InDom: //g' -e 's/ 0x.*$//g' | \
+	LC_COLLATE=POSIX sort -u -n | \
+while read indom
+do
+    # cull out any potentially in-situ domains
+    domain=`echo $indom | sed -e 's/\..*//g'`
+    [ $domain -eq 70 ] && continue	# MMV
+
+    pminfo -tT $indom > $tmp.text 2>&1
+    grep 'Error: One-line or help text is not available' $tmp.text >/dev/null
+    if [ $? -eq 0 ]
+    then
+	echo "Missing help text for indom $indom"
+	echo "For reference, domain $domain from pmcd.agent.status is:"
+	pminfo -f pmcd.agent.status | grep "\[$domain or"
+    fi
+done
+
+# success, all done
+status=0
+exit

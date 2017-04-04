@@ -1,0 +1,41 @@
+#!/bin/sh
+# PCP QA Test No. 901
+# Exercise pmUnpackHighResEventRecords and pmFreeHighResEventResult
+#
+# Copyright (c) 2014 Red Hat.
+# Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+        -e 's/[0-2][0-9]:[0-5][0-9]:[0-5][0-9]\.[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]/TIMESTAMP/g' \
+        -e 's/\[0103070f\.\.\.\]/[0f070301...]/g' \
+        -e '/pmHighResResult dump from/{
+s/0x[0-9a-f][0-9a-f]*/ADDR/
+s/amp: .* num/amp: TIMESTAMPS num/
+}' \
+    | $PCP_AWK_PROG '
+want == 1       { print "   value [blob]"; want = 0; next }
+$1 == "29.0.135"        { want = 1 }
+                { print }'
+}
+
+# real QA test starts here
+src/hrunpack 2>&1 | _filter
+
+# success, all done
+status=0
+exit

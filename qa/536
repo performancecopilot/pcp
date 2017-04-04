@@ -1,0 +1,85 @@
+#!/bin/sh
+# PCP QA Test No. 536
+# testing collectl2pcp functionality
+#
+# Copyright (c) 2013 Red Hat, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf testarchive.* $tmp.*; exit \$status" 0 1 2 3 15
+
+which pmiostat >$seq.full 2>&1 || _notrun pmiostat not installed
+which collectl2pcp >$seq.full 2>&1 || _notrun collectl2pcp not installed
+
+C=./collectl
+TA=testarchive
+
+# real QA test starts here
+
+echo '## Testing host mismatch in headers'
+collectl2pcp -F $C/some_host.raw $C/wrong_host.raw $TA 2>&1
+
+echo '## Testing no archive overwrite'
+collectl2pcp $C/some_host.raw $TA
+
+echo '## Testing archive overwrite with F flag'
+collectl2pcp -F $C/some_host.raw $TA
+
+echo '## Testing correct temporal order of header timestamps'
+collectl2pcp -F $C/some_host.raw $C/some_host_later.raw $TA
+
+echo '## Testing incorrect temporal order of header timestamps'
+collectl2pcp -F $C/some_host_later.raw $C/some_host.raw $TA
+
+echo '## Testing timezone in archive label'
+collectl2pcp -F $C/some_host.raw $TA
+pmdumplog -L $TA | grep timezone
+awk '$6 == "TZ:" {print "collectl header timezone", $7}' $C/some_host.raw
+
+echo '## Testing RHEL64 conversion'
+collectl2pcp -F $C/rhel6.raw.gz $TA
+
+echo '## Testing Debian (sid) conversion, defaults'
+collectl2pcp -F $C/debian_sid_defaults.raw.gz $TA
+
+echo '## Testing load average metric values'
+pmval -z -f 2 -t 10 -a $TA kernel.all.load
+
+echo '## Testing Debian (sid) conversion, detailed'
+collectl2pcp -F $C/debian_sid_detailed.raw.gz $TA
+
+echo '## Testing network interface instance domain'
+pmprobe -I -a $TA network.interface.in.bytes
+
+echo '## Testing some hinv metrics'
+collectl2pcp -F $C/some_host.raw $TA
+pminfo -a $TA -f hinv.ncpu hinv.ndisk
+
+echo '## Testing handling of corrupted or truncated metric values'
+collectl2pcp -F $C/truncated.raw $TA 2>&1
+pminfo -a $TA -f kernel.all.load
+
+echo '## Testing per-CPU metrics'
+collectl2pcp -F $C/some_host.raw $TA
+pmval -z -r -t 10 -a $TA kernel.percpu.cpu.user'[cpu0]'
+awk '/cpu0/ {print "cpu0 raw msec value", $2 * 1000 / 100}' $C/some_host.raw
+
+echo '## Testing pmiostat with disk.dev metrics'
+pmiostat -t 10 -a $TA
+
+echo '## Testing pmiostat with deice-mapper metrics'
+pmiostat -t 10 -a $TA -x dm
+
+# success, all done
+status=0
+
+exit

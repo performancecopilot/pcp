@@ -1,0 +1,24 @@
+######################################################################
+# INPUT/OUTPUT maps
+# O_OBJECT      -> links an opaque C object to a blessed Perl object.
+# 
+TYPEMAP
+pmUnits		T_INT_EQUIV
+pmID		T_INT_EQUIV
+pmInDom		T_INT_EQUIV
+
+######################################################################
+INPUT
+# struct or typedef that is really the same size as a 32-bit integer
+T_INT_EQUIV
+	{
+	    __int32_t tmp = SvIV($arg);
+	    memcpy((void *)&$var, (void *)&tmp, sizeof(__int32_t));
+	}
+
+######################################################################
+OUTPUT
+# struct or typedef that is really the same size as a 32-bit integer
+T_INT_EQUIV
+	sv_setiv($arg, *((int *)&$var));
+######################################################################

@@ -1,0 +1,68 @@
+/*
+ * Event Tracing for Windows PMDA
+ *
+ * Copyright (c) 2011 Nathan Scott.  All Rights Reserved.
+ * 
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+ * for more details.
+ */
+
+@ etw.kernel.process.start.count 
+@ etw.kernel.process.start.records
+@ etw.kernel.process.start.numclients
+@ etw.kernel.process.start.queuemem
+@ etw.kernel.process.start.params.activityid
+@ etw.kernel.process.start.params.pid
+@ etw.kernel.process.start.params.parentid
+@ etw.kernel.process.start.params.starttime
+@ etw.kernel.process.start.params.session
+@ etw.kernel.process.start.params.image_name
+@ etw.kernel.process.exit.count
+@ etw.kernel.process.exit.numclients
+@ etw.kernel.process.exit.queuemem
+@ etw.kernel.process.exit.params.activityid
+@ etw.kernel.process.exit.params.pid
+@ etw.kernel.process.exit.params.parentid
+@ etw.kernel.process.exit.params.starttime
+@ etw.kernel.process.exit.params.exittime
+@ etw.kernel.process.exit.params.exitcode
+@ etw.kernel.process.exit.params.handle_count
+@ etw.kernel.process.exit.params.commit_charge
+@ etw.kernel.process.exit.params.commit_peak
+@ etw.kernel.process.exit.params.image_name
+@ etw.kernel.process.thread.start.count
+@ etw.kernel.process.thread.start.records
+@ etw.kernel.process.thread.start.numclients
+@ etw.kernel.process.thread.start.queuemem
+@ etw.kernel.process.thread.start.params.tid
+@ etw.kernel.process.thread.start.params.pid
+@ etw.kernel.process.thread.stop.count
+@ etw.kernel.process.thread.stop.records
+@ etw.kernel.process.thread.stop.numclients
+@ etw.kernel.process.thread.stop.queuemem
+@ etw.kernel.process.thread.stop.params.activityid
+@ etw.kernel.process.thread.stop.params.tid
+@ etw.kernel.process.thread.stop.params.pid
+@ etw.kernel.process.image_load.count
+@ etw.kernel.process.image_load.records
+@ etw.kernel.process.image_load.numclients
+@ etw.kernel.process.image_load.queuemem
+@ etw.kernel.process.image_load.params.activityid
+@ etw.kernel.process.image_load.params.pid
+@ etw.kernel.process.image_load.params.name
+@ etw.kernel.process.image_load.params.size
+@ etw.kernel.process.image_unload.count
+@ etw.kernel.process.image_unload.records
+@ etw.kernel.process.image_unload.numclients
+@ etw.kernel.process.image_unload.queuemem
+@ etw.kernel.process.image_unload.params.activityid
+@ etw.kernel.process.image_unload.params.pid
+@ etw.kernel.process.image_unload.params.name
+@ etw.kernel.process.image_unload.params.size

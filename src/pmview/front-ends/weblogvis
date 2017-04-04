@@ -1,0 +1,451 @@
+#!/bin/sh
+# Copyright (c) 1995-2000 Silicon Graphics, Inc.  All Rights Reserved.
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+
+tmp=/tmp/$$
+trap "rm -f $tmp.*; exit" 0 1 2 3  15
+rm -f $tmp.*
+
+. $PCP_DIR/etc/pcp.env
+. $PCP_SHARE_DIR/lib/pmview-args
+
+# default idle time
+#
+defidle=3600
+
+_usage()
+{
+    echo >$tmp.msg 'Usage: '$prog' [options] [server ...]
+
+Options
+  -b		display byte rate, rather than request rate
+  -f		display activity by function, rather than activity by
+		result size
+  -i            show server names
+  -I time       maximum expected idle time in seconds [default $defidle]
+  -m max	maximum expected request rate (or maximum byte rate)
+  -V            verbose/diagnostic output
+
+pmview(1) options:'
+    _pmview_usage >> $tmp.msg
+    echo '
+Default title is: Web Log Activity (request rate by result size) for Host' >> $tmp.msg
+    echo '
+  The default is to display the request rate, grouped by result size, for all
+  Web servers on the target host.' | fmt >> $tmp.msg
+    _pmview_info -f $tmp.msg
+}
+
+# --- build WM_COMMAND X(1) property for restart after login/logout ---
+#
+echo -n "pmview Version 2.1 \"$prog\"" >$tmp.pmview
+for arg
+do
+    echo -n " \"$arg\"" >>$tmp.pmview
+done
+echo >> $tmp.pmview
+
+# --- parse command line arguments ---
+#
+verbose=false
+serverList=""
+max=0
+idle=$defidle
+class=size
+show=request
+showInst=false
+
+_pmview_args "$@"
+
+if [ -n "$otherArgs" ]
+then
+    while getopts "?bfiI:m:v:V" c $otherArgs
+    do
+	case $c
+	in
+	    b)	# show bytes not requests
+		show=byte
+		;;
+
+	    f)	# classify by function (method)
+		class=method
+		;;
+	    i)
+		showInst=true
+		;;
+	    I)
+		idle=$OPTARG
+		# and now the obscure +ve integer checking bit
+		# ...note the creative use of unary - to prevent leading signs
+		if [ "X-$idle" != "X`expr 0 + -$idle 2>/dev/null`" ]
+		then
+		    _pmview_error "$prog: -I must have a positive integral argument"
+		    #NOTREACHED
+		fi
+		;;
+	    m)
+		max=$OPTARG
+		# and now the obscure +ve integer checking bit
+		# ...note the creative use of unary - to prevent leading signs
+		if [ "X-$max" != "X`expr 0 + -$max 2>/dev/null`" ]
+		then
+		    _pmview_error "$prog: -m must have a positive integral argument"
+		    #NOTREACHED
+		fi
+		;;
+	    v)
+                if [ $OPTARG = "1" ]
+                then
+                    _pmview_warning "$prog: pmview version 1 no longer supported, using version 2"
+                elif [ $OPTARG != "2" ]
+                then
+                    _pmview_error "$prog: only version 2 supported for -v"
+                    # NOTREACHED
+                fi
+		;;
+	    V)
+		verbose=true
+		;;
+	    '?')
+		_usage
+		exit 1
+		;;
+	esac
+    done
+
+    set - $otherArgs
+    shift `expr $OPTIND - 1`
+    [ $# -gt 0 ] && serverList_sp=$* && serverList=`echo $* | sed -e 's/ /,/g'`
+fi
+[ -z "$titleArg" ] && titleArg="SGI PCP : Web Log Activity"
+
+
+if [ $max = 0 ]
+then
+    if [ $show = request ]
+    then
+	# requests per second
+	max=50
+    else
+	# bytes per second
+	max=500000
+    fi
+fi
+
+
+# maximum req error rate (default: 5% of request rate)
+#
+maxerr=`expr $max / 20`
+
+
+# if metrics source is an archive, and find out name of host
+#
+if [ "X$arch" != X ]
+then
+    host=`pmdumplog -l $arch | $PCP_AWK_PROG '/^Performance/ {print $5}' \
+	| sed -e 's/,//g'`
+    [ "X$host" = X ] && host="unknown host"
+    host="$host (Archive $arch)"
+fi
+
+
+# get perserver instances
+#	in the default case use web.perserver.requests.total
+#	in the -b flag case use web.perserver.bytes.total
+#
+rm -f $tmp.int
+if [ $show = request ]
+then
+    pminfo -f $msource $namespace web.perserver.requests.total \
+		> $tmp.int 2>/dev/null
+else
+    pminfo -f $msource $namespace web.perserver.bytes.total \
+		> $tmp.int 2>/dev/null
+fi
+if [ ! -s $tmp.int ]
+then
+    if [ "X$arch" != "X" ]
+    then
+	_pmview_error "$prog: weblog metrics not included in the archive \"$arch\""
+	#NOTREACHED
+    else
+	_pmview_error "$prog: weblog metrics not available for host \"$host\""
+	#NOTREACHED
+    fi
+fi
+
+sed -e 's/\]//' -e 's/"//g' $tmp.int \
+	| $PCP_AWK_PROG '$1 == "inst" {print $4}' > $tmp.list
+
+if [ ! -s $tmp.list ]
+then
+    if [ "X$arch" != X ]
+    then
+	_pmview_error "$prog: failed to get web servers from archive \"$arch\""
+	#NOTREACHED
+    else
+ 	_pmview_error "$prog: failed to get web servers from host \"$host\""
+	#NOTREACHED
+    fi
+fi
+
+rm -f $tmp.chosen
+if [ -z "$serverList" ]
+then
+    cp $tmp.list $tmp.chosen
+else
+    touch $tmp.chosen
+    for i in $serverList_sp
+    do
+	egrep $i $tmp.list >> $tmp.chosen
+    done
+fi
+
+servers_sp=`cat $tmp.chosen | sort | uniq`
+servers=`echo $servers_sp | sed -e 's/ /,/g'`
+nservers=`echo $servers | wc -w`
+
+if [ $nservers = 0 ]
+then
+    _usage
+    echo
+    echo "Error: $prog: no matching web servers"
+    echo "       Available web servers are: " `cat $tmp.list`
+    exit 1
+fi
+
+
+if [ $show = request ]
+then
+    totalLabel="Total_Req_Rate"
+    label_sp="\"Request Rate\""
+    met="requests"
+    titleArg="$titleArg (request rate"
+else
+    totalLabel="Total_Data_Rate"
+    label_sp="\"Data Rate\""
+    met="bytes"
+    titleArg="$titleArg (data rate"
+fi
+
+#
+# strings for base plane labels
+#
+basestr_idle="Elapsed time since the last request\nNormalized to $idle seconds"
+if [ $show = request ]
+then
+    basestr_total="Total number of HTTP requests processed by server\nNormalized to $max requests per second"
+    basestr_req="HTTP request rate by response size in bytes\nNormalized to $max hits per second"
+    basestr_type="HTTP request rate by HTTP method\nNormalized to $max hits per second"
+else
+    basestr_total="Total number of bytes processed by server\nNormalized to $max bytes per second"
+    basestr_req="HTTP size rate by response size in bytes\nNormalized to $max bytes per second"
+    basestr_type="HTTP size rate by HTTP method\nNormalized to $max hits per second"
+fi
+
+
+#--- config file has already been created; continue writing to it ---
+#
+
+cat << end-of-file >>$tmp.pmview
+#
+# $prog
+#
+# Servers: $servers
+#
+end-of-file
+
+if $verbose
+then
+    if [ "X$serverList" != X ]
+    then
+    	echo "# Matching servers for \"$serverList\": $servers"
+    fi
+fi
+
+if [ $class = size ]
+then
+    titleArg="$titleArg by result size)"
+else
+    titleArg="$titleArg by request type)"
+fi
+
+
+#
+# the real config starts here
+#
+cat << end-of-file >>$tmp.pmview
+
+_scale 1.2
+
+_grid _hide (
+
+	_label 2 0 1 5 _down _large $label_sp
+
+	_bar 0 0 east _col (
+		_metrics (
+			web.perserver.logidletime[$servers]	$idle
+		)
+		_metriclabels ( Idle )
+		_colorList ( orange )
+		_baseLabel "$basestr_idle"
+	)
+
+end-of-file
+
+if [ $class = size ]
+then
+    cat << end-of-file >>$tmp.pmview
+
+	_bar 0 2 east _col (
+		_metrics (
+			web.perserver.$met.total[$servers]	$max
+		)
+		_metriclabels ( Total )
+		_colorList ( rgbi:0.0/0.88/0.88 )
+		_baseLabel "$basestr_total"
+	)
+
+	_bar 0 4 east _col _groupbyinst (
+		_metrics (
+end-of-file
+
+    if [ $show = request ]
+    then
+	cat <<end-of-file >>$tmp.pmview
+			web.perserver.$met.size.unknown[$servers]	$max
+end-of-file
+    fi
+
+	cat << end-of-file >>$tmp.pmview
+			web.perserver.$met.size.gt3m[$servers]		$max
+			web.perserver.$met.size.le3m[$servers]		$max
+			web.perserver.$met.size.le1m[$servers]		$max
+			web.perserver.$met.size.le300k[$servers]	$max
+			web.perserver.$met.size.le100k[$servers]	$max
+			web.perserver.$met.size.le30k[$servers]		$max
+			web.perserver.$met.size.le10k[$servers]		$max
+			web.perserver.$met.size.le3k[$servers]		$max
+end-of-file
+
+    if [ $show = request ]
+    then
+	cat <<end-of-file >>$tmp.pmview
+			web.perserver.$met.size.zero[$servers]	$max
+		)
+		_metriclabels (
+			"?" "> 3M" "1M < 3M" "300K < 1M" "100K < 300K"
+			"30K < 100K" "10K < 30K" "3K < 10K" "0 < 3K" "0K"
+		)
+end-of-file
+    else
+	cat <<end-of-file >>$tmp.pmview
+		)
+		_metriclabels (
+			"> 3M" "1M < 3M" "300K < 1M" "100K < 300K"
+			"30K < 100K" "10K < 30K" "3K < 10K" "0 < 3K"
+		)
+end-of-file
+    fi
+
+    if $showInst
+    then
+	cat <<end-of-file >>$tmp.pmview
+		_instlabels _away ( $servers_sp )
+end-of-file
+    fi
+
+    cat << end-of-file >>$tmp.pmview
+		_colorList (
+			rgbi:1.0/0.35/0.0
+			rgbi:0.6/0.0/0.9
+			rgbi:0.0/1.0/0.0
+			rgbi:1.0/0.5/0.0
+			rgbi:0.65/0.3/1.0
+			rgbi:0.3/1.0/0.3
+			rgbi:1.0/0.65/0.3
+			rgbi:0.8/0.6/1.0
+			rgbi:0.6/1.0/0.6
+			rgbi:1.0/0.8/0.6
+
+		)
+		_baseLabel "$basestr_req"
+	)
+
+end-of-file
+
+else
+    cat << end-of-file >>$tmp.pmview
+
+	_bar 0 2 east _col (
+		_metrics (
+			web.perserver.$met.total[$servers]	$max
+		)
+		_metriclabels ( Total )
+		_colorList ( rgbi:1.0/0.5/0.0 )
+		_baseLabel "$basestr_total"
+	)
+
+	_bar 0 4 east _col (
+		_metrics (
+			web.perserver.$met.get[$servers]	$max
+			web.perserver.$met.head[$servers]	$max
+			web.perserver.$met.post[$servers]	$max
+			web.perserver.$met.other[$servers]	$max
+end-of-file
+
+    if [ $show = request ]
+    then
+	cat << end-of-file >>$tmp.pmview
+			web.perserver.errors[$servers]		$maxerr
+end-of-file
+    fi
+
+    cat << end-of-file >>$tmp.pmview
+		)
+		_metriclabels ( Get Head Post Other Error )
+end-of-file
+
+    if $showInst
+    then
+	cat <<end-of-file >>$tmp.pmview
+		_instlabels _away ( $servers_sp )
+end-of-file
+    fi
+
+	cat << end-of-file >>$tmp.pmview
+		_colorList (
+			rgbi:1.0/1.0/0.0
+			rgbi:0.0/1.0/1.0
+			rgbi:1.0/0.0/1.0
+			rgbi:1.0/1.0/0.6
+			rgbi:0.8/0.0/0.0
+		)
+		_baseLabel "$basestr_type"
+	)
+end-of-file
+
+fi
+
+cat << end-of-file >>$tmp.pmview
+)
+end-of-file
+
+titleArg="$titleArg for Host $host"
+
+$verbose && cat $tmp.pmview
+
+eval $PMVIEW <$tmp.pmview $args -title "'$titleArg'" -xrm "'*iconName: $prog'"
+
+exit
+

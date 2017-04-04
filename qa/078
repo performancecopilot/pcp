@@ -1,0 +1,41 @@
+#!/bin/sh
+# PCP QA Test No. 078
+# -z and -Z for pmdumplog
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+
+# need a constant archive for this ...
+arch=archives/babylon.percpu_v2
+
+trap "rm -f $tmp.*; exit" 0 1 2 3 15
+
+# real QA test starts here
+echo "Dump first 128 bytes ..."
+dd bs=128 count=1 if=$arch.0 2>/dev/null | od -c -j 020 \
+| sed -e 's/^\([0-7][0-7]*\)  */\1 /'
+
+echo ""
+TZ=EST-11
+export TZ
+echo "Local time, TZ=$TZ"
+pmdumplog -l $arch
+
+echo ""
+echo "-Z UTC"
+pmdumplog -l -Z UTC $arch
+
+echo ""
+echo "-Z PDT8"
+pmdumplog -l -Z PDT8 $arch
+
+echo ""
+echo "local time at collection host"
+pmdumplog -lz $arch

@@ -1,0 +1,4 @@
+#pmlogconf-setup 2.0
+ident	nginx server (nginx.org) statistics
+probe	nginx.active exists ? include : exclude
+	nginx

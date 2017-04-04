@@ -1,0 +1,105 @@
+#!/bin/sh
+# PCP QA Test No. 489
+# exercise pmdaCacheStoreKey()
+#
+# Copyright (c) 2011 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "$sudo rm -f $tmp.* $PCP_VAR_DIR/config/pmda/42.42; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+for arg in -k '' -d '-l -Dindom' -dk '-l -Dindom'
+do
+    echo | tee -a $seq.full
+    echo "=== keycache $arg ===" | tee -a $seq.full
+
+    case "$arg"
+    in
+	-l*)
+	    ;;
+	*)
+	    $sudo rm -f $PCP_VAR_DIR/config/pmda/42.42
+	    ;;
+    esac
+
+    $sudo src/keycache $arg >$tmp.out 2>&1
+    cat $tmp.out >>$seq.full
+
+    case "$arg"
+    in
+	-l*)
+	    ;;
+	*)
+	echo "First few lines of output ..."
+	head -20 $tmp.out
+	echo
+	echo "Duplicate instance ids ... expect none"
+	sed -n <$tmp.out \
+	    -e '/pmdaCacheDump:/q' \
+	    -e '/active 0x0/s//active (nil)/' \
+	    -e '/ -> /s/ -> .*//p' \
+	| sort \
+	| uniq -c \
+	| grep -v ' 1 '
+	    ;;
+    esac
+
+    case "$arg"
+    in
+	-d*|-l*)
+	    $PCP_AWK_PROG <$tmp.out '
+/pmdaCacheDump:/	{ want = 1 }
+want == 1		{ print }' \
+	    | sed -e '/active 0x0/s//active (nil)/'
+	    ;;
+
+	*)
+	    echo
+	    echo "Check distribution ..."
+	    $PCP_AWK_PROG <$tmp.out '
+/Instances distribution across/	{ want=1
+				  nb = $4
+				  if ($4 <= 8) {
+				      minp = 0.95 * (1 / nb)
+				      maxp = 1.05 * (1 / nb)
+				  }
+				  else if ($4 <= 16) {
+				      minp = 0.90 * (1 / nb)
+				      maxp = 1.10 * (1 / nb)
+				  }
+				  else if ($4 <= 64) {
+				      minp = 0.80 * (1 / nb)
+				      maxp = 1.20 * (1 / nb)
+				  }
+				  else {
+				      minp = 0.75 * (1 / nb)
+				      maxp = 1.25 * (1 / nb)
+				  }
+				  print
+				  next
+				}
+want == 1 && NF == 0		{ want = 0 }
+want == 1			{ for (i = 1; i <= NF; i++) {
+					if (minp <= $i && $i <= maxp)
+					    printf "OK "
+					else
+					    printf "%s not in (%.4f,%.4f) ",$i,minp,maxp
+				      }
+				      print ""
+				    }'
+		;;
+	esac
+    done
+
+# success, all done
+exit

@@ -1,0 +1,71 @@
+#! /bin/sh
+# PCP QA Test No. 228
+# pmie macro name handling in lexical scanner
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+
+status=1
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    _show_pmie_errors \
+    | sed -e '/warning cannot create stats file dir/d'
+}
+
+# real QA test starts here
+echo "special chars in macro name ..."
+cat >$tmp.conf <<'End-of-File'
+f_o_o_ = "sample";
+foo = "sample";
+'f!o!o' = "sample";
+
+x = $foo.long.ten;
+y = $f_o_o_.long.ten;
+z = $'f!o!o'.long.ten;
+End-of-File
+pmie -v -t 1 -T 1 <$tmp.conf >$tmp.out 2>$tmp.err
+cat $tmp.out $tmp.err | _filter
+
+echo
+echo "some syntax errors ..."
+
+cat >$tmp.conf <<'End-of-File'
+// $foo-not-bar not defined
+x = $'foo-not-bar'.long.ten;
+End-of-File
+pmie -v -t 1 -T 1 <$tmp.conf >$tmp.out 2>$tmp.err
+cat $tmp.out $tmp.err | _filter
+
+cat >$tmp.conf <<'End-of-File'
+// $foo not defined
+x = $foo
+End-of-File
+pmie -v -t 1 -T 1 <$tmp.conf >$tmp.out 2>$tmp.err
+cat $tmp.out $tmp.err | _filter
+
+cat >$tmp.conf <<'End-of-File'
+// e-o-f before end of macro name
+x = $'foo-not-bar
+End-of-File
+pmie -v -t 1 -T 1 <$tmp.conf >$tmp.out 2>$tmp.err
+cat $tmp.out $tmp.err | _filter
+
+cat >$tmp.conf <<'End-of-File'
+// macro name way too long
+x = $'foo.long.ten.this.is.some.long.and.boring.text.to.make.the.macro.name.exceed.the.250-odd.char.limit.this.is.some.long.and.boring.text.to.make.the.macro.name.exceed.the.250-odd.char.limit.this.is.some.long.and.boring.text.to.make.the.macro.name.exceed.the.250-odd.char.limit';
+End-of-File
+pmie -v -t 1 -T 1 <$tmp.conf >$tmp.out 2>$tmp.err
+cat $tmp.out $tmp.err | _filter
+
+# all done
+status=0
+exit

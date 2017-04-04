@@ -1,0 +1,41 @@
+#!/bin/sh
+#
+# Cleanup when going from PCP 3.x to 3.6 or vice versa
+#
+
+here=`pwd`
+if [ -d $HOME/src/pcp/src/libpcp_fault/src/GNUmakefile ]
+then
+    # 3.x -> 3.6 make libpcp_fault and <pcp/fault.h>
+    #
+    cd $HOME/src/pcp
+    ${MAKE:-make} pcp.lsm
+    ./config.status
+    cd src/include
+    ${MAKE:-make}
+    cd ../libpcp_fault/src
+    ${MAKE:-make}
+    sudo ${MAKE:-make} install
+    ${MAKE:-make} clean
+else
+    # 3.6 -> 3.x cleanup
+    #
+    sudo rm -f /usr/lib/libpcp_fault* /usr/include/pcp/fault.h
+fi
+cd $here
+
+rm -f src/descreqX2 src/torture_logmeta
+rm -f src/check_fault_injection src/exercise_fault
+
+cd src
+if [ -f GNUmakefile.install ]
+then
+    # running QA in the tree
+    ${MAKE:-make} -f GNUmakefile.install
+else
+    ${MAKE:-make}
+fi
+cd $here
+
+echo "To check ..."
+echo "./check 192 479 480"

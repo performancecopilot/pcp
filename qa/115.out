@@ -1,0 +1,192 @@
+QA output created by 115
+pmie count at start of QA testing: 0
+
+=== check default install operation ===
+$PCP_RC_DIR/pmie: Warning: Performance Co-Pilot Inference Engine (pmie) not permanently enabled.
+Starting pmie ... 
+pmie count after chkconfig pmie off: 1
+
+=== check for missing control file ===
+$PCP_RC_DIR/pmie:
+Error: PCP inference engine control file $PCP_PMIECONTROL_PATH
+       is missing!  Cannot start any Performance Co-Pilot inference engine(s).
+failed (status=1)
+pmie count after attempt without control file: 0
+
+=== check pmie_check and custom configs ===
+--- v1.0 ---
+# $version=1.0    
++ export version; version=1.0    
+Check pmie -h REMOTEHOST -l /tmp/SEQ-PID.log1 ...
++ cd /tmp
+No current pmie process exists for:
+    host = REMOTEHOST
+    log file = /tmp/SEQ-PID.log1
+Restarting pmie for host "REMOTEHOST" ...
++ $PCP_BIN_DIR/pmie -b -h REMOTEHOST -l /tmp/SEQ-PID.log1 -c /tmp/SEQ-PID.conf
+Check pmie -h REMOTEHOST -l /tmp/SEQ-PID.log2 ...
++ cd /tmp
+No current pmie process exists for:
+    host = REMOTEHOST
+    log file = /tmp/SEQ-PID.log2
+Restarting pmie for host "REMOTEHOST" ...
++ $PCP_BIN_DIR/pmie -b -h REMOTEHOST -l /tmp/SEQ-PID.log2 -c /tmp/SEQ-PID.conf
+Check pmie -h LOCALHOST -l /tmp/SEQ-PID.log0 ...
++ cd /tmp
+No current pmie process exists for:
+    host = LOCALHOST
+    log file = /tmp/SEQ-PID.log0
+Restarting pmie for host "LOCALHOST" ...
++ $PCP_BIN_DIR/pmie -b -h LOCALHOST -l /tmp/SEQ-PID.log0 -c /tmp/SEQ-PID.conf
+
+--- v1.1 ---
+# $version=1.1    
++ export version; version=1.1    
+Check pmie -h REMOTEHOST -l /tmp/SEQ-PID.log1 ...
++ cd /tmp
+No current pmie process exists for:
+    host = REMOTEHOST
+    log file = /tmp/SEQ-PID.log1
+Restarting pmie for host "REMOTEHOST" ...
++ $PCP_BIN_DIR/pmie -b -h REMOTEHOST -l /tmp/SEQ-PID.log1 -c /tmp/SEQ-PID.conf
+Check pmie -h REMOTEHOST -l /tmp/SEQ-PID.log2 ...
++ cd /tmp
+No current pmie process exists for:
+    host = REMOTEHOST
+    log file = /tmp/SEQ-PID.log2
+Restarting pmie for host "REMOTEHOST" ...
++ $PCP_BIN_DIR/pmie -b -h REMOTEHOST -l /tmp/SEQ-PID.log2 -c /tmp/SEQ-PID.conf
+Check pmie -h LOCALHOST -l /tmp/SEQ-PID.log0 ...
++ cd /tmp
+No current pmie process exists for:
+    host = LOCALHOST
+    log file = /tmp/SEQ-PID.log0
+Restarting pmie for host "LOCALHOST" ...
++ $PCP_BIN_DIR/pmie -b -h LOCALHOST -l /tmp/SEQ-PID.log0 -c /tmp/SEQ-PID.conf
+
+=== warnings ... ===
+--- stale lock file ---
+# $version=1.1    
++ export version; version=1.1    
+Check pmie -h LOCALHOST -l /tmp/SEQ-PID.locker/ok.1 ...
++ cd /tmp/SEQ-PID.locker
+pmie_check [/tmp/SEQ-PID.warning.1:2]
+Warning: removing lock file older than 30 minutes
+... ls output ... tmp/SEQ-PID.locker/ok.1.lock
+No current pmie process exists for:
+    host = LOCALHOST
+    log file = /tmp/SEQ-PID.locker/ok.1
+Restarting pmie for host "LOCALHOST" ...
++ $PCP_BIN_DIR/pmie -b -h LOCALHOST -l /tmp/SEQ-PID.locker/ok.1 -c /tmp/SEQ-PID.conf
+
+--- existing lock file ---
+# $version=1.1    
++ export version; version=1.1    
+Check pmie -h LOCALHOST -l /tmp/SEQ-PID.locker/ok.2 ...
++ cd /tmp/SEQ-PID.locker
+pmie_check [/tmp/SEQ-PID.warning.2:2]
+Warning: is another PCP cron job running concurrently?
+... ls output ... tmp/SEQ-PID.locker/ok.2.lock
+pmie_check [/tmp/SEQ-PID.warning.2:2]
+Warning: failed to acquire exclusive lock (/tmp/SEQ-PID.locker/ok.2.lock) ...
+
+--- can't create lock file ---
+# $version=1.1    
++ export version; version=1.1    
+Check pmie -h LOCALHOST -l /tmp/SEQ-PID.locker/ok.3 ...
++ cd /tmp/SEQ-PID.locker
+pmie_check [/tmp/SEQ-PID.warning.3:2]
+Warning: no write access in /tmp/SEQ-PID.locker, skip lock file processing
+... ls output ... tmp/SEQ-PID.locker
+No current pmie process exists for:
+    host = LOCALHOST
+    log file = /tmp/SEQ-PID.locker/ok.3
+Restarting pmie for host "LOCALHOST" ...
++ $PCP_BIN_DIR/pmie -b -h LOCALHOST -l /tmp/SEQ-PID.locker/ok.3 -c /tmp/SEQ-PID.conf
+
+--- bad in-line shell commands ---
+# $version=1.1    
++ export version; version=1.1    
+# $date    
+pmie_check [/tmp/SEQ-PID.warning.4:2]
+Warning: in-line command is not a variable assignment, line ignored
+# $PATH=/some/where/bad:$PATH    
+pmie_check [/tmp/SEQ-PID.warning.4:3]
+Warning: cannot change $PATH, line ignored
+# $IFS=a    
+pmie_check [/tmp/SEQ-PID.warning.4:4]
+Warning: cannot change $IFS, line ignored
+Check pmie -h LOCALHOST -l /tmp/SEQ-PID.ok.4 ...
++ cd /tmp
+No current pmie process exists for:
+    host = LOCALHOST
+    log file = /tmp/SEQ-PID.ok.4
+Restarting pmie for host "LOCALHOST" ...
++ $PCP_BIN_DIR/pmie -b -h LOCALHOST -l /tmp/SEQ-PID.ok.4 -c /tmp/SEQ-PID.conf
+
+--- missing $version but really v1.1 ... original control.local issue ---
+pmie_check [/tmp/SEQ-PID.warning.5:1]
+Warning: missing $version, assuming version 1.0 control format
+pmie_check: [/tmp/SEQ-PID.warning.5:1]
+Error: args field in control file must begin with a hyphen not "/tmp/SEQ-PID.ok.5 -c /tmp/SEQ-PID.conf"
+... automated performance reasoning for host "LOCALHOSTNAME" unchanged
+
+=== errors ... ===
+--- bad version ---
+# $version=0.0    
++ export version; version=0.0    
+pmie_check: [/tmp/SEQ-PID.error.1:2]
+Error: bad version (0.0) in control file
+... automated performance reasoning for host "LOCALHOSTNAME" unchanged
+
+--- v1.0 socks != y|n ---
+# $version=1.0    
++ export version; version=1.0    
+pmie_check: [/tmp/SEQ-PID.error.2:2]
+Error: socks field in control file record must be y or n, not "x"
+... automated performance reasoning for host "LOCALHOSTNAME" unchanged
+
+--- v1.1 socks != y|n ---
+# $version=1.1    
++ export version; version=1.1    
+pmie_check: [/tmp/SEQ-PID.error.3:2]
+Error: socks field in control file record must be y or n, not "x"
+... automated performance reasoning for host "LOCALHOSTNAME" unchanged
+
+--- v1.1 primary != y|n ---
+# $version=1.1    
++ export version; version=1.1    
+pmie_check: [/tmp/SEQ-PID.error.4:2]
+Error: primary field in control file record must be y or n, not "x"
+... automated performance reasoning for host "LOCALHOSTNAME" unchanged
+
+--- v1.0 insufficient fields ---
+# $version=1.0    
++ export version; version=1.0    
+pmie_check: [/tmp/SEQ-PID.error.5:2]
+Error: insufficient fields in control file record
+... automated performance reasoning for host "LOCALHOSTNAME" unchanged
+
+--- v1.1 insufficient fields ---
+# $version=1.1    
++ export version; version=1.1    
+pmie_check: [/tmp/SEQ-PID.error.6:2]
+Error: insufficient fields in control file record
+... automated performance reasoning for host "LOCALHOSTNAME" unchanged
+
+--- can't create dir for logfile ---
+# $version=1.1    
++ export version; version=1.1    
+Check pmie -h LOCALHOST -l /tmp/SEQ-PID.nogo/subdir/bad.7 ...
+pmie_check: [/tmp/SEQ-PID.error.7:2]
+Error: cannot create directory (/tmp/SEQ-PID.nogo/subdir) for pmie log file
+... automated performance reasoning for host "LOCALHOST" unchanged
+
+--- can't chdir to dir for logfile ---
+# $version=1.1    
++ export version; version=1.1    
+Check pmie -h LOCALHOST -l /tmp/SEQ-PID.nogo/bad.8 ...
+pmie_check: [/tmp/SEQ-PID.error.8:2]
+Error: cannot chdir to directory (/tmp/SEQ-PID.nogo) for pmie log file
+... automated performance reasoning for host "LOCALHOST" unchanged
+

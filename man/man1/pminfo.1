@@ -1,0 +1,274 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2016 Red Hat.
+.\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMINFO 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pminfo\f1 \- display information about performance metrics
+.SH SYNOPSIS
+\f3pminfo\f1
+[\f3\-dfFLmMtTvxz\f1]
+[\f3\-a\f1 \f2archive\f1]
+[\f3\-b\f1 \f2batchsize\f1]
+[\f3\-c\f1 \f2dmfile\f1]
+[\f3\-h\f1 \f2hostname\f1]
+[\f3\-K\f1 \f2spec\f1]
+[\f3\-\f1[\f3n\f1|\f3N\f1] \f2pmnsfile\f1]
+[\f3\-O\f1 \f2time\f1]
+[\f3\-Z\f1 \f2timezone\f1]
+[\f2metricname\f1 | \f2pmid\f1 | \f2indom\f1]...
+.SH DESCRIPTION
+.B pminfo
+displays various types of information about performance metrics
+available through the facilities of the Performance Co-Pilot (PCP).
+.PP
+Normally
+.B pminfo
+operates on the distributed Performance Metrics Name Space (PMNS), however
+if the
+.B \-n
+option is specified an alternative local PMNS is loaded
+from the file
+.IR pmnsfile.
+The
+.B \-N
+option supports the same function as
+.BR \-n ,
+except for the handling of
+duplicate names for the same Performance Metric Identifier (PMID) in
+.I pmnsfile
+\- duplicate names are allowed with
+.B \-n
+they are not allowed with
+.BR \-N .
+.PP
+The metrics of interest are named in the
+.I metricname
+arguments.
+If
+.I metricname
+is a non-leaf node in the PMNS, then
+.B pminfo
+will recursively descend the PMNS and report on all leaf nodes.
+If no
+.I metricname
+argument is given, the root of the PMNS is used.
+.PP
+If the
+.I metricname
+argument is in numeric dotted notation, it is interpreted as either
+a 3-dotted
+.I pmid
+(metric identifier \- domain, cluster, item numbers) or
+a 2-dotted
+.I indom
+(instance domain identifier \- domain, serial number).
+In the
+.I pmid
+case, a reverse PMID-to-name lookup is performed, and in the
+.I indom
+case, the instance domain is reported on directly.
+This latter mode can be used to report the instance domain
+``one line'' and long form help text summaries.
+.PP
+Unless directed to another host by the
+.B \-h
+option, by default
+.B pminfo
+will contact the Performance Metrics Collector Daemon
+(PMCD) on the local host.
+The connection to a PMCD is only required if
+.B pminfo
+requires distributed PMNS information, and/or meta-data
+describing metrics, and/or metric values, and/or help text.
+.PP
+The
+.B \-a
+option causes
+.B pminfo
+to use the specified set of archives rather than connecting to a PMCD.
+The argument to
+.B \-a
+is a comma-separated list of names, each
+of which may be the base name of an archive or the name of a directory containing
+one or more archives.
+The
+.B \-a , \-h
+and
+.B \-L
+options are mutually exclusive.
+.PP
+The
+.B \-L
+option causes
+.B pminfo
+to use a local context to collect metrics from PMDAs on the local host
+without PMCD.  Only some metrics are available in this mode.
+The
+.BR \-a , \-h
+and
+.B \-L
+options are mutually exclusive.
+.PP
+The
+.B \-b
+option may be used to define the maximum size of the group of metrics to
+be fetched in a single request for the
+.B \-f
+and
+.B \-v
+options.  The default value for
+.I batchsize
+is 128.
+.PP
+Other options control the specific information to be reported.
+.TP 5
+.B \-c
+The
+.I dmfile
+argument specifies a file that contains derived metric definitions
+in the format described for
+.BR pmLoadDerivedConfig (3).
+The
+.B \-c
+option provides a way to load derived metric definitions
+that is an alternative to the more generic use of the
+.B PCP_DERIVED_CONFIG
+environment variable as described in
+.BR PCPIntro (1).
+Using the
+.B \-c
+option and the
+.B PCP_DERIVED_CONFIG
+environment variable to specify the
+.B same
+configuration is a bad idea, so choose one or the other method.
+.TP
+.B \-d
+Metric descriptions detailing the PMID, data type, data semantics, units,
+scale and associated instance domain.
+.TP
+.B \-f
+Fetch and print values for all instances.
+When fetching from a set if archives, only
+those instances present in the first archive record for a metric will be
+displayed; see also the
+.B \-O
+option, else use
+.BR pmdumplog (1)
+which may be a better tool for examining archives.
+.TP
+.B \-F
+Same as
+.B \-f
+but try harder to fetch instances for metrics which have non-enumerable
+instance domains (e.g. metrics in the ``proc'' subtree of the default
+PMNS).
+.TP
+.B \-K
+When using the
+.B \-L
+option to fetch metrics from a local context, the
+.B \-K
+option may be used to control the DSO PMDAs that should be
+made accessible.  The
+.I spec
+argument conforms to the syntax described in
+.BR __pmSpecLocalPMDA (3).
+More than one
+.B \-K
+option may be used.
+.TP
+.B \-m
+Print the PMID in terse mode.
+.TP
+.B \-M
+Print the PMID in verbose mode.
+.TP
+.B \-O
+When used in conjunction with an archive source of metrics and
+the options
+.B \-f
+or
+.BR \-F ,
+the
+.I time
+argument defines a time origin at which the metrics should be
+fetched from the set of archives.
+Refer to
+.BR PCPIntro (1)
+for a complete description of this option, and the syntax for the
+.I time
+argument.
+.TP
+.B \-t
+Print the ``one line'' help summary, if available.
+.TP
+.B \-T
+Print the help text, if available.
+.TP
+.B \-v
+Verify mode in which descriptions and values are retrieved, but only
+error conditions are reported.  This option silently disables any
+output from the options
+.BR \-f ,
+.BR \-M ,
+.BR \-m ,
+.B \-t
+and
+.BR \-T .
+.TP
+.B \-x
+Like the
+.B \-f
+option, but with the additional functionality that if a value is
+processed that is of type PM_TYPE_EVENT, then the event records
+will be unpacked and the details of each event record reported.
+.SH FILES
+.PD 0
+.TP 10
+.BI $PCP_VAR_DIR/pmns/ *
+default local PMNS specification files
+.PD
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.I /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (5).
+.SH SEE ALSO
+.BR PCPIntro (1),
+.BR pmcd (1),
+.BR pmchart (1),
+.BR pmdumplog (1),
+.BR pmdumptext (1),
+.BR pmprobe (1),
+.BR pmrep (1),
+.BR pmval (1),
+.BR PMAPI (3),
+.BR pmLoadDerivedConfig (3),
+.BR __pmSpecLocalPMDA (3),
+.BR pcp.conf (5),
+.BR pcp.env (5)
+and
+.BR pmns (5).

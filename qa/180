@@ -1,0 +1,72 @@
+#! /bin/sh
+# PCP QA Test No. 180
+# log scanning for bigace
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+arch=archives/bigace_v2
+
+trap "rm -f $tmp.*; exit" 0 1 2 3 15
+
+_do_cpu()
+{
+    $PCP_AWK_PROG	'
+	{ cpu += $2 }
+END	{ if (cpu < 3) print "CPU: less than 3 sec"
+	  else if (cpu < 10) print "CPU: between 3 and 10 sec"
+	  else print "CPU: roughly " 10*int((cpu+5)/10) " sec"
+	}'
+}
+
+# real QA test starts here
+cat <<'End-of-File' >$tmp.pmns
+root {
+    foo	40:2:1
+}
+End-of-File
+
+DEBUG=-D386
+DEBUG=-D128
+DEBUG=
+
+DELTA=20
+time=`which time 2>/dev/null`
+
+echo "=== all of the instances ==="
+if test -n "$time"
+then
+    ( $time pmval -z -n $tmp.pmns -a $arch -t $DELTA foo ) >$tmp.out 2>$tmp.err
+else
+    echo "Warning: no time(1) executable found ...."
+    pmval -z -n $tmp.pmns -a $arch -t $DELTA foo >$tmp.out 2>$tmp.err
+fi
+cat $tmp.out
+echo
+echo "samples: `grep '^[0-9][0-9]:' $tmp.out | wc -l | sed -e 's/  *//g'`"
+egrep '^(user|sys)' $tmp.err | _do_cpu
+pmval -z -D128 -n $tmp.pmns -a $arch -t $DELTA foo 2>$tmp.err >/dev/null
+echo "__pmLogReads: `grep __pmLogRead $tmp.err | wc -l | sed -e 's/  *//g'`"
+
+echo
+echo "=== just instance #4653127 (always there) ==="
+if test -n "$time"
+then
+    ( $time pmval -z -i 4653127 -n $tmp.pmns -a $arch -t $DELTA foo ) >$tmp.out 2>$tmp.err
+else
+    pmval -z -i 4653127 -n $tmp.pmns -a $arch -t $DELTA foo >$tmp.out 2>$tmp.err
+fi
+cat $tmp.out
+echo
+echo "samples: `grep '^[0-9][0-9]:' $tmp.out | wc -l | sed -e 's/  *//g'`"
+egrep '^(user|sys)' $tmp.err | _do_cpu
+pmval -z -D128 -i 4653127 -n $tmp.pmns -a $arch -t $DELTA foo 2>$tmp.err >/dev/null
+echo "__pmLogReads: `grep __pmLogRead $tmp.err | wc -l | sed -e 's/  *//g'`"

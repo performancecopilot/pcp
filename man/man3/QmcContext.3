@@ -1,0 +1,132 @@
+'\"macro stdmacro
+.\" Copyright (c) 2005 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.TH QMC_CONTEXT 3 "SGI" "Performance Co-Pilot"
+.SH NAME
+\f3QmcContext\f1 \- container for a PMAPI context and its metrics
+.SH "C++ SYNOPSIS"
+.ft 3
+#include <QmcContext.h>
+.sp
+CC ... \-lqmc \-lpcp 
+.ft 1
+.SH DESCRIPTION
+A
+.B QmcContext
+object is a container for a single 
+.BR PMAPI (3)
+context.  The object maintains a list of all the metric descriptors
+.RB ( QmcDesc ),
+instance domains
+.RB ( QmcIndom )
+and
+metrics
+.RB ( QmcMetric )
+using the context to minimize the duplication of these objects.
+.SH "CONSTRUCTORS"
+A
+.B QmcContext
+object should be constructed through the
+.B QmcGroup::use
+interface.
+.SH "DESCRIPTOR LOOKUP"
+The metric and instance domain descriptors are cached by the
+.B QmcContext
+object to reduce duplicate
+.BR QmcDesc (3)
+and
+.BR QmcIndom (3)
+objects and
+.BR PMAPI (3)
+calls required to create them.  Also the mapping from metrics names to 
+.BR pmID s
+is also maintained to avoid
+.BR pmLookupName (3)
+calls.
+.TP 4
+.B "int lookupDesc(const char *name, pmID& id);"
+Search for the metric
+.I name
+in the name list and set 
+.B id
+to the known
+.BR pmID .
+If not found, use
+.BR pmLookupName (3)
+to get the mapping.  If this call fails, the
+.BR PMAPI (3)
+error code will be returned.
+.TP
+.B "int lookupDesc(const char *name, uint_t& desc, uint_t& indom);"
+Find the index 
+.I desc
+and
+.I indom
+to the
+.B QmcDesc
+object and the
+.B QmcIndom
+object for the metric 
+.IR name .
+The indexes can then be used with 
+.B QmcContext::desc
+and
+.B QmcContext::indom
+to obtain references to the real objects.
+The methods will return a
+.BR PMAPI (3)
+error code if the metric descriptor or instance domain could not be obtained.
+.TP
+.B "int lookupDesc(pmID pmid, uint_t& desc, uint_t& indom);"
+Find the index 
+.I desc
+and
+.I indom
+to the
+.B QmcDesc
+object and the
+.B QmcIndom
+object for the metric
+.IR pmid .
+The indexes can then be used with 
+.B QmcContext::desc
+and
+.B QmcContext::indom
+to obtain references to the real objects.
+The methods will return a
+.BR PMAPI (3)
+error code if the metric descriptor or instance domain could not be obtained.
+.SH SEE ALSO
+.BR PMAPI (3),
+.BR QMC (3),
+.BR QmcDesc (3),
+.BR QmcGroup (3),
+.BR QmcIndom (3),
+.BR QmcMetric (3),
+.BR pmflush (3),
+.BR pmLookupName (3)
+and
+.BR pmprintf (3).
+.SH DIAGNOSTICS
+Error messages are generated using
+.BR pmprintf (3)
+but are not flushed. It is the responsibility of the user to call
+.BR pmflush (3)
+to output any messages.
+.PP
+Additional diagnostics may be activated by adding 
+.B DBG_TRACE_PMC
+and
+.B DBG_TRACE_OPTFETCH
+to the global
+.IR pmDebug .

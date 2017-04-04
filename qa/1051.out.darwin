@@ -1,0 +1,17 @@
+QA output created by 1051
+Warning - failed to expand action for rule cpu.load_average
+  string: "$syslog_prefix$$rule$^ $action_expand$"
+Warning - failed to expand action for rule cpu.system
+  string: "$syslog_prefix$$rule$^ $action_expand$"
+Warning - failed to expand action for rule filesys.filling
+  string: "$syslog_prefix$$rule$^ $action_expand$"
+Warning - failed to expand action for rule per_cpu.system
+  string: "$syslog_prefix$$rule$^ $action_expand$"
+Warning - failed to expand action for rule per_netif.collisions
+  string: "$syslog_prefix$$rule$^ $action_expand$"
+Warning - failed to expand action for rule per_netif.errors
+  string: "$syslog_prefix$$rule$^ $action_expand$"
+Warning - failed to expand action for rule per_netif.util
+  string: "$syslog_prefix$$rule$^ $action_expand$"
+Warning - failed to expand action for rule shping.status
+  string: "$syslog_prefix$$rule$^ $action_expand$"

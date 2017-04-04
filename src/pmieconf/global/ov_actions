@@ -1,0 +1,53 @@
+#pmieconf-rules 1
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(5)
+# 
+
+shell	global.ov_action
+	enabled	= no
+	default	= "OID=.1.3.6.1.4.1.11.2.17; export OID; $ov_bin$/ovevent -c '$ov_category$' -s '$ov_severity$' '$ov_node$' ^\\\\${OID}.1.0.58916872 \\\\${OID}.2.1.0 Integer 0 \\\\${OID}.2.2.0 OctetString '%h' \\\\${OID}.2.4.0 OctetString '$rule$^ $action_expand$^'"
+	# 4 backquotes gives a shell variable - '$' is a special character
+	# to pmieconf, pmie, and the shell - so need to backquote it up the
+	# whazoo to get this to come out right!
+	# 
+	help	=
+"The HP OpenView Network Node Manager event subsystem on ov_node will
+receive an OV_Message event when the rule condition is true.
+This action requires the ovevent(1) program which is part of the HP
+OpenView package (refer to the ov_bin variable description also).";
+
+string	global.ov_bin
+	default	= "/opt/OV/bin"
+	help	=
+"The full path to the HP OpenView ovevent(1) program, which is used to
+propagate external events into the OpenView framework.";
+
+string	global.ov_node
+	default	= ""
+	help	=
+"The node on which the HP OpenView pmd(1M) daemon is running, which 
+will reliably broadcast the pmie event to all interested HP OpenView
+processes.
+The node can be either an Internet address or host name (see hosts(4)),
+and is usually the local host except when run from a management console
+(client host).  An empty string is equivalent to the local host.";
+
+string	global.ov_severity
+	default	= "Warning"
+	display	= no
+	help	=
+"Severity with which an event will be reported to the HP OpenView node
+manager on ov_node.  Valid values are \"Critical\", \"Major\", \"Minor\",
+\"Warning\" and \"Normal\".";
+
+string	global.ov_category
+	default	= "Threshold Events"
+	display	= no
+	help	=
+"Category with which an event will be reported to the HP OpenView node
+manager on ov_node.  The category must be one of the existing event
+categories; the default categories defined in trapd.conf(4) are:
+\"IGNORE\", \"LOGONLY\", \"Error Events\", \"Threshold Events\", \"Status
+Events\", \"Configuration Events\", and \"Application Alert Events\".";
+
+# 
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(5)

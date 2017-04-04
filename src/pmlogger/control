@@ -1,0 +1,54 @@
+#
+# PCP archive logging configuration/control
+#
+# This file is used by various of the PCP archive logging administrative
+# tools to perform maintenance on the pmlogger instances running on
+# the local host.
+#
+# This file contains one line per host to be logged, fields are
+#    Host	name of host to be logged
+#    P(rimary)	is this the primary logger? y or n
+#    S(ocks)	should this logger be launched with pmsocks? y or n
+#    Directory	full pathname to directory where archive logs are
+#		to be maintained ... note all scripts "cd" to here as
+#		a first step
+#    Args	optional additional arguments to pmlogger and/or pmnewlog
+#
+# All files below "${PCP_PMLOGGERCONTROL_PATH}.d" are appended to this
+# file before evaluation, if any exist.
+#
+
+# === VARIABLE ASSIGNMENTS ===
+#
+# DO NOT REMOVE OR EDIT THE FOLLOWING LINE
+$version=1.1
+
+# if pmsocks is being used, edit the IP address for $SOCKS_SERVER
+#$SOCKS_SERVER=123.456.789.123
+
+# for remote loggers running over a WAN with potentially long delays
+#$PMCD_CONNECT_TIMEOUT=20; export PMCD_CONNECT_TIMEOUT
+#$PMCD_REQUEST_TIMEOUT=15; export PMCD_REQUEST_TIMEOUT
+
+# === LOGGER CONTROL SPECIFICATIONS ===
+#
+#Host		P?  S?	directory				args
+
+#
+# Note: - LOCALHOSTNAME will be expanded to local: in the first column,
+#         and to `hostname` in the fourth (directory) column
+#       - Default local primary logger specification is nowadays setup
+#         via ${PCP_PMLOGGERCONTROL_PATH}.d/local
+#	- If multiple pmloggers for the same host (e.g. both primary and
+#	  non-primary loggers are active), then they MUST use different
+#	  directories
+#
+
+# local non-primary logger
+#LOCALHOSTNAME	n   n	PCP_LOG_DIR/pmlogger/mysummary		-r -T24h10m -c config.Summary
+
+# remote host
+#remote		n   n	PCP_LOG_DIR/pmlogger/remote		-r -T24h10m -c config.remote
+
+# thru the firewall via socks
+#distant	n   y	PCP_LOG_DIR/pmlogger/distant		-r -T24h10m -c config.distant

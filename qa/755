@@ -1,0 +1,80 @@
+#!/bin/sh
+# PCP QA Test No. 755
+# Exercise the Apache PMDA Install/Remove.
+#
+# Copyright (c) 2014-2016 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ -f $PCP_PMDAS_DIR/apache/pmdaapache ] || _notrun "apache pmda not installed"
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+
+_filter_apache()
+{
+    # cull message resulting from no running httpd
+    grep -v 'Information not currently available'
+}
+
+pmdaapache_remove()
+{
+    echo
+    echo "=== remove apache agent ==="
+    $sudo ./Remove >$tmp.out 2>&1
+    _filter_pmda_remove <$tmp.out
+}
+
+pmdaapache_install()
+{
+    # start from known starting points
+    cd $PCP_PMDAS_DIR/apache
+    $sudo ./Remove >/dev/null 2>&1
+
+    echo
+    echo "=== apache agent installation ==="
+    $sudo ./Install </dev/null >$tmp.out 2>&1
+    cat $tmp.out >>$here/$seq.full
+    # Check apache metrics have appeared ... X metrics and Y values
+    _filter_pmda_install <$tmp.out \
+    | sed \
+        -e 's/[0-9][0-9]* warnings, //' \
+    | $PCP_AWK_PROG '
+/Check apache metrics have appeared/    { if ($7 >= 20 && $7 <= 80) $7 = "X"
+                                          if ($10 >= 0 && $10 <= 80) $10 = "Y"
+                                        }
+                                        { print }'
+}
+
+_prepare_pmda apache
+# note: _restore_systemd_restart pmcd done in _cleanup_pmda()
+trap "_cleanup_pmda apache; exit \$status" 0 1 2 3 15
+
+_stop_systemd_restart pmcd
+
+# real QA test starts here
+pmdaapache_install
+
+# there may be a race if the pmda has a bit of a slow start ... pause
+pmsleep 0.5
+
+# pmcd should have been started by the Install process - check
+if pminfo -v apache > $tmp.info 2> $tmp.err
+then
+    :
+else
+    echo "... failed! ... here is the Install log ..."
+    cat $tmp.out
+fi
+cat $tmp.info $tmp.err | _filter_apache
+
+pmdaapache_remove
+status=0
+exit

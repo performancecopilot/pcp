@@ -1,0 +1,5 @@
+QA output created by 552
+Checking pmNewContext with an empty hostname
+pmprobe: Cannot connect to PMCD on host "": Operation requires context with host source of metrics
+Checking pmNewContext with an empty filename
+pmprobe: Cannot open archive "": Missing PCP archive log file

@@ -1,0 +1,94 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMNAMEID 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmNameID\f1 \- translate a PMID to a performance metric name
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.sp
+.nf
+int pmNameID(pmID \fIpmid\fP, char **\fIname\fP);
+.fi
+.sp
+cc ... \-lpcp
+.ft 1
+.SH DESCRIPTION
+Given a
+Performance Metric Identifier (PMID) via 
+.IR pmid ,
+.B pmNameID
+will
+determine the corresponding metric name, if any, in the 
+Performance Metrics Name Space (PMNS), and return this via
+.IR name .
+.PP
+If the PMNS contains multiple names associated with the requested
+PMID, one of these will be returned via
+.IR name ,
+but there is no way to determine which of the duplicate names
+this will be.  See
+.BR pmNameAll (3)
+if all of the corresponding names are required.
+.PP
+As of Version 3.10.3 of PCP, duplicate names for the same PMID
+.B are
+allowed in the PMNS, so using
+.BR pmNameAll (3)
+is recommended over
+.BR pmnameID .
+.PP
+.I name
+is a null-byte terminated string, allocated by
+.B pmNameID
+using
+.BR malloc (3)
+and it is the caller's responsibility to call
+.BR free (3)
+to release the storage when the value is no longer required.
+.PP
+In the absence of errors,
+.B pmNameID
+returns zero.
+.SH SEE ALSO
+.BR PMAPI (3),
+.BR pmGetChildren (3),
+.BR pmGetChildrenStatus (3),
+.BR pmGetConfig (3),
+.BR pmLoadASCIINameSpace (3),
+.BR pmLoadNameSpace (3),
+.BR pmLookupName (3),
+.BR pmNameAll (3),
+.BR pmNewContext (3),
+.BR pcp.conf (5),
+.BR pcp.env (5)
+and
+.BR pmns (5).
+.SH DIAGNOSTICS
+.IP \f3PM_ERR_NOPMNS\f1
+Failed to access a PMNS for operation.
+Note that if the application hasn't a priori called 
+.BR pmLoadNameSpace (3)
+and wants to use the distributed PMNS, then a call to
+.B pmNameID
+must be made after the creation of a context (see 
+.BR pmNewContext (3)).
+.IP \f3PM_ERR_PMID\f1
+.I pmid
+does not correspond to a defined PMID in the PMNS.
+.IP \f3PM_ERR_*\f1
+Other diagnostics are for protocol failures when
+accessing the distributed PMNS.

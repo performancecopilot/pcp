@@ -1,0 +1,24 @@
+#! /bin/sh
+
+. $PCP_DIR/etc/pcp.env
+. $PCP_SHARE_DIR/lib/pmdaproc.sh
+
+if [ -f GNUmakefile.install ]
+then
+    # running within the source tree, not in the 'testsuite' directory
+    #
+    PCP_MAKE_PROG="$PCP_MAKE_PROG -f GNUmakefile.install"
+fi
+
+# Make sure DSO PMDA exists
+make
+
+iam=bigun
+pmda_interface=4
+dso_opt=true
+dso_name=`pwd`/bigun.${dso_suffix}
+daemon_opt=false
+
+pmdaSetup
+pmdaInstall
+exit 0

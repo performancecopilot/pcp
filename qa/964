@@ -1,0 +1,122 @@
+#!/bin/sh
+# PCP QA Test No. 964
+# Ensure pmlogger not (re)started via PMDA Install.
+#
+# Copyright (c) 2015-2016 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ -d $PCP_PMDAS_DIR/xfs ] || _notrun "xfs PMDA directory is not installed"
+
+[ -f /etc/gentoo-release ] && _notrun "Gentoo is lacking chkconfig support"
+[ -f /etc/slackware-version ] && _notrun "Slackware is lacking chkconfig support"
+
+status=1	# failure is the default!
+LOCALHOST=`hostname`
+_needclean=true
+$sudo rm -rf $tmp $tmp.* $seq.full
+
+_interrupt()
+{
+    status=1
+}
+
+_cleanup()
+{
+    cd $here
+    if $_needclean
+    then
+	echo "Resetting system state"
+	_restore_pmda_install xfs
+	$sudo $PCP_RC_DIR/pmcd restart | _filter_pcp_start
+	_restore_systemd_restart pmcd
+	_wait_for_pmcd
+	_wait_for_pmlogger
+	_needclean=false
+    fi
+    $sudo rm -f $tmp.*
+    exit $status
+}
+
+trap "_cleanup" 0
+trap "_interrupt; _cleanup" 1 2 3 15
+
+_stop_systemd_restart pmcd
+
+_count_pmloggers()
+{
+    count=0
+    if [ -d $PCP_TMP_DIR/pmlogger ]
+    then cd $PCP_TMP_DIR/pmlogger
+    else return 0
+    fi
+
+    ls -l >>$here/$seq.full
+    plist=`ls -1`
+    cd $here
+
+    for process in $plist
+    do
+	[ "$process" = "primary" ] && continue
+	ps -p $process >>$here/$seq.full 2>&1
+	if [ $? = 1 ]
+	then
+	    echo "urk, $PCP_TMP_DIR/pmlogger/$process has no running pmlogger instance"
+	else
+	    count=`expr $count + 1`
+	fi
+    done
+
+    return $count
+}
+
+_filter_xfs_install()
+{
+    _filter_pmda_install \
+    | _filter_pcp_stop \
+    | tee -a $here/$seq.full \
+    | $PCP_AWK_PROG '
+/Check xfs metrics have appeared/ { if ($7 >= 0) $7 = "X"
+                                           if ($10 >= 0) $10 = "Y"
+                                         }
+                                         { print }'
+}
+
+# real QA test starts here
+_prepare_pmda_install xfs
+
+# switch off pmcd
+$sudo $PCP_RC_DIR/pmcd stop | _filter_pcp_stop
+
+_count_pmloggers
+echo "pmlogger count after pmcd stop (expect 1): $?" | tee -a $here/$seq.full
+echo
+
+# install a PMDA, which should restart only pmcd
+cd $PCP_PMDAS_DIR/xfs
+$sudo ./Install < /dev/null 2>&1 | _filter_xfs_install
+
+# verify pmlogger still running
+_count_pmloggers
+echo "pmlogger count at end of Install (expect 1): $?" | tee -a $here/$seq.full
+echo
+
+# install a PMDA, should restart both pmcd and pmlogger
+cd $PCP_PMDAS_DIR/xfs
+$sudo ./Install < /dev/null 2>&1 | _filter_xfs_install
+
+# verify pmlogger is running
+_count_pmloggers
+echo "pmlogger count at end of Install (expect 1): $?" | tee -a $here/$seq.full
+echo
+
+# success, all done
+status=0
+exit

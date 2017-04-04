@@ -1,0 +1,164 @@
+#!/bin/sh
+#
+# Dynamic kmchart view for the most busy current processes ... note
+# this is a snapshot at the time the view is instantiated and does
+# not track the busiest processes over time
+#
+# Busy here means CPU consumption
+#
+
+# a token attempt to make this general
+. /etc/pcp.env
+
+tmp=`mktemp -d /var/tmp/pcp.XXXXXXXXX` || exit 1
+trap "rm -rf $tmp; exit" 0 1 2 3 15
+
+# bad stuff ...
+#
+_err()
+{
+    echo "Failed to fetch user mode CPU cycles metrics" >$tmp/msg
+    echo >>$tmp/msg
+    for f in $tmp/err.*
+    do
+	cat $f >>$tmp/msg
+    done
+    echo >>$tmp/msg
+    echo "Sorry, there is nothing to display." >>$tmp/msg
+    pmconfirm >/dev/null \
+	-header "pmchart view construction failure" \
+	-file $tmp/msg \
+	-icon error \
+	-B "OK"
+    exit
+}
+
+# find top 10 consumers of user mode CPU cycles and generate a plot for each
+#
+# top(1) is ill-suited for use in a script, so we have to emulate this
+# using PCP tools as follows:
+#    1. get cummulative user mode CPU cycles for all processes
+#    2. sleep 5 seconds
+#    3. get cummulative user mode CPU cycles for all processes
+#    4. compute delta user mode CPU cycles from 1. and 2.
+#    5. sort and select top 10 processes
+#
+
+# use $tmp/sed to remove this shell and its children from
+# the list of busy processses
+#
+echo "/\[0*$$ /d" >$tmp/sed
+
+# progress notifier while we do our job
+#
+pmquery >/dev/null 2>&1 \
+    -timeout 5 \
+    -header "kmchart view construction" \
+    -t "Finding top CPU burners, please wait 5 seconds ..." &
+query=$!
+echo "/\[0*$query /d" >>$tmp/sed
+
+# deal with alternative metric names ...
+#
+i=0
+fail=true
+for metric in proc.psinfo.utime proc.psusage.utime
+do
+    nval=`pmprobe -if $* $metric 2>&1 \
+          | tee $tmp/err.$i \
+	  | $PCP_AWK_PROG '{print $2}'`
+    if [ "$nval" -gt 0 ]
+    then
+	fail=false
+	break
+    fi
+    i=`expr $i + 1`
+done
+if $fail
+then
+    _err
+    #NOTREACHED
+fi
+
+# note arguments from pmchart are nothing or -h host or -a archive
+#
+if pminfo -F $* $metric >$tmp/1 2>$tmp/err.a
+then
+    sleep 5
+    if pminfo -F $* $metric >$tmp/2 2>$tmp/err.b
+    then
+	:
+    else
+	_err
+	#NOTREACHED
+    fi
+else
+    _err
+    #NOTREACHED
+fi
+
+# get pid and user mode CPU cycles usage from lines like
+#	inst [8072 or "08072 rlogin gonzo.melbourne "] value 28
+# and turn them into this
+# $tmp/1.list
+#	8072 28
+# $tmp/2.list
+#	8072 28 08072 rlogin gonzo.melbourne
+#
+
+sed -f $tmp/sed $tmp/1 \
+| sed -n -e '/inst \[/{
+s/.*inst \[//
+s/ or .* \([0-9][0-9]*\)$/ \1/p
+}' \
+| sort >$tmp/1.list
+
+sed -n -e '/inst \[/{
+s/.*inst \[//
+s/or "\(.*\)".* \([0-9][0-9]*\)$/\2 \1/p
+}' $tmp/2 \
+| sort >$tmp/2.list
+
+#DEBUG# echo "First list ..." >/tmp/busy.debug
+#DEBUG# cat $tmp/1.list >>/tmp/busy.debug
+#DEBUG# echo "Second list ..." >>/tmp/busy.debug
+#DEBUG# cat $tmp/2.list >>/tmp/busy.debug
+
+join $tmp/1.list $tmp/2.list \
+| $PCP_AWK_PROG '
+$3 > $2	{ # this process has consumed some user mode CPU cycles
+	  printf "%d",$3-$2
+	  for (i = 4; i <= NF; i++) printf " %s",$i
+	  print""
+	}' >$tmp/found
+
+if [ ! -s $tmp/found ]
+then
+    # no processes qualify
+    #
+    pmconfirm >/dev/null \
+	-header "pmchart view construction failure" \
+	-t "No qualifying processes were found!" \
+	-icon warning \
+	-B "OK"
+    exit
+fi
+
+# chart preamble
+#
+cat <<End-of-File
+#pmchart
+Version 2.0 host dynamic
+
+Chart Title "Top user mode CPU burners at `date +'%a %b %e %R'`" Style stacking
+End-of-File
+
+# plot specifications, one per process
+#
+
+sort -nr +0 -1 $tmp/found \
+| sed 10q \
+| while read cpuburn inst
+do
+    echo "  Plot Color #-cycle Host * Metric $metric Instance $inst"
+done

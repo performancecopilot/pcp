@@ -1,0 +1,72 @@
+#!/bin/sh
+# PCP QA Test No. 343
+#
+# pmlogreduce command line arguments
+#
+# Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+which pmlogreduce >/dev/null 2>&1 || _notrun "No pmlogreduce binary installed"
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+#    indom 129.0 -> (0x9461d70)
+_filter()
+{
+    sed -e '/indom .* ->/s/0x[0-9a-f][0-9a-f]*/ADDR/'
+}
+
+# real QA test starts here
+
+# pmdumplog -z -L archives/conn20070309.0 reports ...
+#
+# commencing Fri Mar  9 00:10:47.856 2007
+# ending     Sat Mar 10 00:10:17.859 2007
+#
+
+echo "=============================================="
+echo "-S +8h -T +3h -t 20min ... expect 10 results"
+echo "=============================================="
+$sudo rm -f $tmp.*
+pmlogreduce -D appl0 -z -S +8h -T+3h -t 20min archives/conn20070309.0 $tmp 2>&1 \
+| _filter
+pmdumplog -z $tmp
+
+echo
+echo "=============================================="
+echo "-A 15m -S +8h -T +2h -t 15min ... expect 9 results"
+echo "=============================================="
+$sudo rm -f $tmp.*
+pmlogreduce -D appl0 -z -A 15m -S +8h -T+2h -t 15min archives/conn20070309.0 $tmp 2>&1 \
+| _filter
+pmdumplog -z $tmp
+
+echo
+echo "=============================================="
+echo "-Z UTC -S @16:00:00 -T +2h -t 15min ... expect 9 results"
+echo "=============================================="
+$sudo rm -f $tmp.*
+pmlogreduce -D appl0 -Z UTC -S @16:00:00 -T+2h -t 15min archives/conn20070309.0 $tmp 2>&1 \
+| _filter
+pmdumplog -Z GMT $tmp
+
+echo
+echo "=============================================="
+echo "-s 6 ... expect 6 results"
+echo "=============================================="
+$sudo rm -f $tmp.*
+pmlogreduce -s 6 archives/conn20070309.0 $tmp
+pmdumplog -z $tmp
+
+# success, all done
+exit

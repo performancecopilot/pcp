@@ -1,0 +1,53 @@
+#!/bin/sh
+#
+# Copyright (c) 2010 Aconex.  All Rights Reserved.
+# Copyright (c) 1999,2004 Silicon Graphics, Inc.  All Rights Reserved.
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+# 
+# Install the apache PMDA and/or PMNS
+#
+
+. $PCP_DIR/etc/pcp.env
+. $PCP_SHARE_DIR/lib/pmdaproc.sh
+
+iam=apache
+pmda_interface=3
+
+# Override interactive dialog from pmdaSetup in pmdaproc.sh
+__choose_mode()
+{
+    echo "Installing the \"$iam\" Performance Metrics Domain Agent (PMDA) ..."
+    echo
+}
+
+pmdaSetup
+
+if $do_pmda
+then
+    args=""
+
+    $PCP_ECHO_PROG $PCP_ECHO_N "Apache port number [80]? ""$PCP_ECHO_C"
+    read value
+
+    if [ "X$value" = "X" ]
+    then
+	:
+    elif [ "X`expr 0 + $value 2>/dev/null`" != "X$value" ]
+    then
+	echo "-- Sorry, port number must be numeric (not $value), ignored --" >&2
+    else
+	args="$args -P $value"
+    fi
+fi
+
+pmdaInstall
+exit

@@ -1,0 +1,11 @@
+//
+// Some Common Performance Monitoring Scenarios
+//
+// The WEBREPORT Group
+//
+// Intended to be used with archive logs to produce summaries, e.g.
+//	pmie -v -A 1hour -S @10:00am -T @2:00pm -a somearchive WEBREPORT
+// produces hourly summaries for the hours 10am to 2pm
+//
+
+delta = 1 hour;		// change to suit, else use -t from the command line

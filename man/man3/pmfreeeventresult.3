@@ -1,0 +1,66 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2014 Red Hat.
+.\" Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMFREEEVENTRESULT 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmFreeEventResult\f1,
+\f3pmFreeHighResEventResult\f1 \- release storage allocated for unpacked event records
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.sp
+void pmFreeEventResult(pmResult **\fIrset\fP);
+.br
+void pmFreeHighResEventResult(pmHighResResult **\fIhrset\fP);
+.sp
+cc ... \-lpcp
+.ft 1
+.SH DESCRIPTION
+.de CW
+.ie t \f(CW\\$1\f1\\$2
+.el \fI\\$1\f1\\$2
+..
+When processing event records, if
+.BR pmUnpackEventRecords (3)
+is used to unpack event records from a metric within a
+.I pmResult
+structure with a value of type
+.B PM_TYPE_EVENT
+then the structure returned from
+.BR pmUnpackEventRecords (3)
+is a NULL pointer terminated array of pointers to
+.I pmResult
+structures, one for each event record.
+.PP
+.B pmFreeEventResult
+is a convenience method that frees all of the
+.I pmResult
+structures and the array of pointers (\c
+.IR rset ).
+.PP
+Similarly,
+.B pmFreeHighResEventResult
+may be used to free the
+.I pmHighResResult
+structures and array returned from the
+.BR pmUnpackHighResEventRecords
+routine when using
+.BR PM_TYPE_HIGHRES_EVENT
+metrics.
+.SH SEE ALSO
+.BR PMAPI (3)
+and
+.BR pmUnpackEventRecords (3).

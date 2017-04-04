@@ -1,0 +1,49 @@
+#! /bin/sh
+# PCP QA Test No. 059
+# timestmaps in the archive logs
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+
+trap "rm -f $tmp.*; exit" 0 1 2 3 15
+
+# expected format
+#
+# Performance metrics from host babylon, commencing Tue Jan 10 22:50:50.990 1995
+#
+# Temporal Index
+#              Log Seq    end(meta)     end(log)
+# 12:24:10.723       0          368          204
+# 12:24:15.837       0          368         5172
+# 
+# 12:24:10.723  253.0.6 (<noname>):  inst [100 or "bin-100"] value 100
+#               253.0.3 (<noname>): value 226608
+
+
+# real QA test starts here
+for arch in tmparch/bar tmparch/mv-bar
+do
+    echo
+    echo "=== $arch ==="
+    pmdumplog -ltm $arch \
+    | $PCP_AWK_PROG '
+/commencing/	{ ts = $5; next }
+/Log Vol/	{ state = 1; next }
+state == 1	{ if ($1 != ts)
+		    print "Error: Start TI @ " $1 ", start from label @ " ts
+		  state = 2
+		  next
+		}
+state == 2 && NF == 0	{ state = 3; next }
+state == 3	{ if ($1 != ts)
+		    print "Error: Start Metrics @ " $1 ", start from label @ " ts
+		  exit
+		}'
+done

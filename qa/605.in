@@ -1,0 +1,10 @@
+QA output created by 605
+Checking trace stub library builds ...
+make succeeded.
+app1: start: No error (state=0x7)
+pmtracebegin: start of transaction 'simple'
+pmtraceend: end of transaction 'simple'
+pmtracebegin: start of transaction 'ascanbe'
+pmtraceend: end of transaction 'ascanbe'
+pmtraceobs: observation 'observe', value=101.000000
+pmtracepoint: trace point 'imouttahere' reached

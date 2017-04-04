@@ -1,0 +1,48 @@
+#! /bin/sh
+# PCP QA Test No. 594
+# pv 779246/782029 test sample.sysinfo vtype / desc
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ $PCP_PLATFORM = darwin ] && _notrun "No sysinfo on darwin"
+[ $PCP_PLATFORM = solaris ] && _notrun "No sysinfo on solaris"
+
+status=1	# failure is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# we need to replace the bytes output with an indication of how many there were
+
+src/779246 \
+    | \
+    	sed -e '/pmResult/s/ .* numpmid/ ... numpmid/' \
+    |
+	$PCP_AWK_PROG '
+	/\+\+\+ Expect/ { expsiz = $3; }
+	/value \"/ { 
+		$2="\"<" length($2)/2-1 " CHARS>\"" 
+		$3="[<" length($3)/2-1 " BYTES>]" 
+	} 
+	/value \[/ { 
+		if ( length($2)/2-1 == expsiz ) {
+		    $2="[<expected number of BYTES>]" 
+		} else {
+		    $2=sprintf ("[<%d instead of expected %d BYTES>]",
+				length($2)/2-1, expsiz);  
+		}
+	} 
+	{ 
+		print
+	}'  | sed -e '/+++ Expect/d'
+
+status=0
+
+exit

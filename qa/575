@@ -1,0 +1,35 @@
+#! /bin/sh
+# PCP QA Test No. 575
+#
+# Copyright (c) 2012 Red Hat.
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+_cleanup()
+{
+    _change_config pmie off
+    rm -f $tmp.*
+}
+
+signal=$PCP_BINADM_DIR/pmsignal
+status=1	# failure is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+$sudo $signal -a pmie >/dev/null 2>&1
+
+_change_config pmie on
+$sudo $PCP_RC_DIR/pmie stop | _filter_pmie_stop
+$sudo $PCP_RC_DIR/pmie start | _filter_pmie_start
+
+# success, all done
+status=0
+exit

@@ -1,0 +1,240 @@
+QA output created by 792
+=== all -D options ===
+__pmSetSocketIPC: ...
+IPC table fd(PDU version):
+__pmDecodeXtendError: ...
+__pmSetVersionIPC: ...
+IPC table fd(PDU version): 3(2,1)
+__pmSendCreds: ...
+__pmConnectPMCD(/var/run/pcp/pmcd.socket): ...
+IPC table fd(PDU version): 3(2,1)
+pmNewContext(1, local:) -> 0
+Dump Contexts: current context = 0
+Context[0] host /var/run/pcp/pmcd.socket: pmcd=CONNECTED profile=NOT_SENT fd=3 refcnt=1 origin=0.000000 delta=0
+Dump Instance Profile state=INCLUDE, 0 profiles
+pmWhichContext() -> 0, cur=0
+pmWhichContext() -> 0, cur=0
+pmWhichContext() -> 0, cur=0
+pmWhichContext() -> 0, cur=0
+pmWhichContext() -> 0, cur=0
+pmFetch: calling __pmSendProfile, context: 0
+Dump Instance Profile state=INCLUDE, 0 profiles
+pmFetch returns ...
+pmResult ... numpmid: 7
+  29.0.10 (sample.long.one): numval: 1 valfmt: 0 vlist[]:
+   value NUMBER
+  29.0.11 (sample.long.ten): numval: 1 valfmt: 0 vlist[]:
+   value NUMBER
+  29.0.12 (sample.long.hundred): numval: 1 valfmt: 0 vlist[]:
+   value NUMBER
+  29.0.13 (sample.long.million): numval: 1 valfmt: 0 vlist[]:
+   value NUMBER
+  29.0.14 (sample.long.write_me): numval: 1 valfmt: 0 vlist[]:
+   value NUMBER
+  29.0.103 (sample.long.bin): numval: 9 valfmt: 0 vlist[]:
+    inst [100 or "bin-100"] value NUMBER
+    inst [200 or "bin-200"] value NUMBER
+    inst [300 or "bin-300"] value NUMBER
+    inst [400 or "bin-400"] value NUMBER
+    inst [500 or "bin-500"] value NUMBER
+    inst [600 or "bin-600"] value NUMBER
+    inst [700 or "bin-700"] value NUMBER
+    inst [800 or "bin-800"] value NUMBER
+    inst [900 or "bin-900"] value NUMBER
+  29.0.104 (sample.long.bin_ctr): numval: 9 valfmt: 0 vlist[]:
+    inst [100 or "bin-100"] value NUMBER
+    inst [200 or "bin-200"] value NUMBER
+    inst [300 or "bin-300"] value NUMBER
+    inst [400 or "bin-400"] value NUMBER
+    inst [500 or "bin-500"] value NUMBER
+    inst [600 or "bin-600"] value NUMBER
+    inst [700 or "bin-700"] value NUMBER
+    inst [800 or "bin-800"] value NUMBER
+    inst [900 or "bin-900"] value NUMBER
+pmWhichContext() -> 0, cur=0
+pmWhichContext() -> 0, cur=0
+pmWhichContext() -> 0, cur=0
+pmWhichContext() -> 0, cur=0
+pmWhichContext() -> 0, cur=0
+pmWhichContext() -> 0, cur=0
+pmWhichContext() -> 0, cur=0
+
+=== all $PCP_DEBUG options ===
+__pmSetSocketIPC: ...
+IPC table fd(PDU version):
+__pmDecodeXtendError: ...
+__pmSetVersionIPC: ...
+IPC table fd(PDU version): 3(2,1)
+__pmSendCreds: ...
+__pmConnectPMCD(/var/run/pcp/pmcd.socket): ...
+IPC table fd(PDU version): 3(2,1)
+pmNewContext(1, local:) -> 0
+Dump Contexts: current context = 0
+Context[0] host /var/run/pcp/pmcd.socket: pmcd=CONNECTED profile=NOT_SENT fd=3 refcnt=1 origin=0.000000 delta=0
+Dump Instance Profile state=INCLUDE, 0 profiles
+pmWhichContext() -> 0, cur=0
+pmWhichContext() -> 0, cur=0
+pmWhichContext() -> 0, cur=0
+pmWhichContext() -> 0, cur=0
+pmWhichContext() -> 0, cur=0
+pmFetch: calling __pmSendProfile, context: 0
+Dump Instance Profile state=INCLUDE, 0 profiles
+pmFetch returns ...
+pmResult ... numpmid: 7
+  29.0.10 (sample.long.one): numval: 1 valfmt: 0 vlist[]:
+   value NUMBER
+  29.0.11 (sample.long.ten): numval: 1 valfmt: 0 vlist[]:
+   value NUMBER
+  29.0.12 (sample.long.hundred): numval: 1 valfmt: 0 vlist[]:
+   value NUMBER
+  29.0.13 (sample.long.million): numval: 1 valfmt: 0 vlist[]:
+   value NUMBER
+  29.0.14 (sample.long.write_me): numval: 1 valfmt: 0 vlist[]:
+   value NUMBER
+  29.0.103 (sample.long.bin): numval: 9 valfmt: 0 vlist[]:
+    inst [100 or "bin-100"] value NUMBER
+    inst [200 or "bin-200"] value NUMBER
+    inst [300 or "bin-300"] value NUMBER
+    inst [400 or "bin-400"] value NUMBER
+    inst [500 or "bin-500"] value NUMBER
+    inst [600 or "bin-600"] value NUMBER
+    inst [700 or "bin-700"] value NUMBER
+    inst [800 or "bin-800"] value NUMBER
+    inst [900 or "bin-900"] value NUMBER
+  29.0.104 (sample.long.bin_ctr): numval: 9 valfmt: 0 vlist[]:
+    inst [100 or "bin-100"] value NUMBER
+    inst [200 or "bin-200"] value NUMBER
+    inst [300 or "bin-300"] value NUMBER
+    inst [400 or "bin-400"] value NUMBER
+    inst [500 or "bin-500"] value NUMBER
+    inst [600 or "bin-600"] value NUMBER
+    inst [700 or "bin-700"] value NUMBER
+    inst [800 or "bin-800"] value NUMBER
+    inst [900 or "bin-900"] value NUMBER
+pmWhichContext() -> 0, cur=0
+pmWhichContext() -> 0, cur=0
+pmWhichContext() -> 0, cur=0
+pmWhichContext() -> 0, cur=0
+pmWhichContext() -> 0, cur=0
+pmWhichContext() -> 0, cur=0
+pmWhichContext() -> 0, cur=0
+
+=== both -D and $PCP_DEBUG options with full overlap ===
+__pmSetSocketIPC: ...
+IPC table fd(PDU version):
+__pmDecodeXtendError: ...
+__pmSetVersionIPC: ...
+IPC table fd(PDU version): 3(2,1)
+__pmSendCreds: ...
+__pmConnectPMCD(/var/run/pcp/pmcd.socket): ...
+IPC table fd(PDU version): 3(2,1)
+pmNewContext(1, local:) -> 0
+Dump Contexts: current context = 0
+Context[0] host /var/run/pcp/pmcd.socket: pmcd=CONNECTED profile=NOT_SENT fd=3 refcnt=1 origin=0.000000 delta=0
+Dump Instance Profile state=INCLUDE, 0 profiles
+pmWhichContext() -> 0, cur=0
+pmWhichContext() -> 0, cur=0
+pmWhichContext() -> 0, cur=0
+pmWhichContext() -> 0, cur=0
+pmWhichContext() -> 0, cur=0
+pmFetch: calling __pmSendProfile, context: 0
+Dump Instance Profile state=INCLUDE, 0 profiles
+pmFetch returns ...
+pmResult ... numpmid: 7
+  29.0.10 (sample.long.one): numval: 1 valfmt: 0 vlist[]:
+   value NUMBER
+  29.0.11 (sample.long.ten): numval: 1 valfmt: 0 vlist[]:
+   value NUMBER
+  29.0.12 (sample.long.hundred): numval: 1 valfmt: 0 vlist[]:
+   value NUMBER
+  29.0.13 (sample.long.million): numval: 1 valfmt: 0 vlist[]:
+   value NUMBER
+  29.0.14 (sample.long.write_me): numval: 1 valfmt: 0 vlist[]:
+   value NUMBER
+  29.0.103 (sample.long.bin): numval: 9 valfmt: 0 vlist[]:
+    inst [100 or "bin-100"] value NUMBER
+    inst [200 or "bin-200"] value NUMBER
+    inst [300 or "bin-300"] value NUMBER
+    inst [400 or "bin-400"] value NUMBER
+    inst [500 or "bin-500"] value NUMBER
+    inst [600 or "bin-600"] value NUMBER
+    inst [700 or "bin-700"] value NUMBER
+    inst [800 or "bin-800"] value NUMBER
+    inst [900 or "bin-900"] value NUMBER
+  29.0.104 (sample.long.bin_ctr): numval: 9 valfmt: 0 vlist[]:
+    inst [100 or "bin-100"] value NUMBER
+    inst [200 or "bin-200"] value NUMBER
+    inst [300 or "bin-300"] value NUMBER
+    inst [400 or "bin-400"] value NUMBER
+    inst [500 or "bin-500"] value NUMBER
+    inst [600 or "bin-600"] value NUMBER
+    inst [700 or "bin-700"] value NUMBER
+    inst [800 or "bin-800"] value NUMBER
+    inst [900 or "bin-900"] value NUMBER
+pmWhichContext() -> 0, cur=0
+pmWhichContext() -> 0, cur=0
+pmWhichContext() -> 0, cur=0
+pmWhichContext() -> 0, cur=0
+pmWhichContext() -> 0, cur=0
+pmWhichContext() -> 0, cur=0
+pmWhichContext() -> 0, cur=0
+
+=== both -D and $PCP_DEBUG options with no overlap ===
+__pmSetSocketIPC: ...
+IPC table fd(PDU version):
+__pmDecodeXtendError: ...
+__pmSetVersionIPC: ...
+IPC table fd(PDU version): 3(2,1)
+__pmSendCreds: ...
+__pmConnectPMCD(/var/run/pcp/pmcd.socket): ...
+IPC table fd(PDU version): 3(2,1)
+pmNewContext(1, local:) -> 0
+Dump Contexts: current context = 0
+Context[0] host /var/run/pcp/pmcd.socket: pmcd=CONNECTED profile=NOT_SENT fd=3 refcnt=1 origin=0.000000 delta=0
+Dump Instance Profile state=INCLUDE, 0 profiles
+pmWhichContext() -> 0, cur=0
+pmWhichContext() -> 0, cur=0
+pmWhichContext() -> 0, cur=0
+pmWhichContext() -> 0, cur=0
+pmWhichContext() -> 0, cur=0
+pmFetch: calling __pmSendProfile, context: 0
+Dump Instance Profile state=INCLUDE, 0 profiles
+pmFetch returns ...
+pmResult ... numpmid: 7
+  29.0.10 (sample.long.one): numval: 1 valfmt: 0 vlist[]:
+   value NUMBER
+  29.0.11 (sample.long.ten): numval: 1 valfmt: 0 vlist[]:
+   value NUMBER
+  29.0.12 (sample.long.hundred): numval: 1 valfmt: 0 vlist[]:
+   value NUMBER
+  29.0.13 (sample.long.million): numval: 1 valfmt: 0 vlist[]:
+   value NUMBER
+  29.0.14 (sample.long.write_me): numval: 1 valfmt: 0 vlist[]:
+   value NUMBER
+  29.0.103 (sample.long.bin): numval: 9 valfmt: 0 vlist[]:
+    inst [100 or "bin-100"] value NUMBER
+    inst [200 or "bin-200"] value NUMBER
+    inst [300 or "bin-300"] value NUMBER
+    inst [400 or "bin-400"] value NUMBER
+    inst [500 or "bin-500"] value NUMBER
+    inst [600 or "bin-600"] value NUMBER
+    inst [700 or "bin-700"] value NUMBER
+    inst [800 or "bin-800"] value NUMBER
+    inst [900 or "bin-900"] value NUMBER
+  29.0.104 (sample.long.bin_ctr): numval: 9 valfmt: 0 vlist[]:
+    inst [100 or "bin-100"] value NUMBER
+    inst [200 or "bin-200"] value NUMBER
+    inst [300 or "bin-300"] value NUMBER
+    inst [400 or "bin-400"] value NUMBER
+    inst [500 or "bin-500"] value NUMBER
+    inst [600 or "bin-600"] value NUMBER
+    inst [700 or "bin-700"] value NUMBER
+    inst [800 or "bin-800"] value NUMBER
+    inst [900 or "bin-900"] value NUMBER
+pmWhichContext() -> 0, cur=0
+pmWhichContext() -> 0, cur=0
+pmWhichContext() -> 0, cur=0
+pmWhichContext() -> 0, cur=0
+pmWhichContext() -> 0, cur=0
+pmWhichContext() -> 0, cur=0
+pmWhichContext() -> 0, cur=0

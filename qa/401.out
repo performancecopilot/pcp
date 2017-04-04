@@ -1,0 +1,80 @@
+QA output created by 401
+
+sample.event.records
+    inst [0 or "fungus"] value [0 event records]
+    inst [1 or "bogus"] value [2 event records timestamps TIMESTAMP...TIMESTAMP]
+    --- event record [0] timestamp TIMESTAMP flags 0x1 (point) ---
+    sample.event.param_string (29.0.134)
+        value "fetch #0"
+    --- event record [1] timestamp TIMESTAMP flags 0x1 (point) ---
+    sample.event.param_string (29.0.134)
+        value "bingo!"
+
+sample.event.records
+    inst [0 or "fungus"] value [1 event record timestamp TIMESTAMP]
+    --- event record [0] timestamp TIMESTAMP flags 0x1 (point) ---
+    inst [1 or "bogus"] value [1 event record timestamp TIMESTAMP]
+    --- event record [0] timestamp TIMESTAMP flags 0x1 (point) ---
+    sample.event.param_string (29.0.134)
+        value "fetch #1"
+
+sample.event.records
+    inst [0 or "fungus"] value [2 event records timestamps TIMESTAMP...TIMESTAMP]
+    --- event record [0] timestamp TIMESTAMP flags 0x1 (point) ---
+    sample.event.type (29.0.127)
+        value 1
+    --- event record [1] timestamp TIMESTAMP flags 0x1 (point) ---
+    sample.event.type (29.0.127)
+        value 2
+    sample.event.param_64 (29.0.130)
+        value -3
+    inst [1 or "bogus"] value [1 event record timestamp TIMESTAMP]
+    --- event record [0] timestamp TIMESTAMP flags 0x1 (point) ---
+    sample.event.param_string (29.0.134)
+        value "fetch #2"
+
+sample.event.records
+    inst [0 or "fungus"] value [5 event records (7 missed) timestamps TIMESTAMP...TIMESTAMP]
+    --- event record [0] timestamp TIMESTAMP flags 0x1a (start,id,parent) ---
+    sample.event.type (29.0.127)
+        value 4
+    sample.event.param_u64 (29.0.131)
+        value 5
+    sample.event.param_string (29.0.134)
+        value "6"
+    --- event record [1] timestamp TIMESTAMP flags 0x1 (point) ---
+    sample.event.type (29.0.127)
+        value 7
+    sample.event.param_double (29.0.133)
+        value 8
+    sample.event.param_double (29.0.133)
+        value -9
+    --- event record [2] timestamp TIMESTAMP flags 0x4 (end) ---
+    sample.event.type (29.0.127)
+        value 10
+    sample.event.param_u64 (29.0.131)
+        value 11
+    sample.event.param_string (29.0.134)
+        value "twelve"
+    sample.event.param_string (29.0.134)
+        value "thirteen"
+    sample.event.param_32 (29.0.128)
+        value -14
+    sample.event.param_u32 (29.0.129)
+        value 15
+    --- event record [3] timestamp TIMESTAMP flags 0x80000000 (missed) ---
+        ==> 7 missed event records
+    --- event record [4] timestamp TIMESTAMP flags 0x1 (point) ---
+    sample.event.type (29.0.127)
+        value 16
+    sample.event.param_float (29.0.132)
+        value -17
+    sample.event.param_aggregate (29.0.135)
+        value [blob]
+    inst [1 or "bogus"] value [2 event records timestamps TIMESTAMP...TIMESTAMP]
+    --- event record [0] timestamp TIMESTAMP flags 0x1 (point) ---
+    sample.event.param_string (29.0.134)
+        value "fetch #3"
+    --- event record [1] timestamp TIMESTAMP flags 0x1 (point) ---
+    sample.event.param_string (29.0.134)
+        value "bingo!"

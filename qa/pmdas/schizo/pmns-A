@@ -1,0 +1,15 @@
+/*
+ * Metrics for a schizo PMDA (Version A)
+ */
+
+#include <stdpmid>
+
+schizo {
+    version	SCHIZO:0:0
+    foo		SCHIZO:0:1
+    fumble	SCHIZO:0:2
+    data1	SCHIZO:1:1
+    data2	SCHIZO:1:2
+    data3	SCHIZO:1:3
+    data4	SCHIZO:1:4
+}

@@ -1,0 +1,250 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2012 Red Hat.
+.\" Copyright (c) 2012 Nathan Scott.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMDABASH 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmdabash\f1 \- Bourne-Again SHell trace performance metrics domain agent
+.SH SYNOPSIS
+\f3$PCP_PMDAS_DIR/bash/pmdabash\f1
+[\f3\-C\f1]
+[\f3\-d\f1 \f2domain\f1]
+[\f3\-l\f1 \f2logfile\f1]
+[\f3\-I\f1 \f2interval\f1]
+[\f3\-t\f1 \f2timeout\f1]
+[\f3\-U\f1 \f2username\f1]
+\f2configfile\f1
+.br
+.SH DESCRIPTION
+.B pmdabash
+is an experimental Performance Metrics Domain Agent (PMDA) which
+exports "xtrace" events from a traced
+.BR bash (1)
+process.
+This includes the command execution information that would
+usually be sent to standard error with the
+.BR "set -x"
+option to the shell.
+.PP
+Event metrics are exported showing each command executed, the
+function name and line number in the script, and a timestamp.
+Additionally, the process identifier for the shell and its parent
+process are exported.
+.PP
+This requires
+.B bash
+version 4 or later.
+.PP
+A brief description of the
+.B pmdabash
+command line options follows:
+.TP 5
+.B \-d
+It is absolutely crucial that the performance metrics
+.I domain
+number specified here is unique and consistent.
+That is,
+.I domain
+should be different for every PMDA on the one host, and the same
+.I domain
+number should be used for the same PMDA on all hosts.
+.TP 5
+.B \-l
+Location of the log file.  By default, a log file named
+.I bash.log
+is written in the current directory of
+.BR pmcd (1)
+when
+.B pmdabash
+is started, i.e.
+.BR $PCP_LOG_DIR/pmcd .
+If the log file cannot
+be created or is not writable, output is written to the standard error instead.
+.TP 5
+.B \-s
+Amount of time (in seconds) between subsequent evaluations of the shell
+trace file descriptor(s).
+The default is 2 seconds.
+.PP
+.TP 5
+.B \-m
+Maximum amount of memory to be allowed for each event queue (one per traced process).
+The default is 2 megabytes.
+.TP 5
+.B \-U
+User account under which to run the agent.
+The default is the unprivileged "pcp" account in current versions of PCP,
+but in older versions the superuser account ("root") was used by default.
+.PP
+.SH INSTALLATION
+In order for a host to export the names, help text and values for the bash
+performance metrics, do the following as root:
+.PP
+.ft CW
+.nf
+.in +0.5i
+# cd $PCP_PMDAS_DIR/bash
+# ./Install
+.in
+.fi
+.ft 1
+.PP
+As soon as an instrumented shell script (see INSTRUMENTATION selection below) is
+run, with tracing enabled, new metric values will appear - no further setup of the
+agent is required.
+.PP
+If you want to undo the installation, do the following as root:
+.PP
+.ft CW
+.nf
+.in +0.5i
+# cd $PCP_PMDAS_DIR/bash
+# ./Remove
+.in
+.fi
+.ft 1
+.PP
+.B pmdabash
+is launched by
+.BR pmcd (1)
+and should never be executed directly.
+The Install and Remove scripts notify
+.BR pmcd (1)
+when the agent is installed or removed.
+.SH INSTRUMENTATION
+In order to allow the flow of event data between a
+.BR bash (1)
+script and
+.BR pmdabash ,
+the script should take the following actions:
+.PP
+.ft CW
+.nf
+.in +0.5i
+#!/bin/sh
+source $PCP_DIR/etc/pcp.sh
+
+pcp_trace on $@       # enable tracing
+echo "awoke, $count"
+
+pcp_trace off         # disable tracing
+.in
+.fi
+.ft 1
+.PP
+The tracing can be enabled and disabled any number of times by the script.
+On successful installation of the agent, several metrics will be available:
+.PP
+.ft CW
+.nf
+.in +0.5i
+$ pminfo bash
+bash.xtrace.numclients
+bash.xtrace.maxmem
+bash.xtrace.queuemem
+bash.xtrace.count
+bash.xtrace.records
+bash.xtrace.parameters.pid
+bash.xtrace.parameters.parent
+bash.xtrace.parameters.lineno
+bash.xtrace.parameters.function
+bash.xtrace.parameters.command
+.in
+.fi
+.ft 1
+.PP
+When an instrumented script is running, the generation of event records
+can be verified using the
+.BR pmevent (1)
+command, as follows:
+.PP
+.ft CW
+.nf
+.in +0.5i
+$ pmevent \-t 1 \-x '' bash.xtrace.records
+host:      localhost
+samples:   all
+bash.xtrace.records["4538 ./test-trace.sh 1 2 3"]: 5 event records
+  10:00:05.000 --- event record [0] flags 0x19 (point,id,parent) ---
+    bash.xtrace.parameters.pid 4538
+    bash.xtrace.parameters.parent 4432
+    bash.xtrace.parameters.lineno 43
+    bash.xtrace.parameters.command "true"
+  10:00:05.000 --- event record [1] flags 0x19 (point,id,parent) ---
+    bash.xtrace.parameters.pid 4538
+    bash.xtrace.parameters.parent 4432
+    bash.xtrace.parameters.lineno 45
+    bash.xtrace.parameters.command "((  count++  ))"
+  10:00:05.000 --- event record [2] flags 0x19 (point,id,parent) ---
+    bash.xtrace.parameters.pid 4538
+    bash.xtrace.parameters.parent 4432
+    bash.xtrace.parameters.lineno 46
+    bash.xtrace.parameters.command "echo 'awoke, 3'"
+  10:00:05.000 --- event record [3] flags 0x19 (point,id,parent) ---
+    bash.xtrace.parameters.pid 4538
+    bash.xtrace.parameters.parent 4432
+    bash.xtrace.parameters.lineno 47
+    bash.xtrace.parameters.command "tired 2"
+  10:00:05.000 --- event record [4] flags 0x19 (point,id,parent) ---
+    bash.xtrace.parameters.pid 4538
+    bash.xtrace.parameters.parent 4432
+    bash.xtrace.parameters.lineno 38
+    bash.xtrace.parameters.function "tired"
+    bash.xtrace.parameters.command "sleep 2"
+.in
+.fi
+.ft 1
+.SH FILES
+.PD 0
+.TP 10
+.B $PCP_PMCDCONF_PATH
+command line options used to launch
+.B pmdabash
+.TP 10
+.B $PCP_PMDAS_DIR/bash/help
+default help text file for the bash metrics
+.TP 10
+.B $PCP_PMDAS_DIR/bash/Install
+installation script for the
+.B pmdabash
+agent
+.TP 10
+.B $PCP_PMDAS_DIR/bash/Remove
+undo installation script for
+.B pmdabash
+.TP 10
+.B $PCP_LOG_DIR/pmcd/bash.log
+default log file for error messages and other information from
+.B pmdabash
+.PD
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.B /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (5).
+.SH SEE ALSO
+.BR bash (1),
+.BR pmevent (1)
+and
+.BR pmcd (1).

@@ -1,0 +1,20 @@
+QA output created by 971
+old -> new changes
+@@ -5,11 +5,11 @@
+ 
+ Descriptions for Metrics in the Log ...
+ PMID: 3.8.17 (proc.psinfo.priority)
+-    Data Type: 32-bit unsigned int  InDom: 3.9 0xc00009
+-    Semantics: discrete  Units: none
++    Data Type: 32-bit int  InDom: 3.9 0xc00009
++    Semantics: instant  Units: none
+ PMID: 3.8.18 (proc.psinfo.nice)
+-    Data Type: 32-bit unsigned int  InDom: 3.9 0xc00009
+-    Semantics: discrete  Units: none
++    Data Type: 32-bit int  InDom: 3.9 0xc00009
++    Semantics: instant  Units: none
+ PMID: 2.3.2 (pmcd.pmlogger.archive)
+     Data Type: string  InDom: 2.1 0x800001
+     Semantics: discrete  Units: none
+
+new -> ref changes ... expect none

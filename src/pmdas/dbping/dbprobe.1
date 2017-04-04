@@ -1,0 +1,34 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2014 Red Hat.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH DBPROBE 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3dbprobe\f1 \- database response time and availability information
+.SH SYNOPSIS
+\f3dbprobe.pl\f1
+[\f2delay\f1]
+.SH DESCRIPTION
+The
+.B dbprobe
+utility is used by \fBpmdadbping\fR\|(1) to measure
+response time from a database.
+A given query is executed on the database at the requested interval
+(\fIdelay\fR, which defaults to 60 seconds).
+This response time measure can be exported via the Performance Co-Pilot
+framework for live and historical monitoring using \fIpmdadbping\fR\|(1).
+.SH "SEE ALSO"
+.BR pmdadbping (1)
+and
+.BR DBI (3).

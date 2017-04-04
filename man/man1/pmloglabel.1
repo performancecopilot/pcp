@@ -1,0 +1,162 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2008 Aconex.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\" 
+.TH PMLOGLABEL 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmloglabel\f1 \- check and repair a performance metrics archive label
+.SH SYNOPSIS
+\f3pmloglabel\f1
+[\f3\-Llsv\f1]
+[\f3\-h\f1 \f2hostname\f1]
+[\f3\-p\f1 \f2pid\f1]
+[\f3\-V\f1 \f2version\f1]
+[\f3\-Z\f1 \f2timezone\f1]
+\f2archive\f1
+.SH DESCRIPTION
+.B pmloglabel
+verifies, reports on, and can modify all details of the labels in
+each of the files of a Performance Co-Pilot (PCP) archive log.
+The archive log has the base name
+.I archive
+and must have been previously created using
+.BR pmlogger (1).
+.PP
+Each of the files in a PCP archive (metadata, temporal index, and one
+or more data volumes) must contain a valid label at the start, else
+the PCP tools will refuse to open the archive at all.
+.PP
+Thus, the primary function of
+.B pmloglabel
+is to be able to repair any inconsistent or corrupt label fields, such
+that the entire archive is not lost.
+It will not check the remainder of the archive, but it will give you a
+fighting chance to recover otherwise lost data.
+Together,
+.B pmloglabel
+and
+.B pmlogextract
+are able to produce a valid PCP archive from many forms of corruption.
+.PP
+Note that if the temporal index is found to be corrupt, the "*.index" file
+can be safely moved aside and the archive will still be accessible, however
+retrievals may take longer without the index.
+.PP
+The options control the specific information to be reported, or the
+specific fields to be modified:
+.TP 5
+.B \-h
+Modify the logged
+.I hostname
+in the archive label, for all files in the archive.
+.TP
+.B \-l
+Dump out the archive label, showing the log format version,
+the time and date for the start and (current) end of the archive, and
+the host from which the performance metrics values were collected.
+.TP
+.B \-L
+Like
+.BR \-l ,
+just a little more verbose, showing also the timezone and creator
+process identifier from the archive label.
+.TP
+.B \-p
+Set the process identifier stored in the archive label to
+.IR pid ,
+for all files in the archive.
+.TP
+.B \-s
+Rewrite the sentinel values which precede and follow the archive label,
+for all files in the archive.
+.TP
+.B \-v
+Verbose mode.  Additional progress information is produced at each step.
+.TP
+.B \-V
+Stamp the
+.I version
+number into the magic number field at the start of the archive label,
+for all files in the archive.
+.TP
+.B \-Z
+Changes the timezone in the archive labels to
+.I timezone
+in the format of the environment variable
+.B TZ
+as described in
+.BR environ (7).
+.PP
+.SH EXAMPLES
+The following demonstrates the use of
+.B pmloglabel
+in finding and then correcting a corrupt field (PID) in the label of the temporal index of
+an archive named "20080125".
+.PP
+.sp 0.5v
+.in +1i
+.ft CW
+.nf
+$ pmdumplog \-l 20080125
+pmdumplog: Cannot open archive "20080125": Illegal label record at start of a PCP archive log file
+$ pmloglabel 20080125
+Mismatched PID (5264/5011) between temporal index and data volume 0
+$ pmloglabel \-p 5264 20080125
+$ pmdumplog \-l 20080125
+Log Label (Log Format Version 2)
+Performance metrics from host fw1
+  commencing Fri Jan 25 00:10:09.341 2008
+  ending     Sat Jan 26 00:09:54.344 2008
+.fi
+.SH EXIT STATUS
+.B pmloglabel
+exits with status 0 if the archive labels are clean.
+If invoked incorrectly, the exit status will be 1.
+If corruption is detected and still exists at the end,
+the exit status will be 2.
+If requested to write out the archive labels, and some aspect of that
+write out fails, then the exit status will be 3.
+.SH FILES
+.PD 0
+.TP 10
+.BI $PCP_LOG_DIR/pmlogger/ hostname
+Default directory for PCP archives containing performance
+metric values collected from the host
+.IR hostname .
+.PD
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.I /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (5).
+.SH SEE ALSO
+.BR PCPIntro (1),
+.BR pmlogcheck (1),
+.BR pmlogextract (1),
+.BR pmlogger (1),
+.BR pmlogger_check (1),
+.BR pmlogger_daily (1),
+.BR pmlogrewrite (1),
+.BR pcp.conf (5),
+and
+.BR pcp.env (5).

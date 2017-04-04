@@ -1,0 +1,22 @@
+#!/bin/sh
+#
+# create the eventrec archive
+#
+. $PCP_DIR/etc/pcp.env
+
+pmstore sample.event.reset 3
+
+rm -f eventrec.0 eventrec.meta eventrec.index pmlogger.log
+
+cat <<End-of-File | pmlogger -s 5 eventrec
+log mandatory on 1 sec {
+    sample.event.records
+    sample.event.highres_records
+    sample.event.no_indom_records
+    sample.colour
+    sampledso.event.records
+    sampledso.event.no_indom_records
+}
+End-of-File
+
+cat pmlogger.log

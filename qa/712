@@ -1,0 +1,65 @@
+#!/bin/sh
+# PCP QA Test No. 712
+#
+# Exercise encrypted communications between pmcd/clients
+# Copyright (c) 2012-2013 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.secure
+nss_notrun_checks
+
+_cleanup()
+{
+    nss_cleanup
+
+    $sudo $PCP_RC_DIR/pcp restart 2>&1 | _filter_pcp_stop | _filter_pcp_start
+    _wait_for_pmcd
+    _wait_for_pmlogger
+
+    $sudo rm -f $tmp.*
+    $sudo rm -fr $tmp
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+$sudo $PCP_RC_DIR/pcp stop | _filter_pcp_stop
+
+# real QA test starts here
+nss_backup
+nss_setup_randomness
+
+# verify that local clients cannot establish a connection
+# without having a valid certificate database setup.
+nss_setup_collector false
+
+nss_setup_empty_userdb
+echo "checking client, no certificate at all.  should fail..." | tee -a $seq.full
+export PCP_SECURE_SOCKETS=1
+yes | pminfo -h $hostname -f hinv.ncpu 2>&1 | tee -a $seq.full | nss_filter_pminfo
+unset PCP_SECURE_SOCKETS
+
+# verify that local clients are prompted to establish a connection
+# when a valid collectoer certificate exists but no client config.
+nss_setup_collector true $qahost $hostname
+
+nss_setup_empty_userdb
+echo "checking client, server certificate only.  should prompt and fail..." | tee -a $seq.full
+export PCP_SECURE_SOCKETS=1
+yes | pminfo -h $hostname -f hinv.ncpu 2>&1 | tee -a $seq.full | nss_filter_pminfo
+unset PCP_SECURE_SOCKETS
+
+# make the new certificate visible to just this user
+echo "checking client, user certificate only.  should pass..."
+nss_setup_empty_userdb
+nss_import_cert_userdb
+export PCP_SECURE_SOCKETS=1
+yes | pminfo -h $hostname -f hinv.ncpu 2>&1 | tee -a $seq.full | nss_filter_pminfo
+unset PCP_SECURE_SOCKETS
+
+# success, all done
+status=0
+exit

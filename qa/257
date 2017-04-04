@@ -1,0 +1,118 @@
+#! /bin/sh
+# PCP QA Test No. 257
+# Tests out the api (uses torture_api)
+# when connecting to different hosts.
+# Initial motivation was to test the distributed PMNS.
+# This test is modelled on #112 and compares with 031.out
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.check
+. ./common.filter
+
+status=1	# failure is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    os=$1
+    echo "--- os = $os, version = 2 ---" >>$seq.full
+    cat - > $tmp.1
+
+    echo "--- unfiltered output ---" >>$seq.full
+    cat $tmp.1 >> $seq.full
+
+    _filter_torture_api <$tmp.1
+}
+
+_cmp()
+{
+    echo "differences relative to 031.out ..."
+
+    diff 031.out.${PCP_PLATFORM} $1
+}
+
+_do_tests()
+{
+    style=$1
+
+    case $style
+    in
+    -s1)
+	  style_str="--- style $style (local PMNS)"
+	  ;;
+    -s2)
+	  style_str="--- style $style (distributed PMNS)"
+	  ;;
+    esac
+
+    echo ""
+    echo "=== pmapi 32 v2, local version $style_str ===" | tee -a $seq.full
+    torture_api="src/torture_api"
+    echo "torture_api = $torture_api" >> $seq.full
+    $torture_api -v $style 2>&1 | _filter `uname -r` >$tmp.out
+    _cmp $tmp.out
+
+    echo ""
+    echo "=== pmapi 32 v2, pmcd 32 v2 $style_str ===" | tee -a $seq.full
+    torture_api="src/torture_api"
+    echo "torture_api = $torture_api" >> $seq.full
+    $torture_api -v $style -h $host_32_v2 2>&1 | _filter $host_32_v2_os >$tmp.out
+    _cmp $tmp.out
+
+    echo ""
+    echo "=== pmapi 32 v2, pmcd 64 v2 $style_str ===" | tee -a $seq.full
+    torture_api="src/torture_api"
+    echo "torture_api = $torture_api" >> $seq.full
+    $torture_api -v $style -h $host_64_v2 2>&1 | _filter $host_64_v2_os >$tmp.out
+    _cmp $tmp.out
+
+}
+
+# real QA test starts here
+rm -f $tmp.*
+rm -f $seq.full
+
+# try against variously configured hosts
+#
+# Need PCP_PLATFORM b/c the torture_api output is different
+# on different platforms at the moment.
+# => different metrics and the same metrics have different pmids
+#
+host_32_v2=`./getpmcdhosts -s $PCP_PLATFORM -b 32 -m "pmcd.version>2.0" -n 1 -a sample 2>&1`
+if [ $? -eq 1 ]; then
+    echo "$host_32_v2" >$seq.notrun
+    echo "$seq: [not run] `cat $seq.notrun`"
+    exit
+fi
+echo "host_32_v2 = $host_32_v2" >> $seq.full
+host_32_v2_os=`ssh -q pcpqa@$host_32_v2 uname -r`
+
+host_64_v2=`./getpmcdhosts -s $PCP_PLATFORM -b 64 -m "pmcd.version>2.0" -n 1 -a sample 2>&1`
+if [ $? -eq 1 ]; then
+    echo "$host_64_v2" >$seq.notrun
+    echo "$seq: [not run] `cat $seq.notrun`"
+    exit
+fi
+echo "host_64_v2 = $host_64_v2" >> $seq.full
+host_64_v2_os=`ssh -q pcpqa@$host_64_v2 uname -r`
+
+# make sure it's got the metrics we want for torture_api
+_check_metric sample.seconds $hosts_32_v2
+_check_metric sampledso.sysinfo $hosts_32_v2
+_check_metric sample.seconds $hosts_64_v2
+_check_metric sampledso.sysinfo $hosts_64_v2
+
+# uses libpcp2 and local PMNS
+_do_tests -s1
+
+# uses libpcp2 and possibly distributed PMNS
+_do_tests -s2
+
+status=0

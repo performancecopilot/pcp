@@ -1,0 +1,152 @@
+#
+# Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+# 
+# trace PMDA help file in the ASCII format
+#
+# lines beginning with a # are ignored
+# lines beginning @ introduce a new entry of the form
+#  @ metric_name oneline-text
+#  help text goes
+#  here over multiple lines
+#  ...
+#
+# the metric_name is decoded against the default PMNS -- as a special case,
+# a name of the form NNN.MM (for numeric NNN and MM) is interpreted as an
+# instance domain identification, and the text describes the instance domain
+#
+# blank lines before the @ line are ignored
+#
+
+@ TRACE.0 Instance domain "trace tag name" for trace PMDA
+There is one instance for each transaction which has been seen by
+the trace PMDA during the reporting period.
+
+@ trace.transact.count count by transaction
+Count by transaction tag of transactions serviced since the trace
+PMDA was started.
+
+@ trace.transact.rate transaction completion rate over time period
+The rate at which each transaction is completed, calculated over the
+trace PMDAs aggregation period.
+
+The exported value is equal to the count of transactions completed
+during the aggregation interval, divided by the aggregation interval.
+
+@ trace.transact.ave_time average transaction time over time period
+The average time taken to complete each transaction, calculated over
+the trace PMDAs aggregation period.
+
+The exported value is equal to the sum of the transaction completion
+times seen during the aggregation interval divided by the number of
+transactions completed during the aggregation interval.
+
+@ trace.transact.max_time maximum time per transaction
+Maximum recorded service time per transaction tag within the current
+reporting period.
+
+@ trace.transact.min_time minimum time per transaction
+Minimum recorded service time per transaction tag within the current
+reporting period.
+
+@ trace.transact.total_time total time per transaction
+Cumulative time spent processing each transaction since the trace PMDA
+was started.
+
+@ trace.point.count count of point function executions
+Count by point tag of marked application points serviced since the
+trace PMDA was started.
+
+@ trace.point.rate point rate over time period
+The rate at which execution points are completed, calculated over the
+aggregation period in use by the trace PMDA.
+
+The exported value is equal to the count of successful pmtracepoint(3)
+calls made during the aggregation interval, divided by the aggregation
+interval.
+
+@ trace.counter.count count of counter values received
+Count, by counter tag, of `counter' values received since the trace
+PMDA was started.
+
+@ trace.counter.rate counter value received rate over time period
+The rate at which execution counters are received, calculated over
+the aggregation period in use by the trace PMDA.
+
+The exported value is equal to the count of pmtracecounter(3) calls made
+during the aggregation interval, divided by the aggregation interval.
+
+@ trace.counter.value counter value at last observation
+The numeric counter value associated with the last seen counter tag,
+since the trace PMDA was started.
+
+@ trace.observe.count count of observations
+Count, by observation tag, of application `observe' points serviced
+since the trace PMDA was started.
+
+@ trace.observe.rate observation rate over time period
+The rate at which execution observations are completed, calculated
+over the aggregation period in use by the trace PMDA.
+
+The exported value is equal to the count of pmtraceobs(3) calls made
+during the aggregation interval, divided by the aggregation interval.
+
+@ trace.observe.value value at last observation
+The numeric value associated with the last seen observation, since
+the trace PMDA was started.
+
+@ trace.control.period reporting time period
+Time (in seconds) over which trace performance data will be gathered.
+Any transaction or point trace data seen by the trace PMDA during the
+period will be included in the set of exported values.
+
+@ trace.control.interval update interval within time period
+The update interval (within the overall period) at which the current
+working set of performance data maintained within the trace PMDA will
+be switched into the set of historical data buffers, which are then
+used to calculate the exported performance metric values.
+This value is directly calculated from the overall time period and the
+number of buckets of historical data being maintained within the trace
+PMDA.
+
+For example, if the overall period is 60 seconds and the number of
+historical data buckets being maintained is 12, then the buffers will
+be rotated once every 5 seconds.
+
+@ trace.control.buckets number of historical buffers
+The number of buffers of historical data maintained by the trace PMDA.
+Each bucket contains all transaction and event performance data seen
+over a set time interval within the overall reporting time period.
+
+@ trace.control.port port number for client connections
+The TCP/IP port number which the trace PMDA is waiting for client
+connections on.
+
+This has been set as either the default (4322), via the command line,
+or via the PMDA_TRACE_PORT environment variable when the trace PMDA
+was started.
+
+@ trace.control.reset clear all tags known to the trace PMDA
+Storing any value into this metric with pmstore(1) will cause the trace
+PMDA to clear all tags for all metrics from its historical buffers and
+begin afresh.
+
+This is most useful when the instance domains of the trace metrics have
+become cluttered with unwanted instances, and the instance domains need
+to be refreshed without restarting pmcd(1).
+
+@ trace.control.debug set the debug level in the trace PMDA
+Storing values into this metric with pmstore(1) allows the level of
+diagnostic output from the trace PMDA to be controlled.
+
+By default, the diagnostic output will be written to the file
+$PCP_LOG_DIR/pmcd/trace.log.

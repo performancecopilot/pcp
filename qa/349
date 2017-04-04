@@ -1,0 +1,88 @@
+#! /bin/sh
+# PCP QA Test No. 348
+# Install/Remove for summary pmda
+#
+# Copyright (c) 2008 Aconex.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ -f $PCP_PMDAS_DIR/summary/pmdasummary ] || _notrun "summary pmda not installed"
+
+status=1
+done_clean=false
+
+_cleanup()
+{
+    if $done_clean
+    then
+	:
+    else
+	if [ -f $tmp.pmcd.conf ]
+	then
+	    $sudo cp $tmp.pmcd.conf $PCP_PMCDCONF_PATH
+	    rm -f $tmp.pmcd.conf
+	fi
+	rm -f $tmp.*
+	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+	_wait_for_pmcd
+	_wait_for_pmlogger
+	if $install_on_cleanup
+	then
+	    ( cd $PCP_PMDAS_DIR/summary; $sudo ./Install </dev/null >/dev/null 2>&1 )
+	else
+	    ( cd $PCP_PMDAS_DIR/summary; $sudo ./Remove </dev/null >/dev/null 2>&1 )
+	fi
+	done_clean=true
+    fi
+    exit $status
+}
+
+install_on_cleanup=false
+pminfo summary >/dev/null 2>&1 && install_on_cleanup=true
+
+trap "_cleanup" 0 1 2 3 15
+
+# real QA test starts here
+home=$PCP_PMDAS_DIR
+iam=summary
+if [ ! -d $home/$iam ]
+then
+    echo "Where is $home/$iam?"
+    exit 1
+fi
+cd $home/$iam
+unset ROOT MAKEFLAGS
+
+# copy the pmcd config file to restore state later.
+cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf
+
+# start from a known starting point
+$sudo ./Remove >/dev/null 2>&1
+
+echo
+echo "=== $iam agent installation ==="
+$sudo ./Install </dev/null >>$tmp.out 2>&1
+
+_filter_pmda_install <$tmp.out
+
+if pminfo -v $iam
+then
+    :
+else
+    echo "... failed! ... here is the Install log ..."
+    cat $tmp.out
+fi
+
+echo
+echo "=== remove $iam agent ==="
+$sudo ./Remove
+
+status=0
+exit

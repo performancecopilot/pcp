@@ -1,0 +1,50 @@
+Sendmail PMDA
+=============
+
+Export information from the sendmail statistics file.
+
+Metrics
+=======
+
+The file ./help contains descriptions for all of the metrics exported
+by this PMDA.
+
+Once the PMDA has been installed, the following command will list all
+the available metrics and their explanatory "help" text:
+
+	$ pminfo -fT sendmail
+
+Installation
+============
+
+ +  # cd $PCP_PMDAS_DIR/sendmail
+
+ +  Check that there is no clash in the Performance Metrics Domain
+    defined in ./domain.h and the other PMDAs currently in use (see
+    $PCP_PMCDCONF_PATH).  If there is, edit ./domain.h to choose another
+    domain number.
+
+ +  Then simply use
+
+	# ./Install
+
+    and choose both the "collector" and "monitor" installation
+    configuration options.
+
+    Everything else is automated.
+
+De-installation
+===============
+
+ +  Simply use
+
+	# cd $PCP_PMDAS_DIR/sendmail
+	# ./Remove
+
+Troubleshooting
+===============
+
+ +  After installing or restarting the agent, the PMCD log file
+    ($PCP_LOG_DIR/pmcd/pmcd.log) and the PMDA log file
+    ($PCP_LOG_DIR/pmcd/sendmail.log) should be checked for any warnings
+    or errors.

@@ -1,0 +1,724 @@
+'\"! tbl | mmdoc
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2013 Red Hat.
+.\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMDACACHE 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmdaCacheStore\f1,
+\f3pmdaCacheStoreKey\f1,
+\f3pmdaCacheLookup\f1,
+\f3pmdaCacheLookupName\f1,
+\f3pmdaCacheLookupKey\f1,
+\f3pmdaCacheOp\f1,
+\f3pmdaCachePurge\f1,
+\f3pmdaCacheResize\f1 \- manage a cache of instance domain information for a PMDA
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.br
+#include <pcp/pmda.h>
+.sp
+.ad l
+.hy 0
+.in +8n
+.ti -8n
+int pmdaCacheStore(pmInDom \fIindom\fP, int \fIflags\fP, const\ char\ *\fIname\fP, void\ *\fIprivate\fP);
+.br
+.ti -8n
+int pmdaCacheStoreKey(pmInDom \fIindom\fP, int \fIflags\fP, const\ char\ *\fIname\fP, int\ \fIkeylen\fP, const void\ *\fIkey\fP, void\ *\fIprivate\fP);
+.br
+.ti -8n
+int pmdaCacheLookup(pmInDom \fIindom\fP, int \fIinst\fP, char **\fIname\fP, void\ **\fIprivate\fP);
+.br
+.ti -8n
+int pmdaCacheLookupName(pmInDom \fIindom\fP, const char *\fIname\fP, int\ *\fIinst\fP, void\ **\fIprivate\fP);
+.br
+.ti -8n
+int pmdaCacheLookupKey(pmInDom \fIindom\fP, const char *\fIname\fP, int\ \fIkeylen\fP, const void\ *\fIkey\fP, char **\fIoname\fP, int\ *\fIinst\fP, void\ **\fIprivate\fP);
+.br
+.ti -8n
+int pmdaCacheOp(pmInDom \fIindom\fP, int \fIop\fP);
+.br
+.ti -8n
+int pmdaCachePurge(pmInDom \fIindom\fP, time_t \fIrecent\fP);
+.br
+.ti -8n
+int pmdaCacheResize(pmInDom \fIindom\fP, int \fImaximum\fP);
+.sp
+.in
+.hy
+.ad
+cc ... \-lpcp_pmda \-lpcp
+.ft 1
+.de EX
+.in +2n
+.ie t .ft C
+.el .ft B
+.ie t .sp .5v
+.el .sp
+.ta \\w' 'u*8
+.nf
+..
+.de EE
+.fi
+.ie t .sp .5v
+.el .sp
+.ft R
+.in
+..
+.SH DESCRIPTION
+The
+.B pmdaCache
+family of routines provide services to support the maintenance of
+complex instance domains for Performance Co-Pilot PMDAs.
+There is potentially one cache of information for each instance
+domain, and for each instance the cache maintains:
+.PD 0
+.IP \- 2m
+external instance name (supplied by the PMDA)
+.IP \- 2m
+internal instance identifier (assigned by
+.B pmdaCacheStore
+or calculated from a ``hint'' by
+.BR pmdaCacheStoreKey )
+.IP \- 2m
+state, where
+.B active
+instances are visible and part of the current
+instance domain, and
+.B inactive
+instances are hidden, but not forgotten;
+.B pmdaCacheStore
+or
+.B pmdaCacheStoreKey
+may be used to change the state of an instance
+.IP \- 2m
+an optional opaque pointer to data that is associated with the instance,
+but maintained by the PMDA 
+.IP \- 2m
+an optional opaque key that is used as a ``hint'' to
+.B pmdaCacheStoreKey
+when guessing the initial internal instance identifier
+.IP \- 2m
+the last time the cache was saved and the instance had been marked as
+.B active
+at some point since the previous cache load or save operation
+.PD
+.PP
+The semantics of a PCP instance domain require a number of rules to
+be followed, namely:
+.PD 0
+.IP 1. 3n
+Each internal instance identifier must be unique and in the range
+0 to 2^31\0\-\01.
+This rule is enforced by the
+.B pmdaCache
+family of routines.
+.IP 2. 3n
+The external instance name must be unique.  When the instance name
+contains a space, it is further constrained such that the name to
+the left of the first space (the short name) must also be unique.
+Refer to the INSTANCE NAME MATCHING section below.
+The PMDA must honor this rule, the
+.B pmdaCache
+family of routines will detect attempts to violate this rule.
+.IP 3. 3n
+Where an external instance name corresponds to some object or entity,
+there is an expectation that the association between the name and
+the object is fixed, e.g. ``/dev/hda'' is always the name of the same disk
+on a particular system.
+This rule is perhaps the responsibility of the PMDA, but is often
+a characteristic of the environment in which the PMDA runs.
+.IP 4. 3n
+It is preferable, although not mandatory, for the association between
+and external instance name and an internal instance identifier to
+be persistent.
+This rule is supported by the
+.B pmdaCache
+family of routines.
+.IP 5. 3n
+When opaque keys are used, the values of the keys must be unique across all
+instances within an instance domain.
+This rule is enforced by the
+.B pmdaCache
+family of routines.
+.PD
+.PP
+The visible interface to the cache is oriented towards the PMDA
+developer who is most concerned about the names of instances, while
+the details of how the rest of the PCP infrastructure
+expects the internal instance identifiers
+to be managed is not relevant.
+.PP
+Instances are updated in the cache for instance domain
+.I indom
+by calling
+.B pmdaCacheStore
+or
+.B pmdaCacheStoreKey
+with the external name of the instance passed via
+.I name.
+The opaque pointer
+.I private
+may be used to associate additional data with the entry in the cache;
+if no such data is required,
+.I private
+should be NULL.
+Any manipulation of the additional data (including allocation or
+freeing) is the responsibility of the PMDA caller, as the cache simply
+maintains the pointer to the data
+(passed via
+.IR private ).
+.PP
+The upper bound for identifiers allocated for any given
+.I indom
+cache can be optionally
+reduced from the default (2^31\0\-\01) to some lesser
+.IR maximum ,
+using
+.BR pmdaCacheResize .
+This
+.I maximum
+will then be persisted and restored in the usual manner, and
+can thus be associated permanently with a cache once set.
+This has applications when using these interfaces as general
+purpose identifier caches, and is less applicable when using
+them for instance domain caching.
+.PP
+For cases where the PMDA developer wishes to influence the allocation
+of internal instance identifiers, e.g. for instance domains with more
+than one natural dimension, or where there is a desire to allocate the same
+instance identifier each time the PMDA is started, even on different
+hosts,
+.B pmdaCacheStoreKey
+may be used.
+In this case, an initial ``hint'' for the instance identifier is provided
+as an opaque key via the first
+.I keylen
+bytes in
+.I key
+(which could be any sort of data, including binary values)
+else if
+.I keylen
+is less than 1 or
+.I key
+is
+.B NULL
+then
+.I name
+is used as the ``hint''.
+The ``hint'' is hashed to produce an initial instance identifier in the range
+0 to 2^31\0\-\01 (or lesser
+.IR maximum ,
+if set).  If this instance identifier is already allocated, then the
+value is rehashed.  This procedure is repeated until an unallocated
+instance identifier is found, or
+.B pmdaCacheStoreKey
+gives up and returns
+.BR PM_ERR_GENERIC .
+For each instance domain, the ``hint'' must be unique across all
+instances, else
+.B pmdaCacheStoreKey
+returns
+.BR PM_ERR_INST .
+.PP
+The
+.I flags
+argument controls how the instance should be processed in the cache
+as follows:
+.TP
+PMDA_CACHE_ADD
+Insert the entry into the cache if it is not already there and mark
+it
+.BR active .
+If the entry is already in the cache mark it
+.BR active .
+.TP
+PMDA_CACHE_HIDE
+Mark the entry in the cache as
+.BR inactive ,
+but remember the
+details of the association between the
+external instance name and the internal instance identifier.
+Entries that are
+.B inactive
+will be hidden from cache traversal via PMDA_CACHE_WALK_NEXT
+operations, but remain visible to
+.BR pmdaCacheLookup ,
+.B pmdaCacheLookupName
+and
+.B pmdaCacheLookupKey
+requests.
+.TP
+PMDA_CACHE_CULL
+Remove the entry from the cache.
+.PP
+On success
+.B pmdaCacheStore
+or
+.B pmdaCacheStoreKey
+will return the internal instance identifier of the associated cache
+entry.
+Valid instance identifiers are guaranteed to be unique and non-negative.
+Failure will be indicated by a negative value (suitable for decoding
+with
+.BR pmErrStr (3))
+and most likely PM_ERR_INST to indicate the requested instance is not
+in the cache, or \-EINVAL to indicate a potential violation of the
+short name uniqueness property
+(see the INSTANCE NAME MATCHING section below).
+.PP
+.B pmdaCacheLookup
+is used to search the
+entries in the cache based on the internal
+instance identifier
+.IR inst .
+.PP
+On success the return value will be PMDA_CACHE_ACTIVE or PMDA_CACHE_INACTIVE
+(depending on the
+.B active
+or
+.B inactive
+state of the cache entry),
+.I name
+(if not NULL) and
+.I private
+(if not NULL)
+will be set to the external instance name and the associate additional data
+area as provided when the instance was last activated via
+.B pmdaCacheStore 
+or
+.BR pmdaCacheStoreKey .
+.PP
+.B pmdaCacheLookup
+failure is indicated by a negative return value
+suitable for decoding with
+.BR pmErrStr (3).
+.PP
+The
+.B pmdaCacheLookup
+interface is required by the PMDA's fetch callback
+that is registered via
+.BR pmdaSetFetchCallback (3).
+Here the internal instance identifier is passed to the fetch callback
+to identifier for which instance a value is required.
+Typical usage is shown in the code fragment below.
+.EX
+static int
+foo_callback(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
+{
+    mydata   *mdp;
+    char     *name;
+    int      sts;
+
+    sts = pmdaCacheLookup(mdesc->m_desc.indom, inst, &name, (void **)&mdp);
+    /*
+     * expect sts == PMDA_CACHE_ACTIVE except for cataclysmic events
+     * use mdp as required, name may be useful for diagnostics
+     */
+    ...
+.EE
+.PP
+.B pmdaCacheLookupName
+is used to search the
+entries in the cache based on the external
+instance name
+.IR name .
+.PP
+On success the return value will be PMDA_CACHE_ACTIVE or PMDA_CACHE_INACTIVE
+(depending on the
+.B active
+or
+.B inactive
+state of the cache entry),
+.I inst
+(if not NULL) and
+.I private
+(if not NULL)
+will be set to the internal instance identifier and the associate additional data
+area as provided when the instance was last activated via
+.B pmdaCacheStore
+or
+.BR pmdaCacheStoreKey .
+.PP
+.B pmdaCacheLookupName
+failure is indicated by a negative return value
+suitable for decoding with
+.BR pmErrStr (3).
+.PP
+The
+.B pmdaCacheLookupName
+interface is useful for PMDAs wishing to update an instance domain based
+on the external instance names.
+.PP
+.B pmdaCacheLookupKey
+is used to search the entries in the cache
+based on an opaque key (or ``hint'') previously used in a call to
+.BR pmdaCacheStoreKey .
+The ``hint'' is provided via the first
+.I keylen
+bytes in
+.IR key .
+For symmetry with
+.BR pmdaCacheStoreKey ,
+if
+.I keylen
+is less than 1 or
+.I key
+is
+.B NULL
+then
+.I name
+is used as the ``hint'' (although the results will be the same as
+calling
+.B pmdaCacheLookupName
+in this case).
+.PP
+On success the return value will be PMDA_CACHE_ACTIVE or PMDA_CACHE_INACTIVE
+(depending on the
+.B active
+or
+.B inactive
+state of the cache entry),
+.I oname
+(if not NULL),
+.I inst
+(if not NULL) and
+.I private
+(if not NULL)
+will be set to the external instance name, the internal instance
+identifier and the associate additional data
+area as provided when the instance was last activated via
+.B pmdaCacheStore 
+or
+.BR pmdaCacheStoreKey .
+.PP
+.B pmdaCacheLookupKey
+failure is indicated by a negative return value
+suitable for decoding with
+.BR pmErrStr (3).
+.PP
+To avoid a persistent cache growing without bound,
+.B pmdaCachePurge
+can be used to cull all entries that have
+.I not
+been
+.B active
+in the last
+.I recent
+seconds.
+For performance reasons, the time accounting is imprecise and the entries
+are timestamped
+at the time of the next cache save operation
+.I after
+the entry has been added or marked
+.B active 
+(refer to PMDA_CACHE_SAVE and PMDA_CACHE_SYNC below).
+On success
+.B pmdaCachePurge
+returns the number of culled entries, else in the case of an error
+the return value is negative (and suitable for decoding with
+.BR pmErrStr (3)).
+.PP
+.B pmdaCacheOp
+may be used to perform additional operations on the cache as follows:
+.TP
+PMDA_CACHE_LOAD
+The cache can optionally be maintained as a persistent external file,
+so that the mapping of instance names to instance identifiers is persistent
+across executions of a PMDA.
+This operation loads the cache from the external file, and then
+all new cache entries are marked
+.BR inactive ,
+and the additional
+data pointer is set to NULL.
+Entries loaded from the external file are checked against the current
+cache contents and if the instance name and instance identifiers match
+then the state in the cache (\c
+.B active
+or
+.BR inactive )
+is not changed. Should a mismatch be found (same instance name and
+different instance identifier, or same instance identifier and different
+instance name, or some but not all of the instance identifier,
+the instance name and the ``hint'' match)
+then the entry from the external file is ignored
+and a warning is issued on
+.IR stderr .
+Typically a PMDA would only
+perform this operation once per execution.
+.TP
+PMDA_CACHE_SAVE
+If any instance has been added to, or deleted from, the instance
+domain since the last PMDA_CACHE_LOAD, PMDA_CACHE_SAVE or PMDA_CACHE_SYNC
+operation, the
+.I entire
+cache is written to the external file as a bulk operation.
+This operation is provided for PMDAs that are
+.I not
+interested
+in using
+.B pmdaCachePurge
+and simply want the external file to reflect the set of known instances
+without accurate details of when they were last marked
+.BR active .
+.RS
+.PP
+Returns the number of instances saved to the external file, else 0
+if the external file was already up to date.
+.RE
+.TP
+PMDA_CACHE_STRINGS
+Annotates this cache as being a special-purpose cache used for string
+de-duplication in PMDAs exporting large numbers of string valued metrics.
+This can be used to reduce the memory footprint of the PMDA (duplicate
+strings hash to the same bucket, and are stored in memory once only).
+Key comparisons are not terminated at the first space but rather the
+entire string is used for matching.
+These are specialised caches not useful for general purpose instance
+domain handling.
+.TP
+PMDA_CACHE_SYNC
+Within an instance domain,
+if any instance has been added to, or deleted from, or marked
+.B active
+since the last PMDA_CACHE_LOAD, PMDA_CACHE_SAVE or PMDA_CACHE_SYNC
+operation, the
+.I entire
+cache is written to the external file as a bulk operation.
+This operation is similar to PMDA_CACHE_SAVE, but will save the
+instance domain more frequently so the timestamps more
+accurately match the semantics expected by
+.BR pmdaCachePurge .
+.RS
+.PP
+Returns the number of instances saved to the external file, else 0
+if the external file was already synchronized.
+.RE
+.TP
+PMDA_CACHE_CHECK
+Returns 1 if a cache exists for the specified instance domain,
+else 0.
+.TP
+PMDA_CACHE_REUSE
+When a new instance is added to the cache,
+the default strategy is to assign instance identifiers in a monotonic
+increasing
+manner.  Once the maximum possible instance identifier value has been
+assigned, the strategy changes to one where starting from 0,
+the next available unused instance identifier will be used.
+Calling
+.B pmdaCacheOp
+with PMDA_CACHE_REUSE forces an irreversible change to a second
+(reuse) strategy where the next unallocated instance identifier
+will be used.  This may be useful in cases where there is a
+desire to restrict the allocated instance identifiers to smaller
+values.  The prevailing strategy will be saved and restored across
+PMDA_CACHE_SAVE and PMDA_CACHE_LOAD operations.
+If
+.B pmdaCacheStoreKey
+is ever used, the associated instance domain will be changed to
+PMDA_CACHE_REUSE mode.
+.TP
+PMDA_CACHE_REORG
+Reorganize the cache to allow faster retrieval of
+.B active
+entries, and the cost of slower retrieval for
+.B inactive
+entries, and reclaim any culled entries.  The cache may be internally
+re-organized as entries are added, so this operation is not required
+for most PMDAs.
+.TP
+PMDA_CACHE_WALK_REWIND
+Prepares for a traversal of the cache in ascending instance identifier
+sequence.
+.TP
+PMDA_CACHE_WALK_NEXT
+Fetch the next
+.B active
+instance identifier from the cache.  Requires a prior
+call using PMDA_CACHE_WALK_REWIND and will return \-1 when all instances
+have been processed.
+.RS
+.PP
+Only one cache walk can be active at any given time, nesting calls
+to PMDA_CACHE_WALK and PMDA_CACHE_REWIND will interfere with each
+other.
+.RE
+.TP
+PMDA_CACHE_ACTIVE
+Changes
+.B every
+.B inactive
+entry in the cache to be marked
+.BR active .
+.TP
+PMDA_CACHE_INACTIVE
+Changes
+.B every
+.B active
+entry in the cache to be marked
+.BR inactive .
+.TP
+PMDA_CACHE_CULL
+Remove 
+.B every
+entry from the cache.
+.TP
+PMDA_CACHE_SIZE
+Return the number of entries in the cache (includes
+.BR active ,
+.B inactive
+and any culled entries that have not yet been reclaimed).
+.TP
+PMDA_CACHE_SIZE_ACTIVE
+Return the number of
+.B active
+entries in the cache.
+.TP
+PMDA_CACHE_SIZE_INACTIVE
+Return the number of
+.B inactive
+entries in the cache.
+.TP
+PMDA_CACHE_DUMP
+Dump the current state of the cache on
+.IR stderr .
+.TP
+PMDA_CACHE_DUMP_ALL
+Like PMDA_CACHE_DUMP, but also dump the internal hashing structures
+used to support lookup by instance name, lookup by instance identifier and
+the collision statistics for ``hint'' hashing from
+.BR pmdaCacheStoreKey .
+.PP
+.B pmdaCacheOp
+returns a non-negative value on success, and failure is indicated
+by a negative return value (suitable for decoding
+with
+.BR pmErrStr (3)).
+.SH OTHER CONSIDERATIONS
+.PP
+When the
+.B pmdaCache
+routines are used for particular instance domain,
+.BR pmdaInstance (3)
+and the instance domain enumeration behind
+.BR pmdaFetch (3)
+will attempt to extract instance domain information from the cache, thereby avoiding
+reference to the
+.B pmdaIndom
+data structures that have historically been used to define instance domains
+and service instance requests.
+A PMDA can adopt a hybrid approach and choose to implement some instance
+domains via the traditional
+.B pmdaIndom
+method, and others via the
+.B pmdaCache
+approach, however attempts to manage the
+.I same
+instance domain by both
+methods will result in the
+.B pmdaCache
+method silently prevailing.
+.PP
+If
+.B all
+instances in a PMDA are to be serviced from a
+.B pmdaCache
+then a
+.B pmdaIndom
+is not required, and the
+.BR pmdaInit (3)
+call becomes
+.EX
+    pmdaInit(dp, NULL, 0, metrictab, nmetrics);
+.EE
+However, the PMDA will need to explicitly initialize the
+.B indom
+field of the
+.B pmDesc
+in the
+.I metrictab
+entries, as this cannot be done by
+.BR pmdaInit (3)
+if
+.I indomtab
+is missing entries for the instance domains maintained in the cache.
+.PP
+Independent of how the instance domain is being maintained,
+to refresh an instance domain prior to a fetch or an instance domain
+operation, the standard methods of a ``wrapper'' to the
+.BR pmdaInstance (3)
+and
+.BR pmdaFetch (3)
+methods should be used.
+.PP
+Refer to the
+.B simple
+PMDA source code for an example use of the
+.B pmdaCache
+routines.
+.PP
+When using
+.BR pmdaCacheStoreKey ,
+if there is a desire to ensure the given ``hint'' generates the same
+initial instance identifier across all platforms, then the caller
+should ensure the endian and word-size issues are considered, e.g. if
+the natural data structure used for the
+.I key
+is an array of 32-bit integers, then
+.BR htonl (3)
+should be used on each element of the array before calling
+.B pmdaCacheStoreKey
+or
+.BR pmdaCacheLookupKey .
+.SH INSTANCE NAME MATCHING
+.PP
+The following table summarizes the ``short name'' matching semantics
+for an instance domain (caches other than PMDA_CACHE_STRINGS style).
+.TS
+box, center;
+l | l | l
+l | l | ^
+l | l | l.
+name in	\fBpmdaCacheLookup\fR	result
+cache	name
+_
+foodle	foo	no match (PM_ERR_INST)
+foo	foodle	no match (PM_ERR_INST)
+foo	foo	match
+foo bar	foo	match on short name (instance identifier)
+foo bar	foo bar	match on full name (instance identifier)
+foo	foo bar	bad match (\-EDOM)
+foo bar	foo blah	bad match (\-EDOM)
+.TE
+.SH FILES
+Cache persistence uses files with names constructed from the
+.I indom
+within the
+.B $PCP_VAR_DIR/config/pmda
+directory.
+.SH SEE ALSO
+.BR BYTEORDER (3),
+.BR PMAPI (3),
+.BR PMDA (3),
+.BR pmdaInit (3),
+.BR pmdaInstance (3),
+.BR pmdaFetch (3),
+.BR pmdaSetFetchCallback (3),
+.BR pmErrStr (3)
+and
+.BR pmGetInDom (3).

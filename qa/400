@@ -1,0 +1,60 @@
+#!/bin/sh
+# PCP QA Test No. 400
+# pminfo -x, event records, memory leaks
+#
+# Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_check_valgrind
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e 's/[0-2][0-9]:[0-5][0-9]:[0-5][0-9]\.[0-9][0-9][0-9]/TIMESTAMP/g' \
+    | $PCP_AWK_PROG '
+want == 1	{ print "        value [blob]"; want = 0; next }
+$1 == "sampledso.event.param_aggregate"	{ want = 1 }
+		{ print }'
+}
+
+# real QA test starts here
+export PCP_LITE_SAMPLE=yes
+
+# logic here is little strange ... sample uses a static buffer and
+# PM_CONTEXT_LOCAL always starts from case 0 in the event record enumeration
+# ... asking for n copies of sampledso.event.records returns n identical
+# values for the nth case from the pmda
+#
+
+_run_valgrind pminfo -x -L sampledso.event.records \
+| _filter
+
+_run_valgrind pminfo -x -L sampledso.event.records \
+    sampledso.event.records \
+| _filter
+
+_run_valgrind pminfo -x -L sampledso.event.records \
+    sampledso.event.records \
+    sampledso.event.records \
+| _filter
+
+_run_valgrind pminfo -x -L sampledso.event.records \
+    sampledso.event.records \
+    sampledso.event.records \
+    sampledso.event.records \
+| _filter
+
+# success, all done
+exit

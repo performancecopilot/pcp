@@ -1,0 +1,327 @@
+QA output created by 167
+error checks ...
+pmval: instance elephant not available
+pmval: instance 16 not available
+
+set one at a time ...
+pmcd.control.register inst [1 or "1"] old value=0 new value=1
+
+pmcd.control.register
+    inst [0 or "0"] value 0
+    inst [1 or "1"] value 1
+    inst [2 or "2"] value 0
+    inst [3 or "3"] value 0
+    inst [4 or "4"] value 0
+    inst [5 or "5"] value 0
+    inst [6 or "6"] value 0
+    inst [7 or "7"] value 0
+    inst [8 or "8"] value 0
+    inst [9 or "9"] value 0
+    inst [10 or "10"] value 0
+    inst [11 or "11"] value 0
+    inst [12 or "12"] value 0
+    inst [13 or "13"] value 0
+    inst [14 or "14"] value 0
+    inst [15 or "15"] value 0
+pmcd.control.register inst [2 or "2"] old value=0 new value=2
+
+pmcd.control.register
+    inst [0 or "0"] value 0
+    inst [1 or "1"] value 1
+    inst [2 or "2"] value 2
+    inst [3 or "3"] value 0
+    inst [4 or "4"] value 0
+    inst [5 or "5"] value 0
+    inst [6 or "6"] value 0
+    inst [7 or "7"] value 0
+    inst [8 or "8"] value 0
+    inst [9 or "9"] value 0
+    inst [10 or "10"] value 0
+    inst [11 or "11"] value 0
+    inst [12 or "12"] value 0
+    inst [13 or "13"] value 0
+    inst [14 or "14"] value 0
+    inst [15 or "15"] value 0
+pmcd.control.register inst [3 or "3"] old value=0 new value=3
+
+pmcd.control.register
+    inst [0 or "0"] value 0
+    inst [1 or "1"] value 1
+    inst [2 or "2"] value 2
+    inst [3 or "3"] value 3
+    inst [4 or "4"] value 0
+    inst [5 or "5"] value 0
+    inst [6 or "6"] value 0
+    inst [7 or "7"] value 0
+    inst [8 or "8"] value 0
+    inst [9 or "9"] value 0
+    inst [10 or "10"] value 0
+    inst [11 or "11"] value 0
+    inst [12 or "12"] value 0
+    inst [13 or "13"] value 0
+    inst [14 or "14"] value 0
+    inst [15 or "15"] value 0
+pmcd.control.register inst [4 or "4"] old value=0 new value=4
+
+pmcd.control.register
+    inst [0 or "0"] value 0
+    inst [1 or "1"] value 1
+    inst [2 or "2"] value 2
+    inst [3 or "3"] value 3
+    inst [4 or "4"] value 4
+    inst [5 or "5"] value 0
+    inst [6 or "6"] value 0
+    inst [7 or "7"] value 0
+    inst [8 or "8"] value 0
+    inst [9 or "9"] value 0
+    inst [10 or "10"] value 0
+    inst [11 or "11"] value 0
+    inst [12 or "12"] value 0
+    inst [13 or "13"] value 0
+    inst [14 or "14"] value 0
+    inst [15 or "15"] value 0
+pmcd.control.register inst [5 or "5"] old value=0 new value=5
+
+pmcd.control.register
+    inst [0 or "0"] value 0
+    inst [1 or "1"] value 1
+    inst [2 or "2"] value 2
+    inst [3 or "3"] value 3
+    inst [4 or "4"] value 4
+    inst [5 or "5"] value 5
+    inst [6 or "6"] value 0
+    inst [7 or "7"] value 0
+    inst [8 or "8"] value 0
+    inst [9 or "9"] value 0
+    inst [10 or "10"] value 0
+    inst [11 or "11"] value 0
+    inst [12 or "12"] value 0
+    inst [13 or "13"] value 0
+    inst [14 or "14"] value 0
+    inst [15 or "15"] value 0
+pmcd.control.register inst [6 or "6"] old value=0 new value=6
+
+pmcd.control.register
+    inst [0 or "0"] value 0
+    inst [1 or "1"] value 1
+    inst [2 or "2"] value 2
+    inst [3 or "3"] value 3
+    inst [4 or "4"] value 4
+    inst [5 or "5"] value 5
+    inst [6 or "6"] value 6
+    inst [7 or "7"] value 0
+    inst [8 or "8"] value 0
+    inst [9 or "9"] value 0
+    inst [10 or "10"] value 0
+    inst [11 or "11"] value 0
+    inst [12 or "12"] value 0
+    inst [13 or "13"] value 0
+    inst [14 or "14"] value 0
+    inst [15 or "15"] value 0
+pmcd.control.register inst [7 or "7"] old value=0 new value=7
+
+pmcd.control.register
+    inst [0 or "0"] value 0
+    inst [1 or "1"] value 1
+    inst [2 or "2"] value 2
+    inst [3 or "3"] value 3
+    inst [4 or "4"] value 4
+    inst [5 or "5"] value 5
+    inst [6 or "6"] value 6
+    inst [7 or "7"] value 7
+    inst [8 or "8"] value 0
+    inst [9 or "9"] value 0
+    inst [10 or "10"] value 0
+    inst [11 or "11"] value 0
+    inst [12 or "12"] value 0
+    inst [13 or "13"] value 0
+    inst [14 or "14"] value 0
+    inst [15 or "15"] value 0
+pmcd.control.register inst [8 or "8"] old value=0 new value=8
+
+pmcd.control.register
+    inst [0 or "0"] value 0
+    inst [1 or "1"] value 1
+    inst [2 or "2"] value 2
+    inst [3 or "3"] value 3
+    inst [4 or "4"] value 4
+    inst [5 or "5"] value 5
+    inst [6 or "6"] value 6
+    inst [7 or "7"] value 7
+    inst [8 or "8"] value 8
+    inst [9 or "9"] value 0
+    inst [10 or "10"] value 0
+    inst [11 or "11"] value 0
+    inst [12 or "12"] value 0
+    inst [13 or "13"] value 0
+    inst [14 or "14"] value 0
+    inst [15 or "15"] value 0
+pmcd.control.register inst [9 or "9"] old value=0 new value=9
+
+pmcd.control.register
+    inst [0 or "0"] value 0
+    inst [1 or "1"] value 1
+    inst [2 or "2"] value 2
+    inst [3 or "3"] value 3
+    inst [4 or "4"] value 4
+    inst [5 or "5"] value 5
+    inst [6 or "6"] value 6
+    inst [7 or "7"] value 7
+    inst [8 or "8"] value 8
+    inst [9 or "9"] value 9
+    inst [10 or "10"] value 0
+    inst [11 or "11"] value 0
+    inst [12 or "12"] value 0
+    inst [13 or "13"] value 0
+    inst [14 or "14"] value 0
+    inst [15 or "15"] value 0
+pmcd.control.register inst [10 or "10"] old value=0 new value=10
+
+pmcd.control.register
+    inst [0 or "0"] value 0
+    inst [1 or "1"] value 1
+    inst [2 or "2"] value 2
+    inst [3 or "3"] value 3
+    inst [4 or "4"] value 4
+    inst [5 or "5"] value 5
+    inst [6 or "6"] value 6
+    inst [7 or "7"] value 7
+    inst [8 or "8"] value 8
+    inst [9 or "9"] value 9
+    inst [10 or "10"] value 10
+    inst [11 or "11"] value 0
+    inst [12 or "12"] value 0
+    inst [13 or "13"] value 0
+    inst [14 or "14"] value 0
+    inst [15 or "15"] value 0
+pmcd.control.register inst [11 or "11"] old value=0 new value=11
+
+pmcd.control.register
+    inst [0 or "0"] value 0
+    inst [1 or "1"] value 1
+    inst [2 or "2"] value 2
+    inst [3 or "3"] value 3
+    inst [4 or "4"] value 4
+    inst [5 or "5"] value 5
+    inst [6 or "6"] value 6
+    inst [7 or "7"] value 7
+    inst [8 or "8"] value 8
+    inst [9 or "9"] value 9
+    inst [10 or "10"] value 10
+    inst [11 or "11"] value 11
+    inst [12 or "12"] value 0
+    inst [13 or "13"] value 0
+    inst [14 or "14"] value 0
+    inst [15 or "15"] value 0
+pmcd.control.register inst [12 or "12"] old value=0 new value=12
+
+pmcd.control.register
+    inst [0 or "0"] value 0
+    inst [1 or "1"] value 1
+    inst [2 or "2"] value 2
+    inst [3 or "3"] value 3
+    inst [4 or "4"] value 4
+    inst [5 or "5"] value 5
+    inst [6 or "6"] value 6
+    inst [7 or "7"] value 7
+    inst [8 or "8"] value 8
+    inst [9 or "9"] value 9
+    inst [10 or "10"] value 10
+    inst [11 or "11"] value 11
+    inst [12 or "12"] value 12
+    inst [13 or "13"] value 0
+    inst [14 or "14"] value 0
+    inst [15 or "15"] value 0
+pmcd.control.register inst [13 or "13"] old value=0 new value=13
+
+pmcd.control.register
+    inst [0 or "0"] value 0
+    inst [1 or "1"] value 1
+    inst [2 or "2"] value 2
+    inst [3 or "3"] value 3
+    inst [4 or "4"] value 4
+    inst [5 or "5"] value 5
+    inst [6 or "6"] value 6
+    inst [7 or "7"] value 7
+    inst [8 or "8"] value 8
+    inst [9 or "9"] value 9
+    inst [10 or "10"] value 10
+    inst [11 or "11"] value 11
+    inst [12 or "12"] value 12
+    inst [13 or "13"] value 13
+    inst [14 or "14"] value 0
+    inst [15 or "15"] value 0
+pmcd.control.register inst [14 or "14"] old value=0 new value=14
+
+pmcd.control.register
+    inst [0 or "0"] value 0
+    inst [1 or "1"] value 1
+    inst [2 or "2"] value 2
+    inst [3 or "3"] value 3
+    inst [4 or "4"] value 4
+    inst [5 or "5"] value 5
+    inst [6 or "6"] value 6
+    inst [7 or "7"] value 7
+    inst [8 or "8"] value 8
+    inst [9 or "9"] value 9
+    inst [10 or "10"] value 10
+    inst [11 or "11"] value 11
+    inst [12 or "12"] value 12
+    inst [13 or "13"] value 13
+    inst [14 or "14"] value 14
+    inst [15 or "15"] value 0
+pmcd.control.register inst [15 or "15"] old value=0 new value=15
+
+pmcd.control.register
+    inst [0 or "0"] value 0
+    inst [1 or "1"] value 1
+    inst [2 or "2"] value 2
+    inst [3 or "3"] value 3
+    inst [4 or "4"] value 4
+    inst [5 or "5"] value 5
+    inst [6 or "6"] value 6
+    inst [7 or "7"] value 7
+    inst [8 or "8"] value 8
+    inst [9 or "9"] value 9
+    inst [10 or "10"] value 10
+    inst [11 or "11"] value 11
+    inst [12 or "12"] value 12
+    inst [13 or "13"] value 13
+    inst [14 or "14"] value 14
+    inst [15 or "15"] value 15
+
+clear all ...
+pmcd.control.register inst [0 or "0"] old value=0 new value=0
+pmcd.control.register inst [1 or "1"] old value=1 new value=0
+pmcd.control.register inst [2 or "2"] old value=2 new value=0
+pmcd.control.register inst [3 or "3"] old value=3 new value=0
+pmcd.control.register inst [4 or "4"] old value=4 new value=0
+pmcd.control.register inst [5 or "5"] old value=5 new value=0
+pmcd.control.register inst [6 or "6"] old value=6 new value=0
+pmcd.control.register inst [7 or "7"] old value=7 new value=0
+pmcd.control.register inst [8 or "8"] old value=8 new value=0
+pmcd.control.register inst [9 or "9"] old value=9 new value=0
+pmcd.control.register inst [10 or "10"] old value=10 new value=0
+pmcd.control.register inst [11 or "11"] old value=11 new value=0
+pmcd.control.register inst [12 or "12"] old value=12 new value=0
+pmcd.control.register inst [13 or "13"] old value=13 new value=0
+pmcd.control.register inst [14 or "14"] old value=14 new value=0
+pmcd.control.register inst [15 or "15"] old value=15 new value=0
+
+pmcd.control.register
+    inst [0 or "0"] value 0
+    inst [1 or "1"] value 0
+    inst [2 or "2"] value 0
+    inst [3 or "3"] value 0
+    inst [4 or "4"] value 0
+    inst [5 or "5"] value 0
+    inst [6 or "6"] value 0
+    inst [7 or "7"] value 0
+    inst [8 or "8"] value 0
+    inst [9 or "9"] value 0
+    inst [10 or "10"] value 0
+    inst [11 or "11"] value 0
+    inst [12 or "12"] value 0
+    inst [13 or "13"] value 0
+    inst [14 or "14"] value 0
+    inst [15 or "15"] value 0

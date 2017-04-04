@@ -1,0 +1,477 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMLC 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmlc\f1 \- configure active Performance Co-Pilot pmlogger(s) interactively
+.\" literals use .B or \f3
+.\" arguments use .I or \f2
+.SH SYNOPSIS
+\f3pmlc\f1
+[\f3\-e\f1]
+[\f3\-h\f1 \f2host\f1]
+[\f3\-i\f1]
+[\f3\-n\f1 \f2pmnsfile\f1]
+[\f3\-P\f1]
+[\f3\-p\f1 \f2port\f1]
+[\f3\-Z\f1 \f2timezone\f1]
+[\f3\-z\f1]
+[\f3pid\f1]
+.SH DESCRIPTION
+.B pmlc
+may be used to change those metrics and instances which a
+.BR pmlogger (1)
+writes to a Performance Co-Pilot archive (see
+.BR PCPIntro (1)),
+the frequency with which the metrics are collected and whether the
+logging is mandatory, advisory, on or off.  It also reports the
+current logging status of metrics and instances.
+.B pmlc
+may be used to control pmlogger instances on remote hosts as well as those
+on the local host.
+.PP
+Normally
+.B pmlc
+operates on the distributed Performance Metrics Name Space (PMNS), however
+if the
+.B \-n
+option is specified an alternative local PMNS is loaded from the file
+.IR pmnsfile .
+.PP
+If the
+.B \-P
+option is specified,
+.B pmlc
+will attempt to start with a connection to the primary pmlogger on the
+local host.  If the 
+.B \-p
+option is specified, then
+.B pmlc
+will attempt to start with a connection to the pmlogger on this TCP/IP
+.IR port .
+Alternatively, if
+.I pid
+is specified, a connection to the pmlogger instance with that process
+id will be attempted on startup.  The
+.B \-h
+option may only be used if
+.BR \-P,
+.B \-p
+.I port
+or a
+.I pid
+is also specified.  In that case
+.B pmlc
+will initially connect to the specified (remote) pmlogger instance on
+.I host
+rather than the local host.  If the connection to the specified pmlogger
+instance cannot be established,
+.B pmlc
+will start with no connection.  These options typically allow the same file of
+.B pmlc
+commands to be directed to multiple pmlogger instances by varying the
+command line arguments.  Note that
+.BR -P ,
+.B \-p
+.IR port ,
+.IR pid
+and
+.B \-h
+are used only when making an initial connection to a pmlogger
+instance.  They are not used as defaults if subsequent connections are made
+interactively (see the
+.B connect
+command below).
+.PP
+By default,
+.B pmlc
+reports the time of day according to the local timezone on the
+system where
+.B pmlc
+is run.  The
+.B \-Z
+option changes the timezone to
+.IR timezone
+in the format of the environment variable
+.B TZ
+as described in
+.BR environ (7).
+The
+.B \-z
+option changes the timezone to the timezone of the pmlogger
+instance from which information is being obtained.  Only one of
+.B \-z
+or
+.B \-Z
+may be specified.
+.PP
+If standard input is from a tty,
+.B pmlc
+is interactive, with prompts.
+The
+.B \-i
+flag may be used to force interactive behavior, and is typically
+used in conjunction with
+.B \-e
+to echo all command input on standard output.
+.PP
+The following commands may be used:
+.PP
+.TP 4
+\f3show\f1 [ \f3loggers\f1 ] [ \f3@\f2host\f1 ]
+Displays the process identities of all pmlogger instances running
+on the local host (or
+.IR host ,
+if specified).  The primary pmlogger pid is parenthesized because
+it can be referred to as "primary" as well as by its pid.
+.TP 4
+\f3connect\f1 \f2pid\f1 [ \f3@\f2host\f1 ]
+.br
+.in -4
+\f3connect\f1 \f3primary\f1 [ \f3@\f2host\f1 ]
+.in
+Connects
+.B pmlc
+to the specified pmlogger process.  Any existing connection to
+a pmlogger instance is closed first.  Each pmlogger instance will
+accept at most one connection at a time, so if the connection is
+successfully established, your
+.B pmlc
+will be the only one controlling the pmlogger instance it is connected to.
+.TP 4
+\f3new volume\f1
+This command works only while a connection to a pmlogger
+instance is established.  It tells the pmlogger to close the current
+volume of the log and open a new volume.  Closed volumes may be archived,
+e.g. as part of a regular log management procedure to control the size of
+the physical log files.
+.TP 4
+\f3status\f1
+This command works only while a connection to a pmlogger instance is
+established.  It prints information about the state of the pmlogger
+instance and its associated log.
+.TP 4
+\f3timezone\f1 \f3local\f1 | \f3logger\f1 | \f3"\f2timezone\f3"\f1
+This command sets the time zone used when times are printed.
+.B local
+means use the time zone of the machine that
+.B pmlc
+is running on.
+.B logger
+means use the time zone of the machine where the pmlogger
+instance is
+running.  Alternatively an explicit
+.I timezone
+enclosed in quotes may be supplied (refer to
+.B TZ
+in
+.BR environ (7)
+for details).  The default time zone is
+.B local
+unless one of the
+.B \-z
+or
+.B \-Z
+options has been supplied on the command line.
+.TP 4
+\f3flush\f1
+This command works only while a connection to a pmlogger instance is
+established, and requests the pmlogger instance
+to flush to disk all buffers associated with the current archive.
+For old-timers, \f3sync\f1 is a synonym for \f3flush\f1.
+In current versions of
+.BR pmlogger (1)
+all writes are unbuffered and aligned with the logical records in the external
+files, so this command achieves nothing, but is retained for backwards
+compatibility.
+.TP 4
+\f3help\f1
+Displays a summary of the available commands.
+.sp 0.5v
+\f3h\f1 and \f3?\f1 are synonyms for \f3help\f1.
+.TP 4
+\f3quit\f1
+Exits from
+.BR pmlc .
+.PP
+The remaining commands query and change the logging state of metrics and
+instances.  They will work only if
+.B pmlc
+has a connection to a pmlogger instance.  Metrics may be specified as fully
+qualified names (e.g. hinv.ncpu) or subtrees of the PMNS (e.g. hinv) which
+are expanded to include all metrics in the subtree (e.g. hinv.ncpu,
+hinv.cpuclock, etc.).  Lists of metrics may be specified by enclosing them
+in braces with spaces or a comma between metrics (e.g. {hinv.ncpu
+hinv.ndisk}).  Subtrees of metrics may be included in such lists.
+.PP
+Each individual metric specification may be further qualified with a space
+or comma separated list of instances in square brackets
+(e.g. kernel.all.load["1 minute", "5 minute"]).  External instance
+names or numeric internal instance identifiers or both may be used in the
+same list (e.g. sample.colour.[red,1,"blue"]).
+If an instance qualification is applied to a subtree of the PMNS all of the
+metrics in the subtree must have the same instance domain.  Instance
+qualifications may not be applied to entire lists of metrics but may appear
+inside such lists.
+.PP
+If no instances are specified for a metric, all instances are used.  All
+instances means all instances available at the time the pmlogger instance in
+question fetches the metrics for logging.  If an instance domain changes over
+time this is not always the same as the set of instances displayed by
+.BR pmlc ,
+which can only display the currently available instances.  To prevent
+unintentional errors, only the instances that are currently available to
+.B pmlc
+may appear in instance specifications.
+.TP 4
+\f3query\f2 metriclist\f1
+The current logging state of each metric (and instances, where applicable) in
+.I metriclist
+is displayed.  This includes the logging state (e.g. on, maybe, off) and the
+logging interval for each metric (and instance) requested.  The following
+abbreviations pertaining to metrics (and instances) may appear in the output:
+.BR adv ,
+advisory;
+.BR mand ,
+mandatory;
+.BR nl ,
+not in the log;
+.BR na ,
+in the log but not currently available from its Performance Metrics Domain
+Agent (PMDA).  Where appropriate, an instance name will appear last on a line
+preceded by its numeric internal instance identifier.
+.TP 4
+[ \f3log\f1 ] \f3mandatory on\f2 interval\f1 \f2metriclist\f1
+This form of the
+.B log
+command turns on logging for the metrics (and any instances) in
+.IR metriclist.
+.I interval
+specifies how often the specified metrics/instances should be logged.
+.B once
+indicates that the metrics/instances should appear at most once in the log.
+More often one would use the optional keyword
+.B every
+followed by a positive number and one of
+.B millisecond
+(or
+.BR msec ),
+.B second
+(or
+.BR sec ),
+.B minute
+(or
+.BR min ),
+.B hour
+or their plurals.
+.sp 0.5v
+Note that the keyword
+.B default
+which may be used for the default
+.I interval
+in a
+.BR pmlogger (1)
+configuration file cannot be used in
+.BR pmlc .
+.sp 0.5v
+Internal limitations require the
+.I interval
+to be less than (approximately) 74 hours.  An
+.I interval
+value of zero is a synonym for
+.BR once .
+.TP 4
+[ \f3log\f1 ] \f3mandatory off\f1 \f2metriclist\f1
+This tells the pmlogger instance not to log any of the metrics/instances in
+.IR metriclist .
+.TP 4
+[ \f3log\f1 ] \f3mandatory maybe\f1 \f2metriclist\f1
+This tells the pmlogger instance to honor any subsequent advisory logging
+requests for the metrics/instances in
+.IR metriclist .
+If the current logging state of the metrics/instances is mandatory (either on
+or off) the new state will be set to maybe (effectively advisory off).  If the
+current state of the metrics/instances is already advisory (either on or off)
+the state(s) for the metrics/instances will remain as they are.
+.TP 4
+[ \f3log\f1 ] \f3advisory on\f2 interval\f1 \f2metriclist\f1
+.br
+.in -4
+[ \f3log\f1 ] \f3advisory off\f1 \f2metriclist\f1
+.in
+Advisory logging is only applicable if the last logging state specified for a
+metric/instance was "mandatory maybe" (which permits subsequent advisory
+logging control) or if the logging state is already advisory.  These two
+statements turn advisory logging on or off (respectively) for the specified
+metrics/instances.
+.sp 0.5v
+The interpretation for
+.I interval
+is as above for the
+.B mandatory
+case.
+.PP
+There is no continuation character required for commands that span lines.
+.PP
+The word
+.B at
+may be used interchangeably with
+.BR @ .
+.PP
+A request to log all instances of a metric will supersede any prior request to
+log either all or specific instances of a metric (if the request specifies a
+permissible transition in the logging state).  A request to log specific
+instances of a metric when all instances of a metric are already being logged
+is refused by
+.BR pmlogger .
+.SH "ACCESS CONTROL"
+.B pmlc
+may have restricted access to and control over
+.BR pmlogger (1)
+processes.
+.PP
+If a
+.BR pmlogger (1)
+is unable to export its control information to the local
+.BR pmcd (1),
+then that
+.BR pmlogger (1)
+cannot cannot be connected to nor controlled by
+.BR pmlc .
+In practice, this means the
+.BR pmlogger (1)
+process has to be owned by the user ``pcp'' and/or the group ``pcp''.
+If
+.BR pmlogger (1)
+is running on the host ``foo'' then
+use ``pminfo \-f \-h foo pmcd.pmlogger'' to verify that the
+.BR pmlogger (1)
+of interest is known to
+.BR pmcd (1),
+alternatively
+.BR pmlogger (1)
+instances that are not reported from the
+.B pmlc
+.B "show loggers @foo"
+command are not known to
+.BR pmcd (1)
+on the host ``foo''.
+.PP
+If
+.BR pmlogger (1)
+is launched with a configuration file that contains an
+.B [access]
+section, then
+.B pmlc
+will be unable to connect to that
+.BR pmlogger (1)
+unless the access controls allow
+.B some
+access from the host where
+.B pmlc
+is being run.
+Minimally this requires the
+.B enquire
+access to be permitted in the
+.BR pmlogger (1)
+access control section.
+.PP
+If
+.B pmlc
+is able to connect to the
+.BR pmlogger (1)
+of interest, then the following table summarizes the permissions needed
+to perform different
+.B pmlc
+commands:
+.TS
+box,center;
+c | c
+lf(B) | l.
+\fBpmlc\fP command	Required \fBpmlogger\fP access
+=
+show loggers	Any
+connect	Any of \fBenquire\fP, \fBadvisory\fP or \fBmandatory\fP
+status	Any of \fBenquire\fP, \fBadvisory\fP or \fBmandatory\fP
+query \fR...\fP	Any of \fBenquire\fP, \fBadvisory\fP or \fBmandatory\fP
+log advisory \fR...\fP	\fBadvisory\fP
+log mandatory \fR...\fP	\fBmandatory\fP
+new volume	\fBmandatory\fP
+.TE
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.I /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (5).
+.SH SEE ALSO
+.BR PCPIntro (1),
+.BR pmcd (1),
+.BR pmdumplog (1),
+.BR pmlogger (1),
+.BR pcp.conf (5),
+.BR pcp.env (5)
+and
+.BR environ (7).
+.SH DIAGNOSTICS
+Most error or warning messages are self-explanatory.  A message of the form
+.br
+.in +05.v
+Warning: unable to change logging state for...
+.in
+followed by a list of metrics (and possibly instances) indicates that
+.B pmlogger
+refused the request for the metrics (and instances) that appear.  Any metrics
+(and instances) that were specified but do not appear in the message have had
+their logging state updated successfully (no news is good news).  Usually this
+warning results from requesting advisory logging when a mandatory control is
+already in place, or requesting logging for specific instances when all
+instances are already being logged.
+.SH CAVEAT
+If all instances of a metric are being logged and a request is made to log
+specific instances of the metric with the same state and frequency, the request
+may appear to succeed, even though
+.B pmlogger
+has refused the request.  This is not normally a problem, as the required
+information will still be placed into the log by
+.BR pmlogger .
+.PP
+However in the case where the metric is to be logged once, the outcome is not
+what might be expected.  When
+.B pmlogger
+receives a request to log a metric once, it places the current value(s) of the
+metric into the log as soon as it can, regardless of whether the metric is
+already in the log.  This may be used to force values into the log.  When a
+request to log specific instances of a metric arrives and is refused because
+all instances of the metric are already being logged,
+.B pmlogger
+does not place values for the instances requested into the log.  It returns
+the current logging state for each instance requested to
+.BR pmlc .
+The requested and returned states are identical, so
+.B pmlc
+doesn't raise an error as it should.
+.PP
+To ensure that only certain instances of a metric are being logged, one should
+always turn off logging for all instances of the metric prior to turning on
+logging for the specific instances required.

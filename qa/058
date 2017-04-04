@@ -1,0 +1,28 @@
+#! /bin/sh
+# PCP QA Test No. 058
+# pmval busted for metrics with (a) incomplete instance domains, and
+# (b) an instance domain of PM_INDOM_NULL?
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+
+_filter()
+{
+    sed -e '/Warning.*license/d' \
+	-e '/^host:.*$/s/.*/HOST/'
+}
+
+trap "rm -f $tmp.*; exit" 0 1 2 3 15
+
+# real QA test starts here
+pmval -s 2 sample.longlong.million 2>&1 | _filter
+pmval -s 2 sample.bin 2>&1 | _filter
+pmval -s 2 sample.part_bin 2>&1 | _filter
+pmval -s 2 sample.bogus_bin 2>&1 | _filter

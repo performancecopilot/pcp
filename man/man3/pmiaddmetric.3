@@ -1,0 +1,133 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMIADDMETRIC 3 "" "Performance Co-Pilot"
+.SH NAME
+\f3pmiAddMetric\f1 \- add a new metric definition to a LOGIMPORT context
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.br
+#include <pcp/impl.h>
+.br
+#include <pcp/import.h>
+.sp
+.ad l
+.hy 0
+.in +8n
+.ti -8n
+int pmiAddMetric(const char *\fIname\fP, pmID \fIpmid\fP, int\ \fItype\fP, pmInDom\ \fIindom\fP, int\ \fIsem\fP, pmUnits\ \fIunits\fP);
+.sp
+.in
+.hy
+.ad
+cc ... \-lpcp_import \-lpcp
+.ft 1
+.SH "Perl SYNOPSIS"
+.ft 3
+use PCP::LogImport;
+.sp
+pmiAddMetric($\fIname\fP, $\fIpmid\fP, $\fItype\fP, $\fIindom\fP, $\fIsem\fP, $\fIunits\fP);
+.ft 1
+.SH DESCRIPTION
+As part of the Performance Co-Pilot Log Import API (see
+.BR LOGIMPORT (3)),
+.B pmiAddMetric
+is used to define a new metric.  The metric's
+.I name
+must follow the naming conventions described in
+.BR PCPIntro (1)
+and should be unique for each LOGIMPORT context.
+.PP
+The other arguments are in effect the fields of a
+.B pmDesc
+structure.
+Refer to
+.BR pmLookupDesc (3)
+for a complete description of the values and semantics of the
+components of this
+structure, and hence the valid argument values for
+.BR pmiAddMetrics .
+.PP
+The internal identifier for the metric may be given using the
+.I pmid
+argument and must be unique for each LOGIMPORT context.
+The value for
+.I pmid
+which would typically be constructed using the
+.B pmid_build
+macro, e.g. pmid_build(PMI_DOMAIN, 0, 3) for the fourth metric in
+first ``cluster'' of metrics in the Performance Metrics Domain PMI_DOMAIN
+(which is the default for all meta data created by the LOGIMPORT library).
+Alternatively,
+.I pmid
+may be
+.B PM_IN_NULL
+and
+.B pmiAddMetric
+will assign a unique
+.I pmid
+(although this means the
+.I pmid
+remains opaque and the application must use
+.BR pmiPutValue (3)
+or
+.BR pmiPutValueHandle (3)
+and cannot use
+.BR pmiPutResult (3)
+to add data values to the PCP archive).
+.PP
+.I type
+defines the data type of the metric and must be one of the
+.B PM_TYPE_...
+values
+defined in
+.BR <pcp/import.h> .
+.PP
+The instance domain for the metric is defined by
+.I indom
+and may be
+.B PM_INDOM_NULL
+for a metric with a singular value, else the value for
+.I indom
+would normally be constructed using the
+.B pmInDom_build
+macro, e.g. pmInDom_build(LOGIMPORT,0) for the first instance domain
+in the Performance Metrics Domain LOGIMPORT
+(which is the default for all meta data created by the LOGIMPORT library).
+Multiple metrics can share the same instance domain if they have
+values for a similar (or more usually, identical) set of instances.
+.PP
+The semantics of the metric (counter, instantaneous value, etc.) is
+specified by the
+.I sem
+argument which would normally be the result of a call to the
+convenience constructor method
+.BR pmiUnits (3).
+.SH DIAGNOSTICS
+.B pmiAddMetric
+returns zero on success else a negative value that can be turned into an
+error message by calling
+.BR pmiErrStr (3).
+.SH SEE ALSO
+.BR PCPIntro (1),
+.BR LOGIMPORT (3),
+.BR pmiErrStr (3),
+.BR pmiPutResult (3),
+.BR pmiPutValue (3),
+.BR pmiPutValueHandle (3),
+.BR pmiUnits (3)
+and
+.BR pmLookupDesc (3).

@@ -1,0 +1,43 @@
+#! /bin/sh
+# PCP QA Test No. 221
+# pmlogger preamble gets timestamp from first pmFetch?
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+
+status=0
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+echo "log mandatory on 100 msec pmcd.timezone" \
+| pmlogger -s1 -D1 -l $tmp.log $tmp >$tmp.err 2>&1
+
+echo "expect no messages ..."
+cat $tmp.err $tmp.log \
+| tee $seq.full \
+| grep timestamp \
+| $PCP_AWK_PROG '
+/Starting logger/	{ state = 1; next }
+state == 1		{
+	  if (p != 0) {
+		if ($6 < p)
+		    print "timestamp delta NEGATIVE!",p,$6
+		else if ($6 - p > 1)
+		    print "timestamp delta more than 1 second!",p,$6
+	  }
+	  p = $6
+	}'
+
+# optional stuff if your test has verbose output to help resolve problems
+echo
+echo "If failure, check $seq.full (this) and $seq.full.ok (reference)"
+
+# all done
+exit

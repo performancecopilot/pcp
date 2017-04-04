@@ -1,0 +1,92 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMPRINTVALUE 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmPrintValue\f1 \- print a performance metric value
+.SH "C SYNOPSIS"
+.ft 3
+#include <stdio.h>
+.br
+#include <pcp/pmapi.h>
+.sp
+.ad l
+.hy 0
+.in +8n
+.ti -8n
+void pmPrintValue(FILE *\fIf\fP, int \fIvalfmt\fP, int \fItype\fP, const\ pmValue\ *\fIval\fP, int\ \fIminwidth\fP);
+.sp
+.in
+.hy
+.ad
+cc ... \-lpcp
+.ft 1
+.SH DESCRIPTION
+.de CW
+.ie t \f(CW\\$1\f1\\$2
+.el \fI\\$1\f1\\$2
+..
+The value of a single performance metric (as identified by
+.IR val )
+is printed on the standard I/O stream identified by
+.IR f .
+.PP
+The value of the performance metric is interpreted according to the format of
+.I val
+as 
+defined by
+.I valfmt
+(from a
+.CW pmValueSet
+within a
+.CW pmResult
+structure; see
+.BR pmFetch (3))
+and the generic description of the metrics type
+passed in via
+.IR type .
+.PP
+The value for
+.I type
+is typically extracted from a
+.CW pmDesc
+structure, following a call to
+.BR pmLookupDesc (3)
+for a particular performance metric.
+.PP
+The output will be optionally padded to be at least
+.I minwidth
+characters wide.
+.PP
+.B pmPrintValue
+is most useful for displaying values of performance metrics from
+.BR pmFetch (3)
+(which returns a set of
+.I valfmt
+and
+.I val
+pairs for each requested metric), based upon the
+metrics type as returned from
+.BR pmLookupDesc (3).
+.SH SEE ALSO
+.BR PMAPI (3),
+.BR pmAtomStr (3),
+.BR pmConvScale (3),
+.BR pmExtractValue (3),
+.BR pmFetch (3),
+.BR pmLookupDesc (3),
+.BR pmTypeStr (3)
+and
+.BR pmUnitsStr (3).

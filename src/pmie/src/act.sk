@@ -1,0 +1,404 @@
+/*
+ * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+ * 
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+ * for more details.
+ * 
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+ */
+
+/***********************************************************************
+ * skeleton: act.sk - actions
+ *
+ ***********************************************************************/
+
+/*
+ *  operator: actAnd
+ */
+void
+actAnd(Expr *x)
+{
+    Expr    *arg1 = x->arg1;
+    Expr    *arg2 = x->arg2;
+
+    EVALARG(arg1)
+    EVALARG(arg2)
+    *(Boolean *)x->ring = (*(Boolean *)arg1->ring == B_TRUE) && (*(Boolean *)arg2->ring == B_TRUE);
+}
+
+
+/*
+ *  operator: actOr
+ */
+void
+actOr(Expr *x)
+{
+    Expr    *arg1 = x->arg1;
+    Expr    *arg2 = x->arg2;
+
+    EVALARG(arg1)
+    if (*(Boolean *)arg1->ring == B_FALSE) {
+	EVALARG(arg2)
+	*(Boolean *)x->ring = *(Boolean *)arg2->ring;
+    }
+    else *(Boolean *)x->ring = B_TRUE;
+}
+
+
+/*
+ *  operator: actShell
+ */
+void
+actShell(Expr *x)
+{
+    static char	*path;
+    Expr    *arg1 = x->arg1;
+    Expr    *arg2 = x->arg2;
+#ifndef IS_MINGW
+    pid_t   pid;
+#endif
+    int	    sts;
+
+    /*
+     * one trip to get PATH for system(3)
+     */
+    if (path == NULL) {
+	char	*all_platform_paths = pmGetConfig("PCP_PLATFORM_PATHS");
+	char	*pcp_binadm_path = pmGetConfig("PCP_BINADM_DIR");
+	char	*pcp_bin_path = pmGetConfig("PCP_BIN_DIR");
+	char	paths[] = "PATH=/usr/sbin:/sbin:/usr/bin:/bin";
+	int	i, size = sizeof(paths) + 1;
+
+	size += strlen(all_platform_paths) + 1;
+	size += strlen(pcp_binadm_path) + 1;
+	size += strlen(pcp_bin_path) + 1;
+	if ((path = malloc(size)) != NULL) {
+	    if ((i = snprintf(path, size-1, "%s:%s:%s:%s\n", paths,
+			pcp_bin_path, pcp_binadm_path, all_platform_paths)) <= 0)
+		path = paths;	/* fallback to basic defaults */
+	    else if (path[i-2] == ':')
+		path[i-2] = '\0';	/* PCP_PLATFORM_PATHS may be null */
+	    else
+		path[i] = '\0';
+	} else {
+	    path = paths;	/* set a basic default anyway */
+	}
+    }
+
+    if ((arg2 == NULL) ||
+	(x->smpls[0].stamp == 0) ||
+	(now >= *(RealTime *)arg2->ring + x->smpls[0].stamp))
+    {
+	EVALARG(arg1)
+	fflush(stdout);
+	fflush(stderr);
+#ifdef IS_MINGW
+	putenv(path);
+	putenv("IFS=\t\n");
+	sts = system((char *)arg1->ring);
+	need_wait = 1;
+	if (sts < 0) {
+	    __pmNotifyErr(LOG_ERR, "spawn for shell failed\n");
+	    *(Boolean *)x->ring = B_FALSE;
+	}
+	else {
+	    *(Boolean *)x->ring = B_TRUE;
+	    x->smpls[0].stamp = now;
+	    x->valid = 0;
+	}
+#else /*POSIX*/
+	pid = fork();
+	if (pid == 0) {
+	    /* child, run the command */
+	    setsid();
+	    putenv(path);
+	    putenv("IFS=\t\n");
+	    sts = system((char *)arg1->ring);
+	    _exit(WEXITSTATUS(sts));	/* avoid atexit() handler */
+	}
+	else if (pid > 0) {
+	    /* parent, wait for child to exit to catch status */
+#if PCP_DEBUG
+	    if (pmDebug & DBG_TRACE_APPL2) {
+		fprintf(stderr, "actShell: fork: pid=%" FMT_PID "\n", pid);
+	    }
+#endif
+	    sts = waitpid(pid, &x->valid, 0);
+#if PCP_DEBUG
+	    if (pmDebug & DBG_TRACE_APPL2) {
+		fprintf(stderr, "actShell: wait: pid=%" FMT_PID " status=0x%x", pid, x->valid);
+		if (WIFEXITED(x->valid))
+		    fprintf(stderr, " exit=%d", WEXITSTATUS(x->valid));
+		if (WIFSIGNALED(x->valid))
+		    fprintf(stderr, " signal=%d", WTERMSIG(x->valid));
+		fprintf(stderr, " (wait returns %d)\n", sts);
+	    }
+#endif
+	    if (WIFEXITED(x->valid))
+		x->valid = WEXITSTATUS(x->valid);
+	    else
+		/* if no exit, then assume non-zero exit, hence failure! */
+		x->valid = 1;
+	    if (sts < 0 || x->valid != 0)
+		*(Boolean *)x->ring = B_FALSE;
+	    else
+		*(Boolean *)x->ring = B_TRUE;
+	    x->smpls[0].stamp = now;
+	}
+	else {
+	    __pmNotifyErr(LOG_ERR, "fork for shell failed\n");
+	    *(Boolean *)x->ring = B_FALSE;
+	}
+#endif
+	perf->actions++;
+    }
+}
+
+
+/*
+ *  operator: actAlarm
+ */
+void
+actAlarm(Expr *x)
+{
+    static char *alarmv[] = {
+	NULL,		/* path to PCP_XCONFIRM_PROG inserted here */
+	    "-header", "Performance Co-Pilot Alarm",
+	    "-b", "Cancel",
+	    "-icon", "warning",
+	    "-t", NULL,
+	    "-t", NULL,
+	    NULL};
+
+    char    ctime[26];
+    Expr    *arg1 = x->arg1;
+    Expr    *arg2 = x->arg2;
+    time_t  clock;
+    int     sts;
+
+    if (alarmv[0] == NULL) {
+	/*
+	 * one trip to get path for xconfirm(1)
+	 */
+	alarmv[0] = pmGetConfig("PCP_XCONFIRM_PROG");
+	if (strcmp(alarmv[0], "") == 0) {
+	    __pmNotifyErr(LOG_ERR, "PCP_XCONFIRM_PROG not found, using echo(1)\n");
+	    alarmv[0] = "/bin/echo";
+	}
+    }
+
+#ifndef IS_MINGW
+    /* if old alarm still active, don't post new one */
+    if (x->valid != 0) {
+	pid_t   pid;
+	pid = waitpid((pid_t)x->valid, &sts, WNOHANG);
+	if (pid <= 0) {
+#if PCP_DEBUG
+	    if (pmDebug & DBG_TRACE_APPL2) {
+		fprintf(stderr, "actAlarm: wait: pid=%d not done (wait returns %" FMT_PID ")\n", x->valid, pid);
+	    }
+#endif
+	    return;
+	}
+#if PCP_DEBUG
+	if (pmDebug & DBG_TRACE_APPL2) {
+	    fprintf(stderr, "actAlarm: wait: pid=%d done status=0x%x", x->valid, sts);
+	    if (WIFEXITED(sts))
+		fprintf(stderr, " exit=%d", WEXITSTATUS(sts));
+	    if (WIFSIGNALED(sts))
+		fprintf(stderr, " signal=%d", WTERMSIG(sts));
+	    fprintf(stderr, " (wait returns %" FMT_PID ")\n", pid);
+	}
+#endif
+	x->valid = 0;
+    }
+#endif
+
+    if ((arg2 == NULL) ||
+	(x->smpls[0].stamp == 0) ||
+	(now >= *(RealTime *)arg2->ring + x->smpls[0].stamp))
+    {
+	EVALARG(arg1)
+	clock = (time_t)(now+0.5);
+	pmCtime(&clock, ctime);
+#ifdef IS_MINGW
+	alarmv[8] = ctime;
+	alarmv[10] = (char *)arg1->ring;
+	sts = spawnvp(_P_DETACH, alarmv[0], (const char * const *)alarmv);
+	if (sts < 0) {
+	    __pmNotifyErr(LOG_ERR, "spawn for PCP_XCONFIRM_PROG failed\n");
+	    *(Boolean *)x->ring = B_FALSE;
+	}
+	else {
+	    *(Boolean *)x->ring = B_TRUE;
+	    x->smpls[0].stamp = now;
+	    x->valid = 0;
+	}
+#else
+	sts = fork();
+	if (sts == 0) {
+	    alarmv[8] = ctime;
+	    alarmv[10] = (char *)arg1->ring;
+	    setsid();
+	    if (strcmp(alarmv[0], "/bin/echo") != 0) {
+		/* only echo needs stdio, when xconfirm cannot be found */
+		fclose(stdin);
+		fclose(stdout);
+		fclose(stderr);
+	    }
+	    execvp(alarmv[0], alarmv);
+	    _exit(1);	/* avoid atexit() handler */
+	}
+	else if (sts > 0) {
+	    need_wait = 1;
+#if PCP_DEBUG
+	    if (pmDebug & DBG_TRACE_APPL2) {
+		fprintf(stderr, "actAlarm: fork: pid=%d\n", sts);
+	    }
+#endif
+	    x->valid = sts;
+	    *(Boolean *)x->ring = B_TRUE;
+	    x->smpls[0].stamp = now;
+	}
+	else {
+	    __pmNotifyErr(LOG_ERR, "fork for alarm failed\n");
+	    *(Boolean *)x->ring = B_FALSE;
+	}
+#endif
+	perf->actions++;
+    }
+}
+
+
+/*
+ *  operator: actSyslog
+ */
+void
+actSyslog(Expr *x)
+{
+    Expr	*arg1 = x->arg1;
+    Expr	*arg2 = x->arg2;
+    int		*pri;
+    char	*tag;
+
+    if ((arg2 == NULL) ||
+	(x->smpls[0].stamp == 0) ||
+	(now >= *(RealTime *)arg2->ring + x->smpls[0].stamp))
+    {
+	pri = (int *)arg1->arg2->ring;
+	tag = &((char *)arg1->arg2->ring)[sizeof(int)];
+	EVALARG(arg1)
+	openlog(tag, LOG_PID|LOG_CONS, LOG_DAEMON);
+	if (arg1->ring == NULL)
+	    syslog(*pri, "%s",  "");
+	else
+	    syslog(*pri, "%s", (char *)arg1->ring);
+	closelog();
+	*(Boolean *)x->ring = B_TRUE;
+	x->smpls[0].stamp = now;
+	perf->actions++;
+    }
+}
+
+
+/*
+ *  operator: actPrint
+ */
+void
+actPrint(Expr *x)
+{
+    Expr    *arg1 = x->arg1;
+    Expr    *arg2 = x->arg2;
+    time_t  clock = (time_t)now;
+    char    bfr[26];
+
+    if ((arg2 == NULL) ||
+	(x->smpls[0].stamp == 0) ||
+	(now >= *(RealTime *)arg2->ring + x->smpls[0].stamp))
+    {
+	EVALARG(arg1)
+	*(Boolean *)x->ring = B_TRUE;
+	x->smpls[0].stamp = now;
+	pmCtime(&clock, bfr);
+	bfr[24] = '\0';
+	printf("%s: %s\n", bfr, (char *)arg1->ring);
+	fflush(stdout);
+	perf->actions++;
+    }
+}
+
+
+/*
+ *  operator: actStomp
+ */
+void
+actStomp(Expr *x)
+{
+    Expr    *arg1 = x->arg1;
+    Expr    *arg2 = x->arg2;
+
+    if ((arg2 == NULL) ||
+	(x->smpls[0].stamp == 0) ||
+	(now >= *(RealTime *)arg2->ring + x->smpls[0].stamp))
+    {
+	EVALARG(arg1)
+	x->smpls[0].stamp = now;
+	if (stompSend((const char *)arg1->ring) != 0)
+	    *(Boolean *)x->ring = B_FALSE;
+	else
+	    *(Boolean *)x->ring = B_TRUE;
+	perf->actions++;
+    }
+}
+
+
+/*
+ * action argument handling ... including %h, %v and %i substitution
+ */
+void
+actArg(Expr *x)
+{
+    Expr    *sp = x->arg1;
+    char    *string = (char *)0;
+    size_t  length = 0;
+
+    for (sp = x->arg1; sp != NULL; sp = sp->arg1)
+	length = formatSatisfyingValue((char *)sp->ring, length, &string);
+
+    newStringBfr(x, length, string);
+}
+
+
+/*
+ * fake actions for archive mode
+ */
+void
+actFake(Expr *x)
+{
+    Expr    *arg1 = x->arg1;
+    Expr    *arg2 = x->arg2;
+    time_t  clock = (time_t)now;
+    char    bfr[26];
+
+    if ((arg2 == NULL) ||
+	(x->smpls[0].stamp == 0) ||
+	(now >= *(RealTime *)arg2->ring + x->smpls[0].stamp))
+    {
+	EVALARG(arg1)
+	*(Boolean *)x->ring = B_TRUE;
+	x->smpls[0].stamp = now;
+	pmCtime(&clock, bfr);
+	bfr[24] = '\0';
+	printf("%s %s: %s\n", opStrings(x->op), bfr, (char *)arg1->ring);
+    }
+}
+

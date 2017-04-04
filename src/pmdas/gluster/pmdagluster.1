@@ -1,0 +1,89 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2013 Red Hat.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMDAGLUSTER 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmdagluster\f1 \- Gluster Filesystem PMDA
+.SH DESCRIPTION
+\f3pmdagluster\f1 is a Performance Metrics Domain Agent (PMDA) which exports 
+metric values about mounted gluster filesystems using the
+.BR gluster (8)
+command. 
+This PMDA exports metrics about volumes and bricks both local and remote to
+the node where pmdagluster is running.
+.PP
+The gluster filesystem supports fine-grained control over enabling statistics
+on individual volumes, so that the values are optionally enabled or disabled
+on systems where they are not desired to be monitored.
+.PP
+The
+.BR pmstore (1)
+command can be used to enable and disable profiling of volumes.
+Using the individual instances of the gluster.volume.profile metric,
+one can set their values (and associated profiling) either on (1) or off (0).
+Additionally,
+.BR pminfo (1)
+can report on the current status of profiling of each volume.
+.P
+.ft CW
+.nf
+.in +0.5i
+# pminfo \(hyf gluster.volume.profile
+
+gluster.volume.profile
+    inst [0 or "gv0"] value 0
+    inst [1 or "gv1"] value 1
+
+# pmstore \(hyi "gv0" gluster.volume.profile 1
+gluster.volume.profile inst [0 or "gv0"] old value=0 new value=1
+.in
+.fi
+.PP
+Further details on the gluster filesystem can be found at http://www.gluster.org
+.SH INSTALLATION
+Install the gluster PMDA by using the Install script as root:
+.PP
+      # cd $PCP_PMDAS_DIR/gluster
+.br
+      # ./Install
+.PP
+To uninstall, do the following as root:
+.PP
+      # cd $PCP_PMDAS_DIR/gluster
+.br
+      # ./Remove
+.PP
+\fBpmdagluster\fR is launched by \fIpmcd\fR(1) and should never be executed 
+directly. The Install and Remove scripts notify \fIpmcd\fR(1) when the 
+agent is installed or removed.
+.SH FILES
+.IP "\fB$PCP_PMDAS_DIR/gluster/Install\fR" 4 
+installation script for the \fBpmdagluster\fR agent 
+.IP "\fB$PCP_PMDAS_DIR/gluster/Remove\fR" 4 
+undo installation script for the \fBpmdagluster\fR agent 
+.IP "\fB$PCP_LOG_DIR/pmcd/gluster.log\fR" 4 
+default log file for error messages from \fBpmdagluster\fR 
+.SH PCP ENVIRONMENT
+Environment variables with the prefix \fBPCP_\fR are used to parameterize
+the file and directory names used by \fBPCP\fR. On each installation, the
+file \fB/etc/pcp.conf\fR contains the local values for these variables. 
+The \fB$PCP_CONF\fR variable may be used to specify an alternative 
+configuration file, as described in \fIpcp.conf\fR(5).
+.SH SEE ALSO
+.BR pmcd (1),
+.BR pminfo (1),
+.BR pmstore (1),
+and
+.BR gluster (8)

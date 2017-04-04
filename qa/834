@@ -1,0 +1,507 @@
+#!/bin/sh
+# PCP QA Test No. 834
+# pmie ruleset tests
+#
+# Copyright (c) 2014 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+cat <<'End-of-File' >>$tmp.config
+// one predicte true
+// | all predicates false
+// | | all predicates unknown
+// | | | all predicates are true
+// | | | | some unknown and some false
+// | | | | |                          otherwise
+// | | | | |                          | unknown
+// V V V V V                          V V            case
+// Y                                                 [1]
+// Y                                  Y              [4]
+// Y                                    Y            [7]
+// Y                                  Y Y            [10]
+//   Y                                               [2]
+//   Y                                Y              [3]
+//   Y                                  Y            [8]
+//   Y                                Y Y            [11]
+//     Y                                             [5]
+//     Y                              Y              [9]
+//     Y                                Y            [6]
+//     Y                              Y Y            [12]
+//       Y                            Y Y            [12]
+//         Y                          Y              [13]
+//         Y                            Y            [14]
+//         Y                          Y Y            [15]
+//
+// [1] one predicate is true, only rules in the ruleset
+
+// 1 rule ruleset - predicate is true
+ruleset
+    sample.longlong.hundred >= 100 -> print "1-rule [1] as expected %v"
+;
+
+// 2 rule ruleset - first predicate is true
+ruleset
+    sample.ulong.ten == 10 -> print "2-rule [1a] as expected %v"
+else
+    sample.ulong.ten != 10 -> print "2-rule [1a] BOTCH unexpected value of %v not 10"
+;
+
+// 2 rule ruleset - second predicate is true
+ruleset
+    sample.ulonglong.hundred != 100 -> print "2-rule [1b] BOTCH unexpected value of %v not 100"
+else
+    sample.ulonglong.hundred == 100 -> print "2-rule [1b] as expected %v"
+;
+
+// 3 rule ruleset - first predicate is true
+ruleset
+    sample.long.million == 1000000 -> print "3-rule [1a] as expected %v"
+else
+    sample.long.million < 1000000 -> print "3-rule [1a] BOTCH smaller than expected value of %v not 1000000"
+else
+    sample.long.million > 1000000 -> print "3-rule [1a] BOTCH larger than expected value of %v not 1000000"
+;
+
+// 3 rule ruleset - second predicate is true
+ruleset
+    sample.long.million < 1000000 -> print "3-rule [1b] BOTCH smaller than expected value of %v not 1000000"
+else
+    sample.long.million > 999999 && sample.long.million < 1000001 -> print "3-rule [1b] as expected %v"
+else
+    sample.long.million > 1000000 -> print "3-rule [1b] BOTCH larger than expected value of %v not 1000000"
+;
+
+// 3 rule ruleset - third predicate is true
+ruleset
+    sample.long.million < 1000000 -> print "3-rule [1c] BOTCH smaller than expected value of %v not 1000000"
+else
+    sample.long.million > 1000000 -> print "3-rule [1c] BOTCH larger than expected value of %v not 1000000"
+else
+    sample.long.million < 999999 || sample.long.million >= 1000000 -> print "3-rule [1c] as expected %v"
+;
+
+// [2] all predicates are false, only rules in the ruleset
+
+// 1 rule ruleset - predicate is false
+ruleset
+    sample.long.ten < 10 -> print "1-rule [2] BOTCH smaller than expected value of %v not 10"
+;
+
+// 2 rule ruleset - all predicates are false
+ruleset
+    sample.ulong.ten > 10 -> print "2-rule [2] BOTCH %v > 10?"
+else
+    sample.ulong.ten != 10 -> print "2-rule [2] BOTCH %v != 10?"
+;
+
+// 3 rule ruleset - all predicates are false
+ruleset
+    sample.long.million > 1000000 -> print "3-rule [2] BOTCH %v > 1000000?"
+else
+    sample.long.million < 1000000 -> print "3-rule [2] BOTCH %v < 1000000?"
+else
+    sample.long.million != 1000000 -> print "3-rule [2] BOTCH %v != 1000000?"
+;
+
+// [3] no predicate is true, otherwise clause in the ruleset
+
+// 1 rule ruleset - predicate is false, otherwise clause
+ruleset
+    sample.long.ten < 10 -> print "1-rule [3] BOTCH smaller than expected value of %v not 10"
+otherwise -> print "1-rule [3] otherwise as expected"
+;
+
+// 2 rule ruleset - all predicates are false, otherwise clause
+ruleset
+    sample.ulong.ten > 10 -> print "2-rule [3] BOTCH %v > 10?"
+else
+    sample.ulong.ten != 10 -> print "2-rule [3] BOTCH %v != 10?"
+otherwise -> print "2-rule [3] otherwise as expected"
+;
+
+// 3 rule ruleset - all predicates are false, otherwise clause
+ruleset
+    sample.long.million > 1000000 -> print "3-rule [3] BOTCH %v > 1000000?"
+else
+    sample.long.million < 1000000 -> print "3-rule [3] BOTCH %v < 1000000?"
+else
+    sample.long.million != 1000000 -> print "3-rule [3] BOTCH %v != 1000000?"
+otherwise -> print "3-rule [3] otherwise as expected"
+;
+
+// [4] one predicate is true, rules and otherwise in the ruleset
+
+// 1 rule ruleset - predicate is true
+ruleset
+    sample.longlong.hundred >= 100 -> print "1-rule [4] as expected %v"
+otherwise -> print "1-rule [4] BOTCH otherwise not expected"
+;
+
+// 2 rule ruleset - first predicate is true
+ruleset
+    sample.ulong.ten == 10 -> print "2-rule [4a] as expected %v"
+else
+    sample.ulong.ten != 10 -> print "2-rule [4a] BOTCH unexpected value of %v not 10"
+otherwise -> print "2-rule [4a] BOTCH otherwise not expected"
+;
+
+// 2 rule ruleset - second predicate is true
+ruleset
+    sample.ulonglong.hundred != 100 -> print "2-rule [4b] BOTCH unexpected value of %v not 100"
+else
+    sample.ulonglong.hundred == 100 -> print "2-rule [4b] as expected %v"
+otherwise -> print "2-rule [4b] BOTCH otherwise not expected"
+;
+
+// 3 rule ruleset - first predicate is true
+ruleset
+    sample.long.million == 1000000 -> print "3-rule [4a] as expected %v"
+else
+    sample.long.million < 1000000 -> print "3-rule [4a] BOTCH smaller than expected value of %v not 1000000"
+else
+    sample.long.million > 1000000 -> print "3-rule [4a] BOTCH larger than expected value of %v not 1000000"
+otherwise -> print "3-rule [4a] BOTCH otherwise not expected"
+;
+
+// 3 rule ruleset - second predicate is true
+ruleset
+    sample.long.million < 1000000 -> print "3-rule [4b] BOTCH smaller than expected value of %v not 1000000"
+else
+    sample.long.million > 999999 && sample.long.million < 1000001 -> print "3-rule [4b] as expected %v"
+else
+    sample.long.million > 1000000 -> print "3-rule [4b] BOTCH larger than expected value of %v not 1000000"
+otherwise -> print "3-rule [4b] BOTCH otherwise not expected"
+;
+
+// 3 rule ruleset - third predicate is true
+ruleset
+    sample.long.million < 1000000 -> print "3-rule [4c] BOTCH smaller than expected value of %v not 1000000"
+else
+    sample.long.million > 1000000 -> print "3-rule [4c] BOTCH larger than expected value of %v not 1000000"
+else
+    sample.long.million < 999999 || sample.long.million >= 1000000 -> print "3-rule [4c] as expected %v"
+otherwise -> print "3-rule [4c] BOTCH otherwise not expected"
+;
+
+// [5] all predicates are unknown, only rules in the ruleset
+
+// 1 rule ruleset - predicate is unknown
+ruleset
+    sample.bad.novalues < 10 -> print "1-rule [5] BOTCH smaller than expected value of %v not 10"
+;
+
+// 2 rule ruleset - all predicates are unknown
+ruleset
+    sample.bad.novalues > 10 -> print "2-rule [5] BOTCH %v > 10?"
+else
+    some_inst (sample.noinst != 10) -> print "2-rule [5] BOTCH %v != 10?"
+;
+
+// 3 rule ruleset - all predicates are unknown
+ruleset
+    sample.bad.novalues > 10 -> print "2-rule [5] BOTCH %v > 10?"
+else
+    some_inst (sample.noinst != 10) -> print "2-rule [5] BOTCH %v != 10?"
+else
+    count_inst (sample.noinst != 10) > 0 -> print "2-rule [5] BOTCH %v != 10?"
+;
+
+// [6] all predicates are unknown, unknown clause in the ruleset
+
+// 1 rule ruleset - predicate is unknown, unknown clause
+ruleset
+    sample.bad.novalues < 10 -> print "1-rule [6] BOTCH smaller than expected value of %v not 10"
+unknown -> print "1-rule [6] unknown as expected"
+;
+
+// 2 rule ruleset - all predicates are unknown, unknown clause
+ruleset
+    sample.bad.novalues > 10 -> print "2-rule [6] BOTCH %v > 10?"
+else
+    some_inst (sample.noinst != 10) -> print "2-rule [6] BOTCH %v != 10?"
+unknown -> print "2-rule [6] unknown as expected"
+;
+
+// 3 rule ruleset - all predicates are unknown, unknown clause
+ruleset
+    sample.bad.novalues > 10 -> print "2-rule [6] BOTCH %v > 10?"
+else
+    some_inst (sample.noinst != 10) -> print "2-rule [6] BOTCH %v != 10?"
+else
+    count_inst (sample.noinst != 10) > 0 -> print "2-rule [6] BOTCH %v != 10?"
+unknown -> print "3-rule [6] unknown as expected"
+;
+
+// [7] one predicate is true, rules and unknown in the ruleset
+
+// 1 rule ruleset - predicate is true
+ruleset
+    sample.longlong.hundred >= 100 -> print "1-rule [7] as expected %v"
+unknown -> print "1-rule [7] BOTCH unknown not expected"
+;
+
+// 2 rule ruleset - first predicate is true
+ruleset
+    sample.ulong.ten == 10 -> print "2-rule [7a] as expected %v"
+else
+    sample.ulong.ten != 10 -> print "2-rule [7a] BOTCH unexpected value of %v not 10"
+unknown -> print "2-rule [7a] BOTCH unknown not expected"
+;
+
+// 2 rule ruleset - second predicate is true
+ruleset
+    sample.ulonglong.hundred != 100 -> print "2-rule [7b] BOTCH unexpected value of %v not 100"
+else
+    sample.ulonglong.hundred == 100 -> print "2-rule [7b] as expected %v"
+unknown -> print "2-rule [7a] BOTCH unknown not expected"
+;
+
+// 3 rule ruleset - first predicate is true
+ruleset
+    sample.long.million == 1000000 -> print "3-rule [7a] as expected %v"
+else
+    sample.long.million < 1000000 -> print "3-rule [7a] BOTCH smaller than expected value of %v not 1000000"
+else
+    sample.long.million > 1000000 -> print "3-rule [7a] BOTCH larger than expected value of %v not 1000000"
+unknown -> print "3-rule [7a] BOTCH unknown not expected"
+;
+
+// 3 rule ruleset - second predicate is true
+ruleset
+    sample.long.million < 1000000 -> print "3-rule [7b] BOTCH smaller than expected value of %v not 1000000"
+else
+    sample.long.million > 999999 && sample.long.million < 1000001 -> print "3-rule [7b] as expected %v"
+else
+    sample.long.million > 1000000 -> print "3-rule [7b] BOTCH larger than expected value of %v not 1000000"
+unknown -> print "3-rule [7b] BOTCH unknown not expected"
+;
+
+// 3 rule ruleset - third predicate is true
+ruleset
+    sample.long.million < 1000000 -> print "3-rule [7c] BOTCH smaller than expected value of %v not 1000000"
+else
+    sample.long.million > 1000000 -> print "3-rule [7c] BOTCH larger than expected value of %v not 1000000"
+else
+    sample.long.million < 999999 || sample.long.million >= 1000000 -> print "3-rule [7c] as expected %v"
+unknown -> print "3-rule [7c] BOTCH unknown not expected"
+;
+
+// [8] no predicate is true, unknown clause in the ruleset
+
+// 1 rule ruleset - predicate is false, unknown clause
+ruleset
+    sample.long.ten < 10 -> print "1-rule [8] BOTCH smaller than expected value of %v not 10"
+unknown -> print "1-rule [8] BOTCH unknown not expected"
+;
+
+// 2 rule ruleset - all predicates are false, unknown clause
+ruleset
+    sample.ulong.ten > 10 -> print "2-rule [8] BOTCH %v > 10?"
+else
+    sample.ulong.ten != 10 -> print "2-rule [8] BOTCH %v != 10?"
+unknown -> print "2-rule [8] BOTCH unknown not expected"
+;
+
+// 3 rule ruleset - all predicates are false, unknown clause
+ruleset
+    sample.long.million > 1000000 -> print "3-rule [8] BOTCH %v > 1000000?"
+else
+    sample.long.million < 1000000 -> print "3-rule [8] BOTCH %v < 1000000?"
+else
+    sample.long.million != 1000000 -> print "3-rule [8] BOTCH %v != 1000000?"
+unknown -> print "3-rule [8] BOTCH unknown not expected"
+;
+
+// [9] all predicates are unknown, otherwise clause in the ruleset
+
+// 1 rule ruleset - predicate is unknown, otherwise clause
+ruleset
+    sample.bad.novalues < 10 -> print "1-rule [9] BOTCH smaller than expected value of %v not 10"
+otherwise -> print "1-rule [9] otherwise as expected"
+;
+
+// 2 rule ruleset - all predicates are unknown, otherwise clause
+ruleset
+    sample.bad.novalues > 10 -> print "2-rule [9] BOTCH %v > 10?"
+else
+    some_inst (sample.noinst != 10) -> print "2-rule [9] BOTCH %v != 10?"
+otherwise -> print "2-rule [9] otherwise as expected"
+;
+
+// 3 rule ruleset - all predicates are unknown, otherwise clause
+ruleset
+    sample.bad.novalues > 10 -> print "2-rule [9] BOTCH %v > 10?"
+else
+    some_inst (sample.noinst != 10) -> print "2-rule [9] BOTCH %v != 10?"
+else
+    count_inst (sample.noinst != 10) > 0 -> print "2-rule [9] BOTCH %v != 10?"
+otherwise -> print "3-rule [9] otherwise as expected"
+;
+
+// [10] one predicate is true, rules and otherwise and unknown in the ruleset
+
+// 1 rule ruleset - predicate is true
+ruleset
+    sample.longlong.hundred >= 100 -> print "1-rule [10] as expected %v"
+unknown -> print "1-rule [10] BOTCH unknown not expected"
+otherwise -> print "1-rule [10] BOTCH otherwise not expected"
+;
+
+// 2 rule ruleset - first predicate is true
+ruleset
+    sample.ulong.ten == 10 -> print "2-rule [10a] as expected %v"
+else
+    sample.ulong.ten != 10 -> print "2-rule [10a] BOTCH unexpected value of %v not 10"
+unknown -> print "2-rule [10a] BOTCH unknown not expected"
+otherwise -> print "2-rule [10a] BOTCH otherwise not expected"
+;
+
+// 2 rule ruleset - second predicate is true
+ruleset
+    sample.ulonglong.hundred != 100 -> print "2-rule [10b] BOTCH unexpected value of %v not 100"
+else
+    sample.ulonglong.hundred == 100 -> print "2-rule [10b] as expected %v"
+unknown -> print "2-rule [10a] BOTCH unknown not expected"
+otherwise -> print "2-rule [10b] BOTCH otherwise not expected"
+;
+
+// 3 rule ruleset - first predicate is true
+ruleset
+    sample.long.million == 1000000 -> print "3-rule [10a] as expected %v"
+else
+    sample.long.million < 1000000 -> print "3-rule [10a] BOTCH smaller than expected value of %v not 1000000"
+else
+    sample.long.million > 1000000 -> print "3-rule [10a] BOTCH larger than expected value of %v not 1000000"
+unknown -> print "3-rule [10a] BOTCH unknown not expected"
+otherwise -> print "3-rule [10a] BOTCH otherwise not expected"
+;
+
+// 3 rule ruleset - second predicate is true
+ruleset
+    sample.long.million < 1000000 -> print "3-rule [10b] BOTCH smaller than expected value of %v not 1000000"
+else
+    sample.long.million > 999999 && sample.long.million < 1000001 -> print "3-rule [10b] as expected %v"
+else
+    sample.long.million > 1000000 -> print "3-rule [10b] BOTCH larger than expected value of %v not 1000000"
+unknown -> print "3-rule [10b] BOTCH unknown not expected"
+otherwise -> print "3-rule [10b] BOTCH otherwise not expected"
+;
+
+// 3 rule ruleset - third predicate is true
+ruleset
+    sample.long.million < 1000000 -> print "3-rule [10c] BOTCH smaller than expected value of %v not 1000000"
+else
+    sample.long.million > 1000000 -> print "3-rule [10c] BOTCH larger than expected value of %v not 1000000"
+else
+    sample.long.million < 999999 || sample.long.million >= 1000000 -> print "3-rule [10c] as expected %v"
+unknown -> print "3-rule [10c] BOTCH unknown not expected"
+otherwise -> print "3-rule [10c] BOTCH otherwise not expected"
+;
+
+// [11] no predicate is true, unknown and otherwise clause in the ruleset
+
+// 1 rule ruleset - predicate is false, unknown and otherwise clause
+ruleset
+    sample.long.ten < 10 -> print "1-rule [11] BOTCH smaller than expected value of %v not 10"
+unknown -> print "1-rule [11] BOTCH unknown not expected"
+otherwise -> print "1-rule [11] otherwise as expected"
+;
+
+// 2 rule ruleset - all predicates are false, unknown and otherwise clause
+ruleset
+    sample.ulong.ten > 10 -> print "2-rule [11] BOTCH %v > 10?"
+else
+    sample.ulong.ten != 10 -> print "2-rule [11] BOTCH %v != 10?"
+unknown -> print "2-rule [11] BOTCH unknown not expected"
+otherwise -> print "2-rule [11] otherwise as expected"
+;
+
+// 3 rule ruleset - all predicates are false, unknown and otherwise clause
+ruleset
+    sample.long.million > 1000000 -> print "3-rule [11] BOTCH %v > 1000000?"
+else
+    sample.long.million < 1000000 -> print "3-rule [11] BOTCH %v < 1000000?"
+else
+    sample.long.million != 1000000 -> print "3-rule [11] BOTCH %v != 1000000?"
+unknown -> print "3-rule [11] BOTCH unknown not expected"
+otherwise -> print "3-rule [11] otherwise as expected"
+;
+
+// [12] all predicates are unknown, unknown and otherwise clause in the ruleset
+
+// 1 rule ruleset - predicate is unknown, unknown and otherwise clause
+ruleset
+    sample.bad.novalues < 10 -> print "1-rule [12] BOTCH smaller than expected value of %v not 10"
+unknown -> print "1-rule [12] unknown as expected"
+otherwise -> print "1-rule [12] BOTCH otherwise not expected"
+;
+
+// 2 rule ruleset - all predicates are unknown, unknown and otherwise clause
+ruleset
+    sample.bad.novalues > 10 -> print "2-rule [12] BOTCH %v > 10?"
+else
+    some_inst (sample.noinst != 10) -> print "2-rule [12] BOTCH %v != 10?"
+unknown -> print "2-rule [12] unknown as expected"
+otherwise -> print "2-rule [12] BOTCH otherwise not expected"
+;
+
+// 3 rule ruleset - all predicates are unknown, unknown and otherwise clause
+ruleset
+    sample.bad.novalues > 10 -> print "2-rule [12] BOTCH %v > 10?"
+else
+    some_inst (sample.noinst != 10) -> print "2-rule [12] BOTCH %v != 10?"
+else
+    count_inst (sample.noinst != 10) > 0 -> print "2-rule [12] BOTCH %v != 10?"
+unknown -> print "3-rule [12] unknown as expected"
+otherwise -> print "3-rule [12] BOTCH otherwise not expected"
+;
+
+// [13] all predicates true, rules and otherwise and unknown in the ruleset
+
+// 1 rule ruleset - predicate is true
+ruleset
+    sample.longlong.hundred >= 100 -> print "1-rule [13] as expected %v"
+unknown -> print "1-rule [13] BOTCH unknown not expected"
+otherwise -> print "1-rule [13] BOTCH otherwise not expected"
+;
+
+// 2 rule ruleset - both predicates are true
+ruleset
+    sample.ulong.ten == 10 -> print "2-rule [13] as expected %v"
+else
+    sample.ulong.hundred == 100 -> print "2-rule [13] BOTCH unexpected value of %v not 10"
+unknown -> print "2-rule [13] BOTCH unknown not expected"
+otherwise -> print "2-rule [13] BOTCH otherwise not expected"
+;
+
+// 3 rule ruleset - all predicates are true
+ruleset
+    sample.long.million == 1000000 -> print "3-rule [13] as expected %v"
+else
+    sample.long.ten == 10 -> print "3-rule [13] BOTCH smaller than expected value of %v not 1000000"
+else
+    sample.long.one == 1 -> print "3-rule [13] BOTCH larger than expected value of %v not 1000000"
+unknown -> print "3-rule [13] BOTCH unknown not expected"
+otherwise -> print "3-rule [13] BOTCH otherwise not expected"
+;
+
+End-of-File
+
+# real QA test starts here
+pmie -t 1sec -T 3.5sec -c $tmp.config 2>&1 | _filter_pmie_log
+
+# success, all done
+status=0
+
+exit

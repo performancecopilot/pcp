@@ -1,0 +1,160 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.\"
+.TH NEWHELP 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3newhelp\f1 \- generate a performance metrics help database
+.SH SYNOPSIS
+\f3$PCP_BINADM_DIR/newhelp\f1
+[\f3\-V\f1]
+[\f3\-n\f1 \f2pmnsfile\f1]
+[\f3\-o\f1 \f2outputfile\f1]
+[\f3\-v\f1 \f2version\f1]
+[\f2file\f1 ...]
+.SH DESCRIPTION
+.B newhelp
+generates the
+Performance Co-Pilot
+help text files used by
+Performance Metric Domain Agents (PMDAs).
+.PP
+Normally
+.B newhelp
+operates on the default Performance Metrics Name Space (PMNS), however
+if the
+.B \-n
+option is specified an alternative namespace is loaded
+from the file
+.IR pmnsfile .
+.PP
+When there is only one input file,
+the base name of the new database is derived from the name of the input
+.IR file ,
+otherwise the
+.B \-o
+flag must be given to explicitly name the database.
+If no input files are supplied,
+.B newhelp
+reads from the standard input stream,
+in which case the
+.B \-o
+flag must be given.
+.PP
+If the output file name is determined to be
+.BR foo ,
+.B newhelp
+will create
+.B foo.dir
+and
+.BR foo.pag .
+.PP
+Although historically there have been multiple help text file formats, the only
+format currently supported
+using the
+.B \-v
+option is
+.I version
+2, and
+this is the default if no
+.B \-v
+flag is provided.
+.PP
+The
+.B \-V
+flag causes verbose messages to be printed while
+.B newhelp
+is parsing its input.
+.PP
+The first line of each entry in a help source file consists of an
+\&``@''
+character beginning the line
+followed by a space and then
+the performance metric name and a one line description of the metric.
+Following lines (up to the next line beginning with ``@''
+or end of file) may contain a verbose help description.
+E.g.
+.PP
+.ft CW
+.nf
+.in +0.5i
+#
+# This is an example of newhelp's input syntax
+#
+@ kernel.all.cpu.idle CPU idle time
+A cumulative count of the number of milliseconds
+of CPU idle time, summed over all processors.
+.in
+.fi
+.ft 1
+.PP
+Three-part numeric metric identifiers (PMIDs) may be used in place of metric names,
+e.g. \c
+.ft CW
+60.0.23
+.ft 1
+rather than
+.ft CW
+kernel.all.cpu.idle
+.ft 1
+in the example above.  Other than for dynamic metrics
+(where the existence of a metric is known to
+a PMDA, but not visible in the PMNS and hence has no name that
+could be known to
+.IR newhelp )
+use of this syntactic variant is not encouraged.
+.PP
+Lines beginning with ``#''
+are ignored, as are blank lines in the file before the first ``@''.
+The verbose help text is optional.
+.PP
+As a special case,
+a ``metric'' name of the form 
+.I NNN.MM
+(for numeric 
+.I NNN
+and 
+.IR MM )
+is interpreted as an
+instance domain identification,
+and the text describes the instance domain.
+.SH FILES
+.PD 0
+.TP 10
+.BI $PCP_VAR_DIR/pmns/ *
+default PMNS specification files
+.PD
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.I /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (5).
+.SH SEE ALSO
+.BR chkhelp (1),
+.BR PMAPI (3),
+.BR pmLookupInDomText (3),
+.BR pmLookupText (3),
+.BR pcp.conf (5)
+and
+.BR pcp.env (5).

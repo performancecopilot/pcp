@@ -1,0 +1,17 @@
+//
+// intrinsic operators
+//
+
+m = mem.freemem;
+rate_m = rate mem.freemem;
+
+// At least 2 CPUs doing some reasonable amount of work
+//
+poke = ":moomba :'mac-larry' :bitbucket";    // note '' to escape - in host name
+u = kernel.percpu.cpu.user $poke;
+s = kernel.percpu.cpu.sys $poke;
+some_host (
+    count_inst ( kernel.percpu.cpu.user $poke +
+		 kernel.percpu.cpu.sys $poke > 0.7 ) >= 2
+    )
+	-> alarm "2 or more busy CPUs";

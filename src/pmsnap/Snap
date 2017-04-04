@@ -1,0 +1,30 @@
+#kmchart
+Version 1
+
+Chart Title "CPU Utilization" Style utilization
+	Plot Color #2d2de2 Metric kernel.all.cpu.user
+	Plot Color #e71717 Metric kernel.all.cpu.sys
+	Plot Color rgbi:0.8/0.8/0.0 Metric kernel.all.cpu.intr
+	Optional-Plot Color rgbi:0.4/0.9/0.4 Metric kernel.all.cpu.nice
+	Optional-Plot Color rgbi:0.0/0.8/0.8 Metric kernel.all.cpu.wait.total
+	Plot Color #16e116 Metric kernel.all.cpu.idle
+
+Chart Title "Average Load" Style plot
+	Plot Metric kernel.all.load Instance 1 minute
+	Plot Metric kernel.all.load Instance 5 minute
+	Plot Metric kernel.all.load Instance 15 minute
+	Plot Color black Metric hinv.ncpu
+
+Chart Title "Disk Activity" Style stacking
+	Plot Color yellow Metric disk.all.read
+	Plot Color violet Metric disk.all.write
+
+Chart Title "Network Interface Activity" Style stacking
+	Plot Metric network.interface.in.bytes Not-Matching ^lo|^sl|^ppp|^sit
+	Plot Metric network.interface.out.bytes Not-Matching ^lo|^sl|^ppp|^sit
+
+Chart Title "TCP Network Failures" Style stacking
+	Plot Metric network.tcp.attemptfails Not-Matching ^lo|^sl|^ppp|^sit
+	Plot Metric network.tcp.retranssegs Not-Matching ^lo|^sl|^ppp|^sit
+	Plot Metric network.tcp.inerrs Not-Matching ^lo|^sl|^ppp|^sit
+	Plot Metric network.tcp.outrsts Not-Matching ^lo|^sl|^ppp|^sit

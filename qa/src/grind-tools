@@ -1,0 +1,387 @@
+#!/bin/sh
+
+_usage()
+{
+    echo "Usage: $0 [-v] [-a archive] [-h host] metricspec [...]"
+    echo
+    echo "metricspec one of the forms:"
+    echo "    metric-name"
+    echo "    metric-name[instance]"
+    exit 1
+}
+
+# Get standard environment
+. $PCP_DIR/etc/pcp.env
+
+status=0
+tmp=/tmp/$$
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+rm -f $tmp.*
+
+verbose=false
+very_verbose=false
+host=localhost
+archive=""
+while getopts "a:h:v" c
+do
+    case "$c"
+    in
+	a)
+	    src="-a $OPTARG"
+	    archive=$OPTARG
+	    host=""
+	    ;;
+	h)
+	    src="-h $OPTARG"
+	    archive=""
+	    host=$OPTARG
+	    ;;
+	v)
+	    $verbose && very_verbose=true
+	    verbose=true
+	    ;;
+	*)
+	    _usage
+	    # NOTREACHED
+	    ;;
+    esac
+done
+shift `expr $OPTIND - 1`
+
+if [ $# -lt 1 ]
+then
+    _usage
+    # NOTREACHHED
+fi
+
+for arg
+do
+    case "$arg"
+    in
+	*[*)
+	    echo "$arg" >>$tmp.all
+	    ;;
+	*)
+	    pmprobe -I $src $arg \
+	    | sed  \
+		-e 's/ "/ /' \
+		-e 's/" "/ /g' \
+		-e 's/"$//' \
+		-e 's/ /\
+/g' \
+	    | sed -e '1,2d' \
+	    | while read inst
+	    do
+		echo "$arg[$inst]" >>$tmp.all
+	    done
+	    ;;
+    esac
+done
+
+sed <$tmp.all -e 's/\[.*//' \
+| sort -u >$tmp.metrics
+
+# cat $tmp.metrics
+# echo
+# cat $tmp.all
+
+# pmie
+#
+sed <$tmp.all >$tmp.config \
+    -e "s/\[/ #'/" \
+    -e "s/]/'/" \
+    -e 's/$/+/' \
+    -e '$s/$/1;/'
+$very_verbose && echo "pmie config ..." && cat $tmp.config
+if pmie $src -c $tmp.config -C
+then
+    $verbose && echo "pmie OK"
+else
+    echo "pmie FAILED"
+    echo "pmie config:"
+    cat $tmp.config
+    status=1
+fi
+
+# pmval
+#
+sed -e 's/]//' -e 's/\[/ /' <$tmp.all \
+    | $PCP_AWK_PROG '
+BEGIN		{ printf "pmval -s 2 -t 1sec '"$src"' -i " }
+$1 != metric	{ if (NR > 1) {
+		    print " " metric
+		    printf "pmval -s 2 -t 1sec '"$src"' -i "
+		  }
+		  metric = $1
+		}
+NR > 1		{ printf "," }
+		{ printf $2 }
+END		{ print " " metric
+		}' \
+| sed -e "s/-i /-i '/" -e "s/ [^ ]*\$/'&/" >$tmp.config
+$very_verbose && echo "pmval cmd ..." && cat $tmp.config
+cat $tmp.config | sh >$tmp.out 2>&1
+if grep '^samples: *2$' $tmp.out >/dev/null
+then
+    $verbose && echo "pmval OK"
+else
+    echo "pmval FAILED"
+    echo "pmval cmd:"
+    cat $tmp.config
+    cat $tmp.out
+    status=1
+fi
+
+# pmlogger
+#
+if [ -z "$host" ]
+then
+    echo "pmlogger skipped, source is an archive"
+else
+    echo "log mandatory on default {" >$tmp.config
+    sed -e 's/]//' -e 's/\[/ /' <$tmp.all \
+    | $PCP_AWK_PROG >>$tmp.config '
+$1 != metric	{ if (NR > 1) print " ]"
+		  print $1," ["
+		  metric = $1
+		}
+		{ print "  \"" $2 "\"" }
+END		{ print " ]"
+		  print "}"
+		}'
+    $very_verbose && echo "pmlogger config ..." && cat $tmp.config
+    if pmlogger -l $tmp.log $src -s 2 -t 1sec -c $tmp.config $tmp
+    then
+	$verbose && echo "pmlogger OK"
+	archive=$tmp
+    else
+	echo "pmlogger FAILED"
+	cat $tmp.log
+	echo "pmlogger config:"
+	cat $tmp.config
+	status=1
+    fi
+fi
+
+# pmdumptext - simple with -a or -h
+#
+if which pmdumptext >/dev/null 2>&1
+then
+    sed -e 's/]//' -e 's/\[/ /' <$tmp.all \
+	    | $PCP_AWK_PROG '
+BEGIN		{ printf "pmdumptext -s 2 -t 1sec '"$src"'" }
+$1 != metric	{ if (NR > 1) {
+		    print "]"
+		    printf "pmdumptext -s 2 -t 1sec '"$src"'"
+		  }
+		  metric = $1
+		  printf " %s[",metric
+		  first = 1
+		}
+		{ if (first) {
+		    printf "%s",$2
+		    first = 0
+		  }
+		  else
+		    printf ",%s",$2
+		}
+END		{ print "]"
+		    }' >$tmp.config
+    $very_verbose && echo "pmdumptext cmd ..." && cat $tmp.config
+    cat $tmp.config | sh >$tmp.out 2>&1
+    ok=`grep '^[A-Z][a-z][a-z] [A-Z][a-z][a-z]' $tmp.out | wc -l | sed -e 's/ //g'`
+    if [ "$ok" -eq 2 ]
+    then
+	    $verbose && echo "pmdumptext (simple) OK"
+    else
+	    echo "pmdumptext (simple) FAILED"
+	    echo "pmdumptext cmd:"
+	    cat $tmp.config
+	    cat $tmp.out
+	    status=1
+    fi
+else
+    echo "pmdumptext skipped, no binary installed"
+fi
+
+# pmdumptext - extended notation ...
+# myhost:kernel.all.cpu.idle[cpu0,cpu3]
+# /path/to/myarchive/kernel.all.cpu.idle[cpu1]
+#
+if which pmdumptext >/dev/null 2>&1
+then
+    if [ -n "$host" ]
+    then
+	    pfx="$host:"
+    else
+	    pfx="$archive/"
+    fi
+    sed -e 's/]//' -e 's/\[/ /' <$tmp.all \
+	    | $PCP_AWK_PROG '
+BEGIN		{ printf "pmdumptext -s 2 -t 1sec" }
+$1 != metric	{ metric = $1
+		  first = 1
+		  if (NR > 1) printf "]"
+		}
+		{ if (first) {
+		    printf " %s%s[%s","'"$pfx"'",metric,$2
+		    first = 0
+		  }
+		  else
+		    printf ",%s",$2
+		}
+END		{ print "]" }' >$tmp.config
+    $very_verbose && echo "pmdumptext cmd ..." && cat $tmp.config
+    cat $tmp.config | sh >$tmp.out 2>&1
+    ok=`grep '^[A-Z][a-z][a-z] [A-Z][a-z][a-z]' $tmp.out | wc -l | sed -e 's/ //g'`
+    if [ "$ok" -eq 2 ]
+    then
+	    $verbose && echo "pmdumptext (extended) OK"
+    else
+	    echo "pmdumptext (extended) FAILED"
+	    echo "pmdumptext cmd:"
+	    cat $tmp.config
+	    cat $tmp.out
+	    status=1
+    fi
+fi
+
+# pmchart
+#
+if which pmchart >/dev/null 2>&1
+then
+    echo "#pmchart" >$tmp.config
+    echo "Version 2.0 host dynamic" >>$tmp.config
+    echo "Chart Title "test" Style line" >>$tmp.config
+    sed <$tmp.all >>$tmp.config \
+	    -e 's/]//' \
+	    -e 's/\[/ Instance /' \
+	    -e 's/^/  Plot Color #-cycle Host * Metric /'
+    $very_verbose && echo "pmchart config ..." && cat $tmp.config
+    if pmchart -C -c $tmp.config $src
+    then
+	    $verbose && echo "pmchart OK"
+    else
+	    echo "pmchart FAILED"
+	    echo "pmchart config:"
+	    cat $tmp.config
+	    status=1
+    fi
+else
+    echo "pmchart skipped, no binary installed"
+fi
+
+# pmview
+#
+if which pmview >/dev/null 2>&1
+then
+    echo 'pmview Version 2.1 "foo" "bar"' >$tmp.config
+    $PCP_AWK_PROG <$tmp.all >>$tmp.config '
+BEGIN		{ printf "_colorlist l1 (" }
+NR % 3 == 0	{ printf " red" }
+NR % 3 == 1	{ printf " green" }
+NR % 3 == 2	{ printf " blue" }
+END		{ print " )" }'
+    $PCP_AWK_PROG <$tmp.metrics >>$tmp.config '
+BEGIN		{ printf "_colorlist l2 (" }
+NR % 3 == 0	{ printf " red" }
+NR % 3 == 1	{ printf " green" }
+NR % 3 == 2	{ printf " blue" }
+END		{ print " )" }'
+    sed <$tmp.all \
+	-e 's/]//' \
+	-e 's/\[/ /' \
+    | $PCP_AWK_PROG '
+BEGIN	{ print "_grid ("
+          print " _bar 0 0 ("
+	  print "  _metrics ("
+	}
+	{ printf "   %s[%s] 10 \"%d\"\n",$1,$2,NR }
+END	{ print "  )"
+	  print "  _colorlist l1"
+	  print " )"
+	}' >>$tmp.config
+    sed <$tmp.all \
+	-e 's/]//' \
+	-e 's/\[/ /' \
+    | $PCP_AWK_PROG '
+BEGIN	{ print " _bar 1 0 ("
+	  print "  _metrics ("
+	}
+$1 != metric	{ if (NR > 1) {
+		    printf "] 100 \"%d\"\n",NR
+		  }
+		  metric = $1
+		  printf "   %s[%s",$1,$2
+		  next
+		}
+		{ printf ",%s",$2 }
+END	{ printf "] 100 \"%d\"\n",NR
+	  print "  )"
+	  print "  _colorlist l2"
+	  print " )"
+	}' >>$tmp.config
+    sed <$tmp.all \
+	-e 's/]//' \
+	-e 's/\[/ /' \
+    | $PCP_AWK_PROG '
+BEGIN	{ print " _stack 2 0 ("
+	  print "  _metrics ("
+	}
+	{ printf "   %s[%s] 10\n",$1,$2 }
+END	{ print "  )"
+	  print "  _colorlist l1"
+	  print " )"
+	  print ")"
+	}' >>$tmp.config
+    $very_verbose && echo "pmview config ..." && cat $tmp.config
+    if pmview -C -c $tmp.config $src
+    then
+	$verbose && echo "pmview OK"
+    else
+	echo "pmview FAILED"
+	echo "pmview config:"
+	cat $tmp.config
+	status=1
+    fi
+else
+    echo "pmview skipped, no binary installed"
+fi
+
+# pmgadgets
+#
+if which pmgadgets >/dev/null 2>&1
+then
+    if [ -z "$host" ]
+    then
+	echo "pmgadgets skipped, source is an archive"
+    else
+	cat <<End-of-File >$tmp.config
+pmgadgets 1 "foo" "bar"
+_legend l (
+  _default green3
+  10 yellow
+)
+End-of-File
+	sed <$tmp.all \
+	    -e 's/]//' \
+	    -e 's/\[/ /' \
+	| $PCP_AWK_PROG '
+	    { printf "_led 10 %d 5 5\n",10*NR
+	      printf "  _metric %s[\"%s\"]\n",$1,$2
+	      printf "  _legend l\n"
+	    }' >>$tmp.config
+	$very_verbose && echo "pmgadgets config ..." && cat $tmp.config
+	if pmgadgets -C -c $tmp.config $src
+	then
+	    $verbose && echo "pmgadgets OK"
+	else
+	    echo "pmgadgets FAILED"
+	    echo "pmgadgets config:"
+	    cat $tmp.config
+	    status=1
+	fi
+    fi
+else
+    echo "pmgadgets skipped, no binary installed"
+fi

@@ -1,0 +1,218 @@
+#!/bin/sh
+#
+# -a [default]
+# relocate archives from here to ../archives
+# - git mv
+# - remove refs in GNUlocaldefs (SRCARCH)
+# - fix all associated QA tests and their output
+#
+# -t
+# relocate archives from here to ../tmparch
+# - remove refs in GNUlocaldefs (MKARCH)
+# - fix all associated QA tests and their output
+# - rules need to be manually cut out of GNUlocaldefs and put
+#   into ../tmparch/GNUlocaldefs
+#
+
+_ans()
+{
+    while true
+    do
+	echo -n "${1}? [$2|q] "
+	read ans </dev/tty
+	[ "$ans" = "$2" ] && return
+	[ "$ans" = "q" ] && exit
+	echo "answer the question bozo!"
+    done
+}
+
+tmp=/var/tmp/mv-me-$$
+rm -rf $tmp $tmp.*
+trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+
+_usage()
+{
+    echo >&2 "Usage: $0 [-a|-t]"
+    exit 1
+}
+
+macro=SRCARCH
+dst=archives
+while getopts 'at?' p
+do
+    case "$p"
+    in
+	a)
+	    macro=SRCARCH
+	    dst=archives
+	    ;;
+	t)
+	    macro=MKARCH
+	    dst=tmparch
+	    ;;
+	?)
+	    _usage
+	    # NOTREACHED
+	    ;;
+    esac
+done
+
+shift `expr $OPTIND - 1`
+
+# spilt GNUlocaldefs, add spaces at start and end of lines
+sed <GNUlocaldefs \
+    -e 's/^/ /' \
+    -e 's/$/ /' \
+| awk '
+BEGIN				{ part = "head" }
+part == "head" && /^ '"$macro"'[ 	]=/	{ part = "macro" }
+part == "macro" && NF == 0	{ part = "tail" }
+				{ print >"'$tmp'.make." part }'
+
+for arch
+do
+    case $arch
+    in
+	*.[0-9]|*.meta|*.index)
+	    arch=`echo $arch | sed -e 's/\.[^.][^.]*$//'`
+	    ;;
+    esac
+    echo "${arch}:"
+    if [ "$dst" != tmparch ]
+    then
+	git shortlog -1 -- ${arch}.0 >$tmp.out
+	if [ -s $tmp.out ]
+	then
+	    : ok
+	else
+	    echo "Error: apparently not checked into git"
+	    exit
+	fi
+    fi
+
+    if grep "[ 	]${arch}.0 " $tmp.make.macro >/dev/null
+    then
+	sed <$tmp.make.macro >$tmp.tmp \
+	    -e "s/\\([ 	]\\)${arch}.0 /\\1/"
+	mv $tmp.tmp $tmp.make.macro
+    else
+	echo "Error: unable to update $macro macro in GNUlocaldefs"
+	echo "Failed for ${arch}.0 in ..."
+	cat $tmp.make.macro
+	exit
+    fi
+
+    if cat $tmp.make.* | grep -n --color " ${arch}.0 " >$tmp.tmp
+    then
+	echo "Warning: need to fix this part of GNUlocaldefs"
+	cat $tmp.tmp
+    fi
+
+    for file in $arch.? $arch.index $arch.meta
+    do
+	[ -f "$file" ] && echo "$file" >>$tmp.movers
+    done
+
+done
+
+( cat $tmp.make.head; cat $tmp.make.macro; cat $tmp.make.tail ) \
+| sed -e 's/ $//' -e 's/^ //' >$tmp.tmp
+echo "GNUlocaldefs: diffs"
+diff -u GNUlocaldefs $tmp.tmp
+_ans "OK" y
+echo "cat $tmp.make.head $tmp.make.macro $tmp.make.tail | sed -e 's/ \$//' -e 's/^ //' >GNUlocaldefs" >>$tmp.sh
+
+cat $tmp.movers \
+| while read file
+do
+    if [ "$dst" = tmparch ]
+    then
+	echo "rm -f $file" >>$tmp.sh
+    else
+	echo "git mv $file ../$dst/$file" >>$tmp.sh
+    fi
+done
+
+echo
+echo "QA tests and output [*] => modified again ..."
+rm -f $tmp.tmp
+cd ..
+for arch
+do
+    case $arch
+    in
+	*.[0-9]|*.meta|*.index)
+	    arch=`echo $arch | sed -e 's/\.[^.][^.]*$//'`
+	    ;;
+    esac
+    echo -n "${arch}:"
+    for file in [0-9][0-9][0-9]*
+    do
+	# weak guards
+	[ -f $file ] || continue
+	grep "$arch" $file >/dev/null || continue
+	# needs to be in git
+	git shortlog -1 -- $file >$tmp.out
+	if [ -s $tmp.out ]
+	then
+	    : ok
+	else
+	    # not in git
+	    continue
+	fi
+	# real guard now
+	if egrep -l "src/$arch([.'\"\`\$,:\*{[/ 	]|\$)" $file >/dev/null
+	then
+	    case $file
+	    in
+		# skip ones already dealt with
+		217.out.?)
+		    ;;
+		# all the others
+		*)
+		    # need to skip pathnames in archive preamble
+		    # records (pmcd.pmlogger.archive)
+		    if [ -f $file.mv-me ]
+		    then
+			# already been here for a previous archive
+			cp $file.mv-me $tmp.seq
+			infile=$tmp.seq
+		    else
+			# first time
+			infile=$file
+		    fi
+		    sed \
+			-e '/(pmcd.pmlogger.archive)/n' \
+			-e "s;src/$arch\([.'\"\`\$,:\*{[/ 	]\);$dst/$arch\1;" \
+			-e "s;src/$arch\$;$dst/$arch;" \
+			<$infile >$file.mv-me
+		    if [ "$infile" = "$file" ]
+		    then
+			echo "cp ../$file.mv-me ../$file" >>$tmp.sh
+			echo "rm ../$file.mv-me" >>$tmp.sh
+			echo -n " $file"
+		    else
+			echo -n " $file[*]"
+		    fi
+		    ;;
+	    esac
+	    echo $file | sed -e 's/\..*//' >>$tmp.tmp
+	fi
+    done
+    echo
+done
+cd src
+
+echo "Commands ..."
+cat $tmp.sh
+_ans "OK" y
+sh $tmp.sh
+
+if [ -s $tmp.tmp ]
+then
+    echo "Check ..."
+    cd ..
+    check -l `sort -u $tmp.tmp`
+else
+    echo "Warning: no tests modified?"
+fi

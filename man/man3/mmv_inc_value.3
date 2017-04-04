@@ -1,0 +1,42 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2009 Max Matveev
+.\" Copyright (c) 2009 Aconex.  All Rights Reserved.
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.\"
+.TH MMV_INC_VALUE 3 "" "Performance Co-Pilot"
+.SH NAME
+\f3mmv_inc_value\f1 - update a value in a Memory Mapped Value file
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.br
+#include <pcp/mmv_stats.h>
+.sp
+void mmv_inc_value(void *\fIaddr\fP, pmAtomValue *\fIval\fP, double \fIinc\fP);
+.sp
+cc ... \-lpcp_mmv \-lpcp
+.ft 1
+.SH DESCRIPTION
+.P
+\f3mmv_inc_value\f1 provides a convenient way of updating a value 
+returned by the \f3mmv_lookup_value_desc\f1.
+\f2addr\f1 is the address returned from \f3mmv_stats_init\f1().
+.P
+The value of the \f2inc\f1 is internally cast to match the type of
+the metric and then added to the previous value of the metric.
+.SH SEE ALSO
+.BR mmv_stats_init (3),
+.BR mmv_lookup_value_desc (3)
+and
+.BR mmv (5).

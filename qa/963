@@ -1,0 +1,60 @@
+#!/bin/sh
+# PCP QA Test No. 963
+# Exercise pmGetOptionalConfig(3)
+#
+# Copyright (c) 2015 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+echo "error cases ..."
+echo "bad variable"
+src/getconfig -o NO_SUCH_VAR
+echo "exit status=$?"
+
+unset PCP_BIN_DIR
+
+echo
+echo "bad \$PCP_CONF"
+PCP_CONF=/no/such/file src/getconfig -o PCP_BIN_DIR
+echo "exit status=$?"
+
+echo
+echo "bad \$PCP_DIR"
+PCP_DIR=/no/such/directory src/getconfig -o PCP_BIN_DIR
+echo "exit status=$?"
+
+echo
+echo "all vars in pcp.conf ... report only errors"
+sed <$PCP_DIR/etc/pcp.conf \
+    -e '/^#/d' \
+    -e '/^[ 	]*$/d' \
+    -e 's/[ 	][ 	]*"/"/' \
+    -e 's/"[ 	][ 	]*/"/' \
+    -e 's/"//g' \
+    -e 's/=/ /' \
+    -e 's/\\/<backslash>/g' \
+| while read var value
+do
+    xvalue=`src/getconfig -o "$var" | sed -e 's/.* -> //' -e 's/[ 	]*$//' -e 's/\\\\/<backslash>/g'`
+    #debug# echo "$var: $value ? $xvalue"
+    if [ "X${value}X" != "X${xvalue}X" ]
+    then
+	echo "$var: expecting \"$value\", got \"$xvalue\""
+    fi
+done
+
+# success, all done
+status=0
+exit

@@ -1,0 +1,149 @@
+#! /bin/sh
+# PCP QA Test No. 245
+# exercise new pmnsdel
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+
+status=0
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+mkdir $tmp.dir
+cd $tmp.dir
+echo 'root {
+}' >null
+echo 'root {
+	one	1:1:1
+}' >one
+
+echo "+++ Errors +++"
+
+echo
+echo "=== no args ==="
+pmnsdel
+
+echo
+echo "=== no such PMNS file ==="
+pmnsdel -n no-such-input fumble
+
+echo
+echo "=== cannot open existing output file for writing ==="
+cp one mypmns
+chmod u-w mypmns
+pmnsdel -n mypmns one
+rm -f mypmns
+
+echo
+echo "=== cannot create output file ==="
+cp one mypmns
+chmod u-w .
+pmnsdel -n mypmns one
+chmod u+w .
+rm -f mypmns
+
+echo
+echo "=== syntax error in input ==="
+echo 'root {
+bogus - this is not correct
+}' >mypmns
+pmnsdel -n mypmns bogus
+
+echo 'root {
+	one	1:1:1
+	sub0
+	two	2:2:2
+	three	3:3:3
+	sub1
+}
+sub0 {
+	four	4:4:4
+	sub2
+	five	5:5:5
+}
+sub1 {
+	six	6:6:6
+	eight	8:8:8
+}
+sub0.sub2 {
+	seven	7:7:7
+	sub4
+}
+sub0.sub2.sub4 {
+	sub6
+}
+sub0.sub2.sub4.sub6 {
+	nine	9:9:9
+}' >foo
+
+pminfo -n foo -m | LC_COLLATE=POSIX sort >base.out
+echo
+echo "+++ Common starting PMNS for all remaing tests ..."
+cat base.out
+
+echo
+echo "=== assorted undefined metricpaths ==="
+cp foo mypmns
+pmnsdel -n mypmns leaf
+pmnsdel -n mypmns sub0.no_leaf
+pmnsdel -n mypmns sub0.sub2.no_leaf
+pmnsdel -n mypmns sub0.sub2.sub4.no_leaf
+pmnsdel -n mypmns sub0.sub2.sub4.sub6.no_leaf
+pmnsdel -n mypmns sub0.sub2.sub4.sub6.no_nonleaf.no_leaf
+
+echo
+echo "+++ Operations +++"
+
+echo
+echo "=== single metric ==="
+for metric in one sub0.sub2.sub4.sub6.nine sub0.sub2.seven
+do
+    echo $metric:
+    cp foo mypmns
+    pmnsdel -n mypmns $metric
+    echo "diffs ..."
+    pminfo -n mypmns -m | LC_COLLATE=POSIX sort | diff base.out -
+done
+
+echo
+echo "=== multiple metrics ==="
+for metric in "one sub0.sub2.sub4.sub6.nine sub0.sub2.seven"
+do
+    echo "delete: $metric"
+    cp foo mypmns
+    pmnsdel -n mypmns $metric
+    echo "diffs ..."
+    pminfo -n mypmns -m | LC_COLLATE=POSIX sort | diff base.out -
+done
+
+echo
+echo "=== non-leaves ==="
+for metric in sub0 sub1 sub0.sub2 sub0.sub2.sub4 sub0.sub2.sub4.sub6 \
+    sub0.sub2 \
+    "sub1 sub0.sub2.sub4.sub6 sub0 "
+do
+    echo "delete: $metric"
+    cp foo mypmns
+    pmnsdel -n mypmns $metric
+    echo "diffs ..."
+    pminfo -n mypmns -m | LC_COLLATE=POSIX sort | diff base.out -
+done
+
+echo
+echo "=== all leaves ==="
+cp foo mypmns
+metric=`pminfo -n mypmns | sed -e '/^event\./d' | tr '\012' ' '`
+echo "delete: $metric"
+pmnsdel -n mypmns $metric
+echo "diffs ..."
+pminfo -n mypmns -m | LC_COLLATE=POSIX sort | diff base.out -
+
+# all done
+exit

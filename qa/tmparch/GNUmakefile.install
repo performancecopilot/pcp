@@ -1,0 +1,24 @@
+#!gmake
+#
+# Copyright (c) 2015 Ken McDonell.  All Rights Reserved.
+#
+
+ifdef PCP_CONF
+include $(PCP_CONF)
+else
+include $(PCP_DIR)/etc/pcp.conf
+endif
+PATH	= $(shell . $(PCP_DIR)/etc/pcp.env; echo $$PATH)
+include $(PCP_INC_DIR)/builddefs
+
+TESTDIR = $(PCP_VAR_DIR)/testsuite/tmparch
+
+default default_pcp:
+
+install install_pcp:
+
+include GNUlocaldefs
+
+setup: $(MKARCH)
+
+include $(BUILDRULES)

@@ -1,0 +1,50 @@
+#!/bin/sh
+# PCP QA Test No. 358
+#
+# pmie fails for metric with instance domain containing one instance
+# ... also some string constant exercises for embedded escapes
+#
+# Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+cat >$tmp.pmie <<'End-of-File'
+some_inst ( match_inst "d" sample.dodgey.value > 0) -> print "short match ..." " [%i] %v";
+some_inst ( match_inst "^d[12345]\$" sample.dodgey.value > 0) -> print "long match ..." " [%i] %v" "\t\"\\\$\\\" A\BC\(\)[]\78\9";
+End-of-File
+
+_filter()
+{
+    tee -a $seq.full \
+    | sed -e 's/.* Info: evaluator exiting/pmie: note - evaluator exiting/g' \
+	-e 's/[A-Z][a-z][a-z] [A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9] [0-9][0-9][0-9][0-9]/DATE/' \
+	-e 's/ [0-9][0-9]*/ NN/g' \
+    | LC_COLLATE=POSIX sort \
+    | uniq
+}
+
+# real QA test starts here
+# for i in 5 2 1
+for i in 1 2 5
+do
+    echo "=== $i values for sample.dodgey.value ==="
+    pmstore sample.dodgey.control $i >/dev/null
+    pminfo -f sample.dodgey.value >>$seq.full
+    pmie -t 0.5 -T 2.3 <$tmp.pmie 2>&1 | _filter
+done
+
+pmstore sample.dodgey.control 5 >/dev/null
+
+# success, all done
+exit

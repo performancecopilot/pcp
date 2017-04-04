@@ -1,0 +1,473 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2016 Red Hat.  All Rights Reserved.
+.\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMLOGEXTRACT 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmlogextract\f1 \- reduce, extract, concatenate
+and merge Performance Co-Pilot archives
+.SH SYNOPSIS
+\f3pmlogextract\f1
+[\f3\-dfwz\f1]
+[\f3\-c\f1 \f2configfile\f1]
+[\f3\-S\f1 \f2starttime\f1]
+[\f3\-s\f1 \f2samples\f1]
+[\f3\-T\f1 \f2endtime\f1]
+[\f3\-v\f1 \f2volsamples\f1]
+[\f3\-Z\f1 \f2timezone\f1]
+\f2input\f1 [...] \f2output\f1 
+.SH DESCRIPTION
+.B pmlogextract
+reads one or more Performance Co-Pilot (PCP) archive logs
+identified by
+.I input
+and creates a temporally merged and/or reduced PCP archive log in
+.IR output .
+.I input
+is a comma-separated list of names, each
+of which may be the base name of an archive or the name of a directory containing
+one or more archives.
+The nature of merging is controlled by the number of input
+archive logs, while the nature of data reduction is controlled by
+the command line arguments.  The input(s) must be sets of PCP archive logs
+created by
+.BR pmlogger (1)
+with performance data collected from the
+.B same
+host, but usually over different time periods and possibly (although
+not usually) with different performance metrics being logged.
+.PP
+If only one
+.I input
+is specified, then the default behavior simply copies the input
+set of PCP archive logs, into the output PCP archive log.  When two or
+more sets of PCP archive logs are specified as
+.IR input ,
+the sets of logs are merged (or concatenated) and written to
+.IR output .
+.PP
+In the output archive log a
+.I <mark>
+record will be inserted at a time
+just past the end of each of the input archive logs to indicate
+a possible temporal discontinuity between the end of one input
+archive log and the start of the next input archive log.
+See the
+.B "MARK RECORDS"
+section below for more information.
+There is no
+.I <mark>
+record after the end of the
+.I last
+(in temporal order) of the input archive logs.
+.SH COMMAND LINE OPTIONS
+The command line options for
+.B pmlogextract
+are as follows:
+.PP
+.TP 7
+.BI \-c " configfile"
+Extract only the metrics specified in
+.I configfile
+from the
+.I input
+PCP archive log(s).  The
+.I configfile
+syntax accepted by
+.B pmlogextract
+is explained in more detail in the
+.B Configuration File Syntax
+section.
+.PP
+.TP 7
+.B \-d
+Desperate mode.  Normally if a fatal error occurs, all trace of
+the partially written PCP archive
+.I output
+is removed.  With the
+.B \-d
+option, the
+.I output
+archive log is not removed.
+.PP
+.TP 7
+.B \-f
+For most common uses, all of the
+input archive logs will have been collected in the same timezone.
+But if this is not the case, then
+.B pmlogextract
+must choose one of the timezones from the input archive logs to be
+used as the timezone for the output archive log.
+The default is to use the timezone from the
+.I last
+input archive log.
+The
+.B \-f
+option forces the timezone from the
+.I first
+input archive log to be used.
+.TP 7
+.BI \-S " starttime"
+Define the start of a time window to restrict the samples retrieved
+or specify a ``natural'' alignment of the output sample times; refer
+to
+.BR PCPIntro (1).
+See also the
+.B \-w
+option.
+.PP
+.TP 7
+.BI \-s " samples"
+The argument
+.I samples
+defines the number of samples to be written to
+.IR output .
+If
+.I samples
+is 0 or
+.B -s
+is not specified,
+.B pmlogextract
+will sample until the end of the PCP archive log,
+or the end of the time window as specified by
+.BR -T ,
+whichever comes first.  The
+.B -s
+option will override the
+.B -T
+option if it occurs sooner.
+.PP
+.TP 7
+.BI \-T " endtime"
+Define the termination of a time window to restrict the samples
+retrieved or specify a ``natural'' alignment of the output sample
+times; refer to
+.BR PCPIntro (1).
+See also the
+.B \-w
+option.
+.PP
+.TP 7
+.BI \-v " volsamples"
+The
+.I output
+archive log is potentially a multi-volume data set, and the
+.B \-v
+option causes
+.B pmlogextract
+to start a new volume after
+.I volsamples
+log records have been written to the archive log.
+.RS 7
+.PP
+Independent of any
+.B \-v
+option, each volume of an archive is limited to no more than
+2^31 bytes, so
+.I pmlogextract
+will automatically create a new volume for the archive before
+this limit is reached.
+.RE
+.PP
+.TP 7
+.B \-w
+Where
+.B \-S
+and
+.B \-T
+specify a time window within the same day, the
+.B \-w
+flag will cause the data within the time window to be extracted,
+for every day in the archive log.
+For example, the options
+.B \-w \-S "@11:00" \-T "@15:00"
+specify that
+.B pmlogextract
+should include archive log records only for the periods from 11am
+to 3pm on each day.  When
+.B \-w
+is used, the
+.I output
+archive log will contain
+.I <mark>
+records to indicate the temporal
+discontinuity between the end of one time window and the start of
+the next.
+.PP
+.TP 7
+.BI \-Z " timezone"
+Use
+.I timezone
+when displaying the date and time.
+.I Timezone
+is in the format of the environment variable
+.B TZ
+as described in
+.BR environ (7).
+.PP
+.TP 7
+.B \-z
+Use the local timezone of the host from the input archive logs.
+The default is to initially use the timezone of the local host.
+.SH CONFIGURATION FILE SYNTAX
+The
+.I configfile
+contains metrics of interest \- only those metrics (or instances)
+mentioned explicitly or implicitly in the configuration file will be
+included in the
+.I output
+archive.
+Each specifications must begin on a new line, and may span multiple lines
+in the configuration file.
+Instances
+may also be specified, but they are optional.  The format for
+each specification is
+
+        metric [[instance[,instance...]]]
+
+where
+.I metric
+may be a leaf or a non-leaf name in the Performance Metrics
+Name Space (PMNS, see
+.BR pmns (5)).
+If a metric refers to a non-leaf node in the PMNS,
+.B pmlogextract
+will recursively descend the PMNS and include all metrics
+corresponding to descendent leaf nodes.
+.PP
+Instances are
+optional, and may be specified as a list of one or more
+space (or comma) separated names, numbers or strings (enclosed
+in single or double quotes).
+Elements in the list that are numbers are assumed to be internal
+instance identifiers - see
+.BR pmGetInDom (3)
+for more information.
+If no instances are given, then 
+.B all
+instances of the associated metric(s) will be extracted.
+.PP
+Any additional white space is ignored and
+comments may be added with a `#' prefix.
+.SH CONFIGURATION FILE EXAMPLE
+This is an example of a valid
+.IR configfile :
+.PP
+        #
+        # config file for pmlogextract
+        #
+
+        kernel.all.cpu
+        kernel.percpu.cpu.sys ["cpu0","cpu1"]
+        disk.dev ["dks0d1"]
+.SH MARK RECORDS
+When more than one input archive log contributes performance data to the
+output archive log, then
+.I <mark>
+records are inserted to indicate a possible
+discontinuity in the performance data.
+.PP
+A
+.I <mark>
+record contains a timestamp and no performance data and
+is used to indicate that there is a time period
+in the PCP archive log where we do not know the values of
+.B any
+performance metrics, because there was no
+.BR pmlogger (1)
+collecting performance data during this period.  Since these periods are
+often associated with the restart of a service or
+.BR pmcd (1)
+or a system, there may be considerable doubt as to the continuity of
+performance data across this time period.
+.PP
+The rationale behind
+.I <mark>
+records may be demonstrated with an example.
+Consider one input archive log that starts at 00:10 and ends at 09:15 on the
+same day, and another input archive log that starts at 09:20 on the
+same day and ends at 00:10 the following morning.  This would be a very
+common case for archives managed and rotated by
+.BR pmlogger_check (1)
+and
+.BR pmlogger_daily (1).
+.PP
+The output archive log created by
+.B pmlogextract
+would contain:
+.ta 12n
+.br
+00:10.000	first record from first input archive log
+.br
+\&...
+.br
+09:15.000	last record from first input archive log
+.br
+09:15.001	<mark> record
+.br
+09:20.000	first record from second input archive log
+.br
+\&...
+.br
+01:10.000	last record from second input archive log
+.PP
+The time period where the performance data is missing starts just after
+09:15 and ends just before 09:20.
+When the output archive log is processed with any of the PCP reporting
+tools, the
+.I <mark>
+record is used to indicate a period of missing
+data.  For example using the output archive above, imagine one was reporting the average
+I/O rate at 30 minute intervals
+aligned on the hour and half-hour.
+The I/O count metric is a counter, so the
+average I/O rate requires two valid values from
+consecutive sample times.
+There would be
+values for all the intervals ending at 09:00,
+then no values at 09:30 because of the
+.I <mark>
+record, then no values at 10:00 because the ``prior'' value at 09:30 is not
+available, then the rate would be reported again at 10:30 and continue
+every 30 minutes until the last reported value at 01:00.
+.PP
+The presence of
+.I <mark>
+records in a PCP archive log can be established
+using
+.BR pmdumplog (1)
+where a timestamp and the annotation
+.B <mark>
+is used to indicate a
+.I <mark>
+record.
+.SH METADATA CHECKS
+When more than one
+.I input
+archive set is specified, 
+.B pmlogextract
+performs a number of checks to ensure the metadata is consistent for
+metrics appearing in more than one of the
+.I input
+archive sets.
+These checks include:
+.IP * 2n
+metric data type is the same
+.PD 0
+.IP * 2n
+metric semantics are the same
+.IP * 2n
+metric units are the same
+.IP * 2n
+metric is either always singular or always has the same instance domain
+.IP * 2n
+metrics with the same name have the same PMID
+.IP * 2n
+metrics with the same PMID have the same name
+.PD
+.PP
+If any of these checks fail,
+.B pmlogextract
+reports the details and aborts without creating the
+.I output
+archive.
+.PP
+To address these semantic issues, use
+.BR pmlogrewrite (1)
+to translate the
+.I input
+archives into equivalent archives with consistent metdadata before using
+.BR pmlogextract .
+.SH FILES
+.PD 0
+For each of the
+.I input
+and
+.I output
+archive logs, several physical files are used.
+.TP 10
+\f2archive\f3.meta
+metadata (metric descriptions, instance domains, etc.) for the archive log
+.TP
+\f2archive\f3.0
+initial volume of metrics values (subsequent volumes have suffixes
+.BR 1 ,
+.BR 2 ,
+\&...) \- for
+.I input
+these files may have been previously compressed with
+.BR bzip2 (1)
+or
+.BR gzip (1)
+and thus may have an additional
+.B .bz2
+or
+.B .gz
+suffix.
+.TP
+\f2archive\f3.index
+temporal index to support rapid random access to the other files in the
+archive log.
+.PD
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.I /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (5).
+.SH SEE ALSO
+.BR PCPIntro (1),
+.BR pmdumplog (1),
+.BR pmlc (1),
+.BR pmlogger (1),
+.BR pmlogreduce (1),
+.BR pmlogrewrite (1),
+.BR pcp.conf (5)
+and
+.BR pcp.env (5).
+.SH DIAGNOSTICS
+All error conditions detected by
+.B pmlogextract
+are reported on
+.I stderr
+with textual (if sometimes terse) explanation.
+.PP
+Should one of the input archive logs be corrupted (this can happen
+if the
+.B pmlogger
+instance writing the log suddenly dies), then
+.B pmlogextract
+will detect and report the position of the corruption in the file,
+and any subsequent information from that archive log will not be processed.
+.PP
+If any error is detected,
+.B pmlogextract
+will exit with a non-zero status.
+.SH CAVEATS
+The preamble metrics (pmcd.pmlogger.archive, pmcd.pmlogger.host,
+and pmcd.pmlogger.port), which are automatically recorded by
+.B pmlogger
+at the start of the archive, may not be present in the archive output by
+.BR pmlogextract .
+These metrics are only relevant while the archive is being created,
+and have no significance once recording has finished.

@@ -1,0 +1,40 @@
+/*
+ * Copyright (c) 2015 Red Hat.
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+ * for more details.
+ */
+
+dmcache {
+    size			DM:0:0
+    metadata
+    cache
+    read_hits			DM:0:7
+    read_misses			DM:0:8
+    write_hits			DM:0:9
+    write_misses		DM:0:10
+    demotions			DM:0:11
+    promotions			DM:0:12
+    dirty			DM:0:13
+    io_mode_code		DM:0:14
+    io_mode			DM:0:15
+}
+
+dmcache.metadata {
+    block_size			DM:0:1
+    used			DM:0:2
+    total			DM:0:3
+}
+
+dmcache.cache {
+   block_size			DM:0:4
+   used				DM:0:5
+   total			DM:0:6
+}

@@ -1,0 +1,40 @@
+#!/bin/sh
+# PCP QA Test No. 743
+# Exercise the pcp-numastat(1) command using an archive
+#
+# Copyright (c) 2014-2015 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.python
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+pcp_numastat="$PCP_BINADM_DIR/pcp-numastat"
+test -x $pcp_numastat || _notrun "No pcp-numastat(1) installed"
+pcp_numastat="$python $pcp_numastat"
+
+archive1="$here/archives/pcp-numastat-1-node"
+archive2="-a $here/archives/pcp-numastat-1-node -z"
+archive3="-a $here/archives/numa -z"
+
+# real QA test starts here
+echo && echo 1 node numastat output, at archive start, cmd width
+PCP_ARCHIVE="$archive1" PCP_HOSTZONE=1 $pcp_numastat --width=64
+
+echo && echo 1 node numastat output, at archive end, cmd width
+pcp $archive2 -O-0 numastat --width=64
+
+echo && echo 3 node numastat output, at archive end, large env width
+NUMASTAT_WIDTH=1000 pcp $archive3 -O-0 numastat
+
+echo && echo 3 node numastat output, at archive end, small env width
+NUMASTAT_WIDTH=50 pcp $archive3 -O-0 numastat
+
+# success, all done
+status=0
+exit

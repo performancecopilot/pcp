@@ -1,0 +1,114 @@
+#! /bin/sh
+# PCP QA Test No. 243
+# Multiple PMCDs test
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+rm -f $seq.out
+_get_libpcp_config
+if $ipv6 ; then
+    ln $seq.out.ipv6 $seq.out || exit 1
+else
+    ln $seq.out.nonipv6 $seq.out || exit 1
+fi
+
+_filter_err()
+{
+    _filter_pmcd_log \
+    | sed \
+	-e 's/ __pmBind: / bind: /g' \
+	-e 's/may already be running/is already running/g' \
+	-e '/Log for pmcd/,/INADDR_ANY/c\
+... boring stuff deleted' \
+	-e '/ok FD 44321 ipv6 INADDR_ANY/d' \
+	-e '/OpenRequestSocket.*unix.*bind: Address already in use/{
+N
+d
+}' \
+	-e 's/ INADDR_ANY/ 0x0/g' \
+	#end
+}
+
+signal=$PCP_BINADM_DIR/pmsignal
+_needclean=true
+
+rm -rf $tmp
+mkdir $tmp
+chmod ugo+rwx $tmp
+cd $tmp
+
+cleanup()
+{
+    cd $here
+    if $_needclean
+    then
+	_needclean=false
+	$signal -s TERM $my_pmcd_pid
+	pmsleep 1.5
+	unset PMCD_SOCKET
+	echo "Restart and ping pmcd ..."
+	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+	_restore_systemd_restart pmcd
+	_wait_for_pmcd
+	_wait_for_pmlogger
+	pmprobe pmcd.control.debug
+    fi
+    rm -rf $tmp
+}
+
+status=1
+trap "cleanup; exit \$status" 0 1 2 3 15
+
+_stop_systemd_restart pmcd
+
+# real QA test starts here
+$sudo $PCP_RC_DIR/pcp stop | _filter_pcp_stop
+
+# Note: start pmcd with -f so that its PID stays the same (no daemon)
+#
+export PMCD_SOCKET=$tmp/pmcd.socket
+$PCP_PMCD_PROG -f -x err1 &
+my_pmcd_pid=$!
+
+_wait_for_pmcd
+
+echo "Checking for startup errors ..."
+[ -f err1 ] && _filter_err <err1
+
+# Try to start another pmcd.  This should fail because the socket is already in
+# use.  Make sure that there are no changes to the log file
+#
+if [ -f pmcd.log ]
+then
+    cp pmcd.log pmcd.log.$$
+else
+    echo "No pmcd.log, pmcd failed to start!"
+    exit
+fi
+
+echo
+echo "Trying to start another PMCD over the top of the first one."
+echo "Expect \"bind:  Address already in use\"...:"
+$PCP_PMCD_PROG -f -x err2 2>&1 | _filter_err &
+
+# EADDRINUSE errors now have 4x250 msec delay while we retry before giving
+# up, and this happens once per socket type, so up to 3 times ... and then
+# wait a little longer ...
+pmsleep 3.5
+
+echo "Checking for startup errors ..."
+[ -f err2 ] && _filter_err <err2
+
+echo "Checking that log hasn't changed ..."
+diff pmcd.log pmcd.log.$$
+
+status=$?

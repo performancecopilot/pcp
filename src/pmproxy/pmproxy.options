@@ -1,0 +1,31 @@
+# command-line options and environment variables for pmproxy
+# uncomment/edit lines as required
+
+# run in the foreground
+# -f
+
+# restrict PCP monitoring client connections to these interfaces
+# -i gateway-public-0.foo.bar.com
+# -i gateway-public-1.foo.bar.com
+
+# make log go someplace else
+# -l /some/place/else
+
+# maximum incoming PDU size (default 64KB)
+# -L 16384 
+
+# assume identity of some user other than "pcp"
+# -U nobody
+
+# emergency messages before logfile created
+# -x /tmp/desperate.log
+
+# setting of environment variables for pmproxy
+
+# port for incomining connections from PCP monitoring clients
+# PMPROXY_PORT=44322
+
+# timeouts for interactions with pmcd on behalf of clients
+# PMCD_CONNECT_TIMEOUT=10
+# PMCD_RECONNECT_TIMEOUT=10,20,30
+# PMCD_REQUEST_TIMEOUT=10

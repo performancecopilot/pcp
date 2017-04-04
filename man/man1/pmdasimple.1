@@ -1,0 +1,198 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2012 Red Hat.
+.\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.\" I am variants ...
+.ds ia simple
+.ds IA SIMPLE
+.ds Ia Simple
+.TH PMDASIMPLE 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmdasimple\f1 \- \*(ia performance metrics domain agent (PMDA)
+.SH SYNOPSIS
+\f3$PCP_PMDAS_DIR/\*(ia/pmda\*(ia\f1
+[\f3\-d\f1 \f2domain\f1]
+[\f3\-i\f1 \f2port\f1]
+[\f3\-l\f1 \f2logfile\f1]
+[\f3\-p\f1]
+[\f3\-u\f1 \f2socket\f1]
+[\f3\-U\f1 \f2username\f1]
+.SH DESCRIPTION
+.B pmda\*(ia
+is a \*(ia Performance Metrics Domain Agent (PMDA) which exports
+a small number of synthetic performance metrics.
+.PP
+The \*(ia PMDA is
+shipped as source code and is designed to be an aid for PMDA developers.
+In terms of code size and features, it is more complex than the
+trivial PMDA, about the same as the txmon PMDA
+and less complex than the sample PMDA.
+The source for the \*(ia PMDA is a good template from which production,
+customized PMDAs can be developed.
+.PP
+A brief description of the
+.B pmda\*(ia
+command line options follows:
+.TP 5
+.B \-d
+It is absolutely crucial that the performance metrics
+.I domain
+number specified here is unique and consistent.
+That is,
+.I domain
+should be different for every PMDA on the one host, and the same
+.I domain
+number should be used for the same PMDA on all hosts.
+.TP
+.B \-i
+Expect PMCD to connect to
+.B pmda\*(ia
+on the specified TCP/IP port.
+.I port
+may be a port number or port name.
+.TP
+.B \-l
+Location of the log file.  By default, a log file named
+.I \*(ia.log
+is written in the current directory of
+.BR pmcd (1)
+when
+.B pmda\*(ia
+is started, i.e.
+.BR $PCP_LOG_DIR/pmcd .
+If the log file cannot
+be created or is not writable, output is written to the standard error instead.
+.TP
+.B \-p
+Expect PMCD to create a pipe and the connection to
+.B pmda\*(ia
+is via standard input and standard output.  This is the
+default connection mode.
+.TP
+.B \-u
+Expect PMCD to connect to
+.B pmda\*(ia
+on the Unix domain socket named
+.IR socket .
+.TP 5
+.B \-U
+User account under which to run the agent.
+The default is the unprivileged "pcp" account in current versions of PCP,
+but in older versions the superuser account ("root") was used by default.
+.PP
+At most one of the options
+.BR \-i ,
+.B \-p
+and
+.B \-u
+may be specified.
+.SH INSTALLATION
+If you want access the names, help text and values for the \*(ia
+performance metrics, do the following as root:
+.PP
+.ft CW
+.nf
+.in +0.5i
+# cd $PCP_PMDAS_DIR/\*(ia
+# ./Install
+.in
+.fi
+.ft 1
+.PP
+If you want to undo the installation, do the following as root:
+.PP
+.ft CW
+.nf
+.in +0.5i
+# cd $PCP_PMDAS_DIR/\*(ia
+# ./Remove
+.in
+.fi
+.ft 1
+.PP
+.B pmda\*(ia
+is launched by
+.BR pmcd (1)
+and should never be executed directly.
+The Install and Remove scripts notify
+.BR pmcd (1)
+when the agent is installed or removed.
+.SH FILES
+.PD 0
+.TP 10
+.B $PCP_PMCDCONF_PATH
+command line options used to launch
+.B pmda\*(ia
+.TP
+.B $PCP_PMDAS_DIR/\*(ia/help
+default help text file for the \*(ia metrics
+.TP
+.B $PCP_PMDAS_DIR/\*(ia/Install
+installation script for the
+.B pmda\*(ia
+agent
+.TP
+.B $PCP_PMDAS_DIR/\*(ia/Remove
+undo installation script for the 
+.B pmda\*(ia
+agent
+.TP
+.B $PCP_PMDAS_DIR/\*(ia/simple.conf
+configuration file for the dynamic instance domain that
+underlies the
+.B simple.now
+performance metric.  For a description, refer to the
+help text file, or run the command
+.sp 0.5v
+.ft CW
+$ pminfo \-T simple.now
+.ft P
+.sp 0.5v
+.TP
+.B $PCP_PMDAS_DIR/\*(ia/*.pmda_simple.so
+The DSO version of the PMDA.  The same source is used to create both the
+DSO and the daemon versions of the \*(ia PMDA, and one or the other
+may be installed as part of the dialog in the
+.B Install
+script.
+.TP
+.B $PCP_LOG_DIR/pmcd/simple.log
+default log file for error messages and other information from
+.B pmda\*(ia
+.PD
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.B /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (5).
+.SH SEE ALSO
+.BR PCPIntro (1),
+.BR pmcd (1),
+.BR pmdasample (1),
+.BR pmdatrivial (1),
+.BR pmdatxmon (1),
+.BR PMDA (3),
+.BR pcp.conf (5)
+and
+.BR pcp.env (5).

@@ -1,0 +1,44 @@
+QA output created by 461
+You will need to choose an appropriate configuration for installation of
+the "logger" Performance Metrics Domain Agent (PMDA).
+
+  collector	collect performance statistics on this system
+  monitor	allow this system to monitor local and/or remote systems
+  both		collector and monitor configuration for this system
+
+Please enter c(ollector) or m(onitor) or b(oth) [b] Possible configuration files to choose from:
+[1] PCP_VAR_DIR/config/logger/logger.conf
+[2] Specify your own configuration file.
+[3] None of the above (abandon configuration file selection).
+Which configuration file do you want to use ? [1] 
+Contents of the selected configuration file:
+--------------- start PCP_VAR_DIR/config/logger/logger.conf ---------------
+
+reg	y	TMPFILE.reg
+
+--------------- end PCP_VAR_DIR/config/logger/logger.conf ---------------
+
+Use this configuration file? [y] Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+[...install files, make output...]
+Updating the PMCD control file, and notifying PMCD ...
+Check logger metrics have appeared ... 11 metrics and 9 values
+=== 1. store access control enabled ===
+Starting initial event watcher:
+done.
+Captured event trace was:
+host:      localhost
+samples:   5
+interval:  1.00 sec
+logger.perfile.reg.records: 2 event records
+  TIMESTAMP --- event record [0] flags 0x1 (point) ---
+    logger.param_string "TeSt DaTa ... TeSt DaTa ..."
+  TIMESTAMP --- event record [1] flags 0x1 (point) ---
+    logger.param_string "TeSt2 DaTa2 ... TeSt2 DaTa2"
+=== 2. store access control disabled ===
+Starting initial event watcher:
+done.
+Captured event trace was:
+host:      localhost
+samples:   5
+interval:  1.00 sec

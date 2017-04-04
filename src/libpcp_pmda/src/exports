@@ -1,0 +1,156 @@
+PCP_PMDA_3.0 {
+  global:
+    pmdaInit;
+    pmdaMain;
+    pmdaGetOpt;
+    pmdaConnect;
+    pmdaOpenLog;
+    pmdaOpenHelp;
+    pmdaSetFlags;
+    pmdaGetContext;
+    pmdaGetInDomHelp;
+
+    pmdaDaemon;
+    pmdaDSO;
+
+    __pmdaInFd;
+    __pmdaMainPDU;
+    __pmdaSetContext;
+
+    pmdaPMID;
+    pmdaRehash;
+
+    pmdaSetCheckCallBack;
+    pmdaSetDoneCallBack;
+    pmdaSetEndContextCallBack;
+    pmdaSetFetchCallBack;
+    pmdaSetResultCallBack;
+
+    pmdaAttribute;
+    pmdaDesc;
+    pmdaFetch;
+    pmdaInstance;
+    pmdaProfile;
+    pmdaStore;
+    pmdaText;
+    pmdaName;
+    pmdaChildren;
+
+    pmdaCacheLookup;
+    pmdaCacheLookupKey;
+    pmdaCacheLookupName;
+    pmdaCacheOp;
+    pmdaCachePurge;
+    pmdaCacheStore;
+    pmdaCacheStoreKey;
+
+    __pmdaCacheDump;
+    __pmdaCacheDumpAll;
+    __pmdaStartInst;
+    __pmdaNextInst;
+    __pmdaCntInst;
+
+    pmdaCloseHelp;
+    pmdaGetHelp;
+    __pmdaHelpTab;
+
+    pmdaTreeChildren;
+    pmdaTreeName;
+    pmdaTreePMID;
+    pmdaTreeRebuildHash;
+    pmdaTreeSize;
+
+    pmdaEventAddMissedRecord;
+    pmdaEventAddParam;
+    pmdaEventAddRecord;
+    pmdaEventClients;
+    pmdaEventEndClient;
+    pmdaEventGetAddr;
+    pmdaEventNewActiveQueue;
+    pmdaEventNewArray;
+    pmdaEventNewClient;
+    pmdaEventNewQueue;
+    pmdaEventQueueAppend;
+    pmdaEventQueueBytes;
+    pmdaEventQueueClients;
+    pmdaEventQueueCounter;
+    pmdaEventQueueHandle;
+    pmdaEventQueueMemory;
+    pmdaEventQueueRecords;
+    pmdaEventReleaseArray;
+    pmdaEventResetArray;
+    pmdaEventSetAccess;
+    pmdaEventSetFilter;
+    __pmdaEventPrint;
+
+    pmdaDynamicLookupName;
+    pmdaDynamicLookupPMID;
+    pmdaDynamicLookupText;
+    pmdaDynamicMetricTable;
+    pmdaDynamicPMNS;
+
+  local: *;
+};
+
+PCP_PMDA_3.1 {
+  global:
+    pmdaGetOptions;
+    pmdaUsageMessage;
+} PCP_PMDA_3.0;
+
+PCP_PMDA_3.2 {
+  global:
+    pmdaDynamicSetClusterMask;
+} PCP_PMDA_3.1;
+
+PCP_PMDA_3.3 {
+  global:
+    pmdaEventNewHighResArray;
+    pmdaEventResetHighResArray;
+    pmdaEventReleaseHighResArray;
+    pmdaEventAddHighResRecord;
+    pmdaEventAddHighResMissedRecord;
+    pmdaEventHighResAddParam;
+    pmdaEventHighResGetAddr;
+} PCP_PMDA_3.2;
+
+PCP_PMDA_3.4 {
+  global:
+    pmdaInterfaceMoved;
+    pmdaNodeLookup;
+
+    pmdaRootConnect;
+    pmdaRootShutdown;
+    pmdaRootContainerHostName;
+    pmdaRootContainerProcessID;
+    pmdaRootContainerCGroupName;
+
+    __pmdaSendRootPDUInfo;
+    __pmdaRecvRootPDUInfo;
+    __pmdaSendRootPDUContainer;
+    __pmdaRecvRootPDUContainer;
+    __pmdaDecodeRootPDUContainer;
+} PCP_PMDA_3.3;
+
+PCP_PMDA_3.5 {
+  global:
+    pmdaCacheResize;
+} PCP_PMDA_3.4;
+
+PCP_PMDA_3.6 {
+  global:
+    pmdaEventQueueShutdown;
+
+    pmdaRootProcessStart;
+    pmdaRootProcessWait;
+    pmdaRootProcessTerminate;
+
+    __pmdaSendRootPDUStartReq;
+    __pmdaRecvRootPDUStartReq;
+    __pmdaDecodeRootPDUStart;
+    __pmdaSendRootPDUStart;
+    __pmdaRecvRootPDUStart;
+    __pmdaSendRootPDUStop;
+    __pmdaRecvRootPDUStop;
+    __pmdaDecodeRootPDUStop;
+} PCP_PMDA_3.5;

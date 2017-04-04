@@ -1,0 +1,283 @@
+#
+# Copyright (c) 2000,2004-2008 Silicon Graphics, Inc.  All Rights Reserved.
+# Portions Copyright (c) International Business Machines Corp., 2002
+# Portions Copyright (c) 2007-2009 Aconex.  All Rights Reserved.
+# Portions Copyright (c) 2013,2015-2016 Red Hat.
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+# Linux proc PMDA help file in the ASCII format
+#
+# lines beginning with a # are ignored
+# lines beginning @ introduce a new entry of the form
+#  @ metric_name oneline-text
+#  help text goes
+#  here over multiple lines
+#  ...
+#
+# the metric_name is decoded against the default PMNS -- as a special case,
+# a name of the form NNN.MM (for numeric NNN and MM) is interpreted as an
+# instance domain identification, and the text describes the instance domain
+#
+# blank lines before the @ line are ignored
+#
+
+@ 3.9 all current processes
+@ 3.39 set of interesting ("hot") processes
+
+@ 3.20 kernel cpusets resource control group (cgroup)
+@ 3.21 kernel cpu accounting resource control group (cgroup)
+@ 3.22 kernel per-processor cpu accounting control group (cgroup)
+@ 3.23 kernel cpu scheduling control group (cgroup)
+@ 3.24 kernel memory resource control group (cgroup)
+@ 3.25 network classifier resource control group (cgroup)
+@ 3.26 aggregate block device resource control group (cgroup)
+@ 3.27 individual block device resource control group (cgroup)
+
+@ 3.37 control group (cgroup) subsystems
+@ 3.38 control group (cgroup) mount points
+
+@ proc.nprocs instantaneous number of processes
+
+@ proc.runq.runnable number of runnable (on run queue) processes
+Instantaneous number of runnable (on run queue) processes, state 'R' in ps
+@ proc.runq.blocked number of processes in uninterruptible sleep
+Instantaneous number of processes in uninterruptible sleep, state 'D' in ps
+@ proc.runq.sleeping number of processes sleeping
+Instantaneous number of processes sleeping, state 'S' in ps
+@ proc.runq.stopped number of traced, stopped or suspended processes
+Instantaneous number of traced, stopped or suspended processes, state
+'T' in ps
+@ proc.runq.swapped number of processes that are swapped
+Instantaneous number of processes (excluding kernel threads) that are
+swapped, state 'SW' in ps
+@ proc.runq.defunct number of defunct/zombie processes
+Instantaneous number of defunct/zombie processes, state 'Z' in ps
+@ proc.runq.unknown number of processes is an unknown state
+Instantaneous number of processes is an unknown state, including all
+kernel threads
+@ proc.runq.kernel number of kernel threads
+Instantaneous number of processes with virtual size of zero (kernel threads)
+
+@ proc.control.all.threads process indom includes threads
+If set to one, the process instance domain as reported by pmdaproc
+contains all threads as well as the processes that started them.
+If set to zero, the process instance domain contains only processes.
+
+This setting is persistent for the life of pmdaproc and affects all
+client tools that request instances and values from pmdaproc.
+Use either pmstore(1) or pmStore(3) to modify this metric.
+
+@ proc.control.perclient.threads for a client, process indom includes threads
+If set to one, the process instance domain as reported by pmdaproc
+contains all threads as well as the processes that started them.
+If set to zero, the process instance domain contains only processes.
+
+This setting is only visible to the active client context.  In other
+words, storing into this metric has no effect for other monitoring
+tools.  See proc.control.all.threads, if that is the desired outcome.
+Only pmStore(3) can effectively set this metric (pmstore(1) cannot).
+
+@ proc.control.perclient.cgroups for a client, process indom reflects specific cgroups
+If set to the empty string (the default), the process instance domain
+as reported by pmdaproc contains all processes.  However, a cgroup
+name (full path) can be stored into this metric in order to restrict
+processes reported to only those within the specified cgroup.  This
+set is further affected by the value of proc.control.perclient.threads.
+
+This setting is only visible to the active client context.  In other
+words, storing into this metric has no effect for other monitoring
+tools.  pmStore(3) must be used to set this metric (not pmstore(1)).
+
+@ cgroup.subsys.hierarchy subsystem hierarchy from /proc/cgroups
+@ cgroup.subsys.count count of known subsystems in /proc/cgroups
+@ cgroup.subsys.num_cgroups number of cgroups for each subsystem
+@ cgroup.subsys.enabled state of cgroups subsystems in the kernel
+@ cgroup.mounts.subsys mount points for each cgroup subsystem
+@ cgroup.mounts.count count of cgroup filesystem mount points
+
+@ cgroup.cpuset.cpus CPUs assigned to each individual cgroup
+@ cgroup.cpuset.mems Memory nodes assigned to each individual cgroup
+@ cgroup.cpuacct.usage CPU time consumed by processes in each cgroup
+@ cgroup.cpuacct.usage_percpu Per-CPU time consumed by processes in each cgroup
+@ cgroup.cpuacct.stat.user Time spent by tasks of the cgroup in user mode
+@ cgroup.cpuacct.stat.system Time spent by tasks of the cgroup in kernel mode
+
+@ cgroup.cpusched.shares Processor scheduler cgroup shares
+Scheduler fairness CPU time division for each cgroup - details in
+Documentation/scheduler/sched-design-CFS.txt in the kernel source.
+
+@ cgroup.cpusched.periods Number of CFS elapsed enforcement intervals
+Scheduler group bandwidth enforcement interfaces that have elapsed,
+refer to Documentation/scheduler/sched-bwc.txt in the kernel source.
+
+@ cgroup.cpusched.throttled Number of times CFS group was throttled/limited
+Scheduler group bandwidth throttle/limit count - further discussion
+in Documentation/scheduler/sched-bwc.txt in the kernel source.
+
+@ cgroup.cpusched.throttled_time Total time CFS group was throttled/limited
+The total time duration (in nanoseconds) for which entities of the
+group have been throttled by the CFS scheduler - refer to discussion
+in Documentation/scheduler/sched-bwc.txt in the kernel source.
+
+@ cgroup.cpusched.cfs_quota Total available runtime within a period (usec)
+The bandwidth allowed for a CFS group is specified using a quota and period.
+Within each given "period" (usec), a group is allowed to consume only up to
+"quota" usec of CPU time.  When the CPU bandwidth consumption of a group
+exceeds this limit (for that period), the tasks belonging to its hierarchy
+will be throttled and are not allowed to run again until the next period.
+
+A value of -1 indicates that the group does not have bandwidth restriction
+in place.  Refer to discussion in Documentation/scheduler/sched-bwc.txt in
+the kernel source.
+
+@ cgroup.cpusched.cfs_period The length of a CFS period (usec)
+The bandwidth allowed for a CFS group is specified using a quota and period.
+Within each given "period" (usec), a group is allowed to consume only up to
+"quota" usec of CPU time.  When the CPU bandwidth consumption of a group
+exceeds this limit (for that period), the tasks belonging to its hierarchy
+will be throttled and are not allowed to run again until the next period.
+Further discussion in Documentation/scheduler/sched-bwc.txt in the kernel
+sources.
+
+@ cgroup.memory.usage Current physical memory accounted to each cgroup
+@ cgroup.memory.limit Maximum memory that can be utilized by each cgroup
+@ cgroup.memory.failcnt Count of failures to allocate memory due to cgroup limit
+@ cgroup.memory.stat.cache Number of bytes of page cache memory
+@ cgroup.memory.stat.rss Anonymous and swap memory (incl transparent hugepages)
+@ cgroup.memory.stat.rss_huge Anonymous transparent hugepages
+@ cgroup.memory.stat.mapped_file Bytes of mapped file (incl tmpfs/shmem)
+@ cgroup.memory.stat.writeback Bytes of file/anonymous cache queued for syncing
+@ cgroup.memory.stat.swap Number of bytes of swap usage
+@ cgroup.memory.stat.pgpgin Number of charging events to the memory cgroup
+Number of charging events to the memory cgroup. The charging event happens
+each time a page is accounted as either mapped anon page(RSS) or cache page
+(Page Cache) to the cgroup.
+
+@ cgroup.memory.stat.pgpgout Number of uncharging events to the memory cgroup
+The uncharging event happens each time a page is unaccounted from
+the cgroup.
+
+@ cgroup.memory.stat.pgfault Total number of page faults
+@ cgroup.memory.stat.pgmajfault Number of major page faults
+@ cgroup.memory.stat.inactive_anon Anonymous and swap cache memory on inactive LRU list
+@ cgroup.memory.stat.active_anon Anonymous and swap cache memory on active LRU list.
+@ cgroup.memory.stat.inactive_file File-backed memory on inactive LRU list
+@ cgroup.memory.stat.active_file File-backed memory on active LRU list
+@ cgroup.memory.stat.unevictable Memory that cannot be reclaimed (e.g. mlocked)
+@ cgroup.memory.stat.total.cache Hierarchical, cumulative version of stat.cache
+@ cgroup.memory.stat.total.rss Hierarchical, cumulative version of stat.rss
+@ cgroup.memory.stat.total.rss_huge Hierarchical, cumulative version of stat.rss_huge
+@ cgroup.memory.stat.total.mapped_file Hierarchical, cumulative version of stat.mapped_file
+@ cgroup.memory.stat.total.writeback Hierarchical, cumulative version of stat.writeback
+@ cgroup.memory.stat.total.swap Hierarchical, cumulative version of stat.swap
+@ cgroup.memory.stat.total.pgpgin Hierarchical, cumulative version of stat.pgpgin
+@ cgroup.memory.stat.total.pgpgout Hierarchical, cumulative version of stat.pgpgout
+@ cgroup.memory.stat.total.pgfault Hierarchical, cumulative version of stat.pgfault
+@ cgroup.memory.stat.total.pgmajfault Hierarchical, cumulative version of stat.pgmajfault
+@ cgroup.memory.stat.total.inactive_anon Hierarchical, cumulative version of stat.inactive_anon
+@ cgroup.memory.stat.total.active_anon Hierarchical, cumulative version of stat.active_anon
+@ cgroup.memory.stat.total.inactive_file Hierarchical, cumulative version of stat.inactive_file
+@ cgroup.memory.stat.total.active_file Hierarchical, cumulative version of stat.active_file
+@ cgroup.memory.stat.total.unevictable Hierarchical, cumulative version of stat.unevictable
+
+@ cgroup.memory.stat.recent.rotated_anon VM internal parameter (see mm/vmscan.c)
+@ cgroup.memory.stat.recent.rotated_file VM internal parameter (see mm/vmscan.c)
+@ cgroup.memory.stat.recent.scanned_anon VM internal parameter (see mm/vmscan.c)
+@ cgroup.memory.stat.recent.scanned_file VM internal parameter (see mm/vmscan.c)
+
+@ cgroup.netclass.classid Network classifier cgroup class identifiers
+
+@ cgroup.blkio.dev.sectors Per-cgroup total (read+write) sectors
+@ cgroup.blkio.dev.time Per-device, per-cgroup total (read+write) time
+@ cgroup.blkio.dev.io_merged.read Per-cgroup read merges
+@ cgroup.blkio.dev.io_merged.write Per-cgroup write merges
+@ cgroup.blkio.dev.io_merged.sync Per-cgroup synchronous merges 
+@ cgroup.blkio.dev.io_merged.async Per-cgroup asynchronous merges
+@ cgroup.blkio.dev.io_merged.total Per-cgroup total merge operations
+@ cgroup.blkio.dev.io_queued.read Per-cgroup queued read operations
+@ cgroup.blkio.dev.io_queued.write Per-cgroup queued write operations
+@ cgroup.blkio.dev.io_queued.sync Per-cgroup queued synchronous operations
+@ cgroup.blkio.dev.io_queued.async Per-cgroup queued asynchronous operations
+@ cgroup.blkio.dev.io_queued.total Per-cgroup total operations queued
+@ cgroup.blkio.dev.io_service_bytes.read Per-cgroup bytes transferred in reads
+@ cgroup.blkio.dev.io_service_bytes.write Per-cgroup bytes transferred to disk in writes
+@ cgroup.blkio.dev.io_service_bytes.sync Per-cgroup sync bytes transferred
+@ cgroup.blkio.dev.io_service_bytes.async Per-cgroup async bytes transferred
+@ cgroup.blkio.dev.io_service_bytes.total Per-cgroup total bytes transferred
+@ cgroup.blkio.dev.io_serviced.read Per-cgroup read operations serviced
+@ cgroup.blkio.dev.io_serviced.write Per-cgroup write operations serviced
+@ cgroup.blkio.dev.io_serviced.sync Per-cgroup sync operations serviced
+@ cgroup.blkio.dev.io_serviced.async Per-cgroup async operations serviced
+@ cgroup.blkio.dev.io_serviced.total Per-cgroup total operations serviced
+@ cgroup.blkio.dev.io_service_time.read Per-cgroup read IO service time
+@ cgroup.blkio.dev.io_service_time.write Per-cgroup write IO service time
+@ cgroup.blkio.dev.io_service_time.sync Per-cgroup sync IO service time
+@ cgroup.blkio.dev.io_service_time.async Per-cgroup async IO service time
+@ cgroup.blkio.dev.io_service_time.total Per-cgroup IO service time
+@ cgroup.blkio.dev.io_wait_time.read Per-cgroup read IO wait time
+@ cgroup.blkio.dev.io_wait_time.write Per-cgroup write IO wait time
+@ cgroup.blkio.dev.io_wait_time.sync Per-cgroup sync IO wait time
+@ cgroup.blkio.dev.io_wait_time.async Per-cgroup async IO wait time
+@ cgroup.blkio.dev.io_wait_time.total Per-cgroup total IO wait time
+@ cgroup.blkio.dev.throttle.io_service_bytes.read Per-cgroup throttle bytes transferred in reads
+@ cgroup.blkio.dev.throttle.io_service_bytes.write Per-cgroup throttle bytes transferred to disk in writes
+@ cgroup.blkio.dev.throttle.io_service_bytes.sync Per-cgroup throttle sync bytes transferred
+@ cgroup.blkio.dev.throttle.io_service_bytes.async Per-cgroup throttle async bytes transferred
+@ cgroup.blkio.dev.throttle.io_service_bytes.total Per-cgroup total throttle bytes transferred
+@ cgroup.blkio.dev.throttle.io_serviced.read Per-cgroup throttle read operations serviced
+@ cgroup.blkio.dev.throttle.io_serviced.write Per-cgroup throttle write operations serviced
+@ cgroup.blkio.dev.throttle.io_serviced.sync Per-cgroup throttle sync operations serviced
+@ cgroup.blkio.dev.throttle.io_serviced.async Per-cgroup throttle async operations serviced
+@ cgroup.blkio.dev.throttle.io_serviced.total Per-cgroup total throttle operations serviced
+
+@ cgroup.blkio.all.sectors Per-cgroup total (read+write) sectors
+@ cgroup.blkio.all.time Per-device, per-cgroup total (read+write) time
+@ cgroup.blkio.all.io_merged.read Per-cgroup read merges
+@ cgroup.blkio.all.io_merged.write Per-cgroup write merges
+@ cgroup.blkio.all.io_merged.sync Per-cgroup synchronous merges 
+@ cgroup.blkio.all.io_merged.async Per-cgroup asynchronous merges
+@ cgroup.blkio.all.io_merged.total Per-cgroup total merge operations
+@ cgroup.blkio.all.io_queued.read Per-cgroup queued read operations
+@ cgroup.blkio.all.io_queued.write Per-cgroup queued write operations
+@ cgroup.blkio.all.io_queued.sync Per-cgroup queued synchronous operations
+@ cgroup.blkio.all.io_queued.async Per-cgroup queued asynchronous operations
+@ cgroup.blkio.all.io_queued.total Per-cgroup total operations queued
+@ cgroup.blkio.all.io_service_bytes.read Per-cgroup bytes transferred in reads
+@ cgroup.blkio.all.io_service_bytes.write Per-cgroup bytes transferred to disk in writes
+@ cgroup.blkio.all.io_service_bytes.sync Per-cgroup sync bytes transferred
+@ cgroup.blkio.all.io_service_bytes.async Per-cgroup async bytes transferred
+@ cgroup.blkio.all.io_service_bytes.total Per-cgroup total bytes transferred
+@ cgroup.blkio.all.io_serviced.read Per-cgroup read operations serviced
+@ cgroup.blkio.all.io_serviced.write Per-cgroup write operations serviced
+@ cgroup.blkio.all.io_serviced.sync Per-cgroup sync operations serviced
+@ cgroup.blkio.all.io_serviced.async Per-cgroup async operations serviced
+@ cgroup.blkio.all.io_serviced.total Per-cgroup total operations serviced
+@ cgroup.blkio.all.io_service_time.read Per-cgroup read IO service time
+@ cgroup.blkio.all.io_service_time.write Per-cgroup write IO service time
+@ cgroup.blkio.all.io_service_time.sync Per-cgroup sync IO service time
+@ cgroup.blkio.all.io_service_time.async Per-cgroup async IO service time
+@ cgroup.blkio.all.io_service_time.total Per-cgroup IO service time
+@ cgroup.blkio.all.io_wait_time.read Per-cgroup read IO wait time
+@ cgroup.blkio.all.io_wait_time.write Per-cgroup write IO wait time
+@ cgroup.blkio.all.io_wait_time.sync Per-cgroup sync IO wait time
+@ cgroup.blkio.all.io_wait_time.async Per-cgroup async IO wait time
+@ cgroup.blkio.all.io_wait_time.total Per-cgroup total IO wait time
+@ cgroup.blkio.all.throttle.io_service_bytes.read Per-cgroup throttle bytes transferred in reads
+@ cgroup.blkio.all.throttle.io_service_bytes.write Per-cgroup throttle bytes transferred to disk in writes
+@ cgroup.blkio.all.throttle.io_service_bytes.sync Per-cgroup throttle sync bytes transferred
+@ cgroup.blkio.all.throttle.io_service_bytes.async Per-cgroup throttle async bytes transferred
+@ cgroup.blkio.all.throttle.io_service_bytes.total Per-cgroup throttle total bytes transferred
+@ cgroup.blkio.all.throttle.io_serviced.read Per-cgroup throttle read operations serviced
+@ cgroup.blkio.all.throttle.io_serviced.write Per-cgroup throttle write operations serviced
+@ cgroup.blkio.all.throttle.io_serviced.sync Per-cgroup throttle sync operations serviced
+@ cgroup.blkio.all.throttle.io_serviced.async Per-cgroup throttle async operations serviced
+@ cgroup.blkio.all.throttle.io_serviced.total Per-cgroup total throttle operations serviced

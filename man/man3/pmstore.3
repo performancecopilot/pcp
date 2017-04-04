@@ -1,0 +1,104 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMSTORE 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmStore\f1 \- modify values of performance metrics
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.sp
+.nf
+int pmStore(const pmResult *\fIresult\fP);
+.fi
+.sp
+cc ... \-lpcp
+.ft 1
+.SH DESCRIPTION
+.de CW
+.ie t \f(CW\\$1\f1\\$2
+.el \fI\\$1\f1\\$2
+..
+In some special cases it may be helpful to modify the current values of
+performance metrics,
+e.g. to reset a counter to zero, or to modify a ``metric'' which is a control
+variable for some agent collecting performance metrics.
+.PP
+The routine
+.B pmStore
+is a lightweight inverse of
+.BR pmFetch (3).
+.PP
+The caller must build the
+.CW pmResult 
+data structure (of course, this could have been returned from an earlier
+.BR pmFetch (3)
+call) and then call
+.BR pmStore .
+.PP
+It is an error to pass a request to
+.B pmStore
+in which the
+.CW numval
+field within any of the
+.B pmValueSet
+structure has a value less than one.
+.PP
+The current
+Performance Metrics Application Programming Interface (PMAPI)
+context must be one with a host as the source of metrics, and the
+current value of the nominated metrics will be changed, i.e.
+.B pmStore
+cannot be used to make retrospective changes to information in either
+the archive logs, or in the recent past for real-time sources of metrics.
+.PP
+The return code from
+.B pmStore
+is zero for success.
+.SH SEE ALSO
+.BR PMAPI (3),
+.BR pmFetch (3)
+and
+.BR pmSetMode (3).
+.SH DIAGNOSTICS
+.IP \f3PM_ERR_GENERIC\f1
+At least one of the modifications was rejected.
+No other status is available
+from below the PMAPI (this is the lightweight part of the functionality!).  In
+cases where the outcome of
+.B pmStore
+for individual metrics is important, the caller should make one call to
+.B pmStore
+for each metric. On the other hand, a bulk modification can be performed in a
+single
+.B pmStore
+call for situations in which the outcome is not critical.
+.IP \f3PM_ERR_NOTHOST\f1
+The current PMAPI context is an archive rather than a host, or it
+is a host that is not set to the current time, i.e. has been ``rewound''
+to the recent past using
+.BR pmSetMode (3).
+.IP \f3PM_ERR_TOOSMALL\f1
+The number of metrics specified in
+.I result
+is less than one.
+.IP \f3PM_ERR_VALUE\f1
+One or more of the
+.CW pmValueSet s
+in
+.I result
+has a
+.CW numval
+field with a value less than one.

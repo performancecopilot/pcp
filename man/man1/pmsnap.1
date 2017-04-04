@@ -1,0 +1,275 @@
+.TH PMSNAP 1 "" "Performance Co-Pilot"
+.SH NAME
+\f3pmsnap\f1 \- generate performance summary snapshot images
+.SH SYNOPSIS
+.B $PCP_BINADM_DIR/pmsnap
+[\f3\-NV\f1]
+[\f3\-C\f1 \f2dir\f1]
+[\f3\-c\f1 \f2configs\f1]
+[\f3\-n\f1 \f2names\f1]
+[\f3\-o\f1 \f2dir\f1]
+[\f3\-t\f1 \f2type\f1]
+.br
+.SH DESCRIPTION
+.B pmsnap
+is a shell script
+that is normally run periodically from
+.BR crontab (1)
+to generate graphic images of 
+.BR pmchart (1)
+performance charts.
+These images can be in any of the supported
+.B pmchart
+formats, including
+.IR png ,
+.IR bmp ,
+and
+.IR jpeg ,
+and may be incorporated into the content offered by the local Web server.
+The
+.B \-V
+option enables verbose tracing of the actions.
+By default 
+.B pmsnap
+generates no output unless some error or warning condition is encountered.
+.PP
+.B pmsnap
+generates images according to its control file,
+.B $PCP_PMSNAPCONTROL_PATH
+(or
+.B dir/control
+if the
+.B \-C
+option is specified),
+and uses archive logs created by
+.BR pmlogger (1)
+or PCP archive folios created by
+.BR pmafm (1)
+and
+.BR pmlogger_check (1).
+Before attempting to configure
+.BR pmsnap ,
+it is strongly recommended that
+.B pmlogger
+be configured according to the descriptions in
+.BR pmlogger_daily (1),
+.BR pmlogger_check (1)
+and
+.BR pmlogger (1).
+.P
+Once
+.B pmlogger
+has been configured,
+it is necessary to configure
+.B pmsnap
+as follows;
+.IP 1.
+Edit the control file
+.BR $PCP_PMSNAPCONTROL_PATH .
+The syntax of this file is described in the comment at the head of the file
+and an example is supplied for one and twelve hour "Summary" performance charts
+for the local host.
+Suitable arguments for
+.B pmchart
+are also described in the comment.
+The user should consult
+.B pmchart
+for further details.
+Note that when
+.B pmsnap
+is run, it globally substitutes the string
+.B LOCALHOSTNAME
+with the name of the local host in the control file.
+.IP 2.
+Test the configuration by running
+.ce 1
+.BR "$PCP_BINADM_DIR/pmsnap" .
+Without any arguments 
+.B pmsnap
+will process every non-comment line in 
+.BR $PCP_PMSNAPCONTROL_PATH .
+The output images will be placed in the files named
+in the first field of each line in the control file, with the file format
+appended if necessary.
+If these file names do not start with
+.B /
+or
+.B .
+then they are assumed relative to
+.IR dir ,
+as specified with the
+.B \-o
+option.
+The default
+.I dir
+is the current directory.
+Note that if
+.B pmlogger
+has only been recently started (within about the last 15 minutes),
+snap-shot images may not be produced and no error
+messages will be issued - the reason is that
+.B pmchart
+can not use very short archives
+and hence, neither can
+.BR pmsnap .
+For debugging purposes the
+.B \-V
+flag should be used.
+.IP 3.
+Add an appropriate entry for
+.B pmsnap
+in the
+.B root
+user's
+.BR crontab .
+An example is supplied in
+.BR $PCP_VAR_DIR/config/pmlogger/crontab .
+.IP 4.
+Incorporate the
+.B pmsnap
+images into the local WWW content.
+Usually, WWW pages use images that are relative to a particular document root,
+so it is often convenient to use the
+.B \-o
+command line option to specify a sub-directory of the local WWW content,
+and then create a web page in this directory that shows the
+snapshot images with text and other content appropriate to the local
+environment.
+.SH "COMMAND LINE OPTIONS"
+.B pmsnap
+accepts the following command line options;
+.TP
+.BI \-C " dir"
+The
+.B control
+file is located in the directory
+.I dir
+rather than in the default
+.BR $PCP_PMSNAPCONTROL_PATH
+location.
+.TP
+.BI \-c " config-pattern"
+Only process lines in the control file
+which match the 
+.I config-pattern
+regular expression
+in the
+.B Config
+column.
+.TP
+.BI \-n " name-pattern"
+Only process lines in the control file
+which match the 
+.I name-pattern
+regular expression (see
+.BR egrep (1))
+in the
+.B Name
+column.
+.TP
+.BI \-o " dir"
+The output images having file names which do not start
+with
+.B /
+or
+.B .
+will be placed in a directory relative to
+.IR dir ,
+otherwise the output directory
+is relative to the current directory (i.e. the default
+value for
+.I dir
+is
+.BR ./ ).
+Note that
+.I dir
+must be a writable directory path
+and may be on an NFS or CIFS file system.
+.P
+The
+.B \-N
+option enables a ``show me'' mode, where the actions are echoed,
+but not executed, in the style of ``make \-n''.
+Using
+.B \-N
+in conjunction with
+.B \-V
+maximizes the diagnostic capabilities for debugging.
+.P
+When either
+.B \-n
+or
+.BR \-c
+are used,
+.B pmsnap
+will only process lines in the control file
+which match all the supplied patterns.
+If no patterns are given,
+then all lines will be processed.
+These arguments allow multiple entries for
+.B pmsnap
+in
+.B crontab
+so that different performance summary images can be generated
+at different times or with different frequencies.
+.P
+A sample HTML page, suitable for the Summary snapshot may be found in
+.BR $PCP_VAR_DIR/config/pmsnap/Summary.html .
+.P
+Although
+.B pmsnap
+attempts to flush 
+.BR stdio (3)
+output buffers in the relevant 
+.B pmlogger
+processes before generating snap-shots images,
+this may fail for assorted reasons and no error message will be given.
+.P
+.B pmsnap
+should not be invoked immediately after
+.B pmlogger_daily
+has rolled the logs because the new archive logs will be too short
+to obtain meaningful results.
+Note however that
+.B pmsnap
+will not report errors from
+.B pmchart
+about not being able to comply with the
+.B \-A
+option on very short archives.
+In these cases no error will be reported
+and no output images will be produced.
+.SH FILES
+.TP 10
+.B $PCP_PMSNAPCONTROL_PATH
+\fBpmsnap\fR control file
+.TP
+.B $PCP_VAR_DIR/config/pmsnap/Summary
+summary view for
+.B pmchart
+.TP
+.B $PCP_VAR_DIR/config/pmsnap/Summary.html
+sample HTML page for summary snapshot
+.TP
+.BI $PCP_LOG_DIR/pmlogger/ hostname /Latest
+PCP archive folio for the host
+.IR hostname ,
+as generated by
+.B pmlogger_check
+.TP
+.B $PCP_VAR_DIR/config/pmlogger/crontab
+example
+.B crontab
+entry
+.SH SEE ALSO
+.BR cron (1),
+.BR crontab (1),
+.BR egrep (1),
+.BR pmchart (1),
+.BR pmafm (1),
+.BR pmlc (1),
+.BR pmlogger (1),
+.BR pmlogger_daily (1),
+.BR X (1),
+and
+.BR Xvfb (1).

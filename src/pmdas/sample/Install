@@ -1,0 +1,74 @@
+#! /bin/sh
+#
+# Copyright (c) 1997 Silicon Graphics, Inc.  All Rights Reserved.
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+# Install the sample PMDA and/or PMNS
+#
+
+. $PCP_DIR/etc/pcp.env
+. $PCP_SHARE_DIR/lib/pmdaproc.sh
+
+iam=sample
+pmda_interface=2
+pmns_dupok=true		# we have duplicate names in our PMNS
+
+# Do it for sample
+#
+pmdaSetup
+
+echo "======================"
+echo "= sample daemon PMDA ="
+echo "======================"
+
+daemon_opt=true		# can install as daemon
+dso_opt=false
+pipe_opt=true		# supports pipe IPC
+socket_opt=true		# supports socket IPC
+socket_inet_def=2077	# default TCP port for Internet socket IPC
+
+pmdaInstall
+
+# The name of the PMDA for sampledso
+#
+iam=sampledso
+
+# Do it for sampledso ... no pmdaSetup
+#
+
+echo "======================"
+echo "= sampledso DSO PMDA ="
+echo "======================"
+
+domain=30
+SYMDOM=SAMPLEDSO
+sed -e 's/sample/sampledso/' -e 's/SAMPLE/SAMPLEDSO/' <pmns >$__tmp.pmns
+pmns_source=$__tmp.pmns
+pmns_name=sampledso
+
+if $do_pmda
+then
+    sed -e 's/sample/sampledso/' -e 's/SAMPLE/SAMPLEDSO/' <help >dsohelp
+    help_source=dsohelp
+fi
+
+dso_opt=true
+daemon_opt=false
+dso_suffix=so
+[ "$PCP_PLATFORM" = "mingw" ] && dso_suffix=dll
+[ "$PCP_PLATFORM" = "darwin" ] && dso_suffix=dylib
+dso_name=$PCP_PMDAS_DIR/sample/pmda_sample.$dso_suffix
+dso_entry=sample_init
+
+pmdaInstall
+
+exit

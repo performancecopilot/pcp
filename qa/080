@@ -1,0 +1,102 @@
+#! /bin/sh
+# PCP QA Test No. 080
+# exercise new options to pmval: -r -z -Z -S -p
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_filter()
+{
+    sed -e '/Warning.*license/d' \
+	-e "s;$PCP_DOC_DIR;\$PCP_DOC_DIR;g"
+}
+
+_one()
+{
+    $PCP_AWK_PROG '
+NF == 1 && $1 >= 0.95 && $1 <= 1.07		{ print "close to one"; next }
+						{ print }' \
+    | sed -e '/^host:.*$/s/.*/HOST/'
+}
+
+_not_one()
+{
+    $PCP_AWK_PROG '
+NF == 1 && $1 ~ /^[0-9][0-9.eE+]*$/ &&  $1 != 1	{ print "number, not one"; next }
+						{ print }' \
+    | sed -e '/^host:.*$/s/.*/HOST/'
+}
+
+status=0	# success by default
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# need a constant archive for this ...
+ARCH=archives/omen.client
+
+# deal with an annoying libc error ... using TZ=:Australia/Melbourne
+# causes the -z option to report the wrong time, at least for some
+# times of the year
+#
+TZ=EST-10
+export TZ
+
+# real QA test starts here
+echo "sum of $ARCH ..."
+# want historic BSD "sum" algorithm ...
+#
+src/sum16 $ARCH.* | sed -e 's/[ ][ ]*[0-9]*[ ]/ /' \
+| sed -e 's/^00*//' \
+| while read chksum path
+do
+    printf "%05d %s\n" $chksum $path
+done
+
+echo; echo "-- -t 0.2 -s 4 --"
+pmval -t 0.2 -s 4 sample.milliseconds 2>$tmp.err | _filter | _one
+[ -s $tmp.err ] && cat $tmp.err
+ 
+echo; echo "-- -r -t 0.2 -s 4 --"
+pmval -r -t 0.2 -s 4 sample.milliseconds 2>$tmp.err | _filter | _not_one
+[ -s $tmp.err ] && cat $tmp.err
+
+echo; echo "-- -z -U ... --"
+pmval -z -U $ARCH kernel.all.load 2>$tmp.err | _filter
+[ -s $tmp.err ] && cat $tmp.err
+
+echo; echo "-- -z -S @16:49:20 -T @16:49:40 -a ... --"
+pmval -z -S @16:49:20 -T @16:49:40 -a $ARCH kernel.all.load 2>$tmp.err | _filter
+[ -s $tmp.err ] && cat $tmp.err
+
+echo; echo "-- -z -S @16:49:20 -T 20sec -a ... --"
+pmval -z -S @16:49:20 -T 20sec -a $ARCH kernel.all.load 2>$tmp.err | _filter
+[ -s $tmp.err ] && cat $tmp.err
+
+echo; echo "-- -z -S +15s -T -10s -a ... --"
+pmval -z -S +15s -T -10s -a $ARCH kernel.all.load 2>$tmp.err | _filter
+[ -s $tmp.err ] && cat $tmp.err
+
+echo; echo "-- -Z UTC -S +15s -T -10s -a ... --"
+pmval -Z UTC -S +15s -T -10s -a $ARCH kernel.all.load 2>$tmp.err | _filter
+[ -s $tmp.err ] && cat $tmp.err
+
+echo; echo "-- -z -S @16:49:20 -T 10 arch/... --"
+pmval -z -S @16:49:20 -T 10 "$ARCH/ kernel.all.load" 2>$tmp.err | _filter
+[ -s $tmp.err ] && cat $tmp.err
+
+echo; echo "-- -z -S @16:49:20 -T 10 arch/...[...] --"
+pmval -z -S @16:49:20 -T 10 "$ARCH/ kernel.all.load [\"1 minute\" \"15 minute\"]" 2>$tmp.err | _filter
+[ -s $tmp.err ] && cat $tmp.err
+
+echo; echo "-- -z -S 15 -A 1 -T10 -a ... --"
+pmval -z -S 15 -A 1 -T10 -a $ARCH kernel.all.load 2>$tmp.err | _filter
+[ -s $tmp.err ] && cat $tmp.err
+
+exit

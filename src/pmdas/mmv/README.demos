@@ -1,0 +1,26 @@
+sample pcp_mmv applications
+===========================
+
+acme.c
+ is a sample application that is instrumented with the pcp_mmv
+interface to generate metrics available from the MMV PMDA
+(Performance Metrics Domain Agent).  It runs without exiting,
+and continually updates the mmv.acme.* metric values.  Detailed
+discussion about the workings of this application and each of
+the instrumentation API calls it uses, is available as part of
+the "Performance Co-Pilot Programmer's Guide".
+
+mmvdump.c
+ an example program that dumps the contents of a (memory mapped)
+mmv(5) format file, as created by the pcp_mmv library and read by
+the MMV PMDA.  The binary is also shipped as part of pcp and can
+be found installed below ${PCP_PMDAS_DIR}/mmv.
+
+
+All source is shipped as part of pcp as well and is installed in
+${PCP_DEMOS_DIR}/mmv.  If you have a C toolchain installed, the
+sources and Makefile in this directory may be used to create the
+functionally equivalent binaries, by entering the command
+
+	% make acme mmvdump
+

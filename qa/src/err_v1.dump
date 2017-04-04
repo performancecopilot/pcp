@@ -1,0 +1,68 @@
+Note: timezone set to local timezone of host "splat" from archive
+
+Log Label (Log Format Version 1)
+Performance metrics from host splat
+  commencing Thu Jul 24 04:48:42.327 1997
+  ending     Thu Jul 24 04:48:46.557 1997
+
+Descriptions for Metrics in the Log ...
+PMID: 3.4.2 (proc.psusage.utime)
+    Data Type: 32-bit unsigned int  InDom: 3.0 0xc00000
+    Semantics: counter  Units: millisec
+PMID: 29.0.9 (sample.noinst)
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 29.0.49 (sample.needprofile)
+    Data Type: float  InDom: 29.4 0x7400004
+    Semantics: discrete  Units: none
+PMID: 29.0.55 (sample.bad.nosupport)
+    Data Type: Not Supported
+PMID: 2.3.2 (pmcd.pmlogger.archive)
+    Data Type: string  InDom: 2.1 0x800001
+    Semantics: instant  Units: none
+PMID: 2.3.0 (pmcd.pmlogger.port)
+    Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
+    Semantics: instant  Units: none
+PMID: 2.3.3 (pmcd.pmlogger.host)
+    Data Type: string  InDom: 2.1 0x800001
+    Semantics: instant  Units: none
+
+Instance Domains in the Log ...
+InDom: 2.1
+04:48:42.327 1 instances
+                 14737 or "14737"
+
+Temporal Index
+             Log Vol    end(meta)     end(log)
+04:48:42.327       0          132          132
+04:48:42.584       0          270          256
+04:48:46.557       0          398          516
+
+04:48:42.327  2.3.3 (pmcd.pmlogger.host):  inst [14737 or "14737"] value "splat.melbourne.sgi.com"
+              2.3.0 (pmcd.pmlogger.port):  inst [14737 or "14737"] value 4332
+              2.3.2 (pmcd.pmlogger.archive):  inst [14737 or "14737"] value "/tmp/err_v1"
+
+04:48:42.584  29.0.55 (sample.bad.nosupport): Metric not supported by this version of monitored application
+              29.0.49 (sample.needprofile): Explicit instance identifier(s) required
+              29.0.9 (sample.noinst): No values returned!
+              3.4.2 (proc.psusage.utime): Explicit instance identifier(s) required
+
+04:48:43.547  29.0.55 (sample.bad.nosupport): Metric not supported by this version of monitored application
+              29.0.49 (sample.needprofile): Explicit instance identifier(s) required
+              29.0.9 (sample.noinst): No values returned!
+              3.4.2 (proc.psusage.utime): Explicit instance identifier(s) required
+
+04:48:44.557  29.0.55 (sample.bad.nosupport): Metric not supported by this version of monitored application
+              29.0.49 (sample.needprofile): Explicit instance identifier(s) required
+              29.0.9 (sample.noinst): No values returned!
+              3.4.2 (proc.psusage.utime): Explicit instance identifier(s) required
+
+04:48:45.557  29.0.55 (sample.bad.nosupport): Metric not supported by this version of monitored application
+              29.0.49 (sample.needprofile): Explicit instance identifier(s) required
+              29.0.9 (sample.noinst): No values returned!
+              3.4.2 (proc.psusage.utime): Explicit instance identifier(s) required
+
+04:48:46.557  29.0.55 (sample.bad.nosupport): Metric not supported by this version of monitored application
+              29.0.49 (sample.needprofile): Explicit instance identifier(s) required
+              29.0.9 (sample.noinst): No values returned!
+              3.4.2 (proc.psusage.utime): Explicit instance identifier(s) required

@@ -1,0 +1,25 @@
+#!/bin/sh
+#
+# Recreate the ganglia data file for QA/926
+#
+
+if which rrdtool >/dev/null 2>&1
+then
+    :
+else
+    echo "Error: rrdtool not installed"
+    exit 1
+fi
+
+here=`pwd`
+trap "cd $here; exit" 0 1 2 3 15
+
+machine=`uname -m`
+
+echo -n "Creating gangliatest.$machine ..."
+mkdir gangliatest.$machine
+cd gangliatest.xml
+for i in ./*.xml; do rrdtool restore "$i" "../gangliatest.$machine/${i%.xml}"; done
+echo
+
+exit 0

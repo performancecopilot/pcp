@@ -1,0 +1,140 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2016 Red Hat.
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.TH PMDAORACLE 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmdaoracle\f1 \- Oracle database PMDA
+.SH DESCRIPTION
+\f3pmdaoracle\f1 is a Performance Co-Pilot \s-1PMDA\s0 which extracts
+live performance data from a running Oracle database.
+.SH INSTALLATION
+\f3pmdaoracle\f1 uses a configuration file from (in this order):
+.PD 0
+.IP "\(bu" 4
+/etc/pcpdbi.conf
+.IP "\(bu" 4
+\&\f(CW$PCP_PMDAS_DIR\fR/oracle/oracle.conf
+.IP "\(bu" 4
+\&./oracle.conf
+.PD
+.PP
+This file can contain overridden values (Perl code) for the settings
+listed at the start of pmdaoracle.pl, for example:
+.PD 0
+.IP "\(bu" 4
+$username \- username to connect to the database [default: 'SYSTEM']
+.IP "\(bu" 4
+$password \- password to connect to the database [default: 'manager']
+.IP "\(bu" 4
+$host \- host the database is running on [default: 'localhost']
+.IP "\(bu" 4
+$port \- port the database is listening on [default: '1521']
+.IP "\(bu" 4
+$os_user \-
+operating system username (PMDA will run with the corresponding user id) [default: oracle]
+.IP "\(bu" 4
+@sids \-
+an array of $ORACLE_SID database identifiers [default: ('master')]
+.PD
+.PP
+In order to test your local settings, a simple script is provided that
+will connect and disconnect from the database \- verifying fundamental
+configuration is in place before continuing on.
+If the \fB$PCP_PMDAS_DIR/oracle/connect.pl\f1 script cannot connect,
+do not proceed with installation of the PMDA as it will be unsuccessful.
+Correct your local settings first.
+.PP
+Once this is setup, you can access the names and values for the
+oracle performance metrics by doing the following as root:
+.PP
+      # cd $PCP_PMDAS_DIR/oracle
+.br
+      # ./Install
+.PP
+To uninstall, do the following as root:
+.PP
+      # cd $PCP_PMDAS_DIR/oracle
+.br
+      # ./Remove
+.PP
+\fBpmdaoracle\fR is launched by \fIpmcd\fR(1) and should never be executed 
+directly. The Install and Remove scripts notify \fIpmcd\fR(1) when the 
+agent is installed or removed.
+.SH "CONNECTION STATE"
+By default,
+.B pmdaoracle
+will aggressively attempt to maintain persistent connections to Oracle to
+ensure timely responses to its queries, and will automatically re-connect
+if a connection drops.
+.PP
+However, in certain circumstances this may be undesirable, so a manual
+.BR pmStore (3) 
+mechanism is provided to explicitly control disconnecting and reconnecting
+to an Oracle instance.
+This can be used, for example, to ensure that
+.B pmdaoracle
+is not connected at shutdown, to ensure a clean Oracle shutdown process.
+.PP
+The
+.B pmstore (1)
+command can be used to disconnect and reconnect.
+Using the individual instances of the oracle.control.connected
+metric, one can set the connection state to either up (1) or down (0).
+Additionally,
+.BR pminfo (1)
+can report on the current status of Oracle connections.
+.P
+.ft CW
+.nf
+.in +0.5i
+# pminfo \(hyf oracle.control.connected
+
+oracle.control.connected
+    inst [0 or "master"] value 1
+
+# pmstore oracle.control.connected 0
+oracle.control.connected inst [0 or "master"] old value=1 new value=0
+.in
+.fi
+.SH FILES
+.PD 0
+.IP "\fB/etc/pcpdbi.conf\fR" 4
+configuration file for all \s-1PCP\s0 database monitors
+.IP "\fB$PCP_PMDAS_DIR/oracle/oracle.conf\f1" 4
+configuration file for \fBpmdaoracle\fR
+.IP "\fB$PCP_PMDAS_DIR/oracle/sample.conf\fR" 4 
+example configuration file for \fBpmdaoracle\fR using $LD_LIBRARY_PATH
+.IP "\fB$PCP_PMDAS_DIR/oracle/connect.pl\fR" 4 
+configuration test script for \fBOracle\fR database connectivity
+.IP "\fB$PCP_PMDAS_DIR/oracle/Install\fR" 4 
+installation script for the \fBpmdaoracle\fR agent 
+.IP "\fB$PCP_PMDAS_DIR/oracle/Remove\fR" 4 
+undo installation script for the \fBpmdaoracle\fR agent 
+.IP "\fB$PCP_LOG_DIR/pmcd/oracle.log\fR" 4 
+default log file for error messages from \fBpmdaoracle\fR 
+.PD
+.SH PCP ENVIRONMENT
+Environment variables with the prefix \fBPCP_\fR are used to parameterize
+the file and directory names used by \fBPCP\fR. On each installation, the
+file \fB/etc/pcp.conf\fR contains the local values for these variables. 
+The \fB$PCP_CONF\fR variable may be used to specify an alternative 
+configuration file, as described in \fIpcp.conf\fR(5).
+.SH SEE ALSO
+.BR PCPIntro (1),
+.BR pmdadbping (1),
+.BR pminfo (1),
+.BR pmstore (1),
+.BR DBI (3)
+and
+.BR pmStore (3).

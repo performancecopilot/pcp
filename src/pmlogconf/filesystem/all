@@ -1,0 +1,4 @@
+#pmlogconf-setup 2.0
+ident	generic filesystem size, fullness and mount information
+force	available
+	filesys

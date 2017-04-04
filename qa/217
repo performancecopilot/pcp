@@ -1,0 +1,113 @@
+#! /bin/sh
+# PCP QA Test No. 217
+# check mkaf and pmafm, after file(1) not used
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+rm -f $seq.full
+LIST="archives/951127.23.01_v2.0 archives/960624.08.17_v2.0 archives/ace_v2.0 tmparch/bar.0 archives/bigace_v2.0 tmparch/bigbin.0 archives/bug_v2.0 tmparch/dodgey-all.0 tmparch/dodgey-mixed.0 tmparch/dodgey-some.0 tmparch/foo.0 tmparch/interp.0 archives/mirage.0 tmparch/mv-bar.0 tmparch/mv-bigbin.0 tmparch/mv-foo.0 tmparch/mv-interp.0 tmparch/truncbin.0"
+
+tmp=/var/tmp/$$"_pmafm"
+$sudo rm -rf $tmp $tmp.*
+
+status=0
+trap "rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    host=`hostname`
+    tee -a $here/$seq.full \
+    | sed \
+	-e '/^Created:/{
+s/'"$host"'/HOSTNAME/
+s/ at .*/ at DATE/
+}' \
+	-e "s;`pwd`;<initial-path>/qa;" \
+	-e '/^Creator:/{
+s/mkaf/MKAF_OR_CHART/
+s/kmchart/MKAF_OR_CHART/
+s/pmchart/MKAF_OR_CHART/
+}' \
+| $PCP_AWK_PROG '
+$1 == "Archive:"	{ if ($3 ~ /bar$/ || $3 ~ /bigbin$/ ||
+			      $3 ~ /dodgey/ || $3 ~ /foo$/ ||
+			      $3 ~ /interp$/ || $3 ~ /truncbin$/)
+				$2 = "HOSTNAME"
+#               Host                    Basename
+
+			  printf "%-16s%-24s%s\n",$1,$2,$3
+			  next
+			}
+			{ print }'
+
+}
+
+# fake out the old pcp/qa/src directory structure
+#
+mkdir -p $tmp/src
+for arch in $LIST
+do
+    pat=`echo $arch | sed -e 's/0$/*/'`
+    cp $pat $tmp/src
+done
+cd $tmp
+echo "tmp=$tmp" >>$here/$seq.full
+echo "pwd: `pwd`" >>$here/$seq.full
+( echo "src dir ..."; ls src ) >>$here/$seq.full
+
+HERE=`pwd`
+ABSLIST=""
+RELLIST=""
+for i in $LIST
+do
+    ABSLIST="$ABSLIST $HERE/$i"
+    RELLIST="$RELLIST $i"
+done
+
+
+# real QA test starts here
+echo "=== relative names ==="
+cd src
+echo $LIST | sed -e 's/ /\
+/g' | sed -e 's;^.*/;;' >$tmp.tmp
+mkaf `cat $tmp.tmp` >tmp.af
+_filter <tmp.af
+rm -f $tmp.tmp
+echo
+pmafm tmp.af check
+rm -f tmp.af
+cd ..
+
+echo
+echo "=== absolute pathnames ==="
+echo $ABSLIST | sed -e 's/ /\
+/g' | sed -e 's;/archives/;/src/;' -e 's;/tmparch/;/src/;' >$tmp.tmp
+mkaf `cat $tmp.tmp` >tmp.af
+rm -f $tmp.tmp
+_filter <tmp.af
+echo
+pmafm tmp.af check 2>&1 | sed -e "s;`pwd`;<initial-path>/qa;"
+rm -f tmp.af
+
+echo
+echo "=== relative names, down one dir ==="
+echo $RELLIST | sed -e 's/ /\
+/g' | sed -e 's;^.*/;src/;' >$tmp.tmp
+mkaf `cat $tmp.tmp` >tmp.af
+rm -f $tmp.tmp
+_filter <tmp.af
+echo
+pmafm tmp.af check
+rm -f tmp.af
+
+# all done
+exit

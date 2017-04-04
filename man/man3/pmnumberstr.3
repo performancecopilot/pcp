@@ -1,0 +1,84 @@
+'\"! tbl | mmdoc
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMNUMBERSTR 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmNumberStr\f1,
+\f3pmNumberStr_r\f1 \- fixed width output format for numbers
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.sp
+const char *pmNumberStr(double \fIvalue\fP);
+.br
+char *pmNumberStr_r(double \fIvalue\fP, char *\fIbuf\fP, int \fIbuflen\fP);
+.sp
+cc ... \-lpcp
+.ft 1
+.SH DESCRIPTION
+.B pmNumberStr
+returns the address of a 8-byte buffer that holds a
+null-byte terminated representation of
+.I value
+suitable for output with fixed width fields.
+The
+.B pmNumberStr_r
+function does the same, but stores the result in a user-supplied buffer
+.I buf
+of length
+.IR buflen ,
+which should have room for at least 8 bytes.
+.PP
+The value is scaled using multipliers in powers of ``one thousand''
+(the decimal ``kilo'') and has a bias that provides greater precision for
+positive numbers as opposed to negative numbers.
+.PP
+The format depends on the sign and magnitude of
+.I value
+as follows (\c
+\f(COd\f1
+represents a decimal digit):
+.TS
+box,center;
+c | c
+lf(CW) | lf(CO).
+\f2value\f1 range	format
+_
+        > 999995000000000	 \f(CBinf?\fP
+999995000000000 \- 999995000000	ddd.dd\f(CBT\fP
+   999995000000 \- 999995000	ddd.dd\f(CBG\fP
+      999995000 \- 999995	ddd.dd\f(CBM\fP
+         999995 \- 999.995	ddd.dd\f(CBK\fP
+        999.995 \- 0.005	ddd.dd
+          0.005 \- \-0.005	\f(CB  0.00\fP
+         \-0.005 \- \-99.95	\-dd.dd
+        \-99.995 \- \-99995	\-dd.dd\f(CBK\fP
+         \-99995 \- \-99995000	\-dd.dd\f(CBM\fP
+      \-99995000 \- \-99995000000	\-dd.dd\f(CBG\fP
+   \-99995000000 \- \-99995000000000	\-dd.dd\f(CBT\fP
+       < \-99995000000000	\f(CB\-inf?\fP
+.TE
+.PP
+At the boundary points of the ranges, the chosen format will retain the
+maximum number of significant digits.
+.SH NOTES
+.B pmNumberStr
+returns a pointer to a static buffer and hence is not thread-safe.
+Multi-threaded applications should use
+.B pmNumberStr_r
+instead.
+.SH SEE ALSO
+.BR printf (3)

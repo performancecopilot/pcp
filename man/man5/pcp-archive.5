@@ -1,0 +1,349 @@
+'\"! tbl | nroff \-man
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2014-2016 Red Hat Inc.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PCP-ARCHIVE 5 "" "Performance Co-Pilot"
+
+.SH NAME
+\f3pcp-archive\f1 \- Archive Files for Performance Co-Pilot
+
+.SH SYNOPSIS
+
+.I $PCP_LOG_DIR/pmlogger/*/*.{meta,index,0}
+
+.I $PCP_LOG_DIR/pmmgr/*/*.{meta,index,0}
+
+.SH DESCRIPTION
+
+PCP log archives store volumes of historical values of arbitrary
+Performance Co-Pilot metrics recorded from a single host.  Archives
+are self-contained in the sense that they contain all the important
+metadata that would be required for off-line or off-site analysis.
+The format is intended to be stable in order to allow long-term
+historical storage and processing by current tools.  (Compatibility
+in the other direction \- new files, old tools \- is not as fully
+assured.)
+.PP
+Archives may be read by most PCP client tools, using the 
+.IR "\-a ARCHIVE"
+option, or dumped raw by
+.BR pmdumplog (1).
+Archives may be created by 
+.BR pmlogger (1)
+and bulk-import tools.
+Archives may be merged, analyzed, and subsampled using specialized
+tools such as
+.BR pmlogsummary "(1), " pmlogreduce "(1), " pmlogrewrite "(1), and " pmlogextract (1).
+In addition, PCP archives may examined in sets or grouped together into PCP "archive folios",
+which are managed by the
+.BR pmafm (1)
+tool.
+.PP
+PCP archives consist of several physical files that share a common arbitrary prefix, 
+e.g.,
+.IR myarchive .
+.TP
+myarchive.0, myarchive.1, ...
+Metric values.  May grow rapidly.
+.TP
+myarchive.meta
+Information for PMAPI functions such as
+.IR pmLookupDesc "(3) and " pmGetInDom (3).
+May grow in fits and spurts, as logged instances and instance domains vary.
+.TP
+myarchive.index
+A temporal index, mapping timestamps to offsets in the other files.
+Grows slowly.
+
+.SH COMMON FEATURES
+
+All three types of files have a similar record-based structure, a
+convention of network-byte-order (big-endian) encoding, and 32-bit
+fields for tagging/padding for those records.  Strings are stored as
+8-bit characters without assuming a specific encoding, so normally
+ASCII.  See also the
+.BR __pmLog* 
+types in
+.IR include/pcp/impl.h .
+
+.SS RECORD FRAMING
+.PP
+The volume and meta files are divided into self-identifying records.
+.TS
+box,center;
+c | c | c
+c | c | l.
+Offset	Length	Name
+_
+0	4	N, length of record, in bytes, including this field
+4	N-8	record payload, usually starting with a 32-bit tag
+N-4	4	N, length of record (again)
+.TE
+
+.SS ARCHIVE LOG LABEL
+All three types of files begin with a "log label" header, which
+identifies the host name, the time interval covered, and a time zone.
+.TS
+box,center;
+c | c | c
+c | c | l.
+Offset	Length	Name
+_
+0	4	tag, PM_LOG_MAGIC | PM_LOG_VERS02=0x50052602
+4	4	pid of pmlogger process that wrote file
+8	4	log start time, seconds part (past UNIX epoch)
+12	4	log start time, microseconds part
+16	4	current log volume number (or \-1=.meta, \-2=.index)
+20	64	name of collection host
+80	40	time zone string ($TZ environment variable)
+.TE
+.PP
+All fields, except for the current log volume number field, match for
+all archive-related files produced by a single run of the tool.
+
+.SH ARCHIVE VOLUME (.0, .1, ...) RECORDS
+
+.SS pmResult
+
+After the archive log label record, an archive volume file contains
+metric values corresponding to the 
+.IR pmResult
+set of one 
+.IR pmFetch
+operation, which is almost identical to the form on disk.  The record
+size may vary according to number of PMIDs being fetched, the number
+of instances for their domains.  File size is limited to 2GB, due to
+storage of 32-bit offsets within the .index file.
+.TS
+box,center;
+c | c | c
+c | c | l.
+Offset	Length	Name
+_
+0	4	timestamp, seconds part (past UNIX epoch)
+4	4	timestamp, microseconds part
+8	4	number of PMIDs with data following
+12	M	pmValueSet #0
+12+M	N	pmValueSet #1
+12+M+N	...	...
+NOP	X	pmValueBlock #0
+NOP+X	Y	pmValueBlock #1
+NOP+X+Y	...	...
+.TE
+.PP
+Records with a number-of-PMIDs equal to zero are "markers", and may
+represent interruptions, missing data, or time discontinuities in
+logging.
+
+.SS pmValueSet
+
+This subrecord represents the measurements for one metric.
+
+.TS
+box,center;
+c | c | c
+c | c | l.
+Offset	Length	Name
+_
+0	4	PMID
+4	4	number of values
+8	4	storage mode, PM_VAL_INSITU=0 or PM_VAL_DPTR=1
+12	M	pmValue #0
+12+M	N	pmValue #1
+12+M+N	...	...
+.TE
+
+.PP
+The metric-description metadata for PMIDs is found in the .meta files.
+These entries are not timestamped, so the metadata is assumed to be
+unchanging throughout the archiving session.
+
+.SS pmValue
+
+This subrecord represents one measurement for one instance of the metric.
+It is a variant type, depending on the parent pmValueSet's value-format
+field.  This allows small numbers to be encoded compactly, but retain
+flexibility for larger or variable-length data to be stored later in the
+pmResult record.
+
+.TS
+box,center;
+c | c | c
+c | c | l.
+Offset	Length	Name
+_
+0	4	number in instance-domain (or PM_IN_NULL=-1)
+4	4	value (INSITU) \fIor\fR
+		offset in pmResult to our pmValueBlock (DPTR)
+.TE
+
+.PP
+The instance-domain metadata for PMIDs is found in the .meta files.
+Since the numeric mappings may change during the lifetime of the
+logging session, it is important to match up the timestamp of the
+measurement record with the corresponding instance-domain record.
+That is, the instance-domain corresponding to a measurement at time T
+are the records with largest timestamps T' <= T.
+
+.SS pmValueBlock
+
+Instances of this subrecord are placed at the end of the 
+.IR pmValueSet ,
+after all the 
+.IR pmValue
+subrecords.  Iff needed, they are padded at the end to the next-higher
+32-bit boundary.
+
+.TS
+box,center;
+c | c | c
+c | c | l.
+Offset	Length	Name
+_
+0	1	value type (same as \fIpmDesc.type\fR)
+1	3	4 + N, the length of the subrecord
+4	N	bytes that make up the raw value
+4+N	0-3	padding (not included in the 4+N length field)
+.TE
+
+Note that for
+.IR PM_TYPE_STRING ,
+the length includes an explicit NUL terminator byte.
+For
+.IR PM_TYPE_EVENT ,
+the value bytestring is further structured.
+
+.SS pmEventArray
+
+.IR (TBD)
+
+.SH METADATA FILE (.meta) RECORDS
+
+After the archive log label record, the metadata file contains
+interleaved metric-description and timestamped instance-domain
+descriptors.  File size is limited to 2GB, due to storage of 32-bit
+offsets within the .index file.  Unlike the archive volumes, these
+records are not forced to 32-bit alignment!  See also
+.IR src/libpcp/src/logmeta.c .
+
+.SS pmDesc 
+
+Instances of this record represent the metric description, giving a
+name, type, instance-domain identifier, and a set of names to each
+PMID used in the archive volume.
+
+.TS
+box,center;
+c | c | c
+c | c | l.
+Offset	Length	Name
+_
+0	4	tag, TYPE_DESC=1
+4	4	pmid
+8	4	type (PM_TYPE_*)
+12	4	instance domain number
+16	4	semantics of value (PM_SEM_*)
+20	4	units: bit-packed pmUnits
+4	4	number of alternative names for this PMID
+28	4	N: number of bytes in this name
+32	N	bytes of the name, no NUL terminator nor padding
+32+N	4	N2: number of bytes in next name 
+36+N	N2	bytes of the name, no NUL terminator nor padding
+\...	...	...
+.TE
+
+.SS pmLogIndom
+
+Instances of this record represent the number-string mapping table of
+an instance domain.  The instance domain number will have already been
+mentioned in a prior 
+.IR pmDesc
+record.  Since new instances may appear over a long archiving run, these
+records are timestamped, and must be searched when decoding 
+.IR pmResult
+records from the main archive volumes.  Instance names may be reused
+between instance numbers, so an offset-based string table is used that
+could permit sharing.
+ 
+.TS
+box,center;
+c | c | c
+c | c | l.
+Offset	Length	Name
+_
+0	4	tag, TYPE_INDOM=2
+4	4	timestamp, seconds part (past UNIX epoch)
+8	4	timestamp, microseconds part
+12	4	instance domain number
+16	4	N: number of instances in domain, normally >0
+20	4	first instance number
+24	4	second instance number (if appropriate)
+\...	...	...
+20+4*N	4	first offset into string table (see below)
+20+4*N+4	4	second offset into string table (etc.)
+\...	...	...
+20+8*N	M	base of string table, containing
+		packed, NUL-terminated instance names
+.TE
+.PP
+Records of this form \fIreplace\fR the existing instance-domain: prior
+records are not searched for resolving instance numbers in measurements
+after this timestamp.
+ 
+.SH INDEX FILE (.index) RECORDS
+
+After the archive log label record, the temporal index file contains a
+plainly concatenated, unframed group of tuples, which relate timestamps to
+32-bit seek offsets in the volume and meta files.  (This limits those
+files to 2GB in size.)  These records are fixed-size, fixed-format,
+and are \fInot\fR enclosed in the standard length/payload/length
+wrapper: they just take up the entire remainder of the .index file.
+See also
+.IR src/libpcp/src/logutil.c .
+
+.TS
+box,center;
+c | c | c
+c | c | l.
+Offset	Length	Name
+_
+0	4	event time, seconds part (past UNIX epoch)
+4	4	event time, microseconds part
+8	4	archive volume number (0...N)
+12	4	byte offset in .meta file of pmDesc or pmLogIndom
+16	4	byte offset in archive volume file of pmResult
+.TE
+
+Since temporal indexes are optional, and exist only to speed up
+time-wise random access of metrics and their metadata, index records
+are emitted only intermittently.  An archive reader program should not
+presume any particular rate of data flow into the index.  However,
+common events that may trigger a new temporal-index record include
+changes in instance-domains, switching over to a new archive volume,
+just starting or stopping logging.  One reliable invariant however is
+that, for each index entry, there are to be no meta or archive-volume
+records with a timestamp after that in the index, but physically
+before the byte-offset in the index.
+
+.PP
+.SH SEE ALSO
+.BR PCPIntro (1),
+.BR PMAPI (3),
+.BR pmlogger (1),
+.BR pmdumplog (1),
+.BR pmafm (1),
+.BR pcp.conf (5),
+and
+.BR pcp.env (5).

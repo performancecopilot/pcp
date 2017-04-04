@@ -1,0 +1,147 @@
+sqlserver {
+    access
+    buf_mgr
+    cache_mgr
+    databases
+    latches
+    locks
+    sql
+    connections			WINDOWS:0:83
+    mem_mgr
+    user_settable
+}
+
+sqlserver.buf_mgr {
+    cache_hit_ratio		WINDOWS:0:46
+    page_lookups		WINDOWS:0:47
+    free_list_stalls		WINDOWS:0:48
+    free_pages			WINDOWS:0:49
+    total_pages			WINDOWS:0:50
+    target_pages		WINDOWS:0:51
+    database_pages		WINDOWS:0:52
+    reserved_pages		WINDOWS:0:53
+    stolen_pages		WINDOWS:0:54
+    lazy_writes			WINDOWS:0:55
+    readahead_pages		WINDOWS:0:56
+    procedure_cache_pages	WINDOWS:0:57
+    page_reads			WINDOWS:0:58
+    page_writes			WINDOWS:0:59
+    checkpoint_pages		WINDOWS:0:60
+    awe
+    page_life_expectancy	WINDOWS:0:66
+}
+
+sqlserver.buf_mgr.awe {
+    lookup_maps			WINDOWS:0:61
+    stolen_maps			WINDOWS:0:62
+    write_maps			WINDOWS:0:63
+    unmap_calls			WINDOWS:0:64
+    unmap_pages			WINDOWS:0:65
+}
+
+sqlserver.locks {
+    all
+    region
+}
+
+sqlserver.locks.all {
+    requests			WINDOWS:0:69
+    waits			WINDOWS:0:70
+    deadlocks			WINDOWS:0:71
+    timeouts			WINDOWS:0:72
+    wait_time			WINDOWS:0:73
+    avg_wait_time		WINDOWS:0:74
+}
+
+sqlserver.locks.region {
+    requests			WINDOWS:0:75
+    waits			WINDOWS:0:76
+    deadlocks			WINDOWS:0:77
+    timeouts			WINDOWS:0:78
+    wait_time			WINDOWS:0:79
+    avg_wait_time		WINDOWS:0:80
+}
+
+sqlserver.cache_mgr {
+    all
+    cache
+}
+
+sqlserver.cache_mgr.all {
+    cache_hit_ratio		WINDOWS:0:81
+    cache_pages			WINDOWS:0:167
+    cache_object_count		WINDOWS:0:168
+    cache_use			WINDOWS:0:169
+}
+
+sqlserver.cache_mgr.cache {
+    cache_hit_ratio		WINDOWS:0:82
+    cache_pages			WINDOWS:0:170
+    cache_object_count		WINDOWS:0:171
+    cache_use			WINDOWS:0:172
+}
+
+sqlserver.databases {
+    all
+    db
+}
+
+sqlserver.databases.all {
+    transactions		WINDOWS:0:84
+    log_flushes			WINDOWS:0:102
+    log_bytes_flushed		WINDOWS:0:104
+    data_file_size		WINDOWS:0:90
+    log_file_size		WINDOWS:0:91
+    log_file_used		WINDOWS:0:92
+    active_transactions		WINDOWS:0:134
+}
+
+sqlserver.databases.db {
+    transactions		WINDOWS:0:85
+    log_flushes			WINDOWS:0:103
+    log_bytes_flushed		WINDOWS:0:105
+    data_file_size		WINDOWS:0:93
+    log_file_size		WINDOWS:0:94
+    log_file_used		WINDOWS:0:95
+    active_transactions		WINDOWS:0:135
+}
+
+sqlserver.latches {
+    waits			WINDOWS:0:87
+    wait_time			WINDOWS:0:88
+    avg_wait_time		WINDOWS:0:89
+}
+
+sqlserver.sql {
+    batch_requests		WINDOWS:0:86
+    compilations		WINDOWS:0:96
+    re_compilations		WINDOWS:0:97
+}
+
+sqlserver.access {
+    full_scans			WINDOWS:0:98
+    pages_allocated		WINDOWS:0:99
+    table_lock_escalations	WINDOWS:0:100
+    page_splits			WINDOWS:0:122
+}
+
+sqlserver.mem_mgr {
+    connection_memory		WINDOWS:0:153
+    granted_workspace		WINDOWS:0:154
+    lock_memory			WINDOWS:0:155
+    lock_blocks_allocated	WINDOWS:0:156
+    lock_owner_blocks_allocated	WINDOWS:0:157
+    lock_blocks			WINDOWS:0:158
+    lock_owner_blocks		WINDOWS:0:159
+    maximum_workspace_memory	WINDOWS:0:160
+    memory_grants_outstanding	WINDOWS:0:161
+    memory_grants_pending	WINDOWS:0:162
+    optimizer_memory		WINDOWS:0:163
+    sql_cache_memory		WINDOWS:0:164
+    target_server_memory	WINDOWS:0:165
+    total_server_memory		WINDOWS:0:166
+}
+
+sqlserver.user_settable {
+    query			WINDOWS:0:238
+}

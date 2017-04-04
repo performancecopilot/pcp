@@ -1,0 +1,57 @@
+QA output created by 991
+
+=== free output, at first sample
+             total       used       free     shared    buffers     cached
+Mem:      24535816   13443872   11091944          0     181080     741960
+-/+ buffers/cache:   12520832   12014984
+Swap      12337144          0   12337144
+
+=== free output, at last sample
+             total       used       free     shared    buffers     cached
+Mem:      24535816   14903780    9632036          0     181136    2188308
+-/+ buffers/cache:   12534336   12001480
+Swap      12337144          0   12337144
+
+=== free output, bytes
+             total       used       free     shared    buffers     cached
+Mem:    25124675584 13766524928 11358150656          0  185425920  759767040
+-/+ buffers/cache: 12821331968 12303343616
+Swap    12633235456          0 12633235456
+
+=== free output, megabytes
+             total       used       free     shared    buffers     cached
+Mem:         23960      13128      10831          0        176        724
+-/+ buffers/cache:      12227      11733
+Swap         12047          0      12047
+
+=== free output, gigabytes
+             total       used       free     shared    buffers     cached
+Mem:            23         12         10          0          0          0
+-/+ buffers/cache:         11         11
+Swap            11          0         11
+
+=== free output, totals + in megabytes
+             total       used       free     shared    buffers     cached
+Mem:         23960      13128      10831          0        176        724
+-/+ buffers/cache:      12227      11733
+Swap         12047          0      12047
+Total        36008      13128      22879
+
+=== free output, compat + low/high detail
+             total       used       free     shared    buffers     cached
+Mem:      24535816   13443872   11091944          0     181080     741960
+Low:      24535816   13443872   24535816
+High:            0          0          0
+Swap      12337144          0   12337144
+
+=== free output, multiple samples
+             total       used       free     shared    buffers     cached
+Mem:      24535816   13443872   11091944          0     181080     741960
+-/+ buffers/cache:   12520832   12014984
+Swap      12337144          0   12337144
+
+             total       used       free     shared    buffers     cached
+Mem:      24535816   13714396   10821420          0     181080    1004744
+-/+ buffers/cache:   12528572   12007244
+Swap      12337144          0   12337144
+

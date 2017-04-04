@@ -1,0 +1,70 @@
+#! /bin/sh
+# PCP QA Test No. 166
+# pmlogreduce in the presence of mark records
+#
+# Copyright (c) 2005 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+which pmlogreduce >/dev/null 2>&1 || "No pmlogreduce binary installed"
+
+_filter()
+{
+    sed -e "s;$tmp;TMP;"
+}
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.*
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+
+pmlogreduce -A 1m -t 1m tmparch/reduce-gap $tmp
+
+echo "--- mark records in input archive ---"
+pmdumplog -z tmparch/reduce-gap | grep '<mark>'
+echo "--- mark records in reduced archive ---"
+pmdumplog -z $tmp | grep '<mark>'
+
+for metric in sample.milliseconds sample.drift
+do
+    echo
+    echo "=== $metric ==="
+    echo "--- pmval using input archive ---"
+    pmval -z -A 1m -t 15sec -a tmparch/reduce-gap $metric
+    if [ $metric = sample.milliseconds ]
+    then
+	echo
+	echo "--- raw pmval using input archive ---"
+	pmval -r -f 0 -z -A 1m -t 15sec -a tmparch/reduce-gap $metric
+    fi
+    echo
+    echo "--- pmval -U using reduced archive ---"
+    pmval -z -U $tmp $metric 2>&1 | _filter
+    if [ $metric = sample.milliseconds ]
+    then
+	echo
+	echo "--- raw pmval -U using reduced archive ---"
+	pmval -r -f 0 -z -U $tmp $metric 2>&1 | _filter
+    fi
+    echo
+    echo "--- pmval using reduced archive ---"
+    pmval -z -A 1m -t 15sec -a $tmp $metric 2>&1 | _filter
+    if [ $metric = sample.milliseconds ]
+    then
+	echo
+	echo "--- raw pmval using reduced archive ---"
+	pmval -r -f 0 -z -A 1m -t 15sec -a $tmp $metric 2>&1 | _filter
+    fi
+done
+
+
+# success, all done
+exit

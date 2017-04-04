@@ -1,0 +1,70 @@
+Creating and Editing Tabs
+=========================
+
+Live Edit
+
+[ ] Run: pmchart -t 0.5 -c CPU -c Disk
+[ ] Select Start from the Record menu.  Press OK to start recording.
+[ ] Click on Edit Tab in the Edit Menu, to bring up the default live
+    mode tab details.
+    Verify that the Live Hosts button is checked, the displayed Label
+    matches the original Tab ("Live") and the default sample ranges
+    are displayed correctly in both sliders and spin boxes (should be
+    60 Visible and 180 Total Samples).  Verify also that it is not
+    possible to modify the Live/Archive radio button selection.
+[ ] Modify the Total samples using both the spinbox and the slider to
+    increase and decrease its value.  Verify that the Total Samples
+    value cannot be reduced below the Visible Samples value, and that
+    neither can be reduced below 2.  Modify the Visible Samples value
+    using both methods.  Verify that its value cannot be increased
+    beyond the Total Samples value.
+[ ] Verify the minimum and maximum ranges of both Visible and Total
+    Samples - currently this is 2 to 360.
+[ ] Press Cancel.
+
+[ ] Click on the Zoom In button (from the Toolbar or Edit menu)
+    repeatedly.  Verify that the number of visible points decreases
+    down to the minimum (2 samples) and that the toolbar and menu
+    actions become disabled at that point.
+[ ] Click on the Zoom Out button repeatedly.  Verify that the number
+    of visible points increases up to the maximum (360 samples), that
+    the Zoom In action becomes enabled after the first press, and that
+    the Zoom Out action is disabled once the maximum is reached.
+[ ] Zoom In three clicks, then expose the Edit Tab dialog.  The Visible
+    Samples should be 252, and the Total Samples should still be 360.
+[ ] Resize the Edit Tab window, down to its minimum size and up to a
+    larger size than the initial window.  Verify the child widget layout
+    remains as sensible as possible for the window size.
+[ ] Change the Label to "LiveQA", set Visible points to 120 and press OK.
+    Verify that the changes are made to the current pmchart Live tab.
+
+Live Create
+
+[ ] Click on the Create Tab chart from the Edit menu or toolbar.
+    Check the Live Hosts radio button, set the Label to "LiveQA2", set
+    Visible points to 12 and Total points to 24.  Press OK.  Verify that
+    a new Live Tab is created with each of those parameters (use Edit
+    Tab dialog to verify the total/visible points setting).
+[ ] Open the CPU and Disk views in the new Tab.  Verify that they start
+    to display data matching the same charts in the original Live tab.
+[ ] Select Close Tab from the File menu.
+
+Archive Create
+
+[ ] Select Stop from the Record menu.
+[ ] Verify that a new Archive Tab is created named "Record".
+[ ] Click on the new tab and verify that it is of archive type, has a
+    sensible time axis, and is displaying the same CPU/Disk views as
+    the original Live tab.
+[ ] Click on the archive time control button, and verify that the Bounds
+    dialog in the Time Controls matches the length of time you recorded.
+
+Archive Edit
+
+[ ] Click on the Edit Tab dialog for the new Archive Tab.  Verify that
+    it displays the Archive radio button as checked (and not editable),
+    that the samples settings match the original Live Tab.
+[ ] Modify the Label to be "RecordQA" and press OK.
+[ ] Click on the Zoom In and Zoom Out toolbar buttons a few times and
+    verify that nothing unexpected happens.
+

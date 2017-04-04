@@ -1,0 +1,264 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH SHEET2PCP 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3sheet2pcp\f1 \- import spreadsheet data and create a PCP archive
+.SH SYNOPSIS
+\&\fBsheet2pcp\fR [\fB\-h\fR \fIhost\fR] [\fB\-Z\fR \fItimezone\fR] \fIinfile\fR \fImapfile\fR \fIoutfile\fR
+.SH DESCRIPTION
+\&\fBsheet2pcp\fR is intended to read a data spreadsheet (\fIinfile\fR)
+translate this into a Performance
+Co-Pilot (\s-1PCP\s0) archive with the basename \fIoutfile\fR.
+.PP
+The input spreadsheet can be in any of the common formats, provided
+the appropriate Perl modules have been installed (see the \fB\s-1CAVEATS\s0\fR
+section below).  The spreadsheet must be \*(L"normalized\*(R"
+so that each row contains data for the same time interval, and one
+of the columns contains the date and time for the data in each
+row.
+.PP
+The resultant \s-1PCP\s0 archive may be used with all the \s-1PCP\s0 client tools
+to graph subsets of the data using \fBpmchart\fR(1),
+perform data reduction and reporting, filter with
+the \s-1PCP\s0 inference engine \fBpmie\fR(1), etc.
+.PP
+The \fImapfile\fR controls the import process and defines the data
+mapping from the spreadsheet columns onto the \s-1PCP\s0 data model.  The file
+is written in \s-1XML\s0 and conforms to the syntax defined in the
+\&\fB\s-1MAPPING\s0 \s-1CONFIGURATION\s0\fR section below.
+.PP
+A series of physical files will be created with the prefix \fIoutfile\fR.
+These are \fIoutfile\fR\fB.0\fR (the performance data),
+\&\fIoutfile\fR\fB.meta\fR (the metadata that describes the performance data) and
+\&\fIoutfile\fR\fB.index\fR (a temporal index to improve efficiency of replay
+operations for the archive).  If any of these files exists already,
+then \fBsheet2pcp\fR will \fBnot\fR overwrite them and will exit with an error
+message.
+.PP
+The \fB\-h\fR option is an alternate to the 
+\&\fBhostname\fR attribute of the \fB<sheet>\fR element in \fImapfile\fR
+described below.  If both are specified, the value from \fImapfile\fR is
+used.
+.PP
+The \fB\-Z\fR option is an alternate to the 
+\&\fBtimezone\fR attribute of the \fB<sheet>\fR element in \fImapfile\fR
+described below.  If both are specified, the value from \fImapfile\fR is
+used.
+.PP
+\&\fBsheet2pcp\fR is a Perl script that uses the PCP::LogImport Perl wrapper
+around the \s-1PCP\s0 \fIlibpcp_import\fR
+library, and as such could be used as an example to develop new
+tools to import other types of performance data and create \s-1PCP\s0 archives.
+.SH "MAPPING CONFIGURATION"
+.IX Header "MAPPING CONFIGURATION"
+The \fImapfile\fR contains specifications in standard \s-1XML\s0 format.
+.PP
+The whole specification is wrapped in a \fB<sheet>\fR ... \fB</sheet>\fR
+element.
+The  \fBsheet\fR tag supports the following optional attributes:
+.IP "\fBheading\fR" 10
+.IX Item "heading"
+Specifies the number of
+heading rows to skip at the start of the spreadsheet before processing data.
+Example: heading=\*(L"1\*(R".
+.IP "\fBhostname\fR" 10
+.IX Item "hostname"
+Set the source hostname in the \s-1PCP\s0 archive (the
+default is to use the hostname of the local host).
+Example: hostname=\*(L"some.where.com\*(R".
+.IP "\fBtimezone\fR" 10
+.IX Item "timezone"
+Set the source timezone in the \s-1PCP\s0 archive (the
+default is to use \s-1UTC\s0).  The timezone must have the
+format +HHMM (for hours and minutes East of \s-1UTC\s0) or \-HHMM (for hours
+and minutes West of \s-1UTC\s0).  Note in particular that \fBneither\fR the \fBzoneinfo\fR
+(aka Olson) format, e.g. Europe/Paris, nor the Posix \fB\s-1TZ\s0\fR format, e.g.
+\&\s-1EST+5\s0 is allowed.
+Example: timezone=\*(L"+1100\*(R".
+.IP "\fBdatefmt\fR" 10
+.IX Item "datefmt"
+The format of the date imported from the spreadsheet may be specified
+as a concatenation of
+values that specify the
+order of the year (\fBY\fR), month (\fBM\fR) and day (\fBD\fR) fields in a date.
+The supported variants are \fB\s-1DMY\s0\fR (the default),
+\&\fB\s-1MDY\s0\fR and \fB\s-1YMD\s0\fR.
+Example: datefmt=\*(L"\s-1YMD\s0\*(R".
+.PP
+A \fB<sheet>\fR element contains
+one or more metric specifications of
+the form \fB<metric>\fR\fImetricname\fR\fB</metric>\fR.  The \fBmetric\fR
+tag supports the following optional attributes:
+.IP "\fBpmid\fR" 10
+.IX Item "pmid"
+The Performance Metrics Identifier (\s-1PMID\s0), specified as 3 numbers
+separated by a periods (.) to
+set the \fBdomain\fR, \fBcluster\fR and \fBitem\fR fields of the \s-1PMID\s0, see \fB\s-1PMNS\s0\fR(5)
+for more details of PMIDs.  If omitted, the \s-1PMID\s0 will be automatically
+assigned by \fBpmiAddMetric\fR(3).
+The value \fB\s-1PM_ID_NULL\s0\fR may be used to explicitly nominate
+the default behaviour.
+Examples: pmid=\*(L"60.0.2\*(R", pmid=\*(L"\s-1PM_ID_NULL\s0\*(R".
+.IP "\fBindom\fR" 10
+.IX Item "indom"
+Each metric may have one or more values.  If a metric \fBalways\fR
+has one value, it is singular and the Instance Domain should be set to
+\&\fB\s-1PM_INDOM_NULL\s0\fR.
+Otherwise \fBindom\fR should be specified as 2 numbers separated by a period (.)
+to set the \fBdomain\fR and \fBordinal\fR fields of the Instance Domain, see
+the \fB_\|_pmInDom_int\fR typedef in \fI<pcp/impl.h>\fR.
+Examples: indom=\*(L"\s-1PM_INDOM_NULL\s0\*(R", indom=\*(L"60.3\*(R", indom=\*(L"\s-1PMI_DOMAIN\s0.4\*(R".
+.Sp
+More than
+one metric can share the same Instance Domain when the metrics have defined
+values over similar sets of instances, e.g. all the metrics for each network
+interface.  It is standard practice for the \fBdomain\fR field to be the
+same for the \fBpmid\fR and the \fBindom\fR; if the \fBpmid\fR attribute is missing,
+then the \fBdomain\fR field for the \fBindom\fR should be the reserved domain
+\&\fB\s-1PMI_DOMAIN\s0\fR.
+.Sp
+If the \fBindom\fR attribute is omitted then the default Instance Domain for
+the metric is \fB\s-1PM_INDOM_NULL\s0\fR.
+.IP "\fBunits\fR" 10
+.IX Item "units"
+The scale and dimension of the metric values along the axes of space, time
+and count (events, messages, packets, etc.) is specified with a 6\-tuple.
+These values are passed to the \fBpmiUnits\fR(3) function to generate a
+\&\fIpmUnits\fR structure.  Refer to \fBpmLookupDesc\fR(3) for a full description
+of all the fields of this structure.
+The default is to assign no scale or dimension to the metric, i.e. units=\*(L"0,0,0,0,0,0\*(R".
+Examples: units=\*(L"0,1,0,0,PM_TIME_MSEC,0\*(R" (milliseconds),
+units=\*(L"1,\-1,0,PM_SPACE_MBYTE,PM_TIME_SEC,0\*(R" (Mbytes/sec),
+units=\*(L"0,1,\-1,0,PM_TIME_USEC,PM_COUNT_ONE\*(R" (microseconds/event).
+.IP "\fBtype\fR" 10
+.IX Item "type"
+Defines the data type for the metric.
+Refer to \fBpmLookupDesc\fR(3) for a full description
+of the possible type values; the default is \fB\s-1PM_TYPE_FLOAT\s0\fR.
+Examples: type=\*(L"\s-1PM_TYPE_32\s0\*(R", type=\*(L"\s-1PM_TYPE_U64\s0\*(R", type=\*(L"\s-1PM_TYPE_STRING\s0\*(R".
+.IP "\fBsem\fR" 10
+.IX Item "sem"
+Defines the semantics of the metric.
+Refer to \fBpmLookupDesc\fR(3) for a full description
+of the possible values; the default is \fB\s-1PM_SEM_INSTANT\s0\fR.
+Examples: sem=\*(L"\s-1PM_SEM_COUNTER\s0\*(R", type=\*(L"\s-1PM_SEM_DISCRETE\s0\*(R".
+.PP
+The remaining specifications define the data columns \fBin order\fR using
+\&\fBexactly\fR one \fB<datetime>\fR\fB</datetime>\fR element,
+one or more \fB<data>\fR\fImetricspec\fR\fB</data>\fR elements
+and
+one or more \fB<skip>\fR\fB</skip>\fR elements.
+.PP
+The \fB<datetime>\fR element defines the column in which a date and time will
+be found to form the timestamp in the \s-1PCP\s0 archive for all the data in
+each row of the \s-1PCP\s0 archive.
+.PP
+For the \fB<data>\fR element,
+a \fImetricspec\fR
+consists of a metric name (as defined in an earlier \fB<metric>\fR
+element), optionally followed by an instance name that is enclosed by square brackets,
+e.g. <data>hinv.ncpu</data>, <data>kernel.all.load[1 minute]</data>.
+.PP
+The \fBskip\fR tag defines the column that should be skipped when preparing
+data for the \s-1PCP\s0 archive.
+.PP
+The order of the \fB<datetime>\fR, \fB<data>\fR and
+\&\fB<skip>\fR elements matches the order of columns in the
+spreadsheet.  If the number of elements is not the same as the number
+of columns a warning is issued, and the extra elements or columns
+generate no metric values in the output archive.
+.SS "\s-1EXAMPLE\s0"
+.IX Subsection "EXAMPLE"
+The \fImapfile\fR ...
+.PP
+.Vb 11
+\&    <?xml version="1.0" encoding="UTF\-8"?>
+\&    <sheet heading="1">
+\&        <!\-\- simple example \-\->
+\&        <metric pmid="60.0.2" indom="60.0" units="0,1,0,0,PM_TIME_MSEC,0"
+\&            type="PM_TYPE_U64" sem="PM_SEM_COUNTER">
+\&        kernel.percpu.cpu.sys</metric>
+\&        <datetime></datetime>
+\&        <skip></skip>
+\&        <data>kernel.percpu.cpu.sys[cpu0]</data>
+\&        <data>kernel.percpu.cpu.sys[cpu1]</data>
+\&    </sheet>
+.Ve
+.PP
+could be used for a spreadsheet in which the first few rows are ...
+.PP
+.Vb 4
+\&    Date;"Status";"SysTime \- 0";"SysTime \- 1";
+\&    26/01/2001 14:05:22;"Some Busy";0.750;0.133
+\&    26/01/2001 14:05:37;"OK";0.150;0.273
+\&    26/01/2001 14:05:52;"All Busy";0.733;0.653
+.Ve
+.SH "CAVEATS"
+.IX Header "CAVEATS"
+Only the first sheet from \fIinfile\fR will be processed.
+.PP
+Additional Perl modules must be installed for the various spreadsheet formats,
+although these are checked for ar run-time so only the modules required for
+the specific types of spreadsheets you wish to process need be installed:
+.IP "\fB*.csv\fR" 6
+.IX Item "*.csv"
+Spreadsheets in the Comma Separated Values (\s-1CSV\s0) format require \fBText::CSV_XS\fR(3pm).
+.IP "\fB*.sxc\fR or \fB*.ods\fR" 6
+.IX Item "*.sxc or *.ods"
+OpenOffice documents require \fBSpreadsheet::ReadSXC\fR(3pm), which in turn
+requires \fBArchive::Zip\fR(3pm).
+.IP "\fB*.xls\fR" 6
+.IX Item "*.xls"
+Classical Microsoft Office documents require \fBSpreadsheet::ParseExcel\fR(3pm),
+which in turn requires \fBOLE::Storage_Lite\fR(3pm).
+.IP "\fB*.xlsx\fR" 6
+.IX Item "*.xlsx"
+Microsoft OpenXML documents require \fBSpreadsheet::XLSX\fR(3pm).  \fBsheet2pcp\fR
+does not appear to work with OpenXML documents saved from OpenOffice.
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.I /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (5).
+.SH "SEE ALSO"
+.BR pmchart (1),
+.BR pmie (1),
+.BR pmlogger (1),
+.BR sed (1),
+.BR pmiAddMetric (3),
+.BR pmLookupDesc (3),
+.BR pmiUnits (3),
+.BR Archive::Zip (3pm),
+.BR Date::Format (3pm),
+.BR Date::Parse (3pm),
+.BR PCP::LogImport (3pm),
+.BR OLE::Storage_Lite (3pm),
+.BR Spreadsheet::ParseExcel (3pm),
+.BR Spreadsheet::ReadSXC (3pm),
+.BR Spreadsheet::XLSX (3pm),
+.BR Text::CSV_XS (3pm),
+.BR XML::TokeParser (3pm)
+and
+.BR LOGIMPORT (3).

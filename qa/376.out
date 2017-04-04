@@ -1,0 +1,43 @@
+QA output created by 376
+Installing the "trace" Performance Metrics Domain Agent (PMDA) ...
+
+Use the default installation [y]? 
+Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+[...install files, make output...]
+Updating the PMCD control file, and notifying PMCD ...
+Check trace metrics have appeared ... 20 metrics and 6 values
+Note: some warnings are expected until trace API calls are made - refer to
+      the man pages for pmtrace(1) and pmdatrace(3) for further details.
+--- Test 1 ---
+tstate: state now is 0x1
+tstate: state now is 0xd
+_pmtracecommon: trace tag 'tstate1' (type=2,value=-1.000000)
+[FIND PDUBUF]
+[FREE PDUBUF]
+[PID]__pmtracegetPDU: ACK fd=<n> len=16 from=[PID]
+[PDU BUFFER]
+__pmtracedecodeack -> data=1
+[FIND PDUBUF]
+[FREE PDUBUF]
+__pmtracesenddata(tag="tstate1", data=-1.000000)
+[PID]__pmtracexmitPDU: DATA fd=<n> len=32
+[PDU BUFFER]
+[FIND PDUBUF]
+[FREE PDUBUF]
+[PID]__pmtracegetPDU: ACK fd=<n> len=16 from=[PID]
+[PDU BUFFER]
+__pmtracedecodeack -> data=2
+state should be only ASYNC 0x20 ...
+tstate: state now is 0x2d
+--- Test 2 ---
+tstate: state now is 0x20
+state should be same as previous ...
+tstate: state now is 0x20
+--- Test 3 ---
+state change should fail ... OK
+--- Test 4 ---
+tstate: state now is 0x21
+_pmtracecommon: trace tag 'tstate4' (type=2,value=-1.000000)
+change to async only (0x20)...
+tstate: state now is 0x21

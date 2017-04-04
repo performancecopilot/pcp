@@ -1,0 +1,167 @@
+#!/usr/bin/env pmpython
+#
+# Copyright (c) 2013-2016 Red Hat.
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+
+# get python3-compatible incremental line printing
+from __future__ import print_function
+from pcp import pmapi
+import cpmapi as c_api
+import sys
+
+
+class sampler(object):
+    def __init__(self, fg):
+        self.fg = fg
+        self.load1 = fg.extend_item('kernel.all.load', instance='1 minute')
+        self.load15 = fg.extend_item('kernel.all.load', instance='15 minute')
+        self.cpu_user = fg.extend_indom('kernel.percpu.cpu.user', scale='second/second')
+        self.cpu_sys = fg.extend_indom('kernel.percpu.cpu.sys', scale='second/second')
+        self.freemem = fg.extend_item('mem.freemem', scale='Mbyte', mtype=c_api.PM_TYPE_DOUBLE)
+        self.dkiops = fg.extend_item('disk.all.total', scale='count/second')
+        self.timestamp = fg.extend_timestamp()
+        self.ncpu = fg.extend_item('hinv.ncpu')
+
+    def get_sample(self):
+        self.fg.fetch()
+
+        # compute overall cpu utilization; identify peak
+        self.cpu_util = 0
+        self.peak_cpu_util = -1
+        self.peak_cpu = 0
+        for (ucode, uname, uvalue), (scode, sname, svalue) in zip(self.cpu_user(), self.cpu_sys()):
+            assert ucode == scode	# indoms should match
+            try:
+                util = uvalue() + svalue()
+                # small errors are possible, so clip the utilization at 1.0
+                if util > 1.0:
+                    util = 1.0
+            except:
+                # suspect PM_ERR_AGAIN from first-step rate-calculation
+                util = 0
+
+            self.cpu_util += util
+            if util > self.peak_cpu_util:
+                self.peak_cpu_util = util
+                self.peak_cpu = ucode
+
+        self.cpu_util /= self.ncpu()
+
+class pmclient_fg(object):
+    def option_override(self, opt):
+        if opt == 'p':
+            return 1
+        return 0
+
+    def option(self, opt, optarg, index):
+        if opt == 'p':
+            self.pause = True
+
+    def __init__(self, argv):
+        self.pause = False
+
+        opts = pmapi.pmOptions()
+        opts.pmSetShortOptions('A:a:D:gh:n:O:p:S:s:T:t:VZ:z?P') # PMAPI_OPTIONS + 'P'
+        opts.pmSetOptionFlags(c_api.PM_OPTFLAG_STDOUT_TZ)
+        opts.pmSetLongOptionText('Reporting options')
+        opts.pmSetLongOption('pause', 0, 'p', '', 'pause between updates for archive replay')
+        opts.pmSetLongOptionArchive()
+        opts.pmSetLongOptionHost()
+        opts.pmSetOptionCallback(lambda opt, optarg, index: self.option(opt, optarg, index))
+        opts.pmSetOverrideCallback(lambda opt: self.option_override(opt))
+        # .... etc; the python pmOptions should have a function for the PMAPI_OPTIONS common set
+        self.opts = opts
+
+        c_api.pmGetOptionsFromList(argv)
+        self.typed = opts.pmGetOptionContext()
+        if self.typed == c_api.PM_CONTEXT_ARCHIVE:
+            target = opts.pmGetOptionArchives()[0]
+        elif self.typed == c_api.PM_CONTEXT_HOST:
+            if self.pause:
+                raise pmapi.pmUsageErr
+            target = opts.pmGetOptionHosts()[0]
+        else:
+            self.typed = c_api.PM_CONTEXT_HOST
+            target = 'local:'
+
+        self.fg = pmapi.fetchgroup(self.typed, target)
+        self.ctx = self.fg.get_context()
+
+        # for other pmOptions related to archive time offsets, etc.:
+        # opts.pmSetContextOptions(ctx, ....) ?
+
+        self.host = self.ctx.pmGetContextHostName()
+
+
+    def run(self):
+        info = sampler(self.fg)
+        if self.opts.pmGetOptionSamples():
+            samples = self.opts.pmGetOptionSamples()
+        else:
+            samples = -1
+
+        if self.opts.pmGetOptionInterval():
+            interval = self.opts.pmGetOptionInterval()
+        else:
+            interval = pmapi.timeval(5, 0)
+
+        if self.typed == c_api.PM_CONTEXT_ARCHIVE:
+            info.get_sample() # fetch the separate early ncpu record
+        info.get_sample() # fetch other rate metrics
+
+        lines = 0
+        while True:
+            if samples >= 0:
+                if samples == 0:
+                    break
+                samples -= 1
+
+            if lines % 15 == 0:
+                if self.typed == c_api.PM_CONTEXT_ARCHIVE:
+                    print('Archive: %s, ' % self.opts.pmGetOptionArchives()[0], end='')
+                print('Host: %s, %d cpu(s), %s' % (self.host, info.ncpu(), info.timestamp()))
+
+                # - report format
+                #  CPU  Busy    Busy  Free Mem   Disk     Load Average
+                # Util   CPU    Util  (Mbytes)   IOPS    1 Min  15 Min
+                #X.XXX   XXX   X.XXX XXXXX.XXX XXXXXX  XXXX.XX XXXX.XX
+
+                print('  CPU', end='')
+                if info.ncpu() > 1:
+                    print('  Busy    Busy', end='')
+                print('  Free Mem   Disk     Load Average')
+                print(' Util', end='')
+                if info.ncpu() > 1:
+                    print('   CPU    Util', end='')
+                print('  (Mbytes)   IOPS    1 Min  15 Min')
+
+            if self.typed != c_api.PM_CONTEXT_ARCHIVE or self.pause:
+                self.ctx.pmtimevalSleep(interval)
+
+            info.get_sample()
+            print('%5.2f' % info.cpu_util, end='')
+            if info.ncpu() > 1:
+                print('   %3d   %5.2f' % (info.peak_cpu, info.peak_cpu_util), end='')
+            print(' %9.3f' % info.freemem(), end='')
+            print(' %6d' % info.dkiops(), end='')
+            print('  %7.2f %7.2f' % (info.load1(), info.load15()))
+            lines += 1
+
+if __name__ == '__main__':
+    try:
+        pmclient = pmclient_fg(sys.argv)
+        pmclient.run()
+    except pmapi.pmErr as error:
+        sys.stderr.write('%s: %s\n' % (error.progname(), error.message()))
+    except KeyboardInterrupt:
+        sys.exit(0)

@@ -1,0 +1,8 @@
+#kmchart
+version 1
+
+chart title "User CPU Time for shping Commands [%h]" style plot
+	plot legend "%i" metric shping.time.cpu_usr
+
+chart title "System CPU Time for shping Commands [%h]" style plot
+	plot legend "%i" metric shping.time.cpu_sys

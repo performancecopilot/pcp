@@ -1,0 +1,79 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMDESTROYCONTEXT 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmDestroyContext\f1 \- destroy a PMAPI context
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.sp
+int pmDestroyContext(int \fIhandle\fP);
+.sp
+cc ... \-lpcp
+.ft 1
+.SH DESCRIPTION
+.de CW
+.ie t \f(CW\\$1\f1\\$2
+.el \fI\\$1\f1\\$2
+..
+An application using the
+Performance Metrics Application Programming Interface (PMAPI)
+may manipulate several concurrent contexts,
+each associated with a source of performance metrics, e.g. \c
+.BR pmcd (1)
+on some host, or an archive log of performance metrics as created by
+.BR pmlogger (1).
+.PP
+.B pmDestroyContext
+destroys the PMAPI context identified by
+.IR handle .
+Typically this would imply some termination of a connection
+to a PMCD or closing an archive log file, and orderly clean-up.
+.PP
+The context
+must have been previously created using
+.BR pmNewContext (3)
+or
+.BR pmDupContext (3).
+.PP
+On success,
+.B pmDestroyContext
+returns zero.
+If
+.I handle
+was the current
+PMAPI context, then the current context becomes undefined.
+This means the application must explicitly re-establish a valid
+PMAPI context with
+.BR pmUseContext (3),
+or create a new context with
+.BR pmNewContext (3)
+or
+.BR pmDupContext (3),
+before the next PMAPI operation that requires a PMAPI context.
+.SH SEE ALSO
+.BR PMAPI (3),
+.BR pmDupContext (3),
+.BR pmNewContext (3),
+.BR pmUseContext (3)
+and
+.BR pmWhichContext (3).
+.SH DIAGNOSTICS
+.P
+.B PM_ERR_NOCONTEXT
+.IP
+.I handle
+does not identify a valid PMAPI context

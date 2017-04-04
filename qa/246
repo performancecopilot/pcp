@@ -1,0 +1,56 @@
+#!/bin/sh
+# PCP QA Test No. 246
+#
+# Exercise derived metric memory allocation and freeing around the
+# creating and destroying of contexts.
+#
+# Copyright (c) 2009 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_check_valgrind
+
+# For this test, don't load any global derived metric configs by default.
+# So the PCP_DERIVED_CONFIG environment variable is set to an empty string.
+export PCP_DERIVED_CONFIG=""
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    # __dmclosecontext(->ctx 8) called dm->0x9216d58 3 metrics
+    sed \
+	-e '/bind metric\[[12]] myname.[bc]/d' \
+	-e '/bind metric\[0] myname.a/{
+s/bind metric... //
+s/$/ .../
+}' \
+	-e '/__dmclosecontext/s/ called dm->0x[0-9a-f][0-9a-f]*//' \
+	-e "s;$tmp;TMP;" \
+    #end
+}
+
+# real QA test starts here
+cat <<End-of-File >$tmp.config
+myname.a = sample.long.one + sample.long.ten + sample.long.hundred + sample.long.million + sample.longlong.one + sample.longlong.ten + sample.longlong.hundred + sample.longlong.million
+myname.b = sample.long.one + sample.long.ten + sample.long.hundred + sample.long.million - sample.longlong.one - sample.longlong.ten - sample.longlong.hundred - sample.longlong.million
+myname.c= sample.long.one * sample.longlong.one + sample.long.ten * sample.longlong.ten + sample.long.hundred * sample.longlong.hundred + sample.long.million * sample.longlong.million
+End-of-File
+
+_run_valgrind src/grind_ctx -D derive -c $tmp.config -s 100 >$tmp.out 2>$tmp.err
+echo "--- stdout ---" >>$seq.full
+cat $tmp.out | tee -a $seq.full | _filter
+echo "--- stderr ---" >>$seq.full
+cat $tmp.err | tee -a $seq.full | _filter
+
+# success, all done
+exit

@@ -1,0 +1,35 @@
+#! /bin/sh
+# PCP QA Test No. 099
+# pmlc basics
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+
+trap "rm -f $tmp.*; exit" 0 1 2 3 15
+
+_filter_pmlc()
+{
+    sed \
+	-e 's/connect [0-9][0-9]*/connect PID/' \
+	-e "/timed out/d" \
+	-e 's/Version [0-9].*/Version VERSION/'
+}
+
+# real QA test starts here
+pmlc -ie <<End-of-File | _filter_pmlc
+# no connection to a logger, this should produce an explicit error
+log mandatory maybe sample.seconds
+
+# can we grok EOF in standard input, or does this loop forever?
+End-of-File
+
+echo "expect nothing - start"
+pmlc </dev/null | _filter_pmlc
+echo "expect nothing - end"

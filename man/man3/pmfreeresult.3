@@ -1,0 +1,61 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMFREERESULT 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmFreeResult\f1 \- release storage allocated for performance metrics values
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.sp
+void pmFreeResult(pmResult *\fIresult\fP);
+.sp
+cc ... \-lpcp
+.ft 1
+.SH DESCRIPTION
+.de CW
+.ie t \f(CW\\$1\f1\\$2
+.el \fI\\$1\f1\\$2
+..
+The variable sized results returned by
+.BR pmFetch (3)
+are allocated below the
+Performance Metrics Application Programming Interface (PMAPI)
+using a combination of dynamic (i.e. \c
+.BR malloc (3))
+and specialized allocation strategies.
+.PP
+Applications should call
+.B pmFreeResult
+to release the storage previously allocated for
+.I result
+by
+.BR pmFetch (3),
+when the application no longer requires access to the
+.CW pmResult
+structure.
+.PP
+Under
+.B no
+circumstances should an application use
+.CW "free(result)"
+to release storage previously allocated for a
+.CW pmResult
+by
+.BR pmFetch (3).
+.SH SEE ALSO
+.BR PMAPI (3)
+and
+.BR pmFetch (3).

@@ -1,0 +1,42 @@
+#! /bin/sh
+# PCP QA Test No. 139
+# Illegal/unknown metrics to pmlc
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_filter()
+{
+    sed \
+	-e '/ on /d' -e '/ off /d' -e '/^$/d' \
+	-e 's/Version [0-9].*/Version VERSION/' \
+        -e '/sample\.dynamic/d' \
+	-e '/no instances/d' \
+	-e '/sample\.many\./d'\
+	-e '/sample\.bigid/d' \
+	-e '/sample\.byte_/d' \
+	-e '/sample\.kbyte_/d' \
+	-e '/sample\.datasize/d' \
+	-e '/sample\.darkness/d' \
+
+}
+
+trap "rm -f $tmp.*; exit" 0 1 2 3 15
+
+# real QA test starts here
+pmlc -ie <<End-of-File | _filter
+connect primary
+query no_such_metric
+query sample.bad.unknown
+query sample.bad.nosupport
+query sample.bad
+query sample
+End-of-File

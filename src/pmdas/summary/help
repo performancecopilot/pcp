@@ -1,0 +1,52 @@
+#
+# Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+# 
+# summary PMDA help file in the ASCII format
+#
+# lines beginning with a # are ignored
+# lines beginning @ introduce a new entry of the form
+#  @ metric_name oneline-text
+#  help text goes
+#  here over multiple lines
+#  ...
+#
+# the metric_name is decoded against the default PMNS -- as a special case,
+# a name of the form NNN.MM (for numeric NNN and MM) is interpreted as an
+# instance domain identification, and the text describes the instance domain
+#
+# blank lines before the @ line are ignored
+#
+
+@ summary.cpu.util CPU utilization
+Fraction of time spent executing in user or system mode, averaged
+over all CPUs.  Any time not accountered for here is spent either
+idle or waiting for I/O.  Value in the range 0 to 1.
+
+@ summary.cpu.busy Proportion of the CPUs that are busy
+Fraction of the CPUs busy executing in user and/or system mode for more
+than 70% of the time.  Value in the range 0 to 1.
+
+@ summary.disk.iops Average disk IOPS
+Average disk throughput in IO operations per second.
+
+@ summary.disk.busy Proportion of the disks that are busy
+Fraction of the disks busy serving at least 30 IOPs.  Value in the
+range 0 to 1.
+
+@ summary.netif.packets Average network interface throughput
+Average network interface throughput in packets per second.
+
+@ summary.netif.busy Proportion of the network interfaces that are busy
+Fraction of network interfaces busy serving at least 375 packets per
+second).  Value in the range 0 to 1.
+

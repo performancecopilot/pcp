@@ -1,0 +1,70 @@
+#!/bin/sh
+# PCP QA Test No. 418
+# "default" interval for pmlogger
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+rm -f $seq.full
+
+# real QA test starts here
+
+echo "expect 4 x one and 2 x million" | tee -a $seq.full
+$sudo rm -f $tmp.0 $tmp.index $tmp.meta
+
+cat <<End-of-File >$tmp.config
+log mandatory on default sample.float.million
+log advisory on default sample.long.million
+log mandatory on 10 sec sample.float.one
+log advisory on 10 sec sample.long.one
+End-of-File
+
+if pmlogger -T 15sec -l $tmp.log $tmp <$tmp.config
+then
+    cat $tmp.log >>$seq.full
+else
+    echo "Arrgh, pmlogger failed ..."
+    cat $tmp.log
+    exit
+fi
+
+pmdumplog $tmp | _filter_pmdumplog | grep sample | sort -n -k2
+pmdumplog $tmp >>$seq.full
+
+echo
+echo "expect 4 x one and 6 x million" | tee -a $seq.full
+$sudo rm -f $tmp.0 $tmp.index $tmp.meta
+
+cat <<End-of-File >$tmp.config
+log mandatory on default sample.float.million
+log advisory on default sample.long.million
+log mandatory on 10 sec sample.float.one
+log advisory on 10 sec sample.long.one
+End-of-File
+
+if pmlogger -T 15sec -t 7 -l $tmp.log $tmp <$tmp.config
+then
+    cat $tmp.log >>$seq.full
+else
+    echo "Arrgh, pmlogger failed ..."
+    cat $tmp.log
+    exit
+fi
+
+pmdumplog $tmp | _filter_pmdumplog | grep sample | sort -n -k2
+pmdumplog $tmp >>$seq.full
+
+# success, all done
+status=0
+exit

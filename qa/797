@@ -1,0 +1,61 @@
+#!/bin/sh
+# PCP QA Test No. 797
+# Try pmlogrewite with an archive containing derived metrics
+#
+# Copyright (c) 2015 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed -e "s@$tmp@TMP@g"
+}
+
+# real QA test starts here
+echo "===511.2048.1 case ==="
+cat <<End-of-File >$tmp.rewrite
+metric 511.2048.1 {
+    pmid -> 510.2048.1
+}
+End-of-File
+rm -f $tmp.0 $tmp.index $tmp.meta
+pmlogrewrite -c $tmp.rewrite archives/log-derived $tmp 2>&1 | _filter
+pmdumplog -z $tmp
+
+echo
+echo "===511.2048.* case ==="
+cat <<End-of-File >$tmp.rewrite
+metric 511.2048.* {
+    pmid -> 510.2048.*
+}
+End-of-File
+rm -f $tmp.0 $tmp.index $tmp.meta
+pmlogrewrite -c $tmp.rewrite archives/log-derived $tmp 2>&1 | _filter
+pmdumplog -z $tmp
+
+echo
+echo "===511.*.* case ==="
+cat <<End-of-File >$tmp.rewrite
+metric 511.*.* {
+    pmid -> 510.*.*
+}
+End-of-File
+rm -f $tmp.0 $tmp.index $tmp.meta
+pmlogrewrite -c $tmp.rewrite archives/log-derived $tmp 2>&1 | _filter
+pmdumplog -z $tmp
+
+# success, all done
+status=0
+
+exit

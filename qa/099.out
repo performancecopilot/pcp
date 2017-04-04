@@ -1,0 +1,32 @@
+QA output created by 099
+Error [<stdin>, line 2]
+Not connected to any pmlogger instance
+Performance Co-Pilot Logger Control (pmlc), Version VERSION
+
+pmlc commands
+
+  show loggers [@<host>]             display <pid>s of running pmloggers
+  connect _logger_id [@<host>]       connect to designated pmlogger
+  status                             information about connected pmlogger
+  query metric-list                  show logging state of metrics
+  new volume                         start a new log volume
+
+  log { mandatory | advisory } on <interval> _metric-list
+  log { mandatory | advisory } off _metric-list
+  log mandatory maybe _metric-list
+
+  timezone local|logger|'<timezone>' change reporting timezone
+  help                               print this help message
+  quit                               exit from pmlc
+
+  _logger_id   is  primary | <pid> | port <n>
+  _metric-list is  _metric-spec | { _metric-spec ... }
+  _metric-spec is  <metric-name> | <metric-name> [ <instance> ... ]
+
+pmlc> # no connection to a logger, this should produce an explicit error
+pmlc> log mandatory maybe sample.seconds
+pmlc> 
+pmlc> # can we grok EOF in standard input, or does this loop forever?
+pmlc> 
+expect nothing - start
+expect nothing - end

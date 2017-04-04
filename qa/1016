@@ -1,0 +1,29 @@
+#!/bin/sh
+# PCP QA Test No. 1016
+# Test QmcContext functionality
+#
+seq=`basename $0`
+echo "QA output created by $seq"
+
+status=1	# failure is the default!
+. ./common.qt
+trap "_cleanup_qt; exit \$status" 0 1 2 3 15
+
+[ -x qt/qmc_context/qmc_context ] || _notrun "qmc_context not built or installed"
+
+# timezones and EHOSTUNREACH (113 for Linux)
+_filter()
+{
+    sed \
+	-e "s#EST-11EST-10,89/2:00,299/2:00#TZ#g" \
+	-e 's/hndl = [0-9][0-9]*/hndl = HANDLE/g' \
+	-e 's/-113 has 0/-EHOSTUNREACH has 0/' \
+	-e 's/sts = -113/sts = -148/'
+}
+
+cd $here/archives
+$here/qt/qmc_context/qmc_context -DPMC 2>&1 | _filter
+
+# success, all done
+status=0
+exit

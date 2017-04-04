@@ -1,0 +1,19 @@
+QA output created by 533
+dbpmda> open socket ipv6 PORT
+Connect to PMDA on ipv6 port PORT
+dbpmda> getdesc on
+dbpmda> desc sample.daemon_pid
+PMID: 29.0.1
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+dbpmda> fetch sample.daemon_pid
+PMID(s): 29.0.1
+pmResult ... numpmid: 1
+  29.0.1 (sample.dupnames.pid_daemon or sample.dupnames.daemon_pid or sample.daemon_pid): numval: 1 valfmt: 0 vlist[]:
+   value PID
+dbpmda> text sample.daemon_pid
+PMID: 29.0.1
+[Process id of PMDA daemon]
+The process id of PMDA daemon, -1 if the daemon is a DSO.
+dbpmda> close
+dbpmda> 

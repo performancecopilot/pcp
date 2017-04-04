@@ -1,0 +1,10 @@
+{
+	"slaves" : [
+		{ "name" : "fedora-dummy", "passwd" : "fdummypass" },
+		{ "name" : "debian-dummy", "passwd" : "ddummypass" }
+	],
+
+	"auth" : [
+		{ "username" : "dummy-user", "passwd" : "dummy-pass" }
+	]
+}

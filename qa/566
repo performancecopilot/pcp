@@ -1,0 +1,168 @@
+#!/bin/sh
+# PCP QA Test No. 566
+# basic pmlogcheck workout
+#
+# Copyright (c) 2013 Ken McDonell.  All Rights Reserved.
+# Copyright (c) 2015 Red Hat Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
+mkdir $tmp
+
+_filter_hostnames()
+{
+    sed -e 's/host \".*\"/host \"HOST\"/g' $tmp.out > $tmp.out.1
+    mv $tmp.out.1 $tmp.out
+    sed -e 's/host \".*\"/host \"HOST\"/g' $tmp.err > $tmp.err.1
+    mv $tmp.err.1 $tmp.err
+}
+_filter()
+{
+    _filter_hostnames
+    echo >>$here/$seq.full
+    echo "stdout" >>$here/$seq.full
+    cat $tmp.out >>$here/$seq.full
+    echo "stderr" >>$here/$seq.full
+    cat $tmp.err >>$here/$seq.full
+    # need sort because order files are processed in not deterministic
+    #
+    sed -e "s;$tmp;TMP;g" $tmp.out | LC_COLLATE=POSIX sort
+    sed -e "s;$tmp;TMP;g" $tmp.err | LC_COLLATE=POSIX sort
+}
+
+# this sort of error is not deterministic unfortunately because it is
+# sensitive to the directory order of the files that make up the
+# archive
+#
+# archives/badlabel-2.index: mismatched label version: 0 not 2 as expected from archives/badlabel-2.meta
+#
+_filter_pass0()
+{
+    sed \
+	-e '/^archives\/badlabel-2.* mismatched label/d' \
+    # end
+}
+
+# real QA test starts here
+export LC_COLLATE=POSIX
+echo "=== directory traversal and file checks ===" | tee -a $here/$seq.full
+cp tmparch/foo.index $tmp
+( echo; echo "TMP/foo.index alone:" ) | tee -a $here/$seq.full
+pmlogcheck -z -v $tmp/foo >$tmp.out 2>$tmp.err
+_filter
+cp tmparch/foo.0 $tmp
+( echo; echo "TMP/foo.meta missing:" ) | tee -a $here/$seq.full
+pmlogcheck -z -v $tmp/foo >$tmp.out 2>$tmp.err
+_filter
+rm $tmp/foo.0
+cp tmparch/foo.meta $tmp
+( echo; echo "TMP/foo.0 missing:" ) | tee -a $here/$seq.full
+pmlogcheck -z -v $tmp/foo >$tmp.out 2>$tmp.err
+_filter
+rm $tmp/foo.index
+cp tmparch/foo.0 $tmp
+( echo; echo "TMP/foo.index missing:" ) | tee -a $here/$seq.full
+pmlogcheck -z -v $tmp/foo >$tmp.out 2>$tmp.err
+_filter
+cp tmparch/foo.index $tmp
+
+touch $tmp/foo
+touch $tmp/foo.
+touch $tmp/foobar.0
+touch $tmp/foo.999
+touch $tmp/foo.1
+chmod 0 $tmp/foo.1
+touch $tmp/foo.bar
+touch $tmp/foo.9x9
+( echo; echo "TMP/bar:" ) | tee -a $here/$seq.full
+pmlogcheck -z -v $tmp/bar >$tmp.out 2>$tmp.err
+_filter
+( echo; echo "TMP/foo:" ) | tee -a $here/$seq.full
+pmlogcheck -z -v $tmp/foo >$tmp.out 2>$tmp.err
+_filter
+cd $tmp
+( echo; echo "foo:" ) | tee -a $here/$seq.full
+pmlogcheck -z -v foo >$tmp.out 2>$tmp.err
+_filter
+chmod 644 foo.1
+( echo; echo "foo.index:" ) | tee -a $here/$seq.full
+pmlogcheck -z -v foo.index >$tmp.out 2>$tmp.err
+_filter
+( echo; echo "archive-20150415.044829:" ) | tee -a $here/$seq.full
+ln foo.0 archive-20150415.044829.0
+ln foo.meta archive-20150415.044829.meta
+ln foo.index archive-20150415.044829.index
+pmlogcheck -z -v archive-20150415.044829 >$tmp.out 2>$tmp.err
+_filter
+
+cd $here
+
+echo | tee -a $here/$seq.full
+echo "=== pass 0 failures ===" | tee -a $here/$seq.full
+for arch in `ls archives/badlen-*.meta` archives/badti-1 `ls archives/badlabel-*.meta`
+do
+    # some of the bad archives may not have pass 0 style corruption,
+    # so skip these ones for now
+    #
+    case $arch
+    in
+	archives/badlen-0.meta|archives/badlen-8.meta|archives/badlabel-0.meta)
+		;;
+	*)
+ 		( echo; echo "$arch:" ) | tee -a $here/$seq.full
+		pmlogcheck -z -v $arch >$tmp.out 2>$tmp.err
+		_filter | _filter_pass0
+		;;
+    esac
+done
+
+echo | tee -a $here/$seq.full
+echo "=== pass 1 failures ===" | tee -a $here/$seq.full
+for arch in `ls archives/badti-*.index`
+do
+    # some of the bad archives may not have pass 1 style corruption,
+    # so skip these ones for now
+    #
+    case $arch
+    in
+	archives/badti-1.index)
+		;;
+	*)
+ 		( echo; echo "$arch:" ) | tee -a $here/$seq.full
+		pmlogcheck -z -v $arch >$tmp.out 2>$tmp.err
+		_filter
+		;;
+    esac
+done
+
+echo | tee -a $here/$seq.full
+echo "=== pass 3 failures ===" | tee -a $here/$seq.full
+for arch in `ls archives/badlog-*.0`
+do
+    # some of the bad archives may not have pass 3 style corruption,
+    # so skip these ones for now
+    #
+    case $arch
+    in
+	*)
+ 		( echo; echo "$arch:" ) | tee -a $here/$seq.full
+		pmlogcheck -z -v $arch >$tmp.out 2>$tmp.err
+		_filter
+		;;
+    esac
+done
+
+# success, all done
+status=0
+
+exit

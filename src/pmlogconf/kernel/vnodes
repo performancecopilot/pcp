@@ -1,0 +1,4 @@
+#pmlogconf-setup 2.0
+ident	vnode activity
+probe	vnodes.alloc
+	vnodes

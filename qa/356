@@ -1,0 +1,58 @@
+#!/bin/sh
+# PCP QA Test No. 356
+#
+# segv with derived metrics
+#
+# Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+cat <<End-of-File >$tmp.config
+bad_in_pkts = network.interface.in.errors + network.interface.in.drops
+End-of-File
+
+_filter()
+{
+    _filter_pmie_log \
+    | sed \
+	-e '/^\[TIMESTAMP]/'"s/ `hostname`/ HOST/" \
+	-e '/^\[TIMESTAMP]/'"s/ local:/ HOST/" \
+	-e '/expr_1:.*?/d' \
+	-e '/expr_1: [0-9. ]*/s/ .*/ value(s)/' \
+	-e 's/Connection reset by peer/IPC protocol failure/' \
+    | $PCP_AWK_PROG '
+skip == 0 && /expr_1/	{ print; print "..."; print ""; skip = 1; next }
+skip == 1 && /expr_1/	{ next }
+skip == 1 &&  NF == 0	{ next }
+			{ print; skip = 0 }'
+}
+
+# real QA test starts here
+
+export PCP_DERIVED_CONFIG=$tmp.config
+echo "bad_in_pkts;" | pmie -t 1 -T+12 -v >$tmp.out 2>&1 &
+
+sleep 3
+
+unset PCP_DERIVED_CONFIG
+$sudo $PCP_RC_DIR/pcp restart \
+| _filter_pcp_start
+
+wait
+
+cat $tmp.out >$seq.full
+_filter <$tmp.out
+
+# success, all done
+exit

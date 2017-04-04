@@ -1,0 +1,102 @@
+#! /bin/sh
+# PCP QA Test No. 044
+# check pmval and pminfo for numval == 0 and < 0
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_filter()
+{
+    sed \
+	-e '/Warning.*license/d' \
+	-e "s/^host:      .*/host:      local:/g"
+}
+
+_doit()
+{
+    $sudo rm -f core*
+    pmval -s 1 $m 2>$tmp.err | _filter
+    _filter <$tmp.err
+    case $1
+    in
+	proc.*)
+	    # impossible pid
+	    pmval -s 1 -i 123456789 $m 2>$tmp.err | _filter
+	    _filter <$tmp.err
+	    ;;
+    esac
+    if [ "`echo core*`" != "core*" ]
+    then
+	echo "Arrgh, pmval dumped core"
+	ls -l core*
+	file core*
+    fi
+
+    $sudo rm -f core*
+    pminfo -f $m
+    if [ "`echo core*`" != "core*" ]
+    then
+	echo "Arrgh, pminfo dumped core"
+	ls -l core*
+	file core*
+    fi
+
+}
+
+rm -f $seq.out $seq.full
+if [ $PCP_PLATFORM = linux ]
+then
+    # proc metrics may not be available
+    #
+    if pminfo proc.nprocs >/dev/null 2>&1
+    then
+	have_proc=true
+	ln $seq.linux $seq.out
+    else
+	have_proc=false
+	ln $seq.linux.1 $seq.out
+    fi
+elif [ $PCP_PLATFORM = darwin -o $PCP_PLATFORM = solaris ]
+then
+    ln $seq.darwin $seq.out
+else
+    echo "Warning: no validated output for $PCP_PLATFORM"
+fi
+
+trap "rm -f $tmp.*; exit" 0 1 2 3 15
+
+# real QA test starts here
+
+for m in sample.noinst sampledso.needprofile \
+	proc.psinfo.pid proc.pstatus.syscall proc.pscred.ngroups \
+	proc.psusage.starttime proc.memory.physical.stack
+do
+    case $m
+    in
+	proc.*)
+	    [ $PCP_PLATFORM = linux ] && continue
+	    [ $PCP_PLATFORM = darwin ] && continue
+	    [ $PCP_PLATFORM = solaris ] && continue
+	    ;;
+    esac
+    _doit $m
+done
+
+if [ $PCP_PLATFORM = linux ] && $have_proc
+then
+    # impossible pid
+    echo
+    pmval -s 1 -i 123456789 proc.psinfo.utime 2>$tmp.err | _filter
+    _filter <$tmp.err
+    echo
+fi
+
+_wait_for_pmcd

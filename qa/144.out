@@ -1,0 +1,32 @@
+QA output created by 144
+Data reduction: .0476
+
+=== network.interface.baudrate ===
+6c6
+< end: Thu Apr 8 16:21:25 2004
+---
+> end: Thu Apr 8 16:21:00 2004
+
+=== network.interface.in.packets ===
+6c6
+< end: Thu Apr 8 16:21:25 2004
+---
+> end: Thu Apr 8 16:21:00 2004
+
+=== kernel.all.load ===
+6c6
+< end: Thu Apr 8 16:21:25 2004
+---
+> end: Thu Apr 8 16:21:00 2004
+
+=== kernel.all.cpu.idle ===
+6c6
+< end: Thu Apr 8 16:21:25 2004
+---
+> end: Thu Apr 8 16:21:00 2004
+
+=== disk.all.total ===
+6c6
+< end: Thu Apr 8 16:21:25 2004
+---
+> end: Thu Apr 8 16:21:00 2004

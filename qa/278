@@ -1,0 +1,128 @@
+#! /bin/sh
+# PCP QA Test No. 278
+# validate newhelp
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+_bogus()
+{
+    cat >>$2 <<End-of-File
+@ $1 one line for $1
+start of entry for $1
+This is random boring text that pretends to describe
+what on earth the metric $1 is used for.
+
+There is no point to the words, just treat it as a boring diatribe.
+There is no point to the words, just treat it as a boring diatribe.
+There is no point to the words, just treat it as a boring diatribe.
+There is no point to the words, just treat it as a boring diatribe.
+There is no point to the words, just treat it as a boring diatribe.
+
+AUDIT TAG $1
+
+end of entry for $1
+End-of-File
+}
+
+# real QA test starts here
+
+for m in sample.long.one sample.long.ten sample.long.hundred sample.long.million sample.long.write_me
+do
+    _bogus $m $tmp.1
+done
+
+for m in sample.longlong.one sample.longlong.ten sample.longlong.hundred sample.longlong.million sample.longlong.write_me
+do
+    _bogus $m $tmp.2
+done
+
+for m in sample.float.one sample.float.ten sample.float.hundred sample.float.million sample.float.write_me
+do
+    _bogus $m $tmp.3
+done
+
+for m in sample.double.one sample.double.ten sample.double.hundred sample.double.million sample.double.write_me
+do
+    _bogus $m $tmp.4
+done
+
+for m in sample.string.null sample.string.hullo sample.string.write_me
+do
+    _bogus $m $tmp.5
+done
+
+for m in sample.aggregate.null sample.aggregate.hullo sample.aggregate.write_me
+do
+    _bogus $m $tmp.6
+done
+
+echo >$tmp.7
+
+bytes=`cat $tmp.? | wc -c | sed -e 's/ //g'`
+vlist="2"
+
+for version in $vlist
+do
+    for pass in 1 2
+    do
+
+	echo
+	echo "=== newhelp -v $version and pass $pass ==="
+
+	if newhelp -v $version -V -o $tmp $tmp.?
+	then
+	    :
+	else
+	    echo "Error: newhelp failed!"
+	    exit
+	fi
+
+	size=`wc -c <$tmp.pag | sed -e 's/ //g'`
+	if [ "$size" -lt "$bytes" ]
+	then
+	    echo "Error: .pag file too small ($size < $bytes)"
+	    ls -l $tmp.?
+	    echo
+	    ls -l $tmp.pag $tmp.dir
+	    exit
+	fi
+
+	echo "=== check text, expect no diff output ==="
+	for m in sample.long.hundred sample.longlong.million sample.float.one \
+	    sample.double.ten sample.string.hullo sample.aggregate.null
+	do
+	    echo $m:
+	    echo >$tmp.check
+	    _bogus $m $tmp.check
+	    if chkhelp -v $version -HO $tmp $m >$tmp.out 2>&1
+	    then
+		sed <$tmp.out \
+		-e '/^PMID/{
+s/PMID [^ ]* /@ /
+s/://
+}' \
+		| diff - $tmp.check
+	    else
+		cat $tmp.out
+		echo "Error: chkhelp failed!"
+		exit
+	    fi
+	done
+    done
+done
+
+# success, all done
+status=0
+exit

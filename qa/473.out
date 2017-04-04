@@ -1,0 +1,85 @@
+QA output created by 473
+Only one context ...
+ 100 func1: pmcd.buf.alloc: 7 values
+ 100 func1: pmcd.control.register: 16 values sampledso.bin: 9 values sample.ulonglong.ten: 1 values pmcd.buf.alloc: 7 values
+ 100 func1: sample.colour: 3 values pmcd.control.register: 16 values sampledso.bin: 9 values sample.ulonglong.ten: 1 values pmcd.buf.alloc: 7 values
+ 100 func1: sample.ulonglong.ten: 1 values pmcd.buf.alloc: 7 values
+ 100 func1: sampledso.bin: 9 values sample.ulonglong.ten: 1 values pmcd.buf.alloc: 7 values
+ 100 func2: pmcd.buf.alloc: 7 values
+ 100 func2: pmcd.control.register: 16 values sampledso.bin: 9 values sample.ulonglong.ten: 1 values pmcd.buf.alloc: 7 values
+ 100 func2: sample.colour: 3 values pmcd.control.register: 16 values sampledso.bin: 9 values sample.ulonglong.ten: 1 values pmcd.buf.alloc: 7 values
+ 100 func2: sample.ulonglong.ten: 1 values pmcd.buf.alloc: 7 values
+ 100 func2: sampledso.bin: 9 values sample.ulonglong.ten: 1 values pmcd.buf.alloc: 7 values
+ 100 func3: pmcd.buf.alloc: 7 values
+ 100 func3: pmcd.control.register: 16 values sampledso.bin: 9 values sample.ulonglong.ten: 1 values pmcd.buf.alloc: 7 values
+ 100 func3: sample.colour: 3 values pmcd.control.register: 16 values sampledso.bin: 9 values sample.ulonglong.ten: 1 values pmcd.buf.alloc: 7 values
+ 100 func3: sample.ulonglong.ten: 1 values pmcd.buf.alloc: 7 values
+ 100 func3: sampledso.bin: 9 values sample.ulonglong.ten: 1 values pmcd.buf.alloc: 7 values
+
+Two contexts, same host, different fd's ...
+ 100 func1: pmcd.buf.alloc: 7 values
+ 100 func1: pmcd.control.register: 16 values sampledso.bin: 9 values sample.ulonglong.ten: 1 values pmcd.buf.alloc: 7 values
+ 100 func1: sample.colour: 3 values pmcd.control.register: 16 values sampledso.bin: 9 values sample.ulonglong.ten: 1 values pmcd.buf.alloc: 7 values
+ 100 func1: sample.ulonglong.ten: 1 values pmcd.buf.alloc: 7 values
+ 100 func1: sampledso.bin: 9 values sample.ulonglong.ten: 1 values pmcd.buf.alloc: 7 values
+ 100 func2: pmcd.buf.alloc: 7 values
+ 100 func2: pmcd.control.register: 5 values sampledso.bin: 9 values sample.ulonglong.ten: 1 values pmcd.buf.alloc: 7 values
+ 100 func2: sample.colour: 3 values pmcd.control.register: 5 values sampledso.bin: 9 values sample.ulonglong.ten: 1 values pmcd.buf.alloc: 7 values
+ 100 func2: sample.ulonglong.ten: 1 values pmcd.buf.alloc: 7 values
+ 100 func2: sampledso.bin: 9 values sample.ulonglong.ten: 1 values pmcd.buf.alloc: 7 values
+ 100 func3: pmcd.buf.alloc: 7 values
+ 100 func3: pmcd.control.register: 16 values sampledso.bin: 9 values sample.ulonglong.ten: 1 values pmcd.buf.alloc: 7 values
+ 100 func3: sample.colour: 3 values pmcd.control.register: 16 values sampledso.bin: 9 values sample.ulonglong.ten: 1 values pmcd.buf.alloc: 7 values
+ 100 func3: sample.ulonglong.ten: 1 values pmcd.buf.alloc: 7 values
+ 100 func3: sampledso.bin: 9 values sample.ulonglong.ten: 1 values pmcd.buf.alloc: 7 values
+
+Two contexts, same host, same fd's ...
+ 100 func1: pmcd.buf.alloc: 7 values
+ 100 func1: pmcd.control.register: 16 values sampledso.bin: 9 values sample.ulonglong.ten: 1 values pmcd.buf.alloc: 7 values
+ 100 func1: sample.colour: 3 values pmcd.control.register: 16 values sampledso.bin: 9 values sample.ulonglong.ten: 1 values pmcd.buf.alloc: 7 values
+ 100 func1: sample.ulonglong.ten: 1 values pmcd.buf.alloc: 7 values
+ 100 func1: sampledso.bin: 9 values sample.ulonglong.ten: 1 values pmcd.buf.alloc: 7 values
+ 100 func2: pmcd.buf.alloc: 7 values
+ 100 func2: pmcd.control.register: 5 values sampledso.bin: 9 values sample.ulonglong.ten: 1 values pmcd.buf.alloc: 7 values
+ 100 func2: sample.colour: 3 values pmcd.control.register: 5 values sampledso.bin: 9 values sample.ulonglong.ten: 1 values pmcd.buf.alloc: 7 values
+ 100 func2: sample.ulonglong.ten: 1 values pmcd.buf.alloc: 7 values
+ 100 func2: sampledso.bin: 9 values sample.ulonglong.ten: 1 values pmcd.buf.alloc: 7 values
+ 100 func3: pmcd.buf.alloc: 7 values
+ 100 func3: pmcd.control.register: 16 values sampledso.bin: 9 values sample.ulonglong.ten: 1 values pmcd.buf.alloc: 7 values
+ 100 func3: sample.colour: 3 values pmcd.control.register: 16 values sampledso.bin: 9 values sample.ulonglong.ten: 1 values pmcd.buf.alloc: 7 values
+ 100 func3: sample.ulonglong.ten: 1 values pmcd.buf.alloc: 7 values
+ 100 func3: sampledso.bin: 9 values sample.ulonglong.ten: 1 values pmcd.buf.alloc: 7 values
+
+Three contexts, same host, different fd's ...
+ 100 func1: pmcd.buf.alloc: 7 values
+ 100 func1: pmcd.control.register: 16 values sampledso.bin: 9 values sample.ulonglong.ten: 1 values pmcd.buf.alloc: 7 values
+ 100 func1: sample.colour: 3 values pmcd.control.register: 16 values sampledso.bin: 9 values sample.ulonglong.ten: 1 values pmcd.buf.alloc: 7 values
+ 100 func1: sample.ulonglong.ten: 1 values pmcd.buf.alloc: 7 values
+ 100 func1: sampledso.bin: 9 values sample.ulonglong.ten: 1 values pmcd.buf.alloc: 7 values
+ 100 func2: pmcd.buf.alloc: 7 values
+ 100 func2: pmcd.control.register: 5 values sampledso.bin: 9 values sample.ulonglong.ten: 1 values pmcd.buf.alloc: 7 values
+ 100 func2: sample.colour: 3 values pmcd.control.register: 5 values sampledso.bin: 9 values sample.ulonglong.ten: 1 values pmcd.buf.alloc: 7 values
+ 100 func2: sample.ulonglong.ten: 1 values pmcd.buf.alloc: 7 values
+ 100 func2: sampledso.bin: 9 values sample.ulonglong.ten: 1 values pmcd.buf.alloc: 7 values
+ 100 func3: pmcd.buf.alloc: 7 values
+ 100 func3: pmcd.control.register: 16 values sampledso.bin: 7 values sample.ulonglong.ten: 1 values pmcd.buf.alloc: 7 values
+ 100 func3: sample.colour: 3 values pmcd.control.register: 16 values sampledso.bin: 7 values sample.ulonglong.ten: 1 values pmcd.buf.alloc: 7 values
+ 100 func3: sample.ulonglong.ten: 1 values pmcd.buf.alloc: 7 values
+ 100 func3: sampledso.bin: 7 values sample.ulonglong.ten: 1 values pmcd.buf.alloc: 7 values
+
+Three contexts, same host, same fd's ...
+ 100 func1: pmcd.buf.alloc: 7 values
+ 100 func1: pmcd.control.register: 16 values sampledso.bin: 9 values sample.ulonglong.ten: 1 values pmcd.buf.alloc: 7 values
+ 100 func1: sample.colour: 3 values pmcd.control.register: 16 values sampledso.bin: 9 values sample.ulonglong.ten: 1 values pmcd.buf.alloc: 7 values
+ 100 func1: sample.ulonglong.ten: 1 values pmcd.buf.alloc: 7 values
+ 100 func1: sampledso.bin: 9 values sample.ulonglong.ten: 1 values pmcd.buf.alloc: 7 values
+ 100 func2: pmcd.buf.alloc: 7 values
+ 100 func2: pmcd.control.register: 5 values sampledso.bin: 9 values sample.ulonglong.ten: 1 values pmcd.buf.alloc: 7 values
+ 100 func2: sample.colour: 3 values pmcd.control.register: 5 values sampledso.bin: 9 values sample.ulonglong.ten: 1 values pmcd.buf.alloc: 7 values
+ 100 func2: sample.ulonglong.ten: 1 values pmcd.buf.alloc: 7 values
+ 100 func2: sampledso.bin: 9 values sample.ulonglong.ten: 1 values pmcd.buf.alloc: 7 values
+ 100 func3: pmcd.buf.alloc: 7 values
+ 100 func3: pmcd.control.register: 16 values sampledso.bin: 7 values sample.ulonglong.ten: 1 values pmcd.buf.alloc: 7 values
+ 100 func3: sample.colour: 3 values pmcd.control.register: 16 values sampledso.bin: 7 values sample.ulonglong.ten: 1 values pmcd.buf.alloc: 7 values
+ 100 func3: sample.ulonglong.ten: 1 values pmcd.buf.alloc: 7 values
+ 100 func3: sampledso.bin: 7 values sample.ulonglong.ten: 1 values pmcd.buf.alloc: 7 values

@@ -1,0 +1,23 @@
+QA output created by 342
+dbpmda> open socket MYSOCKET
+Connect to PMDA on socket MYSOCKET
+dbpmda> getdesc on
+dbpmda> fetch sample.colour
+PMID(s): 29.0.5
+pmResult ... numpmid: 1
+  29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
+    inst [0 or ???] value NUMBER
+    inst [1 or ???] value NUMBER
+    inst [2 or ???] value NUMBER
+dbpmda> desc sample.colour
+PMID: 29.0.5
+    Data Type: 32-bit int  InDom: 29.1 0x7400001
+    Semantics: instant  Units: none
+dbpmda> profile 29.1 none
+dbpmda> profile 29.1 add 2
+dbpmda> fetch sample.colour
+PMID(s): 29.0.5
+pmResult ... numpmid: 1
+  29.0.5 (sample.colour): numval: 1 valfmt: 0 vlist[]:
+    inst [2 or ???] value NUMBER
+dbpmda> 

@@ -1,0 +1,69 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMGETPMNSLOCATION 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmGetPMNSLocation\f1 \- determine the location of the currently used PMNS 
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.sp
+int pmGetPMNSLocation(void);
+.sp
+cc ... \-lpcp
+.ft 1
+.SH DESCRIPTION
+If an application needs to know where the Performance Metrics Name Space
+(PMNS) is coming from then
+.B pmGetPMNSLocation
+will return whether it is from an archive, \f3PMNS_ARCHIVE\f1,
+or from a local PMNS file, \f3PMNS_LOCAL\f1, or from a remote pmcd,
+\f3PMNS_REMOTE\f1.
+.P
+This information may be useful in determining an appropriate error message
+depending on the PMNS' location.
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.I /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (5).
+Values for these variables may be obtained programmatically
+using the
+.BR pmGetConfig (3)
+function.
+.SH SEE ALSO
+.BR PMAPI (3),
+.BR pmGetConfig (3),
+.BR pmLoadASCIINameSpace (3),
+.BR pmLoadNameSpace (3),
+.BR pmTrimNameSpace (3),
+.BR pcp.conf (5),
+.BR pcp.env (5)
+and
+.BR pmns (5).
+.SH DIAGNOSTICS
+.IP \f3PM_ERR_NOPMNS\f1
+If is not possible to determine where the location of the PMNS is.
+This could be due to problems with the current context or being
+unable to load a local PMNS.

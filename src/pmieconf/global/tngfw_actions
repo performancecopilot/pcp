@@ -1,0 +1,45 @@
+#pmieconf-rules 1
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(5)
+# 
+
+shell	global.tngfw_action
+	enabled	= no
+	default	= "$tngfw_bin$/cawto -n '$tngfw_node$' -c '$tngfw_color$' -g $tngfw_category$ -s `/usr/bsd/hostname` '$rule$^ $action_expand$^'"
+	help	=
+"The CA Unicenter TNG console node at tngfw_node will be notified when
+the rule condition is true.
+This action requires the \"cawto\" program which is part of the CA
+Unicenter TNG Framework (refer to the tngfw_bin variable description
+also).";
+
+string	global.tngfw_bin
+	default	= "/usr/TNGFW/bin"
+	help	=
+"The full path to the TNG Framework \"cawto\" program, which is used to
+propagate external events into the Unicenter TNG Framework.";
+
+string	global.tngfw_node
+	default	= ""
+	help	=
+"The node on which the CA Unicenter TNG monitoring software is running.
+The node can be either an Internet address or host name (see hosts(4)),
+and is usually the local host.  An empty string is equivalent to the
+local host.";
+
+string	global.tngfw_color
+	default	= "default"
+	display	= no
+	help	=
+"The color that the CA Unicenter TNG event console on tngfw_node will
+use to display the event message string.  Valid values are \"default\",
+\"Red\", \"Orange\", \"yellow\", \"green\", \"blue\", \"pink\" or \"purple\".";
+
+string	global.tngfw_category
+	default	= "Performance"
+	display	= no
+	help	=
+"The category with which the CA Unicenter TNG event console on
+tngfw_node will associate each event.";
+
+# 
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(5)

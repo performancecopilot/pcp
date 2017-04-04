@@ -1,0 +1,14 @@
+//
+// at least $threshold full and at the current rate of growth will fill
+// the file system in less than $lead_time
+// ie. used + $lead_time * growth-rate > capacity
+
+delta = 1 min;		// check every minute
+threshold = 40;		// must be at least this full now (percentage)
+lead_time = "15min";	// lead time before the filesystem will be full
+
+some_inst (
+  100 * filesys.used / filesys.capacity > $threshold &&
+  filesys.used + $lead_time * ( rate filesys.used ) >
+	filesys.capacity 
+) -> print "filesystem will be full within $lead_time:" " %i";

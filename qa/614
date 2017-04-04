@@ -1,0 +1,45 @@
+#! /bin/sh
+# PCP QA Test No. 614
+# pv#794379
+#
+# pmns processing accepts hyphens when it shouldn't
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+
+_filter()
+{
+   sed -e "s#$tmp#TMP#g"
+}
+
+cat >$tmp.pmns_hyphen <<EOF
+root {
+    proc-nprocs 3:0:0
+}
+EOF
+
+cat >$tmp.pmns_underscore <<EOF
+root {
+    proc_nprocs 3:0:0
+}
+EOF
+
+pminfo -n $tmp.pmns_hyphen 2>&1 | _filter
+pminfo -n $tmp.pmns_underscore 2>&1 | _filter
+
+# success, all done
+status=0
+exit

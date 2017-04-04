@@ -1,0 +1,24 @@
+QA output created by 176
+Note: timezone set to local timezone of host "moomba" from archive
+
+metric:    sybase.SYBASE.disk_read
+archive:   archives/ace_v2
+host:      moomba
+start:     Mon Oct 30 14:25:09 1995
+end:       Mon Oct 30 14:25:20 1995
+semantics: cumulative counter (converting to rate)
+units:     count (converting to count / sec)
+samples:   12
+interval:  1.00 sec
+14:25:09.043  No values available
+14:25:10.043  No values available
+14:25:11.043  No values available
+14:25:12.043    12.00  
+14:25:13.043    80.00  
+14:25:14.043    92.00  
+14:25:15.043    94.00  
+14:25:16.043    94.00  
+14:25:17.043    41.00  
+14:25:18.043    34.00  
+14:25:19.043    29.00  
+14:25:20.043    29.00  

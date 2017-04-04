@@ -1,0 +1,54 @@
+#!/bin/sh
+# PCP QA Test No. 861
+# Exercise custom pmcd hostname settings for clients needing
+# accurate (and/or custom) remote host name information.
+#
+# Copyright (c) 2013 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+pminfo pmcd.hostname >/dev/null || _notrun "No support for pmcd.hostname metric"
+
+signal=$PCP_BINADM_DIR/pmsignal
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_cleanup()
+{
+    if [ -n "$pid" ]
+    then
+        echo "Terminating local pmcd process"
+        $signal -s TERM $pid
+        wait
+        pid=""
+    fi
+    cd $here; rm -rf $tmp.*
+}
+
+# real QA test starts here
+export PCP_PMCDCONF_PATH=$tmp.conf
+export PMCD_PORT=9876
+export PMCD_SOCKET=$tmp.pmcd.socket
+
+cat <<End-of-File >$tmp.conf
+pmcd	2	dso	pmcd_init	$PCP_PMDAS_DIR/pmcd/pmda_pmcd.$DSO_SUFFIX
+End-of-File
+pmcd -H no.such.host.pcp.io -f -x $seq.full -l $tmp.log &
+pid=$!
+pmcd_wait
+
+echo "Checking custom pmcd.hostname setting from client side:"
+pminfo -dfm pmcd.hostname
+
+# success, all done
+status=0
+
+exit

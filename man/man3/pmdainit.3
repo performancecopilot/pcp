@@ -1,0 +1,299 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2013 Red Hat.
+.\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMDAINIT 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmdaInit\f1,
+\f3pmdaRehash\f1,
+\f3pmdaSetFlags\f1 \- initialize a PMDA
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.br
+#include <pcp/impl.h>
+.br
+#include <pcp/pmda.h>
+.sp
+.ad l
+.hy 0
+.in +8n
+.ti -8n
+void pmdaInit(pmdaInterface *\fIdispatch\fP, pmdaIndom *\fIindoms\fP, int\ \fInindoms\fP, pmdaMetric\ *\fImetrics\fP, int\ \fInmetrics\fP);
+.br
+.ti -8n
+void pmdaRehash(pmdaExt *\fIpmda\fP, pmdaMetric\ *\fImetrics\fP, int\ \fInmetrics\fP);
+.br
+.ti -8n
+void pmdaSetFlags(pmdaInterface *\fIdispatch\fP, int \fIflags\fP);
+.sp
+.in
+.hy
+.ad
+cc ... \-lpcp_pmda \-lpcp
+.ft 1
+.SH DESCRIPTION
+.B pmdaInit
+initializes a PMDA so that it is ready to receive PDUs from
+.BR pmcd (1).
+The function expects as arguments the instance domain table 
+.RI ( indoms )
+and the metric description table
+.RI ( metrics )
+that are initialized by the PMDA. The arguments
+.I nindoms
+and
+.I nmetrics
+should be set to the number of instances and metrics in the tables,
+respectively.
+.PP
+Much of the
+.B
+pmdaInterface
+structure can be automatically initialized with 
+.BR pmdaDaemon (3),
+.BR pmdaGetOpt (3)
+and
+.BR pmdaDSO (3).
+.B pmdaInit
+completes the PMDA initialization phase with three operations.
+The first operation adds the domain and instance numbers to the instance and
+metric tables.  Singular metrics (metrics without an instance domain) should
+have the instance domain
+.B PM_INDOM_NULL
+set in the
+.I indom
+field of the
+.B pmDesc
+structure (see
+.BR pmLookupDesc (3)).
+Metrics with an instance domain should set this field to be the serial number
+of the instance domain in the
+.I indoms
+table.
+.PP
+The instance domain table may be made empty by setting
+.I indoms
+to NULL and
+.I nindoms
+to 0.
+This allows the caller to provide custom Fetch and Instance callback functions.
+The metric table may be made empty by setting
+.I metrics
+to NULL and
+.I nmetrics
+to 0.
+This allows the caller to provide custom Fetch and Descriptor callback functions.
+.SH EXAMPLE
+For example, a PMDA has three metrics: A, B and C, and two instance
+domains X and Y, with two instances in each instance domain.  The instance
+domain and metrics description tables could be defined as:
+.PP
+.nf
+.ft CW
+.in +0.5i
+static pmdaInstid _X[] = {
+    { 0, "X1" }, { 1, "X2" }
+};
+
+static pmdaInstid _Y[] = {
+    { 0, "Y1" }, { 1, "Y2" }
+};
+
+static pmdaIndom indomtab[] = {
+#define X_INDOM 0
+    { X_INDOM, 2, _X },
+#define Y_INDOM 3
+    { Y_INDOM, 2, _Y }
+};
+
+static pmdaMetric metrictab[] = {
+/* A */
+    { (void *)0, 
+      { PMDA_PMID(0,0), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, 
+        { 0,0,0,0,0,0} }, },
+/* B */
+    { (void *)0, 
+      { PMDA_PMID(0,1), PM_TYPE_U32, X_INDOM, PM_SEM_INSTANT, 
+        { 0,0,0,0,0,0} }, },
+/* C */
+    { (void *)0, 
+      { PMDA_PMID(0,2), PM_TYPE_DOUBLE, Y_INDOM, PM_SEM_INSTANT, 
+        { 0,1,0,0,PM_TIME_SEC,0} }, }
+};
+.in
+.fi
+.PP
+The metric description table defines metric A with no instance domain,
+metric B with instance domain X and metric C with instance domain Y.  Metric
+C has units of seconds, while the other metrics have no units (simple counters).
+.B pmdaInit
+will take these structures and assign the
+.BR PMDA (3)
+domain number to the
+.I it_indom
+field of each instance domain.  This identifier also replaces the
+.I indom
+field of all metrics which have that instance domain, so that they are
+correctly associated.
+.PP
+The second stage opens the 
+help text file, if one was specified with the
+.B \-h
+command line option (see
+.BR pmdaGetOpt (3))
+or as a
+.I helptext
+argument to
+.BR pmdaDSO (3)
+or
+.BR pmdaDaemon (3).
+.PP
+The final stage involves preparing the metric table lookup strategy.
+.SH "METRIC LOOKUP"
+When fetch and descriptor requests are made of the PMDA, each
+requested PMID must be mapped to a metric table entry.
+There are currently three strategies for performing this mapping \-
+direct, linear and hashed.
+Each has its own set of tradeoffs and an appropriate strategy
+should be selected for each PMDA.
+.PP
+If all of the metric PMID item numbers correspond to the position
+in the 
+.I metrics
+table, then direct mapping is used.
+This is the most efficient of the lookup functions as it involves
+a direct array index (no additional memory is required nor any
+additional processing overhead).
+If the PMID numbering requirement is met by the PMDA, it is ideal.
+This strategy can be explicitly requested by calling
+.BR pmdaSetFlags \c
+(\f2pmda\f1, \f2PMDA_FLAG_EXT_DIRECT\f1)
+before calling
+.BR pmdaInit .
+In this case, if the direct mapping is not possible (e.g. due to
+an oversight on the part of the PMDA developer), a warning is
+logged and the linear strategy is used instead.
+.PP
+The second strategy (linear search) is the default, when a direct
+mapping cannot be established.
+This provides greater flexibility in the PMID numbering scheme,
+as the PMDA item numbers do not have to be unique (hence, the PMID
+cluster numbers can be used more freely, which is often extremely
+convenient for the PMDA developer).
+However, lookup involves a linear walk from the start of the metric
+table until a matching PMID is found, for each requested PMID in a
+request.
+.PP
+The third strategy (hash lookup) can be requested by calling
+.BR pmdaSetFlags \c
+(\f2pmda\f1, \f2PMDA_FLAG_EXT_HASHED\f1)
+before calling
+.BR pmdaInit .
+This strategy is most useful for PMDAs with large numbers of metrics
+(many hundreds, or thousands).
+Such PMDAs will almost always use the cluster numbering scheme, so
+the direct lookup scheme becomes inappropriate.
+They may also be prepared to sacrifice a small amount of additional
+memory for a hash table, mapping PMID to metric table offsets, to
+speed up lookups in their vast metric tables.
+.PP
+This final strategy can also be used by PMDAs serving up dynamically
+numbered metrics.
+For this case, the
+.B pmdaRehash
+function should be used to replace the metric table when new metrics
+become available, or existing metrics are removed.
+The PMID hash mapping will be recomputed at the same time that the
+new metric table is installed.
+
+.SH DIAGNOSTICS
+.B pmdaInit
+will set
+.I dispatch->status
+to a value less than zero if there is an error that would prevent the 
+.BR PMDA (3)
+from successfully running.  
+.BR pmcd (1)
+will terminate the connection to the
+.BR PMDA (3)
+if this occurs.
+.PP
+.B pmdaInit
+may issue any of these messages:
+.TP 15
+.BI "PMDA interface version " interface " not supported"
+The
+.I interface
+version is not supported by 
+.BR pmdaInit .
+.TP
+.B "Using pmdaFetch() but fetch call back not set"
+The fetch callback,
+.BR pmdaFetch (3),
+requires an additional callback to be provided using
+.BR pmdaSetFetchCallBack (3).
+.TP
+.BI "Illegal instance domain " inst " for metric " pmid
+The instance domain
+.I inst
+that was specified for metric
+.I pmid
+is not within the range of the instance domain table.
+.TP
+.B No help text path specified
+The help text callback,
+.BR pmdaText (3),
+requires a help text file for the metrics to have been opened, however
+no path to the help text was specified as a command line option, or as an
+argument to
+.BR pmdaDSO (3)
+or
+.BR pmdaDaemon (3).
+This message is only a warning.
+.TP
+.BI "Direct mapping for metrics disabled @ " num
+The unit numbers of the metrics did not correspond to the index in the
+metric description table.  The direct mapping failed for metric number
+.I num
+in the
+.I metrics
+table.  This is less efficient but is not fatal and the message is only a 
+warning.
+.TP
+.BI "Hashed mapping for metrics disabled @ " num
+A memory allocation failure occurred while building the hash table to
+index the metric description table.
+This is a non-fatal warning message - a fallback to linear searching
+will be automatically performed should this situation arise.
+.SH CAVEAT
+The PMDA must be using 
+.B PMDA_INTERFACE_2 
+or later, as specified in the call to 
+.BR pmdaDSO (3)
+or 
+.BR pmdaDaemon (3).
+.SH SEE ALSO
+.BR newhelp (1),
+.BR pmcd (1),
+.BR PMAPI (3),
+.BR PMDA (3),
+.BR pmdaDaemon (3),
+.BR pmdaDSO (3),
+.BR pmdaFetch (3),
+.BR pmdaGetOpt (3),
+.BR pmdaText (3)
+and
+.BR pmLookupDesc (3).

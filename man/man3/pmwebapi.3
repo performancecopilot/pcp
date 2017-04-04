@@ -1,0 +1,340 @@
+'\"! tbl | nroff \-man
+'\" t macro stdmacro
+.\"
+.\" Copyright (c) 2013-2016 Red Hat, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\" 
+.TH PMWEBAPI 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3PMWEBAPI\f1 \- introduction to the Performance Metrics Web Application Programming Interface
+
+.de SAMPLE
+.br
+.RS
+.nf
+.nh
+..
+.de ESAMPLE
+.hy
+.fi
+.RE
+..
+
+.SH OVERVIEW
+
+The PMWEBAPI interface is a binding of a subset of the PMAPI to the
+web.  It uses HTTP as transport, REST as organizational style for
+request/parameter encoding (the GET and POST methods are
+interchangeable), and JSON as response encoding.  A context identifier
+is used as a persistent way to refer to PMAPI contexts across related
+web requests.  These context identifiers expire after a configurable
+period of disuse.  
+
+Errors generally result in HTTP-level error responses.
+An
+.nh
+.I Access-Control-Allow-Origin: *
+.hy
+header is added to all JSON responses.
+
+.SH CONTEXT CREATION: pmNewContext
+
+To create a new web context identifier, a web client invokes:
+.TP
+.B /pmapi/context?hostname=STRING
+.TP
+.B /pmapi/context?hostspec=STRING
+Creates a PM_CONTEXT_HOST PMAPI context with the given host name and/or extended
+specification.  If the host specification contains a userid/password combination,
+then the corresponding PMAPI context operations will require HTTP Basic authentication
+credentials with matching userid/password.
+.TP
+.B /pmapi/context?archivefile=ARCHIVE
+Creates a PM_CONTEXT_ARCHIVE PMAPI context with the given file name.  Only
+metrics from the given archive are available.
+.PP
+In addition, the web client may add the parameter
+.B &polltimeout=MMMM
+for a maximum interval (in seconds) between expected accesses to the
+given context.  This value is limited by pmwebd configuration, and is
+a courtesy to allow pmwebd to free up memory earlier in case of sudden
+web application shutdown.
+.PP
+If successful, the response from these requests is a JSON document of the form:
+
+.SAMPLE
+{ "context" : NNNNN }
+.ESAMPLE
+
+The number (a 32-bit unsigned decimal) is then used in all later operations.
+
+.SH PMAPI OPERATIONS
+
+The general form of the requests is as follows:
+.B /pmapi/NNNNN/OPERATION
+where
+.TP
+.B /pmapi
+is the fixed prefix for all PMWEBAPI operations,
+.TP
+.B NNNNN
+is a PMWEBAPI context number returned from a context-creation call, or
+assigned permanently at pmwebd startup, and
+.TP
+.B OPERATION?PARAM1=VALUE2&PARAM2=VALUE2
+identifies the operation and its URL-encoded parameters.  Some
+parameters may be optional.
+
+.SS METRIC METADATA: pmLookupName, pmLookupDesc, pmLookupText, pmTraversePMNS_r
+
+The general form of the requests is as follows:
+.TP
+.B /pmapi/NNNNN/_metric
+Traverse the entire Performance Metrics Name Space (PMNS).
+.TP
+.B /pmapi/NNNNN/_metric?prefix=NAME
+Traverse the subtree of PMNS with the prefix NAME.
+.PP
+The response is a JSON document that provides the metric metadata
+as an array.  For example:
+
+.SAMPLE
+{ "metrics": [ 
+    { "name":"foo.bar", "pmID":PPPP, "indom":DDDD,
+      "type":"32", "sem":"instant", "units":"MHz",
+      "text-oneline":"foo bar", "text-help":"blah blah blah" },
+    { "name":"foo.bar2", ... }
+    ...
+  ] }
+.ESAMPLE
+
+Most of the fields are self-explanatory.
+.TP
+name
+A name for the metric as defined in the PMNS.
+If the PMNS contains multiple names associated with the metric's
+Performance Metric Identifier (PMID),
+one of these will be returned via name, but there is no way to
+determine which of the duplicate names this will be.
+.TP
+PPPP
+the PMID
+.TP
+DDDD
+the instance domain
+.TP
+type
+from pmTypeStr
+.TP
+units
+from pmUnitsStr
+.TP
+sem
+an abbreviation of the metric semantic:
+.TS
+l l.
+PM_SEM_COUNTER  "counter"
+PM_SEM_INSTANT  "instant"
+PM_SEM_DISCRETE "discrete"
+.TE
+
+.SS METRIC VALUE: pmFetch
+
+The general form of the requests is as follows:
+.TP
+.B /pmapi/NNNNN/_fetch?names=NAME1,NAME2
+Fetch current values for given named metrics.
+.TP
+.B /pmapi/NNNNN/_fetch?pmids=PPPP1,PPPP2
+Fetch current values for given PMIDs.
+.PP
+If any of the names/pmids are valid, the response is a JSON document that
+provides the values for all requested metrics, for all their instances.
+
+.SAMPLE
+{ "timestamp": { "s":SEC, "us":USEC },
+  "values": [
+        { "pmid":PPPP1, "name":"NAME1",
+          "instances:" [
+               { "instance":IIII1, "value":VALUE1 }
+               { "instance":IIII2, "value":VALUE2 }
+               ...
+          ] },
+        { "pmid":PPPP2, "name":"NAME2", ... }
+        ...
+  ] }
+.ESAMPLE
+
+Most of the fields are self-explanatory.  Numeric metric types
+are represented as JSON integer or floating-point values.  Strings
+are passed verbatim, except that non-ASCII values are replaced
+with a Unicode 0xFFFD REPLACEMENT CHARACTER code.  Event type metrics
+are not currently supported.
+
+.SS INSTANCE DOMAINS METADATA: pmGetInDom, pmNameInDom, pmLookupInDom
+
+The general form of the requests is as follows:
+.TP
+.B /pmapi/NNNN/_indom?indom=DDDD
+List instances of the given instance domain.
+.TP
+.B /pmapi/NNNN/_indom?name=NAME
+List instances of the instance domain belonging to the named metric.
+.PP
+In addition, either query may be suffixed with:
+.TP
+.B &instance=IIII,JJJJ
+Restrict listings to given instance code numbers.
+.TP
+.B &iname=INAME1,INAME2
+Restrict listings to given instance names.
+.PP
+
+The response is a JSON document that provides the metric metadata
+as an array.  For example:
+
+.SAMPLE
+{ "indom":DDDD,
+   "instances": [
+      { "instance":IIII, "name":"INAME" }
+      ...
+   ] }
+.ESAMPLE
+
+.SS INSTANCE PROFILE: pmAddProfile, pmDelProfile
+
+The general form of these requests is as follows:
+.TP
+.B /pmapi/NNNN/_profile_reset?indom=DDDD
+These are not currently supported.
+.TP
+.B /pmapi/NNNN/_profile_add?indom=DDDD&instance=IIII,JJJJ
+These are not currently supported.
+.TP
+.B /pmapi/NNNN/_profile_add?indom=DDDD&iname=IIII,JJJJ
+These are not currently supported.
+.TP
+.B /pmapi/NNNN/_profile_del?indom=DDDD&instance=JJJJ
+These are not currently supported.
+.TP
+.B /pmapi/NNNN/_profile_del?indom=DDDD&iname=INAME1,INAME2
+These are not currently supported.
+
+.SS METRIC STORE: pmStore
+
+The general form of these requests is as follows:
+.TP
+.B /pmapi/NNNN/_store?name=NAME&value=VALUE
+Store a new value for given named metrics.
+.TP
+.B /pmapi/NNNNN/_store?pmid=PPPP&value=VALUE
+Store a new value for given performance metric identifier (PMID).
+.PP
+In addition, either query may be suffixed with:
+.TP
+.B &instance=IIII,JJJJ
+Restrict store to given instance code numbers.
+.TP
+.B &iname=INAME1,INAME2
+Restrict store to given instance names.
+.PP
+If successful, the response from these requests is a JSON document of the form:
+
+.SAMPLE
+{ "success" : true }
+.ESAMPLE
+
+.SS DERIVED METRICS: pmRegisterDerived
+
+.TP
+.B /pmapi/NNNNN/_derive?name=NAME&expr=EXPRESSION
+These are not currently supported.
+
+.SS CONTEXT COPY: pmDupContext
+
+.TP
+.B /pmapi/NNNNN/copy
+These are not currently supported.
+
+.SS CONTEXT CLOSE: pmDestroyContext
+
+.TP
+.B /pmapi/NNNNN/destroy
+This is not likely to be supported, as it is destructive and would offer
+a tempting target to brute-force attackers.  Instead, the pmwebd timeout
+is used to automatically free unused contexts. 
+
+.SH GRAPHITE
+
+When enabled, pmwebd can emulate a subset of the graphite web-api to
+allow web applications like graphite and grafana to extract data from
+all archives under the configured \-A directory.  The graphite
+namespace is constructed from the PCP archives using a simple mapping
+that encodes the Cartesian product of archives, metrics, and
+instance-domain instances into dot-separated strings.  Some
+metacharacter-quoting is employed to encode general strings into
+components.  Only numeric PCP metrics are exposed; COUNTER semantic
+values are rate-converted.
+
+.TS
+box,center;
+c | c | c
+c | c | l.
+position	number	purpose
+_
+1	1	the pathname of the archive .meta file
+2	N	the N components of the pcp metric name
+N+2	1	instance name of the metric (if any)
+.TE
+
+Since glob wildcarding is supported within metric name components,
+using them in the first component (an encoding of the archive name) is
+a good way to identify machines, or to match multiple archives
+spanning times of interest.
+
+We list here only the broadest outline of the supported calls.  pmwebd
+does not support every graphite web-api option, so many querystring
+parameters may be ignored.  Arithmetic/statistical functions on
+metrics are not supported.
+
+.TP
+.B /graphite/render?format=json&target=FOO&from=TIME&until=TIME
+Return a series of values of the given metrics, between the two times, sampled every 60 seconds.
+.TP
+.B /graphite/rawdata?target=FOO.BAR&from=TIME&until=TIME
+Same, with a slightly different result encoding.
+.TP
+.B /graphite/render?format=png&target=FOO&from=TIME&until=TIME&....
+Same, but render the curves into a PNG image file.  Several color- and
+rendering-control-related parameters are supported.
+.TP
+.B /graphite/metrics/find?query=FOO.BAR.*
+Provide incremental metric-tree traversal using wildcards.
+.TP
+.B /graphite/graphlot/findmetric?query=FOO+BAR
+Search through metrics with space-separated regular expressions.
+.TP
+.B /graphite/browser/search?q=FOO+BAR
+Same, with a slightly different result encoding.
+
+
+.SH SEE ALSO
+
+.BR PCPIntro (1),
+.BR PCPIntro (3),
+.BR pmwebd (1),
+.nh
+.BR http://graphite.readthedocs.org/
+.hy
+and
+.BR PMAPI (3)

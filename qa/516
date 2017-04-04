@@ -1,0 +1,38 @@
+#!/bin/sh
+# PCP QA Test No. 516
+# pmie dumps core on this
+#
+# Copyright (c) 2012 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+
+cat >$tmp.conf <<'End-of-File'
+// bad summary pmda config ... summary.ncpu.sum defined twice
+hosts = ":localhost :localhost";
+summary.ncpu.sum = sum_host hinv.ncpu $hosts;
+summary.ncpu.avg = avg_host hinv.ncpu $hosts;
+summary.ncpu.sum = max_host hinv.ncpu $hosts;
+End-of-File
+pmie -v -t 1 -T 1 <$tmp.conf >$tmp.out 2>$tmp.err
+cat $tmp.out $tmp.err \
+| sed \
+    -e 's/  */ /g' \
+    -e '/^summary/s/[0-9][0-9]*$/N/' \
+| _show_pmie_errors
+
+# all done
+status=0
+exit

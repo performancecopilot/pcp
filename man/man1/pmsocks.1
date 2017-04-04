@@ -1,0 +1,328 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMSOCKS 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmsocks\f1 \- shell wrapper for performance monitoring across firewalls
+.\" literals use .B or \f3
+.\" arguments use .I or \f2
+.SH SYNOPSIS
+\f3pmsocks\f1
+\f2path\f1
+[\f2args\f1 ...]
+.SH DESCRIPTION
+.B pmsocks
+allows Performance Co-Pilot (PCP) clients running on 
+hosts located on the internal side of a TCP/IP firewall to monitor
+remote hosts on the other side of the firewall.
+This assumes the firewall has been configured
+with a compliant
+.B sockd
+daemon and the necessary access controls are satisfied.
+.SH "CONFIGURATION"
+.B pmsocks
+uses the
+.BR tsocks (5)
+library, which is not included with PCP.
+You can get
+.B tsocks 
+from
+.IR http://www.progsoc.uts.edu.au/~delius/ .
+.SH "IRIX CONFIGURATION"
+On IRIX,
+.B pmsocks
+is simply a shell wrapper that sets the appropriate environment variables
+and then executes the
+.I path 
+program with
+.I args
+arguments (if any).
+.B pmsocks
+works by setting the 
+.B _RLD_LIST
+environment variable (see
+.BR rld (1))
+to load a dynamic shared library (see
+.BR dso (5))
+containing stubs for ``socksified'' network library functions;
+This ``socksified'' library is installed at
+.IR /usr/pcp/lib/libpcp_socks.so .
+.PP
+There are a number of conditions required for this
+to be successful and the user is strongly advised to
+read this whole manual page (in particular the
+.B CAVEAT
+section below) before attempting to use
+.BR pmsocks .
+.PP
+When
+.B pmsocks
+is installed, the
+.I /etc/pcp_socks.conf
+configuration file is also installed with
+minimum default settings.
+These settings specify that socket connections to the
+local host should be made directly, without
+contacting any socks server daemon.
+This is necessary so that PCP clients
+will be able to establish a local connection to the
+.BR X (1)
+server,
+and use PCP connections, possibly via a
+.B sockd
+daemon, to monitor remote hosts.
+In the present implementation of
+.BR pmsocks ,
+non-direct connections to the
+.BR X (1)
+server do not work, hence if the
+display is remote, then the remote host must be on the same side of the
+firewall and 
+.I /etc/pcp_socks.conf
+must be configured to connect directly to that host.
+.PP
+The format of
+.I /etc/pcp_socks.conf 
+is identical to
+.IR /etc/socks.conf
+as documented in the
+.I "CSTC-4.2"
+socks distribution.
+This distribution may be obtained via
+information contained in the socks FAQ at
+.ce 1
+ftp://coast.cs.purdue.edu/pub/tools/unix/socks/
+.PP
+If other socks clients are being used, then it is
+generally safe to remove
+.I /etc/pcp_socks.conf
+and instead make a symbolic link to
+.IR /etc/socks.conf .
+The file formats are identical.
+.PP
+The default configuration should be customized to suit the
+local environment so that connections to hosts
+located on the same side of the firewall as the local host
+do not use the socks daemon unnecessarily.
+The default configuration 
+is
+.sp 1
+.in 1i
+direct LOCALHOSTNAME 255.255.255.255 # direct localhost
+.br
+sockd 0.0.0.0 0.0.0.0 # contact sockd everywhere else
+.in
+.sp 1
+Note that the string
+.B LOCALHOSTNAME
+is dynamically substituted at run time with the name of the local host,
+as obtained by a call to
+.BR gethostname (2).
+Assuming the real IP address of the local host is 
+.B 1.2.3.4
+and that a normal class-c subnet is used locally,
+the most common customization would be to
+specify direct connections for all hosts on the
+local subnet, by inserting another ``direct'' line as follows:
+.sp 1
+.in 1i
+direct LOCALHOSTNAME 255.255.255.255 # direct localhost
+.br
+direct 1.2.3.0 255.255.255.0 # direct on local subnet
+.br
+sockd 0.0.0.0 0.0.0.0 # contact sockd everywhere else
+.in
+.PP
+The order of lines is important \- the first line
+matching the requested destination IP address during a
+.BR connect (2)
+call (after the requested IP address has been
+masked by the third parameter of the
+.IR /etc/pcp_socks.conf
+line),
+specifies via the first parameter whether to contact the socks daemon
+or whether to attempt a direct connection.
+.SH "IRIX ENVIRONMENT VARIABLES"
+There are several environment variables used by
+.B pmsocks
+as follows:
+.TP 10
+.B SOCKS_SERVER
+Specifies the host name or IP address of the host
+running the
+.B sockd
+daemon.
+Usually this is the name of the firewall host.
+.TP 10
+.B SOCKS_PORT
+The TCP/IP port to use when contacting
+.B sockd
+on the
+.B SOCKS_SERVER
+host.
+The default is
+.BR 1080 .
+.TP 10
+.B SOCKS_NS
+The host name of the name server to use,
+usually to resolve the IP address of
+.BR SOCKS_SERVER .
+.TP 10
+.B SOCKS_DEBUG
+If present in the environment,
+.B libpcp_socks
+will print debugging information to the
+.I stderr
+stream.
+There are only two levels of debugging, on or off.
+This is only really useful for the developers
+because the debugging information assumes
+knowledge of the
+.B libpcp_socks
+source code.
+.TP 10
+.B SOCKS_BANNER
+If this is set, whenever a client calls
+.B libpcp_socks
+it will echo a message to
+.I stdout
+containing version information.
+This can be useful to check
+.B libpcp_socks
+is working in the absence of verbose logging.
+.TP 10
+.B _RLD_LIST
+.B pmsocks
+sets this to exactly
+.B /usr/pcp/lib/libpcp_socks.so:DEFAULT
+.br
+It is strongly recommended this NOT be set
+in the environment of interactive shells.
+.TP 10
+.B PMCD_CONNECT_TIMEOUT
+Specifies the time-out, in seconds, for connections to
+.BR pmcd (1).
+When using
+.BR pmsocks ,
+this may need to be increased from the default (5 seconds)
+due to the additional delays introduced as a result of using
+.BR sockd .
+See
+.BR PMAPI (3) 
+for further details about this variable.
+.SH CAVEAT
+The following notes should be considered carefully:
+.TP 5
+0)
+Because
+.B sockd
+can only handle TCP/IP sockets,
+.B pmsocks
+never attempts to use
+.B sockd
+for sockets of type
+.B SOCK_DGRAM
+or if the
+.B domain
+parameter in a call to 
+.BR socket (2)
+is 
+.B PF_UNIX
+(unix domain sockets should never need to use
+.B sockd
+anyway).
+.TP 5
+1)
+Some firewall products do not support ``socksified'' applications,
+and in these cases,
+.B pmsocks
+cannot be used.
+In this case, it will be necessary to configure the firewall to allow
+connections through the firewall for the PMCD communications port,
+typically tcp/4321.
+.TP 5
+2) 
+The PCP protocol is TPC/IP-based and works with the socks protocol,
+but connections which use UDP/DATAGRAM sockets 
+or remote X11 connections via 
+.B sockd
+may not work.
+If the remote display host is on the same side of the firewall
+as the application, this may be circumvented by configuring
+the remote display host to use direct connections - see above.
+Also, using X11 display options which use shared memory may hang
+the X server when used with
+.BR pmsocks .
+.TP 5
+3) 
+If the
+.B pmsocks
+configuration file is not present, then
+.B pmsocks
+will exit with an error message.
+.TP 5
+4)
+.B pmsocks
+uses the locally configured name server or resolver
+(see
+.BR resolver (5))
+to resolve host names to IP addresses.
+This may or may not be capable of resolving host names
+on the other side of the firewall.
+.TP 5
+5)
+When used over a WAN, often the
+.B sockd
+daemon will be a long way from the application.
+This may result in PCP client connections timing out before
+connecting to the remote 
+.BR pmcd .
+If this is occurring, set the environment variable
+.B PMCD_CONNECT_TIMEOUT
+to a higher value than the default (5 seconds).
+Refer to
+.BR PMAPI (3) 
+for further details about this variable.
+.TP 5
+6)
+When using
+.B pmsocks
+to connect to
+.BR pmcd (1),
+but 
+.I "``Connection Refused''"
+error messages are returned,
+it is not immediately obvious whether
+.BR pmcd (1)
+is returning the error or
+.BR sockd .
+.SH "COPYRIGHT NOTICE"
+.B tsocks
+is covered by the GPL license and is copyright
+Shaun Clowes (delius@progsoc.org).
+.SH "FILES"
+.TP 10
+.B /etc/tsocks.conf
+configuration file
+.SH "SEE ALSO"
+.BR pmcd (1),
+.BR pminfo (1),
+.BR pmlogger (1),
+.BR pmval (1),
+.BR X (1),
+.BR PMAPI (3),
+.BR resolver (5),
+and
+.BR tsocks (5).

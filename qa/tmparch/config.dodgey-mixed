@@ -1,0 +1,13 @@
+#
+# this one is for the util progs and QA - check for changes in the
+# instance domain during the log ... problems with interplote mode
+# and missing instances
+#
+
+log mandatory on 500 msec {
+	sample.dodgey.value [ d3 d4 d5 ]
+}
+
+log mandatory on 250 msec {
+	sample.dodgey.value [ d1 d2 ]
+}

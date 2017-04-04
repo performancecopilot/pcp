@@ -1,0 +1,82 @@
+#
+# Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+# 
+# simple PMDA help file in the ASCII format
+#
+# lines beginning with a # are ignored
+# lines beginning @ introduce a new entry of the form
+#  @ metric_name oneline-text
+#  help text goes
+#  here over multiple lines
+#  ...
+#
+# the metric_name is decoded against the default PMNS -- as a special case,
+# a name of the form NNN.MM (for numeric NNN and MM) is interpreted as an
+# instance domain identification, and the text describes the instance domain
+#
+# blank lines before the @ line are ignored
+#
+
+@ SIMPLE.0 Instance domain "colour" for simple PMDA
+Universally 3 instances, "red" (0), "green" (1) and "blue" (3).
+
+@ SIMPLE.1 Dynamic instance domain "time" for simple PMDA
+An instance domain which is computed on-the-fly for exporting current time
+information.  Refer to the help text for simple.now for a more complete
+explanation.
+
+@ simple.numfetch Number of pmFetch operations.
+The cumulative number of pmFetch operations directed to the "simple"
+PMDA.
+
+This counter may be modified with pmstore(1).
+
+@ simple.color Metrics which increment with each fetch
+This metric has 3 instances, designated "red", "green" and "blue".
+
+The value of the metric is monotonic increasing in the range 0 to
+255, then back to 0.  The different instances have different starting
+values, namely 0 (red), 100 (green) and 200 (blue).
+
+The metric values my be altered using pmstore(1).
+
+@ simple.time.user Time agent has spent executing user code
+The time in seconds that the CPU has spent executing user code for the
+agent.
+
+@ simple.time.sys Time agent has spent executing system code
+The time in seconds that the CPU has spent executing system code for
+the agent.
+
+@ simple.now Time of day with a configurable instance domain
+The value reflects the current time of day through a dynamically
+reconfigurable instance domain.  On each metric value fetch request,
+the agent checks to see whether the configuration file in
+$PCP_PMDAS_DIR/simple/simple.conf has been modified - if it has then
+the file is re-parsed and the instance domain for this metric is again
+constructed according to its contents.
+
+This configuration file contains a single line of comma-separated time
+tokens from this set:
+  "sec"  (seconds after the minute),
+  "min"  (minutes after the hour),
+  "hour" (hour since midnight).
+
+An example configuration file could be:  sec,min,hour
+and in this case the simple.now metric would export values
+for the three instances "sec", "min" and "hour" corresponding
+respectively to the components seconds, minutes and hours of the
+current time of day.
+
+The instance domain reflects each token present in the file, and the
+values reflect the time at which the PMDA processes the fetch.

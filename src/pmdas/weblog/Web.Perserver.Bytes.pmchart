@@ -1,0 +1,90 @@
+#!/bin/sh
+
+. $PCP_DIR/etc/pcp.env
+
+tmp=`mktemp -d /var/tmp/pcp.XXXXXXXXX` || exit 1
+trap "rm -rf $tmp; exit" 0 1 2 3 15
+
+echo "/\"/s///g" >$tmp/sed
+
+pmprobe -I $* web.perserver.bytes.cached.total web.perserver.bytes.total > $tmp/pmprobe
+l1=`head -n 1 $tmp/pmprobe`
+l2=`tail -n 1 $tmp/pmprobe`
+
+num_caches=`echo $l1 | cut -f2 -d\ `
+num_servers=`echo $l2 | cut -f2 -d\ `
+if [ $num_servers -gt 0 ]
+then
+    caches=`echo $l1 | cut -f3- -d\ `
+    servers=`echo $l2 | cut -f3- -d\ `
+
+    if [ $num_caches -lt 0 ]
+    then
+    # an old pmda - quietly handle all servers as if they were CERN - show only totals
+    caches="NeVeR_MaTcH"
+    num_caches=0
+    fi
+elif [ $num_servers -eq 0 ]
+then
+        $PCP_XCONFIRM_PROG -c -B OK -header "No Active Servers - cannot continue" \
+        -t "$message" \
+        -icon info > /dev/null
+        exit
+else
+        message=`pmerr $num_servers | cut -f5- -d\ `
+	$PCP_XCONFIRM_PROG -c -B OK -header "Fatal error - cannot continue" \
+	-t "$message" \
+	-icon error > /dev/null
+	exit
+fi
+
+#
+# if too many instances, turn off all legends
+#
+legendp=on
+if [ $num_servers -gt 6 ]
+then
+  legendp=off
+fi
+
+if [ $num_servers -gt 12 ]
+then
+  $PCP_XCONFIRM_PROG -c -B Cancel -b Continue -header \
+  "Too many charts" \
+  -t "There is 1 chart per server, more than can reasonably be displayed on the screen"  \
+  -icon warning | grep Cancel >/dev/null
+if [ $? -eq 0 ]
+then
+   exit
+fi
+fi
+
+# chart preamble
+#
+cat > $tmp/base <<End-of-File
+#pmchart
+Version 2.0 host dynamic
+
+End-of-File
+
+i=1
+while [ $i -le $num_servers ]
+do
+server=`echo $servers | cut -f$i -d\ `
+echo $caches | grep $server >/dev/null
+if [ $? -eq 0 ]
+then
+    j=`echo $server | sed -f $tmp/sed`
+    echo Chart Title \"Bytes sent by $j\" Style stacking Legend $legendp >> $tmp/base
+    echo   Plot Color \#3030FF Host \* Metric web.perserver.bytes.cached.total Instance $j >> $tmp/base
+    echo   Plot Color \#FF3030 Host \* Metric web.perserver.bytes.uncached.total Instance $j >> $tmp/base
+else
+    j=`echo $server | sed -f $tmp/sed`
+    echo Chart Title \"Total Bytes sent by $j\" Style bars Legend off>> $tmp/base
+    echo   Plot Color \#FF3030 Host \* Metric web.perserver.bytes.total Instance $j >> $tmp/base
+fi
+i=`expr $i + 1`
+done
+
+cat $tmp/base
+rm -rf $tmp

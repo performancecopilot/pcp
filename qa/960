@@ -1,0 +1,125 @@
+#!/bin/sh
+# PCP QA Test No. 960
+# Exercise ds389 log parsing PMDA.
+#
+# Copyright (c) 2014 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ -d $PCP_PMDAS_DIR/ds389log ] || _notrun "ds389log PMDA directory is not installed"
+
+which logconv.pl >/dev/null 2>&1 || _notrun "No logconv.pl script installed"
+$sudo ls /var/log/dirsrv/slapd-*/access 2>&1 >/dev/null || \
+    _notrun "No ds389 directory log files accessible"
+id dirsrv >/dev/null 2>&1 || _notrun "No dirsrv (default) account installed"
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+
+pmdads389log_remove()
+{
+    echo
+    echo "=== remove ds389log agent ==="
+    $sudo ./Remove >$tmp.out 2>&1
+    _filter_pmda_remove <$tmp.out
+}
+
+pmdads389log_install()
+{
+    # start from known starting points
+    cd $PCP_PMDAS_DIR/ds389log
+    $sudo ./Remove >/dev/null 2>&1
+    $sudo $PCP_RC_DIR/pmcd stop
+
+    cat <<EOF >$tmp.config
+\$server = '$server';
+\$bindpw = '$passwd';
+EOF
+    echo "pmdads389log config:" >> $here/$seq.full
+    cat $tmp.config >> $here/$seq.full
+
+    [ -f $PCP_PMDAS_DIR/ds389log/ds389log.conf ] && \
+    $sudo cp $PCP_PMDAS_DIR/ds389log/ds389log.conf $tmp.backup
+    $sudo cp $tmp.config $PCP_PMDAS_DIR/ds389log/ds389log.conf
+
+    echo
+    echo "=== ds389log agent installation ==="
+    $sudo ./Install </dev/null >$tmp.out 2>&1
+    # Check metrics have appeared ... W warnings, N metrics and V values
+    # (expecting warnings from the not-supported-in-this-version metrics)
+    _filter_pmda_install <$tmp.out \
+    | sed \
+        -e '/^Waiting for pmcd/s/\.\.\.[. ]*$/DOTS/' \
+    | $PCP_AWK_PROG '
+/Check ds389log metrics have appeared/ { if ($7 >= 0 && $7 <= 50) $7 = "N"
+                                         if ($10 >= 10 && $10 <= 50) $10 = "X"
+                                       }
+                                       { print }'
+    echo Install: >> $here/$seq.full
+    cat $tmp.out >> $here/$seq.full
+    echo Logfile: >> $here/$seq.full
+    cat $PCP_LOG_DIR/pmcd/ds389log.log >> $here/$seq.full
+}
+
+pmdads389log_cleanup()
+{
+    if [ -f $tmp.access ]; then
+        $sudo rm -fr /var/log/dirsrv
+    fi
+    if [ -f $tmp.backup ]; then
+        $sudo cp $tmp.backup $PCP_PMDAS_DIR/ds389log/ds389log.conf
+        $sudo rm $tmp.backup
+    else
+        $sudo rm -f $PCP_PMDAS_DIR/ds389log/ds389log.conf
+    fi
+    # note: _restore_systemd_restart pmcd done in _cleanup_pmda()
+    _cleanup_pmda ds389log
+}
+
+_prepare_pmda ds389log
+trap "pmdads389log_cleanup; exit \$status" 0 1 2 3 15
+
+_stop_systemd_restart pmcd
+
+_filter()
+{
+    # squash "not supported" warnings, turn values into VALUE
+    LC_COLLATE=POSIX sort -n | \
+    sed \
+	-e 's/ 1 [0-9][0-9]*$/ 1 VALUE/g' \
+    # end
+}
+
+# If there's a local ds390 install, use its access log.
+# Else use the canned file included in the testsuite.
+#
+_prepare_ds389_log()
+{
+    if [ ! -d /var/log/dirsrv ]
+    then
+	touch $tmp.access
+	dslog=/var/log/dirsrv/slapd-`hostname`
+	$sudo mkdir -p "$dslog"
+	$sudo cp $here/archives/ds390-access.gz "$dslog"
+    fi
+}
+
+# real QA test starts here
+_prepare_ds389_log
+pmdads389log_install
+
+echo
+echo "=== extract metric values ==="
+pmprobe -v ds389log 2>&1 | tee -a $here/$seq.full | _filter
+
+pmdads389log_remove
+# success, all done
+status=0
+exit

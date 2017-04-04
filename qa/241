@@ -1,0 +1,142 @@
+#!/bin/sh
+# PCP QA Test No. 241
+# mmv pmda exerciser ... Martin's test case that was failing
+# mmv install/cleanup borrowed from 647
+#
+# Copyright (c) 2009 Silicon Graphics, Inc.  All Rights Reserved.
+# Copyright (c) 2009 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ -d $PCP_PMDAS_DIR/mmv ] || _notrun "mmv PMDA directory is not installed"
+perl -e "use PCP::MMV" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "perl PCP::MMV module not installed"
+
+status=0	# success is the default!
+done_clean=false
+MMV_STATS_DIR="$PCP_TMP_DIR/mmv"
+
+$sudo rm -rf $tmp.*
+
+# for QA the default install for mmv PMDA is as a dso, not a daemon
+#
+cat <<End-of-File >$tmp.input
+b
+dso
+End-of-File
+
+_cleanup()
+{
+    if $done_clean
+    then
+	:
+    else
+	_restore_config $PCP_PMCDCONF_PATH
+	[ -d $MMV_STATS_DIR.$seq ] && _restore_config $MMV_STATS_DIR
+	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+	_wait_for_pmcd
+	_wait_for_pmlogger
+	_restore_systemd_restart pmcd
+	if $install_on_cleanup
+	then
+	    ( cd $PCP_PMDAS_DIR/mmv; $sudo ./Install <$tmp.input >/dev/null 2>&1 )
+	else
+	    ( cd $PCP_PMDAS_DIR/mmv; $sudo ./Remove </dev/null >/dev/null 2>&1 )
+	fi
+	rm -f $tmp.*
+	done_clean=true
+    fi
+    exit $status
+}
+
+install_on_cleanup=false
+pminfo mmv >/dev/null 2>&1 && install_on_cleanup=true
+
+trap "_cleanup" 0 1 2 3 15
+
+_stop_systemd_restart pmcd
+
+home="$PCP_PMDAS_DIR"
+iam=mmv
+if [ ! -d "$home/$iam" ]
+then
+    echo "Where is $home/$iam?"
+    exit 1
+fi
+cd "$home/$iam"
+unset ROOT MAKEFLAGS
+
+# copy the pmcd config file to restore state later.
+_save_config $PCP_PMCDCONF_PATH
+# move the MMV directory to restore contents later.
+[ -d $MMV_STATS_DIR ] && _save_config $MMV_STATS_DIR
+
+# start from a known starting point
+$sudo ./Remove >/dev/null 2>&1
+
+$sudo rm -rf $MMV_STATS_DIR
+$sudo mkdir $MMV_STATS_DIR 2>/dev/null
+$sudo chmod 1777 $MMV_STATS_DIR 2>/dev/null
+
+cat <<'End-of-File' >$tmp.perl
+use strict;
+use warnings;
+use PCP::MMV;
+
+my @indoms = ();
+my @metrics = (
+    ['export_value',
+     1, MMV_TYPE_U64, MMV_INDOM_NULL,
+     mmv_units(0,0,0,0,0,0), MMV_SEM_INSTANT,
+     'A counter of some value', ''
+    ]
+);
+
+my $handle = mmv_stats_init('mymmv', 0, MMV_FLAG_PROCESS, \@metrics, \@indoms);
+die ("mmv_stats_init failed\n") unless (defined($handle));
+
+while (my $line = <STDIN>) {
+    print $line;
+    next if not $line =~ /^new value:/;
+    
+    my $val;
+    ($val = $line) =~ s/^new value: (\d+)/$1/;
+    chomp $val;
+    mmv_stats_set($handle, 'export_value', '', $val);
+}
+End-of-File
+
+# real QA test starts here
+
+echo
+echo "=== $iam agent installation ==="
+$sudo ./Install -e <$tmp.input >$tmp.out 2>&1
+_filter_pmda_install <$tmp.out
+
+value=5
+for i in 1 2 3 4
+do
+   echo "new value: $value"
+   value=`expr $value + 1`
+   sleep 1
+   [ "$i" = 1 ] && pmval -t 0.5sec -s 20 mmv.mymmv.export_value >$tmp.out 2>&1 &
+   sleep 1
+done \
+| perl $tmp.perl
+
+
+wait
+
+echo "Filtered pmval output ..."
+grep '^[a-z]' $tmp.out | sed -e '/^host:.*$/s/.*/HOST/'
+grep '^[^a-z]' $tmp.out | LC_COLLATE=POSIX sort -u
+
+# success, all done
+exit

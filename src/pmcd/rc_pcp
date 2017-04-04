@@ -1,0 +1,76 @@
+#!/bin/sh
+#
+# Copyright (c) 2011 Ken McDonell.  All Rights Reserved.
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+# 
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+# 
+# Legacy wrapper for the Performance Co-Pilot Daemon(s) Start / Stop scripts
+#
+# This script is NOT part of the "rc" framework ... the "pmcd" and "pmlogger"
+# scripts ARE part of the "rc" framework.  This script is provided as a
+# legacy bridge for any scripts or procedures that used $PCP_RC_DIR/pcp
+# from the days before PCP 3.6.
+#
+# The following is for chkconfig on RedHat based systems
+# chkconfig:
+# description: Legacy init script wrapper for the Performance Co-Pilot (PCP) daemons
+#
+# The following is for insserv(1) based systems,
+# e.g. SuSE, where chkconfig is a perl script.
+### BEGIN INIT INFO
+# Provides:          pcp
+# Required-Start:
+# Should-Start:
+# Required-Stop:
+# Should-Stop:
+# Default-Start:
+# Default-Stop:
+# Short-Description: Legacy control for PCP daemons
+# Description:       Legacy init script wrapper for the Performance Co-Pilot (PCP) daemons
+### END INIT INFO
+
+. $PCP_DIR/etc/pcp.env
+
+tmp=`mktemp -d /var/tmp/pcp.XXXXXXXXX` || exit 1
+status=0
+trap "rm -rf $tmp; exit \$status" 0 1 2 3 15
+prog=$PCP_RC_DIR/pcp
+
+_usage()
+{
+    echo "Usage: $pmprog [-v] {start|restart|condrestart|stop|status|reload|force-reload}"
+}
+
+case "$1" in
+
+  'start'|'restart'|'condrestart'|'reload'|'force-reload')
+	$PCP_RC_DIR/pmcd $*
+	$PCP_RC_DIR/pmlogger $*
+        ;;
+
+  'stop')
+	$PCP_RC_DIR/pmlogger $*
+	$PCP_RC_DIR/pmcd $*
+        ;;
+
+  'status')
+	$PCP_RC_DIR/pmcd $* || status=$?
+	$PCP_RC_DIR/pmlogger $* || status=$?
+	;;
+
+  *)
+	_usage
+        ;;
+esac

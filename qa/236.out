@@ -1,0 +1,114 @@
+QA output created by 236
+Error handling ...
+Usage: pmnsadd [-d] [-n namespace] file
+Usage: pmnsadd [-d] [-n namespace] file
+Usage: pmnsdel [options] metricpath [...]
+
+Options:
+  -n FILE, --namespace=FILE
+                        use an alternative PMNS
+  -?, --help            show this usage message and exit
+Usage: pmnsdel [options] metricpath [...]
+
+Options:
+  -n FILE, --namespace=FILE
+                        use an alternative PMNS
+  -?, --help            show this usage message and exit
+
+Simple adds ... expect one.m1 in each case
+one.m1 PMID: 1.1.1
+event.flags PMID: 511.0.1
+event.missed PMID: 511.0.2
+one.m1 PMID: 1.1.1
+event.flags PMID: 511.0.1
+event.missed PMID: 511.0.2
+one.m1 PMID: 1.1.1
+event.flags PMID: 511.0.1
+event.missed PMID: 511.0.2
+one.m1 PMID: 1.1.1
+event.flags PMID: 511.0.1
+event.missed PMID: 511.0.2
+
+Simple deletes ... expect empty PMNS in each case
+event.flags PMID: 511.0.1
+event.missed PMID: 511.0.2
+root {
+}
+event.flags PMID: 511.0.1
+event.missed PMID: 511.0.2
+root {
+}
+event.flags PMID: 511.0.1
+event.missed PMID: 511.0.2
+root {
+}
+event.flags PMID: 511.0.1
+event.missed PMID: 511.0.2
+root {
+}
+
+Expect one.m1 and two.m2 ...
+one.m1 PMID: 1.1.1
+two.m2 PMID: 2.2.2
+event.flags PMID: 511.0.1
+event.missed PMID: 511.0.2
+
+... add two.three.* ...
+one.m1 PMID: 1.1.1
+two.m2 PMID: 2.2.2
+two.three.m3 PMID: 3.3.3
+two.three.m4 PMID: 4.4.4
+event.flags PMID: 511.0.1
+event.missed PMID: 511.0.2
+
+... add five.* and five.six.* ...
+one.m1 PMID: 1.1.1
+two.m2 PMID: 2.2.2
+two.three.m3 PMID: 3.3.3
+two.three.m4 PMID: 4.4.4
+five.m10 PMID: 10.10.10
+five.six.m11 PMID: 11.11.11
+event.flags PMID: 511.0.1
+event.missed PMID: 511.0.2
+
+... add two.three.four.* ...
+one.m1 PMID: 1.1.1
+two.m2 PMID: 2.2.2
+two.three.m3 PMID: 3.3.3
+two.three.m4 PMID: 4.4.4
+two.three.four.m5 PMID: 5.5.5
+two.three.four.m6 PMID: 6.6.6
+two.three.four.m7 PMID: 7.7.7
+five.m10 PMID: 10.10.10
+five.six.m11 PMID: 11.11.11
+event.flags PMID: 511.0.1
+event.missed PMID: 511.0.2
+
+... delete two.three.four.* ...
+one.m1 PMID: 1.1.1
+two.m2 PMID: 2.2.2
+two.three.m3 PMID: 3.3.3
+two.three.m4 PMID: 4.4.4
+five.m10 PMID: 10.10.10
+five.six.m11 PMID: 11.11.11
+event.flags PMID: 511.0.1
+event.missed PMID: 511.0.2
+
+... delete five.* ...
+one.m1 PMID: 1.1.1
+two.m2 PMID: 2.2.2
+two.three.m3 PMID: 3.3.3
+two.three.m4 PMID: 4.4.4
+event.flags PMID: 511.0.1
+event.missed PMID: 511.0.2
+
+... delete two.three.* ...
+one.m1 PMID: 1.1.1
+two.m2 PMID: 2.2.2
+event.flags PMID: 511.0.1
+event.missed PMID: 511.0.2
+
+... delete two.* ...
+one.m1 PMID: 1.1.1
+event.flags PMID: 511.0.1
+event.missed PMID: 511.0.2

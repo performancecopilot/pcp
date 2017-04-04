@@ -1,0 +1,39 @@
+#! /bin/sh
+# PCP QA Test No. 131
+# values for PMCD_CONNECT_TIMEOUT < 1 ??
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.check
+. ./common.config
+
+[ -z "$PCPQA_FAR_PMCD" ] && _notrun 'PCPQA_FAR_PMCD is not set in ./common.config'
+
+trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+
+# real QA test starts here
+farhost=$PCPQA_FAR_PMCD
+
+# was 1msec, but that was too short of $PCPQA_FAR_PMCD was not that
+# far away!  Changed to 10usec, 1 Jan 2003
+#
+PMCD_CONNECT_TIMEOUT=0.00001
+export PMCD_CONNECT_TIMEOUT
+
+# check basic connectivity to avoid false failures (non-timeout errors)
+$PCP_BINADM_DIR/pmcd_wait -h $farhost -v 2>&1 | egrep -q 'No route to host'
+[ $? -ne 0 ] || _notrun "Cannot connect to far away host \"$farhost\""
+
+echo "Expect: Connection timed out"
+echo "The far host is $farhost" >$seq.full
+pminfo -f -h $farhost pmcd 2>&1 \
+| sed \
+    -e "s/$farhost/HOST/g" \
+    -e 's/Operation timed out/Connection timed out/' \
+    -e 's/Timeout waiting for a response from PMCD/Connection timed out/'

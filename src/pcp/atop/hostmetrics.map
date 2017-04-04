@@ -1,0 +1,18 @@
+hostmetrics {
+	hinv.ncpu		NRCPUS
+	hinv.ndisk		NRDISK
+	hinv.ninterface		NRINTF
+	hinv.map.dmname		MAP_DMNAME
+	hinv.map.mdname		MAP_MDNAME
+
+	hinv.pagesize		HOST_PAGESIZE
+	kernel.all.hz		HOST_HERTZ
+
+	kernel.uname.release	HOST_RELEASE
+	kernel.uname.version	HOST_VERSION
+	kernel.uname.machine	HOST_MACHINE
+	kernel.uname.nodename	HOST_NODENAME
+
+	# end marker - provides count
+	.			HOST_NMETRICS
+}

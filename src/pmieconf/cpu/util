@@ -1,0 +1,62 @@
+#pmieconf-rules 1
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(5)
+#
+
+rule	cpu.util
+	summary	= "$rule$"
+	predicate =
+"some_host (
+    100 * ( kernel.all.cpu.user $hosts$ +
+	    kernel.all.cpu.sys $hosts$ +
+	    kernel.all.cpu.intr $hosts$ ) / hinv.ncpu $hosts$
+	> $threshold$
+)"
+	enabled	= yes
+	version	= 1
+	help	=
+"The average processor utilization over all CPUs exceeded threshold
+percent during the last sample interval.";
+
+string	rule
+	default	= "High average processor utilization"
+	modify	= no
+	display	= no;
+
+percent	threshold
+	default	= 90
+	help	=
+"Threshold percentage for CPU saturation, in the range 0 (idle)
+to 100 (completely busy), independent of the number of CPUs.";
+
+string	action_expand
+	default	= %v%util@%h
+	display	= no
+	modify	= no;
+
+string	email_expand
+	default	= "host: %h average CPU utilization: %v%"
+	display	= no
+	modify	= no;
+
+
+# Configuration info specific to non-PCP tools follows...
+# 
+
+# for SGI Embedded Support Partner integration:
+string	esp_type
+	default	= "0x200045"
+	display	= no
+	modify	= no;
+
+# for EnlightenDSM integration:
+string	enln_test
+	default	= cpu.util
+	display	= no
+	modify = no;
+string	enln_units
+	default	= %util
+	display	= no
+	modify = no;
+
+# 
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(5)

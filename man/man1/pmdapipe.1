@@ -1,0 +1,320 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2015 Red Hat.
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.TH PMDAPIPE 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmdapipe\f1 \- command output capture performance metrics domain agent (PMDA)
+.SH SYNOPSIS
+\f3$PCP_PMDAS_DIR/pipe/pmdapipe\f1
+[\f3\-c\f1 \f2configfile\f1]
+[\f3\-d\f1 \f2domain\f1]
+[\f3\-l\f1 \f2logfile\f1]
+[\f3\-m\f1 \f2memory\f1]
+.SH DESCRIPTION
+.B pmdapipe
+is a configurable command output monitoring Performance Metrics Domain
+Agent (PMDA).
+It can be seen as analogous to a restricted shell, where options can be
+passed to preset commands, and each line of their output is converted
+into a performance event.
+These events can be consumed by client tools like
+.BR pmval (1).
+.PP
+The
+.B pipe
+PMDA exports both event-style metrics reflecting timestamped event records
+for text-oriented command output,
+as well as the more orthodox sample-style metrics such as event counts
+and throughput size values.
+.PP
+The PMDA is configured via a
+.I configfile
+which contains one line for each process from which output can be
+captured, as described in the ``CONFIGURATION'' section below.
+.PP
+A brief description of the
+.B pmdapipe
+command line options follows:
+.TP 5
+.B \-c
+specifies an alternate configuration file for the PMDA.
+By default, a file named
+.I $PCP_PMDAS_DIR/pipe/pipe.conf
+and any files below the
+.I $PCP_SYSCONF_DIR/pipe.conf.d/
+directory are used.
+.TP
+.B \-d
+It is absolutely crucial that the performance metrics
+.I domain
+number specified here is unique and consistent.
+That is,
+.I domain
+should be different for every PMDA on the one host, and the same
+.I domain
+number should be used for the same PMDA on all hosts.
+.TP
+.B \-l
+Location of the log file.  By default, a log file named
+.I pipe.log
+is written in the current directory of
+.BR pmcd (1)
+when
+.B pmdapipe
+is started, i.e.
+.BR $PCP_LOG_DIR/pmcd .
+If the log file cannot
+be created or is not writable, output is written to the standard error instead.
+.TP
+.B \-m
+Limit the physical memory used by the PMDA to buffer event records to
+.I maxsize
+bytes.
+As log events arrive at the PMDA, they must be buffered until individual
+client tools request the next batch since their previous batch of events.
+The default maximum is 2 megabytes.
+.SH CONFIGURATION
+The set of allowed pipe commands is configured by simple text file(s).
+The format is a single line for each command followed by an optional
+access control section.
+.PP
+Blank lines and comments are permitted (even encouraged) in the
+configuration file.
+A comment begins with a ``#''
+character and finishes at the end of the line.
+.PP
+Each command configuration line is of the form:
+.TP
+\&
+\f2instance\f1 \f2username\f1 \f2command\f1 \f2options\f1
+.PP
+Where,
+.TP 14
+.PD 0
+.I instance
+is a string identifying the pipe command, also exported as the metric
+instance identifier.
+.PP
+.TP 14
+.I username
+is the name of the user account under which the command should run
+(e.g. "root")
+.PP
+.TP 14
+.I command
+is the path to the binary which will be run to generate piped output
+.PP
+.TP 14
+.I options
+is an optional space-separated list of parameters to pass to the \f2command\f1
+.PD
+.IP "" 14
+This
+.I options
+list may contain numeric parameters prefixed by the dollar-sign,
+and these will be substituted with user-supplied values at the time
+the \f2command\f1 is run (similar to shell parameter substitution).
+.PP
+Parameters are passed as a single space-separated or comma-separated
+string to the
+.I pipe.firehose
+metric, using the
+.B pmStore (3)
+interface.
+The
+.B pmval
+command provides store access via its \f3\-x\f1 option.
+User-supplied parameters are restricted to containing alphanumeric
+characters.
+.PP
+The access control section of the file must start with a line of the form:
+.TP
+.B [access]
+.PP
+Leading and trailing whitespace may appear around and within the brackets and
+the case of the
+.B access
+keyword is ignored.
+No other text may appear on the line except a trailing comment.
+.PP
+Following this line, the remainder of the configuration file should contain
+lines that allow or disallow use of \f2commands\f1 from particular users or
+groups.
+.PP
+User names and group names will be verified using the local
+.B /etc/passwd
+and
+.B /etc/groups
+files (or an alternative directory service), using the
+.BR getpwent (3)
+and
+.BR getgrent (3)
+routines.
+.PP
+Access for users or groups are allowed or disallowed by specifying
+statements of the form:
+.TP
+\&
+\f3allow user\f1 \f2username\f1 \f3:\f1 \f2instance\f1
+.br
+\f3disallow user\f1 \f2username\f1 \f3:\f1 \f2instance\f1
+.br
+\f3allow group\f1 \f2groupname\f1 \f3:\f1 \f2instance\f1
+.br
+\f3disallow group\f1 \f2groupname\f1 \f3:\f1 \f2instance\f1
+.PP
+The
+.IR username
+and
+.I groupname
+names will be verified using the local
+.B /etc/passwd
+and
+.B /etc/groups
+files (or an alternative directory service), using the
+.BR getpwent (3)
+and
+.BR getgrent (3)
+routines.
+.PP
+The wildcard ``*'' can be used to refer to all \f2instance\f1 names.
+.SH INSTALLATION
+If you want access to the names, help text and values for the pipe
+performance metrics, do the following as root:
+.PP
+.ft CW
+.nf
+.in +0.5i
+# cd $PCP_PMDAS_DIR/pipe
+# ./Install
+.in
+.fi
+.ft 1
+.PP
+This is an interactive installation process which prompts for each
+log file path to be monitored (or command to be run), a metric
+instance name to identify it, and whether access should be restricted
+(refer to the
+.B \-x
+option to
+.BR pmval (1)
+for further details).
+.PP
+If you want to undo the installation, do the following as root:
+.PP
+.ft CW
+.nf
+.in +0.5i
+# cd $PCP_PMDAS_DIR/pipe
+# ./Remove
+.in
+.fi
+.ft 1
+.PP
+.B pmdapipe
+is launched by
+.B pmcd
+and should never be executed directly.
+The Install and Remove scripts notify
+.B pmcd
+when the agent is installed or removed.
+.SH EXAMPLES
+Following is a simple example of
+.B pmdapipe
+configuration and use of the pipe metrics to run the
+.B btrace
+command, by user \f3bob\f1:
+.de CS
+.in +0.5i
+.ft CW
+.nf
+..
+.de CE
+.fi
+.ft 1
+.in
+..
+.PP
+.CS
+bob> cat $PCP_PMDAS_DIR/pipe/pipe.conf
+# instance      user      command
+rw_syscalls     root      perf script rw-by-file $1
+bdev_trace      root      btrace -w $1 /dev/$2
+
+[access]
+allow user bob : *;
+allow user jane : bdev_trace;
+allow group perf : rw_syscalls;
+
+bob> pmval -i bdev_trace -x '5 sda' pipe.firehose
+ 8,2  5  1  0.000000000 25227  A  WS 734332384 + 24 <- (253,2) 734330336
+ 8,0  5  2  0.000000414 25227  A  WS 735358432 + 24 <- (8,2) 734332384
+ 8,0  5  3  0.000000756 25227  Q  WS 735358432 + 24 [qemu-kvm]
+ [...5 seconds worth]
+bob>
+.CE
+.SH FILES
+.PD 0
+.TP 10
+.B $PCP_PMCDCONF_PATH
+command line options used to launch
+.B pmdapipe
+.TP 10
+.B $PCP_PMDAS_DIR/pipe/pipe.conf
+default configuration file for the pipe metrics
+.TP 10
+.B $PCP_PMDAS_DIR/pipe/help
+default help text file for the pipe metrics
+.TP 10
+.B $PCP_PMDAS_DIR/pipe/Install
+installation script for the
+.B pmdapipe
+agent
+.TP 10
+.B $PCP_PMDAS_DIR/pipe/Remove
+undo installation script for the 
+.B pmdapipe
+agent
+.TP 10
+.B $PCP_LOG_DIR/pmcd/pipe.log
+default log file for error messages and other information from
+.B pmdapipe
+.TP 10
+.B $PCP_SYSCONF_DIR/pipe.conf.d
+directory containing additional configuration files for the pipe metrics
+.PD
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.I /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (5).
+.SH SEE ALSO
+.BR PCPIntro (1),
+.BR pmval (1),
+.BR pmcd (1),
+.BR getpwent (3),
+.BR getgrent (3),
+.BR pmStore (3),
+.BR pcp.conf (5)
+and
+.BR pcp.env (5).

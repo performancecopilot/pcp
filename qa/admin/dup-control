@@ -1,0 +1,28 @@
+#!/bin/sh
+
+if [ $# -eq 0 ]
+then
+    set -- pkgin pkg_add
+fi
+
+if [ $# -ne 2 ]
+then
+    echo "Usage: $0 existing-optional new-optional"
+    exit 1
+fi
+
+awk -F'	' '
+BEGIN		{ OFS = "	" }
+$1 == "'"$1"'?"	{ print
+		  gsub(/'"$1"'/, "'"$2"'", $1)
+		  for (i = 2; i <= NF; i++) {
+		    if (length($i) == 0) continue
+		    if ($i ~ /^\[/)
+			gsub(/]/, "-TODO]", $i)
+		    else
+			$i = $i "-TODO"
+		  }
+		  print
+		  next
+		}
+		{ print }'

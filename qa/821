@@ -1,0 +1,111 @@
+#!/bin/sh
+# PCP QA Test No. 821
+# Exercise Linux PMDA memory metrics.
+#
+# Copyright (c) 2016 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ $PCP_PLATFORM = linux ] || _notrun "Linux-specific memory metric testing"
+userid=`id -u`	# test exercises procfs access from both root and non-root
+[ "$userid" != 0 ] || _notrun "Test cannot be run as privileged root user"
+
+config="$PCP_PMDAS_DIR/linux/bandwidth.conf"
+
+_cleanup()
+{
+    cd $here
+    if [ -f "$config.$seq" ]
+    then
+	_restore_config "$config"
+	$sudo rm -f "$config.$seq"
+    fi
+    rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
+
+# deal with non-determinism in the order in which the mem.zoneinfo.free
+# indom is populated
+#
+_fix_zoneinfo_indom()
+{
+    touch $tmp.head
+    touch $tmp.zoneinfo
+    touch $tmp.tail
+    $PCP_AWK_PROG '
+/^mem\.zoneinfo\.free/		{ state = 1 }
+state == 0			{ print >"'"$tmp.head"'"; next }
+state == 1			{ print >"'"$tmp.zoneinfo"'"
+				  if (NF == 0) state = 0
+				  next
+				}
+state == 2			{ print >"'"$tmp.tail"'"; next }'
+    cat $tmp.head
+    $here/src/sortinst <$tmp.zoneinfo \
+    | sed -e 's/inst \[[0-9][0-9]*/inst [N/'
+    cat $tmp.tail
+}
+
+# real QA test starts here
+root=$tmp.root
+export LINUX_HERTZ=100
+export LINUX_PAGESIZE=4096
+export LINUX_STATSPATH=$root
+pmda=$PCP_PMDAS_DIR/linux/pmda_linux.so,linux_init
+local="-L -K clear -K add,60,$pmda"
+
+mem_metrics=`pminfo $local mem | LC_COLLATE=POSIX sort`
+slab_metrics=`pminfo $local mem.slabinfo | LC_COLLATE=POSIX sort`
+buddy_metrics=`pminfo $local mem.buddyinfo | LC_COLLATE=POSIX sort`
+zone_metrics=`pminfo $local mem.zoneinfo | LC_COLLATE=POSIX sort`
+
+if [ -f "$config" ]
+then
+    _save_config "$config"
+    $sudo rm -f "$config"  # ensure deterministic output, see qa/826
+fi
+
+for tgz in $here/linux/meminfo-*.tgz
+do
+    rm -fr $root
+    mkdir $root || _fail "root in use when processing $tgz"
+    cd $root
+    tar xzf $tgz
+    base=`basename $tgz`
+
+    echo "== Checking all mem metric values - $base"
+    pminfo $local -f $mem_metrics \
+    | _fix_zoneinfo_indom
+    echo && echo "== done" && echo
+
+    echo "== Checking slabinfo metric values - $base"
+    # requires root privileges to access these
+    $sudo pminfo $local -f $slab_metrics
+    echo && echo "== done" && echo
+
+    echo "== Checking buddyinfo metric values - $base"
+    pminfo $local -f $buddy_metrics
+    echo && echo "== done" && echo
+
+    echo "== Checking zoneinfo metric values - $base"
+    pminfo $local -f $zone_metrics \
+    | _fix_zoneinfo_indom
+    echo && echo "== done" && echo
+
+    cd $here
+done
+
+# success, all done
+status=0
+
+exit

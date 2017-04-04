@@ -1,0 +1,89 @@
+#!/bin/sh
+# PCP QA Test No. 879
+# Exercise pmdapipe config file parsing and error handling.
+#
+# Copyright (c) 2015 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ -f $PCP_PMDAS_DIR/pipe/pmdapipe ] || _notrun "pipe PMDA not installed"
+
+status=1	# failure is the default!
+username=`id -u -n`
+groupname=`id -g -n`
+$sudo rm -f $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+_log()
+{
+    echo $@ | tee -a $seq.full 
+}
+
+_filter()
+{
+    sed \
+	-e "s,$tmp.config,CONFIG,g" \
+	-e "s,$groupname,NAME,g" \
+	-e "s,$username,NAME,g" \
+    #end
+}
+
+_check_config()
+{
+    debug="APPL0,APPL1,APPL2"
+    $PCP_PMDAS_DIR/pipe/pmdapipe -C -c $tmp.config -D $debug >$tmp.log 2>&1
+    sts=$?
+    cat $tmp.log | tee -a $seq.full | _filter
+    echo "sts=$sts" && echo
+}
+
+echo
+
+_log "== checking instance name with special characters"
+echo ';34@#bleurg  root        /bin/true' > $tmp.config
+_check_config
+
+_log "== checking missing user and command fields"
+echo 'instance' > $tmp.config
+_check_config
+
+_log "== checking missing command field"
+echo 'instance user ' > $tmp.config
+_check_config
+
+_log "== checking valid access control section"
+echo 'instance user command and parameters' > $tmp.config
+echo '[access]' >> $tmp.config
+echo "allow user $username : instance" >> $tmp.config
+echo "disallow user $username : instance" >> $tmp.config
+echo "allow group $groupname : instance" >> $tmp.config
+echo "disallow group $groupname : instance" >> $tmp.config
+_check_config
+
+# save a copy of goodness to append badness to
+cp $tmp.config $tmp.valid
+
+_log "== checking invalid access control line (no username)"
+cp $tmp.valid $tmp.config
+echo "allow user" >> $tmp.config
+_check_config
+
+_log "== checking invalid access control line (no separator)"
+cp $tmp.valid $tmp.config
+echo "allow group $groupname " >> $tmp.config
+_check_config
+
+_log "== checking invalid access control line (no instance)"
+cp $tmp.valid $tmp.config
+echo "allow group $groupname : " >> $tmp.config
+_check_config
+
+status=0
+exit

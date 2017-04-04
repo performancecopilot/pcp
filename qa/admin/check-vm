@@ -1,0 +1,1378 @@
+#!/bin/sh
+#
+# Check what's installed on a PCP/PCPQA VM looking for missing apps
+# and packages
+#
+
+_usage()
+{
+    echo "Usage: $0 [-v]"
+    exit 1
+}
+
+verbose=false
+while getopts 'v?' p
+do
+    case "$p"
+    in
+	v)	verbose=true
+		;;
+
+	?)	_usage
+		# NOTREACHED
+    esac
+done
+shift `expr $OPTIND - 1`
+[ $# -eq 0 ] || _usage
+
+if $verbose
+then
+    tmp=tmp
+    rm -f $tmp.*
+else
+    tmp=/var/tmp/$$
+    trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+fi
+
+# same function is in allow-pmlc-access ... need to track changes
+#
+_getnetworkaddr()
+{
+    if `which hostname >/dev/null 2>&1`
+    then
+	host=`hostname`
+	if `which host >/dev/null 2>&1`
+	then
+	    host_out=`host $host`
+	    if echo "$host_out" | grep ' has address ' >/dev/null
+	    then
+		addr=`echo "$host_out" | sed -e 's/.*address //'`
+		if `which ifconfig >/dev/null 2>&1`
+		then
+		    mask=`ifconfig | grep $addr | sed -e 's/.*Mask://' -e 's/.*netmask \([^ ][^ ]*\).*/\1/'`
+		    case "$mask"
+		    in
+			255.255.255.0|0xffffff00|ffffff00)	# /24 network
+			    echo "$addr" | sed -e 's/\.[0-9]*$/.*/'
+			    ;;
+			# pmcd's [access] is not smart enough to handle other
+			# than /24 networks, so map the other likely options
+			# to the broader /24 network
+			#
+			255.255.255.128|255.255.255.192|255.255.255.224|255.255.255.240|255.255.255.248|255.255.255.252|255.255.255.254)
+			    echo "$addr" | sed -e 's/\.[0-9]*$/.*/'
+			    ;;
+			*)
+			    echo >&2 "_getnetworkaddr: Warning: cannot handle network mask: $mask"
+			    ;;
+		    esac
+		else
+		    echo >&2 "No ifconfig(1)? Not sure how to get primary ip addr and netmask"
+		fi
+	    else
+		echo >&2 "Unexpected host(1) output: $host_out ... cannot get ip addr and netmask"
+	    fi
+	else
+	    echo >&2 "No host(1)? Not sure how to get primary ip addr and netmask"
+	fi
+    else
+	echo >&2 "No hostname(1)? Not sure how to get primary ip addr and netmask"
+    fi
+}
+
+# version1 is on line 1
+# version2 is on line 2
+# relop is "<", "<=", "=", ">=" or ">"
+# return value is 0 (true) if version1 relop version2 is true
+# else return value is 1
+#
+_compare()
+{
+    relop="$1"
+    awk -F. >$tmp.compare '
+NR == 1	{ for (i = 1; i <= NF; i++)
+	    v[i] = $i
+	  nv = NF
+	  next
+	}
+NR == 2	{ nf = NF
+	  if (nv > nf) nf = nv
+	  for (i = 1; i <= nf; i++) {
+	    if (v[i]+0 == $i+0) continue
+	    if (v[i]+0 < $i+0) {
+		print "<"
+		exit
+	    }
+	    if (v[i]+0 > $i+0) {
+		print ">"
+		exit
+	    }
+	  }
+	  print "="
+	}'
+    ret=1
+    case `cat $tmp.compare`
+    in
+	"<")
+	    [ "$relop" = "<" -o "$relop" = "<=" ] && ret=0
+	    ;;
+	"=")
+	    [ "$relop" = "=" -o "$relop" = "<=" -o "$relop" = ">=" ] && ret=0
+	    ;;
+	">")
+	    [ "$relop" = ">" -o "$relop" = ">=" ] && ret=0
+	    ;;
+	*)
+	    echo "Arrgh ... installed version $version, want $relop $specversion,"
+	    echo "but failed to extract relop (`cat $tmp.compare`)"
+	    ;;
+    esac
+    return $ret
+}
+
+# add additional and optional directories
+for dir in /sbin /usr/sbin
+do
+    if [ -d "$dir" ]
+    then
+	if echo ":$PATH:" | grep -q ":$dir:"
+	then
+	    :
+	else
+	    export PATH="$PATH:$dir"
+	    #debug# echo add $dir to \$PATH
+	fi
+    fi
+done
+
+# packaging tools we know about
+# dpkg - Debian-based
+# rpm - RPM-based, e.g. RHEL, CentOS, SuSE, Fedora
+# urpmi - OpenMandriva (also RPM based)
+# emerge - Gentoo
+# pkgin
+# pkg_add
+# pkg - OpenIndiana
+# slackpkg - Slackware
+# pacman - Arch Linux
+#
+pkgtools="dpkg rpm urpmi emerge pkgin pkg_add pkg slackpkg pacman"
+
+# boiler-plate entries for updating $tmp.main below
+#
+cat <<End-of-File >/dev/null
+dpkg?		foo		[?]
+rpm?		foo		[?]
+urpmi?		foo		[?]
+emerge?		foo		[?]
+pkgin?		foo		[?]
+pkg_add?	foo		[?]
+pkg?		foo		[?]
+slackpkg?	foo		[?]
+pacman?		foo		[?]
+End-of-File
+
+# $tmp.main control file (here-is below) and other control files
+# have the following syntax ...
+# line per package, alternate items separated by white space
+# first item starting with ! means negate the test
+# first item ending in ? means this item is a guard, if it does not 
+# exist silently ignore the rest of the line (typically used for
+# package tool specific lines)
+# tests items can be
+#	starting with a /	test for existence of file or directory
+#                               (alternates separated by |)
+#	containing ::		test for presence of the associated Perl module
+#	otherwise		test for an executable with which(1)
+#                               (alternates separated by |)
+#
+# text after # is treated as a comment
+# text after [ is treated as annotation (usually package name and notes,
+# 	but also marked N/A if a package is not available on a particular
+# 	platform
+#
+cat <<End-of-File >$tmp.main
+#
+# executables
+#
+bash
+sed
+grep
+ed
+git
+make
+!pkg	egcc|gcc	[gcc]
+pkg	gcc		[build-essential]
+autoconf
+flex
+bison
+gdb
+mktemp
+gawk
+
+# NetBSD/OpenBSD specials
+#
+pkgin?		gtar		[gtar]
+pkg_add?	gtar		[gtar]
+pkgin?		gmake		[gmake]
+pkg_add?	gmake		[gmake]
+
+# optional executables
+#
+dpkg?	chrpath			[chrpath]
+dpkg?	sysv-rc-conf		[sysv-rc-conf]
+rpm?	rpmbuild		[rpm-build]
+urpmi?	rpmbuild		[rpm-build]
+
+# other build prerequisites
+#
+dpkg?	dpkg-buildpackage		[dpkg-dev]
+dpkg?	dh_autotools-dev_updateconfig	[autotools-dev]
+dpkg?	/usr/share/doc/build-essential	[build-essential]
+dpkg?	dh				[debhelper]
+dpkg?	/usr/bin/dh_pypy		[dh-python]
+dpkg?	/usr/share/doc/python-all-dev	[python-all-dev]
+dpkg?	/usr/share/doc/python3-all-dev	[python3-all-dev]
+# -- cpan
+dpkg?		cpan
+rpm?		cpan
+urpmi?		cpan		[perl-devel]
+emerge?		cpan		[?]
+pkgin?		cpan		[?]
+pkg_add?	cpan		[?]
+pkg?		cpan		[perl]
+slackpkg?	cpan		[perl]
+pacman?		cpan		[perl]
+# -- pkg-config
+dpkg?		pkg-config	[pkg-config]
+rpm?		pkg-config	[pkg-config]
+urpmi?		pkg-config	[pkgconfig]
+emerge?		pkg-config	[?]
+pkgin?		pkg-config	[?]
+pkg_add?	pkg-config	[?]
+pkg?		pkg-config	[pkg-config]
+slackpkg?	pkg-config	[pkg-config]
+pacman?		pkg-config	[pkg-config]
+# -- libmicrohttpd
+dpkg?	/usr/include/microhttpd.h	[libmicrohttpd-dev (build optional)]
+rpm?	/usr/include/microhttpd.h	[libmicrohttpd-devel (build optional)]
+urpmi?	/usr/include/microhttpd.h	[libmicrohttpd-devel (build optional)]
+emerge?	/usr/include/microhttpd.h	[net-libs/libmicrohttpd (build optional)]
+pkgin?	/usr/pkg/include/microhttpd.h	[libmicrohttpd (build optional)]
+pkg_add?	/usr/local/include/microhttpd.h	[libmicrohttpd (build optional)]
+pkg?		/usr/include/microhttpd.h		[libmicrohttpd (build optional)]
+slackpkg?	microhttpd.h		[N/A (build optional)]
+pacman?	/usr/include/microhttpd.h	[libmicrohttpd (build optional)]
+# -- libcairo
+dpkg?	/usr/include/cairo/cairo.h	[libcairo2-dev (build optional)]
+rpm?	/usr/include/cairo/cairo.h	[cairo-devel (build optional)]
+urpmi?	/usr/include/cairo/cairo.h	[cairo-devel (build optional)]
+emerge?	/usr/include/cairo/cairo.h	[x11-libs/cairo (build optional)]
+pkgin?	/usr/pkg/include/cairo/cairo.h	[cairo (build optional)]
+pkg_add?	/usr/local/include/cairo/cairo.h	[cairo (build optional)]
+pkg?	/usr/include/cairo/cairo.h	[cairo (build optional)]
+slackpkg?	/usr/include/cairo/cairo.h	[cairo (build optional)]
+pacman?	/usr/include/cairo/cairo.h	[cairo (build optional)]
+# -- zlib
+dpkg?	/usr/include/zlib.h		[zlib1g-dev (build optional)]
+rpm?	/usr/include/zlib.h		[zlib-devel (build optional)]
+urpmi?	/usr/include/zlib.h		[lib64z-devel (build optional)]
+emerge?	/usr/include/zlib.h		[? (build optional)]
+pkgin?	/usr/pkg/include/zlib.h		[? (build optional)]
+pkg_add?	/usr/include/zlib.h	[base OpenBSD install (build optional)]
+pkg?	/usr/include/zlib.h	[zlib (build optional)]
+slackpkg?	/usr/include/zlib.h	[zlib (build optional)]
+pacman?	/usr/include/zlib.h		[zlib (build optional)]
+# -- libsasl
+dpkg?	/usr/include/sasl/sasl.h	[libsasl2-dev (build optional)]
+rpm?	/usr/include/sasl/sasl.h	[cyrus-sasl-devel (build optional)]
+urpmi?	/usr/include/sasl/sasl.h	[lib64sasl-devel (build optional)]
+emerge?	/usr/include/sasl/sasl.h	[dev-libs/cyrus-sasl (build optional)]
+pkgin?	/usr/pkg/include/sasl/sasl.h	[cyrus-sasl (build optional)]
+pkg_add?	/usr/local/include/sasl/sasl.h	[cyrus-sasl (build optional)]
+pkg?	/usr/include/sasl/sasl.h	[system/header (build optional)]
+slackpkg?	/usr/include/sasl/sasl.h	[cyrus-sasl (build optional)]
+pacman?	/usr/include/sasl/sasl.h	[cyrus-sasl (build optional)]
+# -- systemd API
+rpm?	/usr/include/systemd/sd-daemon.h	[systemd-devel (build optional)]
+urpmi?	/usr/include/systemd/sd-daemon.h	[lib64systemd-daemon-devel (build optional)]
+emerge?	/usr/include/systemd/sd-daemon.h	[? (build optional)]
+pkg?	sd-daemon.h			[N/A (build optional)]
+slackpkg?	sd-daemon.h			[N/A (build optional)]
+pacman?	/usr/include/systemd/sd-daemon.h	[systemd (build optional)]
+# -- infiniband libibumad & libibmad
+dpkg?	/usr/include/infiniband/umad.h	[libibumad-dev (build optional)]
+rpm?	/usr/include/infiniband/umad.h	[libibumad-devel (build optional)]
+urpmi?	umad.h				[N/A (build optional)]
+emerge?	/usr/include/infiniband/umad.h	[sys-infiniband/libibumad (build optional)]
+pkgin?	/usr/pkg/include/umad.h		[? (build optional)]
+pkg_add?	/usr/local/include/umad.h	[libumad (build optional)]
+pkg?	/usr/include/sys/ib/clients/of/sol_umad/sol_umad.h			[system/header (build optional)]
+slackpkg?	umad.h			[N/A (build optional)]
+pacman?		umad.h			[N/A (build optional)]
+dpkg?	/usr/include/infiniband/mad.h	[libibmad-dev (build optional)]
+rpm?	/usr/include/infiniband/mad.h	[libibmad-devel (build optional)]
+urpmi?	mad.h				[N/A (build optional)]
+emerge?	/usr/include/infiniband/mad.h	[sys-infiniband/libibmad (build optional)]
+pkgin?	/usr/pkg/include/mad.h	[? (build optional)]
+pkg_add?	/usr/local/include/mad.h	[libmad (build optional)]
+pkg?	/usr/include/sys/ib/clients/of/rdma/ib_user_mad.h			[system/header (build optional)]
+slackpkg?	mad.h			[N/A (build optional)]
+pacman?		mad.h			[N/A (build optional)]
+# -- avahi API
+dpkg?	/usr/include/avahi-common	[libavahi-common-dev (build optional)]
+rpm?	/usr/include/avahi-common	[avahi-devel (build optional)]
+urpmi?	/usr/include/avahi-common	[lib64avahi-common-devel (build optional)]
+emerge?	/usr/include/avahi-common	[net-dns/avahi (build optional)]
+pkgin?	/usr/pkg/include/avahi-common	[avahi (build optional)]
+pkg_add?	/usr/local/include/avahi-common	[avahi (build optional)]
+pkg?	/usr/include/avahi-common	[network/avahi (build optional)]
+slackpkg?	avahi-common		[N/A (build optional)]
+pacman?	/usr/include/avahi-common	[avahi (build optional)]
+# -- libpapi
+dpkg?	/usr/include/papi.h		[libpapi-dev (build optional)]
+rpm?	/usr/include/papi.h		[papi-devel (build optional)]
+urpmi?	/usr/include/papi/papi.h	[lib64papi-devel (build optional)]
+emerge?	/usr/include/papi.h		[dev-libs/papi (build optional)]
+pkg?	papi.h				[N/A (build optional) - note papi.h is from open-printing, not PAPI]
+slackpkg?	papi.h			[N/A (build optional)]
+pacman?	papi.h				[N/A (build optional)]
+# -- libpfm
+dpkg?	/usr/include/perfmon/pfmlib_perf_event.h	[libpfm4-dev (build optional)]
+rpm?	/usr/include/perfmon/pfmlib_perf_event.h	[libpfm-devel (build optional)]
+urpmi?	/usr/include/perfmon/pfmlib_perf_event.h	[N/A (build optional)]
+emerge?	/usr/include/perfmon/pfmlib_perf_event.h	[dev-libs/libpfm (build optional)]
+pkg?	pfmlib_perf_event.h	[N/A (build optional)]
+slackpkg?	pfmlib_perf_event.h	[N/A (build optional)]
+pacman?	pfmlib_perf_event.h		[N/A (build optional)]
+# -- rpm API
+rpm?	/usr/include/rpm/header.h	[rpm-devel (build optional)]
+urpmi?	/usr/include/rpm/header.h	[lib64rpm-devel (build optional)]
+# -- gcc C++ compiler
+dpkg?	g++				[g++]
+rpm?	g++				[gcc-c++]
+urpmi?	g++				[gcc-c++]
+emerge?	g++				[sys-devel/gcc]
+pkgin?	/usr/pkg/gcc3/bin/g++		[gcc3-c++]
+pkg_add?	/usr/local/bin/eg++|/usr/local/bin/g++	[gcc]
+pkg?	g++				[gcc]
+slackpkg?	g++			[gcc-g++]
+pacman?	g++				[gcc]
+# files and libraries
+# -- libreadline
+dpkg?	/usr/include/readline/readline.h	[libreadline-dev]
+rpm?	/usr/include/readline/readline.h	[readline-devel]
+urpmi?	/usr/include/readline/readline.h	[lib64readline-devel]
+emerge?	/usr/include/readline/readline.h	[sys-libs/readline]
+pkgin?	/usr/pkg/include/readline/readline.h	[readline]
+pkg_add?	/usr/local/include/ereadline/readline/readline.h|/usr/local/include/readline/readline.h	[readline]
+pkg?	/usr/include/readline/readline.h	[readline]
+slackpkg?	/usr/include/readline/readline.h	[readline]
+pacman?	/usr/include/readline/readline.h	[readline]
+# -- libncurses
+dpkg?	/usr/include/ncurses.h		[libncurses5-dev]
+rpm?	/usr/include/ncurses.h		[ncurses-devel] # is this a bug in the spec file?
+urpmi?	/usr/include/ncurses.h		[lib64ncurses-devel] # is this a bug in the spec file?
+emerge?	/usr/include/ncurses.h		[sys-libs/ncurses]
+pkgin?	/usr/pkg/include/ncurses/ncurses.h	[ncurses]
+pkg_add?	/usr/include/ncurses.h	[base OpenBSD install]
+pkg?	/usr/include/ncurses/ncurses.h		[library/ncurses]
+slackpkg?	/usr/include/ncurses/ncurses.h		[ncurses]
+pacman?	/usr/include/ncurses.h		[ncurses]
+# python modules
+# -- six
+dpkg?	/usr/lib/python2.*/*-packages/six.py	[python-six]
+dpkg?	/usr/lib/python3/*-packages/six.py	[python3-six]
+rpm?	/usr/lib/python3.*/*-packages/six.py	[python-six]
+urpmi?	/usr/lib/python*/*-packages/six.py	[python-six]
+emerge?	/usr/lib/python*/*-packages/six.py	[dev-python/six]
+pkgin?	/usr/pkg/lib/python*/*-packages/six.py	[py34-six]
+pkg_add?	/usr/local/lib/python*/*-packages/six.py	[py-six]
+pkg?	/usr/lib/python*/*-packages/*/*/six.py	[library.python-2]
+slackpkg?	/usr/lib*/python*/*-packages/*/*/six.py	[python-setuptools]
+pacman?	/usr/lib/python2.*/site-packages/six.py	[python2-six]
+pacman?	/usr/lib/python3.*/site-packages/six.py	[python-six]
+# -- jsonpointer
+dpkg?	/usr/lib/python2.*/*-packages/jsonpointer.py	[python-json-pointer (build optional)]
+dpkg?	/usr/lib/python3/*-packages/jsonpointer.py	[python3-json-pointer (build optional)]
+rpm?	/usr/lib/python3.*/*-packages/jsonpointer.py	[python3-jsonpointer]
+urpmi?	jsonpointer.py					[N/A]
+emerge?	/usr/lib/python*/*-packages/jsonpointer.py	[dev-python/jsonpointer]
+pkgin?	/usr/pkg/lib/python*/*-packages/jsonpointer.py	[?]
+pkg_add?	/usr/local/lib/python*/*-packages/jsonpointer.py	[?]
+pkg?	jsonpointer.py					[N/A (build optional)]
+slackpkg?	jsonpointer.py				[N/A (build optional)]
+pacman?	/usr/lib/python2.*/site-packages/jsonpointer.py	[python2-jsonpointer (build optional)
+pacman?	/usr/lib/python3.*/site-packages/jsonpointer.py	[python-jsonpointer (build optional)
+# -- setuptools
+dpkg?	/usr/lib/python2.*/*-packages/setuptools	[python-setuptools]
+dpkg?	/usr/lib/python3/*-packages/setuptools	[python3-setuptools]
+rpm?	/usr/lib/python3.*/*-packages/setuptools	[python3-setuptools]
+urpmi?	/usr/lib/python*/*-packages/setuptools		[?python-setuptools]
+emerge?	/usr/lib/python*/*-packages/setuptools		[?dev-python/setuptools]
+pkgin?	/usr/pkg/lib/python*/*-packages/setuptools	[?py34-setuptools]
+pkg_add?	/usr/local/lib/python*/*-packages/setuptools	[?py-setuptools]
+pkg?	/usr/lib/python*/*-packages/*/*/setuptools	[?library.python-2]
+slackpkg?	/usr/lib*/python*/*-packages/*/*/setuptools	[?python-setuptools]
+pacman?	/usr/lib/python2.*/site-packages/setuptools	[?python2-setuptools]
+pacman?	/usr/lib/python3.*/site-packages/setuptools	[?python-setuptools]
+# -- libvirt
+dpkg?	/usr/lib/python3/*-packages/libvirt.py		[libvirt-python3]
+rpm?	/usr/lib/python3.*/*-packages/libvirt.py	[libvirt-python3]
+urpmi?	libvirt.py		[?]
+emerge?	libvirt.py		[?]
+pkgin?	libvirt.py		[?]
+pkg_add?	libvirt.py		[?]
+pkg?	libvirt.py		[?]
+slackpkg?	libvirt.py		[?]
+pacman?	libvirt.py		[?]
+# perl modules
+# -- Time::HiRes
+dpkg?	Time::HiRes		[perl]
+rpm?	Time::HiRes		[perl-Time-HiRes or 'perl(Time::HiRes)']
+urpmi?	Time::HiRes		[perl]
+emerge?	Time::HiRes		[dev-lang/perl]
+pkgin?	Time::HiRes		[?]
+pkg_add?	Time::HiRes	[?]
+pkg?	Time::HiRes		[perl]
+slackpkg?	Time::HiRes	[perl]
+pacman?	Time::HiRes		[perl]
+# -- Date::Format
+dpkg?	Date::Format		[perl]
+rpm?	Date::Format		[perl-TimeDate or 'perl(Date::Format)']
+urpmi?	Date::Format		[perl-TimeDate or 'perl(Date::Format)']
+emerge?	Date::Format		[dev-perl/TimeDate]
+pkgin?	Date::Format		[p5-TimeDate]
+pkg_add?	Date::Format	[p5-TimeDate]
+pkg?	Date::Format		[from cpan]
+slackpkg?	Date::Format	[from cpan]
+pacman?	Date::Format		[perl-timedate]
+# -- Date::Manip
+rpm?	Date::Manip		[perl-Date-Manip or 'perl(Date::Manip)']
+# -- Date::Parse
+dpkg?	Date::Parse		[perl]
+rpm?	Date::Parse		[perl-TimeDate or 'perl(Date::Parse)']
+urpmi?	Date::Parse		[perl-TimeDate or 'perl(Date::Parse)']
+emerge?	Date::Parse		[dev-perl/TimeDate]
+pkgin?	Date::Parse		[p5-TimeDate]
+pkg_add?	Date::Parse	[p5-TimeDate]
+pkg?	Date::Parse		[from cpan]
+slackpkg?	Date::Parse	[from cpan]
+pacman?	Date::Parse		[perl-timedate]
+# -- Getopt::Std
+Getopt::Std			[base Perl]
+# -- ExtUtils::AutoInstall
+dpkg?	ExtUtils::AutoInstall	[libextutils-autoinstall-perl]
+# -- ExtUtils::MakeMaker
+dpkg?	ExtUtils::MakeMaker	[perl-modules]
+rpm?	ExtUtils::MakeMaker	[perl-ExtUtils-MakeMaker or 'perl(ExtUtils::MakeMaker)']
+urpmi?	ExtUtils::MakeMaker	[perl]
+emerge?	ExtUtils::MakeMaker	[dev-lang/perl]
+pkgin?	ExtUtils::MakeMaker	[perl]
+pkg_add?	ExtUtils::MakeMaker	[perl]
+pkg?	ExtUtils::MakeMaker	[perl]
+slackpkg?	ExtUtils::MakeMaker	[perl]
+pacman?	ExtUtils::MakeMaker	[perl]
+# -- XML::TokeParser
+dpkg?	XML::TokeParser		[libxml-tokeparser-perl]
+rpm?	XML::TokeParser		[perl-XML-TokeParser or 'perl(XML::TokeParser)' or from cpan]
+urpmi?	XML::TokeParser		[perl-XML-TokeParser or 'perl(XML::TokeParser)' or from cpan]
+emerge?	XML::TokeParser		[from cpan]
+pkgin?	XML::TokeParser		[p5-XML-TokeParser]
+pkg_add?	XML::TokeParser		[from cpan]
+pkg?	XML::TokeParser		[from cpan]
+slackpkg?	XML::TokeParser		[from cpan]
+pacman?	XML::TokeParser		[from cpan]
+# -- RRDs
+dpkg?	RRDs::			[librrds-perl]
+rpm?	RRDs::			[rrdtool-perl or perl-rrdtool or rrdtool or 'perl(RRDs)']
+urpmi?	RRDs::			[rrdtool-perl or perl-rrdtool or rrdtool or 'perl(RRDs)']
+emerge?	RRDs::			[net-analyzer/rrdtool]
+pkgin?	RRDs::			[rrdtool]
+pkg_add?	RRDs::		[rrdtool]
+pkg?	RRDs::			[cpan]
+slackpkg?	RRDs::		[N/A]
+pacman?	RRDs::			[rrdtool]
+# -- Spreadsheet::Read
+dpkg?	Spreadsheet::Read	[libspreadsheet-read-perl (QA optional)]
+rpm?	Spreadsheet::Read	[perl-Spreadsheet-Read or 'perl(Spreadsheet::Read)' or from cpan (QA optional)]
+urpmi?	Spreadsheet::Read	[perl-Spreadsheet-Read or 'perl(Spreadsheet::Read)' or from cpan (QA optional)]
+emerge?	Spreadsheet::Read	[from cpan (QA optional)]
+pkgin?	Spreadsheet::Read	[p5-Spreadsheet-Read (QA optional)]
+pkg_add?	Spreadsheet::Read	[from cpan (QA optional)]
+pkg?	Spreadsheet::Read	[from cpan (QA optional)]
+slackpkg?	Spreadsheet::Read	[from cpan (QA optional)]
+pacman?	Spreadsheet::Read	[from cpan (QA optional)]
+# -- Spreadsheet::WriteExcel
+dpkg?	Spreadsheet::WriteExcel	[libspreadsheet-writeexcel-perl]
+rpm?	Spreadsheet::WriteExcel	[perl-Spreadsheet-WriteExcel or 'perl(Spreadsheet::WriteExcel)' or from cpan]
+urpmi?	Spreadsheet::WriteExcel	[perl-Spreadsheet-WriteExcel or 'perl(Spreadsheet::WriteExcel)' or from cpan]
+emerge?	Spreadsheet::WriteExcel	[from cpan]
+pkgin?	Spreadsheet::WriteExcel	[p5-Spreadsheet-WriteExcel (QA optional)]
+pkg_add?	Spreadsheet::WriteExcel	[p5-Spreadsheet-WriteExcel (QA optional)]
+pkg?	Spreadsheet::WriteExcel	[from cpan (QA optional)]
+slackpkg?	Spreadsheet::WriteExcel	[from cpan (QA optional)]
+pacman?	Spreadsheet::WriteExcel	[from cpan (QA optional)]
+# -- Spreadsheet::ReadSXC
+dpkg?	Spreadsheet::ReadSXC	[from cpan (QA optional)]
+rpm?	Spreadsheet::ReadSXC	[perl-Spreadsheet-ReadSXC or 'perl(Spreadsheet::ReadSXC)' or from cpan (QA optional)]
+urpmi?	Spreadsheet::ReadSXC	[perl-Spreadsheet-ReadSXC or 'perl(Spreadsheet::ReadSXC)' or from cpan (QA optional)]
+emerge?	Spreadsheet::ReadSXC	[from cpan (QA optional)]
+pkgin?	Spreadsheet::ReadSXC	[p5-Spreadsheet-ReadSXC (QA optional)]
+pkg_add?	Spreadsheet::ReadSXC	[from cpan (QA optional)]
+pkg?	Spreadsheet::ReadSXC	[from cpan, but install of prereq Archive::Zip fails (QA optional)]
+slackpkg?	Spreadsheet::ReadSXC	[from cpan (QA optional)]
+pacman?	Spreadsheet::ReadSXC	[from cpan (QA optional)]
+# -- Spreadsheet::XLSX
+dpkg?	Spreadsheet::XLSX	[libspreadsheet-xlsx-perl (QA optional)]
+rpm?	Spreadsheet::XLSX	[perl-Spreadsheet-XLSX or 'perl(Spreadsheet::XLSX)' or from cpan (QA optional)]
+urpmi?	Spreadsheet::XLSX	[perl-Spreadsheet-XLSX or 'perl(Spreadsheet::XLSX)' or from cpan (QA optional)]
+emerge?	Spreadsheet::XLSX	[from cpan (QA optional)]
+pkgin?	Spreadsheet::XLSX	[p5-Spreadsheet-XLSX (QA optional)]
+pkg_add?	Spreadsheet::XLSX	[from cpan (QA optional)]
+pkg?	Spreadsheet::XLSX	[from cpan, but install of prereq Archive::Zip fails (QA optional)]
+slackpkg?	Spreadsheet::XLSX	[from cpan (QA optional)]
+pacman?	Spreadsheet::XLSX	[from cpan (QA optional)]
+# -- Text::CSV_XS
+dpkg?	Text::CSV_XS		[from cpan (QA optional)]
+rpm?	Text::CSV_XS		[perl-Text-CSV_XS or 'perl(Text::CSV_XS)'] (QA optional)]
+urpmi?	Text::CSV_XS		[perl-Text-CSV_XS or 'perl(Text::CSV_XS)'] (QA optional)]
+emerge?	Text::CSV_XS		[dev-perl/Text-CSV_XS (QA optional)]
+pkgin?	Text::CSV_XS		[p5-Text-CSV_XS (QA optional)]
+pkg_add?	Text::CSV_XS	[p5-Text-CSV_XS (QA optional)]
+pkg?	Text::CSV_XS		[from cpan (QA optional)]
+slackpkg?	Text::CSV_XS	[from cpan (QA optional)]
+pacman?	Text::CSV_XS		[from cpan (QA optional)]
+# -- JSON
+dpkg?	JSON::			[libjson-perl]
+rpm?	JSON::			[perl-JSON or 'perl(JSON)']
+urpmi?	JSON::			[perl-JSON or 'perl(JSON)']
+emerge?	JSON::			[dev-perl/JSON]
+pkgin?	JSON::			[p5-JSON]
+pkg_add?	JSON::		[p5-JSON]
+pkg?	JSON::			[JSON from cpan]
+slackpkg?	JSON::		[JSON from cpan]
+pacman?	JSON::			[perl-json]
+# -- LDAP
+rpm?	Net::LDAP		[perl-LDAP or perl-ldap or 'perl(Net::LDAP)']
+# -- LWP::UserAgent
+dpkg?	LWP::UserAgent		[libwww-perl]
+rpm?	LWP::UserAgent		[perl-libwww-perl or 'perl(LWP::UserAgent)']
+urpmi?	LWP::UserAgent		[perl-libwww-perl or 'perl(LWP::UserAgent)']
+emerge?	LWP::UserAgent		[from cpan]
+pkgin?	LWP::UserAgent		[?]
+pkg_add?	LWP::UserAgent	[from cpan]
+pkg?	LWP::UserAgent		[from cpan]
+slackpkg?	LWP::UserAgent	[from cpan]
+pacman?	LWP::UserAgent		[from cpan]
+# -- Net::SNMP
+dpkg?	Net::SNMP		[libnet-snmp-perl]
+rpm?	Net::SNMP		[perl-Net-SNMP or 'perl(Net::SNMP)']
+urpmi?	Net::SNMP		[perl-Net-SNMP or 'perl(Net::SNMP)']
+emerge?	Net::SNMP		[from cpan]
+pkgin?	Net::SNMP		[?]
+pkg_add?	Net::SNMP	[p5-Net-SNMP]
+pkg?	Net::SNMP		[from cpan]
+slackpkg?	Net::SNMP	[from cpan]
+pacman?	Net::SNMP		[perl-net-snmp]
+#
+# other run-time
+#
+# -- time(1)
+dpkg?	time			[time]
+rpm?	time			[time]
+urpmi?	time			[time]
+emerge?	time			[sys-process/time]
+pkgin?	time			[base NetBSD install]
+pkg_add?	time		[base OpenBSD install]
+pkg?	time			[SunWcs]
+slackpkg?	time		[time]
+pacman?	time			[time]
+# -- sadf(1)
+dpkg?	sadf			[sysstat (for sar2pcp)]
+rpm?	sadf			[sysstat (for sar2pcp)]
+urpmi?	sadf			[N/A (for sar2pcp)]
+emerge?	sadf			[sysstat (for sar2pcp)]
+pkgin?	sadf			[sysstat (for sar2pcp)]
+pkg_add?	sadf		[N/A (for sar2pcp)]
+pkg?	sadf			[N/A (for sar2pcp)]
+slackpkg?	sadf		[sysstat (for sar2pcp)]
+pacman?	sadf			[sysstat (for sar2pcp)]
+# -- host(1)
+dpkg?	host			[bind9-host]
+rpm?	host			[bind-utils]
+urpmi?	host			[bind-utils]
+emerge?	host			[net-dns/bind-tools]
+pkgin?	host			[base NetBSD install]
+pkg_add?	host		[base OpenBSD install]
+pkg?	host			[dns/bind]
+slackpkg?	host		[bind]
+pacman?	host			[bind-tools]
+# QA
+bc				[(QA optional)]
+curl				[(QA optional)]
+socat				[(QA optional)]
+valgrind			[(QA optional)]
+nmap				[(QA optional)]
+dpkg?	avahi-browse		[avahi-tools or avahi-utils (QA optional)]
+rpm?	avahi-browse		[avahi-tools or avahi-utils (QA optional)]
+urpmi?	avahi-browse		[avahi-tools or avahi-utils (QA optional)]
+emerge?	avahi-browse		[avahi-tools or avahi-utils (QA optional)]
+pkgin?	avahi-browse		[avahi-tools or avahi-utils (QA optional)]
+pkg_add?	avahi-browse	[avahi-tools or avahi-utils (QA optional)]
+pkg?	avahi-browse		[network/avahi (QA optional)]
+slackpkg?	avahi-browse	[N/A (QA optional)]
+pacman?	avahi-browse		[avahi (QA optional)]
+dpkg?		crontab		[cron]
+rpm?		crontab		[cronie]
+urpmi?		crontab		[?]
+emerge?		crontab		[?]
+pkgin?		crontab		[?]
+pkg_add?	crontab		[?]
+pkg?	crontab			[SUNWcs]
+slackpkg?	crontab		[?]
+pacman?		crontab		[cronie]
+# -- mail(1)
+dpkg?	mail			[bsd-mailx (QA optional)]
+rpm?	mail			[mailx (QA optional)]
+urpmi?	mail			[nail (QA optional)]
+emerge?	mail			[mail-client/mailx (QA optional)]
+pkgin?	mail			[base NetBSD install (QA optional)]
+pkg_add?	mail		[base OpenBSD install (QA optional)]
+pkg?	mail			[SUNWcs (QA optional)]
+slackpkg?	mail		[mailx (QA optional)]
+pacman?	mail			[s-nail (QA optional)]
+# -- httpd / apache
+dpkg?	apache2			[apache2 (QA optional)]
+rpm?	httpd|/etc/apache2/httpd.conf	[httpd or apache2 (QA optional)]
+urpmi?	httpd|/etc/apache2/httpd.conf	[apache-mpm-prefork (QA optional)]
+emerge?	httpd|/etc/apache2/httpd.conf	[www-servers/apache (QA optional)]
+pkgin?	httpd|/etc/apache2/httpd.conf	[apache (QA optional)]
+pkg_add?	httpd|/etc/apache2/httpd.conf	[apache22 (QA optional)]
+pkg?	/etc/apache2/*/httpd.conf	[web/server/apache-24 (QA optional)]
+slackpkg?	/etc/httpd/httpd.conf	[httpd (QA optional)]
+pacman?	/etc/httpd/conf/httpd.conf	[apache (QA optional)]
+# -- realpath(1)
+dpkg?	realpath		[realpath]
+emerge?	realpath		[sys-apps/coreutils]
+pkgin?	realpath		[N/A]
+pkg_add?	realpath	[N/A]
+pkg?	realpath		[gnu-coreutils]
+slackpkg?	realpath	[coreutils]
+pacman?	realpath		[coreutils]
+# -- unbound
+dpkg?	unbound-control		[unbound (QA optional)]
+emerge?	unbound-control		[net-dns/unbound (QA optional)]
+pkgin?	unbound-control		[unbound (QA optional)]
+pkg_add?	unbound-control	[? (QA optional)]
+pkg?	unbound-control		[N/A (QA optional)]
+slackpkg?	unbound-control	[N/A (QA optional)]
+pacman?	unbound-control		[unbound (QA optional)]
+# -- python-requests
+dpkg?	/usr/share/doc/python-requests|/usr/share/doc/packages/python-requests	[python-requests (QA optional)]
+dpkg?	/usr/lib/python2.*/dist-packages/requests	[python-requests (QA optional)]
+dpkg?	/usr/lib/python3/dist-packages/requests	[python3-requests (QA optional)]
+rpm?	/usr/lib/python3.*/*-packages/requests	[python3-requests (QA optional)]
+urpmi?	/usr/share/doc/python*-requests*|/usr/share/doc/packages/python*-requests	[python-requests (QA optional)]
+emerge?	/usr/lib/python*/*-packages/requests	[dev-python/requests (QA optional)]
+pkgin?	/usr/pkg/lib/python3.4/*-packages/requests	[py34-requests (QA optional)]
+pkg_add?	/usr/local/lib/python3.4/*-packages/requests	[py3-requests (QA optional)]
+pkg?	requests					[N/A (QA optional)]
+slackpkg?	requests	[N/A (QA optional)]
+pacman?	/usr/lib/python2.*/site-packages/requests	[python2-requests (QA optional)]
+pacman?	/usr/lib/python3.*/site-packages/requests	[python-requests (QA optional)]
+# -- logconf for ds389 PMDA
+rpm?	/usr/bin/logconv.pl	[389-ds-base (QA optional)]
+urpmi?	/usr/bin/logconv.pl	[N/A (QA optional)]
+# -- plain authentication plugin for SASL
+rpm?	/usr/lib*/sasl2/libplain.so	[cyrus-sasl-plain (QA optional)]
+urpmi?	/usr/lib*/sasl2/libplain.so	[lib64sasl2-plug-plain (QA optional)]
+emerge?	/usr/lib*/sasl2/libplain.so	[dev-libs/cyrus-sasl (QA optional)]
+pkgin?	/usr/pkg/lib*/sasl2/libplain.so	[cy2-plain (QA optional)]
+pkg_add?	/usr/local/lib/sasl2/libplain.so	[cyrus-sasl (QA optional)]
+pkg?	/usr/lib/sasl/plain.so.1	[libsasl (QA optional)]
+slackpkg?	/usr/lib*/sasl2/libplain.so	[cyrus-sasl (QA optional)]
+pacman?	/usr/lib/sasl2/libplain.so	[libsasl (QA optional)]
+# -- DBI
+dpkg?	Class::DBI::Query	[libclass-dbi-perl (postgresql QA optional)]
+rpm?	DBI::			[perl-DBI or 'perl(DBI)' (postgresql QA optional)]
+urpmi?	DBI::			[perl-DBI or 'perl(DBI)' (postgresql QA optional)]
+emerge?	DBI::			[dev-perl/DBI (postgresql QA optional)]
+pkgin?	DBI::			[p5-DBI (postgresql QA optional)]
+pkg_add?	DBI::		[p5-DBI (postgresql QA optional)]
+pkg?	DBI::			[perl-5/postgres-dbi-522 (postgresql QA optional)]
+slackpkg?	DBI::		[perl (postgresql QA optional)]
+pacman?	DBI::			[perl-dbi (postgresql QA optional)]
+# -- DBD::Pg
+dpkg?	DBD::Pg			[libdbd-pg-perl (postgresql QA optional)]
+rpm?	DBD::Pg			[perl-DBD-Pg or 'perl(DBD::Pg)' (postgresql QA optional)]
+urpmi?	DBD::Pg			[perl-DBD-Pg or 'perl(DBD::Pg)' (postgresql QA optional)]
+emerge?	DBD::Pg			[dev-perl/DBD-Pg (postgresql QA optional)]
+pkgin?	DBD::Pg			[p5-DBD-postgresql (postgresql QA optional)]
+pkg_add?	/usr/local/bin/pg_config	[postgresql95-client (postgresql QA optional)]
+pkg_add?	DBD::Pg		[p5-DBD-Pg (postgresql QA optional)]
+pkg?	DBD::Pg			[perl-5/postgres-dbi-522 (postgresql QA optional)]
+slackpkg?	DBD::Pg		[N/A (postgresql QA optional)]
+pacman?	DBD::Pg			[perl-dbd-pg (postgresql QA optional)]
+# -- DBD::mysql
+dpkg?	DBD::mysql		[libdbd-mysql-perl (mysql QA optional)]
+rpm?	DBD::mysql		[perl-DBD-mysql or 'perl(DBD::mysql)' (mysql QA optional)]
+urpmi?	DBD::mysql		[perl-DBD-mysql or 'perl(DBD::mysql)' (mysql QA optional)]
+emerge?	DBD::mysql		[dev-perl/DBD-mysql (mysql QA optional)]
+pkgin?	DBD::mysql		[p5-DBD-mysql (mysql QA optional)]
+pkg_add?	DBD::mysql	[p5-DBD-mysql (mysql QA optional)]
+pkg?	DBD::mysql		[perl-5/mysql-dbi-522 (mysql QA optional)]
+slackpkg?	DBD::mysql	[mariadb (mysql QA optional)]
+pacman?	DBD::mysql		[perl-dbd-mysql (mysql QA optional)]
+# -- memcached
+dpkg?	memcached		[memcached (memcache QA optional)]
+rpm?	memcached		[memcached (memcache QA optional)]
+urpmi?	memcached		[memcached (memcache QA optional)]
+emerge?	memcached		[? (memcache QA optional)]
+pkgin?	memcached		[? (memcache QA optional)]
+pkg_add?	memcached	[? (memcache QA optional)]
+pkg?	/usr/lib/memcached	[service/memcached (memcache QA optional)]
+slackpkg?	memcached	[N/A (memcache QA optional)]
+pacman?	memcached		[memcached (memcache QA optional)]
+# -- zabbix
+dpkg?	zabbix_agentd		[zabbix-agent (zabbix QA optional)]
+rpm?	zabbix_agentd		[zabbix-agent (zabbix QA optional)]
+urpmi?	zabbix_agentd		[N/A (zabbix QA optional)]
+emerge?	zabbix_agentd		[? (zabbix QA optional)]
+pkgin?	zabbix_agentd		[? (zabbix QA optional)]
+pkg_add?	zabbix_agentd	[? (zabbix QA optional)]
+pkg?	zabbix_agentd		[N/A (zabbix QA optional)]
+slackpkg?	zabbix_agentd	[N/A (zabbix QA optional)]
+pacman?	zabbix_agentd		[N/A (zabbix QA optional)]
+# -- mysql
+dpkg?	mysql			[mysql-client (mysql QA optional)]
+rpm?	mysql			[mysql or community-mysql (mysql QA optional)]
+urpmi?	mysql			[mariadb-client or community-mysql (mysql QA optional)]
+emerge?	mysql			[? (mysql QA optional)]
+pkgin?	mysql			[? (mysql QA optional)]
+pkg_add?	mysql		[? (mysql QA optional)]
+pkg?	mysql			[database/mariadb*/client (mysql QA optional)]
+slackpkg?	mysql		[mariadb (mysql QA optional)]
+pacman?	mysql			[mariadb-clients (mysql QA optional)]
+# -- postgresql
+dpkg?	psql			[postgresql (postgresql QA optional)]
+rpm?	psql			[postgresql (postgresql QA optional)]
+urpmi?	psql			[postgresql (postgresql QA optional)]
+emerge?	psql			[? (postgresql QA optional)]
+pkgin?	psql			[? (postgresql QA optional)]
+pkg_add?	psql		[? (postgresql QA optional)]
+pkg?	psql			[database/postgresl-95 (postgresql QA optional)]
+slackpkg?	psql		[N/A (postgresql QA optional)]
+pacman?	psql			[postgresql-libs (postgresql QA optional)]
+pacman?	pg_ctl			[postgresql (postgresql QA optional)]
+# -- mkfs.gfs2
+dpkg?	mkfs.gfs2		[gfs2-utils (gfs2 QA optional)]
+rpm?	mkfs.gfs2		[gfs2-utils (gfs2 QA optional)]
+urpmi?	mkfs.gfs2		[gfs2-utils (gfs2 QA optional)]
+pkgin?	mkfs.gfs2		[N/A (gfs2 QA optional)]
+pkg_add?	mkfs.gfs2	[N/A (gfs2 QA optional)]
+pkg?	mkfs.gfs2		[N/A (gfs2 QA optional)]
+slackpkg?	mkfs.gfs2	[N/A (gfs2 QA optional)]
+pacman?	mkfs.gfs2		[N/A (gfs2 QA optional)]
+#
+# pcp-gui
+#
+# -- Qt stuff
+dpkg?	qmake			[qt4-qmake (build optional)]
+rpm?	qmake|/usr/lib*/qt4/bin/qmake		[qt4-devel (build optional)]
+urpmi?	qmake|/usr/lib*/qt4/bin/qmake		[lib64qt4-devel (build optional)]
+emerge?	qmake|/usr/lib*/qt4/bin/qmake		[dev-qt/qtchooser (build optional)]
+pkgin?	/usr/pkg/qt4/bin/qmake	[qt4-tools (build optional)]
+pkg_add?	/usr/local/bin/qmake4|/usr/local/bin/qmake-qt4	[qt4 (build optional)]
+pkg?	qmake			[qt4 (build optional)]
+slackpkg?	qmake		[qt (build optional)]
+pacman?	/usr/lib/qt4/bin/qmake		[qt4 (build optional)]
+dpkg?	/usr/lib/*/libQtCore.so|/usr/lib/qt4/lib/libQtCore.so	[libqt4-dev (build optional)]
+rpm?	/usr/lib*/libQtCore.so|/usr/lib/qt4/lib/libQtCore.so	[qt4-devel (build optional)]
+urpmi?	/usr/lib*/libQtCore.so|/usr/lib/qt4/lib/libQtCore.so	[lib64soqt20 (build optional)]
+emerge?	/usr/lib*/qt4/libQtCore.so	[dev-qt/qtcore (build optional)]
+pkgin?	/usr/pkg/qt4/lib/libQtCore.so	[qt4-libs (build optional)]
+pkg_add?	/usr/local/lib/qt4/libQtCore.so.*	[qt4 (build optional)]
+pkg?	/usr/lib/qt/*/lib/libQtCore.so	[qt4 (build optional)]
+slackpkg?	/usr/lib*/libQtCore.so.*	[qt4 (build optional)]
+pacman?	/usr/lib/libQtCore.so		[qt4 (build optional)]
+pacman?	/usr/lib/libicuio.so		[icu (build optional)]
+# -- Inventor stuff
+dpkg?	/usr/include/Inventor/Qt/SoQt.h	[libsoqt-dev-common (build optional)]
+urpmi?	/usr/include/Inventor/Qt/SoQt.h	[lib64soqt-devel (build optional)]
+rpm?	/usr/include/Coin*/Inventor/Qt/SoQt.h	[SoQt-devel (build optional)]
+urpmi?	/usr/include/Inventor/Qt/SoQt.h	[lib64soqt-devel (build optional)]
+emerge?	/usr/include/coin/Inventor/Qt/SoQt.h	[media-libs/SoQt (build optional)]
+pkgin?	/usr/pkg/include/coin/Inventor/Qt/SoQt.h	[? (build optional)]
+pkg_add?	/usr/local/include/coin/Inventor/Qt/SoQt.h	[? (build optional)]
+pkg?	SoQt.h				[N/A (build optional)]
+slackpkg?	SoQt.h			[N/A (build optional)]
+pacman?	/usr/include/Inventor/Qt/SoQt.h	[soqt (build optional)]
+dpkg?	/usr/include/Inventor/SoPath.h	[libcoin60-dev or libcoin80-dev (build optional)]
+rpm?	/usr/include/Coin3/Inventor/SoPath.h	[Coin3-devel (build optional)]
+urpmi?	/usr/include/Inventor/SoPath.h	[lib64coin-devel (build optional)]
+emerge?	/usr/include/coin/Inventor/SoPath.h	[media-libs/coin (build optional)]
+pkgin?	/usr/pkg/include/Inventor/SoPath.h	[Coin (build optional)]
+pkg_add?	/usr/local/include/Inventor/SoPath.h	[? (build optional)]
+pkg?	SoPath.h			[N/A (build optional)]
+slackpkg?	SoPath.h		[N/A (build optional)]
+pacman?	/usr/include/Inventor/SoPath.h	[coin (build optional)]
+dpkg?	/usr/lib*/libSoQt4.so|/usr/lib/*/libSoQt4.so	[libsoqt4-dev or libsoqt-dev (build optional)]
+rpm?	/usr/lib*/libSoQt.so		[SoQt-devel (build optional)]
+urpmi?	/usr/lib*/libSoQt.so		[lib64soqt-devel (build optional)]
+emerge?	/usr/lib/libSoQt4.so|/usr/lib/*/libSoQt4.so	[? (build optional)]
+pkgin?	/usr/lib/libSoQt4.so|/usr/lib/*/libSoQt4.so	[? (build optional)]
+pkg_add?	/usr/lib/libSoQt4.so|/usr/lib/*/libSoQt4.so	[? (build optional)]
+pkg?	libSoQt.so			[N/A (build optional)]
+slackpkg?	libSoQt.so		[N/A (build optional)]
+pacman?	/usr/lib/libSoQt.so		[soqt (build optional)]
+#
+# python
+#
+dpkg?	/usr/include/python*/Python.h	[python-dev]
+rpm?	/usr/include/python3.*/Python.h	[python3-devel]
+urpmi?	/usr/include/python*/Python.h	[lib64python-devel]
+emerge?	/usr/include/python*/Python.h	[dev-lang/python]
+pkgin?	/usr/pkg/include/python3.4/Python.h	[python34]
+pkg_add?	/usr/local/include/python3.4m/Python.h	[python34]
+pkg?	/usr/include/python*/Python.h	[python-34]
+slackpkg?	/usr/include/python*/Python.h	[python]
+pacman?	/usr/include/python3.*/Python.h	[python]
+dpkg?	/usr/lib*/python*/curses	[libpython3.5-stdlib]
+rpm?	/usr/lib*/python3.*/curses	[python3-libs]
+urpmi?	/usr/lib*/python*/curses	[python or python3]
+emerge?	/usr/lib*/python*/curses	[dev-lang/python]
+pkgin?	/usr/pkg/lib/python3.4/curses	[python34]
+pkg_add?	/usr/local/lib/python3.4/curses	[python34]
+pkg?	/usr/lib*/python*/curses	[python-34]
+slackpkg?	/usr/lib*/python*/curses	[python]
+pacman?	/usr/lib/python3.*/curses	[python]
+#
+# nss
+#
+dpkg?	/usr/include/nspr/nspr.h	[libnspr4-dev (build optional)]
+rpm?	/usr/include/nspr4/nspr.h	[nspr-devel or mozilla-nspr-devel (build optional)]
+urpmi?	/usr/include/nspr4/nspr.h	[lib64nspr-devel (build optional)]
+emerge?	/usr/include/nspr/nspr.h	[dev-libs/nspr (build optional)]
+pkgin?	/usr/pkg/include/nspr/nspr.h	[nspr (build optional)]
+pkg_add?	/usr/local/include/nspr/nspr.h	[nspr (build optional)]
+pkg?	/usr/include/mps/nspr.h		[nspr/header-nspr (build optional)]
+slackpkg?	/usr/include/nspr/nspr.h	[mozilla-nss (build optional)]
+pacman?	/usr/include/nspr/nspr.h	[nspr (build optional)]
+dpkg?	/usr/include/nss/nss.h		[libnss3-dev (build optional)]
+rpm?	/usr/include/nss3/nss.h		[nss-devel or mozilla-nss-devel (build optional)]
+urpmi?	/usr/include/nss/nss.h		[lib64nss-devel (build optional)]
+emerge?	/usr/include/nss/nss.h		[dev-libs/nss (build optional)]
+pkgin?	/usr/pkg/include/nss/nss/nss.h	[nss (build optional)]
+pkg_add?	/usr/local/include/nss/nss/nss.h	[nss (build optional)]
+pkg?	/usr/include/mps/nss.h		[mozilla-nss/header-nss (build optional)]
+slackpkg?	/usr/include/nss/nss.h	[mozilla-nss (build optional)]
+pacman?	/usr/include/nss/nss.h		[nss (build optional)]
+dpkg?	certutil			[libnss3-tools (build optional)]
+rpm?	certutil			[nss-tools or mozilla-nss-tools (build optional)]
+urpmi?	certutil			[nss (build optional)]
+emerge?	certutil			[dev-libs/nss with USE=utils (build optional)]
+pkgin?	certutil			[? (build optional)]
+pkg_add?	certutil		[nss (build optional)]
+pkg?	certutil			[system/mozilla-nss (build optional)]
+slackpkg?	certutil		[mozilla-nss (build optional)]
+pacman?	certutil			[nss (build optional)]
+dpkg?		saslpasswd2		[sasl2-bin (QA optional)]
+rpm?		saslpasswd2		[cyrus-sasl-lib (QA optional)]
+urpmi?		saslpasswd2		[? (QA optional)]
+emerge?		saslpasswd2		[? (QA optional)]
+pkgin?		saslpasswd2		[? (QA optional)]
+pkg_add?	saslpasswd2		[? (QA optional)]
+pkg?		saslpasswd2		[N/A (QA optional)]
+slackpkg?	saslpasswd2		[? (QA optional)]
+pacman?		saslpasswd2		[? (QA optional)]
+dpkg?		saslpluginviewer	[sasl2-bin (QA optional)]
+rpm?		pluginviewer		[cyrus-sasl (QA optional)]
+urpmi?		pluginviewer		[? (QA optional)]
+emerge?		pluginviewer		[? (QA optional)]
+pkgin?		pluginviewer		[? (QA optional)]
+pkg_add?	pluginviewer		[? (QA optional)]
+pkg?		pluginviewer		[N/A (QA optional)]
+slackpkg?	pluginviewer		[? (QA optional)]
+pacman?		pluginviewer		[? (QA optional)]
+#
+# misc
+#
+End-of-File
+
+if which python >/dev/null 2>&1
+then
+    # For python-ctypes, check for python before 2.5 ... expect something like
+    # Python 2.7.3
+    eval `python -V 2>&1 | sed -e 's/Python //' -e 's/^/maj=/' -e 's/\./ min=/' -e 's/\..*//'`
+    if [ -n "$maj" -a -n "$min" ]
+    then
+	rm -f $tmp.need
+	if [ "$maj" -lt 2 ]
+	then
+	    touch $tmp.need
+	elif [ "$maj" -eq 2 -a "$min" -lt 5 ]
+	then
+	    touch $tmp.need
+	fi
+	[ -f $tmp.need ] && \
+	    echo "rpm?	/usr/share/doc/python-ctypes*	[python-ctypes]" >>$tmp.main
+    fi
+fi
+
+# platform specific cases
+#
+# tests here are copied from $(TOPDIR)/configure.ac
+#
+if [ -f /etc/fedora-release ]
+then
+    # Fedora
+    echo "/usr/sbin/qshape		[postfix-perl-scripts]" >>$tmp.main
+elif [ -f /etc/mandriva-release ]
+then
+    # OpenMandriva
+    echo "/usr/sbin/qshape		[postfix]" >>$tmp.main
+    echo "host				[bind-utils]" >>$tmp.main
+elif [ -f /etc/redhat-release ]
+then
+    # Redhat or CentOS
+    echo "/usr/sbin/qshape		[postfix-perl-scripts]" >>$tmp.main
+    echo "host				[bind-utils]" >>$tmp.main
+elif [ -f /etc/SuSE-release ]
+then
+    echo "/usr/share/doc/packages/postfix-doc/auxiliary/qshape/qshape.pl		[postfix-doc]" >>$tmp.main
+elif [ -f /etc/arch-release ]
+then
+    # Arch Linux
+    echo "/usr/bin/qshape		[N/A (build optional)]" >>$tmp.main
+fi
+
+# strip the packaging-dependent lines that do not apply ...
+# this is an optimization remove checks from the main loop below
+#
+rm -f $tmp.ok
+for pkgtype in $pkgtools
+do
+    want=true
+    case $pkgtype
+    in
+	rpm)
+	    # Madriva really uses urpmi, but the rpm binary also is installed
+	    # so don't include the rpm? lines
+	    #
+	    which urpmi >/dev/null 2>&1 && want=false
+	    # similarly for Slackware where slackpkg is the real packing
+	    # tool
+	    #
+	    which slackpkg >/dev/null 2>&1 && want=false
+	    ;;
+    esac
+    if which $pkgtype >/dev/null 2>&1 && $want
+    then
+	sed -e "s/^${pkgtype}?[ 	]*//" <$tmp.main >$tmp.tmp
+	mv $tmp.tmp $tmp.main
+	touch $tmp.ok
+    else
+	grep -v "^${pkgtype}?[ 	]" <$tmp.main >$tmp.tmp
+	mv $tmp.tmp $tmp.main
+    fi
+done
+if [ ! -f $tmp.ok ]
+then
+    echo "Warning: don't understand what packing is being used here ..."
+    echo "         it is none of: $pkgtools"
+fi
+
+# Modify the package inventory for some particular hosts where we've
+# explored and _know_ certain packages are not available
+#
+na=''
+case `hostname`
+in
+    grundy-dmz)
+	na='microhttpd.h sd-daemon.h papi.h pfmlib_perf_event.h six.py jsonpointer.py valgrind logconv.pl zabbix_agentd mkfs.gfs2 SoQt.h SoPath.h libSoQt.so xclip'
+	;;
+esac
+if [ -n "$na" ]
+then
+    for f in $na
+    do
+	sed <$tmp.main >$tmp.tmp -e "/$f/{"'
+s;[^ 	]*\('"$f"'\);\1;
+s;\[.*;[N/A on host '"`hostname`"'];
+}'
+	mv $tmp.tmp $tmp.main
+    done
+fi
+
+# main loop
+#
+cat $tmp.main \
+| sed -e 's/#.*//' -e '/^[ 	]*$/d' \
+| while read apps
+do
+    rm -f $tmp.ok
+    rm -f $tmp.echo
+    for app in $apps
+    do
+	# leading ! negates the test
+	case $app
+	in
+	    !*)
+		app=`echo "$app" | sed -e 's/^!//'`
+		negate=true
+		;;
+	    *)
+		negate=false
+		;;
+	esac
+	case $app
+	in
+	    \[*)
+	    	break
+		;;
+	    *\?)
+	    	app=`echo $app | sed -e 's/?$//'`
+		optional=true
+		;;
+	    *)
+		optional=false
+		;;
+	esac
+	case $app
+	in
+	    \[*)
+	    	break
+		;;
+	    *::)
+		# special case Perl, no module name
+		echo "use `echo $app | sed -e 's/::$//'`;" | perl >/dev/null 2>&1
+		ok=$?
+		;;
+
+	    *::*)
+		# normal case Perl, with module name
+		echo "use $app;" | perl >/dev/null 2>&1
+		ok=$?
+		;;
+	    *)  # file, directory or executable tests, separated by |
+		rm -f $tmp.tmp
+		for obj in `echo "$app" | sed -e 's/|/ /g'`
+		do
+		    case "$obj"
+		    in
+			/*)
+			    if [ -f "$obj" -o -d "$obj" ]
+			    then
+				touch $tmp.tmp
+				break
+			    fi
+			    ;;
+			*)
+			    if which $obj >/dev/null 2>&1
+			    then
+				touch $tmp.tmp
+				break
+			    fi
+			    ;;
+		    esac
+		done
+		[ -f $tmp.tmp ]
+		ok=$?
+		;;
+	esac
+	if $negate
+	then
+	    ok=`expr 1 - $ok`
+	fi
+	if $verbose
+	then
+	    echo -n "$app ... "
+	    $optional && echo -n "[optional] "
+	    if [ $ok = 0 ]
+	    then
+		echo -n "yes "
+	    else
+		echo -n "no "
+	    fi
+	    touch $tmp.echo
+	fi
+	if [ $ok = 0 ]
+	then
+	    if $optional
+	    then
+		[ -f $tmp.echo ] && echo
+		continue
+	    fi
+	    touch $tmp.ok
+	    break
+	else
+	    if $optional
+	    then
+		# guard not true, skip checks for other apps
+		touch $tmp.ok
+		break
+	    fi
+	fi
+    done
+    [ -f $tmp.echo ] && echo
+    if [ ! -f $tmp.ok ]
+    then
+	echo "Missing: `echo $apps \
+	    | sed \
+		-e 's/[ 	][ 	]*/ /g' \
+		-e '/ /{
+s/? /?@/
+:loop1
+s/\(\[.*\) /\1@/
+t loop1
+:loop2
+s/ \([^[]\)/@|@\1/
+t loop2
+s/@/ /g
+}'`"
+    fi
+done
+
+# Some platform-specific and special case tests
+#
+if which dpkg >/dev/null 2>&1
+then
+    # Debian based
+    #
+    dpkg -l >$tmp.tmp
+    for pkg in python-all python-all-dev python3-all python3-all-dev
+    do
+	if grep "^ii *$pkg" <$tmp.tmp >/dev/null
+	then
+	    :
+	else
+	    echo "Need # apt-get install $pkg"
+	fi
+    done
+    # There are some version dependencies in the debian/control file
+    # (see Build-Depends and *-Version lines) and some are found in
+    # configure.ac ... both need to be mirrored here
+    #
+    cat <<End-of-File >$tmp.dpkg
+# one line per package
+# pkg-name	relop	version
+# text after # is treated as a comment
+# debian/control
+debhelper	>=	5
+perl		>=	5.6
+python		>=	2.6
+# configure.ac
+libmicrohttpd	>	0.9.9
+libcairo2-dev	>=	1.2
+End-of-File
+    cat $tmp.dpkg \
+    | sed -e 's/#.*//' -e '/^[ 	]*$/d' \
+    | while read pkg relop ctlversion
+    do
+	# dpkg -l lines like ...
+	# ii  debhelper      9.20131227ub all          ...
+	#
+	if grep "ii[ 	][ 	]*$pkg[ 	]" $tmp.tmp >/dev/null 2>&1
+	then
+	    version=`awk <$tmp.tmp '$2 == "'"$pkg"'" { print $3 }'`
+	    if [ -z "$version" ]
+	    then
+		echo "Arrgh ... failed to get version for $pkg from ..."
+		cat $tmp.tmp
+		continue
+	    fi
+	    ( echo $version; echo $ctlversion ) | _compare $relop
+	    if [ $? = 0 ]
+	    then
+		$verbose && echo "$pkg: version installed $version, need $relop $ctlversion, OK"
+	    else
+		echo "Warning: $pkg version installed $version, need $relop $ctlversion"
+	    fi
+	fi
+    done
+fi
+
+if which slackpkg >/dev/null 2>&1
+then
+    # Slackware ...
+    :
+elif which rpm >/dev/null 2>&1
+then
+    # RPM based, there are some version dependencies in the spec
+    # file (see BuildRequires: lines build/rpm/pcp.spec.in) and some
+    # are found in configure.ac ... both need to be mirrored here
+    #
+    cat <<End-of-File >$tmp.rpm
+# one line per rpm
+# rpm-name	relop	version	pcp-pkg
+# text after # is treated as a comment
+# pcp.spec.in
+qt-devel|qt4-devel|libqt4-devel|lib64qt4-devel	>=	4.4
+libpfm-devel			>=	4.4	pcp-pmda-perfevent
+libpfm|libpfm4			>=	4.4	pcp-pmda-perfevent
+libibmad-devel			>=	1.1.7	pcp-pmda-infiniband
+libibmad|libibmad5		>=	1.1.7	pcp-pmda-infiniband
+libibumad-devel			>=	1.1.7	pcp-pmda-infiniband
+libibumad|libibumad3		>=	1.1.7	pcp-pmda-infiniband
+End-of-File
+    cat $tmp.rpm \
+    | sed -e 's/#.*//' -e '/^[ 	]*$/d' \
+    | while read rpmlist relop specversion pcp_pkg
+    do
+	[ -n "$pcp_pkg" ] && pcp_pkg=" for $pcp_pkg"
+	rm -f $tmp.found $tmp.notfound
+	for rpm in `echo "$rpmlist" | sed -e 's/|/ /g'`
+	do
+	    rpm -q $rpm >$tmp.tmp 2>/dev/null
+	    if grep 'is not installed' $tmp.tmp >/dev/null 2>&1
+	    then
+		$verbose && echo "$rpm: not installed, need $relop $specversion$pcp_pkg, OK"
+		echo "Warning: $rpm not installed, need $relop $specversion$pcp_pkg" >>$tmp.notfound
+	    else
+		touch $tmp.found
+		version=`sed <$tmp.tmp -e "s/^$rpm-//" -e 's/-.*//'`
+		( echo $version; echo $specversion ) | _compare $relop
+		if [ $? = 0 ]
+		then
+		    $verbose && echo "$rpm: version installed $version, need $relop $specversion$pcp_pkg, OK"
+		else
+		    echo "Warning: $rpm version installed $version, need $relop $specversion$pcp_pkg"
+		fi
+	    fi
+	done
+	if [ -f $tmp.found ]
+	then
+	    :
+	else
+	    $verbose || cat $tmp.notfound
+	fi
+    done
+fi
+
+if which pkg-config >/dev/null 2>&1
+then
+    # PKG_CHECK_MODULES() in configure.ac
+    #
+    cat <<End-of-File >$tmp.pkg-config
+# one line per rpm
+# lib-name	relop	version	pcp-pkg
+# text after # is treated as a comment
+libmicrohttpd	>	0.9.9
+cairo		>=	1.2
+cairo-ft	>=	1.2
+cairo-png	>=	1.2
+End-of-File
+    cat $tmp.pkg-config \
+    | sed -e 's/#.*//' -e '/^[ 	]*$/d' \
+    | while read lib relop version pcp_pkg
+    do
+	[ -n "$pcp_pkg" ] && pcp_pkg=" for $pcp_pkg"
+	libversion=`pkg-config --modversion "$lib" 2>/dev/null`
+	if [ -z "$libversion" ]
+	then
+	    echo "Warning: Package $lib not known to pkg-config , need $relop $version$pcp_pkg"
+	else
+	    ( echo $libversion; echo $version ) | _compare $relop
+	    if [ $? = 0 ]
+	    then
+		$verbose && echo "$lib: version installed $libversion, need $relop $version$pcp_pkg, OK"
+	    else
+		echo "Warning: $lib version installed $libversion, need $relop $version$pcp_pkg"
+	    fi
+	fi
+    done
+fi
+
+# Networking goo
+#
+_check_host()
+{
+    ipaddr=`sed -n </etc/hosts -e '/^#/d' -e '/::/d' -e 's/$/ /' -e "/[ 	]$1[ 	]/"'{
+s/[ 	].*//
+p
+}'`
+    if [ -z "$ipaddr" ]
+    then
+	echo "No /etc/hosts entry for $1"
+	return
+    fi
+
+    if [ `echo "$ipaddr" | wc -l | sed -e 's/  *//g'` -gt 1 ]
+    then
+	echo "Multiple /etc/hosts entries for $1"
+	return
+    fi
+
+    ifconfig \
+    | awk '
+/^[^ 	]/	{ iface = $1; next }
+/inet addr:'$ipaddr' / || /inet '$ipaddr' / {
+			  if (iface == "lo")
+			    print "Warning: '$1' associated with loopback network interface"
+			  found = 1
+			  exit
+			}
+END		{ if (found != 1)
+		    print "Warning: '$1' ('$ipaddr') not associated with a network interface"
+		}'
+}
+
+host=`hostname`
+_check_host $host
+if which pmhostname >/dev/null 2>&1
+then
+    pmhost=`pmhostname`
+    if [ -z "$pmhost" ]
+    then
+	echo "Warning: pmhostname returns nothing!"
+    else
+	case $pmhost
+	in
+	    $host|$host.*)
+		    ;;
+	    *)
+		    echo "Warning: hostname ($host) is not a prefix of pmhostname ($pmhost)"
+		    ;;
+	esac
+	_check_host $pmhost
+    fi
+fi
+
+if [ -f /etc/pcp.conf ]
+then
+    . /etc/pcp.conf
+
+    # need QA access to pmlogger via pmlc from local subnet
+    #
+    network=`_getnetworkaddr`
+    if [ -n "$network" ]
+    then
+	if [ -f $PCP_VAR_DIR/config/pmlogger/config.default ]
+	then
+	    if grep -q "allow $network" $PCP_VAR_DIR/config/pmlogger/config.default
+	    then
+		:
+	    else
+		echo "Missing: \"allow $network : all;\" [access] in $PCP_VAR_DIR/config/pmlogger/config.default"
+		echo "Use \"$ sudo -E .../qa/admin/allow-pmlc-access\" to fix this."
+	    fi
+	else
+	    echo "Warning: \"$PCP_VAR_DIR/config/pcp/pmlogger/config.default\" is missing"
+	fi
+    else
+	echo "Please ignore Warnings from _getnetworkaddr unless you wish to run the"
+	echo "full PCP QA suite."
+    fi
+else
+    echo "Warning: \"/etc/pcp.conf\" is missing"
+fi
+
+if sudo -u pcp id >/dev/null
+then
+    # pcp user appears to exist ...
+    #
+    sudo -u pcp [ -x $HOME ] || echo "Error: $HOME is not searchable by user \"pcp\""
+fi
+
+$verbose && echo "temp files:" $tmp.*

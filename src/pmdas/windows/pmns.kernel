@@ -1,0 +1,48 @@
+kernel {
+    all
+    percpu
+    num_processes	WINDOWS:0:8
+    num_threads		WINDOWS:0:9
+    uname
+}
+
+kernel.all {
+    cpu
+    file
+    pswitch		WINDOWS:0:10
+    uptime		WINDOWS:0:234
+}
+
+kernel.all.cpu {
+    user		WINDOWS:0:0
+    idle		WINDOWS:0:1
+    sys			WINDOWS:0:2
+    intr		WINDOWS:0:3
+}
+
+kernel.percpu {
+    cpu
+}
+
+kernel.percpu.cpu {
+    user		WINDOWS:0:4
+    idle		WINDOWS:0:5
+    sys			WINDOWS:0:6
+    intr		WINDOWS:0:7
+}
+
+kernel.all.file {
+    read		WINDOWS:0:11
+    write		WINDOWS:0:12
+    read_bytes		WINDOWS:0:13
+    write_bytes		WINDOWS:0:14
+}
+
+kernel.uname {
+    distro		WINDOWS:0:109
+    release		WINDOWS:0:110
+    version		WINDOWS:0:111
+    sysname		WINDOWS:0:112
+    machine		WINDOWS:0:113
+    nodename		WINDOWS:0:114
+}

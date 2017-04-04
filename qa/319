@@ -1,0 +1,206 @@
+#! /bin/sh
+# PCP QA Test No. 319
+# reworked AND and OR logic in the presence of unavailable results
+#
+# Copyright (c) 2007 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.*
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+DEBUG='-Dappl1,appl2'
+DEBUG=
+
+# unknown metrics
+# 1U - sample.noinst (PM_INDOM_NULL)
+# nU - sample.darkness (InDom 29.1)
+
+pmie $DEBUG -v -t 0.5sec -T 3sec <<'End-of-File' 2>$tmp.err \
+| tee $seq.full \
+| sed -e 's/.* [0-9][0-9][0-9][0-9]: \([a-z]\)/\1/' \
+| sort \
+| uniq
+prime = sample.darkness;
+e1 = some_inst (sample.noinst > 0)
+    -> print "e1: Error! should be unknown always\n";
+e2 = some_inst (sample.noinst > 0) && hinv.ncpu > 0
+    -> print "e2: Error! should be false always\n"; 
+
+true_1T_and_1T = hinv.ncpu > 0 && sample.load == 42
+    -> print "true_1T_and_1T: OK should always be true\n";
+false_1T_and_1F = hinv.ncpu > 0 && sample.load != 42
+    -> print "false_1T_and_1F: Error! should always be false\n";
+unknown_1T_and_1U = hinv.ncpu > 0 && sample.noinst == 42
+    -> print "unknown_1T_and_1U: Error! should always be unknown\n";
+true_1T_and_nT = some_inst (hinv.ncpu > 0 && sample.colour > 0)
+    -> print "true_1T_and_nT: OK should always be true\n";
+false_1T_and_nF = some_inst (hinv.ncpu > 0 && sample.colour < 0)
+    -> print "false_1T_and_nF: Error! should always be false\n";
+unknown_1T_and_nU = some_inst (hinv.ncpu > 0 && sample.darkness > 0)
+    -> print "unknown_1T_and_nU:  Error! should always be unknown\n";
+
+false_1F_and_1T = hinv.ncpu < 0 && sample.load == 42
+    -> print "false_1F_and_1T: Error! should always be false\n";
+false_1F_and_1F = hinv.ncpu < 0 && sample.load != 42
+    -> print "false_1F_and_1F: Error! should always be false\n";
+false_1F_and_1U = hinv.ncpu < 0 && sample.noinst == 42
+    -> print "false_1F_and_1U: Error! should always be false\n";
+false_1F_and_nT = some_inst (hinv.ncpu < 0 && sample.colour > 0)
+    -> print "false_1F_and_nT: Error! should always be false\n";
+false_1F_and_nF = some_inst (hinv.ncpu < 0 && sample.colour < 0)
+    -> print "false_1F_and_nF: Error! should always be false\n";
+false_1F_and_nU = some_inst (hinv.ncpu < 0 && sample.darkness > 0)
+    -> print "false_1F_and_nU: Error! should always be false\n";
+
+unknown_1U_and_1T = sample.noinst == 42 && hinv.ncpu > 0 
+    -> print "unknown_1U_and_1T: Error! should always be unknown\n";
+false_1U_and_1F = sample.noinst == 42 && hinv.ncpu < 0 
+    -> print "false_1U_and_1F: Error! should always be false\n";
+unknown_1U_and_1U = sample.noinst == 42 && sample.noinst == 43
+    -> print "unknown_1U_and_1U: Error! should always be unknown\n";
+unknown_1U_and_nT = some_inst (sample.noinst == 42 && sample.colour > 0)
+    -> print "unknown_1U_and_nT: Error! should always be unknown\n";
+false_1U_and_nF = some_inst (sample.noinst == 42 && sample.colour < 0)
+    -> print "false_1U_and_nF: Error! should always be false\n";
+unknown_1U_and_nU = some_inst (sample.noinst == 42 && sample.darkness > 0)
+    -> print "unknown_1U_and_nU: Error! should always be unknown\n";
+
+true_nT_and_1T = some_inst (sample.colour > 0 && hinv.ncpu > 0)
+    -> print "true_nT_and_1T: OK should always be true\n";
+false_nT_and_1F = some_inst (sample.colour > 0 && hinv.ncpu < 0)
+    -> print "false_nT_and_1F: Error! should always be false\n";
+unknown_nT_and_1U = some_inst (sample.colour > 0 && sample.noinst == 42)
+    -> print "true_nT_and_nU: Error! should always be unknown\n";
+true_nT_and_nT = some_inst (sample.colour > 0 && sample.colour >= 1)
+    -> print "true_nT_and_nT: OK should always be true\n";
+false_nT_and_nF = some_inst (sample.colour > 0 && sample.colour < 0)
+    -> print "false_nT_and_nF: Error! should always be false\n";
+unknown_nT_and_nU = some_inst (sample.colour > 0 && sample.darkness > 0)
+    -> print "true_nT_and_nU: Error! should always be unknown\n";
+
+false_nF_and_1T= some_inst (sample.colour < 0 && hinv.ncpu > 0)
+    -> print "false_nF_and_1T: Error! should always be false\n";
+false_nF_and_1F= some_inst (sample.colour < 0 && hinv.ncpu < 0)
+    -> print "false_nF_and_1F: Error! should always be false\n";
+false_nF_and_1U= some_inst (sample.colour < 0 && sample.noinst == 42)
+    -> print "false_nF_and_1U: Error! should always be false\n";
+false_nF_and_nT = some_inst (sample.colour < 0 && sample.colour > 0)
+    -> print "false_nF_and_nT: Error! should always be false\n";
+false_nF_and_nF = some_inst (sample.colour < 0 && sample.colour < -1)
+    -> print "false_nF_and_nF: Error! should always be false\n";
+false_nF_and_nU = some_inst (sample.colour < 0 && sample.darkness > 0)
+    -> print "false_nF_and_nU: Error! should always be false\n";
+
+unknown_nU_and_1T = some_inst (sample.darkness > 0 && hinv.ncpu > 0)
+    -> print "unknown_nU_and_1T: Error! should always be unknown\n";
+unknown_nU_and_1F = some_inst (sample.darkness > 0 && hinv.ncpu < 0)
+    -> print "unknown_nU_and_1F: Error! should always be unknown\n";
+unknown_nU_and_1U = some_inst (sample.darkness > 0 && sample.noinst == 42)
+    -> print "unknown_nU_and_1U: Error! should always be unknown\n";
+unknown_nU_and_nT = some_inst (sample.darkness > 0 && sample.colour > 0)
+    -> print "unknown_nU_and_nT: Error! should always be unknown\n";
+// only odd one here, the nF provides the instance domain enumeration
+// and since all instances are false there, the conjunct is universally
+// false
+false_nU_and_nF = some_inst (sample.darkness > 0 && sample.colour < 0)
+    -> print "false_nU_and_nF: Error! should always be false\n";
+unknown_nU_and_nU = some_inst (sample.darkness > 0 && sample.darkness > 100)
+    -> print "unknown_nU_and_nU: Error! should always be unknown\n";
+
+true_1T_or_1T = hinv.ncpu > 0 || hinv.ncpu > -1
+    -> print "true_1T_or_1T: OK should always be true\n";
+true_1T_or_1F = hinv.ncpu > 0 || hinv.ncpu < 0
+    -> print "true_1T_or_1F: OK should always be true\n";
+true_1T_or_1U = hinv.ncpu > 0 || sample.noinst == 42
+    -> print "true_1T_or_1U: OK should always be true\n";
+true_1T_or_nT = some_inst (hinv.ncpu > 0 || sample.colour > 0)
+    -> print "true_1T_or_nT: OK should always be true\n";
+true_1T_or_nF = some_inst (hinv.ncpu > 0 || sample.colour < 0)
+    -> print "true_1T_or_nF: OK should always be true\n";
+true_1T_or_nU = some_inst (hinv.ncpu > 0 || sample.darkness > 0)
+    -> print "true_1T_or_nU: OK should always be true\n";
+
+true_1F_or_1T = hinv.ncpu < 0 || hinv.ncpu > 0
+    -> print "true_1F_or_1T: OK should always be true\n";
+false_1F_or_1F = hinv.ncpu < 0 || hinv.ncpu < -1
+    -> print "false_1F_or_1F: Error! should always be false\n";
+unknown_1F_or_1U = hinv.ncpu < 0 || sample.noinst == 42
+    -> print "unknown_1F_or_1U: Error! should always be unknown\n";
+true_1F_or_nT = some_inst (hinv.ncpu < 0 || sample.colour > 0)
+    -> print "true_1F_or_nT: OK should always be true\n";
+false_1F_or_nF = some_inst (hinv.ncpu < 0 || sample.colour < 0)
+    -> print "false_1F_or_nF: Error! should always be false\n";
+unknown_1F_or_nU = some_inst (hinv.ncpu < 0 || sample.darkness > 0)
+    -> print "unknown_1F_or_nU: Error! should always be unknown\n";
+
+true_1U_or_1T = sample.noinst == 42 || hinv.ncpu > 0 
+    -> print "true_1U_or_1T: OK should always be true\n";
+unknown_1U_or_1F = sample.noinst == 42 || hinv.ncpu < 0 
+    -> print "unknown_1U_or_1F: Error! should always be unknown\n";
+unknown_1U_or_1U = sample.noinst == 42 || sample.noinst == 43
+    -> print "unknown_1U_or_1U: Error! should always be unknown\n";
+true_1U_or_nT = some_inst (sample.noinst == 42 || sample.colour > 0)
+    -> print "true_1U_or_nT: OK should always be true\n";
+unknown_1U_or_nF = some_inst (sample.noinst == 42 || sample.colour < 0)
+    -> print "unknown_1U_or_nF: Error! should always be unknown\n";
+unknown_1U_or_nU = some_inst (sample.noinst == 42 || sample.darkness > 0)
+    -> print "unknown_1U_or_nU: Error! should always be unknown\n";
+
+true_nT_or_1T = some_inst (sample.colour > 0 || hinv.ncpu > 0)
+    -> print "true_nT_or_1T: OK should always be true\n";
+true_nT_or_1F = some_inst (sample.colour > 0 || hinv.ncpu < 0)
+    -> print "true_nT_or_1F: OK should always be true\n";
+true_nT_or_1U = some_inst (sample.colour > 0 || sample.noinst == 42)
+    -> print "true_nT_or_1U: OK should always be true\n";
+true_nT_or_nT = some_inst (sample.colour > 0 || sample.colour >= 1)
+    -> print "true_nT_or_nT: OK should always be true\n";
+true_nT_or_nF = some_inst (sample.colour > 0 || sample.colour < 0)
+    -> print "true_nT_or_nF: OK should always be true\n";
+true_nT_or_nU = some_inst (sample.colour > 0 || sample.darkness > 0)
+    -> print "true_nT_or_nU: OK should always be true\n";
+
+true_nF_or_1T= some_inst (sample.colour < 0 || hinv.ncpu > 0)
+    -> print "true_nF_or_1T: OK should always be true\n";
+false_nF_or_1F= some_inst (sample.colour < 0 || hinv.ncpu < 0)
+    -> print "false_nF_or_1F: Error! should always be false\n";
+unknown_nF_or_1U= some_inst (sample.colour < 0 || sample.noinst == 42)
+    -> print "unknown_nF_or_1U: Error! should always be unknown\n";
+true_nF_or_nT = some_inst (sample.colour < 0 || sample.colour > 0)
+    -> print "true_nF_or_nT: OK should always be true\n";
+false_nF_or_nF = some_inst (sample.colour < 0 || sample.colour < -1)
+    -> print "false_nF_or_nF: Error! should always be false\n";
+unknown_nF_or_nU = some_inst (sample.colour < 0 || sample.darkness > 0)
+    -> print "unknown_nF_or_nU: Error! should always be unknown\n";
+
+// this one is going to be unknown, because there are an unknown number
+// of instances in the first predicate, so some_inst is universally unknown
+unknown_nU_or_1T = some_inst (sample.darkness > 0 || hinv.ncpu > 0)
+    -> print "unknown_nU_or_1T: Error! should always be unknown\n";
+unknown_nU_or_1F = some_inst (sample.darkness > 0 || hinv.ncpu < 0)
+    -> print "unknown_nU_or_1F: Error! should always be unknown\n";
+unknown_nU_or_1U = some_inst (sample.darkness > 0 || sample.noinst == 42)
+    -> print "unknown_nU_or_1U: Error! should always be unknown\n";
+true_nU_or_nT = some_inst (sample.darkness > 0 || sample.colour > 0)
+    -> print "true_nU_or_nT: OK should always be true\n";
+unknown_nU_or_nF = some_inst (sample.darkness > 0 || sample.colour < 0)
+    -> print "unknown_nU_or_nF: Error! should always be unknown\n";
+unknown_nU_or_nU = some_inst (sample.darkness > 0 || sample.darkness > 100)
+    -> print "unknown_nU_or_nU: Error! should always be unknown\n";
+
+End-of-File
+
+echo >>$seq.full
+echo "=== stderr ==" >>$seq.full
+cat $tmp.err >>$seq.full
+
+exit

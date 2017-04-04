@@ -1,0 +1,375 @@
+QA output created by 501
+
+=== pmie -v ... ===
+valid_a: NUMBER
+alone_a: ?
+sum1_a: ?
+sum2_a: ?
+product_a: ?
+compound1_a: ?
+compound2_a: ?
+valid_b: true
+alone_b: unknown
+sum1_b: unknown
+sum2_b: unknown
+product_b: unknown
+compound1_b: unknown
+compound2_b: unknown
+valid_s: true
+alone_s: unknown
+sum1_s: unknown
+sum2_s: unknown
+product_s: unknown
+compound1_s: unknown
+compound2_s: unknown
+one: NUMBER
+no1: ?
+no2: ?
+mill: NUMBER
+no3: ?
+no4: ?
+notnum1: "hullo world!"
+notnum2: true
+notnum3: false
+notnum4: false
+
+valid_a: NUMBER
+alone_a: ?
+sum1_a: ?
+sum2_a: ?
+product_a: ?
+compound1_a: ?
+compound2_a: ?
+valid_b: true
+alone_b: unknown
+sum1_b: unknown
+sum2_b: unknown
+product_b: unknown
+compound1_b: unknown
+compound2_b: unknown
+valid_s: true
+alone_s: unknown
+sum1_s: unknown
+sum2_s: unknown
+product_s: unknown
+compound1_s: unknown
+compound2_s: unknown
+one: NUMBER
+no1: ?
+no2: ?
+mill: NUMBER
+no3: ?
+no4: ?
+notnum1: "hullo world!"
+notnum2: true
+notnum3: false
+notnum4: false
+
+Log for pmie on HOST started DATE
+
+pmie: PID,HOST
+
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
+pmLookupName failed: Unknown metric name
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
+pmLookupName failed: Unknown metric name
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
+pmLookupName failed: Unknown metric name
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
+pmLookupName failed: Unknown metric name
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
+pmLookupName failed: Unknown metric name
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
+pmLookupName failed: Unknown metric name
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
+pmLookupName failed: Unknown metric name
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
+pmLookupName failed: Unknown metric name
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
+pmLookupName failed: Unknown metric name
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
+pmLookupName failed: Unknown metric name
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
+pmLookupName failed: Unknown metric name
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
+pmLookupName failed: Unknown metric name
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
+pmLookupName failed: Unknown metric name
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
+pmLookupName failed: Unknown metric name
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
+pmLookupName failed: Unknown metric name
+pmie: metric sample not in namespace for pmcd HOST (host HOST)
+pmLookupName failed: Metric name is not a leaf in PMNS
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
+pmLookupName failed: Unknown metric name
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
+pmLookupName failed: Unknown metric name
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
+pmLookupName failed: Unknown metric name
+[TIMESTAMP] pmie(PID) Info: evaluator exiting
+
+Log finished DATE
+
+
+=== pmie -V ... ===
+valid_a: 
+    HOST: NUMBER
+alone_a: ?
+sum1_a: ?
+sum2_a: ?
+product_a: ?
+compound1_a: ?
+compound2_a: ?
+valid_b: 
+    HOST: true
+alone_b: unknown
+sum1_b: unknown
+sum2_b: unknown
+product_b: unknown
+compound1_b: unknown
+compound2_b: unknown
+valid_s: 
+    HOST: true
+alone_s: unknown
+sum1_s: unknown
+sum2_s: unknown
+product_s: unknown
+compound1_s: unknown
+compound2_s: unknown
+one: 
+    HOST: NUMBER
+no1: ?
+no2: ?
+mill: 
+    HOST: NUMBER
+no3: ?
+no4: ?
+notnum1: 
+    HOST: NUMBER
+notnum2: 
+    HOST: true
+notnum3: 
+    HOST: false
+notnum4: 
+    HOST: false
+
+valid_a: 
+    HOST: NUMBER
+alone_a: ?
+sum1_a: ?
+sum2_a: ?
+product_a: ?
+compound1_a: ?
+compound2_a: ?
+valid_b: 
+    HOST: true
+alone_b: unknown
+sum1_b: unknown
+sum2_b: unknown
+product_b: unknown
+compound1_b: unknown
+compound2_b: unknown
+valid_s: 
+    HOST: true
+alone_s: unknown
+sum1_s: unknown
+sum2_s: unknown
+product_s: unknown
+compound1_s: unknown
+compound2_s: unknown
+one: 
+    HOST: NUMBER
+no1: ?
+no2: ?
+mill: 
+    HOST: NUMBER
+no3: ?
+no4: ?
+notnum1: 
+    HOST: NUMBER
+notnum2: 
+    HOST: true
+notnum3: 
+    HOST: false
+notnum4: 
+    HOST: false
+
+Log for pmie on HOST started DATE
+
+pmie: PID,HOST
+
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
+pmLookupName failed: Unknown metric name
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
+pmLookupName failed: Unknown metric name
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
+pmLookupName failed: Unknown metric name
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
+pmLookupName failed: Unknown metric name
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
+pmLookupName failed: Unknown metric name
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
+pmLookupName failed: Unknown metric name
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
+pmLookupName failed: Unknown metric name
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
+pmLookupName failed: Unknown metric name
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
+pmLookupName failed: Unknown metric name
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
+pmLookupName failed: Unknown metric name
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
+pmLookupName failed: Unknown metric name
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
+pmLookupName failed: Unknown metric name
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
+pmLookupName failed: Unknown metric name
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
+pmLookupName failed: Unknown metric name
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
+pmLookupName failed: Unknown metric name
+pmie: metric sample not in namespace for pmcd HOST (host HOST)
+pmLookupName failed: Metric name is not a leaf in PMNS
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
+pmLookupName failed: Unknown metric name
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
+pmLookupName failed: Unknown metric name
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
+pmLookupName failed: Unknown metric name
+[TIMESTAMP] pmie(PID) Info: evaluator exiting
+
+Log finished DATE
+
+
+=== pmie -W ... ===
+valid_a: 
+    HOST: NUMBER
+alone_a: ?
+sum1_a: ?
+sum2_a: ?
+product_a: ?
+compound1_a: ?
+compound2_a: ?
+valid_b: 
+    HOST: NUMBER
+alone_b: unknown
+sum1_b: unknown
+sum2_b: unknown
+product_b: unknown
+compound1_b: unknown
+compound2_b: unknown
+valid_s: 
+    HOST: [bin-600] 600
+    HOST: [bin-700] 700
+    HOST: [bin-800] 800
+    HOST: [bin-900] 900
+alone_s: unknown
+sum1_s: unknown
+sum2_s: unknown
+product_s: unknown
+compound1_s: unknown
+compound2_s: unknown
+one: 
+    HOST: NUMBER
+no1: ?
+no2: ?
+mill: 
+    HOST: NUMBER
+no3: ?
+no4: ?
+notnum1: 
+    HOST: NUMBER
+notnum2: 
+    HOST: NUMBER
+notnum3: 
+notnum4: 
+
+valid_a: 
+    HOST: NUMBER
+alone_a: ?
+sum1_a: ?
+sum2_a: ?
+product_a: ?
+compound1_a: ?
+compound2_a: ?
+valid_b: 
+    HOST: NUMBER
+alone_b: unknown
+sum1_b: unknown
+sum2_b: unknown
+product_b: unknown
+compound1_b: unknown
+compound2_b: unknown
+valid_s: 
+    HOST: [bin-600] 600
+    HOST: [bin-700] 700
+    HOST: [bin-800] 800
+    HOST: [bin-900] 900
+alone_s: unknown
+sum1_s: unknown
+sum2_s: unknown
+product_s: unknown
+compound1_s: unknown
+compound2_s: unknown
+one: 
+    HOST: NUMBER
+no1: ?
+no2: ?
+mill: 
+    HOST: NUMBER
+no3: ?
+no4: ?
+notnum1: 
+    HOST: NUMBER
+notnum2: 
+    HOST: NUMBER
+notnum3: 
+notnum4: 
+
+Log for pmie on HOST started DATE
+
+pmie: PID,HOST
+
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
+pmLookupName failed: Unknown metric name
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
+pmLookupName failed: Unknown metric name
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
+pmLookupName failed: Unknown metric name
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
+pmLookupName failed: Unknown metric name
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
+pmLookupName failed: Unknown metric name
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
+pmLookupName failed: Unknown metric name
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
+pmLookupName failed: Unknown metric name
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
+pmLookupName failed: Unknown metric name
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
+pmLookupName failed: Unknown metric name
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
+pmLookupName failed: Unknown metric name
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
+pmLookupName failed: Unknown metric name
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
+pmLookupName failed: Unknown metric name
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
+pmLookupName failed: Unknown metric name
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
+pmLookupName failed: Unknown metric name
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
+pmLookupName failed: Unknown metric name
+pmie: metric sample not in namespace for pmcd HOST (host HOST)
+pmLookupName failed: Metric name is not a leaf in PMNS
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
+pmLookupName failed: Unknown metric name
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
+pmLookupName failed: Unknown metric name
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
+pmLookupName failed: Unknown metric name
+[TIMESTAMP] pmie(PID) Info: evaluator exiting
+
+Log finished DATE
+

@@ -1,0 +1,20 @@
+#
+# pmlogger(1) configuration file suitable creating an archive to be
+# used with weblogvis(1)
+#
+
+log advisory on default {
+    web.perserver.logidletime
+    web.perserver.requests.total
+    web.perserver.bytes.total
+    web.perserver.requests.size.unknown
+    web.perserver.requests.size.gt3m
+    web.perserver.requests.size.le3m
+    web.perserver.requests.size.le1m
+    web.perserver.requests.size.le300k
+    web.perserver.requests.size.le100k
+    web.perserver.requests.size.le30k
+    web.perserver.requests.size.le10k
+    web.perserver.requests.size.le3k
+    web.perserver.requests.size.zero
+}

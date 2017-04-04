@@ -1,0 +1,17 @@
+/*
+ * fake "root" for validating the local PMNS subtree
+ */
+
+#include <stdpmid>
+
+#ifndef DM
+#define DM	129
+#endif
+
+root {
+    dmcache
+    dmthin
+}
+
+#include "pmns.dmcache"
+#include "pmns.dmthin"

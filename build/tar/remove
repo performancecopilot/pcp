@@ -1,0 +1,122 @@
+#!/bin/sh
+#
+# Generic script to remove PCP after installation from a tarball
+#
+# exit status
+# 0	all OK
+# 1	warnings
+# 2	errors
+#
+
+if [ ! -f /etc/pcp.env ]
+then
+    # PCP not installed before, do nothing
+    #
+    exit 0
+fi
+
+. /etc/pcp.env
+
+# debugging
+#
+RM="echo + rm"
+RMDIR="echo + rmdir"
+WARN="echo Warning:"
+
+# do the work
+#
+RM=rm
+RMDIR=rmdir
+
+for svc in pmproxy pmwebd pmie pcp
+do
+    [ -f $PCP_RC_DIR/$svc ] && $PCP_RC_DIR/$svc stop
+    if which rc-update >/dev/null 2>&1
+    then
+	rc-update delete $svc
+    fi
+done
+
+if [ ! -f pcp-*[0-9].tar.gz ]
+then
+    echo "Error: cannot find tarball matching pcp-*[0-9].tar.gz"
+    exit 1
+fi
+
+sts=0
+
+tar tf pcp-*[0-9].tar.gz \
+| sed -e 's/^\.//' -e 's/^[^/]/\/&/' \
+| while read file
+do
+    if [ -f $file -o -L $file ]
+    then
+	if $RM $file
+	then
+	    :
+	else
+	    sts=2
+	fi
+    else
+	$WARN "file $file is missing"
+	[ $sts = 0 ] && sts=1
+    fi
+done
+
+for conf in \
+    $PCP_PMCDCONF_PATH $PCP_PMCDOPTIONS_PATH $PCP_PMCDRCLOCAL_PATH \
+    $PCP_PMIECONTROL_PATH $PCP_PMLOGGERCONTROL_PATH \
+    $PCP_PMPROXYOPTIONS_PATH $PCP_PMWEBDOPTIONS_PATH
+do
+    rm -f "$conf.pre" "$conf.dist"
+done
+
+_rmdir_if_empty()
+{
+    if [ "`echo $1/*`" = "$1/*" ]
+    then
+	if $RMDIR "$1"
+	then
+	    :
+	else
+	    sts=2
+	fi
+    else
+	# directory is not empty
+	$WARN "directory $1 is not empty, not removed"
+	[ $sts = 0 ] && sts=1
+    fi
+}
+
+# some special case cleanup in $PCP_VAR_DIR for files that
+# are known/expected to be created after the installation and
+# so not part of the tarball
+#
+$RM -rf $PCP_VAR_DIR/config/pmda
+$RM -rf $PCP_VAR_DIR/pmns
+$RM -rf $PCP_VAR_DIR/pmdas/simple
+$RM -rf $PCP_VAR_DIR/pmdas/sample
+$RM -f $PCP_VAR_DIR/pmdas/*/*.pag $PCP_VAR_DIR/pmdas/*/*.dir $PCP_VAR_DIR/pmdas/*/*.log
+
+# we leave $PCP_LOG_DIR but clean up everything else that is not
+# empty ... order is a bit tricky, make sure possible leaf directories
+# come before any parent directories
+#
+for dir in $PCP_BINADM_DIR $PCP_INC_DIR $PCP_MPI_DIRS \
+	    $PCP_RUN_DIR $PCP_PMDAS_DIR $PCP_VAR_DIR \
+	    $PCP_DOC_DIR $PCP_DEMOS_DIR $PCP_SHARE_DIR
+do
+    if [ -d "$dir" ]
+    then
+	find "$dir" -depth -type d \
+	| while read subdir
+	do
+	    _rmdir_if_empty "$subdir"
+	done
+    fi
+done
+
+# TODO
+# if $PCP_SYSCONFIG_DIR is not empty (RH sysconfig only?) what to do?
+
+exit $sts

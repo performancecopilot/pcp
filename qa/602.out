@@ -1,0 +1,235 @@
+QA output created by 602
+--- Usage message ---
+Usage: pmdatrace [options]
+
+Options:
+  -d domain   use domain (numeric) for metrics domain of PMDA
+  -l logfile  write log into logfile rather than using default file
+  -A access   host based access control
+  -I port     expect programs to connect on given inet port (number/name)
+  -N buckets  number of historical data buffers maintained
+  -T period   time over which samples are considered (default 60 seconds)
+  -U units    export observation values using the given units
+  -V units    export counter values using the given units
+
+--- Bad units specification #1 ---
+pmdatrace: token parse error in string "1,1,1"
+Usage: pmdatrace [options]
+
+Options:
+  -d domain   use domain (numeric) for metrics domain of PMDA
+  -l logfile  write log into logfile rather than using default file
+  -A access   host based access control
+  -I port     expect programs to connect on given inet port (number/name)
+  -N buckets  number of historical data buffers maintained
+  -T period   time over which samples are considered (default 60 seconds)
+  -U units    export observation values using the given units
+  -V units    export counter values using the given units
+
+--- Bad units specification #2 ---
+pmdatrace: token parse error in string "1,,1,1,1,1"
+Usage: pmdatrace [options]
+
+Options:
+  -d domain   use domain (numeric) for metrics domain of PMDA
+  -l logfile  write log into logfile rather than using default file
+  -A access   host based access control
+  -I port     expect programs to connect on given inet port (number/name)
+  -N buckets  number of historical data buffers maintained
+  -T period   time over which samples are considered (default 60 seconds)
+  -U units    export observation values using the given units
+  -V units    export counter values using the given units
+
+--- Bad units specification #3 ---
+pmdatrace: integer parse error for substring "foo"
+Usage: pmdatrace [options]
+
+Options:
+  -d domain   use domain (numeric) for metrics domain of PMDA
+  -l logfile  write log into logfile rather than using default file
+  -A access   host based access control
+  -I port     expect programs to connect on given inet port (number/name)
+  -N buckets  number of historical data buffers maintained
+  -T period   time over which samples are considered (default 60 seconds)
+  -U units    export observation values using the given units
+  -V units    export counter values using the given units
+
+Installing the "trace" Performance Metrics Domain Agent (PMDA) ...
+
+Use the default installation [y]? 
+Trace period (in seconds) [60]? 
+Number of buckets [5]? 
+Port number for client connections [4323]? 
+The dimension and scale for the trace.observe.value metrics may be expressed
+in terms of Space, Time and Count (i.e. events or messages).  The default
+dimension and scale is "None".  Do you wish to accept the default dimension
+and scale [y]? 
+The dimension is expressed in terms of powers of Space, Time and Count.
+For example, bytes per second would be 1 -1 0, and milliseconds per message 
+would be 0 1 -1.
+Enter the dimension for Space, Time and Count [0 0 0]: Scale for the Space dimension is expressed as:
+  0  (bytes)
+  1  (kilobytes)
+  2  (megabytes)
+  3  (gigabytes)
+  4  (terabytes)
+Enter the scale for the Space dimension [0]: -- Sorry, Space scale must be between 0 and 4 --
+Scale for the Space dimension is expressed as:
+  0  (bytes)
+  1  (kilobytes)
+  2  (megabytes)
+  3  (gigabytes)
+  4  (terabytes)
+Enter the scale for the Space dimension [0]: -- Sorry, Space scale must be between 0 and 4 --
+Scale for the Space dimension is expressed as:
+  0  (bytes)
+  1  (kilobytes)
+  2  (megabytes)
+  3  (gigabytes)
+  4  (terabytes)
+Enter the scale for the Space dimension [0]: Scale for the Time dimension is expressed as:
+  0  (nanoseconds)
+  1  (microseconds)
+  2  (milliseconds)
+  3  (seconds)
+  4  (minutes)
+  5  (hours)
+Enter the scale for the Time dimension: -- Sorry, Time scale must be between 0 and 5 --
+Scale for the Time dimension is expressed as:
+  0  (nanoseconds)
+  1  (microseconds)
+  2  (milliseconds)
+  3  (seconds)
+  4  (minutes)
+  5  (hours)
+Enter the scale for the Time dimension: -- Sorry, Time scale must be numeric (not foo) --
+Scale for the Time dimension is expressed as:
+  0  (nanoseconds)
+  1  (microseconds)
+  2  (milliseconds)
+  3  (seconds)
+  4  (minutes)
+  5  (hours)
+Enter the scale for the Time dimension: 
+Using the following units for trace.observe.value:
+  Dimensions:  space=1 time=-1 count=0
+  Scale:       space=0 time=3 count=0
+
+
+The dimension and scale for the trace.counter.value metrics may be expressed
+in terms of Space, Time and Count (i.e. events or messages).  The default
+dimension and scale is "None".  Do you wish to accept the default dimension
+and scale [y]? 
+Using the following units for trace.counter.value:
+  Dimensions:  space=0 time=0 count=0
+  Scale:       space=0 time=0 count=0
+
+
+Client host access - (A)llow/(D)isallow [Enter to complete install]? 
+Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+[...install files, make output...]
+Updating the PMCD control file, and notifying PMCD ...
+Check trace metrics have appeared ... 20 metrics and 6 values
+Note: some warnings are expected until trace API calls are made - refer to
+      the man pages for pmtrace(1) and pmdatrace(3) for further details.
+
+trace.observe.value
+    Data Type: double  InDom: 10.2 0x2800002
+    Semantics: instant  Units: byte / sec
+Installing the "trace" Performance Metrics Domain Agent (PMDA) ...
+
+Use the default installation [y]? 
+Trace period (in seconds) [60]? 
+Number of buckets [5]? 
+Port number for client connections [4323]? 
+The dimension and scale for the trace.observe.value metrics may be expressed
+in terms of Space, Time and Count (i.e. events or messages).  The default
+dimension and scale is "None".  Do you wish to accept the default dimension
+and scale [y]? 
+Using the following units for trace.observe.value:
+  Dimensions:  space=0 time=0 count=0
+  Scale:       space=0 time=0 count=0
+
+
+The dimension and scale for the trace.counter.value metrics may be expressed
+in terms of Space, Time and Count (i.e. events or messages).  The default
+dimension and scale is "None".  Do you wish to accept the default dimension
+and scale [y]? 
+The dimension is expressed in terms of powers of Space, Time and Count.
+For example, bytes per second would be 1 -1 0, and milliseconds per message 
+would be 0 1 -1.
+Enter the dimension for Space, Time and Count [0 0 0]: Scale for the Space dimension is expressed as:
+  0  (bytes)
+  1  (kilobytes)
+  2  (megabytes)
+  3  (gigabytes)
+  4  (terabytes)
+Enter the scale for the Space dimension [0]: Scale for the Time dimension is expressed as:
+  0  (nanoseconds)
+  1  (microseconds)
+  2  (milliseconds)
+  3  (seconds)
+  4  (minutes)
+  5  (hours)
+Enter the scale for the Time dimension: Scale for the Count dimension is expressed:
+  as a power of 10 (e.g. 6 for 10^6, or -3 for 10^-3) [0]: -- Sorry, Count scale must be numeric (not foo) --
+Scale for the Count dimension is expressed:
+  as a power of 10 (e.g. 6 for 10^6, or -3 for 10^-3) [0]: 
+Using the following units for trace.counter.value:
+  Dimensions:  space=1 time=-2 count=1
+  Scale:       space=0 time=0 count=-4
+
+
+Client host access - (A)llow/(D)isallow [Enter to complete install]? 
+Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+[...install files, make output...]
+Updating the PMCD control file, and notifying PMCD ...
+Check trace metrics have appeared ... 20 metrics and 6 values
+Note: some warnings are expected until trace API calls are made - refer to
+      the man pages for pmtrace(1) and pmdatrace(3) for further details.
+
+trace.counter.value
+    Data Type: double  InDom: 10.3 0x2800003
+    Semantics: counter  Units: byte count x 10^-4 / nanosec^2
+Installing the "trace" Performance Metrics Domain Agent (PMDA) ...
+
+Use the default installation [y]? 
+Trace period (in seconds) [60]? 
+Number of buckets [5]? 
+Port number for client connections [4323]? 
+The dimension and scale for the trace.observe.value metrics may be expressed
+in terms of Space, Time and Count (i.e. events or messages).  The default
+dimension and scale is "None".  Do you wish to accept the default dimension
+and scale [y]? 
+Using the following units for trace.observe.value:
+  Dimensions:  space=0 time=0 count=0
+  Scale:       space=0 time=0 count=0
+
+
+The dimension and scale for the trace.counter.value metrics may be expressed
+in terms of Space, Time and Count (i.e. events or messages).  The default
+dimension and scale is "None".  Do you wish to accept the default dimension
+and scale [y]? 
+Using the following units for trace.counter.value:
+  Dimensions:  space=0 time=0 count=0
+  Scale:       space=0 time=0 count=0
+
+
+Client host access - (A)llow/(D)isallow [Enter to complete install]? 
+Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+[...install files, make output...]
+Updating the PMCD control file, and notifying PMCD ...
+Check trace metrics have appeared ... 20 metrics and 6 values
+Note: some warnings are expected until trace API calls are made - refer to
+      the man pages for pmtrace(1) and pmdatrace(3) for further details.
+
+trace.observe.value
+    Data Type: double  InDom: 10.2 0x2800002
+    Semantics: instant  Units: none
+
+trace.counter.value
+    Data Type: double  InDom: 10.3 0x2800003
+    Semantics: counter  Units: none

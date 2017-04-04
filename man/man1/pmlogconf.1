@@ -1,0 +1,374 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2013-2016 Red Hat.
+.\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMLOGCONF 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmlogconf\f1 \- create/edit a pmlogger configuration file
+.SH SYNOPSIS
+\f3pmlogconf\f1
+[\f3\-cqrv\f1]
+[\f3\-d\f2 groupsdir\f1]
+[\f3\-h\f2 hostname\f1]
+\f2configfile\f1
+.SH DESCRIPTION
+.B pmlogconf
+may be used to create and modify a generic configuration file for
+the PCP archive logger,
+.BR pmlogger (1).
+.PP
+If
+.I configfile
+does not exist,
+.B pmlogconf
+will create a generic configuration file with a
+default set of enabled metrics and logging intervals.
+.PP
+Once created,
+.I configfile
+may be used with the
+.B \-c
+option to
+.BR pmlogger (1)
+to select performance metrics and specify
+logging intervals for a PCP archive.
+.PP
+If
+.I configfile
+does exist,
+.B pmlogconf
+will prompt for input from the user to enable or disable groups
+of related performance metrics and to control the logging interval
+for each enabled group.
+.PP
+Group selection requires a simple
+.B y
+(yes)
+or
+.B n
+(no) response to the prompt
+.BR "Log this group?" .
+.PP
+Other responses at this point may be used to select
+additional control functions as follows:
+.IP \fBm\fP 10n
+Report the names of the metrics in the current group.
+.IP \fBq\fP 10n
+Finish with group selection (quit) and make no further changes to
+this group or any subsequent group.
+.IP \fB/\fIpattern\fP 10n
+Make no change to this group but search for a group containing
+.I pattern
+in the description of the group or the names
+of the associated metrics.
+.PP
+A logging interval is specified by responding to the
+.B "Logging interval?"
+prompt with the keywords
+.B once
+or
+.B default
+or a valid
+.BR pmlogger (1)
+interval specification of the form ``\c
+.B every
+.IR "N timeunits" ''
+or simply ``\c
+.I "N timeunits" ''
+(the
+.B every
+is optional) where
+.I N
+is an unsigned integer and
+.I timeunits
+is one of the keywords
+.BR msec ,
+.BR millisecond ,
+.BR sec ,
+.BR second ,
+.BR min ,
+.BR minute ,
+.BR hour
+or the plural form of one of the keywords.
+.PP
+When run from automated logging setup processes, the
+.B \-c
+option is used to add a message and timestamp indicating this fact.
+This option is not appropriate for interactive use of the tool.
+.PP
+The
+.B \-q
+option suppresses the logging interval dialog and preserves the
+current interval from
+.IR configfile .
+.PP
+More verbose output may be enabled with the
+.B \-v
+option.
+.SH "SETUP GROUP FILES"
+When an initial
+.I configfile
+is created, the default specifications come from a set of group
+files below the
+.I groupsdir
+specified with the
+.B \-d
+option (the default
+.I groupsdir
+is
+.B $PCP_VAR_DIR/config/pmlogconf
+which is most commonly correct, so the
+.B \-d
+option is rarely used in practice).
+.PP
+The directory structure below
+.I groupsdir
+is arbitrary as all regular files will be found by recursive descent and considered, so add-on products
+and PMDA developers can easily extend the available defaults to
+.B pmlogconf
+by adding new directories and/or group files below
+.IR groupsdir .
+.PP
+These group files are processed in the following ways:
+.IP \(bu 3n
+When a new
+.I configfile
+is created, all group files are processed.
+.IP \(bu 3n
+Whenever
+.B pmlogconf
+is run with an existing
+.IR configfile ,
+.I groupsdir
+is traversed to see if any new groups have been defined and should be
+considered for inclusion in
+.IR configfile .
+.IP \(bu 3n
+When
+.B pmlogconf
+processes a group in
+.I configfile
+that is enabled, the list of metrics associated with the group is
+taken from the group file (and replaces any previous list of metrics
+associated with this group in
+.IR configfile ).
+.IP \(bu 3n
+When the
+.B \-r
+(reprobe) command line option is specified, every group (not just newly
+discovered ones) is reprocessed to see
+if it should be considered for inclusion in
+.IR configfile .
+.PP
+Each group file is structured as follows:
+.IP \(bu 3n
+The first line must contain
+.B #pmlogconf-setup 2.0
+.IP \(bu 3n
+Other lines beginning with
+.B #
+are treated as comments.
+.IP \(bu 3n
+Blank lines are ignored.
+.IP \(bu 3n
+One or more lines starting with the keyword
+.B ident 
+are used to provide the human-readable description of the group.
+.IP \(bu 3n
+Non-blank lines beginning with white space define metrics to be associated
+with this group, one per line.  Each metric specification follows the rules
+for a
+.BR pmlogger (1)
+configuration, namely either the name of a non-leaf node in the PMNS
+(implying all descendent names in the PMNS), or the name of a leaf
+node in the PMNS optionally followed by one or more instance names
+enclosed by ``['' and ``]''.
+.IP \(bu 3n
+A control line starting with one of the keywords 
+.B probe
+or
+.B force
+must be present.
+.IP \(bu 3n
+An optional logging interval control line begins with the
+keyword
+.B delta
+followed by one of the
+.BR pmlogger (1)
+interval specification described above.
+.IP \(bu 3n
+.B probe
+control lines have the format:
+.RS 3n
+.br
+.ce
+\fBprobe\fR \fImetric\fR [\fIcondition\fR [\fIstate_rule\fR] ]
+.br
+where
+.I metric
+is the name of a PCP metric (must be a leaf node in the PMNS,
+no instance specification is allowed, and it must not be a
+derived metric) and the optional
+.I condition
+is the keyword
+.B exists
+(true if
+.I metric
+exists, i.e. is defined in the PMNS) or the keyword
+.B values
+(true if
+.I metric
+exists in the PMNS and has one or more current values)
+or an expression of the form
+.br
+.ce
+\fIop\fR \fIval\fR
+where
+.I op
+is one of the 
+.BR awk (1)
+operators (\fB==\fR, \fB!=\fR, \fB>\fR, \fB>=\fR, \fB<\fR, \fB<=\fR,
+\fB~\fR (regular expression match) or
+\fB!~\fR (negated regular expression match))
+and
+.I val
+is a value (arbitrary sequence of characters, excluding a space)
+and the
+.I condition
+is true if there is some instance of
+.I metric
+that makes the expression true.
+.PP
+If the
+.I condition
+is missing, the default is
+.BR exists .
+.PP
+When an explicit
+.I condition
+is provided, there may also be an optional
+.I state_rule
+of the form
+.br
+.ce
+\fB?\fR \fItrue_state\fR \fB:\fR \fIfalse_state\fR
+where
+.I true_state
+(applies if
+.I condition
+is true) and
+.I false_state
+(applies if
+.I condition
+is false) are both taken from the keywords
+.B include
+(include and enable the group and the associated metrics in
+.IR configfile ),
+.B available
+(include and disable the group in
+.I configfile
+\- a user action of
+.B y
+as described above is needed to enable the group and
+add the associated metrics into
+.IR configfile )
+or
+.B exclude
+(the group is not considered for inclusion in
+.IR configfile ).
+.PP
+The default
+.I state_rule
+is
+.br
+.ce
+.ft B
+? available : exclude
+.ft R
+.RE
+.IP \(bu 3n
+.B force
+control lines begin with the keyword
+.B force
+followed by one of the states defined above, so
+one of the actions
+.BR include ,
+.B exclude
+or
+.B available
+is applied unconditionally to the group. 
+.PP
+Probing is only done when a new group is being added to
+.I configfile
+or when the
+.B \-r
+command line option is specified.  The evaluation of the probing
+conditions is done by contacting
+.BR pmcd (1)
+on
+.I hostname
+(defaults to local:).
+.SH EXAMPLE
+The following group file demonstrates all of the supported
+syntactic elements.
+.PP
+.ft CW
+.nf
+#pmlogconf-setup 2.0
+ident   Example group file
+ident   ... more description
+delta   1 minute
+probe   sample.secret.foo.one values ? include : exclude
+        sample.secret.foo.one
+        sample.secret.foo.bar   # non-leaf in the PMNS
+        sample.colour [ red green ]
+.fi
+.ft
+.SH MIGRATION
+The current version of
+.B pmlogconf
+(2.0)
+supports a slightly different format for
+.I configfile
+compared to earlier versions.  If an old version
+.I configfile
+is presented to
+.B pmlogconf
+it will be converted to the new format.
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.I /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (5).
+Note that
+.B pmlogconf
+specifically overrides its own
+.B $PCP_DERIVED_CONFIG
+environment variable to an empty string, for performance reasons.
+.SH SEE ALSO
+.BR pmcd (1),
+.BR pmlogger (1),
+.BR pcp.conf (5)
+and
+.BR pcp.env (5).

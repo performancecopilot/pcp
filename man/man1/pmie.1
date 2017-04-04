@@ -1,0 +1,1235 @@
+'\"! tbl | mmdoc
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
+.\" Copyright (c) 2015-2016 Red Hat.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMIE 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmie\f1 \- inference engine for performance metrics
+.SH SYNOPSIS
+\f3pmie\f1
+[\f3\-bCdefHqVvWxz\f1]
+[\f3\-A\f1 \f2align\f1]
+[\f3\-a\f1 \f2archive\f1]
+[\f3\-c\f1 \f2filename\f1]
+[\f3\-h\f1 \f2host\f1]
+[\f3\-l\f1 \f2logfile\f1]
+[\f3\-j\f1 \f2stompfile\f1]
+[\f3\-n\f1 \f2pmnsfile\f1]
+[\f3\-O\f1 \f2offset\f1]
+[\f3\-S\f1 \f2starttime\f1]
+[\f3\-T\f1 \f2endtime\f1]
+[\f3\-t\f1 \f2interval\f1]
+[\f3\-U\f1 \f2username\f1]
+[\f3\-Z\f1 \f2timezone\f1]
+[\f2filename ...\f1]
+.SH DESCRIPTION
+.B pmie
+accepts a collection of arithmetic, logical, and rule expressions to be
+evaluated at specified frequencies.  The base data for the expressions
+consists of performance metrics values delivered in real-time
+from any host
+running the Performance Metrics Collection Daemon (PMCD), or using historical
+data from Performance Co-Pilot (PCP) archive logs.
+.P
+As well as computing arithmetic and logical values,
+.B pmie
+can execute actions (popup alarms, write system log messages, and launch 
+programs) in response to specified conditions.  Such actions are
+extremely useful in detecting, monitoring and correcting performance
+related problems.
+.P
+The expressions to be evaluated are read from
+configuration files specified by one or more
+.I filename
+arguments.  In the absence of any
+.IR filename ,
+expressions are read from standard input.
+.P
+A description of the command line options specific to
+.B pmie
+follows:
+.TP 5
+.B \-a
+.I archive
+which is a comma-separated list of names, each
+of which may be the base name of an archive or the name of a directory containing
+one or more archives written by
+.BR pmlogger (1).
+Multiple instances of the
+.B \-a
+flag may appear on the command line to specify a list of sets of archives.
+In this case, it is required that only one set of archives be present for any
+one host.
+Also, any explicit host names occurring in a
+.B pmie
+expression must match the host name recorded in one of the archive labels.
+In the case of multiple sets of archives, timestamps recorded in the archives are
+used to ensure temporal consistency.
+.TP
+.B \-b
+Output will be line buffered and standard output is attached to standard
+error.  This is most useful for background execution in conjunction with
+the
+.B \-l
+option.
+The
+.B \-b
+option is always used for
+.B pmie
+instances launched from
+.BR pmie_check (1).
+.TP
+.B \-C
+Parse the configuration file(s) and exit before performing any evaluations.
+Any errors in the configuration file are reported.
+.TP
+.B \-c
+An alternative to specifying
+.I filename
+at the end of the command line.
+.TP
+.B \-d
+Normally
+.B pmie
+would be launched as a non-interactive process to monitor and manage the
+performance of one or more hosts.
+Given the
+.B \-d
+flag however, execution is interactive and the user is presented
+with a menu of options.
+Interactive mode is useful mainly for debugging new expressions.
+.TP
+.B \-e
+When used with
+.BR \-V ,
+.B \-v
+or
+.BR \-W ,
+this option
+forces timestamps to be reported with each expression.  The timestamps
+are in
+.BR ctime (3)
+format, enclosed in parenthesis and appear after the expression name and before the
+expression value, e.g.
+.nf
+	expr_1 (Tue Feb  6 19:55:10 2001): 12
+.fi
+.TP
+.B \-f
+If the
+.B \-l
+option is specified and there is no
+.B \-a
+option (ie. real-time monitoring) then
+.B pmie
+is run as a daemon in the background
+(in all other cases foreground is the default).
+The
+.B \-f
+option forces
+.B pmie
+to be run in the foreground, independent of any other options.
+.TP
+.B \-h
+By default performance data is fetched from the local host (in real-time mode)
+or the host for the first named set of archives on the command line
+(in archive mode).  The \f2host\f1 argument overrides this default.
+It does not override hosts explicitly named in the expressions
+being evaluated.  The \f2host\f1 argument is interpreted as a
+connection specification for \f2pmNewContext\f1, and is later
+mapped to the remote pmcd's self-reported host name for
+reporting purposes.  See also the %h vs. %c substitutions in rule action
+strings below.
+.TP
+.B \-l
+Standard error is sent to
+.IR logfile .
+.TP
+.B \-j
+An alternative STOMP protocol configuration is loaded from
+.IR stompfile .
+If this option is not used, and the
+.I stomp
+action is used in any rule, the default location
+.I $PCP_SYSCONF_DIR/pmie/config/stomp
+will be used.
+.TP
+.B \-n
+An alternative Performance Metrics Name Space (PMNS) is loaded from the file
+.IR pmnsfile .
+.TP
+.B \-q
+Suppresses diagnostic messages that would be printed to standard
+output by default, especially the "evaluator exiting" message as
+this can confuse scripts.
+.TP
+.B \-t
+The
+.I interval
+argument follows the syntax described in
+.BR PCPIntro (1),
+and in the simplest form may be an unsigned integer (the implied
+units in this case are seconds).
+The value is used to determine the sample interval for
+expressions that do not explicitly set their sample interval using
+the
+.B pmie
+variable \f(CWdelta\f1 described below.
+The default is 10.0 seconds.
+.TP
+\f3\-U\f1 \f2username\f1
+User account under which to run
+.BR pmie .
+The default is the current user account for interactive use.
+When run as a daemon, the unprivileged "pcp" account is used
+in current versions of PCP, but in older versions the superuser
+account ("root") was used by default.
+.TP
+.B \-v
+Unless one of the verbose options
+.BR \-V ,
+.B \-v
+or
+.B \-W
+appears on the command line, expressions are
+evaluated silently, the only output is as a result of any actions
+being executed.  In the verbose mode, specified using the
+.B \-v
+flag, the value of each expression is printed as it is
+evaluated.  
+The values are in canonical units;
+bytes in the dimension of ``space'', seconds in the dimension of ``time''
+and events in the dimension of ``count''.
+See
+.BR pmLookupDesc (3)
+for details of the supported dimension and scaling mechanisms
+for performance metrics.
+The verbose mode is useful in monitoring the value of given
+expressions, evaluating derived performance metrics,
+passing these values on to other tools for further processing
+and in debugging new expressions.
+.TP
+.B \-V
+This option has the same effect as the
+.B \-v
+option, except that the name of the host and instance
+(if applicable) are printed as well as expression values.
+.TP
+.B \-W
+This option has the same effect as the
+.B \-V
+option described above, except that for boolean expressions,
+only those names and values that make the expression true are printed.
+These are the same names and values accessible to rule actions as the
+%h, %i, %c and %v bindings, as described below.
+.TP
+.B \-x
+Execute in domain agent mode.  This mode is used within the Performance
+Co-Pilot product to derive values for summary metrics, see
+.BR pmdasummary (1).
+Only restricted functionality
+is available in this mode
+(expressions with actions may
+.B not
+be used).
+.TP
+.B \-Z
+Change the reporting timezone to
+.I timezone
+in the format of the environment variable
+.B TZ
+as described in
+.BR environ (7).
+.TP
+.B \-z
+Change the reporting timezone to the timezone of the host that is the source
+of the performance metrics, as identified via either the
+.B \-h
+option or the first named set of archives (as described above for the
+.B \-a
+option).
+.P
+The
+.BR \-S ,
+.BR \-T ,
+.BR \-O ,
+and
+.B \-A
+options may be used to define a time window to restrict the
+samples retrieved, set an initial origin within the time window,
+or specify a ``natural'' alignment of the sample times; refer to
+.BR PCPIntro (1)
+for a complete description of these options.
+.P
+Output from
+.B pmie
+is directed to standard output and standard error as follows:
+.TP 5
+.B stdout
+Expression values printed in the verbose
+.B \-v
+mode and the output of
+.B print
+actions.
+.TP
+.B stderr
+Error and warning messages for any syntactic or semantic problems during
+expression parsing, and any semantic or performance metrics availability
+problems during expression evaluation.
+.SH EXAMPLES
+The following example expressions demonstrate some of the capabilities
+of the inference engine.
+.P
+The directory
+.I $PCP_DEMOS_DIR/pmie
+contains a number of other annotated examples of
+.B pmie
+expressions.
+.P
+The variable
+.ft CW
+delta
+.ft 1
+controls expression evaluation frequency.  Specify that subsequent expressions
+be evaluated once a second, until further notice:
+.P
+.ft CW
+.nf
+.in +0.5i
+delta = 1 sec;
+.in
+.fi
+.ft 1
+.P
+If the total context switch rate exceeds 10000 per second per CPU,
+then display an alarm notifier:
+.P
+.ft CW
+.nf
+.in +0.5i
+kernel.all.pswitch / hinv.ncpu > 10000 count/sec
+-> alarm "high context switch rate %v";
+.in
+.fi
+.ft 1
+.P
+If the high context switch rate is sustained for 10 consecutive samples,
+then launch
+.BR top (1)
+in an
+.BR xterm (1)
+window to monitor processes, but do this at most once every 5 minutes:
+.P
+.ft CW
+.nf
+.in +0.5i
+all_sample (
+    kernel.all.pswitch @0..9 > 10 Kcount/sec * hinv.ncpu
+) -> shell 5 min "xterm \-e 'top'";
+.in
+.fi
+.ft 1
+.P
+The following rules are evaluated once every 20 seconds:
+.P
+.ft CW
+.nf
+.in +0.5i
+delta = 20 sec;
+.in
+.fi
+.ft 1
+.P
+If any disk is performing
+more than 60 I/Os per second, then print a message identifying
+the busy disk to standard output and
+launch
+.BR dkvis (1):
+.P
+.ft CW
+.nf
+.in +0.5i
+some_inst (
+    disk.dev.total > 60 count/sec
+) -> print "busy disks:" " %i" &
+     shell 5 min "dkvis";
+.in
+.fi
+.ft 1
+.P
+Refine the preceding rule to apply only between the hours of 9am and 5pm,
+and to require 3 of 4 consecutive samples to exceed the threshold before
+executing the action:
+.P
+.ft CW
+.nf
+.in +0.5i
+$hour >= 9 && $hour <= 17 &&
+some_inst (
+  75 %_sample (
+    disk.dev.total @0..3 > 60 count/sec
+  )
+) -> print "disks busy for 20 sec:" " [%h]%i";
+.in
+.fi
+.ft 1
+.P
+The following two rules are evaluated once every 10 minutes:
+.P
+.ft CW
+.nf
+.in +0.5i
+delta = 10 min;
+.in
+.fi
+.ft 1
+.P
+If either the / or the /usr filesystem is more than 95% full,
+display an alarm popup, but not if it has already been displayed
+during the last 4 hours:
+.P
+.ft CW
+.nf
+.in +0.5i
+filesys.free #'/dev/root' /
+    filesys.capacity #'/dev/root' < 0.05
+-> alarm 4 hour "root filesystem (almost) full";
+
+filesys.free #'/dev/usr' /
+    filesys.capacity #'/dev/usr' < 0.05
+-> alarm 4 hour "/usr filesystem (almost) full";
+.in
+.fi
+.ft 1
+.P
+The following rule requires a machine that supports the PCP environment metrics.
+If the machine environment temperature rises more than 2 degrees over a
+10 minute interval, write an entry in the system log:
+.P
+.ft CW
+.nf
+.in +0.5i
+environ.temp @0 - environ.temp @1 > 2
+-> alarm "temperature rising fast" &
+   syslog "machine room temperature rise alarm";
+.in
+.fi
+.ft 1
+.P
+And something interesting if you have performance problems
+with your Oracle database:
+.P
+.ft CW
+.nf
+.in +0.5i
+// back to 30sec evaluations
+delta = 30 sec;
+sid = "ptg1";		# $ORACLE_SID setting
+lid = "223";		# latch ID from v$latch
+lru = "#'$sid/$lid cache buffers lru chain'";
+host = ":moomba.melbourne.sgi.com";
+gets = "oracle.latch.gets $host $lru";
+total = "oracle.latch.gets $host $lru +
+         oracle.latch.misses $host $lru +
+         oracle.latch.immisses $host $lru";
+
+$total > 100 && $gets / $total < 0.2
+-> alarm "high lru latch contention in database $sid";
+.in
+.fi
+.ft 1
+.P
+The following \f(CBruleset\fR will emit exactly one message
+depending on the availability and value of the 1-minute load
+average.
+.P
+.ft CW
+.nf
+.in +0.5i
+delta = 1 minute;
+ruleset
+     kernel.all.load #'1 minute' > 10 * hinv.ncpu ->
+         print "extreme load average %v"
+else kernel.all.load #'1 minute' > 2 * hinv.ncpu ->
+         print "moderate load average %v"
+unknown ->
+         print "load average unavailable"
+otherwise ->
+         print "load average OK"
+;
+.in
+.fi
+.ft 1
+.P
+The following rule will emit a message when some filesystem is more than
+75% full and is filling at a rate that if sustained would fill the
+filesystem to 100% in less than 30 minutes.
+.P
+.ft CW
+.nf
+.in +0.5i
+some_inst (
+    100 * filesys.used / filesys.capacity > 75 &&
+    filesys.used + 30min * (rate filesys.used) > filesys.capacity
+) -> print "filesystem will be full within 30 mins:" " %i";
+.in
+.fi
+.ft 1
+.P
+If the metric \f(CWmypmda.errors\fP counts errors then the following rule
+will emit a message if the rate of errors exceeds 1 per second provided
+the error count is less than 100.
+.P
+.ft CW
+.nf
+.in +0.5i
+mypmda.errors > 1 && instant mypmda.errors < 100
+-> print "high error rate: %v";
+.in
+.fi
+.ft 1
+.P
+.SH QUICK START
+The
+.B pmie
+specification language is powerful and large.
+.P
+To expedite rapid development of
+.B pmie
+rules, the
+.BR pmieconf (1)
+tool provides a facility for generating a
+.B pmie
+configuration file from a set of generalized
+.B pmie
+rules. 
+The supplied set of rules covers
+a wide range of performance scenarios.
+.P
+The
+.I "Performance Co-Pilot User's and Administrator's Guide"
+provides a detailed tutorial-style chapter covering
+.BR pmie .
+.SH EXPRESSION SYNTAX
+This description is terse and informal.
+For a more comprehensive description see the
+.IR "Performance Co-Pilot User's and Administrator's Guide" .  
+.P
+A
+.B pmie
+specification is a sequence of semicolon terminated expressions.
+.P
+Basic operators are modeled on the arithmetic, relational and Boolean
+operators of the C programming language.
+Precedence rules are as expected, although the use of parentheses
+is encouraged to enhance readability and remove ambiguity.
+.P
+Operands are performance metric names
+(see
+.BR pmns (5))
+and the normal literal constants.
+.P
+Operands involving performance metrics may produce sets of values, as a
+result of enumeration in the dimensions of
+.BR hosts ,
+.B instances
+and
+.BR time .
+Special qualifiers may appear after a performance metric name to
+define the enumeration in each dimension.  For example,
+.P
+.in +4n
+.ft CW
+kernel.percpu.cpu.user :foo :bar #cpu0 @0..2
+.ft R
+.in
+.P
+defines 6 values corresponding to the time spent executing in
+user mode on CPU 0 on the hosts ``foo'' and ``bar'' over the last
+3 consecutive samples.
+The default interpretation in the absence of
+.B :
+(host),
+.B #
+(instance) and
+.B @
+(time) qualifiers is all instances at the most recent sample time
+for the default source of PCP performance metrics.
+.P
+Host and instance names that do not follow the rules for variables
+in programming languages, ie. alphabetic optionally followed by 
+alphanumerics, should be enclosed in single quotes.
+.P
+Expression evaluation follows the law of ``least surprises''.
+Where performance metrics have the semantics of a counter,
+.B pmie
+will automatically convert to a rate based upon consecutive samples
+and the time interval between these samples.
+All numeric expressions are evaluated in double precision, and where
+appropriate, automatically
+scaled into canonical units of ``bytes'', ``seconds'' and ``counts''.
+.P
+A
+.B rule
+is a special form of expression that specifies a condition or logical
+expression, a special operator (\c
+.BR \-> )
+and actions to be performed when the condition is found to be true.
+.P
+The following table summarizes the basic
+.B pmie
+operators:
+.P
+.ne 12v
+.TS
+box,center;
+c | c
+lf(CW) | l.
+Operators	Explanation
+_
++ \- * /	Arithmetic
+< <= == >= > !=	Relational (value comparison)
+! && ||	Boolean
+->	Rule
+\f(CBrising\fR	Boolean, false to true transition
+\f(CBfalling\fR	Boolean, true to false transition
+\f(CBrate\fR	Explicit rate conversion (rarely required)
+\f(CBinstant\fR	No automatic rate conversion (rarely required)
+.TE
+.P
+All operators are supported for numeric-valued operands and expressions.
+For string-valued
+operands, namely literal string constants enclosed in double quotes or 
+metrics with a data type of string (\c
+.BR PM_TYPE_STRING ),
+.B only
+the operators
+.B ==
+and
+.B !=
+are supported.
+.P
+The \f(CBrate\fP and \f(CBinstant\fP operators are the logical inverse
+of one another, so
+an arithmetic expression \fIexpr\fP 
+is equal to \f(CBrate instant\fP \fIexpr\fP.
+The more useful cases involve using \f(CBrate\fP with a metric that
+is not a counter to determine the rate of change over time or \f(CBinstant\fP
+with a metric that is a counter to determine if the current value is
+above or below some threshold.
+.P
+Aggregate operators may be used to aggregate or summarize along
+one dimension of a set-valued expression.
+The following aggregate operators map from a logical expression to
+a logical expression of lower dimension.
+.P
+.ne 16v
+.TS
+box,center;
+cw(2.4i) | c | cw(2.4i)
+lf(CB) | l | l.
+Operators	Type	Explanation
+_
+T{
+.ad l
+some_inst
+.br
+some_host
+.br
+some_sample
+T}	Existential	T{
+.ad l
+True if at least one set member is true in the associated dimension
+T}
+_
+T{
+.ad l
+all_inst
+.br
+all_host
+.br
+all_sample
+T}	Universal	T{
+.ad l
+True if all set members are true in the associated dimension
+T}
+_
+T{
+.ad l
+\f(CON\f(CB%_inst
+.br
+\f(CON\f(CB%_host
+.br
+\f(CON\f(CB%_sample\fR
+T}	Percentile	T{
+.ad l
+True if at least \fIN\fP percent of set members are true in the associated dimension
+T}
+.TE
+.P
+The following instantial operators may be used to filter or limit a
+set-valued logical expression, based on regular expression matching
+of instance names.  The logical expression must be a set involving
+the dimension of instances, and the regular expression is of the
+form used by
+.BR egrep (1)
+or the Extended Regular Expressions of
+.BR regcomp (3).
+.P
+.ne 12v
+.TS
+box,center;
+c | cw(4i)
+lf(CB) | l.
+Operators	Explanation
+_
+match_inst	T{
+.ad l
+For each value of the logical expression that is ``true'', the
+result is ``true'' if the associated instance name matches the
+regular expression.  Otherwise the result is ``false''.
+T}
+_
+nomatch_inst	T{
+.ad l
+For each value of the logical expression that is ``true'', the
+result is ``true'' if the associated instance name does
+\fBnot\fP match the
+regular expression.  Otherwise the result is ``false''.
+T}
+.TE
+.P
+For example, the expression below will be ``true'' for disks
+attached to controllers 2 or 3 performing more than 20 operations per second:
+.ft CW
+.nf
+.in +0.5i
+match_inst "^dks[23]d" disk.dev.total > 20;
+.in
+.fi
+.ft 1
+.P
+The following aggregate operators map from an arithmetic expression to
+an arithmetic expression of lower dimension.
+.P
+.ne 20v
+.TS
+box,center;
+cw(2.4i) | c | cw(2.4i)
+lf(CB) | l | l.
+Operators	Type	Explanation
+_
+T{
+.ad l
+min_inst
+.br
+min_host
+.br
+min_sample
+T}	Extrema	T{
+.ad l
+Minimum value across all set members in the associated dimension
+T}
+_
+T{
+.ad l
+max_inst
+.br
+max_host
+.br
+max_sample
+T}	Extrema	T{
+.ad l
+Maximum value across all set members in the associated dimension
+T}
+_
+T{
+.ad l
+sum_inst
+.br
+sum_host
+.br
+sum_sample
+T}	Aggregate	T{
+.ad l
+Sum of values across all set members in the associated dimension
+T}
+_
+T{
+.ad l
+avg_inst
+.br
+avg_host
+.br
+avg_sample
+T}	Aggregate	T{
+.ad l
+Average value across all set members in the associated dimension
+T}
+.TE
+.P
+The aggregate operators \f(CWcount_inst\fR, \f(CWcount_host\fR and
+\f(CWcount_sample\fR map from a logical expression to an arithmetic
+expression of lower dimension by counting the number of set members
+for which the expression is true in the associated dimension.
+.P
+For action rules, the following actions are defined:
+.TS
+box,center;
+c | c
+lf(CB) | l.
+Operators	Explanation
+_
+alarm	Raise a visible alarm with \fBxconfirm\f1(1)
+print	Display on standard output
+shell	Execute with \fBsh\fR(1)
+stomp	Send a STOMP message to a JMS server
+syslog	Append a message to system log file
+.TE
+.P
+Multiple actions may be separated by the \f(CW&\fR and \f(CW|\fR
+operators to specify respectively sequential execution (both
+actions are executed) and alternate execution (the second action
+will only be executed if the execution of the first action returns
+a non-zero error status.
+.P
+Arguments to actions are an optional suppression time, and then
+one or more expressions (a string is an expression in this context).
+Strings appearing as arguments to an action may include the following
+special selectors that will be replaced at the time the action
+is executed.
+.TP 4n
+\f(CB%h\fR
+Host name(s) that make the left-most top-level expression in the
+condition true.
+.TP 4n
+\f(CB%c\fR
+Connection specification string(s) or files for a PCP tool to
+reach the hosts or archives that make the left-most top-level
+expression in the condition true.
+.TP
+\f(CB%i\fR
+Instance(s) that make the left-most top-level expression in the
+condition true.
+.TP
+\f(CB%v\fR
+One value from the left-most top-level expression in the
+condition for each host and instance pair that
+makes the condition true.
+.P
+Note that expansion of the special selectors is done by repeating the
+whole argument once for each unique binding to any of the
+qualifying special selectors.
+For example if a rule were true for the host
+.B mumble
+with instances
+.B grunt
+and
+.BR snort ,
+and for host
+.B fumble
+the instance
+.B puff
+makes the rule true, then the action
+.ft CW
+.nf
+.in +0.5i
+\&...
+-> shell myscript "Warning: %h:%i busy ";
+.in
+.fi
+.ft 1
+will execute
+.B myscript
+with the argument string "Warning: mumble:grunt busy Warning: mumble:snort busy Warning: fumble:puff busy".
+.P
+By comparison, if the action
+.ft CW
+.nf
+.in +0.5i
+\&...
+-> shell myscript "Warning! busy:" " %h:%i";
+.in
+.fi
+.ft 1
+were executed under the same circumstances, then
+.B myscript
+would be executed with the argument string "Warning! busy: mumble:grunt mumble:snort fumble:puff".
+.P
+The semantics of the expansion of the special selectors leads to a
+common usage pattern in an action, where one argument is a constant (contains no
+special selectors) the second argument contains the desired
+special selectors with minimal separator characters, and
+an optional third argument provides a constant postscript (e.g. to terminate
+any argument quoting from the first argument).
+If necessary
+post-processing (eg. in
+.BR myscript )
+can provide the necessary enumeration over each unique expansion
+of the string containing just the special selectors.
+.P
+For complex conditions, the bindings to these selectors
+is not obvious.
+It is strongly recommended that
+.B pmie
+be used in
+the debugging mode (specify the
+.B \-W
+command line option in particular) during rule development.
+.SH BOOLEAN EXPRESSIONS
+.B pmie
+expressions that have the semantics of a Boolean, e.g.
+\f(CWfoo.bar > 10\fR
+or
+\f(CBsome_inst\f(CW ( my.table < 0 )
+.ft R
+are assigned the values \f(CBtrue\fR or \f(CBfalse\fR or \f(CBunknown\fR.
+A value is \f(CBunknown\fR if one or more of the underlying metric values
+is unavailable, e.g.
+.BR pmcd (1)
+on the host cannot be contacted, the metric is not in the PCP archive,
+no values are currently available, insufficient values have been fetched
+to allow a rate converted value to be computed or insufficient values have
+been fetched to instantiate the required number of samples in the
+temporal domain.
+.PP
+Boolean operators follow the normal rules of Kleene logic (aka 3-valued
+logic) when combining values that include \f(CBunknown\fR:
+.TS
+box,center;
+c s|c s s
+^ s|c s s
+^ s|c|c|c
+c|c|c|c|c
+^|c|c|c|c.
+A \f(CBand\fR B	B
+	_
+	\f(CBtrue\fR	\f(CBfalse\fR	\f(CBunknown\fR
+_
+A	\f(CBtrue\fR	\f(CBtrue\fR	\f(CBfalse\fR	\f(CBunknown\fR
+	_	_	_	_
+	\f(CBfalse\fR	\f(CBfalse\fR	\f(CBfalse\fR	\f(CBfalse\fR
+	_	_	_	_
+	\f(CBunknown\fR	\f(CBunknown\fR	\f(CBfalse\fR	\f(CBunknown\fR
+.TE
+.TS
+box,center;
+c s|c s s
+^ s|c s s
+^ s|c|c|c
+c|c|c|c|c
+^|c|c|c|c.
+A \f(CBor\fR B	B
+	_
+B	\f(CBtrue\fR	\f(CBfalse\fR	\f(CBunknown\fR
+_
+A	\f(CBtrue\fR	\f(CBtrue\fR	\f(CBtrue\fR	\f(CBtrue\fR
+	_	_	_	_
+	\f(CBfalse\fR	\f(CBtrue\fR	\f(CBfalse\fR	\f(CBunknown\fR
+	_	_	_	_
+	\f(CBunknown\fR	\f(CBtrue\fR	\f(CBunknown\fR	\f(CBunknown\fR
+.TE
+.TS
+box,center;
+c|c.
+A	\f(CBnot\fR A
+_
+\f(CBtrue\fR	\f(CBfalse\fR
+_
+\f(CBfalse\fR	\f(CBtrue\fR
+_
+\f(CBunknown\fR	\f(CBunknown\fR
+.TE
+.SH RULESETS
+The \f(CBruleset\fR clause is used to define a set of rules and
+actions that are evaluated in order until some action is executed,
+at which point the remaining rules and actions are skipped until
+the \f(CBruleset\fR is again scheduled for evaluation.
+The keyword \f(CBelse\fR is used to separate rules.
+After one or more regular rules (with a predicate and an action), a
+\f(CBruleset\fR may include an optional
+.br
+.ti +0.5i
+\f(CBunknown\fR -> action
+.br
+clause, optionally followed by a
+.br
+.ti +0.5i
+\f(CBotherwise\fR -> action
+.br
+clause.
+.PP
+If all of the predicates in the rules evaluate to \f(CBunknown\fR and
+an \f(CBunknown\fR clause has been specified then action associated
+with the \f(CBunknown\fR clause will be executed.
+.PP
+If no rule predicate is \f(CBtrue\fR and the \f(CBunknown\fR action
+is either not specified or not
+executed and an \f(CBotherwise\fR clause has been specified,
+then the action associated with the \f(CBotherwise\fR clause will be executed.
+.SH SCALE FACTORS
+Scale factors may be appended to arithmetic expressions and force
+linear scaling of the value to canonical units.  Simple scale factors
+are constructed from the keywords:
+\f(CBnanosecond\fR, \f(CBnanosec\fR, \f(CBnsec\f1,
+\f(CBmicrosecond\fR, \f(CBmicrosec\fR, \f(CBusec\f1,
+\f(CBmillisecond\fR, \f(CBmillisec\fR, \f(CBmsec\f1,
+\f(CBsecond\fR, \f(CBsec\fR, \f(CBminute\fR, \f(CBmin\fR, \f(CBhour\f1,
+\f(CBbyte\fR, \f(CBKbyte\fR, \f(CBMbyte\fR, \f(CBGbyte\fR, \f(CBTbyte\f1,
+\f(CBcount\fR, \f(CBKcount\fR and \f(CBMcount\fR,
+and the operator \f(CW/\fR, for example ``\f(CBKbytes / hour\f1''.
+.SH MACROS
+Macros are defined using expressions of the form:
+.P
+.in +0.5i
+\fIname\fR = \fIconstexpr\f1;
+.in
+.P
+Where
+.I name
+follows the normal rules
+for variables
+in programming languages, ie. alphabetic optionally followed by 
+alphanumerics.
+.I constexpr
+must be a constant expression, either a string
+(enclosed in double quotes) or an arithmetic expression optionally
+followed by a scale factor.
+.P
+Macros are expanded when their name, prefixed by a dollar (\f(CW$\fR)
+appears in an expression, and macros may be nested within a
+.I constexpr
+string.
+.P
+The following reserved macro names are understood.
+.TP 10n
+\f(CBminute\f1
+Current minute of the hour.
+.TP
+\f(CBhour\f1
+Current hour of the day, in the range 0 to 23.
+.TP
+\f(CBday\f1
+Current day of the month, in the range 1 to 31.
+.TP
+\f(CBmonth\f1
+Current month of the year, in the range 0 (January) to 11 (December).
+.TP
+\f(CByear\f1
+Current year.
+.TP
+\f(CBday_of_week\f1
+Current day of the week, in the range 0 (Sunday) to 6 (Saturday).
+.TP
+\f(CBdelta\f1
+Sample interval in effect for this expression.
+.P
+Dates and times are presented in the
+reporting time zone (see description of
+.B \-Z
+and
+.B \-z
+command line options above).
+.SH AUTOMATIC RESTART
+It is often useful for
+.B pmie
+processes to be started and stopped when the local host is booted
+or shutdown, or when they have been detected as no longer running
+(when they have unexpectedly exited for some reason).
+Refer to 
+.BR pmie_check (1)
+for details on automating this process.
+.SH EVENT MONITORING
+It is common for production systems to be monitored in a central
+location.
+Traditionally on UNIX systems this has been performed by the system
+log facilities \- see
+.BR logger (1),
+and
+.BR syslogd (1).
+On Windows, communication with the system event log is handled by 
+.BR pcp-eventlog (1).
+.P
+.B pmie
+fits into this model when rules use the
+.I syslog
+action.
+Note that if the action string begins with \-p (priority) and/or \-t (tag)
+then these are extracted from the string and treated in the same way as in
+.BR logger (1)
+and
+.BR pcp-eventlog (1).
+.P
+However, it is common to have other event monitoring frameworks also,
+into which you may wish to incorporate performance events from
+.BR pmie .
+You can often use the
+.I shell
+action to send events to these frameworks, as they usually provide
+their a program for injecting events into the framework from external
+sources.
+.P
+A final option is use of the
+.I stomp
+(Streaming Text Oriented Messaging Protocol) action, which allows
+.B pmie
+to connect to a central JMS (Java Messaging System) server and send
+events to the PMIE topic.
+Tools can be written to extract these text messages and present them
+to operations people (via desktop popup windows, etc).
+Use of the
+.I stomp
+action requires a stomp configuration file to be setup, which specifies
+the location of the JMS server host, port number, and username/password.
+.P
+The format of this file is as follows:
+.P
+.ft CW
+.nf
+.in +0.5i
+host=messages.sgi.com   # this is the JMS server (required)
+port=61616              # and its listening here (required)
+timeout=2               # seconds to wait for server (optional)
+username=joe            # (required)
+password=j03ST0MP       # (required)
+topic=PMIE              # JMS topic for pmie messages (optional)
+.in
+.fi
+.ft 1
+.P
+The timeout value specifies the time (in seconds) that
+.B pmie
+should wait for acknowledgements from the JMS server after
+sending a message (as required by the STOMP protocol).
+Note that on startup,
+.B pmie
+will wait indefinitely for a connection, and will not
+begin rule evaluation until that initial connection has
+been established.
+Should the connection to the JMS server be lost at any
+time while
+.B pmie
+is running,
+.B pmie
+will attempt to reconnect on each subsequent truthful
+evaluation of a rule with a
+.I stomp
+action, but not more than once per minute.
+This is to avoid contributing to network congestion.
+In this situation, where the STOMP connection to the JMS server
+has been severed, the
+.I stomp
+action will return a non-zero error value.
+.SH FILES
+.PD 0
+.TP 10
+.BI $PCP_DEMOS_DIR/pmie/ *
+annotated example rules
+.TP
+.BI $PCP_VAR_DIR/pmns/ *
+default PMNS specification files
+.TP
+.BI $PCP_TMP_DIR/pmie
+.B pmie
+maintains files in this directory to identify the running
+.B pmie
+instances and to export runtime information about each instance \- this data
+forms the basis of the pmcd.pmie performance metrics
+.TP
+.BI $PCP_PMIECONTROL_PATH
+the default set of
+.B pmie
+instances to start at boot time \- refer to
+.BR pmie_check (1)
+for details
+.PD
+.SH BUGS
+The lexical scanner and parser will attempt to recover after an
+error in the input expressions.
+Parsing resumes after skipping input up to
+the next semi-colon (;), however during this skipping
+process the scanner is ignorant of comments and strings, so an
+embedded semi-colon may cause parsing to resume at an unexpected
+place.  This behavior is largely benign, as until the initial
+syntax error is corrected,
+.B pmie 
+will not attempt any expression evaluation.
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.I /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (5).
+.PP
+When executing shell actions,
+.B pmie
+overrides two variables \- IFS and PATH \- in the environment
+of the child process.
+IFS is set to "\\t\\n".
+The PATH is set to a combination of a default path for all
+platforms ("/usr/sbin:/sbin:/usr/bin:/usr/sbin") and several
+configurable components.
+These are (in this order):
+.BR $PCP_BIN_DIR ,
+.B $PCP_BINADM_DIR
+and
+.BR $PCP_PLATFORM_PATHS .
+.PP
+When executing popup alarm actions,
+.B pmie
+will use the value of
+.B $PCP_XCONFIRM_PROG
+as the visual notification program to run.
+This is typically set to
+.BR pmconfirm (1),
+a cross-platform dialog box.
+.SH UNIX SEE ALSO
+.BR logger (1).
+.SH WINDOWS SEE ALSO
+.BR pcp-eventlog (1).
+.SH SEE ALSO
+.BR PCPIntro (1),
+.BR pmcd (1),
+.BR pmconfirm (1),
+.BR pmdumplog (1),
+.BR pmieconf (1),
+.BR pmie_check (1),
+.BR pminfo (1),
+.BR pmlogger (1),
+.BR pmval (1),
+.BR PMAPI (3),
+.BR pcp.conf (5)
+and
+.BR pcp.env (5).
+.SH USER GUIDE
+For a more complete description of the
+.B pmie
+language, refer to the
+.BR "Performance Co-Pilot Users and Administrators Guide" .
+This is available online from:
+.in +4n
+.nf
+http://www.pcp.io/doc/pcp-users-and-administrators-guide.pdf
+.fi
+.in -4n

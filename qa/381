@@ -1,0 +1,206 @@
+#! /bin/sh
+# PCP QA Test No. 381
+# pmlc with new -p port and "connect port <n>" options
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+rem_host=`./getpmcdhosts -L -n 1 -P -a sample 2>$seq.notrun`
+[ -z "$rem_host" ] && _notrun `cat $seq.notrun`
+rm -f $seq.notrun $seq.full
+
+_filter()
+{
+    sed \
+	-e '/Performance Co-Pilot Logger/,/ <instance> /d' \
+	-e '/^PMCD host/d' \
+	-e "s/ $pid / QA-PMLOGGER-PID /" \
+	-e "s/\[$pid\]/[QA-PMLOGGER-PID]/" \
+	-e "s/_logger_id=$pid/_logger_id=QA-PMLOGGER-PID/" \
+	-e 's/connect [0-9][0-9]* /connect PID /' \
+	-e "s/\[[0-9][0-9]*\]/[PMLOGGER-PID]/" \
+	-e "s/_logger_id=[0-9][0-9]*/_logger_id=PMLOGGER-PID/" \
+	-e "s/$rem_host/REMOTE-HOST/" \
+	-e "s/$myhost/LOCAL-HOST/" \
+	-e "s/local:/LOCAL-HOST/" \
+	-e "s/port $port /port PORT /" \
+	-e 's/logging metrics from host .*/logging metrics from host .../' \
+	-e '/^log started/d' \
+	-e '/^last log entry/d' \
+	-e '/^current time/d' \
+	-e '/^log volume/d' \
+	-e '/^log size/s/.*/... status output .../'
+}
+
+# _speak_to_me <host> <pid> [<port>]
+#
+_speak_to_me()
+{
+    echo
+    # default
+    _port=$port
+    [ -n "$3" ] && _port="$3"
+    echo "=== _host=$1 _logger_id=$2 ===" >$tmp.out
+    echo >>$here/$seq.full
+    echo "=== _host=$1 _logger_id=$2 _port=$_port ===" >>$here/$seq.full
+    if [ -z "$1" ]
+    then
+	pminfo -f pmcd.pmlogger.port >>$here/$seq.full 2>&1
+    else
+	pminfo -h `echo $1 | sed -e 's/@//'` -f pmcd.pmlogger.port >>$here/$seq.full 2>&1
+    fi
+    # allow pmlogger socket to be closed and ready to accept()
+    #
+    sleep 2
+    cat <<End-of-File | pmlc $DEBUG -ei >>$tmp.out 2>&1
+connect primary $1
+status
+query sample.drift
+connect port $_port $1
+status
+flush
+connect $2 $1
+status
+flush
+End-of-File
+    cat $tmp.out >>$here/$seq.full
+    _filter <$tmp.out \
+    | sed -e "s/port $_port/port PORT/g"
+}
+
+_ping()
+{
+    echo "Remote host: $rem_host [pid: $rem_pid port: $rem_port]" >>$here/$seq.full
+    pminfo -f -h $rem_host pmcd.pmlogger.port >>$here/$seq.full 2>&1
+    ssh $rem_host '. /etc/pcp.env; $PCP_PS_PROG $PCP_PS_ALL_FLAGS' \
+    | egrep "PID|pmlogger" >>$here/$seq.full
+    echo >>$here/$seq.full
+    echo "Local host: $myhost [pid: $pid port: $port]" >>$here/$seq.full
+    pminfo -f -h $myhost pmcd.pmlogger.port >>$here/$seq.full 2>&1
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS \
+    | egrep "PID|pmlogger" \
+    | grep -v grep >>$here/$seq.full
+}
+
+_cleanup()
+{
+    if $need_clean
+    then
+	if [ ! -z "$pid" ]
+	then
+	    $sudo $signal -s TERM $pid
+	    sleep 1
+	    pid=''
+	    cat $tmp.log >>$here/$seq.full
+	fi
+	echo
+	if [ -f $tmp.log ]
+	then
+	    _filter_pmlogger_log <$tmp.log
+	else
+	    echo "Warning: $tmp.log missing"
+	fi
+	echo
+	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+	_wait_for_pmcd
+	_wait_for_pmlogger
+	need_clean=false
+    fi
+    $sudo rm -f $tmp.*
+    exit
+}
+
+need_clean=true
+signal=$PCP_BINADM_DIR/pmsignal
+status=1	# failure is the default!
+DEBUG=''
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+myhost=`hostname`
+pid=''
+
+$sudo rm -f $tmp.*
+
+_start_up_pmlogger -h $rem_host -L -c /dev/null -l $tmp.log $tmp >/dev/null 2>&1
+_wait_for_pmlogger $pid $tmp.log
+
+pminfo -f -h $rem_host pmcd.pmlogger.port >$tmp.tmp
+rem_port=`cat $tmp.tmp | sed -n -e '/"primary"/{
+s/.*value *//
+p
+q
+}'`
+if [ -z "$rem_port" ]
+then
+    cat $tmp.tmp
+    echo "Error: cannot find port for remote primary logger!"
+    exit
+fi
+
+rem_pid=`cat $tmp.tmp | sed -n -e '/"primary"/d' -e '/ value '$rem_port' *$/{
+s/.* "//
+s/".*//p
+}'`
+if [ -z "$rem_pid" ]
+then
+    cat $tmp.tmp
+    echo "Error: cannot find pid for remote primary logger on port $rem_port!"
+    exit
+fi
+
+port=`pminfo -f pmcd.pmlogger.port \
+      | sed -n -e '/"primary"/d' -e '/\['$pid' /{
+s/.* value //p
+}'`
+
+echo "=== ping @ start ===" >>$here/$seq.full
+_ping
+
+# real QA test starts here
+
+_speak_to_me "" $pid
+_speak_to_me "" "port $port"
+
+_speak_to_me @$myhost $pid
+_speak_to_me @$myhost "port $port"
+
+_speak_to_me @$rem_host $rem_pid $rem_port
+
+# make sure the primary logger is terminated and stop pmcd
+#
+prim_pid=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep pmlogger | grep ' -P' | $PCP_AWK_PROG '{ print $2 }'`
+if [ ! -z "$prim_pid" ]
+then
+    $sudo $signal -s TERM $prim_pid
+    _wait_pmlogger_end $prim_pid
+else
+    echo "Eh? primary pmlogger not running?"
+    _ping
+fi
+$sudo $PCP_RC_DIR/pcp stop | _filter_pcp_stop
+
+echo >>$here/$seq.full
+echo "=== ping after stopping local pcp and pmcd  ===" >>$here/$seq.full
+_ping
+
+echo
+_speak_to_me "" $pid
+_speak_to_me "" "port $port"
+#debug# DEBUG="-D all"
+_speak_to_me @$rem_host $rem_pid $rem_port
+
+echo >>$here/$seq.full
+echo "=== ping @ end ===" >>$here/$seq.full
+_ping
+
+# success, all done
+status=0
+exit

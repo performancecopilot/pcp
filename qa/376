@@ -1,0 +1,91 @@
+#! /bin/sh
+# PCP QA Test No. 376
+# libpcp_trace
+#
+# Copyright (c) 2015 Red Hat.
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ -f $PCP_PMDAS_DIR/trace/pmdatrace ] || _notrun "trace pmda not installed"
+
+_cleanup()
+{
+    cd $here
+    rm -f $tmp.*
+    if [ -n "$savedtracehost" ]
+    then
+	PCP_TRACE_HOST=$savedtracehost; export PCP_TRACE_HOST
+    fi
+    if $_needclean
+    then
+	if $install_on_cleanup
+	then
+	    ( cd $PCP_PMDAS_DIR/trace; $sudo ./Install </dev/null >/dev/null 2>&1 )
+	else
+	    ( cd $PCP_PMDAS_DIR/trace; $sudo ./Remove </dev/null >/dev/null 2>&1 )
+	fi
+	_needclean=false
+    fi
+    exit $status
+}
+
+install_on_cleanup=false
+pminfo trace >/dev/null 2>&1 && install_on_cleanup=true
+
+status=1	# failure is the default!
+_needclean=true
+trap "_cleanup" 0 1 2 3 15
+
+if [ -n "$PCP_TRACE_HOST" ]
+then
+    savedtracehost=$PCP_TRACE_HOST; unset PCP_TRACE_HOST
+fi
+
+qahost=`hostname`
+
+_filter_trace_install()
+{
+    # some warnings are *expected* - no trace values yet
+    _filter_pmda_install | sed \
+	-e "s/$qahost/HOSTNAME/g" \
+	-e 's/ *[0-9]+ warnings,//g'
+}
+
+_tracefilter()
+{
+    sed -e 's/^000:.*/[PDU BUFFER]/g' \
+	-e 's/from=[0-9].*/from=[PID]/g' \
+	-e 's/   free pdubuf.*/[FREE PDUBUF]/g' \
+	-e 's/^\[[0-9]*]/[PID]/g' \
+	-e 's/__pmtracefindPDUbuf.*/[FIND PDUBUF]/g' \
+	-e 's/ fd=[0-9][0-9]*/ fd=<n>/g'
+}
+
+# real QA test starts here
+cd $PCP_PMDAS_DIR/trace
+$sudo ./Install -R / < /dev/null 2>&1 | _filter_trace_install
+_wait_for_pmcd
+cd $here
+
+for i in 1 2 3 4
+do
+    src/tstate $i 2>&1 | _tracefilter
+    sts=$?
+    if [ $sts -ne 0 ]
+    then
+        echo "=== Error: state check #$i failed ==="
+        status=1
+    fi
+done
+
+# success, all done
+status=0
+exit

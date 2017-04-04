@@ -1,0 +1,339 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2016 Red Hat.
+.\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMNEWCONTEXT 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmNewContext\f1 \- establish a new PMAPI context
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.sp
+int pmNewContext(int \fItype\fP, const char *\fIname\fP);
+.sp
+cc ... \-lpcp
+.ft 1
+.SH DESCRIPTION
+An application using the
+Performance Metrics Application Programming Interface (PMAPI)
+may manipulate several concurrent contexts,
+each associated with a source of performance metrics, e.g. \c
+.BR pmcd (1)
+on some host, or a set of archive logs of performance metrics as created by
+.BR pmlogger (1),
+or a standalone connection on the local host that does not involve
+.BR pmcd (1).
+.PP
+.BR pmNewContext
+may be used to establish a new context.
+The source of the metrics is identified by
+.IR name ,
+and may be either a host name (\c
+.I type
+is
+.BR PM_CONTEXT_HOST ),
+or a comma-separated list of names referring to a set of archive logs (\c
+.I type
+is
+.BR PM_CONTEXT_ARCHIVE ).
+Each element of the list may either be the base name common to all of the
+physical files of an archive log or the name of a directory containing
+archive logs.
+.PP
+For a
+.I type
+of
+.BR PM_CONTEXT_HOST ,
+in addition to identifying a host
+the
+.I name
+may also be used to encode additional optional information in the form of
+a
+.BR pmcd (1)
+port number, a
+.BR pmproxy (1)
+hostname and a proxy port number. For example the
+.I name
+\&"app23:14321,4321@firewall.example.com:11111"
+specifies
+a connection on port
+.I 14321
+(or port
+.I 4321
+if
+.I 14321
+is unavailable)
+to
+.BR pmcd (1)
+on the host
+.I app23
+via port
+.I 11111
+to
+.BR pmproxy (1)
+on the host
+.IR firewall.example.com .
+.PP
+For a
+.I type
+of
+.BR PM_CONTEXT_ARCHIVE ,
+each element of the list of names in
+.I name
+may also be the name of any of the physical files of an
+archive, e.g.
+.IB myarchive .meta
+(the metadata file) or
+.IB myarchive .index
+(the temporal index) or
+.IB myarchive .0
+(the first data volume of the archive)
+or
+.IB myarchive .0.bz2
+or
+.IB myarchive .0.bz
+(the first data volume compressed with
+.BR bzip2 (1))
+or
+.IB myarchive .0.gz
+or
+.IB myarchive .0.Z
+or
+.IB myarchive .0.z
+(the first data volume compressed with
+.BR gzip (1)),
+.IB myarchive .1
+or
+.IB myarchive .3.bz2
+or
+.IB myarchive .42.gz
+etc.
+.PP
+If more than one archive is specified for a
+.I type
+of
+.BR PM_CONTEXT_ARCHIVE ,
+there are some restrictions on the archives within the set:
+.IP \(bu 3n
+The archives must all have been generated on the same host.
+.IP \(bu 3n
+The archives must not overlap in time.
+.IP \(bu 3n
+The archives must all have been created using the same time zone.
+.IP \(bu 3n
+The \f2PMID\fP of each metric should be the same in all of the archives.
+Multiple \f2PMID\fPs are currently tolerated by using the first \f2PMID\fP
+defined for each metric and ignoring subsequent \f2PMID\fPs.
+.IP \(bu 3n
+The type of each metric must be the same in all of the archives.
+.IP \(bu 3n
+The semantics of each metric must be the same in all of the archives.
+.IP \(bu 3n
+The units of each metric must be the same in all of the archives.
+.IP \(bu 3n
+The instance domain of each metric must be the same in all of the archives.
+.PP
+In the case where
+.I type
+is
+.BR PM_CONTEXT_LOCAL ,
+.I name
+is ignored, and the context uses a standalone connection to the
+PMDA methods used by
+.BR pmcd (1).
+When this type of context is used, the range of accessible performance
+metrics is constrained to those from the operating system, and optionally
+the ``proc'', ``sample'' and ``ib'' PMDAs.
+.PP
+In the case where \f2type\fP is \f3PM_CONTEXT_HOST\fP, additional flags can
+be added to the \f2type\fP to indicate if the connection to \f3pmcd\fP(1)
+should be encrypted (\f3PM_CTXFLAG_SECURE\fP), deferred (\f3PM_CTXFLAG_SHALLOW\fP)
+and if the file descriptor used to communicate with \f3pmcd\fP(1), should not be
+shared across contexts (\f3PM_CTXFLAG_EXCLUSIVE\fP).
+The \f3PM_CTXFLAG_SHALLOW\fP flag is now deprecated and ignored.
+.PP
+The initial instance
+profile is set up to select all instances in all instance domains. 
+In the case of a set of archives,
+the initial collection time is also set to zero,
+so that an initial
+.BR pmFetch (3)
+will result in the earliest set of metrics 
+being returned from the set of archives. 
+.PP
+Once established, the association between a context and a source of metrics
+is fixed for the life of the context, however routines are provided to
+independently manipulate both the instance profile (see
+.BR pmAddProfile (3)
+and
+.BR pmDelProfile (3))
+and the collection time for archives (see
+.BR pmSetMode (3)).
+.PP
+.B pmNewContext
+returns a handle that may be used with subsequent calls to
+.BR pmUseContext (3).
+.PP
+The new context remains the current PMAPI context for all
+subsequent calls across the PMAPI,
+until another call to
+.BR pmNewContext (3)
+is made, or the context is explicitly changed with a call to
+.BR pmDupContext (3)
+or
+.BR pmUseContext (3),
+or destroyed using
+.BR pmDestroyContext (3).
+.PP
+When attempting to connect to a remote
+.BR pmcd (1)
+on a machine that is booting,
+.B pmNewContext
+could potentially block for a long time until the remote machine
+finishes its initialization.
+.B pmNewContext
+will abort and return an error if the connection has not been established after
+some specified interval has elapsed.  The default interval is 5
+seconds.  This may be modified by setting
+.B PMCD_CONNECT_TIMEOUT
+in the environment to a real number of seconds for the
+desired timeout.
+This is most useful in cases where the remote host is at
+the end of a slow network, requiring longer latencies to
+establish the connection correctly.
+.SH ENVIRONMENT
+.TP
+.B PMCD_CONNECT_TIMEOUT
+Timeout period (in seconds) for
+.BR pmcd (1)
+connection attempts.
+.TP
+.B PMCD_PORT
+TCP/IP port(s) for connecting to
+.BR pmcd (1),
+historically was 4321 and more recently the officially registered port
+44321; in the current release,
+.B pmcd
+listens on both these ports as a transitional arrangement.  If used,
+should be set to a comma-separated list of numerical port numbers.
+.TP
+.B PMDA_PATH
+When searching for PMDAs to be loaded when
+.I type
+is
+.BR PM_CONTEXT_LOCAL ,
+the
+.B PMDA_PATH
+environment variable may be used to define a search path of
+directories to be used to locate the PMDA executables.
+The default search path is
+.BR $PCP_SHARE_DIR/lib:/usr/pcp/lib .
+.SH CAVEATS
+When using a
+.I type
+of
+.BR PM_CONTEXT_LOCAL ,
+the operating system PMDA may export data structures directly
+from the kernel, which means that the
+.B pmNewContext
+caller should be an
+executable program compiled for the same object code format
+as the booted kernel.
+.P
+In addition, applications using a
+.B PM_CONTEXT_LOCAL
+context
+must be single-threaded because the various DSO PMDAs may not be
+thread-safe.  This restriction is enforced at the
+.BR PMAPI (3),
+where routines may return the error code
+.B PM_ERR_THREAD
+if the library detects calls from more than one thread.
+.P
+Applications that use
+.BR gethostbyname (3)
+should exercise caution because the static fields in
+.I "struct hostent"
+may not be preserved across some
+.BR PMAPI (3)
+calls.
+In particular,
+.BR pmNewContext (3)
+and
+.BR pmReconnectContext (3)
+both may call
+.BR gethostbyname (3)
+internally.
+.SH SEE ALSO
+.BR pmcd (1),
+.BR pmproxy (1),
+.BR pmAddProfile (3),
+.BR PMAPI (3),
+.BR pmDelProfile (3),
+.BR pmDestroyContext (3),
+.BR pmDupContext (3),
+.BR pmGetConfig (3),
+.BR pmReconnectContext (3),
+.BR pmSetMode (3),
+.BR pmUseContext (3),
+.BR pmWhichContext (3),
+.BR pcp.conf (5)
+and
+.BR pcp.env (5).
+.SH DIAGNOSTICS
+.P
+.B PM_ERR_PERMISSION
+.IP
+No permission to perform requested operation
+.P
+.B PM_ERR_CONNLIMIT
+.IP
+PMCD connection limit for this host exceeded
+.P
+.B PM_ERR_NOCONTEXT
+.IP
+Requested context type was not 
+.BR PM_CONTEXT_LOCAL , 
+.B PM_CONTEXT_HOST 
+or 
+.BR PM_CONTEXT_ARCHIVE .
+.P
+.B PM_ERR_LOGOVERLAP
+.IP
+Archives overlap in time
+.P
+.B PM_ERR_LOGHOST
+.IP
+Archives differ by host
+.P
+.B PM_ERR_LOGTIMEZONE
+.IP
+Archives differ by time zone.
+.P
+.B PM_ERR_LOGCHANGETYPE
+.IP
+The type of a metric differs among archives
+.P
+.B PM_ERR_LOGCHANGESEM
+.IP
+The semantics of a metric differs among archives
+.P
+.B PM_ERR_LOGCHANGEINDOM
+.IP
+The instance domain of a metric differs among archives
+.P
+.B PM_ERR_LOGCHANGEUNITS
+.IP
+The units of a metric differs among archives

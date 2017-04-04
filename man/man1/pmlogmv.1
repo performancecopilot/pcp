@@ -1,0 +1,78 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2014 Ken McDonell.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMLOGMV 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmlogmv\f1 \- move (rename) Performance Co-Pilot archive files
+.SH SYNOPSIS
+\f3pmlogmv\f1 [\f2\-NV\f1] \f2oldname\f1 \f2newname\f1
+.SH DESCRIPTION
+A Performance Co-Pilot (PCP) archive consists of multiple files as
+created by
+.BR pmlogger (1).
+.B pmlogmv
+allows all the files of a single PCP archive
+to be moved or renamed as a group in a single operation.
+.PP
+The
+.I oldname
+argument identifies the target archive, and may be either the basename
+that is common to all files in that archive or one of the archive's
+files.
+The new archive's basename is
+.IR newname .
+.PP
+The
+.B \-N
+option performs a dry-run, checking and reporting what changes would
+be made without making any changes.
+.PP
+Additional reporting verbosity may be requested with the
+.B \-V
+option.
+.PP
+Because PCP archives are important records of system activity, special
+care is taken to ensure the integrity of an archive's files.
+For recoverable problems encountered during the execution of
+.BR pmlogmv ,
+all the files associated with
+.I oldname
+will be preserved, and no new files with the
+.I newname
+prefix will be created.
+``Recoverable problems'' include signals that can be caught (such as SIGHUP,
+SIGINT, SIGQUIT and SIGTERM), permissions issues, new files already existing,
+file system full events, etc.
+.PP
+The implementation of
+.B pmlogmv
+uses hard links in the file system and so follows the semantic
+restrictions of
+.IR ln (2)
+which for most systems means the directories containing both
+the
+.I oldname
+and the
+.I newname
+PCP archive files need to be writeable and within the
+.B same
+file system.
+.SH "SEE ALSO"
+.BR ln (2)
+and
+.BR pmlogger (1).
+.SH DIAGNOSTICS
+All error and warning messages are intended to be easily understood and errors
+produce a non-zero exit status.

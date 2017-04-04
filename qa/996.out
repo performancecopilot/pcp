@@ -1,0 +1,52 @@
+QA output created by 996
+=== tolerance 1 ===
+Directory: HERE
+Excluded metrics:
+    ^pmcd.pmlogger.port 
+
+Ratio Threshold: >= 1.00 or <= 1.000
+          diff1           diff2   Ratio  Metric-Instance
+      start-end       start-end
+          0.000          10.00     |+|   sample.long.write_me
+          3.000         301.0     >100   sampledso.ulong.write_me
+          3.000         300.0    100.00   sample.ulong.write_me
+          2.000         120.0    60.00   sample.longlong.write_me
+          0.680           0.680   1.00   kernel.all.load ["15 minute"]
+        100.0           100.0     1.00   sample.bin ["bin-100"]
+        200.0           200.0     1.00   sample.bin ["bin-200"]
+        300.0           300.0     1.00   sample.bin ["bin-300"]
+        400.0           400.0     1.00   sample.bin ["bin-400"]
+        500.0           500.0     1.00   sample.bin ["bin-500"]
+        600.0           600.0     1.00   sample.bin ["bin-600"]
+        700.0           700.0     1.00   sample.bin ["bin-700"]
+        800.0           800.0     1.00   sample.bin ["bin-800"]
+        900.0           900.0     1.00   sample.bin ["bin-900"]
+          1.000           1.000   1.00   sample.milliseconds
+          1.000           1.000   1.00   sample.seconds
+       1000            1000       1.00   sample.ulonglong.write_me
+         13.00           13.00    1.00   sampledso.float.write_me
+         13.00           13.00    1.00   sampledso.longlong.write_me
+         13.00           13.00    1.00   sampledso.ulonglong.write_me
+          0.680           0.670   0.99   kernel.all.load ["5 minute"]
+          0.610           0.560   0.92   kernel.all.load ["1 minute"]
+         50.00           10.00    0.20   sample.float.write_me
+       2000               2.000   0.001  sample.double.write_me
+       2010               2.000  <0.001  sampledso.double.write_me
+         10.00            0.000    |-|   sampledso.long.write_me
+
+=== default tolerance ===
+Directory: HERE
+Excluded metrics:
+    ^pmcd.pmlogger.port 
+
+Ratio Threshold: >= 2.00 or <= 0.500
+          diff1           diff2   Ratio  Metric-Instance
+      start-end       start-end
+          0.000          10.00     |+|   sample.long.write_me
+          3.000         301.0     >100   sampledso.ulong.write_me
+          3.000         300.0    100.00   sample.ulong.write_me
+          2.000         120.0    60.00   sample.longlong.write_me
+         50.00           10.00    0.20   sample.float.write_me
+       2000               2.000   0.001  sample.double.write_me
+       2010               2.000  <0.001  sampledso.double.write_me
+         10.00            0.000    |-|   sampledso.long.write_me

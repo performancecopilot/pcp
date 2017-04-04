@@ -1,0 +1,47 @@
+#!/bin/bash
+
+VALGRIND=valgrind
+VG_ARGS="-v --leak-check=full --show-reachable=yes --error-exitcode=1 --log-file=target/valgrind.out"
+TEST_PROG=./target/test
+
+function mkcpulist
+{
+    dirp=$1
+    shift 1
+    mkdir -p $dirp
+    echo "$@" > $dirp/cpulist
+}
+
+# Setup pseudo sysfs filesystem 
+MOCK_SYSFS=target/sys/devices/system/node
+if [ ! -e ${MOCK_SYSFS}/node0 ]; then
+    mkcpulist ${MOCK_SYSFS}/node0 "0,2,4,6"
+    mkcpulist ${MOCK_SYSFS}/node1 "1,3,5"
+    mkcpulist ${MOCK_SYSFS}/node2 -n "8-10,14"
+fi
+
+MOCK_SYSFS=target/sysfail/devices/system/node
+if [ ! -e ${MOCK_SYSFS}/node0 ]; then
+    mkcpulist ${MOCK_SYSFS}/node0 "invalid string"
+    mkcpulist ${MOCK_SYSFS}/node1 -n "12\$#"
+    mkcpulist ${MOCK_SYSFS}/node2 -n "  0-3"
+    mkdir -p ${MOCK_SYSFS}/node3 # no cpulist in here
+    mkcpulist ${MOCK_SYSFS}/node4 -n 
+fi
+
+MOCK_SYSFS=target/sysrr/devices/system/node
+if [ ! -e ${MOCK_SYSFS}/node0 ]; then 
+    mkcpulist ${MOCK_SYSFS}/node0 "0-7"
+    mkcpulist ${MOCK_SYSFS}/node1 "8-15"
+    mkcpulist ${MOCK_SYSFS}/node2 "16-23"
+    mkcpulist ${MOCK_SYSFS}/node3 "24-31"
+fi
+
+
+# configure shell to exit immediately if any tests fail
+set -e
+
+${VALGRIND} ${VG_ARGS} ${TEST_PROG} all; 
+
+# If we get here then the tests passed!
+echo "result: PASS"

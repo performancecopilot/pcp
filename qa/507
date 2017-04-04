@@ -1,0 +1,145 @@
+#! /bin/sh
+# PCP QA Test No. 507
+# exercises the pcp(1) works with an archive generates from
+# our own pmlogger config file for it.  also checks bug #640234
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.check
+
+rm -f $seq.full
+qahost=`_get_fqdn`
+echo "qahost=$qahost" >>$seq.full
+if [ -z "$qahost" ]
+then
+    echo "$seq: Arrgh: cannot determine fully qualified domain name for local host"
+    exit 1
+fi
+
+local=`uname -n`
+status=1	# failure is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    if [ $PCP_PLATFORM = darwin ]
+    then
+	# this is bizarre, but the amount of RAM is not constant
+	# ... has been observed to randomly be 2046 or 2047 on
+	# the one system ... scale up RAM to next 128MB boundary
+	#
+	sed -e 's/MB RAM/ RAM/' \
+	| $PCP_AWK_PROG '
+$NF == "RAM"	{ x = $(NF-1); x = (int(x/128)+1)*128; $(NF-1) = x }
+		{ print }'
+    else
+	cat
+    fi \
+    | sed \
+	-e "/^ licenses:.*/d" \
+	-e "s/$qahost/HOST/g" \
+	-e "s/$local/HOST/g" \
+    | fgrep -v "archive:"
+}
+
+_config()
+{
+    cat <<End-of-File
+log mandatory on once {
+    hinv.ncpu
+    hinv.ndisk
+    hinv.nnode
+    hinv.nrouter
+    hinv.nxbow
+    hinv.ncell
+    hinv.physmem
+    hinv.cputype
+    pmda.uname
+    pmcd.numagents
+    pmcd.numclients
+    pmcd.services
+    pmcd.version
+    pmcd.build
+    pmcd.timezone
+    pmcd.agent.status
+    pmcd.pmlogger
+    pmcd.pmie
+}
+End-of-File
+}
+
+# 
+# check command args compatible:
+# -h local must be same as no args & just local
+# also, locally-generated archive must obviously be very similar also
+# 
+# real QA test starts here
+_config > $tmp.config.pcp
+pmlogger -T 3sec -c $tmp.config.pcp -l $tmp.log $tmp.archive
+echo pmlogger status=$? | tee -a $seq.full
+cat $tmp.log >>$seq.full
+
+pcp -a $tmp.archive | _filter >$tmp.arch
+echo status=$? | tee -a $seq.full
+
+#  This loop deals with cases when pcp(1) reports that some condition has
+#  changed between the three invokations of pcp(1).  If a difference has
+#  been detected, do the test again to see if the difference is repeated.
+itns=2
+isdiff=TRUE
+until [ $isdiff = FALSE -o $itns = 0 ]
+do
+    rm -f $tmp.noargs $tmp.local $tmp.localnoh \
+      $tmp.diffnoargslocal $tmp.noargslocalnoh
+    echo "=== no args ===" >>$seq.full
+    pcp 2>&1 | tee -a $seq.full | _filter > $tmp.noargs
+    statusna=$?
+    echo "=== -h $qahost args ===" >>$seq.full
+    pcp -h $qahost 2>&1 | tee -a $seq.full | _filter > $tmp.local
+    statusll=$?
+    export PMCD_HOST=$qahost
+    echo "=== \$PMCD_HOST=$PMCD_HOST args ===" >>$seq.full
+    pcp 2>&1 | tee -a $seq.full | _filter > $tmp.localnoh
+    statusln=$?
+    unset PMCD_HOST
+    
+    diff $tmp.noargs $tmp.local > $tmp.diffnoargslocal
+    diff $tmp.noargs $tmp.localnoh > $tmp.noargslocalnoh
+    
+    if [ -s $tmp.diffnoargslocal -o -s $tmp.noargslocalnoh ]
+    then
+        isdiff=TRUE
+	if [ $itns -gt 1 ] ; then sleep 5 ; fi
+    else
+        isdiff=FALSE
+    fi
+    itns=`expr $itns - 1`
+done
+echo status=$statusna
+echo status=$statusll
+echo status=$statusln
+echo === Comparing noargs and local
+if [ -s $tmp.diffnoargslocal ] ; then cat $tmp.diffnoargslocal ; fi
+echo === Comparing noargs and args
+if [ -s $tmp.noargslocalnoh ] ; then cat $tmp.noargslocalnoh ; fi
+
+echo === Checking for missing archive metrics
+egrep '(Unknown)|( unknown)' $tmp.arch
+
+echo === Checking bug 640234
+echo 'pminfo(1) output:'
+pminfo -fa archives/pcpcmd pmcd.pmlogger
+echo
+echo 'pcp(1) output:'
+pcp -n src/root_irix -a archives/pcpcmd | fgrep -v "$PCP_PMDAS_DIR/summary"
+# dont use services/pmie output here cos archive doesn't have all metrics
+
+# success, all done
+status=0
+exit

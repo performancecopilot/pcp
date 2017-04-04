@@ -1,0 +1,139 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMISTART 3 "" "Performance Co-Pilot"
+.SH NAME
+\f3pmiStart\f1 \- establish a new LOGIMPORT context
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.br
+#include <pcp/impl.h>
+.br
+#include <pcp/import.h>
+.sp
+int pmiStart(const char *\fIarchive\fP, int \fIinherit\fP);
+.sp
+cc ... \-lpcp_import \-lpcp
+.ft 1
+.SH "Perl SYNOPSIS"
+.ft 3
+use PCP::LogImport;
+.sp
+pmiStart($\fIarchive\fP, $\fIinherit\fP);
+.ft 1
+.SH DESCRIPTION
+As part of the Performance Co-Pilot Log Import API (see
+.BR LOGIMPORT (3)),
+.B pmiStart
+creates a new context.  Each context maintains the following
+state and metadata:
+.IP \(bu 3n
+The base name (\c
+.IR archive )
+for the physical  files
+that constitute the output PCP archive.
+.IP \(bu 3n
+The source hostname for the data that will be written to the
+PCP archive.  Defaults to the hostname of the localhost, but can be set using
+.BR pmiSetHostname (3).
+.IP \(bu 3n
+The source timezone for the 
+PCP archive.  Defaults to the timezone of the localhost, but can be set using
+.BR pmiSetTimezone (3).
+.IP \(bu 3n
+Metrics and instance domains, as defined by
+.BR pmiAddMetric (3).
+.IP \(bu 3n
+Instances for each instance domain, as defined by
+.BR pmiAddInstance (3).
+.IP \(bu 3n
+Handles as defined by
+.BR pmiGetHandle (3).
+Each handle is a metric-instance pair, and each metric-instance pair
+may have an associated value in each record written to the output
+PCP archive.
+.IP \(bu 3n
+An optional set of data values for one or more metric-instance pairs
+(ready for the next record to be written
+to the output PCP archive) as defined
+by calls to
+.BR pmPutValue (3)
+or
+.BR pmPutValuehandle (3).
+.PP
+If
+.I inherit
+is true, then the new context will inherit any and all
+metadata (metrics, instance domains, instances and handles) from the current
+context, otherwise the new context is created with no metadata.
+The basename for the output PCP archive, the source hostname, the
+source timezone and any data values from the current context are
+.B not
+inherited.
+If this is the first call to
+.B pmiStart
+the metadata will be empty
+independent of the value of
+.IR inherit .
+.PP
+Since no physical files for the output PCP archive
+will be created until the first call to
+.BR pmiWrite (3)
+or
+.BR pmiPutRecord(3),
+.I archive
+could be NULL to create a
+convenience context that is populated with metadata to be
+inherited by subsequent contexts.
+.PP
+The return value is a context identifier that
+could be used in a subsequent call to
+.BR pmUseContext (3)
+and the
+new context becomes the current context which
+persists for all subsequent calls up to either another
+.B pmiStart
+call or a call to
+.BR pmiUseContext (3)
+or a call to
+.BR pmiEnd (3).
+.SH DIAGNOSTICS
+It is an error if the physical files
+\fIarchive\fR.\fB0\fR and/or
+\fIarchive\fR.\fBindex\fR and/or
+\fIarchive\fR.\fBmeta\fR already exist, but this is not discovered
+until the first attempt is made to output some data by calling
+.BR pmiWrite (3)
+or
+.BR pmiPutRecord(3),
+so
+.B pmiStart
+always returns a positive context identifier.
+.SH SEE ALSO
+.BR LOGIMPORT (3),
+.BR pmiAddInstance (3),
+.BR pmiAddMetric (3),
+.BR pmiEnd (3),
+.BR pmiErrStr (3),
+.BR pmiGetHandle (3),
+.BR pmiPutResult (3),
+.BR pmiPutValue (3),
+.BR pmiPutValueHandle (3),
+.BR pmiSetHostname (3),
+.BR pmiSetTimezone (3),
+.BR pmiUseContext (3)
+and
+.BR pmiWrite (3).

@@ -1,0 +1,33 @@
+#!/bin/sh
+# PCP QA Test No. 547
+# Exercise past security flaws in PCP protocol implementation
+#
+# Copyright (c) 2013 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.python
+
+host=localhost
+timeout=2
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+cd secure
+for crash_test in crash-*
+do
+    echo "$crash_test checking: " | tee -a $here/$seq.full
+    $python $crash_test $host
+    pmcd_wait -t $timeout -h $host
+    sts=$?
+    echo "$crash_test complete sts=$sts" | tee -a $here/$seq.full
+    [ $sts -ne 0 ] && exit
+done
+
+# success, all done
+status=0
+exit

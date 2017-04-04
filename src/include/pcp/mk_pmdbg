@@ -1,0 +1,58 @@
+#!/bin/sh
+#
+# Copyright (c) 1997 Silicon Graphics, Inc.  All Rights Reserved.
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+# Create pmdbg.h from impl.h
+
+if [ -f ../pcp.conf ]
+then
+    # needed for $PCP_SORT_PROG
+    . ../pcp.conf
+else
+    echo "mk_pmdbg: cannot find pcp.conf"
+    exit 1
+fi
+
+if [ ! -f impl.h ]
+then
+    echo "mk_pmdbg: cannot find impl.h"
+    exit 1
+fi
+
+rm -f pmdbg.h
+cat <<End-of-File >pmdbg.h
+/*
+ * Built from impl.h by mk_pmdbg.  Any modifications will be lost.
+ */
+
+typedef const struct {
+    const char	*name;
+    const int	bit;
+} debug_map_t;
+
+static const debug_map_t debug_map[] = {
+End-of-File
+
+sed -n <impl.h \
+    -e '/#define[ 	]*DBG_TRACE_/{
+s/#define[ 	]*\(DBG_TRACE_\)\([A-Z0-9_]*\).*/    { "\2",	\1\2 },/p
+}' \
+| $PCP_SORT_PROG >>pmdbg.h
+
+cat <<End-of-File >>pmdbg.h
+};
+
+static const int num_debug = sizeof(debug_map) / sizeof(debug_map[0]);
+End-of-File
+
+exit 0

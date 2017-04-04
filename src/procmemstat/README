@@ -1,0 +1,19 @@
+procmemstat - a sample client using the PMAPI
+=============================================
+
+procmemstat is a sample client that uses the Performance Metrics
+Application Programming Interface (PMAPI) to report its own memory
+use.
+
+The source is shipped as part of pcp.sw.demo and is installed in
+/var/pcp/demos/procmemstat.  If you have the C compiler installed, the
+source and Makefile in this directory may be used to create a
+functionally equivalent binary, simply by entering the command
+
+	% make
+
+The source in procmemstat.c demonstrates most of the PMAPI services, and
+may be used as a template and style guide when creating your own PMAPI
+clients.  Note in particular, the use of ./pmnsmap.spec and the shipped
+tool pmgenmap to assist in the creation of arguments to the PMAPI
+routines, and the manipulation of PMAPI data structures.

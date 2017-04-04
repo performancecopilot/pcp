@@ -1,0 +1,8 @@
+#pmlogconf-setup 2.0
+ident	XLV striped volume stats
+probe	xlv.stripe_ops
+	xlv.stripe_ops
+	xlv.stripe_units
+	xlv.aligned
+	xlv.unaligned
+	xlv.largest_io

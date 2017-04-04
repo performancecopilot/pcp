@@ -1,0 +1,69 @@
+#
+# Original implementation by Troy Dawson (dawson@fnal.gov)
+# 
+# Copyright (c) 2001,2004 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+lmsensors PMDA
+==============
+
+This PMDA exports information about the lm sensors on 
+compatible motherboards.
+
+This source code was contributed by Troy Dawson (dawson@fnal.gov)
+to the PCP open source project.
+
+Metrics
+=======
+
+The file ./help contains descriptions for all of the metrics exported
+by this PMDA.
+
+Once the PMDA has been installed, the following command will list all
+the available metrics and their explanatory "help" text:
+
+	$ pminfo -fT lmsensors
+
+Installation
+============
+
+ +  # cd $PCP_PMDAS_DIR/lmsensors
+
+ +  Check that there is no clash in the Performance Metrics Domain
+    defined in ./domain.h and the other PMDAs currently in use
+    ($PCP_PMCDCONF_PATH).  If there is, edit ./domain.h to choose another
+    domain number.
+
+ +  Then simply use
+
+	# ./Install
+
+    and choose both the "collector" and "monitor" installation
+    configuration options -- everything else is automated.
+
+ +  Alternatively, to install just the Performance Metrics Name Space
+    for the lmsensors metrics on the local system, but not the lmsensors PMDA
+    (presumably because the local system is running PCP 1.x and you
+    wish to connect to a remote system where PCP 2.0 and the lmsensors PMDA
+    is running), make sure the Performance Metrics Domain defined in
+    ./domain.h matches the domain chosen for the lmsensors PMDA on the
+    remote system (check the second field in the corresponding line of
+    the $PCP_PMCDCONF_PATH file on the remote system), then
+
+	# ./Install -N
+
+De-installation
+===============
+
+ +  Simply use
+
+        # cd $PCP_PMDAS_DIR/lmsensors
+	# ./Remove
+
+Troubleshooting
+===============
+
+ +  After installing or restarting the agent, the PMCD log file
+    ($PCP_LOG_DIR/pmcd/pmcd.log) and the PMDA log file
+    ($PCP_LOG_DIR/pmcd/lmsensors.log) should be checked for any warnings or
+    errors.

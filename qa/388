@@ -1,0 +1,45 @@
+#!/bin/sh
+# PCP QA Test No. 388
+# Interp mode (similar to qa/090, but with valgrind) (see also 329)
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_check_valgrind
+
+# can skip stdout from interp0 -a tmparch/interp ...
+# that's checked in 087
+#
+_filter()
+{
+    $PCP_AWK_PROG '
+BEGIN			{ skip = 1 }
+/=== std err ===/	{ skip = 0 }
+skip == 0		{ print }'
+}
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+for delta in 1 4 5 8 10
+do
+    samples=`expr 80 / $delta`
+    [ $samples -gt 15 ] && samples=15
+    echo
+    echo "interpolate $samples, $delta seconds appart"
+    _run_valgrind src/interp0 -a tmparch/interp -t $delta -s $samples \
+    | _filter
+done
+
+# success, all done
+exit

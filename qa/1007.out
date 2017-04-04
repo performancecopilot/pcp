@@ -1,0 +1,10 @@
+QA output created by 1007
+=== Valid, no error ===
+=== Bad syntax, no tab specification ===
+Error: stdin[4] Syntax error: expecting "<tab label>", found End-of-Line
+=== Bad syntax, no point keyword ===
+Error: stdin[3] Syntax error: expecting "<tab points>", found "300"
+=== Bad syntax, no point value ===
+Error: stdin[4] Syntax error: expecting "<tab points value>", found End-of-Line
+=== Bad syntax, no sample value ===
+Error: stdin[4] Syntax error: expecting "<tab samples value>", found End-of-Line

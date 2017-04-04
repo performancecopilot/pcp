@@ -1,0 +1,339 @@
+QA output created by 457
+You will need to choose an appropriate configuration for installation of
+the "logger" Performance Metrics Domain Agent (PMDA).
+
+  collector	collect performance statistics on this system
+  monitor	allow this system to monitor local and/or remote systems
+  both		collector and monitor configuration for this system
+
+Please enter c(ollector) or m(onitor) or b(oth) [b] Possible configuration files to choose from:
+[1] PCP_VAR_DIR/config/logger/logger.conf
+[2] Specify your own configuration file.
+[3] None of the above (abandon configuration file selection).
+Which configuration file do you want to use ? [1] 
+Contents of the selected configuration file:
+--------------- start PCP_VAR_DIR/config/logger/logger.conf ---------------
+
+# from PCP QA 457
+reg	n	TMPFILE.reg
+fifo	n	TMPFILE.fifo
+none	n	TMPFILE.none
+empty	n	TMPFILE.empty
+dir	n	TMPFILE.dir
+pipe	n	TMPFILE.pipe|
+
+--------------- end PCP_VAR_DIR/config/logger/logger.conf ---------------
+
+Use this configuration file? [y] Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+[...install files, make output...]
+Updating the PMCD control file, and notifying PMCD ...
+Check logger metrics have appeared ... 46 metrics and 39 values
+
+=== 1. simple working case ===
+Checking initial data:
+logger.perfile.reg.queuemem
+    value 0
+
+logger.perfile.reg.records
+No value(s) available!
+
+logger.perfile.reg.numclients
+    value 1
+
+logger.perfile.reg.path
+    value "TMPFILE.reg"
+
+logger.perfile.reg.size
+    value 56
+
+logger.perfile.reg.bytes
+    value 0
+
+logger.perfile.reg.count
+    value 0
+Checking appended data:
+logger.perfile.reg.queuemem
+    value 0
+
+logger.perfile.reg.records
+No value(s) available!
+
+logger.perfile.reg.numclients
+    value 1
+
+logger.perfile.reg.path
+    value "TMPFILE.reg"
+
+logger.perfile.reg.size
+    value 56
+
+logger.perfile.reg.bytes
+    value 0
+
+logger.perfile.reg.count
+    value 0
+
+=== 2. named pipe (fifo) ===
+Check initial pipe
+logger.perfile.fifo.queuemem
+    value 0
+
+logger.perfile.fifo.records
+No value(s) available!
+
+logger.perfile.fifo.numclients
+    value 1
+
+logger.perfile.fifo.path
+    value "TMPFILE.fifo"
+
+logger.perfile.fifo.size
+    value 0
+
+logger.perfile.fifo.bytes
+    value 0
+
+logger.perfile.fifo.count
+    value 0
+Checking new pipe data
+logger.perfile.fifo.queuemem
+    value 0
+
+logger.perfile.fifo.records
+No value(s) available!
+
+logger.perfile.fifo.numclients
+    value 1
+
+logger.perfile.fifo.path
+    value "TMPFILE.fifo"
+
+logger.perfile.fifo.size
+    value 0
+
+logger.perfile.fifo.bytes
+    value 0
+
+logger.perfile.fifo.count
+    value 0
+Unlink the fifo
+logger.perfile.fifo.queuemem
+    value 0
+
+logger.perfile.fifo.records
+No value(s) available!
+
+logger.perfile.fifo.numclients
+    value 1
+
+logger.perfile.fifo.path
+    value "TMPFILE.fifo"
+
+logger.perfile.fifo.size
+    value 0
+
+logger.perfile.fifo.bytes
+    value 0
+
+logger.perfile.fifo.count
+    value 0
+
+=== 3. log file rotation ===
+Checking removed file
+logger.perfile.reg.queuemem
+    value 0
+
+logger.perfile.reg.records
+No value(s) available!
+
+logger.perfile.reg.numclients
+    value 1
+
+logger.perfile.reg.path
+    value "TMPFILE.reg"
+
+logger.perfile.reg.size
+    value 0
+
+logger.perfile.reg.bytes
+    value 0
+
+logger.perfile.reg.count
+    value 0
+Checking new log file
+logger.perfile.reg.queuemem
+    value 0
+
+logger.perfile.reg.records
+No value(s) available!
+
+logger.perfile.reg.numclients
+    value 1
+
+logger.perfile.reg.path
+    value "TMPFILE.reg"
+
+logger.perfile.reg.size
+    value 56
+
+logger.perfile.reg.bytes
+    value 56
+
+logger.perfile.reg.count
+    value 2
+
+=== 4. non-existant file ===
+Check a missing file
+logger.perfile.none.queuemem
+    value 0
+
+logger.perfile.none.records
+No value(s) available!
+
+logger.perfile.none.numclients
+    value 1
+
+logger.perfile.none.path
+    value "TMPFILE.none"
+
+logger.perfile.none.size
+    value 0
+
+logger.perfile.none.bytes
+    value 0
+
+logger.perfile.none.count
+    value 0
+Checking new log file
+logger.perfile.none.queuemem
+    value 0
+
+logger.perfile.none.records
+No value(s) available!
+
+logger.perfile.none.numclients
+    value 1
+
+logger.perfile.none.path
+    value "TMPFILE.none"
+
+logger.perfile.none.size
+    value 56
+
+logger.perfile.none.bytes
+    value 56
+
+logger.perfile.none.count
+    value 2
+
+=== 5. empty file ===
+Check an empty file
+logger.perfile.empty.queuemem
+    value 0
+
+logger.perfile.empty.records
+No value(s) available!
+
+logger.perfile.empty.numclients
+    value 1
+
+logger.perfile.empty.path
+    value "TMPFILE.empty"
+
+logger.perfile.empty.size
+    value 0
+
+logger.perfile.empty.bytes
+    value 0
+
+logger.perfile.empty.count
+    value 0
+Checking new log file
+logger.perfile.empty.queuemem
+    value 0
+
+logger.perfile.empty.records
+No value(s) available!
+
+logger.perfile.empty.numclients
+    value 1
+
+logger.perfile.empty.path
+    value "TMPFILE.empty"
+
+logger.perfile.empty.size
+    value 56
+
+logger.perfile.empty.bytes
+    value 56
+
+logger.perfile.empty.count
+    value 2
+
+=== 6. directory ===
+Check a directory
+logger.perfile.dir.queuemem
+    value 0
+
+logger.perfile.dir.records
+No value(s) available!
+
+logger.perfile.dir.numclients
+    value 1
+
+logger.perfile.dir.path
+    value "TMPFILE.dir"
+
+logger.perfile.dir.size
+    value SIZE
+
+logger.perfile.dir.bytes
+    value 0
+
+logger.perfile.dir.count
+    value 0
+
+=== 7. command pipe ===
+Check a piped command
+logger.perfile.pipe.queuemem
+    value 0
+
+logger.perfile.pipe.records
+No value(s) available!
+
+logger.perfile.pipe.numclients
+    value 1
+
+logger.perfile.pipe.path
+    value "TMPFILE.pipe|"
+
+logger.perfile.pipe.size
+    value 0
+
+logger.perfile.pipe.bytes
+    value 0
+
+logger.perfile.pipe.count
+    value 0
+Signal the command
+logger.perfile.pipe.queuemem
+    value 0
+
+logger.perfile.pipe.records
+No value(s) available!
+
+logger.perfile.pipe.numclients
+    value 1
+
+logger.perfile.pipe.path
+    value "TMPFILE.pipe|"
+
+logger.perfile.pipe.size
+    value 0
+
+logger.perfile.pipe.bytes
+    value 0
+
+logger.perfile.pipe.count
+    value 0

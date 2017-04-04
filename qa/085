@@ -1,0 +1,44 @@
+#! /bin/sh
+# PCP QA Test No. 085
+# pmlogger specs with internal instance identifiers
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+
+trap "rm -f $tmp $tmp.*; exit" 0 1 2 3 15
+signal=$PCP_BINADM_DIR/pmsignal
+
+_filter()
+{
+    _filter_pmlogger_log \
+    | sed \
+	-e '/[Ss]ignalled (signal=.*), exiting/d' \
+	-e "s;$tmp;MYPID;g" \
+	-e 's/line [345]/line N/'
+}
+
+# real QA test starts here
+cat <<End-of-File >$tmp.config
+log mandatory on 1 sec {
+    sample.bin [ "bin-100" ]
+    sample.bin [ 200 ]
+    sample.bin [ "bin-not-here" ]
+    sample.bin [ 100000 ]
+}
+End-of-File
+
+pmlogger -L -c $tmp.config -l $tmp.out -s 1 $tmp >$tmp.err 2>&1 &
+killer=$!
+((sleep 4; $signal -s TERM $killer)&) >/dev/null 2>&1
+wait
+
+cat $tmp.err $tmp.out | _filter
+
+exit 0

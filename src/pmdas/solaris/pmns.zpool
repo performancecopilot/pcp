@@ -1,0 +1,31 @@
+zpool {
+	state		SOLARIS:SCLR_ZPOOL:0
+	state_int	SOLARIS:SCLR_ZPOOL:1
+	capacity	SOLARIS:SCLR_ZPOOL:2
+	used		SOLARIS:SCLR_ZPOOL:3
+	checksum_errors	SOLARIS:SCLR_ZPOOL:4
+	self_healed	SOLARIS:SCLR_ZPOOL:5
+	perdisk
+	in
+	out
+	ops
+}
+
+zpool.in {
+	bytes		SOLARIS:SCLR_ZPOOL:6
+	ops		SOLARIS:SCLR_ZPOOL:7
+	errors		SOLARIS:SCLR_ZPOOL:8
+}
+
+zpool.out {
+	bytes		SOLARIS:SCLR_ZPOOL:9
+	ops		SOLARIS:SCLR_ZPOOL:10
+	errors		SOLARIS:SCLR_ZPOOL:11
+}
+
+zpool.ops {
+	noops		SOLARIS:SCLR_ZPOOL:12
+	ioctls		SOLARIS:SCLR_ZPOOL:13
+	claims		SOLARIS:SCLR_ZPOOL:14
+	frees		SOLARIS:SCLR_ZPOOL:15
+}

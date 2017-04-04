@@ -1,0 +1,49 @@
+#
+# Copyright (c) 2015 Red Hat.
+# Copyright (c) 2001,2004 Silicon Graphics, Inc.  All Rights Reserved.
+# Copyright (c) 2001 Alan Bailey (bailey@mcs.anl.gov or abailey@ncsa.uiuc.edu) 
+# All rights reserved. 
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+# 
+# mounts PMDA help file in the ASCII format
+#
+# lines beginning with a # are ignored
+# lines beginning @ introduce a new entry of the form
+#  @ metric_name oneline-text
+#  help text goes
+#  here over multiple lines
+#  ...
+#
+# the metric_name is decoded against the default PMNS -- as a special case,
+# a name of the form NNN.MM (for numeric NNN and MM) is interpreted as an
+# instance domain identification, and the text describes the instance domain
+#
+# blank lines before the @ line are ignored
+#
+@ MOUNTS.0 all mount points being monitored by pmdamounts
+
+@ mounts.device The currently tracked mounted devices from mounts.conf
+@ mounts.type The filesystem types of current mounts from mounts.conf
+@ mounts.options The mount options of current mounts from mounts.conf
+@ mounts.up Whether a tracked mount is currently up (one or zero)
+@ mounts.capacity Total capacity of tracked filesystem mounts (Kbytes)
+@ mounts.used Total space used on tracked filesystem mounts (Kbytes)
+@ mounts.free Total space free on tracked filesystem mounts (Kbytes)
+@ mounts.maxfiles Inodes capacity of tracked filesystem mounts
+@ mounts.usedfiles Number of inodes allocated on tracked filesystem mounts
+@ mounts.freefiles Number of unallocated inodes on tracked filesystem mounts
+@ mounts.full Percentage of filesystem in use on tracked filesystem mounts
+@ mounts.blocksize Size of each block on tracked filesystem mounts (Bytes)
+@ mounts.avail Total space free to non-superusers on mounted filesystem (Kbytes)
+@ mounts.availfiles Total inodes free to non-superusers on mounted filesystem
+@ mounts.readonly Indicates whether a tracked filesystem mount is readonly
+

@@ -1,0 +1,38 @@
+QA output created by 1047
+
+=== basic sanity check (pmieconf should fail with no rules)
+pmieconf: no rules were found using rule path: /tmp/[SEQ-PID].test
+status=1
+
+=== non-existant type
+pmieconf: error - file parsing error.
+    line number: 3 ("/tmp/[SEQ-PID].test")
+    expected: type keyword
+    found: foo
+status=1
+
+=== 5 bad rulefile syntax tests
+pmieconf: error - file parsing error.
+    line number: 4 ("/tmp/[SEQ-PID].test")
+    expected: =
+    found: moo
+status=1
+pmieconf: error - file parsing error.
+    line number: 3 ("/tmp/[SEQ-PID].test")
+    expected: type keyword
+    found: =
+status=1
+pmieconf: error - file parsing error.
+    line number: 4 ("/tmp/[SEQ-PID].test")
+    expected: attribute keyword
+    found: sometext
+status=1
+pmieconf: error - file parsing error.
+    line number: 4 ("/tmp/[SEQ-PID].test")
+    expected: attribute or ';'
+    found: end-of-file
+status=1
+pmieconf: error - no rule defined, cannot make sense of string "bloo" without one
+    line number: 4 ("/tmp/[SEQ-PID].test")
+
+status=1

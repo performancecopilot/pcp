@@ -1,0 +1,171 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2016 Red Hat.
+.\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMPARSETIMEWINDOW 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmParseTimeWindow\f1 \- parse time window command line arguments
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.sp
+.ad l
+.hy 0
+.in +8n
+.ti -8n
+int pmParseTimeWindow(const char *\fIswStart\fP, const\ char\ *\fIswEnd\fP, const\ char\ *\fIswAlign\fP, const\ char\ *\fIswOffset\fP, const\ struct\ timeval\ *\fIlogStart\fP, const\ struct\ timeval\ *\fIlogEnd\fP, struct\ timeval\ *\fIrsltStart\fP, struct\ timeval\ *\fIrsltEnd\fP, struct\ timeval\ *\fIrsltOffset\fP, char\ **\fIerrMsg\fP);
+.sp
+.in
+.hy
+.ad
+cc ... \-lpcp
+.ft 1
+.SH DESCRIPTION
+.B pmParseTimeWindow
+is designed to encapsulate the interpretation of the 
+.BR \-S ,
+.BR \-T ,
+.B \-A
+and
+.B \-O
+command line options used by Performance Co-Pilot (PCP) applications
+to define a time window of interest.
+The time window is defined by a start time and an end time that constrains
+the time interval during which the PCP application will retrieve and
+display performance metrics.  In the absence of the
+.B \-O
+and
+.B \-A
+options to specify an initial sample time origin
+and time alignment (see below), the PCP application
+will retrieve the first sample at the start of the time window.
+.P
+The syntax and meaning of the various argument formats for these options
+is described in
+.BR PCPIntro (1).
+.SH USAGE
+.B pmParseTimeWindow
+expects to be called with the argument of the
+.B \-S
+option as
+.BR swStart ,
+the argument of the
+.B \-T
+option as
+.BR swEnd ,
+the argument of the
+.B \-A
+option as
+.BR swAlign ,
+and the argument of the
+.B \-O
+option as
+.BR swOffset .
+Any or all of these parameters may be NULL
+to indicate that the corresponding command line option was not
+present.
+.P
+If the application is using a set of PCP archive logs as the source
+of performance metrics, you also
+need to supply the time of the first archive log entry as
+.BR logStart ,
+and the time of the last archive log entry as
+.BR logEnd .
+See
+.BR pmGetArchiveLabel (3)
+and
+.BR pmGetArchiveEnd (3)
+for how to obtain values for these times.
+.P
+If the application is manipulating multiple concurrent archive
+logs, then the caller must resolve how the default time window
+is to be defined (the union of the time intervals in all archive
+logs is a likely interpretation).
+.P
+If the application is using a live feed of performance data,
+.B logStart
+should be the current time (but could be aligned on the next second
+for example), while
+.B logEnd
+should have its
+.I tv_sec
+component set to
+.BR INT_MAX .
+.P
+The
+.BR rsltStart ,
+.B rsltEnd
+and
+.B rsltOffset
+structures must be allocated before calling
+.BR pmParseTimeWindow .
+.P
+You also need to set the current PCP reporting time zone to correctly
+reflect the
+.B \-z
+and
+.B \-Z
+command line parameters before calling
+.BR pmParseTimeWindow .
+See
+.BR pmUseZone (3)
+and friends for information on how this is done.
+.SH SEE ALSO
+.BR PMAPI (3),
+.BR pmGetArchiveEnd (3),
+.BR pmGetArchiveLabel (3),
+.BR pmNewContextZone (3),
+.BR pmNewZone (3),
+.BR pmParseInterval (3)
+and
+.BR pmUseZone (3).
+.SH DIAGNOSTICS
+If the conversion is successful,
+.B pmParseTimeWindow
+returns 1 and fills in
+.BR rsltStart ,
+.B rsltEnd
+and
+.B rsltOffset
+with the start, end, and offset times for the time window defined by the input
+parameters.  
+The
+.B errMsg
+parameter is not changed when
+.BR pmParseTimeWindow
+returns 1.
+.P
+If the conversion is successful, but the requested alignment could not be
+performed (e.g. the set of PCP archive logs is too short) the alignment is
+ignored,
+.BR rsltStart ,
+.B rsltEnd
+and
+.B rsltOffset
+are filled in and
+.BR pmParseTimeWindow
+returns 0.
+In this case,
+.B errMsg
+will point to a warning message in an internal static buffer.
+This buffer should not be freed.
+.P
+If the argument strings could not be parsed,
+.B pmParseTimeWindow
+returns \-1.
+In this case,
+.BR errMsg
+will point to an error message
+in a static internal buffer.

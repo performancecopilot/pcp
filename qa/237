@@ -1,0 +1,126 @@
+#! /bin/sh
+# PCP QA Test No. 237
+# serious pmnsmerge exerciser
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=0
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+mkdir $tmp.dir
+cd $tmp.dir
+
+echo >r1 '/*
+ * Test PMNS #1
+ */
+
+root {
+    foo
+    r111	1:1:1
+    r112	1:1:2
+}
+
+foo {
+    f121	1:2:1
+    bar
+    f122	1:2:2
+}
+
+foo.bar {
+    fb131	1:3:1
+    fb132	1:3:2
+}'
+
+echo >r2 '/*
+ * Test PMNS #2
+ */
+
+#define _DATESTAMP 961108
+
+root {
+    r118	1:1:8
+}'
+
+echo >r3 '/*
+ * Test PMNS #3
+ */
+
+#define _DATESTAMP 961106
+
+root {
+    foo
+    r111	1:1:1
+    r113	1:1:3
+    urk
+    r114	1:1:4
+    r115	1:1:5
+    r116	1:1:6
+}
+
+foo {
+    f121	1:2:1
+    bar
+    f123	1:2:3
+    eek
+}
+
+foo.bar {
+    fb131	1:3:1
+    fb133	1:3:3
+}
+
+foo.eek {
+    fe141	1:4:1
+}
+
+urk {
+    u151	1:5:1
+    u152	1:5:2
+}'
+
+rm -f out-pmns
+pmnsmerge r1 r2 r3 out-pmns
+cat out-pmns
+pminfo -n out-pmns
+
+# from man page
+rm -f r1 r2 r3 out-pmns
+echo >r1 'root {
+    mine       1:1:1
+    foo
+    yours      1:1:2
+}
+foo {
+    fumble     1:2:1
+    stumble    1:2:2
+}'
+
+echo >r2 'root {
+    surprise   1:1:3
+    mine       1:1:1
+    foo
+    yawn
+}
+foo {
+    mumble     1:2:3
+    stumble    1:2:2
+}
+yawn {
+    sleepy     1:3:1
+}'
+
+cat r1
+cat r2
+pmnsmerge r1 r2 out-pmns
+cat out-pmns
+pminfo -n out-pmns

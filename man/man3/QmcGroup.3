@@ -1,0 +1,257 @@
+'\"macro stdmacro
+.\" Copyright (c) 2005 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.TH QMC_GROUP 3 "SGI" "Performance Co-Pilot"
+.SH NAME
+\f3QmcGroup\f1 \- container representing a single fetch group of metrics from
+multiple sources
+.SH "C++ SYNOPSIS"
+.ft 3
+#include <QmcGroup.h>
+.sp
+CC ... \-lqmc \-lpcp 
+.ft 1
+.SH DESCRIPTION
+A
+.B QmcGroup
+object is a container for contexts and metrics that should be fetched at
+the same time.  The class manages the 
+.BR QmcContext (3)
+objects, timezones and bounds for every context created with
+.B QmcGroup::use
+and
+.BR QmcGroup::addMetric .
+.SH "CONSTRUCTORS & DESTRUCTOR"
+.TP 4
+.B "~QmcGroup();"
+Destructor which destroys all metrics and contexts created by this group.
+.TP
+.B "QmcGroup(bool restrictArchives = false);"
+Construct a new fetch group. 
+.I restrictArchives
+will restrict the creating of multiple archive contexts created from the same
+host.
+.SH "CONTEXTS"
+The default context of the group is defined as the first context created with 
+.B QmcGroup::use 
+before the first call to
+.BR QmcGroup::addMetric .
+If no context is created before the first metric is added, the localhost
+is used as the default context.  Therefore, if any metrics specifications
+contain archive sources, an archive source must have been created with
+.B QmcGroup::use
+to avoid an error for mixing context types.
+.TP 4
+.B "uint_t numContexts() const;"
+The number of valid contexts created in this group.
+.TP
+.B "QmcContext const& context(uint_t index) const"
+Return a handle to a context.
+.TP
+.B "QmcContext& context(uint_t index);"
+Return a modifiable handle to a context.
+.TP
+.B "int mode() const;"
+Return the type of context, either
+.BR PM_CONTEXT_LOCAL ,
+.B PM_CONTEXT_HOST
+or
+.BR PM_CONTEXT_ARCHIVE .
+.TP
+.B "QmcContext* which() const;"
+Return a handle to the current context of this group. This does not
+call
+.BR pmUseContext (3)
+so it may not be the current
+.BR PMAPI (3)
+context.
+.TP
+.B "uint_t whichIndex() const"
+The index to the current group context.
+.TP
+.B "int use(int type, char const* source);"
+Use the context of 
+.I type
+from
+.IR source .
+If a context to this 
+.I source
+already exists in this group, that context will become the current
+.BR PMAPI (3)
+context.  Otherwise a new context will be created.  The result is the
+.BR PMAPI (3)
+context handle
+for the
+.B QmcGroup::context
+or a
+.BR PMAPI (3)
+error code if the context failed.
+.TP
+.B "bool defaultDefined() const;"
+Returns 
+.B true
+if a default context has been determined.
+.TP
+.B "int useDefault();"
+Use the default context. If a default context has not been created, the
+context to the local host will be attempted.  A result less than zero indicates
+that the method failed with the 
+.BR PMAPI (3)
+error encoded in the result.
+.TP
+.B "void createLocalContext();"
+Create and use a context to the local host.  A result less than zero indicates
+that the method failed with the 
+.BR PMAPI (3)
+error encoded in the result.
+.SH "METRICS"
+These 
+.B addMetric
+methods should be used to create new metrics as the 
+.B QmcMetric
+constructors are private. These methods will always return a pointer to
+a
+.B QmcMetric
+object, however the
+.B QmcMetric::status()
+field should be checked to ensure the metric is valid.
+.TP 4
+.B "QmcMetric* addMetric(char const* str, double theScale = 0.0,"
+.B "bool active = false);"
+
+Add the metric
+.I str
+to the group, with a scaling factor of
+.IR scale .
+If 
+.I active
+is set the metric will use only active instances (see
+.BR QmcMetric (3)).
+.TP
+.B "QmcMetric* addMetric(pmMetricSpec* theMetric, double theScale"
+.B "= 0.0, bool active);"
+
+Add the metric
+.I theMetric
+to the group, with a scaling factor of
+.IR scale .
+If 
+.I active
+is set the metric will use only active instances (see
+.BR QmcMetric (3)).
+.TP
+.B "int fetch(bool update = true);"
+Fetch all the metrics in all the contexts in this group.  If
+.I update
+is equal to
+.BR true ,
+all counter metrics will be automatically converted to rates (see
+.BR QmcMetric (3)).
+.TP
+.B "int setArchiveMode(int mode, const struct timeval *when,"
+.B "int interval);"
+
+Set the mode and time to access all archive contexts in this group.  See
+.BR pmSetmode (3)
+for more details.
+.SH TIMEZONES
+These methods assist in the management of multiple timezones and help to
+control the current timezone.
+.TP 4
+.B "enum TimeZoneFlag { localTZ, userTZ, groupTZ, unknownTZ };"
+Enumeration used to describe the origin of the default timezone.
+.BR localTZ ,
+.B userTZ
+and
+.B groupTZ
+indicate that the timezone was set with
+.BR "QmcGroup::useLocalTZ" ,
+.BR "QmcGroup::useTZ(QString const&)"
+and
+.BR "QmcGroup::useTZ()"
+respectively.
+.B unknownTZ
+indicates that a timezone has not been set.
+.B userTZ
+indicates that the timezone was
+.TP
+.B "int useTZ();"
+Use the timezone of the current group context as the default.
+.TP
+.B "int useTZ(const QString &tz);"
+Add and use
+.I tz
+as the default timezone of this group.
+.TP
+.B "int useLocalTZ();"
+Use the timezone of the localhost as the default for this group.
+.TP
+.B "void defaultTZ(QString &label, QString &tz);"
+Return the
+.I label
+and
+.I tz
+string of the default timezone of this group.
+.TP
+.B "TimeZoneFlag defaultTZ() const"
+Return the origin of the default timezone.
+.TP
+.B "int useDefaultTZ();"
+Set the timezone to be the default timezone as defined in a previous call
+to 
+.B QmcGroup::useTZ
+or
+.BR QmcGroup::useLocalTZ . 
+.TP
+.B "struct timeval const& logStart() const;"
+Return the earliest starting time of any archives in this group.  Assumes that
+.B QmcGroup::updateBounds
+has been called.
+.TP
+.B "struct timeval const& logEnd() const;"
+Return the latest finish time of any archives in this group.  Assumes that
+.B QmcGroup::updateBounds
+has been called.
+.TP
+.B "void updateBounds();"
+Determine the earliest start and latest finish times of all archives in this
+group.
+.TP
+.B "int sendTimezones();"
+Send the current timezones to
+.B kmtime (3).
+.SH "DEBUGGING"
+.TP 4
+.B "void dump(ostream &os);"
+Dump state information about this group to 
+.IR os .
+.SH SEE ALSO
+.BR PMAPI (3),
+.BR QMC (3),
+.BR QmcContext (3),
+.BR QmcMetric (3),
+.BR pmflush (3),
+.BR pmprintf (3)
+and
+.BR pmSetMode (3).
+.SH DIAGNOSTICS
+Error messages are generated using
+.BR pmprintf (3)
+but are not flushed. It is the responsibility of the user to call
+.BR pmflush (3)
+to output any messages.
+.PP
+Additional diagnostics may be activated by adding 
+.B DBG_TRACE_PMC
+to the global
+.IR pmDebug .

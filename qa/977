@@ -1,0 +1,30 @@
+#!/bin/sh
+# PCP QA Test No. 977
+# Exercise fix for a new/destroy context leak with attrs.
+#
+# Copyright (c) 2015 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_check_valgrind
+_check_containers
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+_run_valgrind src/grind_ctx -h pcp://localhost?container=fe4564ddf901
+_run_valgrind src/grind_ctx -h local:?container=fe4564ddf901
+PCP_CONTAINER=fe4564ddf901 _run_valgrind src/grind_ctx -L
+
+# success, all done
+status=0
+exit

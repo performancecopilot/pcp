@@ -1,0 +1,23 @@
+QA output created by 424
+
+Every metric, every instance
+sampledso.milliseconds  1.000 none
+sampledso.bin ["bin-100"] 100.000 none
+sampledso.bin ["bin-500"] 500.000 none
+sampledso.bin ["bin-900"] 900.000 none
+
+Single noindom metric, no instances
+sampledso.milliseconds  1.000 none
+
+Single noindom metric, bad instances
+
+Single indom metric, all instances
+sampledso.bin ["bin-100"] 100.000 none
+sampledso.bin ["bin-500"] 500.000 none
+sampledso.bin ["bin-900"] 900.000 none
+
+Single indom metric, one instance
+sampledso.bin ["bin-900"] 900.000 none
+
+Single indom metric, bad instance
+

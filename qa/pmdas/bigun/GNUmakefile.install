@@ -1,0 +1,53 @@
+#!gmake
+#
+# Copyright (c) 2011 Ken McDonell.  All Rights Reserved.
+#
+
+SHELL = sh
+
+ifdef PCP_CONF
+include $(PCP_CONF)
+else
+include $(PCP_DIR)/etc/pcp.conf
+endif
+include $(PCP_INC_DIR)/builddefs
+
+# strip -I and -L options
+#
+TMP             := $(CFLAGS:-I%=)
+CFLAGS          = $(TMP)
+PCP_LIBS	=
+
+ifneq "$(PCP_INC_DIR)" "/usr/include/pcp"
+# for cc add -I<run-time-include-dir> (need /.. at the end so
+# #include <pcp/foo.h> works) when $(PCP_INC_DIR) may not be on
+# the default cpp include search path.
+CFLAGS		+= -I$(PCP_INC_DIR)/..
+endif
+ifneq "$(PCP_LIB_DIR)" "/usr/lib"
+# for ld add -L<run-time-lib-dir> and include -rpath when
+# $(PCP_LIB_DIR) may not be on the default ld search path.
+#
+ifeq "$(PCP_PLATFORM)" "darwin"
+PCP_LIBS	+= -L$(PCP_LIB_DIR) -Wl,-rpath $(PCP_LIB_DIR)
+else
+PCP_LIBS	+= -L$(PCP_LIB_DIR) -Wl,-rpath=$(PCP_LIB_DIR)
+endif
+endif
+
+CFILES = bigun.c
+INSTALL_LIBTARGET = bigun.$(DSOSUFFIX)
+TARGETS = $(INSTALL_LIBTARGET)
+MYFILES = domain.h help pmns root
+MYSCRIPTS = Install Remove
+LDIRT = help.pag help.dir
+
+LLDLIBS = -lpcp_pmda -lpcp $(LIB_FOR_MATH) $(LIB_FOR_DLOPEN) $(LIB_FOR_PTHREADS)
+
+default default_pcp setup:
+
+$(INSTALL_LIBTARGET):	bigun.o
+
+install install_pcp:
+
+include $(PCP_INC_DIR)/buildrules

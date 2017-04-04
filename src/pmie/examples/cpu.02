@@ -1,0 +1,10 @@
+//
+// the 1 minute load average exceeds 5 * number of CPUs on any host
+//
+
+hosts = ":gonzo :moomba";	// change as required
+delta = 1 minute;		// no need to evaluate more often than this
+high_load =
+    some_host (
+	$all.load $hosts #'1 minute' > 5 * hinv.ncpu $hosts
+    ) -> alarm "High Load Average? " "%h: %v ";

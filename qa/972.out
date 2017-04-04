@@ -1,0 +1,87 @@
+QA output created by 972
+== Testing zswap metrics
+dbpmda> open pipe $PCP_PYTHON_PROG $PCP_PMDAS_DIR/zswap/pmdazswap.python
+Start python PMDA: $PCP_PYTHON_PROG $PCP_PMDAS_DIR/zswap/pmdazswap.python
+dbpmda> getdesc on
+dbpmda> desc zswap.pool_limit_hit
+PMID: 125.0.0
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+dbpmda> desc zswap.reject_reclaim_fail
+PMID: 125.0.1
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+dbpmda> desc zswap.reject_alloc_fail
+PMID: 125.0.2
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+dbpmda> desc zswap.reject_kmemcache_fail
+PMID: 125.0.3
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+dbpmda> desc zswap.reject_compress_poor
+PMID: 125.0.4
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+dbpmda> desc zswap.written_back_pages
+PMID: 125.0.5
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: Kbyte
+dbpmda> desc zswap.duplicate_entry
+PMID: 125.0.6
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+dbpmda> desc zswap.pool_pages
+PMID: 125.0.7
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: Kbyte
+dbpmda> desc zswap.stored_pages
+PMID: 125.0.8
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: Kbyte
+dbpmda> fetch zswap.pool_limit_hit
+PMID(s): 125.0.0
+pmResult ... numpmid: 1
+  125.0.0 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 1
+dbpmda> fetch zswap.reject_reclaim_fail
+PMID(s): 125.0.1
+pmResult ... numpmid: 1
+  125.0.1 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 2
+dbpmda> fetch zswap.reject_alloc_fail
+PMID(s): 125.0.2
+pmResult ... numpmid: 1
+  125.0.2 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 32
+dbpmda> fetch zswap.reject_kmemcache_fail
+PMID(s): 125.0.3
+pmResult ... numpmid: 1
+  125.0.3 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 198
+dbpmda> fetch zswap.reject_compress_poor
+PMID(s): 125.0.4
+pmResult ... numpmid: 1
+  125.0.4 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 11
+dbpmda> fetch zswap.written_back_pages
+PMID(s): 125.0.5
+pmResult ... numpmid: 1
+  125.0.5 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 50933760
+dbpmda> fetch zswap.duplicate_entry
+PMID(s): 125.0.6
+pmResult ... numpmid: 1
+  125.0.6 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 309
+dbpmda> fetch zswap.pool_pages
+PMID(s): 125.0.7
+pmResult ... numpmid: 1
+  125.0.7 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 8192000
+dbpmda> fetch zswap.stored_pages
+PMID(s): 125.0.8
+pmResult ... numpmid: 1
+  125.0.8 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 365047808
+dbpmda> 

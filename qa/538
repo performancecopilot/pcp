@@ -1,0 +1,81 @@
+#! /bin/sh
+# PCP QA Test No. 538
+# check pmie atexit problem
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# create our own tmpdir to ensure we can write to it
+tmpdir=/tmp/$seq.$$
+rm -rf $tmpdir
+mkdir -p $tmpdir/pmlogger
+export PCP_TMP_DIR=$tmpdir
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+
+_cleanup()
+{
+    rm -fr $tmpdir
+    pmstore sample.write_me 2 >/dev/null	# reset value
+}
+
+tmp=$tmpdir/$$
+signal=$PCP_BINADM_DIR/pmsignal
+status=1	# failure is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+username=`id -u -n`
+sync
+pmstore sample.write_me 2 >/dev/null	# initialise value
+
+cat <<End-of-File >$tmp.conf
+( sample.write_me != 2 ) -> shell "echo sample.write_me changed 1>&2" " %v != 2";
+End-of-File
+
+# real QA test starts here
+pmieopts="-b"
+id pcp >/dev/null 2>&1 && pmieopts="$pmieopts -U $username"
+pmie -t 0.5sec $pmieopts -l $tmp.out $tmp.conf &
+pid=$!
+
+sleep 2
+pmstore sample.write_me 5 >/dev/null
+sleep 2
+
+echo
+echo "PMIE IS RUNNING"
+echo "=== check data file still exists..."
+[ ! -f $PCP_TMP_DIR/pmie/$pid ] && echo "urk, data file has vanished!"
+echo "=== check log file after first exit..."
+_filter_pmie_log < $tmp.out | uniq
+
+$signal -s TERM $pid
+wait
+
+echo
+echo "PMIE HAS NOW EXITED"
+echo
+echo "=== check data file has gone..."
+[ -f $PCP_TMP_DIR/pmie/$pid ] && echo "urk, data file is still there!"
+echo "=== check log file after real exit..."
+cp $tmp.out $seq.full
+
+# $PCP_AWK_PROG filter filters out repeated messages from pmie - including the
+# odd one that occurs after or between the termination messages
+
+_filter_pmie_log < $tmp.out \
+| $PCP_AWK_PROG '
+    /write_me/         { if ($0 != before) print
+                         before=$0 
+                         next
+                       }
+                       { print }
+'
+
+# success, all done
+status=0
+exit

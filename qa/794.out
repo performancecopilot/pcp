@@ -1,0 +1,23 @@
+QA output created by 794
+== get host and container hostname 
+== switch to container, reset, repeat
+pmcd.hostname: "LOCALHOST_HOSTNAME"
+pmcd.client.container[INST]: ""
+
+pmStore: container "CONTAINER" ok
+pmcd.hostname: "CONTAINER_HOSTNAME"
+pmcd.client.container[INST]: "CONTAINER"
+
+pmStore: container "" ok
+pmcd.hostname: "LOCALHOST_HOSTNAME"
+pmcd.client.container[INST]: ""
+
+pmStore: container "CONTAINER" ok
+pmcd.hostname: "CONTAINER_HOSTNAME"
+pmcd.client.container[INST]: "CONTAINER"
+
+pmStore: container "" ok
+pmcd.hostname: "LOCALHOST_HOSTNAME"
+pmcd.client.container[INST]: ""
+
+== removing container

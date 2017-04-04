@@ -1,0 +1,13 @@
+QA output created by 415
+
+=== pmstore sample.event.records 1 ===
+pmstore: Cannot modify values for event type metrics
+exit status=1
+
+=== pmstore sample.aggregate.write_me 1 ===
+pmstore: Cannot modify values for PM_TYPE_AGGREGATE metrics
+exit status=1
+
+=== pmstore sample.event.highres_records 1 ===
+pmstore: Cannot modify values for event type metrics
+exit status=1

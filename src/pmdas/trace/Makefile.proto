@@ -1,0 +1,69 @@
+# 
+# Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+# 
+
+SHELL	= /bin/sh
+CC	= cc
+JC	= javac
+F77C	= f77
+F90C	= f90
+
+TARGETS	= app1 app2 app3 fapp1.f77 fapp1.f90 pmtrace japp1.class
+
+CDEMOS	= app1 app2 app3 pmtrace
+F77DEMO	= fapp1.f77
+F90DEMO	= fapp1.f90
+JDEMO	= japp1.class
+
+CFLAGS	= -DPMTRACE_DEBUG -I PCP_INC_DIR
+FFLAGS	=
+JFLAGS	=
+
+default: 	$(CDEMOS)
+fortran77:	$(F77DEMO)
+fortran90:	$(F90DEMO)
+java:		$(JDEMO)
+
+pmtrace:	pmtrace.c
+	rm -f $@
+	$(CC) $(CFLAGS) -o $@ pmtrace.c -lpcp -lpcp_trace 
+
+app1:	app1.c
+	rm -f $@
+	$(CC) $(CFLAGS) -o $@ app1.c -lpcp -lpcp_trace
+
+app2:	app2.c
+	rm -f $@
+	$(CC) $(CFLAGS) -o $@ app2.c -lpcp -lpcp_trace
+
+app3:	app3.c
+	rm -f $@
+	$(CC) $(CFLAGS) -o $@ app3.c -lpcp -lpcp_trace PTHREAD_LIB DLOPEN_LIB MATH_LIB
+
+fapp1.77:	fapp1.f
+	rm -f $@
+	$(F77C) $(FFLAGS) -o $@ fapp1.f -lpcp -lpcp_trace
+
+fapp1.90:	fapp1.f
+	rm -f $@
+	$(F90C) $(FFLAGS) -o $@ fapp1.f -lpcp -lpcp_trace
+
+japp1.class:	japp1.java
+	rm -f $@
+	$(JC) $(JFLAGS) japp1.java
+
+clean:
+	rm -f *.o
+
+clobber:	clean
+	rm -f $(TARGETS)

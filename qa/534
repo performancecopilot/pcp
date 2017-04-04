@@ -1,0 +1,71 @@
+#! /bin/sh
+# PCP QA Test No. 534
+# #566355 - Macros cannot be used to define a metric name
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+trap "rm -f /tmp/echo-out $tmp.*; exit \$status" 0 1 2 3 15
+rm -f /tmp/echo-out
+
+# real QA test starts here
+cat <<'End-of-File' | pmie -v -t 2sec -T 1sec 2>$tmp.err
+// one level macro substitution
+//
+n1 = "sample.long";
+n2 = "long";
+n3 = "ple.long";
+n4 = "ple.long.";
+
+$n1.one + $n1.ten + $n1.million;			// start of ident
+sample.$n2.one + sample.$n2.ten + sample.$n2.million;	// middle of ident
+sam$n3.one + sam$n3.ten + sam$n3.million;		// partial
+sam$'n4'one + sam$'n4'ten + sam$'n4'million;		// macro-in-ident
+
+// nested macro substitution (from right)
+//
+m0 = "sample.long.ten+sample.long.million;";
+m1 = "+$m0";
+m2 = "one$m1";
+m3 = "long.$m2";
+m4 = "sample.$m3";
+$m4
+
+// nested macro substitution (from left)
+p0 = "sample.";
+p1 = "$'p0'long.";
+p2 = "$'p1'one+";
+p3 = "$p2$'p1'ten+";
+p4 = "$p3$'p1'million";
+$p4;
+
+// this is sick
+//
+d0 = "some";
+hash = "#'bin-";
+$'d0'_inst $'p0'bin $'hash'100' $'hash'200' $'hash'300' > 100
+    -> shell "echo >>/tmp/echo-out high:" " %i:%v";
+
+End-of-File
+
+# Allow some time fo echo-out to be created
+sleep 2
+
+cat /tmp/echo-out
+
+echo
+echo "errors? ..."
+_filter_pmie_log <$tmp.err
+
+# success, all done
+status=0
+exit

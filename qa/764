@@ -1,0 +1,46 @@
+#!/bin/sh
+# PCP QA Test No. 764
+# More exoctic pmie ruleset exercises.
+#
+# Copyright (c) 2014 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+cat <<'End-of-File' >>$tmp.config
+ruleset
+    pmcd.pdu_in.total > 0 -> print "[1] pmcd sees PDUs as expected"
+unknown -> print "[1] no value for first fetch"
+otherwise -> print "[1] BOTCH: unexpected value %v"
+;
+
+ruleset
+    all_sample (pmcd.pdu_in.total @0..1 > 0) -> print "[2] pmcd sees PDUs for 2 samples as expected"
+unknown -> print "[2] no value for first two fetches"
+;
+
+ruleset
+    some_inst sample.bin:no.such.host.pcp.io > 100 -> print "[3] BOTCH: unexpected value %v"
+unknown -> print "[3] unknown as expected"
+;
+
+
+End-of-File
+
+# real QA test starts here
+pmie -t 1sec -T 3.5sec -c $tmp.config 2>&1 | _filter_pmie_log
+
+# success, all done
+status=0
+
+exit

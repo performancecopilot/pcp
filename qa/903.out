@@ -1,0 +1,27 @@
+QA output created by 903
+
+=== PAPI agent installation ===
+You will need to choose an appropriate configuration for installation of
+the "papi" Performance Metrics Domain Agent (PMDA).
+
+  collector	collect performance statistics on this system
+  monitor	allow this system to monitor local and/or remote systems
+  both		collector and monitor configuration for this system
+
+Please enter c(ollector) or m(onitor) or b(oth) [b] Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+[...install files, make output...]
+Updating the PMCD control file, and notifying PMCD ...
+Check papi metrics have appeared ... X metrics and Y values
+Note: Some warnings are expected as the number of available hardware Metrics
+may exceed the maximum concurrently countable metrics.
+
+=== remove PAPI agent ===
+Culling the Performance Metrics Name Space ...
+papi ... done
+Updating the PMCD control file, and notifying PMCD ...
+[...removing files...]
+Check papi metrics have gone away ... OK
+Waiting for pmcd to terminate ...
+Starting pmcd ... 
+Starting pmlogger ... 

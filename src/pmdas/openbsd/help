@@ -1,0 +1,144 @@
+@ OPENBSD.0 Instance domain for load average
+Universally 3 instances, "1 minute" (1), "5 minute" (5) and
+"15 minute" (15).
+
+@ OPENBSD.1 CPU Instance domain for kernel.percpu metrics
+One instance for each physical CPU.
+
+@ OPENBSD.2 DISK Instance domain for disk.dev metrics
+One instance for each physical "direct access" device.
+
+@ kernel.all.hz system hz rate
+Microseconds per "hz" tick.
+@ kernel.all.load 1, 5 and 15 minute load average
+@ kernel.all.pswitch count of context switches
+@ kernel.all.syscall count of system calls
+@ kernel.all.intr count of interrupts serviced
+@ kernel.all.cpu.user total user CPU time for all CPUs
+@ kernel.all.cpu.nice total nice user CPU time for all CPUs
+@ kernel.all.cpu.sys total sys CPU time for all CPUs
+@ kernel.all.cpu.intr total interrupt CPU time for all CPUs
+@ kernel.all.cpu.idle total idle CPU time for all CPUs
+@ kernel.percpu.cpu.user user CPU time for each CPU
+@ kernel.percpu.cpu.nice nice user CPU time for each CPU
+@ kernel.percpu.cpu.sys sys CPU time for each CPU
+@ kernel.percpu.cpu.intr interrupt CPU time for each CPU
+@ kernel.percpu.cpu.idle idle CPU time for each CPU
+
+@ hinv.ncpu number of CPUs in the system
+@ hinv.ndisk number of disks in the system
+@ hinv.nfilesys number of (local) file systems currently mounted
+@ hinv.ninterface number of active (up) network interfaces
+@ hinv.physmem total system memory
+@ hinv.pagesize kernel page size
+@ hinv.cpu.vendor system's CPU vendor
+@ hinv.cpu.model system's CPU model
+
+@ swap.length total swap space size
+@ swap.used reserved (or allocated) swap space
+@ swap.free available swap space
+
+@ swap.pagesin pages read from external storage to service page faults
+@ swap.pagesout dirty pages written to swap devices
+When the rate of page writes is non-zero, this is the most useful
+indication severe demand for physical memory.
+@ swap.in number of swap in operations
+@ swap.out number of swap out operations
+
+@ disk.dev.read Count of read operations per disk
+@ disk.dev.write Count of write operations per disk
+@ disk.dev.total Count of read or write operations (IOPs) per disk
+@ disk.dev.read_bytes Count of bytes read from each disk
+@ disk.dev.write_bytes Count of bytes written to each disk
+@ disk.dev.total_bytes Count of bytes transferred to or from each disk
+@ disk.all.read Count of read operations across all disks
+@ disk.all.write Count of write operations across all disks
+@ disk.all.total Count of read or write operations (IOPs) across all disks
+@ disk.all.read_bytes Count of bytes read from all disks
+@ disk.all.write_bytes Count of bytes written to all disks
+@ disk.all.total_bytes Count of bytes transferred to or from all disks
+
+@ mem.util.all Total memory managed by the system
+@ mem.util.used Memory that is actively in use
+Equals "all" minus "free" minus "inactive" minus "cached".
+@ mem.util.free Unallocated and free memory
+@ mem.util.paging Memory associated with active page out operations
+@ mem.util.cached Cached memory
+Sum of pages for vnode page cache (file data) and vtext vnodes
+(executable data).
+@ mem.util.wired Wired or pinned memory that cannot be paged out
+@ mem.util.active Recently accessed memory
+@ mem.util.inactive Memory that is in use, but has not be accessed recently
+@ mem.util.zeropages Memory for zero filled pages
+@ mem.util.pagedaemonpages Memory reserved for the pagedaemon
+@ mem.util.kernelpages Memory reserved for the kernel
+@ mem.util.anonpages Memory for anonymous pages
+@ mem.util.vnodepages Memory used by the vnode page cache
+@ mem.util.vtextpages Memory used by vtext vnodes
+
+@ network.interface.mtu Maximum Transfer Unit for each network interface
+@ network.interface.up "UP" state for each network interface
+@ network.interface.baudrate Data baudrate for each network interface
+@ network.interface.in.bytes Bytes received on each network interface
+@ network.interface.in.packets Packets received on each network interface
+@ network.interface.in.mcasts Multicast packets received on each network interface
+@ network.interface.in.errors Input errors on each network interface
+@ network.interface.in.drops Dropped packets on each network interface
+@ network.interface.out.bytes Bytes transmitted on each network interface
+@ network.interface.out.packets Packets transmitted on each network interface
+@ network.interface.out.mcasts Multicast packets transmitted on each network interface
+@ network.interface.out.errors Output errors on each network interface
+@ network.interface.out.collisions Output collisions on each network interface
+@ network.interface.total.bytes Bytes received or transmitted on each network interface
+@ network.interface.total.packets Packets received or transmitted on each network interface
+@ network.interface.total.mcasts Multicast packets received or transmitted on each network interface
+@ network.interface.total.errors Input or output errors on each network interface
+@ filesys.capacity Total capacity of mounted filesystem (Kbytes)
+@ filesys.used Total space used on mounted filesystem (Kbytes)
+@ filesys.free Total space free on mounted filesystem (Kbytes)
+@ filesys.maxfiles Inodes capacity of mounted filesystem
+@ filesys.usedfiles Number of inodes allocated on mounted filesystem
+@ filesys.freefiles Number of unallocated inodes on mounted filesystem
+@ filesys.mountdir File system mount point
+@ filesys.full Percentage of filesystem in use
+@ filesys.blocksize Size of each block on mounted filesystem (Bytes)
+@ filesys.avail Total space free to non-superusers on mounted filesystem (Kbytes)
+@ filesys.readonly Indicates whether a filesystem is mounted readonly
+
+@ kernel.uname.release release level of the running kernel
+Release level of the running kernel as reported via the release[]
+value returned from uname(2) or uname -r.
+
+See also pmda.uname.
+
+@ kernel.uname.version version level (build number) and build date of the running kernel
+Version level of the running kernel as reported by the version[]
+value returned from uname(2) or uname -v.  Usually a OpenBSD release
+number.
+
+See also pmda.uname.
+@ kernel.uname.sysname name of the implementation of the operating system
+Name of the implementation of the running operating system as reported
+by the sysname[] value returned from uname(2) or uname -s.  Usually
+"OpenBSD".
+
+See also pmda.uname.
+@ kernel.uname.machine name of the hardware type the system is running on
+Name of the hardware type the system is running on as reported by
+the machine[] value returned from uname(2) or uname -m, e.g. "i686".
+
+See also pmda.uname.
+@ kernel.uname.nodename host name of this node on the network
+Name of this node on the network as reported by the nodename[]
+value returned from uname(2) or uname -n.  Usually a synonym for
+the host name.
+
+See also pmda.uname.
+@ kernel.uname.distro OpenBSD distribution name
+An alias for kernel.uname.version.
+@ pmda.uname identity and type of current system
+Identity and type of current system.  The concatenation of the values
+returned from utsname(2), also similar to uname -a.
+
+See also the kernel.uname.* metrics
+@ pmda.version build version of OpenBSD PMDA

@@ -1,0 +1,790 @@
+#!/usr/bin/env perl
+#
+# Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+# Assumptions:
+#	Except for line suppresion for idle devices with -z, output from
+#	iostat is completely deterministic, with the number and order of
+#	values identical for each sample interval.
+#
+#	Since we don't know what sort of system the data came from
+#	there is no point trying to match the PMIDs with those from
+#	any particular OS PMDA.  For the names we'll use the common
+#	names where possible, else the Linux names (as the most likely
+#	case).
+#
+
+use strict;
+use warnings;
+
+use Getopt::Std;
+use Date::Parse;
+use Date::Format;
+use PCP::LogImport;
+
+my $line = 0;		# input line number
+my $basedate = undef;
+my $basetime = "00:00:00";
+my $stamp_style = 0;
+my $host = undef;
+my $zone = "UTC";	# default timezone
+			# unless -t & $S_TIME_FORMAT=ISO or -Z on command line
+my $first_tag = undef;
+my $sts;
+my %options;		# for command line arguments
+my $sample = -1;
+my $interval = undef;
+my $in_dev = 0;		# in Device: group
+my $dev_style;		# "d" for standard -d Device: data, "x" for -x Device: data
+			# Note -x and -d are mutually exclusive to iostat
+my $in_cpu = 0;		# in avg-cpu: group
+my $stamp;		# timestamp from -t output lines
+my $now;		# faked tv_sec of gettimeofday() for current sample
+my $next_stamp;		# ready for next sample interval
+my $next_now;
+my $vflag;		# -v for verbosity
+my @handle = ();	# pmi* handles, one per metric-instance pair
+my $h = 0;		# index into handle[]
+my $putsts = 0;		# pmiPutValue() errors are only checked @ end of loop
+my $dev_thru_scale;	# scale factor for disk thruput - 0.5 for blocks, 1 for
+			# kB and 1024 for MB
+my $dev_indom = pmInDom_build(PMI_DOMAIN, 0);
+my %dev_first_handle;	# for each disk instance, index into handle[] for first
+			# handle, other handles for related metrics for the same
+			# instance follow consecutively in handle[]
+my %dev_prev;		# previous values for each instance for disk.dev.* metrics
+my %dev_seen;		# tracking disk instances seen in this sample for
+			# handling -z and missing lines for inactive devices
+my %inst_map = ();	# key=indom value=last_inst_assigned, and
+			# key=indom.instance value=inst
+
+sub dodate($)
+{
+    # convert datetime formats "27/07/10 12:47:34" or
+    # "2013-07-05 09:17:28" or "2010-07-27T12:46:07+1000"
+    # or "Time: 03:49:57 PM"
+    # into ISO-8601 dates that Date::Parse
+    # seems to be able to parse correctly ... this would appear to
+    # have to be YYYY-MM-DDTHH:MM:SS.000000 and then pass the timezone
+    # as the second parameter to str2time()
+    #
+    my ($datetime) = @_;
+    my ($mm, $yy, $dd, $hh, $ss, $time, $pm);
+    my @timefields;
+    my @fields;
+
+    $pm = 0;
+    if ($datetime =~ '^Time:') {
+	# Time: HH:MM:SS PM format
+	$datetime =~ s/^Time:/$basedate/;
+	if ($datetime =~ ' PM$') {
+	    $pm = 12;
+	}
+	$datetime =~ s/ [AP]M$//;
+	# converted into alternate form (almost - need to cater for am/pm still)
+    }
+
+    @fields = split(/T/, $datetime);
+    if ($#fields == 1) {
+	# ISO format - YYYY-MM-DDTHH:MM:SS[timezone]
+	$time = $fields[1];
+	$time =~ s/[+-].*//;
+	@fields = split(/-/, $fields[0]);
+	$#fields == 2 or die "dodate: bad datetime format: \"$datetime\"\n";
+	$yy = $fields[0];
+	$mm = $fields[1];
+	$dd = $fields[2];
+    }
+    else {
+	@fields = split(/\//, $datetime);
+	if ($#fields == 2) {
+	    # DD/MM/YY HH:MM:SS format
+	    @fields = split(/ /, $datetime);
+	    $#fields == 1 or die "dodate: bad datetime format 1: \"$datetime\"\n";
+	    @timefields = split(/:/, $fields[1]);
+	    $#timefields == 2 or die "dodate: bad time format 1: \"$datetime\"\n";
+	    $hh = $timefields[0] + $pm;
+	    $mm = $timefields[1];
+	    $ss = $timefields[2];
+	    $time = $hh . ':' . $mm . ':' . $ss;
+	    @fields = split(/\//, $fields[0]);
+	    $#fields == 2 or die "dodate: bad date format 1: \"$datetime\"\n";
+	    $dd = $fields[0];
+	    $mm = $fields[1];
+	    $yy = $fields[2];
+	}
+	else {
+	    @fields = split(/-/, $datetime);
+	    if ($#fields == 2) {
+		# YYYY-MM-DD HH:MM:SS format
+		@fields = split(/ /, $datetime);
+		$#fields == 1 or die "dodate: bad datetime format 3: \"$datetime\"\n";
+		@timefields = split(/:/, $fields[1]);
+		$#timefields == 2 or die "dodate: bad time format 3: \"$datetime\"\n";
+		$hh = $timefields[0] + $pm;
+		$mm = $timefields[1];
+		$ss = $timefields[2];
+		$time = $hh . ':' . $mm . ':' . $ss;
+		@fields = split(/-/, $fields[0]);
+		$#fields == 2 or die "dodate: bad date format 3: \"$datetime\"\n";
+		$yy = $fields[0];
+		$mm = $fields[1];
+		$dd = $fields[2];
+	    }
+	}
+    }
+
+    if ($time !~ /\./) { $time .= ".000000" }
+
+    # get into canonical DD, MM and YYYY format
+    if ($dd < 10 && $dd !~ /^0/) { $dd .= "0" };	# add leading zero
+    if ($mm < 10 && $mm !~ /^0/) { $mm .= "0" };	# add leading zero
+    if ($yy < 100) {
+	# terrible Y2K hack ... will stop working in 2080
+	if ($yy <= 80) { $yy += 2000; }
+	else { $yy += 1900; }
+    }
+    return $yy . "-" . $mm . "-" . $dd . "T" . $time;
+}
+
+# for stamp_style 1 or 2 or 3 or 4, -S and -t options ignored
+# for stamp_style 2, -Z option ignored
+#
+sub check_opts()
+{
+    return if $stamp_style == 0;
+    if (exists($options{S})) {
+	print "iostat2pcp: Warning: timestamps found, -S $basetime option ignored\n";
+    }
+    if (exists($options{t})) {
+	print "iostat2pcp: Warning: timestamps found, -t $interval option ignored\n";
+    }
+    if ($stamp_style == 2 && exists($options{Z})) {
+	print "iostat2pcp: Warning: ISO timestamps found, -Z $zone option ignored\n";
+    }
+}
+
+# Handle metrics with the a singular value, calling pmiAddMetric() and
+# pmiGetHandle()
+#
+sub def_single($)
+{
+    my ($name) = @_;
+    my $sts;
+    my $units = pmiUnits(0,0,0,0,0,0);
+    my $type = PM_TYPE_FLOAT;
+    if (pmiAddMetric($name, PM_ID_NULL, $type, PM_INDOM_NULL, PM_SEM_INSTANT, $units) < 0) {
+	pmiDump();
+	die "pmiAddMetric($name, ...): " . pmiErrStr(-1) . "\n";
+    }
+    $sts = pmiGetHandle($name, "");
+    if ($sts < 0) {
+	pmiDump();
+	die "pmiGetHandle($name, ...): " . pmiErrStr($sts) . "\n";
+    }
+    push(@handle, $sts);
+}
+
+# Handle metrics with multiple values, calling pmiAddMetric().
+# Defer to pmiGetHandle() to def_metric_inst().
+#
+sub def_multi($$)
+{
+    my ($name,$indom) = @_;
+    my $units = pmiUnits(0,-1,1,0,PM_TIME_SEC,PM_COUNT_ONE);
+    my $type = PM_TYPE_FLOAT;
+    my $sem = PM_SEM_INSTANT;
+    if ($name eq "disk.dev.avactive") {
+	$units = pmiUnits(0,0,0,0,0,0);
+    }
+    elsif ($name =~ /disk\.dev\..*bytes/) {
+	$units = pmiUnits(1,-1,0,PM_SPACE_KBYTE,PM_TIME_SEC,0);
+    }
+    if (pmiAddMetric($name, PM_ID_NULL, $type, $indom, $sem, $units) < 0) {
+	pmiDump();
+	die "pmiAddMetric($name, ...): " . pmiErrStr(-1) . "\n";
+    }
+}
+
+# Deal with metric-instance pairs.
+# If first time this instance has been seen for this indom, add it to
+# the instance domain.
+# Get a handle and add it to handle[].
+#
+sub def_metric_inst($$$)
+{
+    my ($name,$indom,$instance) = @_;
+    my $sts;
+    # inst_map{} holds the last allocated inst number with $indom as the
+    # key, and marks the instance as known with $indom . $instance as the
+    # key
+    if (!exists($inst_map{$indom . $instance})) {
+	my $inst;
+	if (exists($inst_map{$indom})) {
+	    $inst_map{$indom}++;
+	    $inst = $inst_map{$indom};
+	}
+	else {
+	    $inst_map{$indom} = 0;
+	    $inst = 0;
+	}
+	if (pmiAddInstance($indom, $instance, $inst) < 0) {
+	    pmiDump();
+	    die "pmiAddInstance([$name], $instance, $inst): " . pmiErrStr(-1) . "\n";
+	}
+	$inst_map{$indom . $instance} = $inst;
+    }
+    $sts = pmiGetHandle($name, $instance);
+    if ($sts < 0) {
+	pmiDump();
+	die "pmiGetHandle($name, $instance): " . pmiErrStr($sts) . "\n";
+    }
+    push(@handle, $sts);
+}
+
+# wrapper for pmiPutValueHandle(), using @handle
+#
+sub put($)
+{
+    my ($value) = @_;
+    my $sts;
+    if (!exists($handle[$h])) {
+	pmiDump();
+	die <<EOF
+put($value): No handle[] entry for index $h.
+Check Handles in dump above.
+EOF
+    }
+    $sts = pmiPutValueHandle($handle[$h], $value);
+    if ($sts < 0 && $putsts == 0) { $putsts = $sts };
+    $h++;
+}
+
+# flush log record at end of sample interval
+#
+sub sample_done()
+{
+    # if -z is in play, then the Device: stats don't have values for
+    # those instances with no activity ... need to map this onto PCP data
+    # semantics, so if this instance has been seen at all, then for counters
+    # output the previous value (no activity) and for instantaneous/discrete
+    # metrics output zero (no activity).
+    #
+    # All the metrics we have so far instantaneous ...
+    #
+    foreach my $instance (keys %dev_seen) {
+	if ($dev_seen{$instance} == 0) {
+	    next if !exists($dev_prev{$instance});
+	    if (exists($dev_first_handle{$instance})) {
+		$h = $dev_first_handle{$instance};
+	    }
+	    else {
+		pmiDump();
+		print "[$line] $_\n";
+		die "Device: no first handle for instance \"" . $instance . "\", check Handles in dump above";
+	    }
+	    if ($dev_style eq "d") {
+		put(0);			# total
+		put(0);			# read_bytes
+		put(0);			# write_bytes
+	    }
+	    else {
+		put(0);			# read_merge
+		put(0);			# write_merge
+		put(0);			# read
+		put(0);			# write
+		put(0);			# read_bytes
+		put(0);			# write_bytes
+		put(0);			# avactive
+	    }
+	}
+	else {
+	    $dev_seen{$instance} = 0;
+	}
+    }
+    if ($putsts < 0) {
+	pmiDump();
+	die "pmiPutValue: Failed @ $stamp: " . pmiErrStr($putsts) . "\n";
+    }
+    if ($vflag) {
+	print "End of sample $sample";
+	if (defined($now) && defined($stamp)) { print " @ $now $stamp"; }
+	print "\n";
+    }
+    if (defined($now) && pmiWrite($now, 0) < 0) {
+	pmiDump();
+	die "pmiWrite: @ $stamp: " . pmiErrStr(-1) . "\n";
+    }
+    $h = 0;
+    $putsts = 0;
+}
+
+$sts = getopts('S:t:vZ:', \%options);
+
+if (!defined($sts) || $#ARGV != 1) {
+    print "Usage: iostat2pcp [-v] [-S start] [-t interval] [-Z timezone] infile outfile\n";
+    exit(1);
+}
+
+exists($options{S}) and $basetime = $options{S};
+exists($options{t}) and $interval = $options{t};
+exists($options{v}) and $vflag = 1;
+if (exists($options{Z})) {
+    $zone = $options{Z};
+    if ($zone !~ /^[-+][0-9][0-9][0-9][0-9]$/) {
+	print "iostat2pcp: Illegal -Z value, must be +NNNN or -NNNN\n";
+	exit(1);
+    }
+}
+
+pmiStart($ARGV[1], 0);
+
+open(INFILE, "<" . $ARGV[0])
+    or die "iostat2pcp: Failed to open infile \"$ARGV[0]\"\n";
+
+while (<INFILE>) {
+    my $end_sample = 0;
+    my $header = 0;
+    chomp;
+    $line++;
+    #debug# print "[" . $line . "] {" . $sample . "} $_\n";
+    if ($line == 1) {
+	# first line ... extract baseline date in format YYYY-MM-DD
+	# from something like ...
+	# Linux 2.6.32-23-generic (bozo)  27/07/10        _i686_  (1 CPU)
+	#
+	if (/.*\s+([^\s]+)\s+[0-3][0-9]\/[0-1][0-9]\/[0-9][0-9]\s+/) {
+	    my @part;
+	    $basedate = $_;
+	    $basedate =~ s#.*([0-3][0-9]/[0-1][0-9]/[0-9][0-9]).*#$1#;
+	    @part = split(/\//, $basedate);
+	    # terrible Y2K hack ... will stop working in 2080
+	    if ($part[2] <= 80) { $part[2] += 2000; }
+	    else { $part[2] += 1900; }
+	    $basedate = $part[2] . "-" . $part[1] . "-" . $part[0];
+	}
+	# or possibly like this when $S_TIME_FORMAT=ISO is set in the
+	# environment (ISO 8601) ...
+	# Linux 2.6.32-23-generic (bozo) 	2010-07-27 	_i686_	(1 CPU)
+	elsif (/.*\s+([^\s]+)\s+[12][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9]\s+/) {
+	    $basedate = $_;
+	    $basedate =~ s#.*([12][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9]).*#$1#;
+	}
+	# or possibly like this ...
+	# Linux 2.6.18-194.3.1.el5 (somehost.somewhere.com) 	07/27/2010
+	elsif (/.*\s+([^\s]+)\s+[0-1][0-9]\/[0-3][0-9]\/[12][0-9][0-9][0-9]/) {
+	    my @part;
+	    $basedate = $_;
+	    $basedate =~ s#.*([0-1][0-9]\/[0-3][0-9]\/[12][0-9][0-9][0-9]).*#$1#;
+	    @part = split(/\//, $basedate);
+	    $basedate = $part[2] . "-" . $part[0] . "-" . $part[1];
+	}
+	else {
+	    print "[" . $line . "] $_\n";
+	    print "iostat2pcp: First line does not look like iostat ... I give up\n";
+	    exit(0);
+	}
+	$host = $_;
+	$host =~ s/[^(]*\(//;
+	$host =~ s/\).*//;
+	next;
+    }
+    elsif ($line == 3 && /[0-3][0-9]\/[0-1][0-9]\/[0-9][0-9] [0-2][0-9]:[0-5][0-9]:[0-5][0-9]/) {
+	# simple -t option timestamp
+	# 27/07/10 12:47:34
+	#
+	$stamp_style = 1;
+	check_opts();
+	next;
+    }
+    elsif ($line == 3 && /[1-2][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9]T[0-2][0-9]:[0-5][0-9]:[0-5][0-9][-+][0-9]+/) {
+
+	# -t option timestamp and $S_TIME_FORMAT=ISO set in the environment 
+	# 2010-07-27T12:46:07+1000
+	#
+	$zone = $_;
+	$zone =~ s/.*([-+][0-9]+).*/$1/;
+	$stamp_style = 2;
+	check_opts();
+	next;
+    }
+    elsif ($line == 3 && /[1-2][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9] [0-2][0-9]:[0-5][0-9]:[0-5][0-9]/) {
+
+	# -t option timestamp and ??? not sure ... but visible in
+	# https://bugzilla.redhat.com/show_bug.cgi?id=981545
+	# 2013-07-05 09:17:28
+	#
+	$stamp_style = 3;
+	check_opts();
+	next;
+    }
+    elsif ($line == 3 && /Time: [0-2][0-9]:[0-5][0-9]:[0-5][0-9] [AP]M/) {
+
+	# -t option timestamp and ??? not sure ... but visible in
+	# http://www.pcp.io/pipermail/pcp/2014-October/005777.html
+	# Time: 03:49:57 PM
+	#
+	$stamp_style = 4;
+	check_opts();
+	next;
+    }
+    elsif ($line == 3) {
+	# first group tag
+	$first_tag = $_;
+	$first_tag =~ s/([^:]+):.*/$1/;
+    }
+
+    next if /^\s*$/;
+
+    if ($stamp_style == 0 && $line > 3) {
+	my $tag = $_;
+	$tag =~ s/([^:]+):.*/$1/;
+	if ($tag eq $first_tag) {
+	    if ($sample > 0) {
+		# for sample #0, time is set below in the end_sample code
+		$next_now = $now + $interval;
+		$next_stamp = ctime($next_now, $zone);
+		chomp $next_stamp;
+	    }
+	    $end_sample = 1;
+	}
+    }
+    elsif ($stamp_style == 1) {
+	if (/[0-3][0-9]\/[0-1][0-9]\/[0-9][0-9] [0-2][0-9]:[0-5][0-9]:[0-5][0-9]/) {
+	    $next_stamp = dodate($_);
+	    $next_now = str2time($next_stamp, $zone);
+	    $end_sample = 1;
+	}
+    }
+    elsif ($stamp_style == 2) {
+	if (/[1-2][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9]T[0-2][0-9]:[0-5][0-9]:[0-5][0-9][-+][0-9]+/) {
+	    $next_stamp = dodate($_);
+	    $next_now = str2time($next_stamp, $zone);
+	    $end_sample = 1;
+	}
+    }
+    elsif ($stamp_style == 3) {
+	if (/[1-2][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9] [0-2][0-9]:[0-5][0-9]:[0-5][0-9]/) {
+	    $next_stamp = dodate($_);
+	    $next_now = str2time($next_stamp, $zone);
+	    $end_sample = 1;
+	}
+    }
+    elsif ($stamp_style == 4) {
+	if (/Time: [0-2][0-9]:[0-5][0-9]:[0-5][0-9]/) {
+	    $next_stamp = dodate($_);
+	    $next_now = str2time($next_stamp, $zone);
+	    $end_sample = 1;
+	}
+    }
+
+    if ($end_sample) {
+	if ($stamp_style == 0 && $sample == 0) {
+	    print "iostat2pcp: Warning: no timestamps, assuming data starts at $basedate $basetime $zone\n";
+	    $stamp = dodate($basedate . "T" . $basetime);
+	    $now = str2time($stamp, $zone);
+	    if (!defined($interval)) {
+		print "iostat2pcp: Warning: cannot determine sample interval, assuming 15 seconds\n";
+		$interval = 15;
+	    }
+	    $now += $interval;
+	    $stamp = ctime($now, $zone);
+	    chomp $stamp;
+	    $next_now = $now + $interval;
+	    $next_stamp = ctime($next_now, $zone);
+	    chomp $next_stamp;
+	}
+	if ($vflag) {
+	    if ($sample == 0) {
+		print "stamp_style=$stamp_style zone=$zone basedate=$basedate now=$now stamp=$stamp";
+		print " interval=$interval" if defined($interval);
+		print " first_tag=$first_tag" if defined($first_tag);
+		print "\n";
+	    }
+	}
+
+	if ($sample > -1) {
+	    if ($sample == 0) {
+		# Serious strangeness here ...
+		# the Perl Date::Parse and Date::Format routines appear to
+		# only work with timezones of the format +NNNN or -NNNN
+		# ("UTC" is an exception)
+		#
+		# PCP expects a $TZ style timezone in the archive label, so
+		# we have to make up a PCP-xx:xx timezone ... note this
+		# involves a sign reversal!
+		#
+		my $label_zone = $zone;
+		if ($zone =~ /^[-+][0-9][0-9][0-9][0-9]/) {
+		    $label_zone =~ s/^\+/PCP-/;
+		    $label_zone =~ s/^-/PCP+/;
+		    $label_zone =~ s/(..)$/:$1/;
+		}
+		elsif ($zone ne "UTC") {
+		    print "iostat2pcp: Warning: unexpected timezone ($zone), reverting to UTC\n";
+		    $zone = "UTC";
+		    $label_zone = "UTC";
+		}
+		pmiSetTimezone($label_zone) >= 0
+		    or die "pmiSetTimezone($label_zone): " . pmiErrStr(-1) . "\n";
+
+		if (defined($host)) {
+		    pmiSetHostname($host) >= 0
+			or die "pmiSetHostname($host): " . pmiErrStr(-1) . "\n";
+		}
+	    }
+	    sample_done();
+	}
+
+	$sample++;
+	$stamp = $next_stamp;
+	$now = $next_now;
+
+	# if timestamp, get onto real data in following lines
+	#
+	($stamp_style >= 1 && $stamp_style <= 4) and next;
+    }
+
+    if (/^Device:/) {
+	$in_cpu = 0;
+	$in_dev = 1;
+	$header = 1;
+    }
+    elsif (/^avg-cpu:/) {
+	$in_dev = 0;
+	$in_cpu = 1;
+	$header = 1;
+    }
+
+    if ($sample == -1) {
+	# first time we have the stats since boot, we need to figure
+	# out the meta data, and for $stamp_style == 0, try to compute
+	# the sample interval
+	#
+	if ($in_cpu && $header) {
+	    # avg-cpu:  %user   %nice %system %iowait  %steal   %idle
+	    # if present, always comes first
+	    #
+	    def_single("kernel.all.cpu.user");
+	    def_single("kernel.all.cpu.nice");
+	    def_single("kernel.all.cpu.sys");
+	    def_single("kernel.all.cpu.wait.total");
+	    def_single("kernel.all.cpu.steal");
+	    def_single("kernel.all.cpu.idle");
+	}
+	elsif ($in_dev) {
+	    if ($header) {
+		# one of ...
+		# Device:            tps   Blk_read/s   Blk_wrtn/s   Blk_read   Blk_wrtn
+		# Device:            tps    kB_read/s    kB_wrtn/s    kB_read    kB_wrtn
+		# Device:            tps    MB_read/s    MB_wrtn/s    MB_read    MB_wrtn
+		# Device:         rrqm/s   wrqm/s     r/s     w/s   rsec/s   wsec/s avgrq-sz avgqu-sz   await  svctm  %util
+		# Device:         rrqm/s   wrqm/s     r/s     w/s    rkB/s    wkB/s avgrq-sz avgqu-sz   await r_await w_await  svctm  %util
+		if (/tps/) {
+		    $dev_style = "d";	# -d option
+		    if (/Blk_read/) { $dev_thru_scale = 0.5; }
+		    elsif (/kB_read/) { $dev_thru_scale = 1; }
+		    elsif (/MB_read/) { $dev_thru_scale = 1024; }
+		    else {
+			print "[$line] $_\n";
+			die "Device: cannot determine thruput scale";
+		    }
+		    def_multi("disk.dev.total", $dev_indom);
+		    def_multi("disk.dev.read_bytes", $dev_indom);
+		    def_multi("disk.dev.write_bytes", $dev_indom);
+		}
+		else {
+		    $dev_style = "x";	# assume -x option
+		    $dev_thru_scale = 0.5;	# assume 512-byte sectors
+		    def_multi("disk.dev.read_merge", $dev_indom);
+		    def_multi("disk.dev.write_merge", $dev_indom);
+		    def_multi("disk.dev.read", $dev_indom);
+		    def_multi("disk.dev.write", $dev_indom);
+		    def_multi("disk.dev.read_bytes", $dev_indom);
+		    def_multi("disk.dev.write_bytes", $dev_indom);
+		    def_multi("disk.dev.avactive", $dev_indom);
+		    def_multi("disk.dev.read_rawactive", $dev_indom);
+		    def_multi("disk.dev.write_rawactive", $dev_indom);
+		}
+	    }
+	    # Note: instances are populated as they are found _after_ the
+	    # first (from boot time) stats are processed
+	}
+	next;
+    }
+    elsif ($sample >= 0 && $in_dev && $dev_style eq "d" && $header == 0
+           && $stamp_style == 0 && !defined($interval)) {
+	# if basic Device: stats, can compute sample interval from ratio of 
+	# totals to rate for reads or writes ... need to avoid divide zero
+	# counts ... must do on the second sample interval and may fail if
+	# no -d or -z and no activity
+	my @part = split(/\s+/, $_);
+	if ($#part != 5) {
+	    print "[$line] $_\n";
+	    die "Device: number of values? expected 6, found " . ($#part+1) . "\n";
+	}
+	if ($part[4] != 0) {
+	    $interval = int(0.5 + $part[4]/$part[2]);
+	}
+	elsif ($part[5] != 0) {
+	    $interval = int(0.5 + $part[5]/$part[3]);
+	}
+	if (defined($interval) && $interval <= 0) {
+	    # in case we've really screwed up, better to be clueless
+	    $interval = undef;
+	}
+    }
+
+    if ($header == 0 && $sample >= 0) {
+	if ($in_cpu) {
+	    my @part = split(/\s+/, $_);
+	    # $part[0] is empty white space before first value
+	    if ($#part != 6) {
+		print "[$line] $_\n";
+		die "avg-cpu: number of values? expected 7, found " . ($#part+1) . "\n";
+	    }
+	    put($part[1]/100);	# user
+	    put($part[2]/100);	# nice
+	    put($part[3]/100);	# system
+	    put($part[4]/100);	# iowait
+	    put($part[5]/100);	# steal
+	    put($part[6]/100);	# idle
+	}
+	elsif ($in_dev) {
+	    # Device:            tps   Blk_read/s   Blk_wrtn/s   Blk_read   Blk_wrtn
+	    # sda               3.34        10.70        77.59         32        232
+	    # or
+	    # Device:         rrqm/s   wrqm/s     r/s     w/s   rsec/s   wsec/s avgrq-sz avgqu-sz   await  svctm  %util
+	    # sda               0.03     0.76    0.32    0.21     8.90     7.79    31.61     0.01   13.37   2.11   0.11
+	    # or
+	    # Device:         rrqm/s   wrqm/s     r/s     w/s    rkB/s    wkB/s avgrq-sz avgqu-sz   await r_await w_await  svctm  %util
+	    # sda               0.33     1.32    1.26    2.65    33.94    25.02    30.17     0.09   24.10   24.35   23.98   5.81   2.27
+
+	    my @part = split(/\s+/, $_);
+	    my @thisval;
+	    my $instance;
+	    if ($#part == 0) {
+		# workaround for https://bugzilla.redhat.com/show_bug.cgi?id=604637
+		# long device name followed by embedded newline ... append the next
+		# input line
+		#
+		$instance = $part[0];
+		$_ = $instance . " " . <INFILE>;
+		chomp;
+		$line++;
+		@part = split(/\s+/, $_);
+	    }
+	    if ($dev_style eq "d") {
+		if ($#part != 5) {
+		    print "[$line] $_\n";
+		    die "Device: number of values? expected 6, found " . ($#part+1) . "\n";
+		}
+		$instance = $part[0];
+	    }
+	    else {
+		if ($#part != 11 and $#part != 13) {
+		    print "[$line] $_\n";
+		    die "Device: number of values? expected 12 or 14, found " . ($#part+1) . "\n";
+		}
+		$instance = $part[0];
+	    }
+	    if (exists($dev_first_handle{$instance})) {
+		$h = $dev_first_handle{$instance};
+	    }
+	    else {
+		# first time we've seen this instance, set up indom and handles
+		#
+		if ($dev_style eq "d") {
+		    def_metric_inst("disk.dev.total", $dev_indom, $instance);
+		    $dev_first_handle{$instance} = $#handle;
+		    def_metric_inst("disk.dev.read_bytes", $dev_indom, $instance);
+		    def_metric_inst("disk.dev.write_bytes", $dev_indom, $instance);
+		}
+		else {
+		    def_metric_inst("disk.dev.read_merge", $dev_indom, $instance);
+		    $dev_first_handle{$instance} = $#handle;
+		    def_metric_inst("disk.dev.write_merge", $dev_indom, $instance);
+		    def_metric_inst("disk.dev.read", $dev_indom, $instance);
+		    def_metric_inst("disk.dev.write", $dev_indom, $instance);
+		    def_metric_inst("disk.dev.read_bytes", $dev_indom, $instance);
+		    def_metric_inst("disk.dev.write_bytes", $dev_indom, $instance);
+		    def_metric_inst("disk.dev.avactive", $dev_indom, $instance);
+		    if ($#part == 13) {
+			def_metric_inst("disk.dev.read_rawactive", $dev_indom, $instance);
+			def_metric_inst("disk.dev.write_rawactive", $dev_indom, $instance);
+		    }
+		}
+		# populate dev_seen for each instance
+		$dev_seen{$instance} = 0;
+	    }
+	    if ($dev_style eq "d") {
+		# disk.dev.total
+		# disk.dev.read_bytes
+		# disk.dev.write_bytes
+		@thisval = ($part[1], $part[2] * $dev_thru_scale, $part[3] * $dev_thru_scale);
+		if (!exists($dev_prev{$instance})) {
+		    # first time seen for this instance
+		    $dev_prev{$instance} = [0,0,0];
+		}
+		for (my $i = 0; $i <= $#thisval; $i++) {
+		    # all these are instantaneous
+		    $dev_prev{$instance}->[$i] = $thisval[$i];
+		    put($dev_prev{$instance}->[$i]);
+		}
+		$dev_seen{$instance} = 1;
+	    }
+	    else {
+		if (exists($dev_first_handle{$instance})) {
+		    $h = $dev_first_handle{$instance};
+		}
+		else {
+		    pmiDump();
+		    print "[$line] $_\n";
+		    die "Device: no first handle for instance \"" . $instance . "\", check Handles in dump above";
+		}
+		# disk.dev.read_merge
+		# disk.dev.write_merge
+		# disk.dev.read
+		# disk.dev.write
+		# disk.dev.read_bytes
+		# disk.dev.write_bytes
+		# disk.dev.avactive
+		# disk.dev.read_rawactive
+		# disk.dev.write_rawactive
+		@thisval = ($part[1], $part[2], $part[3], $part[4], $part[5] * $dev_thru_scale, $part[6] * $dev_thru_scale, $part[9]);
+		if ($#part == 13) {
+		    push @thisval, $part[10];
+		    push @thisval, $part[11];
+		}
+		if (!exists($dev_prev{$instance})) {
+		    # first time seen for this instance
+		    $dev_prev{$instance} = [0,0,0,0,0,0,0];
+		}
+		for (my $i = 0; $i <= $#thisval; $i++) {
+		    # all these are instantaneous
+		    $dev_prev{$instance}->[$i] = $thisval[$i];
+		    put($dev_prev{$instance}->[$i]);
+		}
+		$dev_seen{$instance} = 1;
+	    }
+	}
+    }
+}
+
+# flush last sample out ... end of file is the end of the sample
+#
+sample_done();
+
+pmiEnd();
+
+exit(0);

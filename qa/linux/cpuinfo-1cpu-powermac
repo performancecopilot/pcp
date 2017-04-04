@@ -1,0 +1,9 @@
+cpu : 604
+clock : 120MHz
+revision : 3.3 (pvr 0004 0303)
+bogomips : 239.20
+machine : Power Macintosh
+motherboard : AAPL,8500 MacRISC
+L2 cache : 256K unified
+memory : 56MB
+pmac-generation : OldWorld

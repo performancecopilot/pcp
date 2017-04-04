@@ -1,0 +1,4 @@
+#pmlogconf-setup 2.0
+ident	socket stats (counts by type and state) [Irix]
+probe	network.socket.type
+	network.socket

@@ -1,0 +1,136 @@
+#! /bin/sh
+# PCP QA Test No. 482
+# exercise pmlogsummary "-B" option (display value distribution in bins)
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+
+status=1	# failure is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# usage: _xtract metric
+_xtract()
+{
+    pmdumplog -D1 archives/binning $1 >$tmp.out 2>$tmp.err
+    cat $tmp.err $tmp.out \
+    | $PCP_AWK_PROG '
+$1 == "pmResult"                { state=1; time=$7; stamp=$6; next }
+state == 1 && /\('"$1"'\)/      { state=2; next }
+state == 2                      { state=0; print time,stamp,$2; next }
+NF==0                           { state=0; next }' \
+    | LC_COLLATE=POSIX _POSIX2_VERSION=0 sort -u +1n -2
+}
+
+# usage: _filterbins nbins < pmlogsummary output (with args=-ymMB nbins)
+_filterbins()
+{
+    $PCP_AWK_PROG -v nbins=$1 '{
+	printf "(%d)\n", $5
+	for (i=0; i < nbins; i++)
+	    printf "    Bin%d  = %d\n", i, $(7+(i*2))
+    }'
+}
+
+# usage: _dobinning nbins min max < values
+_dobinning()
+{
+    size=`echo "scale=10; ( $3 - $2 ) / $1" | bc`
+    #echo BINSIZE=$size NBINS=$1
+
+    $PCP_AWK_PROG -v nbins=$1 -v size=$size -v min=$2 '
+	{   for (i=0; i < nbins; i++) {
+		if ($1 >= (size*i) + min && $1 <= (size*(i+1))+min) {
+		    #printf "%f is in bin %d\n", $1, i
+		    bins[i]++
+		    total++
+		}
+		#else
+		#printf "%f out of %f-%f\n", $1, (size*i)+min, (size*(i+1))+min
+	    }
+	    #printf "value is %f\n", $1
+	}
+END	{   printf "(%d)\n", total
+	    for (i=0; i < nbins; i++)
+		printf "    Bin%d  = %d\n", i, bins[i]
+	}'
+}
+
+_noncounter_values()
+{
+    $PCP_AWK_PROG '{
+	    printf "%f\n", $3
+	    if (count == 0 || $3 > max) max = $3
+	    if (count == 0 || $3 < min) min = $3
+	    count++
+	    next
+}
+END	  { printf "COUNT=%d MAX=%f MIN=%f\n", count, max, min }'
+}
+
+_counter_values()
+{
+    $PCP_AWK_PROG '{
+	    if (count > 0) {
+		value = (($3 - prevval)/($2 - prevtime))/1000.0
+		printf "%f\n", value
+		if (count == 1 || value > max) max = value
+		if (count == 1 || value < min) min = value
+	    }
+	    count++
+	    prevval = $3
+	    prevtime = $2
+	    next
+	  }
+END	  { printf "COUNT=%d MAX=%f MIN=%f\n", count-1, max, min }'
+}
+
+# real QA test starts here
+echo
+echo "=== testing instanteous metric value distribution ==="
+nbins=3
+_xtract sample.scale_step.time_up_nanosecs | _noncounter_values > $tmp.noncount
+eval `fgrep COUNT $tmp.noncount`
+#echo count=$COUNT maximum=$MAX minimum=$MIN
+$PCP_ECHO_PROG $PCP_ECHO_N "QA calculates: ""$PCP_ECHO_C"
+fgrep -v COUNT $tmp.noncount | _dobinning $nbins $MIN $MAX
+
+$PCP_ECHO_PROG $PCP_ECHO_N "pmlogsummary calculates: ""$PCP_ECHO_C"
+pmlogsummary -ymMB $nbins archives/binning sample.scale_step.time_up_nanosecs \
+	| _filterbins $nbins
+
+echo
+echo "=== testing counter metric value distribution ==="
+nbins=4
+_xtract sample.milliseconds | _counter_values > $tmp.count
+eval `fgrep COUNT $tmp.count`
+#echo count=$COUNT maximum=$MAX minimum=$MIN
+$PCP_ECHO_PROG $PCP_ECHO_N "QA calculates: ""$PCP_ECHO_C"
+fgrep -v COUNT $tmp.count | _dobinning $nbins $MIN $MAX
+
+$PCP_ECHO_PROG $PCP_ECHO_N "pmlogsummary calculates: ""$PCP_ECHO_C"
+pmlogsummary -ymMB $nbins archives/binning | fgrep sample.milliseconds \
+	| _filterbins $nbins
+
+# misc checks
+echo
+echo "=== testing boundary conditions ==="
+pmlogsummary -B 1 archives/binning >/dev/null 2>&1
+[ $? -ne 0 ] && echo "  urk - error test #1 failed!"
+pmlogsummary -B 0 archives/binning >/dev/null 2>&1
+[ $? -ne 0 ] && echo "  urk - error test #2 failed!"
+pmlogsummary -B -7 archives/binning >/dev/null 2>&1
+[ $? -eq 0 ] && echo "  urk - error test #3 failed!"
+
+echo done.
+echo
+
+# success, all done
+status=0
+exit

@@ -1,0 +1,76 @@
+
+Cisco Model : MGS
+Interface(s)			e2
+
+Cisco Model:  Cisco 7000
+Interface(s)			e1/2 f2/0
+
+Cisco Model:  Cisco 7000
+Interface(s)			e0/0 e0/1 e0/2 e0/3 e0/4 e0/5
+				f2/0 f4/0
+
+Cisco Model : 4500
+Interface(s)			e0 f1
+
+Cisco Model : 2500 (68030) processor (revision A) 3000 Software
+Interface(s)			e0 s0
+
+Cisco Model : 4000M
+Interface(s)			e0#starchild
+				e1 -P starchild
+				f0 -P starchild
+				s0 -P starchild
+				s1#starchild
+				s2#starchild
+
+Cisco Model : 4500
+Interface(s)			e0 e1
+				f0 f1
+
+
+Cisco Model : 7513
+Interface(s)			e0/0 e0/1 e0/2 e0/3 e0/4 e0/5
+				E1/0 E1/1
+				s2/0 s2/1 s2/2 s2/3
+				h3/0
+				f5/0 f8/0 f9/0 f10/0 f11/0
+				a12/0
+
+Cisco Model : 7000
+Interface(s)			e0/0 e0/1 e0/2 e0/3 e0/4 e0/5
+				e1/0 e1/1 e1/2 e1/3 e1/4 e1/5
+				e2/0 e2/1 e2/2 e2/3 e2/4 e2/5
+				f3/0
+				a4/0
+
+Cisco Model : 2500
+Interfaces			e0?cisco e1 s0 s1
+
+Cisco Model : 3640 IOS 3600 Version 11.3(6), RELEASE SOFTWARE (fc1)
+Interface(s)			e0/0 s1/0 s1/1 s1/2 s1/3
+
+
+Cisco Model: Cat6k-MSFC
+Interfaces			Vlan32 Vlan33 Vlan34 Vlan35 Vlan36 Vlan37
+				Vlan38 Vlan39 Vlan41 Vlan43 Vlan44 Vlan47
+				Vlan48 Vlan50 Vlan51
+				Vlan140 Vlan149 Vlan156 Vlan240 Vlan249
+				Vlan256 
+
+Cisco Model: Catalyst 6509
+Interfaces                      Vl2 Vl3 Vl4 Vl5 Vl6 Vl7 Vl8 Vl14 Vl15
+				Vl16 Vl17 Vl18 Vl19 Vl20 Vl21 Vl22 Vl23
+				Vl101 Vl109 Vl110 Vl111 Vl112 Vl113
+				Vl156 Vl209 Vl210 Vl211 Vl212 Vl213
+				Vl256
+
+Cisco Model: C2960 IOS Version 12.2(25)SEE2, RELEASE SOFTWARE (fc1)
+Interfaces
+				Vl1 Vl50
+				E0/1 E0/2 E0/3 E0/4 E0/5 E0/6 E0/7 E0/8 E0/9 E0/10
+				E0/11 E0/12 E0/13 E0/14 E0/15 E0/16 E0/17 E0/18 E0/19 E0/20
+				E0/21 E0/22 E0/23 E0/24 E0/25 E0/26 E0/27 E0/28 E0/29 E0/30
+				E0/31 E0/32 E0/33 E0/34 E0/35 E0/36 E0/37 E0/38 E0/39 E0/40
+				E0/41 E0/42 E0/43 E0/44 E0/45 E0/46 E0/47 E0/48
+				G0/1 G0/2
+

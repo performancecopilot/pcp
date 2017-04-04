@@ -1,0 +1,29 @@
+QA output created by 135
+New log volume 1
+New log volume 2
+New log volume 3
+New log volume 4
+New log volume 5
+
+=== forwards ===
+Log Label (Log Format Version 2)
+Performance metrics from host LOCALHOST
+  commencing month-day TIMESTAMP-0 year
+  ending     month-day TIMESTAMP-LAST year
+TIMESTAMP-0  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value ...
+              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value ...
+              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value ...
+TIMESTAMP-LAST  30.0.3 (sampledso.milliseconds): value ...
+
+=== backwards ===
+Log Label (Log Format Version 2)
+Performance metrics from host LOCALHOST
+  commencing month-day TIMESTAMP-0 year
+  ending     month-day TIMESTAMP-LAST year
+Log finished at month-day hh:mm:ss year - dump in reverse order
+TIMESTAMP-LAST  30.0.3 (sampledso.milliseconds): value ...
+TIMESTAMP-0  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value ...
+              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value ...
+              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value ...
+
+=== expect no differences ===

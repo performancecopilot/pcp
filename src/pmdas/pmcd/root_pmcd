@@ -1,0 +1,158 @@
+/*
+ * PMCD metrics name space
+ */
+
+root {
+    pmcd
+}
+
+/*
+ * the domain for the pmcd PMDA ...
+ */
+#ifndef PMCD
+#define PMCD	2
+#endif
+
+pmcd {
+    control
+    pdu_in
+    pdu_out
+    datasize	PMCD:0:1
+    numagents	PMCD:0:2
+    agent
+    numclients	PMCD:0:3
+    pmlogger
+    timezone	PMCD:0:5
+    simabi	PMCD:0:6
+    version	PMCD:0:7
+    services	PMCD:0:16
+    openfds	PMCD:0:17
+    build	PMCD:0:20
+    hostname	PMCD:0:21
+    pmie
+    buf
+    client
+    cputime
+    feature
+    sighups	PMCD:0:22
+}
+
+pmcd.control {
+    debug	PMCD:0:0
+    timeout	PMCD:0:4
+    register	PMCD:0:8
+    traceconn	PMCD:0:9
+    tracepdu	PMCD:0:10
+    tracenobuf	PMCD:0:14
+    tracebufs	PMCD:0:11
+    dumptrace	PMCD:0:12
+    dumpconn	PMCD:0:13
+    sighup	PMCD:0:15
+}
+
+/*
+ * Note: strange numbering for pmcd.pdu_{in,out}.total for
+ * compatibility with earlier PCP versions
+ */
+
+pmcd.pdu_in {
+    error		PMCD:1:0
+    result		PMCD:1:1
+    profile		PMCD:1:2
+    fetch		PMCD:1:3
+    desc_req		PMCD:1:4
+    desc		PMCD:1:5
+    instance_req	PMCD:1:6
+    instance		PMCD:1:7
+    text_req		PMCD:1:8
+    text		PMCD:1:9
+    control_req		PMCD:1:10
+    creds		PMCD:1:12
+    pmns_ids		PMCD:1:13
+    pmns_names		PMCD:1:14
+    pmns_child		PMCD:1:15
+    total		PMCD:1:16
+    pmns_traverse	PMCD:1:17
+    auth		PMCD:1:18
+}
+
+pmcd.pdu_out {
+    error		PMCD:2:0
+    result		PMCD:2:1
+    profile		PMCD:2:2
+    fetch		PMCD:2:3
+    desc_req		PMCD:2:4
+    desc		PMCD:2:5
+    instance_req	PMCD:2:6
+    instance		PMCD:2:7
+    text_req		PMCD:2:8
+    text		PMCD:2:9
+    control_req		PMCD:2:10
+    creds		PMCD:2:12
+    pmns_ids		PMCD:2:13
+    pmns_names		PMCD:2:14
+    pmns_child		PMCD:2:15
+    total		PMCD:2:16
+    pmns_traverse	PMCD:2:17
+    auth		PMCD:2:18
+}
+
+pmcd.pmlogger {
+    host		PMCD:3:3
+    port		PMCD:3:0
+    archive		PMCD:3:2
+    pmcd_host		PMCD:3:1
+}
+
+pmcd.agent {
+    type		PMCD:4:0
+    status		PMCD:4:1
+}
+
+pmcd.pmie {
+    configfile		PMCD:5:0
+    logfile		PMCD:5:1
+    pmcd_host		PMCD:5:2
+    numrules		PMCD:5:3
+    actions		PMCD:5:4
+    eval
+}
+
+pmcd.pmie.eval {
+    true		PMCD:5:5
+    false		PMCD:5:6
+    unknown		PMCD:5:7
+    expected		PMCD:5:8
+    actual		PMCD:5:9
+}
+
+pmcd.buf {
+    alloc		PMCD:0:18
+    free		PMCD:0:19
+}
+
+pmcd.client {
+    whoami		PMCD:6:0
+    start_date		PMCD:6:1
+    container		PMCD:6:2
+}
+
+pmcd.cputime {
+    total		PMCD:7:0
+    per_pdu_in		PMCD:7:1
+}
+
+pmcd.feature {
+    secure			PMCD:8:0
+    compress			PMCD:8:1
+    ipv6			PMCD:8:2
+    authentication		PMCD:8:3
+    creds_required		PMCD:8:4
+    unix_domain_sockets		PMCD:8:5
+    service_discovery		PMCD:8:6
+    containers			PMCD:8:7
+    local			PMCD:8:8
+    client_cert_required	PMCD:8:9
+}
+
+#undef PMCD

@@ -1,0 +1,45 @@
+QA output created by 262
+
+=== pmstat + PM_CONTEXT_HOST ===
+@ DAY MONTH NUMBER NUMBER:NUMBER:NUMBER NUMBER
+ loadavg memory swap io system cpu
+NUMBER min swpd free buff cache si so bi bo in cs us sy id
+NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER
+
+=== pmstat + PM_CONTEXT_LOCAL ===
+@ DAY MONTH NUMBER NUMBER:NUMBER:NUMBER NUMBER
+ loadavg memory swap io system cpu
+NUMBER min swpd free buff cache si so bi bo in cs us sy id
+NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER
+
+=== pmstat + PM_CONTEXT_HOST + pmsocks ===
+@ DAY MONTH NUMBER NUMBER:NUMBER:NUMBER NUMBER
+ loadavg memory swap io system cpu
+NUMBER min swpd free buff cache si so bi bo in cs us sy id
+NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER
+
+=== pmstat + PM_CONTEXT_LOCAL + pmsocks ===
+@ DAY MONTH NUMBER NUMBER:NUMBER:NUMBER NUMBER
+ loadavg memory swap io system cpu
+NUMBER min swpd free buff cache si so bi bo in cs us sy id
+NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER
+
+Expect no error messages or ?'s from pmie
+
+=== pmie + PM_CONTEXT_HOST ===
+expr_1: NUMBER NUMBER NUMBER
+expr_2: NUMBER
+expr_1: NUMBER NUMBER NUMBER
+expr_2: NUMBER
+expr_1: NUMBER NUMBER NUMBER
+expr_2: NUMBER
+pmie: note - evaluator exiting
+
+=== pmie + PM_CONTEXT_HOST + pmsocks ===
+expr_1: NUMBER NUMBER NUMBER
+expr_2: NUMBER
+expr_1: NUMBER NUMBER NUMBER
+expr_2: NUMBER
+expr_1: NUMBER NUMBER NUMBER
+expr_2: NUMBER
+pmie: note - evaluator exiting

@@ -1,0 +1,50 @@
+'\"macro stdmacro
+.\" Copyright (c) 2005 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.TH QMC 3 "SGI" "Performance Co-Pilot"
+.SH NAME
+\f3QMC\f1 \- library for managing groups of Performance Co-Pilot metrics
+.SH "C++ SYNOPSIS"
+.ft 3
+#include <QMC.h>
+.sp
+CC ... \-lqmc \-lpcp 
+.ft 1
+.SH DESCRIPTION
+The Qt-based Performance Metrics Class
+.RB ( QMC )
+class library is a collection of C++ classes for managing a large set of
+performance metrics from a variety of sources.  This library is built over
+.BR PMAPI (3).
+.SH SEE ALSO
+.BR PMAPI (3),
+.BR QmcContext (3),
+.BR QmcDesc (3),
+.BR QmcGroup (3),
+.BR QmcIndom (3),
+.BR QmcMetric (3),
+.BR QmcSource (3),
+.BR pmflush (3)
+and
+.BR pmprintf (3).
+.SH DIAGNOSTICS
+Error messages are generated using
+.BR pmprintf (3)
+but are not flushed. It is the responsibility of the user to call
+.BR pmflush (3)
+to output any messages.
+.PP
+Additional diagnostics may be activated by adding 
+.B DBG_TRACE_PMC
+to the global
+.IR pmDebug .

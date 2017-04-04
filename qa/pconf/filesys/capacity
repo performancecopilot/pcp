@@ -1,0 +1,34 @@
+#pmieconf-rules 1
+# 
+
+rule	filesys.capacity
+	default	= "$rule$"
+	predicate =
+"some_host (
+    some_inst (
+	( 100 * filesys.used $hosts$ >
+	    $threshold$ * filesys.capacity $hosts$ ) &&
+	rate filesys.used $hosts$ > 0
+    )
+)"
+	enabled	= yes
+	version	= 1
+	help	=
+"Filesystem is at least threshold percent full and the allocated
+space is growing.";
+
+string	rule
+	default	= "imminent file system full"
+	modify	= no
+	display	= no;
+
+percent	threshold
+	default	= 95
+	help	=
+"The threshold of file system fullness, usually in the range 90 to 99.";
+
+string	action_expand
+	default	= "%i@%h"
+	display	= no
+	modify	= no;
+

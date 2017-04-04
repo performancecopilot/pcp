@@ -1,0 +1,17 @@
+#pmlogconf-setup 2.0
+ident	summary kernel performance data [Linux]
+probe	kernel.uname.sysname ~ Linux ? include : exclude
+	mem.util
+	swap.pagesin
+	swap.pagesout
+	swap.free
+	swap.used
+	kernel.all.pswitch
+	kernel.all.intr
+	kernel.all.load
+	kernel.all.runnable
+	network.interface.collisions
+	network.interface.in.drops
+	network.interface.out.drops
+	disk.dev.avactive
+	filesys.full

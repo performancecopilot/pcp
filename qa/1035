@@ -1,0 +1,253 @@
+#!/bin/sh
+# PCP QA Test No. 1035
+# Exercise the Oracle PMDA, verifying values from an installation.
+#
+# Copyright (c) 2016 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ -d $PCP_PMDAS_DIR/oracle ] || _notrun "Oracle PMDA not installed"
+[ -f $PCP_PMDAS_DIR/oracle/oracle.conf ] || _notrun "Oracle PMDA not configured"
+which sqlplus >/dev/null 2>&1 || _notrun "No Oracle 'sqlplus' binary found"
+
+# uses an existing oracle installation, so check its in place
+count=`pmprobe oracle.version | awk '{ print $2 }'`
+[ $count -ge 1 ] || _notrun "Oracle database PMDA is not setup and running"
+
+$sudo rm -rf $tmp $tmp.* $seq.full
+perl $PCP_PMDAS_DIR/oracle/connect.pl >$seq.full 2>&1
+[ $? -eq 0 ] || _notrun "Oracle database connectivity unavailable"
+
+# pick a sensible sounding default SID for oraenv
+[ -n "$ORACLE_SID" ] && export ORACLE_SID=master
+oraenv=`which oraenv 2>/dev/null`
+[ $? -eq 0 ] || _notrun "Oracle environment setup script (oraenv) not found"
+. $oraenv </dev/null >/dev/null
+
+# extract configuration (os_user, username, password, sid) for sqlplus
+eval `perl $PCP_PMDAS_DIR/oracle/connect.pl -c`
+
+status=1	# failure is the default!
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+queries="sysstat license latch filestat reqdist version waitstat"
+
+#
+# setup input files for sqlplus value extraction - focus on one metric
+# from each cluster ($queries) to compare with pmprobe values, choosing
+# metrics likely to have non-zero values but unlikely to fluctuate while
+# the test is running
+#
+
+$sudo rm -f $tmp.head
+echo 'set wrap off;' >> $tmp.head
+echo 'set colsep " | ";' >> $tmp.head
+echo 'set recsep off;' >> $tmp.head
+echo 'set heading off;' >> $tmp.head
+echo 'set feedback off;' >> $tmp.head
+echo 'set linesize 1024;' >> $tmp.head
+echo 'set arraysize 1500;' >> $tmp.head
+for query in $queries
+do
+    cp $tmp.head $tmp.$query
+done
+echo 'select statistic#, name, value from v$sysstat;' >> $tmp.sysstat
+echo 'select sessions_highwater from v$license;' >> $tmp.license
+echo 'select latch#, name, gets from v$latch;' >> $tmp.latch
+cat >> $tmp.filestat << EOF
+select v\$filestat.file#, v\$datafile.name, v\$filestat.phyblkwrt
+	from v\$filestat
+	inner join v\$datafile
+	on v\$filestat.file# = v\$datafile.file#;
+EOF
+echo 'select class, count from v$waitstat;' >> $tmp.waitstat
+echo 'select bucket, count from v$reqdist;' >> $tmp.reqdist
+cat >> $tmp.version << EOF
+select distinct banner from v\$version where banner like 'Oracle%';
+EOF
+
+_filter()
+{
+    sed \
+	-e "s/$sids/ORACLE_SID/g" \
+	-e 's/"Oracle Database.*"/"ORACLE_VERSION"/g' \
+    #end
+}
+
+_query()
+{
+    table=$1
+    file=$tmp.$1
+
+    echo === Fetching Oracle $table metrics
+
+    echo === Oracle Query: $table >> $seq.full
+    #debug#       | tee -a $seq.full
+    sqlplus -S $username/$password@$sids < $file \
+	| tr '\t' ' ' | tr -s ' ' \
+	| sed -e '/^$/d' -e 's/ | /|/g' -e 's/^ //' \
+	> $tmp.ora 2> $tmp.err
+    cat $tmp.ora >> $seq.full
+    if [ -s $tmp.err ]
+    then
+	echo "=== Errors: $table" | tee -a $seq.full
+	cat $tmp.err | tee -a $seq.full
+    fi
+    echo === Done: $table >> $seq.full
+}
+
+_probe()
+{
+    table=$1
+    metric=$2
+
+    echo === Fetching PCP $table metrics
+    pmprobe -v $metric | sed -e "s/$metric 1 //g" -e 's/"//g' > $tmp.pcp
+
+    echo === PCP Values: $table >> $seq.full
+    cat $tmp.pcp >> $seq.full
+    echo === Done: $table >> $seq.full
+}
+
+_probe_insts()
+{
+    table=$1
+    metric=$2
+
+    echo "=== Fetching PCP $table metrics with instances"
+    pminfo -f $metric | \
+	    sed \
+		-e '/^$/d' \
+		-e "/^$metric/d" \
+		-e "s# .*inst \[.* or \"$sids/##g" \
+		-e 's/\"\] value /|/g' \
+	    | LC_COLLATE=POSIX sort -u > $tmp.pcp
+
+    echo === PCP Values: $table >> $seq.full
+    cat $tmp.pcp >> $seq.full
+    echo === Done: $table >> $seq.full
+}
+
+_exact_match()
+{
+    echo "Comparing Oracle to PCP"
+    if [ ! -f "$1" ]
+    then
+	echo "$1 is missing"
+    elif [ ! -f "$2" ]
+    then
+	echo "$2 is missing"
+    else
+	diff $1 $2 && echo OK
+    fi
+    echo
+}
+
+_fuzzy_match()
+{
+    echo "Comparing Oracle to PCP"
+    LC_COLLATE=POSIX join -t\| -a2 -1 1 $1 $2 \
+    | $PCP_AWK_PROG '
+	{
+	    a=$2; b=$3; d=a-b;
+	    if (d<0) d = -d;
+	    if (d > 5 && d>a/100) {
+		print "'$0' : Diff of more than 5 in total and 1 percent: ", $0
+		err++
+	    }
+	}
+	END {
+	    exit err
+	}'
+    status=$?
+    if [ $status != 0 ]
+    then
+	echo $0 =========== ora output ==============
+	cat $tmp.ora
+	echo $0 =========== pcp output ==============
+	cat $tmp.pcp
+	echo $0 exit status $status
+    else
+	echo OK && echo
+    fi
+}
+
+_bounce()
+{
+    cluster=$1
+    metric=$2
+
+    # initial fetch, should be enabled and have values
+    pmprobe $metric | $PCP_AWK_PROG '$2 > 0 { print $1, "ON" }'
+
+    # disable the cluster, should now have zero values
+    pmstore oracle.control.disabled.$cluster 1 | _filter
+    pmprobe $metric | $PCP_AWK_PROG '$2 == 0 { print $1, "OFF" }'
+
+    # reenable the cluster, should see values once more
+    pmstore oracle.control.disabled.$cluster 0 | _filter
+    pmprobe $metric | $PCP_AWK_PROG '$2 > 0 { print $1, "ON" }'
+}
+
+# real QA test starts here
+_query version
+_probe version oracle.version
+_exact_match $tmp.ora $tmp.pcp
+
+_query license
+_probe license oracle.license.highsess
+_exact_match $tmp.ora $tmp.pcp
+
+_query waitstat
+_probe_insts waitstat oracle.waitstat.count
+sed -e 's/ /_/g' < $tmp.ora | \
+	LC_COLLATE=POSIX sort > $tmp.ora2
+_exact_match $tmp.ora2 $tmp.pcp
+
+_query latch
+_probe_insts latch oracle.latch.gets
+# remove the external instance name strings
+sed -e 's/|/ /' -e 's/[^0-9|]//g' < $tmp.ora | \
+	LC_COLLATE=POSIX sort -u -n > $tmp.ora2
+sed -e 's/[^0-9|]//g' < $tmp.pcp | \
+	LC_COLLATE=POSIX sort -u -n > $tmp.pcp2
+_fuzzy_match $tmp.ora2 $tmp.pcp2
+
+ _query filestat
+ _probe_insts filestat oracle.file.phyblkwrt
+sed -e 's/|/ /' < $tmp.ora | \
+	LC_COLLATE=POSIX sort -u -n > $tmp.ora3
+ _fuzzy_match $tmp.ora3 $tmp.pcp
+
+_query reqdist
+_probe_insts reqdist oracle.reqdist
+LC_COLLATE=POSIX sort -u -n < $tmp.ora > $tmp.ora4
+sed -e 's/bucket//g' -e 's/ - .*|/|/g' < $tmp.pcp | \
+	LC_COLLATE=POSIX sort -u -n > $tmp.pcp4
+_exact_match $tmp.ora4 $tmp.pcp4
+
+# check connection state modification (up/down)
+echo === Checking connection state
+pminfo -f oracle.control.connected | _filter
+pmstore oracle.control.connected 0 | _filter
+pminfo -f oracle.version | _filter
+# and bring it back up
+pminfo -f oracle.control.connected | _filter
+pmstore oracle.control.connected 1 | _filter
+pminfo -f oracle.version | _filter
+
+# check query state change of high-latency clusters
+echo === Checking cluster query states
+_bounce file oracle.file.readtim
+_bounce object_cache oracle.object_cache.locks
+
+# success, all done
+status=0
+exit

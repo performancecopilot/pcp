@@ -1,0 +1,48 @@
+#! /bin/sh
+# PCP QA Test No. 377
+# Prototype bit-field swizzling for endian support
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+if [ -f $PCP_INC_DIR/config.h ]
+then
+    # PCP 3.8.3 or later
+    defs=$PCP_INC_DIR/config.h
+elif [ -f $PCP_INC_DIR/platform_header.h ]
+then
+    # PCP 3.6 or later
+    defs=$PCP_INC_DIR/platform_header.h
+elif [ -f $PCP_INC_DIR/platform_defs.h ]
+then
+    # older PCP versions
+    defs=$PCP_INC_DIR/platform_defs.h
+else
+    _notrun "No $PCP_INC_DIR headers found"
+fi
+grep '#define HAVE_BITFIELDS_LTOR' $defs >/dev/null 2>&1 || \
+    _notrun "HAVE_BITFIELDS_LTOR is false"
+
+status=1	# failure is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+echo "=== read external format ==="
+src/read-bf <src/sgi.bf
+
+echo
+echo "=== write external format ==="
+src/write-bf >$tmp.out
+cmp src/sgi.bf $tmp.out
+
+# success, all done
+status=0
+exit

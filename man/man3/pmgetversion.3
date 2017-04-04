@@ -1,0 +1,94 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2015, Ken McDonell.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMGETVERSION 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmGetVersion\f1 \- fetch installed PCP version number
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.sp
+int pmGetVersion(void);
+.sp
+cc ... \-lpcp
+.ft 1
+.SH DESCRIPTION
+.hy 0
+.B pmGetVersion
+returns a binary encoding of the locally installed PCP version number.
+.PP
+This may be used in conjunction with the related macros
+.BR PM_VERSION (a,b,c)
+and
+.BR PM_VERSION_CURRENT
+that generate PCP version numbers in the same format.  Refer to the
+example below.
+.PP
+The encoding uses one byte for each of the parts of the version number of the
+installed PCP package, namely the major number, the minor number
+and the revision number.  So PCP version 3.10.5 is encoded as 0x30a05.
+.PP
+The string format of the installed PCP package version number
+as also available from
+.BR pmGetConfig
+with the argument
+.BR PCP_VERSION .
+.PP
+.B pmGetVersion
+was introduced in PCP 3.10.5.
+.SH EXAMPLE
+The following C fragment demonstrates the use of both the compile-time
+macros and the run-time
+.B pmGetVersion
+function for an application that should not be built for PCP versions
+older than 3.10.5, but after that there are two alternative implementations
+with a newer (faster, sweeter, smaller) variant 
+of the XYZ service that only becoming available
+in PCP 4.0.0.
+.PP
+.nf
+.ft CW
+#include <pcp/pmapi.h>
+
+#ifdef PM_VERSION_CURRENT
+#if PM_VERSION_CURRENT < PM_VERSION(3,10,5)
+    /* no pmGetVersion() before PCP 3.10.5 */
+    printf("PCP version 0x%x too old\en", PM_VERSION_CURRENT);
+#endif
+    version = pmGetVersion();
+    if (version >= PM_VERSION(4,0,0) {
+	/* V2 of the XYZ service introduced in PCP 4.0.0 */
+	printf("Using V2 of service XYZ\en")
+	...
+    }
+    else {
+	printf("Using V1 of service XYZ\en")
+	...
+    }
+#else
+    {
+	char *ver = pmGetConfig("PCP_VERSION");
+	/* only option is to extract version number from returned string */
+	...
+    }
+#endif
+.ft
+.fi
+.SH SEE ALSO
+.BR PMAPI (3),
+and
+.BR pmGetConfig  (3).
+.SH DIAGNOSTICS
+None.

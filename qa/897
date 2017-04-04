@@ -1,0 +1,84 @@
+#!/bin/sh
+# PCP QA Test No. 897
+# pmlc/pmlogger access control compatibility
+#
+# Copyright (c) 2014 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; $sudo rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+hostname=`hostname`
+
+_filter()
+{
+    sed \
+	-e "s/^connect $pid/connect QA_LOGGER_PID/" \
+	-e "s/^pmlogger \[$pid]/pmlogger [QA_LOGGER_PID]/" \
+	-e "s/from host $hostname/from host HOST/" \
+	-e "s/\(The following pmloggers .* on \)$hostname/\1HOST/" \
+	-e '/primary (/s/([0-9][0-9]*).*/(LOGGER_PID) .../' \
+	-e '/^PMCD host/s/\(   *\).*/\1HOST/' \
+	-e 's/^\(log started  *\).*/\1DATESTAMP/' \
+	-e 's/^\(last log entry  *\).*/\1DATESTAMP/' \
+	-e '/^current time/s/\(   *\).*/\1DATE/' \
+	-e '/^log volume/s/\(   *\).*/\1NUMBER/' \
+	-e '/^log size/s/\(   *\).*/\1NUMBER/' \
+
+}
+
+# real QA test starts here
+for acl in enquire advisory mandatory \
+    'enquire,advisory' 'enquire,mandatory' 'advisory,mandatory' \
+    'enquire,advisory,mandatory'
+do
+    echo | tee -a $seq.full
+    echo "=== allow * : $acl ===" | tee -a $seq.full
+    cat <<End-of-File >$tmp.config
+log mandatory on once { sample.bin }
+
+[access]
+disallow * : all;
+allow localhost : $acl;
+End-of-File
+
+    $sudo rm -f $tmp.[0-9]* $tmp.index $tmp.meta $tmp.log
+    # Note: _start_up_pmlogger returns with $pid set
+    #
+    _start_up_pmlogger -L -c $tmp.config -l $tmp.log $tmp
+    _wait_for_pmlogger $pid $tmp.log
+    pmsleep 0.1
+    cat <<End-of-File | pmlc -e 2>&1 | tee -a $seq.full | _filter
+show loggers
+connect $pid
+status
+query { sample.colour sample.long.one }
+# need mandatory
+flush
+new volume
+log advisory on 5sec sample.long.one
+log mandatory off sample.colour
+End-of-File
+    cat <<End-of-File | pmlc -e 2>&1 | tee -a $seq.full | _filter
+connect $pid
+# check
+query { sample.colour sample.long.one }
+End-of-File
+    $sudo kill -TERM $pid
+    wait
+    cat $tmp.log >>$seq.full
+done
+
+# success, all done
+status=0
+
+exit

@@ -1,0 +1,31 @@
+#
+# pmlogger(1) configuration file suitable creating an archive to be
+# used with osvis(1)
+#
+log mandatory on once {
+    hinv.ncpu
+    hinv.ndisk
+    hinv.physmem
+    mem.physmem
+}
+
+log advisory on default {
+    disk.all.avg_disk.active
+    disk.all.read
+    disk.all.write
+    disk.ctl.avg_disk.active
+    kernel.all.load
+    kernel.all.cpu.intr
+    kernel.all.cpu.sys
+    kernel.all.cpu.user
+    kernel.all.cpu.wait.total
+    mem.freemem
+    mem.util
+    network.interface.in.bytes
+    network.interface.in.packets
+    network.interface.in.errors
+    network.interface.out.bytes
+    network.interface.out.packets
+    network.interface.out.errors
+}
+

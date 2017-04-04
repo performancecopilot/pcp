@@ -1,0 +1,97 @@
+#!/bin/sh
+# PCP QA Test No. 511
+#
+# Exercise sar2pcp for RH BZ 859117
+# This may prove too optimistic (asking sadf to replay different sar
+# files, that sar generated ... backwards compatibility much?) - if
+# thats the case, we'll have to special case things.
+#
+# Copyright (c) 2012 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+which sadf >/dev/null 2>&1 || _notrun "sadf not installed (sysstat package)"
+which sar2pcp >/dev/null 2>&1 || _notrun "sar2pcp not installed"
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+logcheck()
+{
+    safile="$1"
+    pcplog="$2"
+
+    # should be no errors/warnings and pcp tools should also not fail
+    pmdumplog -z -l $pcplog >>$seq.full
+    [ $? -eq 0 ] && echo "pmdumplog approved of the $safile conversion"
+
+    # this'll visit and examine in detail every single stored result,
+    # as well as all metadata associates with the generated archive.
+    pmlogsummary $pcplog >>$seq.full
+    [ $? -eq 0 ] && echo "pmlogsummary approved of the $safile conversion"
+}
+
+# backwards compatibility route - silence is golden
+silence()
+{
+    safile="$1"
+    echo "sar2pcp thinks $safile is going well so far"
+    echo "pmdumplog approved of the $safile conversion"
+    echo "pmlogsummary approved of the $safile conversion"
+}
+
+# real QA test starts here
+cd $here
+rm -f $seq.full
+
+for sadist in \
+	859117-rhel5.bin 859117-rhel5.xml f16-sa20.bin \
+	fche-csb6-rhel6.bin fche-csb6-rhel6.xml \
+	rhel5-sa20.bin smash-rhel5.xml smash-rhel6.xml
+do
+    safile="sadist/$sadist"
+    echo "==> Checking $safile" | tee -a $seq.full
+    pcplog=$tmp.pcplog
+    sar2pcp $safile $pcplog > $tmp.out 2>&1
+    sts=$?
+
+    if grep 'Invalid system activity file' $tmp.out >/dev/null
+    then
+	# this seems to be a common sadf fail message;
+	# happens when the installed sysutils is old:
+	#
+	echo "$safile is not parsable by the installed sysutils" >>$seq.full
+	silence $safile
+    elif grep 'mismatched tag at line .*/TokeParser.pm' $tmp.out >/dev/null
+    then
+	# for sadf 10.0.2 on Gentoo 2.0.3 (vm05) the generate xml
+	# is bad as it containts <timestamp .../> ... </timestamp>
+	# instead of <timestamp ...> ... </timestamp>
+	#
+	echo "sadf generates bad XML for $safile" >>$seq.full
+	sadf -x $safile -- -A | nl -ba | grep timestamp >>$seq.full
+	silence $safile
+    else
+	if [ $sts -eq 0 ]
+	then
+	    echo "sar2pcp thinks $safile is going well so far"
+	    logcheck $safile $pcplog
+	else
+	    echo "sar2pcp failed ..."
+	    cat $tmp.out
+	fi
+    fi
+    rm -f $tmp.pcplog.*
+done
+
+# success, all done
+status=0
+exit

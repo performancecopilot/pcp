@@ -1,0 +1,56 @@
+Record Mode
+===========
+
+Phase A:
+[ ] Check running pmlogger processes (ps auw | grep pmlogger)
+[ ] Open one CPU View for localhost and a second CPU view for
+    a remote host, click Record -> Start -> OK
+[ ] Verify red light comes on and Record menu items are:
+    enabled (Query/Stop/Detach) and disabled (Start)
+[ ] Click Record -> Query, check contents of 2 pmlogger popups
+[ ] Click Record -> Stop, check contents of 2 pmlogger popups.
+[ ] Verify red light is now disabled and Record menu items are
+    disabled (Query/Stop/Detach) and enabled (Start).
+[ ] Click on newly created Tab, click on Archive Time Control
+    push button in bottom left corner, in pmtime select Options
+    -> Boundaries and verify the time window matches up with
+    the timeframe recorded.
+[ ] Fast forward through the archive, then Fast Back to start,
+    checking the charts for both hosts matches expectations.
+[ ] Verify no additional pmlogger processes are running.
+[ ] Run: pmafm ~/.pcp/pmlogger/[timenow].folio replay
+    Verify a pmchart starts up with appropriate archive view
+    of CPU utilisation for both hosts.
+
+Phase B:
+[ ] Check running pmlogger processes (ps auw | grep pmlogger)
+[ ] Open one CPU View for localhost and a second CPU view for
+    a remote host, click Record -> Start -> OK
+[ ] Verify red light comes on and Record menu items are:
+    enabled (Query/Stop/Detach) and disabled (Start)
+[ ] Click Record -> Detach, check contents of 2 pmlogger popups.
+[ ] Verify red light is now disabled and Record . menu items:
+    disabled (Query/Stop/Detach) and enabled (Start)
+[ ] Verify two additional pmlogger processes are running.
+
+Phase C:
+[ ] Open a Disk View for localhost, click Record -> Start
+[ ] Verify only valid double precision numbers can be entered
+    as the time interval, try: abc, 1.1.1, 12.a4, -1 (all bad)
+[ ] Set the time units to minutes and the interval to 0.001.
+[ ] Push folio button, set folio to "/tmp/folio" from popup
+[ ] Push logfile button, try set log to "/tmp" from popup
+    (verify this isn't possible), then "/var/tmp/pmlogger.log"
+    from the popup.
+[ ] Push archive button, set name to "/tmp/archive/record"
+[ ] Click OK
+[ ] Leave run for a few seconds, then click Record -> Stop
+[ ] Run: pmdumplog -l /tmp/archive/record
+    Verify the output matches the time recorded
+[ ] Run: pminfo -a /tmp/archive/record
+    Verify the output lists several kernel.all.cpu metrics,
+    and three pmcd.pmlogger metrics.
+[ ] Run: pmafm /tmp/folio replay
+    Verify a pmchart starts up with appropriate archive view
+[ ] Run: rm -fr /tmp/archive /var/tmp/pmlogger.log /tmp/folio
+

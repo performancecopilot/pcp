@@ -1,0 +1,12 @@
+#! /bin/sh
+#
+# given a dotted notation pcp version string, produce a single number
+#
+# Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+VERSION=$1
+PCP_VER=`echo "$VERSION" \
+	     | awk -F. '{printf "%d%02d%02d\n",$1,$2,$3}'`
+[ -z "$PCP_VER" ] && PCP_VER=0
+echo PCP_VER=$PCP_VER

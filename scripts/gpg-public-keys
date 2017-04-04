@@ -1,0 +1,9 @@
+#!/bin/sh
+
+options="--keyserver subkeys.pgp.net"
+gpg --recv-keys $options 36DD8C0C DEA2C114
+gpg --list-keys pcp-masters
+
+echo "For builds:"
+echo export RPM_SIGN_KEYID=pcp-masters
+echo export DEB_SIGN_KEYID=36DD8C0C

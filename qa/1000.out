@@ -1,0 +1,25 @@
+QA output created by 1000
+=== expect output ===
+DATE NUMBER
+
+=== expect No route to host, no valid metrics ===
+pmdumptext: Error: no.such.host.pcp.io: No route to host
+pmdumptext: no valid metrics, exiting.
+
+=== expect No route to host, no valid metrics [instance case] ===
+pmdumptext: Error: no.such.host.pcp.io: No route to host
+pmdumptext: no valid metrics, exiting.
+
+=== expect No route to host, no valid metrics -h [instance case] ===
+pmdumptext: Error: no.such.host.pcp.io: No route to host
+
+=== pmcd not running, default case ===
+pmdumptext: Error: MYHOSTNAME: Connection refused
+pmdumptext: no valid metrics, exiting.
+
+=== pmcd not running, host in metricspec case ===
+pmdumptext: Error: localhost: Connection refused
+pmdumptext: no valid metrics, exiting.
+
+=== pmcd not running, -h localhost case ===
+pmdumptext: Error: localhost: Connection refused

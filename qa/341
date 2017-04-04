@@ -1,0 +1,59 @@
+#!/bin/sh
+# PCP QA Test No. 341
+#
+# exercise corner cases for pmdaCacheOp(...LOAD...)
+#
+# Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "$sudo rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# [Tue Jan 26 09:10:16] pmdacache(22270) Warning: pmdaCacheOp: /var/lib/pcp/config/pmda/0.123: loading instance 0 ("eek") ignored, already in cache as 0 ("urk")
+_filter()
+{
+    sed \
+	-e 's/^\[[A-Z].. [A-Z]..  *[0-9][0-9]* ..:..:..]/[DATE]/' \
+	-e 's/cache([0-9][0-9]*)/cache(PID)/' \
+	-e 's/ 0x0 / (nil) /g' \
+	-e "s;$PCP_VAR_DIR;\$PCP_VAR_DIR;"
+}
+
+# note - need to do everything as sudo because $PCP_VAR_DIR/config/pmda
+# is not world writeable
+#
+
+$sudo rm -f $PCP_VAR_DIR/config/pmda/0.123
+
+# real QA test starts here
+
+echo "load without save, store a couple and save ..." | tee -a $seq.full
+$sudo src/pmdacache -D indom -L -s eek -s urk -S 2>&1 | _filter
+$sudo cat $PCP_VAR_DIR/config/pmda/0.123 >>$seq.full
+
+echo
+echo "store one, load, store another couple and save ..." | tee -a $seq.full
+$sudo src/pmdacache -D indom -s eek -L -s urk -s foo -S -d 2>&1 | _filter
+$sudo cat $PCP_VAR_DIR/config/pmda/0.123 >>$seq.full
+
+echo
+echo "store some, hide some, load ..." | tee -a $seq.full
+$sudo src/pmdacache -D indom -s eek -s urk -s foo -s 'fumble mumble' -h eek -h foo -s bar -L -d 2>&1 | _filter
+$sudo cat $PCP_VAR_DIR/config/pmda/0.123 >>$seq.full
+
+echo
+echo "error case ..." | tee -a $seq.full
+$sudo src/pmdacache -D indom -s 'urk a bit tricky' -s foo -L -d 2>&1 | _filter
+$sudo cat $PCP_VAR_DIR/config/pmda/0.123 >>$seq.full
+
+# success, all done
+exit

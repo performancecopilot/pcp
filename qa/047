@@ -1,0 +1,88 @@
+#!/bin/sh
+# PCP QA Test No. 047
+# Exercise fix for a containers networking issue.
+#
+# Copyright (c) 2015 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.docker
+
+_check_containers
+_check_docker_images busybox
+
+_cleanup()
+{
+    if [ -n "$container" ]
+    then
+        echo "== removing container" | tee -a $seq.full
+	_remove_docker_containers $container
+	container=""
+    fi
+    rm -rf $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_pminfo_value()
+{
+    inst="$1"
+
+    fgrep " or \"$inst\"" | \
+    sed \
+	-e "s/^ *inst .* or \"$inst\". value //g" \
+    #end
+}
+
+_compare_value()
+{
+    label=$1
+    if_value=$2
+    pcp_value=$3
+
+    echo "$label - ifconfig=\"$if_value\" pcp=\"$pcp_value\"" >>$seq.full
+
+    if [ "$pcp_value" = "$if_value" ]
+    then
+	echo "$label matches"
+    else
+	echo "$label mismatch - ifconfig=\"$if_value\" pcp=\"$pcp_value\""
+	status=1
+    fi
+}
+
+# real QA test starts here
+container=`$docker run -d busybox sleep 15`
+echo "== container: $container" >> $seq.full
+
+echo "== extract values from pmdalinux"
+metrics="network.interface.hw_addr network.interface.inet_addr"
+pminfo --fetch --container=$container network.interface.hw_addr >$tmp.pcp_hw
+pminfo --fetch --container=$container network.interface.inet_addr >$tmp.pcp_inet
+
+eval pcp_hw_addr=`cat $tmp.pcp_hw | _pminfo_value eth0`
+eval pcp_inet_addr=`cat $tmp.pcp_inet | _pminfo_value eth0`
+echo "== pcp values:" >> $seq.full
+cat $tmp.pcp_hw $tmp.pcp_inet >> $seq.full
+echo "hw_addr:" >> $seq.full
+echo "inet_addr:" >> $seq.full
+
+echo "== extract values from docker" | tee -a $seq.full
+$docker exec $container ifconfig eth0 | tee -a $seq.full >$tmp.ifconfig
+
+eval if_inet_addr=`cat $tmp.ifconfig | grep 'inet addr' \
+	| sed -e 's/.*inet addr://g' -e 's/ .*//g'`
+eval if_hw_addr=`cat $tmp.ifconfig | grep 'HWaddr' \
+	| sed -e 's/.*HWaddr //g' -e 's/ .*//g' -e 's/.*/\L&/'`
+
+echo "== comparing values" | tee -a $seq.full
+_compare_value hw_addr $if_hw_addr $pcp_hw_addr
+_compare_value inet_addr $if_inet_addr $pcp_inet_addr
+
+# success, all done
+status=0
+exit

@@ -1,0 +1,127 @@
+#! /bin/sh
+
+if [ ! -x "$1" -o ! -x "$2" -o ! -d "$3" -o -z "$4" -o ! -f "$5" ]; then
+    if [ ! -x "$1" ]; then
+	echo PackageMaker not executable
+    fi
+    if [ ! -x "$2" ]; then
+	echo hdiutil not executable
+    fi
+    if [ ! -d "$3" ]; then
+	echo "DIST_ROOT doesnt exist"
+    fi
+    if [ -z "$4" ]; then
+	echo Must supply a package name
+    fi
+    if [ ! -f "$5" ]; then
+	echo idb file not found
+    fi
+    echo "Usage: $0 /path/to/PackageMaker /path/to/hdiutil /path/to/DIST_ROOT package_name idb_file"
+    exit 1
+fi
+
+IFDIR="installer-files"
+IRDIR="installer-resources"
+PKGMKR=$1
+HDIUTIL=$2
+DIST_ROOT=$3
+PACKAGE=$4-$PACKAGE_VERSION-$PACKAGE_BUILD
+PKG=$PACKAGE.pkg
+DMG=$PACKAGE.dmg
+TEMPDMG=$PACKAGE.tmp.dmg
+HERE=`pwd`
+IDB=$HERE/$5
+
+prog=`basename $0`
+tmp=`mktemp -d /tmp/pcp.XXXXXXXXX` || exit 1
+status=1
+trap "rm -rf $tmp; exit \$status" 0 1 2 15
+
+_do()
+{
+    if ! $* > $tmp/out 2>&1
+    then
+	echo "$prog: Error: $*"
+	cat $tmp/out
+	exit 1
+    fi
+}
+
+_run()
+{
+    echo $*
+    eval $*
+}
+
+echo "Verifying IDB file is valid"
+_do ./install-pcp -R $DIST_ROOT -p $IDB
+
+echo "Gathering files from the source tree using install-pcp"
+_do rm -rf $IFDIR
+_do mkdir $IFDIR
+cd $IFDIR
+_do ../install-pcp -R $DIST_ROOT -c $IDB
+cd $HERE
+
+pwd
+
+#for i in ReadMe.html Welcome.txt License.html
+#do
+#    _do rm -f $IRDIR/$i
+#    _do cp $WA_MAC/docs/$i $IRDIR/$i
+#done
+
+#_do rm -f census census.gz
+
+echo "Updating version information..."
+MACOSX_VERSION=`expr \`uname -r | cut -d. -f1\` - 4`
+BUILD_DATE=`date +'%Y%m%d'`
+
+for f in installer-info installer-description; do
+	nf=`echo $f | cut -c11-`
+	sed -e"s/@package_version@/$PACKAGE_VERSION/g" \
+	    -e"s/@package_major@/$PACKAGE_MAJOR/g" \
+	    -e"s/@package_minor@/$PACKAGE_MINOR/g" \
+	    -e"s/@macosx_version@/$MACOSX_VERSION/g" \
+	    -e"s/@build_date@/$BUILD_DATE/g" \
+	    < $f > $nf || exit 1
+done
+
+echo "Launching PackageMaker..."
+
+_do rm -rf $PKG
+
+# PackageMaker returns non-zero value even if it succeeds.
+# PackageMaker must be run by the user logged into the localhost desktop.
+#
+_run $PKGMKR -build -p $HERE/$PKG  \
+	-f $HERE/installer-files -r $HERE/installer-resources \
+	-i $HERE/info -d $HERE/description &
+wait
+
+if [ ! -d $HERE/$PKG ]
+then
+    echo "$prog: Package generation failed"
+    exit 1
+fi
+
+echo "Launching hdiutil..."
+_do rm -rf $DMG $TEMPDMG $PACKAGE
+
+_do mkdir $PACKAGE
+_do mv $PKG $PACKAGE
+
+_do $HDIUTIL makehybrid -quiet -o $PACKAGE.tmp $PACKAGE \
+	-hfs-openfolder dmg.tmp/$DMG -hfs
+_do $HDIUTIL convert -quiet $TEMPDMG -format UDRO -o $DMG
+_do $HDIUTIL internet-enable -quiet -yes $DMG
+
+if [ ! -f $HERE/$DMG ]
+then
+    echo "$prog: Package Disk Image generation failed"
+    exit 1
+else
+    echo "Wrote: $HERE/$DMG"
+fi
+
+status=0

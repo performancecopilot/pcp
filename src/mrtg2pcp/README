@@ -1,0 +1,13 @@
+Converting a mrtg log file to a PCP archive
+
+This example uses the PCP::LogImport Perl wrapper around the libpcp_import
+library to convert a sadc datafile into a PCP archive.
+
+Usage: mrtg2pcp hostname devname timezone mrtglogfile archive
+
+The translation currently supports the following PCP metrics:
+    network.interface.in.bytes
+    network.interface.out.bytes
+
+This is sufficient to support the following standard pmchart views:
+    Netbytes

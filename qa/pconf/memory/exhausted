@@ -1,0 +1,26 @@
+#pmieconf-rules 1
+# 
+
+rule	memory.exhausted
+	default	= "$rule$"
+	predicate =
+"some_host (30 %_sample swap.pagesout $hosts$ @0..9 > 0)"
+	enabled	= yes
+	version	= 1
+	help	=
+"The system is swapping modified pages out of main memory to the
+swap partitions, and has been doing this on at least 3 of the
+last 10 evaluations of this rule.
+There appears to be insufficient main memory to meet the resident
+demands of the current workload.";
+
+string	rule
+	default	= "chronic main memory exhaustion"
+	modify	= no
+	display	= no;
+
+string	action_expand
+	default	= "%h"
+	modify	= no
+	display	= no;
+

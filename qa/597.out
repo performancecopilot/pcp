@@ -1,0 +1,41 @@
+QA output created by 597
+
+=== default shping agent installation ===
+Culling the Performance Metrics Name Space ...
+shping ... not found in Name Space, this is OK
+Updating the PMCD control file, and notifying PMCD ...
+Check shping metrics have gone away ... OK
+You will need to choose an appropriate configuration for installation of
+the "shping" Performance Metrics Domain Agent (PMDA).
+
+  collector	collect performance statistics on this system
+  monitor	allow this system to monitor local and/or remote systems
+  both		collector and monitor configuration for this system
+
+Please enter c(ollector) or m(onitor) or b(oth) [b] Possible configuration files to choose from:
+[1] ./sample.conf
+[2] Specify your own configuration file.
+[3] None of the above (abandon configuration file selection).
+Which configuration file do you want to use ? [1] 
+Contents of the selected configuration file:
+--------------- start ./sample.conf ---------------
+[deleted]
+--------------- end ./sample.conf ---------------
+
+Use this configuration file? [y] 
+All commands are run one after another as a group and the group is run
+once per "cycle" time.   Enter the cycle time in seconds [120] 
+Each command must complete within a timeout period, or it will be aborted
+by the "shping" PMDA.  Enter the timeout period (in seconds) [20] Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+[...install files, make output...]
+Updating the PMCD control file, and notifying PMCD ...
+Wait 10 seconds for the shping agent to initialize ...
+Check shping metrics have appeared ... 11 metrics and 65 values
+
+=== remove shping agent ===
+Culling the Performance Metrics Name Space ...
+shping ... done
+Updating the PMCD control file, and notifying PMCD ...
+[...removing files...]
+Check shping metrics have gone away ... OK

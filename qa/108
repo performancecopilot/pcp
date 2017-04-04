@@ -1,0 +1,109 @@
+#! /bin/sh
+# PCP QA Test No. 108
+# pmNameInDom and bad inst number .. core dump for pmda?
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+
+trap "rm -f $tmp.*; exit" 0 1 2 3 15
+signal=$PCP_BINADM_DIR/pmsignal
+
+_filter()
+{
+    cat >$tmp.in
+    sed <$tmp.in \
+	-e 's/value [0-9][0-9]*/value NUMBER/' >$tmp.tmp
+    if [ `egrep 'red|green|blue' $tmp.tmp | wc -l | sed -e 's/  *//g'` -ge 1 ]
+    then
+	egrep -v 'red|green|blue' $tmp.tmp
+	echo "... at least one value"
+    else
+	cat $tmp.in
+	echo "... does not look right"
+    fi
+}
+
+#
+# just like the kill builtin, just do it quietly
+_silent_kill()
+{
+    if [ $# -eq 1 ]
+    then
+	(( $signal $1 )&) >/dev/null 2>&1
+    else
+	echo "_silent_kill: needs 1 arg, not $#"
+    fi
+}
+
+# real QA test starts here
+cat <<End-of-File >$tmp.config
+log mandatory on 1 sec {
+    sample.bin [ "x555" "x666" ]
+    sample.bin [ 555 666 ]
+    sample.bin [ "x777" "x888" ]
+    sample.bin [ 777 888 ]
+}
+End-of-File
+rm -f $tmp.0 $tmp.meta $tmp.index
+pmlogger -c $tmp.config -s 1 $tmp >$tmp.tmp 2>&1 &
+killer=$!
+sleep 2
+_silent_kill $killer
+
+echo "check sample pmda is still alive ..."
+pminfo -f sample.bin
+pminfo -v sample \
+| sed \
+    -e '/sample.dynamic/d' \
+    -e '/sample.darkness/d' \
+    -e '/sample.secret/d' \
+    -e '/sample.sysinfo/d'
+echo ""
+
+cat <<End-of-File >$tmp.config
+log mandatory on 1 sec {
+    sample.bin [ 100 ]
+    simple.color [ 0 2 ]
+    sample.bin [ 200 ]
+}
+End-of-File
+rm -f $tmp.0 $tmp.meta $tmp.index
+pmlogger -c $tmp.config -s 1 $tmp >$tmp.tmp 2>&1 &
+killer=$!
+sleep 2
+_silent_kill $killer
+
+echo "check simple pmda is still alive ..."
+pminfo -f simple.color | _filter
+pminfo -v simple
+echo ""
+
+cat <<End-of-File >$tmp.config
+log mandatory on 1 sec {
+    sampledso.bin [ 777 888 ]
+}
+End-of-File
+rm -f $tmp.0 $tmp.meta $tmp.index
+pmlogger -c $tmp.config -s 1 $tmp >$tmp.tmp 2>&1 &
+killer=$!
+sleep 2
+_silent_kill $killer 2>&1 >/dev/null
+
+echo "check sampledso pmda is still alive ..."
+pminfo -f sampledso.bin
+pminfo -v sampledso \
+| sed \
+    -e '/sampledso.dynamic/d' \
+    -e '/sampledso.darkness/d' \
+    -e '/sampledso.secret/d' \
+    -e '/sampledso.sysinfo/d'
+echo ""
+
+exit 0

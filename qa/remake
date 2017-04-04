@@ -1,0 +1,88 @@
+#! /bin/sh
+#
+# Recreate validate NNN.out files for PCP QA tests
+#
+# Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+tmp=/tmp/$$
+trap "rm -f NO-PREVIOUS-OUTPUT $tmp.*; exit" 0 1 2 3 15
+
+set -- $* -q
+
+# generic initialization
+iam=remake
+. ./common
+
+_do_diff()
+{
+    case $diff
+    in
+	xxdiff)
+	    # hide the 0|1 output ... this is sick!
+	    #
+	    $diff $1 $2 >/dev/null
+	    ;;
+	*)
+	    $diff $1 $2
+	    ;;
+    esac
+}
+
+[ -f check.time ] || touch check.time
+
+for seq in $list
+do
+    if [ -f expunged ] && $expunge && egrep "^$seq([ 	]|\$)" expunged >/dev/null
+    then
+	echo "Remake: \"$seq\" has been expunged"
+    elif [ ! -f $seq ]
+    then
+	echo "Remake: cannot find \"$seq\""
+    else
+	if [ -f $seq.out -a ! -w $seq.out ]
+	then
+	    echo "Error: cannot write \"$seq.out\""
+	    exit 1
+	fi
+	if [ -f $seq.full.ok -a ! -w $seq.full.ok ]
+	then
+	    echo "Error: cannot write \"$seq.full.ok\""
+	    exit 1
+	fi
+	$PCP_ECHO_PROG $PCP_ECHO_N "$seq""$PCP_ECHO_C"
+	lasttime=`sed -n -e "/^$seq /s/.* //p" <check.time`
+	[ "X$lasttime" != X ] && $PCP_ECHO_PROG $PCP_ECHO_N " ${lasttime}s""$PCP_ECHO_C"
+	rm -f $seq.out.bak $seq.full.ok.bak
+	if ./$seq >$seq.new 2>&1
+	then
+	    if [ -f $seq.notrun ]
+	    then
+		echo " [not run] `cat $seq.notrun`"
+		echo "... obviously no $seq.out to save!"
+		rm -f $seq.notrun
+		continue
+	    fi
+	    if [ -f $seq.out ]
+	    then
+		_do_diff $seq.out $seq.new
+		rm -f $seq.out.bad
+	    else
+		touch NO-PREVIOUS-OUTPUT
+		_do_diff NO-PREVIOUS-OUTPUT $seq.new 2>/dev/null
+		rm -f NO-PREVIOUS-OUTPUT
+	    fi
+	    echo ""
+	    [ -f $seq.out ] && mv $seq.out $seq.out.bak
+	    mv $seq.new $seq.out
+	    [ -f $seq.full.ok ] && mv $seq.full.ok $seq.full.ok.bak
+	    [ -f $seq.full ] && mv $seq.full $seq.full.ok
+	else
+	    echo " - failed (exit status $?)"
+	    sed 's/^/	/' $seq.new
+	    exit 1
+	fi
+    fi
+done
+
+exit 0

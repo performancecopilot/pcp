@@ -1,0 +1,302 @@
+/*
+ * TODO
+ *
+ * These are the IRIX names, for reference
+ *	network.icmp.error
+ *	network.icmp.oldshort
+ *	network.icmp.oldicmp
+ *	network.icmp.badcode
+ *	network.icmp.tooshort
+ *	network.icmp.checksum
+ *	network.icmp.badlen
+ *	network.icmp.reflect
+ *	network.icmp.inhist.echoreply
+ *	network.icmp.inhist.unreach
+ *	network.icmp.inhist.sourcequench
+ *	network.icmp.inhist.redirect
+ *	network.icmp.inhist.echo
+ *	network.icmp.inhist.routeradvert
+ *	network.icmp.inhist.routersolicit
+ *	network.icmp.inhist.timxceed
+ *	network.icmp.inhist.paramprob
+ *	network.icmp.inhist.tstamp
+ *	network.icmp.inhist.tstampreply
+ *	network.icmp.inhist.ireq
+ *	network.icmp.inhist.ireqreply
+ *	network.icmp.inhist.maskreq
+ *	network.icmp.inhist.maskreply
+ *	network.icmp.outhist.echoreply
+ *	network.icmp.outhist.unreach
+ *	network.icmp.outhist.sourcequench
+ *	network.icmp.outhist.redirect
+ *	network.icmp.outhist.echo
+ *	network.icmp.outhist.routeradvert
+ *	network.icmp.outhist.routersolicit
+ *	network.icmp.outhist.timxceed
+ *	network.icmp.outhist.paramprob
+ *	network.icmp.outhist.tstamp
+ *	network.icmp.outhist.tstampreply
+ *	network.icmp.outhist.ireq
+ *	network.icmp.outhist.ireqreply
+ *	network.icmp.outhist.maskreq
+ *	network.icmp.outhist.maskreply
+ *	network.igmp.rcv_total
+ *	network.igmp.rcv_tooshort
+ *	network.igmp.rcv_badsum
+ *	network.igmp.rcv_queries
+ *	network.igmp.rcv_badqueries
+ *	network.igmp.rcv_reports
+ *	network.igmp.rcv_badreports
+ *	network.igmp.rcv_ourreports
+ *	network.igmp.snd_reports
+ *	network.ip.badhlen
+ *	network.ip.badlen
+ *	network.ip.badoptions
+ *	network.ip.badsum
+ *	network.ip.cantforward
+ *	network.ip.cantfrag
+ *	network.ip.delivered
+ *	network.ip.forward
+ *	network.ip.fragdropped
+ *	network.ip.fragmented
+ *	network.ip.fragments
+ *	network.ip.fragtimeout
+ *	network.ip.localout
+ *	network.ip.noproto
+ *	network.ip.noroute
+ *	network.ip.odropped
+ *	network.ip.ofragments
+ *	network.ip.reassembled
+ *	network.ip.redirect
+ *	network.ip.tooshort
+ *	network.ip.toosmall
+ *	network.ip.badvers
+ *	network.ip.rawout
+ *	network.ip.strictreassoverlapfrags
+ *	network.ip.strictreassgapfrags
+ *	network.ip.total
+ *	network.tcp.connattempt
+ *	network.tcp.accepts
+ *	network.tcp.connects
+ *	network.tcp.drops
+ *	network.tcp.conndrops
+ *	network.tcp.closed
+ *	network.tcp.segstimed
+ *	network.tcp.rttupdated
+ *	network.tcp.delack
+ *	network.tcp.timeoutdrop
+ *	network.tcp.rexmttimeo
+ *	network.tcp.persisttimeo
+ *	network.tcp.keeptimeo
+ *	network.tcp.keepprobe
+ *	network.tcp.keepdrops
+ *	network.tcp.sndtotal
+ *	network.tcp.sndpack
+ *	network.tcp.sndbyte
+ *	network.tcp.sndrexmitpack
+ *	network.tcp.sndrexmitbyte
+ *	network.tcp.sndacks
+ *	network.tcp.sndprobe
+ *	network.tcp.sndurg
+ *	network.tcp.sndwinup
+ *	network.tcp.sndctrl
+ *	network.tcp.sndrst
+ *	network.tcp.rcvtotal
+ *	network.tcp.rcvpack
+ *	network.tcp.rcvbyte
+ *	network.tcp.rcvbadsum
+ *	network.tcp.rcvbadoff
+ *	network.tcp.rcvshort
+ *	network.tcp.rcvduppack
+ *	network.tcp.rcvdupbyte
+ *	network.tcp.rcvpartduppack
+ *	network.tcp.rcvpartdupbyte
+ *	network.tcp.rcvoopack
+ *	network.tcp.rcvoobyte
+ *	network.tcp.rcvpackafterwin
+ *	network.tcp.rcvbyteafterwin
+ *	network.tcp.rcvafterclose
+ *	network.tcp.rcvwinprobe
+ *	network.tcp.rcvdupack
+ *	network.tcp.rcvacktoomuch
+ *	network.tcp.rcvackpack
+ *	network.tcp.rcvackbyte
+ *	network.tcp.rcvwinupd
+ *	network.tcp.pcbcachemiss
+ *	network.tcp.predack
+ *	network.tcp.preddat
+ *	network.tcp.pawsdrop
+ *	network.tcp.badsyn
+ *	network.tcp.listendrop
+ *	network.tcp.persistdrop
+ *	network.tcp.synpurge
+ *	network.udp.ipackets
+ *	network.udp.hdrops
+ *	network.udp.badsum
+ *	network.udp.badlen
+ *	network.udp.noport
+ *	network.udp.noportbcast
+ *	network.udp.fullsock
+ *	network.udp.opackets
+ *	network.udp.pcbcachemiss
+
+ *	network.interface.collisions
+ *	network.interface.mtu
+ *	network.interface.noproto
+ *	network.interface.baudrate
+ *	network.interface.in.errors
+ *	network.interface.in.packets
+ *	network.interface.in.bytes
+ *	network.interface.in.mcasts
+ *	network.interface.in.drops
+
+ *	network.interface.out.errors
+ *	network.interface.out.packets
+ *	network.interface.out.bytes
+ *	network.interface.out.mcasts
+ *	network.interface.out.drops
+ *	network.interface.out.qdrops
+ *	network.interface.out.qlength
+ *	network.interface.out.qmax
+ *	network.interface.total.errors
+ *	network.interface.total.packets
+ *	network.interface.total.bytes
+ *	network.interface.total.mcasts
+ *	network.interface.total.drops
+ *	network.mbuf.alloc
+ *	network.mbuf.typealloc
+ *	network.mbuf.clustalloc
+ *	network.mbuf.clustfree
+ *	network.mbuf.failed
+ *	network.mbuf.waited
+ *	network.mbuf.drained
+ *	network.mbuf.pcb.total
+ *	network.mbuf.pcb.bytes
+ *	network.mbuf.mcb.total
+ *	network.mbuf.mcb.bytes
+ *	network.mbuf.mcb.fail
+ *	network.mcr.mfc_lookups
+ *	network.mcr.mfc_misses
+ *	network.mcr.upcalls
+ *	network.mcr.no_route
+ *	network.mcr.bad_tunnel
+ *	network.mcr.cant_tunnel
+ *	network.mcr.wrong_if
+ *	network.mcr.upq_ovflw
+ *	network.mcr.cache_cleanups
+ *	network.mcr.drop_sel
+ *	network.mcr.q_overflow
+ *	network.mcr.pkt2large
+ *	network.mcr.upq_sockfull
+ *	network.socket.type
+ *	network.socket.state
+ *	network.st.connattempt
+ *	network.st.accepts
+ *	network.st.connects
+ *	network.st.drops
+ *	network.st.connfails
+ *	network.st.closed
+ *	network.st.txtotal
+ *	network.st.datatxtotal
+ *	network.st.rxtotal
+ *	network.st.datarxtotal
+ *	network.st.cksumbad
+ *	network.st.oototal
+ *	network.st.keyrejects
+ *	network.st.txrejects
+ *	network.st.rxrejects
+ *	network.st.slotdrops
+ *	network.is.in_window
+ *	network.is.in_underflow
+ *	network.is.in_overlap
+ *	network.is.up_disordered
+ *	network.is.up_ordered
+ *	network.is.outq_full
+ *	network.is.outq_wakeups
+ *	network.is.outq_drains
+ *	network.is.reorder_wakeups
+ *	network.is.reorder_drains
+ *	network.is.drain_underflow
+ *	network.is.drain_loop
+ *	network.is.drain_empty
+ *	network.is.window_stalls
+ *	network.is.window_flush_null
+ *	network.is.window_seqno_fixup
+ *	network.is.window_flush_skipped
+ *	network.is.window_flush_nlinks
+ *	network.is.link_quota_oflows
+ *	network.is.link_empty_headers
+ *	network.is.link_header_allocs
+ *	network.is.link_soft_cksums
+ *	network.is.link_sync_seqno
+ *	network.is.err_bad_version
+ *	network.is.err_input_no_link
+ */
+
+network {
+    interface
+    link
+    udp
+}
+
+network.interface {
+    in
+    out
+    mtu		SOLARIS:SCLR_NETIF:0
+}
+
+network.interface.in {
+    errors	SOLARIS:SCLR_NETIF:1
+    packets	SOLARIS:SCLR_NETIF:2
+    bytes	SOLARIS:SCLR_NETIF:3
+    bcasts	SOLARIS:SCLR_NETIF:4
+    mcasts	SOLARIS:SCLR_NETIF:5
+    drops	SOLARIS:SCLR_NETIF:6
+    delivers	SOLARIS:SCLR_NETIF:7
+}
+
+network.interface.out {
+    errors	SOLARIS:SCLR_NETIF:8
+    packets	SOLARIS:SCLR_NETIF:9
+    bytes	SOLARIS:SCLR_NETIF:10
+    bcasts	SOLARIS:SCLR_NETIF:11
+    mcasts	SOLARIS:SCLR_NETIF:12
+    drops	SOLARIS:SCLR_NETIF:13
+}
+
+network.udp {
+    ipackets    SOLARIS:SCLR_NETIF:14
+    opackets    SOLARIS:SCLR_NETIF:15
+    ierrors     SOLARIS:SCLR_NETIF:16
+    oerrors     SOLARIS:SCLR_NETIF:17
+    noports     SOLARIS:SCLR_NETIF:18
+    overflows   SOLARIS:SCLR_NETIF:19
+}
+
+network.link {
+    in
+    out
+    collisions	SOLARIS:SCLR_NETLINK:0
+    state	SOLARIS:SCLR_NETLINK:1
+    duplex	SOLARIS:SCLR_NETLINK:2
+    speed	SOLARIS:SCLR_NETLINK:3
+}
+
+network.link.in {
+    errors	SOLARIS:SCLR_NETLINK:4
+    packets	SOLARIS:SCLR_NETLINK:5
+    bytes	SOLARIS:SCLR_NETLINK:6
+    bcasts	SOLARIS:SCLR_NETLINK:7
+    mcasts	SOLARIS:SCLR_NETLINK:8
+    nobufs	SOLARIS:SCLR_NETLINK:9
+}
+
+network.link.out {
+    errors	SOLARIS:SCLR_NETLINK:10
+    packets	SOLARIS:SCLR_NETLINK:11
+    bytes	SOLARIS:SCLR_NETLINK:12
+    bcasts	SOLARIS:SCLR_NETLINK:13
+    mcasts	SOLARIS:SCLR_NETLINK:14
+    nobufs	SOLARIS:SCLR_NETLINK:15
+}
+

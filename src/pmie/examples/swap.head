@@ -1,0 +1,13 @@
+//
+// The Swap Group
+//
+
+// replace with your hosts
+HOSTS = ":localhost :foo";
+
+// replace this with your e-mail address
+MINDER = "root@localhost";
+
+// 20 second rulesets in this group
+delta = 20 sec;  		// numbers are diff than strings
+DELTA_STR = "20 seconds";	// strings are diff than numbers

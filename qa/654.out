@@ -1,0 +1,58 @@
+QA output created by 654
+You will need to choose an appropriate configuration for installation of
+the "gfs2" Performance Metrics Domain Agent (PMDA).
+
+  collector	collect performance statistics on this system
+  monitor	allow this system to monitor local and/or remote systems
+  both		collector and monitor configuration for this system
+
+Please enter c(ollector) or m(onitor) or b(oth) [b] Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+[...install files, make output...]
+Updating the PMCD control file, and notifying PMCD ...
+Check gfs2 metrics have appeared ... 316 metrics and N values
+creating pseudo device 1
+creating a mount point 1
+creating device file 1
+creating a mount point 1
+mounting pseudo device 1
+creating pseudo device 0
+creating a mount point 0
+creating device file 0
+creating a mount point 0
+mounting pseudo device 0
+=== Check for successful install of pmda ===
+
+=== Check that the number of metrics are correct ===
+
+=== Basic glock stats from all kernels ===
+
+gfs2.glocks.total PMID: 115.0.0
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0 or "loopN"] value NUMBER
+    inst [1 or "loopN"] value NUMBER
+
+gfs2.glocks.shared PMID: 115.0.1
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0 or "loopN"] value NUMBER
+    inst [1 or "loopN"] value NUMBER
+
+gfs2.glocks.unlocked PMID: 115.0.2
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0 or "loopN"] value NUMBER
+    inst [1 or "loopN"] value NUMBER
+
+gfs2.glocks.deferred PMID: 115.0.3
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0 or "loopN"] value NUMBER
+    inst [1 or "loopN"] value NUMBER
+
+gfs2.glocks.exclusive PMID: 115.0.4
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0 or "loopN"] value NUMBER
+    inst [1 or "loopN"] value NUMBER

@@ -1,0 +1,114 @@
+#! /bin/sh
+# PCP QA Test No. 075
+# tests for proper handling of white spaces in pmval and pmstore 
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+
+host=`hostname`
+
+_filter()
+{
+    sed \
+	-e "s/$host/localhost/g" \
+	-e 's/Permission denied/No permission to perform requested operation/'
+}
+
+_cmd()
+{
+    echo ""
+    echo "$ $*" | sed -e "s/$remote/REMOTEHOST/"
+    case $#
+    in
+	1|2|3)
+	    $1 $2 "$3"
+	    ;;
+	4)
+	    $1 $2 "$3" "$4"
+	    ;;
+	5)
+	    $1 $2 "$3" "$4" "$5"
+	    ;;
+	6)
+	    $1 $2 "$3" "$4" "$5" "$6"
+	    ;;
+	7)
+	    $1 $2 "$3" "$4" "$5" "$6" "$7"
+	    ;;
+	8)
+	    $1 $2 "$3" "$4" "$5" "$6" "$7" "$8"
+	    ;;
+	9)
+	    $1 $2 "$3" "$4" "$5" "$6" "$7" "$8" "$9"
+	    ;;
+	10)
+	    $1 $2 "$3" "$4" "$5" "$6" "$7" "$8" "$9" "$10"
+	    ;;
+	*)
+	    echo "Snarf! $* ($# args)"
+	    exit 1
+	    ;;
+    esac \
+    | _filter
+}
+
+_restore_sample_bin()
+{
+    for inst in 300 400 500
+    do
+	pmstore -i bin-$inst sample.bin $inst >/dev/null 2>&1
+    done
+}
+
+trap "_restore_sample_bin; rm -f $tmp.*; exit" 0 1 2 3 15
+
+PMCD_CONNECT_TIMEOUT=30
+PMCD_REQUEST_TIMEOUT=30
+export PMCD_CONNECT_TIMEOUT PMCD_REQUEST_TIMEOUT
+
+remote=`./getpmcdhosts -L -n 1 -a sample 2>$tmp.out`
+if [ -z "$remote" ]
+then
+    cat $tmp.out >$seq.notrun
+    exit
+fi
+
+# real QA test starts here
+_cmd pmstore -i bin-300,bin-400,bin-500 sample.bin 500
+_cmd pmstore -i bin-300,bin-400,bin-500 sample.bin 400
+_cmd pmstore -i "bin-300 bin-400 bin-500" sample.bin 500
+_cmd pmstore -i 'bin-300
+bin-400
+bin-500' sample.bin 455
+_cmd pmstore -i "bin-300,bin-400,bin-500" sample.bin 234
+_cmd pmstore -i 'bin-300,bin-400,bin-500' sample.bin 500
+_cmd pmstore -i bin-300 bin-400 bin-500 sample.bin 400
+_cmd pmstore -i bin-300.bin-400.bin-500 sample.bin 400
+_cmd pmstore -i 'bin-300,bin-400,bin-500' sample.bin
+_cmd pmstore -i 'bin-300,bin-400,bin-500' -h $remote sample.bin 500 
+
+_restore_sample_bin
+
+_cmd pmval -s 2 -i bin-300,bin-400,bin-500 sample.bin 
+_cmd pmval -i bin-300,bin-400,bin-500 -s 2 sample.bin
+_cmd pmval -t 0.2 -s 2 -i "bin-300 bin-400 bin-500" sample.bin
+_cmd pmval -t 0.2 -s 2 -i 'bin-300
+bin-400
+bin-500' sample.bin
+_cmd pmval -i "bin-300,bin-400,bin-500" -s 2 sample.bin
+_cmd pmval -i 'bin-300,bin-400,bin-500' -s 2 sample.bin
+_cmd pmval -s 2 -t 0.3 -i bin-300 bin-400 bin-500 sample.bin
+_cmd pmval -s 2 -t 0.3 -i bin-300.bin-400.bin-500 sample.bin
+_cmd pmval -i bin-300,bin-400 -s 2 sample.bin
+
+
+# success, all done
+status=0
+exit

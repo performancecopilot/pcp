@@ -1,0 +1,85 @@
+#! /bin/sh
+# PCP QA Test No. 1046 (formerly 527)
+# exercise pmieconf global parameters
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+which pmieconf >/dev/null 2>&1 || _notrun "No pmieconf binary installed"
+
+status=1	# failure is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    $PCP_AWK_PROG '/delta = ([0-9]+)/ { print $(NF-2), $(NF-1), $NF }'
+}
+
+# real QA test starts here
+cat > $tmp.pmie <<EOF
+// pmieconf-pmie 1 ./pconf
+// end
+EOF
+
+echo
+echo "=== first, set global delta"
+pmieconf -r ./pconf -f $tmp.pmie m global delta 120
+head -3 $tmp.pmie
+
+echo
+echo "=== now change cpu groups delta"
+pmieconf -r ./pconf -f $tmp.pmie modify cpu delta 450
+head -9 $tmp.pmie
+
+echo
+echo "=== now print out some deltas"
+# note use fgrep in case of bogus double delta
+echo o  global
+pmieconf -r ./pconf -f $tmp.pmie l global | _filter
+echo o  memory
+pmieconf -r ./pconf -f $tmp.pmie l memory | _filter
+echo o  cpu
+pmieconf -r ./pconf -f $tmp.pmie l cpu | _filter
+
+echo
+echo "=== change global again"
+pmieconf -r ./pconf -f $tmp.pmie m global delta 60
+head -9 $tmp.pmie
+
+echo
+echo "=== print out the deltas"
+echo o  global
+pmieconf -r ./pconf -f $tmp.pmie l global | _filter
+echo o  memory
+pmieconf -r ./pconf -f $tmp.pmie l memory | _filter
+echo o  cpu
+pmieconf -r ./pconf -f $tmp.pmie l cpu | _filter
+
+echo
+echo "=== lconf is in $seq.full ==="
+echo
+cp $tmp.pmie $seq.full
+
+# debug check ... someone's clobbering pconf
+#
+if `which git >/dev/null 2>&1`
+then
+    if git config --get remote.origin.url >/dev/null
+    then
+	# assume we're in a git repository, but may be older version of
+	# git (so -s does not work)
+	git status | grep pconf
+    fi
+fi
+
+# success, all done
+status=0
+exit

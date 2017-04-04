@@ -1,0 +1,8 @@
+//
+// Refine the preceding rule to apply only between the hours of 9am and 5pm,
+// and to require that just 3 of the four samples exceed the threshold
+//
+$hour >= 9 && $hour <= 17 && some_inst 75 %_sample
+    disk.dev.total @0..3 > 40 count/sec
+	-> print "disk busy for 20 sec" &
+	   shell 5 min "dkvis";

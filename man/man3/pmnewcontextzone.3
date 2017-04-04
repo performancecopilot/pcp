@@ -1,0 +1,80 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMNEWCONTEXTZONE 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmNewContextZone\f1 \- establish a reporting timezone based on a PMAPI context
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.sp
+int pmNewContextZone(void);
+.sp
+cc ... \-lpcp
+.ft 1
+.SH DESCRIPTION
+.de CW
+.ie t \f(CW\\$1\f1\\$2
+.el \fI\\$1\f1\\$2
+..
+The current reporting timezone affects the timezone used by
+.BR pmCtime (3)
+and
+.BR pmLocaltime (3).
+.PP
+If the current PMAPI context is an archive,
+.B pmNewContextZone
+uses the timezone from the archive label record to
+set the current reporting timezone.
+.PP
+If the current PMAPI context
+corresponds to a host source of metrics,
+.B pmNewContextZone
+executes a
+.BR pmFetch (3)
+to retrieve the value for the metric
+.CW pmcd.timezone
+and uses that to set the current reporting timezone.
+.PP
+In both cases,
+.B pmNewContextZone
+returns a value to identify the current reporting timezone
+that may be
+used in a subsequent call to
+.BR pmUseZone (3)
+to restore this reporting timezone.
+.SH SEE ALSO
+.BR PMAPI (3),
+.BR pmCtime (3),
+.BR pmFetch (3),
+.BR pmGetConfig (3),
+.BR pmLocaltime (3),
+.BR pmNewContext (3),
+.BR pmNewZone (3),
+.BR pmUseZone (3),
+.BR pmWhichZone (3),
+.BR pcp.conf (5),
+.BR pcp.env (5)
+and
+.BR environ (7).
+.SH DIAGNOSTICS
+.TP
+.B PM_ERR_NOCONTEXT
+the current PMAPI context is not valid
+.TP
+other
+a return value less than zero indicates a fatal error from a system call,
+most likely
+.BR malloc (3)

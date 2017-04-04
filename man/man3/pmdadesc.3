@@ -1,0 +1,61 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMDADESC 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmdaDesc\f1 \- get the description of a metric from a PMDA
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.br
+#include <pcp/impl.h>
+.br
+#include <pcp/pmda.h>
+.sp
+int pmdaDesc(pmID \fIpmid\fP, pmDesc *\fIdesc\fP, pmdaExt *\fIpmda\fP);
+.sp
+cc ... \-lpcp_pmda \-lpcp
+.ft 1
+.SH DESCRIPTION
+.B pmdaDesc
+uses the standard 
+.BR PMDA (3)
+data structures to return the
+.B pmDesc
+description in
+.I desc
+for the metric identified by
+.IR pmid .
+.SH DIAGNOSTICS
+If the 
+.I pmid
+does not correspond to any metric supported by this PMDA,
+.B pmdaDesc
+returns 
+.BR PM_ERR_PMID .
+.SH CAVEAT
+The PMDA must be using 
+.B PMDA_INTERFACE_2 
+or later, as specified in the call to 
+.BR pmdaDSO (3)
+or 
+.BR pmdaDaemon (3).
+.SH SEE ALSO
+.BR PMAPI (3),
+.BR PMDA (3),
+.BR pmdaDaemon (3),
+.BR pmdaDSO (3)
+and
+.BR pmLookupDesc (3).

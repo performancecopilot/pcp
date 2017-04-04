@@ -1,0 +1,69 @@
+# Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+# 
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+#
+
+include $(PCP_ETC_DIR)/pcp.conf
+
+# need to deal with these ...
+# ELF style
+#	/usr/lib/libpcp_trace.a  /usr/lib/libpcp_trace.so  /usr/lib/libpcp_trace.so.2
+# Mac OS X style
+#	/usr/lib/libpcp_trace.2.dylib
+#
+DSO_SUFFIX	= $(shell ls $(PCP_LIB_DIR)/libpcp_trace.* | sed -e '/\.a$$/d' -e 's/.*libpcp_trace//' -e 's/\.[0-9][0-9]*//' -e 's/^\.//' | sed -e 1q)
+ifeq "$(DSO_SUFFIX)" ""
+$(error cannot set DSO_SUFFIX on this platform)
+endif
+
+# Note: DSO_VERSION includes (starts with or ends with) $(DSO_SUFFIX)
+#
+DSO_VERSION	= $(shell ls $(PCP_LIB_DIR)/libpcp_trace.* | sed -n -e '/\.a$$/d' -e 's/.*libpcp_trace\.//' -e '/\.$(DSO_SUFFIX)/p' -e '/$(DSO_SUFFIX)\./p' | sed -e 's/^\.//' -e 1q) 
+ifeq "$(DSO_VERSION)" ""
+$(error cannot set DSO_VERSION on this platform)
+endif
+
+SHELL	= /bin/sh
+CC	= cc
+TARGETS	= lib/libpcp_trace.$(DSO_VERSION)
+ifeq "$(shell [ -f $(PCP_LIB_DIR)/libpcp_trace.$(DSO_SUFFIX) ] && echo 1)" "1"
+TARGETS	+= lib/libpcp_trace.$(DSO_SUFFIX) 
+endif
+CFILES	= stub.c
+CFLAGS += -DPMTRACE_DEBUG
+CFLAGS += -fPIC -fno-strict-aliasing
+LDIRT	= lib lib32 lib64
+
+default: $(TARGETS)
+
+lib/libpcp_trace.$(DSO_VERSION): stub.c
+	-[ ! -d lib ] && mkdir lib
+	rm -f $@
+	cd lib; $(CC) $(CFLAGS) -shared ../stub.c -o libpcp_trace.$(DSO_VERSION)
+
+lib/libpcp_trace.$(DSO_SUFFIX): lib/libpcp_trace.$(DSO_VERSION)
+	rm -f $@
+	cd lib; ln -s libpcp_trace.$(DSO_VERSION) libpcp_trace.$(DSO_SUFFIX)
+
+clean:
+	rm -rf $(LDIRT)
+
+clobber:
+	rm -rf $(LDIRT) $(TARGETS)
+
+debug:
+	@echo "DSO_SUFFIX=$(DSO_SUFFIX)"
+	@echo "DSO_VERSION=$(DSO_VERSION)"
+	@echo "TARGETS=$(TARGETS)"

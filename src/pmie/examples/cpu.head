@@ -1,0 +1,12 @@
+// 
+// Some Common Performance Monitoring Scenarios
+//
+// The CPU Group
+//
+
+delta = 2 sec;	// more often for demonstration purposes
+
+// common prefixes
+//
+percpu	= "kernel.percpu";
+all	= "kernel.all";

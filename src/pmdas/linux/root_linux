@@ -1,0 +1,1215 @@
+/*
+ * Copyright (c) 2000,2004,2007-2008 Silicon Graphics, Inc.  All Rights Reserved.
+ * Portions Copyright (c) International Business Machines Corp., 2002
+ * Portions Copyright (c) 2007-2009 Aconex.  All Rights Reserved.
+ * Portions Copyright (c) 2013-2016 Red Hat.
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+ * for more details.
+ */
+
+root {
+    hinv
+    kernel
+    mem
+    swap
+    network
+    disk
+    filesys
+    swapdev
+    rpc
+    nfs
+    nfs3
+    nfs4
+    pmda
+    ipc 
+    vfs
+    tmpfs
+    sysfs
+}
+
+hinv {
+    physmem		60:1:9
+    pagesize		60:1:11
+    ncpu		60:0:32
+    ndisk		60:0:33
+    nfilesys		60:5:0
+    ninterface		60:3:27
+    nnode		60:0:19
+    machine		60:18:7
+    map		
+    cpu
+    node
+    hugepagesize	60:1:59
+}
+
+hinv.map {
+    scsi		60:15:0
+    cpu_num		60:18:6
+    cpu_node		60:18:8
+    dmname		60:54:13
+    mdname		60:59:13
+}
+
+hinv.cpu {
+    clock		60:18:0
+    vendor		60:18:1
+    model		60:18:2
+    stepping		60:18:3
+    cache		60:18:4
+    bogomips		60:18:5
+    model_name		60:18:9
+    flags		60:18:10
+    cache_alignment	60:18:11
+    online		60:55:0
+}
+
+hinv.node {
+    online		60:55:1
+}
+
+kernel {
+    all
+    percpu
+    pernode
+    uname
+}
+
+kernel.all {
+    cpu
+    load		60:2:0
+    intr		60:0:12
+    pswitch		60:0:13
+    sysfork		60:0:14
+    running		60:0:15
+    blocked		60:0:16
+    hz			60:0:48
+    uptime		60:26:0
+    idletime		60:26:1
+    nusers		60:25:0
+    lastpid		60:2:1
+    runnable		60:2:2
+    nprocs		60:2:3
+    interrupts
+}
+
+kernel.all.interrupts {
+    errors		60:4:3
+}
+
+kernel.all.cpu {
+    user		60:0:20
+    nice		60:0:21
+    sys			60:0:22
+    idle		60:0:23
+    intr		60:0:34
+    wait
+    irq
+    steal		60:0:55
+    guest		60:0:60
+    vuser		60:0:78
+    guest_nice		60:0:81
+    vnice		60:0:82
+}
+
+kernel.all.cpu.wait {
+    total		60:0:35
+}
+
+kernel.all.cpu.irq {
+    soft		60:0:53
+    hard		60:0:54
+}
+
+kernel.percpu {
+    interrupts		60:*:*
+    softirqs		60:*:*
+    cpu
+    intr		60:4:4
+}
+
+kernel.percpu.cpu {
+    user		60:0:0
+    nice		60:0:1
+    sys			60:0:2
+    idle		60:0:3
+    intr		60:0:31
+    wait
+    irq
+    steal		60:0:58
+    guest		60:0:61
+    vuser		60:0:76
+    guest_nice		60:0:83
+    vnice		60:0:84
+}
+
+kernel.percpu.cpu.wait {
+    total		60:0:30
+}
+
+kernel.percpu.cpu.irq {
+    soft		60:0:56
+    hard		60:0:57
+}
+
+kernel.pernode {
+    cpu
+}
+
+kernel.pernode.cpu {
+    user		60:0:62
+    nice		60:0:63
+    sys			60:0:64
+    idle		60:0:65
+    intr		60:0:66
+    wait
+    irq
+    steal		60:0:67
+    guest		60:0:68
+    vuser		60:0:77
+    guest_nice		60:0:85
+    vnice		60:0:86
+}
+
+kernel.pernode.cpu.wait {
+    total		60:0:69
+}
+
+kernel.pernode.cpu.irq {
+    soft		60:0:70
+    hard		60:0:71
+}
+
+kernel.uname {
+    release		60:12:0
+    version		60:12:1
+    sysname		60:12:2
+    machine		60:12:3
+    nodename		60:12:4
+    distro		60:12:7
+}
+
+ipc {
+    sem
+    msg
+    shm 
+}
+
+ipc.sem {
+    max_semmap		60:21:0
+    max_semid		60:21:1
+    max_sem		60:21:2
+    num_undo		60:21:3
+    max_perid		60:21:4
+    max_ops		60:21:5
+    max_undoent		60:21:6
+    sz_semundo		60:21:7
+    max_semval		60:21:8
+    max_exit		60:21:9
+    used_sem		60:61:0
+    tot_sem		60:61:1
+    key 		60:66:0
+    owner 		60:66:1
+    perms 		60:66:2
+    nsems 		60:66:3
+}
+
+ipc.msg {
+    sz_pool		60:22:0
+    mapent		60:22:1
+    max_msgsz		60:22:2
+    max_defmsgq		60:22:3
+    max_msgqid		60:22:4
+    max_msgseg		60:22:5
+    num_smsghdr		60:22:6
+    max_seg		60:22:7
+    used_queues		60:62:0
+    tot_msg		60:62:1
+    tot_bytes		60:62:2
+    key 		60:65:0
+    owner 		60:65:1
+    perms 		60:65:2
+    msgsz 		60:65:3
+    messages 		60:65:4
+}
+
+ipc.shm {
+    max_segsz		60:23:0
+    min_segsz		60:23:1
+    max_seg		60:23:2
+    max_segproc		60:23:3
+    max_shmsys		60:23:4
+    tot			60:56:0
+    rss			60:56:1
+    swp			60:56:2
+    used_ids		60:56:3
+    swap_attempts	60:56:4
+    swap_successes	60:56:5
+    key 		60:64:0
+    owner 		60:64:1
+    perms 		60:64:2
+    segsz 		60:64:3
+    nattch 		60:64:4
+    status 		60:64:5
+}
+
+pmda {
+    uname		60:12:5
+    version		60:12:6
+}
+
+disk {
+    dev
+    all
+    partitions
+    dm
+    md
+}
+
+disk.dev {
+    read		60:0:4
+    write		60:0:5
+    total		60:0:28
+    blkread		60:0:6
+    blkwrite		60:0:7
+    blktotal		60:0:36
+    read_bytes		60:0:38
+    write_bytes		60:0:39
+    total_bytes		60:0:40
+    read_merge		60:0:49
+    write_merge		60:0:50
+    avactive		60:0:46
+    read_rawactive	60:0:72
+    write_rawactive	60:0:73
+    total_rawactive	60:0:79
+    aveq		60:0:47
+    scheduler		60:0:59
+}
+
+disk.all {
+    read		60:0:24
+    write		60:0:25
+    total		60:0:29
+    blkread		60:0:26
+    blkwrite		60:0:27
+    blktotal		60:0:37
+    read_bytes		60:0:41
+    write_bytes		60:0:42
+    total_bytes		60:0:43
+    read_merge		60:0:51
+    write_merge		60:0:52
+    avactive		60:0:44
+    read_rawactive	60:0:74
+    write_rawactive	60:0:75
+    total_rawactive	60:0:80
+    aveq		60:0:45
+}
+
+disk.dm {
+    read		60:54:0
+    write		60:54:1
+    total		60:54:2
+    blkread		60:54:3
+    blkwrite		60:54:4
+    blktotal		60:54:5
+    read_bytes		60:54:6
+    write_bytes		60:54:7
+    total_bytes		60:54:8
+    read_merge		60:54:9
+    write_merge		60:54:10
+    avactive		60:54:11
+    aveq		60:54:12
+    read_rawactive	60:54:14
+    write_rawactive	60:54:15
+    total_rawactive	60:54:16
+}
+
+disk.md {
+    read		60:59:0
+    write		60:59:1
+    total		60:59:2
+    blkread		60:59:3
+    blkwrite		60:59:4
+    blktotal		60:59:5
+    read_bytes		60:59:6
+    write_bytes		60:59:7
+    total_bytes		60:59:8
+    read_merge		60:59:9
+    write_merge		60:59:10
+    avactive		60:59:11
+    aveq		60:59:12
+    read_rawactive	60:59:14
+    write_rawactive	60:59:15
+    total_rawactive	60:59:16
+    status		60:60:0
+}
+
+disk.partitions {
+    read		60:10:0
+    write		60:10:1
+    total		60:10:2
+    blkread		60:10:3
+    blkwrite		60:10:4
+    blktotal		60:10:5
+    read_bytes		60:10:6
+    write_bytes		60:10:7
+    total_bytes		60:10:8
+    read_merge          60:10:9
+    write_merge         60:10:10
+    avactive            60:10:11
+    aveq                60:10:12
+    read_rawactive      60:10:13
+    write_rawactive     60:10:14
+    total_rawactive	60:10:15
+}
+
+mem {
+    physmem		60:1:0
+    freemem		60:1:10
+    util
+    numa
+    vmstat
+    buddyinfo
+    slabinfo
+    zoneinfo
+}
+
+mem.buddyinfo {
+    pages		60:67:0
+    total		60:67:1
+}
+
+mem.util {
+    used		60:1:1
+    free		60:1:2
+    shared		60:1:3
+    bufmem		60:1:4
+    cached		60:1:5
+    other		60:1:12
+    swapCached		60:1:13
+    active		60:1:14
+    inactive		60:1:15
+    highTotal		60:1:16
+    highFree		60:1:17
+    lowTotal		60:1:18
+    lowFree		60:1:19
+    swapTotal		60:1:20
+    swapFree		60:1:21
+    dirty		60:1:22
+    writeback		60:1:23
+    mapped		60:1:24
+    slab		60:1:25
+    committed_AS	60:1:26
+    pageTables		60:1:27
+    reverseMaps		60:1:28
+    cache_clean		60:1:29
+    anonpages		60:1:30
+    commitLimit		60:1:31
+    bounce		60:1:32
+    NFS_Unstable	60:1:33
+    slabReclaimable	60:1:34
+    slabUnreclaimable	60:1:35
+    active_anon		60:1:36
+    inactive_anon	60:1:37
+    active_file		60:1:38
+    inactive_file	60:1:39
+    unevictable		60:1:40
+    mlocked		60:1:41
+    shmem		60:1:42
+    kernelStack		60:1:43
+    hugepagesTotal	60:1:44
+    hugepagesFree	60:1:45
+    hugepagesRsvd	60:1:46
+    hugepagesSurp	60:1:47
+    directMap4k		60:1:48
+    directMap2M		60:1:49
+    vmallocTotal	60:1:50
+    vmallocUsed		60:1:51
+    vmallocChunk	60:1:52
+    mmap_copy		60:1:53
+    quicklists		60:1:54
+    corrupthardware	60:1:55
+    anonhugepages	60:1:56
+    directMap1G		60:1:57
+    available		60:1:58
+}
+
+mem.numa {
+    util
+    alloc
+    max_bandwidth	60:36:38
+}
+
+mem.numa.util {
+    total		60:36:0
+    free		60:36:1
+    used		60:36:2
+    active		60:36:3
+    inactive		60:36:4
+    active_anon		60:36:5
+    inactive_anon	60:36:6
+    active_file		60:36:7
+    inactive_file	60:36:8
+    highTotal		60:36:9
+    highFree		60:36:10
+    lowTotal		60:36:11
+    lowFree		60:36:12
+    unevictable		60:36:13
+    mlocked		60:36:14
+    dirty		60:36:15
+    writeback		60:36:16
+    filePages		60:36:17
+    mapped		60:36:18
+    anonpages		60:36:19
+    shmem		60:36:20
+    kernelStack		60:36:21
+    pageTables		60:36:22
+    NFS_Unstable	60:36:23
+    bounce		60:36:24
+    writebackTmp	60:36:25
+    slab		60:36:26
+    slabReclaimable	60:36:27
+    slabUnreclaimable	60:36:28
+    hugepagesTotal	60:36:29
+    hugepagesFree	60:36:30
+    hugepagesSurp	60:36:31
+}
+
+mem.numa.alloc {
+    hit			60:36:32
+    miss		60:36:33
+    foreign		60:36:34
+    interleave_hit	60:36:35
+    local_node		60:36:36
+    other_node		60:36:37
+}
+
+mem.zoneinfo {
+    free		60:68:0
+}
+
+swap {
+    pagesin		60:0:8
+    pagesout		60:0:9
+    in			60:0:10
+    out			60:0:11
+    free 		60:1:8
+    length	 	60:1:6
+    used 		60:1:7
+}
+
+network {
+    interface
+    sockstat
+    ip
+    icmp
+    icmpmsg
+    tcp
+    udp
+    udplite
+    tcpconn
+    softnet
+    ip6
+    icmp6
+    udp6
+    udplite6
+}
+
+network.interface {
+    collisions		60:3:13
+    in
+    out
+    total
+    mtu			60:3:21
+    speed		60:3:22
+    baudrate		60:3:23
+    duplex		60:3:24
+    up			60:3:25
+    running		60:3:26
+    inet_addr		60:33:0
+    ipv6_addr		60:33:1
+    ipv6_scope		60:33:2
+    hw_addr		60:33:3
+}
+
+network.interface.in {
+    bytes		60:3:0
+    packets		60:3:1
+    errors		60:3:2
+    drops		60:3:3
+    fifo		60:3:4
+    frame		60:3:5
+    compressed		60:3:6
+    mcasts		60:3:7
+}
+
+network.interface.out {
+    bytes		60:3:8
+    packets		60:3:9
+    errors		60:3:10
+    drops		60:3:11
+    fifo		60:3:12
+    carrier		60:3:14
+    compressed		60:3:15
+}
+
+network.interface.total {
+    bytes		60:3:16
+    packets		60:3:17
+    errors		60:3:18
+    drops		60:3:19
+    mcasts		60:3:20
+}
+
+network.sockstat {
+    tcp
+    udp
+    raw
+}
+
+network.sockstat.tcp {
+    inuse 		60:11:0
+    highest 		60:11:1
+    util 		60:11:2
+}
+
+network.sockstat.udp {
+    inuse 		60:11:3
+    highest 		60:11:4
+    util 		60:11:5
+}
+
+network.sockstat.raw {
+    inuse 		60:11:6
+    highest 		60:11:7
+    util 		60:11:8
+}
+
+network.ip {
+    forwarding		60:14:00
+    defaultttl		60:14:01
+    inreceives		60:14:02
+    inhdrerrors		60:14:03
+    inaddrerrors	60:14:04
+    forwdatagrams	60:14:05
+    inunknownprotos	60:14:06
+    indiscards		60:14:07
+    indelivers		60:14:08
+    outrequests		60:14:09
+    outdiscards		60:14:10
+    outnoroutes		60:14:11
+    reasmtimeout	60:14:12
+    reasmreqds		60:14:13
+    reasmoks		60:14:14
+    reasmfails		60:14:15
+    fragoks		60:14:16
+    fragfails		60:14:17
+    fragcreates		60:14:18
+    innoroutes          60:53:00
+    intruncatedpkts     60:53:01
+    inmcastpkts         60:53:02
+    outmcastpkts        60:53:03
+    inbcastpkts         60:53:04
+    outbcastpkts        60:53:05
+    inoctets            60:53:06
+    outoctets           60:53:07
+    inmcastoctets       60:53:08
+    outmcastoctets      60:53:09
+    inbcastoctets       60:53:10
+    outbcastoctets      60:53:11
+    csumerrors          60:53:12
+    noectpkts           60:53:13
+    ect1pkts            60:53:14
+    ect0pkts            60:53:15
+    cepkts              60:53:16
+}
+
+network.icmp {
+    inmsgs		60:14:20
+    inerrors		60:14:21
+    indestunreachs	60:14:22
+    intimeexcds		60:14:23
+    inparmprobs		60:14:24
+    insrcquenchs	60:14:25
+    inredirects		60:14:26
+    inechos		60:14:27
+    inechoreps		60:14:28
+    intimestamps	60:14:29
+    intimestampreps	60:14:30
+    inaddrmasks		60:14:31
+    inaddrmaskreps	60:14:32
+    outmsgs		60:14:33
+    outerrors		60:14:34
+    outdestunreachs	60:14:35
+    outtimeexcds	60:14:36
+    outparmprobs	60:14:37
+    outsrcquenchs	60:14:38
+    outredirects	60:14:39
+    outechos		60:14:40
+    outechoreps		60:14:41
+    outtimestamps	60:14:42
+    outtimestampreps	60:14:43
+    outaddrmasks	60:14:44
+    outaddrmaskreps	60:14:45
+    incsumerrors	60:14:46
+}
+
+network.tcp {
+    rtoalgorithm	60:14:50
+    rtomin		60:14:51
+    rtomax		60:14:52
+    maxconn		60:14:53
+    activeopens		60:14:54
+    passiveopens	60:14:55
+    attemptfails	60:14:56
+    estabresets		60:14:57
+    currestab		60:14:58
+    insegs		60:14:59
+    outsegs		60:14:60
+    retranssegs		60:14:61
+    inerrs		60:14:62
+    outrsts		60:14:63
+    incsumerrors	60:14:64
+    syncookiessent	60:53:17
+    syncookiesrecv	60:53:18
+    syncookiesfailed	60:53:19
+    embryonicrsts	60:53:20
+    prunecalled		60:53:21
+    rcvpruned		60:53:22
+    ofopruned		60:53:23
+    outofwindowicmps	60:53:24
+    lockdroppedicmps	60:53:25
+    arpfilter		60:53:26
+    timewaited		60:53:27
+    timewaitrecycled	60:53:28
+    timewaitkilled	60:53:29
+    pawspassiverejected 60:53:30
+    pawsactiverejected	60:53:31
+    pawsestabrejected	60:53:32
+    delayedacks		60:53:33
+    delayedacklocked	60:53:34
+    delayedacklost	60:53:35
+    listenoverflows	60:53:36
+    listendrops		60:53:37
+    prequeued		60:53:38
+    directcopyfrombacklog 60:53:39
+    directcopyfromprequeue 60:53:40
+    prequeueddropped	60:53:41
+    hphits		60:53:42
+    hphitstouser	60:53:43
+    pureacks		60:53:44
+    hpacks		60:53:45
+    renorecovery	60:53:46
+    sackrecovery	60:53:47
+    sackreneging	60:53:48
+    fackreorder		60:53:49
+    sackreorder		60:53:50
+    renoreorder		60:53:51
+    tsreorder		60:53:52
+    fullundo		60:53:53
+    partialundo		60:53:54
+    dsackundo		60:53:55
+    lossundo		60:53:56
+    lostretransmit	60:53:57
+    renofailures	60:53:58
+    sackfailures	60:53:59
+    lossfailures	60:53:60
+    fastretrans		60:53:61
+    forwardretrans	60:53:62
+    slowstartretrans	60:53:63
+    timeouts		60:53:64
+    lossprobes		60:53:65
+    lossproberecovery	60:53:66
+    renorecoveryfail	60:53:67
+    sackrecoveryfail	60:53:68
+    schedulerfail	60:53:69
+    rcvcollapsed	60:53:70
+    dsackoldsent	60:53:71
+    dsackofosent	60:53:72
+    dsackrecv		60:53:73
+    dsackoforecv	60:53:74
+    abortondata		60:53:75
+    abortonclose	60:53:76
+    abortonmemory	60:53:77
+    abortontimeout	60:53:78
+    abortonlinger	60:53:79
+    abortfailed		60:53:80
+    memorypressures	60:53:81
+    sackdiscard		60:53:82
+    dsackignoredold	60:53:83
+    dsackignorednoundo	60:53:84
+    spuriousrtos	60:53:85
+    md5notfound		60:53:86
+    md5unexpected	60:53:87
+    sackshifted		60:53:88
+    sackmerged		60:53:89
+    sackshiftfallback	60:53:90
+    backlogdrop		60:53:91
+    minttldrop		60:53:92
+    deferacceptdrop	60:53:93
+    iprpfilter		60:53:94
+    timewaitoverflow	60:53:95
+    reqqfulldocookies	60:53:96
+    reqqfulldrop	60:53:97
+    retransfail		60:53:98
+    rcvcoalesce		60:53:99
+    ofoqueue		60:53:100
+    ofodrop		60:53:101
+    ofomerge		60:53:102
+    challengeack	60:53:103
+    synchallenge	60:53:104
+    fastopenactive	60:53:105
+    fastopenactivefail	60:53:106
+    fastopenpassive	60:53:107
+    fastopenpassivefail	60:53:108
+    fastopenlistenoverflow 60:53:109
+    fastopencookiereqd	60:53:110
+    spuriousrtxhostqueues 60:53:111
+    busypollrxpackets	60:53:112
+    autocorking		60:53:113
+    fromzerowindowadv	60:53:114
+    tozerowindowadv	60:53:115
+    wantzerowindowadv	60:53:116
+    synretrans		60:53:117
+    origdatasent	60:53:118
+}
+
+network.udp {
+    indatagrams		60:14:70
+    noports		60:14:71
+    inerrors		60:14:72
+    outdatagrams	60:14:74
+    recvbuferrors	60:14:75
+    sndbuferrors	60:14:76
+    incsumerrors	60:14:83
+}
+
+network.udplite {
+    indatagrams		60:14:77
+    noports		60:14:78
+    inerrors		60:14:79
+    outdatagrams	60:14:80
+    recvbuferrors	60:14:81
+    sndbuferrors	60:14:82
+    incsumerrors	60:14:84
+}
+
+network.icmpmsg {
+    intype		60:14:88
+    outtype		60:14:89
+}
+
+network.softnet {
+    processed		60:57:0
+    dropped		60:57:1
+    time_squeeze	60:57:2
+    cpu_collision	60:57:3
+    received_rps	60:57:4
+    flow_limit_count	60:57:5
+    percpu
+}
+
+network.softnet.percpu {
+    processed		60:57:6
+    dropped		60:57:7
+    time_squeeze	60:57:8
+    cpu_collision	60:57:9
+    received_rps	60:57:10
+    flow_limit_count	60:57:11
+}
+
+network.ip6 {
+    inreceives		60:58:0
+    inhdrerrors		60:58:1
+    intoobigerrors	60:58:2
+    innoroutes		60:58:3
+    inaddrerrors	60:58:4
+    inunknownprotos	60:58:5
+    intruncatedpkts	60:58:6
+    indiscards		60:58:7
+    indelivers		60:58:8
+    outforwdatagrams	60:58:9
+    outrequests		60:58:10
+    outdiscards		60:58:11
+    outnoroutes		60:58:12
+    reasmtimeout	60:58:13
+    reasmreqds		60:58:14
+    reasmoks		60:58:15
+    reasmfails		60:58:16
+    fragoks		60:58:17
+    fragfails		60:58:18
+    fragcreates		60:58:19
+    inmcastpkts		60:58:20
+    outmcastpkts	60:58:21
+    inoctets		60:58:22
+    outoctets		60:58:23
+    inmcastoctets	60:58:24
+    outmcastoctets	60:58:25
+    inbcastoctets	60:58:26
+    outbcastoctets	60:58:27
+    innoectpkts		60:58:28
+    inect1pkts		60:58:29
+    inect0pkts		60:58:30
+    incepkts		60:58:31
+}
+
+network.icmp6 {
+    inmsgs		60:58:32
+    inerrors		60:58:33
+    outmsgs		60:58:34
+    outerrors		60:58:35
+    incsumerrors	60:58:36
+    indestunreachs	60:58:37
+    inpkttoobigs	60:58:38
+    intimeexcds		60:58:39
+    inparmproblems	60:58:40
+    inechos		60:58:41
+    inechoreplies	60:58:42
+    ingroupmembqueries	60:58:43
+    ingroupmembresponses 60:58:44
+    ingroupmembreductions 60:58:45
+    inroutersolicits	60:58:46
+    inrouteradvertisements 60:58:47
+    inneighborsolicits	60:58:48
+    inneighboradvertisements 60:58:49
+    inredirects		60:58:50
+    inmldv2reports	60:58:51
+    outdestunreachs	60:58:52
+    outpkttoobigs	60:58:53
+    outtimeexcds	60:58:54
+    outparmproblems	60:58:55
+    outechos		60:58:56
+    outechoreplies	60:58:57
+    outgroupmembqueries	60:58:58
+    outgroupmembresponses 60:58:59
+    outgroupmembreductions 60:58:60
+    outroutersolicits	60:58:61
+    outrouteradvertisements 60:58:62
+    outneighborsolicits	60:58:63
+    outneighboradvertisements 60:58:64
+    outredirects	60:58:65
+    outmldv2reports	60:58:66
+}
+
+network.udp6 {
+    indatagrams		60:58:67
+    noports		60:58:68
+    inerrors		60:58:69
+    outdatagrams	60:58:70
+    rcvbuferrors	60:58:71
+    sndbuferrors	60:58:72
+    incsumerrors	60:58:73
+    ignoredmulti	60:58:74
+}
+
+network.udplite6 {
+    indatagrams		60:58:75
+    noports		60:58:76
+    inerrors		60:58:77
+    outdatagrams	60:58:78
+    rcvbuferrors	60:58:79
+    sndbuferrors	60:58:80
+    incsumerrors	60:58:81
+}
+
+filesys {
+    capacity		60:5:1
+    used		60:5:2
+    free		60:5:3
+    maxfiles		60:5:4
+    usedfiles		60:5:5
+    freefiles		60:5:6
+    mountdir		60:5:7
+    full		60:5:8
+    blocksize           60:5:9
+    avail               60:5:10
+    readonly            60:5:11
+}
+
+tmpfs {
+    capacity		60:34:1
+    used		60:34:2
+    free		60:34:3
+    maxfiles		60:34:4
+    usedfiles		60:34:5
+    freefiles		60:34:6
+    full		60:34:7
+}
+
+swapdev {
+    free		60:6:0
+    length		60:6:1
+    maxswap		60:6:2
+    vlength		60:6:3
+    priority		60:6:4
+}
+
+nfs {
+    client
+    server
+}
+
+nfs.client {
+    calls		60:7:1
+    reqs		60:7:4
+}
+
+nfs.server {
+    calls		60:7:50
+    reqs		60:7:12
+}
+
+rpc {
+    client
+    server
+}
+
+rpc.client {
+    rpccnt		60:7:20
+    rpcretrans		60:7:21
+    rpcauthrefresh	60:7:22
+    netcnt		60:7:24
+    netudpcnt		60:7:25
+    nettcpcnt		60:7:26
+    nettcpconn		60:7:27
+}
+
+rpc.server {
+    rpccnt		60:7:30
+    rpcerr		60:7:31
+    rpcbadfmt		60:7:32
+    rpcbadauth		60:7:33
+    rpcbadclnt		60:7:34
+    rchits		60:7:35
+    rcmisses		60:7:36
+    rcnocache		60:7:37
+    fh_cached		60:7:38
+    fh_valid		60:7:39
+    fh_fixup		60:7:40
+    fh_lookup		60:7:41
+    fh_stale		60:7:42
+    fh_concurrent	60:7:43
+    netcnt		60:7:44
+    netudpcnt		60:7:45
+    nettcpcnt		60:7:46
+    nettcpconn		60:7:47
+    fh_anon		60:7:51
+    fh_nocache_dir	60:7:52
+    fh_nocache_nondir	60:7:53
+    io_read		60:7:54
+    io_write		60:7:55
+    th_cnt		60:7:56
+    th_fullcnt		60:7:57
+    ra_size		60:7:68
+    ra_hits 		60:7:69
+    ra_misses 		60:7:70
+}
+
+nfs3 {
+    client
+    server
+}
+
+nfs3.client {
+    calls		60:7:60
+    reqs		60:7:61
+}
+
+nfs3.server {
+    calls		60:7:62
+    reqs		60:7:63
+}
+
+nfs4 {
+    client
+    server
+}
+
+nfs4.client {
+    calls		60:7:64
+    reqs		60:7:65
+}
+
+nfs4.server {
+    calls		60:7:66
+    reqs		60:7:67
+}
+
+network.tcpconn {
+    established		60:19:1
+    syn_sent		60:19:2
+    syn_recv		60:19:3
+    fin_wait1		60:19:4
+    fin_wait2		60:19:5
+    time_wait		60:19:6
+    close		60:19:7
+    close_wait		60:19:8
+    last_ack		60:19:9
+    listen		60:19:10
+    closing		60:19:11
+}
+
+mem.slabinfo {
+    objects
+    slabs
+}
+
+mem.slabinfo.objects {
+    active		60:20:0
+    total		60:20:1
+    size		60:20:2
+}
+
+mem.slabinfo.slabs {
+    active		60:20:3
+    total		60:20:4
+    pages_per_slab	60:20:5
+    objects_per_slab	60:20:6
+    total_size		60:20:7
+}
+
+mem.vmstat {
+	/* sorted by name to make maintenance easier */
+	allocstall			60:28:35
+	balloon_deflate			60:28:103
+	balloon_inflate			60:28:104
+	balloon_migrate			60:28:105
+	compact_blocks_moved		60:28:57
+	compact_fail			60:28:58
+	compact_pagemigrate_failed	60:28:59
+	compact_pages_moved		60:28:60
+	compact_stall			60:28:61
+	compact_success			60:28:62
+	htlb_buddy_alloc_fail		60:28:43
+	htlb_buddy_alloc_success	60:28:44
+	kswapd_inodesteal		60:28:33
+	kswapd_low_wmark_hit_quickly	60:28:87
+	kswapd_high_wmark_hit_quickly	60:28:88
+	kswapd_skip_congestion_wait	60:28:89
+	kswapd_steal			60:28:32
+	nr_active_anon			60:28:45
+	nr_active_file			60:28:46
+	nr_anon_pages			60:28:39
+	nr_anon_transparent_hugepages	60:28:90
+	nr_bounce			60:28:40
+	nr_dirtied			60:28:91
+	nr_dirty			60:28:0
+	nr_dirty_background_threshold	60:28:92
+	nr_dirty_threshold		60:28:93
+	nr_free_pages			60:28:47
+	nr_inactive_anon		60:28:48
+	nr_inactive_file		60:28:49
+	nr_isolated_anon		60:28:50
+	nr_isolated_file		60:28:51
+	nr_kernel_stack			60:28:52
+	nr_mapped			60:28:4
+	nr_mlock			60:28:53
+	nr_page_table_pages		60:28:3
+	nr_shmem			60:28:54
+	nr_slab				60:28:5
+	nr_slab_reclaimable		60:28:37
+	nr_slab_unreclaimable		60:28:38
+	nr_unevictable			60:28:55
+	nr_unstable			60:28:2
+	nr_vmscan_write			60:28:42
+	nr_writeback			60:28:1
+	nr_writeback_temp		60:28:56
+	nr_written			60:28:94
+	numa_foreign			60:28:95
+	numa_hit			60:28:96
+	numa_interleave			60:28:97
+	numa_local			60:28:98
+	numa_miss			60:28:99
+	numa_other			60:28:100
+	pageoutrun			60:28:34
+	pgactivate			60:28:14
+	pgalloc_dma			60:28:12
+	pgalloc_dma32			60:28:63
+	pgalloc_high			60:28:10
+	pgalloc_movable			60:28:64
+	pgalloc_normal			60:28:11
+	pgrefill_dma32			60:28:65
+	pgrefill_movable		60:28:66
+	pgdeactivate			60:28:15
+	pgfault				60:28:16
+	pgfree				60:28:13
+	pginodesteal			60:28:30
+	pgmajfault			60:28:17
+	pgpgin				60:28:6
+	pgpgout				60:28:7
+	pgrefill_dma			60:28:20
+	pgrefill_high			60:28:18
+	pgrefill_normal			60:28:19
+	pgrotated			60:28:36
+	pgscan_direct_dma		60:28:29
+	pgscan_direct_dma32		60:28:67
+	pgscan_direct_high		60:28:27
+	pgscan_direct_movable		60:28:68
+	pgscan_direct_normal		60:28:28
+	pgscan_kswapd_dma		60:28:26
+	pgscan_kswapd_dma32		60:28:69
+	pgscan_kswapd_high		60:28:24
+	pgscan_kswapd_movable		60:28:70
+	pgscan_kswapd_normal		60:28:25
+	pgsteal_dma			60:28:23
+	pgsteal_dma32			60:28:71
+	pgsteal_high			60:28:21
+	pgsteal_movable			60:28:72
+	pgsteal_normal			60:28:22
+	pswpin				60:28:8
+	pswpout				60:28:9
+	slabs_scanned			60:28:31
+	thp_fault_alloc			60:28:73
+	thp_fault_fallback		60:28:74
+	thp_collapse_alloc		60:28:75
+	thp_collapse_alloc_failed	60:28:76
+	thp_split			60:28:77
+	thp_zero_page_alloc	 	60:28:101
+	thp_zero_page_alloc_failed 	60:28:102
+	unevictable_pgs_cleared		60:28:78
+	unevictable_pgs_culled		60:28:79
+	unevictable_pgs_mlocked		60:28:80
+	unevictable_pgs_mlockfreed	60:28:81
+	unevictable_pgs_munlocked	60:28:82
+	unevictable_pgs_rescued		60:28:83
+	unevictable_pgs_scanned		60:28:84
+	unevictable_pgs_stranded	60:28:85
+	zone_reclaim_failed		60:28:86
+}
+
+vfs {
+    files
+    inodes
+    dentry
+}
+
+vfs.files {
+    count		60:27:0
+    free		60:27:1
+    max			60:27:2
+}
+
+vfs.inodes {
+    count		60:27:3
+    free		60:27:4
+}
+
+vfs.dentry {
+    count		60:27:5
+    free		60:27:6
+}
+
+sysfs {
+    kernel
+}
+
+sysfs.kernel {
+    uevent_seqnum	60:35:0
+}

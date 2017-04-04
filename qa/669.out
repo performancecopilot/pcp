@@ -1,0 +1,17 @@
+QA output created by 669
+pmmgr ok
+=== 1. prepare blank pmmgr config directory  ===
+=== 2. generate a bunch of short archives  ===
+=== 3. check on number of archives and zip 'em up ===
+more than thirty
+=== 4. do a few rounds of batched log merging ===
+=== 5. check on number of archives after batched logmerge ===
+less than 5
+=== 5. replace set with original archives  ===
+=== 6. corrupt ten of them  ===
+=== 7. do a few rounds of batched log merging ===
+=== 8. expect 10 corrupt leftovers  ===
+10
+=== 9. turn on short-term corrupt-gc and cycle a little longer  ===
+=== 10. expect no corrupt leftovers ===
+0

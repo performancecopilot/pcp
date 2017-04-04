@@ -1,0 +1,9 @@
+//
+// a rule expression with multiple actions and %-binding in the
+// arguments for the action methods ... use some creative string
+// composition for the final message
+//
+some_inst ( disk.dev.total > 50 )
+    -> syslog 10 mins "Busy disks: " "%i @ %v IOPS " &
+       shell 1 hour "echo 'REALLY busy disks: " "%i @ %v I/Os per second " "' | Mail -s 'pmie alarm' sysadm";
+

@@ -1,0 +1,5 @@
+//
+// a simple expression, with multiple values
+//
+iops = disk.dev.total;
+

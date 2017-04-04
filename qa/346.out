@@ -1,0 +1,46 @@
+QA output created by 346
+
+=== default mailq agent installation ===
+Culling the Performance Metrics Name Space ...
+mailq ... not found in Name Space, this is OK
+Updating the PMCD control file, and notifying PMCD ...
+Check mailq metrics have gone away ... OK
+You will need to choose an appropriate configuration for installation of
+the "mailq" Performance Metrics Domain Agent (PMDA).
+
+  collector	collect performance statistics on this system
+  monitor	allow this system to monitor local and/or remote systems
+  both		collector and monitor configuration for this system
+
+The default delay thresholds for grouping the pending mail items are:
+    1 hour, 4 hours, 8 hours, 1 day, 3 days and 7 days
+
+Do you wish to use the default delay thresholds [y]? 
+Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+[...install files, make output...]
+Updating the PMCD control file, and notifying PMCD ...
+Check mailq metrics have appeared ... 2 metrics and 8 values
+
+=== validate values ===
+
+mailq.length
+    value NUMBER
+
+mailq.deferred
+    inst [604800 or "7-days"] value NUMBER
+    inst [259200 or "3-days"] value NUMBER
+    inst [86400 or "1-day"] value NUMBER
+    inst [28800 or "8-hours"] value NUMBER
+    inst [14400 or "4-hours"] value NUMBER
+    inst [3600 or "1-hour"] value NUMBER
+    inst [0 or "recent"] value NUMBER
+
+=== remove mailq agent ===
+Culling the Performance Metrics Name Space ...
+mailq ... done
+Updating the PMCD control file, and notifying PMCD ...
+Check mailq metrics have gone away ... OK
+Waiting for pmcd to terminate ...
+Starting pmcd ... 
+Starting pmlogger ... 

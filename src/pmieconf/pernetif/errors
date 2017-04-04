@@ -1,0 +1,72 @@
+#pmieconf-rules 1
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(5)
+#
+
+rule	per_netif.errors
+	default	= "$rule$"
+	enumerate = hosts
+	predicate =
+"some_inst (
+    network.interface.total.errors $hosts$ $interfaces$
+	> $threshold$
+)"
+	enabled	= yes
+	version	= 1
+	help	=
+"For at least one network interface, the error rate exceeded
+threshold errors per second during the last sample interval.";
+
+string	rule
+	default	= "High network interface error rate"
+	modify	= no
+	display	= no;
+
+double	threshold
+	default	= 15
+	help	=
+"Threshold in units of errors per second per interface.";
+
+instlist	interfaces
+	default	= ""
+	help	=
+"May be set to a list of network interfaces for which the rule will
+be evaluated, as a subset of configured network interfaces.
+Network interfaces should be separated by white space and may be
+enclosed in single quotes, eg.  \"ec0 'xpi5' ec2\".  Use the command:
+	$ pminfo -f network.interface.mtu
+to discover the names of the installed network interfaces.
+Setting this variable is most useful to remove the loopback, SLIP
+and PPP interfaces from the rule evaluations.";
+
+string	action_expand
+	default	= "%verr/s[%i]@%h"
+	display	= no
+	modify	= no;
+
+string	email_expand
+	default	= "host: %h interface: %i errors per sec: %v"
+	display	= no
+	modify	= no;
+
+
+# Configuration info specific to non-PCP tools follows...
+# 
+
+# for SGI Embedded Support Partner integration:
+string	esp_type
+	default	= "0x20004F"
+	display	= no
+	modify	= no;
+
+# for EnlightenDSM integration:
+string	enln_test
+	default	= per_netif.errors
+	display	= no
+	modify = no;
+string	enln_units
+	default	= err/s[%i]
+	display	= no
+	modify = no;
+
+# 
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(5)

@@ -1,0 +1,132 @@
+.TH PCP2GRAPHITE 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+.B pcp2graphite 
+\- pcp-to-graphite metrics exporter
+.SH SYNOPSIS
+.B pcp2graphite
+[\f3\-h\f1 \f2hostspec\f1]
+[\f3\-a\f1 \f2archive\f1]
+[\f3\-L\f1]
+[\f3\-O\f1 \f2origin\f1]
+[\f3\-T\f1 \f2finish\f1]
+[\f3\-s\f1 \f2samples\f1]
+[\f3\-t\f1 \f2delta\f1]
+[\f3\-g\f1 \f2graphitehost\f1]
+[\f3\-p\f1 \f2pickleport\f1]
+[\f3\-P\f1 \f2textport\f1]
+[\f3\-r\f1 \f2pickleprotocol\f1]
+[\f3\-u\f1 \f2units\f1]
+[\f3\-m\f1 \f2prefix\f1]
+\f2metricname\f1 ...
+.SH DESCRIPTION
+.B pcp2graphite
+is a PCP metric exporter.
+It relays hierarchies of the
+.BR pmns (5)
+to a designated
+Graphite (Carbon/Whisper) database by periodically polling, then
+copying/converting relevant numerical metrics across the Graphite
+"text" or "pickled" TCP protocols.  Metric values are optionally
+scaled to a given unit/scale, but are not rate-converted.  Metric
+names may be prefixed and are somewhat canonicalized to fit the
+Graphite namespace rules.
+.PP
+The data transfer will continue on a best-effort basis until the
+program is interrupted.  Temporary errors are ignored.  Multiple
+copies of this program may be run in parallel, to populate different
+Graphite databases or subtrees, with different scaling or sampling
+intervals.
+.PP
+The
+.BR pmmgr (1)
+daemon can be used to ensure one or more
+.B pcp2grapite
+instances start at system boot time.
+.SH OPTIONS
+.TP
+.B \-h \f2hostspec\f1
+Extract metrics from the specified
+.BR pmcd (1)
+daemon, using a host specification as described on
+.BR PCPIntro (1).
+The default is \f3local:\f1.
+.TP
+.B \-a \f2archive\f1
+Extract metrics from the given set of archives,
+which is a comma-separated list of names, each
+of which may be the base name of an archive or the name of a directory containing
+one or more archives.
+.TP
+.B \-L
+Extract metrics from the local context PCP PMDAs.
+.TP
+.B \-t \f2delta\f1
+Specify the polling interval in seconds.  If live, polling is aligned to
+natural multiples of this interval.  The default is \f360\f1 seconds.
+.TP
+.B \-O \f2origin\f1
+Set the time origin for archive scanning.  The default is the start of the
+set of archives.
+.TP
+.B \-T \f2finish\f1
+Set the time finish for archive scanning.  The default is the end of the
+set of archives.
+.TP
+.B \-s \f2samples\f1
+Set the maximum number of samples to relay.  The default is unlimited.
+.TP
+.B \-g \f2graphitehost\f1
+Specify the graphite carbon-cache server where the relayed data is to
+be relayed.  The default is \f3localhost\f1.
+.TP
+.B \-p \f2pickleport\f1
+Select the more efficient "pickled" encoding for carbon-cache
+communication, and use the given TCP port.  This is the default, using
+port \f32004\f1.
+.TP
+.B \-P \f2textport\f1
+Alternately, select the less efficient "text" encoding for carbon-cache
+communication, and use the given TCP port.  This protocol is not
+default, because it requires a separate TCP connection for each
+metric.  The typical port is \f32003\f1.
+.TP
+.B \-r \f2pickleprotocol\f1
+Select the protocol for the "pickled" encoding. The possible values are:
+.RS
+.IP \[bu] 2
+0 - ASCII protocol (the slowest),
+.IP \[bu]
+1 - old binary protocol - pre Python 2.3,
+.IP \[bu]
+2 - new binary protocol introduced in Python 2.3.
+.RE
+.RS
+.TP
+The default is \f30\f1.
+.RE
+.TP
+.B \-u \f2units\f1
+Rescale the metrics to the given UNITS string, as parsed by the
+.IR pmParseUnitsStr (3)
+function.  This must be dimensionally consistent with the underlying
+PCP metric.  The default is to perform no scaling.
+.TP
+.B \-m \f2prefix\f1
+Use the given string as a prefix for all PMNS metrics relayed to Graphite.
+The default is \f3pcp.\f1 (note the period at the end).
+.TP
+.I metricname
+Relay all numeric metrics nested at or below the given name in the PMNS.
+This option may be repeated.  This is a compulsory option, having no
+default.
+.SH "SEE ALSO"
+.BR PCPIntro (1),
+.BR pmcd (1),
+.BR pmParseUnitsStr (3),
+.BR http://graphite.wikidot.com/ ,
+.BR pmmgr (1),
+.BR pmval (1),
+.BR PMAPI (3),
+.BR pcp.conf (5)
+and
+.BR pmns (5).

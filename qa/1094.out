@@ -1,0 +1,65 @@
+QA output created by 1094
+
+input $dir |/some/path| $args |-c someconfig|
+processed $dir |/some/path| $args |-c someconfig|
+
+input $dir |${mydir}/xyz| $args |-c someconfig|
+processed $dir |/some/path/xyz| $args |-c someconfig|
+
+input $dir |/xyz${mydir}| $args |-c someconfig|
+processed $dir |/xyz/some/path| $args |-c someconfig|
+
+input $dir |/xyz$mydir| $args |-c someconfig|
+processed $dir |/xyz/some/path| $args |-c someconfig|
+
+input $dir |$(echo| $args |/some/path) -c someconfig|
+processed $dir |/some/path| $args |-c someconfig|
+
+input $dir |$(| $args |echo /some/path ) -c someconfig|
+processed $dir |/some/path| $args |-c someconfig|
+
+input $dir |"/some/path/$(date| $args |+2015)" -c someconfig|
+processed $dir |/some/path/2015| $args |-c someconfig|
+
+input $dir |"| $args |/some/path/$(date +2015) " -c someconfig|
+processed $dir | /some/path/2015 | $args |-c someconfig|
+
+input $dir |`echo| $args |/some/path` -c someconfig|
+processed $dir |/some/path| $args |-c someconfig|
+
+input $dir |`| $args |echo /some/path ` -c someconfig|
+processed $dir |/some/path| $args |-c someconfig|
+
+input $dir |"/some/path/`date| $args |+2015`" -c someconfig|
+processed $dir |/some/path/2015| $args |-c someconfig|
+
+input $dir |$(bad| $args |command -c someconfig|
+[<stdin>:12]
+Error: quote not terminated: $(bad command -c someconfig
+processed $dir |$(bad| $args |command -c someconfig|
+
+input $dir |`bad| $args |command -c someconfig|
+[<stdin>:13]
+Error: quote not terminated: `bad command -c someconfig
+processed $dir |`bad| $args |command -c someconfig|
+
+input $dir |"bad| $args |string -c someconfig|
+[<stdin>:14]
+Error: quote not terminated: "bad string -c someconfig
+processed $dir |"bad| $args |string -c someconfig|
+
+input $dir |"embedded_backquote`date| $args |+2015`.postfix" -c someconfig|
+processed $dir |embedded_backquote2015.postfix| $args |-c someconfig|
+
+input $dir |bad_embedded_backquote`date| $args |+2015`.postfix -c someconfig|
+[<stdin>:16]
+Error: embedded ` without enclosing ": bad_embedded_backquote`date
+processed $dir |bad_embedded_backquote`date| $args |+2015`.postfix -c someconfig|
+
+input $dir |"embedded_cmd$(date| $args |+2015).postfix" -c someconfig|
+processed $dir |embedded_cmd2015.postfix| $args |-c someconfig|
+
+input $dir |bad_embedded_cmd$(date| $args |+2015).postfix -c someconfig|
+[<stdin>:18]
+Error: embedded $( without enclosing ": bad_embedded_cmd$(date
+processed $dir |bad_embedded_cmd$(date| $args |+2015).postfix -c someconfig|

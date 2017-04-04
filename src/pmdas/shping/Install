@@ -1,0 +1,218 @@
+#! /bin/sh
+#
+# Copyright (c) 1997,2003 Silicon Graphics, Inc.  All Rights Reserved.
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+# 
+# Install the shping PMDA and/or PMNS
+#
+
+. $PCP_DIR/etc/pcp.env
+. $PCP_SHARE_DIR/lib/pmdaproc.sh
+
+iam=shping
+pmda_interface=2
+
+# Do it
+#
+pmdaSetup
+
+# controls for installation procedures
+#
+daemon_opt=true		# can install as daemon
+dso_opt=false
+pipe_opt=true		# supports pipe IPC
+socket_opt=false	# force pipe IPC
+check_delay=10		# give the PMDA a chance to set itself up
+
+# be careful that mortals cannot write any configuration files, as
+# these would present a security problem
+#
+umask 022
+
+
+# PMDA variables
+#
+configfile=""
+cycle=120
+timeout=20
+debug=0
+
+_quit()
+{
+    status=$1
+    exit
+}
+
+do_debug=false
+
+_parsedefaults()
+{
+    echo "Extracting options from current installation ..."
+    while getopts D:I:d:l:t: c
+    do
+    	case $c in
+	    \?)		echo "Warning: Unrecognized option in $PCP_PMCDCONF_PATH"
+			echo "         Remove line for the $iam PMDA in $PCP_PMCDCONF_PATH and re-run ./Install"
+	    		_quit 2;;
+	    D )		debug=$OPTARG;;
+	    I )		cycle=$OPTARG;;
+	    t )		timeout=$OPTARG;;
+	    * )		;;
+	esac
+    done
+    eval configfile='$'$OPTIND
+}
+
+if $do_pmda
+then
+
+    # set options from $PCP_PMCDCONF_PATH, if possible
+    #
+    ans=`$PCP_AWK_PROG <$PCP_PMCDCONF_PATH '
+$1 == "'$iam'"	{ printf "%s",$6
+		  for (i=7;i<=NF;i++) printf " %s",$i
+		  print ""
+	        }'`
+    if [ ! -z "$ans" ]
+    then
+	_parsedefaults $ans
+    fi
+
+    default_configfile=./sample.conf
+    if fgrep "CONFIGURE-ME-PLEASE" $default_configfile >/dev/null
+    then
+	# nslookup(1) may be hiding, like for OpenIndiana
+	#
+	export PATH=$PATH:/usr/sbin
+	nslookup=`which nslookup 2>/dev/null`
+	if [ -z "$nslookup" ]
+	then
+	    echo "Warning: cannot find nslookup"
+	    nslookup=nslookup
+	fi
+	# sample configuration file needs a little customization
+	#
+	if [ -f /etc/resolv.conf ]
+	then
+	    my_dns_server=`$PCP_AWK_PROG </etc/resolv.conf '$1 == "nameserver" { print $2; exit }'`
+	else
+	    my_dns_server=`hostname`
+	fi
+	sed <$default_configfile >$__tmp.tmp \
+	    -e '/CONFIGURE-ME-PLEASE/d' \
+	    -e "s@DEFAULT-DNS-SERVER@$my_dns_server@" \
+	    -e "s@NSLOOKUP@$nslookup@"
+	cp $__tmp.tmp $default_configfile
+    fi
+
+    # go figure out which configuration file to use ...
+    #
+    pmdaChooseConfigFile
+
+    if [ ! -f "$configfile" ]
+    then
+	$PCP_ECHO_PROG $PCP_ECHO_N "Do you wish to enter commands to create a new configuration file? [y] ""$PCP_ECHO_C"
+	read ans
+	if [ "X$ans" = "Xy" -o "X$ans" = "XY" -o -z "$ans" ]
+	then
+	    configfile="$configdir/$iam.conf"
+	    if [ -f $configfile ]
+	    then
+		    echo "Removing old configuration file \"$configfile\""
+		    rm -f $configfile
+		    if [ -f $configfile ]
+		    then
+			    echo "Cannot remove \"$configfile\""
+			    _quit 1
+		    fi
+	    fi
+
+	    echo
+	    echo \
+'Enter one ping specification per line, in the format
+
+tag		command line details
+
+where the "tag" is a single unique word (no spaces) and the "command line
+details" are the corresponding sh(1) command.  For example
+
+dns-self	nslookup `hostname`
+
+An empty line terminates the specification process and there must be at
+least one specification.
+'
+
+	    args=""
+	    touch $configfile
+	    if [ ! -f $configfile ]
+	    then
+		echo "Installation aborted."
+		_quit 1
+	    fi
+
+	    while [ ! -s "$configfile" ]
+	    do
+		while true
+		do
+		    $PCP_ECHO_PROG $PCP_ECHO_N "Tag Command: ""$PCP_ECHO_C"
+		    read tag cmd
+		    [ -z "$tag" ] && break
+		    if grep "^$tag " $configfile >/dev/null
+		    then
+			echo "Sorry, tag \"$tag\" already in use.  Please try again."
+			continue
+		    fi
+		    echo "$tag $cmd" >>$configfile
+		done
+	    done
+	else
+	    echo ""
+	    echo "Error: Abandoning installation as no configuration file was specified."
+	    _quit 1
+	fi
+    fi
+
+    echo
+    echo "All commands are run one after another as a group and the group is run"
+    $PCP_ECHO_PROG $PCP_ECHO_N "once per \"cycle\" time.   Enter the cycle time in seconds [$cycle] ""$PCP_ECHO_C"
+    read ans
+    if  [ ! -z "$ans" ]
+    then
+    	cycle=$ans
+    fi
+
+    echo
+    echo "Each command must complete within a timeout period, or it will be aborted"
+    $PCP_ECHO_PROG $PCP_ECHO_N "by the \"$iam\" PMDA.  Enter the timeout period (in seconds) [$timeout] ""$PCP_ECHO_C"
+    read ans
+    if  [ ! -z "$ans" ]
+    then
+    	timeout=$ans
+    fi
+
+    if [ "$do_debug" = true ]
+    then
+	echo
+	$PCP_ECHO_PROG $PCP_ECHO_N "Enter the debugging flag (see pmdbg(1)) [$debug] ""$PCP_ECHO_C"
+	read ans
+	if [ ! -z "$ans" ]
+	then
+	    debug=$ans
+	fi
+    fi
+
+    args="-I $cycle -t $timeout -D $debug $configfile"
+fi
+
+pmdaInstall
+
+_quit 0

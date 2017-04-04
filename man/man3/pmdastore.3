@@ -1,0 +1,62 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMDASTORE 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmdaStore\f1 \- store a value into a metric for a PMDA
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.br
+#include <pcp/impl.h>
+.br
+#include <pcp/pmda.h>
+.sp
+int pmdaStore(pmResult *\fIresult\fP, pmdaExt *\fIpmda\fP);
+.sp
+cc ... \-lpcp_pmda \-lpcp
+.ft 1
+.SH DESCRIPTION
+As part of the Performance Metrics Domain Agent (PMDA) API (see
+.BR PMDA (3)),
+.BR pmdaStore
+is the generic callback for storing a value into a metric.
+.B pmdaStore
+is usually a no-op as, by default, no metrics can be altered.  
+Also, the implementation of a store callback which does permit
+metrics to be altered by
+.BR pmstore (1)
+is very application dependent.
+.SH DIAGNOSTICS
+.B 
+pmdaStore
+returns
+.B PM_ERR_PERMISSION
+to indicate that no metrics may be modified.
+.SH CAVEAT
+The PMDA must be using 
+.B PMDA_PROTOCOL_2 
+or later, as specified in the call to 
+.BR pmdaDSO (3)
+or 
+.BR pmdaDaemon (3).
+.SH SEE ALSO
+.BR pmstore (1),
+.BR PMAPI (3),
+.BR PMDA (3),
+.BR pmdaDaemon (3),
+.BR pmdaDSO (3)
+and
+.BR pmStore (3).

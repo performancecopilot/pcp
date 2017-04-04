@@ -1,0 +1,8 @@
+//
+// Data throughput (Kbytes per minute) summaries
+//
+
+// you may replace the metric below with any of the other
+// web.allservers.bytes metrics
+
+data_rate = web.allservers.bytes.total * 60 / 1024;

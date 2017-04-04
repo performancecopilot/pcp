@@ -1,0 +1,100 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2016 Red Hat.
+.\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMGETARCHIVEEND 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmGetArchiveEnd\f1 \- locate logical end of file for a set of archive logs
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.sp
+int pmGetArchiveEnd(struct timeval *\fItvp\fP);
+.sp
+cc ... \-lpcp
+.ft 1
+.SH DESCRIPTION
+Assuming the current PMAPI context
+is associated with a set of archive logs,
+.B pmGetArchiveEnd
+will attempt to find the logical end of file (after
+the last complete record in the set of archives),
+and return the last recorded timestamp via
+.IR tvp .
+This timestamp may be passed to
+.BR pmSetMode (3)
+to reliably position the context at the last valid
+log record, e.g. in preparation for subsequent reading in
+reverse chronological order. 
+.PP
+For archive logs that are not concurrently being written, the
+physical end of file and the logical end of file are co-incident.
+However if an archive log is being written by
+.BR pmlogger (1)
+at the same time an application is trying to read the archive,
+the logical end of file may be before the physical end of file
+due to write buffering that is not aligned with the logical record
+boundaries.
+.PP
+.B pmGetArchiveEnd
+returns an error less than zero if the context is neither valid,
+nor associated with a set of archives, or the set of archives is seriously
+corrupted.
+Otherwise, the return value is 0 if there has been no change of
+state since the last call, or 1 if the logical end of file has
+advanced since the last call.
+.PP
+In the absence of an error, the result returned via
+.I tvp
+is well-defined.
+.PP
+.BR pmGetArchiveEnd
+preserves the positioning state of the log file prior to
+this function call. 
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.I /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (5).
+Values for these variables may be obtained programmatically
+using the
+.BR pmGetConfig (3)
+function.
+.SH SEE ALSO
+.BR PMAPI (3),
+.BR pmFetch (3),
+.BR pmFetchArchive (3),
+.BR pmGetArchiveLabel (3),
+.BR pmGetConfig (3),
+.BR pmSetMode (3),
+.BR pcp.conf (5)
+and
+.BR pcp.env (5).
+.SH DIAGNOSTICS
+.IP \f3PM_ERR_NOCONTEXT\f1
+the current PMAPI context
+is either invalid, or not associated with an set of archive logs
+.IP \f3PM_ERR_LOGREC\f1
+the set of archives is sufficiently damaged, that not a single valid
+record can be found

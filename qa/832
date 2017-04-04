@@ -1,0 +1,113 @@
+#!/bin/sh
+# PCP QA Test No. 832
+# Exercise enforced-authentication modes for pmcd.
+#
+# Copyright (c) 2013 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_get_libpcp_config
+$unix_domain_sockets || _notrun "No unix domain socket support available"
+$authentication || _notrun "No authentication support available"
+
+gotplugins=false
+which pluginviewer >/dev/null 2>&1 && gotplugins=true
+if $gotplugins
+then
+    pluginviewer=pluginviewer
+else
+    which saslpluginviewer >/dev/null 2>&1 && gotplugins=true
+    pluginviewer=saslpluginviewer
+fi
+$gotplugins || _notrun "SASL pluginviewer utility unavailable"
+$pluginviewer -c | grep 'Plugin "plain"' >/dev/null 2>&1
+test $? -eq 0 || _notrun 'No client support for plain authentication'
+$pluginviewer -s | grep 'Plugin "plain"' >/dev/null 2>&1
+test $? -eq 0 || _notrun 'No server support for plain authentication'
+
+export PCP_CONSOLE=none 
+
+cleanup()
+{
+    # restore any modified pmcd configuration files
+    _restore_config $PCP_PMCDOPTIONS_PATH
+    _restore_config $PCP_SASLCONF_DIR/pmcd.conf
+
+    $sudo $PCP_RC_DIR/pcp restart 2>&1 | _filter_pcp_stop | _filter_pcp_start
+    _wait_for_pmcd
+    _wait_for_pmlogger
+
+    rm -rf $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cleanup; exit \$status" 0 1 2 3 15
+
+# Handle spurious lines from deep inside SASL code ...
+# [Mon Mar  2 17:58:40] pmcd_wait(16622) Alert: Parameter Error in ../plugins/plugin_common.c near line 357
+#
+# And this from libpcp (via pmcd_wait) ...
+# Starting pmcd ... [Thu Aug  4 16:59:02] pmcd_wait(14208) Error: __pmCloseChannelbyFd: fd=3 expected PDU_ATTR received: Timeout waiting for a response from PMCD
+#
+_filter()
+{
+    sed \
+	-e 's/\[[^]]*] .* Alert: Parameter Error .* line [0-9][0-9]*//' \
+	-e '/ pmcd_wait([0-9][0-9]*) Error: __pmCloseChannelbyFd/s/\[.*//' \
+	-e 's/\[[A-Z][a-z][a-z] [A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9]]/[DATE]/' \
+	-e '/^[ 	]*$/d' \
+    # end
+}
+
+# real QA test starts here
+_save_config $PCP_SASLCONF_DIR/pmcd.conf
+echo 'mech_list: plain' > $tmp.sasl
+$sudo cp $tmp.sasl $PCP_SASLCONF_DIR/pmcd.conf
+
+_save_config $PCP_PMCDOPTIONS_PATH
+cat <<End-Of-File >$tmp.options
+# Dummy lines added by PCP QA test $seq
+#
+-S
+End-Of-File
+$sudo cp $tmp.options $PCP_PMCDOPTIONS_PATH
+
+echo "Start pmcd with modified \$PCP_PMCDOPTIONS_PATH (pmcd.options)" | tee -a $seq.full
+cat $PCP_PMCDOPTIONS_PATH >>$seq.full
+$sudo $PCP_RC_DIR/pmcd stop 2>&1 | tee -a $seq.full >$tmp.out
+$sudo $PCP_RC_DIR/pmcd start 2>&1 | tee -a $seq.full >$tmp.out
+_wait_for_pmcd 10 unix: 2>&1 | tee -a $seq.full | _filter
+grep -i 'starting pmcd' $tmp.out \
+| _filter \
+| sed -e "s/$$/MYPID/" \
+| _filter_pcp_start
+
+# should now be running in enforced-credentials mode, check it out.
+# unix domain access should always succeed - no matter how binaries
+# were configured/built
+
+echo "testing secure mode access via unix domain socket (PASS)"
+pmstore -h unix: sample.write_me 1	# store PDU
+pmprobe -h unix: -v sample.write_me	# fetch PDU
+pminfo -th unix: sample.write_me	# text PDU
+pminfo -dh unix: sample.write_me	# desc PDU
+echo
+
+echo "testing secure mode access attempt via inet socket (FAIL)"
+pmstore -h localhost sample.write_me 2  2>&1 | _filter
+pmprobe -h localhost -v sample.write_me 2>&1 | _filter
+pminfo -th localhost sample.write_me    2>&1 | _filter
+pminfo -dh localhost sample.write_me    2>&1 | _filter
+echo
+
+# success, all done
+status=0
+exit

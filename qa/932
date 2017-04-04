@@ -1,0 +1,122 @@
+#! /bin/sh
+# PCP QA Test No. 932
+# Check PMCD state change notification, aka PMCD_ADD_AGENT
+#
+# Copyright (c) 2016 Red Hat, Inc.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+signal=$PCP_BINADM_DIR/pmsignal
+status=1
+done_clean=false
+LOCALHOST=`hostname`
+
+_cleanup()
+{
+    if $done_clean
+    then
+	:
+    else
+	echo "Restore pmcd.conf and restart PMCD ..."
+	if [ -f $tmp.pmcd.conf ]
+	then
+	    $sudo cp $tmp.pmcd.conf $PCP_PMCDCONF_PATH
+	    rm -f $tmp.pmcd.conf
+	fi
+	_restore_primary_logger
+	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+	rm -f $tmp.*
+	_wait_for_pmcd
+	_wait_for_pmlogger
+	done_clean=true
+    fi
+    exit $status
+}
+
+$sudo rm -rf $tmp.* $seq.full 
+trap "_cleanup" 0 1 2 3 15
+
+# real QA test starts here
+PMDA_PMCD_PATH=$PCP_PMDAS_DIR/pmcd/pmda_pmcd.$DSO_SUFFIX
+
+# copy the pmcd config file to restore state later.
+cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf
+
+# start from a known starting point
+$sudo $PCP_RC_DIR/pcp stop >/dev/null 2>&1
+
+cat <<End-of-File >$tmp.tmp
+# temporary for qa/$seq
+pmcd	2	dso	pmcd_init	$PMDA_PMCD_PATH
+sample	29	pipe	binary 		$PCP_PMDAS_DIR/sample/pmdasample -d 29 
+simple	253	pipe	binary 		/var/lib/pcp/pmdas/simple/pmdasimple -d 253 
+End-of-File
+$sudo cp $tmp.tmp $PCP_PMCDCONF_PATH
+
+_writable_primary_logger
+$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+_wait_for_pmcd
+if [ -d $PCP_LOG_DIR/pmlogger ]
+then
+    LOGGING_DIR=$PCP_LOG_DIR/pmlogger
+else
+    LOGGING_DIR=$PCP_LOG_DIR
+fi
+_wait_for_pmlogger -P $LOGGING_DIR/$LOCALHOST/pmlogger.log
+
+# Reset pmlogger
+echo "log sample.dynamic.meta.metric"
+# Log the sample pmda's sample.dynamic.meta.metric
+echo 'connect primary
+log mandatory on 500 msec { sample.dynamic.meta.metric }' \
+    | pmlc
+
+# log a few samples
+sleep 2
+
+echo "archive contents before pmda simple restart..."
+echo "expect no <mark> record"
+echo "---------------------------------------------------------------"
+pmafm $LOGGING_DIR/$LOCALHOST/Latest pmdumplog >$tmp.out 2>&1
+egrep '(<mark>)|(sample.dynamic.meta.metric)' $tmp.out \
+| _filter_pmdumplog \
+| uniq
+echo "---------------------------------------------------------------"
+
+# Restart the simple pmda by killing it and the getting pmcd to restart it (HUP).
+# pmlogger should receive PMCD_ADD_AGENT, which should cause
+# a <mark> record to be inserted into the archive.
+echo "restart the simple pmda"
+$sudo $signal -a -s TERM pmdasimple
+sleep 1 # let the signal arrive and let pmdasimple exit
+$sudo $signal -a -s HUP pmcd   # ensure pmcd restarts the PMDA
+sleep 1 # let the signal arrive and pmcd think about it
+
+echo "archive contents after pmda simple restart..."
+echo "expect <mark> record"
+echo "---------------------------------------------------------------"
+pmafm $LOGGING_DIR/$LOCALHOST/Latest pmdumplog >$tmp.out 2>&1
+egrep '(<mark>)|(sample.dynamic.meta.metric)' $tmp.out \
+| _filter_pmdumplog \
+| uniq
+echo "---------------------------------------------------------------"
+
+# Stop logging the sample pmda's sample.dynamic.meta.metric
+echo 'connect primary
+log mandatory off { sample.dynamic.meta.metric }
+flush' \
+| pmlc
+
+echo >>$seq.full
+echo "pmlogger log ..." >>$seq.full
+cat $LOGGING_DIR/$LOCALHOST/pmlogger.log >>$seq.full
+
+status=0
+exit

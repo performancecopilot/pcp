@@ -1,0 +1,16 @@
+QA output created by 559
+Note: timezone set to local timezone of host "moomba" from archive
+
+Log Label (Log Format Version 2)
+Performance metrics from host moomba
+  commencing Mon Mar 15 11:19:02.594 1999
+  ending     Mon Mar 15 11:19:28.358 1999
+sample.const_rate.value  0.000 0.000 0.000 0.000 138 count / sec
+sample.dynamic.counter ["one"] 10.522 10.522 10.489 10.574 4 count / sec
+sample.dynamic.counter ["two"] 10.522 10.522 10.489 10.574 4 count / sec
+sample.dynamic.instant ["one"] 338.500 328.012 280.000 397.000 6 count
+sample.dynamic.instant ["two"] 338.500 328.012 280.000 397.000 6 count
+sample.dynamic.discrete ["one"] 295.500 295.525 258.000 333.000 2 count
+sample.dynamic.discrete ["two"] 295.500 295.525 258.000 333.000 2 count
+pmcd.pmlogger.port [12796] 4331.000 4331.000 4331.000 4331.000 1 none
+pmcd.pmlogger.port ["12797"] 4331.000 4331.000 4331.000 4331.000 1 none

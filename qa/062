@@ -1,0 +1,39 @@
+#!/bin/sh
+# PCP QA Test No. 062
+# Test pmcd's ability to suppress multiple access control warnings
+# from the same host
+#
+# Copyright (c) 2012-2013 Red Hat.
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+rm -f $seq.out
+_get_libpcp_config
+if [ "$ipv6" = "true" ]; then
+    ln $seq.out.ipv6 $seq.out || exit 1
+else
+    ln $seq.out.nonipv6 $seq.out || exit 1
+fi
+
+src/fixhosts
+
+# real QA test starts here
+
+echo "testing single op for all ops..."
+src/chkacc1
+echo
+
+echo "testing all except one op for all ops..."
+src/chkacc2
+echo
+
+echo "testing all combinations of ops in a range..."
+src/chkacc3

@@ -1,0 +1,100 @@
+#! /bin/sh
+# PCP QA Test No. 417
+# Exercise tools with a corrupted archive
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+trap "cd $here; rm -rf $tmp; rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+_check_core()
+{
+    if [ "`echo core*`" != "core*" ]
+    then
+	$PCP_ECHO_PROG $PCP_ECHO_N "Dumped core! (saved in $here as""$PCP_ECHO_C"
+	for c in core*
+	do
+	    $sudo mv $c $here/$seq.$c
+	    $PCP_ECHO_PROG $PCP_ECHO_N " $seq.$c""$PCP_ECHO_C"
+	done
+	echo ")"
+    fi
+}
+
+rm -rf $tmp
+mkdir $tmp
+cd $tmp
+
+# make the corrupted archive
+arch=archives/bigace_v2
+cp $here/$arch.meta bad.meta
+dd ibs=1 count=512 if=$here/$arch.index of=bad.index 2>/dev/null
+dd ibs=1 count=512 if=$here/$arch.index >>bad.index 2>/dev/null
+dd if=$here/$arch.0 ibs=1 count=2052 of=bad.0 2>/dev/null
+dd if=/dev/zero ibs=1 count=1024 >>bad.0 2>/dev/null
+
+# deal with an annoying libc error ... using TZ=:Australia/Melbourne
+# causes the -z option to report the wrong time, at least for some
+# times of the year
+#
+export TZ=EST-10
+
+# real QA test starts here
+
+echo
+echo "=== pminfo ==="
+pminfo -O0 -n $here/archives/bigace.pmns -a bad >$tmp.out 2>$tmp.err
+cat $tmp.err $tmp.out
+_check_core
+
+echo
+echo "=== pminfo -f irix ==="
+pminfo -O0 -n $here/archives/bigace.pmns -a bad -f irix
+_check_core
+
+echo
+echo "=== pmdumplog -t ==="
+pmdumplog -n $here/archives/bigace.pmns -z -t bad
+_check_core
+
+echo
+echo "=== pmdumplog -t, no index ==="
+mv bad.index save.index
+pmdumplog -n $here/archives/bigace.pmns -z -t bad
+mv save.index bad.index
+_check_core
+
+echo
+echo "=== pmdumplog -l ==="
+pmdumplog -n $here/archives/bigace.pmns -z -l bad
+_check_core
+
+echo
+echo "=== pmdumplog -L ==="
+pmdumplog -n $here/archives/bigace.pmns -z -L bad
+_check_core
+
+echo
+echo "=== pmdumplog -m ==="
+pmdumplog -n $here/archives/bigace.pmns -z -m bad >$tmp.out 2>$tmp.err
+cat $tmp.err $tmp.out
+_check_core
+
+echo
+echo "=== pmlogsummary ==="
+pmlogsummary -n $here/archives/bigace.pmns bad >$tmp.out 2>$tmp.err
+cat $tmp.err $tmp.out | sed -e 's/^\*//g'
+_check_core
+
+# success, all done
+status=0
+exit

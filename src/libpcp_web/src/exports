@@ -1,0 +1,15 @@
+PCP_WEB_1.0 {
+  global:
+    pmjsonInitIndom;
+    pmjsonInit;
+};
+
+PCP_WEB_1.1 {
+  global:
+    pmhttpNewClient;
+    pmhttpClientSetTimeout;
+    pmhttpClientSetProtocol;
+    pmhttpClientSetUserAgent;
+    pmhttpClientFetch;
+    pmhttpFreeClient;
+} PCP_WEB_1.0;

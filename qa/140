@@ -1,0 +1,54 @@
+#! /bin/sh
+# PCP QA Test No. 140
+# strange include file processing by pmnscomp
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+
+trap "rm -f $tmp.*; exit" 0 1 2 3 15
+
+# this test and the web pmda are not good friends
+#
+if [ -d $PCP_PMDAS_DIR/web ]
+then
+    if pminfo web 2>&1 | grep "Error: web: Unknown metric name" >/dev/null
+    then
+	:
+    else
+	# remove web from namespace
+	cd $PCP_PMDAS_DIR/web
+	$sudo ./Remove
+	cd $here
+    fi
+fi
+
+# real QA test starts here
+
+cd $PCP_VAR_DIR/pmns
+$sudo rm -f /tmp/pmcd
+echo "=== no /tmp/pmcd ==="
+$sudo ./Rebuild >$tmp.out 2>&1
+if grep -i error $tmp.out >/dev/null
+then
+    echo "Failed!"
+    cat $tmp.out
+fi
+
+touch /tmp/pmcd
+echo "=== empty /tmp/pmcd ==="
+$sudo ./Rebuild >$tmp.out 2>&1
+if grep -i error $tmp.out >/dev/null
+then
+    echo "Failed!"
+    cat $tmp.out
+fi
+
+rm -f /tmp/pmcd
+exit 0

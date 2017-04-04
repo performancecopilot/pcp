@@ -1,0 +1,63 @@
+#! /bin/sh
+# PCP QA Test No. 597
+# Install/Remove of shping PMDA
+#
+# Copyright (c) 2015 Red Hat.
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ -f $PCP_PMDAS_DIR/shping/pmdashping ] || _notrun "shping pmda not installed"
+which nslookup >/dev/null 2>&1 || _notrun "nslookup is not installed"
+
+_cleanup()
+{
+    _restore_pmda_install $iam
+    $sudo rm -f $tmp.*
+    exit $status
+}
+
+_filter()
+{
+    $PCP_AWK_PROG '
+/--- end \.\/sample\.conf ---/	{ skip = 0 }
+skip == 0	{ print }
+/--- start \.\/sample\.conf ---/{ print "[deleted]"; skip = 1 }
+'
+}
+
+iam=shping
+status=1
+trap "_cleanup" 0 1 2 3 15
+
+# real QA test starts here
+_prepare_pmda_install $iam
+
+echo
+echo "=== default $iam agent installation ==="
+$sudo ./Remove > $tmp.out 2>&1
+$sudo ./Install </dev/null >>$tmp.out 2>&1
+_filter_pmda_install <$tmp.out | _filter
+
+if pminfo -v $iam
+then
+    :
+else
+    echo "... failed! ... here is the Install log ..."
+    cat $tmp.out
+fi
+
+echo
+echo "=== remove $iam agent ==="
+$sudo ./Remove >$tmp.out 2>&1
+_filter_pmda_remove <$tmp.out
+
+status=0
+exit

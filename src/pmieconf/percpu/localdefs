@@ -1,0 +1,45 @@
+ALL_RULES = syscall some_util many_util context_switch system
+
+LOCAL_RULES = $(ALL_RULES)
+
+# Metrics missing from Linux
+#
+# rule: context_switch
+#   kernel.percpu.pswitch -12357 Unknown metric name
+#
+# rule: syscall
+#   kernel.percpu.syscall -12357 Unknown metric name
+#
+ifeq ($(TARGET_OS), linux)
+LOCAL_RULES = some_util many_util system
+endif
+
+# Metrics missing from Mac OS X
+#
+# rule: syscall
+#   kernel.percpu.syscall -12357 Unknown metric name
+#
+# rule: some_util
+#   kernel.percpu.cpu.intr -12357 Unknown metric name
+#
+# rule: many_util
+#   kernel.percpu.cpu.intr -12357 Unknown metric name
+#
+# rule: context_switch
+#   kernel.percpu.pswitch -12357 Unknown metric name
+#
+ifeq ($(TARGET_OS), darwin)
+LOCAL_RULES = system
+endif
+
+# Metrics missing from Solaris
+#
+# rule: many_util
+#   kernel.percpu.cpu.intr -12357 Unknown metric name
+#
+# rule: some_util
+#   kernel.percpu.cpu.intr -12357 Unknown metric name
+#
+ifeq ($(TARGET_OS), solaris)
+LOCAL_RULES = syscall context_switch system
+endif

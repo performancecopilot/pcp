@@ -1,0 +1,57 @@
+#! /bin/sh
+# PCP QA Test No. 433
+# Test pmie bug #573184
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    _show_pmie_errors | sort | sed -e 's/"//g' -e 's/note - //g'
+}
+
+_check_core()
+{
+    if [ "`echo core*`" != "core*" ]
+    then
+	$PCP_ECHO_PROG $PCP_ECHO_N "Dumped core! (saved in $here as""$PCP_ECHO_C"
+	for c in core*
+	do
+	    $sudo mv $c $here/$seq.$c
+	    $PCP_ECHO_PROG $PCP_ECHO_N " $seq.$c""$PCP_ECHO_C"
+	done
+	echo ")"
+    fi
+}
+
+# real QA test starts here
+
+$sudo rm -f core*
+    
+cat << end-of-file > $tmp.conf
+delta = 1 sec;
+(\$day_of_week >= 1 && \$day_of_week <= 5) && (\$hour >= 7 && \$hour <= 18) &&
+some_host (
+    30 %_sample irix.disk.all.read :omen  @0..9 > 0 )
+-> print "Disk reads on %h";
+end-of-file
+
+pmie -z -a archives/573184 $tmp.conf >$tmp.out 2>$tmp.err
+cat $tmp.out $tmp.err | _filter
+
+_check_core
+
+# success, all done
+status=0
+exit

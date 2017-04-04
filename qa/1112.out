@@ -1,0 +1,26 @@
+QA output created by 1112
+
+ipc.sem.used_sem
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+    value 7
+
+ipc.sem.tot_sem
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+    value 8
+
+ipc.msg.used_queues
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+    value 9
+
+ipc.msg.tot_msg
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+    value 100
+
+ipc.msg.tot_bytes
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: byte
+    value 9000

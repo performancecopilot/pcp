@@ -1,0 +1,526 @@
+/*
+ * Portions Copyright (c) 2013,2016 Red Hat.
+ * Copyright (c) 2000,2004,2007-2008 Silicon Graphics, Inc.  All Rights Reserved.
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+ * for more details.
+ */
+
+#ifndef XFS
+#define XFS    11
+#endif
+
+root {
+    xfs
+    quota
+}
+
+xfs {
+    allocs
+    alloc_btree
+    block_map
+    bmap_btree
+    dir_ops
+    transactions
+    inode_ops
+    log
+    log_tail
+    xstrat
+    write		XFS:16:51
+    write_bytes		XFS:16:52
+    read		XFS:16:53
+    read_bytes		XFS:16:54
+    attr
+    quota
+    iflush_count	XFS:16:67
+    icluster_flushcnt	XFS:16:68
+    icluster_flushinode	XFS:16:69
+    buffer
+    vnodes
+    control
+    btree
+    perdev
+}
+
+xfs.allocs {
+    alloc_extent	XFS:16:0
+    alloc_block		XFS:16:1
+    free_extent		XFS:16:2
+    free_block		XFS:16:3
+}
+
+
+xfs.alloc_btree {
+    lookup		XFS:16:4
+    compare		XFS:16:5
+    insrec		XFS:16:6
+    delrec		XFS:16:7
+}
+
+xfs.block_map {
+    read_ops		XFS:16:8
+    write_ops		XFS:16:9
+    unmap		XFS:16:10
+    add_exlist		XFS:16:11
+    del_exlist		XFS:16:12
+    look_exlist		XFS:16:13
+    cmp_exlist		XFS:16:14
+}
+
+xfs.bmap_btree {
+    lookup		XFS:16:15
+    compare		XFS:16:16
+    insrec		XFS:16:17
+    delrec		XFS:16:18
+}
+
+xfs.dir_ops {
+    lookup		XFS:16:19
+    create		XFS:16:20
+    remove		XFS:16:21
+    getdents		XFS:16:22
+}
+
+xfs.transactions {
+    sync		XFS:16:23
+    async		XFS:16:24
+    empty		XFS:16:25
+}
+
+xfs.inode_ops {
+    ig_attempts		XFS:16:26
+    ig_found		XFS:16:27
+    ig_frecycle		XFS:16:28
+    ig_missed		XFS:16:29
+    ig_dup		XFS:16:30
+    ig_reclaims		XFS:16:31
+    ig_attrchg		XFS:16:32
+}
+
+xfs.log {
+    writes		XFS:16:33
+    blocks		XFS:16:34
+    write_ratio		XFS:16:78
+    noiclogs		XFS:16:35
+    force		XFS:16:36
+    force_sleep		XFS:16:37
+}
+
+xfs.log_tail {
+    try_logspace	XFS:16:38
+    sleep_logspace	XFS:16:39
+    push_ail
+}
+
+xfs.log_tail.push_ail {
+    pushes		XFS:16:40
+    success		XFS:16:41
+    pushbuf		XFS:16:42
+    pinned		XFS:16:43
+    locked		XFS:16:44
+    flushing		XFS:16:45
+    restarts		XFS:16:46
+    flush		XFS:16:47
+}
+
+xfs.xstrat {
+    bytes		XFS:16:48
+    quick		XFS:16:49
+    split		XFS:16:50
+}
+
+xfs.attr {
+    get			XFS:16:55
+    set			XFS:16:56
+    remove		XFS:16:57
+    list		XFS:16:58
+}
+
+xfs.quota {
+    reclaims		XFS:16:59
+    reclaim_misses	XFS:16:60
+    dquot_dups		XFS:16:61
+    cachemisses		XFS:16:62
+    cachehits		XFS:16:63
+    wants		XFS:16:64
+    shake_reclaims	XFS:16:65
+    inact_reclaims	XFS:16:66
+}
+
+xfs.vnodes {
+    active		XFS:16:70
+    alloc		XFS:16:71
+    get			XFS:16:72
+    hold		XFS:16:73
+    rele		XFS:16:74
+    reclaim		XFS:16:75
+    remove		XFS:16:76
+    free		XFS:16:77
+}
+
+xfs.control {
+    reset		XFS:16:79
+}
+
+xfs.buffer {
+    get                 XFS:17:0
+    create              XFS:17:1
+    get_locked          XFS:17:2
+    get_locked_waited   XFS:17:3
+    busy_locked         XFS:17:4
+    miss_locked         XFS:17:5
+    page_retries        XFS:17:6
+    page_found          XFS:17:7
+    get_read            XFS:17:8
+}
+
+xfs.btree {
+    alloc_blocks
+    alloc_contig
+    block_map
+    inode
+}
+
+xfs.btree.alloc_blocks {
+    lookup		XFS:16:80
+    compare		XFS:16:81
+    insrec		XFS:16:82
+    delrec		XFS:16:83
+    newroot		XFS:16:84
+    killroot		XFS:16:85
+    increment		XFS:16:86
+    decrement		XFS:16:87
+    lshift		XFS:16:88
+    rshift		XFS:16:89
+    split		XFS:16:90
+    join		XFS:16:91
+    alloc		XFS:16:92
+    free		XFS:16:93
+    moves		XFS:16:94
+}
+
+xfs.btree.alloc_contig {
+    lookup		XFS:16:95
+    compare		XFS:16:96
+    insrec		XFS:16:97
+    delrec		XFS:16:98
+    newroot		XFS:16:99
+    killroot		XFS:16:100
+    increment		XFS:16:101
+    decrement		XFS:16:102
+    lshift		XFS:16:103
+    rshift		XFS:16:104
+    split		XFS:16:105
+    join		XFS:16:106
+    alloc		XFS:16:107
+    free		XFS:16:108
+    moves		XFS:16:109
+}
+
+xfs.btree.block_map {
+    lookup		XFS:16:110
+    compare		XFS:16:111
+    insrec		XFS:16:112
+    delrec		XFS:16:113
+    newroot		XFS:16:114
+    killroot		XFS:16:115
+    increment		XFS:16:116
+    decrement		XFS:16:117
+    lshift		XFS:16:118
+    rshift		XFS:16:119
+    split		XFS:16:120
+    join		XFS:16:121
+    alloc		XFS:16:122
+    free		XFS:16:123
+    moves		XFS:16:124
+}
+
+xfs.btree.inode {
+    lookup		XFS:16:125
+    compare		XFS:16:126
+    insrec		XFS:16:127
+    delrec		XFS:16:128
+    newroot		XFS:16:129
+    killroot		XFS:16:130
+    increment		XFS:16:131
+    decrement		XFS:16:132
+    lshift		XFS:16:133
+    rshift		XFS:16:134
+    split		XFS:16:135
+    join		XFS:16:136
+    alloc		XFS:16:137
+    free		XFS:16:138
+    moves		XFS:16:139
+}
+
+quota {
+    state
+    project
+}
+
+quota.state {
+    project
+}
+
+quota.state.project {
+    accounting		XFS:30:0
+    enforcement		XFS:30:1
+}
+
+quota.project {
+    space
+    files
+}
+
+quota.project.space {
+    hard  		XFS:30:6
+    soft  		XFS:30:7
+    used  		XFS:30:8
+    time_left  		XFS:30:9
+}
+
+quota.project.files {
+    hard  		XFS:30:10
+    soft  		XFS:30:11
+    used  		XFS:30:12
+    time_left  		XFS:30:13
+}
+
+xfs.perdev {
+    allocs
+    alloc_btree
+    block_map
+    bmap_btree
+    dir_ops
+    transactions
+    inode_ops
+    log
+    log_tail
+    xstrat
+    write		XFS:18:51
+    write_bytes		XFS:18:52
+    read		XFS:18:53
+    read_bytes		XFS:18:54
+    attr
+    quota
+    iflush_count	XFS:18:67
+    icluster_flushcnt	XFS:18:68
+    icluster_flushinode	XFS:18:69
+    buffer
+    vnodes
+    btree
+}
+
+xfs.perdev.allocs {
+    alloc_extent	XFS:18:0
+    alloc_block		XFS:18:1
+    free_extent		XFS:18:2
+    free_block		XFS:18:3
+}
+
+
+xfs.perdev.alloc_btree {
+    lookup		XFS:18:4
+    compare		XFS:18:5
+    insrec		XFS:18:6
+    delrec		XFS:18:7
+}
+
+xfs.perdev.block_map {
+    read_ops		XFS:18:8
+    write_ops		XFS:18:9
+    unmap		XFS:18:10
+    add_exlist		XFS:18:11
+    del_exlist		XFS:18:12
+    look_exlist		XFS:18:13
+    cmp_exlist		XFS:18:14
+}
+
+xfs.perdev.bmap_btree {
+    lookup		XFS:18:15
+    compare		XFS:18:16
+    insrec		XFS:18:17
+    delrec		XFS:18:18
+}
+
+xfs.perdev.dir_ops {
+    lookup		XFS:18:19
+    create		XFS:18:20
+    remove		XFS:18:21
+    getdents		XFS:18:22
+}
+
+xfs.perdev.transactions {
+    sync		XFS:18:23
+    async		XFS:18:24
+    empty		XFS:18:25
+}
+
+xfs.perdev.inode_ops {
+    ig_attempts		XFS:18:26
+    ig_found		XFS:18:27
+    ig_frecycle		XFS:18:28
+    ig_missed		XFS:18:29
+    ig_dup		XFS:18:30
+    ig_reclaims		XFS:18:31
+    ig_attrchg		XFS:18:32
+}
+
+xfs.perdev.log {
+    writes		XFS:18:33
+    blocks		XFS:18:34
+    write_ratio		XFS:18:78
+    noiclogs		XFS:18:35
+    force		XFS:18:36
+    force_sleep		XFS:18:37
+}
+
+xfs.perdev.log_tail {
+    try_logspace	XFS:18:38
+    sleep_logspace	XFS:18:39
+    push_ail
+}
+
+xfs.perdev.log_tail.push_ail {
+    pushes		XFS:18:40
+    success		XFS:18:41
+    pushbuf		XFS:18:42
+    pinned		XFS:18:43
+    locked		XFS:18:44
+    flushing		XFS:18:45
+    restarts		XFS:18:46
+    flush		XFS:18:47
+}
+
+xfs.perdev.xstrat {
+    bytes		XFS:18:48
+    quick		XFS:18:49
+    split		XFS:18:50
+}
+
+xfs.perdev.attr {
+    get			XFS:18:55
+    set			XFS:18:56
+    remove		XFS:18:57
+    list		XFS:18:58
+}
+
+xfs.perdev.quota {
+    reclaims		XFS:18:59
+    reclaim_misses	XFS:18:60
+    dquot_dups		XFS:18:61
+    cachemisses		XFS:18:62
+    cachehits		XFS:18:63
+    wants		XFS:18:64
+    shake_reclaims	XFS:18:65
+    inact_reclaims	XFS:18:66
+}
+
+xfs.perdev.vnodes {
+    active		XFS:18:70
+    alloc		XFS:18:71
+    get			XFS:18:72
+    hold		XFS:18:73
+    rele		XFS:18:74
+    reclaim		XFS:18:75
+    remove		XFS:18:76
+    free		XFS:18:77
+}
+
+xfs.perdev.buffer {
+    get                 XFS:18:140
+    create              XFS:18:141
+    get_locked          XFS:18:142
+    get_locked_waited   XFS:18:143
+    busy_locked         XFS:18:144
+    miss_locked         XFS:18:145
+    page_retries        XFS:18:146
+    page_found          XFS:18:147
+    get_read            XFS:18:148
+}
+
+xfs.perdev.btree {
+    alloc_blocks
+    alloc_contig
+    block_map
+    inode
+}
+
+xfs.perdev.btree.alloc_blocks {
+    lookup		XFS:18:80
+    compare		XFS:18:81
+    insrec		XFS:18:82
+    delrec		XFS:18:83
+    newroot		XFS:18:84
+    killroot		XFS:18:85
+    increment		XFS:18:86
+    decrement		XFS:18:87
+    lshift		XFS:18:88
+    rshift		XFS:18:89
+    split		XFS:18:90
+    join		XFS:18:91
+    alloc		XFS:18:92
+    free		XFS:18:93
+    moves		XFS:18:94
+}
+
+xfs.perdev.btree.alloc_contig {
+    lookup		XFS:18:95
+    compare		XFS:18:96
+    insrec		XFS:18:97
+    delrec		XFS:18:98
+    newroot		XFS:18:99
+    killroot		XFS:18:100
+    increment		XFS:18:101
+    decrement		XFS:18:102
+    lshift		XFS:18:103
+    rshift		XFS:18:104
+    split		XFS:18:105
+    join		XFS:18:106
+    alloc		XFS:18:107
+    free		XFS:18:108
+    moves		XFS:18:109
+}
+
+xfs.perdev.btree.block_map {
+    lookup		XFS:18:110
+    compare		XFS:18:111
+    insrec		XFS:18:112
+    delrec		XFS:18:113
+    newroot		XFS:18:114
+    killroot		XFS:18:115
+    increment		XFS:18:116
+    decrement		XFS:18:117
+    lshift		XFS:18:118
+    rshift		XFS:18:119
+    split		XFS:18:120
+    join		XFS:18:121
+    alloc		XFS:18:122
+    free		XFS:18:123
+    moves		XFS:18:124
+}
+
+xfs.perdev.btree.inode {
+    lookup		XFS:18:125
+    compare		XFS:18:126
+    insrec		XFS:18:127
+    delrec		XFS:18:128
+    newroot		XFS:18:129
+    killroot		XFS:18:130
+    increment		XFS:18:131
+    decrement		XFS:18:132
+    lshift		XFS:18:133
+    rshift		XFS:18:134
+    split		XFS:18:135
+    join		XFS:18:136
+    alloc		XFS:18:137
+    free		XFS:18:138
+    moves		XFS:18:139
+}

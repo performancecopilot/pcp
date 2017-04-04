@@ -1,0 +1,79 @@
+QA output created by 879
+
+== checking instance name with special characters
+[1] ;34@#bleurg  root        /bin/true
+[name=;34@#bleurg user=root line=1] command: /bin/true
+sts=0
+
+== checking missing user and command fields
+[1] instance
+event_config: CONFIG line 1 missing user name
+sts=1
+
+== checking missing command field
+[1] instance user 
+event_config: CONFIG line 1 missing a command
+sts=1
+
+== checking valid access control section
+[1] instance user command and parameters
+[name=instance user=user line=1] command: command and parameters
+[2] [access]
+[3] allow user NAME : instance
+[allow user=NAME line=3] instance: instance
+[4] disallow user NAME : instance
+[disallow user=NAME line=4] instance: instance
+[5] allow group NAME : instance
+[allow group=NAME line=5] instance: instance
+[6] disallow group NAME : instance
+[disallow group=NAME line=6] instance: instance
+sts=0
+
+== checking invalid access control line (no username)
+[1] instance user command and parameters
+[name=instance user=user line=1] command: command and parameters
+[2] [access]
+[3] allow user NAME : instance
+[allow user=NAME line=3] instance: instance
+[4] disallow user NAME : instance
+[disallow user=NAME line=4] instance: instance
+[5] allow group NAME : instance
+[allow group=NAME line=5] instance: instance
+[6] disallow group NAME : instance
+[disallow group=NAME line=6] instance: instance
+[7] allow user
+event_config: CONFIG line 7, bad user name ''
+sts=1
+
+== checking invalid access control line (no separator)
+[1] instance user command and parameters
+[name=instance user=user line=1] command: command and parameters
+[2] [access]
+[3] allow user NAME : instance
+[allow user=NAME line=3] instance: instance
+[4] disallow user NAME : instance
+[disallow user=NAME line=4] instance: instance
+[5] allow group NAME : instance
+[allow group=NAME line=5] instance: instance
+[6] disallow group NAME : instance
+[disallow group=NAME line=6] instance: instance
+[7] allow group NAME 
+event_config: CONFIG line 7, bad instance ''
+sts=1
+
+== checking invalid access control line (no instance)
+[1] instance user command and parameters
+[name=instance user=user line=1] command: command and parameters
+[2] [access]
+[3] allow user NAME : instance
+[allow user=NAME line=3] instance: instance
+[4] disallow user NAME : instance
+[disallow user=NAME line=4] instance: instance
+[5] allow group NAME : instance
+[allow group=NAME line=5] instance: instance
+[6] disallow group NAME : instance
+[disallow group=NAME line=6] instance: instance
+[7] allow group NAME : 
+event_config: CONFIG line 7, bad instance ''
+sts=1
+

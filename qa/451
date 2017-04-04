@@ -1,0 +1,32 @@
+#!/bin/sh
+# PCP QA Test No. 451
+# Exercise basic global locking
+#
+# Copyright (c) 2011 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_get_libpcp_config
+$multi_threaded || _notrun "No libpcp threading support"
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+for arg in ilu ilululu illluluuluu ll iluu
+do
+    echo
+    echo "=== $arg ==="
+    src/exerlock $arg
+done
+
+# success, all done
+exit

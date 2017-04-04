@@ -1,0 +1,246 @@
+#! /bin/sh
+# PCP QA Test No. 051
+# Check pmcd access control parsing
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_get_libpcp_config
+rm -f $seq.out
+if $ipv6 ; then
+    ln $seq.out.ipv6 $seq.out || exit 1
+else
+    ln $seq.out.nonipv6 $seq.out || exit 1
+fi
+
+# get valid hostnames: $remote_1, $remote_2, etc.
+#
+. ./051.hosts
+
+# Remember that we cd into 051.work
+#
+signal=$PCP_BINADM_DIR/pmsignal
+config=$PCP_PMCDCONF_PATH
+oconfig=$config.O
+log=./pmcd.log
+me=`hostname`
+
+rm -f $here/$seq.full
+
+_filter_hostnames()
+{
+    sed \
+	-e "s/$remote_1/remote-host-1/" \
+	-e "s/$remote_2/remote-host-2/" \
+	-e "s/$remote_3/remote-host-3/" \
+	-e "s/$remote_4/remote-host-4/" \
+	-e "s/$remote_5/remote-host-5/"
+}
+
+# Note on awk at the end ... if the QA host is not connected to
+# the internet, then this is possible ...
+# [Tue Sep 20 01:23:42] pmcd(2640) Error: __pmGetAddrInfo(www.sgi.com), Host name lookup failure
+# Warning: the following access control specification will be ignored
+# pmcd config[line 19]: Warning: access control error for host 'www.sgi.com': No route to host
+# ... the test results are otherwise OK, so that's what the last filter
+# is getting rid of.  The filtering is complicated by the fact something
+# similar to this is _expected_ for die.020, die.021 and die.022.
+#
+_filter_die_log()
+{
+    case "$1"
+    in
+	die.020|die.021|die.022)
+	    state=0
+	    ;;
+	die.028|die.030|die.033|die.034)
+	    # if "off net", cannot get IP addrs, so fake it
+	    #
+	    if grep 'Host name lookup failure' <$log >/dev/null 2>&1
+	    then
+		$PCP_AWK_PROG <$log >$tmp.tmp '
+BEGIN		{ state = 0 }
+state == 0 && /Host name lookup/	{ print "[DATE] pmcd(PID) Error: Permission clash for ..."
+					  print "pmcd config[line 7]: Warning: access control error for host '"'HOST'"': Invalid argument"
+					  state = 1
+					}
+					{ print }'
+		$sudo cp $tmp.tmp $log
+	    fi
+	    state=1
+	    ;;
+	*)
+	    # may need to strip "No route" messages when "off net"
+	    #
+	    state=1
+	    ;;
+    esac
+    rm -f $tmp.tmp
+    _filter_pmcd_log <$log \
+    | _filter_hostnames \
+    | sed \
+	-e 's/__pmGetAddrInfo/gethostbyname/g' \
+	-e 's/__pmGetHostByName/gethostbyname/g' \
+	-e '/Permission clash/s/for .*/for .../' \
+	-e '/gethostbyname(/s/gethostbyname([0-9.]*)/gethostbyname(IPADDR)/' \
+	-e "/host '.*':/s/host '.*'/host 'HOST'/" \
+	-e '/UNIX_DOMAIN_SOCKET/d' \
+    | $PCP_AWK_PROG '
+BEGIN						{ state = '"$state"' }
+    			{ print state,$0 >"'$tmp.tmp'" }
+state == 1 && /gethostbyname\([^)]*\), Host name lookup failure/	{ state = 2; next }
+state == 2 && $1 == "Warning:"			{ state = 3; next }
+state == 3 && /No route to host/		{ state = 1; next }
+						{ state = '"$state"'; print }' \
+    | sed \
+	-e '/gethostbyname(/s/).*/) ERROR.../' \
+    # end
+}
+
+_filter_kill_log()
+{
+    sleep 3
+    _filter_pmcd_log <$log \
+    | _filter_hostnames \
+    | sed \
+	-e 's/Cannot open 000000660066: No such file or directory//' \
+	-e 's/^$//' \
+	-e '/^00[08]:/d' \
+	-e '/UNIX_DOMAIN_SOCKET/d' \
+    | $PCP_AWK_PROG '
+$3 ~ /^[0-9][0-9]*$/	{ $3 = "A_PID" }
+			{ print }'
+
+}
+
+interrupt()
+{
+    echo "Interrupted"
+    rm -f $tmp.*
+    exit
+}
+
+cleanup()
+{
+    if [ -f $oconfig ]
+    then
+	$sudo mv $oconfig $config
+    fi
+    echo "Restarting pmcd"
+    unset PMCD_SOCKET
+    $sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+    _restore_systemd_restart pmcd
+    _wait_for_pmcd
+    _wait_for_pmlogger
+    rm -f $tmp.*
+}
+
+trap interrupt 1 2 3 15
+trap cleanup 0
+
+_stop_systemd_restart pmcd
+
+# real QA test starts here
+
+echo "Make sure all the config files are there"
+/bin/sh setup.051 > $tmp.err 2>&1
+if [ $? -ne 0 ]
+then
+    echo "setup.051 failed:"
+    cat $tmp.err
+    exit 1
+fi
+
+ls 051.work/die.*
+ls 051.work/kill*
+cd 051.work
+
+echo "terminating pmcd..."
+$sudo $PCP_RC_DIR/pcp stop | _filter_pcp_stop
+if [ -f $config ]
+then
+    $sudo mv $config $oconfig
+else
+    echo "Warning: $config not found"
+fi
+
+echo
+echo "Running the scanner/parser tests (die.\*)"
+
+export PMCD_SOCKET=$tmp.pmcd.socket
+for t in die.*
+do
+    rm -f pmcd.log
+    $sudo cp $t $config
+    rm -f pmcd.log
+    echo
+    $PCP_ECHO_PROG $PCP_ECHO_N "$t================""$PCP_ECHO_C"
+    $PCP_ECHO_PROG "$t================" >>$here/$seq.full
+    cat $t >>$here/$seq.full
+    echo
+    if [ "X$t" = "Xdie.029" -o "X$t" = "Xdie.043" ]
+    then
+	echo "(config for $t is host-specific)"
+    else
+	_filter_hostnames <$config \
+	| sed -e "s;$PCP_PMDAS_DIR;\$PCP_PMDAS_DIR;g"
+    fi
+    $PCP_PMCD_PROG -f -x /no/such/file
+    echo "$t logfile----------------"
+    echo "$t logfile----------------" >>$here/$seq.full
+    cat $log >>$here/$seq.full
+    if [ -x filter.$t ]
+    then
+	./filter.$t <$log
+    else
+	_filter_die_log $t
+	echo "$t filtered logfile----------------" >>$here/$seq.full
+	cat $tmp.tmp >>$here/$seq.full
+	echo "$t filtered endlog ----------------" >>$here/$seq.full
+    fi
+    echo "$t endlog ----------------"
+done
+
+echo
+echo
+echo "Running the scanner/parser tests (kill.\*)"
+echo
+
+for t in kill.*
+do
+    rm -f pmcd.log
+    $sudo cp $t $config
+    rm -f pmcd.log
+    echo "$t================"
+    echo "$t================" >>$here/$seq.full
+    cat $t >>$here/$seq.full
+    _filter_hostnames <$config \
+    | sed -e "s;$PCP_PMDAS_DIR;\$PCP_PMDAS_DIR;g"
+    # Give pmcd 3 seconds to run
+    ((sleep 3; $signal -a -s TERM pmcd)&) >/dev/null 2>&1
+    $PCP_PMCD_PROG -f
+    echo "$t logfile----------------"
+    echo "$t logfile----------------" >>$here/$seq.full
+    cat $log >>$here/$seq.full
+    # Note on if | sed ... need to handle GNU coreutils brain
+    # damage from newer versions of cat(1) and remove ' quotes
+    # from lines like ...
+    # Cannot open 'whacko name': No such file or directory
+    #
+    if [ -x filter.$t ]
+    then
+	./filter.$t <$log
+    else
+	_filter_kill_log
+    fi \
+    | sed -e "/: No such file /s/ '\([^']*\)': No/ \1: No/"
+    echo "$t endlog ----------------"
+done

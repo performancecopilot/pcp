@@ -1,0 +1,67 @@
+#!/bin/sh
+# PCP QA Test No. 720
+# Exercise the pmParseHostAttrsSpec API family
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_check_valgrind
+
+if [ "`hostname`" = bozo ]
+then
+    _notrun "valgrind dies with \"vex: the 'impossible' happened\" on Ubuntu 16.04"
+    # NOTREACHED
+fi
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+_run_valgrind src/parsehostattrs pcps://nas1.servers.com:44321,4321@firewall.servers.com:44322?compress
+_run_valgrind src/parsehostattrs pcp://localhost:23?compress
+_run_valgrind src/parsehostattrs pcp://some.host?user=pcpqa\&compress\&pass=blah
+_run_valgrind src/parsehostattrs pcp://some.host?user=pcpqa
+_run_valgrind src/parsehostattrs some.host?user=pcpqa
+_run_valgrind src/parsehostattrs some.host
+_run_valgrind src/parsehostattrs pcp://?compress\&exclusive
+
+_filter_auth()
+{
+    # filter all the wierd and wonderful ways that SASL and its merry modules
+    # might fail, into one canonical form ("authentication failure").
+    #
+    # Noise ...
+    # [Fri Feb 13 23:00:29] pminfo(9819) Alert: GSSAPI Error: Unspecified GSS failure.  Minor code may provide more information (Credentials cache file '/tmp/krb5cc_1000' not found)
+    # [Fri Mar  6 19:14:35] pminfo(20207) Alert: No worthy mechs found
+    #
+    # equivalence ...
+    # pminfo: ...notApassword": Authentication - generic failure
+    # and
+    # Error: Authentication - user not found
+    # and
+    # pminfo: ...notApassword": Authentication - authentication failure
+    # and
+    # pminfo: ...notApassword": Operation not supported
+    # are considered equivalent to
+    # Error: Authentication - authentication failure
+    #
+    tee -a $seq.full | \
+    sed \
+	-e '/pminfo.* GSSAPI Error:/d' \
+	-e '/pminfo.* No worthy mechs found/d' \
+	-e 's/^pminfo: .*Authentication -/Error: Authentication -/g' \
+	-e 's/^pminfo: .*Operation/Error: Authentication -/g' \
+	-e '/Error: Authentication/s/ - generic failure/ - authentication failure/g' \
+	-e '/Error: Authentication/s/ - no mechanism available/ - authentication failure/g' \
+	-e '/Error: Authentication/s/ - user not found/ - authentication failure/g' \
+	-e '/Error: Authentication/s/ - not supported/ - authentication failure/g' \
+    # end
+}
+
+echo "pminfo username/password failure valgrind checking" >> $seq.full
+_run_valgrind pminfo -h pcp://localhost?user=NOsuchUSER\&pass=DEFINITELYnotApassword 2>&1 | _filter_auth

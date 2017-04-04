@@ -1,0 +1,4 @@
+#pmlogconf-setup 2.0
+ident	all available kernel buffer cache data
+probe	buffer_cache.flush
+	buffer_cache

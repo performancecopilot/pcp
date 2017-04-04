@@ -1,0 +1,106 @@
+device sysfs mounted on /sys with fstype sysfs
+device proc mounted on /proc with fstype proc
+device devtmpfs mounted on /dev with fstype devtmpfs
+device securityfs mounted on /sys/kernel/security with fstype securityfs
+device tmpfs mounted on /dev/shm with fstype tmpfs
+device devpts mounted on /dev/pts with fstype devpts
+device tmpfs mounted on /run with fstype tmpfs
+device tmpfs mounted on /sys/fs/cgroup with fstype tmpfs
+device cgroup mounted on /sys/fs/cgroup/systemd with fstype cgroup
+device pstore mounted on /sys/fs/pstore with fstype pstore
+device cgroup mounted on /sys/fs/cgroup/cpu,cpuacct with fstype cgroup
+device cgroup mounted on /sys/fs/cgroup/memory with fstype cgroup
+device cgroup mounted on /sys/fs/cgroup/devices with fstype cgroup
+device cgroup mounted on /sys/fs/cgroup/freezer with fstype cgroup
+device cgroup mounted on /sys/fs/cgroup/cpuset with fstype cgroup
+device cgroup mounted on /sys/fs/cgroup/blkio with fstype cgroup
+device cgroup mounted on /sys/fs/cgroup/hugetlb with fstype cgroup
+device cgroup mounted on /sys/fs/cgroup/net_cls,net_prio with fstype cgroup
+device cgroup mounted on /sys/fs/cgroup/perf_event with fstype cgroup
+device cgroup mounted on /sys/fs/cgroup/pids with fstype cgroup
+device configfs mounted on /sys/kernel/config with fstype configfs
+device /dev/mapper/fedora-root mounted on / with fstype xfs
+device selinuxfs mounted on /sys/fs/selinux with fstype selinuxfs
+device systemd-1 mounted on /proc/sys/fs/binfmt_misc with fstype autofs
+device debugfs mounted on /sys/kernel/debug with fstype debugfs
+device mqueue mounted on /dev/mqueue with fstype mqueue
+device tmpfs mounted on /tmp with fstype tmpfs
+device hugetlbfs mounted on /dev/hugepages with fstype hugetlbfs
+device nfsd mounted on /proc/fs/nfsd with fstype nfsd
+device /dev/sda1 mounted on /boot with fstype ext4
+device sunrpc mounted on /var/lib/nfs/rpc_pipefs with fstype rpc_pipefs
+device tmpfs mounted on /run/user/0 with fstype tmpfs
+device nfs.f24.local:/home mounted on /home with fstype nfs4 statvers=1.1
+	opts:	rw,vers=4.2,rsize=131072,wsize=131072,namlen=255,acregmin=3,acregmax=60,acdirmin=30,acdirmax=60,hard,proto=tcp,port=0,timeo=600,retrans=2,sec=krb5p,clientaddr=192.168.122.168,local_lock=none
+	age:	5547
+	impl_id:	name='',domain='',date='0,0'
+	caps:	caps=0x1ff7fdf,wtmult=512,dtsize=32768,bsize=0,namlen=255
+	nfsv4:	bm0=0xfdffbfff,bm1=0x40f9be3e,bm2=0x10803,acl=0x3,sessions,pnfs=not configured
+	sec:	flavor=6,pseudoflavor=390005
+	events:	141245 842744 87 143014 58 6399 1293868 4618748 25 7795 0 201405 146 3 92422 92428 0 92420 0 0 4092892 1 0 0 0 0 0 
+	bytes:	4365236327 5911247130 0 0 4406481497 5911215386 1075802 1473784 
+	RPC iostats version: 1.0  p/v: 100003/4 (nfs)
+	xprt:	tcp 749 0 1 0 0 653672 653671 0 2524136 0 31 145601 1870464
+	per-op statistics
+	        NULL: 0 0 0 0 0 0 0 0
+	        READ: 38821 38821 0 11491016 4414245700 950 824228 869033
+	       WRITE: 137939 137939 0 5954804116 37519408 67493582 3087530 70664356
+	      COMMIT: 2700 2700 0 756000 540000 17238 121957 139490
+	        OPEN: 92411 92411 0 41712764 50484672 6336 1475018 1490116
+	OPEN_CONFIRM: 0 0 0 0 0 0 0 0
+	 OPEN_NOATTR: 8 8 0 2816 4044 0 7 8
+	OPEN_DOWNGRADE: 0 0 0 0 0 0 0 0
+	       CLOSE: 92413 92413 0 28093552 25136336 6106 132083 144862
+	     SETATTR: 32778 32778 0 10620096 12586752 1566 373236 378298
+	      FSINFO: 1 1 0 272 260 0 0 0
+	       RENEW: 0 0 0 0 0 0 0 0
+	 SETCLIENTID: 0 0 0 0 0 0 0 0
+	SETCLIENTID_CONFIRM: 0 0 0 0 0 0 0 0
+	        LOCK: 0 0 0 0 0 0 0 0
+	       LOCKT: 0 0 0 0 0 0 0 0
+	       LOCKU: 0 0 0 0 0 0 0 0
+	      ACCESS: 69477 69476 0 20008260 18341664 18446744073706749450 105209 116052
+	     GETATTR: 141246 141246 0 40113720 58758288 7428 165646 186058
+	      LOOKUP: 6126 6126 0 1862380 1503644 148 4196 4632
+	 LOOKUP_ROOT: 0 0 0 0 0 0 0 0
+	      REMOVE: 32777 32777 0 9490568 6948724 1372 420080 424382
+	      RENAME: 2 2 0 720 496 0 8 8
+	        LINK: 0 0 0 0 0 0 0 0
+	     SYMLINK: 1 1 0 380 192 0 2 3
+	      CREATE: 5219 5219 0 2004108 2672128 83 17343 17650
+	    PATHCONF: 1 1 0 264 212 0 0 0
+	      STATFS: 5 5 0 1340 1280 0 10 12
+	    READLINK: 0 0 0 0 0 0 0 0
+	     READDIR: 1725 1725 0 531276 55896404 41 2416 3503
+	 SERVER_CAPS: 2 2 0 544 520 0 0 0
+	 DELEGRETURN: 2 2 0 600 512 0 2 2
+	      GETACL: 0 0 0 0 0 0 0 0
+	      SETACL: 0 0 0 0 0 0 0 0
+	FS_LOCATIONS: 0 0 0 0 0 0 0 0
+	RELEASE_LOCKOWNER: 0 0 0 0 0 0 0 0
+	     SECINFO: 0 0 0 0 0 0 0 0
+	FSID_PRESENT: 0 0 0 0 0 0 0 0
+	 EXCHANGE_ID: 0 0 0 0 0 0 0 0
+	CREATE_SESSION: 0 0 0 0 0 0 0 0
+	DESTROY_SESSION: 0 0 0 0 0 0 0 0
+	    SEQUENCE: 0 0 0 0 0 0 0 0
+	GET_LEASE_TIME: 0 0 0 0 0 0 0 0
+	RECLAIM_COMPLETE: 0 0 0 0 0 0 0 0
+	   LAYOUTGET: 0 0 0 0 0 0 0 0
+	GETDEVICEINFO: 0 0 0 0 0 0 0 0
+	LAYOUTCOMMIT: 0 0 0 0 0 0 0 0
+	LAYOUTRETURN: 0 0 0 0 0 0 0 0
+	SECINFO_NO_NAME: 0 0 0 0 0 0 0 0
+	TEST_STATEID: 0 0 0 0 0 0 0 0
+	FREE_STATEID: 0 0 0 0 0 0 0 0
+	GETDEVICELIST: 0 0 0 0 0 0 0 0
+	BIND_CONN_TO_SESSION: 0 0 0 0 0 0 0 0
+	DESTROY_CLIENTID: 0 0 0 0 0 0 0 0
+	        SEEK: 1 2 3 4 5 6 7 8
+	    ALLOCATE: 9 11 13 15 17 19 21 23
+	  DEALLOCATE: 10 12 14 16 18 20 22 24
+	 LAYOUTSTATS: 0 0 0 0 0 0 0 0
+	       CLONE: 0 0 0 0 0 0 0 0
+	        COPY: 0 0 0 0 0 0 0 0
+
+device tmpfs mounted on /run/user/1219600001 with fstype tmpfs

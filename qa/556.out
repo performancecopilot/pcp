@@ -1,0 +1,11 @@
+QA output created by 556
+pmie: timezone set to local timezone from archives/ace_v2
+syslog Mon Oct 30 14:25:10 1995: test syslog
+print Mon Oct 30 14:25:10 1995: test print
+shell Mon Oct 30 14:25:10 1995: echo test shell
+syslog Mon Oct 30 14:25:10 1995: test syslog + holdoff
+print Mon Oct 30 14:25:10 1995: test print + holdoff
+shell Mon Oct 30 14:25:10 1995: echo test shell + holdoff
+syslog Mon Oct 30 14:25:13 1995: test syslog
+print Mon Oct 30 14:25:13 1995: test print
+shell Mon Oct 30 14:25:13 1995: echo test shell

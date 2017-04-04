@@ -1,0 +1,7 @@
+QA output created by 550
+leak-fetch checking: 
+leak-fetch complete sts=0
+leak-fetch memory check=OK
+leak-getpdu checking: 
+leak-getpdu complete sts=0
+leak-getpdu memory check=OK

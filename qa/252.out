@@ -1,0 +1,10 @@
+QA output created by 252
+Log size for 4000bytes is correct
+Log size for 4K is correct
+Log size for 4194B is correct
+Expected log sample size: 2
+Actual log sample size:   2
+Expected time size of: 3secs
+Log time is within tolerance
+Expected time size of: 3secs
+Log time is within tolerance

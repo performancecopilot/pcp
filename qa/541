@@ -1,0 +1,86 @@
+#! /bin/sh
+# PCP QA Test No. 541
+# another variant on ...
+# #535080 - dynamic indoms for pmie, uses sample.dynamic.*
+# this time, the problem is when the intial instance domain contains
+# one instance, the pmie expression tree uses the 1:1 operator instead
+# of the n:1 operator
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+signal=$PCP_BINADM_DIR/pmsignal
+status=1	# failure is the default!
+control=$PCP_PMDAS_DIR/sample/dynamic.indom
+
+_cleanup()
+{
+    [ -f $control.$seq ] && $sudo mv $control.$seq $control
+    rm -f $tmp.*
+}
+
+$sudo rm -f $control.$seq
+
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+
+[ -f $control ] && $sudo mv $control $control.$seq
+
+$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+_wait_for_pmcd
+_wait_for_pmlogger
+
+# prime the sample PMDA to refresh the dynamic indom
+#
+pminfo -f sample.dynamic >/dev/null 2>&1
+
+for op in some_inst all_inst
+do
+    echo
+    echo "=== operator $op ==="
+
+    # just one instance
+    #
+    cat >$tmp.indom <<End-of-File
+0 zero
+End-of-File
+    $sudo rm -f $control
+    $sudo cp $tmp.indom $control
+    pmprobe -I sample.dynamic.counter
+
+    cat <<End-of-File | pmie -t 250msec >$tmp.out 2>&1 &
+$op ( sample.dynamic.counter > 0 ) -> shell "echo counter:" " %i:?";
+End-of-File
+    pid=$!
+
+    sleep 3
+
+    # replace one instance by two others
+    #
+    cat >$tmp.indom <<End-of-File
+1 one
+2 two
+End-of-File
+    $sudo rm -f $control
+    $sudo cp $tmp.indom $control
+    pmprobe -I sample.dynamic.counter
+    sleep 2
+
+    $signal -s TERM $pid
+    wait
+
+    uniq $tmp.out
+done
+
+# success, all done
+status=0
+exit

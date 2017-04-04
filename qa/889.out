@@ -1,0 +1,7 @@
+QA output created by 889
+
+proc.psinfo.pid
+    Data Type: 32-bit unsigned int  InDom: 3.9 0xc00009
+    Semantics: discrete  Units: none
+    inst [N or "001234 sleep30"] value 1234
+    inst [N or "9876868 sleep30"] value 9876868

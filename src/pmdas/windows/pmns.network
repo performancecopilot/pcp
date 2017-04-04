@@ -1,0 +1,42 @@
+network {
+    interface
+    tcp
+}
+
+network.interface {
+    in
+    out
+    total
+    bandwidth		WINDOWS:0:235
+    speed		WINDOWS:0:236
+    baudrate		WINDOWS:0:237
+}
+
+network.interface.in {
+    packets		WINDOWS:0:38
+    bytes		WINDOWS:0:39
+    errors		WINDOWS:0:40
+}
+
+network.interface.out {
+    packets		WINDOWS:0:41
+    bytes		WINDOWS:0:42
+    errors		WINDOWS:0:43
+}
+
+network.interface.total {
+    packets		WINDOWS:0:44
+    bytes		WINDOWS:0:45
+}
+
+network.tcp {
+    activeopens		WINDOWS:0:123
+    passiveopens	WINDOWS:0:124
+    attemptfails	WINDOWS:0:125
+    estabresets		WINDOWS:0:126
+    currestab		WINDOWS:0:127
+    insegs		WINDOWS:0:128
+    outsegs		WINDOWS:0:129
+    totalsegs		WINDOWS:0:130
+    retranssegs		WINDOWS:0:131
+}

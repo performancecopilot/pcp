@@ -1,0 +1,169 @@
+#! /bin/sh
+# PCP QA Test No. 462
+# For pv #581025, pv #589006
+#
+# Test out pmcd_wait 
+#
+# Test:
+# * Success:
+#1 - try on already running pmcd
+# * Failure:
+#2 - pmcd not running at all
+#3 - pmcd running but taking too long to get around to 
+#   accepting connections
+# * Wait delta:
+#4 - delta = X, have pmcd dead for X-1 seconds 
+#5 - delta = X, have pmcd dead for X+1 seconds 
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+host=`hostname`
+
+_cleanup()
+{
+    # _change_config pmlogger on
+    _start >/dev/null 2>&1
+    _wait_for_pmcd
+    _wait_for_pmlogger
+    rm -f $tmp.*
+}
+
+_filter()
+{
+    _filter_pcp_start \
+    | _filter_pcp_stop \
+    | sed -e '/^$PCP_RC_DIR\/pmlogger: pmlogger not running/d'
+}
+
+_wait_filter()
+{
+    sed -e "s/$host/LOCALHOST/g" -e "s/local:/LOCALHOST/g"
+}
+
+_start()
+{
+    echo "restart @ `date` ..." >>$seq.full
+    $sudo $PCP_RC_DIR/pcp restart >$tmp.start.out
+    echo "restart log @ `date` ..." >>$seq.full
+    cat $tmp.start.out >>$seq.full
+}
+
+_stop()
+{
+    echo "stop @ `date`..." >>$seq.full
+    $sudo $PCP_RC_DIR/pcp stop >$tmp.stop.out
+    echo "stop log @ `date` ..." >>$seq.full
+    cat $tmp.stop.out >>$seq.full
+}
+
+# real QA test starts here
+
+# _change_config pmlogger off
+
+delta=10
+pre_delta=5
+post_delta=15
+
+rm -f $seq.full
+
+echo "*** test 1 ***" | tee -a $seq.full
+_start
+sleep 2
+if pmcd_wait -v 2>$tmp.err
+then
+   echo ""
+   echo "pmcd_wait succeeded as expected for running pmcd"
+   echo ""
+else
+   _wait_filter < $tmp.err
+fi
+_filter <$tmp.start.out
+
+echo "*** test 2 ***" | tee -a $seq.full
+_stop
+sleep 2
+if pmcd_wait -v -t $delta 2>$tmp.err
+then
+   echo ""
+   echo "ERROR: pmcd_wait should not have succeeded !" | tee -a $seq.full
+   echo ""
+else
+   _wait_filter < $tmp.err
+   echo ""
+   echo "pmcd_wait failed as expected for dead pmcd"
+   echo ""
+fi
+_filter <$tmp.stop.out
+
+echo "*** test 4 ***" | tee -a $seq.full
+_stop
+sleep 2
+rm -f $tmp.done
+( sleep $pre_delta; _start; touch $tmp.done ) &
+if pmcd_wait -v -t $delta 2>$tmp.err
+then
+   echo ""
+   echo "pmcd_wait succeeded as expected for sleeping pmcd - under timeout"
+   echo ""
+else
+   echo ""
+   echo "ERROR: pmcd_wait should have succeeded !" | tee -a $seq.full
+   echo ""
+   _wait_filter < $tmp.err
+fi
+
+# Need to wait until _start is _really_ done and pmcd.log has been
+# reported
+for i in 1 2 3 4 5
+do
+    [ -f $tmp.done ] && break
+    sleep 1
+done
+if [ ! -f $tmp.done ]
+then
+    echo "Arrgh @ `date` ... _start is really dragging the chain ... check $seq.full" | tee -a $seq.full
+    status=1
+    exit
+fi
+
+_filter <$tmp.stop.out \
+| sed -e '/pmlogger not running/d'
+_filter <$tmp.start.out
+
+echo "*** test 5 ***" | tee -a $seq.full
+_stop
+sleep 2
+(sleep $post_delta; _start ) &
+pid=$!
+if pmcd_wait -v -t $delta 2>$tmp.err
+then
+   echo ""
+   echo "ERROR: pmcd_wait should not have succeeded !" | tee -a $seq.full
+   echo ""
+else
+   _wait_filter < $tmp.err
+   echo ""
+   echo "pmcd_wait failed as expected for sleeping pmcd - over timeout"
+   echo ""
+fi
+_filter <$tmp.stop.out \
+| sed -e '/pmlogger not running/d'
+_filter <$tmp.start.out
+
+wait $pid # for background processs, "pcp start" to finish
+
+
+# success, all done
+status=0
+exit

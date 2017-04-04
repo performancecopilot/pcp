@@ -1,0 +1,14 @@
+QA output created by 160
+Error expected ...
+__pmSetClientId(...): PMNS not accessible
+inst [ INST-1 or "INST-1" ] value "<host> QA-clientid a"
+inst [ INST-1 or "INST-1" ] value "<host> QA-clientid bb"
+inst [ INST-1 or "INST-1" ] value "<host> QA-clientid ccc"
+inst [ INST-1 or "INST-1" ] value "<host> QA-clientid dddd"
+inst [ INST-1 or "INST-1" ] value "<host> QA-clientid eeeee"
+inst [ INST-1 or "INST-1" ] value "<host> QA-clientid ffffff"
+inst [ INST-1 or "INST-1" ] value "<host> QA-clientid ggggggg"
+inst [ INST-1 or "INST-1" ] value "<host> QA-clientid hhhhhhhh"
+inst [ INST-1 or "INST-1" ] value "<host> QA-clientid iiiiiiiii"
+inst [ INST-2 or "INST-2" ] value "<host> QA-clientid foo-bar-mumble"
+inst [ INST-3 or "INST-3" ] value "<host> QA-clientid here is a longer string to go in the ident place holder to try things out that are not quite so short and boring"

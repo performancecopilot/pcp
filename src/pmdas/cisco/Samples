@@ -1,0 +1,291 @@
+
+Serial 0 is up, line protocol is up 
+  Hardware is MK5025
+  Description: frame-relay to MtVA, Tokyo, Hong Kong 
+  Internet address is 155.11.201.172, subnet mask is 255.255.255.128
+  MTU 1500 bytes, BW 64 Kbit, DLY 20000 usec, rely 255/255, load 15/255
+  Encapsulation FRAME-RELAY, loopback not set, keepalive set (10 sec)
+  LMI DLCI 0, LMI sent 346516, LMI stat recvd 345070, LMI upd recvd 2
+  LMI type is ANSI Annex D
+  Last input 0:00:01, output 0:00:00, output hang never
+  Last clearing of "show interface" counters never
+  Output queue 0/8, 298580 drops; input queue 0/75, 0 drops
+  Five minute input rate 60000 bits/sec, 16 packets/sec
+  Five minute output rate 4000 bits/sec, 12 packets/sec
+     18139408 packets input, 2763796661 bytes, 0 no buffer
+     Received 0 broadcasts, 0 runts, 0 giants
+     189 input errors, 189 CRC, 0 frame, 0 overrun, 0 ignored, 0 abort
+     15860554 packets output, 3098844973 bytes, 0 underruns
+     0 output errors, 0 collisions, 668 interface resets, 0 restarts
+     686 carrier transitions
+
+Ethernet 0 is up, line protocol is up 
+  Hardware is Lance, address is 0000.0c03.ed85 (bia 0000.0c03.ed85)
+  Description: Sydney, Australia
+  Internet address is 155.11.226.3, subnet mask is 255.255.255.128
+  MTU 1500 bytes, BW 10000 Kbit, DLY 1000 usec, rely 255/255, load 1/255
+  Encapsulation ARPA, loopback not set, keepalive set (10 sec)
+  ARP type: ARPA, ARP Timeout 4:00:00
+  Last input 0:00:00, output 0:00:00, output hang never
+  Last clearing of "show interface" counters never
+  Output queue 0/40, 19188 drops; input queue 1/75, 0 drops
+  Five minute input rate 5000 bits/sec, 10 packets/sec
+  Five minute output rate 60000 bits/sec, 13 packets/sec
+     12884820 packets input, 1321046112 bytes, 0 no buffer
+     Received 1570813 broadcasts, 0 runts, 0 giants
+     891 input errors, 891 CRC, 634 frame, 0 overrun, 0 ignored, 0 abort
+     14717105 packets output, 870622060 bytes, 0 underruns
+     98605 output errors, 1883820 collisions, 1 interface resets, 0 restarts
+
+Fddi2/0 is up, line protocol is up 
+  Hardware is cxBus FDDI, address is 0000.0c38.4360 (bia 0000.0c38.4360)
+  Internet address is 192.26.80.22, subnet mask is 255.255.255.0
+  MTU 4470 bytes, BW 100000 Kbit, DLY 100 usec, rely 255/255, load 1/255
+  Encapsulation SNAP, loopback not set, keepalive not set
+  ARP type: SNAP, ARP Timeout 4:00:00
+  Phy-A state is connect, neighbor is unk, cmt signal bits 008/000, status QLS
+  Phy-B state is  active, neighbor is   M, cmt signal bits 20C/00E, status ILS
+  CFM is wrap B, token rotation 5000 usec, ring operational 0:00:58
+  Upstream neighbor 0800.6904.155d, downstream neighbor 0040.0b80.a052
+  Last input 0:00:00, output 0:00:00, output hang never
+  Last clearing of "show interface" counters 1w0d
+  Output queue 0/40, 85 drops; input queue 0/75, 33437 drops
+  Five minute input rate 160000 bits/sec, 39 packets/sec
+  Five minute output rate 93000 bits/sec, 108 packets/sec
+     33780622 packets input, 4009491185 bytes, 87 no buffer
+     Received 3768432 broadcasts, 0 runts, 0 giants
+     2 input errors, 1 CRC, 1 frame, 0 overrun, 19 ignored, 0 abort
+     83194423 packets output, 612803885 bytes, 492 underruns
+     0 output errors, 0 collisions, 0 interface resets, 0 restarts
+     21602 transitions, 0 traces,  11625 claims, 0 beacon
+
+Serial1 is up, line protocol is up 
+  Hardware is HD64570
+  Description: Frame-relay, MtV, Hong Kong, Sydney
+  MTU 1500 bytes, BW 1544 Kbit, DLY 20000 usec, rely 255/255, load 5/255
+  Encapsulation FRAME-RELAY, loopback not set, keepalive set (10 sec)
+  LMI enq sent  14998, LMI stat recvd 14885, LMI upd recvd 0, DTE LMI up
+  LMI enq recvd 0, LMI stat sent  0, LMI upd sent  0
+  LMI DLCI 0  LMI type is ANSI Annex D  frame relay DTE
+  Broadcast queue 0/200, broadcasts sent/dropped 508604/0
+  Last input 0:00:00, output 0:00:00, output hang never
+  Last clearing of "show interface" counters never
+  Output queue 0/40, 947 drops; input queue 0/75, 0 drops
+  Five minute input rate 117000 bits/sec, 29 packets/sec
+  Five minute output rate 32000 bits/sec, 20 packets/sec
+     2578327 packets input, 1105345262 bytes, 0 no buffer
+     Received 0 broadcasts, 0 runts, 0 giants
+     54 input errors, 4 CRC, 0 frame, 0 overrun, 1 ignored, 4 abort
+     1975049 packets output, 675844616 bytes, 0 underruns
+     0 output errors, 0 collisions, 142 interface resets, 0 restarts
+     3 carrier transitions
+     DCD=up  DSR=up  DTR=up  RTS=up  CTS=up
+
+Ethernet3/5 is up, line protocol is up 
+  Hardware is cxBus Ethernet, address is 0000.0c38.436d (bia 0000.0c38.436d)
+  Internet address is 198.29.108.4, subnet mask is 255.255.255.0
+  MTU 1500 bytes, BW 10000 Kbit, DLY 1000 usec, rely 255/255, load 2/255
+  Encapsulation ARPA, loopback not set, keepalive set (10 sec)
+  ARP type: ARPA, ARP Timeout 4:00:00
+  Last input 0:00:03, output 0:00:01, output hang never
+  Last clearing of "show interface" counters 6w2d
+  Output queue 0/40, 54880 drops; input queue 0/75, 1492 drops
+  5 minute input rate 1000 bits/sec, 0 packets/sec
+  5 minute output rate 91000 bits/sec, 98 packets/sec
+     24627812 packets input, 1448819515 bytes, 862 no buffer
+     Received 3959194 broadcasts, 79 runts, 4 giants
+     292 input errors, 195 CRC, 14 frame, 0 overrun, 0 ignored, 0 abort
+     0 input packets with dribble condition detected
+     150470373 packets output, 3227527737 bytes, 0 underruns
+     1274 output errors, 11605581 collisions, 0 interface resets, 0 restarts
+
+ATM12/0 is up, line protocol is up 
+  Hardware is cxBus ATM
+  Internet address is 150.166.230.24 255.255.255.0
+  MTU 4470 bytes, BW 156250 Kbit, DLY 80 usec, rely 255/255, load 1/255
+  Encapsulation ATM, loopback not set, keepalive set (10 sec)
+  Encapsulation(s): AAL5, PVC mode
+  256 TX buffers, 256 RX buffers, 2048 maximum active VCs, 1024 VCs per VP, 15 current VCCs
+  Last input 0:00:00, output 0:00:00, output hang never
+  Last clearing of "show interface" counters never
+  Output queue 0/40, 511 drops; input queue 0/75, 10612 drops
+  5 minute input rate 181000 bits/sec, 116 packets/sec
+  5 minute output rate 160000 bits/sec, 68 packets/sec
+     658262505 packets input, 1239748718 bytes, 199 no buffer
+     Received 0 broadcasts, 0 runts, 0 giants
+     2570 input errors, 2569 CRC, 1 frame, 0 overrun, 0 ignored, 0 abort
+     788426419 packets output, 4188341273 bytes, 0 underruns
+     0 output errors, 0 collisions, 21 interface resets, 0 restarts
+     0 output buffer failures, 63 output buffers swapped out
+
+Hssi3/0 is administratively down, line protocol is down 
+  Hardware is cxBus HSSI
+  Description: 45 Meg Microwave Link to Building 27
+  Internet address is 150.166.124.1 255.255.255.0
+  MTU 4470 bytes, BW 45045 Kbit, DLY 200 usec, rely 255/255, load 1/255
+  Encapsulation HDLC, loopback not set, keepalive set (10 sec)
+  Last input 1:07:12, output 1:07:08, output hang never
+  Last clearing of "show interface" counters never
+  Output queue 0/40, 2 drops; input queue 0/75, 37 drops
+  5 minute input rate 0 bits/sec, 0 packets/sec
+  5 minute output rate 0 bits/sec, 0 packets/sec
+     306700515 packets input, 1443052046 bytes, 5 no buffer
+     Received 1118787 broadcasts, 0 runts, 0 giants
+              0 parity
+     241 input errors, 0 CRC, 241 frame, 0 overrun, 0 ignored, 0 abort
+     246381377 packets output, 3684064154 bytes, 0 underruns
+     0 output errors, 0 applique, 210 interface resets, 0 restarts
+     0 output buffer failures, 83 output buffers swapped out
+     8214 carrier transitions
+
+FastEthernet1/0 is up, line protocol is up 
+  Hardware is cyBus FastEthernet Interface, address is 0060.3eb0.8c20 (bia 0060.3eb0.8c20)
+  Internet address is 192.111.17.1 255.255.255.0
+  MTU 1500 bytes, BW 100000 Kbit, DLY 100 usec, rely 255/255, load 1/255
+  Encapsulation ARPA, loopback not set, keepalive set (10 sec), fdx, MII
+  ARP type: ARPA, ARP Timeout 4:00:00
+  Last input 0:00:05, output 0:00:05, output hang never
+  Last clearing of "show interface" counters never
+  Output queue 0/40, 0 drops; input queue 0/75, 362 drops
+  5 minute input rate 8000 bits/sec, 1 packets/sec
+  5 minute output rate 11000 bits/sec, 0 packets/sec
+     4615550 packets input, 1942263093 bytes, 33 no buffer
+     Received 1947224 broadcasts, 0 runts, 8 giants
+     30351 input errors, 30351 CRC, 15187 frame, 0 overrun, 0 ignored, 0 abort
+     0 watchdog, 27381 multicast
+     0 input packets with dribble condition detected
+     11521698 packets output, 1811832796 bytes, 0 underruns
+     0 output errors, 0 collisions, 2 interface resets, 0 restarts
+     0 babbles, 0 late collision, 0 deferred
+     0 lost carrier, 0 no carrier
+     0 output buffer failures, 0 output buffers swapped out
+
+Serial1/0 is up, line protocol is up 
+  Hardware is M4T
+  Description: frame-relay using subinterfaces 
+  MTU 1500 bytes, BW 64 Kbit, DLY 20000 usec, rely 255/255, load 11/255
+  Encapsulation FRAME-RELAY, loopback not set, keepalive set (10 sec)
+  LMI enq sent  10084, LMI stat recvd 9997, LMI upd recvd 0, DTE LMI up
+  LMI enq recvd 0, LMI stat sent  0, LMI upd sent  0
+  LMI DLCI 0  LMI type is ANSI Annex D  frame relay DTE
+  FR SVC disabled, LAPF state down
+  Broadcast queue 0/200, broadcasts sent/dropped 53152/0, interface broadcasts 49826
+  Last input 00:00:01, output 00:00:00, output hang never
+  Last clearing of "show interface" counters never
+  Queueing strategy: fifo
+  Output queue 0/8, 0 drops; input queue 0/75, 0 drops
+  5 minute input rate 3000 bits/sec, 4 packets/sec
+  5 minute output rate 3000 bits/sec, 4 packets/sec
+     429076 packets input, 132623595 bytes, 0 no buffer
+     Received 0 broadcasts, 0 runts, 1 giants, 0 throttles
+     0 input errors, 0 CRC, 0 frame, 0 overrun, 0 ignored, 0 abort
+     474808 packets output, 73186481 bytes, 0 underruns
+     0 output errors, 0 collisions, 31 interface resets
+     0 output buffer failures, 0 output buffers swapped out
+     35 carrier transitions     DCD=up  DSR=up  DTR=up  RTS=up  CTS=up
+
+Serial1/0 is up, line protocol is up 
+  Hardware is M4T
+  Description: frame-relay using subinterfaces 
+  MTU 1500 bytes, BW 64 Kbit, DLY 20000 usec, rely 255/255, load 31/255
+  Encapsulation FRAME-RELAY, loopback not set, keepalive set (10 sec)
+  LMI enq sent  39756, LMI stat recvd 39753, LMI upd recvd 0, DTE LMI up
+  LMI enq recvd 0, LMI stat sent  0, LMI upd sent  0
+  LMI DLCI 0  LMI type is ANSI Annex D  frame relay DTE
+  FR SVC disabled, LAPF state down
+  Broadcast queue 0/200, broadcasts sent/dropped 91696/0, interface broadcasts 85069
+  Last input 00:00:00, output 00:00:00, output hang never
+  Last clearing of "show interface" counters never
+  Queueing strategy: fifo
+  Output queue 0/8, 0 drops; input queue 0/75, 0 drops
+  30 second input rate 62000 bits/sec, 9 packets/sec
+  30 second output rate 8000 bits/sec, 5 packets/sec
+     2238005 packets input, 630502832 bytes, 0 no buffer
+     Received 0 broadcasts, 0 runts, 0 giants, 0 throttles
+     111 input errors, 108 CRC, 0 frame, 0 overrun, 0 ignored, 3 abort
+     2274950 packets output, 230325061 bytes, 0 underruns
+     0 output errors, 0 collisions, 2 interface resets
+     0 output buffer failures, 0 output buffers swapped out
+     3 carrier transitions     DCD=up  DSR=up  DTR=up  RTS=up  CTS=up
+
+>show int s2/2.1
+Serial2/2.1 is up, line protocol is up 
+  Hardware is M4T
+  Description: Frame Relay to Sydney (134.14.63.129)
+  Internet address is 134.14.63.130/30
+  MTU 1500 bytes, BW 512 Kbit, DLY 20000 usec, 
+     reliability 255/255, txload 2/255, rxload 17/255
+  Encapsulation FRAME-RELAY
+
+CIR is BW 512 Kbit == 512*1024/10 bytes/sec (?)
+
+This number is hand typed, but there is no alternative for the CIR.
+
+For FrameRelay, utilization > 50% of CIR for alarm.
+
+>show frame pvc int s2/3.7
+
+PVC Statistics for interface Serial2/3.7 (Frame Relay DTE)
+
+              Active     Inactive      Deleted       Static
+  Local          2            0            0            0
+  Switched       0            0            0            0
+  Unused         0            0            0            0
+
+DLCI = 17, DLCI USAGE = LOCAL, PVC STATUS = ACTIVE, INTERFACE = Serial2/3.7
+
+  input pkts 1287959       output pkts 1446754      in bytes 811690634 
+  out bytes 187572881      dropped pkts 0           in FECN pkts 2333      
+  in BECN pkts 0           out FECN pkts 0          out BECN pkts 0         
+  in DE pkts 0             out DE pkts 0         
+  out bcast pkts 43801      out bcast bytes 13172828  
+  pvc create time 8w3d, last time pvc status changed 1w2d
+
+>show int Vlan256
+Vlan256 is up, line protocol is up 
+  Hardware is Cat6k RP Virtual Ethernet, address is 0030.b630.b318 (bia 0030.b630.b318)
+  Description: Uplink to CTC tipctc2 (Area 2)
+  Internet address is 192.132.156.72/26
+  MTU 1500 bytes, BW 10000 Kbit, DLY 1000 usec, 
+     reliablility 255/255, txload 1/255, rxload 44/255
+  Encapsulation ARPA, loopback not set
+  ARP type: ARPA, ARP Timeout 04:00:00
+  Last input 00:00:00, output never, output hang never
+  Last clearing of "show interface" counters never
+  Queueing strategy: fifo
+  Output queue 0/40, 2 drops; input queue 0/75, 1027 drops
+  5 minute input rate 1754000 bits/sec, 158 packets/sec
+  5 minute output rate 9000 bits/sec, 6 packets/sec
+     3087365859 packets input, 816292345 bytes, 224 no buffer
+     Received 3085491728 broadcasts, 0 runts, 0 giants, 0 throttles
+     0 input errors, 0 CRC, 0 frame, 0 overrun, 0 ignored
+     110141390 packets output, 3736073981 bytes, 0 underruns
+     0 output errors, 3 interface resets
+     0 output buffer failures, 0 output buffers swapped out
+
+>show int e1/0
+Ethernet1/0 is up, line protocol is up
+  Hardware is AmdP2, address is 0050.7343.f011 (bia 0050.7343.f011)
+  Description: >>> Connecion to melbourne pix-e1 <<<
+  Internet address is 134.14.71.241/30
+  MTU 1500 bytes, BW 10000 Kbit, DLY 1000 usec,
+     reliability 255/255, txload 3/255, rxload 1/255
+  Encapsulation ARPA, loopback not set
+  Keepalive set (10 sec)
+  ARP type: ARPA, ARP Timeout 04:00:00
+  Last input 00:09:05, output 00:00:00, output hang never
+  Last clearing of "show interface" counters never
+  Queueing strategy: fifo
+  Output queue 0/40, 0 drops; input queue 0/75, 0 drops
+  30 second input rate 26000 bits/sec, 4 packets/sec
+  30 second output rate 118000 bits/sec, 97 packets/sec
+     3657465 packets input, 2161281566 bytes, 0 no buffer
+     Received 79047 broadcasts, 0 runts, 0 giants, 0 throttles
+     0 input errors, 0 CRC, 0 frame, 0 overrun, 0 ignored
+     0 input packets with dribble condition detected
+     13202080 packets output, 4162655553 bytes, 0 underruns
+     6 output errors, 249819 collisions, 11 interface resets
+     0 babbles, 0 late collision, 207020 deferred
+     6 lost carrier, 0 no carrier
+     0 output buffer failures, 0 output buffers swapped out
+

@@ -1,0 +1,104 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMPRINTF 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmprintf\f1,
+\f3pmflush\f1 \- print formatted output in a window or to standard error
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.sp
+int pmprintf(const char *\fIfmt\fP, ... /*\fIargs\fP*/);
+.br
+int pmflush(void);
+.sp
+cc ... \-lpcp
+.ft 1
+.SH DESCRIPTION
+The combination of
+.B pmprintf
+and
+.B pmflush
+produces output in either an
+.BR xconfirm (1)
+window, on the standard error stream, or to a file in a manner similar to
+.BR fprintf (3).
+The \f2fmt\f1 argument is used to control the conversion, formatting, and
+printing of the variable length \f2args\f1 list.
+The output technique is controlled via an environment variable.
+.PP
+.B pmprintf
+appends the formatted message string to an internal buffer shared by the
+two routines, without actually producing any output.
+.PP
+.B pmflush
+causes the internal buffer to be either displayed in a window, printed
+on standard error, or flushed to a file and the internal buffer to be cleared.
+.PP
+.SH ENVIRONMENT
+The environment variable
+.BR PCP_STDERR
+controls the output technique used by \f3pmflush\f1:
+.RS +4n
+.PP
+If
+.B PCP_STDERR
+is unset, the text is written onto the
+.I stderr
+stream of the caller.
+.PP
+If 
+.B PCP_STDERR
+is set to the literal reserved word
+.B DISPLAY
+then the text will be displayed as a GUI dialog using
+.BR xconfirm (1).
+.PP
+If 
+.B PCP_STDERR
+is set to any other value then \f3pmflush\f1
+interprets the value as a file name and 
+appends the text to that file.  The file is created if it doesn't already
+exist, and in this case if the file creation fails, then
+.I stderr
+is used instead).
+.RE
+.SH FILES
+.B pmprintf
+uses the
+.BR mkstemp (3)
+function to create a temporary file.
+This temporary file is deleted when
+.B pmflush
+is called.
+.SH DIAGNOSTICS
+On successful completion, \f3pmprintf\f1 returns the number of characters
+transmitted, while
+.B pmflush
+returns a value of zero on successful completion.
+.PP
+For either routine, a negative value is returned if an error was encountered,
+and this can be passed to
+.BR pmErrStr (3)
+to obtain the associated error message.
+.PP
+.SH SEE ALSO
+.BR pmdbg (1),
+.BR fprintf (3),
+.BR mkstemp (3),
+.BR pmErrStr (3)
+and
+.BR PMAPI (3).

@@ -1,0 +1,10 @@
+#kmchart
+version 1
+
+chart title "Real Memory Usage [%h]" style stacking
+	# Linux
+	optional-plot color #9cffab metric mem.util.cached
+	optional-plot color #fe68ad metric mem.util.bufmem
+	optional-plot color #ffae2c metric mem.util.other
+	# all
+	plot color #00ff00 metric mem.util.free

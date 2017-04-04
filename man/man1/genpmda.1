@@ -1,0 +1,139 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2005 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH GENPMDA 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3genpmda\f1 \- Performance Co-Pilot PMDA Generator
+.SH SYNOPSIS
+\f3genpmda\f1 [\f3\-d\f1] [\f3\-D\f1 \f2domain\f1] [\f3\-s\f1 \f2stdpmid\f1] [\f3\-t\f1 \f2topdir\f1] [\f3\-n\f1 \f2pmns\f1] [\f3\-o\f1 \f2dir\f1] [\f3\-v\f1] \f3\-i\f1 \f2IAM\f1 \f3\-c\f1 \f2config\f1
+.SH DESCRIPTION
+.B Genpmda
+is a rapid application development tool for creating new
+Performance Metrics Domain Agents, see
+.BR PMDA (3).
+It provides a very easy and efficient way to extend
+the Performance Co-pilot (PCP) with new performance metrics
+without needing to understand the low level details of how PMDAs are
+constructed.
+.PP
+.B Genpmda
+reads a config file containing an augmented
+Performance Metrics Name Space, see
+.BR pmns (5),
+and automatically generates virtually all of the source code
+to implement a fully functional PMDA, including the Makefile,
+name space, support scripts for configuring the new PMDA,
+and the metrics help text.
+Fairly simple PMDAs can be automatically generated from the
+config file without writing any additional code.
+More complicated PMDAs, e.g. containing multiple instance domains,
+require only the refresh methods for the instance domains to be
+written manually.
+.PP
+An example of the config file format accepted by
+.B genpmda
+is given below.
+.SH OPTIONS
+.TP 0
+.B "Required options:"
+.TP 7
+.BI "\-c" " config"
+input \f2config\f1 file, see example below
+.TP 7
+.BI "\-i" " IAM"
+pmda name \f2IAM\f1, should appear in \f2stdpmid\f1 or the \f3\-D\f1 option must be used to specify a \f2domain\f1.
+.TP 0
+.B "Other options:"
+.TP 7
+.BI "\-d"
+generate an Install script for a daemon PMDA (default is DSO)
+.TP 7
+.BI "\-t" " topdir"
+use \f2topdir\f1 in generated GNUmakefile, default \f3../../..\f1
+.TP 7
+.BI "\-n" " pmns"
+use \f2pmns\f1 as root of the namespace (default matches \f3\-i\f1 flag)
+.TP 7
+.BI "\-D" " domain"
+use \f2domain\f1 number in the generated \f3pmns\f1 and \f3domain.h\f1 (if \f3\-s\f1 is not given)
+.TP 7
+.BI "\-s" " stdpmid"
+path to \f2stdpmid\f1 (default \f3../../pmns/stdpmid\f1)
+.TP 7
+.BI "\-o" " dir"
+use \f2dir\f1 for generated source code, default \f3./generated\f1
+.TP 7
+.BI "\-v"
+print verbose messages about what
+.B genpmda
+is doing.
+.PP
+Example:
+    Generate an "example" pmda using domain 99:
+.br
+    \f3genpmda \-D 99 \-v \-i EXAMPLE \-c example.conf\f1
+
+Here is \f2example.conf\f1 config file (for the required \f3\-c\f1 option):
+.br
+.in +0.5i
+.sp
+.nf
+example {
+    metric
+}
+
+example.metric {
+    ##  metric            string
+    ##  pmid              EXAMPLE:CLUSTER:0
+    ##  indom             PM_INDOM_NULL
+    ##  type              PM_TYPE_STRING
+    ##  units             PMDA_PMUNITS(0,0,0,0,0,0)
+    ##  semantics         PM_SEM_DISCRETE
+    ##  briefhelptext     one line help text for example.metric.string
+    ##  helptext          long help text for example.metric.string
+    ##  helptext          This is the second line of the long help text
+    ##  helptext          and this is the third line.
+    ##  fetch             function example_string_fetch_callback
+    ##  code              atom->cp = "hello world";
+    ##  code              return 1;
+    ##  endmetric
+}
+
+.fi
+.sp 2
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.I /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (5).
+.SH SEE ALSO
+.PP
+.BR PMDA (3),
+.BR pmns (5),
+.BR pmcd (1),
+.BR pcp.conf (5)
+and
+.BR pcp.env (5).
+.SH DIAGNOSTICS
+Many, but all are intended to be easily understood.

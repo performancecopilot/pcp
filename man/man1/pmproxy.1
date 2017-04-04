@@ -1,0 +1,396 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2013-2015 Red Hat.
+.\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMPROXY 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmproxy\f1 \- proxy for performance metrics collector daemon
+.SH SYNOPSIS
+\f3pmproxy\f1
+[\f3\-Af\f1]
+[\f3\-C\f1 \f2dirname\f1]
+[\f3\-i\f1 \f2ipaddress\f1]
+[\f3\-l\f1 \f2logfile\f1]
+[\f3\-L\f1 \f2bytes\f1]
+[\f3\-M\f1 \f2certname\f1]
+[\f3\-p\f1 \f2port\f1[,\f2port\f1 ...]
+[\f3\-P\f1 \f2passfile\f1]
+[\f3\-U\f1 \f2username\f1]
+[\f3\-x\f1 \f2file\f1]
+.SH DESCRIPTION
+.B pmproxy
+acts as a protocol proxy for
+.BR pmcd (1),
+allowing Performance Co-Pilot (PCP) monitoring clients to connect to
+one or more
+.BR pmcd (1)
+instances via
+.BR pmproxy .
+.PP
+Normally
+.B pmproxy
+is deployed in a firewall domain, or on a ``head'' node of a cluster
+where the IP (Internet Protocol) address of the hosts where
+.BR pmcd (1)
+is running may be unknown to the PCP monitoring clients, although the
+IP address of the host where
+.B pmproxy
+is running is known to these clients.
+Similarly, the clients may have network connectivity only to the
+host where
+.B pmproxy
+is running, while there is network connectivity from that host to the
+hosts of interest where
+.BR pmcd (1)
+is running.
+.PP
+The behaviour of the PCP monitoring clients is controlled by either the
+.B PMPROXY_HOST
+environment variable or through the extended hostname specification
+(see
+.BR PCPIntro (1)
+for details).
+If neither of these mechanisms is used, clients will make their
+connections directly to
+.BR pmcd (1).
+If the proxy hostname syntax is used or
+.B PMPROXY_HOST
+is set, then this should be the hostname or IP address of the system
+where
+.B pmproxy
+is running, and the clients will connect to
+.BR pmcd (1)
+indirectly through the protocol proxy services of
+.BR pmproxy.
+.PP
+The options to
+.B pmproxy
+are as follows.
+.TP
+.B \-A
+Disable service advertisement.
+By default,
+.B pmproxy
+will advertise its presence on the network using any available mechanisms
+(such as Avahi/DNS-SD), assisting remote monitoring tools with finding it.
+These mechanisms are disabled with this option.
+.TP
+\f3\-C\f1 \f2dirname\f1
+Specify the path to the Network Security Services certificate database,
+for (optional) secure connections.
+The default is
+.BR /etc/pki/nssdb .
+Refer also to the \f3\-P\f1 option.
+If it does not already exist, this database can be created using the
+.B certutil
+utility.
+This process and other certificate database maintenance information
+is provided in the
+.BR PCPIntro (1)
+manual page and the online PCP tutorials.
+.TP
+.B \-f
+By default
+.B pmproxy
+is started as a daemon.
+The
+.B \-f
+option indicates that it should run in the foreground.
+This is most useful when trying to diagnose problems with establishing
+connections.
+.TP
+\f3\-i\f1 \f2ipaddress\f1
+This option is usually only used on hosts with more than one network
+interface (very common for firewall and ``head'' node hosts where
+.B pmproxy
+is most likely to be deployed).  If no
+.B \-i
+options are specified
+.B pmproxy
+accepts PCP client connections on  any of its host's IP addresses.
+The
+.B \-i
+option is used to specify explicitly an IP address that PCP client connections should be
+accepted on.
+.I ipaddress
+should be in the standard dotted form (e.g. 100.23.45.6).  The
+.B \-i
+option may be used multiple times to define a list of IP addresses.
+When one or more
+.B \-i
+options is specified, attempted connections made on any other IP addresses will be refused.
+.TP
+\f3\-l\f1 \f2logfile\f1
+By default a log file named
+.I pmproxy.log
+is written in the current directory.
+The
+.B \-l
+option causes the log file to be written to
+.I logfile
+instead of the default.
+If the log file cannot be created or is not writable, output is
+written to the standard error instead.
+.TP
+\f3\-L\f1 \f2bytes\f1
+.IR PDU s 
+received by 
+.B pmproxy 
+from PCP monitoring clients are restricted to a
+maximum size of 65536 bytes by default to defend against Denial of
+Service attacks.  The 
+.B \-L 
+option may be used to change the maximum incoming 
+.I PDU 
+size.
+.TP
+\f3\-M\f1 \f2certname\f1
+By default, pmproxy will try to use a certificate called
+.B "PCP Collector certificate"
+in its server role. The
+.B \-M
+option allows this to be changed.
+.TP
+\f3\-P\f1 \f2passfile\f1
+Specify the path to a file containing the Network Security Services certificate
+database password for (optional) secure connections, and for databases that are
+password protected.
+Refer also to the \f3\-C\f1 option.
+When using this option, great care should be exercised to ensure appropriate
+ownership ("pcp" user, typically) and permissions on this file (0400, so as to
+be unreadable by any user other than the user running the
+.B pmproxy
+process).
+.TP
+\f3\-U\f1 \f2username\f1
+Assume the identity of
+.I username
+before starting to accept incoming packets from PCP monitoring clients.
+.TP
+\f3\-x\f1 \f2file\f1
+Before the
+.B pmproxy
+.I logfile
+can be opened, 
+.B pmproxy
+may encounter a fatal error which prevents it from starting.  By default, the
+output describing this error is sent to
+.B /dev/tty
+but it may redirected to 
+.IR file .
+.SH "STARTING AND STOPPING PMPROXY"
+Normally,
+.B pmproxy
+is started automatically at boot time and stopped when the
+system is being brought down.
+Under certain circumstances it is necessary to start or stop
+.B pmproxy
+manually.
+To do this one must become superuser and type
+.PP
+.ft CS
+# $PCP_RC_DIR/pmproxy start
+.ft
+.PP
+to start
+.BR pmproxy ,
+or
+.PP
+.ft CS
+# $PCP_RC_DIR/pmproxy stop
+.ft
+.PP
+to stop
+.BR pmproxy .
+Starting
+.B pmproxy
+when it is already running is the same as stopping
+it and then starting it again.
+.P
+Normally
+.B pmproxy
+listens for PCP client connections on TCP/IP port number 44322
+(registered at
+.IR http://www.iana.org/ ).
+Either the environment
+variable
+.B PMPROXY_PORT
+.B \-p
+command line option
+may be used to specify alternative port number(s) when
+.B PMPROXY_PORT
+or the
+.B \-p
+command line option
+may be used to specify alternative port number(s) when
+.B pmproxy
+is started; in each case, the specification is a comma-separated list
+of one or more numerical port numbers.  Should both methods be used
+or multiple
+.B \-p
+options appear on the command line,
+.B pmproxy
+will listen on the union of the set of ports specified via all
+.B \-p
+options and the
+.B PMPROXY_PORT
+environment variable.
+If non-default ports are used with
+.B pmproxy
+care should be taken to ensure that
+.B PMPROXY_PORT
+is also set in the environment of any client application that
+will connect to
+.BR pmproxy ,
+or that the extended host specification syntax is used
+(see
+.BR PCPIntro (1)
+for details).
+.SH FILES
+.PD 0
+.TP
+.B PCP_PMPROXYOPTIONS_PATH
+command line options for
+.B pmproxy
+when launched from
+.B $PCP_RC_DIR/pmproxy
+All the command line option lines should start with a hyphen as
+the first character.
+.TP
+.B $PCP_SYSCONFIG_DIR/pmproxy
+additional environment variables that will be set when
+.B pmproxy
+executes.
+Only settings of the form "PMPROXY_VARIABLE=value" will be honoured.
+.TP
+.B \&./pmproxy.log
+(or
+.B $PCP_LOG_DIR/pmproxy/pmproxy.log
+when started automatically)
+.br
+All messages and diagnostics are directed here
+.TP
+.B /etc/pki/nssdb
+default Network Security Services (NSS) certificate database
+directory, used for optional Secure Socket Layer connections.
+This database can be created and queried using the NSS
+.B certutil
+tool, amongst others.
+.PD
+.SH ENVIRONMENT
+In addition to the PCP environment variables described in the
+.B "PCP ENVIRONMENT"
+section below, there are several environment variables that
+influence the interactions between a PCP monitoring client,
+.B pmcd
+and
+.BR pmcd (1).
+.TP
+.B PMCD_PORT
+For the PCP monitoring client this (or the default port number) is passed to
+.B pmproxy
+and used to connect to
+.BR pmcd (1).
+In the environment of
+.B pmproxy
+.B PMCD_PORT is not used.
+.TP
+.B PMPROXY_HOST
+For the PCP monitoring client this is the hostname or IP address of the
+host where
+.B pmproxy
+is running.
+In recent versions of PCP (since version 3) this has been superseded by
+the extended hostname syntax
+(see
+.BR PCPIntro (1)
+for details).
+.TP
+.B PMPROXY_PORT
+For the PCP monitoring client this is the port on which
+.B pmproxy
+will accept connections.  The default is 44322.
+.TP
+.BR PMCD_CONNECT_TIMEOUT ", " PMCD_RECONNECT_TIMEOUT " and " PMCD_REQUEST_TIMEOUT
+(see
+.BR PCPIntro (1))
+For the PCP monitoring client, setting these environment variables
+will modify the timeouts used for interactions between the client
+and
+.BR pmproxy
+(independent of which
+.BR pmcd (1)
+is being used).
+For
+.B pmproxy
+these same environment variables control the timeouts between
+.B pmproxy
+and all
+.BR pmcd (1)
+instances (independent of which monitoring client is involved).
+.PP
+If set to the value 1, the
+.B PMPROXY_LOCAL
+environment variable will cause
+.B pmproxy
+to run in a localhost-only mode of operation, where it binds only
+to the loopback interface.
+.PP
+The
+.B PMPROXY_MAXPENDING
+variable can be set to indicate the maximum length to which the queue
+of pending client connections may grow.
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.B /etc/pcp.conf
+contains the local values for these variables.
+The
+.B PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (5).
+.SH SEE ALSO
+.BR PCPIntro (1),
+.BR pmcd (1),
+.BR pmdbg (1),
+.BR pcp.conf (5)
+and
+.BR pcp.env (5).
+.SH DIAGNOSTICS
+If
+.B pmproxy
+is already running the message "Error: OpenRequestSocket bind: Address already
+in use" will appear.
+This may also appear if
+.B pmproxy
+was shutdown with an outstanding request from a client.
+In this case, a
+request socket has been left in the TIME_WAIT state and until the system closes
+it down (after some timeout period) it will not be possible to run
+.BR pmproxy .
+.PP
+In addition to the standard
+.B PCP
+debugging flags, see
+.BR pmdbg (1),
+.B pmproxy
+currently uses
+.B DBG_TRACE_CONTEXT
+for tracing client connections and disconnections

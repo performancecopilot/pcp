@@ -1,0 +1,41 @@
+# command-line options to pmcd, uncomment/edit lines as required
+
+# listen for connections to pmcd on only the interface bound to this
+# IP address
+# -i 192.168.0.100
+
+# longer timeout delay for slow agents
+# -t 10
+
+# or suppress timeouts
+# -t 0
+
+# make log go someplace else
+# -l /some/place/else
+
+# debugging knobs, see pmdbg(1)
+# -D fetch,pmns
+
+# run in the foreground (not as a daemon)
+# -f
+
+# maximum incoming PDU size (default 64KB)
+# -L 16384 
+
+# assume identity of some user other than "pcp"
+# -U root
+
+# enable event tracing bit fields
+#   1	trace client connections
+#   2	trace PDUs
+# 256	unbuffered tracing
+# -T 3
+
+# setting of environment variables for pmcd and
+# the PCP rc scripts. See pmcd(1) and PMAPI(3).
+# PMCD_WAIT_TIMEOUT=120
+
+# PMNS controls
+# -n and -N are not recommended (the defaults work better in most cases)
+# -n /some/path
+# -N /some/path

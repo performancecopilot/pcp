@@ -1,0 +1,146 @@
+#!/usr/bin/env pmpython
+""" Test metric value extraction/reporting using the pcp.pmcc module """
+#
+# Copyright (C) 2013-2015 Red Hat Inc.
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+
+import sys
+import unittest
+from pcp import pmcc, pmapi
+
+if sys.version >= '3':
+    import functools
+    reduce = functools.reduce
+
+CPU_METRICS = [ "kernel.all.cpu.sys", "kernel.all.cpu.user",
+                "kernel.all.cpu.nice", "kernel.all.cpu.idle", ]
+MEM_METRICS = [ "mem.physmem", "mem.freemem", ]
+DISK_METRICS = [ "disk.all.read", "disk.all.write", "disk.dev.read", ]
+
+class TestPrinter(pmcc.MetricGroupPrinter):
+    """ Report latest values from group manager """
+
+    def unavailable(self, metric):
+        """ Determine whether metric has values for rate conversion """
+        if metric.netValues == None or len(metric.netValues) == 0:
+            return 1
+        if metric.netPrevValues == None or len(metric.netPrevValues) == 0:
+            return 1
+        return 0
+
+    def cpu_print(self, group):
+        """ Report on processor metric group """
+        ticks = {}
+        total = 0.0
+        for name in CPU_METRICS:
+            metric = group[name]
+            if self.unavailable(metric):
+                ticks.update({ name : None })
+                continue
+            # metric.value is the result from pmFetch
+            # metric.netValues is (inst, name, value) from computeValues
+            values = dict(map(lambda x: (x[1], x[2]), metric.netValues))
+            prevs = dict(map(lambda x: (x[1], x[2]), metric.netPrevValues))
+            inst_val = reduce(lambda x, y: x + y,
+                        map(lambda x: values[x] - prevs[x], values.keys()))
+            ticks.update({ name : inst_val })
+            total += inst_val
+        for name in CPU_METRICS:
+            if ticks[name] != None:
+                print("   ", name, round(ticks[name] / total * 100, 2), "%")
+            else:
+                print("   ", name, "? %")  # no value, first sample usually
+
+    def mem_print(self, group):
+        """ Report on memory metric group """
+        for name in MEM_METRICS:
+            metric = group[name]
+            values = dict(map(lambda x: (x[1], x[2]), metric.netValues))
+    
+            for inst_name in values.keys():
+                inst_val = values[inst_name] 
+                unit_str = metric.ctx.pmUnitsStr(metric.desc.contents.units)
+                print("   ", name, inst_val, unit_str)
+
+    def disk_print(self, group):
+        """ Report on disk metric group """
+        for name in DISK_METRICS:
+            metric = group[name]
+            values = dict(map(lambda x: (x[1], x[2]), metric.netValues))
+            for inst_name in values.keys():
+                inst_val = values[inst_name] 
+                unit_str = metric.ctx.pmUnitsStr(metric.desc.contents.units)
+                print("   ", name, inst_name, inst_val, unit_str)
+
+    def report(self, manager):
+        """ Overrides the base class report, called after each fetch """
+        self.cpu_print(manager["cpu"])
+        self.mem_print(manager["mem"])
+        self.disk_print(manager["disk"])
+
+
+class TestOptions(pmapi.pmOptions):
+    """ Setup a command line option processing object for the test """
+
+    def __init__(self):
+        pmapi.pmOptions.__init__(self, "A:a:D:h:O:S:s:T:t:VZ:z?")
+        self.pmSetLongOptionHeader("General options")
+        self.pmSetLongOptionAlign()
+        self.pmSetLongOptionArchive()
+        self.pmSetLongOptionDebug()
+        self.pmSetLongOptionHost()
+        self.pmSetLongOptionOrigin()
+        self.pmSetLongOptionStart()
+        self.pmSetLongOptionSamples()
+        self.pmSetLongOptionFinish()
+        self.pmSetLongOptionInterval()
+        self.pmSetLongOptionVersion()
+        self.pmSetLongOptionTimeZone()
+        self.pmSetLongOptionHostZone()
+        self.pmSetLongOptionHelp()
+
+class TestConvenienceClasses(unittest.TestCase):
+    """
+    Test driver class for pcp.pmcc module verification
+    """
+
+    def test_context(self):
+        """ Create a metric group manager, add some groups,
+            then cycle, fetching and printing, depending on
+            command line arguments presented.
+        """
+        try:
+            manager = pmcc.MetricGroupManager.builder(OPTS, ARGS)
+        except pmapi.pmUsageErr as usage:
+            return usage.message()
+        self.assertTrue(manager != None)
+        manager.printer = TestPrinter()
+
+        # Each entry is a MetricGroup
+        manager["cpu"] = CPU_METRICS
+        manager["mem"] = MEM_METRICS
+        manager["disk"] = DISK_METRICS
+
+        # Real QA test starts here ;)
+        return manager.run()
+
+
+if __name__ == '__main__':
+    import sys
+    import copy
+    ARGS = copy.deepcopy(sys.argv)
+    OPTS = TestOptions()
+
+    sys.argv[1:] = ()
+    STS = unittest.main()
+    sys.exit(STS)

@@ -1,0 +1,295 @@
+#! /bin/sh
+# PCP QA Test No. 666
+# checks basic pmmgr functionality
+#
+# Copyright (c) 2014-2015 Red Hat, Inc.
+#
+seq=`basename $0`
+echo "QA output created by $seq"
+
+rm -f $seq.full
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+which pmmgr >/dev/null 2>&1 || _notrun "No pmmgr binary installed"
+echo pmmgr ok
+
+$sudo rm -fr $tmp.dir
+$sudo rm -f $tmp.*
+
+status=1	# failure is the default!
+hostname=`hostname`
+trap "_cleanup" 0 1 2 3 15
+
+# Shorten timeouts because of the rapid-fire pmcd/pmmgr-daemon lifespan tests
+PMCD_WAIT_TIMEOUT=1
+PMCD_CONNECT_TIMEOUT=1
+PMCD_RECONNECT_TIMEOUT=1
+export PMCD_WAIT_TIMEOUT PMCD_CONNECT_TIMEOUT PMCD_RECONNECT_TIMEOUT
+
+_cleanup()
+{
+    if [ -n "$pid" ]; then kill $pid; fi
+    # restart pmcd and primary pmlogger
+    $sudo $PCP_RC_DIR/pcp restart >>$seq.full 2>&1
+    _wait_for_pmcd
+    _wait_for_pmlogger
+    $sudo rm -fr $tmp.dir
+    $sudo rm -f $tmp.*
+    exit $status
+}
+
+_filter()
+{
+    tee -a $seq.full |
+    sed -e 's,^\[.*\],TIMESTAMP,' \
+        -e 's,pmmgr.[0-9]*/[0-9]*.,pmmgr(PID/TID),' \
+        -e 's,hostid [a-zA-Z0-9_-.]*,hostid HOSTID,' \
+        -e 's,at [a-zA-Z0-9_-.:]*,at LOCAL,' \
+        -e 's,'$tmp.dir',TMPDIR,'
+}
+
+_filter2()
+{
+    tee -a $seq.full |
+    sed -e 's,'$hostname',HOSTNAME,' \
+        -e 's,[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]\.[0-9][0-9][0-9][0-9][0-9][0-9],YYYYMMDD-HHMMSS,'
+}
+
+# This test prereqs only pmcd running locally.
+# In the future, remote, avahi
+
+echo "hostname=$hostname" >>$seq.full
+id >>$seq.full
+
+date >>$seq.full
+echo "=== 1. prepare blank pmmgr config directory  ===" | tee -a $seq.full
+$sudo rm -rf $tmp.dir
+mkdir $tmp.dir
+chmod 777 $tmp.dir
+ls -ld $tmp.dir >>$seq.full
+
+date >>$seq.full
+echo "=== 2. pmmgr barenaked startup  ===" | tee -a $seq.full
+echo 'local:' >$tmp.dir/target-host
+echo 'localhost' >>$tmp.dir/target-host
+echo 'pcp://localhost:44321/' >>$tmp.dir/target-host
+echo 'localhost6' >>$tmp.dir/target-host
+echo 'pcp://localhost6:44321/' >>$tmp.dir/target-host
+echo 0 > $tmp.dir/target-threads
+# note -v -v here is the same as -D appl0,appl1
+$_valgrind_clean_assert $PCP_BINADM_DIR/pmmgr -v -v -p 6 -l $tmp.out -c $tmp.dir >$tmp.valout 2>$tmp.valerr &
+pid=$!
+echo "pid=$pid" >>$seq.full
+# it takes a while for valgrind to get into gear sometimes ...
+#
+sleep 5
+
+date >>$seq.full
+echo "=== 3. look for pmmgr starting no daemons ===" | tee -a $seq.full
+$sudo $PCP_RC_DIR/pmcd start >>$seq.full 2>&1
+_wait_for_pmcd
+sleep 10
+$sudo $PCP_RC_DIR/pmcd stop >>$seq.full 2>&1
+sleep 10 # pmmgr daemon shutdown
+ls -1 $tmp.dir # should be almost empty
+
+date >>$seq.full
+echo "=== 4. add control files to start pmlogger and pmie ===" | tee -a $seq.full
+echo '-t 1' >$tmp.dir/pmlogger
+touch $tmp.dir/pmie
+touch $tmp.dir/pmlogconf
+touch $tmp.dir/pmieconf
+echo $tmp.dir >$tmp.dir/log-directory  # same dir
+
+date >>$seq.full
+echo "=== 5. restart pmcd a few times to get a bunch of pmlogger archives ===" | tee -a $seq.full
+for x in 1 2 3 4
+do
+    echo restart $x `date` >>$seq.full
+    rm -f $tmp.dir/$hostname/config.pmie $tmp.dir/$hostname/config.pmlogger
+    $sudo $PCP_RC_DIR/pmcd start >>$seq.full 2>&1
+    _wait_for_pmcd
+    i=0;
+    # wait up to 300ish seconds for pm*conf to run
+    while [ $i -lt 100 ]; do
+	rm -f $tmp.ok
+        i=`expr $i + 1`
+	echo "pmlogger & pmie probe #$i `date`" >>$seq.full
+        ls -l $tmp.dir/$hostname/config.pmlogger $tmp.dir/$hostname/config.pmie >>$seq.full 2>/dev/null
+        # NB: shan't check through pminfo pmcd.*, since these daemons run unprivileged
+        # under the pcpqa userid and may not have permission to write into the
+        # pmcd-pmda pid directories.
+        if [ -s $tmp.dir/$hostname/config.pmlogger -a -s $tmp.dir/$hostname/config.pmie ]; then
+	    # our babies have been born ...
+	    touch $tmp.ok
+	    break
+	fi
+        sleep 3
+    done
+    if [ ! -f $tmp.ok ]
+    then
+	echo "Arrg, failed to start pmlogger and pmie at iteration $x"
+	ls -lR $tmp.dir
+    fi
+
+    $sudo $PCP_RC_DIR/pmcd stop >>$seq.full 2>&1
+    sleep 10 # pmmgr daemon shutdown
+    [ -f $tmp.dir/$hostname/pmlogger.log ] && mv $tmp.dir/$hostname/pmlogger.log $tmp.dir/$hostname/pmlogger-$x.log
+    [ -f $tmp.dir/$hostname/pmie.log ] && mv $tmp.dir/$hostname/pmie.log $tmp.dir/$hostname/pmie-$x.log
+done
+
+date >>$seq.full
+echo "=== 6. check the directories ===" | tee -a $seq.full
+# there should be three archives ... unless some timing glitch interfered
+count=`ls -1 $tmp.dir/$hostname/*.meta | wc -l`
+if [ $count -gt 1 ]; then
+    echo more than one
+else
+    echo "count=$count archives created, expecting more than one"
+    ls -l $tmp.dir/$hostname/*.meta
+fi    
+
+ls -lR $tmp.dir >>$seq.full # for reference
+for f in $tmp.dir/$hostname/*.meta; do
+    echo == $f == >>$seq.full
+    pmloglabel -L $f >>$seq.full
+done
+
+date >>$seq.full
+echo "=== 7. add log-merging/rewriting, sans pmFOOconf ===" | tee -a $seq.full
+touch $tmp.dir/pmlogrewrite
+touch $tmp.dir/pmlogmerge
+echo '-t 2 -c '$tmp.dir/$hostname/config.pmlogger >$tmp.dir/pmlogger
+echo '-c '$tmp.dir/$hostname/config.pmie >$tmp.dir/pmie
+rm $tmp.dir/pmlogconf
+rm $tmp.dir/pmieconf
+# ^^^ so pmmgr will react to pmcd restarts rather quickly
+echo 5min >$tmp.dir/pmlogmerge-retain
+$sudo $PCP_RC_DIR/pmcd start >>$seq.full 2>&1
+_wait_for_pmcd
+sleep 20 # enough time to get new daemons started up, logs rotated/merged
+$sudo $PCP_RC_DIR/pmcd stop >>$seq.full 2>&1
+sleep 10 # pmmgr daemon shutdown
+
+date >>$seq.full
+echo "=== 8. recheck the directories past retain/merge ===" | tee -a $seq.full
+# there should be only two; one merged and one just-written-to
+count=`ls -1 $tmp.dir/$hostname/*.meta | wc -l`
+if [ $count -lt 3 ]; then
+    echo less than three
+else
+    echo "count=$count archives created, expecting less than three"
+    ls -l $tmp.dir/$hostname/*.meta
+fi
+
+ls -lR $tmp.dir >>$seq.full # for reference
+for f in $tmp.dir/$hostname/*.meta; do
+    echo == $f == >>$seq.full
+    pmloglabel -L $f >>$seq.full
+done
+
+date >>$seq.full
+echo "=== 9. how about some granular/reduced mode with some extra monitoring ===" | tee -a $seq.full
+echo 20sec >$tmp.dir/pmlogmerge
+rm $tmp.dir/pmlogrewrite # separately tested
+touch $tmp.dir/pmlogmerge-granular
+rm $tmp.dir/target-threads
+# add some unreachable hosts too
+echo '192.0.2.1' >>$tmp.dir/target-host
+echo '192.0.2.1' >>$tmp.dir/target-host
+echo '192.0.2.2' >>$tmp.dir/target-host
+echo 50sec >$tmp.dir/pmlogmerge-retain
+echo '-t 10' >$tmp.dir/pmlogreduce  # compare to -t 2 for in /pmlogger
+echo 30sec >$tmp.dir/pmlogreduce-retain
+echo 'pcp summary' > $tmp.dir/monitor # short-lived; will be restarted periodically
+echo 'pmstat' >> $tmp.dir/monitor # long-lived
+$sudo $PCP_RC_DIR/pmcd start >>$seq.full 2>&1
+_wait_for_pmcd
+
+date >>$seq.full
+echo "=== 10. wait a bit ===" | tee -a $seq.full
+# long enough for all the old archives to age out, only new granular stuff to survive
+# not an exact multiple of the pmlogmerge period, to avoid testing the edge moments
+sleep 170 # apprx. pmlogmerge + pmlogmerge-retain + 2* pmlogreduce-retain
+$sudo $PCP_RC_DIR/pmcd stop >>$seq.full 2>&1  # ensure daemons stop & no new ones are started
+sleep 10 # pmmgr daemon shutdown
+
+date >>$seq.full
+echo "=== 11. admire grained / reduced / retained / monitor data ===" | tee -a $seq.full
+# there should be 3 archive-*, unless timing glitches
+count=`ls -1 $tmp.dir/$hostname/archive*.meta | wc -l`
+if [ $count -gt 0 -a $count -lt 5 ]; then
+    echo more than zero and less than five archives
+else
+    echo "count=$count archives created, expecting more than zero and less than five"
+    ls -l $tmp.dir/$hostname/archive*.meta
+fi
+count=`ls -1 $tmp.dir/$hostname/reduced*.meta | wc -l`
+if [ $count -gt 0 -a $count -lt 4 ]; then
+    echo more than zero and less than four reduced archives
+else
+    echo "count=$count reduced archives created, expecting more than zero and less than four"
+    ls -l $tmp.dir/$hostname/reduced*.meta
+fi
+
+for n in 0 1; do
+    if [ -s $tmp.dir/$hostname/monitor-$n.out -a -f $tmp.dir/$hostname/monitor-$n.err ]; then
+        echo "monitor-$n output good"
+    else
+        echo "monitor-$n output bad"
+    fi
+done
+
+ls -lR $tmp.dir >>$seq.full # for reference
+for f in $tmp.dir/$hostname/*.meta; do
+    echo == $f == >>$seq.full
+    pmloglabel -L $f >>$seq.full
+done
+grep . $tmp.dir/$hostname/monitor-* >> $seq.full
+
+date >>$seq.full
+echo "=== ZZZ kill pmmgr ===" | tee -a $seq.full
+kill $pid
+sleep 4 # under valgrind this can take some time
+if kill -0 $pid >/dev/null 2>&1
+then
+    echo "valgrind pmmgr (pid=$pid) did not die, try harder ..." >>$seq.full
+    kill -KILL $pid >/dev/null 2>&1
+    if kill -0 $pid >/dev/null 2>&1
+    then
+	echo "valgrind pmmgr (pid=$pid) will not die!" >>$seq.full
+    fi
+fi
+pid=
+
+echo "=== valgrind stdout ===" | tee -a $seq.full
+# seen on bozo-laptop
+# warning: evaluate_Dwarf3_Expr: unhandled DW_OP_ 0xf3
+#
+sed <$tmp.valout \
+    -e '/evaluate_Dwarf3_Expr: unhandled DW_OP_/d' \
+| _filter_valgrind
+echo "=== valgrind stderr ===" | tee -a $seq.full
+cat $tmp.valerr
+
+echo >>$seq.full
+echo "== collecting full pmmgr logs:" >>$seq.full
+cat $tmp.out >>$seq.full
+
+echo >>$seq.full
+echo "== collecting recent daemon logs:" >>$seq.full
+for log in $tmp.dir/$hostname/*.log
+do
+    if [ -f "$log" ]
+    then
+	echo "-- $log --" >>$seq.full
+	cat $log >>$seq.full
+    fi
+done
+
+status=0
+exit

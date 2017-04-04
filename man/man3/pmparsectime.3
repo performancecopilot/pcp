@@ -1,0 +1,71 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMPARSECTIME 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3__pmParseCtime\f1 \- convert \fBctime\fR(3) string to \fBtm\fR structure
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.br
+#include <pcp/impl.h>
+.sp
+int __pmParseCtime(const char *\fIstring\fP, struct tm *\fIrslt\fP, char **\fIerrmsg\fP);
+.sp
+cc ... \-lpcp
+.ft 1
+.SH DESCRIPTION
+.B __pmParseCtime
+reverses the
+.BR asctime (3)
+function.  It accepts a
+.B string
+specifying a time, and fills in the given
+.B tm
+structure.
+.PP
+Either a fully specified
+.BR asctime (3)
+string like "Mon Mar  4 13:07:47 1996" or a partially specified time
+like '1996", "Mar 1996", "Mar 4 1996", "Mar", "13:07:47", "13:07",
+"Mar 4 13:07:47",... is accepted.  In addition, the seconds component
+may be a floating point number, for example "13:07:47.5".  The 12 hour
+clock is also supported, so "13:07" and "1:07 pm" are equivalent.
+.PP
+.B __pmParseCtime
+returns 0 if successful.  It returns \-1 and a dynamically allocated
+error message string in
+.BR errmsg ,
+if the given
+.B string
+does not parse.  Be sure to
+.BR free (3)
+the error message string.
+.PP
+The
+.B tm
+structure returned in
+.B rslt
+should only be used as an argument to the
+.B __pmConvertTime
+function, as it contains encoded information that will only be
+correctly interpreted by
+.BR __pmConvertTime .
+.SH SEE ALSO
+.BR PMAPI (3),
+.BR pmParseInterval (3),
+.BR __pmConvertTime (3)
+and
+.BR __pmParseTime (3).

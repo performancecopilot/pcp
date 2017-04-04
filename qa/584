@@ -1,0 +1,70 @@
+#! /bin/sh
+# $PMCD_RECONNECT_TIMEOUT set to "1" causes ABW Purify error?
+# #698774
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+# check if pmie is stripped ... if so, skip this test
+#
+if elfdump -cr $PCP_BIN_DIR/pmie 2>&1 | head -5 | grep "No compact relocation" >/dev/null
+then
+  echo "pmie is stripped: can't purify" >$seq.notrun
+  echo "$seq: [not run] `cat $seq.notrun`"
+  exit 0
+fi
+
+# check for a working purify - note purify no longer works on 7.3
+# compiled binaries - this isn't checked yet: fix-on-fail
+_check_purify $PCP_BIN_DIR/pmie 
+
+status=1	# failure is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp.*
+}
+
+_filter()
+{
+    sed \
+	-e 's/[A-Z][a-z][a-z] [A-Z][a-z][a-z] *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9]/TIMESTAMP/' \
+	-e 's/[A-Z][a-z][a-z] *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9]/TIMESTAMP/' \
+	-e "s/`hostname`/HOST/" \
+	-e 's/\(pmie.pure[([]\)[0-9][0-9]*/\1PID/'
+}
+
+_setup_purify $PCP_BIN_DIR/pmie
+
+# real QA test starts here
+PMCD_RECONNECT_TIMEOUT=1
+PURIFY_FILTER_EXTRA=1
+export PMCD_RECONNECT_TIMEOUT PURIFY_FILTER_EXTRA
+# ensure pmie runs for long enough to reliably reconnect (20 -> 25 seconds)
+echo "sample.bin > 0" | _run_purify -t 1sec -T 25sec >$tmp.purified 2>&1 &
+
+sleep 5
+$sudo $PCP_RC_DIR/pcp stop | _filter_pcp_stop
+sleep 5
+$sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
+_wait_for_pmcd
+_wait_for_pmlogger
+wait
+
+echo
+echo "=== stdout+stderr ==="
+cat $tmp.purified | _filter
+
+# success, all done
+status=0
+exit

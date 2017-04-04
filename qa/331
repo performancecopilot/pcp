@@ -1,0 +1,43 @@
+#! /bin/sh
+# PCP QA Test No. 331
+# Interp mode (similar to qa/093, but with purify)
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_filter()
+{
+    $PCP_AWK_PROG '
+BEGIN			{ skip = 1 }
+/ Purify /		{ skip = 0 }
+/^FIU/			{ skip = 2; next }
+/^[^ 	]/ && skip == 2	{ skip = 0 }
+skip == 0		{ print }'
+}
+
+_check_purify src/interp2
+
+status=1	# failure is the default!
+trap "cd $here; rm -rf $tmp; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+_setup_purify src/interp2
+
+for arch in tmparch/bigbin tmparch/mv-bigbin tmparch/noti-foo
+do
+    echo
+    echo "=== $arch ==="
+    _run_purify -a $here/$arch | _filter
+done
+
+# all done
+status=0
+exit

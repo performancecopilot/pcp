@@ -1,0 +1,49 @@
+#!/bin/sh
+# PCP QA Test No. 786
+# exercise pmGetContextHostName and pmGetContextHostName_r
+#
+# Copyright (c) 2014 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+host=`hostname`
+
+# errno mapping -65 (EHOSTUNREACH on Mac OS X) -> -113 (EHOSTUNREACH on
+# Linux)
+# errno mapping -148 (EHOSTUNREACH on Solaris/OpenIndiana) -> -113
+# (EHOSTUNREACH on Linux)
+#
+_filter()
+{
+    sed \
+	-e "s/$host/HOSTNAME/" \
+	-e 's/(-65\([,)]\)/(-113\1/' \
+	-e 's/(-148\([,)]\)/(-113\1/' \
+    # end
+}
+
+# real QA test starts here
+for arg in "" "-h $host" -L "-a archives/babylon.percpu_v2" "-h localhost" \
+	"-h local:" "-h unix:" \
+	"-h no.such.host.pcp.io" "-a /no/such/archive"
+do
+    echo
+    echo "=== $arg ==="
+    $sudo src/getcontexthost $arg 2>&1
+done | _filter
+
+# success, all done
+status=0
+
+exit

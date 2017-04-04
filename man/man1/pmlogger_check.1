@@ -1,0 +1,590 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2013-2016 Red Hat.
+.\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMLOGGER_CHECK 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmlogger_check\f1,
+\f3pmlogger_daily\f1,
+\f3pmlogger_merge\f1 \- administration of Performance Co-Pilot archive log files
+.SH SYNOPSIS
+.B $PCP_BINADM_DIR/pmlogger_check
+[\f3\-CNsTV\f1]
+[\f3\-c\f1 \f2control\f1]
+[\f3\-l\f1 \f2logfile\f1]
+.br
+.B $PCP_BINADM_DIR/pmlogger_daily
+[\f3\-NorV\f1]
+[\f3\-c\f1 \f2control\f1]
+[\f3\-k\f1 \f2discard\f1]
+[\f3\-l\f1 \f2logfile\f1]
+[\f3\-m\f1 \f2addresses\f1]
+[\f3\-s\f1 \f2size\f1]
+[\f3\-t\f1 \f2want\f1]
+[\f3\-x\f1 \f2compress\f1]
+[\f3\-X\f1 \f2program\f1]
+[\f3\-Y\f1 \f2regex\f1]
+.br
+.B $PCP_BINADM_DIR/pmlogger_merge
+[\f3\-fNV\f1]
+[\f2input-basename\f1 ... \f2output-name\f1]
+.br
+.SH DESCRIPTION
+This series of shell scripts and associated control files may be used to
+create a customized regime of administration and management for
+Performance Co-Pilot (see
+.BR PCPintro (1))
+archive log files.
+.PP
+.B pmlogger_daily
+is intended to be run once per day, preferably in the early morning, as
+soon after midnight as practicable.  Its task is to aggregate and rotate
+one or more sets of PCP archives.
+After some period, old PCP archives are discarded.  This period is
+14 days by default, but may be changed using the
+.B \-k
+option. Two special values are recognized for the period (\c
+.IR discard ),
+namely
+.B 0
+to keep no archives beyond the current one, and
+.B forever
+to prevent any archives being discarded.
+.PP
+Archive data files can optionally be compressed after some period
+to conserve disk space.  This is particularly useful for large numbers of
+.B pmlogger
+processes under the control of
+.BR pmlogger_check .
+By default no compression is done.
+The
+.B \-x
+option enables compression and
+specifies the number of days after which to compress archive data
+files, and the
+.B \-X
+option specifies the program to use for compression \- by default this is
+.BR xz (1).
+Use of the
+.B \-Y
+option allows a regular expression to be specified causing files in
+the set of files matched for compression to be omitted \- this allows
+only the data file to be compressed, and also prevents the program from
+attempting to compress it more than once.  The default
+.I regex
+is "\.(meta|index|Z|gz|bz2|zip|xz|lzma|lzo|lz4)$" \- such files are
+filtered using the
+.B \-v
+option to
+.BR egrep (1).
+.PP
+To accommodate the evolution of PMDAs and changes in production
+logging environments,
+.B pmlogger_daily
+is integrated with
+.BR pmlogrewrite (1)
+to allow optional and automatic rewriting of archives before merging.
+If there are global rewriting rules to be applied across all archives
+mentioned in the control file(s), then create the directory
+.B $PCP_SYSCONF_DIR/pmlogrewrite
+and place any
+.BR pmlogrewrite (1)
+rewriting rules in this directory.
+For rewriting rules that are specific to only one family of archives,
+use the directory name from the control file(s) \- i.e. the
+.I fourth
+field \- and create a file, or a directory, or a symbolic link named
+.B pmlogrewrite
+within this directory
+and place the required rewriting rule(s) in the
+.B pmlogrewrite
+file or in files
+within the
+.B pmlogrewrite
+subdirectory.
+.B pmlogger_daily
+will choose rewriting rules from the archive directory if they
+exist, else rewriting rules from
+.B $PCP_SYSCONF_DIR/pmlogrewrite
+if that directory exists, else no rewriting is attempted.
+.PP
+The
+.B \-r
+command line option acts as an over-ride and
+prevents all archive rewriting with
+.BR pmlogrewrite (1)
+independent of the presence of any rewriting rule files or directories.
+.PP
+By default all possible archives will be merged.  The
+.B \-o
+option reinstates the old behaviour in which only yesterday's archives
+will be considered as merge candidates.
+.PP
+In the special case where only a single input archive
+needs to be merged,
+.BR pmlogmv (1)
+is used to rename the archive, rather than copy the input archive
+using
+.BR pmlogger_merge .
+.PP
+The
+.B \-M
+option may be used to disable archive merging (or renaming) and rewriting
+(\c
+.B \-M
+implies
+.BR \-r ).
+This is most useful in cases where the archives are being incrementally
+copied to a remote repository, e.g. using
+.BR rsync (1).
+Merging, renaming and rewriting all risk an increase in the synchronization
+load, especially immediately after
+.B pmlogger_daily
+has run, so
+.B \-M
+may be useful in these cases.
+.PP
+To assist with debugging or diagnosing intermittent failures the
+.B \-t
+option may be used.  This will turn on very verbose tracing (\c
+.BR \-VV )
+and capture the trace output in a file named
+.BI $PCP_LOG_DIR/pmlogger/daily. datestamp .trace,
+where
+.I datestamp
+is the time
+.B pmlogger_daily
+was run in the format YYYYMMDD.HH.MM.
+In addition, the
+.I want
+argument will ensure that trace files created with
+.B \-t
+will be kept for
+.I want
+days and then discarded.
+.PP
+In addition, if the
+PCP ``notices'' file (\c
+.BR $PCP_LOG_DIR/NOTICES )
+is larger than 20480 bytes,
+.B pmlogger_daily
+will rename the file with a ``.old'' suffix, and start
+a new ``notices'' file.
+The rotate threshold may be changed from 20480 to
+.I size
+bytes using the
+.B \-s
+option.
+.PP
+Use of the
+.B \-m
+option causes
+.B pmlogger_daily
+to construct a summary of the ``notices'' file entries which were
+generated in the last 24 hours, and e-mail that summary to the set of
+space-separated
+.IR addresses .
+This daily summary is stored in the file
+.BR $PCP_LOG_DIR/NOTICES.daily ,
+which will be empty when no new ``notices'' entries were made in the previous
+24 hour period.
+.PP
+The script
+.B $PCP_BINADM_DIR/pmlogger_daily
+could be copied and modified to implement a site-specific procedure for
+end-of-week and/or end-of-month management for a set of PCP archives.
+.PP
+.B pmlogger_check
+may be run at any time, and is intended to check that the desired set
+of
+.BR pmlogger (1)
+processes are running, and if not to re-launch any failed loggers.
+Use of the
+.B \-s
+option provides the reverse functionality, allowing the set of
+.B pmlogger
+processes to be cleanly shutdown.
+Use of the
+.B \-C
+option queries the system service runlevel information for
+.BR pmlogger ,
+and uses that to determine whether to start processes.
+.PP
+The
+.B \-T
+option provides a terser form of output for
+.B pmlogger_check
+that is most suitable for a
+.I pmlogger
+\&``farm'' where many instances of
+.I pmlogger
+are expected to be running.
+.PP
+.B pmlogger_merge
+is a wrapper script for
+.BR pmlogextract (1)
+that merges all of the archive logs matching the
+.I input-basename
+arguments, and creates a new archive using 
+.I output-name
+as the base name for the physical files that constitute
+an archive log.
+The
+.I input-basename
+arguments may contain meta characters in the style of
+.BR sh (1).
+If specified, the
+.B \-f
+option causes all of the input files to be removed once the output
+archive has been created.
+.PP
+.B pmlogger_merge
+is used by
+.BR pmlogger_daily .
+.PP
+Both
+.B pmlogger_daily
+and
+.B pmlogger_check
+are controlled by PCP logger control file(s)
+that specifies the
+.B pmlogger
+instances to be managed.  The default control file is
+.BR $PCP_PMLOGGERCONTROL_PATH ,
+but an alternate may be specified using the
+.B \-c
+option.
+If the directory
+.BR $PCP_PMLOGGERCONTROL_PATH .d
+(or
+.IR control .d
+from the
+.B \-c
+option) exists, then the contents of any additional control files therein
+will be appended to the main control file (which must exist).
+.PP
+.BR Warning :
+The
+.B $PCP_PMLOGGERCONTROL_PATH
+and
+.BR $PCP_PMLOGGERCONTROL_PATH .d
+files must not be writable by any user other than root.
+.PP
+The control file(s) should be customized according to the following rules
+that define for the current version (1.1)
+of the control file format.
+.IP 1. 4m
+Lines beginning with a ``#'' are comments.
+.PD 0 parameters of the
+.IP 2.
+Lines beginning with a ``$'' are assumed to be
+assignments to environment variables in the style of
+.BR sh (1),
+and all text following the ``$'' will be
+.BR eval 'ed
+by the script reading the control file,
+and the corresponding variable exported into the environment.
+This is particularly
+useful to set and export variables into the environment of
+the administrative scripts, e.g.
+.br
+.in +4n
+.ft CW
+.nf
+$ PMCD_CONNECT_TIMEOUT=20
+.fi
+.ft R
+.in -4n
+.IP 3.
+There
+.B must
+be a version line in the initial control file of the form:
+.br
+.in +4n
+.ft CW
+.nf
+$ version=1.1
+.fi
+.ft R
+.in -4n
+.IP 4.
+There should be one line in the control file(s)
+for each
+.B pmlogger
+instance of the form:
+
+.in +4n
+.ft CW
+.nf
+\f2host\f1 \f3y\f1|\f3n\f1 \f3y\f1|\f3n\f1 \f2directory\f1 \f2args\f1
+.fi
+.ft R
+.in -4n
+
+.IP 5.
+Fields within a line of the control file(s)
+are usually separated by one or more spaces or tabs (although refer to
+the description of the
+.I directory
+field for some important exceptions).
+.IP 6.
+The
+.I first
+field is the name of the host that is the source of the
+performance metrics for this
+.B pmlogger
+instance.
+.IP 7.
+The
+.I second
+field indicates if this is a
+.I primary
+.B pmlogger
+instance (\c
+.BR y )
+or not (\c
+.BR n ).
+Since the primary logger must run on the local host, and there may be
+at most one primary logger for a particular host, this field can be
+.B y
+for at most one
+.B pmlogger
+instance, in which case the host name must be the name of the local host.
+.IP 8.
+The
+.I third
+field indicates if this
+.B pmlogger
+instance needs to be started under the control of
+.BR pmsocks (1)
+to connect to a
+.B pmcd
+through a firewall (\c
+.B y
+or
+.BR n ).
+.IP 9.
+The
+.I fourth
+field is a directory name.  All files
+associated with this
+.B pmlogger
+instance will be created in this directory,
+and this will be the current directory for the execution of
+any programs required in the maintenance of those archives.
+A useful convention is that primary logger archives for the local host
+with hostname
+.I myhost
+are maintained in the directory
+.BI $PCP_LOG_DIR/pmlogger/ myhost
+(this is where the default
+.B pmlogger
+start-up script in
+.B $PCP_RC_DIR/pcp
+will create the archives), while archives for the remote host
+.I mumble
+are maintained in
+.BI $PCP_LOG_DIR/pmlogger/ mumble\fR.
+.IP 10.
+The directory field may contain embedded shell syntax that will be
+evaluated by
+.BR sh (1)
+to produce the real directory name to be used.  The allowed constructs
+are:
+.RS
+.nr PD 0
+.IP \(bu 2m
+Any text (including white space) enclosed with
+.B $(
+and
+.BR ).
+.IP \(bu
+Any text (including white space) enclosed with
+.B \[ga]
+and
+.B \[ga]
+(back quotes).
+.IP \(bu
+Any text (including white space) enclosed with
+.B \[dq]
+and
+.B \[dq]
+(double quotes).
+.IP \(bu
+Any word containing a
+.B $
+(assumed to introduce an environment variable name).
+.nr PD
+.RE
+.IP 11.
+All other fields are interpreted as arguments to be passed to
+.BR pmlogger (1)
+and/or
+.BR pmnewlog (1).
+Most typically this would be the
+.B \-c
+option.
+.PD
+.PP
+The following sample control lines specify a primary logger
+on the local host (\c
+.IR bozo ),
+and non-primary loggers to collect and log
+performance metrics from the hosts
+.I wobbly
+and
+.IR boing .
+.PP
+.nf
+.ft CW
+$version=1.1
+bozo   y  n  $PCP_LOG_DIR/pmlogger/bozo   \-c config.default
+wobbly n  n  "/store/wobbly/$(date +%Y)"  \-c ./wobbly.config
+boing  n  n  $PCP_LOG_DIR/pmlogger/boing  \-c ./pmlogger.config
+.ft 1
+.fi
+.PP
+Typical
+.BR crontab (5)
+entries for periodic execution of
+.B pmlogger_daily
+and
+.B pmlogger_check
+are given in
+.BR $PCP_SYSCONF_DIR/pmlogger/crontab
+(unless installed by default in
+.I /etc/cron.d
+already)
+and shown below.
+.PP
+.nf
+.ft CW
+# daily processing of archive logs
+14      0       *       *       *       $PCP_BINADM_DIR/pmlogger_daily
+# every 30 minutes, check pmlogger instances are running
+25,55   *       *       *       *       $PCP_BINADM_DIR/pmlogger_check
+.ft 1
+.fi
+.PP
+In order to ensure that mail is not unintentionally sent when these
+scripts are run from
+.BR cron (8)
+diagnostics are always sent to a log file.
+By default, this file is
+.B $PCP_LOG_DIR/pmlogger/pmlogger_daily.log
+or
+.B $PCP_LOG_DIR/pmlogger/pmlogger_check.log
+but this can be changed using the
+.B \-l
+option.
+If this log file already exists when the script starts, it will be
+renamed with a
+.I .prev
+suffix (overwriting any log file saved earlier) before diagnostics
+are generated to the log file.
+The
+.B \-l
+and
+.B \-t
+options cannot be used together.
+.PP
+The output from the
+.BR cron
+execution of the scripts may be extended using the
+.B \-V
+option to the scripts which will enable verbose tracing of their activity.
+By default the scripts generate no output unless some error or warning
+condition is encountered.
+
+.SH FILES
+.TP 10
+.B $PCP_PMLOGGERCONTROL_PATH
+the PCP logger control file
+.br
+.BR Warning :
+this file must not be writable by any user other than root.
+.TP
+.BR $PCP_PMLOGGERCONTROL_PATH .d
+optional directory containing additional PCP logger control files,
+typically one per host
+.br
+.BR Warning :
+the files herein must not be writable by any user other than root.
+.TP
+.B $PCP_SYSCONF_DIR/pmlogger/crontab
+sample crontab for automated script execution by $PCP_USER (or root).
+Exists only if the platform does not support the /etc/cron.d mechanism.
+.TP
+.B $PCP_VAR_DIR/config/pmlogger/config.default
+default
+.B pmlogger
+configuration file location for the local primary logger, typically
+generated automatically by
+.BR pmlogconf (1).
+.TP
+.BI $PCP_LOG_DIR/pmlogger/ hostname
+default location for archives of performance information collected from the host
+.I hostname
+.TP
+.BI $PCP_LOG_DIR/pmlogger/ hostname /lock
+transient lock file to guarantee mutual exclusion during
+.B pmlogger
+administration for the host
+.I hostname
+\- if present, can be safely removed if neither
+.B pmlogger_daily
+nor
+.B pmlogger_check
+are running
+.TP
+.BI $PCP_LOG_DIR/pmlogger/ hostname /Latest
+PCP archive folio created by
+.BR mkaf (1)
+for the most recently launched archive containing performance metrics from
+the host
+.I hostname
+.TP
+.B $PCP_LOG_DIR/NOTICES
+PCP ``notices'' file used by
+.BR pmie (1)
+and friends
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.B /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (5).
+.SH SEE ALSO
+.BR egrep (1),
+.BR PCPIntro (1),
+.BR pmlc (1),
+.BR pmlogconf (1),
+.BR pmlogger (1),
+.BR pmlogextract (1),
+.BR pmlogmv (1),
+.BR pmlogrewrite (1),
+.BR pmnewlog (1),
+.BR pmsocks (1),
+.BR xz (1)
+and
+.BR cron (8).

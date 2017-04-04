@@ -1,0 +1,141 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMLOADASCIINAMESPACE 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmLoadASCIINameSpace\f1 \- establish a local PMNS for an application
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.sp
+int pmLoadASCIINameSpace(const char *\fIfilename\fP, int \fIdupok\fP);
+.sp
+cc ... \-lpcp
+.ft 1
+.SH DESCRIPTION
+If the application wants to force using a local Performance Metrics
+Name Space (PMNS) instead
+of a distributed PMNS then it must load the PMNS using
+.B pmLoadASCIINameSpace
+or
+.BR pmLoadNameSpace (3).
+If the application wants to use a distributed PMNS, then it should NOT
+make a call to load the PMNS explicitly.
+.PP
+Most applications using a
+Performance Metrics Application Programming Interface (PMAPI)
+context
+(of any type, so PM_CONTEXT_HOST or PM_CONTEXT_ARCHIVE or PM_CONTEXT_LOCAL)
+should not need to call
+.BR pmLoadASCIINameSpace .
+.PP
+The
+.I filename
+argument designates the PMNS of interest.
+For applications not requiring a tailored PMNS,
+the special value
+.B PM_NS_DEFAULT
+may be 
+used for
+.IR filename ,
+to force the default local PMNS to be loaded.
+.PP
+The default local PMNS is found in the file
+.I $PCP_VAR_DIR/pmns/root
+unless the environment variable
+.B PMNS_DEFAULT
+is set, in which case the value is assumed to be the pathname
+to the file containing the default local PMNS.
+.PP
+.B pmLoadASCIINameSpace
+is a variant of
+.BR pmLoadNameSpace (3)
+in which the
+.I dupok
+argument may be used to control the handling of multiple names
+in the PMNS that may be associated with a single Performance Metric
+Identifier (PMID).  A value of 0 disallows duplicates, any other value allows
+duplicates and the latter is the default behaviour of
+.BR pmLoadNameSpace (3)
+as of Version 3.10.3 of PCP.
+.PP
+The other difference is that when
+.B pmLoadASCIINameSpace
+is used and
+.I filename
+is 
+.B not
+PM_NS_DEFAULT, the PMNS file will always be pre-processed
+with
+.BR pmcpp (1)
+as described in
+.BR pmns (5).
+This allows a PMNS file that contains
+C-style comments, pre-processor directives or
+macros to be processed correctly before the PMNS is parsed.
+.PP
+.B pmLoadASCIINameSpace
+returns zero on success.
+.SH FILES
+.IP \f2$PCP_VAR_DIR/pmns/root\f1 2.5i
+the default local PMNS, when the environment variable
+.B PMNS_DEFAULT
+is unset
+.RE
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.I /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (5).
+Values for these variables may be obtained programmatically
+using the
+.IR pmGetConfig (3)
+function.
+.SH SEE ALSO
+.BR PMAPI (3),
+.BR pmGetConfig (3),
+.BR pmLoadNameSpace (3),
+.BR pmTrimNameSpace (3),
+.BR pcp.conf (5),
+.BR pcp.env (5)
+and
+.BR pmns (5).
+.SH DIAGNOSTICS
+Syntax and other errors in the parsing of the PMNS are reported
+on
+.I stderr
+with a message of the form ``Error Parsing ASCII PMNS: ...''.
+.PP
+.B PM_ERR_DUPPMNS
+.IP
+It is an error to try to load more than one PMNS, or to call
+either
+.B pmLoadASCIINameSpace
+and/or
+.BR pmLoadNameSpace (3)
+more than once.
+.PP
+.B PM_ERR_PMNS
+.IP
+Syntax error in an ASCII format PMNS.

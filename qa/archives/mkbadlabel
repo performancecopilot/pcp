@@ -1,0 +1,103 @@
+#!/bin/sh
+#
+# Recipes for making badlabel-* family of archives.
+# 
+# Every one is based on a version of foo, with binary editing using
+# bvi (or similar) and cut-n-paste with dd.
+
+tmp=/var/tmp/$$
+trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+
+# Set up for a new badlabel-X archive
+#
+X=0
+while true
+do
+    [ ! -f badlabel-$X.index ] && break
+    X=`expr $X + 1`
+    if [ $X -eq 100 ]
+    then
+	echo "Botch: all archives badlabel-0...badlabel-99 already exist?"
+	exit 1
+    fi
+done
+if [ $X -eq 0 ]
+then
+    cp ../src/foo.0 badlabel-0.0
+    cp ../src/foo.meta badlabel-0.meta
+    cp ../src/foo.index badlabel-0.index
+    X=1
+fi
+
+case $X
+in
+    1)	# bad magic in metadata label
+	vol=meta
+	if cp ../src/foo.$vol badlabel-$X.$vol
+	then
+	    :
+	else
+	    echo "Failed: cp ../src/foo.$vol badlabel-$X.$vol"
+	    exit 1
+	fi
+	echo '4s\\...\\deadbe\\' >$tmp.ex
+	;;
+
+    2)	# bad version in index label
+	vol=index
+	if cp ../src/foo.$vol badlabel-$X.$vol
+	then
+	    :
+	else
+	    echo "Failed: cp ../src/foo.$vol badlabel-$X.$vol"
+	    exit 1
+	fi
+	echo '7s\\.\\00\\' >$tmp.ex
+	;;
+
+    *)
+	echo "Error: no recipe for badlabel-$X"
+	exit 1
+
+esac
+
+if [ -f $tmp.ex ]
+then
+    echo 'w' >>$tmp.ex
+    echo 'q' >>$tmp.ex
+
+    for file in badlabel-$X.*
+    do
+	if which bvi >/dev/null 2>&1
+	then
+	    bvi -f $tmp.ex $file
+	else
+	    echo "bvi not installed"
+	    echo "Need to apply the equivalent of this binary editing to $file"
+	    cat $tmp.ex
+	fi
+    done
+
+    for file in badlabel-$X.0 badlabel-$X.meta badlabel-$X.index
+    do
+	if [ -f $file ]
+	then
+	    :
+	else
+	    target=`echo $file | sed -e "s/-$X\./-0./"`
+	    if ln $target $file
+	    then
+		:
+	    else
+		echo "Failed: ln $target $file"
+		exit 1
+	    fi
+	fi
+    done
+
+    echo "badlabel-$X created."
+
+fi
+
+exit
+

@@ -1,0 +1,61 @@
+QA output created by 704
+Waiting for pmcd to terminate ...
+Starting pmcd ... 
+Starting pmlogger ... 
+Running python test program
+.
+----------------------------------------------------------------------
+Ran 1 test in <0.01s
+
+OK
+Checking mmv file
+MMV_STATS_DIR
+MMV_STATS_DIR/pytest
+Checking pmdammv queries
+
+mmv.pytest.strings PMID: 70.42.6 [test string metrics]
+    Data Type: string  InDom: 70.86017 0x11815001
+    Semantics: counter  Units: none
+Help:
+test string metrics
+    inst [0 or "zero"] value ""
+    inst [1 or "hero"] value ""
+
+mmv.pytest.string PMID: 70.42.5 []
+    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: none
+Help: <empty entry>
+    value ""
+
+mmv.pytest.interval PMID: 70.42.4 []
+    Data Type: 64-bit int  InDom: 70.86018 0x11815002
+    Semantics: counter  Units: microsec
+Help: <empty entry>
+    inst [0 or "bird"] value NUMBER
+    inst [1 or "tree"] value NUMBER
+    inst [2 or "eggs"] value NUMBER
+    inst [3 or "frog"] value NUMBER
+
+mmv.pytest.indom PMID: 70.42.3 []
+    Data Type: 32-bit unsigned int  InDom: 70.86017 0x11815001
+    Semantics: counter  Units: none
+Help: <empty entry>
+    inst [0 or "zero"] value NUMBER
+    inst [1 or "hero"] value NUMBER
+
+mmv.pytest.instant PMID: 70.42.2 [Example instant metric]
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: none
+Help:
+Example instant metric
+    value NUMBER
+
+mmv.pytest.counter PMID: 70.42.1 [Example counter metric]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: none
+Help:
+Example counter metric
+    value NUMBER
+Waiting for pmcd to terminate ...
+Starting pmcd ... 
+Starting pmlogger ... 

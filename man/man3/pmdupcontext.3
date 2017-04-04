@@ -1,0 +1,55 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2016 Red Hat.
+.\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMDUPCONTEXT 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmDupContext\f1 \- duplicate a PMAPI context
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.sp
+int pmDupContext(void);
+.sp
+cc ... \-lpcp
+.ft 1
+.SH DESCRIPTION
+An application using the
+Performance Metrics Application Programming Interface (PMAPI)
+may manipulate several concurrent contexts,
+each associated with a source of performance metrics, e.g. \c
+.BR pmcd (1)
+on some host, or a set of archive logs of performance metrics as created by
+.BR pmlogger (1).
+.PP
+Calling
+.B pmDupContext
+will
+replicate the current PMAPI context,
+returning a handle for the new context that may be used with subsequent
+calls to
+.BR pmUseContext (3).
+.PP
+Once created, the duplicated context and the original context have independent
+existence, and so their instance profiles and 
+collection time (relevant only for archive contexts)
+may be independently varied.
+.PP
+The newly replicated context becomes the current context.
+.SH SEE ALSO
+.BR PMAPI (3),
+.BR pmNewContext (3)
+and
+.BR pmUseContext (3).

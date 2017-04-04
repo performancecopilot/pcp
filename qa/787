@@ -1,0 +1,88 @@
+#!/bin/sh
+# PCP QA Test No. 787
+# Frank's "slow" archive with <mark> records
+# See http://oss.sgi.com/bugzilla/show_bug.cgi?id=1044
+#
+# Copyright (c) 2014 Ken McDonell.  All Rights Reserved.
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+# change to true to produce detailed values in $seq.full to
+# validate the interpolated values reported by pmval
+#
+full=true
+$full && rm -f $seq.full
+
+_summary()
+{
+    grep '^__pmLogRead:' | wc -l | sed -e 's/ //g'
+}
+
+_filter()
+{
+    sed -e "s@$tmp@TMP@g"
+}
+
+pmdumplog -xz archives/bug-1044 >$tmp.tmp
+echo "log records: `egrep '^([A-Z][a-z][a-z] )|([0-2][0-9]:)' <$tmp.tmp | wc -l | sed -e 's/ //g'`"
+
+# for full output, lines look like
+# Fri Jan 10 17:58:09.600 2014  60.0.32 (hinv.ncpu): value 4
+#
+$full && grep '<mark>' <$tmp.tmp | LC_COLLATE=POSIX sort -k 3,3n -k 4,4 >$tmp.mark
+
+# real QA test starts here
+for metric in hinv.ncpu kernel.all.nprocs pmcd.numagents
+do
+    echo | tee -a $seq.full
+    echo "=== $metric ===" | tee -a $seq.full
+    $full && pmdumplog -zL archives/bug-1044 >>$seq.full
+    $full && pmdumplog -xz archives/bug-1044 $metric | egrep '^([A-Z][a-z][a-z] )|([0-2][0-9]:)' | LC_COLLATE=POSIX sort -k 3,3n -k 4,4 >$tmp.tmp
+    $full && LC_COLLATE=POSIX sort -k 3,3n -k 4,4 $tmp.tmp $tmp.mark >>$seq.full
+
+    echo | tee -a $seq.full
+    echo "+++ forwards +++" | tee -a $seq.full
+    opt='-Dlog'
+    $full && opt='-Dlog,interp'
+    pmval -z $opt -t 1hr -A 1hr -a archives/bug-1044 $metric 2>$tmp.err
+    echo "log reads: `_summary <$tmp.err`"
+    $full && cat $tmp.err >>$seq.full
+
+    echo | tee -a $seq.full
+    echo "+++ backwards +++" | tee -a $seq.full
+    $full && opt='-Dlog,interp'
+    src/interp1 $opt -d -s 1000 -a archives/bug-1044 -t 3600 $metric 2>$tmp.err
+    $full && cat $tmp.err >>$seq.full
+
+    echo "`echo $metric | sed -e 's/\./_/g'` = $metric;" >>$tmp.pmie
+done
+
+echo | tee -a $seq.full
+echo "=== pmcd.numagents converted to discrete semantics ===" | tee -a $seq.full
+echo "metric pmcd.numagents {  sem -> discrete }" >$tmp.config
+pmlogrewrite -c $tmp.config archives/bug-1044 $tmp
+pmval -z -Dlog -t 1hr -A 1hr -a $tmp pmcd.numagents 2>$tmp.err \
+| _filter
+echo "log reads: `_summary <$tmp.err`"
+$full && cat $tmp.err >>$seq.full
+
+echo
+echo "=== all metrics at once ==="
+pmie -z -a archives/bug-1044 -c $tmp.pmie -t 1hr -A 1hr -v -Dlog 2>$tmp.err
+echo "log reads: `_summary <$tmp.err`"
+
+
+# success, all done
+status=0
+
+exit

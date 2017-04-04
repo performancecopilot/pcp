@@ -1,0 +1,345 @@
+'\"macro stdmacro
+.\"
+.\" Copyright 2012-2016, Red Hat.
+.\" Copyright 2003-2011, Hewlett-Packard Development Company, LP
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.TH PCP-COLLECTL 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmcollectl\f1,
+\f3pcp-collectl\f1 \- collect data that describes the current system status
+.SH SYNOPSIS
+\f3pcp\ collectl\f1
+[\f3\-f\f1 \f2file\f1 | \f3\-p\f1 \f2file\f1 ...]
+\f2[options\f1 ...]
+.SH DESCRIPTION
+.B pcp-collectl
+is a system-level performance monitoring utility that records or displays
+specific operating system data for one or more sets of subsystems.
+Any of the subsystems (such as CPU, Disks, Memory or Sockets) can be
+included or excluded from data collection.
+Data can either be displayed immediately to a terminal, or stored in files
+for retrospective analysis.
+.PP
+.B pcp-collectl
+is a
+.BR python (1)
+script providing much of the functionality available from the
+.BR collectl (1)
+Linux utility (which happens to be written in
+.BR perl (1)).
+.PP
+It makes use of the Performance Co-Pilot (PCP) toolkit to
+simplify its implementation, as well as provide more of the
+.B collectl
+functionality on platforms other than Linux.
+.PP
+.B pcp-collectl
+has two primary modes of operation:
+.IP 1. 0.3i
+Record Mode (\f3\-f\f1 or \f3\-\-filename\f1 option) which reads data
+from a live system and writes output to a file or displays it on a terminal.
+.IP 2. 0.3i
+Playback Mode (\f3\-p\f1 or \f3\-a\f1 option) which reads data
+from one or more PCP archive files and displays output on a terminal.
+Note that these files are
+.I not
+raw
+.B collectl
+format data, rather they are archives created by the
+.BR pmlogger (1)
+utility (possibly indirectly, through use of the \f3\-f\f1 option to
+.BR pcp-collectl ).
+.PP
+.SH "RECORD MODE OPTIONS"
+In this mode data is taken from a 
+.BR live
+system and either displayed on the terminal or written to a PCP archive.
+.PP
+.B "\-h host"
+.RS
+Display metrics from
+.I host
+instead of displaying metrics from the local host.
+.RE
+.PP
+.\" .B "--align"
+.\" .RS
+.\" .BR pcp-collectl
+.\" sample monitoring will be aligned such that a sample will always be taken at the 
+.\" top of a minute (this does NOT mean the first sample will occur then) so that all
+.\" instances of
+.\" .BR
+.\" pmcollect
+.\" running on any systems which have their clocks synchronized 
+.\" will all take samples at the same time.
+.\" .RE
+.\" 
+.\" .B "--all"
+.\" .RS
+.\" Collect summary data for ALL subsystems except slabs, since slab monitoring requires
+.\" a different monitoring interval.
+.\" You can use this switch anywhere \f3\-s\f1 can be used but not both together.
+.\" .RE
+.\" 
+.B "\-c, --count samples"
+.RS
+The number of samples to record.
+.RE
+.PP
+.\" 
+.\" .B "\-D, --daemon"
+.\" .RS
+.\" Run
+.\" .BR pcp-collectl
+.\" as a daemon, primarily used when starting as a service.
+.\" This option sets the sampling interval to once every 10 seconds by default.
+.\" .RE
+.\" 
+.B "\-f, --filename filename"
+.RS
+This is the name of a PCP archive to write the output to.
+.RE
+.PP
+.\" 
+.\" .B "\-F, --flush seconds"
+.\" .RS
+.\" Flush output buffers after this number of seconds.  This is equivalent to 
+.\" issuing 
+.\" .B kill \-s USR1
+.\" to
+.\" .B pmlogger
+.\" at the same frequency (but a lot easier!).  If 0, a flush will occur every
+.\" data collection interval.
+.\" .RE
+.\" 
+.\" .B --home
+.\" .RS
+.\" Always start the display for the current interval at the top of the screen
+.\" also known as the home position (non-plot format only).  This generates a
+.\" real-time, continuously refreshing display when the data fits on a single screen.
+.\" .RE
+.\" 
+.B "\-i, --interval interval"
+.RS
+This is the sampling interval in seconds.  The default is 1 second.
+.\" The default is 10 seconds when run as a daemon and 1 second otherwise.
+.RE
+.\" 
+.\" .B --nohup
+.\" .RS
+.\" Whenever collectl finishes a data collection interval, it checks to see if the starting parent
+.\" has exited.  This is to prevent the case in which someone might start a copy of collectl
+.\" and then the process dies and collectl keeps running.  If that is the behavior someone
+.\" actually intends, they should start collectl with --nohup.
+.\" 
+.\" NOTE - when running as a daemon, --nohup is implied.
+.\" .RE
+.\" 
+.B "\-R, --runtime duration"
+.RS
+Specify the duration of data collection where the duration is a number followed
+by one of 
+.BR wdhms,
+indicating how many weeks, days, hours, minutes or seconds
+the collection is to be taken for.
+.RE
+.\" 
+.PP
+.SH "PLAYBACK MODE OPTIONS"
+In this mode, data is read from one or more PCP data files that were
+generated with the recording option, or indirectly via the
+.B pmlogger
+utility.
+.PP
+.B "\-f, --filename filename"
+.RS
+If specified, this is the name of a PCP archive to write the output to (rather
+than the terminal).
+.RE
+.PP
+.\" .B "--from timerange"
+.\" .RS
+.\" Play back data starting with this time, which may optionally include the ending
+.\" time as well, which is of the format of [date:]time[-[date:]time].
+.\" The leading 0 of the hour is optional and if the seconds field is not specified
+.\" is assumed to be 0.  If no dates specified the time(s) apply to each file specified
+.\" by \-P.  Otherwise the time(s) only apply to the first/last dates and any files
+.\" between those dates will have all their data reported. 
+.\" .RE
+.\" 
+.B "\-p, --playback filename"
+.RS
+Read data from the specified PCP archive folio files(s) \- refer to
+.BR pmafm (1)
+for archive folio details.
+.RE
+.PP
+.B "\-a, --archive filename"
+.RS
+Read data from the specified PCP raw archive files(s). The argument is
+a comma-separated list of names, each
+of which may be the base name of an archive or the name of a directory containing
+one or more archives.
+.RE
+.PP
+.\" .B "--thru time"
+.\" .RS
+.\" Time thru which to play back a raw file.  See --from for more
+.\" .RE
+.SH "COMMON OPTIONS"
+The following options are supported in both record and playback modes.
+.PP
+.B \--help
+.RS
+Display standard help message.
+.RE
+.PP
+.\" 
+.\" .B --hr, --headerrepeat num
+.\" .RS
+.\" Sets the number of intervals to display data for before repeating the header.
+.\" A value \-1 will prevent any headers from being displayed and a value of 0
+.\" will cause only a single header to be displayed and never repeated.
+.\" .RE
+.\" 
+.\" .B \-N, --nice
+.\" .RS
+.\" Set priority to a 
+.\" .BR nicer
+.\" one of 10.
+.RE
+.B "\-s, --subsys subsystem"
+.RS
+This field controls which subsystem data is to be collected or played back
+for. The rules for displaying results vary depending on the type of data to be
+displayed.  If you write data for CPUs and DISKs to a raw file and play it back
+with \-sc, you will only see CPU data.  If you play it back with \f3\-scm\f1 you
+will still only see CPU data since memory data was not collected.  
+.\" However, when  used with \f3\-P\f1,
+.\" .B pcp-collectl
+.\" will always honor the subsystems specified with 
+.\" this switch so in the previous example you will see CPU
+.\" data plus memory data of all 0s.  
+To see the current set of default subsystems,
+which are a subset of this full list,
+use \f3\-h\f1.
+.PP
+.\" You can also use + or \- to add or subtract subsystems to/from the default values. 
+.\" For example, "\-s\-cdn+N"< will remove cpu, disk and network monitoring from the
+.\" defaults while adding network detail.
+.PP
+The default is "cdn", which stands for CPU, Disk and Network summary data.
+.TP
+.B "SUMMARY SUBSYSTEMS"
+.PP
+.\" .br
+.\" b \- buddy info (memory fragmentation)
+.br
+c \- CPU
+.br
+d \- Disk
+.br
+f \- NFS V3 Data
+.br
+.\" i \- Inode and File System
+.\" .br
+j \- Interrupts
+.br
+.\" l \- Lustre
+.\" .br
+m \- Memory
+.br
+n \- Networks
+.\" .br
+.\" s \- Sockets
+.\" .br
+.\" t \- TCP
+.\" .br
+.\" x \- Interconnect
+.\" .br
+.\" y \- Slabs (system object caches)
+.RS
+.RE
+.PP
+.TP
+.B "DETAIL SUBSYSTEMS"
+.PP
+This is the set of 
+.BR detail
+data from which in most cases the corresponding summary data is
+derived.
+So, if one has 3 disks and chooses 
+.B \-sd,
+one will only see a single total taken
+across all 3 disks.  If one
+chooses 
+.B \-sD,
+individual disk totals will be reported but no totals.  
+.\" Choosing .B \-sdD will get you both.
+.PP
+.br
+C \- CPU
+.br
+D \- Disk
+.br
+F \- NFS Data
+.br
+J \- Interrupts
+.br
+.\" L \- Lustre OST detail OR client Filesystem detail
+.\" .br
+M \- Memory node data, which is also known as NUMA data
+.br
+N \- Networks
+.\" .br
+.\" T \- 65 TCP counters only available in plot format
+.\" .br
+.\" X \- Interconnect
+.\" .br
+.\" Y \- Slabs (system object caches)
+.\" .br
+.\" Z \- Processes
+.RE
+.PP
+.\" .B \-w
+.\" .RS
+.\" Disply data in
+.\" .BR wide
+.\" mode.  When displaying data on the terminal, some data is formatted followed 
+.\" by a K, M or G as appropriate.  Selecting this switch will cause the 
+.\" full field to be displayed.  Note that there is no attempt 
+.\" to align data with the column headings in this mode.
+.\" .RE
+.PD
+.B --verbose
+.RS
+Display output in verbose mode.  This often displays more data than in the default mode.  When 
+displaying detail data, verbose mode is forced.  Furthermore, if summary data for a single 
+subsystem is to be displayed in verbose mode, the headers are only repeated occasionally whereas
+if multiple subsystems are involved each needs their own header.
+.RE
+.PP
+.SH "SEE ALSO"
+.BR PCPIntro (1),
+.BR collectl (1),
+.BR collectl2pcp (1),
+.BR perl (1),
+.BR python (1),
+.BR pmlogger (1),
+.BR pmcd (1),
+.BR pmafm (1),
+.BR pmprobe (1),
+.BR pmrep (1),
+.BR PMAPI (3),
+and
+.BR pcp.conf (5).

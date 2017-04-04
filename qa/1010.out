@@ -1,0 +1,160 @@
+QA output created by 1010
+
+pmdumptext   -umN
+Time sample.hordes.one["3"] sample.double.ten sample.double.hundred sample.double.million sample.double.ten sample.double.hundred sample.double.million
+? 0.000 0.000 0.000 0.000 0.500 -0.003 0.000
+none none none none none none none none
+VERY_VERY_LONG_TIME ? ? ? ? ? ? ?
+VERY_VERY_LONG_TIME 3.000 10.000 100.000 1000000.000 20.000 -30303.030 17857142857.143
+VERY_VERY_LONG_TIME 3.000 10.000 100.000 1000000.000 20.000 -30303.030 17857142857.143
+
+pmdumptext  -M -umN
+[ 1] sample.hordes.one["3"]
+[ 2] sample.double.ten
+[ 3] sample.double.hundred
+[ 4] sample.double.million
+[ 5] sample.double.ten
+[ 6] sample.double.hundred
+[ 7] sample.double.million
+
+     1     2     3     4     5     6     7
+Time sample.hordes.one["3"] sample.double.ten sample.double.hundred sample.double.million sample.double.ten sample.double.hundred sample.double.million
+? 0.000 0.000 0.000 0.000 0.500 -0.003 0.000
+none none none none none none none none
+VERY_VERY_LONG_TIME ? ? ? ? ? ? ?
+VERY_VERY_LONG_TIME 3.000 10.000 100.000 1000000.000 20.000 -30303.030 17857142857.143
+VERY_VERY_LONG_TIME 3.000 10.000 100.000 1000000.000 20.000 -30303.030 17857142857.143
+
+pmdumptext  -F -umN
+Time sample.hordes.one["3"] sample.double.ten sample.double.hundred sample.double.million sample.double.ten sample.double.hundred sample.double.million
+?  0.00   0.00   0.00   0.00   0.50   0.00    0.00 
+none none none none none none none none
+VERY_VERY_LONG_TIME ? ? ? ? ? ? ?
+VERY_VERY_LONG_TIME  3.00  10.00   0.10K  1.00M 20.00  -0.03M 17.86G
+VERY_VERY_LONG_TIME  3.00  10.00   0.10K  1.00M 20.00  -0.03M 17.86G
+
+pmdumptext  -G -umN
+Time sample.hordes.one["3"] sample.double.ten sample.double.hundred sample.double.million sample.double.ten sample.double.hundred sample.double.million
+?    0    0    0    0  0.5 -0.0033 5.6e-05
+none none none none none none none none
+VERY_VERY_LONG_TIME ? ? ? ? ? ? ?
+VERY_VERY_LONG_TIME 3 10 100 1e+06 20 -3.03e+04 1.79e+10
+VERY_VERY_LONG_TIME 3 10 100 1e+06 20 -3.03e+04 1.79e+10
+
+pmdumptext  -f %H:%M:%S -umN
+Time sample.hordes.one["3"] sample.double.ten sample.double.hundred sample.double.million sample.double.ten sample.double.hundred sample.double.million
+? 0.000 0.000 0.000 0.000 0.500 -0.003 0.000
+none none none none none none none none
+SHRTTIME ? ? ? ? ? ? ?
+SHRTTIME 3.000 10.000 100.000 1000000.000 20.000 -30303.030 17857142857.143
+SHRTTIME 3.000 10.000 100.000 1000000.000 20.000 -30303.030 17857142857.143
+
+pmdumptext -i  -umN
+             Metric    one    ten undred illion    ten undred illion
+               Inst      3    n/a    n/a    n/a    n/a    n/a    n/a
+             Normal  0.00   0.00   0.00   0.00   0.50   0.00    0.00 
+              Units   none   none   none   none   none   none   none
+VERY_VERY_LONG_TIME      ?      ?      ?      ?      ?      ?      ?
+VERY_VERY_LONG_TIME  3.00  10.00   0.10K  1.00M 20.00  -0.03M 17.86G
+VERY_VERY_LONG_TIME  3.00  10.00   0.10K  1.00M 20.00  -0.03M 17.86G
+
+pmdumptext -i -M -umN
+[ 1] sample.hordes.one["3"]
+[ 2] sample.double.ten
+[ 3] sample.double.hundred
+[ 4] sample.double.million
+[ 5] sample.double.ten
+[ 6] sample.double.hundred
+[ 7] sample.double.million
+
+             Column      1      2      3      4      5      6      7
+             Metric    one    ten undred illion    ten undred illion
+               Inst      3    n/a    n/a    n/a    n/a    n/a    n/a
+             Normal  0.00   0.00   0.00   0.00   0.50   0.00    0.00 
+              Units   none   none   none   none   none   none   none
+VERY_VERY_LONG_TIME      ?      ?      ?      ?      ?      ?      ?
+VERY_VERY_LONG_TIME  3.00  10.00   0.10K  1.00M 20.00  -0.03M 17.86G
+VERY_VERY_LONG_TIME  3.00  10.00   0.10K  1.00M 20.00  -0.03M 17.86G
+
+pmdumptext -i -F -umN
+             Metric    one    ten undred illion    ten undred illion
+               Inst      3    n/a    n/a    n/a    n/a    n/a    n/a
+             Normal  0.00   0.00   0.00   0.00   0.50   0.00    0.00 
+              Units   none   none   none   none   none   none   none
+VERY_VERY_LONG_TIME      ?      ?      ?      ?      ?      ?      ?
+VERY_VERY_LONG_TIME  3.00  10.00   0.10K  1.00M 20.00  -0.03M 17.86G
+VERY_VERY_LONG_TIME  3.00  10.00   0.10K  1.00M 20.00  -0.03M 17.86G
+
+pmdumptext -i -G -umN
+pmdumptext: -i and -G may not be used together
+Usage: pmdumptext [options] [metrics ...]
+
+General options:
+...:
+
+Reporting options:
+...:
+
+pmdumptext -i -f %H:%M:%S -umN
+  Metric    one    ten undred illion    ten undred illion
+    Inst      3    n/a    n/a    n/a    n/a    n/a    n/a
+  Normal  0.00   0.00   0.00   0.00   0.50   0.00    0.00 
+   Units   none   none   none   none   none   none   none
+SHRTTIME      ?      ?      ?      ?      ?      ?      ?
+SHRTTIME  3.00  10.00   0.10K  1.00M 20.00  -0.03M 17.86G
+SHRTTIME  3.00  10.00   0.10K  1.00M 20.00  -0.03M 17.86G
+
+pmdumptext -i -w 10  -umN
+             Metric hordes.one double.ten    hundred    million double.ten    hundred    million
+               Inst          3        n/a        n/a        n/a        n/a        n/a        n/a
+             Normal      0.00       0.00       0.00       0.00       0.50      0.00        0.00 
+              Units       none       none       none       none       none       none       none
+VERY_VERY_LONG_TIME          ?          ?          ?          ?          ?          ?          ?
+VERY_VERY_LONG_TIME      3.00      10.00       0.10K      1.00M     20.00      -0.03M     17.86G
+VERY_VERY_LONG_TIME      3.00      10.00       0.10K      1.00M     20.00      -0.03M     17.86G
+
+pmdumptext -i -w 10 -M -umN
+[ 1] sample.hordes.one["3"]
+[ 2] sample.double.ten
+[ 3] sample.double.hundred
+[ 4] sample.double.million
+[ 5] sample.double.ten
+[ 6] sample.double.hundred
+[ 7] sample.double.million
+
+             Column          1          2          3          4          5          6          7
+             Metric hordes.one double.ten    hundred    million double.ten    hundred    million
+               Inst          3        n/a        n/a        n/a        n/a        n/a        n/a
+             Normal      0.00       0.00       0.00       0.00       0.50      0.00        0.00 
+              Units       none       none       none       none       none       none       none
+VERY_VERY_LONG_TIME          ?          ?          ?          ?          ?          ?          ?
+VERY_VERY_LONG_TIME      3.00      10.00       0.10K      1.00M     20.00      -0.03M     17.86G
+VERY_VERY_LONG_TIME      3.00      10.00       0.10K      1.00M     20.00      -0.03M     17.86G
+
+pmdumptext -i -w 10 -F -umN
+             Metric hordes.one double.ten    hundred    million double.ten    hundred    million
+               Inst          3        n/a        n/a        n/a        n/a        n/a        n/a
+             Normal      0.00       0.00       0.00       0.00       0.50      0.00        0.00 
+              Units       none       none       none       none       none       none       none
+VERY_VERY_LONG_TIME          ?          ?          ?          ?          ?          ?          ?
+VERY_VERY_LONG_TIME      3.00      10.00       0.10K      1.00M     20.00      -0.03M     17.86G
+VERY_VERY_LONG_TIME      3.00      10.00       0.10K      1.00M     20.00      -0.03M     17.86G
+
+pmdumptext -i -w 10 -G -umN
+pmdumptext: -i and -G may not be used together
+Usage: pmdumptext [options] [metrics ...]
+
+General options:
+...:
+
+Reporting options:
+...:
+
+pmdumptext -i -w 10 -f %H:%M:%S -umN
+  Metric hordes.one double.ten    hundred    million double.ten    hundred    million
+    Inst          3        n/a        n/a        n/a        n/a        n/a        n/a
+  Normal      0.00       0.00       0.00       0.00       0.50      0.00        0.00 
+   Units       none       none       none       none       none       none       none
+SHRTTIME          ?          ?          ?          ?          ?          ?          ?
+SHRTTIME      3.00      10.00       0.10K      1.00M     20.00      -0.03M     17.86G
+SHRTTIME      3.00      10.00       0.10K      1.00M     20.00      -0.03M     17.86G

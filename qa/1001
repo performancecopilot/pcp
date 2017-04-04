@@ -1,0 +1,26 @@
+#!/bin/sh
+# PCP QA Test No. 1001
+# Basic config file error checking
+#
+seq=`basename $0`
+echo "QA output created by $seq"
+
+status=0	# success is the default!
+. ./common.qt
+trap "_cleanup_qt; exit \$status" 0 1 2 3 15
+
+_check_display
+which pmchart >/dev/null 2>&1 || _notrun "pmchart not installed"
+
+# real QA test starts here
+echo "=== bad first line ==="
+echo "#bad extra" | pmchart -Dappl2 -C -c - 2>&1 | _filter_views
+
+echo
+echo "=== lexicon too long ==="
+cat <<End-of-File | pmchart -Dappl2 -C -c - 2>&1 | _filter_views
+#pmchart
+aaaaaaaaaaaaaaaaaaaabbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbccccccccccccccccccccXXXXXXXXXXXXXXXXXXX
+End-of-File
+
+exit

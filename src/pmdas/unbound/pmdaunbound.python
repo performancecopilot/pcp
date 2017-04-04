@@ -1,0 +1,1367 @@
+#!/usr/bin/env pmpython
+'''
+Performance Metrics Domain Agent exporting Unbound statistics.
+'''
+#
+# Copyright (c) 2014 Jan-Frode Myklebust <janfrode@tanso.net>.
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+
+import cpmapi as c_api
+from pcp.pmapi import pmUnits
+from pcp.pmda import PMDA, pmdaMetric, pmdaIndom
+from subprocess import Popen, PIPE
+from os import getenv
+import shlex
+import sys
+if sys.version >= '3':
+    long = int	# python2 to python3 portability (no long() in python3)
+
+class UnboundPMDA(PMDA):
+    '''
+    Performance Metrics Domain Agent exporting Unbound metrics.
+    Install it and make basic use of it if you use Unbound, as follows:
+
+    # $PCP_PMDAS_DIR/unbound/Install
+    $ pminfo -fmdtT unbound
+    '''
+
+    def unbound_fetch(self):
+        '''
+        Called once per PCP "fetch" PDU from pmcd(1)
+        Iterates over the unbound statistics,
+        '''
+        p = Popen(self.unboundctl, stdin=PIPE, stdout=PIPE, stderr=PIPE)
+        p.wait()
+        try:
+            stdout, stderr = p.communicate()
+            stdoutlines = stdout.decode().strip()
+            for line in stdoutlines.split('\n'):
+                keyval = line.split('=')
+                if keyval[0].startswith( 'histogram' ):
+                    # Replace "." with "_" to avoid splitting metric name in multiple sub sections
+                    keyval[0] = "histogram." + "_".join(str(v) for v in keyval[0].split(".")[1:])
+                # only try to populate known metrics:
+                if keyval[0] in self.values:
+                    if (
+                        keyval[0] == "time.now" or
+                        keyval[0] == "time.up" or
+                        keyval[0] == "time.elapsed" or
+                        keyval[0] == "total.requestlist.avg" or
+                        keyval[0] == "total.recursion.time.avg" or
+                        keyval[0] == "total.recursion.time.median"
+                       ):
+                          self.values[keyval[0]] = float(keyval[1])
+                    else:
+                          self.values[keyval[0]] = long(keyval[1])
+        except OSError:
+            pass
+
+    def unbound_fetch_callback(self, cluster, item, inst):
+        '''
+        Main fetch callback - looks up value associated with requested PMID
+        (from unbound_fetch), converts units if needed, then returns a list of
+        value,status (single pair) for the requested pmid
+        '''
+        # self.log("fetch callback for %d.%d[%d]" % (cluster, item, inst))
+        if inst != c_api.PM_IN_NULL:
+            return [c_api.PM_ERR_INST, 0]
+        elif cluster != 0:
+            return [c_api.PM_ERR_PMID, 0]
+        if item >= 0 and item < self.nmetrics and self.patherrors == 1:
+            return [c_api.PM_ERR_AGAIN, 0]
+
+        if item == 0:
+            return [self.values['total.num.queries'], 1]
+        elif item == 1:
+            return [self.values['total.num.cachehits'], 1]
+        elif item == 2:
+            return [self.values['total.num.cachemiss'], 1]
+        elif item == 3:
+            return [self.values['total.num.prefetch'], 1]
+        elif item == 4:
+            return [self.values['total.num.recursivereplies'], 1]
+        elif item == 5:
+            return [self.values['total.requestlist.avg'], 1]
+        elif item == 6:
+            return [self.values['total.requestlist.max'], 1]
+        elif item == 7:
+            return [self.values['total.requestlist.overwritten'], 1]
+        elif item == 8:
+            return [self.values['total.requestlist.exceeded'], 1]
+        elif item == 9:
+            return [self.values['total.requestlist.current.all'], 1]
+        elif item == 10:
+            return [self.values['total.requestlist.current.user'], 1]
+        elif item == 11:
+            return [self.values['total.recursion.time.avg'], 1]
+        elif item == 12:
+            return [self.values['total.recursion.time.median'], 1]
+        elif item == 13:
+            return [self.values['unwanted.queries'], 1]
+        elif item == 14:
+            return [self.values['unwanted.replies'], 1]
+        elif item == 15:
+            return [self.values['num.answer.rcode.NOERROR'], 1]
+        elif item == 16:
+            return [self.values['num.answer.rcode.FORMERR'], 1]
+        elif item == 17:
+            return [self.values['num.answer.rcode.SERVFAIL'], 1]
+        elif item == 18:
+            return [self.values['num.answer.rcode.NXDOMAIN'], 1]
+        elif item == 19:
+            return [self.values['num.answer.rcode.REFUSED'], 1]
+        elif item == 20:
+            return [self.values['num.answer.rcode.nodata'], 1]
+        elif item == 21:
+            return [self.values['num.answer.secure'], 1]
+        elif item == 22:
+            return [self.values['num.answer.bogus'], 1]
+        elif item == 23:
+            return [self.values['num.rrset.bogus'], 1]
+        elif item == 24:
+            return [self.values['num.query.type.TYPE0'], 1]
+        elif item == 25:
+            return [self.values['num.query.type.A'], 1]
+        elif item == 26:
+            return [self.values['num.query.type.NS'], 1]
+        elif item == 27:
+            return [self.values['num.query.type.MD'], 1]
+        elif item == 28:
+            return [self.values['num.query.type.MF'], 1]
+        elif item == 29:
+            return [self.values['num.query.type.CNAME'], 1]
+        elif item == 30:
+            return [self.values['num.query.type.SOA'], 1]
+        elif item == 31:
+            return [self.values['num.query.type.MB'], 1]
+        elif item == 32:
+            return [self.values['num.query.type.MG'], 1]
+        elif item == 33:
+            return [self.values['num.query.type.MR'], 1]
+        elif item == 34:
+            return [self.values['num.query.type.NULL'], 1]
+        elif item == 35:
+            return [self.values['num.query.type.WKS'], 1]
+        elif item == 36:
+            return [self.values['num.query.type.PTR'], 1]
+        elif item == 37:
+            return [self.values['num.query.type.HINFO'], 1]
+        elif item == 38:
+            return [self.values['num.query.type.MINFO'], 1]
+        elif item == 39:
+            return [self.values['num.query.type.MX'], 1]
+        elif item == 40:
+            return [self.values['num.query.type.TXT'], 1]
+        elif item == 41:
+            return [self.values['num.query.type.RP'], 1]
+        elif item == 42:
+            return [self.values['num.query.type.AFSDB'], 1]
+        elif item == 43:
+            return [self.values['num.query.type.X25'], 1]
+        elif item == 44:
+            return [self.values['num.query.type.ISDN'], 1]
+        elif item == 45:
+            return [self.values['num.query.type.RT'], 1]
+        elif item == 46:
+            return [self.values['num.query.type.AAAA'], 1]
+        elif item == 47:
+            return [self.values['num.query.type.SRV'], 1]
+        elif item == 48:
+            return [self.values['num.query.type.ATMA'], 1]
+        elif item == 49:
+            return [self.values['num.query.type.NAPTR'], 1]
+        elif item == 50:
+            return [self.values['num.query.type.A6'], 1]
+        elif item == 51:
+            return [self.values['num.query.type.DS'], 1]
+        elif item == 52:
+            return [self.values['num.query.type.SSHFP'], 1]
+        elif item == 53:
+            return [self.values['num.query.type.RRSIG'], 1]
+        elif item == 54:
+            return [self.values['num.query.type.NSEC'], 1]
+        elif item == 55:
+            return [self.values['num.query.type.DNSKEY'], 1]
+        elif item == 56:
+            return [self.values['num.query.type.TLSA'], 1]
+        elif item == 57:
+            return [self.values['num.query.type.TYPE65'], 1]
+        elif item == 58:
+            return [self.values['num.query.type.TYPE67'], 1]
+        elif item == 59:
+            return [self.values['num.query.type.TYPE76'], 1]
+        elif item == 60:
+            return [self.values['num.query.type.TYPE97'], 1]
+        elif item == 61:
+            return [self.values['num.query.type.SPF'], 1]
+        elif item == 62:
+            return [self.values['num.query.type.TYPE103'], 1]
+        elif item == 63:
+            return [self.values['num.query.type.EUI64'], 1]
+        elif item == 64:
+            return [self.values['num.query.type.TYPE110'], 1]
+        elif item == 65:
+            return [self.values['num.query.type.TYPE117'], 1]
+        elif item == 66:
+            return [self.values['num.query.type.TYPE119'], 1]
+        elif item == 67:
+            return [self.values['num.query.type.TYPE123'], 1]
+        elif item == 68:
+            return [self.values['num.query.type.TKEY'], 1]
+        elif item == 69:
+            return [self.values['num.query.type.IXFR'], 1]
+        elif item == 70:
+            return [self.values['num.query.type.AXFR'], 1]
+        elif item == 71:
+            return [self.values['num.query.type.ANY'], 1]
+        elif item == 72:
+            return [self.values['num.query.type.other'], 1]
+        elif item == 73:
+            return [self.values['num.query.class.CLASS0'], 1]
+        elif item == 74:
+            return [self.values['num.query.class.IN'], 1]
+        elif item == 75:
+            return [self.values['num.query.class.CH'], 1]
+        elif item == 76:
+            return [self.values['num.query.class.CLASS6'], 1]
+        elif item == 77:
+            return [self.values['num.query.class.CLASS65'], 1]
+        elif item == 78:
+            return [self.values['num.query.class.CLASS115'], 1]
+        elif item == 79:
+            return [self.values['num.query.class.CLASS240'], 1]
+        elif item == 80:
+            return [self.values['num.query.class.ANY'], 1]
+        elif item == 81:
+            return [self.values['num.query.class.other'], 1]
+        elif item == 82:
+            return [self.values['num.query.opcode.QUERY'], 1]
+        elif item == 83:
+            return [self.values['num.query.tcp'], 1]
+        elif item == 84:
+            return [self.values['num.query.ipv6'], 1]
+        elif item == 85:
+            return [self.values['num.query.flags.QR'], 1]
+        elif item == 86:
+            return [self.values['num.query.flags.AA'], 1]
+        elif item == 87:
+            return [self.values['num.query.flags.TC'], 1]
+        elif item == 88:
+            return [self.values['num.query.flags.RD'], 1]
+        elif item == 89:
+            return [self.values['num.query.flags.RA'], 1]
+        elif item == 90:
+            return [self.values['num.query.flags.Z'], 1]
+        elif item == 91:
+            return [self.values['num.query.flags.AD'], 1]
+        elif item == 92:
+            return [self.values['num.query.flags.CD'], 1]
+        elif item == 93:
+            return [self.values['num.query.edns.present'], 1]
+        elif item == 94:
+            return [self.values['num.query.edns.DO'], 1]
+        elif item == 95:
+            return [self.values['mem.total.sbrk'], 1]
+        elif item == 96:
+            return [self.values['mem.cache.rrset'], 1]
+        elif item == 97:
+            return [self.values['mem.cache.message'], 1]
+        elif item == 98:
+            return [self.values['mem.mod.iterator'], 1]
+        elif item == 99:
+            return [self.values['mem.mod.validator'], 1]
+        elif item == 100:
+            return [self.values['histogram.000000_000000_to_000000_000001'], 1]
+        elif item == 101:
+            return [self.values['histogram.000000_000001_to_000000_000002'], 1]
+        elif item == 102:
+            return [self.values['histogram.000000_000002_to_000000_000004'], 1]
+        elif item == 103:
+            return [self.values['histogram.000000_000004_to_000000_000008'], 1]
+        elif item == 104:
+            return [self.values['histogram.000000_000008_to_000000_000016'], 1]
+        elif item == 105:
+            return [self.values['histogram.000000_000016_to_000000_000032'], 1]
+        elif item == 106:
+            return [self.values['histogram.000000_000032_to_000000_000064'], 1]
+        elif item == 107:
+            return [self.values['histogram.000000_000064_to_000000_000128'], 1]
+        elif item == 108:
+            return [self.values['histogram.000000_000128_to_000000_000256'], 1]
+        elif item == 109:
+            return [self.values['histogram.000000_000256_to_000000_000512'], 1]
+        elif item == 110:
+            return [self.values['histogram.000000_000512_to_000000_001024'], 1]
+        elif item == 111:
+            return [self.values['histogram.000000_001024_to_000000_002048'], 1]
+        elif item == 112:
+            return [self.values['histogram.000000_002048_to_000000_004096'], 1]
+        elif item == 113:
+            return [self.values['histogram.000000_004096_to_000000_008192'], 1]
+        elif item == 114:
+            return [self.values['histogram.000000_008192_to_000000_016384'], 1]
+        elif item == 115:
+            return [self.values['histogram.000000_016384_to_000000_032768'], 1]
+        elif item == 116:
+            return [self.values['histogram.000000_032768_to_000000_065536'], 1]
+        elif item == 117:
+            return [self.values['histogram.000000_065536_to_000000_131072'], 1]
+        elif item == 118:
+            return [self.values['histogram.000000_131072_to_000000_262144'], 1]
+        elif item == 119:
+            return [self.values['histogram.000000_262144_to_000000_524288'], 1]
+        elif item == 120:
+            return [self.values['histogram.000000_524288_to_000001_000000'], 1]
+        elif item == 121:
+            return [self.values['histogram.000001_000000_to_000002_000000'], 1]
+        elif item == 122:
+            return [self.values['histogram.000002_000000_to_000004_000000'], 1]
+        elif item == 123:
+            return [self.values['histogram.000004_000000_to_000008_000000'], 1]
+        elif item == 124:
+            return [self.values['histogram.000008_000000_to_000016_000000'], 1]
+        elif item == 125:
+            return [self.values['histogram.000016_000000_to_000032_000000'], 1]
+        elif item == 126:
+            return [self.values['histogram.000032_000000_to_000064_000000'], 1]
+        elif item == 127:
+            return [self.values['histogram.000064_000000_to_000128_000000'], 1]
+        elif item == 128:
+            return [self.values['histogram.000128_000000_to_000256_000000'], 1]
+        elif item == 129:
+            return [self.values['histogram.000256_000000_to_000512_000000'], 1]
+        elif item == 130:
+            return [self.values['histogram.000512_000000_to_001024_000000'], 1]
+        elif item == 131:
+            return [self.values['histogram.001024_000000_to_002048_000000'], 1]
+        elif item == 132:
+            return [self.values['histogram.002048_000000_to_004096_000000'], 1]
+        elif item == 133:
+            return [self.values['histogram.004096_000000_to_008192_000000'], 1]
+        elif item == 134:
+            return [self.values['histogram.008192_000000_to_016384_000000'], 1]
+        elif item == 135:
+            return [self.values['histogram.016384_000000_to_032768_000000'], 1]
+        elif item == 136:
+            return [self.values['histogram.032768_000000_to_065536_000000'], 1]
+        elif item == 137:
+            return [self.values['histogram.065536_000000_to_131072_000000'], 1]
+        elif item == 138:
+            return [self.values['histogram.131072_000000_to_262144_000000'], 1]
+        elif item == 139:
+            return [self.values['histogram.262144_000000_to_524288_000000'], 1]
+        return [c_api.PM_ERR_PMID, 0]
+
+    def setup_unbound_metrics(self, name):
+        '''
+        Setup the metric table - ensure a values hash entry is setup for
+        each metric; that way we don't need to worry about KeyErrors in
+        the fetch callback routine (e.g. if the kernel interface changes).
+        '''
+        self.values['total.num.queries'] = 0
+        self.add_metric(name + '.total.num.queries', pmdaMetric(
+                self.pmid(0, 0),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'Total number of queries received from all threads.')
+
+        self.values['total.num.cachehits'] = 0
+        self.add_metric(name + '.total.num.cachehits', pmdaMetric(
+                self.pmid(0, 1),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'Total number of queries that were successfully answered using a cache lookup.')
+
+        self.values['total.num.cachemiss'] = 0
+        self.add_metric(name + '.total.num.cachemiss', pmdaMetric(
+                self.pmid(0, 2),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'Total number of queries that needed recursive processing.')
+
+        self.values['total.num.prefetch'] = 0
+        self.add_metric(name + '.total.num.prefetch', pmdaMetric(
+                self.pmid(0, 3),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'Total number cache prefetches performed.')
+
+        self.values['total.num.recursivereplies'] = 0
+        self.add_metric(name + '.total.num.recursivereplies', pmdaMetric(
+                self.pmid(0, 4),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'Total number of replies sent to queries that needed recursive processing.')
+
+        self.values['total.requestlist.avg'] = 0
+        self.add_metric(name + '.total.requestlist.avg', pmdaMetric(
+                self.pmid(0, 5),
+                c_api.PM_TYPE_FLOAT, c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'Average number of requests in the internal recursive processing request list on insert of a new incoming recursive processing query.')
+
+        self.values['total.requestlist.max'] = 0
+        self.add_metric(name + '.total.requestlist.max', pmdaMetric(
+                self.pmid(0, 6),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'Maximum size attained by the internal recursive processing request list.')
+
+        self.values['total.requestlist.overwritten'] = 0
+        self.add_metric(name + '.total.requestlist.overwritten', pmdaMetric(
+                self.pmid(0, 7),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'Number of requests in the request list that were overwritten by newer entries.')
+
+        self.values['total.requestlist.exceeded'] = 0
+        self.add_metric(name + '.total.requestlist.exceeded', pmdaMetric(
+                self.pmid(0, 8),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'Queries that were dropped because the request list was full.')
+
+        self.values['total.requestlist.current.all'] = 0
+        self.add_metric(name + '.total.requestlist.current.all', pmdaMetric(
+                self.pmid(0, 9),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'Current size of the request list, includes internally generated queries.')
+
+        self.values['total.requestlist.current.user'] = 0
+        self.add_metric(name + '.total.requestlist.current.user', pmdaMetric(
+                self.pmid(0, 10),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'Current size of the request list, only the requests from client queries.')
+
+        self.values['total.recursion.time.avg'] = 0
+        self.add_metric(name + '.total.recursion.time.avg', pmdaMetric(
+                self.pmid(0, 11),
+                c_api.PM_TYPE_FLOAT, c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT,
+                pmUnits(0, 1, 0, 0, c_api.PM_TIME_SEC, 0)),
+        'Average time it took to answer queries that needed recursive processing.')
+
+        self.values['total.recursion.time.median'] = 0
+        self.add_metric(name + '.total.recursion.time.median', pmdaMetric(
+                self.pmid(0, 12),
+                c_api.PM_TYPE_FLOAT, c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT,
+                pmUnits(0, 1, 0, 0, c_api.PM_TIME_SEC, 0)),
+        'Median time it took to answer queries that needed recursive processing.')
+
+        self.values['unwanted.queries'] = 0
+        self.add_metric(name + '.unwanted.queries', pmdaMetric(
+                self.pmid(0, 13),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'Number of queries that were refused or dropped because they failed the access control settings.')
+
+        self.values['unwanted.replies'] = 0
+        self.add_metric(name + '.unwanted.replies', pmdaMetric(
+                self.pmid(0, 14),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'Replies that were unwanted or unsolicited.')
+
+        self.values['num.answer.rcode.NOERROR'] = 0
+        self.add_metric(name + '.num.answer.rcode.NOERROR', pmdaMetric(
+                self.pmid(0, 15),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'Number of answers that were without faults.')
+
+        self.values['num.answer.rcode.FORMERR'] = 0
+        self.add_metric(name + '.num.answer.rcode.FORMERR', pmdaMetric(
+                self.pmid(0, 16),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'Number of answers with format error.')
+
+        self.values['num.answer.rcode.SERVFAIL'] = 0
+        self.add_metric(name + '.num.answer.rcode.SERVFAIL', pmdaMetric(
+                self.pmid(0, 17),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'Number of answers with SERVFAIL.')
+
+        self.values['num.answer.rcode.NXDOMAIN'] = 0
+        self.add_metric(name + '.num.answer.rcode.NXDOMAIN', pmdaMetric(
+                self.pmid(0, 18),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'Number of answers with NXDOMAIN.')
+
+        self.values['num.answer.rcode.REFUSED'] = 0
+        self.add_metric(name + '.num.answer.rcode.REFUSED', pmdaMetric(
+                self.pmid(0, 19),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'Number of answers status REFUSED.')
+
+        self.values['num.answer.rcode.nodata'] = 0
+        self.add_metric(name + '.num.answer.rcode.nodata', pmdaMetric(
+                self.pmid(0, 20),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'The number of answers to queries that had the pseudo return code nodata.')
+
+        self.values['num.answer.secure'] = 0
+        self.add_metric(name + '.num.answer.secure', pmdaMetric(
+                self.pmid(0, 21),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'Number of answers that were secure.  The answer validated correctly.')
+
+        self.values['num.answer.bogus'] = 0
+        self.add_metric(name + '.num.answer.bogus', pmdaMetric(
+                self.pmid(0, 22),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'Number of answers that were bogus. Answer failed validation.')
+
+        self.values['num.rrset.bogus'] = 0
+        self.add_metric(name + '.num.rrset.bogus', pmdaMetric(
+                self.pmid(0, 23),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'The number of rrsets marked bogus by the validator.')
+
+        self.values['num.query.type.TYPE0'] = 0
+        self.add_metric(name + '.num.query.type.TYPE0', pmdaMetric(
+                self.pmid(0, 24),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'num.query.type.TYPE0')
+
+        self.values['num.query.type.A'] = 0
+        self.add_metric(name + '.num.query.type.A', pmdaMetric(
+                self.pmid(0, 25),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'num.query.type.A')
+
+        self.values['num.query.type.NS'] = 0
+        self.add_metric(name + '.num.query.type.NS', pmdaMetric(
+                self.pmid(0, 26),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'num.query.type.NS')
+
+        self.values['num.query.type.MD'] = 0
+        self.add_metric(name + '.num.query.type.MD', pmdaMetric(
+                self.pmid(0, 27),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'num.query.type.MD')
+
+        self.values['num.query.type.MF'] = 0
+        self.add_metric(name + '.num.query.type.MF', pmdaMetric(
+                self.pmid(0, 28),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'num.query.type.MF')
+
+        self.values['num.query.type.CNAME'] = 0
+        self.add_metric(name + '.num.query.type.CNAME', pmdaMetric(
+                self.pmid(0, 29),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'num.query.type.CNAME')
+
+        self.values['num.query.type.SOA'] = 0
+        self.add_metric(name + '.num.query.type.SOA', pmdaMetric(
+                self.pmid(0, 30),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'num.query.type.SOA')
+
+        self.values['num.query.type.MB'] = 0
+        self.add_metric(name + '.num.query.type.MB', pmdaMetric(
+                self.pmid(0, 31),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'num.query.type.MB')
+
+        self.values['num.query.type.MG'] = 0
+        self.add_metric(name + '.num.query.type.MG', pmdaMetric(
+                self.pmid(0, 32),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'num.query.type.MG')
+
+        self.values['num.query.type.MR'] = 0
+        self.add_metric(name + '.num.query.type.MR', pmdaMetric(
+                self.pmid(0, 33),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'num.query.type.MR')
+
+        self.values['num.query.type.NULL'] = 0
+        self.add_metric(name + '.num.query.type.NULL', pmdaMetric(
+                self.pmid(0, 34),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'num.query.type.NULL')
+
+        self.values['num.query.type.WKS'] = 0
+        self.add_metric(name + '.num.query.type.WKS', pmdaMetric(
+                self.pmid(0, 35),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'num.query.type.WKS')
+
+        self.values['num.query.type.PTR'] = 0
+        self.add_metric(name + '.num.query.type.PTR', pmdaMetric(
+                self.pmid(0, 36),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'num.query.type.PTR')
+
+        self.values['num.query.type.HINFO'] = 0
+        self.add_metric(name + '.num.query.type.HINFO', pmdaMetric(
+                self.pmid(0, 37),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'num.query.type.HINFO')
+
+        self.values['num.query.type.MINFO'] = 0
+        self.add_metric(name + '.num.query.type.MINFO', pmdaMetric(
+                self.pmid(0, 38),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'num.query.type.MINFO')
+
+        self.values['num.query.type.MX'] = 0
+        self.add_metric(name + '.num.query.type.MX', pmdaMetric(
+                self.pmid(0, 39),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'num.query.type.MX')
+
+        self.values['num.query.type.TXT'] = 0
+        self.add_metric(name + '.num.query.type.TXT', pmdaMetric(
+                self.pmid(0, 40),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'num.query.type.TXT')
+
+        self.values['num.query.type.RP'] = 0
+        self.add_metric(name + '.num.query.type.RP', pmdaMetric(
+                self.pmid(0, 41),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'num.query.type.RP')
+
+        self.values['num.query.type.AFSDB'] = 0
+        self.add_metric(name + '.num.query.type.AFSDB', pmdaMetric(
+                self.pmid(0, 42),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'num.query.type.AFSDB')
+
+        self.values['num.query.type.X25'] = 0
+        self.add_metric(name + '.num.query.type.X25', pmdaMetric(
+                self.pmid(0, 43),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'num.query.type.X25')
+
+        self.values['num.query.type.ISDN'] = 0
+        self.add_metric(name + '.num.query.type.ISDN', pmdaMetric(
+                self.pmid(0, 44),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'num.query.type.ISDN')
+
+        self.values['num.query.type.RT'] = 0
+        self.add_metric(name + '.num.query.type.RT', pmdaMetric(
+                self.pmid(0, 45),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'num.query.type.RT')
+
+        self.values['num.query.type.AAAA'] = 0
+        self.add_metric(name + '.num.query.type.AAAA', pmdaMetric(
+                self.pmid(0, 46),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'num.query.type.AAAA')
+
+        self.values['num.query.type.SRV'] = 0
+        self.add_metric(name + '.num.query.type.SRV', pmdaMetric(
+                self.pmid(0, 47),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'num.query.type.SRV')
+
+        self.values['num.query.type.ATMA'] = 0
+        self.add_metric(name + '.num.query.type.ATMA', pmdaMetric(
+                self.pmid(0, 48),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'num.query.type.ATMA')
+
+        self.values['num.query.type.NAPTR'] = 0
+        self.add_metric(name + '.num.query.type.NAPTR', pmdaMetric(
+                self.pmid(0, 49),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'num.query.type.NAPTR')
+
+        self.values['num.query.type.A6'] = 0
+        self.add_metric(name + '.num.query.type.A6', pmdaMetric(
+                self.pmid(0, 50),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'num.query.type.A6')
+
+        self.values['num.query.type.DS'] = 0
+        self.add_metric(name + '.num.query.type.DS', pmdaMetric(
+                self.pmid(0, 51),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'num.query.type.DS')
+
+        self.values['num.query.type.SSHFP'] = 0
+        self.add_metric(name + '.num.query.type.SSHFP', pmdaMetric(
+                self.pmid(0, 52),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'num.query.type.SSHFP')
+
+        self.values['num.query.type.RRSIG'] = 0
+        self.add_metric(name + '.num.query.type.RRSIG', pmdaMetric(
+                self.pmid(0, 53),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'num.query.type.RRSIG')
+
+        self.values['num.query.type.NSEC'] = 0
+        self.add_metric(name + '.num.query.type.NSEC', pmdaMetric(
+                self.pmid(0, 54),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'num.query.type.NSEC')
+
+        self.values['num.query.type.DNSKEY'] = 0
+        self.add_metric(name + '.num.query.type.DNSKEY', pmdaMetric(
+                self.pmid(0, 55),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'num.query.type.DNSKEY')
+
+        self.values['num.query.type.TLSA'] = 0
+        self.add_metric(name + '.num.query.type.TLSA', pmdaMetric(
+                self.pmid(0, 56),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'num.query.type.TLSA')
+
+        self.values['num.query.type.TYPE65'] = 0
+        self.add_metric(name + '.num.query.type.TYPE65', pmdaMetric(
+                self.pmid(0, 57),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'num.query.type.TYPE65')
+
+        self.values['num.query.type.TYPE67'] = 0
+        self.add_metric(name + '.num.query.type.TYPE67', pmdaMetric(
+                self.pmid(0, 58),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'num.query.type.TYPE67')
+
+        self.values['num.query.type.TYPE76'] = 0
+        self.add_metric(name + '.num.query.type.TYPE76', pmdaMetric(
+                self.pmid(0, 59),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'num.query.type.TYPE76')
+
+        self.values['num.query.type.TYPE97'] = 0
+        self.add_metric(name + '.num.query.type.TYPE97', pmdaMetric(
+                self.pmid(0, 60),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'num.query.type.TYPE97')
+
+        self.values['num.query.type.SPF'] = 0
+        self.add_metric(name + '.num.query.type.SPF', pmdaMetric(
+                self.pmid(0, 61),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'num.query.type.SPF')
+
+        self.values['num.query.type.TYPE103'] = 0
+        self.add_metric(name + '.num.query.type.TYPE103', pmdaMetric(
+                self.pmid(0, 62),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'num.query.type.TYPE103')
+
+        self.values['num.query.type.EUI64'] = 0
+        self.add_metric(name + '.num.query.type.EUI64', pmdaMetric(
+                self.pmid(0, 63),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'num.query.type.EUI64')
+
+        self.values['num.query.type.TYPE110'] = 0
+        self.add_metric(name + '.num.query.type.TYPE110', pmdaMetric(
+                self.pmid(0, 64),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'num.query.type.TYPE110')
+
+        self.values['num.query.type.TYPE117'] = 0
+        self.add_metric(name + '.num.query.type.TYPE117', pmdaMetric(
+                self.pmid(0, 65),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'num.query.type.TYPE117')
+
+        self.values['num.query.type.TYPE119'] = 0
+        self.add_metric(name + '.num.query.type.TYPE119', pmdaMetric(
+                self.pmid(0, 66),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'num.query.type.TYPE119')
+
+        self.values['num.query.type.TYPE123'] = 0
+        self.add_metric(name + '.num.query.type.TYPE123', pmdaMetric(
+                self.pmid(0, 67),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'num.query.type.TYPE123')
+
+        self.values['num.query.type.TKEY'] = 0
+        self.add_metric(name + '.num.query.type.TKEY', pmdaMetric(
+                self.pmid(0, 68),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'num.query.type.TKEY')
+
+        self.values['num.query.type.IXFR'] = 0
+        self.add_metric(name + '.num.query.type.IXFR', pmdaMetric(
+                self.pmid(0, 69),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'num.query.type.IXFR')
+
+        self.values['num.query.type.AXFR'] = 0
+        self.add_metric(name + '.num.query.type.AXFR', pmdaMetric(
+                self.pmid(0, 70),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'num.query.type.AXFR')
+
+        self.values['num.query.type.ANY'] = 0
+        self.add_metric(name + '.num.query.type.ANY', pmdaMetric(
+                self.pmid(0, 71),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'num.query.type.ANY')
+
+        self.values['num.query.type.other'] = 0
+        self.add_metric(name + '.num.query.type.other', pmdaMetric(
+                self.pmid(0, 72),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'num.query.type.other')
+
+        self.values['num.query.class.CLASS0'] = 0
+        self.add_metric(name + '.num.query.class.CLASS0', pmdaMetric(
+                self.pmid(0, 73),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'num.query.class.CLASS0')
+
+        self.values['num.query.class.IN'] = 0
+        self.add_metric(name + '.num.query.class.IN', pmdaMetric(
+                self.pmid(0, 74),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'num.query.class.IN')
+
+        self.values['num.query.class.CH'] = 0
+        self.add_metric(name + '.num.query.class.CH', pmdaMetric(
+                self.pmid(0, 75),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'num.query.class.CH')
+
+        self.values['num.query.class.CLASS6'] = 0
+        self.add_metric(name + '.num.query.class.CLASS6', pmdaMetric(
+                self.pmid(0, 76),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'num.query.class.CLASS6')
+
+        self.values['num.query.class.CLASS65'] = 0
+        self.add_metric(name + '.num.query.class.CLASS65', pmdaMetric(
+                self.pmid(0, 77),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'num.query.class.CLASS65')
+
+        self.values['num.query.class.CLASS115'] = 0
+        self.add_metric(name + '.num.query.class.CLASS115', pmdaMetric(
+                self.pmid(0, 78),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'num.query.class.CLASS115')
+
+        self.values['num.query.class.CLASS240'] = 0
+        self.add_metric(name + '.num.query.class.CLASS240', pmdaMetric(
+                self.pmid(0, 79),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'num.query.class.CLASS240')
+
+        self.values['num.query.class.ANY'] = 0
+        self.add_metric(name + '.num.query.class.ANY', pmdaMetric(
+                self.pmid(0, 80),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'num.query.class.ANY')
+
+        self.values['num.query.class.other'] = 0
+        self.add_metric(name + '.num.query.class.other', pmdaMetric(
+                self.pmid(0, 81),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'num.query.class.other')
+
+        self.values['num.query.opcode.QUERY'] = 0
+        self.add_metric(name + '.num.query.opcode.QUERY', pmdaMetric(
+                self.pmid(0, 82),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'num.query.opcode.QUERY')
+
+        self.values['num.query.tcp'] = 0
+        self.add_metric(name + '.num.query.tcp', pmdaMetric(
+                self.pmid(0, 83),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'num.query.tcp')
+
+        self.values['num.query.ipv6'] = 0
+        self.add_metric(name + '.num.query.ipv6', pmdaMetric(
+                self.pmid(0, 84),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'num.query.ipv6')
+
+        self.values['num.query.flags.QR'] = 0
+        self.add_metric(name + '.num.query.flags.QR', pmdaMetric(
+                self.pmid(0, 85),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'num.query.flags.QR')
+
+        self.values['num.query.flags.AA'] = 0
+        self.add_metric(name + '.num.query.flags.AA', pmdaMetric(
+                self.pmid(0, 86),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'num.query.flags.AA')
+
+        self.values['num.query.flags.TC'] = 0
+        self.add_metric(name + '.num.query.flags.TC', pmdaMetric(
+                self.pmid(0, 87),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'num.query.flags.TC')
+
+        self.values['num.query.flags.RD'] = 0
+        self.add_metric(name + '.num.query.flags.RD', pmdaMetric(
+                self.pmid(0, 88),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'num.query.flags.RD')
+
+        self.values['num.query.flags.RA'] = 0
+        self.add_metric(name + '.num.query.flags.RA', pmdaMetric(
+                self.pmid(0, 89),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'num.query.flags.RA')
+
+        self.values['num.query.flags.Z'] = 0
+        self.add_metric(name + '.num.query.flags.Z', pmdaMetric(
+                self.pmid(0, 90),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'num.query.flags.Z')
+
+        self.values['num.query.flags.AD'] = 0
+        self.add_metric(name + '.num.query.flags.AD', pmdaMetric(
+                self.pmid(0, 91),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'num.query.flags.AD')
+
+        self.values['num.query.flags.CD'] = 0
+        self.add_metric(name + '.num.query.flags.CD', pmdaMetric(
+                self.pmid(0, 92),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'num.query.flags.CD')
+
+        self.values['num.query.edns.present'] = 0
+        self.add_metric(name + '.num.query.edns.present', pmdaMetric(
+                self.pmid(0, 93),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'num.query.edns.present')
+
+        self.values['num.query.edns.DO'] = 0
+        self.add_metric(name + '.num.query.edns.DO', pmdaMetric(
+                self.pmid(0, 94),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'num.query.edns.DO')
+
+        self.values['mem.total.sbrk'] = 0
+        self.add_metric(name + '.mem.total.sbrk', pmdaMetric(
+                self.pmid(0, 95),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT,
+                pmUnits(1, 0, 0, c_api.PM_SPACE_BYTE, 0, 0)),
+        'Estimate of the heap size of the program in number of  bytes.')
+
+        self.values['mem.cache.rrset'] = 0
+        self.add_metric(name + '.mem.cache.rrset', pmdaMetric(
+                self.pmid(0, 96),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT,
+                pmUnits(1, 0, 0, c_api.PM_SPACE_BYTE, 0, 0)),
+        'Memory in bytes in use by the RRset cache.')
+
+        self.values['mem.cache.message'] = 0
+        self.add_metric(name + '.mem.cache.message', pmdaMetric(
+                self.pmid(0, 97),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT,
+                pmUnits(1, 0, 0, c_api.PM_SPACE_BYTE, 0, 0)),
+        'Memory in bytes in use by the message cache.')
+
+        self.values['mem.mod.iterator'] = 0
+        self.add_metric(name + '.mem.mod.iterator', pmdaMetric(
+                self.pmid(0, 98),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT,
+                pmUnits(1, 0, 0, c_api.PM_SPACE_BYTE, 0, 0)),
+        'Memory in bytes in use by the iterator module.')
+
+        self.values['mem.mod.validator'] = 0
+        self.add_metric(name + '.mem.mod.validator', pmdaMetric(
+                self.pmid(0, 99),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT,
+                pmUnits(1, 0, 0, c_api.PM_SPACE_BYTE, 0, 0)),
+        'Memory in bytes in use by the validator module.')
+
+        self.values['histogram.000000_000000_to_000000_000001'] = 0
+        self.add_metric(name + '.histogram.000000_000000_to_000000_000001', pmdaMetric(
+                self.pmid(0, 100),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'Recursive queries whose reply time fit between the lower and upper bound.')
+
+        self.values['histogram.000000_000001_to_000000_000002'] = 0
+        self.add_metric(name + '.histogram.000000_000001_to_000000_000002', pmdaMetric(
+                self.pmid(0, 101),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'Recursive queries whose reply time fit between the lower and upper bound.')
+
+        self.values['histogram.000000_000002_to_000000_000004'] = 0
+        self.add_metric(name + '.histogram.000000_000002_to_000000_000004', pmdaMetric(
+                self.pmid(0, 102),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'Recursive queries whose reply time fit between the lower and upper bound.')
+
+        self.values['histogram.000000_000004_to_000000_000008'] = 0
+        self.add_metric(name + '.histogram.000000_000004_to_000000_000008', pmdaMetric(
+                self.pmid(0, 103),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'Recursive queries whose reply time fit between the lower and upper bound.')
+
+        self.values['histogram.000000_000008_to_000000_000016'] = 0
+        self.add_metric(name + '.histogram.000000_000008_to_000000_000016', pmdaMetric(
+                self.pmid(0, 104),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'Recursive queries whose reply time fit between the lower and upper bound.')
+
+        self.values['histogram.000000_000016_to_000000_000032'] = 0
+        self.add_metric(name + '.histogram.000000_000016_to_000000_000032', pmdaMetric(
+                self.pmid(0, 105),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'Recursive queries whose reply time fit between the lower and upper bound.')
+
+        self.values['histogram.000000_000032_to_000000_000064'] = 0
+        self.add_metric(name + '.histogram.000000_000032_to_000000_000064', pmdaMetric(
+                self.pmid(0, 106),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'Recursive queries whose reply time fit between the lower and upper bound.')
+
+        self.values['histogram.000000_000064_to_000000_000128'] = 0
+        self.add_metric(name + '.histogram.000000_000064_to_000000_000128', pmdaMetric(
+                self.pmid(0, 107),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'Recursive queries whose reply time fit between the lower and upper bound.')
+
+        self.values['histogram.000000_000128_to_000000_000256'] = 0
+        self.add_metric(name + '.histogram.000000_000128_to_000000_000256', pmdaMetric(
+                self.pmid(0, 108),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'Recursive queries whose reply time fit between the lower and upper bound.')
+
+        self.values['histogram.000000_000256_to_000000_000512'] = 0
+        self.add_metric(name + '.histogram.000000_000256_to_000000_000512', pmdaMetric(
+                self.pmid(0, 109),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'Recursive queries whose reply time fit between the lower and upper bound.')
+
+        self.values['histogram.000000_000512_to_000000_001024'] = 0
+        self.add_metric(name + '.histogram.000000_000512_to_000000_001024', pmdaMetric(
+                self.pmid(0, 110),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'Recursive queries whose reply time fit between the lower and upper bound.')
+
+        self.values['histogram.000000_001024_to_000000_002048'] = 0
+        self.add_metric(name + '.histogram.000000_001024_to_000000_002048', pmdaMetric(
+                self.pmid(0, 111),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'Recursive queries whose reply time fit between the lower and upper bound.')
+
+        self.values['histogram.000000_002048_to_000000_004096'] = 0
+        self.add_metric(name + '.histogram.000000_002048_to_000000_004096', pmdaMetric(
+                self.pmid(0, 112),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'Recursive queries whose reply time fit between the lower and upper bound.')
+
+        self.values['histogram.000000_004096_to_000000_008192'] = 0
+        self.add_metric(name + '.histogram.000000_004096_to_000000_008192', pmdaMetric(
+                self.pmid(0, 113),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'Recursive queries whose reply time fit between the lower and upper bound.')
+
+        self.values['histogram.000000_008192_to_000000_016384'] = 0
+        self.add_metric(name + '.histogram.000000_008192_to_000000_016384', pmdaMetric(
+                self.pmid(0, 114),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'Recursive queries whose reply time fit between the lower and upper bound.')
+
+        self.values['histogram.000000_016384_to_000000_032768'] = 0
+        self.add_metric(name + '.histogram.000000_016384_to_000000_032768', pmdaMetric(
+                self.pmid(0, 115),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'Recursive queries whose reply time fit between the lower and upper bound.')
+
+        self.values['histogram.000000_032768_to_000000_065536'] = 0
+        self.add_metric(name + '.histogram.000000_032768_to_000000_065536', pmdaMetric(
+                self.pmid(0, 116),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'Recursive queries whose reply time fit between the lower and upper bound.')
+
+        self.values['histogram.000000_065536_to_000000_131072'] = 0
+        self.add_metric(name + '.histogram.000000_065536_to_000000_131072', pmdaMetric(
+                self.pmid(0, 117),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'Recursive queries whose reply time fit between the lower and upper bound.')
+
+        self.values['histogram.000000_131072_to_000000_262144'] = 0
+        self.add_metric(name + '.histogram.000000_131072_to_000000_262144', pmdaMetric(
+                self.pmid(0, 118),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'Recursive queries whose reply time fit between the lower and upper bound.')
+
+        self.values['histogram.000000_262144_to_000000_524288'] = 0
+        self.add_metric(name + '.histogram.000000_262144_to_000000_524288', pmdaMetric(
+                self.pmid(0, 119),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'Recursive queries whose reply time fit between the lower and upper bound.')
+
+        self.values['histogram.000000_524288_to_000001_000000'] = 0
+        self.add_metric(name + '.histogram.000000_524288_to_000001_000000', pmdaMetric(
+                self.pmid(0, 120),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'Recursive queries whose reply time fit between the lower and upper bound.')
+
+        self.values['histogram.000001_000000_to_000002_000000'] = 0
+        self.add_metric(name + '.histogram.000001_000000_to_000002_000000', pmdaMetric(
+                self.pmid(0, 121),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'Recursive queries whose reply time fit between the lower and upper bound.')
+
+        self.values['histogram.000002_000000_to_000004_000000'] = 0
+        self.add_metric(name + '.histogram.000002_000000_to_000004_000000', pmdaMetric(
+                self.pmid(0, 122),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'Recursive queries whose reply time fit between the lower and upper bound.')
+
+        self.values['histogram.000004_000000_to_000008_000000'] = 0
+        self.add_metric(name + '.histogram.000004_000000_to_000008_000000', pmdaMetric(
+                self.pmid(0, 123),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'Recursive queries whose reply time fit between the lower and upper bound.')
+
+        self.values['histogram.000008_000000_to_000016_000000'] = 0
+        self.add_metric(name + '.histogram.000008_000000_to_000016_000000', pmdaMetric(
+                self.pmid(0, 124),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'Recursive queries whose reply time fit between the lower and upper bound.')
+
+        self.values['histogram.000016_000000_to_000032_000000'] = 0
+        self.add_metric(name + '.histogram.000016_000000_to_000032_000000', pmdaMetric(
+                self.pmid(0, 125),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'Recursive queries whose reply time fit between the lower and upper bound.')
+
+        self.values['histogram.000032_000000_to_000064_000000'] = 0
+        self.add_metric(name + '.histogram.000032_000000_to_000064_000000', pmdaMetric(
+                self.pmid(0, 126),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'Recursive queries whose reply time fit between the lower and upper bound.')
+
+        self.values['histogram.000064_000000_to_000128_000000'] = 0
+        self.add_metric(name + '.histogram.000064_000000_to_000128_000000', pmdaMetric(
+                self.pmid(0, 127),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'Recursive queries whose reply time fit between the lower and upper bound.')
+
+        self.values['histogram.000128_000000_to_000256_000000'] = 0
+        self.add_metric(name + '.histogram.000128_000000_to_000256_000000', pmdaMetric(
+                self.pmid(0, 128),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'Recursive queries whose reply time fit between the lower and upper bound.')
+
+        self.values['histogram.000256_000000_to_000512_000000'] = 0
+        self.add_metric(name + '.histogram.000256_000000_to_000512_000000', pmdaMetric(
+                self.pmid(0, 129),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'Recursive queries whose reply time fit between the lower and upper bound.')
+
+        self.values['histogram.000512_000000_to_001024_000000'] = 0
+        self.add_metric(name + '.histogram.000512_000000_to_001024_000000', pmdaMetric(
+                self.pmid(0, 130),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'Recursive queries whose reply time fit between the lower and upper bound.')
+
+        self.values['histogram.001024_000000_to_002048_000000'] = 0
+        self.add_metric(name + '.histogram.001024_000000_to_002048_000000', pmdaMetric(
+                self.pmid(0, 131),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'Recursive queries whose reply time fit between the lower and upper bound.')
+
+        self.values['histogram.002048_000000_to_004096_000000'] = 0
+        self.add_metric(name + '.histogram.002048_000000_to_004096_000000', pmdaMetric(
+                self.pmid(0, 132),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'Recursive queries whose reply time fit between the lower and upper bound.')
+
+        self.values['histogram.004096_000000_to_008192_000000'] = 0
+        self.add_metric(name + '.histogram.004096_000000_to_008192_000000', pmdaMetric(
+                self.pmid(0, 133),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'Recursive queries whose reply time fit between the lower and upper bound.')
+
+        self.values['histogram.008192_000000_to_016384_000000'] = 0
+        self.add_metric(name + '.histogram.008192_000000_to_016384_000000', pmdaMetric(
+                self.pmid(0, 134),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'Recursive queries whose reply time fit between the lower and upper bound.')
+
+        self.values['histogram.016384_000000_to_032768_000000'] = 0
+        self.add_metric(name + '.histogram.016384_000000_to_032768_000000', pmdaMetric(
+                self.pmid(0, 135),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'Recursive queries whose reply time fit between the lower and upper bound.')
+
+        self.values['histogram.032768_000000_to_065536_000000'] = 0
+        self.add_metric(name + '.histogram.032768_000000_to_065536_000000', pmdaMetric(
+                self.pmid(0, 136),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'Recursive queries whose reply time fit between the lower and upper bound.')
+
+        self.values['histogram.065536_000000_to_131072_000000'] = 0
+        self.add_metric(name + '.histogram.065536_000000_to_131072_000000', pmdaMetric(
+                self.pmid(0, 137),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'Recursive queries whose reply time fit between the lower and upper bound.')
+
+        self.values['histogram.131072_000000_to_262144_000000'] = 0
+        self.add_metric(name + '.histogram.131072_000000_to_262144_000000', pmdaMetric(
+                self.pmid(0, 138),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'Recursive queries whose reply time fit between the lower and upper bound.')
+
+        self.values['histogram.262144_000000_to_524288_000000'] = 0
+        self.add_metric(name + '.histogram.262144_000000_to_524288_000000', pmdaMetric(
+                self.pmid(0, 139),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'Recursive queries whose reply time fit between the lower and upper bound.')
+
+    def __init__(self, name, domain):
+        PMDA.__init__(self, name, domain)
+        self.patherrors = 0
+        self.fileerrors = 0
+        ctl = getenv('UNBOUND_STATS', '/usr/sbin/unbound-control stats_noreset')
+        self.unboundctl = shlex.split(ctl)
+
+        self.values = {}
+        self.setup_unbound_metrics(name)
+        self.nmetrics = len(self.values)
+
+        self.set_fetch(self.unbound_fetch)
+        self.set_fetch_callback(self.unbound_fetch_callback)
+
+
+if __name__ == '__main__':
+    UnboundPMDA('unbound', 132).run()

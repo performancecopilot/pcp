@@ -1,0 +1,66 @@
+QA output created by 302
+Note: timezone set to local timezone of host "ha2" from archive
+
+Note: timezone set to local timezone of host "ha2" from archive
+
+Log Label (Log Format Version 2)
+Performance metrics from host ha2
+  commencing Fri Jul 18 14:46:47.148 1997
+  ending     Fri Jul 18 14:46:52.145 1997
+
+Descriptions for Metrics in the Log ...
+PMID: 1.10.7 (irix.kernel.all.cpu.idle)
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: millisec
+PMID: 2.3.2 (pmcd.pmlogger.archive)
+    Data Type: string  InDom: 2.1 0x800001
+    Semantics: instant  Units: none
+PMID: 2.3.0 (pmcd.pmlogger.port)
+    Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
+    Semantics: instant  Units: none
+PMID: 2.3.3 (pmcd.pmlogger.host)
+    Data Type: string  InDom: 2.1 0x800001
+    Semantics: instant  Units: none
+
+Instance Domains in the Log ...
+InDom: 2.1
+14:46:47.148 1 instances
+                 4530 or "4530"
+14:46:48.210 1 instances
+                 4534 or "4534"
+
+Temporal Index
+             Log Vol    end(meta)     end(log)
+14:46:47.148       0          132          132
+14:46:48.210       0          414          328
+14:46:52.145       0          455          824
+
+14:46:47.148  2.3.3 (pmcd.pmlogger.host): inst [4530 or "4530"] value "ha2.melbourne.sgi.com"
+              2.3.0 (pmcd.pmlogger.port): inst [4530 or "4530"] value 4331
+              2.3.2 (pmcd.pmlogger.archive): inst [4530 or "4530"] value "/usr/people/pcpqa/isms/pcp2.0/qa/src/arch_a"
+
+14:46:48.146  1.10.7 (irix.kernel.all.cpu.idle): value 2163518020
+
+14:46:48.210  2.3.3 (pmcd.pmlogger.host): inst [4534 or "4534"] value "ha2.melbourne.sgi.com"
+              2.3.0 (pmcd.pmlogger.port): inst [4534 or "4534"] value 4332
+              2.3.2 (pmcd.pmlogger.archive): inst [4534 or "4534"] value "/usr/people/pcpqa/isms/pcp2.0/qa/src/arch_b"
+
+14:46:48.706  1.10.7 (irix.kernel.all.cpu.idle): value 2163518490
+
+14:46:49.176  1.10.7 (irix.kernel.all.cpu.idle): value 2163518840
+
+14:46:49.205  1.10.7 (irix.kernel.all.cpu.idle): value 2163518870
+
+14:46:49.715  1.10.7 (irix.kernel.all.cpu.idle): value 2163519340
+
+14:46:50.145  1.10.7 (irix.kernel.all.cpu.idle): value 2163519680
+
+14:46:50.205  1.10.7 (irix.kernel.all.cpu.idle): value 2163519740
+
+14:46:50.715  1.10.7 (irix.kernel.all.cpu.idle): value 2163520110
+
+14:46:50.716  <mark>
+
+14:46:51.146  1.10.7 (irix.kernel.all.cpu.idle): value 2163520480
+
+14:46:52.145  1.10.7 (irix.kernel.all.cpu.idle): value 2163521310

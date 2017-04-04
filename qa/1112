@@ -1,0 +1,37 @@
+#!/bin/sh
+# PCP QA Test No. 1112
+# ipc.sem.{used_sem,tot_sem} metrics testing
+# ipc.msg.{used_queues,tot_msg,tot_bytes} metrics testing
+#
+# Copyright (c) 2015-2016 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+if [ $PCP_PLATFORM != linux ]
+then
+   _notrun "semctl(..,SEM_INFO,..) metrics only available on linux"
+fi
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+pmda=$PCP_PMDAS_DIR/linux/pmda_linux.$DSO_SUFFIX,linux_init
+
+LD_PRELOAD=$here/src/qa_sem_msg_ctl.so  pminfo -L -K clear -K add,60,$pmda -d -f ipc.sem.used_sem
+LD_PRELOAD=$here/src/qa_sem_msg_ctl.so  pminfo -L -K clear -K add,60,$pmda -d -f ipc.sem.tot_sem
+LD_PRELOAD=$here/src/qa_sem_msg_ctl.so  pminfo -L -K clear -K add,60,$pmda -d -f ipc.msg.used_queues
+LD_PRELOAD=$here/src/qa_sem_msg_ctl.so  pminfo -L -K clear -K add,60,$pmda -d -f ipc.msg.tot_msg
+LD_PRELOAD=$here/src/qa_sem_msg_ctl.so  pminfo -L -K clear -K add,60,$pmda -d -f ipc.msg.tot_bytes
+
+# success, all done
+status=0
+exit

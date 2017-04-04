@@ -1,0 +1,97 @@
+'\"! tbl
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2014 Red Hat, Inc.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMPARSEUNITSSTR 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmParseUnitsStr\f1 \- parse time point specification
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.sp
+.ad l
+.hy 0
+.in +8n
+.ti -8n
+int pmParseUnitsStr(const char *\fIstring\fP, struct\ pmUnits\ *\fIout\fP, double\ *\fIoutMult\fP, char\ **\fIerrMsg\fP);
+.sp
+.in
+.hy
+.ad
+cc ... \-lpcp
+.ft 1
+.SH DESCRIPTION
+.B pmParseUnitsStr
+is designed to encapsulate the interpretation of a unit/scale specification in
+command line switches for use by the PCP client tools.
+.P
+This function expects to be called with the unit/scale specification as
+.BR string .
+This specification takes the general form produced by
+.BR pmUnitsStr .
+Briefly, the format allows \fB/\fP-separated divisor and dividend, each
+listing space-separated dimensions/scales along the space, time, and count
+axes.  There are also a few extra possibilities:
+
+First, multiple equivalent sets of keywords are accepted for the time
+& space dimensions, insensitive to case.  For example, "microseconds",
+"microsecond", "microsec", "us" are considered synonymous, as are
+"kilobytes", "KB", "kiloByte", and so on.
+
+Second, units may be offered in any order, e.g., \fBms kb count x 10^3\fP or
+\fBcount x 10^3 kb ms\fP.  They may not be repeated within the denominator
+or within the numerator.  Each scale/unit keyword may be immediately followed
+by positive or negative exponents, e.g., \fB^-4\fP.
+
+Third, numerical scaling factors may be supplied.  These are factored
+together with implicit scale conversions into the final \fBoutMult\fP result.
+
+.P
+The
+.BR out " and " outMult
+values must both be allocated before calling
+.BR pmParseUnitsStr .
+If the conversion is successful,
+.B pmParseUnitsStr
+returns 0, and fills in
+.BR out " and " outMult
+with the unit/scales defined by the input
+parameter.  If the argument strings could not be parsed, it returns a negative status code.
+
+.SH EXAMPLES
+.TS
+box,center;
+c | c | c
+l | l | l.
+string	out	outMult
+_
+2 count	{0,1,0,0,0,0}	0.5
+count / 7.5 nanosecond	{0,1,-1,0,0,0}	7.5
+10 kilobytes / 2.5e2 count x 10^3	{1,-1,0,1,3,0}	25
+millisecond / second^2	{0,0,-1,0,0,3}	1000
+mb/s	{1,0,-1,2,0,3}	1
+.TE
+
+.SH RETURN VALUE
+A zero status indicates success.  A negative status indicates
+an error, in which case the errMsg pointer will receive a textual
+error message, which the caller should later \fIfree()\fP. 
+
+.SH SEE ALSO
+.BR PMAPI (3),
+.BR pmUnitsStr (3),
+.BR pmConvScale (3),
+and
+.BR pmLookupDesc (3).

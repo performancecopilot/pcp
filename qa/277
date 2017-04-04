@@ -1,0 +1,36 @@
+#!/bin/sh
+# PCP QA Test No. 277
+# checks pmValueBlock.vtype matches desc.type
+# for metrics which have non-insitu values
+# as follows:
+#
+#    int64	sample.longlong.one
+#    uint64	sample.pdu
+#    double	sample.double.one
+#    float	sample.float.one
+#    string	sample.string.hullo
+#    aggregate	sample.aggregate.hullo
+#
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+
+status=1	# failure is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+#
+# no output with zero exit status indicates success
+#
+src/chk_metric_types sample.longlong.one sample.pdu sample.double.one \
+	sample.float.one sample.string.hullo sample.aggregate.hullo
+
+status=$?
+exit

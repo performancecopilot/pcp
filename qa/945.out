@@ -1,0 +1,16 @@
+QA output created by 945
+old -> new changes
+Label record diffs ...
+Instance domain diffs ...
+7a8,10
+> InDom: 11.16
+> 15:47:45.337 1 instances
+>                  0 or "0:/dev/loop0"
+Metadata diffs ...
+Temporal index diffs ...
+7,8c7,8
+< 19:48:58.367       0         1426         2500
+< 19:49:58.367       0        11011        74836
+---
+> 19:48:58.367       0         1475         2500
+> 19:49:58.367       0        11060        74836

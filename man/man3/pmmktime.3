@@ -1,0 +1,74 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMMKTIME 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3__pmMktime\f1 \- convert a \fBtm\fR structure to a calendar time
+.SH "C SYNOPSIS"
+.ft 3
+#include <time.h>
+.br
+#include <pcp/pmapi.h>
+.br
+#include <pcp/impl.h>
+.sp
+time_t __pmMktime(struct tm *\fItimeptr\fP);
+.sp
+cc ... \-lpcp
+.ft 1
+.SH DESCRIPTION
+.B __pmMktime
+is very similar to
+.BR mktime (3),
+except the timezone used is the current ``reporting timezone'' (rather than the
+default
+.B TZ
+environment variable scheme).
+.PP
+Like
+.BR mktime (3)
+the time to be converted is passed via
+.IR timeptr ,
+and 
+the function result 
+contains the calendar time (the number of seconds since 00:00:00 UTC,
+January 1, 1970).
+.PP
+The default current reporting timezone is as defined by the
+.B TZ
+environment variable, so
+.B __pmMktime
+and
+.BR mktime (3)
+will initially produce similar conversions.
+.PP
+Use
+.BR pmNewZone (3),
+.BR pmNewContextZone (3)
+or
+.BR pmUseZone (3)
+to establish a new current reporting timezone that will effect
+.B __pmMktime
+but not
+.BR mktime (3).
+.SH SEE ALSO
+.BR mktime (3),
+.BR PMAPI (3),
+.BR pmCtime (3),
+.BR pmLocaltime (3),
+.BR pmNewContextZone (3),
+.BR pmNewZone (3)
+and
+.BR pmUseZone (3).

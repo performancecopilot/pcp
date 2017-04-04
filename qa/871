@@ -1,0 +1,85 @@
+#!/bin/sh
+# PCP QA Test No. 871
+# pmie - string expressions and @N ... from Nathan's email
+# Subject: pmie support for string-typed metrics
+# Date: 13 April 2016
+#
+# Copyright (c) 2016 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_set_write_me()
+{
+    pmstore sampledso.string.write_me "$1" >/dev/null
+    pmstore sampledso.ulong.write_me "$1" >/dev/null
+    pmstore sampledso.double.write_me "$1" >/dev/null
+    case "$1" in
+    13)
+	pmstore -i bin-300 sample.bin 300 >/dev/null
+	;;
+    *)
+	pmstore -i bin-300 sample.bin "$1" >/dev/null
+	;;
+    esac
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "cd $here; _set_write_me 13; rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e 's/[A-Z][a-z][a-z] [A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9]/DATE/' \
+	-e 's/DATE [12][0-9][0-9][0-9]/DATE/' \
+	-e '/evaluator exiting/s/pmie([0-9][0-9]*)/pmie(PID)/' \
+	-e '/Performance Co-Pilot Inference Engine/s/Version .*/Version .../' \
+    | LC_COLLATE=POSIX sort \
+    | uniq
+}
+
+# real QA test starts here
+cat <<'End-of-File' | pmie -t 0.5sec -T 5sec >$tmp.out 2>$tmp.err &
+sampledso.string.write_me @1 != sampledso.string.write_me @0 && sampledso.string.write_me != "13" -> print "case 0 OK";
+sampledso.string.write_me @0 != sampledso.string.write_me @1 && sampledso.string.write_me @1 != "13" -> print "case 1 OK";
+sampledso.ulong.write_me @1 != sampledso.ulong.write_me @0 && sampledso.ulong.write_me != 13 -> print "case 2 OK";
+sampledso.double.write_me @0 != sampledso.double.write_me @1 && sampledso.double.write_me @1 != 13 -> print "case 3 OK";
+sampledso.double.write_me @1 != sampledso.double.write_me @0 && sampledso.double.write_me != 13 -> print "case 4 OK";
+sampledso.double.write_me @0 != sampledso.double.write_me @1 && sampledso.double.write_me @1 != 13 -> print "case 5 OK";
+ruleset
+    pmcd.timezone @0 == pmcd.timezone @1 -> print "case 6 OK"
+else
+    pmcd.timezone @0 != pmcd.timezone @1 -> print "case 6 BAD"
+otherwise
+    -> print "case 6 startup";
+ruleset
+    all_inst ( sample.string.bin @0 == sample.string.bin @1 ) -> print "case 7 OK"
+else
+    some_inst ( sample.string.bin @0 != sample.string.bin @1 ) -> print "case 7 OK-change"
+otherwise
+    -> print "case 7 startup";
+End-of-File
+
+sleep 2
+_set_write_me 42
+sleep 2
+_set_write_me 13
+
+wait
+
+echo "=== std out ==="
+_filter <$tmp.out
+echo
+echo "=== std err ==="
+_filter <$tmp.err
+
+# success, all done
+status=0
+exit

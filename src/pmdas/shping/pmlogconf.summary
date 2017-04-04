@@ -1,0 +1,6 @@
+#pmlogconf-setup 2.0
+ident	shping PMDA summary information
+probe	shping.status exists ? include : exclude
+	shping.status
+	shping.time
+	shping.error

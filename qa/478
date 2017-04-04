@@ -1,0 +1,37 @@
+#!/bin/sh
+# PCP QA Test No. 478
+# Increase coverage and check malloc failure for err.c in libpcp
+#
+# Copyright (c) 2011 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+src/check_fault_injection >/dev/null 2>&1 || \
+    _notrun "libpcp not built with fault injection enabled"
+[ $PCP_PLATFORM != solaris ] || \
+    _notrun "fault injection point in libpcp/err.c not executed for Solaris"
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+src/err 0
+
+echo
+export PM_FAULT_CONTROL=$tmp.control
+export LD_PRELOAD=$PCP_LIB_DIR/libpcp_fault.so
+cat >$tmp.control <<End-of-File
+libpcp/err.c:1
+End-of-File
+src/err -Dfault 12345 12344
+
+# success, all done
+exit

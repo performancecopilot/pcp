@@ -1,0 +1,35 @@
+#!/bin/sh
+# PCP QA Test No. 1113
+# Exercise the pcp-ipcs(1) command using an archive
+#
+# Copyright (c) 2016 fujitsu (wulm.fnst@cn.fujitsu.com) 
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.python
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+pcp_ipcs="$PCP_BINADM_DIR/pcp-ipcs"
+test -x $pcp_ipcs || _notrun "No pcp-ipcs(1) installed"
+pcp_ipcs="$python $pcp_ipcs"
+
+# real QA test starts here
+echo && echo === ipcs output, at first sample
+PCP_ARCHIVE="archives/pcp-ipcs" PCP_HOSTZONE=1 PCP_ORIGIN=1 $pcp_ipcs
+
+archive_first="-a archives/pcp-ipcs -z -O +1"
+archive_last="-a archives/pcp-ipcs -z -O -0"
+
+echo && echo === ipcs output, limits 
+pcp $archive_first ipcs -l
+
+echo && echo === ipcs output, summary
+pcp $archive_first ipcs -u
+
+status=0
+exit

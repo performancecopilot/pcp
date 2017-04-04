@@ -1,0 +1,34 @@
+hinv {
+    ncpu	SOLARIS:SCLR_SYSINFO:56
+    ndisk	SOLARIS:SCLR_DISK:20
+    nfilesys	SOLARIS:SCLR_FILESYS:1023
+    pagesize	SOLARIS:SCLR_SYSINFO:108
+    physmem	SOLARIS:SCLR_SYSINFO:109
+    cpu
+    disk
+}
+
+hinv.cpu {
+    maxclock		SOLARIS:SCLR_SYSINFO:147
+    clock		SOLARIS:SCLR_SYSINFO:148
+    brand		SOLARIS:SCLR_SYSINFO:149
+    frequencies		SOLARIS:SCLR_SYSINFO:150
+    implementation	SOLARIS:SCLR_SYSINFO:151
+    chip_id		SOLARIS:SCLR_SYSINFO:152
+    clog_id		SOLARIS:SCLR_SYSINFO:153
+    core_id		SOLARIS:SCLR_SYSINFO:154
+    pkg_core_id		SOLARIS:SCLR_SYSINFO:155
+    cstate		SOLARIS:SCLR_SYSINFO:156
+    maxcstates		SOLARIS:SCLR_SYSINFO:157
+    ncores		SOLARIS:SCLR_SYSINFO:158
+    ncpus		SOLARIS:SCLR_SYSINFO:159
+}
+
+hinv.disk {
+    vendor	SOLARIS:SCLR_DISK:30
+    product	SOLARIS:SCLR_DISK:31
+    revision	SOLARIS:SCLR_DISK:32
+    serial	SOLARIS:SCLR_DISK:33
+    capacity	SOLARIS:SCLR_DISK:34
+    devlink	SOLARIS:SCLR_DISK:35
+}

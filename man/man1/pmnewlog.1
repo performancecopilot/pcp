@@ -1,0 +1,344 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMNEWLOG 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmnewlog\f1 \- stop and restart archive logging for PCP performance metrics
+.SH SYNOPSIS
+\f3$PCP_BINADM_DIR/pmnewlog\f1
+[\f3\-a\f1 \f2accessfile\f1]
+[\f3\-C\f1 \f2saveconfig\f1]
+[\f3\-c\f1 \f2configfile\f1]
+[\f3\-N\f1]
+[\f3\-n\f1 \f2pmnsfile\f1]
+[\f3\-P\f1]
+[\f3\-p\f1 \f2pid\f1]
+[\f3\-s\f1]
+[\f3\-V\f1]
+[\f2other pmlogger options\f1]
+\f2archive\f1
+.SH DESCRIPTION
+.B pmnewlog
+may be used to stop and restart a running instance of
+.BR pmlogger (1).
+This is most useful for managing multiple sets of
+Performance Co-Pilot (PCP) archive logs.
+These archive logs record the history of
+performance metric values
+that may be ``played back'' by other PCP
+tools, and they
+form the basis of the VCR paradigm and retrospective
+performance analysis services common to the PCP toolkit.
+.PP
+In normal usage,
+.B pmnewlog
+would be executed by
+.BR cron (1)
+in the wee hours to terminate one PCP archive log and start another,
+i.e. to perform log rotation.
+.PP
+Even more common, would be the execution of
+.B pmnewlog
+from the PCP archive management script
+.BR pmlogger_daily (1).
+In this case, direct end-user execution of
+.B pmnewlog
+is most unlikely.
+.PP
+The mandatory argument
+.I archive
+is the base name for the physical files that will constitute
+the new archive log.
+.PP
+The
+.B pmlogger
+instance to be stopped and restarted must be running on the same system
+as
+.B pmnewlog
+and is either the primary logger (the default) or the logger with
+.I pid
+as specified by the
+.B \-p
+option.
+.PP
+If the
+.B \-n
+option is specified, then
+.B pmnewlog
+will use the namespace in the
+.IR pmnsfile ,
+rather than the default Performance Metrics Name Space (PMNS).
+.PP
+If no
+.B \-c
+option is specified,
+.B pmnewlog
+will use
+.BR pmlc (1)
+to connect to the running
+.BR pmlogger (1)
+and so determine all those metrics and instances that are subject to
+.B mandatory
+logging or
+.B advisory on
+logging, and the associated logging frequencies.
+This information is used to synthesize a new
+.BR pmlogger (1)
+configuration file.
+If the
+.B \-n
+option is specified, it will also be used for these interactions with
+.BR pmlc (1).
+.PP
+If the
+.B \-c
+option is specified,
+.BR pmlogger (1)
+will be restarted with
+.I configfile
+as the configuration file.
+Normally
+.I configfile
+would be the same configuration file used to start
+.BR pmlogger (1)
+in the first place, however note that since
+.BR pmlogger (1)
+is restarted, any changes to the logging status made
+using
+.BR pmlc (1)
+will be lost, unless these have also been reflected in changes to
+.IR configfile .
+.PP
+If
+.I configfile
+does not exist, then a search is made in the directory
+.I $PCP_VAR_DIR/config/pmlogger
+for a file of the same name, and if found that file is used,
+e.g. if 
+.I config.mumble
+does not exist in the current directory and
+the file
+.I $PCP_VAR_DIR/config/pmlogger/config.mumble
+does exist, then
+.B "\-c config.mumble"
+and
+.B "\-c $PCP_VAR_DIR/config/pmlogger/config.mumble"
+are equivalent.
+.PP
+Access controls specifications for the new
+.BR pmlogger (1)
+instance may optionally be provided via the
+.B \-a
+option.  The contents of
+.I accessfile
+should start with the literal token
+.B [access]
+and conform to the syntax of the access controls section
+as described for
+.BR pmlogger (1).
+.PP
+The
+.B \-C
+option may be used to save the configuration file that
+.B pmnewlog
+passes to the newly launched
+.BR pmlogger (1).
+.PP
+If the
+.BR pmlogger (1)
+instance needs to be started under the control of
+.BR pmsocks (1)
+to connect to a
+.B pmcd
+through a firewall, the
+.B \-s
+option may be used.
+.PP
+The
+.B \-V
+option enables verbose reporting of the activity.
+By default no output is generated unless some error or warning condition is
+encountered.
+.PP
+The
+.B \-N
+option enables a ``show me'' mode, where the actions are echoed,
+but not executed, in the style of ``make \-n''.
+Using
+.B \-N
+in conjunction with
+.B \-V
+maximizes the diagnostic capabilities for debugging.
+.PP
+The
+.I other pmlogger options
+are as described for
+.BR pmlogger (1).
+Note that
+.B pmnewlog
+does
+.B not
+support the following options of
+.BR pmlogger (1).
+.TP
+\fB\-h\fR \fIhost\fR
+.B pmnewlog
+determines the host to which the new
+.BR pmlogger (1)
+should connect based upon the current host connection for the
+old
+.BR pmlogger (1).
+.TP
+\fB\-s\fR \fIsamples\fR
+The new
+.BR pmlogger (1)
+is expected to be long running, and the
+.B \-s
+option of
+.B pmnewlog
+takes precedence.
+.TP
+\fB\-T\fR \fIruntime\fR
+The new
+.BR pmlogger (1)
+is expected to be long running
+.TP
+\fB\-V\fR \fIversion\fR
+The new
+.B pmlogger
+will always create the latest version PCP archive format, and the
+.B \-V
+option of
+.B pmnewlog
+takes precedence.
+.TP
+\fB\-x\fR \fIfd\fR
+The launched
+.B pmlogger
+cannot be controlled by
+.BR pmRecordControl (3).
+.SH EXAMPLE
+The following
+.BR sh (1)
+script
+could be executed by root via
+.BR cron (1)
+to start a new set of archive logs for the primary logger each evening.
+A more complete version of this script may be found in
+.IR $PCP_BINADM_DIR/pmlogger_daily ,
+and is documented in the manual page for
+.BR pmlogger_daily (1).
+.PP
+.in +8n
+.nf
+.ft CW
+#!/bin/sh
+# start new logs for PCP primary logger on this host
+
+# standard place for logs
+LOGDIR=$PCP_LOG_DIR/pmlogger/`hostname`
+
+# each new log is named yymmdd.hh.mm
+LOGNAME=`date "+%Y%m%d.%H.%M"`
+
+# do it
+[ ! \-d $LOGDIR ] && mkdir \-p $LOGDIR
+cd $LOGDIR
+$PCP_BINADM_DIR/pmnewlog \-l $LOGDIR/pmlogger.log $LOGDIR
+.ft R
+.fi
+.in -8n
+.SH FILES
+.PD 0
+.TP 10
+\f2archive\f3.meta
+metadata (metric descriptions, instance domains, etc.) for the archive log
+.TP
+\f2archive\f3.0
+initial volume of metrics values (subsequent volumes have suffixes
+.BR 1 ,
+.BR 2 ,
+\&...)
+.TP
+\f2archive\f3.index
+temporal index to support rapid random access to the other files in the
+archive log
+.TP
+.B $PCP_BINADM_DIR/pmlogger_daily
+sample script to rotate archives for a number of loggers
+.PD
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.I /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (5).
+.SH SEE ALSO
+.BR PCPIntro (1),
+.BR pmcd (1),
+.BR pmdumplog (1),
+.BR pmlc (1),
+.BR pmlogger (1),
+.BR pmlogger_daily (1),
+.BR pmsocks (1),
+.BR pcp.conf (5)
+and
+.BR pcp.env (5).
+.SH DIAGNOSTICS
+Due to the precious nature of the archive logs,
+.B pmnewlog
+is rather paranoid in its checking and validation, and will try very
+hard to ensure that an appropriately configured
+.BR pmlogger (1)
+can be restarted, before terminating the existing
+.BR pmlogger (1).
+.PP
+As a consequence of this checking,
+.B pmnewlog
+tends to generate rather verbose error and warning messages.
+.SH CAVEATS
+If no
+.I configfile
+is specified, the method for synthesizing a configuration file using
+a
+.BR pmlc (1)
+connection to the existing
+.BR pmlogger (1)
+is, of necessity, incomplete.
+In particular,
+for metrics with dynamic underlying instance domains,
+it is not possible to identify a configuration that logs
+.B all
+instances of a metric all of the time,
+so rather the synthesized configuration file requests the continued logging
+of the set of instances that exist at the time
+.BR pmlogger (1)
+is interrogated by
+.BR pmnewlog .
+.PP
+If this situation is a concern, a fixed configuration file should
+be used, and passed to
+.B pmnewlog
+via the
+.B \-c
+option.

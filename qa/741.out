@@ -1,0 +1,24 @@
+QA output created by 741
+
+check archive and boundaries
+Archive list: ['archives/ace_v2']
+Archive archives/ace_v2 hostname: moomba
+Start: 815027109.044
+Finish: 815027120.177
+Origin: 815027109.044
+Done!
+
+check archive time windows
+Archive list: ['archives/ace_v2']
+Archive archives/ace_v2 hostname: moomba
+Start: 815027110.000
+Finish: 815027115.000
+Align: 1.000
+Origin: 815027110.000
+Done!
+
+check multiple host contexts
+Host list: ['local:', 'local:']
+Host local: pmcd.hostname: HOST
+Host local: pmcd.hostname: HOST
+Done!

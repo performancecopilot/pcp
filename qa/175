@@ -1,0 +1,42 @@
+#! /bin/sh
+# PCP QA Test No. 175
+# Check pmval for initial "No values" and sample ctrs
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+_filter() {
+    cat $1 $2 \
+    | $PCP_AWK_PROG '
+BEGIN			{ ctr = 0 }
+/No values/		{ print; next }
+NF == 0			{ print; next }
+ctr > 0 && NF > 0	{ print "sample #" ctr; ctr++; next }
+$1 == "interval:"	{ ctr = 1 }
+			{ print }' \
+    | sed -e '/^host:.*$/s/.*/HOST/'
+}
+
+# get standard filters
+. ./common.product
+. ./common.filter
+
+trap "rm -f $tmp.*; exit" 0 1 2 3 15
+
+# real QA test starts here
+pmval -t 0.2 -s 3 sample.noinst 2>$tmp.err >$tmp.out
+_filter $tmp.out $tmp.err
+pmval -t 0.2 -s 3 sample.long.one 2>$tmp.err >$tmp.out
+_filter $tmp.out $tmp.err
+pmval -t 0.2 -s 3 sample.pdu 2>$tmp.err >$tmp.out
+_filter $tmp.out $tmp.err
+pmval -t 0.2 -r -s 3 sample.noinst 2>$tmp.err >$tmp.out
+_filter $tmp.out $tmp.err
+pmval -t 0.2 -r -s 3 sample.long.one 2>$tmp.err >$tmp.out
+_filter $tmp.out $tmp.err
+pmval -t 0.2 -r -s 3 sample.pdu 2>$tmp.err >$tmp.out
+_filter $tmp.out $tmp.err
+

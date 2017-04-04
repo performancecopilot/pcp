@@ -1,0 +1,26 @@
+#!/usr/bin/perl
+#
+# Minimalist Version 1.
+#
+
+use strict;
+use warnings;
+use Date::Parse;
+use Date::Format;
+use PCP::LogImport;
+
+pmiStart("mover_v1", 0);
+pmiAddMetric("mover.nfile",
+	     PM_ID_NULL, PM_TYPE_U32, PM_INDOM_NULL,
+	     PM_SEM_INSTANT, pmiUnits(0,0,1,0,0,PM_COUNT_ONE));
+
+open(INFILE, "<mover.log");
+while (<INFILE>) {
+    my @part;
+    chomp;
+    @part = split(/\s+/, $_);
+    pmiPutValue("mover.nfile", "", $part[2]);
+    pmiWrite(str2time($part[0] . "T" . $part[1], "UTC"), 0);
+}
+
+pmiEnd();

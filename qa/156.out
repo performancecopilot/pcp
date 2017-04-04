@@ -1,0 +1,335 @@
+QA output created by 156
+Waiting for pmcd to terminate ...
+Starting pmcd ... 
+Starting pmlogger ... 
+
+=== remove agent ===
+Culling the Performance Metrics Name Space ...
+sample ... done
+Updating the PMCD control file, and notifying PMCD ...
+Removing files ...
+Check sample metrics have gone away ... OK
+Culling the Performance Metrics Name Space ...
+sampledso ... done
+Updating the PMCD control file, and notifying PMCD ...
+Removing files ...
+Check sampledso metrics have gone away ... OK
+Error: sample: Unknown metric name
+
+=== pipe agent ===
+You will need to choose an appropriate configuration for installation of
+the "sample" Performance Metrics Domain Agent (PMDA).
+
+  collector	collect performance statistics on this system
+  monitor	allow this system to monitor local and/or remote systems
+  both		collector and monitor configuration for this system
+
+Please enter c(ollector) or m(onitor) or b(oth) [b] both
+======================
+= sample daemon PMDA =
+======================
+PMCD should communicate with the sample daemon via a pipe or a socket? [pipe] pipe
+Installing files ...
+[...install files, make output...]
+Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+[...install files, make output...]
+Updating the PMCD control file, and notifying PMCD ...
+Check sample metrics have appeared ... 10+ warnings, 100+ metrics and 1300+ values
+======================
+= sampledso DSO PMDA =
+======================
+Installing files ...
+[...install files, make output...]
+Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+[...install files, make output...]
+Updating the PMCD control file, and notifying PMCD ...
+Check sampledso metrics have appeared ... 10+ warnings, 100+ metrics and 1300+ values
+sample.darkness: No value(s) available
+sample.noinst: No value(s) available
+sample.needprofile: Explicit instance identifier(s) required
+sample.bad.unknown: pmLookupDesc: Unknown or illegal metric identifier
+sample.bad.nosupport: Not Supported
+sample.bad.novalues: No value(s) available
+sample.event.type: No value(s) available
+sample.event.param_32: No value(s) available
+sample.event.param_u32: No value(s) available
+sample.event.param_64: No value(s) available
+sample.event.param_u64: No value(s) available
+sample.event.param_float: No value(s) available
+sample.event.param_double: No value(s) available
+sample.event.param_string: No value(s) available
+sample.event.param_aggregate: No value(s) available
+You will need to choose an appropriate configuration for installation of
+the "sample" Performance Metrics Domain Agent (PMDA).
+
+  collector	collect performance statistics on this system
+  monitor	allow this system to monitor local and/or remote systems
+  both		collector and monitor configuration for this system
+
+Please enter c(ollector) or m(onitor) or b(oth) [b] both
+======================
+= sample daemon PMDA =
+======================
+PMCD should communicate with the sample daemon via a pipe or a socket? [pipe] pipe
+Installing files ...
+[...install files, make output...]
+Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+[...install files, make output...]
+Updating the PMCD control file, and notifying PMCD ...
+Check sample metrics have appeared ... 10+ warnings, 100+ metrics and 1300+ values
+======================
+= sampledso DSO PMDA =
+======================
+Installing files ...
+[...install files, make output...]
+Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+[...install files, make output...]
+Updating the PMCD control file, and notifying PMCD ...
+Check sampledso metrics have appeared ... 10+ warnings, 100+ metrics and 1300+ values
+sample.darkness: No value(s) available
+sample.noinst: No value(s) available
+sample.needprofile: Explicit instance identifier(s) required
+sample.bad.unknown: pmLookupDesc: Unknown or illegal metric identifier
+sample.bad.nosupport: Not Supported
+sample.bad.novalues: No value(s) available
+sample.event.type: No value(s) available
+sample.event.param_32: No value(s) available
+sample.event.param_u32: No value(s) available
+sample.event.param_64: No value(s) available
+sample.event.param_u64: No value(s) available
+sample.event.param_float: No value(s) available
+sample.event.param_double: No value(s) available
+sample.event.param_string: No value(s) available
+sample.event.param_aggregate: No value(s) available
+
+=== socket Internet agent ===
+You will need to choose an appropriate configuration for installation of
+the "sample" Performance Metrics Domain Agent (PMDA).
+
+  collector	collect performance statistics on this system
+  monitor	allow this system to monitor local and/or remote systems
+  both		collector and monitor configuration for this system
+
+Please enter c(ollector) or m(onitor) or b(oth) [b] both
+======================
+= sample daemon PMDA =
+======================
+PMCD should communicate with the sample daemon via a pipe or a socket? [pipe] socket
+Use Internet, IPv6 or Unix domain sockets? [Internet] Internet
+Internet port number or service name? [2077] PORT1
+Installing files ...
+[...install files, make output...]
+Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+[...install files, make output...]
+Updating the PMCD control file, and notifying PMCD ...
+Check sample metrics have appeared ... 10+ warnings, 100+ metrics and 1300+ values
+======================
+= sampledso DSO PMDA =
+======================
+Installing files ...
+[...install files, make output...]
+Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+[...install files, make output...]
+Updating the PMCD control file, and notifying PMCD ...
+Check sampledso metrics have appeared ... 10+ warnings, 100+ metrics and 1300+ values
+sample.darkness: No value(s) available
+sample.noinst: No value(s) available
+sample.needprofile: Explicit instance identifier(s) required
+sample.bad.unknown: pmLookupDesc: Unknown or illegal metric identifier
+sample.bad.nosupport: Not Supported
+sample.bad.novalues: No value(s) available
+sample.event.type: No value(s) available
+sample.event.param_32: No value(s) available
+sample.event.param_u32: No value(s) available
+sample.event.param_64: No value(s) available
+sample.event.param_u64: No value(s) available
+sample.event.param_float: No value(s) available
+sample.event.param_double: No value(s) available
+sample.event.param_string: No value(s) available
+sample.event.param_aggregate: No value(s) available
+You will need to choose an appropriate configuration for installation of
+the "sample" Performance Metrics Domain Agent (PMDA).
+
+  collector	collect performance statistics on this system
+  monitor	allow this system to monitor local and/or remote systems
+  both		collector and monitor configuration for this system
+
+Please enter c(ollector) or m(onitor) or b(oth) [b] both
+======================
+= sample daemon PMDA =
+======================
+PMCD should communicate with the sample daemon via a pipe or a socket? [pipe] socket
+Use Internet, IPv6 or Unix domain sockets? [Internet] Internet
+Internet port number or service name? [2077] PORT2
+Installing files ...
+[...install files, make output...]
+Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+[...install files, make output...]
+Updating the PMCD control file, and notifying PMCD ...
+Check sample metrics have appeared ... 10+ warnings, 100+ metrics and 1300+ values
+======================
+= sampledso DSO PMDA =
+======================
+Installing files ...
+[...install files, make output...]
+Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+[...install files, make output...]
+Updating the PMCD control file, and notifying PMCD ...
+Check sampledso metrics have appeared ... 10+ warnings, 100+ metrics and 1300+ values
+sample.darkness: No value(s) available
+sample.noinst: No value(s) available
+sample.needprofile: Explicit instance identifier(s) required
+sample.bad.unknown: pmLookupDesc: Unknown or illegal metric identifier
+sample.bad.nosupport: Not Supported
+sample.bad.novalues: No value(s) available
+sample.event.type: No value(s) available
+sample.event.param_32: No value(s) available
+sample.event.param_u32: No value(s) available
+sample.event.param_64: No value(s) available
+sample.event.param_u64: No value(s) available
+sample.event.param_float: No value(s) available
+sample.event.param_double: No value(s) available
+sample.event.param_string: No value(s) available
+sample.event.param_aggregate: No value(s) available
+
+=== socket Unix agent ===
+You will need to choose an appropriate configuration for installation of
+the "sample" Performance Metrics Domain Agent (PMDA).
+
+  collector	collect performance statistics on this system
+  monitor	allow this system to monitor local and/or remote systems
+  both		collector and monitor configuration for this system
+
+Please enter c(ollector) or m(onitor) or b(oth) [b] both
+======================
+= sample daemon PMDA =
+======================
+PMCD should communicate with the sample daemon via a pipe or a socket? [pipe] socket
+Use Internet, IPv6 or Unix domain sockets? [Internet] Unix
+Unix FIFO name? TMP.fifo
+Installing files ...
+[...install files, make output...]
+Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+[...install files, make output...]
+Updating the PMCD control file, and notifying PMCD ...
+Check sample metrics have appeared ... 10+ warnings, 100+ metrics and 1300+ values
+======================
+= sampledso DSO PMDA =
+======================
+Installing files ...
+[...install files, make output...]
+Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+[...install files, make output...]
+Updating the PMCD control file, and notifying PMCD ...
+Check sampledso metrics have appeared ... 10+ warnings, 100+ metrics and 1300+ values
+sample.darkness: No value(s) available
+sample.noinst: No value(s) available
+sample.needprofile: Explicit instance identifier(s) required
+sample.bad.unknown: pmLookupDesc: Unknown or illegal metric identifier
+sample.bad.nosupport: Not Supported
+sample.bad.novalues: No value(s) available
+sample.event.type: No value(s) available
+sample.event.param_32: No value(s) available
+sample.event.param_u32: No value(s) available
+sample.event.param_64: No value(s) available
+sample.event.param_u64: No value(s) available
+sample.event.param_float: No value(s) available
+sample.event.param_double: No value(s) available
+sample.event.param_string: No value(s) available
+sample.event.param_aggregate: No value(s) available
+You will need to choose an appropriate configuration for installation of
+the "sample" Performance Metrics Domain Agent (PMDA).
+
+  collector	collect performance statistics on this system
+  monitor	allow this system to monitor local and/or remote systems
+  both		collector and monitor configuration for this system
+
+Please enter c(ollector) or m(onitor) or b(oth) [b] both
+======================
+= sample daemon PMDA =
+======================
+PMCD should communicate with the sample daemon via a pipe or a socket? [pipe] socket
+Use Internet, IPv6 or Unix domain sockets? [Internet] Unix
+Unix FIFO name? TMP.fifo
+Installing files ...
+[...install files, make output...]
+Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+[...install files, make output...]
+Updating the PMCD control file, and notifying PMCD ...
+Check sample metrics have appeared ... 10+ warnings, 100+ metrics and 1300+ values
+======================
+= sampledso DSO PMDA =
+======================
+Installing files ...
+[...install files, make output...]
+Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+[...install files, make output...]
+Updating the PMCD control file, and notifying PMCD ...
+Check sampledso metrics have appeared ... 10+ warnings, 100+ metrics and 1300+ values
+sample.darkness: No value(s) available
+sample.noinst: No value(s) available
+sample.needprofile: Explicit instance identifier(s) required
+sample.bad.unknown: pmLookupDesc: Unknown or illegal metric identifier
+sample.bad.nosupport: Not Supported
+sample.bad.novalues: No value(s) available
+sample.event.type: No value(s) available
+sample.event.param_32: No value(s) available
+sample.event.param_u32: No value(s) available
+sample.event.param_64: No value(s) available
+sample.event.param_u64: No value(s) available
+sample.event.param_float: No value(s) available
+sample.event.param_double: No value(s) available
+sample.event.param_string: No value(s) available
+sample.event.param_aggregate: No value(s) available
+Culling the Performance Metrics Name Space ...
+sample ... done
+Updating the PMCD control file, and notifying PMCD ...
+Removing files ...
+Check sample metrics have gone away ... OK
+Culling the Performance Metrics Name Space ...
+sampledso ... done
+Updating the PMCD control file, and notifying PMCD ...
+Removing files ...
+Check sampledso metrics have gone away ... OK
+Error: sample: Unknown metric name
+
+Reinstall PMDA ...
+You will need to choose an appropriate configuration for installation of
+the "sample" Performance Metrics Domain Agent (PMDA).
+
+  collector	collect performance statistics on this system
+  monitor	allow this system to monitor local and/or remote systems
+  both		collector and monitor configuration for this system
+
+Please enter c(ollector) or m(onitor) or b(oth) [b] ======================
+= sample daemon PMDA =
+======================
+Installing files ...
+[...install files, make output...]
+Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+[...install files, make output...]
+Updating the PMCD control file, and notifying PMCD ...
+Check sample metrics have appeared ... 10+ warnings, 100+ metrics and 1300+ values
+======================
+= sampledso DSO PMDA =
+======================
+Installing files ...
+[...install files, make output...]
+Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+[...install files, make output...]
+Updating the PMCD control file, and notifying PMCD ...
+Check sampledso metrics have appeared ... 10+ warnings, 100+ metrics and 1300+ values

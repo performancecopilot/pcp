@@ -1,0 +1,100 @@
+#!/bin/sh
+#
+# Add unlimited pmlc access from the local network to the default
+# pmlogger.
+#
+# TODO IPv6?
+#
+
+tmp=/var/tmp/$$
+sts=0
+trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
+
+# add additional and optional directories
+for dir in /sbin /usr/sbin
+do
+    if [ -d "$dir" ]
+    then
+	if echo ":$PATH:" | grep -q ":$dir:"
+	then
+	    :
+	else
+	    export PATH="$PATH:$dir"
+	    #debug# echo add $dir to \$PATH
+	fi
+    fi
+done
+
+# same function is in check-vm ... need to track changes
+#
+_getnetworkaddr()
+{
+    if `which hostname >/dev/null 2>&1`
+    then
+	host=`hostname`
+	if `which host >/dev/null 2>&1`
+	then
+	    addr=`host $host | sed -e 's/.*address //'`
+	    if `which ifconfig >/dev/null 2>&1`
+	    then
+		mask=`ifconfig | grep $addr | sed -e 's/.*Mask://' -e 's/.*netmask \([^ ][^ ]*\).*/\1/'`
+		case "$mask"
+		in
+		    255.255.255.0|0xffffff00)	# /24 network
+			echo "$addr" | sed -e 's/\.[0-9]*$/.*/'
+			;;
+		    # pmcd's [access] is not smart enough to handle other
+		    # than /24 networks, so map the other likely options
+		    # to the broader /24 network
+		    #
+		    255.255.255.128|255.255.255.192|255.255.255.224|255.255.255.240|255.255.255.248|255.255.255.252|255.255.255.254)
+			echo "$addr" | sed -e 's/\.[0-9]*$/.*/'
+			;;
+		    *)
+			echo >&2 "_getnetworkaddr: Warning: cannot handle network mask: $mask"
+			;;
+		esac
+	    else
+		echo >&2 "No ifconfig(1)? Not sure how to get primary ip addr and netmask"
+	    fi
+	else
+	    echo >&2 "No host(1)? Not sure how to get primary ip addr and netmask"
+	fi
+    else
+	echo >&2 "No hostname(1)? Not sure how to get primary ip addr and netmask"
+    fi
+}
+
+network=`_getnetworkaddr`
+
+if [ -z "$network" ]
+then
+    echo "Arrgh ... cannot discover local network IP address"
+    sts=1
+    exit
+fi
+
+if [ -f /etc/pcp.conf ]
+then
+    . /etc/pcp.conf
+
+    # TODO ... check in pmlogger for config file name ... other than
+    # assuming config.default
+    if [ -f $PCP_VAR_DIR/config/pmlogger/config.default ]
+    then
+	if grep -q "allow $network" $PCP_VAR_DIR/config/pmlogger/config.default
+	then
+	    echo "Already done."
+	else
+	    cp $PCP_VAR_DIR/config/pmlogger/config.default $tmp.conf
+	    # TODO check for [access] at the end already?
+	    echo "allow $network : all;" >>$tmp.conf
+	    diff -u $PCP_VAR_DIR/config/pmlogger/config.default $tmp.conf
+	    sudo cp $tmp.conf $PCP_VAR_DIR/config/pmlogger/config.default
+	fi
+    else
+	echo "Warning: \"$PCP_VAR_DIR/config/pcp/pmlogger/config.default\" is missing"
+    fi
+else
+    echo "Warning: \"/etc/pcp.conf\" is missing"
+fi

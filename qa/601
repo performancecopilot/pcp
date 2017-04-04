@@ -1,0 +1,209 @@
+#! /bin/sh
+# PCP QA Test No. 601
+# PCP 2.2 duplicate of 273 (pmdatrace, pmtrace, and libpcp_trace tests)
+#
+# Copyright (c) 2015 Red Hat.
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ -f $PCP_PMDAS_DIR/trace/pmdatrace ] || _notrun "trace pmda not installed"
+
+_cleanup()
+{
+    cd $here
+    if [ -n "$savedtracehost" ]
+    then
+	PCP_TRACE_HOST=$savedtracehost; export PCP_TRACE_HOST
+    fi
+    if $_needclean
+    then
+	if $install_on_cleanup
+	then
+	    ( cd $PCP_PMDAS_DIR/trace; $sudo ./Install </dev/null >/dev/null 2>&1 )
+	else
+	    ( cd $PCP_PMDAS_DIR/trace; $sudo ./Remove </dev/null >/dev/null 2>&1 )
+	fi
+	_needclean=false
+    fi
+    rm -f $tmp.*
+    exit $status
+}
+
+install_on_cleanup=false
+pminfo trace >/dev/null 2>&1 && install_on_cleanup=true
+
+status=1	# failure is the default!
+_needclean=true
+trap "_cleanup" 0 1 2 3 15
+
+if [ -n "$PCP_TRACE_HOST" ]
+then
+    savedtracehost=$PCP_TRACE_HOST; unset PCP_TRACE_HOST
+fi
+
+thishost=`hostname`
+
+_filter_trace_install()
+{
+    # some warnings are *expected* - no trace values yet
+    _filter_pmda_install | sed \
+	-e 's/ *[0-9]+ warnings,//g'
+}
+
+# real QA test starts here
+
+cd $PCP_PMDAS_DIR/trace
+$sudo ./Install -R / </dev/null 2>&1 | _filter_trace_install
+cd $here
+
+_wait_for_pmcd
+
+period=`pminfo -f trace.control.period | fgrep value | sed -e 's/.*value //g'`
+interval=`pminfo -f trace.control.interval | fgrep value | sed -e 's/.*value //g'`
+
+if [ -z "$interval" -o -z "$period" ]
+then
+    echo "Cannot retrieve interval or update period."
+    exit 1
+else
+    echo "Initial values: period=$period,interval=$interval"
+fi
+
+echo "=== TRANSACTIONS ==="
+pmtrace -q -h $thishost -e 'sleep 1' sleep1
+pmtrace -q -h $thishost -e 'sleep 3' sleep2
+pmtrace -q -h $thishost -e 'sleep 2' 'third sleep'
+echo "Waiting for buffers to rotate (1/3) ..."
+sleep $interval
+pmtrace -q -h $thishost -e 'sleep 2' 'third sleep'
+echo "Waiting for buffers to rotate (2/3) ..."
+sleep $interval
+pmtrace -q -h $thishost -e 'sleep 2' sleep1
+pmtrace -q -h $thishost -e 'sleep 1' sleep1
+echo "Waiting for buffers to rotate (3/3) ..."
+sleep $interval
+
+# These are deterministic:
+pminfo -f trace.transact.count
+pminfo -f trace.transact.min_time trace.transact.max_time \
+	| sed -e 's/\.[0-9][0-9]*//g'
+
+# These fluctuate slightly above theoretical result (system() & trace overhead):
+rate=`pminfo -f trace.transact.rate | fgrep sleep1 | sed -e 's/.*value //g'`
+ave_time=`pminfo -f trace.transact.ave_time | fgrep sleep1 | sed -e 's/.*value //g'`
+
+# Use bc to get these as integers, and then compare in the shell ...
+rate=`bc << EOF
+scale=5
+(3 / $period) * 100000
+$rate * 100000
+EOF` | $PCP_AWK_PROG '
+{
+    if ($2 < $1) { 
+	printf("Out of range - trace.transact.rate[sleep1] (%s < %s)\n",$2,$1);
+    }
+}'
+echo "Finished checking trace.transact.rate"
+
+ave_time=`bc << EOF
+scale=5
+(4 / 3) * 100000
+$ave_time * 100000
+EOF` | $PCP_AWK_PROG '
+{
+    if ($2 < $1) { 
+	printf("Out of range - trace.transact.ave_time[sleep1] (%s < %s)\n",$2,$1);
+    }
+}'
+echo "Finished checking trace.transact.ave_time"
+
+echo "=== OBSERVATIONS ==="
+pmtrace -h $thishost -q -v 200 obs1
+pmtrace -h $thishost -q -v 0.765 obs2
+echo "Waiting for buffers to rotate (1/3) ..."
+sleep $interval
+pmtrace -h $thishost -q -v 210 obs1
+pmtrace -h $thishost -q -v 220 obs1
+echo "Waiting for buffers to rotate (2/3) ..."
+sleep $interval
+pmtrace -h $thishost -q -v 230 obs1
+pmtrace -h $thishost -q -v 240 obs1
+echo "Waiting for buffers to rotate (3/3) ..."
+sleep $interval
+
+pminfo -f trace.observe.count trace.observe.value
+rate=`pminfo -f trace.observe.rate | fgrep obs1 | sed -e 's/.*value //g'`
+rate=`bc << EOF
+scale=5
+(5 / $period) * 100000
+$rate * 100000
+EOF` | $PCP_AWK_PROG '
+{
+    if ($2 != $1) { 
+	printf("Result mismatch - trace.observe.rate[obs1] (%s != %s)\n",$1,$2);
+    }
+}'
+echo "Finished checking trace.observe.rate"
+
+echo "=== COUNTERS ==="
+pmtrace -h $thishost -q -c 200 cnt1
+pmtrace -h $thishost -q -c 0.765 cnt2
+echo "Waiting for buffers to rotate (1/3) ..."
+sleep $interval
+pmtrace -h $thishost -q -c 210 cnt1
+pmtrace -h $thishost -q -c 220 cnt1
+echo "Waiting for buffers to rotate (2/3) ..."
+sleep $interval
+pmtrace -h $thishost -q -c 230 cnt1
+pmtrace -h $thishost -q -c 240 cnt1
+echo "Waiting for buffers to rotate (3/3) ..."
+sleep $interval
+
+pminfo -f trace.counter.count trace.counter.value
+rate=`pminfo -f trace.counter.rate | fgrep cnt1 | sed -e 's/.*value //g'`
+rate=`bc << EOF
+scale=5
+(5 / $period) * 100000
+$rate * 100000
+EOF` | $PCP_AWK_PROG '
+{
+    if ($2 != $1) {
+	printf("Result mismatch - trace.counter.rate[obs1] (%s != %s)\n",$1,$2);    }
+}'
+echo "Finished checking trace.counter.rate"
+
+echo "=== POINT ==="
+# Point & observe rates calculated the same, so check pmtrace point works.
+pmtrace -h $thishost -q 'good point'
+sleep $interval
+pminfo -f trace.point
+echo "Finished checking trace.point"
+
+$PCP_ECHO_PROG $PCP_ECHO_N "Checking sample programs build - ""$PCP_ECHO_C"
+cd $PCP_DEMOS_DIR/trace
+$sudo $PCP_MAKE_PROG clobber 2>&1 >/dev/null
+$sudo $PCP_MAKE_PROG app1 app2 app3 pmtrace >$tmp.make 2>&1
+if [ $? -ne 0 ]
+then
+    $PCP_ECHO_PROG "demo trace programs make failed.  Here is the make output ..."
+    cat $tmp.make
+    exit 1
+else
+    $PCP_ECHO_PROG make succeeded.
+fi
+
+$PCP_DEMOS_DIR/trace/app1 >/dev/null 2>&1
+sleep $interval
+pminfo -f trace.transact.count
+
+# success, all done
+status=0
+exit

@@ -1,0 +1,383 @@
+'\"! tbl | mmdoc
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMFETCH 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmFetch\f1 \- get performance metric values
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.sp
+.nf
+int pmFetch(int \fInumpmid\fP, pmID *\fIpmidlist\fP, pmResult **\fIresult\fP);
+.fi
+.sp
+cc ... \-lpcp
+.ft 1
+.SH DESCRIPTION
+.de CW
+.ie t \f(CW\\$1\fR\\$2
+.el \fI\\$1\fR\\$2
+..
+.\" some useful acronyms ... always cite the full text at the first use
+.\" and use uppercase acronym thereafter
+.\" Performance Metrics Application Programming Interface (PMAPI)
+.\" Performance Metrics Name Space (PMNS)
+.\" Performance Metrics Collector Daemon (PMCD)
+.\" Performance Metric Identifier (PMID)
+Given a list of Performance Metric Identifiers (PMID)s,
+e.g. as constructed by
+.BR pmLookupName (3),
+via
+.I pmidlist
+and
+.IR numpmid ,
+fetch the values for these performance metrics.
+.PP
+The call to
+.B pmFetch
+is executed in the context of a source of metrics,
+instance profile and collection time,
+previously established by calls to
+the appropriate context and profile functions, namely some of
+.BR pmNewContext (3),
+.BR pmDupContext (3),
+.BR pmUseContext (3),
+.BR pmAddProfile (3),
+.BR pmDelProfile (3)
+and
+.BR pmSetMode (3).
+.PP
+The principal result from
+.B pmFetch
+is returned in the
+argument
+.I result
+as a tree, using the following component data structures;
+.PP
+.ft CW
+.nf
+.in +0.5i
+typedef struct {
+      unsigned int vtype : 8;        /* value type (same as pmDesc.type) */
+      unsigned int vlen : 24;        /* bytes for vtype/vlen + vbuf */
+      char         vbuf[1];          /* one or more values */
+} pmValueBlock;
+
+typedef struct {
+      int      inst;                 /* instance identifier */
+      union {
+            pmValueBlock *pval;      /* pointer to value-block */
+            int          lval;       /* integer value insitu */
+      } value;
+} pmValue;
+
+typedef struct {
+      pmID      pmid;                /* metric identifier */
+      int       numval;              /* number of values or error code */
+      int       valfmt;              /* value style, insitu or ptr */
+      pmValue   vlist[1];            /* set of instances/values */
+} pmValueSet;
+
+/* Result returned by pmFetch() */
+typedef struct {
+      struct timeval timestamp;      /* time stamped by collector */
+      int            numpmid;        /* number of PMIDs */
+      pmValueSet     *vset[1];       /* set of value sets */
+} pmResult;
+.in
+.fi
+.ft 1
+.PP
+To accommodate metrics with multiple value instances, the
+.CW numval
+field indicates how many values are returned for each requested PMID.
+The field
+.CW valfmt
+in the 
+.CW pmValueSet
+structure indicates if the values for this metric are stored
+.I insitu
+in the 
+.CW lval
+field, i.e. a 32-bit integer quantity (either int, unsigned int,
+long or unsigned long) or if the values are held in associated 
+.CW pmValueBlock
+structures.
+The
+.CW pmValueBlock
+structure is always used for floating point values (float or double)
+and also accommodates arbitrary sized binary data such as
+`string-valued' metrics and metrics with aggregated or complex data types.
+The maximum length of a
+.CW pmValueBlock
+buffer is
+.B PM_VAL_VLEN_MAX
+bytes.
+If the
+.CW pmValueBlock
+format is used, the
+.CW vtype
+field indicates the data type of the value.
+This field has the same interpretation as the
+.CW type
+field in the
+.B pmDesc
+structure,
+see
+.BR pmLookupDesc (3).
+.PP
+Note that the insitu value may be a signed or unsigned 32 bit integer,
+signed or unsigned 32 bit long value (on 32 bit platforms),
+In the special cases described below, it may also be a 32 bit floating
+point value.
+If the application needs to know the type of an insitu value,
+which is almost always the case, it is necessary to
+fetch the descriptor for the metric
+and interpret the
+.B type
+field, as described in detail in
+.BR pmLookupDesc (3).
+When the
+.CW pmResult
+is received from a PCP1.x
+.BR pmcd ,
+insitu values may also be 32 bit floating point values
+(of type
+.BR PM_TYPE_FLOAT ).
+In all cases, it is good practice to use
+.BR pmLookupDesc (3)
+to fetch the descriptor for the metric and interpret the
+.B type
+field therein.
+Note also that the
+.BR PMAPI (3)
+will automatically translate from the PCP2.0 format
+to the PCP1.x format when a PCP1.x client requests 32 bit floating point values
+from a PCP2.0
+.BR pmcd ,
+but the reverse translation does not occur (because the PCP2.0
+.B pmcd
+cannot automatically distinguish between arbitrary 32 bit floating point values
+and 32 bit integers).
+.PP
+If one value (i.e. associated with a particular instance)
+for a requested metric is `unavailable' (at the requested time),
+then there is no associated 
+.CW pmValue
+structure in the 
+.IR result .
+If there are no available values for a metric,
+then
+.CW numval
+will be zero and the associated 
+.CW pmValue[]
+instance will be empty (\c
+.CW valfmt
+is undefined in these circumstances,
+however 
+.CW pmid
+will be correctly set to the PMID of the metric with no values).
+.PP
+As an extension of this protocol,
+if the Performance Metrics Collection System (PMCS)
+is able to provide a reason why no values are available 
+for a particular metric,
+this is encoded as a standard error code in the corresponding 
+.CW numval .
+Since the error codes are all negative,
+values for a requested metric are `unavailable' if
+.CW numval
+is less than, or equal to, zero.
+A performance metric's value may be `unavailable'
+for a number of reasons; the following list is illustrative but
+not exhaustive:
+of the software for the associated Performance Metric Domain
+.IP "+"
+Collection is not currently activated
+in the software for the associated Performance Metric Domain
+.IP "+"
+The associated PMID is not known
+.IP "+"
+The current system configuration does not include
+the associated hardware component and/or the associated software module,
+e.g. a disk is not installed, or off-line, or Oracle is not installed
+.IP "+"
+The metric is one for which an instance profile is required,
+and none was provided (there are a small number of metrics in this category,
+typically ones with very large, and/or very 
+dynamic instance domains, and/or expensive metric instantiation methods).
+.IP "+"
+If the current context involves fetching metrics from an archive log,
+values may be unavailable in the region around a
+.I <mark>
+record (see
+.BR pmlogextract (1))
+that indicate a temporal discontinuity in the time-series of
+metric values.
+.PP
+In general, we may not be able to differentiate between the various cases,
+and if differentiation is not possible, 
+.CW numval
+will simply be zero.
+.PP
+The argument definition and the result specifications have been constructed
+to ensure that for each PMID in the requested 
+.I pmidlist
+there is exactly one 
+.CW pmValueSet
+in the 
+.IR result ,
+and further the PMIDs appear in exactly the same sequence in both
+.I pmidlist
+and 
+.IR result .
+This makes the number 
+and order of entries in 
+.I result
+completely deterministic,
+and greatly simplifies the application programming logic
+after the call to 
+.BR pmFetch .
+.PP
+The 
+.I result
+structure returned by 
+.B pmFetch
+is dynamically allocated using
+a combination of 
+.BR malloc (3)
+calls
+and specialized allocation strategies,
+and should be released when no longer required by calling
+.BR pmFreeResult (3)
+\- under no circumstances should 
+.BR free (3)
+be called directly to release this space.
+.PP
+As common error conditions are encoded
+in the 
+.I result
+data structure, we'd expect only cataclysmic events
+to cause an error value to be returned.
+One example would be if the metrics source context was a remote host,
+and that host or the PMCS on that host became unreachable.
+Otherwise the value returned by the 
+.B pmFetch
+function will be non-negative.
+.PP
+If the current context involves fetching metrics from a
+Performance Metrics Collector Daemon (PMCD), then the return value
+may be used to encode out-of-band changes in the state of the
+PMCD and the associated
+Performance Metrics Daemon Agents (PMDAs), as a bit-wise ``or'' of the
+following values:
+.sp 0.5v
+.IP \fBPMCD_RESTART_AGENT\fR 20n
+An attempt has been made to restart at least one failed PMDA.
+.IP \fBPMCD_ADD_AGENT\fR
+At least one PMDA has been started.
+.IP \fBPMCD_DROP_AGENT\fR
+PMCD has noticed the termination of at least one PMDA.
+.PP
+The default is to return zero to indicate
+no change in state, however
+the
+.CW pmResult
+returned by
+.B pmFetch
+has the same interpretation independent of the return value being
+zero or greater than zero.
+.SH SEE ALSO
+.BR pmcd (1),
+.BR pmAddProfile (3),
+.BR PMAPI (3),
+.BR pmDelProfile (3),
+.BR pmDupContext (3),
+.BR pmExtractValue (3),
+.BR pmFetchArchive (3),
+.BR pmFreeResult (3),
+.BR pmGetInDom (3),
+.BR pmLookupDesc (3),
+.BR pmLookupName (3),
+.BR pmNewContext (3),
+.BR pmSetMode (3),
+.BR pmUseContext (3)
+and
+.BR pmWhichContext (3).
+.PP
+Note that
+.B pmFetch
+is the most primitive method of fetching metric values from the PMCS.
+See the
+.BR pmFetchGroup (3)
+API for a higher level method that insulates
+the user from the intricacies of looking up metric names and metadata,
+setting up instance profiles, 
+.CW pmResult
+traversal, conversions, and scaling.
+.SH DIAGNOSTICS
+As mentioned above,
+.B pmFetch
+returns error codes
+.I insitu
+in the argument
+.IR result .
+If no result is returned,
+e.g. due to IPC failure using the current PMAPI context, or
+end of file on an archive log,
+then
+.B pmFetch
+will return a negative error code which may be examined using
+.BR pmErrStr (3).
+.IP \f3PM_ERR_EOL\f1
+When fetching records from an archive log,
+.B pmFetch
+returns this error code to indicate the end of the log has been
+passed (or the start of the log has been passed, if the direction
+of traversal is backwards in time).
+If the ``mode'' for the current PMAPI context (see
+.BR pmSetMode (3))
+is
+.B PM_MODE_INTERP
+then the time origin is advanced, even when this error code is
+returned.
+In this way applications that position the time outside the range
+defined by the records in the archive, and then commence to
+.B pmFetch
+will eventually see valid results once the time origin moves inside
+the temporal span of the archive.
+.SH ENVIRONMENT
+Many of the performance metrics exported from PCP agents have the
+semantics of
+.I counter
+meaning they are expected to be monotonically increasing.
+Under some circumstances, one value of these metrics may be smaller
+than the previously fetched value.
+This can happen when a counter of finite precision overflows, or
+when the PCP agent has been reset or restarted, or when the
+PCP agent is exporting values from some
+underlying instrumentation that is subject to some asynchronous
+discontinuity.
+.sp 0.5v
+The environment variable
+.B PCP_COUNTER_WRAP
+may be set to indicate that all such cases of a decreasing ``counter''
+should be treated
+as a counter overflow, and hence the values are assumed to have
+wrapped once in the interval between consecutive samples.
+This ``wrapping'' behavior was the default in earlier PCP versions, but
+by default has been disabled in PCP version 1.3 and later.

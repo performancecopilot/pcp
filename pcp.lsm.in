@@ -1,0 +1,28 @@
+Begin4
+Title:          Performance Co-Pilot
+Version:        @PACKAGE_VERSION@
+Entered-date:   @PACKAGE_BUILD_DATE@
+Description:    Performance Co-Pilot (PCP) provides a framework and
+		services to support system-level performance monitoring
+		and management.  It presents a unifying abstraction for
+		all of the performance data in a system, and many tools
+		for interrogating, retrieving and processing that data.
+
+		PCP is a feature-rich, mature, extensible, cross-platform
+		toolkit supporting both live and retrospective analysis.
+		The distributed PCP architecture makes it especially
+		useful for those seeking centralized monitoring of
+		distributed processing.
+
+		For more information and details on how to contribute to
+		the PCP project visit http://www.pcp.io
+
+Keywords:       performance, monitoring, system, status, distributed
+Author:         pcp@groups.io (PCP Development Team)
+Maintained-by:  pcp@groups.io (PCP Development Team)
+Primary-site:   https://bintray.com/pcp
+Alternate-site:
+Original-site:  https://bintray.com/pcp
+Platforms:      Linux, MacOSX, Solaris, AIX, FreeBSD, NetBSD, Windows
+Copying-policy: GPL (libraries are LGPL)
+End

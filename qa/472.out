@@ -1,0 +1,85 @@
+QA output created by 472
+Only one context ...
+ 100 func1: pmcd.buf.alloc: indom contains 7 instances: iiiiiii nnnnnnn
+ 100 func1: pmcd.control.register: indom contains 16 instances: iiiiiiiiiiiiiiii nnnnnnnnnnnnnnnn
+ 100 func1: sample.colour: indom contains 3 instances: iii nnn
+ 100 func1: sample.ulonglong.ten: singular
+ 100 func1: sampledso.bin: indom contains 9 instances: iiiiiiiii nnnnnnnnn
+ 100 func2: pmcd.buf.alloc: indom contains 7 instances: iiiiiii nnnnnnn
+ 100 func2: pmcd.control.register: indom contains 16 instances: iiiiiiiiiiiiiiii nnnnnnnnnnnnnnnn
+ 100 func2: sample.colour: indom contains 3 instances: iii nnn
+ 100 func2: sample.ulonglong.ten: singular
+ 100 func2: sampledso.bin: indom contains 9 instances: iiiiiiiii nnnnnnnnn
+ 100 func3: pmcd.buf.alloc: indom contains 7 instances: iiiiiii nnnnnnn
+ 100 func3: pmcd.control.register: indom contains 16 instances: iiiiiiiiiiiiiiii nnnnnnnnnnnnnnnn
+ 100 func3: sample.colour: indom contains 3 instances: iii nnn
+ 100 func3: sample.ulonglong.ten: singular
+ 100 func3: sampledso.bin: indom contains 9 instances: iiiiiiiii nnnnnnnnn
+
+Two contexts, same host, different fd's ...
+ 100 func1: pmcd.buf.alloc: indom contains 7 instances: iiiiiii nnnnnnn
+ 100 func1: pmcd.control.register: indom contains 16 instances: iiiiiiiiiiiiiiii nnnnnnnnnnnnnnnn
+ 100 func1: sample.colour: indom contains 3 instances: iii nnn
+ 100 func1: sample.ulonglong.ten: singular
+ 100 func1: sampledso.bin: indom contains 9 instances: iiiiiiiii nnnnnnnnn
+ 100 func2: pmcd.buf.alloc: indom contains 7 instances: iiiiiii nnnnnnn
+ 100 func2: pmcd.control.register: indom contains 16 instances: iiiiiiiiiiiiiiii nnnnnnnnnnnnnnnn
+ 100 func2: sample.colour: indom contains 3 instances: iii nnn
+ 100 func2: sample.ulonglong.ten: singular
+ 100 func2: sampledso.bin: indom contains 9 instances: iiiiiiiii nnnnnnnnn
+ 100 func3: pmcd.buf.alloc: indom contains 7 instances: iiiiiii nnnnnnn
+ 100 func3: pmcd.control.register: indom contains 16 instances: iiiiiiiiiiiiiiii nnnnnnnnnnnnnnnn
+ 100 func3: sample.colour: indom contains 3 instances: iii nnn
+ 100 func3: sample.ulonglong.ten: singular
+ 100 func3: sampledso.bin: indom contains 9 instances: iiiiiiiii nnnnnnnnn
+
+Two contexts, same host, same fd's ...
+ 100 func1: pmcd.buf.alloc: indom contains 7 instances: iiiiiii nnnnnnn
+ 100 func1: pmcd.control.register: indom contains 16 instances: iiiiiiiiiiiiiiii nnnnnnnnnnnnnnnn
+ 100 func1: sample.colour: indom contains 3 instances: iii nnn
+ 100 func1: sample.ulonglong.ten: singular
+ 100 func1: sampledso.bin: indom contains 9 instances: iiiiiiiii nnnnnnnnn
+ 100 func2: pmcd.buf.alloc: indom contains 7 instances: iiiiiii nnnnnnn
+ 100 func2: pmcd.control.register: indom contains 16 instances: iiiiiiiiiiiiiiii nnnnnnnnnnnnnnnn
+ 100 func2: sample.colour: indom contains 3 instances: iii nnn
+ 100 func2: sample.ulonglong.ten: singular
+ 100 func2: sampledso.bin: indom contains 9 instances: iiiiiiiii nnnnnnnnn
+ 100 func3: pmcd.buf.alloc: indom contains 7 instances: iiiiiii nnnnnnn
+ 100 func3: pmcd.control.register: indom contains 16 instances: iiiiiiiiiiiiiiii nnnnnnnnnnnnnnnn
+ 100 func3: sample.colour: indom contains 3 instances: iii nnn
+ 100 func3: sample.ulonglong.ten: singular
+ 100 func3: sampledso.bin: indom contains 9 instances: iiiiiiiii nnnnnnnnn
+
+Three contexts, same host, different fd's ...
+ 100 func1: pmcd.buf.alloc: indom contains 7 instances: iiiiiii nnnnnnn
+ 100 func1: pmcd.control.register: indom contains 16 instances: iiiiiiiiiiiiiiii nnnnnnnnnnnnnnnn
+ 100 func1: sample.colour: indom contains 3 instances: iii nnn
+ 100 func1: sample.ulonglong.ten: singular
+ 100 func1: sampledso.bin: indom contains 9 instances: iiiiiiiii nnnnnnnnn
+ 100 func2: pmcd.buf.alloc: indom contains 7 instances: iiiiiii nnnnnnn
+ 100 func2: pmcd.control.register: indom contains 16 instances: iiiiiiiiiiiiiiii nnnnnnnnnnnnnnnn
+ 100 func2: sample.colour: indom contains 3 instances: iii nnn
+ 100 func2: sample.ulonglong.ten: singular
+ 100 func2: sampledso.bin: indom contains 9 instances: iiiiiiiii nnnnnnnnn
+ 100 func3: pmcd.buf.alloc: indom contains 7 instances: iiiiiii nnnnnnn
+ 100 func3: pmcd.control.register: indom contains 16 instances: iiiiiiiiiiiiiiii nnnnnnnnnnnnnnnn
+ 100 func3: sample.colour: indom contains 3 instances: iii nnn
+ 100 func3: sample.ulonglong.ten: singular
+ 100 func3: sampledso.bin: indom contains 9 instances: iiiiiiiii nnnnnnnnn
+
+Three contexts, same host, same fd's ...
+ 100 func1: pmcd.buf.alloc: indom contains 7 instances: iiiiiii nnnnnnn
+ 100 func1: pmcd.control.register: indom contains 16 instances: iiiiiiiiiiiiiiii nnnnnnnnnnnnnnnn
+ 100 func1: sample.colour: indom contains 3 instances: iii nnn
+ 100 func1: sample.ulonglong.ten: singular
+ 100 func1: sampledso.bin: indom contains 9 instances: iiiiiiiii nnnnnnnnn
+ 100 func2: pmcd.buf.alloc: indom contains 7 instances: iiiiiii nnnnnnn
+ 100 func2: pmcd.control.register: indom contains 16 instances: iiiiiiiiiiiiiiii nnnnnnnnnnnnnnnn
+ 100 func2: sample.colour: indom contains 3 instances: iii nnn
+ 100 func2: sample.ulonglong.ten: singular
+ 100 func2: sampledso.bin: indom contains 9 instances: iiiiiiiii nnnnnnnnn
+ 100 func3: pmcd.buf.alloc: indom contains 7 instances: iiiiiii nnnnnnn
+ 100 func3: pmcd.control.register: indom contains 16 instances: iiiiiiiiiiiiiiii nnnnnnnnnnnnnnnn
+ 100 func3: sample.colour: indom contains 3 instances: iii nnn
+ 100 func3: sample.ulonglong.ten: singular
+ 100 func3: sampledso.bin: indom contains 9 instances: iiiiiiiii nnnnnnnnn

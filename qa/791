@@ -1,0 +1,42 @@
+#!/bin/sh
+# PCP QA Test No. 791
+# valgrind pmlogextract
+#
+# Copyright (c) 2015 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_check_valgrind
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+cat <<End-of-File >$tmp.config
+sample.long
+sample.longlong
+sample.bin [ "bin-400", 'bin-bad', "bin-500", "bin-600" ]
+End-of-File
+_run_valgrind pmlogextract -c $tmp.config archives/foo+ $tmp >$tmp.out 2>$tmp.err
+cat $tmp.out $tmp.err \
+| sed \
+    -e "s;$tmp;TMP;g" \
+#
+
+echo
+pminfo -a $tmp
+echo
+pmdumplog -z $tmp sample.bin
+
+# success, all done
+status=0
+
+exit

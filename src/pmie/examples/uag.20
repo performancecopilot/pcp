@@ -1,0 +1,7 @@
+//
+// a rule expression with multiple actions and %-binding in the
+// arguments for the action methods
+//
+some_inst ( disk.dev.total > 60 )
+    -> syslog 10 mins "[%i] busy, %v IOPS " &
+       shell 1 hour "echo 'Disk %i is REALLY busy. Running at %v I/Os per second' | Mail -s 'pmie alarm' sysadm";

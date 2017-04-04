@@ -1,0 +1,12 @@
+//
+// quantification examples
+//
+
+// some_instance
+all_intf = network.interface.in.packets
+		#ec0 #ec2 @0..2 > 300 count/sec;
+any_sample = some_sample
+		network.interface.in.packets
+		    #ec0 #ec2 @0..2 > 300 count/sec;
+
+

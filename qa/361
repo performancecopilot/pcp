@@ -1,0 +1,81 @@
+#! /bin/sh
+# PCP QA Test No. 361
+# Exercise cgroup metrics in the Linux PMDA
+#
+# Copyright (c) 2010 Aconex.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ $PCP_PLATFORM = linux ] || _notrun "tests pmdalinux functionality on Linux only"
+
+_cleanup()
+{
+    rm -f $tmp.*
+    $sudo umount $grp 2>/dev/null
+    rmdir $grp 2>/dev/null
+}
+
+_filter()
+{
+    grep -v percpu \
+    | LC_COLLATE=POSIX sort
+}
+
+prefix=cgroup
+grp=/tmp/cgroup_$seq
+status=1	# failure is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+[ -f /proc/cgroups ] || _notrun "No support for cgroups in the running kernel"
+grep -q cgroup /proc/mounts && _notrun "One or more cgroups already in use"
+grep -q cpuacct /proc/cgroups || _notrun "No cpuacct cgroup support"
+grep -q cpuset /proc/cgroups || _notrun "No cpuset cgroup support"
+grep -q cpu /proc/cgroups || _notrun "No cpusched cgroup support"
+
+rmdir $grp 2>/dev/null
+mkdir $grp || _fail "Cannot create cgroup mount point"
+
+# since the proc PMDA was split from the Linux PMDA, the proc PMDA may
+# not be installed (caught by the notrun cases above) or installed as
+# a daemon, in which case the standard processing of pmcd.conf for
+# a local PMAPI context connection will not find it, so may have to
+# be specific about the proc PMDA DSO location
+#
+pmda="-Kclear -Kadd,3,$PCP_PMDAS_DIR/proc/pmda_proc.so,proc_init"
+
+# real test starts here
+echo "initial fetch, starting with a clean slate"
+pmprobe -L $pmda -v $prefix.mounts | _filter
+
+echo "cpu metrics fetch, no user groups defined, single controller"
+$sudo mount -t cgroup -o cpu none $grp || _fail "cpuset mount"
+pmprobe -v -L $pmda $prefix.mounts | _filter
+pmprobe -I -L $pmda $prefix.cpusched | _filter
+$sudo umount $grp || _fail "cpu umount"
+
+echo "cpuacct and cpuset fetch, no user groups defined, dual controllers"
+$sudo mount -t cgroup -o cpuacct,cpuset none $grp || _fail "cpu,cpuacct mount"
+pmprobe -v -L $pmda $prefix.mounts | _filter
+pmprobe -I -L $pmda $prefix.cpuacct $prefix.cpuset | _filter
+$sudo umount $grp || _fail "cpu,cpuacct cgroup umount"
+
+echo "cpuacct and cpuset fetch, one user group defined, dual controllers"
+$sudo mount -t cgroup -o cpuacct,cpuset none $grp || _fail "cpu,cpuacct mount"
+$sudo mkdir $grp/pcpqa
+pmprobe -v -L $pmda $prefix.mounts | _filter
+pmprobe -L $pmda $prefix.mounts $prefix.cpuacct $prefix.cpuset | _filter
+$sudo rmdir $grp/pcpqa
+echo "cpuacct and cpuset fetch, one user group removed, dual controllers"
+pmprobe -I -L $pmda $prefix.mounts $prefix.cpuacct $prefix.cpuset | _filter
+$sudo umount $grp || _fail "cpu,cpuacct cgroup umount"
+
+# success, all done
+status=0
+exit

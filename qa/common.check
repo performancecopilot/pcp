@@ -1,0 +1,2045 @@
+#
+# common preliminary check procedures for QA scripts
+#
+# Copyright (c) 2014-2016 Red Hat.
+# Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+if [ ! -f localconfig ]
+then
+    ./mk.localconfig
+fi
+
+# need to know what version we're running
+. ./localconfig
+
+# common routine for preventing a test from running on some platforms
+# use: _notrun "Reason for not running this test is ..."
+# 
+_notrun()
+{
+    echo $@ >$here/$seq.notrun
+    echo "$seq: [not run] `cat $here/$seq.notrun`"
+    exit 0
+}
+
+# common routine for failing a test in a standard way
+# use: _fail "Reason for failing this test is ..."
+#
+_fail()
+{
+    echo FAIL: $@ 1>&2
+    status=1
+    exit $status
+}
+
+# calculate the size of a given fail, echo it on standard output
+# 
+_filesize()
+{
+    filename=$1
+
+    if [ $PCP_PLATFORM = darwin ]
+    then
+	# Mac OS X format
+	# stat(1) format
+	# 234881026 5304024 -rwxr-xr-x 1 kenj kenj 0 2016 "May  4 14:00:42 2011" "Apr 27 20:14:16 2011" "Apr 27 20:14:16 2011" "Apr 27 20:14:16 2011" 4096 8 0 441
+	stat $filename 2>&1 | $PCP_AWK_PROG '{ print $8 }'
+    else
+	# stat(1) format
+	#   File: `441'
+	#   Size: 2016      	Blocks: 8          IO Block: 4096   regular file
+	# Device: 816h/2070d	Inode: 758237      Links: 1
+	# Access: (0755/-rwxr-xr-x)  Uid: ( 1000/    kenj)   Gid: ( 1000/    kenj)
+	# Access: 2011-05-09 06:52:58.000000000 +1000
+	# Modify: 2011-02-27 14:42:30.000000000 +1100
+	# Change: 2011-02-28 19:21:27.000000000 +1100
+	stat $filename 2>&1 | $PCP_AWK_PROG '$1 == "Size:" { print $2 }'
+    fi
+}
+
+# determine whether sufficient free space exists to run a test;
+# passed in parameter is the size needed, in megabytes.
+# 
+_check_freespace()
+{
+    needspace=$1
+
+    # Filesystem           1M-blocks Used Available Use% Mounted on
+    # /dev/sda5                57349     24838     29621  46% /
+    case "$PCP_PLATFORM"
+    in
+	darwin)
+	    free=`df -m . | $PCP_AWK_PROG 'NR == 2 { print $4 }'`
+	    ;;
+	*)
+	    free=`df -mP . | $PCP_AWK_PROG 'NR == 2 { print $4 }'`
+	    ;;
+    esac
+
+    if [ -z "$free" ]
+    then
+	echo "Cannot determine free space (df -mP fails)"
+    elif [ "$free" -lt "$needspace" ]
+    then
+	echo "Insufficient free space ($free MB, need $needspace MB)"
+    fi
+}
+
+# save and restore configuration files in a way that labels which test
+# was responsible in the event of a test abort, but also preserves the
+# mode and ownership of the configuration file
+#
+_save_config()
+{
+    if [ -f "$1" ]
+    then
+	$sudo rm -f "$1.$seq"
+	$sudo mv "$1" "$1.$seq"
+	$sudo cp "$1.$seq" "$1"
+    elif [ -d "$1" ]
+    then
+	$sudo rm -rf "$1.$seq"
+	$sudo mv "$1" "$1.$seq"
+	$sudo cp -r "$1.$seq" "$1"
+    else
+	echo "Botch: _save_config: $1 does not exist"
+    fi
+}
+
+_restore_config()
+{
+    if [ -f "$1.$seq" ]
+    then
+	$sudo rm -f "$1"
+	$sudo mv "$1.$seq" "$1"
+    elif [ -d "$1.$seq" ]
+    then
+	$sudo rm -rf "$1"
+	$sudo mv "$1.$seq" "$1"
+    else
+	echo "Warning: _restore_config: $1.$seq does not exist"
+    fi
+}
+
+# systemd config changes
+#
+_stop_systemd_restart()
+{
+    if [ -n "$PCP_SYSTEMDUNIT_DIR" -a -f $PCP_SYSTEMDUNIT_DIR/$1.service ]
+    then
+	if grep '^Restart=always' $PCP_SYSTEMDUNIT_DIR/$1.service >/dev/null
+	then
+	    _save_config $PCP_SYSTEMDUNIT_DIR/$1.service
+	    sed -e 's/Restart=always/Restart=no/' <$PCP_SYSTEMDUNIT_DIR/$1.service >$tmp.tmp
+	    $sudo cp $tmp.tmp $PCP_SYSTEMDUNIT_DIR/$1.service
+	    if `which systemctl >/dev/null 2>&1`
+	    then
+		$sudo systemctl daemon-reload
+	    else
+		$sudo kill -HUP 1
+	    fi
+	fi
+    fi
+}
+
+_restore_systemd_restart()
+{
+    if [ -n "$PCP_SYSTEMDUNIT_DIR" -a -f $PCP_SYSTEMDUNIT_DIR/$1.service.$seq ]
+    then
+	_restore_config $PCP_SYSTEMDUNIT_DIR/$1.service
+	if `which systemctl >/dev/null 2>&1`
+	then
+	    $sudo systemctl daemon-reload
+	else
+	    $sudo kill -HUP 1
+	fi
+    fi
+}
+
+# check that a given agent (argument 1) is up and running;
+# indicated by return status and agent warnings to stdout.
+#
+_check_agent() 
+{
+    agent=$1
+    quiet=$2
+    sts=0
+
+    [ X"$quiet" = "X" ] && quiet=false
+
+    pminfo -f $agent 2>&1 | \
+        $PCP_AWK_PROG '
+BEGIN           { value=0; metric=0; warn=0 }
+NF==0           { next }
+/ value /       { value++; next }
+/^'$agent'/         { metric++
+                  if ($0 !~ /:/) next
+		}
+		{ warn++ }
+END             { if (warn) printf "%d warnings, ",warn
+		  printf "%d metrics and %d values\n",metric,value
+		}' > $tmp.fetch 2>&1
+
+    pminfo -v $agent 2>&1 | LC_COLLATE=POSIX sort >$tmp.verify
+    $quiet || cat $tmp.fetch
+    if grep warnings $tmp.fetch > /dev/null 2>&1
+    then
+	# X warnings, Y metrics and Z values
+	num_warn=`sed -n -e '/warnings/s/ .*//p' < $tmp.fetch`
+	if [ "$num_warn" -gt 0 ]
+	then
+	    echo "Warnings when fetching $agent metrics:"
+	    cat $tmp.verify
+	    sts=1
+	fi
+    else
+    	num_warn=0
+    fi
+
+    return $sts
+}
+
+#
+# prepare and cleanup pmda routines work together to ensure
+# pmcd+pmda state is left as it was at the start of a test.
+#
+_prepare_pmda()
+{
+    __agent=$1
+    __names=$2
+
+    iam=$__agent
+    [ "X$__names" = "X" ] && __names=$iam
+    done_clean=false
+    install_on_cleanup=false
+    pminfo $__names >/dev/null 2>&1 && install_on_cleanup=true
+    # copy the pmcd config file to restore state later.
+    _save_config $PCP_PMCDCONF_PATH
+    unset ROOT MAKEFLAGS
+}
+
+_cleanup_pmda()
+{
+    __agent=$1
+    __iopts=$2
+
+    if $done_clean
+    then
+	:
+    else
+	_restore_config $PCP_PMCDCONF_PATH
+	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+	_restore_systemd_restart pmcd
+	_wait_for_pmcd
+	_wait_for_pmlogger
+	if $install_on_cleanup
+	then
+	    [ "X$__iopts" = "X" ] && __iopts=/dev/null
+	    ( cd $PCP_PMDAS_DIR/$__agent; $sudo ./Install <$__iopts >/dev/null 2>&1 )
+	else
+	    ( cd $PCP_PMDAS_DIR/$__agent; $sudo ./Remove >/dev/null 2>&1 )
+	fi
+	_wait_for_pmcd
+	_wait_for_pmlogger
+	done_clean=true
+    fi
+    $sudo rm -f $tmp.*
+}
+
+_make_helptext()
+{
+    __pmda=$1
+    __home=`pwd`
+
+    if [ -f $PCP_PMDAS_DIR/$__pmda/help.dir ]
+    then
+	# ./Install already run, or QA stumbled past to run newhelp
+	return 0
+    fi
+
+    cd $PCP_PMDAS_DIR/$__pmda
+    $sudo $PCP_BINADM_DIR/newhelp -n root help >$tmp.out 2>&1
+    if [ -f $PCP_PMDAS_DIR/$__pmda/help.dir ]
+    then
+	:
+    else
+	cat $tmp.out
+	echo "Arrgh ... failed to create help.dir for $pmda PMDA"
+	return 1
+    fi
+    cd $__home
+    return 0
+}
+
+#
+# Get all IPv6 connection strings for a hosts interfaces, excluding loopback
+#
+_host_to_ipv6addrs()
+{
+    ADDRESS=`pminfo -f -h "$1" network.interface.ipv6_addr | \
+    sed -e '/^$/d' -e '/^network/d' -e '/"lo"/d' -e 's/\/[0-9][0-9]*//g'`
+    LOCAL_LINK=`echo $ADDRESS | awk -F\" '{ printf "%s\n", $4 }' | grep -i "^fe80::"`
+    if [ ! -z "$LOCAL_LINK" ]; then
+        echo $ADDRESS | awk -F\" '{ printf "%s%%%s\n", $4, $2 }'
+    else
+        echo $ADDRESS | awk -F\" '{ printf "%s\n", $4 }'
+    fi
+}
+
+_host_to_ipaddr()
+{
+    perl -MSocket -e '
+	my $packed_ip = gethostbyname("'$1'");
+	if (defined $packed_ip) {
+	    my $ip_address = inet_ntoa($packed_ip);
+	    print $ip_address;
+	}'
+}
+
+_ipaddr_to_host()
+{
+    perl -MSocket -e '
+	my $iaddr = inet_aton("'$1'");
+	if (defined $iaddr) {
+	    my $name  = gethostbyaddr($iaddr, AF_INET);
+	    print $name;
+	}'
+}
+
+_host_to_fqdn()
+{
+    ans=`hostname -f 2>/dev/null | grep '\.'`
+    if [ -z "$ans" ]
+    then
+	if which nslookup >/dev/null 2>&1
+	then
+	    ans=`nslookup $1 2>&1 | sed -n -e '/^Name:[ 	][ 	]*/s///p'`
+	fi
+    fi
+    if [ -z "$ans" ]
+    then
+	if which domainname >/dev/null 2>&1
+	then
+	    ans=`domainname | fgrep -v '(none)'`
+	    [ -z "$ans" ] || ans="$1.$ans"
+	fi
+    fi
+    if [ -z "$ans" ]
+    then
+	# fake out localhost.localdomain if no working DNS
+	ans=localhost.localdomain
+    fi
+    echo "$ans"
+}
+
+_ipv6_localhost()
+{
+    if [ ! -f /etc/hosts ]
+    then
+	echo >&2 "Arrgh ... cannot find /etc/hosts to determine IPv6 localhost name"
+	return
+    fi
+    for sniff in localhost6 ip6-localhost ipv6-localhost
+    do
+	if sed -e '/^#/d' -e 's/$/ /' /etc/hosts | grep -q "[ 	]$sniff "
+	then
+	    echo $sniff
+	    return
+	fi
+    done
+    echo >&2 "Arrgh ... cannot determine IPv6 localhost name from /etc/hosts"
+    return
+}
+
+_check_metric()
+{
+    if pminfo -h ${2-localhost} -f $1 2>&1 | grep " value " >/dev/null
+    then
+	:
+    else
+	echo "Check failed for metric \"$1\" at host \"${2-localhost}\" ... is PMDA installed?"
+	exit 1
+    fi
+}
+
+# wait_for_pmcd [maxdelay [host]]
+#
+_wait_for_pmcd()
+{
+    # 20 seconds default seems like a reasonble max time to get going
+    #debug# set -x
+    _can_wait=${1-20}
+    _host=${2-localhost}
+    _i=0
+    _dead=true
+    #debug# ping -c 2 $_host
+    #debug# pcp -h $_host
+    #debug# pcp -h `hostname`
+    while [ $_i -lt $_can_wait ]
+    do
+	#debug# pmprobe -n $PCP_VAR_DIR/pmns/root_pmcd -h $_host pmcd.numclients
+	_sts=`pmprobe -n $PCP_VAR_DIR/pmns/root_pmcd -h $_host pmcd.numclients 2>/dev/null | $PCP_AWK_PROG '{print $2}'`
+	if [ "${_sts:-0}" -gt 0 ]
+	then
+	    # numval really > 0, we're done
+	    #
+	    _dead=false
+	    break
+	fi
+	sleep 1
+	_i=`expr $_i + 1`
+    done
+    if $_dead
+    then
+	date
+	echo "Arrgghhh ... pmcd at $_host failed to start after $_can_wait seconds"
+	echo "=== failing pmprobe ==="
+	echo "+ pmprobe -n $PCP_VAR_DIR/pmns/root_pmcd -h $_host pmcd.numclients"
+	pmprobe -n $PCP_VAR_DIR/pmns/root_pmcd -h $_host pmcd.numclients
+	case $_host
+	in
+	    localhost|unix:|local:|`hostname`)
+		# these are all local PMCD's
+		#
+		echo "=== pmcd.log ==="
+		cat $PCP_LOG_DIR/pmcd/pmcd.log
+
+		echo "likely looking processes ..."
+		ps "$PCP_PS_ALL_FLAGS" | egrep "[p]m|[P]ID"
+		;;
+	    *)
+		# assume a remote PMCD
+		#
+		ssh pcpqa@$_host "sh -c '. \$PCP_DIR/etc/pcp.env; echo; echo "=== pmcd.log ==="; [ -f \$PCP_LOG_DIR/pmcd/pmcd.log ] && cat \$PCP_LOG_DIR/pmcd/pmcd.log; [ -f \$PCP_LOG_DIR/pmcd.log ] && cat \$PCP_LOG_DIR/pmcd.log; echo; echo likely looking processes ...; ( ps \$PCP_PS_ALL_FLAGS | egrep \"[p]m|[P]ID\" )'" </dev/null
+		;;
+	esac
+	status=2
+	exit $status
+    fi
+}
+
+# wait_for_pmlogger [pid logfile [maxdelay]]
+#
+_wait_for_pmlogger()
+{
+    # 20 seconds default seems like a reasonable max time to get going
+    _maxdelay=20
+
+    case $# in
+	0)
+	    _pid="-P"
+	    dir_hostname=`hostname || echo localhost`
+	    _logfile="$PCP_LOG_DIR/pmlogger/$dir_hostname/pmlogger.log" 
+            _iam="primary"
+	    ;;
+	2)
+	    _pid=$1
+	    _logfile=$2
+            _iam="pid=$_pid"
+	    ;;
+	3)
+	    _pid=$1
+	    _logfile=$2
+	    _maxdelay=$3
+            _iam="pid=$_pid"
+	    ;;
+	*)
+	    echo "_wait_for_pmlogger(): wrong number of arguments"
+	    status=1
+	    exit $status
+	    ;;
+    esac
+
+    #debug# set -x
+    _i=0
+    _dead=true
+    rm -f $tmp._wait_for_pmlogger.pmlc
+    while [ $_i -lt $_maxdelay ]
+    do
+	#debug# ps -ef | grep "[^0-9]$_pid[^0-9]"
+	echo "pmlc $_pid" >> $tmp._wait_for_pmlogger.pmlc
+	if pmlc $_pid </dev/null 2>&1 \
+		| tee -a $tmp._wait_for_pmlogger.pmlc \
+		| egrep "Connection refused|Transport endpoint is not connected" >/dev/null
+	then
+	    sleep 1
+	    _i=`expr $_i + 1`
+        else
+	    # pmlogger socket has been set up ...
+	    _dead=false
+	    # give pmlogger a chance to detect that pmlc has gone away
+	    # so the port is free
+	    sleep 1
+	    break
+	fi
+    done
+    if $_dead
+    then
+	date
+	echo "Arrgghhh ... pmlogger ($_iam) failed to start after $_maxdelay seconds"
+	echo "at `date`."
+	echo "pmlogger log ($_logfile) ..."
+	cat $_logfile
+	echo
+
+	#  If pmlc could not connect to pmlogger, report details
+	if [ -s $tmp._wait_for_pmlogger.pmlc ]
+	then
+	    echo "pmlc output ..."
+	    cat $tmp._wait_for_pmlogger.pmlc
+	    echo
+	fi
+
+	#  If pmlogger could not connect to PMCD, find which host it was
+	#  connecting to, and get the pmcd.log file from that host.
+	cat $_logfile | $PCP_AWK_PROG '/pmlogger: Cannot connect to PMCD on host/' \
+	  | sed -e '	s/pmlogger: Cannot connect to PMCD on host "//g' \
+	  -e '	s/": .*//g' >$tmp._wait_for_pmlogger.host
+	if [ -s $tmp._wait_for_pmlogger.host ]
+	then
+	    _pmcdhost=`cat $tmp._wait_for_pmlogger.host`
+	    echo "pmcd log ($_pmcdhost:$PCP_LOG_DIR/pmcd/pmcd.log) ..."
+	    if [ -r /hosts/$_pmcdhost$PCP_LOG_DIR/pmcd/pmcd.log ]
+	    then
+	    	cat /hosts/$_pmcdhost$PCP_LOG_DIR/pmcd/pmcd.log
+	    elif [ -r /hosts/$_pmcdhost$PCP_LOG_DIR/pmcd.log ]
+	    then
+	    	cat /hosts/$_pmcdhost$PCP_LOG_DIR/pmcd.log
+	    else
+	    	if [ "`hostname | sed -e 's/\..*//'`" != $_pmcdhost ]
+	    	then
+	    	    if scp -q $_pmcdhost:$PCP_LOG_DIR/pmcd/pmcd.log \
+	    	      $tmp._wait_for_pmlogger.pmcdlog
+	    	    then
+	    	    	cat $tmp._wait_for_pmlogger.pmcdlog
+	    	    elif scp -q $_pmcdhost:$PCP_LOG_DIR/pmcd.log \
+	    	      $tmp._wait_for_pmlogger.pmcdlog
+	    	    then
+	    	    	cat $tmp._wait_for_pmlogger.pmcdlog
+	    	    fi
+	    	else
+	    	    cat $PCP_LOG_DIR/pmcd/pmcd.log
+	    	fi
+	    fi
+	fi
+	base=`cat $_logfile | sed -n '/^Archive basename:[ 	]*/s///p'`
+	if [ -n "$base" -a -f $base.0 ]
+	then
+	    echo "archive created ..."
+	    pmdumplog -l $base.0
+	    nres=`pmdumplog $base.0 | grep '^[0-9]' | wc -l | sed -e 's/ //g'`
+	    echo "archive contains $nres records"
+	else
+	    echo "archive not created"
+	fi
+	echo
+	echo "local pmlogger map ..."
+	for map in $PCP_TMP_DIR/pmlogger/*
+	do
+	    if [ "`echo $map`" = "$PCP_TMP_DIR"'/pmlogger/*' ]
+	    then
+		echo "No files in $PCP_TMP_DIR/pmlogger !?"
+	    else
+		ls -l $map
+		cat $map
+	    fi
+	done
+	echo
+	echo "Likely looking processes ..."
+	ps $PCP_PS_ALL_FLAGS | egrep '[p]m|[P]ID'
+	status=2
+	exit $status
+    fi
+    rm -f $tmp._wait_for_pmlogger.*
+}
+
+# Start a pmlogger with appropriate privs that it can create
+# portmap files in PCP_TMP_DIR (requires pcp or root account)
+#
+# Couple of side-effects to be aware of:
+# Returns with $pid containing the backgrounded pmlogger PID;
+# Creates the pmlogger archive, logfile, etc as root/pcp, not
+# as the user running QA (so, tmp cleanup needs to use sudo).
+#
+_start_up_pmlogger()
+{
+    cat >$tmp.cmd <<End-of-File
+#!/bin/sh
+pmlogger $@ &
+echo pid=\$!
+End-of-File
+
+    __user=root
+    id pcp >/dev/null 2>&1 && __user=pcp
+
+    $sudo -u $__user sh $tmp.cmd $@ >$tmp.pid
+    eval `cat $tmp.pid`
+}
+
+# wait for a pmlogger process to end that is not our child
+# (else we could just use shell wait command).  Instead we
+# must keep tabs on the PID file and bail when its gone.
+#
+_wait_pmlogger_end()
+{
+    #debug# set -x
+    _pid=$1
+
+    _i=0
+    while true
+    do
+        if [ -f "$PCP_TMP_DIR/pmlogger/$_pid" ]
+	then
+	    _i=`expr $_i + 1`
+	    if [ "$_i" -ge 100 ]
+	    then
+		echo "_wait_pmlogger_end: failed to see $PCP_TMP_DIR/pmlogger/$_pid removed after 100 iterations"
+		#debug# set +x
+		return
+	    fi
+	    pmsleep 0.1
+	else
+	    # now there is an ugly race condition at the end of pmloger
+	    # ... once the control file has been removed (as per the test
+	    # above) the pmlogger log file is not complete until the atexit()
+	    # code is run ... so hang around waiting for the process to
+	    # go away
+	    #
+	    _i=0
+	    while true
+	    do
+		if sudo kill -s 0 $_pid 2>/dev/null
+		then
+		    # process still exists
+		    _i=`expr $_i + 1`
+		    if [ "$_i" -ge 100 ]
+		    then
+			echo "_wait_pmlogger_end: failed to see pid $_pid exit after 100 iterations"
+			#debug# set +x
+			return
+		    fi
+		    pmsleep 0.1
+		else
+		    # process has really exited
+		    #debug# set +x
+		    return
+		fi
+	    done
+	fi
+    done
+}
+
+# Wait for pmcd to end
+#
+_wait_pmcd_end()
+{
+    #debug# set -x
+
+    _pid=`cat $PCP_RUN_DIR/pmcd.pid 2>/dev/null`
+    if [ -z "$_pid" ]
+    then
+	# no $PCP_RUN_DIR/pmcd.pid file, try ps(1) the hard way
+	#
+	_pid=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS \
+	| sed -n -e '/\[p]mcd /{
+s/^[^ 	]*//
+s/^[ 	]*//
+s/[ 	].*//
+p
+}'`
+    fi
+    if [ -z "$_pid" ]
+    then
+	#debug# set +x
+	return
+    fi
+
+    _i=0
+    while true
+    do
+	if sudo kill -s 0 $_pid 2>/dev/null
+	then
+	    # process still exists
+	    _i=`expr $_i + 1`
+	    if [ "$_i" -ge 100 ]
+	    then
+		echo "_wait_pmcd_end: failed to see pid $_pid exit after 100 iterations"
+		#debug# set +x
+		return
+	    fi
+	    pmsleep 0.1
+	else
+	    # process has really exited
+	    #debug# set +x
+	    return
+	fi
+    done
+}
+
+# ensure primary logger allows pmlc state changes
+#
+_writable_primary_logger()
+{
+    _configfile="$PCP_VAR_DIR/config/pmlogger/config.default"
+
+    echo "_open_primary_logger checking config file: $_configfile" >>$here/$seq.full
+
+    # first, move aside the default configuration file
+    _save_config "$_configfile"
+
+    # next, create a new default configuration file
+    PMLOGCONF="$PCP_BINADM_DIR/pmlogconf"
+    test -f "$_configfile" || \
+	$sudo $PMLOGCONF -q -h localhost "$_configfile" >>$here/$seq.full 2>&1
+
+    # finally, open it up to local access from pmlc
+    sed <"$_configfile" >$tmp.sed-i \
+	-e 's/^allow localhost.*$/allow localhost : all;/g' \
+	-e 's/^allow local:.*$/allow local:* : all;/g'
+    $sudo cp $tmp.sed-i "$_configfile"
+    rm -f $tmp.sed-i
+}
+
+# restore primary logger pmlc access restrictions
+#
+_restore_primary_logger()
+{
+    _configfile="$PCP_VAR_DIR/config/pmlogger/config.default"
+
+    # if there was an initial configuration, put it back
+    if test -f "$_configfile.$seq"
+    then
+	_restore_config "$_configfile"
+    else
+	# otherwise, close out access from local pmlc once more
+	if test -f "$_configfile"
+	then
+	    sed <"$_configfile" >$tmp.sed-i \
+		-e 's/^allow localhost.*$/allow localhost : enquire;/g' \
+		-e 's/^allow local:.*$/allow local:* : enquire;/g'
+	    $sudo cp $tmp.sed-i "$_configfile"
+	    rm -f $tmp.sed-i
+	fi
+    fi
+}
+
+# purify support
+#
+# typical usage:
+#
+# At the top before outputting $seq.out but after setting $seq ...
+#   _check_purify prog
+#
+# Main code...
+#   _setup_purify prog
+#   _run_purify [arg1] [arg2]
+#
+
+# initial setup for running purify
+# creates purified binary in $_purify_dir
+#
+_setup_purify()
+{
+    # Need to change these to match Purify setup locally, if you
+    # have Purify!
+    #
+    LM_LICENSE_FILE=27000@snort.melbourne.sgi.com
+    RSU_LICENSE_MAP=/usr/Rational/config/LICENSE_MAP
+    export LM_LICENSE_FILE RSU_LICENSE_MAP
+
+    rm -f $here/$seq.full
+    _path=$1
+    _prog=`echo $_path | sed -e 's#.*/##'`
+    _pure_prog="$_prog.pure"
+    _purify_dir=$tmp.purify
+
+    rm -rf $_purify_dir
+    mkdir $_purify_dir
+    cp $_path $_purify_dir
+    _here=`pwd`
+    cd $_purify_dir
+
+    cat >.purify<<EOF
+suppress umr _write
+suppress miu
+EOF
+    unset PURIFYOPTIONS PUREOPTIONS
+    purify -log-file=stderr $_prog >out 2>&1
+    if [ ! -x $_prog.pure ]
+    then
+	cat out
+	echo "Hmm ... purify failed to create $_prog.pure"
+	exit
+    fi
+    cd $_here
+}
+
+_run_purify()
+{
+    args=$* 
+
+    _here=`pwd`
+    cd $_purify_dir
+    $_purify_dir/$_pure_prog $args > $tmp._purify.out 2>&1
+    cat $tmp._purify.out >>$_here/$seq.full
+    if grep -i expired $tmp._purify.out >/dev/null; then
+	cat $tmp._purify.out
+    else
+	_filter_purify < $tmp._purify.out
+    fi
+    cd $_here
+}
+
+_filter_purify()
+{
+    $PCP_AWK_PROG '
+state == 0 && /License successfully checked out/	{ state = 1; next }
+state == 0 && /Purify checking enabled/			{ state = 1; next }
+state == 1						{ print }' \
+    | sed \
+	-e 's/pid [0-9][0-9]*/pid PID/g' \
+	-e "s;$_purify_dir;TMP;g" \
+	-e '/reserved for Purify internal use/d' \
+	-e 's/suppressed chunks/suppressed blocks/g' \
+    | $PCP_AWK_PROG -v extra="$PURIFY_FILTER_EXTRA" '
+/Purify instrumented/		{ skip = 0 }
+/bytes leaked\./		{ print "..."; skip = 1; next }
+skip == 1			{ next }
+				{ print }
+/Purify Heap Analysis/		{ print "..."; skip = 1 }
+/Basic memory usage \(including Purify/		{ print "..."; skip = 1 }
+extra != "" && /Current file descriptors/	{ print "..."; skip = 1 }' \
+    | (if [ "$PURIFY_FILTER_EXTRA" ]
+    then sed -e 's/in use: [0-9][0-9]*/in use: N/'
+    else cat -
+    fi)
+}
+
+_check_purify()
+{
+    [ $# -eq 1 ] || _notrun "_check_purify needs executable as argument"
+    _path=$1
+    which purify >/dev/null 2>&1
+    [ $? -eq 0 ] || _notrun "No purify binary found"
+}
+
+_check_display()
+{
+    # note: non-X systems (MacOSX, Windows) must pass here unchallenged
+    if [ -z "$PCPQA_CLOSE_X_SERVER" ]
+    then
+	_notrun "\$PCPQA_CLOSE_X_SERVER not set in ./common.config"
+	# NOTREACHED
+    fi
+    which xdpyinfo >/dev/null 2>&1
+    if [ $? -eq 0 ]
+    then
+	DISPLAY=$PCPQA_CLOSE_X_SERVER xdpyinfo >/dev/null 2>&1 || \
+	    _notrun "Failed sanity check on DISPLAY $PCPQA_CLOSE_X_SERVER"
+    fi
+    export DISPLAY=$PCPQA_CLOSE_X_SERVER
+}
+
+_check_containers()
+{
+    [ $PCP_PLATFORM = linux ] || _notrun "Linux-specific containers testing"
+    _contain=`pmprobe -v pmcd.feature.containers | awk '{ print $3 }'`
+    [ $_contain = 1 ] || _notrun "Running kernel does not support containers"
+    pminfo -f pmcd.agent.type 2>/dev/null | grep linux | grep -q 'value 4'
+    [ $? = 0 ] || _notrun "pmdalinux has insufficient privileges as a DSO"
+}
+
+# good output from dbpmda looks like ...
+# dbpmda> open pipe /var/lib/pcp/pmdas/papi/pmdapapi -d 126
+# ...
+# dbpmda> fetch papi.system.TOT_INS
+# PMID(s): 126.0.14
+# pmResult dump from 0x25c6e00 timestamp: 0.000000 10:00:00.000 numpmid: 1
+#   126.0.14 (<noname>): numval: 1 valfmt: 1 vlist[]:
+#      value 2616
+#
+_check_papi()
+{
+    [ -f $PCP_PMDAS_DIR/papi/pmdapapi ] || _notrun "no executable for the papi PMDA"
+    [ -f $PCP_PMDAS_DIR/papi/root ] || _notrun "no PMNS for the papi PMDA"
+
+    $sudo dbpmda -n $PCP_PMDAS_DIR/papi/root -ie <<EOF >$tmp.papi.check
+open pipe $PCP_PMDAS_DIR/papi/pmdapapi -d 126 -l $tmp.papi.log
+attr "username" "root"
+attr 11 "0"
+fetch papi.system.TOT_INS
+EOF
+    echo "papi.log ..." >>$here/$seq.full
+    cat $tmp.papi.log >>$here/$seq.full
+    $sudo rm $tmp.papi.log
+    echo "_check_papi ..." >>$here/$seq.full
+    cat $tmp.papi.check >>$here/$seq.full
+    if grep ' value [0-9][0-9]*$' <$tmp.papi.check >/dev/null
+    then
+	:
+    else
+	_notrun "PAPI counters not available on this platform"
+    fi
+}
+
+_check_papi_native()
+{
+    $sudo dbpmda -n $PCP_PMDAS_DIR/papi/root -ie <<EOF >$tmp.papi.check
+open pipe $PCP_PMDAS_DIR/papi/pmdapapi -d 126
+attr "username" "root"
+attr 11 "0"
+traverse papi.system.perf
+EOF
+    echo "_check_papi_native ..." >>$here/$seq.full
+    cat $tmp.papi.check >>$here/$seq.full
+    if grep "Error PDU: Unknown metric name" <$tmp.papi.check >/dev/null
+    then
+	_notrun "PAPI native metrics not available on this platform"
+    fi
+}
+
+# valgrind support
+#
+# typical usage:
+#
+# At the top before outputting $seq.out but after setting $seq ...
+#   _check_valgrind
+#
+# Main code...
+#   _run_valgrind app [arg1 [arg2] ... ]
+#
+
+_check_valgrind()
+{
+    which valgrind >/dev/null 2>&1
+    [ $? -eq 0 ] || _notrun "No valgrind binary found"
+}
+
+# Note: because we may be avoiding leaks in system libraries
+# via the suppressions, there is potential indeterminism for
+# the following case:
+# -All heap blocks were freed -- no leaks are possible
+# +LEAK SUMMARY:
+# +definitely lost: 0 bytes in 0 blocks
+# +indirectly lost: 0 bytes in 0 blocks
+#
+# Note
+#	last 5 sed expressions are for broken valgrind(1) on
+#	Debian strech circa 2016
+# 
+_filter_valgrind()
+{
+   noleak="LEAK SUMMARY:\ndefinitely lost: 0 bytes in 0 blocks\nindirectly lost: 0 bytes in 0 blocks"
+    sed \
+	-e 's/^==*[1-9][0-9]*==* *//' \
+	-e '/^$/d' \
+	-e '/^Copyright (/d' \
+	-e '/^Using Valgrind-/d' \
+	-e '/^Parent PID:/d' \
+	-e '/^HEAP SUMMARY:/d' \
+	-e '/^in use at exit:/d' \
+	-e '/^total heap usage:/d' \
+	-e '/^possibly lost:/d' \
+	-e '/^still reachable:/d' \
+	-e '/^suppressed:/d' \
+	-e '/^Reachable blocks (those to which a pointer was found)/d' \
+	-e '/^To see them, rerun with:/d' \
+	-e '/^For counts of detected and suppressed errors,/d' \
+	-e '/^ERROR SUMMARY:/s/ (suppressed: [^)]*)/ .../' \
+	-e "s/^All heap blocks were freed -- .*/$noleak/g" \
+	-e '/WARNING: Serious error when reading debug info/d' \
+	-e '/When reading debug info from /d' \
+	-e '/Ignoring non-Dwarf2\/3\/4 block in .debug_info/d' \
+	-e '/Last block truncated in .debug_info; ignoring/d' \
+	-e '/parse_CU_Header: is neither DWARF2 nor DWARF3 nor DWARF4/d' \
+    # end
+}
+
+_run_valgrind()
+{
+    __version=`valgrind --version | sed -e 's/valgrind-//'`
+    if [ -f $here/valgrind-suppress-$__version ]
+    then
+	__extra="--suppressions=$here/valgrind-suppress-$__version"
+	echo "Warning: using extra $__extra" >>$here/$seq.full
+    else
+	__extra=''
+    fi
+    valgrind \
+	--leak-check=full --read-var-info=yes --gen-suppressions=all \
+	--suppressions=$here/valgrind-suppress $__extra \
+	--log-file=$tmp._valgrind \
+	    $* 2>$tmp._valgrind.err >$tmp._valgrind.out
+    echo "=== std out ==="
+    cat $tmp._valgrind.out
+    echo "=== std err ==="
+    cat $tmp._valgrind.err
+    echo "=== valgrind report ===" >>$here/$seq.full
+    cat $tmp._valgrind >>$here/$seq.full
+    echo "=== filtered valgrind report ==="
+    _filter_valgrind <$tmp._valgrind
+}
+
+# Alternate invocation, using valgrind-silence as an assertion.
+# Produces no stdout/stderr from valgrind - except in case of errors!
+# Uses same suppression logic as _run_valgrind.
+#
+# Usage:                    $_valgrind_clean_assert CMD ARGS ...
+# just as you'd have used   CMD ARGS ...
+# alone, or                 |filtered
+# or                        & backgrounded
+#
+# It works even if valgrind is not available (expanding to nothing).
+#
+_valgrind_clean_assert=
+if which valgrind >/dev/null 2>&1; then
+    __version=`valgrind --version | sed -e 's/valgrind-//'`
+    if [ -f $here/valgrind-suppress-$__version ]
+    then
+	__extra="--suppressions=$here/valgrind-suppress-$__version"
+	echo "Warning: using extra $__extra" >>$here/$seq.full
+    else
+	__extra=''
+    fi
+    valgrind --help >$tmp.valgrind.help 2>&1
+    grep -q .--vgdb= <$tmp.valgrind.help && __extra="$__extra --vgdb=no"
+    valgrind --help 2>&1 | grep -q show-leak-kinds
+    if grep -q .--show-leak-kinds= <$tmp.valgrind.help
+    then
+	__extra="$__extra --show-leak-kinds=definite"
+    else
+	if grep -q .--show-possibly-lost= <$tmp.valgrind.help
+	then
+	    __extra="$__extra --show-reachable=no --show-possibly-lost=no"
+	else
+	    __extra="$__extra --show-reachable=no"
+	fi
+    fi
+    rm -f $tmp.valgrind.help
+    _valgrind_clean_assert="valgrind -q \
+	     --leak-check=full --read-var-info=yes --gen-suppressions=all \
+	     --suppressions=$here/valgrind-suppress $__extra \
+	     --log-fd=1"
+fi
+
+#
+# Checks that given_value is in range of correct_value +/- tolerance.
+# Tolerance can be an absolute value or a percentage of the correct value
+# (see examples with tolerances below).
+# Outputs suitable message to stdout if it's not in range.
+#
+# A verbose option, -v, may be used as the LAST argument
+# 
+# e.g. 
+# foo: 0.0298 = 0.03 +/- 5%
+# _within_tolerance "foo" 0.0298 0.03 5%  
+# 
+# foo: 0.0298 = 0.03 +/- 0.01
+# _within_tolerance "foo" 0.0298 0.03 0.01
+#
+# foo: 0.0298 = 0.03 -0.01 +0.002
+# _within_tolerance "foo" 0.0298 0.03 0.01 0.002
+#
+# foo: verbose output of 0.0298 = 0.03 +/- 5% 
+# _within_tolerance "foo" 0.0298 0.03 5% -v 
+
+_within_tolerance()
+{
+  _name=$1
+  _given_val=$2
+  _correct_val=$3
+  _mintol=$4
+  _maxtol=$_mintol
+  _verbose=0
+  _debug=false
+
+  # maxtol arg is optional
+  # verbose arg is optional
+  if [ $# -ge 5 ]
+  then 
+     if [ "$5" = "-v" ]
+     then
+	_verbose=1
+     else
+        _maxtol=$5
+     fi
+  fi
+  if [ $# -ge 6 ]
+  then
+     [ "$6" = "-v" ] && _verbose=1
+  fi
+
+  # find min with or without %
+  _mintolerance=`echo $_mintol | sed -e 's/%//'` 
+  if [ $_mintol = $_mintolerance ]
+  then 
+      _min=`echo "scale=5; $_correct_val-$_mintolerance" | bc`
+  else
+      _min=`echo "scale=5; $_correct_val-$_mintolerance*0.01*$_correct_val" | bc`
+  fi
+
+  # find max with or without %
+  _maxtolerance=`echo $_maxtol | sed -e 's/%//'` 
+  if [ $_maxtol = $_maxtolerance ]
+  then 
+      _max=`echo "scale=5; $_correct_val+$_maxtolerance" | bc`
+  else
+      _max=`echo "scale=5; $_correct_val+$_maxtolerance*0.01*$_correct_val" | bc`
+  fi
+
+  $_debug && echo "min = $_min"
+  $_debug && echo "max = $_max"
+
+  cat <<EOF > $tmp._bc.1
+scale=5;
+if ($_min <= $_given_val) 1;
+if ($_min > $_given_val) 0; 
+EOF
+
+  cat <<EOF > $tmp._bc.2
+scale=5;
+if ($_given_val <= $_max) 1;
+if ($_given_val > $_max) 0;
+EOF
+
+  _above_min=`bc < $tmp._bc.1`
+  _below_max=`bc < $tmp._bc.2`
+
+  _in_range=`expr $_above_min \& $_below_max` 
+
+  # fix up min, max precision for output
+  # can vary for 5.3, 6.2
+  _min=`echo $_min | sed -e 's/0*$//'` # get rid of trailling zeroes
+  _max=`echo $_max | sed -e 's/0*$//'` # get rid of trailling zeroes
+
+  if [ $_in_range -eq 1 ] 
+  then
+	[ $_verbose -eq 1 ] && echo $_name is in range
+	return 0
+  else
+	[ $_verbose -eq 1 ] && echo $_name has value of $_given_val
+	[ $_verbose -eq 1 ] && echo $_name is NOT in range $_min .. $_max	
+	return 1
+  fi
+}
+
+# comment pmlogger_check and pmsnap entries in the crontab file
+# (also cron.pmcheck and cron.pmsnap entries for backwards compatibility)
+# Usage: _remove_cron backup sudo
+#
+# backup - where to keep the old crontab file
+# sudo - location of sudo
+#
+_remove_cron()
+{
+    rc_backup=${1:-crontab}
+    rc_sudo=${2:-sudo}
+
+    $rc_sudo rm -f $rc_backup
+    if $rc_sudo crontab -l 2>/dev/null >$rc_backup
+    then
+	:
+    else
+	# error, make sure the backup is empty so no changes are made
+	echo >$rc_backup
+    fi
+
+    if [ -s $rc_backup ]
+    then
+	$rc_sudo cat $rc_backup \
+	| sed \
+	    -e 's/^[^#].*pmlogger_check/#&/' \
+	    -e 's/^[^#].*pmsnap/#&/' \
+	    -e 's/^[^#].*cron.pmcheck/#&/' \
+	    -e 's/^[^#].*cron.pmsnap/#&/' \
+	| $rc_sudo crontab > /dev/null 2>&1
+    fi
+}
+
+# restore crontab back to original state
+# Usage: _restore_cron backup sudo
+#
+# backup - where to keep the old crontab file
+# sudo - location of sudo
+#
+_restore_cron()
+{
+    rc_backup=${1:-crontab}
+    rc_sudo=${2:-sudo}
+
+    if [ -s $rc_backup ]
+    then
+	$rc_sudo rm -f rc_cron_out rc_cron_check rc_cron_diff
+	if $rc_sudo crontab $rc_backup >rc_cron_out 2>&1
+	then
+	    # check everything is OK
+	    #
+	    $rc_sudo crontab -l >rc_cron_check
+	    sed -e '/^#/d' $rc_backup >$rc_backup.clean
+	    sed -e '/^#/d' rc_cron_check >rc_cron_check.clean
+	    if diff -u $rc_backup.clean rc_cron_check.clean >rc_cron_diff 2>&1
+	    then
+		:
+	    else
+		echo "_restore_cron: Warning: could not restore crontab to original state"
+		echo "               Unexpected differences ..."
+		diff -u $rc_backup rc_cron_check
+	    fi
+	    $rc_sudo rm -f rc_cron_check rc_cron_diff
+	else
+	    echo "_restore_cron: Warning: could not restore crontab to original state"
+	    echo "               crontab(1) failed ..."
+	    cat rc_cron_out
+	fi
+	$rc_sudo rm -f rc_cron_out rc_cron_check rc_cron_diff
+    fi
+}
+
+# running QA within a container can mean no crontab setup;
+# _check_cron is a convenience routine checking the external
+# dependencies of _remove_cron() and _restore_cron()
+#
+_check_cron()
+{
+    which crontab >/dev/null 2>&1 || _notrun "No crontab binary found"
+}
+
+# get offset into an archive relative to the first pmResult
+# past the preamble
+#
+# Usage: _arch_start archive [offset]
+#
+_arch_start()
+{
+    pmdumplog -z $1 \
+    | $PCP_AWK_PROG '
+/^[0-9][0-9]:[0-9][0-9]:/	{ if ($3 ~ /pmcd.pmlogger.host/) next
+				  split($1, t, ":")
+				  t[3] += '"${2-0}"'
+				  while (t[3] < 0) {
+				    t[3] += 60
+				    t[2]--
+				  }
+				  while (t[3] > 60) {
+				    t[3] -= 60
+				    t[2]++
+				  }
+				  while (t[2] < 0) {
+				    t[2] += 60
+				    t[1]--
+				  }
+				  while (t[2] > 60) {
+				    t[2] -= 60
+				    t[1]++
+				  }
+				  while (t[1] < 0)
+				    t[1] += 24
+				  while (t[1] > 23)
+				    t[1] -= 24
+				  printf "@%02d:%02d:%06.3f",t[1],t[2],t[3]
+				  exit
+				}'
+}
+
+# get an unused ipc port ... returned on std out, empty for failure
+# Usage: _get_port tcp|udp low_port high_port
+#
+_get_port()
+{
+    [ $# -ne 3 ] && return
+    __proto=$1
+    __port=$2
+    while [ $__port -le "$3" ]
+    do
+	if fuser $__port/$__proto >/dev/null 2>&1
+	then
+	    :
+	else
+	    echo $__port
+	    return
+	fi
+	__port=`expr $__port + 1`
+    done
+}
+
+# get host endianness ("le" or "be")
+_get_endian()
+{
+    check=`echo a | od -x 2>&1 | sed -e 's/^0[^ ]* *//' -e 's/ //g' -e '/^$/d'`
+    case "$check"
+    in
+    0a61) echo le ;;
+    610a) echo be ;;
+    *)
+	echo "Arrgh ... od -x returned something odd ($check)"
+	echo a | od -x
+	status=1
+	exit
+	;;
+    esac
+}
+
+# get host word size ("32" or "64")
+_get_word_size()
+{
+    machine=`uname -m`
+    case "$machine"
+    in
+    i?86|athlon|ppc)
+	size=32
+	# but, apps are 64-bit on my Mac OS X
+	[ $PCP_PLATFORM = darwin ] && size=64
+	;;
+    x86_64|ia64|ppc64|ppc64le|s390x|aarch64)
+	size=64
+	;;
+    *)
+	echo "uname gave machine type with unknown word size ($machine)"
+	status=1
+	exit
+	;;
+    esac
+    echo $size
+}
+
+# _all_hostnames host - generate all hostnames (or IP addresses) for this host,
+#			that map to some network interface, excluding loopback
+#
+_all_hostnames()
+{
+    touch $tmp._addr
+    ssh pcpqa@$1 </dev/null netstat -in 2>/dev/null >$tmp._tmp
+    if grep 'Network.*Address' $tmp._tmp >/dev/null
+    then
+	# This is the IRIX version of netstat -in, get IP addr from the
+	# Address field
+	# 
+	# Name   Mtu   Network         Address            Ipkts Ierrs ...
+	# ef0    1500  134.14.55.128   134.14.55.149  712168207    10 ...
+	#                              134.14.55.159      
+	#                              134.14.55.147      
+	# ef2*   1500  none            none                   0     0 ...
+	# lo0    32992 127             127.0.0.1       23628402     0 ...
+	#
+	$PCP_AWK_PROG <$tmp._tmp >$tmp._addr '
+/^lo/									{ next }
+NF >= 4 && $4 ~ /^[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*$/ 	{ print $4 }
+NF == 1 && $1 ~ /^[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*$/	{ print $1 }
+END									{ print "End-of-List" }'
+    else
+	ssh pcpqa@$1 </dev/null /sbin/ifconfig 2>/dev/null >$tmp._tmp
+	if grep 'UP.*RUNNING' $tmp._tmp >/dev/null
+	then
+	    # This is the Linux version of ifconfig, get IP addr from the
+	    # inet addr: line
+	    #
+	    # eth0      Link encap:Ethernet  HWaddr 00:90:27:98:EE:A8  
+	    #	        inet addr:134.14.55.176  Bcast:134.14.55.255  ...
+	    #	        UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+	    #	        ...
+	    #
+	    # lo        Link encap:Local Loopback  
+	    #	        inet addr:127.0.0.1  Mask:255.0.0.0
+	    #	        UP LOOPBACK RUNNING  MTU:16436  Metric:1
+	    #	        ...
+	    #
+	    # Note addr: tag is not present in some ifconfig output
+	    #
+	    $PCP_AWK_PROG <$tmp._tmp '
+/^lo/						{ skip=1; next }
+skip == 1 && NF > 0				{ next }
+skip == 1 					{ skip = 0 }
+$1 == "inet" && $2 ~ /addr:/			{ print $2 }
+$1 == "inet" && $2 ~ /^[0-9]/			{ print $2 }
+END						{ print "End-of-List" }' \
+	    | sed -e 's/addr://' >$tmp._addr
+	else
+	    # Nothing we can do really, as there is no way of passing
+	    # an error back from here, other than returning an empty
+	    # list
+	    return
+	fi
+    fi
+    cat $tmp._addr \
+    | while read __ip
+    do
+	if [ "$__ip" = "End-of-List" ]
+	then
+	    echo
+	    break
+	fi
+	# check that ip addr is reachable
+	if ping -c 1 $__ip >/dev/null 2>&1
+	then
+	    __host=`_ipaddr_to_host $__ip`
+	    if [ ! -z "$__host" ]
+	    then
+		$PCP_ECHO_PROG $PCP_ECHO_N ",$__host""$PCP_ECHO_C"
+	    else
+		$PCP_ECHO_PROG $PCP_ECHO_N ",$__ip""$PCP_ECHO_C"
+	    fi
+	fi
+    done \
+    | sed -e 's/^,//'
+}
+
+# _all_ipaddrs - generate all IP addresses for this host,
+#			that map to some network interface, excluding
+#			loopback, slip, ppp
+#
+# See _all_hostnames() above for comments on the method used.
+#
+_all_ipaddrs()
+{
+    touch $tmp._addr
+    if [ "$1" = "localhost" ]
+    then 
+	netstat -in 2>/dev/null >$tmp._tmp
+    else
+	ssh pcpqa@$1 </dev/null netstat -in 2>/dev/null >$tmp._tmp
+    fi
+    if grep 'Network.*Address' $tmp._tmp >/dev/null
+    then
+	# this is the IRIX version of netstat -in, get IP addr from the
+	# Address field
+	#
+	$PCP_AWK_PROG <$tmp._tmp >$tmp._addr '
+/^lo/ || /^sl/ || /^pp/							{ next }
+NF >= 4 && $4 ~ /^[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*$/ 	{ print $4 }
+NF == 1 && $1 ~ /^[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*$/	{ print $1 }
+END									{ print "End-of-List" }'
+    else
+        if [ "$1" = "localhost" ]
+	then 
+	    /sbin/ifconfig 2>/dev/null >$tmp._tmp
+	else
+	    ssh pcpqa@$1 </dev/null /sbin/ifconfig 2>/dev/null >$tmp._tmp
+	fi
+	if grep 'UP.*RUNNING' $tmp._tmp >/dev/null
+	then
+	    # This is the Linux version of ifconfig, get IP addr from the
+	    # inet addr: line
+	    #
+# ppp0      Link encap:Point-to-Point Protocol
+#           inet addr:134.14.52.219  P-t-P:134.14.52.189  Mask:255.255.255.255
+#           UP POINTOPOINT RUNNING NOARP MULTICAST  MTU:1522  Metric:1
+#           RX packets:50119 errors:0 dropped:0 overruns:0 frame:0
+#           TX packets:47474 errors:0 dropped:0 overruns:0 carrier:0
+#           collisions:0 txqueuelen:3
+#           RX bytes:7017171 (6.6 Mb)  TX bytes:3952015 (3.7 Mb)
+	    #
+	    # Note addr: tag is not present in some ifconfig output,
+	    #      AND UP comes first!
+	    #
+	    $PCP_AWK_PROG <$tmp._tmp '
+/^[a-z]/					{ loopback = 0 }
+/^lo/						{ loopback = 1; next }
+$1 == "inet" && $2 ~ /addr:/			{ save = $2; next }
+$1 == "inet" && $2 ~ /^[0-9]/			{ save = $2; next }
+$1 == "TX"					{ if (loopback == 0 && save != 0)
+						    print save
+						  save = 0
+						}
+END						{ print "End-of-List" }' \
+	    | sed -e 's/addr://' >$tmp._addr
+	else
+	    # Nothing we can do really, as there is no way of passing
+	    # an error back from here, other than returning an empty
+	    # list
+	    return
+	fi
+    fi
+    cat $tmp._addr \
+    | while read __ip
+    do
+	if [ "$__ip" = "End-of-List" ]
+	then
+	    echo
+	    break
+	fi
+	$PCP_ECHO_PROG $PCP_ECHO_N ",$__ip""$PCP_ECHO_C"
+    done \
+    | sed -e 's/^,//'
+}
+
+# fqdn for localhost
+# 
+_get_fqdn()
+{
+    _host_to_fqdn `hostname`
+}
+
+# Distro-specific filtering for init, rc scripts, chkconfig, et al
+#
+_filter_init_distro()
+{
+    if [ -f /etc/mandriva-release ]
+    then
+	# looks like this is a Mandriva bug ... see
+	# http://mandriva.598463.n5.nabble.com/Bug-24409-initscripts-New-netfs-provides-local-fs-scripts-can-t-be-turned-off-td869820.html
+	#
+	sed \
+	    -e '/Warning: netfs is needed by pcp in runlevel/d'
+    else
+	cat
+    fi
+}
+
+# deal with chkconfig et al
+# assumes $sudo is set correctly
+# try very hard to _not_ emit messages unless serious errors encountered
+#
+_change_config()
+{
+    if [ $PCP_PLATFORM = linux ]
+    then
+	pat=$1
+	[ "$1" = "verbose" ] && pat=""
+
+	_have_systemctl=false
+	which systemctl >/dev/null 2>&1 && _have_systemctl=true
+	if [ -z "$pat" ]
+	then
+	    _have_service=true
+	elif [ -n "$PCP_SYSTEMDUNIT_DIR" -a -f $PCP_SYSTEMDUNIT_DIR/$pat.service ]
+	then
+	    _have_service=true
+	else
+	    _have_service=false
+	fi
+	if $_have_systemctl && $_have_service
+	then
+	    # Run with systemd whenever it is available now
+	    #
+	    case "$2"
+	    in
+		on)	act=enable ;;
+		off)	act=disable ;;
+		*)
+		    echo "_change_config: Error: \$2=$2 not \"on\" or \"off\" as expected"
+		    exit 1
+		    ;;
+	    esac
+	    if [ -n "$pat" ]
+	    then
+		$sudo systemctl $act $pat.service >$tmp._tmp 2>$tmp._err
+		[ $? -eq 0 ] || cat $tmp._tmp
+	    fi
+	elif which chkconfig >/dev/null 2>&1
+	then
+	    # Try the older RedHat and SuSE way ..
+	    #
+	    [ -n "$pat" ] && $sudo chkconfig $pat $2 2>&1 \
+	    | sed \
+		-e '/^insserv: warning: current start runlevel(s) .* of script .pcp./d' \
+		-e '/^insserv: Service .* is missed in the runlevels /d' \
+	    # end
+	elif [ -x /usr/sbin/sysv-rc-conf ]
+	then
+	    # Try the Debian and Ubuntu way ..
+	    #
+	    [ -n "$pat" ] && $sudo /usr/sbin/sysv-rc-conf $pat $2
+	elif which rc-update >/dev/null 2>&1
+	then
+	    # Try the Gentoo way ..
+	    #
+	    if [ -n "$pat" ]
+	    then
+		case $2
+		in
+		    on)		act=add ;;
+		    off)	act=delete ;;
+		    *)
+			echo "_change_config: Error: \$2=$2 not \"on\" or \"off\" as expected"
+			exit 1
+			;;
+		esac
+		$sudo rc-update $act $pat default >$tmp._tmp 2>&1
+		[ $? -eq 0 ] || cat $tmp._tmp
+	    fi
+	elif [ -f /etc/slackware-version ]
+	then
+	    # Slackware uses BSD-style init, so no control
+	    :
+	else
+	    # I have no clue!
+	    #
+	    echo "_change_config: Error: cannot change config \"$1 $2\""
+	    exit 1
+	fi
+    elif [ $PCP_PLATFORM = solaris ]
+    then
+	# Try the Solaris way ..
+	#
+	if which svcadm >/dev/null 2>&1
+	then
+	    case $1 
+	    in
+		pmcd)       pat=pmcd ;;
+		pmlogger)   pat=pmlogger ;;
+		verbose)    pat="" ;;
+		*)	    pat=$1 ;;
+	    esac
+	    if [ -n "$pat" ]
+	    then
+		if [ "$2" = on ]
+		then
+		    state=`svcs -l svc:/application/pcp/$pat | sed -n '/^state[ 	]/s///p'`
+		    [ -n "$state" -a "$state" != "online" ] \
+			&& $sudo svcadm clear svc:/application/pcp/$pat
+		    $sudo svcadm enable svc:/application/pcp/$pat
+		elif [ "$2" = off ]
+		then
+		    $sudo svcadm disable svc:/application/pcp/$pat
+		else
+		    echo "_change_config: Error: \$2=$2 not \"on\" or \"off\" as expected"
+		    exit 1
+		fi
+	    fi
+	else
+	    echo "_change_config: Error: cannot find svcs for Solaris"
+	    exit 1
+	fi
+    elif [ $PCP_PLATFORM = darwin ]
+    then
+	case $1 
+	in
+	    pmcd)	pat=PMCD ;;
+	    pmlogger)	pat=PMLOGGER ;;
+	    pmie)	pat=PMIE ;;
+	    pmproxy)	pat=PMPROXY ;;
+	    pmmgr)	pat=PMMGR ;;
+	    pmwebd)	pat=PMWEBD ;;
+	    verbose)	pat="" ;;
+	    *)		pat=$1 ;;
+	esac
+	if [ -n "$pat" ]
+	then
+	    state=`sed -n -e "/^$pat=/{"'
+s/.*=//
+s/-//g
+p
+}' /etc/hostconfig`
+	    if [ -z "$state" ]
+	    then
+		echo "_change_config: Error: No $pat control line in /etc/hostconfig"
+		echo "You need to add a $pat=-YES- line to this file"
+		exit 1
+	    fi
+	    if [ "$2" = "on" ]
+	    then
+		req_state=YES
+	    elif [ "$2" = "off" ]
+	    then
+		req_state=NO
+	    else
+		echo "_change_config: Error: bad state ($2) should be on or off"
+		exit 1
+	    fi
+	    if [ "$state" != "$req_state" ]
+	    then
+		sed </etc/hostconfig >$tmp._state \
+		    -e "/^$pat=/s/-.*/-$req_state-/"
+		sudo cp $tmp._state /etc/hostconfig
+	    fi
+	fi
+    elif [ $PCP_PLATFORM = freebsd ]
+    then
+	# no control for FreeBSD
+	:
+    elif [ $PCP_PLATFORM = netbsd ]
+    then
+	# no control for NetBSD
+	:
+    elif [ $PCP_PLATFORM = openbsd ]
+    then
+	# no control for OpenBSD
+	:
+    else
+	# I have no idea what to do for this platform!
+	#
+	echo "_change_config: Error: cannot \"$1 $2\" for $PCP_PLATFORM"
+	exit 1
+    fi 2>&1 \
+    | _filter_init_distro
+}
+
+_get_config()
+{
+    if [ "$PCP_PLATFORM" = linux ]
+    then
+	case $1 
+	in
+	    pmlogger|pmcd) pat=$1 ;;
+	    verbose) pat="" ;;
+	    *)	pat=$1 ;;
+	esac
+
+	_have_systemctl=false
+	which systemctl >/dev/null 2>&1 && _have_systemctl=true
+	if [ -z "$pat" ]
+	then
+	    _have_service=true
+	elif [ -n "$PCP_SYSTEMDUNIT_DIR" -a -f $PCP_SYSTEMDUNIT_DIR/$pat.service ]
+	then
+	    _have_service=true
+	else
+	    _have_service=false
+	fi
+	if $_have_systemctl && $_have_service
+	then
+	    # Run with systemd whenever it is available now
+	    #
+	    if [ -z "$pat" ]
+	    then
+		# unconditionally "on", or no such option
+		#
+		echo on
+	    else
+		if systemctl -q is-enabled $pat.service >/dev/null 2>&1
+		then
+		    echo on
+		else
+		    echo off
+		fi
+	    fi
+	elif which chkconfig >/dev/null 2>&1
+	then
+	    # Try the older RedHat and SuSE way ..
+	    #
+	    if [ -z "$pat" ]
+	    then
+		# unconditionally "on", or no such option
+		#
+		echo on
+	    else
+		if chkconfig $pat >$tmp.__tmp 2>&1
+		then
+		    # success from chkconfig is only useful if no output
+		    # was generated ... in the latter case, grep the output
+		    # for hints (this is for SuSE SLES9 in particular)
+		    #
+		    if [ -s $tmp.__tmp ]
+		    then
+			if grep ' on$' $tmp.__tmp >/dev/null
+			then
+			    echo on
+			elif grep ' off$' $tmp.__tmp >/dev/null
+			then
+			    echo off
+			else
+			    echo off
+			fi
+		    else
+			echo on
+		    fi
+		else
+		    echo off
+		fi
+	    fi
+	elif [ -x /usr/sbin/sysv-rc-conf ]
+	then
+	    # Try the Debian and Ubuntu way ..
+	    #
+	    if [ -z "$pat" ]
+	    then
+		# unconditionally "on", or no such option
+		#
+		echo on
+	    else
+		if $sudo /usr/sbin/sysv-rc-conf $pat
+		then
+		    echo on
+		else
+		    echo off
+		fi
+	    fi
+	elif which rc-update >/dev/null 2>&1
+	then
+	    # Try the Gentoo way ..
+	    #
+	    if [ -z "$pat" ]
+	    then
+		# unconditionally "on", or no such option
+		#
+		echo on
+	    else
+		if rc-update show default | grep $pat >/dev/null
+		then
+		    echo on
+		else
+		    echo off
+		fi
+	    fi
+	elif [ -f /etc/slackware-version ]
+	then
+	    # Slackware uses BSD-style init, so no control
+	    :
+	else
+	    echo "_change_config: Error: don't know how to change config for Linux"
+	    exit 1
+	fi
+    elif [ $PCP_PLATFORM = solaris ]
+    then
+	if which svcs >/dev/null 2>&1
+	then
+	    case $1 
+	    in
+		pmlogger|pmcd) pat=$1 ;;
+		verbose) pat="" ;;
+		*) pat=$1 ;;
+	    esac
+	    if [ -z "$pat" ]
+	    then
+		# unconditionally "on", or no such option
+		#
+		echo on
+	    else
+		state=`svcs -H svc:/application/pcp/$pat | sed -e 's/[ 	].*//'`
+		case "$state"
+		in
+		    online|maintenance)
+			echo on
+			;;
+		    offline|disabled)
+			echo off
+			;;
+		    *)
+			echo "_change_config: Error: smf ($state) from svcs not expected"
+			exit 1
+			;;
+		esac
+	    fi
+	else
+	    echo "_change_config: Error: cannot find svcs for Solaris"
+	    exit 1
+	fi
+    elif [ $PCP_PLATFORM = darwin ]
+    then
+	case $1 
+	in
+	    pmcd)	pat=PMCD ;;
+	    pmlogger)	pat=PMLOGGER ;;
+	    pmie)	pat=PMIE ;;
+	    verbose)	pat="" ;;
+	    *)		pat=$1 ;;
+	esac
+	if [ -n "$pat" ]
+	then
+	    state=`sed -n -e "/^$pat=/{"'
+s/.*=//
+s/-//g
+p
+}' /etc/hostconfig`
+	    if [ -z "$state" ]
+	    then
+		echo "_change_config: Error: No $pat control line in /etc/hostconfig" >&2
+		echo "You need to add a $pat=-YES- line to this file" >&2
+		exit 1
+	    fi
+	    if [ "$state" = "YES" ]
+	    then
+		echo on
+	    elif [ "$state" = "NO" ]
+	    then
+		echo off
+	    else
+		echo "_change_config: Error: bad state ($state) should be YES or NO" >&2
+		exit 1
+	    fi
+	fi
+    elif [ $PCP_PLATFORM = freebsd ]
+    then
+	# no control for FreeBSD
+	:
+    elif [ $PCP_PLATFORM = netbsd ]
+    then
+	# no control for NetBSD
+	:
+    elif [ $PCP_PLATFORM = openbsd ]
+    then
+	# no control for OpenBSD
+	:
+    else
+	echo "_change_config: Error: cannot \"$1 $2\" for $PCP_PLATFORM"
+    fi
+}
+
+# disable all system pmloggers running via the control file(s)
+#
+_disable_loggers()
+{
+    [ -z "$PCP_PMLOGGERCONTROL_PATH" ] && \
+		PCP_PMLOGGERCONTROL_PATH="$PCP_VAR_DIR/config/pmlogger/control"
+    if [ -f $PCP_PMLOGGERCONTROL_PATH ]
+    then
+	[ ! -f $tmp.control ] && \
+		$sudo cp $PCP_PMLOGGERCONTROL_PATH $tmp.control
+    fi
+    if [ -d $PCP_PMLOGGERCONTROL_PATH.d ]
+    then
+	[ ! -d $tmp.control.d ] && \
+		$sudo cp -a $PCP_PMLOGGERCONTROL_PATH.d $tmp.control.d
+	$sudo rm -fr $PCP_PMLOGGERCONTROL_PATH.d
+    fi
+    cat <<End-of-File >$tmp._tmp
+# dummy file created by qa/$seq on `date`
+# the goal here is to have a controlled primary logger that does
+# not make requests to pmcd!
+\$version=1.1
+LOCALHOSTNAME y n PCP_LOG_DIR/pmlogger/LOCALHOSTNAME -c /dev/null
+End-of-File
+    $sudo cp $tmp._tmp $PCP_PMLOGGERCONTROL_PATH
+}
+
+_restore_loggers()
+{
+    [ -z "$PCP_PMLOGGERCONTROL_PATH" ] && \
+		PCP_PMLOGGERCONTROL_PATH="$PCP_VAR_DIR/config/pmlogger/control"
+    if [ -d $tmp.control.d ]
+    then
+	$sudo cp -a $tmp.control.d $PCP_PMLOGGERCONTROL_PATH.d
+	$sudo rm -fr $tmp.control.d
+    fi
+    [ -f $tmp.control ] && \
+	$sudo cp $tmp.control $PCP_PMLOGGERCONTROL_PATH
+}
+
+# _check_core [dir]
+# checks for core files in dir (defaults to .)
+#
+_check_core()
+{
+    if [ -z "$1" ]
+    then
+	dir=""
+    else
+	if [ -d $1 ]
+	then
+	    dir=$1/
+	else
+	    echo "_check_core: aaargh $1 is not a directory!"
+	    return
+	fi
+    fi
+    if [ "`echo ${dir}core*`" != "${dir}core*" ]
+    then
+	[ -z "$here" ] && here=/tmp
+	[ -z "$seq" ] && seq=9999
+	$PCP_ECHO_PROG $PCP_ECHO_N "Dumped core! (saved in $here as""$PCP_ECHO_C"
+	for c in ${dir}core*
+	do
+	    d=`basename $c`
+	    $sudo mv $c $here/$seq.$d
+	    $PCP_ECHO_PROG $PCP_ECHO_N " $seq.$d""$PCP_ECHO_C"
+	done
+	echo ")"
+	status=1
+    fi
+}
+
+# prepare for a save-able pmcd and pmda configuration.
+#
+_prepare_pmda_install()
+{
+    [ -z "$1" ] && echo "Error: bad _prepare_pmda_install call"
+    iam=$1
+
+    # copy the pmcd config file to restore state later.
+    _save_config $PCP_PMCDCONF_PATH
+
+    cd $PCP_PMDAS_DIR/$iam
+    if [ -f Makefile -o -f GNUmakefile ] ; then
+	if $sudo ${MAKE:-make} clobber >$tmp._tmp 2>&1 ; then
+	    :
+	else
+	    cat $tmp._tmp
+	    echo "Arrgh, ${MAKE:-make} clobber failed"
+	    exit
+	fi
+    fi
+
+    # start from a known starting point
+    $sudo ./Remove >/dev/null 2>&1
+    [ -f $PCP_VAR_DIR/config/$iam/$iam.conf ] && \
+	$sudo mv $PCP_VAR_DIR/config/$iam/$iam.conf $tmp.$iam.conf
+}
+
+# restore a saved pmcd configuration and ensure pmda back in place.
+#
+_restore_pmda_install()
+{
+    [ -z "$1" ] && echo "Error: bad _restore_pmda_install call"
+    iam=$1
+    signal=$PCP_BINADM_DIR/pmsignal
+
+    [ -f $PCP_VAR_DIR/config/$iam/$iam.conf.$seq ] \
+	&& $sudo mv $PCP_VAR_DIR/config/$iam/$iam.conf.$seq $PCP_VAR_DIR/config/$iam/$iam.conf
+
+    if diff $PCP_PMCDCONF_PATH.$seq $PCP_PMCDCONF_PATH > /dev/null 2>&1
+    then
+	_restore_config $PCP_PMCDCONF_PATH
+    else
+# do a default install which ensures the pmns and any views are installed
+
+	cd $PCP_PMDAS_DIR/$iam
+        $sudo ./Install < /dev/null > /dev/null 2>&1
+
+# PMDA may have been installed differently to default. As everything is
+# installed we can use the old pmcd.conf file to restore state.
+
+        if diff $PCP_PMCDCONF_PATH.$seq $PCP_PMCDCONF_PATH > /dev/null 2>&1
+        then
+	    _restore_config $PCP_PMCDCONF_PATH
+        else
+	    _restore_config $PCP_PMCDCONF_PATH
+            $sudo $signal -a -s HUP pmcd
+        fi
+    fi
+}
+
+# find a local port that is not in use, optionally starting from a suggested port
+#
+_find_free_port()
+{
+    base=$1
+    [ -z "$base" ] && base=54321
+
+    while $PCP_BINADM_DIR/telnet-probe -c localhost $base
+    do
+	base=`expr $base + 1`
+    done
+    echo $base
+}
+
+# get pid for the running primary pmlogger
+#
+_get_primary_logger_pid()
+{
+    root="$PCP_TMP_DIR/pmlogger/primary"
+    if [ ! -L "$root" ]
+    then
+	echo ""
+    elif which realpath >/dev/null 2>&1
+    then
+	symroot=`realpath "$root"`
+	basename "$symroot"
+    else
+	symroot=`ls -l "$root" | sed -e 's/.*-> //'`
+	if [ -z "$symroot" ]
+	then
+	    echo "Arrgh, cannot get symlink for device for root fs ..."
+	    ls -l "$root"
+	    exit
+	fi
+	basename "$symroot"
+    fi
+}
+
+_get_libpcp_config()
+{
+    pmconfig -L -s > $tmp.config
+    . $tmp.config
+    rm $tmp.config
+}

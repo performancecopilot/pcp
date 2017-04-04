@@ -1,0 +1,86 @@
+QA output created by 836
+== simple comparison, defaults
+Directory: PATH
+Excluded metrics:
+    ^pmcd.pmlogger.port 
+
+Ratio Threshold: >= 2.00 or <= 0.500
+      section-a       section-b   Ratio  Metric-Instance
+      start-end       start-end
+          0.000           0.029    |+|   disk.all.read
+          0.000           0.116    |+|   disk.all.read_bytes
+          0.000           0.029    |+|   disk.dev.read ["sda"]
+          0.000           0.116    |+|   disk.dev.read_bytes ["sda"]
+          0.400           1.200   3.00   disk.dev.total_bytes ["sdb"]
+          0.100           0.200   2.00   disk.dev.total ["sdb"]
+
+== change the comparison ratio
+Directory: PATH
+Excluded metrics:
+    ^pmcd.pmlogger.port 
+
+Ratio Threshold: >= 1.50 or <= 0.667
+      section-a       section-b   Ratio  Metric-Instance
+      start-end       start-end
+          0.000           0.029    |+|   disk.all.read
+          0.000           0.116    |+|   disk.all.read_bytes
+          0.000           0.029    |+|   disk.dev.read ["sda"]
+          0.000           0.116    |+|   disk.dev.read_bytes ["sda"]
+          0.400           1.200   3.00   disk.dev.total_bytes ["sdb"]
+          0.100           0.200   2.00   disk.dev.total ["sdb"]
+
+== change the report precision
+Directory: PATH
+Excluded metrics:
+    ^pmcd.pmlogger.port 
+
+Ratio Threshold: >= 2.00 or <= 0.500
+        section-a         section-b   Ratio  Metric-Instance
+        start-end         start-end
+          0.00000           0.02899    |+|   disk.all.read
+          0.00000           0.11594    |+|   disk.all.read_bytes
+          0.00000           0.02899    |+|   disk.dev.read ["sda"]
+          0.00000           0.11594    |+|   disk.dev.read_bytes ["sda"]
+          0.39996           1.20002   3.00   disk.dev.total_bytes ["sdb"]
+          0.09999           0.20000   2.00   disk.dev.total ["sdb"]
+
+== skip the excluded metrics report
+Directory: PATH
+
+Ratio Threshold: >= 2.00 or <= 0.500
+      section-a       section-b   Ratio  Metric-Instance
+      start-end       start-end
+          0.000           0.029    |+|   disk.all.read
+          0.000           0.116    |+|   disk.all.read_bytes
+          0.000           0.029    |+|   disk.dev.read ["sda"]
+          0.000           0.116    |+|   disk.dev.read_bytes ["sda"]
+          0.400           1.200   3.00   disk.dev.total_bytes ["sdb"]
+          0.100           0.200   2.00   disk.dev.total ["sdb"]
+
+== skip the missing metrics report
+Directory: PATH
+Excluded metrics:
+    ^pmcd.pmlogger.port 
+
+Ratio Threshold: >= 2.00 or <= 0.500
+      section-a       section-c   Ratio  Metric-Instance
+      start-end       start-end
+     823328               0.000    |-|   filesys.used ["/dev/sda1"]
+    4111028               0.000    |-|   filesys.used ["/dev/sda5"]
+    1163304               0.000    |-|   filesys.used ["/dev/sda6"]
+   22320376               0.000    |-|   filesys.used ["/dev/sda8"]
+   93712416               0.000    |-|   filesys.used ["/dev/sda9"]
+     563588               0.000    |-|   filesys.used ["/dev/sdb1"]
+    3574320               0.000    |-|   filesys.used ["/dev/sdb5"]
+    1244611               0.000    |-|   filesys.used ["/dev/sdb6"]
+      191700868           0.000    |-|   filesys.used ["/dev/sdb9"]
+      17727               0.000    |-|   filesys.usedfiles ["/dev/sda1"]
+     208878               0.000    |-|   filesys.usedfiles ["/dev/sda5"]
+      13325               0.000    |-|   filesys.usedfiles ["/dev/sda6"]
+     115113               0.000    |-|   filesys.usedfiles ["/dev/sda8"]
+       9002               0.000    |-|   filesys.usedfiles ["/dev/sda9"]
+      15087               0.000    |-|   filesys.usedfiles ["/dev/sdb1"]
+     209037               0.000    |-|   filesys.usedfiles ["/dev/sdb5"]
+      13139               0.000    |-|   filesys.usedfiles ["/dev/sdb6"]
+         28.00            0.000    |-|   filesys.usedfiles ["/dev/sdb9"]
+          1.000           0.000    |-|   sample.longlong.one

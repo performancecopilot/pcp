@@ -1,0 +1,877 @@
+#
+# Copyright (c) 2012-2016 Red Hat.
+# Copyright (c) 2008 Aconex.  All Rights Reserved.
+# Copyright (c) 2000,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+# 
+
+# Common gmake macros for building
+#
+# @configure_input@
+#
+ifndef _BUILDDEFS_INCLUDED_
+_BUILDDEFS_INCLUDED_ = 1
+
+ifndef _PCP_CONF_INCLUDED_
+_PCP_CONF_INCLUDED_ = 1
+include $(TOPDIR)/src/include/pcp.conf
+endif
+
+# General package information
+PACKAGE_VERSION ?= @PACKAGE_VERSION@
+PACKAGE_MAJOR ?= @PACKAGE_MAJOR@
+PACKAGE_MINOR ?= @PACKAGE_MINOR@
+PACKAGE_REVISION ?= @PACKAGE_REVISION@
+PACKAGE_BUILD ?= @PACKAGE_BUILD@
+PACKAGE_NAME ?= pcp
+PACKAGE_CONFIGURE ?= @PACKAGE_CONFIGURE@
+PACKAGE_DISTRIBUTION ?= @PACKAGE_DISTRIBUTION@
+SGI_CHROOT_BUILD ?= 0
+SGI_ISSP_BUILD ?= 0
+
+# see build/containers/GNUlocalrules and build/containers/*/GNUmakefile
+CONTAINER_VERSION = $(PACKAGE_VERSION)-$(PACKAGE_BUILD)
+CONTAINER_ARCH = $(shell uname -p)
+
+BUILDRULES = $(TOPDIR)/src/include/buildrules
+
+# LCFLAGS, LLDFLAGS, LLDLIBS, LDIRT may be specified in local makefiles.
+
+# turn on all warnings by default
+ifeq "@cc_is_gcc@" "yes"
+WARN_OFF = -Wall
+else
+WARN_OFF =
+endif
+
+LIBPCP_ABIDIR ?= src
+PCPLIB_LDFLAGS = -L$(TOPDIR)/src/libpcp/$(LIBPCP_ABIDIR) \
+		 -L$(TOPDIR)/src/libpcp_pmda/$(LIBPCP_ABIDIR)
+# backward compatibility
+PCP_LIBS = $(PCPLIB_LDFLAGS)
+
+# platform-specific CFLAGS, LDLIBS, and shared library extension
+#
+# Note:
+# 	Need PCFLAGS setting here to match the CFLAGS settings in
+# 	../../configure.ac (likewise for PLDFLAGS and LDFLAGS).
+#
+TARGET_OS = @target_os@
+CROSS_COMPILING = @cross_compiling@
+CASE_INSENSITIVE_FS = no
+PCFLAGS = @PCFLAGS@
+PLDFLAGS = @PLDFLAGS@
+ifneq (, $(filter linux kfreebsd gnu, $(TARGET_OS)))
+DSOSUFFIX = so
+endif
+ifeq "$(TARGET_OS)" "darwin"
+DSOSUFFIX = dylib
+CASE_INSENSITIVE_FS = yes
+endif
+ifeq "$(TARGET_OS)" "mingw"
+DSOSUFFIX = dll
+EXECSUFFIX = .exe
+SHELLSUFFIX = .sh
+PLDLIBS = -lwsock32 -liphlpapi
+endif
+ifeq "$(TARGET_OS)" "solaris"
+PLDFLAGS += -fPIC
+PLDLIBS = -lnsl -lsocket -lresolv -ldl -lposix4
+DSOSUFFIX = so
+endif
+ifeq "$(TARGET_OS)" "aix"
+DSOSUFFIX = so
+# -qcpluscmt
+#	allow C++-style // as comment preamble
+# -brtl
+#       use run-time linker
+# -bnoipath
+#       do not use path to DSOs from the build, use default search path
+#       rules
+# (and does not accept -Wall as a valid option)
+PLDFLAGS += -brtl -bnoipath
+WARN_OFF =
+endif
+ifeq "$(TARGET_OS)" "freebsd"
+DSOSUFFIX = so
+endif
+ifeq "$(TARGET_OS)" "netbsd"
+DSOSUFFIX = so
+LDFLAGS += -Wl,-rpath=/usr/pkg/lib
+endif
+ifeq "$(TARGET_OS)" "openbsd"
+DSOSUFFIX = so
+endif
+
+CFLAGS_ABI = @cflags_abi@
+CFLAGS_OPT = @optimization@
+CFLAGS += $(PCFLAGS) $(LCFLAGS) $(WARN_OFF) $(CFLAGS_OPT) \
+	-DPCP_DEBUG -DPCP_VERSION=\"$(PCP_VERSION)\" \
+	-I$(TOPDIR)/src/include -I$(TOPDIR)/src/include/pcp
+
+PIECFLAGS = @PIECFLAGS@
+PIELDFLAGS = @PIELDFLAGS@
+INVISIBILITY = @INVISIBILITY@	# hide shared library symbols
+
+NSSCFLAGS = @NSSCFLAGS@
+NSPRCFLAGS = @NSPRCFLAGS@
+SASLCFLAGS = @SASLCFLAGS@
+AVAHICFLAGS = @avahi_CFLAGS@
+CAIROCFLAGS = @cairo_CFLAGS@
+NCURSESCFLAGS = @ncurses_CFLAGS@
+LIBMICROHTTPDCFLAGS = @libmicrohttpd_CFLAGS@
+ZLIBCFLAGS = @zlib_CFLAGS@
+
+LDFLAGS += $(PLDFLAGS) $(WARN_OFF) $(PCP_LIBS) $(LLDFLAGS)
+
+SRCFILES = GNUmakefile $(HFILES) $(CFILES) $(CXXFILES) $(MFILES) \
+	$(LSRCFILES) $(LFILES) $(YFILES) $(PYFILES)
+
+LDLIBS = $(LLDLIBS) $(PLDLIBS)
+MAKEOPTS = --no-print-directory
+
+ifdef PROJECT
+QTDIRDIRT = build debug release .obj .ui .moc .qrc *.xcodeproj *.app
+QTDIRT = *.a *.o ui_* moc_* qrc_* Info.plist Makefile* object_script.*
+endif
+DEPDIRT = dep dep.bak
+MANDIRT = *.[1-9].gz *.[1-9].bz2 *.[1-9].lzma *.[1-9].xz *.[1-9].tmp
+LIBDIRT = $(LIBTARGET) $(STATICLIBTARGET)
+CDIRT = $(OBJECTS) $(CMDTARGET) $(CXXMDTARGET)
+DIRT = $(LDIRT) $(DEPDIRT) $(MANDIRT) $(QTDIRT) $(CDIRT) $(LIBDIRT)
+DIRDIRT = $(LDIRDIRT) $(QTDIRDIRT)
+
+OBJECTS = $(ASFILES:.s=.o) \
+          $(CFILES:.c=.o) \
+          $(CXXFILES:.cxx=.o) \
+          $(FFILES:.f=.o) \
+          $(LFILES:.l=.o) \
+          $(YFILES:%.y=%.tab.o)
+
+#NB: don't override $(MAKE); gnumake sets it well, propagating -j etc.
+#MAKE	= @make@
+CC	= @cc@
+CXX	= @cxx@
+LD	= @ld@
+AWK	= @awk@
+SED	= @sed@
+CPP	= @cpp@
+LEX	= @lex@
+YACC	= @yacc@
+ECHO	= @echo@
+LN_S	= @LN_S@
+GREP    = @grep@
+GIT	= @GIT@
+PYTHON	= @PYTHON@
+PYTHON3	= @PYTHON3@
+DTRACE  = @DTRACE@
+QMAKE	= @qmake@
+
+INSTALL_SH = $(TOPDIR)/install-sh
+INSTALL	= $(INSTALL_SH) -o $(PCP_USER_INSTALL) -g $(PCP_GROUP_INSTALL)
+
+CCF	= $(CC) $(CFLAGS)
+CXXF	= $(CXX) $(CFLAGS) $(CXXFLAGS)
+# NB: don't use $(MAKEF), since that suppresses gnumake's subdir parallelization
+#MAKEF	= $(MAKE) $(MAKEOPTS)
+LDF	= $(LD) $(LDFLAGS)
+MAKEDEPEND = @makedepend@
+
+ifeq "$(TARGET_OS)" "freebsd"
+# gmake on FreeBSD has a strange default rule that passes insufficient
+# flags to cc/ld for the link step.  This change prevents errors like
+# undefined reference to `__stack_chk_fail_local'
+#
+LDFLAGS += $(CFLAGS)
+endif
+
+ZIP	= @gzip@
+BZIP2	= @bzip2@
+LZMA	= @lzma@
+XZ	= @xz@
+TAR	= @tar@
+RPMPROG	= @rpmprog@
+PACKAGE_MAKER = @package_maker@
+HDIUTIL = @hdiutil@
+MKINSTALLP = @mkinstallp@
+DLLTOOL = @dlltool@
+RPMBUILD= @rpmbuild@
+RPM	= @rpm@
+POD2MAN = @pod2man@
+DPKG	= @dpkg@
+MAKEPKG	= @makepkg@
+GENPMDA	= $(TOPDIR)/src/genpmda/genpmda
+PKGMK	= @pkgmk@
+MD5SUM	= @md5sum@
+XMLTO	= @xmlto@
+DBLATEX	= @dblatex@
+PUBLICAN = @publican@
+BOOK_TOOLCHAIN = @book_toolchain@
+BOOK_BRAND = @book_brand@
+
+HAVE_MANPAGES = @have_manpages@
+HAVE_GZIPPED_MANPAGES = @have_gzipped_manpages@
+HAVE_BZIP2ED_MANPAGES = @have_bzip2ed_manpages@
+HAVE_LZMAED_MANPAGES = @have_lzmaed_manpages@
+HAVE_XZED_MANPAGES = @have_xzed_manpages@
+PCP_MAN_DIR = @pcp_man_dir@
+PCP_BOOKS_DIR = @pcp_books_dir@
+PCP_ICONS_DIR = @pcp_icons_dir@
+PCP_DESKTOP_DIR = @pcp_desktop_dir@
+
+NEED_OLD_TBL_HEADER = @need_old_tbl_header@
+RDYNAMIC_FLAG = @rdynamic_flag@
+QT_RELEASE = @qt_release@
+
+# configuration state affecting the entire build
+ENABLE_SHARED = @enable_shared@
+ENABLE_SECURE = @enable_secure@
+ENABLE_PROBES = @enable_probes@
+ENABLE_AVAHI = @enable_avahi@
+ENABLE_QT = @enable_qt@
+ENABLE_QT3D = @enable_qt3d@
+ENABLE_PYTHON2 = @enable_python2@
+ENABLE_PYTHON3 = @enable_python3@
+ENABLE_SYSTEMD = @enable_systemd@
+ENABLE_MANAGER = @enable_manager@
+ENABLE_WEBAPI = @enable_webapi@
+
+# for code supporting any modern version of perl
+HAVE_PERL = @have_perl@
+
+# for code supporting both/either python2 and/or python3
+HAVE_PYTHON = @have_python@
+
+# python dependent bits
+HAVE_PYTHON_SIX = @have_python_six@
+HAVE_PYTHON_REQUESTS = @have_python_requests@
+HAVE_PYTHON_SETUPTOOLS = @have_python_setuptools@
+HAVE_PYTHON_JSONPOINTER = @have_python_jsonpointer@
+
+# for building packages from external sources
+HAVE_PARFAIT = @have_parfait@
+HAVE_VECTOR = @have_vector@
+HAVE_WEBJS = @have_webjs@
+
+# additional libraries needed for particular functions
+LIB_FOR_BASENAME = @lib_for_basename@
+LIB_FOR_DLOPEN = @lib_for_dlopen@
+LIB_FOR_REGEX = @lib_for_regex@
+LIB_FOR_MATH = @lib_for_math@
+LIB_FOR_READLINE = @lib_for_readline@
+LIB_FOR_CURSES = @lib_for_curses@
+LIB_FOR_PTHREADS = @lib_for_pthreads@
+LIB_FOR_RT = @lib_for_rt@
+LIB_FOR_NSS = @lib_for_nss@
+LIB_FOR_NSPR = @lib_for_nspr@
+LIB_FOR_SASL = @lib_for_sasl@
+LIB_FOR_SSL = @lib_for_ssl@
+LIB_FOR_AVAHI = @lib_for_avahi@
+LIB_FOR_ATOMIC = @lib_for_atomic@
+
+HAVE_CAIRO = @HAVE_CAIRO@
+LIB_FOR_CAIRO = @cairo_LIBS@
+HAVE_NCURSES = @HAVE_NCURSES@
+LIB_FOR_NCURSES = @ncurses_LIBS@
+HAVE_LIBMICROHTTPD = @HAVE_LIBMICROHTTPD@
+LIB_FOR_MICROHTTPD = @libmicrohttpd_LIBS@
+HAVE_ZLIB = @HAVE_ZLIB@
+LIB_FOR_ZLIB = @zlib_LIBS@
+
+# configuration state for optional performance domains
+SYSTEMD_CFLAGS = @SYSTEMD_CFLAGS@
+SYSTEMD_LIBS = @SYSTEMD_LIBS@
+PAPI_CFLAGS = @PAPI_CFLAGS@
+PAPI_LIBS = @PAPI_LIBS@
+PFM_LIBS = @PFM_LIBS@
+IB_LIBS = @IB_LIBS@
+PMDA_RPM = @PMDA_RPM@
+PMDA_JSON = @PMDA_JSON@
+PMDA_PAPI = @PMDA_PAPI@
+PMDA_LIBVIRT = @PMDA_LIBVIRT@
+PMDA_SYSTEMD = @PMDA_SYSTEMD@
+PMDA_PERFEVENT = @PMDA_PERFEVENT@
+PMDA_INFINIBAND = @PMDA_INFINIBAND@
+PMDA_MYSQL = @PMDA_MYSQL@
+PMDA_ORACLE = @PMDA_ORACLE@
+PMDA_POSTGRESQL = @PMDA_POSTGRESQL@
+PMDA_ELASTICSEARCH = @PMDA_ELASTICSEARCH@
+PMDA_SNMP = @PMDA_SNMP@
+PMDA_NGINX = @PMDA_NGINX@
+PMDA_ACTIVEMQ = @PMDA_ACTIVEMQ@
+PMDA_POSTFIX = @PMDA_POSTFIX@
+
+SHELL = /bin/sh
+IMAGES_DIR = $(TOPDIR)/all-images
+DIST_DIR = $(TOPDIR)/dist
+
+# env vars to be set before you can run a PCP binary in the build
+# environment ... needed for tools like newhelp
+#
+# default, then special case for different platforms
+#
+RUN_IN_BUILD_ENV = PCP_CONF=$(TOPDIR)/src/include/pcp.conf PCP_ALT_CPP=$(TOPDIR)/src/pmcpp/pmcpp.static$(EXECSUFFIX)
+
+# when cross-compiling, we cannot use RUN_IN_BUILD_ENV, so any binaries
+# from PCP we need in the build must be installed on the build machine.
+#
+ifeq "$(CROSS_COMPILING)" "yes"
+NEWHELP = . $$PCP_DIR/etc/pcp.conf && $$PCP_BINADM_DIR/newhelp
+PMIECONF = . $$PCP_DIR/etc/pcp.conf && $$PCP_BIN_DIR/pmieconf
+PMGENMAP = . $$PCP_DIR/etc/pcp.conf && $$PCP_BIN_DIR/pmgenmap
+PMCPP = . $$PCP_DIR/etc/pcp.conf && $$PCP_BINADM_DIR/pmcpp
+else
+NEWHELP = $(RUN_IN_BUILD_ENV) $(TOPDIR)/src/newhelp/newhelp.static
+PMIECONF = $(RUN_IN_BUILD_ENV) $(TOPDIR)/src/pmieconf/pmieconf.static
+PMGENMAP = $(RUN_IN_BUILD_ENV) sh ./pmgenmap.sh
+PMCPP = $(RUN_IN_BUILD_ENV) $(TOPDIR)/src/pmcpp/pmcpp.static
+endif
+
+SUBDIRS_MAKERULE = \
+	+for d in `echo $^ `; do \
+	    if test -d "$$d" -a -f "$$d/GNUmakefile"; then \
+		$(ECHO) === $$d ===; \
+		$(MAKE) $(MAKEOPTS) -C $$d $@ || exit $$?; \
+	    fi; \
+	done
+
+# special variant of SUBDIRS_MAKERULE when running QA
+#
+QA_SUBDIRS_MAKERULE = \
+	+@for d in `echo $^ `; do \
+	    if test -d "$$d" ; then \
+		if test -f "$$d/GNUmakefile.install"; then \
+		    $(MAKE) --silent -C $$d -f GNUmakefile.install $@ || exit $$?; \
+		else \
+		    $(MAKE) --silent -C $$d $@ || exit $$?; \
+		fi; \
+	    fi; \
+	done
+
+# prepare symbols file for the GNU toolchain (linker) for DSO PMDAs
+VERSION_SCRIPT_MAKERULE = \
+	@rm -f $@; \
+	echo "$(DOMAIN) {" >$@; \
+	echo "    global: $(PMDAINIT);" >>$@; \
+	echo "    local: *;" >>$@; \
+	echo "};" >>$@; \
+
+# prepare symbols file for other platforms toolchain for shared libs
+# (convert one canonical format - GNU toolchain style - into others)
+ifeq "$(TARGET_OS)" "solaris"
+EXPORTS_MAKERULE = \
+	$(AWK) <$< >$@ '\
+BEGIN	{ print "$$mapfile_version 2"; print } \
+/\{$$/	{ print "SYMBOL_VERSION", $$0; next } \
+	{ print }'
+else
+EXPORTS_MAKERULE =
+endif
+
+# prepare domain.h used during the PMDA build process for each PMDA
+DOMAIN_MAKERULE = \
+	@rm -f $@; \
+	echo "/*" >$@; \
+	echo " * built from $<" >>$@; \
+	echo " */" >>$@; \
+	$(AWK) <$< '\
+	    $$1=="\#define" && $$2 == "$(DOMAIN)" {\
+		print "\#define $(DOMAIN) " $$3 >>"$@"; found++ \
+	    }\
+	    END {\
+		if (found == 0) { \
+		    print "Botch: no define for domain $(DOMAIN) in $<"; \
+		    system("rm '$@'"); \
+		    exit(1) \
+		}\
+		if (found > 1) { \
+		    print "Botch: multiple defines for domain $(DOMAIN) in $<";\
+		    print "... see $@ for details"; \
+		    system("rm '$@'"); \
+		    exit(1) \
+		}\
+        	exit(0) \
+            }' || ( rm -f $@ && false )
+
+DOMAIN_PERLRULE = \
+	@export perldomain=`sed -n \
+		-e '/PCP::PMDA->new/s/[^0-9]*$$//' \
+		-e '/PCP::PMDA->new/s/^[^0-9]*//p' pmda$(IAM).pl | \
+		$(AWK) '{ print $$NF }'`; \
+	$(AWK) <$< '\
+	    BEGIN {\
+		domain = toupper("$(IAM)") \
+	    }\
+	    $$1=="\#define" && $$2 == domain { \
+		pmd=$$3; found++ \
+	    }\
+	    END {\
+		if (found == 0) {\
+		    print "Botch: no define for domain " domain " in $<"; \
+		    exit(1) \
+		}\
+	        if (found > 1) {\
+		    print "Botch: multiple defines of domain " domain " in $<";\
+		    exit(1) \
+		}\
+		if (pmd != "'"$$perldomain"'") {\
+		    print "Botch: domain number in ../../pmns/stdpmid (" pmd ") does not match domain number in Perl source ("'"$$perldomain"'")"; \
+		    exit(1) \
+		}\
+		exit(0) \
+	    }'
+
+DOMAIN_PYTHONRULE = \
+	@export pythondomain=`sed -n \
+		-e '/PMDA(/s/[^0-9]*$$//' \
+		-e '/PMDA(/s/^[^0-9]*//p' $(PYSCRIPT) | \
+		$(AWK) '{ print $$NF }'`; \
+	$(AWK) <$< '\
+	    BEGIN {\
+		domain = toupper("$(IAM)") \
+	    }\
+	    $$1=="\#define" && $$2 == domain { \
+		pmd=$$3; found++ \
+	    }\
+	    END {\
+		if (found == 0) {\
+		    print "Botch: no define for domain " domain " in $<"; \
+		    exit(1) \
+		}\
+	        if (found > 1) {\
+		    print "Botch: multiple defines of domain " domain " in $<";\
+		    exit(1) \
+		}\
+		if (pmd != "'"$$pythondomain"'") {\
+		    print "Botch: domain number in ../../pmns/stdpmid (" pmd ") does not match domain number in Python source ("'"$$pythondomain"'")"; \
+		    exit(1) \
+		}\
+		exit(0) \
+	    }'
+
+POD_OPTIONS = --section=$(MAN_SECTION) --release=$(PCP_VERSION) \
+		--center="Performance Co-Pilot" --date="Performance Co-Pilot"
+POD_MAKERULE = $(POD2MAN) $(POD_OPTIONS) $^ $@
+
+ifeq "$(TARGET_OS)" "mingw"
+INSTALL_MAN =
+else
+INSTALL_MAN = \
+    test -z "$$MAN_PAGES" && MAN_PAGES="$(MAN_PAGES)"; \
+    if [ "$(HAVE_MANPAGES)" = "true" ] ; then \
+    for d in `echo $$MAN_PAGES`; do \
+	first=true; \
+	base=`echo $$d | sed -e 's/\.[0-9]//g'`; \
+	section=`echo $$d | sed -e 's/.*\.//g'`; \
+	$(AWK) <$$d ' \
+BEGIN { state=0; print "'"$$base"'" } \
+$$1==".ds" { ds["\\\\\\*\\("$$2] = $$3 } \
+$$1==".SH" && $$2=="NAME" { state=1; next } \
+$$1==".SH" && state==1	{ exit } \
+/^\./ { next } \
+state==1 { for (i=1;i<=NF;i++) { \
+             if ($$i=="\\-" || $$i=="-") exit; \
+	     gsub ("\\\\f3", "", $$i); gsub ("\\\\f1.*", "", $$i); \
+	     for ( d in ds ) sub (d, ds[d], $$i); \
+	     print $$i \
+	   } \
+	 }' \
+	| LC_COLLATE=POSIX $(PCP_SORT_PROG) -u \
+	| while read m; do \
+	    [ -z "$$m" -o "$$m" = "\\" ] && continue; \
+	    t=$(PCP_MAN_DIR)/man$$section/$$m.$$section; \
+	    if $$first; then \
+		_tfx= ;\
+		if $(NEED_OLD_TBL_HEADER) ; then \
+		    $(SED) -e "1s/^'\\\\\"! tbl.*/'\\\\\" t/" $$d > $$d.tmp; _tfx=.tmp; \
+		fi; \
+		if $(HAVE_GZIPPED_MANPAGES) ; then \
+		    $(ZIP) -c $$d$$_tfx > $$d.gz; _tfx=.gz; _sfx=.gz; \
+		fi; \
+		if $(HAVE_BZIP2ED_MANPAGES) ; then \
+		    $(BZIP2) -c $$d$$_tfx > $$d.bz2; _tfx=.bz2; _sfx=.bz2; \
+		fi; \
+		if $(HAVE_LZMAED_MANPAGES) ; then \
+		    $(LZMA) -c $$d$$_tfx > $$d.lzma; _tfx=.lzma; _sfx=.lzma; \
+		fi; \
+		if $(HAVE_XZED_MANPAGES) ; then \
+		    $(XZ) -c $$d$$_tfx > $$d.xz; _tfx=.xz; _sfx=.xz; \
+		fi; \
+		u=$$m.$$section$$_sfx; \
+		echo $(INSTALL) -m 644 $${d}$$_tfx $${t}$$_sfx; \
+		$(INSTALL) -m 644 $${d}$$_tfx $${t}$$_sfx; \
+	    else \
+		if test "$(CASE_INSENSITIVE_FS)" = "yes"; then \
+		    _upper_u=`echo $$u | tr 'a-z' 'A-Z'`; \
+		    _upper_t=`basename $${t}$$_sfx | tr 'a-z' 'A-Z'`; \
+		    if test "$$_upper_u" != "$$_upper_t"; then \
+			echo $(INSTALL) -S $$u $${t}$$_sfx; \
+			$(INSTALL) -S $$u $${t}$$_sfx; \
+		    fi \
+		else \
+		    echo $(INSTALL) -S $$u $${t}$$_sfx; \
+		    $(INSTALL) -S $$u $${t}$$_sfx; \
+		fi \
+	    fi; \
+	    first=false; \
+	done; \
+    done; \
+    fi
+endif
+
+PERL_INSTALL_BASE = @perl_install_base@
+PERL_INSTALLDIRS = @perl_installdirs@
+
+# MakeMaker INSTALL_BASE needs to be unset for proper vendor_perl paths to be used for --prefix=/usr;
+ifeq "$(PERL_INSTALL_BASE)" "/usr"
+ifneq "$(TARGET_OS)" "darwin"
+MAKEMAKER_EXTRA_OPTIONS=
+else
+MAKEMAKER_EXTRA_OPTIONS=INSTALL_BASE=$(PERL_INSTALL_BASE)  INSTALLBASE=$(PERL_INSTALL_BASE)
+endif
+else
+MAKEMAKER_EXTRA_OPTIONS=INSTALL_BASE=$(PERL_INSTALL_BASE)  INSTALLBASE=$(PERL_INSTALL_BASE)
+endif
+
+PERL_MAKE_MAKEFILE = \
+	export PCP_TOPDIR=`cd $(TOPDIR) && pwd`; \
+	NSS_CFLAGS="$(NSS_CFLAGS)" NSPR_CFLAGS="$(NSPR_CFLAGS)" \
+        TARGET_OS="$(TARGET_OS)" CC="$(CC) $(CFLAGS_ABI)" perl Makefile.PL $(MAKEMAKER_EXTRA_OPTIONS) $(MAKEMAKER_OPTIONS)
+
+# Collect files from a Perl "make -f Makefile install" below
+# src/perl to build the PCP Perl packaging list, and also clean up
+# the installed files to remove unwanted files and make the DSO
+# executable
+#
+# Usage is $(call PERL_GET_FILELIST,target,listfile,base)
+# where target is the Makefile target (install or install_perl),
+# listfile is something like $(TOPDIR)/perl-pcp-pmda.list and
+# base is the DSO basename like PMDA.
+#
+# We need different versions for the different installation and
+# packaging regimes.
+#
+ifeq "$(PACKAGE_DISTRIBUTION)" "debian"
+# For Debian packaging, this is not needed
+PERL_GET_FILELIST =
+else
+ifeq "$(PACKAGE_DISTRIBUTION)" "gentoo"
+# Gentoo cannot rely on the .packlist files from the install, so create
+# a temporary pack.list file
+PERL_GET_FILELIST = \
+	$(PERLMAKE) -f Makefile $(1) DESTDIR=$$DIST_ROOT \
+	| tee pack.list; \
+	sed -n -e '/\.bs$$/d' -e 's/\.[0-9]pm$$/&.gz/' -e "s@^Installing $$DIST_ROOT@@p" <pack.list >$(2) || exit 1; \
+	if [ -s $(2) ]; then rm -f pack.list; \
+	else echo "Arrgh ... no files to include in package via $(2), see pack.list"; exit 1; \
+	fi; \
+	find $$DIST_ROOT/$(PERL_INSTALL_BASE) -name perllocal.pod -exec rm -f '{}' ';' ; \
+	find $$DIST_ROOT/$(PERL_INSTALL_BASE) -name \*.bs  -exec rm -f '{}' ';' ; \
+	find $$DIST_ROOT/$(PERL_INSTALL_BASE) -name $(3).so -exec chmod 755 '{}' ';'
+else
+ifeq "$(PACKAGE_DISTRIBUTION)" "freebsd"
+# FreeBSD Perl packaging is a broken mystery at this point in time
+# 1. there is no .packlist files being created
+# 2. $(PERLMAKE) -f Makefile install DESTDIR=$$DIST_ROOT does not work
+# so disable the packaging pro tem
+PERL_GET_FILELIST =
+else
+# Everyone else ... includes the RPM-based packaging platforms
+ifeq "$(PACKAGE_DISTRIBUTION)" "mandriva"
+	man_suffix=lzma
+else
+	man_suffix=gz
+endif
+PERL_GET_FILELIST = \
+	$(PERLMAKE) -f Makefile $(1) DESTDIR=$$DIST_ROOT; \
+	find $$DIST_ROOT/$(PERL_INSTALL_BASE) -name .packlist -exec mv '{}' $(2) ';' ; \
+	if [ -s $(2) ] ; then \
+	    _sfx=.gz; \
+	    $(HAVE_BZIP2ED_MANPAGES) && _sfx=.bz2; \
+	    $(HAVE_LZMAED_MANPAGES) && _sfx=.lzma; \
+	    $(HAVE_XZED_MANPAGES) && _sfx=.xz; \
+            if [ "$(HAVE_MANPAGES)" = "false" ] ; then \
+		sed -e '/.*man[1-9].*/d' -e '/.*3pm.*/d' $(2) >$(2).tmp; \
+		mv $(2).tmp $(2); \
+		find $$DIST_ROOT/$(PERL_INSTALL_BASE) -name "*3pm*" -exec rm -rf '{}' ';' ; \
+	    fi ;\
+	    sed -n -e '/\.bs$$/d' -e 's/\.[0-9]pm$$/&'"$$_sfx/" -e "s@^$$DIST_ROOT@@p" $(2) >$(2).tmp; \
+	    mv $(2).tmp $(2); \
+	else echo "Arrgh ... no files to include in package via $(2)"; exit 1; \
+	fi; \
+	find $$DIST_ROOT/$(PERL_INSTALL_BASE) -name perllocal.pod -exec rm -f '{}' ';' ; \
+	find $$DIST_ROOT/$(PERL_INSTALL_BASE) -name \*.bs  -exec rm -f '{}' ';' ; \
+	find $$DIST_ROOT/$(PERL_INSTALL_BASE) -name $(3).so -exec chmod 755 '{}' ';'
+endif
+endif
+endif
+
+# Create perl manifest files explicitly for some distributions
+ifeq "$(shell [ '$(PACKAGE_DISTRIBUTION)' = cocoa \
+                -o '$(PACKAGE_DISTRIBUTION)' = macosx \
+                -o '$(PACKAGE_DISTRIBUTION)' = gentoo \
+                -o '$(PACKAGE_DISTRIBUTION)' = solaris \
+                -o '$(PACKAGE_DISTRIBUTION)' = freebsd \
+                -o '$(PACKAGE_DISTRIBUTION)' = openbsd \
+	      ] && echo 1)" "1"
+# Gather installed Perl files before packaging
+PERL_INSTALL = \
+	if [ -n "$(DIST_MANIFEST)" ]; then \
+	    if [ "`echo $(TOPDIR)/perl-pcp-*.list`" != "$(TOPDIR)/perl-pcp-*.list" ]; then \
+		cat $(TOPDIR)/perl-pcp-*.list | while read f; do \
+		    bn=`basename $$f .gz`; \
+		    dn=`dirname $$f`; \
+		    $(INSTALL) -d $$dn || exit 1; \
+		    src=`find */blib -name $$bn`; \
+		    if [ -x $$src ] ; then mode=0755; else mode=0644; fi; \
+		    $(INSTALL) -m $$mode $$src $$dn/$$bn || exit 1; \
+		done; \
+	    fi; \
+	fi
+else
+PERL_INSTALL =
+endif
+
+#
+# Python platform-specific installation quirks
+PYTHON_PREFIX=@python_prefix@
+SETUP_PY_BUILD_OPTIONS = --include-dirs=$(TOPDIR)/src/include
+SETUP_PY_BUILD_OPTIONS += --library-dirs=$(TOPDIR)/src/libpcp/src:$(TOPDIR)/src/libpcp_pmda/src:$(TOPDIR)/src/libpcp_gui/src:$(TOPDIR)/src/libpcp_import/src:$(TOPDIR)/src/libpcp_mmv/src
+SETUP_PY_INSTALL_OPTIONS = --skip-build
+SETUP_PY_INSTALL_OPTIONS += --root=$${DIST_ROOT-/}
+ifeq "$(PYTHON_PREFIX)" "/usr"
+ifeq "$(PACKAGE_DISTRIBUTION)" "debian"
+SETUP_PY_INSTALL_OPTIONS += --install-layout=deb
+endif
+else
+SETUP_PY_INSTALL_OPTIONS += --prefix=$(PYTHON_PREFIX)
+endif
+# RPM byte-compiles and installs results in our DIST_ROOT, cater for this:
+ifeq "$(shell [ '$(TARGET_OS)' = linux -a '$(PACKAGE_DISTRIBUTION)' != gentoo \
+	      ] && echo 1)" "1"
+# Linux and not Gentoo (which needs tarball packaging)
+PYTHON_INSTALL = \
+	cat $(TOPDIR)/python-pcp.list | while read f; do \
+	    dirname $$f | $(SED) -e '/.*packages$$/d'; \
+	done | $(PCP_SORT_PROG) -u > $(TOPDIR)/python-pcp.list.rpm; \
+	$(AWK) '{print} /\.pyc$$/ {sub(/\.pyc$$/,".pyo"); print}' \
+	    < $(TOPDIR)/python-pcp.list >> $(TOPDIR)/python-pcp.list.rpm; \
+	cat $(TOPDIR)/python-pcp.list.rpm | while read f; do \
+	    touch $${DIST_ROOT-/}$$f; \
+	done
+PYTHON3_INSTALL = \
+	cat $(TOPDIR)/python3-pcp.list | while read f; do \
+	    dirname $$f | $(SED) -e '/.*packages$$/d'; \
+	done | $(PCP_SORT_PROG) -u > $(TOPDIR)/python3-pcp.list.rpm; \
+	$(AWK) '{print} /\.pyc$$/ {sub(/\.pyc$$/,".pyo"); print}' \
+	    < $(TOPDIR)/python3-pcp.list >> $(TOPDIR)/python3-pcp.list.rpm; \
+	$(AWK) '/\.pyc$$/ {sub(/\.pyc$$/,".opt-1.pyc"); print}' \
+	    < $(TOPDIR)/python3-pcp.list >> $(TOPDIR)/python3-pcp.list.rpm; \
+	cat $(TOPDIR)/python3-pcp.list.rpm | while read f; do \
+	    touch $${DIST_ROOT-/}$$f; \
+	done
+else
+ifeq "$(shell [ '$(PACKAGE_DISTRIBUTION)' = cocoa \
+                -o '$(PACKAGE_DISTRIBUTION)' = macosx \
+                -o '$(PACKAGE_DISTRIBUTION)' = gentoo \
+                -o '$(PACKAGE_DISTRIBUTION)' = solaris \
+                -o '$(PACKAGE_DISTRIBUTION)' = freebsd \
+	      ] && echo 1)" "1"
+# Gather installed Python files before packaging
+# Lines in python-pcp.list are like this
+# /usr/lib/python2.7/site-packages/pcp.py
+# /usr/lib/python2.7/site-packages/pcp.pyc
+# /usr/lib/python2.7/site-packages/pmapi.so
+# /usr/lib/python2.7/site-packages/pcp-0.2-py2.7.egg-info
+#
+# Matching build artifacts are below src/python/build
+#
+PYTHON_INSTALL = \
+	if [ -n "$(DIST_MANIFEST)" ]; then \
+	    cat $(TOPDIR)/python-pcp.list \
+	    | while read f; do \
+		bn=`basename $$f`; \
+		dn=`dirname $$f`; \
+		pydir="$(TOPDIR)/src/python"; \
+		$(INSTALL) -d $$dn || exit 1; \
+		src=`find $$pydir/build $$pydir/pcp.egg-info -name $$bn`; \
+		$(INSTALL) $$src $$f || exit 1; \
+	    done; \
+	fi
+PYTHON3_INSTALL = \
+	if [ -n "$(DIST_MANIFEST)" ]; then \
+	    cat $(TOPDIR)/python3-pcp.list \
+	    | while read f; do \
+		bn=`basename $$f`; \
+		dn=`dirname $$f`; \
+		pydir="$(TOPDIR)/src/python"; \
+		$(INSTALL) -d $$dn || exit 1; \
+		src=`find $$pydir/build $$pydir/pcp.egg-info -name $$bn`; \
+		$(INSTALL) $$src $$f || exit 1; \
+	    done; \
+	fi
+else
+ifeq "$(shell [ '$(PACKAGE_DISTRIBUTION)' = openbsd \
+	      ] && echo 1)" "1"
+# similar to above, but files already installed in DIST_ROOT so
+# just append to the manifest
+PYTHON_INSTALL = \
+	if [ -n "$(DIST_MANIFEST)" ]; then \
+	    cat $(TOPDIR)/python-pcp.list \
+	    | while read f; do \
+		bn=`basename $$f`; \
+		dn=`dirname $$f`; \
+		$(INSTALL) -d $$dn || exit 1; \
+		src=`find $(DIST_ROOT)/usr/lib -name $$bn`; \
+		$(INSTALL) $$src $$f || exit 1; \
+	    done; \
+	fi
+PYTHON3_INSTALL = \
+	if [ -n "$(DIST_MANIFEST)" ]; then \
+	    cat $(TOPDIR)/python3-pcp.list \
+	    | while read f; do \
+		bn=`basename $$f`; \
+		dn=`dirname $$f`; \
+		$(INSTALL) -d $$dn || exit 1; \
+		src=`find $(DIST_ROOT)/usr/lib -name $$bn`; \
+		$(INSTALL) $$src $$f || exit 1; \
+	    done; \
+	fi
+else
+# default case if all of the above tests fail
+PYTHON_INSTALL = 
+endif	# openbsd if
+endif	# cocoa ... freebsd if
+endif	# linux && !gentoo if
+
+# qmake botches the order of the -L arguments in the generated $(LIBS)
+# in the Makefile ... need to get the Qt libraries dir (begins with a /)
+# out from the head of the list and insert it before the first -l argument
+# (or the end of the list).
+# So, for example
+# LIBS = $(SUBLIBS) -L/usr/lib -L../libpcp/src -L../libpcp_qmc/src ... -lpcp_qmc ...
+# becomes
+# LIBS = $(SUBLIBS) -L../libpcp/src -L../libpcp_qmc/src ... -L/usr/lib -lpcp_qmc ...
+#
+QTFIX = $(AWK) '$$1 == "LIBS" { printf $$1; for (i=2;i<=NF;i++) { if ($$i~/^-L\//) { save=save " " $$i; continue } else if (save!="" && $$i~/^-l/) { printf " %s",save; save="" } printf " %s",$$i } if (save!="") printf " %s",save; print ""; next } { print }'
+
+# Qt magic for build/installs across all the supported platforms
+ifeq ($(PCP_PLATFORM),darwin)
+QTMAKE = $(QMAKE) -spec macx-g++ CONFIG+=$(QT_RELEASE) && $(QTFIX) <Makefile >Makefile.fix && mv Makefile.fix Makefile && make -f Makefile
+MACBUILD = build/$(QT_RELEASE)/$(COMMAND).app/Contents
+BINARY = $(MACBUILD)/MacOS/$(COMMAND)
+LNMAKE = test ! -f $(BINARY) -o -L $(COMMAND) || ( rm -f $(COMMAND) && $(LN_S) $(BINARY) $(COMMAND) )
+WINDOW = mac
+endif
+ifeq ($(PCP_PLATFORM),mingw)
+QTMAKE = $(QMAKE) CONFIG+=$(QT_RELEASE) && $(QTFIX) <Makefile >Makefile.fix && mv Makefile.fix Makefile && $(MAKE) -f Makefile
+BINARY = build/$(QT_RELEASE)/$(COMMAND)$(EXECSUFFIX)
+LNMAKE =
+WINDOW = win
+endif
+ifeq "$(findstring $(PCP_PLATFORM),darwin mingw)" ""
+QTMAKE = $(QMAKE) CONFIG+=$(QT_RELEASE) && $(QTFIX) <Makefile >Makefile.fix && mv Makefile.fix Makefile && $(MAKE) $(MAKEOPTS) -f Makefile
+BINARY = build/$(QT_RELEASE)/$(COMMAND)
+LNMAKE = test ! -f $(BINARY) -o -L $(COMMAND) || ( rm -f $(COMMAND) && $(LN_S) $(BINARY) $(COMMAND) )
+WINDOW = x11
+endif
+
+ifeq ($(PCP_PLATFORM),darwin)
+INSTALL_DIRECTORY_HIERARCHY=\
+	d=$(1); while [ "$$d" != "$(2)" -a "$$d" != "/" -a "$$d" != "." ] ; do \
+                echo $$d; d=`dirname $$d`; done | sort | while read id; do \
+                $(INSTALL) -m 755 -d $$id || exit 1; done
+
+INSTALL_QT_RESOURCES=\
+	printf "[Paths]\nPlugins=/Library/PCP/Plugins\n\n" > qt.conf; \
+	$(INSTALL) -m 644 qt.conf $(1)/qt.conf; \
+	rm qt.conf; \
+	find frameworks -type d -name qt_menu.nib | while read nib; do \
+                $(INSTALL) -m 755 -d $(1)/qt_menu.nib || exit 1; \
+                find $$nib -type f | while read nibs; do \
+                        f=`basename $$nibs`; \
+                        $(INSTALL) -m 644 $$nibs $(1)/qt_menu.nib/$$f || exit 1; \
+                done; \
+        done
+
+MAC_APPSUPPORT_DIR=/Library/PCP
+MAC_FRAMEWORKS_DIR=$(MAC_APPSUPPORT_DIR)/Frameworks
+
+# WARNING!
+# This rule modified the binary it was given, once modified the
+# binary cannot be used with this rule again.
+# If the binary is installed then it's important to call this
+# rule before calling install rule for the binary.
+INSTALL_QT_FRAMEWORKS=\
+    otool -L $(1) | awk '{if (NR != 1) {print $$1}}' |\
+    egrep 'Qt.*\.framework' | while read qt; do \
+	tdir=`dirname $$qt`; \
+	install_name_tool -change $$qt $(MAC_FRAMEWORKS_DIR)/$$qt $(1);\
+	$(call INSTALL_DIRECTORY_HIERARCHY,$(MAC_FRAMEWORKS_DIR)/$$tdir,/Library/PCP); \
+	mkdir -p frameworks/$$tdir || exit 1; \
+	fwqt="frameworks/$$qt"; \
+	cp /Library/Frameworks/$$qt frameworks/$$qt || exit 1; \
+	otool -L $$fwqt | awk '{if (NR != 1) {print $$1}}' |\
+	egrep 'Qt.*\.framework' | while read dep; do \
+	    install_name_tool -change $$dep $(MAC_FRAMEWORKS_DIR)/$$dep $$fwqt;\
+	done; \
+	$(INSTALL) frameworks/$$qt $(MAC_FRAMEWORKS_DIR)/$$qt; \
+	if [ -d /Library/Frameworks/$$tdir/Resources ] ; then \
+	    $(INSTALL) -d $(MAC_FRAMEWORKS_DIR)/$$tdir/Resources; \
+	    (cd /Library/Frameworks/$$tdir; find Resources -type f) | \
+		while read rf; do \
+		    rfpath="$$tdir/$$rf"; rfd=`dirname $$rfpath`; \
+		    fwpath="frameworks/$$rfpath"; brfd=`basename $$rfd`; \
+		    mkdir -p frameworks/$$rfd || exit 1; \
+		    cp /Library/Frameworks/$$rfpath $$fwpath || exit 1; \
+		    [ $$brfd != qt_menu.nib ] || continue;  \
+		    $(INSTALL) -d $(MAC_FRAMEWORKS_DIR)/$$rfd || exit 1; \
+		    $(INSTALL) $$fwpath $(MAC_FRAMEWORKS_DIR)/$$rfpath;\
+		done \
+	fi; done
+endif
+
+
+# For targets that should always be rebuilt,
+# define a target that is never up-to-date.
+# Targets needing this should depend on $(_FORCE)
+_FORCE = __force_build
+
+PCP_USER = @pcp_user@
+PCP_GROUP = @pcp_group@
+PCP_USER_INSTALL = @pcp_user_install@
+PCP_GROUP_INSTALL = @pcp_group_install@
+
+PCPLIB = -lpcp
+PCPLIB_EXTRAS = $(LIB_FOR_MATH) $(LIB_FOR_PTHREADS) $(LIB_FOR_DLOPEN) $(LIB_FOR_RT)
+ifneq "$(PCPLIB)" "$(LIB_FOR_BASENAME)"
+PCPLIB_EXTRAS += $(LIB_FOR_BASENAME)
+endif
+ifeq "$(ENABLE_SHARED)" "no"
+PCPLIB += $(PCPLIB_EXTRAS)
+endif
+PCP_GUILIB = -lpcp_gui $(PCPLIB)
+PCP_PMDALIB = -lpcp_pmda $(PCPLIB)
+PCP_TRACELIB = -lpcp_trace $(PCPLIB)
+PCP_WEBLIB = -lpcp_web $(PCPLIB)
+
+ifdef PCP_ALTLIBS
+ifeq ($(PCP_LIB_DIR),$(PCP_LIB32_DIR))
+PCP_ALTLIBS =
+else
+ifneq "$(findstring $(MAKECMDGOALS),clean clobber)" ""
+PCP_ALTLIBS =
+endif
+endif
+endif
+
+endif # _BUILDDEFS_INCLUDED_

@@ -1,0 +1,92 @@
+QA output created by 603
+Installing the "trace" Performance Metrics Domain Agent (PMDA) ...
+
+Use the default installation [y]? 
+Trace period (in seconds) [60]? 
+Number of buckets [5]? 
+Port number for client connections [4323]? 
+The dimension and scale for the trace.observe.value metrics may be expressed
+in terms of Space, Time and Count (i.e. events or messages).  The default
+dimension and scale is "None".  Do you wish to accept the default dimension
+and scale [y]? 
+Using the following units for trace.observe.value:
+  Dimensions:  space=0 time=0 count=0
+  Scale:       space=0 time=0 count=0
+
+
+The dimension and scale for the trace.counter.value metrics may be expressed
+in terms of Space, Time and Count (i.e. events or messages).  The default
+dimension and scale is "None".  Do you wish to accept the default dimension
+and scale [y]? 
+Using the following units for trace.counter.value:
+  Dimensions:  space=0 time=0 count=0
+  Scale:       space=0 time=0 count=0
+
+
+Client host access - (A)llow/(D)isallow [Enter to complete install]? 
+Host specification (IP mask/Enter to cancel): 
+Client host access - (A)llow/(D)isallow [Enter to complete install]? 
+Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+[...install files, make output...]
+Updating the PMCD control file, and notifying PMCD ...
+Check trace metrics have appeared ... 20 metrics and 6 values
+Note: some warnings are expected until trace API calls are made - refer to
+      the man pages for pmtrace(1) and pmdatrace(3) for further details.
+=== Attempting bad local access ===
+pmtrace: point error: Cannot connect to PMDA - permission denied
+
+Installing the "trace" Performance Metrics Domain Agent (PMDA) ...
+
+Use the default installation [y]? 
+Trace period (in seconds) [60]? 
+Number of buckets [5]? 
+Port number for client connections [4323]? 
+The dimension and scale for the trace.observe.value metrics may be expressed
+in terms of Space, Time and Count (i.e. events or messages).  The default
+dimension and scale is "None".  Do you wish to accept the default dimension
+and scale [y]? 
+Using the following units for trace.observe.value:
+  Dimensions:  space=0 time=0 count=0
+  Scale:       space=0 time=0 count=0
+
+
+The dimension and scale for the trace.counter.value metrics may be expressed
+in terms of Space, Time and Count (i.e. events or messages).  The default
+dimension and scale is "None".  Do you wish to accept the default dimension
+and scale [y]? 
+Using the following units for trace.counter.value:
+  Dimensions:  space=0 time=0 count=0
+  Scale:       space=0 time=0 count=0
+
+
+Client host access - (A)llow/(D)isallow [Enter to complete install]? 
+Host specification (IP mask/Enter to cancel): 
+Client host access - (A)llow/(D)isallow [Enter to complete install]? 
+Host specification (IP mask/Enter to cancel): 
+Maximum number of connections from HOSTNAME (Enter for no limit): 
+Client host access - (A)llow/(D)isallow [Enter to complete install]? 
+Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+[...install files, make output...]
+Updating the PMCD control file, and notifying PMCD ...
+Check trace metrics have appeared ... 20 metrics and 6 values
+Note: some warnings are expected until trace API calls are made - refer to
+      the man pages for pmtrace(1) and pmdatrace(3) for further details.
+=== Building demo program (app2) ===
+=== Running demo program (app2) ===
+=== Check access limits ===
+pmtrace: point error: Cannot connect to PMDA - connection limit reached
+=== Attempting bad remote access ===
+pmtrace: observation error: Cannot connect to PMDA - permission denied
+
+Installing the "trace" Performance Metrics Domain Agent (PMDA) ...
+
+Use the default installation [y]? 
+Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+[...install files, make output...]
+Updating the PMCD control file, and notifying PMCD ...
+Check trace metrics have appeared ... 20 metrics and 6 values
+Note: some warnings are expected until trace API calls are made - refer to
+      the man pages for pmtrace(1) and pmdatrace(3) for further details.

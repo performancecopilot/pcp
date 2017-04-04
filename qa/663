@@ -1,0 +1,69 @@
+#! /bin/sh
+# PCP QA Test No. 663
+# checks pmwebd graphite (web application) http compression functionality
+#
+# Copyright (c) 2014-2016 Red Hat.
+#
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.webapi
+. ./common.python
+
+test -d "$PCP_SHARE_DIR/webapps/graphite" || \
+	_notrun "graphite webapp is not installed"
+test -d "$PCP_SHARE_DIR/webapps/blinkenlights" || \
+	_notrun "blinkenlights webapp is not installed"
+which curl >/dev/null 2>&1 || _notrun "No curl binary installed"
+$python -c "import json.tool" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "python import json.tool not installed"
+
+$sudo rm -fr $tmp.dir
+$sudo rm -f $tmp.*
+rm -f $seq.full
+
+signal=$PCP_BINADM_DIR/pmsignal
+status=1	# failure is the default!
+username=`id -u -n`
+
+_cleanup()
+{
+    $sudo rm -fr $tmp.dir
+    $sudo rm -f $tmp.*
+    kill $pid
+}
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+webport=44339   # not 44323, so system pmwebd is unaffected by test case
+webargs="-U $username -p $webport"
+
+echo
+echo "=== pmwebd http compression ===" | tee -a $seq.full
+
+$PCP_BINADM_DIR/pmwebd $webargs -GX -R $PCP_SHARE_DIR/webapps -I -i 15 -A `pwd` -N -M8 -x/dev/tty -d1 -vvvvv -l $tmp.out &
+pid=$!
+_wait_for_pmwebd_logfile $tmp.out $webport
+
+grep -q "HTTP compression compiled-in" $tmp.out || _notrun "no http compression"
+
+echo fetch some metrics via un/compressed modes, compare results | tee -a $seq.full
+url="http://localhost:$webport/graphite/render?format=json&target=*/node_archive.proc.psinfo.pid.*&from=15:50_20131127&until=1385585880&maxDataPoints=100"
+echo "fetching without compression requested"
+curl -v -D $tmp.hdr.1 -s -S "$url" > $tmp.out.1 2> $tmp.err.1
+egrep 'gzip|deflate' $tmp.hdr.1
+egrep 'gzip|deflate' $tmp.err.1
+echo "repeating with compression requested"
+curl -v -D $tmp.hdr.2 --compressed -s -S "$url" > $tmp.out.2 2> $tmp.err.2
+egrep 'gzip|deflate' $tmp.hdr.2
+egrep 'gzip|deflate' $tmp.err.2
+
+echo "comparing compressed vs uncompressed outputs"
+diff $tmp.out.1 $tmp.out.2 # should be empty result
+
+ls -al $tmp.out.1 >> $seq.full
+cat $tmp.hdr.1 >> $seq.full
+ls -al $tmp.out.2 >> $seq.full
+cat $tmp.hdr.2 >> $seq.full
+
+status=0
+exit

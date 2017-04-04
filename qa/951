@@ -1,0 +1,280 @@
+#!/bin/sh
+# PCP QA Test No. 951
+# test pmie's instant (unary) operator
+#
+# Copyright (c) 2015 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    # Sun May 24 17:33:21 2015: ....
+    #
+    sed \
+	-e 's/^.* [0-2][0-9]:[0-5][0-9]:[0-5][0-9] ....:/DATE:/' \
+	-e '/Info: evaluator exiting/d' \
+	-e '/^[ 	]*$/d' \
+    # end
+}
+
+# need to reduce this pmie output
+# expr_1 (Mon May 25 07:03:17 2015): 195905 62019
+# to
+# 07:03:17 195905 62019
+#
+_fix_pmie()
+{
+    sed -n <$1 \
+	-e '/expr_/{
+s/^[a-zA-Z_0-9]* (//
+s/^[A-Za-z ]*//
+s/^[0-3][0-9] //
+s/[0-9][0-9][0-9][0-9])://
+s/  *$//
+s/  */ /g
+p
+}' \
+    | LC_COLLATE=POSIX sort >$tmp.tmp
+    mv $tmp.tmp $1
+}
+
+# need to redce this pmval output
+# 07:03:17.295               196001                 62142
+# to
+# 07:03:17 196001 62142
+#
+_fix_pmval()
+{
+    sed -n <$1 \
+	-e 's/No values available/?/' \
+	-e '/^[0-2]/{
+s/\.[0-9][0-9][0-9]//
+s/  *$//
+s/  */ /g
+p
+}' \
+    | LC_COLLATE=POSIX sort >$tmp.tmp
+    mv $tmp.tmp $1
+}
+
+_check_1()
+{
+    echo "=== check_1 input ===" >>$seq.full
+    ( echo "--- tmp.1 ---" ; cat $tmp.1 ) >>$seq.full
+    ( echo "--- tmp.2 ---" ; cat $tmp.2 ) >>$seq.full
+    _fix_pmie $tmp.1
+    _fix_pmval $tmp.2
+    echo "=== check_1 pre-join ===" >>$seq.full
+    ( echo "--- tmp.1 ---" ; cat $tmp.1 ) >>$seq.full
+    ( echo "--- tmp.2 ---" ; cat $tmp.2 ) >>$seq.full
+    join -j1 -a1 -a2 $tmp.1 $tmp.2 \
+    | $PCP_AWK_PROG '
+	{ nval = (NF-1)/2
+	  for (i = 2; i <= nval+1; i++) {
+	    if ($i == $(i+nval)) $0 = $0 " OK"
+	    else $0 = $0 " BAD"
+	  }
+	  print
+	}' \
+    | _filter
+}
+
+# after stripping the ): we have lines like ...
+# 07:03:17 195905 62019 ? ?
+#          x[2]
+# 07:03:18 196001 62142 96 123
+#                       d
+# expecting d == $2 - x[2] and similar for other disks
+#
+_check_2()
+{
+    echo "=== check_2 input ===" >>$seq.full
+    ( echo "--- tmp.1 ---" ; cat $tmp.1 ) >>$seq.full
+    ( echo "--- tmp.2 ---" ; cat $tmp.2 ) >>$seq.full
+    _fix_pmie $tmp.1
+    _fix_pmval $tmp.2
+    echo "=== check_2 pre-join ===" >>$seq.full
+    ( echo "--- tmp.1 ---" ; cat $tmp.1 ) >>$seq.full
+    ( echo "--- tmp.2 ---" ; cat $tmp.2 ) >>$seq.full
+    join -j1 -a1 -a2 $tmp.2 $tmp.1 \
+    | sed -e 's/)://g' \
+    | $PCP_AWK_PROG '
+	{ nval = (NF-1)/2
+	  for (i = 2; i <= nval+1; i++) {
+	    if ($i == "?") {
+		x[i] = ""
+	    }
+	    else {
+		if (x[i] != "") {
+		    if ($i - x[i] == $(i+nval)) $0 = $0 " OK"
+		    else $0 = $0 " BAD"
+		}
+		x[i] = $i
+	    }
+	  }
+	  print
+	}'
+}
+
+# real QA test starts here
+
+# note that this is a counter metric and values will be
+# interpolated and then the value (not the rate) reported
+#
+echo "=== instant disk.dev.total(PM_SEM_COUNTER) ==="
+echo "instant disk.dev.total;" \
+| pmie -z -v -t 1sec -a archives/instant-base >$tmp.1 2>&1
+# check
+pmval -z -t1 -r -a archives/instant-base disk.dev.total >$tmp.2 2>&1
+_check_1
+
+# note that this is an instantaneous metric and values will
+# be extrapolated
+#
+echo
+echo "=== disk.dev.total(PM_SEM_INSTANT) ==="
+echo "(expect slightly smaller values than the case above)"
+echo "disk.dev.total;" \
+| pmie -z -v -t 1sec -a archives/instant-1 >$tmp.1 2>&1
+# check
+pmval -z -t1 -a archives/instant-1 disk.dev.total >$tmp.2 2>&1
+_check_1
+
+# note that this is a counter metric and values will be
+# interpolated and then the rate reported
+#
+echo
+echo "=== (rate) disk.dev.total(PM_SEM_COUNTER) ==="
+echo "disk.dev.total;" \
+| pmie -z -v -t 1sec -a archives/instant-base >$tmp.1 2>&1
+# check
+pmval -z -t1 -a archives/instant-base disk.dev.total >$tmp.2 2>&1
+_check_1
+
+#
+echo
+echo "=== rate disk.dev.total(PM_SEM_INSTANT) ==="
+echo "rate disk.dev.total;" \
+| pmie -z -v -t 1sec -a archives/instant-1 >$tmp.1 2>&1
+pmval -z -t1 -a archives/instant-1 disk.dev.total >$tmp.2 2>&1
+_check_2
+
+echo
+echo "=== extra cases with PM_SEM_COUNTER archive ==="
+cat <<End-of-File >$tmp.config
+ruleset
+some_inst disk.dev.total == disk.dev.read + disk.dev.write
+    -> print "rate converted OK"
+unknown
+    -> print "rate converted UNKNOWN"
+otherwise
+    -> print "rate converted BAD: read+write != total" " [%i] %v"
+;
+ruleset
+some_inst instant disk.dev.total == instant disk.dev.read + instant disk.dev.write
+    -> print "instant OK"
+unknown
+    -> print "instant UNKNOWN"
+otherwise
+    -> print "instant BAD: read+write != total" " [%i] %v"
+;
+End-of-File
+pmie -z -c $tmp.config -t 1sec -a archives/instant-base 2>&1 \
+| _filter
+
+echo
+echo "=== extra cases with PM_SEM_INSTANT archive ==="
+cat <<End-of-File >$tmp.config
+ruleset
+some_inst disk.dev.total == disk.dev.read + disk.dev.write
+    -> print "raw OK"
+unknown
+    -> print "raw UNKNOWN"
+otherwise
+    -> print "raw BAD: read+write != total" " [%i] %v"
+;
+ruleset
+some_inst rate disk.dev.total == rate disk.dev.read + rate disk.dev.write
+    -> print "rate OK"
+unknown
+    -> print "rate UNKNOWN"
+otherwise
+    -> print "rate BAD: read+write != total" " [%i] %v"
+;
+End-of-File
+pmie -z -c $tmp.config -t 1sec -a archives/instant-1 2>&1 \
+| _filter
+
+echo | tee -a $seq.full
+echo "=== live pmcd cases ===" | tee -a $seq.full
+cat <<End-of-File >$tmp.config
+instant sum_inst disk.dev.total;
+sum_inst instant disk.dev.total;
+ruleset
+    instant sum_inst disk.dev.total == sum_inst instant disk.dev.total
+	-> print "OK: instant sum_inst == sum_inst instant"
+    unknown
+	-> print "UNKNOWN: instant sum_inst ..."
+    otherwise
+	-> print "BAD: instant sum_inst != sum_inst instant"
+;
+
+// repeating this expression revealed a horrible bug in pmie relating
+// to the "rate" operator in changeSmpls() and nothing to do with
+// "instant" but delayed the debugging for "instant" by days!
+//
+rate instant(pmcd.pdu_out.total);
+rate instant(pmcd.pdu_out.total);
+
+ruleset
+    rate instant(pmcd.pdu_out.total) == pmcd.pdu_out.total
+	-> print "OK: rate instant <x> == <x>"
+    unknown
+	-> print "UNKNOWN: rate instant ..."
+    otherwise
+	-> print "BAD: rate instant <x> != <x>"
+;
+End-of-File
+
+pmie -v -c $tmp.config -t 0.5sec -T 2sec >$tmp.out 2>&1
+grep expr $tmp.out >>$seq.full
+grep -v expr $tmp.out | _filter
+
+now=`pmprobe -v pmcd.pdu_in.text_req | cut -d ' ' -f 3`
+limit=`expr $now + 4`
+
+echo
+echo "=== man page example ==="
+cat <<End-of-File | pmie -t 0.25 -T 2 2>&1 | tee -a $seq.full | _filter | LC_COLLATE=POSIX sort | uniq
+pmcd.pdu_in.text_req > 3;
+instant pmcd.pdu_in.text_req < $limit;
+pmcd.pdu_in.text_req > 3 && instant pmcd.pdu_in.text_req < $limit;
+ruleset
+    // rate should be 4 per sec
+    pmcd.pdu_in.text_req > 3 && instant pmcd.pdu_in.text_req < $limit
+	-> shell "echo TRUE"
+    unknown
+	-> shell "echo UNKNOWN"
+    otherwise
+	-> shell "echo FALSE"
+;
+
+// this bumps the count and hence the rate
+hinv.ncpu > 0 -> shell "pminfo -t pmcd.pdu_in.text_req >/dev/null";
+End-of-File
+
+# success, all done
+status=0
+
+exit

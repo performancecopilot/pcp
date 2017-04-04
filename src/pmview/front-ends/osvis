@@ -1,0 +1,651 @@
+#! /bin/sh
+# Copyright (c) 1995-2003 Silicon Graphics, Inc.  All Rights Reserved.
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+
+tmp=/tmp/$$
+trap "rm -f $tmp.*; exit" 0 1 2 3  15
+rm -f $tmp.*
+
+. $PCP_DIR/etc/pcp.env
+. $PCP_SHARE_DIR/lib/pmview-args
+
+#
+# scaling parameters
+#
+
+# maximum network packets per second
+maxpack=750
+
+# maximum error packets per second
+maxerr=`expr $maxpack / 100`
+
+# maximum network bytes per second
+maxbyte=65536
+
+# maximum disk io rate (I/O operations per second)
+maxio=100
+
+# milliseconds per CPU
+maxcpu=1000
+
+# maximum disk activity
+maxdisk=30
+
+_usage()
+{
+    echo >$tmp.msg 'Usage: '$prog' [options] [interface [interface ...]]
+
+options:
+  -b bytes      maximum expected network throughput [default 65536 bytes]
+  -d activity   maximum expected disk activity as a percentage [default 30]
+  -i ops        maximum expected I/O operations per seconds [default 100]
+  -m packets    maximum expected packets sent or received per sec [default 750]
+  -V            verbose/diagnostic output  
+
+pmview(1) options:'
+    _pmview_usage >>$tmp.msg
+    echo >> $tmp.msg
+    echo 'Default title is: High-Level Activity for Host' >> $tmp.msg
+
+    echo >>$tmp.msg '
+  By default all network interfaces are shown, with a maximum packet rate
+  of '$maxpack' packets per second and error rate of '$maxerr' packets per second.
+
+  If given, the [interface [interface ...]] regular expressions restrict
+  the network statistics displayed to matching network interface names only.'
+
+  _pmview_info -f $tmp.msg
+}
+
+argInterfaces=""
+verbose=false
+interfaces=""
+
+# build WM_COMMAND X(1) property for restart after login/logout
+#
+echo -n "pmview Version 2.1 \"osvis\"" >$tmp.conf
+for arg
+do
+    echo -n " \"$arg\"" >>$tmp.conf
+done
+
+_pmview_args "$@"
+
+if [ -n "$otherArgs" ]
+then
+    while getopts "?b:d:i:m:r:v:V" c $otherArgs
+    do
+	case $c
+	in
+
+	    b)
+		_pmview_unsigned $c
+		maxbyte=$OPTARG
+		;;
+
+	    d)
+		_pmview_unsigned $c
+		maxdisk=$OPTARG
+		;;
+
+	    i)
+		_pmview_unsigned $c
+		maxio=$OPTARG
+		;;
+
+	    m)
+		_pmview_unsigned $c
+		maxpack=$OPTARG
+		;;
+
+	    V)
+		verbose=true
+		;;
+
+	    '?')
+		_usage
+		exit 1
+		;;
+	esac
+    done
+
+    set -- $otherArgs
+    shift `expr $OPTIND - 1`
+    if [ $# -gt 0 ]
+    then
+        argInterfaces="$*"
+    fi
+fi
+
+cat << end-of-file >> $tmp.conf
+
+#
+# osvis
+#
+end-of-file
+
+# maximum req error rate (default: 1% of packet rate)
+maxerr=`expr $maxpack / 100`
+[ "$maxerr" -eq 0 ] && maxerr=1
+
+_pmview_cache_fetch -v hinv.ncpu \
+    hinv.ndisk \
+    disk.all.avg_disk.active \
+    mem.util \
+    hinv.physmem \
+    mem.physmem \
+    kernel.all.cpu.wait.total \
+    kernel.all.cpu.intr \
+    kernel.all.cpu.nice \
+    kernel.all.cpu.sys \
+    kernel.all.cpu.user
+
+_pmview_cache_fetch -I network.interface.in.bytes \
+    disk.ctl.avg_disk.active
+
+if _pmview_fetch_values hinv.ncpu
+then
+    ncpu=`cat $tmp.pmview_result`
+    maxcpu=`expr $maxcpu \* $ncpu`
+    maxload=`expr $ncpu \* 2`
+else
+    _pmview_fetch_fail "get the number of CPUs"
+fi
+
+if [ $ncpu -eq 1 ]
+then
+    cpudesc="1 CPU"
+else
+    cpudesc="$ncpu CPUs"
+fi
+
+$verbose && echo "# $cpudesc detected" >> $tmp.conf
+
+if _pmview_fetch_indom network.interface.in.bytes
+then
+    ninterfaces=$number
+else
+    _pmview_fetch_warn "get the number of network interfaces"
+    ninterfaces=0
+fi
+
+[ $ninterfaces -gt 0 ] && sed < $tmp.pmview_result -e 's/lo[0-9]*//g' -e 's/sl[0-9]*//g' -e 's/ppp[0-9]*//g' > $tmp.list
+
+[ ! -s $tmp.list ] && ninterfaces=0
+
+if $verbose
+then
+    echo "# Available Network Interfaces: "`cat $tmp.list | tr '\012' ' '` >> $tmp.conf
+fi
+
+if [ $ninterfaces -gt 0 ]
+then
+    if [ -z "$argInterfaces" ]
+    then
+    	cp $tmp.list $tmp.chosen
+    else
+    	touch $tmp.chosen
+        for i in $argInterfaces
+    	do
+	    egrep $i $tmp.list >> $tmp.chosen
+    	done
+    fi
+
+    interfaces_sp=`cat $tmp.chosen | sort | uniq`
+    interfaces=`echo $interfaces_sp | sed -e 's/ /,/g'`
+    ninterfaces=`echo $interfaces | wc -w`
+
+    if $verbose
+    then
+	echo "# Network interfaces Matching \"$argInterfaces\": $interfaces" >> $tmp.conf
+    fi
+
+    if [ $ninterfaces -eq 0 ]
+    then
+    	echo "$prog: no matching network interfaces for \"$argInterfaces\"" > $tmp.msg
+    	echo "Available network interfaces on host \"$host\" are: " >> $tmp.msg
+	tr < $tmp.list '\012' ' ' | fmt | sed -e "s/^/	/" >> $tmp.msg
+    	_pmview_error -f $tmp.msg
+	#NOTREACHED
+    fi
+fi
+
+if _pmview_fetch_values hinv.ndisk
+then
+    ndisk=`cat $tmp.pmview_result`
+    maxdiskscale=`expr $maxdisk \* 10`
+else
+    ndisk=0
+    maxdiskscale=0
+fi
+
+if [ $ndisk -eq 1 ]
+then
+    diskdesc="1 Disk"
+else
+    diskdesc="$ndisk Disks"
+fi
+
+$verbose && echo "# $diskdesc detected" >> $tmp.conf
+
+if [ "$ndisk" -gt 0 ]
+then
+ 	
+    if _pmview_fetch_values disk.all.avg_disk.active
+    then
+        allAvg=true
+    else
+        allAvg=false
+    fi
+
+    if _pmview_fetch_indom disk.ctl.avg_disk.active
+    then
+	nctrl=$number
+	cp $tmp.pmview_result $tmp.ctrls
+    else
+	nctrl=0
+    fi
+
+    if [ $nctrl -eq 1 ]
+    then
+	ctrldesc="1 Disk Controller"
+    else
+	ctrldesc="$nctrl Disk Controllers"
+    fi
+
+    if [ "$nctrl" -gt 0 ]
+    then
+
+    	collen=`expr $ninterfaces + 3`
+    	collensq=`expr $collen \* $collen`
+
+	if [ $nctrl -le $collen ]
+	then
+    	    ctrlcols=$nctrl
+	elif [ $nctrl -le $collensq ]
+	then
+    	    ctrlcols=$collen
+	else
+    	    ctrlcols=`echo $nctrl \
+		| $PCP_AWK_PROG '{x = sqrt($1); y = int(x); if (y < x) y++; print y }'`
+	fi
+    fi
+
+    if $verbose
+    then
+	echo "# $ctrldesc detected: "`tr < $tmp.ctrls ' ' '\012'` >> $tmp.conf
+	echo "#" >> $tmp.conf
+    fi
+fi
+
+linuxutilmem=false
+utilmem=false
+if _pmview_fetch_values mem.util.used
+then
+  linuxutilmem=true
+  if $verbose
+  then
+    echo "# Linux memory utilization metrics supported" >> $tmp.conf
+    echo "#" >> $tmp.conf
+  fi
+else
+  linuxutilmem=false
+  if _pmview_fetch_values mem.util
+  then
+    utilmem=true
+    if $verbose
+    then
+    	echo "# Memory utilization metrics supported" >> $tmp.conf
+	echo "#" >> $tmp.conf
+    fi
+  else
+    utilmem=false
+    if $verbose
+    then
+	_pmview_warning "$prog: Memory utilization metrics not supported, showing free memory only"
+	echo "# Memory utilization metrics not supported, showing free memory only" >> $tmp.conf
+	echo "#" >> $tmp.conf
+    fi
+  fi
+fi
+
+# Use mem.physmem if available, otherwise hinv.physmem will do.
+if _pmview_fetch_values mem.physmem
+then
+    realmem=`cat $tmp.pmview_result`
+elif _pmview_fetch_values hinv.physmem
+then
+    realmem=`cat $tmp.pmview_result`
+    realmem=`expr $realmem \* 1024`
+else
+    realmem=0
+
+    if $utilmem
+    then
+    	if $verbose
+	then
+	    echo "# Unable to determine total real memory" >> $tmp.conf
+	    echo "# Showing memory utilisation with free memory" >> $tmp.conf
+	fi
+    else
+    	_pmview_warning "Unable to determine size of real memory on host \"$host\""
+    fi
+fi
+
+have_wait=false
+if _pmview_fetch_values kernel.all.cpu.wait.total
+then
+  have_wait=true
+fi
+
+have_intr=false
+if _pmview_fetch_values kernel.all.cpu.intr
+then
+  have_intr=true
+fi
+
+have_nice=false
+if _pmview_fetch_values kernel.all.cpu.nice
+then
+  have_nice=true
+# linux hack !!
+# these metrics are not actually supported in linux
+  have_intr=false
+  have_wait=false
+fi
+
+have_sys=false
+if _pmview_fetch_values kernel.all.cpu.sys
+then
+  have_sys=true
+fi
+
+have_user=false
+if _pmview_fetch_values kernel.all.cpu.user
+then
+  have_user=true
+fi
+
+cpucolors="("
+$have_user && cpucolors="$cpucolors blue2"
+$have_sys  && cpucolors="$cpucolors red2"
+$have_nice && cpucolors="$cpucolors rgbi:0.6/1.0/0.7"
+$have_intr && cpucolors="$cpucolors yellow2"
+$have_wait && cpucolors="$cpucolors cyan2"
+cpucolors="$cpucolors )"
+
+if [ -z "$titleArg" ]
+then
+    titleArg="SGI PCP : High-Level Activity for Host $host"
+fi
+
+cat << end-of-file >> $tmp.conf
+
+_colorlist cpu_colors $cpucolors
+_colorlist disk_colors ( violet yellow )
+_colorlist ctrl_colors ( green2 )
+_colorlist network_colors ( green2 blue2 red2 )
+
+_colorlist memory_colors (
+    rgbi:1.0/1.0/0.0
+    rgbi:0.0/1.0/1.0
+    rgbi:1.0/0.0/0.0
+    rgbi:1.0/0.0/1.0
+    rgbi:0.0/0.0/1.0
+    rgbi:0.0/1.0/0.0
+)
+
+_grid hide (
+
+#
+# System level stuff
+#
+end-of-file
+
+if [ "$ndisk" -gt 0 ]
+then
+    cat << end-of-file >> $tmp.conf
+
+    _label 0 1 _down _large "Disk"
+
+    _stack 1 1 _west _cylinder (
+	_metrics (
+	    disk.all.write		$maxio
+	    disk.all.read		$maxio
+	)
+	_colorlist disk_colors
+	_baseLabel "Disk Operations\nNormalized to $maxio I/Os per second"
+    )
+end-of-file
+ 
+    if $allAvg
+    then
+	cat << end-of-file >> $tmp.conf
+
+    _bar 2 1 _west _cylinder (
+	_metrics (
+	    disk.all.avg_disk.active	$maxdiskscale
+	)
+	_colorlist ctrl_colors
+	_baseLabel "Disk Activity\nNormalized to ${maxdisk}% for $ndisk disks"
+    )
+end-of-file
+    fi
+
+    if [ "$nctrl" -gt 0 ]
+    then
+	cat << end-of-file >> $tmp.conf
+
+    _label 4 0 _west "Disk Controllers"
+
+    _bar 4 1 _west _cylinder (
+	_metrics (
+end-of-file
+
+	cat $tmp.ctrls | tr '\012' ' ' \
+	| $PCP_AWK_PROG -v cols=$ctrlcols -v scale=$maxdiskscale >> $tmp.conf '
+BEGIN	{ str = ""; j = 0 }
+	{ for (i = 1; i <= NF; i++) {
+	    if (str == "")
+	      str = $i;
+	    else
+	      str = str "," $i
+     	    if (j == cols) {
+	      printf("            disk.ctl.avg_disk.active[%s] %d\n", str, scale);
+	      str = "";
+	      j = 0;
+	    }
+	    else
+	      j++;
+ 	  }
+	}
+END	{ if (str != "")
+	    printf("            disk.ctl.avg_disk.active[%s] %d\n", str, scale);
+	}'
+
+	cat << end-of-file >> $tmp.conf
+	)
+	_colorlist ctrl_colors
+	_baseLabel "Disk Controller Activity\nNormalized to ${maxdisk}% for the disks on each controller"
+    )
+end-of-file
+
+    fi
+fi
+
+cat << end-of-file >> $tmp.conf
+
+    _label 0 3 _west _down _large "Load"
+
+    _bar 1 3 2 1 _west (
+	_metrics (
+	    kernel.all.load[15]	$maxload
+	    kernel.all.load[5]	$maxload
+	    kernel.all.load[1]	$maxload
+	)
+	_metriclabels _away ( "15" "5" "1" )
+	_colorlist ( blue2 blue2 blue2 )
+	_baseLabel "Average System Load over the last 1, 5, and 15 minutes\nNormalized to $maxload"
+    )
+
+    _label 0 5 _west _down _large "Mem"
+
+end-of-file
+
+if [ $realmem -ne 0 ]
+then
+  if $utilmem
+  then
+  cat << end-of-file >> $tmp.conf
+    _stack 1 5 _west (
+	_metrics (
+	    mem.util.kernel	 	$realmem
+	    mem.util.fs_ctl		$realmem
+	    mem.util.fs_dirty		$realmem
+	    mem.util.fs_clean		$realmem
+	    mem.util.user 		$realmem
+	)
+	_colorlist memory_colors
+	_baseLabel "Physical Memory Utilization\nNormalized to $realmem Kbytes"
+    )
+end-of-file
+  elif $linuxutilmem
+  then
+  cat << end-of-file >> $tmp.conf
+    _stack 1 5 _west (
+	_metrics (
+	    mem.util.shared     $realmem
+	    mem.util.cached     $realmem
+	    mem.util.bufmem     $realmem
+	    mem.util.other      $realmem
+	    mem.util.free       $realmem
+	)
+	_colorlist memory_colors
+	_baseLabel "Physical Memory Utilization\nNormalized to `expr $realmem / 1024` Kbytes"
+    )
+end-of-file
+  else
+  cat << end-of-file >> $tmp.conf
+    _stack 1 5 _west _fillmod (
+	_metrics (
+	    mem.freemem		$realmem
+	)
+	_colorlist ( blue2 )
+	_baseLabel "Unallocated Physical Memory"
+	_stackLabel "Used Physical Memory\nNormalized to $realmem Kbytes"
+    )
+end-of-file
+fi
+elif $utilmem
+then
+  cat << end-of-file >> $tmp.conf
+    _stack 1 5 _west _utilmod (
+	_metrics (
+	    mem.util.kernel 	0
+	    mem.util.fs_ctl 	0
+	    mem.util.fs_dirty 	0
+	    mem.util.fs_clean 	0
+	    mem.util.user 	0
+	    mem.util.free 	0
+	)
+	_colorlist memory_colors
+	_baseLabel "Physical Memory Utilization"
+    )
+end-of-file
+elif $linuxutilmem
+then
+  cat << end-of-file >> $tmp.conf
+    _stack 1 5 _west _utilmod (
+	_metrics (
+	    mem.util.shared     0
+	    mem.util.cached     0
+	    mem.util.bufmem     0
+	    mem.util.other      0
+	    mem.util.free       0
+	)
+	_colorlist memory_colors
+	_baseLabel "Physical Memory Utilization"
+    )
+end-of-file
+fi
+
+cat << end-of-file >> $tmp.conf
+
+    _label 0 7 _west _down _large "CPU"
+
+    _stack 1 7 _west (
+	_metrics (
+end-of-file
+$have_user && echo "	    kernel.all.cpu.user 	$maxcpu" >> $tmp.conf
+$have_sys  && echo "	    kernel.all.cpu.sys		$maxcpu" >> $tmp.conf
+$have_nice && echo "	    kernel.all.cpu.nice		$maxcpu" >> $tmp.conf
+$have_intr && echo "	    kernel.all.cpu.intr 	$maxcpu" >> $tmp.conf
+$have_wait && echo "	    kernel.all.cpu.wait.total 	$maxcpu" >> $tmp.conf
+cat << end-of-file >> $tmp.conf
+	)
+	_colorlist cpu_colors
+	_baseLabel "CPU Utilization\nSummed over $cpudesc"
+    )
+end-of-file
+
+if [ "$ninterfaces" -gt 0 ]
+then
+    cat << end-of-file >> $tmp.conf
+
+#
+# Network Stuff and Alarms
+#
+
+    _marginWidth 1
+
+    _grid 4 2 1 7 _nw ( 
+
+	_marginWidth 8
+
+	_label 0 0 _sw "Network Input"
+
+	_bar 0 1 _nw _groupByMetric (
+	    _metrics (
+		network.interface.in.bytes[$interfaces]	$maxbyte
+		network.interface.in.packets[$interfaces]	$maxpack
+		network.interface.in.errors[$interfaces]	$maxerr
+	    )
+	    _colorlist network_colors
+	    _metricLabels _away ( "Bytes" "Packets" "Errors" )
+	    _baseLabel "Input on all Network Interfaces\nNormalized to $maxbyte bytes per second and $maxpack packets per second"
+	)
+
+	_label 0 2 _sw "Network Output"
+
+	_bar 0 3 _nw (
+	    _metrics (
+		network.interface.out.bytes[$interfaces]	$maxbyte
+		network.interface.out.packets[$interfaces] $maxpack
+		network.interface.out.errors[$interfaces]  $maxerr
+	    )
+	    _instlabels _away ( $interfaces_sp )
+	    _metricLabels _away ( "Bytes" "Packets" "Errors" )
+	    _colorlist network_colors
+	    _baseLabel "Output on all Network Interfaces\nNormalized to $maxbyte bytes per second and $maxpack packets per second"
+	)
+    )
+end-of-file
+fi
+
+echo ")" >> $tmp.conf
+
+$verbose && cat $tmp.conf
+
+eval $PMVIEW <$tmp.conf $args -title "'$titleArg'" -xrm "'*iconName:osvis'" -R $PCP_VAR_DIR/config/pmlogger/config.osvis
+
+exit

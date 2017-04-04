@@ -1,0 +1,62 @@
+QA output created by 272
+Waiting for pmcd to terminate ...
+Starting pmcd ... 
+Starting pmlogger ... 
+    checking default access for this host ...
+
+sample.long.million
+    value 1000000
+sample.write_me old value=2 new value=111
+
+    checking access for OTHERHOST1 (both should succeed)
+
+sample.long.million
+    value 1000000
+sample.write_me old value=111 new value=222
+
+    checking access for OTHERHOST2 (store should fail)
+
+sample.long.hundred
+    value 100
+sample.write_me old value=222 new value=333
+sample.write_me: pmStore: No permission to perform requested operation
+
+    checking connection limit for OTHERHOST2 (will exceed connection limit)
+pminfo: Cannot connect to PMCD on host "OTHERHOST2": PMCD connection limit for this host exceeded
+pmcd.log:=======
+endclient client[M]: (fd N) PMCD connection limit for this host exceeded (-12388)
+================
+Waiting for pmcd to terminate ...
+Starting pmcd ... 
+Starting pmlogger ... 
+pmcd.control.debug old value=0 new value=4096
+    checking default access for this host (store should fail) ...
+
+sample.long.million
+    value 1000000
+sample.write_me old value=2 new value=444
+sample.write_me: pmStore: No permission to perform requested operation
+
+    checking access for OTHERHOST1 (both should succeed)
+
+sample.long.million
+    value 1000000
+sample.write_me old value=2 new value=555
+
+    checking access for OTHERHOST2 (store should fail)
+
+sample.long.hundred
+    value 100
+sample.write_me old value=555 new value=666
+sample.write_me: pmStore: No permission to perform requested operation
+
+    checking default access for explicit/localhost (both should fail)
+sample.write_me old value=555 new value=21
+sample.write_me: pmStore: No permission to perform requested operation
+sample.write_me old value=555 new value=42
+sample.write_me: pmStore: No permission to perform requested operation
+pmcd.log:=======
+================
+Waiting for pmcd to terminate ...
+Starting pmcd ... 
+Starting pmlogger ... 

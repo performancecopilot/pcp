@@ -1,0 +1,93 @@
+#! /bin/sh
+# PCP QA Test No. 211
+# Check dynamic metrics work with PMAPI clients - DAEMON PMDA version
+# See also 468 for the related tests using pmdumptext
+#
+# Copyright (c) 2009 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+
+if grep -q ' RESERVED_DO_NOT_USE[ 	]*511' $PCP_VAR_DIR/pmns/stdpmid
+then
+    :
+else
+    echo "No support for dynamic PMNS entries" >$seq.notrun
+    echo "$seq: [not run] `cat $seq.notrun`"
+    exit 0
+fi
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.*
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+rm -f $seq.full
+
+_filter_probe()
+{
+    $PCP_AWK_PROG '
+# sample ... sample.secret.foo.bar.max.redirect 8 0 0 0 0 0 0 4 0
+/secret\.foo\.bar\.max\.redirect/	{ if ($2 > 3 )
+					    print $1,"> 3 values ..."
+					  else
+					    print
+					  next
+					}
+					{ print }'
+}
+
+_do() {
+    echo
+    echo "== $* =="
+    pminfo $* | LC_COLLATE=POSIX sort
+    pmprobe -v $* | _filter_probe | LC_COLLATE=POSIX sort 
+}
+
+# real QA test starts here
+
+echo "PMNS traversal tests ..."
+pminfo sample | grep '\.secret\.' | LC_COLLATE=POSIX sort
+_do sample.secret
+_do sample.secret.bar sample.secret.foo
+_do sample.secret.foo.bar.grunt
+
+echo
+echo "pmval ..."
+pmval -s 3 -t 0.1 sample.secret.foo.bar.grunt.five \
+| sed -e '/^host:.*$/s/.*/HOST/' \
+
+echo
+echo "pmie ..."
+echo 'sample.secret.foo.bar.four == 4 -> print "Bingo!"' \
+| pmie -t 0.1 -T 0.3 2>&1 \
+| _filter_pmie_log \
+| sed -e '/.* Info: evaluator exiting/d' \
+| sort -u
+
+echo
+echo "pmlogger ..."
+cat <<'End-of-File' >$tmp.config
+log mandatory on 100 msec {
+    sample.secret.bar
+    sample.secret.foo.one
+    sample.secret.foo.two
+    sample.secret.foo.bar.three
+    sample.secret.foo.bar.four
+    sample.secret.foo.bar.grunt
+}
+End-of-File
+pmlogger -T 0.3 -c $tmp.config -l $tmp.log $tmp
+cat $tmp.log >>$seq.full
+pmdumplog $tmp 2>&1 \
+| tee -a $seq.full \
+| _filter_pmdumplog \
+| sed -e 1,4d
+
+
+exit

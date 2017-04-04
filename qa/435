@@ -1,0 +1,24 @@
+#!/bin/sh
+# PCP QA Test No. 435
+# Exercise compressed archive files - gzip version
+#
+# Copyright (c) 2014 Red Hat.
+# Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.compress
+
+which gzip >/dev/null 2>&1 || _notrun "No gzip binary installed"
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+_prepare_compress gzip gunzip gz
+_exercise_compression
+status=0	# success, we're all done
+exit

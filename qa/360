@@ -1,0 +1,63 @@
+#!/bin/sh
+# PCP QA Test No. 360
+# Remote host tests split off from 055
+#
+# Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+./getpmcdhosts -L -v 'pcp>=2' -n 2 -a sample 2>$tmp.err \
+| sed >$tmp.config \
+    -e 's/^/ /' \
+    -e "s/ \([^ ][^ ]*\)/ :'\1'/g" \
+    -e 's/^ /hosts = "/' \
+    -e 's/$/";/'
+[ -s $tmp.err ] && _notrun `cat $tmp.err`
+
+# here are the exercises
+cat >>$tmp.config << \EOF
+delta = 2 sec;
+
+// host domain exercises
+host_fetch   = sample.long.ten $hosts;
+host_neg     = -sample.long.ten $hosts;
+host_sum     = sum_host sample.long.ten $hosts;
+host_avg     = avg_host sample.long.ten $hosts;
+host_max     = max_host sample.long.ten $hosts;
+host_min     = min_host sample.long.ten $hosts;
+host_count   = count_host sample.long.ten $hosts >= 10;
+host_add1    = sample.long.ten $hosts + sample.long.ten $hosts;
+host_add2    = sample.long.ten $hosts + 1;
+host_add3    = 1 + sample.long.ten $hosts;
+host_gt1     = sample.long.ten $hosts + 1 > sample.long.ten $hosts;
+host_gt2     = sample.long.ten $hosts > 11;
+
+// multiple domains
+multi3       = max_sample sum_host avg_inst sample.bin $hosts @0..2;
+multi4       = sum_host max_sample avg_inst sample.bin $hosts @0..2;
+multi5       = avg_host min_sample count_inst sample.bin $hosts @0..2 > 400;
+
+EOF
+
+cat $tmp.config >>$seq.full
+
+# real QA test starts here
+pmie -T 10 -v $tmp.config >$tmp.out 2>$tmp.err
+( echo; echo "=== err ==="; cat $tmp.err ) >>$seq.full
+cat $tmp.err | _show_pmie_exit
+( echo; echo "=== out ==="; cat $tmp.out ) >>$seq.full
+cat $tmp.out | LC_COLLATE=POSIX sort
+
+# success, all done
+exit

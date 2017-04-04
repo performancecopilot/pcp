@@ -1,0 +1,28 @@
+#! /bin/sh
+# helper script for testing totals for disk metrics
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+. $PCP_DIR/etc/pcp.conf
+
+KILL_PID=
+
+cleanup()
+{
+    if [ "X$KILL_PID" != X ]
+    then
+	$signal -s TERM $KILL_PID
+	KILL_PID=
+    fi
+}
+
+trap "cleanup; exit" 0 1 2 3 15
+signal=$PCP_BINADM_DIR/pmsignal
+
+while true
+do
+    ls -R / >/dev/null 2>/dev/null &
+    KILL_PID=$!
+    wait
+done

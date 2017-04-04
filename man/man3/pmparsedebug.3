@@ -1,0 +1,68 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMPARSEDEBUG 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3__pmParseDebug\f1 \- convert a list of debug flags into an integer
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.br
+#include <pcp/impl.h>
+.sp
+int __pmParseDebug(const char *\fIspec\fP);
+.sp
+cc ... \-lpcp
+.ft 1
+.SH DESCRIPTION
+.B __pmParseDebug
+parses
+.I spec
+assuming it to be a comma separated list of PCP debug flags.
+.PP
+Each flag may be specified as an integer or the
+trailing portion of the symbolic name of the corresponding flag as reported
+by
+.BR pmdbg (1).
+Symbolic names are stripped of the ``DBG_TRACE_'' prefix and may appear
+in either case.
+.PP
+As a special case, the values ``\-1'' and ``ALL'' are treated as synonyms
+for turning on all bits except the sign bit in the result, i.e. \c
+.B INT_MAX
+from
+.IR <limits.h> .
+.PP
+For example the debug flag
+.B DBG_TRACE_FETCH
+is defined in
+.I /usr/include/pcp/impl.h
+and may be specified in
+.I spec
+as
+.BR 2 ,
+.B FETCH
+or
+.BR fetch .
+.SH SEE ALSO
+.BR pmdbg (1)
+.SH DIAGNOSTICS
+If successful,
+.B __pmParseDebug
+returns the value computed by the bit-wise ``or'' of each flag in the
+.IR spec ,
+suitable for assigning to the global debug trace control variable
+.BR pmDebug .
+Otherwise the return value is less than 0 to indicate a parsing error.

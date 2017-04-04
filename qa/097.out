@@ -1,0 +1,76 @@
+QA output created by 097
+Archive foo ...
+
+Pass 1: forward scan
+Found between 15 and 17 samples
+
+Pass 1.1: forwards past EOL
+
+Pass 1.2: backwards past EOL
+
+Pass 2: backwards scan
+Found between 15 and 17 samples
+
+Pass 2.1: backwards prior to SOL
+
+Pass 2.2: forwards prior to SOL
+
+Pass 3: forwards scan
+Found between 15 and 17 samples
+
+Archive ok-bigbin ...
+
+Pass 1: forward scan
+Found between 40 and 42 samples
+
+Pass 1.1: forwards past EOL
+
+Pass 1.2: backwards past EOL
+
+Pass 2: backwards scan
+Found between 40 and 42 samples
+
+Pass 2.1: backwards prior to SOL
+
+Pass 2.2: forwards prior to SOL
+
+Pass 3: forwards scan
+Found between 40 and 42 samples
+
+Archive multi-volume foo ...
+
+Pass 1: forward scan
+Found between 15 and 17 samples
+
+Pass 1.1: forwards past EOL
+
+Pass 1.2: backwards past EOL
+
+Pass 2: backwards scan
+Found between 15 and 17 samples
+
+Pass 2.1: backwards prior to SOL
+
+Pass 2.2: forwards prior to SOL
+
+Pass 3: forwards scan
+Found between 15 and 17 samples
+
+Archive multi-volume ok-bigbin ...
+
+Pass 1: forward scan
+Found between 40 and 42 samples
+
+Pass 1.1: forwards past EOL
+
+Pass 1.2: backwards past EOL
+
+Pass 2: backwards scan
+Found between 40 and 42 samples
+
+Pass 2.1: backwards prior to SOL
+
+Pass 2.2: forwards prior to SOL
+
+Pass 3: forwards scan
+Found between 40 and 42 samples

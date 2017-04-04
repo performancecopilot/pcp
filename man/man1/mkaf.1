@@ -1,0 +1,161 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH MKAF 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3mkaf\f1 \- create a Performance Co-Pilot archive folio
+.SH SYNOPSIS
+\f3$PCP_BINADM_DIR/mkaf\f1
+[\f2findopts\f1]
+\f2filename\f1 ...
+.SH DESCRIPTION
+A collection of one or more Performance Co-Pilot (see
+.BR PCPIntro (1)) 
+archive logs may be combined with
+.B mkaf
+to produce a PCP archive folio and the associated archive
+folio control file.
+Some PCP tools use
+.B mkaf
+to create archive folios, e.g.  the ``record'' facility in the
+.BR pmchart (1)
+and
+.BR pmview (1)
+tools, to facilitate playback with
+.BR pmafm (1).
+.PP
+.B mkaf
+processes each
+.I filename
+argument, and if this is a component file from a PCP archive 
+that archive is added to the folio.
+.PP
+If
+.I filename
+is a directory, then this is searched recursively using
+.BR find (1).
+Any
+.I filename
+argument beginning with a ``\-'' is assumed to be a
+.BR find (1)
+command line option
+.RI ( findopts );
+the default is
+.B -follow
+if no
+.I findopts
+are specified.
+.PP
+The first named
+archive in the folio is assumed to be
+associated with the default host for any tool that tries to
+replay multiple archives from the folio.
+.PP
+The folio control file is written to standard output, and has the
+following format.
+.IP 1. 3n
+The first line contains the word
+.BR PCPFolio .
+.IP 2.
+The second line contains the tag
+.B Version:
+followed by the format version number (currently 1).
+.IP 3.
+For subsequent lines, blank lines and lines beginning with ``#''
+are ignored.
+.IP 4.
+The line beginning with the tag
+.B Created:
+documents where and when the folio was created.
+.IP 5.
+The line beginning with the tag
+.B Creator:
+identifies the tool which created the folio (and is assumed to know
+how to replay the archive folio).
+If present, the second argument is the name of a configuration file
+that the creator tool could use to replay the archive folio,
+e.g. with the
+.B replay
+command for
+.BR pmafm (1).
+In the case of
+.B mkaf
+(unlike
+.BR pmchart (1)
+or
+.BR pmview (1))
+there is no knowledge of the contents of the archives, so the ``creator''
+cannot replay the archive, however
+.BR pmchart (1)
+is able to replay any archive, and so this tool is identified as the
+.B Creator:
+for archive folios created by
+.BR mkaf (1).
+.IP 6.
+This is then followed by one or more lines beginning with the tag
+.B Archive:
+followed by the hostname and base name of the archive.
+.PP
+For example
+.ti +5n
+$ mkaf mydir/gonzo
+.br
+might produce the following folio control file.
+.PP
+.ft CW
+.nf
+PCPFolio
+Version: 1
+# use pmafm(1) to process this PCP archive folio
+#
+Created: on gonzo at Tue Jul  2 03:35:54 EST 1996
+Creator: pmchart
+#               Host                    Basename
+#
+Archive:        gonzo                   mydir/gonzo/960627
+Archive:        gonzo                   mydir/gonzo/960628
+Archive:        gonzo                   mydir/gonzo/960629
+Archive:        gonzo                   mydir/gonzo/960630
+Archive:        gonzo                   mydir/gonzo/960701
+Archive:        gonzo                   mydir/gonzo/960701.00.10
+Archive:        gonzo                   mydir/gonzo/960701.05.25
+Archive:        gonzo                   mydir/gonzo/960702.00.10
+.ft
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.I /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (5).
+.SH SEE ALSO
+.BR find (1),
+.BR PCPIntro (1),
+.BR pmafm (1),
+.BR pmchart (1),
+.BR pmview (1),
+.BR pcp.conf (5)
+and
+.BR pcp.env (5).
+.SH DIAGNOSTICS
+Some informational messages, warnings and pathological conditions are
+reported on standard error.

@@ -1,0 +1,73 @@
+#pmieconf-rules 1
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(5)
+#
+
+rule	cpu.system
+	summary	= "$rule$"
+	predicate =
+"some_host (
+    // first term is always true, but provides %v for actions ...
+    ( 100 * kernel.all.cpu.sys $hosts$ / hinv.ncpu $hosts$ ) > 0
+    && 100 * ( kernel.all.cpu.user $hosts$ + kernel.all.cpu.sys $hosts$ )
+	    > $busy$ * hinv.ncpu $hosts$
+    && 100 * kernel.all.cpu.sys $hosts$ /
+	    ( kernel.all.cpu.user $hosts$ + kernel.all.cpu.sys $hosts$ )
+		> $threshold$
+)"
+	enabled	= yes
+	version	= 1
+	help	=
+"Over the last sample interval, the average utilization per CPU was
+busy percent or more, and the ratio of system time to busy time
+exceeded threshold percent.";
+
+string	rule
+	default	= "Busy executing in system mode"
+	modify	= no
+	display	= no;
+
+percent	busy
+	default	= 70
+	help	=
+"Busy percentage for average CPU utilization, in the range 0 (idle)
+to 100 (completely busy), independent of the number of CPUs.";
+
+percent	threshold
+	default	= 75
+	help	=
+"Threshold percentage for system time as a fraction of the non-idle
+CPU time, in the range 0 (no system time) to 100 (all system time),
+independent of the number of CPUs.";
+
+string	action_expand
+	default	= %v%sys@%h
+	display	= no
+	modify	= no;
+
+string	email_expand
+	default	= "host: %h system mode: %v%"
+	display	= no
+	modify	= no;
+
+
+# Configuration info specific to non-PCP tools follows...
+# 
+
+# for SGI Embedded Support Partner integration:
+string	esp_type
+	default	= "0x200044"
+	display	= no
+	modify	= no;
+
+# for EnlightenDSM integration:
+string	enln_test
+	default	= cpu.system
+	display	= no
+	modify = no;
+string	enln_units
+	default	= %sys
+	display	= no
+	modify = no;
+
+# 
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(5)

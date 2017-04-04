@@ -1,0 +1,53 @@
+#! /bin/sh
+# PCP QA Test No. 015
+# exercise pmstore
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+trap "rm -f $tmp.*; exit" 0 1 2 3 15
+
+# real QA test starts here
+for type in long longlong float double string aggregate
+do
+    for val in 123 123.456 1e10 9.87654321e40 0xdeadbeef 0x100000000 0xdeadbeefcafefeed zoo
+    do
+	echo ""
+	echo "stuff \"$val\" into sampledso.$type.write_me"
+	# Note: for long data, using strtol() and strtoll() need to
+	# worry about the sign bit ...
+	#	-0x21524111 is 0xdeadbeef
+	#	-0x2152411035010113 is 0xdeadbeefcafefeed
+	if [ $type = long -a "$val" = 0xdeadbeef ]
+	then
+	    val=-0x21524111
+	elif [ $type = longlong -a "$val" = 0xdeadbeefcafefeed ]
+	then
+	    val=-0x2152411035010113
+	elif [ $type = aggregate -a "$val" = 0xdeadbeefcafefeed ]
+	then
+	    val=-0x2152411035010113
+	fi
+
+	if pmstore sampledso.$type.write_me $val
+	then
+	    pminfo -f sampledso.$type.write_me \
+	    | sed -e '/^$/d'
+	fi
+    done
+done 2>&1 \
+| sed \
+    -e 's/old value=.* new value=/old value=? new value=/' \
+    -e '/sampledso.aggregate/s/new value=.*\[/new value=XXX [/' \
+| $PCP_AWK_PROG '
+    /sampledso.aggregate/ { gotagg=1; print; next }
+    gotagg && /value/ { gotagg=0; sub(/value.*\[/, "value XXX["); print; next }
+    {print}'

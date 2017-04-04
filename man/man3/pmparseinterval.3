@@ -1,0 +1,92 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMPARSEINTERVAL 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmParseInterval\f1 \- convert interval string to \fBtimeval\fR structure
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.sp
+.ad l
+.hy 0
+.in +8n
+.ti -8n
+int pmParseInterval(const char *\fIstring\fP, struct timeval *\fIrslt\fP, char\ **\fIerrmsg\fP);
+.sp
+.in
+.hy
+.ad
+cc ... \-lpcp
+.ft 1
+.de CW
+.ie t \f(CW\\$1\f1\\$2
+.el \fI\\$1\f1\\$2
+..
+.SH DESCRIPTION
+.B pmParseInterval
+parses the argument
+.I string
+specifying an interval of time and fills in the
+.B tv_sec
+and
+.B tv_usec
+components of the
+.I rslt
+structure to represent that interval.
+.PP
+The input
+.I string
+is most commonly the argument following a
+.BR \-t
+command line option to a PCP application, and
+the syntax is fully described in
+.BR PCPIntro (1).
+.SH DIAGNOSTICS
+.B pmParseInterval
+returns 0 and
+.I errmsg
+is undefined if the parsing is successful.
+.PP
+If the given
+.I string
+does not conform to the required syntax
+.B pmParseInterval
+returns \-1 and a dynamically allocated
+error message string in
+.IR errmsg .
+The error message
+is terminated with a newline and
+includes the text of the input
+.I string
+along with an indicator of the position at which the error was detected,
+e.g.
+.br
+.in +1i
+.CW "\&4minutes 30mumble"
+.br
+.CW "\&           ^ -- unexpected value"
+.in -1i
+.PP
+In the case of an error, the caller is responsible for calling
+.BR free (3)
+to release the space allocated for
+.IR errmsg .
+.SH SEE ALSO
+.BR PCPIntro (1),
+.BR free (3),
+.BR PMAPI (3)
+and
+.BR pmParseTimeWindow (3).

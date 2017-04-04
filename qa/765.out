@@ -1,0 +1,912 @@
+QA output created by 765
+pmcd.pmlogger.port Initially - min/max=4332.000000/4332.000000
+sample.longlong.bin_ctr Initially - min/max=0.000000/0.000000
+sample.longlong.bin_ctr Initially - min/max=0.000000/0.000000
+sample.longlong.bin_ctr Initially - min/max=0.000000/0.000000
+sample.longlong.bin_ctr Initially - min/max=0.000000/0.000000
+sample.longlong.bin_ctr Initially - min/max=0.000000/0.000000
+sample.longlong.bin_ctr Initially - min/max=0.000000/0.000000
+sample.longlong.bin_ctr Initially - min/max=0.000000/0.000000
+sample.longlong.bin_ctr Initially - min/max=0.000000/0.000000
+sample.longlong.bin_ctr Initially - min/max=0.000000/0.000000
+sample.longlong.bin Initially - min/max=100.000000/100.000000
+sample.longlong.bin Initially - min/max=200.000000/200.000000
+sample.longlong.bin Initially - min/max=300.000000/300.000000
+sample.longlong.bin Initially - min/max=400.000000/400.000000
+sample.longlong.bin Initially - min/max=500.000000/500.000000
+sample.longlong.bin Initially - min/max=600.000000/600.000000
+sample.longlong.bin Initially - min/max=700.000000/700.000000
+sample.longlong.bin Initially - min/max=800.000000/800.000000
+sample.longlong.bin Initially - min/max=900.000000/900.000000
+sample.long.bin_ctr Initially - min/max=0.000000/0.000000
+sample.long.bin_ctr Initially - min/max=0.000000/0.000000
+sample.long.bin_ctr Initially - min/max=0.000000/0.000000
+sample.long.bin_ctr Initially - min/max=0.000000/0.000000
+sample.long.bin_ctr Initially - min/max=0.000000/0.000000
+sample.long.bin_ctr Initially - min/max=0.000000/0.000000
+sample.long.bin_ctr Initially - min/max=0.000000/0.000000
+sample.long.bin_ctr Initially - min/max=0.000000/0.000000
+sample.long.bin_ctr Initially - min/max=0.000000/0.000000
+sample.long.bin Initially - min/max=100.000000/100.000000
+sample.long.bin Initially - min/max=200.000000/200.000000
+sample.long.bin Initially - min/max=300.000000/300.000000
+sample.long.bin Initially - min/max=400.000000/400.000000
+sample.long.bin Initially - min/max=500.000000/500.000000
+sample.long.bin Initially - min/max=600.000000/600.000000
+sample.long.bin Initially - min/max=700.000000/700.000000
+sample.long.bin Initially - min/max=800.000000/800.000000
+sample.long.bin Initially - min/max=900.000000/900.000000
+sample.longlong.write_me Initially - min/max=13.000000/13.000000
+sample.longlong.million Initially - min/max=1000000.000000/1000000.000000
+sample.longlong.hundred Initially - min/max=100.000000/100.000000
+sample.longlong.ten Initially - min/max=10.000000/10.000000
+sample.longlong.one Initially - min/max=1.000000/1.000000
+sample.long.write_me Initially - min/max=13.000000/13.000000
+sample.long.million Initially - min/max=1000000.000000/1000000.000000
+sample.long.hundred Initially - min/max=100.000000/100.000000
+sample.long.ten Initially - min/max=10.000000/10.000000
+sample.long.one Initially - min/max=1.000000/1.000000
+sample.drift Initially - min/max=246.000000/246.000000
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin Initially - min/max=100.000000/100.000000
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin Initially - min/max=200.000000/200.000000
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin Initially - min/max=300.000000/300.000000
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin Initially - min/max=400.000000/400.000000
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin Initially - min/max=500.000000/500.000000
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin Initially - min/max=600.000000/600.000000
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin Initially - min/max=700.000000/700.000000
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin Initially - min/max=800.000000/800.000000
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin Initially - min/max=900.000000/900.000000
+sample.colour Initially - min/max=106.000000/106.000000
+sample.colour Initially - min/max=207.000000/207.000000
+sample.colour Initially - min/max=308.000000/308.000000
+sample.dupnames.two.seconds or sample.seconds Initially - min/max=0.000000/0.000000
+++ sample.drift timedelta=0.999961 count=2
+sum=492.000000 min=246.000000 max=246.000000 stocsum=492.000000
+lastval=246.000000 timesum=245.990406 (+245.990406) timespan=0.999961
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=0.999961 count=2
+sum=200.000000 min=100.000000 max=100.000000 stocsum=200.000000
+lastval=100.000000 timesum=99.996100 (+99.996100) timespan=0.999961
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=0.999961 count=2
+sum=400.000000 min=200.000000 max=200.000000 stocsum=400.000000
+lastval=200.000000 timesum=199.992200 (+199.992200) timespan=0.999961
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=0.999961 count=2
+sum=600.000000 min=300.000000 max=300.000000 stocsum=600.000000
+lastval=300.000000 timesum=299.988300 (+299.988300) timespan=0.999961
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=0.999961 count=2
+sum=800.000000 min=400.000000 max=400.000000 stocsum=800.000000
+lastval=400.000000 timesum=399.984400 (+399.984400) timespan=0.999961
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=0.999961 count=2
+sum=1000.000000 min=500.000000 max=500.000000 stocsum=1000.000000
+lastval=500.000000 timesum=499.980500 (+499.980500) timespan=0.999961
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=0.999961 count=2
+sum=1200.000000 min=600.000000 max=600.000000 stocsum=1200.000000
+lastval=600.000000 timesum=599.976600 (+599.976600) timespan=0.999961
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=0.999961 count=2
+sum=1400.000000 min=700.000000 max=700.000000 stocsum=1400.000000
+lastval=700.000000 timesum=699.972700 (+699.972700) timespan=0.999961
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=0.999961 count=2
+sum=1600.000000 min=800.000000 max=800.000000 stocsum=1600.000000
+lastval=800.000000 timesum=799.968800 (+799.968800) timespan=0.999961
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=0.999961 count=2
+sum=1800.000000 min=900.000000 max=900.000000 stocsum=1800.000000
+lastval=900.000000 timesum=899.964900 (+899.964900) timespan=0.999961
+++ sample.colour timedelta=0.999961 count=2
+sum=215.000000 min=106.000000 max=109.000000 stocsum=215.000000
+lastval=106.000000 timesum=105.995866 (+105.995866) timespan=0.999961
+++ sample.colour timedelta=0.999961 count=2
+sum=417.000000 min=207.000000 max=210.000000 stocsum=417.000000
+lastval=207.000000 timesum=206.991927 (+206.991927) timespan=0.999961
+++ sample.colour timedelta=0.999961 count=2
+sum=619.000000 min=308.000000 max=311.000000 stocsum=619.000000
+lastval=308.000000 timesum=307.987988 (+307.987988) timespan=0.999961
+sample.dupnames.two.seconds or sample.seconds base value is 66.000000, count 1
+++ sample.dupnames.two.seconds or sample.seconds timedelta=0.999961 count=1
+sum=1.000000 min=1.000039 max=1.000039 stocsum=1.000039
+rate=1.000039 timesum=1.000000 (+0.499980) timespan=0.999961
+++ sample.drift timedelta=0.999981 count=3
+sum=770.000000 min=246.000000 max=278.000000 stocsum=770.000000
+lastval=246.000000 timesum=491.985732 (+245.995326) timespan=1.999942
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=0.999981 count=3
+sum=300.000000 min=100.000000 max=100.000000 stocsum=300.000000
+lastval=100.000000 timesum=199.994200 (+99.998100) timespan=1.999942
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=0.999981 count=3
+sum=600.000000 min=200.000000 max=200.000000 stocsum=600.000000
+lastval=200.000000 timesum=399.988400 (+199.996200) timespan=1.999942
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=0.999981 count=3
+sum=900.000000 min=300.000000 max=300.000000 stocsum=900.000000
+lastval=300.000000 timesum=599.982600 (+299.994300) timespan=1.999942
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=0.999981 count=3
+sum=1200.000000 min=400.000000 max=400.000000 stocsum=1200.000000
+lastval=400.000000 timesum=799.976800 (+399.992400) timespan=1.999942
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=0.999981 count=3
+sum=1500.000000 min=500.000000 max=500.000000 stocsum=1500.000000
+lastval=500.000000 timesum=999.971000 (+499.990500) timespan=1.999942
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=0.999981 count=3
+sum=1800.000000 min=600.000000 max=600.000000 stocsum=1800.000000
+lastval=600.000000 timesum=1199.965200 (+599.988600) timespan=1.999942
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=0.999981 count=3
+sum=2100.000000 min=700.000000 max=700.000000 stocsum=2100.000000
+lastval=700.000000 timesum=1399.959400 (+699.986700) timespan=1.999942
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=0.999981 count=3
+sum=2400.000000 min=800.000000 max=800.000000 stocsum=2400.000000
+lastval=800.000000 timesum=1599.953600 (+799.984800) timespan=1.999942
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=0.999981 count=3
+sum=2700.000000 min=900.000000 max=900.000000 stocsum=2700.000000
+lastval=900.000000 timesum=1799.947800 (+899.982900) timespan=1.999942
+++ sample.colour timedelta=0.999981 count=3
+sum=327.000000 min=106.000000 max=112.000000 stocsum=327.000000
+lastval=109.000000 timesum=214.993795 (+108.997929) timespan=1.999942
+++ sample.colour timedelta=0.999981 count=3
+sum=630.000000 min=207.000000 max=213.000000 stocsum=630.000000
+lastval=210.000000 timesum=416.987937 (+209.996010) timespan=1.999942
+++ sample.colour timedelta=0.999981 count=3
+sum=933.000000 min=308.000000 max=314.000000 stocsum=933.000000
+lastval=311.000000 timesum=618.982079 (+310.994091) timespan=1.999942
+sample.dupnames.two.seconds or sample.seconds base value is 67.000000, count 2
+new min value for sample.dupnames.two.seconds or sample.seconds (inst[]: 1.000019) at 20:13:19.586
+++ sample.dupnames.two.seconds or sample.seconds timedelta=0.999981 count=2
+sum=2.000000 min=1.000019 max=1.000039 stocsum=2.000058
+rate=1.000019 timesum=2.000000 (+0.499991) timespan=1.999942
+++ sample.drift timedelta=1.000076 count=4
+sum=1031.000000 min=246.000000 max=278.000000 stocsum=1031.000000
+lastval=278.000000 timesum=770.006860 (+278.021128) timespan=3.000018
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=1.000076 count=4
+sum=400.000000 min=100.000000 max=100.000000 stocsum=400.000000
+lastval=100.000000 timesum=300.001800 (+100.007600) timespan=3.000018
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=1.000076 count=4
+sum=800.000000 min=200.000000 max=200.000000 stocsum=800.000000
+lastval=200.000000 timesum=600.003600 (+200.015200) timespan=3.000018
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=1.000076 count=4
+sum=1200.000000 min=300.000000 max=300.000000 stocsum=1200.000000
+lastval=300.000000 timesum=900.005400 (+300.022800) timespan=3.000018
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=1.000076 count=4
+sum=1600.000000 min=400.000000 max=400.000000 stocsum=1600.000000
+lastval=400.000000 timesum=1200.007200 (+400.030400) timespan=3.000018
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=1.000076 count=4
+sum=2000.000000 min=500.000000 max=500.000000 stocsum=2000.000000
+lastval=500.000000 timesum=1500.009000 (+500.038000) timespan=3.000018
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=1.000076 count=4
+sum=2400.000000 min=600.000000 max=600.000000 stocsum=2400.000000
+lastval=600.000000 timesum=1800.010800 (+600.045600) timespan=3.000018
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=1.000076 count=4
+sum=2800.000000 min=700.000000 max=700.000000 stocsum=2800.000000
+lastval=700.000000 timesum=2100.012600 (+700.053200) timespan=3.000018
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=1.000076 count=4
+sum=3200.000000 min=800.000000 max=800.000000 stocsum=3200.000000
+lastval=800.000000 timesum=2400.014400 (+800.060800) timespan=3.000018
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=1.000076 count=4
+sum=3600.000000 min=900.000000 max=900.000000 stocsum=3600.000000
+lastval=900.000000 timesum=2700.016200 (+900.068400) timespan=3.000018
+++ sample.colour timedelta=1.000076 count=4
+sum=442.000000 min=106.000000 max=115.000000 stocsum=442.000000
+lastval=112.000000 timesum=327.002307 (+112.008512) timespan=3.000018
+++ sample.colour timedelta=1.000076 count=4
+sum=846.000000 min=207.000000 max=216.000000 stocsum=846.000000
+lastval=213.000000 timesum=630.004125 (+213.016188) timespan=3.000018
+++ sample.colour timedelta=1.000076 count=4
+sum=1250.000000 min=308.000000 max=317.000000 stocsum=1250.000000
+lastval=314.000000 timesum=933.005943 (+314.023864) timespan=3.000018
+sample.dupnames.two.seconds or sample.seconds base value is 68.000000, count 3
+new min value for sample.dupnames.two.seconds or sample.seconds (inst[]: 0.999924) at 20:13:20.586
+++ sample.dupnames.two.seconds or sample.seconds timedelta=1.000076 count=3
+sum=3.000000 min=0.999924 max=1.000039 stocsum=2.999982
+rate=0.999924 timesum=3.000000 (+0.500038) timespan=3.000018
+++ sample.drift timedelta=0.999982 count=5
+sum=1270.000000 min=239.000000 max=278.000000 stocsum=1270.000000
+lastval=261.000000 timesum=1031.002162 (+260.995302) timespan=4.000000
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=0.999982 count=5
+sum=500.000000 min=100.000000 max=100.000000 stocsum=500.000000
+lastval=100.000000 timesum=400.000000 (+99.998200) timespan=4.000000
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=0.999982 count=5
+sum=1000.000000 min=200.000000 max=200.000000 stocsum=1000.000000
+lastval=200.000000 timesum=800.000000 (+199.996400) timespan=4.000000
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=0.999982 count=5
+sum=1500.000000 min=300.000000 max=300.000000 stocsum=1500.000000
+lastval=300.000000 timesum=1200.000000 (+299.994600) timespan=4.000000
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=0.999982 count=5
+sum=2000.000000 min=400.000000 max=400.000000 stocsum=2000.000000
+lastval=400.000000 timesum=1600.000000 (+399.992800) timespan=4.000000
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=0.999982 count=5
+sum=2500.000000 min=500.000000 max=500.000000 stocsum=2500.000000
+lastval=500.000000 timesum=2000.000000 (+499.991000) timespan=4.000000
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=0.999982 count=5
+sum=3000.000000 min=600.000000 max=600.000000 stocsum=3000.000000
+lastval=600.000000 timesum=2400.000000 (+599.989200) timespan=4.000000
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=0.999982 count=5
+sum=3500.000000 min=700.000000 max=700.000000 stocsum=3500.000000
+lastval=700.000000 timesum=2800.000000 (+699.987400) timespan=4.000000
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=0.999982 count=5
+sum=4000.000000 min=800.000000 max=800.000000 stocsum=4000.000000
+lastval=800.000000 timesum=3200.000000 (+799.985600) timespan=4.000000
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=0.999982 count=5
+sum=4500.000000 min=900.000000 max=900.000000 stocsum=4500.000000
+lastval=900.000000 timesum=3600.000000 (+899.983800) timespan=4.000000
+++ sample.colour timedelta=0.999982 count=5
+sum=560.000000 min=106.000000 max=118.000000 stocsum=560.000000
+lastval=115.000000 timesum=442.000237 (+114.997930) timespan=4.000000
+++ sample.colour timedelta=0.999982 count=5
+sum=1065.000000 min=207.000000 max=219.000000 stocsum=1065.000000
+lastval=216.000000 timesum=846.000237 (+215.996112) timespan=4.000000
+++ sample.colour timedelta=0.999982 count=5
+sum=1570.000000 min=308.000000 max=320.000000 stocsum=1570.000000
+lastval=317.000000 timesum=1250.000237 (+316.994294) timespan=4.000000
+sample.dupnames.two.seconds or sample.seconds base value is 69.000000, count 4
+++ sample.dupnames.two.seconds or sample.seconds timedelta=0.999982 count=4
+sum=4.000000 min=0.999924 max=1.000039 stocsum=4.000000
+rate=1.000018 timesum=4.000000 (+0.499991) timespan=4.000000
+++ sample.drift timedelta=1.000004 count=6
+sum=1462.000000 min=192.000000 max=278.000000 stocsum=1462.000000
+lastval=239.000000 timesum=1270.003118 (+239.000956) timespan=5.000004
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=1.000004 count=6
+sum=600.000000 min=100.000000 max=100.000000 stocsum=600.000000
+lastval=100.000000 timesum=500.000400 (+100.000400) timespan=5.000004
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=1.000004 count=6
+sum=1200.000000 min=200.000000 max=200.000000 stocsum=1200.000000
+lastval=200.000000 timesum=1000.000800 (+200.000800) timespan=5.000004
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=1.000004 count=6
+sum=1800.000000 min=300.000000 max=300.000000 stocsum=1800.000000
+lastval=300.000000 timesum=1500.001200 (+300.001200) timespan=5.000004
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=1.000004 count=6
+sum=2400.000000 min=400.000000 max=400.000000 stocsum=2400.000000
+lastval=400.000000 timesum=2000.001600 (+400.001600) timespan=5.000004
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=1.000004 count=6
+sum=3000.000000 min=500.000000 max=500.000000 stocsum=3000.000000
+lastval=500.000000 timesum=2500.002000 (+500.002000) timespan=5.000004
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=1.000004 count=6
+sum=3600.000000 min=600.000000 max=600.000000 stocsum=3600.000000
+lastval=600.000000 timesum=3000.002400 (+600.002400) timespan=5.000004
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=1.000004 count=6
+sum=4200.000000 min=700.000000 max=700.000000 stocsum=4200.000000
+lastval=700.000000 timesum=3500.002800 (+700.002800) timespan=5.000004
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=1.000004 count=6
+sum=4800.000000 min=800.000000 max=800.000000 stocsum=4800.000000
+lastval=800.000000 timesum=4000.003200 (+800.003200) timespan=5.000004
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=1.000004 count=6
+sum=5400.000000 min=900.000000 max=900.000000 stocsum=5400.000000
+lastval=900.000000 timesum=4500.003600 (+900.003600) timespan=5.000004
+++ sample.colour timedelta=1.000004 count=6
+sum=681.000000 min=106.000000 max=121.000000 stocsum=681.000000
+lastval=118.000000 timesum=560.000709 (+118.000472) timespan=5.000004
+++ sample.colour timedelta=1.000004 count=6
+sum=1287.000000 min=207.000000 max=222.000000 stocsum=1287.000000
+lastval=219.000000 timesum=1065.001113 (+219.000876) timespan=5.000004
+++ sample.colour timedelta=1.000004 count=6
+sum=1893.000000 min=308.000000 max=323.000000 stocsum=1893.000000
+lastval=320.000000 timesum=1570.001517 (+320.001280) timespan=5.000004
+sample.dupnames.two.seconds or sample.seconds base value is 70.000000, count 5
+++ sample.dupnames.two.seconds or sample.seconds timedelta=1.000004 count=5
+sum=5.000000 min=0.999924 max=1.000039 stocsum=4.999996
+rate=0.999996 timesum=5.000000 (+0.500002) timespan=5.000004
+++ sample.drift timedelta=0.999999 count=7
+sum=1641.000000 min=179.000000 max=278.000000 stocsum=1641.000000
+lastval=192.000000 timesum=1462.002926 (+191.999808) timespan=6.000003
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=0.999999 count=7
+sum=700.000000 min=100.000000 max=100.000000 stocsum=700.000000
+lastval=100.000000 timesum=600.000300 (+99.999900) timespan=6.000003
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=0.999999 count=7
+sum=1400.000000 min=200.000000 max=200.000000 stocsum=1400.000000
+lastval=200.000000 timesum=1200.000600 (+199.999800) timespan=6.000003
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=0.999999 count=7
+sum=2100.000000 min=300.000000 max=300.000000 stocsum=2100.000000
+lastval=300.000000 timesum=1800.000900 (+299.999700) timespan=6.000003
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=0.999999 count=7
+sum=2800.000000 min=400.000000 max=400.000000 stocsum=2800.000000
+lastval=400.000000 timesum=2400.001200 (+399.999600) timespan=6.000003
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=0.999999 count=7
+sum=3500.000000 min=500.000000 max=500.000000 stocsum=3500.000000
+lastval=500.000000 timesum=3000.001500 (+499.999500) timespan=6.000003
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=0.999999 count=7
+sum=4200.000000 min=600.000000 max=600.000000 stocsum=4200.000000
+lastval=600.000000 timesum=3600.001800 (+599.999400) timespan=6.000003
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=0.999999 count=7
+sum=4900.000000 min=700.000000 max=700.000000 stocsum=4900.000000
+lastval=700.000000 timesum=4200.002100 (+699.999300) timespan=6.000003
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=0.999999 count=7
+sum=5600.000000 min=800.000000 max=800.000000 stocsum=5600.000000
+lastval=800.000000 timesum=4800.002400 (+799.999200) timespan=6.000003
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=0.999999 count=7
+sum=6300.000000 min=900.000000 max=900.000000 stocsum=6300.000000
+lastval=900.000000 timesum=5400.002700 (+899.999100) timespan=6.000003
+++ sample.colour timedelta=0.999999 count=7
+sum=805.000000 min=106.000000 max=124.000000 stocsum=805.000000
+lastval=121.000000 timesum=681.000588 (+120.999879) timespan=6.000003
+++ sample.colour timedelta=0.999999 count=7
+sum=1512.000000 min=207.000000 max=225.000000 stocsum=1512.000000
+lastval=222.000000 timesum=1287.000891 (+221.999778) timespan=6.000003
+++ sample.colour timedelta=0.999999 count=7
+sum=2219.000000 min=308.000000 max=326.000000 stocsum=2219.000000
+lastval=323.000000 timesum=1893.001194 (+322.999677) timespan=6.000003
+sample.dupnames.two.seconds or sample.seconds base value is 71.000000, count 6
+++ sample.dupnames.two.seconds or sample.seconds timedelta=0.999999 count=6
+sum=6.000000 min=0.999924 max=1.000039 stocsum=5.999997
+rate=1.000001 timesum=6.000000 (+0.499999) timespan=6.000003
+++ sample.drift timedelta=0.999992 count=8
+sum=1777.000000 min=136.000000 max=278.000000 stocsum=1777.000000
+lastval=179.000000 timesum=1641.001494 (+178.998568) timespan=6.999995
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=0.999992 count=8
+sum=800.000000 min=100.000000 max=100.000000 stocsum=800.000000
+lastval=100.000000 timesum=699.999500 (+99.999200) timespan=6.999995
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=0.999992 count=8
+sum=1600.000000 min=200.000000 max=200.000000 stocsum=1600.000000
+lastval=200.000000 timesum=1399.999000 (+199.998400) timespan=6.999995
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=0.999992 count=8
+sum=2400.000000 min=300.000000 max=300.000000 stocsum=2400.000000
+lastval=300.000000 timesum=2099.998500 (+299.997600) timespan=6.999995
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=0.999992 count=8
+sum=3200.000000 min=400.000000 max=400.000000 stocsum=3200.000000
+lastval=400.000000 timesum=2799.998000 (+399.996800) timespan=6.999995
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=0.999992 count=8
+sum=4000.000000 min=500.000000 max=500.000000 stocsum=4000.000000
+lastval=500.000000 timesum=3499.997500 (+499.996000) timespan=6.999995
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=0.999992 count=8
+sum=4800.000000 min=600.000000 max=600.000000 stocsum=4800.000000
+lastval=600.000000 timesum=4199.997000 (+599.995200) timespan=6.999995
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=0.999992 count=8
+sum=5600.000000 min=700.000000 max=700.000000 stocsum=5600.000000
+lastval=700.000000 timesum=4899.996500 (+699.994400) timespan=6.999995
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=0.999992 count=8
+sum=6400.000000 min=800.000000 max=800.000000 stocsum=6400.000000
+lastval=800.000000 timesum=5599.996000 (+799.993600) timespan=6.999995
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=0.999992 count=8
+sum=7200.000000 min=900.000000 max=900.000000 stocsum=7200.000000
+lastval=900.000000 timesum=6299.995500 (+899.992800) timespan=6.999995
+++ sample.colour timedelta=0.999992 count=8
+sum=932.000000 min=106.000000 max=127.000000 stocsum=932.000000
+lastval=124.000000 timesum=804.999596 (+123.999008) timespan=6.999995
+++ sample.colour timedelta=0.999992 count=8
+sum=1740.000000 min=207.000000 max=228.000000 stocsum=1740.000000
+lastval=225.000000 timesum=1511.999091 (+224.998200) timespan=6.999995
+++ sample.colour timedelta=0.999992 count=8
+sum=2548.000000 min=308.000000 max=329.000000 stocsum=2548.000000
+lastval=326.000000 timesum=2218.998586 (+325.997392) timespan=6.999995
+sample.dupnames.two.seconds or sample.seconds base value is 72.000000, count 7
+++ sample.dupnames.two.seconds or sample.seconds timedelta=0.999992 count=7
+sum=7.000000 min=0.999924 max=1.000039 stocsum=7.000005
+rate=1.000008 timesum=7.000000 (+0.499996) timespan=6.999995
+++ sample.drift timedelta=1.000024 count=9
+sum=1883.000000 min=106.000000 max=278.000000 stocsum=1883.000000
+lastval=136.000000 timesum=1777.004758 (+136.003264) timespan=8.000019
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=1.000024 count=9
+sum=900.000000 min=100.000000 max=100.000000 stocsum=900.000000
+lastval=100.000000 timesum=800.001900 (+100.002400) timespan=8.000019
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=1.000024 count=9
+sum=1800.000000 min=200.000000 max=200.000000 stocsum=1800.000000
+lastval=200.000000 timesum=1600.003800 (+200.004800) timespan=8.000019
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=1.000024 count=9
+sum=2700.000000 min=300.000000 max=300.000000 stocsum=2700.000000
+lastval=300.000000 timesum=2400.005700 (+300.007200) timespan=8.000019
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=1.000024 count=9
+sum=3600.000000 min=400.000000 max=400.000000 stocsum=3600.000000
+lastval=400.000000 timesum=3200.007600 (+400.009600) timespan=8.000019
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=1.000024 count=9
+sum=4500.000000 min=500.000000 max=500.000000 stocsum=4500.000000
+lastval=500.000000 timesum=4000.009500 (+500.012000) timespan=8.000019
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=1.000024 count=9
+sum=5400.000000 min=600.000000 max=600.000000 stocsum=5400.000000
+lastval=600.000000 timesum=4800.011400 (+600.014400) timespan=8.000019
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=1.000024 count=9
+sum=6300.000000 min=700.000000 max=700.000000 stocsum=6300.000000
+lastval=700.000000 timesum=5600.013300 (+700.016800) timespan=8.000019
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=1.000024 count=9
+sum=7200.000000 min=800.000000 max=800.000000 stocsum=7200.000000
+lastval=800.000000 timesum=6400.015200 (+800.019200) timespan=8.000019
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=1.000024 count=9
+sum=8100.000000 min=900.000000 max=900.000000 stocsum=8100.000000
+lastval=900.000000 timesum=7200.017100 (+900.021600) timespan=8.000019
+++ sample.colour timedelta=1.000024 count=9
+sum=1062.000000 min=106.000000 max=130.000000 stocsum=1062.000000
+lastval=127.000000 timesum=932.002644 (+127.003048) timespan=8.000019
+++ sample.colour timedelta=1.000024 count=9
+sum=1971.000000 min=207.000000 max=231.000000 stocsum=1971.000000
+lastval=228.000000 timesum=1740.004563 (+228.005472) timespan=8.000019
+++ sample.colour timedelta=1.000024 count=9
+sum=2880.000000 min=308.000000 max=332.000000 stocsum=2880.000000
+lastval=329.000000 timesum=2548.006482 (+329.007896) timespan=8.000019
+sample.dupnames.two.seconds or sample.seconds base value is 73.000000, count 8
+++ sample.dupnames.two.seconds or sample.seconds timedelta=1.000024 count=8
+sum=8.000000 min=0.999924 max=1.000039 stocsum=7.999981
+rate=0.999976 timesum=8.000000 (+0.500012) timespan=8.000019
+++ sample.drift timedelta=0.999985 count=10
+sum=1998.000000 min=106.000000 max=278.000000 stocsum=1998.000000
+lastval=106.000000 timesum=1883.003168 (+105.998410) timespan=9.000004
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=0.999985 count=10
+sum=1000.000000 min=100.000000 max=100.000000 stocsum=1000.000000
+lastval=100.000000 timesum=900.000400 (+99.998500) timespan=9.000004
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=0.999985 count=10
+sum=2000.000000 min=200.000000 max=200.000000 stocsum=2000.000000
+lastval=200.000000 timesum=1800.000800 (+199.997000) timespan=9.000004
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=0.999985 count=10
+sum=3000.000000 min=300.000000 max=300.000000 stocsum=3000.000000
+lastval=300.000000 timesum=2700.001200 (+299.995500) timespan=9.000004
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=0.999985 count=10
+sum=4000.000000 min=400.000000 max=400.000000 stocsum=4000.000000
+lastval=400.000000 timesum=3600.001600 (+399.994000) timespan=9.000004
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=0.999985 count=10
+sum=5000.000000 min=500.000000 max=500.000000 stocsum=5000.000000
+lastval=500.000000 timesum=4500.002000 (+499.992500) timespan=9.000004
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=0.999985 count=10
+sum=6000.000000 min=600.000000 max=600.000000 stocsum=6000.000000
+lastval=600.000000 timesum=5400.002400 (+599.991000) timespan=9.000004
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=0.999985 count=10
+sum=7000.000000 min=700.000000 max=700.000000 stocsum=7000.000000
+lastval=700.000000 timesum=6300.002800 (+699.989500) timespan=9.000004
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=0.999985 count=10
+sum=8000.000000 min=800.000000 max=800.000000 stocsum=8000.000000
+lastval=800.000000 timesum=7200.003200 (+799.988000) timespan=9.000004
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=0.999985 count=10
+sum=9000.000000 min=900.000000 max=900.000000 stocsum=9000.000000
+lastval=900.000000 timesum=8100.003600 (+899.986500) timespan=9.000004
+++ sample.colour timedelta=0.999985 count=10
+sum=1195.000000 min=106.000000 max=133.000000 stocsum=1195.000000
+lastval=130.000000 timesum=1062.000694 (+129.998050) timespan=9.000004
+++ sample.colour timedelta=0.999985 count=10
+sum=2205.000000 min=207.000000 max=234.000000 stocsum=2205.000000
+lastval=231.000000 timesum=1971.001098 (+230.996535) timespan=9.000004
+++ sample.colour timedelta=0.999985 count=10
+sum=3215.000000 min=308.000000 max=335.000000 stocsum=3215.000000
+lastval=332.000000 timesum=2880.001502 (+331.995020) timespan=9.000004
+sample.dupnames.two.seconds or sample.seconds base value is 74.000000, count 9
+++ sample.dupnames.two.seconds or sample.seconds timedelta=0.999985 count=9
+sum=9.000000 min=0.999924 max=1.000039 stocsum=8.999996
+rate=1.000015 timesum=9.000000 (+0.499993) timespan=9.000004
+++ sample.drift timedelta=1.000007 count=11
+sum=2136.000000 min=106.000000 max=278.000000 stocsum=2136.000000
+lastval=115.000000 timesum=1998.003973 (+115.000805) timespan=10.000011
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=1.000007 count=11
+sum=1100.000000 min=100.000000 max=100.000000 stocsum=1100.000000
+lastval=100.000000 timesum=1000.001100 (+100.000700) timespan=10.000011
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=1.000007 count=11
+sum=2200.000000 min=200.000000 max=200.000000 stocsum=2200.000000
+lastval=200.000000 timesum=2000.002200 (+200.001400) timespan=10.000011
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=1.000007 count=11
+sum=3300.000000 min=300.000000 max=300.000000 stocsum=3300.000000
+lastval=300.000000 timesum=3000.003300 (+300.002100) timespan=10.000011
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=1.000007 count=11
+sum=4400.000000 min=400.000000 max=400.000000 stocsum=4400.000000
+lastval=400.000000 timesum=4000.004400 (+400.002800) timespan=10.000011
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=1.000007 count=11
+sum=5500.000000 min=500.000000 max=500.000000 stocsum=5500.000000
+lastval=500.000000 timesum=5000.005500 (+500.003500) timespan=10.000011
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=1.000007 count=11
+sum=6600.000000 min=600.000000 max=600.000000 stocsum=6600.000000
+lastval=600.000000 timesum=6000.006600 (+600.004200) timespan=10.000011
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=1.000007 count=11
+sum=7700.000000 min=700.000000 max=700.000000 stocsum=7700.000000
+lastval=700.000000 timesum=7000.007700 (+700.004900) timespan=10.000011
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=1.000007 count=11
+sum=8800.000000 min=800.000000 max=800.000000 stocsum=8800.000000
+lastval=800.000000 timesum=8000.008800 (+800.005600) timespan=10.000011
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=1.000007 count=11
+sum=9900.000000 min=900.000000 max=900.000000 stocsum=9900.000000
+lastval=900.000000 timesum=9000.009900 (+900.006300) timespan=10.000011
+++ sample.colour timedelta=1.000007 count=11
+sum=1331.000000 min=106.000000 max=136.000000 stocsum=1331.000000
+lastval=133.000000 timesum=1195.001625 (+133.000931) timespan=10.000011
+++ sample.colour timedelta=1.000007 count=11
+sum=2442.000000 min=207.000000 max=237.000000 stocsum=2442.000000
+lastval=234.000000 timesum=2205.002736 (+234.001638) timespan=10.000011
+++ sample.colour timedelta=1.000007 count=11
+sum=3553.000000 min=308.000000 max=338.000000 stocsum=3553.000000
+lastval=335.000000 timesum=3215.003847 (+335.002345) timespan=10.000011
+sample.dupnames.two.seconds or sample.seconds base value is 75.000000, count 10
+++ sample.dupnames.two.seconds or sample.seconds timedelta=1.000007 count=10
+sum=10.000000 min=0.999924 max=1.000039 stocsum=9.999989
+rate=0.999993 timesum=10.000000 (+0.500004) timespan=10.000011
+++ sample.drift timedelta=0.999924 count=12
+sum=2293.000000 min=106.000000 max=278.000000 stocsum=2293.000000
+lastval=138.000000 timesum=2135.993485 (+137.989512) timespan=10.999935
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=0.999924 count=12
+sum=1200.000000 min=100.000000 max=100.000000 stocsum=1200.000000
+lastval=100.000000 timesum=1099.993500 (+99.992400) timespan=10.999935
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=0.999924 count=12
+sum=2400.000000 min=200.000000 max=200.000000 stocsum=2400.000000
+lastval=200.000000 timesum=2199.987000 (+199.984800) timespan=10.999935
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=0.999924 count=12
+sum=3600.000000 min=300.000000 max=300.000000 stocsum=3600.000000
+lastval=300.000000 timesum=3299.980500 (+299.977200) timespan=10.999935
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=0.999924 count=12
+sum=4800.000000 min=400.000000 max=400.000000 stocsum=4800.000000
+lastval=400.000000 timesum=4399.974000 (+399.969600) timespan=10.999935
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=0.999924 count=12
+sum=6000.000000 min=500.000000 max=500.000000 stocsum=6000.000000
+lastval=500.000000 timesum=5499.967500 (+499.962000) timespan=10.999935
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=0.999924 count=12
+sum=7200.000000 min=600.000000 max=600.000000 stocsum=7200.000000
+lastval=600.000000 timesum=6599.961000 (+599.954400) timespan=10.999935
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=0.999924 count=12
+sum=8400.000000 min=700.000000 max=700.000000 stocsum=8400.000000
+lastval=700.000000 timesum=7699.954500 (+699.946800) timespan=10.999935
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=0.999924 count=12
+sum=9600.000000 min=800.000000 max=800.000000 stocsum=9600.000000
+lastval=800.000000 timesum=8799.948000 (+799.939200) timespan=10.999935
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=0.999924 count=12
+sum=10800.000000 min=900.000000 max=900.000000 stocsum=10800.000000
+lastval=900.000000 timesum=9899.941500 (+899.931600) timespan=10.999935
+++ sample.colour timedelta=0.999924 count=12
+sum=1470.000000 min=106.000000 max=139.000000 stocsum=1470.000000
+lastval=136.000000 timesum=1330.991289 (+135.989664) timespan=10.999935
+++ sample.colour timedelta=0.999924 count=12
+sum=2682.000000 min=207.000000 max=240.000000 stocsum=2682.000000
+lastval=237.000000 timesum=2441.984724 (+236.981988) timespan=10.999935
+++ sample.colour timedelta=0.999924 count=12
+sum=3894.000000 min=308.000000 max=341.000000 stocsum=3894.000000
+lastval=338.000000 timesum=3552.978159 (+337.974312) timespan=10.999935
+sample.dupnames.two.seconds or sample.seconds base value is 76.000000, count 11
+new max value for sample.dupnames.two.seconds or sample.seconds (inst[]: 1.000076) at 20:13:28.586
+++ sample.dupnames.two.seconds or sample.seconds timedelta=0.999924 count=11
+sum=11.000000 min=0.999924 max=1.000076 stocsum=11.000065
+rate=1.000076 timesum=11.000000 (+0.499962) timespan=10.999935
+++ sample.drift timedelta=1.000052 count=13
+sum=2439.000000 min=106.000000 max=278.000000 stocsum=2439.000000
+lastval=157.000000 timesum=2293.001649 (+157.008164) timespan=11.999987
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=1.000052 count=13
+sum=1300.000000 min=100.000000 max=100.000000 stocsum=1300.000000
+lastval=100.000000 timesum=1199.998700 (+100.005200) timespan=11.999987
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=1.000052 count=13
+sum=2600.000000 min=200.000000 max=200.000000 stocsum=2600.000000
+lastval=200.000000 timesum=2399.997400 (+200.010400) timespan=11.999987
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=1.000052 count=13
+sum=3900.000000 min=300.000000 max=300.000000 stocsum=3900.000000
+lastval=300.000000 timesum=3599.996100 (+300.015600) timespan=11.999987
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=1.000052 count=13
+sum=5200.000000 min=400.000000 max=400.000000 stocsum=5200.000000
+lastval=400.000000 timesum=4799.994800 (+400.020800) timespan=11.999987
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=1.000052 count=13
+sum=6500.000000 min=500.000000 max=500.000000 stocsum=6500.000000
+lastval=500.000000 timesum=5999.993500 (+500.026000) timespan=11.999987
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=1.000052 count=13
+sum=7800.000000 min=600.000000 max=600.000000 stocsum=7800.000000
+lastval=600.000000 timesum=7199.992200 (+600.031200) timespan=11.999987
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=1.000052 count=13
+sum=9100.000000 min=700.000000 max=700.000000 stocsum=9100.000000
+lastval=700.000000 timesum=8399.990900 (+700.036400) timespan=11.999987
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=1.000052 count=13
+sum=10400.000000 min=800.000000 max=800.000000 stocsum=10400.000000
+lastval=800.000000 timesum=9599.989600 (+800.041600) timespan=11.999987
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=1.000052 count=13
+sum=11700.000000 min=900.000000 max=900.000000 stocsum=11700.000000
+lastval=900.000000 timesum=10799.988300 (+900.046800) timespan=11.999987
+++ sample.colour timedelta=1.000052 count=13
+sum=1612.000000 min=106.000000 max=142.000000 stocsum=1612.000000
+lastval=139.000000 timesum=1469.998517 (+139.007228) timespan=11.999987
+++ sample.colour timedelta=1.000052 count=13
+sum=2925.000000 min=207.000000 max=243.000000 stocsum=2925.000000
+lastval=240.000000 timesum=2681.997204 (+240.012480) timespan=11.999987
+++ sample.colour timedelta=1.000052 count=13
+sum=4238.000000 min=308.000000 max=344.000000 stocsum=4238.000000
+lastval=341.000000 timesum=3893.995891 (+341.017732) timespan=11.999987
+sample.dupnames.two.seconds or sample.seconds base value is 77.000000, count 12
+++ sample.dupnames.two.seconds or sample.seconds timedelta=1.000052 count=12
+sum=12.000000 min=0.999924 max=1.000076 stocsum=12.000013
+rate=0.999948 timesum=12.000000 (+0.500026) timespan=11.999987
+++ sample.drift timedelta=0.999966 count=14
+sum=2559.000000 min=106.000000 max=278.000000 stocsum=2559.000000
+lastval=146.000000 timesum=2438.996685 (+145.995036) timespan=12.999953
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=0.999966 count=14
+sum=1400.000000 min=100.000000 max=100.000000 stocsum=1400.000000
+lastval=100.000000 timesum=1299.995300 (+99.996600) timespan=12.999953
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=0.999966 count=14
+sum=2800.000000 min=200.000000 max=200.000000 stocsum=2800.000000
+lastval=200.000000 timesum=2599.990600 (+199.993200) timespan=12.999953
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=0.999966 count=14
+sum=4200.000000 min=300.000000 max=300.000000 stocsum=4200.000000
+lastval=300.000000 timesum=3899.985900 (+299.989800) timespan=12.999953
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=0.999966 count=14
+sum=5600.000000 min=400.000000 max=400.000000 stocsum=5600.000000
+lastval=400.000000 timesum=5199.981200 (+399.986400) timespan=12.999953
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=0.999966 count=14
+sum=7000.000000 min=500.000000 max=500.000000 stocsum=7000.000000
+lastval=500.000000 timesum=6499.976500 (+499.983000) timespan=12.999953
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=0.999966 count=14
+sum=8400.000000 min=600.000000 max=600.000000 stocsum=8400.000000
+lastval=600.000000 timesum=7799.971800 (+599.979600) timespan=12.999953
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=0.999966 count=14
+sum=9800.000000 min=700.000000 max=700.000000 stocsum=9800.000000
+lastval=700.000000 timesum=9099.967100 (+699.976200) timespan=12.999953
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=0.999966 count=14
+sum=11200.000000 min=800.000000 max=800.000000 stocsum=11200.000000
+lastval=800.000000 timesum=10399.962400 (+799.972800) timespan=12.999953
+++ sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin timedelta=0.999966 count=14
+sum=12600.000000 min=900.000000 max=900.000000 stocsum=12600.000000
+lastval=900.000000 timesum=11699.957700 (+899.969400) timespan=12.999953
+++ sample.colour timedelta=0.999966 count=14
+sum=1757.000000 min=106.000000 max=145.000000 stocsum=1757.000000
+lastval=142.000000 timesum=1611.993689 (+141.995172) timespan=12.999953
+++ sample.colour timedelta=0.999966 count=14
+sum=3171.000000 min=207.000000 max=246.000000 stocsum=3171.000000
+lastval=243.000000 timesum=2924.988942 (+242.991738) timespan=12.999953
+++ sample.colour timedelta=0.999966 count=14
+sum=4585.000000 min=308.000000 max=347.000000 stocsum=4585.000000
+lastval=344.000000 timesum=4237.984195 (+343.988304) timespan=12.999953
+sample.dupnames.two.seconds or sample.seconds base value is 78.000000, count 13
+++ sample.dupnames.two.seconds or sample.seconds timedelta=0.999966 count=13
+sum=13.000000 min=0.999924 max=1.000076 stocsum=13.000047
+rate=1.000034 timesum=13.000000 (+0.499983) timespan=12.999953
+resetting for second iteration
+pmcd.pmlogger.port selected bin 0/5 (val=4332.000, min=4332.000, max=4332.000)
+sample.longlong.bin selected bin 0/5 (val=100.000, min=100.000, max=100.000)
+sample.longlong.bin selected bin 0/5 (val=200.000, min=200.000, max=200.000)
+sample.longlong.bin selected bin 0/5 (val=300.000, min=300.000, max=300.000)
+sample.longlong.bin selected bin 0/5 (val=400.000, min=400.000, max=400.000)
+sample.longlong.bin selected bin 0/5 (val=500.000, min=500.000, max=500.000)
+sample.longlong.bin selected bin 0/5 (val=600.000, min=600.000, max=600.000)
+sample.longlong.bin selected bin 0/5 (val=700.000, min=700.000, max=700.000)
+sample.longlong.bin selected bin 0/5 (val=800.000, min=800.000, max=800.000)
+sample.longlong.bin selected bin 0/5 (val=900.000, min=900.000, max=900.000)
+sample.long.bin selected bin 0/5 (val=100.000, min=100.000, max=100.000)
+sample.long.bin selected bin 0/5 (val=200.000, min=200.000, max=200.000)
+sample.long.bin selected bin 0/5 (val=300.000, min=300.000, max=300.000)
+sample.long.bin selected bin 0/5 (val=400.000, min=400.000, max=400.000)
+sample.long.bin selected bin 0/5 (val=500.000, min=500.000, max=500.000)
+sample.long.bin selected bin 0/5 (val=600.000, min=600.000, max=600.000)
+sample.long.bin selected bin 0/5 (val=700.000, min=700.000, max=700.000)
+sample.long.bin selected bin 0/5 (val=800.000, min=800.000, max=800.000)
+sample.long.bin selected bin 0/5 (val=900.000, min=900.000, max=900.000)
+sample.longlong.write_me selected bin 0/5 (val=13.000, min=13.000, max=13.000)
+sample.longlong.million selected bin 0/5 (val=1000000.000, min=1000000.000, max=1000000.000)
+sample.longlong.hundred selected bin 0/5 (val=100.000, min=100.000, max=100.000)
+sample.longlong.ten selected bin 0/5 (val=10.000, min=10.000, max=10.000)
+sample.longlong.one selected bin 0/5 (val=1.000, min=1.000, max=1.000)
+sample.long.write_me selected bin 0/5 (val=13.000, min=13.000, max=13.000)
+sample.long.million selected bin 0/5 (val=1000000.000, min=1000000.000, max=1000000.000)
+sample.long.hundred selected bin 0/5 (val=100.000, min=100.000, max=100.000)
+sample.long.ten selected bin 0/5 (val=10.000, min=10.000, max=10.000)
+sample.long.one selected bin 0/5 (val=1.000, min=1.000, max=1.000)
+sample.drift selected bin 4/5 (val=246.000, min=106.000, max=278.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=100.000, min=100.000, max=100.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=200.000, min=200.000, max=200.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=300.000, min=300.000, max=300.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=400.000, min=400.000, max=400.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=500.000, min=500.000, max=500.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=600.000, min=600.000, max=600.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=700.000, min=700.000, max=700.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=800.000, min=800.000, max=800.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=900.000, min=900.000, max=900.000)
+sample.colour selected bin 0/5 (val=106.000, min=106.000, max=145.000)
+sample.colour selected bin 0/5 (val=207.000, min=207.000, max=246.000)
+sample.colour selected bin 0/5 (val=308.000, min=308.000, max=347.000)
+sample.drift selected bin 4/5 (val=246.000, min=106.000, max=278.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=100.000, min=100.000, max=100.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=200.000, min=200.000, max=200.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=300.000, min=300.000, max=300.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=400.000, min=400.000, max=400.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=500.000, min=500.000, max=500.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=600.000, min=600.000, max=600.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=700.000, min=700.000, max=700.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=800.000, min=800.000, max=800.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=900.000, min=900.000, max=900.000)
+sample.colour selected bin 0/5 (val=109.000, min=106.000, max=145.000)
+sample.colour selected bin 0/5 (val=210.000, min=207.000, max=246.000)
+sample.colour selected bin 0/5 (val=311.000, min=308.000, max=347.000)
+sample.dupnames.two.seconds or sample.seconds selected bin 3/5 (val=1.000, min=1.000, max=1.000)
+sample.drift selected bin 4/5 (val=278.000, min=106.000, max=278.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=100.000, min=100.000, max=100.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=200.000, min=200.000, max=200.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=300.000, min=300.000, max=300.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=400.000, min=400.000, max=400.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=500.000, min=500.000, max=500.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=600.000, min=600.000, max=600.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=700.000, min=700.000, max=700.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=800.000, min=800.000, max=800.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=900.000, min=900.000, max=900.000)
+sample.colour selected bin 0/5 (val=112.000, min=106.000, max=145.000)
+sample.colour selected bin 0/5 (val=213.000, min=207.000, max=246.000)
+sample.colour selected bin 0/5 (val=314.000, min=308.000, max=347.000)
+sample.dupnames.two.seconds or sample.seconds selected bin 3/5 (val=1.000, min=1.000, max=1.000)
+sample.drift selected bin 4/5 (val=261.000, min=106.000, max=278.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=100.000, min=100.000, max=100.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=200.000, min=200.000, max=200.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=300.000, min=300.000, max=300.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=400.000, min=400.000, max=400.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=500.000, min=500.000, max=500.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=600.000, min=600.000, max=600.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=700.000, min=700.000, max=700.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=800.000, min=800.000, max=800.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=900.000, min=900.000, max=900.000)
+sample.colour selected bin 1/5 (val=115.000, min=106.000, max=145.000)
+sample.colour selected bin 1/5 (val=216.000, min=207.000, max=246.000)
+sample.colour selected bin 1/5 (val=317.000, min=308.000, max=347.000)
+sample.dupnames.two.seconds or sample.seconds selected bin 0/5 (val=1.000, min=1.000, max=1.000)
+sample.drift selected bin 3/5 (val=239.000, min=106.000, max=278.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=100.000, min=100.000, max=100.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=200.000, min=200.000, max=200.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=300.000, min=300.000, max=300.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=400.000, min=400.000, max=400.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=500.000, min=500.000, max=500.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=600.000, min=600.000, max=600.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=700.000, min=700.000, max=700.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=800.000, min=800.000, max=800.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=900.000, min=900.000, max=900.000)
+sample.colour selected bin 1/5 (val=118.000, min=106.000, max=145.000)
+sample.colour selected bin 1/5 (val=219.000, min=207.000, max=246.000)
+sample.colour selected bin 1/5 (val=320.000, min=308.000, max=347.000)
+sample.dupnames.two.seconds or sample.seconds selected bin 3/5 (val=1.000, min=1.000, max=1.000)
+sample.drift selected bin 2/5 (val=192.000, min=106.000, max=278.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=100.000, min=100.000, max=100.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=200.000, min=200.000, max=200.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=300.000, min=300.000, max=300.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=400.000, min=400.000, max=400.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=500.000, min=500.000, max=500.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=600.000, min=600.000, max=600.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=700.000, min=700.000, max=700.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=800.000, min=800.000, max=800.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=900.000, min=900.000, max=900.000)
+sample.colour selected bin 1/5 (val=121.000, min=106.000, max=145.000)
+sample.colour selected bin 1/5 (val=222.000, min=207.000, max=246.000)
+sample.colour selected bin 1/5 (val=323.000, min=308.000, max=347.000)
+sample.dupnames.two.seconds or sample.seconds selected bin 2/5 (val=1.000, min=1.000, max=1.000)
+sample.drift selected bin 2/5 (val=179.000, min=106.000, max=278.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=100.000, min=100.000, max=100.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=200.000, min=200.000, max=200.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=300.000, min=300.000, max=300.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=400.000, min=400.000, max=400.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=500.000, min=500.000, max=500.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=600.000, min=600.000, max=600.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=700.000, min=700.000, max=700.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=800.000, min=800.000, max=800.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=900.000, min=900.000, max=900.000)
+sample.colour selected bin 2/5 (val=124.000, min=106.000, max=145.000)
+sample.colour selected bin 2/5 (val=225.000, min=207.000, max=246.000)
+sample.colour selected bin 2/5 (val=326.000, min=308.000, max=347.000)
+sample.dupnames.two.seconds or sample.seconds selected bin 2/5 (val=1.000, min=1.000, max=1.000)
+sample.drift selected bin 0/5 (val=136.000, min=106.000, max=278.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=100.000, min=100.000, max=100.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=200.000, min=200.000, max=200.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=300.000, min=300.000, max=300.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=400.000, min=400.000, max=400.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=500.000, min=500.000, max=500.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=600.000, min=600.000, max=600.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=700.000, min=700.000, max=700.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=800.000, min=800.000, max=800.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=900.000, min=900.000, max=900.000)
+sample.colour selected bin 2/5 (val=127.000, min=106.000, max=145.000)
+sample.colour selected bin 2/5 (val=228.000, min=207.000, max=246.000)
+sample.colour selected bin 2/5 (val=329.000, min=308.000, max=347.000)
+sample.dupnames.two.seconds or sample.seconds selected bin 2/5 (val=1.000, min=1.000, max=1.000)
+sample.drift selected bin 0/5 (val=106.000, min=106.000, max=278.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=100.000, min=100.000, max=100.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=200.000, min=200.000, max=200.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=300.000, min=300.000, max=300.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=400.000, min=400.000, max=400.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=500.000, min=500.000, max=500.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=600.000, min=600.000, max=600.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=700.000, min=700.000, max=700.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=800.000, min=800.000, max=800.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=900.000, min=900.000, max=900.000)
+sample.colour selected bin 3/5 (val=130.000, min=106.000, max=145.000)
+sample.colour selected bin 3/5 (val=231.000, min=207.000, max=246.000)
+sample.colour selected bin 3/5 (val=332.000, min=308.000, max=347.000)
+sample.dupnames.two.seconds or sample.seconds selected bin 1/5 (val=1.000, min=1.000, max=1.000)
+sample.drift selected bin 0/5 (val=115.000, min=106.000, max=278.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=100.000, min=100.000, max=100.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=200.000, min=200.000, max=200.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=300.000, min=300.000, max=300.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=400.000, min=400.000, max=400.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=500.000, min=500.000, max=500.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=600.000, min=600.000, max=600.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=700.000, min=700.000, max=700.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=800.000, min=800.000, max=800.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=900.000, min=900.000, max=900.000)
+sample.colour selected bin 3/5 (val=133.000, min=106.000, max=145.000)
+sample.colour selected bin 3/5 (val=234.000, min=207.000, max=246.000)
+sample.colour selected bin 3/5 (val=335.000, min=308.000, max=347.000)
+sample.dupnames.two.seconds or sample.seconds selected bin 2/5 (val=1.000, min=1.000, max=1.000)
+sample.drift selected bin 0/5 (val=138.000, min=106.000, max=278.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=100.000, min=100.000, max=100.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=200.000, min=200.000, max=200.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=300.000, min=300.000, max=300.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=400.000, min=400.000, max=400.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=500.000, min=500.000, max=500.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=600.000, min=600.000, max=600.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=700.000, min=700.000, max=700.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=800.000, min=800.000, max=800.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=900.000, min=900.000, max=900.000)
+sample.colour selected bin 3/5 (val=136.000, min=106.000, max=145.000)
+sample.colour selected bin 3/5 (val=237.000, min=207.000, max=246.000)
+sample.colour selected bin 3/5 (val=338.000, min=308.000, max=347.000)
+sample.dupnames.two.seconds or sample.seconds selected bin 2/5 (val=1.000, min=1.000, max=1.000)
+sample.drift selected bin 1/5 (val=157.000, min=106.000, max=278.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=100.000, min=100.000, max=100.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=200.000, min=200.000, max=200.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=300.000, min=300.000, max=300.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=400.000, min=400.000, max=400.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=500.000, min=500.000, max=500.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=600.000, min=600.000, max=600.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=700.000, min=700.000, max=700.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=800.000, min=800.000, max=800.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=900.000, min=900.000, max=900.000)
+sample.colour selected bin 4/5 (val=139.000, min=106.000, max=145.000)
+sample.colour selected bin 4/5 (val=240.000, min=207.000, max=246.000)
+sample.colour selected bin 4/5 (val=341.000, min=308.000, max=347.000)
+sample.dupnames.two.seconds or sample.seconds selected bin 4/5 (val=1.000, min=1.000, max=1.000)
+sample.drift selected bin 1/5 (val=146.000, min=106.000, max=278.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=100.000, min=100.000, max=100.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=200.000, min=200.000, max=200.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=300.000, min=300.000, max=300.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=400.000, min=400.000, max=400.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=500.000, min=500.000, max=500.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=600.000, min=600.000, max=600.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=700.000, min=700.000, max=700.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=800.000, min=800.000, max=800.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=900.000, min=900.000, max=900.000)
+sample.colour selected bin 4/5 (val=142.000, min=106.000, max=145.000)
+sample.colour selected bin 4/5 (val=243.000, min=207.000, max=246.000)
+sample.colour selected bin 4/5 (val=344.000, min=308.000, max=347.000)
+sample.dupnames.two.seconds or sample.seconds selected bin 0/5 (val=1.000, min=1.000, max=1.000)
+sample.drift selected bin 0/5 (val=120.000, min=106.000, max=278.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=100.000, min=100.000, max=100.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=200.000, min=200.000, max=200.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=300.000, min=300.000, max=300.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=400.000, min=400.000, max=400.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=500.000, min=500.000, max=500.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=600.000, min=600.000, max=600.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=700.000, min=700.000, max=700.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=800.000, min=800.000, max=800.000)
+sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin selected bin 0/5 (val=900.000, min=900.000, max=900.000)
+sample.colour selected bin 4/5 (val=145.000, min=106.000, max=145.000)
+sample.colour selected bin 4/5 (val=246.000, min=207.000, max=246.000)
+sample.colour selected bin 4/5 (val=347.000, min=308.000, max=347.000)
+sample.dupnames.two.seconds or sample.seconds selected bin 3/5 (val=1.000, min=1.000, max=1.000)
+Note: timezone set to local timezone of host "bozo" from archive
+
+sample.seconds  1.000 1.000 20:13:20.586 1.000 [<=1.000] 2 [<=1.000] 1 [<=1.000] 5 [<=1.000] 4 [<=1.000] 1 none
+sample.colour ["red"] 124.000 106.000 20:13:17.586 145.000 [<=113.800] 3 [<=121.600] 3 [<=129.400] 2 [<=137.200] 3 [<=145.000] 3 none
+sample.colour ["green"] 225.000 207.000 20:13:17.586 246.000 [<=214.800] 3 [<=222.600] 3 [<=230.400] 2 [<=238.200] 3 [<=246.000] 3 none
+sample.colour ["blue"] 326.000 308.000 20:13:17.586 347.000 [<=315.800] 3 [<=323.600] 3 [<=331.400] 2 [<=339.200] 3 [<=347.000] 3 none
+sample.bin ["bin-100"] 100.000 100.000 20:13:17.586 100.000 [<=100.000] 14 [] 0 [] 0 [] 0 [] 0 none
+sample.bin ["bin-200"] 200.000 200.000 20:13:17.586 200.000 [<=200.000] 14 [] 0 [] 0 [] 0 [] 0 none
+sample.bin ["bin-300"] 300.000 300.000 20:13:17.586 300.000 [<=300.000] 14 [] 0 [] 0 [] 0 [] 0 none
+sample.bin ["bin-400"] 400.000 400.000 20:13:17.586 400.000 [<=400.000] 14 [] 0 [] 0 [] 0 [] 0 none
+sample.bin ["bin-500"] 500.000 500.000 20:13:17.586 500.000 [<=500.000] 14 [] 0 [] 0 [] 0 [] 0 none
+sample.bin ["bin-600"] 600.000 600.000 20:13:17.586 600.000 [<=600.000] 14 [] 0 [] 0 [] 0 [] 0 none
+sample.bin ["bin-700"] 700.000 700.000 20:13:17.586 700.000 [<=700.000] 14 [] 0 [] 0 [] 0 [] 0 none
+sample.bin ["bin-800"] 800.000 800.000 20:13:17.586 800.000 [<=800.000] 14 [] 0 [] 0 [] 0 [] 0 none
+sample.bin ["bin-900"] 900.000 900.000 20:13:17.586 900.000 [<=900.000] 14 [] 0 [] 0 [] 0 [] 0 none
+sample.drift  187.616 106.000 20:13:25.586 278.000 [<=140.400] 5 [<=174.800] 2 [<=209.200] 2 [<=243.600] 1 [<=278.000] 4 none
+sample.long.one  0.000 1.000 20:13:16.587 1.000 [<=1.000] 1 [] 0 [] 0 [] 0 [] 0 none
+sample.long.ten  0.000 10.000 20:13:16.587 10.000 [<=10.000] 1 [] 0 [] 0 [] 0 [] 0 none
+sample.long.hundred  0.000 100.000 20:13:16.587 100.000 [<=100.000] 1 [] 0 [] 0 [] 0 [] 0 none
+sample.long.million  0.000 1000000.000 20:13:16.587 1000000.000 [<=1000000.000] 1 [] 0 [] 0 [] 0 [] 0 none
+sample.long.write_me  0.000 13.000 20:13:16.587 13.000 [<=13.000] 1 [] 0 [] 0 [] 0 [] 0 none
+sample.long.bin ["bin-100"] 0.000 100.000 20:13:16.587 100.000 [<=100.000] 1 [] 0 [] 0 [] 0 [] 0 none
+sample.long.bin ["bin-200"] 0.000 200.000 20:13:16.587 200.000 [<=200.000] 1 [] 0 [] 0 [] 0 [] 0 none
+sample.long.bin ["bin-300"] 0.000 300.000 20:13:16.587 300.000 [<=300.000] 1 [] 0 [] 0 [] 0 [] 0 none
+sample.long.bin ["bin-400"] 0.000 400.000 20:13:16.587 400.000 [<=400.000] 1 [] 0 [] 0 [] 0 [] 0 none
+sample.long.bin ["bin-500"] 0.000 500.000 20:13:16.587 500.000 [<=500.000] 1 [] 0 [] 0 [] 0 [] 0 none
+sample.long.bin ["bin-600"] 0.000 600.000 20:13:16.587 600.000 [<=600.000] 1 [] 0 [] 0 [] 0 [] 0 none
+sample.long.bin ["bin-700"] 0.000 700.000 20:13:16.587 700.000 [<=700.000] 1 [] 0 [] 0 [] 0 [] 0 none
+sample.long.bin ["bin-800"] 0.000 800.000 20:13:16.587 800.000 [<=800.000] 1 [] 0 [] 0 [] 0 [] 0 none
+sample.long.bin ["bin-900"] 0.000 900.000 20:13:16.587 900.000 [<=900.000] 1 [] 0 [] 0 [] 0 [] 0 none
+*sample.long.bin_ctr ["bin-100"] - insufficient archive data.
+*sample.long.bin_ctr ["bin-200"] - insufficient archive data.
+*sample.long.bin_ctr ["bin-300"] - insufficient archive data.
+*sample.long.bin_ctr ["bin-400"] - insufficient archive data.
+*sample.long.bin_ctr ["bin-500"] - insufficient archive data.
+*sample.long.bin_ctr ["bin-600"] - insufficient archive data.
+*sample.long.bin_ctr ["bin-700"] - insufficient archive data.
+*sample.long.bin_ctr ["bin-800"] - insufficient archive data.
+*sample.long.bin_ctr ["bin-900"] - insufficient archive data.
+sample.longlong.one  0.000 1.000 20:13:16.587 1.000 [<=1.000] 1 [] 0 [] 0 [] 0 [] 0 none
+sample.longlong.ten  0.000 10.000 20:13:16.587 10.000 [<=10.000] 1 [] 0 [] 0 [] 0 [] 0 none
+sample.longlong.hundred  0.000 100.000 20:13:16.587 100.000 [<=100.000] 1 [] 0 [] 0 [] 0 [] 0 none
+sample.longlong.million  0.000 1000000.000 20:13:16.587 1000000.000 [<=1000000.000] 1 [] 0 [] 0 [] 0 [] 0 none
+sample.longlong.write_me  0.000 13.000 20:13:16.587 13.000 [<=13.000] 1 [] 0 [] 0 [] 0 [] 0 none
+sample.longlong.bin ["bin-100"] 0.000 100.000 20:13:16.587 100.000 [<=100.000] 1 [] 0 [] 0 [] 0 [] 0 none
+sample.longlong.bin ["bin-200"] 0.000 200.000 20:13:16.587 200.000 [<=200.000] 1 [] 0 [] 0 [] 0 [] 0 none
+sample.longlong.bin ["bin-300"] 0.000 300.000 20:13:16.587 300.000 [<=300.000] 1 [] 0 [] 0 [] 0 [] 0 none
+sample.longlong.bin ["bin-400"] 0.000 400.000 20:13:16.587 400.000 [<=400.000] 1 [] 0 [] 0 [] 0 [] 0 none
+sample.longlong.bin ["bin-500"] 0.000 500.000 20:13:16.587 500.000 [<=500.000] 1 [] 0 [] 0 [] 0 [] 0 none
+sample.longlong.bin ["bin-600"] 0.000 600.000 20:13:16.587 600.000 [<=600.000] 1 [] 0 [] 0 [] 0 [] 0 none
+sample.longlong.bin ["bin-700"] 0.000 700.000 20:13:16.587 700.000 [<=700.000] 1 [] 0 [] 0 [] 0 [] 0 none
+sample.longlong.bin ["bin-800"] 0.000 800.000 20:13:16.587 800.000 [<=800.000] 1 [] 0 [] 0 [] 0 [] 0 none
+sample.longlong.bin ["bin-900"] 0.000 900.000 20:13:16.587 900.000 [<=900.000] 1 [] 0 [] 0 [] 0 [] 0 none
+*sample.longlong.bin_ctr ["bin-100"] - insufficient archive data.
+*sample.longlong.bin_ctr ["bin-200"] - insufficient archive data.
+*sample.longlong.bin_ctr ["bin-300"] - insufficient archive data.
+*sample.longlong.bin_ctr ["bin-400"] - insufficient archive data.
+*sample.longlong.bin_ctr ["bin-500"] - insufficient archive data.
+*sample.longlong.bin_ctr ["bin-600"] - insufficient archive data.
+*sample.longlong.bin_ctr ["bin-700"] - insufficient archive data.
+*sample.longlong.bin_ctr ["bin-800"] - insufficient archive data.
+*sample.longlong.bin_ctr ["bin-900"] - insufficient archive data.
+pmcd.pmlogger.port ["12383"] 4332.000 4332.000 20:13:16.586 4332.000 [<=4332.000] 1 [] 0 [] 0 [] 0 [] 0 none

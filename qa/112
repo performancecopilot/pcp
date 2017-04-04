@@ -1,0 +1,51 @@
+#! /bin/sh
+# PCP QA Test No. 112
+# new PMNS exercises
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1
+
+trap "rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    _filter_pmcd_log \
+    | _filter_torture_api
+}
+
+_cmp()
+{
+    echo "differences relative to 031.out ..."
+
+    diff $1 031.out.${PCP_PLATFORM}
+}
+
+_failok()
+{
+    sed <$1 \
+	-e 's/pcp\[[0-9]*]/pcp[PID]/' \
+	-e "s;$tmp;TEMPFILE;g"
+}
+
+
+# real QA test starts here
+rm -f $tmp.*
+
+cp $PCP_VAR_DIR/pmns/root $tmp.ascii
+
+echo "=== pmapi v2, ascii format pmns ==="
+src/torture_api -v -n $tmp.ascii 2>&1 | _filter >$tmp.out
+_cmp $tmp.out
+
+status=0
+exit

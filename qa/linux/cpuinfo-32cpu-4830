@@ -1,0 +1,800 @@
+processor	: 0
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 47
+model name	: Intel(R) Xeon(R) CPU E7- 4830  @ 2.13GHz
+stepping	: 2
+cpu MHz		: 2128.037
+cache size	: 24576 KB
+physical id	: 0
+siblings	: 8
+core id		: 0
+cpu cores	: 8
+apicid		: 0
+initial apicid	: 0
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 11
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good xtopology nonstop_tsc aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic popcnt aes lahf_lm arat dts tpr_shadow vnmi flexpriority ept vpid
+bogomips	: 4256.07
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 44 bits physical, 48 bits virtual
+power management:
+
+processor	: 1
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 47
+model name	: Intel(R) Xeon(R) CPU E7- 4830  @ 2.13GHz
+stepping	: 2
+cpu MHz		: 2128.037
+cache size	: 24576 KB
+physical id	: 1
+siblings	: 8
+core id		: 0
+cpu cores	: 8
+apicid		: 64
+initial apicid	: 64
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 11
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good xtopology nonstop_tsc aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic popcnt aes lahf_lm arat dts tpr_shadow vnmi flexpriority ept vpid
+bogomips	: 4255.87
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 44 bits physical, 48 bits virtual
+power management:
+
+processor	: 2
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 47
+model name	: Intel(R) Xeon(R) CPU E7- 4830  @ 2.13GHz
+stepping	: 2
+cpu MHz		: 2128.037
+cache size	: 24576 KB
+physical id	: 2
+siblings	: 8
+core id		: 0
+cpu cores	: 8
+apicid		: 128
+initial apicid	: 128
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 11
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good xtopology nonstop_tsc aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic popcnt aes lahf_lm arat dts tpr_shadow vnmi flexpriority ept vpid
+bogomips	: 4255.87
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 44 bits physical, 48 bits virtual
+power management:
+
+processor	: 3
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 47
+model name	: Intel(R) Xeon(R) CPU E7- 4830  @ 2.13GHz
+stepping	: 2
+cpu MHz		: 2128.037
+cache size	: 24576 KB
+physical id	: 3
+siblings	: 8
+core id		: 0
+cpu cores	: 8
+apicid		: 192
+initial apicid	: 192
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 11
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good xtopology nonstop_tsc aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic popcnt aes lahf_lm arat dts tpr_shadow vnmi flexpriority ept vpid
+bogomips	: 4255.87
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 44 bits physical, 48 bits virtual
+power management:
+
+processor	: 4
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 47
+model name	: Intel(R) Xeon(R) CPU E7- 4830  @ 2.13GHz
+stepping	: 2
+cpu MHz		: 2128.037
+cache size	: 24576 KB
+physical id	: 0
+siblings	: 8
+core id		: 1
+cpu cores	: 8
+apicid		: 2
+initial apicid	: 2
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 11
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good xtopology nonstop_tsc aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic popcnt aes lahf_lm arat dts tpr_shadow vnmi flexpriority ept vpid
+bogomips	: 4256.07
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 44 bits physical, 48 bits virtual
+power management:
+
+processor	: 5
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 47
+model name	: Intel(R) Xeon(R) CPU E7- 4830  @ 2.13GHz
+stepping	: 2
+cpu MHz		: 2128.037
+cache size	: 24576 KB
+physical id	: 1
+siblings	: 8
+core id		: 1
+cpu cores	: 8
+apicid		: 66
+initial apicid	: 66
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 11
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good xtopology nonstop_tsc aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic popcnt aes lahf_lm arat dts tpr_shadow vnmi flexpriority ept vpid
+bogomips	: 4255.87
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 44 bits physical, 48 bits virtual
+power management:
+
+processor	: 6
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 47
+model name	: Intel(R) Xeon(R) CPU E7- 4830  @ 2.13GHz
+stepping	: 2
+cpu MHz		: 2128.037
+cache size	: 24576 KB
+physical id	: 2
+siblings	: 8
+core id		: 1
+cpu cores	: 8
+apicid		: 130
+initial apicid	: 130
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 11
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good xtopology nonstop_tsc aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic popcnt aes lahf_lm arat dts tpr_shadow vnmi flexpriority ept vpid
+bogomips	: 4255.87
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 44 bits physical, 48 bits virtual
+power management:
+
+processor	: 7
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 47
+model name	: Intel(R) Xeon(R) CPU E7- 4830  @ 2.13GHz
+stepping	: 2
+cpu MHz		: 2128.037
+cache size	: 24576 KB
+physical id	: 3
+siblings	: 8
+core id		: 1
+cpu cores	: 8
+apicid		: 194
+initial apicid	: 194
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 11
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good xtopology nonstop_tsc aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic popcnt aes lahf_lm arat dts tpr_shadow vnmi flexpriority ept vpid
+bogomips	: 4255.87
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 44 bits physical, 48 bits virtual
+power management:
+
+processor	: 8
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 47
+model name	: Intel(R) Xeon(R) CPU E7- 4830  @ 2.13GHz
+stepping	: 2
+cpu MHz		: 2128.037
+cache size	: 24576 KB
+physical id	: 0
+siblings	: 8
+core id		: 2
+cpu cores	: 8
+apicid		: 4
+initial apicid	: 4
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 11
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good xtopology nonstop_tsc aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic popcnt aes lahf_lm arat dts tpr_shadow vnmi flexpriority ept vpid
+bogomips	: 4256.07
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 44 bits physical, 48 bits virtual
+power management:
+
+processor	: 9
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 47
+model name	: Intel(R) Xeon(R) CPU E7- 4830  @ 2.13GHz
+stepping	: 2
+cpu MHz		: 2128.037
+cache size	: 24576 KB
+physical id	: 1
+siblings	: 8
+core id		: 2
+cpu cores	: 8
+apicid		: 68
+initial apicid	: 68
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 11
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good xtopology nonstop_tsc aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic popcnt aes lahf_lm arat dts tpr_shadow vnmi flexpriority ept vpid
+bogomips	: 4255.87
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 44 bits physical, 48 bits virtual
+power management:
+
+processor	: 10
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 47
+model name	: Intel(R) Xeon(R) CPU E7- 4830  @ 2.13GHz
+stepping	: 2
+cpu MHz		: 2128.037
+cache size	: 24576 KB
+physical id	: 2
+siblings	: 8
+core id		: 2
+cpu cores	: 8
+apicid		: 132
+initial apicid	: 132
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 11
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good xtopology nonstop_tsc aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic popcnt aes lahf_lm arat dts tpr_shadow vnmi flexpriority ept vpid
+bogomips	: 4255.87
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 44 bits physical, 48 bits virtual
+power management:
+
+processor	: 11
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 47
+model name	: Intel(R) Xeon(R) CPU E7- 4830  @ 2.13GHz
+stepping	: 2
+cpu MHz		: 2128.037
+cache size	: 24576 KB
+physical id	: 3
+siblings	: 8
+core id		: 2
+cpu cores	: 8
+apicid		: 196
+initial apicid	: 196
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 11
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good xtopology nonstop_tsc aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic popcnt aes lahf_lm arat dts tpr_shadow vnmi flexpriority ept vpid
+bogomips	: 4255.87
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 44 bits physical, 48 bits virtual
+power management:
+
+processor	: 12
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 47
+model name	: Intel(R) Xeon(R) CPU E7- 4830  @ 2.13GHz
+stepping	: 2
+cpu MHz		: 2128.037
+cache size	: 24576 KB
+physical id	: 0
+siblings	: 8
+core id		: 8
+cpu cores	: 8
+apicid		: 16
+initial apicid	: 16
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 11
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good xtopology nonstop_tsc aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic popcnt aes lahf_lm arat dts tpr_shadow vnmi flexpriority ept vpid
+bogomips	: 4256.07
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 44 bits physical, 48 bits virtual
+power management:
+
+processor	: 13
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 47
+model name	: Intel(R) Xeon(R) CPU E7- 4830  @ 2.13GHz
+stepping	: 2
+cpu MHz		: 2128.037
+cache size	: 24576 KB
+physical id	: 1
+siblings	: 8
+core id		: 8
+cpu cores	: 8
+apicid		: 80
+initial apicid	: 80
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 11
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good xtopology nonstop_tsc aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic popcnt aes lahf_lm arat dts tpr_shadow vnmi flexpriority ept vpid
+bogomips	: 4255.87
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 44 bits physical, 48 bits virtual
+power management:
+
+processor	: 14
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 47
+model name	: Intel(R) Xeon(R) CPU E7- 4830  @ 2.13GHz
+stepping	: 2
+cpu MHz		: 2128.037
+cache size	: 24576 KB
+physical id	: 2
+siblings	: 8
+core id		: 8
+cpu cores	: 8
+apicid		: 144
+initial apicid	: 144
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 11
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good xtopology nonstop_tsc aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic popcnt aes lahf_lm arat dts tpr_shadow vnmi flexpriority ept vpid
+bogomips	: 4255.87
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 44 bits physical, 48 bits virtual
+power management:
+
+processor	: 15
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 47
+model name	: Intel(R) Xeon(R) CPU E7- 4830  @ 2.13GHz
+stepping	: 2
+cpu MHz		: 2128.037
+cache size	: 24576 KB
+physical id	: 3
+siblings	: 8
+core id		: 8
+cpu cores	: 8
+apicid		: 208
+initial apicid	: 208
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 11
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good xtopology nonstop_tsc aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic popcnt aes lahf_lm arat dts tpr_shadow vnmi flexpriority ept vpid
+bogomips	: 4255.87
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 44 bits physical, 48 bits virtual
+power management:
+
+processor	: 16
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 47
+model name	: Intel(R) Xeon(R) CPU E7- 4830  @ 2.13GHz
+stepping	: 2
+cpu MHz		: 2128.037
+cache size	: 24576 KB
+physical id	: 0
+siblings	: 8
+core id		: 17
+cpu cores	: 8
+apicid		: 34
+initial apicid	: 34
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 11
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good xtopology nonstop_tsc aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic popcnt aes lahf_lm arat dts tpr_shadow vnmi flexpriority ept vpid
+bogomips	: 4256.07
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 44 bits physical, 48 bits virtual
+power management:
+
+processor	: 17
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 47
+model name	: Intel(R) Xeon(R) CPU E7- 4830  @ 2.13GHz
+stepping	: 2
+cpu MHz		: 2128.037
+cache size	: 24576 KB
+physical id	: 1
+siblings	: 8
+core id		: 17
+cpu cores	: 8
+apicid		: 98
+initial apicid	: 98
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 11
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good xtopology nonstop_tsc aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic popcnt aes lahf_lm arat dts tpr_shadow vnmi flexpriority ept vpid
+bogomips	: 4255.87
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 44 bits physical, 48 bits virtual
+power management:
+
+processor	: 18
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 47
+model name	: Intel(R) Xeon(R) CPU E7- 4830  @ 2.13GHz
+stepping	: 2
+cpu MHz		: 2128.037
+cache size	: 24576 KB
+physical id	: 2
+siblings	: 8
+core id		: 17
+cpu cores	: 8
+apicid		: 162
+initial apicid	: 162
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 11
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good xtopology nonstop_tsc aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic popcnt aes lahf_lm arat dts tpr_shadow vnmi flexpriority ept vpid
+bogomips	: 4255.87
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 44 bits physical, 48 bits virtual
+power management:
+
+processor	: 19
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 47
+model name	: Intel(R) Xeon(R) CPU E7- 4830  @ 2.13GHz
+stepping	: 2
+cpu MHz		: 2128.037
+cache size	: 24576 KB
+physical id	: 3
+siblings	: 8
+core id		: 17
+cpu cores	: 8
+apicid		: 226
+initial apicid	: 226
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 11
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good xtopology nonstop_tsc aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic popcnt aes lahf_lm arat dts tpr_shadow vnmi flexpriority ept vpid
+bogomips	: 4255.87
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 44 bits physical, 48 bits virtual
+power management:
+
+processor	: 20
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 47
+model name	: Intel(R) Xeon(R) CPU E7- 4830  @ 2.13GHz
+stepping	: 2
+cpu MHz		: 2128.037
+cache size	: 24576 KB
+physical id	: 0
+siblings	: 8
+core id		: 18
+cpu cores	: 8
+apicid		: 36
+initial apicid	: 36
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 11
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good xtopology nonstop_tsc aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic popcnt aes lahf_lm arat dts tpr_shadow vnmi flexpriority ept vpid
+bogomips	: 4256.07
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 44 bits physical, 48 bits virtual
+power management:
+
+processor	: 21
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 47
+model name	: Intel(R) Xeon(R) CPU E7- 4830  @ 2.13GHz
+stepping	: 2
+cpu MHz		: 2128.037
+cache size	: 24576 KB
+physical id	: 1
+siblings	: 8
+core id		: 18
+cpu cores	: 8
+apicid		: 100
+initial apicid	: 100
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 11
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good xtopology nonstop_tsc aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic popcnt aes lahf_lm arat dts tpr_shadow vnmi flexpriority ept vpid
+bogomips	: 4255.87
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 44 bits physical, 48 bits virtual
+power management:
+
+processor	: 22
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 47
+model name	: Intel(R) Xeon(R) CPU E7- 4830  @ 2.13GHz
+stepping	: 2
+cpu MHz		: 2128.037
+cache size	: 24576 KB
+physical id	: 2
+siblings	: 8
+core id		: 18
+cpu cores	: 8
+apicid		: 164
+initial apicid	: 164
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 11
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good xtopology nonstop_tsc aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic popcnt aes lahf_lm arat dts tpr_shadow vnmi flexpriority ept vpid
+bogomips	: 4255.87
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 44 bits physical, 48 bits virtual
+power management:
+
+processor	: 23
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 47
+model name	: Intel(R) Xeon(R) CPU E7- 4830  @ 2.13GHz
+stepping	: 2
+cpu MHz		: 2128.037
+cache size	: 24576 KB
+physical id	: 3
+siblings	: 8
+core id		: 18
+cpu cores	: 8
+apicid		: 228
+initial apicid	: 228
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 11
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good xtopology nonstop_tsc aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic popcnt aes lahf_lm arat dts tpr_shadow vnmi flexpriority ept vpid
+bogomips	: 4255.87
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 44 bits physical, 48 bits virtual
+power management:
+
+processor	: 24
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 47
+model name	: Intel(R) Xeon(R) CPU E7- 4830  @ 2.13GHz
+stepping	: 2
+cpu MHz		: 2128.037
+cache size	: 24576 KB
+physical id	: 0
+siblings	: 8
+core id		: 24
+cpu cores	: 8
+apicid		: 48
+initial apicid	: 48
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 11
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good xtopology nonstop_tsc aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic popcnt aes lahf_lm arat dts tpr_shadow vnmi flexpriority ept vpid
+bogomips	: 4256.07
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 44 bits physical, 48 bits virtual
+power management:
+
+processor	: 25
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 47
+model name	: Intel(R) Xeon(R) CPU E7- 4830  @ 2.13GHz
+stepping	: 2
+cpu MHz		: 2128.037
+cache size	: 24576 KB
+physical id	: 1
+siblings	: 8
+core id		: 24
+cpu cores	: 8
+apicid		: 112
+initial apicid	: 112
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 11
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good xtopology nonstop_tsc aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic popcnt aes lahf_lm arat dts tpr_shadow vnmi flexpriority ept vpid
+bogomips	: 4255.87
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 44 bits physical, 48 bits virtual
+power management:
+
+processor	: 26
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 47
+model name	: Intel(R) Xeon(R) CPU E7- 4830  @ 2.13GHz
+stepping	: 2
+cpu MHz		: 2128.037
+cache size	: 24576 KB
+physical id	: 2
+siblings	: 8
+core id		: 24
+cpu cores	: 8
+apicid		: 176
+initial apicid	: 176
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 11
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good xtopology nonstop_tsc aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic popcnt aes lahf_lm arat dts tpr_shadow vnmi flexpriority ept vpid
+bogomips	: 4255.87
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 44 bits physical, 48 bits virtual
+power management:
+
+processor	: 27
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 47
+model name	: Intel(R) Xeon(R) CPU E7- 4830  @ 2.13GHz
+stepping	: 2
+cpu MHz		: 2128.037
+cache size	: 24576 KB
+physical id	: 3
+siblings	: 8
+core id		: 24
+cpu cores	: 8
+apicid		: 240
+initial apicid	: 240
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 11
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good xtopology nonstop_tsc aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic popcnt aes lahf_lm arat dts tpr_shadow vnmi flexpriority ept vpid
+bogomips	: 4255.87
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 44 bits physical, 48 bits virtual
+power management:
+
+processor	: 28
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 47
+model name	: Intel(R) Xeon(R) CPU E7- 4830  @ 2.13GHz
+stepping	: 2
+cpu MHz		: 2128.037
+cache size	: 24576 KB
+physical id	: 0
+siblings	: 8
+core id		: 25
+cpu cores	: 8
+apicid		: 50
+initial apicid	: 50
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 11
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good xtopology nonstop_tsc aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic popcnt aes lahf_lm arat dts tpr_shadow vnmi flexpriority ept vpid
+bogomips	: 4256.07
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 44 bits physical, 48 bits virtual
+power management:
+
+processor	: 29
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 47
+model name	: Intel(R) Xeon(R) CPU E7- 4830  @ 2.13GHz
+stepping	: 2
+cpu MHz		: 2128.037
+cache size	: 24576 KB
+physical id	: 1
+siblings	: 8
+core id		: 25
+cpu cores	: 8
+apicid		: 114
+initial apicid	: 114
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 11
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good xtopology nonstop_tsc aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic popcnt aes lahf_lm arat dts tpr_shadow vnmi flexpriority ept vpid
+bogomips	: 4255.87
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 44 bits physical, 48 bits virtual
+power management:
+
+processor	: 30
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 47
+model name	: Intel(R) Xeon(R) CPU E7- 4830  @ 2.13GHz
+stepping	: 2
+cpu MHz		: 2128.037
+cache size	: 24576 KB
+physical id	: 2
+siblings	: 8
+core id		: 25
+cpu cores	: 8
+apicid		: 178
+initial apicid	: 178
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 11
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good xtopology nonstop_tsc aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic popcnt aes lahf_lm arat dts tpr_shadow vnmi flexpriority ept vpid
+bogomips	: 4255.87
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 44 bits physical, 48 bits virtual
+power management:
+
+processor	: 31
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 47
+model name	: Intel(R) Xeon(R) CPU E7- 4830  @ 2.13GHz
+stepping	: 2
+cpu MHz		: 2128.037
+cache size	: 24576 KB
+physical id	: 3
+siblings	: 8
+core id		: 25
+cpu cores	: 8
+apicid		: 242
+initial apicid	: 242
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 11
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good xtopology nonstop_tsc aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic popcnt aes lahf_lm arat dts tpr_shadow vnmi flexpriority ept vpid
+bogomips	: 4255.87
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 44 bits physical, 48 bits virtual
+power management:
+

@@ -1,0 +1,83 @@
+#! /bin/sh
+# PCP QA Test No. 390
+# Test out the proc agents handling of 
+# mapping external instance names to internal instance names (pids).
+# It was truncating the first number.
+# i.e. if one does a "pmval -i "12345678" proc.psinfo.pid
+#      it might return a value of "12345" on a 6.2 system
+#
+# This was written when qa/044 failed because it looked
+# for what it thought was an impossible instance id but
+# it wasn't because it was truncated.  
+#
+# Copyright (c) 2013 Red Hat.
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+pminfo proc.nprocs >/dev/null 2>&1 || _notrun "proc PMDA not installed"
+
+# see if unix domain sockets are available (permissions)
+_get_libpcp_config
+target="-h localhost"
+$unix_domain_sockets && target="-h unix:"
+
+$sudo rm -f $seq.full
+status=1	# failure is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+host=`hostname`
+mypid=$$
+
+_filter()
+{
+   sed \
+	-e 's/host:      unix:/host:      localhost/g' \
+	-e "s/host:      $host/host:      localhost/g" \
+	-e "s/0*$mypid/PID/" -e 's/^[ \t]*//'
+}
+
+# real QA test starts here
+
+echo "mypid = $mypid" >> $seq.full
+
+pid_len=`ls /proc | head -1 | wc -c`
+pid_len=`expr $pid_len - 1`
+echo "pid_len = $pid_len" >> $seq.full
+
+mypid_len=`echo $mypid | wc -c`
+mypid_len=`expr $mypid_len - 1`
+echo "mypid_len = $mypid_len" >> $seq.full
+
+gap=`expr $pid_len - $mypid_len`
+echo "gap = $gap" >> $seq.full
+
+# create a zeroes string for the leading zeroes
+# to fill up a pid as seen in /proc
+zeroes=""
+i=0
+while [ $i -lt $gap ]
+do
+    zeroes="0$zeroes"
+    i=`expr $i + 1`
+done
+
+# should all succeed
+args="$target -w 30 -s1"
+pmval $args -i "$mypid" proc.psinfo.pid 2>&1 | _filter
+pmval $args -i "${zeroes}$mypid" proc.psinfo.pid 2>&1 | _filter
+pmval $args -i "${zeroes}${mypid}hi" proc.psinfo.pid 2>&1 | _filter
+
+# should now fail - passed previously
+pmval $args -i "${zeroes}${mypid}12345" proc.psinfo.pid 2>&1 | _filter
+
+# success, all done
+status=0
+exit

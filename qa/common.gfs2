@@ -1,0 +1,154 @@
+#
+# Common pre-test checking and settings for GFS2 QA. Handles setup for
+# the basic environment needed for GFS2 pmda testing.
+#
+# Copyright (c) 2013 Red Hat, Inc.  All Rights Reserved.
+#
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_gfs2_filesystem_support_tests()
+{
+    [ $PCP_VER -ge 30611 ] || _notrun "Installed pcp version is too old"
+    [ $PCP_PLATFORM = linux ] || _notrun "GFS2 test, only works with Linux"
+
+    grep gfs2 /proc/filesystems >/dev/null
+    if [ $? -ne 0 ]; then
+        $sudo modprobe gfs2
+        if [ $? -ne 0 ]; then 
+            _notrun "no GFS2 module to load and not builtin" 
+        fi
+
+        grep gfs2 /proc/filesystems >/dev/null
+        if [ $? -ne 0 ]; then 
+            _notrun "failed to load the gfs2 module successfully, sorry" 
+        fi
+    fi
+ 
+    if ! type "mkfs.gfs2" > /dev/null; then
+        _notrun "mkfs.gfs2 not found, please install gfs2-utils"
+    fi
+}
+
+_debugfs_mount_tests()
+{
+    if [ ! -d /sys/kernel/debug/gfs2/ ]; then
+        $sudo mount -t debugfs none /sys/kernel/debug
+   
+        if [ ! -d /sys/kernel/debug/gfs2/ ]; then
+            _notrun "debugfs not mounted and have been unable to mount"
+        fi
+    fi
+}
+
+_gfs2_tracepoints_support_tests()
+{
+    [ -d /sys/kernel/debug/tracing/events/gfs2 ] || \
+	_notrun "No kernel support for GFS2 tracepoint stats"
+
+    [ -d /sys/kernel/debug/tracing/events/gfs2/gfs2_glock_lock_time ] || \
+        _notrun "No GFS2 support for gfs2_glock_lock_time tracepoint"
+}
+
+_gfs2_sysfs_support_tests()
+{
+    for fs in 1 0
+    do
+        [ -f /sys/kernel/debug/gfs2/loop$fs/glocks ] || \
+            _notrun "No GFS2 glocks sysfs support"
+
+        [ -f /sys/kernel/debug/gfs2/loop$fs/glstats ] || \
+            _notrun "No GFS2 glstats sysfs support"
+
+        [ -f /sys/kernel/debug/gfs2/loop$fs/sbstats ]|| \
+            _notrun "No GFS2 sbstats sysfs support"
+    done
+}
+
+_gfs2_filter_pminfo()
+{
+    # The order in which loop device paths are evaluated is non-deterministic
+    # but that's ok; we just want to check both are found and have some value
+    #
+    tee -a $here/$seq.full | sed \
+        -e 's/value [-?0-9.e+][-?0-9.e+]*/value NUMBER/' \
+        -e 's/"loop[01]"/"loopN"/g'
+}
+
+_pmcount()
+{
+    pminfo $1 | grep -c .
+}
+
+_filter_gfs2()
+{
+    sed -e 's/ and [0-9[0-9]* values/ and N values/g'
+}
+
+_setup_gfs2_mounts()
+{
+    # create a couple of filesystems on sparse files, mount.
+    for fs in 1 0
+    do
+	echo "creating pseudo device $fs"
+	dd of=$tmp.loop$fs if=/dev/zero bs=1048576 seek=1024 count=1 2>/dev/null
+	echo "creating a mount point $fs"
+	mkfs.gfs2 -O -p lock_nolock -j 1 $tmp.loop$fs >/dev/null
+	echo "creating device file $fs"
+	$sudo losetup /dev/loop$fs $tmp.loop$fs
+	echo "creating a mount point $fs"
+	mkdir -p $tmp.mount$fs.dir
+	echo "mounting pseudo device $fs"
+	$sudo mount -t gfs2 /dev/loop$fs $tmp.mount$fs.dir
+    done
+}
+
+_setup_gfs2_tracepoints()
+{
+    enable_tracing=$1
+    [ "X$enable_tracing" == X ] && enable_tracing=false
+
+    file=/sys/kernel/debug/tracing/events/gfs2/enable
+    [ -f $file ] || _notrun "Cannot enable gfs2 tracepoints"
+
+    $enable_tracing || continue
+    echo "enabling gfs2 tracepoints"
+    $sudo sh -c "echo 1 > $file"
+}
+
+_install_pmda()
+{
+    # install the PMDA
+    cd $PCP_PMDAS_DIR/$iam
+    $sudo ./Remove < /dev/null >/dev/null 2>&1
+    $sudo ./Install < /dev/null >$tmp.out 2>&1
+    cat $tmp.out | _filter_pmda_install | sed \
+    -e '/.*pmcd.*/d' \
+    -e '/.*pmlogger.*/d' \
+    -e '/Latest.*/d' \
+    -e '/Duplicate.*/d'
+}
+
+_remove_pmda()
+{
+    cd $PCP_PMDAS_DIR/$iam
+    $sudo ./Remove < /dev/null > /dev/null 2>&1
+}
+
+_cleanup()
+{
+    for fs in 0 1
+    do
+	$sudo umount $tmp.mount$fs.dir
+	$sudo losetup -d /dev/loop$fs
+    done
+
+    _restore_pmda_install $iam
+    $sudo rm -fr $tmp.*.dir
+    $sudo rm -f $tmp.*
+    exit $status
+}
+

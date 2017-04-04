@@ -1,0 +1,771 @@
+QA output created by 728
+== Arguments: none
+End of option processing
+Options structure dump:
+    version: 2
+    flags: 0x3 (init,done)
+    errors: 0
+    context: 0x0 (-)
+    nhosts: 0
+    narchives: 0
+    start: -
+    finish: -
+    origin: -
+    interval: -
+    align_optarg: -
+    start_optarg: -
+    finish_optarg: -
+    origin_optarg: -
+    guiport_optarg: -
+    timezone: -
+    samples: 0
+    guiport: 0
+    guiflag: 0
+    tzflag: 0
+    Lflag: 0
+== Arguments: usage (x2)
+Warning: usage error detected
+Usage: getoptions [options]
+
+General options:
+  -A TIME, --align=TIME align sample times on natural boundaries
+  -a FILE, --archive=FILE
+                        metrics source is a PCP log archive
+  -g, --guimode         start in GUI mode with new time control
+  -h HOST, --host=HOST  metrics source is PMCD on host
+  -n FILE, --namespace=FILE
+                        use an alternative PMNS
+  -O TIME, --origin=TIME
+                        initial sample time within the time window
+  -p N, --guiport=N     port for connection to existing time control
+  -S TIME, --start=TIME start of the time window
+  -s N, --samples=N     terminate after this many samples
+  -T TIME, --finish=TIME
+                        end of the time window
+  -t DELTA, --interval=DELTA
+                        sampling interval
+  -Z TZ, --timezone=TZ  set reporting timezone
+  -z, --hostzone        set reporting timezone to local time of metrics source
+  -V, --version         display version number and exit
+  -?, --help            show this usage message and exit
+
+Context options:
+  -K SPEC, --spec-local=SPEC
+                        optional additional PMDA spec for local connection
+  -L, --local-PMDA      metrics source is local connection to a PMDA
+  -H FILE, --hostsfile=FILE
+                        read metric source hosts from a file
+  --host-list=HOSTS     comma-separated list of metric source hosts
+  --archive-list=FILES  comma-separated list of metric source archives
+  --archive-folio=FILE  read metric source archives from a folio
+
+Testing options:
+  -x, --extra           an extra option, for testing
+  -X ARG, --eXtra=ARG   an extra option with an argument
+  -y                    a short-option-only without argument
+  -Y N                  a short-option-only with an argument
+  --fubar               a long-option-only without argument
+  --foobar=N            a long-option-only with an argument
+End of option processing
+Options structure dump:
+    version: 2
+    flags: 0xb (init,done,usage_err)
+    errors: 1
+    context: 0x0 (-)
+    nhosts: 0
+    narchives: 0
+    start: -
+    finish: -
+    origin: -
+    interval: -
+    align_optarg: -
+    start_optarg: -
+    finish_optarg: -
+    origin_optarg: -
+    guiport_optarg: -
+    timezone: -
+    samples: 0
+    guiport: 0
+    guiflag: 0
+    tzflag: 0
+    Lflag: 0
+Warning: usage error detected
+Usage: getoptions [options]
+
+General options:
+  -A TIME, --align=TIME align sample times on natural boundaries
+  -a FILE, --archive=FILE
+                        metrics source is a PCP log archive
+  -g, --guimode         start in GUI mode with new time control
+  -h HOST, --host=HOST  metrics source is PMCD on host
+  -n FILE, --namespace=FILE
+                        use an alternative PMNS
+  -O TIME, --origin=TIME
+                        initial sample time within the time window
+  -p N, --guiport=N     port for connection to existing time control
+  -S TIME, --start=TIME start of the time window
+  -s N, --samples=N     terminate after this many samples
+  -T TIME, --finish=TIME
+                        end of the time window
+  -t DELTA, --interval=DELTA
+                        sampling interval
+  -Z TZ, --timezone=TZ  set reporting timezone
+  -z, --hostzone        set reporting timezone to local time of metrics source
+  -V, --version         display version number and exit
+  -?, --help            show this usage message and exit
+
+Context options:
+  -K SPEC, --spec-local=SPEC
+                        optional additional PMDA spec for local connection
+  -L, --local-PMDA      metrics source is local connection to a PMDA
+  -H FILE, --hostsfile=FILE
+                        read metric source hosts from a file
+  --host-list=HOSTS     comma-separated list of metric source hosts
+  --archive-list=FILES  comma-separated list of metric source archives
+  --archive-folio=FILE  read metric source archives from a folio
+
+Testing options:
+  -x, --extra           an extra option, for testing
+  -X ARG, --eXtra=ARG   an extra option with an argument
+  -y                    a short-option-only without argument
+  -Y N                  a short-option-only with an argument
+  --fubar               a long-option-only without argument
+  --foobar=N            a long-option-only with an argument
+End of option processing
+Options structure dump:
+    version: 2
+    flags: 0xb (init,done,usage_err)
+    errors: 1
+    context: 0x0 (-)
+    nhosts: 0
+    narchives: 0
+    start: -
+    finish: -
+    origin: -
+    interval: -
+    align_optarg: -
+    start_optarg: -
+    finish_optarg: -
+    origin_optarg: -
+    guiport_optarg: -
+    timezone: -
+    samples: 0
+    guiport: 0
+    guiflag: 0
+    tzflag: 0
+    Lflag: 0
+== Arguments: own options (x2)
+Got option: x index=0 [errors=0]
+ -> x option has no argument
+Got option: X index=0 [errors=0]
+ -> X option argument was: '(null)'
+End of option processing
+Options structure dump:
+    version: 2
+    flags: 0x3 (init,done)
+    errors: 0
+    context: 0x0 (-)
+    nhosts: 0
+    narchives: 0
+    start: -
+    finish: -
+    origin: -
+    interval: -
+    align_optarg: -
+    start_optarg: -
+    finish_optarg: -
+    origin_optarg: -
+    guiport_optarg: -
+    timezone: -
+    samples: 0
+    guiport: 0
+    guiflag: 0
+    tzflag: 0
+    Lflag: 0
+Got option: x index=25 [errors=0]
+ -> x option has no argument
+Got option: X index=26 [errors=0]
+ -> X option argument was: 'goodness'
+End of option processing
+Options structure dump:
+    version: 2
+    flags: 0x3 (init,done)
+    errors: 0
+    context: 0x0 (-)
+    nhosts: 0
+    narchives: 0
+    start: -
+    finish: -
+    origin: -
+    interval: -
+    align_optarg: -
+    start_optarg: -
+    finish_optarg: -
+    origin_optarg: -
+    guiport_optarg: -
+    timezone: -
+    samples: 0
+    guiport: 0
+    guiflag: 0
+    tzflag: 0
+    Lflag: 0
+== Arguments: own short-only options
+Got option: y index=0 [errors=0]
+ -> y option has no argument
+Got option: Y index=0 [errors=0]
+ -> Y option argument was: '(null)'
+End of option processing
+Options structure dump:
+    version: 2
+    flags: 0x3 (init,done)
+    errors: 0
+    context: 0x0 (-)
+    nhosts: 0
+    narchives: 0
+    start: -
+    finish: -
+    origin: -
+    interval: -
+    align_optarg: -
+    start_optarg: -
+    finish_optarg: -
+    origin_optarg: -
+    guiport_optarg: -
+    timezone: -
+    samples: 0
+    guiport: 0
+    guiflag: 0
+    tzflag: 0
+    Lflag: 0
+== Arguments: own long-only options
+Got option: - index=29 [errors=0]
+ -> long-only option index=29
+Got option: - index=30 [errors=0]
+ -> long-only option index=30
+End of option processing
+Options structure dump:
+    version: 2
+    flags: 0x3 (init,done)
+    errors: 0
+    context: 0x0 (-)
+    nhosts: 0
+    narchives: 0
+    start: -
+    finish: -
+    origin: -
+    interval: -
+    align_optarg: -
+    start_optarg: -
+    finish_optarg: -
+    origin_optarg: -
+    guiport_optarg: -
+    timezone: -
+    samples: 0
+    guiport: 0
+    guiflag: 0
+    tzflag: 0
+    Lflag: 0
+== Arguments: one archive, all time options (x2)
+End of option processing
+Options structure dump:
+    version: 2
+    flags: 0x3 (init,done)
+    errors: 0
+    context: 0x2 (archive)
+    nhosts: 0
+    narchives: 1
+    archives: archives/20041125.0
+    start: -
+    finish: -
+    origin: -
+    interval: -
+    align_optarg: 1 minute
+    start_optarg: @10:15
+    finish_optarg: @10:30
+    origin_optarg: @10:10:10
+    guiport_optarg: -
+    timezone: -
+    samples: 0
+    guiport: 0
+    guiflag: 0
+    tzflag: 1
+    Lflag: 0
+End of option processing
+Options structure dump:
+    version: 2
+    flags: 0x3 (init,done)
+    errors: 0
+    context: 0x2 (archive)
+    nhosts: 0
+    narchives: 1
+    archives: archives/20041125.0
+    start: -
+    finish: -
+    origin: -
+    interval: -
+    align_optarg: 1 minute
+    start_optarg: @10:15
+    finish_optarg: @10:30
+    origin_optarg: @10:10:10
+    guiport_optarg: -
+    timezone: -
+    samples: 0
+    guiport: 0
+    guiflag: 0
+    tzflag: 1
+    Lflag: 0
+== Arguments: one host (x2)
+End of option processing
+Options structure dump:
+    version: 2
+    flags: 0x3 (init,done)
+    errors: 0
+    context: 0x1 (host)
+    nhosts: 1
+    hosts: foo.bar.com
+    narchives: 0
+    start: -
+    finish: -
+    origin: -
+    interval: 00:01.000
+    align_optarg: -
+    start_optarg: -
+    finish_optarg: -
+    origin_optarg: -
+    guiport_optarg: -
+    timezone: -
+    samples: 5
+    guiport: 0
+    guiflag: 0
+    tzflag: 0
+    Lflag: 0
+End of option processing
+Options structure dump:
+    version: 2
+    flags: 0x3 (init,done)
+    errors: 0
+    context: 0x1 (host)
+    nhosts: 1
+    hosts: foo.bar.com
+    narchives: 0
+    start: -
+    finish: -
+    origin: -
+    interval: 00:01.000
+    align_optarg: -
+    start_optarg: -
+    finish_optarg: -
+    origin_optarg: -
+    guiport_optarg: -
+    timezone: -
+    samples: 5
+    guiport: 0
+    guiflag: 0
+    tzflag: 0
+    Lflag: 0
+== Arguments: environment variables only
+End of option processing
+Options structure dump:
+    version: 2
+    flags: 0x103 (init,done,env_only)
+    errors: 0
+    context: 0x1 (host)
+    nhosts: 1
+    hosts: pcp.org
+    narchives: 0
+    start: -
+    finish: -
+    origin: -
+    interval: -
+    align_optarg: -
+    start_optarg: -
+    finish_optarg: -
+    origin_optarg: -
+    guiport_optarg: -
+    timezone: -
+    samples: 0
+    guiport: 0
+    guiflag: 0
+    tzflag: 0
+    Lflag: 0
+== Arguments: host, interval and samples env vars
+End of option processing
+Options structure dump:
+    version: 2
+    flags: 0x3 (init,done)
+    errors: 0
+    context: 0x1 (host)
+    nhosts: 1
+    hosts: pcp.org
+    narchives: 0
+    start: -
+    finish: -
+    origin: -
+    interval: 00:02.000
+    align_optarg: -
+    start_optarg: -
+    finish_optarg: -
+    origin_optarg: -
+    guiport_optarg: -
+    timezone: -
+    samples: 5
+    guiport: 0
+    guiflag: 0
+    tzflag: 0
+    Lflag: 0
+== Arguments: host list env var
+Warning: usage error detected
+getoptions: too many hosts requested: foo.com,bar.org
+Usage: getoptions [options]
+
+General options:
+  -A TIME, --align=TIME align sample times on natural boundaries
+  -a FILE, --archive=FILE
+                        metrics source is a PCP log archive
+  -g, --guimode         start in GUI mode with new time control
+  -h HOST, --host=HOST  metrics source is PMCD on host
+  -n FILE, --namespace=FILE
+                        use an alternative PMNS
+  -O TIME, --origin=TIME
+                        initial sample time within the time window
+  -p N, --guiport=N     port for connection to existing time control
+  -S TIME, --start=TIME start of the time window
+  -s N, --samples=N     terminate after this many samples
+  -T TIME, --finish=TIME
+                        end of the time window
+  -t DELTA, --interval=DELTA
+                        sampling interval
+  -Z TZ, --timezone=TZ  set reporting timezone
+  -z, --hostzone        set reporting timezone to local time of metrics source
+  -V, --version         display version number and exit
+  -?, --help            show this usage message and exit
+
+Context options:
+  -K SPEC, --spec-local=SPEC
+                        optional additional PMDA spec for local connection
+  -L, --local-PMDA      metrics source is local connection to a PMDA
+  -H FILE, --hostsfile=FILE
+                        read metric source hosts from a file
+  --host-list=HOSTS     comma-separated list of metric source hosts
+  --archive-list=FILES  comma-separated list of metric source archives
+  --archive-folio=FILE  read metric source archives from a folio
+
+Testing options:
+  -x, --extra           an extra option, for testing
+  -X ARG, --eXtra=ARG   an extra option with an argument
+  -y                    a short-option-only without argument
+  -Y N                  a short-option-only with an argument
+  --fubar               a long-option-only without argument
+  --foobar=N            a long-option-only with an argument
+End of option processing
+Options structure dump:
+    version: 2
+    flags: 0xb (init,done,usage_err)
+    errors: 1
+    context: 0x1 (host)
+    nhosts: 2
+    hosts: foo.com,bar.org
+    narchives: 0
+    start: -
+    finish: -
+    origin: -
+    interval: -
+    align_optarg: -
+    start_optarg: -
+    finish_optarg: -
+    origin_optarg: -
+    guiport_optarg: -
+    timezone: -
+    samples: 0
+    guiport: 0
+    guiflag: 0
+    tzflag: 0
+    Lflag: 0
+== Arguments: archive, time window env vars
+End of option processing
+Options structure dump:
+    version: 2
+    flags: 0x3 (init,done)
+    errors: 0
+    context: 0x2 (archive)
+    nhosts: 0
+    narchives: 1
+    archives: archives/20041125.0
+    start: -
+    finish: -
+    origin: -
+    interval: -
+    align_optarg: -
+    start_optarg: @10:15
+    finish_optarg: @10:30
+    origin_optarg: @10:10:10
+    guiport_optarg: -
+    timezone: -
+    samples: 0
+    guiport: 0
+    guiflag: 0
+    tzflag: 1
+    Lflag: 0
+== Arguments: archive list env var
+End of option processing
+Options structure dump:
+    version: 2
+    flags: 0x3 (init,done)
+    errors: 0
+    context: 0x2 (archive)
+    nhosts: 0
+    narchives: 1
+    archives: foo,bar,moo
+    start: -
+    finish: -
+    origin: -
+    interval: -
+    align_optarg: -
+    start_optarg: -
+    finish_optarg: -
+    origin_optarg: -
+    guiport_optarg: -
+    timezone: -
+    samples: 0
+    guiport: 0
+    guiflag: 0
+    tzflag: 0
+    Lflag: 0
+== Arguments: one archive env var
+End of option processing
+Options structure dump:
+    version: 2
+    flags: 0x3 (init,done)
+    errors: 0
+    context: 0x2 (archive)
+    nhosts: 0
+    narchives: 1
+    archives: foo
+    start: -
+    finish: -
+    origin: -
+    interval: -
+    align_optarg: -
+    start_optarg: -
+    finish_optarg: -
+    origin_optarg: -
+    guiport_optarg: -
+    timezone: -
+    samples: 0
+    guiport: 0
+    guiflag: 0
+    tzflag: 0
+    Lflag: 0
+== Arguments: timezone env var
+End of option processing
+Options structure dump:
+    version: 2
+    flags: 0x3 (init,done)
+    errors: 0
+    context: 0x0 (-)
+    nhosts: 0
+    narchives: 0
+    start: -
+    finish: -
+    origin: -
+    interval: -
+    align_optarg: -
+    start_optarg: -
+    finish_optarg: -
+    origin_optarg: -
+    guiport_optarg: -
+    timezone: UTC
+    samples: 0
+    guiport: 0
+    guiflag: 0
+    tzflag: 0
+    Lflag: 0
+== Arguments: hostzone env var
+Warning: usage error detected
+getoptions: use of timezone from metric source requires a source
+Usage: getoptions [options]
+
+General options:
+  -A TIME, --align=TIME align sample times on natural boundaries
+  -a FILE, --archive=FILE
+                        metrics source is a PCP log archive
+  -g, --guimode         start in GUI mode with new time control
+  -h HOST, --host=HOST  metrics source is PMCD on host
+  -n FILE, --namespace=FILE
+                        use an alternative PMNS
+  -O TIME, --origin=TIME
+                        initial sample time within the time window
+  -p N, --guiport=N     port for connection to existing time control
+  -S TIME, --start=TIME start of the time window
+  -s N, --samples=N     terminate after this many samples
+  -T TIME, --finish=TIME
+                        end of the time window
+  -t DELTA, --interval=DELTA
+                        sampling interval
+  -Z TZ, --timezone=TZ  set reporting timezone
+  -z, --hostzone        set reporting timezone to local time of metrics source
+  -V, --version         display version number and exit
+  -?, --help            show this usage message and exit
+
+Context options:
+  -K SPEC, --spec-local=SPEC
+                        optional additional PMDA spec for local connection
+  -L, --local-PMDA      metrics source is local connection to a PMDA
+  -H FILE, --hostsfile=FILE
+                        read metric source hosts from a file
+  --host-list=HOSTS     comma-separated list of metric source hosts
+  --archive-list=FILES  comma-separated list of metric source archives
+  --archive-folio=FILE  read metric source archives from a folio
+
+Testing options:
+  -x, --extra           an extra option, for testing
+  -X ARG, --eXtra=ARG   an extra option with an argument
+  -y                    a short-option-only without argument
+  -Y N                  a short-option-only with an argument
+  --fubar               a long-option-only without argument
+  --foobar=N            a long-option-only with an argument
+End of option processing
+Options structure dump:
+    version: 2
+    flags: 0xb (init,done,usage_err)
+    errors: 1
+    context: 0x0 (-)
+    nhosts: 0
+    narchives: 0
+    start: -
+    finish: -
+    origin: -
+    interval: -
+    align_optarg: -
+    start_optarg: -
+    finish_optarg: -
+    origin_optarg: -
+    guiport_optarg: -
+    timezone: -
+    samples: 0
+    guiport: 0
+    guiflag: 0
+    tzflag: 1
+    Lflag: 0
+== Arguments: gui port env var (x2)
+End of option processing
+Options structure dump:
+    version: 2
+    flags: 0x3 (init,done)
+    errors: 0
+    context: 0x0 (-)
+    nhosts: 0
+    narchives: 0
+    start: -
+    finish: -
+    origin: -
+    interval: -
+    align_optarg: -
+    start_optarg: -
+    finish_optarg: -
+    origin_optarg: -
+    guiport_optarg: 42
+    timezone: -
+    samples: 0
+    guiport: 42
+    guiflag: 0
+    tzflag: 0
+    Lflag: 0
+End of option processing
+Options structure dump:
+    version: 2
+    flags: 0x3 (init,done)
+    errors: 0
+    context: 0x0 (-)
+    nhosts: 0
+    narchives: 0
+    start: -
+    finish: -
+    origin: -
+    interval: -
+    align_optarg: -
+    start_optarg: -
+    finish_optarg: -
+    origin_optarg: -
+    guiport_optarg: /tmp/socket
+    timezone: -
+    samples: 0
+    guiport: 0
+    guiflag: 0
+    tzflag: 0
+    Lflag: 0
+== Arguments: gui mode env var
+End of option processing
+Options structure dump:
+    version: 2
+    flags: 0x3 (init,done)
+    errors: 0
+    context: 0x0 (-)
+    nhosts: 0
+    narchives: 0
+    start: -
+    finish: -
+    origin: -
+    interval: -
+    align_optarg: -
+    start_optarg: -
+    finish_optarg: -
+    origin_optarg: -
+    guiport_optarg: -
+    timezone: -
+    samples: 0
+    guiport: 0
+    guiflag: 0
+    tzflag: 0
+    Lflag: 0
+== Arguments: allow mixed hosts and archives
+End of option processing
+Options structure dump:
+    version: 2
+    flags: 0x83 (init,done,mixed)
+    errors: 0
+    context: 0x0 (-)
+    nhosts: 1
+    hosts: acme.com
+    narchives: 1
+    archives: log
+    start: -
+    finish: -
+    origin: -
+    interval: -
+    align_optarg: -
+    start_optarg: -
+    finish_optarg: -
+    origin_optarg: -
+    guiport_optarg: -
+    timezone: -
+    samples: 0
+    guiport: 0
+    guiflag: 0
+    tzflag: 0
+    Lflag: 0
+== Arguments: hosts file
+End of option processing
+Options structure dump:
+    version: 2
+    flags: 0x7 (init,done,multi)
+    errors: 0
+    context: 0x1 (host)
+    nhosts: 2
+    hosts: foo.bar.com,acme.com
+    narchives: 0
+    start: -
+    finish: -
+    origin: -
+    interval: -
+    align_optarg: -
+    start_optarg: -
+    finish_optarg: -
+    origin_optarg: -
+    guiport_optarg: -
+    timezone: -
+    samples: 0
+    guiport: 0
+    guiflag: 0
+    tzflag: 0
+    Lflag: 0

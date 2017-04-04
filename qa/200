@@ -1,0 +1,131 @@
+#! /bin/sh
+# PCP QA Test No. 200
+# $PMCD_RECONNECT_TIMEOUT validation
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1
+rm -f $seq.full
+
+trap _cleanup 0 1 2 3 15
+
+_stop_systemd_restart pmcd
+
+_cleanup()
+{
+    [ -f $tmp.pmcd.conf ] && $sudo cp $tmp.pmcd.conf $PCP_PMCDCONF_PATH
+    [ "$PCP_PLATFORM" != "linux" ] && _change_config pmlogger on
+    $sudo $PCP_RC_DIR/pcp restart >/dev/null
+    _restore_systemd_restart pmcd
+    _wait_for_pmcd
+    _wait_for_pmlogger
+    $sudo rm -f $tmp.pmcd.conf
+    rm -f $tmp.*
+    exit $status
+}
+
+_filter()
+{
+    $PCP_AWK_PROG '
+BEGIN		{ last = "" }
+$0 != last	{ print; last = $0 }' \
+    | sed \
+	-e 's/failed: Connection reset by peer/failed: IPC protocol failure/' \
+	-e 's/[A-Z][a-z][a-z] [A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9]/DATE/' \
+	-e '/recon([0-9][0-9]*)/s//recon(PID)/' \
+	-e '/^Context\[/d' \
+	-e '/^pmReconnectContext(/d' \
+	-e '/^Dump Contexts:/d' \
+	-e '/^Dump Instance Profile /d' \
+	-e '/^IPC table fd/d' \
+	-e '/^__pmConnectPMCD(/d' \
+	-e '/^__pmDecodeXtendError:/d' \
+	-e '/^pmNewContext(/d' \
+	-e '/^__pmSendCreds:/d' \
+	-e '/^__pmSetSocketIPC:/d' \
+	-e '/^__pmSetVersionIPC:/d' \
+	-e '/^__pmDataIPC: /d' \
+	-e '/^__pmSetDataIPC:/d' \
+	-e '/^pmWhichContext(/d' \
+	-e '/__pmConnect(fd=.*) ->/d' \
+	-e '/__pmCloseChannelbyContext/d' \
+    | $PCP_AWK_PROG '
+/delay: 2 /	{ print "delay: 2-4 secs"; next }
+/delay: 3 /	{ print "delay: 2-4 secs"; next }
+/delay: 4 /	{ print "delay: 2-4 secs"; next }
+/delay: 5 /	{ print "delay: 5-7 secs"; next }
+/delay: 6 /	{ print "delay: 5-7 secs"; next }
+/delay: 7 /	{ print "delay: 5-7 secs"; next }
+		{ print }'
+    # note: now that pmcd starts and stops very quickly, we use a
+    # strategy in testing valid reconnect strings with less-than-
+    # five-seconds (alot less) and any errors fall back to using
+    # the defaults, which are 5,10,etc.
+}
+
+cat >$tmp.new <<End-of-File
+# From QA 200
+#
+# Name	Id	IPC	IPC Params 	File/Cmd
+pmcd	2	dso	pmcd_init	$PCP_PMDAS_DIR/pmcd/pmda_pmcd.$DSO_SUFFIX
+sample	29	pipe	binary 		$PCP_PMDAS_DIR/sample/pmdasample -d 29 
+End-of-File
+
+# copy the pmcd config file to restore state later.
+$sudo cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf
+$sudo cp $tmp.new $PCP_PMCDCONF_PATH
+
+# ensure we have pmcd ready for the first iteration.
+# just doing a start may race and find the pmcd socket busy,
+# so stop, wait a little, and start
+$sudo $PCP_RC_DIR/pcp stop >/dev/null 2>&1
+sleep 2
+$sudo $PCP_RC_DIR/pmcd start >/dev/null 2>&1
+_wait_for_pmcd
+
+# real QA test starts here
+for xxx in "" "1,1,2,2" "2" "1-2" "1,2,foo"
+do
+    if [ "X$xxx" = X ]
+    then
+	unset PMCD_RECONNECT_TIMEOUT
+    else
+	PMCD_RECONNECT_TIMEOUT="$xxx"
+	export PMCD_RECONNECT_TIMEOUT
+    fi
+
+    echo
+    echo "PMCD_RECONNECT_TIMEOUT=\"$PMCD_RECONNECT_TIMEOUT\""
+    echo "start PMCD_RECONNECT_TIMEOUT=$PMCD_RECONNECT_TIMEOUT" >>$seq.full
+    echo "start `date`" >>$seq.full
+
+    DEBUG=
+    DEBUG=-D16
+    src/recon $DEBUG >$tmp.out 2>&1 &
+
+    pmsleep 1.1
+    echo "begin stop pmcd `date`" >>$seq.full
+    $sudo $PCP_RC_DIR/pmcd stop | _filter_pcp_stop
+    echo "end stop pmcd `date`" >>$seq.full
+    pmsleep 1.1
+    echo "begin start pmcd `date`" >>$seq.full
+    $sudo $PCP_RC_DIR/pmcd start \
+    | _filter_pcp_start
+    echo "end start pmcd `date`" >>$seq.full
+
+    wait
+    _filter <$tmp.out
+    cat $tmp.out >>$seq.full
+done
+
+status=0
+exit

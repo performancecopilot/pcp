@@ -1,0 +1,13 @@
+//
+// Something interesting if you have performance problems with
+// your Oracle data base ...
+//
+db = "oracle.ptg1";
+host = ":moomba.melbourne.sgi.com";
+lru = "#'cache buffers lru chain'";
+gets = "$db.latch.gets $host $lru";
+total = "$db.latch.gets $host $lru + $db.latch.misses $host $lru +
+	$db.latch.immisses $host $lru";
+
+$total > 100 && $gets / $total < 0.2
+    -> alarm "high LRU latch contention";

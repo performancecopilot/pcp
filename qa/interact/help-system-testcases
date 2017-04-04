@@ -1,0 +1,19 @@
+On-Line Help System
+===================
+
+[ ] Check the Manual is accessible from Help menu.
+[ ] Verify the Tutorial is accessible from Help menu.
+[ ] Check that the About dialog shows current version.
+[ ] Verify the See Also dialog is showing good stuff.
+[ ] Check "What's This" by randomly selecting main window/dialog widgets
+    and seeing if a/ Tooltip help is displayed for each, and b/ if it makes
+    any sense.  Search for any widgets that don't display some help, they
+    need to be fixed.
+
+[ ] Repeat each of the above items for pmtime.
+
+[ ] Check any major new features in this release are documented.
+[ ] Skim-read the manual looking for out-of-date images, typos, etc.
+[ ] Skim-read the tutorial looking for out-of-date images, typos, etc.
+
+[ ] Verify that the manual and tutorial are accessible on the Web.

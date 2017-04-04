@@ -1,0 +1,35 @@
+#! /bin/sh
+# PCP QA Test No. 226
+# Check for missing dbpmda help text
+#
+# Copyright (c) 2009 Silicon Graphics, Inc.  All Rights Reserved.
+# Copyright (c) 2013 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.*
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+echo help | dbpmda 2>&1 | tee $tmp.cmds
+
+sed -e 's/ .*//' <$tmp.cmds \
+| LC_COLLATE=POSIX sort -u \
+| while read cmd
+do
+    [ -z "$cmd" ] && continue
+    [ "$cmd" = help ] && continue
+    echo "help $cmd"
+done \
+| dbpmda -ie
+
+# success, all done
+exit

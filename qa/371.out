@@ -1,0 +1,81 @@
+QA output created by 371
+Usage and file existence checks ...
+Usage: sheet2pcp [-h host] [-Z timezone] infile mapfile outfile
+Usage: sheet2pcp [-h host] [-Z timezone] infile mapfile outfile
+Usage: sheet2pcp [-h host] [-Z timezone] infile mapfile outfile
+Usage: sheet2pcp [-h host] [-Z timezone] infile mapfile outfile
+sheet2pcp: Failed to open mapfile "/no/such/file"
+
+Mapfile syntax errors ...
+Mapfile Error: attribute blah="123" not expected for <sheet> tag
+Mapfile Error: unexpected start tag <foo>
+Mapfile Error: unexpected text "bar"
+Mapfile Error: unexpected end tag </foo>
+Mapfile Error: attribute fungus="bogus" not expected for <metric> tag
+Mapfile Error: bad format for attribute pmid="60.0"
+Mapfile Error: bad format for attribute pmid="6x.0.2"
+Mapfile Error: bad format for attribute indom="60.0.0"
+Mapfile Error: bad format for attribute indom="60"
+Mapfile Error: bad format for attribute indom="bozo"
+Mapfile Error: bad format for attribute units="0,0,0,0,0"
+Mapfile Error: bad format for attribute units="0,0,0,0,0,0,0"
+Mapfile Error: bad component (BOZO) for attribute units="BOZO,0,0,PM_SPACE_BOZO,0,0,"
+Mapfile Error: bad component (PM_SPACE_BOZO) for attribute units="BOZO,0,0,PM_SPACE_BOZO,0,0,"
+Mapfile Error: bad component (PM_SPACE_BOZO) for attribute units="1,0,0,PM_SPACE_BOZO,0,0,"
+Mapfile Error: bad value for attribute type="PM_TYPE_FOO"
+Mapfile Error: bad value for attribute type=""
+Mapfile Error: bad value for attribute sem="PM_SEM_FOO"
+Mapfile Error: missing metric name in <metric> element
+Mapfile Error: attribute monkey="true" not expected for <datetime> tag
+Mapfile Error: attribute hi="ho" not expected for <data> tag
+Mapfile Error: missing metricspec in <data> element
+Mapfile Error: metric name (no.foo.metric) in <data> element not defined in earlier <metric> element
+Mapfile Error: missing ] in metricspec "kernel.percpu.cpu.sys[cpu3" in <data> element
+Mapfile Error: extra [ in metricspec "kernel.percpu.cpu.sys[cpu4][fluff" in <data> element
+Abandoned after 25 mapfile errors
+
+Mapfile Error: missing <datetime> element
+Abandoned after 1 mapfile error
+
+Mapfile Error: no <data> element
+Abandoned after 1 mapfile error
+
+Mapfile Error: bad format for attribute datefmt="DD-MM-YYYY"
+Abandoned after 1 mapfile error
+
+Mapfile semantic errors ...
+Mapfile Error: failed to define metric hinv.ncpu: Metric name already defined
+Mapfile Error: failed to define instance "one other instance" (1) for metric foo: External instance name already defined
+Abandoned after 2 mapfile errors
+
+Mapfile Error: failed to define metric kernel.percpu.cpu.someother: Metric pmID already defined
+Abandoned after 1 mapfile error
+
+Should be OK ...
+pmiDump: context 0 of 1 archive: TMP
+  state: 1 (start) hostname: <undefined> timezone: <undefined>
+  metric[0] name=kernel.percpu.cpu.sys pmid=60.0.2
+    Data Type: 64-bit unsigned int  InDom: 60.0 0xf000000
+    Semantics: counter  Units: millisec
+  metric[1] name=hinv.ncpu pmid=60.0.32
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+  metric[2] name=good.pmid.one pmid=245.0.3
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+  metric[3] name=good.pmid.two pmid=245.0.63
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+  metric[4] name=good.indom.one pmid=245.0.5
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+  metric[5] name=good.indom.two pmid=245.0.6
+    Data Type: float  InDom: 245.27 0x3d40001b
+    Semantics: instant  Units: none
+  indom[0] indom=60.0
+   instance[0] cpu0 (0)
+   instance[1] cpu1 (1)
+  handle[0] metric=hinv.ncpu (60.0.32) instance=-1
+  handle[1] metric=kernel.percpu.cpu.sys (60.0.2) instance=0
+  handle[2] metric=kernel.percpu.cpu.sys (60.0.2) instance=1
+  No pmResult.

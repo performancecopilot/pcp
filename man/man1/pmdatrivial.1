@@ -1,0 +1,144 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2012 Red Hat.
+.\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.\" I am variants ...
+.ds ia trivial
+.ds IA TRIVIAL
+.ds Ia Trivial
+.TH PMDATRIVIAL 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmdatrivial\f1 \- \*(ia performance metrics domain agent (PMDA)
+.SH SYNOPSIS
+\f3$PCP_PMDAS_DIR/\*(ia/pmda\*(ia\f1
+[\f3\-d\f1 \f2domain\f1]
+[\f3\-l\f1 \f2logfile\f1]
+[\f3\-U\f1 \f2username\f1]
+.SH DESCRIPTION
+.B pmda\*(ia
+is the simplest possible Performance Metrics Domain Agent (PMDA) which
+exports a single performance metric, the time
+in seconds since the 1st of January, 1970.
+.PP
+The \*(ia PMDA is
+shipped as source code and is designed to be an aid for PMDA developers.
+.PP
+A brief description of the
+.B pmda\*(ia
+command line options follows:
+.TP 5
+.B \-d
+It is absolutely crucial that the performance metrics
+.I domain
+number specified here is unique and consistent.
+That is,
+.I domain
+should be different for every PMDA on the one host, and the same
+.I domain
+number should be used for the same PMDA on all hosts.
+.TP
+.B \-l
+Location of the log file.  By default, a log file named
+.I \*(ia.log
+is written in the current directory of
+.BR pmcd (1)
+when
+.B pmda\*(ia
+is started, i.e.
+.BR $PCP_LOG_DIR/pmcd .
+If the log file cannot
+be created or is not writable, output is written to the standard error instead.
+.TP 5
+.B \-U
+User account under which to run the agent.
+The default is the unprivileged "pcp" account in current versions of PCP,
+but in older versions the superuser account ("root") was used by default.
+.SH INSTALLATION
+If you want access to the names, help text and values for the \*(ia
+performance metrics, do the following as root:
+.PP
+.ft CW
+.nf
+.in +0.5i
+# cd $PCP_PMDAS_DIR/\*(ia
+# ./Install
+.in
+.fi
+.ft 1
+.PP
+If you want to undo the installation, do the following as root:
+.PP
+.ft CW
+.nf
+.in +0.5i
+# cd $PCP_PMDAS_DIR/\*(ia
+# ./Remove
+.in
+.fi
+.ft 1
+.PP
+.B pmda\*(ia
+is launched by
+.BR pmcd (1)
+and should never be executed directly.
+The Install and Remove scripts notify
+.BR pmcd (1)
+when the agent is installed or removed.
+.SH FILES
+.PD 0
+.TP 10
+.B $PCP_PMCDCONF_PATH
+command line options used to launch
+.B pmda\*(ia
+.TP 10
+.B $PCP_PMDAS_DIR/\*(ia/help
+default help text file for the \*(ia metrics
+.TP 10
+.B $PCP_PMDAS_DIR/\*(ia/Install
+installation script for the
+.B pmda\*(ia
+agent
+.TP 10
+.B $PCP_PMDAS_DIR/\*(ia/Remove
+undo installation script for the 
+.B pmda\*(ia
+agent
+.TP 10
+.B $PCP_LOG_DIR/pmcd/\*(ia.log
+default log file for error messages and other information from
+.B pmda\*(ia
+.PD
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.B /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (5).
+.SH SEE ALSO
+.BR PCPIntro (1),
+.BR pmcd (1),
+.BR pmdasample (1),
+.BR pmdasimple (1),
+.BR pmdatxmon (1)
+and
+.BR PMDA (3).

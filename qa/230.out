@@ -1,0 +1,112 @@
+QA output created by 230
+=== Hang on Connection Cases ===
+
+Expect hang ...
+pmlc still running ... killing it off
+
+Expect hang and warning ...
+pmlc still running ... killing it off
+[DATE] pmlc(PID) Warning: ignored bad PMLOGGER_REQUEST_TIMEOUT = '1.5'
+
+Expect no hang and unable to connect to pmlogger ...
+pmlc has exited
+Unable to connect to primary pmlogger at MYHOST: Timeout, closed connection to the pmlogger instance
+
+=== Timeout on pmlc commands cases ===
+
+Check QA code cleared when pmlc exits ...
+pmlc has exited
+Connected to primary pmlogger at MYHOST
+qa 1
+QA Test Case #1 activated
+quit
+Goodbye
+pmlc has exited
+Connected to primary pmlogger at MYHOST
+status
+pmlogger [primary] on host MYHOST is logging metrics from host MYHOST
+PMCD host        HOST
+log started      DATE
+last log entry   DATE
+current time     DATE
+log volume       NUMBER
+log size         NUMBER
+quit
+Goodbye
+
+Expect no hang and log command to timeout connecting to pmcd ...
+pmlc has exited
+Connected to primary pmlogger at MYHOST
+qa 1
+QA Test Case #1 activated
+log mandatory on once Error receiving response from pmlogger: Timeout, closed connection to the pmlogger instance
+Error [<stdin>, line 2]
+sample.long.million
+quit
+Goodbye
+
+Expect no hang and 2nd log command to timeout changing logging status ...
+pmlc has exited
+Connected to primary pmlogger at MYHOST
+log mandatory on once sample.long.million
+qa 1
+QA Test Case #1 activated
+log mandatory on once sample.long.million
+Error receiving response from pmlogger: Timeout, closed connection to the pmlogger instance
+quit
+Goodbye
+
+Expect no hang and status command to timeout ...
+pmlc has exited
+Connected to primary pmlogger at MYHOST
+qa 1
+QA Test Case #1 activated
+status
+Error receiving response from pmlogger: Timeout, closed connection to the pmlogger instance
+quit
+Goodbye
+
+Expect hang and flush command to timeout  ...
+pmlc has exited
+Connected to primary pmlogger at MYHOST
+qa 1
+QA Test Case #1 activated
+flush
+Error receiving response from pmlogger: Timeout, closed connection to the pmlogger instance
+quit
+Goodbye
+
+Expect hang and new volume command to timeout ...
+pmlc has exited
+Connected to primary pmlogger at MYHOST
+qa 1
+QA Test Case #1 activated
+new volume
+Error receiving response from pmlogger: Timeout, closed connection to the pmlogger instance
+quit
+Goodbye
+
+Expect no hang and query command to timeout connecting to pmcd ...
+pmlc has exited
+Connected to primary pmlogger at MYHOST
+qa 1
+QA Test Case #1 activated
+query Error receiving response from pmlogger: Timeout, closed connection to the pmlogger instance
+Error [<stdin>, line 2]
+sample.long.million
+quit
+Goodbye
+
+Expect no hang and 2nd query command to timeout fetching logging status ...
+pmlc has exited
+Connected to primary pmlogger at MYHOST
+query sample.long.million
+sample.long.million
+    mand on             once
+
+qa 1
+QA Test Case #1 activated
+query sample.long.million
+Error receiving response from pmlogger: Timeout, closed connection to the pmlogger instance
+quit
+Goodbye

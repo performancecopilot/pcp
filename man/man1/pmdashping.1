@@ -1,0 +1,214 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2012 Red Hat.
+.\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMDASHPING 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmdashping\f1 \- "shell-ping" performance metrics domain agent
+.SH SYNOPSIS
+\f3$PCP_PMDAS_DIR/shping/pmdashping\f1
+[\f3\-C\f1]
+[\f3\-d\f1 \f2domain\f1]
+[\f3\-l\f1 \f2logfile\f1]
+[\f3\-I\f1 \f2interval\f1]
+[\f3\-t\f1 \f2timeout\f1]
+[\f3\-U\f1 \f2username\f1]
+\f2configfile\f1
+.br
+.SH DESCRIPTION
+.B pmdashping
+is a Performance Metrics Domain Agent (PMDA) which exports 
+quality of service and response time measurements for
+arbitrary commands as might be run from a shell such as
+.BR sh (1).
+.PP
+These measurements are intended to be used to quantify service
+quality and service availability for those services that are
+either mission critical or act as early indicators of adverse
+system performance.
+.PP
+The sample configuration monitors
+simple shell commands (\c
+.B exit
+and
+.BR date (1)),
+a short computationally intensive task
+using
+.BR sum (1),
+a short C compilation,
+DNS lookup via
+.BR nslookup (1),
+YP lookup via
+.BR ypcat (1),
+bind/portmapper service using
+.BR rpcbind (1),
+SMTP by connecting to telnet port 25 and sending an ``expn root''
+request,
+and
+NNTP by connecting to telnet port 119 and running a ``listgroup''
+command.
+.PP
+It is expected that other commands would follow the examples in the
+sample configuration file, and most deployments of the
+.B pmdashping
+PMDA are expected to use a customized configuration file.
+.PP
+A brief description of the
+.B pmdashping
+command line options follows:
+.TP 5
+.B \-C
+Parse
+.IR configfile ,
+reporting any errors and exiting with non-zero status if the file contains
+syntactical errors.
+.TP 5
+.B \-d
+It is absolutely crucial that the performance metrics
+.I domain
+number specified here is unique and consistent.
+That is,
+.I domain
+should be different for every PMDA on the one host, and the same
+.I domain
+number should be used for the same PMDA on all hosts.
+.TP 5
+.B \-l
+Location of the log file.  By default, a log file named
+.I shping.log
+is written in the current directory of
+.BR pmcd (1)
+when
+.B pmdashping
+is started, i.e.
+.BR $PCP_LOG_DIR/pmcd .
+If the log file cannot
+be created or is not writable, output is written to the standard error instead.
+.TP 5
+.B \-I
+Amount of time (in seconds) between subsequent executions of the list of
+commands provided via the configuration file
+.IR configfile .
+The default is 2 minutes.
+.TP 5
+.B \-t
+Amount of time (in seconds) to wait before timing out awaiting a response
+for a command from
+.IR configfile .
+The default is 20 seconds.
+.TP 5
+.B \-U
+User account under which to run the agent and all commands.
+The default is the unprivileged "pcp" account in current versions of PCP,
+but in older versions the superuser account ("root") was used by default.
+.PP
+The required
+.IR configfile
+specifies ``tag'' and ``command'' pairs, each on a separate line.
+All of the commands are run one after another, with the whole
+group rescheduled to be run once per
+.IR interval .
+For each command that is run,
+.B pmdashping
+records information related to the success (or timeout),
+exit status, elapsed time and CPU time
+(system and user), and this information is exported by the PMDA.
+The tags are used to identify the individual commands amongst the values
+exported by the PMDA, and form the external instance domain identifiers
+for the
+.B pmdashping
+metrics which relate to each command.
+.PP
+.SH INSTALLATION
+In order for a host to export the names, help text and values for the shping
+performance metrics, do the following as root:
+.PP
+.ft CW
+.nf
+.in +0.5i
+# cd $PCP_PMDAS_DIR/shping
+# ./Install
+.in
+.fi
+.ft 1
+.PP
+The set of ``tag'' and ``command'' pairs may be specified from
+a default (sample) configuration file, a customized file or entered
+interactively as part of the
+.B Install
+script.
+.PP
+If you want to undo the installation, do the following as root:
+.PP
+.ft CW
+.nf
+.in +0.5i
+# cd $PCP_PMDAS_DIR/shping
+# ./Remove
+.in
+.fi
+.ft 1
+.PP
+.B pmdashping
+is launched by
+.BR pmcd (1)
+and should never be executed directly.
+The Install and Remove scripts notify
+.BR pmcd (1)
+when the agent is installed or removed.
+.SH FILES
+.PD 0
+.TP 10
+.B $PCP_PMCDCONF_PATH
+command line options used to launch
+.B pmdashping
+.TP 10
+.B $PCP_PMDAS_DIR/shping/help
+default help text file for the shping metrics
+.TP 10
+.B $PCP_PMDAS_DIR/shping/sample.conf
+example configuration file with a number of common commands
+.TP 10
+.B $PCP_PMDAS_DIR/shping/Install
+installation script for the
+.B pmdashping
+agent
+.TP 10
+.B $PCP_PMDAS_DIR/shping/Remove
+undo installation script for
+.B pmdashping
+.TP 10
+.B $PCP_LOG_DIR/pmcd/shping.log
+default log file for error messages and other information from
+.B pmdashping
+.PD
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.B /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (5).
+.SH SEE ALSO
+.BR pmcd (1)
+and
+.BR pcp-shping (1).

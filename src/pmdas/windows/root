@@ -1,0 +1,29 @@
+/*
+ * fake "root" for validating the local PMNS subtree
+ */
+
+#include <stdpmid>
+
+root {
+    hinv
+    kernel
+    disk
+    filesys
+    mem
+    swap
+    network
+    sqlserver
+    pmda
+    process
+}
+
+#include "pmns.hinv"
+#include "pmns.kernel"
+#include "pmns.disk"
+#include "pmns.filesys"
+#include "pmns.mem"
+#include "pmns.network"
+#include "pmns.sqlserver"
+#include "pmns.pmda"
+#include "pmns.process"
+

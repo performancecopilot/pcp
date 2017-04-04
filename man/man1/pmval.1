@@ -1,0 +1,445 @@
+'\"! tbl | mmdoc
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2015-2016 Red Hat.
+.\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMVAL 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmval\f1,
+\f3pmevent\f1 \- arbitrary performance metrics value dumper
+.\" literals use .B or \f3
+.\" arguments use .I or \f2
+.SH SYNOPSIS
+\f3pmval\f1
+[\f3\-dgLrvz\f1]
+[\f3\-A\f1 \f2align\f1]
+[\f3\-a\f1 \f2archive\f1]
+[\f3\-f\f1 \f2N\f1]
+[\f3\-h\f1 \f2host\f1]
+[\f3\-i\f1 \f2instances\f1]
+[\f3\-K\f1 \f2spec\f1]
+[\f3\-n\f1 \f2pmnsfile\f1]
+[\f3\-O\f1 \f2offset\f1]
+[\f3\-p\f1 \f2port\f1]
+[\f3\-S\f1 \f2starttime\f1]
+[\f3\-s\f1 \f2samples\f1]
+[\f3\-T\f1 \f2endtime\f1]
+[\f3\-t\f1 \f2interval\f1]
+[\f3\-U\f1 \f2archive\f1]
+[\f3\-w\f1 \f2width\f1]
+[\f3\-x\f1 \f2pattern\f1]
+[\f3\-Z\f1 \f2timezone\f1]
+\f2metricname\f1
+.SH DESCRIPTION
+.de EX
+.in +0.5i
+.ie t .ft CB
+.el .ft B
+.ie t .sp .5v
+.el .sp
+.ta \\w' 'u*8
+.nf
+..
+.de EE
+.fi
+.ie t .sp .5v
+.el .sp
+.ft R
+.in
+..
+.B pmval
+prints current or archived values for the nominated performance metric.
+The metric of interest is named in the
+.I metricname
+argument, subject to instance qualification with the
+.B \-i
+flag as described below.
+.PP
+Unless directed to another host by the
+.B \-h
+option,
+or to a set of archives by the
+.B \-a
+or
+.B \-U
+options,
+.B pmval
+will contact the Performance Metrics Collector Daemon (PMCD)
+on the local host to obtain the required information.
+.PP
+The
+.I metricname
+argument may also be given in the metric specification syntax, as
+described in
+.BR PCPIntro (1),
+where the source, metric and instance may all be included in the
+.IR metricname ,
+e.g. thathost:kernel.all.load["1 minute"].
+When this format is used, none of the
+.B \-h
+or
+.B \-a
+or
+.B \-U
+options may be specified.
+.PP
+When using the metric specification syntax, the ``hostname''
+.B @
+is treated specially and
+causes
+.B pmval
+to use a local context to collect metrics from PMDAs on the local host
+without PMCD.  Only some metrics are available in this mode.
+.PP
+When processing a set of archives,
+.B pmval
+may relinquish its own timing control, and operate as a ``slave'' of
+a
+.BR pmtime (1)
+process that uses a GUI dialog to provide timing control.
+In this case, either the
+.B \-g
+option should be used to start
+.B pmval
+as the sole slave of a new
+.BR pmtime (1)
+instance, or
+.B \-p
+should be used to attach
+.B pmval
+to an existing
+.BR pmtime (1)
+instance via the IPC channel identified by the
+.I port
+argument.
+.PP
+The
+.BR \-S ,
+.BR \-T ,
+.BR \-O
+and
+.B \-A
+options may be used to define a time window to restrict the
+samples retrieved, set an initial origin within the time window,
+or specify a ``natural'' alignment of the sample times; refer to
+.BR PCPIntro (1)
+for a complete description of these options.
+.PP
+The other options which control the source, timing and layout of the information
+reported by
+.B pmval
+are as follows:
+.TP 5
+.B \-a
+Performance metric values are retrieved from the set of Performance Co-Pilot (PCP)
+archive logs identified. The argument is a comma-separated list of names, each
+of which may be the base name of an archive or the name of a directory containing
+one or more archives. See also
+.BR \-U .
+.TP
+.B \-d
+When replaying from a set of archives,
+this option requests that the prevailing real-time delay be applied between
+samples (see
+.BR \-t )
+to effect a pause, rather than the default behaviour of replaying at full speed.
+.TP
+.B \-f
+Numbers are reported in ``fixed point'' notation, rather than the default
+scientific notation.  Each number will be up to the column width determined by
+the default heuristics, else the
+.B \-w
+option if specified, and include
+.I N
+digits after the decimal point.  So, the options
+.B "\-f 3 \-w 8"
+would produce numbers of the form 9999.999.
+A value of zero for
+.I N
+omits the decimal point and any fractional digits.
+.TP
+.B \-g
+Start
+.B pmval
+as the slave of a new
+.BR pmtime (1)
+process for replay of archived performance data using the
+.BR pmtime (1)
+graphical user interface.
+.TP
+.B \-h
+Current performance metric values are retrieved from the nominated
+.I host
+machine.
+.TP
+.B \-i
+.I instances
+is a list of one or more
+instance names for the nominated performance metric \- just these
+instances will be retrieved and reported
+(the default is to report all instances).
+The list must be a single argument, with
+elements of the list separated by commas and/or white space.
+.RS
+.PP
+The instance name may be quoted with single (') or double (") quotes
+for those cases where
+the instance name contains white space or commas.
+.PP
+Multiple
+.B \-i
+options are allowed as an alternative way of specifying more than
+one instance of interest.
+.PP
+As an example, the following are all equivalent:
+.EX
+$ pmval \-i "'1 minute','5 minute'" kernel.all.load
+$ pmval \-i '"1 minute","5 minute"' kernel.all.load
+$ pmval \-i "'1 minute' '5 minute'" kernel.all.load
+$ pmval \-i "'1 minute'" \-i "'5 minute'" kernel.all.load
+$ pmval 'localhost:kernel.all.load["1 minute","5 minute"]'
+.EE
+.RE
+.TP
+.B \-K
+When
+fetching metrics from a local context, the
+.B \-K
+option may be used to control the DSO PMDAs that should be
+made accessible.  The
+.I spec
+argument conforms to the syntax described in
+.BR __pmSpecLocalPMDA (3).
+More than one
+.B \-K
+option may be used.
+.TP
+.B \-n
+Normally
+.B pmval
+operates on the default Performance Metrics Name Space (PMNS), however
+if the
+.B \-n
+option is specified an alternative namespace is loaded
+from the file
+.IR pmnsfile.
+.TP
+.B \-p
+Attach
+.B pmval
+to an existing
+.BR pmtime (1)
+time control process instance via the IPC channel identified by the
+\f2port\f1 argument.
+This option is normally only used by other tools, e.g.
+.BR pmchart (1),
+when they launch
+.B pmval
+with synchronized time control.
+.TP
+.B \-r
+Print raw values for cumulative counter metrics.  Normally cumulative counter
+metrics are converted to rates.  For example, disk transfers are reported
+as number of disk transfers per second during the preceding sample interval,
+rather than the raw value of number of disk transfers since the machine was
+booted.  If you specify this option, the raw metric values are printed.
+.TP
+.B \-s
+The argument
+.I samples
+defines the number of samples to be retrieved and reported.
+If
+.I samples
+is 0 or
+.B \-s
+is not specified, 
+.B pmval
+will sample and report continuously (in real time mode) or until the end
+of the set of PCP archives (in archive mode).
+.TP
+.B \-t
+The default update \f2interval\f1 may be set to something other than the
+default 1 second.
+The
+.I interval
+argument follows the syntax described in
+.BR PCPIntro (1),
+and in the simplest form may be an unsigned integer (the implied
+units in this case are seconds).
+.TP
+.B \-U
+Performance metric values are retrieved from the set of Performance Co-Pilot (PCP)
+archive logs identified. The argument is a comma-separated list of names, each
+of which may be the base name of an archive or the name of a directory containing
+one or more archives.
+However, unlike
+.B \-a
+every recorded value in the archive for the selected metric
+and instances is reported (so no interpolation mode, and the sample
+interval (\c
+.B \-t
+option) is ignored. See also
+.BR \-a .
+.RS +5n
+.PP
+At most one of the options
+.B \-a
+and
+.B \-U
+may be specified.
+.RE
+.TP
+.B \-w
+Set the width of each column of output to be
+.I width
+columns.
+If not specified columns are wide
+enough to accommodate the largest value of the type being printed.
+.TP
+.B \-x
+The given
+.I pattern
+is sent to the performance metric domain agent for the requested
+.I metricname
+before any values are requested.
+This serves two purposes.
+Firstly, it provides a mechanism for server-side event filtering
+that is customisable for individual event streams.
+In addition, some performance metrics domain agents also use the
+PMCD store mechanism to provide a basic security model (e.g. for
+sensitive log files, only a client host with
+.BR pmStore (3)
+access would be able to access the event stream).
+.RS
+.PP
+As
+.I pattern
+may be processed by
+.BR regcomp (3)
+it should be a non-empty string.  Use . (dot) for a \(lqmatch all\(rq
+.IR pattern .
+.RE
+.TP
+.B \-Z
+By default,
+.B pmval
+reports the time of day according to the local timezone on the
+system where
+.B pmval
+is run.
+The
+.B \-Z
+option changes the timezone to
+.I timezone
+in the format of the environment variable
+.B TZ
+as described in
+.BR environ (7).
+.TP
+.B \-z
+Change the reporting timezone to the local timezone at the host that is
+the source of the performance metrics, as identified via either the
+.I metricname
+or the
+.B \-h
+or
+.B \-a
+or
+.B \-U
+options.
+.PP
+The following symbols may occasionally appear, in place of a metric value, in
+.B pmval
+output:  A question mark symbol (?) indicates that a value is no
+longer available for that metric instance.  An exclamation mark (!)
+indicates that a 64-bit counter wrapped during the sample.
+.PP
+The output from
+.B pmval
+is directed to standard output.
+.SH FILES
+.PD 0
+.TP 10
+.BI $PCP_VAR_DIR/pmns/ *
+default PMNS specification files
+.PD
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.I /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (5).
+.SH SEE ALSO
+.BR PCPIntro (1),
+.BR pmcd (1),
+.BR pmchart (1),
+.BR pmdumplog (1),
+.BR pmdumptext (1),
+.BR pminfo (1),
+.BR pmlogger (1),
+.BR pmrep (1),
+.BR pmtime (1),
+.BR PMAPI (3),
+.BR pmStore (3),
+.BR __pmSpecLocalPMDA (3),
+.BR pcp.conf (5)
+and
+.BR pcp.env (5).
+.SH DIAGNOSTICS
+All are generated on standard error and are intended to be self-explanatory.
+.SH CAVEATS
+By default,
+.B pmval
+attempts to display non-integer numeric values in a way that does not distort the
+inherent precision (rarely more than 4 significant
+digits), and tries to maintain a tabular format in
+the output.  These goals are sometimes in conflict.
+.PP
+In the absence of the
+.B \-f
+option (described above),
+the following table describes the formats used for different
+ranges of numeric values for any metric that is of type
+.B PM_TYPE_FLOAT
+or
+.BR PM_TYPE_DOUBLE ,
+or any metric that has the semantics of a counter (for
+which
+.B pmval
+reports the rate converted value):
+.TS
+box,center;
+cf(R) | cf(R)
+rf(CW) | lf(R).
+Format	Value Range
+_
+!	No values available
+9.999E-99	< 0.1
+0.0\0\0\0	0
+9.9999	> 0 and <= 0.9999
+9.999\0	> 0.9999 and < 9.999
+99.99\0\0	> 9.999 and < 99.99
+999.9\0\0\0	> 99.99 and < 999.9
+9999.\0\0\0\0	> 999.9 and < 9999
+9.999E+99	> 9999
+.TE

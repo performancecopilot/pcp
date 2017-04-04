@@ -1,0 +1,8 @@
+QA output created by 320
+Running pmlogcheck ... expect no errors
+Host: HOST Archive: HERE/tmparch/foo
+
+Running pmclient ... expect error from pmclient once pmafm starts it
+Host: HOST Archive: HERE/archives/951127.23.01_v2
+pmclient: cannot retrieve description for metric "kernel.all.load" (PMID: 1.18.3)
+Reason: Metric not defined in the PCP archive log

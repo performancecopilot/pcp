@@ -1,0 +1,91 @@
+/*
+ * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+ * 
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+ * for more details.
+ * 
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+ */
+
+/***********************************************************************
+ * skeleton: unary.sk - unary operator
+ ***********************************************************************/
+
+/*
+ *  operator: @FUN
+ */
+
+#define @OP
+
+void
+@FUN_n(Expr *x)
+{
+    Expr        *arg1 = x->arg1;
+    Sample	*is = &arg1->smpls[0];
+    Sample	*os = &x->smpls[0];
+    @ITYPE	*ip;
+    @OTYPE	*op;
+    int		n;
+    int         i;
+
+    EVALARG(arg1)
+    ROTATE(x)
+
+    if (arg1->valid && x->tspan > 0) {
+	ip = (@ITYPE *) is->ptr;
+	op = (@OTYPE *) os->ptr;
+	n = x->tspan;
+	for (i = 0; i < n; i++) {
+	    *op = OP(*ip);
+	    op++;
+	    ip++;
+	}
+	os->stamp = is->stamp;
+	x->valid++;
+    }
+    else x->valid = 0;
+
+#if PCP_DEBUG
+    if (pmDebug & DBG_TRACE_APPL2) {
+	fprintf(stderr, "@FUN_n(" PRINTF_P_PFX "%p) ...\n", x);
+	dumpExpr(x);
+    }
+#endif
+}
+
+void
+@FUN_1(Expr *x)
+{
+    Expr        *arg1 = x->arg1;
+    Sample	*is = &arg1->smpls[0];
+    Sample	*os = &x->smpls[0];
+
+    EVALARG(arg1)
+    ROTATE(x)
+
+    if (arg1->valid) {
+	*(@OTYPE *)os->ptr = OP(*(@ITYPE *)is->ptr);
+	os->stamp = is->stamp;
+	x->valid++;
+    }
+    else x->valid = 0;
+
+#if PCP_DEBUG
+    if (pmDebug & DBG_TRACE_APPL2) {
+	fprintf(stderr, "@FUN_1(" PRINTF_P_PFX "%p) ...\n", x);
+	dumpExpr(x);
+    }
+#endif
+}
+
+#undef OP
+

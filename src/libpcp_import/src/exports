@@ -1,0 +1,33 @@
+PCP_IMPORT_1.0 {
+  global:
+    pmiStart;
+    pmiSetHostname;
+    pmiSetTimezone;
+    pmiUseContext;
+    pmiGetHandle;
+    pmiDump;
+    pmiEnd;
+
+    pmiAddInstance;
+    pmiAddMetric;
+
+    pmiErrStr;
+    pmiErrStr_r;
+
+    pmiID;
+    pmiInDom;
+    pmiUnits;
+
+    pmiPutResult;
+    pmiPutValue;
+    pmiPutValueHandle;
+
+    pmiWrite;
+
+  local: *;
+};
+
+PCP_IMPORT_1.1 {
+  global:
+    pmiPutMark;
+} PCP_IMPORT_1.0;

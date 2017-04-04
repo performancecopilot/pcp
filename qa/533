@@ -1,0 +1,64 @@
+#!/bin/sh
+# PCP QA Test No. 533
+# Exercise ipv6 socket open command in dbpmda
+#
+# Copyright (c) 2013 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_get_libpcp_config
+$ipv6 || _notrun "No IPv6 support, so cannot test dbpmda IPv6 support"
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+username=`id -u -n`
+port=`_get_port tcp 6261 6271`
+if [ -z "$port" ]
+then
+    echo "Arrggh ... no free TCP port in the range 6261 ... 6271"
+    netstat -an
+    exit
+fi
+
+_filter()
+{
+    tee -a $seq.full | \
+    sed \
+        -e "s/socket ipv6 $port/socket ipv6 PORT/g" \
+        -e "s/ipv6 port $port/ipv6 port PORT/g" \
+        -e "s/   value $pid/   value PID/g" \
+    | _filter_dumpresult
+}
+
+# real QA test starts here
+$PCP_PMDAS_DIR/sample/pmdasample -Dcontext,desperate -6 $port -U $username -l $tmp.log &
+pid=$!
+echo "PMDA sample PID = $pid" > $seq.full
+sleep 2	# allow socket setup to occur
+
+dbpmda -n $PCP_PMDAS_DIR/sample/root -ie <<End-of-File 2>&1 | _filter
+open socket ipv6 $port
+getdesc on
+desc sample.daemon_pid
+fetch sample.daemon_pid
+text sample.daemon_pid
+close
+End-of-File
+
+echo >>$seq.full
+echo "=== sample pmda log ===" >>$seq.full
+cat $tmp.log >>$seq.full
+
+# success, all done
+status=0
+
+exit

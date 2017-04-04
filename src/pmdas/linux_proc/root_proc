@@ -1,0 +1,372 @@
+/*
+ * Metrics for the Linux proc PMDA
+ *
+ * Note:
+ *	names and pmids migrated from the Linux PMDA, with the domain
+ *	number changed from LINUX (60) to PROC (3)
+ */
+
+#ifndef PROC
+#define PROC    3
+#endif
+
+root {
+    cgroup
+    proc
+    hotproc
+}
+
+cgroup {
+    subsys
+    mounts
+    cpuset
+    cpuacct
+    cpusched
+    memory
+    netclass
+    blkio
+}
+
+cgroup.subsys {
+    hierarchy		PROC:37:0
+    count		PROC:37:1
+    num_cgroups		PROC:37:2
+    enabled		PROC:37:3
+}
+
+cgroup.mounts {
+    subsys		PROC:38:0
+    count		PROC:38:1
+}
+
+cgroup.cpuset {
+    cpus		PROC:39:0
+    mems		PROC:39:1
+}
+
+cgroup.cpuacct {
+    stat
+    usage		PROC:41:2
+    usage_percpu	PROC:41:3
+}
+
+cgroup.cpuacct.stat {
+    user		PROC:41:0
+    system		PROC:41:1
+}
+
+cgroup.cpusched {
+    shares		PROC:43:0
+    periods		PROC:43:1
+    throttled		PROC:43:2
+    throttled_time	PROC:43:3
+    cfs_period		PROC:43:4
+    cfs_quota		PROC:43:5
+}
+
+cgroup.memory {
+    stat
+    usage		PROC:45:80
+    limit		PROC:45:81
+    failcnt		PROC:45:82
+}
+
+cgroup.memory.stat {
+    cache		PROC:45:0
+    rss			PROC:45:1
+    rss_huge		PROC:45:2
+    mapped_file		PROC:45:3
+    writeback		PROC:45:4
+    swap		PROC:45:5
+    pgpgin		PROC:45:6
+    pgpgout		PROC:45:7
+    pgfault		PROC:45:8
+    pgmajfault		PROC:45:9
+    inactive_anon	PROC:45:10
+    active_anon		PROC:45:11
+    inactive_file	PROC:45:12
+    active_file		PROC:45:13
+    unevictable		PROC:45:14
+    total
+    recent
+}
+
+cgroup.memory.stat.total {
+    cache		PROC:45:30
+    rss			PROC:45:31
+    rss_huge		PROC:45:32
+    mapped_file		PROC:45:33
+    writeback		PROC:45:34
+    swap		PROC:45:35
+    pgpgin		PROC:45:36
+    pgpgout		PROC:45:37
+    pgfault		PROC:45:38
+    pgmajfault		PROC:45:39
+    inactive_anon	PROC:45:40
+    active_anon		PROC:45:41
+    inactive_file	PROC:45:42
+    active_file		PROC:45:43
+    unevictable		PROC:45:44
+}
+
+cgroup.memory.stat.recent {
+    rotated_anon	PROC:45:60
+    rotated_file	PROC:45:61
+    scanned_anon	PROC:45:62
+    scanned_file	PROC:45:63
+}
+
+cgroup.netclass {
+    classid		PROC:47:0
+}
+
+cgroup.blkio {
+    dev
+    all
+}
+
+cgroup.blkio.dev {
+    io_merged
+    io_queued
+    io_service_bytes
+    io_serviced
+    io_service_time
+    io_wait_time
+    sectors		PROC:49:30
+    time		PROC:49:31
+    throttle
+}
+
+cgroup.blkio.dev.io_merged {
+    read		PROC:49:0
+    write		PROC:49:1
+    sync		PROC:49:2
+    async		PROC:49:3
+    total		PROC:49:4
+}
+
+cgroup.blkio.dev.io_queued {
+    read		PROC:49:5
+    write		PROC:49:6
+    sync		PROC:49:7
+    async		PROC:49:8
+    total		PROC:49:9
+}
+
+cgroup.blkio.dev.io_service_bytes {
+    read		PROC:49:10
+    write		PROC:49:11
+    sync		PROC:49:12
+    async		PROC:49:13
+    total		PROC:49:14
+}
+
+cgroup.blkio.dev.io_serviced {
+    read		PROC:49:15
+    write		PROC:49:16
+    sync		PROC:49:17
+    async		PROC:49:18
+    total		PROC:49:19
+}
+
+cgroup.blkio.dev.io_service_time {
+    read		PROC:49:20
+    write		PROC:49:21
+    sync		PROC:49:22
+    async		PROC:49:23
+    total		PROC:49:24
+}
+
+cgroup.blkio.dev.io_wait_time {
+    read		PROC:49:25
+    write		PROC:49:26
+    sync		PROC:49:27
+    async		PROC:49:28
+    total		PROC:49:29
+}
+
+cgroup.blkio.dev.throttle {
+    io_service_bytes
+    io_serviced
+}
+
+cgroup.blkio.dev.throttle.io_service_bytes {
+    read		PROC:49:32
+    write		PROC:49:33
+    sync		PROC:49:34
+    async		PROC:49:35
+    total		PROC:49:36
+}
+
+cgroup.blkio.dev.throttle.io_serviced {
+    read		PROC:49:37
+    write		PROC:49:38
+    sync		PROC:49:39
+    async		PROC:49:40
+    total		PROC:49:41
+}
+
+cgroup.blkio.all {
+    io_merged
+    io_queued
+    io_service_bytes
+    io_serviced
+    io_service_time
+    io_wait_time
+    sectors		PROC:49:90
+    time		PROC:49:91
+    throttle
+}
+
+cgroup.blkio.all.io_merged {
+    read		PROC:49:60
+    write		PROC:49:61
+    sync		PROC:49:62
+    async		PROC:49:63
+    total		PROC:49:64
+}
+
+cgroup.blkio.all.io_queued {
+    read		PROC:49:65
+    write		PROC:49:66
+    sync		PROC:49:67
+    async		PROC:49:68
+    total		PROC:49:69
+}
+
+cgroup.blkio.all.io_service_bytes {
+    read		PROC:49:70
+    write		PROC:49:71
+    sync		PROC:49:72
+    async		PROC:49:73
+    total		PROC:49:74
+}
+
+cgroup.blkio.all.io_serviced {
+    read		PROC:49:75
+    write		PROC:49:76
+    sync		PROC:49:77
+    async		PROC:49:78
+    total		PROC:49:79
+}
+
+cgroup.blkio.all.io_service_time {
+    read		PROC:49:80
+    write		PROC:49:81
+    sync		PROC:49:82
+    async		PROC:49:83
+    total		PROC:49:84
+}
+
+cgroup.blkio.all.io_wait_time {
+    read		PROC:49:85
+    write		PROC:49:86
+    sync		PROC:49:87
+    async		PROC:49:88
+    total		PROC:49:89
+}
+
+cgroup.blkio.all.throttle {
+    io_service_bytes
+    io_serviced
+}
+
+cgroup.blkio.all.throttle.io_service_bytes {
+    read		PROC:49:92
+    write		PROC:49:93
+    sync		PROC:49:94
+    async		PROC:49:95
+    total		PROC:49:96
+}
+
+cgroup.blkio.all.throttle.io_serviced {
+    read		PROC:49:97
+    write		PROC:49:98
+    sync		PROC:49:99
+    async		PROC:49:100
+    total		PROC:49:101
+}
+
+proc {
+    nprocs		PROC:8:99
+    psinfo		PROC:*:*
+    memory		PROC:*:*
+    runq
+    id			PROC:*:*
+    io			PROC:*:*
+    schedstat		PROC:*:*
+    fd			PROC:*:*
+    namespaces		PROC:*:*
+    control
+}
+
+hotproc {
+    nprocs		PROC:52:99
+    psinfo		PROC:*:*
+    memory		PROC:*:*
+    id			PROC:*:*
+    io			PROC:*:*
+    schedstat		PROC:*:*
+    fd			PROC:*:*
+    namespaces		PROC:*:*
+    control
+    total
+    predicate
+}
+
+proc.runq {
+    runnable		PROC:13:0
+    blocked		PROC:13:1
+    sleeping		PROC:13:2
+    stopped		PROC:13:3
+    swapped		PROC:13:4
+    defunct		PROC:13:5
+    unknown		PROC:13:6
+    kernel		PROC:13:7
+}
+
+proc.control {
+    all
+    perclient
+}
+
+proc.control.all {
+    threads		PROC:10:1
+}
+
+proc.control.perclient {
+    threads		PROC:10:2
+    cgroups		PROC:10:3
+}
+
+hotproc.control {
+    refresh PROC:60:1
+    config  PROC:60:8
+    config_gen  PROC:60:9
+    reload_config PROC:60:10
+}
+
+hotproc.total {
+    cpuidle PROC:60:2
+    cpuburn PROC:60:3
+    cpuother
+}
+
+hotproc.total.cpuother {
+    transient   PROC:60:4
+    not_cpuburn PROC:60:5
+    total       PROC:60:6
+    percent     PROC:60:7
+}
+
+hotproc.predicate {
+    ctxswitch      PROC:61:1
+    virtualsize    PROC:61:2
+    residentsize   PROC:61:3
+    iodemand       PROC:61:4
+    iowait         PROC:61:5
+    schedwait      PROC:61:6
+    cpuburn        PROC:61:7
+}
+
+#undef PROC

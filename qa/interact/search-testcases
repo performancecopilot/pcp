@@ -1,0 +1,75 @@
+Search Dialog for Metric Selection
+==================================
+
+[ ] Start pmchart, click on New Chart from the File Menu Item or Toolbar
+    Verify that the Search icon (magnifying glass) is enabled on
+    the central menu bar
+    Click the Search icon
+    The Metric Seach dialog should appear with
+    - Metric Name Pattern empty
+    - Instance Name Pattern empty
+    - Clear and Cancel buttons enabled
+    - Select All, Search and OK buttons disabled
+
+[ ] In the Metric Name Pattern input field, enter sample.bi
+    Note that Search is enabled at the first keystroke (s)
+    Excute the search via each of the following
+    - Enter
+    - click Search
+    - type Alt-S
+    Results should always be the same ... sample.bigid and the 9 instances
+    of the sample.bin metric
+
+[ ] Test the selection behaviour for the matched metrics
+    - Select All button
+    - Click (select one, deselect all others)
+    - Shift-click (select a range to last click)
+    - Ctl-click (toggle single item selection)
+
+[ ] Select All then Ctl-click sample.bin[bin-500], then click OK
+    Expect 9 metrics to be selected in the New Chart dialog, and the Available
+    Metrics tree to be expanded at the [-]-- sample and [-]-- bin nodes
+
+[ ] Return to the Metric Search dialog.
+    Expect the previous state to be preserved - Metric Name Pattern is
+    sample.bi, 10 matching results and 9 selected results, all buttons enabled
+
+[ ] Click Clear
+    Should revert to the initial state
+    - Metric Name Pattern empty
+    - Instance Name Pattern empty
+    - Clear and Cancel buttons enabled
+    - Select All, Search and OK buttons disabled
+
+[ ] Go to the New Chart dialog,
+    - in live mode, select disk.all.read and select all of the instances
+      for network.interface.total.packets.
+    - in archive mode, select sample.bigid and all of the instances for
+      pmcd.pmlogger.port
+    Click the search icon to open the Search Metric dialog.
+    The New Chart dialog should be unchanged and insensitive (Search
+    Metric is modal).
+
+[ ] In the Instance Name Pattern, enter ^bin-[0-5]..$ then click Search.
+    Expect 40 matches for the instance names bin-100 to bin-500 for the
+    8 metrics (.bin .bogus_bin .bucket and .part_bin for the sample and
+    sampledso pmdas)
+    In the Metric Name Pattern, enter b.*_bin then click Search.
+    Expect just 10 matches for the .bogus_bin metrics in the sample and
+    sampledso pmdas.
+
+[ ] Click Select All, then click OK.
+    Back in the New Chart dialog, click the Insert plot into button
+    and verify that all of metrics appear in the chart
+    - disk.all.read (or sample.bigid)
+    - all the instances of network.interface.total.packets (or
+      pmcd.pmlogger.port)
+    - instances bin-100 thru bin-500 for sample.bogus_bin
+    - instances bin-100 thru bin-500 for dsosample.bogus_bin
+
+[ ] Repeat all of the above for archive mode, starting pmchart as
+    follows:
+    Run:	$ pmchart -a pcp-gui/qa/archives/viewqa1
+    There are no sampledso metrics in this archive, so the set of
+    matching metrics will typically be halved compared to the live
+    tests.

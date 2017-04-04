@@ -1,0 +1,51 @@
+QA output created by 394
+
+=== tmparch/bigbin delta=2 ===
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/interp3 -a tmparch/bigbin -t 2
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+=== tmparch/bigbin delta=0.012 ===
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/interp3 -a tmparch/bigbin -t 0.012
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+=== tmparch/noti-ok-foo delta=0.5 ===
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/interp3 -a tmparch/noti-ok-foo -t 0.5
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+=== tmparch/noti-ok-foo delta=1.0 ===
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/interp3 -a tmparch/noti-ok-foo -t 1.0
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+=== tmparch/noti-ok-foo delta=2.0 ===
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/interp3 -a tmparch/noti-ok-foo -t 2.0
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...

@@ -1,0 +1,47 @@
+QA output created by 406
+Expect events for each pmFetch ...
+metric[0]: sample.event.records
+
+sample 1, delta time=0.500 secs
+sample.event.records: 1 event records found
+
+event 1, offset time=-10.000 secs, param ids: 29.0.127 29.0.131 29.0.134
+event 1, offset time=-9.000 secs, param ids: 29.0.127 29.0.133 29.0.133
+event 1, offset time=-8.000 secs, param ids: 511.0.1 29.0.127 29.0.131 29.0.134 29.0.134 29.0.128 29.0.129
+event 1, offset time=-7.000 secs, param ids: 511.0.1 511.0.2
+event 1, offset time=-6.000 secs, param ids: 29.0.127 29.0.132 29.0.135
+
+sample 2, delta time=0.500 secs
+sample.event.records: 1 event records found
+
+
+sample 3, delta time=0.500 secs
+sample.event.records: 1 event records found
+
+
+sample 4, delta time=0.500 secs
+sample.event.records: 1 event records found
+
+
+sample 5, delta time=0.500 secs
+sample.event.records: 1 event records found
+
+event 1, offset time=-10.000 secs, param ids:
+
+sample 6, delta time=0.500 secs
+sample.event.records: 1 event records found
+
+event 1, offset time=-9.500 secs, param ids: 29.0.127
+event 1, offset time=-8.500 secs, param ids: 511.0.1 29.0.127 29.0.130
+
+sample 7, delta time=0.500 secs
+sample.event.records: 1 event records found
+
+event 1, offset time=-10.000 secs, param ids: 29.0.127
+event 1, offset time=-9.000 secs, param ids: 511.0.1 29.0.127 29.0.130
+
+sample 8, delta time=0.500 secs
+sample.event.records: no current values 
+sample[9] pmFetch: End of PCP archive log
+
+9 samples required 9 log reads

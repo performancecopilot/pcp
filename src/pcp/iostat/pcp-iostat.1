@@ -1,0 +1,360 @@
+'\"! tbl | mmdoc
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2014-2016 Red Hat.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.TH PCP-IOSTAT 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmiostat\f1,
+\f3pcp-iostat\f1 \- performance metrics i/o statistics tool
+.\" literals use .B or \f3
+.\" arguments use .I or \f2
+.SH SYNOPSIS
+\f3pcp\ iostat\f1
+[\f3\-A\f1 \f2align\f1 \f3--align=\f2TIME\f1]
+[\f3\-a\f1 \f2archive\f1 \f3--archive=\f2FILE\f1]
+[\f3\-G\f1 \f2method\f1 \f3--aggregate=\f2method\f1]
+[\f3\-h\f1 \f2host\f1 \f3--host=\f2HOST\f1]
+[\f3\-O\f1 \f2offset\f1 \f3--origin=\f2TIME\f1]
+[\f3\-S\f1 \f2starttime\f1 \f3--start=\f2TIME\f1]
+[\f3\-s\f1 \f2samples\f1 \f3--samples=\f2N\f1]
+[\f3\-T\f1 \f2endtime\f1 \f3--finish=\f2TIME\f1]
+[\f3\-t\f1 \f2interval\f1 \f3--interval=\f2DELTA\f1]
+[\f3\-P\f1 \f2precision\f1 \f3--precision=\f2N\f1]
+[\f3\-R\f1 \f2pattern\f1 \f3--regex=\f2pattern\f1]
+[\f3\-u\f1 \f3--no-interpolate\f1]
+[\f3\-Z\f1 \f2timezone\f1 \f3--timezone=\f2TZ\f1]
+[\f3\-z\f1 \f3--hostzone\f1]
+[\f3\-?\f1 \f3--help\f1]
+[\f3\-x\f1 [dm][,t][,h][,noidle]\f1]
+.SH DESCRIPTION
+.de EX
+.in +0.5i
+.ie t .ft CB
+.el .ft B
+.ie t .sp .5v
+.el .sp
+.ta \\w' 'u*8
+.nf
+..
+.de EE
+.fi
+.ie t .sp .5v
+.el .sp
+.ft R
+.in
+..
+.B pcp-iostat
+reports I/O statistics for scsi devices (by default) or device-mapper devices (if the \f3-x dm\f1 option is specified).
+By default
+.B pcp-iostat
+reports live data for the local host but can also report for a remote host (\f3-h\fP) or from a previously captured PCP archive (\f3-a\fP).
+.PP
+The
+.BR \-S ,
+.BR \-T ,
+.BR \-O
+and
+.B \-A
+options may be used to define a time window to restrict the
+samples retrieved, set an initial origin within the time window,
+or specify a ``natural'' alignment of the sample times; refer to
+.BR PCPIntro (1)
+for a complete description of these options.
+.PP
+The other options which control the source, timing and layout of the information
+reported by
+.B pcp-iostat
+are as follows:
+.TP 5
+.B \-a
+Performance metric values are retrieved from the Performance Co-Pilot (PCP)
+archive log files identified by the argument
+.IR archive ,
+which is a comma-separated list of
+names, each of which may be the base name of an archive or the name of a
+directory containing one or more archives. See also
+.BR \-u .
+.TP
+.B \-G
+Specifies that statistics for device names matching the regular expression specified with the
+.B \-R
+.I regex
+option should be aggregated according to
+.IR method .
+Note this is aggregation based on matching device names (not temporal aggregation).
+When
+.B \-G
+is used,
+the device name column is reported as
+.IR method (\fIregex\fR),
+e.g.
+if
+.B \-G sum
+.B \-R 'sd(a|b)$'
+is specified, the device column will be
+.BR sum (\fBsd(a|b)$)\fR
+and
+summed statistics for
+.B sda
+and
+.B sdb
+will be reported in the remaining columns.
+If
+.B \-G
+is specified but
+.B \-R
+is not specified, then the default
+.I regex
+is
+.BR .* ,
+i.e. matching all device names.
+If
+.I method
+is
+.B sum
+then the statistics are summed.
+This includes the
+.B %util
+column, which may therefore exceed 100% if more than one device name matches.
+If
+.I method
+is
+.B avg
+then the statistics are summed and then averaged by dividing by the number of matching device names.
+If
+.I method
+is
+.B min
+or
+.BR max ,
+the minimum or maximum statistics for matching devices are reported, respectfully.
+.TP
+.B \-h
+Current performance metric values are retrieved from the nominated
+.I host
+machine.
+.TP
+.B \-s
+The argument
+.I samples
+defines the number of samples to be retrieved and reported.
+If
+.I samples
+is 0 or
+.B \-s
+is not specified, 
+.B pcp-iostat
+will sample and report continuously (in real time mode) or until the end
+of the set of PCP archives (in archive mode).
+.TP
+.B \-t
+The default update \f2interval\f1 may be set to something other than the
+default 1 second.
+The
+.I interval
+argument follows the syntax described in
+.BR PCPIntro (1),
+and in the simplest form may be an unsigned integer (the implied
+units in this case are seconds).
+The \f3-t\fP option is particularly useful when replaying large sets of
+archives (\f3-a\fP option) that span several hours or even days.
+In this case specifying a large
+.I interval
+(e.g. 1h for 1 hour)
+will reduce the volume of data reported and the i/o statistics will be averaged (interpolated) over
+the reporting interval (unless the
+.B \-u
+option is specified, see below).
+.TP
+.B \-R
+This restricts the report to device names matching
+.IR regex .
+The
+.I regex
+pattern is searched as a perl style regular expression, and will match any portion of a device name.
+e.g. '^sd[a-zA-Z]+' will match all device names starting with 'sd' followed by one or more alphabetic characters.
+e.g. '^sd(a|b)$' will only match 'sda' and 'sdb'.
+e.g. 'sda$' will match 'sda' but not 'sdab'.
+See also the
+.B -G
+option for aggregation options.
+.TP
+.B \-P
+This indicates the number of decimals to print. The default precision \f2N\f1
+may be set to something other than the default 2 decimals.
+Note that the
+.B avgrq-sz
+and
+.B avgqu-sz
+fields are always reported with \f2N\f1+1 decimals of precision.
+These fields typically have values less than 1.0.
+.TP
+.B \-u
+When replaying a set of archives, by default values are reported
+according to the selected sample interval (\c
+.B \-t
+option), not according to the actual record intervals in the set of archives.
+To this effect PCP interpolates the values to be reported based on the
+records in the set of archives, and is particularly useful when the
+.B \-t
+option is used to replay a set of archives with a longer sampling interval than
+the underlying interval the set of archives was originally recorded with.
+With the
+.B \-u
+option,
+uninterpolated reporting is enabled - every value is reported
+according to the native recording interval in the set of archives.
+When the
+.B \-u
+option is specified, the
+.B \-t
+option makes no sense and is incompatible because the replay interval
+is always the same as the recording interval in the set of archive.
+In addition,
+.B \-u
+only makes sense when replaying a set of archives, see
+.B \-a
+above,
+and so if
+.B \-u
+is specified then
+.B \-a
+must also be specified.
+.TP
+.B \-Z
+By default,
+.B pcp-iostat
+reports the time of day according to the local timezone on the
+system where
+.B pcp-iostat
+is run.
+The
+.B \-Z
+option changes the timezone to
+.I timezone
+in the format of the environment variable
+.B TZ
+as described in
+.BR environ (7).
+.TP
+.B \-z
+Change the reporting timezone to the local timezone at the host that is
+the source of the performance metrics, as identified via either the
+.B \-h
+or
+.B \-a
+options.
+When replaying a PCP archive that was captured in a foreign timezone, the
+.B \-z
+option would almost always be used (the default reporting timezone is the local timezone,
+which may not be the same as the timezone of the PCP archive).
+.TP
+.B \-x
+Specifies a comma separated list of one or more extended reporting options as follows:
+.br
+\f3dm\fP - report statistics for device-mapper logical devices instead of scsi devices,
+.br
+\f3t\fP - prefix every line in the report with a timestamp in \f2ctime\fP(3) format,
+.br
+\f3h\fP - omit the heading, which is otherwise reported every 24 samples,
+.br
+\f3noidle\fP - Do not display statistics for idle devices.
+.SH REPORT
+The columns in the
+.B pcp-iostat
+report have the following interpretation :
+.TP
+.B Timestamp
+When the \f3-x t\fP option is specified, this column is the timestamp in \f3ctime\fP(3) format.
+.TP
+.B Device
+Specifies the scsi device name, or if \f3-x dm\fP is specified, the device-mapper logical device name.
+When
+.B \-G
+is specified, this is replaced by the aggregation method and regular expression - see the
+.B \-G
+and
+.B \-R
+options above.
+.TP
+.B rrqm/s
+The number of read requests expressed as a rate per-second that were merged
+during the reporting interval by the I/O scheduler.
+.TP
+.B wrqm/s
+The number of write requests expressed as a rate per-second that were merged
+during the reporting interval by the I/O scheduler.
+.TP
+.B r/s
+The number of read requests completed by the device (after merges), expressed as a rate per second during the reporting interval.
+.TP
+.B w/s
+The number of write requests completed by the device (after merges), expressed as a rate per second during the reporting interval.
+.TP
+.B rkB/s
+The average volume of data read from the device expressed as KBytes/second during the reporting interval.
+.TP
+.B wkB/s
+The average volume of data written to the device expressed as KBytes/second during the reporting interval.
+.TP
+.B avgrq-sz
+The average I/O request size for both reads and writes to the device expressed as Kbytes during the reporting interval.
+.TP
+.B avgqu-sz
+The average queue length of read and write requests to the device during the reporting interval.
+.TP
+.B await
+The average time in milliseconds that read and write requests were queued (and serviced) to the device during the reporting interval.
+.TP
+.B r_await
+The average time in milliseconds that read requests were queued (and serviced) to the device during the reporting interval.
+.TP
+.B w_await
+The average time in milliseconds that write requests were queued (and serviced) to the device during the reporting interval.
+.TP
+.B %util
+The percentage of time during the reporting interval that the device was busy processing requests.
+A value of 100% indicates device saturation.
+.SH FILES
+.PD 0
+.TP 10
+.BI $PCP_VAR_DIR/pmns/ *
+default PMNS specification files
+.PD
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.I /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (5).
+.SH SEE ALSO
+.BR pcp (1),
+.BR PCPIntro (1),
+.BR iostat2pcp (1),
+.BR pmcd (1),
+.BR pmchart (1),
+.BR pmlogger (1),
+.BR pcp.conf (5)
+and
+.BR pcp.env (5).
+.SH DIAGNOSTICS
+All are generated on standard error and are intended to be self-explanatory.

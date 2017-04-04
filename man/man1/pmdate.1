@@ -1,0 +1,80 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMDATE 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmdate\f1 \- display an offset date
+.\" literals use .B or \f3
+.\" arguments use .I or \f2
+.SH SYNOPSIS
+.B pmdate
+[ \fIoffset\fR ... ]
+.I format
+.SH DESCRIPTION
+.B pmdate
+displays the current date and/or time, with an optional offset.
+.PP
+An
+.I offset
+is specified with a leading sign (``+'' or ``-''), followed by an
+integer value, followed by one of the following ``scale'' specifiers;
+.IP S
+seconds
+.PD 0
+.IP M
+minutes
+.IP H
+hours
+.IP d
+days
+.IP m
+months
+.IP y
+years
+.PD
+.PP
+The output
+.I format
+follows the same rules as for
+.BR date (1)
+and
+.BR strftime (3).
+.PP
+For example, the following will display the date a week ago as DDMMYYYY;
+.in +8n
+.ft CW
+pmdate \-7d %d%m%Y
+.ft R
+.in -8n
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.I /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (5).
+.SH SEE ALSO
+.BR date (1),
+.BR strftime (3),
+.BR pcp.conf (5)
+and
+.BR pcp.env (5).

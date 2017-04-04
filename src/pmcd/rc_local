@@ -1,0 +1,67 @@
+#!/bin/sh
+#
+# Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+# 
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+#
+# rc.local - perform local Performance Co-Pilot boot/shutdown/restart actions
+#
+
+# Get standard environment
+. $PCP_DIR/etc/pcp.env
+
+_usage()
+{
+    echo "Usage: $PCP_SYSCONF_DIR/pmcd/rc.local [-v] {start|stop}"
+}
+
+# defaults
+#
+VERBOSE_CTL=off
+
+while getopts v c
+do
+    case $c
+    in
+	v)	# force verbose
+		VERBOSE_CTL=on
+		;;
+	
+	*)
+		_usage
+		exit 1
+		;;
+    esac
+done
+shift `expr $OPTIND - 1`
+
+# uncomment this if you wish
+#
+# [ $VERBOSE_CTL = on ] && echo "Local Performance Co-Pilot $1 script called."
+
+case $1 in
+
+	'start')
+	    # Add startup actions here
+	    ;;
+
+	'stop')
+	    # Add shutdown actions here
+	    ;;
+
+	*)
+	    echo "Usage: $0 {start|stop}"
+	    ;;
+esac

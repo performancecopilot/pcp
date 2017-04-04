@@ -1,0 +1,34 @@
+#! /bin/sh
+# PCP QA Test No. 194
+# fallout ... initial fix introduced a bug in the timeout path
+# pv 935490
+#
+# Copyright (c) 2005 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+signal=$PCP_BINADM_DIR/pmsignal
+status=0	# success is the default!
+$sudo rm -rf $tmp.*
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+$sudo rm -f core*
+
+( src/dumb_pmda >$seq.full 2>&1 ) &
+
+sleep 15
+$signal -a -s KILL dumb_pmda >/dev/null 2>&1
+
+wait
+
+_check_core
+
+exit

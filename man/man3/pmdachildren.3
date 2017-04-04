@@ -1,0 +1,132 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+.\" Copyright (c) 2009 Ken McDonell.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMDACHILDREN 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmdaChildren\f1 \- translate a PMID to a set of dynamic performance metric names
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.br
+#include <pcp/impl.h>
+.br
+#include <pcp/pmda.h>
+.sp
+.ad l
+.hy 0
+.in +8n
+.ti -8n
+int pmdaChildren(char *\fIname\fP, int \fItraverse\fP, char\ ***\fIoffspring\fP, int\ **\fIstatus\fP, pmdaExt\ *\fIpmda\fP);
+.sp
+.in
+.hy
+.ad
+cc ... \-lpcp_pmda \-lpcp
+.ft 1
+.SH DESCRIPTION
+As part of the Performance Metrics Domain Agent (PMDA) API (see
+.BR PMDA (3)),
+.BR pmdaChildren
+is the generic callback for
+returning dynamic metric names (and their status) that are descendants of
+.IR name .
+.PP
+Because implementing dynamic performance metrics requires specific
+PMDA support, and the facility is an optional component of a PMDA (most
+PMDAs do
+.B not
+support dynamic performance metrics),
+.B pmdaChildren
+is a skeleton implementation that returns
+.BR PM_ERR_NAME .
+.PP
+A PMDA that supports dynamic performance metrics will provide a private
+callback that replaces
+.B pmdaChildren
+(by assignment to
+.I version.four.children
+of the
+.I pmdaInterface
+structure)
+and takes the initial metric
+.I name
+and returns names via
+.IR offspring []
+and the leaf or non-leaf status of each via
+.IR status [].
+.PP
+If
+.I traverse
+is 0, then the behaviour is akin to
+.BR pmGetChildren (3)
+and
+.IR offspring []
+contains the relative name component for the immediate descendants of
+.IR name.
+.PP
+If
+.I traverse
+is 1, then the behaviour is akin to
+.BR pmTraversePMNS (3)
+and
+.IR offspring []
+contains the absolute names of all dynamic metrics that are decedents
+of
+.IR name .
+.PP
+The resulting list of pointers
+.I offspring
+.B and
+the values
+(the names) that the pointers reference will have been
+allocated by
+.B pmdaChildren
+with a single call to
+.BR malloc (3),
+and the
+caller of
+.B pmdaChildren
+will call
+.BR free (\c
+.IR offspring )
+to release the space
+when it is no longer required.
+The same holds true for the 
+.I status
+array.
+.SH DIAGNOSTICS
+.B 
+pmdaChildren
+returns
+.B PM_ERR_NAME
+if the name is not recognized or cannot be translated,
+otherwise the number of descendent metric names found.
+.SH CAVEAT
+The PMDA must be using 
+.B PMDA_PROTOCOL_4 
+or later, as specified in the call to 
+.BR pmdaDSO (3)
+or 
+.BR pmdaDaemon (3).
+.SH SEE ALSO
+.BR PMAPI (3),
+.BR PMDA (3),
+.BR pmdaDaemon (3),
+.BR pmdaDSO (3),
+.BR pmdaMain (3),
+.BR pmGetChildren (3)
+and
+.BR pmTraversePMNS (3).

@@ -1,0 +1,104 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2013 Red Hat.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMDAATTRIBUTE 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmdaAttribute\f1 \- informs a PMDA about client connection attributes
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.br
+#include <pcp/impl.h>
+.br
+#include <pcp/pmda.h>
+.sp
+int pmdaAttribute(int \fIcontext\fP, int \fIkey\fP, char *\fIvalue\fP, int \fIlength\fP, pmdaExt *\fIpmda\fP);
+.sp
+cc ... \-lpcp_pmda \-lpcp
+.ft 1
+.SH DESCRIPTION
+As part of the Performance Metrics Domain Agent (PMDA) API (see
+.BR PMDA (3)),
+.B pmdaAttribute
+is the generic callback for responding to client connection attributes.
+These attributes include client credential information, such as user ID
+and group ID.
+.PP
+A PMDA that supports connection attributes will provide a private
+.B pmdaAttribute
+callback
+by assignment to
+.I version.six.attribute
+of the
+.I pmdaInterface
+structure, and implement custom logic for any of the attribute
+.IR key \-\c
+.I value
+pairs of interest to it.
+.PP
+All attributes are associated with a specific client context, and these
+can be uniquely identified using the
+.I ctx
+first argument.
+The PMDA should track client connections, and disconnections using the
+.BR pmdaSetEndContextCallBack (3)
+interface, as a result.
+The
+.BR pmdaGetContext (3)
+interface may be particularly helpful also.
+.PP
+All attributes are passed as 
+.IR key \-\c
+.I value
+pairs and the
+.I value
+is always passed as a null-terminated string of given
+.IR length .
+This includes numeric attributes like the user ID.
+.PP
+The most commonly used attributes would be PCP_ATTR_USERID and PCP_ATTR_GROUPID
+but others may also be optionally passed (such as PCP_ATTR_USERNAME) if they are
+available.
+Some attributes will be consumed by
+.B pmcd
+and never through passed to PMDAs, such as PCP_ATTR_PASSWORD.
+A complete list of all possible attributes can be found in the headers listed
+above, all are prefixed by PCP_ATTR.
+.SH DIAGNOSTICS
+.B pmdaAttribute
+should return either zero on success, or a negative return code
+to indicate an error in handling the attribute.
+This return code cannot be used to indicate a client should be
+disallowed access \- such functionality must be performed by the agent in
+response to callbacks for the client in question (using PM_ERR_PERMISSION
+for those specific callbacks, for that specific client.
+In other words, errors will be be passed to PMCD but there is no guarantee
+made that the error will be return to the client and result in termination
+of the client, for example.
+.SH CAVEAT
+The PMDA must be using 
+.B PMDA_PROTOCOL_6 
+or later, as specified in the call to 
+.BR pmdaDSO (3)
+or 
+.BR pmdaDaemon (3).
+.SH SEE ALSO
+.BR PMAPI (3),
+.BR PMDA (3),
+.BR pmdaDaemon (3),
+.BR pmdaDSO (3),
+.BR pmdaMain (3)
+and
+.BR pmdaGetContext (3).

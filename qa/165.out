@@ -1,0 +1,202 @@
+QA output created by 165
+=== kernel.all.load - instantaneous ===
+
+--- arg  ---
+Note: timezone set to local timezone of host "kenj-pc" from archive
+
+metric:    kernel.all.load
+archive:   archives/kenj-pc-1
+host:      kenj-pc
+start:     Sun Feb  8 12:22:31 2004
+end:       Sun Feb  8 15:28:46 2004
+semantics: instantaneous value
+units:     none
+samples:   4
+interval:  60.00 sec
+12:22:31.724  No values available
+
+                 1 minute      5 minute     15 minute 
+12:23:31.724       0.1000        0.1700        0.1400 
+12:24:31.724       0.1900        0.1900        0.1400 
+12:25:31.724       0.1500        0.1700        0.1400 
+
+--- arg -f 0 ---
+Note: timezone set to local timezone of host "kenj-pc" from archive
+
+metric:    kernel.all.load
+archive:   archives/kenj-pc-1
+host:      kenj-pc
+start:     Sun Feb  8 12:22:31 2004
+end:       Sun Feb  8 15:28:46 2004
+semantics: instantaneous value
+units:     none
+samples:   4
+interval:  60.00 sec
+12:22:31.724  No values available
+
+                 1 minute      5 minute     15 minute 
+12:23:31.724            0             0             0 
+12:24:31.724            0             0             0 
+12:25:31.724            0             0             0 
+
+--- arg -f 3 ---
+Note: timezone set to local timezone of host "kenj-pc" from archive
+
+metric:    kernel.all.load
+archive:   archives/kenj-pc-1
+host:      kenj-pc
+start:     Sun Feb  8 12:22:31 2004
+end:       Sun Feb  8 15:28:46 2004
+semantics: instantaneous value
+units:     none
+samples:   4
+interval:  60.00 sec
+12:22:31.724  No values available
+
+                 1 minute      5 minute     15 minute 
+12:23:31.724        0.100         0.170         0.140 
+12:24:31.724        0.190         0.190         0.140 
+12:25:31.724        0.150         0.170         0.140 
+
+--- arg -f 0 -w 6 ---
+Note: timezone set to local timezone of host "kenj-pc" from archive
+
+metric:    kernel.all.load
+archive:   archives/kenj-pc-1
+host:      kenj-pc
+start:     Sun Feb  8 12:22:31 2004
+end:       Sun Feb  8 15:28:46 2004
+semantics: instantaneous value
+units:     none
+samples:   4
+interval:  60.00 sec
+12:22:31.724  No values available
+full label for instance[0]: 1 minute
+full label for instance[1]: 5 minute
+full label for instance[2]: 15 minute
+
+            1 minu 5 minu 15 min 
+12:23:31.724     0      0      0 
+12:24:31.724     0      0      0 
+12:25:31.724     0      0      0 
+
+--- arg -w 9 -f 3 ---
+Note: timezone set to local timezone of host "kenj-pc" from archive
+
+metric:    kernel.all.load
+archive:   archives/kenj-pc-1
+host:      kenj-pc
+start:     Sun Feb  8 12:22:31 2004
+end:       Sun Feb  8 15:28:46 2004
+semantics: instantaneous value
+units:     none
+samples:   4
+interval:  60.00 sec
+12:22:31.724  No values available
+
+             1 minute  5 minute 15 minute 
+12:23:31.724    0.100     0.170     0.140 
+12:24:31.724    0.190     0.190     0.140 
+12:25:31.724    0.150     0.170     0.140 
+
+=== irix.network.interface.total.packets - counter ===
+
+--- arg  ---
+Note: timezone set to local timezone of host "gonzo" from archive
+
+metric:    irix.network.interface.total.packets
+archive:   archives/changeinst
+host:      gonzo
+start:     Tue Aug  5 07:45:41 1997
+end:       Tue Aug  5 07:45:59 1997
+semantics: cumulative counter (converting to rate)
+units:     count (converting to count / sec)
+samples:   4
+interval:  1.00 sec
+07:45:41.422  No values available
+
+                 ec0         ec2         lo0    
+07:45:42.422  No values available
+07:45:43.422     5.000            ?     48.00   
+07:45:44.422     1.000            ?      8.000  
+07:45:45.422  No values available
+
+--- arg -f 0 ---
+Note: timezone set to local timezone of host "gonzo" from archive
+
+metric:    irix.network.interface.total.packets
+archive:   archives/changeinst
+host:      gonzo
+start:     Tue Aug  5 07:45:41 1997
+end:       Tue Aug  5 07:45:59 1997
+semantics: cumulative counter (converting to rate)
+units:     count (converting to count / sec)
+samples:   4
+interval:  1.00 sec
+07:45:41.422  No values available
+
+                    ec0         ec2         lo0 
+07:45:42.422  No values available
+07:45:43.422          5           ?          48 
+07:45:44.422          1           ?           8 
+07:45:45.422  No values available
+
+--- arg -f 1 ---
+Note: timezone set to local timezone of host "gonzo" from archive
+
+metric:    irix.network.interface.total.packets
+archive:   archives/changeinst
+host:      gonzo
+start:     Tue Aug  5 07:45:41 1997
+end:       Tue Aug  5 07:45:59 1997
+semantics: cumulative counter (converting to rate)
+units:     count (converting to count / sec)
+samples:   4
+interval:  1.00 sec
+07:45:41.422  No values available
+
+                    ec0         ec2         lo0 
+07:45:42.422  No values available
+07:45:43.422        5.0           ?        48.0 
+07:45:44.422        1.0           ?         8.0 
+07:45:45.422  No values available
+
+--- arg -w 4 -f 0 ---
+Note: timezone set to local timezone of host "gonzo" from archive
+
+metric:    irix.network.interface.total.packets
+archive:   archives/changeinst
+host:      gonzo
+start:     Tue Aug  5 07:45:41 1997
+end:       Tue Aug  5 07:45:59 1997
+semantics: cumulative counter (converting to rate)
+units:     count (converting to count / sec)
+samples:   4
+interval:  1.00 sec
+07:45:41.422  No values available
+
+             ec0  ec2  lo0 
+07:45:42.422  No values available
+07:45:43.422   5    ?   48 
+07:45:44.422   1    ?    8 
+07:45:45.422  No values available
+
+--- arg -w 6 -f 2 ---
+Note: timezone set to local timezone of host "gonzo" from archive
+
+metric:    irix.network.interface.total.packets
+archive:   archives/changeinst
+host:      gonzo
+start:     Tue Aug  5 07:45:41 1997
+end:       Tue Aug  5 07:45:59 1997
+semantics: cumulative counter (converting to rate)
+units:     count (converting to count / sec)
+samples:   4
+interval:  1.00 sec
+07:45:41.422  No values available
+
+               ec0    ec2    lo0 
+07:45:42.422  No values available
+07:45:43.422  5.00      ?  48.00 
+07:45:44.422  1.00      ?   8.00 
+07:45:45.422  No values available

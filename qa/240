@@ -1,0 +1,126 @@
+#! /bin/sh
+# PCP QA Test No. 240
+# pmnsmerge with nested cpp directives in the first arg
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=0
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+mkdir $tmp.dir
+cd $tmp.dir
+
+cat <<End-of-File >r0
+root {
+}
+End-of-File
+
+cat <<End-of-File >r1
+root {
+    foo
+    boo		1:2:3
+    eek
+}
+#include "r2"
+#include "r3"
+End-of-File
+
+cat <<End-of-File >r2
+#define FOO 1
+foo {
+    fumble	FOO:2:1
+    bar
+}
+#include "r4"
+End-of-File
+
+cat <<End-of-File >r3
+eek {
+    stumble	1:2:4
+}
+End-of-File
+
+cat <<End-of-File >r4
+foo.bar {
+    mumble	FOO:2:2
+}
+End-of-File
+
+cat <<End-of-File >r5
+root {
+    root_	2:2:0
+    surprise
+    foo
+    eek
+}
+#include "r6"
+End-of-File
+
+cat <<End-of-File >r6
+#undef FOO
+#define FOO 2
+foo {
+    foo_	FOO:2:1
+    bar
+}
+foo.bar {
+    foobar_	FOO:2:2
+    xtra
+}
+eek {
+    eek_	FOO:2:3
+}
+surprise {
+    s1_		FOO:3:1
+    s2_		FOO:3:2
+}
+foo.bar.xtra {
+    x1_		FOO:4:1
+    x2_		FOO:4:2
+}
+End-of-File
+
+echo "-- null --"
+rm -f out-pmns
+pmnsmerge r0 out-pmns
+cat out-pmns
+pminfo -n out-pmns -m | sort
+
+echo
+echo "-- r1 --"
+pminfo -n r1 -m | sort
+
+echo
+echo "-- r5 --"
+pminfo -n r5 -m | sort
+
+echo
+echo "-- null + r1 --"
+rm -f out-pmns
+pmnsmerge r0 r1 out-pmns
+cat out-pmns
+pminfo -n out-pmns -m | sort
+
+echo
+echo "-- null + r1 + r5 --"
+rm -f out-pmns
+pmnsmerge r0 r1 r5 out-pmns
+cat out-pmns
+pminfo -n out-pmns -m | sort
+
+echo
+echo "-- r1 + r5 --"
+rm -f out-pmns
+pmnsmerge r1 r5 out-pmns
+cat out-pmns
+pminfo -n out-pmns -m | sort

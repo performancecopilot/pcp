@@ -1,0 +1,109 @@
+#!/bin/sh
+# PCP QA Test No. 703
+# weblog PMDA install/remove test
+#
+# Copyright (c) 2015 Red Hat.
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.pcpweb
+
+[ -f $PCP_PMDAS_DIR/weblog/pmdaweblog ] || _notrun "weblog PMDA not installed"
+
+if [ $PCP_PLATFORM = solaris ]
+then
+    _notrun "weblog PMDA won't work for Solaris Apache install"
+fi
+
+status=1	# failure is the default!
+
+_cleanup()
+{
+    _restore_state
+    rm -f $tmp.*
+    exit $status
+}
+trap _cleanup 0 1 2 3 15
+
+_pminfo_filter()
+{
+    # *.(cached|uncached|client).* might have no values available
+    sed -e '
+        /\.cached\...* No value(s) available/d
+        /\.uncached\...* No value(s) available/d
+        /\.client\...* No value(s) available/d
+    '
+}
+
+_filter()
+{
+    sed '
+        s/[ 	][ 	]*/ /g;
+	s/ weblog metrics / web metrics /;
+	/Updating the Performance Metrics Name /,/of symbol table/d;
+	/Check web metrics have gone away/d;
+        /^---*$/d;
+	/Culling the Performance Metrics Name/,/ done/d;
+	/make: Nothing to be done for .install./d;
+        /Installing files \.\.\./d;
+        /Removing files \.\.\./d;
+    ' | $PCP_AWK_PROG '
+skip == 1 && /^Found/			{ skip = 0 }
+skip == 2 && /^A configuration file can be automatically generated/	{
+					  print ""
+					  print
+					  skip = 0
+					  next
+					}
+skip == 0 && /Do you want a default weblog PMDA installation/		{
+					  print
+					  skip = 1
+					  next
+					}
+skip == 0 && / Server\./		{ print "... some server(s) found ..."
+					  skip = 2
+					  next
+					}
+skip > 0				{ next }
+/Check web metrics have appeared /	{ next }
+					{ print }'
+}
+
+# real QA test starts here
+
+rm -f $seq.full
+_save_state
+_remove_pmda weblog > /dev/null
+
+echo "=== install weblog PMDA ===" | tee -a $seq.full
+_install_pmda weblog | tee -a $seq.full | _filter | $PCP_AWK_PROG '
+/Installing pmchart view/	{ skip = 0; next }
+/Terminate PMDA if already installed/	{ skip = 0 }
+skip == 1	{ next }
+/^Found /	{ print "Found at least one server ..."
+		  skip = 1
+		  next
+		}
+		{ print }'
+                
+echo "=== check metrics (expect no output) ===" 
+
+pminfo -v web | tee -a $seq.full | _pminfo_filter
+
+pminfo -v web > /dev/null                       || _fail "install failed?"
+[ `_pmcount web` -ge 69 ]                       || _fail "Too few metrics?"
+[ `_pmget web.config.numservers` -ge 1 ]        || _fail "No servers found?"
+
+echo "=== remove weblog PMDA ==="
+_remove_pmda weblog | _filter
+
+echo
+echo "=== Checking uninstall (expect no output) ==="
+ps $PCP_PS_ALL_FLAGS | grep '[p]mdaweblog'
+pmprobe web 2>&1 | $PCP_AWK_PROG '$2 > 0	{ print "Oops ...",$0 }'
+
+status=0
+exit

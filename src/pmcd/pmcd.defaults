@@ -1,0 +1,30 @@
+# Environment variables for the pmcd daemon.  Refer also to the
+# pmcd.options and pmcd.conf files for additional configuration.
+
+# Behaviour regarding listening on external-facing interfaces;
+# unset PMCD_LOCAL to allow connections from remote hosts.
+# A value of 0 permits remote connections, 1 permits local only.
+# PMCD_LOCAL=1
+
+# Max length to which the queue of pending connections may grow
+# A value of 5 is the default.
+# PMCD_MAXPENDING=5
+
+# Default behaviour regarding pmcd's approach to starting PMDAs;
+# In cases where pmdaroot is available, setting this variable to
+# 1, offloads starting and stopping of agents to pmdaroot.  This
+# allows pmcd to not require a restart when starting a new PMDA.
+PMCD_ROOT_AGENT=1
+
+# Default behaviour regarding pmcd's approach to re-starting any
+# unresponsive PMDAs; this should only be used with pmdaroot and
+# PMCD_ROOT_AGENT=1 as it allows pmcd to attempt to automatically
+# restart any exited PMDA that it detects (which usually requires
+# privileges not available to pmcd itself).
+PMCD_RESTART_AGENTS=1
+
+# Default timeout for waiting on pmcd to accept connections; any
+# longer than this value and the rc scripts report it as failed.
+# The value is a PCPIntro(1) interval in units of seconds and it
+# will be passed directly to the pmcd_wait(1) utility.
+# PMCD_WAIT_TIMEOUT=60

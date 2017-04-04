@@ -1,0 +1,143 @@
+#! /bin/sh
+# PCP QA Test No. 324
+# Install/Remove for txmon pmda
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ -d $PCP_PMDAS_DIR/txmon ] || _notrun "txmon PMDA directory not found"
+
+# may need to "ipcrm -M 0xdeadbeef" if this happens:
+$sudo ipcs -m | grep -iq deadbeef && \
+    _notrun "Cannot run with SHM key 0xdeadbeef already in use"
+
+echo >$tmp.input 'b
+pigs
+can
+fly
+'
+
+status=1
+done_clean=false
+
+_cleanup()
+{
+    if $done_clean
+    then
+	:
+    else
+	if [ -f $tmp.pmcd.conf ]
+	then
+	    $sudo cp $tmp.pmcd.conf $PCP_PMCDCONF_PATH
+	    rm -f $tmp.pmcd.conf
+	fi
+	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+	_wait_for_pmcd
+	_wait_for_pmlogger
+	if $install_on_cleanup
+	then
+	    ( cd $PCP_PMDAS_DIR/txmon; $sudo ./Install <$tmp.input >/dev/null 2>&1 )
+	else
+	    ( cd $PCP_PMDAS_DIR/txmon; $sudo ./Remove </dev/null >/dev/null 2>&1 )
+	fi
+	rm -f $tmp.*
+	# toss output away in case shm segment already removed or not
+	# created and the installed version of ipcrm(1) complains
+	#
+	$sudo ipcrm -M 0xdeadbeef >/dev/null 2>&1
+	$sudo ipcs -m | grep -iq deadbeef && echo "Failed to removve SHM key 0xdeadbeef"
+	done_clean=true
+    fi
+    exit $status
+}
+
+install_on_cleanup=false
+pminfo txmon >/dev/null 2>&1 && install_on_cleanup=true
+
+trap "_cleanup" 0 1 2 3 15
+
+_filter()
+{
+    _filter_pmda_install
+}
+
+_filter_info()
+{
+    sed \
+	-e 's/value -[0-9][0-9]*\.[0-9]*/value NEGATIVE NUMBER/' \
+	-e 's/value -[0-9][0-9]*/value NEGATIVE NUMBER/' \
+	-e 's/value [0-9][0-9]*\.[0-9]*/value NUMBER/' \
+	-e 's/value [0-9][0-9]*/value NUMBER/'
+}
+
+# real QA test starts here
+home=$PCP_PMDAS_DIR
+iam=txmon
+if [ ! -d $home/$iam ]
+then
+    echo "Where is $home/$iam?"
+    exit 1
+fi
+cd $home/$iam
+unset ROOT MAKEFLAGS
+
+# copy the pmcd config file to restore state later.
+cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf
+
+# start from a known starting point
+$sudo ./Remove >/dev/null 2>&1
+
+if $sudo $PCP_MAKE_PROG clobber >$tmp.out 2>&1
+then
+    :
+else
+    cat $tmp.out
+    echo "Arrgh, make clobber failed"
+    exit
+fi
+
+if $sudo $PCP_MAKE_PROG >$tmp.out 2>&1
+then
+    :
+else
+    cat $tmp.out
+    echo "Arrgh, make failed"
+    exit
+fi
+
+echo
+echo "=== default $iam agent installation ==="
+$sudo ./Remove >$tmp.out 2>&1
+$sudo ./Install <$tmp.input -e >>$tmp.out 2>&1
+
+_filter <$tmp.out
+
+if pminfo -v $iam
+then
+    :
+else
+    echo "... failed! ... here is the Install log ..."
+    cat $tmp.out
+fi
+
+echo
+echo "=== validate values ==="
+$sudo $PCP_MAKE_PROG txrecord >/dev/null 2>&1
+./genload -n 20 | sed -e 's/[0-9][0-9]*\.[0-9][0-9]*/NUMBER/'
+pminfo -f $iam | _filter_info
+
+echo
+echo "=== remove $iam agent ==="
+$sudo ./Remove >$tmp.out 2>&1
+_filter <$tmp.out
+
+status=0
+exit

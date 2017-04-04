@@ -1,0 +1,822 @@
+'\"! tbl | mmdoc
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2016 Red Hat.
+.\" Copyright (C) 2015 Marko Myllynen <myllynen@redhat.com>
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.\"
+.TH PMREP 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmrep\f1 \- performance metrics reporter
+.SH SYNOPSIS
+\f3pmrep\f1
+[\f3\-CdGHLpruUVxz?\f1]
+[\f3\-a\f1 \f2archive\f1]
+[\f3\--archive-folio\f1 \f2folio\f1]
+[\f3\-A\f1 \f2align\f1]
+[\f3\-b\f1 \f2space-scale\f1]
+[\f3\-c\f1 \f2config\f1]
+[\f3\--container\f1 \f2container\f1]
+[\f3\-e\f1 \f2derived\f1]
+[\f3\-E\f1 \f2lines\f1]
+[\f3\-f\f1 \f2format\f1]
+[\f3\-F\f1 \f2outfile\f1]
+[\f3\-h\f1 \f2host\f1]
+[\f3\-i\f1 \f2instances\f1]
+[\f3\-K\f1 \f2spec\f1]
+[\f3\-l\f1 \f2delimiter\f1]
+[\f3\-o\f1 \f2output\f1]
+[\f3\-O\f1 \f2origin\f1]
+[\f3\-P\f1 \f2precision\f1]
+[\f3\-q\f1 \f2count-scale\f1]
+[\f3\-s\f1 \f2samples\f1]
+[\f3\-S\f1 \f2starttime\f1]
+[\f3\-t\f1 \f2interval\f1]
+[\f3\-T\f1 \f2endtime\f1]
+[\f3\-w\f1 \f2width\f1]
+[\f3\-X\f1 \f2label\f1]
+[\f3\-y\f1 \f2time-scale\f1]
+[\f3\-Z\f1 \f2timezone\f1]
+\f2metricspec [...]\f1
+.SH DESCRIPTION
+.de EX
+.in +0.5i
+.ie t .ft CB
+.el .ft B
+.ie t .sp .5v
+.el .sp
+.ta \\w' 'u*8
+.nf
+..
+.de EE
+.fi
+.ie t .sp .5v
+.el .sp
+.ft R
+.in
+..
+.B pmrep
+is a customizable performance metrics reporting tool.
+Any available performance metric, live or archived, system and/or application,
+can be selected for reporting using one of the output alternatives listed below
+together with applicable formatting options.
+.P
+.B pmrep
+collects the selected metric values through the facilities of the
+Performance Co-Pilot (PCP), see
+.BR PCPIntro (1).
+The metrics to be reported are specified on the command line, in a
+configuration file, or both.
+Metrics can be automatically converted and scaled using the PCP facilities,
+either by default or by per-metric scaling specifications.
+In addition to the existing metrics, derived metrics can be defined using the
+arithmetic expressions described in
+.BR pmRegisterDerived (3).
+.P
+Unless directed to another host by the
+.B \-h
+option,
+.B pmrep
+will contact the Performance Metrics Collector Daemon (PMCD, see
+.BR pmcd (1))
+on the local host.
+.P
+The
+.B \-a
+option causes
+.B pmrep
+to use the specified set of archive logs rather than connecting to a PMCD.
+The
+.B \-a
+and
+.B \-h
+options are mutually exclusive.
+.P
+The
+.B \-L
+option causes
+.B pmrep
+to use a local context to collect metrics from DSO PMDAs (Performance
+Metrics Domain Agents, ``plugins'') on the local host without PMCD.
+Only some metrics are available in this mode.
+The
+.BR \-a ,
+.BR \-h ,
+and
+.B \-L
+options are mutually exclusive.
+.P
+The metrics of interest are named in the
+.I metricspec
+argument(s).
+If a metricspec specifies a non-leaf node in the
+Performance Metrics Name Space (PMNS), then
+.B pmrep
+will recursively descend the PMNS and report on all leaf nodes (i.e.,
+metrics) for that metricspec.
+(Use for example
+.BR pminfo (1)
+to list all the leaf nodes and their descriptions.)
+.P
+A
+.I metricspec
+has three different forms. First, on the command line it can start with
+a colon (``:'') to indicate a
+.I metricset
+to be read from a
+.B pmrep
+configuration file (see
+.BR pmrep.conf (5))
+which can then consist of any number of metricspecs.
+Second, a
+.I metricspec
+starting with non-colon specifies a PMNS node as described above,
+optionally followed by metric formatting definitions (applicable only to
+leaf nodes).
+This so-called
+.I compact form
+of a metricspec is defined as follows:
+.P
+.in 1.5i
+.ft CW
+.nf
+metric[,label[,instance[,unit/scale[,type[,width]]]]]
+.fi
+.ft R
+.in
+.P
+A valid PMNS node
+.RI ( metric )
+is mandatory.
+It can be followed by a text
+.I label
+used by supporting output targets (such as
+.I csv
+and
+.IR stdout ,
+see below).
+The optional
+.I instance
+definition restricts
+.I csv
+and
+.I stdout
+reporting to the specified instances (so non-matching instances
+will be filtered).
+An optional
+.I unit/scale
+is applicable for dimension-compatible, non-string, and (currently)
+non-raw metrics.
+(See below for supported
+.I unit/scale
+specifications.)
+By default, cumulative counter metrics are converted to rates.
+If the optional
+.I type
+field is set to
+.B raw
+then this rate conversion is disabled, unit/scale specification is
+(currently) ignored and raw values are reported instead.
+Finally, for supporting output targets (currently:
+.IR stdout )
+a numeric
+.I width
+can be used to set the width of the output column for this metric.
+Too-wide numeric values for output will not be printed (apart from
+decimal places, numeric values will never be silently truncated).
+Too-wide strings will be truncated.
+.P
+As a special case with metrics that are counters with time units
+(nanoseconds to hours), the
+.I unit/scale
+can be used to change the default reporting (for example,
+milliseconds / second) to normalize to the range zero to one
+by setting this to
+.B sec
+(see also
+.BR -y ).
+.P
+The following
+.I metricspec
+requests the metric
+.B kernel.all.sysfork
+to be reported under the label
+.BR forks ,
+converting to the default rate count/s in an
+.B 8
+wide column.
+Although the definitions in this
+.I compact form
+are optional, they must always be provided in the order specified above.
+.P
+.in 1.5i
+.ft CW
+.nf
+kernel.all.sysfork,forks,,,,8
+.fi
+.ft R
+.in
+.P
+The third form of a metricspec is described and valid only in
+.BR pmrep.conf (5).
+.P
+Derived metrics are specified like PMNS leaf node metrics.
+.P
+Configuration file options override the corresponding built-in
+default values (if any).
+Command line options override the
+corresponding configuration file options (if any).
+.SH COMMAND LINE OPTIONS
+The available command line options are:
+.TP 5
+.B \-a
+Performance metric values are retrieved from the set of Performance Co-Pilot
+(PCP) archive log files identified by the argument
+.IR archive ,
+which is a comma-separated list of names, each
+of which may be the base name of an archive or the name of a directory containing
+one or more archives.
+See also
+.BR \-u .
+.TP
+.B \-\-archive\-folio
+Read metric source archives from the PCP archive
+.IR folio
+(see
+.BR mkaf (1)).
+.TP
+.B \-A
+When reporting archived metrics, force the initial sample to be
+aligned on the boundary of a natural time unit
+.IR align .
+Refer to
+.BR PCPIntro (1)
+for a complete description of the syntax for
+.IR align .
+.TP
+.B \-b
+.I Unit/scale
+for space (byte) metrics, possible values include
+.BR bytes ,
+.BR Kbytes ,
+.BR KB ,
+.BR Mbytes ,
+.BR MB ,
+and so forth up to
+.BR Ebytes ,
+.BR EB .
+This option will
+.I not
+override possible per-metric specifications.
+See also
+.BR pmParseUnitsStr (3).
+.TP
+.B \-c
+Specify the
+.I config
+file to use.
+The default is the first found of:
+.BR ./pmrep.conf ,
+.BR $HOME/.pmrep.conf ,
+.BR $HOME/pcp/pmrep.conf ,
+and
+.BR $PCP_SYSCONF_DIR/pmrep/pmrep.conf .
+See
+.BR pmrep.conf (5).
+Unlike with other options,
+.I config
+must be separated by a space from
+.BR \-c .
+.TP
+.B \-\-container
+Fetch performance metrics from the specified
+.IR container ,
+either local or remote (see
+.BR \-h ).
+.TP
+.B \-C
+Exit before reporting any values, but after parsing the configuration
+and metrics and printing possible headers.
+.TP
+.B \-d
+When replaying from an archive, this option requests that the prevailing
+real-time delay be applied between samples (see
+.BR \-t )
+to effect a pause, rather than the default behaviour of replaying  at
+full speed.
+.TP
+.B \-e
+Specify
+.I derived
+performance metrics. If
+.I derived
+starts with a slash (``/'') or with a dot (``.'') it will be
+interpreted as a derived metrics configuration file, otherwise it will
+be interpreted as comma-separated derived metric expressions.
+For details see
+.BR pmLoadDerivedConfig (3)
+and
+.BR pmRegisterDerived (3).
+.TP
+.B \-E
+Repeat the header every
+.I lines
+of output.
+.TP
+.B \-f
+Use the
+.I format
+string for formatting the timestamp.
+The format will be used with
+Python's
+.B datetime.strftime
+method which is mostly the same as that described in
+.BR strftime (3).
+An empty
+.I format
+string (i.e., '') will remove the timestamps from the output.
+The default with \fIstdout\fR is
+.BR %H:%M:%S .
+The default with \fIcsv\fR is
+.BR "%Y-%m-%d %H:%M:%S" .
+.TP
+.B \-F
+Specify the output file
+.IR outfile .
+See
+.BR \-o .
+.TP
+.B \-G
+Do not include global metrics in reporting (see
+.BR pmrep.conf (5)).
+.TP
+.B \-h
+Fetch performance metrics from
+.BR pmcd (1)
+on
+.IR host ,
+rather than the default localhost.
+.TP
+.B \-H
+Do not print any headers.
+.TP
+.B \-i
+Report only the listed
+.I instances
+(if present).
+By default all current instances are reported.
+This is a global option that is used for all metrics unless a
+metric-specific instance definition is provided as part of a
+.IR metricspec .
+Metrics without instances are reported as usual.
+.RS
+.PP
+The list may consist of one or more comma-separated instances.
+The instance name may be quoted with single (') or double (")
+quotes for those cases where the instance name contains commas
+or white space. Note that on the command line when specifying
+more than one instance, all the names must be quoted.
+.PP
+Multiple
+.B \-i
+options are allowed as an alternative way of specifying more than
+one instance of interest.
+.PP
+As an example, the following would report the same instances:
+.EX
+$ pmrep \-i "'1 minute','5 minute'" kernel.all.load
+$ pmrep \-i '"1 minute","5 minute"' kernel.all.load
+$ pmrep \-i "'1 minute'" -i "'5 minute'" kernel.all.load
+$ pmrep kernel.all.load,,"'1 minute','5 minute'"
+$ pmrep kernel.all.load,,'"1 minute","5 minute"'
+.EE
+.PP
+However, this would report only the 1-minute instance:
+.EX
+$ pmrep \-i '"1 minute","5 minute"' kernel.all.load,,"1 minute"
+.EE
+.RE
+.TP
+.B \-K
+When fetching metrics from a local context (see
+.BR \-L ),
+the
+.B \-K
+option may be used to control the DSO PMDAs that should be made
+accessible.
+The
+.I spec
+argument conforms to the syntax described in
+.BR __pmSpecLocalPMDA(3).
+More than one
+.B \-K
+option may be used.
+.TP
+.B \-l
+Specify the
+.I delimiter
+that separates each column of
+.I csv
+or
+.I stdout
+output.
+The
+.I delimiter
+may only be a single character.
+The default for
+.I stdout
+is two spaces (``  '') and comma (``,'') for
+.IR csv .
+.TP
+.B \-L
+Use a local context to collect metrics from DSO PMDAs on the local host
+without PMCD.
+See also
+.BR \-K .
+.TP
+.B \-o
+Use
+.I output
+target for reporting.
+The default target is
+.IR stdout .
+The available target alternatives are:
+.RS
+.TP 2
+.I archive
+Record metrics into a PCP archive which can later be replayed with PCP
+tools, including
+.B pmrep
+itself. See
+.BR pcp-archive (5)
+and
+.BR PCPIntro (1)
+for details about PCP archive files.
+Requires
+.BR \-F .
+.TP 2
+.I csv
+Print metrics in CSV format (subject to formatting options).
+.TP 2
+.I stdout
+Print metrics to stdout (format subject to formatting options).
+.TP 2
+.I zabbix
+Send metrics to a Zabbix server.
+See
+.BR pmrep.conf (5)
+for the needed Zabbix configuration options.
+This target is currently
+.IR experimental .
+.RE
+.TP
+.B \-O
+When reporting archived metrics, start reporting at
+.I origin
+within the time window (see
+.B \-S
+and
+.BR \-T ).
+Refer to
+.BR PCPIntro (1)
+for a complete description of the syntax for
+.IR origin .
+.TP
+.B \-p
+Print timestamps.
+By default no timestamps are printed.
+.TP
+.B \-P
+Use
+.I precision
+for numeric non-integer output values.
+If the value is too wide for its column width,
+.I precision
+is reduced one by one until the value fits, or not printed at all if it
+does not.
+The default is to use 3 decimal places (when applicable).
+.TP
+.B \-q
+.I Unit/scale
+for count metrics, possible values include
+.BR "count x 10^-1" ,
+.BR "count" ,
+.BR "count x 10" ,
+.BR "count x 10^2" ,
+and so forth from
+.B 10^-8
+to
+.BR 10^7 .
+.\" https://bugzilla.redhat.com/show_bug.cgi?id=1264124
+(These values are currently space-sensitive.)
+This option will
+.I not
+override possible per-metric specifications.
+See also
+.BR pmParseUnitsStr (3).
+.TP
+.B \-r
+Output raw metric values, do not convert cumulative counters to rates.
+This option \fIwill\fR override possible per-metric specifications.
+.TP
+.B \-s
+The argument
+.I samples
+defines the number of samples to be retrieved and reported.
+If
+.I samples
+is 0 or
+.B \-s
+is not specified,
+.B pmrep
+will sample and report continuously (in real time mode) or until the end
+of the set of PCP archives (in archive mode).
+See also
+.BR \-T .
+.TP
+.B \-S
+When reporting archived metrics, the report will be restricted to those
+records logged at or after
+.IR starttime .
+Refer to
+.BR PCPIntro (1)
+for a complete description of the syntax for
+.IR starttime .
+.TP
+.B \-t
+The default update
+.I interval
+may be set to something other than the default 1 second.
+The
+.I interval
+argument follows the syntax described in
+.BR PCPIntro (1),
+and in the simplest form may be an unsigned integer (the implied units
+in this case are seconds).
+See also the
+.B \-T
+and
+.B \-u
+options.
+.TP
+.B \-T
+When reporting archived metrics, the report will be restricted to those
+records logged before or at
+.IR endtime .
+Refer to
+.BR PCPIntro (1)
+for a complete description of the syntax for
+.IR endtime .
+.RS
+.PP
+When used to define the runtime before \fBpmrep\fR will exit,
+if no \fIsamples\fR is given (see \fB-s\fR) then the number of
+reported samples depends on \fIinterval\fR (see \fB-t\fR).
+If
+.I samples
+is given then
+.I interval
+will be adjusted to allow reporting of
+.I samples
+during runtime.
+In case all of
+.BR \-T ,
+.BR \-s ,
+and
+.B \-t
+are given,
+.I endtime
+determines the actual time
+.B pmrep
+will run.
+.RE
+.TP
+.B \-u
+When reporting archived metrics, by default values are reported
+according to the selected sample interval (\c
+.B \-t
+option), not according to the actual record interval in an archive.
+To this effect PCP interpolates the values to be reported based on the
+records in the archive.
+With the
+.B \-u
+option uninterpolated reporting is enabled, every recorded value for the
+selected metrics is reported and the requested sample interval (\c
+.BR \-t )
+is ignored.
+.RS
+.PP
+So for example, if a PCP archive contains recorded values for every 10
+seconds and the requested sample interval is 1 hour, by default
+.B pmrep
+will use an interpolation scheme to compute the values of the requested
+metrics from the values recorded in the proximity of these requested
+metrics and values for every 1 hour are reported.
+With
+.B \-u
+every record every 10 seconds are used as such (the reported values
+are still subject to rate conversion, use
+.B \-r
+to disable).
+.RE
+.TP
+.B \-U
+Omit unit information from of headers.
+.TP
+.B \-V
+Display version number and exit.
+.TP
+.B \-w
+Set the \fIstdout\fR output column
+.IR width .
+Strings will be truncated to this width.
+The default
+.I width
+is the shortest that can fit the metric label, the forced minimum is 3.
+This option will
+.I not
+override possible per-metric specifications.
+.TP
+.B \-x
+Print extended header.
+.TP
+.B \-X
+Swap columns and rows in \fIstdout\fR output, reporting one instance per
+line, using \fIlabel\fR as the label for instance column (set to an empty
+string \fB""\fR to enable swapping without a specific label).
+This is convenient to allow easily using
+.BR grep (1)
+to filter results or to more closely mimic other utilities.
+See also
+.BR -i .
+.TP
+.B \-y
+.I Unit/scale
+for time metrics, possible values include
+.BR nanosec ,
+.BR ns ,
+.BR microsec ,
+.BR us ,
+.BR millisec ,
+.BR ms ,
+and so forth up to
+.BR hour ,
+.BR hr .
+This option will
+.I not
+override possible per-metric specifications.
+See also
+.BR pmParseUnitsStr (3).
+.TP
+.B \-z
+Use the local timezone of the host that is the source of the
+performance metrics, as identified by either the
+.B \-h
+or the
+.B \-a
+options.
+The default is to use the timezone of the local host.
+.TP
+.B \-Z
+Use
+.I timezone
+when displaying the date and time.
+.I Timezone
+is in the format of the environment variable
+.B TZ
+as described in
+.BR environ (7).
+.TP
+.B \-?
+Display usage message and exit.
+.SH EXAMPLES
+The following examples use the PCP facilities for collecting the metric
+values, no external utilities are needed.
+The examples expect the default configuration file to contain the
+.I metricset
+specifications.
+.PP
+Display network interface statistics on the local host:
+.RS +4
+.ft CW
+.nf
+$ pmrep network.interface.total.bytes
+.fi
+.ft P
+.RE
+.PP
+Display per-device disk reads and writes from the host
+.I server1
+using two seconds interval and CSV output format:
+.RS +4
+.ft CW
+.nf
+$ pmrep -h server1 -o csv -t 2s disk.dev.read disk.dev.write
+.fi
+.ft P
+.RE
+.PP
+Display timestamped
+.BR vmstat (8)
+like information using MBs instead of bytes and also include the number
+of in-use inodes:
+.RS +4
+.ft CW
+.nf
+$ pmrep -p -b MB vfs.inodes.count :vmstat
+.fi
+.ft P
+.RE
+.PP
+Display
+.B sar -w
+and
+.B sar -W
+like information at the same time from the PCP archive
+.I ./20150921.09.13
+showing values recorded between 3 - 5 PM:
+.RS +4
+.ft CW
+.nf
+$ pmrep -a ./20150921.09.13 -S @15:00 -T @17:00 :sar-w :sar-W
+.fi
+.ft P
+.RE
+.PP
+Record all 389 Directory Server, XFS file system and CPU/disk/memory
+related metrics every five seconds for the next five minutes to the PCP
+archive
+.IR ./a :
+.RS +1
+.ft CW
+.nf
+$ pmrep -o archive -F ./a -t 5s -T 5m ds389 xfs kernel.all.cpu disk mem
+.fi
+.ft P
+.RE
+.SH FILES
+.PD 0
+.TP 10
+.BI pmrep.conf
+\fBpmrep\fR configuration file (see \fB-c\fR).
+.TP 10
+.BI $PCP_SYSCONF_DIR/pmrep/pmrep.conf
+System provided configuration file.
+.PD
+.SH BUGS
+No command line option can follow metrics.
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parametrize the file and directory names
+used by PCP.
+On each installation, the file
+.I /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (5).
+.SH SEE ALSO
+.BR mkaf (1),
+.BR PCPIntro (1),
+.BR pcp (1),
+.BR pcp-atop (1),
+.BR pmcd (1),
+.BR pmchart (1),
+.BR pmcollectl (1),
+.BR pmdiff (1),
+.BR pmdumplog (1),
+.BR pmdumptext (1),
+.BR pminfo (1),
+.BR pmiostat (1),
+.BR pmlogextract (1),
+.BR pmlogsummary (1),
+.BR pmprobe (1),
+.BR pmstat (1),
+.BR pmval (1),
+.BR sar (1),
+.BR __pmSpecLocalPMDA (3),
+.BR pmLoadDerivedConfig (3),
+.BR pmParseUnitsStr (3),
+.BR pmRegisterDerived (3),
+.BR strftime (3),
+.BR pcp-archive (5),
+.BR pcp.conf (5),
+.BR pmns (5),
+.BR pmrep.conf (5),
+.BR environ (7)
+and
+.BR vmstat (8).

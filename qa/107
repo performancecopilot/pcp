@@ -1,0 +1,68 @@
+#! /bin/sh
+# PCP QA Test No. 107
+# Check pmlc "query" command against the primary pmlogger
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+
+_filter()
+{
+    # Note
+    #	... already using all instances ... line comes from dynamic PMNS
+    #	support where sample.secret.foo.bar.max.redirect and
+    #   sampledso.secret.foo.bar.max.redirect are aliases (i.e. have the
+    #   same PMID) for pmcd.agent.status ... so the Warning is expected
+    #
+    echo "Checking for errors in $1 ..."
+    sed <$1 \
+	-e '/Warning: already using all instances for pmcd.agent.status/d' \
+	-e '/^$/d' \
+	-e '/^disk[^:]*$/d' \
+	-e '/^network[^:]*$/d' \
+	-e '/^kernel[^:]*$/d' \
+	-e '/^pmcd[^:]*$/d' \
+	-e '/^sample[^:]*$/d' \
+	-e '/^sampledso[^:]*$/d' \
+	-e '/^    mand on /d' \
+	-e '/^    mand off /d' \
+	-e '/^    adv  off /d' \
+	-e '/^    adv  on /d' \
+	-e '/^    (no instances)/d' \
+	-e '=' \
+	-e 's/^/	/' \
+    | sed -e '/^[0-9][0-9]*$/s//line &:/'
+}
+
+trap "rm -f $tmp.*; exit" 0 1 2 3 15
+
+# real QA test starts here
+pmlc <<End-of-File >$seq.full 2>&1
+connect primary
+query { disk network kernel pmcd sample sampledso }
+End-of-File
+
+$PCP_ECHO_PROG $PCP_ECHO_N "Expect at least one metric with logging state \"on\" ...""$PCP_ECHO_C"
+if egrep '^    (mand on )|(adv  on )' $seq.full >/dev/null
+then
+    echo " PASS"
+else
+    echo " FAIL"
+fi
+
+$PCP_ECHO_PROG $PCP_ECHO_N "Expect at least 250 metrics to be reported ...""$PCP_ECHO_C"
+num=`egrep '^(disk|network|kernel|pmcd|sample|sampledso)\.' $seq.full | wc -l | sed -e 's/ //g'`
+if [ $num -ge 250 ]
+then
+    echo " PASS"
+else
+    echo " FAIL (found $num)"
+fi
+
+_filter $seq.full

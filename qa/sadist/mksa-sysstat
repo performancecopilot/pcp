@@ -1,0 +1,44 @@
+#!/bin/sh
+#
+# Recreate the sadc data file for QA/370
+#
+
+if which sar >/dev/null 2>&1
+then
+    :
+else
+    echo "Error: sar not installed"
+    exit 1
+fi
+
+version=`sar -V 2>&1 | sed -n -e '/sysstat version /s/.* //p'`
+if [ -z "$version" ]
+then
+    echo "Arrgh ... cannot extract version from sar -V output ..."
+    sar -V
+    exit 1
+fi
+
+if [ -f sa-sysstat-$version ]
+then
+    echo "Error: data file sa-sysstat-$version already exists!"
+    exit 1
+fi
+
+sadc=""
+[ -x /usr/lib/sa/sadc ] && sadc=/usr/lib/sa/sadc
+[ -x /usr/lib64/sa/sadc ] && sadc=/usr/lib64/sa/sadc
+[ -x /usr/lib/sysstat/sadc ] && sadc=/usr/lib/sysstat/sadc
+if [ "X$sadc" = X ]
+then
+    echo "Error: cannot find sadc in any of the known places"
+    exit 1
+fi
+
+# collect data every 5 secs for 3 mins
+echo -n "Creating sa-sysstat-$version ..."
+$sadc -S XALL 5 36 sa-sysstat-$version
+echo
+
+exit 0
+

@@ -1,0 +1,27 @@
+QA output created by 439
+sample.long.write_me  0 (adv off)
+
+[DATE] logcontrol(PID) Warning: ignored bad PMLOGGER_REQUEST_TIMEOUT = '10ABC'
+sample.long.write_me  0 (adv off)
+
+__pmConnectLogger(host=localhost, pid=-1, port=-2)
+__pmConnectLogger: pid == PM_LOG_ALL_PIDS makes no sense here
+logcontrol: Cannot connect to pmlogger (-1) on host "localhost": Connection refused
+
+__pmConnectLogger(host=localhost, pid=1, port=-2)
+__pmConnectLogger: __pmLogFindPort -> 1, cannot contact pmlogger
+logcontrol: Cannot connect to pmlogger (1) on host "localhost": Connection refused
+__pmLogFindLocalPorts: pmlogger port file $PCP_TMP_DIR/pmlogger/MYPID empty!
+__pmConnectLogger: __pmLogFindPort -> 1, cannot contact pmlogger
+logcontrol: Cannot connect to pmlogger (MYPID) on host "localhost": Connection refused
+__pmLogFindLocalPorts: pmlogger port file $PCP_TMP_DIR/pmlogger/MYPID: no port number
+__pmConnectLogger: __pmLogFindPort -> 1, cannot contact pmlogger
+logcontrol: Cannot connect to pmlogger (MYPID) on host "localhost": Connection refused
+__pmLogFindLocalPorts: pmlogger port file $PCP_TMP_DIR/pmlogger/MYPID: no PMCD host name
+__pmConnectLogger: __pmLogFindPort -> pid = 123456
+logcontrol: Cannot connect to pmlogger (MYPID) on host "localhost": Connection refused
+__pmLogFindLocalPorts: pmlogger port file $PCP_TMP_DIR/pmlogger/MYPID: no archive base pathname
+__pmConnectLogger: __pmLogFindPort -> pid = 123456
+logcontrol: Cannot connect to pmlogger (MYPID) on host "localhost": Connection refused
+__pmConnectLogger: __pmLogFindPort -> pid = 123456
+logcontrol: Cannot connect to pmlogger (MYPID) on host "localhost": Connection refused

@@ -1,0 +1,8 @@
+processor : 0
+cpu : 405GP
+clock : 198MHz
+revision : 0.196 (pvr 4011 00c4)
+bogomips : 198.33
+zero pages : total: 0 (0Kb) current: 0 (0Kb) hits: 0/0 (0%)
+plb bus clock : 99MHz
+pci bus clock : 33MHz

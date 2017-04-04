@@ -1,0 +1,54 @@
+QA output created by 572
+Waiting for pmcd to terminate ...
+Starting pmcd ... 
+Starting pmlogger ... 
+
+sample.string.write_me: pmLookupDesc: Unknown or illegal metric identifier
+
+pmcd.numagents
+value NUMBER
+sample.string.write_me: pmLookupDesc: Unknown or illegal metric identifier
+trivial.time: pmLookupDesc: Unknown or illegal metric identifier
+simple.numfetch: pmLookupDesc: Unknown or illegal metric identifier
+
+=== sample PMDA ===
+sample.string.write_me old value="13" new value="sample"
+
+pmcd.numagents
+    value 3
+
+sample.string.write_me
+    value "sample"
+trivial.time: pmLookupDesc: Unknown or illegal metric identifier
+simple.numfetch: pmLookupDesc: Unknown or illegal metric identifier
+
+=== trivial PMDA ===
+sample.string.write_me old value="sample" new value="trivial"
+
+pmcd.numagents
+    value 4
+
+sample.string.write_me
+    value "trivial"
+
+trivial.time
+value NUMBER
+simple.numfetch: pmLookupDesc: Unknown or illegal metric identifier
+
+=== simple PMDA ===
+sample.string.write_me old value="trivial" new value="simple"
+
+pmcd.numagents
+    value 5
+
+sample.string.write_me
+    value "simple"
+
+trivial.time
+value NUMBER
+
+simple.numfetch
+    value 2
+Waiting for pmcd to terminate ...
+Starting pmcd ... 
+Starting pmlogger ... 

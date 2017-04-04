@@ -1,0 +1,110 @@
+#!/bin/sh
+#
+# Recipes for making badlen-* family of archives.
+# 
+# Every one is based on a version of ../src/foo, with binary editing using
+# bvi (or similar) and cut-n-paste with dd.
+
+tmp=/var/tmp/$$
+trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+
+# Set up for a new badlen-X archive
+#
+X=0
+while true
+do
+    [ ! -f badlen-$X.index ] && break
+    X=`expr $X + 1`
+    if [ $X -eq 100 ]
+    then
+	echo "Botch: all archives badlen-0...badlen-99 already exist?"
+	exit 1
+    fi
+done
+if [ $X -eq 0 ]
+then
+    cp ../src/foo.0 badlen-0.0
+    cp ../src/foo.meta badlen-0.meta
+    cp ../src/foo.index badlen-0.index
+    X=1
+fi
+
+ln badlen-0.meta badlen-$X.meta
+ln badlen-0.index badlen-$X.index
+
+case $X
+in
+    1)	# Trailer len of first pmResult smaller than header len.
+	cp ../src/foo.0 badlen-$X.0
+	echo '263s\\.\\80\\' >$tmp.ex
+	;;
+
+    2)	# Data file truncated just before first trailer record ... 132
+	# bytes for label and 128 (4 bytes short) for first data record.
+	dd if=badlen-0.0 of=badlen-$X.0 bs=1 count=260
+	;;
+
+    3)	# Data file truncated mid way thru first pmResult ... 132 bytes for
+	# label and 120 (12 bytes short) for first partial data record.
+	dd if=badlen-0.0 of=badlen-$X.0 bs=1 count=252
+	;;
+
+    4)	# Empty data file
+	echo >badlen-$X.0
+	;;
+
+    5)	# Short label record (42 bytes, not 132)
+	dd if=badlen-0.0 of=badlen-$X.0 bs=1 count=42
+	;;
+
+    6)	# Label header len 64 not 132 as expected
+	cp ../src/foo.0 badlen-$X.0
+	echo '3s\\.\\40\\' >$tmp.ex
+	;;
+
+    7)	# Label trailer len 64 not 132 as expected
+	cp ../src/foo.0 badlen-$X.0
+	echo '131s\\.\\40\\' >$tmp.ex
+	;;
+
+    8)	# Label bad PM_LOG_VER
+	cp ../src/foo.0 badlen-$X.0
+	echo '7s\\.\\FF\\' >$tmp.ex
+	;;
+
+    9)  # Truncated metadata file
+	cp ../src/foo.0 badlen-$X.0
+	cp ../src/foo.index badlen-$X.index
+	rm -f badlen-$X.meta
+	dd if=../src/foo.meta of=badlen-$X.meta bs=1 count=840
+	;;
+
+    10)	# Data file truncated in trailer of label record
+	dd if=badlen-0.0 of=badlen-$X.0 bs=1 count=131
+	;;
+
+    11)	# Data file truncated in header of first pmResult
+	dd if=badlen-0.0 of=badlen-$X.0 bs=1 count=133
+	;;
+
+esac
+
+if [ -f $tmp.ex ]
+then
+    echo 'w' >>$tmp.ex
+    echo 'q' >>$tmp.ex
+
+    if which bvi >/dev/null 2>&1
+    then
+	bvi -f $tmp.ex badlen-$X.0
+    else
+	echo "bvi not installed"
+	echo "Need to apply the equivalent of this binary editing to badlen-$X.0"
+	cat $tmp.ex
+    fi
+fi
+
+echo "badlen-$X created."
+
+exit
+

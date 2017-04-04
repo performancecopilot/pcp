@@ -1,0 +1,145 @@
+#!/bin/sh
+# PCP QA Test No. 527
+# Check that timestamps are monotonic increasing for archives
+# created by libpcp_import.  Based on
+# https://bugzilla.redhat.com/show_bug.cgi?id=958745
+#
+# Copyright (c) 2013 Red Hat, Inc. and Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ -f ${PCP_LIB_DIR}/libpcp_import.${DSO_SUFFIX} ] || \
+        _notrun "No support for libpcp_import"
+perl -e "use PCP::LogImport" 2>/dev/null || \
+        _notrun "Perl PCP::LogImport module is not installed"
+
+
+_filter()
+{
+    # make deterministic tmp file names
+    # dodge buglet in die() line# handling for some perl versions
+    sed \
+	-e "s;$tmp;TMP;g" \
+	-e "s;line 0\.000.*$;line 2.;g" \
+	-e "s;line NaN\.$;line 2.;g" \
+    #end
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+# first data file
+#
+cat <<'End-of-File' >$tmp.gfs_inodes.csv
+Date,Time,Device,inodes
+2013-04-18,13:40,/dev/dm-12,102808
+2013-04-18,13:45,/dev/dm-12,102798
+2013-04-18,13:50,/dev/dm-12,102799
+2013-04-18,13:55,/dev/dm-12,102808
+2013-04-18,14:00,/dev/dm-12,102804
+2013-04-18,14:05,/dev/dm-12,103182
+2013-04-18,14:10,/dev/dm-12,102864
+2013-04-18,14:15,/dev/dm-12,102810
+2013-04-18,14:20,/dev/dm-12,102805
+End-of-File
+
+# second data file
+#
+cat <<'End-of-File' >$tmp.gfs_metadata.csv
+Date,Time,Device,fmb
+2013-04-18,13:40,/dev/dm-12,3712689
+2013-04-18,13:45,/dev/dm-12,3712699
+2013-04-18,13:50,/dev/dm-12,3712698
+2013-04-18,13:55,/dev/dm-12,3712689
+2013-04-18,14:00,/dev/dm-12,3712693
+2013-04-18,14:05,/dev/dm-12,3712273
+2013-04-18,14:10,/dev/dm-12,3712349
+2013-04-18,14:15,/dev/dm-12,3711980
+2013-04-18,14:20,/dev/dm-12,3711842
+End-of-File
+
+# Perl script
+#
+cat <<'End-of-File' >$tmp.pl
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+use Date::Parse;
+use Date::Format;
+use PCP::LogImport;
+
+End-of-File
+echo "pmiStart(\"$tmp.gfs\", 0);" >>$tmp.pl
+cat <<'End-of-File' >>$tmp.pl
+$_ = pmiSetTimezone('UTC');
+$_ == 0 || die "pmiSetTimezone(UTC): " . pmiErrStr($_);
+
+$_ = pmiAddMetric("gfs.inodes",
+	     PM_ID_NULL, PM_TYPE_DOUBLE, PM_INDOM_NULL,
+	     PM_SEM_INSTANT, pmiUnits(0,0,1,0,0,PM_COUNT_ONE));
+$_ == 0 || die "pmiAddMetric(gfs.inodes): " . pmiErrStr($_);
+
+
+End-of-File
+echo "open(INFILE, \"<$tmp.gfs_inodes.csv\");" >>$tmp.pl
+cat <<'End-of-File' >>$tmp.pl
+while (<INFILE>) {
+  next if $. == 1;
+  chomp;
+  my @part = split(/,/, $_);
+
+  $_ = pmiPutValue("gfs.inodes", "", $part[3]);
+  $_ == 0 || die "pmiPutValue(gfs.inodes): " . pmiErrStr($_);
+
+  $_ = pmiWrite(str2time($part[0] . "T" . $part[1] . ":00", 'UTC'), 0);
+  $_ == 0 || die "pmiWrite(gfs.fmb): " . pmiErrStr($_);
+}
+close(INFILE);
+
+
+$_ = pmiAddMetric("gfs.fmb",
+	     PM_ID_NULL, PM_TYPE_DOUBLE, PM_INDOM_NULL,
+	     PM_SEM_INSTANT, pmiUnits(0,0,1,0,0,PM_COUNT_ONE));
+$_ == 0 || die "pmiAddMetric(gfs.fmb): " . pmiErrStr($_);
+
+End-of-File
+echo "open(INFILE, \"<$tmp.gfs_metadata.csv\");" >>$tmp.pl
+cat <<'End-of-File' >>$tmp.pl
+while (<INFILE>) {
+  next if $. == 1;
+  chomp;
+  my @part = split(/,/, $_);
+
+  $_ = pmiPutValue("gfs.fmb", "", $part[3]);
+  $_ == 0 || die "pmiPutValue(gfs.fmb): " . pmiErrStr($_);
+
+  $_ = pmiWrite(str2time($part[0] . "T" . $part[1] . ":00", 'UTC'), 0);
+  $_ == 0 || die "pmiWrite(gfs.fmb): " . pmiErrStr($_);
+}
+close(INFILE);
+
+
+pmiEnd();
+End-of-File
+
+# real QA test starts here
+perl $tmp.pl 2>&1 | _filter
+
+for part in 0 meta index
+do
+    [ -f $tmp.$part ] && echo "oops, .$part file created"
+done
+
+# success, all done
+status=0
+
+exit

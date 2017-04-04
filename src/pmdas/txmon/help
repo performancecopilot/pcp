@@ -1,0 +1,58 @@
+#
+# Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+# 
+# txmon PMDA help file in the ASCII format
+#
+# lines beginning with a # are ignored
+# lines beginning @ introduce a new entry of the form
+#  @ metric_name oneline-text
+#  help text goes
+#  here over multiple lines
+#  ...
+#
+# the metric_name is decoded against the default PMNS -- as a special case,
+# a name of the form NNN.MM (for numeric NNN and MM) is interpreted as an
+# instance domain identification, and the text describes the instance domain
+#
+# blank lines before the @ line are ignored
+#
+
+@ TXMON.0 Instance domain "transaction type name" for txmon PMDA
+There is one instance for each transaction type.
+
+@ txmon.count count by transaction type
+Count by transaction type of transactions serviced since the txmon PMDA
+started.
+
+@ txmon.reset_count reset count by transaction type
+Count by transaction type of transactions serviced since the last time
+the average and maximum summaries were reset.
+
+@ txmon.ave_time average time per transaction type
+Average recorded service time per transaction type since the last time
+the statistics were reset.
+
+@ txmon.max_time maximum time per transaction type
+Maximum recorded service time per transaction type since the last time
+the statistics were reset.
+
+@ txmon.control.level statistics control levels
+0 => no statistics are collected
+1 => transaction counts are enabled
+2 => transaction counts and service times are enabled
+
+@ txmon.control.reset reset statistics
+This metric is a toggle-switch ... any pmStore() operation for this
+metric will reset all statistics except txmon.count.
+
+The value for this metric is always 1.

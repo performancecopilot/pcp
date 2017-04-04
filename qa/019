@@ -1,0 +1,159 @@
+#! /bin/sh
+# PCP QA Test No. 019
+# Exercse optional PMDA availability for PM_CONTEXT_LOCAL
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+
+rm -f $seq.out
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+if [ $PCP_PLATFORM = linux ]
+then
+    # proc metrics may not be available
+    #
+    if pminfo proc.nprocs >/dev/null 2>&1
+    then
+	# available, but if not a DSO agent, then pminfo -L will
+	# know about the metric, but not find the PMDA
+	#
+	type=`pminfo -f pmcd.agent.type | sed -n -e '/"proc"/{
+s/.*value //
+p
+}'`
+	case "$type"
+	in
+	    0)  # DSO
+		ln $seq.linux.2 $seq.out || exit 1
+		;;
+	    2|4)# daemon
+		ln $seq.linux.4 $seq.out || exit 1
+		;;
+	    *)
+		echo "Botch ... don't understand proc PMDA type ($type)"
+		pminfo -f pmcd.agent.type
+		exit 1
+		;;
+	esac
+    else
+	ln $seq.linux.3 $seq.out || exit 1
+    fi
+elif [ $PCP_PLATFORM = darwin ]
+then
+    ln $seq.darwin $seq.out || exit 1
+elif [ $PCP_PLATFORM = solaris ]
+then
+    ln $seq.solaris $seq.out || exit 1
+else
+    echo "Error: no validated output for $PCP_PLATFORM"
+    exit 1
+fi
+
+echo "QA output created by $seq"
+
+trap "$sudo rm -f $tmp.*; exit 0" 0 1 2 3 15
+
+_filter()
+{
+    sed -e '/using .* kmem interface/d' \
+    | _filter_pmcd_log
+}
+
+# real QA test starts here
+
+# neither
+unset PCP_LITE_SAMPLE
+unset PMDA_LOCAL_SAMPLE
+unset PMDA_LOCAL_PROC
+echo "*** This should fail"
+echo "PCP_LITE_SAMPLE=$PCP_LITE_SAMPLE PMDA_LOCAL_SAMPLE=$PMDA_LOCAL_SAMPLE"
+pminfo -K clear -L -f 2>&1 \
+    sampledso.bin sampledso.long sampledso.longlong \
+    sampledso.float sampledso.double sampledso.string sampledso.aggregate \
+| _filter
+
+# PCP_LITE_SAMPLE set
+echo
+echo "*** This should work"
+PCP_LITE_SAMPLE=yes
+export PCP_LITE_SAMPLE
+echo "PCP_LITE_SAMPLE=$PCP_LITE_SAMPLE PMDA_LOCAL_SAMPLE=$PMDA_LOCAL_SAMPLE"
+$sudo_local_ctx pminfo -L -f 2>&1 \
+    sampledso.bin sampledso.long sampledso.longlong \
+    sampledso.float sampledso.double sampledso.string sampledso.aggregate \
+| _filter
+unset PCP_LITE_SAMPLE
+
+# PMDA_LOCAL_SAMPLE set
+echo
+echo "*** This should work"
+PMDA_LOCAL_SAMPLE=yes
+export PMDA_LOCAL_SAMPLE
+echo "PCP_LITE_SAMPLE=$PCP_LITE_SAMPLE PMDA_LOCAL_SAMPLE=$PMDA_LOCAL_SAMPLE"
+$sudo_local_ctx pminfo -L -f 2>&1 \
+    sampledso.bin sampledso.long sampledso.longlong \
+    sampledso.float sampledso.double sampledso.string sampledso.aggregate \
+| _filter
+unset PMDA_LOCAL_SAMPLE
+
+# both set
+echo
+echo "*** This should work"
+PMDA_LOCAL_SAMPLE=yes
+PCP_LITE_SAMPLE=yes
+export PMDA_LOCAL_SAMPLE PCP_LITE_SAMPLE
+echo "PCP_LITE_SAMPLE=$PCP_LITE_SAMPLE PMDA_LOCAL_SAMPLE=$PMDA_LOCAL_SAMPLE"
+$sudo_local_ctx pminfo -L -f 2>&1 \
+    sampledso.bin sampledso.long sampledso.longlong \
+    sampledso.float sampledso.double sampledso.string sampledso.aggregate \
+| _filter
+unset PMDA_LOCAL_SAMPLE PCP_LITE_SAMPLE
+
+# neither set
+echo
+echo "*** This should 1/3 work, proc[no] irix[yes] sampledso[n]"
+echo "PCP_LITE_SAMPLE=$PCP_LITE_SAMPLE PMDA_LOCAL_SAMPLE=$PMDA_LOCAL_SAMPLE"
+$sudo_local_ctx pminfo -K clear -L -f 2>&1 \
+    proc.nprocs kernel.all.cpu.idle kernel.all.load sampledso.float \
+| _filter \
+| sed -e '/value /{
+s/value -*[0-9][0-9]*\.[0-9][0-9]*/value NUMBER/g
+s/value -*[0-9][0-9]*/value NUMBER/g
+}'
+
+# PMDA_LOCAL_SAMPLE set
+echo
+echo "*** This should 2/3 work, proc[no] irix[yes] sampledso[yes]"
+PMDA_LOCAL_SAMPLE=yes
+echo "PMDA_LOCAL_SAMPLE=$PMDA_LOCAL_SAMPLE"
+export PMDA_LOCAL_SAMPLE
+$sudo_local_ctx pminfo -L -f 2>&1 \
+    proc.nprocs kernel.all.cpu.idle kernel.all.load sampledso.float \
+| _filter \
+| sed -e '/value /{
+s/value -*[0-9][0-9]*\.[0-9][0-9]*/value NUMBER/g
+s/value -*[0-9][0-9]*/value NUMBER/g
+}'
+unset PMDA_LOCAL_SAMPLE
+
+# PMDA_LOCAL_SAMPLE and PMDA_LOCAL_PROC set
+echo
+echo "*** This should work, proc[yes] irix[yes] sampledso[yes]"
+PMDA_LOCAL_SAMPLE=yes
+PMDA_LOCAL_PROC=yes
+echo "PMDA_LOCAL_SAMPLE=$PMDA_LOCAL_SAMPLE PMDA_LOCAL_PROC=$PMDA_LOCAL_PROC"
+export PMDA_LOCAL_SAMPLE PMDA_LOCAL_PROC
+$sudo_local_ctx pminfo -L -f 2>&1 \
+    proc.nprocs kernel.all.cpu.idle kernel.all.load sampledso.float \
+| _filter \
+| sed -e '/value /{
+s/value -*[0-9][0-9]*\.[0-9][0-9]*/value NUMBER/g
+s/value -*[0-9][0-9]*/value NUMBER/g
+}'
+unset PMDA_LOCAL_SAMPLE PMDA_LOCAL_PROC

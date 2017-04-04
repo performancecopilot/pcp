@@ -1,0 +1,101 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMNSDEL 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmnsdel\f1 \- delete a subtree of names from the Performance Co-Pilot PMNS
+.\" literals use .B or \f3
+.\" arguments use .I or \f2
+.SH SYNOPSIS
+.B $PCP_BINADM_DIR/pmnsdel
+[\f3\-n\f1 \f2namespace\f1]
+.I metricpath
+[ ... ]
+.SH DESCRIPTION
+.B pmnsdel
+removes subtrees of names from a Performance Metrics Name Space (PMNS),
+as used by the components of the
+Performance Co-Pilot (PCP).
+.P
+Normally
+.B pmnsdel
+operates on the default Performance Metrics Name Space (PMNS), however
+if the
+.B \-n
+option is specified an alternative namespace is used
+from the file
+.IR namespace .
+.PP
+The default PMNS is found in the file
+.I $PCP_VAR_DIR/pmns/root
+unless the environment variable
+.B PMNS_DEFAULT
+is set, in which case the value is assumed to be the pathname
+to the file containing the default PMNS.
+.PP
+The metric names to be deleted are all those for which one of the
+.IR metricpath
+arguments is
+a prefix in the PMNS, see
+.BR pmns (5).
+.PP
+All of the files defining the PMNS must be located within the
+directory that contains the root of the PMNS, and this would typically be
+.B $PCP_VAR_DIR/pmns
+for the default PMNS, and this would typically imply running
+.B pmnsdel
+as root.
+.PP
+Provided some initial integrity checks are satisfied,
+.B pmnsdel
+will update the necessary PMNS files.
+Should an error be encountered
+the original namespace is restored.  Note
+that any PMNS files that are no longer referenced by the modified namespace
+will not be removed, even though their contents are
+not part of the new namespace.
+.SH CAVEAT
+Once the writing of the new
+.I namespace
+file has begun, the signals SIGINT, SIGHUP and SIGTERM will be ignored
+to protect the integrity of the new files.
+.SH FILES
+.PD 0
+.IP \f2$PCP_VAR_DIR/pmns/root\f1 2.5i
+the default PMNS, when then environment variable
+.B PMNS_DEFAULT
+is unset
+.PD
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.I /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (5).
+.SH SEE ALSO
+.BR pmnsadd (1),
+.BR pmnsmerge (1),
+.BR pcp.conf (5),
+.BR pcp.env (5)
+and
+.BR pmns (5).

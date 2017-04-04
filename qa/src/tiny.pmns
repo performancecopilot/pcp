@@ -1,0 +1,15 @@
+
+root {
+	one	0:0:1
+	two	0:0:2
+	buckle
+}
+
+buckle {
+	my
+}
+
+buckle.my {
+	shoe	0:0:3
+}
+

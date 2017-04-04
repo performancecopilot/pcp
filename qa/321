@@ -1,0 +1,70 @@
+#! /bin/sh
+# PCP QA Test No. 317
+# pmie failure with 80%_time rule and imprecision in double arithmetic
+# when integer arithmetic would workd just fine
+#
+# Copyright (c) 2007 Aconex.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.*
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+pmie -z -a archives/conn20070309 -S @17:00 -T @17:10 <<'End-of-File' 2>&1 \
+| fgrep -v "evaluator exiting"
+service_name_cn = "CON_USE";
+sample_count = "@0..4";
+acx_filter = "echo";
+
+conn_critical = 80;
+conn_warning  = 70;
+conn_used = "aconex.connections.inuse $sample_count";
+
+some_inst ( (80 %_sample ($conn_used >= $conn_critical)) )
+    -> shell "$acx_filter %h %i $service_name_cn CRITICAL %v Ctns\n";
+
+some_inst ( (80 %_sample ($conn_used >= $conn_warning)) &&
+    !(80 %_sample ($conn_used >= $conn_critical)) )
+	-> shell "$acx_filter %h %i $service_name_cn WARNING %v Ctns\n";
+
+some_inst ( !(80 %_sample ($conn_used >= $conn_warning)) )
+    -> shell "$acx_filter %h %i $service_name_cn OK %v Ctns\n";
+
+some_inst (count_sample ($conn_used >= $conn_critical) >= 4)
+    -> shell "$acx_filter %h %i $'service_name_cn'_COUNT CRITICAL %v Ctns\n";
+End-of-File
+
+pmie -v -T 2sec <<'End-of-File' 2>&1 \
+| fgrep -v "evaluator exiting" \
+| sed -e '/warning cannot create stats file dir/d' \
+| _filter_pmie_log
+delta=3sec;
+some_inst sample.hordes.one > 249
+    -> print "HORDES > 249\n" "[%i] %v\n";
+
+count_inst (sample.hordes.one > 249) > 0
+    -> print "COUNT HORDES > 249\n" "%v\n";
+
+50 %_inst (sample.hordes.one > 249)
+    -> print "50% HORDES > 249: %v Ctns\n";
+
+some_inst sample.hordes.one <= 249
+    -> print "HORDES <= 249\n" "[%i] %v\n";
+
+count_inst (sample.hordes.one <= 249) > 0
+    -> print "COUNT HORDES <= 249\n" "%v\n";
+
+50 %_inst (sample.hordes.one <= 249)
+    -> print "50% HORDES <= 249: %v Ctns\n";
+End-of-File
+
+

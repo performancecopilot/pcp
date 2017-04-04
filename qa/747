@@ -1,0 +1,63 @@
+#!/bin/sh
+# PCP QA Test No. 747
+# Exercise Linux hardware inventory online/offline metrics.
+#
+# Copyright (c) 2014 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ $PCP_PLATFORM = linux ] || _notrun "Linux sysfs test, only works with Linux"
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+root=$tmp.root
+export LINUX_HERTZ=100
+export LINUX_STATSPATH=$root
+pmda=$PCP_PMDAS_DIR/linux/pmda_linux.so,linux_init
+local="-L -K clear -K add,60,$pmda"
+
+hinv_metrics="hinv.cpu.online hinv.node.online"
+allcpu_metrics=`pminfo $local kernel.all.cpu | LC_COLLATE=POSIX sort`
+percpu_metrics=`pminfo $local kernel.percpu.cpu | LC_COLLATE=POSIX sort`
+pernode_metrics=`pminfo $local kernel.pernode.cpu | LC_COLLATE=POSIX sort`
+
+for tgz in $here/linux/sysdev-*.tgz
+do
+    rm -fr $root
+    mkdir $root || _fail "root in use when processing $tgz"
+    cd $root
+    tar xzf $tgz
+    base=`basename $tgz`
+
+    echo "== Checking hinv metric values - $base"
+    pminfo $local -f $hinv_metrics
+    echo && echo "== done" && echo
+
+    echo "== Checking aggregate CPU metric values - $base"
+    pminfo $local -f $allcpu_metrics
+    echo && echo "== done" && echo
+
+    echo "== Checking per-CPU metric values - $base"
+    pminfo $local -f $percpu_metrics
+    echo && echo "== done" && echo
+
+    echo "== Checking per-node CPU metric values - $base"
+    pminfo $local -f $pernode_metrics
+    echo && echo "== done" && echo
+
+    cd $here
+done
+
+# success, all done
+status=0
+exit

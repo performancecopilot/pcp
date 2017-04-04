@@ -1,0 +1,94 @@
+#!/bin/sh
+# PCP QA Test No. 945
+# Exercise log migration for the XFS from Linux PMDA split.
+#
+# Copyright (c) 2013 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+migrate=$PCP_VAR_DIR/config/pmlogrewrite/linux_xfs_migrate.conf
+[ -f "$migrate" ] || _notrun "$migrate not installed"
+
+_compare()
+{
+    echo "Label record diffs ..."
+    pmdumplog -z -L $1 >$tmp.1
+    pmdumplog -z -L $2 >$tmp.2
+    diff $tmp.1 $tmp.2
+
+    echo "Instance domain diffs ..."
+    pmdumplog -z -i $1 >$tmp.1
+    pmdumplog -z -i $2 >$tmp.2
+    diff $tmp.1 $tmp.2
+
+    echo "Metadata diffs ..."
+    pmdumplog -z -d $1 \
+    | sed -e '/^PMID/{
+N
+N
+s/\n */ /g
+}' \
+    | sort -k 3 >$tmp.1
+    pmdumplog -z -d $2 \
+    | sed -e '/^PMID/{
+N
+N
+s/\n */ /g
+}' \
+    | sort -k 3 >$tmp.2
+    # interested in these sorts of metrics
+    # PMID: 60.5.1 (filesys.capacity)
+    #    Data Type: 64-bit unsigned int  InDom: 60.5 0xf000005
+    # PMID: 11.30.0 (quota.state.project.accounting)
+    #    Data Type: 32-bit unsigned int  InDom: 11.5 0x2c00005
+    egrep 'filesys.free|quota.state.project.accounting' $tmp.1 >$tmp.1a
+    egrep 'filesys.free|quota.state.project.accounting' $tmp.2 >$tmp.2a
+    diff $tmp.1a $tmp.2a
+    sed -e 's/PMID: 60\./XX./g' -e 's/PMID: 11\./XX./g' \
+        -e '/InDom:/{
+s/m: 60\./m: XX./
+s/m: 11\./m: XX./
+s/ 0xf0/ 0xfXX/
+s/ 0x2c/ 0xfXX/
+}' $tmp.1 >$tmp.1a
+    sed -e 's/PMID: 60\./XX./g' -e 's/PMID: 11\./XX./g' \
+        -e '/InDom:/{
+s/m: 60\./m: XX./
+s/m: 11\./m: XX./
+s/ 0xf0/ 0xfXX/
+s/ 0x2c/ 0xfXX/
+}' $tmp.2 >$tmp.2a
+    diff $tmp.1a $tmp.2a
+
+    echo "Temporal index diffs ..."
+    pmdumplog -z -t $1 >$tmp.1
+    pmdumplog -z -t $2 >$tmp.2
+    diff $tmp.1 $tmp.2
+}
+
+# real QA test starts here
+original=archives/old_xfs
+pmlogrewrite -c $migrate -w $original $tmp.new
+
+echo "=== old ===" >>$seq.full
+pmdumplog -z -a $original >>$seq.full
+echo "=== new ===" >>$seq.full
+pmdumplog -z -a $tmp.new >>$seq.full
+
+echo "old -> new changes"
+_compare $original $tmp.new
+
+# success, all done
+status=0
+exit

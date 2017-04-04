@@ -1,0 +1,100 @@
+QA output created by 319
+
+e1: unknown
+e2: unknown
+false_1F_and_1F: false
+false_1F_and_1T: false
+false_1F_and_1U: false
+false_1F_and_nF: false
+false_1F_and_nT: false
+false_1F_and_nU: false
+false_1F_or_1F: false
+false_1F_or_nF: false
+false_1T_and_1F: false
+false_1T_and_nF: false
+false_1U_and_1F: false
+false_1U_and_nF: false
+false_nF_and_1F: false
+false_nF_and_1T: false
+false_nF_and_1U: false
+false_nF_and_nF: false
+false_nF_and_nT: false
+false_nF_and_nU: false
+false_nF_or_1F: false
+false_nF_or_nF: false
+false_nT_and_1F: false
+false_nT_and_nF: false
+false_nU_and_nF: false
+prime: ?
+true_1F_or_1T: OK should always be true
+true_1F_or_1T: true
+true_1F_or_nT: OK should always be true
+true_1F_or_nT: true
+true_1T_and_1T: OK should always be true
+true_1T_and_1T: true
+true_1T_and_nT: OK should always be true
+true_1T_and_nT: true
+true_1T_or_1F: OK should always be true
+true_1T_or_1F: true
+true_1T_or_1T: OK should always be true
+true_1T_or_1T: true
+true_1T_or_1U: OK should always be true
+true_1T_or_1U: true
+true_1T_or_nF: OK should always be true
+true_1T_or_nF: true
+true_1T_or_nT: OK should always be true
+true_1T_or_nT: true
+true_1T_or_nU: OK should always be true
+true_1T_or_nU: true
+true_1U_or_1T: OK should always be true
+true_1U_or_1T: true
+true_1U_or_nT: OK should always be true
+true_1U_or_nT: true
+true_nF_or_1T: OK should always be true
+true_nF_or_1T: true
+true_nF_or_nT: OK should always be true
+true_nF_or_nT: true
+true_nT_and_1T: OK should always be true
+true_nT_and_1T: true
+true_nT_and_nT: OK should always be true
+true_nT_and_nT: true
+true_nT_or_1F: OK should always be true
+true_nT_or_1F: true
+true_nT_or_1T: OK should always be true
+true_nT_or_1T: true
+true_nT_or_1U: OK should always be true
+true_nT_or_1U: true
+true_nT_or_nF: OK should always be true
+true_nT_or_nF: true
+true_nT_or_nT: OK should always be true
+true_nT_or_nT: true
+true_nT_or_nU: OK should always be true
+true_nT_or_nU: true
+true_nU_or_nT: OK should always be true
+true_nU_or_nT: true
+unknown_1F_or_1U: unknown
+unknown_1F_or_nU: unknown
+unknown_1T_and_1U: unknown
+unknown_1T_and_nU: unknown
+unknown_1U_and_1T: unknown
+unknown_1U_and_1U: unknown
+unknown_1U_and_nT: unknown
+unknown_1U_and_nU: unknown
+unknown_1U_or_1F: unknown
+unknown_1U_or_1U: unknown
+unknown_1U_or_nF: unknown
+unknown_1U_or_nU: unknown
+unknown_nF_or_1U: unknown
+unknown_nF_or_nU: unknown
+unknown_nT_and_1U: unknown
+unknown_nT_and_nU: unknown
+unknown_nU_and_1F: unknown
+unknown_nU_and_1T: unknown
+unknown_nU_and_1U: unknown
+unknown_nU_and_nT: unknown
+unknown_nU_and_nU: unknown
+unknown_nU_or_1F: unknown
+unknown_nU_or_1T: unknown
+unknown_nU_or_1U: unknown
+unknown_nU_or_nF: unknown
+unknown_nU_or_nU: unknown

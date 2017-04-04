@@ -1,0 +1,122 @@
+QA output created by 587
+Waiting for pmcd to terminate ...
+Starting pmcd ... 
+Starting pmlogger ... 
+
+=== Cycle 1 ===
+add trivial PMDA ...
+
+pmcd.agent.type
+    inst [2 or "pmcd"] value 0
+    inst [60 or "linux"] value 0
+    inst [247 or "humus"] value 4
+    inst [248 or "fungus"] value 4
+    inst [249 or "bogus"] value 4
+    inst [250 or "trivial"] value 4
+cull trivial PMDA ...
+
+pmcd.agent.type
+    inst [2 or "pmcd"] value 0
+    inst [60 or "linux"] value 0
+    inst [247 or "humus"] value 4
+    inst [248 or "fungus"] value 4
+    inst [249 or "bogus"] value 4
+
+=== Cycle 2 ===
+add trivial PMDA ...
+
+pmcd.agent.type
+    inst [2 or "pmcd"] value 0
+    inst [60 or "linux"] value 0
+    inst [247 or "humus"] value 4
+    inst [248 or "fungus"] value 4
+    inst [249 or "bogus"] value 4
+    inst [250 or "trivial"] value 4
+cull trivial PMDA ...
+
+pmcd.agent.type
+    inst [2 or "pmcd"] value 0
+    inst [60 or "linux"] value 0
+    inst [247 or "humus"] value 4
+    inst [248 or "fungus"] value 4
+    inst [249 or "bogus"] value 4
+
+=== Cycle 3 ===
+add trivial PMDA ...
+
+pmcd.agent.type
+    inst [2 or "pmcd"] value 0
+    inst [60 or "linux"] value 0
+    inst [247 or "humus"] value 4
+    inst [248 or "fungus"] value 4
+    inst [249 or "bogus"] value 4
+    inst [250 or "trivial"] value 4
+cull trivial PMDA ...
+
+pmcd.agent.type
+    inst [2 or "pmcd"] value 0
+    inst [60 or "linux"] value 0
+    inst [247 or "humus"] value 4
+    inst [248 or "fungus"] value 4
+    inst [249 or "bogus"] value 4
+
+=== Cycle 4 ===
+add trivial PMDA ...
+
+pmcd.agent.type
+    inst [2 or "pmcd"] value 0
+    inst [60 or "linux"] value 0
+    inst [247 or "humus"] value 4
+    inst [248 or "fungus"] value 4
+    inst [249 or "bogus"] value 4
+    inst [250 or "trivial"] value 4
+cull trivial PMDA ...
+
+pmcd.agent.type
+    inst [2 or "pmcd"] value 0
+    inst [60 or "linux"] value 0
+    inst [247 or "humus"] value 4
+    inst [248 or "fungus"] value 4
+    inst [249 or "bogus"] value 4
+
+=== Cycle 5 ===
+add trivial PMDA ...
+
+pmcd.agent.type
+    inst [2 or "pmcd"] value 0
+    inst [60 or "linux"] value 0
+    inst [247 or "humus"] value 4
+    inst [248 or "fungus"] value 4
+    inst [249 or "bogus"] value 4
+    inst [250 or "trivial"] value 4
+cull trivial PMDA ...
+
+pmcd.agent.type
+    inst [2 or "pmcd"] value 0
+    inst [60 or "linux"] value 0
+    inst [247 or "humus"] value 4
+    inst [248 or "fungus"] value 4
+    inst [249 or "bogus"] value 4
+
+=== Cycle 6 ===
+add trivial PMDA ...
+
+pmcd.agent.type
+    inst [2 or "pmcd"] value 0
+    inst [60 or "linux"] value 0
+    inst [247 or "humus"] value 4
+    inst [248 or "fungus"] value 4
+    inst [249 or "bogus"] value 4
+    inst [250 or "trivial"] value 4
+cull trivial PMDA ...
+
+pmcd.agent.type
+    inst [2 or "pmcd"] value 0
+    inst [60 or "linux"] value 0
+    inst [247 or "humus"] value 4
+    inst [248 or "fungus"] value 4
+    inst [249 or "bogus"] value 4
+
+Waiting for pmcd to terminate ...
+Starting pmcd ... 
+Starting pmlogger ... 

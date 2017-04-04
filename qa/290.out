@@ -1,0 +1,40 @@
+QA output created by 290
+***iteration 0***
+---pre-unload---
+PMNS location = 2
+---post-unload---
+PMNS location = 2
+---post-load---
+PMNS location = 1
+***iteration 1***
+---pre-unload---
+PMNS location = 1
+---post-unload---
+PMNS location = 2
+---post-load---
+PMNS location = 1
+***iteration 2***
+---pre-unload---
+PMNS location = 1
+---post-unload---
+PMNS location = 2
+---post-load---
+PMNS location = 1
+
+****  Purify instrumented TMP/pmnsunload.pure (pid PID)  ****
+Current file descriptors in use: 5
+FIU: file descriptor 0: <stdin>
+FIU: file descriptor 1: <stdout>
+FIU: file descriptor 2: <stderr>
+
+****  Purify instrumented TMP/pmnsunload.pure (pid PID)  ****
+Purify: Searching for all memory leaks...
+
+Memory leaked: 0 bytes (0%); potentially leaked: 0 bytes (0%)
+
+Purify Heap Analysis (combining suppressed and unsuppressed blocks)
+...
+****  Purify instrumented TMP/pmnsunload.pure (pid PID)  ****
+  * Program exited with status code 0.
+  * 0 access errors, 0 total occurrences.
+...

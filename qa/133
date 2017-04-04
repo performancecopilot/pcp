@@ -1,0 +1,78 @@
+#! /bin/sh
+# PCP QA Test No. 133
+# Verify log volume switching for pmlc/pmlogger
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+trap "$sudo rm -f $tmp.*; exit" 0 1 2 3 15
+signal=$PCP_BINADM_DIR/pmsignal
+
+# real QA test starts here
+$sudo rm -f $tmp.*
+_start_up_pmlogger -L -c /dev/null -l $tmp.log $tmp >$tmp.err 2>&1
+
+pmsleep 1.1
+
+pmlc <<End-of-File
+connect $pid
+log mandatory on 500 msec pmcd.numagents
+End-of-File
+
+pmsleep 1.1
+pmlc <<End-of-File
+connect $pid
+new volume
+End-of-File
+
+pmsleep 1.1
+pmlc <<End-of-File
+connect $pid
+new volume
+End-of-File
+
+pmsleep 1.1
+$sudo $signal -s HUP $pid
+pmsleep 1.1
+$sudo $signal -s HUP $pid
+
+pmsleep 1.1
+pmlc <<End-of-File
+connect $pid
+new volume
+End-of-File
+
+pmsleep 1.1
+pmlc <<End-of-File
+connect $pid
+new volume
+End-of-File
+
+pmsleep 1.1
+$sudo $signal -s TERM $pid
+_wait_pmlogger_end $pid
+_filter_pmlogger_log <$tmp.log
+$sudo rm -f $tmp.log
+
+# be careful of $tmp.pid $tmp.err $tmp.cmd and so on from earlier
+nfile=`echo $tmp.[0-9]* ${tmp}.*index ${tmp}.*meta | wc -w | tr -d ' '`
+echo "Created $nfile archive pieces."
+if [ $nfile -ne 9 ]
+then
+    echo "Expected 10 archive pieces ..."
+    ls -l $tmp.*
+fi
+
+pmdumplog -t $tmp \
+| _filter_pmdumplog \
+| $PCP_AWK_PROG '
+$1 == "TIMESTAMP" && NF == 4	{ print "TIMESTAMP       " $2 "       OFFSET       OFFSET"; next }
+				{ print }'

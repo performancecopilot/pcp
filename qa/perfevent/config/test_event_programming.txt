@@ -1,0 +1,7 @@
+# Test config file
+
+[ pmuname ]
+counter0 cpu
+counter1 cpu
+counter2 cpu
+counter3 cpu

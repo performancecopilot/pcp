@@ -1,0 +1,52 @@
+//
+// perverse example to show all possible choices of units for numeric
+// constants
+//
+mem.freemem > 1 byte;
+mem.freemem > 1 Kbyte; 
+mem.freemem > 1 Mbyte;
+mem.freemem > 1 Gbyte;
+mem.freemem > 1 Tbyte;
+
+disk.dev.blktotal > 1 Mbyte / nsec;
+disk.dev.blktotal > 1 Mbyte / nanosecond;
+disk.dev.blktotal > 1 Mbyte / usec;
+disk.dev.blktotal > 1 Mbyte / microsecond;
+disk.dev.blktotal > 1 Mbyte / msec;
+disk.dev.blktotal > 1 Mbyte / millisecond;
+disk.dev.blktotal > 1 Mbyte / sec;
+disk.dev.blktotal > 1 Mbyte / second;
+disk.dev.blktotal > 1 Mbyte / min;
+disk.dev.blktotal > 1 Mbyte / minute;
+disk.dev.blktotal > 1 Mbyte / hour;
+
+hinv.ncpu > 1 count;
+hinv.ncpu > 1 Kcount;
+hinv.ncpu > 1 count;
+hinv.ncpu > 1 Gcount;
+hinv.ncpu > 1 Tcount;
+
+mem.freemem > 1 bytes;
+mem.freemem > 1 Kbytes; 
+mem.freemem > 1 Mbytes;
+mem.freemem > 1 Gbytes;
+mem.freemem > 1 Tbytes;
+
+disk.dev.blktotal > 1 Mbyte / nsecs;
+disk.dev.blktotal > 1 Mbyte / nanoseconds;
+disk.dev.blktotal > 1 Mbyte / usecs;
+disk.dev.blktotal > 1 Mbyte / microseconds;
+disk.dev.blktotal > 1 Mbyte / msecs;
+disk.dev.blktotal > 1 Mbyte / milliseconds;
+disk.dev.blktotal > 1 Mbyte / secs;
+disk.dev.blktotal > 1 Mbyte / seconds;
+disk.dev.blktotal > 1 Mbyte / mins;
+disk.dev.blktotal > 1 Mbyte / minutes;
+disk.dev.blktotal > 1 Mbyte / hours;
+
+hinv.ncpu > 1 counts;
+hinv.ncpu > 1 Kcounts;
+hinv.ncpu > 1 counts;
+hinv.ncpu > 1 Gcounts;
+hinv.ncpu > 1 Tcounts;
+

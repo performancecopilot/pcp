@@ -1,0 +1,65 @@
+QA output created by 719
+=== std out ===
+pmParseHostSpec("nas1.servers.com:44321,4321@firewall.servers.com:44322", ...)
+host[0]: "nas1.servers.com" ports: 44321 4321
+host[1]: "firewall.servers.com" port: 44322
+pmUnparseHostSpec("nas1.servers.com:44321,4321@firewall.servers.com:44322") -> "nas1.servers.com:44321,4321@firewall.servers.com:44322"
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/parsehostspec nas1.servers.com:44321,4321@firewall.servers.com:44322
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+=== std out ===
+pmParseHostSpec("nas1.servers.com:44321@firewall.servers.com:44322", ...)
+host[0]: "nas1.servers.com" port: 44321
+host[1]: "firewall.servers.com" port: 44322
+pmUnparseHostSpec("nas1.servers.com:44321@firewall.servers.com:44322") -> "nas1.servers.com:44321@firewall.servers.com:44322"
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/parsehostspec nas1.servers.com:44321@firewall.servers.com:44322
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+=== std out ===
+pmParseHostSpec("nas1.servers.com:44321@firewall.servers.com", ...)
+host[0]: "nas1.servers.com" port: 44321
+host[1]: "firewall.servers.com"
+pmUnparseHostSpec("nas1.servers.com:44321@firewall.servers.com") -> "nas1.servers.com:44321@firewall.servers.com"
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/parsehostspec nas1.servers.com:44321@firewall.servers.com
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+=== std out ===
+pmParseHostSpec("nas1.servers.com@firewall.servers.com", ...)
+host[0]: "nas1.servers.com"
+host[1]: "firewall.servers.com"
+pmUnparseHostSpec("nas1.servers.com@firewall.servers.com") -> "nas1.servers.com@firewall.servers.com"
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/parsehostspec nas1.servers.com@firewall.servers.com
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+=== std out ===
+pmParseHostSpec("nas1.servers.com:44321", ...)
+host[0]: "nas1.servers.com" port: 44321
+pmUnparseHostSpec("nas1.servers.com:44321") -> "nas1.servers.com:44321"
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/parsehostspec nas1.servers.com:44321
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...

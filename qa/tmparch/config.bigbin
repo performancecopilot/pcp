@@ -1,0 +1,14 @@
+#
+# this one is for the util progs and QA
+#
+
+log mandatory on 20 msec {
+	sample.milliseconds
+	sample.colour
+	sample.bucket
+	sample.bin
+	sampledso.milliseconds
+	sampledso.colour
+	sampledso.bucket
+	sampledso.bin
+}

@@ -1,0 +1,97 @@
+#! /bin/sh
+# PCP QA Test No. 040
+# mem leak in pmlogger
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+trap "$sudo rm -f $tmp.*; exit" 0 1 2 3 15
+rm -f $seq.full
+
+if ps l -p 1 2>/dev/null | sed -e 1q | grep RSS >/dev/null
+then
+    ps_arg=l
+elif ps -l -p 1 2>/dev/null | sed -e 1q | grep RSS >/dev/null
+then
+    ps_arg=-l
+elif ps -o uid,pid,rss,fname -p 1 2>/dev/null | sed -e 1q | grep RSS >/dev/null
+then
+    ps_arg="-o uid,pid,rss,fname"
+else
+    echo "$seq: how do I coerce RSS from your ps?"
+fi
+
+rss_field=`ps $ps_arg -p 1 2>/dev/null | $PCP_AWK_PROG '
+NR == 1	{ for (i = 1; i <= NF; i++) {
+	    if ($i ~ /RSS/) {
+		print i
+		break
+	    }
+	  }
+	  exit
+	}'`
+
+# real QA test starts here
+
+rm -f $tmp.*
+cat <<End-of-File >$tmp.config
+log mandatory on 20 msec {
+    pmcd.control
+}
+End-of-File
+
+#debug# _start_up_pmlogger -c $tmp.config -Daf,appl2,desperate -l $tmp.log -s 1000 $tmp
+_start_up_pmlogger -c $tmp.config -l $tmp.log -s 1000 $tmp
+mylogger=$pid
+_wait_for_pmlogger $mylogger $tmp.log
+
+seen=0
+for i in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15
+do
+sleep 1
+ps $ps_arg -p $mylogger \
+    | $PCP_AWK_PROG '
+NR == 1			{ print; next }
+$3 == '$mylogger'	{ print }'
+done \
+| tee $tmp.out \
+| sed -e '/RSS/d' \
+| $PCP_AWK_PROG '{ print $'$rss_field' }' \
+| LC_COLLATE=POSIX sort \
+| uniq -c  \
+| while read cnt sz
+do
+    seen=`expr $seen + 1`
+    # expect one line, with a count of 15 sizes, all the same!
+    if [ $seen -gt 1 -o $cnt -ne 15 ]
+    then
+	echo "Error: pmlogger virtual or resident size grew ... memory leak?"
+	echo "       or maybe pmlogger died, or failed to start"
+	echo "       pmlogger pid=$mylogger seen=$seen cnt=$cnt"
+	echo
+	echo "ps output ..."
+	cat $tmp.out
+	echo
+	echo "pmlogger log ..."
+	cat $tmp.log
+	exit 1
+    fi
+done
+
+echo "OK"
+
+_wait_pmlogger_end $mylogger
+cat $tmp.log >>$seq.full
+echo
+echo "pmlogger log"
+_filter_pmlogger_log <$tmp.log
+
+exit 0

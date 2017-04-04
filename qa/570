@@ -1,0 +1,152 @@
+#! /bin/sh
+# PCP QA Test No. 570
+# pmnscomp -f /dev/null et al, #690735
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_notrun "pmnscomp retired in PCP 3.6"
+
+status=1	# failure is the default!
+trap "cd $here; rm -rf $tmp; exit \$status" 0 1 2 3 15
+
+_ls()
+{
+if [ -r $1 -o -w $1 -o -x $1 ] ; then
+# filter ls -ld output
+#-rwxr-xr-x    1 kenmcd   ptg         2386 Apr 29 04:52 570
+#drwxrwxr-x   13 kenmcd   ptg        52736 Apr 29 04:33 .
+#crw-rw-rw-    1 root     sys        1,  2 Apr 29 04:57 /dev/null
+#Cannot access nofile: No such file or directory
+    LC_TIME=POSIX ls -ld $1 \
+    | sed \
+	-e 's/-rw-r--r--\./-rw-r--r--/' \
+	-e 's/crw-rw-rw-\./crw-rw-rw-/' \
+	-e 's/drwxr-xr-x\./drwxr-xr-x/' \
+    | $PCP_AWK_PROG '
+NF == 9 && /^-/		{ print $1,"...",$5,"...",$9; next }
+NF == 9 && /^d/		{ print $1,"...",$9; next }
+NF == 10 && /^[cb]/	{ print $1,"...",$10; next }
+			{ print }'
+else
+echo "Cannot access $1: No such file or directory"
+fi
+}
+
+umask 022
+
+rm -rf $tmp
+mkdir $tmp
+chmod 755 $tmp
+cd $tmp
+
+cat >pmns <<End-of-File
+root {
+    one		0:1:1
+    node
+}
+
+node {
+    two		0:2:2
+}
+End-of-File
+
+# real QA test starts here
+
+echo
+echo "dir is writeable, output file does not exist"
+rm -f root.bin
+pmnscomp -n pmns -f root.bin
+_ls root.bin
+rm -rf root.bin
+
+echo
+echo "dir is writeable, output file exists and is writeable"
+touch root.bin
+chmod 644 root.bin
+pmnscomp -n pmns -f root.bin
+_ls root.bin
+rm -rf root.bin
+
+echo
+echo "dir is writeable, output file exists and is non-writeable"
+touch root.bin
+chmod 444 root.bin
+pmnscomp -n pmns -f root.bin
+_ls root.bin
+rm -rf root.bin
+
+echo
+echo "dir is writeable, output file exists but is hidden"
+mkdir hide
+touch hide/root.bin
+chmod 0 hide
+pmnscomp -n pmns -f hide/root.bin
+chmod 755 hide
+_ls hide/root.bin
+rm -rf hide
+
+echo
+echo "dir is writeable, output \"file\" is /dev/null"
+pmnscomp -n pmns -f /dev/null
+_ls /dev/null
+
+echo
+echo "dir is writeable, output \"file\" is a directory"
+rm -rf mydir
+mkdir mydir
+pmnscomp -n pmns -f mydir
+_ls mydir
+
+echo
+echo "dir is non-writeable, output file does not exist"
+rm -f root.bin
+chmod 555 .
+pmnscomp -n pmns -f root.bin
+chmod 755 .
+_ls root.bin
+rm -rf root.bin
+
+echo
+echo "dir is non-writeable, output file exists and is writeable"
+touch root.bin
+chmod 644 root.bin
+chmod 555 .
+pmnscomp -n pmns -f root.bin
+chmod 755 .
+_ls root.bin
+rm -rf root.bin
+
+echo
+echo "dir does not exist"
+pmnscomp -n pmns -f no/such/path/root.bin
+_ls no/such/path/root.bin
+
+echo
+echo "some options errors"
+pmnscomp -n pmns -v 3 -f root.bin 2| sed -e 's/0 or 1/0, 1 or 2/g'
+pmnscomp -n pmns
+pmnscomp
+
+echo
+echo "duplicate PMIDs in pmns"
+sed -e 's/2/1/g' pmns >pmns.dup
+pmnscomp -n pmns.dup -f root.bin
+_ls root.bin
+rm -rf root.bin
+echo "and again with -d"
+pmnscomp -n pmns.dup -f -d root.bin
+_ls root.bin
+rm -rf root.bin
+
+# success, all done
+status=0
+exit

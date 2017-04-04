@@ -1,0 +1,55 @@
+#!/bin/sh
+# PCP QA Test No. 394
+# Interp mode (similar to qa/095, but with valgrind) (see also 332)
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_check_valgrind
+
+# can skip stdout from interp3 and these archives ...
+# that's checked in 095
+#
+_filter()
+{
+    $PCP_AWK_PROG '
+BEGIN			{ skip = 1 }
+/=== std err ===/	{ skip = 0 }
+skip == 0		{ print }'
+}
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+for arch in tmparch/bigbin
+do
+    for delta in 2 0.012
+    do
+	echo
+	echo "=== $arch delta=$delta ==="
+	_run_valgrind src/interp3 -a $arch -t $delta | _filter
+    done
+done
+
+for arch in tmparch/noti-ok-foo
+do
+    for delta in 0.5 1.0 2.0
+    do
+	echo
+	echo "=== $arch delta=$delta ==="
+	_run_valgrind src/interp3 -a $arch -t $delta | _filter
+    done
+done
+
+# success, all done
+exit

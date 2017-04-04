@@ -1,0 +1,340 @@
+#!/bin/sh
+# PCP QA Test No. 544
+# testing collectl2pcp metrics extraction (proc indom, in particular)
+#
+# Copyright (c) 2013 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf testarchive.* $tmp.*; exit \$status" 0 1 2 3 15
+
+which collectl2pcp >$seq.full 2>&1 || _notrun collectl2pcp not installed
+
+# real QA test starts here
+
+C=./collectl
+TA=testarchive
+
+cat > $tmp.general <<End-of-General
+disk.dev.avactive
+disk.dev.aveq
+disk.dev.read
+disk.dev.read_bytes
+disk.dev.write
+disk.dev.write_bytes
+hinv.machine
+hinv.ncpu
+hinv.ndisk
+hinv.ninterface
+hinv.pagesize
+hinv.physmem
+kernel.all.cpu.idle
+kernel.all.cpu.intr
+kernel.all.cpu.irq.hard
+kernel.all.cpu.irq.soft
+kernel.all.cpu.sys
+kernel.all.cpu.user
+kernel.all.cpu.wait.total
+kernel.all.hz
+kernel.all.intr
+kernel.all.load
+kernel.all.nprocs
+kernel.uname.distro
+kernel.uname.machine
+kernel.uname.nodename
+kernel.uname.release
+kernel.uname.sysname
+mem.physmem
+mem.util.active
+mem.util.active_anon
+mem.util.active_file
+mem.util.anonpages
+mem.util.bounce
+mem.util.bufmem
+mem.util.cached
+mem.util.commitLimit
+mem.util.committed_AS
+mem.util.corrupthardware
+mem.util.directMap2M
+mem.util.directMap4k
+mem.util.dirty
+mem.util.free
+mem.util.hugepagesFree
+mem.util.hugepagesRsvd
+mem.util.hugepagesSurp
+mem.util.hugepagesTotal
+mem.util.inactive
+mem.util.inactive_anon
+mem.util.inactive_file
+mem.util.kernelStack
+mem.util.mapped
+mem.util.mlocked
+mem.util.NFS_Unstable
+mem.util.pageTables
+mem.util.shmem
+mem.util.slab
+mem.util.slabReclaimable
+mem.util.slabUnreclaimable
+mem.util.swapCached
+mem.util.swapFree
+mem.util.swapTotal
+mem.util.unevictable
+mem.util.vmallocChunk
+mem.util.vmallocTotal
+mem.util.vmallocUsed
+mem.util.writeback
+End-of-General
+
+cat > $tmp.cpus <<End-of-CPUs
+kernel.percpu.cpu.guest
+kernel.percpu.cpu.idle
+kernel.percpu.cpu.intr
+kernel.percpu.cpu.irq.hard
+kernel.percpu.cpu.irq.soft
+kernel.percpu.cpu.nice
+kernel.percpu.cpu.steal
+kernel.percpu.cpu.sys
+kernel.percpu.cpu.user
+kernel.percpu.cpu.wait.total
+End-of-CPUs
+
+cat > $tmp.disks <<End-of-Disks
+network.interface.in.bytes
+network.interface.in.packets
+network.interface.out.bytes
+network.interface.out.packets
+End-of-Disks
+
+cat > $tmp.nets <<End-of-Nets
+network.interface.in.bytes
+network.interface.in.packets
+network.interface.out.bytes
+network.interface.out.packets
+network.tcp.rtoalgorithm
+network.tcp.rtomin
+network.tcp.rtomax
+network.tcp.maxconn
+network.tcp.activeopens
+network.tcp.passiveopens
+network.tcp.attemptfails
+network.tcp.estabresets
+network.tcp.currestab
+network.tcp.insegs
+network.tcp.outsegs
+network.tcp.retranssegs
+network.tcp.inerrs
+network.tcp.outrsts
+network.udp.indatagrams
+network.udp.noports
+network.udp.inerrors
+network.udp.outdatagrams
+network.udp.recvbuferrors
+network.udp.sndbuferrors
+End-of-Nets
+
+cat > $tmp.procs <<End-of-Procs
+proc.psinfo.cmd
+proc.psinfo.psargs
+proc.psinfo.nice
+proc.psinfo.start_time
+proc.psinfo.vsize
+proc.psinfo.rss
+proc.psinfo.blocked
+proc.psinfo.wchan_s
+proc.psinfo.processor
+proc.memory.vmsize
+proc.memory.vmlock
+proc.memory.vmrss
+proc.memory.vmdata
+proc.memory.vmstack
+proc.memory.vmexe
+proc.memory.vmlib
+proc.memory.vmswap
+proc.psinfo.cmd
+proc.psinfo.psargs
+proc.io.syscr
+proc.io.syscw
+proc.io.read_bytes
+proc.io.write_bytes
+proc.io.cancelled_write_bytes
+End-of-Procs
+
+_checksums()
+{
+    $sudo rm -f $tmp.out.*
+
+    echo "=== General metrics ==="
+    pminfo -f -a $TA `cat $tmp.general` | tee $tmp.out.general
+    echo
+    echo "=== CPU metrics ==="
+    pminfo -f -a $TA `cat $tmp.cpus` | tee $tmp.out.cpus
+    echo
+    echo "=== Disk metrics ==="
+    pminfo -f -a $TA `cat $tmp.disks` | tee $tmp.out.disks
+    echo
+    echo "=== Network metrics ==="
+    pminfo -f -a $TA `cat $tmp.nets` | tee $tmp.out.nets
+    echo
+    echo "=== Process metrics ==="
+    pminfo -f -a $TA `cat $tmp.procs` | tee $tmp.out.procs
+
+    SUM="sum -r"
+    [ $PCP_PLATFORM = darwin ] && SUM=sum
+    $SUM $tmp.out.* \
+        | sed -e 's/[ ][ ]*[0-9]*[ ]/ /' \
+	| sed -e 's/^00*//' \
+	| while read chksum path
+	do
+	    printf "%05d %s\n" $chksum $path | sed -e "s,$tmp,TMP,g"
+	done
+}
+
+# value_checker ... needs control file ($tmp.control) and
+# collectl raw data ($tmp.raw) and the $tmp.out.* files from
+# _checksums() all in place before we're called
+#
+_value_checker()
+{
+    echo "Check values ..."
+    sed <$tmp.control -e '/^#/d' -e '/^$/d' \
+    | while read metric inst idx scale
+    do
+	# pick pcp value from pminfo output like
+	#
+	# proc.psinfo.nice
+	#     ...
+	#     inst [1963 or "001963 /sbin/udevd"] value 1234
+	#
+	rm -f $tmp.pcp
+	for out in $tmp.out.*
+	do
+	    if grep "^$metric\$" <$out >/dev/null
+	    then
+		$PCP_AWK_PROG <$out >$tmp.pcp '
+BEGIN			{ state = 0 }
+$1 == "'"$metric"'"	{ state = 1; next }
+state == 0		{ next }
+state == 1 && NF == 0	{ exit }
+state == 1 && /inst \['"$inst"' /	{ print $NF }'
+		break
+	    fi
+	done
+	# pick collectl value from lines like
+	# proc:1963 stat 1963 (udevd) S 1 1963 1963 0 -1 4202816 15592 3077542 0 59 23 133 1265 283410 16 -4 1 0 1415 11366400 321 18446744073709551615 140559097348096 140559097471148 140736691194048 140736691189232 140559090053656 0 2147221247 0 0 18446744071580463705 0 0 17 23 0 0 0 0 0
+	# proc:28062 VmSwap:             0 kB
+	#
+	rm -f $tmp.collectl $tmp.tmp
+	case $idx
+	in
+	    [1-9][0-9])
+		# stat line
+		#
+		cat $tmp.raw | sed -n -e "/^proc:$inst stat/"'{
+s/([^)]*)/(cmd)/
+s/^proc:[0-9]* stat /stat /
+p
+}' \
+		| head -1 \
+		| tee $tmp.tmp \
+		| $PCP_AWK_PROG "{ printf \"%d\\n\",\$$idx * $scale }" >$tmp.collectl
+		;;
+	    VmSwap|VmRSS)
+		# lines like
+		# proc:28062 VmSwap:             0 kB
+		#
+		$PCP_AWK_PROG <$tmp.raw '
+$1 == "proc:'"$inst"'" && $2 == "'"$idx"':"	{ print }' \
+		| head -1 \
+		| tee $tmp.tmp \
+		| $PCP_AWK_PROG "{ printf \"%d\\n\",\$3 * $scale }" >$tmp.collectl
+		;;
+	esac
+
+	__pcp=`cat $tmp.pcp`
+	if [ -z "$__pcp" ]
+	then
+	    echo "$metric[$inst]: failed to extract PCP value"
+	else
+	    __collectl=`cat $tmp.collectl`
+	    if [ -z "$__collectl" ]
+	    then
+		echo "$metric[$inst]: failed to extract scaled collectl value ($idx)"
+		[ -s $tmp.tmp ] && echo "from ... `cat $tmp.tmp`"
+	    else
+		if [ "$__pcp" = "$__collectl" ]
+		then
+		    echo "$metric[$inst]: match"
+		else
+		    echo "$metric[$inst]: pcp value \"$__pcp\" != scaled collectl value \"$__collectl\""
+		fi
+	    fi
+	fi
+	echo "$metric[$inst]: pcp=\"$__pcp\" collectl=\"$__collectl\"" >>$seq.full
+    done
+}
+
+# real QA test starts here
+
+echo '## Testing RHEL6.4 inst/value extraction:' | tee -a $seq.full
+collectl2pcp -F $C/rhel6.raw.gz $TA
+_checksums
+
+# compare values for some metrics and instances
+#
+cat <<End-of-File >$tmp.control
+# metric		instance	collectl_index	scale
+proc.psinfo.nice	1963		20		1.0
+proc.psinfo.nice	11607		20		1.0
+proc.psinfo.nice	11996		20		1.0
+# max and smallest non-zero vsize
+proc.psinfo.vsize	12223		24		1.0
+proc.psinfo.vsize	12232		24		1.0
+# max and smallest non-zero rss
+proc.psinfo.rss		12223		25		1.0
+proc.psinfo.rss		11712		25		1.0
+# all vmswap values are 0 in the test data
+proc.memory.vmswap	156384		VmSwap		1.0
+# max and smallest non-zero rss
+proc.memory.vmrss	12223		VmRSS		1.0
+proc.memory.vmrss	11712		VmRSS		1.0
+End-of-File
+
+zcat <$C/rhel6.raw.gz >$tmp.raw
+_value_checker
+
+echo | tee -a $seq.full
+echo '## Testing Debian inst/value extraction:' | tee -a $seq.full
+collectl2pcp -F $C/debian_sid_detailed.raw.gz $TA
+_checksums
+
+# compare values for some metrics and instances
+#
+cat <<End-of-File >$tmp.control
+# metric		instance	collectl_index	scale
+proc.psinfo.nice	2459		20		1.0
+# max and smallest non-zero vsize
+proc.psinfo.vsize	7876		24		1.0
+proc.psinfo.vsize	7872		24		1.0
+# max and smallest non-zero rss
+proc.psinfo.rss		7876		25		1.0
+proc.psinfo.rss		7872		25		1.0
+# all vmswap values are 0 in the test data
+proc.memory.vmswap	8159		VmSwap		1.0
+End-of-File
+
+zcat <$C/debian_sid_detailed.raw.gz >$tmp.raw
+_value_checker
+
+# success, all done
+status=0
+
+exit

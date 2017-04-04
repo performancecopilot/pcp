@@ -1,0 +1,28 @@
+#!gmake
+#
+# Copyright (c) 2012 Red Hat.
+# Copyright (c) 2010 Aconex.  All Rights Reserved.
+#
+
+ifdef PCP_CONF
+include $(PCP_CONF)
+else
+include $(PCP_DIR)/etc/pcp.conf
+endif
+PATH	= $(shell . $(PCP_DIR)/etc/pcp.env; echo $$PATH)
+include $(PCP_INC_DIR)/builddefs
+
+SUBDIRS = broken bigun dynamic slow github-56
+ifeq "$(HAVE_PYTHON)" "true"
+SUBDIRS += slow_python memory_python
+endif
+
+default default_pcp: $(SUBDIRS)
+	$(QA_SUBDIRS_MAKERULE)
+
+setup: $(SUBDIRS)
+	$(QA_SUBDIRS_MAKERULE)
+
+install install_pcp:
+
+include $(BUILDRULES)

@@ -1,0 +1,46 @@
+#!/bin/sh
+# PCP QA Test No. 734
+# Exercise bug in pmGetContextHostName with pmcd.hostname metric.
+#
+# Copyright (c) 2014 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+# prefer an old host without pmcd.hostname, however the test is still
+# useful even with more recent remotes (exercises different paths).
+oldhost=`./getpmcdhosts -L -n 1 -v 'pcp<3.8.4' 2>$seq.full`
+[ -z "$oldhost" ] && oldhost=`./getpmcdhosts -L -n 1`
+[ -z "$oldhost" ] && _notrun "No remote hosts available"
+short_oldhost=`echo $oldhost | sed -e 's/\..*//'`
+# match pmstat(1) truncation
+short_oldhost=`printf "%-7.7s" "$short_oldhost" | sed -e 's/  *$//'`
+
+# real QA test starts here
+set -- `pmprobe -h localhost -v pmcd.hostname`
+eval newhost=$3
+short_newhost=`echo $newhost | sed -e 's/\..*//'`
+# match pmstat(1) truncation
+short_newhost=`printf "%-7.7s" "$short_newhost" | sed -e 's/  *$//'`
+
+echo "using oldhost $oldhost ($short_oldhost)" >> $seq.full
+echo "using newhost $newhost ($short_newhost)" >> $seq.full
+
+pmstat -t 0.2 -s 2 -h localhost -h $oldhost > $tmp.out
+grep -q $short_newhost $tmp.out && echo "Correct local hostname in pmstat output"
+grep -q $short_oldhost $tmp.out && echo "Correct remote hostname in pmstat output"
+cat $tmp.out >> $seq.full
+
+# success, all done
+status=0
+exit

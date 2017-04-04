@@ -1,0 +1,89 @@
+#!/bin/sh
+# PCP QA Test No. 589
+# make sure that telnet-probe does what its supposed to
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+host=`./getpmcdhosts -L -n 1 2>$seq.notrun`
+if [ -z "$host" ]
+then
+    cat $seq.notrun
+    exit
+fi
+rm -f $seq.notrun
+
+status=1	# failure is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed -e 's;/[^ ]*/telnet-probe\([: ]\);.../telnet-probe\1;'
+}
+
+_filter2()
+{
+    sed \
+	-e 's/__pmGetAddrInfo/gethostbyname/g' \
+	-e 's/__pmGetHostByName/gethostbyname/g' \
+	-e '/gethostbyname:/s/ Resolver Error 0 (no error)/ Unknown host/' \
+	-e '/gethostbyname:/s/ Host name lookup failure/ Unknown host/' \
+	-e 's/No route to host/Connection refused/' \
+    # end
+}
+
+# real QA test starts here
+
+# simple error test
+echo; echo === 1st test
+echo quit | $PCP_BINADM_DIR/telnet-probe $host abc >$tmp.out 2>&1
+sts=$?
+cat $tmp.out | _filter
+echo "exit status is $sts (should be 1 with error msg)"
+echo quit | $PCP_BINADM_DIR/telnet-probe 1 2 3 >$tmp.out 2>&1
+sts=$?
+cat $tmp.out | _filter
+echo "exit status is $sts (should be 1 with error msg)"
+
+# should exit with good status
+echo; echo === 2nd test
+echo quit | $PCP_BINADM_DIR/telnet-probe localhost 22
+echo "exit status is $? (should be 0)"
+echo quit | $PCP_BINADM_DIR/telnet-probe $host 22
+echo "exit status is $? (should be 0)"
+
+# should fail to connect
+#
+# Note: [port] 26 below is unassigned by IANA although
+# 	http://www.speedguide.net reports it may be used for RSFTP (simple
+# 	FTP-like service) and perhaps an SMTP alternate ... for our
+# 	purposes we're looking for a port that has no one listening
+# 	on the remote end
+# Another note: some firewalls will respond with "No route to host"
+# 	rather than "Connection refused", so treat these as equivalent
+#
+echo; echo === 3rd test
+echo quit | $PCP_BINADM_DIR/telnet-probe -v localhost 26 >$tmp.out 2>$tmp.err
+sts=$?
+cat $tmp.err $tmp.out | _filter2
+echo "exit status is $sts (should be 1 with verbosity)"
+echo quit | $PCP_BINADM_DIR/telnet-probe -v $host 26 >$tmp.out 2>$tmp.err
+sts=$?
+cat $tmp.err $tmp.out | _filter2
+echo "exit status is $sts (should be 1 with verbosity)"
+echo quit | $PCP_BINADM_DIR/telnet-probe -v no.such.host.pcp.io 26 >$tmp.out 2>$tmp.err
+sts=$?
+cat $tmp.err $tmp.out | _filter2
+echo "exit status is $sts (should be 1 with verbosity)"
+
+# success, all done
+status=0
+exit

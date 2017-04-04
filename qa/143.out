@@ -1,0 +1,118 @@
+QA output created by 143
+=== PMNS from pminfo ===
+x.x.x.y
+x.x.y
+x.y
+event.flags
+event.missed
+=== remove x.x.x ===
+----------
+  root
+----------
+root {
+	x
+}
+
+x {
+	x
+	y	1:1:1
+}
+
+x.x {
+	y	2:2:2
+}
+----------
+  x
+----------
+x {
+    x
+    y	1:1:1
+}
+#include "x.x"
+----------
+  x.x
+----------
+x.x {
+    x
+    y	2:2:2
+}
+#include "x.x.x"
+----------
+  x.x.x
+----------
+x.x.x {
+    y	3:3:3
+}
+=== PMNS from pminfo ===
+x.x.y
+x.y
+event.flags
+event.missed
+=== remove x.x ===
+----------
+  root
+----------
+root {
+	x
+}
+
+x {
+	y	1:1:1
+}
+----------
+  x
+----------
+x {
+    x
+    y	1:1:1
+}
+#include "x.x"
+----------
+  x.x
+----------
+x.x {
+    x
+    y	2:2:2
+}
+#include "x.x.x"
+----------
+  x.x.x
+----------
+x.x.x {
+    y	3:3:3
+}
+=== PMNS from pminfo ===
+x.y
+event.flags
+event.missed
+=== remove x ===
+----------
+  root
+----------
+root {
+}
+----------
+  x
+----------
+x {
+    x
+    y	1:1:1
+}
+#include "x.x"
+----------
+  x.x
+----------
+x.x {
+    x
+    y	2:2:2
+}
+#include "x.x.x"
+----------
+  x.x.x
+----------
+x.x.x {
+    y	3:3:3
+}
+=== PMNS from pminfo ===
+event.flags
+event.missed

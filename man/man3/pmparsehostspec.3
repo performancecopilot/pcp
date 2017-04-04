@@ -1,0 +1,168 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2013 Red Hat.
+.\" Copyright (c) 2007 Aconex, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.TH PMPARSEHOSTSPEC 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3__pmParseHostSpec\f1,
+\f3__pmUnparseHostSpec\f1,
+\f3__pmFreeHostSpec\f1 \- uniform host specification parser
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.br
+#include <pcp/impl.h>
+.sp
+.ad l
+.hy 0
+.in +8n
+.ti -8n
+int __pmParseHostSpec(const char *\fIstring\fP, pmHostSpec **\fIhostsp\fP, int\ *\fIcount\fP, char\ **\fIerrmsg\fP);
+.br
+.ti -8n
+int __pmUnparseHostSpec(pmHostSpec *\fIhosts\fP, int \fIcount\fP, char *\fIstring\fP, size_t \fIsize\fP);
+.br
+.ti -8n
+void __pmFreeHostSpec(pmHostSpec *\fIhosts\fP, int \fIcount\fP);
+.sp
+.in
+.hy
+.ad
+cc ... \-lpcp
+.ft 1
+.SH DESCRIPTION
+.B __pmParseHostSpec
+accepts a
+.B string
+specifying the location of a PCP performance metric collector daemon.
+The syntax of the various formats of this
+.B string
+is described in
+.BR PCPIntro (1)
+where several examples are also presented.
+.PP
+The syntax allows the initial
+.BR pmcd (1)
+hostname to be optionally followed by a list of port numbers,
+which will be tried in order when connecting to
+.B pmcd
+on that host.
+The portlist is separated from the hostname using a colon, and
+each port in the list is comma-separated.
+.PP
+In addition, one or more optional
+.BR pmproxy (1)
+hosts can be specified (currently, only one proxy host is supported
+by the PCP protocols).
+These are separated from each other and from the
+.B pmcd
+component using the @ character.
+These may also be followed by an optional port list, using the
+same comma-separated syntax as before.
+.PP
+.B __pmParseHostSpec
+takes a null-terminated host specification
+.B string
+and returns an array of 
+.B pmHostSpec
+structures, where the array has
+.B count
+entries.
+.PP
+These
+.B pmHostSpec
+structures that are returned via
+.B hostsp
+represent each individual host in the specification
+.B string
+and has the following
+declaration:
+.PP
+.nf
+.ft CW
+    typedef struct {
+        char    *name;       /* hostname (always valid) */
+        int     *ports;      /* array of host port numbers */
+        int     nports;      /* number of ports in host port array */
+    } pmHostSpec;
+.fi
+.PP
+.B __pmUnparseHostSpec
+performs the inverse operation, creating a
+.B string
+representation from a number of
+.B hosts
+structures.
+Where the
+.B count
+of structures indicated by
+.B hosts
+is greater than one, the proxy syntax is used to indicate a chain of
+proxied hosts.
+The size of the supplied
+.B string
+buffer must be provided by the caller using the
+.B size
+parameter.
+.SH "RETURN VALUE"
+If the given
+.B string
+is successfully parsed
+.B __pmParseHostSpec
+returns zero.
+In this case the dynamic storage allocated by
+.B __pmParseHostSpec
+can be released by calling
+.B __pmFreeHostSpec
+using the address returned from
+.B __pmParseHostSpec
+via
+.BR hosts .
+.P
+.B __pmParseHostSpec
+returns
+.B PM_ERR_GENERIC
+and a dynamically allocated error message string in
+.BR errmsg ,
+if the given
+.B string
+does not parse, and the user-supplied
+.B errmsg
+pointer is non-null.
+Be sure to
+.BR free (3)
+the error message string in this situation.
+.PP
+In the case of an error,
+.B hosts
+is undefined.
+In the case of success,
+.B errmsg
+is undefined.
+.PP
+On success
+.B __pmUnparseHostSpec
+returns a positive value indicating the number of characters written
+into the supplied buffer.
+However, if the supplied buffer was too small, a negative status code of
+.B \-E2BIG
+is returned.
+.SH SEE ALSO
+.BR pmcd (1),
+.BR pmproxy (1),
+.BR pmchart (1),
+.BR __pmParseHostAttrsSpec (3),
+.BR PMAPI (3)
+and
+.BR pmNewContext (3).

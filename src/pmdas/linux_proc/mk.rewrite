@@ -1,0 +1,52 @@
+#!/bin/sh
+#
+# Construct pmlogrewrite rules ...
+# proc_kernel_ulong.conf
+#	Needs to be done dynamically because the type of KERNEL_ULONG is
+#	platform dependent.
+# proc_jiffies.conf
+#	Various time metrics that are counted in jiffies and scaled up
+#	to msec, requiring the type to be PM_TYPE_U64
+#
+
+tmp=/var/tmp/$$
+trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+
+cat <<End-of-File >$tmp.c
+#include <pcp/config.h>
+#if defined(HAVE_64BIT_LONG)
+KERNEL_ULONG=PM_TYPE_U64
+#else
+KERNEL_ULONG=PM_TYPE_U32
+#endif
+End-of-File
+
+eval `${CPP-cpp} -I${INCDIR-.} $tmp.c \
+      | sed -n -e '/KERNEL_ULONG/s/PM_TYPE_//p'`
+
+cat <<End-of-File >proc_kernel_ulong.conf
+# These metrics are all exported from the proc PMDA
+# using the KERNEL_ULONG type which might be PM_TYPE_U32
+# or could be PM_TYPE_U64.
+
+metric proc.psinfo.wchan { type -> $KERNEL_ULONG }
+metric proc.schedstat.pcount { type -> $KERNEL_ULONG }
+End-of-File
+
+cat <<End-of-File >proc_jiffies.conf
+# These metrics are counted in jiffies but exported from the proc
+# PMDA as milliseconds of type PM_TYPE_U64 or KERNEL_ULONG
+
+metric proc.psinfo.utime { type -> $KERNEL_ULONG }
+metric proc.psinfo.stime { type -> $KERNEL_ULONG }
+metric proc.psinfo.cutime { type -> $KERNEL_ULONG }
+metric proc.psinfo.cstime { type -> $KERNEL_ULONG }
+metric proc.psinfo.delayacct_blkio_time { type -> U64 units -> 0,1,0,0,MSEC,0 }
+metric proc.psinfo.guest_time { type -> U64 units -> 0,1,0,0,MSEC,0 }
+metric proc.psinfo.cguest_time { type -> U64 units -> 0,1,0,0,MSEC,0 }
+metric proc.psinfo.start_time { type -> U64 units -> 0,1,0,0,MSEC,0 }
+metric cgroup.blkio.dev.time { type -> U64 }
+metric cgroup.blkio.all.time { type -> U64 }
+End-of-File
+
+exit 0

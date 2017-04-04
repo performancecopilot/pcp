@@ -1,0 +1,4 @@
+#pmlogconf-setup 2.0
+ident	load average
+probe	kernel.all.load
+	kernel.all.load

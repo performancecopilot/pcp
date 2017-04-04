@@ -1,0 +1,110 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMIDSTR 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmIDStr\f1,
+\f3pmIDStr_r\f1 \- convert a performance metric identifier into a string
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.sp
+const char *pmIDStr(pmID \fIpmid\fP);
+.br
+char *pmIDStr_r(pmID \fIpmid\fP, char *\fIbuf\fP, int \fIbuflen\fP);
+.sp
+cc ... \-lpcp
+.ft 1
+.SH DESCRIPTION
+.de CW
+.ie t \f(CW\\$1\f1\\$2
+.el \fI\\$1\f1\\$2
+..
+For use in error and diagnostic messages,
+.B pmIDStr
+returns a `human readable' version of
+the specified Performance Metric Identifier (PMID).
+The
+.B pmIDStr_r
+function does the same, but stores the result in a user-supplied buffer
+.I buf
+of length
+.IR buflen ,
+which should have room for at least 20 bytes.
+.PP
+Internally, a PMID is
+encoded as follows;
+.PP
+.ft CW
+.nf
+.in +0.5i
+typedef struct {
+    int             pad:2;
+    unsigned int    domain:8;
+    unsigned int    cluster:12;
+    unsigned int    item:10;
+} __pmID_int;
+.in
+.fi
+.ft 1
+.PP
+.B pmIDStr
+returns a string with each of the
+.CW domain ,
+.CW cluster
+and
+.CW item
+subfields appearing as decimal numbers, separated by periods.
+.PP
+The string value result from
+.B pmIDStr
+is held in a single static buffer, so the returned value is
+only valid until the next call to
+.BR pmIDStr .
+.SH NOTES
+.B pmIDStr
+returns a pointer to a static buffer and hence is not thread-safe.
+Multi-threaded applications should use
+.B pmIDStr_r
+instead.
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.I /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (5).
+Values for these variables may be obtained programmatically
+using the
+.BR pmGetConfig (3)
+function.
+.SH SEE ALSO
+.BR PMAPI (3),
+.BR pmGetConfig (3),
+.BR pmInDomStr (3),
+.BR pmTypeStr (3),
+.BR pmSemStr (3),
+.BR pmUnitsStr (3),
+.BR pmLookupDesc (3),
+.BR pcp.conf (5)
+and
+.BR pcp.env (5).

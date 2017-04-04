@@ -1,0 +1,74 @@
+#
+#  Copyright (c) 2001 Alan Bailey (bailey@mcs.anl.gov or abailey@ncsa.uiuc.edu) 
+#  for the portions of the code supporting the initial agent functionality.
+#  All rights reserved. 
+#
+#  Copyright (c) 2001,2004 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+Process PMDA
+============
+
+This PMDA monitors root processes to see if they are still running.
+The processes that are monitored are stored in a config file,
+and the PMDA returns the number of root processes with that name
+running.  In this way, you can check to see if the number of processes
+is in a range, is 1, is 0, or some other combination.
+
+This source code was contributed by Alan Bailey (abailey@ncsa.uiuc.edu)
+to the PCP open source project.
+
+Metrics
+=======
+
+The file ./help contains descriptions for all of the metrics exported
+by this PMDA.
+
+Once the PMDA has been installed, the following command will list all
+the available metrics and their explanatory "help" text:
+
+	$ pminfo -fT process
+
+Installation
+============
+
+ +  # cd $PCP_PMDAS_DIR/process
+
+ +  Check that there is no clash in the Performance Metrics Domain
+    defined in ./domain.h and the other PMDAs currently in use
+    ($PCP_PMCDCONF_PATH).  If there is, edit ./domain.h
+    to choose another domain number.
+
+ +  Then simply use
+
+	# ./Install
+
+    and choose both the "collector" and "monitor" installation
+    configuration options -- everything else is automated.
+
+ +  Alternatively, to install just the Performance Metrics Name Space
+    for the process metrics on the local system, but not the process
+    PMDA (presumably because the local system is running PCP 1.x and
+    you wish to connect to a remote system where PCP 2.0 and the process
+    PMDA is running), make sure the Performance Metrics Domain defined
+    in ./domain.h matches the domain chosen for the process PMDA on the
+    remote system (check the second field in the corresponding line of the
+    $PCP_PMCDCONF_PATH file on the remote system), then
+
+	# ./Install -N
+
+De-installation
+===============
+
+ +  Simply use
+
+        # cd $PCP_PMDAS_DIR/process
+	# ./Remove
+
+Troubleshooting
+===============
+
+ +  After installing or restarting the agent, the PMCD log file
+    ($PCP_LOG_DIR/pmcd/pmcd.log) and the PMDA log file
+    ($PCP_LOG_DIR/pmcd/process.log) should be checked for any warnings or
+    errors.

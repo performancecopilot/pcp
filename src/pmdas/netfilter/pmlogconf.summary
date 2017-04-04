@@ -1,0 +1,4 @@
+#pmlogconf-setup 2.0
+ident	Netfilter summary information
+probe	netfilter.ip_conntrack_count exists ? include : exclude
+	netfilter.ip_conntrack_count

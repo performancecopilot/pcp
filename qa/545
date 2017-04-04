@@ -1,0 +1,32 @@
+#! /bin/sh
+# PCP QA Test No. 545
+# check pmsocks handling for quoted arguments
+# See bug #665408
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+if [ "`pmsocks echo ok 2>&1`" != ok ]
+then
+    echo "pmsocks is not installed and/or not configured" >$seq.notrun
+    echo "$seq: [not run] `cat $seq.notrun`"
+    exit 0
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+SOCKS_SERVER=198.29.75.75
+export SOCKS_SERVER
+echo "Expect the following line to be \"4\""
+pmsocks date "+%a %b %e %Y" | wc -w | sed -e 's/^[ \t]*//;'
+status=0

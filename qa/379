@@ -1,0 +1,77 @@
+#!/bin/sh
+# PCP QA Test No. 379
+# Exercise Cisco PMDA parser
+#
+# Copyright (c) 2015 Red Hat.
+# Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ -f $PCP_PMDAS_DIR/cisco/pmdacisco ] || _notrun "cisco pmda not installed"
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+_check()
+{
+    echo
+    file=$1
+    shift
+    args=""
+    for x
+    do
+	args="$args $x"
+    done
+    intf=`$PCP_PMDAS_DIR/cisco/probe -N $args $file 2>/dev/null`
+    if [ -z "$intf" ]
+    then
+	echo "$file: Argh ... cannot extract list of interfaces!"
+	return
+    fi
+    for x in $intf
+    do
+	args="$args $file:$x"
+    done
+    echo "=== $args ==="
+    $PCP_PMDAS_DIR/cisco/parse -N $args 2>&1 \
+    | sed \
+	-e 's/fd=4/fd=3/' \
+    	-e '/Sleeping while sproc does the work/d'
+}
+
+# real QA test starts here
+cd cisco
+cat <<'End-of-File' | while read file args
+Serial-0		-Dappl2
+Serial-0
+Ethernet-0		-Ulogin
+Fddi-2-0		-Ulogin -Psecret
+Serial-1
+Ethernet-3-5
+ATM-12-0
+Hssi-3-0
+FastEthernet-1-0	-s cmd#
+Serial-1-0-min
+Serial-1-0-sec
+Ethernet-1-0
+Vlan-256
+Vlan-1			-Ulogin -Psecret -s bgo-sw20#
+Vlan-160		-Ulogin -Psecret -s bgo-sw20#
+FastEthernet-0-5	-Ulogin -Psecret -s bgo-sw20#
+FastEthernet-0-6	-Ulogin -Psecret -s bgo-sw20#
+GigabitEthernet-0-1	-Ulogin -Psecret -s bgo-sw20#
+End-of-File
+do
+    _check $file $args
+done
+
+# success, all done
+exit

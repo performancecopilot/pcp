@@ -1,0 +1,120 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMDATEXT 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmdaText\f1 \- extract metric help text for a PMDA
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.br
+#include <pcp/impl.h>
+.br
+#include <pcp/pmda.h>
+.sp
+int pmdaText(int \fIident\fP, int \fItype\fP, char **\fIbuffer\fP, pmdaExt *\fIpmda\fP);
+.sp
+cc ... \-lpcp_pmda \-lpcp
+.ft 1
+.SH DESCRIPTION
+As part of the Performance Metrics Domain Agent (PMDA) API (see
+.BR PMDA (3)),
+.B pmdaText
+uses the standard
+.BR PMDA (3)
+data structures to return the help text for metric
+.I ident
+in
+.IR buffer .
+The help text must be located in help text files
+created with
+.BR newhelp (1),
+and the associated files are automatically opened by
+.BR pmdaInit (3).
+.PP
+The path to the (basename of the) help text files can be set in the calls to
+.BR pmdaDSO (3)
+or
+.BR pmdaDaemon (3)
+and overridden by the 
+.B \-h
+command line option in
+.BR pmdaGetOpt (3).
+.PP
+The encoding of
+.I ident
+follows the internal scheme used below the routines
+.BR pmLookupText (3)
+and
+.BR pmLookupInDomText (3),
+namely
+.I ident
+encodes either a metric identifier or an instance domain
+identifier, according to the value
+of
+.IR type .
+.PP
+The
+.I type
+argument is a bit mask that encodes the interpretation of
+.I ident
+and the requested form of help text,
+as follows:
+either
+.B PM_TEXT_PMID
+if
+.I ident
+is a metric identifier, or
+.B PM_TEXT_INDOM
+if
+.I ident
+is an instance domain identifier, plus
+either
+.B PM_TEXT_ONELINE
+for the one line help text or
+.B PM_TEXT_HELP
+for the full help text.
+.PP
+The
+.I buffer
+is managed internally (usually it is cached),
+and it should
+.B not
+be released or freed by the caller of
+.BR pmdaText .
+.SH DIAGNOSTICS
+If the requested help text
+could not be obtained, 
+.B pmdaText
+will return
+.BR PM_ERR_TEXT .
+.SH CAVEAT
+The PMDA must be using 
+.B PMDA_PROTOCOL_2 
+or later, as specified in the call to 
+.BR pmdaDSO (3)
+or 
+.BR pmdaDaemon (3).
+.SH SEE ALSO
+.BR newhelp (1),
+.BR malloc (3),
+.BR PMAPI (3),
+.BR PMDA (3),
+.BR pmdaDaemon (3),
+.BR pmdaDSO (3),
+.BR pmdaInit (3),
+.BR pmLookupInDomText (3)
+and
+.BR pmLookupText (3).

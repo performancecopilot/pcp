@@ -1,0 +1,153 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMNSADD 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmnsadd\f1 \- add new names to the Performance Co-Pilot PMNS
+.\" literals use .B or \f3
+.\" arguments use .I or \f2
+.SH SYNOPSIS
+.B $PCP_BINADM_DIR/pmnsadd
+[\f3\-n\f1 \f2namespace\f1]
+.I file
+.SH DESCRIPTION
+.BR pmnsmerge (1)
+performs the same function as
+.B pmnsadd
+and is faster, more robust and more flexible. It is therefore recommended that
+.BR pmnsmerge (1)
+be used instead.
+.PP
+.B pmnsadd
+adds subtree(s) of new names into a Performance Metrics Name Space (PMNS),
+as used by the components of the
+Performance Co-Pilot (PCP).
+.P
+Normally
+.B pmnsadd
+operates on the default Performance Metrics Name Space (PMNS), however
+if the
+.B \-n
+option is specified an alternative namespace is used
+from the file
+.IR namespace .
+.PP
+The default PMNS is found in the file
+.I $PCP_VAR_DIR/pmns/root
+unless the environment variable
+.B PMNS_DEFAULT
+is set, in which case the value is assumed to be the pathname
+to the file containing the default PMNS.
+.PP
+The new names are specified in the
+.IR file ,
+arguments and conform to the syntax for PMNS specifications, see
+.BR pmns (5).
+There is one PMNS subtree in each
+.IR file ,
+and the base PMNS pathname to the inserted subtree is identified by the first group
+named in each
+.IR file ,
+e.g. if the specifications begin
+.P
+.sp 0.5v
+.in +1i
+.ft CW
+.nf
+myagent.foo.stuff {
+    mumble	123:45:1
+    fumble	123:45:2
+}
+.fi
+.ft 1
+.in -1i
+.sp 0.5v
+.P
+then the new names will be added into the PMNS at the non-leaf position
+identified by
+.ft CW
+myagent.foo.stuff\c
+.ft 1
+, and following all other names with the prefix
+.ft CW
+myagent.foo\c
+.ft 1
+\&.
+.PP
+The new names must be contained within a single subtree of the namespace.
+If disjoint subtrees need to be added, these must be packaged into separate
+files and
+.B pmnsadd
+used on each, one at a time.
+.PP
+All of the files defining the PMNS must be located within the directory
+that contains the root of the PMNS,
+this would typically be
+.B $PCP_VAR_DIR/pmns
+for the default PMNS, and this would typically imply running
+.B pmnsadd
+as root.
+.PP
+As a special case, if
+.I file
+contains a line that begins
+.ft CW
+root {
+.ft R
+then it is assumed to be a complete PMNS that needs to be
+merged, so none of the subtree extraction and rewriting is performed and
+.I file
+is handed directly to
+.BR pmnsmerge (1).
+.PP
+Provided some initial integrity checks are satisfied,
+.B pmnsadd
+will update the PMNS using
+.BR pmnsmerge (1)
+\- if this fails for any reason, the original namespace remains
+unchanged.
+.SH CAVEAT
+Once the writing of the new
+.I namespace
+file has begun, the signals SIGINT, SIGHUP and SIGTERM will be ignored
+to protect the integrity of the new files.
+.SH FILES
+.PD 0
+.IP \f2$PCP_VAR_DIR/pmns/root\f1 2.5i
+the default PMNS, when then environment variable
+.B PMNS_DEFAULT
+is unset
+.PD
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.I /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (5).
+.SH SEE ALSO
+.BR pmnsdel (1),
+.BR pmnsmerge (1),
+.BR pcp.conf (5),
+.BR pcp.env (5)
+and
+.BR pmns (5).

@@ -1,0 +1,7 @@
+#pmlogconf-setup 2.0
+ident	run and swap queues [Irix]
+probe	kernel.all.runque
+	kernel.all.runque
+	kernel.all.runocc
+	kernel.all.swap.swpque
+	kernel.all.swap.swpocc

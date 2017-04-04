@@ -1,0 +1,45 @@
+#!/bin/sh
+# PCP QA Test No. 949
+# Exercise bug in creating timespec objects via pmapi.py.
+#
+# Copyright (c) 2016 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.python
+
+$python -c "from pcp import pmapi" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "python pcp pmapi module not installed"
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+cat > $tmp.py <<EOF
+from pcp import pmapi
+
+ts0 = pmapi.timespec()
+ts1 = pmapi.timespec(1)
+ts21 = pmapi.timespec(2, 1000000)
+
+print("ts0=%s" % ts0)
+print("ts1=%s" % ts1)
+print("ts21=%s" % ts21)
+
+tv0 = pmapi.timeval()
+tv1 = pmapi.timeval(1)
+tv21 = pmapi.timeval(2, 1000)
+
+print("tv0=%s" % tv0)
+print("tv1=%s" % tv1)
+print("tv21=%s" % tv21)
+EOF
+# cat $tmp.py
+$python $tmp.py
+
+# success, all done
+status=0
+exit

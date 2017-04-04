@@ -1,0 +1,198 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMAF 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3__pmAFsetup\f1,
+\f3__pmAFregister\f1,
+\f3__pmAFunregister\f1,
+\f3__pmAFblock\f1,
+\f3__pmAFunblock\f1,
+\f3__pmAFisempty\f1 \- event queue services for periodic asynchronous callbacks
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.br
+#include <pcp/impl.h>
+.sp
+.ad l
+.hy 0
+.in +8n
+.ti -8n
+int __pmAFsetup(const struct timeval *\fIstart\fP, const struct timeval *\fIdelta\fP, void *\fIdata\fP, void\ (*\fIfunc\fP)(int,\ void *));
+.in
+.in +8n
+.ti -8n
+int __pmAFregister(const struct timeval *\fIdelta\fP, void *\fIdata\fP, void\ (*\fIfunc\fP)(int,\ void *));
+.br
+.in
+.hy
+.ad
+int __pmAFunregister(int \fIafid\fP);
+.br
+void __pmAFblock(void);
+.br
+void __pmAFunblock(void);
+.br
+int __pmAFisempty(void);
+.sp
+cc ... \-lpcp
+.ft 1
+.SH DESCRIPTION
+The routines implement an event queue and callback framework that supports
+periodic evaluation of a series of events with varying frequencies
+for Performance Co-Pilot (PCP) applications.
+.P
+The
+.BR pmlogger (1)
+application, the
+.BR pmdatrace (1)
+PMDA and the
+.BR pmdahotproc (1)
+PMDA are the principal users of these services.
+.P
+An event is created by calling
+.B __pmAFsetup
+or
+.B __pmAFregister
+and on success the return value is an event number greater than zero.
+The event has associated event data identified by the opaque pointer
+.IR data .
+The event will occur with frequency
+.IR delta
+and each time the event occurs the function
+.I func
+will be called with the event number and the event data as arguments.
+.P
+If
+.B __pmAFsetup
+is used then the first event is scheduled for the current time plus
+.IR start ,
+else if
+.B __pmAFregister
+is used then the first event is scheduled for the current time plus
+.IR delta .
+.P
+.I func
+is called in a SIGALRM signal handler context and so the routines
+that may be safely called from
+.I func
+are restricted to the so-called
+.I async-signal-safe
+set.
+In particular there must be no Standard I/O
+calls nor calls to any of the
+.BR malloc (3)
+routines to modify the state of the heap.
+Refer to the
+.I "Pointer to a Function"
+Section of the POSIX.1-2013 document at
+http://pubs.opengroup.org/onlinepubs/9699919799/functions/V2_chap02.html
+for a fuller description.
+.P
+The safest and simplest class of
+.I func
+routines are those that do minimal processing, set some global state and return.
+The real work associated with the event is done subsequently
+from the application's main loop when the
+global state change is detected.
+.P
+Once the event occurs and the callback has been executed, the event
+will be rescheduled for
+.I delta
+into the future, except
+if all the fields of
+.I delta
+are zero, in which case
+the event will not be rescheduled
+(a ``one trip'' event).
+.P
+Internally, events are processed serially so there is no
+possibility of nested callbacks or re-entrant callbacks from the
+event management routines.
+.P
+Given an event number
+.IR afid ,
+.B __pmAFunregister
+will permanently remove the corresponding entry from the event queue.
+.P
+To control the event queue processing,
+.B __pmAFblock
+and
+.B __pmAFunblock
+may be used to explicitly block and unblock the dispatch of events.
+This is most useful when the caller wishes to set up a number of
+events via
+.B __pmAFsetup
+or
+.B __pmAFregister
+and complete the registration phase before the first
+event callback occurs.
+.P
+A call to
+.B __pmAFisempty
+returns 1 or 0 depending on whether the event queue is empty or not.
+.SH SEE ALSO
+.BR PMAPI (3)
+.SH DIAGNOSTICS
+.PP
+.BR __pmAFsetup ,
+.B __pmAFregister
+and
+.B __pmAFunregister
+return values less than zero in the case of an error.  These values
+are PCP error codes, and may be used to produce error messages via
+.BR pmErrStr (3).
+.P
+The routines support the standard PCP debug tracing, and the value
+.B DBG_TRACE_AF
+(or
+.B "\-D af"
+on the command line)
+will produce diagnostics on standard error that trace the enqueuing
+and execution of events.
+.SH CAVEATS
+These routines rely on
+.BR setitimer (2)
+and manipulate the handling of
+.B SIGALRM
+signals, and hence are probably ill-suited for applications that
+require direct and concurrent access to these services and resources.
+.P
+If the callback functions are slow, or delayed, it is possible that
+the event scheduling could fall behind and never catchup.  When this
+begins to happen, events are silently skipped and rescheduled at the earliest
+possible time in the future according to the fixed schedule defined
+by the time of the call to
+.B __pmAFsetup
+and the value of the
+.I start
+and
+.I delta
+arguments
+(or defined by the time of the call to
+.B __pmAFregister
+and the value of the
+.I delta
+argument).
+.P
+In addition, the semantics of the interval timer(s) and the global
+state needed to support these services demand that applications
+calling these routines must do so from a single thread.
+This restriction is enforced at the
+.BR PMAPI (3),
+where routines may return the error code
+.B PM_ERR_THREAD
+if the library detects calls from more than one thread.

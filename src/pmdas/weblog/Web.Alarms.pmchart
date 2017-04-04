@@ -1,0 +1,22 @@
+#pmchart
+#
+# Web statistics (error rates)
+#
+# This file is installed by the script $PCP_PMDAS_DIR/weblog/Install
+#
+Version 2.0 host dynamic
+
+Chart Title "Web Alarms" Style stacking
+	Plot Color #-cycle Host * Metric web.allservers.errors
+	Plot Color #-cycle Host * Metric network.tcp.drops
+	Plot Color #-cycle Host * Metric network.tcp.conndrops
+	Plot Color #-cycle Host * Metric network.tcp.timeoutdrop
+	Plot Color #-cycle Host * Metric network.tcp.sndrexmitpack
+	Plot Color #-cycle Host * Metric network.tcp.rcvbadsum
+	Plot Color #-cycle Host * Metric network.tcp.rexmttimeo
+	Plot Color #-cycle Host * Metric network.mbuf.failed
+	Plot Color #-cycle Host * Metric network.mbuf.waited
+	Plot Color #-cycle Host * Metric swap.pagesout
+
+#
+# Created Thu Jul  2 10:48:36 1998

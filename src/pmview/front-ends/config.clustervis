@@ -1,0 +1,13 @@
+#
+# pmlogger(1) configuration file suitable creating an archive to be
+# used with clustervis(1)
+#
+
+log advisory on default {
+    kernel.percpu.cpu.sys
+    kernel.percpu.cpu.user
+    network.interface.in.packets
+    network.interface.out.packets
+    network.interface.total.bytes
+    network.interface.total.errors
+}

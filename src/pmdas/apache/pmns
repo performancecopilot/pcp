@@ -1,0 +1,43 @@
+/*
+ * Metrics for apache PMDA
+ *
+ * Copyright (C) 2000 Michal Kara.  All Rights Reserved.
+ * Copyright (c) 2008 Aconex.  All Rights Reserved.
+ * 
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+ * for more details.
+ * 
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+ */
+
+apache {
+    total_accesses	APACHE:0:0
+    total_kbytes	APACHE:0:1
+    uptime		APACHE:0:2
+    requests_per_sec	APACHE:0:3
+    bytes_per_sec	APACHE:0:4
+    bytes_per_requests	APACHE:0:5
+    busy_servers	APACHE:0:6
+    idle_servers	APACHE:0:7
+    sb_waiting		APACHE:0:8
+    sb_starting		APACHE:0:9
+    sb_reading		APACHE:0:10
+    sb_writing_reply	APACHE:0:11
+    sb_keepalive	APACHE:0:12
+    sb_dns_lookup	APACHE:0:13
+    sb_logging		APACHE:0:14
+    sb_finishing	APACHE:0:15
+    sb_open_slot	APACHE:0:16
+    sb_closing		APACHE:0:17
+    sb_idle_cleanup	APACHE:0:18
+    uptime_s		APACHE:0:19
+}

@@ -1,0 +1,27 @@
+#pmlogconf-setup 2.0
+ident   metrics used by the pcp-mpstat(1) command
+probe	kernel.uname.sysname ~ Linux ? include : exclude
+# -u/-P ------------------------------------------------
+	kernel.all.cpu.user 		# %usr
+	kernel.percpu.cpu.user
+	kernel.all.cpu.nice 		# %nice
+	kernel.percpu.cpu.nice
+	kernel.all.cpu.sys 		# %sys
+	kernel.percpu.cpu.sys
+	kernel.all.cpu.wait.total 	# %iowait
+	kernel.percpu.cpu.wait.total
+	kernel.all.intr		        # %intr/s
+	kernel.percpu.intr
+	kernel.all.cpu.irq.hard		# %irq
+	kernel.percpu.cpu.irq.hard
+	kernel.all.cpu.irq.soft		# %soft
+	kernel.percpu.cpu.irq.soft
+	kernel.all.cpu.steal		# %steal
+	kernel.percpu.cpu.steal
+	kernel.all.cpu.guest		# %guest
+	kernel.percpu.cpu.guest
+	kernel.all.cpu.guest_nice	# %gnice
+	kernel.percpu.cpu.guest_nice
+	kernel.all.cpu.idle		# %idle
+	kernel.percpu.cpu.idle
+

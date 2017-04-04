@@ -1,0 +1,35 @@
+#!/bin/sh
+#
+# remake the mirage-1 and mirage-2 archives ... these are
+# intended to be checked in and not remade, this script is
+# simply a record of how they were created.
+#
+
+tmp=/var/tmp/$$
+rm -f $tmp.*
+trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+
+cat <<End-of-File >>$tmp.config
+log mandatory on default {
+    sample.mirage
+    sample.bin
+    sample.many.int
+}
+End-of-File
+
+rm -r mirage-1.* mirage-2.*
+
+pmlogger -t 3sec -c $tmp.config -s 15 mirage-1 &
+sleep 5
+pmstore sample.many.count 5
+pmlogger -t 1sec -c $tmp.config -s 10 mirage-2 &
+i=6
+while [ $i -lt 12 ]
+do
+    sleep 1
+    pmstore sample.many.count $i
+    i=`expr $i + 1`
+done
+wait
+pmstore sample.many.count 5
+

@@ -1,0 +1,17 @@
+# get logging frequencies
+# e.g. dk_freq macro
+%include "frequencies"
+
+log mandatory on %dk_freq {
+    disk.dev
+}
+
+# note no % for want_cpu here
+%ifdef want_cpu
+%define cpu_pfx 'kernel.all.cpu.'
+log mandatory on %cpu_freq {
+    %{cpu_pfx}user
+    %{cpu_pfx}sys
+}
+%endif
+

@@ -1,0 +1,83 @@
+#pmieconf-rules 1
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(5)
+#
+
+rule	per_netif.packets
+	default = "$rule$"
+	enumerate = hosts
+	predicate =
+"some_inst (
+    network.interface.total.packets $hosts$ $interfaces$ >
+	$threshold$ count/sec
+)"
+	enabled	= no
+	version	= 1
+	help	=
+"For at least one network interface, the average rate of packet
+transfers (in and/or out) exceeded the threshold during the last
+sample interval.
+This rule is disabled by default because the per_netif.util rule
+is more generally useful as it takes into consideration each
+network interfaces' reported bandwidth.  However, there are some
+situations in which this value is zero, in which case an absolute
+threshold-based rule like this one will make more sense (for this
+reason it should typically be applied to some network interfaces,
+but not others - use the \"interfaces\" variable to filter this).";
+
+string	rule
+	default = "High network interface packet transfers"
+	modify	= no
+	display	= no;
+
+double	threshold
+	default	= 2000
+	help	=
+"Threshold in units of packets (in or out) per second per interface.
+A tolerable value depends on the type of network interface and
+the packet size; some experimentation may be required to find
+an accpetable threshold.";
+
+instlist	interfaces
+	default	=""
+	help	=
+"May be set to a list of network interfaces for which the rule will
+be evaluated, as a subset of configured network interfaces.
+Network interfaces should be separated by white space and may be
+enclosed in single quotes, eg.  \"ec0 'xpi5' ec2\".  Use the command:
+	$ pminfo -f network.interface.mtu
+to discover the names of the installed network interfaces.
+This is most useful to remove the loopback, SLIP and PPP interfaces
+from the rule evaluations.";
+
+string	action_expand
+	default = "%vpkt/s[%i]@%h"
+	display = no
+	modify  = no;
+
+string	email_expand
+	default	= "host: %h interface: %i packets/sec: %v"
+	display	= no
+	modify	= no;
+
+
+# Configuration info specific to non-PCP tools follows...
+# 
+
+# for SGI Embedded Support Partner integration:
+string	esp_type
+	default	= "0x200050"
+	display	= no
+	modify	= no;
+
+# for EnlightenDSM integration:
+string	enln_test
+	default	= per_netif.packets
+	display	= no
+	modify = no;
+string	enln_units
+	default	= pkt/s[%i]
+	display	= no
+	modify = no;
+
+# 
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(5)

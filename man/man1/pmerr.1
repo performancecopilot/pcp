@@ -1,0 +1,69 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMERR 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmerr\f1 \- translate Performance Co-Pilot error codes into error messages
+.\" literals use .B or \f3
+.\" arguments use .I or \f2
+.SH SYNOPSIS
+.B pmerr
+.I code
+\&...
+.br
+.B pmerr
+\f3\-l\f1
+.SH DESCRIPTION
+.B pmerr
+accepts
+standard Performance Co-Pilot (PCP)
+error codes via the
+.I code
+argument(s) and generates the corresponding error text.
+.PP
+Each
+.I code
+may be an integer, a hexadecimal value or a hexadecimal value prefixed
+by either ``0x'' or ``0X''.
+.PP
+Error codes must be less than zero, so if
+.I code
+is a positive number, a warning message is produced, and the
+negated value is used.
+.PP
+The alternative use of the
+.B \-l
+option causes all known error codes to be listed, along with their
+symbolic names and error text.
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.I /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (5).
+.SH SEE ALSO
+.BR PMAPI (3),
+.BR pmErrStr (3),
+.BR pcp.conf (5)
+and
+.BR pcp.env (5).

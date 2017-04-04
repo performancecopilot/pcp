@@ -1,0 +1,14 @@
+#!/bin/sh
+#
+# Make exports for libpcp_fault from the exports file for libpcp
+#
+
+rm -f exports
+sed <../../libpcp/src/exports >exports \
+    -e '/ local: \*;/i\
+/* added for libpcp_fault */\
+    __pmFault_malloc;\
+    __pmFault_realloc;\
+    __pmFault_strdup;\
+
+'

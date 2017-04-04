@@ -1,0 +1,48 @@
+#!/bin/sh
+# PCP QA Test No. 733
+# pmie segv @ MessageMedia
+#
+# Copyright (c) 2013 Ken McDonell.  All Rights Reserved.
+#
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+cat <<\End-of-File >$tmp.pmie
+some_inst ((filesys.used/filesys.capacity)*100 >= 0) -> print "Filesys" " %i %v";
+(1 - kernel.all.cpu.idle/hinv.ncpu)*100 > 0 -> print "CPU %v";
+some_inst (1 - kernel.percpu.cpu.idle)*100 > 0 -> print "PerCPU" " %i %v";
+swap.pagesout >= 0 -> print "PageOut %v";
+End-of-File
+
+# real QA test starts here
+echo "mark records ..."
+pmdumplog -z archives/20130706 | grep mark
+
+echo
+echo "data present for DISCRETE metrics between marks ..."
+pmdumplog -z -S @08:44 -T @17:45 archives/20130706 filesys.capacity
+pmval -z -A 1hr -t 1hr -a archives/20130706 filesys.capacity
+
+echo
+echo "data missing for INSTANTANEOUS metrics between marks ..."
+pmdumplog -z -S @08:44 -T @17:45 archives/20130706 filesys.used
+pmval -z -A 1hr -t 1hr -a archives/20130706 filesys.used
+
+pmie -z -c $tmp.pmie -A 1hr -t 1hr -a archives/20130706 2>&1 \
+| sed \
+    -e '/Info: evaluator exiting/d' \
+
+# success, all done
+status=0
+
+exit

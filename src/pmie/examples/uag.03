@@ -1,0 +1,7 @@
+//
+// simple use of a macro
+//
+disk = "disk.all";
+pct_wrt = ($disk.write / $disk.total) * 100;
+
+

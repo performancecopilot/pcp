@@ -1,0 +1,161 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2014 Red Hat.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.TH PMDAJBD2 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmdajbd2\f1 \- journal block device (JBD) performance metrics domain agent (PMDA)
+.SH SYNOPSIS
+\f3$PCP_PMDAS_DIR/jbd2/pmdajbd2\f1
+[\f3\-d\f1 \f2domain\f1]
+[\f3\-l\f1 \f2logfile\f1]
+[\f3\-j\f1 \f2path\f1]
+[\f3\-U\f1 \f2username\f1]
+.SH DESCRIPTION
+.B pmdajbd2
+is a Performance Metrics Domain Agent (PMDA) which extracts
+performance metrics from the Journal Block Device subsystem
+(version 2) in the Linux kernel.
+These metrics are exported by the kernel in procfs files,
+one file per block device.
+The JBD2 subsystem is used by several filesystems including
+ext3, ext4 and ocfs2.
+.PP
+The
+.B jbd2
+PMDA exports metrics that measure detailed journal transaction
+information, such as time spent waiting and locked, request
+rates, blocks used and so on.
+.PP
+A brief description of the
+.B pmdajbd2
+command line options follows (these are only relevant when
+running the PMDA as a daemon, and not as a shared library):
+.TP 5
+.B \-d
+It is absolutely crucial that the performance metrics
+.I domain
+number specified here is unique and consistent.
+That is,
+.I domain
+should be different for every PMDA on the one host, and the same
+.I domain
+number should be used for the same PMDA on all hosts.
+.TP
+.B \-l
+Location of the log file.  By default, when running as a daemon
+a log file named
+.I jbd2.log
+is written in the current directory of
+when
+.B pmdajbd2
+is started, i.e.
+.BR $PCP_LOG_DIR/pmcd .
+If the log file cannot
+be created or is not writable, output is written to the standard error instead.
+When running in shared library mode, and diagnostic information will
+be written into the
+.B pmcd
+log file, namely
+.BR $PCP_LOG_DIR/pmcd/pmcd.log .
+.TP
+.B \-j
+Allows an alternate path to the jbd2 statistics files to be specified.
+The default path is
+.IR /proc/fs/jbd2 .
+.TP
+.B \-U
+User account under which to run the agent.
+The default is the unprivileged "pcp" account in current versions of PCP,
+but in older versions the superuser account ("root") was used by default.
+.SH INSTALLATION
+This PMDA is installed by default and in the shared library
+mode (rather than as a separate daemon to
+.BR pmcd (1)).
+Thus, the names, help text and values for the jbd2 performance metrics
+should always be available.
+.PP
+If you do not use these metrics you can remove this PMDA, do the
+following as root:
+.PP
+.ft CW
+.nf
+.in +0.5i
+# cd $PCP_PMDAS_DIR/jbd2
+# ./Remove
+.in
+.fi
+.ft 1
+.PP
+If you want to enable the installation again, do the following as root:
+.PP
+.ft CW
+.nf
+.in +0.5i
+# cd $PCP_PMDAS_DIR/jbd2
+# ./Install
+.in
+.fi
+.ft 1
+.PP
+.B pmdajbd2
+is launched by
+.BR pmcd (1)
+and should never be executed directly.
+The Install and Remove scripts notify
+.BR pmcd (1)
+when the agent is installed or removed.
+.SH FILES
+.PD 0
+.TP 10
+.B $PCP_PMCDCONF_PATH
+command line options used to launch
+.B pmdajbd2
+.TP 10
+.B $PCP_PMDAS_DIR/jbd2/help
+default help text file for the jbd2 metrics
+.TP 10
+.B $PCP_PMDAS_DIR/jbd2/Install
+installation script for the
+.B pmdajbd2
+agent
+.TP 10
+.B $PCP_PMDAS_DIR/jbd2/Remove
+undo installation script for the 
+.B pmdajbd2
+agent
+.TP 10
+.B $PCP_LOG_DIR/pmcd/jbd2.log
+default log file for error messages and other information from
+.B pmdajbd2
+.PD
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.I /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (5).
+.SH SEE ALSO
+.BR PCPIntro (1),
+.BR pmcd (1),
+.BR pcp.conf (5)
+and
+.BR pcp.env (5).

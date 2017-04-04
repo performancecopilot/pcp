@@ -1,0 +1,15 @@
+#pmlogconf-setup 2.0
+ident	elasticsearch service (elastic.co) statistics
+probe	elasticsearch.cluster.status.code exists ? include : exclude
+
+	elasticsearch.nodes
+	elasticsearch.search
+	elasticsearch.cluster.relocating_shards
+	elasticsearch.cluster.initializing_shards
+	elasticsearch.cluster.status.code
+	elasticsearch.cluster.unassigned_shards
+	elasticsearch.cluster.number_of_data_nodes
+	elasticsearch.cluster.active_shards
+	elasticsearch.cluster.number_of_nodes
+	elasticsearch.cluster.active_primary_shards
+	elasticsearch.cluster.timed_out

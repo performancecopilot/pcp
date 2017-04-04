@@ -1,0 +1,34 @@
+#!/bin/sh
+# PCP QA Test No. 350
+#
+# help text malloc/free snarfoo ... found prior to 3.2 release
+#
+# Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed -e 's/ value [0-9][0-9\.]*/ value N/'
+}
+
+# real QA test starts here
+metrics=`pminfo simple | LC_COLLATE=POSIX sort`
+pminfo -f $metrics | _filter
+pminfo -T $metrics | _filter
+pminfo -f $metrics | _filter
+pminfo -t $metrics | _filter
+
+# success, all done
+exit

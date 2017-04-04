@@ -1,0 +1,40 @@
+#! /bin/sh
+# PCP QA Test No. 265
+# _pmPrintValue() exerciser
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+
+status=1	# failure is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+echo "=== 32-bit ==="
+src/pv
+
+echo
+echo "=== 64-bit === [note, may be fake on some systems]"
+if [ -x src/pv64 ]
+then
+    src/pv64
+else
+    cat <<End-of-File
+PM_TYPE_32: -65536 correct: -65536 (0xffff0000)
+PM_TYPE_U32: 2271560481 correct: 2271560481 (0x87654321)
+PM_TYPE_FLOAT: 123456.78 correct: 123456.78
+PM_TYPE_DOUBLE: 123456.789012345 correct: 123456.789012345
+PM_TYPE_64: -65536 correct: -65536 (0xffffffffffff0000)
+PM_TYPE_U64: 9756277977086427136 correct: 9756277977086427136 (0x8765432112340000)
+End-of-File
+fi
+
+# success, all done
+status=0
+exit

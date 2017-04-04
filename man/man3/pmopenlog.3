@@ -1,0 +1,80 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMOPENLOG 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3__pmOpenLog\f1 \- create a log file for diagnostics and debug output
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.br
+#include <pcp/impl.h>
+.sp
+.ad l
+.hy 0
+.in +8n
+.ti -8n
+FILE *__pmOpenLog(const char *\fIprogname\fP, const char *\fIlogname\fP, FILE\ *\fIoldstream\fP, int\ *\fIstatus\fP);
+.sp
+.in
+.hy
+.ad
+cc ... \-lpcp
+.ft 1
+.SH DESCRIPTION
+.B __pmOpenLog
+reassigns the standard I/O stream
+.I oldstream
+to be associated with the file
+.IR logname .
+If it already exists,
+.I logname
+will be removed and recreated if possible (to ensure correct ownership
+and permissions from the caller to
+.BR __pmOpenLog ).
+.PP
+On return, the function value is the new standard I/O stream.  In the
+event of an error, this will be
+.I oldstream
+unchanged and
+.I status
+will be 0.
+.PP
+For success,
+.I status
+is 1, a standard preamble is written to
+.I logname
+.ti +0.5i
+.ft B
+Log for \fIprogname\fB on \fIhostname\fB started \fIdate and time\fB
+.ft R
+.br
+and an
+.BR atexit (3)
+handler is installed to write the postscript message to
+.I logname
+.ti +0.5i
+.ft B
+Log finished \fIdate and time\fB
+.ft R
+.br
+when the processes exits.
+.PP
+.I progname
+is only used to annotate messages.
+.SH SEE ALSO
+.BR atexit (3)
+and
+.BR freopen (3).

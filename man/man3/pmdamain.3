@@ -1,0 +1,299 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2013 Red Hat.
+.\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMDAMAIN 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmdaMain\f1,
+\f3pmdaGetContext\f1,
+\f3pmdaSetResultCallBack\f1,
+\f3pmdaSetCheckCallBack\f1,
+\f3pmdaSetDoneCallBack\f1,
+\f3pmdaSetEndContextCallBack\f1 \- generic PDU processing for a PMDA
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.br
+#include <pcp/impl.h>
+.br
+#include <pcp/pmda.h>
+.sp
+cc ... \-lpcp_pmda \-lpcp
+.sp
+.ad l
+.hy 0
+.in +8n
+.ti -8n
+void pmdaMain(pmdaInterface *\fIdispatch\fP);
+.br
+.ti -8n
+void pmdaSetCheckCallBack(pmdaInterface *\fIdispatch\fP, pmdaCheckCallBack\ \fIcallback\fP);
+.br
+.ti -8n
+void pmdaSetDoneCallBack(pmdaInterface *\fIdispatch\fP, pmdaDoneCallBack\ \fIcallback\fP);
+.br
+.ti -8n
+void pmdaSetResultCallBack(pmdaInterface *\fIdispatch\fP, pmdaResultCallBack\ \fIcallback\fP);
+.br
+.ti -8n
+void pmdaSetEndContextCallBack(pmdaInterface *\fIdispatch\fP, pmdaEndContextCallBack\ \fIcallback\fP);
+.br
+.ti -8n
+int pmdaGetContext(void);
+.sp
+.in
+.hy
+.ad
+.ft 1
+.SH DESCRIPTION
+For Performance Metric Domain Agents 
+.RB ( PMDA (3)) 
+using the binary PDU protocols to communicate with
+.BR pmcd (1),
+the routine
+.B pmdaMain
+provides a generic implementation of the PDU-driven main loop. 
+.PP
+.I dispatch
+describes how to process each incoming PDU. It
+is a vector of function pointers, one per request PDU type,
+as used in the DSO interface for a PMDA, namely:
+.PP
+.nf
+.ft CW
+/*
+ * Interface Definitions for PMDA Methods
+ */
+typedef struct {
+    int domain;         /* set/return performance metrics domain id here */
+    struct {
+        unsigned int    pmda_interface: 8; /* PMDA DSO interface version */
+        unsigned int    pmapi_version : 8; /* PMAPI version */
+        unsigned int    flags : 16;        /* optional feature flags */
+    } comm;             /* set/return communication and version info */
+    int status;         /* return initialization status here */
+
+    union {
+        struct {                              /* PMDA_INTERFACE_2 or _3 */
+            pmdaExt *ext;
+            int (*profile)(__pmProfile *, pmdaExt *);
+            int (*fetch)(int, pmID *, pmResult **, pmdaExt *);
+            int (*desc)(pmID, pmDesc *, pmdaExt *);
+            int (*instance)(pmInDom, int, char *, __pmInResult **, pmdaExt *);
+            int (*text)(int, int, char **, pmdaExt *);
+            int (*store)(pmResult *, pmdaExt *);
+        } two, three;
+
+        struct {                              /* PMDA_INTERFACE_4 or _5 */
+            pmdaExt *ext;
+            int     (*profile)(__pmProfile *, pmdaExt *);
+            int     (*fetch)(int, pmID *, pmResult **, pmdaExt *);
+            int     (*desc)(pmID, pmDesc *, pmdaExt *);
+            int     (*instance)(pmInDom, int, char *, __pmInResult **, pmdaExt *);
+            int     (*text)(int, int, char **, pmdaExt *);
+            int     (*store)(pmResult *, pmdaExt *);
+            int     (*pmid)(char *, pmID *, pmdaExt *);
+            int     (*name)(pmID, char ***, pmdaExt *);
+            int     (*children)(char *, int, char ***, int **, pmdaExt *);
+        } four, five;
+
+        struct {                              /* PMDA_INTERFACE_6 */
+            pmdaExt *ext;
+            int     (*profile)(__pmProfile *, pmdaExt *);
+            int     (*fetch)(int, pmID *, pmResult **, pmdaExt *);
+            int     (*desc)(pmID, pmDesc *, pmdaExt *);
+            int     (*instance)(pmInDom, int, char *, __pmInResult **, pmdaExt *);
+            int     (*text)(int, int, char **, pmdaExt *);
+            int     (*store)(pmResult *, pmdaExt *);
+            int     (*pmid)(char *, pmID *, pmdaExt *);
+            int     (*name)(pmID, char ***, pmdaExt *);
+            int     (*children)(char *, int, char ***, int **, pmdaExt *);
+            int     (*attribute)(int, int, const char *, int, pmdaExt *);
+        } six;
+    } version;
+
+} pmdaInterface;
+.fi
+.PP
+This structure has been extended to incorporate the multiple interface versions
+that have evolved over time.
+For
+.BR pmdaMain,
+.I dispatch->domain
+and
+.I dispatch->status
+are ignored.  The 
+.I comm.pmda_interface
+field is used to determine the interface used by the PMDA.  Setting this field
+to
+.B PMDA_INTERFACE_2
+or
+.B PMDA_INTERFACE_3
+will force 
+.B pmdaMain
+to use the callbacks in the
+.I version.two
+or
+.I version.three
+structure.
+A setting of
+.B PMDA_INTERFACE_4
+or
+.B PMDA_INTERFACE_5
+will force 
+.B pmdaMain
+to use the callbacks in the
+.I version.four
+or
+.I version.five
+structure, and similarly a
+.B PMDA_INTERFACE_6
+setting forces
+.B pmdaMain
+to use the callbacks in the
+.I version.six
+structure.
+Any other value will result in an error and termination of
+.BR pmdaMain .
+.PP
+Note that the use of
+.B dispatch
+as the interface between the
+.BR pmcd (1)
+and the methods of the PMDA allows each PMDA to be implemented as
+though it were a DSO, with
+.B pmdaMain
+providing a convenient wrapper that may be used to convert from the
+DSO interface to the binary PDU (daemon PMDA) interface.
+.PP
+.B pmdaMain
+executes as a continuous loop, returning only when an end of file
+is encountered on the PDU input file descriptor.
+.SH CALLBACKS
+In addition to the individual PDU processing callbacks \-
+.BR pmdaProfile (3),
+.BR pmdaFetch (3),
+.BR pmdaDesc (3),
+.BR pmdaInstance (3),
+.BR pmdaText (3),
+.BR pmdaStore (3),
+.BR pmdaPMID (3),
+.BR pmdaName (3),
+.BR pmdaChildren (3),
+and
+.BR pmdaAttribute (3)
+there are other callbacks that can affect or inform all PDU
+processing within a PMDA, namely
+.IR check ,
+.I done
+and
+.IR end .
+These callbacks should be set with 
+.BR pmdaSetCheckCallBack ,
+.B pmdaSetDoneCallBack
+and
+.BR pmdaSetEndContextCallBack .
+.PP
+If not null, 
+.I check 
+is called after each PDU is received (but before it was processed), and 
+.I done
+is called after each PDU is sent.  
+If
+.I check
+returns a value less than zero (typically PM_ERR_AGAIN),
+the PDU processing is skipped and in most cases the
+function value is returned as an error PDU to
+.BR pmcd (1)
+\- this may be used for
+PMDAs that require some sort of deferred connection or reconnect
+protocols for the underlying sources of performance metrics, e.g. a DBMS.
+The error indication from
+.I check
+is not passed back to
+.BR pmcd (1)
+in the cases where no acknowledgment is expected, e.g. for a PDU_PROFILE.
+.PP
+The
+.I end
+callback allows a PMDA to keep track of state for individual clients that
+are requesting it to perform actions (PDU processing).
+Using
+.B pmdaGetContext
+a PMDA can determine, at any point, an integer identifier that uniquely
+identifies the client tools at the remote end of PMCD (for local context
+modes, this identifier is always zero).
+This becomes very important for handling event metrics, where each
+event must be propagated once only to each interested client.
+It also underlies the mechanism whereby connection information is passed
+to the PMDA, such as the the credentials (user and group identifiers) for
+the client tool.
+.PP
+One final callback mechanism is provided for handling the
+.B pmResult
+built for a PDU_RESULT in response to a PDU_FETCH request.
+By default,
+.B pmdaMain
+will free the
+.B pmResult
+once the result has been sent to the
+.BR pmcd (1).
+For some PMDAs this is inappropriate, e.g. the
+.B pmResult
+is statically allocated, or contains a hybrid of pinned PDU buffer
+information and dynamically allocated information.
+.B pmdaSetResultCallback
+may be used to define an alternative
+.B callback
+from
+.BR pmdaMain .
+.SH DIAGNOSTICS
+These messages may be appended to the PMDA's log file:
+.TP 25
+.BI "PMDA interface version " interface " not supported"
+The
+.I interface
+version is not supported by 
+.BR pmdaMain .
+.TP
+.B Unrecognized pdu type
+The PMDA received a PDU from 
+.B pmcd
+that it does not recognize. This may indicate that the
+.B pmcd
+process is using a more advanced interface than
+.BR pmdaMain .
+.PP
+If the 
+.BR PMAPI (3)
+debug control variable
+.RB ( pmdebug )
+has the DBG_TRACE_LIBPMDA flag set then each PDU that is received is reported
+in the PMDA's log file.
+.SH SEE ALSO
+.BR pmcd (1),
+.BR PMAPI (3),
+.BR PMDA (3),
+.BR pmdaProfile (3),
+.BR pmdaFetch (3),
+.BR pmdaDesc (3),
+.BR pmdaInstance (3),
+.BR pmdaText (3),
+.BR pmdaStore (3),
+.BR pmdaPMID (3),
+.BR pmdaName (3),
+.BR pmdaChildren (3),
+and
+.BR pmdaAttribute (3).

@@ -1,0 +1,220 @@
+#!/bin/sh
+# PCP QA Test No. 514
+#
+# pmie - lots of expressions, checking pmie -d output and %v binding
+# - see also QA 520
+#
+# Copyright (c) 2012 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+LOCALHOST=`hostname`
+
+case $PCP_PLATFORM
+in
+    linux|solaris)
+	# same syslog options for Linux and OpenSolaris
+	SYSLOG_OPT='"-p daemon.info"'
+	;;
+    darwin)
+	SYSLOG_OPT=''
+	;;
+    *)
+	echo "Arrgh ... need syslog option for $PCP_PLATFORM"
+	exit 1
+	;;
+esac
+
+# may be using journalctl, and so no syslog in the file system
+#
+if `which journalctl >/dev/null 2>&1`
+then
+    echo "Using journalctl ..." >>$seq.full
+    have_journalctl=true
+else
+    have_journalctl=false
+    SYSLOG=''
+    for f in /var/adm/SYSLOG /var/log/daemon.log /var/log/messages /var/log/syslog /var/log/system.log
+    do
+	if [ -f $f ]
+	then
+	    SYSLOG=$f
+	    break
+	fi
+    done
+    if [ -z "$SYSLOG" ]
+    then
+	echo "Arrgh! Cannot find your syslog file"
+	exit 1
+    fi
+fi
+
+_filter()
+{
+    sed \
+	-e "s/\([:@ ]\)$LOCALHOST/\1LOCALHOST/g" \
+	-e "s/\([:@ ]\)local:/\1LOCALHOST/g" \
+	-e 's/[A-Z][a-z][a-z] [A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9]/DATE/' \
+	-e 's/DATE [12][0-9][0-9][0-9]/DATE/' \
+	-e '/evaluator exiting/s/pmie([0-9][0-9]*)/pmie(PID)/' \
+	-e '/Performance Co-Pilot Inference Engine/s/Version .*/Version .../' \
+	-e 's/\[red] 1[0-9][0-9]/[red] >=100/' \
+	-e 's/\[green] 2[0-9][0-9]/[green] >=200/' \
+	-e 's/\[blue] 3[0-9][0-9]/[blue] >=300/' \
+	-e 's/level=[0-9][0-9]* tag=/level=N tag=/' \
+    # end
+}
+
+# mapping to 0x0 -> (nil) needed for C compilers that don't do the
+# (nil) translation automatically for a printf %p
+#
+_filter2()
+{
+    sed \
+	-e 's/0x0\([ (]\)/(nil)\1/g' \
+	-e 's/0x0$/(nil)/' \
+    | $PCP_AWK_PROG '
+$1 == "pmie:"		{ print; next }
+/failed: /		{ print; next }
+$1 == "initMetric:"	{ skip=1 }
+skip == 1		{ if ($1 == "Rule:") skip = 0 }
+skip == 1		{ next }
+			{ print }' >$tmp.tmp
+    tr ' =' '\012' <$tmp.tmp \
+    | grep '0x' \
+    | $PCP_AWK_PROG >$tmp.sed '
+BEGIN	{ n = 0 }
+    	{ if (seen[$1] == 1) next
+	  printf "s/%s/ADDR%03d/\n",$1,n
+	  n++
+	  seen[$1] = 1
+	}'
+    sed -f $tmp.sed <$tmp.tmp
+}
+
+cat <<End-of-File >$tmp.pmie
+some_inst sample.part_bin > 500 -> print "some > 500:" " [%i] %v";
+all_inst sample.part_bin > 0 -> shell "echo 'all > 0:'" " [%i] %v";
+some_sample hinv.ncpu @0..2 == hinv.ncpu -> syslog 10sec $SYSLOG_OPT "PCP QA $seq - please ignore: some sample ncpu equal" " [%i] %v";
+( sample.long.million + sample.long.one - sample.long.ten ) * sample.long.hundred / sample.long.ten >= 0 -> print "arith %v";
+// true && true
+sample.long.one != 2 && ( sample.long.million + sample.long.one - sample.long.ten ) * sample.long.hundred / sample.long.ten >= 0 -> print "boolean1 %v";
+// false && true
+sample.long.one <= 0 && ( sample.long.million + sample.long.one - sample.long.ten ) * sample.long.hundred / sample.long.ten >= 0 -> print "boolean2 %v";
+// true && false
+sample.long.one < 9 && ! ( sample.long.million + sample.long.one - sample.long.ten ) * sample.long.hundred / sample.long.ten >= 0 -> print "boolean3 %v";
+// false && false
+sample.long.one < 1 && ! ( sample.long.million + sample.long.one - sample.long.ten ) * sample.long.hundred / sample.long.ten >= 0 -> print "boolean4 %v";
+// pmns error || true
+min_inst no_such_metric == 100 || sample.long.million > 0 -> print "error1 %v";
+// true || true
+min_inst sample.part_bin == 100 || ( sample.long.million + sample.long.one - sample.long.ten ) * sample.long.hundred / sample.long.ten >= 0 -> print "boolean5:" " [%i] %v";
+// false || true
+// NOTE instance bindings here will be for the _left_ subexpression
+// (which is always false) ... this is odd but not unexpected
+max_inst sample.part_bin == 100 || ( sample.long.million + sample.long.one - sample.long.ten ) * sample.long.hundred / sample.long.ten >= 0 -> print "boolean6:" " [%i] %v";
+// true || false
+sum_inst sample.part_bin > 500 || ! ( sample.long.million + sample.long.one - sample.long.ten ) * sample.long.hundred / sample.long.ten >= 0 -> print "boolean7:" " [%i] %v";
+// false || false
+avg_inst(sample.part_bin) == 0 || ! ( sample.long.million + sample.long.one - sample.long.ten ) * sample.long.hundred / sample.long.ten >= 0 -> print "boolean8:" " [%i] %v";
+count_inst(sample.part_bin > 0) > 0 -> print "count_inst:" "[%i] %v";
+some_inst match_inst "bin-[12345]" sample.part_bin > 100 -> print "match_inst:" " [%i] %v";
+some_inst nomatch_inst "bin-[12345]" sample.part_bin > 200 -> print "nomatch_inst:" " [%i] %v";
+// rising, falling - see QA 515
+all_inst rate sample.bin == 0 -> print "rate:" " [%i] %v";
+66%_inst sample.colour >= 200 -> print "66%_inst:" " [%i] %v";
+all_sample sample.long.ten @0..2 == 10 -> print "all_sample: " " [%i] %v";
+60%_sample some_inst sample.part_bin #'bin-300' #'bin-500' #'bin-700' @0..1 >= 500 -> print "60%_sample: " " [%i] %v";
+min_sample sample.long.hundred @0..1 == 100 -> print "min_sample: " " [%i] %v";
+max_sample sample.long.hundred @0..1 == 100 -> print "max_sample: " " [%i] %v";
+sum_sample sample.bin #'bin-100' @0..3 == 400 -> print "sum_sample: " " [%i] %v";
+avg_sample sample.bin #'bin-200' @0..1 == 200 -> print "avg_sample: " " [%i] %v";
+count_sample(some_inst sample.bin #'bin-200' #'bin-300' #'bin-400' @0..2 == 300) == 3 -> print "count_sample: " " [%i] %v";
+min_inst sample.part_bin > 0 -> print "min_inst:" " @%h [%i] %v";
+max_inst sample.part_bin > 0 -> print "max_inst:" " @%h [%i] %v";
+sample.long.one == 1 -> shell "false" | print "false |: %v";
+sample.long.ten == 10 -> shell "true" & print "true &: %v";
+sample.long.hundred == 100 -> print "print |:" " %v" | print "bozo don't execute me!";
+
+// TODO at some other time ... alarm and stomp actions
+End-of-File
+
+# real QA test starts here
+cat <<End-of-File | pmie -t 250msec -d -Dappl1 >$tmp.out 2>$tmp.err &
+f $tmp.pmie
+l
+r 1sec
+v
+End-of-File
+
+wait
+
+# strange but true ... sometimes don't need an echo here to deal
+# with the pmie> (and no newline) prompt ...
+#
+case $PCP_PLATFORM
+in
+    darwin)
+	: no
+	;;
+    *)
+	: yes
+	echo >>$tmp.out
+	;;
+esac
+
+echo >>$seq.full
+echo "pmie PID $!" >>$seq.full
+echo >>$seq.full
+echo "=== pmie output ===" >>$seq.full
+cat $tmp.out >>$seq.full
+echo >>$seq.full
+echo "=== pmie errors ===" >>$seq.full
+cat $tmp.err >>$seq.full
+
+_filter2 <$tmp.err | _filter
+_filter <$tmp.out
+
+echo "SYSLOG ..."
+if $have_journalctl
+then
+    # be careful ... --boot not supported in all versions, -l not
+    # supported in all versions
+    $sudo journalctl -b --full | tail -100 >$tmp.syslog
+else
+    $sudo tail -100 $SYSLOG >$tmp.syslog
+fi
+sed <$tmp.syslog -n \
+    -e 's/PCP QA '"$seq"'/PCP QA xxx/' \
+    -e '/ncpu equal/s/ [0-9][0-9]*/ N/g' \
+    -e 's/PCP QA xxx/PCP QA '"$seq"'/' \
+    -e '/\['$!']: PCP QA '"$seq"' - please ignore/{
+s/.*please ignore/.../
+p
+}' \
+| LC_COLLATE=POSIX sort -u
+
+echo >>$seq.full
+if $have_journalctl
+then
+    echo "=== tail journalctl -b --full ===" >>$seq.full
+else
+    echo "=== tail SYSLOG ($SYSLOG) ===" >>$seq.full
+fi
+echo "`wc -l <$tmp.syslog | sed -e 's/ //g'` lines ... expect 100" >>$seq.full
+cat $tmp.syslog >>$seq.full
+
+# success, all done
+status=0
+exit

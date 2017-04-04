@@ -1,0 +1,62 @@
+#!/bin/sh
+# PCP QA Test No. 813
+# Testing pmdapapi functionality with dbpmda
+#
+# Copyright (c) 2014 Red Hat Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ -d $PCP_PMDAS_DIR/papi ] || _notrun "PAPI PMDA is not installed"
+
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; $sudo rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter_papi_errors()
+{
+    sed \
+	-e '/pfm_find_full_event(.*): event not found./d' \
+	-e '/events in papi_events.csv were not valid./d' \
+    # end
+}
+
+_filter()
+{
+    sed \
+	-e "s,$PCP_PMDAS_DIR,PCP_PMDAS_DIR,g" \
+	-e 's/value [0-9][0-9]*/value NUMBER/' \
+	-e 's/value \".*\"/value STRING/' \
+	-e 's/0x[0-9a-f]*/ADDR/g' \
+	-e 's/[0-2][0-9]:00:00.000/TIME/' \
+	-e 's/126.0.[0-9][0-9]*/126.0.NUMBER/' \
+	-e "s,$tmp,TMP," \
+    | _filter_papi_errors
+}
+
+# vars and checks
+papirootpmns=$PCP_PMDAS_DIR/papi/root
+pipepmda=$PCP_PMDAS_DIR/papi/pmdapapi
+
+# check if papi PMDA is going to work on this platform
+_check_papi
+
+# real QA test starts here
+echo "=== Daemon PMDA papi test ==="
+$sudo TERM=ansi dbpmda -n $papirootpmns -ie <<EOF 2>&1 | _filter
+open pipe $pipepmda -d 126 -l $tmp.log
+getdesc on
+attr "username" "root"
+attr 11 "0"
+desc papi.system.TOT_INS
+desc papi.control.status
+desc papi.available.num_counters
+store papi.control.enable "TOT_INS"
+fetch papi.system.TOT_INS
+store papi.control.disable "TOT_INS"
+EOF

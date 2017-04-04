@@ -1,0 +1,76 @@
+#pmieconf-rules 1
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(5)
+#
+
+rule	per_netif.collisions
+	default	= "$rule$"
+	enumerate = hosts
+	predicate =
+"some_inst (
+    100 * network.interface.collisions $hosts$
+	    / ( network.interface.collisions $hosts$
+		+ network.interface.out.packets $hosts$ )
+	> $threshold$ &&
+    network.interface.out.packets $hosts$
+	> $packet_rate$ count/second
+)"
+	enabled	= yes
+	version	= 1
+	help	=
+"More than threshold percent of the packets being sent across an
+interface are causing a collision, and packets are being sent
+across the interface at packet_rate packets per second.
+Ethernet interfaces expect a certain number of packet collisions,
+but a high ratio of collisions to packet sends is indicitive of a
+saturated network.";
+
+string	rule
+	default	= "High collision rate in packet sends"
+	modify	= no
+	display	= no;
+
+percent	threshold
+	default	= 40
+	help	=
+"Threshold percent of transmitted packets are colliding with other
+packet sending attempts before being successfully transmitted.";
+
+double	packet_rate
+	default	= 10
+	help	=
+"Rate at which packets are being transmitted on an interface (number
+of packets per second) before considering the number of collisions as
+significant.";
+
+string	action_expand
+	default	= "%v%collisions[%i]@%h"
+	display	= no
+	modify	= no;
+
+string	email_expand
+	default	= "host: %h interface: %i collision rate: %v%"
+	display	= no
+	modify	= no;
+
+
+# Configuration info specific to non-PCP tools follows...
+# 
+
+# for SGI Embedded Support Partner integration:
+string	esp_type
+	default	= "0x20004E"
+	display	= no
+	modify	= no;
+
+# for EnlightenDSM integration:
+string	enln_test
+	default	= per_netif.collisions
+	display	= no
+	modify = no;
+string	enln_units
+	default	= %collide[%i]
+	display	= no
+	modify = no;
+
+# 
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(5)

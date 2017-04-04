@@ -1,0 +1,85 @@
+'\"macro stdmacro
+.TH AUTOFSD-PROBE 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3autofsd-probe\f1 \- probe AutoFS mount/unmount daemon
+.SH SYNOPSIS
+\f3$PCP_BINADM_DIR/autofsd-probe\f1
+[\f3\-h\f1 \f2host\f1]
+[\f3\-t\f1 \f2timeout\f1]
+.SH DESCRIPTION
+.B autofsd-probe
+will check the status of the
+.BR autofsd (1)
+daemon on the specified
+.IR host .
+.PP
+Unless directed to another
+.I host
+by the
+.B \-h
+option,
+.B autofsd-probe
+will contact the
+.B AutoFS
+daemon on the local host.
+.PP
+The
+.B AutoFS
+file system is built on the Remote Procedure Call (\c
+.BR RPC (3))
+library routines.  The
+.B \-t
+option allows the total timeout and retry timeout intervals to be set for all
+remote procedure call operations used with
+.BR autofsd-probe .
+This option accepts an interval argument in the form described in the
+.BR PCPintro (1)
+manual page.
+.PP
+.B autofsd-probe
+is typically used in an automated fashion from within
+.BR pmdashping (1)
+and in conjunction with
+.BR pmie (1),
+for monitoring response time and service failure.
+.PP
+By default
+.B autofsd-probe
+will not produce any output, unless there is an error in which case
+a diagnostic message will be displayed and the exit status will indicate
+the reason for failure.
+.SH DIAGNOSTICS
+If
+.B autofsd-probe
+succeeds, then 0 will be returned.
+If the attempt to establish a connection with
+.B autofsd
+fails, then 2 is returned.
+If the subsequent attempt to invoke an
+.B autofsd
+response fails, then 1 will be returned.
+.PP
+In the case of a syntactical command line error, 4 is returned and the
+usage message is displayed.
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.I /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (5).
+.SH SEE ALSO
+.BR autofs (1),
+.BR autofsd (1),
+.BR PCPintro (1),
+.BR pmdashping (1),
+.BR pmie (1)
+and
+.BR RPC (3).

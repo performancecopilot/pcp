@@ -1,0 +1,59 @@
+Scripts for running lots of QA in Ken's sandpit
+
+Build does not go here.
+
+Scripts are getting sufficiently complicated that some form of
+version control is needed.
+
+Useful scripts ...
+
+check-vm
+    This script helps you determine if a host is ready for a PCP
+    build, install and QA run.
+
+    Some of the things are optional, but you should try and make
+    sure the only things reported are optional.
+
+../chk.setup
+    Older style check script to see if QA environment smells right.
+
+allow-pmlc-access
+    Need to be able to connect from pmlc on any QA machine to the
+    pmlogger on any QA machine.  This script adds to the default
+    primary pmlogger's $PCP_SYSCONF_DIR/pmlogger/config.default
+    to make it so.
+
+myconfigure
+    Runs configure sort of like the build would, so the local source
+    tree is ready.
+
+    To build the PCP QA apps, for example, in the source tree requires:
+	$ cd $HOME/src/pcp # or wherever the base of the git tree is
+	$ qa/admin/myconfigure
+	$ cd qa/src
+	$ make
+
+pcp-daily
+    Heavy lifter to run full git pull, build, install, QA (or parts
+    thereof) across a number of QA machines.
+
+    Strongy suggest installing dailyrc from this directory into
+    $HOME/.dailyrc
+
+pcp-qa-summary
+    Trawl the pcp-daily log directories and reporting statistical summaries.
+    Interesting options include ...
+      -d      debug
+      -f      sort failure map on %bad [default sort of Test #]
+      -n      report not run tests (reported as "-")
+      -m N    minimum number of tests run to be reported [default 60]
+      -n      report not run tests (reported as "-")
+      -r      only most recent results date [default report all dates]
+	      for one or more tests
+
+show-me-all
+    Trawl the pcp-daily log directories looking for _all_ the failures
+    for one or more tests
+
+get_osname and whatami
+    Report PCP, platform and O/S name and versions.

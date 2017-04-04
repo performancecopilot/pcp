@@ -1,0 +1,42 @@
+#! /bin/sh
+# PCP QA Test No. 469
+# test for long help text exceeding maximum length
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+maxlen=84
+
+# assumes metric length (i.e. line with metric name) is less than $maxlen
+pminfo -T \
+| $PCP_AWK_PROG -v maxlen=$maxlen '
+function skip_me(m)
+{
+    return (m == "kernel.percpu.interrupts.line21" || m ~ "^papi")
+}
+/Help:/ { metric = line; next }
+{ 
+    if (skip_me(metric)) next
+    line = $0
+    if (length(line) > maxlen && metric != lastone) {
+	printf "%s, full help text is too long: %d\n", metric, length(line)
+	lastone = metric
+    }
+}
+'
+
+# success, all done
+status=0
+exit

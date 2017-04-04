@@ -1,0 +1,311 @@
+QA output created by 842
+All devices
+# Device      rrqm/s  wrqm/s     r/s    w/s    rkB/s    wkB/s avgrq-sz avgqu-sz   await r_await w_await   %util
+sda             0.00    0.00    0.00   0.00     0.00     0.00    0.000    0.000    0.00    0.00    0.00    0.00
+sdb             0.00    0.00    5.00   6.00    24.00     8.00    2.909    0.004    0.36    0.40    0.33    0.40
+sda             0.00    0.00   24.00   0.00   816.00     0.00   34.000    0.230    9.58    9.58    0.00   19.00
+sdb             5.00    0.00 1308.00   5.00 53363.00     7.00   40.647    1.149    0.88    0.88    0.20   61.10
+sda             0.00    0.00    7.00   0.00   517.00     0.00   73.857    0.085   12.14   12.14    0.00    6.20
+sdb             1.00    0.00 1867.00   6.00 20462.00     8.00   10.929    0.799    0.43    0.38   14.33   64.10
+sda             0.00    1.00    8.00  11.00  1048.00   279.00   69.842    0.127    6.68   11.50    3.18    7.20
+sdb             1.00    0.00  935.00  11.00 12795.00   107.00   13.638    0.931    0.98    0.61   33.18   55.60
+sda             0.00    8.00    7.00  20.00   903.00   818.00   63.741    0.238    8.81   12.14    7.65    7.30
+sdb             9.00    0.00  549.00  27.00 10039.00   319.00   17.983    2.955    5.13    1.50   79.00   62.60
+
+DM devices
+# Device      rrqm/s  wrqm/s     r/s    w/s    rkB/s    wkB/s avgrq-sz avgqu-sz   await r_await w_await   %util
+cache1-block    0.00    0.00    5.00   0.00    24.00     0.00    4.800    0.002    0.40    0.40    0.00    0.20
+cache1-meta     0.00    0.00    0.00   3.00     0.00     4.00    1.333    0.001    0.33    0.00    0.33    0.10
+cache2-block    0.00    0.00    1.00   0.00     8.00     0.00    8.000    0.000    0.00    0.00    0.00    0.00
+cache2-meta     0.00    0.00    0.00   3.00     0.00     4.00    1.333    0.001    0.33    0.00    0.33    0.10
+dmcache1        0.00    0.00    5.00   0.00    24.00     0.00    4.800    0.002    0.40    0.40    0.00    0.20
+dmcache2        0.00    0.00    1.00   0.00     8.00     0.00    8.000    0.000    0.00    0.00    0.00    0.00
+cache1-block    0.00    0.00  105.00   0.00   439.00     0.00    4.181    0.028    0.27    0.27    0.00    2.80
+cache1-meta     0.00    0.00    0.00   3.00     0.00     4.00    1.333    0.000    0.00    0.00    0.00    0.00
+cache2-block    0.00    0.00 1209.00   0.00 52920.00     0.00   43.772    1.131    0.94    0.94    0.00   57.90
+cache2-meta     0.00    0.00    0.00   3.00     0.00     4.00    1.333    0.001    0.33    0.00    0.33    0.10
+dmcache1        0.00    0.00  123.00   0.00   559.00     0.00    4.545    0.174    1.41    1.41    0.00   17.40
+dmcache2        0.00    0.00 1215.00   0.00 53617.00     0.00   44.129    1.229    1.01    1.01    0.00   62.90
+cache1-block    0.00    0.00   13.00   0.00    55.00     0.00    4.231    0.003    0.23    0.23    0.00    0.30
+cache1-meta     0.00    0.00    0.00   2.00     0.00     3.00    1.500    0.039   19.50    0.00   19.50    3.90
+cache2-block    0.00    0.00 1855.00   0.00 20509.00     0.00   11.056    0.705    0.38    0.38    0.00   62.00
+cache2-meta     0.00    0.00    0.00   2.00     0.00     3.00    1.500    0.047   23.50    0.00   23.50    4.70
+dmcache1        0.00    0.00   17.00   0.00    80.00     0.00    4.706    0.039    2.29    2.29    0.00    3.90
+dmcache2        0.00    0.00 1858.00   0.00 21000.00     0.00   11.302    0.765    0.41    0.41    0.00   65.50
+
+Timestamps and no headers
+Fri Aug  1 14:34:51 2014 sda             0.00    0.00    0.00   0.00     0.00     0.00    0.000    0.000    0.00    0.00    0.00    0.00
+Fri Aug  1 14:34:51 2014 sdb             0.00    0.00    5.00   6.00    24.00     8.00    2.909    0.004    0.36    0.40    0.33    0.40
+Fri Aug  1 14:34:52 2014 sda             0.00    0.00   24.00   0.00   816.00     0.00   34.000    0.230    9.58    9.58    0.00   19.00
+Fri Aug  1 14:34:52 2014 sdb             5.00    0.00 1308.00   5.00 53363.00     7.00   40.647    1.149    0.88    0.88    0.20   61.10
+Fri Aug  1 14:34:53 2014 sda             0.00    0.00    7.00   0.00   517.00     0.00   73.857    0.085   12.14   12.14    0.00    6.20
+Fri Aug  1 14:34:53 2014 sdb             1.00    0.00 1867.00   6.00 20462.00     8.00   10.929    0.799    0.43    0.38   14.33   64.10
+Fri Aug  1 14:34:54 2014 sda             0.00    1.00    8.00  11.00  1048.00   279.00   69.842    0.127    6.68   11.50    3.18    7.20
+Fri Aug  1 14:34:54 2014 sdb             1.00    0.00  935.00  11.00 12795.00   107.00   13.638    0.931    0.98    0.61   33.18   55.60
+Fri Aug  1 14:34:55 2014 sda             0.00    8.00    7.00  20.00   903.00   818.00   63.741    0.238    8.81   12.14    7.65    7.30
+Fri Aug  1 14:34:55 2014 sdb             9.00    0.00  549.00  27.00 10039.00   319.00   17.983    2.955    5.13    1.50   79.00   62.60
+Fri Aug  1 14:34:56 2014 sda             0.00   29.00    3.00  37.00   311.00  2208.00   62.975    0.446   11.15   16.67   10.70    6.20
+Fri Aug  1 14:34:56 2014 sdb            31.00    0.00  242.00  62.00  6020.00   800.00   22.434    8.787   28.90    7.30  113.23   97.60
+Fri Aug  1 14:34:57 2014 sda             1.00  836.00    2.00  99.00   393.00 35594.00  356.307   30.581  302.78    7.50  308.75   69.20
+Fri Aug  1 14:34:57 2014 sdb            21.00   15.00 1168.00  47.00 10701.00  3599.00   11.770    8.254    6.79    1.69  133.57  127.10
+Fri Aug  1 14:34:58 2014 sda             0.00  397.00    4.00  75.00   510.00 27461.00  354.063   30.358  384.28   41.25  402.57   52.80
+Fri Aug  1 14:34:58 2014 sdb            51.00    7.00  766.00  13.00 11571.00  1364.00   16.605    1.608    2.06    1.01   64.38   57.80
+Fri Aug  1 14:34:59 2014 sda             0.00    0.00    0.00   0.00     2.00    44.00    0.000    0.060    0.00    0.00    0.00    0.10
+Fri Aug  1 14:34:59 2014 sdb             0.00    0.00    1.00   6.00    29.00     8.00    5.286    0.005    0.71    2.00    0.50    0.30
+Fri Aug  1 14:35:00 2014 sda             0.00    3.00    0.00   2.00     0.00    20.00   10.000    0.030   15.00    0.00   15.00    3.00
+Fri Aug  1 14:35:00 2014 sdb             0.00    0.00    0.00   6.00     0.00     8.00    1.333    0.002    0.33    0.00    0.33    0.20
+
+Precision
+== Precision=0
+Fri Aug  1 14:34:51 2014 sda               0      0     0    0      0      0      0.0      0.0     0       0       0     0
+Fri Aug  1 14:34:51 2014 sdb               0      0     5    6     24      8      2.9      0.0     0       0       0     0
+Fri Aug  1 14:34:52 2014 sda               0      0    24    0    816      0     34.0      0.2    10      10       0    19
+Fri Aug  1 14:34:52 2014 sdb               5      0  1308    5  53363      7     40.6      1.1     1       1       0    61
+Fri Aug  1 14:34:53 2014 sda               0      0     7    0    517      0     73.9      0.1    12      12       0     6
+Fri Aug  1 14:34:53 2014 sdb               1      0  1867    6  20462      8     10.9      0.8     0       0      14    64
+
+== Precision=1
+Fri Aug  1 14:34:51 2014 sda             0.0    0.0    0.0   0.0     0.0     0.0     0.00     0.00    0.0     0.0     0.0    0.0
+Fri Aug  1 14:34:51 2014 sdb             0.0    0.0    5.0   6.0    24.0     8.0     2.91     0.00    0.4     0.4     0.3    0.4
+Fri Aug  1 14:34:52 2014 sda             0.0    0.0   24.0   0.0   816.0     0.0    34.00     0.23    9.6     9.6     0.0   19.0
+Fri Aug  1 14:34:52 2014 sdb             5.0    0.0 1308.0   5.0 53363.0     7.0    40.65     1.15    0.9     0.9     0.2   61.1
+Fri Aug  1 14:34:53 2014 sda             0.0    0.0    7.0   0.0   517.0     0.0    73.86     0.09   12.1    12.1     0.0    6.2
+Fri Aug  1 14:34:53 2014 sdb             1.0    0.0 1867.0   6.0 20462.0     8.0    10.93     0.80    0.4     0.4    14.3   64.1
+
+== Precision=2
+Fri Aug  1 14:34:51 2014 sda             0.00    0.00    0.00   0.00     0.00     0.00    0.000    0.000    0.00    0.00    0.00    0.00
+Fri Aug  1 14:34:51 2014 sdb             0.00    0.00    5.00   6.00    24.00     8.00    2.909    0.004    0.36    0.40    0.33    0.40
+Fri Aug  1 14:34:52 2014 sda             0.00    0.00   24.00   0.00   816.00     0.00   34.000    0.230    9.58    9.58    0.00   19.00
+Fri Aug  1 14:34:52 2014 sdb             5.00    0.00 1308.00   5.00 53363.00     7.00   40.647    1.149    0.88    0.88    0.20   61.10
+Fri Aug  1 14:34:53 2014 sda             0.00    0.00    7.00   0.00   517.00     0.00   73.857    0.085   12.14   12.14    0.00    6.20
+Fri Aug  1 14:34:53 2014 sdb             1.00    0.00 1867.00   6.00 20462.00     8.00   10.929    0.799    0.43    0.38   14.33   64.10
+
+== Precision=3
+Fri Aug  1 14:34:51 2014 sda             0.000    0.000    0.000   0.000     0.000     0.000    0.0000    0.0000    0.000    0.000    0.000    0.000
+Fri Aug  1 14:34:51 2014 sdb             0.000    0.000    5.000   6.000    24.000     8.000    2.9091    0.0040    0.364    0.400    0.333    0.400
+Fri Aug  1 14:34:52 2014 sda             0.000    0.000   24.000   0.000   816.000     0.000   34.0000    0.2300    9.583    9.583    0.000   19.000
+Fri Aug  1 14:34:52 2014 sdb             5.000    0.000 1308.000   5.000 53363.000     7.000   40.6474    1.1490    0.875    0.878    0.200   61.100
+Fri Aug  1 14:34:53 2014 sda             0.000    0.000    7.000   0.000   517.000     0.000   73.8571    0.0850   12.143   12.143    0.000    6.200
+Fri Aug  1 14:34:53 2014 sdb             1.000    0.000 1867.000   6.000 20462.000     8.000   10.9290    0.7990    0.427    0.382   14.333   64.100
+
+== Precision=4
+Fri Aug  1 14:34:51 2014 sda             0.0000    0.0000    0.0000   0.0000     0.0000     0.0000    0.00000    0.00000    0.0000    0.0000    0.0000    0.0000
+Fri Aug  1 14:34:51 2014 sdb             0.0000    0.0000    5.0000   6.0000    24.0000     8.0000    2.90909    0.00400    0.3636    0.4000    0.3333    0.4000
+Fri Aug  1 14:34:52 2014 sda             0.0000    0.0000   24.0000   0.0000   816.0000     0.0000   34.00000    0.23000    9.5833    9.5833    0.0000   19.0000
+Fri Aug  1 14:34:52 2014 sdb             5.0000    0.0000 1308.0000   5.0000 53363.0000     7.0000   40.64737    1.14900    0.8751    0.8777    0.2000   61.1000
+Fri Aug  1 14:34:53 2014 sda             0.0000    0.0000    7.0000   0.0000   517.0000     0.0000   73.85714    0.08500   12.1429   12.1429    0.0000    6.2000
+Fri Aug  1 14:34:53 2014 sdb             1.0000    0.0000 1867.0000   6.0000 20462.0000     8.0000   10.92899    0.79900    0.4266    0.3819   14.3333   64.1000
+
+== Precision=5
+Fri Aug  1 14:34:51 2014 sda             0.00000    0.00000    0.00000   0.00000     0.00000     0.00000    0.000000    0.000000    0.00000    0.00000    0.00000    0.00000
+Fri Aug  1 14:34:51 2014 sdb             0.00000    0.00000    5.00000   6.00000    24.00000     8.00000    2.909091    0.004000    0.36364    0.40000    0.33333    0.40000
+Fri Aug  1 14:34:52 2014 sda             0.00000    0.00000   24.00000   0.00000   816.00000     0.00000   34.000000    0.230000    9.58333    9.58333    0.00000   19.00000
+Fri Aug  1 14:34:52 2014 sdb             5.00000    0.00000 1308.00000   5.00000 53363.00000     7.00000   40.647372    1.149000    0.87510    0.87768    0.20000   61.10000
+Fri Aug  1 14:34:53 2014 sda             0.00000    0.00000    7.00000   0.00000   517.00000     0.00000   73.857143    0.085000   12.14286   12.14286    0.00000    6.20000
+Fri Aug  1 14:34:53 2014 sdb             1.00000    0.00000 1867.00000   6.00000 20462.00000     8.00000   10.928991    0.799000    0.42659    0.38190   14.33333   64.10000
+
+== Precision=6
+Fri Aug  1 14:34:51 2014 sda             0.000000    0.000000    0.000000   0.000000     0.000000     0.000000    0.0000000    0.0000000    0.000000    0.000000    0.000000    0.000000
+Fri Aug  1 14:34:51 2014 sdb             0.000000    0.000000    5.000000   6.000000    24.000000     8.000000    2.9090909    0.0040000    0.363636    0.400000    0.333333    0.400000
+Fri Aug  1 14:34:52 2014 sda             0.000000    0.000000   24.000000   0.000000   816.000000     0.000000   34.0000000    0.2300000    9.583333    9.583333    0.000000   19.000000
+Fri Aug  1 14:34:52 2014 sdb             5.000000    0.000000 1308.000000   5.000000 53363.000000     7.000000   40.6473724    1.1490000    0.875095    0.877676    0.200000   61.100000
+Fri Aug  1 14:34:53 2014 sda             0.000000    0.000000    7.000000   0.000000   517.000000     0.000000   73.8571429    0.0850000   12.142857   12.142857    0.000000    6.200000
+Fri Aug  1 14:34:53 2014 sdb             1.000000    0.000000 1867.000000   6.000000 20462.000000     8.000000   10.9289909    0.7990000    0.426588    0.381896   14.333333   64.100000
+
+== Precision=7
+Fri Aug  1 14:34:51 2014 sda             0.0000000    0.0000000    0.0000000   0.0000000     0.0000000     0.0000000    0.00000000    0.00000000    0.0000000    0.0000000    0.0000000    0.0000000
+Fri Aug  1 14:34:51 2014 sdb             0.0000000    0.0000000    5.0000000   6.0000000    24.0000000     8.0000000    2.90909091    0.00400000    0.3636364    0.4000000    0.3333333    0.4000000
+Fri Aug  1 14:34:52 2014 sda             0.0000000    0.0000000   24.0000000   0.0000000   816.0000000     0.0000000   34.00000000    0.23000000    9.5833333    9.5833333    0.0000000   19.0000000
+Fri Aug  1 14:34:52 2014 sdb             5.0000000    0.0000000 1308.0000000   5.0000000 53363.0000000     7.0000000   40.64737243    1.14900000    0.8750952    0.8776758    0.2000000   61.1000000
+Fri Aug  1 14:34:53 2014 sda             0.0000000    0.0000000    7.0000000   0.0000000   517.0000000     0.0000000   73.85714286    0.08500000   12.1428571   12.1428571    0.0000000    6.2000000
+Fri Aug  1 14:34:53 2014 sdb             1.0000000    0.0000000 1867.0000000   6.0000000 20462.0000000     8.0000000   10.92899092    0.79900000    0.4265884    0.3818961   14.3333333   64.1000000
+
+== Precision=8
+Fri Aug  1 14:34:51 2014 sda             0.00000000    0.00000000    0.00000000   0.00000000     0.00000000     0.00000000    0.000000000    0.000000000    0.00000000    0.00000000    0.00000000    0.00000000
+Fri Aug  1 14:34:51 2014 sdb             0.00000000    0.00000000    5.00000000   6.00000000    24.00000000     8.00000000    2.909090909    0.004000000    0.36363636    0.40000000    0.33333333    0.40000000
+Fri Aug  1 14:34:52 2014 sda             0.00000000    0.00000000   24.00000000   0.00000000   816.00000000     0.00000000   34.000000000    0.230000000    9.58333333    9.58333333    0.00000000   19.00000000
+Fri Aug  1 14:34:52 2014 sdb             5.00000000    0.00000000 1308.00000000   5.00000000 53363.00000000     7.00000000   40.647372430    1.149000000    0.87509520    0.87767584    0.20000000   61.10000000
+Fri Aug  1 14:34:53 2014 sda             0.00000000    0.00000000    7.00000000   0.00000000   517.00000000     0.00000000   73.857142857    0.085000000   12.14285714   12.14285714    0.00000000    6.20000000
+Fri Aug  1 14:34:53 2014 sdb             1.00000000    0.00000000 1867.00000000   6.00000000 20462.00000000     8.00000000   10.928990924    0.799000000    0.42658836    0.38189609   14.33333333   64.10000000
+
+Checking reported values against pmval
+Checking pmiostat against pmval -t 1 disk.dev.read_merge ...OK
+Checking pmiostat against pmval -t 1 disk.dev.write_merge ...OK
+Checking pmiostat against pmval -t 1 disk.dev.read ...OK
+Checking pmiostat against pmval -t 1 disk.dev.write ...OK
+Checking pmiostat against pmval -t 1 disk.dev.read_bytes ...OK
+Checking pmiostat against pmval -t 1 disk.dev.write_bytes ...OK
+Checking pmiostat against pmval -t 2 disk.dev.read_merge ...OK
+Checking pmiostat against pmval -t 2 disk.dev.write_merge ...OK
+Checking pmiostat against pmval -t 2 disk.dev.read ...OK
+Checking pmiostat against pmval -t 2 disk.dev.write ...OK
+Checking pmiostat against pmval -t 2 disk.dev.read_bytes ...OK
+Checking pmiostat against pmval -t 2 disk.dev.write_bytes ...OK
+Checking pmiostat against pmval -t 3 disk.dev.read_merge ...OK
+Checking pmiostat against pmval -t 3 disk.dev.write_merge ...OK
+Checking pmiostat against pmval -t 3 disk.dev.read ...OK
+Checking pmiostat against pmval -t 3 disk.dev.write ...OK
+Checking pmiostat against pmval -t 3 disk.dev.read_bytes ...OK
+Checking pmiostat against pmval -t 3 disk.dev.write_bytes ...OK
+Checking pmiostat against pmval -t 4 disk.dev.read_merge ...OK
+Checking pmiostat against pmval -t 4 disk.dev.write_merge ...OK
+Checking pmiostat against pmval -t 4 disk.dev.read ...OK
+Checking pmiostat against pmval -t 4 disk.dev.write ...OK
+Checking pmiostat against pmval -t 4 disk.dev.read_bytes ...OK
+Checking pmiostat against pmval -t 4 disk.dev.write_bytes ...OK
+Checking pmiostat against pmval -t 5 disk.dev.read_merge ...OK
+Checking pmiostat against pmval -t 5 disk.dev.write_merge ...OK
+Checking pmiostat against pmval -t 5 disk.dev.read ...OK
+Checking pmiostat against pmval -t 5 disk.dev.write ...OK
+Checking pmiostat against pmval -t 5 disk.dev.read_bytes ...OK
+Checking pmiostat against pmval -t 5 disk.dev.write_bytes ...OK
+Checking pmiostat against pmval -t 6 disk.dev.read_merge ...OK
+Checking pmiostat against pmval -t 6 disk.dev.write_merge ...OK
+Checking pmiostat against pmval -t 6 disk.dev.read ...OK
+Checking pmiostat against pmval -t 6 disk.dev.write ...OK
+Checking pmiostat against pmval -t 6 disk.dev.read_bytes ...OK
+Checking pmiostat against pmval -t 6 disk.dev.write_bytes ...OK
+Checking pmiostat against pmval -t 7 disk.dev.read_merge ...OK
+Checking pmiostat against pmval -t 7 disk.dev.write_merge ...OK
+Checking pmiostat against pmval -t 7 disk.dev.read ...OK
+Checking pmiostat against pmval -t 7 disk.dev.write ...OK
+Checking pmiostat against pmval -t 7 disk.dev.read_bytes ...OK
+Checking pmiostat against pmval -t 7 disk.dev.write_bytes ...OK
+Checking pmiostat against pmval -t 8 disk.dev.read_merge ...OK
+Checking pmiostat against pmval -t 8 disk.dev.write_merge ...OK
+Checking pmiostat against pmval -t 8 disk.dev.read ...OK
+Checking pmiostat against pmval -t 8 disk.dev.write ...OK
+Checking pmiostat against pmval -t 8 disk.dev.read_bytes ...OK
+Checking pmiostat against pmval -t 8 disk.dev.write_bytes ...OK
+Checking pmiostat against pmval -t 9 disk.dev.read_merge ...OK
+Checking pmiostat against pmval -t 9 disk.dev.write_merge ...OK
+Checking pmiostat against pmval -t 9 disk.dev.read ...OK
+Checking pmiostat against pmval -t 9 disk.dev.write ...OK
+Checking pmiostat against pmval -t 9 disk.dev.read_bytes ...OK
+Checking pmiostat against pmval -t 9 disk.dev.write_bytes ...OK
+Checking pmiostat against pmval -t 10 disk.dev.read_merge ...OK
+Checking pmiostat against pmval -t 10 disk.dev.write_merge ...OK
+Checking pmiostat against pmval -t 10 disk.dev.read ...OK
+Checking pmiostat against pmval -t 10 disk.dev.write ...OK
+Checking pmiostat against pmval -t 10 disk.dev.read_bytes ...OK
+Checking pmiostat against pmval -t 10 disk.dev.write_bytes ...OK
+Checking pmiostat against pmval -t 11 disk.dev.read_merge ...OK
+Checking pmiostat against pmval -t 11 disk.dev.write_merge ...OK
+Checking pmiostat against pmval -t 11 disk.dev.read ...OK
+Checking pmiostat against pmval -t 11 disk.dev.write ...OK
+Checking pmiostat against pmval -t 11 disk.dev.read_bytes ...OK
+Checking pmiostat against pmval -t 11 disk.dev.write_bytes ...OK
+Checking pmiostat against pmval -t 12 disk.dev.read_merge ...OK
+Checking pmiostat against pmval -t 12 disk.dev.write_merge ...OK
+Checking pmiostat against pmval -t 12 disk.dev.read ...OK
+Checking pmiostat against pmval -t 12 disk.dev.write ...OK
+Checking pmiostat against pmval -t 12 disk.dev.read_bytes ...OK
+Checking pmiostat against pmval -t 12 disk.dev.write_bytes ...OK
+Checking pmiostat against pmval -t 13 disk.dev.read_merge ...OK
+Checking pmiostat against pmval -t 13 disk.dev.write_merge ...OK
+Checking pmiostat against pmval -t 13 disk.dev.read ...OK
+Checking pmiostat against pmval -t 13 disk.dev.write ...OK
+Checking pmiostat against pmval -t 13 disk.dev.read_bytes ...OK
+Checking pmiostat against pmval -t 13 disk.dev.write_bytes ...OK
+Checking pmiostat against pmval -t 14 disk.dev.read_merge ...OK
+Checking pmiostat against pmval -t 14 disk.dev.write_merge ...OK
+Checking pmiostat against pmval -t 14 disk.dev.read ...OK
+Checking pmiostat against pmval -t 14 disk.dev.write ...OK
+Checking pmiostat against pmval -t 14 disk.dev.read_bytes ...OK
+Checking pmiostat against pmval -t 14 disk.dev.write_bytes ...OK
+Checking pmiostat against pmval -t 15 disk.dev.read_merge ...OK
+Checking pmiostat against pmval -t 15 disk.dev.write_merge ...OK
+Checking pmiostat against pmval -t 15 disk.dev.read ...OK
+Checking pmiostat against pmval -t 15 disk.dev.write ...OK
+Checking pmiostat against pmval -t 15 disk.dev.read_bytes ...OK
+Checking pmiostat against pmval -t 15 disk.dev.write_bytes ...OK
+Checking pmiostat against pmval -t 16 disk.dev.read_merge ...OK
+Checking pmiostat against pmval -t 16 disk.dev.write_merge ...OK
+Checking pmiostat against pmval -t 16 disk.dev.read ...OK
+Checking pmiostat against pmval -t 16 disk.dev.write ...OK
+Checking pmiostat against pmval -t 16 disk.dev.read_bytes ...OK
+Checking pmiostat against pmval -t 16 disk.dev.write_bytes ...OK
+Checking pmiostat against pmval -t 17 disk.dev.read_merge ...OK
+Checking pmiostat against pmval -t 17 disk.dev.write_merge ...OK
+Checking pmiostat against pmval -t 17 disk.dev.read ...OK
+Checking pmiostat against pmval -t 17 disk.dev.write ...OK
+Checking pmiostat against pmval -t 17 disk.dev.read_bytes ...OK
+Checking pmiostat against pmval -t 17 disk.dev.write_bytes ...OK
+Checking pmiostat against pmval -t 18 disk.dev.read_merge ...OK
+Checking pmiostat against pmval -t 18 disk.dev.write_merge ...OK
+Checking pmiostat against pmval -t 18 disk.dev.read ...OK
+Checking pmiostat against pmval -t 18 disk.dev.write ...OK
+Checking pmiostat against pmval -t 18 disk.dev.read_bytes ...OK
+Checking pmiostat against pmval -t 18 disk.dev.write_bytes ...OK
+Checking pmiostat against pmval -t 19 disk.dev.read_merge ...OK
+Checking pmiostat against pmval -t 19 disk.dev.write_merge ...OK
+Checking pmiostat against pmval -t 19 disk.dev.read ...OK
+Checking pmiostat against pmval -t 19 disk.dev.write ...OK
+Checking pmiostat against pmval -t 19 disk.dev.read_bytes ...OK
+Checking pmiostat against pmval -t 19 disk.dev.write_bytes ...OK
+Checking pmiostat against pmval -t 20 disk.dev.read_merge ...OK
+Checking pmiostat against pmval -t 20 disk.dev.write_merge ...OK
+Checking pmiostat against pmval -t 20 disk.dev.read ...OK
+Checking pmiostat against pmval -t 20 disk.dev.write ...OK
+Checking pmiostat against pmval -t 20 disk.dev.read_bytes ...OK
+Checking pmiostat against pmval -t 20 disk.dev.write_bytes ...OK
+Checking pmiostat against pmval -t 21 disk.dev.read_merge ...OK
+Checking pmiostat against pmval -t 21 disk.dev.write_merge ...OK
+Checking pmiostat against pmval -t 21 disk.dev.read ...OK
+Checking pmiostat against pmval -t 21 disk.dev.write ...OK
+Checking pmiostat against pmval -t 21 disk.dev.read_bytes ...OK
+Checking pmiostat against pmval -t 21 disk.dev.write_bytes ...OK
+Checking pmiostat against pmval -t 22 disk.dev.read_merge ...OK
+Checking pmiostat against pmval -t 22 disk.dev.write_merge ...OK
+Checking pmiostat against pmval -t 22 disk.dev.read ...OK
+Checking pmiostat against pmval -t 22 disk.dev.write ...OK
+Checking pmiostat against pmval -t 22 disk.dev.read_bytes ...OK
+Checking pmiostat against pmval -t 22 disk.dev.write_bytes ...OK
+Checking pmiostat against pmval -t 23 disk.dev.read_merge ...OK
+Checking pmiostat against pmval -t 23 disk.dev.write_merge ...OK
+Checking pmiostat against pmval -t 23 disk.dev.read ...OK
+Checking pmiostat against pmval -t 23 disk.dev.write ...OK
+Checking pmiostat against pmval -t 23 disk.dev.read_bytes ...OK
+Checking pmiostat against pmval -t 23 disk.dev.write_bytes ...OK
+Checking pmiostat against pmval -t 24 disk.dev.read_merge ...OK
+Checking pmiostat against pmval -t 24 disk.dev.write_merge ...OK
+Checking pmiostat against pmval -t 24 disk.dev.read ...OK
+Checking pmiostat against pmval -t 24 disk.dev.write ...OK
+Checking pmiostat against pmval -t 24 disk.dev.read_bytes ...OK
+Checking pmiostat against pmval -t 24 disk.dev.write_bytes ...OK
+Checking pmiostat against pmval -t 25 disk.dev.read_merge ...OK
+Checking pmiostat against pmval -t 25 disk.dev.write_merge ...OK
+Checking pmiostat against pmval -t 25 disk.dev.read ...OK
+Checking pmiostat against pmval -t 25 disk.dev.write ...OK
+Checking pmiostat against pmval -t 25 disk.dev.read_bytes ...OK
+Checking pmiostat against pmval -t 25 disk.dev.write_bytes ...OK
+Checking pmiostat against pmval -t 26 disk.dev.read_merge ...OK
+Checking pmiostat against pmval -t 26 disk.dev.write_merge ...OK
+Checking pmiostat against pmval -t 26 disk.dev.read ...OK
+Checking pmiostat against pmval -t 26 disk.dev.write ...OK
+Checking pmiostat against pmval -t 26 disk.dev.read_bytes ...OK
+Checking pmiostat against pmval -t 26 disk.dev.write_bytes ...OK
+Checking pmiostat against pmval -t 27 disk.dev.read_merge ...OK
+Checking pmiostat against pmval -t 27 disk.dev.write_merge ...OK
+Checking pmiostat against pmval -t 27 disk.dev.read ...OK
+Checking pmiostat against pmval -t 27 disk.dev.write ...OK
+Checking pmiostat against pmval -t 27 disk.dev.read_bytes ...OK
+Checking pmiostat against pmval -t 27 disk.dev.write_bytes ...OK
+Checking pmiostat against pmval -t 28 disk.dev.read_merge ...OK
+Checking pmiostat against pmval -t 28 disk.dev.write_merge ...OK
+Checking pmiostat against pmval -t 28 disk.dev.read ...OK
+Checking pmiostat against pmval -t 28 disk.dev.write ...OK
+Checking pmiostat against pmval -t 28 disk.dev.read_bytes ...OK
+Checking pmiostat against pmval -t 28 disk.dev.write_bytes ...OK
+Checking pmiostat against pmval -t 29 disk.dev.read_merge ...OK
+Checking pmiostat against pmval -t 29 disk.dev.write_merge ...OK
+Checking pmiostat against pmval -t 29 disk.dev.read ...OK
+Checking pmiostat against pmval -t 29 disk.dev.write ...OK
+Checking pmiostat against pmval -t 29 disk.dev.read_bytes ...OK
+Checking pmiostat against pmval -t 29 disk.dev.write_bytes ...OK
+Checking pmiostat against pmval -t 30 disk.dev.read_merge ...OK
+Checking pmiostat against pmval -t 30 disk.dev.write_merge ...OK
+Checking pmiostat against pmval -t 30 disk.dev.read ...OK
+Checking pmiostat against pmval -t 30 disk.dev.write ...OK
+Checking pmiostat against pmval -t 30 disk.dev.read_bytes ...OK
+Checking pmiostat against pmval -t 30 disk.dev.write_bytes ...OK

@@ -1,0 +1,9 @@
+QA output created by 1027
+expected to pass when sampledso is installed
+DATE	100.000	200.000	300.000	400.000	500.000	600.000	700.000	800.000	900.000
+sampledso.write_me old value=2 new value=42
+expect 2 2 42
+DATE	2.000	2.000	42.000
+expect 42 42 2
+DATE	42.000	42.000	2.000
+sampledso.write_me old value=42 new value=2

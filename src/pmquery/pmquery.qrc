@@ -1,0 +1,10 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource>
+    <file>images/dialog-archive.png</file>
+    <file>images/dialog-error.png</file>
+    <file>images/dialog-host.png</file>
+    <file>images/dialog-information.png</file>
+    <file>images/dialog-question.png</file>
+    <file>images/dialog-warning.png</file>
+</qresource>
+</RCC>

@@ -1,0 +1,46 @@
+#! /bin/sh
+# PCP QA Test No. 548
+# nomatch_inst for pmie
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+pmie -t 1sec -T 1sec <<End-of-File 2>/dev/null | LC_COLLATE=POSIX sort -u
+
+some_inst
+    match_inst "bin-[123579]00"
+    sample.bin >= 500
+-> shell "echo 'match_inst " " %i" "'";
+
+some_inst
+    ! match_inst "bin-[123579]00"
+    sample.bin >= 500
+-> shell "echo '! match_inst " " %i" "'";
+
+some_inst
+    nomatch_inst "bin-[123579]00"
+    sample.bin >= 500
+-> shell "echo 'nomatch_inst " " %i" "'";
+
+some_inst
+    ! nomatch_inst "bin-[123579]00"
+    sample.bin >= 500
+-> shell "echo '! nomatch_inst " " %i" "'";
+
+End-of-File
+
+# success, all done
+status=0
+exit

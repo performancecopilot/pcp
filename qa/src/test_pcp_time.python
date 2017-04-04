@@ -1,0 +1,44 @@
+#!/usr/bin/env pmpython
+#
+# Copyright (C) 2014,2016 Red Hat.
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+
+""" Exercise the pmCtime and pmLocaltime interfaces """
+
+from pcp import pmapi
+import time
+
+""" Create a live PMAPI context, set as UTC and report time """
+context = pmapi.pmContext()
+context.pmNewZone("UTC")
+
+# seconds-since-epoch for: "Mon Feb  3 04:46:19 2014 UTC"
+# value determined as follows: 1 Jan 1970 -> 3 Feb 2014 is 16104 days
+# 16104 * 24 * 3600  	1391385600
+# + 4 * 3600		     14400
+# + 46 * 60 + 19	      2779
+# sum these		1391402779
+#
+sample_time_i = 1391402779	# integer
+sample_time_f = 1391402779.0	# float
+
+tmi = context.pmLocaltime(sample_time_i)
+tsi = time.strftime("%a %b %e %H:%M:%S %Y", tmi.struct_time())
+print("strftime from pmapi.tm:  %s" % tsi)
+print("pmLocaltime from int:    %s" % str(context.pmLocaltime(sample_time_i)))
+print("pmLocaltime from float:  %s" % context.pmLocaltime(sample_time_f))
+
+print("pmCtime from int:        %s" % str(context.pmCtime(sample_time_i)).rstrip())
+print("pmCtime from float:      %s" % str(context.pmCtime(sample_time_f)).rstrip())
+
+print("pmWhichZone:  %s" % str(context.pmWhichZone()))

@@ -1,0 +1,118 @@
+'\"macro stdmacro
+.TH PMSPECLOCALPMDA 3 "" "Performance Co-Pilot"
+.SH NAME
+\f3__pmSpecLocalPMDA\f1 \- process command-line argument for the table of DSO PMDAs
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.br
+#include <pcp/impl.h>
+.sp
+char *__pmSpecLocalPMDA(const char *\fIspec\fP);
+.sp
+cc ... \-lpcp
+.ft 1
+.SH DESCRIPTION
+PCP contexts of type
+.B PM_CONTEXT_LOCAL
+are used by clients that wish to fetch metrics directly from one or more PMDAs on
+the local host without involving
+.BR pmcd (1).
+.PP
+.B __pmSpecLocalPMDA
+provides a convenience wrapper to be used by applications that wish
+to use a command line argument (usually with
+.BR -K )
+to control the DSO PMDAs that are available for a
+.B PM_CONTEXT_LOCAL
+context.
+.PP
+The
+.I spec
+argument specifies actions for one or more DSO PMDAs using up to four fields separated by commas
+(``,''), namely:
+.PD 0
+.TP 3n
+.IP \-
+an opcode with one of the values
+.B add
+(add a new entry),
+.B del
+(delete an existing entry) or
+.B clear
+(clear all entries from the table).
+.IP \-
+the PMDA's domain number
+.IP \-
+the path to the PMDA DSO (may
+be absolute or relative to the $PCP_VAR_DIR/pmdas directory and
+the DSO suffix is optional), and
+.IP \-
+the
+name of the PMDA's initialization routine.
+.PD
+.PP
+All fields are required to add a new entry.  To delete an entry the opcode
+is required plus either or both of the domain number and path fields.
+To clear all entries, only the opcode is required.
+.PP
+If
+.I spec
+is parsed successfully, then
+.BR __pmLocalPMDA (3)
+is called with the extracted arguments.
+.SH "RETURN VALUE"
+On success,
+.B __pmSpecLocalPMDA
+will return NULL.
+.PP
+On error or failure,
+.B __pmSpecLocalPMDA
+will return a pointer to a static error message.
+.SH EXAMPLES
+Some examples of valid
+.I spec
+strings:
+.TP
+.ft CW
+clear
+.ft
+Delete all entries from the DSO table.
+.TP
+.ft CW
+add,123,foo/foo_pmda,foo_init
+.ft
+Add the ``foo'' PMDA using domain 123.
+The PMDA's DSO is most likely in below the directory
+.B $PCP_PMDAS_DIR
+and named
+.I foo/foo_pmda.so
+(for ELF-style platforms)
+or
+.I foo/foo_pmda.dylib
+(for BSD-style platforms)
+or
+.I foo\\foo_pmda.dll
+(for Windows-style platforms).
+The initialization routine for the ``foo'' PMDA is
+.IR foo_init ().
+.TP
+.ft CW
+del,123
+Delete the entry for the DSO with domain 123.
+.TP
+.ft CW
+del,,foo/foo_pmda
+Delete the entry with a pathname to the DSO that matches
+.IR foo/foo_pmda .
+.TP
+.ft CW
+del,123,foo/foo_pmda
+Delete the entry for the DSO with either domain 123
+and/or a pathname to the DSO that matches
+.IR foo/foo_pmda .
+.SH SEE ALSO
+.BR PMAPI (3),
+.BR __pmLocalPMDA (3)
+and
+.BR pmNewContext (3).

@@ -1,0 +1,38 @@
+#! /bin/sh
+# PCP QA Test No. 146
+# exercise pmNameAll
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+trap "rm -f $tmp $tmp.*; exit" 0 1 2 3 15
+
+# real QA test starts here
+cat >$tmp <<End-of-File
+root {
+    ten		29:0:11
+    another_ten	29:0:11
+    yet
+}
+
+yet {
+    another
+    again	29:0:11
+}
+
+yet.another {
+    ten		29:0:11
+}
+End-of-File
+
+src/nameall -n $tmp "" >> $tmp.out 2>&1
+
+sed < $tmp.out -e 's/[0-9\.]* msec/[TIME] msec/'

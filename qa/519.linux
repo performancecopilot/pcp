@@ -1,0 +1,17 @@
+QA output created by 519
+pmie output ...
+src/show-args called
+arg[1] -c
+arg[2] SYSMON
+arg[3] -t
+arg[4] PERF_INFO_SYSTEM
+arg[5] -m
+arg[6] file system over half-full
+... at least one line for other1 host
+... at least one line for other2 host
+
+pmie stderr ...
+[TIMESTAMP] pmie(PID) Info: evaluator exiting
+
+SYSLOG ...
+TIMESTAMP HOST pcp-pmie[PID]: PCP QA 519 - please ignore - ...

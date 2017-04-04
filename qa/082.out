@@ -1,0 +1,29 @@
+QA output created by 082
+permissions before add:
+-rw-r--r-- foo
+---------- new-default-mode
+-rw-r--r-- root
+
+
+permissions after add:
+-rw-r--r-- foo
+---------- new-default-mode
+-rw-r--r-- root
+
+Expect fred, bear and foo.bar ...
+fred
+bear
+foo.bar
+event.flags
+event.missed
+
+permissions after delete:
+-rw-r--r-- foo
+---------- new-default-mode
+-rw-r--r-- root
+
+Expect fred and bear ...
+fred
+bear
+event.flags
+event.missed

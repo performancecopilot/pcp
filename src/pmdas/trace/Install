@@ -1,0 +1,274 @@
+#! /bin/sh
+#
+# Copyright (c) 1997,2003 Silicon Graphics, Inc.  All Rights Reserved.
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+# 
+# Install the Trace PMDA and/or PMNS
+#
+
+. $PCP_DIR/etc/pcp.env
+. $PCP_SHARE_DIR/lib/pmdaproc.sh
+
+iam=trace
+pmda_interface=2
+
+# Override interactive dialog from pmdaSetup in pmdaproc.sh
+#
+__choose_mode()
+{
+    echo "Installing the \"$iam\" Performance Metrics Domain Agent (PMDA) ..."
+    echo
+}
+
+numeric=0
+
+getnumeric()
+{
+    if [ "X$2" = "X" ]
+    then
+	numeric=0
+    elif [ "X`expr 0 + $2 2>/dev/null`" != "X$2" ]
+    then
+	echo "-- Sorry, $1 must be numeric (not $2) --"
+	return 1
+    else
+	numeric=$2
+    fi
+    return 0
+}
+
+getunits()
+{
+    metric_name=$1
+    option_name=$2
+
+    # Default dimension and scale values
+    #
+    dimspace=0
+    dimtime=0
+    dimcount=0
+    scalespace=0
+    scaletime=0
+    scalecount=0
+
+    cat - <<EOF
+
+The dimension and scale for the ${metric_name} metrics may be expressed
+in terms of Space, Time and Count (i.e. events or messages).  The default
+dimension and scale is "None".  Do you wish to accept the default dimension
+EOF
+    $PCP_ECHO_PROG $PCP_ECHO_N "and scale [y]? ""$PCP_ECHO_C"
+
+    read ans
+    unitschange=false
+    case $ans in
+	N|n|NO|No|no)	unitschange=true;;
+	*)		unitschange=false;;
+    esac
+
+    if [ $unitschange = true ]
+    then
+	echo
+echo "The dimension is expressed in terms of powers of Space, Time and Count."
+	echo "For example, bytes per second would be 1 -1 0, and milliseconds per message "
+	echo "would be 0 1 -1."
+	while true
+	do
+	    $PCP_ECHO_PROG $PCP_ECHO_N "Enter the dimension for Space, Time and Count [0 0 0]: ""$PCP_ECHO_C"
+	    dimspace=0; dimtime=0; dimcount=0
+	    read s t c
+
+	    getnumeric 'Scale dimension' $s
+	    [ $? -eq 1 ] && continue
+	    dimspace=$numeric
+
+	    getnumeric 'Time dimension' $t
+	    [ $? -eq 1 ] && continue
+	    dimtime=$numeric
+
+	    getnumeric 'Count dimension' $c
+	    [ $? -eq 1 ] && continue
+	    dimcount=$numeric
+
+	    break
+	done
+
+	if [ "$dimspace" != 0 ]
+	then
+	    while true
+	    do
+		echo "Scale for the Space dimension is expressed as:"
+		echo "  0  (bytes)"
+		echo "  1  (kilobytes)"
+		echo "  2  (megabytes)"
+		echo "  3  (gigabytes)"
+		echo "  4  (terabytes)"
+		$PCP_ECHO_PROG $PCP_ECHO_N 'Enter the scale for the Space dimension [0]: '"$PCP_ECHO_C"
+		read scale
+		scalespace=0
+
+		getnumeric 'Space scale' $scale
+		[ $? -eq 1 ] && continue
+		if [ $numeric -lt 0 -o $numeric -gt 4 ]
+		then
+		    echo "-- Sorry, Space scale must be between 0 and 4 --"
+		    continue
+		fi
+		scalespace=$numeric
+		break
+	    done
+	fi
+
+	if [ "$dimtime" != 0 ]
+	then
+	    while true
+	    do
+		echo "Scale for the Time dimension is expressed as:"
+		echo "  0  (nanoseconds)"
+		echo "  1  (microseconds)"
+		echo "  2  (milliseconds)"
+		echo "  3  (seconds)"
+		echo "  4  (minutes)"
+		echo "  5  (hours)"
+		$PCP_ECHO_PROG $PCP_ECHO_N "Enter the scale for the Time dimension: ""$PCP_ECHO_C"
+		read scale
+		scaletime=0
+
+		getnumeric 'Time scale' $scale
+		[ $? -eq 1 ] && continue
+		if [ $numeric -lt 0 -o $numeric -gt 5 ]
+		then
+		    echo "-- Sorry, Time scale must be between 0 and 5 --"
+		    continue
+		fi
+		scaletime=$numeric
+		break
+	    done
+	fi
+
+	if [ "$dimcount" != 0 ]
+	then
+	    while true
+	    do
+		echo "Scale for the Count dimension is expressed:"
+		$PCP_ECHO_PROG $PCP_ECHO_N "  as a power of 10 (e.g. 6 for 10^6, or -3 for 10^-3) [0]: ""$PCP_ECHO_C"
+		read scale
+		scalecount=0
+
+		getnumeric 'Count scale' $scale
+		[ $? -eq 1 ] && continue
+		scalecount=$numeric
+		break
+	    done
+	fi
+    fi
+
+    # show what units we're going with ..
+    echo
+    echo "Using the following units for ${metric_name}:"
+    echo "  Dimensions:  space=$dimspace time=$dimtime count=$dimcount"
+    echo "  Scale:       space=$scalespace time=$scaletime count=$scalecount"
+    echo
+
+    if [ $unitschange = true ]
+    then
+	uarg="$dimspace,$dimtime,$dimcount,$scalespace,$scaletime,$scalecount"
+	args="$args ${option_name} $uarg"
+    fi
+}
+
+
+pmdaSetup
+
+$PCP_ECHO_PROG $PCP_ECHO_N "Use the default installation [y]? ""$PCP_ECHO_C"
+read nogo
+goforit=false
+case $nogo in
+    n|no|N|NO|No)	goforit=true;;
+    *)			goforit=false;;
+esac
+echo
+if [ $goforit = false ]
+then
+    :
+elif $do_pmda
+then
+    args=""
+    value=""
+
+    $PCP_ECHO_PROG $PCP_ECHO_N "Trace period (in seconds) [60]? ""$PCP_ECHO_C"
+    read value
+    getnumeric 'Trace period' $value >/dev/null
+    [ $? -ne 1 -a $numeric -ne 0 ] && args="-T $numeric"
+
+    echo 
+    $PCP_ECHO_PROG $PCP_ECHO_N "Number of buckets [5]? ""$PCP_ECHO_C"
+    read value
+    getnumeric 'Number of buckets' $value >/dev/null
+    [ $? -ne 1 -a $numeric -ne 0 ] && args="$args -N $numeric"
+
+    echo 
+    $PCP_ECHO_PROG $PCP_ECHO_N "Port number for client connections [4323]? ""$PCP_ECHO_C"
+    read value
+    getnumeric 'Port number' $value >/dev/null
+    [ $? -ne 1 -a $numeric -ne 0 ] && args="$args -I $numeric"
+
+    getunits trace.observe.value -U
+    getunits trace.counter.value -V
+
+    while true
+    do
+	access=""
+	echo
+	$PCP_ECHO_PROG $PCP_ECHO_N "Client host access - (A)llow/(D)isallow [Enter to complete install]? ""$PCP_ECHO_C"
+	read access
+	access=`echo $access | tr -d ' '`
+	[ "X$access" = "X" ] && break
+	case $access in
+	  A|a|Allow|allow)
+	    echo
+	    $PCP_ECHO_PROG $PCP_ECHO_N "Host specification (IP mask/Enter to cancel): ""$PCP_ECHO_C"
+	    read access
+	    access=`echo $access | tr -d ' '`
+	    if [ "X$access" != "X" ]
+	    then
+		maxconns=""
+		echo
+		$PCP_ECHO_PROG $PCP_ECHO_N "Maximum number of connections from $access (Enter for no limit): ""$PCP_ECHO_C"
+		read maxconns
+		maxconns=`echo $maxconns | tr -d ' '`
+		[ "X$maxconns" = "X" ] && maxconns=0
+		args="$args"" -A ""allow:$access:$maxconns"
+	    fi;;
+	  D|d|Disallow|disallow)
+	    echo
+	    $PCP_ECHO_PROG $PCP_ECHO_N "Host specification (IP mask/Enter to cancel): ""$PCP_ECHO_C"
+	    read access
+	    access=`echo $access | tr -d ' '`
+	    [ "X$access" != "X" ] && args="$args"" -A ""disallow:$access";;
+	  *) echo 'Try again, "'$access'" not supported.';;
+	esac
+    done
+    echo
+fi
+
+# for debugging the PMDA, uncomment this line ...
+#
+#args="-D appl0,appl1,pdu $args"
+
+# Do it ...
+#
+pmdaInstall
+echo Note: some warnings are expected until trace API calls are made - refer to
+echo "      the man pages for pmtrace(1) and pmdatrace(3) for further details."
+
+exit

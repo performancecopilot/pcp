@@ -1,0 +1,70 @@
+QA output created by 077
+source local, local time
+UTC pmCtime(): Fri Jan  2 00:00:00 1970
+UTC ctime(): Fri Jan  2 00:00:00 1970
+PMAPI context pmCtime(): LOCAL TIME at epoch
+UTC ctime(): Fri Jan  2 00:00:00 1970
+and in California: Thu Jan  1 16:00:00 1970
+UTC ctime(): Fri Jan  2 00:00:00 1970
+and in Melbourne: Fri Jan  2 11:00:00 1970
+UTC ctime(): Fri Jan  2 00:00:00 1970
+back to California: Thu Jan  1 16:00:00 1970
+UTC ctime(): Fri Jan  2 00:00:00 1970
+back to the PMAPI context pmCtime(): LOCAL TIME at epoch
+UTC ctime(): Fri Jan  2 00:00:00 1970
+
+source local, Zulu time
+UTC pmCtime(): Fri Jan  2 00:00:00 1970
+UTC ctime(): Fri Jan  2 00:00:00 1970
+PMAPI context pmCtime(): Fri Jan  2 04:00:00 1970
+UTC ctime(): Fri Jan  2 00:00:00 1970
+and in California: Thu Jan  1 16:00:00 1970
+UTC ctime(): Fri Jan  2 00:00:00 1970
+and in Melbourne: Fri Jan  2 11:00:00 1970
+UTC ctime(): Fri Jan  2 00:00:00 1970
+back to California: Thu Jan  1 16:00:00 1970
+UTC ctime(): Fri Jan  2 00:00:00 1970
+back to the PMAPI context pmCtime(): Fri Jan  2 04:00:00 1970
+UTC ctime(): Fri Jan  2 00:00:00 1970
+
+source remotehost, local time
+UTC pmCtime(): Fri Jan  2 00:00:00 1970
+UTC ctime(): Fri Jan  2 00:00:00 1970
+PMAPI context pmCtime(): LOCAL TIME at epoch
+UTC ctime(): Fri Jan  2 00:00:00 1970
+and in California: Thu Jan  1 16:00:00 1970
+UTC ctime(): Fri Jan  2 00:00:00 1970
+and in Melbourne: Fri Jan  2 11:00:00 1970
+UTC ctime(): Fri Jan  2 00:00:00 1970
+back to California: Thu Jan  1 16:00:00 1970
+UTC ctime(): Fri Jan  2 00:00:00 1970
+back to the PMAPI context pmCtime(): LOCAL TIME at epoch
+UTC ctime(): Fri Jan  2 00:00:00 1970
+
+source remotehost, remotehost time
+UTC pmCtime(): Fri Jan  2 00:00:00 1970
+UTC ctime(): Fri Jan  2 00:00:00 1970
+PMAPI context pmCtime(): REMOTE TIME at epoch
+UTC ctime(): Fri Jan  2 00:00:00 1970
+and in California: Thu Jan  1 16:00:00 1970
+UTC ctime(): Fri Jan  2 00:00:00 1970
+and in Melbourne: Fri Jan  2 11:00:00 1970
+UTC ctime(): Fri Jan  2 00:00:00 1970
+back to California: Thu Jan  1 16:00:00 1970
+UTC ctime(): Fri Jan  2 00:00:00 1970
+back to the PMAPI context pmCtime(): REMOTE TIME at epoch
+UTC ctime(): Fri Jan  2 00:00:00 1970
+
+source babylon archive, babylon time
+UTC pmCtime(): Fri Jan  2 00:00:00 1970
+UTC ctime(): Fri Jan  2 00:00:00 1970
+PMAPI context pmCtime(): Thu Jan  1 16:00:00 1970
+UTC ctime(): Fri Jan  2 00:00:00 1970
+and in California: Thu Jan  1 16:00:00 1970
+UTC ctime(): Fri Jan  2 00:00:00 1970
+and in Melbourne: Fri Jan  2 11:00:00 1970
+UTC ctime(): Fri Jan  2 00:00:00 1970
+back to California: Thu Jan  1 16:00:00 1970
+UTC ctime(): Fri Jan  2 00:00:00 1970
+back to the PMAPI context pmCtime(): Thu Jan  1 16:00:00 1970
+UTC ctime(): Fri Jan  2 00:00:00 1970

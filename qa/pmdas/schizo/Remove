@@ -1,0 +1,14 @@
+#!/bin/sh
+#
+# Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+# Remove the schizo PMDA
+#
+
+. /etc/pcp.env
+. $PCP_SHARE_DIR/lib/pmdaproc.sh
+
+iam=schizo
+pmdaSetup
+pmdaRemove
+exit 0

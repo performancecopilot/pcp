@@ -1,0 +1,125 @@
+#! /bin/sh
+# PCP QA Test No. 266
+#
+# pmlogextract interactions between -S and -T and the timezone
+# Bug #466346
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+
+arch=archives/960624.08.17_v2
+pmns=''
+
+_merge_filter()
+{
+    sed -e "s/.tmp.$seq-$$/TMP/"
+}
+
+_dump_filter()
+{
+    # temp file name, but also this archive is V1 and hence not endian
+    # safe ... so the strange value mappings!
+    #
+    sed -e "s/.tmp.$seq-$$/TMP/" \
+	-e "s/2928894505887203328/159819048/" \
+	-e "s/8135338249615835136/159901296/" \
+    | $PCP_AWK_PROG '
+NF==0		{ skip = 0 }
+skip == 1	{ next }
+		{ print }
+/^[0-9]/	{ print "..."; skip = 1 }'
+}
+
+status=1	# failure is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+TZ=EST-10; export TZ
+
+echo "=== input archive ==="
+pmdumplog -L $arch | ./xlate_2_new_pmns
+echo
+pmdumplog -z -L $arch | ./xlate_2_new_pmns
+
+echo
+echo "=== window before archive start, local TZ=$TZ ==="
+rm -f $tmp.*
+pmlogextract -S@08:00:00 -T@08:01:00 $arch $tmp 2>&1 | _merge_filter
+pmdumplog -lm $tmp 2>&1 | _dump_filter | ./xlate_2_new_pmns
+
+echo
+echo "=== window before archive start, timezone of archive ==="
+rm -f $tmp.*
+pmlogextract -z -S@15:00:00 -T@15:01:00 $arch $tmp 2>&1 | _merge_filter
+pmdumplog -lm $tmp 2>&1 | _dump_filter | ./xlate_2_new_pmns
+
+echo
+echo "=== window before archive start, UTC timezone ==="
+rm -f $tmp.*
+pmlogextract -Z UTC -S@22:00:00 -T@22:00:00 $arch $tmp 2>&1 | _merge_filter
+pmdumplog -lm $tmp 2>&1 | _dump_filter | ./xlate_2_new_pmns
+
+echo
+echo "=== empty window in archive, local TZ=$TZ ==="
+rm -f $tmp.*
+pmlogextract -S@08:35:00 -T@08:35:01 $arch $tmp 2>&1 | _merge_filter
+pmdumplog -lm $tmp 2>&1 | _dump_filter | ./xlate_2_new_pmns
+
+echo
+echo "=== empty window in archive, timezone of archive ==="
+rm -f $tmp.*
+pmlogextract -z -S@15:35:00 -T@15:35:01 $arch $tmp 2>&1 | _merge_filter
+pmdumplog -lm $tmp 2>&1 | _dump_filter | ./xlate_2_new_pmns
+
+echo
+echo "=== empty window in archive, UTC timezone ==="
+rm -f $tmp.*
+pmlogextract -Z UTC -S@22:35:00 -T@22:35:01 $arch $tmp 2>&1 | _merge_filter
+pmdumplog -lm $tmp 2>&1 | _dump_filter | ./xlate_2_new_pmns
+
+echo
+echo "=== window in archive, local TZ=$TZ ==="
+rm -f $tmp.*
+pmlogextract -S@08:35:00 -T@08:36:00 $arch $tmp 2>&1 | _merge_filter
+pmdumplog -lm $pmns $tmp 2>&1 | _dump_filter | ./xlate_2_new_pmns
+
+echo
+echo "=== window in archive, timezone of archive ==="
+rm -f $tmp.*
+pmlogextract -z -S@15:35:00 -T@15:36:00 $arch $tmp 2>&1 | _merge_filter
+pmdumplog -lm $pmns $tmp 2>&1 | _dump_filter | ./xlate_2_new_pmns
+
+echo
+echo "=== window in archive, UTC timezone ==="
+rm -f $tmp.*
+pmlogextract -Z UTC -S@22:35:00 -T@22:36:00 $arch $tmp 2>&1 | _merge_filter
+pmdumplog -lm $pmns $tmp 2>&1 | _dump_filter | ./xlate_2_new_pmns
+
+echo
+echo "=== window after archive end, local TZ=$TZ ==="
+rm -f $tmp.*
+pmlogextract -S@09:00:00 -T@09:01:00 $arch $tmp 2>&1 | _merge_filter
+pmdumplog -lm $tmp 2>&1 | _dump_filter | ./xlate_2_new_pmns
+
+echo
+echo "=== window after archive end, timezone of archive ==="
+rm -f $tmp.*
+pmlogextract -z -S@16:00:00 -T@16:01:00 $arch $tmp 2>&1 | _merge_filter
+pmdumplog -lm $tmp 2>&1 | _dump_filter | ./xlate_2_new_pmns
+
+echo
+echo "=== window after archive end, UTC timezone ==="
+rm -f $tmp.*
+pmlogextract -Z UTC -S@23:00:00 -T@23:01:00 $arch $tmp 2>&1 | _merge_filter
+pmdumplog -lm $tmp 2>&1 | _dump_filter | ./xlate_2_new_pmns
+
+# success, all done
+status=0
+exit

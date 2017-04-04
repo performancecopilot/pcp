@@ -1,0 +1,107 @@
+#! /bin/sh
+# PCP QA Test No. 299
+# exercise pmParseMetricSpec
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+_x()
+{
+    echo
+    src/parsemetricspec "sample$1" 1 default_arch
+    echo
+    src/parsemetricspec "sample$1" 0 default_host
+    echo
+    src/parsemetricspec "my_arch/sample$1" 1 default_arch
+    echo
+    src/parsemetricspec "my_host:sample$1" 0 default_host
+    echo
+    src/parsemetricspec "other_host:sample$1" 1 default_arch
+    echo
+    src/parsemetricspec "/other/arch/sample$1" 0 default_host
+    echo
+    src/parsemetricspec "@:sample$1" 0 default_host
+}
+
+# real QA test starts here
+echo "=== No instance and no error cases ==="
+_x
+
+echo
+echo "=== One instance and no error cases ==="
+_x '[singular]'
+
+echo
+echo "=== Multiple instances and no error cases ==="
+_x '[one,two,three]'
+
+echo
+echo "=== Some whitespace cases ==="
+echo
+src/parsemetricspec " my_host : sample [ one , two , three ] " 0 default_host
+echo
+src/parsemetricspec "my_arch   /   sample  [singular]" 1 default_arch
+
+echo
+echo "=== Miscellaneous cases ==="
+echo
+src/parsemetricspec "../../relative/pathname/myarch/metric" 0 default_host
+echo
+src/parsemetricspec "metric.a.b.c.d[]" 0 default_host
+echo
+src/parsemetricspec "/full/pathname/myarch/metric[fumble mumble]" 0 default_host
+echo
+src/parsemetricspec "./myarch/metric[fumble,,mumble]" 0 default_host
+echo
+src/parsemetricspec 'foo["instance with strange chars :/,[]\""]' 0 default_host
+echo
+src/parsemetricspec '20080424:12:05/disk.dev.total["sda1"]' 0 default_host
+echo
+src/parsemetricspec '20080424:12:05/disk.all.total' 0 default_host
+
+echo
+echo "=== Some odd cases (incorrectly used to be classified as errors) ==="
+echo
+src/parsemetricspec "one/two:three" 0 default_host
+echo
+src/parsemetricspec "foo:bar/fumble[mumble]" 0 default_host
+
+echo
+echo "=== Some error cases ==="
+echo
+src/parsemetricspec "foo/bar[fumble]mumble" 0 default_host
+echo
+src/parsemetricspec foo: 0 default_host
+echo
+src/parsemetricspec :badhost 0 default_host
+echo
+src/parsemetricspec bad/arch/ 0 default_host
+echo
+src/parsemetricspec '/bad/arch/[' 0 default_host
+echo
+src/parsemetricspec 'norsqb[' 0 default_host
+echo
+src/parsemetricspec 'nolsqb-instance]' 0 default_host
+echo
+src/parsemetricspec 'metric["noclosingquote' 0 default_host
+echo
+src/parsemetricspec 'metric["noclosingquote]' 0 default_host
+echo
+src/parsemetricspec 'metric["noclosing]"' 0 default_host
+echo
+src/parsemetricspec 'metric["ends in backslash\' 0 default_host
+
+# success, all done
+status=0
+exit

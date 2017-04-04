@@ -1,0 +1,37 @@
+#pmieconf-rules 1
+# 
+
+rule	filesys.buffer_cache
+	default	= "$rule$"
+	predicate =
+"some_host (
+  ( (kernel.all.io.lread $hosts$
+			- kernel.all.io.bread $hosts$)
+	/ kernel.all.io.lread $hosts$ ) < $threshold$ / 100
+  && kernel.all.io.lread $hosts$ > 30 * 16 Kbytes/sec
+)"
+	enabled	= no
+	version	= 1
+	help	=
+"Some file system read activity (at least 30 x 16 Kbyte logical reads
+per second), and the read hit ratio in the buffer cache is below
+threshold percent.";
+
+string	rule
+	default	= "low read hit ratio in buffer cache"
+	modify	= no
+	display	= no;
+
+percent	threshold
+	default	= 80
+	help	=
+"The minimum acceptable buffer cache read hit ratio, expressed as a
+percentage.  Values may be in the range 0 (nothing is read from the
+cache and poor performance is expected) to 100 (all reads come from
+the cache, no disk I/O required and good performance expected).";
+
+string	action_expand
+	default	= "%v%@%h"
+	display	= no
+	modify	= no;
+

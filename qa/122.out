@@ -1,0 +1,7 @@
+QA output created by 122
+pmtrace: observation complete (tag="qa/122-value", value=42.000000)
+    inst [1 or "qa/122-value"] value 42
+pmtrace: observation complete (tag="qa/122-value", value=1234.567800)
+    inst [1 or "qa/122-value"] value 1234.5678
+pmtrace: observation complete (tag="qa/122-value", value=-3.141320)
+    inst [1 or "qa/122-value"] value -3.14132

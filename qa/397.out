@@ -1,0 +1,41 @@
+QA output created by 397
+dbpmda> open pipe $PCP_VAR_DIR/pmdas/sample/pmdasample -d 29 -l TMP.log
+Start pmdasample PMDA: $PCP_VAR_DIR/pmdas/sample/pmdasample -d 29 -l TMP.log
+dbpmda> store sample.event.reset "0"
+PMID: 29.0.126
+Getting description...
+Sending Profile...
+Getting Result Structure...
+29.0.126: OLD -> 0
+Sending Result...
+dbpmda> fetch sample.event.records
+PMID(s): 29.0.136
+pmResult dump from ADDR timestamp: TIMESTAMPS numpmid: 1
+  29.0.136 (sample.event.records): numval: 2 valfmt: 2 vlist[]:
+    inst [0 or ???] value [0 event records]
+    inst [1 or ???] value [2 event records timestamps TIMESTAMP...TIMESTAMP]
+dbpmda> fetch sample.event.records
+PMID(s): 29.0.136
+pmResult dump from ADDR timestamp: TIMESTAMPS numpmid: 1
+  29.0.136 (sample.event.records): numval: 2 valfmt: 2 vlist[]:
+    inst [0 or ???] value [1 event record timestamp TIMESTAMP]
+    inst [1 or ???] value [1 event record timestamp TIMESTAMP]
+dbpmda> fetch sample.event.records
+PMID(s): 29.0.136
+pmResult dump from ADDR timestamp: TIMESTAMPS numpmid: 1
+  29.0.136 (sample.event.records): numval: 2 valfmt: 2 vlist[]:
+    inst [0 or ???] value [2 event records timestamps TIMESTAMP...TIMESTAMP]
+    inst [1 or ???] value [1 event record timestamp TIMESTAMP]
+dbpmda> fetch sample.event.records
+PMID(s): 29.0.136
+pmResult dump from ADDR timestamp: TIMESTAMPS numpmid: 1
+  29.0.136 (sample.event.records): numval: 2 valfmt: 2 vlist[]:
+    inst [0 or ???] value [5 event records (7 missed) timestamps TIMESTAMP...TIMESTAMP]
+    inst [1 or ???] value [2 event records timestamps TIMESTAMP...TIMESTAMP]
+dbpmda> 
+
+=== pmda log ===
+Log for pmdasample on MYHOST started DATE
+
+
+Log finished DATE

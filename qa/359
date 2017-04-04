@@ -1,0 +1,76 @@
+#!/bin/sh
+# PCP QA Test No. 359
+# Simple sanity check that we can get through validation of all
+# of the metrics without any surprises
+#
+# Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e '/No value(s) available/d' \
+	-e '/Metric not supported by this version of monitored application/d' \
+	-e '/cgroup\.groups: pmLookupName: Unknown metric name/d' \
+	-e '/proc\.psinfo\.cgroups: No data available/d' \
+	-e '/^sample\.needprofile:/d' \
+	-e '/^sample\.bad\.unknown:/d' \
+	-e '/^sample\.bad\.nosupport:/d' \
+	-e '/^sampledso\.needprofile:/d' \
+	-e '/^sampledso\.bad\.unknown:/d' \
+	-e '/^sampledso\.bad\.nosupport:/d' \
+	-e '/^proc\.schedstat.*: Unknown or .*/d' \
+	-e '/^proc\.schedstat.*: No permission/d' \
+	-e '/^proc\.psinfo.*: No permission/d' \
+	-e '/^proc\.psinfo\.cgroups: Unknown or illegal instance identifier/d' \
+	-e '/^proc\.psinfo\.labels: Unknown or illegal instance identifier/d' \
+	-e '/^proc\.memory.*: No permission/d' \
+	-e '/^proc\.id.*: No permission/d' \
+	-e '/^proc\.fd.*: No permission/d' \
+	-e '/^proc\.io.*: /d' \
+	-e '/^proc\.namespaces.*: /d' \
+	-e '/^papi\..*: No permission/d' \
+	-e '/^pipe\..*: Not Connected/d' \
+	-e '/^libvirt\..*: Not Connected/d' \
+	-e '/^postgresql\..*: Missing metric value(s)/d' \
+	-e '/^logger\.perfile\.reg\.records: No permission/d' \
+	-e '/^logger\.perfile\.fifo\.records: Try again./d' \
+	-e '/^logger\.perfile\.reg\.records: Try again./d' \
+	-e '/^containers\..*: pmLookupDesc: Unknown or illegal metric/d' \
+	-e '/^elasticsearch\..*: Try again./d' \
+	-e '/^libvirt\..*: Try again./d' \
+	-e '/^apache\..*: Try again./d' \
+	-e '/^oracle\..*: Try again./d' \
+	-e '/^nginx\..*: Try again./d' \
+	-e '/^zswap\..*: Try again./d' \
+	-e '/Container not found/d' \
+    #endif
+}
+
+# real QA test starts here
+
+echo "First attempt ... expect nothing"
+pminfo -v | _filter
+echo "Second attempt ... expect nothing"
+pminfo -v | _filter
+
+echo "Once more, but with --container ... expect nothing"
+containers=`pmprobe -v pmcd.feature.containers 2>/dev/null | awk '{ print $3 }'`
+if [ "$containers" = "1" ]; then
+    pminfo -v --container=no.such.container | _filter
+fi
+
+# success, all done
+exit

@@ -1,0 +1,70 @@
+#pmieconf-rules 1
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(5)
+#
+
+rule	per_cpu.context_switch
+	summary	= "$rule$"
+	enumerate = "hosts"
+	predicate =
+"some_host (
+    some_inst (
+	kernel.percpu.pswitch $hosts$ > $threshold$ count/sec
+    )
+    && hinv.ncpu $hosts$ > 1
+)"
+	enabled	= yes
+	version	= 1
+	help	=
+"The number of context switches per second for at least one CPU
+exceeded $threshold$ over the past sample interval.
+
+This rule only applies to multi-processor systems, for
+single-processor systems refer to the cpu.context_switch rule.
+
+For Origin 200 and Origin 2000 systems, use the command
+    $ pminfo -f hinv.map.cpu
+to discover the abbreviated PCP names of the installed CPUs and
+their corresponding full names in the /hw file system.";
+
+string	rule
+	default	= "High per CPU context switch rate"
+	modify	= no
+	display	= no;
+
+double	threshold
+	default	= 5000
+	help	=
+"The threshold number of context switches per second per CPU.";
+
+string	action_expand
+	default	= %vctxsw/s[%i]@%h
+	display	= no
+	modify	= no;
+
+string	email_expand
+	default	= "host: %h CPU: %i context switches: %v/sec"
+	display	= no
+	modify	= no;
+
+
+# Configuration info specific to non-PCP tools follows...
+# 
+
+# for SGI Embedded Support Partner integration:
+string	esp_type
+	default	= "0x200056"
+	display	= no
+	modify	= no;
+
+# for EnlightenDSM integration:
+string	enln_test
+	default	= per_cpu.context_switch
+	display	= no
+	modify = no;
+string	enln_units
+	default	= ctxsw/s[%i]
+	display	= no
+	modify = no;
+
+# 
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(5)

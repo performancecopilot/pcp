@@ -1,0 +1,176 @@
+/*
+ * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+ * 
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+ * for more details.
+ * 
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+ */
+
+/***********************************************************************
+ * skeleton: aggregate.sk - aggregation and quantification
+ ***********************************************************************/
+
+/***********************************************************************
+ * operator: @FUN
+ ***********************************************************************/
+
+void
+@FUN_host(Expr *x)
+{
+    Expr	*arg1 = x->arg1;
+    Sample      *is = &arg1->smpls[0];
+    Sample      *os = &x->smpls[0];
+    @ITYPE      *ip;
+    @OTYPE      *op;
+    @TTYPE	a;
+    int		n;
+    int		i;
+
+    EVALARG(arg1)
+    ROTATE(x)
+
+    if (arg1->valid && arg1->hdom > 0) {
+	ip = (@ITYPE *)is->ptr;
+	op = (@OTYPE *)os->ptr;
+	n = arg1->hdom;
+	@TOP
+	for (i = 1; i < n; i++) {
+	    ip++;
+	    @LOOP
+	}
+	@BOT
+	os->stamp = is->stamp;
+	x->valid++;
+    }
+    else {
+	x->valid = 0;
+    }
+
+#if PCP_DEBUG
+    if (pmDebug & DBG_TRACE_APPL2) {
+	fprintf(stderr, "@FUN_host(" PRINTF_P_PFX "%p) ...\n", x);
+	dumpExpr(x);
+    }
+#endif
+}
+
+void
+@FUN_inst(Expr *x)
+{
+    Expr	*arg1 = x->arg1;
+    Sample      *is = &arg1->smpls[0];
+    Sample      *os = &x->smpls[0];
+    @ITYPE      *ip;
+    @OTYPE      *op;
+    @TTYPE	a;
+    Metric	*m;
+    int		n;
+    int		i, j;
+
+    EVALARG(arg1)
+    ROTATE(x)
+
+    if (arg1->valid && x->hdom != 0) {
+	ip = (@ITYPE *)is->ptr;
+	op = (@OTYPE *)os->ptr;
+	if (abs(x->hdom) == 1) {
+	    n = arg1->e_idom;
+	    if (n < 1) {
+		@NOTVALID
+		goto done;
+	    }
+	    @TOP
+	    for (i = 1; i < n; i++) {
+		ip++;
+		@LOOP
+	    }
+	    @BOT
+	}
+	else {
+	    m = x->metrics;
+	    for (i = 0; i < x->hdom; i++) {
+		n = m->m_idom;
+		if (n < 1) {
+		    @NOTVALID
+		    goto done;
+		}
+		@TOP
+		for (j = 1; j < n; j++){
+		    /* Note! no break allowed in this loop */
+		    ip++;
+		    @LOOP
+		}
+		@BOT
+		m++;
+	    }
+	}
+	os->stamp = is->stamp;
+	x->valid++;
+    }
+    else {
+	x->valid = 0;
+    }
+
+done:
+#if PCP_DEBUG
+    if (pmDebug & DBG_TRACE_APPL2) {
+	fprintf(stderr, "@FUN_inst(" PRINTF_P_PFX "%p) ...\n", x);
+	dumpExpr(x);
+    }
+#endif
+}
+
+void
+@FUN_time(Expr *x)
+{
+    Expr	*arg1 = x->arg1;
+    Sample      *is = &arg1->smpls[0];
+    Sample      *os = &x->smpls[0];
+    @ITYPE	*ring = (@ITYPE *)arg1->ring;
+    @ITYPE      *ip;
+    @OTYPE      *op;
+    @TTYPE	a;
+    int		n = arg1->tdom;
+    int		tspan;
+    int		i, j;
+
+    EVALARG(arg1)
+    ROTATE(x)
+
+    if (arg1->valid >= n && x->tspan > 0 && arg1->tdom > 0) {
+	op = (@OTYPE *)os->ptr;
+	tspan = x->tspan;
+	for (i = 0; i < tspan; i++) {
+	    ip = ring + i;
+	    @TOP
+	    for (j = 1; j < n; j++){
+		ip += tspan;
+		@LOOP
+	    }
+	    @BOT
+	}
+	os->stamp = is->stamp;
+	x->valid++;
+    }
+    else {
+	x->valid = 0;
+    }
+
+#if PCP_DEBUG
+    if (pmDebug & DBG_TRACE_APPL2) {
+	fprintf(stderr, "@FUN_time(" PRINTF_P_PFX "%p) ...\n", x);
+	dumpExpr(x);
+    }
+#endif
+}
+

@@ -1,0 +1,24 @@
+#!/bin/sh
+#
+# Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+# Remove the broken PMDA
+#
+
+# source the PCP configuration environment variables
+. $PCP_DIR/etc/pcp.env
+
+# Get the common procedures and variable assignments
+# 
+. $PCP_SHARE_DIR/lib/pmdaproc.sh
+
+# The name of the PMDA
+#
+iam=broken
+
+# Do it
+#
+_setup
+_remove
+
+exit 0

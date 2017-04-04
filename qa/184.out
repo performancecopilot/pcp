@@ -1,0 +1,126 @@
+QA output created by 184
+=== old log ===
+Log Label (Log Format Version 2)
+Performance metrics from host HOST
+  commencing DATESTAMP
+  ending     DATESTAMP
+
+Descriptions for Metrics in the Log ...
+PMID: 2.0.8 (pmcd.control.register)
+    Data Type: 32-bit int  InDom: 2.2 0x800002
+    Semantics: discrete  Units: none
+PMID: 2.3.2 (pmcd.pmlogger.archive)
+    Data Type: string  InDom: 2.1 0x800001
+    Semantics: discrete  Units: none
+PMID: 2.3.0 (pmcd.pmlogger.port)
+    Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
+    Semantics: discrete  Units: none
+PMID: 2.3.3 (pmcd.pmlogger.host)
+    Data Type: string  InDom: 2.1 0x800001
+    Semantics: discrete  Units: none
+
+Instance Domains in the Log ...
+InDom: 2.2
+TIMESTAMP 16 instances
+                 0 or "0"
+                 1 or "1"
+                 2 or "2"
+                 3 or "3"
+                 4 or "4"
+                 5 or "5"
+                 6 or "6"
+                 7 or "7"
+                 8 or "8"
+                 9 or "9"
+                 10 or "10"
+                 11 or "11"
+                 12 or "12"
+                 13 or "13"
+                 14 or "14"
+                 15 or "15"
+InDom: 2.1
+TIMESTAMP 1 instances
+                 LOGGER_PID or "LOGGER_PID"
+
+Temporal Index
+             Log Vol    end(meta)     end(log)
+TIMESTAMP       0       OFFSET       OFFSET
+TIMESTAMP       0       OFFSET       OFFSET
+
+TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value "HOST"
+              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value "PATH"
+
+TIMESTAMP  2.0.8 (pmcd.control.register): inst [0 or "0"] value INTEGER
+
+=== pmnewlog ==
+Looking for pmlogger (process PID) ... found
+-- ps line removed --
+Getting logged host name from pmlogger (process PID) ... done
+Terminating pmlogger (process PID) ... signal stuff ... done
+Launching new pmlogger in directory "/tmp" as ...
+pmlogger -l /tmp/SEQ-PID.log -h HOST -c CONF SEQ-PID.newarch
+Waiting for new pmlogger to start ... done
+New pmlogger status ...
+pmlogger [PID] on host HOST is logging metrics from host HOST
+log started      DATESTAMP
+last log entry   DATESTAMP
+current time     DATESTAMP
+log volume       0
+log size         BYTES
+
+=== check old pmlogger has gone ===
+
+=== check what's in the new log ===
+Log Label (Log Format Version 2)
+Performance metrics from host HOST
+  commencing DATESTAMP
+  ending     DATESTAMP
+
+Descriptions for Metrics in the Log ...
+PMID: 2.0.8 (pmcd.control.register)
+    Data Type: 32-bit int  InDom: 2.2 0x800002
+    Semantics: discrete  Units: none
+PMID: 2.3.2 (pmcd.pmlogger.archive)
+    Data Type: string  InDom: 2.1 0x800001
+    Semantics: discrete  Units: none
+PMID: 2.3.0 (pmcd.pmlogger.port)
+    Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
+    Semantics: discrete  Units: none
+PMID: 2.3.3 (pmcd.pmlogger.host)
+    Data Type: string  InDom: 2.1 0x800001
+    Semantics: discrete  Units: none
+
+Instance Domains in the Log ...
+InDom: 2.2
+TIMESTAMP 16 instances
+                 0 or "0"
+                 1 or "1"
+                 2 or "2"
+                 3 or "3"
+                 4 or "4"
+                 5 or "5"
+                 6 or "6"
+                 7 or "7"
+                 8 or "8"
+                 9 or "9"
+                 10 or "10"
+                 11 or "11"
+                 12 or "12"
+                 13 or "13"
+                 14 or "14"
+                 15 or "15"
+InDom: 2.1
+TIMESTAMP 1 instances
+                 LOGGER_PID or "LOGGER_PID"
+
+Temporal Index
+             Log Vol    end(meta)     end(log)
+TIMESTAMP       0       OFFSET       OFFSET
+TIMESTAMP       0       OFFSET       OFFSET
+
+TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value "HOST"
+              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value "PATH"
+
+TIMESTAMP  2.0.8 (pmcd.control.register): inst [0 or "0"] value INTEGER

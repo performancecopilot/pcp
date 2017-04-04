@@ -1,0 +1,16 @@
+#!/bin/sh
+#
+# Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+. /etc/pcp.env
+. $PCP_SHARE_DIR/lib/pmdaproc.sh
+PCP_PMDAS_DIR=${PCP_VAR_DIR}/testsuite/pmdas
+
+iam=dynamic
+dso_opt=false
+pmda_interface=4
+
+pmdaSetup
+pmdaInstall
+exit 0

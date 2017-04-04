@@ -1,0 +1,77 @@
+#!/bin/sh
+# PCP QA Test No. 749
+# Check pmcd static probes
+#
+# Copyright (c) 2013-2014 Red Hat.
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=0	# success is the default!
+$sudo rm -fr $tmp.* $seq.full
+trap "rm -fr $tmp.*; exit \$status" 0 1 2 3 15
+
+# If no systemtap, we cannot run the script
+which stap >/dev/null 2>&1 || _notrun "No systemtap stap executable found"
+
+# If no PCP support for probes, also bail out
+_get_libpcp_config
+$static_probes || _notrun "No static probe support available in PCP build"
+
+# If running in FIPS mode, we cannot run this either
+fips_enabled=0
+fips_stsfile="/proc/sys/crypto/fips_enabled"
+[ -f $fips_stsfile ] && fips_enabled=`cat $fips_stsfile`
+test $fips_enabled -eq 0 || _notrun "FIPS enabled, no kernel stap testing"
+
+# real QA test starts here
+cat <<End-of-File >$tmp.stap
+global probe_hits 
+probe begin {
+       system("pminfo -f hinv >/dev/null")
+       system("pminfo -f kernel >/dev/null")
+       system("pminfo -d mem >/dev/null")
+       system("pminfo -f network >/dev/null")
+       system("pminfo -tT disk >/dev/null")
+}
+probe process("$PCP_BINADM_DIR/pmcd").mark("*") {
+       probe_hits <<< 1
+}
+probe timer.ms(1000) {
+       if (@count(probe_hits) > 0) 
+          println("PASS")
+       else
+          println("FAIL")
+       exit()
+}
+End-of-File
+echo "Using stap config:" >> $seq.full
+cat $tmp.stap >> $seq.full
+echo "Running pmcd process:" >> $seq.full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep pmcd >> $seq.full
+
+# check for stap user probing support
+stap -p4 $tmp.stap >$tmp.out 2>&1
+if [ $? -ne 0 ]
+then
+    echo "Systemtap compile check failed"
+    cat $tmp.out >> $seq.full
+    _notrun "Systemtap userspace probing unsupported here"
+fi
+
+# start systemtap and count pmcd probe hits
+echo "Fire stap probes:" >> $seq.full
+$sudo stap $tmp.stap >$tmp.out 2>&1
+cat $tmp.out | tee -a $seq.full
+
+echo "Output from stap:" >> $seq.full
+cat $tmp.out >> $seq.full
+
+# success, all done
+status=0
+exit

@@ -1,0 +1,25 @@
+#!/bin/sh
+# PCP QA Test No. 979
+# Basic live mode validation of the Python pmcc module
+# (pmcc -> Performance Metrics Convenience Classes)
+#
+# Copyright (c) 2014 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.python
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+$python -c "from pcp import pmcc" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "python pcp pmcc module not installed"
+
+# real QA test starts here
+$python $here/src/test_pmcc.py -t 0.1 -s 2 >$seq.full 2>&1
+_check_unittest live $seq.full
+status=$?
+exit

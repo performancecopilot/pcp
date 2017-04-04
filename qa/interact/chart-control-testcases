@@ -1,0 +1,101 @@
+Chart Correctness and Control
+=============================
+
+Live mode
+
+[ ] Run: pmchart -c views/ScaleManual -t 1
+    This should display two charts - the top one with instantaneous
+    sample metrics (sample.double.one and sample.double.ten), lower
+    chart with one counter metric (sample.byte_ctr).
+
+[ ] Select the top chart, open the Edit Chart dialog, disable Auto-
+    Scaling on the Y-Axis.  Set Minimum to zero, Maximum to 12,
+    and press OK.  Verify that the Y-Axis increases to this range.
+[ ] Repeat the above, except now set the Maximum to 5.  Verify that
+    the Y-Axis updates to show the new maximum and that only the
+    yellow chart (sample.double.one) remains visible.
+[ ] Repeat once more, now setting Minimum to 5 and Maximum to 15.
+    Verify the Y-Axis scale change and that only the blue plot
+    (sample.double.ten) is now visible.
+
+[ ] Click the Live button to expose the Time Controls.  Press the
+    Stop button.  Wait 5 seconds, then press Play.
+[ ] Verify that there is a "gap" in all chart data (not zero) for
+    the time stopped, then it should continue to plot as before.
+
+[ ] Change the Interval to 0 seconds, and then press Play.
+    Verify that the Interval returns back to its previous valid
+    state and the charts are updated as before.
+[ ] Change the Interval to 1.5 seconds, and then press Play.
+    Verify that the time pulse is emitted now every two seconds
+    and that the display is updated at that frequency now.
+
+[ ] Change the Timezone to UTC in the Time Control dialog.
+    Verify that the position text is updated with the new time,
+    and that the pmchart time axis is updated also.
+[ ] Change back to localtime, verify position and time axis again.
+
+[ ] Run: pmchart -c CPU -L -t 0.025
+[ ] This should be updating extremely frequently, and depending on
+    the capabilities of your hardware will either keep up beautifully
+    (wow, nice machine!) or frequently miss updates (this is the case
+    with my laptop).  To increase the probability that deltas will be
+    missed, wiggle the cursor around over the CPU chart, which makes
+    pmchart do more work.  When updates are missed pmchart must plot
+    a blank section in the chart, but then it should continue on with
+    normal plotting.
+
+
+Archive mode
+
+[ ] Run: pmchart -c views/ScaleManual -t 1 -a archives/chartqa1
+    This should display two charts - the top one with instantaneous
+    sample metrics (sample.double.one and sample.double.ten), lower
+    chart with one counter metric (sample.byte_ctr).  The initial
+    display should show a series of values for Thurs, Oct 11 2007,
+    with one visible "gap" in the series (both charts, same time).
+
+[ ] Click the Archive button to expose the Time Controls.
+[ ] Press Play, and let it run through to the end of the archive
+    (its not very long).  There should be two time periods where
+    no values are displayed (note: plotting should stop completely
+    in these sections - broken lines, the plot values should *not*
+    dip to zero).
+[ ] Verify that when the end of the archive is reached, the time
+    controls are updated to Stop state, in both the Time Control
+    window and pmchart.
+[ ] Press Back, and let it run back to the start of the archive.
+    Verify that when the start of the archive is reached, time
+    controls are updated to Stop state in both the Time Control
+    window and pmchart.
+[ ] Change the Archive Control mode to Step, then take three steps
+    forward, and four steps back.  Verify that the time controls
+    are update to Stop state in both the Time Control window and
+    pmchart.
+[ ] Change the Archive Control mode to Fast.  Fast forward to the
+    end of the archive, verify it stops at the end, then fast back
+    to the start.  Again verify that it stops, and the interface
+    state (icons) in both windows is updated to indicate this.
+[ ] Change back to Normal Archive Control mode.  Press Play.  Now
+    increase and decrease the playback Speed while pmchart is
+    displaying the data from the archive.  Use both the direct
+    text input mechanism, and the wheel.  You can use the little
+    button next to the wheel to reset Speed to its original value.
+[ ] Play space invaders!  Randomly change mode, direction, speed,
+    etc. and verify that the interface doesn't get into a hung or
+    unexpected state.
+
+[ ] Change the Interval to 0 seconds, and then press Play.
+    Verify that the Interval returns back to its previous valid
+    state and the charts are updated as before.
+[ ] Change the Interval to 1.5 seconds, and then press Play.
+    Verify that the time pulse is emitted now every two seconds
+    and that the display is updated at that frequency now.
+
+[ ] Change the Timezone to UTC in the Time Control dialog.
+    Verify that the position text is updated with the new time,
+    and that the pmchart time axis is updated also.  Also verify
+    that the Archive Bounds dialog displays an updated timeframe.
+[ ] Change back to localtime from the archive; verify position,
+    time axis and Archive Bounds again.
+

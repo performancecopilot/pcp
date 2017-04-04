@@ -1,0 +1,52 @@
+#!/bin/sh
+
+RANDOM_PASSWORD=`mktemp -u XXXXXXXXXX`
+#check that lsb_release is installed
+lsb_release 2>&1 >/dev/null
+LSB_RELEASE=$?
+
+if [ $LSB_RELEASE -eq 1 ]; then
+    BUILDSLAVE_NAME="example-slave"
+elif [  $LSB_RELEASE -eq 0 ]; then
+    DISTRO=`lsb_release -i | cut -f2`
+    REL=`lsb_release -r | cut -f2`
+    ARCH=`uname -m`
+    BUILDSLAVE_NAME=`echo $DISTRO$REL-$ARCH`
+else
+    BUILDSLAVE_NAME="example-slave"
+fi
+
+#test if easy_install is installed
+easy_install -n -h 2>&1 >/dev/null
+EASYINSTALL=$?
+
+if [ $EASYINSTALL -eq 127 ]; then
+    echo "Please install python setuptools and re-run this script"
+    exit
+fi
+
+easy_install buildbot-slave 2>/dev/null
+EASYINSTALL=$?
+
+if [ $EASYINSTALL -eq 1 ]; then
+    echo "Please run this script with admin privileges (such as sudo or root)"
+    exit
+fi
+
+if [ $EASYINSTALL -eq 0 ]; then
+    echo "------------------------- PCP Buildbot --------------------------"
+    echo ""
+    echo "Please contact a PCP maintainer with your proposed buildslave name and password."
+    if [ $LSB_RELEASE -eq 0 ]; then
+	echo "May we also suggest a name such as: $BUILDSLAVE_NAME"
+    fi
+    echo "May we suggest a random password such as: $RANDOM_PASSWORD"
+    echo "When you have been granted access, run your buildslave using the command:"
+    echo "\`buildslave create-slave pcp-slave <domain-provided>:9989 $BUILDSLAVE_NAME $RANDOM_PASSWORD\`"
+    echo "Please be sure to edit the subsequent info/host and info/admin files accordingly."
+    echo "Once that is completed, and you've contacted lberk or a PCP maintainer, start your buildslave with:"
+    echo "\`buildslave start $BUILDSLAVE_NAME\`"
+    exit
+fi
+
+

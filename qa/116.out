@@ -1,0 +1,25 @@
+QA output created by 116
+pmie [hostname in config]
+expr_1: 0
+expr_1: 0
+expr_1: 0
+pmie: note - evaluator exiting
+
+pmval [metric spec on command line]
+
+metric:    pmcd.control.sighup
+host:      HYPHEN-HOST
+semantics: discrete instantaneous value
+units:     none
+samples:   1
+          0
+
+pmlc [several uses]
+The following pmloggers are running on HYPHEN-HOST:
+The following pmloggers are running on HYPHEN-HOST:
+PMCD host	...
+log started	...
+last log entry	...
+current time	...
+log volume	...
+log size	...

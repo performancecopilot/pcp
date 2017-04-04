@@ -1,0 +1,116 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMINDOMSTR 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmInDomStr\f1,
+\f3pmInDomStr_r\f1 \- convert a performance metric instance domain identifier into a string
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.sp
+const char *pmInDomStr(pmInDom \fIindom\fP);
+.br
+char *pmInDomStr_r(pmInDom \fIindom\fP, char *\fIbuf\fP, int \fIbuflen\fP);
+.sp
+cc ... \-lpcp
+.ft 1
+.SH DESCRIPTION
+.de CW
+.ie t \f(CW\\$1\f1\\$2
+.el \fI\\$1\f1\\$2
+..
+For use in error and diagnostic messages,
+.B pmInDomStr
+return a 'human readable' version of
+the specified instance domain identifier.
+The
+.B pmInDomStr_r
+function does the same, but stores the result in a user-supplied buffer
+.I buf
+of length
+.IR buflen ,
+which should have room for at least 20 bytes.
+.PP
+The value for the instance domain
+.I indom
+is typically extracted from a
+.CW pmDesc
+structure, following a call to
+.BR pmLookupDesc (3)
+for a particular performance metric.
+.PP
+Internally, an instance domain identifier is
+encoded as follows;
+.PP
+.ft CW
+.nf
+.in +0.5i
+typedef struct {
+    int             pad:2;
+    unsigned int    domain:8;        /* the administrative PMD */
+    unsigned int    serial:22;       /* unique within PMD */
+} __pmInDom_int;
+.in
+.fi
+.ft 1
+.PP
+.B pmInDomStr
+returns a string with each of the
+.CW domain
+and
+.CW serial
+subfields appearing as decimal numbers, separated by periods.
+.PP
+The string value returned by
+.B pmInDomStr
+is held in a single static buffer, so the returned value is
+only valid until the next call to
+.BR pmInDomStr .
+.SH NOTES
+.B pmInDomStr
+returns a pointer to a static buffer and hence is not thread-safe.
+Multi-threaded applications should use
+.B pmInDomStr_r
+instead.
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.I /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (5).
+Values for these variables may be obtained programmatically
+using the
+.BR pmGetConfig (3)
+function.
+.SH SEE ALSO
+.BR PMAPI (3),
+.BR pmGetConfig (3),
+.BR pmIDStr (3),
+.BR pmTypeStr (3),
+.BR pmSemStr (3),
+.BR pmUnitsStr (3),
+.BR pmLookupDesc (3),
+.BR pcp.conf (5)
+and
+.BR pcp.env (5).

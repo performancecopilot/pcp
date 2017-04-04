@@ -1,0 +1,242 @@
+QA output created by 251
+
+All volumes present ... bin-100 ...
+__pmLogChangeVol: change to volume 0
+__pmLogChangeVol: change to volume 1
+__pmLogChangeVol: change to volume 2
+Note: timezone set to local timezone of host "bozo" from archive
+
+metric:    sampledso.bin
+archive:   ok-mv-bar
+host:      HOST
+start:     DATE
+end:       DATE
+semantics: instantaneous value
+units:     none
+samples:   3
+interval:  2.00 sec
+
+                bin-100 
+TIMESTAMP           100 
+TIMESTAMP           100 
+
+First volume missing ... bin-100 ...
+__pmLogChangeVol: change to volume 1
+__pmLogChangeVol: change to volume 2
+Note: timezone set to local timezone of host "bozo" from archive
+
+metric:    sampledso.bin
+archive:   ok-mv-bar
+host:      HOST
+start:     DATE
+end:       DATE
+semantics: instantaneous value
+units:     none
+samples:   3
+interval:  2.00 sec
+
+                bin-100 
+TIMESTAMP           100 
+TIMESTAMP           100 
+
+Last volume missing ... bin-100 ...
+__pmLogChangeVol: change to volume 0
+__pmLogChangeVol: change to volume 1
+__pmLogChangeVol: change to volume 2
+Note: timezone set to local timezone of host "bozo" from archive
+
+metric:    sampledso.bin
+archive:   ok-mv-bar
+host:      HOST
+start:     DATE
+end:       DATE
+semantics: instantaneous value
+units:     none
+samples:   3
+interval:  2.00 sec
+
+                bin-100 
+TIMESTAMP           100 
+TIMESTAMP           100 
+
+Second volume missing ... bin-100 ...
+__pmLogChangeVol: change to volume 0
+__pmLogChangeVol: change to volume 2
+__pmLogChangeVol: change to volume 0
+__pmLogChangeVol: change to volume 2
+__pmLogChangeVol: change to volume 0
+__pmLogChangeVol: change to volume 2
+Note: timezone set to local timezone of host "bozo" from archive
+
+metric:    sampledso.bin
+archive:   ok-mv-bar
+host:      HOST
+start:     DATE
+end:       DATE
+semantics: instantaneous value
+units:     none
+samples:   3
+interval:  2.00 sec
+
+                bin-100 
+TIMESTAMP           100 
+TIMESTAMP           100 
+
+Second last volume missing ... bin-100 ...
+__pmLogChangeVol: change to volume 0
+__pmLogChangeVol: change to volume 1
+__pmLogChangeVol: change to volume 3
+Note: timezone set to local timezone of host "bozo" from archive
+
+metric:    sampledso.bin
+archive:   ok-mv-bar
+host:      HOST
+start:     DATE
+end:       DATE
+semantics: instantaneous value
+units:     none
+samples:   3
+interval:  2.00 sec
+
+                bin-100 
+TIMESTAMP           100 
+TIMESTAMP           100 
+
+All volumes but second missing ... bin-100 ...
+__pmLogChangeVol: change to volume 1
+Note: timezone set to local timezone of host "bozo" from archive
+
+metric:    sampledso.bin
+archive:   ok-mv-bar
+host:      HOST
+start:     DATE
+end:       DATE
+semantics: instantaneous value
+units:     none
+samples:   2
+interval:  2.00 sec
+
+                bin-100 
+TIMESTAMP           100 
+
+All volumes present ... bin-100,bin-500,bin-900 ...
+__pmLogChangeVol: change to volume 0
+__pmLogChangeVol: change to volume 1
+__pmLogChangeVol: change to volume 2
+__pmLogChangeVol: change to volume 3
+Note: timezone set to local timezone of host "bozo" from archive
+
+metric:    sampledso.bin
+archive:   ok-mv-bar
+host:      HOST
+start:     DATE
+end:       DATE
+semantics: instantaneous value
+units:     none
+samples:   3
+interval:  2.00 sec
+
+                bin-100     bin-500     bin-900 
+TIMESTAMP           100         500         900 
+TIMESTAMP           100         500         900 
+
+First volume missing ... bin-100,bin-500,bin-900 ...
+__pmLogChangeVol: change to volume 1
+__pmLogChangeVol: change to volume 2
+__pmLogChangeVol: change to volume 3
+Note: timezone set to local timezone of host "bozo" from archive
+
+metric:    sampledso.bin
+archive:   ok-mv-bar
+host:      HOST
+start:     DATE
+end:       DATE
+semantics: instantaneous value
+units:     none
+samples:   3
+interval:  2.00 sec
+
+                bin-100     bin-500     bin-900 
+TIMESTAMP           100         500         900 
+TIMESTAMP           100         500         900 
+
+Last volume missing ... bin-100,bin-500,bin-900 ...
+__pmLogChangeVol: change to volume 0
+__pmLogChangeVol: change to volume 1
+__pmLogChangeVol: change to volume 2
+Note: timezone set to local timezone of host "bozo" from archive
+
+metric:    sampledso.bin
+archive:   ok-mv-bar
+host:      HOST
+start:     DATE
+end:       DATE
+semantics: instantaneous value
+units:     none
+samples:   3
+interval:  2.00 sec
+
+                bin-100     bin-500     bin-900 
+TIMESTAMP           100         500         900 
+TIMESTAMP           100         500           ? 
+
+Second volume missing ... bin-100,bin-500,bin-900 ...
+__pmLogChangeVol: change to volume 0
+__pmLogChangeVol: change to volume 2
+__pmLogChangeVol: change to volume 0
+__pmLogChangeVol: change to volume 2
+__pmLogChangeVol: change to volume 0
+__pmLogChangeVol: change to volume 2
+__pmLogChangeVol: change to volume 3
+Note: timezone set to local timezone of host "bozo" from archive
+
+metric:    sampledso.bin
+archive:   ok-mv-bar
+host:      HOST
+start:     DATE
+end:       DATE
+semantics: instantaneous value
+units:     none
+samples:   3
+interval:  2.00 sec
+
+                bin-100     bin-500     bin-900 
+TIMESTAMP           100         500         900 
+TIMESTAMP           100         500         900 
+
+Second last volume missing ... bin-100,bin-500,bin-900 ...
+__pmLogChangeVol: change to volume 0
+__pmLogChangeVol: change to volume 1
+__pmLogChangeVol: change to volume 3
+Note: timezone set to local timezone of host "bozo" from archive
+
+metric:    sampledso.bin
+archive:   ok-mv-bar
+host:      HOST
+start:     DATE
+end:       DATE
+semantics: instantaneous value
+units:     none
+samples:   3
+interval:  2.00 sec
+
+                bin-100     bin-500     bin-900 
+TIMESTAMP           100         500         900 
+TIMESTAMP           100         500         900 
+
+All volumes but second missing ... bin-100,bin-500,bin-900 ...
+__pmLogChangeVol: change to volume 1
+Note: timezone set to local timezone of host "bozo" from archive
+
+metric:    sampledso.bin
+archive:   ok-mv-bar
+host:      HOST
+start:     DATE
+end:       DATE
+semantics: instantaneous value
+units:     none
+samples:   2
+interval:  2.00 sec
+
+                bin-100     bin-500     bin-900 
+TIMESTAMP           100         500         900 

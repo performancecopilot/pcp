@@ -1,0 +1,99 @@
+#! /bin/sh
+# PCP QA Test No. 189
+# pmie does not wait() for children ... defunct processes accummulate
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+
+trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+
+_numchildren()
+{
+   $PCP_AWK_PROG -v pid=$pmie_pid '
+   $5 == pid { n++ ; pidlist[n] = $4; next}
+   $1 == "----" { 
+	      # output: <num> <pid> <pid>...
+	      printf("%d ", n); 
+	      for(i=1;i<=n;i++)
+		 printf("%d ", pidlist[i]);
+	      printf("\n");
+	      n = 0 
+          }'
+}
+
+# real QA test starts here
+tolerance=10 # allow only one round of 100msec children to accumulate
+
+cat <<End-of-File >$tmp.pmie
+delta = 100 msec;
+sample.long.ten >= 10 -> shell "date >>$tmp.log";
+delta = 1 sec;
+sample.long.ten >= 10 -> shell "ps -el >>$tmp.ps; echo '----' >>$tmp.ps";
+End-of-File
+
+pmie -T 10 $tmp.pmie >$tmp.out 2>$tmp.err &
+pmie_pid=$!
+wait $pmie_pid
+cat $tmp.out $tmp.err | _show_pmie_errors
+
+echo "== stdout ==" >$seq.full
+cat $tmp.out >>$seq.full
+echo >>$seq.full
+echo "== stderr ==" >>$seq.full
+cat $tmp.err >>$seq.full
+
+_numchildren < $tmp.ps > $tmp.num
+max=`cut -d' ' -f1 < $tmp.num | LC_COLLATE=POSIX sort -nr  | head -1 | sed -e 's/  *//g'`
+
+# give the kernel a chance to catch its breath
+#
+sleep 2
+
+ps -el > $tmp.ps.final
+
+max=`cut -d' ' -f1 < $tmp.num | LC_COLLATE=POSIX sort -nr  | head -1 | sed -e 's/  *//g'`
+
+if [ "$max" -gt "$tolerance" ]
+then
+    echo "There were too many child processes of pmie left over"
+    echo "In the worst case there were $max child processes"
+    echo "Running 1 second totals:"
+    cat $tmp.num
+    echo "ps output:"
+    cat $tmp.ps
+    # kernel may need more of a chance to catch up!
+    #
+    sleep 5
+fi
+
+# Look for any of the pmie child processes left after pmie death
+# They should all be dead
+cat $tmp.num >>$tmp.psawk
+echo "----" >>$tmp.psawk
+cat $tmp.ps.final >>$tmp.psawk
+$PCP_AWK_PROG < $tmp.psawk '
+  final == 0 {  
+	        # skip over $1 (num)
+		# chuck all others in pidlist
+		for(i=2;i<=NF;i++)
+		    pidlist[$i] = 1;
+	        next;
+	     }
+  $1 == "----" { final = 1; next }
+  final == 1 {
+	        # check if process in final ps is in pidlist	
+		if ($4 in pidlist) {
+		   printf("process %s (pid=%d) is still alive\n",
+			  $14, $4); 
+		}
+	     }
+'
+
+exit 0

@@ -1,0 +1,10 @@
+QA output created by 668
+pmmgr ok
+docker ok
+=== 1. prepare pmmgr config directory  ===
+=== 2. cycle some short-lived containers ===
+=== 3. check that the containers were found ===
+enough config.pmlogger files
+enough .meta files
+enough config.pmie files
+=== 4. kill pmmgr ===

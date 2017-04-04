@@ -1,0 +1,43 @@
+#
+# Copyright (c) 2014-2015 Red Hat, Inc.  All Rights Reserved.
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+# papi PMDA help file in the ASCII format
+#
+# lines beginning with a # are ignored
+# lines beginning @ introduce a new entry of the form
+#  @ metric_name oneline-text
+#  help text goes
+#  here over multiple lines
+#  ...
+#
+# the metric_name is decoded against the default PMNS -- as a special case,
+# a name of the form NNN.MM (for numeric NNN and MM) is interpreted as an
+# instance domain identification, and the text describes the instance domain
+#
+# blank lines before the @ line are ignored
+#
+@ papi.control.enable A list of metrics to enable and count
+
+@ papi.control.reset Reset the counter values
+
+@ papi.control.disable A list of metrics to disable counting
+
+@ papi.control.status A string of papi counters current state
+
+@ papi.control.auto_enable Timeout for future auto-enabled counters in seconds.
+
+@ papi.control.multiplex Switch for enabling PAPI multiplexing
+
+@ papi.available.num_counters Number of hardware counters available for use
+
+@ papi.available.version The current PAPI version number in use

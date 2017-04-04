@@ -1,0 +1,78 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2012 Red Hat.
+.\" Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMIERRSTR 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmiErrStr\f1 \- convert a LOGIMPORT error code into a string
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.br
+#include <pcp/import.h>
+.sp
+const char *pmiErrStr(int \fIcode\fP);
+.br
+char *pmiErrStr_r(int \fIcode\fP, char \fIbuf\fP, int \fIbuflen\fP);
+.sp
+cc ... \-lpcp_import \-lpcp
+.ft 1
+.SH "Perl SYNOPSIS"
+.ft 3
+use PCP::LogImport;
+.sp
+pmiErrStr($\fIcode\fP);
+.ft 1
+.SH DESCRIPTION
+As part of the Performance Co-Pilot Log Import API (see
+.BR LOGIMPORT (3)),
+.B pmiErrStr
+translates error codes returned from the other routines
+in the Log Import library into printable error messages.
+.PP
+.I code
+would normally have a negative value.
+As a special case, if
+.I code
+is \-1 then the error code returned from the last routine
+called in the LOGIMPORT library for this context will be
+used.
+.PP
+The
+.B pmiErrStr_r
+function does the same, but stores the result in a user-supplied buffer
+.I buf
+of length
+.IR buflen ,
+which should have room for at least
+.B PMI_MAXERRMSGLEN
+bytes.
+.PP
+The set of possible error codes and messages is all those defined
+by
+.BR pmErrStr (3)
+and
+.BR PCPIntro (3),
+plus the additonal ones defined in
+.B <pcp/import.h>
+with error code names of the form
+.BR PMI_ERR_....
+.SH DIAGNOSTICS
+None.
+.SH SEE ALSO
+.BR LOGIMPORT (3),
+.BR PCPIntro (3)
+and
+.BR pmErrStr (3).

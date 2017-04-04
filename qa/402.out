@@ -1,0 +1,9 @@
+QA output created by 402
+irix.pmda.uname 1 "IRIX omen 6.2 03131015 IP22"
+hinv.ncpu 1 1
+
+irix.pmda.uname
+    value "IRIX omen 6.2 03131015 IP22"
+
+hinv.ncpu
+    value 1

@@ -1,0 +1,126 @@
+#! /bin/sh
+# PCP QA Test No. 055
+# pmie basic expression evaluation and scheduling
+# for remote version using other hosts, see 360
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+trap "rm -f $tmp.* /tmp/pmie.err; exit" 0 1 2 3 15
+rm -f $seq.full
+
+# here are the exercises
+cat >>$tmp.config << \EOF
+delta = 1 sec;
+
+// the meaning of life, the universe and everything
+sample.long.hundred - (16 * sample.float.ten + 11 * sample.double.one) / 3;
+
+// instance domain exercises
+inst_fetch1  = sample.bin;
+inst_fetch2  = sample.bin #'bin-200' #'bin-400' #'bin-600' #'bin-800';
+inst_neg     = -sample.bin;
+inst_rate    = rate sample.bin;
+inst_sum     = sum_inst sample.bin;
+inst_avg     = avg_inst sample.bin;
+inst_max     = max_inst sample.bin;
+inst_min     = min_inst sample.bin;
+inst_count   = count_inst sample.bin > 400;
+inst_add1    = sample.bin + sample.bin;
+inst_add2    = sample.bin + sample.longlong.million;
+inst_add3    = sample.longlong.million + sample.bin;
+inst_sub     = sample.bin - sample.bin;
+inst_mul     = sample.bin * sample.bin;
+inst_div     = sample.bin / sample.bin;
+inst_eq1     = sample.bin == sample.bin;
+inst_eq2     = sample.bin == sample.bin + 1;
+inst_eq3     = sample.bin == 500; 
+inst_neq1    = sample.bin != sample.bin + 1;
+inst_neq2    = sample.bin != sample.bin;
+inst_neq3    = sample.bin != 500; 
+inst_gt1     = sample.bin + 1 > sample.bin;
+inst_gt2     = sample.bin > sample.bin + 1;
+inst_gt3     = sample.bin > 500; 
+inst_lt1     = sample.bin < sample.bin + 1;
+inst_lt2     = sample.bin + 1 < sample.bin;
+inst_lt3     = sample.bin < 500; 
+inst_geq1    = sample.bin >= sample.bin;
+inst_geq2    = sample.bin >= sample.bin + 1;
+inst_leq1    = sample.bin <= sample.bin;
+inst_leq2    = sample.bin + 1 <= sample.bin;
+
+// sample time domain exercises
+time_fetch0  = sample.float.ten @0;
+time_fetch1  = sample.float.ten @1;
+time_fetch2  = sample.float.ten @2;
+time_fetch01 = sample.float.ten @0..1;
+time_fetch12 = sample.float.ten @1..2;
+time_fetch02 = sample.float.ten @0..2;
+time_sum     = sum_sample sample.float.ten @0..2;
+time_avg     = avg_sample sample.float.ten @0..2;
+time_max     = max_sample sample.float.ten @0..2;
+time_min     = min_sample sample.float.ten @0..2;
+time_count   = count_sample sample.float.ten @0..2 >= 10;
+time_add1    = sample.float.ten @0 + sample.float.ten @1 + sample.float.ten @2;
+time_add2    = sample.float.ten @0..1 + sample.float.ten @1..2;
+time_add3    = sample.float.ten @0..2 + 1;
+time_add4    = 1 + sample.float.ten @0..2;
+time_gt1     = sample.float.ten @0..1 + 1 > sample.float.ten @0..1;
+time_gt2     = sample.float.ten @0..1 > sample.float.ten @0..1 + 1;
+time_gt3     = sample.float.ten @0..2 + 1 > sample.float.ten @0..2;
+time_gt4     = sample.float.ten @0..2 > sample.float.ten @0..2 + 1;
+
+delta = 2 sec;
+
+// multiple domains
+multi1       = sum_sample avg_inst sample.bin @0..2;
+multi2       = avg_inst sum_sample sample.bin @0..2;
+
+delta = 3 sec;
+
+// boolean operators
+arg1 = "sample.bin >= 500";
+arg2 = "sample.bin <= 500";
+arg3 = "sample.bin < 1000";
+arg4 = "sample.bin > 1000";
+bool1        = $arg1;
+bool2        = $arg2;
+bool_not     = ! $arg1;
+bool_and     = $arg1 && $arg2;
+bool_or      = $arg1 || $arg2;
+bool_some1   = some_inst $arg1;
+bool_some2   = some_inst $arg4;
+bool_all1    = all_inst $arg3;
+bool_all2    = all_inst $arg1;
+bool_pcnt1   = 50 %_inst $arg1;
+bool_pcnt2   = 70 %_inst $arg1;
+bool_pcnt3   = 0 %_inst $arg4;
+bool_pcnt4   = 100 %_inst $arg3;
+
+delta = 4 sec;
+
+// actions
+act1         = true -> shell "echo >>/tmp/pmie.err act1 fired";
+act2         = false -> shell "echo >>/tmp/pmie.err act2 fired OHH NOOOOO";
+act3         = true -> shell "echo >>/tmp/pmie.err act3..." & shell "echo >>/tmp/pmie.err fired";
+act4         = true -> shell "echo >>/tmp/pmie.err act 4 fired" | shell "echo >>/tmp/pmie.err OHH NOOOO";
+EOF
+
+cat $tmp.config >>$seq.full
+
+$sudo rm -f /tmp/pmie.err
+pmie -T 10 -v $tmp.config >$tmp.out 2>$tmp.err
+( echo; echo "=== err ==="; cat $tmp.err ) >>$seq.full
+cat $tmp.err | _show_pmie_exit
+( echo; echo "=== out ==="; cat $tmp.out ) >>$seq.full
+cat $tmp.out | LC_COLLATE=POSIX sort
+( echo; echo "=== /tmp/pmie.err ==="; cat /tmp/pmie.err ) >>$seq.full
+cat /tmp/pmie.err | LC_COLLATE=POSIX sort

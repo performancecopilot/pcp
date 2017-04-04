@@ -1,0 +1,155 @@
+#!/bin/sh
+# PCP QA Test No. 878
+# Exercise pmdapipe output capture.
+#
+# Copyright (c) 2015-2016 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ -f $PCP_PMDAS_DIR/pipe/pmdapipe ] || _notrun "pipe PMDA not installed"
+id -u nobody >/dev/null 2>&1 || _notrun "User nobody unavailable"
+
+PIPE_CONF_FILE=$PCP_PMDAS_DIR/pipe/pipe.conf
+PIPE_CONF_DIR=$PCP_SYSCONF_DIR/pipe.conf.d
+PIPE_INDOM_CACHE=$PCP_VAR_DIR/config/pmda/128.0
+
+status=1	# failure is the default!
+username=`id -u -n`
+hostname=`hostname`
+$sudo rm -rf $tmp $tmp.* $seq.full
+
+_cleanup()
+{
+    $sudo rm -fr $PIPE_CONF_DIR/config-$seq
+    [ -d $PIPE_CONF_DIR.$seq ] && _restore_config $PIPE_CONF_DIR
+    [ -f $PIPE_CONF_FILE.$seq ] && _restore_config $PIPE_CONF_FILE
+    [ -f $PIPE_INDOM_CACHE.$seq ] && _restore_config $PIPE_INDOM_CACHE
+    # note: _restore_systemd_restart pmcd done in _cleanup_pmda()
+    _cleanup_pmda pipe
+}
+
+_prepare_pmda pipe
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_stop_systemd_restart pmcd
+
+# move aside pipe configuration state to be restored later.
+[ -d $PIPE_CONF_DIR ] && _save_config $PIPE_CONF_DIR
+[ -f $PIPE_CONF_FILE ] && _save_config $PIPE_CONF_FILE
+[ -f $PIPE_INDOM_CACHE ] && _save_config $PIPE_INDOM_CACHE
+
+cat <<EOF > $tmp.config
+# instance   user        command
+empty-line   $username   echo
+echo-all     $username   echo \$0
+echo-two     $username   echo \$1 \$2
+ls-pipe      root        ls $PCP_PMDAS_DIR/pipe | LC_COLLATE=POSIX sort
+EOF
+
+cat << EOF1 > $tmp.confdir
+noop         nobody      exit
+[access]
+disallow user $username : noop
+EOF1
+
+_filter_pmval()
+{
+    sed \
+	-e "s/[0-9][0-9]:[0-9][0-9]:[0-9][0-9].[0-9][0-9][0-9]/HH:MM:SS.MSEC/g"\
+	-e "s/$hostname/HOST/g" \
+    #end
+}
+
+# pmdapipe is installed with custom configuration, check it
+#
+_exercise_pipe()
+{
+    echo "== basic empty line (ok) =="
+    pmval -x '' -i empty-line -t 0.25 -s 8 pipe.firehose | _filter_pmval
+
+    echo "== basic echo mirror (ok) =="
+    pmval -x 'hello' -i echo-all -t 0.25 -s 8 pipe.firehose | _filter_pmval
+
+    echo "== extra parameters (ok) =="
+    pmval -x '1 two 3' -i echo-two -t 0.25 -s 8 pipe.firehose | _filter_pmval
+
+    echo "== bad parameters (expect failure) =="
+    pmval -x '1;2' -i echo-all -t 0.25 -s 3 pipe.firehose | _filter_pmval
+
+    echo "== insufficient parameters (expect failure) =="
+    pmval -x 'one' -i echo-two -t 0.25 -s 3 pipe.firehose | _filter_pmval
+
+    echo "== disallowed access (expect failure) =="
+    pmval -x '' -i noop -s 3 pipe.firehose | _filter_pmval
+}
+
+pmdapipe_remove()
+{
+    echo
+    echo "=== remove pipe agent ==="
+    $sudo ./Remove >$tmp.out 2>&1
+    _filter_pmda_remove <$tmp.out
+}
+
+# install new (deterministic) configuration for pmcd/pmdapipe
+#
+pmdapipe_install()
+{
+    # start from known starting points
+    cd $PCP_PMDAS_DIR/pipe
+    $sudo ./Remove >/dev/null 2>&1
+
+    $sudo rm -rf "$PIPE_CONF_DIR" "$PIPE_CONF_FILE" "$PIPE_INDOM_CACHE"
+    $sudo mkdir -m 755 "$PIPE_CONF_DIR"
+
+    $sudo mv $tmp.confdir $PIPE_CONF_DIR/config-$seq
+    $sudo mv $tmp.config $PIPE_CONF_FILE
+
+    echo
+    echo "=== pipe agent installation ==="
+    $sudo ./Install </dev/null >$tmp.out 2>&1
+    cat $tmp.out >>$here/$seq.full
+    # Check pipe metrics have appeared ... X metrics and Y values
+    _filter_pmda_install <$tmp.out \
+    | sed \
+        -e 's/[0-9][0-9]* warnings, //' \
+    | $PCP_AWK_PROG '
+/Check pipe metrics have appeared/ { if ($7 >= 5 && $7 <= 25) $7 = "X"
+                                     if ($10 >= 3 && $10 <= 25) $10 = "Y"
+                                   }
+                                   { print }'
+}
+
+_filter_pipe()
+{
+    # cull message resulting from non-event check access (pminfo/pmprobe)
+    grep -v 'No value(s) available'
+}
+
+# real QA test starts here
+pmdapipe_install
+
+# pmcd should have been started by the Install process - check
+# a sub-tree that is known-good for all pipe versions
+# and setup states.
+if pminfo -v pipe > $tmp.info 2> $tmp.err
+then
+    cat $tmp.info $tmp.err | _filter_pipe
+    _exercise_pipe
+else
+    echo "... failed! ... here is the Install log ..."
+    cat $tmp.out
+    echo "... pminfo -v pipe ..."
+    cat $tmp.info $tmp.err
+fi
+
+pmdapipe_remove
+status=0
+exit

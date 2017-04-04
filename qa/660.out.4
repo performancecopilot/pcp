@@ -1,0 +1,64 @@
+QA output created by 660
+
+=== pmwebd default startup  ===
+"context":
+
+=== pmwebd security constraints, file service ===
++++ should fail due to -N
+PMWEBD error, XXX
+
++++ should fail due to nonexistent context#
+PMWEBD error, XXX
+
++++ should fail with a different error (insufficient elements; ie pmFetch failed)
+> GET /pmapi/2222/_fetch?names= HTTP/1.1
+> Host: LOCALHOST:44323
+> Accept: */*
+>
+< HTTP/1.1 400 Bad Request
+< Content-Length: 56
+< Access-Control-Allow-Origin: *
+< Content-Type: text/plain
+< Date: DATE
+<
+{ [data not shown]
+* Connection #### to host LOCALHOST left intact
+PMWEBD error, XXX
+
++++ should fail with a different error (insufficient elements; ie pmFetch failed)
+PMWEBD error, XXX
+
++++ should fail due to suspicious pmresapi path name
+> GET /etc/passwd HTTP/1.1
+> Host: LOCALHOST:44323
+> Accept: */*
+>
+< HTTP/1.1 400 Bad Request
+< Content-Length: 40
+< Access-Control-Allow-Origin: *
+< Content-Type: text/plain
+< Date: DATE
+<
+{ [data not shown]
+* Connection #### to host LOCALHOST left intact
+PMWEBD error, XXX
+
++++ should fail due to non-enablement of graphite
+> GET /graphite/render?target=* HTTP/1.1
+> Host: LOCALHOST:44323
+> Accept: */*
+>
+< HTTP/1.1 400 Bad Request
+< Content-Length: 40
+< Access-Control-Allow-Origin: *
+< Content-Type: text/plain
+< Date: DATE
+<
+{ [data not shown]
+* Connection #### to host LOCALHOST left intact
+PMWEBD error, XXX
+
++++ should pass, feed this very script
+file service ok
+no fd leak
+redirected file ok

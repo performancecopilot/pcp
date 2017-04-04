@@ -1,0 +1,43 @@
+#!/bin/sh
+#
+# Stop PCP related services before removing the package
+#
+
+export PATH=/usr/sbin:$PATH
+
+svcs -H svc:/application/pcp/\* \
+| while read state ts svc; do
+	if [ "$state" = "online" ] ; then
+		svcadm -v disable -s $svc
+	fi
+	svccfg delete -f $svc
+done
+
+if [ -f /etc/pcp.conf ]
+then
+    # for all the configuration files we know about, the goal is it
+    # have files with a .pre suffix unless we're certain they have
+    # not been locally altered
+    #
+    . /etc/pcp.conf
+    for conf in \
+	$PCP_PMCDCONF_PATH $PCP_PMCDOPTIONS_PATH $PCP_PMCDRCLOCAL_PATH \
+	$PCP_PMIECONTROL_PATH $PCP_PMLOGGERCONTROL_PATH \
+	$PCP_PMPROXYOPTIONS_PATH $PCP_PMWEBDOPTIONS_PATH
+    do
+	if [ -f $conf.orig -a -f $conf ]
+	then
+	    if cmp -s $conf.orig $conf
+	    then
+		# file not changed since installation
+		rm $conf.orig
+	    else
+		cp $conf $conf.pre
+		rm $conf.orig
+	    fi
+	elif [ -f $conf ]
+	then
+	    cp $conf $conf.pre
+	fi
+    done
+fi

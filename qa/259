@@ -1,0 +1,77 @@
+#!/bin/sh
+# PCP QA Test No. 259
+#
+# Derived metrics and delta() function
+#
+# Copyright (c) 2009 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=0	# success is the default!
+host=`hostname`
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+export PCP_DERIVED_CONFIG=$tmp.config
+
+# expr node 0x867eb68 type=PLUS left=0x867eb98 right=0x867ed28
+_filter()
+{
+    sed \
+	-e '/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]/s/[^ ]*.*numpmid/TIMESTAMP ... numpmid/' \
+	-e 's/=0x0 /=(nil) /g' \
+	-e 's/node 0x[0-9a-f]*/node <addr>/' \
+	-e 's/left=0x[0-9a-f]*/left=<addr>/' \
+	-e 's/right=0x[0-9a-f]*/right=<addr>/' \
+	-e "s;$tmp;TMP;g" \
+	-e "s/host:      $host/host:      HOST/g" \
+	-e "s/   value \"$host\"/   value \"HOST\"/g" \
+	-e 's/ val=[0-9][0-9]*/ val=<number>/g'
+}
+
+# real QA test starts here
+
+echo "No errors here ..."
+cat <<End-of-File >$tmp.config
+# instantaneous
+derived.inst = delta(sample.longlong.million)
+# counter
+derived.ctr = delta(sampledso.recv_pdu)
+End-of-File
+echo
+cat $tmp.config
+
+for args in derived.inst derived.ctr
+do
+    echo
+    pmval -t 0.25 -s 4 -ZUTC -Dfetch,derive,appl2 $args 2>&1 \
+    | tee -a $seq.full \
+    | _filter
+done
+
+echo
+echo "Errors and empty results here ..."
+cat <<End-of-File >$tmp.config
+myname.a = delta(
+myname.b = delta + 3
+myname.c = delta(sample.long.one + sample.long.hundred)
+myname.d = delta(12345)
+End-of-File
+echo
+cat $tmp.config
+
+for args in myname
+do
+    echo
+    pmval -t 0.25 -s 3 -ZUTC -Dfetch,derive,appl2 $args 2>&1 | _filter
+done
+
+# success, all done
+exit

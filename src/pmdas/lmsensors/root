@@ -1,0 +1,12 @@
+/*
+ * fake "root" for validating the local PMNS subtree
+ *
+ * Original implementation by Troy Dawson (dawson@fnal.gov)
+ */ 
+
+#include <stdpmid>
+
+root { lmsensors }
+
+#include "pmns"
+

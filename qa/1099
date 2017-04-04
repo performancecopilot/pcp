@@ -1,0 +1,113 @@
+#!/bin/sh
+# PCP QA Test No. 1099
+# Check changed semantics for interpolation in the region of <mark>
+# records.
+#
+# Also tests various pcp-iostat features (see also 851)
+#
+# Copyright (c) 2016 Ken McDonell.  All Rights Reserved.
+# Copyright (c) 2016 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+which pmiostat >/dev/null 2>&1 || _notrun "pmiostat binary not installed"
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+echo == with -S @17:30 -t 15m -A 15m expect NODATA at 18:15:00
+pmiostat -z -a archives/pmiostat_mark -S @17:30 -t 15m -A 15m -z -x t | fold -36 | grep NODATA
+# Tue Dec  1 18:15:02 2015 NODATA
+
+echo == with -t 15m expect NODATA at 18:15:02
+pmiostat -z -a archives/pmiostat_mark -t 15m -z -x t | fold -36 | grep NODATA
+# Tue Dec  1 18:15:02 2015 NODATA
+
+echo == with -t1m expecting NODATA at 17:51:02, 17:52:02 and 17:53:02 
+pmiostat -z -a archives/pmiostat_mark -t 1m -z -x t | fold -36 | grep '17:[45].*NODATA'
+# Tue Dec  1 17:51:02 2015 NODATA     
+# Tue Dec  1 17:52:02 2015 NODATA     
+# Tue Dec  1 17:53:02 2015 NODATA     
+
+echo == with -A1m -t 1m expecting NODATA at 17:52:00 and 17:53:00
+pmiostat -z -a archives/pmiostat_mark -A1m -t 1m -z -x t | fold -36 | grep '17:[45].*NODATA'
+# Tue Dec  1 17:52:00 2015 NODATA     
+# Tue Dec  1 17:53:00 2015 NODATA     
+
+echo == with -A1m -s 10s expecting NODATA from 17:50:20 to 17:52:50
+pmiostat -z -a archives/pmiostat_mark -A1m -t 10s -z -x t | fold -36 | grep '17:[45].*NODATA'
+# Tue Dec  1 17:50:20 2015 NODATA
+# Tue Dec  1 17:50:30 2015 NODATA     
+# Tue Dec  1 17:50:40 2015 NODATA     
+# Tue Dec  1 17:50:50 2015 NODATA     
+# Tue Dec  1 17:51:00 2015 NODATA     
+# Tue Dec  1 17:51:10 2015 NODATA
+# Tue Dec  1 17:51:20 2015 NODATA
+# Tue Dec  1 17:51:30 2015 NODATA
+# Tue Dec  1 17:51:40 2015 NODATA
+# Tue Dec  1 17:51:50 2015 NODATA
+# Tue Dec  1 17:52:00 2015 NODATA
+# Tue Dec  1 17:52:10 2015 NODATA
+# Tue Dec  1 17:52:20 2015 NODATA
+# Tue Dec  1 17:52:30 2015 NODATA
+# Tue Dec  1 17:52:40 2015 NODATA
+# Tue Dec  1 17:52:50 2015 NODATA
+
+echo == with -A1m -t 1s expecting last NODATA in sequence at 17:52:42
+pmiostat -z -a archives/pmiostat_mark -A1m -t 1s -z -x t | fold -36 | grep '17:[45].*NODATA' | tail -1
+# Tue Dec  1 17:52:42 2015 NODATA     
+
+echo == with -A1s -t 1s expecting last NODATA in sequence ending at 17:52:42
+pmiostat -z -a archives/pmiostat_mark -A1s -t 1s -z -x t | fold -36 | grep '17:[45].*NODATA' | tail -1
+# Tue Dec  1 17:52:42 2015 NODATA     
+
+echo
+cat <<End-of-File | pmie -a archives/pmiostat_mark -S @17:30 -t 15m -A 15m -z -v 2>/dev/null
+v_instant = filesys.full;
+v_counter = network.interface.in.packets;
+End-of-File
+
+echo '== testing pmiostat -u option incompatible with -t'
+pmiostat -z -u -xt -t 1m -a archives/pmiostat_mark 2>/dev/null
+echo expecting exit 1, got $?
+
+echo '== testing pmiostat -u option requires -a'
+pmiostat -u -xt 2>/dev/null
+echo expecting exit 1, got $?
+
+echo '== testing pmiostat -u for native (non-interpolating) replay'
+pmiostat -z -u -xt -a archives/pmiostat_mark | tail -5
+
+echo '== testing pmiostat -u with -O offset and -s samples'
+pmiostat -z -u -xt -O'@18:58:41' -s 2 -a archives/pmiostat_mark
+
+echo '== testing pmiostat -x noidle'
+pmiostat -z -xt,noidle -t 30m -a archives/pmiostat_mark
+
+echo '== testing pmiostat -R regex for sd devices'
+pmiostat -z -xt -t 30m -a archives/pmiostat_mark -R 'sd[a-z]'
+
+echo '== testing pmiostat -R regex for dm devices'
+pmiostat -z -xt,dm -t 30m -a archives/pmiostat_mark -R 'home|swap'
+
+for method in sum avg min max; do
+    echo "== testing pmiostat -R regex -G $method for sd devices"
+    pmiostat -z -xt -t 30m -a archives/pmiostat_mark -R 'sd[a-z]' -G $method
+
+    echo "== testing pmiostat -R regex -G $method for dm devices"
+    pmiostat -z -xt,dm -t 30m -a archives/pmiostat_mark -R 'home|swap' -G $method
+done
+
+# success, all done
+status=0
+
+exit

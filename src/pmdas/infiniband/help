@@ -1,0 +1,190 @@
+#
+# Copyright (c) 2007,2008 Silicon Graphics, Inc.  All Rights Reserved.
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+
+@ infiniband.hca.type Node type
+Node type: channel adapter (CA), switch, router etc
+@ infiniband.hca.ca_type HCA type
+HCA type, e.g. MT23108,
+@ infiniband.hca.numports Number of ports on HCA
+Number of ports on HCA
+@ infiniband.hca.fw_ver Version of HCA firmware
+Version of HCA firmware
+@ infiniband.hca.hw_ver Version of HCA hardware
+Version of HCA hardware
+@ infiniband.hca.node_guid Node's Global Unique Identifier
+Node's Global Unique Identifier - 64 bit integer to refer to the node
+@ infiniband.hca.system_guid System's Global Unique Identifier
+System's Global Unique Identifier - 64 bit integer to refer to the system
+@ infiniband.port.guid Port's Global Unique Identifier
+Port's Global Unique Identifier - 64 bit integer to refer to the port
+@ infiniband.port.gid_prefix GID prefix
+GID prefix, assigned by subnet manager
+@ infiniband.port.lid Port's Local Identifier
+Port's Local Identifier, assigned by subnet manager
+@ infiniband.port.state Port's state
+Port's state - can be Active, Down, NoChange, Armed or Initialize
+@ infiniband.port.phystate Port's physical state
+Port's physical state
+@ infiniband.port.rate Port's Data Rate
+Port's Data Rate: 2, 5, 10 or 20 Gbps
+@ infiniband.port.capabilities Port's capabilities
+Port's capabilities.
+@ infiniband.port.linkspeed Base link speed of the port.
+This is a string which represents the base link speed of the port.
+Multiplying link speed by link width gives port's data rate.
+@ infiniband.port.linkwidth Port's link width.
+Number of bi-directional Infiniband links active on the port.
+Also known as X-factor, as in 1X, 4X, 12X.
+@ infiniband.port.in.bytes Bytes received
+Counter of data octets received on all VLs at the port. This 
+includes all octets between (and not including) the start of 
+packet delimiter and the VCRC, and may include packets containing errors.
+It excludes all link packets. 
+
+This counter is implemented by sampling underlying saturating PortRcvData 
+counter. When a value of saturated counter reaches predefined threshold,
+the counter is reset after its value is copied into internal state.
+
+@ infiniband.port.in.packets Packets received
+Counter of data packets received on all VLs at the port. This 
+may include packets containing errors but excludes all link packets. 
+
+@ infiniband.port.in.errors.drop Packets dropped due to errors
+Number of packets received on the port that were discarded because they 
+could not be forwarded by the switch relay due to DLID mapping, VL mapping
+or looping. Implemented by sampling 16 bit PortRcvSwitchRelayErrors 
+counter.
+
+@ infiniband.port.in.errors.filter Packets filtered out
+Number of packets received by the port that were discarded because
+it was a raw packet and FilterRawInbound is enabled or because 
+PartitionEnforcementInbound is enabled and packet failed partition 
+key check or IP version check. Implemented by sampling  8 bit 
+PortRcvConstraintErrors counter.
+
+@ infiniband.port.in.errors.local Packets with errors
+Counter of packets containing local physical errors, malformed data or 
+link packets or packets discarded due to buffer overrun. Implemented by
+sampling 16 bit PortRcvErrors counter.
+
+@ infiniband.port.in.errors.remote Packets with EBP delimiter.
+Number of packets marked with End Bad Packet delimited received by
+the port. Implemented by sampling 16 bit PortRcvRemotePhysicalerrors 
+counter.
+
+@ infiniband.port.out.bytes Bytes transmitted
+Counter of data octets, transmitted on all VLs from the port. This 
+includes all octets between (and not including) the start of 
+packet delimiter and the VCRC, and may include packets containing errors.
+It excludes all link packets. 
+
+This counter is implemented by sampling underlying saturating PortXmtData 
+counter. When a value of saturated counter reaches predefined threshold,
+the counter is reset after its value is copied into internal state.
+
+@ infiniband.port.out.packets Packets transmitted
+Counter of data packets transmitted on all VLs from the port. This 
+may include packets containing errors but excludes all link packets. 
+
+@ infiniband.port.out.errors.drop Packets dropped without transmitting
+Number of outbound packets which were droped because port is down
+or congested. Implemented by sampling 16 bit PortXmtDiscard counter.
+
+@ infiniband.port.out.errors.filter Packets filtered out before transmitting
+Number of packets not transmitted by the port because
+it was a raw packet and FilterRawInbound is enabled or because 
+PartitionEnforcementInbound is enabled and packet failed partition 
+key check or IP version check. Implemented by sampling  8 bit 
+PortXmitConstraintErrors counter.
+
+@ infiniband.port.total.bytes Bytes transmitted and received
+Cumulative value of infiniband.port.in.bytes and 
+infiniband.port.out.bytes, provided for convenience.
+
+@ infiniband.port.total.packets Packets transmitted and received
+Cumulative value of infiniband.port.in.packets and 
+infiniband.port.out.packets, provided for convenience.
+
+@ infiniband.port.total.errors.drop Packet dropped
+Cumulative counter of infiniband.port.in.errors.drop and 
+infiniband.out.errors.drops.
+
+@ infiniband.port.total.errors.filter Packet filtered out
+Cumulative counter of infiniband.port.in.errors.filter and 
+infiniband.out.errors.filter.
+
+@ infiniband.port.total.errors.link Link downed
+Number of times Port Training state machine has failed to 
+complete link recovery process and downed the link. Implemented by 
+sampling 8 bit LinkDownedCounter.
+
+@ infiniband.port.total.errors.recover Successful recoveries
+Number of times Port Training state machine has managed successfully
+complete link recovery process. Implemented by sampling 8 bit 
+LinkErrorRecoveryCounter.
+
+@ infiniband.port.total.errors.integrity Excessive local physical errors
+Number of times the count of local physical errors exceeded the threshold.
+Implemented by sampling 4 bit LocalLinkIntegrityErrors counter.
+
+@ infiniband.port.total.errors.vl15 Dropped packets to VL15
+Number of times packets to VL15 (management virtual line) was dropped
+due to resource limitations. Implemented by sampling 16 bit VL15Dropped
+counter.
+
+@ infiniband.port.total.errors.overrun Excessive Buffer Overruns
+The number of times buffer overrun errors had persisted over multiple 
+flow control update times.  Implemented by sampling 4 bit 
+ExcessiveBufferOverrun counter.
+
+@ infiniband.port.total.errors.symbol Total number of minor link errors
+Total number of minor link errors detected on one or more physical lines.
+Implemented by sampling 16 bit SymbolErrorCounter.
+
+@ infiniband.control.query_timeout Timeout for MAD perquery
+Timeout in milliseconds for MAD rpcs. Default value is 1000 milliseconds.
+Timeout can be set per port.
+
+@ infiniband.control.hiwat Counter threshold values
+Threshold values for each MAD performance counter. Due to saturating
+nature of the counters they're reset when value of a particular counter
+gets above a threshold. Setting threshold to the maximum value disables
+the reset mechanism.
+
+@ infiniband.port.switch.in.bytes Bytes received (using switch counter)
+Counter for the bytes received by a port. This is calculated using the counter
+of the switch the port is attached to.
+
+@ infiniband.port.switch.in.packets Packets received (using switch counter)
+Counter for the packets received by a port. This is calculated using the
+counter of the switch the port is attached to.
+
+@ infiniband.port.switch.out.bytes Bytes transmitted (using switch counter)
+Counter for the bytes transmitted by a port. This is calculated using the
+counter of the switch the port is attached to.
+
+@ infiniband.port.switch.out.packets Packets transmitted (using switch counter)
+Counter for the packets transmitted by a port. This is calculated using the
+counter of the switch the port is attached to.
+
+@ infiniband.port.switch.total.bytes Bytes transmitted and received (using switch counters)
+Cumulative value of infiniband.port.switch.in.bytes and 
+infiniband.port.switch.out.bytes, provided for convenience.
+
+@ infiniband.port.switch.total.packets Packets transmitted and received (using switch counters)
+Cumulative value of infiniband.port.switch.in.packets and 
+infiniband.port.switch.out.packets, provided for convenience.

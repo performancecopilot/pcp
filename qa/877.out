@@ -1,0 +1,21 @@
+QA output created by 877
+== early intervention
+Connect timeout pre-ctx: 120.000
+Request timeout pre-ctx: 42.000
+Connect timeout post-ctx: 120.000
+Request timeout post-ctx: 42.000
+Connect timeout post-set: 120.000
+Request timeout post-set: 42.000
+== modify after context
+Connect timeout post-ctx: 5.000
+Request timeout post-ctx: 10.000
+Connect timeout post-set: 2.000
+Request timeout post-set: 1.000
+== late setting only
+Connect timeout post-set: 0.200
+Request timeout post-set: 0.500
+== initial env vars
+Connect timeout pre-ctx: 150.000
+Request timeout pre-ctx: 60.000
+Connect timeout post-set: 0.200
+Request timeout post-set: 0.500

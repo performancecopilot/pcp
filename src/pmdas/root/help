@@ -1,0 +1,40 @@
+#
+# Copyright (c) 2014-2015 Red Hat.
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+# Privileged (root) PMDA help file in the ASCII format
+#
+# lines beginning with a # are ignored
+# lines beginning @ introduce a new entry of the form
+#  @ metric_name oneline-text
+#  help text goes
+#  here over multiple lines
+#  ...
+#
+# the metric_name is decoded against the default PMNS -- as a special case,
+# a name of the form NNN.MM (for numeric NNN and MM) is interpreted as an
+# instance domain identification, and the text describes the instance domain
+#
+# blank lines before the @ line are ignored
+#
+
+@ 1.0 container Instance Domain
+One instance per running container.  The external instance identifier
+is the unique container identification string for each container.
+
+@ containers.engine technology backing each container (e.g. docker)
+@ containers.name mapping of unique container IDs to human-readable names
+@ containers.pid process identifier for each containers initial process
+@ containers.state.running this container is currently running (one/zero)
+@ containers.state.paused this container is currently paused (one/zero)
+@ containers.state.restarting this container is restarting (one/zero)
+@ containers.cgroup path mapping container names to their cgroups

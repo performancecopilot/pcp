@@ -1,0 +1,56 @@
+#! /bin/sh
+# PCP QA Test No. 460
+# test that descriptors that claim to have indoms, but the indoms are not
+# in the archive, don't stop pmlogextract from operating successfully
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+pmlogextract=pmlogextract
+pmdumplog=pmdumplog
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# deal with an annoying libc error ... using TZ=:Australia/Melbourne
+# causes the -z option to report the wrong time, at least for some
+# times of the year
+#
+TZ=EST-10
+export TZ
+
+# real QA test starts here
+# this should operate without any warnings or errors
+#
+rm -f $tmp.*
+$pmlogextract ./archives/xbug1 $tmp
+
+# check that the output file contains all the right descriptors, indoms, values
+#
+echo
+echo "=== LABEL ==="
+$pmdumplog -z -l $tmp
+
+echo
+echo "=== DESCRIPTORS ==="
+$pmdumplog -z -d $tmp
+
+echo
+echo "=== INDOMS ==="
+$pmdumplog -z -i $tmp
+
+echo
+echo "=== VALUES ==="
+$pmdumplog -z $tmp
+
+# success, all done
+status=0
+exit

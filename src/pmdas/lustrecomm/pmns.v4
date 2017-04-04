@@ -1,0 +1,87 @@
+/*
+ * Metrics for lustrecomm PMDA
+ *
+ * Copyright (c) 2008 Silicon Graphics, Inc.  All Rights Reserved.
+ *
+ * Author: Scott Emery <emery@sgi.com> 
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+ * for more details.
+ * 
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+ */
+
+lustrecomm {
+    timeout		LUSTRECOMM:0:0
+    ldlm_timeout	LUSTRECOMM:0:1
+    dump_on_timeout	LUSTRECOMM:0:2
+    lustre_memused	LUSTRECOMM:0:3
+    lnet_memused	LUSTRECOMM:0:4
+    stats
+}
+
+lustrecomm.stats {
+/* data pulled from /proc/sys/lnet/stats */
+/*0 42 0 22407486 23426580 0 0 135850271989 472430974209 0 0*/
+      msgs_alloc       LUSTRECOMM:1:0
+      msgs_max         LUSTRECOMM:1:1
+      errors           LUSTRECOMM:1:2
+      send_count       LUSTRECOMM:1:3
+      recv_count       LUSTRECOMM:1:4
+      route_count      LUSTRECOMM:1:5
+      drop_count       LUSTRECOMM:1:6
+      send_length      LUSTRECOMM:1:7
+      recv_length      LUSTRECOMM:1:8
+      route_length     LUSTRECOMM:1:9
+      drop_length      LUSTRECOMM:1:10
+}
+
+lustrecomm.nis {
+/* data pulled from /proc/sys/lnet/nis */
+/* nid                      refs peer   max    tx   min */
+/* 0@lo                        2    0     0     0     0 */
+/* 10.149.0.1@o2ib            13    8    64    64    26 */
+
+     nid               LUSTRECOMM:2:1
+     refs              LUSTRECOMM:2:2
+     peer              LUSTRECOMM:2:3
+     max               LUSTRECOMM:2:4
+     tx                LUSTRECOMM:2:5
+     tx_min            LUSTRECOMM:2:6
+     active            LUSTRECOMM:2:7
+/*  subtracting max - tx yields the nubmer of sends currently active*/
+/* a large or increasing number of active sends may be a problem */
+}
+
+lustrecomm.peers {
+/* data pulled from /proc/sys/lnet/peers */
+/* nid                      refs state   max   rtr   min    tx   min queue */
+/* 10.149.2.15@o2ib            1  ~rtr     8     8     8     8     0 0 */
+/* 10.149.2.29@o2ib            1  ~rtr     8     8     8     8   -26 0 */
+     nid               LUSTRECOMM:3:0
+     refs              LUSTRECOMM:3:1
+     state             LUSTRECOMM:3:2
+     max               LUSTRECOMM:3:3
+     rtr               LUSTRECOMM:3:4
+     rtr_min           LUSTRECOMM:3:5
+     tx                LUSTRECOMM:3:6
+     tx_min            LUSTRECOMM:3:7
+     queue             LUSTRECOMM:3:8
+     in_progress       LUSTRECOMM:3:9
+/* if rtr/tx is less than max, there are operations in progress. The number
+   of operations is equal to rtr or tx subtraced from  max.
+*/
+     blocking          LUSTRECOMM:2:10
+/* if rtr/tx is greater than max, there are operations blocking */
+}
+
+

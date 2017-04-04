@@ -1,0 +1,119 @@
+#! /bin/sh
+# PCP QA Test No. 213
+# exercise dbpmda with dynamic metrics
+#
+# Copyright (c) 2009 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=0	# success is the default!
+username=`id -u -n`
+$sudo rm -rf $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+culldir=false
+
+_cleanup()
+{
+    rm -f $tmp.*
+    $sudo rm -f $files
+    $culldir && $sudo rm -fr "$PCP_TMP_DIR/mmv"
+}
+
+# is a pre-existing mmv directory in place?  if so, write access needed
+if [ -d "$PCP_TMP_DIR/mmv" ]
+then
+    [ -w "$PCP_TMP_DIR/mmv" ] || _notrun "Cannot write to $PCP_TMP_DIR/mmv"
+    $sudo rm -rf $PCP_TMP_DIR/mmv/*
+else
+    culldir=true
+    $sudo mkdir -p "$PCP_TMP_DIR/mmv"
+    $sudo chown `whoami` "$PCP_TMP_DIR/mmv"    # local user - tmpdir writing
+    $sudo chgrp $PCP_GROUP "$PCP_TMP_DIR/mmv"  # group pcp - pmdammv reading
+fi
+
+_filter()
+{
+    tee -a $seq.full \
+    | sed \
+	-e "s;$PCP_PMDAS_DIR;\$PCP_PMDAS_DIR;" \
+	-e "s;$PCP_TMP_DIR;\$PCP_TMP_DIR;" \
+	-e 's/[A-Z][a-z][a-z] [A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9]/DATE/' \
+	-e 's/dbpmda([0-9][0-9]*)/dbpmda(PID)/' \
+	-e "s/ -U $username//g" \
+	-e "s/\.$DSO_SUFFIX/.DSO_SUFFIX/g" \
+    | _filter_dumpresult
+}
+
+pipeargs=""
+id pcp >/dev/null 2>&1 && pipeargs="-U $username"
+
+# real QA test starts here
+echo "=== DSO PMDA test ==="
+cat <<End-of-File | dbpmda -ei 2>&1 | _filter
+open dso $PCP_PMDAS_DIR/sample/pmda_sample.$DSO_SUFFIX sample_init 30
+name 30.0.1001
+name 30.0.1007
+name 2.4.1
+pmid sampledso.secret.foo.two
+pmid sampledso.secret.foo.bar.grunt.snort.six
+pmid sampledso.secret.foo.bar.max.redirect
+children sampledso.secret.foo
+traverse sampledso.secret.foo
+children sampledso.secret.foo.bar
+traverse sampledso.secret.foo.bar
+End-of-File
+
+echo
+echo "=== Daemon PMDA test ==="
+cat <<End-of-File | dbpmda -ei 2>&1 | _filter
+open pipe $PCP_PMDAS_DIR/sample/pmdasample $pipeargs 29
+name 29.0.1001
+name 29.0.1007
+name 2.4.1
+pmid sample.secret.foo.two
+pmid sample.secret.foo.bar.grunt.snort.six
+pmid sample.secret.foo.bar.max.redirect
+children sample.secret.foo
+traverse sample.secret.foo
+children sample.secret.foo.bar
+traverse sample.secret.foo.bar
+End-of-File
+
+echo
+echo "=== MMV PMDA test ==="
+src/mmv_genstats
+echo "installed mmv files ..."
+find $PCP_TMP_DIR/mmv -type f | sed -e "s;$PCP_TMP_DIR;PCP_TMP_DIR;"
+cat <<End-of-File >$tmp.pmns
+root {
+    mmv	70:*:*
+}
+End-of-File
+cat <<End-of-File | dbpmda -ei -n $tmp.pmns 2>&1 | _filter
+desc mmv.test.strings
+fetch mmv.test.strings mmv.test.counter
+text mmv.test.strings
+store mmv.control.reload "1"
+open pipe $PCP_PMDAS_DIR/mmv/pmdammv $pipeargs
+desc mmv.test.strings
+fetch mmv.test.strings mmv.test.counter
+text mmv.test.strings
+store mmv.control.reload "1"
+desc mmv.no.such.metric
+close
+open dso $PCP_PMDAS_DIR/mmv/pmda_mmv.$DSO_SUFFIX mmv_init 70
+desc mmv.test.strings
+fetch mmv.test.strings mmv.test.counter
+text mmv.test.strings
+store mmv.control.reload "1"
+End-of-File
+
+# success, all done
+exit

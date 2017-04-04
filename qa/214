@@ -1,0 +1,75 @@
+#! /bin/sh
+# PCP QA Test No. 214
+# Check timzone of the output archive from pmlogextract.
+#
+# Copyright (c) 2009 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+if pmlogextract -\? 2>&1 | grep -q .-f
+then
+    :
+else
+    echo "No -f option for pmlogextract to select output timezone" >$seq.notrun
+    exit
+fi
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.*
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed -e '/PID for pmlogger/d'
+}
+
+# real QA test starts here
+
+infiles=`echo archives/tzchange*.0 | sed -e 's/\.0//g'`
+for file in $infiles
+do
+    echo "=== $file ==="
+    pmdumplog -L -z $file | _filter
+    echo
+done
+
+for xxx in 1 2 3 4 5
+do
+    case "$xxx"
+    in
+	1)	# all 6 archives, 3 timezones
+		files="$infiles"
+		;;
+	2)	# 3 archives, 3 timezones
+		files="`ls archives/tzchange*.0 | sed -e '/\.meta/d' -e '/\.index/d' | grep '.-a' | tr '\012' ' ' | sed -e 's/  *$//'`"
+		;;
+	3)	# 2 archives, 2 timezones
+		files="`ls archives/tzchange*.0 | sed -e '/\.meta/d' -e '/\.index/d' | grep '.-a' | sed -e 2q | tr '\012' ' ' | sed -e 's/  *$//'`"
+		;;
+	4)	# 1 archive, 1 timezone
+		files="`ls archives/tzchange*.0 | sed -e '/\.meta/d' -e '/\.index/d' | grep '.-a' | sed -e 1q | tr '\012' ' ' | sed -e 's/  *$//'`"
+		;;
+	5)	# 2 archives, 1 timezone
+		files="`ls archives/tzchange*.0 | sed -e '/\.meta/d' -e '/\.index/d' | grep '.-11' | sed -e 2q | tr '\012' ' ' | sed -e 's/  *$//'`"
+		;;
+    esac
+
+    for arg in "" "-f"
+    do
+	echo
+	echo "=== pmlogextract $arg $files ==="
+	rm -f $tmp.*
+	pmlogextract -z $arg $files $tmp
+	pmdumplog -L -z $tmp | _filter
+    done
+done
+
+# success, all done
+exit

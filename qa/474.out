@@ -1,0 +1,70 @@
+QA output created by 474
+Only one context ...
+ 100 func1: pmcd.control.register: 46 & 848 2.2: 37 & 189
+ 100 func1: pmcd.version: 12 & 12
+ 100 func1: sample.longlong.one: 21 & 21
+ 100 func1: sampledso.bin: 26 & 636 30.2: 40 & 93
+ 100 func2: pmcd.control.register: 46 & 848 2.2: 37 & 189
+ 100 func2: pmcd.version: 12 & 12
+ 100 func2: sample.longlong.one: 21 & 21
+ 100 func2: sampledso.bin: 26 & 636 30.2: 40 & 93
+ 100 func3: pmcd.control.register: 46 & 848 2.2: 37 & 189
+ 100 func3: pmcd.version: 12 & 12
+ 100 func3: sample.longlong.one: 21 & 21
+ 100 func3: sampledso.bin: 26 & 636 30.2: 40 & 93
+
+Two contexts, same host, different fd's ...
+ 100 func1: pmcd.control.register: 46 & 848 2.2: 37 & 189
+ 100 func1: pmcd.version: 12 & 12
+ 100 func1: sample.longlong.one: 21 & 21
+ 100 func1: sampledso.bin: 26 & 636 30.2: 40 & 93
+ 100 func2: pmcd.control.register: 46 & 848 2.2: 37 & 189
+ 100 func2: pmcd.version: 12 & 12
+ 100 func2: sample.longlong.one: 21 & 21
+ 100 func2: sampledso.bin: 26 & 636 30.2: 40 & 93
+ 100 func3: pmcd.control.register: 46 & 848 2.2: 37 & 189
+ 100 func3: pmcd.version: 12 & 12
+ 100 func3: sample.longlong.one: 21 & 21
+ 100 func3: sampledso.bin: 26 & 636 30.2: 40 & 93
+
+Two contexts, same host, same fd's ...
+ 100 func1: pmcd.control.register: 46 & 848 2.2: 37 & 189
+ 100 func1: pmcd.version: 12 & 12
+ 100 func1: sample.longlong.one: 21 & 21
+ 100 func1: sampledso.bin: 26 & 636 30.2: 40 & 93
+ 100 func2: pmcd.control.register: 46 & 848 2.2: 37 & 189
+ 100 func2: pmcd.version: 12 & 12
+ 100 func2: sample.longlong.one: 21 & 21
+ 100 func2: sampledso.bin: 26 & 636 30.2: 40 & 93
+ 100 func3: pmcd.control.register: 46 & 848 2.2: 37 & 189
+ 100 func3: pmcd.version: 12 & 12
+ 100 func3: sample.longlong.one: 21 & 21
+ 100 func3: sampledso.bin: 26 & 636 30.2: 40 & 93
+
+Three contexts, same host, different fd's ...
+ 100 func1: pmcd.control.register: 46 & 848 2.2: 37 & 189
+ 100 func1: pmcd.version: 12 & 12
+ 100 func1: sample.longlong.one: 21 & 21
+ 100 func1: sampledso.bin: 26 & 636 30.2: 40 & 93
+ 100 func2: pmcd.control.register: 46 & 848 2.2: 37 & 189
+ 100 func2: pmcd.version: 12 & 12
+ 100 func2: sample.longlong.one: 21 & 21
+ 100 func2: sampledso.bin: 26 & 636 30.2: 40 & 93
+ 100 func3: pmcd.control.register: 46 & 848 2.2: 37 & 189
+ 100 func3: pmcd.version: 12 & 12
+ 100 func3: sample.longlong.one: 21 & 21
+ 100 func3: sampledso.bin: 26 & 636 30.2: 40 & 93
+
+Three contexts, same host, same fd's ...
+ 100 func1: pmcd.control.register: 46 & 848 2.2: 37 & 189
+ 100 func1: pmcd.version: 12 & 12
+ 100 func1: sample.longlong.one: 21 & 21
+ 100 func1: sampledso.bin: 26 & 636 30.2: 40 & 93
+ 100 func2: pmcd.control.register: 46 & 848 2.2: 37 & 189
+ 100 func2: pmcd.version: 12 & 12
+ 100 func2: sample.longlong.one: 21 & 21
+ 100 func2: sampledso.bin: 26 & 636 30.2: 40 & 93
+ 100 func3: pmcd.control.register: 46 & 848 2.2: 37 & 189
+ 100 func3: pmcd.version: 12 & 12
+ 100 func3: sample.longlong.one: 21 & 21
+ 100 func3: sampledso.bin: 26 & 636 30.2: 40 & 93

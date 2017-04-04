@@ -1,0 +1,104 @@
+#! /bin/sh
+# PCP QA Test No. 456
+#
+# Bug #591459: incomplete control file for cron pm* scripts
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+signal=$PCP_BINADM_DIR/pmsignal
+status=1	# failure is the default!
+LOCALHOST=`hostname | sed -e 's/\..*//'`
+FULLLOCALHOST=`hostname`
+
+hostsfile="/etc/hosts"
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e 's/\.\.\.*/[dots]/' \
+	-e "s/$FULLLOCALHOST/LOCALHOST/g" \
+	-e "s/$LOCALHOST/LOCALHOST/g" \
+	-e "s/localhost/LOCALHOST/g" \
+	-e "s/local:/LOCALHOST/g" \
+	-e 's/control:[0-9][0-9]*]/control:LINE]/' \
+	-e 's;/usr/var;/var;g' \
+	-e "s;$tmp;TMP;g" \
+	-e '/Duplicate/d' \
+	-e '/Roll [^ ]*\/NOTICES /d' \
+	-e '/Start new [^ ]*\/NOTICES$/d' \
+    | _filter_cron_scripts
+}
+
+_stop_loggers()
+{
+    $sudo $signal -a -s TERM pmlogger
+}
+
+_cleanup()
+{
+    echo
+    echo "Cleaning up"
+
+    _stop_loggers >/dev/null 2>&1
+
+    cd # get out of tmp directory so we can delete it
+    $sudo rm -rf $tmp
+
+    $sudo $PCP_BINADM_DIR/pmlogger_check
+}
+
+_setup()
+{
+    _stop_loggers
+    cd
+    rm -rf $tmp
+    mkdir $tmp
+}
+
+# real QA test starts here
+
+_setup
+
+# control file
+#
+cat >$tmp/control <<EOF
+\$version=1.1
+# various error cases for the primary logger
+#
+LOCALHOSTNAME	y   n	$tmp/1
+LOCALHOSTNAME	y   n
+LOCALHOSTNAME	y
+LOCALHOSTNAME
+# various error cases for the non-primary logger
+#
+foo	n   n	$tmp/2
+foo	n   n
+foo	n
+EOF
+
+echo "--------------"
+echo "PMLOGGER.CHECK"
+echo "--------------"
+$sudo $PCP_BINADM_DIR/pmlogger_check -V -c $tmp/control -l $tmp/log
+$sudo cat $tmp/log | _filter
+
+echo
+echo "--------------"
+echo "PMLOGGER.DAILY"
+echo "--------------"
+$sudo $PCP_BINADM_DIR/pmlogger_daily -V -c $tmp/control -l $tmp/log
+$sudo cat $tmp/log | _filter
+
+# success, all done
+status=0
+exit

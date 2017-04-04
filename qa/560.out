@@ -1,0 +1,40 @@
+QA output created by 560
+You will need to choose an appropriate configuration for installation of
+the "simple" Performance Metrics Domain Agent (PMDA).
+
+  collector	collect performance statistics on this system
+  monitor	allow this system to monitor local and/or remote systems
+  both		collector and monitor configuration for this system
+
+Please enter c(ollector) or m(onitor) or b(oth) [b] foo
+Sorry, that is not acceptable response ...
+Please enter c(ollector) or m(onitor) or b(oth) [b] both
+Install simple as a daemon or dso agent? [daemon] foo
+Must choose one of "daemon" or "dso", please try again
+Install simple as a daemon or dso agent? [daemon] daemon
+PMCD should communicate with the simple daemon via a pipe or a socket? [pipe] foo
+Must choose one of "pipe" or "socket", please try again
+PMCD should communicate with the simple daemon via a pipe or a socket? [pipe] socket
+Use Internet, IPv6 or Unix domain sockets? [Internet] foo
+Must choose one of "Unix" or "Internet", please try again
+Use Internet, IPv6 or Unix domain sockets? [Internet] Unix
+Unix FIFO name? 
+Must provide a name, please try again
+Use Internet, IPv6 or Unix domain sockets? [Internet] Internet
+Internet port number or service name? [2078] 
+Installing files ...
+[...install files, make output...]
+Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+[...install files, make output...]
+Updating the PMCD control file, and notifying PMCD ...
+Check simple metrics have appeared ... 5 metrics and 9 values
+in $PCP_PMCDCONF_PATH ...
+simple	253	socket	inet 2078	$PCP_PMDAS_DIR/simple/pmdasimple -d 253 -i 2078 
+Culling the Performance Metrics Name Space ...
+simple ... done
+Updating the PMCD control file, and notifying PMCD ...
+Removing files ...
+Check simple metrics have gone away ... OK
+
+Check simple metrics have appeared ... 5 metrics and 9 values

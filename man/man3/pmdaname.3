@@ -1,0 +1,89 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+.\" Copyright (c) 2009 Ken McDonell.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMDANAME 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmdaName\f1 \- translate a PMID to a set of dynamic performance metric names
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.br
+#include <pcp/impl.h>
+.br
+#include <pcp/pmda.h>
+.sp
+int pmdaName(pmID \fIpmid\fP, char ***\fInameset\fP, pmdaExt *\fIpmda\fP);
+.sp
+cc ... \-lpcp_pmda \-lpcp
+.ft 1
+.SH DESCRIPTION
+As part of the Performance Metrics Domain Agent (PMDA) API (see
+.BR PMDA (3)),
+.BR pmdaName
+is the generic callback for
+translating a
+.I pmid
+into one or more dynamic metric names (\c
+.IR nameset ).
+.PP
+Because implementing dynamic performance metrics requires specific
+PMDA support, and the facility is an optional component of a PMDA (most
+PMDAs do
+.B not
+support dynamic performance metrics),
+.B pmdaName
+is a skeleton implementation that returns
+.BR PM_ERR_NAME .
+.PP
+A PMDA that supports dynamic performance metrics will provide a private
+callback that replaces
+.B pmdaName
+(by assignment to
+.I version.four.name
+of the
+.I pmdaInterface
+structure)
+and implements the translation from a
+.I pmid
+to a set of dynamic performance metric names returned via
+.IR nameset .
+The behaviour, return values and memory allocation rules for
+.I nameset
+are the same as for
+.BR pmNameAll (3).
+.SH DIAGNOSTICS
+.B 
+pmdaName
+returns
+.B PM_ERR_PMID
+if the name is not recognized or cannot be translated,
+otherwise the number of metric names found (most commonly 1).
+.SH CAVEAT
+The PMDA must be using 
+.B PMDA_PROTOCOL_4 
+or later, as specified in the call to 
+.BR pmdaDSO (3)
+or 
+.BR pmdaDaemon (3).
+.SH SEE ALSO
+.BR PMAPI (3),
+.BR PMDA (3),
+.BR pmdaDaemon (3),
+.BR pmdaDSO (3),
+.BR pmdaMain (3),
+.BR pmNameAll (3)
+and
+.BR pmNameID (3).

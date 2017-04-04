@@ -1,0 +1,158 @@
+#! /bin/sh
+# PCP QA Test No. 535
+# #535080 - dynamic indoms for pmie, uses sample.dynamic.*
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+signal=$PCP_BINADM_DIR/pmsignal
+status=1	# failure is the default!
+control=$PCP_PMDAS_DIR/sample/dynamic.indom
+
+_cleanup()
+{
+    [ -f $control.qa-$seq ] && $sudo mv $control.qa-$seq $control
+    rm -f $tmp.*
+}
+
+$sudo rm -f $control.qa-$seq
+
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+[ -f $control ] && $sudo mv $control $control.qa-$seq
+
+# real QA test starts here
+
+$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+_wait_for_pmcd
+
+# prime the sample PMDA to refresh the dynamic indom
+#
+pminfo -f sample.dynamic >/dev/null 2>&1
+
+echo
+echo "=== pmprobe ==="
+
+pmprobe -I sample.dynamic.counter sample.dynamic.instant sample.dynamic.discrete
+
+cat <<End-of-File | pmie -t 250msec >$tmp.out 2>&1 &
+some_inst ( sample.dynamic.counter > 0 ) -> shell "echo counter:" " %i:?";
+some_inst ( sample.dynamic.instant > 0 ) -> shell "echo instant:" " %i:?";
+some_inst ( sample.dynamic.discrete > 0 ) -> shell "echo discrete:" " %i:?";
+End-of-File
+pid=$!
+
+sleep 2
+
+# initial config
+#
+cat >$tmp.indom <<End-of-File
+10 one
+20 two
+30 three
+200 twenty
+End-of-File
+$sudo rm -f $control
+$sudo cp $tmp.indom $control
+sleep 1
+pmprobe -I sample.dynamic.counter sample.dynamic.instant sample.dynamic.discrete
+sleep 1
+
+# add one in the middle
+#
+cat >$tmp.indom <<End-of-File
+10 one
+20 two
+30 three
+40 four
+200 twenty
+End-of-File
+$sudo rm -f $control
+$sudo cp $tmp.indom $control
+sleep 1
+pmprobe -I sample.dynamic.counter sample.dynamic.instant sample.dynamic.discrete
+sleep 1
+
+# remove all but the first and last
+#
+cat >$tmp.indom <<End-of-File
+10 one
+200 twenty
+End-of-File
+$sudo rm -f $control
+$sudo cp $tmp.indom $control
+sleep 1
+pmprobe -I sample.dynamic.counter sample.dynamic.instant sample.dynamic.discrete
+sleep 1
+
+# re-instate previous state, with new ones at each end
+#
+cat >$tmp.indom <<End-of-File
+00 zero
+10 one
+20 two
+30 three
+40 four
+200 twenty
+210 twenty-one
+End-of-File
+$sudo rm -f $control
+$sudo cp $tmp.indom $control
+sleep 1
+pmprobe -I sample.dynamic.counter sample.dynamic.instant sample.dynamic.discrete
+sleep 1
+
+# replace every second one
+#
+cat >$tmp.indom <<End-of-File
+05 zero+
+10 one
+25 two+
+30 three
+45 four+
+200 twenty
+215 twenty-one+
+End-of-File
+$sudo rm -f $control
+$sudo cp $tmp.indom $control
+sleep 1
+pmprobe -I sample.dynamic.counter sample.dynamic.instant sample.dynamic.discrete
+sleep 1
+
+# replace every thing by one (different) instance
+#
+cat >$tmp.indom <<End-of-File
+1 singular
+End-of-File
+$sudo rm -f $control
+$sudo cp $tmp.indom $control
+sleep 1
+pmprobe -I sample.dynamic.counter sample.dynamic.instant sample.dynamic.discrete
+sleep 1
+
+$signal -s TERM $pid
+wait
+
+$sudo rm -f $control
+sleep 1
+pmprobe -I sample.dynamic.counter sample.dynamic.instant sample.dynamic.discrete
+sleep 1
+
+echo
+echo "=== pmie ==="
+
+LC_COLLATE=POSIX sort -u $tmp.out
+
+cp $tmp.out $seq.full
+
+# success, all done
+status=0
+exit

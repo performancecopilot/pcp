@@ -1,0 +1,7 @@
+QA output created by 808
+found primary pmlogger and found control socket in PCP_RUN_DIR
+=== killing the primary pmlogger with SIGKILL ===
+=== running pmlogger_check to restart primary logger ===
+=== checking with stale legacy hard links
+=== killing the primary pmlogger with SIGKILL ===
+=== running pmlogger_check to restart primary logger ===

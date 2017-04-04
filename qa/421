@@ -1,0 +1,59 @@
+#! /bin/sh
+# PCP QA Test No. 421
+# verifies pmtraceabort functionality
+#
+# Copyright (c) 2015 Red Hat.
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ -f $PCP_PMDAS_DIR/trace/pmdatrace ] || _notrun "trace pmda not installed"
+
+_cleanup()
+{
+    cd $here
+    if [ -n "$savedtracehost" ]
+    then
+	PCP_TRACE_HOST=$savedtracehost; export PCP_TRACE_HOST
+    fi
+    exit $status
+}
+
+status=1	# failure is the default!
+trap "_cleanup" 0 1 2 3 15
+
+if [ -n "$PCP_TRACE_HOST" ]
+then
+    savedtracehost=$PCP_TRACE_HOST; unset PCP_TRACE_HOST
+fi
+
+pminfo trace >/dev/null 2>&1
+remove=$?
+
+_filter_trace_install()
+{
+    # some warnings are *expected* - no trace values yet
+    _filter_pmda_install | sed \
+	-e 's/ *[0-9]+ warnings,//g'
+}
+
+cd $PCP_PMDAS_DIR/trace
+$sudo ./Install -R / </dev/null 2>&1 | _filter_trace_install
+_wait_for_pmcd
+
+# real QA test starts here
+pminfo -f trace.transact.count
+$here/src/tabort
+status=$?
+pminfo -f trace.transact.count
+
+[ $remove -eq 1 ] && $sudo $PCP_PMDAS_DIR/trace/Remove >/dev/null 2>&1
+
+exit

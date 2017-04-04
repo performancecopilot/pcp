@@ -1,0 +1,35 @@
+#!/bin/sh
+#
+# Script to recreate the tzchange- series of archives
+#
+
+. ../common.rc  # for $sudo, $tmp, $here and pcp.env
+
+if make qa_timezone.so
+then
+    :
+else
+    echo "make qa_timezone.so failed ... I give up!"
+    exit 1
+fi
+
+$sudo $PCP_RC_DIR/pcp stop
+
+[ -d $PCP_RUN_DIR ] && $sudo chmod 777 $PCP_RUN_DIR
+
+for hr in 10 11 12
+do
+    export PCPQA_TZ=EST-$hr
+    export LD_PRELOAD=`pwd`/qa_timezone.so
+    pmcd &
+    rm -f tzchange-$hr-*
+    for a in a b
+    do
+	echo "log mandatory on 200msec sample.drift" | pmlogger tzchange-$hr-$a -s 4
+    done
+    $sudo $PCP_RC_DIR/pcp stop
+done
+
+[ -d $PCP_RUN_DIR ] && $sudo chmod 755 $PCP_RUN_DIR
+unset LD_PRELOAD
+$sudo $PCP_RC_DIR/pcp start

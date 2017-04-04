@@ -1,0 +1,59 @@
+#! /bin/sh
+# PCP QA Test No. 191
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_filter()
+{
+    tee $seq.full \
+    | sed \
+	-e 's/ :[^ ]* / :HOST /' \
+	-e 's/ :HOST @0/ :HOST /' \
+	-e '/(pmie)/s/pmie), .*/pmie), VERSION/' \
+	-e 's/pmie?/pmie>/g' \
+	-e '/^pmie> $/d'
+}
+
+trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+signal=$PCP_BINADM_DIR/pmsignal
+
+# real QA test starts here
+cat <<End-of-File >$tmp.rule
+hinv.ncpu > 0
+End-of-File
+
+echo "=== leading white space test ==="
+cat <<End-of-File | pmie -d 2>&1 | _filter
+f $tmp.rule
+l expr_1
+ l expr_1
+	l expr_1
+q
+End-of-File
+
+echo
+echo "=== EOF test ==="
+sleep 1
+( ( pmie -d </dev/null; echo "" ) | _filter ) &
+sleep 2
+echo
+$signal -s TERM $! 2>&1 \
+| sed \
+    -e "s/^$seq: //" \
+    -e "s,^$PCP_BINADM_DIR/pmsignal: ,," \
+    -e 's/no such/No such/' \
+    -e 's/such pid/such process/' \
+    -e 's/kill: ([0-9][0-9]*) - //' \
+    -e 's/kill: [0-9][0-9]*: //' \
+    -e 's/[0-9][0-9]*: kill: //' \
+    -e 's/^line [0-9][0-9]*: //' \
+    -e '/^ *$/d'

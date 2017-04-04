@@ -1,0 +1,91 @@
+#!/bin/sh
+# PCP QA Test No. 476
+# Check the basic fault injection services, especially the parsing
+# of the control file.
+#
+# Copyright (c) 2011 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+src/check_fault_injection >/dev/null 2>&1 || \
+    _notrun "libpcp not built with fault injection enabled"
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s;$tmp;TMP;g" \
+	-e 's/Not enough space/Cannot allocate memory/'
+}
+
+
+# real QA test starts here
+export PM_FAULT_CONTROL=$tmp.control
+
+echo "control file parsing ..."
+cat >$tmp.control <<End-of-File
+# good ones
+ok1
+ok2 >3
+# leading space
+ ok3 % 10
+# leading and trailing tabs
+	ok4	<=	100	
+ok_with_a_long_ident_and_funny_chars,./<>()?[]{}|\:;"'!@#$%^&*+-_=5 == 42
+# multiple spaces
+ok6  %  23  
+# spaces and tabs
+ok7	!= 42
+# empty line
+
+# non-numeric
+bad1	>	12x3456
+# non-numeric
+bad2	!=	123 456
+# bad operator
+bad3 ! = 1 2 3
+# non-numeric
+bad4 > = 1 2 3
+# bad operator
+bad5 ?
+End-of-File
+src/check_fault_injection -Dfault 2>&1 | _filter
+
+echo
+echo "basic exercises ..."
+cat >$tmp.control <<End-of-File
+QA:1
+QA:2 <4
+QA:3 >=5
+End-of-File
+src/exercise_fault -Dfault 2>&1 | _filter
+
+echo
+cat >$tmp.control <<End-of-File
+QA:1 <= 4
+QA:2 == 5
+QA:3 >  5
+End-of-File
+src/exercise_fault -Dfault 2>&1 | _filter
+
+echo
+cat >$tmp.control <<End-of-File
+# 1,2 4,5,6,7,8,9,10
+QA:1 != 3
+# 1,4,7,10
+QA:3  % 3
+End-of-File
+src/exercise_fault -Dfault 2>&1 | _filter
+
+# success, all done
+exit

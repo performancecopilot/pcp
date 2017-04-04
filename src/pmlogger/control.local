@@ -1,0 +1,3 @@
+# local primary logger
+#Host		P?  S?	directory				args
+LOCALHOSTNAME	y   n	PCP_LOG_DIR/pmlogger/LOCALHOSTNAME	-r -T24h10m -c config.default

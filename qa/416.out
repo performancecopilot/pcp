@@ -1,0 +1,66 @@
+QA output created by 416
+dbpmda> open pipe PERL PCP_PMDAS_DIR/news/pmdanews.pl
+Start perl PMDA: PERL PCP_PMDAS_DIR/news/pmdanews.pl
+dbpmda> traverse news
+Metric: news
+   news.articles.count
+   news.articles.last
+   news.articles.total
+   news.readers.nnrpd
+   news.readers.rn
+   news.readers.trn
+   news.readers.vn
+   news.readers.xrn
+dbpmda> children news.articles
+Metric: news.articles
+       leaf count
+       leaf last
+       leaf total
+dbpmda> children news.articles.count
+Metric: news.articles.count
+dbpmda> pmid news.articles.total
+Metric: news.articles.total
+   28.0.201
+dbpmda> fetch news.articles.total
+PMID(s): 28.0.201
+pmResult dump from ADDR timestamp: 0.000000 TIMESTAMP numpmid: 1
+  28.0.201 (news.articles.total): numval: 1 valfmt: 0 vlist[]:
+   value 800 1.1210388e-42 0x320
+dbpmda> desc news.articles.count
+PMID: 28.0.301
+    Data Type: 32-bit unsigned int  InDom: 28.0 0x7000000
+    Semantics: instant  Units: count
+dbpmda> instance 28.0
+pmInDom: 28.0
+[  0] inst: 1 name: "comp.sys.sgi"
+[  1] inst: 2 name: "comp.sys.sgi.graphics"
+[  2] inst: 3 name: "comp.sys.sgi.hardware"
+[  3] inst: 4 name: "sgi.bad-attitude"
+[  4] inst: 5 name: "sgi.engr.all"
+dbpmda> fetch news.articles.count
+PMID(s): 28.0.301
+pmResult dump from ADDR timestamp: 0.000000 TIMESTAMP numpmid: 1
+  28.0.301 (news.articles.count): numval: 5 valfmt: 0 vlist[]:
+    inst [1 or ???] value 0 0 0x0
+    inst [2 or ???] value 0 0 0x0
+    inst [3 or ???] value 0 0 0x0
+    inst [4 or ???] value 700 9.8090893e-43 0x2bc
+    inst [5 or ???] value 100 1.4012985e-43 0x64
+dbpmda> profile 28.0 none
+dbpmda> profile 28.0 add 2
+dbpmda> profile 28.0 add 4
+dbpmda> getdesc on
+dbpmda> fetch news.articles.count
+PMID(s): 28.0.301
+pmResult dump from ADDR timestamp: 0.000000 TIMESTAMP numpmid: 1
+  28.0.301 (news.articles.count): numval: 2 valfmt: 0 vlist[]:
+    inst [2 or ???] value 0
+    inst [4 or ???] value 700
+dbpmda> close
+dbpmda> quit
+
+=== news.log ===
+Log for pmdanews on ...
+
+
+Log finished ...

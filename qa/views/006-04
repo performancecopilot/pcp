@@ -1,0 +1,16 @@
+#kmchart
+version 1
+chart title "QA Units OK - inst first" style plot
+    plot metric sample.byte_rate
+    plot metric sample.byte_ctr
+chart title "QA Units OK - ctr first" style plot
+    plot metric sample.byte_ctr
+    plot metric sample.byte_rate
+chart title "QA Units OK - Kbyte/sec and byte/msec" style plot
+    plot metric sample.mirage instance "m-00"
+    plot metric sample.mirage_longlong instance "m-00"
+chart title "QA Units OK - count/sec and count(->count/sec)" style plot
+    plot metric sample.write_me
+    plot metric sample.pdu
+
+

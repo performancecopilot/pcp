@@ -1,0 +1,126 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMTRACE 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmtrace\f1 \- command line performance instrumentation
+.\" literals use .B or \f3
+.\" arguments use .I or \f2
+.SH SYNOPSIS
+\f3pmtrace\f1
+[\f3-q\f1]
+[\f3\-c\f1 \f2value\f1 | \f3\-e\f1 \f2command\f1 | \f3\-v\f1 \f2value\f1]
+[\f3\-h\f1 \f2host\f1]
+[\f3\-S\f1 \f2state\f1]
+\f2tag\f1
+.SH DESCRIPTION
+.B pmtrace
+provides a simple command line interface to the trace Performance Metrics Domain
+Agent (PMDA) and the associated \f2pcp_trace\f1 library.
+.PP
+The default 
+.B pmtrace
+behavior is to provide point trace data to the trace PMDA, using the
+.I tag
+argument as the identifying name associated with each trace point.
+The
+.I tag
+then becomes an instance identifier within the set of trace.point metrics.
+.PP
+The
+.B \-e
+option allows an arbitrary \f2command\f1 to be executed.
+This \f2command\f1 will be measured as a transaction since it has well defined
+start and end points.  The information is made available through the
+trace.transact metrics.
+.PP
+Trace data can be sent to the trace PMDA running on
+.IR host ,
+rather than the localhost, using
+the
+.B \-h
+option.
+This overrides use of the environment variable
+.BR PCP_TRACE_HOST .
+.PP
+The
+.B \-q
+option suppresses messages from a successful trace, so that
+.B pmtrace
+runs quietly.
+.PP
+The 
+.B \-c
+option allows an arbitrary counter \f2value\f1 to be exported through
+the trace.count metrics, while the
+.B \-v
+option allows an arbitrary floating point \f2value\f1 to be exported through
+the trace.observe metrics
+.PP
+The
+.B \-S
+option enables internal debugging and tracing.  The value of
+.I state
+is a bit-wise combination of debug flags as defined in
+.BR pmtracestate (3),
+and may be specified using the decimal or hexadecimal syntax prescribed
+by
+.BR strtol (3).
+.PP
+.SH ENVIRONMENT
+Since
+.B pmtrace
+uses the \f2libpcp_trace\f1 library routines, the environment variables
+\f3PCP_TRACE_HOST\f1, \f3PCP_TRACE_PORT\f1, and \f3PCP_TRACE_TIMEOUT\f1
+are all honored.
+Refer to
+.BR pmdatrace (3)
+for a detailed description of the semantics of each.
+.SH FILES
+.PD 0
+.TP 10
+.BI $PCP_DEMOS_DIR/trace/pmtrace.c
+source code for
+.B pmtrace
+.PD
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.I /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (5).
+.SH SEE ALSO
+.BR pmcd (1),
+.BR pmdatrace (1),
+.BR pmprobe (1),
+.BR PMAPI (3),
+and
+.BR pmdatrace (3).
+.SH DIAGNOSTICS
+All are generated on standard error and are intended to be self-explanatory.
+.PP
+The
+.B pmtrace
+exit status is always zero except when the
+.B \-e
+option is in use, in which case the exit status of \f2command\f1 is returned.

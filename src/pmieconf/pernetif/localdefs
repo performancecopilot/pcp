@@ -1,0 +1,22 @@
+ALL_RULES = collisions errors packets util
+
+LOCAL_RULES = $(ALL_RULES)
+
+# Metrics missing from Solaris
+#
+# rule: collisions
+#   network.interface.collisions -12357 Unknown metric name
+#
+# rule: errors
+#   network.interface.total.errors -12357 Unknown metric name
+#
+# rule: packets
+#   network.interface.total.packets -12357 Unknown metric name
+#
+# rule: util
+#   network.interface.baudrate -12357 Unknown metric name
+#   network.interface.total.bytes -12357 Unknown metric name
+#
+ifeq ($(TARGET_OS), solaris)
+LOCAL_RULES =
+endif

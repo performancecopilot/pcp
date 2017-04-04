@@ -1,0 +1,97 @@
+#! /bin/sh
+# PCP QA Test No. 300
+# Change in handling of .NeedInstall and .NeedRemove protocols
+#
+# Copyright (c) 2005 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "$sudo rm -rf $tmp.* $PCP_VAR_DIR/pmdas/bozo; exit \$status" 0 1 2 3 15
+
+$sudo rm -rf $PCP_VAR_DIR/pmdas/bozo
+$sudo mkdir $PCP_VAR_DIR/pmdas/bozo
+cat <<End-of-File >$tmp.sh
+#!/bin/sh
+# from PCP QA $seq
+
+[ -f $PCP_VAR_DIR/pmdas/bozo/fail ] && exit 1
+exit 0
+End-of-File
+
+$sudo cp $tmp.sh $PCP_VAR_DIR/pmdas/bozo/Install
+$sudo cp $tmp.sh $PCP_VAR_DIR/pmdas/bozo/Remove
+$sudo chmod 755 $PCP_VAR_DIR/pmdas/bozo/Install
+$sudo chmod 755 $PCP_VAR_DIR/pmdas/bozo/Remove
+$sudo touch $PCP_VAR_DIR/pmdas/bozo/.NeedInstall
+$sudo touch $PCP_VAR_DIR/pmdas/bozo/fail
+$sudo rm -f $PCP_LOG_DIR/NOTICES
+$sudo $PCP_RC_DIR/pcp stop >/dev/null 2>&1
+
+# real QA test starts here
+echo "Install should fail"
+$sudo $PCP_RC_DIR/pcp restart 2>&1 | _filter_pcp_start
+pmsleep 0.5	# give script time to execute
+if [ -f $PCP_VAR_DIR/pmdas/bozo/.NeedInstall ]
+then
+    echo ".NeedInstall present"
+else
+    echo ".NeedInstall missing"
+fi
+
+echo
+echo "Install should succeed"
+$sudo rm -f $PCP_VAR_DIR/pmdas/bozo/fail
+$sudo $PCP_RC_DIR/pcp restart 2>&1 | _filter_pcp_start
+pmsleep 0.5	# give script time to execute
+if [ -f $PCP_VAR_DIR/pmdas/bozo/.NeedInstall ]
+then
+    echo ".NeedInstall present"
+else
+    echo ".NeedInstall missing"
+fi
+
+echo
+echo "Remove should fail"
+$sudo touch $PCP_VAR_DIR/pmdas/bozo/fail
+$sudo touch $PCP_VAR_DIR/pmdas/bozo/.NeedRemove
+$sudo $PCP_RC_DIR/pcp restart 2>&1 | _filter_pcp_start
+pmsleep 0.5	# give script time to execute
+if [ -f $PCP_VAR_DIR/pmdas/bozo/.NeedRemove ]
+then
+    echo ".NeedRemove present"
+else
+    echo ".NeedRemove missing"
+fi
+
+echo
+echo "Remove should succeed"
+$sudo rm -f $PCP_VAR_DIR/pmdas/bozo/fail
+$sudo touch $PCP_VAR_DIR/pmdas/bozo/.NeedRemove
+$sudo $PCP_RC_DIR/pcp restart 2>&1 | _filter_pcp_start
+pmsleep 0.5	# give script time to execute
+if [ -f $PCP_VAR_DIR/pmdas/bozo/.NeedRemove ]
+then
+    echo ".NeedRemove present"
+else
+    echo ".NeedRemove missing"
+fi
+
+echo
+echo "Check pmpost messages ..."
+cat $PCP_LOG_DIR/NOTICES > $seq.full
+egrep 'bozo|pmlogger_check' $PCP_LOG_DIR/NOTICES \
+| sed \
+    -e 's/^[0-9][0-9]*:[0-9][0-9]*/TIME/' \
+    -e 's/\(check for host \).*/\1HOSTNAME/'
+
+# success, all done
+exit

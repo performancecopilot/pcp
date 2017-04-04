@@ -1,0 +1,101 @@
+#
+# Copyright (c) 2008 Silicon Graphics, Inc.  All Rights Reserved.
+#
+# Author: Scott Emery <emery@sgi.com>
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+# lustrecomm PMDA help file in the ASCII format
+#
+# lines beginning with a # are ignored
+# lines beginning @ introduce a new entry of the form
+#  @ metric_name oneline-text
+#  help text goes
+#  here over multiple lines
+#  ...
+#
+# the metric_name is decoded against the default PMNS -- as a special case,
+# a name of the form NNN.MM (for numeric NNN and MM) is interpreted as an
+# instance domain identification, and the text describes the instance domain
+#
+# blank lines before the @ line are ignored
+#
+
+@ lustrecomm.timeout  contents of /proc/sys/lustre/timeout
+The time period that a client waits for a server to complete an RPC
+(default in 1.6 is 100s).   Servers wait half this time for a normal
+client RPC to compelte and a quarter of this time for a single
+bulk request to complete.  The client pings recoverable targets
+(MDS and OSTs) at one quarter of the timeout, and the server
+waits on and a half times the timeout before evicting a client
+for being "stale".  (source: Lustre 1.6 Operations Manual)
+
+@ lustrecomm.ldlm_timeout contents of /proc/sys/lustre/ldlm_timeout
+This is the time period for which a server will wait for a client
+to reply to an initial AST (lock cancellation request). The default
+is 20s for an OST and 6s for an MDS.  (source: Lustre 1.6 Operations
+Manual)
+
+@ lustrecomm.dump_on_timeout  contents of /proc/sys/lustre/ldlm_timeout
+A 1 triggers dumps of the Lustre debug log when timeouts occur.
+Default value 0.  (source: Lustre 1.6 Operations Manual)
+
+@ lustrecomm.lustre_memused contents of /proc/sys/lustre/memused
+lustre/obdclass/linux/linux-sysctl.c: &proc_memory_alloc
+lustre/include/obd_support.h: obd_memory_sum()
+Total bytes allocated by Lustre (inferred from lustre/include/obd_support.h)
+
+@ lustrecomm.lnet_memused contents of /proc/sys/lnet/memused
+lnet/libcfs/linux/linux-proc.c: (int *)&libcfs_kmemory.counter
+Total bytes allocated by LNET. (inferred from lustre/include/obd_support.h)
+
+@ lustrecomm.stats.msgs_alloc first number from /proc/sys/lnet/stats
+routerstat source file: messages currently allocated (first number after M)
+
+@ lustrecomm.stats.msgs_max second number from /proc/sys/lnet/stats
+routerstat source file: messages maximum (highwater mark) (second
+number after M)
+
+@ lustrecomm.stats.errors third number from /proc/sys/lnet/stats
+routerstat source file: errors (number after E)
+
+@ lustrecomm.stats.send_count fourth number from /proc/sys/lnet/stats
+routerstat source file: send_count (raw data from which second number
+after S is derived).
+
+@ lustrecomm.stats.recv_count fifth number from /proc/sys/lnet/stats
+routerstat source file: recv_count (raw data from which second number
+after R is derived)
+
+@ lustrecomm.stats.route_count sixth number from /proc/sys/lnet/stats
+routerstat source file: route_count (raw data from which second number
+after R is derived)
+
+@ lustrecomm.stats.drop_count seventh number from /proc/sys/lnet/stats
+routerstat source file: drop_count (raw data from which second number
+after D is derived)
+
+@ lustrecomm.stats.send_length eigth number from /proc/sys/lnet/stats
+routerstat source file: send_length (raw data from which first number
+after S is derived)
+
+@ lustrecomm.stats.recv_length ninth number from /proc/sys/lnet/stats
+routerstat source file: recv_length (raw data from which first number
+after S is derived)
+
+@ lustrecomm.stats.route_length tenth number from /proc/sys/lnet/stats
+routerstat source file: route_length (raw data from which first number
+after R is derived)
+
+@ lustrecomm.stats.drop_length eleventh number from /proc/sys/lnet/stats
+routerstat source file: drop_length (raw data from which first number
+after D is derived)
+

@@ -1,0 +1,248 @@
+#!/bin/sh
+#
+# Make a new PCP QA test
+#
+# Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+# Usage: new [base-seq-no group ...]
+#
+# base-seq-no defaults to some random place in the range $min-$max
+#
+
+# generic initialization
+. ./common.rc
+
+min=700
+max=1099
+
+tmp=/tmp/$$
+trap "rm -f $tmp.*; exit" 0 1 2 3 15
+
+_cleanup()
+{
+    :
+}
+
+if [ "$USER" = "pcpqa" ]
+then
+    if [ ! -z "$REMOTEUSER" -a "$REMOTEUSER" != UNKNOWN ]
+    then
+	USER=$REMOTEUSER
+    else
+	echo "Error: user \"pcpqa\" cannot create tests ... who are you?"
+	$PCP_ECHO_PROG $PCP_ECHO_N "Enter login: ""$PCP_ECHO_C"
+	read USER
+	if [ ! -z "$USER" ]
+	then
+	    grep "^$USER:" /etc/passwd >/dev/null || USER=''
+	fi
+	if [ -z "$USER" ]
+	then
+	    echo "If you're not going to be serious, then I won't play"
+	    exit 1
+	fi
+    fi
+fi
+
+if [ ! -f group ]
+then
+    echo "Creating the group index ..."
+    cat <<'End-of-File' >group
+## QA groups control
+##
+## define groups
+##
+## Do not start group name with a digit, expect alphabetic
+##
+## Last comment starting with a single # before a group name is the
+## one-line summary that "new" will report when asked to list groups
+##
+## Comments starting with a ## (or #<anything_other_than_whitesspace>
+## are ignored for the purposes of one-line summaries.
+
+# catch-all
+other
+
+## test-group association ... one line per test
+## add :retired or :reserved as a tag immediately after the test number
+## to keep the test number allocated, but prevent the test from being run
+
+## ... use sort -n from here on down to tidy up this mess
+##
+End-of-File
+fi
+
+if [ ! -w group ]
+then
+    echo "Error: cannot write index file \"group\""
+    _cleanup
+    exit 1
+fi
+
+if [ -f GNUmakefile.install ]
+then
+    # running QA in the tree
+    ${MAKE:-make} -f GNUmakefile.install >$tmp.out 2>&1
+else
+    ${MAKE:-make} >$tmp.out 2>&1
+fi
+if [ $? -ne 0 ]
+then
+    cat $tmp.out
+    echo "Warning: ${MAKE:-make} failed -- some tests may be missing"
+fi
+
+if [ $# -gt 0 ]
+then
+    try=$1
+    shift
+else
+    # random in the range $min-$max based on user name convered from alpha
+    # to numeric, prefixed by current clock seconds
+    #
+    sec=`date +%S`
+    try=`echo "$USER" \
+	| tr 'a-z' '0-90-90-9' \
+	| awk '{ srand('"$sec"'+$1); print int('$min'+rand()*('$max'-'$min')) }'`
+fi
+# pick first hole after $try, provided the test does not already exist
+#
+wrap=0
+while true
+do
+    id=`sed -n -e 's/:\(retired\|reserved\) / /' -e '/^[0-9]/s/[ 	].*//p' <group \
+	| LC_COLLATE=POSIX sort -n \
+	| $PCP_AWK_PROG '
+BEGIN		{ last = '$try' }
+$1 > '$try'	{ if ($1 != last+1) {
+			exit
+		   }
+		   last = $1
+		}
+END		{ printf "%03d\n",last+1 }'`
+    [ ! -f $id ] && break
+    # already exists, move on ...
+    #
+    try=`expr $id + 1`
+    if [ "$try" -gt "$max" ]
+    then
+	wrap=`expr $wrap + 1`
+	if [ "$wrap" -eq 2 ]
+	then
+	    echo "Sorry, no unassigned tests in the range $min ... $max.  Time to increase \$max"
+	    exit 1
+	fi
+	try=$min
+    fi
+done
+
+echo "Next test is $id"
+
+if [ -f $id ]
+then
+    echo "Error: test $id already exists!"
+    _cleanup
+    exit 1
+fi
+
+$PCP_ECHO_PROG $PCP_ECHO_N "Creating skeletal script for you to edit ...""$PCP_ECHO_C"
+
+cat <<End-of-File >$id
+#!/bin/sh
+# PCP QA Test No. $id
+# [what am I here for?]
+#
+# Copyright (c) `date +%Y` [who are you?].  All Rights Reserved.
+#
+
+seq=\`basename \$0\`
+echo "QA output created by \$seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+# test for-some-thing || _notrun No support for some-thing
+
+status=1	# failure is the default!
+\$sudo rm -rf \$tmp \$tmp.* \$seq.full
+trap "cd \$here; \$sudo rm -rf \$tmp \$tmp.*; exit \\\$status" 0 1 2 3 15
+
+# real QA test starts here
+
+# if error
+exit
+
+# optional stuff if your test has verbose output to help resolve problems
+#echo
+#echo "If failure, check \$seq.full"
+
+# success, all done
+status=0
+
+exit
+End-of-File
+
+sleep 2		# latency to read messages to this point
+echo ""
+
+chmod 755 $id
+${EDITOR-vi} $id
+
+if [ $# -eq 0 ]
+then
+    while true
+    do
+	$PCP_ECHO_PROG $PCP_ECHO_N "Add to group(s) [other] (? for list): ""$PCP_ECHO_C"
+	read ans
+	[ -z "$ans" ] && ans=other
+	if [ "X$ans" = "X?" ]
+	then
+	    $PCP_AWK_PROG <group '
+BEGIN		{ text = "# ???" }
+/^[a-zA-Z]/	{ printf "%-16.16s %s\n",$1,text; text = "# ???"; next }
+NF < 2		{ next }
+$1 == "#"	{ text = $0 }' \
+	    | LC_COLLATE=POSIX sort
+	else
+	    break
+	fi
+    done
+    $PCP_ECHO_PROG $PCP_ECHO_N "Runs on QA machine alone? (local pmcd, local pmlogger, no ssh, ...) [y] ""$PCP_ECHO_C"
+    read _ans
+    if [ -z "$_ans" -o "$_ans" = "y" ]
+    then
+	ans="$ans local"
+    else
+	ans="$ans remote"
+    fi
+else
+    # expert mode, groups are on the command line
+    #
+    for g in $*
+    do
+	if grep "^$g[ 	]" group >/dev/null
+	then
+	    :
+	else
+	    echo "Warning: group \"$g\" not defined in ./group"
+	fi
+    done
+    ans="$*"
+fi
+
+$PCP_ECHO_PROG $PCP_ECHO_N "Adding $id to group index ...""$PCP_ECHO_C"
+echo "$id $ans" >>group
+echo " done."
+
+# sort the tests numerically
+#
+$PCP_AWK_PROG <group '
+BEGIN				{ state = "head" }
+state == "head" && /^[0-9]/	{ state = "list" }
+				{ print >"'$tmp'." state }'
+sort -n $tmp.list >>$tmp.head
+cp $tmp.head group
+
+exit 0

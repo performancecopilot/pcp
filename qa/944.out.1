@@ -1,0 +1,115 @@
+QA output created by 944
+Log for pmcd on HOST started DATE
+
+
+active agent dom   pid  in out ver protocol parameters
+============ === ===== === === === ======== ==========
+sample    DOMAIN   PID  IN OUT VER bin pipe cmd=PCP_PMDAS_DIR/sample/pmdasample -d 29 -U USERNAME
+
+Host access list empty: access control turned off
+User access list:
+00 01 Cur/MaxCons     uid user-name                       group-list
+== == =========== ======= =============================== ==========================================================
+ y  n     0     0 USERID USERNAME GROUPID(GROUPNAME),...
+ n  n     0     0       * *                              
+
+
+pmcd: PID = PID
+pmcd request port(s):
+  sts fd   port  family address
+  === ==== ===== ====== =======
+ok FD unix UNIX_DOMAIN_SOCKET
+ok FD port inet INADDR_ANY
+
+Testing QA user allowed fetch access (explicit)
+sample.control 1 0
+Testing QA user disallowed store access (explicit)
+sample.write_me old value=2 new value=1
+sample.write_me: pmStore: No permission to perform requested operation
+Testing nobody user disallowed fetch access (implicit)
+Error: sample.control: No permission to perform requested operation
+Terminating local pmcd process
+Log for pmcd on HOST started DATE
+
+
+active agent dom   pid  in out ver protocol parameters
+============ === ===== === === === ======== ==========
+sample    DOMAIN   PID  IN OUT VER bin pipe cmd=PCP_PMDAS_DIR/sample/pmdasample -d 29 -U USERNAME
+
+Host access list empty: access control turned off
+User access list:
+00 01 Cur/MaxCons     uid user-name                       group-list
+== == =========== ======= =============================== ==========================================================
+ y  n     0     0 USERID USERNAME GROUPID(GROUPNAME),...
+ n  n     0     0       * *                              
+
+
+pmcd: PID = PID
+pmcd request port(s):
+  sts fd   port  family address
+  === ==== ===== ====== =======
+ok FD unix UNIX_DOMAIN_SOCKET
+ok FD port inet INADDR_ANY
+[DATE] pmcd(PID) Info: pmcd caught SIGTERM from pid=N uid=N
+Cleanup "sample" agent (dom 29): terminated, exit(0)
+[DATE] pmcd(PID) Info: pmcd Shutdown
+
+Log finished DATE
+
+Log for pmcd on HOST started DATE
+
+
+active agent dom   pid  in out ver protocol parameters
+============ === ===== === === === ======== ==========
+sample    DOMAIN   PID  IN OUT VER bin pipe cmd=PCP_PMDAS_DIR/sample/pmdasample -d 29 -U USERNAME
+
+Host access list empty: access control turned off
+Group access list:
+00 01 Cur/MaxCons     gid group-name                      user-list
+== == =========== ======= =============================== ==========================================================
+ y  n     0     0 GROUPID GROUPNAME USERID(USERNAME),...
+ n  n     0     0       * *                              
+
+
+pmcd: PID = PID
+pmcd request port(s):
+  sts fd   port  family address
+  === ==== ===== ====== =======
+ok FD unix UNIX_DOMAIN_SOCKET
+ok FD port inet INADDR_ANY
+
+Testing QA group allowed fetch access (explicit)
+sample.control 1 0
+Testing QA group disallowed store access (explicit)
+sample.write_me old value=2 new value=1
+sample.write_me: pmStore: No permission to perform requested operation
+Testing nobody group disallowed fetch access (implicit)
+Error: sample.control: No permission to perform requested operation
+Terminating local pmcd process
+Log for pmcd on HOST started DATE
+
+
+active agent dom   pid  in out ver protocol parameters
+============ === ===== === === === ======== ==========
+sample    DOMAIN   PID  IN OUT VER bin pipe cmd=PCP_PMDAS_DIR/sample/pmdasample -d 29 -U USERNAME
+
+Host access list empty: access control turned off
+Group access list:
+00 01 Cur/MaxCons     gid group-name                      user-list
+== == =========== ======= =============================== ==========================================================
+ y  n     0     0 GROUPID GROUPNAME USERID(USERNAME),...
+ n  n     0     0       * *                              
+
+
+pmcd: PID = PID
+pmcd request port(s):
+  sts fd   port  family address
+  === ==== ===== ====== =======
+ok FD unix UNIX_DOMAIN_SOCKET
+ok FD port inet INADDR_ANY
+[DATE] pmcd(PID) Info: pmcd caught SIGTERM from pid=N uid=N
+Cleanup "sample" agent (dom 29): terminated, exit(0)
+[DATE] pmcd(PID) Info: pmcd Shutdown
+
+Log finished DATE
+

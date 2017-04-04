@@ -1,0 +1,29 @@
+#! /bin/sh
+# PCP QA Test No. 640
+#
+# Check no possible root exploit via pmpost.  This test originally
+# used the actual exploit, but this has not been feasible for many
+# years; so we now simply check the right permissions are in place
+# and move right along...
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=0	# success is the default!
+trap "$sudo rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+pmpost=$PCP_BINADM_DIR/pmpost
+echo "Using pmpost binary: $pmpost" > $seq.full
+test -u "$pmpost" && echo "FAIL: pmpost has setuid bit set"
+test -g "$pmpost" && echo "FAIL: pmpost has setgid bit set"
+echo "Test complete"
+exit

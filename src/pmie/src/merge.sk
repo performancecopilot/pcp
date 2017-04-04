@@ -1,0 +1,103 @@
+/*
+ * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+ * 
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+ * for more details.
+ * 
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+ */
+
+/***********************************************************************
+ * skeleton: merge.sk
+ ***********************************************************************/
+
+/*
+ *  operator: @FUN
+ */
+
+void
+@FUN_n(Expr *x)
+{
+    Expr	*arg1 = x->arg1;
+    Sample	*is1 = &arg1->smpls[0];
+    Sample	*is2 = &arg1->smpls[1];
+    Sample	*os = &x->smpls[0];
+    @ITYPE	*ip1;
+    @ITYPE	*ip2;
+    @OTYPE	*op;
+    RealTime	delta;
+    int		n;
+    int         i;
+
+    EVALARG(arg1)
+    ROTATE(x)
+
+    if (arg1->valid >= 2 && x->tspan > 0) {
+	ip1 = (@ITYPE *)is1->ptr;
+	ip2 = (@ITYPE *)is2->ptr;
+	op = (@OTYPE *)os->ptr;
+	n = x->tspan;
+	@DELTA
+	for (i = 0; i < n; i++) {
+	    *op = *ip1++ @OP *ip2++;
+	    @SCALE
+	    op++;
+	}
+	os->stamp = is1->stamp;
+	x->valid++;
+    }
+    else x->valid = 0;
+
+#if PCP_DEBUG
+    if (pmDebug & DBG_TRACE_APPL2) {
+	fprintf(stderr, "@FUN_n(" PRINTF_P_PFX "%p) ...\n", x);
+	dumpExpr(x);
+    }
+#endif
+}
+
+void
+@FUN_1(Expr *x)
+{
+    Expr	*arg1 = x->arg1;
+    Sample	*is1 = &arg1->smpls[0];
+    Sample	*is2 = &arg1->smpls[1];
+    Sample	*os = &x->smpls[0];
+    @ITYPE	*ip1;
+    @ITYPE	*ip2;
+    @OTYPE	*op;
+    RealTime	delta;
+
+    EVALARG(arg1)
+    ROTATE(x)
+
+    if (arg1->valid >= 2) {
+	ip1 = (@ITYPE *)is1->ptr;
+	ip2 = (@ITYPE *)is2->ptr;
+	op = (@OTYPE *)os->ptr;
+	@DELTA
+	*op = *ip1 @OP *ip2;
+	@SCALE
+	os->stamp = is1->stamp;
+	x->valid++;
+    }
+    else x->valid = 0;
+
+#if PCP_DEBUG
+    if (pmDebug & DBG_TRACE_APPL2) {
+	fprintf(stderr, "@FUN_1(" PRINTF_P_PFX "%p) ...\n", x);
+	dumpExpr(x);
+    }
+#endif
+}
+
+

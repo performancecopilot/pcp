@@ -1,0 +1,52 @@
+#
+# Copyright (c) 2012 Red Hat, Inc.  All Rights Reserved.
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+# systemd PMDA help file in the ASCII format
+#
+# lines beginning with a # are ignored
+# lines beginning @ introduce a new entry of the form
+#  @ metric_name oneline-text
+#  help text goes
+#  here over multiple lines
+#  ...
+#
+# the metric_name is decoded against the default PMNS -- as a special case,
+# a name of the form NNN.MM (for numeric NNN and MM) is interpreted as an
+# instance domain identification, and the text describes the instance domain
+#
+# blank lines before the @ line are ignored
+#
+
+@ systemd.numclients The number of attached clients
+The number of attached clients.
+@ systemd.maxmem Maximum number of queued event bytes.
+Maximum number of queued event bytes (apprx. 128 bytes per cursor string).
+
+@ systemd.journal.field.cursor The cursor, an implicit journald field.
+This is the journal entry's permanent, globally unique cursor string.
+@ systemd.journal.field.string A journal field that may be a string.
+A journal field copied verbatim, as a PM_TYPE_STRING object, presumed as
+a valid string (in some encoding), if the field did not contain any \0 characters.
+@ systemd.journal.field.blob A journal field copied verbatim.
+A journal field copied verbatim, as a PM_TYPE_AGGREGATE object.
+
+@ systemd.journal.records Journal entries, encoded as strings and blobs.
+Each new journald event field is given a systemd.parameters.cursor string
+to identify it, and a collection of string and blob fields (as appropriate).
+
+@ systemd.journal.records_raw Journal entries, encoded as blob parameters only.
+Each new journald event field is given a systemd.parameters.cursor string
+to identify it, and a blob fields the reproduce the FIELD=value bit-for-bit.
+
+@ systemd.journal.count Count of journal entries observed
+@ systemd.journal.bytes Sum of sizes of all journal entries observed

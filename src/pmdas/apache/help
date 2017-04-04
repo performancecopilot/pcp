@@ -1,0 +1,91 @@
+#
+# Copyright (C) 2000 Michal Kara.  All Rights Reserved.
+# Copyright (c) 2008 Aconex.  All Rights Reserved.
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+# 
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+# 
+# apache PMDA help file in the ASCII format
+#
+
+@apache.total_accesses Number of accesses since Apache started
+Number of accesses (requests) Apache handled since start of the server.
+
+@apache.total_kbytes KBytes transferred since Apache started
+Number of kilobytes Apache transferred since start of the server.
+
+@apache.uptime Seconds since Apache started
+Number of seconds elapsed since the server was started.
+
+@apache.requests_per_sec Requests per second
+Average requests-per-second rate. Apache computes this as
+(total_accesses / uptime), so its better to use total_accesses
+to get current request rate.
+
+@apache.bytes_per_sec Bytes per second
+Average bytes-per-second rate. Apache computes this as
+(total_kbytes / uptime), so its better to use total_kbytes
+to get current throughput.
+
+@apache.bytes_per_requests Bytes per request
+Average number of bytes per request. Apache computes this as
+total_kbytes/total_accesses.
+
+@apache.busy_servers Number of working processes
+Number of Apache processes which are now working - reading requests,
+receiving data, etc.  Together with idle_servers this number gives the
+total number of running Apache processes.
+
+@apache.idle_servers Number of idle processes
+Number of Apache processes which are now idle - waiting for connection.
+Together with busy_servers this number gives the total number of running
+Apache processes.
+
+@apache.sb_waiting Number of waiting processes
+Number of Apache processes waiting for connection.
+
+@apache.sb_starting Number of starting processes
+Number of Apache processes just starting.
+
+@apache.sb_reading Number of processes reading
+Number of Apache processes reading a request.
+
+@apache.sb_writing_reply Number of processes writing
+Number of Apache processes writing a reply.
+
+@apache.sb_keepalive Number of processes keeping-alive connection
+Number of Apache processes waiting for next request on a keep-alive
+connection.
+
+@apache.sb_dns_lookup Number of processes doing DNS lookup
+Number of Apache processes currently doing DNS lookup.
+
+@apache.sb_logging Number of processes writing to log
+Number of Apache processes writing to a log.
+
+@apache.sb_finishing Number of proceses finishing
+Number of Apache processes gracefuly finishing (becase the
+RequestsPerChild limit was reached).
+
+@apache.sb_open_slot Number of open slots
+Number of open "slots" which could be occupied by a process. Together
+with busy_servers and idle_servers, this gives the MaxClients value.
+
+@apache.sb_closing Number of processes closing client connections
+Number of Apache processes closing client connections
+
+@apache.sb_idle_cleanup Number of processes performing idle cleanup
+Number of Apache processes performing idle cleanup
+
+@apache.uptime_s Time since Apache started, as a string

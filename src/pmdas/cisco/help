@@ -1,0 +1,76 @@
+#
+# Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+# 
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+#
+# cisco PMDA help file in the ASCII format
+#
+# lines beginning with a # are ignored
+# lines beginning @ introduce a new entry of the form
+#  @ metric-name oneline-text
+#  help text goes
+#  here over multiple lines
+#  ...
+#
+# the metric-name is decoded against the default PMNS -- as a special case,
+# a name of the form NNN.MM (for numeric NNN and MM) is interpreted as an
+# instance domain identification, and the text describes the instance domain
+#
+# blank lines before the @ line are ignored
+#
+
+@ CISCO.1 Interfaces on Cisco router
+There is one instance in this domain for each interface on a Cisco router
+that the Cisco PMDA (Performance Metrics Domain Agent) has been told about
+when the PMDA is started.
+
+The names of the instances are of the form hostname:tX where "t" is one of
+"a" for ATM, "B" for ISDN BRI, "e" for Ethernet, "E" (FastEthernet), "f" for
+Fddi, "h" for HSSC, "s" for Serial or "Vl" for Vlan.  The "X" is the
+interface identifier which is either an integer (e.g. 4000 Series routers) or
+two integers separated by a slash (e.g. 7000 Series routers) or three
+integers separated by a slash and a period (Frame-Relay PVCs on serial line
+subinterfaces).
+
+@ cisco.bytes_in Total Kbytes input to the Cisco
+Total number of Kbytes input to the Cisco on this interface.
+
+Note that due to network delays in extracting the metrics from the
+Cisco routers, any rate computed from this metric over small deltas in time
+are likely to be subject to wide variance.
+
+@ cisco.bytes_out Total Kbytes output from the Cisco
+Total number of Kbytes output from the Cisco on this interface.
+
+Note that due to network delays in extracting the metrics from the
+Cisco routers, any rate computed from this metric over small deltas in time
+are likely to be subject to wide variance.
+
+@ cisco.bytes_out_bcast Total broadcast Kbytes output from the Cisco
+Total number of broadcast Kbytes output from the Cisco on this interface.
+
+Note that due to network delays in extracting the metrics from the
+Cisco routers, any rate computed from this metric over small deltas in
+time are likely to be subject to wide variance.
+
+@ cisco.rate_in 5 minutes average input rate in bytes (not bits!) per second
+Cisco's computed average input rate in bytes per second, over the recent
+past, for this interface.
+
+@ cisco.rate_out 5 minutes average output rate in bytes (not bits!) per second
+Cisco's computed average output rate in bytes per second, over the recent
+past, for this interface.
+
+@ cisco.bandwidth peak interface bandwidth in bytes per second

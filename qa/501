@@ -1,0 +1,102 @@
+#! /bin/sh
+# PCP QA Test No. 501
+# COPY of PCP QA Test No. 413 with different 2.0/2.0+ output ...
+# #552517 pmie dumps core with bad metric and -V or -W
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+rm -f $seq.out
+case $PCP_PLATFORM
+in
+    linux|darwin|solaris)
+	ln $seq-linux.out $seq.out || exit 1
+	;;
+    *)
+	_notrun "Need qualified output for $PCP_PLATFORM"
+	;;
+esac
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=0	# success is the default!
+host=`hostname`
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+$sudo rm -f core* $seq.core* $seq.full
+
+_filter()
+{
+    _filter_pmie_log \
+    | sed \
+        -e 's/:  *[0-9][0-9]*\.[0-9]*e[-+][0-9][0-9]*/: NUMBER/' \
+        -e 's/:  *[0-9][0-9]*e[-+][0-9][0-9]*/: NUMBER/' \
+        -e 's/:  *[0-9][0-9]*\.[0-9]*/: NUMBER/' \
+        -e 's/:  *[0-9][0-9]*/: NUMBER/' \
+        -e "s/$host/HOST/" \
+	-e "s/local:/HOST/"
+}
+
+# real QA test starts here
+
+for arg in -v -V -W
+do
+    echo
+    echo "=== pmie $arg ... ==="
+    cat <<End-of-File | pmie -f -l $tmp.log $arg -t 2sec -T 3sec >$tmp.out
+// arithmetic expressions
+valid_a = hinv.ncpu;
+alone_a = no.such.metric;
+sum1_a = mem.physmem + no.such.metric;
+sum2_a = no.such.metric + mem.physmem;
+product_a = no.such.metric * hinv.physmem;
+compound1_a = mem.physmem + no.such.metric * hinv.ncpu;
+compound2_a = (no.such.metric + mem.physmem) * hinv.ncpu;
+
+// boolean expressions
+valid_b = 0 < hinv.ncpu;
+alone_b = 0 < no.such.metric;
+sum1_b = 0 < mem.physmem + no.such.metric;
+sum2_b = 0 < no.such.metric + mem.physmem;
+product_b = 0 < no.such.metric * hinv.physmem;
+compound1_b = 0 < mem.physmem + no.such.metric * hinv.ncpu;
+compound2_b = 0 < (no.such.metric + mem.physmem) * hinv.ncpu;
+
+// existential expressions
+valid_s = some_inst 500 < sample.bin;
+alone_s = some_inst 0 < no.such.metric;
+sum1_s = some_inst 0 < sample.bin + no.such.metric;
+sum2_s = some_inst 0 < no.such.metric + sample;
+product_s = some_inst 0 < no.such.metric * sample.bin;
+compound1_s = some_inst 0 < sample.bin + no.such.metric * sample.bin;
+compound2_s = some_inst 0 < (no.such.metric + mem.physmem) * hinv.ncpu;
+
+// no support
+one = sample.long.one;
+no1 = sample.bad.nosupport;
+no2 = sample.long.one + sample.bad.nosupport;
+mill = -1 * (sample.long.one - (sample.long.one + sample.long.ten + sample.long.million)) / sample.long.one;
+no3 = (sample.long.one - (sample.long.one + sample.long.ten + sample.bad.nosupport)) / sample.long.one;
+no4 = (sample.long.one - (sample.long.one + sample.long.ten + sample.long.million)) / sample.bad.nosupport;
+
+// not-numeric
+notnum1 = sample.string.hullo;
+notnum2 = "g'day" != sample.string.hullo;
+notnum3 = sample.string.hullo == "hullo world!" && 0 <= (sample.long.one - (sample.long.one + sample.long.ten) / sample.long.one);
+notnum4 = (sample.long.one - (sample.long.one + sample.long.ten + sample.long.million)) >= 0 && sample.string.hullo == "hullo world!";
+
+
+End-of-File
+
+    cat $tmp.out $tmp.log | tee -a $seq.full | _filter
+
+    echo
+    _check_core
+done
+
+exit

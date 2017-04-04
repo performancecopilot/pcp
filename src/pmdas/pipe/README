@@ -1,0 +1,75 @@
+Pipe PMDA
+=========
+
+This PMDA exports output from commands specified in a configuration
+file.  Parameters can be passed to the command at the time it is
+started, via the pipe.command.params metrics and the output is sent
+to the pipe.firehouse event metric.
+
+The default configuration file is $PCP_PMDAS_DIR/pipe/pipe.conf and
+it should contain one line for each command from which you wish to
+capture output.  Each line contains an instance identifier, a user
+account under which the command should run, and the actual command.
+The parameters are specified using ordinal shell notation ($1, $2,
+... $N), for example:
+
+$ cat $PCP_PMDAS_DIR/pipe/pipe.conf
+# instance      user      command
+rw_syscalls     root      perf script rw-by-file $1
+bdev_trace      root      btrace -w $1 /dev/$2
+
+[access]
+allow user bob : *;
+allow user jane : bdev_trace;
+allow group perf : rw_syscalls;
+
+bob$ pmval -i bdev_trace -x '5 sda' pipe.firehose 
+ 8,2  5  1  0.000000000 25227  A  WS 734332384 + 24 <- (253,2) 734330336
+ 8,0  5  2  0.000000414 25227  A  WS 735358432 + 24 <- (8,2) 734332384
+ 8,0  5  3  0.000000756 25227  Q  WS 735358432 + 24 [qemu-kvm]
+ [...5 seconds worth]
+bob$ 
+
+Metrics
+=======
+
+The file ./help contains descriptions for all of the metrics exported
+by this PMDA.
+
+Once the PMDA has been installed, the following command will list all
+the available metrics and their explanatory "help" text:
+
+	$ pminfo -fT pipe
+
+Installation
+============
+
+ +  # cd $PCP_PMDAS_DIR/pipe
+
+ +  Check that there is no clash in the Performance Metrics Domain
+    defined in ./domain.h and the other PMDAs currently in use (see
+    $PCP_PMCDCONF_PATH).  If there is, edit ./domain.h to choose another
+    domain number.
+
+ +  Then simply use
+
+	# ./Install
+
+    and choose both the "collector" and "monitor" installation
+    configuration options -- everything else is automated.
+
+De-installation
+===============
+
+ +  Simply use
+
+        # cd $PCP_PMDAS_DIR/pipe
+	# ./Remove
+
+Troubleshooting
+===============
+
+ +  After installing or restarting the agent, the PMCD log file
+    ($PCP_LOG_DIR/pmcd/pmcd.log) and the PMDA log file
+    ($PCP_LOG_DIR/pmcd/pipe.log) should be checked for any warnings
+    or errors.

@@ -1,0 +1,109 @@
+#!/usr/bin/env pmpython
+""" Test creation of a PCP archive with metrics via pcp.pmi module """
+#
+# Copyright (C) 2012-2013 Red Hat Inc.
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+
+import sys
+import unittest
+import cpmapi
+from pcp import pmi
+from pcp import pmapi
+
+OUTFILE = ""
+
+def test_pmi(self, path = OUTFILE, inherit = 0):
+    """ Worker utility which creates a pmi object and exercises it """
+
+    hostname = "fu.bar.com"
+    timezone = "UTC"
+
+    print("Writing to new PCP archive:", path)
+    log = pmi.pmiLogImport(path, inherit)
+
+    code = log.pmiSetHostname(hostname)
+    print("pmiSetHostname:", hostname)
+    self.assertTrue(code >= 0)
+
+    code = log.pmiSetTimezone(timezone)
+    print("pmiSetTimezone:", timezone)
+    self.assertTrue(code >= 0)
+
+    pmid = log.pmiID(60, 2, 0)
+    indom = log.pmiInDom(60, 2)
+    units = log.pmiUnits(0, 0, 0, 0, 0, 0)
+
+    # create a metric without instances (hinv.ncpu)
+    code = log.pmiAddMetric("hinv.ncpu", cpmapi.PM_ID_NULL,
+                            cpmapi.PM_TYPE_U32, cpmapi.PM_INDOM_NULL,
+                            cpmapi.PM_SEM_DISCRETE, units)
+    print("pmiAddMetric: hinv.ncpu")
+    self.assertTrue(code >= 0)
+
+    # give it a value
+    code = log.pmiPutValue("hinv.ncpu", "", "42")
+    print("pmiPutValue: hinv.ncpu")
+    self.assertTrue(code >= 0)
+
+    # create a metric with instances (kernel.all.load)
+    code = log.pmiAddMetric("kernel.all.load", pmid,
+                            cpmapi.PM_TYPE_FLOAT, indom,
+                            cpmapi.PM_SEM_DISCRETE, units)
+    print("pmiAddMetric: kernel.all.load")
+    self.assertTrue(code >= 0)
+    code = log.pmiAddInstance(indom, "1 minute", 1)
+    print("pmiAddInstance: kernel.all.load[1 minute]")
+    self.assertTrue(code >= 0)
+    code = log.pmiAddInstance(indom, "5 minute", 5)
+    print("pmiAddMetric: kernel.all.load[5 minute]")
+    self.assertTrue(code >= 0)
+    code = log.pmiAddInstance(indom, "15 minute", 15)
+    print("pmiAddMetric: kernel.all.load[15 minute]")
+    self.assertTrue(code >= 0)
+
+    # give them values
+    code = log.pmiPutValue("kernel.all.load", "1 minute", "42.01")
+    print("pmiPutValue: kernel.all.load[1 minute]")
+    self.assertTrue(code >= 0)
+    code = log.pmiPutValue("kernel.all.load", "5 minute", "42.05")
+    print("pmiPutValue: kernel.all.load[5 minute]")
+    self.assertTrue(code >= 0)
+    code = log.pmiPutValue("kernel.all.load", "15 minute", "42.15")
+    print("pmiPutValue: kernel.all.load[15 minute]")
+    self.assertTrue(code >= 0)
+
+    del log
+
+
+class TestSequenceFunctions(unittest.TestCase):
+    """
+    Test driver class for pcp.pmi module verification
+    """
+
+    def test_context(self):
+        """ Wrapper for test_pmi helper which does the heavy lifting """
+        test_pmi(self, OUTFILE)
+
+if __name__ == '__main__':
+
+    if (len(sys.argv) == 2):
+        OUTFILE = sys.argv[1]
+    else:
+        print("Usage: " + sys.argv[0] + " OutFile")
+        sys.exit(1)
+
+    sys.argv[1:] = ()
+
+    STS = unittest.main()
+    sys.exit(STS)
+

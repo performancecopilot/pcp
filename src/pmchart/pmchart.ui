@@ -1,0 +1,988 @@
+<ui version="4.0" >
+ <class>PmChart</class>
+ <widget class="QMainWindow" name="PmChart" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>370</width>
+    <height>270</height>
+   </rect>
+  </property>
+  <property name="minimumSize" >
+   <size>
+    <width>182</width>
+    <height>196</height>
+   </size>
+  </property>
+  <property name="windowTitle" >
+   <string>PCP Charts</string>
+  </property>
+  <property name="windowIcon" >
+   <iconset resource="pmchart.qrc" >
+    <normaloff>:/images/pmchart.png</normaloff>:/images/pmchart.png</iconset>
+  </property>
+  <property name="iconSize" >
+   <size>
+    <width>22</width>
+    <height>22</height>
+   </size>
+  </property>
+  <widget class="QWidget" name="widget" >
+   <layout class="QVBoxLayout" >
+    <property name="margin" >
+     <number>0</number>
+    </property>
+    <property name="spacing" >
+     <number>0</number>
+    </property>
+    <item>
+     <layout class="QVBoxLayout" >
+      <property name="margin" >
+       <number>0</number>
+      </property>
+      <property name="spacing" >
+       <number>0</number>
+      </property>
+      <item>
+       <widget class="TabWidget" name="chartTabWidget" >
+        <property name="focusPolicy" >
+         <enum>Qt::NoFocus</enum>
+        </property>
+        <property name="whatsThis" >
+         <string>The main chart canvas, displaying all charts in the current Tab.</string>
+        </property>
+        <property name="tabShape" >
+         <enum>QTabWidget::Rounded</enum>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" >
+        <property name="margin" >
+         <number>0</number>
+        </property>
+        <property name="spacing" >
+         <number>2</number>
+        </property>
+       </layout>
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="MenuBar" >
+   <property name="geometry" >
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>370</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="Help" >
+    <property name="title" >
+     <string>&amp;Help</string>
+    </property>
+    <addaction name="helpManualAction" />
+    <addaction name="separator" />
+    <addaction name="helpAboutAction" />
+    <addaction name="helpAboutQtAction" />
+    <addaction name="helpSeeAlsoAction" />
+    <addaction name="separator" />
+    <addaction name="helpWhatsThisAction" />
+   </widget>
+   <widget class="QMenu" name="Time" >
+    <property name="title" >
+     <string>&amp;Options</string>
+    </property>
+    <addaction name="showTimeControlAction" />
+    <addaction name="hideTimeControlAction" />
+    <addaction name="toolbarAction" />
+    <addaction name="consoleAction" />
+    <addaction name="separator" />
+    <addaction name="newPmchartAction" />
+   </widget>
+   <widget class="QMenu" name="Record" >
+    <property name="title" >
+     <string>&amp;Record</string>
+    </property>
+    <addaction name="recordStartAction" />
+    <addaction name="recordQueryAction" />
+    <addaction name="recordStopAction" />
+    <addaction name="separator" />
+    <addaction name="recordDetachAction" />
+   </widget>
+   <widget class="QMenu" name="File" >
+    <property name="title" >
+     <string>&amp;File</string>
+    </property>
+    <addaction name="fileNewChartAction" />
+    <addaction name="closeChartAction" />
+    <addaction name="fileOpenViewAction" />
+    <addaction name="addTabAction" />
+    <addaction name="closeTabAction" />
+    <addaction name="separator" />
+    <addaction name="fileSaveViewAction" />
+    <addaction name="separator" />
+    <addaction name="fileExportAction" />
+    <addaction name="filePrintAction" />
+    <addaction name="separator" />
+    <addaction name="fileQuitAction" />
+   </widget>
+   <widget class="QMenu" name="Edit" >
+    <property name="title" >
+     <string>&amp;Edit</string>
+    </property>
+    <addaction name="editChartAction" />
+    <addaction name="editTabAction" />
+    <addaction name="separator" />
+    <addaction name="editSamplesAction" />
+    <addaction name="zoomInAction" />
+    <addaction name="zoomOutAction" />
+    <addaction name="separator" />
+    <addaction name="editSettingsAction" />
+   </widget>
+   <addaction name="File" />
+   <addaction name="Edit" />
+   <addaction name="Record" />
+   <addaction name="Time" />
+   <addaction name="separator" />
+   <addaction name="Help" />
+  </widget>
+  <widget class="QToolBar" name="toolBar" >
+   <property name="sizePolicy" >
+    <sizepolicy>
+     <hsizetype>3</hsizetype>
+     <vsizetype>0</vsizetype>
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="minimumSize" >
+    <size>
+     <width>48</width>
+     <height>36</height>
+    </size>
+   </property>
+   <property name="whatsThis" >
+    <string>Configurable toolbar, use the Preferences dialog to change its contents</string>
+   </property>
+   <property name="orientation" >
+    <enum>Qt::Horizontal</enum>
+   </property>
+   <attribute name="toolBarArea" >
+    <number>4</number>
+   </attribute>
+   <addaction name="fileNewChartAction" />
+   <addaction name="fileOpenViewAction" />
+   <addaction name="separator" />
+   <addaction name="zoomInAction" />
+   <addaction name="zoomOutAction" />
+   <addaction name="separator" />
+   <addaction name="fileExportAction" />
+   <addaction name="separator" />
+   <addaction name="showTimeControlAction" />
+   <addaction name="newPmchartAction" />
+  </widget>
+  <action name="fileOpenViewAction" >
+   <property name="icon" >
+    <iconset resource="pmchart.qrc" >
+     <normaloff>:/images/view.png</normaloff>:/images/view.png</iconset>
+   </property>
+   <property name="text" >
+    <string>&amp;Open View...</string>
+   </property>
+   <property name="iconText" >
+    <string>Open View</string>
+   </property>
+   <property name="shortcut" >
+    <string>Ctrl+O</string>
+   </property>
+  </action>
+  <action name="fileSaveViewAction" >
+   <property name="icon" >
+    <iconset resource="pmchart.qrc" >
+     <normaloff>:/images/document-save.png</normaloff>:/images/document-save.png</iconset>
+   </property>
+   <property name="text" >
+    <string>&amp;Save View ...</string>
+   </property>
+   <property name="iconText" >
+    <string>Save View</string>
+   </property>
+   <property name="shortcut" >
+    <string>Ctrl+S</string>
+   </property>
+  </action>
+  <action name="fileExportAction" >
+   <property name="icon" >
+    <iconset resource="pmchart.qrc" >
+     <normaloff>:/images/document-export.png</normaloff>:/images/document-export.png</iconset>
+   </property>
+   <property name="text" >
+    <string>&amp;Export...</string>
+   </property>
+   <property name="iconText" >
+    <string>Export</string>
+   </property>
+   <property name="shortcut" >
+    <string>Ctrl+E</string>
+   </property>
+  </action>
+  <action name="filePrintAction" >
+   <property name="icon" >
+    <iconset resource="pmchart.qrc" >
+     <normaloff>:/images/document-print.png</normaloff>:/images/document-print.png</iconset>
+   </property>
+   <property name="text" >
+    <string>&amp;Print...</string>
+   </property>
+   <property name="iconText" >
+    <string>Print</string>
+   </property>
+   <property name="shortcut" >
+    <string>Ctrl+P</string>
+   </property>
+  </action>
+  <action name="fileQuitAction" >
+   <property name="text" >
+    <string>&amp;Quit</string>
+   </property>
+   <property name="iconText" >
+    <string>Quit</string>
+   </property>
+   <property name="shortcut" >
+    <string>Ctrl+Q</string>
+   </property>
+  </action>
+  <action name="newPmchartAction" >
+   <property name="icon" >
+    <iconset resource="pmchart.qrc" >
+     <normaloff>:/images/pmchart.png</normaloff>:/images/pmchart.png</iconset>
+   </property>
+   <property name="text" >
+    <string>New &amp;pmchart</string>
+   </property>
+   <property name="iconText" >
+    <string>New pmchart</string>
+   </property>
+  </action>
+  <action name="showTimeControlAction" >
+   <property name="icon" >
+    <iconset resource="pmchart.qrc" >
+     <normaloff>:/images/pmtime.png</normaloff>:/images/pmtime.png</iconset>
+   </property>
+   <property name="text" >
+    <string>Show Time</string>
+   </property>
+  </action>
+  <action name="hideTimeControlAction" >
+   <property name="icon" >
+    <iconset resource="pmchart.qrc" >
+     <normaloff>:/images/pmtime-close.png</normaloff>:/images/pmtime-close.png</iconset>
+   </property>
+   <property name="text" >
+    <string>Hide Time</string>
+   </property>
+  </action>
+  <action name="toolbarAction" >
+   <property name="checkable" >
+    <bool>true</bool>
+   </property>
+   <property name="text" >
+    <string>Toolbar</string>
+   </property>
+  </action>
+  <action name="consoleAction" >
+   <property name="checkable" >
+    <bool>true</bool>
+   </property>
+   <property name="text" >
+    <string>Console</string>
+   </property>
+  </action>
+  <action name="editChartAction" >
+   <property name="icon" >
+    <iconset resource="pmchart.qrc" >
+     <normaloff>:/images/document-properties.png</normaloff>:/images/document-properties.png</iconset>
+   </property>
+   <property name="text" >
+    <string>&amp;Chart...</string>
+   </property>
+   <property name="iconText" >
+    <string>Edit Chart</string>
+   </property>
+  </action>
+  <action name="editTabAction" >
+   <property name="icon" >
+    <iconset resource="pmchart.qrc" >
+     <normaloff>:/images/tab-edit.png</normaloff>:/images/tab-edit.png</iconset>
+   </property>
+   <property name="text" >
+    <string>Tab...</string>
+   </property>
+   <property name="iconText" >
+    <string>Edit Tab</string>
+   </property>
+  </action>
+  <action name="editSamplesAction" >
+   <property name="text" >
+    <string>Samples...</string>
+   </property>
+   <property name="iconText" >
+    <string>Edit Samples</string>
+   </property>
+  </action>
+  <action name="editSettingsAction" >
+   <property name="icon" >
+    <iconset resource="pmchart.qrc" >
+     <normaloff>:/images/settings.png</normaloff>:/images/settings.png</iconset>
+   </property>
+   <property name="text" >
+    <string>Preferences...</string>
+   </property>
+   <property name="iconText" >
+    <string>Preferences</string>
+   </property>
+  </action>
+  <action name="closeTabAction" >
+   <property name="icon" >
+    <iconset resource="pmchart.qrc" >
+     <normaloff>:/images/tab-close.png</normaloff>:/images/tab-close.png</iconset>
+   </property>
+   <property name="text" >
+    <string>Close Tab</string>
+   </property>
+   <property name="iconText" >
+    <string>Close Tab</string>
+   </property>
+   <property name="shortcut" >
+    <string>Ctrl+W</string>
+   </property>
+  </action>
+  <action name="fileNewChartAction" >
+   <property name="icon" >
+    <iconset resource="pmchart.qrc" >
+     <normaloff>:/images/document-new.png</normaloff>:/images/document-new.png</iconset>
+   </property>
+   <property name="text" >
+    <string>&amp;New Chart...</string>
+   </property>
+   <property name="iconText" >
+    <string>New Chart</string>
+   </property>
+  </action>
+  <action name="addTabAction" >
+   <property name="icon" >
+    <iconset resource="pmchart.qrc" >
+     <normaloff>:/images/tab-new.png</normaloff>:/images/tab-new.png</iconset>
+   </property>
+   <property name="text" >
+    <string>Add Tab...</string>
+   </property>
+   <property name="iconText" >
+    <string>Add Tab</string>
+   </property>
+   <property name="shortcut" >
+    <string>Ctrl+T</string>
+   </property>
+  </action>
+  <action name="closeChartAction" >
+   <property name="icon" >
+    <iconset resource="pmchart.qrc" >
+     <normaloff>:/images/document-close.png</normaloff>:/images/document-close.png</iconset>
+   </property>
+   <property name="text" >
+    <string>Close Chart</string>
+   </property>
+   <property name="iconText" >
+    <string>Close Chart</string>
+   </property>
+   <property name="shortcut" >
+    <string>Ctrl+D</string>
+   </property>
+  </action>
+  <action name="zoomInAction" >
+   <property name="icon" >
+    <iconset resource="pmchart.qrc" >
+     <normaloff>:/images/zoom-in.png</normaloff>:/images/zoom-in.png</iconset>
+   </property>
+   <property name="text" >
+    <string>Zoom &amp;In</string>
+   </property>
+   <property name="iconText" >
+    <string>Zoom In</string>
+   </property>
+  </action>
+  <action name="zoomOutAction" >
+   <property name="icon" >
+    <iconset resource="pmchart.qrc" >
+     <normaloff>:/images/zoom-out.png</normaloff>:/images/zoom-out.png</iconset>
+   </property>
+   <property name="text" >
+    <string>&amp;Zoom Out</string>
+   </property>
+   <property name="iconText" >
+    <string>Zoom Out</string>
+   </property>
+  </action>
+  <action name="helpManualAction" >
+   <property name="icon" >
+    <iconset resource="pmchart.qrc" >
+     <normaloff>:/images/help-browser.png</normaloff>:/images/help-browser.png</iconset>
+   </property>
+   <property name="text" >
+    <string>&amp;Manual</string>
+   </property>
+   <property name="iconText" >
+    <string>Manual</string>
+   </property>
+   <property name="shortcut" >
+    <string>F1</string>
+   </property>
+  </action>
+  <action name="helpAboutAction" >
+   <property name="icon" >
+    <iconset resource="pmchart.qrc" >
+     <normaloff>:/images/pmchart.png</normaloff>:/images/pmchart.png</iconset>
+   </property>
+   <property name="text" >
+    <string>About</string>
+   </property>
+   <property name="iconText" >
+    <string>About</string>
+   </property>
+   <property name="shortcut" >
+    <string/>
+   </property>
+  </action>
+  <action name="helpAboutQtAction" >
+   <property name="text" >
+    <string>About Qt</string>
+   </property>
+   <property name="iconText" >
+    <string>About Qt</string>
+   </property>
+  </action>
+  <action name="helpSeeAlsoAction" >
+   <property name="text" >
+    <string>See Also</string>
+   </property>
+   <property name="iconText" >
+    <string>See Also</string>
+   </property>
+  </action>
+  <action name="helpWhatsThisAction" >
+   <property name="icon" >
+    <iconset resource="pmchart.qrc" >
+     <normaloff>:/images/whatsthis.png</normaloff>:/images/whatsthis.png</iconset>
+   </property>
+   <property name="text" >
+    <string>What's This</string>
+   </property>
+   <property name="iconText" >
+    <string>What's This</string>
+   </property>
+   <property name="shortcut" >
+    <string>Shift+F1</string>
+   </property>
+  </action>
+  <action name="recordStartAction" >
+   <property name="icon" >
+    <iconset resource="pmchart.qrc" >
+     <normaloff>:/images/camera-video.png</normaloff>:/images/camera-video.png</iconset>
+   </property>
+   <property name="text" >
+    <string>Start...</string>
+   </property>
+  </action>
+  <action name="recordQueryAction" >
+   <property name="text" >
+    <string>Query</string>
+   </property>
+  </action>
+  <action name="recordStopAction" >
+   <property name="icon" >
+    <iconset resource="pmchart.qrc" >
+     <normaloff>:/images/camera-video-close.png</normaloff>:/images/camera-video-close.png</iconset>
+   </property>
+   <property name="text" >
+    <string>Stop</string>
+   </property>
+  </action>
+  <action name="recordDetachAction" >
+   <property name="text" >
+    <string>Detach</string>
+   </property>
+  </action>
+ </widget>
+ <includes>
+  <include location="local" >qmc_time.h</include>
+  <include location="local" >tabdialog.h</include>
+  <include location="local" >infodialog.h</include>
+  <include location="local" >chartdialog.h</include>
+  <include location="local" >exportdialog.h</include>
+  <include location="local" >recorddialog.h</include>
+  <include location="local" >settingsdialog.h</include>
+  <include location="local" >qfiledialog.h</include>
+  <include location="local" >timeaxis.h</include>
+  <include location="local" >qed_timebutton.h</include>
+  <include location="local" >timeaxis.h</include>
+ </includes>
+ <resources>
+  <include location="pmchart.qrc" />
+ </resources>
+ <connections>
+  <connection>
+   <sender>fileNewChartAction</sender>
+   <signal>triggered()</signal>
+   <receiver>PmChart</receiver>
+   <slot>fileNewChart()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>fileOpenViewAction</sender>
+   <signal>triggered()</signal>
+   <receiver>PmChart</receiver>
+   <slot>fileOpenView()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>fileSaveViewAction</sender>
+   <signal>triggered()</signal>
+   <receiver>PmChart</receiver>
+   <slot>fileSaveView()</slot>
+  </connection>
+  <connection>
+   <sender>fileExportAction</sender>
+   <signal>triggered()</signal>
+   <receiver>PmChart</receiver>
+   <slot>fileExport()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>filePrintAction</sender>
+   <signal>triggered()</signal>
+   <receiver>PmChart</receiver>
+   <slot>filePrint()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>fileQuitAction</sender>
+   <signal>triggered()</signal>
+   <receiver>PmChart</receiver>
+   <slot>fileQuit()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>helpAboutAction</sender>
+   <signal>triggered()</signal>
+   <receiver>PmChart</receiver>
+   <slot>helpAbout()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>helpAboutQtAction</sender>
+   <signal>triggered()</signal>
+   <receiver>PmChart</receiver>
+   <slot>helpAboutQt()</slot>
+  </connection>
+  <connection>
+   <sender>helpSeeAlsoAction</sender>
+   <signal>triggered()</signal>
+   <receiver>PmChart</receiver>
+   <slot>helpSeeAlso()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>helpWhatsThisAction</sender>
+   <signal>triggered()</signal>
+   <receiver>PmChart</receiver>
+   <slot>whatsThis()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>showTimeControlAction</sender>
+   <signal>triggered()</signal>
+   <receiver>PmChart</receiver>
+   <slot>optionsShowTimeControl()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>hideTimeControlAction</sender>
+   <signal>triggered()</signal>
+   <receiver>PmChart</receiver>
+   <slot>optionsHideTimeControl()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>toolbarAction</sender>
+   <signal>triggered()</signal>
+   <receiver>PmChart</receiver>
+   <slot>optionsToolbar()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>consoleAction</sender>
+   <signal>triggered()</signal>
+   <receiver>PmChart</receiver>
+   <slot>optionsConsole()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>newPmchartAction</sender>
+   <signal>triggered()</signal>
+   <receiver>PmChart</receiver>
+   <slot>optionsNewPmchart()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>editSettingsAction</sender>
+   <signal>triggered()</signal>
+   <receiver>PmChart</receiver>
+   <slot>editSettings()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>chartTabWidget</sender>
+   <signal>currentChanged(int)</signal>
+   <receiver>PmChart</receiver>
+   <slot>activeTabChanged(int)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>editChartAction</sender>
+   <signal>triggered()</signal>
+   <receiver>PmChart</receiver>
+   <slot>editChart()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>closeChartAction</sender>
+   <signal>triggered()</signal>
+   <receiver>PmChart</receiver>
+   <slot>closeChart()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>editTabAction</sender>
+   <signal>triggered()</signal>
+   <receiver>PmChart</receiver>
+   <slot>editTab()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>editSamplesAction</sender>
+   <signal>triggered()</signal>
+   <receiver>PmChart</receiver>
+   <slot>editSamples()</slot>
+  </connection>
+  <connection>
+   <sender>closeTabAction</sender>
+   <signal>triggered()</signal>
+   <receiver>PmChart</receiver>
+   <slot>closeTab()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>addTabAction</sender>
+   <signal>triggered()</signal>
+   <receiver>PmChart</receiver>
+   <slot>addTab()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>helpManualAction</sender>
+   <signal>triggered()</signal>
+   <receiver>PmChart</receiver>
+   <slot>helpManual()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>recordStartAction</sender>
+   <signal>triggered()</signal>
+   <receiver>PmChart</receiver>
+   <slot>recordStart()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>171</x>
+     <y>133</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>recordQueryAction</sender>
+   <signal>triggered()</signal>
+   <receiver>PmChart</receiver>
+   <slot>recordQuery()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>171</x>
+     <y>133</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>recordStopAction</sender>
+   <signal>triggered()</signal>
+   <receiver>PmChart</receiver>
+   <slot>recordStop()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>171</x>
+     <y>133</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>recordDetachAction</sender>
+   <signal>triggered()</signal>
+   <receiver>PmChart</receiver>
+   <slot>recordDetach()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>171</x>
+     <y>133</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>zoomInAction</sender>
+   <signal>triggered()</signal>
+   <receiver>PmChart</receiver>
+   <slot>zoomIn()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>171</x>
+     <y>133</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>zoomOutAction</sender>
+   <signal>triggered()</signal>
+   <receiver>PmChart</receiver>
+   <slot>zoomOut()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>171</x>
+     <y>133</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

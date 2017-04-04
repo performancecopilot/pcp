@@ -1,0 +1,627 @@
+#! /bin/sh
+# 
+# Output a list of hosts from the "qa_hosts" file which meet certain
+# criteria specified by the options (see _usage).
+# The list of QA hosts can be overridden by setting the environment
+# variable QA_HOSTS.
+#
+# Allows QA tests to get hostnames of particular configurations
+# that they need.
+#
+# Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+. ./common.rc
+
+tmp=/tmp/$$
+tmp=`pwd`/tmp
+rm -rf $tmp.*
+status=1	# failure is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+HOSTS=qa_hosts
+SSH_USER=pcpqa
+
+_usage()
+{
+  echo >&2 'Usage: getpmcdhosts [options]
+
+Options:
+-a {pmda}                pmda connected to pmcd
+-b 32|64                 kernel binary format
+-D                       debug/trace (see also -V)
+-e big|little            endianess
+-h hostfile              name of host file, default is qa_hosts
+-L                       do not consider localhost
+-m {metric}<op>{value}   satisfies metric value predicate
+-n num                   match first num hosts
+-P                       return host running a primary pmlogger
+-p multi|single          multi or single processor
+-s system                operating system (uname -s)
+-v {item}<op>{ver}       version of item
+-V                       verbose diagnostics (see also -D)
+
+Legal item:
+ipc                 inter-process protocol (deprecated)
+libpcp              shared library (deprecated)
+pcp                 PCP version installed
+
+<op> is one of =, >, >=, <, <= or !=
+
+Most options may be used together but not repeated.
+The environment variable QA_STS overrides the default host
+file and -h
+'
+    exit 1
+}
+
+# 
+# _checkpmcdhost moomba _ 64 _ multi 2 _ _ _
+#
+# Parameters:
+#	host	name
+#	agent	name | _
+#	binfmt	32 | n32 | 64 | _
+#	primary	true | false
+#	proc	multi | single | _
+#	pcp	1 | 2 | _
+#	msg	true | false | _
+#	system  irix | linux | _
+#	endian	big | small | _
+#
+
+_checkpmcdhost()
+{
+    HOST=$1
+    AGENT=$2
+    BINFMT=$3
+    PRIMARY=$4
+    PROC=$5
+    PCP=$6
+    MSG=$7
+    SYSTEM=${8}
+    ENDIAN=${9}
+    ERROR=0
+
+    # check that host has a running pmcd
+    #
+    if pminfo -h $HOST -f pmcd.agent.status >/dev/null 2>&1
+    then
+	:
+    else
+	$MSG && echo "$HOST: No running pmcd" >&2
+	return 1
+    fi
+
+    # check for running agent
+    #
+    if [ "$AGENT" != "_" ]
+    then
+	if pmprobe -h $HOST -I pmcd.agent.type 2>/dev/null | grep $AGENT >/dev/null 2>&1
+	then
+	    :
+        else
+	    $MSG && echo "$HOST: $AGENT not running" >&2
+	    return 1
+        fi
+    fi
+
+    # check binfmt
+    #
+    if [ "$BINFMT" != "_" ]
+    then
+        # only want 32 or 64 (not ia32 or n32 etc...)
+        # if want to be specific then use "-m pmcd.simabi=ia32"
+	objfmt=`pmprobe -h $HOST -v pmcd.simabi 2>/dev/null \
+		| sed -e 's/\"//g' \
+		| $PCP_AWK_PROG 'NF > 2 { for (i = 3; i <= NF; i++) printf "%s ",$i }' \
+		| sed -e 's/.*x86-64/64/g' \
+		    -e 's/.*x86_64/64/g' \
+		    -e 's/IA-64/64/g' \
+		    -e 's/ $//' \
+		    -e 's/[a-zA-Z]//g' `
+
+	if [ "$objfmt" != $BINFMT ]
+	then
+	    $MSG && echo "$HOST: binary format $BINFMT != $objfmt" >&2
+	    return 1
+	fi
+    fi
+
+    # check operating system name 
+    #
+    if [ "$SYSTEM" != "_" ]
+    then
+	osname=`ssh -q $SSH_USER@$HOST uname -s`
+        if echo $osname | grep -i $SYSTEM >/dev/null 2>&1 
+        then
+	    :
+        else
+	    $MSG && echo "$HOST: system $SYSTEM no match with $osname " >&2
+	    return 1;
+	fi
+    fi
+
+    # check that host is running primary pmlogger
+    #
+    if $PRIMARY
+    then
+	if pminfo -h $HOST -f pmcd.pmlogger.host | grep primary > /dev/null 2>&1
+	then
+	    :
+	else
+	    $MSG && echo "$HOST: is _not_ running primary pmlogger" >&2
+	    return 1
+	fi
+    fi
+
+    # check number of processors
+    #
+    if [ "$PROC" != "_" ]
+    then
+	$VERBOSE && echo "+ pmprobe -h $HOST -v hinv.ncpu | sed ..."
+	ncpu=`pmprobe -h $HOST -v hinv.ncpu 2>/dev/null \
+		| sed -e 's/\"//g' \
+		| $PCP_AWK_PROG 'NF == 3 && $3 ~ /^[0-9][0-9]*$/ { print $3 }'`
+	$VERBOSE && echo "-> |$ncpu|"
+
+	if [ -z "$ncpu" -o "$ncpu" = 0 ]
+	then
+	    if $MSG
+	    then
+		echo "$HOST: Unknown number of processors, pmprobe -> `pmprobe -h $HOST -v hinv.ncpu 2>&1`" >&2
+	    fi
+	    return 1
+	fi
+	if [ "$ncpu" -gt 1 -a "$PROC" = "single" ]
+	then
+	    $MSG && echo "$HOST: Has $ncpu processors" >&2
+	    return 1
+	elif [ "$ncpu" -eq 1 -a "$PROC" = "multi" ]
+	then
+	    $MSG && echo "$HOST: Has only one processor" >&2
+	    return 1
+	fi
+    fi
+
+    # check endianess
+    #
+    if [ "$ENDIAN" != "_" ]
+    then
+	$VERBOSE && echo "+ echo a | ssh -q $SSH_USER@$HOST od -x"
+	check=`echo a | ssh -q $SSH_USER@$HOST "od -x" 2>&1 | sed -e 's/^0[^ ]* *//' -e 's/[ 	]*$//' -e '/^$/d'`
+	$VERBOSE && echo "-> |$check|"
+	case "$check"
+	in
+	    0a61)
+		if [ "$ENDIAN" = big ]
+		then
+		    $MSG && echo "$HOST: little endian" >&2
+		    return 1
+		fi
+		;;
+	    610a)
+		if [ "$ENDIAN" = little ]
+		then
+		    $MSG && echo "$HOST: big endian" >&2
+		    return 1
+		fi
+		;;
+	    *)
+		echo "$0: INTERNAL BOTCH: expecting 0a61 or 610a, got \"$check\"" >&2
+		exit 1
+		;;
+	esac
+    fi
+
+    # check the item value pairs
+    #
+    if [ -s "$tmp.items" ]
+    then
+	cat $tmp.items \
+	| while read item op value
+	do
+	    case "$item"
+	    in
+		pcp)
+		    if pmprobe -h $HOST -v pmcd.version >$tmp.probe 2>$tmp.err
+		    then
+			:
+		    else
+			rm -f $tmp.probe
+		    fi
+		    ;;
+		*)
+		    echo "$0: INTERNAL BOTCH item=\"$item\" not expected here!"
+		    exit 1
+		    ;;
+	    esac
+	    if [ -s $tmp.probe ]
+	    then
+		satisfies=`sed -e 's/"//g' $tmp.probe \
+			   | $PCP_AWK_PROG '
+BEGIN	{ op = "'"$op"'"; value="'"$value"'" }
+NF >=3	{ if ( $2 < 0 ) {
+		print "0";
+		exit;
+	    }
+	    # got a value
+	    if (op == "=") {
+		if ($3 == value)
+		    print "1";
+		else
+		    print "0";
+	    } 
+	    else if (op == "<") {
+		if ($3 < value)
+		    print "1";
+		else
+		    print "0";
+	    }
+	    else if (op == "<=") {
+		if ($3 <= value)
+		    print "1";
+		else
+		    print "0";
+	    }
+	    else if (op == ">") {
+		if ($3 > value)
+		    print "1";
+		else
+		    print "0";
+	    }
+	    else if (op == ">=") {
+		if ($3 >= value)
+		    print "1";
+		else
+		    print "0";
+	    }
+	    else if (op == "!=") {
+		if ($3 != value)
+		    print "1";
+		else
+		    print "0";
+	    }
+	    else {
+		    print "2";
+	    }
+	    exit;
+	}
+	{ print "0" }'`
+		if [ $satisfies -ne 1 ]
+		then
+		    $MSG && echo "$HOST: does not satisfy predicate $metric $op $value" >&2
+		    return 1
+		fi
+	    else
+		$MSG && echo "$HOST: pmprobe failed `cat $tmp.errs`" >&2
+		return 1
+	    fi
+	done
+	[ $? -eq 1 ] && return 1
+    fi
+
+    # check the metric value pairs
+    #
+    if [ -s "$tmp.metrics" ]
+    then
+	cat $tmp.metrics \
+	| while read metric op value
+	do
+	    if pmprobe -h $HOST -v $metric >$tmp.probe 2>$tmp.errs
+	    then
+		satisfies=`sed -e 's/"//g' $tmp.probe \
+			   | $PCP_AWK_PROG '
+BEGIN	{ op = "'"$op"'"; value="'"$value"'" }
+NF >=3	{ if ( $2 < 0 ) {
+		print "0";
+		exit;
+	    }
+	    # got a value
+	    if (op == "=") {
+		if ($3 == value)
+		    print "1";
+		else
+		    print "0";
+	    } 
+	    else if (op == "<") {
+		if ($3 < value)
+		    print "1";
+		else
+		    print "0";
+	    }
+	    else if (op == "<=") {
+		if ($3 <= value)
+		    print "1";
+		else
+		    print "0";
+	    }
+	    else if (op == ">") {
+		if ($3 > value)
+		    print "1";
+		else
+		    print "0";
+	    }
+	    else if (op == ">=") {
+		if ($3 >= value)
+		    print "1";
+		else
+		    print "0";
+	    }
+	    else if (op == "!=") {
+		if ($3 != value)
+		    print "1";
+		else
+		    print "0";
+	    }
+	    else {
+		    print "2";
+	    }
+	    exit;
+	}
+	{ print "0" }'`
+		if [ $satisfies -ne 1 ]
+		then
+		    $MSG && echo "$HOST: does not satisfy predicate $metric $op $value" >&2
+		    return 1
+		fi
+	    else
+		$MSG && echo "$HOST: pmprobe failed `cat $tmp.errs`" >&2
+		return 1
+	    fi
+	done
+	[ $? -eq 1 ] && return 1
+    fi
+
+    return 0
+}
+
+# Go thru table of hosts and see which meet the
+# given criteria and return either the first one
+# or a list of them if need be.
+#
+
+# set defaults
+AGENT="_"
+BINFMT="_"
+PROC="_"
+PCP="_"
+SYSTEM="_"
+ENDIAN="_"
+
+PRIMARY=false
+LOCAL=false
+LIST=true
+MSG=false
+COUNT=0
+VERBOSE=false
+
+while getopts "a:b:De:h:Lm:n:Pp:s:v:V" c
+do
+    case $c
+    in
+	a)
+	    AGENT=$OPTARG
+	    ;;
+	b)
+	    BINFMT=$OPTARG
+	    ;;
+	D)
+	    MSG=true
+	    ;;
+	e)
+	    ENDIAN=$OPTARG
+	    case "$ENDIAN"
+	    in
+		big|little)
+		    ;;
+		small)	# synonym for little
+		    ENDIAN=little
+		    ;;
+		*)
+		    echo "$0: Illegal endianess $ENDIAN" >&2
+		    _usage
+		    #NOTREACHED
+		    ;;
+	    esac
+	    ;;
+	h)
+	    HOSTS=$OPTARG
+	    if [ ! -f $OPTARG ]
+	    then
+	        echo "$0: Cannot open hostfile $OPTARG" >&2
+		_usage
+		#NOTREACHED
+	    fi
+	    ;;
+	L)
+	    LOCAL=true
+	    ;;
+	m)
+	    metric=`echo $OPTARG | sed -e 's/[ 	]*//' -e 's/[=<>!].*//'`
+	    value=`echo $OPTARG | sed -e 's/[ 	]*//' -e 's/.*[=<>!]//'`
+	    op=`echo $OPTARG | sed -e 's/[ 	]*//' -e "s/$metric//" -e "s/$value//"`
+	    case "$op"
+	    in
+		'='|'<'|'<='|'>'|'>='|'!=')
+		    ;;
+		*)
+		    echo "$0: Illegal metric argument: $OPTARG" >&2
+		    _usage
+		    #NOTREACHED
+		    ;;
+	    esac
+	    echo "$metric $op $value" >> $tmp.metrics
+	    $MSG && echo "---tmp.metrics---" >&2
+	    $MSG && cat $tmp.metrics >&2
+	    ;;
+	    
+	n)
+	    COUNT=$OPTARG
+	    if [ $COUNT -eq 1 ]
+	    then
+	    	LIST=false
+	    fi
+	    ;;
+	P)
+	    PRIMARY=true
+	    ;;
+	p)
+	    PROC=$OPTARG
+	    ;;
+	s)
+	    SYSTEM=$OPTARG
+	    ;;
+	v)
+	    item=`echo $OPTARG | sed -e 's/[ 	]*//' -e 's/[=<>!].*//'`
+	    value=`echo $OPTARG | sed -e 's/[ 	]*//' -e 's/.*[=<>!]//'`
+	    op=`echo $OPTARG | sed -e 's/[ 	]*//' -e "s/$item//" -e "s/$value//"`
+	    case "$item"
+	    in
+		"ipc"|"libpcp")
+		    echo "$0: Deprecated item \"$item\", ignored" >&2
+		    continue
+		    ;;
+		"pcp")
+		    value=`echo "$value" | sed -e 's/\./ /g' | $PCP_AWK_PROG '
+NF==1	{ print $0 ".0.0" }
+NF==2	{ print $0 ".0" }
+NF>2	{ print $0 }' | sed -e 's/ /./g'`
+		    ;;
+		*)
+		    echo "$0: Illegal item $item" >&2
+		    _usage
+		    #NOTREACHED
+	    esac
+	    case "$op"
+	    in
+		'='|'<'|'<='|'>'|'>='|'!=')
+		    ;;
+		*)
+		    echo "$0: Illegal metric argument: $OPTARG" >&2
+		    _usage
+		    #NOTREACHED
+		    ;;
+	    esac
+	    echo "$item $op $value" >> $tmp.items
+	    $MSG && echo "---tmp.items---" >&2
+	    $MSG && cat $tmp.items >&2
+	    ;;
+
+	V)
+	    VERBOSE=true
+	    ;;
+
+	*)
+	    _usage
+	    #NOTREACHED
+	    ;;
+    esac
+done
+if [ $# -ne `expr $OPTIND - 1` ]
+then
+    _usage
+    #NOTREACHED
+fi
+	
+# Verify the options
+#
+
+err=0
+
+if [ "$BINFMT" != "_" -a "$BINFMT" != 32 -a "$BINFMT" != 64 ]
+then
+    echo "$0: -b option takes 32 or 64" >&2
+    err=1
+fi
+
+if [ "$PROC" != "_" -a "$PROC" != "multi" -a "$PROC" != "single" ]
+then
+    echo "$0: -p options takes multi or single" >&2
+    err=1
+fi
+
+if [ $err -eq 1 ]
+then
+    _usage
+    exit 1
+fi
+
+# Use qa_hosts file if environment variable $QA_HOSTS is not set (or null)
+#
+if [ -z "$QA_HOSTS" ]
+then
+    if [ ! -f $HOSTS ]
+    then
+	if [ -f GNUmakefile.install ]
+	then
+	    # running QA in the tree
+	    ${MAKE:-make} -f GNUmakefile.install $HOSTS >$tmp.make.out 2>&1
+	else
+	    ${MAKE:-make} $HOSTS >$tmp.make.out 2>&1
+	fi
+	if [ $? -ne 0 ]
+	then
+	    :
+	else
+	    cat $tmp.make.out >&2
+	    echo "$0: Unable to make \"$HOSTS\"" >&2
+	    exit 1
+	fi
+    fi
+    QA_HOSTS=`cat $HOSTS`
+fi
+
+# Remove the localhost if requested
+#
+if $LOCAL
+then
+    localhost=`hostname | sed -e 's/\..*//'`
+    QA_HOSTS=`echo $QA_HOSTS | sed \
+      -e 's/$/ /' \
+      -e "s/$localhost\.[^ ]* //g" \
+      -e "s/$localhost //g"`
+fi
+
+$MSG && ( echo "Checking hosts:"; echo "$QA_HOSTS"; echo ) >&2
+
+# Iterate through hosts
+#
+
+i=0
+for HOST in $QA_HOSTS
+do
+    if _checkpmcdhost $HOST $AGENT $BINFMT $PRIMARY $PROC $PCP $MSG $SYSTEM $ENDIAN
+    then
+	if $LIST
+	then
+	    if $MSG
+	    then
+	        echo "-> $HOST" >&2
+	    else
+		$PCP_ECHO_PROG $PCP_ECHO_N "$HOST ""$PCP_ECHO_C"
+	    fi
+	else
+	    echo "$HOST"
+	fi
+        i=`expr $i + 1`
+    fi
+
+    if [ $COUNT -gt 0 -a $i -ge $COUNT ]
+    then
+        break
+    fi
+done
+
+# if been using \c then do final \n
+#
+
+$LIST && echo
+
+if [ $i -lt $COUNT ]
+then
+    echo "$0: unable to get $COUNT host(s) with options: \"$@\"" >&2
+    exit
+fi
+
+status=0
+exit 

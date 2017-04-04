@@ -1,0 +1,72 @@
+#! /bin/sh
+# PCP QA Test No. 121
+# check that pmlogconf finds new groups, pv 893249
+#
+# Copyright (c) 2002 Silicon Graphics, Inc.  All Rights Reserved.
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.*
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+rm -f $seq.full
+
+# real QA test starts here
+pmlogconf $tmp.in >/dev/null 2>&1
+echo "--- default config ---" >>$seq.full
+cat $tmp.in >>$seq.full
+
+# strip comments, empty lines and then strip the groups:
+#	disk/summary
+#	kernel/bufcache-all to memory/swap
+sed <$tmp.in >$tmp.ref \
+    -e '/^#$/d' \
+    -e '/^# /d' \
+    -e '/^[ 	]*$/d'
+cat <<End-of-File >>$tmp.ref
+
+# DO NOT UPDATE THE FILE ABOVE THIS LINE
+# Otherwise any changes may be lost the next time pmlogconf is
+# used on this file.
+#
+# It is safe to make additions from here on ...
+#
+End-of-File
+
+$PCP_AWK_PROG <$tmp.ref >$tmp.tmp '
+/^\#\+ disk\/summary/	{ state = 1; next }
+state == 1 && /^\#----/	{ state = 0; next }
+/^\#\+ kernel\/bufcache-all/		{ state = 2; next }
+state == 2 && /^\#\+ memory\/swap/{ state = 1; next }
+state == 0		{ print }'
+cp $tmp.tmp $tmp.in
+echo >>$seq.full
+echo "--- culled and stripped config ---" >>$seq.full
+cat $tmp.in >>$seq.full
+
+# now process again ... the diffs should be small
+#
+echo >>$seq.full
+echo "--- pmlogconf ---" >>$seq.full
+( echo q; echo y ) | pmlogconf -v $tmp.in >>$seq.full 2>&1
+
+grep Error: $seq.full
+
+echo >>$seq.full
+echo "--- final config ---" >>$seq.full
+cat $tmp.in >>$seq.full
+
+echo "Expect few differences ..."
+LC_COLLATE=POSIX sort $tmp.ref >$tmp.ref.sort
+LC_COLLATE=POSIX sort $tmp.in >$tmp.in.sort
+diff $tmp.ref.sort $tmp.in.sort
+
+# success, all done
+exit

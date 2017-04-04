@@ -1,0 +1,71 @@
+#! /bin/sh
+# PCP QA Test No. 704
+# Exercise MMV python module (end-to-end)
+#
+# Copyright (c) 2013,2016 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.python
+
+$python -c 'from pcp import mmv' 2>/dev/null
+test $? -eq 0 || _notrun "Python MMV module not available"
+
+status=1
+_needclean=true
+$sudo rm -f $tmp.* $seq.full
+MMV_STATS_DIR="$PCP_TMP_DIR/mmv"
+
+_cleanup()
+{
+    if $_needclean
+    then
+	[ -d $MMV_STATS_DIR.$seq ] && _restore_config $MMV_STATS_DIR
+	$sudo $PCP_RC_DIR/pcp stop | _filter_pcp_stop
+	$sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
+	_restore_systemd_restart pmcd
+	_wait_for_pmcd
+	_wait_for_pmlogger
+	_needclean=false
+    fi
+    $sudo rm -f $tmp.*
+    exit $status
+}
+
+# Filter time from ...
+# Ran 1 test in 0.001s
+#
+_filter()
+{
+    sed -e '/Ran 1 test/s/0.00[0-9]/<0.01/'
+}
+
+_filter_pminfo()
+{
+    tee -a $here/$seq.full | sed \
+        -e 's/value [0-9][0-9]*/value NUMBER/'
+}
+
+trap "_cleanup" 0 1 2 3 15
+
+_stop_systemd_restart pmcd
+
+# real QA starts here
+[ -d $MMV_STATS_DIR ] && _save_config $MMV_STATS_DIR
+$sudo rm -rf $MMV_STATS_DIR
+$sudo mkdir $MMV_STATS_DIR
+$sudo chmod 1777 $MMV_STATS_DIR
+$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+_check_agent mmv >/dev/null || _notrun "MMV agent should be setup but is not"
+
+echo "Running python test program"
+$python $here/src/test_mmv.py 2>&1 | _filter
+echo "Checking mmv file"
+find $MMV_STATS_DIR | sed -e "s,$MMV_STATS_DIR,MMV_STATS_DIR,g"
+echo "Checking pmdammv queries"
+pminfo -fmdtT mmv.pytest | _filter_pminfo
+
+status=0
+exit

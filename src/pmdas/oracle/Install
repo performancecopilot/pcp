@@ -1,0 +1,74 @@
+#! /bin/sh
+#
+# Copyright (c) 2016 Red Hat.
+# Copyright (c) 2009,2012 Aconex.  All Rights Reserved.
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+# 
+# Install the Oracle PMDA
+#
+
+. $PCP_DIR/etc/pcp.env
+. $PCP_SHARE_DIR/lib/pmdaproc.sh
+
+iam=oracle
+domain=32
+perl_opt=true
+daemon_opt=false
+
+perl -e "use DBI" 2>/dev/null
+if test $? -ne 0; then
+    echo "Perl database interface (DBI) is not installed"
+    status=1
+    exit
+fi
+
+# Get os_user definition
+eval `perl $PCP_PMDAS_DIR/oracle/connect.pl --config`
+
+id -g $os_user >/dev/null 2>&1
+if test $? -ne 0; then
+    echo "Cannot change user to $os_user, sorry this is fatal"
+    status=1
+    exit
+fi
+
+# Thwarted by (potential) Oracle setup dependence on LD_LIBRARY_PATH,
+# as well as the (potential) password request on issuing "su".  Ugh.
+#
+#su -c "perl -e 'use DBD::Oracle'" - $os_user 2>/dev/null
+#if test $? -ne 0; then
+#    echo "Oracle database driver (DBD::Oracle) is not installed"
+#    status=1
+#    exit
+#fi
+
+mkdir -p "$PCP_VAR_DIR/config/pmda" 2>/dev/null
+indoms="0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17"
+for indom in $indoms
+do
+    failed=false
+    touch "$PCP_VAR_DIR/config/pmda/$domain.$indom" >/dev/null 2>&1
+    [ $? -ne 0 ] && failed=true
+    chown $os_user "$PCP_VAR_DIR/config/pmda/$domain.$indom"
+    [ $? -ne 0 ] && failed=true
+
+    if $failed; then
+        echo "Cannot create indom persistance files for user $os_user"
+        echo "Failed on: $PCP_VAR_DIR/config/pmda/$domain.$indom"
+        status=1
+        exit
+    fi
+done
+
+pmdaSetup
+pmdaInstall
+exit

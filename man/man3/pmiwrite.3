@@ -1,0 +1,71 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMIWRITE 3 "" "Performance Co-Pilot"
+.SH NAME
+\f3pmiWrite\f1 \- flush data to a LOGIMPORT archive
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.br
+#include <pcp/impl.h>
+.br
+#include <pcp/import.h>
+.sp
+int pmiWrite(int \fIsec\fP, int \fIusec\fP);
+.sp
+cc ... \-lpcp_import \-lpcp
+.ft 1
+.SH "Perl SYNOPSIS"
+.ft 3
+use PCP::LogImport;
+.sp
+pmiWrite($\fIsec\fP, $\fIusec\fP);
+.ft 1
+.SH DESCRIPTION
+As part of the Performance Co-Pilot Log Import API (see
+.BR LOGIMPORT (3)),
+.B pmiWrite
+forces accumulated data values out to the PCP archive.
+.PP
+The data values and associated metadata have previously been
+built up using calls to
+.BR pmiAddMetric (3),
+.BR pmiAddInstance (3),
+.BR pmiPutValue (3)
+and
+.BR pmiPutValueHandle (3).
+.PP
+The current set of data values and any new metadata is written to the archive with
+a timestamp of
+.I sec
+and
+.I usec
+in the source timezone of the archive, see
+.BR pmiSetTimezone (3).
+.SH DIAGNOSTICS
+.B pmiWrite
+returns zero on success else a negative value that can be turned into an
+error message by calling
+.BR pmiErrStr (3).
+.SH SEE ALSO
+.BR LOGIMPORT (3),
+.BR pmiAddInstance (3),
+.BR pmiAddMetric (3),
+.BR pmiErrStr (3),
+.BR pmiPutValue (3),
+.BR pmiPutValueHandle (3)
+and
+.BR pmiSetTimezone (3).

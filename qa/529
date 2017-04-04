@@ -1,0 +1,161 @@
+#! /bin/sh
+# PCP QA Test No. 529
+# verify the pmcd.pmie metrics from the pmcd PMDA
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    if [ ! -z "$pid3" ]
+    then
+	$sudo rm -f $PCP_TMP_DIR/pmie/$pid3
+	$signal -s TERM $pid3
+	pid3=''
+    fi
+    if [ ! -z "$pid4" ]
+    then
+	$sudo rm -f $PCP_TMP_DIR/pmie/$pid4
+	$signal -s TERM $pid4
+	pid4=''
+    fi
+}
+
+signal=$PCP_BINADM_DIR/pmsignal
+status=1	# failure is the default!
+trap "_cleanup; $sudo rm -f $tmp.*; exit \$status" 0 1 2 3 15
+username=`id -u -n`
+host=`pmhostname`
+
+_filter()
+{
+    sed \
+	-e 's/.*value //' \
+	-e "s,/var$tmp,TMP,g" \
+	-e "s,$tmp,TMP,g" \
+	-e "s;/privateTMP;TMP;g" \
+	-e "s/$host/HOST/g" \
+	-e "s/`hostname`/HOST/g" \
+	-e "s/localhost\.localdomain/MYHOST/g" \
+	-e "s/localhost/HOST/g" \
+	-e "s/local:/HOST/g" \
+    | $PCP_AWK_PROG '
+NR == 1		{ big = $1; next }
+$1 > big	{ big = $1 }
+END		{ print big }'
+}
+
+rm -f $seq.full
+
+# real qa test starts here
+
+echo === checking unknown, numrules, actions, expected, true
+cat <<End-of-File >$tmp.conf
+// the rules
+//
+all_sample ( sample.long.ten @0..3 < 10 ) -> print "rule1: (BAD)" " %v < 10";
+all_sample ( sample.long.ten @0..3 >= 10 ) -> print "rule2: (OK)" " %v >= 10";
+sample.long.ten < 10 -> print "rule3: (BAD)" " %v < 10";
+sample.long.ten >= 10 -> print "rule4: (OK)" " %v >= 10";
+End-of-File
+
+__user=root
+id pcp >/dev/null 2>&1 && __user=pcp
+
+_start_up_pmie1()
+{
+    cat >$tmp.cmd1 <<End-of-File
+#!/bin/sh
+pmie \$@ &
+echo pid=\$!
+End-of-File
+
+    $sudo -u $__user sh $tmp.cmd1 $@ $tmp.conf >$tmp.pid
+    eval `cat $tmp.pid`
+}
+
+_start_up_pmie2()
+{
+    cat >$tmp.cmd2 <<End-of-File
+#!/bin/sh
+pmie \$@ <$tmp.conf &
+echo pid=\$!
+End-of-File
+
+    $sudo -u $__user sh $tmp.cmd2 $@ >$tmp.pid
+    eval `cat $tmp.pid`
+}
+
+pmieopts="-v -b"
+_start_up_pmie1 -t 1sec -T 4sec $pmieopts -l $tmp.out1
+pid1=$pid
+_start_up_pmie2 -t 1sec -T 4sec $pmieopts -l $tmp.out2
+pid2=$pid
+echo "self=$$ pid1=$pid1 and pid2=$pid2" >> $seq.full
+
+sleep 2
+
+# link the pmie mmap'd files so they persist after the pmie processes
+# exit
+#
+sleep 1000 &
+pid3=$!
+sleep 1000 &
+pid4=$!
+$sudo ln $PCP_TMP_DIR/pmie/$pid1 $PCP_TMP_DIR/pmie/$pid3
+$sudo ln $PCP_TMP_DIR/pmie/$pid2 $PCP_TMP_DIR/pmie/$pid4
+
+echo "log mandatory on default { pmcd.pmie }" \
+| pmlogger -t 0.25sec -T 5sec $tmp
+
+sleep 4
+
+echo "log from pid=$pid1" >> $seq.full
+cat $tmp.out1 >> $seq.full
+echo "log from pid=$pid2" >> $seq.full
+cat $tmp.out2 >> $seq.full
+
+# values at the end of the run should be deterministic for these metrics...
+# ... metrics are instantaneous, so 10 samples reported in 9 secs
+#
+#   numrules = 4
+#   expected = 4 rule evaluations every 1 sec (4.0)
+#   configfile = "<stdin>" and /tmp/[PID].conf
+#
+#   actual = 20
+#   unknown = 6
+#   true = 7
+#   false = 7
+#   actions = 7
+# 
+
+for pid in $pid3 $pid4
+do
+    echo
+    [ $pid = $pid3 ] && echo "first pmie instance ..."
+    [ $pid = $pid4 ] && echo "second pmie instance ..."
+    echo "pid=$pid ..." >>$seq.full
+
+    for metric in configfile logfile pmcd_host numrules actions \
+		eval.true eval.false eval.unknown eval.expected eval.actual
+    do
+	$PCP_ECHO_PROG $PCP_ECHO_N "$metric	""$PCP_ECHO_C"
+	echo "$metric ..." >>$seq.full
+	pmdumplog $tmp pmcd.pmie.$metric \
+	| tee -a $seq.full \
+	| grep $pid \
+	| _filter
+    done
+done
+
+# success, all done
+status=0
+exit

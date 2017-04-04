@@ -1,0 +1,63 @@
+#! /bin/sh
+# PCP QA Test No. 160
+# Exercise __pmSetClientId()
+#
+# Copyright (c) 2009 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.*
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+rm -f $seq.full
+
+_filter()
+{
+    egrep 'QA-clientid|Error|__pmSetClientId' \
+    | sed -e 's/value ".* QA/value "<host> QA/' \
+    | sed -e 's/\[/[ /' -e 's/]/ ]/' \
+    | awk '
+BEGIN		{ seq = 1 }
+$1 == "inst"	{ if (seen[$3] == "") {
+		    seen[$3] = "INST-" seq++
+		  }
+		  $5 = "\"" seen[$3] "\""
+		  $3 = seen[$3]
+		}
+		{ print }' \
+    | LC_COLLATE=POSIX sort -u
+}
+
+# real QA test starts here
+src/clientid -l a bb ccc dddd eeeee ffffff ggggggg hhhhhhhh iiiiiiiii >$tmp.1.out 2>$tmp.1.err &
+pidlist="$pidlist $!"
+sleep 2
+src/clientid -l foo-bar-mumble >$tmp.2.out 2>$tmp.2.err &
+pidlist="$pidlist $!"
+sleep 2
+src/clientid -l "here is a longer string to go in the ident place holder to try things out that are not quite so short and boring" >$tmp.3.out 2>$tmp.3.err &
+pidlist="$pidlist $!"
+sleep 2
+
+for file in $tmp.?.*
+do
+    echo >>$seq.full
+    echo "=== $file ===" >>$seq.full
+    cat $file \
+    | tee -a $seq.full
+done \
+| _filter
+
+exec >/dev/null 2>&1
+kill -HUP $pidlist
+wait
+
+# success, all done
+exit

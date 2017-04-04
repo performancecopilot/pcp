@@ -1,0 +1,4 @@
+#pmlogconf-setup 2.0
+ident	RPC stats
+force	available
+	rpc

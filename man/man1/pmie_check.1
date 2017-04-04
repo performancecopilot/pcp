@@ -1,0 +1,407 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2013-2016 Red Hat.
+.\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMIE_CHECK 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmie_check\f1,
+\f3pmie_daily\f1 \- administration of the Performance Co-Pilot inference engine
+.SH SYNOPSIS
+.B $PCP_BINADM_DIR/pmie_check
+[\f3\-CNsV\f1]
+[\f3\-c\f1 \f2control\f1]
+[\f3\-l\f1 \f2logfile\f1]
+.br
+.B $PCP_BINADM_DIR/pmie_daily
+[\f3\-NV\f1]
+[\f3\-c\f1 \f2control\f1]
+[\f3\-k\f1 \f2discard\f1]
+[\f3\-l\f1 \f2logfile\f1]
+[\f3\-m\f1 \f2addresses\f1]
+[\f3\-x\f1 \f2compress\f1]
+[\f3\-X\f1 \f2program\f1]
+[\f3\-Y\f1 \f2regex\f1]
+.br
+.SH DESCRIPTION
+This series of shell scripts and associated control files may be used to
+create a customized regime of administration and management for the
+Performance Co-Pilot (see
+.BR PCPintro (1))
+inference engine,
+.BR pmie (1).
+.PP
+.B pmie_daily
+is intended to be run once per day, preferably in the early morning, as
+soon after midnight as practicable.  Its task is to rotate the log files
+for the running
+.B pmie
+processes \- these files may grow without bound if the
+``print'' action is used, or any other
+.B pmie
+action writes to its stdout/stderr streams.
+After some period, old
+.B pmie
+log files are discarded.
+This period is 14 days by default, but may be changed using the
+.B \-k
+option. Two special values are recognized for the period (\c
+.IR discard ),
+namely
+.B 0
+to keep no log files beyond the current one, and
+.B forever
+to prevent any log files being discarded.
+.PP
+Log files can optionally be compressed after some period (\c
+.IR compress ),
+to conserve disk space.  This is particularly useful for large numbers of
+.B pmie
+processes under the control of
+.BR pmie_check .
+The
+.B \-x
+option specifies the number of days after which to compress archive data
+files, and the
+.B \-X
+option specifies the program to use for compression \- by default this is
+.BR xz (1).
+Use of the
+.B \-Y
+option allows a regular expression to be specified causing files in
+the set of files matched for compression to be omitted \- this allows
+only the data file to be compressed, and also prevents the program from
+attempting to compress it more than once.  The default
+.I regex
+is "\.(meta|index|Z|gz|bz2|zip|xz|lzma|lzo|lz4)$" \- such files are
+filtered using the
+.B \-v
+option to
+.BR egrep (1).
+.PP
+Use of the
+.B \-m
+option causes
+.B pmie_daily
+to construct a summary of the log files generated for all monitored hosts
+in the last 24 hours (lines matching `` OK '' are culled), and e-mail that
+summary to the set of space-separated
+.IR addresses .
+.PP
+.B pmie_check
+may be run at any time, and is intended to check that the desired set
+of
+.BR pmie (1)
+processes are running, and if not to re-launch any failed inference engines.
+Use of the
+.B \-s
+option provides the reverse functionality, allowing the set of
+.B pmie
+processes to be cleanly shutdown.
+Use of the
+.B \-C
+option queries the system service runlevel information for
+.BR pmie ,
+and uses that to determine whether to start processes.
+.PP
+Both
+.B pmie_check
+and
+.B pmie_daily
+are controlled by PCP inference engine control file(s) that specify the
+.B pmie
+instances to be managed.  The default control file is
+.B $PCP_PMIECONTROL_PATH
+but an alternate may be specified using the
+.B \-c
+option.
+If the directory
+.BR $PCP_PMLOGGERCONTROL_PATH .d
+(or
+.IR control .d
+from the
+.B \-c
+option) exists, then the contents of any additional control files therein
+will be appended to the main control file (which must exist).
+.PP
+.BR Warning :
+The
+.B $PCP_PMIECONTROL_PATH
+and
+.BR $PCP_PMIECONTROL_PATH .d
+files must not be writable by any user other than root.
+.PP
+The control file(s) should be customized according to the following rules
+that define for the current version (1.1)
+of the control file format.
+.IP 1. 4m
+Lines beginning with a ``#'' are comments.
+.PD 0 parameters of the
+.IP 2.
+Lines beginning with a ``$'' are assumed to be
+assignments to environment variables in the style of
+.BR sh (1),
+and all text following the ``$'' will be
+.BR eval 'ed
+by the script reading the control file,
+and the corresponding variable exported into the environment.
+This is particularly
+useful to set and export variables into the environment of
+the administrative script, e.g.
+.br
+.in +4n
+.ft CW
+.nf
+$ PMCD_CONNECT_TIMEOUT=20
+.fi
+.ft R
+.in -4n
+.IP 3.
+There
+.B must
+be a version line in the initial control file of the form:
+.br
+.in +4n
+.ft CW
+.nf
+$ version=1.1
+.fi
+.ft R
+.in -4n
+.IP 4.
+There should be one line in the control file(s)
+for each
+.B pmie
+instance of the form:
+
+.in +4n
+.ft CW
+.nf
+\f2host\f1 \f3y\f1|\f3n\f1 \f3y\f1|\f3n\f1 \f2logfile\f1 \f2args\f1
+.fi
+.ft R
+.in -4n
+
+.IP 5.
+Fields within a line of the control file(s)
+are separated by one or more spaces or tabs.
+.IP 6.
+The
+.I first
+field is the name of the host that is the default source of the
+performance metrics for this
+.B pmie
+instance.
+.IP 7.
+The
+.I second
+field indicates if this is a
+.I primary
+.B pmie
+instance (\c
+.BR y )
+or not (\c
+.BR n ).
+Since the primary inference engine must run on the local host, and there
+may be at most one primary for a particular host, this field can be
+.B y
+for at most one
+.B pmie
+instance, in which case the host name must be the name of the local host.
+When generating
+.B pmie
+configuration files, the primary clause indicates that
+.B pmieconf (1)
+should enable all rules in the primary group, in addition to all other
+default rules.
+.IP 8.
+The
+.I third
+field indicates whether this
+.B pmie
+instance needs to be started under the control of
+.BR pmsocks (1)
+to connect to a
+.B pmcd
+through a firewall (\c
+.B y
+or
+.BR n ).
+.IP 9.
+The
+.I fourth
+field is the name of the
+.B pmie
+activity log file.  
+A useful convention is that
+.B pmie
+instances monitoring the local host
+with hostname
+.I myhost
+are maintained in the directory
+.BI $PCP_LOG_DIR/pmie/ myhost\fR,
+while activity logs for the remote host
+.I mumble
+are maintained in
+.BI $PCP_LOG_DIR/pmie/ mumble\fR.
+This is consistent with the way
+.BR pmlogger (1)
+maintains its activity logs and archive files.
+.IP 10.
+All other fields are interpreted as arguments to be passed to
+.BR pmie (1).
+Most typically this would be the
+.B \-c
+option.
+.PD
+.PP
+The following sample control lines specify one
+.B pmie
+instance monitoring the local host (\c
+.IR wobbly ),
+and another monitoring performance metrics from the host
+.IR splat .
+.PP
+.nf
+.ft CW
+wobbly  n  PCP_LOG_DIR/pmie/wobbly  \-c config.default
+splat   n  PCP_LOG_DIR/pmie/splat   \-c splat/cpu.conf
+.ft 1
+.fi
+.PP
+Typical
+.BR crontab (5)
+entries for periodic execution of
+.B pmie_daily
+and
+.B pmie_check
+are given in
+.BR $PCP_SYSCONF_DIR/pmie/crontab
+(unless installed by default in
+.IR /etc/cron.d
+already)
+and shown below.
+.PP
+.nf
+.ft CW
+# daily processing of pmie logs
+08      0       *       *       *       $PCP_BINADM_DIR/pmie_daily
+# every 30 minutes, check pmie instances are running
+28,58   *       *       *       *       $PCP_BINADM_DIR/pmie_check
+.ft 1
+.fi
+.PP
+In order to ensure that mail is not unintentionally sent when these
+scripts are run from
+.BR cron (8)
+diagnostics are always sent to log files.
+By default, these files are
+.B $PCP_LOG_DIR/pmie/pmie_daily.log
+and
+.B $PCP_LOG_DIR/pmie/pmie_check.log
+but this can be changed using the
+.B \-l
+option.
+If this log file already exists when the script starts, it will be
+renamed with a
+.I .prev
+suffix (overwriting any log file saved earlier) before diagnostics
+are generated to the new log file.
+.PP
+The output from the
+.BR cron
+execution of the scripts may be extended using the
+.B \-V
+option to the scripts which will enable verbose tracing of their activity.
+By default the scripts generate no output unless some error or warning
+condition is encountered.
+.PP
+The
+.B \-N
+option enables a ``show me'' mode, where the actions are echoed,
+but not executed, in the style of ``make \-n''.
+Using
+.B \-N
+in conjunction with
+.B \-V
+maximizes the diagnostic capabilities for debugging.
+.SH FILES
+.TP 10
+.B $PCP_PMIECONTROL_PATH
+the default PCP inference engine control file
+.br
+.BR Warning :
+this file must not be writable by any user other than root.
+.TP
+.BR $PCP_PMIECONTROL_PATH .d
+optional directory containing additional PCP inference engine control files,
+typically one per host
+.br
+.BR Warning :
+this files herein must not be writable by any user other than root.
+.TP
+.B $PCP_SYSCONF_DIR/pmie/crontab
+sample crontab for automated script execution by $PCP_USER (or root) -
+exists only if the platform does not support the
+.I /etc/cron.d
+mechanism.
+.TP
+.B $PCP_VAR_DIR/config/pmie/config.default
+default
+.B pmlogger
+configuration file location for a localhost inference engine, typically
+generated automatically by
+.BR pmieconf (1).
+.TP
+.BI $PCP_LOG_DIR/pmie/ hostname
+default location for the pmie log file for the host
+.I hostname
+.TP
+.BI $PCP_LOG_DIR/pmie/ hostname /lock
+transient lock file to guarantee mutual exclusion during
+.B pmie
+administration for the host
+.I hostname
+\- if present, can be safely removed if neither
+.B pmie_daily
+nor
+.B pmie_check
+are running
+.TP
+.B $PCP_LOG_DIR/NOTICES
+PCP ``notices'' file used by
+.BR pmie (1)
+and friends
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.B /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (5).
+.SH SEE ALSO
+.BR egrep (1),
+.BR PCPintro (1),
+.BR pmie (1),
+.BR pmieconf (1),
+.BR xz (1)
+and
+.BR cron (8).

@@ -1,0 +1,124 @@
+#!/bin/sh
+#
+# Copyright (c) 1997-2001 Silicon Graphics, Inc.  All Rights Reserved.
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+# 
+# Add a subtree of new names into the namespace in the current directory
+#
+
+# source the PCP configuration environment variables
+. $PCP_DIR/etc/pcp.env
+
+umask 22		# anything else is pretty silly
+exitsts=1
+tmp=`mktemp -d $PCP_TMPFILE_DIR/pcp.XXXXXXXXX` || exit 1
+prog=`basename $0`
+trap "rm -rf $tmp; exit \$exitsts" 0 1 2 3 15
+
+_usage()
+{
+    echo "Usage: pmnsadd [-d] [-n namespace] file"
+}
+
+namespace=${PMNS_DEFAULT-$PCP_VAR_DIR/pmns/root}
+
+while getopts dn:\? c
+do
+    case $c
+    in
+	d)	echo "$prog: Warning: -d deprecated, duplicate PMNS names allowed by default"
+		;;
+	n)	namespace=$OPTARG
+		;;
+	\?)	_usage
+		exitsts=0
+		exit
+		;;
+    esac
+done
+shift `expr $OPTIND - 1`
+
+if [ $# -ne 1 ]
+then
+    _usage
+    exit
+fi
+
+if [ ! -f $namespace ]
+then
+    echo "$prog: cannot find PMNS file \"$root\""
+    exit
+fi
+
+if [ ! -w $namespace ]
+then
+    echo "$prog: cannot open PMNS file \"$root\" for writing"
+    exit
+fi
+
+if [ ! -f "$1" ]
+then
+    echo "$prog: cannot find input file \"$1\""
+    exit
+fi
+
+if grep '^root {' "$1" >/dev/null
+then
+    # Special case ... if the PMDA only supplies metrics at the root of
+    # the PMNS, e.g. the MMV PMDA with all dynamic metrics, the input
+    # PMNS contains 'root {' already, so just use that without any need
+    # to construct the upper levels of the PMNS
+    #
+    cp "$1" $tmp/tmp
+else
+    # Normal case ... find PMNS pathname for base of new subtree
+    # (subroot), construct upper levels of PMNS as required and hand-off
+    # to pmnsmerge
+    #
+    subroot=`$PCP_AWK_PROG <"$1" 'NF >= 2 && $2 == "{" { print $1 ; exit }'`
+    echo 'root {' >$tmp/tmp
+    path=""
+    for name in `echo "$subroot" | tr '.' ' '`
+    do
+	[ ! -z "$path" ] && echo "$path {" >>$tmp/tmp
+	echo "	$name" >>$tmp/tmp
+	echo "}" >>$tmp/tmp
+	if [ -z "$path" ]
+	then
+	    path="$name"
+	else
+	    path="$path.$name"
+	fi
+    done
+    cat "$1" >>$tmp/tmp
+fi
+
+# try to preserve mode, owner and group for the new output files
+#
+rm -f $namespace.new
+[ -f $namespace ] && cp -p $namespace $namespace.new
+
+$PCP_BINADM_DIR/pmnsmerge -f $namespace $tmp/tmp $namespace.new
+exitsts=$?
+
+# from here on, ignore SIGINT, SIGHUP and SIGTERM to protect
+# the integrity of the new ouput files
+#
+trap "" 1 2 15
+
+if [ $exitsts = 0 ]
+then
+    mv $namespace.new $namespace
+else
+    echo "$prog: No changes have been made to the PMNS file \"$namespace\""
+    rm -f $namespace.new
+fi

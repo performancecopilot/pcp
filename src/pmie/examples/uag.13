@@ -1,0 +1,33 @@
+//
+// nested quantification
+//
+
+Servers = ":moomba :gonzo";		// change as desired
+
+// read and write rate per disk per host
+//
+rd = disk.dev.read $Servers;
+wr = disk.dev.write $Servers;
+
+// one value per host, true if 20% or more of the disks are doing
+// significant reading or writing
+//
+rd_20 = 20%_inst disk.dev.read $Servers > 40;
+wr_20 = 20%_inst disk.dev.write $Servers > 40;
+
+// single truth value: more than 20% of the disks busy reading or writing
+//			on all hosts?
+//
+summary = all_host ( 
+		20%_inst disk.dev.read $Servers > 40 || 
+		20%_inst disk.dev.write $Servers > 40
+	    );
+
+// alternate form
+//
+summary2 = all_host (
+		20%_inst (
+		    disk.dev.read $Servers > 40 ||
+		    disk.dev.write $Servers > 40
+		)
+	  );

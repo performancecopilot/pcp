@@ -1,0 +1,65 @@
+#!/bin/sh
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+
+
+# pmie_email is intended for use in pmie actions to send e-mail.
+#
+# the one argument consists of a multi-line message, separated by
+# '|' characters ...
+#
+# "line" 1	- e-mail addressee, as passed to a mail program
+# "line" 2	- mail Subject: will be "pmie alert: " and then this
+#		  text
+# "line" 2,3,..	- body of the message [optional]
+
+# source the PCP configuration environment variables
+. /etc/pcp.env
+
+prog=`basename $0`
+
+if [ $# -ne 1 ]
+then
+    echo "Usage: $prog long|format|message|as|one|argument"
+    exit 1
+fi
+
+if [ -z "$PCP_MUA" ] ; then
+    for mua in Mail mailx; do
+	if which $mua > /dev/null 2>&1
+	then
+	    PCP_MUA=`which $mua`
+	    break
+	fi
+    done
+fi
+
+if [ -z "$PCP_MUA" ] ; then
+    echo "Cannot find a mail program"
+    exit 1
+fi
+
+cat <<End-of-File | ${PCP_AWK_PROG} -F\| '
+NF < 2	{ print "echo '"'$prog"': need at least \"e-mail addr|subject\" in argument'"'"'"
+	  exit 1
+	}
+	{ printf "%s -s \"pmie alert: %s\" %s <<End-of-File\n", "'$PCP_MUA'", $2, $1 
+	  print ""
+	  for (i = 3; i <= NF; i++)
+		print $i
+	  print "End-of-File"
+	}' | /bin/sh
+$1
+End-of-File

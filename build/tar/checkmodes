@@ -1,0 +1,46 @@
+#!/bin/sh
+#
+# very crude ... use the debian postinst scripts as the reference
+# and check ownership and mode on the local filesystem
+#
+
+cat ../../debian/*postinst* \
+| sed -n \
+    -e '/^#/d' \
+    -e '/chown pcp/{
+s/chown //
+s/:/ /
+p
+}' \
+| while read owner group path
+do
+    echo -n "$path: " 
+    if [ -d $path ]
+    then
+	# expect
+	# drwxrwxr-x 2 pcp pcp 4096 Aug 24 06:22 /etc/pcp/pmie
+	#
+	if ls -ld $path | grep -q "^drwxrwxr-x  *[0-9][0-9]*  *$owner  *$group "
+	then
+	    echo OK
+	else
+	    echo -n "BAD "
+	    ls -ld $path
+	fi
+    elif [ -f $path ]
+    then
+	# expect
+	# -rw-rw-r-- 1 pcp pcp 1729 Aug  8 07:24 /etc/pcp/pmie/control
+	#
+	if ls -l $path | grep -q "^-rw-rw-r--  *[0-9][0-9]*  *$owner  *$group "
+	then
+	    echo OK
+	else
+	    echo -n "BAD "
+	    ls -l $path
+	fi
+    else
+	echo "Eh? missing"
+    fi
+done
+

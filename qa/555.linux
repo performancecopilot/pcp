@@ -1,0 +1,43 @@
+QA output created by 555
+pmie: warning - near line 3 of file TMP.conf
+Missing tag after -t in syslog action
+pmie: warning - near line 4 of file TMP.conf
+Ignoring extra text ( extra) after -t tag in syslog action
+pmie: warning - near line 5 of file TMP.conf
+Ignoring extra text ( extra) after -t tag in syslog action
+pmie: warning - near line 6 of file TMP.conf
+Missing [facility.]priority after -p in syslog action
+pmie: warning - near line 7 of file TMP.conf
+Ignoring extra text ( extra) after -p pri in syslog action
+pmie: warning - near line 8 of file TMP.conf
+Ignoring extra text ( extra) after -p pri in syslog action
+pmie: warning - near line 9 of file TMP.conf
+Ignoring unknown priority (evil) for -p in syslog action
+pmie: warning - near line 10 of file TMP.conf
+Ignoring unknown facility (evil) for -p in syslog action
+pmie: warning - near line 12 of file TMP.conf
+Ignoring unknown priority (evil) for -p in syslog action
+
+DATE HOST bogus[PID]: bad -p evil and -t{3}
+DATE HOST foo[PID]: -t & -pinfo, 2 args [6D] + holdoff{15}
+DATE HOST foo[PID]: -t & -pinfo, 2 args [6D]{8}
+DATE HOST foo[PID]: -t & -pinfo, 3 args [5B]{7}
+DATE HOST foo[PID]: -t & -pinfo, 3 args [5Q] + holdoff{14}
+DATE HOST foo[PID]: -t & -pinfo, 4 args [5B]{6}
+DATE HOST foo[PID]: -t & -pinfo, 4 args [5Q] + holdoff{14}
+DATE HOST foo[PID]: -t 1 arg + holdoff{19}
+DATE HOST foo[PID]: -t 1 arg{12}
+DATE HOST foo[PID]: -t 2 args + holdoff{18}
+DATE HOST foo[PID]: -t 2 args{11}
+DATE HOST pcp-pmie[PID]: 
+DATE HOST pcp-pmie[PID]: -p user.info, 2 args [6B]{9}
+DATE HOST pcp-pmie[PID]: -p user.info, 2 args [6Q] + holdoff{16}
+DATE HOST pcp-pmie[PID]: -pdaemon.info, 1 arg [6D] + holdoff{17}
+DATE HOST pcp-pmie[PID]: -pdaemon.info, 1 arg [6D]{10}
+DATE HOST pcp-pmie[PID]: -pinfo [6D]{1}
+DATE HOST pcp-pmie[PID]: -pinfo [6D]{2}
+DATE HOST pcp-pmie[PID]: bad facil for -p evil.info [6D]{4}
+DATE HOST pcp-pmie[PID]: bad pri for -p user.evil [5B]{5}
+DATE HOST pcp-pmie[PID]: no -t or -p args + holdoff{20}
+DATE HOST pcp-pmie[PID]: no -t or -p args{13}
+DATE HOST tag[PID]: 

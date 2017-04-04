@@ -1,0 +1,31 @@
+QA output created by 1002
+Load View: PCP_VAR_DIR/config/pmchart/Schemes
+Load View: stdin
+Error: stdin[2] Syntax error: expecting "version", found "Fluff"
+Load View: PCP_VAR_DIR/config/pmchart/Schemes
+Load View: stdin
+Error: stdin[3] Syntax error: expecting "<version number>", found End-of-Line
+Load View: PCP_VAR_DIR/config/pmchart/Schemes
+Load View: stdin
+Error: stdin[2] Syntax error: expecting "<version number>", found "xxx"
+Load View: PCP_VAR_DIR/config/pmchart/Schemes
+Load View: stdin
+Error: stdin[2] Syntax error: expecting "<version number>", found "1.0"
+Load View: PCP_VAR_DIR/config/pmchart/Schemes
+Load View: stdin
+Error: stdin[2] Syntax error: expecting "host", found "foo"
+Load View: PCP_VAR_DIR/config/pmchart/Schemes
+Load View: stdin
+Error: stdin[2] Syntax error: expecting "host", found "foo"
+Load View: PCP_VAR_DIR/config/pmchart/Schemes
+Load View: stdin
+Error: stdin[3] Syntax error: expecting "literal" or "dynamic", found End-of-Line
+Load View: PCP_VAR_DIR/config/pmchart/Schemes
+Load View: stdin
+Error: stdin[2] Syntax error: expecting "literal" or "dynamic", found "fluff"
+Load View: PCP_VAR_DIR/config/pmchart/Schemes
+Load View: stdin
+Error: stdin[2] Syntax error: unexpected word "fluff"
+Load View: PCP_VAR_DIR/config/pmchart/Schemes
+Load View: stdin
+Error: stdin[2] Syntax error: unexpected word "fluff"

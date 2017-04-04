@@ -1,0 +1,199 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMNSMERGE 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmnsmerge\f1 \- merge multiple versions of a Performance Co-Pilot PMNS
+.SH SYNOPSIS
+.B $PCP_BINADM_DIR/pmnsmerge
+[\f3\-adfxv\f1]
+.I infile
+[...]
+.I outfile
+.SH DESCRIPTION
+.B pmnsmerge
+merges multiple instances of a
+Performance Metrics Name Space (PMNS),
+as used by the components of the
+Performance Co-Pilot (PCP).
+.P
+Each
+.I infile
+argument names a file that includes the root of a PMNS, of the form
+.P
+.sp 0.5v
+.in +1i
+.ft CW
+.nf
+root {
+    /* arbitrary stuff */
+}
+.fi
+.ft 1
+.in -1i
+.sp 0.5v
+.P
+The order in which the
+.I infile
+files are processed is determined by the presence or absence of
+embedded control lines of the form
+.ft CW
+#define _DATESTAMP \f(COYYYYMMDD\fP
+.ft 1
+.P
+Files without a control line are processed first and in the
+order they appear on the command line.
+The other files are then processed in order of ascending
+\f(CW_DATESTAMP\fP.
+.P
+The
+.B \-a
+option suppresses the argument re-ordering and processes all files
+in the order they appear on the command line.
+.P
+The merging proceeds by matching names in PMNS, only those
+\fBnew\fP names in each PMNS are considered, and these are
+added after any existing metrics with the longest possible
+matching prefix in their names.
+For example, merging these two input PMNS
+.P
+.sp 0.5v
+.in +1i
+.ft CW
+.nf
+root {                    root {
+                              surprise  1:1:3
+    mine       1:1:1          mine      1:1:1
+    foo                       foo
+                              yawn
+    yours      1:1:2 
+}                         }
+foo {                     foo {
+    fumble     1:2:1
+                              mumble    1:2:3
+    stumble    1:2:2          stumble   1:2:2
+}                         }
+                          yawn {
+                              sleepy    1:3:1
+                          }
+.fi
+.ft 1
+.in -1i
+.P
+Produces the resulting PMNS in
+.IR out .
+.P
+.sp 0.5v
+.in +1i
+.ft CW
+.nf
+root {
+    mine      1:1:1
+    foo
+    yours     1:1:2 
+    surprise  1:1:3
+    yawn
+}
+foo {
+    fumble    1:2:1
+    stumble   1:2:2
+    mumble    1:2:3
+}
+yawn {
+    sleepy    1:3:1
+}
+.fi
+.ft 1
+.P
+To avoid accidental over-writing of PMNS files,
+.I outfile
+is expected to not exist when
+.B pmnsmerge
+starts.
+The
+.B \-f
+option allows an existing
+.I outfile
+to be unlinked (if possible) and truncated before writing starts.
+.PP
+Normally
+duplicate names for the same Performance Metric Identifier (PMID) in
+a PMNS are allowed.  The
+.B \-d
+option is the default option and is included for backwards compatibility.
+The
+.B \-x
+option reverses the default and
+.B pmnsmerge
+will report an error and exit with a non-zero status if a duplicate
+name is found for a PMID in any of the
+.I input
+PMNS files or in the merged
+.I output
+PMNS.
+.PP
+The
+.B \-v
+option produces one line of diagnostic output as each
+.I infile
+is processed.
+.PP
+Once all of the merging has been completed,
+.B pmnsmerge
+will attempt to load
+the resultant namespace using
+.BR pmLoadASCIINameSpace (3)
+\- if this fails for any reason,
+.I outfile
+will still be created, but
+.B pmnsmerge
+will report the problem and exit with non-zero status.
+.PP
+Using
+.B pmnsmerge
+with a single
+.I input
+argument allows that PMNS file to be checked.
+In addition to
+syntactic checking, specifying
+.B \-x
+will also enable a check for duplicate names for all PMIDs.
+.SH CAVEAT
+Once the writing of the new
+.I outfile
+file has begun, the signals SIGINT, SIGHUP and SIGTERM will be ignored
+to protect the integrity of the new file.
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.I /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (5).
+.SH SEE ALSO
+.BR pmnsadd (1),
+.BR pmnsdel (1),
+.BR pmLoadASCIINameSpace (3),
+.BR pcp.conf (5),
+.BR pcp.env (5)
+and
+.BR pmns (5).

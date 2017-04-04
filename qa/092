@@ -1,0 +1,57 @@
+#! /bin/sh
+# PCP QA Test No. 092
+# end of log and truncated log test
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+trap "rm -f $tmp.*; exit" 0 1 2 3 15
+
+_filter()
+{
+    cat >$tmp.out
+    STAMP=`sed <$tmp.out -n -e '/pmGetArchiveEnd time:/s/.* //p'`
+    if [ "X$STAMP" = X ]
+    then
+	echo "pmGetArchiveEnd failed!"
+	cat $tmp.out
+    else
+	sed -e "s/$STAMP/MY-EOL-TIMESTAMP/g" <$tmp.out
+    fi
+}
+
+# real QA test starts here
+echo "small archive"
+src/eol -a tmparch/foo | _filter
+
+echo
+echo "large archive"
+src/eol -a tmparch/bigbin | _filter
+
+echo
+echo "truncated archive"
+src/eol -a tmparch/truncbin | _filter
+
+echo
+echo "empty archive"
+src/eol -a tmparch/null | _filter
+
+echo
+echo "small multi-volume archive"
+src/eol -a tmparch/mv-foo | _filter
+
+echo
+echo "large multi-volume archive"
+src/eol -a tmparch/mv-bigbin | _filter
+
+echo
+echo "large no index archive"
+src/eol -a tmparch/noti-bigbin | _filter

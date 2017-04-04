@@ -1,0 +1,83 @@
+#! /bin/sh
+#
+# make qa_hosts from qa_hosts.master
+#
+# Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+iam=mk.qa_hosts
+
+# Need to clear some environment variables so that behaviour is the same
+# when we're called via make from common.check, where the environment has
+# already been set in common.check and possibly modified in make to include
+# parenthesis around the value, e.g. PCP_AWK_PROG="/usr/bin/gawk --posix"
+# which blows up below otherwise.
+#
+# Unsetting PCP_ENV_DONE forces pcp.env to be sourced again, and unsetting
+# PCP_AWK_PROG allows it to be assigned a new value.
+#
+unset PCP_ENV_DONE
+unset PCP_AWK_PROG
+
+# generic initialization
+. ./common.rc
+
+if [ ! -f qa_hosts.master ]
+then
+    echo "$0: Cannot find \"qa_hosts.master\""
+    exit 1
+fi
+
+if [ -f qa_hosts -a ! -w qa_hosts ]
+then
+    echo "$0: Cannot write \"qa_hosts\""
+    exit 1
+fi
+
+my_host=`hostname | sed -e 's/\..*//'`
+my_fqdn=`pmhostname`
+if [ -z "$my_fqdn" -o "$my_host" = "$my_fqdn" ]; then
+    if [ -x /bin/domainname ]; then
+        my_domain=`domainname`
+        [ -z "$my_domain" ] || my_fqdn=${my_host}.${my_domain}
+    fi
+fi
+[ -z "$my_fqdn" -o "$my_host" = "$my_fqdn" ] && my_fqdn=$my_host".localdomain"
+
+rm -f qa_hosts
+grep "^#order" qa_hosts.master \
+| while read tag pat recipe
+do
+    if echo $my_fqdn | fgrep "$pat" >/dev/null 2>&1
+    then
+	trap "rm -f /tmp/$$; exit 1" 1 2 3 15
+
+	# strip qa_hosts.master leaving only hosts
+	#
+	sed -e 's/#.*//' -e '/^ *$/d' qa_hosts.master >/tmp/$$
+
+	# match in turn
+	#
+	for sel in $recipe
+	do
+	    fgrep $sel /tmp/$$ \
+	    | $PCP_AWK_PROG '
+BEGIN	{ srand('$$') }
+	{ print 100*rand(),$0 }' \
+	    | LC_COLLATE=POSIX _POSIX2_VERSION=0 sort +0n -1 \
+	    | cut -d' ' -f2 >>qa_hosts
+	done
+
+	rm -f /tmp/$$
+	break
+    fi
+done
+
+if [ ! -f qa_hosts ]
+then
+    echo "$0: no #order line matches this host \"$my_fqdn\", local testing only"
+    touch qa_hosts
+fi
+
+exit 0
+

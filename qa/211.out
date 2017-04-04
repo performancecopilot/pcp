@@ -1,0 +1,103 @@
+QA output created by 211
+PMNS traversal tests ...
+sample.secret.bar
+sample.secret.foo.bar.four
+sample.secret.foo.bar.grunt.five
+sample.secret.foo.bar.grunt.snort.huff.puff.seven
+sample.secret.foo.bar.grunt.snort.six
+sample.secret.foo.bar.max.redirect
+sample.secret.foo.bar.three
+sample.secret.foo.one
+sample.secret.foo.two
+
+== sample.secret ==
+sample.secret.bar
+sample.secret.foo.bar.four
+sample.secret.foo.bar.grunt.five
+sample.secret.foo.bar.grunt.snort.huff.puff.seven
+sample.secret.foo.bar.grunt.snort.six
+sample.secret.foo.bar.max.redirect
+sample.secret.foo.bar.three
+sample.secret.foo.one
+sample.secret.foo.two
+sample.secret.bar 1 "foo"
+sample.secret.foo.bar.four 1 4
+sample.secret.foo.bar.grunt.five 1 5
+sample.secret.foo.bar.grunt.snort.huff.puff.seven 1 7
+sample.secret.foo.bar.grunt.snort.six 1 6
+sample.secret.foo.bar.max.redirect > 3 values ...
+sample.secret.foo.bar.three 1 3
+sample.secret.foo.one 1 1
+sample.secret.foo.two 1 2
+
+== sample.secret.bar sample.secret.foo ==
+sample.secret.bar
+sample.secret.foo.bar.four
+sample.secret.foo.bar.grunt.five
+sample.secret.foo.bar.grunt.snort.huff.puff.seven
+sample.secret.foo.bar.grunt.snort.six
+sample.secret.foo.bar.max.redirect
+sample.secret.foo.bar.three
+sample.secret.foo.one
+sample.secret.foo.two
+sample.secret.bar 1 "foo"
+sample.secret.foo.bar.four 1 4
+sample.secret.foo.bar.grunt.five 1 5
+sample.secret.foo.bar.grunt.snort.huff.puff.seven 1 7
+sample.secret.foo.bar.grunt.snort.six 1 6
+sample.secret.foo.bar.max.redirect > 3 values ...
+sample.secret.foo.bar.three 1 3
+sample.secret.foo.one 1 1
+sample.secret.foo.two 1 2
+
+== sample.secret.foo.bar.grunt ==
+sample.secret.foo.bar.grunt.five
+sample.secret.foo.bar.grunt.snort.huff.puff.seven
+sample.secret.foo.bar.grunt.snort.six
+sample.secret.foo.bar.grunt.five 1 5
+sample.secret.foo.bar.grunt.snort.huff.puff.seven 1 7
+sample.secret.foo.bar.grunt.snort.six 1 6
+
+pmval ...
+
+metric:    sample.secret.foo.bar.grunt.five
+HOST
+semantics: instantaneous value
+units:     count
+samples:   3
+interval:  0.10 sec
+          5
+          5
+          5
+
+pmie ...
+DATE: Bingo!
+
+pmlogger ...
+
+TIMESTAMP  29.0.1007 (sample.secret.foo.bar.grunt.snort.huff.puff.seven): value 7
+              29.0.1006 (sample.secret.foo.bar.grunt.snort.six): value 6
+              29.0.1005 (sample.secret.foo.bar.grunt.five): value 5
+              29.0.1004 (sample.secret.foo.bar.four): value 4
+              29.0.1003 (sample.secret.foo.bar.three): value 3
+              29.0.1002 (sample.secret.foo.two): value 2
+              29.0.1001 (sample.secret.foo.one): value 1
+              29.0.1000 (sample.secret.bar): value "foo"
+
+TIMESTAMP  29.0.1007 (sample.secret.foo.bar.grunt.snort.huff.puff.seven): value 7
+              29.0.1006 (sample.secret.foo.bar.grunt.snort.six): value 6
+              29.0.1005 (sample.secret.foo.bar.grunt.five): value 5
+              29.0.1004 (sample.secret.foo.bar.four): value 4
+              29.0.1003 (sample.secret.foo.bar.three): value 3
+              29.0.1002 (sample.secret.foo.two): value 2
+              29.0.1001 (sample.secret.foo.one): value 1
+              29.0.1000 (sample.secret.bar): value "foo"
+
+TIMESTAMP  29.0.1007 (sample.secret.foo.bar.grunt.snort.huff.puff.seven): value 7
+              29.0.1006 (sample.secret.foo.bar.grunt.snort.six): value 6
+              29.0.1005 (sample.secret.foo.bar.grunt.five): value 5
+              29.0.1004 (sample.secret.foo.bar.four): value 4
+              29.0.1003 (sample.secret.foo.bar.three): value 3
+              29.0.1002 (sample.secret.foo.two): value 2
+              29.0.1001 (sample.secret.foo.one): value 1
+              29.0.1000 (sample.secret.bar): value "foo"

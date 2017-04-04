@@ -1,0 +1,28 @@
+#!/bin/sh
+# PCP QA Test No. 1012
+# Test unit scale conversion in pmdumptext
+#
+seq=`basename $0`
+echo "QA output created by $seq"
+
+status=1	# failure is the default!
+. ./common.qt
+trap "_cleanup_qt; exit \$status" 0 1 2 3 15
+
+which pmdumptext >/dev/null 2>&1 || _notrun "pmdumptext not installed"
+
+_filter()
+{
+    $PCP_AWK_PROG '
+$1 == "TIME-STAMP" && $2 != "?"	{ val = $2;
+			  	  if (val < 1.05 && val > 0.95) $2 = 1.0;
+			  	  printf("%s	 %5.2f\n", $1, $2); next }
+				{ print }'
+}
+
+# real QA test starts here
+pmdumptext -imu -w 7 -s 3 -f 'TIME-STAMP' sample.milliseconds | _filter 2>&1
+
+# success, all done
+status=0
+exit

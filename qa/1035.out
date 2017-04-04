@@ -1,0 +1,58 @@
+QA output created by 1035
+=== Fetching Oracle version metrics
+=== Fetching PCP version metrics
+Comparing Oracle to PCP
+OK
+
+=== Fetching Oracle license metrics
+=== Fetching PCP license metrics
+Comparing Oracle to PCP
+OK
+
+=== Fetching Oracle waitstat metrics
+=== Fetching PCP waitstat metrics with instances
+Comparing Oracle to PCP
+OK
+
+=== Fetching Oracle latch metrics
+=== Fetching PCP latch metrics with instances
+Comparing Oracle to PCP
+OK
+
+=== Fetching Oracle filestat metrics
+=== Fetching PCP filestat metrics with instances
+Comparing Oracle to PCP
+OK
+
+=== Fetching Oracle reqdist metrics
+=== Fetching PCP reqdist metrics with instances
+Comparing Oracle to PCP
+OK
+
+=== Checking connection state
+
+oracle.control.connected
+    inst [0 or "ORACLE_SID"] value 1
+oracle.control.connected inst [0 or "ORACLE_SID"] old value=1 new value=0
+
+oracle.version
+Error: Try again. Information not currently available
+
+oracle.control.connected
+    inst [0 or "ORACLE_SID"] value 0
+oracle.control.connected inst [0 or "ORACLE_SID"] old value=0 new value=1
+
+oracle.version
+    inst [0 or "ORACLE_SID"] value "ORACLE_VERSION"
+
+=== Checking cluster query states
+oracle.file.readtim ON
+oracle.control.disabled.file inst [0 or "ORACLE_SID"] old value=0 new value=1
+oracle.file.readtim OFF
+oracle.control.disabled.file inst [0 or "ORACLE_SID"] old value=1 new value=0
+oracle.file.readtim ON
+oracle.object_cache.locks ON
+oracle.control.disabled.object_cache inst [0 or "ORACLE_SID"] old value=0 new value=1
+oracle.object_cache.locks OFF
+oracle.control.disabled.object_cache inst [0 or "ORACLE_SID"] old value=1 new value=0
+oracle.object_cache.locks ON

@@ -1,0 +1,39 @@
+QA output created by 1016
+*** Simple connection ***
+QmcSource::getSource: Creating new source for oview-short
+QmcSource::QmcSource: Created context 0 to archive "oview-short"
+QmcSource::dupContext: Using original context for archive "oview-short"
+Context 0 has 0 metric names for source:
+  sts = 0, type = 2, source = oview-short
+  host = snort, timezone = TZ, tz hndl = HANDLE
+  start = Thu Sep 11 16:57:06.414 1997, end = Thu Sep 11 16:57:06.630 1997, dupFlag = true
+  1 contexts: 0 
+
+*** Cacheing of descriptors and indoms ***
+QmcContext::lookupDesc: Add descriptor for 1.18.2
+QmcContext::lookupPMID: Matched "hinv.ncpu" to id 1.18.2
+QmcContext::lookupDesc: Add descriptor for 1.26.13
+QmcContext::lookupInDom: Add indom for 1.1
+QmcContext::lookupPMID: Matched "hinv.cputype" to id 1.26.13
+QmcContext::lookupDesc: Add descriptor for 1.26.9
+QmcContext::lookupInDom: Reusing indom 1.1
+QmcContext::lookupPMID: Matched "hinv.map.cpu" to id 1.26.9
+QmcContext::lookupPMID: Matched "hinv.ncpu" to id 1.18.2
+QmcContext::lookupDesc: Reusing descriptor 1.18.2
+QmcContext::lookupPMID: Matched "hinv.ncpu" to id 1.18.2
+Context 0 has 3 metric names for source:
+  sts = 0, type = 2, source = oview-short
+  host = snort, timezone = TZ, tz hndl = HANDLE
+  start = Thu Sep 11 16:57:06.414 1997, end = Thu Sep 11 16:57:06.630 1997, dupFlag = true
+  1 contexts: 0 
+
+*** Bad Context ***
+QmcSource::getSource: Creating new source for no-such-host
+QmcSource::QmcSource: Context to no-such-host failed: No route to host
+Context -EHOSTUNREACH has 0 metric names for source:
+  sts = -148, type = 1, source = no-such-host
+  host = no-such-host, timezone = , tz hndl = HANDLE
+
+
+*** Exiting ***
+QmcSource::delContext: No contexts remain, removing archive "oview-short"

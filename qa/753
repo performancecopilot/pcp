@@ -1,0 +1,68 @@
+#!/bin/sh
+# PCP QA Test No. 753
+# Corner cases for derived metrics, and rate() and delta() functions
+# in particular.
+#
+# Copyright (c) 2014 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+export PCP_DERIVED_CONFIG=$tmp.config
+
+_filter()
+{
+    tee -a $seq.full \
+    | sed \
+	-e '/^host:/d' \
+    | case "$1"
+      in
+	sample.kbyte_rate)
+	    awk '
+/No values available/	{ want = 1; print; next }
+want == 1		{ if (-4096 < $1 && $1 < 4096) print "abs(N) < 4096"
+			  else print "unexpected value:",$0
+			  want = 0
+			  next
+			}
+			{ print }'
+	    ;;
+	*)
+	    cat
+	    ;;
+      esac
+}
+
+# real QA test starts here
+pmstore sample.colour 0 >>$seq.full 2>&1
+cat <<End-of-File | while read metric min max ; do
+sample.bin
+sample.colour
+sample.datasize
+hinv.ncpu
+sample.string.hullo
+sample.kbyte_rate
+End-of-File
+    echo | tee -a $seq.full
+    echo "--- $metric ---" | tee -a $seq.full
+    echo "d=delta($metric)" >$tmp.config
+    echo "r=rate($metric)" >>$tmp.config
+    echo "+++ delta +++" >>$seq.full
+    pmval -t 0.5 -f 0 -s 2 d | _filter $metric
+    echo "+++ rate +++" >>$seq.full
+    pmval -t 0.5 -f 0 -s 2 r | _filter $metric
+done
+
+# success, all done
+status=0
+
+exit

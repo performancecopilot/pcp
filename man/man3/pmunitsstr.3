@@ -1,0 +1,104 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMUNITSSTR 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmUnitsStr\f1,
+\f3pmUnitsStr_r \- convert a performance metric's units into a string
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.sp
+const char *pmUnitsStr(const pmUnits *\fIpu\fP);
+.br
+char *pmUnitsStr_r(const pmUnits *\fIpu\fP, char *\fIbuf\fP, int \fIbuflen\fP);
+.sp
+cc ... \-lpcp
+.ft 1
+.SH DESCRIPTION
+.de CW
+.ie t \f(CW\\$1\f1\\$2
+.el \fI\\$1\f1\\$2
+..
+The encoding of a performance metric's dimensionality and scale uses
+a
+.CW pmUnits
+structure; see
+.BR pmLookupDesc (3).
+.PP
+As an aid to labeling graphs and tables, or for error messages,
+.B pmUnitsStr
+will take a dimension and scale specification as per
+.IR pu ,
+and return the
+corresponding text string.
+The
+.B pmUnitsStr_r
+function does the same, but stores the result in a user-supplied buffer
+.I buf
+of length
+.IR buflen ,
+which should have room for at least 60 bytes.
+If
+.I buflen
+is less than 60 then
+.B pmUnitsStr_r
+returns
+.B NULL
+and
+.I buf
+is not changed.
+.PP
+For example
+.CW "{1, -2, 0, PM_SPACE_MBYTE, PM_TIME_SEC, 0}" , 
+as the value of
+.I *pu
+gives the result string
+.CW "Mbyte / sec^2" .
+.PP
+The string value result from
+.B pmUnitsStr
+is held in a single static buffer, so the returned value is
+only valid until the next call to
+.BR pmUnitsStr .
+.PP
+If the ``count'' dimension is non-zero, and the ``count'' scale is not
+zero, then the text string will
+include a decimal scaling factor, eg.
+.CW "count x 10^6" .
+.PP
+As a special case, if all components of the dimension are zero, then the
+``count'' scale is used to produce the text.  If this scale is zero the
+result is an empty string, otherwise the result is of the form
+.CW "x1 0^2" .
+.SH NOTES
+.B pmUnitsStr
+returns a pointer to a static buffer and hence is not thread-safe.
+Multi-threaded applications should use
+.B pmUnitsStr_r
+instead.
+.SH SEE ALSO
+.BR PMAPI (3),
+.BR pmAtomStr (3),
+.BR pmConvScale (3),
+.BR pmExtractValue (3),
+.BR pmLookupDesc (3),
+.BR pmPrintValue (3),
+.BR pmIDStr (3),
+.BR pmInDomStr (3),
+.BR pmTypeStr (3),
+.BR pmSemStr (3)
+and
+.BR pmUnitsStr (3).

@@ -1,0 +1,29 @@
+#pmlogconf-setup 2.0
+ident	metrics used by the pcp-ipcs(1) command
+probe	kernel.uname.sysname ~ Linux ? include : exclude
+# -l --------------------------------------------------
+        ipc.msg.max_msgqid
+        ipc.msg.max_msgsz
+        ipc.msg.max_defmsgq
+        ipc.shm.max_seg
+        ipc.shm.max_segsz 
+        ipc.shm.max_shmsys
+        ipc.shm.min_segsz
+        ipc.sem.max_semid
+        ipc.sem.max_perid
+        ipc.sem.num_undo
+        ipc.sem.max_ops
+        ipc.sem.max_semval
+
+# -u --------------------------------------------------
+        ipc.msg.used_queues
+        ipc.msg.tot_mes
+        ipc.msg.tot_bytes
+        ipc.shm.used_ids
+        ipc.shm.tot
+        ipc.shm.rss
+        ipc.shm.swp
+        ipc.shm.swap_attempts
+        ipc.shm.swap_successes
+        ipc.sem.used_sem
+        ipc.sem.tot_sem

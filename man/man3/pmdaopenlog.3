@@ -1,0 +1,78 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMDAOPENLOG 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmdaOpenLog\f1 \- redirect stderr to a logfile
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.br
+#include <pcp/impl.h>
+.br
+#include <pcp/pmda.h>
+.sp
+void pmdaOpenLog(pmdaInterface * \fIdispatch\fP);
+.sp
+cc ... \-lpcp_pmda \-lpcp
+.ft 1
+.SH DESCRIPTION
+.B pmdaOpenLog
+redirects
+.I stderr
+to the logfile specified in the 
+.I dispatch
+structure, set by the previous call to
+.BR pmdaDaemon (3)
+or
+.BR pmdaGetOpt (3).
+The first line of the log file will detail the name of the calling process,
+the host the process is running on, and the current time.  In addition, the 
+log is appended with the exit time of the process by
+a routine registered with 
+.BR atexit (3).
+.SH CAVEAT
+The PMDA must be using 
+.B PMDA_PROTOCOL_2 
+or later, as specified in the call to 
+.BR pmdaDSO (3)
+or 
+.BR pmdaDaemon (3).
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.I /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (5).
+Values for these variables may be obtained programmatically
+using the
+.IR pmGetConfig (3)
+function.
+.SH SEE ALSO
+.BR pmcd (1),
+.BR atexit (2),
+.BR PMAPI (3),
+.BR PMDA (3),
+.BR pmdaDaemon (3)
+and
+.BR pmdaGetOpt (3).

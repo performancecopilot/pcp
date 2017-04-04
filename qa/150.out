@@ -1,0 +1,23 @@
+QA output created by 150
+=== input archive ===
+Note: timezone set to local timezone of host "snort" from archive
+
+metric: hinv.ncpu
+host: snort
+start: Thu Apr 8 16:11:09 2004
+end: Thu Apr 8 16:21:25 2004
+semantics: discrete instantaneous value
+units: none
+samples: all
+16:11:10.106 10
+=== reduced archive ===
+Note: timezone set to local timezone of host "snort" from archive
+
+metric: hinv.ncpu
+host: snort
+start: Thu Apr 8 16:11:30 2004
+end: Thu Apr 8 16:21:00 2004
+semantics: discrete instantaneous value
+units: none
+samples: all
+16:11:30.000 10

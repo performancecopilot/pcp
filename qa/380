@@ -1,0 +1,96 @@
+#!/bin/sh
+# PCP QA Test No. 380
+# Basic checkout for per-context state in PMDAs
+#
+# Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
+#
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+pminfo sampledso | grep percontext >/dev/null || \
+    _notrun "No sampledso.percontext.* metrics"
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+echo "=== sampledso ==="
+pmprobe -v sampledso.pdu >$tmp.start
+for n in 20 15 10 5
+do
+    pmval -r -s $n -t 0.1 sampledso.percontext.pdu >$tmp.$n &
+done
+wait
+pmprobe -v sampledso.pdu >$tmp.end
+
+cat $tmp.start >>$seq.full
+for n in 20 15 10 5
+do
+    tail -1 $tmp.$n >>$seq.full
+done
+cat $tmp.end >>$seq.full
+
+# 5 extra pdus seems pretty deterministic for this pattern of
+# clients and requests
+#
+( sed -e 's/sampledso.pdu 1/S/' $tmp.start \
+  ; for n in 20 15 10 5
+    do
+	tail -1 $tmp.$n
+    done \
+  ; sed -e 's/sampledso.pdu 1/E/' $tmp.end \
+) | $PCP_AWK_PROG '
+$1 == "S"	{ start = $2; next }
+$1 == "E"	{ delta = $2 - start
+		  if (sum <= delta && delta <= sum+5)
+		    print "OK"
+		  else print "end-start:",delta," sum:",sum," NOT OK"
+		  next
+		}
+		{ sum += $1 }'
+
+echo
+echo "=== sample ==="
+pmprobe -v sample.pdu >$tmp.start
+for n in 20 15 10 5
+do
+    pmval -r -s $n -t 0.1 sample.percontext.pdu >$tmp.$n &
+done
+wait
+pmprobe -v sample.pdu >$tmp.end
+
+cat $tmp.start >>$seq.full
+for n in 20 15 10 5
+do
+    tail -1 $tmp.$n >>$seq.full
+done
+cat $tmp.end >>$seq.full
+
+# 6 extra pdus seems pretty deterministic for this pattern of
+# clients and requests
+#
+( sed -e 's/sample.pdu 1/S/' $tmp.start \
+  ; for n in 20 15 10 5
+    do
+	tail -1 $tmp.$n
+    done \
+  ; sed -e 's/sample.pdu 1/E/' $tmp.end \
+) | $PCP_AWK_PROG '
+$1 == "S"	{ start = $2; next }
+$1 == "E"	{ delta = $2 - start
+		  if (sum <= delta && delta <= sum+6)
+		    print "OK"
+		  else print "end-start:",delta," sum:",sum," NOT OK"
+		  next
+		}
+		{ sum += $1 }'
+
+# success, all done
+exit

@@ -1,0 +1,106 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMCONNECTLOGGER 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3__pmConnectLogger\f1 \- connect to a performance metrics logger control port
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.br
+#include <pcp/impl.h>
+.br
+.sp
+int __pmConnectLogger(const char *\fIhostname\fP, int \fIpid\fP);
+.sp
+cc ... \-lpcp 
+.ft 1
+.SH DESCRIPTION
+.de CW
+.ie t \f(CW\\$1\fR\\$2
+.el \fI\\$1\fR\\$2
+..
+Each instance of the Performance Co-Pilot (PCP) archive logger program
+.BR pmlogger (1)
+supports a control port on which
+.BR __pmControlLog (3)
+requests are received, and responses sent.
+Optionally, the
+.BR pmlogger (1)
+instance may be designated the ``primary'' logger.
+.PP
+.B __pmConnectLogger
+may be used to establish a control port connection to the
+.BR pmlogger (1)
+instance identified by process id
+.I pid
+on the host
+.IR hostname .
+.PP
+One special case is supported; for the reserved
+.I pid
+value of
+.B PM_LOG_CONTROL_PORT
+the requested connection is to the
+control port for the ``primary'' logger, whatever its process
+id might be.
+.PP
+On success,
+.B __pmConnectLogger
+returns a non-negative integer, that is a file descriptor that may be used
+in subsequent communication with the
+.BR pmlogger (1)
+instance, e.g. for
+.BR __pmControlLog (3).
+.PP
+As the control port to
+.BR pmlogger (1)
+is not mulitplexed, applications using
+.B __pmConnectLogger
+should use
+.BR close (2)
+to terminate the connection to
+.BR pmlogger (1)
+as soon as they have finished communicating.
+.PP
+If the application connects, and the
+.BR pmlogger (1)
+instance subsequently terminates, e.g. \c
+because the associated
+.BR pmcd (1)
+instance is terminated, the application will have to explicitly
+re-establish connection to a re-started
+.BR pmlogger (1)
+instance by calling
+.B __pmConnectLogger
+again.
+.SH SEE ALSO
+.BR pmcd (1),
+.BR pmlc (1),
+.BR pmlogger (1),
+.BR PMAPI (3)
+and
+.BR __pmControlLog (3).
+.SH DIAGNOSTICS
+.IP \f3PM_ERR_PERMISSION\f1
+no permission to connect to the specified
+.BR pmlogger (1)
+instance
+.IP \f3\-ECONNREFUSED\f1
+the designated
+.BR pmlogger (1)
+instance does not exist
+.IP \f3\-EEADDRINUSE\f1
+the requested control port is already in use

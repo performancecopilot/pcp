@@ -1,0 +1,53 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMWHICHZONE 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmWhichZone\f1 \- return current reporting timezone
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.sp
+int pmWhichZone(char **\fItz\fP);
+.sp
+cc ... \-lpcp
+.ft 1
+.SH DESCRIPTION
+The current reporting timezone effects the timezone used by
+.BR pmCtime (3)
+and
+.BR pmLocaltime (3).
+.PP
+.B pmWhichZone
+returns the handle of the current timezone,
+as previously established by
+a call to
+.BR pmNewZone (3)
+or
+.BR pmNewContextZone (3).
+If the call is successful (i.e. there exists a current reporting timezone)
+then a non-negative integer is returned and
+.I tz
+is set to point to a static buffer containing the timezone string itself.
+.SH SEE ALSO
+.BR PMAPI (3),
+.BR pmCtime (3),
+.BR pmLocaltime (3),
+.BR pmNewContextZone (3),
+.BR pmNewZone (3)
+and
+.BR pmUseZone (3).
+.SH DIAGNOSTICS
+A return value less than zero indicates there is no current reporting timezone.

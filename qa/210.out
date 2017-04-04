@@ -1,0 +1,103 @@
+QA output created by 210
+PMNS traversal tests ...
+sampledso.secret.bar
+sampledso.secret.foo.bar.four
+sampledso.secret.foo.bar.grunt.five
+sampledso.secret.foo.bar.grunt.snort.huff.puff.seven
+sampledso.secret.foo.bar.grunt.snort.six
+sampledso.secret.foo.bar.max.redirect
+sampledso.secret.foo.bar.three
+sampledso.secret.foo.one
+sampledso.secret.foo.two
+
+== sampledso.secret ==
+sampledso.secret.bar
+sampledso.secret.foo.bar.four
+sampledso.secret.foo.bar.grunt.five
+sampledso.secret.foo.bar.grunt.snort.huff.puff.seven
+sampledso.secret.foo.bar.grunt.snort.six
+sampledso.secret.foo.bar.max.redirect
+sampledso.secret.foo.bar.three
+sampledso.secret.foo.one
+sampledso.secret.foo.two
+sampledso.secret.bar 1 "foo"
+sampledso.secret.foo.bar.four 1 4
+sampledso.secret.foo.bar.grunt.five 1 5
+sampledso.secret.foo.bar.grunt.snort.huff.puff.seven 1 7
+sampledso.secret.foo.bar.grunt.snort.six 1 6
+sampledso.secret.foo.bar.max.redirect > 3 values ...
+sampledso.secret.foo.bar.three 1 3
+sampledso.secret.foo.one 1 1
+sampledso.secret.foo.two 1 2
+
+== sampledso.secret.bar sampledso.secret.foo ==
+sampledso.secret.bar
+sampledso.secret.foo.bar.four
+sampledso.secret.foo.bar.grunt.five
+sampledso.secret.foo.bar.grunt.snort.huff.puff.seven
+sampledso.secret.foo.bar.grunt.snort.six
+sampledso.secret.foo.bar.max.redirect
+sampledso.secret.foo.bar.three
+sampledso.secret.foo.one
+sampledso.secret.foo.two
+sampledso.secret.bar 1 "foo"
+sampledso.secret.foo.bar.four 1 4
+sampledso.secret.foo.bar.grunt.five 1 5
+sampledso.secret.foo.bar.grunt.snort.huff.puff.seven 1 7
+sampledso.secret.foo.bar.grunt.snort.six 1 6
+sampledso.secret.foo.bar.max.redirect > 3 values ...
+sampledso.secret.foo.bar.three 1 3
+sampledso.secret.foo.one 1 1
+sampledso.secret.foo.two 1 2
+
+== sampledso.secret.foo.bar.grunt ==
+sampledso.secret.foo.bar.grunt.five
+sampledso.secret.foo.bar.grunt.snort.huff.puff.seven
+sampledso.secret.foo.bar.grunt.snort.six
+sampledso.secret.foo.bar.grunt.five 1 5
+sampledso.secret.foo.bar.grunt.snort.huff.puff.seven 1 7
+sampledso.secret.foo.bar.grunt.snort.six 1 6
+
+pmval ...
+
+metric:    sampledso.secret.foo.bar.grunt.five
+HOST
+semantics: instantaneous value
+units:     count
+samples:   3
+interval:  0.10 sec
+          5
+          5
+          5
+
+pmie ...
+DATE: Bingo!
+
+pmlogger ...
+
+TIMESTAMP  30.0.1007 (sampledso.secret.foo.bar.grunt.snort.huff.puff.seven): value 7
+              30.0.1006 (sampledso.secret.foo.bar.grunt.snort.six): value 6
+              30.0.1005 (sampledso.secret.foo.bar.grunt.five): value 5
+              30.0.1004 (sampledso.secret.foo.bar.four): value 4
+              30.0.1003 (sampledso.secret.foo.bar.three): value 3
+              30.0.1002 (sampledso.secret.foo.two): value 2
+              30.0.1001 (sampledso.secret.foo.one): value 1
+              30.0.1000 (sampledso.secret.bar): value "foo"
+
+TIMESTAMP  30.0.1007 (sampledso.secret.foo.bar.grunt.snort.huff.puff.seven): value 7
+              30.0.1006 (sampledso.secret.foo.bar.grunt.snort.six): value 6
+              30.0.1005 (sampledso.secret.foo.bar.grunt.five): value 5
+              30.0.1004 (sampledso.secret.foo.bar.four): value 4
+              30.0.1003 (sampledso.secret.foo.bar.three): value 3
+              30.0.1002 (sampledso.secret.foo.two): value 2
+              30.0.1001 (sampledso.secret.foo.one): value 1
+              30.0.1000 (sampledso.secret.bar): value "foo"
+
+TIMESTAMP  30.0.1007 (sampledso.secret.foo.bar.grunt.snort.huff.puff.seven): value 7
+              30.0.1006 (sampledso.secret.foo.bar.grunt.snort.six): value 6
+              30.0.1005 (sampledso.secret.foo.bar.grunt.five): value 5
+              30.0.1004 (sampledso.secret.foo.bar.four): value 4
+              30.0.1003 (sampledso.secret.foo.bar.three): value 3
+              30.0.1002 (sampledso.secret.foo.two): value 2
+              30.0.1001 (sampledso.secret.foo.one): value 1
+              30.0.1000 (sampledso.secret.bar): value "foo"

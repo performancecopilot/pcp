@@ -1,0 +1,15 @@
+//
+// Some Common Performance Monitoring Scenarios
+//
+// The Network Group
+//
+
+// replace with your hosts
+HOSTS = ":localhost :foo";
+
+// replace this with your e-mail address
+MINDER = "root@localhost";
+
+// 10 second rulesets in this group
+delta = 10 sec;  		// numbers are diff than strings
+DELTA_STR = "10 seconds";	// strings are diff than numbers

@@ -1,0 +1,859 @@
+#! /bin/sh
+#
+# Copyright (c) 2003-2004 Silicon Graphics, Inc.  All Rights Reserved.
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+# 
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+#
+# Process a gendist-like idb file to collect, install, upgrade
+# and remove files.
+#
+# The format of the IDB file is:
+#
+# The first line must contain a version string "# Version 1"
+#
+# All following lines must contain:
+# d|f|h|s mode owner group destination source option
+#
+# One of:
+# d            directory to be created at destination (source ignored)
+# f            file to be installed from source to destination
+# h            hard link to be created at destination to source
+# s            soft link to be created at destination to source
+# 
+# mode         four digit mode bits
+# owner        file's owner
+# group        file's group
+# destination  create file/directory/link here
+# source       where file came from, or what link points to
+#
+# One of these options: replace, update, suggest, check or noupdate.
+#
+# Optionally, a os version number (uname -r), which ensures the file will only
+# get installed on that os version, or a minimum and a maximum version number (inclusive).
+#
+# If the target does not exist, all options just install the file.
+#
+# If the target already exists, the options do the following:
+#
+#   Option    Type  Operation
+#   --------- ----  ---------------------------------------------------
+#   replace   d     update permissions
+#              fhs  remove and install replacement
+#
+#   update    d hs  illegal option
+#              f    move existing file to file.bak, install new file
+#
+#   suggest   d hs  illegal option
+#              f    install new file as file.new
+#
+#   check     dfhs  do nothing
+#
+#   noupdate  dfhs  do nothing
+# 
+#
+# If removing the target, the target is removed unless the option is
+# noupdate. Directories will not be removed if they are not empty.
+#          
+# Lines starting with '#' or empty lines are ignored.
+#
+
+tmp=`mktemp -d /tmp/pcp.XXXXXXXXX` || exit 1
+prog=`basename $0`
+status=1
+result=0	# non-fatal errors will set this to 1
+now=`date`
+host=`hostname`
+dump_mesg=false
+
+trap "rm -rf $tmp; exit \$status" 0 1 2 15
+
+MKDIR=/bin/mkdir
+CP=/bin/cp
+MV=/bin/mv
+LN=/bin/ln
+RM=/bin/rm
+RMDIR=/bin/rmdir
+CHMOD=/bin/chmod
+CHOWN=/usr/sbin/chown
+CHGRP=/usr/bin/chgrp
+DIRNAME=/usr/bin/dirname
+TEE=/usr/bin/tee
+JOIN=/usr/bin/join
+SED=/usr/bin/sed
+AWK=/usr/bin/awk
+SORT=/usr/bin/sort
+UNAME=/usr/bin/uname
+
+OS_VERSION=`$UNAME -r`
+
+_usage()
+{
+    cat << EOF
+Usage: $prog [-cinpr] [-C os_version] [-l logfile] [-u origidb] [-y origidb] [-R root] idbfile
+
+   -l logfile Save important output to logfile
+   -n         Show actions but do not execute
+   -R root    Collect or install files using root rather
+              than WORKAREA or /
+   -v         Verbose output
+   -C os_ver  (Only used for collect phase) Only collect files which will be used for os_ver
+
+ One of: 
+   -c         Collect source files into current dir
+   -i         Install files from current directory
+   -p         Parse and check idb is valid
+   -r         Remove installed files
+   -u origidb Remove files not in new IDB
+   -y origidb Remove files not in new IDB and then install
+EOF
+    exit 1
+}
+
+_echo()
+{
+    if $log
+    then
+	echo "$*" | $TEE -a $logfile
+    else
+	echo "$*"
+    fi
+}
+
+_error()
+{
+    _echo "$prog: Error: $*" | $TEE -a $mesg
+    dump_mesg=true
+    result=1
+    exit 1
+}
+
+_warn()
+{
+    if $verbose
+    then
+	_echo "$prog: Warning: $*" | $TEE -a $mesg
+	dump_mesg=true
+    fi
+}
+
+_debug()
+{
+    sed -e "s/^/$prog: Debug: /" | $TEE -a $mesg
+    dump_mesg=true
+}
+
+_mesg_head()
+{
+    _echo "$*" | $TEE -a $mesg
+}
+
+_mesg()
+{
+    _echo "$prog: $*" | $TEE -a $mesg
+    dump_mesg=true
+}
+
+_note()
+{
+    $verbose && _echo "$prog: Note: $*"
+}
+
+_cmd()
+{
+    $verbose && _echo "$*"
+    $*
+}
+
+_get_numeric_version()
+{
+    echo $1 | awk '
+	{ n = split($0, v, "."); 
+	  if (n == 2)
+	    v[2] = 0;
+	  print (v[0] * 100) + (v[1] * 10) + v[2]; }
+	'
+}
+
+_test_version()
+{
+    local _min_numeric
+    local _max_numeric
+    local _os_numeric
+    local _min_version=$1
+    local _max_version=$2
+    local _temp_numeric
+
+    if [ -z "$_min_version" -o "$_min_version" = "$OS_VERSION" ]; then
+	# No version, or exact match
+	return 0
+    elif [ -z "$_max_version" ]; then
+	# No max and no exact match with min
+	return 1
+    else
+	# max and min without exact match, so test range
+	_min_numeric=`_get_numeric_version $_min_version`
+	_max_numeric=`_get_numeric_version $_max_version`
+	_os_numeric=`_get_numeric_version $OS_VERSION`
+	if [ $_min_numeric -gt $_max_numeric ]; then
+	    _temp_numeric=$_min_numeric
+	    _min_numeric=$_max_numeric
+	    _max_numeric=$_temp_numeric
+	fi
+	if [ $_os_numeric -ge $_min_numeric -a $_os_numeric -le $_max_numeric ]; then
+	    return 0
+	else	    
+	    return 1
+	fi
+    fi
+}
+
+_remove_file()
+{
+    if _test_version $2 $3
+    then
+	if [ -f $root/$1 ]
+	then
+	    if ! _cmd $RM $root/$1
+	    then
+		_warn "Unable to remove $root/$1, continuing"
+	    fi
+	else
+	    _note "$root/$1 does not exist for removal, skipping"
+	fi
+    fi
+}
+
+_remove_dir()
+{
+    if _test_version $2 $3
+    then
+	if [ -d $root/$1 ]
+	then
+	    if ! _cmd $RMDIR $root/$1
+	    then
+		_warn "Unable to remove $root/$1, continuing"
+	    fi
+	else
+	    _note "$root/$1 does not exist for removal, skipping"
+	fi
+    fi
+}
+
+# $1 is path to file in tree
+# $2 is path to the file in the workarea
+# path is created in current directory and the file is copied
+#
+_collect_file()
+{
+    file=$root/$1
+    dir=`$DIRNAME $2`
+
+    if [ ! -z "$collect_version" ]; then
+	# override the OS_VERSION, which is used in test_version()
+	OS_VERSION=$collect_version 
+	if ! _test_version $3 $4
+	then
+		# version doesn't match, so skip it
+		return
+	fi
+    fi
+
+    if [ ! -r $file ]
+    then
+	_error "Unable to find $file"
+    fi
+
+    if [ ! -d $dir ]
+    then
+	if _cmd $MKDIR -p $dir
+	then
+	    :
+	else
+	    _error "Unable to create $dir"
+	fi
+    fi
+
+    if ! _cmd $CP $file $2
+    then
+	_error "Unable to copy $file"
+    fi
+}
+
+# Takes the idb line
+# d|f|h|s mode owner group destination source option
+_install_file()
+{
+    type=$1
+    target=$root/$5
+    source=$6
+    option=$7
+    chopts=
+
+    if _test_version $8 $9
+    then
+	# Set to true if we need to set mode, uid and gid
+	installed=false
+
+	if [ $type = "d" ]
+	then
+	    if [ ! -d $target ]
+	    then
+		if _cmd $MKDIR -p $target
+		then
+		    installed=true
+		else
+		    _error "Unable to create dir $target"
+		fi
+	    elif [ -f $target ]
+	    then
+		if [ $option = "replace" ]
+		then
+		    if ! _cmd $RM $target
+		    then
+			_error "Unable to replace existing $target with directory"
+		    fi
+		    if _cmd $MKDIR -p $target
+		    then
+			installed=true
+		    else
+			_error "Unable to create dir $target"
+		    fi
+		else
+		    _error "$target exists but is not a directory"
+		fi	
+	    fi
+	elif [ $type = "f" ]
+	then
+	    if [ ! -f $source ]
+	    then
+		echo "cwd=`pwd`" >$tmp/debug
+		echo "source dir=`dirname $source`" >>$tmp/debug
+		ls -l `dirname $source` >>$tmp/debug
+		_debug <$tmp/debug
+		_error "Unable to find file ($source) for $target"
+	    fi
+	    if [ -f $target ]
+	    then
+		case $option in
+		    replace)
+			if ! _cmd $RM $target
+			then
+			    _warn "Unable to remove existing $target, continuing"
+			fi
+			if _cmd $MV $source $target
+			then
+			    installed=true
+			else
+			    _error "Unable to install $target"
+			fi
+			;;
+		    update)
+			if ! _cmd $CP $target $target.bak
+			then
+			    _warn "Unable to copy existing $target to $target.bak, continuing"
+			fi
+
+			if ! _cmd $RM $target
+			then
+			    _warn "Unable to remove existing $target, continuing"
+			fi
+
+			if _cmd $MV $source $target
+			then
+			    _mesg "Update to $target installed, original backed up at $target.bak"
+			    installed=true
+			else
+			    if _cmd $CP $target.bak $target
+			    then
+				_error "Unable to install $target, original moved back"
+			    else
+				_error "Unable to install $target, original now $target.bak"
+			    fi
+			fi
+			;;
+
+		    suggest)
+			if _cmd $MV $source $target.new
+			then
+			    _mesg "Suggested update to $target installed at $target.new"
+			    installed=true
+			    target=$target.new
+			else
+			    _warn "Unable to install $target as $target.new, continuing"
+			fi
+			;;
+			
+		    check)
+			# Nothing to do if file exists
+			;;
+		    noupdate)
+			# Nothing to do if file exists
+			;;
+		    *)
+			_error "Unsupported IDB option ($option) for $target"
+			;;
+		esac
+	    elif [ -d $target ]
+	    then
+		_error "$target exists but is a directory"
+	    else
+		if _cmd $MV $source $target
+		then
+		    installed=true
+		else
+		    _error "Unable to install $target"
+		fi
+	    fi
+	elif [ $type = "h" ]
+	then
+	    if [ -f $target ]
+	    then
+		case $option in
+		    replace)
+			if ! _cmd $RM $target
+			then
+			    _warn "Unable to remove existing $target, continuing"
+			fi
+			if _cmd $LN $root/$source $target
+			then
+			    installed=true
+			else
+			    _error "Unable to install $target"
+			fi
+			;;
+		    update)
+			_error "Illegal update option for hard link $target to $root/$source"
+			;;
+		    suggest)
+			_error "Illegal suggest option for hard link $target to $root/$source"
+			;;
+		    check)
+			# Nothing to do if file exists
+			;;
+		    noupdate)
+			# Nothing to do if file exists
+			;;
+		esac
+	    elif [ -d $target ]
+	    then
+		_error "$target exists but is a directory"
+	    else
+		if _cmd $LN $root/$source $target
+		then
+		    installed=true
+		else
+		    _error "Unable to install $target"
+		fi
+	    fi
+	elif [ $type = "s" ]
+	then
+	    chopts="-h"
+	    if [ -f $target ]
+	    then
+		case $option in
+		    replace)
+			if ! _cmd $RM $target
+			then
+			    _warn "Unable to remove existing $target, continuing"
+			fi
+			if _cmd $LN -s -f $root/$source $target
+			then
+			    installed=true
+			else
+			    _error "Unable to install $target"
+			fi
+			;;
+		    update)
+			_error "Illegal update option for soft link $target to $root/$source"
+			;;
+		    suggest)
+			_error "Illegal suggest option for soft link $target to $root/$source"
+			;;
+		    check)
+			# Nothing to do if file exists
+			;;
+		    noupdate)
+			# Nothing to do if file exists
+			;;
+		esac
+	    elif [ -d $target ]
+	    then
+		_error "$target exists but is a directory"
+	    else
+		if _cmd $LN -s -f $root/$source $target
+		then
+		    installed=true
+		else
+		    _error "Unable to install $target"
+		fi
+	    fi
+	else
+	    _error "Unrecognised file type ($type)"
+	fi
+
+	if $installed
+	then
+            if [ "$type" != "s" ] ; then
+		if ! _cmd $CHMOD $2 $target
+		then
+		    _warn "Unable to change mode of $target to $2, continuing"
+		fi
+	    fi
+	    if ! _cmd $CHOWN $chopts $3 $target
+	    then
+		_warn "Unable to change ownership of $target to $3, continuing"
+	    fi
+	    if ! _cmd $CHGRP $chopts $4 $target
+	    then
+		_warn "Unable to change group of $target to $4, continuing"
+	    fi
+	fi
+    fi
+}
+
+_remove()
+{
+    #
+    # Directories are removed after all files are removed
+    # If directory is not empty, default is to ignore and move on
+    #
+    sort -k1r,1 -k5r,5 $1 < $1 \
+    | $AWK '
+$7 == "noupdate"	{ next }
+$1 == "d" 		{ printf("_remove_dir %s %s %s\n", $5, $8, $9); next }
+			{ printf("_remove_file %s %s %s\n", $5, $8, $9) }
+' \
+    | sort -r \
+    | uniq >> $tmp/cmds
+}
+
+_install()
+{
+    #
+    # Directories are installed before all files are installed
+    # Links are installed after normal files
+    #
+    sed < $tmp/idb >> $tmp/cmds -e 's/^/_install_file /'
+}
+
+show=false
+collect=false
+install=false
+remove=false
+upgrade=false
+upgrade_n_install=false
+verbose=false
+logfile=
+log=false
+mesg=$tmp/mesg
+root=
+collect_version=
+parse=false
+if set -- `getopt cC:il:nprR:u:vy: $*`
+then
+    for i in $* 
+    do
+        case $i in
+	    -C)
+		$install && _usage
+		$parse && _usage
+		$remove && _usage
+		$upgrade && _usage
+		$upgrade_n_install && _usage
+                collect=true
+		collect_version=$2
+		echo "Collecting for $collect_version"
+                shift 2;;
+            -c)
+		$install && _usage
+		$remove && _usage
+		$upgrade && _usage
+		$upgrade_n_install && _usage
+		$parse && _usage
+                collect=true
+                shift;;
+	    -i)
+		$collect && _usage
+		$remove && _usage
+		$upgrade && _usage
+		$upgrade_n_install && _usage
+		$parse && _usage
+		install=true
+		shift;;
+	    -l)
+		log=true
+		logfile=$2
+		touch $logfile
+		if [ ! -w $logfile ]
+		then
+		    log=false
+		    _warn "Unable to open logfile ($logfile)"
+		fi
+		shift 2;;
+	    -n)
+		show=true
+		shift;;
+	    -p)
+		$collect && _usage
+		$install && _usage
+		$remove && _usage
+		$upgrade && _usage
+		$upgrade_n_install && _usage
+		parse=true
+		shift;;
+	    -r)
+		$collect && _usage
+		$install && _usage
+		$parse && _usage
+		$upgrade && _usage
+		$upgrade_n_install && _usage
+		remove=true
+		shift;;
+	    -R)
+		root=$2
+		shift 2;;
+	    -u)
+		$collect && _usage
+		$install && _usage
+		$parse && _usage
+		$remove && _usage
+		$upgrade_n_install && _usage
+		upgrade=true
+		oidb=$2
+		shift 2;;
+	    -v)
+		verbose=true
+		shift;;
+	    -y)
+		$collect && _usage
+		$install && _usage
+		$parse && _usage
+		$remove && _usage
+		$upgrade && _usage
+		upgrade_n_install=true
+		oidb=$2
+		shift 2;;
+            --)
+                break
+                shift;;
+        esac
+    done    
+    shift   
+else
+    _usage
+fi
+
+if [ $# -ne 1 ]
+then
+    _usage
+fi
+
+idb=$1
+
+if [ ! -r $idb ]
+then
+    echo "$prog: Unable to open $idb"
+    exit 1
+fi
+
+$AWK < $idb > $tmp/err -v prog=$prog -v idb=$idb '
+BEGIN	{ fail = 0; version = 0; entries = 0 }
+
+NR == 1 && ( NF != 3 || $1 != "#" || $2 != "Version" || $3 != "1" ) {
+	printf("%s: Error: Line %d of %s has an invalid version string (%s)\n",
+	       prog, NR, idb, $0);
+	fail = 1;
+	exit(1); 
+}
+
+NR == 1		{ version = 1; next }
+/^#/		{ next }
+NF == 0		{ next }
+
+NF != 7	&& NF != 8 && NF != 9	{ 
+	printf("%s: Error: Line %d of %s does not have 7 or 8 or 9 entries (%d)\n",
+	       prog, NR, idb, NF);
+	fail = 1;
+	exit(1); 
+}
+
+$1 != "d" && $1 != "f" && $1 != "h" && $1 != "s" {
+	printf("%s: Error: Line %d of %s has invalid file type (%s)\n",
+	       prog, NR, idb, $1);
+	fail = 1;
+	exit(1);
+}
+
+$7 != "replace" && $7 != "update" && $7 != "suggest" && $7 != "check" && $7 != "noupdate" {
+	printf("%s: Error: Line %d of %s has invalid file option (%s)\n",
+	       prog, NR, idb, $7);
+	fail = 1;
+	exit(1);
+}
+
+$1 != "f" && ($7 == "update" || $7 == "suggest") {
+	printf("%s: Error: Line %d of %s has unsupported combination of %s and %s\n",
+	       prog, NR, idb, $1, $7);
+	fail = 1;
+	exit(1);
+}
+
+$5 ~ "^/" {
+	printf("%s: Error: Line %d of %s does not have relative path (%s)\n",
+	       prog, NR, idb, $5);
+	fail = 1;
+	exit(1);
+}
+
+$6 ~ "^/" {
+	printf("%s: Error: Line %d of %s does not have relative path (%s)\n",
+	       prog, NR, idb, $6);
+	fail = 1;
+	exit(1);
+}
+
+	{ entries++ }
+
+END	{
+	if (!fail) {
+		if (!version) {
+			printf("%s: Error: No version string in %s\n", 
+				prog, idb);
+			exit(1);
+		}
+		if (!entries) {
+			printf("%s: Error: No entries in %s\n", 
+				prog, idb);
+			exit(1);
+		}
+	}
+}
+'
+
+if [ -s $tmp/err ]
+then
+    echo "$prog: $idb: Invalid IDB file detected:"
+    cat $tmp/err
+    exit 1
+elif $parse
+then
+    status=0
+    exit
+fi
+
+$RM -f $tmp/dirs $tmp/cmds $tmp/files $tmp/idb $tmp/tidb
+touch $tmp/dirs $tmp/cmds $tmp/files
+
+sed < $idb -e '/^#/d' -e '/^$/d' \
+| $SORT -k1,1 -k5,5 \
+> $tmp/idb
+
+cat << EOF > $mesg
+
+=======================================================================
+Installation issues that may require further investigation:
+EOF
+
+if $remove
+then
+
+    _mesg_head "Removing all installed PCP files"
+    _mesg_head "Date: "`date`
+    _mesg_head "User: $USER"
+    _remove $tmp/idb
+
+
+#
+# Collect files out of source tree and copy here using the same
+# directory structure
+#
+
+elif $collect
+then
+    _mesg_head "Collecting all files to be included in package"
+    _mesg_head "Date: "`date`
+    _mesg_head "User: $USER"
+
+    [ "X$root" = "X" ] && root=$WORKAREA
+
+    if [ "X$root" = "X" ]
+    then
+	_error "Neither \$WORKAREA or -R were set"
+	exit 1
+    fi
+
+    $AWK < $tmp/idb > $tmp/cmds '
+$1 == "f"	{ printf("_collect_file %s %s %s %s\n", $5, $6, $8, $9) }'
+
+#
+# Install files assuming that they do not already exist
+#
+elif $install
+then
+    _mesg_head "Installing PCP files"
+    _mesg_head "Date: "`date`
+    _mesg_head "User: $USER"
+    _install
+
+elif $upgrade || $upgrade_n_install
+then
+    _mesg_head "Upgrade of PCP files"
+    _mesg_head "Date: "`date`
+    _mesg_head "User: $USER"
+
+    # Determine which files need to be removed since they
+    # are not in the new set of files. Files which are
+    # in both sets will be upgraded depending on their
+    # IDB option.
+
+    if [ ! -r $oidb ]
+    then
+	_warn "Upgrade in progress but cannot find old inventory ($oidb) to delete files that are no longer required"
+    else
+	sed < $oidb -e '/^#/d' -e '/^$/d' \
+	| $SORT -k1,1 -k5,5 \
+	> $tmp/oidb
+
+	# explicity name all fields so that the extra os_version field doesnt confuse join
+	$JOIN -t' ' -v 2 -1 5 -2 5 $tmp/idb $tmp/oidb > $tmp/extra
+	if [ -s $tmp/extra ]
+	then
+	    _remove $tmp/extra
+	else
+	    _note "No files need to be removed before upgrade"
+	fi
+    fi
+    $upgrade_n_install && _install
+
+else
+    echo "$prog: Must select one of -r, -c, -i, -u or -y options"
+    exit 1
+fi
+
+if $show
+then
+    cat $tmp/cmds
+else
+    $verbose && cat $tmp/cmds
+. $tmp/cmds
+fi
+
+if $dump_mesg
+then
+    $log && cat $mesg >> $logfile
+    cat $mesg
+fi
+
+status=$result

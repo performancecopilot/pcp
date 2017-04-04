@@ -1,0 +1,7 @@
+//
+// relational (logical) expressions
+//
+hosts = ":gonzo";
+intfs = "#ec0 #ec2";
+all_intf = network.interface.in.packets
+		$hosts $intfs @0..2 > 300 count/sec;

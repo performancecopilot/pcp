@@ -1,0 +1,220 @@
+QA output created by 499
+=== metric not in archive ===
+Metric: kernel.all.load: Unknown metric name
+No changes
+PCP Archive Log Rewrite Specifications Summary
+Warning [TMP.conf.dir/conf.0, line 1]
+Warning: TMP.new.0 missing
+Warning: TMP.new.index missing
+Warning: TMP.new.meta missing
+
+=== + indom not in archive ===
+Instance domain 1.2: Instance domain identifier not defined in the PCP archive log
+Metric: kernel.all.load: Unknown metric name
+No changes
+PCP Archive Log Rewrite Specifications Summary
+Warning [TMP.conf.dir/conf.0, line 1]
+Warning [TMP.conf.dir/conf.1, line 1]
+Warning: TMP.new.0 missing
+Warning: TMP.new.index missing
+Warning: TMP.new.meta missing
+
+=== + empty global clause ===
+Instance domain 1.2: Instance domain identifier not defined in the PCP archive log
+Metric: kernel.all.load: Unknown metric name
+No changes
+PCP Archive Log Rewrite Specifications Summary
+Warning [TMP.conf.dir/conf.0, line 1]
+Warning [TMP.conf.dir/conf.1, line 1]
+Warning: TMP.new.0 missing
+Warning: TMP.new.index missing
+Warning: TMP.new.meta missing
+
+=== + no-change global hostname clause ===
+Global hostname (bozo-laptop): No change
+Instance domain 1.2: Instance domain identifier not defined in the PCP archive log
+Metric: kernel.all.load: Unknown metric name
+No changes
+PCP Archive Log Rewrite Specifications Summary
+Warning [TMP.conf.dir/conf.0, line 1]
+Warning [TMP.conf.dir/conf.1, line 1]
+Warning [TMP.conf.dir/conf.3, line 1]
+Warning: TMP.new.0 missing
+Warning: TMP.new.index missing
+Warning: TMP.new.meta missing
+
+=== + no-change global time clause ===
+Global hostname (bozo-laptop): No change
+Global time: No change
+Instance domain 1.2: Instance domain identifier not defined in the PCP archive log
+Metric: kernel.all.load: Unknown metric name
+No changes
+PCP Archive Log Rewrite Specifications Summary
+Warning [TMP.conf.dir/conf.0, line 1]
+Warning [TMP.conf.dir/conf.1, line 1]
+Warning [TMP.conf.dir/conf.3, line 1]
+Warning [TMP.conf.dir/conf.4, line 1]
+Warning: TMP.new.0 missing
+Warning: TMP.new.index missing
+Warning: TMP.new.meta missing
+
+=== + no-change global timezone clause ===
+Global hostname (bozo-laptop): No change
+Global time: No change
+Global timezone (EST-10): No change
+Instance domain 1.2: Instance domain identifier not defined in the PCP archive log
+Metric: kernel.all.load: Unknown metric name
+No changes
+PCP Archive Log Rewrite Specifications Summary
+Warning [TMP.conf.dir/conf.0, line 1]
+Warning [TMP.conf.dir/conf.1, line 1]
+Warning [TMP.conf.dir/conf.3, line 1]
+Warning [TMP.conf.dir/conf.4, line 1]
+Warning [TMP.conf.dir/conf.5, line 1]
+Warning: TMP.new.0 missing
+Warning: TMP.new.index missing
+Warning: TMP.new.meta missing
+
+=== + no-change indom clause ===
+Global hostname (bozo-laptop): No change
+Global time: No change
+Global timezone (EST-10): No change
+Instance domain 1.2: Instance domain identifier not defined in the PCP archive log
+Instance domain 29.2: Instance: "bin-300": No change
+Instance domain 29.2: Instance: 800: No change
+Instance domain 29.2: indom: No change
+Metric: kernel.all.load: Unknown metric name
+No changes
+PCP Archive Log Rewrite Specifications Summary
+Unknown instance "bin-999" in iname clause for indom 29.2
+Unknown instance 123 in inst clause for indom 29.2
+Warning [TMP.conf.dir/conf.0, line 1]
+Warning [TMP.conf.dir/conf.1, line 1]
+Warning [TMP.conf.dir/conf.3, line 1]
+Warning [TMP.conf.dir/conf.4, line 1]
+Warning [TMP.conf.dir/conf.5, line 1]
+Warning [TMP.conf.dir/conf.6, line 3]
+Warning [TMP.conf.dir/conf.6, line 4]
+Warning [TMP.conf.dir/conf.6, line 5]
+Warning [TMP.conf.dir/conf.6, line 7]
+Warning [TMP.conf.dir/conf.6, line 8]
+Warning: TMP.new.0 missing
+Warning: TMP.new.index missing
+Warning: TMP.new.meta missing
+
+=== + no-change metric clause ===
+Global hostname (bozo-laptop): No change
+Global time: No change
+Global timezone (EST-10): No change
+Instance domain 1.2: Instance domain identifier not defined in the PCP archive log
+Instance domain 29.2: Instance: "bin-300": No change
+Instance domain 29.2: Instance: 800: No change
+Instance domain 29.2: indom: No change
+Metric: kernel.all.load: Unknown metric name
+Metric: sample.ulonglong.hundred (29.0.100): indom: PM_INDOM_NULL: No change
+Metric: sample.ulonglong.hundred (29.0.100): name: No change
+Metric: sample.ulonglong.hundred (29.0.100): pmid: No change
+Metric: sample.ulonglong.hundred (29.0.100): sem: instant: No change
+Metric: sample.ulonglong.hundred (29.0.100): type: PM_TYPE_U64: No change
+Metric: sample.ulonglong.hundred (29.0.100): units: : No change
+No changes
+PCP Archive Log Rewrite Specifications Summary
+Unknown instance "bin-999" in iname clause for indom 29.2
+Unknown instance 123 in inst clause for indom 29.2
+Warning [TMP.conf.dir/conf.0, line 1]
+Warning [TMP.conf.dir/conf.1, line 1]
+Warning [TMP.conf.dir/conf.3, line 1]
+Warning [TMP.conf.dir/conf.4, line 1]
+Warning [TMP.conf.dir/conf.5, line 1]
+Warning [TMP.conf.dir/conf.6, line 3]
+Warning [TMP.conf.dir/conf.6, line 4]
+Warning [TMP.conf.dir/conf.6, line 5]
+Warning [TMP.conf.dir/conf.6, line 7]
+Warning [TMP.conf.dir/conf.6, line 8]
+Warning [TMP.conf.dir/conf.7, line 3]
+Warning [TMP.conf.dir/conf.7, line 3]
+Warning [TMP.conf.dir/conf.7, line 4]
+Warning [TMP.conf.dir/conf.7, line 5]
+Warning [TMP.conf.dir/conf.7, line 6]
+Warning [TMP.conf.dir/conf.7, line 8]
+Warning: TMP.new.0 missing
+Warning: TMP.new.index missing
+Warning: TMP.new.meta missing
+
+=== + change pmid clause ===
+
+Global hostname (bozo-laptop): No change
+Global time: No change
+Global timezone (EST-10): No change
+Instance domain 1.2: Instance domain identifier not defined in the PCP archive log
+Instance domain 29.2: Instance: "bin-300": No change
+Instance domain 29.2: Instance: 800: No change
+Instance domain 29.2: indom: No change
+Metric: kernel.all.load: Unknown metric name
+Metric: sample.longlong.bin_ctr (29.0.110)
+Metric: sample.ulonglong.hundred (29.0.100): indom: PM_INDOM_NULL: No change
+Metric: sample.ulonglong.hundred (29.0.100): name: No change
+Metric: sample.ulonglong.hundred (29.0.100): pmid: No change
+Metric: sample.ulonglong.hundred (29.0.100): sem: instant: No change
+Metric: sample.ulonglong.hundred (29.0.100): type: PM_TYPE_U64: No change
+Metric: sample.ulonglong.hundred (29.0.100): units: : No change
+PCP Archive Log Rewrite Specifications Summary
+Unknown instance "bin-999" in iname clause for indom 29.2
+Unknown instance 123 in inst clause for indom 29.2
+Warning [TMP.conf.dir/conf.0, line 1]
+Warning [TMP.conf.dir/conf.1, line 1]
+Warning [TMP.conf.dir/conf.3, line 1]
+Warning [TMP.conf.dir/conf.4, line 1]
+Warning [TMP.conf.dir/conf.5, line 1]
+Warning [TMP.conf.dir/conf.6, line 3]
+Warning [TMP.conf.dir/conf.6, line 4]
+Warning [TMP.conf.dir/conf.6, line 5]
+Warning [TMP.conf.dir/conf.6, line 7]
+Warning [TMP.conf.dir/conf.6, line 8]
+Warning [TMP.conf.dir/conf.7, line 3]
+Warning [TMP.conf.dir/conf.7, line 3]
+Warning [TMP.conf.dir/conf.7, line 4]
+Warning [TMP.conf.dir/conf.7, line 5]
+Warning [TMP.conf.dir/conf.7, line 6]
+Warning [TMP.conf.dir/conf.7, line 8]
+pmID:		29.0.110 -> 1.2.3
+--- TMP.in
++++ TMP.out
+@@ -39,6 +39,9 @@
+ PMID: 30.0.50 (sampledso.part_bin)
+     Data Type: 32-bit int  InDom: 30.2 0x7800002
+     Semantics: instant  Units: none
++PMID: 1.2.3 (sample.longlong.bin_ctr)
++    Data Type: 64-bit int  InDom: 29.2 0x7400002
++    Semantics: counter  Units: Kbyte
+ PMID: 30.0.27 (sampledso.double.hundred)
+     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: instant  Units: none
+@@ -48,9 +51,6 @@
+ PMID: 29.0.50 (sample.part_bin)
+     Data Type: 32-bit int  InDom: 29.2 0x7400002
+     Semantics: instant  Units: none
+-PMID: 29.0.110 (sample.longlong.bin_ctr)
+-    Data Type: 64-bit int  InDom: 29.2 0x7400002
+-    Semantics: counter  Units: Kbyte
+ PMID: 2.3.2 (pmcd.pmlogger.archive)
+     Data Type: string  InDom: 2.1 0x800001
+     Semantics: discrete  Units: none
+@@ -168,7 +168,7 @@
+                 inst [200 or "bin-200"] value 200
+                 inst [800 or "bin-800"] value 800
+                 inst [900 or "bin-900"] value 900
+-              29.0.110 (sample.longlong.bin_ctr):
++              1.2.3 (sample.longlong.bin_ctr):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+                 inst [300 or "bin-300"] value 300
+@@ -258,7 +258,7 @@
+                 inst [200 or "bin-200"] value 200
+                 inst [800 or "bin-800"] value 800
+                 inst [900 or "bin-900"] value 900
+-              29.0.110 (sample.longlong.bin_ctr):
++              1.2.3 (sample.longlong.bin_ctr):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+                 inst [300 or "bin-300"] value 300

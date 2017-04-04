@@ -1,0 +1,4 @@
+#pmlogconf-setup 2.0
+ident	asynchronous I/O activity
+probe	kaio.reads
+	kaio

@@ -1,0 +1,45 @@
+#!/bin/sh
+# PCP QA Test No. 831
+# Exercising local socket connections and user credentials.
+#
+# Approach used is to enable tracing in the sample PMDA and
+# then access (any) sample metric.  This should result in a
+# log message in pmdasample.log reflecting the testers user
+# and group identifiers.
+#
+# Copyright (c) 2013 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.secure
+
+_get_libpcp_config
+$unix_domain_sockets || _notrun "No unix domain socket support available"
+$authentication || _notrun "No authentication support available"
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+_wait_for_pmcd		# sample.log is now sure to be clean
+
+echo "Enabling sample PMDA tracing"
+authdbg=`pmdbg -l | grep DBG_TRACE_AUTH | awk '{ print $2 }'`
+pmstore sample.control $authdbg
+
+echo "Verifying authentication for new client"
+pmprobe -v -h unix: sample.control
+filter_sample_log_credentials
+
+echo "Resetting sample PMDA tracing"
+pmstore -h unix: sample.control 0
+filter_sample_log_credentials
+
+# success, all done
+status=0
+exit

@@ -1,0 +1,37 @@
+QA output created by 929
+# $version=1.1    
++ export version; version=1.1    
++ cd TMP.one
+
+=== daily maintenance of PCP archives for host one.somewhere ===
+
+pmlogger_daily: Error: no pmlogger instance running for host "one.somewhere"
+[TMP.control:3] ... logging for host "one.somewhere" unchanged
+
++ pmlogmv -V -N PAST.00.10 PAST
++ cd TMP.two
+
+=== daily maintenance of PCP archives for host two.somewhere ===
+
+pmlogger_daily: Error: no pmlogger instance running for host "two.somewhere"
+[TMP.control:4] ... logging for host "two.somewhere" unchanged
+
++ pmlogger_merge -V -N -f PAST.00.10 PAST.13.13 PAST
+
+--- -M case ---
+# $version=1.1    
++ export version; version=1.1    
++ cd TMP.one
+
+=== daily maintenance of PCP archives for host one.somewhere ===
+
+pmlogger_daily: Error: no pmlogger instance running for host "one.somewhere"
+[TMP.control:3] ... logging for host "one.somewhere" unchanged
+
++ cd TMP.two
+
+=== daily maintenance of PCP archives for host two.somewhere ===
+
+pmlogger_daily: Error: no pmlogger instance running for host "two.somewhere"
+[TMP.control:4] ... logging for host "two.somewhere" unchanged
+

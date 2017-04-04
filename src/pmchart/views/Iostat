@@ -1,0 +1,32 @@
+#kmchart
+version 1
+
+global width 600
+global height 300
+global points 360
+
+tab "SCSI Disk TRAFFIC"
+chart title "Disk READ thruput [%h]" style stacking
+	plot color #-cycle host * metric disk.dev.read_bytes
+
+chart title "Disk WRITE thruput [%h]" style stacking
+	plot color #-cycle host * metric disk.dev.write_bytes
+
+chart title "Disk READ OPS [%h]" style stacking
+	plot color #-cycle host * metric disk.dev.read
+
+chart title "Disk WRITE OPS [%h]" style stacking
+	plot color #-cycle host * metric disk.dev.write
+
+tab "SCSI Disk IOSTAT"
+chart title "Disk Avg Wait Time (msecs / req) [%h]" style line
+	plot color #-cycle host * metric disk.dev.await
+
+chart title "Disk Avg Req Size (Kbytes / req) [%h]" style line
+	plot color #-cycle host * metric disk.dev.avg_rqsz
+
+chart title "Disk Avg Queue Len [%h]" style line
+	plot color #-cycle host * metric disk.dev.avg_qlen
+
+chart title "Disk Avg %Util [%h]" style line scale from 0 to 100
+	plot color #-cycle host * metric disk.dev.util

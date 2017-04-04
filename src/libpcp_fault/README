@@ -1,0 +1,58 @@
+libpcp_fault is a version of libpcp that has fault injection
+capabilities added and lock debug instrumentation.
+
+This library is NOT intended to be packaged or shipped,
+rather it is intended for use with the PCP QA suite.
+
+Normal builds do not descend into this directory.
+
+To build and use the library, cd into here, then
+
+    $ cd src
+    $ make
+    $ sudo make install
+    $ make clean
+
+To use the library in a test application, 
+
+    #include <pcp/fault.h>
+
+    ...
+
+Then compile the code with -DPM_FAULT_INJECTION=1 and link with
+-lpcp_fault instead of -lpcp
+
+To use with an executable that is already linked, set $LD_PRELOAD
+in the environment to the full pathname of the installed
+libpcp_fault, e.g.
+
+    $ LD_PRELOAD=/usr/lib/libpcp_fault.so pminfo ...
+
+The mechanisms for defining fault injection points and controlling
+the triggering of fault injection is described in the brief "man"
+page found in the this directory.  Review with
+
+    $ man ./pmfault.3
+
+Lock debugging is activated with -D options on the command line for
+standard PCP applications:
+
+    -D lock	enables lock debug tracing, by default all lock and
+    		unlock requests are traced with the source:lineno of
+		the caller and some symbolic reference to the lock
+		type ... lock recursion is reported by a [count=N]
+		note if the lock count is not 0 for a lock() and 1
+		for an unlock()
+
+    -D lock,appl0
+    		restrict the tracing to the global libpcp lock
+
+    -D lock,appl1
+    		restrict tracing to the per-context locks
+
+    -D lock,appl2
+    		restrict tracing to the ipc channel lock for each
+		context
+
+One or more appl? flags may be specified.  -D lock is equivalent to
+-D lock,appl0,appl1,appl2

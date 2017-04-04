@@ -1,0 +1,69 @@
+#!/bin/sh
+# PCP QA Test No. 352
+#
+# derived metrics and pmlogger ...
+#
+# Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+cat <<End-of-File >$tmp.derive
+sample.long.nine = sample.long.ten - sample.long.one
+sample.long.ninety_nine = sample.long.hundred - sample.long.one
+sample.long.lots = sample.long.million - sample.long.hundred
+End-of-File
+
+cat <<End-of-File >$tmp.config
+log mandatory on 100msec {
+    sample.long.one
+    sample.long.ten
+    sample.long.nine
+    sample.long.ninety_nine
+    sample.long.lots
+}
+End-of-File
+
+_filter()
+{
+    sed \
+	-e "s;$tmp;TMP;g" \
+	-e '/pmcd\.pmlogger\./s/.*/	.../'
+}
+
+unset PCP_DERIVED_CONFIG
+
+# real QA test starts here
+echo "Expect this to fail as derived metrics not defined ..."
+rm -f $tmp.0 $tmp.meta $tmp.index $tmp.log
+pmlogger -c $tmp.config -l $tmp.log -s 2 $tmp
+cat $tmp.log >$seq.full
+_filter_pmlogger_log <$tmp.log | _filter
+pmdumplog $tmp | tee -a $seq.full | _filter_pmdumplog | _filter
+
+echo | tee -a $seq.full
+echo "Now with derived metrics defined ..." | tee -a $seq.full
+export PCP_DERIVED_CONFIG=$tmp.derive
+pminfo -f  `grep sample $tmp.config`
+rm -f $tmp.0 $tmp.meta $tmp.index $tmp.log
+pmlogger -c $tmp.config -l $tmp.log -s 3 $tmp
+cat $tmp.log >>$seq.full
+_filter_pmlogger_log <$tmp.log | _filter
+unset PCP_DERIVED_CONFIG
+pmdumplog $tmp | tee -a $seq.full | _filter_pmdumplog | _filter
+
+# pmval -a $tmp -t 0.1sec sample.long.nine
+pminfo -f -a $tmp -O 0.24sec sample.long
+
+# success, all done
+exit

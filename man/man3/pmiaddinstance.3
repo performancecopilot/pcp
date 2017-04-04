@@ -1,0 +1,84 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMIADDINSTANCE 3 "" "Performance Co-Pilot"
+.SH NAME
+\f3pmiAddInstance\f1 \- add an element to an instance domain in a LOGIMPORT context
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.br
+#include <pcp/impl.h>
+.br
+#include <pcp/import.h>
+.sp
+int pmiAddInstance(pmInDom \fIindom\fP, const char *\fIinstance\fP, int \fIinst\fP);
+.sp
+cc ... \-lpcp_import \-lpcp
+.ft 1
+.SH "Perl SYNOPSIS"
+.ft 3
+use PCP::LogImport;
+.sp
+pmiAddInstance($\fIindom\fP, $\fIinstance\fP, $\fIinst\fP);
+.ft 1
+.SH DESCRIPTION
+As part of the Performance Co-Pilot Log Import API (see
+.BR LOGIMPORT (3)),
+.B pmiAddInstance
+adds a new element to the instance domain identified by
+.IR indom .
+.PP
+.I indom
+would normally be constructed using the
+.B pmInDom_build
+macro, e.g. pmInDom_build(PMI_DOMAIN,0) for the first instance domain
+in the Performance Metrics Domain PMI_DOMAIN
+(which is the default for all meta data created by the LOGIMPORT library).
+.PP
+The new instance must have both an external name (\c
+.IR instance )
+and an internal instance identifier (\c
+.IR inst )
+that is unique across all instances in the
+.I indom
+instance domain.
+There is a special ``uniqueness rule'' for
+.I instance
+that is imposed by
+.BR pmLookupInDom (3),
+namely that the external instance name must be unique in the leading
+non-space characters, e.g. the instance names ``foo'' and ``foo bar''
+are considered the same by this rule and not allowed in the same
+instance domain, but ``foo'' and ``foobar'' would be allowed.
+.PP
+Once defined, the external instance name can be used in calls to
+.BR pmiGetHandle (3)
+and/or
+.BR pmiPutValue (3)
+with the name of a metric defined over the same instance domain.
+.SH DIAGNOSTICS
+.B pmiAddInstance
+returns zero on success else a negative value that can be turned into an
+error message by calling
+.BR pmiErrStr (3).
+.SH SEE ALSO
+.BR LOGIMPORT (3),
+.BR pmiAddMetric (3),
+.BR pmiErrStr (3),
+.BR pmiGetHandle (3),
+.BR pmiPutValue (3)
+and
+.BR pmLookupInDom (3).

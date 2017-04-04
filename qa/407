@@ -1,0 +1,46 @@
+#!/bin/sh
+# PCP QA Test No. 407
+# Derived metrics and PM_TYPE_EVENT
+#
+# Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_filter()
+{
+    sed \
+	-e 's/[0-2][0-9]:[0-5][0-9]:[0-5][0-9]\.[0-9][0-9][0-9]/TIMESTAMP/g'
+}
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+echo "=== This should work ==="
+pmstore sample.event.reset 0 >/dev/null 2>&1
+echo "myevents = sample.event.records" >$tmp.config
+pminfo -c $tmp.config -f myevents | _filter
+pminfo -c $tmp.config -f myevents | _filter
+pminfo -c $tmp.config -f myevents | _filter
+pminfo -c $tmp.config -f myevents | _filter
+
+echo
+echo "=== These should NOT work ==="
+echo "my.bad_1 = sample.event.records - sample.event.records" >$tmp.config
+echo "my.bad_2 = 1 + sample.event.records" >>$tmp.config
+echo "my.bad_3 = (sample.event.reset + 1) + sample.event.records" >>$tmp.config
+echo "my.bad_4 = sample.event.records - (sample.event.reset + 1)" >>$tmp.config
+echo "my.bad_5 = sample.event.reset + (1 + sample.event.records)" >>$tmp.config
+echo "my.bad_6 = sample.event.reset + (sample.event.records * 2)" >>$tmp.config
+pminfo -c $tmp.config -f my
+
+# success, all done
+exit

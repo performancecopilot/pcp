@@ -1,0 +1,319 @@
+/*
+ * Metrics for sample PMDA
+ *
+ * Next pmid ... use get_next_pmid
+ *
+ * Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+ * 
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+ * for more details.
+ * 
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+ *
+ */
+
+sample {
+    control	SAMPLE:0:0
+    daemon_pid	SAMPLE:0:1
+    seconds	SAMPLE:0:2
+    milliseconds	SAMPLE:0:3
+    load	SAMPLE:0:4
+    colour	SAMPLE:0:5
+    darkness	SAMPLE:0:92
+    bin		SAMPLE:0:6
+    bucket	SAMPLE:0:48
+    part_bin	SAMPLE:0:50
+    bogus_bin	SAMPLE:0:51
+    drift	SAMPLE:0:7
+    step	SAMPLE:0:8
+    step_counter	SAMPLE:0:63
+    mirage	SAMPLE:0:37
+    mirage_longlong	SAMPLE:0:38
+    write_me	SAMPLE:0:36
+    lights	SAMPLE:0:46
+    magnitude	SAMPLE:0:47
+    sysinfo	SAMPLE:0:39
+    pdu		SAMPLE:0:40
+    recv_pdu	SAMPLE:0:41
+    xmit_pdu	SAMPLE:0:42
+    noinst	SAMPLE:0:9
+    needprofile	SAMPLE:0:49
+    long
+    ulong
+    longlong
+    ulonglong
+    float
+    double
+    string
+    aggregate
+    hordes
+    bad
+    not_ready	SAMPLE:0:56
+    wrap
+    dodgey
+    dynamic
+    rapid	SAMPLE:0:64
+    scale_step
+    const_rate
+    error_code	SAMPLE:0:74
+    error_check	SAMPLE:0:75
+    bigid       SAMPLE:0:1023
+    many
+    byte_ctr	SAMPLE:0:81
+    byte_rate	SAMPLE:0:82
+    kbyte_ctr	SAMPLE:0:83
+    kbyte_rate	SAMPLE:0:84
+    byte_rate_perhour	SAMPLE:0:85
+    datasize	SAMPLE:0:91
+    secret	SAMPLE:*:*
+    scramble
+    percontext
+    event
+    dupnames
+    negative
+}
+
+sample.long {
+    one		SAMPLE:0:10
+    ten		SAMPLE:0:11
+    hundred	SAMPLE:0:12
+    million	SAMPLE:0:13
+    write_me	SAMPLE:0:14
+    bin		SAMPLE:0:103
+    bin_ctr	SAMPLE:0:104
+}
+
+sample.ulong {
+    one		SAMPLE:0:93
+    ten		SAMPLE:0:94
+    hundred	SAMPLE:0:95
+    million	SAMPLE:0:96
+    write_me	SAMPLE:0:97
+    bin		SAMPLE:0:105
+    bin_ctr	SAMPLE:0:106
+    count
+}
+
+sample.ulong.count {
+    base	SAMPLE:0:115
+    deca	SAMPLE:0:116
+    hecto	SAMPLE:0:117
+    kilo	SAMPLE:0:118
+    mega	SAMPLE:0:119
+}
+
+sample.float {
+    one		SAMPLE:0:15
+    ten		SAMPLE:0:16
+    hundred	SAMPLE:0:17
+    million	SAMPLE:0:18
+    write_me	SAMPLE:0:19
+    bin		SAMPLE:0:107
+    bin_ctr	SAMPLE:0:108
+}
+
+sample.longlong {
+    one		SAMPLE:0:20
+    ten		SAMPLE:0:21
+    hundred	SAMPLE:0:22
+    million	SAMPLE:0:23
+    write_me	SAMPLE:0:24
+    bin		SAMPLE:0:109
+    bin_ctr	SAMPLE:0:110
+}
+
+sample.ulonglong {
+    one		SAMPLE:0:98
+    ten		SAMPLE:0:99
+    hundred	SAMPLE:0:100
+    million	SAMPLE:0:101
+    write_me	SAMPLE:0:102
+    bin		SAMPLE:0:111
+    bin_ctr	SAMPLE:0:112
+}
+
+sample.double {
+    one		SAMPLE:0:25
+    ten		SAMPLE:0:26
+    hundred	SAMPLE:0:27
+    million	SAMPLE:0:28
+    write_me	SAMPLE:0:29
+    bin		SAMPLE:0:113
+    bin_ctr	SAMPLE:0:114
+}
+
+sample.string {
+    null	SAMPLE:0:30
+    hullo	SAMPLE:0:31
+    write_me	SAMPLE:0:32
+    bin		SAMPLE:0:153
+}
+
+sample.aggregate {
+    null	SAMPLE:0:33
+    hullo	SAMPLE:0:34
+    write_me	SAMPLE:0:35
+}
+
+sample.hordes {
+    one		SAMPLE:0:52
+    two		SAMPLE:0:53
+}
+
+sample.bad {
+    unknown	SAMPLE:0:54
+    nosupport	SAMPLE:0:55
+    novalues	SAMPLE:0:138
+}
+
+sample.wrap {
+    long	SAMPLE:0:57
+    ulong	SAMPLE:0:58
+    longlong	SAMPLE:0:59
+    ulonglong	SAMPLE:0:60
+}
+
+sample.dodgey {
+    control	SAMPLE:0:61
+    value	SAMPLE:0:62
+}
+
+sample.scale_step {
+    bytes_up	SAMPLE:0:65
+    bytes_down	SAMPLE:0:66
+    count_up	SAMPLE:0:67
+    count_down	SAMPLE:0:68
+    time_up_secs SAMPLE:0:69
+    time_up_nanosecs SAMPLE:0:70
+    none_up     SAMPLE:0:71
+}
+
+sample.const_rate {
+    value	SAMPLE:0:72
+    gradient	SAMPLE:0:73
+}
+
+sample.dynamic {
+    counter	SAMPLE:0:76
+    discrete	SAMPLE:0:77
+    instant	SAMPLE:0:78
+    meta
+}
+
+sample.dynamic.meta {
+    metric	SAMPLE:0:86
+    pmdesc
+}
+
+sample.dynamic.meta.pmdesc {
+    type	SAMPLE:0:87
+    indom	SAMPLE:0:88
+    sem		SAMPLE:0:89
+    units	SAMPLE:0:90
+}
+
+sample.many {
+    count	SAMPLE:0:79
+    int		SAMPLE:0:80
+}
+
+sample.scramble {
+    version	SAMPLE:0:120
+    bin		SAMPLE:0:121
+}
+
+sample.percontext {
+    control
+    pdu		SAMPLE:0:43
+    recv_pdu	SAMPLE:0:44
+    xmit_pdu	SAMPLE:0:45
+}
+
+sample.percontext.control {
+    ctx		SAMPLE:0:122
+    active	SAMPLE:0:123
+    start	SAMPLE:0:124
+    end		SAMPLE:0:125
+}
+
+sample.event {
+    records		SAMPLE:0:136
+    highres_records	SAMPLE:0:139
+    no_indom_records	SAMPLE:0:137
+    reset		SAMPLE:0:126
+    reset_highres	SAMPLE:0:140
+    type		SAMPLE:0:127
+    param_32		SAMPLE:0:128
+    param_u32		SAMPLE:0:129
+    param_64		SAMPLE:0:130
+    param_u64		SAMPLE:0:131
+    param_float		SAMPLE:0:132
+    param_double	SAMPLE:0:133
+    param_string	SAMPLE:0:134
+    param_aggregate	SAMPLE:0:135
+}
+
+sample.dupnames {
+    two
+    three
+    daemon_pid		SAMPLE:0:1
+    pid_daemon		SAMPLE:0:1
+}
+
+sample.dupnames.two {
+    seconds		SAMPLE:0:2
+    bin			SAMPLE:0:6
+    write_me		SAMPLE:0:36
+    lights		SAMPLE:0:46
+    float
+    double
+}
+
+sample.dupnames.two.float {
+    ten			SAMPLE:0:16
+}
+
+sample.dupnames.two.double {
+    ten			SAMPLE:0:26
+}
+
+sample.dupnames.three {
+    bin			SAMPLE:0:6
+    write_me		SAMPLE:0:36
+}
+
+sample.negative {
+    ctr
+    instant
+    discrete
+}
+
+sample.negative.ctr {
+    m_32		SAMPLE:0:141
+    m_64		SAMPLE:0:142
+    m_float		SAMPLE:0:143
+    m_double		SAMPLE:0:144
+}
+
+sample.negative.instant {
+    m_32		SAMPLE:0:145
+    m_64		SAMPLE:0:146
+    m_float		SAMPLE:0:147
+    m_double		SAMPLE:0:148
+}
+
+sample.negative.discrete {
+    m_32		SAMPLE:0:149
+    m_64		SAMPLE:0:150
+    m_float		SAMPLE:0:151
+    m_double		SAMPLE:0:152
+}

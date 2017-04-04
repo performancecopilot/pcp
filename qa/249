@@ -1,0 +1,174 @@
+#!/bin/sh
+# PCP QA Test No. 249
+#
+# Derived metrics - exercise pmFetch processing
+#
+# Copyright (c) 2009 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+if grep -q 'pmRegisterDerived' $PCP_INC_DIR/pmapi.h
+then
+    :
+else
+    echo "No derived metric support" >$seq.notrun
+    echo "$seq: [not run] `cat $seq.notrun`"
+    exit 0
+fi
+
+# For this test, don't load any global derived metric configs by default. 
+# So the PCP_DERIVED_CONFIG environment variable is set to an empty string.
+export PCP_DERIVED_CONFIG=""
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# Derived metric expr dump from 0x8513a48...
+# expr node 0x867eb68 type=PLUS left=0x867eb98 right=0x867ed28
+_filter()
+{
+    cat $tmp.out >>$seq.full
+    awk <$tmp.out >$tmp.sed '
+BEGIN				{ n = 0 }
+$1 == "expr" && $2 == "node" && $3 ~ /^0x/	{ print "s/" $3 "/<addr-" n ">/"; n++ }
+				{ next }'
+    echo "=== sed ===" >>$seq.full
+    cat $tmp.sed >>$seq.full
+    sed -f $tmp.sed <$tmp.out \
+    | sed \
+	-e '/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]/s/[^ ]*.*numpmid/TIMESTAMP ... numpmid/' \
+	-e 's/=0x0 /=(nil) /g' \
+	-e "s;$tmp;TMP;"
+# -e 's/ val=[0-9][0-9]*/ val=<number>/g'
+}
+
+# expr node <addr-6> type=NAME left=(nil) right=(nil) save_last=1 [sample.pdu] master=0
+# ...
+# [0] inst=-1, val=49794
+_filter2()
+{
+    sed <$tmp.out -e 's/val=/val /' \
+    | awk >$tmp.sed2 '
+BEGIN			{ n = 0 }
+/expr.*sample\./	{ want=1; next }
+want == 1 && $3 == "val"	{ if (seen[$4] != "y") {
+				    print "s/ val=" $4 "$/ val=<value-" n ">/"
+				    n++
+				    seen[$4] = "y"
+				  }
+				}
+$1 == "expr"		{ want = 0 }'
+    echo "=== sed2 ===" >>$seq.full
+    cat $tmp.sed2 >>$seq.full
+    sed -f $tmp.sed2
+}
+
+# real QA test starts here
+
+echo "No errors here ..." | tee -a $seq.full
+cat <<End-of-File >$tmp.config
+# simple constant, no arithmetic
+myname.const = 123456
+# simple renaming to test all data types ... no arithmetic
+myname.a = sample.long.million
+myname.b = sample.longlong.million
+myname.c = sample.float.million
+myname.d = sample.double.million
+myname.e = sample.string.null
+myname.f = sample.string.hullo
+myname.g = sample.string.write_me
+# simple arithmetic
+myname.h = sample.long.million + sample.long.hundred + sample.long.ten + sample.long.one
+myname.i = sample.longlong.million - sample.longlong.hundred - sample.longlong.ten - sample.longlong.one
+myname.j = sample.float.million - sample.float.hundred * sample.float.ten / sample.float.one
+myname.k = sample.long.million - ( sample.float.hundred * sample.double.hundred * sample.longlong.hundred ) + sample.long.one
+# arithmetic over sets of values (instance domains)
+myname.l = sample.bin / 50
+myname.m = 3*sample.bin
+myname.n = sample.bin + sample.bucket*2 - (sample.bin + 100) - sample.bucket
+# arithmetic over mix of singleton (null indom) and value sets (instance domains)
+myname.o = sample.bin * sample.double.ten
+myname.p = sample.double.ten * sample.bin
+End-of-File
+echo
+cat $tmp.config
+
+for args in myname.const myname.a myname "myname.a sample.long" \
+	"sample.long myname.a" "sample.longlong myname.a myname.b sample.long" \
+	"sample.string myname.f sample.bin myname"
+do
+    echo | tee -a $seq.full
+    echo "=== $args ===" | tee -a $seq.full
+    pminfo -c $tmp.config -Dfetch,derive,appl2 -f $args >$tmp.out 2>&1
+    _filter
+done
+
+echo | tee -a $seq.full
+echo "All the arithmetic operators and operand types ..." | tee -a $seq.full
+cat <<End-of-File >$tmp.config
+arith.l = sample.load - sample.load + sample.load / sample.load * sample.load - sample.load
+arith.ul = sample.daemon_pid - sample.daemon_pid + sample.daemon_pid / sample.daemon_pid * sample.daemon_pid - sample.daemon_pid
+arith.ll = sample.longlong.hundred - sample.longlong.hundred + sample.longlong.hundred / sample.longlong.hundred * sample.longlong.hundred - sample.longlong.hundred
+arith.ull = sample.ulonglong.hundred - sample.ulonglong.hundred + sample.ulonglong.hundred / sample.ulonglong.hundred * sample.ulonglong.hundred - sample.ulonglong.hundred
+arith.f = sample.float.hundred - sample.float.hundred + sample.float.hundred / sample.float.hundred * sample.float.hundred - sample.float.hundred
+arith.d = sample.double.hundred - sample.double.hundred + sample.double.hundred / sample.double.hundred * sample.double.hundred - sample.double.hundred
+arith.promote.l_l_r_ll = sample.long.one + sample.longlong.hundred
+arith.promote.l_ll_r_l = sample.longlong.hundred + sample.long.one
+arith.promote.l_ll_r_ul = sample.longlong.hundred + sample.ulong.one
+arith.promote.l_ull_r_l = sample.ulonglong.hundred + sample.long.one
+arith.promote.l_l_r_ull = sample.long.one + sample.ulonglong.hundred
+arith.promote.l_ul_r_ull = sample.ulong.one + sample.ulonglong.hundred
+arith.promote.l_ull_r_ul = sample.ulonglong.hundred + sample.ulong.one
+arith.promote.l_l_r_f = sample.long.one + sample.float.hundred
+arith.promote.l_ul_r_f = sample.ulong.one + sample.float.hundred
+arith.promote.l_ll_r_f = sample.longlong.one + sample.float.hundred
+arith.promote.l_ull_r_f = sample.ulonglong.one + sample.float.hundred
+arith.promote.l_f_r_l = sample.float.hundred + sample.long.one
+arith.promote.l_f_r_ul = sample.float.hundred + sample.ulong.one
+arith.promote.l_f_r_ll = sample.float.hundred + sample.longlong.one
+arith.promote.l_f_r_ull = sample.float.hundred + sample.ulonglong.one
+arith.eval.mul.l_l_r_l = sample.long.ten * sample.long.hundred
+arith.eval.mul.l_ull_r_ull = sample.ulonglong.ten * sample.ulonglong.hundred
+arith.eval.div.l_f_r_f = sample.float.hundred / sample.float.ten
+arith.eval.div.l_zero_f_r_f = 0 / sample.float.ten
+arith.eval.div.l_zero_d_r_d = 0 / sample.double.ten
+arith.eval.op.l_err = sample.needprofile + 1
+arith.eval.op.r_err = 1 + sample.needprofile
+End-of-File
+echo
+cat $tmp.config
+
+pminfo -c $tmp.config -Dderive,appl2 -f arith >$tmp.out 2>&1 
+_filter <$tmp.out | _filter2
+
+echo | tee -a $seq.full
+echo "Errors and empty results here ..." | tee -a $seq.full
+cat <<End-of-File >$tmp.config
+myname.a = sample.needprofile
+myname.b = 100 + sample.long.hundred * ( 2 - sample.needprofile )
+myname.c = sample.needprofile - sample.not_ready
+myname.d = sample.not_ready - sample.needprofile
+myname.e = sample.noinst
+myname.f = ( sample.long.hundred + sample.long.one ) * ( sample.noinst - 1 )
+End-of-File
+echo
+cat $tmp.config
+
+for args in myname
+do
+    echo | tee -a $seq.full
+    echo "=== $args ===" | tee -a $seq.full
+    pminfo -c $tmp.config -Dfetch,derive,appl0,appl2 -f $args >$tmp.out 2>&1
+    _filter
+done
+
+# success, all done
+exit

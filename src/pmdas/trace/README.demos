@@ -1,0 +1,71 @@
+sample pcp_trace applications
+=============================
+
+pmtrace
+ is a sample application that uses the pcp_trace interface to send
+trace data to the trace PMDA (Performance Metrics Domain Agent).
+
+The binary is shipped as part of pcp and should be installed in
+$PCP_BIN_DIR/pmtrace.  A pmtrace(1) man page is available.
+
+The source is shipped as part of pcp as well and is installed in
+$PCP_DEMOS_DIR/trace.  If you have the C compiler installed, the
+source and Makefile in this directory may be used to create a
+functionally equivalent binary, simply by entering the command
+
+	% make pmtrace
+
+The source in pmtrace.c demonstrates many of the trace services.
+
+
+The C interface		( pmtrace.c, app1.c, app2.c, and app3.c )
+===============
+    The default Makefile rules build the C applications only, so
+these applications can be built simply by using the command
+
+	% make
+
+
+The Fortran Interface	( fapp1.f )
+=====================
+    To build the sample Fortran program, using either the f77 or
+f90 compilers, use one of these commands
+
+	% make fortran77
+	% make fortran90
+
+
+The Java Interface	( japp1.java )
+==================
+    To build the sample Java program, and provided you have the
+java compiler installed, use the command
+
+	% make java
+
+    Setting the environment variable $CLASSPATH to include the full
+path to the trace.class file (/usr/java/classes/com/sgi/pcp) allows
+the application to compile and run successfuly.
+To run the demo application, after compilation type
+
+	% java japp1
+
+which passes the compiled class file into the java interpreter for
+subsequent execution.
+
+
+The pcp_trace "stub" library
+============================
+    To ensure that applications linked with the pcp_trace library are
+not locked into being SGI-specific, a "stub" library which has all of
+the pcp_trace entry points defined and simple debug switching enabled,
+is provided (stub.c).  This shared library can be built using
+
+	% make -f Makefile.stub
+
+and is intended to be simple to port to other platforms.
+
+
+Related manual pages
+====================
+    pmdatrace(1), pmtrace(1), and pmdatrace(3).
+

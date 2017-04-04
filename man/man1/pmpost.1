@@ -1,0 +1,79 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2013 Red Hat.
+.\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.TH PMPOST 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmpost\f1 \- append messages to the Performance Co-Pilot notice board
+.\" literals use .B or \f3
+.\" arguments use .I or \f2
+.SH SYNOPSIS
+.B $PCP_BINADM_DIR/pmpost
+.I message
+.SH DESCRIPTION
+.B pmpost
+will append the text
+.I message
+to the end of the
+Performance Co-Pilot (PCP) notice board file (\c
+.BR $PCP_LOG_DIR/NOTICES )
+in an atomic manner that guards against corruption of
+the notice board file
+by concurrent invocations of
+.BR pmpost .
+.PP
+The PCP notice board is intended to be a persistent store
+and clearing house for important messages relating to the
+operation of the PCP and the notification of performance
+alerts from
+.BR pmie (1)
+when other notification options are either unavailable or
+unsuitable.
+.PP
+Before being written, messages are prefixed by the current
+time, and when the current day is different to the last
+time the notice board file was written,
+.B pmpost
+will prepend the message with the full date.
+.PP
+If the notice board file does not exist,
+.B pmpost
+will create it.
+.B pmpost
+would usually run from long-running PCP daemons executing
+under the (typically unprivileged)
+.B $PCP_USER
+and
+.B $PCP_GROUP
+accounts.
+The file should be owned by root, and group writable by the
+.B $PCP_GROUP
+group.
+.SH FILES
+.TP 10
+.B $PCP_LOG_DIR/NOTICES
+the PCP notice board file
+.SH "PCP ENVIRONMENT"
+The file
+.B /etc/pcp.conf
+contains the local values for PCP_ variables.
+.SH UNIX SEE ALSO
+.BR logger (1).
+.SH WINDOWS SEE ALSO
+.BR pcp-eventlog (1).
+.SH SEE ALSO
+.BR pmie (1),
+.BR pcp.conf (5)
+and
+.BR pcp.env (5).

@@ -1,0 +1,8 @@
+//
+// Request rate throughput (requests per second) summaries
+//
+
+// you may replace the metric below with any of the other
+// web.allservers.requests metrics
+
+request_rate = web.allservers.requests.total;

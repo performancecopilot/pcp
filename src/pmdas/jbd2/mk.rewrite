@@ -1,0 +1,36 @@
+#!/bin/sh
+#
+# Construct pmlogrewrite rules ...
+# jbd2_kernel_ulong.conf
+#	Needs to be done dynamically because the type of KERNEL_ULONG is
+#	platform dependent.
+#
+
+tmp=/var/tmp/$$
+trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+
+cat <<End-of-File >$tmp.c
+#include <pcp/config.h>
+#if defined(HAVE_64BIT_LONG)
+KERNEL_ULONG=PM_TYPE_U64
+#else
+KERNEL_ULONG=PM_TYPE_U32
+#endif
+End-of-File
+
+eval `${CPP-cpp} -I${INCDIR-.} $tmp.c \
+      | sed -n -e '/KERNEL_ULONG/s/PM_TYPE_//p'`
+
+cat <<End-of-File >jbd2_kernel_ulong.conf
+# These metrics are all exported from the jbd2 PMDA
+# using the KERNEL_ULONG type which might be U32
+# or could be U64.
+#
+metric jbd2.transaction.count { type -> $KERNEL_ULONG }
+metric jbd2.transaction.requested { type -> $KERNEL_ULONG }
+metric jbd2.transaction.average.blocks { type -> $KERNEL_ULONG }
+metric jbd2.transaction.average.blocks_logged { type -> $KERNEL_ULONG }
+metric jbd2.transaction.average.handles { type -> $KERNEL_ULONG }
+End-of-File
+
+exit 0

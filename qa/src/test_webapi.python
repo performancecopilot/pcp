@@ -1,0 +1,308 @@
+#!/usr/bin/env pmpython
+""" Test creation of a PCP web daemon via the requests module -*- python -*- """
+#
+# Copyright (C) 2013-2016 Red Hat Inc.
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+
+import requests, argparse, subprocess, os, time
+
+parser = argparse.ArgumentParser(description='test_webapi.py pmwebapi check')
+parser.add_argument('--host', default='localhost')
+parser.add_argument('--port', default=44323)
+args = parser.parse_args()
+
+url = 'http://' + args.host + ':' + str(args.port) + '/'
+devnull = os.open(os.devnull, os.O_RDWR)
+os.unsetenv('http_proxy')
+os.unsetenv('HTTP_PROXY')
+
+# ------------------------------------------------------------------------
+
+# test - create contexts
+req = requests.get(url=url + 'pmapi/context?local=foo&polltimeout=5')
+resp = req.json()
+ctx_local = resp['context']
+print('Received PM_CONTEXT_LOCAL #' + str(ctx_local))
+
+req = requests.get(url=url + 'pmapi/context?hostname=' + args.host + '&polltimeout=5')
+resp = req.json()
+ctx_host = resp['context']
+print('Received PM_CONTEXT_HOST #' + str(ctx_host))
+
+# ------------------------------------------------------------------------
+
+# all these should get an error
+req = requests.get(url=url + 'pmapi/context?archivefile=/dev/null')
+print('bad archive /dev/null response code ' + str(req.status_code))
+
+req = requests.get(url=url + 'pmapi/context?archivefile=../etc/passwd')
+print('bad archive ../etc/passwd response code ' + str(req.status_code))
+
+req = requests.get(url=url + 'pmapi/context?archivefile=/etc/passwd')
+print('bad archive /etc/passwd response code ' + str(req.status_code))
+
+req = requests.get(url=url + 'pmapi/context?archivefile=../../etc/shadow')
+print('bad archive ../../etc/shadow response code ' + str(req.status_code))
+
+req = requests.get(url=url + 'pmapi/NOSUCHAPI')
+print('command NOSUCHAPI response code ' + str(req.status_code))
+
+req = requests.get(url=url + 'pmapi/NOSUCHCONTEXT/_metric')
+print('context NOSUCHCONTEXT response code ' + str(req.status_code))
+
+req = requests.get(url=url + 'pmapi/0/_metric')
+print('context 0 response code ' + str(req.status_code))
+
+req = requests.get(url=url + 'random_nonpmwebapi_url')
+print('non-pmwebapi response code ' + str(req.status_code))
+
+# ------------------------------------------------------------------------
+
+def test_metric_enumeration(ctx, prefix):
+    ctxurl = url + 'pmapi/' + str(ctx) + '/'
+    if (ctx == ctx_local):
+        procargs = ['pminfo', '-L', '-t']
+        dbg = 'local'
+    else:
+        procargs = ['pminfo', '-h', args.host, '-t']
+        dbg = 'host'
+    if (prefix != ''):
+        procargs.append(prefix)
+        dbg = dbg + '-' + prefix
+
+    proc = subprocess.Popen(procargs,
+                            stdout=subprocess.PIPE, 
+                            stderr=devnull,
+                            universal_newlines=True)
+    num_metrics = 0
+    f = open('webapi-pmcd-' + dbg, 'w')
+    while True:
+        line = proc.stdout.readline()
+        if (line == ''):
+            break # eof
+        if line.strip() == '':
+            continue # blank line pminfo sometimes does that
+        if line.find('Error: No PMCD agent') == -1 and \
+           line.find('Not known to the PMDA') == -1 and \
+           line.find('Error: Unknown or illegal') == -1:
+            num_metrics = num_metrics + 1
+            f.write(line)
+    f.write('Total ' + str(num_metrics) + ' metrics\n')
+    f.close()
+
+    testprefix='context #'+str(ctx)+' '+dbg+' metric '+prefix+'.*'
+    print(testprefix+ ' enumeration with pminfo #'+str(num_metrics))
+
+    req = requests.get(url=ctxurl + '_metric' + \
+                           ('?prefix='+prefix if prefix != '' else ''))
+    try:
+        resp = req.json()
+    except Exception as e:
+        print(url)
+        print("ERROR: %s" % e)
+        print(testprefix + 'error JSON-decoding ' + req.text)
+        return  # hereafter the code assumes "resp" is valid
+
+    print(testprefix + ' enumeration with pmwebinfo #'+str(len(resp['metrics'])))
+
+    web_metrics = 0
+    f = open('webapi-webd-' + dbg, 'w')
+    for metric in resp['metrics']:
+        web_metrics = web_metrics + 1
+        f.write(metric['name'] + '\n')
+    f.write('Total ' + str(web_metrics) + ' metrics\n')
+    f.close()
+
+    if (abs(len(resp['metrics']) - num_metrics) < 10): # allow some variation
+        print(testprefix + ' enumeration match count PASS')
+    else:
+        print(testprefix + ' enumeration match count FAIL')
+
+
+test_metric_enumeration(ctx_local,'')
+test_metric_enumeration(ctx_host,'')
+test_metric_enumeration(ctx_local,'kernel')
+test_metric_enumeration(ctx_host,'kernel')
+
+# ------------------------------------------------------------------------
+
+# empty _fetch should get an error
+req = requests.get(url=url + 'pmapi/'+str(ctx_host)+'/_fetch')
+print('context #'+str(ctx_host)+' response code ' + str(req.status_code))
+
+def test_fetch(ctx,metrics):
+    # some fetches of real values
+    req = requests.get(url=url + 'pmapi/'+str(ctx)+'/_fetch?'+metrics)
+    print('context #'+str(ctx_host)+' fetch '+metrics+' response code ' + str(req.status_code))
+    if (req.status_code != 200):
+        return
+    try:
+        # print req.content
+        result = req.json()
+    except Exception as e:
+        print(url)
+        print("ERROR: %s" % e)
+        print('error JSON-decoding ' + req.text)
+        return  # hereafter the code assumes "result" is valid
+
+    print('timestamps fields:'+str(len(result['timestamp']))+' len(values[]):'+str(len(result['values'])))
+    for metric in sorted(result['values'], key=lambda x: x['name']):
+        print('  metric:'+metric['name'])
+        if (len(metric['instances']) > 0):
+            print('  with instances')
+        else:
+            print('  no instances')
+        # don't pretty-print instances/values, because they could fluctuate too much from test to test for _filter()
+
+
+# use both contexts so neither times out
+test_fetch(ctx_local,'names=')
+test_fetch(ctx_local,'names=no.such.metric')
+test_fetch(ctx_local,'names=no.such.metric1,pmcd.client.whoami,no.such.metric2')  # ignore the bad metrics; no pmcd.* with -L
+test_fetch(ctx_host,'names=no.such.metric3,pmcd.client.whoami,no.such.metric4')  # ignore the bad metrics
+test_fetch(ctx_host,'names=sample.event.records') # events
+test_fetch(ctx_host,'pmids=121634826,0x740000b') # sample.long.one, sample.long.ten
+test_fetch(ctx_local,'names=keepalive')
+test_fetch(ctx_host,'names=sample.bogus_bin,sample.sysinfo,sample.byte_rate,sample.ulong.bin')
+test_fetch(ctx_host,'names=sample.longlong.bin,,,sample.ulonglong.million,sample.float.hundred')
+test_fetch(ctx_host,'names=sample.double.bin_ctr,sample.aggregate.null,sample.hordes.one')
+test_fetch(ctx_host,'names=sample.dodgey.value')
+test_fetch(ctx_local,'pmids=blargh')
+
+# ------------------------------------------------------------------------
+
+def test_metadata(ctx,metrics):
+# some fetches of real values
+    req = requests.get(url=url + 'pmapi/'+str(ctx)+'/_metric?'+metrics)
+    print('context #'+str(ctx_host)+' metadata '+metrics+' response code ' + str(req.status_code))
+    if (req.status_code != 200):
+        return
+    # print req.content
+    try:
+        result = req.json()
+    except Exception as e:
+        print(url)
+        print("ERROR: %s" % e)
+        print('error JSON-decoding ' + req.text)
+        return  # hereafter the code assumes "result" is valid
+
+    print('len(metrics[]):'+str(len(result['metrics'])))
+    for metric in sorted(result['metrics'], key=lambda x: x['name']):
+        print('  metric:'+metric['name']+' metadata:'+str(len(metric.keys())))
+        # don't pretty-print metadata contents, because they could fluctuate
+        # too much from test to test for _filter()
+
+
+# use both contexts so neither times out
+test_metadata(ctx_local,'prefix=no.such.metric')
+test_metadata(ctx_local,'prefix=no.such.metric1,pmcd.client.whoami,no.such.metric2')  # ignore the bad metrics; no pmcd.* with -L
+test_metadata(ctx_host,'prefix=no.such.metric3,pmcd.client.whoami,no.such.metric4')  # ignore the bad metrics
+test_metadata(ctx_host,'prefix=sample') # whole shebang
+test_metadata(ctx_local,'prefix=keepalive')
+
+# ------------------------------------------------------------------------
+
+def test_indom(ctx,dom):
+# some fetches of real values
+    req = requests.get(url=url + 'pmapi/'+str(ctx)+'/_indom?'+dom)
+    print('context #'+str(ctx_host)+' indom '+dom+' response code ' + str(req.status_code))
+    if (req.status_code != 200):
+        return
+    try:
+        # print req.content
+        result = req.json()
+    except Exception as e:
+        print(url)
+        print("ERROR: %s" % e)
+        print('error JSON-decoding ' + req.text)
+        return  # hereafter the code assumes "result" is valid
+
+    print('indom:'+str(result['indom']))
+    if (len(result['instances']) > 0):
+        print('  with instances')
+    else:
+        print('  no instances')
+  # don't pretty-print indom tuples, because they could fluctuate too much from test to test for _filter()
+
+
+# use both contexts so neither times out
+test_indom(ctx_local,'indom=')
+test_indom(ctx_host,'indom=0x7400009') # sample.scramble.bin
+test_indom(ctx_host,'name=sample.many.int&instance=1,4')
+test_indom(ctx_host,'name=sample.many.int&instance=1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21') # too many
+test_indom(ctx_host,'indom=0x7400008&iname=i-2,,,i-3') # sample.many.int
+test_indom(ctx_host,'name=pmcd.client.whoami')
+test_indom(ctx_local,'names=keepalive')
+
+# ------------------------------------------------------------------------
+
+def test_store(ctx, suffix):
+    # some stores of real values
+    req = requests.get(url=url + 'pmapi/'+str(ctx)+'/_store?'+suffix)
+    print('context #'+str(ctx_host)+' store '+suffix+' response code ' + str(req.status_code))
+    if (req.status_code != 200):
+        return
+    print('store: success')
+
+def check_vals(ctx, metric):
+    # dump values after a store
+    req = requests.get(url=url + 'pmapi/'+str(ctx)+'/_fetch?names='+metric)
+    if (req.status_code != 200):
+        return
+    try:
+        result = req.json()
+    except Exception as e:
+        print(url)
+        print("ERROR: %s" % e)
+        print('error JSON-decoding ' + req.text)
+        return  # hereafter the code assumes "result" is valid
+
+    for metric in sorted(result['values'], key=lambda x: x['name']):
+        for inst in sorted(metric['instances'], key=lambda x: x['instance']):
+            print('  ' + metric['name'] + '[' + str(inst['value']) + ']')
+
+# use both contexts so neither times out, verify values reflect stored change
+test_store(ctx_local, 'name=') # no metric
+test_store(ctx_host, 'name=sample.write_me') # no values
+test_store(ctx_host, 'name=sample.write_me&value=42')
+test_store(ctx_local, 'name=sample.write_me&value=bad')
+
+test_store(ctx_host, 'name=sample.long.write_me&value=42')
+check_vals(ctx_host, 'sample.long.write_me')
+test_store(ctx_local, 'name=sample.long.write_me&value=bad')
+test_store(ctx_host, 'name=sample.ulong.write_me&value=42')
+check_vals(ctx_host, 'sample.ulong.write_me')
+test_store(ctx_local, 'name=sample.ulong.write_me&value=bad')
+test_store(ctx_host, 'name=sample.float.write_me&value=42.0')
+check_vals(ctx_host, 'sample.float.write_me')
+test_store(ctx_host, 'name=sample.string.write_me&value=good')
+check_vals(ctx_host, 'sample.string.write_me')
+test_store(ctx_local, 'name=sample.double.write_me&value=bad')
+test_store(ctx_local, 'name=sample.aggregate.write_me&value=bad')
+
+test_store(ctx_host, 'name=sample.colour&value=10&instance=0')
+check_vals(ctx_host, 'sample.colour')
+test_store(ctx_host, 'name=sample.colour&value=20&instance=0,1')
+check_vals(ctx_host, 'sample.colour')
+test_store(ctx_host, 'name=sample.colour&value=30&iname=blue')
+check_vals(ctx_host, 'sample.colour')
+test_store(ctx_host, 'name=sample.colour&value=40&iname=red,blue')
+check_vals(ctx_host, 'sample.colour')
+
+# ------------------------------------------------------------------------
+
+print('sleeping briefly to expire contexts')
+time.sleep(7) # >> polltimeout=5
+
+test_metadata(ctx_local,'names=kernel.all.nprocs')  # expect status 400ish
+test_indom(ctx_host,'names=kernel.all.nprocs')

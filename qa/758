@@ -1,0 +1,59 @@
+#!/bin/sh
+# PCP QA Test No. 758
+# Exercise a couple of perl PMDA module bugs/features.
+#
+# Copyright (c) 2014-2015 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+perl -e "use PCP::PMDA" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "perl PCP::PMDA module not installed"
+
+_cleanup()
+{
+    if pmprobe -I pmcd.agent.status | grep '"test_perl"' >/dev/null
+    then
+	cd $here/pmdas/test_perl
+	$sudo ./Remove >>$here/$seq.full 2>&1
+	$sudo rm -f domain.h.perl
+	cd $here
+    fi
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; _cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+cd pmdas/test_perl
+$sudo ./Install </dev/null \
+    | _filter_pmda_install \
+    | sed -e '/^Waiting for pmcd/s/\.\.\.[. ]*$/DOTS/' \
+    | $PCP_AWK_PROG '
+/Check test_perl metrics have appeared/ { if ($10 >= 0 && $10 <= 5) $10 = "N" }
+                                        { print }'
+cd $here
+
+# start from a known place
+pmstore test_perl.some_value 0 \
+    | sed -e 's/old value=./old value=N/g'
+
+# need a few invocations to tickle the bug
+for i in 1 2 3 4 5; do
+    echo "=== Round $i ===" | tee -a $here/$seq.full
+    pmprobe \
+	test_perl.other_indom.some_value \
+	test_perl.some_value \
+	test_perl.some_indom.some_value
+done
+
+# success, all done
+status=0
+exit

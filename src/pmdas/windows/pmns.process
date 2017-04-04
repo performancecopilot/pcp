@@ -1,0 +1,59 @@
+process {
+    count		WINDOWS:0:173
+    psinfo
+    memory
+    io
+    thread
+}
+
+process.psinfo {
+    pid			WINDOWS:0:174
+    ppid		WINDOWS:0:175
+    cpu_time		WINDOWS:0:176
+    elapsed_time	WINDOWS:0:177
+    utime		WINDOWS:0:178
+    stime		WINDOWS:0:179
+    nthreads		WINDOWS:0:180
+    priority_base	WINDOWS:0:181
+    nhandles		WINDOWS:0:182
+    page_faults		WINDOWS:0:183
+}
+
+process.memory {
+    size		WINDOWS:0:184
+    rss			WINDOWS:0:185
+    rss_peak		WINDOWS:0:186
+    virtual		WINDOWS:0:187
+    virtual_peak	WINDOWS:0:188
+    page_file		WINDOWS:0:189
+    page_file_peak	WINDOWS:0:190
+    private		WINDOWS:0:191
+    pool_paged		WINDOWS:0:192
+    pool_nonpaged	WINDOWS:0:193
+}
+
+process.io {
+    reads		WINDOWS:0:194
+    writes		WINDOWS:0:195
+    data		WINDOWS:0:196
+    other		WINDOWS:0:197
+    read_bytes		WINDOWS:0:198
+    write_bytes		WINDOWS:0:199
+    data_bytes		WINDOWS:0:200
+    other_bytes		WINDOWS:0:201
+}
+
+process.thread {
+    context_switches	WINDOWS:0:202
+    cpu_time		WINDOWS:0:203
+    utime		WINDOWS:0:204
+    stime		WINDOWS:0:205
+    elapsed_time	WINDOWS:0:206
+    priority		WINDOWS:0:207
+    priority_base	WINDOWS:0:208
+    start_address	WINDOWS:0:209
+    state		WINDOWS:0:210
+    wait_reason		WINDOWS:0:211
+    process_id		WINDOWS:0:212
+    thread_id		WINDOWS:0:213
+}

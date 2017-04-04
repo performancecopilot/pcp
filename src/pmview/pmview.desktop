@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=PCP View
+Comment=3D tool for displaying Performance Co-Pilot metrics
+Exec=pmview
+Icon=pmview
+Terminal=false
+Type=Application
+Categories=System;Utility;Network;Qt;

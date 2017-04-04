@@ -1,0 +1,31 @@
+#!/bin/sh
+# PCP QA Test No. 413
+# pmie should not accept PM_TYPE_EVENT metrics in any sort of expression
+#
+# Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+echo "Metric alone ..."
+echo 'sampledso.event.records > 0 -> print "not likely";' | pmie -v -t 1 -T 2
+echo "Metric in simple expression ..."
+echo 'sampledso.event.reset + sampledso.event.records > 0 -> print "not likely";' | pmie -v -t 1 -T 2
+echo "Metric in aggregate expression ..."
+echo 'min_sample(sampledso.event.records @0..5) > 0 -> print "not likely";' | pmie -v -t 1 -T 10
+echo "Metric in existential expression ..."
+echo 'some_sample(sampledso.event.records @0..5) > 0 -> print "not likely";' | pmie -v -t 1 -T 10
+
+# success, all done
+exit

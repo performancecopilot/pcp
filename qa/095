@@ -1,0 +1,174 @@
+#! /bin/sh
+# PCP QA Test No. 095
+# more interpolate exercising ... interp3 is like xarch
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+
+_filter05foo()
+{
+    $PCP_AWK_PROG '
+BEGIN	{ lo[0] = 15; hi[0] = 17
+	  lo[1] = 15; hi[1] = 17
+	  lo[2] = 31; hi[2] = 34
+	  lo[3] = 15; hi[3] = 17
+	  lo[4] = 11; hi[4] = 14
+	  lo[5] = 7; hi[5] = 9
+	  lo[6] = 4; hi[6] = 5
+	  lo[7] = 1; hi[7] = 1
+	  f = 0
+	}
+/^Found/	{ if (lo[f] <= $2 && $2 <= hi[f])
+		    print "Found between " lo[f] " and " hi[f] " samples"
+		  else
+		    print $0 " .. no. of samples unexpected"
+		  f++
+		  if (f == 8)
+		    f = 3
+		  next
+		}
+		{ print }'
+}
+
+_filter10foo()
+{
+    $PCP_AWK_PROG '
+BEGIN	{ lo[0] = 7; hi[0] = 9
+	  lo[1] = 7; hi[1] = 9
+	  lo[2] = 15; hi[2] = 18
+	  lo[3] = 7; hi[3] = 9
+	  lo[4] = 6; hi[4] = 7
+	  lo[5] = 4; hi[5] = 5
+	  lo[6] = 2; hi[6] = 3
+	  lo[7] = 1; hi[7] = 1
+	  f = 0
+	}
+/^Found/	{ if (lo[f] <= $2 && $2 <= hi[f])
+		    print "Found between " lo[f] " and " hi[f] " samples"
+		  else
+		    print $0 " .. no. of samples unexpected"
+		  f++
+		  if (f == 8)
+		    f = 3
+		  next
+		}
+		{ print }'
+}
+
+_filter20foo()
+{
+    $PCP_AWK_PROG '
+BEGIN	{ lo[0] = 3; hi[0] = 5
+	  lo[1] = 3; hi[1] = 5
+	  lo[2] = 7; hi[2] = 10
+	  lo[3] = 3; hi[3] = 5
+	  lo[4] = 3; hi[4] = 4
+	  lo[5] = 2; hi[5] = 3
+	  lo[6] = 1; hi[6] = 2
+	  lo[7] = 1; hi[7] = 1
+	  f = 0
+	}
+/^Found/	{ if (lo[f] <= $2 && $2 <= hi[f])
+		    print "Found between " lo[f] " and " hi[f] " samples"
+		  else
+		    print $0 " .. no. of samples unexpected"
+		  f++
+		  if (f == 8)
+		    f = 3
+		  next
+		}
+		{ print }'
+}
+
+_filter05bigbin()
+{
+    $PCP_AWK_PROG '
+BEGIN	{ lo[0] = 10; hi[0] = 11
+	  lo[1] = 10; hi[1] = 11
+	  lo[2] = 20; hi[2] = 22
+	  lo[3] = 10; hi[3] = 11
+	  lo[4] = 8; hi[4] = 9
+	  lo[5] = 5; hi[5] = 6
+	  lo[6] = 3; hi[6] = 3
+	  lo[7] = 1; hi[7] = 1
+	  f = 0
+	}
+/^Found/	{ if (lo[f] <= $2 && $2 <= hi[f])
+		    print "Found between " lo[f] " and " hi[f] " samples"
+		  else
+		    print $0 " .. no. of samples unexpected"
+		  f++
+		  if (f == 8)
+		    f = 3
+		  next
+		}
+		{ print }'
+}
+
+_filter003bigbin()
+{
+    $PCP_AWK_PROG '
+BEGIN	{ lo[0] = 1625; hi[0] = 1680
+	  lo[1] = 1625; hi[1] = 1680
+	  lo[2] = 3265; hi[2] = 3360
+	  lo[3] = 1625; hi[3] = 1680
+	  lo[4] = 1220; hi[4] = 1260
+	  lo[5] = 815; hi[5] = 840
+	  lo[6] = 405; hi[6] = 420
+	  lo[7] = 1; hi[7] = 1
+	  f = 0
+	}
+/^Found/	{ if (lo[f] <= $2 && $2 <= hi[f])
+		    print "Found between " lo[f] " and " hi[f] " samples"
+		  else
+		    print $0 " .. no. of samples unexpected"
+		  f++
+		  if (f == 8)
+		    f = 3
+		  next
+		}
+		{ print }'
+}
+
+
+trap "rm -f $tmp.*; exit" 0 1 2 3 15
+
+# real QA test starts here
+echo "=== foo ==="
+src/interp3 -t 0.5 -a archives/ok-foo | _filter05foo
+src/interp3 -t 1.0 -a archives/ok-foo | _filter10foo
+src/interp3 -t 2.0 -a archives/ok-foo | _filter20foo
+
+echo
+echo "=== bigbin ==="
+src/interp3 -t 2 -a archives/ok-bigbin | _filter05bigbin
+src/interp3 -t 0.012 -a archives/ok-bigbin | _filter003bigbin
+
+echo "=== multi-volume foo ==="
+src/interp3 -t 0.5 -a archives/ok-mv-foo | _filter05foo
+src/interp3 -t 1.0 -a archives/ok-mv-foo | _filter10foo
+src/interp3 -t 2.0 -a archives/ok-mv-foo | _filter20foo
+
+echo
+echo "=== multi-volume bigbin ==="
+src/interp3 -t 2 -a archives/ok-mv-bigbin | _filter05bigbin
+src/interp3 -t 0.012 -a archives/ok-mv-bigbin | _filter003bigbin
+
+echo "=== no index foo ==="
+src/interp3 -t 0.5 -a tmparch/noti-ok-foo | _filter05foo
+src/interp3 -t 1.0 -a tmparch/noti-ok-foo | _filter10foo
+src/interp3 -t 2.0 -a tmparch/noti-ok-foo | _filter20foo
+
+echo
+echo "=== no index bigbin ==="
+src/interp3 -t 2 -a archives/ok-noti-bigbin | _filter05bigbin
+src/interp3 -t 0.012 -a archives/ok-noti-bigbin | _filter003bigbin
+
+exit

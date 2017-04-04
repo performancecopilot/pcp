@@ -1,0 +1,5 @@
+#pmlogconf-setup 2.0
+ident	"large" page and Origin node-based allocations and activity
+probe	mem.lpage.enabled
+	mem.lpage
+	origin.node

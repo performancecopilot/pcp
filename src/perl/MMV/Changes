@@ -1,0 +1,12 @@
+Revision history for Perl extension PCP::MMV.
+
+1.00  Mon Aug 24 08:52:36 EST 2009
+	- added stop interface
+	- added stats_set interface
+	- fixed incorrect memory free on init
+	- extend server.pl example to report idle time
+	- fixed use of av_len return codes (off by one)
+
+0.01  Fri Jun 12 16:55:20 EST 2009
+	- original version
+

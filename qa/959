@@ -1,0 +1,27 @@
+#!/bin/sh
+# PCP QA Test No. 959
+# Exercise local context mode pmstore(1) operation.
+#
+# Copyright (c) 2014 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+pmda=$PCP_PMDAS_DIR/sample/pmda_sample.$DSO_SUFFIX,sample_init
+pmstore -K clear -K add,29,$pmda -L sample.write_me 1
+
+# success, all done
+status=0
+
+exit

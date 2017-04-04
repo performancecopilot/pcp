@@ -1,0 +1,72 @@
+#!/usr/bin/env pmpython
+#
+# Copyright (C) 2015 Red Hat.
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+
+import sys
+import unittest
+from pcp import pmapi
+import cpmapi as api
+
+TRAVERSE_CALLBACK_COUNT = 0     # callback for pmTraversePMNS
+
+def traverse_callback(arg):
+    global TRAVERSE_CALLBACK_COUNT
+    TRAVERSE_CALLBACK_COUNT += 1
+    print(arg)
+
+def test_pmnswalk(self):
+    if (ARCHIVE == ""):
+        print('Running as localhost')
+        ctx = pmapi.pmContext(api.PM_CONTEXT_HOST, "localhost")
+    else:
+        print('Running as archive', ARCHIVE)
+        ctx = pmapi.pmContext(api.PM_CONTEXT_ARCHIVE, ARCHIVE)
+
+    # pmGetChildren
+    gcs = ctx.pmGetChildren("sample.long")
+    print("pmGetChildren:")
+    print(gcs)
+
+    # pmGetChildrenStatus
+    gcs = ctx.pmGetChildrenStatus("sample.long")
+    print("pmGetChildrenStatus:")
+    print(gcs)
+
+    # pmTraversePMNS
+    ctx.pmTraversePMNS("sample.long", traverse_callback)
+    print("pmTraversePMNS: %d" % TRAVERSE_CALLBACK_COUNT)
+    self.assertTrue(TRAVERSE_CALLBACK_COUNT > 0)
+
+    del ctx
+
+class TestSequenceFunctions(unittest.TestCase):
+
+    def test_context(self):
+        test_pmnswalk(self)
+
+
+if __name__ == '__main__':
+
+    if (len(sys.argv) == 2):
+        ARCHIVE = sys.argv[1]
+    elif (len(sys.argv) > 2):
+        print("Usage: " + sys.argv[0] + " OptionalArchivePath")
+        sys.exit()
+    else:
+        ARCHIVE = ""
+        
+    sys.argv[1:] = ()
+
+    STS = unittest.main()
+    sys.exit(STS)

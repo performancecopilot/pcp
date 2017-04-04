@@ -1,0 +1,4 @@
+#pmlogconf-setup 2.0
+ident	all available data per network interface
+force	available
+	network.interface

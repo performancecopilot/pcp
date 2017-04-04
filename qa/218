@@ -1,0 +1,45 @@
+#! /bin/sh
+# PCP QA Test No. 218
+# pmFetch for non-interp mode should not return mark records
+# pmFetchArchive should
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+
+status=0
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+pmlogger -s 1 $tmp.first << EOFEOF
+log mandatory on 1 second {
+	sample.long.one
+	sample.bin
+}
+EOFEOF
+
+pmlogger -s 1 $tmp.second << EOFEOF
+log mandatory on 1 second {
+	sample.long.ten
+}
+EOFEOF
+
+pmlogextract $tmp.first $tmp.second $tmp.result
+
+echo "=== pminfo, no mark, no core ==="
+pminfo -f -a $tmp.result sample.long.ten
+status=$?
+
+echo
+echo "=== pmdumplog, mark ==="
+pmdumplog -m $tmp.result | sed -e '/pmcd.pmlogger/d' | _filter_pmdumplog
+status=`expr $status + $?`
+
+# all done
+exit

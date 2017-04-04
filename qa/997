@@ -1,0 +1,37 @@
+#!/bin/sh
+# PCP QA Test No. 997
+# Exercise pmlogextract handling of corrupt archive records.
+#
+# Copyright (c) 2014 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+echo "Running log extract on corrupt archive"
+pmlogextract -z archives/ok-truncbin.0 $tmp.log 2>$tmp.err >$tmp.out
+cat $tmp.out
+cat $tmp.err
+
+# verify an archive was created (up to the corruption point)
+# - previously, no archive would be created at all.
+echo && echo "Verifying new log has been created"
+pmdumplog -z -l $tmp.log
+
+echo && echo "Verifying new log is not corrupt"
+pmlogcheck $tmp.log
+echo Done
+
+# success, all done
+status=0
+exit

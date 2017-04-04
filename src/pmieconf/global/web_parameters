@@ -1,0 +1,35 @@
+#pmieconf-rules 1
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(5)
+# 
+
+instlist	global.webservers
+	default	= ""
+	help	=
+"List of web server names over which the rules will be evaluated.
+Multiple server names should be separated by white space, e.g.
+    \"ncsa-gonzo 'ftpd'\"
+To discover the names of the available web servers, execute the
+following command on the target host:
+	$ pminfo -f web.perserver.requests.total
+the double-quoted instance names are the web server names.
+If the list is empty, all web servers on the target host will be
+checked.";
+
+instlist	global.urls
+	default	= ""
+	help	=
+"May be set to a list of URLs names to limit those which the rules
+will be evaluated, as a subset of those used by the webping agent.
+Each URL should be in the form used by the webping agent, be enclosed
+in single quotes, and multiple entries separated by white space, e.g.
+'GET_http://boing/index.html' 'GET_http://far.away.com/planning.html'
+
+To discover the names of the available webping URLs, execute the
+following command on the target host:
+        $ pminfo -f webping.perurl.kbytes
+the (double) quoted instance names are the required URLs.
+
+If the list is empty, all webping URLs will be checked.";
+
+# 
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(5)

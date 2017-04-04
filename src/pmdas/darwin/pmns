@@ -1,0 +1,260 @@
+
+hinv {
+    physmem		DARWIN:1:2
+    pagesize		DARWIN:0:0
+    ncpu		DARWIN:8:71
+    nfilesys		DARWIN:5:31
+    ndisk		DARWIN:7:46
+    machine		DARWIN:0:2
+}
+
+pmda {
+    uname		DARWIN:2:28
+    version		DARWIN:2:29
+}
+
+kernel {
+    uname
+    all
+    percpu
+}
+
+kernel.uname {
+    release		DARWIN:2:23
+    version		DARWIN:2:24
+    sysname		DARWIN:2:25
+    machine		DARWIN:2:26
+    nodename		DARWIN:2:27
+}
+
+kernel.all {
+    cpu
+    load		DARWIN:3:30
+    uptime		DARWIN:9:76
+    hz			DARWIN:0:1
+}
+
+kernel.all.cpu {
+    user		DARWIN:6:42
+    nice		DARWIN:6:43
+    sys			DARWIN:6:44
+    idle		DARWIN:6:45
+}
+
+kernel.percpu {
+    cpu
+}
+
+kernel.percpu.cpu {
+    user		DARWIN:8:72
+    nice		DARWIN:8:73
+    sys			DARWIN:8:74
+    idle		DARWIN:8:75
+}
+
+mem {
+    physmem		DARWIN:1:3
+    freemem		DARWIN:1:4
+    active		DARWIN:1:5
+    inactive		DARWIN:1:6
+    pages
+    pageins		DARWIN:1:15
+    pageouts		DARWIN:1:16
+    cache_hits		DARWIN:1:17
+    cache_lookups	DARWIN:1:18
+    util
+}
+
+mem.pages {
+    freemem		DARWIN:1:7
+    active		DARWIN:1:8
+    inactive		DARWIN:1:9
+    reactivated		DARWIN:1:10
+    wired		DARWIN:1:11
+    faults		DARWIN:1:12
+    cow_faults		DARWIN:1:13
+    zero_filled		DARWIN:1:14
+}
+
+mem.util {
+    wired		DARWIN:1:19
+    active		DARWIN:1:20
+    inactive		DARWIN:1:21
+    free		DARWIN:1:22
+    used		DARWIN:1:23
+}
+
+filesys {
+    capacity		DARWIN:5:32
+    used		DARWIN:5:33
+    free		DARWIN:5:34
+    maxfiles		DARWIN:5:129
+    usedfiles		DARWIN:5:35
+    freefiles		DARWIN:5:36
+    mountdir		DARWIN:5:37
+    full		DARWIN:5:38
+    blocksize		DARWIN:5:39
+    avail		DARWIN:5:40
+    type		DARWIN:5:41
+}
+
+disk {
+    dev
+    all
+}
+
+disk.dev {
+    read		DARWIN:7:47
+    write		DARWIN:7:48
+    total		DARWIN:7:49
+    read_bytes		DARWIN:7:50
+    write_bytes		DARWIN:7:51
+    total_bytes		DARWIN:7:52
+    blkread		DARWIN:7:53
+    blkwrite		DARWIN:7:54
+    blktotal		DARWIN:7:55
+    read_time		DARWIN:7:56
+    write_time		DARWIN:7:57
+    total_time		DARWIN:7:58
+}
+
+disk.all {
+    read		DARWIN:7:59
+    write		DARWIN:7:60
+    total		DARWIN:7:61
+    read_bytes		DARWIN:7:62
+    write_bytes		DARWIN:7:63
+    total_bytes		DARWIN:7:64
+    blkread		DARWIN:7:65
+    blkwrite		DARWIN:7:66
+    blktotal		DARWIN:7:67
+    read_time		DARWIN:7:68
+    write_time		DARWIN:7:69
+    total_time		DARWIN:7:70
+}
+
+network {
+    interface
+}
+
+network.interface {
+    in
+    out
+    collisions		DARWIN:10:86
+    mtu			DARWIN:10:87
+    baudrate		DARWIN:10:88
+    total
+}
+
+network.interface.in {
+    bytes		DARWIN:10:77
+    packets		DARWIN:10:78
+    errors		DARWIN:10:79
+    drops		DARWIN:10:80
+    mcasts		DARWIN:10:81
+}
+
+network.interface.out {
+    bytes		DARWIN:10:82
+    packets		DARWIN:10:83
+    errors		DARWIN:10:84
+    mcasts		DARWIN:10:85
+}
+
+network.interface.total {
+    bytes		DARWIN:10:89
+    packets		DARWIN:10:90
+    errors		DARWIN:10:91
+    drops		DARWIN:10:92
+    mcasts		DARWIN:10:93
+}
+
+nfs3 {
+    client
+    server
+}
+
+nfs3.client {
+    calls		DARWIN:11:94
+    reqs		DARWIN:11:95
+}
+
+nfs3.server {
+    calls		DARWIN:11:96
+    reqs		DARWIN:11:97
+}
+
+rpc {
+    client
+    server
+}
+
+rpc.client {
+    rpccnt		DARWIN:11:98
+    rpcretrans		DARWIN:11:99
+    rpctimeouts		DARWIN:11:100
+    rpcinvalid		DARWIN:11:101
+    rpcunexpected	DARWIN:11:102
+    attrcache
+    lookupcache
+    biocache
+    direofcache
+}
+
+rpc.client.attrcache {
+    hits		DARWIN:11:103
+    misses		DARWIN:11:104
+}
+
+rpc.client.lookupcache {
+    hits		DARWIN:11:105
+    misses		DARWIN:11:106
+}
+
+rpc.client.biocache {
+    read
+    write
+    readlink
+    readdir
+}
+
+rpc.client.biocache.read {
+    hits		DARWIN:11:107
+    misses		DARWIN:11:108
+}
+
+rpc.client.biocache.write {
+    hits		DARWIN:11:109
+    misses		DARWIN:11:110
+}
+
+rpc.client.biocache.readlink {
+    hits		DARWIN:11:111
+    misses		DARWIN:11:112
+}
+
+rpc.client.biocache.readdir {
+    hits		DARWIN:11:113
+    misses		DARWIN:11:114
+}
+
+rpc.client.direofcache {
+    hits		DARWIN:11:115
+    misses		DARWIN:11:116
+}
+
+rpc.server {
+    retfailed		DARWIN:11:117
+    faults		DARWIN:11:118
+    cache
+    vopwrites		DARWIN:11:126
+    pageins		DARWIN:11:127
+    pageouts		DARWIN:11:128
+}
+
+rpc.server.cache {
+    inprog 		DARWIN:11:119
+    nonidem		DARWIN:11:120
+    idem		DARWIN:11:121
+    misses		DARWIN:11:122
+}

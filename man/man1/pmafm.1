@@ -1,0 +1,222 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMAFM 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmafm\f1 \- Performance Co-Pilot archive folio manager
+.SH SYNOPSIS
+\f3pmafm\f1 \f2folioname\f1
+[\f2command\f1 [\f2arg\f1 ...]]
+.SH DESCRIPTION
+A collection of one or more Performance Co-Pilot (PCP) archive
+logs may be combined with a control file to produce a PCP archive folio.
+Archive folios are created using either
+.BR mkaf (1)
+or the interactive ``record mode'' services of PCP clients like
+.BR pmchart (1).
+.PP
+.B pmafm
+provides a number of services that may be used to process folios.
+In particular, it provides support for execution of PCP tools using one
+or more of the component
+archive logs within an archive folio.
+.PP
+The target folio is identified by the folio control file
+.IR folioname .
+The syntax for a folio control file is described in
+.BR mkaf (1).
+.PP
+If present, the command and arguments following
+.I folioname
+are interpreted and executed as a single command,
+otherwise commands are read from standard input.
+.PP
+The following commands are supported.
+.TP
+.B archives
+Subsequent commands apply to all archives in the folio.
+.TP
+\f3archives\f1 \f2N\f1[,...]
+Archives within a folio are numbered 1, 2, etc.
+Subsequent commands are restricted to apply only to
+the designated archives.
+.TP
+\f3archives\f1 \f2name\f1[,...]
+Archives within a folio have unique names.
+Subsequent commands are restricted to apply only to
+the designated archives.
+.TP
+.B check
+Validate the presence and format of each file in the
+folio and the component archives.
+.TP
+.B help
+.br
+A brief reminder of the command syntax.
+.B ?
+is a synonym for
+.BR help .
+.TP
+.B hosts
+.br
+Subsequent commands apply to all archives in the folio.
+.TP
+\f3hosts\f1 \f2hostname\f1[,...]
+Subsequent commands are restricted to apply only to
+those archives that match the designated hostnames.
+.TP
+\f3list\f1 [\f3verbose\f1]
+Display the contents of the folio.  By default the control header
+and the ordinal number, hostname and archive base name for each archive
+in the folio.
+The
+.B verbose
+option causes
+.B pmafm
+to dump the label record from each archive using
+.BR "pmdumplog \-l" .
+.if t .sp 0.5v
+.IP ""
+The first named archive in the folio is assumed to be
+associated with the default host for any tool that tries to
+replay multiple archives from the folio.
+.if t .sp
+.TP
+.BR quit
+.br
+Exit
+.BR pmafm .
+.TP
+.BR remove
+.br
+Echo on standard output the
+.BR sh (1)
+commands required to remove all of the physical files associated with
+this archive folio.
+.TP
+\f3repeat\f1 \f2tool\f1 [\f2arg\f1 ...]
+Execute the known PCP
+.I tool
+once per selected archive.  For example, the command
+.br
+.ti +5n
+.ft CW
+repeat pmval \-t60 kernel.all.load
+.br
+would run
+.BR pmval (1)
+once per archive, with an appropriate
+.B \-a
+argument.
+.TP
+.B replay
+.br
+Some archive folios are created by tools
+(e.g. \c
+.BR pmchart (1))
+that provide
+sufficient information to allow all of the information
+in all of the archives of a folio to be replayed.
+.TP
+[\f3run\f1] \f2tool\f1 [\f2arg\f1 ...]
+Execute the known PCP
+.I tool
+on the selected archives.
+Some PCP tools are able to process multiple concurrent
+archives, and in this case the tool is run once with
+the list of all selected archives passed via a
+.B \-a
+argument.
+Otherwise, this command is synonymous with
+.BR repeat .
+.TP
+.B selections
+Display those archives that would be selected for 
+processing with a
+.BR repeat ,
+.B replay
+or
+.B run
+command.
+.PP
+The restrictions via any
+.B hosts
+and
+.B archives
+commands are conjuncted.
+These restrictions serve to limit the specific archives
+processed in the subsequent
+.BR repeat ,
+.BR replay ,
+.B run
+and
+.B selections
+commands.
+By default, all archives are selected.
+.PP
+Keywords in commands may be abbreviated provided no ambiguity
+is introduced, e.g.
+.BR help ,
+.B hel
+and
+.B he
+are synonymous,
+but
+.B h
+is ambiguous.
+.SH FILES
+.PD 0
+.TP 10
+.BI $PCP_VAR_DIR/config/pmafm/ *
+control files that define the behavior of each PCP tool
+known to
+.BR pmafm .
+This information may be customized or extended, see
+.I $PCP_VAR_DIR/config/pmafm/pcp
+for documentation of the syntax and semantics of these files.
+.TP
+.BI $HOME/.pcp/pmafm/ *
+User customization of the control files.  All files in this
+directory are treated in the same manner as control files in
+the
+.I $PCP_VAR_DIR/config/pmafm
+directory.
+.PD
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.I /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (5).
+.SH SEE ALSO
+.PP
+.BR mkaf (1),
+.BR pmchart (1),
+.BR pmview (1),
+.BR PMAPI (3),
+.BR pmRecordSetup (3),
+.BR pcp.conf (5)
+and
+.BR pcp.env (5).
+.SH DIAGNOSTICS
+Many, but all are intended to be easily understood.

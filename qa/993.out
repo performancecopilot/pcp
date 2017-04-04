@@ -1,0 +1,11 @@
+QA output created by 993
+PMID: 2.3.0 (pmcd.pmlogger.port)
+PMID: 2.3.2 (pmcd.pmlogger.archive)
+PMID: 2.3.3 (pmcd.pmlogger.host)
+PMID: 29.0.1 (sample.dupnames.pid_daemon or sample.dupnames.daemon_pid or sample.daemon_pid)
+PMID: 29.0.16 (sample.dupnames.two.float.ten or sample.float.ten)
+PMID: 29.0.2 (sample.dupnames.two.seconds or sample.seconds)
+PMID: 29.0.26 (sample.dupnames.two.double.ten or sample.double.ten)
+PMID: 29.0.36 (sample.dupnames.two.write_me or sample.dupnames.three.write_me or sample.write_me)
+PMID: 29.0.46 (sample.dupnames.two.lights or sample.lights)
+PMID: 29.0.6 (sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin)

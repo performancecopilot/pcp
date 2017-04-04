@@ -1,0 +1,4 @@
+#pmlogconf-setup 2.0
+ident	all available XFS information
+probe	xfs.read_bytes
+	xfs

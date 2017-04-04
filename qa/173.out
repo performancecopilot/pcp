@@ -1,0 +1,95 @@
+QA output created by 173
+metrics_a[0]: proc.nprocs 3.0.0
+metrics_b[0]: proc.nprocs 3.0.0
+metrics_b[1]: kernel.all.syscall 1.10.19
+metrics_c[0]: proc.nprocs 3.0.0
+metrics_c[1]: kernel.all.sysexec 1.10.20
+Start at: 14:36:16.341
+
+Pass One: rewind and fetch metrics_a until end of log
+sample   0 time=14:36:16.341 correct result
+sample   1 time=14:36:16.841 correct result
+sample   2 time=14:36:17.341 correct result
+sample   3 time=14:36:17.841 correct result
+sample   4 time=14:36:18.341 correct result
+sample   5 time=14:36:18.841 correct result
+sample   6 time=14:36:19.341 correct result
+sample   7 time=14:36:19.841 correct result
+sample   8 time=14:36:20.341 correct result
+sample   9 time=14:36:20.841 correct result
+sample  10 time=14:36:21.341 correct result
+sample  11 time=14:36:21.841 correct result
+sample  12 time=14:36:22.341 correct result
+sample  13 time=14:36:22.841 correct result
+sample  14 time=14:36:23.341 correct result
+sample  15 time=14:36:23.841 correct result
+sample  16 time=14:36:24.341 correct result
+sample  17 time=14:36:24.841 correct result
+sample  18 time=14:36:25.341 correct result
+sample  19 time=14:36:25.841 correct result
+sample  20 time=14:36:26.341 correct result
+sample  21 time=14:36:26.841 correct result
+sample  22 time=14:36:27.341 correct result
+sample  23 time=14:36:27.841 correct result
+sample  24 time=14:36:28.341 correct result
+sample  25 time=14:36:28.841 correct result
+sample  26 time=14:36:29.341 correct result
+sample  27 time=14:36:29.841 correct result
+Pass Two: rewind and fetch metrics_b until end of log
+sample   0 time=14:36:16.341 correct result
+sample   1 time=14:36:16.841 correct result
+sample   2 time=14:36:17.341 correct result
+sample   3 time=14:36:17.841 correct result
+sample   4 time=14:36:18.341 correct result
+sample   5 time=14:36:18.841 correct result
+sample   6 time=14:36:19.341 correct result
+sample   7 time=14:36:19.841 correct result
+sample   8 time=14:36:20.341 correct result
+sample   9 time=14:36:20.841 correct result
+sample  10 time=14:36:21.341 correct result
+sample  11 time=14:36:21.841 correct result
+sample  12 time=14:36:22.341 correct result
+sample  13 time=14:36:22.841 correct result
+sample  14 time=14:36:23.341 correct result
+sample  15 time=14:36:23.841 correct result
+sample  16 time=14:36:24.341 correct result
+sample  17 time=14:36:24.841 correct result
+sample  18 time=14:36:25.341 correct result
+sample  19 time=14:36:25.841 correct result
+sample  20 time=14:36:26.341 correct result
+sample  21 time=14:36:26.841 correct result
+sample  22 time=14:36:27.341 correct result
+sample  23 time=14:36:27.841 correct result
+sample  24 time=14:36:28.341 correct result
+sample  25 time=14:36:28.841 correct result
+sample  26 time=14:36:29.341 correct result
+sample  27 time=14:36:29.841 correct result
+Pass Three: rewind and fetch metrics_c until end of log
+sample   0 time=14:36:16.341 correct result
+sample   1 time=14:36:16.841 correct result
+sample   2 time=14:36:17.341 correct result
+sample   3 time=14:36:17.841 correct result
+sample   4 time=14:36:18.341 correct result
+sample   5 time=14:36:18.841 correct result
+sample   6 time=14:36:19.341 correct result
+sample   7 time=14:36:19.841 correct result
+sample   8 time=14:36:20.341 correct result
+sample   9 time=14:36:20.841 correct result
+sample  10 time=14:36:21.341 correct result
+sample  11 time=14:36:21.841 correct result
+sample  12 time=14:36:22.341 correct result
+sample  13 time=14:36:22.841 correct result
+sample  14 time=14:36:23.341 correct result
+sample  15 time=14:36:23.841 correct result
+sample  16 time=14:36:24.341 correct result
+sample  17 time=14:36:24.841 correct result
+sample  18 time=14:36:25.341 correct result
+sample  19 time=14:36:25.841 correct result
+sample  20 time=14:36:26.341 correct result
+sample  21 time=14:36:26.841 correct result
+sample  22 time=14:36:27.341 correct result
+sample  23 time=14:36:27.841 correct result
+sample  24 time=14:36:28.341 correct result
+sample  25 time=14:36:28.841 correct result
+sample  26 time=14:36:29.341 correct result
+sample  27 time=14:36:29.841 correct result

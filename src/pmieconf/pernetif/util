@@ -1,0 +1,75 @@
+#pmieconf-rules 1
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(5)
+#
+
+rule	per_netif.util
+	summary	= "$rule$"
+	enumerate = hosts
+	predicate =
+"some_inst (
+    ( 100 * network.interface.total.bytes $hosts$ $interfaces$ /
+	    network.interface.baudrate $hosts$ $interfaces$ )
+	       > $threshold$
+    && network.interface.baudrate $hosts$ $interfaces$ > 0
+)"
+	enabled	= yes
+	version	= 1
+	help	=
+"For at least one network interface, the average transfer rate (in
+and/or out) exceeded threshold percent of the peak bandwidth of the
+interface during the last sample interval.";
+
+string	rule
+	default	= "High network interface utilization"
+	modify	= no
+	display	= no;
+
+double	threshold
+	default	= 85
+	help	=
+"Threshold in percentage of bandwidth utilization.";
+
+instlist	interfaces
+	default	= ""
+	help	=
+"May be set to a list of network interfaces for which the rule will
+be evaluated, as a subset of configured network interfaces.
+Network interfaces should be separated by white space and may be
+enclosed in single quotes, eg. \"ec0 'xpi5' ec2\".  Use the command:
+	$ pminfo -f network.interface.mtu
+to discover the names of the installed network interfaces.
+Setting this variable is most useful to remove the loopback, SLIP
+and PPP interfaces from the rule evaluations.";
+
+string	action_expand
+	default	= "%v%util[%i]@%h"
+	display	= no
+	modify	= no;
+
+string	email_expand
+	default	= "host: %h interface: %i utilization: %v%"
+	display	= no
+	modify	= no;
+
+
+# Configuration info specific to non-PCP tools follows...
+# 
+
+# for SGI Embedded Support Partner integration:
+string	esp_type
+	default	= "0x200051"
+	display	= no
+	modify	= no;
+
+# for EnlightenDSM integration:
+string	enln_test
+	default	= per_netif.util
+	display	= no
+	modify = no;
+string	enln_units
+	default	= %util[%i]
+	display	= no
+	modify = no;
+
+# 
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(5)

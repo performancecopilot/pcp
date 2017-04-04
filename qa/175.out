@@ -1,0 +1,61 @@
+QA output created by 175
+
+metric:    sample.noinst
+HOST
+semantics: instantaneous value
+units:     none
+samples:   3
+interval:  0.20 sec
+No values available
+No values available
+No values available
+
+metric:    sample.long.one
+HOST
+semantics: instantaneous value
+units:     none
+samples:   3
+interval:  0.20 sec
+sample #1
+sample #2
+sample #3
+
+metric:    sample.pdu
+HOST
+semantics: cumulative counter (converting to rate)
+units:     count (converting to count / sec)
+samples:   3
+interval:  0.20 sec
+sample #1
+sample #2
+sample #3
+
+metric:    sample.noinst
+HOST
+semantics: instantaneous value
+units:     none
+samples:   3
+interval:  0.20 sec
+No values available
+No values available
+No values available
+
+metric:    sample.long.one
+HOST
+semantics: instantaneous value
+units:     none
+samples:   3
+interval:  0.20 sec
+sample #1
+sample #2
+sample #3
+
+metric:    sample.pdu
+HOST
+semantics: cumulative counter
+units:     count
+samples:   3
+interval:  0.20 sec
+sample #1
+sample #2
+sample #3

@@ -1,0 +1,79 @@
+#!/bin/sh
+# PCP QA Test No. 790
+# pmlogextract error handling
+#
+# Copyright (c) 2015 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+_do()
+{
+    rm -f $tmp.0 $tmp.meta $tmp.index
+    pmlogextract -c $tmp.config tmparch/foo $tmp >$tmp.out 2>$tmp.err
+    cat $tmp.out $tmp.err \
+    | sed \
+	-e "s;$tmp;TMP;g" \
+    #
+}
+
+# real QA test starts here
+echo "=== metric name cases ==="
+cat <<End-of-File >$tmp.config
+sample.bad.name [ one, two, three ]
+sample.mumble
+sample.another.bad.name [
+    one
+    two
+    three
+]
+sample.fumble
+sample.xyz?
+End-of-File
+_do
+
+echo
+echo "=== instance name cases ==="
+cat <<End-of-File >$tmp.config
+# instance names bin-101 and bin101 and 101 are all bad
+sample.bin [ 'bin-100',
+	'bin-101',
+	'bin-200',
+	bin101,
+	"bin-300",
+	101,
+	"bin-400"
+]
+# sample.seconds is a singular metric
+sample.seconds [ any ]
+# all instances are bad
+sample.colour [ purple, white, yellow, brown ]
+End-of-File
+_do
+pminfo -a $tmp -f sample.bin sample.seconds sample.colour
+
+echo
+echo "=== syntax errors =="
+cat <<End-of-File >$tmp.config
+sample.drift [ ]
+End-of-File
+_do
+cat <<End-of-File >$tmp.config
+sample.colour [
+End-of-File
+_do
+
+# success, all done
+status=0
+
+exit

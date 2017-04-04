@@ -1,0 +1,99 @@
+#!/usr/bin/env perl
+#
+# Copyright (c) 2010 Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+
+use strict;
+use warnings;
+
+use PCP::LogImport;
+
+if ($#ARGV != 4) {
+    print "Usage: mrtg2pcp hostname devname timezone infile outfile\n";
+    exit(1);
+}
+
+# Note: these match the linux pmda, change to your heart's content
+my $domain   = 60;
+my $cluster  = 3;
+my $in_item  = 0;
+my $out_item = 8;
+my $indomid  = 3;
+
+# the internal instance id
+my $intinstid= 1;
+
+my $hostname=$ARGV[0];
+my $devname=$ARGV[1];
+my $zone=$ARGV[2];
+my $infile=$ARGV[3];
+my $outfile=$ARGV[4];
+
+# first, read the input file
+open(INFILE, "<$infile") or die "open($infile): $!";
+
+<INFILE>; # skip the first line
+
+my @lines = <INFILE>; # read the remainder into memory
+@lines = reverse(@lines);
+
+close(INFILE) or die "close($infile): $!";
+
+# now the PCP part
+pmiStart($outfile, 0) >= 0
+	or die "pmiStart($outfile, 0): " . pmiErrStr(-1) . "\n";
+
+pmiSetHostname($hostname) == 0
+	or die "pmiSetHostname($hostname): ". pmiErrStr(-1) . "\n";
+
+pmiSetTimezone($zone) == 0
+	or die "pmiSetTimezone($zone): ". pmiErrStr(-1) . "\n";
+
+my $indom = pmInDom_build($domain, $indomid);
+pmiAddMetric("network.interface.in.bytes",
+	pmid_build($domain,$cluster,$in_item), PM_TYPE_U64, $indom,
+	PM_SEM_COUNTER, pmiUnits(1,0,0,PM_SPACE_BYTE,0,0)) == 0
+	or die "pmiAddMetric(network.interface.in.bytes, ...): " . pmiErrStr(-1) . "\n";
+pmiAddMetric("network.interface.out.bytes",
+	pmid_build($domain,$cluster,$out_item), PM_TYPE_U64, $indom,
+	PM_SEM_COUNTER, pmiUnits(1,0,0,PM_SPACE_BYTE,0,0)) == 0
+	or die "pmiAddMetric(network.interface.out.bytes, ...): " . pmiErrStr(-1) . "\n";
+
+pmiAddInstance($indom, $devname, $intinstid) >= 0
+	or die "pmiAddInstance(..., ".$devname.", $intinstid): " . pmiErrStr(-1) . "\n";
+
+my $ihndl = pmiGetHandle("network.interface.in.bytes", $devname);
+my $ohndl = pmiGetHandle("network.interface.out.bytes", $devname);
+
+my @prev = ();
+my $ictr = 0;
+my $octr = 0;
+foreach (@lines) {
+	my @info = split(/ /);
+	
+	if (scalar(@prev) > 0) {
+		$ictr += $info[1] * ($info[0] - $prev[0]);
+		$octr += $info[2] * ($info[0] - $prev[0]);
+	}
+
+	pmiPutValueHandle($ihndl, $ictr);
+	pmiPutValueHandle($ohndl, $octr);
+
+	pmiWrite($info[0], 0) >= 0
+		or die "pmiWrite: @ ".$info[0].": " . pmiErrStr(-1) . "\n";
+
+	@prev = @info;
+}
+
+
+pmiEnd();

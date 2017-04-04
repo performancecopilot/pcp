@@ -1,0 +1,64 @@
+#pmieconf-rules 1
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(5)
+
+rule	cisco.in_util
+	summary	= "$rule$"
+	enumerate = hosts
+	predicate =
+"some_inst (
+    100 * cisco.rate_in $hosts$ / cisco.bandwidth $hosts$
+	> $threshold$
+)"
+	enabled	= no
+	version	= 1
+	help	=
+"Some Cisco router interface exceeded threshold percent of its
+peak bandwidth receiving data during the last sample interval.
+Use the command:
+	$ pminfo -f cisco.bandwidth
+to discover the list of Cisco router interfaces currently being
+monitored by the Cisco PMDA - pmdacisco(1).";
+
+string	rule
+	default	= "Cisco router inbound bandwidth saturation"
+	modify	= no
+	display	= no;
+
+percent	threshold
+	default	= 90
+	help	=
+"Threshold percentage for Cisco router saturation, in the range 0
+(idle) to 100 (operating at peak bandwidth)";
+
+string	action_expand
+	default	= %v%util[%i]@%h
+	display	= no
+	modify	= no;
+
+string	email_expand
+	default	= "host: %h Cisco router: %i inbound utilization: %v%"
+	display	= no
+	modify	= no;
+
+
+# Configuration info specific to non-PCP tools follows...
+# 
+
+# for SGI Embedded Support Partner integration:
+string	esp_type
+	default	= "0x200093"
+	display	= no
+	modify	= no;
+
+# for EnlightenDSM integration:
+string	enln_test
+	default = cisco.in_util
+	display = no
+	modify = no;
+string	enln_units
+	default = %util[%i]
+	display = no
+	modify = no;
+
+# 
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(5)

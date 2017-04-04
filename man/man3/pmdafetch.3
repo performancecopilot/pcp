@@ -1,0 +1,397 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMDAFETCH 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmdaFetch\f1,
+\f3pmdaSetFetchCallBack\f1 \- fill a pmResult structure with the requested metric values
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.br
+#include <pcp/impl.h>
+.br
+#include <pcp/pmda.h>
+.sp
+.ad l
+.hy 0
+.in +8n
+.ti -8n
+int pmdaFetch(int \fInumpmid\fP, pmID *\fIpmidlist\fP, pmResult **\fIresp\fP, pmdaExt\ *\fIpmda\fP);
+.br
+.ti -8n
+void pmdaSetFetchCallBack(pmdaInterface *\fIdispatch\fP, pmdaFetchCallBack\ \fIcallback\fP);
+.sp
+.in
+.hy
+.ad
+cc ... \-lpcp_pmda \-lpcp
+.ft 1
+.SH DESCRIPTION
+.B pmdaFetch
+is a generic callback used by a 
+.BR PMDA (3)
+to process a fetch request from
+.BR pmcd (1).
+The request from
+.B pmcd
+is initiated by a client calling
+.BR pmFetch (3).
+.PP
+This is the only generic callback in
+.I libpcp_pmda
+(see
+.BR PMDA (3))
+that is incomplete, requiring
+a further
+.B pmdaFetchCallBack
+method of its own.  The additional callback should be registered using
+.B pmdaSetFetchCallBack
+and the
+.B pmdaFetchCallBack
+method has the following prototype:
+.nf
+.ft CW
+.ps -1
+int func(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *avp)
+.ps
+.ft
+.fi
+.PP
+.B pmdaFetch
+will allocate and resize the
+.I resp
+result structure, to store values for the
+.I numpmid 
+metrics listed in
+.IR pmidlist .
+.PP
+For each instance listed in the profile (see
+.BR pmdaProfile (3))
+of each metric listed in 
+.IR pmidlist ,
+the
+.B pmdaFetchCallBack
+method is called to fill the 
+.B pmAtomValue
+structure identified by
+.I avp
+with a value for a specific metric-instance pair identified
+by the metric descriptor
+.I mdesc
+and the instance
+.IR inst .
+This value is then copied into the
+.B pmResult
+structure.
+.PP
+The
+.B pmdaFetchCallBack
+method should return a value less than zero for an error, and the most
+likely cases would be
+.B PM_ERR_PMID
+if the metric identified by
+.I mdesc
+is not known to the method, or
+.B PM_ERR_INST
+if the method believes the instance
+.I inst
+is not known for the metric identified by
+.IR mdesc .
+.PP
+The success error codes depend on the version of
+.B PMDA_INTERFACE
+the PMDA is using.
+.PP
+If the PMDA is using
+.B PMDA_INTERFACE_2 
+then on success the
+.B pmdaFetchCallBack
+method should return
+.BR 0 .
+.PP
+If the PMDA is using
+.B PMDA_INTERFACE_3 
+or
+.B PMDA_INTERFACE_4 
+then on success the
+.B pmdaFetchCallBack
+method should return
+.B 1
+if a value is returned via
+.IR avp ,
+else
+.B 0
+if no values are currently available for the requested metric-instance pair
+although
+.I mdesc
+and
+.I inst
+both seem reasonable.
+.PP
+If the PMDA is using
+.B PMDA_INTERFACE_5 
+or later then on success the
+.B pmdaFetchCallBack
+method should return
+.B PMDA_FETCH_STATIC
+(\c
+.BR 1 )
+if the value returned via
+.I avp
+can be ignored by
+.B pmdaFetch
+once it has been copied into the
+.B pmResult
+structure, else
+.B PMDA_FETCH_DYNAMIC
+(\c
+.BR 2 )
+if the value returned via
+.I avp
+uses the either the
+.B vp
+or
+.B cp
+fields of the
+.B pmAtomValue
+and the associated value (buffer) was allocated using
+one of
+.BR malloc (3),
+.BR calloc (3),
+.BR realloc (3),
+.B strdup (3)
+etc. and 
+.B pmdaFetch
+should release the memory by calling
+.IR free (3)
+once a new buffer has been allocated and the value copied,
+else
+.B PMDA_FETCH_NOVALUES
+(\c
+.BR 0 )
+if no values are currently available for the requested metric-instance pair
+although
+.I mdesc
+and
+.I inst
+both seem reasonable.
+.PP
+If the
+.B pmdaFetchCallBack
+method returns a value for an instance of a metric of type
+.B PM_TYPE_STRING
+or
+.B PM_TYPE_AGGREGATE
+some special care is needed \(en
+the method should either use a static buffer, set
+.I avp->cp
+or
+.I avp->vp
+to the address of the buffer and return
+.BR PMDA_FETCH_STATIC ,
+or use a dynamically allocated buffer, keep a static reference to
+the buffer's address, return
+.B PMDA_FETCH_STATIC
+and
+.I free (3)
+or
+.I realloc (3)
+or reuse the buffer the next time the
+.B pmdaFetchCallBack
+method is called,
+else use a dynamically allocated buffer
+and return
+.BR PMDA_FETCH_DYNAMIC .
+.SH EXAMPLE
+.PP
+The following code fragments are for a hypothetical PMDA has with metrics (A, B, C and D) and an instance
+domain (X) with two instances (X1 and X2).  The instance domain and
+metrics description tables (see
+.BR pmdaInit (3))
+could be defined as:
+.PP
+.nf
+.ft CW
+.ps -1
+.in +0.5i
+static pmdaInstid _X[] = {
+    { 0, "X1" }, { 1, "X2" }
+};
+.sp 0.5v
+static pmdaIndom indomtab[] = {
+#define X_INDOM 0
+    { 0, 2, _X },
+};
+.sp 0.5v
+static pmdaMetric metrictab[] = {
+/* A */
+    { (void *)0, 
+      { PMDA_PMID(0,0), PM_TYPE_32, PM_INDOM_NULL,
+        PM_SEM_INSTANT, {0,0,0,0,0,0} }, },
+/* B */
+    { (void *)0, 
+      { PMDA_PMID(0,1), PM_TYPE_DOUBLE, X_INDOM,
+        PM_SEM_INSTANT, {0,1,0,0,PM_TIME_SEC,0} }, },
+/* C */
+    { (void *)0, 
+      { PMDA_PMID(0,2), PM_TYPE_STRING, PM_INDOM_NULL,
+        PM_SEM_INSTANT, {0,0,0,0,0,0} }, },
+/* D */
+    { (void *)0, 
+      { PMDA_PMID(0,3), PM_TYPE_STRING, PM_INDOM_NULL,
+        PM_SEM_INSTANT, {0,0,0,0,0,0} }, },
+};
+.in
+.ps
+.ft
+.fi
+.br
+.PP
+A
+.B pmdaFetchCallBack
+method to be called from
+.B pmdaFetch
+could be defined as:
+.PP
+.nf
+.ft CW
+.ps -1
+.in +0.5i
+int
+myFetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *avp)
+{
+  static char sbuf[20]; // reuse this buffer
+  char        *dbuf;    // malloc'd
+.sp 0.5v
+  switch (pmid_item(mdesc->m_desc.pmid)) {
+    case 0:
+      /* assign some value for metric A */;
+      avp->l = ...
+      break;
+    case 1:
+      switch (inst) {
+          case 0:
+	      /* assign a value for metric B, instance X1 */;
+              avp->d = ...
+              break;
+          case 1:
+	      /* assign a value for metric B, instance X2 */;
+              avp->d = ...
+              break;
+          default:
+              return PM_ERR_INST;
+      }
+    case 2:
+      /* place value for metric C in dbuf[] */
+      memcpy(dbuf, ...);
+      avp->cp = dbuf;
+      break;
+    case 3:
+      avp->cp = (char *)malloc(somesize);
+      /* place value in avp->cp */
+      snprintf(avp->cp, somesize, ...);
+      return PMDA_FETCH_DYNAMIC;
+.sp 0.5v
+    default:
+      return PM_ERR_PMID;
+  }
+  return PMDA_FETCH_STATIC;
+}
+.in
+.ps
+.ft
+.fi
+.PP
+.SH DIAGNOSTICS
+The following error messages indicate that there is discrepancy between the
+namespace, 
+.B pmdaMetric
+and
+.B pmdaIndom
+tables passed to
+.BR pmdaInit (3),
+and the registered fetch callback:
+.TP 15
+.BI "pmdaFetch: Requested metric " metric " is not defined"
+A requested metric
+.I metric
+is not listed in the 
+.B pmdaMetric
+table.  The namespace for this 
+.BR PMDA (3)
+may contain additional metrics.
+.TP
+.BI "pmdaFetch: PMID " pmid " not handled by fetch callback"
+The
+.B pmdaFetchCallBack
+method has returned
+.BR PM_ERR_PMID .
+This indicates that a metric may be listed in the
+.B pmdaMetric
+table, but is not supported by the callback method.
+.TP
+.BI "pmdaFetch: Instance " inst " of PMID " pmid " not handled by fetch callback"
+The
+.B pmdaFetchCallBack
+method has returned
+.BR PM_ERR_INST .
+This indicates that an instance of metric is listed in the
+.B pmdaIndom
+table, but is not supported by the callback method.
+.TP
+.B pmdaFetch: Fetch callback error:
+The
+.B pmdaFetchCallBack
+method returned a result other than 
+.BR PMDA_FETCH_NOVALUES ,
+.BR PMDA_FETCH_STATIC ,
+.BR PMDA_FETCH_DYNAMIC ,
+.B PM_ERR_PMID
+or
+.BR PM_ERR_INST .
+.TP
+.BI "pmdaFetch: Descriptor type (" type ") for metric " pmid " is bad"
+The data type 
+.I type
+specified for the metric
+.I pmid
+in the
+.B pmdaMetric
+table is illegal.
+.PP
+.B pmdaFetch
+will return
+.B \-errno
+if an error occurred while allocating the
+.B pmResult
+structure or copying the value from the
+.BR pmAtomValue .
+.SH CAVEAT
+The PMDA must be using 
+.B PMDA_INTERFACE_2 
+or later, as specified in the call to 
+.BR pmdaDSO (3)
+or 
+.BR pmdaDaemon (3).
+.SH SEE ALSO
+.BR pmcd (1),
+.BR PMAPI (3),
+.BR PMDA (3),
+.BR pmdaDaemon (3),
+.BR pmdaDSO (3),
+.BR pmdaInit (3)
+and
+.BR pmFetch (3).

@@ -1,0 +1,341 @@
+#!/bin/sh
+# PCP QA Test No. 828
+# Use valgrind to track down memory leaks associated with
+# # pmDestroyContext().
+# See http://oss.sgi.com/bugzilla/show_bug.cgi?id=1057
+#
+# Copyright (c) 2014 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+_check_valgrind
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    # free pdubuf[size]: 0xe61000[28672] 0xe5c000[17408]
+    sed \
+	-e '/free pdubuf/s/0x[0-9a-f]*\[[0-9]*\]/addr[size]/g' \
+    | $PCP_AWK_PROG '
+/free pdubuf/	{ if (NF <= 9) {
+		    print "   free pdubuf[size]: ... <= 7 buffers ..."
+		    next
+		  }
+		}
+		{ print }'
+}
+
+cat >$tmp.suppress <<End-of-File
+{
+   <pmid[], name[] realloc from qa main program>
+   Memcheck:Leak
+   fun:realloc
+   fun:main
+}
+{
+   <vm24 (SuSE 13.1, i586) version of above>
+   Memcheck:Leak
+   fun:realloc
+   fun:(below main)
+}
+{
+   <alloc list[] in pmNewContext>
+   Memcheck:Leak
+   fun:malloc
+   fun:pmNewContext
+}
+{
+   <realloc list[] in pmNewContext>
+   Memcheck:Leak
+   fun:realloc
+   fun:pmNewContext
+}
+{
+   <alloc list[] in pmNewContext via pmDupContext>
+   Memcheck:Leak
+   fun:malloc
+   fun:pmNewContext
+   fun:pmDupContext
+}
+{
+   <realloc list[] in pmNewContext via pmDupContext>
+   Memcheck:Leak
+   fun:realloc
+   fun:pmNewContext
+   fun:pmDupContext
+}
+{
+   <strdup TZ in pmNewZone>
+   Memcheck:Leak
+   fun:malloc
+   fun:strdup
+   fun:pmNewZone
+   fun:pmNewContextZone
+}
+{
+   <zone[] alloc in pmNewZone>
+   Memcheck:Leak
+   fun:malloc
+   fun:pmNewZone
+   fun:pmNewContextZone
+}
+{
+   <zone[] realloc in pmNewZone>
+   Memcheck:Leak
+   fun:malloc
+   fun:realloc
+   fun:pmNewZone
+   fun:pmNewContextZone
+}
+{
+   <case 1 - buf hdr in __pmFindPDUBuf from pmGetArchiveEnd>
+   Memcheck:Leak
+   fun:malloc
+   fun:__pmFindPDUBuf
+   fun:__pmLogRead
+   ...
+   fun:__pmGetArchiveEnd
+   fun:pmGetArchiveEnd
+}
+{
+   <vm02 - openSUSE 12.1 version of above>
+   Memcheck:Leak
+   fun:malloc
+   fun:__pmFindPDUBuf
+   fun:__pmLogRead
+   fun:__pmGetArchiveEnd
+   obj:*
+}
+{
+   <case 1 - buf hdr in __pmFindPDUBuf from pmGetArchiveEnd - valloc variant>
+   Memcheck:Leak
+   fun:memalign
+   fun:valloc
+   fun:__pmFindPDUBuf
+   fun:__pmLogRead
+   ...
+   fun:__pmGetArchiveEnd
+   fun:pmGetArchiveEnd
+}
+{
+   <vm02 - openSUSE 12.1 version of above>
+   Memcheck:Leak
+   fun:memalign
+   fun:valloc
+   fun:__pmFindPDUBuf
+   fun:__pmLogRead
+   fun:__pmGetArchiveEnd
+   obj:*
+}
+{
+   <case 2 - buf hdr in __pmFindPDUBuf from pmGetArchiveEnd>
+   Memcheck:Leak
+   fun:malloc
+   fun:__pmFindPDUBuf
+   fun:__pmDecodeResult
+   fun:__pmLogRead
+   ...
+   fun:__pmGetArchiveEnd
+   fun:pmGetArchiveEnd
+}
+{
+   <case 2 - buf hdr in __pmFindPDUBuf from pmGetArchiveEnd - valloc variant>
+   Memcheck:Leak
+   fun:memalign
+   fun:valloc
+   fun:__pmFindPDUBuf
+   fun:__pmDecodeResult
+   fun:__pmLogRead
+   ...
+   fun:__pmGetArchiveEnd
+   fun:pmGetArchiveEnd
+}
+{
+   <case 1 - PDU buf alloc - cache_read>
+   Memcheck:Leak
+   ...
+   fun:__pmFindPDUBuf
+   ...
+   fun:__pmLogRead
+   ...
+   fun:__pmLogFetchInterp
+   fun:__pmLogFetch
+   fun:pmFetch
+}
+{
+   <vm02 - openSUSE 12.1 version of above>
+   Memcheck:Leak
+   fun:memalign
+   fun:valloc
+   fun:__pmFindPDUBuf
+   fun:__pmLogRead
+   fun:cache_read
+   fun:do_roll
+   obj:*
+}
+{
+   <vm02 - openSUSE 12.1 version of above>
+   Memcheck:Leak
+   fun:malloc
+   fun:__pmFindPDUBuf
+   fun:__pmLogRead
+   fun:cache_read
+   fun:do_roll
+   obj:*
+}
+{
+   <case 2 - PDU buf alloc>
+   Memcheck:Leak
+   ...
+   fun:__pmFindPDUBuf
+   fun:__pmLogRead
+   ...
+   fun:__pmGetArchiveEnd
+   fun:pmGetArchiveEnd
+}
+{
+   <case 3 - PDU buf alloc>
+   Memcheck:Leak
+   fun:memalign
+   fun:__pmFindPDUBuf
+   fun:__pmDecodeResult
+   fun:__pmLogRead
+   ...
+   fun:__pmGetArchiveEnd
+   fun:pmGetArchiveEnd
+}
+{
+   <ipc[] table resize>
+   Memcheck:Leak
+   fun:malloc
+   fun:realloc
+   ...
+   fun:__pmSetVersionIPC
+   fun:__pmLogChkLabel
+   fun:__pmLogChangeVol
+}
+{
+    <vm02 - openSUSE 12.1 valgrind snarfoo>
+    Memcheck:Cond
+    fun:strlen
+    obj:* 
+}
+# and on vm07 this appears broken
+# Conditional jump or move depends on uninitialised value(s)
+# at 0x4016536: index (strchr.S:56)
+# by 0x4007352: expand_dynamic_string_token (dl-load.c:431)
+# by 0x4007791: _dl_map_object (dl-load.c:2261)
+# by 0x400185D: map_doit (rtld.c:633)
+# by 0x400D905: _dl_catch_error (dl-error.c:178)
+# by 0x4001776: do_preload (rtld.c:817)
+# by 0x400487C: dl_main (rtld.c:1683)
+# by 0x4014A76: _dl_sysdep_start (dl-sysdep.c:243)
+# by 0x4001422: _dl_start (rtld.c:338)
+# by 0x4000AF7: ??? (in /lib/ld-2.11.3.so)
+# by 0x8: ???
+# by 0x7FF000046: ???
+{
+   <vm07 ld/_dl_start botch>
+   Memcheck:Cond
+   fun:index
+   fun:expand_dynamic_string_token
+   fun:_dl_map_object
+   fun:map_doit
+   fun:_dl_catch_error
+   fun:do_preload
+   fun:dl_main
+   fun:_dl_sysdep_start
+   fun:_dl_start
+   ...
+   obj:*
+}
+End-of-File
+
+gcc_ver=`gcc --version | sed -n -e '/^gcc/{
+s/^gcc //
+s/^([^)]*) //
+s/ .*//
+p
+}'`
+valgrind_ver=`valgrind --version | sed -e 's/^valgrind-//'`
+machine=`uname -m`
+echo "gcc_ver=$gcc_ver" >>$seq.full
+echo "valgrind_ver=$valgrind_ver" >>$seq.full
+echo "machine=$machine" >>$seq.full
+
+if [ "$machine" = i586 -o "$machine" = i686 ]
+then
+    # oddness on vm24 SuSE 13.1, i586 gcc 4.8.1, valgrind 3.8.1
+    #            vm21 Debian 7.4, i686, gcc 4.7.2, valgrind 3.7.0
+    #
+    cat >>$tmp.suppress <<End-of-File
+{
+   Bad valgrind - bogus Conditional jump or move depends on uninitialised value(s)
+   Memcheck:Cond
+   fun:__pmLogFetchInterp
+   fun:__pmLogFetch
+   fun:pmFetch
+}
+{
+   <malloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)>
+   Memcheck:Leak
+   fun:malloc
+   fun:(below main)
+}
+End-of-File
+fi
+
+echo >>$seq.full
+cat $tmp.suppress >>$seq.full
+echo >>$seq.full
+
+# real QA test starts here
+
+for arg in "" -d
+do
+    case "$arg"
+    in
+	'')
+	    echo "=== pmNewContext ==="
+	    ;;
+	-d)
+	    echo
+	    echo "=== pmDupContext ==="
+	    ;;
+    esac
+
+    # don't want reachable reported ... caused QA failures on
+    # valgrind 3.10.1 (vm12 after upgrade to Fedora 22)
+    # reachable_opt='--show-reachable=yes'
+
+    valgrind \
+	--leak-check=full --read-var-info=yes $reachable_opt \
+	--suppressions=$tmp.suppress --log-file=$tmp.valgrind \
+	--gen-suppressions=all \
+	2>$tmp.valgrind.err >$tmp.valgrind.out \
+	src/churnctx $arg -z -s 10 -a archives/bug1057 kernel.all.load hinv.ncpu disk.dev.total
+
+    echo "=== std out ==="
+    cat $tmp.valgrind.out
+    echo "=== std err ===" | tee -a $seq.full
+    cat $tmp.valgrind.err >>$seq.full
+    _filter < $tmp.valgrind.err
+    echo "=== valgrind report ===" >>$seq.full
+    cat $tmp.valgrind >>$seq.full
+    echo "=== filtered valgrind report ==="
+    _filter_valgrind <$tmp.valgrind
+done
+
+# success, all done
+status=0
+
+exit

@@ -1,0 +1,32 @@
+//
+// metric expressions
+
+// all instances
+// 
+enet = network.interface.total.packets;
+
+// restricted instance (loopback interface only)
+// 
+enet_r = network.interface.total.packets #lo0;
+
+// restricted instances with weird instance names ...
+// note instance names are "identifiers" in the grammar, so single
+// quotes required for tricky characters, like /, spaces, etc, _not_
+// double quotes
+//
+root_n_usr = filesys.free #'/dev/root' #'/dev/usr';
+
+// multiple hosts
+//
+num_cpu = hinv.ncpu :babylon.engr.sgi.com :gonzo :sandpit;
+
+// multiple sample times
+//
+mem_trend = mem.freemem @0..3;
+
+// multi-dimension variations
+//
+
+// missing instance for non-singular instance domain, plus multiple hosts
+//
+net_view = network.interface.total.packets :gonzo :moomba;

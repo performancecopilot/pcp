@@ -1,0 +1,110 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMTRAVERSEPMNS 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmTraversePMNS\f1,
+\f3pmTraversePMNS_r\f1 \- traverse the performance metrics name space
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.sp
+.nf
+int pmTraversePMNS(const char *\fIname\fP, void (*\fIdometric\fP)(const char *));
+int pmTraversePMNS_r(const char *\fIname\fP, void (*\fIdometric_r\fP)(const char *, void *), void *\fIclosure\fP);
+.fi
+.sp
+cc ... \-lpcp
+.ft 1
+.SH DESCRIPTION
+.de CW
+.ie t \f(CW\\$1\f1\\$2
+.el \fI\\$1\f1\\$2
+..
+.PP
+The routine
+.B pmTraversePMNS
+may be used to perform a depth-first traversal of the Performance
+Metrics Name Space (PMNS).
+.PP
+The traversal starts at the node identified by
+.I name
+\- if
+.I name
+is an empty string (i.e. \f3""\f1), the traversal starts at the
+root of the PMNS.
+Usually
+.I name
+would be the pathname of a non-leaf node in the PMNS.
+.PP
+For each leaf node (i.e. performance metric) found in the traversal,
+the user-supplied routine
+.I dometric
+is called with the full pathname of that metric in the PMNS as
+the single argument.
+This argument is null-byte terminated, and is
+constructed from a buffer that is managed internally to
+.BR pmTraversePMNS .
+Consequently the value is only valid during the call to
+.I dometric
+\- if the pathname needs to be retained, it should be copied using
+.BR strdup (3)
+before returning from
+.IR dometric .
+.PP
+The
+.B pmTraversePMNS_r
+routine performs the same function, except the callback method
+.I func_r
+has an additional parameter that will be
+.I closure
+from the initial call to
+.BR pmTraversePMNS_r .
+The additional parameter to
+.B pmTraversePMNS_r
+and the callback method allows the caller to pass context
+through
+.B pmTraversePMNS_r
+and into the callback method
+.IR func_r ,
+making the service more useful for multi-threaded applications
+where thread-private data can be accessed in the callback method
+via the
+.I closure
+argument.
+.PP
+On success
+.B pmTraversePMNS
+returns the number of children of
+.IR name ,
+which may be zero.
+.SH SEE ALSO
+.BR PMAPI (3)
+and
+.BR pmGetChildren (3).
+.SH DIAGNOSTICS
+.IP \f3PM_ERR_NOPMNS\f1
+Failed to access a PMNS for operation.
+Note that if the application hasn't a priori called pmLoadNameSpace(3)
+and wants to use the distributed PMNS, then a call to
+.B pmTraversePMNS
+must be made inside a current context.
+.IP \f3PM_ERR_NAME\f1
+The initial pathname
+.I name
+is not valid in the current PMNS.
+.IP \f3PM_ERR_*\f1
+Other diagnostics are for protocol failures when
+accessing the distributed PMNS.

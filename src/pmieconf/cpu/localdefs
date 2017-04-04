@@ -1,0 +1,49 @@
+ALL_RULES = util syscall context_switch system load_average \
+	excess_fpe low_util
+
+LOCAL_RULES = $(ALL_RULES)
+
+# Metrics missing from Linux
+#
+# rule: excess_fpe
+#   kernel.percpu.syscall -12357 Unknown metric name
+#
+# rule: syscall
+#   kernel.all.syscall -12357 Unknown metric name
+#
+ifeq ($(TARGET_OS), linux)
+LOCAL_RULES = util context_switch system load_average low_util
+endif
+
+# Metrics missing from Mac OS X
+#
+# rule: util
+#   kernel.all.cpu.intr -12357 Unknown metric name
+#
+# rule: syscall
+#   kernel.all.syscall -12357 Unknown metric name
+#
+# rule: context_switch
+#   kernel.all.pswitch -12357 Unknown metric name
+#
+# rule: excess_fpe
+#   kernel.percpu.syscall -12357 Unknown metric name
+#
+# rule: low_util
+#   kernel.all.cpu.intr -12357 Unknown metric name
+#
+ifeq ($(TARGET_OS), darwin)
+LOCAL_RULES = system load_average
+endif
+
+# Metrics missing from Solaris
+#
+# rule: low_util
+#   kernel.all.cpu.intr -12357 Unknown metric name
+#
+# rule: util
+#   kernel.all.cpu.intr -12357 Unknown metric name
+#
+ifeq ($(TARGET_OS), solaris)
+LOCAL_RULES = syscall context_switch system load_average excess_fpe
+endif

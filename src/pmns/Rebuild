@@ -1,0 +1,373 @@
+#!/bin/sh
+#
+# Copyright (c) 2000-2001,2003 Silicon Graphics, Inc.  All Rights Reserved.
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+# 
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+#
+# Rebuild the PMNS, handling assorted errors
+#
+
+# Note. has to be run from where the PMNS files are installed as local
+#       file names (not full paths) are used
+#
+
+# source the PCP configuration environment variables
+. $PCP_DIR/etc/pcp.env
+
+tmp=`mktemp -d ./pcp.XXXXXXXXX` || exit 1
+status=1
+
+$PCP_SHARE_DIR/lib/lockpmns root
+trap "$PCP_SHARE_DIR/lib/unlockpmns root; rm -rf $tmp; exit \$status" 0 1 2 3 15
+
+_trace()
+{
+    if $silent
+    then
+	:
+    else
+	if $nochanges
+	then
+	    echo "$*"
+	else
+	    echo "$*" >>$tmp/trace
+	fi
+    fi
+}
+
+_trace_file()
+{
+    if $silent
+    then
+	:
+    else
+	if $nochanges
+	then
+	    cat $1
+	else
+	    cat $1 >>$tmp/trace
+	fi
+    fi
+}
+
+_syslog()
+{
+    $PCP_SYSLOG_PROG -p user.alert -t PCP "$*"
+    _trace "$*"
+}
+
+_die()
+{
+    [ -f $tmp/trace ] && cat $tmp/trace
+    rm -f root.new
+    exit
+}
+
+prog=`basename $0`
+debug=false
+nochanges=false
+root=root
+root_updated=false
+update=false
+verbose=""
+silent=false
+
+_usage()
+{
+    _trace "Usage: Rebuild [-nsuv]"
+    _trace "Options:"
+    _trace "  -n    dry run, show me what would be done"
+    _trace "  -s    silent, exit status says it all"
+    _trace "  -u    once only upgrade processing for a new PCP version"
+    _trace "  -v    verbose, for the paranoid"
+}
+
+# Fixup "root" after PCP upgrade
+#
+_upgrade_root()
+{
+    [ ! -f root ] && return
+    _trace "Rebuild: PCP upgrade processing for \"root\" PMNS changes ..."
+    $nochanges && _trace "+ cull root_* names from PMNS ... <root >$tmp/root"
+
+    # Cull root to remove all metrics from root_* files, so only metrics
+    # for optional PMDAs remain
+
+    # If there are deprecated top-level names (below "root") that are
+    # no longer in a root_* file, add them here ...
+    EXCLUDE="pagebuf origin"
+    if [ "$PCP_PLATFORM" = linux ]
+    then
+	# If we're on Linux and the proc PMDA is _not_ included in
+	# the pmcd configuration file, add the top-level metrics
+	# that migrated from the linux PMDA to the proc PMDA
+	#
+	if [ -f $PCP_PMCDCONF_PATH ]
+	then
+	    if grep '^proc[ 	]' $PCP_PMCDCONF_PATH >/dev/null
+	    then
+		# proc PMDA is installed
+		#
+		:
+	    else
+		EXCLUDE="$EXCLUDE proc cgroup"
+	    fi
+	else
+	    EXCLUDE="$EXCLUDE proc cgroup"
+	fi
+    else
+	EXCLUDE="$EXCLUDE proc cgroup"
+    fi
+
+    # now gather top-level names from root_* files
+    #
+    if [ "`echo root_*`" != "root_*" ]
+    then
+	EXCLUDE_TMP=`for file in root_*
+	do
+	    $PCP_AWK_PROG <$file '
+$1 == "}"			{ exit }
+in_root==1			{ printf "%s ",$1 }
+$1 == "root" && $2 == "{"	{ in_root = 1 }'
+done`
+	EXCLUDE="$EXCLUDE $EXCLUDE_TMP"
+    fi
+
+    if [ ! -z "$verbose" -a ! -z "$EXCLUDE" ]
+    then
+	_trace "Exclude these top-level names ..."
+	_trace "`echo $EXCLUDE | fmt | sed -e 's/^/    /'`"
+    fi
+
+    $PCP_AWK_PROG <root >$tmp/root '
+BEGIN	{   # exclude these top-level names and all their descendents
+	    #
+	    n = split("'"$EXCLUDE"'", e)
+	    for (i=1; i <= n; i++) {
+		not_in_root[e[i]] = 1
+	    }
+
+	    in_root = 0
+	    skip = 0
+	}
+$1 == "root" && $2 == "{"	{ in_root = 1 }
+$1 == "}"			{ in_root = 0 }
+in_root				{ if (!($1 in not_in_root)) print
+				  next
+				}
+$2 == "{"			{ n = split($1, name, ".")
+			          if (n > 0 && name[1] in not_in_root)
+				    skip = 1
+				}
+skip && $1 == "}"		{ skip = 0; next }
+skip				{ next }
+				{ print }'
+    if cmp -s root $tmp/root >/dev/null 2>&1
+    then
+	# no changes ... already been here?
+	:
+    else
+	# we will usually end up here
+	root=$tmp/root
+	root_updated=true
+    fi
+}
+
+while getopts dnusv\? c
+do
+    case $c
+    in
+	d)	echo "$prog: Warning: -d deprecated, duplicate PMNS names allowed by default"
+		;;
+	n)	nochanges=true
+		echo "$prog: Warning: dry run, no changes will be made"
+		;;
+	u)	update=true
+		;;
+	s)	silent=true
+		;;
+	v)	verbose="-v"
+		;;
+	\?)	_usage
+		status=0
+		_die
+		;;
+    esac
+done
+shift `expr $OPTIND - 1`
+
+# some preliminary checks
+#
+for file in $PCP_BINADM_DIR/pmnsmerge
+do
+    if [ ! -x $file ]
+    then
+	_syslog "$prog: $file is missing. Cannot proceed."
+	_die
+    fi
+done
+
+# remove all trace of old binary pmns (not used in PCP 3.6 or later)
+#
+rm -f root.bin
+
+here=`pwd`
+_trace "Rebuilding the Performance Metrics Name Space (PMNS) in $here ..."
+
+if [ $# -ne 0 ]
+then
+    _usage
+    _die
+fi
+
+if $nochanges
+then
+    CP="_trace + cp"
+    MV="_trace + mv"
+    LN="_trace + ln"
+    RM="_trace + rm"
+    PMNSMERGE="_trace + pmnsmerge ..."
+else
+    CP=cp
+    MV=mv
+    LN=ln
+    RM=rm
+    PMNSMERGE=
+
+    if [ ! -w `pwd` ]
+    then
+	_syslog "$prog: cannot write in directory `pwd`, script should be run as \"root\"?"
+	_die
+    fi
+
+    if [ ! -f root ]
+    then
+    	echo "root {" >root
+    	echo "}" >>root
+	chmod 644 root
+    fi
+
+    if [ ! -w root ]
+    then
+	_syslog "$prog: cannot write file \"root\" in directory `pwd`, script should be run as \"root\"?"
+	_die
+    fi
+fi
+
+if $update
+then
+    # PCP upgrade fix ups
+    #
+    _upgrade_root
+fi
+
+if [ -f $root ]
+then
+    haveroot=true
+else
+    haveroot=false
+    if $nochanges
+    then
+	_trace "+ create empty root PMNS ..."
+    else
+	root=$tmp/root
+	cat <<EOFEOF >$root
+root {
+}
+EOFEOF
+    fi
+fi
+
+# Merge $root and root_* to produce the new root.
+# Each root_* file should be a complete namespace,
+# i.e. it should include an entry for root.
+#
+mergelist=""
+if [ "`echo root_*`" != "root_*" ]
+then
+    mergelist=`ls -1 root_* | $PCP_AWK_PROG '
+    /root_web/		{next}
+			{print}'`
+fi
+
+_trace "$prog: merging the following PMNS files: "
+_trace $root $mergelist | fmt | sed -e 's/^/    /'
+
+rm -f root.new
+eval $PMNSMERGE
+pmnsmerge $verbose $root $mergelist root.new >$tmp/out 2>&1
+
+if [ $? != 0 ]
+then
+    cat $tmp/out
+    _syslog "$prog: pmnsmerge failed"
+    _trace "         \"root\" has not been changed."
+    _die
+fi
+
+# Multiple Rebuilds in succession should be a no-op.
+#
+if [ -f root ]
+then
+    pminfo -m -n root 2>/dev/null | sort >$tmp/list.old
+fi
+if [ ! -s $tmp/list.old ]
+then
+    pminfo -m -n $root 2>/dev/null | sort >$tmp/list.old
+fi
+pminfo -m -n root.new | sort >$tmp/list.new
+if cmp -s $tmp/list.old $tmp/list.new > /dev/null 2>&1
+then
+    [ ! -f root ] && eval $MV root.new root
+    _trace "$prog: PMNS is unchanged."
+else
+    # Install the new root
+    #
+    [ ! -z "$verbose" ] && _trace_file $tmp/out
+    if $haveroot
+    then
+	_trace "$prog: PMNS \"$here/root\" updated."
+	_trace "... previous version saved as \"$here/root.prev\""
+	eval $MV root root.prev
+    else
+	_trace "$prog: new PMNS \"$here/root\" created."
+    fi
+    eval $MV root.new root
+
+    # signal pmcd if it is running
+    #
+    pminfo -v pmcd.version >/dev/null 2>&1 && pmsignal -a -s HUP pmcd
+
+    if [ ! -z "$verbose" ] && $haveroot
+    then
+	_trace "+ PMNS differences ..."
+	diff -c $tmp/list.old $tmp/list.new >$tmp/diff
+	_trace_file $tmp/diff
+	_trace
+	_trace "+ root differences ..."
+	diff -c root.prev root >$tmp/diff
+	_trace_file $tmp/diff
+    fi
+fi
+rm -f root.new
+
+# remake stdpmid
+#
+[ -f Make.stdpmid ] && ./Make.stdpmid
+
+[ X"$verbose" = X-v -a -f $tmp/trace ] && cat $tmp/trace
+
+status=0
+exit

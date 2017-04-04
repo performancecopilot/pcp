@@ -1,0 +1,16 @@
+#pmlogconf-setup 2.0
+ident   metrics sampled once by the atop command
+probe	kernel.uname.sysname ~ Linux ? include : exclude
+delta	once
+	hinv.ncpu
+	hinv.ndisk
+	hinv.ninterface
+	hinv.pagesize
+	hinv.map.dmname
+	hinv.map.mdname
+	kernel.all.hz
+	kernel.uname.release
+	kernel.uname.version
+	kernel.uname.machine
+	kernel.uname.nodename
+	mem.physmem

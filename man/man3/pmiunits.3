@@ -1,0 +1,92 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2012 Red Hat.
+.\" Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMIUNITS 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmiUnits\f1,
+\f3pmiID\f1,
+\f3pmiInDom\f1 \- construct core metric data structures
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.br
+#include <pcp/import.h>
+.sp
+.ad l
+.hy 0
+.in +8n
+.ti -8n
+pmID
+pmiID(int \fIdomain\fP, int \fIcluster\fP, int \fIitem\fP);
+.ti -8n
+pmInDom
+pmiInDom(int \fIdomain\fP, int \fIserial\fP);
+.ti -8n
+pmUnits
+pmiUnits(int \fIdimSpace\fP, int \fIdimTime\fP, int \fIdimCount\fP, int\ \fIscaleSpace\fP, int\ \fIscaleTime\fP, int\ \fIscaleCount\fP);
+.sp
+.in
+.hy
+.ad
+cc ... \-lpcp_import \-lpcp
+.ft 1
+.SH "Perl SYNOPSIS"
+.ft 3
+use PCP::LogImport;
+.sp
+.ad l
+.hy 0
+.in +8n
+.ti -8n
+$pmid = pmiID($\fIdomain\fP, $\fIcluster\fP, $\fIitem\fP);
+.ti -8n
+$indom = pmiInDom($\fIdomain\fP, $\fIserial\fP);
+.ti -8n
+$units = pmiUnits($\fIdimSpace\fP, $\fIdimTime\fP, $\fIdimCount\fP, $\fIscaleSpace\fP, $\fIscaleTime\fP, $\fIscaleCount\fP);
+.sp
+.in
+.hy
+.ad
+.ft 1
+.SH DESCRIPTION
+As part of the Performance Co-Pilot Log Import API (see
+.BR LOGIMPORT (3)),
+these routines provide 
+convenience methods (especially for script use) for constructing
+.BR pmID ,
+.B pmInDom
+and
+.B pmUnits
+structures respectively, to be used in subsequent calls to
+.BR pmiAddMetric (3)
+and
+.BR pmiAddInstance (3).
+.PP
+Refer to
+.BR pmLookupDesc (3)
+for a complete description of the values and semantics of the
+components of a
+.B pmUnits
+structure, and hence the valid argument values for
+.BR pmiUnits .
+.SH DIAGNOSTICS
+None.
+.SH SEE ALSO
+.BR LOGIMPORT (3),
+.BR pmiAddMetric (3),
+.BR pmiAddInstance (3)
+and
+.BR pmLookupDesc (3).

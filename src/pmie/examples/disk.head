@@ -1,0 +1,11 @@
+// 
+// Some Common Performance Monitoring Scenarios
+//
+// The Disk Group
+//
+
+delta = 15 sec;		// often enough for disks?
+
+// common prefixes
+//
+disk	= "disk";

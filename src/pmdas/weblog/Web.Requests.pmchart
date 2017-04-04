@@ -1,0 +1,27 @@
+#pmchart
+#
+# Web statistics (request rates)
+#
+# This file is installed by the script $PCP_PMDAS_DIR/weblog/Install
+#
+Version 2.0 host dynamic
+
+Chart Title "Requests by HTTP method" Style stacking
+    Plot Color rgbi:1.0/1.0/0.0 Host * Metric web.allservers.requests.get
+    Plot Color rgbi:0.0/1.0/1.0 Host * Metric web.allservers.requests.post
+    Plot Color rgbi:1.0/0.0/1.0 Host * Metric web.allservers.requests.head
+    Plot Color rgbi:1.0/1.0/0.6 Host * Metric web.allservers.requests.other
+Chart Title "Requests by request size" Style stacking
+    Plot Color rgbi:1.0/0.8/0.6 Host * Metric web.allservers.requests.size.zero
+    Plot Color rgbi:0.6/1.0/0.6 Host * Metric web.allservers.requests.size.le3k
+    Plot Color rgbi:0.8/0.6/1.0 Host * Metric web.allservers.requests.size.le10k
+    Plot Color rgbi:1.0/0.65/0.3 Host * Metric web.allservers.requests.size.le30k
+    Plot Color rgbi:0.3/1.0/0.3 Host * Metric web.allservers.requests.size.le100k
+    Plot Color rgbi:0.65/0.3/1.0 Host * Metric web.allservers.requests.size.le300k
+    Plot Color rgbi:1.0/0.5/0.0 Host * Metric web.allservers.requests.size.le1m
+    Plot Color rgbi:0.0/1.0/0.0 Host * Metric web.allservers.requests.size.le3m
+    Plot Color rgbi:0.6/0.0/0.9 Host * Metric web.allservers.requests.size.gt3m
+    Plot Color rgbi:1.0/0.35/0.0 Host * Metric web.allservers.requests.size.unknown
+
+#
+# Created Thu Jul  2 10:48:19 1998

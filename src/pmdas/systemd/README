@@ -1,0 +1,64 @@
+Systemd PMDA
+===========
+
+This PMDA exports events from the systemd journal [1] as they occur.
+There is no configuration required.  In the default (daemon) PMDA
+mode, the daemon switches to userid 'adm', so it can report systemwide
+journal entries.
+
+[1] http://www.freedesktop.org/wiki/Software/systemd
+
+
+Metrics
+=======
+
+The file ./help contains descriptions for all of the metrics exported
+by this PMDA.
+
+Once the PMDA has been installed, the following command will list all
+the available metrics and their explanatory "help" text:
+
+	$ pminfo -fT systemd
+
+The interesting metrics are systemd.journal.records and
+systemd.journal.records_raw.  When a PCP client such as pmevent
+monitors them, each new journal entry is reported as a PCP event
+tuple.  Each field of the journal entry is transcribed as a string or
+blob, including the FIELDNAME= prefix.  See [2] for more details about
+interpretation of the fields.
+
+[2] http://www.freedesktop.org/software/systemd/man/systemd.journal-fields.html
+
+
+Installation
+============
+
+ +  # cd $PCP_PMDAS_DIR/systemd
+
+ +  Check that there is no clash in the Performance Metrics Domain
+    defined in ./domain.h and the other PMDAs currently in use (see
+    $PCP_PMCDCONF_PATH).  If there is, edit ./domain.h to choose another
+    domain number.
+
+ +  Then simply use
+
+	# ./Install
+
+    and choose both the "collector" and "monitor" installation
+    configuration options -- everything else is automated.
+
+De-installation
+===============
+
+ +  Simply use
+
+        # cd $PCP_PMDAS_DIR/systemd
+	# ./Remove
+
+Troubleshooting
+===============
+
+ +  After installing or restarting the agent, the PMCD log file
+    ($PCP_LOG_DIR/pmcd/pmcd.log) and the PMDA log file
+    ($PCP_LOG_DIR/pmcd/systemd.log) should be checked for any warnings
+    or errors.

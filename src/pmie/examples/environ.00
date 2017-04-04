@@ -1,0 +1,18 @@
+//
+// Absolute temperature ceiling.
+//
+// Rules donated by Kevin Wang at Silicon Graphics
+//
+
+some_host ( environ.temp $HOSTS > 33 )
+-> print 10 min "absolute temperature alarm! " "%h: %v degrees ";
+
+//
+// Watch the machine room temperature.  If it rises more than 2 degrees
+// every $delta, danger!
+// This is different from the absolute rule above ... this one
+// gives early warning of sustained temperature increases.
+//
+some_host (
+    environ.temp $HOSTS @0 - environ.temp $HOSTS @1 > 2
+) -> print "temperature rise alarm: " "%h: %v degree rise in $DELTA_STR ";

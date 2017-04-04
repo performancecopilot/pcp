@@ -1,0 +1,90 @@
+#!/bin/sh
+# PCP QA Test No. 1033
+# Exercise the named PMDA.
+#
+# Copyright (c) 2016 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ -d "$PCP_PMDAS_DIR/named" ] || _notrun "named PMDA not installed"
+perl -e "use PCP::PMDA" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "perl PCP::PMDA module not installed"
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+
+_cleanup()
+{
+    $sudo rm -f $here/named.log
+    rm -f $tmp.*
+}
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# PMNS order is non-deterministic
+# Metric: named
+#    non-leaf nameserver	<--- sort
+#        leaf interval		<--- sort
+# dbpmda> desc named.interval
+#
+_filter()
+{
+    $PCP_AWK_PROG '
+BEGIN				{ state = 0 }
+state == 1 && $1 == "dbpmda>"	{ state = 2 }
+				{ outname = "'$tmp'." state; print >outname }
+$1 == "Metric:"			{ state = 1 }'
+    ( cat $tmp.0 ; LC_COLLATE=POSIX sort $tmp.1; cat $tmp.2 ) \
+    | sed \
+        -e "s;$PCP_PMDAS_DIR;\$PCP_PMDAS_DIR;" \
+        -e "s;$script;pmdanamed.pl;" \
+	-e '/Direct mapping for metrics disabled/d' \
+    | _filter_dumpresult
+}
+
+_filter_pmda_log()
+{
+    sed \
+        -e 's/^\(Log for pmda[^ ]* on\) .*/\1 HOST .../' \
+        -e 's/^\(Log finished\) .*/\1 .../' \
+        -e '/^$/d' \
+    #end
+}
+
+
+# real QA test starts here
+script=$PCP_PMDAS_DIR/named/pmdanamed.pl
+
+# create a set of commands for dbpmda
+cat >$tmp.cmds <<End-of-File
+open pipe /usr/bin/env perl $script
+children named
+desc named.interval
+fetch named.interval
+End-of-File
+
+export NAMED_STATS_USER=`id -u -n`
+export NAMED_STATS_PROG=`which true`
+
+# iterate over all of the pre-canned staticstics files
+test="$here/named"
+for file in $test/*.txt
+do
+    export NAMED_STATS_FILE="$file"
+    PCP_PERL_PMNS=root /usr/bin/env perl $script > $tmp.root
+
+    echo === Test case: `basename $file`
+    $sudo rm -f named.log
+    dbpmda -n $tmp.root -ie < $tmp.cmds 2>&1 | _filter
+    _filter_pmda_log < named.log
+done
+
+# success, all done
+status=0
+exit

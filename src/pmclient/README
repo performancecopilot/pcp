@@ -1,0 +1,42 @@
+pmclient - sample clients using the PMAPI
+=========================================
+
+pmclient is a sample client that uses the Performance Metrics
+Application Programming Interface (PMAPI) to report some performance
+data, collected from either a local host, a remote host, or a
+Performance Co-Pilot (PCP) performance metrics archive log.
+
+The pmclient_fg program differs to pmclient in that it uses the
+fetchgroup API extension to the PMAPI, see pmFetchGroup(3).
+
+A script implementation in the python language, pmclient_fg.python,
+is also provided for reference.
+
+The binaries are shipped as part of pcp and are typically installed
+in /usr/bin/pmclient[_fg].  A pmclient(1) "man" page is shipped in
+the pcp documentation package also.
+
+The source is shipped as part of the pcp development packages and
+is installed in $PCP_DEMOS_DIR/pmclient.  If you have a C compiler
+installed, the source and Makefile in this directory may be used to
+create functionally equivalent binaries, by entering the command
+
+	% make
+
+The source in pmclient.c demonstrates many of the PMAPI services, and
+may be used as a template and style guide when creating your own PMAPI
+clients.  Note in particular, the use of ./pmnsmap.spec and the shipped
+tool pmgenmap(1) to assist in the creation of arguments to the PMAPI
+routines, and the manipulation of PMAPI data structures.
+
+To experiment with the archives,
+
+	% rm -f mylog.*
+	% config=$PCP_DEMOS_DIR/pmclient/pmlogger.config
+	% cat $config
+	% pmlogger -c $config -s 6 mylog
+
+this will collect 30 seconds of performance data into the archive
+stored as the files mylog.*.  To play this back,
+
+	% pmclient -a mylog

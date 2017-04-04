@@ -1,0 +1,71 @@
+#
+# Configuration file for pmsnap(1)
+#
+# This file controls the output of pmsnap.
+# See the manual page for pmsnap(1) for full details.
+#
+# Although not mandatory, it is strongly advised that you follow
+# the instructions described in the manual page for pmlogger_daily(1)
+# before proceeding with the instructions described in pmsnap(1).
+#
+# Each line below (which is not a comment) has 4 columns, with
+# the following meaning ..
+#
+# (1) Name    : name of the output file. This is typically
+#             in the local Web content directory hierarchy.
+#
+# (2) Folio   : use the named PCP archive, OR use the archives
+#             in the named PCP archive folio. This is usually
+#             in PCP_LOG_DIR/pmlogger/HOSTNAME, but may be the path of an
+#             archive on an NFS/CIFS mounted filesystem if logging is done
+#             on a remote host. Note that pmlogger_daily(1) automatically
+#             creates the folio PCP_LOG_DIR/pmlogger/LOCALHOSTNAME/Latest.
+#
+# (3) Config  : the pmchart "view" to use. If not found in the
+#             local directory (relative to the -o flag), pmsnap
+#             will also search the directories $PCP_VAR_DIR/config/pmsnap,
+#             $PCP_VAR_DIR/config/pmchart, and $PCP_VAR_DIR/config/pmchart.
+#             
+# (4) Arguments : passed to pmchart, see pmchart(1). Note that $commonargs
+#             will be prepended to the argument list (see the assignment to
+#             $commonargs below). Do NOT include any of the following
+#             arguments: -o -c -a
+#
+# Notes     : the string LOCALHOSTNAME in this file will be substituted
+#             by the name of the local host by pmsnap at run-time.
+#             If pmlogger is logging Snap metrics on the local host,
+#             the example below should work virtually out of the box,
+#             provided you want the output images in /var/www/htdocs/snapshots.
+#             You will of course need to publish an html page that shows
+#             the generated gif images - you can use the example provided
+#             in the file $PCP_VAR_DIR/config/pmsnap/Snap.html.
+#
+#           : lines beginning with $ are assumed to be assignments to
+#	      environment variables in the style of sh(1), and all text
+#	      following the $ will be eval'ed by the script reading
+#	      this control file, and the corresponding variable
+#	      exported into the environment.
+#
+# Recommended pmchart arguments :
+# -g 650x600  (raw image size, Width x Height)
+# -t 1min  (update interval, i.e. time between ticks on the X-Axis)
+# -v 30  (number of visible points)
+# -O -0  (show end of archive, backwards by (-vh) * (-t) seconds)
+# -A 10min  (aligned to start at the nearest 10 minutes)
+# -W  (generated image has a white background, not transparent)
+#
+
+# === Variable Assignments ===
+#
+# DO NOT REMOVE OR EDIT THE FOLLOWING LINE
+$version=1.0
+
+# Common pmchart Arguments. Edit as required.
+$commonargs=''
+
+#
+# === pmsnap Control Specifications ===
+#
+# Name (Output Image)                     Folio|Archive        Config  Arguments
+/var/www/pcp/LOCALHOSTNAME.1hour.summary  LOCALHOSTNAME/Latest  Snap   -O-0 -A 10min -t 2min -v 30
+/var/www/pcp/LOCALHOSTNAME.12hour.summary LOCALHOSTNAME/Latest  Snap   -O-0 -A 1hour -t 30min -v 30

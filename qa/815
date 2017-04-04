@@ -1,0 +1,32 @@
+#!/bin/sh
+# PCP QA Test No. 815
+# pmie bug in count_<foo> method when boolean expression is UNKNOWN
+#
+# Copyright (c) 2014 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+cat <<'End-of-File' >$tmp.pmie
+count_inst(match_inst "bin-[13579]00" sample.bin @5 == sample.bin);
+End-of-File
+
+# real QA test starts here
+pmie -v -c $tmp.pmie -t 0.2sec -T 1.9sec >$tmp.out 2>&1 
+
+_show_pmie_errors <$tmp.out
+
+# success, all done
+status=0
+
+exit

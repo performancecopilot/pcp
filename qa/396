@@ -1,0 +1,57 @@
+#! /bin/sh
+# PCP QA Test No. 396
+# pmval -i "'1 minute'" etc for #452410
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e '/minute/n' \
+	-e '/samples:/n' \
+	-e 's/  *[0-9][0-9]*\.[0-9]*[eE][-+][0-9][0-9]*/ NUMBER/g' \
+	-e 's/  *[0-9][0-9]*\.[0-9]*/ NUMBER/g' \
+	-e 's/  *[0-9][0-9]*/ NUMBER/g' \
+	-e '/^host:.*$/s/.*/HOST/' \
+	-e 's/  *$//'
+}
+
+# real QA test starts here
+echo "=== 1,5 ==="
+pmval -i 1,5 -r -t 1 -s 1 kernel.all.load | _filter
+
+echo
+echo "=== \"'1 minute'\" ==="
+pmval -i "'1 minute'" -r -t 1 -s 1 kernel.all.load | _filter
+
+echo
+echo "=== '\"1 minute\"' ==="
+pmval -i '"1 minute"' -r -t 1 -s 1 kernel.all.load | _filter
+
+echo
+echo "===  '\"1 minute\" \"5 minute\"' ==="
+pmval -i '"1 minute" "5 minute"' -r -t 1 -s 1 kernel.all.load | _filter
+
+echo
+echo "===  '\"1 minute\",\"5 minute\"' ==="
+pmval -i '"1 minute","5 minute"' -r -t 1 -s 1 kernel.all.load | _filter
+
+echo
+echo "===  \" '1 minute' , '5 minute' \" ==="
+pmval -i " '1 minute' , '5 minute' " -r -t 1 -s 1 kernel.all.load | _filter
+
+# success, all done
+status=0
+exit

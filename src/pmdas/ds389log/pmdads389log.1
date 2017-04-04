@@ -1,0 +1,81 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2014 Red Hat.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.TH PMDADS389LOG 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmdads389log\f1 \- 389 Directory Server Log PMDA
+.SH DESCRIPTION
+\f3pmdads389log\f1 is a Performance Metrics Domain Agent (\s-1PMDA\s0)
+which extracts statistics from 389 Directory Server access log using
+the \fBlogconv.pl\fR(1) utility.
+.SH INSTALLATION
+\f3pmdads389log\f1 uses a configuration file
+.IP "\(bu" 4
+.I $PCP_PMDAS_DIR/ds389log/ds389log.conf
+.PP
+This file can contain overridden values (Perl code) for the settings
+listed at the start of
+.IR pmdads389log.pl ,
+namely:
+.IP "\(bu" 4
+.BR logconv.pl
+parameters
+.IP "\(bu" 4
+minimal query interval
+.IP "\(bu" 4
+389 \s-1DS\s0 access log to use
+.IP "\(bu" 4
+389 \s-1DS\s0 log directory to use (used if no file specified)
+.IP "\(bu" 4
+non-root user having read access to the access log file
+.PP
+Once this is setup, you can access the names and values for the
+389 DS performance metrics by doing the following as root:
+.PP
+      # cd $PCP_PMDAS_DIR/ds389log
+.br
+      # ./Install
+.PP
+To uninstall, do the following as root:
+.PP
+      # cd $PCP_PMDAS_DIR/ds389log
+.br
+      # ./Remove
+.PP
+\fBpmdads389log\fR is launched by \fIpmcd\fR(1) and should never be executed 
+directly. The Install and Remove scripts notify \fIpmcd\fR(1) when the 
+agent is installed or removed.
+.SH FILES
+.IP "\fB$PCP_PMDAS_DIR/ds389log/ds389log.conf\fR" 4
+configuration file for the \fBpmdads389log\fR agent
+.IP "\fB$PCP_PMDAS_DIR/ds389log/Install\fR" 4 
+installation script for the \fBpmdads389log\fR agent 
+.IP "\fB$PCP_PMDAS_DIR/ds389log/Remove\fR" 4 
+undo installation script for the \fBpmdads389log\fR agent 
+.IP "\fB$PCP_LOG_DIR/pmcd/ds389log.log\fR" 4 
+default log file for error messages from \fBpmdads389log\fR 
+.IP "\fB/var/log/dirsrv/slapd\-.../access\fR" 4
+389 Directory Server access log parsed by \fBlogconv.pl\fR
+.SH PCP ENVIRONMENT
+Environment variables with the prefix \fBPCP_\fR are used to parameterize
+the file and directory names used by \fBPCP\fR. On each installation, the
+file \fB/etc/pcp.conf\fR contains the local values for these variables. 
+The \fB$PCP_CONF\fR variable may be used to specify an alternative 
+configuration file, as described in \fIpcp.conf\fR(5).
+.SH SEE ALSO
+.BR PCPIntro (1),
+.BR logconv.pl (1),
+.BR pmcd (1)
+and
+.BR pmdads389 (1).

@@ -1,0 +1,120 @@
+#! /bin/sh
+#
+# Copyright (c) 1997,2003 Silicon Graphics, Inc.  All Rights Reserved.
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+# 
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+#
+# micky mouse transaction load generator ...
+#
+
+# Get standard environment
+. $PCP_DIR/etc/pcp.env
+
+
+NUMTX=-1
+while getopts n:\? c
+do
+    case $c
+    in
+	n)	NUMTX=$OPTARG;;
+	\?)	echo "Usage: genload [-n numtx] [tps [avg_serv]]"
+		exit 1
+		;;
+    esac
+done
+shift `expr $OPTIND - 1`
+
+# target TPS [default 10]
+#
+TPS=${1-10}
+
+# mean of the mean service times [default 10 seconds]
+#
+AVG=${2-10}
+
+if [ ! -x ./txrecord ]
+then
+    echo 'Error: no txrecord binary here ... try "make txrecord"?'
+    exit 1
+fi
+
+# get tx types from txmon PMDA via pmcd on the localhost, then choose tx
+# type with Zipfian distribution, and artifically chosen service times
+# ... pipe them to a record-then-sleep droid in the while loop at the
+# end ...  rate throttling relies on O/S pipe-full synchronization
+# (crude, but simple and effective)
+#
+pminfo -f txmon.count \
+| tr -d '"\]\[' \
+| $PCP_AWK_PROG '
+BEGIN	{ i = 0; w = 2; s = 0; numtx='$NUMTX' }
+/value/	{ name[i] = $4; zipf[i] = s + 1 / w; s = zipf[i]
+	  i++; w *= 2
+	}
+END	{ if (i == 0) {
+	    print "e Cannot determine transaction type names ... is the txmon PMDA running locally?"
+	    exit
+	  }
+	  # compute mean, drawn from normal distn with mean and std dev AVG
+	  for (j=0; j<i; j++) {
+	    while (1) {		# the csw method
+		y = rand()
+		d = 1 - y
+		h = 0.14 / d
+		x = 1.22 * y * (1.0 + h)
+		t = log(rand() / (1.0 + h/d)) + 0.5 * x*x + 0.1576
+		if (t <= 0) {
+		    if (t >= -0.69314706) x = -x
+		    m[j] = '$AVG' + '$AVG' * x
+		    if (m[j] >= 0)
+			break
+		}
+	    }
+	    print "i Mean service time for " name[j] " tx: " m[j]
+	  }
+	  zipf[i-1] = 1			# force upper bound of last interval
+	  while (numtx != 0) {
+	    printf "w "
+	    for (k=0; k < '$TPS' && numtx != 0; k++) {
+		r = rand()
+		for (j=0; j<i; j++) {
+		    if (r <= zipf[j])
+			break
+		}
+		printf " %s %f",name[j],rand() * m[j]
+		if (numtx > 0)
+		    numtx--
+	    }
+	    print ""
+	    print "s"
+	  }
+	}' \
+| while read action arg
+do
+    case $action
+    in
+	i)	echo "$arg"
+		;;
+	e)      echo "Error: $arg"
+		exit 1
+		;;
+	s)	sleep 1
+		;;
+	w)	./txrecord $arg
+		;;
+    esac
+done
+
+

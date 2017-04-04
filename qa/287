@@ -1,0 +1,74 @@
+#! /bin/sh
+# PCP QA Test No. 287
+# handling of wrapping counters with pmlogreduce
+#
+# Copyright (c) 2005 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+which pmlogreduce >/dev/null 2>&1 || _notrun "No pmlogreduce binary installed"
+
+rm -f $seq.out
+size=`_get_word_size`
+ln $seq.out.$size $seq.out || exit 1
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.*
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+
+_filter()
+{
+    sed -e "s;$tmp;TMP;"
+}
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.*
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+
+for interval in 2sec 5sec 15sec
+do
+    echo
+    rm -f $tmp.*
+    pmlogreduce -t $interval archives/uwrap $tmp
+    echo "-- raw reduce -t $interval --"
+    pmval -z -r -w 15 -f 0 -t $interval -U $tmp sample.wrap.ulong 2>&1 \
+    | _filter
+    echo "-- rate converted, reduce -t $interval --"
+    pmval -z -w 15 -f 0 -t $interval -a $tmp sample.wrap.ulong 2>&1 \
+    | _filter
+done
+
+echo
+echo "-- raw input archive --"
+pmval -z -r -w 15 -f 0 -U archives/uwrap sample.wrap.ulong
+
+echo
+echo "-- input archive, rate converted --"
+pmval -z -w 15 -f 0 -a archives/uwrap -t 1sec sample.wrap.ulong
+
+echo
+echo "-- input archive, rate converted with PCP_COUNTER_WRAP set --"
+PCP_COUNTER_WRAP=on
+export PCP_COUNTER_WRAP
+pmval -z -w 15 -f 0 -a archives/uwrap -t 1sec sample.wrap.ulong
+
+echo
+echo "-- input metric descriptor --"
+pminfo -d -a archives/uwrap sample.wrap.ulong
+echo
+echo "-- output metric descriptor --"
+pminfo -d -a $tmp sample.wrap.ulong
+
+# success, all done
+exit

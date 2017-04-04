@@ -1,0 +1,18 @@
+#pmlogconf-setup 2.0
+ident	TCP bytes and packets (in and out), connects, accepts, drops and closes [Irix]
+probe	network.tcp.accepts
+	network.tcp.accepts
+	network.tcp.connattempt
+	network.tcp.connects
+	network.tcp.drops
+	network.tcp.conndrops
+	network.tcp.timeoutdrop
+	network.tcp.closed
+	network.tcp.sndtotal
+	network.tcp.sndpack
+	network.tcp.sndbyte
+	network.tcp.rcvtotal
+	network.tcp.rcvpack
+	network.tcp.rcvbyte
+	network.tcp.rexmttimeo
+	network.tcp.sndrexmitpack

@@ -1,0 +1,2356 @@
+QA output created by 495
+non-null -> non-null cases
+
+=== metric sample.mirage { indom -> 29.8 } ===
+--- TMP.in
++++ TMP.out
+@@ -10,7 +10,7 @@
+     Data Type: 32-bit int  InDom: 29.2 0x7400002
+     Semantics: instant  Units: none
+ PMID: 29.0.37 (sample.mirage)
+-    Data Type: 32-bit int  InDom: 29.3 0x7400003
++    Data Type: 32-bit int  InDom: 29.8 0x7400008
+     Semantics: instant  Units: Kbyte / sec
+ PMID: 29.0.80 (sample.many.int)
+     Data Type: 32-bit int  InDom: 29.8 0x7400008
+@@ -74,11 +74,11 @@
+                 inst [3 or "i-3"] value 3
+                 inst [4 or "i-4"] value 4
+               29.0.37 (sample.mirage):
+-                inst [0 or "m-00"] value 99
+-                inst [4 or "m-04"] value 498
+-                inst [9 or "m-09"] value 997
+-                inst [10 or "m-10"] value 1096
+-                inst [11 or "m-11"] value 1195
++                inst [0 or "i-0"] value 99
++                inst [4 or "i-4"] value 498
++                inst [9 or ???] value 997
++                inst [10 or ???] value 1096
++                inst [11 or ???] value 1195
+               29.0.6 (sample.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+@@ -98,11 +98,11 @@
+                 inst [3 or "i-3"] value 3
+                 inst [4 or "i-4"] value 4
+               29.0.37 (sample.mirage):
+-                inst [0 or "m-00"] value 94
+-                inst [4 or "m-04"] value 493
+-                inst [9 or "m-09"] value 992
+-                inst [10 or "m-10"] value 1091
+-                inst [11 or "m-11"] value 1190
++                inst [0 or "i-0"] value 94
++                inst [4 or "i-4"] value 493
++                inst [9 or ???] value 992
++                inst [10 or ???] value 1091
++                inst [11 or ???] value 1190
+               29.0.6 (sample.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+
+=== metric sample.mirage { indom -> 29.8 output inst 4 } ===
+--- TMP.in
++++ TMP.out
+@@ -10,7 +10,7 @@
+     Data Type: 32-bit int  InDom: 29.2 0x7400002
+     Semantics: instant  Units: none
+ PMID: 29.0.37 (sample.mirage)
+-    Data Type: 32-bit int  InDom: 29.3 0x7400003
++    Data Type: 32-bit int  InDom: 29.8 0x7400008
+     Semantics: instant  Units: Kbyte / sec
+ PMID: 29.0.80 (sample.many.int)
+     Data Type: 32-bit int  InDom: 29.8 0x7400008
+@@ -59,26 +59,21 @@
+              Log Vol    end(meta)     end(log)
+ 13:33:44.278       0          132          132
+ 13:33:47.240       0          351          280
+-13:33:50.240       0          862          488
++13:33:50.240       0          862          456
+ 
+ 13:33:44.278  2.3.3 (pmcd.pmlogger.host): inst [32221 or "32221"] value "ken.engr.acx"
+               2.3.0 (pmcd.pmlogger.port): inst [32221 or "32221"] value 4330
+               2.3.2 (pmcd.pmlogger.archive): inst [32221 or "32221"] value "/home/kmcdonell/src/pcpqa/src/mirage-1"
+ 
+ 13:33:47.240  29.0.80 (sample.many.int):
+                 inst [0 or "i-0"] value 0
+                 inst [1 or "i-1"] value 1
+                 inst [2 or "i-2"] value 2
+                 inst [3 or "i-3"] value 3
+                 inst [4 or "i-4"] value 4
+-              29.0.37 (sample.mirage):
+-                inst [0 or "m-00"] value 99
+-                inst [4 or "m-04"] value 498
+-                inst [9 or "m-09"] value 997
+-                inst [10 or "m-10"] value 1096
+-                inst [11 or "m-11"] value 1195
++              29.0.37 (sample.mirage): inst [4 or "i-4"] value 498
+               29.0.6 (sample.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+@@ -90,19 +85,14 @@
+                 inst [800 or "bin-800"] value 800
+                 inst [900 or "bin-900"] value 900
+ 
+ 13:33:50.240  29.0.80 (sample.many.int):
+                 inst [0 or "i-0"] value 0
+                 inst [1 or "i-1"] value 1
+                 inst [2 or "i-2"] value 2
+                 inst [3 or "i-3"] value 3
+                 inst [4 or "i-4"] value 4
+-              29.0.37 (sample.mirage):
+-                inst [0 or "m-00"] value 94
+-                inst [4 or "m-04"] value 493
+-                inst [9 or "m-09"] value 992
+-                inst [10 or "m-10"] value 1091
+-                inst [11 or "m-11"] value 1190
++              29.0.37 (sample.mirage): inst [4 or "i-4"] value 493
+               29.0.6 (sample.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+
+=== metric sample.mirage { indom -> 29.8 output iname "m-04" } ===
+--- TMP.in
++++ TMP.out
+@@ -10,7 +10,7 @@
+     Data Type: 32-bit int  InDom: 29.2 0x7400002
+     Semantics: instant  Units: none
+ PMID: 29.0.37 (sample.mirage)
+-    Data Type: 32-bit int  InDom: 29.3 0x7400003
++    Data Type: 32-bit int  InDom: 29.8 0x7400008
+     Semantics: instant  Units: Kbyte / sec
+ PMID: 29.0.80 (sample.many.int)
+     Data Type: 32-bit int  InDom: 29.8 0x7400008
+@@ -59,26 +59,21 @@
+              Log Vol    end(meta)     end(log)
+ 13:33:44.278       0          132          132
+ 13:33:47.240       0          351          280
+-13:33:50.240       0          862          488
++13:33:50.240       0          862          456
+ 
+ 13:33:44.278  2.3.3 (pmcd.pmlogger.host): inst [32221 or "32221"] value "ken.engr.acx"
+               2.3.0 (pmcd.pmlogger.port): inst [32221 or "32221"] value 4330
+               2.3.2 (pmcd.pmlogger.archive): inst [32221 or "32221"] value "/home/kmcdonell/src/pcpqa/src/mirage-1"
+ 
+ 13:33:47.240  29.0.80 (sample.many.int):
+                 inst [0 or "i-0"] value 0
+                 inst [1 or "i-1"] value 1
+                 inst [2 or "i-2"] value 2
+                 inst [3 or "i-3"] value 3
+                 inst [4 or "i-4"] value 4
+-              29.0.37 (sample.mirage):
+-                inst [0 or "m-00"] value 99
+-                inst [4 or "m-04"] value 498
+-                inst [9 or "m-09"] value 997
+-                inst [10 or "m-10"] value 1096
+-                inst [11 or "m-11"] value 1195
++              29.0.37 (sample.mirage): inst [4 or "i-4"] value 498
+               29.0.6 (sample.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+@@ -90,19 +85,14 @@
+                 inst [800 or "bin-800"] value 800
+                 inst [900 or "bin-900"] value 900
+ 
+ 13:33:50.240  29.0.80 (sample.many.int):
+                 inst [0 or "i-0"] value 0
+                 inst [1 or "i-1"] value 1
+                 inst [2 or "i-2"] value 2
+                 inst [3 or "i-3"] value 3
+                 inst [4 or "i-4"] value 4
+-              29.0.37 (sample.mirage):
+-                inst [0 or "m-00"] value 94
+-                inst [4 or "m-04"] value 493
+-                inst [9 or "m-09"] value 992
+-                inst [10 or "m-10"] value 1091
+-                inst [11 or "m-11"] value 1190
++              29.0.37 (sample.mirage): inst [4 or "i-4"] value 493
+               29.0.6 (sample.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+
+=== metric sample.mirage { indom -> 29.8 output first } ===
+--- TMP.in
++++ TMP.out
+@@ -10,7 +10,7 @@
+     Data Type: 32-bit int  InDom: 29.2 0x7400002
+     Semantics: instant  Units: none
+ PMID: 29.0.37 (sample.mirage)
+-    Data Type: 32-bit int  InDom: 29.3 0x7400003
++    Data Type: 32-bit int  InDom: 29.8 0x7400008
+     Semantics: instant  Units: Kbyte / sec
+ PMID: 29.0.80 (sample.many.int)
+     Data Type: 32-bit int  InDom: 29.8 0x7400008
+@@ -59,26 +59,21 @@
+              Log Vol    end(meta)     end(log)
+ 13:33:44.278       0          132          132
+ 13:33:47.240       0          351          280
+-13:33:50.240       0          862          488
++13:33:50.240       0          862          456
+ 
+ 13:33:44.278  2.3.3 (pmcd.pmlogger.host): inst [32221 or "32221"] value "ken.engr.acx"
+               2.3.0 (pmcd.pmlogger.port): inst [32221 or "32221"] value 4330
+               2.3.2 (pmcd.pmlogger.archive): inst [32221 or "32221"] value "/home/kmcdonell/src/pcpqa/src/mirage-1"
+ 
+ 13:33:47.240  29.0.80 (sample.many.int):
+                 inst [0 or "i-0"] value 0
+                 inst [1 or "i-1"] value 1
+                 inst [2 or "i-2"] value 2
+                 inst [3 or "i-3"] value 3
+                 inst [4 or "i-4"] value 4
+-              29.0.37 (sample.mirage):
+-                inst [0 or "m-00"] value 99
+-                inst [4 or "m-04"] value 498
+-                inst [9 or "m-09"] value 997
+-                inst [10 or "m-10"] value 1096
+-                inst [11 or "m-11"] value 1195
++              29.0.37 (sample.mirage): inst [0 or "i-0"] value 99
+               29.0.6 (sample.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+@@ -90,19 +85,14 @@
+                 inst [800 or "bin-800"] value 800
+                 inst [900 or "bin-900"] value 900
+ 
+ 13:33:50.240  29.0.80 (sample.many.int):
+                 inst [0 or "i-0"] value 0
+                 inst [1 or "i-1"] value 1
+                 inst [2 or "i-2"] value 2
+                 inst [3 or "i-3"] value 3
+                 inst [4 or "i-4"] value 4
+-              29.0.37 (sample.mirage):
+-                inst [0 or "m-00"] value 94
+-                inst [4 or "m-04"] value 493
+-                inst [9 or "m-09"] value 992
+-                inst [10 or "m-10"] value 1091
+-                inst [11 or "m-11"] value 1190
++              29.0.37 (sample.mirage): inst [0 or "i-0"] value 94
+               29.0.6 (sample.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+
+=== metric sample.mirage { indom -> 29.8 output last } ===
+--- TMP.in
++++ TMP.out
+@@ -10,7 +10,7 @@
+     Data Type: 32-bit int  InDom: 29.2 0x7400002
+     Semantics: instant  Units: none
+ PMID: 29.0.37 (sample.mirage)
+-    Data Type: 32-bit int  InDom: 29.3 0x7400003
++    Data Type: 32-bit int  InDom: 29.8 0x7400008
+     Semantics: instant  Units: Kbyte / sec
+ PMID: 29.0.80 (sample.many.int)
+     Data Type: 32-bit int  InDom: 29.8 0x7400008
+@@ -59,26 +59,21 @@
+              Log Vol    end(meta)     end(log)
+ 13:33:44.278       0          132          132
+ 13:33:47.240       0          351          280
+-13:33:50.240       0          862          488
++13:33:50.240       0          862          456
+ 
+ 13:33:44.278  2.3.3 (pmcd.pmlogger.host): inst [32221 or "32221"] value "ken.engr.acx"
+               2.3.0 (pmcd.pmlogger.port): inst [32221 or "32221"] value 4330
+               2.3.2 (pmcd.pmlogger.archive): inst [32221 or "32221"] value "/home/kmcdonell/src/pcpqa/src/mirage-1"
+ 
+ 13:33:47.240  29.0.80 (sample.many.int):
+                 inst [0 or "i-0"] value 0
+                 inst [1 or "i-1"] value 1
+                 inst [2 or "i-2"] value 2
+                 inst [3 or "i-3"] value 3
+                 inst [4 or "i-4"] value 4
+-              29.0.37 (sample.mirage):
+-                inst [0 or "m-00"] value 99
+-                inst [4 or "m-04"] value 498
+-                inst [9 or "m-09"] value 997
+-                inst [10 or "m-10"] value 1096
+-                inst [11 or "m-11"] value 1195
++              29.0.37 (sample.mirage): inst [11 or ???] value 1195
+               29.0.6 (sample.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+@@ -90,19 +85,14 @@
+                 inst [800 or "bin-800"] value 800
+                 inst [900 or "bin-900"] value 900
+ 
+ 13:33:50.240  29.0.80 (sample.many.int):
+                 inst [0 or "i-0"] value 0
+                 inst [1 or "i-1"] value 1
+                 inst [2 or "i-2"] value 2
+                 inst [3 or "i-3"] value 3
+                 inst [4 or "i-4"] value 4
+-              29.0.37 (sample.mirage):
+-                inst [0 or "m-00"] value 94
+-                inst [4 or "m-04"] value 493
+-                inst [9 or "m-09"] value 992
+-                inst [10 or "m-10"] value 1091
+-                inst [11 or "m-11"] value 1190
++              29.0.37 (sample.mirage): inst [11 or ???] value 1190
+               29.0.6 (sample.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+
+=== metric sample.mirage { indom -> 29.8 output min } ===
+--- TMP.in
++++ TMP.out
+@@ -10,7 +10,7 @@
+     Data Type: 32-bit int  InDom: 29.2 0x7400002
+     Semantics: instant  Units: none
+ PMID: 29.0.37 (sample.mirage)
+-    Data Type: 32-bit int  InDom: 29.3 0x7400003
++    Data Type: 32-bit int  InDom: 29.8 0x7400008
+     Semantics: instant  Units: Kbyte / sec
+ PMID: 29.0.80 (sample.many.int)
+     Data Type: 32-bit int  InDom: 29.8 0x7400008
+@@ -59,26 +59,21 @@
+              Log Vol    end(meta)     end(log)
+ 13:33:44.278       0          132          132
+ 13:33:47.240       0          351          280
+-13:33:50.240       0          862          488
++13:33:50.240       0          862          456
+ 
+ 13:33:44.278  2.3.3 (pmcd.pmlogger.host): inst [32221 or "32221"] value "ken.engr.acx"
+               2.3.0 (pmcd.pmlogger.port): inst [32221 or "32221"] value 4330
+               2.3.2 (pmcd.pmlogger.archive): inst [32221 or "32221"] value "/home/kmcdonell/src/pcpqa/src/mirage-1"
+ 
+ 13:33:47.240  29.0.80 (sample.many.int):
+                 inst [0 or "i-0"] value 0
+                 inst [1 or "i-1"] value 1
+                 inst [2 or "i-2"] value 2
+                 inst [3 or "i-3"] value 3
+                 inst [4 or "i-4"] value 4
+-              29.0.37 (sample.mirage):
+-                inst [0 or "m-00"] value 99
+-                inst [4 or "m-04"] value 498
+-                inst [9 or "m-09"] value 997
+-                inst [10 or "m-10"] value 1096
+-                inst [11 or "m-11"] value 1195
++              29.0.37 (sample.mirage): inst [0 or "i-0"] value 99
+               29.0.6 (sample.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+@@ -90,19 +85,14 @@
+                 inst [800 or "bin-800"] value 800
+                 inst [900 or "bin-900"] value 900
+ 
+ 13:33:50.240  29.0.80 (sample.many.int):
+                 inst [0 or "i-0"] value 0
+                 inst [1 or "i-1"] value 1
+                 inst [2 or "i-2"] value 2
+                 inst [3 or "i-3"] value 3
+                 inst [4 or "i-4"] value 4
+-              29.0.37 (sample.mirage):
+-                inst [0 or "m-00"] value 94
+-                inst [4 or "m-04"] value 493
+-                inst [9 or "m-09"] value 992
+-                inst [10 or "m-10"] value 1091
+-                inst [11 or "m-11"] value 1190
++              29.0.37 (sample.mirage): inst [0 or "i-0"] value 94
+               29.0.6 (sample.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+
+=== metric sample.mirage { indom -> 29.8 output max } ===
+--- TMP.in
++++ TMP.out
+@@ -10,7 +10,7 @@
+     Data Type: 32-bit int  InDom: 29.2 0x7400002
+     Semantics: instant  Units: none
+ PMID: 29.0.37 (sample.mirage)
+-    Data Type: 32-bit int  InDom: 29.3 0x7400003
++    Data Type: 32-bit int  InDom: 29.8 0x7400008
+     Semantics: instant  Units: Kbyte / sec
+ PMID: 29.0.80 (sample.many.int)
+     Data Type: 32-bit int  InDom: 29.8 0x7400008
+@@ -59,26 +59,21 @@
+              Log Vol    end(meta)     end(log)
+ 13:33:44.278       0          132          132
+ 13:33:47.240       0          351          280
+-13:33:50.240       0          862          488
++13:33:50.240       0          862          456
+ 
+ 13:33:44.278  2.3.3 (pmcd.pmlogger.host): inst [32221 or "32221"] value "ken.engr.acx"
+               2.3.0 (pmcd.pmlogger.port): inst [32221 or "32221"] value 4330
+               2.3.2 (pmcd.pmlogger.archive): inst [32221 or "32221"] value "/home/kmcdonell/src/pcpqa/src/mirage-1"
+ 
+ 13:33:47.240  29.0.80 (sample.many.int):
+                 inst [0 or "i-0"] value 0
+                 inst [1 or "i-1"] value 1
+                 inst [2 or "i-2"] value 2
+                 inst [3 or "i-3"] value 3
+                 inst [4 or "i-4"] value 4
+-              29.0.37 (sample.mirage):
+-                inst [0 or "m-00"] value 99
+-                inst [4 or "m-04"] value 498
+-                inst [9 or "m-09"] value 997
+-                inst [10 or "m-10"] value 1096
+-                inst [11 or "m-11"] value 1195
++              29.0.37 (sample.mirage): inst [11 or ???] value 1195
+               29.0.6 (sample.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+@@ -90,19 +85,14 @@
+                 inst [800 or "bin-800"] value 800
+                 inst [900 or "bin-900"] value 900
+ 
+ 13:33:50.240  29.0.80 (sample.many.int):
+                 inst [0 or "i-0"] value 0
+                 inst [1 or "i-1"] value 1
+                 inst [2 or "i-2"] value 2
+                 inst [3 or "i-3"] value 3
+                 inst [4 or "i-4"] value 4
+-              29.0.37 (sample.mirage):
+-                inst [0 or "m-00"] value 94
+-                inst [4 or "m-04"] value 493
+-                inst [9 or "m-09"] value 992
+-                inst [10 or "m-10"] value 1091
+-                inst [11 or "m-11"] value 1190
++              29.0.37 (sample.mirage): inst [11 or ???] value 1190
+               29.0.6 (sample.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+
+=== metric sample.mirage { indom -> 29.8 output sum } ===
+--- TMP.in
++++ TMP.out
+@@ -10,7 +10,7 @@
+     Data Type: 32-bit int  InDom: 29.2 0x7400002
+     Semantics: instant  Units: none
+ PMID: 29.0.37 (sample.mirage)
+-    Data Type: 32-bit int  InDom: 29.3 0x7400003
++    Data Type: 32-bit int  InDom: 29.8 0x7400008
+     Semantics: instant  Units: Kbyte / sec
+ PMID: 29.0.80 (sample.many.int)
+     Data Type: 32-bit int  InDom: 29.8 0x7400008
+@@ -59,26 +59,21 @@
+              Log Vol    end(meta)     end(log)
+ 13:33:44.278       0          132          132
+ 13:33:47.240       0          351          280
+-13:33:50.240       0          862          488
++13:33:50.240       0          862          456
+ 
+ 13:33:44.278  2.3.3 (pmcd.pmlogger.host): inst [32221 or "32221"] value "ken.engr.acx"
+               2.3.0 (pmcd.pmlogger.port): inst [32221 or "32221"] value 4330
+               2.3.2 (pmcd.pmlogger.archive): inst [32221 or "32221"] value "/home/kmcdonell/src/pcpqa/src/mirage-1"
+ 
+ 13:33:47.240  29.0.80 (sample.many.int):
+                 inst [0 or "i-0"] value 0
+                 inst [1 or "i-1"] value 1
+                 inst [2 or "i-2"] value 2
+                 inst [3 or "i-3"] value 3
+                 inst [4 or "i-4"] value 4
+-              29.0.37 (sample.mirage):
+-                inst [0 or "m-00"] value 99
+-                inst [4 or "m-04"] value 498
+-                inst [9 or "m-09"] value 997
+-                inst [10 or "m-10"] value 1096
+-                inst [11 or "m-11"] value 1195
++              29.0.37 (sample.mirage): inst [0 or "i-0"] value 3885
+               29.0.6 (sample.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+@@ -90,19 +85,14 @@
+                 inst [800 or "bin-800"] value 800
+                 inst [900 or "bin-900"] value 900
+ 
+ 13:33:50.240  29.0.80 (sample.many.int):
+                 inst [0 or "i-0"] value 0
+                 inst [1 or "i-1"] value 1
+                 inst [2 or "i-2"] value 2
+                 inst [3 or "i-3"] value 3
+                 inst [4 or "i-4"] value 4
+-              29.0.37 (sample.mirage):
+-                inst [0 or "m-00"] value 94
+-                inst [4 or "m-04"] value 493
+-                inst [9 or "m-09"] value 992
+-                inst [10 or "m-10"] value 1091
+-                inst [11 or "m-11"] value 1190
++              29.0.37 (sample.mirage): inst [0 or "i-0"] value 3860
+               29.0.6 (sample.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+
+=== metric sample.mirage { indom -> 29.8 output avg } ===
+--- TMP.in
++++ TMP.out
+@@ -10,7 +10,7 @@
+     Data Type: 32-bit int  InDom: 29.2 0x7400002
+     Semantics: instant  Units: none
+ PMID: 29.0.37 (sample.mirage)
+-    Data Type: 32-bit int  InDom: 29.3 0x7400003
++    Data Type: 32-bit int  InDom: 29.8 0x7400008
+     Semantics: instant  Units: Kbyte / sec
+ PMID: 29.0.80 (sample.many.int)
+     Data Type: 32-bit int  InDom: 29.8 0x7400008
+@@ -59,26 +59,21 @@
+              Log Vol    end(meta)     end(log)
+ 13:33:44.278       0          132          132
+ 13:33:47.240       0          351          280
+-13:33:50.240       0          862          488
++13:33:50.240       0          862          456
+ 
+ 13:33:44.278  2.3.3 (pmcd.pmlogger.host): inst [32221 or "32221"] value "ken.engr.acx"
+               2.3.0 (pmcd.pmlogger.port): inst [32221 or "32221"] value 4330
+               2.3.2 (pmcd.pmlogger.archive): inst [32221 or "32221"] value "/home/kmcdonell/src/pcpqa/src/mirage-1"
+ 
+ 13:33:47.240  29.0.80 (sample.many.int):
+                 inst [0 or "i-0"] value 0
+                 inst [1 or "i-1"] value 1
+                 inst [2 or "i-2"] value 2
+                 inst [3 or "i-3"] value 3
+                 inst [4 or "i-4"] value 4
+-              29.0.37 (sample.mirage):
+-                inst [0 or "m-00"] value 99
+-                inst [4 or "m-04"] value 498
+-                inst [9 or "m-09"] value 997
+-                inst [10 or "m-10"] value 1096
+-                inst [11 or "m-11"] value 1195
++              29.0.37 (sample.mirage): inst [0 or "i-0"] value 777
+               29.0.6 (sample.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+@@ -90,19 +85,14 @@
+                 inst [800 or "bin-800"] value 800
+                 inst [900 or "bin-900"] value 900
+ 
+ 13:33:50.240  29.0.80 (sample.many.int):
+                 inst [0 or "i-0"] value 0
+                 inst [1 or "i-1"] value 1
+                 inst [2 or "i-2"] value 2
+                 inst [3 or "i-3"] value 3
+                 inst [4 or "i-4"] value 4
+-              29.0.37 (sample.mirage):
+-                inst [0 or "m-00"] value 94
+-                inst [4 or "m-04"] value 493
+-                inst [9 or "m-09"] value 992
+-                inst [10 or "m-10"] value 1091
+-                inst [11 or "m-11"] value 1190
++              29.0.37 (sample.mirage): inst [0 or "i-0"] value 772
+               29.0.6 (sample.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+
+=== metric sample.mirage { indom -> 29.8 output inst 12345 } ===
+Warning [TMP.config, line 2]
+Instance 12345 from OUTPUT clause not found in old indom 29.3
+Warning [TMP.config, line 2]
+Instance 12345 from OUTPUT clause not found in new indom 29.8
+--- TMP.in
++++ TMP.out
+@@ -10,7 +10,7 @@
+     Data Type: 32-bit int  InDom: 29.2 0x7400002
+     Semantics: instant  Units: none
+ PMID: 29.0.37 (sample.mirage)
+-    Data Type: 32-bit int  InDom: 29.3 0x7400003
++    Data Type: 32-bit int  InDom: 29.8 0x7400008
+     Semantics: instant  Units: Kbyte / sec
+ PMID: 29.0.80 (sample.many.int)
+     Data Type: 32-bit int  InDom: 29.8 0x7400008
+@@ -59,26 +59,21 @@
+              Log Vol    end(meta)     end(log)
+ 13:33:44.278       0          132          132
+ 13:33:47.240       0          351          280
+-13:33:50.240       0          862          488
++13:33:50.240       0          862          444
+ 
+ 13:33:44.278  2.3.3 (pmcd.pmlogger.host): inst [32221 or "32221"] value "ken.engr.acx"
+               2.3.0 (pmcd.pmlogger.port): inst [32221 or "32221"] value 4330
+               2.3.2 (pmcd.pmlogger.archive): inst [32221 or "32221"] value "/home/kmcdonell/src/pcpqa/src/mirage-1"
+ 
+ 13:33:47.240  29.0.80 (sample.many.int):
+                 inst [0 or "i-0"] value 0
+                 inst [1 or "i-1"] value 1
+                 inst [2 or "i-2"] value 2
+                 inst [3 or "i-3"] value 3
+                 inst [4 or "i-4"] value 4
+-              29.0.37 (sample.mirage):
+-                inst [0 or "m-00"] value 99
+-                inst [4 or "m-04"] value 498
+-                inst [9 or "m-09"] value 997
+-                inst [10 or "m-10"] value 1096
+-                inst [11 or "m-11"] value 1195
++              29.0.37 (sample.mirage): No values returned!
+               29.0.6 (sample.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+@@ -90,19 +85,14 @@
+                 inst [800 or "bin-800"] value 800
+                 inst [900 or "bin-900"] value 900
+ 
+ 13:33:50.240  29.0.80 (sample.many.int):
+                 inst [0 or "i-0"] value 0
+                 inst [1 or "i-1"] value 1
+                 inst [2 or "i-2"] value 2
+                 inst [3 or "i-3"] value 3
+                 inst [4 or "i-4"] value 4
+-              29.0.37 (sample.mirage):
+-                inst [0 or "m-00"] value 94
+-                inst [4 or "m-04"] value 493
+-                inst [9 or "m-09"] value 992
+-                inst [10 or "m-10"] value 1091
+-                inst [11 or "m-11"] value 1190
++              29.0.37 (sample.mirage): No values returned!
+               29.0.6 (sample.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+
+=== metric sample.mirage { indom -> 29.8 output iname "m-12345" } ===
+Warning [TMP.config, line 2]
+Instance "m-12345" from OUTPUT clause not found in old indom 29.3
+Warning [TMP.config, line 2]
+Instance "m-12345" from OUTPUT clause not found in new indom 29.8
+--- TMP.in
++++ TMP.out
+@@ -10,7 +10,7 @@
+     Data Type: 32-bit int  InDom: 29.2 0x7400002
+     Semantics: instant  Units: none
+ PMID: 29.0.37 (sample.mirage)
+-    Data Type: 32-bit int  InDom: 29.3 0x7400003
++    Data Type: 32-bit int  InDom: 29.8 0x7400008
+     Semantics: instant  Units: Kbyte / sec
+ PMID: 29.0.80 (sample.many.int)
+     Data Type: 32-bit int  InDom: 29.8 0x7400008
+@@ -59,26 +59,21 @@
+              Log Vol    end(meta)     end(log)
+ 13:33:44.278       0          132          132
+ 13:33:47.240       0          351          280
+-13:33:50.240       0          862          488
++13:33:50.240       0          862          444
+ 
+ 13:33:44.278  2.3.3 (pmcd.pmlogger.host): inst [32221 or "32221"] value "ken.engr.acx"
+               2.3.0 (pmcd.pmlogger.port): inst [32221 or "32221"] value 4330
+               2.3.2 (pmcd.pmlogger.archive): inst [32221 or "32221"] value "/home/kmcdonell/src/pcpqa/src/mirage-1"
+ 
+ 13:33:47.240  29.0.80 (sample.many.int):
+                 inst [0 or "i-0"] value 0
+                 inst [1 or "i-1"] value 1
+                 inst [2 or "i-2"] value 2
+                 inst [3 or "i-3"] value 3
+                 inst [4 or "i-4"] value 4
+-              29.0.37 (sample.mirage):
+-                inst [0 or "m-00"] value 99
+-                inst [4 or "m-04"] value 498
+-                inst [9 or "m-09"] value 997
+-                inst [10 or "m-10"] value 1096
+-                inst [11 or "m-11"] value 1195
++              29.0.37 (sample.mirage): No values returned!
+               29.0.6 (sample.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+@@ -90,19 +85,14 @@
+                 inst [800 or "bin-800"] value 800
+                 inst [900 or "bin-900"] value 900
+ 
+ 13:33:50.240  29.0.80 (sample.many.int):
+                 inst [0 or "i-0"] value 0
+                 inst [1 or "i-1"] value 1
+                 inst [2 or "i-2"] value 2
+                 inst [3 or "i-3"] value 3
+                 inst [4 or "i-4"] value 4
+-              29.0.37 (sample.mirage):
+-                inst [0 or "m-00"] value 94
+-                inst [4 or "m-04"] value 493
+-                inst [9 or "m-09"] value 992
+-                inst [10 or "m-10"] value 1091
+-                inst [11 or "m-11"] value 1190
++              29.0.37 (sample.mirage): No values returned!
+               29.0.6 (sample.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+
+=== metric sample.mirage { indom -> 29.8 output inst 11 } ===
+Warning [TMP.config, line 2]
+Instance 11 from OUTPUT clause not found in new indom 29.8
+--- TMP.in
++++ TMP.out
+@@ -10,7 +10,7 @@
+     Data Type: 32-bit int  InDom: 29.2 0x7400002
+     Semantics: instant  Units: none
+ PMID: 29.0.37 (sample.mirage)
+-    Data Type: 32-bit int  InDom: 29.3 0x7400003
++    Data Type: 32-bit int  InDom: 29.8 0x7400008
+     Semantics: instant  Units: Kbyte / sec
+ PMID: 29.0.80 (sample.many.int)
+     Data Type: 32-bit int  InDom: 29.8 0x7400008
+@@ -59,26 +59,21 @@
+              Log Vol    end(meta)     end(log)
+ 13:33:44.278       0          132          132
+ 13:33:47.240       0          351          280
+-13:33:50.240       0          862          488
++13:33:50.240       0          862          456
+ 
+ 13:33:44.278  2.3.3 (pmcd.pmlogger.host): inst [32221 or "32221"] value "ken.engr.acx"
+               2.3.0 (pmcd.pmlogger.port): inst [32221 or "32221"] value 4330
+               2.3.2 (pmcd.pmlogger.archive): inst [32221 or "32221"] value "/home/kmcdonell/src/pcpqa/src/mirage-1"
+ 
+ 13:33:47.240  29.0.80 (sample.many.int):
+                 inst [0 or "i-0"] value 0
+                 inst [1 or "i-1"] value 1
+                 inst [2 or "i-2"] value 2
+                 inst [3 or "i-3"] value 3
+                 inst [4 or "i-4"] value 4
+-              29.0.37 (sample.mirage):
+-                inst [0 or "m-00"] value 99
+-                inst [4 or "m-04"] value 498
+-                inst [9 or "m-09"] value 997
+-                inst [10 or "m-10"] value 1096
+-                inst [11 or "m-11"] value 1195
++              29.0.37 (sample.mirage): inst [11 or ???] value 1195
+               29.0.6 (sample.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+@@ -90,19 +85,14 @@
+                 inst [800 or "bin-800"] value 800
+                 inst [900 or "bin-900"] value 900
+ 
+ 13:33:50.240  29.0.80 (sample.many.int):
+                 inst [0 or "i-0"] value 0
+                 inst [1 or "i-1"] value 1
+                 inst [2 or "i-2"] value 2
+                 inst [3 or "i-3"] value 3
+                 inst [4 or "i-4"] value 4
+-              29.0.37 (sample.mirage):
+-                inst [0 or "m-00"] value 94
+-                inst [4 or "m-04"] value 493
+-                inst [9 or "m-09"] value 992
+-                inst [10 or "m-10"] value 1091
+-                inst [11 or "m-11"] value 1190
++              29.0.37 (sample.mirage): inst [11 or ???] value 1190
+               29.0.6 (sample.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+
+=== metric sample.mirage { indom -> 29.8 output inst 2 } ===
+Warning [TMP.config, line 2]
+Instance 2 from OUTPUT clause not found in old indom 29.3
+--- TMP.in
++++ TMP.out
+@@ -10,7 +10,7 @@
+     Data Type: 32-bit int  InDom: 29.2 0x7400002
+     Semantics: instant  Units: none
+ PMID: 29.0.37 (sample.mirage)
+-    Data Type: 32-bit int  InDom: 29.3 0x7400003
++    Data Type: 32-bit int  InDom: 29.8 0x7400008
+     Semantics: instant  Units: Kbyte / sec
+ PMID: 29.0.80 (sample.many.int)
+     Data Type: 32-bit int  InDom: 29.8 0x7400008
+@@ -59,26 +59,21 @@
+              Log Vol    end(meta)     end(log)
+ 13:33:44.278       0          132          132
+ 13:33:47.240       0          351          280
+-13:33:50.240       0          862          488
++13:33:50.240       0          862          444
+ 
+ 13:33:44.278  2.3.3 (pmcd.pmlogger.host): inst [32221 or "32221"] value "ken.engr.acx"
+               2.3.0 (pmcd.pmlogger.port): inst [32221 or "32221"] value 4330
+               2.3.2 (pmcd.pmlogger.archive): inst [32221 or "32221"] value "/home/kmcdonell/src/pcpqa/src/mirage-1"
+ 
+ 13:33:47.240  29.0.80 (sample.many.int):
+                 inst [0 or "i-0"] value 0
+                 inst [1 or "i-1"] value 1
+                 inst [2 or "i-2"] value 2
+                 inst [3 or "i-3"] value 3
+                 inst [4 or "i-4"] value 4
+-              29.0.37 (sample.mirage):
+-                inst [0 or "m-00"] value 99
+-                inst [4 or "m-04"] value 498
+-                inst [9 or "m-09"] value 997
+-                inst [10 or "m-10"] value 1096
+-                inst [11 or "m-11"] value 1195
++              29.0.37 (sample.mirage): No values returned!
+               29.0.6 (sample.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+@@ -90,19 +85,14 @@
+                 inst [800 or "bin-800"] value 800
+                 inst [900 or "bin-900"] value 900
+ 
+ 13:33:50.240  29.0.80 (sample.many.int):
+                 inst [0 or "i-0"] value 0
+                 inst [1 or "i-1"] value 1
+                 inst [2 or "i-2"] value 2
+                 inst [3 or "i-3"] value 3
+                 inst [4 or "i-4"] value 4
+-              29.0.37 (sample.mirage):
+-                inst [0 or "m-00"] value 94
+-                inst [4 or "m-04"] value 493
+-                inst [9 or "m-09"] value 992
+-                inst [10 or "m-10"] value 1091
+-                inst [11 or "m-11"] value 1190
++              29.0.37 (sample.mirage): No values returned!
+               29.0.6 (sample.bin):
+                 inst [100 or "bin-100"] value 100
+                 inst [200 or "bin-200"] value 200
+
+non-null -> null cases
+
+=== metric sample.colour { indom -> NULL } ===
+--- TMP.in
++++ TMP.out
+@@ -10,7 +10,7 @@
+     Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: discrete  Units: none
+ PMID: 29.0.5 (sample.colour)
+-    Data Type: 32-bit int  InDom: 29.1 0x7400001
++    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: instant  Units: none
+ PMID: 2.3.0 (pmcd.pmlogger.port)
+     Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
+@@ -56,14 +56,14 @@
+              Log Vol    end(meta)     end(log)
+ 04:34:32.257       0          132          132
+ 04:34:33.248       0          350          284
+-04:34:34.248       0          851          496
++04:34:34.248       0          851          480
+ 
+ 04:34:32.257  2.3.3 (pmcd.pmlogger.host): inst [5403 or "5403"] value "gonzo.melbourne.sgi.com"
+               2.3.0 (pmcd.pmlogger.port): inst [5403 or "5403"] value 4332
+               2.3.2 (pmcd.pmlogger.archive): inst [5403 or "5403"] value "/usr/people/kenmcd/isms/pcp/qa/src/foo"
+ 
+ 04:34:33.248  29.0.46 (sample.lights): value "yellow"
+               29.0.7 (sample.drift): value 150
+               29.0.6 (sample.bin):
+@@ -76,13 +76,10 @@
+                 inst [700 or "bin-700"] value 700
+                 inst [800 or "bin-800"] value 800
+                 inst [900 or "bin-900"] value 900
+-              29.0.5 (sample.colour):
+-                inst [0 or "red"] value 119
+-                inst [1 or "green"] value 220
+-                inst [2 or "blue"] value 321
++              29.0.5 (sample.colour): value 119
+               29.0.2 (sample.seconds): value 890
+ 
+ 04:34:34.248  29.0.46 (sample.lights): value "yellow"
+               29.0.7 (sample.drift): value 108
+               29.0.6 (sample.bin):
+@@ -95,8 +92,5 @@
+                 inst [700 or "bin-700"] value 700
+                 inst [800 or "bin-800"] value 800
+                 inst [900 or "bin-900"] value 900
+-              29.0.5 (sample.colour):
+-                inst [0 or "red"] value 122
+-                inst [1 or "green"] value 223
+-                inst [2 or "blue"] value 324
++              29.0.5 (sample.colour): value 122
+               29.0.2 (sample.seconds): value 891
+
+=== metric sample.colour { indom -> NULL output inst 1 } ===
+--- TMP.in
++++ TMP.out
+@@ -10,7 +10,7 @@
+     Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: discrete  Units: none
+ PMID: 29.0.5 (sample.colour)
+-    Data Type: 32-bit int  InDom: 29.1 0x7400001
++    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: instant  Units: none
+ PMID: 2.3.0 (pmcd.pmlogger.port)
+     Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
+@@ -56,14 +56,14 @@
+              Log Vol    end(meta)     end(log)
+ 04:34:32.257       0          132          132
+ 04:34:33.248       0          350          284
+-04:34:34.248       0          851          496
++04:34:34.248       0          851          480
+ 
+ 04:34:32.257  2.3.3 (pmcd.pmlogger.host): inst [5403 or "5403"] value "gonzo.melbourne.sgi.com"
+               2.3.0 (pmcd.pmlogger.port): inst [5403 or "5403"] value 4332
+               2.3.2 (pmcd.pmlogger.archive): inst [5403 or "5403"] value "/usr/people/kenmcd/isms/pcp/qa/src/foo"
+ 
+ 04:34:33.248  29.0.46 (sample.lights): value "yellow"
+               29.0.7 (sample.drift): value 150
+               29.0.6 (sample.bin):
+@@ -76,13 +76,10 @@
+                 inst [700 or "bin-700"] value 700
+                 inst [800 or "bin-800"] value 800
+                 inst [900 or "bin-900"] value 900
+-              29.0.5 (sample.colour):
+-                inst [0 or "red"] value 119
+-                inst [1 or "green"] value 220
+-                inst [2 or "blue"] value 321
++              29.0.5 (sample.colour): value 220
+               29.0.2 (sample.seconds): value 890
+ 
+ 04:34:34.248  29.0.46 (sample.lights): value "yellow"
+               29.0.7 (sample.drift): value 108
+               29.0.6 (sample.bin):
+@@ -95,8 +92,5 @@
+                 inst [700 or "bin-700"] value 700
+                 inst [800 or "bin-800"] value 800
+                 inst [900 or "bin-900"] value 900
+-              29.0.5 (sample.colour):
+-                inst [0 or "red"] value 122
+-                inst [1 or "green"] value 223
+-                inst [2 or "blue"] value 324
++              29.0.5 (sample.colour): value 223
+               29.0.2 (sample.seconds): value 891
+
+=== metric sample.colour { indom -> NULL output iname "green with extra text for no value" } ===
+--- TMP.in
++++ TMP.out
+@@ -10,7 +10,7 @@
+     Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: discrete  Units: none
+ PMID: 29.0.5 (sample.colour)
+-    Data Type: 32-bit int  InDom: 29.1 0x7400001
++    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: instant  Units: none
+ PMID: 2.3.0 (pmcd.pmlogger.port)
+     Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
+@@ -56,14 +56,14 @@
+              Log Vol    end(meta)     end(log)
+ 04:34:32.257       0          132          132
+ 04:34:33.248       0          350          284
+-04:34:34.248       0          851          496
++04:34:34.248       0          851          480
+ 
+ 04:34:32.257  2.3.3 (pmcd.pmlogger.host): inst [5403 or "5403"] value "gonzo.melbourne.sgi.com"
+               2.3.0 (pmcd.pmlogger.port): inst [5403 or "5403"] value 4332
+               2.3.2 (pmcd.pmlogger.archive): inst [5403 or "5403"] value "/usr/people/kenmcd/isms/pcp/qa/src/foo"
+ 
+ 04:34:33.248  29.0.46 (sample.lights): value "yellow"
+               29.0.7 (sample.drift): value 150
+               29.0.6 (sample.bin):
+@@ -76,13 +76,10 @@
+                 inst [700 or "bin-700"] value 700
+                 inst [800 or "bin-800"] value 800
+                 inst [900 or "bin-900"] value 900
+-              29.0.5 (sample.colour):
+-                inst [0 or "red"] value 119
+-                inst [1 or "green"] value 220
+-                inst [2 or "blue"] value 321
++              29.0.5 (sample.colour): value 220
+               29.0.2 (sample.seconds): value 890
+ 
+ 04:34:34.248  29.0.46 (sample.lights): value "yellow"
+               29.0.7 (sample.drift): value 108
+               29.0.6 (sample.bin):
+@@ -95,8 +92,5 @@
+                 inst [700 or "bin-700"] value 700
+                 inst [800 or "bin-800"] value 800
+                 inst [900 or "bin-900"] value 900
+-              29.0.5 (sample.colour):
+-                inst [0 or "red"] value 122
+-                inst [1 or "green"] value 223
+-                inst [2 or "blue"] value 324
++              29.0.5 (sample.colour): value 223
+               29.0.2 (sample.seconds): value 891
+
+=== metric sample.colour { indom -> NULL output first } ===
+--- TMP.in
++++ TMP.out
+@@ -10,7 +10,7 @@
+     Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: discrete  Units: none
+ PMID: 29.0.5 (sample.colour)
+-    Data Type: 32-bit int  InDom: 29.1 0x7400001
++    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: instant  Units: none
+ PMID: 2.3.0 (pmcd.pmlogger.port)
+     Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
+@@ -56,14 +56,14 @@
+              Log Vol    end(meta)     end(log)
+ 04:34:32.257       0          132          132
+ 04:34:33.248       0          350          284
+-04:34:34.248       0          851          496
++04:34:34.248       0          851          480
+ 
+ 04:34:32.257  2.3.3 (pmcd.pmlogger.host): inst [5403 or "5403"] value "gonzo.melbourne.sgi.com"
+               2.3.0 (pmcd.pmlogger.port): inst [5403 or "5403"] value 4332
+               2.3.2 (pmcd.pmlogger.archive): inst [5403 or "5403"] value "/usr/people/kenmcd/isms/pcp/qa/src/foo"
+ 
+ 04:34:33.248  29.0.46 (sample.lights): value "yellow"
+               29.0.7 (sample.drift): value 150
+               29.0.6 (sample.bin):
+@@ -76,13 +76,10 @@
+                 inst [700 or "bin-700"] value 700
+                 inst [800 or "bin-800"] value 800
+                 inst [900 or "bin-900"] value 900
+-              29.0.5 (sample.colour):
+-                inst [0 or "red"] value 119
+-                inst [1 or "green"] value 220
+-                inst [2 or "blue"] value 321
++              29.0.5 (sample.colour): value 119
+               29.0.2 (sample.seconds): value 890
+ 
+ 04:34:34.248  29.0.46 (sample.lights): value "yellow"
+               29.0.7 (sample.drift): value 108
+               29.0.6 (sample.bin):
+@@ -95,8 +92,5 @@
+                 inst [700 or "bin-700"] value 700
+                 inst [800 or "bin-800"] value 800
+                 inst [900 or "bin-900"] value 900
+-              29.0.5 (sample.colour):
+-                inst [0 or "red"] value 122
+-                inst [1 or "green"] value 223
+-                inst [2 or "blue"] value 324
++              29.0.5 (sample.colour): value 122
+               29.0.2 (sample.seconds): value 891
+
+=== metric sample.colour { indom -> NULL output last } ===
+--- TMP.in
++++ TMP.out
+@@ -10,7 +10,7 @@
+     Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: discrete  Units: none
+ PMID: 29.0.5 (sample.colour)
+-    Data Type: 32-bit int  InDom: 29.1 0x7400001
++    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: instant  Units: none
+ PMID: 2.3.0 (pmcd.pmlogger.port)
+     Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
+@@ -56,14 +56,14 @@
+              Log Vol    end(meta)     end(log)
+ 04:34:32.257       0          132          132
+ 04:34:33.248       0          350          284
+-04:34:34.248       0          851          496
++04:34:34.248       0          851          480
+ 
+ 04:34:32.257  2.3.3 (pmcd.pmlogger.host): inst [5403 or "5403"] value "gonzo.melbourne.sgi.com"
+               2.3.0 (pmcd.pmlogger.port): inst [5403 or "5403"] value 4332
+               2.3.2 (pmcd.pmlogger.archive): inst [5403 or "5403"] value "/usr/people/kenmcd/isms/pcp/qa/src/foo"
+ 
+ 04:34:33.248  29.0.46 (sample.lights): value "yellow"
+               29.0.7 (sample.drift): value 150
+               29.0.6 (sample.bin):
+@@ -76,13 +76,10 @@
+                 inst [700 or "bin-700"] value 700
+                 inst [800 or "bin-800"] value 800
+                 inst [900 or "bin-900"] value 900
+-              29.0.5 (sample.colour):
+-                inst [0 or "red"] value 119
+-                inst [1 or "green"] value 220
+-                inst [2 or "blue"] value 321
++              29.0.5 (sample.colour): value 321
+               29.0.2 (sample.seconds): value 890
+ 
+ 04:34:34.248  29.0.46 (sample.lights): value "yellow"
+               29.0.7 (sample.drift): value 108
+               29.0.6 (sample.bin):
+@@ -95,8 +92,5 @@
+                 inst [700 or "bin-700"] value 700
+                 inst [800 or "bin-800"] value 800
+                 inst [900 or "bin-900"] value 900
+-              29.0.5 (sample.colour):
+-                inst [0 or "red"] value 122
+-                inst [1 or "green"] value 223
+-                inst [2 or "blue"] value 324
++              29.0.5 (sample.colour): value 324
+               29.0.2 (sample.seconds): value 891
+
+=== metric sample.colour { indom -> NULL output min } ===
+--- TMP.in
++++ TMP.out
+@@ -10,7 +10,7 @@
+     Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: discrete  Units: none
+ PMID: 29.0.5 (sample.colour)
+-    Data Type: 32-bit int  InDom: 29.1 0x7400001
++    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: instant  Units: none
+ PMID: 2.3.0 (pmcd.pmlogger.port)
+     Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
+@@ -56,14 +56,14 @@
+              Log Vol    end(meta)     end(log)
+ 04:34:32.257       0          132          132
+ 04:34:33.248       0          350          284
+-04:34:34.248       0          851          496
++04:34:34.248       0          851          480
+ 
+ 04:34:32.257  2.3.3 (pmcd.pmlogger.host): inst [5403 or "5403"] value "gonzo.melbourne.sgi.com"
+               2.3.0 (pmcd.pmlogger.port): inst [5403 or "5403"] value 4332
+               2.3.2 (pmcd.pmlogger.archive): inst [5403 or "5403"] value "/usr/people/kenmcd/isms/pcp/qa/src/foo"
+ 
+ 04:34:33.248  29.0.46 (sample.lights): value "yellow"
+               29.0.7 (sample.drift): value 150
+               29.0.6 (sample.bin):
+@@ -76,13 +76,10 @@
+                 inst [700 or "bin-700"] value 700
+                 inst [800 or "bin-800"] value 800
+                 inst [900 or "bin-900"] value 900
+-              29.0.5 (sample.colour):
+-                inst [0 or "red"] value 119
+-                inst [1 or "green"] value 220
+-                inst [2 or "blue"] value 321
++              29.0.5 (sample.colour): value 119
+               29.0.2 (sample.seconds): value 890
+ 
+ 04:34:34.248  29.0.46 (sample.lights): value "yellow"
+               29.0.7 (sample.drift): value 108
+               29.0.6 (sample.bin):
+@@ -95,8 +92,5 @@
+                 inst [700 or "bin-700"] value 700
+                 inst [800 or "bin-800"] value 800
+                 inst [900 or "bin-900"] value 900
+-              29.0.5 (sample.colour):
+-                inst [0 or "red"] value 122
+-                inst [1 or "green"] value 223
+-                inst [2 or "blue"] value 324
++              29.0.5 (sample.colour): value 122
+               29.0.2 (sample.seconds): value 891
+
+=== metric sample.colour { indom -> NULL output max } ===
+--- TMP.in
++++ TMP.out
+@@ -10,7 +10,7 @@
+     Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: discrete  Units: none
+ PMID: 29.0.5 (sample.colour)
+-    Data Type: 32-bit int  InDom: 29.1 0x7400001
++    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: instant  Units: none
+ PMID: 2.3.0 (pmcd.pmlogger.port)
+     Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
+@@ -56,14 +56,14 @@
+              Log Vol    end(meta)     end(log)
+ 04:34:32.257       0          132          132
+ 04:34:33.248       0          350          284
+-04:34:34.248       0          851          496
++04:34:34.248       0          851          480
+ 
+ 04:34:32.257  2.3.3 (pmcd.pmlogger.host): inst [5403 or "5403"] value "gonzo.melbourne.sgi.com"
+               2.3.0 (pmcd.pmlogger.port): inst [5403 or "5403"] value 4332
+               2.3.2 (pmcd.pmlogger.archive): inst [5403 or "5403"] value "/usr/people/kenmcd/isms/pcp/qa/src/foo"
+ 
+ 04:34:33.248  29.0.46 (sample.lights): value "yellow"
+               29.0.7 (sample.drift): value 150
+               29.0.6 (sample.bin):
+@@ -76,13 +76,10 @@
+                 inst [700 or "bin-700"] value 700
+                 inst [800 or "bin-800"] value 800
+                 inst [900 or "bin-900"] value 900
+-              29.0.5 (sample.colour):
+-                inst [0 or "red"] value 119
+-                inst [1 or "green"] value 220
+-                inst [2 or "blue"] value 321
++              29.0.5 (sample.colour): value 321
+               29.0.2 (sample.seconds): value 890
+ 
+ 04:34:34.248  29.0.46 (sample.lights): value "yellow"
+               29.0.7 (sample.drift): value 108
+               29.0.6 (sample.bin):
+@@ -95,8 +92,5 @@
+                 inst [700 or "bin-700"] value 700
+                 inst [800 or "bin-800"] value 800
+                 inst [900 or "bin-900"] value 900
+-              29.0.5 (sample.colour):
+-                inst [0 or "red"] value 122
+-                inst [1 or "green"] value 223
+-                inst [2 or "blue"] value 324
++              29.0.5 (sample.colour): value 324
+               29.0.2 (sample.seconds): value 891
+
+=== metric sample.colour { indom -> NULL output sum } ===
+--- TMP.in
++++ TMP.out
+@@ -10,7 +10,7 @@
+     Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: discrete  Units: none
+ PMID: 29.0.5 (sample.colour)
+-    Data Type: 32-bit int  InDom: 29.1 0x7400001
++    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: instant  Units: none
+ PMID: 2.3.0 (pmcd.pmlogger.port)
+     Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
+@@ -56,14 +56,14 @@
+              Log Vol    end(meta)     end(log)
+ 04:34:32.257       0          132          132
+ 04:34:33.248       0          350          284
+-04:34:34.248       0          851          496
++04:34:34.248       0          851          480
+ 
+ 04:34:32.257  2.3.3 (pmcd.pmlogger.host): inst [5403 or "5403"] value "gonzo.melbourne.sgi.com"
+               2.3.0 (pmcd.pmlogger.port): inst [5403 or "5403"] value 4332
+               2.3.2 (pmcd.pmlogger.archive): inst [5403 or "5403"] value "/usr/people/kenmcd/isms/pcp/qa/src/foo"
+ 
+ 04:34:33.248  29.0.46 (sample.lights): value "yellow"
+               29.0.7 (sample.drift): value 150
+               29.0.6 (sample.bin):
+@@ -76,13 +76,10 @@
+                 inst [700 or "bin-700"] value 700
+                 inst [800 or "bin-800"] value 800
+                 inst [900 or "bin-900"] value 900
+-              29.0.5 (sample.colour):
+-                inst [0 or "red"] value 119
+-                inst [1 or "green"] value 220
+-                inst [2 or "blue"] value 321
++              29.0.5 (sample.colour): value 660
+               29.0.2 (sample.seconds): value 890
+ 
+ 04:34:34.248  29.0.46 (sample.lights): value "yellow"
+               29.0.7 (sample.drift): value 108
+               29.0.6 (sample.bin):
+@@ -95,8 +92,5 @@
+                 inst [700 or "bin-700"] value 700
+                 inst [800 or "bin-800"] value 800
+                 inst [900 or "bin-900"] value 900
+-              29.0.5 (sample.colour):
+-                inst [0 or "red"] value 122
+-                inst [1 or "green"] value 223
+-                inst [2 or "blue"] value 324
++              29.0.5 (sample.colour): value 669
+               29.0.2 (sample.seconds): value 891
+
+=== metric sample.colour { indom -> NULL output avg } ===
+--- TMP.in
++++ TMP.out
+@@ -10,7 +10,7 @@
+     Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: discrete  Units: none
+ PMID: 29.0.5 (sample.colour)
+-    Data Type: 32-bit int  InDom: 29.1 0x7400001
++    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: instant  Units: none
+ PMID: 2.3.0 (pmcd.pmlogger.port)
+     Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
+@@ -56,14 +56,14 @@
+              Log Vol    end(meta)     end(log)
+ 04:34:32.257       0          132          132
+ 04:34:33.248       0          350          284
+-04:34:34.248       0          851          496
++04:34:34.248       0          851          480
+ 
+ 04:34:32.257  2.3.3 (pmcd.pmlogger.host): inst [5403 or "5403"] value "gonzo.melbourne.sgi.com"
+               2.3.0 (pmcd.pmlogger.port): inst [5403 or "5403"] value 4332
+               2.3.2 (pmcd.pmlogger.archive): inst [5403 or "5403"] value "/usr/people/kenmcd/isms/pcp/qa/src/foo"
+ 
+ 04:34:33.248  29.0.46 (sample.lights): value "yellow"
+               29.0.7 (sample.drift): value 150
+               29.0.6 (sample.bin):
+@@ -76,13 +76,10 @@
+                 inst [700 or "bin-700"] value 700
+                 inst [800 or "bin-800"] value 800
+                 inst [900 or "bin-900"] value 900
+-              29.0.5 (sample.colour):
+-                inst [0 or "red"] value 119
+-                inst [1 or "green"] value 220
+-                inst [2 or "blue"] value 321
++              29.0.5 (sample.colour): value 220
+               29.0.2 (sample.seconds): value 890
+ 
+ 04:34:34.248  29.0.46 (sample.lights): value "yellow"
+               29.0.7 (sample.drift): value 108
+               29.0.6 (sample.bin):
+@@ -95,8 +92,5 @@
+                 inst [700 or "bin-700"] value 700
+                 inst [800 or "bin-800"] value 800
+                 inst [900 or "bin-900"] value 900
+-              29.0.5 (sample.colour):
+-                inst [0 or "red"] value 122
+-                inst [1 or "green"] value 223
+-                inst [2 or "blue"] value 324
++              29.0.5 (sample.colour): value 223
+               29.0.2 (sample.seconds): value 891
+
+=== metric sample.colour { indom -> NULL output inst 12345 } ===
+Warning [TMP.config, line 2]
+Instance 12345 from OUTPUT clause not found in old indom 29.1
+--- TMP.in
++++ TMP.out
+@@ -10,7 +10,7 @@
+     Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: discrete  Units: none
+ PMID: 29.0.5 (sample.colour)
+-    Data Type: 32-bit int  InDom: 29.1 0x7400001
++    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: instant  Units: none
+ PMID: 2.3.0 (pmcd.pmlogger.port)
+     Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
+@@ -56,14 +56,14 @@
+              Log Vol    end(meta)     end(log)
+ 04:34:32.257       0          132          132
+ 04:34:33.248       0          350          284
+-04:34:34.248       0          851          496
++04:34:34.248       0          851          468
+ 
+ 04:34:32.257  2.3.3 (pmcd.pmlogger.host): inst [5403 or "5403"] value "gonzo.melbourne.sgi.com"
+               2.3.0 (pmcd.pmlogger.port): inst [5403 or "5403"] value 4332
+               2.3.2 (pmcd.pmlogger.archive): inst [5403 or "5403"] value "/usr/people/kenmcd/isms/pcp/qa/src/foo"
+ 
+ 04:34:33.248  29.0.46 (sample.lights): value "yellow"
+               29.0.7 (sample.drift): value 150
+               29.0.6 (sample.bin):
+@@ -76,13 +76,10 @@
+                 inst [700 or "bin-700"] value 700
+                 inst [800 or "bin-800"] value 800
+                 inst [900 or "bin-900"] value 900
+-              29.0.5 (sample.colour):
+-                inst [0 or "red"] value 119
+-                inst [1 or "green"] value 220
+-                inst [2 or "blue"] value 321
++              29.0.5 (sample.colour): No values returned!
+               29.0.2 (sample.seconds): value 890
+ 
+ 04:34:34.248  29.0.46 (sample.lights): value "yellow"
+               29.0.7 (sample.drift): value 108
+               29.0.6 (sample.bin):
+@@ -95,8 +92,5 @@
+                 inst [700 or "bin-700"] value 700
+                 inst [800 or "bin-800"] value 800
+                 inst [900 or "bin-900"] value 900
+-              29.0.5 (sample.colour):
+-                inst [0 or "red"] value 122
+-                inst [1 or "green"] value 223
+-                inst [2 or "blue"] value 324
++              29.0.5 (sample.colour): No values returned!
+               29.0.2 (sample.seconds): value 891
+
+=== metric sample.colour { indom -> NULL output iname "purple" } ===
+Warning [TMP.config, line 2]
+Instance "purple" from OUTPUT clause not found in old indom 29.1
+--- TMP.in
++++ TMP.out
+@@ -10,7 +10,7 @@
+     Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: discrete  Units: none
+ PMID: 29.0.5 (sample.colour)
+-    Data Type: 32-bit int  InDom: 29.1 0x7400001
++    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: instant  Units: none
+ PMID: 2.3.0 (pmcd.pmlogger.port)
+     Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
+@@ -56,14 +56,14 @@
+              Log Vol    end(meta)     end(log)
+ 04:34:32.257       0          132          132
+ 04:34:33.248       0          350          284
+-04:34:34.248       0          851          496
++04:34:34.248       0          851          468
+ 
+ 04:34:32.257  2.3.3 (pmcd.pmlogger.host): inst [5403 or "5403"] value "gonzo.melbourne.sgi.com"
+               2.3.0 (pmcd.pmlogger.port): inst [5403 or "5403"] value 4332
+               2.3.2 (pmcd.pmlogger.archive): inst [5403 or "5403"] value "/usr/people/kenmcd/isms/pcp/qa/src/foo"
+ 
+ 04:34:33.248  29.0.46 (sample.lights): value "yellow"
+               29.0.7 (sample.drift): value 150
+               29.0.6 (sample.bin):
+@@ -76,13 +76,10 @@
+                 inst [700 or "bin-700"] value 700
+                 inst [800 or "bin-800"] value 800
+                 inst [900 or "bin-900"] value 900
+-              29.0.5 (sample.colour):
+-                inst [0 or "red"] value 119
+-                inst [1 or "green"] value 220
+-                inst [2 or "blue"] value 321
++              29.0.5 (sample.colour): No values returned!
+               29.0.2 (sample.seconds): value 890
+ 
+ 04:34:34.248  29.0.46 (sample.lights): value "yellow"
+               29.0.7 (sample.drift): value 108
+               29.0.6 (sample.bin):
+@@ -95,8 +92,5 @@
+                 inst [700 or "bin-700"] value 700
+                 inst [800 or "bin-800"] value 800
+                 inst [900 or "bin-900"] value 900
+-              29.0.5 (sample.colour):
+-                inst [0 or "red"] value 122
+-                inst [1 or "green"] value 223
+-                inst [2 or "blue"] value 324
++              29.0.5 (sample.colour): No values returned!
+               29.0.2 (sample.seconds): value 891
+
+null -> non-null cases
+
+=== metric sample.seconds { indom -> 29.2 } ===
+Warning [TMP.config, line 2]
+Instance 0 from OUTPUT clause not found in new indom 29.2
+--- TMP.in
++++ TMP.out
+@@ -22,7 +22,7 @@
+     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: instant  Units: none
+ PMID: 29.0.2 (sample.seconds)
+-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
++    Data Type: 32-bit unsigned int  InDom: 29.2 0x7400002
+     Semantics: counter  Units: sec
+ PMID: 2.3.2 (pmcd.pmlogger.archive)
+     Data Type: string  InDom: 2.1 0x800001
+@@ -80,7 +80,7 @@
+                 inst [0 or "red"] value 119
+                 inst [1 or "green"] value 220
+                 inst [2 or "blue"] value 321
+-              29.0.2 (sample.seconds): value 890
++              29.0.2 (sample.seconds): inst [0 or ???] value 890
+ 
+ 04:34:34.248  29.0.46 (sample.lights): value "yellow"
+@@ -99,4 +99,4 @@
+                 inst [0 or "red"] value 122
+                 inst [1 or "green"] value 223
+                 inst [2 or "blue"] value 324
+-              29.0.2 (sample.seconds): value 891
++              29.0.2 (sample.seconds): inst [0 or ???] value 891
+
+=== metric sample.seconds { indom -> 29.2 output inst 100 } ===
+--- TMP.in
++++ TMP.out
+@@ -22,7 +22,7 @@
+     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: instant  Units: none
+ PMID: 29.0.2 (sample.seconds)
+-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
++    Data Type: 32-bit unsigned int  InDom: 29.2 0x7400002
+     Semantics: counter  Units: sec
+ PMID: 2.3.2 (pmcd.pmlogger.archive)
+     Data Type: string  InDom: 2.1 0x800001
+@@ -80,7 +80,7 @@
+                 inst [0 or "red"] value 119
+                 inst [1 or "green"] value 220
+                 inst [2 or "blue"] value 321
+-              29.0.2 (sample.seconds): value 890
++              29.0.2 (sample.seconds): inst [100 or "bin-100"] value 890
+ 
+ 04:34:34.248  29.0.46 (sample.lights): value "yellow"
+@@ -99,4 +99,4 @@
+                 inst [0 or "red"] value 122
+                 inst [1 or "green"] value 223
+                 inst [2 or "blue"] value 324
+-              29.0.2 (sample.seconds): value 891
++              29.0.2 (sample.seconds): inst [100 or "bin-100"] value 891
+
+=== metric sample.seconds { indom -> 29.2 output iname "bin-300" } ===
+--- TMP.in
++++ TMP.out
+@@ -22,7 +22,7 @@
+     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: instant  Units: none
+ PMID: 29.0.2 (sample.seconds)
+-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
++    Data Type: 32-bit unsigned int  InDom: 29.2 0x7400002
+     Semantics: counter  Units: sec
+ PMID: 2.3.2 (pmcd.pmlogger.archive)
+     Data Type: string  InDom: 2.1 0x800001
+@@ -80,7 +80,7 @@
+                 inst [0 or "red"] value 119
+                 inst [1 or "green"] value 220
+                 inst [2 or "blue"] value 321
+-              29.0.2 (sample.seconds): value 890
++              29.0.2 (sample.seconds): inst [300 or "bin-300"] value 890
+ 
+ 04:34:34.248  29.0.46 (sample.lights): value "yellow"
+@@ -99,4 +99,4 @@
+                 inst [0 or "red"] value 122
+                 inst [1 or "green"] value 223
+                 inst [2 or "blue"] value 324
+-              29.0.2 (sample.seconds): value 891
++              29.0.2 (sample.seconds): inst [300 or "bin-300"] value 891
+
+=== metric sample.seconds { indom -> 29.2 output first } ===
+Warning [TMP.config, line 2]
+Instance 0 from OUTPUT clause not found in new indom 29.2
+--- TMP.in
++++ TMP.out
+@@ -22,7 +22,7 @@
+     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: instant  Units: none
+ PMID: 29.0.2 (sample.seconds)
+-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
++    Data Type: 32-bit unsigned int  InDom: 29.2 0x7400002
+     Semantics: counter  Units: sec
+ PMID: 2.3.2 (pmcd.pmlogger.archive)
+     Data Type: string  InDom: 2.1 0x800001
+@@ -80,7 +80,7 @@
+                 inst [0 or "red"] value 119
+                 inst [1 or "green"] value 220
+                 inst [2 or "blue"] value 321
+-              29.0.2 (sample.seconds): value 890
++              29.0.2 (sample.seconds): inst [0 or ???] value 890
+ 
+ 04:34:34.248  29.0.46 (sample.lights): value "yellow"
+@@ -99,4 +99,4 @@
+                 inst [0 or "red"] value 122
+                 inst [1 or "green"] value 223
+                 inst [2 or "blue"] value 324
+-              29.0.2 (sample.seconds): value 891
++              29.0.2 (sample.seconds): inst [0 or ???] value 891
+
+=== metric sample.seconds { indom -> 29.2 output last } ===
+--- TMP.in
++++ TMP.out
+@@ -22,7 +22,7 @@
+     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: instant  Units: none
+ PMID: 29.0.2 (sample.seconds)
+-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
++    Data Type: 32-bit unsigned int  InDom: 29.2 0x7400002
+     Semantics: counter  Units: sec
+ PMID: 2.3.2 (pmcd.pmlogger.archive)
+     Data Type: string  InDom: 2.1 0x800001
+@@ -80,7 +80,7 @@
+                 inst [0 or "red"] value 119
+                 inst [1 or "green"] value 220
+                 inst [2 or "blue"] value 321
+-              29.0.2 (sample.seconds): value 890
++              29.0.2 (sample.seconds): inst [0 or ???] value 890
+ 
+ 04:34:34.248  29.0.46 (sample.lights): value "yellow"
+@@ -99,4 +99,4 @@
+                 inst [0 or "red"] value 122
+                 inst [1 or "green"] value 223
+                 inst [2 or "blue"] value 324
+-              29.0.2 (sample.seconds): value 891
++              29.0.2 (sample.seconds): inst [0 or ???] value 891
+
+=== metric sample.seconds { indom -> 29.2 output min } ===
+--- TMP.in
++++ TMP.out
+@@ -22,7 +22,7 @@
+     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: instant  Units: none
+ PMID: 29.0.2 (sample.seconds)
+-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
++    Data Type: 32-bit unsigned int  InDom: 29.2 0x7400002
+     Semantics: counter  Units: sec
+ PMID: 2.3.2 (pmcd.pmlogger.archive)
+     Data Type: string  InDom: 2.1 0x800001
+@@ -80,7 +80,7 @@
+                 inst [0 or "red"] value 119
+                 inst [1 or "green"] value 220
+                 inst [2 or "blue"] value 321
+-              29.0.2 (sample.seconds): value 890
++              29.0.2 (sample.seconds): inst [0 or ???] value 890
+ 
+ 04:34:34.248  29.0.46 (sample.lights): value "yellow"
+@@ -99,4 +99,4 @@
+                 inst [0 or "red"] value 122
+                 inst [1 or "green"] value 223
+                 inst [2 or "blue"] value 324
+-              29.0.2 (sample.seconds): value 891
++              29.0.2 (sample.seconds): inst [0 or ???] value 891
+
+=== metric sample.seconds { indom -> 29.2 output max } ===
+--- TMP.in
++++ TMP.out
+@@ -22,7 +22,7 @@
+     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: instant  Units: none
+ PMID: 29.0.2 (sample.seconds)
+-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
++    Data Type: 32-bit unsigned int  InDom: 29.2 0x7400002
+     Semantics: counter  Units: sec
+ PMID: 2.3.2 (pmcd.pmlogger.archive)
+     Data Type: string  InDom: 2.1 0x800001
+@@ -80,7 +80,7 @@
+                 inst [0 or "red"] value 119
+                 inst [1 or "green"] value 220
+                 inst [2 or "blue"] value 321
+-              29.0.2 (sample.seconds): value 890
++              29.0.2 (sample.seconds): inst [0 or ???] value 890
+ 
+ 04:34:34.248  29.0.46 (sample.lights): value "yellow"
+@@ -99,4 +99,4 @@
+                 inst [0 or "red"] value 122
+                 inst [1 or "green"] value 223
+                 inst [2 or "blue"] value 324
+-              29.0.2 (sample.seconds): value 891
++              29.0.2 (sample.seconds): inst [0 or ???] value 891
+
+=== metric sample.seconds { indom -> 29.2 output sum } ===
+--- TMP.in
++++ TMP.out
+@@ -22,7 +22,7 @@
+     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: instant  Units: none
+ PMID: 29.0.2 (sample.seconds)
+-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
++    Data Type: 32-bit unsigned int  InDom: 29.2 0x7400002
+     Semantics: counter  Units: sec
+ PMID: 2.3.2 (pmcd.pmlogger.archive)
+     Data Type: string  InDom: 2.1 0x800001
+@@ -80,7 +80,7 @@
+                 inst [0 or "red"] value 119
+                 inst [1 or "green"] value 220
+                 inst [2 or "blue"] value 321
+-              29.0.2 (sample.seconds): value 890
++              29.0.2 (sample.seconds): inst [0 or ???] value 890
+ 
+ 04:34:34.248  29.0.46 (sample.lights): value "yellow"
+@@ -99,4 +99,4 @@
+                 inst [0 or "red"] value 122
+                 inst [1 or "green"] value 223
+                 inst [2 or "blue"] value 324
+-              29.0.2 (sample.seconds): value 891
++              29.0.2 (sample.seconds): inst [0 or ???] value 891
+
+=== metric sample.seconds { indom -> 29.2 output avg } ===
+--- TMP.in
++++ TMP.out
+@@ -22,7 +22,7 @@
+     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: instant  Units: none
+ PMID: 29.0.2 (sample.seconds)
+-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
++    Data Type: 32-bit unsigned int  InDom: 29.2 0x7400002
+     Semantics: counter  Units: sec
+ PMID: 2.3.2 (pmcd.pmlogger.archive)
+     Data Type: string  InDom: 2.1 0x800001
+@@ -80,7 +80,7 @@
+                 inst [0 or "red"] value 119
+                 inst [1 or "green"] value 220
+                 inst [2 or "blue"] value 321
+-              29.0.2 (sample.seconds): value 890
++              29.0.2 (sample.seconds): inst [0 or ???] value 890
+ 
+ 04:34:34.248  29.0.46 (sample.lights): value "yellow"
+@@ -99,4 +99,4 @@
+                 inst [0 or "red"] value 122
+                 inst [1 or "green"] value 223
+                 inst [2 or "blue"] value 324
+-              29.0.2 (sample.seconds): value 891
++              29.0.2 (sample.seconds): inst [0 or ???] value 891
+
+=== metric sample.seconds { indom -> 29.2 output inst 12345 } ===
+Warning [TMP.config, line 2]
+Instance 12345 from OUTPUT clause not found in new indom 29.2
+--- TMP.in
++++ TMP.out
+@@ -22,7 +22,7 @@
+     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: instant  Units: none
+ PMID: 29.0.2 (sample.seconds)
+-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
++    Data Type: 32-bit unsigned int  InDom: 29.2 0x7400002
+     Semantics: counter  Units: sec
+ PMID: 2.3.2 (pmcd.pmlogger.archive)
+     Data Type: string  InDom: 2.1 0x800001
+@@ -80,7 +80,7 @@
+                 inst [0 or "red"] value 119
+                 inst [1 or "green"] value 220
+                 inst [2 or "blue"] value 321
+-              29.0.2 (sample.seconds): value 890
++              29.0.2 (sample.seconds): inst [12345 or ???] value 890
+ 
+ 04:34:34.248  29.0.46 (sample.lights): value "yellow"
+@@ -99,4 +99,4 @@
+                 inst [0 or "red"] value 122
+                 inst [1 or "green"] value 223
+                 inst [2 or "blue"] value 324
+-              29.0.2 (sample.seconds): value 891
++              29.0.2 (sample.seconds): inst [12345 or ???] value 891
+
+=== metric sample.seconds { indom -> 29.2 output iname "purple" } ===
+Warning [TMP.config, line 2]
+Instance "purple" from OUTPUT clause not found in new indom 29.2
+--- TMP.in
++++ TMP.out
+@@ -22,7 +22,7 @@
+     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: instant  Units: none
+ PMID: 29.0.2 (sample.seconds)
+-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
++    Data Type: 32-bit unsigned int  InDom: 29.2 0x7400002
+     Semantics: counter  Units: sec
+ PMID: 2.3.2 (pmcd.pmlogger.archive)
+     Data Type: string  InDom: 2.1 0x800001
+@@ -80,7 +80,7 @@
+                 inst [0 or "red"] value 119
+                 inst [1 or "green"] value 220
+                 inst [2 or "blue"] value 321
+-              29.0.2 (sample.seconds): value 890
++              29.0.2 (sample.seconds): inst [0 or ???] value 890
+ 
+ 04:34:34.248  29.0.46 (sample.lights): value "yellow"
+@@ -99,4 +99,4 @@
+                 inst [0 or "red"] value 122
+                 inst [1 or "green"] value 223
+                 inst [2 or "blue"] value 324
+-              29.0.2 (sample.seconds): value 891
++              29.0.2 (sample.seconds): inst [0 or ???] value 891
+
+spaces in inames cases
+
+=== metric irix.kernel.all.load { indom -> NULL } ===
+--- TMP.in
++++ TMP.out
+@@ -28,7 +28,7 @@
+     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: count
+ PMID: 1.18.3 (irix.kernel.all.load)
+-    Data Type: float  InDom: 1.5 0x400005
++    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: instant  Units: none
+ PMID: 1.10.12 (irix.kernel.all.cpu.wait.total)
+     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+@@ -84,20 +84,17 @@
+              Log Vol    end(meta)     end(log)
+ 08:20:43.084       0          132          132
+ 08:20:47.964       0          350          304
+-08:20:54.341       0         1563          748
++08:20:54.341       0         1563          716
+ 
+ 08:20:43.084  2.3.3 (pmcd.pmlogger.host): inst [2006 or "2006"] value "bozo.melbourne.sgi.com"
+               2.3.0 (pmcd.pmlogger.port): inst [2006 or "2006"] value 4331
+               2.3.2 (pmcd.pmlogger.archive): inst [2006 or "2006"] value "/usr/people/kenmcd/isms/pcp/demo/Archives/moomba.pmkstat"
+ 
+ 08:20:47.964  1.82.11 (irix.disk.all.write): value 2158394
+               1.82.10 (irix.disk.all.read): value 3741558
+-              1.18.3 (irix.kernel.all.load):
+-                inst [1 or "1 minute"] value 0.76855469
+-                inst [5 or "5 minute"] value 1.3691406
+-                inst [15 or "15 minute"] value 0.87109375
++              1.18.3 (irix.kernel.all.load): value 0.76855469
+               1.18.1 (irix.mem.freemem): value 42176
+               1.10.52 (irix.kernel.all.intr.non_vme): value 784109926
+               1.10.19 (irix.kernel.all.syscall): value 741706296
+@@ -114,13 +111,10 @@
+               1.10.3 (irix.kernel.all.pswitch): value 154960095
+               1.10.2 (irix.swap.pagesout): value 651
+ 
+ 08:20:54.341  1.82.11 (irix.disk.all.write): value 2158411
+               1.82.10 (irix.disk.all.read): value 3741643
+-              1.18.3 (irix.kernel.all.load):
+-                inst [1 or "1 minute"] value 0.796875
+-                inst [5 or "5 minute"] value 1.3574219
+-                inst [15 or "15 minute"] value 0.87109375
++              1.18.3 (irix.kernel.all.load): value 0.796875
+               1.18.1 (irix.mem.freemem): value 43200
+               1.10.52 (irix.kernel.all.intr.non_vme): value 784116855
+               1.10.19 (irix.kernel.all.syscall): value 741717716
+
+=== metric irix.kernel.all.load { indom -> NULL output inst 5 } ===
+--- TMP.in
++++ TMP.out
+@@ -28,7 +28,7 @@
+     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: count
+ PMID: 1.18.3 (irix.kernel.all.load)
+-    Data Type: float  InDom: 1.5 0x400005
++    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: instant  Units: none
+ PMID: 1.10.12 (irix.kernel.all.cpu.wait.total)
+     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+@@ -84,20 +84,17 @@
+              Log Vol    end(meta)     end(log)
+ 08:20:43.084       0          132          132
+ 08:20:47.964       0          350          304
+-08:20:54.341       0         1563          748
++08:20:54.341       0         1563          716
+ 
+ 08:20:43.084  2.3.3 (pmcd.pmlogger.host): inst [2006 or "2006"] value "bozo.melbourne.sgi.com"
+               2.3.0 (pmcd.pmlogger.port): inst [2006 or "2006"] value 4331
+               2.3.2 (pmcd.pmlogger.archive): inst [2006 or "2006"] value "/usr/people/kenmcd/isms/pcp/demo/Archives/moomba.pmkstat"
+ 
+ 08:20:47.964  1.82.11 (irix.disk.all.write): value 2158394
+               1.82.10 (irix.disk.all.read): value 3741558
+-              1.18.3 (irix.kernel.all.load):
+-                inst [1 or "1 minute"] value 0.76855469
+-                inst [5 or "5 minute"] value 1.3691406
+-                inst [15 or "15 minute"] value 0.87109375
++              1.18.3 (irix.kernel.all.load): value 1.3691406
+               1.18.1 (irix.mem.freemem): value 42176
+               1.10.52 (irix.kernel.all.intr.non_vme): value 784109926
+               1.10.19 (irix.kernel.all.syscall): value 741706296
+@@ -114,13 +111,10 @@
+               1.10.3 (irix.kernel.all.pswitch): value 154960095
+               1.10.2 (irix.swap.pagesout): value 651
+ 
+ 08:20:54.341  1.82.11 (irix.disk.all.write): value 2158411
+               1.82.10 (irix.disk.all.read): value 3741643
+-              1.18.3 (irix.kernel.all.load):
+-                inst [1 or "1 minute"] value 0.796875
+-                inst [5 or "5 minute"] value 1.3574219
+-                inst [15 or "15 minute"] value 0.87109375
++              1.18.3 (irix.kernel.all.load): value 1.3574219
+               1.18.1 (irix.mem.freemem): value 43200
+               1.10.52 (irix.kernel.all.intr.non_vme): value 784116855
+               1.10.19 (irix.kernel.all.syscall): value 741717716
+
+=== metric irix.kernel.all.load { indom -> NULL output iname "1" } ===
+--- TMP.in
++++ TMP.out
+@@ -28,7 +28,7 @@
+     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: count
+ PMID: 1.18.3 (irix.kernel.all.load)
+-    Data Type: float  InDom: 1.5 0x400005
++    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: instant  Units: none
+ PMID: 1.10.12 (irix.kernel.all.cpu.wait.total)
+     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+@@ -84,20 +84,17 @@
+              Log Vol    end(meta)     end(log)
+ 08:20:43.084       0          132          132
+ 08:20:47.964       0          350          304
+-08:20:54.341       0         1563          748
++08:20:54.341       0         1563          716
+ 
+ 08:20:43.084  2.3.3 (pmcd.pmlogger.host): inst [2006 or "2006"] value "bozo.melbourne.sgi.com"
+               2.3.0 (pmcd.pmlogger.port): inst [2006 or "2006"] value 4331
+               2.3.2 (pmcd.pmlogger.archive): inst [2006 or "2006"] value "/usr/people/kenmcd/isms/pcp/demo/Archives/moomba.pmkstat"
+ 
+ 08:20:47.964  1.82.11 (irix.disk.all.write): value 2158394
+               1.82.10 (irix.disk.all.read): value 3741558
+-              1.18.3 (irix.kernel.all.load):
+-                inst [1 or "1 minute"] value 0.76855469
+-                inst [5 or "5 minute"] value 1.3691406
+-                inst [15 or "15 minute"] value 0.87109375
++              1.18.3 (irix.kernel.all.load): value 0.76855469
+               1.18.1 (irix.mem.freemem): value 42176
+               1.10.52 (irix.kernel.all.intr.non_vme): value 784109926
+               1.10.19 (irix.kernel.all.syscall): value 741706296
+@@ -114,13 +111,10 @@
+               1.10.3 (irix.kernel.all.pswitch): value 154960095
+               1.10.2 (irix.swap.pagesout): value 651
+ 
+ 08:20:54.341  1.82.11 (irix.disk.all.write): value 2158411
+               1.82.10 (irix.disk.all.read): value 3741643
+-              1.18.3 (irix.kernel.all.load):
+-                inst [1 or "1 minute"] value 0.796875
+-                inst [5 or "5 minute"] value 1.3574219
+-                inst [15 or "15 minute"] value 0.87109375
++              1.18.3 (irix.kernel.all.load): value 0.796875
+               1.18.1 (irix.mem.freemem): value 43200
+               1.10.52 (irix.kernel.all.intr.non_vme): value 784116855
+               1.10.19 (irix.kernel.all.syscall): value 741717716
+
+=== metric irix.kernel.all.load { indom -> NULL output iname "1 minute" } ===
+--- TMP.in
++++ TMP.out
+@@ -28,7 +28,7 @@
+     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: count
+ PMID: 1.18.3 (irix.kernel.all.load)
+-    Data Type: float  InDom: 1.5 0x400005
++    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: instant  Units: none
+ PMID: 1.10.12 (irix.kernel.all.cpu.wait.total)
+     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+@@ -84,20 +84,17 @@
+              Log Vol    end(meta)     end(log)
+ 08:20:43.084       0          132          132
+ 08:20:47.964       0          350          304
+-08:20:54.341       0         1563          748
++08:20:54.341       0         1563          716
+ 
+ 08:20:43.084  2.3.3 (pmcd.pmlogger.host): inst [2006 or "2006"] value "bozo.melbourne.sgi.com"
+               2.3.0 (pmcd.pmlogger.port): inst [2006 or "2006"] value 4331
+               2.3.2 (pmcd.pmlogger.archive): inst [2006 or "2006"] value "/usr/people/kenmcd/isms/pcp/demo/Archives/moomba.pmkstat"
+ 
+ 08:20:47.964  1.82.11 (irix.disk.all.write): value 2158394
+               1.82.10 (irix.disk.all.read): value 3741558
+-              1.18.3 (irix.kernel.all.load):
+-                inst [1 or "1 minute"] value 0.76855469
+-                inst [5 or "5 minute"] value 1.3691406
+-                inst [15 or "15 minute"] value 0.87109375
++              1.18.3 (irix.kernel.all.load): value 0.76855469
+               1.18.1 (irix.mem.freemem): value 42176
+               1.10.52 (irix.kernel.all.intr.non_vme): value 784109926
+               1.10.19 (irix.kernel.all.syscall): value 741706296
+@@ -114,13 +111,10 @@
+               1.10.3 (irix.kernel.all.pswitch): value 154960095
+               1.10.2 (irix.swap.pagesout): value 651
+ 
+ 08:20:54.341  1.82.11 (irix.disk.all.write): value 2158411
+               1.82.10 (irix.disk.all.read): value 3741643
+-              1.18.3 (irix.kernel.all.load):
+-                inst [1 or "1 minute"] value 0.796875
+-                inst [5 or "5 minute"] value 1.3574219
+-                inst [15 or "15 minute"] value 0.87109375
++              1.18.3 (irix.kernel.all.load): value 0.796875
+               1.18.1 (irix.mem.freemem): value 43200
+               1.10.52 (irix.kernel.all.intr.non_vme): value 784116855
+               1.10.19 (irix.kernel.all.syscall): value 741717716
+
+=== metric irix.kernel.all.load { indom -> NULL output iname "1 xxx" } ===
+--- TMP.in
++++ TMP.out
+@@ -28,7 +28,7 @@
+     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: count
+ PMID: 1.18.3 (irix.kernel.all.load)
+-    Data Type: float  InDom: 1.5 0x400005
++    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: instant  Units: none
+ PMID: 1.10.12 (irix.kernel.all.cpu.wait.total)
+     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+@@ -84,20 +84,17 @@
+              Log Vol    end(meta)     end(log)
+ 08:20:43.084       0          132          132
+ 08:20:47.964       0          350          304
+-08:20:54.341       0         1563          748
++08:20:54.341       0         1563          716
+ 
+ 08:20:43.084  2.3.3 (pmcd.pmlogger.host): inst [2006 or "2006"] value "bozo.melbourne.sgi.com"
+               2.3.0 (pmcd.pmlogger.port): inst [2006 or "2006"] value 4331
+               2.3.2 (pmcd.pmlogger.archive): inst [2006 or "2006"] value "/usr/people/kenmcd/isms/pcp/demo/Archives/moomba.pmkstat"
+ 
+ 08:20:47.964  1.82.11 (irix.disk.all.write): value 2158394
+               1.82.10 (irix.disk.all.read): value 3741558
+-              1.18.3 (irix.kernel.all.load):
+-                inst [1 or "1 minute"] value 0.76855469
+-                inst [5 or "5 minute"] value 1.3691406
+-                inst [15 or "15 minute"] value 0.87109375
++              1.18.3 (irix.kernel.all.load): value 0.76855469
+               1.18.1 (irix.mem.freemem): value 42176
+               1.10.52 (irix.kernel.all.intr.non_vme): value 784109926
+               1.10.19 (irix.kernel.all.syscall): value 741706296
+@@ -114,13 +111,10 @@
+               1.10.3 (irix.kernel.all.pswitch): value 154960095
+               1.10.2 (irix.swap.pagesout): value 651
+ 
+ 08:20:54.341  1.82.11 (irix.disk.all.write): value 2158411
+               1.82.10 (irix.disk.all.read): value 3741643
+-              1.18.3 (irix.kernel.all.load):
+-                inst [1 or "1 minute"] value 0.796875
+-                inst [5 or "5 minute"] value 1.3574219
+-                inst [15 or "15 minute"] value 0.87109375
++              1.18.3 (irix.kernel.all.load): value 0.796875
+               1.18.1 (irix.mem.freemem): value 43200
+               1.10.52 (irix.kernel.all.intr.non_vme): value 784116855
+               1.10.19 (irix.kernel.all.syscall): value 741717716
+
+=== metric irix.kernel.all.load { indom -> NULL output iname "15" } ===
+--- TMP.in
++++ TMP.out
+@@ -28,7 +28,7 @@
+     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: count
+ PMID: 1.18.3 (irix.kernel.all.load)
+-    Data Type: float  InDom: 1.5 0x400005
++    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: instant  Units: none
+ PMID: 1.10.12 (irix.kernel.all.cpu.wait.total)
+     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+@@ -84,20 +84,17 @@
+              Log Vol    end(meta)     end(log)
+ 08:20:43.084       0          132          132
+ 08:20:47.964       0          350          304
+-08:20:54.341       0         1563          748
++08:20:54.341       0         1563          716
+ 
+ 08:20:43.084  2.3.3 (pmcd.pmlogger.host): inst [2006 or "2006"] value "bozo.melbourne.sgi.com"
+               2.3.0 (pmcd.pmlogger.port): inst [2006 or "2006"] value 4331
+               2.3.2 (pmcd.pmlogger.archive): inst [2006 or "2006"] value "/usr/people/kenmcd/isms/pcp/demo/Archives/moomba.pmkstat"
+ 
+ 08:20:47.964  1.82.11 (irix.disk.all.write): value 2158394
+               1.82.10 (irix.disk.all.read): value 3741558
+-              1.18.3 (irix.kernel.all.load):
+-                inst [1 or "1 minute"] value 0.76855469
+-                inst [5 or "5 minute"] value 1.3691406
+-                inst [15 or "15 minute"] value 0.87109375
++              1.18.3 (irix.kernel.all.load): value 0.87109375
+               1.18.1 (irix.mem.freemem): value 42176
+               1.10.52 (irix.kernel.all.intr.non_vme): value 784109926
+               1.10.19 (irix.kernel.all.syscall): value 741706296
+@@ -114,13 +111,10 @@
+               1.10.3 (irix.kernel.all.pswitch): value 154960095
+               1.10.2 (irix.swap.pagesout): value 651
+ 
+ 08:20:54.341  1.82.11 (irix.disk.all.write): value 2158411
+               1.82.10 (irix.disk.all.read): value 3741643
+-              1.18.3 (irix.kernel.all.load):
+-                inst [1 or "1 minute"] value 0.796875
+-                inst [5 or "5 minute"] value 1.3574219
+-                inst [15 or "15 minute"] value 0.87109375
++              1.18.3 (irix.kernel.all.load): value 0.87109375
+               1.18.1 (irix.mem.freemem): value 43200
+               1.10.52 (irix.kernel.all.intr.non_vme): value 784116855
+               1.10.19 (irix.kernel.all.syscall): value 741717716
+
+=== metric irix.kernel.all.load { indom -> NULL output iname "15 " } ===
+--- TMP.in
++++ TMP.out
+@@ -28,7 +28,7 @@
+     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: count
+ PMID: 1.18.3 (irix.kernel.all.load)
+-    Data Type: float  InDom: 1.5 0x400005
++    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: instant  Units: none
+ PMID: 1.10.12 (irix.kernel.all.cpu.wait.total)
+     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+@@ -84,20 +84,17 @@
+              Log Vol    end(meta)     end(log)
+ 08:20:43.084       0          132          132
+ 08:20:47.964       0          350          304
+-08:20:54.341       0         1563          748
++08:20:54.341       0         1563          716
+ 
+ 08:20:43.084  2.3.3 (pmcd.pmlogger.host): inst [2006 or "2006"] value "bozo.melbourne.sgi.com"
+               2.3.0 (pmcd.pmlogger.port): inst [2006 or "2006"] value 4331
+               2.3.2 (pmcd.pmlogger.archive): inst [2006 or "2006"] value "/usr/people/kenmcd/isms/pcp/demo/Archives/moomba.pmkstat"
+ 
+ 08:20:47.964  1.82.11 (irix.disk.all.write): value 2158394
+               1.82.10 (irix.disk.all.read): value 3741558
+-              1.18.3 (irix.kernel.all.load):
+-                inst [1 or "1 minute"] value 0.76855469
+-                inst [5 or "5 minute"] value 1.3691406
+-                inst [15 or "15 minute"] value 0.87109375
++              1.18.3 (irix.kernel.all.load): value 0.87109375
+               1.18.1 (irix.mem.freemem): value 42176
+               1.10.52 (irix.kernel.all.intr.non_vme): value 784109926
+               1.10.19 (irix.kernel.all.syscall): value 741706296
+@@ -114,13 +111,10 @@
+               1.10.3 (irix.kernel.all.pswitch): value 154960095
+               1.10.2 (irix.swap.pagesout): value 651
+ 
+ 08:20:54.341  1.82.11 (irix.disk.all.write): value 2158411
+               1.82.10 (irix.disk.all.read): value 3741643
+-              1.18.3 (irix.kernel.all.load):
+-                inst [1 or "1 minute"] value 0.796875
+-                inst [5 or "5 minute"] value 1.3574219
+-                inst [15 or "15 minute"] value 0.87109375
++              1.18.3 (irix.kernel.all.load): value 0.87109375
+               1.18.1 (irix.mem.freemem): value 43200
+               1.10.52 (irix.kernel.all.intr.non_vme): value 784116855
+               1.10.19 (irix.kernel.all.syscall): value 741717716
+
+=== metric irix.kernel.all.load { indom -> NULL output iname "15 min but no one looks at this" } ===
+--- TMP.in
++++ TMP.out
+@@ -28,7 +28,7 @@
+     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: count
+ PMID: 1.18.3 (irix.kernel.all.load)
+-    Data Type: float  InDom: 1.5 0x400005
++    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: instant  Units: none
+ PMID: 1.10.12 (irix.kernel.all.cpu.wait.total)
+     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+@@ -84,20 +84,17 @@
+              Log Vol    end(meta)     end(log)
+ 08:20:43.084       0          132          132
+ 08:20:47.964       0          350          304
+-08:20:54.341       0         1563          748
++08:20:54.341       0         1563          716
+ 
+ 08:20:43.084  2.3.3 (pmcd.pmlogger.host): inst [2006 or "2006"] value "bozo.melbourne.sgi.com"
+               2.3.0 (pmcd.pmlogger.port): inst [2006 or "2006"] value 4331
+               2.3.2 (pmcd.pmlogger.archive): inst [2006 or "2006"] value "/usr/people/kenmcd/isms/pcp/demo/Archives/moomba.pmkstat"
+ 
+ 08:20:47.964  1.82.11 (irix.disk.all.write): value 2158394
+               1.82.10 (irix.disk.all.read): value 3741558
+-              1.18.3 (irix.kernel.all.load):
+-                inst [1 or "1 minute"] value 0.76855469
+-                inst [5 or "5 minute"] value 1.3691406
+-                inst [15 or "15 minute"] value 0.87109375
++              1.18.3 (irix.kernel.all.load): value 0.87109375
+               1.18.1 (irix.mem.freemem): value 42176
+               1.10.52 (irix.kernel.all.intr.non_vme): value 784109926
+               1.10.19 (irix.kernel.all.syscall): value 741706296
+@@ -114,13 +111,10 @@
+               1.10.3 (irix.kernel.all.pswitch): value 154960095
+               1.10.2 (irix.swap.pagesout): value 651
+ 
+ 08:20:54.341  1.82.11 (irix.disk.all.write): value 2158411
+               1.82.10 (irix.disk.all.read): value 3741643
+-              1.18.3 (irix.kernel.all.load):
+-                inst [1 or "1 minute"] value 0.796875
+-                inst [5 or "5 minute"] value 1.3574219
+-                inst [15 or "15 minute"] value 0.87109375
++              1.18.3 (irix.kernel.all.load): value 0.87109375
+               1.18.1 (irix.mem.freemem): value 43200
+               1.10.52 (irix.kernel.all.intr.non_vme): value 784116855
+               1.10.19 (irix.kernel.all.syscall): value 741717716
+
+=== metric irix.kernel.all.load { indom -> NULL output iname "159" } ===
+Warning [TMP.config, line 2]
+Instance "159" from OUTPUT clause not found in old indom 1.5
+--- TMP.in
++++ TMP.out
+@@ -28,7 +28,7 @@
+     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: count
+ PMID: 1.18.3 (irix.kernel.all.load)
+-    Data Type: float  InDom: 1.5 0x400005
++    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: instant  Units: none
+ PMID: 1.10.12 (irix.kernel.all.cpu.wait.total)
+     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+@@ -84,20 +84,17 @@
+              Log Vol    end(meta)     end(log)
+ 08:20:43.084       0          132          132
+ 08:20:47.964       0          350          304
+-08:20:54.341       0         1563          748
++08:20:54.341       0         1563          696
+ 
+ 08:20:43.084  2.3.3 (pmcd.pmlogger.host): inst [2006 or "2006"] value "bozo.melbourne.sgi.com"
+               2.3.0 (pmcd.pmlogger.port): inst [2006 or "2006"] value 4331
+               2.3.2 (pmcd.pmlogger.archive): inst [2006 or "2006"] value "/usr/people/kenmcd/isms/pcp/demo/Archives/moomba.pmkstat"
+ 
+ 08:20:47.964  1.82.11 (irix.disk.all.write): value 2158394
+               1.82.10 (irix.disk.all.read): value 3741558
+-              1.18.3 (irix.kernel.all.load):
+-                inst [1 or "1 minute"] value 0.76855469
+-                inst [5 or "5 minute"] value 1.3691406
+-                inst [15 or "15 minute"] value 0.87109375
++              1.18.3 (irix.kernel.all.load): No values returned!
+               1.18.1 (irix.mem.freemem): value 42176
+               1.10.52 (irix.kernel.all.intr.non_vme): value 784109926
+               1.10.19 (irix.kernel.all.syscall): value 741706296
+@@ -114,13 +111,10 @@
+               1.10.3 (irix.kernel.all.pswitch): value 154960095
+               1.10.2 (irix.swap.pagesout): value 651
+ 
+ 08:20:54.341  1.82.11 (irix.disk.all.write): value 2158411
+               1.82.10 (irix.disk.all.read): value 3741643
+-              1.18.3 (irix.kernel.all.load):
+-                inst [1 or "1 minute"] value 0.796875
+-                inst [5 or "5 minute"] value 1.3574219
+-                inst [15 or "15 minute"] value 0.87109375
++              1.18.3 (irix.kernel.all.load): No values returned!
+               1.18.1 (irix.mem.freemem): value 43200
+               1.10.52 (irix.kernel.all.intr.non_vme): value 784116855
+               1.10.19 (irix.kernel.all.syscall): value 741717716
+
+=== metric irix.disk.all.read { indom -> 1.5 } ===
+Warning [TMP.config, line 2]
+Instance 0 from OUTPUT clause not found in new indom 1.5
+--- TMP.in
++++ TMP.out
+@@ -16,7 +16,7 @@
+     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: count
+ PMID: 1.82.10 (irix.disk.all.read)
+-    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
++    Data Type: 64-bit unsigned int  InDom: 1.5 0x400005
+     Semantics: counter  Units: count
+ PMID: 1.10.11 (irix.kernel.all.cpu.user)
+     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+@@ -93,7 +93,7 @@
+ 
+ 08:20:47.964  1.82.11 (irix.disk.all.write): value 2158394
+-              1.82.10 (irix.disk.all.read): value 3741558
++              1.82.10 (irix.disk.all.read): inst [0 or ???] value 3741558
+               1.18.3 (irix.kernel.all.load):
+                 inst [1 or "1 minute"] value 0.76855469
+                 inst [5 or "5 minute"] value 1.3691406
+@@ -116,7 +116,7 @@
+ 
+ 08:20:54.341  1.82.11 (irix.disk.all.write): value 2158411
+-              1.82.10 (irix.disk.all.read): value 3741643
++              1.82.10 (irix.disk.all.read): inst [0 or ???] value 3741643
+               1.18.3 (irix.kernel.all.load):
+                 inst [1 or "1 minute"] value 0.796875
+                 inst [5 or "5 minute"] value 1.3574219
+
+=== metric irix.disk.all.read { indom -> 1.5 output inst 5 } ===
+--- TMP.in
++++ TMP.out
+@@ -16,7 +16,7 @@
+     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: count
+ PMID: 1.82.10 (irix.disk.all.read)
+-    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
++    Data Type: 64-bit unsigned int  InDom: 1.5 0x400005
+     Semantics: counter  Units: count
+ PMID: 1.10.11 (irix.kernel.all.cpu.user)
+     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+@@ -93,7 +93,7 @@
+ 
+ 08:20:47.964  1.82.11 (irix.disk.all.write): value 2158394
+-              1.82.10 (irix.disk.all.read): value 3741558
++              1.82.10 (irix.disk.all.read): inst [5 or "5 minute"] value 3741558
+               1.18.3 (irix.kernel.all.load):
+                 inst [1 or "1 minute"] value 0.76855469
+                 inst [5 or "5 minute"] value 1.3691406
+@@ -116,7 +116,7 @@
+ 
+ 08:20:54.341  1.82.11 (irix.disk.all.write): value 2158411
+-              1.82.10 (irix.disk.all.read): value 3741643
++              1.82.10 (irix.disk.all.read): inst [5 or "5 minute"] value 3741643
+               1.18.3 (irix.kernel.all.load):
+                 inst [1 or "1 minute"] value 0.796875
+                 inst [5 or "5 minute"] value 1.3574219
+
+=== metric irix.disk.all.read { indom -> 1.5 output iname "1" } ===
+--- TMP.in
++++ TMP.out
+@@ -16,7 +16,7 @@
+     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: count
+ PMID: 1.82.10 (irix.disk.all.read)
+-    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
++    Data Type: 64-bit unsigned int  InDom: 1.5 0x400005
+     Semantics: counter  Units: count
+ PMID: 1.10.11 (irix.kernel.all.cpu.user)
+     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+@@ -93,7 +93,7 @@
+ 
+ 08:20:47.964  1.82.11 (irix.disk.all.write): value 2158394
+-              1.82.10 (irix.disk.all.read): value 3741558
++              1.82.10 (irix.disk.all.read): inst [1 or "1 minute"] value 3741558
+               1.18.3 (irix.kernel.all.load):
+                 inst [1 or "1 minute"] value 0.76855469
+                 inst [5 or "5 minute"] value 1.3691406
+@@ -116,7 +116,7 @@
+ 
+ 08:20:54.341  1.82.11 (irix.disk.all.write): value 2158411
+-              1.82.10 (irix.disk.all.read): value 3741643
++              1.82.10 (irix.disk.all.read): inst [1 or "1 minute"] value 3741643
+               1.18.3 (irix.kernel.all.load):
+                 inst [1 or "1 minute"] value 0.796875
+                 inst [5 or "5 minute"] value 1.3574219
+
+=== metric irix.disk.all.read { indom -> 1.5 output iname "1 minute" } ===
+--- TMP.in
++++ TMP.out
+@@ -16,7 +16,7 @@
+     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: count
+ PMID: 1.82.10 (irix.disk.all.read)
+-    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
++    Data Type: 64-bit unsigned int  InDom: 1.5 0x400005
+     Semantics: counter  Units: count
+ PMID: 1.10.11 (irix.kernel.all.cpu.user)
+     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+@@ -93,7 +93,7 @@
+ 
+ 08:20:47.964  1.82.11 (irix.disk.all.write): value 2158394
+-              1.82.10 (irix.disk.all.read): value 3741558
++              1.82.10 (irix.disk.all.read): inst [1 or "1 minute"] value 3741558
+               1.18.3 (irix.kernel.all.load):
+                 inst [1 or "1 minute"] value 0.76855469
+                 inst [5 or "5 minute"] value 1.3691406
+@@ -116,7 +116,7 @@
+ 
+ 08:20:54.341  1.82.11 (irix.disk.all.write): value 2158411
+-              1.82.10 (irix.disk.all.read): value 3741643
++              1.82.10 (irix.disk.all.read): inst [1 or "1 minute"] value 3741643
+               1.18.3 (irix.kernel.all.load):
+                 inst [1 or "1 minute"] value 0.796875
+                 inst [5 or "5 minute"] value 1.3574219
+
+=== metric irix.disk.all.read { indom -> 1.5 output iname "1 xxx" } ===
+--- TMP.in
++++ TMP.out
+@@ -16,7 +16,7 @@
+     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: count
+ PMID: 1.82.10 (irix.disk.all.read)
+-    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
++    Data Type: 64-bit unsigned int  InDom: 1.5 0x400005
+     Semantics: counter  Units: count
+ PMID: 1.10.11 (irix.kernel.all.cpu.user)
+     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+@@ -93,7 +93,7 @@
+ 
+ 08:20:47.964  1.82.11 (irix.disk.all.write): value 2158394
+-              1.82.10 (irix.disk.all.read): value 3741558
++              1.82.10 (irix.disk.all.read): inst [1 or "1 minute"] value 3741558
+               1.18.3 (irix.kernel.all.load):
+                 inst [1 or "1 minute"] value 0.76855469
+                 inst [5 or "5 minute"] value 1.3691406
+@@ -116,7 +116,7 @@
+ 
+ 08:20:54.341  1.82.11 (irix.disk.all.write): value 2158411
+-              1.82.10 (irix.disk.all.read): value 3741643
++              1.82.10 (irix.disk.all.read): inst [1 or "1 minute"] value 3741643
+               1.18.3 (irix.kernel.all.load):
+                 inst [1 or "1 minute"] value 0.796875
+                 inst [5 or "5 minute"] value 1.3574219
+
+=== metric irix.disk.all.read { indom -> 1.5 output iname "15" } ===
+--- TMP.in
++++ TMP.out
+@@ -16,7 +16,7 @@
+     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: count
+ PMID: 1.82.10 (irix.disk.all.read)
+-    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
++    Data Type: 64-bit unsigned int  InDom: 1.5 0x400005
+     Semantics: counter  Units: count
+ PMID: 1.10.11 (irix.kernel.all.cpu.user)
+     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+@@ -93,7 +93,7 @@
+ 
+ 08:20:47.964  1.82.11 (irix.disk.all.write): value 2158394
+-              1.82.10 (irix.disk.all.read): value 3741558
++              1.82.10 (irix.disk.all.read): inst [15 or "15 minute"] value 3741558
+               1.18.3 (irix.kernel.all.load):
+                 inst [1 or "1 minute"] value 0.76855469
+                 inst [5 or "5 minute"] value 1.3691406
+@@ -116,7 +116,7 @@
+ 
+ 08:20:54.341  1.82.11 (irix.disk.all.write): value 2158411
+-              1.82.10 (irix.disk.all.read): value 3741643
++              1.82.10 (irix.disk.all.read): inst [15 or "15 minute"] value 3741643
+               1.18.3 (irix.kernel.all.load):
+                 inst [1 or "1 minute"] value 0.796875
+                 inst [5 or "5 minute"] value 1.3574219
+
+=== metric irix.disk.all.read { indom -> 1.5 output iname "15 " } ===
+--- TMP.in
++++ TMP.out
+@@ -16,7 +16,7 @@
+     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: count
+ PMID: 1.82.10 (irix.disk.all.read)
+-    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
++    Data Type: 64-bit unsigned int  InDom: 1.5 0x400005
+     Semantics: counter  Units: count
+ PMID: 1.10.11 (irix.kernel.all.cpu.user)
+     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+@@ -93,7 +93,7 @@
+ 
+ 08:20:47.964  1.82.11 (irix.disk.all.write): value 2158394
+-              1.82.10 (irix.disk.all.read): value 3741558
++              1.82.10 (irix.disk.all.read): inst [15 or "15 minute"] value 3741558
+               1.18.3 (irix.kernel.all.load):
+                 inst [1 or "1 minute"] value 0.76855469
+                 inst [5 or "5 minute"] value 1.3691406
+@@ -116,7 +116,7 @@
+ 
+ 08:20:54.341  1.82.11 (irix.disk.all.write): value 2158411
+-              1.82.10 (irix.disk.all.read): value 3741643
++              1.82.10 (irix.disk.all.read): inst [15 or "15 minute"] value 3741643
+               1.18.3 (irix.kernel.all.load):
+                 inst [1 or "1 minute"] value 0.796875
+                 inst [5 or "5 minute"] value 1.3574219
+
+=== metric irix.disk.all.read { indom -> 1.5 output iname "15 min but no one looks at this" } ===
+--- TMP.in
++++ TMP.out
+@@ -16,7 +16,7 @@
+     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: count
+ PMID: 1.82.10 (irix.disk.all.read)
+-    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
++    Data Type: 64-bit unsigned int  InDom: 1.5 0x400005
+     Semantics: counter  Units: count
+ PMID: 1.10.11 (irix.kernel.all.cpu.user)
+     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+@@ -93,7 +93,7 @@
+ 
+ 08:20:47.964  1.82.11 (irix.disk.all.write): value 2158394
+-              1.82.10 (irix.disk.all.read): value 3741558
++              1.82.10 (irix.disk.all.read): inst [15 or "15 minute"] value 3741558
+               1.18.3 (irix.kernel.all.load):
+                 inst [1 or "1 minute"] value 0.76855469
+                 inst [5 or "5 minute"] value 1.3691406
+@@ -116,7 +116,7 @@
+ 
+ 08:20:54.341  1.82.11 (irix.disk.all.write): value 2158411
+-              1.82.10 (irix.disk.all.read): value 3741643
++              1.82.10 (irix.disk.all.read): inst [15 or "15 minute"] value 3741643
+               1.18.3 (irix.kernel.all.load):
+                 inst [1 or "1 minute"] value 0.796875
+                 inst [5 or "5 minute"] value 1.3574219
+
+=== metric irix.disk.all.read { indom -> 1.5 output iname "159" } ===
+Warning [TMP.config, line 2]
+Instance "159" from OUTPUT clause not found in new indom 1.5
+--- TMP.in
++++ TMP.out
+@@ -16,7 +16,7 @@
+     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: count
+ PMID: 1.82.10 (irix.disk.all.read)
+-    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
++    Data Type: 64-bit unsigned int  InDom: 1.5 0x400005
+     Semantics: counter  Units: count
+ PMID: 1.10.11 (irix.kernel.all.cpu.user)
+     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+@@ -93,7 +93,7 @@
+ 
+ 08:20:47.964  1.82.11 (irix.disk.all.write): value 2158394
+-              1.82.10 (irix.disk.all.read): value 3741558
++              1.82.10 (irix.disk.all.read): inst [0 or ???] value 3741558
+               1.18.3 (irix.kernel.all.load):
+                 inst [1 or "1 minute"] value 0.76855469
+                 inst [5 or "5 minute"] value 1.3691406
+@@ -116,7 +116,7 @@
+ 
+ 08:20:54.341  1.82.11 (irix.disk.all.write): value 2158411
+-              1.82.10 (irix.disk.all.read): value 3741643
++              1.82.10 (irix.disk.all.read): inst [0 or ???] value 3741643
+               1.18.3 (irix.kernel.all.load):
+                 inst [1 or "1 minute"] value 0.796875
+                 inst [5 or "5 minute"] value 1.3574219

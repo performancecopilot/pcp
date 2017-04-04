@@ -1,0 +1,72 @@
+#! /bin/sh
+# PCP QA Test No. 087
+# interpolate mode
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+
+trap "rm -f $tmp.*; exit" 0 1 2 3 15
+
+_filter()
+{
+    cat >$tmp.out
+    sed <$tmp.out \
+	-e '/sample.seconds:/{
+s/no current values no prior values /value OK/
+s/no prior values /value OK/
+s/delta: [0-9]$/value OK/
+s/delta: 1[0-1]$/value OK/
+}' \
+	-e '/sample.milliseconds:/{
+s;delta: 10[01][0-9]$;delta: 1000 +/- 20;
+s;delta: 9[89][0-9]$;delta: 1000 +/- 20;
+s;delta: 40[0123][0-9]$;delta: 4000 +/- 40;
+s;delta: 39[6789][0-9]$;delta: 4000 +/- 40;
+s;delta: 50[0123][0-9]$;delta: 5000 +/- 40;
+s;delta: 49[6789][0-9]$;delta: 5000 +/- 40;
+s;delta: 80[012345][0-9]$;delta: 8000 +/- 60;
+s;delta: 79[456789][0-9]$;delta: 8000 +/- 60;
+s;delta: 100[012345][0-9]$;delta: 10000 +/- 60;
+s;delta: 99[456789][0-9]$;delta: 10000 +/- 60;
+}' \
+	-e '/samples required/d'
+
+# warning: indexes below are "desired samples", output shows actual
+#	samples ... filtering uses former and reports latter.
+#
+    $PCP_AWK_PROG <$tmp.out '
+BEGIN	{ s = '$1'
+	  lo[50] = 30; hi[50] = 50
+	  lo[20] = 30; hi[20] = 50
+	  lo[16] = 30; hi[16] = 50
+	  lo[10] = 30; hi[10] = 50
+	  lo[8] = 30; hi[8] = 50
+	}
+/samples required/	{ if (lo[s] <= $4 && $4 <= hi[s])
+			    print $1 " samples required " lo[s] "-" hi[s] " log reads"
+			  else
+			    print $0 " ... no. log reads unexpected"
+			}'
+}
+
+# real QA test starts here
+for arch in archives/ok-interp archives/ok-mv-interp archives/ok-noti-interp
+do
+    echo
+    echo "=== $arch ==="
+    for delta in 1 4 5 8 10
+    do
+	samples=`expr 80 / $delta`
+	[ $samples -gt 50 ] && samples=50
+	echo ""
+	echo "interpolate $samples, $delta seconds appart"
+	src/interp0 -n src/root_irix -a $arch -t $delta -s $samples | _filter $samples
+    done
+done

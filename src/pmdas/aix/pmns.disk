@@ -1,0 +1,22 @@
+disk {
+	all
+	dev
+}
+
+disk.all {
+    read		AIX:0:44
+    write		AIX:0:45
+    total		AIX:0:46
+    read_bytes		AIX:0:47
+    write_bytes		AIX:0:48
+    total_bytes		AIX:0:49
+}
+
+disk.dev {
+    read		AIX:0:50
+    write		AIX:0:51
+    total		AIX:0:52
+    read_bytes		AIX:0:53
+    write_bytes		AIX:0:54
+    total_bytes		AIX:0:55
+}

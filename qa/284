@@ -1,0 +1,28 @@
+#! /bin/sh
+# PCP QA Test No. 284
+# Run pducheck using purify (see also 386)
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_check_purify src/pducheck
+
+status=1	# failure is the default!
+trap "cd; rm -rf $tmp; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+
+_setup_purify src/pducheck
+_run_purify
+
+# all done
+status=0
+exit

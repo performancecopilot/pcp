@@ -1,0 +1,69 @@
+#!/bin/sh
+# PCP QA Test No. 872
+# Exercise pmdalinux inet and ipv6 metrics from /proc/net/snmp[6].
+#
+# Copyright (c) 2015 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ $PCP_PLATFORM = linux ] || _notrun "Linux IPv6 metrics, only works on Linux"
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+root=$tmp.root
+export LINUX_STATSPATH=$root
+pmda=$PCP_PMDAS_DIR/linux/pmda_linux.so,linux_init
+files=`echo $here/linux/procnet-snmp-* | LC_COLLATE=POSIX sort`
+files6=`echo $here/linux/procnet-snmp6-* | LC_COLLATE=POSIX sort`
+
+trees="ip icmp udp udplite"
+network=""
+network6=""
+for tree in $trees
+do
+    network="$network network.$tree"
+    network6="$network6 network.${tree}6"
+done
+metrics=`pminfo $network | LC_COLLATE=POSIX sort`
+metrics6=`pminfo $network6 | LC_COLLATE=POSIX sort`
+echo
+
+for file in $files
+do
+    rm -fr $root
+    mkdir -p $root/proc/net || _fail "root in use when processing $file"
+    base=`basename $file`
+    cp $file $root/proc/net/snmp
+
+    echo "== Checking inet network metrics from $base"
+    pminfo -f -L -K clear -K add,60,$pmda $metrics
+    echo && echo "== done" && echo
+    cd $here
+done
+
+for file in $files6
+do
+    rm -fr $root
+    mkdir -p $root/proc/net || _fail "root in use when processing $file"
+    base=`basename $file`
+    cp $file $root/proc/net/snmp6
+
+    echo "== Checking ipv6 network metrics from $base"
+    pminfo -f -L -K clear -K add,60,$pmda $metrics6
+    echo && echo "== done" && echo
+    cd $here
+done
+
+# success, all done
+status=0
+exit

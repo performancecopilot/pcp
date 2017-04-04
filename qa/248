@@ -1,0 +1,78 @@
+#! /bin/sh
+# PCP QA Test No. 248
+# is pmlogger tolerant of metric lookup within a group?
+#
+# Copyright (c) 2014 Red Hat.
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+
+rm -f $seq.full
+
+status=1	# failure by default
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter_dump()
+{
+    _filter_pmdumplog \
+    | sed \
+	-e '/^$/d' \
+	-e '/pmResult/s/ .* numpmid/ ... numpmid/' \
+	-e '/value /{
+s/value [0-9][0-9]*\.[0-9][0-9]*e.[0-9][0-9]*/value NUMBER/
+s/value [0-9][0-9]*\.[0-9][0-9]*/value NUMBER/
+s/value [0-9][0-9]*e.[0-9][0-9]*/value NUMBER/
+s/value [0-9][0-9]*/value NUMBER/
+s/value \[.*]/value AGGREGATE/
+s/value ".*"/value STRING/
+}' \
+	-e "/pmcd\.pmlogger\./s/$logger_pid/LOGGER_PID/g" \
+	-e '/pmcd\.pmlogger\.port/s/value .*/value PORT/' \
+	-e '/pmcd\.pmlogger\.host/s/value ".*/value "HOST"/' \
+	-e '/pmcd\.pmlogger\.archive/s/value ".*/value "PATH"/'
+}
+
+# real QA test starts here
+
+cat <<End-of-File >$tmp.config
+log advisory on 200 msec {
+    sample.daemon_pid
+    sample.no.such.metric
+    sample.milliseconds
+    sample.bin
+}
+log advisory on 200 msec {
+    sample.bad.unknown
+    sample.milliseconds
+    sample.daemon_pid
+}
+log advisory on 200 msec {
+    sample.daemon_pid
+    sample.bad.unknown		# last one in group does it?
+}
+End-of-File
+
+pmlogger -c $tmp.config -s 6 -l $tmp.log $tmp >$tmp.err 2>&1 &
+logger_pid=$!
+wait
+
+cat $tmp.err $tmp.log \
+| tee -a $seq.full \
+| _filter_pmlogger_log \
+| sed \
+    -e "s;$tmp.config;CONFIG;g" \
+    -e 's/line [34]]/line 3-or-4]/' \
+    -e 's/line [89]]/line 8-or-9]/' \
+    -e 's/line 1[45]]/line 14-or-15]/'
+
+pmdumplog $tmp | _filter_dump
+
+# all done, success
+status=0
+exit

@@ -1,0 +1,137 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH IOSTAT2PCP 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3iostat2pcp\f1 \- import iostat data and create a PCP archive
+.SH SYNOPSIS
+\&\fBiostat2pcp\fR [\fB\-v\fR] [\fB\-S\fR \fIstart\fR] [\fB\-t\fR \fIinterval\fR] [\fB\-Z\fR \fItimezone\fR] \fIinfile\fR \fIoutfile\fR
+.SH DESCRIPTION
+\&\fBiostat2pcp\fR reads a text file created with
+\&\fBiostat\fR(1) (\fIinfile\fR) and translates this into a Performance
+Co-Pilot (\s-1PCP\s0) archive with the basename \fIoutfile\fR.
+If \fIinfile\fR is \*(L"\-\*(R" then \fIiostat2pcp\fR reads from
+standard input, allowing easy preprocessing of the \fIiostat\fR(1) output
+with \fIsed\fR(1) or similar.
+.PP
+The resultant \s-1PCP\s0 archive may be used with all the \s-1PCP\s0 client tools
+to graph subsets of the data using \fBpmchart\fR(1),
+perform data reduction and reporting, filter with
+the \s-1PCP\s0 inference engine \fBpmie\fR(1), etc.
+.PP
+A series of physical files will be created with the prefix \fIoutfile\fR.
+These are \fIoutfile\fR\fB.0\fR (the performance data),
+\&\fIoutfile\fR\fB.meta\fR (the metadata that describes the performance data) and
+\&\fIoutfile\fR\fB.index\fR (a temporal index to improve efficiency of replay
+operations for the archive).  If any of these files exists already,
+then \fBiostat2pcp\fR will \fBnot\fR overwrite them and will exit with an error
+message.
+.PP
+The first output sample from \fIiostat\fR(1) contains a statistical summary
+since boot time and is ignored by \fIiostat2pcp\fR, so the first real data
+set is the second one in the \fIiostat\fR(1) output.
+.PP
+The best results are obtained when \fIiostat\fR(1) was run with its own \fB\-t\fR
+flag, so each output sample is prefixed with a timestamp.  Even better
+is \fB\-t\fR with $\fBS_TIME_FORMAT=ISO\fR set in environment when \fIiostat\fR(1)
+is run, in which case the timestamp includes the timezone.
+.PP
+Note that if $\fBS_TIME_FORMAT=ISO\fR is \fBnot\fR used with the \fB\-t\fR option
+then \fIiostat\fR(1) may produce a timestamp controlled by \fB\s-1LC_TIME\s0\fR from
+the locale that is in a format \fIiostat2pcp\fR cannot parse.  The formats
+for the timestamp that \fIiostat2pcp\fR accepts are illustrated by these
+examples:
+.IP "\fB2013\-07\-06T21:34:39+1000\fR" 4
+.IX Item "2013-07-06T21:34:39+1000"
+(for the $\fBS_TIME_FORMAT=ISO\fR).
+.IP "\fB2013\-07\-06 21:34:39\fR" 4
+.IX Item "2013-07-06 21:34:39"
+(for some of the European formats, e.g. de_AT,
+de_BE, de_LU and en_DK.utf8).
+.IP "\fB06/07/13 21:34:39\fR" 4
+.IX Item "06/07/13 21:34:39"
+(for all of the $\fB\s-1LC_TIME\s0\fR settings for English
+locales outside North America, e.g. en_AU, en_GB, en_IE, en_NZ,
+en_SG and en_ZA, and all the Spanish locales, e.g.  es_ES, es_MX and es_AR).
+.PP
+In particular, note that some common North American $\fB\s-1LC_TIME\s0\fR settings will
+\&\fBnot\fR work with \fIiostat2pcp\fR (namely, en_US, \s-1POSIX\s0 and C) because they
+use the \s-1MM/DD\s0 format which may be incorrectly converted with the
+assumed \s-1DD/MM\s0 format.  This is another reason to recommend setting
+$\fBS_TIME_FORMAT=ISO\fR.
+.PP
+If there are no timestamps in the input stream, \fIiostat2pcp\fR will
+try and deduce the sample interval if basic Disk data (\fB\-d\fR
+option for \fIiostat\fR(1)) is found.  If this fails, then the \fB\-t\fR option may be
+used to specify the sample \fIinterval\fR in seconds.
+This option is ignored if timestamps are found in the input stream.
+.PP
+The \fB\-S\fR option may be used to specify as start time for the
+first real sample in \fIinfile\fR, where \fIstart\fR must have the format
+\&\s-1HH:MM:SS\s0.
+This option is ignored if timestamps are found in the input stream.
+.PP
+The \fB\-Z\fR option may be used to specify a timezone.  It must have the
+format +HHMM (for hours and minutes East of \s-1UTC\s0) or \-HHMM (for hours
+and minutes West of \s-1UTC\s0).  Note in particular that \fBneither\fR the \fBzoneinfo\fR
+(aka Olson) format, e.g. Europe/Paris, nor the Posix \fB\s-1TZ\s0\fR format, e.g.
+\&\s-1EST+5\s0 is allowed for the \fB\-Z\fR option.
+This option is ignored if \s-1ISO\s0 timestamps are found in the input stream.
+If the timezone is not specified and cannot be deduced, it defaults to
+\&\*(L"\s-1UTC\s0\*(R".
+.PP
+Some additional diagnostic output is generated with the \fB\-v\fR option.
+.PP
+\&\fBiostat2pcp\fR is a Perl script that uses the PCP::LogImport Perl wrapper
+around the \s-1PCP\s0 \fIlibpcp_import\fR
+library, and as such could be used as an example to develop new
+tools to import other types of performance data and create \s-1PCP\s0 archives.
+.SH "CAVEAT"
+.IX Header "CAVEAT"
+\&\fBiostat2pcp\fR requires \fIinfile\fR to have been created by the version
+of \fBiostat\fR(1) from
+<http://freshmeat.net/projects/sysstat>.
+.PP
+\&\fBiostat2pcp\fR handles the \fB\-c\fR (\s-1CPU\s0), \fB\-d\fR (Disk), \fB\-x\fR (eXtended
+Disk) and \fB\-p\fR (Partition) report formats (including their \fB\-k\fR, \fB\-m\fR,
+\&\fB\-z\fR and
+\&\fB\s-1ALL\s0\fR variants), but does not accommodate the \fB\-n\fR (Network Filesystem)
+report format from \fBiostat\fR(1); this is a demand-driven limitation rather
+than a technical limitation.
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.I /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (5).
+.SH "SEE ALSO"
+.BR iostat (1),
+.BR pmchart (1),
+.BR pmie (1),
+.BR pmlogger (1),
+.BR sed (1),
+.BR Date::Format (3pm),
+.BR Date::Parse (3pm),
+.BR PCP::LogImport (3pm)
+and
+.BR LOGIMPORT (3).

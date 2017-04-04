@@ -1,0 +1,4 @@
+#pmlogconf-setup 2.0
+ident	all NUMA stats
+probe	origin.numa.routerload
+	origin.numa

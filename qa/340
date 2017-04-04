@@ -1,0 +1,193 @@
+#! /bin/sh
+# PCP QA Test No. 340
+# PMCD denies all access?
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+perl -e "use PCP::PMDA" >/dev/null 2>&1
+test $? -eq 0 || _notrun "PCP::PMDA perl module is not installed"
+
+status=1	# failure is the default!
+
+[ -z "$PCP_PMLOGGERCONTROL_PATH" ] && \
+	PCP_PMLOGGERCONTROL_PATH="$PCP_SYSCONF_DIR/pmlogger/control"
+
+_filter_pminfo()
+{
+    sed \
+	-e 's/Connection reset by peer/No permission to perform requested operation/' \
+	-e 's/"'$me'"/"HOST"/g' \
+    # end
+}
+
+# real QA test starts here
+
+me=`_get_fqdn`
+_needclean=true
+
+cleanup()
+{
+    if $_needclean
+    then
+        _needclean=false
+	_restore_config $PCP_PMCDCONF_PATH
+	_change_config pmlogger on
+	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+	_wait_for_pmcd
+	_wait_for_pmlogger
+    fi
+
+    if $_chkconfig_pmlogger_on
+    then
+	[ -f $tmp.control ] && \
+	    $sudo cp $tmp.control $PCP_PMLOGGERCONTROL_PATH
+	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+	_wait_for_pmcd
+	_wait_for_pmlogger
+    	_chkconfig_pmlogger_on=false
+    fi
+    	
+    $sudo rm -f $tmp.*
+    exit $status
+}
+
+trap "cleanup; exit \$status" 0 1 2 3 15
+
+rm -f $seq.full
+
+# see if unix domain sockets are available (permissions)
+_get_libpcp_config
+target="localhost"
+$unix_domain_sockets && target="unix:"
+
+# real QA test starts here
+
+# disable all pmloggers ...
+_chkconfig_pmlogger_on=true
+$sudo cp $PCP_PMLOGGERCONTROL_PATH $tmp.control
+cat <<End-of-File >$tmp.tmp
+# dummy file created by qa/$seq on `date`
+# the goal here is to have a controlled primary logger that does
+# not make requests to pmcd!
+\$version=1.1
+LOCALHOSTNAME y n $PCP_LOG_DIR/pmlogger/LOCALHOSTNAME -c /dev/null
+End-of-File
+$sudo cp $tmp.tmp $PCP_PMLOGGERCONTROL_PATH
+#_change_config pmlogger off
+
+_save_config $PCP_PMCDCONF_PATH
+
+other=`./getpmcdhosts -n 1 -L -v 'pcp>=2' 2>$tmp.err`
+if [ -z "$other" ]
+then
+    # Unable to find remote PCP 2.x host
+    cat $tmp.err >$seq.notrun
+    exit
+fi
+
+echo "other=$other" >>$seq.full
+
+list=`_all_hostnames $other`
+if [ -z "$list" ]
+then
+    echo "Error: failed to expand hostnames for other=\"$other\""
+    exit
+fi
+echo "list=$list" >>$seq.full
+
+cat >$tmp.access <<End-Of-File
+
+[access]
+disallow $list : all;
+allow * :	   all;
+End-Of-File
+
+sed -e '/\[access]/q' $PCP_PMCDCONF_PATH.$seq  \
+| sed -e '/\[access]/d' >$tmp.config
+cat $tmp.access >>$tmp.config
+$sudo cp $tmp.config $PCP_PMCDCONF_PATH
+
+echo >>$seq.full
+echo "---- start pmcd.conf ----" >>$seq.full
+cat $PCP_PMCDCONF_PATH >>$seq.full
+echo "---- end pmcd.conf ----" >>$seq.full
+
+$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+_wait_for_pmcd 20 $target
+
+echo "    checking default access for this host ..."
+pminfo -f sample.long.million \
+| _filter_pminfo
+pmstore sample.write_me 111
+
+echo "    checking access for list (should fail)"
+ssh -q pcpqa@$other pminfo -h $me -f pmcd.numclients 2>&1 \
+| _filter_pminfo
+
+echo "pmcd.log:======="
+sed -n <$PCP_PMCDLOG_PATH -e '/endclient/{
+s/\[[0-9]*]/[M]/
+s/(fd [0-9]*)/(fd N)/
+p
+}' \
+| sort \
+| uniq
+echo "================"
+
+iplist=`_all_ipaddrs $other`
+if [ -z "$iplist" ]
+then
+    echo "Error: failed to expand ip addrs for other=\"$other\""
+    exit
+fi
+echo "iplist=$iplist" >>$seq.full
+
+cat >$tmp.access <<End-Of-File
+
+[access]
+disallow $iplist : all;
+allow * :	   all;
+End-Of-File
+
+sed -e '/\[access]/q' $PCP_PMCDCONF_PATH.$seq  \
+| sed -e '/\[access]/d' >$tmp.config
+cat $tmp.access >>$tmp.config
+$sudo cp $tmp.config $PCP_PMCDCONF_PATH
+
+echo >>$seq.full
+echo "---- start pmcd.conf ----" >>$seq.full
+cat $PCP_PMCDCONF_PATH >>$seq.full
+echo "---- end pmcd.conf ----" >>$seq.full
+
+$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+_wait_for_pmcd
+
+echo "    checking default access for this host ..."
+pminfo -f sample.long.million
+pmstore sample.write_me 444
+
+echo
+echo "    checking access for iplist (should fail)"
+ssh -q pcpqa@$other pminfo -h $me -f pmcd.numclients 2>&1 \
+| _filter_pminfo
+
+echo "pmcd.log:======="
+sed -n <$PCP_PMCDLOG_PATH -e '/endclient/{
+s/\[[0-9]*]/[M]/
+s/(fd [0-9]*)/(fd N)/
+p
+}'
+echo "================"
+
+# success, all done
+status=0
+exit

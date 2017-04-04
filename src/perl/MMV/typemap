@@ -1,0 +1,10 @@
+######################################################################
+# INPUT/OUTPUT maps
+# O_OBJECT	-> links an opaque C object to a blessed Perl object.
+# 
+TYPEMAP
+pmAtomValue *		T_PTROBJ
+mmv_indom_t *		T_PTROBJ
+mmv_metric_t *		T_PTROBJ
+
+######################################################################

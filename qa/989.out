@@ -1,0 +1,73 @@
+QA output created by 989
+Note: timezone set to local timezone of host "smash" from archive
+
+pmFetch ...
+numpmid= 2 Mon Sep  3 11:27:56.00988899
+numpmid= 2 Mon Sep  3 11:27:57.00988923
+numpmid= 2 Mon Sep  3 11:27:58.00988961
+numpmid= 2 Mon Sep  3 11:27:59.00988707
+numpmid= 2 Mon Sep  3 11:28:00.00988907
+numpmid= 2 Mon Sep  3 11:28:01.00988734
+numpmid= 2 Mon Sep  3 11:28:02.00988759
+numpmid= 2 Mon Sep  3 11:28:03.00988711
+numpmid= 2 Mon Sep  3 11:28:04.00988738
+numpmid= 2 Mon Sep  3 11:28:05.00988754
+numpmid= 2 Mon Sep  3 11:28:11.00999040
+numpmid= 2 Mon Sep  3 11:28:12.00999056
+numpmid= 2 Mon Sep  3 11:28:13.00999072
+numpmid= 2 Mon Sep  3 11:28:14.00999039
+numpmid= 2 Mon Sep  3 11:28:15.00999055
+numpmid= 2 Mon Sep  3 11:28:16.00999060
+numpmid= 2 Mon Sep  3 11:28:17.00999113
+numpmid= 2 Mon Sep  3 11:28:18.00998987
+numpmid= 2 Mon Sep  3 11:28:19.00999132
+numpmid= 2 Mon Sep  3 11:28:20.00998727
+numpmid= 2 Mon Sep  3 11:28:27.00009113
+numpmid= 2 Mon Sep  3 11:28:28.00009111
+numpmid= 2 Mon Sep  3 11:28:29.00009107
+numpmid= 2 Mon Sep  3 11:28:30.00009155
+numpmid= 2 Mon Sep  3 11:28:31.00009099
+numpmid= 2 Mon Sep  3 11:28:32.00009101
+numpmid= 2 Mon Sep  3 11:28:33.00009094
+numpmid= 2 Mon Sep  3 11:28:34.00009087
+numpmid= 2 Mon Sep  3 11:28:35.00009532
+numpmid= 2 Mon Sep  3 11:28:36.00009277
+-> End of PCP archive log
+
+pmFetchArchive ...
+numpmid= 3 Mon Sep  3 11:27:55.00989079
+numpmid=20 Mon Sep  3 11:27:56.00988899
+numpmid=20 Mon Sep  3 11:27:57.00988923
+numpmid=20 Mon Sep  3 11:27:58.00988961
+numpmid=20 Mon Sep  3 11:27:59.00988707
+numpmid=20 Mon Sep  3 11:28:00.00988907
+numpmid=20 Mon Sep  3 11:28:01.00988734
+numpmid=20 Mon Sep  3 11:28:02.00988759
+numpmid=20 Mon Sep  3 11:28:03.00988711
+numpmid=20 Mon Sep  3 11:28:04.00988738
+numpmid=20 Mon Sep  3 11:28:05.00988754
+numpmid= 0 Mon Sep  3 11:28:05.00989754 <mark>
+numpmid= 3 Mon Sep  3 11:28:10.00999403
+numpmid=20 Mon Sep  3 11:28:11.00999040
+numpmid=20 Mon Sep  3 11:28:12.00999056
+numpmid=20 Mon Sep  3 11:28:13.00999072
+numpmid=20 Mon Sep  3 11:28:14.00999039
+numpmid=20 Mon Sep  3 11:28:15.00999055
+numpmid=20 Mon Sep  3 11:28:16.00999060
+numpmid=20 Mon Sep  3 11:28:17.00999113
+numpmid=20 Mon Sep  3 11:28:18.00998987
+numpmid=20 Mon Sep  3 11:28:19.00999132
+numpmid=20 Mon Sep  3 11:28:20.00998727
+numpmid= 0 Mon Sep  3 11:28:20.00999727 <mark>
+numpmid= 3 Mon Sep  3 11:28:26.00009849
+numpmid=20 Mon Sep  3 11:28:27.00009113
+numpmid=20 Mon Sep  3 11:28:28.00009111
+numpmid=20 Mon Sep  3 11:28:29.00009107
+numpmid=20 Mon Sep  3 11:28:30.00009155
+numpmid=20 Mon Sep  3 11:28:31.00009099
+numpmid=20 Mon Sep  3 11:28:32.00009101
+numpmid=20 Mon Sep  3 11:28:33.00009094
+numpmid=20 Mon Sep  3 11:28:34.00009087
+numpmid=20 Mon Sep  3 11:28:35.00009532
+numpmid=20 Mon Sep  3 11:28:36.00009277
+-> End of PCP archive log

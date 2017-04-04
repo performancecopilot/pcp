@@ -1,0 +1,591 @@
+#!/bin/sh
+#
+# Check symbols for static variables against list of exceptions
+# that are known to be thread-safe
+#
+
+set -e # detect syntax errors or subsidiary command failures
+sts=1  # presume failure, in case of an unexpected early exit
+tmp=`mktemp -d /var/tmp/pcp.XXXXXXXXX` || exit 1
+trap "rm -rf $tmp; exit \$sts" 0 1 2 3 15
+
+NM=nm
+
+# Note
+#    Really want to make this run on as many platforms as possible ...
+eval `grep PCP_PLATFORM= ../../include/pcp.conf`
+case "$PCP_PLATFORM"
+in
+    linux|darwin)
+	    # only works for some architectures ... and in particular not
+	    # Power PC!
+	    #
+	    arch=`uname -m 2>/dev/null`
+	    case "$arch"
+	    in
+		i?86|x86_64)
+		    ;;
+		*)
+		    echo "Warning: check-statics skipped for $arch architecture"
+		    sts=0
+		    exit
+		    ;;
+	    esac
+	    ;;
+
+    solaris)
+	    # needto find a nm(1) that produces old-style output
+	    #
+	    if [ ! -f access.o ]
+	    then
+		echo "Error: no access.o to check"
+		exit
+	    fi
+	    rm -f $tmp/tmp
+	    dirs=/usr/bin
+	    [ -d /usr/gnu ] && dirs="$dirs /usr/gnu"
+	    [ -d /usr/opt ] && dirs="$dirs /usr/opt"
+	    find $dirs -name nm \
+	    | while read nm
+	    do
+		echo $nm >>$tmp/try
+		if $nm access.o | grep ' T __pmAccAddAccount' >/dev/null 2>&1
+		then
+		    echo $nm >$tmp/tmp
+		    break
+		fi
+	    done
+	    if [ -f $tmp/tmp ]
+	    then
+		NM=`cat $tmp/tmp`
+	    else
+		echo "Error: cannot find a version of nm(1) below that produces classic format output ..."
+		cat $tmp/try
+		exit
+	    fi
+	    ;;
+
+    freebsd|netbsd|openbsd|solaris)
+	    ;;
+    *)
+	    echo "Warning: check-statics skipped for PCP_PLATFORM=$PCP_PLATFORM"
+	    sts=0
+	    exit
+	    ;;
+esac
+
+obj=''
+cat <<End-of-File \
+| sed -e 's/[ 	]*#.*//' \
+      -e '/^$/d' >$tmp/ctl
+# Format for the control file ...
+# All text after a # is treated as a comment
+#
+# Lines consisting of a FOO.o name are assumed to be the name of an
+# object file ... if any object file is found in the current directory
+# that is not named in the control file, this is an error.  Object
+# file names beginning with '?' are optional, otherwise the object
+# file is expected to exist.
+#
+# Following the name of an object file follows zero or more lines
+# defining static data symbols from that object file that is known to
+# be thread-safe ... these lines contain the symbol's name and by
+# convention an comment explaining why the symbol is thread-safe.  The
+# symbol may be preceded by a '?' character to indicate the symbol may
+# or may not be in the object file, otherwise a symbol named here that
+# is not in the object file produces a warning.
+#
+access.o
+    all_ops			# single-threaded PM_SCOPE_ACL
+    gotmyhostid			# single-threaded PM_SCOPE_ACL
+    grouplist			# single-threaded PM_SCOPE_ACL
+    hostlist			# single-threaded PM_SCOPE_ACL
+    myhostid			# single-threaded PM_SCOPE_ACL
+    myhostname			# single-threaded PM_SCOPE_ACL
+    nhosts			# single-threaded PM_SCOPE_ACL
+    ngroups			# single-threaded PM_SCOPE_ACL
+    nusers			# single-threaded PM_SCOPE_ACL
+    oldgrouplist		# single-threaded PM_SCOPE_ACL
+    oldhostlist			# single-threaded PM_SCOPE_ACL
+    olduserlist			# single-threaded PM_SCOPE_ACL
+    oldngroups			# single-threaded PM_SCOPE_ACL
+    oldnhosts			# single-threaded PM_SCOPE_ACL
+    oldnusers			# single-threaded PM_SCOPE_ACL
+    oldszgrouplist		# single-threaded PM_SCOPE_ACL
+    oldszhostlist		# single-threaded PM_SCOPE_ACL
+    oldszuserlist		# single-threaded PM_SCOPE_ACL
+    saved			# single-threaded PM_SCOPE_ACL
+    szhostlist			# single-threaded PM_SCOPE_ACL
+    szgrouplist			# single-threaded PM_SCOPE_ACL
+    szuserlist			# single-threaded PM_SCOPE_ACL
+    userlist			# single-threaded PM_SCOPE_ACL
+accounts.o
+AF.o
+    afid			# single-threaded PM_SCOPE_AF
+    block			# single-threaded PM_SCOPE_AF
+    root			# single-threaded PM_SCOPE_AF
+    ?afblock			# guarded by __pmLock_libpcp mutex
+    ?afsetup			# guarded by __pmLock_libpcp mutex
+    ?aftimer			# guarded by __pmLock_libpcp mutex
+auxconnect.o
+    conn_wait			# guarded by __pmLock_libpcp mutex
+    conn_wait_done		# guarded by __pmLock_libpcp mutex
+    pmcd_ports			# guarded by __pmLock_libpcp mutex
+    pmcd_socket			# guarded by __pmLock_libpcp mutex
+auxserver.o
+    nport			# single-threaded server scope
+    portlist			# single-threaded server scope
+    nintf			# single-threaded server scope
+    intflist			# single-threaded server scope
+    nReqPorts			# single-threaded server scope
+    szReqPorts			# single-threaded server scope
+    reqPorts			# single-threaded server scope
+    localSocketPath		# single-threaded server scope
+    serviceSpec			# single-threaded server scope
+    localSocketFd		# single-threaded server scope
+    server_features		# single-threaded server scope
+discovery.o
+?avahi.o
+    nActiveServices		# single-threaded server scope
+    szActiveServices		# single-threaded server scope
+    activeServices		# single-threaded server scope
+    threadedPoll		# single-threaded server scope
+    simplePoll			# single-threaded server scope
+    client			# single-threaded server scope
+    group			# single-threaded server scope
+    done_default		# guarded by __pmLock_libpcp mutex
+    def_timeout			# guarded by __pmLock_libpcp mutex
+checksum.o
+config.o
+    ?__pmNativeConfig		# const
+    state			# guarded by __pmLock_libpcp mutex
+    ?features			# const
+connectlocal.o
+    atexit_installed		# guarded by __pmLock_libpcp mutex
+    buffer			# assert safe, see notes in connectlocal.c
+    dsotab			# assert safe, see notes in connectlocal.c
+    numdso			# assert safe, see notes in connectlocal.c
+connect.o
+    global_nports		# guarded by __pmLock_libpcp mutex
+    global_portlist		# guarded by __pmLock_libpcp mutex
+    first_time			# guarded by __pmLock_libpcp mutex
+    proxy			# guarded by __pmLock_libpcp mutex
+context.o
+    _mode			# const
+    being_initialized           # const
+    def_backoff			# guarded by __pmLock_libpcp mutex
+    backoff			# guarded by __pmLock_libpcp mutex
+    n_backoff			# guarded by __pmLock_libpcp mutex
+    contexts			# guarded by __pmLock_libpcp mutex
+    contexts_len		# guarded by __pmLock_libpcp mutex
+    hostbuf			# single-threaded
+    ?curcontext			# thread private (no __thread symbols for Mac OS X)
+    ?__emutls_t.curcontext	# thread private (MinGW)
+    ?__emutls_v.curcontext	# thread private (MinGW)
+derive_fetch.o
+derive.o
+    ?fmt			# const
+    ?func			# const
+    ?init			# local initialize_mutex mutex
+    ?done			# guarded by local initialize_mutex mutex
+    type_dbg			# const
+    ?type_c			# const
+    state_dbg			# const
+    ?promote			# const
+    ?timefactor			# const
+    need_init			# guarded by registered.mutex
+    tokbuf			# guarded by registered.mutex
+    tokbuflen			# guarded by registered.mutex
+    string			# guarded by registered.mutex
+    lexpeek			# guarded by registered.mutex
+    this			# guarded by registered.mutex
+    ?registered			# guarded by registered.mutex
+    pmid			# guarded by registered.mutex
+    ?derive_errmsg		# thread private (no __thread symbols for Mac OS X)
+    ?__emutls_v.derive_errmsg	# thread private (MinGW)
+    ?func			# const (MinGW)
+    ?promote			# const (MinGW)
+    ?timefactor			# const (MinGW)
+    ?type_c			# const (MinGW)
+    ?.LpmRegisterDerivedMetric.fmt	# static string (FreeBSD gcc)
+    ?pmRegisterDerivedMetric.fmt	# static string (FreeBSD 10.2 gcc)
+desc.o
+endian.o
+err.o
+    ?errtab			# const
+    ?first			# guarded by __pmLock_libpcp mutex
+    unknown			# guarded by __pmLock_libpcp mutex or const (MinGW)
+    errmsg			# pmErrStr deprecated by pmErrStr_r
+events.o
+    pmid_flags			# no unsafe side-effects
+    pmid_missed			# no unsafe side-effects
+    ?caller                     # const
+    ?pmUnpackEventRecords.caller		# const
+    ?pmUnpackHighResEventRecords.caller	# const
+fault.o
+fetchlocal.o
+    splitlist			# single-threaded PM_SCOPE_DSO_PMDA
+    splitmax			# single-threaded PM_SCOPE_DSO_PMDA
+fetch.o
+fetchgroup.o
+freeresult.o
+getdate.tab.o
+    MilitaryTable         	# const
+    OtherTable         		# const
+    MonthDayTable    		# const
+    ?DaysInMonth		# const (LLVM)
+    TimezoneTable        	# const
+    UnitsTable			# const
+    yycheck                	# const
+    yydefact               	# const
+    yydefgoto              	# const
+    yypact                 	# const
+    yypgoto                	# const
+    yyr1                   	# const
+    yyr2                   	# const
+    ?yystos                	# const, may be optimized away
+    ?yyval_default		# local to parser ... depends on yacc/bison version
+    yytable                	# const
+    yytranslate            	# const
+getopt.o
+hash.o
+help.o
+instance.o
+interp.o
+    dowrap			# guarded by __pmLock_libpcp mutex
+    nr				# diag counters, no atomic updates
+    nr_cache			# diag counters, no atomic updates
+ipc.o
+    __pmIPCTable		# guarded by __pmLock_libpcp mutex
+    __pmLastUsedFd		# guarded by __pmLock_libpcp mutex
+    ipcentrysize		# guarded by __pmLock_libpcp mutex
+    ipctablecount		# guarded by __pmLock_libpcp mutex
+lock.o
+    __pmLock_libpcp		# the global libpcp mutex
+    ?init			# local __pmInitLocks mutex
+    ?done			# guarded by local __pmInitLocks mutex
+    ?__pmTPDKey			# one-trip initialization then read-only
+    ?multi_init			# guarded by __pmLock_libpcp mutex
+    ?multi_seen			# guarded by __pmLock_libpcp mutex
+    ?hashctl			# for lock debug tracing
+    ?__pmTPDKey			# if don't have __thread support
+logconnect.o
+    done_default		# guarded by __pmLock_libpcp mutex
+    timeout			# guarded by __pmLock_libpcp mutex
+logcontrol.o
+logmeta.o
+logportmap.o
+    nlogports			# single-threaded PM_SCOPE_LOGPORT
+    szlogport			# single-threaded PM_SCOPE_LOGPORT
+    logport			# single-threaded PM_SCOPE_LOGPORT
+    match			# single-threaded PM_SCOPE_LOGPORT
+    ?namelist			# const (LLVM)
+logutil.o
+    tbuf			# __pmLogName deprecated by __pmLogName_r
+    compress_ctl		# const
+    ?ncompress			# const
+    ?__pmLogReads		# diag counter, no atomic updates
+    pc_hc			# guarded by __pmLock_libpcp mutex
+secureserver.o
+    secure_server		# guarded by __pmLock_libpcp mutex
+secureconnect.o
+    common_callbacks		# const
+    initialized			# single-threaded
+optfetch.o
+    optcost			# guarded by __pmLock_libpcp mutex
+p_attr.o
+p_creds.o
+p_desc.o
+pdubuf.o
+    buf_tree			# guarded by __pmLock_libpcp mutex
+    pdu_bufcnt_need		# guarded by __pmLock_libpcp mutex
+    pdu_bufcnt			# guarded by __pmLock_libpcp mutex
+pdu.o
+    req_wait			# guarded by __pmLock_libpcp mutex
+    req_wait_done		# guarded by __pmLock_libpcp mutex
+    pmDebug			# set-once in main(), read-only elsewhere
+    ceiling			# no unsafe side-effects
+    ?sigpipe_done		# no unsafe side-effects
+    mypid			# no unsafe side-effects
+    tbuf			# __pmPDUTypeStr deprecated by __pmPDUTypeStr_r
+    __pmPDUCntIn		# pointer to diag counters, no atomic updates
+    __pmPDUCntOut		# pointer to diag counters, no atomic updates
+    inctrs			# diag counters, no atomic updates
+    outctrs			# diag counters, no atomic updates
+    maxsize			# guarded by __pmLock_libpcp mutex
+p_error.o
+p_profile.o
+p_result.o
+profile.o
+p_text.o
+p_fetch.o
+p_instance.o
+p_lcontrol.o
+p_lrequest.o
+p_lstatus.o
+pmns.o
+    lineno			# guarded by __pmLock_libpcp mutex
+    export			# guarded by __pmLock_libpcp mutex
+    fin				# guarded by __pmLock_libpcp mutex
+    first			# guarded by __pmLock_libpcp mutex
+    use_cpp			# guarded by __pmLock_libpcp mutex
+    fname			# guarded by __pmLock_libpcp mutex
+    havePmLoadCall		# guarded by __pmLock_libpcp mutex
+    last_size			# guarded by __pmLock_libpcp mutex
+    last_mtim			# guarded by __pmLock_libpcp mutex
+    last_pmns_location		# guarded by __pmLock_libpcp mutex
+    linebuf			# guarded by __pmLock_libpcp mutex
+    linep			# guarded by __pmLock_libpcp mutex
+    lp				# guarded by __pmLock_libpcp mutex
+    seen			# guarded by __pmLock_libpcp mutex
+    seenpmid			# guarded by __pmLock_libpcp mutex
+    tokbuf			# guarded by __pmLock_libpcp mutex
+    tokpmid			# guarded by __pmLock_libpcp mutex
+    ?useExtPMNS			# thread private (no __thread symbols for Mac OS X)
+    ?__emutls_t.useExtPMNS	# thread private for OpenBSD
+    repname			# guarded by __pmLock_libpcp mutex
+    main_pmns			# guarded by __pmLock_libpcp mutex
+    ?curr_pmns			# thread private (no __thread symbols for Mac OS X)
+    ?__emutls_t.curr_pmns	# thread private for OpenBSD
+    locerr			# no unsafe side-effects, see notes in pmns.c
+p_pmns.o
+p_profile.o
+p_result.o
+probe.o
+    ?againWait			# const (LLVM)
+profile.o
+p_text.o
+rtime.o
+    ?wdays			# const
+    ?months			# const
+    ?ampm			# const
+    int_tab			# const struct {...} int_tab[] = {...}
+    ?numint			# const
+    ?ampm			# const (MinGW)
+    ?months			# const (MinGW)
+    ?wdays			# const (MinGW)
+    ?startend_relative_terms	# const
+sortinst.o
+spec.o
+store.o
+stuffvalue.o
+tv.o
+tz.o
+    curzone			# guarded by __pmLock_libpcp mutex
+    envtz			# guarded by __pmLock_libpcp mutex
+    envtzlen			# guarded by __pmLock_libpcp mutex
+    zone			# guarded by __pmLock_libpcp mutex
+    nzone			# guarded by __pmLock_libpcp mutex
+    savetz			# guarded by __pmLock_libpcp mutex
+    tzbuffer			# guarded by __pmLock_libpcp mutex
+    ?wildabbr			# const (MinGW)
+units.o
+    typename			# const
+    abuf			# pmAtomStr deprecated by pmAtomStr_r
+    tbuf			# pmTypeStr deprecated by pmTypeStr_r
+    ubuf			# pmUnitsStr deprecated by pmUnitsStr_r
+    count_keywords              # const
+    exponent_keywords           # const
+    space_keywords              # const
+    time_keywords               # const
+    ?time_scales                # const
+    ?pmParseUnitsStr.time_scales	# const
+util.o
+    idbuf			# pmIDStr deprecated by pmIDStr_r
+    indombuf			# pmInDomStr deprecated by pmInDomStr_r
+    ebuf			# pmEventFlagsStr deprecated by pmEventFlagsStr_r
+    nbuf			# pmNumberStr deprecated by pmNumberStr_r
+    ?unknownVal			# const, variable may be optimized away by gcc
+    debug_map			# const
+    ?num_debug			# const
+    pmState			# no unsafe side-effects, see notes in util.c
+    pmProgname			# no unsafe side-effects, see notes in util.c
+    filelog			# guarded by __pmLock_libpcp mutex
+    nfilelog			# guarded by __pmLock_libpcp mutex
+    dosyslog			# guarded by __pmLock_libpcp mutex
+    done_exit			# guarded by __pmLock_libpcp mutex
+    ?pmprintf_atexit_installed	# guarded by __pmLock_libpcp mutex
+    ferr			# guarded by __pmLock_libpcp mutex
+    errtype			# guarded by __pmLock_libpcp mutex
+    fptr			# guarded by __pmLock_libpcp mutex
+    fname			# guarded by __pmLock_libpcp mutex
+    msgsize			# guarded by __pmLock_libpcp mutex
+    ?base			# no unsafe side-effects, see notes in util.c
+    first			# __pmEventType deprecated by __pmEventType_r
+    last			# __pmEventType deprecated by __pmEventType_r
+    sum				# __pmEventType deprecated by __pmEventType_r
+    ?bp				# const
+    ?dp_h			# const
+    ?dp_l			# const
+?win32.o
+END				# this is magic, DO NOT DELETE THIS LINE
+End-of-File
+
+for file in *.o
+do
+    case "$file"
+    in
+	'*.o')
+	    echo "Error: no object files!! Need some drive-by make action?"
+	    exit 1
+	    ;;
+    esac
+    
+    if grep "^?*$file\$" $tmp/ctl >/dev/null 2>&1
+    then
+	:
+    else
+	echo "$file: Error: object file not mentioned in control file"
+	touch $tmp/fail
+    fi
+done
+
+skip_file=false
+
+cat $tmp/ctl \
+| while read line
+do
+    if expr $line : '.*\.o$' >/dev/null  # .o file
+    then
+	if [ -n "$obj" ]
+	then
+	    if [ -s $tmp/out ]
+	    then
+		# extras from the last object code file
+		sed <$tmp/out \
+		    -e 's/^[^ ]* //' \
+		    -e "s/^\(.\) \(.*\)/$obj: \1 \2 : Error: additional symbol/"
+		touch $tmp/fail
+	    fi
+	fi
+	if [ "$line" != END ]
+	then
+	    if [ -f $line ]  # .o file rather than symbol name
+	    then
+		# Need some nm special case logic ...
+		# for darwin
+		# + const data and text symbols both appear as "S", but
+		#   the latter have .eh/.stv appended to the name
+		# + static arrays and some debug (?) symbols appear as
+		#   "s", but the latter have _.NNN appended, or start
+		#   with LC, or have .eh/.stv appended, or start with EH_
+                # + __func__ macro expansion results in L___func__.<FName>
+		#   entries
+                # + LLVM compiler generates l_switch.<table[NNN]> entries
+		#   for some (large?) switch/case blocks
+                # + scoped static could have scope name prepended
+		# + older versions insert get_pc_thunk symbols in all
+		#   object files
+		# for MinGW
+		# + strip .bss and .data lines
+		# + strip .rdata and .eh_frame lines
+		# + external symbols tend to have "C" lines
+		# for FreeBSD
+		# + strip  r __func__.NNN lines
+		# for NetBSD
+		# + strip  r CSWTCH.NNN lines
+		# for Solaris (OpenIndiana with suncc)
+		# + remove symbol mangling so
+		#   0000000000000058 B .XA$BAABAJVtXUrj.userlist
+		#   becomes
+		#   0000000000000058 B userlist
+		#   (same for R records) and
+		#   0000000000000000 D .XB$BAAB6IVtXk4i.pmfstate.errtype
+		#   becomes
+		#   0000000000000000 D errtype
+		# + strip .bss, .data, .picdata and .rodata lines
+		#
+		skip_file=false
+		$NM $line \
+		| sed -n >$tmp/out \
+		    -e '/ S ___i686.get_pc_thunk.[bc]x/d' \
+		    -e '/ [sS] .*\.eh$/d' \
+		    -e '/ [sS] .*\.stv$/d' \
+		    -e '/ s .*_\.[0-9][0-9]*$/d' \
+		    -e '/ s LC[0-9][0-9]*$/d' \
+		    -e '/ s L_\.str[0-9][0-9]*$/d' \
+		    -e '/ s L_\.str$/d' \
+		    -e '/ r \.L\.str[0-9][0-9]*$/d' \
+		    -e '/ r \.L\.str$/d' \
+		    -e '/ s L___func__\./d' \
+		    -e '/ r \.LCPI./d' \
+		    -e '/ s l_switch\./d' \
+		    -e '/ s .*\$tlv\$init$/d' \
+		    -e 's/b \([_a-zA-Z][_a-zA-Z0-9]*\)\.b$/b \1/' \
+		    -e 's/b \([_a-zA-Z][_a-zA-Z0-9]*\)\.[0-9]*.[0b]$/b \1/' \
+		    -e 's/\([bds] \).*\.\([_a-zA-Z]\)/\1\2/' \
+		    -e 's/s _glib_relative_date\./s /' \
+		    -e '/ s EH_/d' \
+		    -e '/ b \.bss/d' \
+		    -e '/ d \.data/d' \
+		    -e '/ r \.rdata/d' \
+		    -e '/ r \.eh_frame/d' \
+		    -e '/ r __PRETTY_FUNCTION__.[0-9][0-9]*$/d' \
+		    -e '/ r __func__.[0-9][0-9]*$/d' \
+		    -e '/ r \.L__func__.*$/d' \
+		    -e '/ r CSWTCH.[0-9][0-9]*$/d' \
+		    -e '/ r \.LC[0-9][0-9]*$/d' \
+		    -e '/ C ___pmLogReads/d' \
+		    -e '/ C ___pmNativeConfig/d' \
+		    -e '/ C ___pmPDUCntIn/d' \
+		    -e '/ C ___pmPDUCntOut/d' \
+		    -e '/ C _pmProgname/d' \
+		    -e '/ \([BDR]\) \..*\./s// \1 /' \
+		    -e '/\.bss$/d' \
+		    -e '/\.data$/d' \
+		    -e '/\.picdata$/d' \
+		    -e '/\.rodata$/d' \
+		    -e '/ b bss/d' \
+		    -e '/ d data/d' \
+		    -e '/ d picdata/d' \
+		    -e '/ [dDbBCsSrR] /p' \
+		# end
+		obj=$line
+	    else
+		case "$line"
+		in
+		    secure*.o)
+			echo "$line: Info: security object file skipped, not configured"
+			skip_file=true
+			;;
+		    \?*)
+			skip_file=true
+			;;
+		    *)
+			echo "$line: Error: object file in control file but not found"
+			touch $tmp/fail
+		esac
+	    fi
+	fi
+	continue
+    fi
+    $skip_file && continue
+    opt=`echo $line | sed -n -e 's/?.*/?/p'`
+    name=`echo $line | sed -e 's/?//'`
+    #debug# echo "obj=$obj type=$line opt=$opt"
+    #
+    # We accept the given symbol name with several decorations:
+    #
+    # - in any section type (bss data, whatever; as compilers can 
+    #                        be fickle)
+    # - with or without a _ prefix
+    # - with or without a .NNN suffix (coming from function statics
+    #                                  or optimizations)
+    #
+    sed <$tmp/out >$tmp/tmp \
+	-e "/ [dDbBCsSrR] $name\$/d" \
+	-e "/ [dDbBCsSrR] _$name\$/d" \
+	-e "/ [dDbBCsSrR] $name\.[0-9]*\$/d" \
+	-e "/ [dDbBCsSrR] _$name\.[0-9]*\$/d"
+    if cmp -s $tmp/out $tmp/tmp
+    then
+	if [ "$opt" != "?" ]
+	then
+	    echo "$obj: $name: Warning: exceptioned symbol ($line) no longer present"
+	fi
+    else
+	mv $tmp/tmp $tmp/out
+    fi
+done
+
+[ ! -f $tmp/fail ] && sts=0  # success at last

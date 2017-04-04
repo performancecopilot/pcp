@@ -1,0 +1,70 @@
+#!/bin/sh
+# PCP QA Test No. 842
+# Exercise basic pmiostat(1) invocations using an archive.
+#
+# Copyright (c) 2014 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.python
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+PMIOSTAT="$PCP_BIN_DIR/pmiostat"
+test -x $PMIOSTAT || _notrun "No pmiostat(1) installed"
+PMIOSTAT="$python $PMIOSTAT"
+
+# real QA test starts here
+echo 'All devices'
+$PMIOSTAT -z --samples 5 --archive archives/dm-io
+echo
+
+echo 'DM devices'
+$PMIOSTAT -z --samples 3 --archive archives/dm-io -x dm
+echo
+
+echo 'Timestamps and no headers'
+$PMIOSTAT -z --samples 10 --archive archives/dm-io -x t,h
+echo
+
+echo 'Precision'
+precision=0
+while [ $precision -le 8 ]
+do
+    echo == Precision=$precision
+    $PMIOSTAT -z -P $precision --samples 3 --archive archives/dm-io -x t,h
+    echo
+    precision=`expr $precision + 1`
+done
+
+echo 'Checking reported values against pmval'
+t=1
+while [ $t -le 30 ]
+do
+    for metric_field in read_merge:7 write_merge:8 read:9 write:10 read_bytes:11 write_bytes:12
+    do
+	metric=$(echo $metric_field | sed -e 's/:.*$//')
+	field=$(echo $metric_field | sed -e 's/^.*://') 
+
+	echo >>$here/$seq.full
+	echo "=== metric=$metric field=$field ===" >>$here/$seq.full
+	$PCP_ECHO_PROG $PCP_ECHO_N "Checking pmiostat against pmval -t $t disk.dev.$metric ...""$PCP_ECHO_C" | tee -a $here/$seq.full
+	pmval -t $t -a archives/dm-io -f 1 disk.dev.$metric'[sda]' 2>/dev/null \
+	| tee -a $here/$seq.full \
+	| sed -e 's/\.[0-9]*//' \
+	| $PCP_AWK_PROG '/^[0-9][0-9]:/ {print $1, $2}' >$tmp.pmval
+	$PMIOSTAT -P 1 -t $t -a archives/dm-io -xt,h \
+	| tee -a $here/$seq.full \
+	| $PCP_AWK_PROG '/^#/ {skip} /sda/ {print $4, $'$field'}' >$tmp.pmiostat
+	if diff $tmp.pmval $tmp.pmiostat >>$here/$seq.full; then $PCP_ECHO_PROG OK; else $PCP_ECHO_PROG FAILED; fi
+    done
+    t=`expr $t + 1`
+done
+
+# success, all done
+status=0
+exit

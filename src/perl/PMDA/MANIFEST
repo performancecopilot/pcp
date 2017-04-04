@@ -1,0 +1,11 @@
+Changes
+COPYING
+cvalue.c
+Makefile.PL
+MANIFEST
+PMDA.pm
+PMDA.xs
+local.h
+local.c
+test.pl
+typemap

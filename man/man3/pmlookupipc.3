@@ -1,0 +1,98 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMLOOKUPIPC 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3__pmAddIPC\f1,
+\f3__pmLookupIPC\f1,
+\f3__pmFdLookupIPC\f1,
+\f3__pmOverrideLastFd\f1,
+\f3__pmPrintIPC\f1,
+\f3__pmResetIPC\f1 \- IPC version infrastructure support
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.br
+#include <pcp/impl.h>
+.sp
+int __pmAddIPC(int \fIfd\fP, __pmIPC \fIipc\fP);
+.br
+int __pmLookupIPC(__pmIPC **\fIipcp\fP);
+.br
+int __pmFdLookupIPC(int \fIfd\fP, __pmIPC **\fIipcp\fP);
+.br
+void __pmOverrideLastFd(int \fIfd\fP);
+.br
+void __pmPrintIPC(void);
+.br
+void __pmResetIPC(int \fIfd\fP);
+.sp
+cc ... \-lpcp
+.ft 1
+.SH DESCRIPTION
+IPC channels throughout the distributed PCP framework are affected by the
+PCP 2.0 (and later) PDU changes.  These functions are the interface to the libpcp IPC
+connection management global data.  This data consists of a hash table of
+__pmIPC structures (indexed by file descriptor) and a cached, most-recently-used
+file descriptor.
+.PP
+Newly created IPC channels must be registered with the hash table using
+\f3__pmAddIPC\f1, such that the PDU sending and decoding routines can
+determine whether they need to perform any PDU version translations or not,
+for backward compatibility with previous the PCP 1.x IPC protocol.
+.PP
+.B __pmLookupIPC
+and
+.B __pmFdLookupIPC
+both provide handles to the __pmIPC structure associated with the given file
+descriptor, as previously established by a call to
+.BR __pmAddIPC .
+The difference between the two is that one allows an explicit file descriptor
+lookup, and the other uses the cached, most-recently-used file descriptor.
+So
+.B __pmLookupIPC
+actually calls
+.B __pmFdLookupIPC
+using this cached file descriptor as the argument.  The justification for having
+both is that in some places it is not possible to use
+.B __pmFdLookupIPC
+(which is preferred), since at that particular level of the PMAPI a file
+descriptor is not available (see the __pmDecodeError code for an example).
+.PP
+The
+.B __pmOverrideLastFd
+is an escape mechanism for use in those situations where the last PDU 
+fetch did not go through the usual channels (ie. __pmGetPDU), so as to ensure
+that the cached file descriptor is the correct file descriptor for the PDU
+which is currently being processed.  This will typically be used for archive
+PDU processing or where version information is not available for a given file
+descriptor (eg. immediately prior to a PDU version exchange).
+.PP
+.B __pmPrintIPC
+is a useful debugging routine for displaying a table mapping all currently
+registered file descriptors to their associated PDU version numbers.  Unused
+entries in this table should display the value zero in the version column.
+.PP
+.B __pmResetIPC
+resets the version information associated with the given file descriptor to some
+known (invalid) number.  Subsequent lookups on this file descriptor will return
+an UNKNOWN_VERSION embedded within the __pmIPC structure.
+.SH SEE ALSO
+.BR PMAPI (3)
+.SH DIAGNOSTICS
+A negative return value from \f3__pmLookupIPC\f1 indicates that the requested
+file descriptor is not registered in the hash table.
+This typically indicates closure of an IPC channel, so PM_ERR_IPC is returned
+if this is the case.

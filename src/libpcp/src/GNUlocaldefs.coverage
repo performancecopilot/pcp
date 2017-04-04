@@ -1,0 +1,11 @@
+# example QA build for libpcp ... to enable
+#	$ make clean
+# 	$ ln GNUlocaldefs.coverage GNUlocaldefs
+#	$ make
+#	$ sudo make install
+# this one turns on coverage hooks for gcov and ggcov and builds
+# libpcp with fault injection enabled
+#
+CFLAGS += -fprofile-arcs -ftest-coverage -DPM_FAULT_INJECTION
+LDLIBS += -lgcov -lpcp_pmda
+LDIRT = *.gcov *.gcda *.gcno

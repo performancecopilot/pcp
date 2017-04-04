@@ -1,0 +1,86 @@
+#! /bin/sh
+# PCP QA Test No. 056
+# Verify the good stuff happens with pmclient_fg.python (archive mode)
+# Python toolchain variant of test 053.
+#
+# Copyright (c) 2016 Red Hat.
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.python
+
+pyclient="$PCP_DEMOS_DIR/pmclient/pmclient_fg.python"
+[ -f $pyclient ] || _notrun "No $pyclient installed"
+pmclient="$python $pyclient"
+
+_filter()
+{
+    tee -a $seq.full \
+    | $PCP_AWK_PROG '
+/^Archive: /		{ print "... title ..."; next }
+/^[0-9. 	]*$/	{ print "... " NF " numbers ..."; next }
+			{ print }'
+}
+
+trap "rm -f $tmp $tmp.*; exit" 0 1 2 3 15
+rm -f $here/$seq.full
+
+# real QA test starts here
+cat >$tmp.config <<End-of-File
+log mandatory on once {
+    hinv.ncpu
+}
+log mandatory on 5 secs {
+    kernel.all.load [ "1 minute", "15 minute" ]
+    kernel.percpu.cpu.user
+    kernel.percpu.cpu.sys
+    mem.freemem
+    disk.all.total
+}
+End-of-File
+pmlogger -c $tmp.config -l $tmp.log -s 4 $tmp
+_filter_pmlogger_log <$tmp.log
+cat $tmp.log >>$here/$seq.full
+
+pmdumplog $tmp >>$here/$seq.full
+
+ncpu=`pmprobe -v hinv.ncpu 2>&1 \
+| $PCP_AWK_PROG '
+NF == 3 && $2 == 1	{ print $3; exit }
+			{ print "0"; exit }'`
+
+#
+# output is sensitive to SP/MP ... so do the one that is real, and fake
+# the other
+#
+if [ "$ncpu" -eq 1 ]
+then
+    echo "real SP case" >>$here/$seq.full
+    $pmclient -a $tmp | _filter
+    echo "..."
+    # fake MP output
+    cat <<End-of-File
+pmclient_fg.python: End of PCP archive log
+... title ...
+  CPU  Busy    Busy  Free Mem   Disk     Load Average
+ Util   CPU    Util  (Mbytes)   IOPS    1 Min  15 Min
+... 7 numbers ...
+... 7 numbers ...
+End-of-File
+else
+    # fake SP output
+    cat <<End-of-File
+pmclient_fg.python: End of PCP archive log
+... title ...
+  CPU  Free Mem   Disk     Load Average
+ Util  (Mbytes)   IOPS    1 Min  15 Min
+... 5 numbers ...
+... 5 numbers ...
+End-of-File
+    echo "..."
+    echo "real MP case" >>$here/$seq.full
+    $pmclient -a $tmp | _filter
+fi

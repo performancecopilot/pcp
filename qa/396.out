@@ -1,0 +1,66 @@
+QA output created by 396
+=== 1,5 ===
+
+metric:    kernel.all.load
+HOST
+semantics: instantaneous value
+units:     none
+samples:   1
+
+ NUMBER NUMBER
+ NUMBER NUMBER
+
+=== "'1 minute'" ===
+
+metric:    kernel.all.load
+HOST
+semantics: instantaneous value
+units:     none
+samples:   1
+
+     1 minute 
+ NUMBER
+
+=== '"1 minute"' ===
+
+metric:    kernel.all.load
+HOST
+semantics: instantaneous value
+units:     none
+samples:   1
+
+     1 minute 
+ NUMBER
+
+===  '"1 minute" "5 minute"' ===
+
+metric:    kernel.all.load
+HOST
+semantics: instantaneous value
+units:     none
+samples:   1
+
+     1 minute      5 minute 
+ NUMBER NUMBER
+
+===  '"1 minute","5 minute"' ===
+
+metric:    kernel.all.load
+HOST
+semantics: instantaneous value
+units:     none
+samples:   1
+
+     1 minute      5 minute 
+ NUMBER NUMBER
+
+===  " '1 minute' , '5 minute' " ===
+
+metric:    kernel.all.load
+HOST
+semantics: instantaneous value
+units:     none
+samples:   1
+
+     1 minute      5 minute 
+ NUMBER NUMBER

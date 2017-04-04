@@ -1,0 +1,331 @@
+#!/bin/sh
+#
+# Copyright (c) 2001 Silicon Graphics, Inc.  All Rights Reserved.
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+
+tmp=/tmp/$$
+trap "rm -f $tmp.*; exit" 0 1 2 3  15
+rm -f $tmp.*
+debug=false
+
+. $PCP_DIR/etc/pcp.env
+. $PCP_SHARE_DIR/lib/pmview-args
+
+# --- scaling parameters ---
+#
+
+# maximum packets per second
+max=750
+
+# maximum req rate (default: 5% of packet rate)
+maxreq=`expr $max / 20`
+
+# milliseconds per CPU
+maxcpu=1000
+
+#
+# clustervis tolerates multiple hosts or archives
+_pmview_multiple_sources_are_ok
+
+# --- define usage message ---
+#
+_usage()
+{
+    echo >$tmp.msg 'Usage: '$prog' [options]
+
+Default hosts are specified in /etc/nodes (or /etc/ace/nodes)
+or specify the file specifying cluster hosts with the -H flag.
+The -h flag may be used to specify multiple hosts or the -a flag
+may be used to specify multiple archives. The -h, -a and -H flags
+are all mutually exclusive.
+
+options:
+  -H nodes      file specifying hosts in cluster 
+                [default $PCP_CLUSTER_CONFIG or /etc/nodes or /etc/ace/nodes]
+  -m max        maximum expected packets sent or received per sec [default 750]
+  -V            verbose/diagnostic output  
+
+pmview(1) options:'
+
+    _pmview_usage >> $tmp.msg
+    echo >> $tmp.msg
+    echo >> $tmp.msg 'Default title is: Web Server Activity'
+    echo >> $tmp.msg '
+  By default all network interfaces are shown, with a maximum packet rate
+  of '$max' packets per second.  The maximum request rate is 5% (of the
+  maximum packet rate) and the maximum error rate is 20% of the maximum
+  request rate.
+
+  If given, the [interface ...] regular expressions restrict
+  the network statistics displayed to matching network interface names only.'
+
+    _pmview_info -f $tmp.msg
+}
+
+# --- build WM_COMMAND X(1) property for restart after login/logout ---
+#
+echo -n "pmview Version 2.1 \"$prog\"" > $tmp.pmview
+for arg
+do
+    echo -n " \"$arg\"" >>$tmp.pmview
+done
+echo >> $tmp.pmview
+
+# --- parse command line arguments ---
+#
+verbose=false
+argInterfaces=""
+hosts=""
+interfaces=""
+numsource=1
+if [ -z "$PCP_CLUSTER_CONFIG" ]
+then
+    nodesfile=/etc/nodes
+    [ ! -f "$nodesfile" ] && nodesfile=/etc/ace/nodes
+else
+    nodesfile="$PCP_CLUSTER_CONFIG"
+    if [ ! -f "$nodesfile" ]
+    then
+    	echo "Error: \"$nodesfile\" specified in \$PCP_CLUSTER_CONFIG: file not found" 
+	_usage
+	exit 1
+    fi
+fi
+
+livemode=false
+for f in $*
+do
+    [ $f = "-h" ] && livemode=true
+done
+
+_pmview_args "$@"
+$debug && echo "DEBUG msource=\"$msource\""
+
+if [ -n "$otherArgs" ]
+then
+    while getopts "?H:m:v:V" c $otherArgs
+    do
+	case $c
+	in
+	    H)
+		nodesfile=$OPTARG
+		if [ ! -f "$nodesfile" ]
+		then
+		    _pmview_error "$prog: \"$nodesfile\" for -H file not found"
+		    #NOTREACHED
+		fi
+		;;
+	    m)
+		max=$OPTARG
+		if [ "X-$max" != "X`expr 0 + -$max 2>/dev/null`" ]
+		then
+		    _pmview_error "$prog: -m must have a positive integral argument"
+		    #NOTREACHED
+		fi
+		maxreq=`expr $max / 20`
+		;;
+
+	    V)
+		verbose=true
+		;;
+
+	    '?')
+		_usage
+		exit 1
+		;;
+	esac
+    done
+fi
+
+if [ $numsource -eq 0 ]
+then
+    if [ -f $nodesfile ]
+    then
+	livemode=true
+	sourcelist=`sed -e '/^#/d' $nodesfile`
+	numsource=`echo $sourcelist | wc -w`
+    else
+	_pmview_error "$prog: -H, -a or -h must be given"
+    fi
+fi
+
+$debug && echo DEBUG sourcelist=\"$sourcelist\"
+hostcols=`echo "sqrt($numsource)" | bc`
+$debug && echo hostcols=$hostcols
+
+
+# --- set the window title ---
+#
+if [ -z "$titleArg" ]
+then
+    titleArg="SGI PCP : Cluster Node Activity"
+fi
+
+
+# ---- the real config starts here ---
+# pmview Version 2.1
+#
+cat << end-of-file >> $tmp.pmview
+
+_stackLength 26
+_marginWidth 4
+_marginDepth 4
+
+_colorList net_colors (
+        rgbi:0.8/0.0/0.0
+	rgbi:0.0/0.8/0.8 
+        rgbi:1.0/0.5/0.0
+)
+
+_colorList cpu_colors  ( red2 blue2 blue2 )
+
+# main grid
+_grid _show (
+
+end-of-file
+
+hostrow=0
+hostcol=0
+for source in $sourcelist
+do
+    if $livemode
+    then
+        host=$source
+	msource="-h $source"
+    else
+    	host=`pmdumplog -l $source | $PCP_AWK_PROG '/^Performance/ {print $NF}'`
+	msource="-a $source"
+    fi
+
+    nice=`pmprobe $msource -i kernel.all.cpu.nice | $PCP_AWK_PROG '{print $2; exit}'`
+    if [ "$nice" = 1 ]
+    then
+    	nicemetric=kernel.percpu.cpu.nice
+    else
+    	nicemetric=""
+    fi
+
+    _pmview_cache_fetch -v \
+	kernel.percpu.cpu.user $nicemetric \
+	network.interface.in.packets \
+	network.interface.out.packets
+
+    # --- how many CPUs on this system? ---
+    #
+    if _pmview_fetch -I kernel.percpu.cpu.user
+    then
+	ncpu=`wc -l <$tmp.pmview_result`
+    else
+	_pmview_fetch_fail "get the number of CPUs"
+    fi
+
+    _pmview_cache_fetch -I network.interface.total.bytes
+
+    # --- how many network interfaces on this system? ---
+    #
+    if _pmview_fetch -I network.interface.in.packets
+    then
+	nnet=`grep -v '^lo' $tmp.pmview_result | wc -l`
+    else
+	_pmview_fetch_fail "get the number of network interfaces"
+    fi
+
+    rows=`echo "sqrt($ncpu + $ncpu + $nnet + $nnet)" | bc`
+    [ $rows -lt 4 ] && rows=4
+    row=0
+    col=0
+
+    echo "# grid for host $host" >>$tmp.pmview
+    echo "_baseHeight 8" >>$tmp.pmview
+    echo "_grid $hostcol $hostrow _hide (" >>$tmp.pmview
+
+    echo "    _baseColor rgbi:0.4/0.4/0.6" >>$tmp.pmview
+    echo "    _label 0 0 _down _large \"$host\"" >>$tmp.pmview
+    echo "    _grid 1 0 _show (" >>$tmp.pmview
+
+    _pmview_fetch -I kernel.percpu.cpu.user
+    for cpu in `cat $tmp.pmview_result`
+    do
+	echo "      _label $row $col _west \"$cpu\"" >>$tmp.pmview
+	echo "	    _stack `expr $row + 1` $col _hide (" >>$tmp.pmview
+	echo "	        _metrics (" >>$tmp.pmview
+	echo "	            $host:kernel.percpu.cpu.sys[$cpu] $maxcpu" >>$tmp.pmview
+	if [ ! -z "$nicemetric" ]
+	then
+	    echo "		    $host:kernel.percpu.cpu.nice[$cpu] $maxcpu" >>$tmp.pmview
+	fi
+	echo "		    $host:kernel.percpu.cpu.user[$cpu] $maxcpu" >>$tmp.pmview
+	echo "	        )" >>$tmp.pmview
+	echo "	            _colorlist cpu_colors" >>$tmp.pmview
+	echo "	    )" >>$tmp.pmview
+
+	$debug && echo stack at row=`expr $row + 1` col=$col \"$cpu\"
+	$debug && echo label at row=$row col=$col
+
+	col=`expr $col + 1`
+	if [ $col -ge $rows ]
+	then
+	    col=0
+	    row=`expr $row + 2`
+	fi
+    done
+
+    _pmview_fetch -I network.interface.in.packets
+    grep -v '^lo' $tmp.pmview_result >$tmp.net
+    for net in `cat $tmp.net`
+    do
+	echo "      _label $row $col _west \"$net\"" >>$tmp.pmview
+	echo "      _stack `expr $row + 1` $col _hide (" >>$tmp.pmview
+	echo "	        _metrics (" >>$tmp.pmview
+	echo "	            $host:network.interface.total.errors[$net] $max" >>$tmp.pmview
+	echo "	            $host:network.interface.in.packets[$net] $max" >>$tmp.pmview
+	echo "	            $host:network.interface.out.packets[$net] $max" >>$tmp.pmview
+	echo "	        )" >>$tmp.pmview
+	echo "	        _colorlist net_colors" >>$tmp.pmview
+	echo "      )" >>$tmp.pmview
+
+	$debug && echo stack at row=`expr $row + 1` col=$col \"$net\"
+	$debug && echo label at row=$row col=$col
+
+	col=`expr $col + 1`
+	if [ $col -ge $rows ]
+	then
+	    col=0
+	    row=`expr $row + 2`
+	fi
+
+    done
+    echo "    )" >>$tmp.pmview
+    row=`expr $row + 1`
+    echo "# end of host grid" >>$tmp.pmview
+    echo ")" >>$tmp.pmview
+
+    hostcol=`expr $hostcol + 1`
+    if [ $hostcol -ge $hostcols ]
+    then
+    	hostcol=0
+	hostrow=`expr $hostrow + 1`
+    fi
+
+done
+
+echo "" >>$tmp.pmview
+echo "# end of main grid" >>$tmp.pmview
+echo ")" >>$tmp.pmview
+
+$verbose && cat $tmp.pmview
+
+eval $PMVIEW <$tmp.pmview $args -title "'$titleArg'" -xrm "'*iconName: $prog'"
+
+exit
+

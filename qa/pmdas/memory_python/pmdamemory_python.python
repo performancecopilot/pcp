@@ -1,0 +1,93 @@
+#!/usr/bin/env pmpython
+'''
+Python PMDA that checks for memory corruption in the PMDA python support.
+'''
+#
+# Copyright (c) 2014 Red Hat.
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+# 
+
+import sys
+import os
+import time
+import ctypes
+from ctypes import c_int, POINTER, cast
+import cpmapi as c_api
+from pcp.pmda import PMDA, pmdaMetric
+from pcp.pmapi import pmUnits, pmContext as PCP
+
+class MemoryPMDA(PMDA):
+    '''
+    PMDA that checks for memory corruption.
+    DO NOT INSTALL - for QA ONLY.
+    '''
+
+    def memory_fetch(self):
+        # We should be able to clear metrics and recreate metrics
+        # without the PMDA class' internal dictionaries getting
+        # corrupted.
+
+        # Clear the metric, and recreate it.
+        self.clear_metrics()
+        self.add_metric(self.metric_name, self.metric_obj, self.metric_oneline)
+
+        # At this point if all goes well, the PMDA internal
+        # _metric_names dictionary will contain the metric we just
+        # added. If not, memory has become corrupted.
+        if not self.metric_pmid in self._metric_names:
+            self.memory_valid = 0
+            msg = '_metric_names has no matching pmid'
+            self.log(msg)
+            raise KeyError(msg)
+        elif self._metric_names[self.metric_pmid] != self.metric_name:
+            self.memory_valid = 0
+            msg = '_metric_names value is \'%s\', not \'%s\'' \
+                  % (self._metric_names[self.metric_pmid], self.metric_name)
+            self.log(msg)
+            raise KeyError(msg)
+        self.pmns_refresh()
+
+    def memory_fetch_callback(self, cluster, item, inst):
+        if cluster == 0 and item == 0:
+            return [self.memory_valid, 1]
+        return [c_api.PM_ERR_PMID, 0]
+
+    def __init__(self, name, domain):
+        PMDA.__init__(self, name, domain)
+
+        self.memory_valid = 1
+        self.metric_name = name + '.memory_valid'
+        self.metric_pmid = self.pmid(0, 0)
+        self.metric_obj = pmdaMetric(self.metric_pmid, c_api.PM_TYPE_64,
+                                     c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                                     pmUnits(0, 0, 0, 0, 0, 0))
+        self.metric_oneline = "test metric"
+        self.add_metric(self.metric_name, self.metric_obj, self.metric_oneline)
+
+        # Make sure the PMDA's internal dictionary is in a good state.
+        if not self.metric_pmid in self._metric_names:
+            self.memory_valid = 0
+            msg = '_metric_names has no matching pmid'
+            self.log(msg)
+            raise KeyError(msg)
+        elif self._metric_names[self.metric_pmid] != self.metric_name:
+            self.memory_valid = 0
+            msg = '_metric_names value is \'%s\', not \'%s\'' \
+                  % (self._metric_names[self.metric_pmid], self.metric_name)
+            self.log(msg)
+            raise KeyError(msg)
+
+        self.set_fetch(self.memory_fetch)
+        self.set_fetch_callback(self.memory_fetch_callback)
+
+if __name__ == '__main__':
+    MemoryPMDA('memory_python', 255).run()

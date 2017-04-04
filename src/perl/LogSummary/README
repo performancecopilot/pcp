@@ -1,0 +1,32 @@
+PCP-LogSummary version 1.00
+===========================
+
+The PCP::LogSummary module is a wrapper around the PCP pmlogsummary(1)
+command.  Its primary purpose is to automate the production of post-
+processed pmlogsummary data, in particular to automate the step where
+the summarised data is imported into a spreadsheet for further anaylsis.
+This has proven to often be an iterative process - when done manually
+it involves much cutting+pasting and can be a significant time waster.
+
+INSTALLATION
+
+To install this module type the following:
+
+   perl Makefile.PL
+   make
+   make test
+   make install
+
+DEPENDENCIES
+
+This module requires no other Perl modules and libraries, but does
+obviously require a working Performance Co-Pilot installation.
+
+COPYRIGHT AND LICENCE
+
+Copyright (C) 2008 by Aconex
+
+This library is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License, version 2 (see
+the "COPYING" file in the PCP source tree for further details).
+

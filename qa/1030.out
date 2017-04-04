@@ -1,0 +1,67 @@
+QA output created by 1030
+== Checking metric values - el7
+
+network.softnet.cpu_collision
+    value 4
+
+network.softnet.dropped
+    value 2
+
+network.softnet.flow_limit_count
+    value 6
+
+network.softnet.processed
+    value 6647645
+
+network.softnet.received_rps
+    value 5
+
+network.softnet.time_squeeze
+    value 3
+
+== done
+
+== Checking metric values - el6
+
+network.softnet.cpu_collision
+    value 4
+
+network.softnet.dropped
+    value 2
+
+network.softnet.flow_limit_count
+Error: Metric not supported by this version of monitored application
+
+network.softnet.processed
+    value 43552
+
+network.softnet.received_rps
+    value 5
+
+network.softnet.time_squeeze
+    value 3
+
+== done
+
+== Checking metric values - el5
+
+network.softnet.cpu_collision
+    value 4
+
+network.softnet.dropped
+    value 2
+
+network.softnet.flow_limit_count
+Error: Metric not supported by this version of monitored application
+
+network.softnet.processed
+    value 9009
+
+network.softnet.received_rps
+Error: Metric not supported by this version of monitored application
+
+network.softnet.time_squeeze
+    value 3
+
+== done
+

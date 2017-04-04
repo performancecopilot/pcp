@@ -1,0 +1,127 @@
+#! /bin/sh
+# PCP QA Test No. 236
+# exercise pmnsadd and pmnsdel
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=0
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+echo "Error handling ..."
+( cd $PCP_VAR_DIR/pmns; pmnsadd )
+pmnsadd -n $PCP_VAR_DIR/pmns/root
+( cd $PCP_VAR_DIR/pmns; pmnsdel )
+pmnsdel -n $PCP_VAR_DIR/pmns/root
+
+mkdir $tmp.dir
+cd $tmp.dir
+echo >null 'root {
+}'
+echo >n.m1 'one {
+    m1	1:1:1
+}'
+
+echo
+echo "Simple adds ... expect one.m1 in each case"
+for root in root ./root `pwd`/root ../`basename $tmp.dir`/root
+do
+    cp null $root
+    pmnsadd -n $root n.m1
+    pminfo -m -n root
+done
+
+echo >one.root 'root {
+    one
+}
+#include "one"'
+echo >one 'one {
+    m1	1:1:1
+}'
+
+echo
+echo "Simple deletes ... expect empty PMNS in each case"
+for root in root ./root `pwd`/root ../`basename $tmp.dir`/root
+do
+    cp one.root $root
+    pmnsdel -n $root one
+    pminfo -m -n root
+    cat root
+done
+
+echo
+echo "Expect one.m1 and two.m2 ..."
+echo >root 'root {
+    one
+}
+one {
+    m1	1:1:1
+}'
+echo >n.m2 'two {
+    m2	2:2:2
+}'
+pmnsadd -n root n.m2
+pminfo -m -n root
+
+echo
+echo "... add two.three.* ..."
+echo >n.m3 'two.three {
+    m3	3:3:3
+    m4	4:4:4
+}'
+pmnsadd -n root n.m3
+pminfo -m -n root
+
+echo
+echo "... add five.* and five.six.* ..."
+echo >n.m10 'five {
+    m10	10:10:10
+    six
+}
+five.six {
+    m11	11:11:11
+}'
+pmnsadd -n root n.m10
+pminfo -m -n root
+
+echo
+echo "... add two.three.four.* ..."
+echo >n.m5 'two.three.four {
+    m5	5:5:5
+    m6	6:6:6
+    m7	7:7:7
+}'
+pmnsadd -n root n.m5
+pminfo -m -n root
+
+echo
+echo "... delete two.three.four.* ..."
+pmnsdel -n root two.three.four
+pminfo -m -n root
+
+echo
+echo "... delete five.* ..."
+pmnsdel -n root five
+pminfo -m -n root
+
+echo
+echo "... delete two.three.* ..."
+pmnsdel -n root two.three
+pminfo -m -n root
+
+echo
+echo "... delete two.* ..."
+pmnsdel -n root two
+pminfo -m -n root
+
+# all done
+exit

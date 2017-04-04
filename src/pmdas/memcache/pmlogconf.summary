@@ -1,0 +1,16 @@
+#pmlogconf-setup 2.0
+ident	memory cache daemon (memcached.org) statistics
+probe	memcache.uptime exists ? include : exclude
+
+	memcache.uptime
+	memcache.current_items
+	memcache.total_items
+	memcache.bytes
+	memcache.current_connections
+	memcache.total_connections
+	memcache.gets
+	memcache.sets
+	memcache.hits
+	memcache.misses
+	memcache.bytes_read
+	memcache.bytes_written

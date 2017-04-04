@@ -1,0 +1,35 @@
+#!/bin/sh
+#
+# Copyright (c) 1997-2001 Silicon Graphics, Inc.  All Rights Reserved.
+#
+# Make the various "dodgey" logs
+#
+
+. $PCP_DIR/etc/pcp.env
+
+if [ $# -ne 2 ]
+then
+    echo "Usage: make-dodgey type nsample"
+    exit 1
+fi
+
+if [ ! -f config.dodgey-$1 ]
+then
+    echo "make-dodgey: cannot find config file \"config.dodgey-$1\""
+    exit 1
+fi
+
+
+rm -f dodgey-$1.index dodgey-$1.meta dodgey-$1.0
+pmstore sample.dodgey.control 5
+pmlogger -c config.dodgey-$1 -s $2 dodgey-$1 &
+sleep 3; pmstore sample.dodgey.control 3
+sleep 3; pmstore sample.dodgey.control 4
+sleep 3; pmstore sample.dodgey.control 5
+sleep 3; pmstore sample.dodgey.control 0
+sleep 3; pmstore sample.dodgey.control 5
+sleep 3; pmstore sample.dodgey.control -1044
+sleep 3; pmstore sample.dodgey.control 5
+sleep 3
+
+wait

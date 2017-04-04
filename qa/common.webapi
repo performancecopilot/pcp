@@ -1,0 +1,154 @@
+#
+# Common shell routines for testing the REST API daemon
+# Copyright (c) 2014 Red Hat.
+#
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+unset http_proxy
+unset HTTP_PROXY
+
+_check_pmwebd()
+{
+    [ -f ${PCP_BINADM_DIR}/pmwebd ] || _notrun "pmwebd package not installed"
+    $python -c "import requests" >/dev/null 2>&1 || _notrun "$python requests package is not installed"
+}
+
+_check_requests_json()
+{
+    version=`$python --version 2>&1 | sed -e 's/Python //'`
+    case "$version"
+    in
+	2.7.3|2.7.4)
+	    _notrun "requests.json() broken in Python $version"
+	    ;;
+    esac
+}
+
+_webapi_header_filter()
+{
+    tee -a $here/$seq.full \
+    | col -b \
+    | sed \
+	-e 's/^\(Content-Length:\) [0-9][0-9]*/\1 SIZE/g' \
+	-e 's/^\(Date:\).*/\1 DATE/g' \
+	-e 's/\(\"context\":\) [0-9][0-9]*/\1 CTXID/g' \
+	-e '/^Connection: Keep-Alive/d' \
+    | LC_COLLATE=POSIX sort
+}
+
+_webapi_response_filter()
+{
+    tee -a $here/$seq.full \
+    | col -b \
+    | sed -e 's,#[0-9]*,####,g' \
+        -e 's/ connected$//g' \
+        -e '/^\* Adding handle: /d' \
+        -e '/^\* Closing connection ####/d' \
+        -e '/- Conn .*_pipe.*_pipe/d' \
+        -e '/Curl_[\.a-zA-Z0-9]*:/d' \
+        -e 's/::1/LOCALADDR/g' \
+        -e 's/127\.0\.0\.1/LOCALADDR/g' \
+        -e 's/PMWEBD error, .*/PMWEBD error, XXX/g' \
+        -e 's/localhost[\.a-zA-Z0-9]*/LOCALHOST/g' \
+        -e 's/Date:.*/Date: DATE/' \
+	-e 's/\[[0-9][0-9]* bytes data]/[data not shown]/' \
+        -e '/> User-Agent: /d' \
+	-e '/Connection: Keep-Alive/d' \
+    # end
+}
+
+_webapi_json_pretty()
+{
+    $python -c "from json.tool import main; main()" \
+    | sed -e 's/, $/,/g'
+}
+
+_webapi_img_pretty()
+{
+    imgname=$1
+
+    $python -c "
+import sys
+from PIL import Image
+img = Image.open('$imgname')
+print('size=%dx%d\n' % (img.size[0], img.size[1]))
+"
+}
+
+# wait_for_pmwebd port [logfile]
+#
+_wait_for_pmwebd()
+{
+    webport=$1
+
+    if [ -z "$webport" ]
+    then
+	echo "Must specify a web port (system default 44323)"
+	status=1
+	exit
+    fi
+
+    count=0
+    while ! $PCP_BINADM_DIR/telnet-probe -c localhost $webport
+    do
+	count=`expr $count + 1`
+	if [ $count -ge 20 ]
+	then
+	    echo "pmwebd failed to start on port $webport"
+	    echo "likely looking processes ..."
+	    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[P]ID|[p]mwebd'
+	    if [ -n "$2" ]
+	    then
+		if [ -f "$2" ]
+		then
+		    echo "pmwbed logfile ($2) ..."
+		    cat "$2"
+		else
+		    echo "pmwbed logfile ($2) not created"
+		fi
+	    fi
+	    status=1
+	    exit
+	fi
+	pmsleep 0.1
+    done
+}
+
+_wait_for_pmwebd_logfile()
+{
+    logfile="$1"
+    webport="$2"
+
+    if [ -z "$logfile" ]
+    then
+	echo "Must specify log (system default $PCP_LOG_DIR/pmwebd/pmwebd.log)"
+	status=1
+	exit
+    fi
+
+    # let it start up
+    _wait_for_pmwebd $webport
+
+    count=0
+    while [ ! -f "$logfile" ]
+    do
+	count=`expr $count + 1`
+	if [ $count -ge 20 ]
+	then
+	    date
+	    echo "pmwebd failed to start, $logfile not created"
+	    echo "likely looking processes ..."
+	    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[P]ID|[p]mwebd'
+	    status=1
+	    exit
+	fi
+	pmsleep 0.1
+    done
+    date >>$here/$seq.full
+    cat "$logfile" >>$here/$seq.full
+}
+

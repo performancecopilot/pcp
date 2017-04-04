@@ -1,0 +1,7 @@
+#pmlogconf-setup 2.0
+ident	TCP packets (in and out), errors and retransmits [Linux]
+probe	network.tcp.insegs
+	network.tcp.insegs
+	network.tcp.outsegs
+	network.tcp.retranssegs
+	network.tcp.inerrs

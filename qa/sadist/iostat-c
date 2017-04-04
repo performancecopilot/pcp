@@ -1,0 +1,11 @@
+Linux 2.6.32-23-generic (bozo) 	27/07/10 	_i686_	(1 CPU)
+
+avg-cpu:  %user   %nice %system %iowait  %steal   %idle
+           3.30    0.09    0.94    0.53    0.00   95.14
+
+avg-cpu:  %user   %nice %system %iowait  %steal   %idle
+          75.00    0.00   25.00    0.00    0.00    0.00
+
+avg-cpu:  %user   %nice %system %iowait  %steal   %idle
+          85.62    0.00   14.38    0.00    0.00    0.00
+

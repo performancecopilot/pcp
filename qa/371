@@ -1,0 +1,190 @@
+#!/bin/sh
+# PCP QA Test No. 371
+#
+# Parsing and error checking for the mapfile used by sheet2pcp
+#
+# Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+which sheet2pcp >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "sheet2pcp not installed"
+perl -e "use XML::TokeParser" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "perl XML::TokeParser module not installed"
+perl -e "use Spreadsheet::Read" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "perl Spreadsheet::Read module not installed"
+
+_filter()
+{
+    sed \
+	-e "s;$tmp;TMP;"
+}
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+cat <<'End-of-File' >$tmp.simple.csv
+"DATE";"Metric A";"Metric B";"Metric C"
+End-of-File
+
+
+# real QA test starts here
+
+echo "Usage and file existence checks ..."
+sheet2pcp
+sheet2pcp $tmp.simple.csv
+sheet2pcp $tmp.simple.csv $tmp.mapfile
+sheet2pcp $tmp.simple.csv $tmp.mapfile $tmp extra
+
+sheet2pcp $tmp.simple.csv /no/such/file $tmp
+
+echo
+echo "Mapfile syntax errors ..."
+cat <<'End-of-File' >$tmp.mapfile
+<?xml version="1.0" encoding="UTF-8"?>
+<sheet heading="1" blah="123"> <!-- unexpected attr -->
+    <foo><!-- bogus tag -->bar</foo>
+    <metric pmid="60.0.2" indom="60.0" units="0,1,0,0,PM_TIME_MSEC,0"
+	type="PM_TYPE_U64" sem="PM_SEM_COUNTER">
+	kernel.percpu.cpu.sys</metric>
+    <metric pmid="60.0.22" units="0,1,0,0,PM_TIME_MSEC,0" fungus="bogus"
+	type="PM_TYPE_U64" sem="PM_SEM_COUNTER">
+	kernel.all.cpu.sys</metric>
+    <metric pmid="60.0">bad.pmid.one</metric>
+    <metric pmid="6x.0.2">bad.pmid.two</metric>
+    <metric indom="60.0.0">bad.indom.one</metric>
+    <metric indom="60">bad.indom.two</metric>
+    <metric indom="bozo">bad.indom.three</metric>
+    <metric units="0,0,0,0,0">bad.units.one</metric>
+    <metric units="0,0,0,0,0,0,0">bad.units.two</metric>
+    <metric units="BOZO,0,0,PM_SPACE_BOZO,0,0,">bad.units.three</metric>
+    <metric units="1,0,0,PM_SPACE_BOZO,0,0,">bad.units.four</metric>
+    <metric type="PM_TYPE_FOO">bad.type.one</metric>
+    <metric type="">bad.type.two</metric>
+    <metric sem="PM_SEM_FOO">bad.sem.one</metric>
+    <metric sem="PM_SEM_COUNTER"></metric>	<!-- no metric name -->
+    <datetime monkey="true"></datetime>
+    <data hi="ho">badmetricname</data>
+    <data></data>
+    <data>no.foo.metric</data>
+    <data>kernel.percpu.cpu.sys[cpu0]</data>
+    <data>kernel.percpu.cpu.sys[cpu1]</data>
+    <data>kernel.percpu.cpu.sys[cpu3</data>	<!-- missing ] -->
+    <data>kernel.percpu.cpu.sys[cpu4][fluff</data>	<!-- extra stuff -->
+</sheet>
+End-of-File
+sheet2pcp $tmp.simple.csv $tmp.mapfile $tmp 2>&1 \
+| _filter
+
+echo
+cat <<'End-of-File' >$tmp.mapfile
+<?xml version="1.0" encoding="UTF-8"?>
+<sheet>
+    <metric pmid="60.0.32" type="PM_TYPE_U32" sem="PM_SEM_DISCRETE">
+	hinv.ncpu</metric>
+    <data>hinv.ncpu</data>
+    <!--no datetime element-->
+</sheet>
+End-of-File
+sheet2pcp $tmp.simple.csv $tmp.mapfile $tmp 2>&1 \
+| _filter
+
+echo
+cat <<'End-of-File' >$tmp.mapfile
+<?xml version="1.0" encoding="UTF-8"?>
+<sheet>
+    <metric pmid="60.0.32" type="PM_TYPE_U32" sem="PM_SEM_DISCRETE"> hinv.ncpu </metric>
+    <datetime></datetime>
+    <!--no data element-->
+</sheet>
+End-of-File
+sheet2pcp $tmp.simple.csv $tmp.mapfile $tmp 2>&1 \
+| _filter
+
+echo
+cat <<'End-of-File' >$tmp.mapfile
+<?xml version="1.0" encoding="UTF-8"?>
+<sheet datefmt="DD-MM-YYYY">
+    <metric pmid="60.0.32" type="PM_TYPE_U32" sem="PM_SEM_DISCRETE"> hinv.ncpu </metric>
+    <datetime></datetime>
+    <data>
+	hinv.ncpu
+    </data>
+</sheet>
+End-of-File
+sheet2pcp $tmp.simple.csv $tmp.mapfile $tmp 2>&1 \
+| _filter
+
+echo
+echo "Mapfile semantic errors ..."
+cat <<'End-of-File' >$tmp.mapfile
+<?xml version="1.0" encoding="UTF-8"?>
+<sheet>
+    <metric pmid="60.0.32" type="PM_TYPE_U32" sem="PM_SEM_DISCRETE"> hinv.ncpu </metric>
+    <metric>hinv.ncpu</metric> <!-- dup name -->
+    <metric indom="PMI_DOMAIN.1">foo</metric>
+    <data> hinv.ncpu </data>
+    <data>foo[one instance]</data>
+    <data>foo[one other instance]</data>	<!-- fails unique to space rule -->
+    <datetime></datetime>
+</sheet>
+End-of-File
+sheet2pcp $tmp.simple.csv $tmp.mapfile $tmp 2>&1 \
+| _filter
+
+echo
+cat <<'End-of-File' >$tmp.mapfile
+<?xml version="1.0" encoding="UTF-8"?>
+<sheet>
+    <metric pmid="60.0.32" type="PM_TYPE_U32" sem="PM_SEM_DISCRETE">
+	hinv.ncpu
+    </metric>
+    <metric pmid="60.0.32">kernel.percpu.cpu.someother</metric> <!-- dup pmid -->
+    <datetime></datetime>
+    <data> hinv.ncpu </data>
+</sheet>
+End-of-File
+sheet2pcp $tmp.simple.csv $tmp.mapfile $tmp 2>&1 \
+| _filter
+
+
+echo
+echo "Should be OK ..."
+cat <<'End-of-File' >$tmp.mapfile
+<?xml version="1.0" encoding="UTF-8"?>
+<!--For PCP QA 371-->
+<sheet heading="1">
+    <metric pmid="60.0.2" indom="60.0" units="0,1,0,0,PM_TIME_MSEC,0"
+	type="PM_TYPE_U64" sem="PM_SEM_COUNTER">
+	kernel.percpu.cpu.sys</metric>
+    <metric pmid="60.0.32" type="PM_TYPE_U32" sem="PM_SEM_DISCRETE">
+	hinv.ncpu</metric>
+    <metric pmid="PM_ID_NULL">good.pmid.one</metric>
+    <metric pmid="PMI_DOMAIN.0.63">good.pmid.two</metric>
+    <metric indom="PM_INDOM_NULL">good.indom.one</metric>
+    <metric indom="PMI_DOMAIN.27">good.indom.two</metric>
+    <datetime></datetime>
+    <data>hinv.ncpu</data>
+    <data>kernel.percpu.cpu.sys[cpu0]</data>
+    <data>kernel.percpu.cpu.sys[cpu1]</data>
+    <!--pmiDump-->
+</sheet>
+End-of-File
+sheet2pcp $tmp.simple.csv $tmp.mapfile $tmp 2>&1 \
+| _filter
+
+# don't expect an output archive as there are no rows of data
+# in the spreadsheet
+#
+[ -f $tmp.0 -o -f $tmp.index -o -f $tmp.meta ] && pmdumplog -az $tmp
+
+# success, all done
+exit

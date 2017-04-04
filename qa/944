@@ -1,0 +1,229 @@
+#!/bin/sh
+# PCP QA Test No. 944
+# Exercise user/group access control lists in pmcd.
+#
+# Have to take extra care with filtering in this test,
+# as user ID and group ID may well be equal for a given
+# user (user name and group name might well be too).
+# As a result, testing is performed separately to avoid
+# incorrectly filtering one as the other.
+#
+# Copyright (c) 2013 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.secure
+
+_get_libpcp_config
+$unix_domain_sockets || _notrun "No unix domain socket support available"
+id -u nobody >/dev/null 2>&1 || _notrun "User nobody unavailable"
+id -g nobody >/dev/null 2>&1 || _notrun "Group nobody unavailable"
+
+rm -f $seq.out
+eval `pmconfig -L -s secure_sockets`
+if $secure_sockets
+then
+    # secure_sockets is true, which means HAVE_SECURE_SOCKETS is defined,
+    # which means enable_secure from configure is true, which means
+    # ENABLE_SECURE is true in the build, which means we built libpcp
+    # with secureserver.c
+    #
+    ln $seq.out.1 $seq.out || exit 1
+else
+    # otherwise we built libpcp with auxserver.c
+    #
+    ln $seq.out.2 $seq.out || exit 1
+fi
+
+nobodyuid=`id -u nobody`
+nobodygid=`id -g nobody`
+
+signal=$PCP_BINADM_DIR/pmsignal
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_start_local_pmcd()
+{
+    pmcd -Dauth -f -x $seq.full -l $tmp.log &
+    pid=$!
+    sleep 2
+    pmcd_wait -h unix:$PMCD_SOCKET -v -t 5sec
+}
+
+_stop_local_pmcd()
+{
+    if [ -n "$pid" ]
+    then
+	echo "Terminating local pmcd process"
+	$signal -s TERM $pid
+	wait
+	pid=""
+    fi
+}
+
+_cleanup()
+{
+    _stop_local_pmcd
+    cd $here; rm -rf $tmp.*
+}
+
+# remove -Dauth diags
+_filter_auth()
+{
+    sed \
+	-e '/^__pmAccAddAccount: /d' \
+	-e '/^DoCreds: /d' \
+	-e '/^CheckAccountAccess: /d' \
+	-e '/:__pmSecureServerHandshake:/d' \
+	-e 's/Operation not supported on socket/Operation not supported/' \
+    # end
+}
+
+_filter_user()
+{
+    _filter_common \
+    | sed \
+        -e "s: *$userid $username *: USERID USERNAME :g" \
+        -e "s: *$groupid($groupname).*$: GROUPID(GROUPNAME),...:g" \
+    ; echo
+}
+
+_filter_group()
+{
+    _filter_common \
+    | sed \
+        -e "s: *$groupid $groupname *: GROUPID GROUPNAME :g" \
+        -e "s: *[^ ]*,$userid($username).*$: USERID(USERNAME),...:g" \
+        -e "s: *$userid($username).*$: USERID(USERNAME),...:g" \
+    ; echo
+}
+
+_filter_common()
+{
+    _filter_pmcd_log \
+    | _filter_auth \
+    | sed \
+	-e '/HandleClientInput: error sending Error PDU/d' \
+	-e '/FD .* ipv6 INADDR_ANY/d' \
+	-e '/^__pmAccAddAccount: /d' \
+        -e "s:$tmp:TMP:g" \
+        -e "s:-U $username:-U USERNAME:g" \
+        -e "s:$PCP_PMDAS_DIR:PCP_PMDAS_DIR:g" \
+        -e "s:$nobodyuid nobody:NOBODYID nobody:g" \
+        -e "s:$nobodygid nobody:NOBODYID nobody:g" \
+        -e "s:$nobodyuid(nobody).*$:NOBODYID(nobody):g" \
+        -e "s:$nobodygid(nobody).*$:NOBODYID(nobody):g" \
+        -e "s: $PMCD_PORT : port :g" \
+    | $PCP_AWK_PROG '\
+	/^sample / { $2 = "   DOMAIN"; $3 = "  PID"; \
+		     $4 = " IN"; $5 = "OUT"; $6 = "VER"; \
+		   } { print }'
+}
+
+# real QA test starts here
+export PCP_PMCDCONF_PATH=$tmp.conf
+export PMCD_PORT=9876
+export PMCD_SOCKET=$tmp.pmcd.socket
+
+# user test cases
+cat <<End-of-File >$tmp.conf
+sample 29  pipe binary  $PCP_PMDAS_DIR/sample/pmdasample -d 29 -U $username
+[access]
+allow user $username : fetch;
+disallow user $username : store;
+End-of-File
+cat $tmp.conf >>$seq.full
+_start_local_pmcd
+echo "--- pmcd.log ---" >>$seq.full
+cat $tmp.log >>$seq.full
+_filter_user <$tmp.log
+
+echo "Testing QA user allowed fetch access (explicit)" | tee -a $seq.full
+pmprobe -Dauth -v -h unix:$PMCD_SOCKET sample.control 2>&1 \
+| tee -a $seq.full \
+| _filter_auth
+
+# if we have secure sockets, the next test produces a Username:/Password:
+# prompt from __pmGetAttrConsole() via a SASL callback ... this is no
+# value in a QA test, so skip it
+#
+if $secure_sockets
+then
+    :
+else
+    echo "Testing QA user allowed fetch access (explicit) ... but fails with non-unix domain socket connection" | tee -a $seq.full
+    pmprobe -Dauth -v -h `hostname` sample.control 2>&1 \
+    | tee -a $seq.full \
+    | sed -e "s/`hostname`/HOSTNAME/" \
+    | _filter_auth
+fi
+
+echo "Testing QA user disallowed store access (explicit)" | tee -a $seq.full
+# expected to produce two lines of output - an initial fetch is done
+# (which is allowed), pmstore reports what it would do, then fails.
+pmstore -Dauth -f -h unix:$PMCD_SOCKET sample.write_me 1 2>&1 \
+| tee -a $seq.full \
+| _filter_auth
+
+echo "Testing nobody user disallowed fetch access (implicit)"
+$sudo -u nobody pminfo -Dauth -f -h unix:$PMCD_SOCKET sample.control 2>&1 \
+| tee -a $seq.full \
+| _filter_auth
+
+_stop_local_pmcd
+echo "--- pmcd.log ---" >>$seq.full
+cat $tmp.log >>$seq.full
+_filter_user <$tmp.log
+
+# group test cases
+cat <<End-of-File >$tmp.conf
+sample 29  pipe binary  $PCP_PMDAS_DIR/sample/pmdasample -d 29 -U $username
+[access]
+allow group $groupname : fetch;
+disallow group $groupname : store;
+End-of-File
+_start_local_pmcd
+_filter_group <$tmp.log
+
+echo "Testing QA group allowed fetch access (explicit)"
+pmprobe -Dauth -v -h unix:$PMCD_SOCKET sample.control 2>&1 \
+| tee -a $seq.full \
+| _filter_auth
+
+# See comment above in the user case.
+#
+if $secure_sockets
+then
+    :
+else
+    echo "Testing QA group allowed fetch access (explicit) ... but fails with non-unix domain socket connection" | tee -a $seq.full
+    pmprobe -Dauth -v -h `hostname` sample.control 2>&1 \
+    | tee -a $seq.full \
+    | sed -e "s/`hostname`/HOSTNAME/" \
+    | _filter_auth
+fi
+
+echo "Testing QA group disallowed store access (explicit)"
+# expected to produce two lines of output - an initial fetch is done
+# (which is allowed), pmstore reports what it would do, then fails.
+pmstore -Dauth -f -h unix:$PMCD_SOCKET sample.write_me 1 2>&1 \
+| tee -a $seq.full \
+| _filter_auth
+
+echo "Testing nobody group disallowed fetch access (implicit)"
+$sudo -u nobody pminfo -Dauth -f -h unix:$PMCD_SOCKET sample.control 2>&1 \
+| tee -a $seq.full \
+| _filter_auth
+
+_stop_local_pmcd
+echo "--- pmcd.log ---" >>$seq.full
+cat $tmp.log >>$seq.full
+_filter_group <$tmp.log
+
+# success, all done
+status=0
+
+exit

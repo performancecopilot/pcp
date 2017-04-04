@@ -1,0 +1,35 @@
+-  opt to write cols per row with stdout output [-k]
+-  -Q/-B/-Y to override per-metric settings unit/scale
+-  shorten unit display count/s -> c/s if needed
+-  opt to output in short format (see pmdumptext -F / pmNumberStr) [-m/-M]
+-  opt to support pmdumptext -X like output (or shorten inst names if needed)
+-  support rate display also for non-cumulative counters
+-  support displaying raw/rate as per given unit
+-  (re)add runtime directive to config file
+-  add JSON output support
+-  add XML output support (like sadf)
+-  add XLS output support (like sar2xls)
+-  possibly add more command line switch sanity checking
+-  modularize code to allow creating custom output plugins
+-    (e.g. pcp2graphite type socket, top-like output, separate pcp2zabbix)
+-  per-metric precision (?)
+-  copy metric set spec support (?)
+-  includedir config file support (?)
+-  generalised daemon startup support (?)
+-  multi-sheet support for xlsx output (?)
+-  consider using the csv module for csv output (?)
+-  add option to prevent truncating string output (?)
+-  generalized zabbix_interval (limit writes to archive) (?)
+-  support for multiple output targets (e.g. archive+stdout) (?)
+-  optionally ignore incompatible/unsupported metrics rather than abort [-I] (?)
+
+-----
+
+In use / reserved cmd line options:
+AaBbCcDdEeFfGHhiKLlOoPpQqrSsTtUuVwXxYyZz
+
+Tentatively planned:
+IkMmR
+
+Available:
+gJjNnXvW

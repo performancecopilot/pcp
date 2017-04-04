@@ -1,0 +1,2 @@
+#!/bin/sh
+exec PCP_BIN_DIR/pmquery -print "$@"

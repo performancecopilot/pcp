@@ -1,0 +1,32 @@
+#!/bin/sh
+#
+# remake the sample_expr archive ... that is intended to be checked in
+# and not remade, this script is simply a record of it was created.
+#
+# sample_expr is used in the evaluation of derived metrics to confirm
+# the values are deterministic with known input values
+#
+
+tmp=/var/tmp/$$
+rm -f $tmp.*
+trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+
+. $PCP_DIR/etc/pcp.env
+
+cat <<End-of-File >>$tmp.config
+log mandatory on default {
+    sample.mirage
+    sample.mirage_longlong
+    sample.byte_rate
+    sample.byte_rate_perhour
+    sample.byte_ctr
+    sample.kbyte_ctr
+    sample.scale_step
+}
+End-of-File
+
+rm -f sample_expr.* pmlogger.log
+
+pmlogger -t 0.5sec -c $tmp.config -s 10 sample_expr
+
+cat pmlogger.log

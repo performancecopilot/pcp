@@ -1,0 +1,42 @@
+QA output created by 813
+=== Daemon PMDA papi test ===
+dbpmda> open pipe PCP_PMDAS_DIR/papi/pmdapapi -d 126 -l TMP.log
+Start pmdapapi PMDA: PCP_PMDAS_DIR/papi/pmdapapi -d 126 -l TMP.log
+dbpmda> getdesc on
+dbpmda> attr "username" "root"
+Attribute: username=root
+Success
+dbpmda> attr 11 "0"
+Attribute: userid=0
+Success
+dbpmda> desc papi.system.TOT_INS
+PMID: 126.0.NUMBER
+    Data Type: 64-bit int  InDom: PM_INDOM_NULL ADDR
+    Semantics: counter  Units: count
+dbpmda> desc papi.control.status
+PMID: 126.1.3
+    Data Type: string  InDom: PM_INDOM_NULL ADDR
+    Semantics: instant  Units: none
+dbpmda> desc papi.available.num_counters
+PMID: 126.2.0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL ADDR
+    Semantics: discrete  Units: count
+dbpmda> store papi.control.enable "TOT_INS"
+PMID: 126.1.0
+Getting description...
+Sending Profile...
+Getting Result Structure...
+126.1.0: "" -> "TOT_INS"
+Sending Result...
+dbpmda> fetch papi.system.TOT_INS
+PMID(s): 126.0.NUMBER
+pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
+  126.0.NUMBER (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value NUMBER
+dbpmda> store papi.control.disable "TOT_INS"
+PMID: 126.1.2
+Getting description...
+Getting Result Structure...
+126.1.2: "" -> "TOT_INS"
+Sending Result...
+dbpmda> 

@@ -1,0 +1,41 @@
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+. ./common.config
+
+export PCP_STDERR=""
+
+host=`hostname`
+
+_check_display
+
+# hackery for dbus-based environments
+#
+unset DBUS_SESSION_BUS_PID DBUS_SESSION_BUS_ADDRESS
+if which dbus-daemon >/dev/null 2>&1
+then
+    # recipe based on
+    # https://github.com/flatpak/flatpak/commit/6cc8062cfb3f9410d54a27e7ccca77c103e441e8
+    # to address https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=836285
+    # 
+    dbus-daemon --fork --session --print-address=3 --print-pid=4 3>$tmp.dbus.address 4>$tmp.dbus.pid
+    export DBUS_SESSION_BUS_ADDRESS="`cat $tmp.dbus.address`"
+    DBUS_SESSION_BUS_PID="`cat $tmp.dbus.pid`"
+    if kill -0 "$DBUS_SESSION_BUS_PID" >/dev/null 2>&1
+    then
+	:
+    else
+	echo "common.qt: Failed to start dbus-daemon"
+    fi
+fi
+
+# general trap handler cleanup routine for qt checkers
+_cleanup_qt()
+{
+    # if we started a dbus-daemon above, we should clean it up
+    [ -z "$DBUS_SESSION_BUS_PID" ] || kill $DBUS_SESSION_BUS_PID
+    unset DBUS_SESSION_BUS_PID DBUS_SESSION_BUS_ADDRESS
+    $sudo rm -rf $tmp.*
+}

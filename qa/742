@@ -1,0 +1,33 @@
+#!/bin/sh
+# PCP QA Test No. 742
+# Exercise the pcp-uptime(1) command using an archive
+#
+# Copyright (c) 2014 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.python
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+pcp_uptime="$PCP_BINADM_DIR/pcp-uptime"
+test -x $pcp_uptime || _notrun "No pcp-uptime(1) installed"
+pcp_uptime="$python $pcp_uptime"
+
+# real QA test starts here
+echo && echo uptime output, at archive start
+PCP_ARCHIVE="archives/pcp-uptime" PCP_HOSTZONE=1 $pcp_uptime
+
+echo && echo uptime output, at archive end
+pcp -a $here/archives/pcp-uptime -z -O-0 uptime
+
+echo && echo uptime output, at archive start, forw-fetch needed
+PCP_ARCHIVE="archives/pcp-uptime2" PCP_HOSTZONE=1 $pcp_uptime
+
+# success, all done
+status=0
+exit

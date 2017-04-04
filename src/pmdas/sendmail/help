@@ -1,0 +1,69 @@
+#
+# Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+# 
+# sendmail PMDA help file in the ASCII format
+#
+# lines beginning with a # are ignored
+# lines beginning @ introduce a new entry of the form
+#  @ metric_name oneline-text
+#  help text goes
+#  here over multiple lines
+#  ...
+#
+# the metric_name is decoded against the default PMNS -- as a special case,
+# a name of the form NNN.MM (for numeric NNN and MM) is interpreted as an
+# instance domain identification, and the text describes the instance domain
+#
+# blank lines before the @ line are ignored
+#
+
+@ SENDMAIL.0 Instance domain "mailer" for sendmail PMDA
+The mailers 0 (prog), 1 (*file*), and 2 (*include*) are fixed.  Other
+mailers are defined by the order of any additional "M" records in the
+sendmail.cf file.
+
+@ sendmail.start_date Date on which sendmail stats file was created
+The date in ctime(2) format on which the sendmail statistics file was
+first created.  All statistics are cumulative from that time.
+
+The sendmail statistics file is /var/sendmailst by default, but may be
+redefined by an "OS" or "O StatusFile" record in the sendmail.cf file.
+
+@ sendmail.permailer.msgs_from Messages received from each mailer
+Count of messages received from each "mailer" defined in sendmail's
+configuration file (/etc/sendmail.cf).
+
+@ sendmail.permailer.bytes_from Kbytes received from each mailer
+Count of Kbytes summed over all messages received from each "mailer"
+defined in sendmail's configuration file (/etc/sendmail.cf).
+
+@ sendmail.permailer.msgs_to Messages sent to each mailer
+Count of messages sent to each "mailer" defined in sendmail's
+configuration file (/etc/sendmail.cf).
+
+@ sendmail.permailer.bytes_to Kbytes sent to each mailer
+Count of Kbytes summed over all messages sent to each "mailer" defined
+in sendmail's configuration file (/etc/sendmail.cf).
+
+@ sendmail.total.msgs_from Messages received from all mailers
+Count of messages received by sendmail.
+
+@ sendmail.total.bytes_from Kbytes received from all mailers
+Count of Kbytes summed over all messages received by sendmail.
+
+@ sendmail.total.msgs_to Messages sent to all mailers
+Count of messages sent by sendmail.
+
+@ sendmail.total.bytes_to Kbytes sent to all mailers
+Count of Kbytes summed over all messages sent by sendmail.
+

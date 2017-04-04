@@ -1,0 +1,71 @@
+#!/bin/sh
+# PCP QA Test No. 921
+# exercise -M and -xx options for pmdumplog, along with new log
+# fetching logic
+#
+# Copyright (c) 2015 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+# typical lines ...
+# 00:59:49.930  60.2.3 (kernel.all.nprocs): value 939
+#               60.0.32 (hinv.ncpu): value 4
+#
+_filter()
+{
+    $PCP_AWK_PROG '
+BEGIN	{ stamp = nprocs = ncpu = nagents = mark = 0 }
+NF==0						{ next }
+/^[0-2][0-9]:/					{ stamp++ }
+/\(kernel.all.nprocs\).* value [0-9][0-9]*$/	{ nprocs++; next }
+/\(hinv.ncpu\).* value [0-9][0-9]*$/		{ ncpu++; next }
+/\(pmcd.numagents\).* value [0-9][0-9]*$/	{ nagents++; next }
+/\<mark\>/					{ mark++; next }
+    { print }
+END	{ print nprocs,"values for kernel.all.nprocs"
+	  print ncpu,"values for hinv.ncpu"
+	  print nagents,"values for pmcd.numagents"
+	  print mark,"<mark> records"
+	  print stamp,"timestamps"
+	}'
+}
+
+# real QA test starts here
+echo "+++ no args"
+pmdumplog archives/bug-1044 | _filter
+
+echo
+echo "+++ -M"
+pmdumplog archives/bug-1044 -M | _filter
+
+echo
+echo "+++ pmcd.numagents"
+pmdumplog archives/bug-1044 pmcd.numagents | _filter
+
+echo
+echo "+++ -M pmcd.numagents"
+pmdumplog archives/bug-1044 -M pmcd.numagents | _filter
+
+echo
+echo "+++ -Mxz pmcd.numagents"
+pmdumplog archives/bug-1044 -Mxz pmcd.numagents
+
+echo
+echo "+++ -Mxxz pmcd.numagents"
+pmdumplog archives/bug-1044 -Mxxz pmcd.numagents
+
+# success, all done
+status=0
+
+exit

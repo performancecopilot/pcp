@@ -1,0 +1,135 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMIE2COL 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmie2col\f1 \- convert pmie output to multi-column format
+.SH SYNOPSIS
+\f3pmie2col\f1
+[\f3\-d\f1 \f2delimiter\f1]
+[\f3\-p\f1 \f2precision\f1]
+[\f3\-w\f1 \f2width\f1]
+.de EX
+.in +0.5i
+.ie t .ft CB
+.el .ft B
+.ie t .sp .5v
+.el .sp
+.ta \\w' 'u*8
+.nf
+..
+.de EE
+.fi
+.ie t .sp .5v
+.el .sp
+.ft R
+.in
+..
+.SH DESCRIPTION
+.B pmie2col
+is a simple tool that converts output from
+.BR pmie (1)
+into regular column format.  Each column is 7 characters wide
+(by default, may be changed with the
+.B \-w
+option) with a single space between columns.
+That single space can be substituted with an alternate
+delimiter using the
+.B \-d
+option (this is useful for importing the data into a spreadsheet,
+for example).
+.PP
+The precision of the tabulated values from
+.B pmie
+can be specified with the
+.B \-p
+option (default is 2 decimal places).
+This option can and will override any width setting in order to
+present the requested precision.
+.PP
+The
+.BR pmie (1)
+configuration must follow these rules:
+.IP (1)
+Each
+.BR pmie (1)
+expression is of the form ``NAME = expr;''.
+NAME will be used as the column heading, and must contain no white space,
+although special characters can be escaped by enclosing NAME in single
+quotes.
+.IP (2)
+The ``expr'' must be a valid
+.BR pmie (1)
+expression that produces a singular value.
+.PP
+In addition,
+.BR pmie (1)
+must be run with the
+.B \-v
+command line option.
+.PP
+It is also possible to use the
+.B \-e
+command line to
+.BR pmie (1)
+and output lines will be prefixed by a timestamp.
+.SH EXAMPLE
+.PP
+Given this
+.BR pmie (1)
+configuration file
+.IR (config) :
+.EX
+loadav = kernel.all.load #'1 minute';
+\&'%usr' = kernel.all.cpu.user;
+\&'%sys' = kernel.all.cpu.sys;
+\&'%wio' = kernel.all.cpu.wait.total;
+\&'%idle' = kernel.all.cpu.idle;
+\&'max-iops' = max_inst(disk.dev.total);
+.EE
+Then this command pipeline:
+.EX
+$ pmie \-v \-t 5 <config | pmie2col \-w 8
+.EE
+Produces output like this:
+.EX
+   loadav     %usr     %sys     %wio    %idle max-iops
+     0.21        ?        ?        ?        ?        ?
+     0.36     0.49     0.03     0.18     0.29    25.40
+     0.49     0.41     0.10     0.36     0.13    51.00
+     0.69     0.49     0.10     0.05     0.37    43.20
+     0.71     0.39     0.08     0.04     0.49    14.00
+     0.83     0.63     0.15     0.00     0.21    32.30
+     1.09     0.60     0.02     0.10     0.27    47.00
+     0.92     0.01     0.00     0.00     0.99     2.40
+.EE
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.I /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (5).
+.SH SEE ALSO
+.BR PCPIntro (1)
+and
+.BR pmie (1).

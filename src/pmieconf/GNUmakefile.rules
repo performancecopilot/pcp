@@ -1,0 +1,50 @@
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+
+TOPDIR = ../../..
+include $(TOPDIR)/src/include/builddefs
+
+# localdefs needs to set ALL_RULES (all the rules files to be included
+# in the builds and tar balls) and set LOCAL_RULES (the subset of the
+# rules that will work on the TARGET_OS platform)
+#
+include localdefs
+
+WORKDIR	:= $(shell pwd)
+GROUP	:= $(shell basename $(WORKDIR))
+RULESDIR	= $(PCP_VAR_DIR)/config/pmieconf
+
+LDIRT	= GNUmakefile
+
+CONFIGS	= $(subst "./","",$(LOCAL_RULES))
+
+default_pcp: $(LOCAL_RULES)
+
+install_pcp: install
+
+install: default_pcp
+	$(INSTALL) -d $(RULESDIR)/$(GROUP)
+	@for f in $(CONFIGS); do \
+	    $(INSTALL) -m 644 $$f $(RULESDIR)/$(GROUP)/$$f; \
+	done
+
+local:
+	@test ! -d ../rules/$(GROUP) && mkdir -p ../rules/$(GROUP); exit 0
+	@rm -f ../rules/$(GROUP)/*
+	@for f in IGNORE_DUMMY_RULE $(LOCAL_RULES); do \
+	    [ $$f = IGNORE_DUMMY_RULE ] && continue; \
+	    cp ../$(GROUP)/$$f ../rules/$(GROUP)/$$f; \
+	done
+
+pmlogconf:
+	@if [ -n "$(CONFIGS)" ]; then sh ../xtractnames $(CONFIGS); fi
+
+include $(BUILDRULES)

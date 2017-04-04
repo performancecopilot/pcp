@@ -1,0 +1,46 @@
+#! /bin/sh
+# PCP QA Test No. 329
+# Interp mode (similar to qa/090, but with purify) (see also 388)
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_filter()
+{
+    $PCP_AWK_PROG '
+BEGIN			{ skip = 1 }
+/ Purify /		{ skip = 0 }
+/^FIU/			{ skip = 2; next }
+/^[^ 	]/ && skip == 2	{ skip = 0 }
+skip == 0		{ print }'
+}
+
+_check_purify src/interp0
+
+status=1	# failure is the default!
+trap "cd $here; rm -rf $tmp; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+_setup_purify src/interp0
+
+for delta in 1 4 5 8 10
+do
+    samples=`expr 80 / $delta`
+    [ $samples -gt 50 ] && samples=50
+    echo
+    echo "interpolate $samples, $delta seconds appart"
+    _run_purify -a $here/tmparch/interp -t 1 -s 50 \
+    | _filter
+done
+
+# all done
+status=0
+exit

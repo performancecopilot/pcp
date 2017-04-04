@@ -1,0 +1,123 @@
+#!/bin/sh
+# PCP QA Test No. 752
+# Test supported datetime strings
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+date '+%Y' -d today >/dev/null || _notrun "date(1) does not support +fmt -d ... args"
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+export TZ=UTC
+echo "now: $(date '+%Y-%m-%d')" >>$seq.full
+echo "yesterday: $(date '+%Y-%m-%d' -d 'yesterday')" >>$seq.full
+echo "tomorrow: $(date '+%Y-%m-%d' -d 'tomorrow')" >>$seq.full
+echo "sunday: $(date '+%Y-%m-%d' -d 'sunday')" >>$seq.full
+echo "first sunday: $(date '+%Y-%m-%d' -d 'first sunday')" >>$seq.full
+echo "this sunday: $(date '+%Y-%m-%d' -d 'this sunday')" >>$seq.full
+echo "last sunday: $(date '+%Y-%m-%d' -d 'last sunday')" >>$seq.full
+echo "monday: $(date '+%Y-%m-%d' -d 'monday')" >>$seq.full
+echo "first monday: $(date '+%Y-%m-%d' -d 'first monday')" >>$seq.full
+echo "this monday: $(date '+%Y-%m-%d' -d 'this monday')" >>$seq.full
+echo "last monday: $(date '+%Y-%m-%d' -d 'last monday')" >>$seq.full
+echo "tuesday: $(date '+%Y-%m-%d' -d 'tuesday')" >>$seq.full
+echo "first tuesday: $(date '+%Y-%m-%d' -d 'first tuesday')" >>$seq.full
+echo "this tuesday: $(date '+%Y-%m-%d' -d 'this tuesday')" >>$seq.full
+echo "last tuesday: $(date '+%Y-%m-%d' -d 'last tuesday')" >>$seq.full
+echo "wednesday: $(date '+%Y-%m-%d' -d 'wednesday')" >>$seq.full
+echo "first wednesday: $(date '+%Y-%m-%d' -d 'first wednesday')" >>$seq.full
+echo "this wednesday: $(date '+%Y-%m-%d' -d 'this wednesday')" >>$seq.full
+echo "last wednesday: $(date '+%Y-%m-%d' -d 'last wednesday')" >>$seq.full
+echo "thursday: $(date '+%Y-%m-%d' -d 'thursday')" >>$seq.full
+echo "first thursday: $(date '+%Y-%m-%d' -d 'first thursday')" >>$seq.full
+echo "this thursday: $(date '+%Y-%m-%d' -d 'this thursday')" >>$seq.full
+echo "last thursday: $(date '+%Y-%m-%d' -d 'last thursday')" >>$seq.full
+echo "friday: $(date '+%Y-%m-%d' -d 'friday')" >>$seq.full
+echo "first friday: $(date '+%Y-%m-%d' -d 'first friday')" >>$seq.full
+echo "this friday: $(date '+%Y-%m-%d' -d 'this friday')" >>$seq.full
+echo "last friday: $(date '+%Y-%m-%d' -d 'last friday')" >>$seq.full
+echo "saturday: $(date '+%Y-%m-%d' -d 'saturday')" >>$seq.full
+echo "first saturday: $(date '+%Y-%m-%d' -d 'first saturday')" >>$seq.full
+echo "this saturday: $(date '+%Y-%m-%d' -d 'this saturday')" >>$seq.full
+echo "last saturday: $(date '+%Y-%m-%d' -d 'last saturday')" >>$seq.full
+
+# just as our libpcp code is based on getdate code that has changed
+# over time, date(1) also may have different semantics ... try to
+# suss out if we have an older, dodgey date(1)
+#
+dodgey_date=false
+TODAY=`date -d today '+%A' | tr '[a-z]' '[A-Z]'`
+echo "TODAY=$TODAY" >>$seq.full
+today=`echo "$TODAY" | tr '[A-Z]' '[a-z]'`
+echo "today=$today" >>$seq.full
+t1=`date -d "next $today"`
+echo "t1=$t1" >>$seq.full
+t2=`date -d "$today week"`
+echo "t2=$t2" >>$seq.full
+[ "$t1" != "$t2" ] && dodgey_date=true
+echo "dodgey_date=$dodgey_date" >>$seq.full
+
+# Be careful, sunday, first sunday, and today could all be
+# the same date.
+# Ditto for all the other days of the week.
+#
+src/rtimetest \
+| tee -a $seq.full \
+| sed \
+    -e '/first /{
+/sunday/s/'$(date '+%Y-%m-%d' -d 'first sunday')' ..:..:../first SUNDAY/
+/monday/s/'$(date '+%Y-%m-%d' -d 'first monday')' ..:..:../first MONDAY/
+/tuesday/s/'$(date '+%Y-%m-%d' -d 'first tuesday')' ..:..:../first TUESDAY/
+/wednesday/s/'$(date '+%Y-%m-%d' -d 'first wednesday')' ..:..:../first WEDNESDAY/
+/thursday/s/'$(date '+%Y-%m-%d' -d 'first thursday')' ..:..:../first THURSDAY/
+/friday/s/'$(date '+%Y-%m-%d' -d 'first friday')' ..:..:../first FRIDAY/
+/saturday/s/'$(date '+%Y-%m-%d' -d 'first saturday')' ..:..:../first SATURDAY/
+}' \
+    -e '/this /{
+/sunday/s/'$(date '+%Y-%m-%d' -d 'this sunday')' ..:..:../this SUNDAY/
+/monday/s/'$(date '+%Y-%m-%d' -d 'this monday')' ..:..:../this MONDAY/
+/tuesday/s/'$(date '+%Y-%m-%d' -d 'this tuesday')' ..:..:../this TUESDAY/
+/wednesday/s/'$(date '+%Y-%m-%d' -d 'this wednesday')' ..:..:../this WEDNESDAY/
+/thursday/s/'$(date '+%Y-%m-%d' -d 'this thursday')' ..:..:../this THURSDAY/
+/friday/s/'$(date '+%Y-%m-%d' -d 'this friday')' ..:..:../this FRIDAY/
+/saturday/s/'$(date '+%Y-%m-%d' -d 'this saturday')' ..:..:../this SATURDAY/
+}' \
+    -e '/last /{
+/sunday/s/'$(date '+%Y-%m-%d' -d 'last sunday')' ..:..:../last SUNDAY/
+/monday/s/'$(date '+%Y-%m-%d' -d 'last monday')' ..:..:../last MONDAY/
+/tuesday/s/'$(date '+%Y-%m-%d' -d 'last tuesday')' ..:..:../last TUESDAY/
+/wednesday/s/'$(date '+%Y-%m-%d' -d 'last wednesday')' ..:..:../last WEDNESDAY/
+/thursday/s/'$(date '+%Y-%m-%d' -d 'last thursday')' ..:..:../last THURSDAY/
+/friday/s/'$(date '+%Y-%m-%d' -d 'last friday')' ..:..:../last FRIDAY/
+/saturday/s/'$(date '+%Y-%m-%d' -d 'last saturday')' ..:..:../last SATURDAY/
+}' \
+    -e "/\"sunday\"/s/$(date '+%Y-%m-%d' -d 'sunday') ..:..:../SUNDAY/" \
+    -e "/\"monday\"/s/$(date '+%Y-%m-%d' -d 'monday') ..:..:../MONDAY/" \
+    -e "/\"tuesday\"/s/$(date '+%Y-%m-%d' -d 'tuesday') ..:..:../TUESDAY/" \
+    -e "/\"wednesday\"/s/$(date '+%Y-%m-%d' -d 'wednesday') ..:..:../WEDNESDAY/" \
+    -e "/\"thursday\"/s/$(date '+%Y-%m-%d' -d 'thursday') ..:..:../THURSDAY/" \
+    -e "/\"friday\"/s/$(date '+%Y-%m-%d' -d 'friday') ..:..:../FRIDAY/" \
+    -e "/\"saturday\"/s/$(date '+%Y-%m-%d' -d 'saturday') ..:..:../SATURDAY/" \
+    -e "/yesterday/s/$(date '+%Y-%m-%d' -d 'yesterday') ..:..:../YESTERDAY/" \
+    -e "/tomorrow/s/$(date '+%Y-%m-%d' -d 'tomorrow') ..:..:../TOMORROW/" \
+    -e "/now/s/$(date '+%Y-%m-%d') ..:..:../TODAY/" \
+    -e "/today/s/$(date '+%Y-%m-%d') ..:..:../TODAY/" \
+    -e "/next .*/d" \
+| if $dodgey_date
+then
+    sed -e "/first $today/s/$(date '+%Y-%m-%d' -d "$today week") ..:..:../first $TODAY/"
+else
+    sed -e "/first $today/s/$(date '+%Y-%m-%d' -d "$today") ..:..:../first $TODAY/"
+fi
+
+unset TZ
+pmval -Z 'America/Los_Angeles' -S '1998-8-6 02:00:00' sample.bin -a archives/ok-foo
+pmval -Z 'America/New_York' -S '1998-8-6 02:00:00' sample.bin -a archives/ok-foo

@@ -1,0 +1,232 @@
+QA output created by 330
+
+=== archive tmparch/foo ===
+
+metric: sample.seconds
+****  Purify instrumented TMP/interp1.pure (pid PID)  ****
+Current file descriptors in use: 8
+****  Purify instrumented TMP/interp1.pure (pid PID)  ****
+Purify: Searching for all memory leaks...
+
+Memory leaked: 0 bytes (0%); potentially leaked: 0 bytes (0%)
+
+Purify Heap Analysis (combining suppressed and unsuppressed blocks)
+...
+****  Purify instrumented TMP/interp1.pure (pid PID)  ****
+  * Program exited with status code 0.
+  * 0 access errors, 0 total occurrences.
+...
+
+metric: sample.bin
+****  Purify instrumented TMP/interp1.pure (pid PID)  ****
+Current file descriptors in use: 8
+****  Purify instrumented TMP/interp1.pure (pid PID)  ****
+Purify: Searching for all memory leaks...
+
+Memory leaked: 0 bytes (0%); potentially leaked: 0 bytes (0%)
+
+Purify Heap Analysis (combining suppressed and unsuppressed blocks)
+...
+****  Purify instrumented TMP/interp1.pure (pid PID)  ****
+  * Program exited with status code 0.
+  * 0 access errors, 0 total occurrences.
+...
+
+metric: sample.colour
+****  Purify instrumented TMP/interp1.pure (pid PID)  ****
+Current file descriptors in use: 8
+****  Purify instrumented TMP/interp1.pure (pid PID)  ****
+Purify: Searching for all memory leaks...
+
+Memory leaked: 0 bytes (0%); potentially leaked: 0 bytes (0%)
+
+Purify Heap Analysis (combining suppressed and unsuppressed blocks)
+...
+****  Purify instrumented TMP/interp1.pure (pid PID)  ****
+  * Program exited with status code 0.
+  * 0 access errors, 0 total occurrences.
+...
+
+metric: sample.drift
+****  Purify instrumented TMP/interp1.pure (pid PID)  ****
+Current file descriptors in use: 8
+****  Purify instrumented TMP/interp1.pure (pid PID)  ****
+Purify: Searching for all memory leaks...
+
+Memory leaked: 0 bytes (0%); potentially leaked: 0 bytes (0%)
+
+Purify Heap Analysis (combining suppressed and unsuppressed blocks)
+...
+****  Purify instrumented TMP/interp1.pure (pid PID)  ****
+  * Program exited with status code 0.
+  * 0 access errors, 0 total occurrences.
+...
+
+metric: sample.lights
+****  Purify instrumented TMP/interp1.pure (pid PID)  ****
+Current file descriptors in use: 8
+****  Purify instrumented TMP/interp1.pure (pid PID)  ****
+Purify: Searching for all memory leaks...
+
+Memory leaked: 0 bytes (0%); potentially leaked: 0 bytes (0%)
+
+Purify Heap Analysis (combining suppressed and unsuppressed blocks)
+...
+****  Purify instrumented TMP/interp1.pure (pid PID)  ****
+  * Program exited with status code 0.
+  * 0 access errors, 0 total occurrences.
+...
+
+=== archive tmparch/mv-foo ===
+
+metric: sample.seconds
+****  Purify instrumented TMP/interp1.pure (pid PID)  ****
+Current file descriptors in use: 8
+****  Purify instrumented TMP/interp1.pure (pid PID)  ****
+Purify: Searching for all memory leaks...
+
+Memory leaked: 0 bytes (0%); potentially leaked: 0 bytes (0%)
+
+Purify Heap Analysis (combining suppressed and unsuppressed blocks)
+...
+****  Purify instrumented TMP/interp1.pure (pid PID)  ****
+  * Program exited with status code 0.
+  * 0 access errors, 0 total occurrences.
+...
+
+metric: sample.bin
+****  Purify instrumented TMP/interp1.pure (pid PID)  ****
+Current file descriptors in use: 8
+****  Purify instrumented TMP/interp1.pure (pid PID)  ****
+Purify: Searching for all memory leaks...
+
+Memory leaked: 0 bytes (0%); potentially leaked: 0 bytes (0%)
+
+Purify Heap Analysis (combining suppressed and unsuppressed blocks)
+...
+****  Purify instrumented TMP/interp1.pure (pid PID)  ****
+  * Program exited with status code 0.
+  * 0 access errors, 0 total occurrences.
+...
+
+metric: sample.colour
+****  Purify instrumented TMP/interp1.pure (pid PID)  ****
+Current file descriptors in use: 8
+****  Purify instrumented TMP/interp1.pure (pid PID)  ****
+Purify: Searching for all memory leaks...
+
+Memory leaked: 0 bytes (0%); potentially leaked: 0 bytes (0%)
+
+Purify Heap Analysis (combining suppressed and unsuppressed blocks)
+...
+****  Purify instrumented TMP/interp1.pure (pid PID)  ****
+  * Program exited with status code 0.
+  * 0 access errors, 0 total occurrences.
+...
+
+metric: sample.drift
+****  Purify instrumented TMP/interp1.pure (pid PID)  ****
+Current file descriptors in use: 8
+****  Purify instrumented TMP/interp1.pure (pid PID)  ****
+Purify: Searching for all memory leaks...
+
+Memory leaked: 0 bytes (0%); potentially leaked: 0 bytes (0%)
+
+Purify Heap Analysis (combining suppressed and unsuppressed blocks)
+...
+****  Purify instrumented TMP/interp1.pure (pid PID)  ****
+  * Program exited with status code 0.
+  * 0 access errors, 0 total occurrences.
+...
+
+metric: sample.lights
+****  Purify instrumented TMP/interp1.pure (pid PID)  ****
+Current file descriptors in use: 8
+****  Purify instrumented TMP/interp1.pure (pid PID)  ****
+Purify: Searching for all memory leaks...
+
+Memory leaked: 0 bytes (0%); potentially leaked: 0 bytes (0%)
+
+Purify Heap Analysis (combining suppressed and unsuppressed blocks)
+...
+****  Purify instrumented TMP/interp1.pure (pid PID)  ****
+  * Program exited with status code 0.
+  * 0 access errors, 0 total occurrences.
+...
+
+=== archive tmparch/noti-foo ===
+
+metric: sample.seconds
+****  Purify instrumented TMP/interp1.pure (pid PID)  ****
+Current file descriptors in use: 7
+****  Purify instrumented TMP/interp1.pure (pid PID)  ****
+Purify: Searching for all memory leaks...
+
+Memory leaked: 0 bytes (0%); potentially leaked: 0 bytes (0%)
+
+Purify Heap Analysis (combining suppressed and unsuppressed blocks)
+...
+****  Purify instrumented TMP/interp1.pure (pid PID)  ****
+  * Program exited with status code 0.
+  * 0 access errors, 0 total occurrences.
+...
+
+metric: sample.bin
+****  Purify instrumented TMP/interp1.pure (pid PID)  ****
+Current file descriptors in use: 7
+****  Purify instrumented TMP/interp1.pure (pid PID)  ****
+Purify: Searching for all memory leaks...
+
+Memory leaked: 0 bytes (0%); potentially leaked: 0 bytes (0%)
+
+Purify Heap Analysis (combining suppressed and unsuppressed blocks)
+...
+****  Purify instrumented TMP/interp1.pure (pid PID)  ****
+  * Program exited with status code 0.
+  * 0 access errors, 0 total occurrences.
+...
+
+metric: sample.colour
+****  Purify instrumented TMP/interp1.pure (pid PID)  ****
+Current file descriptors in use: 7
+****  Purify instrumented TMP/interp1.pure (pid PID)  ****
+Purify: Searching for all memory leaks...
+
+Memory leaked: 0 bytes (0%); potentially leaked: 0 bytes (0%)
+
+Purify Heap Analysis (combining suppressed and unsuppressed blocks)
+...
+****  Purify instrumented TMP/interp1.pure (pid PID)  ****
+  * Program exited with status code 0.
+  * 0 access errors, 0 total occurrences.
+...
+
+metric: sample.drift
+****  Purify instrumented TMP/interp1.pure (pid PID)  ****
+Current file descriptors in use: 7
+****  Purify instrumented TMP/interp1.pure (pid PID)  ****
+Purify: Searching for all memory leaks...
+
+Memory leaked: 0 bytes (0%); potentially leaked: 0 bytes (0%)
+
+Purify Heap Analysis (combining suppressed and unsuppressed blocks)
+...
+****  Purify instrumented TMP/interp1.pure (pid PID)  ****
+  * Program exited with status code 0.
+  * 0 access errors, 0 total occurrences.
+...
+
+metric: sample.lights
+****  Purify instrumented TMP/interp1.pure (pid PID)  ****
+Current file descriptors in use: 7
+****  Purify instrumented TMP/interp1.pure (pid PID)  ****
+Purify: Searching for all memory leaks...
+
+Memory leaked: 0 bytes (0%); potentially leaked: 0 bytes (0%)
+
+Purify Heap Analysis (combining suppressed and unsuppressed blocks)
+...
+****  Purify instrumented TMP/interp1.pure (pid PID)  ****
+  * Program exited with status code 0.
+  * 0 access errors, 0 total occurrences.
+...

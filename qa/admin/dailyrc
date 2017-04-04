@@ -1,0 +1,20 @@
+# if GNU bits exist separately (like on OpenSolaris), prefer them
+#
+[ -d /usr/gnu/bin ] && PATH="/usr/gnu/bin:$PATH"
+# set PATH so it includes user's private bin if it exists
+if [ -d "$HOME/bin" ] ; then
+    PATH="$HOME/bin:$PATH"
+fi
+# and the current directory first
+PATH=".:$PATH"
+# and any extras at the end
+for xtra in /usr/local/bin /usr/local/git/bin /usr/X11/bin $HOME/src/pcp/qa/admin
+do
+    if echo "${PATH}:" | grep -q ":$xtra:"
+    then
+	:
+    else
+	[ -d "$xtra" ] && PATH="$PATH:$xtra"
+    fi
+done
+export PATH

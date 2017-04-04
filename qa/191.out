@@ -1,0 +1,43 @@
+QA output created by 191
+=== leading white space test ===
+Performance Co-Pilot Inference Engine (pmie), VERSION
+
+pmie debugger commands
+
+  f [file-name]      - load expressions from given file or stdin
+  l [expr-name]      - list named expression or all expressions
+  r [interval]       - run for given or default interval
+  S time-spec        - set start time for run
+  T time-spec        - set default interval for run command
+  v [expr-name]      - print subexpression used for %h, %i and
+                       %v bindings
+  h or ?             - print this menu of commands
+  q                  - quit
+
+pmie> pmie> expr_1 =
+hinv.ncpu :HOST > 0;
+
+pmie> expr_1 =
+hinv.ncpu :HOST > 0;
+
+pmie> expr_1 =
+hinv.ncpu :HOST > 0;
+
+
+=== EOF test ===
+Performance Co-Pilot Inference Engine (pmie), VERSION
+
+pmie debugger commands
+
+  f [file-name]      - load expressions from given file or stdin
+  l [expr-name]      - list named expression or all expressions
+  r [interval]       - run for given or default interval
+  S time-spec        - set start time for run
+  T time-spec        - set default interval for run command
+  v [expr-name]      - print subexpression used for %h, %i and
+                       %v bindings
+  h or ?             - print this menu of commands
+  q                  - quit
+
+
+No such process

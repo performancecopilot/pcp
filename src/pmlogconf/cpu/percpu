@@ -1,0 +1,4 @@
+#pmlogconf-setup 2.0
+ident	utilization per CPU
+force	available
+	kernel.percpu.cpu

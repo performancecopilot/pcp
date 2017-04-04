@@ -1,0 +1,31 @@
+#!/bin/sh
+# PCP QA Test No. 858
+# pmfetchgroup api
+#
+# Copyright (c) 2015 Red Hat, Inc.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_check_valgrind
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+
+pmstore sample.const_rate.gradient 0 >/dev/null 2>&1
+pmstore sample.const_rate.value 0 >/dev/null 2>&1 # minimize likelihood of rollover
+pmstore sample.const_rate.gradient 10 # time must flow
+_run_valgrind ./src/fetchgroup
+
+# success, all done
+status=0
+exit

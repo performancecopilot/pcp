@@ -1,0 +1,189 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2012 Red Hat.
+.\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMDAMAILQ 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmdamailq\f1 \- mail queue performance metrics domain agent (PMDA)
+.SH SYNOPSIS
+\f3$PCP_PMDAS_DIR/mailq/pmdamailq\f1
+[\f3\-b\f1 \f2binlist\f1]
+[\f3\-d\f1 \f2domain\f1]
+[\f3\-l\f1 \f2logfile\f1]
+[\f3\-r\f1 \f2regex\f1]
+[\f3\-U\f1 \f2username\f1]
+[\f2queuedir\f1]
+.SH DESCRIPTION
+.B pmdamailq
+is a Performance Metrics Domain Agent (PMDA) which extracts
+performance metrics describing the state of the e-mail queues
+managed by
+.BR sendmail (1)
+and other mail transfer agents.
+.PP
+The
+.B mailq
+PMDA exports metrics that measure the total number of entries
+in the mail queue, and the subtotals for entries that have
+been queued for various time periods.
+.PP
+A brief description of the
+.B pmdamailq
+command line options follows:
+.TP 5
+.B \-b
+The
+.I binlist
+argument specifies a list of delay thresholds used to ``bin'' the
+entries in the queue into a a histogram based on how long
+the entry has been in the mail queue.
+The default thresholds are:
+1 hour, 4 hours, 8 hours, 1 day, 3 days and 7 days.
+The entries in
+.I binlist
+are comma separated time intervals, using the syntax described in
+.BR PCPIntro (1)
+for an update or reporting interval, e.g. the default list could be
+specified using the value
+.BR "1hr,4hrs,8hrs,1day,3days,7days" .
+.RS
+.PP
+Values in
+.I binlist
+are assumed to be in ascending order, and mail items in the queue less
+than the first threshold are binned into a special bin labeled ``recent''.
+.RE
+.TP
+.B \-d
+It is absolutely crucial that the performance metrics
+.I domain
+number specified here is unique and consistent.
+That is,
+.I domain
+should be different for every PMDA on the one host, and the same
+.I domain
+number should be used for the same PMDA on all hosts.
+.TP
+.B \-l
+Location of the log file.  By default, a log file named
+.I mailq.log
+is written in the current directory of
+.BR pmcd (1)
+when
+.B pmdamailq
+is started, i.e.
+.B $PCP_LOG_DIR/pmcd .
+If the log file cannot
+be created or is not writable, output is written to the standard error instead.
+.TP
+.B \-r
+Use an extended regular expression to match file names in the mail queue
+directory, rather than assuming all "df" prefixed files in the directory
+are mail files (the "df" prefix is the
+.B sendmail
+convention, but this convention is not followed by other mail daemons).
+The
+.I regex
+pattern specified should conform to the POSIX format described in
+.BR regex (3),
+and it describes file names that should be considered mail.
+.TP 5
+.B \-U
+User account under which to run the agent.
+The default is the unprivileged "pcp" account in current versions of PCP,
+but in older versions the superuser account ("root") was used by default.
+.PP
+The optional
+.I queuedir
+argument defines the directory in which
+.B pmdamailq
+expects to find the mail queue.
+The default is
+.BR /var/spool/mqueue .
+.SH INSTALLATION
+If you want access to the names, help text and values for the mailq
+performance metrics, do the following as root:
+.PP
+.ft CW
+.nf
+.in +0.5i
+# cd $PCP_PMDAS_DIR/mailq
+# ./Install
+.in
+.fi
+.ft 1
+.PP
+If you want to undo the installation, do the following as root:
+.PP
+.ft CW
+.nf
+.in +0.5i
+# cd $PCP_PMDAS_DIR/mailq
+# ./Remove
+.in
+.fi
+.ft 1
+.PP
+.B pmdamailq
+is launched by
+.BR pmcd (1)
+and should never be executed directly.
+The Install and Remove scripts notify
+.BR pmcd (1)
+when the agent is installed or removed.
+.SH FILES
+.PD 0
+.TP 10
+.B $PCP_PMCDCONF_PATH
+command line options used to launch
+.B pmdamailq
+.TP 10
+.B $PCP_PMDAS_DIR/mailq/help
+default help text file for the mailq metrics
+.TP 10
+.B $PCP_PMDAS_DIR/mailq/Install
+installation script for the
+.B pmdamailq
+agent
+.TP 10
+.B $PCP_PMDAS_DIR/mailq/Remove
+undo installation script for the 
+.B pmdamailq
+agent
+.TP 10
+.B $PCP_LOG_DIR/pmcd/mailq.log
+default log file for error messages and other information from
+.B pmdamailq
+.PD
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.I /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (5).
+.SH SEE ALSO
+.BR PCPIntro (1),
+.BR pmcd (1),
+.BR pcp.conf (5)
+and
+.BR pcp.env (5).

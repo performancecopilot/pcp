@@ -1,0 +1,345 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2012 Red Hat.
+.\" Copyright (c) 2000-2002 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMDACISCO 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmdacisco\f1 \- Cisco router performance metrics domain agent (PMDA)
+.SH SYNOPSIS
+\f3$PCP_PMDAS_DIR/cisco/pmdacisco\f1
+[\f3\-d\f1 \f2domain\f1]
+[\f3\-l\f1 \f2logfile\f1]
+[\f3\-U\f1 \f2username\f1]
+[\f3\-P\f1 \f2password\f1]
+[\f3\-r\f1 \f2refresh\f1]
+[\f3\-s\f1 \f2prompt\f1]
+[\f3\-M\f1 \f2username\f1]
+[\f3\-x\f1 \f2port\f1]
+\f2host:interface-spec\f1 [...]
+.br
+\f3$PCP_PMDAS_DIR/cisco/parse\f1
+[options]
+\f2host:interface-spec\f1 [...]
+.br
+\f3$PCP_PMDAS_DIR/cisco/probe\f1
+[\f3\-P\f1 \f2password\f1]
+[\f3\-s\f1 \f2prompt\f1]
+[\f3\-U\f1 \f2username\f1]
+[\f3\-x\f1 \f2port\f1]
+\f2host\f1
+.SH DESCRIPTION
+.B pmdacisco
+is a Performance Metrics Domain Agent (PMDA) which extracts
+performance metrics from one or more Cisco routers.
+.PP
+A brief description of the
+.B pmdacisco
+command line options follows:
+.TP 5
+.B \-d
+It is absolutely crucial that the performance metrics
+.I domain
+number specified here is unique and consistent.
+That is,
+.I domain
+should be different for every PMDA on the one host, and the same
+.I domain
+number should be used for the same PMDA on all hosts.
+.TP 5
+.B \-l
+Location of the log file.  By default, a log file named
+.I cisco.log
+is written in the current directory of
+.BR pmcd (1)
+when
+.B pmdacisco
+is started, i.e.
+.IR $PCP_LOG_DIR/pmcd .
+If the log file cannot
+be created or is not writable, output is written to the standard error instead.
+.TP 5
+.B \-P
+By default, it is assumed that no user-level password is
+required to access the Cisco's telnet port.  If user-level passwords
+have been enabled on the Ciscos, then those passwords must
+be specified to
+.BR pmdacisco .
+If specified with the
+.B \-P
+option,
+.I password
+will be used as the default user-level password for all
+Ciscos.  See also the INTERFACE IDENTIFICATION section below.
+.TP 5
+.B \-r
+.B pmdacisco
+will refresh the current values for all performance metrics by
+contacting each Cisco router once every
+.I refresh
+seconds.
+The default
+.I refresh
+is 120 seconds.
+.TP 5
+.B \-s
+The Cisco command prompt ends with the string
+.IR prompt .
+The default value is ``>''.
+The only way
+.B pmdacisco
+can synchronize the sending of commands and the parsing of output is by
+recognizing
+.I prompt
+as a unique string that comes at the end of all output, i.e. as the
+command prompt when waiting for the next command.
+.TP 5
+.B \-U
+By default, it is assumed that no username login is
+required to access the Cisco's telnet port.  If username login
+has been enabled on the Ciscos, then the corresponding usernames must
+be specified to
+.BR pmdacisco .
+If specified with the
+.B \-U
+option,
+.I username
+will be used as the default username login for all
+Ciscos.  See also the INTERFACE IDENTIFICATION section below.
+.TP 5
+.B \-M
+User account under which to run the agent.
+The default is the unprivileged "pcp" account in current versions of PCP,
+but in older versions the superuser account ("root") was used by default.
+.TP 5
+.B \-x
+Connect to the Cisco via TCP port number
+.I port
+rather than the default 23 for a telnet connection.
+.PP
+For each interface, once the telnet connection
+is established,
+.B pmdacisco
+is willing to wait up to 5 seconds
+for the Cisco to provide a new snapshot
+of the requested information.  If this does
+not happen, the telnet connection is broken and no values are
+returned.  This prevents
+.B pmdacisco
+tying up the Cisco's telnet
+ports waiting indefinitely when the response from the
+router is not what is expected, e.g. if the format of the ``show int'' output
+changes, or the command is in error because an
+interface is no longer configured on the router.
+.SH INTERFACE IDENTIFICATION
+As each Cisco router can support multiple network interfaces
+and/or multiple communications protocols, it is necessary to
+tell
+.B pmdacisco
+which interfaces are to be monitored.
+.PP
+The
+.I host:interface-spec
+arguments on the command line define a particular interface
+on a particular Cisco router.
+.I host
+should be a hostname or a ``dot-notation'' IP address
+that identifies the telnet port of a particular Cisco router.
+There are several components of the
+.I interface-spec
+as follows.
+.TP
+protocol
+One of the abbreviations
+.BR a ,
+.BR B ,
+.BR E ,
+.BR e ,
+.BR f ,
+.BR G ,
+.BR h ,
+.B s
+or
+.B Vl
+respectively for ATM, BRI (ISDN), FastEthernet, Ethernet, FDDI, GigabitEthernet,
+HSSI, serial or Vlan.
+.TP
+interface
+Depending on the model of the Cisco, this will either
+be an integer, e.g.\&
+.BR s0 ,
+or an integer followed by a slash (``/'') followed by a subinterface
+identification in one of a variety of syntactic forms, e.g.\&
+.BR e1/0 ,
+.B G0/0/1
+or
+.BR s4/2.1 .
+.RS
+.P
+To discover the valid interfaces on a particular Cisco,
+connect to the telnet port (using
+.BR telnet (1))
+and enter the command "show int" and look for the interface
+identifiers following the keywords ``Ethernet'', ``Fddi'', ``Serial'', etc.
+.P
+Alternatively run the
+.BR probe
+command.
+.RE
+.TP
+username
+If there is a username login, and it is different to the
+default (see
+.B \-U
+above), it may be optionally specified here by appending
+\&``@'' and the username to the end of
+.IR interface-spec .
+.TP
+password
+If there is a user-level password, and it is different to the
+default (see
+.B \-P
+above), it may be optionally specified here by appending
+a question mark (``?'') and the password to the end of
+.IR interface-spec .
+.TP
+prompt
+If the Cisco command prompt is different to the
+default (see
+.B \-s
+above), it may be optionally specified here by appending
+an exclamation mark (``!'') and the prompt to the end of
+.IR interface-spec .
+.PP
+The following are examples of valid
+.I interface-spec
+arguments.
+.in +1i
+.nf
+my-router:e1/2
+123.456.789.0:s0
+wancisco:f2/3?trust_me
+somecisco:G1/0!myprompt
+cisco34.foo.bar.com:e2?way2cool
+mycisco:s2/2.1@mylogin
+yourcisco:E0/0@yourlogin?yourpassword
+mycisco:E0/0@mylogin?mypassword!myprompt
+.fi
+.in
+.SH HELPER UTILITIES
+The
+.B probe
+command may be used to discover the names of all interfaces for
+a particular Cisco router identified by
+.IR host .
+The
+.BR \-P
+argument is the same as for
+.BR pmdacisco .
+.PP
+The
+.B parse
+command takes exactly the same arguments as
+.BR pmdacisco ,
+but executes outside the control of any
+.BR pmcd (1)
+and so may be used to diagnose problems with handling a particular
+Cisco router and/or one of its interfaces.
+.PP
+Additional diagnostic verbosity may be produced using the
+.B "\-D appl0,appl1,appl2"
+command line option.
+.B appl0
+logs connect and disconnect events, login progress, high-level
+flow of control and extracted statistics.
+.B appl1
+traces all commands sent to the Cisco device.
+.B appl2
+logs tokenizing and parsing of the output from the Cisco device.
+Diagnostics are generated on standard error as each sample is fetched
+and parsed.
+.SH INSTALLATION
+If you want access to the names, help text and values for the Cisco
+performance metrics, do the following as root:
+.PP
+.ft CW
+.nf
+.in +0.5i
+# cd $PCP_PMDAS_DIR/cisco
+# ./Install
+.in
+.fi
+.ft 1
+.PP
+If you want to undo the installation, do the following as root:
+.PP
+.ft CW
+.nf
+.in +0.5i
+# cd $PCP_PMDAS_DIR/cisco
+# ./Remove
+.in
+.fi
+.ft 1
+.PP
+.B pmdacisco
+is launched by
+.BR pmcd (1)
+and should never be executed directly.
+The Install and Remove scripts notify
+.BR pmcd (1)
+when the agent is installed or removed.
+.SH FILES
+.PD 0
+.TP 10
+.B $PCP_PMCDCONF_PATH
+command line options used to launch
+.B pmdacisco
+.TP 10
+.B $PCP_PMDAS_DIR/cisco/help
+default help text file for the Cisco metrics
+.TP 10
+.B $PCP_PMDAS_DIR/cisco/Install
+installation script for the
+.B pmdacisco
+agent
+.TP 10
+.B $PCP_PMDAS_DIR/cisco/Remove
+undo installation script for the 
+.B pmdacisco
+agent
+.TP 10
+.B $PCP_LOG_DIR/pmcd/cisco.log
+default log file for error messages and other information from
+.B pmdacisco
+.PD
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.I /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (5).
+.SH SEE ALSO
+.BR pmcd (1),
+.BR pcp.conf (5)
+and
+.BR pcp.env (5).

@@ -1,0 +1,33 @@
+#! /bin/sh
+# PCP QA Test No. 231
+# number w/out leading digit in pmie ... bug #421411
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+
+status=1
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+cat >$tmp.conf <<'End-of-File'
+delta = 1;
+(1000 * 0.1 + hinv.ncpu - hinv.ncpu) != 100 -> print "%v != 100?";
+(1000 * .1 + hinv.ncpu - hinv.ncpu) != 100 -> print "%v != 100?";
+(1000 * 0.123 + hinv.ncpu - hinv.ncpu) != 123 -> print "%v != 123?";
+(1000 * .123 + hinv.ncpu - hinv.ncpu) != 123 -> print "%v != 123?";
+(0.4567e3 + hinv.ncpu - hinv.ncpu) != 456.7 -> print "%v != 456.7?";
+(.4567e3 + hinv.ncpu - hinv.ncpu) != 456.7 -> print "%v != 456.7?";
+End-of-File
+
+pmie -T 1sec <$tmp.conf >$tmp.out 2>$tmp.err
+status=$?
+cat $tmp.out $tmp.err | _show_pmie_errors
+
+exit

@@ -1,0 +1,74 @@
+#! /bin/sh
+# PCP QA Test No. 109
+# check out pmclient and pmclient_fg (live mode)
+#
+# Copyright (c) 2016 Red Hat.
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+
+trap "rm -f $tmp.*; exit" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e 's/^Host: .*/Host: .../' \
+	-e 's/ *[0-9][0-9]*\.[0-9][0-9]*/ FLOAT/g' \
+	-e 's/ *[0-9][0-9]*/ INTEGER/g' \
+        -e 's/pmFetchGroup/pmFetch/g' \
+    #end
+}
+
+# real QA test starts here
+
+ncpu=`pmprobe -v hinv.ncpu 2>&1 \
+| $PCP_AWK_PROG '
+NF == 3 && $2 == 1	{ print $3; exit }
+			{ print "0"; exit }'`
+
+run()
+{
+    pmclient=$1
+    echo "== $pmclient variant =="
+
+    # output is sensitive to SP/MP ... so do the one that is real, and fake
+    # the other
+    #
+    if [ "$ncpu" -eq 1 ]
+    then
+	$pmclient -t 1 -s 3 | _filter 2>&1
+	echo "..."
+	# fake MP output
+	cat <<End-of-File
+Host: ...
+  CPU  Busy    Busy  Free Mem   Disk     Load Average
+ Util   CPU    Util  (Mbytes)   IOPS INTEGER Min INTEGER Min
+ FLOAT INTEGER FLOAT FLOAT INTEGER FLOAT FLOAT
+ FLOAT INTEGER FLOAT FLOAT INTEGER FLOAT FLOAT
+ FLOAT INTEGER FLOAT FLOAT INTEGER FLOAT FLOAT
+End-of-File
+    else
+	# fake SP output
+	cat <<End-of-File
+Host: ...
+  CPU  Free Mem   Disk     Load Average
+ Util  (Mbytes)   IOPS INTEGER Min INTEGER Min
+ FLOAT FLOAT INTEGER FLOAT FLOAT
+ FLOAT FLOAT INTEGER FLOAT FLOAT
+ FLOAT FLOAT INTEGER FLOAT FLOAT
+End-of-File
+	echo "..."
+	$pmclient -t 1 -s 3 | _filter 2>&1
+    fi
+
+    echo "== $pmclient done ==" && echo
+}
+
+run pmclient
+run pmclient_fg

@@ -1,0 +1,776 @@
+#!/bin/sh
+#
+# Make whichever packages the system supports
+#
+# Copyright (c) 2012-2016 Red Hat.
+# Copyright (c) 2004 Silicon Graphics, Inc.  All Rights Reserved.
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+
+topdir=`pwd`
+signed=false
+verbose=false
+srconly=false
+dorpm=unknown
+dodeb=unknown
+parfait=false
+vector=false
+webjs=false
+docker=false
+
+if [ ! -d .git ]
+then
+    echo "Error: can only be run from within the PCP git repository"
+    exit 1
+fi
+
+if [ ! -f VERSION.pcp ]
+then
+    echo "Error: can only be run from within the PCP source tree"
+    exit 1
+fi
+
+tmp=`mktemp -d /tmp/pcp.XXXXXXXXX` || exit 1
+trap "rm -rf $tmp $tmp.help" 0 1 2 3 15
+target=`uname -s | tr 'A-Z' 'a-z'`
+
+# Find where a GNU tool is hiding, look for this line in the
+# $gnutool --help output ...
+# "Report bugs to <bug-$gnutool@gnu.org>"
+# or lines like this:
+# FreeBSD $gnutool
+# NetBSD $gnutool
+# OpenBSD $gnutool
+# Apple $gnutool
+# or these lines:
+# *This* tar defaults to:
+# --format=gnu ...
+#
+gnu_tool()
+{
+    prefix="$1"
+    shift
+    envvar="$1"
+    shift
+    oldcmd="$1"
+    shift
+
+    # Not in the environment, go search for it in the known locations.
+    #
+    if [ -z "$envvar" ]
+    then
+	for command in $oldcmd $@
+	do
+	    exec=`which $command 2>/dev/null`
+	    if [ -n "$exec" ]
+	    then
+		$command --help >$tmp.help 2>&1
+		if egrep "(bug-$oldcmd@gnu.org)|(FreeBSD $command)|(NetBSD $command)|(OpenBSD $command)|(Apple $command)" $tmp.help >/dev/null
+		then
+		    echo $exec
+		    return 0
+		fi
+		awk <$tmp.help >$tmp.check '
+BEGIN				{ want = 0 }
+/This\** tar defaults to:/	{ want=1; next }
+want == 1			{ print; exit }'
+		if grep '[-][-]format=gnu' <$tmp.check >/dev/null
+		then
+		    echo $exec
+		    return 0
+		fi
+		# special cases
+		#
+		if [ "$target" = openbsd -a $command = gzip ]
+		then
+		    echo $exec
+		    return 0
+		fi
+	    fi
+	done
+	echo >&2 "$prefix: can't find GNU $oldcmd in the commands $oldcmd or $@"
+	[ $prefix = Error ] && exit 1
+	return 1
+    fi
+
+    # Use the environment request and ensure it is a full path (do not
+    # change this behaviour, it is required for backward-compatibility
+    # - QA failures will result if you choose to ignore this warning).
+    #
+    command=`which $envvar 2>/dev/null`
+    if [ -z "$command" ]
+    then
+	echo >&2 "$prefix: $oldcmd (from the environment) does not exist!"
+	[ $prefix = Error ] && exit 1
+	return 1
+    fi
+    echo $command
+    return 0
+}
+
+export MAKE=`gnu_tool Error "$MAKE" make gmake`
+export TAR=`gnu_tool Warning "$TAR" tar gtar gnutar`
+export ZIP=`gnu_tool Error "$ZIP" gzip gnuzip`
+
+# check if tar supports --transform else we must use git-archive later on (e.g. RHEL5)
+[ -n "$TAR" ] && $TAR --help | 2>&1 grep -q transform || USE_GIT_ARCHIVE=1
+#debug# echo TAR=$TAR USE_GIT_ARCHIVE=$USE_GIT_ARCHIVE
+
+configure=./configure
+cmdline_configopts=''
+
+for opt in $*
+do
+    case "$opt" in
+    -clean|--clean)
+	# we always clean nowadays, so silently ignore
+	shift
+	;;
+    -verbose|--verbose)
+	verbose=true
+	shift
+	;;
+    --nonrpm)
+	dorpm=false
+	shift
+	;;
+    --nondeb)
+	dodeb=false
+	shift
+	;;
+    --signed)
+	signed=true
+	shift
+	;;
+    --source)
+	srconly=true
+	shift
+	;;
+    --target)
+	shift
+	target=$1
+	shift
+	;;
+    --with-parfait)
+	cmdline_configopts="$cmdline_configopts $opt"
+	parfait=true
+	shift
+	;;
+    --with-vector)
+	cmdline_configopts="$cmdline_configopts $opt"
+	vector=true
+	shift
+	;;
+    --with-webjs)
+	cmdline_configopts="$cmdline_configopts $opt"
+	webjs=true
+	shift
+	;;
+    --with-docker)
+	docker=true
+	shift
+	;;
+    --with-make)
+	MAKE=$1
+	shift
+	;;
+    --with-tar)
+	TAR=$1
+	shift
+	;;
+    --with-zip)
+	ZIP=$1
+	shift
+	;;
+    *)
+	# Add remaining options to the ./configure command line
+	cmdline_configopts="$cmdline_configopts $opt"
+	shift
+	;;
+    esac
+done
+
+if [ $dorpm = unknown ]
+then
+    dorpm=false
+    if which slackpkg >/dev/null 2>&1
+    then
+	# Slackware has rpm(1) and rpmbuild(1), but don't build RPMs
+	#
+	:
+    else
+	[ -x /usr/bin/rpmbuild ] && dorpm=true
+    fi
+fi
+if [ $dodeb = unknown ]
+then
+    dodeb=false
+    [ -x /usr/bin/dpkg-buildpackage ] && dodeb=true
+fi
+
+# Hmm ...
+#
+if $dodeb && $dorpm
+then
+    echo >&2 "Do not know how to build RPM and Debian packages at the same time!"
+    echo >&2 "Suggest --nonrpm or --nondeb on the command line."
+    exit 1
+fi
+
+if $dodeb
+then
+    # On Debian-based platforms, the debian/rules file already captures
+    # most of the required configure settings in $(configure_paths)
+    #
+    configopts=''
+elif $dorpm
+then
+    # On RPM-based platforms, rpm macros provide an excellent set of defaults.
+    # This set is based on Fedora 22 %configure macro from /usr/lib/rpm/macros,
+    # and is known to work as far back as RHEL5.
+    configopts="`rpmbuild --eval '--prefix=%{_prefix} --exec-prefix=%{_exec_prefix} --bindir=%{_bindir} --sbindir=%{_sbindir} --sysconfdir=%{_sysconfdir} --datadir=%{_datadir} --includedir=%{_includedir} --libdir=%{_libdir} --libexecdir=%{_libexecdir} --localstatedir=%{_localstatedir} --sharedstatedir=%{_sharedstatedir} --mandir=%{_mandir}' 2>/dev/null`"
+    # rpmbuild clears the environment, so force these settings into the
+    # rpm build configure
+    #
+    configopts="$configopts --with-make=$MAKE --with-tar=$TAR --with-zip=$ZIP"
+elif [ $target = darwin ]
+then
+    # On Mac OS X platforms, we install away from /usr/bin, /usr/lib
+    # and so on because of security requirements in recent versions.
+    #
+    configopts="--prefix=/usr/local --sysconfdir=/etc --localstatedir=/var"
+elif [ $target = netbsd ]
+then
+    # Try to mimic where pkgsrc/pkgin place things
+    #
+    configopts="--prefix=/usr/pkg --exec-prefix=/usr/pkg --mandir=/usr/pkg/man --with-rcdir=/etc/rc.d --localstatedir=/usr/pkg --with-rundir=/var/run --with-tmpdir=/var/tmp --with-logdir=/var/log/pcp"
+elif [ $target = freebsd ]
+then
+    # Python build does not work on FreeBSD 9.3, so skip it
+    #
+    case `uname -r`
+    in
+	9.3*)
+		# Bog-standard, just without python
+		#
+		configopts="--prefix=/usr --sysconfdir=/etc --localstatedir=/var --with-python=no --with-python3=no"
+		;;
+	*)
+		# Bog-standard, as below ...
+		#
+		configopts="--prefix=/usr --sysconfdir=/etc --localstatedir=/var"
+		;;
+    esac
+else
+    # Bog-standard options suitable for a package on any platform.
+    # Command line can be used to extend this set, and any unusual
+    # platform-specific requirements are also appended later on.
+    configopts="--prefix=/usr --sysconfdir=/etc --localstatedir=/var"
+fi
+
+# Platform-specific variants ...
+#
+case "$target"
+in
+    mingw|mingw64|windows)
+	target=mingw
+	dorpm=false
+	configopts="$configopts --disable-ssp"
+	export configure="/usr/bin/mingw64-configure"
+	export MAKE="/usr/bin/mingw64-make"
+	export QMAKE="/usr/bin/mingw64-qmake-qt4"
+	export PKG_CONFIG="/usr/bin/mingw64-pkg-config"
+	;;
+    linux)
+	ARCH=`uname -m`
+	[ -f /etc/slackware-version -a "$ARCH" = x86_64 ] && configopts="$configopts --libdir=/usr/lib64"
+	;;
+    sunos|SunOS)
+	ARCH=`isainfo -k`
+	[ "$ARCH" = amd64 -o "$ARCH" = sparcv9 ] && configopts="$configopts --libdir=/usr/lib/64"
+	export YACC=bison
+	export LEX=flex
+	;;
+esac
+
+# now some specific QA/development hosts with special needs ...
+#
+case `hostname`
+in
+    vm04|vm04.localdomain|vm11|vm11.localdomain)
+	# gcc -O2 is broken here (for the linux PMDA)
+	#
+	configopts="$configopts --with-optimization=no"
+	# over-ride the settings from dpkg-buildflags
+	#
+	export DEB_CFLAGS_SET=''
+	export DEB_CXXFLAGS_SET=''
+	;;
+esac
+
+# and finally add in any from the command line
+#
+[ -n "$cmdline_configopts" ] && configopts="$configopts $cmdline_configopts"
+
+. ./VERSION.pcp
+VERSION=${PACKAGE_MAJOR}.${PACKAGE_MINOR}.${PACKAGE_REVISION}
+
+LOGDIR=$topdir/Logs
+rm -rf "$LOGDIR"
+mkdir -p "$LOGDIR"
+
+source=pcp-${VERSION}
+SRCDIR="$topdir/$source"
+SRCTREE="$topdir/$source"
+SRCTAR=$topdir/build/tar/$source.src.tar.gz
+SRCWEBJS=$topdir/build/tar/webjs.tar.gz
+SRCVECTOR=$topdir/build/tar/vector.tar.gz
+SRCPARFAIT=$topdir/build/tar/parfait.tar.gz
+
+build_failure()
+{
+    # only print in non-verbose mode, otherwise we see double
+    if ! $verbose ; then
+	echo $@ failed, see log in $LOGDIR/pcp
+	tail $LOGDIR/pcp
+    fi
+    exit 1
+}
+
+clean_packaging()
+{
+    echo
+    echo "== Cleaning build tree for packaging build"
+    rm -rf "$SRCDIR" "$SRCTAR" .gitcensus
+}
+
+fix_version()
+{
+    if [ -f "$1" -a -f "$2" ]
+    then
+	# as expected, both present
+	if diff "$1" "$2" >/dev/null 2>&1
+	then
+	    :
+	else
+	    # must be using git-archive(1) and VERSION.pcp has been
+	    # modified, e.g. by pcp-daily script ... use the modified
+	    # one to bump the build number in the packages
+	    #
+	    cp "$1" "$2"
+	fi
+    else
+	echo "Arrgh ... expect both these to exist ..."
+	ls -l "$1" "$2"
+	exit 1
+    fi
+}
+
+# Download sources from external repositories that we might want
+# to include with the PCP packages.
+#
+third_parties()
+{
+    if $parfait
+    then
+	if [ ! -f "$SRCPARFAIT" ]
+	then
+	    echo "== Downloading Parfait package"
+	    url=https://github.com/performancecopilot/parfait/archive/master.zip
+	    wget -H -q -O $tmp/java.zip "$url"
+	    [ $? -eq 0 ] && ./scripts/zip2tar $tmp/java.zip "$SRCPARFAIT"
+	fi
+	if [ -f "$SRCPARFAIT" ]
+	then
+	    DESTPARFAIT="$SRCTREE/build/tar/"`basename "$SRCPARFAIT"`
+	    cp "$SRCPARFAIT" "$DESTPARFAIT"
+	fi
+    fi
+
+    if $vector
+    then
+	DESTVECTOR="$SRCTREE/build/tar/"`basename "$SRCVECTOR"`
+	if [ ! -f "$SRCVECTOR" ]
+	then
+	    echo "== Downloading Vector webapp"
+	    url=https://bintray.com/artifact/download/netflixoss/downloads/vector.tar.gz
+	    wget -H -q -O "$SRCVECTOR" "$url"
+	    [ $? -eq 0 ] && echo "Wrote: $SRCVECTOR"
+	    mkdir $tmp/vector && pushd $tmp/vector && $TAR -zxf "$SRCVECTOR"
+	    $topdir/scripts/build-vector
+	    [ $? -eq 0] || exit 1
+	    cd dist && $TAR -czf "$DESTVECTOR" *
+	    popd
+	else
+	    cp "$SRCVECTOR" "$DESTVECTOR"
+	fi
+    fi
+
+    if $webjs
+    then
+	if [ ! -f "$SRCWEBJS" ]
+	then
+	    echo "== Downloading webjs webapps"
+	    url=https://github.com/performancecopilot/pcp-webjs/archive/master.zip
+	    wget -H -q -O $tmp/js.zip "$url"
+	    [ $? -eq 0 ] && ./scripts/zip2tar $tmp/js.zip "$SRCWEBJS"
+	fi
+	if [ -f "$SRCWEBJS" ]
+	then
+	    DESTWEBJS="$SRCTREE/build/tar/"`basename "$SRCWEBJS"`
+	    cp "$SRCWEBJS" "$DESTWEBJS"
+	fi
+    fi
+}
+
+# Generate a list of all the files git knows about, create the
+# source tarball and then unpack it.  We'll then do the package
+# build in a guaranteed pristine environment.
+#
+src_tar_build()
+{
+    if [ -z "$TAR" -o ! -z "$USE_GIT_ARCHIVE" ]
+    then
+	# no suitable GNU tar is available, use git-archive(1) - no local changes
+	if git status -s src man | grep '^.M'
+	then
+	    echo "Arrgh, modified src files and either no tar ($TAR) or no --transform"
+	    echo "support in tar, so local changes would not be included in the build."
+	    exit 1
+	fi
+	git archive --format=tar --prefix=$source/ HEAD | $ZIP > $SRCTAR
+    else
+	# build git file list and make tarball by hand to pick up any changes
+	#
+	git ls-files > .gitcensus
+
+	# but first ensure a "build everything" debian/control has been
+	# recreated
+	#
+	cd debian
+	if ./pre-build
+	then
+	    :
+	else
+	    echo "Error: debian/pre-build failed when creating debian/control"
+	    exit 1
+	fi
+	cd ..
+	echo "debian/control" >> .gitcensus
+
+	$TAR -cz --transform="s,^,$source/," --files-from=.gitcensus \
+		--file=$SRCTAR 
+	rm .gitcensus
+    fi
+    echo "Wrote: $SRCTAR"
+}
+
+# On sanity checks :- this is sick, but I'm really tired of QA failing
+# because of bad binaries being built from the Debian/Ubuntu toolchain
+# for # i?86 platforms
+# - Ken McDonell Apr 2010
+#
+sanity_check_settings()
+{
+    OPT=false
+    ARCH=`uname -m | sed -e 's/i.86/ia32/'`
+    if [ "$ARCH" != "ia32" ]
+    then
+	OPT=true	# no workarounds needed for non-i?86 platforms
+    elif [ -f /etc/lsb-release ]
+    then
+	if grep -q 'DISTRIB_ID=Ubuntu' /etc/lsb-release
+	then
+	    eval `grep DISTRIB_RELEASE= /etc/lsb-release`
+	    XDISTRIB_RELEASE=`echo $DISTRIB_RELEASE | sed -e 's/[^0-9]//g'`
+	    [ -z "$XDISTRIB_RELEASE" ] && XDISTRIB_RELEASE=0000
+	    if [ $XDISTRIB_RELEASE -gt 1110 ]
+	    then
+		# Hope the problem is fixed after Ubuntu 11.10
+		OPT=true
+	    fi
+	fi
+	$OPT || echo "Building without optimization for Ubuntu $DISTRIB_RELEASE"
+    elif [ -f /etc/debian_version ]
+    then
+	DISTRIB_RELEASE=`cat /etc/debian_version`
+	XDISTRIB_RELEASE=`echo $DISTRIB_RELEASE | sed -e 's/[^0-9]//g'`
+	[ -z "$XDISTRIB_RELEASE" ] && XDISTRIB_RELEASE=0000
+	if [ $XDISTRIB_RELEASE -ge 700 ]
+	then
+	    # Hope the problem is fixed in Debian 7.0.0
+	    OPT=true
+	fi
+	$OPT || echo "Building without optimization for Debian $DISTRIB_RELEASE"
+    fi
+
+    if ! $OPT
+    then
+	ok=true
+	if grep -q '^my $default_flags .*O2' /usr/bin/dpkg-buildpackage
+	then
+	    echo 'dpkg-buildpackage: need to remove O2 from $default_flags'
+	    ok=false
+	fi
+	if grep -q '^[ 	]*LDFLAGS.*-Bsymbolic-functions' /usr/bin/dpkg-buildpackage
+	then
+	    echo 'dpkg-buildpackage: need to remove -Bsymbolic-function from LDFLAGS'
+	    ok=false
+	fi
+	if ! $ok
+	then
+	    echo "Refer to Debian/Ubuntu notes in PCP's ./INSTALL"
+	    exit 1
+	fi
+	# as of Debian 6.0.1 and Ubuntu 10.10, build flags are hidden and
+	# extracted using dpkg-buildflags which fortunately honours some
+	# environment variable settings
+	#
+	export DEB_CFLAGS_SET=''
+	export DEB_CXXFLAGS_SET=''
+	export DEB_LDFLAGS_SET=''
+    fi
+}
+
+# Build Debian packages using the dpkg-buildpackage utility which runs
+# the complete build, from configure through to final deb preparation.
+#
+debian_buildpackage()
+{
+    echo
+    echo "== Building deb packages using dpkg-buildpackage"
+
+    SUDO=${SUDO:-fakeroot}
+    # don't sign by default
+    sign='-us -uc'
+    # sign if --signed and $DEB_SIGN_KEYID set in the environment
+    $signed && [ -n "$DEB_SIGN_KEYID" ] && sign=''
+    rm -f $tmp/failed
+    if $verbose ; then
+	(dpkg-buildpackage $sign -r$SUDO || touch $tmp/failed) 2>&1 | tee -a $LOGDIR/pcp
+    else
+	(dpkg-buildpackage $sign -r$SUDO || touch $tmp/failed) >>$LOGDIR/pcp 2>&1
+    fi
+    [ -f $tmp/failed ] && build_failure debian buildpackage
+}
+
+prepare_debian_sources()
+{
+    # shortcut for dpkg-buildpackage which does everything itself from here
+    rm -rf "$SRCDIR"
+    mkdir -p "$SRCDIR" 2>/dev/null
+
+    cd "$SRCDIR" || exit 1
+    $TAR -zxf "$SRCTAR" || exit 1
+
+    cd "$SRCTREE" || exit 1
+    third_parties
+
+    fix_version ${topdir}/VERSION.pcp VERSION.pcp
+}
+
+prepare_debian_control()
+{
+    echo
+    echo "== Preparing source tree for dpkg-buildpackage"
+    rm -f $tmp/failed debian/control
+    if $verbose ; then
+	($MAKE -C debian control 2>&1 || touch $tmp/failed) 2>&1 | tee -a $LOGDIR/pcp
+    else
+	($MAKE -C debian control 2>&1 || touch $tmp/failed) >>$LOGDIR/pcp 2>&1
+    fi
+    [ -f $tmp/failed ] && build_failure debian control
+}
+
+debian_build()
+{
+    SRCDIR="${topdir}/build/deb"
+    SRCTREE="${topdir}/build/deb/$source"
+    prepare_debian_sources
+
+    # Note: we need to run configure here to get things like builddefs
+    #       created, but configure will be run _again_ from
+    #       debian_buildpackage, but we need to make sure the same
+    #       configure options are used in both places
+    #
+    export configure_opts="$configopts"
+    if [ ! -f debian/rules ]
+    then
+	echo "Botch: cannot find debian/rules"
+	exit 1
+    fi
+    debian_opts=`sed -n <debian/rules -e '/^configure_paths/s/^[^=]*= *//p'`
+    if [ -z "$debian_opts" ]
+    then
+	echo "Botch: cannot get config options from configure_paths in debian/rules"
+	exit 1
+    fi
+    configopts="$debian_opts $configopts"
+    configure_pcp
+    prepare_debian_control
+    sanity_check_settings
+    debian_buildpackage
+
+    # success!
+    if ! $verbose ; then
+	grep ^dpkg-deb $LOGDIR/pcp | \
+	    sed -e 's,\.$,,g' -e "s,',,g" -e "s,\.\.,$topdir/build/deb,g" | \
+	    awk '{ print "Wrote:", $NF }'
+    fi
+    exit 0
+}
+
+prepare_build()
+{
+    echo
+    echo "== Preparing fresh build tree for packaging build"
+
+    if [ ! -d "$SRCDIR" ]; then
+	# extract gzipped tar archive
+	$TAR -xz --file="$SRCTAR" || exit 1
+	fix_version VERSION.pcp $SRCDIR/VERSION.pcp
+    fi
+}
+
+configure_pcp()
+{
+    echo
+    echo "== Configuring pcp, log is in $LOGDIR/pcp ($configopts)"
+
+    rm -f $tmp/failed
+    if $verbose
+    then
+	($configure $configopts 2>&1 || touch $tmp/failed) 2>&1 | tee -a $LOGDIR/pcp
+    else
+	($configure $configopts 2>&1 || touch $tmp/failed) >>$LOGDIR/pcp 2>&1
+    fi
+    [ -f $tmp/failed ] && build_failure Configure
+}
+
+default_build()
+{
+    echo
+    echo "== Building pcp, log is in $LOGDIR/pcp"
+
+    rm -f $tmp/failed
+    if $verbose ; then
+	($MAKE default_pcp 2>&1 || touch $tmp/failed) 2>&1 | tee -a $LOGDIR/pcp
+    else
+	($MAKE default_pcp 2>&1 || touch $tmp/failed) >>$LOGDIR/pcp 2>&1
+    fi
+    [ -f $tmp/failed ] && build_failure Make default_pcp
+}
+
+packaging_pcp()
+{
+    echo
+    echo "== Packaging pcp, log is in $LOGDIR/pcp" | tee -a $LOGDIR/pcp
+
+    rm -f $tmp/failed
+    if $verbose ; then
+	($MAKE -C build pack_pcp 2>&1 || touch $tmp/failed) 2>&1 | tee -a $LOGDIR/pcp
+    else
+	($MAKE -C build pack_pcp 2>&1 || touch $tmp/failed) >>$LOGDIR/pcp 2>&1
+    fi
+    [ -f $tmp/failed ] && build_failure Packaging via pack_pcp
+}
+
+packaging_rpm()
+{
+    echo
+    echo "== Building rpm packages, log is in $LOGDIR/pcp" | tee -a $LOGDIR/pcp
+
+    rm -f $tmp/failed
+    export DIST_ROOT=${topdir}/build/rpm/${source}
+    # sign if --signed and $RPM_SIGN_KEYID set in the environment
+    $signed && [ -z "$RPM_SIGN_KEYID" ] && unset RPM_SIGN_KEYID
+    if $verbose ; then
+	($MAKE -C build/rpm pack_pcp 2>&1 || touch $tmp/failed) 2>&1 | tee -a $LOGDIR/pcp
+    else
+	($MAKE -C build/rpm pack_pcp 2>&1 || touch $tmp/failed) >>$LOGDIR/pcp 2>&1
+    fi
+    [ -f $tmp/failed ] && build_failure Packaging RPMs via pack_pcp
+}
+
+packaging_docker()
+{
+    echo
+    echo "== Building docker container images, log is in $LOGDIR/pcp" | tee -a $LOGDIR/pcp
+    rm -f $tmp/failed
+
+    if docker version >/dev/null 2>&1; then
+	v=`docker version | sed -e 's/\./ /g' | \
+	    awk '/^Server/ {s=1; if($2 == "version:") {print 10*$3+$4; exit}}
+	    	/Version:/ {if (s) {print 10*$2+$3; exit}}'`
+	if [ -z "$v" -o "$v" -lt 14 ]; then
+	    echo 'Error: docker version too old. Containers build skipped.'
+	    touch $tmp/failed
+	fi
+    else
+	echo 'Error: docker not enabled or not properly configured for non-root access.'
+	echo 'Check the docker service is enabled and running. You can allow non-root access'
+	echo 'as follows: edit /etc/sysconfig/docker and add OPTIONS="-G gid" where gid is a'
+	echo 'group name that you are a member of. Then restart the docker service.'
+	touch $tmp/failed
+    fi
+
+    [ -f $tmp/failed ] && build_failure Packaging docker images, docker configuration
+
+    if $verbose ; then
+	($MAKE -C build/containers pack_pcp 2>&1 || touch $tmp/failed) 2>&1 | tee -a $LOGDIR/pcp
+    else
+	($MAKE -C build/containers pack_pcp 2>&1 || touch $tmp/failed) >>$LOGDIR/pcp 2>&1
+    fi
+
+    [ -f $tmp/failed ] && build_failure Packaging docker containers via pack_pcp
+}
+
+# real build starts here
+clean_packaging
+src_tar_build
+$srconly && exit 0
+
+# short-circuit for performing builds with dpkg-buildpackage
+$dodeb && debian_build
+
+prepare_build
+
+# download any requested third party sources we're packaging
+third_parties
+
+# shift into the clean packaging build tree from here onward
+cd "$SRCDIR"
+
+configure_pcp
+
+# short-circuit for performing rpm-only builds with rpmbuild
+# (skips over the default_build stage as rpmbuild does that).
+if $dorpm
+then
+    packaging_rpm
+else
+    default_build	# perform a complete build in-situ
+    packaging_pcp	# create all known package formats
+fi
+
+#
+# --with-docker, currently only for RPM platforms with docker
+if $docker
+then
+    packaging_docker
+fi
+
+# success!
+if ! $verbose ; then
+    grep '^Wrote:' $LOGDIR/pcp | sed -e 's/\.\.\/\.\.\///'
+fi
+exit 0

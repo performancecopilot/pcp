@@ -1,0 +1,5 @@
+Performance Co-Pilot for Apple(R) Mac OS X.
+
+The installer will guide you through the steps necessary to install PCP for Mac OS X.
+
+To get started, click Continue.

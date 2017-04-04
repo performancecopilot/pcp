@@ -1,0 +1,55 @@
+#! /bin/sh
+#
+# Copyright (c) 1997,2003 Silicon Graphics, Inc.  All Rights Reserved.
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+# 
+# Install the txmon PMDA and/or PMNS
+#
+
+. $PCP_DIR/etc/pcp.env
+. $PCP_SHARE_DIR/lib/pmdaproc.sh
+
+iam=txmon
+pmda_interface=2
+
+pmdaSetup
+
+if $do_pmda
+then
+    # special txmon PMDA args
+    #
+    echo 'Welcome to the Install script for the demonstration "txmon" PMDA.
+This PMDA will establish a shared memory segment with one statistics
+structure per transaction type.
+
+You must define the names of the transaction types (the names are
+arbitrary strings with no embedded white space, e.g. mytx#1).
+'
+
+    args=""
+    while true
+    do
+	$PCP_ECHO_PROG $PCP_ECHO_N "Name for transaction type? [return if no more] ""$PCP_ECHO_C"
+	read ans
+	[ -z "$ans" ] && break
+	args="$args $ans"
+    done
+    if [ -z "$args" ]
+    then
+	echo "You need to specify at least one transaction type name!"
+	status=1
+	exit
+    fi
+fi
+
+pmdaInstall
+exit

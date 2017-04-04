@@ -1,0 +1,50 @@
+#pmieconf-rules 1
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(5)
+# 
+
+rule	webping.connect_errors
+	default	= "$rule$"
+	enumerate = hosts
+	predicate =
+"some_inst (
+    60 * webping.errors.sockerr $hosts$
+	> 60 * $threshold$ count/minute
+)"
+	enabled	= yes
+	version	= 1
+	help	=
+"The webping agent encountered more than threshold web server connection
+errors per minute in the last sample interval.";
+
+string	rule
+	default	= "High webping connection error rate"
+	display	= no
+	modify	= no;
+
+double	threshold
+	default	= 3
+	help	=
+"Threshold webping web server connection errors per minute.";
+
+string	action_expand
+	default	= "%verrs@%h"
+	display	= no
+	modify	= no;
+
+string	email_expand
+	default = "host: %h high connection errors: %verrs"
+	display = no
+	modify  = no;
+
+
+# Configuration info specific to non-PCP tools follows...
+# 
+
+# for SGI Embedded Support Partner integration:
+string  esp_type
+	default	= "0x2000A6"
+	display	= no
+	modify	= no;
+
+# 
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(5)

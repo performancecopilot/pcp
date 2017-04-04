@@ -1,0 +1,31 @@
+#pmieconf-rules 1
+#
+
+rule	disk.average_iops
+	default = "$rule$"
+	predicate =
+"some_host (
+    ( disk.all.total $hosts$ / hinv.ndisk $hosts$ )
+	> $threshold$ count/sec
+)"
+	enabled	= no
+	version	= 1
+	help	=
+"The average rate of disk I/O operations per spindle per second
+exceeded the threshold during the last sample interval.";
+
+string	rule
+	default = "high average disk activity per spindle"
+	modify	= no
+	display	= no;
+
+double	threshold  
+	default = 25
+	help	=
+"Threshold in units of disk I/O operations per spindle per second.
+As a hint, the achievable peak is of the order of 100, although the
+disk model, the number of disks per controller, the spindle load
+balance and the distribution of transfer sizes all combine to make
+the practical peak either larger or smaller for any specific
+system.";
+

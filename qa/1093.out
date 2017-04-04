@@ -1,0 +1,65 @@
+QA output created by 1093
+=== no flag file ===
+Some text at the front.
+
+
+---before text
+
+---after text
+
+
+
+foo is not defined
+
+
+Just checking blah is defined as something, so should be here
+
+
+=== flag file exists ===
+Some text at the front.
+
+
+---before text
+
+---after text
+
+foo is defined as bar
+
+
+
+
+Just checking blah is defined as something, so should be here
+
+
+=== shell style, flag file exists ===
+Some text at the front.
+
+
+---before text
+
+---after text
+
+foo is defined as bar
+
+
+
+
+Just checking blah is defined as something, so should be here
+
+
+=== ?shell error and signal cases ===
+--- text before
+--- text after
+Warning: #shell cmd returns 13 exit status
+--- text before
+--- text after
+Warning: #shell cmd terminated by signal 13
+
+=== ?shell and ?include nesting ===
+--- outer text before
+--- include text before
+--- outer text before
+--- include text before
+--- outer text before
+pmcpp: <shell>[2]: %include "TMP.shell"
+pmcpp: Error: %include and/or %shell nesting too deep

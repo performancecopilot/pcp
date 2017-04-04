@@ -1,0 +1,410 @@
+#!/bin/sh
+# PCP QA Test No. 463
+# Test ascii PMNS without cpp
+#
+# Copyright (c) 2011 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s;$tmp;TMP;g" \
+	-e "s;$PCP_VAR_DIR;PCP_VAR_DIR;g"
+}
+
+# real QA test starts here
+echo "no error cases ..."
+echo "---------------- 1 -----------------"
+cat <<End-of-File >$tmp.root
+root {
+    one	1:2:3
+    two
+    four
+}
+two {
+    three	4:5:6
+}
+four {
+    five
+}
+four.five {
+    six	7:8:9
+}
+End-of-File
+pmcpp $tmp.root 2>&1 | _filter
+
+echo
+echo "---------------- 2 -----------------"
+cat <<End-of-File >$tmp.root
+root {
+    one	1:2:3
+#include "$tmp.1"
+End-of-File
+cat <<End-of-File >$tmp.1
+    two
+    four
+}
+two {
+    three	4:5:6
+}
+#include "$tmp.2"
+End-of-File
+cat <<End-of-File >$tmp.2
+four {
+    five
+}
+four.five {
+    six	7:8:9
+}
+End-of-File
+pmcpp $tmp.root 2>&1 | _filter
+rm -f $tmp.?
+
+echo
+echo "---------------- 3 -----------------"
+cat <<End-of-File >$tmp.root
+root {
+    one	1:2:3
+#ifdef foo
+    foo 2:4:5
+#endif
+#ifndef foo
+#include "$tmp.1"
+#endif
+}
+End-of-File
+cat <<End-of-File >$tmp.1
+    two
+}
+two {
+    three	4:5:6
+End-of-File
+pmcpp $tmp.root 2>&1 | _filter
+rm -f $tmp.?
+
+echo
+echo "---------------- 4 -----------------"
+cat <<End-of-File >$tmp.root
+root {
+    one	1:2:3
+#define foo yes
+#ifdef foo
+    foo 2:4:5
+#endif
+#ifndef foo
+#include "$tmp.1"
+#endif
+}
+End-of-File
+cat <<End-of-File >$tmp.1
+    two
+}
+two {
+    three	4:5:6
+End-of-File
+pmcpp $tmp.root 2>&1 | _filter
+rm -f $tmp.?
+
+echo
+echo "---------------- 5 -----------------"
+cat <<End-of-File >$tmp.root
+#define one two
+#define foo_path3 foo.three
+#define THREE 3
+#define FOUR 4
+#define FIVE 5
+root {
+    one	2:2:2
+    foo
+}
+foo {
+    two
+    three
+}
+foo.one {
+    eek	THREE:FOUR:FIVE
+}
+foo_path3 {
+    urk	FIVE:FOUR:THREE
+}
+End-of-File
+pmcpp $tmp.root 2>&1 | _filter
+rm -f $tmp.?
+
+echo
+echo "---------------- 6 -----------------"
+cat <<End-of-File >$tmp.root
+/* comment at the beginning */
+root {
+    one	1:2:3
+    two
+    four
+}
+two {
+    three /*inline comment*/	4:5:6
+}
+four {
+    five/* strange
+but syntactically ok */
+}
+four.five {
+    /**/six	7:8:9
+}
+/*
+ * multi-line comment at the end
+ */
+End-of-File
+pmcpp $tmp.root 2>&1 | _filter
+rm -f $tmp.?
+
+# note ... strip blank lines here because number of lines in
+# <stdpmid> may vary over time
+#
+echo
+echo "---------------- 7 -----------------"
+cat <<End-of-File >$tmp.root
+#include <stdpmid>
+root {
+    sample	SAMPLE:*:*
+    sampledso	SAMPLEDSO:*:*
+}
+End-of-File
+pmcpp $tmp.root 2>&1 | _filter | sed -e '/^[ 	]*$/d'
+
+echo
+echo "---------------- 8 -----------------"
+cat <<End-of-File >$tmp.root
+root {
+#ifdef foo
+    sample	SAMPLE:*:*
+    sampledso	SAMPLEDSO:*:*
+#endif
+}
+End-of-File
+pmcpp -DSAMPLE=29 -DSAMPLEDSO=30 -Dfoo $tmp.root 2>&1 | _filter
+
+echo "---------------- 8a -----------------"
+echo foo >$tmp.1
+echo bar >$tmp.2
+echo mumble >$tmp.3
+echo fumble >$tmp.4
+cat <<End-of-File >$tmp.in
+/* white space after include filename */
+#include "$tmp.1"    /* spaces */
+/* spaces, no comment ... this was Nathan's Mac OS X failure */
+#include <$tmp.2>    
+#include <$tmp.3>	/* tab */
+/* tab, no comment */
+#include "$tmp.4"	
+End-of-File
+pmcpp -P $tmp.in 2>&1 | _filter
+
+echo "---------------- 8b -----------------"
+cat <<End-of-File >$tmp.in
+# white space after include filename
+# spaces, no comment ... this was Nathan's Mac OS X failure */
+%include <$tmp.1>    
+# tab this time
+%include "$tmp.2"	
+End-of-File
+pmcpp -sP $tmp.in 2>&1 | _filter
+
+echo
+echo "#include errors ..."
+echo "---------------- 9 -----------------"
+cat <<End-of-File >$tmp.root
+root {
+#include $tmp.1
+}
+End-of-File
+pmcpp $tmp.root 2>&1 | _filter
+rm -f $tmp.?
+
+echo "---------------- 10 -----------------"
+cat <<End-of-File >$tmp.root
+root {
+#include "$tmp.1
+}
+End-of-File
+pmcpp $tmp.root 2>&1 | _filter
+
+echo "---------------- 11 -----------------"
+cat <<End-of-File >$tmp.root
+root {
+#include <$tmp.1
+}
+End-of-File
+pmcpp $tmp.root 2>&1 | _filter
+
+echo "---------------- 12 -----------------"
+cat <<End-of-File >$tmp.root
+root {
+#include "$tmp.1" junk
+}
+End-of-File
+pmcpp $tmp.root 2>&1 | _filter
+rm -f $tmp.?
+
+echo "---------------- 13 -----------------"
+cat <<End-of-File >$tmp.root
+root {
+#include "$tmp.1"
+}
+End-of-File
+pmcpp $tmp.root 2>&1 | _filter
+rm -f $tmp.?
+
+echo "---------------- 14 -----------------"
+cat <<End-of-File >$tmp.root
+root {
+    zero	1:0:0
+#include "$tmp.1"
+}
+End-of-File
+cat <<End-of-File >$tmp.1
+    one	1:0:1
+#include "$tmp.2"
+End-of-File
+cat <<End-of-File >$tmp.2
+    two	1:0:2
+#include "$tmp.3"
+End-of-File
+cat <<End-of-File >$tmp.3
+    three	1:0:3
+#include "$tmp.4"
+End-of-File
+cat <<End-of-File >$tmp.4
+    four	1:0:4
+#include "$tmp.5"
+End-of-File
+pmcpp $tmp.root 2>&1 | _filter
+rm -f $tmp.?
+
+echo
+echo "#define errors ..."
+echo "---------------- 15 -----------------"
+cat <<End-of-File >$tmp.root
+root {
+#define
+}
+End-of-File
+pmcpp $tmp.root 2>&1 | _filter
+
+echo "---------------- 16 -----------------"
+cat <<End-of-File >$tmp.root
+root {
+/* white space at the end of the next line */
+#define 
+}
+End-of-File
+pmcpp $tmp.root 2>&1 | _filter
+
+echo "---------------- 17 -----------------"
+cat <<End-of-File >$tmp.root
+root {
+#define foo
+}
+End-of-File
+pmcpp $tmp.root 2>&1 | _filter
+
+echo "---------------- 18 -----------------"
+cat <<End-of-File >$tmp.root
+root {
+#define bad_123_macro!name
+}
+End-of-File
+pmcpp $tmp.root 2>&1 | _filter
+
+echo "---------------- 19 -----------------"
+cat <<End-of-File >$tmp.root
+root {
+#define dup yes
+#define dup no
+}
+End-of-File
+pmcpp $tmp.root 2>&1 | _filter
+
+echo "---------------- 20 -----------------"
+cat <<End-of-File >$tmp.root
+root {
+}
+End-of-File
+pmcpp -Dfoo=1 -Dfoo $tmp.root 2>&1 | _filter
+
+echo "---------------- 21 -----------------"
+cat <<End-of-File >$tmp.root
+root {
+}
+End-of-File
+pmcpp -Dfoo-bar=1 $tmp.root 2>&1 | _filter
+
+echo
+echo "#ifdef etc errors ..."
+echo "---------------- 22 -----------------"
+cat <<End-of-File >$tmp.root
+root {
+#ifndef extra /*does not count*/ !
+}
+End-of-File
+pmcpp $tmp.root 2>&1 | _filter
+
+echo "---------------- 23 -----------------"
+cat <<End-of-File >$tmp.root
+root {
+#ifdef foo
+#endif
+#endif /* not matched */
+}
+End-of-File
+pmcpp $tmp.root 2>&1 | _filter
+
+echo "---------------- 24 -----------------"
+cat <<End-of-File >$tmp.root
+root {
+#define foo yippee
+#ifdef foo
+#define nested yes
+#ifdef nested	/* <- error */
+#endif
+#endif
+}
+End-of-File
+pmcpp $tmp.root 2>&1 | _filter
+
+echo "---------------- 25 -----------------"
+cat <<End-of-File >$tmp.root
+root {
+#undef foo
+#ifndef foo
+#undef nested
+#ifndef nested	/* <- error */
+#endif
+#endif
+}
+End-of-File
+pmcpp $tmp.root 2>&1 | _filter
+
+echo
+echo "other #cpp line errors ..."
+echo "---------------- 26 -----------------"
+cat <<End-of-File >$tmp.root
+root {
+#fumble
+}
+End-of-File
+pmcpp $tmp.root 2>&1 | _filter
+
+# success, all done
+exit

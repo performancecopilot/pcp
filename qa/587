@@ -1,0 +1,151 @@
+#! /bin/sh
+# PCP QA Test No. 587
+# pmcd long line handling error
+# #754795 - pmcd botches handling of long lines in pmcd.conf
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ -d $PCP_PMDAS_DIR/trivial ] || _notrun "trivial PMDA directory is not installed"
+
+rm -f $seq.out
+case $PCP_PLATFORM
+in
+    linux|darwin|solaris|freebsd)
+	ln $seq.$PCP_PLATFORM $seq.out || exit 1
+	;;
+    *)
+	_notrun "Need qualified output for $PCP_PLATFORM"
+	;;
+esac
+
+signal=$PCP_BINADM_DIR/pmsignal
+status=1	# failure is the default!
+
+install_on_cleanup=false
+pminfo trivial >/dev/null 2>&1 && install_on_cleanup=true
+
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_cleanup()
+{
+    ( cd $PCP_PMDAS_DIR/trivial ; $sudo $PCP_MAKE_PROG >/dev/null 2>&1 )
+    if $install_on_cleanup
+    then
+	( cd $PCP_PMDAS_DIR/trivial; $sudo ./Install </dev/null >/dev/null 2>&1 )
+    else
+	( cd $PCP_PMDAS_DIR/trivial; $sudo ./Remove >/dev/null 2>&1 )
+    fi
+    if [ -f $PCP_PMCDCONF_PATH.$seq ]
+    then
+	echo
+	_restore_config $PCP_PMCDCONF_PATH
+	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+	_wait_for_pmcd
+    else
+	$sudo $signal -a -s HUP pmcd
+    fi
+    rm -f $tmp.*
+    if [ -d $PCP_LOG_DIR/pmcd ]
+    then
+	$sudo rm -f $PCP_LOG_DIR/pmcd/this-is-not-a-filename-but-is-arbitrary-filler-to-make-the-lines-longer-than-*-bytes*
+    else
+	$sudo rm -f $PCP_LOG_DIR/this-is-not-a-filename-but-is-arbitrary-filler-to-make-the-lines-longer-than-*-bytes*
+    fi
+}
+
+# default case
+PMCDLOG=$PCP_LOG_DIR/pmcd/pmcd.log
+
+case "$PCP_PLATFORM" in
+
+linux)
+    cat >> $tmp.conf << EOF
+# temporary pmcd.conf for qa/$seq
+pmcd    2       dso     pmcd_init       $PCP_PMDAS_DIR/pmcd/pmda_pmcd.so
+linux   60      dso     linux_init      $PCP_PMDAS_DIR/linux/pmda_linux.so
+EOF
+    ;;
+
+darwin)
+    cat >> $tmp.conf << EOF
+# temporary pmcd.conf for qa/$seq
+pmcd    2       dso     pmcd_init       $PCP_PMDAS_DIR/pmcd/pmda_pmcd.dylib
+darwin  78      dso     darwin_init     $PCP_PMDAS_DIR/darwin/pmda_darwin.dylib
+EOF
+    ;;
+
+solaris)
+    cat >> $tmp.conf << EOF
+# temporary pmcd.conf for qa/$seq
+pmcd	2	dso	pmcd_init	$PCP_PMDAS_DIR/pmcd/pmda_pmcd.so
+solaris	75	dso	solaris_init	$PCP_PMDAS_DIR/solaris/pmda_solaris.so
+EOF
+    ;;
+
+freebsd)
+    cat >> $tmp.conf << EOF
+# temporary pmcd.conf for qa/$seq
+pmcd	2	dso	pmcd_init	$PCP_PMDAS_DIR/pmcd/pmda_pmcd.so
+freebsd	85	dso	freebsd_init	$PCP_PMDAS_DIR/freebsd/pmda_freebsd.so
+EOF
+    ;;
+
+*)
+    echo "Arrgh ... need pmcd.conf for $PCP_PLATFORM"
+    exit 1
+esac
+
+_save_config $PCP_PMCDCONF_PATH
+$sudo cp $tmp.conf $PCP_PMCDCONF_PATH
+$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+_wait_for_pmcd
+
+unset ROOT MAKEFLAGS
+cd $PCP_PMDAS_DIR/trivial
+$sudo ./Install </dev/null >/dev/null
+cd $here
+
+echo 'bogus	249	pipe	binary 		'"$PCP_PMDAS_DIR/trivial/pmdatrivial"' -d 250 -l "this-is-not-a-filename-but-is-arbitrary-filler-to-make-the-lines-longer-than-200-bytes-------------------------------------------------------------------"' >>$tmp.conf
+
+echo 'fungus	248	pipe	binary 		'"$PCP_PMDAS_DIR/trivial/pmdatrivial"' -d 250 -l "this-is-not-a-filename-but-is-arbitrary-filler-to-make-the-lines-longer-than-400-bytes-------------------------------------------------------------------fungus    248     pipe    binary          '"$PCP_PMDAS_DIR/trivial/pmdatrivial"' -d 250 -l this-is-not-a-filename-but-is-arbitrary-filler-to-make-the-lines-longer-than-500-bytes-------------------------------------------------------------------0123456768901234567689012345676890123456768901234567689012345676890123456768901234567689"' >>$tmp.conf
+
+echo 'humus	247	pipe	binary 		'"$PCP_PMDAS_DIR/trivial/pmdatrivial"' -d 250 -l "this-is-not-a-filename-but-is-arbitrary-filler-to-make-the-lines-longer-than-2000-bytes------------------------------------------------------------------- 012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789"' >>$tmp.conf
+
+cp $tmp.conf $tmp.conf+trivial
+grep '^trivial' $PCP_PMCDCONF_PATH >>$tmp.conf+trivial
+
+# real QA test starts here
+for i in 1 2 3 4 5 6
+do
+    echo
+    echo "=== Cycle $i ==="
+    echo "add trivial PMDA ..."
+    $sudo cp $tmp.conf+trivial $PCP_PMCDCONF_PATH
+    $sudo touch $PCP_PMCDCONF_PATH
+    $sudo $signal -a -s HUP pmcd
+    sleep 1
+    _wait_for_pmcd
+    pminfo -f pmcd.agent.type
+    echo "cull trivial PMDA ..."
+    $sudo cp $tmp.conf $PCP_PMCDCONF_PATH
+    $sudo touch $PCP_PMCDCONF_PATH
+    $sudo $signal -a -s HUP pmcd
+    sleep 1
+    _wait_for_pmcd
+    pminfo -f pmcd.agent.type
+done
+
+grep ridiculous $PMCDLOG
+
+# success, all done
+status=0
+exit

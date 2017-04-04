@@ -1,0 +1,71 @@
+#!/bin/sh
+#
+# Check various man pages for consistency issues related to
+# possible changes in the code base
+#
+
+tmp=/var/tmp/$$
+trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+
+# man pages that are not in the GNUmakefile will not be included
+# in the build
+for dir in man?
+do
+    cd $dir
+    for file in *
+    do
+	[ "$file" = GNUmakefile ] && continue
+	if grep "[ 	]$file" GNUmakefile >/dev/null
+	then
+	    :
+	else
+	    echo "$dir/$file: not in GNUmakefile"
+	fi
+    done
+    cd ..
+done
+
+# completeness of PM_ERR codes in man3/pcpintro.3
+#
+if [ -x ../src/pmerr/pmerr ]
+then
+    ../src/pmerr/pmerr -l
+else
+    echo >&2 "Warning: using installed pmerr not newly built one ..."
+    pmerr -l
+fi \
+| sed \
+    -e 's/^-[0-9]*[ 	]*//' \
+    -e 's/[ 	].*//' \
+    -e '/^$/d' \
+| sort >$tmp.codes
+
+awk <man3/pcpintro.3 '
+/^.TP/				{ want = 1; next }
+want == 1 && /^.B PM_ERR/	{ print $2 }
+				{ want = 0 }' \
+| sort >$tmp.desc
+
+comm -23 $tmp.codes $tmp.desc >$tmp.tmp
+if [ -s $tmp.tmp ]
+then
+    echo "Error codes defined but not documented in man3/pcpintro.3:"
+    sed -e 's/^/    /' $tmp.tmp
+fi
+comm -13 $tmp.codes $tmp.desc >$tmp.tmp
+if [ -s $tmp.tmp ]
+then
+    echo "Error codes documented in man3/pcpintro.3 but not defined:"
+    sed -e 's/^/    /' $tmp.tmp
+fi
+
+# references to Irix are probably needing to be retired ... other
+# than the previously checked exceptions
+#
+grep -r -i irix man? \
+| sed \
+    -e '/man5\/pmns.5:.*IRIX:[A-Z]/d' \
+    -e '/man1\/pcpintro.1:.*MacOSX, IRIX, AIX/d' \
+    -e '/man1\/pmie.1:.*\/SGI_Admin\/books\/PCP_IRIX\//d' \
+    -e '/man5\/pmns.5:#define IRIX 1/d'
+

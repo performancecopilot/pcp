@@ -1,0 +1,4 @@
+#pmlogconf-setup 2.0
+ident	All Zimbra information
+probe	zimbra.fd_count
+	zimbra

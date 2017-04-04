@@ -1,0 +1,186 @@
+#! /bin/sh
+# PCP QA Test No. 457
+# checks basic pmdalogger functionality
+#
+# Copyright (c) 2011 Aconex.  All Rights Reserved.
+#
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ -d $PCP_PMDAS_DIR/logger ] || _notrun "No pmdalogger installed"
+
+_cleanup()
+{
+    if $_needclean
+    then
+	[ -f $PCP_VAR_DIR/config/logger/logger.conf.$seq ] && \
+	_restore_config $PCP_VAR_DIR/config/logger/logger.conf
+	_restore_pmda_install logger
+	if $install_on_cleanup
+	then
+	    ( cd $PCP_PMDAS_DIR/logger; $sudo ./Install <$tmp.input >/dev/null 2>&1 )
+	else
+	    ( cd $PCP_PMDAS_DIR/logger; $sudo ./Remove </dev/null >/dev/null 2>&1 )
+	fi
+	_needclean=false
+    fi
+    $sudo rm -fr $tmp.dir
+    $sudo rm -f $tmp.*
+    exit $status
+}
+
+_testdata()
+{
+    # generate data in a single write, for pmda determinism
+    echo \
+"TeSt DaTa ... TeSt DaTa ...
+TeSt2 DaTa2 ... TeSt2 DaTa2"
+}
+
+_filter()
+{
+    sed \
+	-e "s,$tmp,TMPFILE,g" \
+	-e "s,$PCP_VAR_DIR,PCP_VAR_DIR,g" \
+	-e 's/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]\.[0-9][0-9][0-9]/TIMESTAMP/g'
+}
+
+_filter_dir()
+{
+    # size is filesystem and blocksize dependent
+    _filter | sed '/^logger\.perfile\.dir\.size$/ {
+N
+s:[0-9][0-9]*:SIZE:
+}'
+}
+
+$sudo rm -fr $tmp.dir
+$sudo rm -f $tmp.* $seq.full
+
+# setup pmdalogger configuration file
+echo "
+# from PCP QA $seq
+reg	n	$tmp.reg
+fifo	n	$tmp.fifo
+none	n	$tmp.none
+empty	n	$tmp.empty
+dir	n	$tmp.dir
+pipe	n	$tmp.pipe|
+" >$tmp.conf
+
+# and PMDA Install script
+cat >$tmp.input <<End-of-File
+b
+1
+End-of-File
+
+install_on_cleanup=false
+pminfo logger >/dev/null 2>&1 && install_on_cleanup=true
+
+status=1	# failure is the default!
+_needclean=true
+trap "_cleanup" 0 1 2 3 15
+
+# real QA test starts here
+_prepare_pmda_install logger
+
+# prepare test case files (see below)
+_testdata > $tmp.reg
+wc $tmp.reg >>$here/$seq.full
+mkdir $tmp.dir
+mkfifo $tmp.fifo
+touch $tmp.empty
+$PCP_ECHO_PROG $PCP_ECHO_N "#!/bin/sh
+echo \$\$ > $tmp.pipe.pid
+trap \"echo child\" USR1
+read book
+""$PCP_ECHO_C" > $tmp.pipe	# i.e. print something when sigusr1 delivered
+chmod 755 $tmp.pipe
+
+[ -d $PCP_VAR_DIR/config/logger ] || $sudo mkdir -p $PCP_VAR_DIR/config/logger
+[ -f $PCP_VAR_DIR/config/logger/logger.conf ] && \
+_save_config $PCP_VAR_DIR/config/logger/logger.conf
+$sudo cp $tmp.conf $PCP_VAR_DIR/config/logger/logger.conf
+
+# install PMDA accepting the defaults (esp config file)
+$sudo ./Remove < /dev/null >/dev/null 2>&1
+$sudo ./Install < /dev/null >$tmp.out 2>&1
+cat $tmp.out | _filter_pmda_install | _filter
+
+echo
+echo "=== 1. simple working case ===" | tee -a $here/$seq.full
+$PCP_ECHO_PROG $PCP_ECHO_N "Checking initial data:""$PCP_ECHO_C"
+pminfo -f logger.perfile.reg | _filter
+_testdata >> $tmp.reg
+wc $tmp.reg >>$here/$seq.full
+$PCP_ECHO_PROG $PCP_ECHO_N "Checking appended data:""$PCP_ECHO_C"
+pminfo -f logger.perfile.reg | _filter
+
+echo
+echo "=== 2. named pipe (fifo) ===" | tee -a $here/$seq.full
+$PCP_ECHO_PROG $PCP_ECHO_N "Check initial pipe""$PCP_ECHO_C"
+pminfo -f logger.perfile.fifo | _filter
+$PCP_ECHO_PROG $PCP_ECHO_N "Checking new pipe data""$PCP_ECHO_C"
+_testdata >> $tmp.fifo
+pminfo -f logger.perfile.fifo | _filter
+$PCP_ECHO_PROG $PCP_ECHO_N "Unlink the fifo""$PCP_ECHO_C"
+rm -f $tmp.fifo
+pminfo -f logger.perfile.fifo | _filter
+
+echo
+echo "=== 3. log file rotation ===" | tee -a $here/$seq.full
+$PCP_ECHO_PROG $PCP_ECHO_N "Checking removed file""$PCP_ECHO_C"
+rm -f $tmp.reg
+sleep 3	# pmda interval timer is 2 seconds
+pminfo -f logger.perfile.reg  | _filter
+$PCP_ECHO_PROG $PCP_ECHO_N "Checking new log file""$PCP_ECHO_C"
+_testdata >> $tmp.reg
+wc $tmp.reg >>$here/$seq.full
+sleep 3	# pmda interval timer is 2 seconds
+pminfo -f logger.perfile.reg | _filter
+wc $tmp.reg >>$here/$seq.full
+od -c $tmp.reg >>$here/$seq.full
+
+echo
+echo "=== 4. non-existant file ===" | tee -a $here/$seq.full
+$PCP_ECHO_PROG $PCP_ECHO_N "Check a missing file""$PCP_ECHO_C"
+pminfo -f logger.perfile.none | _filter
+_testdata >> $tmp.none
+wc $tmp.none >>$here/$seq.full
+sleep 3	# pmda interval timer is 2 seconds
+$PCP_ECHO_PROG $PCP_ECHO_N "Checking new log file""$PCP_ECHO_C"
+pminfo -f logger.perfile.none | _filter
+
+echo
+echo "=== 5. empty file ===" | tee -a $here/$seq.full
+$PCP_ECHO_PROG $PCP_ECHO_N "Check an empty file""$PCP_ECHO_C"
+pminfo -f logger.perfile.empty | _filter
+_testdata >> $tmp.empty
+wc $tmp.empty >>$here/$seq.full
+sleep 3	# pmda interval timer is 2 seconds
+$PCP_ECHO_PROG $PCP_ECHO_N "Checking new log file""$PCP_ECHO_C"
+pminfo -f logger.perfile.empty | _filter
+
+echo
+echo "=== 6. directory ===" | tee -a $here/$seq.full
+$PCP_ECHO_PROG $PCP_ECHO_N "Check a directory""$PCP_ECHO_C"
+pminfo -f logger.perfile.dir | _filter_dir
+
+echo
+echo "=== 7. command pipe ===" | tee -a $here/$seq.full
+[ -f $tmp.pipe.pid ] || _fail "PID file from command pipe not found"
+pid=`cat $tmp.pipe.pid`
+$PCP_ECHO_PROG $PCP_ECHO_N "Check a piped command""$PCP_ECHO_C"
+pminfo -f logger.perfile.pipe | _filter
+$PCP_ECHO_PROG $PCP_ECHO_N "Signal the command""$PCP_ECHO_C"
+pmsignal -s USR1 $pid >/dev/null 2>&1
+sleep 3	# some time for it to be delivered
+pminfo -f logger.perfile.pipe | _filter
+
+status=0
+exit

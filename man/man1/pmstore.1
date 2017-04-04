@@ -1,0 +1,170 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMSTORE 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmstore\f1 \- modify performance metric values
+.\" literals use .B or \f3
+.\" arguments use .I or \f2
+.SH SYNOPSIS
+\f3pmstore\f1
+[\f3\-Lf\f1]
+[\f3\-h\f1 \f2host\f1]
+[\f3\-i\f1 \f2instances\f1]
+[\f3\-K\f1 \f2spec\f1]
+[\f3\-n\f1 \f2pmnsfile\f1]
+\f2metricname\f1 \f2value\f1
+.SH DESCRIPTION
+Under certain circumstances, it is useful to be able to modify the values
+of performance metrics, for example to re-initialize counters or to assign
+new values to metrics that act as control variables.
+.PP
+.B pmstore
+changes the current values for the nominated instances of a
+single performance metric, as identified by
+.I metricname
+and the list of instance identifiers following the
+.B \-i
+argument.
+.I instances
+must be a single argument, with
+elements of the list separated by commas and/or white space.
+By default all
+instances of
+.I metricname
+will be updated.
+.PP
+Normally
+.B pmstore
+operates on the default Performance Metrics Name Space (PMNS), however
+if the
+.B \-n
+option is specified an alternative namespace is loaded
+from the file
+.IR pmnsfile.
+.PP
+Unless directed to another host by the
+.B \-h
+option,
+.B pmstore
+will interact with the Performance Metric Collector Daemon (PMCD)
+on the local host.
+.PP
+The
+.B \-L
+option causes
+.B pmstore
+to use a local context to store to metrics from PMDAs on the local host
+without PMCD.  Only some metrics are available in this mode.
+The
+.BR \-h
+and
+.B \-L
+options are mutually exclusive.
+.PP
+The
+.B \-f
+option forces the given value to be stored, even if there is no current value set.
+.PP
+The interpretation of
+.I value
+is dependent on the syntax used in its specification and
+the underlying data type of
+.IR metricname ,
+as follows.
+.IP 1. 4
+If the metric has an \fBinteger\fR type, then
+.I value
+should be an optional leading hyphen, followed either by decimal digits
+or ``0x'' and some hexadecimal digits.  ``0X'' is also acceptable in lieu
+of ``0x''.
+See
+.BR strtol (3)
+and the related routines.
+.IP 2. 4
+If the metric has a \fBfloating point\fR type, then
+.I value
+should be either in the form of an integer described above, or
+a fixed point number, or a number in scientific notation.
+See
+.BR strtod (3).
+.IP 3. 4
+If the metric has a \fBstring\fR type, then
+.I value
+is interpreted as a literal string of ASCII characters.
+.IP 4. 4
+If the metric has any other type (i.e.
+.B PM_TYPE_EVENT
+or
+.BR PM_TYPE_AGGREGATE )
+then no encoding of
+.I value
+from the command line makes sense, and the values of these metrics cannot
+be modified with
+.BR pmstore .
+.PP
+The output reports the old value and the new value for each updated
+instance of the requested metric.
+.PP
+When using the
+.B \-L
+option to fetch metrics from a local context, the
+.B \-K
+option may be used to control the DSO PMDAs that should be
+made accessible.  The
+.I spec
+argument conforms to the syntax described in
+.BR __pmSpecLocalPMDA (3).
+More than one
+.B \-K
+option may be used.
+.SH FILES
+.PD 0
+.TP 10
+.BI $PCP_VAR_DIR/pmns/ *
+default PMNS specification files
+.PD
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.I /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (5).
+.SH SEE ALSO
+.BR pmcd (1),
+.BR pminfo (1),
+.BR pmval (1),
+.BR __pmSpecLocalPMDA (3),
+.BR strtod (3)
+and
+.BR strtol (3).
+.SH DIAGNOSTICS
+Two messages indicate a mismatch between the internal data type for
+.I metricname
+and the
+.I value
+provided.
+.P
+The value "???" is out of range for the data type (PM_TYPE_...)
+.P
+The value "???" is incompatible with the data type (PM_TYPE_...)

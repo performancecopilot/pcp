@@ -1,0 +1,95 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2013 Red Hat.
+.\" Copyright (c) 2011 Nathan Scott.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMDAEVENTCLIENT 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+.ad l
+\f3pmdaEventNewClient\f1,
+\f3pmdaEventEndClient\f1,
+\f3pmdaEventClients\f1 \- client context tracking interfaces for event queues
+.br
+.ad
+.SH "C SYNOPSIS"
+.ft 3
+.nf
+#include <pcp/pmapi.h>
+#include <pcp/impl.h>
+#include <pcp/pmda.h>
+.fi
+.sp
+.ad l
+.hy 0
+.in +8n
+.ti -8n
+int pmdaEventNewClient(int \fIcontext\fP);
+.br
+.ti -8n
+int pmdaEventEndClient(int \fIcontext\fP);
+.br
+.ti -8n
+int pmdaEventClients(pmAtomValue *\fIavp\fP);
+.sp
+.in
+.hy
+.ad
+cc ... \-lpcp_pmda \-lpcp
+.ft 1
+.SH DESCRIPTION
+.de CW
+.ie t \f(CW\\$1\f1\\$2
+.el \fI\\$1\f1\\$2
+..
+A Performance Metrics Domain Agent (PMDA) that exports event records
+needs to track which clients are connected to it, in order that it can
+track which events have been sent to which clients so far.
+Only once an event has been sent to all monitoring tools that registered
+an interest can the event be discarded and any memory reclaimed.
+.PP
+The
+.BR PMDA (3)
+library provides callback routines for PMDA developers to provide custom
+handling of client connections and disconnections.
+If the PMDA is making use of the event queueing mechanism provided by
+.BR pmdaEventNewQueue (3)
+and friends, client connections and disconnections must be tracked via
+calls to
+.B pmdaEventNewClient
+and
+.B pmdaEventEndClient
+respectively.
+This allows the library to keep track of when events can be discarded
+from a queue, for example, for the
+.I context
+specified.
+This parameter is passed into the e_endCallBack function directly,
+and for other callback functions is available via the e_context field
+of the pmdaExt structure.
+Additionally, it can be queried at any time using
+.BR pmdaGetContext (3).
+.PP
+Sometimes it is useful for the PMDA to export a metric indicating the
+current count of attached clients \- this is available using the
+.B pmdaEventClients
+routine, which will fill in the
+.I avp
+pmAtomValue structure on behalf of a PMDA fetch callback routine.
+.SH SEE ALSO
+.BR pmdaEventNewArray (3),
+.BR pmdaEventNewQueue (3),
+.BR PMAPI (3),
+.BR PMDA (3)
+and
+.BR pmEventFlagsStr (3).

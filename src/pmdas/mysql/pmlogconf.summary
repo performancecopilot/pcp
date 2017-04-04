@@ -1,0 +1,4 @@
+#pmlogconf-setup 2.0
+ident	mysql summary information
+probe	mysql.status exists ? include : exclude
+	mysql.status

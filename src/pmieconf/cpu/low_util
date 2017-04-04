@@ -1,0 +1,69 @@
+#pmieconf-rules 1
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(5)
+#
+
+rule	cpu.low_util
+	summary	= "$rule$"
+	predicate =
+"some_host (
+    // kernel.all.cpu metrics count up to 1 second of CPU time
+    // per second per CPU
+    100 * ( kernel.all.cpu.user $hosts$ +
+	    kernel.all.cpu.sys $hosts$ +
+	    kernel.all.cpu.intr $hosts$ ) / hinv.ncpu $hosts$ 
+    < $threshold$
+)"
+	enabled	= no
+	version	= 1
+	help	=
+"The average processor utilization over all CPUs was below threshold
+percent during the last sample interval.
+This rule is effectively the opposite of cpu.util and is disabled by
+default - it is only useful in specialized environments where, for
+example, processing is batch oriented and low processor utilization
+is indicative of poor use of system resources.  In such a situation
+the cpu.low_util rule should be enabled, and cpu.util disabled.";
+
+string	rule
+	default	= "Low average processor utilization"
+	modify	= no
+	display	= no;
+
+percent	threshold
+	default	= 25
+	help	=
+"Lower bound percentage for CPU utilization, in the range 0 (idle)
+to 100 (completely busy), independent of the number of CPUs.";
+
+string	action_expand
+	default	= %v%util@%h
+	display	= no
+	modify	= no;
+
+string	email_expand
+	default	= "host: %h average CPU utilization: %v%"
+	display	= no
+	modify	= no;
+
+
+# Configuration info specific to non-PCP tools follows...
+# 
+
+# for SGI Embedded Support Partner integration:
+string	esp_type
+	default	= "0x20005E"
+	display	= no
+	modify	= no;
+
+# for EnlightenDSM integration:
+string	enln_test
+	default	= cpu.low_util
+	display	= no
+	modify = no;
+string	enln_units
+	default	= %util
+	display	= no
+	modify = no;
+
+# 
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(5)

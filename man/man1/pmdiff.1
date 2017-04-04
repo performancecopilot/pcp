@@ -1,0 +1,178 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2013-2016 Red Hat.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\" 
+.TH PMDIFF 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmdiff\f1 \- compares archives and report significant differences
+.SH SYNOPSIS
+\f3pmdiff\f1
+[\f3\-d\f1/\f3--keep\f1]
+[\f3\-z\f1/\f3--hostzone\f1]
+[\f3\-p\f1/\f3--precision\f1 \f2precision\f1]
+[\f3\-q\f1/\f3--threshold\f1 \f2thres\f1]
+[\f3\-S\f1/\f3--start\f1 \f2starttime\f1]
+[\f3\-T\f1/\f3--finish\f1 \f2endtime\f1]
+[\f3\-B\f1/\f3--begin\f1 \f2starttime\f1]
+[\f3\-E\f1/\f3--end\f1 \f2endtime\f1]
+[\f3\-x\f1 \f2metric\f1]
+[\f3\-X\f1 \f2file\f1]
+[\f3--skip-excluded\f1]
+[\f3--skip-missing\f1]
+[\f3\-Z\f1/\f3--timezone\f1 \f2timezone\f1]
+\f2archive1\f1
+[\f2archive2\f1]
+.SH DESCRIPTION
+.B pmdiff
+compares the average values for every metric in either one
+or two sets of archives, in a given time window, for changes that are
+likely to be of interest when searching for performance regressions.
+.PP
+The archive specifiers
+.I archive1
+and
+.I archive2
+may be comma-separated lists of names, each of which may be the base name of
+an archive or the name of a directory containing one or more archives. Each
+archive in the resulting set of archives must have been previously created using
+.BR pmlogger (1).
+The
+.BR pmlogsummary (1)
+utility is used to obtain the average values used for comparison.
+.PP
+There are two sorts of invocation of the tool: with either one or
+two sets of archives.
+.PP
+In the first case, the only sensible command line requires use of
+all four time window arguments.  These are specified using the same
+time window format described in
+.BR PCPIntro (1),
+and are
+.BR \-S / \-\-start
+and
+.BR \-T / \-\-finish
+for the start and end times of the first time window of interest
+in the archive set, and
+.BR \-B / \-\-before
+and
+.BR \-E / \-\-end
+for the start and end times of the second time window of interest.
+.PP
+In the second case, with two sets of archives, the 
+.BR \-B / \-\-before
+and
+.BR \-E / \-\-end
+options might be unnecessary.  This might be the case, for example,
+when comparing the same time window of two consecutive days (usually
+two separate sets of archives), or a time window on the same day of different
+weeks.
+.PP
+In either case,
+.B pmdiff
+produces a sorted summary of those metrics in the specified window
+whose values have deviated the most from a minimal threshold.
+The level of deviation is calculated by dividing the average value
+of each metric in both logs, and then calculating whether the ratio
+falls outside of a range considered normal.
+This ratio can be adjusted using the
+.BR \-q / \-\-threshold
+option, and by default it is 2 (i.e. report all metrics with average
+values that have more than doubled in the two time windows or more
+than halved in the two time windows).
+.PP
+If the baseline value is zero and the comparison value is non-zero,
+the ratio is reported as ``|+|'' (infinitely large).
+If the comparison value is zero and the baseline value is non-zero,
+the ratio is reported as ``|-|'' (infinitely small).
+.PP
+Reported metrics are sorted in ascending ratio order.
+.PP
+Should any metrics be present in one window but missing from the
+other, a diagnostic will be displayed listing each missing metric
+and the archive set from which it was missing.
+.PP
+The remaining options control the specific information to be reported.
+Metrics with counter semantics are converted to rates before being
+evaluated.
+.TP 5
+.BR \-p / \-\-precision
+Print all floating point numbers with 
+.I precision
+digits after the decimal place.
+.TP
+.B \-\-skip-excluded
+Cull the list of names of metrics being excluded from the output.
+.TP
+.B \-\-skip-missing
+By default,
+.B pmdiff
+will report the names of any metrics that are in one archive set but not
+the other.
+This option suppresses that reporting.
+.TP
+.B \-x
+Compare each metric in each archive set in the time windows specified
+to a given
+.BR egrep (1)
+pattern, excluding those that match from the report output.
+.TP
+.B \-X
+Allows a
+.IR file
+to be specified which containing
+.BR egrep (1)
+patterns which are applied to the metric names to optionally exclude
+some from the report.
+.TP
+.B \-z
+Use the local timezone from the given archive set.
+.TP
+.BR \-Z / \-\-timezone
+Changes the timezone in the archive labels to
+.I timezone
+in the format of the environment variable
+.B TZ
+as described in
+.BR environ (7).
+.PP
+.SH FILES
+.PD 0
+.TP 10
+.BI $PCP_LOG_DIR/pmlogger/ hostname
+Default directory for PCP archives containing performance
+metric values collected from the host
+.IR hostname .
+.PD
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.I /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (5).
+.SH SEE ALSO
+.BR PCPIntro (1),
+.BR pmlogger (1),
+.BR pmlogsummary (1),
+.BR egrep (1),
+.BR pcp.conf (5)
+and
+.BR pcp.env (5).

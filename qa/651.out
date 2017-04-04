@@ -1,0 +1,21 @@
+QA output created by 651
+== pmproxy not running ==
+pmprobe: Cannot connect to PMCD on host "MYHOST": Connection refused
+
+== simplest default case ==
+sample.long.hundred 1 100
+
+== simple explicit host case ==
+hinv.ncpu 1 <n>
+
+== non-standard PMPROXY_PORT, expect failure ==
+pmprobe: Cannot connect to PMCD on host "MYHOST": Connection refused
+
+== non-standard PMPROXY_PORT, expect success ==
+sample.long.hundred 1 100
+
+== restricted interface for connections, expect failure ==
+pmprobe: Cannot connect to PMCD on host "MYHOST": Connection refused
+
+== restricted interface for connections, expect success ==
+sample.long.hundred 1 100

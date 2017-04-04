@@ -1,0 +1,65 @@
+#!/bin/sh
+#
+# recreate the multiple concurrent archives ... multi-<host>
+#
+
+tmp=/var/tmp/$$
+sts=0
+trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
+
+cat <<End-of-File >$tmp.config
+log mandatory on default {
+    hinv
+    sampledso.colour
+    sampledso.bin
+    sampledso.part_bin
+    sampledso.drift
+    sampledso.kbyte_ctr
+    sampledso.kbyte_rate
+    sampledso.ulong
+    sampledso.longlong
+    sampledso.double
+    sampledso.scale_step
+    sampledso.const_rate
+}
+End-of-File
+
+rm -f $tmp.bad
+for host
+do
+    for ext in 0 index meta
+    do
+	[ -f multi-"$host".$ext ] && echo "$0: multi-$host.$ext exists" && touch $tmp.bad
+    done
+done
+
+if [ -f $tmp.bad ]
+then
+    echo "$0: Need to rm archives first ... we won't clobber 'em by default"
+    sts=1
+    exit
+fi
+
+# randomize the pmcd's a little
+#
+for host
+do
+    rm -f $tmp.tmp.* $tmp.$host
+    date >/dev/null 2>&1 &
+    n=`echo $! | awk '{ srand($1); print int(rand()*5)+1 }'`
+    echo "$host: prime with $n samples"
+    pmlogger -t 100msec -s $n -l $tmp.$host -c $tmp.config -T10sec -h $host $tmp.tmp
+done
+
+for host
+do
+    pmlogger -t 2sec -l $tmp.$host -c $tmp.config -T10sec -h $host multi-$host &
+done
+
+wait
+
+for host
+do
+    cat $tmp.$host
+done
+

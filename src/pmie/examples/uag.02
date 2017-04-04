@@ -1,0 +1,8 @@
+//
+// some varied expressions
+//
+pct_wrt = (disk.all.write / disk.all.total) * 100;
+busy_wrt = disk.dev.total > 10 &&
+	   disk.dev.write > disk.dev.read;
+busy = some_inst disk.dev.total > 60 -> print "[%i] high disk i/o ";
+

@@ -1,0 +1,24 @@
+QA output created by 042
+== kernel PMDA
+
+network.interface.in.bytes
+    inst [INST or NAME] value NUMBER
+    inst [INST or NAME] value NUMBER
+
+filesys.used
+    inst [INST or NAME] value NUMBER
+    inst [INST or NAME] value NUMBER
+
+== procfs PMDA
+
+proc.memory.rss
+    inst [INST or NAME] value NUMBER
+
+cgroup.memory.stat.rss
+    inst [INST or NAME] value NUMBER
+
+== pmcd PMDA
+
+OK: host and container names are different
+
+== removing container

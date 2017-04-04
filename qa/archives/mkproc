@@ -1,0 +1,31 @@
+#!/bin/sh
+#
+# Recipe to remake proc archive
+#
+
+rm -f proc.0 proc.index proc.meta
+
+. $PCP_DIR/etc/pcp.env
+
+pmcd_pid=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '[p]mcd' | $PCP_AWK_PROG '{ print $2 }'`
+if [ -z "$pmcd_pid" ]
+then
+    echo "Failed to get pmcd PID"
+    exit 1
+fi
+
+pmlogger_pid=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '[p]mlogger -P' | $PCP_AWK_PROG '{ print $2 }'`
+if [ -z "$pmlogger_pid" ]
+then
+    echo "Failed to get primary pmlogger PID"
+    exit 1
+fi
+
+cat <<End-of-File | $PCP_BINADM_DIR/pmlogger -s 4 -l proc.log proc
+log mandatory on 500msec {
+    hinv
+    proc [$pmcd_pid,$pmlogger_pid]
+    kernel
+    disk
+}
+End-of-File

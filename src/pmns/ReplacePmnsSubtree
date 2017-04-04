@@ -1,0 +1,184 @@
+#!/bin/sh
+#
+# Copyright (c) 2008 Silicon Graphics, Inc.  All Rights Reserved.
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+# Replace a subtree in a performance metrics namespace (PMNS) with a new
+# subtree read from a file.  The file is moved (note: not copied) into the
+# PMNS and given the same name as the subtree.
+#
+# Usage: ReplacePmnsSubtree [-n namespace] pmns-subtree replacement-file
+#
+# Refer to the NOTE at the bottom of the file for important locking details.
+#
+
+. $PCP_DIR/etc/pcp.env
+
+namespace=$PCP_VAR_DIR/pmns/root
+
+# Print usage message to stderr and exit with status provided (default 1)
+
+usageExit()
+{
+    echo "Usage: $prog [-n namespace] pmns-subtree replacement-file" 1>&2
+    exit ${1:-1}
+}
+
+# Sanity check options, parameters, namespace, etc.
+
+prog=`basename $0`
+while getopts n:\? c
+do
+    case "$c" in
+	n)
+	    if [ "x$OPTARG" = x ]
+	    then
+		echo "$prog: -n requires a namespace" 1>&2
+		exit 1
+	    else
+		namespace="$OPTARG"
+	    fi
+	    ;;
+	\?)
+	    usageExit 0
+	    ;;
+    esac
+done
+
+if [ ! -f $namespace ]
+then
+    echo "$prog: namespace doesn't exist: $namespace" 1>&2
+    exit 1
+fi
+
+[ $# != 2 ] && usageExit
+
+subtree=$1
+newSubtreeFile=$2
+namespaceDir=`dirname $namespace`
+
+if [ ! -w $namespaceDir ]
+then
+    echo "$prog: can't write namespace directory $namespaceDir" 1>&2
+    exit 1
+fi
+
+if [ ! -f $newSubtreeFile ]
+then
+    echo "$prog: can't read replacement namespace subtree file for $subtree:" \
+	 "$newSubtreeFile" 1>&2
+    exit 1
+fi
+
+# variables for back-up/restore of namespace files affected by this script
+
+backups="root"
+[ -f "$namespaceDir/$subtree" ] && backups="$backups $subtree"
+backSuffix="$prog-$$-backup"
+restore=false			# restore backup namespace files in cleanup()
+
+# Signal and exit handler to clean/restore namespace (lock and backups).
+
+haveLock=false
+
+# signals we need to be careful of ... HUP, INT, QUIT, PIPE, ALRM, TERM
+#
+STD_SIGNALS="1 2 3 13 14 15"
+
+cleanup()
+{
+    # Release namespace lock as early as possible.  Ignore signals to avoid
+    # releasing a lock already released.
+    trap "" $STD_SIGNALS
+
+    if $restore
+    then
+	for f in $backups
+	do
+	    [ -f "$namespaceDir/.$f-$backSuffix" ] && \
+		mv "$namespaceDir/.$f-$backSuffix" "$namespaceDir/$f"
+	done
+	$haveLock && unlockpmns $namespace
+	haveLock=false
+    else
+	$haveLock && unlockpmns $namespace
+	haveLock=false
+	for f in $backups
+	do
+	    rm -f "$namespaceDir/.$f-$backSuffix"
+	done
+    fi
+}
+
+trap "cleanup; exit" 0 $STD_SIGNALS
+
+# "haveLock=true" is duplicated in both "if" and "else" to minimise the window
+# for a signal leaving an orphaned lock if the "else" condition fires (we
+# stole an existing lock).  See note at bottom of script for details.
+
+if lockpmns $namespace
+then
+    haveLock=true	# duplicate: minimise race condition (see note above)
+else
+    haveLock=true	# duplicate: minimise race condition (see note above)
+    $PCP_BINADM_DIR/pmpost "PCP: PMNS lock stolen by: $*"
+fi
+
+# Namespace is locked, back up affected files.  Once backup completes, enable
+# namespace restore during error handling.
+
+backupErr=false
+for f in $backups
+do
+    dest="$namespaceDir/.$f-$backSuffix"
+    if cp "$namespaceDir/$f" "$dest"
+    then
+	:
+    else
+	echo "error creating namespace backup for $f" 1>&2
+	backupErr=true
+    fi
+done
+$backupErr && exit 1
+restore=true
+
+# pmnsdel leaves any file corresponding to the deleted subtree in place after
+# it runs, regardless of whether it succeeds or fails.  Allow pmnsdel to fail
+# (there may be no existing subtree).  Return 0 only if the entire replacement
+# succeeds.
+
+sts=0
+pmnsdel -n $namespace $subtree >/dev/null 2>&1
+if pmnsadd -n $namespace $newSubtreeFile >/dev/null 2>&1
+then
+    mv -f $newSubtreeFile $namespaceDir/$subtree
+    sts=$?
+else
+    sts=1
+fi
+[ $sts = 0 ] && restore=false
+exit $sts
+
+##############################################################################
+
+# NOTE
+#
+# If a signal occurs in the very short window between pmnslock returning and
+# setting haveLock, the lock is not released by cleanup().  Any subsequent
+# process calling pmnslock will block until its pmnslock steals the lock
+# (currently after 120 secs).  That window is carefully minimised.
+#
+# Past versions of similar scripts (e.g. Rebuild) unconditionally unlocked the
+# namespace when a signal was caught.  This could potentially happen while
+# still waiting to acquire the lock, breaking a lock held by another process!
+#
+# Consider locking and backup/restore implications carefully if making changes.

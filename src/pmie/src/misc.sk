@@ -1,0 +1,205 @@
+/*
+ * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+ * 
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+ * for more details.
+ * 
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+ */
+
+/***********************************************************************
+ * skeleton: misc.sk
+ ***********************************************************************/
+
+#include <assert.h>
+
+/*
+ * operator RULE
+ */
+
+void
+rule(Expr *x)
+{
+    Expr        *arg1 = x->arg1;
+    Expr        *arg2 = x->arg2;
+    int		sts;
+
+    EVALARG(arg1)
+    if ((x->valid = arg1->valid) > 0) {
+	sts = (*(Boolean *)x->ring = *(Boolean *)arg1->ring);
+	if (sts == B_FALSE)
+	    perf->eval_false++;
+	else if (sts == B_TRUE) {
+	    perf->eval_true++;
+	    EVALARG(arg2)
+	}
+	else
+	    perf->eval_unknown++;
+    }
+    else
+	perf->eval_unknown++;
+}
+
+/*
+ * operator CND_RULESET
+ */
+
+void
+ruleset(Expr *x)
+{
+    Expr 	*op;		/* operator nodes */
+    Expr	*rp;		/* rule or action nodes */
+    Expr	*save_curr;	/* save-restore curr when calling rule() */
+    Expr	*other;		/* UNKNOWN/OTHERWISE clauses */
+    int		all_unknown = 1;
+
+    x->valid = 0;
+    op = x->arg1;
+    while (op != NULL) {
+	if (op->op == RULE)
+	    rp = op;
+	else {
+	    assert(op->op == CND_RULESET || op->op == CND_OR);
+	    rp = op->arg1;
+	}
+	assert(rp->op == RULE);
+	save_curr = curr;
+	curr = rp;
+	rule(rp);
+	curr = save_curr;
+	if (rp->arg1->valid) {
+	    x->valid = rp->arg1->valid;
+	    *(Boolean *)x->ring = *(Boolean *)rp->arg1->ring;
+	    if (x->valid > 0 && *(Boolean *)x->ring == B_TRUE) {
+		/* predicate is true, so stop evaluation */
+		return;
+	    }
+	    if (x->valid > 0 && *(Boolean *)x->ring == B_FALSE) {
+		/* predicate is false, so don't do UNKNOWN clause */
+		all_unknown = 0;
+	    }
+	}
+	if (op->op == RULE)
+	    break;
+	op = op->arg2;
+    }
+
+    if (x->arg2 == NULL)
+	/* no OTHERWISE or UNKNOWN clauses */
+	return;
+
+    other = x->arg2;
+    assert(other->op == CND_OTHER);
+
+    if (all_unknown) {
+	/*
+	 * all predicates are B_UNKNOWN, so do the UNKNOWN action if any
+	 */
+	if (other->arg1->op != NOP) {
+	    rp = other->arg1;
+	    save_curr = curr;
+	    curr = rp;
+	    rule(rp);
+	    curr = save_curr;
+	    return;
+	}
+    }
+
+    /*
+     * no predicate is B_TRUE and either some predicate is B_FALSE
+     * or they are all B_UNKNOWN and there is no UNKNOWN action ...
+     * so do the OTHERWISE action, if any
+     */
+    if (other->arg2->op != NOP) {
+	rp = other->arg2;
+	save_curr = curr;
+	curr = rp;
+	rule(rp);
+	save_curr = curr;
+	x->valid = rp->arg1->valid;
+	*(Boolean *)x->ring = *(Boolean *)rp->arg1->ring;
+    }
+}
+
+/*
+ *  operator: cndDelay
+ */
+
+void
+cndDelay_n(Expr *x)
+{
+    Expr	*arg1 = x->arg1;
+    int		n = arg1->tdom;
+    Sample	*is = &arg1->smpls[n - 1];
+    Sample	*os = &x->smpls[0];
+    int         i;
+
+    EVALARG(arg1)
+    ROTATE(x)
+
+    if (arg1->valid >= n && x->tspan > 0) {
+	if (arg1->metrics != NULL && arg1->metrics->desc.type == PM_TYPE_STRING) {
+	    /* string values */
+	    char	**iv = (char **)is->ptr;
+	    char	**ov = (char **)os->ptr;
+	    for (i = 0; i < x->tspan; i++) {
+		if (*ov != NULL)
+		    free(*ov);
+		*ov++ = strdup(*iv++);
+	    }
+	}
+	else {
+	    /* numeric values */
+	    double	*ip;
+	    double	*op;
+	    ip = (double *)is->ptr;
+	    op = (double *)os->ptr;
+	    for (i = 0; i < x->tspan; i++)
+		*op++ = *ip++;
+	}
+	os->stamp = is->stamp;
+	x->valid++;
+    }
+    else x->valid = 0;
+}
+
+void
+cndDelay_1(Expr *x)
+{
+    Expr	*arg1 = x->arg1;
+    int		n = arg1->tdom;
+    Sample	*is = &arg1->smpls[n - 1];
+    Sample	*os = &x->smpls[0];
+
+    EVALARG(arg1)
+    ROTATE(x)
+
+    if (arg1->valid >= n) {
+	if (arg1->metrics != NULL && arg1->metrics->desc.type == PM_TYPE_STRING) {
+	    /* string values */
+	    char	**iv = (char **)is->ptr;
+	    char	**ov = (char **)os->ptr;
+	    if (*ov != NULL)
+		free(*ov);
+	    *ov = strdup(*iv);
+	}
+	else {
+	    /* numeric values */
+	    *(double *)os->ptr = *(double *)is->ptr;
+	}
+	os->stamp = is->stamp;
+	x->valid++;
+    }
+    else x->valid = 0;
+}
+
+

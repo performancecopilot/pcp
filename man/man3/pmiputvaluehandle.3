@@ -1,0 +1,74 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMIPUTVALUEHANDLE 3 "" "Performance Co-Pilot"
+.SH NAME
+\f3pmiPutValueHandle\f1 \- add a value for a metric-instance pair via a handle
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.br
+#include <pcp/impl.h>
+.br
+#include <pcp/import.h>
+.sp
+int pmiPutValueHandle(int \fIhandle\fP, const char *\fIvalue\fP);
+.sp
+cc ... \-lpcp_import \-lpcp
+.ft 1
+.SH "Perl SYNOPSIS"
+.ft 3
+use PCP::LogImport;
+.sp
+pmiPutValueHandle($\fIhandle\fP, $\fIvalue\fP);
+.ft 1
+.SH DESCRIPTION
+As part of the Performance Co-Pilot Log Import API (see
+.BR LOGIMPORT (3)),
+.B pmiPutValueHandle
+adds a single value to the current output record for a given
+metric and instance, using the
+.I handle
+defined by an earlier call to
+.BR pmiGetHandle (3).
+.PP
+The
+.I value
+should be in a format consistent with the metric's type as
+defined in the call to
+.BR pmiAddMetric (3).
+.PP
+No data will be written until
+.BR pmiWrite (3)
+is called, so multiple calls to
+.B pmiPutValueHandle
+or
+.BR pmiPutValue (3)
+are typically used to accumulate data values for several
+metric-instance pairs before calling
+.BR pmiWrite (3).
+.SH DIAGNOSTICS
+.B pmiPutValueHandle
+returns zero on success else a negative value that can be turned into an
+error message by calling
+.BR pmiErrStr (3).
+.SH SEE ALSO
+.BR LOGIMPORT (3),
+.BR pmiErrStr (3),
+.BR pmiGetHandle (3),
+.BR pmiPutResult (3),
+.BR pmiPutValue (3)
+and
+.BR pmiWrite (3).

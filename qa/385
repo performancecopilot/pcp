@@ -1,0 +1,53 @@
+#!/bin/sh
+# PCP QA Test No. 385
+# Some basic PM_EVENT_TYPE tests
+#
+# Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+
+# real QA test starts here
+
+pmstore sample.event.reset 0 2>&1 \
+| sed -e 's/value=[0-9][0-9]*/value=ANYTHING/'
+
+echo "=== pmPrintValue ==="
+for i in 0 1 2 3
+do
+    pminfo -f sample.event.records \
+    | sed -e 's/[0-2][0-9]:[0-5][0-9]:[0-5][0-9]\.[0-9][0-9][0-9]/TIMESTAMP/g'
+done
+
+echo
+echo "=== __pmPrintDesc ==="
+pminfo -d sample.event.records \
+| sed -e 's/0x[0-9a-f][0-9a-f]*/HEX/'
+
+pmstore sample.event.reset 0 2>&1 \
+| sed -e 's/value=[0-9][0-9]*/value=ANYTHING/'
+
+echo "=== pmPrintValue ==="
+for i in 0 1 2 3
+do
+    pminfo -f sample.event.no_indom_records \
+    | sed -e 's/[0-2][0-9]:[0-5][0-9]:[0-5][0-9]\.[0-9][0-9][0-9]/TIMESTAMP/g'
+done
+
+echo
+echo "=== __pmPrintDesc ==="
+pminfo -d sample.event.no_indom_records
+
+# success, all done
+exit

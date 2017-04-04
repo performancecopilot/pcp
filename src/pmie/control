@@ -1,0 +1,48 @@
+#
+# PCP inference engine configuration/control
+#
+# This file is used by a number of the PCP inference engine administrative
+# tools to perform maintenance on the pmie instances running on the local host.
+#
+# This file contains one line per host to be monitored, fields are
+#    Host	name of host to be monitored
+#    P(rimary)  is this the primary localhost pmie? y or n
+#    S(ocks)?	should this pmie be launched with pmsocks? y or n
+#    Log File	full pathname to file where pmie activity log is to be
+#		maintained ... note all scripts "cd" the directory housing
+#		this file as a first step
+#    Arguments	optional additional arguments to pmie
+#
+
+
+# === VARIABLE ASSIGNMENTS ===
+#
+$version=1.1
+
+# if pmsocks is being used, edit the IP address for $SOCKS_SERVER and
+# uncomment the next line
+#$SOCKS_SERVER=123.456.789.123; export SOCKS_SERVER
+
+# if remote pmie instances are run over a WAN with potentially long delays, 
+# adjust the following and uncomment
+#$PMCD_CONNECT_TIMEOUT=20; export PMCD_CONNECT_TIMEOUT
+#$PMCD_REQUEST_TIMEOUT=15; export PMCD_REQUEST_TIMEOUT
+
+
+# === PMIE CONTROL SPECIFICATIONS ===
+# 
+# Note:	- if multiple pmie instances for the same host, then they MUST use
+#	  different log files;
+#	- any occurence of LOCALHOSTNAME will be replaced by local hostname;
+#       - the default localhost pmie specification is nowadays setup
+#         via ${PCP_PMIECONTROL_PATH}.d/local
+#	- pmie configuration file search path is "./:$PCP_VAR_DIR/config/pmie/"
+#	  and the working directory ('.') is the dirname of the Log File.
+# 
+#Host           P?  S?  Log File                                  Arguments
+
+# remote host
+#remote         n   n   PCP_LOG_DIR/pmie/remote/pmie.log          -c config.remote
+
+# thru the firewall via socks
+#distant        n   y   PCP_LOG_DIR/pmie/distant/pmie.log         -c config.distant

@@ -1,0 +1,7 @@
+#pmlogconf-setup 2.0
+ident	XVM operations and bytes per volume
+probe	hinv.xvm.nvolumes
+	xvm.ve.read
+	xvm.ve.write
+	xvm.ve.read_bytes
+	xvm.ve.write_bytes

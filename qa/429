@@ -1,0 +1,57 @@
+#! /bin/sh
+# PCP QA Test No. 429
+#
+# Tests problem where Rebuild could accidently #include files from /tmp
+# rather than the current directory.
+# 
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+trap "rm -rf $tmp.* /tmp/abc.$$; exit \$status" 0 1 2 3 15
+
+_copy_Rebuild()
+{
+    scr_src=$PCP_VAR_DIR/pmns/
+    cp $scr_src/Rebuild $1
+    if [ -f $scr_src/Xlate-irix-names ]
+    then
+	cp $scr_src/Xlate-irix-names $1
+    fi
+}
+
+# real QA test starts here
+
+rm -rf $tmp.dir /tmp/abc.$$
+mkdir $tmp.dir
+cd $tmp.dir
+
+cat <<EOFEOF >root
+root {
+#include "abc.$$"
+}
+EOFEOF
+
+echo "valid_metric 0:0:1" >abc.$$
+
+echo "!bozo" >/tmp/abc.$$
+
+_copy_Rebuild .
+$sudo ./Rebuild -v \
+| sed \
+    -e 's;/private/;/;' \
+    -e "s;$tmp.dir;TMPDIR;" 2>&1
+pminfo -mn root
+status=$?
+
+# success, all done
+cd $here
+exit

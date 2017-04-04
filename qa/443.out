@@ -1,0 +1,374 @@
+QA output created by 443
+=== -a foo -a bar ===
+pmevent: error - no metricname specified
+Usage: pmevent [options] metricname
+=== -h foo -h bar ===
+pmevent: too many hosts requested: bar
+Usage: pmevent [options] metricname
+=== -a foo -h bar ===
+pmevent: only one host or archive allowed
+Usage: pmevent [options] metricname
+=== -h foo -a bar ===
+pmevent: only one host or archive allowed
+Usage: pmevent [options] metricname
+=== -D blah ===
+pmevent: unrecognized debug flag specification (blah)
+Usage: pmevent [options] metricname
+=== -g -p 1234 ===
+pmevent: at most one of -g and -p allowed
+Usage: pmevent [options] metricname
+=== -p 1234 -g ===
+pmevent: at most one of -g and -p allowed
+Usage: pmevent [options] metricname
+=== -p 123foo ===
+pmevent: error - no metricname specified
+Usage: pmevent [options] metricname
+=== -K blah,a,/no/such/file,no_init ===
+pmevent: __pmSpecLocalPMDA failed: bad op in spec
+Usage: pmevent [options] metricname
+=== -s 456bar ===
+pmevent: -s requires numeric argument
+Usage: pmevent [options] metricname
+=== -s 3 -T+5min ===
+pmevent: at most one of -T and -s allowed
+Usage: pmevent [options] metricname
+=== -T+5min -s 10 ===
+pmevent: at most one of -T and -s allowed
+Usage: pmevent [options] metricname
+=== -t 10foobars ===
+pmevent: -t argument not in pmParseInterval(3) format:
+10foobars
+  ^ -- unexpected value
+
+Usage: pmevent [options] metricname
+=== -Z GMT -z ===
+pmevent: at most one of -Z and -z allowed
+Usage: pmevent [options] metricname
+=== -z -Z EST ===
+pmevent: at most one of -Z and -z allowed
+Usage: pmevent [options] metricname
+=== -q ===
+pmevent: invalid option -- 'q'
+Usage: pmevent [options] metricname
+=== -a foo ===
+pmevent: error - no metricname specified
+Usage: pmevent [options] metricname
+
+--- bad metric spec ---
+=== /some/path/no/metric/ ===
+/some/path/no/metric/
+                     ^ -- performance metric name expected
+Usage: pmevent [options] metricname
+=== somehost_and_no_metric: ===
+somehost_and_no_metric:
+                       ^ -- performance metric name expected
+Usage: pmevent [options] metricname
+
+--- illegal mixed sources ---
+=== archives/eventrec-old/sample.event.records foo/bar ===
+pmevent: error - too many arguments
+Usage: pmevent [options] metricname
+=== -a /some/path foo:bar ===
+pmevent: only one host or archive allowed
+Usage: pmevent [options] metricname
+=== -a archives/eventrec-old archives/eventrec-old/sample.event.records foo/bar ===
+pmevent: error - too many arguments
+Usage: pmevent [options] metricname
+=== localhost:sample.event.records foo:bar ===
+pmevent: error - too many arguments
+Usage: pmevent [options] metricname
+=== -h somehost foo/bar ===
+pmevent: only one host or archive allowed
+Usage: pmevent [options] metricname
+=== -h localhost localhost:sample.event.records foo:bar ===
+pmevent: error - too many arguments
+Usage: pmevent [options] metricname
+=== @:sampledso.event.records foo:bar ===
+pmevent: error - too many arguments
+Usage: pmevent [options] metricname
+
+--- problems at source of metrics ---
+=== -h no.such.host.pcp.io sample.event.records ===
+pmevent: Cannot connect to PMCD on host "no.such.host.pcp.io": No route to host
+=== -a /no/such/archive sample.event.records ===
+pmevent: Cannot open archive "/no/such/archive": No such file or directory
+=== -L sample.event.records ===
+pmevent: pmLookupDesc: No PMCD agent for domain of request
+=== -Dappl0 sample.event.no_indom_records[red] ===
+pmevent: sample.event.no_indom_records: singular metrics do not have instances
+
+--- should be ok ---
+=== -t 10msec -s 1 sample.event.records ===
+host:      localhost
+samples:   1
+sample.event.records[fungus]: 0 event records
+sample.event.records[bogus]: 2 event records
+  TIMESTAMP --- event record [0] flags 0x1 (point) ---
+    sample.event.param_string "fetch #0"
+  TIMESTAMP --- event record [1] flags 0x1 (point) ---
+    sample.event.param_string "bingo!"
+=== -t 10msec -s 8 sample.event.records ===
+host:      localhost
+samples:   8
+interval:  0.01 sec
+sample.event.records[fungus]: 0 event records
+sample.event.records[bogus]: 2 event records
+  TIMESTAMP --- event record [0] flags 0x1 (point) ---
+    sample.event.param_string "fetch #0"
+  TIMESTAMP --- event record [1] flags 0x1 (point) ---
+    sample.event.param_string "bingo!"
+sample.event.records[fungus]: 1 event records
+  TIMESTAMP --- event record [0] flags 0x1 (point) ---
+sample.event.records[bogus]: 1 event records
+  TIMESTAMP --- event record [0] flags 0x1 (point) ---
+    sample.event.param_string "fetch #1"
+sample.event.records[fungus]: 2 event records
+  TIMESTAMP --- event record [0] flags 0x1 (point) ---
+    sample.event.type 1
+  TIMESTAMP --- event record [1] flags 0x1 (point) ---
+    sample.event.type 2
+    sample.event.param_64 -3
+sample.event.records[bogus]: 1 event records
+  TIMESTAMP --- event record [0] flags 0x1 (point) ---
+    sample.event.param_string "fetch #2"
+sample.event.records[fungus]: 5 event records
+  TIMESTAMP --- event record [0] flags 0x1a (start,id,parent) ---
+    sample.event.type 4
+    sample.event.param_u64 5
+    sample.event.param_string "6"
+  TIMESTAMP --- event record [1] flags 0x1 (point) ---
+    sample.event.type 7
+    sample.event.param_double 8
+    sample.event.param_double -9
+  TIMESTAMP --- event record [2] flags 0x4 (end) ---
+    sample.event.type 10
+    sample.event.param_u64 11
+    sample.event.param_string "twelve"
+    sample.event.param_string "thirteen"
+    sample.event.param_32 -14
+    sample.event.param_u32 15
+  TIMESTAMP --- event record [3] flags 0x80000000 (missed) ---
+    ==> 7 missed event records
+  TIMESTAMP --- event record [4] flags 0x1 (point) ---
+    sample.event.type 16
+    sample.event.param_float -17
+    sample.event.param_aggregate [0103070f1f3f7fff]
+sample.event.records[bogus]: 2 event records
+  TIMESTAMP --- event record [0] flags 0x1 (point) ---
+    sample.event.param_string "fetch #3"
+  TIMESTAMP --- event record [1] flags 0x1 (point) ---
+    sample.event.param_string "bingo!"
+sample.event.records[fungus]: 0 event records
+sample.event.records[bogus]: 1 event records
+  TIMESTAMP --- event record [0] flags 0x1 (point) ---
+    sample.event.param_string "fetch #4"
+sample.event.records[fungus]: 1 event records
+  TIMESTAMP --- event record [0] flags 0x1 (point) ---
+sample.event.records[bogus]: 1 event records
+  TIMESTAMP --- event record [0] flags 0x1 (point) ---
+    sample.event.param_string "fetch #5"
+sample.event.records[fungus]: 2 event records
+  TIMESTAMP --- event record [0] flags 0x1 (point) ---
+    sample.event.type 1
+  TIMESTAMP --- event record [1] flags 0x1 (point) ---
+    sample.event.type 2
+    sample.event.param_64 -3
+sample.event.records[bogus]: 2 event records
+  TIMESTAMP --- event record [0] flags 0x1 (point) ---
+    sample.event.param_string "fetch #6"
+  TIMESTAMP --- event record [1] flags 0x1 (point) ---
+    sample.event.param_string "bingo!"
+sample.event.records[fungus]: 5 event records
+  TIMESTAMP --- event record [0] flags 0x1a (start,id,parent) ---
+    sample.event.type 4
+    sample.event.param_u64 5
+    sample.event.param_string "6"
+  TIMESTAMP --- event record [1] flags 0x1 (point) ---
+    sample.event.type 7
+    sample.event.param_double 8
+    sample.event.param_double -9
+  TIMESTAMP --- event record [2] flags 0x4 (end) ---
+    sample.event.type 10
+    sample.event.param_u64 11
+    sample.event.param_string "twelve"
+    sample.event.param_string "thirteen"
+    sample.event.param_32 -14
+    sample.event.param_u32 15
+  TIMESTAMP --- event record [3] flags 0x80000000 (missed) ---
+    ==> 7 missed event records
+  TIMESTAMP --- event record [4] flags 0x1 (point) ---
+    sample.event.type 16
+    sample.event.param_float -17
+    sample.event.param_aggregate [0103070f1f3f7fff]
+sample.event.records[bogus]: 1 event records
+  TIMESTAMP --- event record [0] flags 0x1 (point) ---
+    sample.event.param_string "fetch #7"
+=== -t 10msec -s 3 sample.event.records[bogus] ===
+host:      localhost
+samples:   3
+interval:  0.01 sec
+sample.event.records[bogus]: 2 event records
+  TIMESTAMP --- event record [0] flags 0x1 (point) ---
+    sample.event.param_string "fetch #0"
+  TIMESTAMP --- event record [1] flags 0x1 (point) ---
+    sample.event.param_string "bingo!"
+sample.event.records[bogus]: 1 event records
+  TIMESTAMP --- event record [0] flags 0x1 (point) ---
+    sample.event.param_string "fetch #1"
+sample.event.records[bogus]: 1 event records
+  TIMESTAMP --- event record [0] flags 0x1 (point) ---
+    sample.event.param_string "fetch #2"
+
+--- archive exercises ---
+=== -z archives/eventrec-old/sample.event.records ===
+Note: timezone set to local timezone of host "bozo" from archive
+
+archive:   archives/eventrec-old
+host:      bozo
+start:     Sat Dec  4 15:26:09 2010
+end:       Sat Dec  4 15:26:14 2010
+samples:   all
+15:26:10.073  sample.event.records: 5 event records
+  15:26:00.073 --- event record [0] ---
+    sample.event.type 4
+    sample.event.param_u64 5
+    sample.event.param_string "6"
+  15:26:01.073 --- event record [1] ---
+    sample.event.type 7
+    sample.event.param_double 8
+    sample.event.param_double -9
+  15:26:02.073 --- event record [2] flags 0x2 (start) ---
+    sample.event.type 10
+    sample.event.param_u64 11
+    sample.event.param_string "twelve"
+    sample.event.param_string "thirteen"
+    sample.event.param_32 -14
+    sample.event.param_u32 15
+  15:26:03.073 --- event record [3] flags 0x80000000 (missed) ---
+    ==> 7 missed event records
+  15:26:04.073 --- event record [4] ---
+    sample.event.type 16
+    sample.event.param_float -17
+    sample.event.param_aggregate [0103070f1f3f7fff]
+15:26:11.073  sample.event.records: 0 event records
+15:26:12.074  sample.event.records: 1 event records
+  15:26:02.073 --- event record [0] ---
+    ==> No parameters
+15:26:13.073  sample.event.records: 2 event records
+  15:26:03.073 --- event record [0] ---
+    sample.event.type 1
+  15:26:04.073 --- event record [1] flags 0x1 (point) ---
+    sample.event.type 2
+    sample.event.param_64 -3
+15:26:14.073  sample.event.records: 5 event records
+  15:26:04.073 --- event record [0] ---
+    sample.event.type 4
+    sample.event.param_u64 5
+    sample.event.param_string "6"
+  15:26:05.073 --- event record [1] ---
+    sample.event.type 7
+    sample.event.param_double 8
+    sample.event.param_double -9
+  15:26:06.073 --- event record [2] flags 0x2 (start) ---
+    sample.event.type 10
+    sample.event.param_u64 11
+    sample.event.param_string "twelve"
+    sample.event.param_string "thirteen"
+    sample.event.param_32 -14
+    sample.event.param_u32 15
+  15:26:07.073 --- event record [3] flags 0x80000000 (missed) ---
+    ==> 7 missed event records
+  15:26:08.073 --- event record [4] ---
+    sample.event.type 16
+    sample.event.param_float -17
+    sample.event.param_aggregate [0103070f1f3f7fff]
+=== -z -S@15:26:11.073 -s 2 -a archives/eventrec-old sample.event.records ===
+Note: timezone set to local timezone of host "bozo" from archive
+
+archive:   archives/eventrec-old
+host:      bozo
+start:     Sat Dec  4 15:26:11 2010
+end:       Sat Dec  4 15:26:14 2010
+samples:   2
+15:26:11.073  sample.event.records: 0 event records
+15:26:12.074  sample.event.records: 1 event records
+  15:26:02.073 --- event record [0] ---
+    ==> No parameters
+=== -z -O+2.5 -T+4.5 -a archives/eventrec-old sample.event.records ===
+Note: timezone set to local timezone of host "bozo" from archive
+
+archive:   archives/eventrec-old
+host:      bozo
+start:     Sat Dec  4 15:26:11 2010
+end:       Sat Dec  4 15:26:13 2010
+samples:   all
+15:26:12.074  sample.event.records: 1 event records
+  15:26:02.073 --- event record [0] ---
+    ==> No parameters
+15:26:13.073  sample.event.records: 2 event records
+  15:26:03.073 --- event record [0] ---
+    sample.event.type 1
+  15:26:04.073 --- event record [1] flags 0x1 (point) ---
+    sample.event.type 2
+    sample.event.param_64 -3
+
+--- highres events ---
+=== -z archives/eventrec/sample.event.highres_records ===
+Note: timezone set to local timezone of host "smash" from archive
+
+archive:   archives/eventrec
+host:      smash
+start:     Thu Nov 13 12:00:50 2014
+end:       Thu Nov 13 12:00:55 2014
+samples:   all
+12:00:51.556  sample.event.highres_records[fungus]: 0 event records
+sample.event.highres_records[bogus]: 2 event records
+  12:00:51.555941984 --- event record [0] flags 0x1 (point) ---
+    sample.event.param_string "fetch #0"
+  12:00:51.555941984 --- event record [1] flags 0x1 (point) ---
+    sample.event.param_string "bingo!"
+12:00:52.555  sample.event.highres_records[fungus]: 1 event records
+  12:00:42.555871929 --- event record [0] flags 0x1 (point) ---
+sample.event.highres_records[bogus]: 1 event records
+  12:00:52.555874181 --- event record [0] flags 0x1 (point) ---
+    sample.event.param_string "fetch #1"
+12:00:53.555  sample.event.highres_records[fungus]: 2 event records
+  12:00:43.555914894 --- event record [0] flags 0x1 (point) ---
+    sample.event.type 1
+  12:00:44.555914894 --- event record [1] flags 0x1 (point) ---
+    sample.event.type 2
+    sample.event.param_64 -3
+sample.event.highres_records[bogus]: 1 event records
+  12:00:53.555920898 --- event record [0] flags 0x1 (point) ---
+    sample.event.param_string "fetch #2"
+12:00:54.555  sample.event.highres_records[fungus]: 5 event records
+  12:00:44.555893310 --- event record [0] flags 0x1a (start,id,parent) ---
+    sample.event.type 4
+    sample.event.param_u64 5
+    sample.event.param_string "6"
+  12:00:45.555893310 --- event record [1] flags 0x1 (point) ---
+    sample.event.type 7
+    sample.event.param_double 8
+    sample.event.param_double -9
+  12:00:46.555893310 --- event record [2] flags 0x4 (end) ---
+    sample.event.type 10
+    sample.event.param_u64 11
+    sample.event.param_string "twelve"
+    sample.event.param_string "thirteen"
+    sample.event.param_32 -14
+    sample.event.param_u32 15
+  12:00:47.555893310 --- event record [3] flags 0x80000000 (missed) ---
+    ==> 0 missed event records
+  12:00:48.555893310 --- event record [4] flags 0x1 (point) ---
+    sample.event.type 16
+    sample.event.param_float -17
+    sample.event.param_aggregate [0103070f1f3f7fff]
+sample.event.highres_records[bogus]: 2 event records
+  12:00:54.555905229 --- event record [0] flags 0x1 (point) ---
+    sample.event.param_string "fetch #3"
+  12:00:54.555905229 --- event record [1] flags 0x1 (point) ---
+    sample.event.param_string "bingo!"
+12:00:55.555  sample.event.highres_records[fungus]: 0 event records
+sample.event.highres_records[bogus]: 1 event records
+  12:00:55.555886181 --- event record [0] flags 0x1 (point) ---
+    sample.event.param_string "fetch #4"

@@ -1,0 +1,20 @@
+QA output created by 1033
+=== Test case: bind-9.8.2-stats.txt
+dbpmda> open pipe /usr/bin/env perl $PCP_PMDAS_DIR/named/pmdanamed.pl
+Start env PMDA: /usr/bin/env perl $PCP_PMDAS_DIR/named/pmdanamed.pl
+dbpmda> children named
+Metric: named
+       leaf interval
+   non-leaf nameserver
+dbpmda> desc named.interval
+PMID: 100.0.0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: sec
+dbpmda> fetch named.interval
+PMID(s): 100.0.0
+pmResult ... numpmid: 1
+  100.0.0 (<noname>): numval: 1 valfmt: 0 vlist[]:
+   value NUMBER NUMBER HEXNUMBER
+dbpmda> 
+Log for pmdanamed on HOST ...
+Log finished ...

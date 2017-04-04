@@ -1,0 +1,45 @@
+QA output created by 976
+=== Testing precanned lustre files
+dbpmda> open pipe /usr/bin/env perl pmdalustre.pl
+Start env PMDA: /usr/bin/env perl pmdalustre.pl
+dbpmda> getdesc on
+dbpmda> desc lustre.llite.superblock
+PMID: 134.0.2
+    Data Type: string  InDom: 134.0 0x21800000
+    Semantics: instant  Units: none
+dbpmda> desc lustre.llite.volume
+PMID: 134.0.1
+    Data Type: string  InDom: 134.0 0x21800000
+    Semantics: instant  Units: none
+dbpmda> desc lustre.llite.read_bytes.count
+PMID: 134.0.3
+    Data Type: 64-bit unsigned int  InDom: 134.0 0x21800000
+    Semantics: counter  Units: count
+dbpmda> desc lustre.lnet.recv_length
+PMID: 134.1.9
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: byte
+dbpmda> fetch lustre.llite.superblock
+PMID(s): 134.0.2
+pmResult ... numpmid: 1
+  134.0.2 (<noname>): numval: 1 valfmt: 1 vlist[]:
+    inst [0 or ???] value STRING
+dbpmda> fetch lustre.llite.volume
+PMID(s): 134.0.1
+pmResult ... numpmid: 1
+  134.0.1 (<noname>): numval: 1 valfmt: 1 vlist[]:
+    inst [0 or ???] value STRING
+dbpmda> fetch lustre.llite.read_bytes.count
+PMID(s): 134.0.3
+pmResult ... numpmid: 1
+  134.0.3 (<noname>): numval: 1 valfmt: 1 vlist[]:
+    inst [0 or ???] value NUMBER
+dbpmda> fetch lustre.lnet.recv_length
+PMID(s): 134.1.9
+pmResult ... numpmid: 1
+  134.1.9 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value NUMBER
+dbpmda> instance 134.0
+pmInDom: 134.0
+[  0] inst: 0 name: "lustre"
+dbpmda> 

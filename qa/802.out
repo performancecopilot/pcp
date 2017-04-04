@@ -1,0 +1,17 @@
+QA output created by 802
+=== std out ===
+dbpmda> open pipe VALGRIND pmdas/github-56/pmdatrivial
+Start valgrind PMDA: VALGRIND pmdas/github-56/pmdatrivial
+dbpmda> children trivial
+Metric: trivial
+       leaf foo
+dbpmda> exit
+=== std err ===
+[DATE] pmdatrivial(PID) Warning: pmdaInit: PMDA pmdatrivial: No help text file specified for pmdaText
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmdas/github-56/pmdatrivial
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...

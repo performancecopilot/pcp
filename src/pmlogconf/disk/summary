@@ -1,0 +1,10 @@
+#pmlogconf-setup 2.0
+ident	summary disk activity (IOPs and bytes for both reads and writes over all disks).
+force	include
+	disk.all.read
+	disk.all.write
+	disk.all.total
+	disk.all.read_bytes
+	disk.all.write_bytes
+	disk.all.total_bytes
+	disk.all.avactive

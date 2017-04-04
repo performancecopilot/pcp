@@ -1,0 +1,462 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2016 Red Hat.
+.\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\" 
+.TH PMAPI 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3PMAPI\f1 \- introduction to the Performance Metrics Application Programming Interface
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.sp
+.ft 1
+\& ... assorted routines ...
+.ft 3
+.sp
+cc ... \-lpcp
+.ft 1
+.SH DESCRIPTION
+.de CW
+.ie t \f(CW\\$1\f1\\$2
+.el \fI\\$1\f1\\$2
+..
+.\" add in the -me strings for super and subscripts
+.ie n \{\
+.       ds [ \u\x'-0.25v'
+.       ds ] \d
+.       ds { \d\x'0.25v'
+.       ds } \u
+.\}
+.el \{\
+.       ds [ \v'-0.4m'\x'-0.2m'\s-3
+.       ds ] \s0\v'0.4m'
+.       ds { \v'0.4m'\x'0.2m'\s-3
+.       ds } \s0\v'-0.4m'
+.\}
+Within the framework of the Performance Co-Pilot (PCP), client
+applications are developed using the
+Performance Metrics Application Programming Interface (PMAPI) that
+defines a procedural interface with services suited to the development
+of applications with a particular interest in performance metrics.
+.PP
+This description presents an overview of the PMAPI and the
+context in which PMAPI applications are run.
+The PMAPI is more fully described in the
+.IR "Performance Co-Pilot Programmer's Guide" ,
+and the manual pages for the individual PMAPI routines.
+.SH "PERFORMANCE METRICS \- NAMES AND IDENTIFIERS"
+For a description of the Performance Metrics Name Space (PMNS)
+and associated terms and concepts,
+see
+.BR PCPIntro (1).
+.PP
+Not all PMIDs need be represented in the PMNS of
+every application.
+For example, an application which monitors disk
+traffic will likely use a name space which references only the PMIDs
+for I/O statistics.
+.PP
+Applications which use the PMAPI may have independent
+versions of a PMNS, constructed from an initialization file when the
+application starts; see
+.BR pmLoadASCIINameSpace (3),
+.BR pmLoadNameSpace (3),
+and
+.BR pmns (5).
+.PP
+Internally (below the PMAPI) the implementation of the
+Performance Metrics Collection System
+(PMCS) uses only the PMIDs, and a PMNS
+provides an external mapping from a hierarchic taxonomy of names to
+PMIDs that is
+convenient in the context of a particular system or particular use of
+the PMAPI.
+For the applications programmer,
+the routines
+.BR pmLookupName (3)
+and
+.BR pmNameID (3)
+translate between names in a PMNS and PMIDs, and vice versa.
+The PMNS may be traversed using
+.BR pmGetChildren "(3) and" pmTraversePMNS .
+The
+.BR pmFetchGroup (3)
+functions combine metric name lookup, fetch, and conversion operations.
+.SH "PMAPI CONTEXT"
+An application using the PMAPI may manipulate several concurrent contexts,
+each associated with a source of performance metrics, e.g. \c
+.BR pmcd (1)
+on some host, or a set of archive logs of performance metrics as created by
+.BR pmlogger (1).
+.PP
+Contexts are identified by a ``handle'', a small integer value that is returned
+when the context is created; see
+.BR pmNewContext (3)
+and
+.BR pmDupContext (3).
+Some PMAPI functions require an explicit ``handle'' to identify
+the correct context, but more commonly the PMAPI function is
+executed in the ``current'' context.
+The current context may be discovered using
+.BR pmWhichContext (3)
+and changed using
+.BR pmUseContext (3).
+.PP
+If a PMAPI context has not been explicitly established
+(or the previous current context has been closed using
+.BR pmDestroyContext (3))
+then the current PMAPI context is undefined.
+.PP
+In addition to the source of the performance metrics, the context
+also includes the instance profile and collection time (both described below)
+which controls
+how much information is returned, and when the information was collected.
+.SH "INSTANCE DOMAINS"
+When performance metric values are returned across the PMAPI to a
+requesting application, there may be more than one value for a
+particular metric.
+Multiple values, or
+.BR instances ,
+for a single metric
+are typically the result of instrumentation being implemented for each
+instance of a set of similar components or services in a system, e.g.
+independent counts for each CPU, or each process, or each disk, or each
+system call type, etc.
+This multiplicity of values is not enumerated in
+the name space but rather, when performance metrics are delivered
+across the PMAPI by
+.BR pmFetch (3),
+the format of the result accommodates values for one
+or more instances, with an instance-value pair
+encoding the metric value for a particular
+instance.
+.PP
+The instances are identified by an internal identifier assigned
+by the agent responsible for instantiating the values for the
+associated performance metric.
+Each instance identifier has a corresponding external instance identifier
+name (an ASCII string).
+The routines
+.BR pmGetInDom (3),
+.BR pmLookupInDom (3)
+and
+.BR pmNameInDom (3)
+may be used to enumerate all instance identifiers, and to
+translate between internal and external instance
+identifiers.
+.PP
+All of the instance identifiers for a particular performance metric
+are collectively known as an instance domain.
+Multiple performance metrics may share the same instance domain.
+.PP
+If only one instance is ever available for a particular performance
+metric, the instance identifier
+in the result from
+.BR pmFetch (3)
+assumes the special value
+.B PM_IN_NULL
+and may be ignored by the
+application, and only one instance-value pair appears in the result
+for that metric.
+Under these circumstances, the associated instance domain (as returned
+via
+.BR pmLookupDesc (3))
+is set to
+.B PM_INDOM_NULL
+to indicate that values for this metric are singular.
+.PP
+The difficult issue of
+transient performance metrics (e.g. per-filesystem information, hot-plug
+replaceable hardware modules, etc.) means that repeated requests for
+the same PMID may return different numbers of values, and/or some
+changes in the particular instance identifiers returned.
+This means
+applications need to be aware that metric instantiation is guaranteed
+to be valid at the time of collection only.
+Similar rules apply to the
+transient semantics of the associated metric values.
+In general
+however, it is expected that the bulk of the performance metrics will
+have instantiation semantics that are fixed over the execution
+life-time of any PMAPI client.
+.SH "THE TYPE OF METRIC VALUES"
+The PMAPI supports a wide range of format and type encodings for
+the values of performance metrics, namely signed and unsigned integers,
+floating point numbers, 32-bit and 64-bit encodings of all of the above,
+ASCII strings (C-style, NULL byte terminated), and arbitrary aggregates of
+binary data.
+.PP
+The
+.CW type
+field in the
+.CW pmDesc
+structure returned by
+.BR pmLookupDesc (3)
+identifies the format and type of the values for a particular
+performance metric within a particular PMAPI context.
+.PP
+Note that the encoding of values for a particular performance metric
+may be different for different PMAPI contexts, due to differences
+in the underlying implementation for different contexts.
+However it is expected that the vast majority of performance metrics
+will have consistent value encoding across all versions of all
+implementations, and hence across all PMAPI contexts.
+.PP
+The PMAPI supports routines to automate the handling
+of the various value formats and types, particularly for
+the common case where conversion to a canonical format is
+desired, see
+.BR pmExtractValue (3)
+and
+.BR pmPrintValue (3).
+.SH "THE DIMENSIONALITY AND SCALE OF METRIC VALUES"
+Independent of how the value is encoded, the
+value for a performance metric is assumed to be drawn from a set of values that
+can be described in terms of their dimensionality and scale by a compact
+encoding as follows.
+The dimensionality is defined by a power, or index, in
+each of 3 orthogonal dimensions, namely Space, Time and Count
+(or Events, which are dimensionless).
+For example I/O throughput might be represented as
+Space/Time, while the
+running total of system calls is Count, memory allocation is Space and average
+service time is Time/Count.
+In each dimension there are a number
+of common scale values that may be used to better encode ranges that might
+otherwise exhaust the precision of a 32-bit value.
+This information is encoded
+in the
+.CW pmUnits
+structure which is embedded in the
+.CW pmDesc
+structure returned from
+.BR pmLookupDesc (3).
+.PP
+The routine
+.BR pmConvScale (3)
+is provided to convert values in
+conjunction with the
+.CW pmUnits
+structures that defines the dimensionality and scale of the values for a
+particular performance metric as returned from
+.BR pmFetch (3),
+and the desired dimensionality and scale of
+the value the PMAPI client wishes to manipulate.
+Alternatively, the
+.BR pmFetchGroup (3)
+functions can perform data format and unit conversion operations, 
+specified by textual descriptions of desired unit / scales.
+.SH "INSTANCE PROFILE"
+The set of instances for performance metrics returned from a
+.BR pmFetch (3)
+call may be filtered or restricted using an instance profile.
+There is one instance profile for each PMAPI context the application
+creates,
+and each instance profile may include instances from one or more
+instance domains.
+.PP
+The routines
+.BR pmAddProfile (3)
+and
+.BR pmDelProfile (3)
+may be used to dynamically adjust the instance profile.
+.SH "COLLECTION TIME"
+For each set of values for performance metrics returned
+via
+.BR pmFetch (3)
+there is an associated ``timestamp''
+that serves to identify when the performance metric
+values were collected; for metrics being delivered from
+a real-time source (i.e. \c
+.BR pmcd (1)
+on some host) this would typically be not long before they
+were exported across the PMAPI, and for metrics being delivered
+from a set of archive logs, this would be the time when the metrics
+were written into the archive log.
+.PP
+There is an issue here of exactly
+when individual metrics may have been collected, especially given
+their origin in potentially different Performance Metric Domains, and
+variability in the metric updating frequency at the lowest level of the
+Performance Metric Domain.
+The PMCS opts for the pragmatic approach,
+in which the PMAPI implementation undertakes to return all of the
+metrics with values accurate as of the timestamp, to the best of our
+ability.
+The belief is that the inaccuracy this introduces is small,
+and the additional burden of accurate individual timestamping for each
+returned metric value is neither warranted nor practical (from an
+implementation viewpoint).
+.PP
+Of course, in the case of collection of
+metrics from multiple hosts the PMAPI client must assume the
+sanity of the timestamps is constrained by the extent to which clock
+synchronization protocols are implemented across the network.
+.PP
+A PMAPI application may call
+.BR pmSetMode (3)
+to vary the requested collection time, e.g. to rescan performance
+metrics values from the recent past, or to ``fast-forward'' through
+a set of archive logs.
+.SH "GENERAL ISSUES OF PMAPI PROGRAMMING STYLE"
+Across the PMAPI, all arguments and results involving a
+``list of something'' are declared to be arrays with an associated argument or
+function value to identify the number of elements in the list.
+This has been done to avoid both the
+.BR varargs (3)
+approach and sentinel-terminated lists.
+.PP
+Where the size of a result is known at the time of a call, it
+is the caller's responsibility to allocate (and possibly free) the
+storage, and the called function will assume the result argument is of
+an appropriate size.
+Where a result is of variable size and that size
+cannot be known in advance (e.g. for
+.BR pmGetChildren (3),
+.BR pmGetInDom (3),
+.BR pmNameInDom (3),
+.BR pmNameID (3),
+.BR pmLookupText (3)
+and
+.BR pmFetch (3))
+the PMAPI implementation uses a range of dynamic
+allocation schemes in the called routine, with the caller
+responsible for subsequently releasing the storage when
+no longer required.
+In some cases this simply involves calls to
+.BR free (3),
+but in others (most notably for the result from
+.BR pmFetch (3)),
+special routines (e.g. \c
+.BR pmFreeResult (3))
+should be used to release the storage.
+.PP
+As a general rule, if the called routine returns
+an error status then no allocation will have been
+done, and any pointer to a variable sized result is undefined.
+.SH DIAGNOSTICS
+Where error conditions may arise, the functions that comprise the PMAPI conform to a single, simple 
+error notification scheme, as follows;
+.IP + 3n
+the function returns an integer
+.IP + 3n
+values >= 0 indicate no error, and perhaps some positive status,
+e.g. the number of things really processed
+.IP + 3n
+values < 0 indicate an error, with a global table of error conditions and error messages
+.PP
+The PMAPI routine
+.BR pmErrStr (3)
+translates error conditions into error messages.
+By convention, the small negative
+values are assumed to be negated versions of the Unix error codes as defined
+in
+.B <errno.h>
+and the strings returned are as per
+.BR strerror (3).
+The larger, negative error codes are PMAPI error conditions.
+.PP
+One error, common to all PMAPI routines that interact with
+.BR pmcd (1)
+on some host is
+.BR PM_ERR_IPC ,
+which indicates the communication link to
+.BR pmcd (1)
+has been lost.
+.SH "MULTI-THREADED APPLICATIONS"
+The original design for PCP was based around single-threaded applications, or
+more strictly applications in which only one thread was ever expected to
+call the PCP libraries.
+This restriction has been relaxed for
+.B libpcp
+to allow the most common PMAPI routines to be safely called from any
+thread in a multi-threaded application.
+.PP
+However the following groups of functions and services in
+.B libpcp
+are still restricted to being called from a single-thread, and this is enforced
+by returning
+.B PM_ERR_THREAD
+when an attempt to call the routines in each group from more than one
+thread is detected.
+.TP 4n
+1.
+Any use of a
+.B PM_CONTEXT_LOCAL
+context, as the DSO PMDAs that are called directly from
+.B libpcp
+may not be thread-safe.
+.TP 4n
+2.
+The interval timer services use global state with semantics that demand
+it is only used in the context of a single thread, so
+.BR __pmAFregister (3),
+.BR __pmAFunregister (3),
+.BR __pmAFblock (3),
+.B __pmAFunblock (3)
+and
+.BR __pmAFisempty (3).
+.TP 4n
+3.
+The following (undocumented) access control manipulation
+routines that are principally intended
+for single-threaded applications:
+.BR __pmAccAddOp ,
+.BR __pmAccSaveHosts ,
+.BR __pmAccRestoreHosts ,
+.BR __pmAccFreeSavedHosts ,
+.BR __pmAccAddHost ,
+.BR __pmAccAddClient ,
+.B __pmAccDelClient
+and
+.BR __pmAccDumpHosts .
+.TP 4n
+4.
+The following (undocumented) routines that identify
+.I pmlogger
+control ports and are principally intended
+for single-threaded applications:
+.B __pmLogFindPort
+and
+.BR __pmLogFindLocalPorts .
+.SH "PCP ENVIRONMENT"
+Most environment variables are described in
+.BR PCPIntro (1).
+In addition,
+environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.I /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (5).
+Values for these variables may be obtained programmatically
+using the
+.BR pmGetConfig (3)
+function.
+.SH SEE ALSO
+.BR PCPIntro (1),
+.BR PCPIntro (3),
+.BR pmda (3),
+.BR pmGetConfig (3),
+.BR pcp.conf (5)
+and
+.BR pcp.env (5).

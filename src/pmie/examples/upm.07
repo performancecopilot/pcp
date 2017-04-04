@@ -1,0 +1,8 @@
+//
+// The following rule requires a machine that supports the PCP environment
+// metrics. If the machine environment temperature rises more than 2
+// degrees over a 10 minute interval, write an entry in the system log
+//
+environ.temp @1 - environ.temp @0 > 2
+    -> alarm "temperature rising fast" &
+       syslog "machine room temperature rise alarm";

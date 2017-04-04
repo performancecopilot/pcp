@@ -1,0 +1,15 @@
+- pmmgr.1 EXAMPLE CONFIGURATIONS
+- optionally delay pm*conf
+- log aging in background while new pmlogger's already running
+- old log compression (until we get libpcp zlib or something)
+- email error reporting?
+- port to mingw?
+- port to cygwin?
+- pmlogger/pmie .log rotation
+- pid->pid_t cleanup
+- multithreaded discovery
+- $VAR-capable .options
+- put a time limit on non-daemon child processes
+- outgoing authentication
+- per-host persistent customized configuration (FOO-conf-once?)
+- a runtime control mechanism for inferior pmloggers (pmlc sockets under pmmgr/HOST/foo?)

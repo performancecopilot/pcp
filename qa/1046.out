@@ -1,0 +1,55 @@
+QA output created by 1046
+
+=== first, set global delta
+// pmieconf-pmie 1 ./pconf
+// 0 global delta = 120
+// end
+
+=== now change cpu groups delta
+// pmieconf-pmie 1 ./pconf
+// 0 global delta = 120
+// 1 cpu.aggregate_util delta = 450
+// 1 cpu.excess_fpe delta = 450
+// 1 cpu.load_average delta = 450
+// 1 cpu.single_util delta = 450
+// 1 cpu.system_calls delta = 450
+// 1 cpu.system_mode delta = 450
+// end
+
+=== now print out some deltas
+o global
+delta = 120
+o memory
+o cpu
+delta = 450
+delta = 450
+delta = 450
+delta = 450
+delta = 450
+delta = 450
+
+=== change global again
+// pmieconf-pmie 1 ./pconf
+// 0 global delta = 60
+// 1 cpu.aggregate_util delta = 450
+// 1 cpu.excess_fpe delta = 450
+// 1 cpu.load_average delta = 450
+// 1 cpu.single_util delta = 450
+// 1 cpu.system_calls delta = 450
+// 1 cpu.system_mode delta = 450
+// end
+
+=== print out the deltas
+o global
+delta = 60
+o memory
+o cpu
+delta = 450
+delta = 450
+delta = 450
+delta = 450
+delta = 450
+delta = 450
+
+=== lconf is in 1046.full ===
+

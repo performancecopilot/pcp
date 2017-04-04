@@ -1,0 +1,304 @@
+#!/bin/sh
+#
+# Copyright (c) 2012-2015 Red Hat.
+# Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+# 
+# The following is for chkconfig on RedHat based systems
+# chkconfig: 2345 94 06
+# description: pmie is a performance inference engine for the Performance Co-Pilot (PCP)
+#
+# The following is for insserv(1) based systems,
+# e.g. SuSE, where chkconfig is a perl script.
+### BEGIN INIT INFO
+# Provides:       pmie
+# Required-Start: $remote_fs
+# Should-Start: $local_fs $network $syslog $time $pmcd
+# Required-Stop: $remote_fs
+# Should-Stop:  $local_fs $network $syslog $pmcd
+# Default-Start:  2 3 4 5
+# Default-Stop:   0 1 6
+# Short-Description: Control pmie (performance inference engine for PCP)
+# Description:       Configure and control pmie (the performance inference engine for the Performance Co-Pilot)
+### END INIT INFO
+
+. $PCP_DIR/etc/pcp.env
+. $PCP_SHARE_DIR/lib/rc-proc.sh
+
+PMIECTRL=$PCP_PMIECONTROL_PATH
+rcprog=$PCP_DIR/etc/init.d/pmie
+pmprog=$PCP_RC_DIR/pmie
+prog=$PCP_RC_DIR/`basename $0`
+
+tmp=`mktemp -d /var/tmp/pcp.XXXXXXXXX` || exit 1
+status=1
+trap "rm -rf $tmp; exit \$status" 0 1 2 3 15
+
+if [ $pmprog = $prog -o $rcprog = $prog ]
+then
+    VERBOSE_CTL=on
+else
+    VERBOSE_CTL=off
+fi
+
+id=`id | sed -e "s/(.*//" -e "s/.*=//"`
+if [ "$id" != 0 -a "$1" != "status" ]
+then
+    if [ -n "$PCP_DIR" ]
+    then
+	: running in a non-default installation, do not need to be root
+    else
+	echo "$prog:"'
+Error: You must be root (uid 0) to start or stop pmie.'
+	exit
+    fi
+fi
+
+_usage()
+{
+    echo "Usage: $pmprog [-v] {start|restart|condrestart|stop|status|reload|force-reload}"
+}
+
+_reboot_setup()
+{
+    # base directories and house-keeping for pmie instances
+    #
+    if [ ! -d "$PCP_TMP_DIR/pmie" ]
+    then
+	mkdir -p -m 0775 "$PCP_TMP_DIR/pmie"
+	chown $PCP_USER:$PCP_GROUP "$PCP_TMP_DIR/pmie"
+    else
+	rm -rf $tmp/ent $tmp/pid
+	here=`pwd`
+	cd "$PCP_TMP_DIR/pmie"
+	_get_pids_by_name pmie | sort >$tmp/pid
+	ls [0-9]* 2>&1 | sed -e '/\[0-9]\*/d' \
+	    | sed -e 's/[ 	][ 	]*//g' | sort >$tmp/ent
+	# remove entries without a pmie process
+	rm -f `comm -23 $tmp/ent $tmp/pid`
+	rm -f $tmp/ent $tmp/pid
+	cd "$here"
+    fi
+}
+
+# Note: _start_pmcheck() runs in the background, in parallel with the rest
+# of the script (except in a container environment). It might complete well
+# after the caller so tmpfile handling is especially problematic.  The goal
+# is to speed bootup by starting potentially slow (remote monitoring) pmie
+# processes in the background.
+#
+_start_pmcheck()
+{
+    bgstatus=0
+    bgtmp=`mktemp -d /var/tmp/pcp.XXXXXXXXX` || exit 1
+    trap "rm -rf $bgtmp; exit \$bgstatus" 0 1 2 3 15
+
+    wait_option=''
+    [ ! -z "$PMCD_WAIT_TIMEOUT" ] && wait_option="-t $PMCD_WAIT_TIMEOUT" 
+
+    if pmcd_wait $wait_option
+    then
+	pmie_check >$bgtmp/pmie 2>&1
+	bgstatus=$?
+	if [ -s $bgtmp/pmie ]
+	then
+	    logfile=$PCP_LOG_DIR/pmie/pmie_check.log
+	    mv -f $bgtmp/pmie $logfile
+
+	    message="pmie_check start failed in $prog, see $logfile"
+	    $PCP_SYSLOG_PROG -p daemon.warning "$message"
+	    $PCP_BINADM_DIR/pmpost "$message"
+	fi
+    else
+	bgstatus=$?
+	message="pmcd_wait failed in $prog: exit status: $bgstatus" 
+	$PCP_SYSLOG_PROG -p daemon.warning "$message"
+	$PCP_BINADM_DIR/pmpost "$message"
+    fi
+    exit $bgstatus # co-process is now complete
+}
+
+_start_pmie()
+{
+    if which pmie_check >/dev/null 2>&1
+    then
+	# pmie_check uses $PMIECTRL to start everything that is needed
+	if [ ! -f $PMIECTRL ]
+	then
+	    echo "$prog:"'
+Error: PCP inference engine control file '$PMIECTRL'
+       is missing!  Cannot start any Performance Co-Pilot inference engine(s).'
+	    # failure
+	    false
+	else
+	    $ECHO $PCP_ECHO_N "Starting pmie ..." "$PCP_ECHO_C"
+
+	    # run as a co-process
+	    _start_pmcheck &
+
+	    # Container environment
+	    if [ -n "$PCP_CONTAINER_IMAGE" ]
+	    then
+		# Set up the host crontab for pmie_{check,daily}.
+		# This needs to be robust for when the container isn't running
+		# so that a failing crontab entry doesn't spam the host logs.
+		cronjob=/etc/cron.d/pcp-pmie-docker
+		if [ ! -f $cronjob ]
+		then
+		    cp $PCP_VAR_DIR/config/pmie/crontab.docker $cronjob
+		    $PCP_BINADM_DIR/pmpost "pmie script installed $cronjob"
+		fi
+
+		# In a container, pmie_check cannot run indefinitely -
+		# if it did then the pmpause signal handler would reap the
+		# pmie_check child and exit.
+		wait
+
+		# finally, stop here when running as a container
+		exec $PCP_BINADM_DIR/pmpause
+	    fi
+
+            # success
+            true
+	fi
+    else
+        echo "$prog:"'
+Warning: Performance Co-Pilot installation is incomplete (at least the
+         script "pmie_check" is missing) and the PCP inference engine(s)
+         cannot be started.'
+        # failure
+        false
+    fi
+    $RC_STATUS -v
+}
+
+_shutdown()
+{
+    _get_pids_by_name pmie >$tmp/pmies 2>&1
+    if [ ! -s $tmp/pmies ]
+    then
+	[ "$1" = verbose ] && echo "$pmprog: pmie not running"
+	return 0
+    fi
+
+    [ "$1" = quietly ] || \
+    $ECHO $PCP_ECHO_N "Waiting for pmie process(es) to terminate ..." "$PCP_ECHO_C"
+
+    pmie_check -s >$tmp/pmie 2>&1
+    if [ -s $tmp/pmie ]
+    then
+	logfile=$PCP_LOG_DIR/pmie/pmie_check.log
+	mv -f $tmp/pmie $logfile
+
+	message="pmie_check stop failed in $prog, see $logfile"
+	$PCP_SYSLOG_PROG -p daemon.warning "$message"
+	$PCP_BINADM_DIR/pmpost "$message"
+    fi
+
+    if [ "$1" = quietly ]
+    then
+	$RC_STATUS
+    else
+	true
+	$RC_STATUS -v
+    fi
+    rm -fr "$tmp/pmie" "$PCP_TMP_DIR"/pmie/*
+    $PCP_BINADM_DIR/pmpost "stop pmie from $pmprog"
+}
+
+while getopts v c
+do
+    case $c
+    in
+	v)  # force verbose
+	    VERBOSE_CTL=on
+	    ;;
+	*)
+	    _usage
+	    exit 1
+	    ;;
+    esac
+done
+shift `expr $OPTIND - 1`
+
+if [ $VERBOSE_CTL = on ]
+then                            # For a verbose startup and shutdown
+    ECHO=$PCP_ECHO_PROG
+else                            # For a quiet startup and shutdown
+    ECHO=:
+fi
+
+case "$1" in
+  'start'|'restart'|'condrestart'|'reload'|'force-reload')
+	if [ "$1" = "condrestart" ] && ! is_chkconfig_on pmie
+	then
+	    status=0
+	    exit
+	fi
+
+	_shutdown quietly
+
+	# messages should go to stderr, not the GUI notifiers
+	#
+	unset PCP_STDERR
+
+	_reboot_setup
+
+	if which pmie >/dev/null 2>&1
+	then
+	    # issue a warning if there's no chkconfig/crontab support
+	    if is_chkconfig_on pmie
+	    then
+		:
+	    elif [ "$0" = "$pmprog" -o "$0" = "$rcprog" ]
+	    then
+		echo "$prog: Warning: Performance Co-Pilot Inference Engine (pmie) not permanently enabled."
+		chkconfig_on_msg pmie
+	    fi
+
+	    _start_pmie
+	fi
+	status=0
+        ;;
+
+  'stop')
+	_shutdown verbose
+	status=0
+        ;;
+
+  'status')
+        # NOTE: $RC_CHECKPROC returns LSB compliant status values.
+	$ECHO $PCP_ECHO_N "Checking for pmie:" "$PCP_ECHO_C"
+        if [ -r /etc/rc.status ]
+        then
+            # SuSE
+            $RC_CHECKPROC pmie
+            $RC_STATUS -v
+            status=$?
+        else
+            # not SuSE
+            $RC_CHECKPROC pmie
+            status=$?
+            if [ $status -eq 0 ]
+            then
+                $ECHO running
+            else
+                $ECHO stopped
+            fi
+        fi
+        ;;
+  *)
+	[ -n "$PCP_CONTAINER_IMAGE" ] && exec "$@"
+	_usage
+        ;;
+esac
+

@@ -1,0 +1,61 @@
+#
+# Copyright (c) 2004 Silicon Graphics, Inc.  All Rights Reserved.
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+# 
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+#
+# AIX PMDA help file in the ASCII format
+#
+# lines beginning with a # are ignored
+# lines beginning @ introduce a new entry of the form
+#  @ metric_name oneline-text
+#  help text goes
+#  here over multiple lines
+#  ...
+#
+# the metric_name is decoded against the default PMNS -- as a special case,
+# a name of the form NNN.MM (for numeric NNN and MM) is interpreted as an
+# instance domain identification, and the text describes the instance domain
+#
+# blank lines before the @ line are ignored
+#
+
+@ kernel.all.cpu.idle TODO
+@ kernel.all.cpu.user TODO
+@ kernel.all.cpu.sys TODO
+@ kernel.all.cpu.wait.total TODO
+@ kernel.percpu.cpu.user TODO
+@ kernel.percpu.cpu.idle TODO
+@ kernel.percpu.cpu.sys TODO
+@ kernel.percpu.cpu.wait.total TODO
+@ disk.all.read TODO
+@ disk.all.write TODO
+@ disk.all.total TODO
+@ disk.all.read_bytes TODO
+@ disk.all.write_bytes TODO
+@ disk.all.total_bytes TODO
+@ disk.dev.read TODO
+@ disk.dev.write TODO
+@ disk.dev.total TODO
+@ disk.dev.read_bytes TODO
+@ disk.dev.write_bytes TODO
+@ disk.dev.total_bytes TODO
+@ network.interface.in.packets TODO
+@ network.interface.in.bytes TODO
+@ network.interface.in.errors TODO
+@ network.interface.out.packets TODO
+@ network.interface.out.bytes TODO
+@ network.interface.out.errors TODO
+@ network.interface.total.packets TODO
+@ network.interface.total.bytes TODO

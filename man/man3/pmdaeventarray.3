@@ -1,0 +1,311 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2014 Red Hat.
+.\" Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMDAEVENTARRAY 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+.ad l
+\f3pmdaEventNewArray\f1,
+\f3pmdaEventResetArray\f1,
+\f3pmdaEventReleaseArray\f1,
+\f3pmdaEventAddRecord\f1,
+\f3pmdaEventAddMissedRecord\f1,
+\f3pmdaEventAddParam\f1,
+\f3pmdaEventGetAddr\f1,
+\f3pmdaEventNewHighResArray\f1,
+\f3pmdaEventResetHighResArray\f1,
+\f3pmdaEventReleaseHighResArray\f1,
+\f3pmdaEventAddHighResRecord\f1,
+\f3pmdaEventAddHighResMissedRecord\f1,
+\f3pmdaEventHighResAddParam\f1,
+\f3pmdaEventHighResGetAddr\f1 \- utilities for PMDAs to build packed arrays of event records
+.br
+.ad
+.SH "C SYNOPSIS"
+.ft 3
+.nf
+#include <pcp/pmapi.h>
+#include <pcp/impl.h>
+#include <pcp/pmda.h>
+.fi
+.sp
+.ad l
+.hy 0
+.in +8n
+.ti -8n
+int pmdaEventNewArray(void);
+.br
+.ti -8n
+int pmdaEventResetArray(int \fIidx\fP);
+.br
+.ti -8n
+int pmdaEventReleaseArray(int \fIidx\fP);
+.br
+.ti -8n
+int pmdaEventAddRecord(int \fIidx\fP, struct timeval *\fItp\fP, int\ \fIflags\fP);
+.br
+.ti -8n
+int pmdaEventAddMissedRecord(int \fIidx\fP, struct timeval *\fItp\fP, int\ \fInmissed\fP);
+.br
+.ti -8n
+int pmdaEventAddParam(int \fIidx\fP, pmID \fIpmid\fP, int \fItype\fP, pmAtomValue\ *\fIavp\fP);
+.br
+.ti -8n
+pmEventArray *pmdaEventGetAddr(int \fIidx\fP);
+.sp
+.in
+.hy
+.ad l
+.hy 0
+.in +8n
+.ti -8n
+int pmdaEventNewHighResArray(void);
+.br
+.ti -8n
+int pmdaEventResetHighResArray(int \fIidx\fP);
+.br
+.ti -8n
+int pmdaEventReleaseHighResArray(int \fIidx\fP);
+.br
+.ti -8n
+int pmdaEventAddHighResRecord(int \fIidx\fP, struct timespec *\fIts\fP, int\ \fIflags\fP);
+.br
+.ti -8n
+int pmdaEventAddHighResMissedRecord(int \fIidx\fP, struct timespec *\fIts\fP, int\ \fInmissed\fP);
+.br
+.ti -8n
+int pmdaEventHighResAddParam(int \fIidx\fP, pmID \fIpmid\fP, int \fItype\fP, pmAtomValue\ *\fIavp\fP);
+.br
+.ti -8n
+pmHighResEventArray *pmdaEventHighResGetAddr(int \fIidx\fP);
+.sp
+.in
+.hy
+.ad
+cc ... \-lpcp
+.ft 1
+.SH DESCRIPTION
+.de CW
+.ie t \f(CW\\$1\f1\\$2
+.el \fI\\$1\f1\\$2
+..
+A Performance Metrics Domain Agent (PMDA) that wishes to export
+event records (or trace records) is encouraged to use a metric of
+either type
+.B PM_TYPE_EVENT
+or
+.B PM_TYPE_HIGHRES_EVENT
+to encode a group of event records into a single packed array.
+.PP
+The only difference between the two metric types is the resolution
+of the timestamp associated with each \- in high resolution form it
+is nanosecond scale (see
+.BR clock_gettime (2)),
+otherwise it is microseconds (see
+.BR gettimeofday (2)).
+For simplicity, we will only refer to the lower resolution API and
+data structures hereafter \- however, the higher resolution variants
+are all named similarly and are used in the same way.
+.PP
+The packed array of event records format is defined in
+.I <pcp/pmapi.h>
+and consists of a
+.B pmEventArray
+structure containing a variable number of
+.B pmEventRecord
+structures, each of which contains a variable number of
+.B pmEventParameter
+structures, which in turn may contain a variable length value for
+each parameter of each event record.
+.PP
+The higher resolution equivalents are defined in the same location,
+and the structures are named the same.
+Note that the
+.B pmEventParameter
+structure has no timestamp associated with it, hence it this does not
+have a high resolution counterpart.
+.PP
+The routines described here are designed to assist the PMDA developer
+in building a packed array of event records, and managing all of the
+memory allocations required to hold each instance of an array of event
+records in a contiguous buffer.  Normal use would be as part of PMDA's
+.B pmdaFetchCallBack
+method.
+.PP
+.B pmdaEventNewArray
+is used to create a new event array.  The return value is a small integer that
+is used as the
+.I idx
+parameter to the other routines to identify a specific event array.
+If needed, a PMDA can create and use multiple event arrays.
+.PP
+To start a new cycle and refill an event array from the beginning, call
+.BR pmdaEventResetArray .
+.PP
+If the PMDA has finished with an event array,
+.B pmdaEventReleaseArray
+may be used to release the underlying storage and ``close'' the event
+array so that subsequent attempts to use
+.I idx
+will return
+.BR PM_ERR_NOCONTEXT .
+.PP
+To start a new event record, use
+.BR pmdaEventAddRecord .
+The timestamp for the event record is given via
+.I tp
+and the
+.I flags
+parameter may be used to set the control field that determines the
+type of the event record \-
+.I flags
+may be the bit-wise ``or'' of one or more of the
+.B PM_EVENT_FLAG_*
+values defined in
+.I <pcp/pmapi.h>
+(but note that
+.B PM_EVENT_FLAG_MISSED
+should not be used in this context).
+.PP
+If event records have been missed, either because the PMDA cannot keep
+up or because the PMAPI client cannot keep up, then
+.B pmdaEventAddMissedRecord
+may be used.
+.I
+idx
+and
+.I tp
+have the same meaning as for
+.B pmdaEventAddRecord
+and
+.I nmissed
+is the number of event records that have been missed at this point
+in the time-series of event records.
+.B pmdaEventAddMissedRecord
+may be called multiple times for a single batch of event records
+if there are more than one ``missed event record'' episode.
+.PP
+Once an event record has been started by calling
+.BR pmdaEventAddRecord ,
+one or more event parameters may be added using
+.BR pmdaEventAddParam .
+The
+.I pmid
+and
+.I type
+parameters decribe the PMID of the parameter and the data type
+(one of the
+.B PM_TYPE_*
+values from
+.IR <pcp/pmapi.h> )
+of the value that is passed via
+.IR avp .
+.I type
+should one where the size of the value is implied by the
+.I type
+or by the length of a string value (for
+.BR PM_TYPE_STRING )
+or encoded within
+.I avp->vbp
+(for
+.BR PM_TYPE_AGGREGATE ).
+.PP
+Once the packed array has been constructed,
+.B pmdaEventGetAddr
+should be used to initialize the
+.B ea_type
+and
+.B ea_len
+fields at the start of the
+.B pmEventArray
+and return the base address of the event array
+that is assigned to the
+.B vp
+field of the
+.B pmAtomValue
+structure that the
+.B pmdaFetchCallBack
+method should return.
+.SH EXAMPLE
+The following skeletal code shows how these routines might be used.
+.PP
+.ft CW
+.ps -1
+.nf
+int             sts;
+int             myarray;
+int             first = 1;
+pmEventArray    eap;
+
+if (first) {
+   first = 0;
+   if ((myarray = pmdaEventNewArray()) < 0) {
+      // report error and fail
+   }
+}
+
+pmdaEventResetArray(myarray);
+
+// loop over all event records to be exported
+\&... {
+   struct timeval   stamp;
+   int              flags;
+
+   // establish timestamp and set flags to 0 or some combination
+   // of PM_EVENT_FLAG_POINT, PM_EVENT_FLAG_START, PM_EVENT_FLAG_ID,
+   // etc
+   if ((sts = pmdaEventAddRecord(myarray, &stamp, flags)) < 0) {
+      // report error and fail
+   }
+
+   // loop over all parameters for this event record
+   ... {
+      pmID          pmid;
+      int           type;
+      pmAtomValue   atom;
+      
+      // construct pmid, type and atom for the parameter and
+      // its value
+      if ((sts = pmdaEventAddParam(myarray, pmid, type, &atom)) < 0) {
+	 // report error and fail
+      }
+   }
+
+   // if some event records were missed (could be at the start
+   // of the exported set, or at the end, or in the middle, or
+   // a combination of multiple missed record episodes)
+   ... {
+      int              nmiss;
+      struct timeval   stamp;
+
+      if ((sts = pmdaEventAddMissedRecord(myarray, &stamp, nmiss)) < 0) {
+	 // report error and fail
+      }
+   }
+}
+
+// finish up
+eap = pmdaEventGetAddr(myarray);
+.fi
+.ps
+.ft
+.SH SEE ALSO
+.BR clock_gettime (2),
+.BR gettimeofday (2),
+.BR pmdaEventNewQueue (3),
+.BR pmdaEventNewClient (3),
+.BR PMDA (3)
+and
+.BR pmEventFlagsStr (3).

@@ -1,0 +1,40 @@
+#! /bin/sh
+# PCP QA Test No. 165
+# pmval -f checkout
+#
+# Copyright (c) 2005 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.*
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+
+echo "=== kernel.all.load - instantaneous ==="
+for arg in "" "-f 0" "-f 3" "-f 0 -w 6" "-w 9 -f 3"
+do
+    echo
+    echo "--- arg $arg ---"
+    pmval $arg -z -a archives/kenj-pc-1 -t 1min -s 4 kernel.all.load
+done
+
+echo
+echo "=== irix.network.interface.total.packets - counter ==="
+for arg in "" "-f 0" "-f 1" "-w 4 -f 0" "-w 6 -f 2"
+do
+    echo
+    echo "--- arg $arg ---"
+    pmval $arg -z -a archives/changeinst -t 1sec -s 4 irix.network.interface.total.packets
+done
+
+# success, all done
+exit

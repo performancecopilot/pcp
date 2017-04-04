@@ -1,0 +1,13 @@
+/*
+ * MMV metrics name space
+ */
+
+#ifndef MMV
+#define MMV	70
+#endif
+
+root {
+	mmv	MMV:*:*
+}
+
+#undef MMV

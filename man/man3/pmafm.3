@@ -1,0 +1,479 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 1998-2008 Silicon Graphics, Inc.  All Rights Reserved.
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.\"
+.TH PMAFM 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmafm\f1,
+\f3pmRecordSetup\f1,
+\f3pmRecordAddHost\f1,
+\f3pmRecordControl\f1 \- record mode support for PMAPI clients
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmafm.h>
+.sp
+.ad l
+.hy 0
+.in +8n
+.ti -8n
+FILE *pmRecordSetup(const char *\fIfolio\fP, const char *\fIcreator\fP, int\ \fIreplay\fP);
+.br
+.ti -8n
+int pmRecordAddHost(const char *\fIhost\fP, int \fIisdefault\fP, pmRecordHost\ **\fIrhp\fP);
+.br
+.ti -8n
+int pmRecordControl(pmRecordHost *\fIrhp\fP, int \fIrequest\fP, const\ char\ *\fIoptions\fP);
+.sp
+.in
+.hy
+.ad
+cc ... \-lpcp_gui
+.ft 1
+.SH DESCRIPTION
+These routines may be used to create a Performance Co-Pilot (PCP)
+archive ``on the fly'' to
+support ``record mode'' services for PMAPI client applications.
+.PP
+Each record mode ``session'' involves one or more
+PCP archive logs each created using a dedicated
+.BR pmlogger (1)
+process, with an overall Archive Folio format as understood by
+.BR pmafm (1),
+to name and collect all of the archive logs associated with
+a single recording session.
+.PP
+The
+.I pmRecordHost
+structure is used to maintain state information between the
+creator of the recording session and the associated
+.BR pmlogger
+process(es).  The structure is defined as:
+.sp 0.5v
+.ft CW
+.nf
+.in +0.25i
+typedef struct {
+    FILE   *f_config;    /* caller writes pmlogger configuration here */
+    int    fd_ipc;       /* IPC channel to pmlogger */
+    char   *logfile;     /* full pathname for pmlogger error logfile */
+    pid_t  pid;          /* process id for pmlogger */
+    int    status;       /* exit status, \-1 if unknown */
+} pmRecordHost;
+.in -0.25i
+.fi
+.ft R
+.PP
+The routines are used in combination to create a recording session
+as follows.
+.IP 1. 4n
+Call
+.B pmRecordSetup
+to establish a new recording session.  A new Archive Folio will be
+created using the name
+.IR folio ;
+if the file or directory
+.I folio
+already exists, or the file
+.I folio
+cannot be created, this is an error.
+The application that is creating the session is identified by
+.I creator
+(most often this would be the same as the global PMAPI application name,
+.IR pmProgname ).
+If the application knows how to create its own configuration file to replay
+the recorded session, then
+.I replay
+should be non-zero.
+.RS
+.PP
+.B pmRecordSetup
+returns a
+.I stdio
+stream onto
+which the application should write the text of the required
+replay configuration file, if any.
+.RE
+.IP 2.
+For each
+.I host
+that is to be included in the recording session, call
+.BR pmRecordAddHost .
+A new
+.I pmRecordHost
+structure is returned via
+.IR rhp .
+It is assumed that
+.BR pmcd (1)
+is running on
+.I host
+as this is how
+.BR pmlogger (1)
+will retrieve the required performance metrics.
+.RS
+.PP
+If this
+.I host
+is the default host for this recording session, then
+.I isdefault
+should be non-zero.  This will ensure that the corresponding archive
+appears first in the PCP archive folio, and hence the tools used
+to replay the archive folio will make the correct determination of the
+archive associated with the default host.
+At most one
+.I host
+per recording session may be nominated as the default host.
+.PP
+The calling application should
+write the desired
+.B pmlogger
+configuration onto the
+.I stdio
+stream returned via the
+.I f_config
+field in the
+.I pmRecordHost
+structure.
+.RE
+.IP 3.
+Optionally add arguments to the command line that will be used
+to launch
+.BR pmlogger (1)
+by calling
+.B pmRecordControl
+with a
+.I request
+of
+.BR PM_REC_SETARG .
+The argument is passed via
+.I options
+and one call to
+.B pmRecordControl
+is required for each distinct argument.
+.RS
+.PP
+An argument may be added for a particular
+.B pmlogger
+instance
+identified by
+.IR rhp ,
+or if the
+.I rhp
+argument
+is NULL the argument is added for all
+.B pmlogger
+instances that will be launched in the current recording session.
+.PP
+Independent of any calls to
+.B pmRecordControl
+with a
+.I request
+of
+.BR PM_REC_SETARG ,
+each
+.B pmlogger
+instance will automatically be launched with the following arguments:
+.BR \-c ,
+.BR \-h ,
+.BR \-l ,
+.B \-x
+and the basename for the PCP archive log.
+.RE
+.IP 4.
+To commence the recording session, call
+.B pmRecordControl
+with a
+.I request
+of
+.BR PM_REC_ON ,
+and
+.I rhp
+must be NULL.
+This will launch one
+.BR pmlogger (1)
+process for each host in the recording session,
+and initialize the
+.IR fd_ipc ,
+.IR logfile ,
+.I pid
+and
+.I status
+fields in the associated
+.I pmRecordHost
+structure(s).
+.IP 5.
+To terminate a
+.B pmlogger
+instance
+identified by
+.IR rhp ,
+call
+.B pmRecordControl
+with a
+.I request
+of
+.BR PM_REC_OFF .
+If the
+.I rhp
+argument to
+.B pmRecordControl
+is NULL, the termination request is broadcast to all
+.B pmlogger
+processes in the current recording session.
+.RS
+.PP
+An informative dialog is generated directly by each
+.B pmlogger
+process and hence note the comments on the disposition of output from
+.B pmlogger
+below.
+.PP
+Alternatively,
+.B pmlogger
+can be started with options to limit the duration of logging, e.g. the
+.B \-T
+or
+.B \-s
+arguments, in which case there is no need to call
+.B pmRecordControl
+with a
+.I request
+of
+.B PM_REC_OFF
+and no dialog is generated.
+.RE
+.IP 6.
+To display the current status of the
+.B pmlogger
+instance identified by
+.IR rhp ,
+call
+.B pmRecordControl
+with a
+.I request
+of
+.BR PM_REC_STATUS .
+If the
+.I rhp
+argument to
+.B pmRecordControl
+is NULL, the status request is broadcast to all
+.B pmlogger
+processes in the current recording session.
+.RS
+.PP
+The display is generated directly by each
+.B pmlogger
+process and hence note the comments on the disposition of output from
+.B pmlogger
+below.
+.RE
+.IP 7.
+To detach a
+.B pmlogger
+instance identified by
+.IR rhp
+and allow it to continue independent of
+the application that launched the recording session, call
+.B pmRecordControl
+with a
+.I request
+of
+.BR PM_REC_DETACH .
+If the
+.I rhp
+argument to
+.B pmRecordControl
+is NULL, the detach request is broadcast to all
+.B pmlogger
+processes in the current recording session.
+.RS
+.PP
+An informative dialog is generated directly by each
+.B pmlogger
+process and hence note the comments on the disposition of output from
+.B pmlogger
+below.
+.RE
+.PP
+The calling application should not close any of the returned
+.I stdio
+streams; this will be done by
+.B pmRecordControl
+when recording is commenced.
+.PP
+Once
+.B pmlogger
+has been started for a recording session, then
+.B pmlogger
+will assume responsibility for any dialog with the user in the event
+that the application that launched the recording session should
+exit, particularly without terminating the recording session.
+.PP
+By default, information and dialogs from
+.B pmlogger
+will be displayed using
+.BR pmquery (1)
+on the assumption that most applications wishing to launch
+a recording session are GUI-based.  In the event that
+.B pmquery
+fails to display the information (for example, because the
+.B DISPLAY
+environment variable is not set),
+.B pmlogger
+will write on its own
+.I stderr
+stream (\c
+.B not
+the
+.I stderr
+stream of the launching process);
+the output will be assigned to the
+.I XXXXXX.host.\fBlog\fP
+file described in the FILES section below.
+For convenience, the full pathname to this file is provided via the
+.I logfile
+field in the
+.I pmRecordHost
+structure.
+.PP
+If the
+.I options
+argument to
+.B pmRecordControl
+is not NULL, this string may be
+used to pass additional arguments to
+.BR pmquery (1)
+in those cases where a dialog is to be displayed.  One use of this
+capability would be to
+provide a
+.B \-geometry
+string to control the placement of the dialog.
+.PP
+Premature termination of a launched
+.B pmlogger
+process may be determined using the
+.I pmRecordHost
+structure,
+by calling
+.BR select (2)
+on the
+.I fd_ipc
+field
+or polling the
+.I status
+field that will contain the termination status from
+.BR waitpid (2)
+if known, else \-1.
+.SH SEE ALSO
+.BR pmafm (1),
+.BR pmlogger (1),
+.BR pmquery (1)
+and
+.BR PMAPI (3).
+.SH FILES
+These routines create a number of files in the
+.B "same directory"
+as the
+.I folio
+file named in the call to
+.BR pmRecordSetup .
+In all cases, the ``XXXXXX'' component is the result of
+calling
+.BR mktemp (3).
+.TP 10
+.I XXXXXX
+If
+.I replay
+is non-zero, this is the creator's replay configuration file, else
+an empty control file, used to guarantee uniqueness.
+.PD 0
+.TP
+.I folio
+The PCP Archive Folio, suitable for use with
+.BR pmafm (1).
+.TP
+.I XXXXXX.host.\fBconfig\fP
+The
+.BR pmlogger (1)
+configuration for each
+.I host
+\- if the same
+.I host
+is used in different calls to
+.B pmRecordAddHost
+within the same recording session
+then one of the letters ``a'' through ``z'' will
+be appended to the ``XXXXXX'' part of all associated file names to ensure
+uniqueness.
+.TP
+.I XXXXXX.host.\fBlog\fP
+.I stdout
+and
+.I stderr
+for the
+.BR pmlogger (1)
+instance for each
+.IR host .
+.TP
+.I XXXXXX.host.\fR{\fB0\fP,\fBmeta\fP,\fBindex\fP}
+The files comprising a single PCP archive for each
+.IR host .
+.SH DIAGNOSTICS
+.PD
+.PP
+.B pmRecordSetup
+may return
+.B NULL
+in the event of an error.
+Check
+.I errno
+for the real cause, but the value
+.B EINVAL
+typically means that the order of calls to these routines is
+not correct (there is obvious state associated with the current
+recording session that is maintained across calls to these routines).
+For example
+the following calls would produce this
+.B EINVAL
+error;
+calling
+.B pmRecordControl
+before calling
+.B pmRecordAddHost
+at least once, or calling
+.B pmRecordAddHost
+before calling
+.BR pmRecordSetup .
+.PP
+.B pmRecordControl
+and
+.B pmRecordAddHost
+both return 0 on success, else a value less than 0 suitable for
+decoding with
+.BR pmErrStr (3)
+on failure.
+The value
+.B \-EINVAL
+has the same interpretation as
+.I errno
+being set to
+.B EINVAL
+as described above.
+.PP
+.B pmRecordControl
+will return
+.B PM_ERR_IPC
+if the associated
+.B pmlogger
+process has already exited.

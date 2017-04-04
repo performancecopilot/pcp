@@ -1,0 +1,132 @@
+#! /bin/sh
+# PCP QA Test No. 661
+# checks pmwebd graphite (web application) functionality
+#
+# Copyright (c) 2014-2016 Red Hat.
+#
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.webapi
+. ./common.python
+
+test -d "$PCP_SHARE_DIR/webapps/graphite" || \
+	_notrun "graphite webapp is not installed"
+test -d "$PCP_SHARE_DIR/webapps/blinkenlights" || \
+	_notrun "blinkenlights webapp is not installed"
+which curl >/dev/null 2>&1 || _notrun "No curl binary installed"
+$python -c "import json.tool" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "python import json.tool not installed"
+
+$sudo rm -fr $tmp.dir
+$sudo rm -f $tmp.*
+rm -f $seq.full
+
+signal=$PCP_BINADM_DIR/pmsignal
+status=1	# failure is the default!
+username=`id -u -n`
+
+_cleanup()
+{
+    $sudo rm -fr $tmp.dir
+    $sudo rm -f $tmp.*
+    [ -z "$pid" ] || kill $pid
+}
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+webport=44339   # not 44323, so system pmwebd is unaffected by test case
+webargs="-U $username -p $webport"
+
+echo
+echo "=== pmwebd graphite capabilities ===" | tee -a $seq.full
+
+$PCP_BINADM_DIR/pmwebd $webargs -GX -R $PCP_SHARE_DIR/webapps -i 15 -A `pwd` -N -M8 -x/dev/tty -d1 -vvvvv -l $tmp.out &
+pid=$!
+_wait_for_pmwebd_logfile $tmp.out $webport
+
+echo "crashers"
+# TODO: telnet-probe hanging in read(2) here:
+#echo "GET  HTTP/1.0
+# | $PCP_BINADM_DIR/telnet-probe localhost $webport
+#echo "GET  HTTP/1.0
+# | $PCP_BINADM_DIR/telnet-probe localhost $webport
+
+_filter_curl_i()
+{
+    tr -d '\r' |                      # drop ^M from httpd results
+    sed -e 's,^Date:.*$,Date: XXX,' |
+    grep -v 'Connection:.*Alive'      # some microhttpd versions add this
+}
+
+echo "the catalog"
+curl -s -i "http://localhost:$webport/?zoo=goo&phantasm" | _filter_curl_i
+curl -s -i "http://localhost:$webport/blinkenlights" | _filter_curl_i
+curl -s -i "http://localhost:$webport/blinkenlights/" | _filter_curl_i
+curl -s -S "http://localhost:$webport/graphite/index.html?foo=bar&ectoplasm=egon"
+
+echo
+echo "metric name breakage" 
+curl -s -S "http://localhost:$webport/graphite/render?format=json&target=.." | _webapi_json_pretty
+curl --compressed -s -S "http://localhost:$webport/graphite/render?format=json&target=foo-XX-bar" | _webapi_json_pretty
+
+echo
+echo "metric tree iteration" 
+curl -s -S "http://localhost:$webport/graphite/metrics/find?query=archives*naslog*.*" | _webapi_json_pretty
+curl --compressed -s -S "http://localhost:$webport/graphite/metrics/find?format=completer&query=archives*naslog*.*" | _webapi_json_pretty
+curl -s -S "http://localhost:$webport/graphite/metrics/find?format=completer&query=archives*naslog*.k*." | _webapi_json_pretty
+curl --compressed -s -S "http://localhost:$webport/graphite/metrics/find?format=completer&query=archives*naslog*.k*.all" | _webapi_json_pretty
+curl -s -S "http://localhost:$webport/graphite/metrics/find?format=completer&query=archives*naslog*.k*.all." | _webapi_json_pretty
+
+echo
+echo "metric regex grep 1" 
+curl --compressed -s -S "http://localhost:$webport/graphite/graphlot/findmetric?q=.*960624.*disk.*dks131.*"
+echo
+echo "metric regex grep 2"
+curl -s -S "http://localhost:$webport/graphite/browser/search?query=2014+hinv+n.*"
+echo # not \n terminated
+
+echo
+echo "metric value dump 1" 
+curl -s -S "http://localhost:$webport/graphite/render?format=json&target=*/node_archive.proc.psinfo.pid.*&from=15:50_20131127&until=1385585880&maxDataPoints=100" | _webapi_json_pretty
+echo
+echo "metric value dump 2" 
+curl --compressed -s -S "http://localhost:$webport/graphite/rawdata?target=*/node_archive.proc.psinfo.pid.*&from=00:00_20131127&until=00:00_20131129&maxDataPoints=300" | _webapi_json_pretty
+
+echo
+echo compressed archive, expect non-empty result
+curl -s -S "http://localhost:$webport/graphite/rawdata?target=*20130706.kernel.all.nprocs&from=00:00_20130705&until=23:59_20130705" | _webapi_json_pretty
+
+echo
+echo "metric gfx rendering" 
+curl -s -S "http://localhost:$webport/graphite/render?width=999&height=999&hideLegend=false&bgcolor=%23FF0&title=hello&format=png&target=*-chartqa1-2E-meta.sample.*byte*&target=*-chartqa1-2E-meta.*NOSUCH*&target=*-chartqa1-2E-meta.sample.dodgey.value.NOSUCH&from=22:31_20071010&until=22:36_20071010" > $tmp.png
+_webapi_img_pretty $tmp.png
+curl -s -S "http://localhost:$webport/graphite/render?width=999&height=999&target=*archive*20150417*.proc.nprocs&from=09:30_20150417&until=23:00_20150417" > $tmp.png
+_webapi_img_pretty $tmp.png
+# until=now should trigger redirect
+curl --compressed -s -S "http://localhost:$webport/graphite/render?width=999&height=999&target=*archive*20150417*.proc.nprocs&from=09:30_20150417&until=now" > $tmp.png
+if [ -s $tmp.png ]; then
+    echo unexpected png
+    _webapi_img_pretty $tmp.png
+else
+    echo expected empty/absent png
+fi
+curl -L -s -S "http://localhost:$webport/graphite/render?width=999&height=999&target=*archive*20150417*.proc.nprocs&from=09:30_20150417&until=now" > $tmp.png
+_webapi_img_pretty $tmp.png
+
+# tidy up
+cat $tmp.out >> $seq.full
+
+# Run one more test but without -X mode
+
+kill $pid
+sleep 3
+$PCP_BINADM_DIR/pmwebd $webargs -G -R $PCP_SHARE_DIR/webapps -I -i 15 -A `pwd` -N -M8 -x/dev/tty -d1 -vvvvv -l $tmp.out &
+pid=$!
+_wait_for_pmwebd_logfile $tmp.out $webport
+
+echo
+echo "metric value dump 1 without -X"
+curl -s -S "http://localhost:$webport/graphite/render?format=json&target=*node_archive*.proc.psinfo.pid.*&from=15:50_20131127&until=1385585880&maxDataPoints=100" | _webapi_json_pretty
+
+status=0
+exit

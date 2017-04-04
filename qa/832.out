@@ -1,0 +1,21 @@
+QA output created by 832
+Start pmcd with modified $PCP_PMCDOPTIONS_PATH (pmcd.options)
+Starting pmcd ... 
+testing secure mode access via unix domain socket (PASS)
+sample.write_me old value=2 new value=1
+sample.write_me 1 1
+sample.write_me [Modifiable, but otherwise constant.]
+
+sample.write_me
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count / sec
+
+testing secure mode access attempt via inet socket (FAIL)
+pmstore: Cannot connect to PMCD on host "localhost": Authentication - invalid parameter supplied
+pmprobe: Cannot connect to PMCD on host "localhost": Authentication - invalid parameter supplied
+pminfo: Cannot connect to PMCD on host "localhost": Authentication - invalid parameter supplied
+pminfo: Cannot connect to PMCD on host "localhost": Authentication - invalid parameter supplied
+
+Waiting for pmcd to terminate ...
+Starting pmcd ... 
+Starting pmlogger ... 

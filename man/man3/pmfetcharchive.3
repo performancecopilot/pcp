@@ -1,0 +1,102 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2016 Red Hat.
+.\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMFETCHARCHIVE 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmFetchArchive\f1 \- get performance metrics directly from a set if archive logs
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.sp
+int pmFetchArchive(pmResult **\fIresult\fP);
+.sp
+cc ... \-lpcp
+.ft 1
+.SH DESCRIPTION
+.B pmFetchArchive
+is a variant of 
+.BR pmFetch (3)
+that may only be used when the current
+Performance Metrics Application Programming Interface (PMAPI)
+context
+is associated with a set of archive logs.
+.PP
+The
+.I result
+is instantiated with all of the metrics (and instances)
+from the next archive record,
+consequently there is no notion of a list of desired metrics,
+and the instance profile of the PMAPI context is ignored.
+.PP
+.B pmFetchArchive
+may return a
+.I result
+in which
+.I numpmid
+is zero.  This is a
+.I <mark>
+record that indicates a temporal discontinuity in the time series
+of performance metrics.  This can happen at the boundary between archive logs
+in a set
+or if the archive log associated
+with the current PMAPI context was created using
+.BR pmlogextract (1)
+to concatenate two or more PCP archive logs, and the
+.I <mark>
+record marks a point in time between the end of one input archive and
+the start of the next input archive.
+.PP
+It is expected that 
+.B pmFetchArchive
+would be used to create utilities that scan sets of archive logs,
+while the more common access to the archives would be via the 
+.BR pmFetch (3)
+interface.
+.PP
+To skip records within the set of archive logs, use
+.BR pmSetMode (3)
+to change the collection time within the current
+PMAPI context, then call
+.BR pmFetchArchive.
+.PP
+Note that the
+.I result
+returned by
+.B pmFetchArchive
+is dynamically allocated, and
+must be released using
+.BR pmFreeResult (3),
+not
+.BR free (3).
+See
+.BR pmFetch (3)
+and
+.BR pmFreeResult (3)
+for further details.
+.PP
+.B pmFetchArchive
+returns zero on success.
+.SH SEE ALSO
+.BR PMAPI (3),
+.BR pmFetch (3),
+.BR pmFreeResult (3),
+.BR pmNewContext (3),
+.BR pmSetMode (3)
+and
+.BR pmTrimNameSpace (3).
+.SH DIAGNOSTICS
+.IP \f3PM_ERR_NOTARCHIVE\f1
+the current PMAPI context is not associated with a set of archive logs

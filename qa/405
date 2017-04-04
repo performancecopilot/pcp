@@ -1,0 +1,36 @@
+#!/bin/sh
+# PCP QA Test No. 405
+# valgrind for pmUnpackEventRecords() and pmFreeEventResult()
+#
+# Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_check_valgrind
+
+# can skip stdout from unpack, that's checked in 404
+#
+_filter()
+{
+    $PCP_AWK_PROG '
+BEGIN			{ skip = 1 }
+/=== filtered /		{ skip = 0 }
+skip == 0		{ print }'
+}
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+_run_valgrind src/unpack | _filter
+
+# success, all done
+exit

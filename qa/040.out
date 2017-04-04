@@ -1,0 +1,12 @@
+QA output created by 040
+OK
+
+pmlogger log
+Log for pmlogger on HOST started DATE
+
+Config parsed
+Starting logger for host "HOST"
+Archive basename: ARCHIVE
+pmlogger: Sample limit reached, exiting
+
+Log finished DATE

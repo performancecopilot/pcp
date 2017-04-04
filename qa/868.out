@@ -1,0 +1,12 @@
+QA output created by 868
+
+=== Duplicate names in the PMNS ===
+Error Parsing ASCII PMNS: Duplicate metric id (29.0.2) in name space for metrics "sample.dupnames.two.seconds" and "sample.seconds"
+
+pminfo: Cannot load namespace from "root": Problems parsing PMNS definitions
+Error: PMDA's PMNS is bad
+Hint: set pmns_dupok=true in the PMDA's Install script if duplicate names are
+      expected in the PMNS
+
+=== Bad path for pmda_dir ===
+Error: pmda_dir (/really/bad/directory) is not a directory

@@ -1,0 +1,15 @@
+//
+// Over all CPUs, syscall_rate > 1000 * no_of_cpus
+//
+cpu_syscall =
+    $all.syscall > 1000 count/sec * hinv.ncpu
+    ->  print "high aggregate syscalls: %v";
+
+// Sustained high syscall rate on a single CPU
+//
+delta = 30 sec;
+percpu_syscall =
+    some_inst (
+	$percpu.syscall > 2000 count/sec
+    )
+	-> syslog "Sustained syscalls per second? " "[%i] %v ";

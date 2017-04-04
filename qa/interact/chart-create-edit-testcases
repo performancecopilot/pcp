@@ -1,0 +1,227 @@
+Creating and Editing Charts
+===========================
+
+Live Create
+
+[ ] Start pmchart, click on New Chart in the File Menu Item or Toolbar.
+    Verify that the New Chart dialog is displayed with no entries in
+    the Chart Plots list, one host in the Available Metrics list, and
+    one level of the local hosts metric namespace expanded.
+[ ] Resize the window, down to its minimum size and up to a larger size
+    than the initial window.  Verify the child widget layout remains as
+    sensible as possible for the window size.
+[ ] Before selecting anything click on the OK push button, and verify
+    that a warning dialog is displayed (No metrics selected), that
+    the New Chart dialog remains on screen and no chart is created in
+    the main pmchart window.
+
+[ ] Verify the metic namespace traversal and selection functionality:
+    - Double click on the hostname, verify the metric list collapses.
+    - Double click on the hostname, verify the list reappears.
+    - Select "sample", then "seconds".  Verify the full metric path has
+      appeared in the text box below the list.
+    - Click the blue Metric Info button and in the Info dialog verify
+      that the Info tab displays the metric name, short help text,
+      descriptor (type, indom, semantics, units), long help, and the
+      current value.  Then click on the Value tab, which should cause
+      the pmtime live window to be displayed and the current values
+      for sample.seconds should be reported at the current interval.
+    - Click the red Delete button.  It should be disabled, so nothing
+      should happen here at this stage.
+    - Click the left-arrow button and verify the metric appears in the
+      Chart Plots list, fully expanded, and with the default colour.
+    - Now click the big red Smite button again, and verify the metric
+      is removed from the Chart Plots list.
+    - Select samples.seconds again from the Available Metrics list, and
+      press OK.  Verify that a line plot chart is created which starts
+      plotting this metric (its value should constantly hover very close
+      to the sample interval).
+
+[ ] Verify default metric colors
+    - Open the Settings dialog and select the Colors tab.
+    - Open the New Chart dialog, navigate to sample.hordes in the
+      Available Metrics list, and (multi-) select the first 50 instances.
+    - Click OK and verify from the legend that the colours selected match
+      the default plot colour rotation.
+    - Select Delete Chart from the Edit menu.
+
+[ ] Verify chart metadata
+    - Open the New Chart dialog, navigate to sample.load and click
+      on the left-arrow button to add it to the Chart Plots list.
+    - Click on the Chart tab, and modify the following attributes:
+      Title: NewChartQA
+      Style: Area Plot
+      Legend: Off
+      Y-Axis	Auto-Scale: Off
+		Min: 40
+		Max: 45
+    - Click OK, and verify that the chart is created with all of these
+      parameters in effect.
+    - Close the Chart
+    - Open the New Chart dialog, navigate to the sample metrics and
+      select both recv_pdu and xmit_pdu, and add them to the Chart Plot
+      list simultaneously using the left-arrow button.
+    - Click on the Chart tab and set Style: to Stacked Bar.
+    - Click OK, and verify that a stacked bar chart is created.
+    - Close the Chart
+
+[ ] Add Host
+    - Open up the New Chart dialog
+    - Push the Add Host button
+	- enter no.such.host and verify nothing bad happens
+	- enter your valid remote QA host and verify it is added to
+	  the Available Metrics list with its top level metric names.
+    - Select sample.long.one from the first host, and sample.long.ten
+      from the second, and add the two metrics to the Chart Plot list.
+    - Click on the Chart dialog, and set the style to Stacked Bar.
+    - Click on OK and verify that a bar chart is created with the two
+      metrics, one from each host, values one and ten respectively.
+    - Close the Chart
+
+[ ] Verify color selection Tab
+    - Open up the New Chart dialog
+    - Add the sample.drift metric to the Chart Plots and click Colors.
+    - Verify that the First colour box (below Revert button) displays
+      the current (#-cycle default) colour.
+    - Drag the cursor around in the color and darkness selection boxes
+      and verify that the colour box above the Apply (left arrow) push
+      button changes as you move the cursor.  Verify that the HSV/RGV
+      values change as well.
+    - Type into each of the HSV/RGB spin boxes - they should not accept
+      non-numeric input, modifying a value on one row (HSV or RGB) will
+      affect values on the other, and all have a range between 0 - 255,
+      except for Hue, which is 0 - 359.
+    - Select a colour different to the default plot colour, and press
+      the Apply button.  Verify that the colour displayed in the Chart
+      Plot list is updated.
+    - Press the Revert button, and verify that the colour displayed in
+      the Chart Plot list is reverted to its previous value.
+    - Press OK.
+
+
+Live Edit
+
+[ ] Click on Edit Chart from the Edit menu.  Verify that the metric
+    from the previous exercise (sample.drift) is the only one displayed
+    in the Chart Plots list, and its colour matches the previous colour.
+[ ] Select sample.drift in the Chart Plots list.
+
+[ ] Verify the color selection Tab
+    - Select a new (different) colour and press the left-arrow button to
+      Apply the change.
+    - Enter a plot label of "Drifter".
+    - Press OK, and verify that the chart changes to using the new colour
+      and new legend label for its sample.drift plot.
+
+[ ] Verify changing each piece of chart metadata
+    - Click on the Edit Chart action, and modify the following attributes:
+      Title: EditChartQA
+      Style: Utilization
+      Legend: Off
+      Y-Axis	Auto-Scale: Off
+		Min: 1
+		Max: 1
+    - Click OK, and verify that a window is displayed preventing min/max
+      from being the same.
+    - Change Y-Axis Max: to 1.
+    - Click OK, and verify that the chart is created with all of these
+      parameters in effect.
+    - Click on the Edit Chart action, and modify the following attributes:
+      Title: EditChartQA2
+      Style: Line Plot
+      Legend: On
+      Y-Axis Auto-Scale: On
+    - Click OK, and verify that the chart is created with all of these
+      parameters in effect.
+
+[ ] Verify adding and removing metrics
+    - Bring up the Edit Chart dialog.  Select the sample.drift metric from
+      Chart Plots and press the red Delete button.  Now press OK, and make
+      sure that a dialog is displayed preventing the creation of a chart
+      with no metrics.
+    - Press Cancel.
+    - Bring up the Edit Chart dialog.  Select the sample.drift metric from
+      Chart Plots and press the red Delete button.  Select sample.load in
+      the Available Metrics list, add it to the Chart Plots list, and then
+      press OK.  Verify that the chart is now displaying only sample.load.
+
+[ ] Check handling of instance names with spaces
+    - Run: pmchart -a archives/spotinstance -c views/SpotInstances
+    - Edit -> Chart
+      + Verify that the list of existing chart metrics shows the instance
+	name correctly - i.e. "kernel.all.cpu.wait.total" is listed as an
+	instance name and not part of the metric name.
+
+[ ] Check the conversion of plot style in live mode
+    - Run: pmchart -c CPU -c CPU 
+      (yes, the view appears twice)
+    - Edit -> Chart
+      + step through the Styles for the bottom chart, and verify that the
+        results mactch those shown in the top chart
+	Utilization -> Line Plot -> Utilization
+	Utilization -> Bar Plot -> Utilization
+	Utilization -> Stacked Bar Plot -> Utilization
+	Utilization -> Area Plot -> Utilization
+
+[ ] Check the hiding of plots in archive mode
+    - Run: pmchart -c CPU -c CPU -t 1 -a archives/viewqa1
+      (yes, the view appears twice)
+    - in the lower chart, go through this sequence and verify that the
+      plotted values match the values in the upper chart ... at the
+      end of each cycle the two charts should be identical
+      + click Idle off in the legend
+      + click User off in the legend
+      + click Kernel off in the legend
+      + click Nice off in the legend
+      + click Intr off in the legend
+      + click Wait off in the legend
+        (bottom chart should be blank)
+      + click Wait on in the legend
+      + click Intr on in the legend
+      + click Nice on in the legend
+      + click Kernel on in the legend
+      + click User on in the legend
+      + click Idle on in the legend
+    - Edit -> Chart and change Style to Line Plot for both charts (may need
+      to Step in the pmtime dialog to get the plots updated correctly), then
+      repeat the legend off and on sequence above
+
+Archive Create
+
+[ ] Click on the Archive Tab.  Click on the New Chart toolbutton.  Click
+    on the Archive push button, and open up pcp-gui/qa/archives/viewqa1,
+    pcp-gui/qa/archives/viewqa2 and pcp-gui/qa/archives/viewqa3.
+[ ] Verify that the hosts "edge" and "leaf" are displayed along with the
+    top level of their respective metric namespaces.
+    Verify also that the Time Axis in the main window has been updated
+    to display a timeframe in September 2007, EST.
+[ ] Create a CPU view from the archive
+    - Select all of the kernel.all.cpu metrics from the Available Metrics
+      list and add them to the Chart Plots list.
+    - Modify each of the colours - dark blue for "user", red for "sys",
+      "green" for idle, cyan for "wait.total" and light yellow for "intr".
+    - Change the chart properties:
+      Title: CPU Utilisation QA
+      Style: utilisation
+    - Press OK and inspect your handiwork.
+[ ] Close the Archive Tab.
+
+
+Error handling
+
+[ ] Go through all the "problematic" sample PMDA metrics and verify:
+    - Attempt to create a chart with sample.darkness.
+	(should not be possible - instance domain but no values)
+    - Attempt to create a chart with sample.noinst.
+	(should not be possible - no instance domain)
+    - Attempt to create a chart with sample.needprofile.
+	(should not be possible - no profile set)
+    - Attempt to create a chart with sample.string.null
+	(should not be possible - string value)
+    - Attempt to create a chart with sample.aggregate.null
+	(should not be possible - aggregate value)
+    - Attempt to create a chart with sample.bad.unknown
+	(should not be possible - unknown PMID)
+    - Attempt to create a chart with sample.bad.nosupport
+	(should not be possible - ENOSUPPORT PCP errno)
+

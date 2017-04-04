@@ -1,0 +1,1 @@
+FILES = load syscalls-irix syscalls-linux bufcache-activity bufcache-all vnodes memory-irix memory-linux inode-cache syscalls-percpu-irix queues-irix read-write-data interrupts-irix summary-windows summary-linux

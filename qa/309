@@ -1,0 +1,36 @@
+#! /bin/sh
+# PCP QA Test No. 309
+# test for PV 941663 - pmdaInstance broken for name == NULL and inst != PM_IN_NULL in cached PMDAs
+#
+# Copyright (c) 2005 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.*
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+#
+# pmcd will segfault and pmstore will return an IPC error on linux
+# systems that do not have the fix. This should not fail on IRIX
+# (other than the expected pmstore EPERM error), but on Linux the
+# disk.dev instance domain in the linux PMDA is cached, and the
+# linux PMDA is a DSO, so pmcd takes the segfault.
+#
+echo 'expect "disk.dev.read: pmStore: No permission to perform requested operation"'
+pmstore disk.dev.read 1 2>&1 \
+| fgrep 'pmStore:' \
+| sed -e 's/Permission denied/No permission to perform requested operation/'
+$sudo $PCP_RC_DIR/pcp restart 2>&1 | _filter_pcp_start
+status=0
+
+# success, all done
+exit

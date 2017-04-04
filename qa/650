@@ -1,0 +1,107 @@
+#! /bin/sh
+# PCP QA Test No. 650
+# pmlogger configs having PMIDs with multiple metric names
+#
+# Copyright (c) 2010 Aconex.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.*
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    logger_pid=$1
+
+    sed \
+        -e '/Performance metrics from host /s/ host .*/ host .../' \
+        -e '/commencing/d' \
+        -e '/ending/d' \
+        -e '/^\[[0-9]* bytes]/d' \
+        -e '/value /{
+s/value [0-9][0-9]*/value INTEGER/
+}' \
+        -e '/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]/s/[^ ]*/TIMESTAMP/' \
+        -e "/\"$logger_pid\"/s/$logger_pid/LOGGER_PID/g" \
+        -e '/pmcd.pmlogger.port/s/value .*/value PORT/' \
+        -e '/pmcd.pmlogger.host/s/value ".*/value "HOST"/' \
+        -e '/pmcd.pmlogger.archive/s/value ".*/value "PATH"/' \
+    | $PCP_AWK_PROG '
+$1 == "TIMESTAMP" && NF == 4    { print "TIMESTAMP       0       OFFSET       OFFSET"; next }
+/^InDom: 2.3/			{ print; skipi = 1; next }
+skipi == 1			{ print "TIMESTAMP <some> instances"; skipi = 2; next }
+skipi != 0 && $1 == "InDom:"	{ skipi = 0 }
+skipi == 2			{ print "                 ..."; skipi = 3; next }
+skipi == 3			{ next }
+$1 == "TIMESTAMP" && $2 == "2.4.1"	{ print; skipv = 1; next }
+skipv != 0 && NF == 0		{ skipv = 0 }
+skipv == 1			{ print "                <some values>"; skipv = 2; next }
+skipv == 2			{ next }
+                                { print }' \
+    | src/hex2nbo
+}
+
+# real QA test starts here
+
+echo "Test case - one metric, remapped ID"
+rm -f $tmp.log
+cat <<End-of-File | pmlogger -s 5 -l $tmp.log $tmp.1 &
+log advisory on 200 msec {
+    sample.secret.foo.bar.max.redirect
+}
+End-of-File
+wait
+pid=$!
+echo "= metric names recorded"
+pminfo -a $tmp.1
+echo "= archive contents..."
+pmdumplog -a $tmp.1 | _filter $pid
+echo "= pmlogger log"
+_filter_pmlogger_log <$tmp.log
+
+echo "Test case - two metric names, common PMID, one group"
+rm -f $tmp.log
+cat <<End-of-File | pmlogger -s 5 -l $tmp.log $tmp.2 &
+log advisory on 200 msec {
+    sample.secret.foo.bar.max.redirect
+    pmcd.agent.status
+}
+End-of-File
+wait
+pid=$!
+echo "= metric names recorded"
+pminfo -a $tmp.2
+echo "= archive contents..."
+pmdumplog -a $tmp.2 | _filter $pid
+echo "= pmlogger log"
+_filter_pmlogger_log <$tmp.log
+
+echo "Test case - two metric names, common PMID, two groups"
+rm -f $tmp.log
+cat <<End-of-File | pmlogger -s 5 -l $tmp.log $tmp.3 &
+log advisory on 200 msec {
+    sample.secret.foo.bar.max.redirect
+}
+log advisory on 100 msec {
+    pmcd.agent.status
+}
+End-of-File
+wait
+pid=$!
+echo "= metric names recorded"
+pminfo -a $tmp.3
+echo "= archive contents..."
+pmdumplog -a $tmp.3 | _filter $pid
+echo "= pmlogger log"
+_filter_pmlogger_log <$tmp.log
+
+# success, all done
+exit

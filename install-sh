@@ -1,0 +1,299 @@
+#!/bin/sh
+#
+# Copyright (c) 2013 Red Hat.
+# Copyright (c) 2004 Silicon Graphics, Inc.  All Rights Reserved.
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+# 
+# This script emulates bsd install and also recognises
+# two environment variables, with the following semanitcs :-
+#
+# $DIST_MANIFEST - if set, the name of the file to append manifest
+#                  information in the following format:
+#                  File    :  f mode owner group src target
+#                  Diretory:  d mode owner group target
+#                  Symlink :  l linkval target
+#
+# $DIST_ROOT     - if set, prepend to target
+#
+# The sematics of all combinations of these two variables
+# are as follows:
+#
+# $DIST_MANIFEST?  $DIST_ROOT? |   Copy?  Append Manifest?
+# -----------------------------+--------------------------
+#       not set       not set  |    yes        no
+#       not set       set      |    yes        no
+#       set           not set  |    no         yes
+#       set           set      |    yes        yes
+
+_usage() {
+    echo "Usage: $prog [-o owner] [-g group] [-m mode] -d directory"
+    echo "or     $prog [-o owner] [-g group] [-m mode] file directory/file"
+    echo "or     $prog [-o owner] [-g group] [-m mode] file file [file ...] directory"
+    echo "or     $prog -S file target  (creates \"target\" symlink)"
+    echo ""
+    echo "The \$DIST_MANIFEST and \$DIST_ROOT environment variables affect the"
+    echo "behaviour of this command - see comments in the script."
+    echo ""
+    exit 1
+}
+
+_chown ()
+{
+    _st=255
+    if [ $# -eq 3 ] ; then
+	chown $1:$2 $3
+	_st=$?
+	if [ $_st -ne 0 ] ; then
+	    if [ $REAL_UID != '0' ] ; then
+		if [ ! -f $DIST_ROOT/.chown.quiet ] ; then
+		    echo '==============================================='
+		    echo Ownership of files under ${DIST_ROOT:-/}
+		    echo cannot be changed
+		    echo '==============================================='
+		    if [ -n "$DIST_ROOT" ] ; then
+			touch $DIST_ROOT/.chown.quiet
+		    fi
+		fi
+	       _st=0
+	    fi     
+	fi
+    fi
+
+    return $_st
+}
+
+
+_manifest ()
+{ 
+    echo $* | sed -e 's/\/\//\//g' >>${DIST_MANIFEST:-/dev/null}
+}
+
+ID=id
+# Test to use the functional id on Solaris
+test -f /usr/xpg4/bin/id && ID=/usr/xpg4/bin/id
+
+prog=`basename $0`
+HERE=`pwd`
+dflag=false
+Sflag=false
+DIRMODE=755
+FILEMODE=644
+OWNER=`$ID -u 2>/dev/null`
+GROUP=`$ID -g 2>/dev/null`
+if [ -z "$OWNER" -o -z "$GROUP" ]
+then
+    # do it the hardway
+    #
+    OWNER=`$ID | sed -e 's/.*uid=[^(]*(//' -e 's/).*//'`
+    GROUP=`$ID | sed -e 's/.*gid=[^(]*(//' -e 's/).*//'`
+fi
+REAL_UID=$OWNER
+
+# default is to install and don't append manifest
+INSTALL=true
+MANIFEST=:
+
+[ -n "$DIST_MANIFEST" -a -z "$DIST_ROOT" ] && INSTALL=false
+[ -n "$DIST_MANIFEST" ] && MANIFEST="_manifest"
+
+[ $# -eq 0 ] && _usage
+
+if $INSTALL
+then
+    RM=rm; CP=cp; LN=ln; MKDIR=mkdir; CHMOD=chmod; CHOWN=_chown
+else
+    RM=true; CP=true; LN=true; MKDIR=true; CHMOD=true; CHOWN=true
+fi
+
+
+test $REAL_UID -ne 0 && CHOWN=true
+test "$NO_CHOWN" = "true" && CHOWN=true
+
+while getopts "d:g:m:o:S:" c $*
+do
+   case $c in
+   d) 
+	dir=`echo $DIST_ROOT/$OPTARG | sed -e 's;//*;/;g'`
+	dflag=true
+	;;
+   g)
+	GROUP=$OPTARG
+	;;
+   m)
+	DIRMODE=`expr $OPTARG`
+	FILEMODE=$DIRMODE
+	;;
+   o)
+	OWNER=$OPTARG
+	;;
+   S) 
+	symlink=$OPTARG
+	Sflag=true
+	;;
+   *)
+   	_usage
+	;;
+   esac
+done
+
+shift `expr $OPTIND - 1`
+
+status=0
+if $dflag
+then
+    #
+    # first usage
+    #
+    $MKDIR -p $dir
+    status=$?
+    if [ $status -eq 0 ]
+    then
+	$CHMOD $DIRMODE $dir
+	status=$?
+    fi
+    if [ $status -eq 0 ]
+    then
+	$CHOWN $OWNER $GROUP $dir
+	status=$?
+    fi
+    $MANIFEST d $DIRMODE $OWNER $GROUP `echo "$dir" | sed -e "s;^$DIST_ROOT;;"`
+elif $Sflag
+then
+    #
+    # fourth usage (symlink)
+    #
+    if [ $# -ne 1 ]
+    then
+    	_usage
+    else
+	target=`echo $DIST_ROOT/$1 | sed -e 's;//*;/;g'`
+    fi
+    $RM -f $target
+    dir=`dirname $target | sed -e 's;//*;/;g'`
+    [ ! -d $dir ] && mkdir -p $dir
+    $LN -s -f $symlink $target
+    status=$?
+    $MANIFEST l $symlink `echo "$target" | sed -e "s;^$DIST_ROOT;;"`
+else
+    list=""
+    dir=""
+    if [ $# -eq 2 ]
+    then
+	#
+	# second usage: install file dir/name
+	# target 'name' is not necessarily the same as 'file'
+	# (Note: install file dir  is ambiguous and not supported
+	#
+	f=$1
+	dir=$DIST_ROOT/`dirname $2`
+	dir=`echo $dir | sed -e 's;//*;/;g'`
+	t_dir=`echo "$dir" | sed -e "s;^$DIST_ROOT;;" | sed -e 's;//*;/;g'`
+	destfile=`basename $2`
+	if [ -f $f -a -f $f.exe ]
+	then
+	    # Windows hack -- executables present as foo and foo.exe,
+	    # the foo one is visible to test(1) and ls(1), but not to
+	    # cat(1)/cp(1) ... need to $RM/$CP the foo.exe one
+	    #
+	    if cat $f >/dev/null 2>&1
+	    then
+		:
+	    else
+		f=$f.exe
+		destfile=$destfile.exe
+	    fi
+	fi
+	[ ! -d $dir ] && mkdir -p $dir
+	if [ -d $dir/$destfile ]
+	then
+	    echo ERROR: unsupported install usage
+	    _usage
+	    exit 1
+	else
+	    $RM -f $dir/$destfile
+	fi
+	$CP $f $dir/$destfile
+	status=$?
+
+	if [ $status -eq 0 ]
+	then
+	    [ ! -d $dir/$destfile ] && $CHMOD $FILEMODE $dir/$destfile
+	    status=$?
+	    if [ $status -eq 0 ]
+	    then
+		$CHOWN $OWNER $GROUP $dir/$destfile
+		status=$?
+	    fi
+	    $MANIFEST f $FILEMODE $OWNER $GROUP $HERE/$f $t_dir/$destfile
+	fi
+	[ $status -ne 0 ] && break
+
+    else
+	#
+	# third usage: install file file [file ...] directory
+	#
+	n=1
+	while [ $# -gt 0 ]
+	do
+	    if [ $# -gt 1 ]
+	    then
+		list="$list $1"
+	    else
+		dir=`echo $DIST_ROOT/$1 | sed -e 's;//*;/;g'`
+	    fi
+	    shift
+	done
+
+	# At this stage, $list is the list of files to install
+	# in $dir. We create $dir if necessary
+
+	# t_dir is for the manifest, i.e. without $DIST_ROOT prefix
+	t_dir=`echo "$dir" | sed -e "s;^$DIST_ROOT;;"`
+
+	for f in $list
+	do
+	    if [ -f $f -a -f $f.exe ]
+	    then
+		# Windows hack -- executables present as foo and foo.exe,
+		# the foo one is visible to test(1) and ls(1), but not to
+		# cat(1)/cp(1) ... need to $RM/$CP the foo.exe one
+		#
+		if cat $f >/dev/null 2>&1
+		then
+		    :
+		else
+		    f=$f.exe
+		fi
+	    fi
+
+	    [ ! -d $dir ] && mkdir -p $dir
+	    $RM -f $dir/$f
+	    $CP $f $dir/$f
+	    status=$?
+
+	    if [ $status -eq 0 ]
+	    then
+		$CHMOD $FILEMODE $dir/$f
+		status=$?
+		if [ $status -eq 0 ]
+		then
+		    $CHOWN $OWNER $GROUP $dir/$f
+		    status=$?
+		fi
+		$MANIFEST f $FILEMODE $OWNER $GROUP $HERE/$f $t_dir/$f
+	    fi
+	    [ $status -ne 0 ] && break
+	done
+    fi
+fi
+
+exit $status

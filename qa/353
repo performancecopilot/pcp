@@ -1,0 +1,39 @@
+#!/bin/sh
+# PCP QA Test No. 353
+# check pmsocks
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+. ./common.config
+
+[ -x "$PCP_BIN_DIR/pmsocks" ] || _notrun 'pmsocks is not installed'
+[ -f "$PCP_ETC_DIR/tsocks.conf" ] || _notrun 'pmsocks is not configured'
+[ -n "$PCPQA_SOCKS_SERVER" ] || _notrun 'PCPQA_SOCKS_SERVER is not set in ./common.config'
+
+_filter()
+{
+    sed -e '/not QAing/d'
+}
+
+status=0	# success is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+echo "expect no output"
+
+EXTERNAL_HOST=estore.sgi.com
+SOCKS_SERVER=$PCPQA_SOCKS_SERVER
+PMCD_CONNECT_TIMEOUT=30
+PMCD_REQUEST_TIMEOUT=30
+export PMCD_CONNECT_TIMEOUT PMCD_REQUEST_TIMEOUT SOCKS_SERVER
+pmsocks src/pmsocks_objstyle -h $EXTERNAL_HOST | _filter
+
+exit

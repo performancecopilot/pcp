@@ -1,0 +1,654 @@
+#
+#
+# Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+# 
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+#
+
+@ web.config.numservers number of servers in configuration file
+The number of Web servers specified in the configuration file.
+The log files for these Web servers may or may not be monitored,
+see web.perserver.watched and web.allservers.numwatched.
+
+@ web.config.catchup maximum time (secs) before Web server logs are probed
+The time in seconds after which monitored Web server logs will be
+examined, even if there have been no requests for performance metrics
+from those logs.  The "catch up" process spreads the load and minimizes
+the latency at the first requests for metrics that have not been
+requested for a long time.
+
+This metric has the initial value of the -t delay option to
+pmdaweblog, and may be altered using pmStore(1).
+
+@ web.config.catchuptime time (secs) to perform catchup
+Accumulated elapsed time in which the Web logs PMDA has been performing
+the "catch up" process to examine all Web server logs.
+
+@ web.config.check time (secs) after which stationary logs will be re-opened 
+Web server log files that are not changing are periodically closed and
+re-opened to detect possible log file rotation.  This metric controls
+how often a stationary log file will be re-opened.
+
+This metric has the initial value of the -n idlesec option to
+pmdaweblog, and may be altered using pmStore(1).
+
+@ web.allservers.numwatched number of servers being monitored
+The number of Web servers that are being monitored, as opposed
+the number specified in the configuration file.
+
+See also web.config.numservers and web.perserver.watched.
+
+@ web.allservers.numalive number of watched servers that are alive
+The number of servers that are being watchedly watched that have both 
+logs files.
+
+@ web.allservers.errors number of errors reported by all watched servers
+The number of errors reported by all watched servers.
+
+@ web.allservers.requests.total requests processed by all servers
+The total number of HTTP requests processed by all watched servers.
+
+@ web.allservers.bytes.total bytes sent by all servers
+The total number of bytes sent by all watched servers.
+
+@ web.allservers.requests.get GET requests handled by all watched servers
+The number of HTTP GET requests that were processed by all watched servers.
+
+@ web.allservers.bytes.get bytes sent in reply by all servers to GET requests
+The number of bytes that have been sent by all watched servers in reply 
+to HTTP GET requests.
+
+@ web.allservers.requests.head HEAD requests handled by all watched servers
+The number of HTTP HEAD requests that were processed by all watched
+servers.
+
+@ web.allservers.bytes.head bytes sent in reply by all servers to HEAD requests
+The number of bytes that have been sent by all watched servers in reply 
+to HTTP HEAD requests.
+
+@ web.allservers.requests.post POST requests handled by all watched servers
+The number of HTTP POST requests that were processed by all watched
+servers.
+
+@ web.allservers.bytes.post bytes sent in reply by all servers to POST requests
+The number of bytes that have been sent by all watched servers in reply 
+to HTTP POST requests.
+
+@ web.allservers.requests.other other requests handled by all watch servers
+The number of HTTP requests, other than GET, HEAD and POST, that were 
+processed by all watched servers.
+
+@ web.allservers.bytes.other bytes sent in reply by servers to other requests
+The number of bytes that have been sent by this server in reply to HTTP 
+requests other than GET, HEAD or POST.
+
+@ web.allservers.requests.size.zero replies of 0 bytes sent by all servers
+The total number of HTTP requests that required a response of 0 bytes from 
+all watched servers.
+
+@ web.allservers.bytes.size.zero total bytes sent in 0k replies
+The total number of bytes sent in replies of 0k by all watched servers. 
+This metric is always zero and is provided for consistency only.
+
+@ web.allservers.requests.size.le3k replies of <= 3k sent by all servers
+The number of HTTP requests that required a response of less than or equal
+to 3k from all watched servers.
+
+@ web.allservers.bytes.size.le3k total bytes sent in <= 3k replies
+The total number of bytes sent in replies of less than or equal to 3k in
+size by all watched servers.
+
+@ web.allservers.requests.size.le10k replies of <= 10k sent by all servers
+The number of HTTP requests that required a response of less than or equal
+to 10k from all watched servers.
+
+@ web.allservers.bytes.size.le10k total bytes sent in <= 10k replies
+The total number of bytes sent in replies of less than or equal to 10k in
+size by all watched servers.
+
+@ web.allservers.requests.size.le30k replies of <= 30k sent by all servers
+The number of HTTP requests that required a response of less than or equal
+to 30k from all watched servers.
+
+@ web.allservers.bytes.size.le30k total bytes sent in <= 30k replies
+The total number of bytes sent in replies of less than or equal to 30k in
+size by all watched servers.
+
+@ web.allservers.requests.size.le100k replies of <= 100k sent by all servers
+The number of HTTP requests that required a response of less than or equal
+to 100k from all watched servers.
+
+@ web.allservers.bytes.size.le100k total bytes sent in <= 100k replies
+The total number of bytes sent in replies of less than or equal to 100k in
+size by all watched servers.
+
+@ web.allservers.requests.size.le300k replies of <= 300k sent by all servers
+The number of HTTP requests that required a response of less than or equal
+to 300k from all watched servers.
+
+@ web.allservers.bytes.size.le300k total bytes sent in <= 300k replies
+The total number of bytes sent in replies of less than or equal to 300k in
+size by all watched servers.
+
+@ web.allservers.requests.size.le1m replies of <= 1M sent by all servers
+The number of HTTP requests that required a response of less than or equal
+to 1M from all watched servers.
+
+@ web.allservers.bytes.size.le1m total bytes sent in <= 1M replies
+The total number of bytes sent in replies of less than or equal to 1M in
+size by all watched servers.
+
+@ web.allservers.requests.size.le3m replies of <= 3M sent by all servers
+The number of HTTP requests that required a response of less than or equal
+to 3M from all watched servers.
+
+@ web.allservers.bytes.size.le3m total bytes sent in <= 3M replies
+The total number of bytes sent in replies of less than or equal to 3M in
+size by all watched servers.
+
+@ web.allservers.requests.size.gt3m replies of > 3M sent by all servers
+The number of HTTP requests that required a response of greater than
+3M from all watched servers.
+
+@ web.allservers.bytes.size.gt3m total bytes sent > 3M replies
+The total number of bytes sent in replies of greater than 3M in size by 
+all watched servers.
+
+@ web.allservers.requests.size.unknown replies of unknown size by all servers
+The number of HTTP requests that required a response of unknown size
+from all watched servers.
+
+@ web.allservers.requests.client.total requests satisfied by client caches for all cacheing servers
+The total number of HTTP GET/IMS requests that resulted in "Not Modified"
+responses from cache (and remote if checked). These are client cache hits.
+
+@ web.allservers.requests.cached.total requests satisfied by server caches for all cacheing servers
+The total number of HTTP GET/IMS requests that resulted in "Not Modified"
+responses from the remote site or were deemed cache hits via other
+mechanisms such as recency. These are server cache hits and result in
+data transferred from cache to client.
+
+@ web.allservers.requests.cached.size.zero replies of 0 bytes sent by all caches
+The number of HTTP GET cache hits that required a response of 0 bytes from 
+all watched caches.
+
+@ web.allservers.requests.cached.size.le3k replies of <= 3k sent by all caches
+The number of HTTP GET cache hits that required a response of less than
+or equal to 3k from all watched caches.
+
+@ web.allservers.requests.cached.size.le10k replies of <= 10k sent by all caches
+The number of HTTP GET cache hits that required a response of less than
+or equal to 10k from all watched caches.
+
+@ web.allservers.requests.cached.size.le30k replies of <= 30k sent by all caches
+The number of HTTP GET cache hits that required a response of less than
+or equal to 30k from all watched caches.
+
+@ web.allservers.requests.cached.size.le100k replies of <= 100k sent by all caches
+The number of HTTP GET cache hits that required a response of less than
+or equal to 100k from all watched caches.
+
+@ web.allservers.requests.cached.size.le300k replies of <= 300k sent by all caches
+The number of HTTP GET cache hits that required a response of less than
+or equal to 300k from all watched caches.
+
+@ web.allservers.requests.cached.size.le1m replies of <= 1M sent by all caches
+The number of HTTP GET cache hits that required a response of less than
+or equal to 1M from all watched caches.
+
+@ web.allservers.requests.cached.size.le3m replies of <= 3M sent by all caches
+The number of HTTP GET cache hits that required a response of less than
+or equal to 3M from all watched caches.
+
+@ web.allservers.requests.cached.size.gt3m replies of > 3M sent by all caches
+The number of HTTP GET cache hits that required a response of greater than
+3M from all watched caches.
+
+@ web.allservers.requests.cached.size.unknown replies of unknown size by all caches
+The number of HTTP GET cache hits that required a response of unknown
+size from all watched caches.
+ 
+@ web.allservers.requests.uncached.total requests satisfied by remote server for all cacheing servers
+The total number of HTTP GET/IMS requests that resulted in a real data
+transfer from the remote server. These are either cache misses, or the
+remote file had been modified since the cache entry was made.
+
+@ web.allservers.requests.uncached.size.zero replies of 0 bytes sent by all caches
+The number of HTTP GET remote fetches that required a response of 0
+bytes from  all watched caches.
+
+@ web.allservers.requests.uncached.size.le3k replies of <= 3k sent by all caches
+The number of HTTP GET remote fetches that required a response of less
+than or equal to 3k through all watched caches.
+
+@ web.allservers.requests.uncached.size.le10k replies of <= 10k sent by all caches
+The number of HTTP GET remote fetches that required a response of less
+than or equal to 10k through all watched caches.
+
+@ web.allservers.requests.uncached.size.le30k replies of <= 30k sent by all caches
+The number of HTTP GET remote fetches that required a response of less
+than or equal to 30k through all watched caches.
+
+@ web.allservers.requests.uncached.size.le100k replies of <= 100k sent by all caches
+The number of HTTP GET remote fetches that required a response of less
+than or equal to 100k through all watched caches.
+
+@ web.allservers.requests.uncached.size.le300k replies of <= 300k sent by all caches
+The number of HTTP GET remote fetches that required a response of less
+than or equal to 300k through all watched caches.
+
+@ web.allservers.requests.uncached.size.le1m replies of <= 1M sent by all caches
+The number of HTTP GET remote fetches that required a response of less
+than or equal to 1M through all watched caches.
+
+@ web.allservers.requests.uncached.size.le3m replies of <= 3M sent by all caches
+The number of HTTP GET remote fetches that required a response of less
+than or equal to 3M through all watched caches.
+
+@ web.allservers.requests.uncached.size.gt3m replies of > 3M sent by all caches
+The number of HTTP GET remote fetches that required a response of greater
+than 3M through all watched caches.
+
+@ web.allservers.requests.uncached.size.unknown replies of unknown size by all caches
+The number of HTTP GET requests that required a response of unknown size
+through all watched caches.
+ 
+@ web.allservers.bytes.cached.total bytes sent by caches as a result of cache hits for all cacheing servers
+The total number of bytes sent to client due to HTTP GET/IMS requests
+that resulted  in "Not Modified"responses from the remote site or were
+deemed cache hits via other  mechanisms such as recency.
+
+@ web.allservers.bytes.cached.size.zero total bytes sent in 0k replies
+The total number of bytes sent to client by cache hit replies of 0k
+by all watched caches.  This metric is always zero and is provided for
+consistency only.
+
+@ web.allservers.bytes.cached.size.le3k total bytes sent in <= 3k replies
+The total number of bytes sent to client by cache hit replies of less
+than or equal to 3k in size by all watched caches.
+
+@ web.allservers.bytes.cached.size.le10k total bytes sent in <= 10k replies
+The total number of bytes sent to client by cache hit replies of less
+than or equal to 10k in size by all watched caches.
+
+@ web.allservers.bytes.cached.size.le30k total bytes sent in <= 30k replies
+The total number of bytes sent to client by cache hit replies of less
+than or equal to 30k in size by all watched caches.
+
+@ web.allservers.bytes.cached.size.le100k total bytes sent in <= 100k replies
+The total number of bytes sent to client by cache hit replies of less
+than or equal to 100k in size by all watched caches.
+
+@ web.allservers.bytes.cached.size.le300k total bytes sent in <= 300k replies
+The total number of bytes sent to client by cache hit replies of less
+than or equal to 300k in size by all watched caches.
+
+@ web.allservers.bytes.cached.size.le1m total bytes sent in <= 1M replies
+The total number of bytes sent to client by cache hit replies of less
+than or equal to 1M in size by all watched caches.
+
+@ web.allservers.bytes.cached.size.le3m total bytes sent in <= 3M replies
+The total number of bytes sent to client by cache hit replies of less
+than or equal to 3M in size by all watched caches.
+
+@ web.allservers.bytes.cached.size.gt3m total bytes sent > 3M replies
+The total number of bytes sent to client by cache hit replies of greater
+than 3M in size by  all watched caches.
+
+@ web.allservers.bytes.uncached.total bytes sent by remote servers as a result of cache misses for all cacheing servers
+The total number of bytes sent to client from the remote server. These
+are either cache  misses, or the remote file had been modified since
+the cache entry was made.
+
+@ web.allservers.bytes.uncached.size.zero total bytes sent in 0k replies
+The total number of bytes sent to client from the remote server of 0k
+by all watched caches.  This metric is always zero and is provided for
+consistency only.
+
+@ web.allservers.bytes.uncached.size.le3k total bytes sent in <= 3k replies
+The total number of bytes sent to client from the remote server of less
+than or equal to 3k in size by all watched caches.
+
+@ web.allservers.bytes.uncached.size.le10k total bytes sent in <= 10k replies
+The total number of bytes sent to client from the remote server of less
+than or equal to 10k in size by all watched caches.
+
+@ web.allservers.bytes.uncached.size.le30k total bytes sent in <= 30k replies
+The total number of bytes sent to client from the remote server of less
+than or equal to 30k in size by all watched caches.
+
+@ web.allservers.bytes.uncached.size.le100k total bytes sent in <= 100k replies
+The total number of bytes sent to client from the remote server of less
+than or equal to 100k in size by all watched caches.
+
+@ web.allservers.bytes.uncached.size.le300k total bytes sent in <= 300k replies
+The total number of bytes sent to client from the remote server of less
+than or equal to 300k in size by all watched caches.
+
+@ web.allservers.bytes.uncached.size.le1m total bytes sent in <= 1M replies
+The total number of bytes sent to client from the remote server of less
+than or equal to 1M in size by all watched caches.
+
+@ web.allservers.bytes.uncached.size.le3m total bytes sent in <= 3M replies
+The total number of bytes sent to client from the remote server of less
+than or equal to 3M in size by all watched caches.
+
+@ web.allservers.bytes.uncached.size.gt3m total bytes sent > 3M replies
+The total number of bytes sent to client from the remote server of
+greater than 3M in size by  all watched caches.
+
+@ web.perserver.watched flag set to 1 if monitoring this server
+A flag which is set to 1 if this server is being monitored.
+This metric may be altered using pmStore(1).
+
+@ web.perserver.numlogs number of readable log files for this server
+The number of log files that are readable for the server.
+
+@ web.perserver.errors number of logged errors by this server
+The number of errors (and other administrative messages) that have been
+logged in the error log by this server.
+
+@ web.perserver.requests.total requests processed by this server
+The number of HTTP requests processed by this server.
+
+@ web.perserver.bytes.total bytes sent by this server
+The number of bytes this server has sent.
+
+@ web.perserver.requests.get GET requests handled by server
+The number of HTTP GET requests that were processed by this server.
+
+@ web.perserver.bytes.get bytes sent in reply to GET requests
+The number of bytes that have been sent by this server in reply to HTTP 
+GET requests.
+
+@ web.perserver.requests.head HEAD requests handled by server
+The number of HTTP HEAD requests that were processed by this server.
+
+@ web.perserver.bytes.head bytes sent in reply to HEAD requests
+The number of bytes that have been sent by this server in reply to HTTP 
+HEAD requests.
+
+@ web.perserver.requests.post POST requests handled by server
+The number of HTTP POST requests that were processed by this server.
+
+@ web.perserver.bytes.post bytes sent in reply to POST requests
+The number of bytes that have been sent by this server in reply to HTTP 
+POST requests.
+
+@ web.perserver.requests.other other requests handled by server
+The number of HTTP requests, other than GET, HEAD and POST, that were 
+processed by this server.
+
+@ web.perserver.bytes.other bytes sent in reply to other requests
+The number of bytes that have been sent by this server in reply to HTTP 
+requests other than GET, HEAD or POST.
+
+@ web.perserver.requests.size.zero requests requiring 0 bytes in reply
+The number of HTTP requests that required a response of 0 bytes from this 
+server.
+
+@ web.perserver.bytes.size.zero total bytes sent in 0k replies.
+The total number of bytes sent in replies of 0k by this server. This metric
+is always 0 and is provided for consistency only.
+
+@ web.perserver.requests.size.le3k requests requiring <= 3k replies
+The number of HTTP requests that required a response of less than or equal
+to 3k from this server.
+
+@ web.perserver.bytes.size.le3k total bytes sent in <= 3k replies
+The total number of bytes sent in replies of less than or equal to 3k in
+size.
+
+@ web.perserver.requests.size.le10k requests requiring <= 10k replies
+The number of HTTP requests that required a response of less than or equal
+to 10k from this server.
+
+@ web.perserver.bytes.size.le10k total bytes sent in <= 10k replies
+The total number of bytes sent in replies of less than or equal to 10k in
+size.
+
+@ web.perserver.requests.size.le30k requests requiring <= 30k replies
+The number of HTTP requests that required a response of less than or equal
+to 30k from this server.
+
+@ web.perserver.bytes.size.le30k total bytes sent in <= 30k replies
+The total number of bytes sent in replies of less than or equal to 30k in
+size.
+
+@ web.perserver.requests.size.le100k requests requiring <= 100k replies
+The number of HTTP requests that required a response of less than or equal
+to 100k from this server.
+
+@ web.perserver.bytes.size.le100k total bytes sent in <= 100k replies
+The total number of bytes sent in replies of less than or equal to 100k in
+size.
+
+@ web.perserver.requests.size.le300k requests requiring <= 300k replies
+The number of HTTP requests that required a response of less than or equal
+to 300k from this server.
+
+@ web.perserver.bytes.size.le300k total bytes sent in <= 300k replies
+The total number of bytes sent in replies of less than or equal to 300k in
+size.
+
+@ web.perserver.requests.size.le1m requests requiring <= 1M replies
+The number of HTTP requests that required a response of less than or equal
+to 1M from this server.
+
+@ web.perserver.bytes.size.le1m total bytes sent in <= 1M replies
+The total number of bytes sent in replies of less than or equal to 1M in
+size.
+
+@ web.perserver.requests.size.le3m requests requiring <= 3M replies
+The number of HTTP requests that required a response of less than or equal
+to 3M from this server.
+
+@ web.perserver.bytes.size.le3m total bytes sent in <= 3M replies
+The total number of bytes sent in replies of less than or equal to 3M in
+size.
+
+@ web.perserver.requests.size.gt3m requests requiring > 3M replies
+The number of HTTP requests that required a response of greater than
+3M from this server.
+
+@ web.perserver.bytes.size.gt3m total bytes sent > 3M replies
+The total number of bytes sent in replies of greater than 3M in size.
+
+@ web.perserver.requests.size.unknown requests of unknown size
+The number of HTTP requests that required a response of unknown size from
+this server.
+
+@ web.perserver.logidletime seconds since log last modified
+The number of seconds since the access log for this server was modified.
+
+@ web.perserver.requests.client.total requests satisfied by client caches for this cache
+The total number of HTTP GET/IMS requests that resulted in "Not Modified"
+responses from cache (and remote if checked). These are client cache hits.
+
+@ web.perserver.requests.cached.total requests satisfied by server caches for this cache
+The total number of HTTP GET/IMS requests that resulted in "Not Modified"
+responses from the remote site or were deemed cache hits via other
+mechanisms such as recency. These are server cache hits and result in
+data transferred from cache to client.
+
+@ web.perserver.requests.cached.size.zero replies of 0 bytes sent by this cache
+The number of HTTP GET cache hits that required a response of 0 bytes from 
+this cache.
+
+@ web.perserver.requests.cached.size.le3k replies of <= 3k sent by this cache
+The number of HTTP GET cache hits that required a response of less than
+or equal to 3k from this cache.
+
+@ web.perserver.requests.cached.size.le10k replies of <= 10k sent by this cache
+The number of HTTP GET cache hits that required a response of less than
+or equal to 10k from this cache.
+
+@ web.perserver.requests.cached.size.le30k replies of <= 30k sent by this cache
+The number of HTTP GET cache hits that required a response of less than
+or equal to 30k from this cache.
+
+@ web.perserver.requests.cached.size.le100k replies of <= 100k sent by this cache
+The number of HTTP GET cache hits that required a response of less than
+or equal to 100k from this cache.
+
+@ web.perserver.requests.cached.size.le300k replies of <= 300k sent by this cache
+The number of HTTP GET cache hits that required a response of less than
+or equal to 300k from this cache.
+
+@ web.perserver.requests.cached.size.le1m replies of <= 1M sent by this cache
+The number of HTTP GET cache hits that required a response of less than
+or equal to 1M from this cache.
+
+@ web.perserver.requests.cached.size.le3m replies of <= 3M sent by this cache
+The number of HTTP GET cache hits that required a response of less than
+or equal to 3M from this cache.
+
+@ web.perserver.requests.cached.size.gt3m replies of > 3M sent by this cache
+The number of HTTP GET cache hits that required a response of greater than
+3M from this cache.
+
+@ web.perserver.requests.cached.size.unknown replies of unknown size by this cache
+The number of HTTP GET cache hits that required a response of unknown
+size from this cache.
+ 
+@ web.perserver.requests.uncached.total requests satisfied by remote server for this cache
+The total number of HTTP GET/IMS requests that resulted in a real data
+transfer from the remote server. These are either cache misses, or the
+remote file had been modified since the cache entry was made.
+
+@ web.perserver.requests.uncached.size.zero replies of 0 bytes sent by this cache
+The number of HTTP GET remote fetches that required a response of 0
+bytes from  this cache.
+
+@ web.perserver.requests.uncached.size.le3k replies of <= 3k sent by this cache
+The number of HTTP GET remote fetches that required a response of less
+than or equal to 3k through this cache.
+
+@ web.perserver.requests.uncached.size.le10k replies of <= 10k sent by this cache
+The number of HTTP GET remote fetches that required a response of less
+than or equal to 10k through this cache.
+
+@ web.perserver.requests.uncached.size.le30k replies of <= 30k sent by this cache
+The number of HTTP GET remote fetches that required a response of less
+than or equal to 30k through this cache.
+
+@ web.perserver.requests.uncached.size.le100k replies of <= 100k sent by this cache
+The number of HTTP GET remote fetches that required a response of less
+than or equal to 100k through this cache.
+
+@ web.perserver.requests.uncached.size.le300k replies of <= 300k sent by this cache
+The number of HTTP GET remote fetches that required a response of less
+than or equal to 300k through this cache.
+
+@ web.perserver.requests.uncached.size.le1m replies of <= 1M sent by this cache
+The number of HTTP GET remote fetches that required a response of less
+than or equal to 1M through this cache.
+
+@ web.perserver.requests.uncached.size.le3m replies of <= 3M sent by this cache
+The number of HTTP GET remote fetches that required a response of less
+than or equal to 3M through this cache.
+
+@ web.perserver.requests.uncached.size.gt3m replies of > 3M sent by this cache
+The number of HTTP GET remote fetches that required a response of greater
+than 3M through this cache.
+
+@ web.perserver.requests.uncached.size.unknown replies of unknown size by this cache
+The number of HTTP GET requests that required a response of unknown size
+through this cache.
+ 
+@ web.perserver.bytes.cached.total bytes sent by caches as a result of cache hits for this cache
+The total number of bytes sent to client due to HTTP GET/IMS requests
+that resulted  in "Not Modified"responses from the remote site or were
+deemed cache hits via other  mechanisms such as recency.
+
+@ web.perserver.bytes.cached.size.zero total bytes sent in 0k replies
+The total number of bytes sent to client by cache hit replies of 0k by
+this cache.  This metric is always zero and is provided for consistency
+only.
+
+@ web.perserver.bytes.cached.size.le3k total bytes sent in <= 3k replies
+The total number of bytes sent to client by cache hit replies of less
+than or equal to 3k in size by this cache.
+
+@ web.perserver.bytes.cached.size.le10k total bytes sent in <= 10k replies
+The total number of bytes sent to client by cache hit replies of less
+than or equal to 10k in size by this cache.
+
+@ web.perserver.bytes.cached.size.le30k total bytes sent in <= 30k replies
+The total number of bytes sent to client by cache hit replies of less
+than or equal to 30k in size by this cache.
+
+@ web.perserver.bytes.cached.size.le100k total bytes sent in <= 100k replies
+The total number of bytes sent to client by cache hit replies of less
+than or equal to 100k in size by this cache.
+
+@ web.perserver.bytes.cached.size.le300k total bytes sent in <= 300k replies
+The total number of bytes sent to client by cache hit replies of less
+than or equal to 300k in size by this cache.
+
+@ web.perserver.bytes.cached.size.le1m total bytes sent in <= 1M replies
+The total number of bytes sent to client by cache hit replies of less
+than or equal to 1M in size by this cache.
+
+@ web.perserver.bytes.cached.size.le3m total bytes sent in <= 3M replies
+The total number of bytes sent to client by cache hit replies of less
+than or equal to 3M in size by this cache.
+
+@ web.perserver.bytes.cached.size.gt3m total bytes sent > 3M replies
+The total number of bytes sent to client by cache hit replies of greater
+than 3M in size by  this cache.
+
+@ web.perserver.bytes.uncached.total bytes sent by remote servers as a result of cache misses for this cache
+The total number of bytes sent to client from the remote server. These
+are either cache  misses, or the remote file had been modified since
+the cache entry was made.
+
+@ web.perserver.bytes.uncached.size.zero total bytes sent in 0k replies
+The total number of bytes sent to client from the remote server of 0k by
+this cache.  This metric is always zero and is provided for consistency
+only.
+
+@ web.perserver.bytes.uncached.size.le3k total bytes sent in <= 3k replies
+The total number of bytes sent to client from the remote server of less
+than or equal to 3k in size by this cache.
+
+@ web.perserver.bytes.uncached.size.le10k total bytes sent in <= 10k replies
+The total number of bytes sent to client from the remote server of less
+than or equal to 10k in size by this cache.
+
+@ web.perserver.bytes.uncached.size.le30k total bytes sent in <= 30k replies
+The total number of bytes sent to client from the remote server of less
+than or equal to 30k in size by this cache.
+
+@ web.perserver.bytes.uncached.size.le100k total bytes sent in <= 100k replies
+The total number of bytes sent to client from the remote server of less
+than or equal to 100k in size by this cache.
+
+@ web.perserver.bytes.uncached.size.le300k total bytes sent in <= 300k replies
+The total number of bytes sent to client from the remote server of less
+than or equal to 300k in size by this cache.
+
+@ web.perserver.bytes.uncached.size.le1m total bytes sent in <= 1M replies
+The total number of bytes sent to client from the remote server of less
+than or equal to 1M in size by this cache.
+
+@ web.perserver.bytes.uncached.size.le3m total bytes sent in <= 3M replies
+The total number of bytes sent to client from the remote server of less
+than or equal to 3M in size by this cache.
+
+@ web.perserver.bytes.uncached.size.gt3m total bytes sent > 3M replies
+The total number of bytes sent to client from the remote server of
+greater than 3M in size by  this cache.
+

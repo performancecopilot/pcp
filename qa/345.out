@@ -1,0 +1,63 @@
+QA output created by 345
+
+===   sampledso.secret.foo.bar.grunt.five sampledso.secret.derived.eek.eight sampledso.secret.foo.bar.grunt ===
+--- -h localhost  diffs against baseline ---
+--- -L  diffs against baseline ---
+
+===  -m sampledso.secret.foo.bar.grunt.five sampledso.secret.derived.eek.eight sampledso.secret.foo.bar.grunt ===
+--- -h localhost -m diffs against baseline ---
+--- -L -m diffs against baseline ---
+
+===  -f sampledso.secret.foo.bar.grunt.five sampledso.secret.derived.eek.eight sampledso.secret.foo.bar.grunt ===
+--- -h localhost -f diffs against baseline ---
+--- -L -f diffs against baseline ---
+
+===   sampledso.secret.foo ===
+--- -h localhost  diffs against baseline ---
+--- -L  diffs against baseline ---
+
+===  -m sampledso.secret.foo ===
+--- -h localhost -m diffs against baseline ---
+--- -L -m diffs against baseline ---
+
+===  -f sampledso.secret.foo ===
+--- -h localhost -f diffs against baseline ---
+--- -L -f diffs against baseline ---
+- baseline output
++ -L -f output
+@@ -9,7 +9,7 @@
+ sampledso.secret.foo.bar.grunt.five
+ sampledso.secret.foo.bar.grunt.snort.huff.puff.seven
+ sampledso.secret.foo.bar.grunt.snort.six
+-sampledso.secret.foo.bar.max.redirect
++sampledso.secret.foo.bar.max.redirect: pmLookupDesc: No PMCD agent for domain of request
+ sampledso.secret.foo.bar.three
+ sampledso.secret.foo.one
+ sampledso.secret.foo.two
+
+===   sampledso.secret ===
+--- -h localhost  diffs against baseline ---
+--- -L  diffs against baseline ---
+
+===  -m sampledso.secret ===
+--- -h localhost -m diffs against baseline ---
+--- -L -m diffs against baseline ---
+
+===  -f sampledso.secret ===
+--- -h localhost -f diffs against baseline ---
+--- -L -f diffs against baseline ---
+- baseline output
++ -L -f output
+@@ -13,7 +13,7 @@
+ sampledso.secret.foo.bar.grunt.five
+ sampledso.secret.foo.bar.grunt.snort.huff.puff.seven
+ sampledso.secret.foo.bar.grunt.snort.six
+-sampledso.secret.foo.bar.max.redirect
++sampledso.secret.foo.bar.max.redirect: pmLookupDesc: No PMCD agent for domain of request
+ sampledso.secret.foo.bar.three
+ sampledso.secret.foo.one
+ sampledso.secret.foo.two
+
+===   sampledso ===
+--- -h localhost  diffs against baseline ---
+--- -L  diffs against baseline ---

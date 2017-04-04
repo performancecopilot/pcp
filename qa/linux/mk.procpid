@@ -1,0 +1,22 @@
+#!/bin/sh
+
+filelist="status stat statm cmdline wchan cgroup schedstat io"
+kernel=`uname -r | sed -e 's/-.*//g'`
+seq=000
+
+rm -fr proc 2>/dev/null
+mkdir proc || exit 1
+
+for process in /proc/[0-9]*
+do
+    pid=`basename $process`
+    mkdir proc/$pid
+    for file in $filelist
+    do
+        sudo cp -dr /proc/$pid/$file proc/$pid 2>/dev/null
+    done
+    echo pid $pid done
+done
+
+tar czf procpid-$kernel-root-$seq.tgz proc
+rm -fr proc

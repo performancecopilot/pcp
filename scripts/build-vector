@@ -1,0 +1,24 @@
+#!/bin/sh
+#
+# Build helper script for https://github.com/Netflix/vector/
+# 
+
+fail_and_bail()
+{
+    echo "Error: $@"
+    exit 1
+}
+
+# sanity checks
+for command in bower gulp node npm
+do
+    which $command >/dev/null 2>&1 || fail_and_bail "$command not installed"
+done
+
+test -f vector.png -o -f assets/images/vector_owl.png || \
+	fail_and_bail "Not in a Vector source tree?"
+
+rm -rf node_modules 2>/dev/null
+npm install || fail_and_bail "npm install failed in" `pwd`
+bower install || fail_and_bail "bower install failed in" `pwd`
+gulp build || fail_and_bail "gulp build failed in" `pwd`
