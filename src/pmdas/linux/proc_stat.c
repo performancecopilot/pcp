@@ -1,7 +1,7 @@
 /*
  * Linux /proc/stat metrics cluster
  *
- * Copyright (c) 2012-2014 Red Hat.
+ * Copyright (c) 2012-2014,2017 Red Hat.
  * Copyright (c) 2008-2009 Aconex.  All Rights Reserved.
  * Copyright (c) 2000,2004-2008 Silicon Graphics, Inc.  All Rights Reserved.
  * 
@@ -16,29 +16,190 @@
  * for more details.
  */
 #include "linux.h"
-#include "proc_cpuinfo.h"
 #include "proc_stat.h"
 #include <sys/stat.h>
 #include <dirent.h>
 #include <ctype.h>
 
-int
-refresh_proc_stat(proc_cpuinfo_t *proc_cpuinfo, proc_stat_t *proc_stat)
+/*
+ * Allocate instance identifiers for all CPUs.  Note there is a
+ * need to deal with CPUs/nodes going online and offline during
+ * the life of the PMDA - usually we're only able to get values
+ * for online resources (/proc/stat reports online CPUs only).
+ *
+ * We must create a direct mapping of CPU ID to instance ID, for
+ * historical reasons.  So initially all have a NULL private data
+ * pointer associated with them, which we'll subsequently fill in
+ * if/when the CPU/node is discovered to be online (later).
+ */
+static void
+setup_cpu_indom(pmInDom cpus)
 {
-    pmdaIndom *idp = PMDAINDOM(CPU_INDOM);
-    char buf[MAXPATHLEN];
-    char fmt[64];
-    static int fd = -1; /* kept open until exit() */
-    static int started;
+    char	name[64];
+    int		i;
+
+    if (_pm_ncpus < 1)
+	_pm_ncpus = 1;	/* sanity, surely there must be at least one CPU */
+
+    pmdaCacheOp(cpus, PMDA_CACHE_CULL);
+    for (i = 0; i < _pm_ncpus; i++) {
+	snprintf(name, sizeof(name)-1, "cpu%u", i);
+	pmdaCacheStore(cpus, PMDA_CACHE_ADD, name, NULL);
+    }
+}
+
+void
+setup_cpu_info(cpuinfo_t *cip)
+{
+    cip->sapic = -1;
+    cip->vendor = -1;
+    cip->model = -1;
+    cip->model_name = -1;
+    cip->stepping = -1;
+    cip->flags = -1;
+}
+
+static void
+cpu_add(pmInDom cpus, unsigned int cpuid, unsigned int nodeid)
+{
+    percpu_t	*cpu;
+    char	name[64];
+
+    if ((cpu = (percpu_t *)calloc(1, sizeof(percpu_t))) == NULL)
+	return;
+    cpu->cpuid = cpuid;
+    cpu->nodeid = nodeid;
+    setup_cpu_info(&cpu->info);
+    snprintf(name, sizeof(name)-1, "cpu%u", cpuid);
+    pmdaCacheStore(cpus, PMDA_CACHE_ADD, name, (void*)cpu);
+}
+
+static void
+node_add(pmInDom nodes, unsigned int nodeid)
+{
+    pernode_t	*node;
+    char	name[64];
+
+    if ((node = (pernode_t *)calloc(1, sizeof(pernode_t))) == NULL)
+	return;
+    node->nodeid = nodeid;
+    snprintf(name, sizeof(name)-1, "node%u", nodeid);
+    pmdaCacheStore(nodes, PMDA_CACHE_ADD, name, (void*)node);
+}
+
+void
+cpu_node_setup(void)
+{
+    const char		*node_path = "sys/devices/system/node";
+    pmInDom		cpus, nodes;
+    unsigned int	cpu, node;
+    struct dirent	**node_files = NULL;
+    struct dirent	*cpu_entry;
+    DIR			*cpu_dir;
+    int			i, count;
+    char		path[MAXPATHLEN];
+    static int		setup;
+
+    if (setup)
+	return;
+    setup = 1;
+
+    nodes = INDOM(NODE_INDOM);
+    cpus = INDOM(CPU_INDOM);
+    setup_cpu_indom(cpus);
+
+    snprintf(path, sizeof(path), "%s/%s", linux_statspath, node_path);
+    count = scandir(path, &node_files, NULL, versionsort);
+    if (!node_files || (linux_test_mode & LINUX_TEST_NCPUS)) {
+	/* QA mode or no sysfs support, assume single NUMA node */
+	node_add(nodes, 0);	/* default to just node zero */
+	for (cpu = 0; cpu < _pm_ncpus; cpu++)
+	    cpu_add(cpus, cpu, 0);	/* all in node zero */
+	goto done;
+    }
+
+    for (i = 0; i < count; i++) {
+	if (sscanf(node_files[i]->d_name, "node%u", &node) != 1)
+	    continue;
+	node_add(nodes, node);
+	snprintf(path, sizeof(path), "%s/%s/%s",
+		 linux_statspath, node_path, node_files[i]->d_name);
+	if ((cpu_dir = opendir(path)) == NULL)
+	    continue;
+	while ((cpu_entry = readdir(cpu_dir)) != NULL) {
+	    if (sscanf(cpu_entry->d_name, "cpu%u", &cpu) != 1)
+		continue;
+	    cpu_add(cpus, cpu, node);
+	}
+	closedir(cpu_dir);
+    }
+
+done:
+    if (node_files) {
+	for (i = 0; i < count; i++)
+	    free(node_files[i]);
+	free(node_files);
+    }
+}
+
+static int
+find_line_format(const char *fmt, int fmtlen, char **bufindex, int nbufindex, int start)
+{
+    int j;
+
+    if (start < nbufindex-1 && strncmp(fmt, bufindex[++start], fmtlen) == 0)
+	return start;	/* fast-path, next line found where expected */
+
+    for (j = 0; j < nbufindex; j++) {
+    	if (strncmp(fmt, bufindex[j], 5) != 0)
+	    continue;
+	return j;
+    }
+    return -1;
+}
+
+/*
+ * We use /proc/stat as a single source of truth regarding online/offline
+ * state for CPUs (its per-CPU stats are for online CPUs only).
+ * This drives the contents of the CPU indom for all per-CPU metrics, so
+ * it is important to ensure this refresh routine is called first before
+ * refreshing any other per-CPU metrics (e.g. interrupts, softnet).
+ */
+int
+refresh_proc_stat(proc_stat_t *proc_stat)
+{
+    pernode_t	*np;
+    percpu_t	*cp;
+    pmInDom	cpus, nodes;
+    char	buf[MAXPATHLEN], *name;
+    int		n = 0, i, size;
+
+    static int fd = -1; /* kept open until exit(), unless testing */
     static char *statbuf;
     static int maxstatbuf;
     static char **bufindex;
     static int nbufindex;
     static int maxbufindex;
-    int size;
-    int n;
-    int i;
-    int j;
+
+    cpu_node_setup();
+    cpus = INDOM(CPU_INDOM);
+    pmdaCacheOp(cpus, PMDA_CACHE_INACTIVE);
+    nodes = INDOM(NODE_INDOM);
+
+    /* reset per-node aggregate CPU utilisation stats */
+    for (pmdaCacheOp(nodes, PMDA_CACHE_WALK_REWIND);;) {
+	if ((i = pmdaCacheOp(nodes, PMDA_CACHE_WALK_NEXT)) < 0)
+	    break;
+	if (!pmdaCacheLookup(nodes, i, NULL, (void **)&np) || !np)
+	    continue;
+	memset(&np->stat, 0, sizeof(np->stat));
+    }
+
+    /* in test mode we replace procfs files (keeping fd open thwarts that) */
+    if (fd >= 0 && (linux_test_mode & LINUX_TEST_STATSPATH)) {
+	close(fd);
+	fd = -1;
+    }
 
     if (fd >= 0) {
 	if (lseek(fd, 0, SEEK_SET) < 0)
@@ -49,7 +210,7 @@ refresh_proc_stat(proc_cpuinfo_t *proc_cpuinfo, proc_stat_t *proc_stat)
 	    return -oserror();
     }
 
-    for (n=0;;) {
+    for (;;) {
 	while (n >= maxstatbuf) {
 	    size = maxstatbuf + 512;
 	    if ((statbuf = (char *)realloc(statbuf, size)) == NULL)
@@ -65,15 +226,15 @@ refresh_proc_stat(proc_cpuinfo_t *proc_cpuinfo, proc_stat_t *proc_stat)
     statbuf[n] = '\0';
 
     if (bufindex == NULL) {
-	size = 4 * sizeof(char *);
+	size = 16 * sizeof(char *);
 	if ((bufindex = (char **)malloc(size)) == NULL)
 	    return -ENOMEM;
-	maxbufindex = 4;
+	maxbufindex = 16;
     }
 
     nbufindex = 0;
     bufindex[nbufindex] = statbuf;
-    for (i=0; i < n; i++) {
+    for (i = 0; i < n; i++) {
 	if (statbuf[i] == '\n' || statbuf[i] == '\0') {
 	    statbuf[i] = '\0';
 	    if (nbufindex + 1 >= maxbufindex) {
@@ -86,240 +247,100 @@ refresh_proc_stat(proc_cpuinfo_t *proc_cpuinfo, proc_stat_t *proc_stat)
 	}
     }
 
-    if (!started) {
-	started = 1;
-	memset(proc_stat, 0, sizeof(*proc_stat));
+#define ALLCPU_FMT "cpu %llu %llu %llu %llu %llu %llu %llu %llu %llu %llu"
+    n = sscanf((const char *)bufindex[0], ALLCPU_FMT,
+	&proc_stat->all.user, &proc_stat->all.nice,
+	&proc_stat->all.sys, &proc_stat->all.idle,
+	&proc_stat->all.wait, &proc_stat->all.irq,
+	&proc_stat->all.sirq, &proc_stat->all.steal,
+	&proc_stat->all.guest, &proc_stat->all.guest_nice);
 
-	/* scan ncpus */
-	for (i=0; i < nbufindex; i++) {
-	    if (strncmp("cpu", bufindex[i], 3) == 0 && isdigit((int)bufindex[i][3]))
-	    	proc_stat->ncpu++;
-	}
-	if (proc_stat->ncpu == 0)
-	    proc_stat->ncpu = 1; /* non-SMP kernel? */
-	proc_stat->cpu_indom = idp;
-	proc_stat->cpu_indom->it_numinst = proc_stat->ncpu;
-	proc_stat->cpu_indom->it_set = (pmdaInstid *)malloc(
-		proc_stat->ncpu * sizeof(pmdaInstid));
-	/*
-	 * Map out the CPU instance domain.
-	 *
-	 * The first call to cpu_name() does initialization on the
-	 * proc_cpuinfo structure.
-	 */
-	for (i=0; i < proc_stat->ncpu; i++) {
-	    proc_stat->cpu_indom->it_set[i].i_inst = i;
-	    proc_stat->cpu_indom->it_set[i].i_name = cpu_name(proc_cpuinfo, i);
-	}
-
-	n = proc_stat->ncpu * sizeof(unsigned long long);
-	proc_stat->p_user = (unsigned long long *)calloc(1, n);
-	proc_stat->p_nice = (unsigned long long *)calloc(1, n);
-	proc_stat->p_sys = (unsigned long long *)calloc(1, n);
-	proc_stat->p_idle = (unsigned long long *)calloc(1, n);
-	proc_stat->p_wait = (unsigned long long *)calloc(1, n);
-	proc_stat->p_irq = (unsigned long long *)calloc(1, n);
-	proc_stat->p_sirq = (unsigned long long *)calloc(1, n);
-	proc_stat->p_steal = (unsigned long long *)calloc(1, n);
-	proc_stat->p_guest = (unsigned long long *)calloc(1, n);
-	proc_stat->p_guest_nice = (unsigned long long *)calloc(1, n);
-
-	n = proc_cpuinfo->node_indom->it_numinst * sizeof(unsigned long long);
-	proc_stat->n_user = calloc(1, n);
-	proc_stat->n_nice = calloc(1, n);
-	proc_stat->n_sys = calloc(1, n);
-	proc_stat->n_idle = calloc(1, n);
-	proc_stat->n_wait = calloc(1, n);
-	proc_stat->n_irq = calloc(1, n);
-	proc_stat->n_sirq = calloc(1, n);
-	proc_stat->n_steal = calloc(1, n);
-	proc_stat->n_guest = calloc(1, n);
-	proc_stat->n_guest_nice = calloc(1, n);
-    }
-    else {
-	/* reset per-node stats */
-	n = proc_cpuinfo->node_indom->it_numinst * sizeof(unsigned long long);
-	memset(proc_stat->n_user, 0, n);
-	memset(proc_stat->n_nice, 0, n);
-	memset(proc_stat->n_sys, 0, n);
-	memset(proc_stat->n_idle, 0, n);
-	memset(proc_stat->n_wait, 0, n);
-	memset(proc_stat->n_irq, 0, n);
-	memset(proc_stat->n_sirq, 0, n);
-	memset(proc_stat->n_steal, 0, n);
-	memset(proc_stat->n_guest, 0, n);
-	memset(proc_stat->n_guest_nice, 0, n);
-    }
+#define PERCPU_FMT "cpu%u %llu %llu %llu %llu %llu %llu %llu %llu %llu %llu"
     /*
-     * cpu  95379 4 20053 6502503
-     * 2.6 kernels have 3 additional fields
-     * for wait, irq and soft_irq.
-     */
-    strcpy(fmt, "cpu %llu %llu %llu %llu %llu %llu %llu %llu %llu %llu");
-    n = sscanf((const char *)bufindex[0], fmt,
-	&proc_stat->user, &proc_stat->nice,
-	&proc_stat->sys, &proc_stat->idle,
-	&proc_stat->wait, &proc_stat->irq,
-	&proc_stat->sirq, &proc_stat->steal,
-	&proc_stat->guest, &proc_stat->guest_nice);
-
-    /*
-     * per-cpu stats
+     * per-CPU stats
      * e.g. cpu0 95379 4 20053 6502503
      * 2.6 kernels have 3 additional fields for wait, irq and soft_irq.
      * More recent (2008) 2.6 kernels have an extra field for guest and
      * also (since 2009) guest_nice.
+     * In the single-CPU system case, don't bother scanning, use "all";
+     * this handles non-SMP kernels with no line starting with "cpu0".
      */
-    if (proc_stat->ncpu == 1) {
-	/*
-	 * Don't bother scanning - the per-cpu and per-node counters are the
-         * same as for "all" cpus, as already scanned above.
-	 * This also handles the non-SMP code where
-	 * there is no line starting with "cpu0".
-	 */
-	proc_stat->p_user[0] = proc_stat->n_user[0] = proc_stat->user;
-	proc_stat->p_nice[0] = proc_stat->n_nice[0] = proc_stat->nice;
-	proc_stat->p_sys[0] = proc_stat->n_sys[0] = proc_stat->sys;
-	proc_stat->p_idle[0] = proc_stat->n_idle[0] = proc_stat->idle;
-	proc_stat->p_wait[0] = proc_stat->n_wait[0] = proc_stat->wait;
-	proc_stat->p_irq[0] = proc_stat->n_irq[0] = proc_stat->irq;
-	proc_stat->p_sirq[0] = proc_stat->n_sirq[0] = proc_stat->sirq;
-	proc_stat->p_steal[0] = proc_stat->n_steal[0] = proc_stat->steal;
-    	proc_stat->p_guest[0] = proc_stat->n_guest[0] = proc_stat->guest;
-    	proc_stat->p_guest_nice[0] = proc_stat->n_guest_nice[0] = proc_stat->guest_nice;
+    if ((size = pmdaCacheOp(cpus, PMDA_CACHE_SIZE)) == 1) {
+	pmdaCacheLookup(cpus, 0, &name, (void **)&cp);
+	memcpy(&cp->stat, &proc_stat->all, sizeof(cp->stat));
+	pmdaCacheStore(cpus, PMDA_CACHE_ADD, name, (void *)cp);
+	pmdaCacheLookup(nodes, 0, NULL, (void **)&np);
+	memcpy(&np->stat, &proc_stat->all, sizeof(np->stat));
     }
     else {
-	strcpy(fmt, "cpu%d %llu %llu %llu %llu %llu %llu %llu %llu %llu %llu");
-	for (i=0; i < proc_stat->ncpu; i++) {
-	    for (j=0; j < nbufindex; j++) {
-		if (strncmp("cpu", bufindex[j], 3) == 0 && isdigit((int)bufindex[j][3])) {
-		    int c;
-		    int cpunum = atoi(&bufindex[j][3]);
-		    int node;
-		    if (cpunum >= 0 && cpunum < proc_stat->ncpu) {
-			n = sscanf(bufindex[j], fmt, &c,
-			    &proc_stat->p_user[cpunum],
-			    &proc_stat->p_nice[cpunum],
-			    &proc_stat->p_sys[cpunum],
-			    &proc_stat->p_idle[cpunum],
-			    &proc_stat->p_wait[cpunum],
-			    &proc_stat->p_irq[cpunum],
-			    &proc_stat->p_sirq[cpunum],
-			    &proc_stat->p_steal[cpunum],
-			    &proc_stat->p_guest[cpunum],
-			    &proc_stat->p_guest_nice[cpunum]);
-			if ((node = proc_cpuinfo->cpuinfo[cpunum].node) != -1) {
-			    proc_stat->n_user[node] += proc_stat->p_user[cpunum];
-			    proc_stat->n_nice[node] += proc_stat->p_nice[cpunum];
-			    proc_stat->n_sys[node] += proc_stat->p_sys[cpunum];
-			    proc_stat->n_idle[node] += proc_stat->p_idle[cpunum];
-			    proc_stat->n_wait[node] += proc_stat->p_wait[cpunum];
-			    proc_stat->n_irq[node] += proc_stat->p_irq[cpunum];
-			    proc_stat->n_sirq[node] += proc_stat->p_sirq[cpunum];
-			    proc_stat->n_steal[node] += proc_stat->p_steal[cpunum];
-			    proc_stat->n_guest[node] += proc_stat->p_guest[cpunum];
-			    proc_stat->n_guest_nice[node] += proc_stat->p_guest_nice[cpunum];
-			}
-		    }
-		}
-	    }
-	    if (j == nbufindex)
-		break;
+	for (n = 0; n < nbufindex; n++) {
+	    if (strncmp("cpu", bufindex[n], 3) != 0 ||
+		!isdigit((int)bufindex[n][3]))
+		continue;
+	    cp = NULL;
+	    np = NULL;
+	    i = atoi(&bufindex[n][3]);	/* extract CPU identifier */
+	    if (pmdaCacheLookup(cpus, i, &name, (void **)&cp) < 0 || !cp)
+		continue;
+	    memset(&cp->stat, 0, sizeof(cp->stat));
+	    sscanf(bufindex[n], PERCPU_FMT, &i,
+		    &cp->stat.user, &cp->stat.nice, &cp->stat.sys,
+		    &cp->stat.idle, &cp->stat.wait, &cp->stat.irq,
+		    &cp->stat.sirq, &cp->stat.steal, &cp->stat.guest,
+		    &cp->stat.guest_nice);
+	    pmdaCacheStore(cpus, PMDA_CACHE_ADD, name, (void *)cp);
+
+	    /* update per-node aggregate CPU utilisation stats as well */
+	    if (pmdaCacheLookup(nodes, cp->nodeid, NULL, (void **)&np) < 0)
+		continue;
+	    np->stat.user += cp->stat.user;
+	    np->stat.nice += cp->stat.nice;
+	    np->stat.sys += cp->stat.sys;
+	    np->stat.idle += cp->stat.idle;
+	    np->stat.wait += cp->stat.wait;
+	    np->stat.irq += cp->stat.irq;
+	    np->stat.sirq += cp->stat.sirq;
+	    np->stat.steal += cp->stat.steal;
+	    np->stat.guest += cp->stat.guest;
+	    np->stat.guest_nice += cp->stat.guest_nice;
 	}
     }
 
-    /*
-     * page 59739 34786
-     * Note: this has moved to /proc/vmstat in 2.6 kernels
-     */
-    strcpy(fmt, "page %u %u");
-    for (j=0; j < nbufindex; j++) {
-    	if (strncmp(fmt, bufindex[j], 5) == 0) {
-	    sscanf((const char *)bufindex[j], fmt,
+    i = size;
+
+#define PAGE_FMT "page %u %u"	/* NB: moved to /proc/vmstat in 2.6 kernels */
+    if ((i = find_line_format(PAGE_FMT, 5, bufindex, nbufindex, i)) >= 0)
+	sscanf((const char *)bufindex[i], PAGE_FMT,
 		&proc_stat->page[0], &proc_stat->page[1]);
-	    break;
-	}
-    }
 
-    /*
-     * swap 0 1
-     * Note: this has moved to /proc/vmstat in 2.6 kernels
-     */
-    strcpy(fmt, "swap %u %u");
-    for (j=0; j < nbufindex; j++) {
-    	if (strncmp(fmt, bufindex[j], 5) == 0) {
-	    sscanf((const char *)bufindex[j], fmt,
+#define SWAP_FMT "swap %u %u"	/* NB: moved to /proc/vmstat in 2.6 kernels */
+    if ((i = find_line_format(SWAP_FMT, 5, bufindex, nbufindex, i)) >= 0)
+	sscanf((const char *)bufindex[i], SWAP_FMT,
 		&proc_stat->swap[0], &proc_stat->swap[1]);
-	    break;
-	}
-    }
 
-    /*
-     * intr 32845463 24099228 2049 0 2 ....
-     * (just export the first number, which is total interrupts)
-     */
-    strcpy(fmt, "intr %llu");
-    for (j=0; j < nbufindex; j++) {
-    	if (strncmp(fmt, bufindex[j], 5) == 0) {
-	    sscanf((const char *)bufindex[j], fmt, &proc_stat->intr);
-	    break;
-	}
-    }
+#define INTR_FMT "intr %llu"	/* (export 1st 'total interrupts' value only) */
+    if ((i = find_line_format(INTR_FMT, 5, bufindex, nbufindex, i)) >= 0)
+	sscanf((const char *)bufindex[i], INTR_FMT, &proc_stat->intr);
 
-    /*
-     * ctxt 1733480
-     */
-    strcpy(fmt, "ctxt %llu");
-    for (j=0; j < nbufindex; j++) {
-    	if (strncmp(fmt, bufindex[j], 5) == 0) {
-	    sscanf((const char *)bufindex[j], fmt, &proc_stat->ctxt);
-	    break;
-	}
-    }
+#define CTXT_FMT "ctxt %llu"
+    if ((i = find_line_format(CTXT_FMT, 5, bufindex, nbufindex, i)) >= 0)
+	sscanf((const char *)bufindex[i], CTXT_FMT, &proc_stat->ctxt);
 
-    /*
-     * btime 1733480
-     */
-    strcpy(fmt, "btime %lu");
-    for (j=0; j < nbufindex; j++) {
-    	if (strncmp(fmt, bufindex[j], 6) == 0) {
-	    sscanf((const char *)bufindex[j], fmt, &proc_stat->btime);
-	    break;
-	}
-    }
+#define BTIME_FMT "btime %lu"
+    if ((i = find_line_format(BTIME_FMT, 6, bufindex, nbufindex, i)) >= 0)
+	sscanf((const char *)bufindex[i], BTIME_FMT, &proc_stat->btime);
 
-    /*
-     * processes 2213
-     */
-    strcpy(fmt, "processes %lu");
-    for (j=0; j < nbufindex; j++) {
-    	if (strncmp(fmt, bufindex[j], 10) == 0) {
-	    sscanf((const char *)bufindex[j], fmt, &proc_stat->processes);
-	    break;
-	}
-    }
+#define PROCESSES_FMT "processes %lu"
+    if ((i = find_line_format(PROCESSES_FMT, 10, bufindex, nbufindex, i)) >= 0)
+	sscanf((const char *)bufindex[i], PROCESSES_FMT, &proc_stat->processes);
 
-    /*
-     * procs_running 1
-     */
-    strcpy(fmt, "procs_running %lu");
-    for (j=0; j < nbufindex; j++) {
-    	if (strncmp(fmt, bufindex[j], 10) == 0) {
-	    sscanf((const char *)bufindex[j], fmt, &proc_stat->procs_running);
-	    break;
-	}
-    }
+#define RUNNING_FMT "procs_running %lu"
+    if ((i = find_line_format(RUNNING_FMT, 14, bufindex, nbufindex, i)) >= 0)
+	sscanf((const char *)bufindex[i], RUNNING_FMT, &proc_stat->procs_running);
 
-    /*
-     * procs_blocked 0
-     */
-    strcpy(fmt, "procs_blocked %lu");
-    for (j=0; j < nbufindex; j++) {
-    	if (strncmp(fmt, bufindex[j], 10) == 0) {
-	    sscanf((const char *)bufindex[j], fmt, &proc_stat->procs_blocked);
-	    break;
-	}
-    }
+#define BLOCKED_FMT "procs_blocked %lu"
+    if ((i = find_line_format(BLOCKED_FMT, 14, bufindex, nbufindex, i)) >= 0)
+	sscanf((const char *)bufindex[i], BLOCKED_FMT, &proc_stat->procs_blocked);
 
     /* success */
     return 0;

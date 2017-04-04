@@ -1,0 +1,320 @@
+#!/usr/bin/env pmpython
+
+#
+# Copyright (c) 2016 Paul Cuzner <pcuzner@redhat.com>
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+
+from ctypes import c_uint, c_ulong, POINTER, cast, Structure
+import cpmapi as c_api
+
+from pcp.pmapi import pmUnits
+from pcp.pmda import PMDA, pmdaMetric, pmdaIndom
+
+import rtslib_fb.root as root
+import rtslib_fb.tcm as tcm
+from rtslib_fb.utils import fread, RTSLibNotInCFS
+
+import os
+
+
+UNITS_NONE = pmUnits(0, 0, 0, 0, 0, 0)
+UNITS_COUNT = pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)
+UNITS_BYTES = pmUnits(1, 0, 0, c_api.PM_SPACE_BYTE, 0, 0)
+UNITS_MBYTES = pmUnits(1, 0, 0, c_api.PM_SPACE_MBYTE, 0, 0)
+UNITS_GBYTES = pmUnits(1, 0, 0, c_api.PM_SPACE_GBYTE, 0, 0)
+
+
+class LIO(Structure):
+    """
+    Define the structure for the attributes that make up the Linux I/O (LIO)
+    iSCSI target
+    """
+
+    _fields_ = [
+        ("total_iops", c_ulong),
+        ("total_read_mb", c_ulong),
+        ("total_write_mb", c_ulong),
+        ("total_clients", c_uint),
+        ("total_size", c_ulong),
+        ("total_luns", c_uint),
+        ("active_sessions", c_uint),
+        ("tpgs", c_uint)
+    ]
+
+
+class LUN(Structure):
+    """
+    Define the structure for the attributes that make up a LUN object
+    """
+
+    _fields_ = [
+        ("iops", c_uint),
+        ("read_mb", c_uint),
+        ("write_mb", c_uint),
+        ("size", c_uint)
+    ]
+
+
+class LIOPMDA(PMDA):
+    """
+    PMDA class for LIO performance metrics
+    """
+
+    LIO_SUMMARY = 0
+    LUN_STATS = 1
+
+    targets = {}
+    luns = {}
+
+    READ_MB_PATH = 'statistics/scsi_tgt_port/read_mbytes'
+    WRITE_MB_PATH = 'statistics/scsi_tgt_port/write_mbytes'
+    IOPS_PATH = 'statistics/scsi_tgt_port/in_cmds'
+
+    def __init__(self, name, domain):
+
+        PMDA.__init__(self, name, domain)
+
+        self.connect_pmcd()
+
+        # Define the instance domains pointing to the dicts
+        self.targets_indom = self.indom(0)
+        self.luns_indom = self.indom(1)
+        self.add_indom(pmdaIndom(self.targets_indom, self.targets))
+        self.add_indom(pmdaIndom(self.luns_indom, self.luns))
+
+        # define the Summary (roll up, at-a-glance numbers)
+        # lio.summary.
+        #           .total_iops
+        #           .total_read_mb
+        #           .total_write_mb
+        #           .total_size
+        #           .total_clients
+        #           .total_luns
+
+        self.add_metric(name + '.summary.total_iops',
+                        pmdaMetric(self.pmid(LIOPMDA.LIO_SUMMARY, 0),
+                                   c_api.PM_TYPE_U64, self.targets_indom,
+                                   c_api.PM_SEM_COUNTER, UNITS_COUNT),
+                        "Total IOPS across all LUNs")
+        self.add_metric(name + '.summary.total_read_mb',
+                        pmdaMetric(self.pmid(LIOPMDA.LIO_SUMMARY, 1),
+                                   c_api.PM_TYPE_U64, self.targets_indom,
+                                   c_api.PM_SEM_COUNTER, UNITS_COUNT),
+                        "Total Read MB - all LUNs")
+        self.add_metric(name + '.summary.total_write_mb',
+                        pmdaMetric(self.pmid(LIOPMDA.LIO_SUMMARY, 2),
+                                   c_api.PM_TYPE_U64, self.targets_indom,
+                                   c_api.PM_SEM_COUNTER, UNITS_COUNT),
+                        "Total Write MB - all LUNs")
+        self.add_metric(name + '.summary.total_clients',
+                        pmdaMetric(self.pmid(LIOPMDA.LIO_SUMMARY, 3),
+                                   c_api.PM_TYPE_U32, self.targets_indom,
+                                   c_api.PM_SEM_INSTANT, UNITS_COUNT),
+                        "Number of clients defined to the target")
+        self.add_metric(name + '.summary.total_size',
+                        pmdaMetric(self.pmid(LIOPMDA.LIO_SUMMARY, 4),
+                                   c_api.PM_TYPE_U64, self.targets_indom,
+                                   c_api.PM_SEM_INSTANT, UNITS_GBYTES),
+                        "Total capacity (bytes) from all exported LUNs")
+        self.add_metric(name + '.summary.total_luns',
+                        pmdaMetric(self.pmid(LIOPMDA.LIO_SUMMARY, 5),
+                                   c_api.PM_TYPE_U32, self.targets_indom,
+                                   c_api.PM_SEM_INSTANT, UNITS_COUNT),
+                        "Number of luns defined to the target")
+        self.add_metric(name + '.summary.active_sessions',
+                        pmdaMetric(self.pmid(LIOPMDA.LIO_SUMMARY, 6),
+                                   c_api.PM_TYPE_U32, self.targets_indom,
+                                   c_api.PM_SEM_INSTANT, UNITS_COUNT),
+                        "Number of active client sessions")
+        self.add_metric(name + '.summary.tpgs',
+                        pmdaMetric(self.pmid(LIOPMDA.LIO_SUMMARY, 7),
+                                   c_api.PM_TYPE_U32, self.targets_indom,
+                                   c_api.PM_SEM_INSTANT, UNITS_COUNT),
+                        "Number of TPGs defined within the iSCSI target")
+
+        # Add the LUN metrics (metrics per device)
+        # lio.lun
+        #        .iops
+        #        .read_mb
+        #        .write_mb
+        #        .size
+        self.add_metric(name + '.lun.iops',
+                        pmdaMetric(self.pmid(LIOPMDA.LUN_STATS, 0),
+                                   c_api.PM_TYPE_U32, self.luns_indom,
+                                   c_api.PM_SEM_COUNTER, UNITS_COUNT),
+                        "R/W IOPS")
+        self.add_metric(name + '.lun.read_mb',
+                        pmdaMetric(self.pmid(LIOPMDA.LUN_STATS, 1),
+                                   c_api.PM_TYPE_U32, self.luns_indom,
+                                   c_api.PM_SEM_COUNTER, UNITS_COUNT),
+                        "Read MB")
+        self.add_metric(name + '.lun.write_mb',
+                        pmdaMetric(self.pmid(LIOPMDA.LUN_STATS, 2),
+                                   c_api.PM_TYPE_U32, self.luns_indom,
+                                   c_api.PM_SEM_COUNTER, UNITS_COUNT),
+                        "Write MB")
+        self.add_metric(name + '.lun.size',
+                        pmdaMetric(self.pmid(LIOPMDA.LUN_STATS, 3),
+                                   c_api.PM_TYPE_U32, self.luns_indom,
+                                   c_api.PM_SEM_INSTANT, UNITS_GBYTES),
+                        "LUN Size (GB)")
+
+        # declare the callbacks
+        self.set_fetch(self.lio_fetch)
+        self.set_instance(self.lio_instance)
+        self.set_fetch_callback(self.lio_fetch_callback)
+
+    def refresh(self):
+        """
+        gather the metrics from LIO, and store in either a LUN or LIO
+        object, then add this object to a dict to serve as a cache for later
+        pmcd fetch requests
+        :return: None
+        """
+
+        # drop the bs_cache to ensure we capture the current view.
+        # Changes to LIO can happen at anytime through other instances of
+        # rtslib e.g. targetcli interaction. If we don't drop the bs_cache
+        # dict the pmda only sees the view of LIO environment at the time the
+        # PMDA started, so adds/removes from other toolchains would be missed
+        # resulting in RTSLIBNotInCFS errors
+        tcm.bs_cache = {}
+
+        r = root.RTSRoot()
+
+        for tgt in r.targets:
+
+            if tgt.wwn_type == 'iqn':
+
+                # create an LIO object for this iscsi-target
+                target = LIO()
+                target.tpgs = 0
+
+                # load luns that are associated with this target iqn
+                for tpg in tgt.tpgs:
+                    if tpg.enable:
+                        for l in tpg.luns:
+                            path = l.path
+                            so_name = l.storage_object.name
+
+                            # lun_size is stored in GB
+                            lun_size = int(round(
+                                l.storage_object.size / (1024 ** 3)))
+
+                            lun = LUN()
+
+                            lun.size = lun_size
+
+                            lun.read_mb = int(fread(
+                                os.path.join(path, LIOPMDA.READ_MB_PATH)))
+                            lun.write_mb = int(fread(
+                                os.path.join(path, LIOPMDA.WRITE_MB_PATH)))
+                            lun.iops = int(fread(
+                                os.path.join(path, LIOPMDA.IOPS_PATH)))
+
+                            # update the target stats with the data from this
+                            # lun
+                            target.total_read_mb += lun.read_mb
+                            target.total_write_mb += lun.write_mb
+                            target.total_iops += lun.iops
+                            target.total_size += lun.size
+
+                            target.total_luns += 1
+                            self.luns[so_name] = lun
+
+                        # determine the client count based on the active tpg
+                        clients_defined = [client for client in tpg.node_acls]
+                        active_sessions = [client for client in clients_defined
+                                           if client.session]
+                        target.total_clients = len(clients_defined)
+                        target.active_sessions = len(active_sessions)
+
+                    target.tpgs += 1
+
+                self.targets[tgt.wwn] = target
+
+    def lio_instance(self, serial):
+
+        self.refresh()
+
+    def lio_fetch(self):
+        """ Called once per "fetch" PDU, before callbacks """
+        self.targets.clear()
+        self.luns.clear()
+
+        # refresh the internal 'cache' describing targets and luns
+        self.refresh()
+
+        # replace the instance domain cache with these updated object(s)
+        self.replace_indom(self.targets_indom, self.targets)
+        self.replace_indom(self.luns_indom, self.luns)
+
+    def lio_fetch_summary_callback(self, item, inst):
+        """
+        provide the summary information to the caller
+        :param item: item number
+        :param inst: instance of this object
+        :return: value of a given instance/attribute
+        """
+
+        voidp = self.inst_lookup(self.targets_indom, inst)
+
+        if voidp is None:
+            return [c_api.PM_ERR_INST, 0]
+
+        cache = cast(voidp, POINTER(LIO))
+        item_lookup = [lio_attr[0] for lio_attr in LIO._fields_]
+        summary = cache.contents
+
+        if 0 <= item <= (len(LIO._fields_) - 1):
+            return [getattr(summary, item_lookup[item]), 1]
+        else:
+            return [c_api.PM_ERR_INST, 0]
+
+    def lio_fetch_lun_callback(self, item, inst):
+        """
+        provide the lun statistics to the caller
+        :param item: item number
+        :param inst: instance of this object
+        :return: value of a given instance/attribute
+        """
+        voidp = self.inst_lookup(self.luns_indom, inst)
+
+        if voidp is None:
+            return [c_api.PM_ERR_INST, 0]
+
+        cache = cast(voidp, POINTER(LUN))
+        item_lookup = [lun_attr[0] for lun_attr in LUN._fields_]
+        lun = cache.contents
+
+        if 0 <= item <= (len(LUN._fields_) - 1):
+            return [getattr(lun, item_lookup[item]), 1]
+        else:
+            return [c_api.PM_ERR_INST, 0]
+        pass
+
+    def lio_fetch_callback(self, cluster, item, inst):
+        """
+        fetch helper - look at request and send to other helpers
+        based on cluster number
+        """
+        if cluster == LIOPMDA.LIO_SUMMARY:
+            return self.lio_fetch_summary_callback(item, inst)
+        elif cluster == LIOPMDA.LUN_STATS:
+            return self.lio_fetch_lun_callback(item, inst)
+        return [c_api.PM_ERR_PMID, 0]
+
+
+if __name__ == "__main__":
+
+    LIOPMDA("lio", 142).run()

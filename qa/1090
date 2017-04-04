@@ -17,8 +17,8 @@ which curl >/dev/null 2>&1 || _notrun "No curl binary installed"
 _cleanup()
 {
     cd $here
-    $sudo $PCP_RC_DIR/pmwebd stop >>$here/$seq.full 2>&1
-    $sudo $PCP_RC_DIR/pcp start >>$here/$seq.full 2>&1
+    _service pmwebd stop >>$here/$seq.full 2>&1
+    _service pcp start >>$here/$seq.full 2>&1
     _wait_for_pmcd
     _wait_for_pmlogger
     rm -rf $tmp.*
@@ -68,8 +68,8 @@ _get_metrics()
     fi
 }
 
-$sudo $PCP_RC_DIR/pmwebd stop >>$here/$seq.full 2>&1
-$sudo $PCP_RC_DIR/pmwebd start
+_service pmwebd stop >>$here/$seq.full 2>&1
+_service pmwebd start
 _wait_for_pmwebd 44323
 
 # real QA test starts here
@@ -86,7 +86,7 @@ _get_metrics $ctx1
 
 # kill off pmcd
 echo "Killing off pmcd ..."
-$sudo $PCP_RC_DIR/pmcd stop 2>&1 | _filter_pcp_stop
+_service pmcd stop 2>&1 | _filter_pcp_stop
 
 echo "Retrying first context ..."
 _get_metrics $ctx1
@@ -107,7 +107,7 @@ fi
 
 # start pmcd
 echo "Restarting pmcd ..."
-$sudo $PCP_RC_DIR/pmcd start 2>&1 | _filter_pcp_stop
+_service pmcd start 2>&1 | _filter_pcp_stop
 _wait_for_pmcd
 
 ctx3=`_get_context`

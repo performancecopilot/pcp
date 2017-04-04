@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2016 Red Hat.
+ * Copyright (c) 2014-2017 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -153,37 +153,56 @@ docker_values_changed(const char *path, container_t *values)
 }
 
 static int
+docker_fread(char *buffer, int buflen, void *data)
+{
+    FILE	*fp = (FILE *)data;
+    int		sts;
+
+    if ((sts = fread(buffer, 1, buflen, fp)) > 0)
+	return sts;
+    if (feof(fp))
+	return 0;
+    return -ferror(fp);
+}
+
+static int
 docker_values_parse(FILE *fp, const char *name, container_t *values)
 {
     int     sts = 0;
-    int     fd = -1;
     int     i;
 
-    json_metric_desc  *local_json_metrics;
-    local_json_metrics = (json_metric_desc*)malloc(JSONMETRICS_SZ*sizeof(*json_metrics)); // maybe realloc?
-    memcpy(local_json_metrics, json_metrics, JSONMETRICS_SZ*(sizeof(*json_metrics)));
-    for (i = 0; i < JSONMETRICS_SZ; i++)
-	local_json_metrics[i].json_pointer = strdup(json_metrics[i].json_pointer);
+    static const int JSONMETRICS_BYTES = JSONMETRICS_SZ * sizeof(*json_metrics);
+    static json_metric_desc *local_metrics;
+    if (!local_metrics)
+	local_metrics = (json_metric_desc *)malloc(JSONMETRICS_BYTES);
 
-    local_json_metrics[0].dom = strdup(name);
+    memcpy(local_metrics, json_metrics, JSONMETRICS_BYTES);
+    for (i = 0; i < JSONMETRICS_SZ; i++)
+	local_metrics[i].json_pointer = strdup(json_metrics[i].json_pointer);
+
+    local_metrics[0].dom = strdup(name);
     values->uptodate = 0;
-    fd = fileno(fp);
-    sts = pmjsonInit(fd, local_json_metrics, JSONMETRICS_SZ);
+
+    clearerr(fp);
+    if ((sts = pmjsonGet(local_metrics, JSONMETRICS_SZ, PM_INDOM_NULL,
+			 docker_fread, (void *)fp)) < 0)
+	return sts;
+
     values->pid = -1;
-    if(local_json_metrics[0].values.l)
-	values->pid = local_json_metrics[0].values.l;
+    if (local_metrics[0].values.l)
+	values->pid = local_metrics[0].values.l;
     values->uptodate++;
-    values->name = strdup(local_json_metrics[1].values.cp);
-    if(local_json_metrics[2].values.ul)
+    values->name = strdup(local_metrics[1].values.cp);
+    if (local_metrics[2].values.ul)
 	values->flags = CONTAINER_FLAG_RUNNING;
-    else if(local_json_metrics[3].values.ul)
+    else if (local_metrics[3].values.ul)
 	values->flags = CONTAINER_FLAG_PAUSED;
-    else if(local_json_metrics[4].values.ul)
+    else if (local_metrics[4].values.ul)
 	values->flags = CONTAINER_FLAG_RESTARTING;
     else
 	values->flags = 0;
     values->uptodate++;
-    return sts;
+    return 0;
 }
 
 /* docker decided to not only change the config file json pointer layout, but

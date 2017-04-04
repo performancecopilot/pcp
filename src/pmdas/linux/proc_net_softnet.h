@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016 Red Hat.
+ * Copyright (c) 2015-2017 Red Hat.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -12,19 +12,6 @@
  * for more details.
  */
 
-/* extracted from /proc/net/softnet_stat */
-
-typedef struct {
-    uint64_t *processed;
-    uint64_t *dropped;
-    uint64_t *time_squeeze;
-    uint64_t *cpu_collision;
-    uint64_t *received_rps;
-    uint64_t *flow_limit_count;
-
-    unsigned flags;
-} proc_net_softnet_t;
-
 enum {
     SN_PROCESSED	= 1<<0,
     SN_DROPPED		= 1<<1,
@@ -34,5 +21,5 @@ enum {
     SN_FLOW_LIMIT_COUNT	= 1<<5,
 };
 
-extern int _pm_ncpus;
+typedef softnet_t proc_net_softnet_t;
 extern int refresh_proc_net_softnet(proc_net_softnet_t *);

@@ -27,7 +27,7 @@ _cleanup()
 {
     if [ -n "$pid" ]; then kill $pid; fi
     # restart pmcd and primary pmlogger
-    $sudo $PCP_RC_DIR/pcp restart >>$seq.full 2>&1
+    _service pcp restart >>$seq.full 2>&1
     _wait_for_pmcd
     _wait_for_pmlogger
     $sudo rm -fr $tmp.dir
@@ -79,9 +79,10 @@ env PCP_PMMGR_MERGEBATCH=15 pmmgr -v -v -p 1 -l $tmp.out -c $tmp.dir >$tmp.valou
 pid=$!
 echo "pid=$pid" >>$seq.full
 sleep 5
-$sudo $PCP_RC_DIR/pmcd start >>$seq.full 2>&1
+_service pmcd start >>$seq.full 2>&1
+_wait_for_pmcd
 sleep 90 # enough for some 
-$sudo $PCP_RC_DIR/pmcd stop >>$seq.full 2>&1
+_service pmcd stop >>$seq.full 2>&1
 
 date >>$seq.full
 echo "=== 3. check on number of archives and zip 'em up ===" | tee -a $seq.full
@@ -100,9 +101,10 @@ echo "=== 4. do a few rounds of batched log merging ===" | tee -a $seq.full
 echo > $tmp.dir/pmlogmerge
 echo VERY IGNORED >> $tmp.dir/pmlogmerge
 echo IGNORED >> $tmp.dir/pmlogmerge
-$sudo $PCP_RC_DIR/pmcd start >>$seq.full 2>&1
+_service pmcd start >>$seq.full 2>&1
+_wait_for_pmcd
 sleep 20 # enough for some cycles of log merging batches
-$sudo $PCP_RC_DIR/pmcd stop >>$seq.full 2>&1
+_service pmcd stop >>$seq.full 2>&1
 
 date >>$seq.full
 echo "=== 5. check on number of archives after batched logmerge ===" | tee -a $seq.full
@@ -129,9 +131,10 @@ done
 date >>$seq.full
 echo "=== 7. do a few rounds of batched log merging ===" | tee -a $seq.full
 touch $tmp.dir/pmlogmerge
-$sudo $PCP_RC_DIR/pmcd start >>$seq.full 2>&1
+_service pmcd start >>$seq.full 2>&1
+_wait_for_pmcd
 sleep 20 # enough for some cycles of log merging batches
-$sudo $PCP_RC_DIR/pmcd stop >>$seq.full 2>&1
+_service pmcd stop >>$seq.full 2>&1
 
 date >>$seq.full
 echo "=== 8. expect 10 corrupt leftovers  ===" | tee -a $seq.full
@@ -140,9 +143,10 @@ ls -1 $tmp.dir/$hostname/corrupt*.meta | wc -l | sed -e 's/ //g'
 date >>$seq.full
 echo "=== 9. turn on short-term corrupt-gc and cycle a little longer  ===" | tee -a $seq.full
 echo 10sec > $tmp.dir/pmlogcheck-corrupt-gc
-$sudo $PCP_RC_DIR/pmcd start >>$seq.full 2>&1
+_service pmcd start >>$seq.full 2>&1
+_wait_for_pmcd
 sleep 20 # enough for some cycles of log merging batches
-$sudo $PCP_RC_DIR/pmcd stop >>$seq.full 2>&1
+_service pmcd stop >>$seq.full 2>&1
 
 date >>$seq.full
 echo "=== 10. expect no corrupt leftovers ===" | tee -a $seq.full

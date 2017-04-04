@@ -109,7 +109,7 @@ _cleanup()
 	    echo "Warning: $tmp.log missing"
 	fi
 	echo
-	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+	_service pcp restart | _filter_pcp_start
 	_wait_for_pmcd
 	_wait_for_pmlogger
 	need_clean=false
@@ -185,7 +185,7 @@ else
     echo "Eh? primary pmlogger not running?"
     _ping
 fi
-$sudo $PCP_RC_DIR/pcp stop | _filter_pcp_stop
+_service pcp stop | _filter_pcp_stop
 
 echo >>$here/$seq.full
 echo "=== ping after stopping local pcp and pmcd  ===" >>$here/$seq.full

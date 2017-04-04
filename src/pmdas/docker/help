@@ -1,0 +1,90 @@
+#
+# Copyright (c) 2016,2017 Red Hat, Inc.  All Rights Reserved.
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+# docker PMDA help file in the ASCII format
+#
+# lines beginning with a # are ignored
+# lines beginning @ introduce a new entry of the form
+#  @ metric_name oneline-text
+#  help test goes
+#  here over multiple lines
+#  ...
+#
+# the metric_name is decoded against the default PMNS -- as a special case,
+# a name of the form NNN.MM (for numeric NNN and MM) is interpreted as an
+# instance domain identification, and the text describes the instance domain
+#
+# blank lines before the @ line are ignored
+#
+@ docker.name Mapping of unique contianer IDs to human-readable names
+@ docker.pid Process identifier for each containers initial process
+@ docker.running This container is currently running (one/zero)
+@ docker.paused This container is currently paused (one/zero)
+@ docker.restarting This container is restarting (one/zero)
+@ docker.version Docker version
+@ docker.os Operating system docker is running on
+@ docker.kernel Kernel version docker is running on
+@ docker.go GoLang Version
+@ docker.commit git commit of current Docker version
+@ docker.arch architecture detected by docker
+@ docker.api_version Docker remote API version
+@ docker.cpu_stats.system_cpu_usage system CPU time the container as consumed
+@ docker.cpu_stats.cpu_usage.total_usage CPU time consumed by processes in each container
+@ docker.cpu_stats.cpu_usage.usage_in_kernelmode Time spent by tasks of the container in kernel mode
+@ docker.cpu_stats.cpu_usage.usage_in_usermode Time spent by tasks of the container in user mode
+@ docker.cpu_stats.throttling_data.periods Number of CFS elapsed enforcement intervals
+@ docker.cpu_stats.throttling_data.throttled_periods Number of elapsed enforced intervals
+@ docker.cpu_stats.throttling_data.throttled_time Total time container was throttled/limited
+@ docker.memory_stats.failcnt Count of failures to allocate memory due to containre limits
+@ docker.memory_stats.limit Maximum memory that can be utilized by each container
+@ docker.memory_stats.max_usage Maximum memory that can be utilized by each container
+@ docker.memory_stats.usage CPU time consumed by processes in each container
+@ docker.memory_stats.stats.active_anon Anonymous and swap cache memory on active LRU list.
+@ docker.memory_stats.stats.active_file File-backed memory on active LRU list
+@ docker.memory_stats.stats.cache Number of bytes of page cache memory
+@ docker.memory_stats.stats.dirty Kbytes in dirty pages
+#@ docker.memory_stats.stats.hierarchical_memory_limit XXX
+#@ docker.memory_stats.stats.hierarchical_memsw_limit XXX
+@ docker.memory_stats.stats.inactive_anon Anonymous and swap cache memory on inactive LRU list
+@ docker.memory_stats.stats.inactive_file File-backed memory on inactive LRU list
+@ docker.memory_stats.stats.mapped_file Bytes of mapped file (incl tmpfs/shmem)
+@ docker.memory_stats.stats.pgfault Total number of page faults
+@ docker.memory_stats.stats.pgmajfault Number of major page faults
+@ docker.memory_stats.stats.pgpgin Number of charging events to the memory container
+@ docker.memory_stats.stats.pgpgout Number of uncharging events to the memory container
+@ docker.memory_stats.stats.recent_rotated_anon VM internal parameter (see mm/vmscan.c)
+@ docker.memory_stats.stats.recent_rotated_file VM internal parameter (see mm/vmscan.c)
+@ docker.memory_stats.stats.recent_scanned_anon VM internal parameter (see mm/vmscan.c)
+@ docker.memory_stats.stats.recent_scanned_file VM internal parameter (see mm/vmscan.c)
+@ docker.memory_stats.stats.rss Anonymous and swap memory (incl transparent hugepages)
+@ docker.memory_stats.stats.rss_huge Anonymous transparent hugepages
+@ docker.memory_stats.stats.swap Number of bytes of swap usage
+@ docker.memory_stats.stats.total_active_anon Hierarchical, cumulative version of stat.active_anon
+@ docker.memory_stats.stats.total_active_file Hierarchical, cumulative version of stat.active_file
+@ docker.memory_stats.stats.total_cache Hierarchical, cumulative version of stat.cache
+@ docker.memory_stats.stats.total_dirty Kbytes in dirty pages
+@ docker.memory_stats.stats.total_inactive_anon Hierarchical, cumulative version of stat.inactive_anon
+@ docker.memory_stats.stats.total_inactive_file Hierarchical, cumulative version of stat.inactive_file
+@ docker.memory_stats.stats.total_mapped_file Hierarchical, cumulative version of stats.mapped_file
+@ docker.memory_stats.stats.total_pgfault Hierarchical, cumulative version of stat.pgfault
+@ docker.memory_stats.stats.total_pgmajfault Hierarchical, cumulative version of stat.pgmajfault
+@ docker.memory_stats.stats.total_pgpgin Hierarchical, cumulative version of stat.pgpgin
+@ docker.memory_stats.stats.total_pgpgout Hierarchical, cumulative version of stat.pgpgout]
+@ docker.memory_stats.stats.total_rss Hierarchical, cumulative version of stat.rss
+@ docker.memory_stats.stats.total_rss_huge Hierarchical, cumulative version of stat.rss_huge
+@ docker.memory_stats.stats.total_swap Hierarchical, cumulative version of stat.swap
+@ docker.memory_stats.stats.total_unevictable Hierarchical, cumulative version of stat.unevictable
+@ docker.memory_stats.stats.total_writeback Hierarchical, cumulative version of stat.writeback
+@ docker.memory_stats.stats.unevictable Memory that cannot be reclaimed (e.g. mlocked)
+@ docker.memory_stats.stats.writeback Bytes of file/anonymous cache queued for syncing]
+@ docker.control.timing Timing frequency querying the docker api

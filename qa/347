@@ -32,8 +32,7 @@ _cleanup()
 	    $sudo cp $tmp.pmcd.conf $PCP_PMCDCONF_PATH
 	    rm -f $tmp.pmcd.conf
 	fi
-	rm -f $tmp.*
-	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+	_service pcp restart | _filter_pcp_start
 	_wait_for_pmcd
 	_wait_for_pmlogger
 	if $install_on_cleanup
@@ -44,6 +43,7 @@ _cleanup()
 	fi
 	done_clean=true
     fi
+    $sudo rm -f $tmp.*
     exit $status
 }
 

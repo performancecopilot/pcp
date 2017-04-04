@@ -7,6 +7,7 @@
 #include <string.h>
 #include <sys/types.h>
 #include <regex.h>
+#include <unistd.h>
 
 /*
  * sort instances based on instance name from pminfo/__pmDumpResult
@@ -25,25 +26,43 @@
 
 #define MAXLINELEN 200
 
-static char pfx = '"';
-
 /*
- * compare keys up following the pfx character ... no error
- * checking here, assume the QA engineer knows what they're doing
+ * compare external instance names following the " character ...
+ * no error checking here, assume the QA engineer knows what they're doing
  */
 int
-compar(const void *a, const void *b)
+compar_external(const void *a, const void *b)
 {
     char *key_a = *((char **)a);
     char *key_b = *((char **)b);
 
-    for (key_a++; key_a[0] && key_a[-1] != pfx; key_a++)
+    for (key_a++; key_a[0] && key_a[-1] != '"'; key_a++)
 	;
-    for (key_b++; key_b[0] && key_b[-1] != pfx; key_b++)
+    for (key_b++; key_b[0] && key_b[-1] != '"'; key_b++)
 	;
 
     return strcmp(key_a, key_b);
 }
+
+/*
+ * compare internal instance identifiers following the [ character ...
+ * no error checking here, assume the QA engineer knows what they're doing
+ */
+int
+compar_internal(const void *a, const void *b)
+{
+    char *key_a = *((char **)a);
+    char *key_b = *((char **)b);
+
+    for (key_a++; key_a[0] && key_a[-1] != '['; key_a++)
+	;
+    for (key_b++; key_b[0] && key_b[-1] != '['; key_b++)
+	;
+
+    return atoi(key_a) > atoi(key_b);
+}
+
+
 
 int
 main(int argc, char **argv)
@@ -56,6 +75,34 @@ main(int argc, char **argv)
     int		n = 0;			/* input line count */
     char	*pat = "inst \\[";
     regex_t	re;
+    int		(*compar)(const void *, const void *);
+    int		errflag = 0;
+    int		c;
+
+    compar = compar_external;
+
+    while ((c = getopt(argc, argv, "i?")) != EOF) {
+	switch (c) {
+
+	case 'i':	/* sort in internal instance identifier */
+	    compar = compar_internal;
+	    break;
+
+	case '?':
+	default:
+	    errflag++;
+	    break;
+	}
+    }
+
+    if (errflag) {
+	fprintf(stderr,
+"Usage: sortinst [options] [metrics ...]\n\
+\n\
+Options:\n\
+  -i          use internal instance identifier to sort\n");
+        exit(1);
+    }
 
     sts = regcomp(&re, pat, REG_NOSUB);
     if (sts != 0) {

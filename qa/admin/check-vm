@@ -404,6 +404,11 @@ pkg?	jsonpointer.py					[N/A (build optional)]
 slackpkg?	jsonpointer.py				[N/A (build optional)]
 pacman?	/usr/lib/python2.*/site-packages/jsonpointer.py	[python2-jsonpointer (build optional)
 pacman?	/usr/lib/python3.*/site-packages/jsonpointer.py	[python-jsonpointer (build optional)
+# -- lio
+rpm?	/usr/lib/python3.*/*-packages/rtslib		[python3-rtslib]
+rpm?	/usr/lib/python2.*/*-packages/rtslib		[python-rtslib]
+urpmi?	/usr/lib/python2.*/*-packages/rtslib		[python3-rtslib]
+urpmi?	/usr/lib/python2.*/*-packages/rtslib		[python-rtslib]
 # -- setuptools
 dpkg?	/usr/lib/python2.*/*-packages/setuptools	[python-setuptools]
 dpkg?	/usr/lib/python3/*-packages/setuptools	[python3-setuptools]
@@ -418,7 +423,7 @@ pacman?	/usr/lib/python2.*/site-packages/setuptools	[?python2-setuptools]
 pacman?	/usr/lib/python3.*/site-packages/setuptools	[?python-setuptools]
 # -- libvirt
 dpkg?	/usr/lib/python3/*-packages/libvirt.py		[libvirt-python3]
-rpm?	/usr/lib/python3.*/*-packages/libvirt.py	[libvirt-python3]
+rpm?	/usr/lib*/python3.*/*-packages/libvirt.py	[libvirt-python3]
 urpmi?	libvirt.py		[?]
 emerge?	libvirt.py		[?]
 pkgin?	libvirt.py		[?]
@@ -473,6 +478,19 @@ pkg_add?	ExtUtils::MakeMaker	[perl]
 pkg?	ExtUtils::MakeMaker	[perl]
 slackpkg?	ExtUtils::MakeMaker	[perl]
 pacman?	ExtUtils::MakeMaker	[perl]
+# -- YAML::XS::LibYAML
+dpkg?	YAML::XS::LibYAML	[libyaml-libyaml-perl]
+rpm?	YAML::XS::LibYAML	[perl-YAML-LibYAML or 'perl(YAML::XS::LibYAML)' or from cpan]
+urpmi?	YAML::XS::LibYAML	[perl-YAML-LibYAML or 'perl(YAML::XS::LibYAML)' or from cpan]
+# -- XML::LibXML
+dpkg?	XML::LibXML		[libxml-libxml-perl]
+rpm?	XML::LibXML		[perl-XML-LibXML or 'perl(XML::LibXML)' or from cpan]
+urpmi?	XML::LibXML		[perl-XML-LibXML or 'perl(XML::LibXML)' or from cpan]
+emerge?	XML::LibXML		[?]
+pkgin?	XML::LibXML		[?]
+pkg_add?	XML::LibXML		[?]
+slackpkg?	XML::LibXML		[?]
+pacman?	XML::LibXML		[?]
 # -- XML::TokeParser
 dpkg?	XML::TokeParser		[libxml-tokeparser-perl]
 rpm?	XML::TokeParser		[perl-XML-TokeParser or 'perl(XML::TokeParser)' or from cpan]
@@ -483,6 +501,26 @@ pkg_add?	XML::TokeParser		[from cpan]
 pkg?	XML::TokeParser		[from cpan]
 slackpkg?	XML::TokeParser		[from cpan]
 pacman?	XML::TokeParser		[from cpan]
+# -- File::Slurp
+dpkg?	File::Slurp		[libfile-slurp-perl]
+rpm?	File::Slurp		[perl-File-Slurp or 'perl(File::Slurp)']
+urpmi?	File::Slurp		[perl-File-Slurp or 'perl(File::Slurp)']
+emerge?	File::Slurp		[?]
+pkgin?	File::Slurp		[?]
+pkg_add?	File::Slurp		[?]
+pkg?	File::Slurp		[?]
+slackpkg?	File::Slurp		[?]
+pacman?	File::Slurp		[?]
+# -- Slurm::Hostlist
+dpkg?	Slurm::Hostlist		[libslurm-perl]
+rpm?	Slurm::Hostlist		[perl-Slurm-Hostlist or 'perl(Slurm::Hostlist)']
+urpmi?	Slurm::Hostlist		[perl-Slurm-Hostlist or 'perl(Slurm::Hostlist)']
+emerge?	Slurm::Hostlist		[?]
+pkgin?	Slurm::Hostlist		[?]
+pkg_add?	Slurm::Hostlist		[?]
+pkg?	Slurm::Hostlist		[?]
+slackpkg?	File::Slurp		[?]
+pacman?	File::Slurp		[?]
 # -- RRDs
 dpkg?	RRDs::			[librrds-perl]
 rpm?	RRDs::			[rrdtool-perl or perl-rrdtool or rrdtool or 'perl(RRDs)']
@@ -895,6 +933,8 @@ pkg_add?	pluginviewer		[? (QA optional)]
 pkg?		pluginviewer		[N/A (QA optional)]
 slackpkg?	pluginviewer		[? (QA optional)]
 pacman?		pluginviewer		[? (QA optional)]
+# -- selinux policy
+rpm?    /usr/share/selinux/devel/Makefile [selinux-policy-devel (build optional)]
 #
 # misc
 #

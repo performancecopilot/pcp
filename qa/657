@@ -24,6 +24,20 @@ export DM_SETUP_CACHE="cat $root/dmcache-caches"
 export DM_SETUP_THINPOOL="cat $root/dmthin-pool"
 export DM_SETUP_THIN="cat $root/dmthin-thin"
 
+# don't want Install to possibly restart pmcd via systemctl, as this
+# will clobber the environment, ...
+#
+_service pcp stop | _filter_pcp_stop
+if [ "$PCPQA_SYSTEMD" = x -o "${PCPQA_SYSTEMD-x}" != x ]
+then
+    # $PCPQA_SYSTEMD is already set ...
+    save_pcpqa_systemd="$PCPQA_SYSTEMD"
+    restore_pcpqa_systemd=true
+else
+    restore_pcpqa_systemd=false
+fi
+export PCPQA_SYSTEMD=no
+
 # helper functions
 
 _install_pmda()
@@ -47,6 +61,16 @@ _remove_pmda()
 
 _cleanup()
 {
+    if $restore_pcpqa_systemd
+    then
+	export PCPQA_SYSTEMD="$save_pcpqa_systemd"
+    else
+	unset PCPQA_SYSTEMD
+    fi
+    _service pcp restart | _filter_pcp_start
+    _restore_auto_restart pmcd
+    _wait_for_pmcd
+    _wait_for_pmlogger
     $sudo rm -fr $root
     $sudo rm -fr $tmp.*.dir
     $sudo rm -f $tmp.*
@@ -56,6 +80,7 @@ _cleanup()
 iam=dm
 status=1 # failure is the default!
 trap "_cleanup $iam" 0 1 2 3 15
+_stop_auto_restart pmcd
 
 $sudo rm -fr $root
 $sudo rm -fr $tmp.*.dir

@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
- * Copyright (c) 2013 Red Hat, Inc.
+ * Copyright (c) 2013-2017 Red Hat, Inc.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -23,6 +23,20 @@ __pmHashInit(__pmHashCtl *hcp)
     memset(hcp, 0, sizeof(*hcp));
     /* NB: some __pmHash* clients rely on this to eschew explicit
        initialization for .bss / .data-resident __pmHashCtl structs. */
+}
+
+/*
+ * Used to preallocate the hash table when the size is known ahead of time.
+ * This avoids the overhead of growing and relinking the hash chains.
+ */
+int
+__pmHashPreAlloc(int hsize, __pmHashCtl *hcp)
+{
+    if ((hcp->hash = (__pmHashNode **)calloc(hsize, sizeof(__pmHashNode *))) == NULL)
+	return -oserror();
+
+    hcp->hsize = hsize;
+    return 0; /* ok */
 }
 
 __pmHashNode *

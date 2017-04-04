@@ -623,12 +623,17 @@ is_partitions_metric(pmID full_pmid)
     pmID		pmid = PMDA_PMID(idp->cluster, idp->item);
     int			n = sizeof(disk_metric_table) / sizeof(disk_metric_table[0]);
 
+    /* fast test for same matched metric as last time */
     if (p && *p == PMDA_PMID(idp->cluster, idp->item))
     	return 1;
+
     for (p = disk_metric_table, i=0; i < n; i++, p++) {
     	if (*p == pmid)
 	    return 1;
     }
+
+    /* no match, clear fast test state */
+    p = NULL;
     return 0;
 }
 

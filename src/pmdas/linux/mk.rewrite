@@ -72,6 +72,10 @@ cat <<End-of-File >linux_kernel_fixups.conf
 # swapdev.priority had the wrong Units:
 #
 metric swapdev.priority { units -> 0,0,0,0,0,0 }
+
+# network.interface.baudrate changed to 64 bits:
+#
+metric network.interface.baudrate { type -> U64 }
 End-of-File
 
 exit 0

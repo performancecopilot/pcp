@@ -7,7 +7,7 @@
 
 # Kenj Section
 bozo.localdomain
-bozo-laptop.localdomain
+# not available at Rye bozo-laptop.localdomain
 vm01.localdomain
 vm03.localdomain
 vm35.localdomain

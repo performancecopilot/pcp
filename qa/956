@@ -23,10 +23,10 @@ _filter()
 
 _cleanup()
 {
-    $sudo $PCP_RC_DIR/pcp stop | _filter_pcp_stop
+    _service pmcd stop | _filter_pcp_stop
     unset PMCD_PORT
     _restore_config $PCP_PMCDOPTIONS_PATH
-    $sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
+    _service pcp start | _filter_pcp_start
     _wait_for_pmcd
     _wait_for_pmlogger
 
@@ -60,11 +60,17 @@ cat <<End-of-File >$tmp.newoptions
 End-of-File
 $sudo cp $tmp.newoptions $PCP_PMCDOPTIONS_PATH
 
-$sudo $PCP_RC_DIR/pcp stop | _filter_pcp_stop
+_service pcp stop | _filter_pcp_stop
+
+# need to start pmcd indirectly in a shell script because sudo
+# may cleanse the environment, which also means we cannot use
+# the _service wrapper
+#
+echo "export PMCD_PORT=$port" >$tmp.start
+echo "$PCP_RC_DIR/pmcd restart" >>$tmp.start
+$sudo sh $tmp.start | _filter_pcp_start
 export PMCD_PORT=$port
-$sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
 _wait_for_pmcd
-_wait_for_pmlogger
 
 cd $here/pmdas/dynamic
 if [ -f GNUmakefile.install ]

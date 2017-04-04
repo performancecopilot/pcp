@@ -1078,8 +1078,9 @@ sysprt_SWPTOT(void *p, void *notused, int badness, int *color)
 {
         struct sstat *sstat=p;
         static char buf[16]="tot    ";
+        count_t value = sstat->mem.totswap * 1024;
+        val2memstr(value, buf+6, sizeof buf-6, MBFORMAT, 0, 0);
 	*color = -1;
-        val2memstr(sstat->mem.totswap, buf+6, sizeof buf-6, MBFORMAT, 0, 0);
         return buf;
 }
 
@@ -1090,8 +1091,9 @@ sysprt_SWPFREE(void *p, void *notused, int badness, int *color)
 {
         struct sstat *sstat=p;
         static char buf[16]="free  ";
+        count_t value = sstat->mem.freeswap * 1024;
+        val2memstr(value, buf+6, sizeof buf-6, MBFORMAT, 0, 0);
 	*color = -1;
-        val2memstr(sstat->mem.freeswap, buf+6, sizeof buf-6, MBFORMAT, 0, 0);
         return buf;
 }
 

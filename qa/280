@@ -51,11 +51,11 @@ signal=$PCP_BINADM_DIR/pmsignal
 LOCALHOST=`hostname`
 trap "_cleanup; $sudo rm -f $tmp.* $LOGGING_DIR/$LOCALHOST/lock; exit \$status" 0 1 2 3 15
 
-_stop_systemd_restart pmcd
+_stop_auto_restart pmcd
 
 _cleanup()
 {
-    _restore_systemd_restart pmcd
+    _restore_auto_restart pmcd
 }
 
 rm -f $seq.full
@@ -66,8 +66,8 @@ umask 022
 
 # start from a known state
 #
-$sudo $PCP_RC_DIR/pcp stop >/dev/null 2>&1
-$sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
+_service pcp stop >/dev/null 2>&1
+_service pcp start | _filter_pcp_start
 _wait_for_pmcd
 _wait_for_pmlogger -P $LOGGING_DIR/$LOCALHOST/pmlogger.log
 

@@ -30,7 +30,7 @@ _cleanup()
 	echo
 	echo 'Restoring real pmcd.conf ...'
 	_restore_config $PCP_PMCDCONF_PATH
-	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+	_service pcp restart | _filter_pcp_start
 	_wait_for_pmcd
 	_wait_for_pmlogger
 	_needclean=false
@@ -87,8 +87,9 @@ sample	99	pipe	binary		$PCP_PMDAS_DIR/sample/pmdasample -d 99
 sample	109	pipe	binary		$PCP_PMDAS_DIR/sample/pmdasample -d 109
 End-of-File
 $sudo cp $tmp.out $PCP_PMCDCONF_PATH
-$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+_service pcp restart | _filter_pcp_start
 _wait_for_pmcd
+_wait_for_pmlogger
 
 ps $PCP_PS_ALL_FLAGS >$tmp.out
 num=`grep pmdasample $tmp.out | wc -l | sed -e 's/ //g'`

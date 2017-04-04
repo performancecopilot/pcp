@@ -36,7 +36,7 @@ CFILES		= pmda.c \
 		  sysfs_kernel.c linux_table.c numa_meminfo.c \
 		  proc_net_netstat.c namespaces.c proc_net_softnet.c \
 		  proc_net_snmp6.c mem_bandwidth.c proc_buddyinfo.c \
-                  proc_zoneinfo.c
+                  proc_zoneinfo.c ksm.c sysfs_tapestats.c
 
 HFILES		= linux.h convert.h \
 		  proc_stat.h proc_meminfo.h proc_loadavg.h \
@@ -47,14 +47,13 @@ HFILES		= linux.h convert.h \
 		  proc_slabinfo.h proc_sys_fs.h proc_vmstat.h \
 		  sysfs_kernel.h linux_table.h numa_meminfo.h \
 		  proc_net_netstat.h namespaces.h proc_net_softnet.h \
-		  proc_net_snmp6.h proc_buddyinfo.h proc_zoneinfo.h
+		  proc_net_snmp6.h proc_buddyinfo.h proc_zoneinfo.h \
+                  ksm.h sysfs_tapestats.h
 
 VERSION_SCRIPT	= exports
 HELPTARGETS	= help.dir help.pag
-LSRCFILES 	= help root_linux proc_net_snmp_migrate.conf linux_kernel_ulong.conf \
-		  linux_kernel_fixups.conf
-LDIRT		= $(HELPTARGETS) domain.h $(VERSION_SCRIPT) linux_kernel_ulong.conf \
-		  linux_kernel_fixups.conf
+CONFTARGETS	= linux_kernel_ulong.conf linux_kernel_fixups.conf
+LDIRT		= $(HELPTARGETS) domain.h $(VERSION_SCRIPT) $(CONFTARGETS)
 
 LLDLIBS		= $(PCP_PMDALIB)
 LCFLAGS		= $(INVISIBILITY)
@@ -68,7 +67,7 @@ default:	build-me
 include $(BUILDRULES)
 
 ifeq "$(TARGET_OS)" "linux"
-build-me: $(LIBTARGET) $(CMDTARGET) $(HELPTARGETS) $(LSRCFILES)
+build-me: $(LIBTARGET) $(CMDTARGET) $(HELPTARGETS) $(CONFTARGETS)
 	@if [ -f ../pmcd.conf ]; then \
 	    if [ `grep -c $(CONF_LINE) ../pmcd.conf` -eq 0 ]; then \
 		echo $(CONF_LINE) >> ../pmcd.conf ; \
@@ -104,7 +103,7 @@ $(OBJECTS): domain.h
 domain.h: ../../pmns/stdpmid
 	$(DOMAIN_MAKERULE)
 
-linux_kernel_ulong.conf linux_kernel_fixups.conf:	mk.rewrite
+$(CONFTARGETS):	mk.rewrite
 	CPP="$(CPP)" INCDIR="$(TOPDIR)/src/include" ./mk.rewrite
 
 interrupts.o pmda.o proc_partitions.o:	linux.h
@@ -135,4 +134,5 @@ pmda.o swapdev.o:	swapdev.h
 pmda.o sysfs_kernel.o:	sysfs_kernel.h
 pmda.o proc_buddyinfo.o:	proc_buddyinfo.h
 pmda.o proc_zoneinfo.o:	proc_zoneinfo.h
+pmda.o ksm.o:	ksm.h
 pmda.o:	$(VERSION_SCRIPT)

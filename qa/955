@@ -37,20 +37,6 @@ _count_leafs()
 			   else print "NO LEAFS"}'
 }
 
-_mk_proc_stat()
-{
-    path=$1
-    ncpu=$2
-
-    echo cpu 0 0 0 0 0 0 0 0 0 > $path
-    cpu=0
-    while [ $cpu -lt $ncpu ]
-    do
-	echo cpu$cpu 0 0 0 0 0 0 0 0 0 >> $path
-	cpu=`expr $cpu + 1`
-    done
-}
-
 # real QA test starts here
 machine=8cpu-x86_64
 pmdalinux=$PCP_PMDAS_DIR/linux/pmdalinux
@@ -62,7 +48,7 @@ export TERM=ansi
 mkdir -p $LINUX_STATSPATH/proc
 cp $here/linux/interrupts-$machine $LINUX_STATSPATH/proc/interrupts
 cp $here/linux/softirqs-$machine $LINUX_STATSPATH/proc/softirqs
-_mk_proc_stat $LINUX_STATSPATH/proc/stat $LINUX_NCPUS
+_make_proc_stat $LINUX_STATSPATH/proc/stat $LINUX_NCPUS
 
 # Test real regression that occured when updating dynamic metrics
 echo "=== Daemon PMDA linux static text then dynamic fetch test ==="

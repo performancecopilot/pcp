@@ -1,0 +1,2 @@
+export PS1="[$PCP_CONTAINER_IMAGE] "
+PATH=/usr/bin:$PATH

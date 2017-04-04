@@ -3280,6 +3280,8 @@ proc_init(pmdaInterface *dp)
 	proc_statspath = envpath;
     if ((envpath = getenv("PROC_THREADS")) != NULL)
 	threads = atoi(envpath);
+    if ((envpath = getenv("PROC_ACCESS")) != NULL)
+	all_access = atoi(envpath);
 
     if (_isDSO) {
 	char helppath[MAXPATHLEN];

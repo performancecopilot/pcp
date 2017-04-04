@@ -59,14 +59,14 @@ cleanup()
     if [ -f ${pmda_config}.$seq ]; then
 	_restore_config ${pmda_config}
     fi
-    # note: _restore_systemd_restart pmcd done in _cleanup_pmda()
+    # note: _restore_auto_restart pmcd done in _cleanup_pmda()
     _cleanup_pmda json
 }
 
 _prepare_pmda json
 trap "cleanup; exit \$status" 0 1 2 3 15
 
-_stop_systemd_restart pmcd
+_stop_auto_restart pmcd
 
 # Save the JSON pmda config.
 if [ -f ${pmda_config} ]; then

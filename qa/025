@@ -15,11 +15,11 @@ echo "QA output created by $seq"
 
 trap "_cleanup; rm -f $tmp.*; exit" 0 1 2 3 15
 
-_stop_systemd_restart pmcd
+_stop_auto_restart pmcd
 
 _cleanup()
 {
-    _restore_systemd_restart pmcd
+    _restore_auto_restart pmcd
 }
 
 # real QA test starts here
@@ -29,5 +29,4 @@ $sudo src/pmcdgone 2>&1 \
     -e '/__pmGetPDU: fd=3 BINARY hdr: Broken pipe/d' \
     -e '/pmLookupDesc:/s/Connection reset by peer/IPC protocol failure/' \
     -e '/pmReconnectContext:/s/Operation/Connection/' \
-| _filter_pcp_start \
-| sed -e '/^Stopping pmlogger/d'
+| _filter_pcp_start

@@ -38,8 +38,9 @@ _cleanup()
 	_restore_config $PCP_PMCDCONF_PATH
 	_restore_config $PCP_PMLOGGERCONTROL_PATH
 	needclean=false
-	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+	_service pcp restart | _filter_pcp_start
 	_wait_for_pmcd
+	_wait_for_pmlogger
 
 	# make sure bogus has gone away
 	echo
@@ -94,7 +95,7 @@ END			{ if (flag == 0) printline(); }'
 $sudo cp $tmp.pmcd.new $PCP_PMCDCONF_PATH
 
 # restart pmcd
-$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+_service pcp restart | _filter_pcp_start
 _wait_for_pmcd
 
 echo == $PCP_PMCDCONF_PATH >> $seq.full
