@@ -12,6 +12,8 @@ Build-Depends: bison, flex, gawk, procps, pkg-config, debhelper (>= 5), perl (>=
 Standards-Version: 3.9.3
 X-Python-Version: >= 2.6
 X-Python3-Version: >= 3.3
+Vcs-Browser: https://sources.progress-linux.org/distributions/dschinn-backports/packages/pcp
+Vcs-Git: https://sources.progress-linux.org/distributions/dschinn-backports/packages/pcp
 
 Package: pcp
 Depends: ${shlibs:Depends}, ${misc:Depends}, gawk, procps, libpcp-pmda-perl, python3-pcp | python-pcp, python3 | python, libpcp-web1
