@@ -148,6 +148,12 @@ AC_ARG_WITH([pmdajson],
     [do_pmdajson=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-pmdajson=$withval"],
     [do_pmdajson=check])
 
+AC_ARG_WITH([pmdanutcracker],
+    [AC_HELP_STRING([--with-pmdanutcracker],
+		   [enable nutcracker pmda (default is on)])],
+    [do_pmdanutcracker=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-pmdanutcracker=$withval"],
+    [do_pmdanutcracker=check])
+
 AC_ARG_WITH([pmdasnmp],
     [AC_HELP_STRING([--with-pmdasnmp],
 		   [enable SNMP pmda (default is on)])],
@@ -166,23 +172,11 @@ AC_ARG_WITH([webapi],
     [do_webapi=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-webapi=$withval"],
     [do_webapi=check])
 
-AC_ARG_WITH([webjs],
-    [AC_HELP_STRING([--with-webjs],
-                    [enable building of webjs packages (default is off)])],
-    [do_webjs=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-webjs=$withval"],
-    [do_webjs=no])
-
-AC_ARG_WITH([vector],
-    [AC_HELP_STRING([--with-vector],
-                    [enable building of vector package (default is off)])],
-    [do_vector=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-vector=$withval"],
-    [do_vector=no])
-
-AC_ARG_WITH([parfait],
-    [AC_HELP_STRING([--with-parfait],
-                    [enable building of parfait package (default is off)])],
-    [do_parfait=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-parfait=$withval"],
-    [do_parfait=no])
+AC_ARG_WITH([webapps],
+    [AC_HELP_STRING([--with-webapps],
+                    [enable building of webapp packages (default is off)])],
+    [do_webapps=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-webapps=$withval"],
+    [do_webapps=no])
 
 AC_ARG_WITH([selinux],
     [AC_HELP_STRING([--with-selinux],
@@ -1060,17 +1054,20 @@ if $pmda_bind2; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
 
 AC_MSG_CHECKING([if the nutcracker PMDA should be included])
 pmda_nutcracker=false
-if test "$have_perl" = true
-then
-    dnl rpm build for nutcracker PMDA needs Perl JSON YAML::XS
-    if $pcp_perl_prog -e "use YAML::XS" >/dev/null 2>&1
+AS_IF([test "x$do_pmdanutcracker" = "xyes"], [pmda_nutcracker=true])
+AS_IF([test "x$do_pmdanutcracker" = "xcheck"], [
+    dnl build for nutcracker PMDA needs perl JSON & YAML::XS modules
+    if test "$have_perl" = true
     then
-	if $pcp_perl_prog -e "use JSON" >/dev/null 2>&1
+	if $pcp_perl_prog -e "use YAML::XS" >/dev/null 2>&1
 	then
-	    pmda_nutcracker=true
+	    if $pcp_perl_prog -e "use JSON" >/dev/null 2>&1
+	    then
+		pmda_nutcracker=true
+	    fi
 	fi
     fi
-fi
+])
 AC_SUBST(PMDA_NUTCRACKER, $pmda_nutcracker)
 if $pmda_nutcracker; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
 
@@ -1849,14 +1846,17 @@ AS_IF([test "x$do_manager" != "xno"], [
 ])
 AC_SUBST(enable_manager)
 
+AC_CHECK_PROGS(SEINFO, seinfo)
+AC_SUBST(SEINFO)
 enable_selinux=false
 AS_IF([test "x$do_selinux" != "xno"], [
-    if test -f /usr/share/selinux/devel/Makefile
+for makefile in /usr/share/selinux/devel/Makefile
+do
+    if test -f "$makefile" -a "x$SEINFO" != "x"
     then
 	enable_selinux=true
-    else
-	AC_MSG_RESULT(no)
     fi
+done
 ])
 AC_SUBST(enable_selinux)
 AC_SUBST(pcp_selinux_dir)
@@ -3339,29 +3339,13 @@ AC_TRY_COMPILE(
 
 dnl Find external source tarballs for packaging
 
-have_parfait=false
-if test -f ./build/tar/parfait.tar.gz
+have_webapps=false
+if test $do_webapps != "no"
 then
-    AC_MSG_NOTICE([adding Parfait package to the build])
-    have_parfait=true
+    AC_MSG_NOTICE([adding web applications to the build])
+    have_webapps=true
 fi
-AC_SUBST(have_parfait)
-
-have_vector=false
-if test -f ./build/tar/vector.tar.gz
-then
-    AC_MSG_NOTICE([adding Vector webapp to the build])
-    have_vector=true
-fi
-AC_SUBST(have_vector)
-
-have_webjs=false
-if test -f ./build/tar/webjs.tar.gz
-then
-    AC_MSG_NOTICE([adding webjs webapps to the build])
-    have_webjs=true
-fi
-AC_SUBST(have_webjs)
+AC_SUBST(have_webapps)
 
 dnl Capture special options passed to configure
 AC_SUBST(PACKAGE_CONFIGURE)

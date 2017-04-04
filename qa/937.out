@@ -1,0 +1,174 @@
+QA output created by 937
+pmRegisterDerived: name="event.flags" expr="anon(PM_TYPE_U32)"
+derive_lex() -> type=L_ANON "anon"
+derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_NAME "PM_TYPE_U32"
+derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_EOS ""
+pmRegisterDerived: register metric[0] event.flags = anon(PM_TYPE_U32)
+Derived metric expr dump from <addr-0>...
+expr node <addr-0> type=ANON left=<addr-1> right=(nil) save_last=0
+expr node <addr-1> type=INTEGER left=(nil) right=(nil) save_last=0 [PM_TYPE_U32] master=1
+pmRegisterDerived: name="event.missed" expr="anon(PM_TYPE_U32)"
+derive_lex() -> type=L_ANON "anon"
+derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_NAME "PM_TYPE_U32"
+derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_EOS ""
+pmRegisterDerived: register metric[1] event.missed = anon(PM_TYPE_U32)
+Derived metric expr dump from <addr-2>...
+expr node <addr-2> type=ANON left=<addr-3> right=(nil) save_last=0
+expr node <addr-3> type=INTEGER left=(nil) right=(nil) save_last=0 [PM_TYPE_U32] master=1
+Derived metric initialization from $PCP_DERIVED_CONFIG
+pmLoadDerivedConfig("TMP.config")
+pmRegisterDerived: name="a.m1" expr="-12345"
+derive_lex() -> type=L_MINUS "-"
+derive_lex() -> type=L_INTEGER "12345"
+derive_lex() -> type=L_EOS ""
+pmRegisterDerived: register metric[2] a.m1 = -12345
+Derived metric expr dump from <addr-4>...
+expr node <addr-4> type=NEG left=<addr-5> right=(nil) save_last=0
+expr node <addr-5> type=INTEGER left=(nil) right=(nil) save_last=0 [12345] master=1
+pmRegisterDerived: name="a.m2" expr="-sample.dupnames.three.bin + sample.bin"
+derive_lex() -> type=L_MINUS "-"
+derive_lex() -> type=L_NAME "sample.dupnames.three.bin"
+derive_lex() -> type=L_PLUS "+"
+derive_lex() -> type=L_NAME "sample.bin"
+derive_lex() -> type=L_EOS ""
+pmRegisterDerived: register metric[3] a.m2 = -sample.dupnames.three.bin + sample.bin
+Derived metric expr dump from <addr-6>...
+expr node <addr-6> type=PLUS left=<addr-7> right=<addr-9> save_last=0
+expr node <addr-7> type=NEG left=<addr-8> right=(nil) save_last=0
+expr node <addr-8> type=NAME left=(nil) right=(nil) save_last=0 [sample.dupnames.three.bin] master=1
+expr node <addr-9> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=1
+pmRegisterDerived: name="a.m3" expr="- sampledso.long.hundred"
+derive_lex() -> type=L_MINUS "-"
+derive_lex() -> type=L_NAME "sampledso.long.hundred"
+derive_lex() -> type=L_EOS ""
+pmRegisterDerived: register metric[4] a.m3 = - sampledso.long.hundred
+Derived metric expr dump from <addr-10>...
+expr node <addr-10> type=NEG left=<addr-11> right=(nil) save_last=0
+expr node <addr-11> type=NAME left=(nil) right=(nil) save_last=0 [sampledso.long.hundred] master=1
+pmRegisterDerived: name="a.m4" expr="-sampledso.ulong.hundred"
+derive_lex() -> type=L_MINUS "-"
+derive_lex() -> type=L_NAME "sampledso.ulong.hundred"
+derive_lex() -> type=L_EOS ""
+pmRegisterDerived: register metric[5] a.m4 = -sampledso.ulong.hundred
+Derived metric expr dump from <addr-12>...
+expr node <addr-12> type=NEG left=<addr-13> right=(nil) save_last=0
+expr node <addr-13> type=NAME left=(nil) right=(nil) save_last=0 [sampledso.ulong.hundred] master=1
+pmRegisterDerived: name="a.m5" expr="-  sampledso.longlong.hundred"
+derive_lex() -> type=L_MINUS "-"
+derive_lex() -> type=L_NAME "sampledso.longlong.hundred"
+derive_lex() -> type=L_EOS ""
+pmRegisterDerived: register metric[6] a.m5 = -  sampledso.longlong.hundred
+Derived metric expr dump from <addr-14>...
+expr node <addr-14> type=NEG left=<addr-15> right=(nil) save_last=0
+expr node <addr-15> type=NAME left=(nil) right=(nil) save_last=0 [sampledso.longlong.hundred] master=1
+pmRegisterDerived: name="a.m6" expr="-(sampledso.ulonglong.hundred)"
+derive_lex() -> type=L_MINUS "-"
+derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_NAME "sampledso.ulonglong.hundred"
+derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_EOS ""
+pmRegisterDerived: register metric[7] a.m6 = -(sampledso.ulonglong.hundred)
+Derived metric expr dump from <addr-16>...
+expr node <addr-16> type=NEG left=<addr-17> right=(nil) save_last=0
+expr node <addr-17> type=NAME left=(nil) right=(nil) save_last=0 [sampledso.ulonglong.hundred] master=1
+pmRegisterDerived: name="a.m7" expr="-(sampledso.float.hundred+sampledso.float.hundred/sampledso.float.ten)"
+derive_lex() -> type=L_MINUS "-"
+derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_NAME "sampledso.float.hundred"
+derive_lex() -> type=L_PLUS "+"
+derive_lex() -> type=L_NAME "sampledso.float.hundred"
+derive_lex() -> type=L_SLASH "/"
+derive_lex() -> type=L_NAME "sampledso.float.ten"
+derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_EOS ""
+pmRegisterDerived: register metric[8] a.m7 = -(sampledso.float.hundred+sampledso.float.hundred/sampledso.float.ten)
+Derived metric expr dump from <addr-18>...
+expr node <addr-18> type=NEG left=<addr-19> right=(nil) save_last=0
+expr node <addr-19> type=PLUS left=<addr-20> right=<addr-21> save_last=0
+expr node <addr-20> type=NAME left=(nil) right=(nil) save_last=0 [sampledso.float.hundred] master=1
+expr node <addr-21> type=SLASH left=<addr-22> right=<addr-23> save_last=0
+expr node <addr-22> type=NAME left=(nil) right=(nil) save_last=0 [sampledso.float.hundred] master=1
+expr node <addr-23> type=NAME left=(nil) right=(nil) save_last=0 [sampledso.float.ten] master=1
+pmRegisterDerived: name="a.m8" expr="-sampledso.double.million/sampledso.float.ten/sampledso.float.hundred"
+derive_lex() -> type=L_MINUS "-"
+derive_lex() -> type=L_NAME "sampledso.double.million"
+derive_lex() -> type=L_SLASH "/"
+derive_lex() -> type=L_NAME "sampledso.float.ten"
+derive_lex() -> type=L_SLASH "/"
+derive_lex() -> type=L_NAME "sampledso.float.hundred"
+derive_lex() -> type=L_EOS ""
+pmRegisterDerived: register metric[9] a.m8 = -sampledso.double.million/sampledso.float.ten/sampledso.float.hundred
+Derived metric expr dump from <addr-24>...
+expr node <addr-24> type=NEG left=<addr-25> right=(nil) save_last=0
+expr node <addr-25> type=SLASH left=<addr-26> right=<addr-29> save_last=0
+expr node <addr-26> type=SLASH left=<addr-27> right=<addr-28> save_last=0
+expr node <addr-27> type=NAME left=(nil) right=(nil) save_last=0 [sampledso.double.million] master=1
+expr node <addr-28> type=NAME left=(nil) right=(nil) save_last=0 [sampledso.float.ten] master=1
+expr node <addr-29> type=NAME left=(nil) right=(nil) save_last=0 [sampledso.float.hundred] master=1
+pmRegisterDerived: name="a.m9" expr="-sampledso.string.hullo"
+derive_lex() -> type=L_MINUS "-"
+derive_lex() -> type=L_NAME "sampledso.string.hullo"
+derive_lex() -> type=L_EOS ""
+pmRegisterDerived: register metric[10] a.m9 = -sampledso.string.hullo
+Derived metric expr dump from <addr-30>...
+expr node <addr-30> type=NEG left=<addr-31> right=(nil) save_last=0
+expr node <addr-31> type=NAME left=(nil) right=(nil) save_last=0 [sampledso.string.hullo] master=1
+__dmopencontext: bind metric[0] event.flags
+__dmopencontext: bind metric[1] event.missed
+__dmgetpmid: metric "a.m1" -> PMID 511.0.3
+__dmopencontext: bind metric[2] a.m1
+__dmgetpmid: metric "a.m2" -> PMID 511.0.4
+__dmopencontext: bind metric[3] a.m2
+__dmgetpmid: metric "a.m3" -> PMID 511.0.5
+__dmopencontext: bind metric[4] a.m3
+__dmgetpmid: metric "a.m4" -> PMID 511.0.6
+__dmopencontext: bind metric[5] a.m4
+__dmgetpmid: metric "a.m5" -> PMID 511.0.7
+__dmopencontext: bind metric[6] a.m5
+__dmgetpmid: metric "a.m6" -> PMID 511.0.8
+__dmopencontext: bind metric[7] a.m6
+__dmgetpmid: metric "a.m7" -> PMID 511.0.9
+__dmopencontext: bind metric[8] a.m7
+__dmgetpmid: metric "a.m8" -> PMID 511.0.10
+__dmopencontext: bind metric[9] a.m8
+__dmgetpmid: metric "a.m9" -> PMID 511.0.11
+Semantic error: derived metric a.m9: - sampledso.string.hullo: Non-arithmetic operand for unary negation
+__dmtraverse: name="a" added "a.m1"
+__dmtraverse: name="a" added "a.m2"
+__dmtraverse: name="a" added "a.m3"
+__dmtraverse: name="a" added "a.m4"
+__dmtraverse: name="a" added "a.m5"
+__dmtraverse: name="a" added "a.m6"
+__dmtraverse: name="a" added "a.m7"
+__dmtraverse: name="a" added "a.m8"
+__dmtraverse: name="a", omitting invalid child "a.m9"
+__dmgetpmid: metric "a.m1" -> PMID 511.0.3
+__dmgetpmid: metric "a.m2" -> PMID 511.0.4
+__dmgetpmid: metric "a.m3" -> PMID 511.0.5
+__dmgetpmid: metric "a.m4" -> PMID 511.0.6
+__dmgetpmid: metric "a.m5" -> PMID 511.0.7
+__dmgetpmid: metric "a.m6" -> PMID 511.0.8
+__dmgetpmid: metric "a.m7" -> PMID 511.0.9
+__dmgetpmid: metric "a.m8" -> PMID 511.0.10
+a.m1 1 -12345
+a.m2 9 0 0 0 0 0 0 0 0 0
+a.m3 1 -100
+a.m4 1 -100
+a.m5 1 -100
+a.m6 1 -100
+a.m7 1 -110
+a.m8 1 -1000
+expecting ...
+a.m1	 -12345
+a.m2     0 0 0 0 0 0 0 0 0
+a.m3     -100
+a.m4     -100
+a.m5     -100
+a.m6     -100
+a.m7     -110
+a.m8     -1000
+a.m9     error

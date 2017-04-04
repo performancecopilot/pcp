@@ -699,7 +699,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
     int		i;
     int		j;
     int		k;
-    int		sts, sts1;
+    int		sts;
     double	t_req;
     double	t_this;
     pmResult	*rp;
@@ -810,6 +810,8 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 		/* enumerate all the instances from the domain underneath */
 		int		*instlist = NULL;
 		char		**namelist = NULL;
+		int		hsts = 0;
+
 		if (pcp->desc.indom == PM_INDOM_NULL) {
 		    sts = 1;
 		    if ((instlist = (int *)malloc(sizeof(int))) == NULL) {
@@ -821,10 +823,10 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 		    sts = pmGetInDomArchive(pcp->desc.indom, &instlist, &namelist);
 		    if (sts > 0) {
 			/* Pre allocate enough space for the instance domain. */
-			sts1 = __pmHashPreAlloc(sts, &pcp->hc);
-			if (sts1 < 0) {
+			hsts = __pmHashPreAlloc(sts, &pcp->hc);
+			if (hsts < 0) {
 			    free(pcp);
-			    return sts1;
+			    goto done_icp;
 			}
 		    }
 		}
@@ -839,16 +841,19 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 		    SET_UNDEFINED(icp->s_prior);
 		    SET_UNDEFINED(icp->s_next);
 		    icp->v_prior.pval = icp->v_next.pval = NULL;
-		    sts1 = __pmHashAdd((int)instlist[i], (void *)icp, &pcp->hc);
-		    if (sts1 < 0) {
+		    hsts = __pmHashAdd((int)instlist[i], (void *)icp, &pcp->hc);
+		    if (hsts < 0) {
 			free(icp);
-			return sts1;
+			goto done_icp;
 		    }
 		}
+	    done_icp:
 		if (instlist != NULL)
 		    free(instlist);
 		if (namelist != NULL)
 		    free(namelist);
+		if (hsts < 0)
+		    return hsts; /* hash allocation error */
 	    }
 	}
 	else

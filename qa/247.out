@@ -140,11 +140,12 @@ pmRegisterDerived: register metric[9] myname.h = disk.dev.total + sample.long.hu
 pmRegisterDerived: register metric[10] myname.i = sample.long.hundred - disk.dev.total
 pmRegisterDerived: register metric[11] myname.j = sample.mirage * sample.step_counter
 pmRegisterDerived: register metric[12] myname.k = sample.step_counter / sample.mirage_longlong
-pmRegisterDerived: register metric[13] myname.l = sample.bin + sample.darkness
-pmRegisterDerived: register metric[14] myname.gcov.a = 42 + sample.bad.unknown
-pmRegisterDerived: register metric[15] myname.gcov.b = (disk.all.total + disk.dev.total) + 42 
-pmRegisterDerived: register metric[16] myname.gcov.c = 42 - (disk.all.total + disk.dev.total)
-pmRegisterDerived: register metric[17] myname.gcov.d = (sample.bin + sample.darkness)+42
+pmRegisterDerived: register metric[13] myname.k2 = sample.mirage_longlong * sample.step_counter
+pmRegisterDerived: register metric[14] myname.l = sample.bin + sample.darkness
+pmRegisterDerived: register metric[15] myname.gcov.a = 42 + sample.bad.unknown
+pmRegisterDerived: register metric[16] myname.gcov.b = (disk.all.total + disk.dev.total) + 42 
+pmRegisterDerived: register metric[17] myname.gcov.c = 42 - (disk.all.total + disk.dev.total)
+pmRegisterDerived: register metric[18] myname.gcov.d = (sample.bin + sample.darkness)+42
 __dmopencontext: bind metric[0] event.flags
 __dmopencontext: bind metric[1] event.missed
 __dmgetpmid: metric "myname.a" -> PMID 511.0.3
@@ -170,15 +171,17 @@ __dmgetpmid: metric "myname.j" -> PMID 511.0.12
 Semantic error: derived metric myname.j: sample.mirage * sample.step_counter: Non-counter and not dimensionless for left operand
 __dmgetpmid: metric "myname.k" -> PMID 511.0.13
 Semantic error: derived metric myname.k: sample.step_counter / sample.mirage_longlong: Non-counter and not dimensionless for right operand
-__dmgetpmid: metric "myname.l" -> PMID 511.0.14
+__dmgetpmid: metric "myname.k2" -> PMID 511.0.14
+Semantic error: derived metric myname.k2: sample.mirage_longlong * sample.step_counter: Non-counter and not dimensionless for left operand
+__dmgetpmid: metric "myname.l" -> PMID 511.0.15
 Semantic error: derived metric myname.l: sample.bin + sample.darkness: Operands should have the same instance domain
-__dmgetpmid: metric "myname.gcov.a" -> PMID 511.0.15
+__dmgetpmid: metric "myname.gcov.a" -> PMID 511.0.16
 bind_expr: error: derived metric myname.gcov.a: operand (sample.bad.unknown [29.0.54]): Unknown or illegal metric identifier
-__dmgetpmid: metric "myname.gcov.b" -> PMID 511.0.16
+__dmgetpmid: metric "myname.gcov.b" -> PMID 511.0.17
 Semantic error: derived metric myname.gcov.b: <expr> + 42: Illegal operator for counter and non-counter
-__dmgetpmid: metric "myname.gcov.c" -> PMID 511.0.17
+__dmgetpmid: metric "myname.gcov.c" -> PMID 511.0.18
 Semantic error: derived metric myname.gcov.c: 42 - <expr>: Illegal operator for non-counter and counter
-__dmgetpmid: metric "myname.gcov.d" -> PMID 511.0.18
+__dmgetpmid: metric "myname.gcov.d" -> PMID 511.0.19
 Semantic error: derived metric myname.gcov.d: sample.bin + sample.darkness: Operands should have the same instance domain
 __dmtraverse: name="myname", omitting invalid child "myname.a"
 __dmtraverse: name="myname", omitting invalid child "myname.b"
@@ -191,6 +194,7 @@ __dmtraverse: name="myname", omitting invalid child "myname.h"
 __dmtraverse: name="myname", omitting invalid child "myname.i"
 __dmtraverse: name="myname", omitting invalid child "myname.j"
 __dmtraverse: name="myname", omitting invalid child "myname.k"
+__dmtraverse: name="myname", omitting invalid child "myname.k2"
 __dmtraverse: name="myname", omitting invalid child "myname.l"
 __dmtraverse: name="myname", omitting invalid child "myname.gcov.a"
 __dmtraverse: name="myname", omitting invalid child "myname.gcov.b"

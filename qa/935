@@ -1,0 +1,109 @@
+#!/bin/sh
+# PCP QA Test No. 935
+# derived metrics - operator precedence
+#
+# Copyright (c) 2017 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# Derived metric expr dump from 0x8513a48...
+# expr node 0x867eb68 type=PLUS left=0x867eb98 right=0x867ed28
+_filter()
+{
+    awk <$tmp.out >$tmp.sed '
+BEGIN				{ n = 0 }
+$1 == "expr" && $2 == "node" && $3 ~ /^0x/	{ print "s/" $3 "/<addr-" n ">/"; n++ }
+				{ next }'
+    sed -f $tmp.sed <$tmp.out \
+    | sed \
+	-e '/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]/s/[^ ]*.*numpmid/TIMESTAMP ... numpmid/' \
+	-e 's/=0x0 /=(nil) /g' \
+	-e "s;$tmp;TMP;"
+}
+
+# real QA test starts here
+
+cat <<End-of-File >$tmp.config
+a.m1 = sample.long.ten + sample.long.hundred / sample.long.ten
+a.m2 = (sample.long.ten + sample.long.hundred) / sample.long.ten
+a.m3 = sample.long.ten * sample.long.ten == sample.long.hundred
+a.m4 = sample.long.ten * sample.long.ten + sample.long.ten * sample.long.ten
+a.m5 = sample.long.ten + sample.long.ten == sample.long.ten + sample.long.ten
+a.m6 = sample.long.ten + (sample.long.ten >= sample.long.ten) + sample.long.ten
+a.m7 = sample.long.ten * sample.long.ten == sample.long.hundred * sample.long.ten / 10
+a.m8 = (9 + 1) * sample.long.ten * sample.long.ten == sample.long.hundred * sample.long.ten
+a.m9 = (1 + sample.long.ten) * (sample.long.ten - 1) / (2 * sample.long.ten - 9)
+a.m10 = (sample.long.one + sample.long.ten) * (sample.long.ten - sample.long.one)
+a.m11 = (sample.long.hundred > sample.long.ten)
+a.m12 = (sample.long.hundred > sample.long.ten) + (sample.long.ten <= sample.long.ten)
+a.m13 = (sample.long.hundred > sample.long.ten) + (sample.long.ten <= sample.long.ten) + (sample.long.hundred != 99)
+a.m14 = sample.long.hundred > sample.long.ten == sample.long.one
+a.m15 = sample.double.million == 1000000 && sample.long.hundred == 100
+a.m16 = sample.double.million == sample.long.one || sample.long.hundred >= 100
+a.m17 = 0 + 2 * sample.long.one
+a.m18 = 0 * 2 + sample.long.one
+a.m19 = 123 >= 0 * 2 + sample.long.hundred + sample.float.ten + sample.double.ten
+a.m20 = sample.double.million != sample.long.one
+a.m21 = 1 >= 0 * 2 + sample.long.one
+a.m22 = sample.long.hundred >= 10 * sample.longlong.ten
+a.m23 = sample.ulonglong.hundred <= sample.longlong.ten + 91
+a.m24 = sample.long.hundred >= 10 * sample.longlong.ten && sample.ulonglong.hundred <= sample.longlong.ten + 91
+a.m25 = sample.long.hundred >= 10 && sample.long.hundred == 100 || sample.long.hundred < 101 && sample.long.hundred > 100
+a.m26 = ((sample.long.hundred >= 10 && sample.long.hundred == 100) || sample.long.hundred < 101) && sample.long.hundred > 100
+End-of-File
+
+export PCP_DERIVED_CONFIG=$tmp.config
+
+pmprobe -Dderive,appl0 -v a >$tmp.out 2>&1
+_filter
+
+echo "expecting ..."
+cat <<End-of-File
+a.m1	 20
+a.m2	 11
+a.m3	  1
+a.m4	200
+a.m5	  1
+a.m6	 21
+a.m7	  1
+a.m8	  1
+a.m9	  9
+a.m10	 99
+a.m11	  1
+a.m12	  2
+a.m13	  3
+a.m14	  1
+a.m15	  1
+a.m16	  1
+a.m17	  2
+a.m18	  1
+a.m19	  1
+a.m20	  1
+a.m21	  1
+a.m22	  1
+a.m23     1
+a.m24     1
+a.m25     0
+a.m26     0
+End-of-File
+
+# success, all done
+status=0
+exit

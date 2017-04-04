@@ -938,6 +938,8 @@ static PyObject *
 usageMessage(PyObject *self, PyObject *args)
 {
     pmUsageMessage(&options);
+    if (options.flags & PM_OPTFLAG_EXIT)
+	exit(0);
     Py_INCREF(Py_None);
     return Py_None;
 }

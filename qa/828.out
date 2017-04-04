@@ -4,45 +4,45 @@ QA output created by 828
 Note: timezone set to local timezone of host "sourceware.org" from archive
 
 Tue Jun 10 00:51:52 2014
-60.2.0: 0 values
-60.0.32: 0 values
-60.0.28: 0 values
+kernel.all.load (60.2.0): No values
+hinv.ncpu (60.0.32): No values
+disk.dev.total (60.0.28): No values
 Tue Jun 10 00:52:07 2014
-60.2.0: 0 values
-60.0.32: 1 values
-60.0.28: 0 values
+kernel.all.load (60.2.0): No values
+hinv.ncpu (60.0.32): 1 value
+disk.dev.total (60.0.28): No values
 Tue Jun 10 00:52:22 2014
-60.2.0: 0 values
-60.0.32: 1 values
-60.0.28: 0 values
+kernel.all.load (60.2.0): No values
+hinv.ncpu (60.0.32): 1 value
+disk.dev.total (60.0.28): No values
 Tue Jun 10 00:52:37 2014
-60.2.0: 0 values
-60.0.32: 1 values
-60.0.28: 0 values
+kernel.all.load (60.2.0): No values
+hinv.ncpu (60.0.32): 1 value
+disk.dev.total (60.0.28): No values
 Tue Jun 10 00:52:52 2014
-60.2.0: 3 values
-60.0.32: 1 values
-60.0.28: 10 values
+kernel.all.load (60.2.0): 3 values
+hinv.ncpu (60.0.32): 1 value
+disk.dev.total (60.0.28): 10 values
 Tue Jun 10 00:53:07 2014
-60.2.0: 3 values
-60.0.32: 1 values
-60.0.28: 10 values
+kernel.all.load (60.2.0): 3 values
+hinv.ncpu (60.0.32): 1 value
+disk.dev.total (60.0.28): 10 values
 Tue Jun 10 00:53:22 2014
-60.2.0: 3 values
-60.0.32: 1 values
-60.0.28: 10 values
+kernel.all.load (60.2.0): 3 values
+hinv.ncpu (60.0.32): 1 value
+disk.dev.total (60.0.28): 10 values
 Tue Jun 10 00:53:37 2014
-60.2.0: 3 values
-60.0.32: 1 values
-60.0.28: 10 values
+kernel.all.load (60.2.0): 3 values
+hinv.ncpu (60.0.32): 1 value
+disk.dev.total (60.0.28): 10 values
 Tue Jun 10 00:53:52 2014
-60.2.0: 3 values
-60.0.32: 1 values
-60.0.28: 10 values
+kernel.all.load (60.2.0): 3 values
+hinv.ncpu (60.0.32): 1 value
+disk.dev.total (60.0.28): 10 values
 Tue Jun 10 00:54:07 2014
-60.2.0: 3 values
-60.0.32: 1 values
-60.0.28: 10 values
+kernel.all.load (60.2.0): 3 values
+hinv.ncpu (60.0.32): 1 value
+disk.dev.total (60.0.28): 10 values
 === std err ===
 __pmFindPDUBuf(DEBUG)
 __pmFindPDUBuf(DEBUG)
@@ -67,45 +67,45 @@ ERROR SUMMARY: 0 errors from 0 contexts ...
 Note: timezone set to local timezone of host "sourceware.org" from archive
 
 Tue Jun 10 00:51:52 2014
-60.2.0: 0 values
-60.0.32: 0 values
-60.0.28: 0 values
+kernel.all.load (60.2.0): No values
+hinv.ncpu (60.0.32): No values
+disk.dev.total (60.0.28): No values
 Tue Jun 10 00:52:07 2014
-60.2.0: 0 values
-60.0.32: 1 values
-60.0.28: 0 values
+kernel.all.load (60.2.0): No values
+hinv.ncpu (60.0.32): 1 value
+disk.dev.total (60.0.28): No values
 Tue Jun 10 00:52:22 2014
-60.2.0: 0 values
-60.0.32: 1 values
-60.0.28: 0 values
+kernel.all.load (60.2.0): No values
+hinv.ncpu (60.0.32): 1 value
+disk.dev.total (60.0.28): No values
 Tue Jun 10 00:52:37 2014
-60.2.0: 0 values
-60.0.32: 1 values
-60.0.28: 0 values
+kernel.all.load (60.2.0): No values
+hinv.ncpu (60.0.32): 1 value
+disk.dev.total (60.0.28): No values
 Tue Jun 10 00:52:52 2014
-60.2.0: 3 values
-60.0.32: 1 values
-60.0.28: 10 values
+kernel.all.load (60.2.0): 3 values
+hinv.ncpu (60.0.32): 1 value
+disk.dev.total (60.0.28): 10 values
 Tue Jun 10 00:53:07 2014
-60.2.0: 3 values
-60.0.32: 1 values
-60.0.28: 10 values
+kernel.all.load (60.2.0): 3 values
+hinv.ncpu (60.0.32): 1 value
+disk.dev.total (60.0.28): 10 values
 Tue Jun 10 00:53:22 2014
-60.2.0: 3 values
-60.0.32: 1 values
-60.0.28: 10 values
+kernel.all.load (60.2.0): 3 values
+hinv.ncpu (60.0.32): 1 value
+disk.dev.total (60.0.28): 10 values
 Tue Jun 10 00:53:37 2014
-60.2.0: 3 values
-60.0.32: 1 values
-60.0.28: 10 values
+kernel.all.load (60.2.0): 3 values
+hinv.ncpu (60.0.32): 1 value
+disk.dev.total (60.0.28): 10 values
 Tue Jun 10 00:53:52 2014
-60.2.0: 3 values
-60.0.32: 1 values
-60.0.28: 10 values
+kernel.all.load (60.2.0): 3 values
+hinv.ncpu (60.0.32): 1 value
+disk.dev.total (60.0.28): 10 values
 Tue Jun 10 00:54:07 2014
-60.2.0: 3 values
-60.0.32: 1 values
-60.0.28: 10 values
+kernel.all.load (60.2.0): 3 values
+hinv.ncpu (60.0.32): 1 value
+disk.dev.total (60.0.28): 10 values
 === std err ===
 __pmFindPDUBuf(DEBUG)
 __pmFindPDUBuf(DEBUG)

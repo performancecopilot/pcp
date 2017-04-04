@@ -16,7 +16,7 @@
 .\"
 .TH PMPARSEUNITSSTR 3 "PCP" "Performance Co-Pilot"
 .SH NAME
-\f3pmParseUnitsStr\f1 \- parse time point specification
+\f3pmParseUnitsStr\f1 \- parse units specification
 .SH "C SYNOPSIS"
 .ft 3
 #include <pcp/pmapi.h>
@@ -34,7 +34,8 @@ cc ... \-lpcp
 .ft 1
 .SH DESCRIPTION
 .B pmParseUnitsStr
-is designed to encapsulate the interpretation of a unit/scale specification in
+is designed to encapsulate the interpretation of a units
+(dimension and scale) specification in
 command line switches for use by the PCP client tools.
 .P
 This function expects to be called with the unit/scale specification as

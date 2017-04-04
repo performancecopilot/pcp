@@ -1,24 +1,24 @@
+Name:    pcp
+Version: 3.11.9
+Release: 1%{?dist}
 Summary: System-level performance monitoring and performance management
-Name: pcp
-Version: 3.11.8
-%global buildversion 1
-
-Release: %{buildversion}%{?dist}
 License: GPLv2+ and LGPLv2.1+ and CC-BY
-URL: http://www.pcp.io
-Group: Applications/System
-# https://bintray.com/artifact/download/pcp/source/pcp-%{version}.src.tar.gz
-Source0: %{name}-%{version}.src.tar.gz
-# https://bintray.com/artifact/download/netflixoss/downloads/vector.tar.gz
-Source1: vector-1.1.0.tar.gz
-# https://github.com/performancecopilot/pcp-webjs/archive/x.y.z.tar.gz
-Source2: pcp-webjs-3.11.8.tar.gz
+URL:     http://www.pcp.io
+Group:   Applications/System
 
+%global  bintray https://bintray.com/artifact/download
+%global  github https://github.com/performancecopilot
 
-%if 0%{?fedora} && 0%{?rhel}
-%global disable_selinux 1
-%else
+Source0: %{bintray}/download/pcp/source/pcp-%{version}.src.tar.gz
+Source1: %{github}/pcp-webapp-vector/archive/1.1.2/pcp-webapp-vector-1.1.2.tar.gz
+Source2: %{github}/pcp-webapp-grafana/archive/1.9.1/pcp-webapp-grafana-1.9.1.tar.gz
+Source3: %{github}/pcp-webapp-graphite/archive/0.9.10/pcp-webapp-graphite-0.9.10.tar.gz
+Source4: %{github}/pcp-webapp-blinkenlights/archive/1.0.0/pcp-webapp-blinkenlights-1.0.0.tar.gz
+
+%if 0%{?fedora} || 0%{?rhel}
 %global disable_selinux 0
+%else
+%global disable_selinux 1
 %endif
 
 %global disable_snmp 0
@@ -68,6 +68,13 @@ Source2: pcp-webjs-3.11.8.tar.gz
 %endif
 %else
 %global disable_json 1
+%endif
+
+# support for pmdanutcracker (perl deps missing on rhel)
+%if 0%{?rhel} == 0
+%global disable_nutcracker 0
+%else
+%global disable_nutcracker 1
 %endif
 
 # support for pmdarpm
@@ -228,6 +235,12 @@ Obsoletes: pcp-gui-debuginfo
 %global _with_json --with-pmdajson=yes
 %endif
 
+%if %{disable_nutcracker}
+%global _with_nutcracker --with-pmdanutcracker=no
+%else
+%global _with_nutcracker --with-pmdanutcracker=yes
+%endif
+
 %if %{disable_snmp}
 %global _with_snmp --with-pmdasnmp=no
 %else
@@ -367,10 +380,12 @@ HTTP (PMWEBAPI) protocol.
 %package webjs
 License: ASL2.0 and MIT and CC-BY
 Group: Applications/Internet
+Conflicts: pcp-webjs < 3.11.9
 %if !%{disable_noarch}
 BuildArch: noarch
 %endif
-Requires: pcp-webapp-graphite pcp-webapp-grafana pcp-webapp-vector
+Requires: pcp-webapp-vector pcp-webapp-blinkenlights
+Requires: pcp-webapp-graphite pcp-webapp-grafana
 Summary: Performance Co-Pilot (PCP) web applications
 URL: http://www.pcp.io
 
@@ -425,6 +440,19 @@ Graphite is a highly scalable real-time graphing system. This package
 provides a graphite version that uses the Performance Co-Pilot (PCP)
 as the data repository, and Graphites web interface renders it. The
 Carbon and Whisper subsystems of Graphite are not included nor used.
+
+%package webapp-blinkenlights
+License: ASL2.0
+Group: Applications/Internet
+%if !%{disable_noarch}
+BuildArch: noarch
+%endif
+Summary: Blinking lights web application for Performance Co-Pilot (PCP)
+URL: http://pcp.io
+
+%description webapp-blinkenlights
+Demo web application showing traffic lights that change colour based
+on the periodic evaluation of performance metric expressions.
 
 #
 # perl-PCP-PMDA. This is the PCP agent perl binding.
@@ -730,6 +758,7 @@ This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics from Redis servers (redis.io).
 #end pcp-pmda-redis
 
+%if !%{disable_nutcracker}
 #
 # pcp-pmda-nutcracker
 #
@@ -746,6 +775,7 @@ Requires: perl(JSON)
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics from NutCracker (TwemCache).
 #end pcp-pmda-nutcracker
+%endif
 
 #
 # pcp-pmda-bonding
@@ -1638,7 +1668,10 @@ Requires: pcp-pmda-samba pcp-pmda-slurm pcp-pmda-vmware pcp-pmda-zimbra
 Requires: pcp-pmda-dm pcp-pmda-apache
 Requires: pcp-pmda-bash pcp-pmda-cisco pcp-pmda-gfs2 pcp-pmda-lmsensors pcp-pmda-mailq pcp-pmda-mounts
 Requires: pcp-pmda-nvidia-gpu pcp-pmda-roomtemp pcp-pmda-sendmail pcp-pmda-shping
-Requires: pcp-pmda-lustrecomm pcp-pmda-logger pcp-pmda-docker pcp-pmda-bind2 pcp-pmda-nutcracker
+Requires: pcp-pmda-lustrecomm pcp-pmda-logger pcp-pmda-docker pcp-pmda-bind2
+%if !%{disable_nutcracker}
+Requires: pcp-pmda-nutcracker
+%endif
 %if !%{disable_python2} || !%{disable_python3}
 Requires: pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound pcp-pmda-mic pcp-pmda-libvirt pcp-pmda-lio
 %endif
@@ -1796,6 +1829,11 @@ Group: Applications/System
 Summary: Selinux policy package
 URL: http://www.pcp.io
 BuildRequires: selinux-policy-devel
+%if 0%{?rhel} == 5
+BuildRequires: setools
+%else
+BuildRequires: setools-console
+%endif
 Requires: policycoreutils
 Requires: pcp = %{version}-%{release}
 
@@ -1806,9 +1844,11 @@ updated policy package.
 %endif
 
 %prep
+%setup -q -T -D -a 1 -c -n vector
+%setup -q -T -D -a 2 -c -n grafana
+%setup -q -T -D -a 3 -c -n graphite
+%setup -q -T -D -a 4 -c -n blinkenlights
 %setup -q
-%setup -q -T -D -a 1 -c -n pcp-%{version}/vector
-%setup -q -T -D -a 2
 
 %clean
 rm -Rf $RPM_BUILD_ROOT
@@ -1817,7 +1857,7 @@ rm -Rf $RPM_BUILD_ROOT
 %if !%{disable_python2} && 0%{?default_python} != 3
 export PYTHON=python%{?default_python}
 %endif
-%configure %{?_with_initd} %{?_with_doc} %{?_with_ib} %{?_with_papi} %{?_with_perfevent} %{?_with_json} %{?_with_snmp}
+%configure %{?_with_initd} %{?_with_doc} %{?_with_ib} %{?_with_papi} %{?_with_perfevent} %{?_with_json} %{?_with_snmp} %{?_with_nutcracker}
 make %{?_smp_mflags} default_pcp
 
 %install
@@ -1843,12 +1883,11 @@ rm -fr $RPM_BUILD_ROOT/%{_initddir}/pmwebd
 rm -fr $RPM_BUILD_ROOT/%{_unitdir}/pmwebd.service
 rm -f $RPM_BUILD_ROOT/%{_libexecdir}/pcp/bin/pmwebd
 %endif
-# prefer latest released Netflix version over pcp-webjs copy.
-rm -fr pcp-webjs/vector
-sed -i -e 's/vector [0-9]\.[0-9]*\.[0-9]*/vector/g' pcp-webjs/index.html
-mv pcp-webjs/* $RPM_BUILD_ROOT/%{_datadir}/pcp/webapps
-rmdir pcp-webjs
-mv vector $RPM_BUILD_ROOT/%{_datadir}/pcp/webapps
+for app in vector grafana graphite blinkenlights; do
+    pwd
+    webapp=`find ../$app -mindepth 1 -maxdepth 1`
+    mv $webapp $RPM_BUILD_ROOT/%{_datadir}/pcp/webapps/$app
+done
 
 %if %{disable_infiniband}
 # remove pmdainfiniband on platforms lacking IB devel packages.
@@ -1960,13 +1999,13 @@ ls -1 $RPM_BUILD_ROOT/%{_bindir} |\
   grep -E 'pmiostat|pmcollectl|pmatop|pmrep' |\
   sed -e 's#^#'%{_bindir}'\/#' >pcp_system_tools.list
 ls -1 $RPM_BUILD_ROOT/%{_libexecdir}/pcp/bin |\
-  grep -E 'atop|collectl|dmcache|free|iostat|mpstat|numastat|pidstat|verify|uptime|shping' |\
+  grep -E 'atop|collectl|dmcache|free|iostat|mpstat|numastat|pidstat|tapestat|verify|uptime|shping' |\
   sed -e 's#^#'%{_libexecdir}/pcp/bin'\/#' >>pcp_system_tools.list
 %endif
 
 ls -1 $RPM_BUILD_ROOT/%{_libexecdir}/pcp/bin |\
 %if !%{disable_python2} || !%{disable_python3}
-  grep -E -v 'atop|collectl|dmcache|free|iostat|mpstat|numastat|pidstat|verify|uptime|shping' |\
+  grep -E -v 'atop|collectl|dmcache|free|iostat|mpstat|numastat|pidstat|tapestat|verify|uptime|shping' |\
 %endif
   sed -e 's#^#'%{_libexecdir}/pcp/bin'\/#' >base_exec.list
 ls -1 $RPM_BUILD_ROOT/%{_booksdir} |\
@@ -2202,8 +2241,10 @@ fi
 %preun pmda-nfsclient
 %{pmda_remove "$1" "nfsclient"}
 
+%if !%{disable_nutcracker}
 %preun pmda-nutcracker
 %{pmda_remove "$1" "nutcracker"}
+%endif
 
 %preun pmda-pdns
 %{pmda_remove "$1" "pdns"}
@@ -2360,10 +2401,28 @@ chown -R pcp:pcp %{_logsdir}/pmmgr 2>/dev/null
 %if !%{disable_selinux}
 %post selinux
 %if 0%{?fedora} >= 24 || 0%{?rhel} > 6
-    semodule -X 400 -i %{localstatedir}/lib/pcp/selinux/pcpupstream.pp
+    semodule -X 400 -i %{_selinuxdir}/pcpupstream.pp
 %else
-    semodule -i %{localstatedir}/lib/pcp/selinux/pcpupstream.pp
+    semodule -i %{_selinuxdir}/pcpupstream.pp
 %endif #distro version check
+%triggerin selinux -- docker-selinux
+if ls %{_selinuxdir} | grep -q docker 2>/dev/null
+then
+%if 0%{?fedora} >= 24 || 0%{?rhel} > 6
+    semodule -X 400 -i %{_selinuxdir}/pcpupstream-docker.pp
+%else
+    semodule -i %{_selinuxdir}/pcpupstream-docker.pp
+%endif #distro version check
+fi
+%triggerin selinux -- container-selinux
+if ls %{_selinuxdir} | grep -q container 2>/dev/null
+then
+%if 0%{?fedora} >= 24 || 0%{?rhel} > 6
+    semodule -X 400 -i %{_selinuxdir}/pcpupstream-container.pp
+%else
+    semodule -i %{_selinuxdir}/pcpupstream-container.pp
+%endif #distro version check
+fi
 %endif
 
 %post
@@ -2426,12 +2485,34 @@ cd
 %postun libs -p /sbin/ldconfig
 
 %if !%{disable_selinux}
-%postun selinux
+%preun selinux
+if [ `semodule -l | grep pcpupstream` ]
+then
 %if 0%{?fedora} >= 24 || 0%{?rhel} > 6
     semodule -X 400 -r pcpupstream >/dev/null
 %else
     semodule -r pcpupstream >/dev/null
 %endif
+fi
+%triggerun selinux -- docker-selinux
+if [ `semodule -l | grep pcpupstream-docker` ]
+then
+%if 0%{?fedora} >= 24 || 0%{?rhel} > 6
+    semodule -X 400 -r pcpupstream-docker
+%else
+semodule -r pcpupstream-docker
+%endif #distro version check
+fi
+
+%triggerun selinux -- container-selinux
+if [ `semodule -l | grep pcpupstream-container` ]
+then
+%if 0%{?fedora} >= 24 || 0%{?rhel} > 6
+    semodule -X 400 -r pcpupstream-container
+%else
+    semodule -r pcpupstream-container
+%endif #distro version check
+fi
 %endif
 %files -f base.list
 #
@@ -2588,7 +2669,10 @@ cd
 %{_datadir}/pcp/webapps/*.png
 %{_datadir}/pcp/webapps/*.ico
 %{_datadir}/pcp/webapps/*.html
-%{_datadir}/pcp/webapps/*.txt
+
+%files webapp-blinkenlights
+%dir %{_datadir}/pcp
+%dir %{_datadir}/pcp/webapps
 %{_datadir}/pcp/webapps/blinkenlights
 
 %files webapp-grafana
@@ -2711,8 +2795,10 @@ cd
 %files pmda-nfsclient
 %{_pmdasdir}/nfsclient
 
+%if !%{disable_nutcracker}
 %files pmda-nutcracker
 %{_pmdasdir}/nutcracker
+%endif
 
 %files pmda-oracle
 %{_pmdasdir}/oracle
@@ -2881,7 +2967,13 @@ cd
 %endif
 
 %changelog
-* Fri Jan 17 2017 Lukas Berk <lberk@redhat.com> - 3.11.8-1
+* Fri Mar 31 2017 Nathan Scott <nathans@redhat.com> - 3.11.9-1
+- Fix pmchart chart legends toggling behaviour (BZ 1359961)
+- Improve multiple local context attr handling (BZ 1430248)
+- Fix error during installation of pcp-selinux (BZ 1433271)
+- Update to latest PCP Sources.
+
+* Fri Feb 17 2017 Lukas Berk <lberk@redhat.com> - 3.11.8-1
 - Support newer kernels /proc/vmstat file contents (BZ 1396148)
 - Added pcp-selinux policy (BZs 1214090, 1381127, 1337968, 1398147)
 

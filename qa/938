@@ -1,0 +1,93 @@
+#!/bin/sh
+# PCP QA Test No. 938
+# derived metrics - ternary expressions
+#
+# Copyright (c) 2017 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# Derived metric expr dump from 0x8513a48...
+# expr node 0x867eb68 type=PLUS left=0x867eb98 right=0x867ed28
+_filter()
+{
+    awk <$tmp.out >$tmp.sed '
+BEGIN				{ n = 0 }
+$1 == "expr" && $2 == "node" && $3 ~ /^0x/	{ print "s/" $3 "/<addr-" n ">/"; n++ }
+				{ next }'
+    sed -f $tmp.sed <$tmp.out \
+    | sed \
+	-e '/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]/s/[^ ]*.*numpmid/TIMESTAMP ... numpmid/' \
+	-e 's/=0x0 /=(nil) /g' \
+	-e "s;$tmp;TMP;"
+}
+
+# real QA test starts here
+
+cat <<End-of-File >$tmp.config
+a.m1 = sample.long.one == 1 ? sample.ulonglong.ten : sample.ulonglong.hundred
+a.m2 = sample.long.one != 1 ? sample.ulonglong.ten : sample.ulonglong.hundred
+a.m3 = sample.bin > 400 ? sample.bin-sample.bin : sample.bin
+a.m4 = sample.bin > 400 ? sample.long.ten : sample.bin
+# singular ? indom : indom
+a.m5 = sample.long.one < 0 ? sample.bin-sample.bin : sample.bin
+# indom ? singular : indom
+a.m6 = sample.bin!=100 && sample.bin!=900 && sample.bin!=500 ? sample.long.ten : sample.bin
+# indom ? indom : singular
+a.m7 = sample.bin==100 || sample.bin==900 || sample.bin==500 ? sample.bin : sample.long.ten
+# error cases
+a.err.m1 = sample.bin > 400 ? sample.longlong.ten : sample.bin
+a.err.m2 = sample.long.one ? sample.byte_ctr : sample.kbyte_ctr
+a.err.m3 = sample.long.one ? sample.bin : sample.lights
+a.err.m4 = sample.long.one ? sample.bin : sample.colour
+a.err.m5 = sample.long.one ? sample.seconds : sample.ulong.ten
+a.err.m6 = sample.long.one ? sample.byte_rate : sample.byte_rate_perhour
+a.err.m7 = sample.long.one ? sample.long.hundred : sample.step
+a.err.m8 = sample.colour > 200 ? sample.ulong.hundred : sample.ulong.ten
+a.err.m9 = sample.string.hullo ? 1 : 2
+End-of-File
+
+export PCP_DERIVED_CONFIG=$tmp.config
+
+pminfo -Dderive,appl0,appl1 -fd a >$tmp.out 2>&1
+_filter
+
+echo "expecting ..."
+cat <<End-of-File
+a.m1		10
+a.m2		100
+a.m3		100 200 300 400 0 0 0 0 0
+a.m4		100 200 300 400 10 10 10 10 10
+a.m5		100 200 300 400 500 600 700 800 900
+a.m6		100 10 10 10 500 10 10 10 900
+a.m7		100 10 10 10 500 10 10 10 900
+a.err.m1	<expr2> and <expr3> different types
+a.err.m2	<expr2> and <expr3> different units (space)
+a.err.m3	<expr2> and <expr3> different types
+a.err.m4	<expr2> and <expr3> different indoms
+a.err.m5	<expr2> and <expr3> different semantics
+a.err.m6	<expr2> and <expr3> different units (time)
+a.err.m7	<expr2> and <expr3> different units (count)
+a.err.m8	<expr1> with indom, <expr2> and <expr3> singular
+a.err.m9	<expr1> not arithmetic
+End-of-File
+
+# success, all done
+status=0
+exit

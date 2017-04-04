@@ -1,0 +1,75 @@
+#!/bin/sh
+# PCP QA Test No. 937
+# derived metrics - unary negation
+#
+# Copyright (c) 2017 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# Derived metric expr dump from 0x8513a48...
+# expr node 0x867eb68 type=PLUS left=0x867eb98 right=0x867ed28
+_filter()
+{
+    awk <$tmp.out >$tmp.sed '
+BEGIN				{ n = 0 }
+$1 == "expr" && $2 == "node" && $3 ~ /^0x/	{ print "s/" $3 "/<addr-" n ">/"; n++ }
+				{ next }'
+    sed -f $tmp.sed <$tmp.out \
+    | sed \
+	-e '/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]/s/[^ ]*.*numpmid/TIMESTAMP ... numpmid/' \
+	-e 's/=0x0 /=(nil) /g' \
+	-e "s;$tmp;TMP;"
+}
+
+# real QA test starts here
+
+cat <<End-of-File >$tmp.config
+a.m1 = -12345
+a.m2 = -sample.dupnames.three.bin + sample.bin
+a.m3 = - sampledso.long.hundred
+a.m4 = -sampledso.ulong.hundred
+a.m5 =   -  sampledso.longlong.hundred
+a.m6 = -(sampledso.ulonglong.hundred)
+a.m7 = -(sampledso.float.hundred+sampledso.float.hundred/sampledso.float.ten)
+a.m8 = -sampledso.double.million/sampledso.float.ten/sampledso.float.hundred
+a.m9 = -sampledso.string.hullo
+End-of-File
+
+export PCP_DERIVED_CONFIG=$tmp.config
+
+pmprobe -Dderive,appl0 -v a >$tmp.out 2>&1
+_filter
+
+echo "expecting ..."
+cat <<End-of-File
+a.m1	 -12345
+a.m2     0 0 0 0 0 0 0 0 0
+a.m3     -100
+a.m4     -100
+a.m5     -100
+a.m6     -100
+a.m7     -110
+a.m8     -1000
+a.m9     error
+End-of-File
+
+# success, all done
+status=0
+exit

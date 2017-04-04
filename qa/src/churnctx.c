@@ -11,17 +11,50 @@
 
 #define BUILD_STANDALONE 1
 
+static int	nmetric;
+static char	**name = NULL;
+static pmID	*pmid = NULL;
+static pmDesc	*desc = NULL;
+
+void
+dometric(const char *new_name)
+{
+    int		sts;
+
+    nmetric++;
+    if ((name = (char **)realloc(name, nmetric*sizeof(name[0]))) == NULL) {
+	fprintf(stderr, "name[%d] malloc failed @ %s\n", nmetric-1, new_name);
+	exit(1);
+    }
+    name[nmetric-1] = strdup(new_name);
+    if ((pmid = (pmID *)realloc(pmid, nmetric*sizeof(pmid[0]))) == NULL) {
+	fprintf(stderr, "pmid[%d] malloc failed @ %s\n", nmetric-1, new_name);
+	exit(1);
+    }
+    if ((desc = (pmDesc *)realloc(desc, nmetric*sizeof(desc[0]))) == NULL) {
+	fprintf(stderr, "desc[%d] malloc failed @ %s\n", nmetric-1, new_name);
+	exit(1);
+    }
+    if ((sts = pmLookupName(1, &name[nmetric-1], &pmid[nmetric-1])) < 0) {
+	fprintf(stderr, "Warning: pmLookupName(\"%s\",...) failed: %s\n", name[nmetric-1], pmErrStr(sts));
+    }
+    if ((sts = pmLookupDesc(pmid[nmetric-1], &desc[nmetric-1])) < 0) {
+	fprintf(stderr, "Warning: pmLookupDesc(\"%s\",...) failed: %s\n", name[nmetric-1], pmErrStr(sts));
+    }
+}
+
 int
 main(int argc, char **argv)
 {
     int		c;
+    int		i;
     int		sts;
     int		ctx;
     int		dupctx = 0;
-    int		nmetric;
     int		iter;
     int		errflag = 0;
     int		type = 0;
+    int		vflag = 0;
     char	*host = NULL;			/* pander to gcc */
     int		mode = PM_MODE_INTERP;		/* mode for archives */
     char 	*configfile = NULL;
@@ -37,9 +70,8 @@ main(int argc, char **argv)
     char	local[MAXHOSTNAMELEN];
     char	*pmnsfile = PM_NS_DEFAULT;
     int		samples = 1;
+    int		fetch_samples = 1;
     char	*endnum;
-    char	**name = NULL;
-    pmID	*pmid = NULL;
     pmResult	*rp;
     char	*highwater = NULL;
     struct timeval delta = { 15, 0 };
@@ -55,7 +87,7 @@ main(int argc, char **argv)
     setvbuf(stdout, NULL, _IONBF, 0);
     setvbuf(stderr, NULL, _IONBF, 0);
 
-    while ((c = getopt(argc, argv, "a:A:c:D:dh:l:Ln:O:s:S:t:T:U:zZ:?")) != EOF) {
+    while ((c = getopt(argc, argv, "a:A:c:D:df:h:l:Ln:O:s:S:t:T:U:vzZ:?")) != EOF) {
 	switch (c) {
 
 	case 'a':	/* archive name */
@@ -96,6 +128,14 @@ main(int argc, char **argv)
 
 	case 'd':	/* dup context rather than new context */
 	    dupctx = 1;
+	    break;
+
+	case 'f':	/* pmFetch sample count */
+	    fetch_samples = (int)strtol(optarg, &endnum, 10);
+	    if (*endnum != '\0' || fetch_samples < 0) {
+		fprintf(stderr, "%s: -f requires numeric argument\n", pmProgname);
+		errflag++;
+	    }
 	    break;
 
 	case 'h':	/* contact PMCD on this hostname */
@@ -175,6 +215,10 @@ main(int argc, char **argv)
 	    host = optarg;
 	    break;
 
+	case 'v':	/* report values */
+	    vflag = 1;
+	    break;
+
 	case 'z':	/* timezone from host */
 	    if (tz != NULL) {
 		fprintf(stderr, "%s: at most one of -Z and/or -z allowed\n", pmProgname);
@@ -212,6 +256,7 @@ Options:\n\
   -A align       align sample times on natural boundaries\n\
   -c configfile  file to load configuration from\n\
   -d             use pmDupContext [default: pmNewContext]\n\
+  -f samples     pmFetch samples before churning contexts [default 1]\n\
   -h host        metrics source is PMCD on host\n\
   -l logfile     redirect diagnostics and trace output\n"
 #ifdef BUILD_STANDALONE
@@ -223,6 +268,7 @@ Options:\n\
   -S starttime   start of the time window\n\
   -t interval    sample interval [default 15.0 seconds]\n\
   -T endtime     end of the time window\n\
+  -v             report values\n\
   -z             set reporting timezone to local time of metrics source\n\
   -Z timezone    set reporting timezone\n",
                 pmProgname);
@@ -279,6 +325,7 @@ Options:\n\
     else {
 	gettimeofday(&startTime, NULL);
 	endTime.tv_sec = INT_MAX;
+	endTime.tv_usec = 0;
     }
 
     if (zflag) {
@@ -305,19 +352,7 @@ Options:\n\
     /* non-flag args are argv[optind] ... argv[argc-1] */
     nmetric = 0;
     while (optind < argc) {
-	nmetric++;
-	if ((name = (char **)realloc(name, nmetric*sizeof(name[0]))) == NULL) {
-	    fprintf(stderr, "name[%d] malloc failed @ %s\n", nmetric-1, argv[optind]);
-	    exit(1);
-	}
-	name[nmetric-1] = argv[optind];
-	if ((pmid = (pmID *)realloc(pmid, nmetric*sizeof(pmid[0]))) == NULL) {
-	    fprintf(stderr, "pmid[%d] malloc failed @ %s\n", nmetric-1, argv[optind]);
-	    exit(1);
-	}
-	if ((sts = pmLookupName(1, &name[nmetric-1], &pmid[nmetric-1])) < 0) {
-	    fprintf(stderr, "Warning: pmLookupName(\"%s\",...) failed: %s\n", name[nmetric-1], pmErrStr(sts));
-	}
+	pmTraversePMNS(argv[optind], dometric);
 	optind++;
     }
 
@@ -340,32 +375,36 @@ Options:\n\
 	int	new_ctx;
 	char	*check;
 
-	if (dupctx) {
-	    if ((new_ctx = pmDupContext()) < 0) {
-		fprintf(stderr, "%s: pmDupContext failed: %s\n", pmProgname, pmErrStr(new_ctx));
+	if (iter == 1 || (iter % fetch_samples) == 0) {
+	    if (dupctx) {
+		if ((new_ctx = pmDupContext()) < 0) {
+		    fprintf(stderr, "%s: pmDupContext failed: %s\n", pmProgname, pmErrStr(new_ctx));
+		    exit(1);
+		}
+	    }
+	    else {
+		if ((new_ctx = pmNewContext(type, host)) < 0) {
+		    fprintf(stderr, "%s: pmNewContext failed: %s\n", pmProgname, pmErrStr(new_ctx));
+		    exit(1);
+		}
+
+	    }
+
+	    if ((sts = pmDestroyContext(ctx)) < 0) {
+		fprintf(stderr, "%s: pmDestroyContex failed: %s\n", pmProgname, pmErrStr(sts));
 		exit(1);
 	    }
-	}
-	else {
-	    if ((new_ctx = pmNewContext(type, host)) < 0) {
-		fprintf(stderr, "%s: pmNewContext failed: %s\n", pmProgname, pmErrStr(new_ctx));
+
+	    if ((sts = pmUseContext(new_ctx)) < 0) {
+		fprintf(stderr, "%s: pmUseContext(%d) failed: %s\n", pmProgname, new_ctx, pmErrStr(sts));
 		exit(1);
 	    }
-
+	    ctx = new_ctx;
 	}
 
-	if ((sts = pmDestroyContext(ctx)) < 0) {
-	    fprintf(stderr, "%s: pmDestroyContex failed: %s\n", pmProgname, pmErrStr(sts));
-	    exit(1);
-	}
-
-	if ((sts = pmUseContext(new_ctx)) < 0) {
-	    fprintf(stderr, "%s: pmUseContext(%d) failed: %s\n", pmProgname, new_ctx, pmErrStr(sts));
-	    exit(1);
-	}
-	ctx = new_ctx;
 	/* dump out PDU buffer pool state */
 	__pmFindPDUBuf(-1);
+
 	/* check for outrageous memory leaks */
 	check = (char *)sbrk(0);
 	if (highwater != NULL) {
@@ -397,13 +436,31 @@ Options:\n\
 		exit(1);
 	    }
 	    else {
-		int		i;
-		char	now[26];
-		time_t	stamp;
-		stamp = rp->timestamp.tv_sec;
-		printf("%s", pmCtime(&stamp, now));
+		if (delta.tv_sec > 0 || delta.tv_usec > 0) {
+		    char	now[26];
+		    time_t	stamp;
+		    stamp = rp->timestamp.tv_sec;
+		    printf("%s", pmCtime(&stamp, now));
+		}
 		for (i = 0; i < nmetric; i++) {
-		    printf("%s: %d values\n", pmIDStr(rp->vset[i]->pmid), rp->vset[i]->numval);
+		    printf("%s (%s):", name[i], pmIDStr(rp->vset[i]->pmid));
+		    if (rp->vset[i]->numval < 0)
+			printf(" Error: %s", pmErrStr(rp->vset[i]->numval));
+		    else if (rp->vset[i]->numval == 0)
+			printf(" No values");
+		    else if (rp->vset[i]->numval == 1)
+			printf(" 1 value");
+		    else
+			printf(" %d values", rp->vset[i]->numval);
+		    if (vflag) {
+			int	j;
+			for (j = 0; j < rp->vset[i]->numval; j++) {
+			    pmValue *vp = &rp->vset[i]->vlist[j];
+			    putchar(' ');
+			    pmPrintValue(stdout, rp->vset[i]->valfmt, desc[i].type, vp, 1);
+			}
+		    }
+		    putchar('\n');
 		}
 		pmFreeResult(rp);
 	    }
@@ -421,6 +478,12 @@ Options:\n\
 	fprintf(stderr, "%s: final pmDestroyContex failed: %s\n", pmProgname, pmErrStr(sts));
 	exit(1);
     }
+
+    /* for valgrind */
+    for (i = 0; i < nmetric; i++)
+	free(name[i]);
+    free(name);
+    free(pmid);
 
     return 0;
 }

@@ -32,6 +32,7 @@ SRCS = perf_event_test.c \
        rapl-interface.c \
        configparser.yytest.c \
        $(SRCDIR)/perfinterface.c \
+	$(SRCDIR)/parse_events.c
 
 THREAD_SRCS = threadtest.c \
 	      $(SRCDIR)/perfmanager.c \
