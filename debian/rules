@@ -172,7 +172,30 @@ clean:
 	dh_autotools-dev_restoreconfig
 	dh_clean
 
-binary-indep:
+binary-indep: checkroot build-stamp
+	@echo "== dpkg-buildpackage: binary-indep" 1>&2
+	$(checkdir)
+	$(pkgpcp) $(MAKE) -C . install
+	$(pkgpcp_import_sar) $(MAKE) -C src/sar2pcp install
+	$(pkgpcp_import_ganglia) $(MAKE) -C src/ganglia2pcp install
+	$(pkgpcp_import_mrtg) $(MAKE) -C src/mrtg2pcp install
+	$(pkgpcp_import_sheet) $(MAKE) -C src/sheet2pcp install
+	$(pkgpcp_import_iostat) $(MAKE) -C src/iostat2pcp install
+	dh_installdocs -i
+	dh_installchangelogs -i
+	dh_link -i
+	dh_compress
+	dh_installdirs -i
+	dh_install -i --sourcedir=debian/$(pcp)
+	dh_perl -i -p $(pcp_import_sar)
+	dh_perl -i -p $(pcp_import_ganglia)
+	dh_perl -i -p $(pcp_import_mrtg)
+	dh_perl -i -p $(pcp_import_sheet)
+	dh_perl -i -p $(pcp_import_iostat)
+	dh_installdeb -i
+	dh_gencontrol -i $(SUBSTVARS) 2>/dev/null	# squash the python:Versions warning
+	dh_md5sums -i
+	dh_builddeb -i
 
 binary-arch: checkroot build-stamp
 	@echo "== dpkg-buildpackage: binary-arch" 1>&2
@@ -186,11 +209,6 @@ binary-arch: checkroot build-stamp
 	$(pkglibpcp_pmda_perl) $(MAKE) -C src/perl/PMDA install_perl
 	$(pkglibpcp_import_perl) $(MAKE) -C src/perl/LogImport install_perl
 	$(pkgpcp_logsummary_perl) $(MAKE) -C src/perl/LogSummary install_perl
-	$(pkgpcp_import_sar) $(MAKE) -C src/sar2pcp install
-	$(pkgpcp_import_ganglia) $(MAKE) -C src/ganglia2pcp install
-	$(pkgpcp_import_mrtg) $(MAKE) -C src/mrtg2pcp install
-	$(pkgpcp_import_sheet) $(MAKE) -C src/sheet2pcp install
-	$(pkgpcp_import_iostat) $(MAKE) -C src/iostat2pcp install
 	$(pkgpcp_import_collectl) $(MAKE) -C src/collectl2pcp install
 	$(pkgpcp_export_graphite) $(MAKE) -C src/pcp2graphite install
 	$(pkgpcp_export_influxdb) $(MAKE) -C src/pcp2influxdb install
@@ -207,21 +225,21 @@ binary-arch: checkroot build-stamp
 	    $(pkgpcp_python3) $(MAKE) PYTHON=python$$V -C src/python install_python3; \
 	done
 
-	dh_installdocs
-	dh_installchangelogs
-	dh_link
+	dh_installdocs -a
+	dh_installchangelogs -a
+	dh_link -a
 	# Note: --no-automatic-dbgsym not defined for all releases up to
 	# 	and including Debian 8 (jessie), but defined after that
 	# 	... expect a warning on older releases, but no other ill
 	# 	effects from the unknown option
-	dh_strip --no-automatic-dbgsym
-	dh_compress
+	dh_strip -a --no-automatic-dbgsym
+	dh_compress -a
 	# pmcd.stp added to dh_fixperms because on Ubuntu 16.04
 	# $(PCP_SHARE_DIR)/../systemtap/tapset/pmcd.stp was getting an
 	# unwanted mode change from 444 to 644
-	dh_fixperms -X/tmp -Xpmcd.stp
-	dh_installdirs
-	dh_install --sourcedir=debian/$(pcp)
+	dh_fixperms -a -X/tmp -Xpmcd.stp
+	dh_installdirs -a
+	dh_install -a --sourcedir=debian/$(pcp)
 	@$(uninstall)
 	@$(uninstallib)
 	@$(uninstallgui)
@@ -232,36 +250,31 @@ binary-arch: checkroot build-stamp
 	@$(uninstallpydir)
 	@$(uninstallpy)
 	@$(unrpathperl)
-	dh_makeshlibs -N $(libpcp)
-	dh_makeshlibs --package $(libpcp)
-	dh_makeshlibs -N $(libpcp_pmda)
-	dh_makeshlibs --package $(libpcp_pmda)
-	dh_makeshlibs -N $(libpcp_trace)
-	dh_makeshlibs --package $(libpcp_trace)
-	dh_makeshlibs -N $(libpcp_import)
-	dh_makeshlibs --package $(libpcp_import)
-	dh_makeshlibs -N $(libpcp_web)
-	dh_makeshlibs --package $(libpcp_web)
-	dh_makeshlibs -N $(libpcp_gui)
-	dh_makeshlibs --package $(libpcp_gui)
-	dh_makeshlibs -N $(libpcp_mmv)
-	dh_makeshlibs --package $(libpcp_mmv)
-	dh_python2 --package $(pcp_python2)
-	dh_python3 --package $(pcp_python3)
-	dh_perl -p $(libpcp_mmv_perl)
-	dh_perl -p $(libpcp_pmda_perl)
-	dh_perl -p $(libpcp_import_perl)
-	dh_perl -p $(pcp_logsummary_perl)
-	dh_perl -p $(pcp_import_sar)
-	dh_perl -p $(pcp_import_ganglia)
-	dh_perl -p $(pcp_import_mrtg)
-	dh_perl -p $(pcp_import_sheet)
-	dh_perl -p $(pcp_import_iostat)
-	dh_installdeb
-	dh_shlibdeps 2>/dev/null	# qmake doesn't allow a library list
-	dh_gencontrol $(SUBSTVARS) 2>/dev/null	# squash the python:Versions warning
-	dh_md5sums
-	dh_builddeb
+	dh_makeshlibs -a -N $(libpcp)
+	dh_makeshlibs -a --package $(libpcp)
+	dh_makeshlibs -a -N $(libpcp_pmda)
+	dh_makeshlibs -a --package $(libpcp_pmda)
+	dh_makeshlibs -a -N $(libpcp_trace)
+	dh_makeshlibs -a --package $(libpcp_trace)
+	dh_makeshlibs -a -N $(libpcp_import)
+	dh_makeshlibs -a --package $(libpcp_import)
+	dh_makeshlibs -a -N $(libpcp_web)
+	dh_makeshlibs -a --package $(libpcp_web)
+	dh_makeshlibs -a -N $(libpcp_gui)
+	dh_makeshlibs -a --package $(libpcp_gui)
+	dh_makeshlibs -a -N $(libpcp_mmv)
+	dh_makeshlibs -a --package $(libpcp_mmv)
+	dh_python2 -a --package $(pcp_python2)
+	dh_python3 -a --package $(pcp_python3)
+	dh_perl -a -p $(libpcp_mmv_perl)
+	dh_perl -a -p $(libpcp_pmda_perl)
+	dh_perl -a -p $(libpcp_import_perl)
+	dh_perl -a -p $(pcp_logsummary_perl)
+	dh_installdeb -a
+	dh_shlibdeps -a 2>/dev/null	# qmake doesn't allow a library list
+	dh_gencontrol -a $(SUBSTVARS) 2>/dev/null	# squash the python:Versions warning
+	dh_md5sums -a
+	dh_builddeb -a
 
 binary: binary-indep binary-arch
 
