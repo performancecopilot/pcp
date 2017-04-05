@@ -954,6 +954,7 @@ pkg?		pluginviewer		[N/A (QA optional)]
 slackpkg?	pluginviewer		[? (QA optional)]
 pacman?		pluginviewer		[? (QA optional)]
 # -- selinux policy
+rpm?		seinfo			[setools-console (build optional)]
 rpm?    /usr/share/selinux/devel/Makefile [selinux-policy-devel (build optional)]
 #
 # misc
