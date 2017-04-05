@@ -43,7 +43,7 @@ function arrayize(field, defaults) {
 var targets = arrayize("target", [null]);
 var titles = arrayize("title", []);
 var styles = arrayize("style", []);
-var heights = arrayize("heights", []);
+var heights = arrayize("height", []);
 // XXX: other ideas
 // a parameter to select overall dashboard color theme
 var name = ARGS["name"]; if (name == null) { name = "PCP+Grafana charts"; }
