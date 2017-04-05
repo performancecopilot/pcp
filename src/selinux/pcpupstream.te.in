@@ -5,11 +5,13 @@ require {
 	type user_home_t;
 	type tmp_t;
 	type init_t;
+	type initrc_var_run_t;
 	type kmsg_device_t;
 	type pcp_pmlogger_t;
 	type pcp_var_lib_t;
 	type pcp_log_t;
 	type pcp_pmie_t;
+	type pcp_pmproxy_t;
 	type sysctl_net_t;
 	type svirt_sandbox_file_t;
 	@PCP_SVIRT_LXC_NET_T@
@@ -21,9 +23,11 @@ require {
 	type modules_object_t; # pcp-lio
 	@PCP_NSFS_T@
 	type pcp_pmie_exec_t; # pmdasummary
+	@PCP_SYSTEMCTL_UNIT_FILE_T@
+	@PCP_SYSTEMCTL_EXEC_T@
 	type debugfs_t; # pmdalibvirt
 	class lnk_file { read getattr };
-	class file { append create execute execute_no_trans getattr ioctl open read write };
+	class file { append create execute execute_no_trans getattr ioctl lock open read write };
 	class dir { add_name open read search write getattr };
 	class unix_stream_socket connectto;
 	class capability { kill sys_ptrace net_admin chown sys_chroot };
@@ -88,7 +92,25 @@ allow pcp_pmlogger_t self:capability sys_ptrace;
 #============= pcp_pmie_t ==============
 allow pcp_pmie_t hostname_exec_t:file { execute execute_no_trans getattr open read };
 allow pcp_pmie_t self:capability { chown kill net_admin };
+
+#type=AVC msg=audit(04/05/2017 10:24:45.084:351) : avc: denied { connectto } for pid=8941 comm=systemctl path=/run/systemd/private scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:system_r:init_t:s0 tclass=unix_stream_socket
+allow pcp_pmie_t init_t:unix_stream_socket connectto;
+
+#type=AVC msg=audit(04/05/2017 10:24:45.081:348) : avc: denied { open } for pid=8939 comm=runlevel path=/run/utmp dev="tmpfs" ino=12392 scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:object_r:initrc_var_run_t:s0 tclass=file
+#type=AVC msg=audit(04/05/2017 10:24:45.081:348) : avc: denied { read } for pid=8939 comm=runlevel name=utmp dev="tmpfs" ino=12392 scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:object_r:initrc_var_run_t:s0 tclass=file
+#type=AVC msg=audit(04/05/2017 10:24:45.081:349) : avc: denied { lock } for pid=8939 comm=runlevel path=/run/utmp dev="tmpfs" ino=12392 scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:object_r:initrc_var_run_t:s0 tclass=file
+allow pcp_pmie_t initrc_var_run_t:file { lock open read };
+
 @PCP_PMIE_SYSTEM_STATUS_RULE@
+
+#type=AVC msg=audit(04/05/2017 10:24:45.082:350) : avc: denied { getattr } for pid=8870 comm=pmie path=/usr/lib/systemd/system/pmie.service dev="dm-1" ino=4203 scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:object_r:systemd_unit_file_t:s0 tclass=file
+@PCP_SYSTEMCTL_UNIT_FILE_RULE@
+#type=AVC msg=audit(04/05/2017 09:58:27.740:304) : avc: denied { read } for pid=7073 comm=pmie name=systemctl dev="dm-1" ino=3402 scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:object_r:systemd_systemctl_exec_t:s0 tclass=file
+#type=AVC msg=audit(04/05/2017 09:58:27.740:303) : avc: denied { execute } for pid=7073 comm=pmie name=systemctl dev="dm-1" ino=3402 scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:object_r:systemd_systemctl_exec_t:s0 tclass=file
+#type=AVC msg=audit(04/05/2017 09:58:27.742:305) : avc: denied { getattr } for pid=7004 comm=pmie path=/usr/lib/systemd/system/pmie.service dev="dm-1" ino=4203 scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:object_r:systemd_unit_file_t:s0 tclass=file
+#type=AVC msg=audit(04/05/2017 10:24:45.080:347) : avc: denied { execute_no_trans } for pid=8939 comm=pmie path=/usr/bin/systemctl dev="dm-1" ino=3402 scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:object_r:systemd_systemctl_exec_t:s0 tclass=file
+#type=AVC msg=audit(04/05/2017 10:24:45.080:347) : avc: denied { open } for pid=8939 comm=pmie path=/usr/bin/systemctl dev="dm-1" ino=3402 scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:object_r:systemd_systemctl_exec_t:s0 tclass=file
+@PCP_SYSTEMCTL_EXEC_RULE@
 
 #============= pmda-lio ==============
 allow pcp_pmcd_t configfs_t:dir { open read search };
@@ -104,3 +126,12 @@ allow pcp_pmcd_t modules_object_t:dir search;
 allow pcp_pmcd_t modules_object_t:file { getattr open read };
 
 allow pcp_pmcd_t saslauthd_t:unix_stream_socket connectto;
+
+#============= pcp_pmproxy_t ==============
+#type=AVC msg=audit(04/05/2017 09:54:13.548:281) : avc: denied { net_admin } for pid=6669 comm=pmproxy capability=net_admin scontext=system_u:system_r:pcp_pmproxy_t:s0 tcontext=system_u:system_r:pcp_pmproxy_t:s0 tclass=capability
+allow pcp_pmproxy_t self:capability net_admin;
+
+#type=AVC msg=audit(04/05/2017 09:54:13.548:281) : avc: denied { read } for pid=6669 comm=pmproxy name=disable_ipv6 dev="proc" ino=9994 scontext=system_u:system_r:pcp_pmproxy_t:s0 tcontext=system_u:object_r:sysctl_net_t:s0 tclass=file
+#type=AVC msg=audit(04/05/2017 10:24:45.771:356) : avc: denied { open } for pid=9669 comm=pmproxy path=/proc/sys/net/ipv6/conf/all/disable_ipv6 dev="proc" ino=9994 scontext=system_u:system_r:pcp_pmproxy_t:s0 tcontext=system_u:object_r:sysctl_net_t:s0 tclass=file
+#type=AVC msg=audit(04/05/2017 10:24:45.771:357) : avc: denied { getattr } for pid=9669 comm=pmproxy path=/proc/sys/net/ipv6/conf/all/disable_ipv6 dev="proc" ino=9994 scontext=system_u:system_r:pcp_pmproxy_t:s0 tcontext=system_u:object_r:sysctl_net_t:s0 tclass=file
+allow pcp_pmproxy_t sysctl_net_t:file { getattr open read }; 
