@@ -76,6 +76,10 @@ _reboot_setup()
     then
 	mkdir -p -m 0775 "$PCP_TMP_DIR/pmie"
 	chown $PCP_USER:$PCP_GROUP "$PCP_TMP_DIR/pmie"
+	if which restorecon >/dev/null 2>&1
+	then
+	    restorecon -r "$PCP_TMP_DIR"
+	fi
     else
 	rm -rf $tmp/ent $tmp/pid
 	here=`pwd`
