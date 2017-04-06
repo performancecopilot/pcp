@@ -103,6 +103,12 @@ unique host-id string is computed for each potential target pmcd from
 specified metric values.  This host-id is also used as a subdirectory
 name for locating daemon data.
 .TP
+.I hostid\-static
+This file contains a single line specifying the static string that should be
+used for the host-id value.  Specifying a value in this file overrides the
+.I hostid\-metrics
+file specified below
+.TP
 .I hostid\-metrics
 This file contains one or more lines of metric specifications in the format
 accepted by

@@ -310,6 +310,11 @@ pmmgr_job_spec::parse_metric_spec (const string& spec) const
 pmmgr_hostid
 pmmgr_job_spec::compute_hostid (const pcp_context_spec& ctx) const
 {
+  // static hostid takes precedence
+  string hostid_static = get_config_single ("hostid-static");
+  if (hostid_static != "")
+    return pmmgr_hostid (hostid_static);
+
   pmFG fg;
   int sts = pmCreateFetchGroup (&fg, PM_CONTEXT_HOST, ctx.c_str());
   if (sts < 0)
