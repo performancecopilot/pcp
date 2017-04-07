@@ -371,7 +371,7 @@ Incompatible configuration file version (read v99, need v1).
 == basic string value reporting
   p.version
            
-     PCP_VERSION
+PCP_VERSION
 == divide-by-zero error handling
   fail
       
