@@ -36,7 +36,7 @@ Locking and Concurrency Control
 
   - prune.cgraph
     Using cscope and the .dot file created by mk.cgraph, do a recursive
-    'lead-to-root' prune of the call graph removing nodes that are
+    'leaf-to-root' prune of the call graph removing nodes that are
     thread-safe ... meaning they don't acquire locks and don't call
     any unsafe routines
 
