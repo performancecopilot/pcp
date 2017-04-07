@@ -2486,7 +2486,7 @@ cd
 
 %if !%{disable_selinux}
 %preun selinux
-if [ `semodule -l | grep pcpupstream` ]
+if semodule -l | grep pcpupstream >/dev/null 2>&1
 then
 %if 0%{?fedora} >= 24 || 0%{?rhel} > 6
     semodule -X 400 -r pcpupstream >/dev/null
@@ -2495,7 +2495,7 @@ then
 %endif
 fi
 %triggerun selinux -- docker-selinux
-if [ `semodule -l | grep pcpupstream-docker` ]
+if semodule -l | grep pcpupstream-docker >/dev/null 2>&1
 then
 %if 0%{?fedora} >= 24 || 0%{?rhel} > 6
     semodule -X 400 -r pcpupstream-docker
@@ -2505,7 +2505,7 @@ semodule -r pcpupstream-docker
 fi
 
 %triggerun selinux -- container-selinux
-if [ `semodule -l | grep pcpupstream-container` ]
+if semodule -l | grep pcpupstream-container >/dev/null 2>&1
 then
 %if 0%{?fedora} >= 24 || 0%{?rhel} > 6
     semodule -X 400 -r pcpupstream-container

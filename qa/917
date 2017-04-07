@@ -23,6 +23,8 @@ which seinfo >/dev/null 2>&1 || _notrun "seinfo tool not installed"
 nsfs_t=`seinfo -t | grep 'nsfs_t$'`
 docker_var_lib_t=""
 svirt_lxc_net_t=`seinfo -t | grep "svirt_lxc_net_t$"`
+systemd_systemctl_exec_t=`seinfo -t | grep "systemd_systemctl_exec_t$"`
+systemd_systemctl_unit_file_t=`seinfo -t | grep "systemd_systemctl_unit_file_t$"`
 
 _filter_semodule()
 {
@@ -44,6 +46,8 @@ _filter_outfile()
 	-v docker_var_lib_t="$docker_var_lib_t" \
 	-v svirt_lxc_net_t="$svirt_lxc_net_t" \
 	-v class_status="$class_status" \
+	-v systemd_systemctl_exec_t="$systemd_systemctl_exec_t" \
+	-v systemd_systemctl_unit_file_t="$systemd_systemctl_unit_file_t" \
     '{
     	if (container_t == "" && /container_runtime_t/)
 	   !/container_runtime_t/ ;
@@ -53,6 +57,10 @@ _filter_outfile()
 	   !/docker_var_lib_t/ ;
     	else if (svirt_lxc_net_t == "" && /svirt_lxc_net_t/)
 	   !/svirt_lxc_net_t/ ;
+    	else if (systemd_systemctl_exec_t == "" && /systemd_systemctl_exec_t/)
+	   !/systemd_systemctl_exec_t/ ;
+    	else if (systemd_systemctl_unit_file_t == "" && /systemd_systemctl_unit_file_t/)
+	   !/systemd_systemctl_unit_file_t/ ;
 	else
 	   print;
     }'
