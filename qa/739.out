@@ -45,7 +45,6 @@ Done!
 
 check version message generation
 test_pcp_options.py version X.Y.Z
-overrideCB: got option 'V'
 
 check unknown option and usage message
 test_pcp_options.py: unrecognized option '--munchies'
