@@ -43,7 +43,8 @@ Description: Performance Co-Pilot runtime configuration
 Package: libpcp3-dev
 Section: libdevel
 Depends: ${misc:Depends}, libpcp3 (= ${binary:Version}), libc6-dev | libc-dev
-Breaks: pcp (<< 3.8.0), libpcp-pmda3-dev (<< 3.11.10), webapi (<< 3.11.10), libpcp-gui2-dev (<< 3.11.10)
+Breaks: pcp (<< 3.8.0), libpcp-gui2-dev (<< 3.11.10~)
+Replaces: libpcp-gui2-dev (<< 3.11.10~)
 Architecture: any
 Description: Performance Co-Pilot library and headers
  The libpcp-dev package contains the base Performance Co-Pilot (PCP)
@@ -73,8 +74,6 @@ Description: Performance Co-Pilot library
 Package: libpcp-gui2-dev
 Section: libdevel
 Depends: ${misc:Depends}, libpcp-gui2 (= ${binary:Version}), libpcp3 (= ${binary:Version})
-Breaks: libpcp3-dev (<< 3.11.10)
-Replaces: libpcp3-dev (<< 3.11.10)
 Conflicts: libpcp-gui1-dev
 Architecture: any
 Description: Performance Co-Pilot graphical client tools library and headers
@@ -131,8 +130,8 @@ Description: Performance Co-Pilot Memory Mapped Value client library
 Package: libpcp-pmda3-dev
 Section: libdevel
 Depends: ${misc:Depends}, libpcp-pmda3 (= ${binary:Version}), libpcp3 (= ${binary:Version})
-Breaks: pcp (<< 2.8.0), libpcp3-dev (<< 3.11.10)
-Replaces: libpcp3-dev (<< 3.11.10)
+Breaks: pcp (<< 2.8.0), libpcp3-dev (<< 3.11.10~)
+Replaces: libpcp3-dev (<< 3.11.10~)
 Architecture: any
 Description: Performance Co-Pilot Domain Agent library and headers
  The libpcp-pmda-dev package contains the Performance Co-Pilot (PCP)
