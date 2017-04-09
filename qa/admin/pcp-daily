@@ -277,11 +277,11 @@ in
 	;;
     *)
 	# Debian packaging ...
-	if yes Y | sudo dpkg -i --force-depends build/deb/*.deb >>$HOME/daily.log 2>&1
+	if yes Y | sudo apt-get install build/deb/*.deb >>$HOME/daily.log 2>&1
 	then
-	    echo "Info: dpkg install" | tee -a $HOME/daily.log
+	    echo "Info: apt-get install" | tee -a $HOME/daily.log
 	else
-	    echo "Error: dpkg failed!" | tee -a $HOME/daily.log
+	    echo "Error: apt-get failed!" | tee -a $HOME/daily.log
 	    exit 1
 	fi
 	notfound=false
