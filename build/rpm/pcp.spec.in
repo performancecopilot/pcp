@@ -126,6 +126,31 @@ then
 fi
 }
 
+%global selinux_handle_policy() %{expand:
+if [ "%1" -eq 1 ]
+then
+    PCP_SELINUX_DIR=@pcp_selinux_dir@
+    if [ -f "$PCP_SELINUX_DIR/%2" ]
+    then
+	%if 0%{?fedora} >= 24 || 0%{?rhel} > 6
+            (semodule -X 400 -i $PCP_SELINUX_DIR/%2)
+	%else
+            (semodule -i $PCP_SELINUX_DIR/%2)
+	%endif #distro version check
+    fi
+elif [ "%1" -eq 0 ]
+then
+    if semodule -l | grep %2 >/dev/null 2>&1
+    then
+	%if 0%{?fedora} >= 24 || 0%{?rhel} > 6
+	    (semodule -X 400 -r %2 >/dev/null)
+	%else
+	    (semodule -r %2 >/dev/null)
+	%endif #distro version check
+    fi
+fi
+}
+
 Requires: pcp-libs = @package_version@
 %if "@enable_selinux@" == "true"
 Requires: pcp-selinux = @package_version@
@@ -2502,34 +2527,15 @@ chown -R pcp:pcp "$PCP_LOG_DIR/pmmgr" 2>/dev/null
 
 %if "@enable_selinux@" == "true"
 %post selinux
-PCP_SELINUX_DIR=@pcp_selinux_dir@/
-%if 0%{?fedora} >= 24 || 0%{?rhel} > 6
-    semodule -X 400 -i @pcp_selinux_dir@/pcpupstream.pp
-%else
-    semodule -i @pcp_selinux_dir@/pcpupstream.pp
-%endif #distro version check
-%triggerin selinux -- docker-selinux
-PCP_SELINUX_DIR=@pcp_selinux_dir@/
-if ls "$PCP_SELINUX_DIR" | grep -q docker 2>/dev/null
-then
-%if 0%{?fedora} >= 24 || 0%{?rhel} > 6
-    semodule -X 400 -i @pcp_selinux_dir@/pcpupstream-docker.pp
-%else
-    semodule -i @pcp_selinux_dir@/pcpupstream-docker.pp
-%endif #distro version check
-fi
-%triggerin selinux -- container-selinux
-PCP_SELINUX_DIR=@pcp_selinux_dir@/
-if ls "$PCP_SELINUX_DIR" | grep -q container 2>/dev/null
-then
-%if 0%{?fedora} >= 24 || 0%{?rhel} > 6
-    semodule -X 400 -i @pcp_selinux_dir@/pcpupstream-container.pp
-%else
-    semodule -i @pcp_selinux_dir@/pcpupstream-container.pp
-%endif #distro version check
-fi
+%{selinux_handle_policy "$1" "pcpupstream.pp"}
 
-%endif 
+%triggerin selinux -- docker-selinux
+%{selinux_handle_policy "$1" "pcpupstream-docker.pp"}
+
+%triggerin selinux -- container-selinux
+%{selinux_handle_policy "$1" "pcpupstream-container.pp"}
+
+%endif #enable_selinux
 
 %if "@pmda_rpm@" == "true"
 %preun pmda-rpm
@@ -2842,35 +2848,15 @@ cd
 
 %if "@enable_selinux@" == "true"
 %preun selinux
-PCP_SELINUX_DIR=@pcp_selinux_dir@/
-if semodule -l | grep pcpupstream >/dev/null 2>&1
-then
-%if 0%{?fedora} >= 24 || 0%{?rhel} > 6
-    semodule -X 400 -r pcpupstream >/dev/null
-%else
-    semodule -r pcpupstream >/dev/null
-%endif
-fi
+%{selinux_handle_policy "$1" "pcpupstream"}
+
 %triggerun selinux -- docker-selinux
-if semodule -l | grep pcpupstream-docker >/dev/null 2>&1
-then
-%if 0%{?fedora} >= 24 || 0%{?rhel} > 6
-    semodule -X 400 -r pcpupstream-docker
-%else
-semodule -r pcpupstream-docker
-%endif #distro version check
-fi
+%{selinux_handle_policy "$1" "pcpupstream-docker"}
 
 %triggerun selinux -- container-selinux
-if semodule -l | grep pcpupstream-container >/dev/null 2>&1
-then
-%if 0%{?fedora} >= 24 || 0%{?rhel} > 6
-    semodule -X 400 -r pcpupstream-container
-%else
-    semodule -r pcpupstream-container
-%endif #distro version check
-fi    
-%endif 
+%{selinux_handle_policy "$1" "pcpupstream-container"}
+
+%endif #selinux check
 
 
 %files -f base_files.rpm

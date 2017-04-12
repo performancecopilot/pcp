@@ -257,6 +257,31 @@ then
 fi
 }
 
+%global selinux_handle_policy() %{expand:
+if [ "%1" -eq 1 ]
+then
+    PCP_SELINUX_DIR=%{_selinuxdir}
+    if [ -f "$PCP_SELINUX_DIR/%2" ]
+    then
+	%if 0%{?fedora} >= 24 || 0%{?rhel} > 6
+            (semodule -X 400 -i %{_selinuxdir}/%2)
+	%else
+            (semodule -i %{_selinuxdir}/%2)
+	%endif #distro version check
+    fi
+elif [ "%1" -eq 0 ]
+then
+    if semodule -l | grep %2 >/dev/null 2>&1
+    then
+	%if 0%{?fedora} >= 24 || 0%{?rhel} > 6
+	    (semodule -X 400 -r %2 >/dev/null)
+	%else
+	    (semodule -r %2 >/dev/null)
+	%endif #distro version check
+    fi
+fi
+}
+
 %description
 Performance Co-Pilot (PCP) provides a framework and services to support
 system-level performance monitoring and performance management. 
@@ -2400,29 +2425,13 @@ chown -R pcp:pcp %{_logsdir}/pmmgr 2>/dev/null
 
 %if !%{disable_selinux}
 %post selinux
-%if 0%{?fedora} >= 24 || 0%{?rhel} > 6
-    semodule -X 400 -i %{_selinuxdir}/pcpupstream.pp
-%else
-    semodule -i %{_selinuxdir}/pcpupstream.pp
-%endif #distro version check
+%{selinux_handle_policy "$1" "pcpupstream.pp"}
+
 %triggerin selinux -- docker-selinux
-if ls %{_selinuxdir} | grep -q docker 2>/dev/null
-then
-%if 0%{?fedora} >= 24 || 0%{?rhel} > 6
-    semodule -X 400 -i %{_selinuxdir}/pcpupstream-docker.pp
-%else
-    semodule -i %{_selinuxdir}/pcpupstream-docker.pp
-%endif #distro version check
-fi
+%{selinux_handle_policy "$1" "pcpupstream-docker.pp"}
+
 %triggerin selinux -- container-selinux
-if ls %{_selinuxdir} | grep -q container 2>/dev/null
-then
-%if 0%{?fedora} >= 24 || 0%{?rhel} > 6
-    semodule -X 400 -i %{_selinuxdir}/pcpupstream-container.pp
-%else
-    semodule -i %{_selinuxdir}/pcpupstream-container.pp
-%endif #distro version check
-fi
+%{selinux_handle_policy "$1" "pcpupstream-container.pp"}
 %endif
 
 %post
@@ -2486,33 +2495,14 @@ cd
 
 %if !%{disable_selinux}
 %preun selinux
-if semodule -l | grep pcpupstream >/dev/null 2>&1
-then
-%if 0%{?fedora} >= 24 || 0%{?rhel} > 6
-    semodule -X 400 -r pcpupstream >/dev/null
-%else
-    semodule -r pcpupstream >/dev/null
-%endif
-fi
+%{selinux_handle_policy "$1" "pcpupstream"}
+
 %triggerun selinux -- docker-selinux
-if semodule -l | grep pcpupstream-docker >/dev/null 2>&1
-then
-%if 0%{?fedora} >= 24 || 0%{?rhel} > 6
-    semodule -X 400 -r pcpupstream-docker
-%else
-semodule -r pcpupstream-docker
-%endif #distro version check
-fi
+%{selinux_handle_policy "$1" "pcpupstream-docker"}
 
 %triggerun selinux -- container-selinux
-if semodule -l | grep pcpupstream-container >/dev/null 2>&1
-then
-%if 0%{?fedora} >= 24 || 0%{?rhel} > 6
-    semodule -X 400 -r pcpupstream-container
-%else
-    semodule -r pcpupstream-container
-%endif #distro version check
-fi
+%{selinux_handle_policy "$1" "pcpupstream-container"}
+
 %endif
 %files -f base.list
 #
