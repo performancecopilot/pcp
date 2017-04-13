@@ -312,9 +312,8 @@ logreopen(const char *progname, const char *logname, FILE *oldstream,
 		/* put oldstream back for return value */
 		oldstream = dupoldstream;
 	    }
-	    strerror_r(save_error, errmsg, sizeof(errmsg));
 	    pmprintf("%s: cannot open log \"%s\" for writing : %s\n",
-		    progname, logname, errmsg);
+		    progname, logname, strerror_r(save_error, errmsg, sizeof(errmsg)));
 	    pmflush();
 	}
 	else {
