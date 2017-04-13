@@ -197,8 +197,9 @@ __pmDiscoverServicesWithOptions(const char *service,
 	if (sts != 0) {
 	    char errmsg[PM_MAXERRMSGLEN];
 	    sts = oserror();
+	    strerror_r(sts, errmsg, sizeof(errmsg));
 	    __pmNotifyErr(LOG_ERR, "Service discovery global timeout could not be set: %s",
-			  strerror_r(sts, errmsg, sizeof(errmsg)));
+			  errmsg);
 	    return -sts;
 	}
 	timeoutSet = 1;

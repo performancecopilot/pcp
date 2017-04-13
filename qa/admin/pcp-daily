@@ -277,13 +277,16 @@ in
 	;;
     *)
 	# Debian packaging ...
-	if yes Y | sudo apt-get install build/deb/*.deb >>$HOME/daily.log 2>&1
+	here=`pwd`
+	cd build/deb
+	if sudo apt-get --yes --reinstall install ./*.deb >>$HOME/daily.log 2>&1
 	then
 	    echo "Info: apt-get install" | tee -a $HOME/daily.log
 	else
 	    echo "Error: apt-get failed!" | tee -a $HOME/daily.log
 	    exit 1
 	fi
+	cd $here
 	notfound=false
 	;;
 esac
