@@ -286,7 +286,8 @@ pmwebapi_respond_new_context (struct MHD_Connection *connection,
 
     if (context < 0) {
         char pmmsg[PM_MAXERRMSGLEN];
-        connstamp (cerr, connection) << "new context failed: " << pmErrStr_r (context, pmmsg, sizeof (pmmsg)) << endl;
+        connstamp (cerr, connection) << "new context failed: "
+                                     << pmErrStr_r (context, pmmsg, sizeof (pmmsg)) << endl;
         rc = context;
         goto out;
     }

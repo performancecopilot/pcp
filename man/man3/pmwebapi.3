@@ -1,7 +1,7 @@
 '\"! tbl | nroff \-man
 '\" t macro stdmacro
 .\"
-.\" Copyright (c) 2013-2016 Red Hat, Inc.  All Rights Reserved.
+.\" Copyright (c) 2013-2017 Red Hat, Inc.  All Rights Reserved.
 .\" 
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -292,7 +292,8 @@ c | c | c
 c | c | l.
 position	number	purpose
 _
-1	1	the pathname of the archive .meta file
+1	1	encoded pathname of the archive .meta file (default),
+		or canonicalized archive hostname (\f2-J\f1 mode)
 2	N	the N components of the pcp metric name
 N+2	1	instance name of the metric (if any)
 .TE

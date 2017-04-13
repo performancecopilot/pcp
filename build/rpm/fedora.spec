@@ -116,6 +116,13 @@ Source1: pcp-webjs.tar.gz
 %endif
 %endif
 
+# boost c++ library, widely available
+%if 0%{?rhel} == 0 || 0%{?rhel} > 5
+%global disable_boost 0
+%else
+%global disable_boost 1
+%endif
+
 # rpm producing "noarch" packages
 %if 0%{?rhel} == 0 || 0%{?rhel} > 5
 %global disable_noarch 0
@@ -161,6 +168,9 @@ BuildRequires: cairo-devel
 %endif
 %if !%{disable_sdt}
 BuildRequires: systemtap-sdt-devel
+%endif
+%if !%{disable_boost}
+BuildRequires: boost-devel
 %endif
 %if 0%{?rhel} == 0 || 0%{?rhel} > 5
 BuildRequires: perl-devel perl-generators
