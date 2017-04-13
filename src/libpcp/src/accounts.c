@@ -343,7 +343,7 @@ __pmUsersGroupIDs(const char *username, gid_t **groupids, unsigned int *ngroups)
 {
     int			i, sts;
     unsigned int	count = 0;
-    git_t		gid;
+    gid_t		gid;
     gid_t		*gidlist = NULL;
     struct passwd	*result;
     struct group	*grp;
