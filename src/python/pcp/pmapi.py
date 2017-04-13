@@ -196,16 +196,16 @@ class pmUsageErr(Exception):
 # (which POSIX defines as having type suseconds_t) - this can be 32 bits
 # on some 64 bit platforms (hence c_long is not always correct).
 
-if c_api.SIZEOF_SUSECONDS_T == 4:
+if c_api.PM_SIZEOF_SUSECONDS_T == 4:
     c_suseconds_t = c_int32
-elif c_api.SIZEOF_SUSECONDS_T == 8:
+elif c_api.PM_SIZEOF_SUSECONDS_T == 8:
     c_suseconds_t = c_int64
 else:
     raise pmErr(c_api.PM_ERR_CONV, "Unexpected suseconds_t size")
 
-if c_api.SIZEOF_TIME_T == 4:
+if c_api.PM_SIZEOF_TIME_T == 4:
     c_time_t = c_int32
-elif c_api.SIZEOF_TIME_T == 8:
+elif c_api.PM_SIZEOF_TIME_T == 8:
     c_time_t = c_int64
 else:
     raise pmErr(c_api.PM_ERR_CONV, "Unexpected time_t size")

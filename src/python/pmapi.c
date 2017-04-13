@@ -1435,8 +1435,8 @@ MOD_INIT(cpmapi)
     dict_add(dict, "HAVE_BITFIELDS_LTOR", 0);
     dict_add(dict, "HAVE_BITFIELDS_RTOL", 1);
 #endif
-    dict_add(dict, "SIZEOF_SUSECONDS_T", SIZEOF_SUSECONDS_T);
-    dict_add(dict, "SIZEOF_TIME_T", SIZEOF_TIME_T);
+    dict_add(dict, "PM_SIZEOF_SUSECONDS_T", PM_SIZEOF_SUSECONDS_T);
+    dict_add(dict, "PM_SIZEOF_TIME_T", PM_SIZEOF_TIME_T);
 
     dict_add(dict, "PM_SPACE_BYTE", PM_SPACE_BYTE);
     dict_add(dict, "PM_SPACE_KBYTE", PM_SPACE_KBYTE);
