@@ -2433,7 +2433,7 @@ End-of-File
     rm -rf conftest conftest.*
 fi
 AC_MSG_RESULT($ans)
-AC_DEFINE_UNQUOTED(SIZEOF_SUSECONDS_T, $ans, [sizeof suseconds_t])
+AC_DEFINE_UNQUOTED(PM_SIZEOF_SUSECONDS_T, $ans, [sizeof suseconds_t])
 
 AC_MSG_CHECKING([sizeof time_t])
 if test "$cross_compiling" = "yes"; then
@@ -2451,7 +2451,7 @@ End-of-File
     rm -rf conftest conftest.*
 fi
 AC_MSG_RESULT($ans)
-AC_DEFINE_UNQUOTED(SIZEOF_TIME_T, $ans, [sizeof time_t])
+AC_DEFINE_UNQUOTED(PM_SIZEOF_TIME_T, $ans, [sizeof time_t])
 
 dnl check sizeof long
 AC_MSG_CHECKING([sizeof long])
