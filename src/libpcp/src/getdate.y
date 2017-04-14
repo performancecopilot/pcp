@@ -623,8 +623,8 @@ LookupWord(union YYSTYPE *lvalp, char *buff)
 
     /* Make it lowercase. */
     for (p = buff; *p; p++)
-	if (isupper(*p))
-	    *p = tolower(*p);
+	if (isupper((int)*p))
+	    *p = tolower((int)*p);
 
     if (strcmp(buff, "am") == 0 || strcmp(buff, "a.m.") == 0) {
 	lvalp->Meridian = MERam;
@@ -692,7 +692,7 @@ LookupWord(union YYSTYPE *lvalp, char *buff)
 	}
 
     /* Military timezones. */
-    if (buff[1] == '\0' && isalpha(*buff)) {
+    if (buff[1] == '\0' && isalpha((int)*buff)) {
 	for (tp = MilitaryTable; tp->name; tp++)
 	    if (strcmp(buff, tp->name) == 0) {
 		lvalp->Number = tp->value;
@@ -727,27 +727,27 @@ yylex(union YYSTYPE *lvalp, PARSER *lp)
     int		sign;
 
     for ( ; ; ) {
-	while (isspace(*lp->yyInput))
+	while (isspace((int)(*lp->yyInput)))
 	    lp->yyInput++;
 
-	if (isdigit(c = *lp->yyInput) || c == '-' || c == '+') {
+	if (isdigit((int)(c = *lp->yyInput)) || c == '-' || c == '+') {
 	    if (c == '-' || c == '+') {
 		sign = c == '-' ? -1 : 1;
-		if (!isdigit(*++lp->yyInput))
+		if (!isdigit((int)(*++lp->yyInput)))
 		    /* skip the '-' sign */
 		    continue;
 	    }
 	    else
 		sign = 0;
-	    for (lvalp->Number = 0; isdigit(c = *lp->yyInput++); )
+	    for (lvalp->Number = 0; isdigit((int)(c = *lp->yyInput++)); )
 		lvalp->Number = 10 * lvalp->Number + c - '0';
 	    lp->yyInput--;
 	    if (sign < 0)
 		lvalp->Number = -lvalp->Number;
 	    return sign ? tSNUMBER : tUNUMBER;
 	}
-	if (isalpha(c)) {
-	    for (p = buff; isalpha(c = *lp->yyInput++) || c == '.'; )
+	if (isalpha((int)c)) {
+	    for (p = buff; isalpha((int)(c = *lp->yyInput++)) || c == '.'; )
 		if (p < &buff[sizeof buff - 1])
 		    *p++ = c;
 	    *p = '\0';
