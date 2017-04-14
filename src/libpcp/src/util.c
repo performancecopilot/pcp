@@ -277,7 +277,7 @@ logreopen(const char *progname, const char *logname, FILE *oldstream,
 
 	oldstream = freopen(logname, "w", oldstream);
 	if (oldstream == NULL) {
-	    int	save_error = oserror();	/* need for error message */
+	    int		save_error = oserror();	/* need for error message */
 
 	    close(oldfd);
 	    if (dup(dupoldfd) != oldfd) {
@@ -312,7 +312,20 @@ logreopen(const char *progname, const char *logname, FILE *oldstream,
 		/* put oldstream back for return value */
 		oldstream = dupoldstream;
 	    }
+#ifdef HAVE_STRERROR_R_PTR
+	    {
+		char	*p;
+		p = strerror_r(save_error, errmsg, sizeof(errmsg));
+		if (p != errmsg)
+		    strncpy(errmsg, p, sizeof(errmsg));
+	    }
+#else
+	    /*
+	     * the more normal POSIX and XSI compliant variants always
+	     * fill the message buffer
+	     */
 	    strerror_r(save_error, errmsg, sizeof(errmsg));
+#endif
 	    pmprintf("%s: cannot open log \"%s\" for writing : %s\n",
 		    progname, logname, errmsg);
 	    pmflush();
