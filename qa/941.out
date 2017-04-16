@@ -1,0 +1,4 @@
+QA output created by 941
+OK: one pmcd running
+OK: pmcd.log is for running pmcd
+OK: run file has pmcd's pid
