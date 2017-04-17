@@ -56,22 +56,23 @@ _speak_to_me()
     host=$1
     pid=''
     base=''
-    cat <<'End-of-File' | ssh -q pcpqa@$host sh >$tmp.tmp 2>$tmp.err
-if [ -r $PCP_DIR/etc/pcp.env ]
+    cat <<End-of-File | ssh -q pcpqa@$host sh >$tmp.tmp 2>$tmp.err
+if [ -r \$PCP_DIR/etc/pcp.env ]
 then
-    . $PCP_DIR/etc/pcp.env
+    . \$PCP_DIR/etc/pcp.env
 else
-    echo "Error: unable to read $PCP_DIR/etc/pcp.env!" >&2
+    echo "Error: unable to read \$PCP_DIR/etc/pcp.env!" >&2
     exit 1
 fi
-sudo rm -rf /tmp/$$ /tmp/$$.*
-echo "log mandatory on once { hinv.ncpu }" >/tmp/$$.config
-echo >>/tmp/$$.config
-echo "[access]" >>/tmp/$$.config
-echo "allow * : all;" >>/tmp/$$.config
-test -k $PCP_TMP_DIR/pmlogger || sudo chmod o+w $PCP_TMP_DIR/pmlogger
-( pmlogger -L -c /tmp/$$.config -l /tmp/$$.log /tmp/$$ </dev/null >/dev/null 2>&1 ) &
-echo pid=$! base=$$
+sudo rm -rf /tmp/\$$ /tmp/\$$.*
+echo "# config for qa/$seq from `hostname` on `date`" >/tmp/\$$.config
+echo "log mandatory on once { hinv.ncpu }" >>/tmp/\$$.config
+echo >>/tmp/\$$.config
+echo "[access]" >>/tmp/\$$.config
+echo "allow * : all;" >>/tmp/\$$.config
+test -k \$PCP_TMP_DIR/pmlogger || sudo chmod o+w \$PCP_TMP_DIR/pmlogger
+( pmlogger -L -c /tmp/\$$.config -l /tmp/\$$.log /tmp/\$$ </dev/null >/dev/null 2>&1 ) &
+echo pid=\$! base=\$$
 End-of-File
 
     echo >>$seq.full

@@ -36,7 +36,6 @@ sampledso.kbyte_rate [instantaneous Kbytes/second]
 sampledso.byte_rate_perhour [instantaneous bytes/hour]
 sampledso.datasize [Space allocated for PMDA's data segment]
 sampledso.secret.foo.bar.max.redirect One-line Help: Error: No PMCD agent for domain of request
-
 sampledso.secret.foo.bar.three [dynamic *.secret.foo.bar.three metric]
 sampledso.secret.foo.bar.four [dynamic *.secret.foo.bar.four metric]
 sampledso.secret.foo.bar.grunt.five [dynamic *.secret.foo.bar.grunt.five metric]
