@@ -808,7 +808,7 @@ pkg?	zabbix_agentd		[N/A (zabbix QA optional)]
 slackpkg?	zabbix_agentd	[N/A (zabbix QA optional)]
 pacman?	zabbix_agentd		[N/A (zabbix QA optional)]
 # -- mysql
-dpkg?	mysql			[mysql-client (mysql QA optional)]
+dpkg?	mysql			[mysql-client or mariadb-client (mysql QA optional)]
 rpm?	mysql			[mysql or community-mysql (mysql QA optional)]
 urpmi?	mysql			[mariadb-client or community-mysql (mysql QA optional)]
 emerge?	mysql			[? (mysql QA optional)]
