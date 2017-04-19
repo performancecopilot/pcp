@@ -37,11 +37,13 @@ _cleanup()
     _service pcp restart \
     | _filter_pcp_start \
     | sed -e '/Waiting for pmcd to terminate/d'
+    _restore_auto_restart pmcd
     _wait_for_pmcd
     _wait_for_pmlogger
     $sudo rm -f $tmp.*
 }
 trap "_cleanup; exit \$status" 0 1 2 3 15
+_restore_auto_restart pmcd
 
 # ditch timestamps and exact hostnames 
 _filter_pmie()

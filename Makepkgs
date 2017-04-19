@@ -294,7 +294,7 @@ esac
 #
 case `hostname`
 in
-    vm04|vm04.localdomain|vm11|vm11.localdomain)
+    vm11|vm11.localdomain)
 	# gcc -O2 is broken here (for the linux PMDA)
 	#
 	configopts="$configopts --with-optimization=no"

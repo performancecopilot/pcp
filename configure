@@ -4000,7 +4000,7 @@ if test "${enable_ssp+set}" = set; then :
 fi
 
 
-if test "x$cc_is_gcc" = xyes -a "x$enable_ssp" != xno ; then :
+if test "x$cc_is_gcc" = xyes -a "x$enable_ssp" != xno -a "x$use_optimization" = xyes ; then :
 
        save_CFLAGS="$CFLAGS"
        CFLAGS="$CFLAGS -O -fstack-protector-all -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2"
