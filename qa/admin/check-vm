@@ -6,7 +6,10 @@
 
 _usage()
 {
-    echo "Usage: $0 [-pv]"
+    echo "Usage: $0 [options]"
+    echo "  -p  generate list of likely packages that should be
+    echo "      installed with dnf or apt-get or yum or ..."
+    echo "  -v  verbose (debugging)"
     exit 1
 }
 
