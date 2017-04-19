@@ -87,6 +87,10 @@ Source4: %{github}/pcp-webapp-blinkenlights/archive/1.0.0/pcp-webapp-blinkenligh
 # Qt development and runtime environment missing components before el6
 %if 0%{?rhel} == 0 || 0%{?rhel} > 5
 %global disable_qt 0
+# We need qt5 for fedora
+%if 0%{?fedora} != 0
+%global default_qt 5
+%endif
 %else
 %global disable_qt 1
 %endif
@@ -165,7 +169,12 @@ BuildRequires: systemd-devel
 %endif
 %if !%{disable_qt}
 BuildRequires: desktop-file-utils
+%if 0%{?default_qt} != 5
 BuildRequires: qt4-devel >= 4.4
+%else
+BuildRequires: qt5-qtbase-devel
+BuildRequires: qt5-qtsvg-devel
+%endif
 %endif
 
 Requires: bash gawk sed grep fileutils findutils initscripts which

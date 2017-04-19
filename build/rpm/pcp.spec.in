@@ -42,7 +42,12 @@ BuildRequires: gcc-c++
 %if "%{_vendor}" == "suse"
 BuildRequires: qt-devel >= 4.4
 %else
+%if 0%{?fedora} != 0
+BuildRequires: qt5-qtbase-devel
+BuildRequires: qt5-qtsvg-devel
+%else
 BuildRequires: qt4-devel >= 4.4
+%endif
 %endif
 %endif
 %if "%{_vendor}" == "redhat"
