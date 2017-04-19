@@ -1103,6 +1103,7 @@ if $pmda_libvirt; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
 qmake=$QMAKE
 enable_qt=false
 qt_release=release
+qt_version=0
 AS_IF([test "x$do_qt" != "xno"], [
     enable_qt=true
     
@@ -1129,6 +1130,7 @@ AS_IF([test "x$do_qt" != "xno"], [
 	    echo Qt version 4.4 or later is required for Qt builds.
 	    enable_qt=false
 	fi
+	qt_version=$QT_MAJOR
     fi
 
     if test "$do_qt" != "check" -a "$enable_qt" != "true"
@@ -1147,6 +1149,7 @@ AS_IF([test "x$do_qt" != "xno"], [
     fi
 ])
 AC_SUBST(qt_release)
+AC_SUBST(qt_version)
 AC_SUBST(enable_qt)
 AC_SUBST(qmake)
 

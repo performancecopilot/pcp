@@ -786,6 +786,7 @@ MAKE
 enable_qt3d
 qmake
 enable_qt
+qt_version
 qt_release
 QMAKE
 PMDA_LIBVIRT
@@ -7621,6 +7622,7 @@ $as_echo "no" >&6; }; fi
 qmake=$QMAKE
 enable_qt=false
 qt_release=release
+qt_version=0
 if test "x$do_qt" != "xno"; then :
 
     enable_qt=true
@@ -7695,6 +7697,7 @@ $as_echo "$QT_MAJOR.$QT_MINOR.$QT_POINT" >&6; }
 	    echo Qt version 4.4 or later is required for Qt builds.
 	    enable_qt=false
 	fi
+	qt_version=$QT_MAJOR
     fi
 
     if test "$do_qt" != "check" -a "$enable_qt" != "true"
@@ -7712,6 +7715,7 @@ $as_echo "$QT_MAJOR.$QT_MINOR.$QT_POINT" >&6; }
     fi
 
 fi
+
 
 
 
