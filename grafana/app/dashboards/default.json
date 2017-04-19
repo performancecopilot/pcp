@@ -16,12 +16,12 @@
             "title": "",
             "height": "150px",
             "editable": true,
-            "collapse": false,
+            "collapse": true,
             "collapsable": true,
             "panels": [
                 {
                     "error": false,
-                    "span": 12,
+                    "span": 4,
                     "editable": true,
                     "type": "text",
                     "loadingEditor": false,
@@ -43,7 +43,7 @@
             "collapsable": true,
             "panels": [
                 {
-                    "span": 12,
+                    "span": 4,
                     "editable": true,
                     "type": "graphite",
                     "x-axis": true,
@@ -61,6 +61,7 @@
                     "lines": true,
                     "fill": 1,
                     "linewidth": 2,
+                    "nullPointMode": "connected",
                     "points": false,
                     "pointradius": 5,
                     "bars": false,
@@ -73,7 +74,6 @@
                     "timezone": "utc",
                     "percentage": false,
                     "zerofill": true,
-                    "nullPointMode": "connected",
                     "steppedLine": false,
                     "tooltip": {
                         "value_type": "cumulative"
@@ -90,19 +90,9 @@
 
                     },
                     "title": "1-minute load average"
-                }
-            ],
-            "notice": false
-        },
-        {
-            "title": "demo2",
-            "height": "200px",
-            "editable": true,
-            "collapse": false,
-            "collapsable": true,
-            "panels": [
+                },
                 {
-                    "span": 12,
+                    "span": 4,
                     "editable": true,
                     "type": "graphite",
                     "x-axis": true,
@@ -120,6 +110,7 @@
                     "lines": true,
                     "fill": 1,
                     "linewidth": 2,
+                    "nullPointMode": "connected",
                     "points": false,
                     "pointradius": 5,
                     "bars": false,
@@ -132,7 +123,6 @@
                     "timezone": "utc",
                     "percentage": false,
                     "zerofill": true,
-                    "nullPointMode": "connected",
                     "steppedLine": false,
                     "tooltip": {
                         "value_type": "cumulative"
@@ -149,19 +139,9 @@
 
                     },
                     "title": "network i/o bytes/s"
-                }
-            ],
-            "notice": false
-        },
-        {
-            "title": "demo3",
-            "height": "200px",
-            "editable": true,
-            "collapse": false,
-            "collapsable": true,
-            "panels": [
+                },
                 {
-                    "span": 12,
+                    "span": 4,
                     "editable": true,
                     "type": "graphite",
                     "x-axis": true,
@@ -179,6 +159,7 @@
                     "lines": true,
                     "fill": 1,
                     "linewidth": 2,
+                    "nullPointMode": "connected",
                     "points": false,
                     "pointradius": 5,
                     "bars": false,
@@ -191,7 +172,6 @@
                     "timezone": "utc",
                     "percentage": false,
                     "zerofill": true,
-                    "nullPointMode": "connected",
                     "steppedLine": false,
                     "tooltip": {
                         "value_type": "cumulative"
@@ -223,7 +203,7 @@
             "collapsable": true,
             "panels": [
                 {
-                    "span": 12,
+                    "span": 4,
                     "editable": true,
                     "type": "graphite",
                     "x-axis": true,
@@ -241,6 +221,7 @@
                     "lines": true,
                     "fill": 1,
                     "linewidth": 2,
+                    "nullPointMode": "connected",
                     "points": false,
                     "pointradius": 5,
                     "bars": false,
@@ -253,7 +234,58 @@
                     "timezone": "utc",
                     "percentage": false,
                     "zerofill": true,
+                    "steppedLine": false,
+                    "tooltip": {
+                        "value_type": "cumulative"
+                    },
+                    "targets": [
+                        {
+                            "target": "*.kernel.all.running"
+                        },
+                        {
+                            "target": "*.kernel.all.blocked"
+                        }
+                    ],
+                    "aliasColors": {
+
+                    },
+                    "aliasYAxis": {
+
+                    },
+                    "title": "running/blocked processes"
+                },
+                {
+                    "span": 4,
+                    "editable": true,
+                    "type": "graphite",
+                    "x-axis": true,
+                    "y-axis": true,
+                    "scale": 1,
+                    "y_formats": [
+                        "short",
+                        "short"
+                    ],
+                    "grid": {
+                        "max": null,
+                        "min": null
+                    },
+                    "resolution": 100,
+                    "lines": true,
+                    "fill": 1,
+                    "linewidth": 2,
                     "nullPointMode": "connected",
+                    "points": false,
+                    "pointradius": 5,
+                    "bars": false,
+                    "stack": false,
+                    "spyable": true,
+                    "options": false,
+                    "legend": false,
+                    "interactive": true,
+                    "legend_counts": true,
+                    "timezone": "utc",
+                    "percentage": false,
+                    "zerofill": true,
                     "steppedLine": false,
                     "tooltip": {
                         "value_type": "cumulative"
@@ -273,19 +305,9 @@
 
                     },
                     "title": "available/used memory kbytes"
-                }
-            ],
-            "notice": false
-        },
-        {
-            "title": "demo5",
-            "height": "200px",
-            "editable": true,
-            "collapse": false,
-            "collapsable": true,
-            "panels": [
-                {
-                    "span": 12,
+                },
+                                {
+                    "span": 4,
                     "editable": true,
                     "type": "graphite",
                     "x-axis": true,
@@ -303,6 +325,7 @@
                     "lines": true,
                     "fill": 1,
                     "linewidth": 2,
+                    "nullPointMode": "connected",
                     "points": false,
                     "pointradius": 5,
                     "bars": false,
@@ -315,7 +338,6 @@
                     "timezone": "utc",
                     "percentage": false,
                     "zerofill": true,
-                    "nullPointMode": "connected",
                     "steppedLine": false,
                     "targets": [
                         {

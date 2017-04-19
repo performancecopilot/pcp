@@ -63,13 +63,13 @@ function assemble_multichart_url(target_prefix,dispname) {
     var suffix="";
     suffix = suffix + "&from=" + encodeURIComponent(from);
     suffix = suffix + "&to=" + encodeURIComponent(to);
-    var def_style = (target_prefix=="" ? "png" : "json");
-    var def_height = (target_prefix=="" ? "300" : "250");
+    var def_style = (target_prefix=="*" ? "png" : "json");
+    var def_height = (target_prefix=="*" ? "200" : "150");
     for (var i=0; i<metrics.length; i++) {
         var m = metrics[i].split(','); // NB: possibly comma-separated; need to put target_prefix before each part
         var submetrics = [];
         for (s in m) {
-            submetrics.push (target_prefix+"*."+m[s]);
+            submetrics.push (target_prefix+"."+m[s]);
         }
         suffix = suffix + "&target=" + encodeURIComponent(submetrics.join(','));
         suffix = suffix + "&title=" + (titles[i]==null ? encodeURIComponent(metrics[i]) : encodeURIComponent(titles[i]));
@@ -96,6 +96,12 @@ function pmwebd_demangle(X,str) {
             return String.fromCharCode(parseInt(arguments[1], 16));
         });
     }
+}
+
+// host names may include "_", which we don't want markdown
+// to interpret as italic markup
+function markdown_escape(str) {
+    return str.replace(/_/g,"\\_");
 }
 
 
@@ -131,20 +137,29 @@ return function(callback) {
 
     $.ajax({
         method: 'GET',
-        url: pmwebd + "/graphite/render?format=json&target=*.pmcd.pmlogger.port.*&from=-1m&until=now"
+        // target=*._ -- just identify host names / archives that cover the given
+        // time interval.  The default here may impact which hosts will be listed.
+        // XXX: make configurable?
+        url: pmwebd + "/graphite/render?format=json&target=*._&from=-14d&until=now"
     })
         .done(function(result) {
             // console.log(result);
             var hosts = {}; // map from hostname to array-of-containers
             var pmwebd_X_mode = false;
+            var pmwebd_J_mode = true;
             for (var i=0; i<result.length; i++) {
                 var target = result[i].target.split(".")[0];
                 if(target.match(/[\/~]/)) { // guess at -X mode being on or off by presence of special chars
                     pmwebd_X_mode = true;
+                    pmwebd_J_mode = false;
                 }
 
                 var hostname, host_basename, host_contname;
-                if (pmwebd_X_mode) {
+                if (pmwebd_J_mode) {
+                    hostname = target;
+                    host_basename = target;
+                    // containers just show up as separate hosts
+                } else if (pmwebd_X_mode) {
                     //                            vv---pmmgr---vv vv--pmlogger--vv
                     hostname = target.replace(/\/(archive|reduced|\d\d\d\d\d\d\d\d).*$/, "");
                     host_basename = hostname.replace(/--.*$/,"");
@@ -171,7 +186,7 @@ return function(callback) {
             markdown = markdown + "\n\n";
 
             markdown = markdown + "### ... on all hosts (png graphs)\n";
-            markdown = markdown + "* [all hosts]("+multichart+assemble_multichart_url("","all hosts")+")";
+            markdown = markdown + "* [all hosts]("+multichart+assemble_multichart_url("*","all hosts")+")";
             markdown = markdown + "\n\n";
             
             var target_suffix = ".proc.nprocs";
@@ -180,17 +195,18 @@ return function(callback) {
             for (var hostname in hosts) {
                 if (hosts.hasOwnProperty(hostname)) {
                     hostdispname = pmwebd_demangle(pmwebd_X_mode, hostname);
-                    markdown = markdown + "* ["+hostdispname+"]("+multichart+assemble_multichart_url(hostname,hostdispname)+")";
+                    hostarchives = pmwebd_J_mode ? hostname : (hostname + "*");
+                    markdown = markdown + "* ["+markdown_escape(hostdispname)+"]("+multichart+assemble_multichart_url(hostarchives,hostdispname)+")";
                     // iterate over its containers
                     var printed = false;
-                    for (var contname in hosts[hostname]) {
+                    for (var contname in hosts[hostname]) { // won't happen with -J mode
                         if (! printed) {
                             printed=true;
                             markdown = markdown + " containers: ";
                         }
                         var contdispname = pmwebd_demangle(pmwebd_X_mode, contname.substring(0,6)+"..."); // abbreviate it
                         var conthostname = hostname + (pmwebd_X_mode ? "--" : "-2D--2D-") + contname;
-                        markdown = markdown + " ["+contdispname+"]"+
+                        markdown = markdown + " ["+markdown_escape(contdispname)+"]"+
                             "("+multichart+assemble_multichart_url(conthostname,hostdispname+" container "+contdispname)+")";
                     }
                     markdown = markdown + "\n";

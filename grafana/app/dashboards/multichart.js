@@ -69,7 +69,7 @@ for (var i = 0; i<targets.length; i++) {
     if (STYLE == null || STYLE != "png") STYLE = "flot"; // default "flot"
 
     var HEIGHT = heights[i];
-    if (HEIGHT == null) HEIGHT = "250px";
+    if (HEIGHT == null) HEIGHT = "150px";
 
     var panel = {
         title: TITLE,
@@ -77,6 +77,7 @@ for (var i = 0; i<targets.length; i++) {
         span: 12,
         fill: 1,
         linewidth: 2,
+        nullPointMode: "connected",
         targets: [],
         seriesOverrides: [ {
             yaxis: 2,
