@@ -10,10 +10,7 @@ Group:   Applications/System
 %global  github https://github.com/performancecopilot
 
 Source0: %{bintray}/download/pcp/source/pcp-%{version}.src.tar.gz
-Source1: %{github}/pcp-webapp-vector/archive/1.1.2/pcp-webapp-vector-1.1.2.tar.gz
-Source2: %{github}/pcp-webapp-grafana/archive/1.9.1/pcp-webapp-grafana-1.9.1.tar.gz
-Source3: %{github}/pcp-webapp-graphite/archive/0.9.10/pcp-webapp-graphite-0.9.10.tar.gz
-Source4: %{github}/pcp-webapp-blinkenlights/archive/1.0.0/pcp-webapp-blinkenlights-1.0.0.tar.gz
+Source1: pcp-webjs.tar.gz
 
 %if 0%{?fedora} || 0%{?rhel} > 5
 %global disable_selinux 0
@@ -428,85 +425,26 @@ Co-Pilot (PCP) client API (PMAPI) to RESTful web applications using the
 HTTP (PMWEBAPI) protocol.
 %endif
 
-#
-# pcp-webjs and pcp-webapp packages
-#
-%package webjs
+%package webapps
 License: ASL2.0 and MIT and CC-BY
 Group: Applications/Internet
-Conflicts: pcp-webjs < 3.11.9
+Conflicts: pcp-webjs < 3.11.10
+Conflicts: pcp-webapp-vector < 3.11.10
+Conflicts: pcp-webapp-blinkenlights < 3.11.10
+Conflicts: pcp-webapp-grafana < 3.11.10
+Conflicts: pcp-webapp-graphite < 3.11.10
 %if !%{disable_noarch}
 BuildArch: noarch
 %endif
-Requires: pcp-webapp-vector pcp-webapp-blinkenlights
-Requires: pcp-webapp-graphite pcp-webapp-grafana
 Summary: Performance Co-Pilot (PCP) web applications
 URL: http://www.pcp.io
 
-%description webjs
-Javascript web application content for the Performance Co-Pilot (PCP)
-web service.
-
-%package webapp-vector
-License: ASL2.0
-Group: Applications/Internet
-%if !%{disable_noarch}
-BuildArch: noarch
-%endif
-Summary: Vector web application for Performance Co-Pilot (PCP)
-URL: https://github.com/Netflix/vector
-
-%description webapp-vector
-Vector web application for the Performance Co-Pilot (PCP).
-
-%package webapp-grafana
-License: ASL2.0
-Group: Applications/Internet
-Conflicts: pcp-webjs < 3.10.4
-%if !%{disable_noarch}
-BuildArch: noarch
-%endif
-Summary: Grafana web application for Performance Co-Pilot (PCP)
-URL: https://grafana.org
-
-%description webapp-grafana
-Grafana is an open source, feature rich metrics dashboard and graph
-editor.  This package provides a Grafana that uses the Performance
-Co-Pilot (PCP) as the data repository.  Other Grafana backends are
-not used.
-
-Grafana can render time series dashboards at the browser via flot.js
-(more interactive, slower, for beefy browsers) or alternately at the
-server via png (less interactive, faster).
-
-%package webapp-graphite
-License: ASL2.0
-Group: Applications/Internet
-Conflicts: pcp-webjs < 3.10.4
-%if !%{disable_noarch}
-BuildArch: noarch
-%endif
-Summary: Graphite web application for Performance Co-Pilot (PCP)
-URL: http://graphite.readthedocs.org
-
-%description webapp-graphite
-Graphite is a highly scalable real-time graphing system. This package
-provides a graphite version that uses the Performance Co-Pilot (PCP)
-as the data repository, and Graphites web interface renders it. The
-Carbon and Whisper subsystems of Graphite are not included nor used.
-
-%package webapp-blinkenlights
-License: ASL2.0
-Group: Applications/Internet
-%if !%{disable_noarch}
-BuildArch: noarch
-%endif
-Summary: Blinking lights web application for Performance Co-Pilot (PCP)
-URL: http://pcp.io
-
-%description webapp-blinkenlights
-Demo web application showing traffic lights that change colour based
-on the periodic evaluation of performance metric expressions.
+%description webapps
+Bundled Javascript web applications for the Performance Co-Pilot (PCP)
+web service, including:
+graphite http://graphite.readthedocs.org
+vector https://github.com/Netflix/vector
+grafana https://grafana.org
 
 #
 # perl-PCP-PMDA. This is the PCP agent perl binding.
@@ -1959,11 +1897,8 @@ updated policy package.
 %endif
 
 %prep
-%setup -q -T -D -a 1 -c -n vector
-%setup -q -T -D -a 2 -c -n grafana
-%setup -q -T -D -a 3 -c -n graphite
-%setup -q -T -D -a 4 -c -n blinkenlights
 %setup -q
+%setup -q -T -D -a 1
 
 %clean
 rm -Rf $RPM_BUILD_ROOT
@@ -1998,11 +1933,10 @@ rm -fr $RPM_BUILD_ROOT/%{_initddir}/pmwebd
 rm -fr $RPM_BUILD_ROOT/%{_unitdir}/pmwebd.service
 rm -f $RPM_BUILD_ROOT/%{_libexecdir}/pcp/bin/pmwebd
 %endif
-for app in vector grafana graphite blinkenlights; do
-    pwd
-    webapp=`find ../$app -mindepth 1 -maxdepth 1`
-    mv $webapp $RPM_BUILD_ROOT/%{_datadir}/pcp/webapps/$app
-done
+
+rm -fr $RPM_BUILD_ROOT/%{_datadir}/pcp/webapps
+mv webjs $RPM_BUILD_ROOT/%{_datadir}/pcp/webapps
+
 
 %if %{disable_infiniband}
 # remove pmdainfiniband on platforms lacking IB devel packages.
@@ -2799,33 +2733,10 @@ cd
 %dir %{_datadir}/pcp/webapps
 %endif
 
-%files webjs
-# duplicate directories from pcp and pcp-webapi, but rpm copes with that.
+%files webapps
 %dir %{_datadir}/pcp
 %dir %{_datadir}/pcp/webapps
-%{_datadir}/pcp/webapps/*.png
-%{_datadir}/pcp/webapps/*.ico
-%{_datadir}/pcp/webapps/*.html
-
-%files webapp-blinkenlights
-%dir %{_datadir}/pcp
-%dir %{_datadir}/pcp/webapps
-%{_datadir}/pcp/webapps/blinkenlights
-
-%files webapp-grafana
-%dir %{_datadir}/pcp
-%dir %{_datadir}/pcp/webapps
-%{_datadir}/pcp/webapps/grafana
-
-%files webapp-graphite
-%dir %{_datadir}/pcp
-%dir %{_datadir}/pcp/webapps
-%{_datadir}/pcp/webapps/graphite
-
-%files webapp-vector
-%dir %{_datadir}/pcp
-%dir %{_datadir}/pcp/webapps
-%{_datadir}/pcp/webapps/vector
+%{_datadir}/pcp/webapps
 
 %files manager
 %{_initddir}/pmmgr
