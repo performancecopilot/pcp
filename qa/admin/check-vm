@@ -6,15 +6,20 @@
 
 _usage()
 {
-    echo "Usage: $0 [-v]"
+    echo "Usage: $0 [-pv]"
     exit 1
 }
 
 verbose=false
-while getopts 'v?' p
+pkglist=false
+while getopts 'pv?' p
 do
     case "$p"
     in
+	p)	# just list most likey package for yum, dnf, apt-get, ...
+		pkglist=true
+		;;
+
 	v)	verbose=true
 		;;
 
@@ -808,7 +813,7 @@ pkg?	zabbix_agentd		[N/A (zabbix QA optional)]
 slackpkg?	zabbix_agentd	[N/A (zabbix QA optional)]
 pacman?	zabbix_agentd		[N/A (zabbix QA optional)]
 # -- mysql
-dpkg?	mysql			[mysql-client or mariadb-client (mysql QA optional)]
+dpkg?	mysql			[mysql-client (mysql QA optional)]
 rpm?	mysql			[mysql or community-mysql (mysql QA optional)]
 urpmi?	mysql			[mariadb-client or community-mysql (mysql QA optional)]
 emerge?	mysql			[? (mysql QA optional)]
@@ -1186,10 +1191,27 @@ do
     [ -f $tmp.echo ] && echo
     if [ ! -f $tmp.ok ]
     then
-	echo "Missing: `echo $apps \
-	    | sed \
-		-e 's/[ 	][ 	]*/ /g' \
-		-e '/ /{
+	if $pkglist
+	then
+	    echo "$apps" \
+	    | sed -n \
+		-e 's/QA optional//' \
+		-e 's/[ 	]*\[[ 	()]*]//' \
+		-e '/[ 	]\[/{
+s/^.*[ 	]\[//
+s/]//
+s/[ 	].*//
+p
+n
+}' \
+		-e p \
+	    # end
+
+	else
+	    echo "Missing: `echo $apps \
+		| sed \
+		    -e 's/[ 	][ 	]*/ /g' \
+		    -e '/ /{
 s/? /?@/
 :loop1
 s/\(\[.*\) /\1@/
@@ -1199,8 +1221,18 @@ s/ \([^[]\)/@|@\1/
 t loop2
 s/@/ /g
 }'`"
+	fi
     fi
-done
+done \
+| if $pkglist
+then
+    tr '[\012]' ' '
+    echo
+else
+    cat
+fi
+
+$pkglist && exit
 
 # Some platform-specific and special case tests
 #
