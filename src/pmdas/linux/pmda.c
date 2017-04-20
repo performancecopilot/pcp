@@ -54,6 +54,7 @@
 #include "proc_slabinfo.h"
 #include "proc_uptime.h"
 #include "proc_sys_fs.h"
+#include "proc_sys_kernel.h"
 #include "proc_vmstat.h"
 #include "proc_net_softnet.h"
 #include "proc_buddyinfo.h"
@@ -76,6 +77,7 @@ static msg_limits_t		msg_limits;
 static shm_limits_t		shm_limits;
 static proc_uptime_t		proc_uptime;
 static proc_sys_fs_t		proc_sys_fs;
+static proc_sys_kernel_t	proc_sys_kernel;
 static sysfs_kernel_t		sysfs_kernel;
 static shm_info_t              _shm_info;
 static sem_info_t              _sem_info;
@@ -4063,6 +4065,19 @@ static pmdaMetric metrictab[] = {
       { PMDA_PMID(CLUSTER_VFS,6), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT,
       PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
+/*
+ * /proc/sys/kernel random cluster
+ */
+
+    /* random.entropy_avail */
+    { &proc_sys_kernel.entropy_avail,
+      { PMDA_PMID(CLUSTER_RANDOM,0), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+      PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    /* random.poolsize */
+    { &proc_sys_kernel.random_poolsize,
+      { PMDA_PMID(CLUSTER_RANDOM,1), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+      PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
     /*
      * mem.vmstat cluster
      */
@@ -5241,6 +5256,9 @@ linux_refresh(pmdaExt *pmda, int *need_refresh, int context)
 
     if (need_refresh[CLUSTER_VFS])
     	refresh_proc_sys_fs(&proc_sys_fs);
+
+    if (need_refresh[CLUSTER_RANDOM])
+    	refresh_proc_sys_kernel(&proc_sys_kernel);
 
     if (need_refresh[CLUSTER_VMSTAT])
     	refresh_proc_vmstat(&_pm_proc_vmstat);

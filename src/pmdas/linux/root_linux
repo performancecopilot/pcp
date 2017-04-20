@@ -100,10 +100,16 @@ kernel.all {
     runnable		60:2:2
     nprocs		60:2:3
     interrupts
+    entropy
 }
 
 kernel.all.interrupts {
     errors		60:4:3
+}
+
+kernel.all.entropy {
+    avail		60:72:0
+    poolsize		60:72:1
 }
 
 kernel.all.cpu {

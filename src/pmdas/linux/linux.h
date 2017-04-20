@@ -94,6 +94,7 @@ enum {
 	CLUSTER_KSM_INFO,	/* 69 /sys/kernel/mm/ksm */
 	CLUSTER_ZONEINFO_PROTECTION,	/* 70 /proc/zoneinfo protection item */
 	CLUSTER_TAPEDEV,	/* 71 /sys/class/scsi_tape */
+	CLUSTER_RANDOM,		/* 72 /proc/sys/kernel/random entropy state */
 
 	NUM_CLUSTERS		/* one more than highest numbered cluster */
 };

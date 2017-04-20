@@ -139,6 +139,9 @@ Per-CPU nice time spent running (virtual) guest operating systems.
 This is a global counter (normally converted to a count/second)
 for any and all errors that occur while handling interrupts.
 
+@ kernel.all.entropy.avail entropy available to random number generators
+@ kernel.all.entropy.poolsize maximum size of the entropy pool
+
 @ disk.dev.read per-disk read operations
 Cumulative number of disk read operations since system boot time (subject
 to counter wrap).
