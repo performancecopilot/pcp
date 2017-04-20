@@ -3625,6 +3625,196 @@ static pmdaMetric metrictab[] = {
     { PMDA_PMID(CLUSTER_ZONEINFO,7), PM_TYPE_U64, ZONEINFO_INDOM, PM_SEM_INSTANT,
       PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
 
+/* mem.zoneinfo.nr_free_pages */
+  { NULL,
+    { PMDA_PMID(CLUSTER_ZONEINFO,8), PM_TYPE_U64, ZONEINFO_INDOM, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.zoneinfo.nr_alloc_batch */
+  { NULL,
+    { PMDA_PMID(CLUSTER_ZONEINFO,9), PM_TYPE_U64, ZONEINFO_INDOM, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.zoneinfo.nr_inactive_anon */
+  { NULL,
+    { PMDA_PMID(CLUSTER_ZONEINFO,10), PM_TYPE_U64, ZONEINFO_INDOM, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.zoneinfo.nr_active_anon */
+  { NULL,
+    { PMDA_PMID(CLUSTER_ZONEINFO,11), PM_TYPE_U64, ZONEINFO_INDOM, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.zoneinfo.nr_inactive_file */
+  { NULL,
+    { PMDA_PMID(CLUSTER_ZONEINFO,12), PM_TYPE_U64, ZONEINFO_INDOM, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.zoneinfo.nr_active_file */
+  { NULL,
+    { PMDA_PMID(CLUSTER_ZONEINFO,13), PM_TYPE_U64, ZONEINFO_INDOM, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.zoneinfo.nr_unevictable */
+  { NULL,
+    { PMDA_PMID(CLUSTER_ZONEINFO,14), PM_TYPE_U64, ZONEINFO_INDOM, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.zoneinfo.nr_mlock */
+  { NULL,
+    { PMDA_PMID(CLUSTER_ZONEINFO,15), PM_TYPE_U64, ZONEINFO_INDOM, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.zoneinfo.nr_anon_pages */
+  { NULL,
+    { PMDA_PMID(CLUSTER_ZONEINFO,16), PM_TYPE_U64, ZONEINFO_INDOM, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.zoneinfo.nr_mapped */
+  { NULL,
+    { PMDA_PMID(CLUSTER_ZONEINFO,17), PM_TYPE_U64, ZONEINFO_INDOM, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.zoneinfo.nr_file_pages */
+  { NULL,
+    { PMDA_PMID(CLUSTER_ZONEINFO,18), PM_TYPE_U64, ZONEINFO_INDOM, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.zoneinfo.nr_dirty */
+  { NULL,
+    { PMDA_PMID(CLUSTER_ZONEINFO,19), PM_TYPE_U64, ZONEINFO_INDOM, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.zoneinfo.nr_writeback */
+  { NULL,
+    { PMDA_PMID(CLUSTER_ZONEINFO,20), PM_TYPE_U64, ZONEINFO_INDOM, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.zoneinfo.nr_slab_reclaimable */
+  { NULL,
+    { PMDA_PMID(CLUSTER_ZONEINFO,21), PM_TYPE_U64, ZONEINFO_INDOM, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.zoneinfo.nr_slab_unreclaimable */
+  { NULL,
+    { PMDA_PMID(CLUSTER_ZONEINFO,22), PM_TYPE_U64, ZONEINFO_INDOM, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.zoneinfo.nr_page_table_pages */
+  { NULL,
+    { PMDA_PMID(CLUSTER_ZONEINFO,23), PM_TYPE_U64, ZONEINFO_INDOM, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.zoneinfo.nr_kernel_stack */
+  { NULL,
+    { PMDA_PMID(CLUSTER_ZONEINFO,24), PM_TYPE_U64, ZONEINFO_INDOM, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.zoneinfo.nr_unstable */
+  { NULL,
+    { PMDA_PMID(CLUSTER_ZONEINFO,25), PM_TYPE_U64, ZONEINFO_INDOM, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.zoneinfo.nr_bounce */
+  { NULL,
+    { PMDA_PMID(CLUSTER_ZONEINFO,26), PM_TYPE_U64, ZONEINFO_INDOM, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.zoneinfo.nr_vmscan_write */
+  { NULL,
+    { PMDA_PMID(CLUSTER_ZONEINFO,27), PM_TYPE_U64, ZONEINFO_INDOM, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.zoneinfo.nr_vmscan_immediate_reclaim */
+  { NULL,
+    { PMDA_PMID(CLUSTER_ZONEINFO,28), PM_TYPE_U64, ZONEINFO_INDOM, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.zoneinfo.nr_writeback_temp */
+  { NULL,
+    { PMDA_PMID(CLUSTER_ZONEINFO,29), PM_TYPE_U64, ZONEINFO_INDOM, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.zoneinfo.nr_isolated_anon */
+  { NULL,
+    { PMDA_PMID(CLUSTER_ZONEINFO,30), PM_TYPE_U64, ZONEINFO_INDOM, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.zoneinfo.nr_isolated_file */
+  { NULL,
+    { PMDA_PMID(CLUSTER_ZONEINFO,31), PM_TYPE_U64, ZONEINFO_INDOM, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.zoneinfo.nr_shmem */
+  { NULL,
+    { PMDA_PMID(CLUSTER_ZONEINFO,32), PM_TYPE_U64, ZONEINFO_INDOM, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.zoneinfo.nr_dirtied */
+  { NULL,
+    { PMDA_PMID(CLUSTER_ZONEINFO,33), PM_TYPE_U64, ZONEINFO_INDOM, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.zoneinfo.nr_written */
+  { NULL,
+    { PMDA_PMID(CLUSTER_ZONEINFO,34), PM_TYPE_U64, ZONEINFO_INDOM, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.zoneinfo.numa_hit */
+  { NULL,
+    { PMDA_PMID(CLUSTER_ZONEINFO,35), PM_TYPE_U64, ZONEINFO_INDOM, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.zoneinfo.numa_miss */
+  { NULL,
+    { PMDA_PMID(CLUSTER_ZONEINFO,36), PM_TYPE_U64, ZONEINFO_INDOM, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.zoneinfo.numa_foreign */
+  { NULL,
+    { PMDA_PMID(CLUSTER_ZONEINFO,37), PM_TYPE_U64, ZONEINFO_INDOM, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.zoneinfo.numa_interleave */
+  { NULL,
+    { PMDA_PMID(CLUSTER_ZONEINFO,38), PM_TYPE_U64, ZONEINFO_INDOM, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.zoneinfo.numa_local */
+  { NULL,
+    { PMDA_PMID(CLUSTER_ZONEINFO,39), PM_TYPE_U64, ZONEINFO_INDOM, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.zoneinfo.numa_other */
+  { NULL,
+    { PMDA_PMID(CLUSTER_ZONEINFO,40), PM_TYPE_U64, ZONEINFO_INDOM, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.zoneinfo.workingset_refault */
+  { NULL,
+    { PMDA_PMID(CLUSTER_ZONEINFO,41), PM_TYPE_U64, ZONEINFO_INDOM, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.zoneinfo.workingset_activate */
+  { NULL,
+    { PMDA_PMID(CLUSTER_ZONEINFO,42), PM_TYPE_U64, ZONEINFO_INDOM, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.zoneinfo.workingset_nodereclaim */
+  { NULL,
+    { PMDA_PMID(CLUSTER_ZONEINFO,43), PM_TYPE_U64, ZONEINFO_INDOM, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.zoneinfo.nr_anon_transparent_hugepages */
+  { NULL,
+    { PMDA_PMID(CLUSTER_ZONEINFO,44), PM_TYPE_U64, ZONEINFO_INDOM, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.zoneinfo.nr_free_cma */
+  { NULL,
+    { PMDA_PMID(CLUSTER_ZONEINFO,45), PM_TYPE_U64, ZONEINFO_INDOM, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
 /* mem.zoneinfo.protection */
   { NULL,
     { PMDA_PMID(CLUSTER_ZONEINFO_PROTECTION,0), PM_TYPE_U64, ZONEINFO_PROTECTION_INDOM, PM_SEM_INSTANT,
