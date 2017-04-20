@@ -858,6 +858,181 @@ mem.zoneinfo.min
     inst [N or "DMA::node0"] value 12
     inst [N or "Normal::node0"] value 14320
 
+mem.zoneinfo.nr_active_anon
+    inst [N or "DMA32::node0"] value 219088
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 1649340
+
+mem.zoneinfo.nr_active_file
+    inst [N or "DMA32::node0"] value 472712
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 3495524
+
+mem.zoneinfo.nr_alloc_batch
+    inst [N or "DMA32::node0"] value 344
+    inst [N or "DMA::node0"] value 4
+    inst [N or "Normal::node0"] value 924
+
+mem.zoneinfo.nr_anon_pages
+    inst [N or "DMA32::node0"] value 218220
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 1645020
+
+mem.zoneinfo.nr_anon_transparent_hugepages
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_bounce
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_dirtied
+    inst [N or "DMA32::node0"] value 2459612
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 18737368
+
+mem.zoneinfo.nr_dirty
+    inst [N or "DMA32::node0"] value 36
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 308
+
+mem.zoneinfo.nr_file_pages
+    inst [N or "DMA32::node0"] value 900036
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 6732696
+
+mem.zoneinfo.nr_free_cma
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_free_pages
+    inst [N or "DMA32::node0"] value 284860
+    inst [N or "DMA::node0"] value 15852
+    inst [N or "Normal::node0"] value 4349528
+
+mem.zoneinfo.nr_inactive_anon
+    inst [N or "DMA32::node0"] value 47476
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 353556
+
+mem.zoneinfo.nr_inactive_file
+    inst [N or "DMA32::node0"] value 378980
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 2879232
+
+mem.zoneinfo.nr_isolated_anon
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_isolated_file
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_kernel_stack
+    inst [N or "DMA32::node0"] value 344
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 2940
+
+mem.zoneinfo.nr_mapped
+    inst [N or "DMA32::node0"] value 67616
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 476592
+
+mem.zoneinfo.nr_mlock
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 16
+
+mem.zoneinfo.nr_page_table_pages
+    inst [N or "DMA32::node0"] value 6912
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 49016
+
+mem.zoneinfo.nr_shmem
+    inst [N or "DMA32::node0"] value 48344
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 357940
+
+mem.zoneinfo.nr_slab_reclaimable
+    inst [N or "DMA32::node0"] value 126912
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 936644
+
+mem.zoneinfo.nr_slab_unreclaimable
+    inst [N or "DMA32::node0"] value 32808
+    inst [N or "DMA::node0"] value 32
+    inst [N or "Normal::node0"] value 242896
+
+mem.zoneinfo.nr_unevictable
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 16
+
+mem.zoneinfo.nr_unstable
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_vmscan_immediate_reclaim
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_vmscan_write
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_writeback
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_writeback_temp
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_written
+    inst [N or "DMA32::node0"] value 2062668
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 15844068
+
+mem.zoneinfo.numa_foreign
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.numa_hit
+    inst [N or "DMA32::node0"] value 153624216
+    inst [N or "DMA::node0"] value 84
+    inst [N or "Normal::node0"] value 1151779584
+
+mem.zoneinfo.numa_interleave
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 94236
+
+mem.zoneinfo.numa_local
+    inst [N or "DMA32::node0"] value 153624216
+    inst [N or "DMA::node0"] value 84
+    inst [N or "Normal::node0"] value 1151779584
+
+mem.zoneinfo.numa_miss
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.numa_other
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
 mem.zoneinfo.present
     inst [N or "DMA32::node0"] value 1724008
     inst [N or "DMA::node0"] value 15984
@@ -886,6 +1061,21 @@ mem.zoneinfo.spanned
     inst [N or "DMA32::node0"] value 4177920
     inst [N or "DMA::node0"] value 16380
     inst [N or "Normal::node0"] value 14653440
+
+mem.zoneinfo.workingset_activate
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.workingset_nodereclaim
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.workingset_refault
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
 
 == done
 
@@ -1963,6 +2153,181 @@ mem.zoneinfo.min
     inst [N or "DMA::node0"] value 12
     inst [N or "Normal::node0"] value 14320
 
+mem.zoneinfo.nr_active_anon
+    inst [N or "DMA32::node0"] value 219088
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 1649340
+
+mem.zoneinfo.nr_active_file
+    inst [N or "DMA32::node0"] value 472712
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 3495524
+
+mem.zoneinfo.nr_alloc_batch
+    inst [N or "DMA32::node0"] value 344
+    inst [N or "DMA::node0"] value 4
+    inst [N or "Normal::node0"] value 924
+
+mem.zoneinfo.nr_anon_pages
+    inst [N or "DMA32::node0"] value 218220
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 1645020
+
+mem.zoneinfo.nr_anon_transparent_hugepages
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_bounce
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_dirtied
+    inst [N or "DMA32::node0"] value 2459612
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 18737368
+
+mem.zoneinfo.nr_dirty
+    inst [N or "DMA32::node0"] value 36
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 308
+
+mem.zoneinfo.nr_file_pages
+    inst [N or "DMA32::node0"] value 900036
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 6732696
+
+mem.zoneinfo.nr_free_cma
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_free_pages
+    inst [N or "DMA32::node0"] value 284860
+    inst [N or "DMA::node0"] value 15852
+    inst [N or "Normal::node0"] value 4349528
+
+mem.zoneinfo.nr_inactive_anon
+    inst [N or "DMA32::node0"] value 47476
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 353556
+
+mem.zoneinfo.nr_inactive_file
+    inst [N or "DMA32::node0"] value 378980
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 2879232
+
+mem.zoneinfo.nr_isolated_anon
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_isolated_file
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_kernel_stack
+    inst [N or "DMA32::node0"] value 344
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 2940
+
+mem.zoneinfo.nr_mapped
+    inst [N or "DMA32::node0"] value 67616
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 476592
+
+mem.zoneinfo.nr_mlock
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 16
+
+mem.zoneinfo.nr_page_table_pages
+    inst [N or "DMA32::node0"] value 6912
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 49016
+
+mem.zoneinfo.nr_shmem
+    inst [N or "DMA32::node0"] value 48344
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 357940
+
+mem.zoneinfo.nr_slab_reclaimable
+    inst [N or "DMA32::node0"] value 126912
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 936644
+
+mem.zoneinfo.nr_slab_unreclaimable
+    inst [N or "DMA32::node0"] value 32808
+    inst [N or "DMA::node0"] value 32
+    inst [N or "Normal::node0"] value 242896
+
+mem.zoneinfo.nr_unevictable
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 16
+
+mem.zoneinfo.nr_unstable
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_vmscan_immediate_reclaim
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_vmscan_write
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_writeback
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_writeback_temp
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_written
+    inst [N or "DMA32::node0"] value 2062668
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 15844068
+
+mem.zoneinfo.numa_foreign
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.numa_hit
+    inst [N or "DMA32::node0"] value 153624216
+    inst [N or "DMA::node0"] value 84
+    inst [N or "Normal::node0"] value 1151779584
+
+mem.zoneinfo.numa_interleave
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 94236
+
+mem.zoneinfo.numa_local
+    inst [N or "DMA32::node0"] value 153624216
+    inst [N or "DMA::node0"] value 84
+    inst [N or "Normal::node0"] value 1151779584
+
+mem.zoneinfo.numa_miss
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.numa_other
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
 mem.zoneinfo.present
     inst [N or "DMA32::node0"] value 1724008
     inst [N or "DMA::node0"] value 15984
@@ -1991,6 +2356,21 @@ mem.zoneinfo.spanned
     inst [N or "DMA32::node0"] value 4177920
     inst [N or "DMA::node0"] value 16380
     inst [N or "Normal::node0"] value 14653440
+
+mem.zoneinfo.workingset_activate
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.workingset_nodereclaim
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.workingset_refault
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
 
 == done
 
@@ -2831,6 +3211,216 @@ mem.zoneinfo.min
     inst [N or "Normal::node0"] value 43720
     inst [N or "Normal::node1"] value 45152
 
+mem.zoneinfo.nr_active_anon
+    inst [N or "DMA32::node0"] value 364668
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 3893724
+    inst [N or "Normal::node1"] value 6899892
+
+mem.zoneinfo.nr_active_file
+    inst [N or "DMA32::node0"] value 392872
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 9285188
+    inst [N or "Normal::node1"] value 3626496
+
+mem.zoneinfo.nr_alloc_batch
+    inst [N or "DMA32::node0"] value 308
+    inst [N or "DMA::node0"] value 4
+    inst [N or "Normal::node0"] value 8776
+    inst [N or "Normal::node1"] value 10300
+
+mem.zoneinfo.nr_anon_pages
+    inst [N or "DMA32::node0"] value 12464
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 252964
+    inst [N or "Normal::node1"] value 208660
+
+mem.zoneinfo.nr_anon_transparent_hugepages
+    inst [N or "DMA32::node0"] value 700
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 6708
+    inst [N or "Normal::node1"] value 12672
+
+mem.zoneinfo.nr_bounce
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.nr_dirtied
+    inst [N or "DMA32::node0"] value 979228
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 24452240
+    inst [N or "Normal::node1"] value 15528392
+
+mem.zoneinfo.nr_dirty
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 8
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.nr_file_pages
+    inst [N or "DMA32::node0"] value 671468
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 16585132
+    inst [N or "Normal::node1"] value 13987452
+
+mem.zoneinfo.nr_free_cma
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.nr_free_pages
+    inst [N or "DMA32::node0"] value 693676
+    inst [N or "DMA::node0"] value 15320
+    inst [N or "Normal::node0"] value 42201908
+    inst [N or "Normal::node1"] value 44375624
+
+mem.zoneinfo.nr_inactive_anon
+    inst [N or "DMA32::node0"] value 9040
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 231056
+    inst [N or "Normal::node1"] value 146488
+
+mem.zoneinfo.nr_inactive_file
+    inst [N or "DMA32::node0"] value 255364
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 6698636
+    inst [N or "Normal::node1"] value 9974976
+
+mem.zoneinfo.nr_isolated_anon
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.nr_isolated_file
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.nr_kernel_stack
+    inst [N or "DMA32::node0"] value 36
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 1552
+    inst [N or "Normal::node1"] value 1500
+
+mem.zoneinfo.nr_mapped
+    inst [N or "DMA32::node0"] value 5496
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 141048
+    inst [N or "Normal::node1"] value 42432
+
+mem.zoneinfo.nr_mlock
+    inst [N or "DMA32::node0"] value 14244
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 122792
+    inst [N or "Normal::node1"] value 12672
+
+mem.zoneinfo.nr_page_table_pages
+    inst [N or "DMA32::node0"] value 1692
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 19056
+    inst [N or "Normal::node1"] value 19896
+
+mem.zoneinfo.nr_shmem
+    inst [N or "DMA32::node0"] value 22744
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 592552
+    inst [N or "Normal::node1"] value 385984
+
+mem.zoneinfo.nr_slab_reclaimable
+    inst [N or "DMA32::node0"] value 32920
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 801816
+    inst [N or "Normal::node1"] value 408136
+
+mem.zoneinfo.nr_slab_unreclaimable
+    inst [N or "DMA32::node0"] value 5120
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 124460
+    inst [N or "Normal::node1"] value 79556
+
+mem.zoneinfo.nr_unevictable
+    inst [N or "DMA32::node0"] value 14244
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 122792
+    inst [N or "Normal::node1"] value 12672
+
+mem.zoneinfo.nr_unstable
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.nr_vmscan_immediate_reclaim
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.nr_vmscan_write
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.nr_writeback
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.nr_writeback_temp
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.nr_written
+    inst [N or "DMA32::node0"] value 844052
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 21335500
+    inst [N or "Normal::node1"] value 14817580
+
+mem.zoneinfo.numa_foreign
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.numa_hit
+    inst [N or "DMA32::node0"] value 63240112
+    inst [N or "DMA::node0"] value 576
+    inst [N or "Normal::node0"] value 1302059204
+    inst [N or "Normal::node1"] value 1125446956
+
+mem.zoneinfo.numa_interleave
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 143024
+    inst [N or "Normal::node1"] value 143084
+
+mem.zoneinfo.numa_local
+    inst [N or "DMA32::node0"] value 63230084
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 1302022456
+    inst [N or "Normal::node1"] value 1125232436
+
+mem.zoneinfo.numa_miss
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.numa_other
+    inst [N or "DMA32::node0"] value 10028
+    inst [N or "DMA::node0"] value 576
+    inst [N or "Normal::node0"] value 36748
+    inst [N or "Normal::node1"] value 214520
+
 mem.zoneinfo.present
     inst [N or "DMA32::node0"] value 2049788
     inst [N or "DMA::node0"] value 15988
@@ -2866,6 +3456,24 @@ mem.zoneinfo.spanned
     inst [N or "DMA::node0"] value 16380
     inst [N or "Normal::node0"] value 65011712
     inst [N or "Normal::node1"] value 67108864
+
+mem.zoneinfo.workingset_activate
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.workingset_nodereclaim
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.workingset_refault
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
 
 == done
 
@@ -3835,6 +4443,216 @@ mem.zoneinfo.min
     inst [N or "Normal::node0"] value 43720
     inst [N or "Normal::node1"] value 45152
 
+mem.zoneinfo.nr_active_anon
+    inst [N or "DMA32::node0"] value 364668
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 3893724
+    inst [N or "Normal::node1"] value 6899892
+
+mem.zoneinfo.nr_active_file
+    inst [N or "DMA32::node0"] value 392872
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 9285188
+    inst [N or "Normal::node1"] value 3626496
+
+mem.zoneinfo.nr_alloc_batch
+    inst [N or "DMA32::node0"] value 308
+    inst [N or "DMA::node0"] value 4
+    inst [N or "Normal::node0"] value 8776
+    inst [N or "Normal::node1"] value 10300
+
+mem.zoneinfo.nr_anon_pages
+    inst [N or "DMA32::node0"] value 12464
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 252964
+    inst [N or "Normal::node1"] value 208660
+
+mem.zoneinfo.nr_anon_transparent_hugepages
+    inst [N or "DMA32::node0"] value 700
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 6708
+    inst [N or "Normal::node1"] value 12672
+
+mem.zoneinfo.nr_bounce
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.nr_dirtied
+    inst [N or "DMA32::node0"] value 979228
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 24452240
+    inst [N or "Normal::node1"] value 15528392
+
+mem.zoneinfo.nr_dirty
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 8
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.nr_file_pages
+    inst [N or "DMA32::node0"] value 671468
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 16585132
+    inst [N or "Normal::node1"] value 13987452
+
+mem.zoneinfo.nr_free_cma
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.nr_free_pages
+    inst [N or "DMA32::node0"] value 693676
+    inst [N or "DMA::node0"] value 15320
+    inst [N or "Normal::node0"] value 42201908
+    inst [N or "Normal::node1"] value 44375624
+
+mem.zoneinfo.nr_inactive_anon
+    inst [N or "DMA32::node0"] value 9040
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 231056
+    inst [N or "Normal::node1"] value 146488
+
+mem.zoneinfo.nr_inactive_file
+    inst [N or "DMA32::node0"] value 255364
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 6698636
+    inst [N or "Normal::node1"] value 9974976
+
+mem.zoneinfo.nr_isolated_anon
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.nr_isolated_file
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.nr_kernel_stack
+    inst [N or "DMA32::node0"] value 36
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 1552
+    inst [N or "Normal::node1"] value 1500
+
+mem.zoneinfo.nr_mapped
+    inst [N or "DMA32::node0"] value 5496
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 141048
+    inst [N or "Normal::node1"] value 42432
+
+mem.zoneinfo.nr_mlock
+    inst [N or "DMA32::node0"] value 14244
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 122792
+    inst [N or "Normal::node1"] value 12672
+
+mem.zoneinfo.nr_page_table_pages
+    inst [N or "DMA32::node0"] value 1692
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 19056
+    inst [N or "Normal::node1"] value 19896
+
+mem.zoneinfo.nr_shmem
+    inst [N or "DMA32::node0"] value 22744
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 592552
+    inst [N or "Normal::node1"] value 385984
+
+mem.zoneinfo.nr_slab_reclaimable
+    inst [N or "DMA32::node0"] value 32920
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 801816
+    inst [N or "Normal::node1"] value 408136
+
+mem.zoneinfo.nr_slab_unreclaimable
+    inst [N or "DMA32::node0"] value 5120
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 124460
+    inst [N or "Normal::node1"] value 79556
+
+mem.zoneinfo.nr_unevictable
+    inst [N or "DMA32::node0"] value 14244
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 122792
+    inst [N or "Normal::node1"] value 12672
+
+mem.zoneinfo.nr_unstable
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.nr_vmscan_immediate_reclaim
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.nr_vmscan_write
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.nr_writeback
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.nr_writeback_temp
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.nr_written
+    inst [N or "DMA32::node0"] value 844052
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 21335500
+    inst [N or "Normal::node1"] value 14817580
+
+mem.zoneinfo.numa_foreign
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.numa_hit
+    inst [N or "DMA32::node0"] value 63240112
+    inst [N or "DMA::node0"] value 576
+    inst [N or "Normal::node0"] value 1302059204
+    inst [N or "Normal::node1"] value 1125446956
+
+mem.zoneinfo.numa_interleave
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 143024
+    inst [N or "Normal::node1"] value 143084
+
+mem.zoneinfo.numa_local
+    inst [N or "DMA32::node0"] value 63230084
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 1302022456
+    inst [N or "Normal::node1"] value 1125232436
+
+mem.zoneinfo.numa_miss
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.numa_other
+    inst [N or "DMA32::node0"] value 10028
+    inst [N or "DMA::node0"] value 576
+    inst [N or "Normal::node0"] value 36748
+    inst [N or "Normal::node1"] value 214520
+
 mem.zoneinfo.present
     inst [N or "DMA32::node0"] value 2049788
     inst [N or "DMA::node0"] value 15988
@@ -3870,6 +4688,24 @@ mem.zoneinfo.spanned
     inst [N or "DMA::node0"] value 16380
     inst [N or "Normal::node0"] value 65011712
     inst [N or "Normal::node1"] value 67108864
+
+mem.zoneinfo.workingset_activate
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.workingset_nodereclaim
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.workingset_refault
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
 
 == done
 
@@ -4710,6 +5546,216 @@ mem.zoneinfo.min
     inst [N or "Normal::node0"] value 43720
     inst [N or "Normal::node1"] value 45152
 
+mem.zoneinfo.nr_active_anon
+    inst [N or "DMA32::node0"] value 364668
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 3893724
+    inst [N or "Normal::node1"] value 6899892
+
+mem.zoneinfo.nr_active_file
+    inst [N or "DMA32::node0"] value 392872
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 9285188
+    inst [N or "Normal::node1"] value 3626496
+
+mem.zoneinfo.nr_alloc_batch
+    inst [N or "DMA32::node0"] value 308
+    inst [N or "DMA::node0"] value 4
+    inst [N or "Normal::node0"] value 8776
+    inst [N or "Normal::node1"] value 10300
+
+mem.zoneinfo.nr_anon_pages
+    inst [N or "DMA32::node0"] value 12464
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 252964
+    inst [N or "Normal::node1"] value 208660
+
+mem.zoneinfo.nr_anon_transparent_hugepages
+    inst [N or "DMA32::node0"] value 700
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 6708
+    inst [N or "Normal::node1"] value 12672
+
+mem.zoneinfo.nr_bounce
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.nr_dirtied
+    inst [N or "DMA32::node0"] value 979228
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 24452240
+    inst [N or "Normal::node1"] value 15528392
+
+mem.zoneinfo.nr_dirty
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 8
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.nr_file_pages
+    inst [N or "DMA32::node0"] value 671468
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 16585132
+    inst [N or "Normal::node1"] value 13987452
+
+mem.zoneinfo.nr_free_cma
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.nr_free_pages
+    inst [N or "DMA32::node0"] value 693676
+    inst [N or "DMA::node0"] value 15320
+    inst [N or "Normal::node0"] value 42201908
+    inst [N or "Normal::node1"] value 44375624
+
+mem.zoneinfo.nr_inactive_anon
+    inst [N or "DMA32::node0"] value 9040
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 231056
+    inst [N or "Normal::node1"] value 146488
+
+mem.zoneinfo.nr_inactive_file
+    inst [N or "DMA32::node0"] value 255364
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 6698636
+    inst [N or "Normal::node1"] value 9974976
+
+mem.zoneinfo.nr_isolated_anon
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.nr_isolated_file
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.nr_kernel_stack
+    inst [N or "DMA32::node0"] value 36
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 1552
+    inst [N or "Normal::node1"] value 1500
+
+mem.zoneinfo.nr_mapped
+    inst [N or "DMA32::node0"] value 5496
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 141048
+    inst [N or "Normal::node1"] value 42432
+
+mem.zoneinfo.nr_mlock
+    inst [N or "DMA32::node0"] value 14244
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 122792
+    inst [N or "Normal::node1"] value 12672
+
+mem.zoneinfo.nr_page_table_pages
+    inst [N or "DMA32::node0"] value 1692
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 19056
+    inst [N or "Normal::node1"] value 19896
+
+mem.zoneinfo.nr_shmem
+    inst [N or "DMA32::node0"] value 22744
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 592552
+    inst [N or "Normal::node1"] value 385984
+
+mem.zoneinfo.nr_slab_reclaimable
+    inst [N or "DMA32::node0"] value 32920
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 801816
+    inst [N or "Normal::node1"] value 408136
+
+mem.zoneinfo.nr_slab_unreclaimable
+    inst [N or "DMA32::node0"] value 5120
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 124460
+    inst [N or "Normal::node1"] value 79556
+
+mem.zoneinfo.nr_unevictable
+    inst [N or "DMA32::node0"] value 14244
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 122792
+    inst [N or "Normal::node1"] value 12672
+
+mem.zoneinfo.nr_unstable
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.nr_vmscan_immediate_reclaim
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.nr_vmscan_write
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.nr_writeback
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.nr_writeback_temp
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.nr_written
+    inst [N or "DMA32::node0"] value 844052
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 21335500
+    inst [N or "Normal::node1"] value 14817580
+
+mem.zoneinfo.numa_foreign
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.numa_hit
+    inst [N or "DMA32::node0"] value 63240112
+    inst [N or "DMA::node0"] value 576
+    inst [N or "Normal::node0"] value 1302059204
+    inst [N or "Normal::node1"] value 1125446956
+
+mem.zoneinfo.numa_interleave
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 143024
+    inst [N or "Normal::node1"] value 143084
+
+mem.zoneinfo.numa_local
+    inst [N or "DMA32::node0"] value 63230084
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 1302022456
+    inst [N or "Normal::node1"] value 1125232436
+
+mem.zoneinfo.numa_miss
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.numa_other
+    inst [N or "DMA32::node0"] value 10028
+    inst [N or "DMA::node0"] value 576
+    inst [N or "Normal::node0"] value 36748
+    inst [N or "Normal::node1"] value 214520
+
 mem.zoneinfo.present
     inst [N or "DMA32::node0"] value 2049788
     inst [N or "DMA::node0"] value 15988
@@ -4745,6 +5791,24 @@ mem.zoneinfo.spanned
     inst [N or "DMA::node0"] value 16380
     inst [N or "Normal::node0"] value 65011712
     inst [N or "Normal::node1"] value 67108864
+
+mem.zoneinfo.workingset_activate
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.workingset_nodereclaim
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.workingset_refault
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
 
 == done
 
@@ -5714,6 +6778,216 @@ mem.zoneinfo.min
     inst [N or "Normal::node0"] value 43720
     inst [N or "Normal::node1"] value 45152
 
+mem.zoneinfo.nr_active_anon
+    inst [N or "DMA32::node0"] value 364668
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 3893724
+    inst [N or "Normal::node1"] value 6899892
+
+mem.zoneinfo.nr_active_file
+    inst [N or "DMA32::node0"] value 392872
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 9285188
+    inst [N or "Normal::node1"] value 3626496
+
+mem.zoneinfo.nr_alloc_batch
+    inst [N or "DMA32::node0"] value 308
+    inst [N or "DMA::node0"] value 4
+    inst [N or "Normal::node0"] value 8776
+    inst [N or "Normal::node1"] value 10300
+
+mem.zoneinfo.nr_anon_pages
+    inst [N or "DMA32::node0"] value 12464
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 252964
+    inst [N or "Normal::node1"] value 208660
+
+mem.zoneinfo.nr_anon_transparent_hugepages
+    inst [N or "DMA32::node0"] value 700
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 6708
+    inst [N or "Normal::node1"] value 12672
+
+mem.zoneinfo.nr_bounce
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.nr_dirtied
+    inst [N or "DMA32::node0"] value 979228
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 24452240
+    inst [N or "Normal::node1"] value 15528392
+
+mem.zoneinfo.nr_dirty
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 8
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.nr_file_pages
+    inst [N or "DMA32::node0"] value 671468
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 16585132
+    inst [N or "Normal::node1"] value 13987452
+
+mem.zoneinfo.nr_free_cma
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.nr_free_pages
+    inst [N or "DMA32::node0"] value 693676
+    inst [N or "DMA::node0"] value 15320
+    inst [N or "Normal::node0"] value 42201908
+    inst [N or "Normal::node1"] value 44375624
+
+mem.zoneinfo.nr_inactive_anon
+    inst [N or "DMA32::node0"] value 9040
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 231056
+    inst [N or "Normal::node1"] value 146488
+
+mem.zoneinfo.nr_inactive_file
+    inst [N or "DMA32::node0"] value 255364
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 6698636
+    inst [N or "Normal::node1"] value 9974976
+
+mem.zoneinfo.nr_isolated_anon
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.nr_isolated_file
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.nr_kernel_stack
+    inst [N or "DMA32::node0"] value 36
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 1552
+    inst [N or "Normal::node1"] value 1500
+
+mem.zoneinfo.nr_mapped
+    inst [N or "DMA32::node0"] value 5496
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 141048
+    inst [N or "Normal::node1"] value 42432
+
+mem.zoneinfo.nr_mlock
+    inst [N or "DMA32::node0"] value 14244
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 122792
+    inst [N or "Normal::node1"] value 12672
+
+mem.zoneinfo.nr_page_table_pages
+    inst [N or "DMA32::node0"] value 1692
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 19056
+    inst [N or "Normal::node1"] value 19896
+
+mem.zoneinfo.nr_shmem
+    inst [N or "DMA32::node0"] value 22744
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 592552
+    inst [N or "Normal::node1"] value 385984
+
+mem.zoneinfo.nr_slab_reclaimable
+    inst [N or "DMA32::node0"] value 32920
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 801816
+    inst [N or "Normal::node1"] value 408136
+
+mem.zoneinfo.nr_slab_unreclaimable
+    inst [N or "DMA32::node0"] value 5120
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 124460
+    inst [N or "Normal::node1"] value 79556
+
+mem.zoneinfo.nr_unevictable
+    inst [N or "DMA32::node0"] value 14244
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 122792
+    inst [N or "Normal::node1"] value 12672
+
+mem.zoneinfo.nr_unstable
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.nr_vmscan_immediate_reclaim
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.nr_vmscan_write
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.nr_writeback
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.nr_writeback_temp
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.nr_written
+    inst [N or "DMA32::node0"] value 844052
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 21335500
+    inst [N or "Normal::node1"] value 14817580
+
+mem.zoneinfo.numa_foreign
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.numa_hit
+    inst [N or "DMA32::node0"] value 63240112
+    inst [N or "DMA::node0"] value 576
+    inst [N or "Normal::node0"] value 1302059204
+    inst [N or "Normal::node1"] value 1125446956
+
+mem.zoneinfo.numa_interleave
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 143024
+    inst [N or "Normal::node1"] value 143084
+
+mem.zoneinfo.numa_local
+    inst [N or "DMA32::node0"] value 63230084
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 1302022456
+    inst [N or "Normal::node1"] value 1125232436
+
+mem.zoneinfo.numa_miss
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.numa_other
+    inst [N or "DMA32::node0"] value 10028
+    inst [N or "DMA::node0"] value 576
+    inst [N or "Normal::node0"] value 36748
+    inst [N or "Normal::node1"] value 214520
+
 mem.zoneinfo.present
     inst [N or "DMA32::node0"] value 2049788
     inst [N or "DMA::node0"] value 15988
@@ -5749,6 +7023,24 @@ mem.zoneinfo.spanned
     inst [N or "DMA::node0"] value 16380
     inst [N or "Normal::node0"] value 65011712
     inst [N or "Normal::node1"] value 67108864
+
+mem.zoneinfo.workingset_activate
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.workingset_nodereclaim
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.workingset_refault
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
 
 == done
 
@@ -6523,41 +7815,170 @@ mem.vmstat.zone_reclaim_failed
     value 0
 
 mem.zoneinfo.free
-    inst [N or "DMA32::node0"] value 3030056
-    inst [N or "DMA::node0"] value 15900
+    inst [N or "DMA::node0"] value 3030056
     inst [N or "Normal::node0"] value 218480
 
 mem.zoneinfo.high
-    inst [N or "DMA32::node0"] value 76252
     inst [N or "DMA::node0"] value 396
     inst [N or "Normal::node0"] value 24708
 
 mem.zoneinfo.low
-    inst [N or "DMA32::node0"] value 63544
     inst [N or "DMA::node0"] value 332
     inst [N or "Normal::node0"] value 20592
 
 mem.zoneinfo.managed
-    inst [N or "DMA32::node0"] value 3030932
     inst [N or "DMA::node0"] value 15908
     inst [N or "Normal::node0"] value 974140
 
 mem.zoneinfo.min
-    inst [N or "DMA32::node0"] value 50836
     inst [N or "DMA::node0"] value 268
     inst [N or "Normal::node0"] value 16476
 
+mem.zoneinfo.nr_active_anon
+    inst [N or "DMA::node0"] value 274332
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_active_file
+    inst [N or "DMA::node0"] value 92140
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_alloc_batch
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_anon_pages
+    inst [N or "DMA::node0"] value 273580
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_anon_transparent_hugepages
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_bounce
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_dirtied
+    inst [N or "DMA::node0"] value 24404
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_dirty
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_file_pages
+    inst [N or "DMA::node0"] value 308592
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_free_cma
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_free_pages
+    inst [N or "DMA::node0"] value 15900
+    inst [N or "Normal::node0"] value 218480
+
+mem.zoneinfo.nr_inactive_anon
+    inst [N or "DMA::node0"] value 580
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_inactive_file
+    inst [N or "DMA::node0"] value 215128
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_isolated_anon
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_isolated_file
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_kernel_stack
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 19968
+
+mem.zoneinfo.nr_mapped
+    inst [N or "DMA::node0"] value 158248
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_mlock
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_page_table_pages
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 20784
+
+mem.zoneinfo.nr_shmem
+    inst [N or "DMA::node0"] value 1332
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_slab_reclaimable
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 48840
+
+mem.zoneinfo.nr_slab_unreclaimable
+    inst [N or "DMA::node0"] value 8
+    inst [N or "Normal::node0"] value 60888
+
+mem.zoneinfo.nr_unevictable
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_unstable
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_vmscan_immediate_reclaim
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_vmscan_write
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_writeback
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_writeback_temp
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_written
+    inst [N or "DMA::node0"] value 24400
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.numa_foreign
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.numa_hit
+    inst [N or "DMA::node0"] value 4
+    inst [N or "Normal::node0"] value 3048324
+
+mem.zoneinfo.numa_interleave
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 76352
+
+mem.zoneinfo.numa_local
+    inst [N or "DMA::node0"] value 4
+    inst [N or "Normal::node0"] value 3048324
+
+mem.zoneinfo.numa_miss
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.numa_other
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
 mem.zoneinfo.present
-    inst [N or "DMA32::node0"] value 3129212
     inst [N or "DMA::node0"] value 15992
     inst [N or "Normal::node0"] value 1048576
 
 mem.zoneinfo.protection
-    inst [N or "DMA32::node0::lowmem_reserved0"] value 0
-    inst [N or "DMA32::node0::lowmem_reserved1"] value 0
-    inst [N or "DMA32::node0::lowmem_reserved2"] value 3804
-    inst [N or "DMA32::node0::lowmem_reserved3"] value 3804
-    inst [N or "DMA32::node0::lowmem_reserved4"] value 3804
     inst [N or "DMA::node0::lowmem_reserved0"] value 0
     inst [N or "DMA::node0::lowmem_reserved1"] value 11736
     inst [N or "DMA::node0::lowmem_reserved2"] value 15544
@@ -6570,14 +7991,24 @@ mem.zoneinfo.protection
     inst [N or "Normal::node0::lowmem_reserved4"] value 0
 
 mem.zoneinfo.scanned
-    inst [N or "DMA32::node0"] value 0
     inst [N or "DMA::node0"] value 0
     inst [N or "Normal::node0"] value 0
 
 mem.zoneinfo.spanned
-    inst [N or "DMA32::node0"] value 4177920
     inst [N or "DMA::node0"] value 16380
     inst [N or "Normal::node0"] value 1048576
+
+mem.zoneinfo.workingset_activate
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.workingset_nodereclaim
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.workingset_refault
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
 
 == done
 
@@ -7455,41 +8886,170 @@ No value(s) available!
 == Checking zoneinfo metric values - meminfo-root-004.tgz
 
 mem.zoneinfo.free
-    inst [N or "DMA32::node0"] value 3030056
-    inst [N or "DMA::node0"] value 15900
+    inst [N or "DMA::node0"] value 3030056
     inst [N or "Normal::node0"] value 218480
 
 mem.zoneinfo.high
-    inst [N or "DMA32::node0"] value 76252
     inst [N or "DMA::node0"] value 396
     inst [N or "Normal::node0"] value 24708
 
 mem.zoneinfo.low
-    inst [N or "DMA32::node0"] value 63544
     inst [N or "DMA::node0"] value 332
     inst [N or "Normal::node0"] value 20592
 
 mem.zoneinfo.managed
-    inst [N or "DMA32::node0"] value 3030932
     inst [N or "DMA::node0"] value 15908
     inst [N or "Normal::node0"] value 974140
 
 mem.zoneinfo.min
-    inst [N or "DMA32::node0"] value 50836
     inst [N or "DMA::node0"] value 268
     inst [N or "Normal::node0"] value 16476
 
+mem.zoneinfo.nr_active_anon
+    inst [N or "DMA::node0"] value 274332
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_active_file
+    inst [N or "DMA::node0"] value 92140
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_alloc_batch
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_anon_pages
+    inst [N or "DMA::node0"] value 273580
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_anon_transparent_hugepages
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_bounce
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_dirtied
+    inst [N or "DMA::node0"] value 24404
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_dirty
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_file_pages
+    inst [N or "DMA::node0"] value 308592
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_free_cma
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_free_pages
+    inst [N or "DMA::node0"] value 15900
+    inst [N or "Normal::node0"] value 218480
+
+mem.zoneinfo.nr_inactive_anon
+    inst [N or "DMA::node0"] value 580
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_inactive_file
+    inst [N or "DMA::node0"] value 215128
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_isolated_anon
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_isolated_file
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_kernel_stack
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 19968
+
+mem.zoneinfo.nr_mapped
+    inst [N or "DMA::node0"] value 158248
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_mlock
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_page_table_pages
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 20784
+
+mem.zoneinfo.nr_shmem
+    inst [N or "DMA::node0"] value 1332
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_slab_reclaimable
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 48840
+
+mem.zoneinfo.nr_slab_unreclaimable
+    inst [N or "DMA::node0"] value 8
+    inst [N or "Normal::node0"] value 60888
+
+mem.zoneinfo.nr_unevictable
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_unstable
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_vmscan_immediate_reclaim
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_vmscan_write
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_writeback
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_writeback_temp
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_written
+    inst [N or "DMA::node0"] value 24400
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.numa_foreign
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.numa_hit
+    inst [N or "DMA::node0"] value 4
+    inst [N or "Normal::node0"] value 3048324
+
+mem.zoneinfo.numa_interleave
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 76352
+
+mem.zoneinfo.numa_local
+    inst [N or "DMA::node0"] value 4
+    inst [N or "Normal::node0"] value 3048324
+
+mem.zoneinfo.numa_miss
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.numa_other
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
 mem.zoneinfo.present
-    inst [N or "DMA32::node0"] value 3129212
     inst [N or "DMA::node0"] value 15992
     inst [N or "Normal::node0"] value 1048576
 
 mem.zoneinfo.protection
-    inst [N or "DMA32::node0::lowmem_reserved0"] value 0
-    inst [N or "DMA32::node0::lowmem_reserved1"] value 0
-    inst [N or "DMA32::node0::lowmem_reserved2"] value 3804
-    inst [N or "DMA32::node0::lowmem_reserved3"] value 3804
-    inst [N or "DMA32::node0::lowmem_reserved4"] value 3804
     inst [N or "DMA::node0::lowmem_reserved0"] value 0
     inst [N or "DMA::node0::lowmem_reserved1"] value 11736
     inst [N or "DMA::node0::lowmem_reserved2"] value 15544
@@ -7502,14 +9062,24 @@ mem.zoneinfo.protection
     inst [N or "Normal::node0::lowmem_reserved4"] value 0
 
 mem.zoneinfo.scanned
-    inst [N or "DMA32::node0"] value 0
     inst [N or "DMA::node0"] value 0
     inst [N or "Normal::node0"] value 0
 
 mem.zoneinfo.spanned
-    inst [N or "DMA32::node0"] value 4177920
     inst [N or "DMA::node0"] value 16380
     inst [N or "Normal::node0"] value 1048576
+
+mem.zoneinfo.workingset_activate
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.workingset_nodereclaim
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.workingset_refault
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
 
 == done
 
