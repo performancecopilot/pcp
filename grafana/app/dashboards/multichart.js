@@ -63,7 +63,7 @@ for (var i = 0; i<targets.length; i++) {
     }
     
     var TITLE = titles[i];
-    if (TITLE == null) TITLE = "";
+    if (TITLE == null) TITLE = TARGET;
 
     var STYLE = styles[i];
     if (STYLE == null || STYLE != "png") STYLE = "flot"; // default "flot"
