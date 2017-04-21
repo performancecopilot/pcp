@@ -20,95 +20,231 @@ import cpmapi as c_api
 from pcp.pmapi import pmUnits, pmContext as PCP
 from pcp.pmda import PMDA, pmdaMetric, pmdaIndom, pmdaInstid
 
-import requests
+import argparse
+import copy
+import errno
 import json
-
-from os import getenv, listdir
+import os
 import sys
+import re
+import requests
 import time
 
 if sys.version >= '3':
-    long = int	# python2 to python3 portability (no long() in python3)
+	long = int	# python2 to python3 portability (no long() in python3)
+
+UINT = "uint64"
+DOUBLE = "double"
+COUNTER = "counter"
+INSTANT = "instaneous"
+TYPES = { DOUBLE: c_api.PM_TYPE_DOUBLE, UINT: c_api.PM_TYPE_U64 }
+SEMANTICS = { COUNTER: c_api.PM_SEM_COUNTER, INSTANT: c_api.PM_SEM_INSTANT }
+
+class ScanPrometheus(object):
+	''' Scans Prometheus Endpoint to Generate Metadata for the given endpoint'''
+
+	def __init__(self, name, endpoint):
+		self.name = name
+		self.endpoint = endpoint
+		self.raw_metrics = None
+		self.metrics_by_name = {}
+		self.fetch_raw_metrics()
+		self.parse_raw()
+		self.save_config()
+
+	class Metric(object):
+		''' Inner metric class used to serialize the parsed metrics'''
+
+		def __init__(self):
+			self.name = None
+			self.desc = None
+			self.instances = None
+			self.type = None
+			self.semantic = None
+			self.units_str = None
+			self.prometheus_name = None
+
+		def add_instance(self, name, prometheus_name):
+			if self.instances == None:
+				self.instances = []
+			self.instances.append({"name": name, "prometheus_name": prometheus_name})
+
+		def export(self):
+			dict_ = self.__dict__
+			return { key: dict_[key] for key in dict_ if dict_[key] is not None}
+
+	def save_config(self):
+		config = { "name": self.name, "endpoint": self.endpoint, "metrics": [] }
+		for k in self.metrics_by_name:
+			config["metrics"].append(self.metrics_by_name[k].export()) 
+		raw_config = json.dumps(config, indent=2)
+		filename = os.getenv('PCP_PMDAS_DIR') + "/prometheus/config/" + self.name + ".json"
+		if not os.path.exists(os.path.dirname(filename)):
+			try:
+				os.makedirs(os.path.dirname(filename))
+			except OSError as exc:
+				if exc.errno != errno.EEXIST:
+					raise
+		with open(filename, "w") as f:
+			f.write(raw_config)
+			f.close()
+
+	def fetch_raw_metrics(self):
+		try:
+			req = requests.get(self.endpoint)
+			self.raw_metrics = req.text
+		except ValueError as e:
+			raise ValueError("Unable to connect to the prometheus "
+								"endpoint = %s\n%s" % (self.endpoint, str(e)))
+
+	def get_metric_metadata(self, lines):
+		tokens = lines[0].split(' ')
+		desc = ' '.join(tokens[3:])
+		name = tokens[2]
+		type_ = lines[1].split(' ')[3]
+		return (desc, name, type_)
+
+	def get_metric_instance(self, line):
+		tokens = line.split(' ')
+		p_name = tokens[0]
+		name = p_name
+		instance = None
+		if name.rfind('}') != -1:
+			name = name[:name.find('{')]
+			instance = "::".join(p_name[p_name.find('{') + 1 : len(p_name) - 1].split(','))
+		return (p_name, name ,instance)
+
+	def parse_metric(self, lines):
+		(desc, name, type_) = self.get_metric_metadata(lines)
+		metric = self.Metric()
+		metric.name = name
+		metric.desc = desc
+		metric.type = DOUBLE
+		if(type_ == "counter"):
+			metric.semantic = COUNTER
+		else:
+			metric.semantic = INSTANT
+		metric.units_str = ""
+		
+		for line in lines[2:]:
+			(prometheus_name, name, instance) = self.get_metric_instance(line)
+			if not self.metrics_by_name.get(name):
+				metric.name = name
+				metric.prometheus_name = None
+				metric.instances = None
+				self.metrics_by_name[name] = copy.deepcopy(metric)
+			if instance:
+				self.metrics_by_name[name].add_instance(instance, prometheus_name)
+			else:
+				self.metrics_by_name[name].prometheus_name = prometheus_name
+				
+	def parse_raw(self):
+		lines = self.raw_metrics.splitlines()
+		lineIter=0
+		while lineIter<len(lines):
+			if(lines[lineIter][0]!="#" or lines[lineIter+1][0]!='#'):
+				raise ValueError("Invalid format of Prometheus metrics metadata"
+					"\n%s" %(lines[lineIter]))
+			metricLines = [lines[lineIter], lines[lineIter+1]]
+			metricIter = lineIter + 2
+			while(metricIter < len(lines) and lines[metricIter][0]!='#'):
+				metricLines.append(lines[metricIter])
+				metricIter += 1
+			lineIter = metricIter
+			self.parse_metric(metricLines)
 
 class PrometheusPMDA(PMDA):
 
-    def parse_line(self, line):
-        if not line or line[0] == '#':
-            return None
+	def parse_line(self, line):
+		if not line or line[0] == '#':
+			return None
 
-        return line.split(' ')
+		return line.split(' ')
 
-    def refresh_metrics(self):
-        try:
-            req = requests.get(self.config["endpoint"])
-            lines = req.text.splitlines()
+	def refresh_metrics(self):
+		try:
+			req = requests.get(self.config["endpoint"])
+			lines = req.text.splitlines()
 
-            for line in lines:
-                tokens = self.parse_line(line)
-                if not tokens:
-                    continue
+			for line in lines:
+				tokens = self.parse_line(line)
+				if not tokens:
+					continue
 
-                self.values[tokens[0]] = float(tokens[1])
-        except:
-            self.connection_error =True
+				self.values[tokens[0]] = float(tokens[1])
+		except:
+			self.connection_error =True
 
-    def prometheus_fetch_callback(self, cluster, item, inst):
-        key = (cluster, item)
-        if key not in self.indexes or self.connection_error:
-            return [c_api.PM_ERR_PMID, 0]
+	def prometheus_fetch_callback(self, cluster, item, inst):
+		key = (cluster, item)
+		if key not in self.indexes or self.connection_error:
+			return [c_api.PM_ERR_PMID, 0]
 
-        index = self.indexes[key]
-        if inst == c_api.PM_IN_NULL:
-            return [self.values[self.config["metrics"][index]["prometheus_name"]],1]
-        else:
-            instances = self.config["metrics"][index]["instances"]
+		index = self.indexes[key]
+		if inst == c_api.PM_IN_NULL:
+			return [self.values[self.config["metrics"][index]["prometheus_name"]],1]
+		else:
+			instances = self.config["metrics"][index]["instances"]
 
-            if inst >= len(instances):
-                return [c_api.PM_ERR_PMID, 0]
-            else:
-                return [self.values[instances[inst]["prometheus_name"]], 1]
+			if inst >= len(instances):
+				return [c_api.PM_ERR_PMID, 0]
+			else:
+				return [self.values[instances[inst]["prometheus_name"]], 1]
 
-    def prometheus_fetch(self):
-        self.refresh_metrics()
+	def prometheus_fetch(self):
+		self.refresh_metrics()
 
-    def setup_prometheus_metrics(self, pmdaName):
-        indomCount=0
-        for i, metric in enumerate(self.config["metrics"]):
-            self.indexes[tuple(metric["pmid"])] = i
-            instDomain = c_api.PM_INDOM_NULL
-            if len(metric["instances"]) > 0:
-                instDomain = self.indom(indomCount)
-                indomCount += 1
-                domains = []
-                for instance in metric["instances"]:
-                    domains.append(pmdaInstid(*instance["instId"]))
-                self.add_indom(pmdaIndom(instDomain, domains))
-            self.add_metric(pmdaName + "." + metric["name"], pmdaMetric(
-                self.pmid(*metric["pmid"]),
-                metric["type"], instDomain, metric["sem"],
-                pmUnits(*metric["units"])),
-                metric["description"])
+	def setup_prometheus_metrics(self, pmdaName):
+		indomCount=0
+		for i, metric in enumerate(self.config["metrics"]):
+			self.indexes[tuple(metric["pmid"])] = i
+			instDomain = c_api.PM_INDOM_NULL
+			if len(metric["instances"]) > 0:
+				instDomain = self.indom(indomCount)
+				indomCount += 1
+				domains = []
+				for instance in metric["instances"]:
+					domains.append(pmdaInstid(*instance["instId"]))
+				self.add_indom(pmdaIndom(instDomain, domains))
+			self.add_metric(pmdaName + "." + metric["name"], pmdaMetric(
+				self.pmid(*metric["pmid"]),
+				metric["type"], instDomain, metric["sem"],
+				pmUnits(*metric["units"])),
+				metric["description"])
 
-    def read_config(self):
-        configFile = open(self.configfile)
-        self.config = json.loads(configFile.read())
-        configFile.close()
+	def read_config(self):
+		configFile = open(self.configfile)
+		self.config = json.loads(configFile.read())
+		configFile.close()
 
-    def __init__(self, name, domain):
-        PMDA.__init__(self, name, domain)
+	def __init__(self, name, domain):
+		PMDA.__init__(self, name, domain)
 
-        #self.configfile = PCP.pmGetConfig('PCP_PMDAS_DIR') +  '/' + name + '/' + "config.json"
-        self.configfile =   '/home/ronakjain/project/pcp/src/pmdas/prometheus/config.json'
-        self.connection_error = False
-        self.values = {}
-        self.indexes = {}
-        self.config = {}
+		#self.configfile = PCP.pmGetConfig('PCP_PMDAS_DIR') +  '/' + name + '/' + "config.json"
+		self.configfile =   '/home/ronakjain/project/pcp/src/pmdas/prometheus/config.json'
+		self.connection_error = False
+		self.values = {}
+		self.indexes = {}
+		self.config = {}
 
-        self.read_config()
-        self.setup_prometheus_metrics(name)     
-        
-        self.set_fetch(self.prometheus_fetch)
-        self.set_fetch_callback(self.prometheus_fetch_callback)
+		self.read_config()
+		self.setup_prometheus_metrics(name)     
+		
+		self.set_fetch(self.prometheus_fetch)
+		self.set_fetch_callback(self.prometheus_fetch_callback)
 
 if __name__ == '__main__':
-    PrometheusPMDA('prometheus', 144).run()
+	parser = argparse.ArgumentParser(description='Prometheus PMDA heuristics metrics config generator.')
+	parser.add_argument('-g', '--generate', help="Generate heuristics metrics", action="store_true")
+	parser.add_argument('-u','--url', help='Prometheus endpoint whose config has to be generated')
+	parser.add_argument('-n','--name', help="Name to be used as the prometheus cluster name")
+	args = parser.parse_args()
+
+	if args.generate: 
+		if not args.url or not args.name:
+			parser.error("Name and URL of the endpoint required")
+			os.exit(1) 
+		ScanPrometheus(args.name, args.url)
+
+
+		# PrometheusPMDA('prometheus', 144).run()
