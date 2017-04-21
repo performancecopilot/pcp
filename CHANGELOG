@@ -84,7 +84,7 @@ pcp-3.11.7 (21 December 2016)
     - pmdabash: resolve some permissions issues preventing use
     - pmdalinux: add metrics about IPC message queues
     - pmdalinux: additional semaphore arrays metrics
-    - pmddalinux: buddyinfo and zoneinfo mem metric updates
+    - pmdalinux: buddyinfo and zoneinfo mem metric updates
     - pmdalinux: add zoneinfo NUMA free mem stats
     - pmdaxfs: use persistent dm and md device names for xfs.perdev
     - pmchart: 'local:' is now the default source
