@@ -217,6 +217,135 @@ class Metric(object):
 			self.obj = pmdaMetric(self.pmid, self.type, c_api.PM_INDOM_NULL,
 								  self.sem, self.__units_val)
 
+class IndomCache(pmdaIndom):
+    ''' Indom (instance domain) cache information class '''
+    def __init__(self, serial, max_value, pmda):
+        self.__pmda = pmda
+        self.serial = serial
+
+        # In IndomCache.add_value, we're using 'value' as the inst
+        # value. However, the pmdaCache routines treat the passed in
+        # value as the 'private' field and generates its own inst
+        # value. However, this 'private' field isn't saved and
+        # restored, so it isn't very useful for our purposes.
+        #
+        # To get around this, we'll use an OrderedDict so that the
+        # dictionary order should match up with the inst order.
+        # (Another way to fix this problem would be to go ahead and
+        # call pmdaCacheStore() in IndomCache.add_value(), but that
+        # fix would require more api calls.)
+        self.__values = OrderedDict()
+        # '__names_by_values' is the inversion of '__values'.
+        self.__names_by_values = {}
+
+        # The indom cache has a notion of "inactive" values (values
+        # we've seen before, but are not in the current fetch) and
+        # "active" values (values in the current fetch). Seting the
+        # active state from python is a bit tricky. '__active_values'
+        # contains a dictionary of active values.
+        self.__active_values = OrderedDict()
+
+        pmdaIndom.__init__(self, pmda.indom(self.serial), self.__values)
+        try:
+            self.__pmda.add_indom(self)
+        except KeyError:
+            # If we've seen this indom before, it will already be
+            # present in the pmda, so replace it.
+            self.__pmda.replace_indom(self, self.__values)
+        self.__maxval = max_value
+        self.cache_resize(max_value)
+        self.__nextval = 0
+
+    @property
+    def indom(self):
+        ''' Get cache's indom. '''
+        return self.it_indom
+
+    def log(self, string):
+        ''' Log an informational message '''
+        return self.__pmda.log(string)
+
+    def add_value(self, name, value=c_api.PM_IN_NULL):
+        ''' Add a value to the indom '''
+        # PMDA.replace_indom() wants a dictionary, indexed by
+        # indom string value. PMDA.replace_indom() doesn't really
+        # care what is stored at that string value. We're storing the
+        # instance there.
+        if value == c_api.PM_IN_NULL:
+            value = self.next_value()
+        if self.__pmda.debug:
+            self.log("Adding ('%s', %d) to the cache" % (name, value))
+        self.__values[name] = c_int(value)
+        if value >= self.__nextval:
+            self.__nextval = value + 1
+        self.__names_by_values[value] = name
+
+    def set_active(self, name):
+        ''' Mark a indom as active. '''
+        if name not in self.__values:
+            raise KeyError(name)
+        self.__active_values[name] = self.__values[name]
+
+    def lookup_name(self, name):
+        '''
+        Lookup name in an indom cache and return its associated value.
+        '''
+        if name not in self.__values:
+            raise KeyError(name)
+        valueobj = self.__values[name]
+        return valueobj.value
+
+    def lookup_value(self, value):
+        '''
+        Lookup a value in an indom cache and return its associated name.
+        '''
+        # We could call an api function here (pmda.inst_lookup() which
+        # calls pmdaCacheLookup()), but we can handle this in python
+        # by using the inverted dictionary.
+        if value not in self.__names_by_values:
+            raise KeyError(value)
+        return self.__names_by_values[value]
+
+    def refresh(self):
+        ''' Update and save the indom cache. '''
+        self.__pmda.replace_indom(self, self.__values)
+        # Note that set_dict_instances() saves the cache to disk.
+        self.set_dict_instances(self.it_indom, self.__values)
+
+        # If we've got active values, we want to call
+        # set_dict_instances() on them. This will leave all the items
+        # in the cache, but mark the ones in the __active_values
+        # dictionary as "active". Everything else will be marked as
+        # "inactive".
+        if len(self.__active_values) > 0:
+            self.set_dict_instances(self.it_indom, self.__active_values)
+            self.__active_values.clear()
+
+    def load(self):
+        ''' Load indom cache values. '''
+        if self.__pmda.debug:
+            self.log("Loading cache %d..." % self.serial)
+        try:
+            # Notice we're ignoring cache_load() errors. The biggest
+            # one we're ignoring is a non-existent cache.
+            self.cache_load()
+        except pmErr:
+            return
+        for (inst, name) in self:
+            self.add_value(name, inst)
+
+    def next_value(self):
+        ''' Return next value to be allocated. '''
+        if self.__nextval > self.__maxval:
+            raise ValueError("Indom cache reached max value.")
+        value = self.__nextval
+        self.__nextval += 1
+        return value
+
+    def len(self):
+        ''' Return cache size. '''
+        return len(self.__values)
+
 
 class PrometheusPMDA(PMDA):
 
