@@ -15,7 +15,7 @@
 TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
-SUBDIRS = v1.0 platform disk sgi memory cpu kernel filesystem networking tools
+SUBDIRS = v1.0 platform disk sgi memory cpu kernel filesystem networking tools zeroconf
 
 default: makefiles pmlogconf.sh pmlogconf-setup.sh
 

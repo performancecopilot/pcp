@@ -1746,6 +1746,17 @@ This meta-package contains the PCP performance monitoring dependencies.  This
 includes a large number of packages for analysing PCP metrics in various ways.
 # monitor
 
+%package zeroconf
+License: GPLv2+
+Group: Applications/System
+Summary: Performance Co-Pilot (PCP) Zeroconf Package
+URL: http://www.pcp.io
+Requires: pcp
+%description zeroconf
+This package contains configuration tweaks and files to increase metrics gathering
+frequency as well as several extended pmlogger configurations.
+
+
 %if !%{disable_python2}
 #
 # python-pcp. This is the PCP library bindings for python.
@@ -2432,6 +2443,21 @@ chown -R pcp:pcp %{_logsdir}/pmmgr 2>/dev/null
 %endif
 %endif
 
+%post zeroconf
+%if 0%{?rhel}
+%if !%{disable_systemd}
+    systemctl restart pmcd >/dev/null 2>&1
+    systemctl restart pmlogger >/dev/null 2>&1
+    systemctl enable pmcd >/dev/null 2>&1
+    systemctl enable pmlogger >/dev/null 2>&1
+%else
+    /sbin/chkconfig --add pmcd >/dev/null 2>&1
+    /sbin/chkconfig --add pmlogger >/dev/null 2>&1
+    /sbin/service pmcd condrestart
+    /sbin/service pmlogger condrestart
+%endif
+%endif #zeroconf
+
 %if !%{disable_selinux}
 %post selinux
 %{selinux_handle_policy "$1" "pcpupstream.pp"}
@@ -2442,6 +2468,15 @@ chown -R pcp:pcp %{_logsdir}/pmmgr 2>/dev/null
 %triggerin selinux -- container-selinux
 %{selinux_handle_policy "$1" "pcpupstream-container.pp"}
 %endif
+
+%pre zeroconf
+PCP_PMDAS_DIR=%{_pmdasdir}
+PCP_ETC_DIR=%{_sysconfdir}
+if ls "$PCP_PMDAS_DIR" | grep -q nfsclient 2>/dev/null
+then
+    touch "$PCP_PMDAS_DIR/nfsclient/.NeedInstall"
+fi
+sed -i 's/^\#\ PMLOGGER_INTERVAL.*/PMLOGGER_INTERVAL=10/g' "$PCP_ETC_DIR/sysconfig/pmlogger"
 
 %post
 PCP_LOG_DIR=%{_logsdir}
@@ -2604,6 +2639,11 @@ cd
 
 %files collector
 #empty
+
+%files zeroconf
+%{_localstatedir}/lib/pcp/config/pmlogconf/zeroconf
+
+#additional pmlogger config files
 
 %files conf
 %dir %{_includedir}/pcp
