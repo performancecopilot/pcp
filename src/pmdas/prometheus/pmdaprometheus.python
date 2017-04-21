@@ -4,17 +4,17 @@ Performance Metrics Domain Agent exporting Prometheus endpoint metrics.
 '''
 #
 # Copyright (c) 2017 Ronak Jain.
-# 
+#
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
 # Free Software Foundation; either version 2 of the License, or (at your
 # option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
-# 
+#
 
 import cpmapi as c_api
 from pcp.pmapi import pmUnits, pmContext as PCP
@@ -76,7 +76,7 @@ class ScanPrometheus(object):
 	def save_config(self):
 		config = { "name": self.name, "endpoint": self.endpoint, "metrics": [] }
 		for k in self.metrics_by_name:
-			config["metrics"].append(self.metrics_by_name[k].export()) 
+			config["metrics"].append(self.metrics_by_name[k].export())
 		raw_config = json.dumps(config, indent=2)
 		filename = os.getenv('PCP_PMDAS_DIR') + "/prometheus/config/" + self.name + ".json"
 		if not os.path.exists(os.path.dirname(filename)):
@@ -125,7 +125,7 @@ class ScanPrometheus(object):
 		else:
 			metric.semantic = INSTANT
 		metric.units_str = ""
-		
+
 		for line in lines[2:]:
 			(prometheus_name, name, instance) = self.get_metric_instance(line)
 			if not self.metrics_by_name.get(name):
@@ -137,7 +137,7 @@ class ScanPrometheus(object):
 				self.metrics_by_name[name].add_instance(instance, prometheus_name)
 			else:
 				self.metrics_by_name[name].prometheus_name = prometheus_name
-				
+
 	def parse_raw(self):
 		lines = self.raw_metrics.splitlines()
 		lineIter=0
@@ -152,6 +152,71 @@ class ScanPrometheus(object):
 				metricIter += 1
 			lineIter = metricIter
 			self.parse_metric(metricLines)
+
+class Metric(object):
+	''' Metric information class '''
+
+	def __init__(self, name_prefix, cluster, pmda):
+		self.__name = ''
+		self.desc = ''
+		self.type = c_api.PM_TYPE_UNKNOWN
+		self.sem = c_api.PM_SEM_INSTANT
+		self.units_str = ''
+		self.prometheus_name = ""
+		self.instances = None
+		self.__units_val = pmUnits(0, 0, 0, 0, 0, 0)
+		self.full_name = ''
+		self.name_prefix = name_prefix
+		self.cluster = cluster
+		self.idx = -1
+		self.__pmda = pmda
+		self.obj = None
+		self.indom_cache = None
+
+	def log(self, string):
+		''' Log an informational message '''
+		return self.__pmda.log(string)
+
+	def valid(self):
+		''' Is metric valid?. '''
+		return self.__name != '' and self.type != c_api.PM_TYPE_UNKNOWN
+
+	def parse(self, json_obj):
+		try:
+			self.__name = json_obj["name"]
+			self.full_name = "%s.%s" %(self.name_prefix, self.__name)
+			self.desc = json_obj["desc"]
+			type_ = json_obj["type"]
+			if not TYPES.get(type_):
+				raise ValueError("Invalid type: %s" %(type_))
+			self.type_ = TYPES.get(type_)
+			semantic = json_obj["semantic"]
+			if not SEMANTICS.get(semantic):
+				raise ValueError("Invalid semantic: %s" %(semantic))
+			self.semantic = SEMANTICS.get(semantic)
+			self.units_str = json_obj["units_str"]
+			self.prometheus_name = json_obj.get("prometheus_name")
+			self.instances = json_obj.get("instances")
+		except ValueError as e:
+			raise e
+
+	def create(self):
+		'''
+		Create the metric. Note that the metric will still need to be
+		added to the PMDA.
+		'''
+		if not self.valid():
+			self.log("Invalid metric")
+			raise RuntimeError("Invalid metric")
+
+		pmid = self.__pmda.pmid(self.cluster, self.idx)
+		if self.indom_cache != None:
+			self.obj = pmdaMetric(self.pmid, self.type, self.indom_cache.indom,
+								  self.sem, self.__units_val)
+		else:
+			self.obj = pmdaMetric(self.pmid, self.type, c_api.PM_INDOM_NULL,
+								  self.sem, self.__units_val)
+
 
 class PrometheusPMDA(PMDA):
 
@@ -228,8 +293,7 @@ class PrometheusPMDA(PMDA):
 		self.config = {}
 
 		self.read_config()
-		self.setup_prometheus_metrics(name)     
-		
+		self.setup_prometheus_metrics(name)
 		self.set_fetch(self.prometheus_fetch)
 		self.set_fetch_callback(self.prometheus_fetch_callback)
 
@@ -240,10 +304,10 @@ if __name__ == '__main__':
 	parser.add_argument('-n','--name', help="Name to be used as the prometheus cluster name")
 	args = parser.parse_args()
 
-	if args.generate: 
+	if args.generate:
 		if not args.url or not args.name:
 			parser.error("Name and URL of the endpoint required")
-			os.exit(1) 
+			os.exit(1)
 		ScanPrometheus(args.name, args.url)
 
 
