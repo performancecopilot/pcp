@@ -634,11 +634,16 @@ class MetricGroupManager(dict, MetricCache):
         try:
             self.fetch()
             while True:
-                self._counter += 1
                 if samples == 0 or self._counter <= samples:
                     self._printer.report(self)
                 if self._counter == samples:
                     break
+
+                # for need two fetches to report rate converted counter
+                # metrics. so the actual output samples will be less than
+                # the speicified number when using '-s' and '-T' option.
+                # '+1' can fix this issue.
+                self._counter += 1
                 timer.sleep()
                 self.fetch()
         except SystemExit as code:
