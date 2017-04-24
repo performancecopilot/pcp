@@ -1093,6 +1093,8 @@ EOF
 #
 # Main code...
 #   _run_valgrind app [arg1 [arg2] ... ]
+# or
+#   _run_helgrind [--sudo] app [arg1 [arg2] ... ]
 #
 
 _check_valgrind()
@@ -1145,6 +1147,8 @@ _filter_helgrind()
 {
     sed \
 	-e 's/^==*[1-9][0-9]*==* *//' \
+	-e '/^$/d' \
+	-e '/^Parent PID:/d' \
 	-e '/^Copyright (/d' \
 	-e '/^Using Valgrind-/d' \
 	-e '/^Command: /d' \
@@ -1221,6 +1225,28 @@ if which valgrind >/dev/null 2>&1; then
 	     --suppressions=$here/valgrind-suppress $__extra \
 	     --log-fd=1"
 fi
+
+_run_helgrind()
+{
+    rm -f $tmp.valgrind.err tmp.valgrind.out $tmp.valgrind.log
+    touch $tmp.valgrind.err tmp.valgrind.out $tmp.valgrind.log
+    if [ x"$1" = "x--sudo" ]
+    then
+	_helgrind_prefix=$sudo
+	shift
+    else
+	_helgrind_prefix=''
+    fi
+
+    $_helgrind_prefix valgrind \
+	--tool=helgrind \
+	--log-file=$tmp.valgrind.log \
+	    $* 2>$tmp.valgrind.err >$tmp.valgrind.out
+    echo "=== valgrind report ===" >>$here/$seq.full
+    cat $tmp.valgrind.log >>$here/$seq.full
+    echo "=== filtered valgrind report ==="
+    _filter_helgrind <$tmp.valgrind.log
+}
 
 #
 # Checks that given_value is in range of correct_value +/- tolerance.
