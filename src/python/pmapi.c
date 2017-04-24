@@ -575,6 +575,7 @@ setOptionContainer(PyObject *self, PyObject *args, PyObject *keywords)
     if ((container = strdup(container ? container : "")) == NULL)
 	return PyErr_NoMemory();
     __pmAddOptContainer(&options, container);
+    free(container);
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -624,6 +625,7 @@ setOptionSpecLocal(PyObject *self, PyObject *args, PyObject *keywords)
     if ((spec = strdup(spec ? spec : "")) == NULL)
 	return PyErr_NoMemory();
     __pmSetLocalContextTable(&options, spec);
+    free(spec);
     Py_INCREF(Py_None);
     return Py_None;
 }
