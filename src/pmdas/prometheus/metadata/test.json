@@ -20,7 +20,7 @@
     {
       "type": "double",
       "name": "go_gc_duration_seconds_sum",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "prometheus_name": "go_gc_duration_seconds_sum",
       "desc": "A summary of the GC invocation durations.",
       "units_str": ""
@@ -28,7 +28,7 @@
     {
       "type": "double",
       "name": "go_memstats_heap_sys_bytes",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "prometheus_name": "go_memstats_heap_sys_bytes",
       "desc": "Number of heap bytes obtained from system.",
       "units_str": ""
@@ -36,7 +36,7 @@
     {
       "type": "double",
       "name": "prometheus_sd_gce_refresh_duration_sum",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "prometheus_name": "prometheus_sd_gce_refresh_duration_sum",
       "desc": "The duration of a GCE-SD refresh in seconds.",
       "units_str": ""
@@ -61,7 +61,7 @@
     {
       "type": "double",
       "name": "prometheus_local_storage_maintain_series_duration_seconds_sum",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "instances": [
         {
           "prometheus_name": "prometheus_local_storage_maintain_series_duration_seconds_sum{location=\"archived\"}",
@@ -99,7 +99,7 @@
     {
       "type": "double",
       "name": "http_response_size_bytes",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "instances": [
         {
           "prometheus_name": "http_response_size_bytes{handler=\"alertmanagers\",quantile=\"0.5\"}",
@@ -356,7 +356,7 @@
     {
       "type": "double",
       "name": "prometheus_sd_file_scan_duration_seconds_sum",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "prometheus_name": "prometheus_sd_file_scan_duration_seconds_sum",
       "desc": "The duration of the File-SD scan in seconds.",
       "units_str": ""
@@ -364,7 +364,7 @@
     {
       "type": "double",
       "name": "go_gc_duration_seconds_count",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "prometheus_name": "go_gc_duration_seconds_count",
       "desc": "A summary of the GC invocation durations.",
       "units_str": ""
@@ -372,7 +372,7 @@
     {
       "type": "double",
       "name": "go_memstats_heap_idle_bytes",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "prometheus_name": "go_memstats_heap_idle_bytes",
       "desc": "Number of heap bytes waiting to be used.",
       "units_str": ""
@@ -380,7 +380,7 @@
     {
       "type": "double",
       "name": "prometheus_sd_consul_rpc_duration_seconds_count",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "instances": [
         {
           "prometheus_name": "prometheus_sd_consul_rpc_duration_seconds_count{call=\"service\",endpoint=\"catalog\"}",
@@ -397,7 +397,7 @@
     {
       "type": "double",
       "name": "process_resident_memory_bytes",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "prometheus_name": "process_resident_memory_bytes",
       "desc": "Resident memory size in bytes.",
       "units_str": ""
@@ -405,7 +405,7 @@
     {
       "type": "double",
       "name": "http_request_size_bytes_sum",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "instances": [
         {
           "prometheus_name": "http_request_size_bytes_sum{handler=\"alertmanagers\"}",
@@ -494,7 +494,7 @@
     {
       "type": "double",
       "name": "go_memstats_mspan_inuse_bytes",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "prometheus_name": "go_memstats_mspan_inuse_bytes",
       "desc": "Number of bytes in use by mspan structures.",
       "units_str": ""
@@ -502,7 +502,7 @@
     {
       "type": "double",
       "name": "prometheus_local_storage_series_chunks_persisted_sum",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "prometheus_name": "prometheus_local_storage_series_chunks_persisted_sum",
       "desc": "The number of chunks persisted per series.",
       "units_str": ""
@@ -510,7 +510,7 @@
     {
       "type": "double",
       "name": "prometheus_local_storage_checkpoint_duration_seconds_count",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "prometheus_name": "prometheus_local_storage_checkpoint_duration_seconds_count",
       "desc": "The duration in seconds taken for checkpointing open chunks and chunks yet to be persisted",
       "units_str": ""
@@ -518,7 +518,7 @@
     {
       "type": "double",
       "name": "prometheus_notifications_queue_length",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "prometheus_name": "prometheus_notifications_queue_length",
       "desc": "The number of alert notifications in the queue.",
       "units_str": ""
@@ -526,7 +526,7 @@
     {
       "type": "double",
       "name": "process_virtual_memory_bytes",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "prometheus_name": "process_virtual_memory_bytes",
       "desc": "Virtual memory size in bytes.",
       "units_str": ""
@@ -534,7 +534,7 @@
     {
       "type": "double",
       "name": "prometheus_target_interval_length_seconds_sum",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "instances": [
         {
           "prometheus_name": "prometheus_target_interval_length_seconds_sum{interval=\"15s\"}",
@@ -555,7 +555,7 @@
     {
       "type": "double",
       "name": "prometheus_local_storage_rushed_mode",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "prometheus_name": "prometheus_local_storage_rushed_mode",
       "desc": "1 if the storage is in rushed mode, 0 otherwise. In rushed mode, the system behaves as if the persistence_urgency_score is 1.",
       "units_str": ""
@@ -563,7 +563,7 @@
     {
       "type": "double",
       "name": "prometheus_local_storage_max_memory_chunks",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "prometheus_name": "prometheus_local_storage_max_memory_chunks",
       "desc": "The configured maximum number of chunks that can be held in memory",
       "units_str": ""
@@ -571,7 +571,7 @@
     {
       "type": "double",
       "name": "process_max_fds",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "prometheus_name": "process_max_fds",
       "desc": "Maximum number of open file descriptors.",
       "units_str": ""
@@ -579,7 +579,7 @@
     {
       "type": "double",
       "name": "prometheus_evaluator_duration_seconds_count",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "prometheus_name": "prometheus_evaluator_duration_seconds_count",
       "desc": "The duration of rule group evaluations.",
       "units_str": ""
@@ -587,7 +587,7 @@
     {
       "type": "double",
       "name": "prometheus_sd_file_scan_duration_seconds",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "instances": [
         {
           "prometheus_name": "prometheus_sd_file_scan_duration_seconds{quantile=\"0.5\"}",
@@ -616,7 +616,7 @@
     {
       "type": "double",
       "name": "prometheus_local_storage_memory_series",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "prometheus_name": "prometheus_local_storage_memory_series",
       "desc": "The current number of series in memory.",
       "units_str": ""
@@ -624,7 +624,7 @@
     {
       "type": "double",
       "name": "prometheus_sd_gce_refresh_duration_count",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "prometheus_name": "prometheus_sd_gce_refresh_duration_count",
       "desc": "The duration of a GCE-SD refresh in seconds.",
       "units_str": ""
@@ -632,7 +632,7 @@
     {
       "type": "double",
       "name": "prometheus_sd_marathon_refresh_duration_seconds",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "instances": [
         {
           "prometheus_name": "prometheus_sd_marathon_refresh_duration_seconds{quantile=\"0.5\"}",
@@ -661,7 +661,7 @@
     {
       "type": "double",
       "name": "prometheus_sd_triton_refresh_duration_seconds_sum",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "prometheus_name": "prometheus_sd_triton_refresh_duration_seconds_sum",
       "desc": "The duration of a Triton-SD refresh in seconds.",
       "units_str": ""
@@ -750,7 +750,7 @@
     {
       "type": "double",
       "name": "prometheus_sd_azure_refresh_duration_seconds",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "instances": [
         {
           "prometheus_name": "prometheus_sd_azure_refresh_duration_seconds{quantile=\"0.5\"}",
@@ -771,7 +771,7 @@
     {
       "type": "double",
       "name": "go_memstats_stack_sys_bytes",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "prometheus_name": "go_memstats_stack_sys_bytes",
       "desc": "Number of bytes obtained from system for stack allocator.",
       "units_str": ""
@@ -779,7 +779,7 @@
     {
       "type": "double",
       "name": "prometheus_sd_triton_refresh_duration_seconds_count",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "prometheus_name": "prometheus_sd_triton_refresh_duration_seconds_count",
       "desc": "The duration of a Triton-SD refresh in seconds.",
       "units_str": ""
@@ -787,7 +787,7 @@
     {
       "type": "double",
       "name": "process_start_time_seconds",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "prometheus_name": "process_start_time_seconds",
       "desc": "Start time of the process since unix epoch in seconds.",
       "units_str": ""
@@ -795,7 +795,7 @@
     {
       "type": "double",
       "name": "prometheus_local_storage_persistence_urgency_score",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "prometheus_name": "prometheus_local_storage_persistence_urgency_score",
       "desc": "A score of urgency to persist chunks, 0 is least urgent, 1 most.",
       "units_str": ""
@@ -803,7 +803,7 @@
     {
       "type": "double",
       "name": "prometheus_sd_file_scan_duration_seconds_count",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "prometheus_name": "prometheus_sd_file_scan_duration_seconds_count",
       "desc": "The duration of the File-SD scan in seconds.",
       "units_str": ""
@@ -811,7 +811,7 @@
     {
       "type": "double",
       "name": "go_memstats_other_sys_bytes",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "prometheus_name": "go_memstats_other_sys_bytes",
       "desc": "Number of bytes used for other system allocations.",
       "units_str": ""
@@ -819,7 +819,7 @@
     {
       "type": "double",
       "name": "go_memstats_heap_inuse_bytes",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "prometheus_name": "go_memstats_heap_inuse_bytes",
       "desc": "Number of heap bytes that are in use.",
       "units_str": ""
@@ -827,7 +827,7 @@
     {
       "type": "double",
       "name": "prometheus_config_last_reload_successful",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "prometheus_name": "prometheus_config_last_reload_successful",
       "desc": "Whether the last configuration reload attempt was successful.",
       "units_str": ""
@@ -835,7 +835,7 @@
     {
       "type": "double",
       "name": "prometheus_target_interval_length_seconds",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "instances": [
         {
           "prometheus_name": "prometheus_target_interval_length_seconds{interval=\"15s\",quantile=\"0.01\"}",
@@ -864,7 +864,7 @@
     {
       "type": "double",
       "name": "prometheus_target_interval_length_seconds_count",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "instances": [
         {
           "prometheus_name": "prometheus_target_interval_length_seconds_count{interval=\"15s\"}",
@@ -906,7 +906,7 @@
     {
       "type": "double",
       "name": "prometheus_local_storage_indexing_batch_duration_seconds_sum",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "prometheus_name": "prometheus_local_storage_indexing_batch_duration_seconds_sum",
       "desc": "Quantiles for batch indexing duration in seconds.",
       "units_str": ""
@@ -914,7 +914,7 @@
     {
       "type": "double",
       "name": "prometheus_local_storage_memory_dirty_series",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "prometheus_name": "prometheus_local_storage_memory_dirty_series",
       "desc": "The current number of series that would require a disk seek during crash recovery.",
       "units_str": ""
@@ -922,7 +922,7 @@
     {
       "type": "double",
       "name": "prometheus_treecache_watcher_goroutines",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "prometheus_name": "prometheus_treecache_watcher_goroutines",
       "desc": "The current number of watcher goroutines.",
       "units_str": ""
@@ -930,7 +930,7 @@
     {
       "type": "double",
       "name": "prometheus_local_storage_maintain_series_duration_seconds",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "instances": [
         {
           "prometheus_name": "prometheus_local_storage_maintain_series_duration_seconds{location=\"archived\",quantile=\"0.5\"}",
@@ -963,7 +963,7 @@
     {
       "type": "double",
       "name": "prometheus_local_storage_checkpoint_series_chunks_written_count",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "prometheus_name": "prometheus_local_storage_checkpoint_series_chunks_written_count",
       "desc": "The number of chunk written per series while checkpointing open chunks and chunks yet to be persisted.",
       "units_str": ""
@@ -979,7 +979,7 @@
     {
       "type": "double",
       "name": "prometheus_local_storage_maintain_series_duration_seconds_count",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "instances": [
         {
           "prometheus_name": "prometheus_local_storage_maintain_series_duration_seconds_count{location=\"archived\"}",
@@ -996,7 +996,7 @@
     {
       "type": "double",
       "name": "http_response_size_bytes_sum",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "instances": [
         {
           "prometheus_name": "http_response_size_bytes_sum{handler=\"alertmanagers\"}",
@@ -1085,7 +1085,7 @@
     {
       "type": "double",
       "name": "http_request_duration_microseconds_sum",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "instances": [
         {
           "prometheus_name": "http_request_duration_microseconds_sum{handler=\"alertmanagers\"}",
@@ -1182,7 +1182,7 @@
     {
       "type": "double",
       "name": "prometheus_local_storage_indexing_batch_sizes",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "instances": [
         {
           "prometheus_name": "prometheus_local_storage_indexing_batch_sizes{quantile=\"0.5\"}",
@@ -1203,7 +1203,7 @@
     {
       "type": "double",
       "name": "go_memstats_mcache_sys_bytes",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "prometheus_name": "go_memstats_mcache_sys_bytes",
       "desc": "Number of bytes used for mcache structures obtained from system.",
       "units_str": ""
@@ -1211,7 +1211,7 @@
     {
       "type": "double",
       "name": "prometheus_config_last_reload_success_timestamp_seconds",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "prometheus_name": "prometheus_config_last_reload_success_timestamp_seconds",
       "desc": "Timestamp of the last successful configuration reload.",
       "units_str": ""
@@ -1219,7 +1219,7 @@
     {
       "type": "double",
       "name": "prometheus_local_storage_memory_chunkdescs",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "prometheus_name": "prometheus_local_storage_memory_chunkdescs",
       "desc": "The current number of chunk descriptors in memory.",
       "units_str": ""
@@ -1235,7 +1235,7 @@
     {
       "type": "double",
       "name": "prometheus_target_sync_length_seconds",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "instances": [
         {
           "prometheus_name": "prometheus_target_sync_length_seconds{scrape_job=\"prometheus\",quantile=\"0.01\"}",
@@ -1264,7 +1264,7 @@
     {
       "type": "double",
       "name": "prometheus_local_storage_checkpoint_last_duration_seconds",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "prometheus_name": "prometheus_local_storage_checkpoint_last_duration_seconds",
       "desc": "The duration in seconds it took to last checkpoint open chunks and chunks yet to be persisted.",
       "units_str": ""
@@ -1272,7 +1272,7 @@
     {
       "type": "double",
       "name": "prometheus_local_storage_indexing_batch_duration_seconds",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "instances": [
         {
           "prometheus_name": "prometheus_local_storage_indexing_batch_duration_seconds{quantile=\"0.5\"}",
@@ -1293,7 +1293,7 @@
     {
       "type": "double",
       "name": "go_memstats_heap_objects",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "prometheus_name": "go_memstats_heap_objects",
       "desc": "Number of allocated objects.",
       "units_str": ""
@@ -1301,7 +1301,7 @@
     {
       "type": "double",
       "name": "prometheus_engine_queries_concurrent_max",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "prometheus_name": "prometheus_engine_queries_concurrent_max",
       "desc": "The max number of concurrent queries.",
       "units_str": ""
@@ -1322,7 +1322,7 @@
     {
       "type": "double",
       "name": "prometheus_sd_consul_rpc_duration_seconds_sum",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "instances": [
         {
           "prometheus_name": "prometheus_sd_consul_rpc_duration_seconds_sum{call=\"service\",endpoint=\"catalog\"}",
@@ -1339,7 +1339,7 @@
     {
       "type": "double",
       "name": "go_memstats_mcache_inuse_bytes",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "prometheus_name": "go_memstats_mcache_inuse_bytes",
       "desc": "Number of bytes in use by mcache structures.",
       "units_str": ""
@@ -1347,7 +1347,7 @@
     {
       "type": "double",
       "name": "prometheus_local_storage_indexing_queue_length",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "prometheus_name": "prometheus_local_storage_indexing_queue_length",
       "desc": "The number of metrics waiting to be indexed.",
       "units_str": ""
@@ -1355,7 +1355,7 @@
     {
       "type": "double",
       "name": "prometheus_sd_ec2_refresh_duration_seconds",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "instances": [
         {
           "prometheus_name": "prometheus_sd_ec2_refresh_duration_seconds{quantile=\"0.5\"}",
@@ -1376,7 +1376,7 @@
     {
       "type": "double",
       "name": "prometheus_sd_consul_rpc_duration_seconds",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "instances": [
         {
           "prometheus_name": "prometheus_sd_consul_rpc_duration_seconds{call=\"service\",endpoint=\"catalog\",quantile=\"0.5\"}",
@@ -1409,7 +1409,7 @@
     {
       "type": "double",
       "name": "go_goroutines",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "prometheus_name": "go_goroutines",
       "desc": "Number of goroutines that currently exist.",
       "units_str": ""
@@ -1417,7 +1417,7 @@
     {
       "type": "double",
       "name": "prometheus_sd_gce_refresh_duration",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "instances": [
         {
           "prometheus_name": "prometheus_sd_gce_refresh_duration{quantile=\"0.5\"}",
@@ -1438,7 +1438,7 @@
     {
       "type": "double",
       "name": "prometheus_sd_azure_refresh_duration_seconds_count",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "prometheus_name": "prometheus_sd_azure_refresh_duration_seconds_count",
       "desc": "The duration of a Azure-SD refresh in seconds.",
       "units_str": ""
@@ -1454,7 +1454,7 @@
     {
       "type": "double",
       "name": "prometheus_sd_azure_refresh_duration_seconds_sum",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "prometheus_name": "prometheus_sd_azure_refresh_duration_seconds_sum",
       "desc": "The duration of a Azure-SD refresh in seconds.",
       "units_str": ""
@@ -1470,7 +1470,7 @@
     {
       "type": "double",
       "name": "prometheus_target_sync_length_seconds_count",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "instances": [
         {
           "prometheus_name": "prometheus_target_sync_length_seconds_count{scrape_job=\"prometheus\"}",
@@ -1491,7 +1491,7 @@
     {
       "type": "double",
       "name": "prometheus_local_storage_memory_chunks",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "prometheus_name": "prometheus_local_storage_memory_chunks",
       "desc": "The current number of chunks in memory, excluding cloned chunks (i.e. chunks without a descriptor).",
       "units_str": ""
@@ -1499,7 +1499,7 @@
     {
       "type": "double",
       "name": "go_memstats_last_gc_time_seconds",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "prometheus_name": "go_memstats_last_gc_time_seconds",
       "desc": "Number of seconds since 1970 of last garbage collection.",
       "units_str": ""
@@ -1507,7 +1507,7 @@
     {
       "type": "double",
       "name": "prometheus_sd_triton_refresh_duration_seconds",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "instances": [
         {
           "prometheus_name": "prometheus_sd_triton_refresh_duration_seconds{quantile=\"0.5\"}",
@@ -1528,7 +1528,7 @@
     {
       "type": "double",
       "name": "http_request_size_bytes_count",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "instances": [
         {
           "prometheus_name": "http_request_size_bytes_count{handler=\"alertmanagers\"}",
@@ -1617,7 +1617,7 @@
     {
       "type": "double",
       "name": "prometheus_target_sync_length_seconds_sum",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "instances": [
         {
           "prometheus_name": "prometheus_target_sync_length_seconds_sum{scrape_job=\"prometheus\"}",
@@ -1630,7 +1630,7 @@
     {
       "type": "double",
       "name": "http_request_duration_microseconds_count",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "instances": [
         {
           "prometheus_name": "http_request_duration_microseconds_count{handler=\"alertmanagers\"}",
@@ -1719,7 +1719,7 @@
     {
       "type": "double",
       "name": "prometheus_local_storage_indexing_batch_sizes_count",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "prometheus_name": "prometheus_local_storage_indexing_batch_sizes_count",
       "desc": "Quantiles for indexing batch sizes (number of metrics per batch).",
       "units_str": ""
@@ -1735,7 +1735,7 @@
     {
       "type": "double",
       "name": "prometheus_evaluator_duration_seconds",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "instances": [
         {
           "prometheus_name": "prometheus_evaluator_duration_seconds{quantile=\"0.01\"}",
@@ -1772,7 +1772,7 @@
     {
       "type": "double",
       "name": "prometheus_local_storage_max_chunks_to_persist",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "prometheus_name": "prometheus_local_storage_max_chunks_to_persist",
       "desc": "The maximum number of chunks that can be waiting for persistence before sample ingestion will stop.",
       "units_str": ""
@@ -1788,7 +1788,7 @@
     {
       "type": "double",
       "name": "prometheus_local_storage_checkpoint_last_size_bytes",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "prometheus_name": "prometheus_local_storage_checkpoint_last_size_bytes",
       "desc": "The size of the last checkpoint of open chunks and chunks yet to be persisted",
       "units_str": ""
@@ -1796,7 +1796,7 @@
     {
       "type": "double",
       "name": "prometheus_local_storage_started_dirty",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "prometheus_name": "prometheus_local_storage_started_dirty",
       "desc": "Whether the local storage was found to be dirty (and crash recovery occurred) during Prometheus startup.",
       "units_str": ""
@@ -1804,7 +1804,7 @@
     {
       "type": "double",
       "name": "go_memstats_gc_sys_bytes",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "prometheus_name": "go_memstats_gc_sys_bytes",
       "desc": "Number of bytes used for garbage collection system metadata.",
       "units_str": ""
@@ -1812,7 +1812,7 @@
     {
       "type": "double",
       "name": "go_memstats_mspan_sys_bytes",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "prometheus_name": "go_memstats_mspan_sys_bytes",
       "desc": "Number of bytes used for mspan structures obtained from system.",
       "units_str": ""
@@ -1820,7 +1820,7 @@
     {
       "type": "double",
       "name": "prometheus_notifications_queue_capacity",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "prometheus_name": "prometheus_notifications_queue_capacity",
       "desc": "The capacity of the alert notifications queue.",
       "units_str": ""
@@ -1889,7 +1889,7 @@
     {
       "type": "double",
       "name": "http_response_size_bytes_count",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "instances": [
         {
           "prometheus_name": "http_response_size_bytes_count{handler=\"alertmanagers\"}",
@@ -1978,7 +1978,7 @@
     {
       "type": "double",
       "name": "prometheus_build_info",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "instances": [
         {
           "prometheus_name": "prometheus_build_info{branch=\"master\",goversion=\"go1.7.5\",revision=\"bd1182d29f462c39544f94cc822830e1c64cf55b\",version=\"1.5.2\"}",
@@ -1991,7 +1991,7 @@
     {
       "type": "double",
       "name": "process_open_fds",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "prometheus_name": "process_open_fds",
       "desc": "Number of open file descriptors.",
       "units_str": ""
@@ -1999,7 +1999,7 @@
     {
       "type": "double",
       "name": "http_request_size_bytes",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "instances": [
         {
           "prometheus_name": "http_request_size_bytes{handler=\"alertmanagers\",quantile=\"0.5\"}",
@@ -2272,7 +2272,7 @@
     {
       "type": "double",
       "name": "go_memstats_buck_hash_sys_bytes",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "prometheus_name": "go_memstats_buck_hash_sys_bytes",
       "desc": "Number of bytes used by the profiling bucket hash table.",
       "units_str": ""
@@ -2280,7 +2280,7 @@
     {
       "type": "double",
       "name": "go_memstats_stack_inuse_bytes",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "prometheus_name": "go_memstats_stack_inuse_bytes",
       "desc": "Number of bytes in use by the stack allocator.",
       "units_str": ""
@@ -2288,7 +2288,7 @@
     {
       "type": "double",
       "name": "prometheus_sd_marathon_refresh_duration_seconds_count",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "prometheus_name": "prometheus_sd_marathon_refresh_duration_seconds_count",
       "desc": "The duration of a Marathon-SD refresh in seconds.",
       "units_str": ""
@@ -2296,7 +2296,7 @@
     {
       "type": "double",
       "name": "go_gc_duration_seconds",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "instances": [
         {
           "prometheus_name": "go_gc_duration_seconds{quantile=\"0\"}",
@@ -2325,7 +2325,7 @@
     {
       "type": "double",
       "name": "prometheus_local_storage_checkpointing",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "prometheus_name": "prometheus_local_storage_checkpointing",
       "desc": "1 if the storage is checkpointing, 0 otherwise.",
       "units_str": ""
@@ -2333,7 +2333,7 @@
     {
       "type": "double",
       "name": "prometheus_local_storage_checkpoint_series_chunks_written_sum",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "prometheus_name": "prometheus_local_storage_checkpoint_series_chunks_written_sum",
       "desc": "The number of chunk written per series while checkpointing open chunks and chunks yet to be persisted.",
       "units_str": ""
@@ -2341,7 +2341,7 @@
     {
       "type": "double",
       "name": "prometheus_local_storage_indexing_queue_capacity",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "prometheus_name": "prometheus_local_storage_indexing_queue_capacity",
       "desc": "The capacity of the indexing queue.",
       "units_str": ""
@@ -2349,7 +2349,7 @@
     {
       "type": "double",
       "name": "prometheus_local_storage_checkpoint_duration_seconds",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "instances": [
         {
           "prometheus_name": "prometheus_local_storage_checkpoint_duration_seconds{quantile=\"0.5\"}",
@@ -2378,7 +2378,7 @@
     {
       "type": "double",
       "name": "prometheus_local_storage_chunks_to_persist",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "prometheus_name": "prometheus_local_storage_chunks_to_persist",
       "desc": "The current number of chunks waiting for persistence.",
       "units_str": ""
@@ -2394,7 +2394,7 @@
     {
       "type": "double",
       "name": "prometheus_local_storage_indexing_batch_duration_seconds_count",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "prometheus_name": "prometheus_local_storage_indexing_batch_duration_seconds_count",
       "desc": "Quantiles for batch indexing duration in seconds.",
       "units_str": ""
@@ -2402,7 +2402,7 @@
     {
       "type": "double",
       "name": "prometheus_local_storage_series_chunks_persisted_count",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "prometheus_name": "prometheus_local_storage_series_chunks_persisted_count",
       "desc": "The number of chunks persisted per series.",
       "units_str": ""
@@ -2410,7 +2410,7 @@
     {
       "type": "double",
       "name": "prometheus_local_storage_series_chunks_persisted_bucket",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "instances": [
         {
           "prometheus_name": "prometheus_local_storage_series_chunks_persisted_bucket{le=\"1\"}",
@@ -2463,7 +2463,7 @@
     {
       "type": "double",
       "name": "prometheus_local_storage_indexing_batch_sizes_sum",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "prometheus_name": "prometheus_local_storage_indexing_batch_sizes_sum",
       "desc": "Quantiles for indexing batch sizes (number of metrics per batch).",
       "units_str": ""
@@ -2471,7 +2471,7 @@
     {
       "type": "double",
       "name": "go_memstats_sys_bytes",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "prometheus_name": "go_memstats_sys_bytes",
       "desc": "Number of bytes obtained by system. Sum of all system allocations.",
       "units_str": ""
@@ -2479,7 +2479,7 @@
     {
       "type": "double",
       "name": "http_request_duration_microseconds",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "instances": [
         {
           "prometheus_name": "http_request_duration_microseconds{handler=\"alertmanagers\",quantile=\"0.5\"}",
@@ -2728,7 +2728,7 @@
     {
       "type": "double",
       "name": "prometheus_local_storage_checkpoint_duration_seconds_sum",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "prometheus_name": "prometheus_local_storage_checkpoint_duration_seconds_sum",
       "desc": "The duration in seconds taken for checkpointing open chunks and chunks yet to be persisted",
       "units_str": ""
@@ -2736,7 +2736,7 @@
     {
       "type": "double",
       "name": "prometheus_engine_queries",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "prometheus_name": "prometheus_engine_queries",
       "desc": "The current number of queries being executed or waiting.",
       "units_str": ""
@@ -2761,7 +2761,7 @@
     {
       "type": "double",
       "name": "prometheus_sd_marathon_refresh_duration_seconds_sum",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "prometheus_name": "prometheus_sd_marathon_refresh_duration_seconds_sum",
       "desc": "The duration of a Marathon-SD refresh in seconds.",
       "units_str": ""
@@ -2777,7 +2777,7 @@
     {
       "type": "double",
       "name": "go_memstats_heap_alloc_bytes",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "prometheus_name": "go_memstats_heap_alloc_bytes",
       "desc": "Number of heap bytes allocated and still in use.",
       "units_str": ""
@@ -2785,7 +2785,7 @@
     {
       "type": "double",
       "name": "go_memstats_next_gc_bytes",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "prometheus_name": "go_memstats_next_gc_bytes",
       "desc": "Number of heap bytes when next garbage collection will take place.",
       "units_str": ""
@@ -2793,7 +2793,7 @@
     {
       "type": "double",
       "name": "prometheus_evaluator_duration_seconds_sum",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "prometheus_name": "prometheus_evaluator_duration_seconds_sum",
       "desc": "The duration of rule group evaluations.",
       "units_str": ""
@@ -2801,7 +2801,7 @@
     {
       "type": "double",
       "name": "prometheus_sd_ec2_refresh_duration_seconds_count",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "prometheus_name": "prometheus_sd_ec2_refresh_duration_seconds_count",
       "desc": "The duration of a EC2-SD refresh in seconds.",
       "units_str": ""
@@ -2809,7 +2809,7 @@
     {
       "type": "double",
       "name": "prometheus_sd_ec2_refresh_duration_seconds_sum",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "prometheus_name": "prometheus_sd_ec2_refresh_duration_seconds_sum",
       "desc": "The duration of a EC2-SD refresh in seconds.",
       "units_str": ""
@@ -2817,7 +2817,7 @@
     {
       "type": "double",
       "name": "go_memstats_alloc_bytes",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "prometheus_name": "go_memstats_alloc_bytes",
       "desc": "Number of bytes allocated and still in use.",
       "units_str": ""
@@ -2825,7 +2825,7 @@
     {
       "type": "double",
       "name": "prometheus_local_storage_checkpoint_series_chunks_written",
-      "semantic": "instaneous",
+      "semantic": "instantaneous",
       "instances": [
         {
           "prometheus_name": "prometheus_local_storage_checkpoint_series_chunks_written{quantile=\"0.5\"}",

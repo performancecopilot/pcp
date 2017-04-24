@@ -27,13 +27,8 @@ import copy
 import errno
 import json
 import os
-import sys
 import re
 import requests
-import time
-
-if sys.version >= '3':
-	long = int  # python2 to python3 portability (no long() in python3)
 
 MAX_CLUSTER = 0xfff
 MAX_METRIC = 0x3ff
@@ -42,7 +37,7 @@ MAX_INDOM = 0x7fffffff
 UINT = "uint64"
 DOUBLE = "double"
 COUNTER = "counter"
-INSTANT = "instaneous"
+INSTANT = "instantaneous"
 TYPES = { DOUBLE: c_api.PM_TYPE_DOUBLE, UINT: c_api.PM_TYPE_U64 }
 SEMANTICS = { COUNTER: c_api.PM_SEM_COUNTER, INSTANT: c_api.PM_SEM_INSTANT }
 

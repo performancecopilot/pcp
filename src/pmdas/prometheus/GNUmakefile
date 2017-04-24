@@ -35,7 +35,7 @@ build-me:	check_domain
 install_pcp install:	default 
 	$(INSTALL) -m 755 -d $(PMDADIR)
 	$(INSTALL) -m 755 Install Remove $(PYSCRIPT) $(PMDADIR)
-	@$(INSTALL_MAN)
+	# @$(INSTALL_MAN)
 else
 build-me:
 install_pcp install:
