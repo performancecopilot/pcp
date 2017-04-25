@@ -373,19 +373,28 @@ __pmRotateLog(const char *progname, const char *logname, FILE *oldstream,
 	    int *status)
 {
     int		i;
+    FILE	*newstream = oldstream;
 
     PM_LOCK(util_lock);
     for (i = 0; i < nfilelog; i++) {
-	if (oldstream == filelog[i]) {
-	    logfooter(oldstream, "rotated");	/* old */
-	    oldstream = logreopen(progname, logname, oldstream, status);
-	    logheader(progname, oldstream, "rotated");	/* new */
-	    filelog[i] = oldstream;
+	if (oldstream == filelog[i])
 	    break;
+    }
+    if (i < nfilelog) {
+	PM_UNLOCK(util_lock);
+	logfooter(oldstream, "rotated");	/* old */
+	newstream = logreopen(progname, logname, oldstream, status);
+	logheader(progname, newstream, "rotated");	/* new */
+	PM_LOCK(util_lock);
+	for (i = 0; i < nfilelog; i++) {
+	    if (oldstream == filelog[i]) {
+		filelog[i] = newstream;
+		break;
+	    }
 	}
     }
     PM_UNLOCK(util_lock);
-    return oldstream;
+    return newstream;
 }
 
 /* pmID -> string, max length is 20 bytes */
@@ -1402,6 +1411,8 @@ pmfstate(int state)
 {
     static int	errtype = PM_QUERYERR;
     char	errmsg[PM_MAXERRMSGLEN];
+
+    ASSERT_IS_LOCKED(util_lock);
 
     if (state > PM_QUERYERR)
 	errtype = state;
