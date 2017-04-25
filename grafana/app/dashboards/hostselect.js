@@ -140,7 +140,7 @@ return function(callback) {
         // target=*._ -- just identify host names / archives that cover the given
         // time interval.  The default here may impact which hosts will be listed.
         // XXX: make configurable?
-        url: pmwebd + "/graphite/render?format=json&target=*._&from=-14d&until=now"
+        url: pmwebd + "/graphite/render?format=json&target=*._&from=-365d&until=now"
     })
         .done(function(result) {
             // console.log(result);
