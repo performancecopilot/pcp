@@ -244,6 +244,10 @@ again:
 	    fprintf(stderr, "(util)");
 	else if (__pmIsContextsLock(lock))
 	    fprintf(stderr, "(contexts)");
+	else if (__pmIsIpcLock(lock))
+	    fprintf(stderr, "(ipc)");
+	else if (__pmIsOptfetchLock(lock))
+	    fprintf(stderr, "(optfetch)");
 	else if (lock == (void *)&__pmLock_extcall)
 	    fprintf(stderr, "(global_extcall)");
 	else

@@ -25,6 +25,10 @@ PNGFILES = access.png accounts.png AF.png auxconnect.png \
 
 default: $(PNGFILES)
 
+clean:
+	rm -f $(PNGFILES:.png=.dot)
+	rm -f $(PNGFILES)
+
 .PRECIOUS: $(PNGFILES:.png=.dot)
 
 $(PNGFILES) $(PNGFILES:.png=.dot): mk.cgraph \

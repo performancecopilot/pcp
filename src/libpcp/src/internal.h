@@ -133,6 +133,9 @@ extern int __pmIsFaultLock(void *) _PCP_HIDDEN;
 extern int __pmIsPduLock(void *) _PCP_HIDDEN;
 extern int __pmIsPdubufLock(void *) _PCP_HIDDEN;
 extern int __pmIsUtilLock(void *) _PCP_HIDDEN;
+extern int __pmIsContextsLock(void *) _PCP_HIDDEN;
+extern int __pmIsIpcLock(void *) _PCP_HIDDEN;
+extern int __pmIsOptfetchLock(void *) _PCP_HIDDEN;
 #endif
 
 /* AF_UNIX socket family internals */

@@ -218,6 +218,9 @@ s/)//
 		    ipc_lock)
 			echo ipc >>$tmp.locks
 			;;
+		    optfetch_lock)
+			echo optfetch >>$tmp.locks
+			;;
 		    *)
 			echo >&2 "Bad LOCK: $param"
 			exit

@@ -333,7 +333,8 @@ secureconnect.o
     common_callbacks		# const
     initialized			# single-threaded
 optfetch.o
-    optcost			# guarded by __pmLock_libpcp mutex
+    ?optfetch_lock		# local mutex
+    optcost			# guarded by optfetch_lock mutex
 p_attr.o
 p_creds.o
 p_desc.o
