@@ -1995,7 +1995,7 @@ __dmopencontext(__pmContext *ctxp)
 
 #ifdef PCP_DEBUG
     if ((pmDebug & DBG_TRACE_DERIVE) && (pmDebug & DBG_TRACE_APPL1)) {
-	fprintf(stderr, "__dmopencontext(->ctx %d) called\n", __pmPtrToHandle(ctxp));
+	fprintf(stderr, "__dmopencontext(->ctx %d) called\n", ctxp->c_handle);
     }
 #endif
     if (registered.nmetric == 0) {
@@ -2078,7 +2078,7 @@ __dmclosecontext(__pmContext *ctxp)
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_DERIVE) {
-	fprintf(stderr, "__dmclosecontext(->ctx %d) called dm->" PRINTF_P_PFX "%p %d metrics\n", __pmPtrToHandle(ctxp), cp, cp == NULL ? -1 : cp->nmetric);
+	fprintf(stderr, "__dmclosecontext(->ctx %d) called dm->" PRINTF_P_PFX "%p %d metrics\n", ctxp->c_handle, cp, cp == NULL ? -1 : cp->nmetric);
     }
 #endif
     if (cp == NULL) return;

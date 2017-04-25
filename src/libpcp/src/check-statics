@@ -173,13 +173,14 @@ connect.o
     first_time			# guarded by __pmLock_libpcp mutex
     proxy			# guarded by __pmLock_libpcp mutex
 context.o
+    ?contexts_lock		# local mutex
     _mode			# const
     being_initialized           # const
-    def_backoff			# guarded by __pmLock_libpcp mutex
-    backoff			# guarded by __pmLock_libpcp mutex
-    n_backoff			# guarded by __pmLock_libpcp mutex
-    contexts			# guarded by __pmLock_libpcp mutex
-    contexts_len		# guarded by __pmLock_libpcp mutex
+    def_backoff			# guarded by contexts_lock mutex
+    backoff			# guarded by contexts_lock mutex
+    n_backoff			# guarded by contexts_lock mutex
+    contexts			# guarded by contexts_lock mutex
+    contexts_len		# guarded by contexts_lock mutex
     hostbuf			# single-threaded
     ?curcontext			# thread private (no __thread symbols for Mac OS X)
     ?__emutls_t.curcontext	# thread private (MinGW)
