@@ -186,7 +186,7 @@ s/)//
 			echo derived >>$tmp.locks
 			;;
 		    c_lock|*-\>c_lock)
-			echo context >>$tmp.locks
+			echo c_lock >>$tmp.locks
 			;;
 		    *-\>pc_lock)
 			echo pmcd >>$tmp.locks
@@ -214,6 +214,9 @@ s/)//
 			;;
 		    contexts_lock)
 			echo contexts >>$tmp.locks
+			;;
+		    ipc_lock)
+			echo ipc >>$tmp.locks
 			;;
 		    *)
 			echo >&2 "Bad LOCK: $param"
