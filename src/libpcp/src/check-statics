@@ -294,10 +294,11 @@ interp.o
     nr				# diag counters, no atomic updates
     nr_cache			# diag counters, no atomic updates
 ipc.o
-    __pmIPCTable		# guarded by __pmLock_libpcp mutex
-    __pmLastUsedFd		# guarded by __pmLock_libpcp mutex
-    ipcentrysize		# guarded by __pmLock_libpcp mutex
-    ipctablecount		# guarded by __pmLock_libpcp mutex
+    ?ipc_lock			# local mutex
+    __pmIPCTable		# guarded by ipc_lock mutex
+    __pmLastUsedFd		# guarded by ipc_lock mutex
+    ipcentrysize		# guarded by ipc_lock mutex
+    ipctablecount		# guarded by ipc_lock mutex
 lock.o
     __pmLock_libpcp		# the global libpcp mutex
     __pmLock_extcall		# mutex for calls to external routines that are not thread-safe
