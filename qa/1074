@@ -1,6 +1,11 @@
 #!/bin/sh
 # PCP QA Test No. 1074
-# lock correctness and __pmMultiThreaded()
+# lock correctness for:
+#	__pmMultiThreaded()
+#	PM_CONTEXT_LOCAL
+#	PM_SCOPE_AF and PM_SCOPE_ACL
+#
+# See qa/449 for the non-helgrind versions of these tests.
 #
 # Copyright (c) 2017 Ken McDonell.  All Rights Reserved.
 #
