@@ -120,8 +120,10 @@ refresh_proc_buddyinfo(proc_buddyinfo_t *proc_buddyinfo)
         proc_buddyinfo->nbuddys = 0;
         if ((fp = linux_statsfile("/proc/buddyinfo", buf, sizeof(buf))) == NULL)
             return -oserror();
-        if (fgets(buf,sizeof(buf),fp) == NULL) /* read first line */
+        if (fgets(buf,sizeof(buf),fp) == NULL) { /* read first line */
+            fclose(fp);
             return -oserror();
+        }
         fclose(fp);
         MAX_ORDER = read_buddyinfo(buf,read_buf,0) - 5; /* get maximum page order */
     }
@@ -162,6 +164,7 @@ refresh_proc_buddyinfo(proc_buddyinfo_t *proc_buddyinfo)
             proc_buddyinfo->buddys[i+j].value = values[j];
         }
     }
+    fclose(fp);
 
     /* refresh buddyinfo indom */
     if (proc_buddyinfo->indom->it_numinst != proc_buddyinfo->nbuddys) {

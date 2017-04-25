@@ -953,6 +953,7 @@ int runtest(int n)
 	    break;
         case 27:
 	    test_dynamic_events_config();
+	    break;
         default:
             ret = -1;
     }
