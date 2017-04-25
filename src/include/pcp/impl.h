@@ -751,6 +751,7 @@ typedef struct {
 typedef struct {
     __pmMutex		c_lock;		/* mutex for multi-thread access */
     int			c_type;		/* HOST, ARCHIVE, LOCAL or INIT or FREE */
+    int			c_handle;	/* context number above PMAPI */
     int			c_mode;		/* current mode PM_MODE_* */
     __pmPMCDCtl		*c_pmcd;	/* pmcd control for HOST contexts */
     __pmArchCtl		*c_archctl;	/* log control for ARCHIVE contexts */
@@ -1534,6 +1535,7 @@ PCP_CALL extern int __pmRegisterAnon(const char *, int);
  */
 PCP_CALL extern void __pmInitLocks(void);
 PCP_CALL extern int __pmLock(void *, const char *, int);
+PCP_CALL extern int __pmIsLocked(void *);
 PCP_CALL extern int __pmUnlock(void *, const char *, int);
 
 /*
@@ -1551,6 +1553,15 @@ PCP_CALL extern int __pmMultiThreaded(int);
 #define PM_MULTIPLE_THREADS(x)	__pmMultiThreaded(x)
 #define PM_LOCK(lock)		__pmLock(&(lock), __FILE__, __LINE__)
 #define PM_UNLOCK(lock)		__pmUnlock(&(lock), __FILE__, __LINE__)
+
+#ifdef BUILD_WITH_LOCK_ASSERTS
+#include <assert.h>
+#define ASSERT_IS_LOCKED(lock) assert(__pmIsLocked(&(lock)) == 1);
+#define ASSERT_IS_UNLOCKED(lock) assert(__pmIsLocked(&(lock)) == 0);
+#else
+#define ASSERT_IS_LOCKED(lock)
+#define ASSERT_IS_UNLOCKED(lock)
+#endif /* BUILD_WITH_LOCK_ASSERTS */
 
 #ifdef HAVE_PTHREAD_MUTEX_T
 /* the big libpcp lock */
