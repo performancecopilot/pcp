@@ -144,6 +144,8 @@ _dofunc()
     | awk '
 $2 == "defined"		{ next }	# cscope botch on #if defined()?
 $2 == "PM_UNLOCK"	{ next }	# we do not care about these
+$2 == "ASSERT_IS_LOCKED"	{ next }	# we do not care about these
+$2 == "ASSERT_IS_UNLOCKED"	{ next }	# we do not care about these
 $2 == "formatter"	{		# function pointer in config.c
 			  print "posix_formatter"
 			  print "dos_formatter"
@@ -203,6 +205,15 @@ s/)//
 			;;
 		    pdubuf_lock)
 			echo pdubuf >>$tmp.locks
+			;;
+		    util_lock)
+			echo util >>$tmp.locks
+			;;
+		    pdu_lock)
+			echo pdu >>$tmp.locks
+			;;
+		    contexts_lock)
+			echo contexts >>$tmp.locks
 			;;
 		    *)
 			echo >&2 "Bad LOCK: $param"
@@ -301,6 +312,14 @@ s/)//
 
 }
 
+# turn nolock.calls into a sed script to post-process the .dot config
+#
+sed <nolock.calls >$tmp.nolock \
+    -e '/^[ 	]*$/d' \
+    -e '/^#/d' \
+    -e 's@.*@/&/s/;/ [style="dashed"];/@' \
+# end
+
 for i
 do
     echo $i >>$tmp.todo
@@ -322,7 +341,7 @@ fi
 while [ -s $tmp.todo ]
 do
     func=`head -1 $tmp.todo`
-    _dofunc $func
+    _dofunc $func | sed -f $tmp.nolock
     echo $func >>$tmp.done
     sed -e 1d <$tmp.todo >$tmp.tmp
     mv $tmp.tmp $tmp.todo

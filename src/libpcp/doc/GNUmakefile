@@ -28,7 +28,8 @@ default: $(PNGFILES)
 .PRECIOUS: $(PNGFILES:.png=.dot)
 
 $(PNGFILES) $(PNGFILES:.png=.dot): mk.cgraph \
-	     glibc.safe glibc.unsafe other.safe other.unsafe posix.unsafe
+	     glibc.safe glibc.unsafe other.safe other.unsafe posix.unsafe \
+	     nolock.calls
 
 %.png:	%.dot
 	dot -Tpng <$< >$@
