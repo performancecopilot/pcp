@@ -251,8 +251,9 @@ derive_parser.tab.o
 desc.o
 endian.o
 err.o
+    ?err_lock			# local mutex
     ?errtab			# const
-    ?first			# guarded by __pmLock_libpcp mutex
+    ?first			# guarded by err_lock mutex
     unknown			# guarded by __pmLock_libpcp mutex or const (MinGW)
     errmsg			# pmErrStr deprecated by pmErrStr_r
 events.o

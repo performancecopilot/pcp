@@ -248,6 +248,8 @@ again:
 	    fprintf(stderr, "(ipc)");
 	else if (__pmIsOptfetchLock(lock))
 	    fprintf(stderr, "(optfetch)");
+	else if (__pmIsErrLock(lock))
+	    fprintf(stderr, "(err)");
 	else if (lock == (void *)&__pmLock_extcall)
 	    fprintf(stderr, "(global_extcall)");
 	else
