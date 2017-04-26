@@ -270,7 +270,7 @@ again:
 	fputc('\n', stderr);
 #ifdef HAVE_BACKTRACE
 #define MAX_TRACE_DEPTH 32
-	{
+	if (pmDebug & DBG_TRACE_DESPERATE) {
 	    void	*backaddr[MAX_TRACE_DEPTH];
 	    sts = backtrace(backaddr, MAX_TRACE_DEPTH);
 	    if (sts > 0) {

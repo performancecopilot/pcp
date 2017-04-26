@@ -182,7 +182,8 @@ context.o
     contexts			# guarded by contexts_lock mutex
     contexts_len		# guarded by contexts_lock mutex
     hostbuf			# single-threaded
-    ?curcontext			# thread private (no __thread symbols for Mac OS X)
+    ?curr_handle		# thread private (no __thread symbols for Mac OS X)
+    ?curr_ctxp			# thread private (no __thread symbols for Mac OS X)
     ?__emutls_t.curcontext	# thread private (MinGW)
     ?__emutls_v.curcontext	# thread private (MinGW)
 derive_fetch.o

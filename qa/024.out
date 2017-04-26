@@ -14,7 +14,7 @@ Dump Contexts: current context = 1
 Context[1] host <localhost>: pmcd=CONNECTED profile=NOT_SENT fd=<n> refcnt=2 origin=0.000000 delta=0
 Dump Instance Profile state=INCLUDE, 0 profiles
 pmUseContext(1) -> 0
-pmDestroyContext(1) -> 0, curcontext=-1
+pmDestroyContext(1) -> 0, curr_handle=-1
 pmUseContext(0) -> 0
 
 __pmDecodeXtendError: got error PDU (code=0, datum=DATA, version=2)
@@ -31,7 +31,7 @@ Dump Contexts: current context = 1
 Context[1] host <localhost>: pmcd=CONNECTED profile=NOT_SENT fd=<n> refcnt=2 origin=0.000000 delta=0
 Dump Instance Profile state=INCLUDE, 0 profiles
 pmUseContext(1) -> 0
-pmDestroyContext(1) -> 0, curcontext=-1
+pmDestroyContext(1) -> 0, curr_handle=-1
 pmUseContext(0) -> 0
 
 __pmDecodeXtendError: got error PDU (code=0, datum=DATA, version=2)
@@ -51,7 +51,7 @@ Dump Contexts: current context = 1
 Context[1] host <localhost>: pmcd=CONNECTED profile=NOT_SENT fd=<n> refcnt=1 origin=0.000000 delta=0
 Dump Instance Profile state=INCLUDE, 0 profiles
 pmUseContext(1) -> 0
-pmDestroyContext(1) -> 0, curcontext=-1
+pmDestroyContext(1) -> 0, curr_handle=-1
 pmUseContext(0) -> 0
 
 __pmDecodeXtendError: got error PDU (code=0, datum=DATA, version=2)
@@ -71,7 +71,7 @@ Dump Contexts: current context = 1
 Context[1] host <remotehost>: pmcd=CONNECTED profile=NOT_SENT fd=<n> refcnt=1 origin=0.000000 delta=0
 Dump Instance Profile state=INCLUDE, 0 profiles
 pmUseContext(1) -> 0
-pmDestroyContext(1) -> 0, curcontext=-1
+pmDestroyContext(1) -> 0, curr_handle=-1
 pmUseContext(0) -> 0
 
 
@@ -91,7 +91,7 @@ Dump Contexts: current context = 1
 Context[1] standalone: profile=NOT_SENT
 Dump Instance Profile state=INCLUDE, 0 profiles
 pmUseContext(1) -> 0
-pmDestroyContext(1) -> 0, curcontext=-1
+pmDestroyContext(1) -> 0, curr_handle=-1
 pmUseContext(0) -> 0
 NotifyEndLocalContext: DSO PMDA $PCP_PMDAS_DIR/sample/pmda_sample.$DSO_SUFFIX (30) notified of context 0 close
 

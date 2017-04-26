@@ -103,10 +103,11 @@ extern void __htonll(char *) _PCP_HIDDEN;	/* 64bit int */
 extern pthread_key_t __pmTPDKey _PCP_HIDDEN;
 
 typedef struct {
-    int		curcontext;	/* current context */
+    int		curr_handle;	/* current context # */
     char	*derive_errmsg;	/* derived metric parser error message */
     __pmnsTree  *curr_pmns;     /* current pmns */
     int         useExtPMNS;     /* ... was the result of a __pmUsePMNS */
+    __pmContext	*curr_ctxp;	/* -> current __pmContext */
 } __pmTPD;
 
 static inline __pmTPD *

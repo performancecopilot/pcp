@@ -1532,11 +1532,10 @@ clearMarkDone(void)
     __pmContext		*ctxp;
 
     /* Get the current context. It must be an archive context. */
-    ctxp = __pmHandleToPtr(pmWhichContext());
+    ctxp = __pmCurrentContext();
     if (ctxp != NULL) {
 	if (ctxp->c_type == PM_CONTEXT_ARCHIVE)
 	    ctxp->c_archctl->ac_mark_done = 0;
-	PM_UNLOCK(ctxp->c_lock);
     }
 }
 
@@ -2515,7 +2514,7 @@ pmGetArchiveLabel(pmLogLabel *lp)
     __pmArchCtl	*acp;
     __pmLogCtl	*lcp;
 
-    ctxp = __pmHandleToPtr(pmWhichContext());
+    ctxp = __pmCurrentContext();
     if (ctxp == NULL) 
 	return PM_ERR_NOCONTEXT;
     if (ctxp->c_type != PM_CONTEXT_ARCHIVE) {
@@ -2769,7 +2768,7 @@ pmGetArchiveEnd(struct timeval *tp)
      * set l_physend and l_endtime
      * at the end of ... ctxp->c_archctl->ac_log
      */
-    ctxp = __pmHandleToPtr(pmWhichContext());
+    ctxp = __pmCurrentContext();
     if (ctxp == NULL)
 	return PM_ERR_NOCONTEXT;
     if (ctxp->c_type != PM_CONTEXT_ARCHIVE) {
@@ -2858,7 +2857,7 @@ __pmLogCheckForNextArchive(__pmLogCtl *lcp, int mode, pmResult **result)
     int		sts = 0;
 
     /* Get the current context. It must be an archive context. */
-    ctxp = __pmHandleToPtr(pmWhichContext());
+    ctxp = __pmCurrentContext();
     if (ctxp == NULL)
 	return PM_ERR_EOL;
     if (ctxp->c_type != PM_CONTEXT_ARCHIVE) {
@@ -2901,7 +2900,7 @@ __pmLogChangeToNextArchive(__pmLogCtl **lcp)
     int		save_mode;
 
     /* Get the current context. It must be an archive context. */
-    ctxp = __pmHandleToPtr(pmWhichContext());
+    ctxp = __pmCurrentContext();
     if (ctxp == NULL)
 	return PM_ERR_NOCONTEXT;
     if (ctxp->c_type != PM_CONTEXT_ARCHIVE) {
@@ -2978,7 +2977,7 @@ __pmLogChangeToPreviousArchive(__pmLogCtl **lcp)
     int			sts;
 
     /* Get the current context. It must be an archive context. */
-    ctxp = __pmHandleToPtr(pmWhichContext());
+    ctxp = __pmCurrentContext();
     if (ctxp == NULL)
 	return PM_ERR_NOCONTEXT;
     if (ctxp->c_type != PM_CONTEXT_ARCHIVE) {

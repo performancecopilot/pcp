@@ -420,7 +420,7 @@ pmNewContextZone(void)
     __pmContext	*ctxp;
     int		sts;
 
-    if ((ctxp = __pmHandleToPtr(pmWhichContext())) == NULL)
+    if ((ctxp = __pmCurrentContext()) == NULL)
 	return PM_ERR_NOCONTEXT;
 
     if (ctxp->c_type == PM_CONTEXT_ARCHIVE) {

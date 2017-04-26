@@ -43,6 +43,12 @@ pmStore(const pmResult *result)
 	if (ctxp == NULL)
 	    return PM_ERR_NOCONTEXT;
 	if (ctxp->c_type == PM_CONTEXT_HOST) {
+	    /*
+	     * TODO - should really be pc_lock here, but __pmSendResult
+	     * may do other PDU exchange before the store (from __pmDumpResult)
+	     * and __pmSendResult called from other places for IPC to pmlogger
+	     * not pmcd!
+	     */
 	    PM_INIT_LOCKS();
 	    PM_LOCK(__pmLock_libpcp);
 	    sts = __pmSendResult(ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp), result);

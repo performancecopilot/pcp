@@ -15,7 +15,8 @@
  *
  * Thread-safe notes
  *
- * curcontext needs to be thread-private
+ * curr_handle needs to be thread-private
+ * curr_ctx needs to be thread-private
  *
  * contexts[] et al and def_backoff[] et al are protected from changes
  * using the local contexts_lock lock.
@@ -37,11 +38,13 @@ static int		contexts_len;		/* number of contexts */
 
 #ifdef PM_MULTI_THREAD
 #ifdef HAVE___THREAD
-/* using a gcc construct here to make curcontext thread-private */
-static __thread int	curcontext = PM_CONTEXT_UNDEF;	/* current context */
+/* using a gcc construct here to make curr_handle thread-private */
+static __thread int	curr_handle = PM_CONTEXT_UNDEF;	/* current context # */
+static __thread __pmContext	*curr_ctxp = NULL;	/* -> current __pmContext */
 #endif
 #else
-static int		curcontext = PM_CONTEXT_UNDEF;	/* current context */
+static int		curr_handle = PM_CONTEXT_UNDEF;	/* current context # */
+static __pmContext	*curr_ctxp = NULL;		/* -> current __pmContext */
 #endif
 
 static int		n_backoff;
@@ -173,7 +176,8 @@ pmGetContextHostName_r(int ctxid, char *buf, int buflen)
     char	*name;
     pmID	pmid;
     pmResult	*resp;
-    int		original;
+    int		save_handle;
+    __pmContext	*save_ctxp;
     int		sts;
 
     buf[0] = '\0';
@@ -192,17 +196,20 @@ pmGetContextHostName_r(int ctxid, char *buf, int buflen)
 	     */
 	    if (pmDebug & DBG_TRACE_CONTEXT)
 		fprintf(stderr, "pmGetContextHostName_r context(%d) -> 0\n", ctxid);
-	    original = PM_TPD(curcontext);
-	    PM_TPD(curcontext) = ctxid;
+	    save_handle = PM_TPD(curr_handle);
+	    save_ctxp = PM_TPD(curr_ctxp);
+	    PM_TPD(curr_handle) = ctxid;
+	    PM_TPD(curr_ctxp) = ctxp;
 
 	    name = "pmcd.hostname";
 	    sts = pmLookupName(1, &name, &pmid);
 	    if (sts >= 0)
 		sts = pmFetch(1, &pmid, &resp);
 	    if (pmDebug & DBG_TRACE_CONTEXT)
-		fprintf(stderr, "pmGetContextHostName_r reset(%d) -> 0\n", original);
+		fprintf(stderr, "pmGetContextHostName_r reset(%d) -> 0\n", save_handle);
 
-	    PM_TPD(curcontext) = original;
+	    PM_TPD(curr_handle) = save_handle;
+	    PM_TPD(curr_ctxp) = save_ctxp;
 	    if (sts >= 0) {
 		if (resp->vset[0]->numval > 0) { /* pmcd.hostname present */
 		    strncpy(buf, resp->vset[0]->vlist[0].value.pval->vbuf, buflen);
@@ -257,21 +264,27 @@ int
 pmWhichContext(void)
 {
     /*
-     * return curcontext, provided it is defined
+     * return curr_handle, provided it is defined
      */
     int		sts;
 
-    if (PM_TPD(curcontext) > PM_CONTEXT_UNDEF)
-	sts = PM_TPD(curcontext);
+    if (PM_TPD(curr_handle) > PM_CONTEXT_UNDEF)
+	sts = PM_TPD(curr_handle);
     else
 	sts = PM_ERR_NOCONTEXT;
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_CONTEXT)
 	fprintf(stderr, "pmWhichContext() -> %d, cur=%d\n",
-	    sts, PM_TPD(curcontext));
+	    sts, PM_TPD(curr_handle));
 #endif
     return sts;
+}
+
+__pmContext *
+__pmCurrentContext(void)
+{
+    return PM_TPD(curr_ctxp);
 }
 
 int
@@ -552,7 +565,7 @@ __pmFindOrOpenArchive(__pmContext *ctxp, const char *name, int multi_arch)
     lcp2 = NULL;
     if (! multi_arch) {
 	for (i = 0; i < contexts_len; i++) {
-	    if (i == PM_TPD(curcontext))
+	    if (i == PM_TPD(curr_handle))
 		continue;
 
 	    /*
@@ -949,7 +962,8 @@ pmNewContext(int type, const char *name)
     __pmContext	**list;
     int		i;
     int		sts;
-    int		old_curcontext;
+    int		old_curr_handle;
+    __pmContext	*old_curr_ctxp;
     int		save_handle;
     /* A pointer to this stub object is put in contexts[] while a real __pmContext is being built. */
     static /*const*/ __pmContext being_initialized = { .c_type = PM_CONTEXT_INIT };
@@ -961,14 +975,15 @@ pmNewContext(int type, const char *name)
 	/* Local context requires single-threaded applications */
 	return PM_ERR_THREAD;
 
-    old_curcontext = PM_TPD(curcontext);
+    old_curr_handle = PM_TPD(curr_handle);
+    old_curr_ctxp = PM_TPD(curr_ctxp);
 
     PM_LOCK(contexts_lock);
     /* See if we can reuse a free context */
     for (i = 0; i < contexts_len; i++) {
 	if (contexts[i]->c_type == PM_CONTEXT_FREE) {
-	    PM_TPD(curcontext) = i;
-	    new = contexts[i];
+	    PM_TPD(curr_handle) = i;
+	    PM_TPD(curr_ctxp) = new = contexts[i];
 	    contexts[i] = &being_initialized;
 	    goto INIT_CONTEXT;
 	}
@@ -999,7 +1014,8 @@ pmNewContext(int type, const char *name)
     }
 
     contexts = list;
-    PM_TPD(curcontext) = contexts_len;
+    PM_TPD(curr_handle) = contexts_len;
+    PM_TPD(curr_ctxp) = new;
     contexts[contexts_len] = &being_initialized;
     new->c_handle = contexts_len;
     contexts_len++;
@@ -1094,7 +1110,7 @@ INIT_CONTEXT:
 	    for (i = 0; i < contexts_len; i++) {
 		__pmPMCDCtl *pmcd;
 
-		if (i == PM_TPD(curcontext))
+		if (i == PM_TPD(curr_handle))
 		    continue;
 		pmcd = contexts[i]->c_pmcd;
 		if (contexts[i]->c_type == new->c_type &&
@@ -1188,19 +1204,19 @@ INIT_CONTEXT:
 	return PM_ERR_NOCONTEXT;
     }
 
-    sts = PM_TPD(curcontext);
+    sts = PM_TPD(curr_handle);
 
     /* Take contexts_lock lock to update contexts[] with this fully operational
        battle station ^W context. */
     PM_LOCK(contexts_lock);
-    contexts[PM_TPD(curcontext)] = new;
+    contexts[PM_TPD(curr_handle)] = new;
     PM_UNLOCK(contexts_lock);
 
     /* return the handle to the new (current) context */
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_CONTEXT) {
-	fprintf(stderr, "pmNewContext(%d, %s) -> %d\n", type, name, PM_TPD(curcontext));
-	__pmDumpContext(stderr, PM_TPD(curcontext), PM_INDOM_NULL);
+	fprintf(stderr, "pmNewContext(%d, %s) -> %d\n", type, name, PM_TPD(curr_handle));
+	__pmDumpContext(stderr, PM_TPD(curr_handle), PM_INDOM_NULL);
     }
 #endif
 
@@ -1228,13 +1244,14 @@ FAILED_LOCKED:
         /* We could memset-0 the struct, but this is not really
            necessary.  That's the first thing we'll do in INIT_CONTEXT. */
         new->c_type = PM_CONTEXT_FREE;
-        contexts[PM_TPD(curcontext)] = new;
+        contexts[PM_TPD(curr_handle)] = new;
     }
-    PM_TPD(curcontext) = old_curcontext;
+    PM_TPD(curr_handle) = old_curr_handle;
+    PM_TPD(curr_ctxp) = old_curr_ctxp;
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_CONTEXT)
-	fprintf(stderr, "pmNewContext(%d, %s) -> %d, curcontext=%d\n",
-	    type, name, sts, PM_TPD(curcontext));
+	fprintf(stderr, "pmNewContext(%d, %s) -> %d, curr_handle=%d\n",
+	    type, name, sts, PM_TPD(curr_handle));
 #endif
     PM_UNLOCK(contexts_lock);
     return sts;
@@ -1513,7 +1530,8 @@ pmUseContext(int handle)
     if (pmDebug & DBG_TRACE_CONTEXT)
 	fprintf(stderr, "pmUseContext(%d) -> 0\n", handle);
 #endif
-    PM_TPD(curcontext) = handle;
+    PM_TPD(curr_handle) = handle;
+    PM_TPD(curr_ctxp) = contexts[handle];
 
     PM_UNLOCK(contexts_lock);
     return 0;
@@ -1570,16 +1588,18 @@ pmDestroyContext(int handle)
     __pmFreeAttrsSpec(&ctxp->c_attrs);
     __pmHashClear(&ctxp->c_attrs);
 
-    if (handle == PM_TPD(curcontext))
+    if (handle == PM_TPD(curr_handle)) {
 	/* we have no choice */
-	PM_TPD(curcontext) = PM_CONTEXT_UNDEF;
+	PM_TPD(curr_handle) = PM_CONTEXT_UNDEF;
+	PM_TPD(curr_ctxp) = NULL;
+    }
 
     __pmFreeProfile(ctxp->c_instprof);
     __dmclosecontext(ctxp);
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_CONTEXT)
-	fprintf(stderr, "pmDestroyContext(%d) -> 0, curcontext=%d\n",
-		handle, PM_TPD(curcontext));
+	fprintf(stderr, "pmDestroyContext(%d) -> 0, curr_handle=%d\n",
+		handle, PM_TPD(curr_handle));
 #endif
 
     PM_UNLOCK(ctxp->c_lock);
@@ -1600,8 +1620,8 @@ __pmDumpContext(FILE *f, int context, pmInDom indom)
     int			i, j;
     __pmContext		*con;
 
-    fprintf(f, "Dump Contexts: current context = %d\n", PM_TPD(curcontext));
-    if (PM_TPD(curcontext) < 0) {
+    fprintf(f, "Dump Contexts: current context = %d\n", PM_TPD(curr_handle));
+    if (PM_TPD(curr_handle) < 0) {
 	return;
     }
 

@@ -751,7 +751,6 @@ typedef struct {
 typedef struct {
     __pmMutex		c_lock;		/* mutex for multi-thread access */
     int			c_type;		/* HOST, ARCHIVE, LOCAL or INIT or FREE */
-    int			c_handle;	/* context number above PMAPI */
     int			c_mode;		/* current mode PM_MODE_* */
     __pmPMCDCtl		*c_pmcd;	/* pmcd control for HOST contexts */
     __pmArchCtl		*c_archctl;	/* log control for ARCHIVE contexts */
@@ -762,6 +761,7 @@ typedef struct {
     void		*c_dm;		/* derived metrics, if any */
     int			c_flags;	/* ctx flags (set via type/env/attrs) */
     __pmHashCtl		c_attrs;	/* various optional context attributes */
+    int			c_handle;	/* context number above PMAPI */
 } __pmContext;
 
 #define __PM_MODE_MASK	0xffff
@@ -773,6 +773,11 @@ typedef struct {
  * Convert opaque context handle to __pmContext pointer
  */
 PCP_CALL extern __pmContext *__pmHandleToPtr(int);
+
+/*
+ * Like __pmHandleToPtr(pmWhichContext()), but with no locking
+ */
+PCP_CALL __pmContext *__pmCurrentContext(void);
 
 /*
  * Dump the current context (source details + instance profile),
