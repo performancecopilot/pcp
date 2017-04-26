@@ -1004,6 +1004,11 @@ class PMReporter(object):
                     break
                 raise error
 
+            # Watch for endtime in uninterpolated mode
+            if not self.interpol:
+                if float(self.pmfg_ts().strftime('%s')) > float(self.opts.pmGetOptionFinish()):
+                    break
+
             # Report and prepare for the next round
             self.report(self.pmfg_ts())
             if self.samples and self.samples > 0:
