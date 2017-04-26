@@ -199,6 +199,8 @@ pmGetPMNSLocation(void)
 	goto done;
     }
 
+    PM_LOCK(__pmLock_libpcp);
+
     /* 
      * Determine if we are to use PDUs or local PMNS file.
      * Load PMNS if necessary.
@@ -275,7 +277,6 @@ pmGetPMNSLocation(void)
 	    pmns_location = PMNS_LOCAL;
     }
 
-    PM_LOCK(__pmLock_libpcp);
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_PMNS) {
 	static int last_pmns_location = -1;
@@ -291,9 +292,9 @@ pmGetPMNSLocation(void)
     /* fix up curr_pmns for API ops */
     if (pmns_location == PMNS_LOCAL)
 	PM_TPD(curr_pmns) = main_pmns;
-    PM_UNLOCK(__pmLock_libpcp);
 
 done:
+    PM_UNLOCK(__pmLock_libpcp);
     return pmns_location;
 }
 
