@@ -2,7 +2,7 @@
 # PCP QA Test No. 1174
 # lock correctness for:
 #	PMNS concurrency
-	PMNS Load/Unload & Traverse concurrency
+#	PMNS Load/Unload & Traverse concurrency
 #
 # See qa/449 for the non-helgrind versions of these tests.
 #

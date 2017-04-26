@@ -33,6 +33,10 @@ func1: [4] a.three.foo -> 0.2.0 -> a.three.foo
 func1: [4] d.f.fumble -> 3.0.1 -> d.f.fumble
 
 === PMNS Load/Unload & Traverse concurrency ===
+=== filtered valgrind report ===
+Helgrind, a thread error detector
+ERROR SUMMARY: 0 errors from 0 contexts ...
+=== stdout ===
 Total PDU counts
 in: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 out: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
