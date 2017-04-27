@@ -32,6 +32,23 @@ typedef struct {
 static int		multi_init[PM_SCOPE_MAX+1];
 static pthread_t	multi_seen[PM_SCOPE_MAX+1];
 
+#ifdef PM_MULTI_THREAD
+static pthread_mutex_t	lock_lock = PTHREAD_MUTEX_INITIALIZER;
+#else
+void			*lock_lock;
+#endif
+
+#if defined(PM_MULTI_THREAD) && defined(PM_MULTI_THREAD_DEBUG)
+/*
+ * return true if lock == lock_lock
+ */
+int
+__pmIsLockLock(void *lock)
+{
+    return lock == (void *)&lock_lock;
+}
+#endif
+
 /* the big libpcp lock */
 #ifdef PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP
 pthread_mutex_t	__pmLock_libpcp = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
@@ -150,8 +167,7 @@ __pmMultiThreaded(int scope)
 {
     int		sts = 0;
 
-    PM_INIT_LOCKS();
-    PM_LOCK(__pmLock_libpcp);
+    PM_LOCK(lock_lock);
     if (!multi_init[scope]) {
 	multi_init[scope] = 1;
 	multi_seen[scope] = pthread_self();
@@ -160,7 +176,7 @@ __pmMultiThreaded(int scope)
 	if (!pthread_equal(multi_seen[scope], pthread_self()))
 	    sts = 1;
     }
-    PM_UNLOCK(__pmLock_libpcp);
+    PM_UNLOCK(lock_lock);
     return sts;
 }
 
@@ -250,6 +266,8 @@ again:
 	    fprintf(stderr, "(optfetch)");
 	else if (__pmIsErrLock(lock))
 	    fprintf(stderr, "(err)");
+	else if (__pmIsLockLock(lock))
+	    fprintf(stderr, "(lock)");
 	else if (lock == (void *)&__pmLock_extcall)
 	    fprintf(stderr, "(global_extcall)");
 	else
