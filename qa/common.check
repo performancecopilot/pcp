@@ -1237,9 +1237,18 @@ _run_helgrind()
     else
 	_helgrind_prefix=''
     fi
+    __version=`valgrind --version | sed -e 's/valgrind-//'`
+    if [ -f $here/helgrind-suppress-$__version ]
+    then
+	__extra="--suppressions=$here/helgrind-suppress-$__version"
+	echo "Warning: using extra $__extra" >>$here/$seq.full
+    else
+	__extra=''
+    fi
 
     $_helgrind_prefix valgrind \
-	--tool=helgrind \
+	--tool=helgrind --gen-suppressions=all \
+	--suppressions=$here/helgrind-suppress $__extra \
 	--log-file=$tmp.valgrind.log \
 	    $* 2>$tmp.valgrind.err >$tmp.valgrind.out
     echo "=== valgrind report ===" >>$here/$seq.full
