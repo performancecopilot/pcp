@@ -1,0 +1,148 @@
+QA output created by 952
+=== profile and fetch operations with three contexts, same host, different fd's ===
+=== filtered valgrind report ===
+Helgrind, a thread error detector
+ERROR SUMMARY: 0 errors from 0 contexts ...
+=== output files ===
+ 100 func1: pmcd.buf.alloc: 7 values
+ 100 func1: pmcd.control.register: 16 values sampledso.bin: 9 values sample.ulonglong.ten: 1 values pmcd.buf.alloc: 7 values
+ 100 func1: sample.colour: 3 values pmcd.control.register: 16 values sampledso.bin: 9 values sample.ulonglong.ten: 1 values pmcd.buf.alloc: 7 values
+ 100 func1: sample.ulonglong.ten: 1 values pmcd.buf.alloc: 7 values
+ 100 func1: sampledso.bin: 9 values sample.ulonglong.ten: 1 values pmcd.buf.alloc: 7 values
+ 100 func2: pmcd.buf.alloc: 7 values
+ 100 func2: pmcd.control.register: 5 values sampledso.bin: 9 values sample.ulonglong.ten: 1 values pmcd.buf.alloc: 7 values
+ 100 func2: sample.colour: 3 values pmcd.control.register: 5 values sampledso.bin: 9 values sample.ulonglong.ten: 1 values pmcd.buf.alloc: 7 values
+ 100 func2: sample.ulonglong.ten: 1 values pmcd.buf.alloc: 7 values
+ 100 func2: sampledso.bin: 9 values sample.ulonglong.ten: 1 values pmcd.buf.alloc: 7 values
+ 100 func3: pmcd.buf.alloc: 7 values
+ 100 func3: pmcd.control.register: 16 values sampledso.bin: 7 values sample.ulonglong.ten: 1 values pmcd.buf.alloc: 7 values
+ 100 func3: sample.colour: 3 values pmcd.control.register: 16 values sampledso.bin: 7 values sample.ulonglong.ten: 1 values pmcd.buf.alloc: 7 values
+ 100 func3: sample.ulonglong.ten: 1 values pmcd.buf.alloc: 7 values
+ 100 func3: sampledso.bin: 7 values sample.ulonglong.ten: 1 values pmcd.buf.alloc: 7 values
+
+=== profile and fetch operations with three contexts, same host, same fd's ===
+=== filtered valgrind report ===
+Helgrind, a thread error detector
+ERROR SUMMARY: 0 errors from 0 contexts ...
+=== output files ===
+ 100 func1: pmcd.buf.alloc: 7 values
+ 100 func1: pmcd.control.register: 16 values sampledso.bin: 9 values sample.ulonglong.ten: 1 values pmcd.buf.alloc: 7 values
+ 100 func1: sample.colour: 3 values pmcd.control.register: 16 values sampledso.bin: 9 values sample.ulonglong.ten: 1 values pmcd.buf.alloc: 7 values
+ 100 func1: sample.ulonglong.ten: 1 values pmcd.buf.alloc: 7 values
+ 100 func1: sampledso.bin: 9 values sample.ulonglong.ten: 1 values pmcd.buf.alloc: 7 values
+ 100 func2: pmcd.buf.alloc: 7 values
+ 100 func2: pmcd.control.register: 5 values sampledso.bin: 9 values sample.ulonglong.ten: 1 values pmcd.buf.alloc: 7 values
+ 100 func2: sample.colour: 3 values pmcd.control.register: 5 values sampledso.bin: 9 values sample.ulonglong.ten: 1 values pmcd.buf.alloc: 7 values
+ 100 func2: sample.ulonglong.ten: 1 values pmcd.buf.alloc: 7 values
+ 100 func2: sampledso.bin: 9 values sample.ulonglong.ten: 1 values pmcd.buf.alloc: 7 values
+ 100 func3: pmcd.buf.alloc: 7 values
+ 100 func3: pmcd.control.register: 16 values sampledso.bin: 7 values sample.ulonglong.ten: 1 values pmcd.buf.alloc: 7 values
+ 100 func3: sample.colour: 3 values pmcd.control.register: 16 values sampledso.bin: 7 values sample.ulonglong.ten: 1 values pmcd.buf.alloc: 7 values
+ 100 func3: sample.ulonglong.ten: 1 values pmcd.buf.alloc: 7 values
+ 100 func3: sampledso.bin: 7 values sample.ulonglong.ten: 1 values pmcd.buf.alloc: 7 values
+
+=== help text operations with three contexts, same host, different fd's ===
+=== filtered valgrind report ===
+Helgrind, a thread error detector
+ERROR SUMMARY: 0 errors from 0 contexts ...
+=== output files ===
+ 100 func1: pmcd.control.register: 46 & 848 2.2: 37 & 189
+ 100 func1: pmcd.version: 12 & 12
+ 100 func1: sample.longlong.one: 21 & 21
+ 100 func1: sampledso.bin: 26 & 636 30.2: 40 & 93
+ 100 func2: pmcd.control.register: 46 & 848 2.2: 37 & 189
+ 100 func2: pmcd.version: 12 & 12
+ 100 func2: sample.longlong.one: 21 & 21
+ 100 func2: sampledso.bin: 26 & 636 30.2: 40 & 93
+ 100 func3: pmcd.control.register: 46 & 848 2.2: 37 & 189
+ 100 func3: pmcd.version: 12 & 12
+ 100 func3: sample.longlong.one: 21 & 21
+ 100 func3: sampledso.bin: 26 & 636 30.2: 40 & 93
+
+=== help text operations with three contexts, same host, same fd's ===
+=== filtered valgrind report ===
+Helgrind, a thread error detector
+ERROR SUMMARY: 0 errors from 0 contexts ...
+=== output files ===
+ 100 func1: pmcd.control.register: 46 & 848 2.2: 37 & 189
+ 100 func1: pmcd.version: 12 & 12
+ 100 func1: sample.longlong.one: 21 & 21
+ 100 func1: sampledso.bin: 26 & 636 30.2: 40 & 93
+ 100 func2: pmcd.control.register: 46 & 848 2.2: 37 & 189
+ 100 func2: pmcd.version: 12 & 12
+ 100 func2: sample.longlong.one: 21 & 21
+ 100 func2: sampledso.bin: 26 & 636 30.2: 40 & 93
+ 100 func3: pmcd.control.register: 46 & 848 2.2: 37 & 189
+ 100 func3: pmcd.version: 12 & 12
+ 100 func3: sample.longlong.one: 21 & 21
+ 100 func3: sampledso.bin: 26 & 636 30.2: 40 & 93
+
+=== pmns operations with three contexts, same host, different fd's ===
+=== filtered valgrind report ===
+Helgrind, a thread error detector
+ERROR SUMMARY: 0 errors from 0 contexts ...
+Warning: pmLookupName returned 2, expected 4
+    sample.secret -> PM_ID_NULL: Unknown metric name
+    sampledso.bin -> 30.0.6
+    sample.longlong.one -> 29.0.20
+    pmcd.pmlogger -> PM_ID_NULL: Metric name is not a leaf in PMNS
+=== output files ===
+ 100 func1: pmcd.pmlogger ... pmLookupName OK
+ 100 func1: pmcd.pmlogger pmGetChildrenStatus OK pmGetChildren OK pmTraversePMNS_r OK
+ 100 func1: sample.longlong.one ... pmLookupName OK
+ 100 func1: sample.longlong.one pmNameAll OK pmNameID OK
+ 100 func1: sample.secret ... pmLookupName OK
+ 100 func1: sample.secret pmGetChildrenStatus OK pmGetChildren OK pmTraversePMNS_r OK
+ 100 func1: sampledso.bin ... pmLookupName OK
+ 100 func1: sampledso.bin pmNameAll OK pmNameID OK
+ 100 func2: pmcd.pmlogger ... pmLookupName OK
+ 100 func2: pmcd.pmlogger pmGetChildrenStatus OK pmGetChildren OK pmTraversePMNS_r OK
+ 100 func2: sample.longlong.one ... pmLookupName OK
+ 100 func2: sample.longlong.one pmNameAll OK pmNameID OK
+ 100 func2: sample.secret ... pmLookupName OK
+ 100 func2: sample.secret pmGetChildrenStatus OK pmGetChildren OK pmTraversePMNS_r OK
+ 100 func2: sampledso.bin ... pmLookupName OK
+ 100 func2: sampledso.bin pmNameAll OK pmNameID OK
+ 100 func3: pmcd.pmlogger ... pmLookupName OK
+ 100 func3: pmcd.pmlogger pmGetChildrenStatus OK pmGetChildren OK pmTraversePMNS_r OK
+ 100 func3: sample.longlong.one ... pmLookupName OK
+ 100 func3: sample.longlong.one pmNameAll OK pmNameID OK
+ 100 func3: sample.secret ... pmLookupName OK
+ 100 func3: sample.secret pmGetChildrenStatus OK pmGetChildren OK pmTraversePMNS_r OK
+ 100 func3: sampledso.bin ... pmLookupName OK
+ 100 func3: sampledso.bin pmNameAll OK pmNameID OK
+
+=== pmns operations with three contexts, same host, same fd's ===
+=== filtered valgrind report ===
+Helgrind, a thread error detector
+ERROR SUMMARY: 0 errors from 0 contexts ...
+Warning: pmLookupName returned 2, expected 4
+    sample.secret -> PM_ID_NULL: Unknown metric name
+    sampledso.bin -> 30.0.6
+    sample.longlong.one -> 29.0.20
+    pmcd.pmlogger -> PM_ID_NULL: Metric name is not a leaf in PMNS
+=== output files ===
+ 100 func1: pmcd.pmlogger ... pmLookupName OK
+ 100 func1: pmcd.pmlogger pmGetChildrenStatus OK pmGetChildren OK pmTraversePMNS_r OK
+ 100 func1: sample.longlong.one ... pmLookupName OK
+ 100 func1: sample.longlong.one pmNameAll OK pmNameID OK
+ 100 func1: sample.secret ... pmLookupName OK
+ 100 func1: sample.secret pmGetChildrenStatus OK pmGetChildren OK pmTraversePMNS_r OK
+ 100 func1: sampledso.bin ... pmLookupName OK
+ 100 func1: sampledso.bin pmNameAll OK pmNameID OK
+ 100 func2: pmcd.pmlogger ... pmLookupName OK
+ 100 func2: pmcd.pmlogger pmGetChildrenStatus OK pmGetChildren OK pmTraversePMNS_r OK
+ 100 func2: sample.longlong.one ... pmLookupName OK
+ 100 func2: sample.longlong.one pmNameAll OK pmNameID OK
+ 100 func2: sample.secret ... pmLookupName OK
+ 100 func2: sample.secret pmGetChildrenStatus OK pmGetChildren OK pmTraversePMNS_r OK
+ 100 func2: sampledso.bin ... pmLookupName OK
+ 100 func2: sampledso.bin pmNameAll OK pmNameID OK
+ 100 func3: pmcd.pmlogger ... pmLookupName OK
+ 100 func3: pmcd.pmlogger pmGetChildrenStatus OK pmGetChildren OK pmTraversePMNS_r OK
+ 100 func3: sample.longlong.one ... pmLookupName OK
+ 100 func3: sample.longlong.one pmNameAll OK pmNameID OK
+ 100 func3: sample.secret ... pmLookupName OK
+ 100 func3: sample.secret pmGetChildrenStatus OK pmGetChildren OK pmTraversePMNS_r OK
+ 100 func3: sampledso.bin ... pmLookupName OK
+ 100 func3: sampledso.bin pmNameAll OK pmNameID OK
