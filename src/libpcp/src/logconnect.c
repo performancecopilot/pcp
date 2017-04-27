@@ -14,7 +14,7 @@
  *
  * Thread-safe notes
  *
- * Do not need ctxp->c_pmcd->pc_lock lock around __pmSendCreds() call,
+ * Do not need ctxp->c_pmcd->pc_lock mutex around __pmSendCreds() call,
  * as the connection to pmlogger has not been created, so no-one else
  * could be using the fd.
  */

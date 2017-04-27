@@ -19,7 +19,7 @@
  * curr_ctx needs to be thread-private
  *
  * contexts[] et al and def_backoff[] et al are protected from changes
- * using the local contexts_lock lock.
+ * using the local contexts_lock mutex.
  *
  * The actual contexts (__pmContext) are protected by the (recursive)
  * c_lock mutex which is intialized in pmNewContext() and pmDupContext(),
@@ -314,7 +314,7 @@ __pmConvertTimeout(int timeo)
 
 #ifdef PM_MULTI_THREAD
 /*
- * Called with contexts_lock locked.
+ * Called with contexts_lock mutex held.
  */
 static void
 initcontextlock(pthread_mutex_t *lock)
@@ -504,7 +504,7 @@ ping_pmcd(int handle, __pmPMCDCtl *pmcd)
      * the same thing ... expect a PM_ERR_PMID error PDU back.
      * The code here is based on pmLookupDesc() with some short cuts
      * because we know it is a host context and we already hold the
-     * contexts_lock lock
+     * contexts_lock mutex.
      */
 
     PM_LOCK(pmcd->pc_lock);
@@ -559,7 +559,7 @@ __pmFindOrOpenArchive(__pmContext *ctxp, const char *name, int multi_arch)
      * because, for those, there is a global l_pmns which is shared among the
      * archives in the context.
      *
-     * We must take the contexts_lock lock for this search.
+     * We must take the contexts_lock mutex for this search.
      */
     PM_LOCK(contexts_lock);
     lcp2 = NULL;
@@ -1097,13 +1097,13 @@ INIT_CONTEXT:
 	 * number of subtle and nasty bugs it has caused over time.  Do
 	 * not rely on this behaviour, it may well be removed someday.
 	 *
-	 * NB: Take the contexts_lock lock while we search the contexts[].
+	 * NB: Take the contexts_lock mutex while we search the contexts[].
 	 * This is not great, as the ping_pmcd() check can take some
 	 * milliseconds, but it is necessary to avoid races between
 	 * pmDestroyContext() and/or memory ordering.  For connections
-	 * being shared, the refcnt is incremented under contexts_lock lock.
+	 * being shared, the refcnt is incremented under contexts_lock mutex.
 	 * Decrementing refcnt occurs in pmDestroyContext while holding
-	 * both the contexts_lock and the c_lock locks.
+	 * both the contexts_lock mutex and the c_lock mutex.
 	 */
 	PM_LOCK(contexts_lock);
 	if (nhosts == 1) { /* not proxied */
@@ -1206,7 +1206,7 @@ INIT_CONTEXT:
 
     sts = PM_TPD(curr_handle);
 
-    /* Take contexts_lock lock to update contexts[] with this fully operational
+    /* Take contexts_lock mutex to update contexts[] with this fully operational
        battle station ^W context. */
     PM_LOCK(contexts_lock);
     contexts[PM_TPD(curr_handle)] = new;
@@ -1266,7 +1266,7 @@ pmReconnectContext(int handle)
 
     /* NB: This function may need parallelization, to permit multiple threads
        to pmReconnectContext() concurrently.  __pmConnectPMCD can take multiple
-       seconds while holding the contexts_lock lock, bogging other context
+       seconds while holding the contexts_lock mutex, bogging other context
        operations down. */
     PM_LOCK(contexts_lock);
     if (handle < 0 || handle >= contexts_len ||
