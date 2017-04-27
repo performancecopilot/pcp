@@ -36,6 +36,7 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 echo "=== pmDesc with three contexts, same host, different fd's ==="
 $sudo rm -f /tmp/func?.out
 _run_helgrind src/multithread5 `hostname` localhost 127.0.0.1
+cat $tmp.valgrind.out
 if [ -s $tmp.valgrind.err ]
 then
     echo "=== stderr ==="
@@ -48,6 +49,7 @@ echo | tee -a $seq.full
 echo "=== pmDesc with three contexts, same host, same fd's ==="
 $sudo rm -f /tmp/func?.out
 _run_helgrind src/multithread5 `hostname` `hostname` `hostname`
+cat $tmp.valgrind.out
 if [ -s $tmp.valgrind.err ]
 then
     echo "=== stderr ==="
@@ -59,6 +61,7 @@ cat /tmp/func?.out | LC_COLLATE=POSIX sort | uniq -c | sed -e 's/  */ /g'
 echo | tee -a $seq.full
 echo "=== indom services with three contexts, same host, different fd's ==="
 _run_helgrind src/multithread6 `hostname` localhost 127.0.0.1
+cat $tmp.valgrind.out
 if [ -s $tmp.valgrind.err ]
 then
     echo "=== stderr ==="
@@ -70,6 +73,7 @@ cat /tmp/func?.out | LC_COLLATE=POSIX sort | uniq -c | sed -e 's/  */ /g'
 echo | tee -a $seq.full
 echo "=== indom services with three contexts, same host, same fd's ==="
 _run_helgrind src/multithread6 `hostname` `hostname` `hostname`
+cat $tmp.valgrind.out
 if [ -s $tmp.valgrind.err ]
 then
     echo "=== stderr ==="
