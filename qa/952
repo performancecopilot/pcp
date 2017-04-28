@@ -35,7 +35,7 @@ $sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
-echo "=== profile and fetch operations with three contexts, same host, different fd's ==="
+echo "=== profile and fetch operations with three contexts, same host, different fd's ===" | tee -a $seq.full
 $sudo rm -f /tmp/func?.out
 _run_helgrind src/multithread7 `hostname` localhost 127.0.0.1
 cat $tmp.valgrind.out
@@ -48,7 +48,7 @@ echo "=== output files ==="
 cat /tmp/func?.out | LC_COLLATE=POSIX sort | uniq -c | sed -e 's/  */ /g'
 
 echo | tee -a $seq.full
-echo "=== profile and fetch operations with three contexts, same host, same fd's ==="
+echo "=== profile and fetch operations with three contexts, same host, same fd's ===" | tee -a $seq.full
 $sudo rm -f /tmp/func?.out
 _run_helgrind src/multithread7 `hostname` `hostname` `hostname`
 cat $tmp.valgrind.out
