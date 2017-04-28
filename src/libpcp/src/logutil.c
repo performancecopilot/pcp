@@ -2514,7 +2514,7 @@ pmGetArchiveLabel(pmLogLabel *lp)
     __pmArchCtl	*acp;
     __pmLogCtl	*lcp;
 
-    ctxp = __pmCurrentContext();
+    ctxp = __pmHandleToPtr(pmWhichContext());
     if (ctxp == NULL) 
 	return PM_ERR_NOCONTEXT;
     if (ctxp->c_type != PM_CONTEXT_ARCHIVE) {
@@ -2755,24 +2755,39 @@ __pmGetArchiveEnd(__pmLogCtl *lcp, struct timeval *tp)
 int
 pmGetArchiveEnd(struct timeval *tp)
 {
+    __pmContext	*ctxp;
+    int		sts;
+
+    ctxp = __pmHandleToPtr(pmWhichContext());
+    if (ctxp == NULL)
+	return PM_ERR_NOCONTEXT;
+    sts = __pmGetArchiveEnd_locked(ctxp, tp);
+    PM_UNLOCK(ctxp->c_lock);
+    return sts;
+
+}
+
+/*
+ * ctxp->c_lock is held throughout this routine
+ */
+int
+__pmGetArchiveEnd_locked(__pmContext *ctxp, struct timeval *tp)
+{
     int		save_arch = 0;		/* pander to gcc */
     int		save_vol = 0;		/* pander to gcc */
     long	save_offset = 0;	/* pander to gcc */
     int		sts;
     int		restore = 0;
-    __pmContext	*ctxp;
     __pmArchCtl	*acp;
     __pmLogCtl	*lcp;
+
+    /* TODO - when not recursive ASSERT_IS_LOCKED(ctxp->c_lock); */
 
     /*
      * set l_physend and l_endtime
      * at the end of ... ctxp->c_archctl->ac_log
      */
-    ctxp = __pmCurrentContext();
-    if (ctxp == NULL)
-	return PM_ERR_NOCONTEXT;
     if (ctxp->c_type != PM_CONTEXT_ARCHIVE) {
-	PM_UNLOCK(ctxp->c_lock);
 	return PM_ERR_NOTARCHIVE;
     }
     acp = ctxp->c_archctl;
@@ -2786,7 +2801,6 @@ pmGetArchiveEnd(struct timeval *tp)
 	save_offset = ctxp->c_archctl->ac_offset;
 
 	if ((sts = __pmLogChangeArchive(ctxp, acp->ac_num_logs - 1)) < 0) {
-	    PM_UNLOCK(ctxp->c_lock);
 	    return sts;
 	}
 	lcp = acp->ac_log;
@@ -2794,25 +2808,21 @@ pmGetArchiveEnd(struct timeval *tp)
     }
 
     if ((sts = __pmGetArchiveEnd(lcp, tp)) < 0) {
-	PM_UNLOCK(ctxp->c_lock);
 	return sts;
     }
 
     if (restore) {
 	/* Restore to the initial state. */
 	if ((sts = __pmLogChangeArchive(ctxp, save_arch)) < 0) {
-	    PM_UNLOCK(ctxp->c_lock);
 	    return sts;
 	}
 	lcp = ctxp->c_archctl->ac_log;
 	if ((sts = __pmLogChangeVol(lcp, save_vol)) < 0) {
-	    PM_UNLOCK(ctxp->c_lock);
 	    return sts;
 	}
 	fseek(lcp->l_mfp, save_offset, SEEK_SET);
     }
 
-    PM_UNLOCK(ctxp->c_lock);
     return sts;
 }
 

@@ -71,6 +71,7 @@ __pmIsContextsLock(void *lock)
 static void
 waitawhile(__pmPMCDCtl *ctl)
 {
+    ASSERT_IS_LOCKED(ctl->pc_lock);
     /*
      * after failure, compute delay before trying again ...
      */
@@ -226,12 +227,14 @@ pmGetContextHostName_r(int ctxid, char *buf, int buflen)
 	     * 'localhost', then use gethostname(). Otherwise, use the name
 	     * from the context structure.
 	     */
+	    PM_LOCK(ctxp->c_pmcd->pc_lock);
 	    name = ctxp->c_pmcd->pc_hosts[0].name;
 	    if (!name || name[0] == __pmPathSeparator() || /* AF_UNIX */
 		(strncmp(name, "localhost", 9) == 0)) /* localhost[46] */
 		gethostname(buf, buflen);
 	    else
 		strncpy(buf, name, buflen-1);
+	    PM_UNLOCK(ctxp->c_pmcd->pc_lock);
 	    break;
 
 	case PM_CONTEXT_LOCAL:
@@ -497,6 +500,8 @@ ping_pmcd(int handle, __pmPMCDCtl *pmcd)
     __pmPDU	*pb;
     int		sts, pinpdu;
 
+    /* TODO - when not recursive ASSERT_IS_LOCKED(pmcd->pc_lock); */
+
     /*
      * We're going to leverage an existing host context, just make sure
      * pmcd is still alive at the other end ... we don't have a "ping"
@@ -507,7 +512,6 @@ ping_pmcd(int handle, __pmPMCDCtl *pmcd)
      * contexts_lock mutex.
      */
 
-    PM_LOCK(pmcd->pc_lock);
     if ((sts = __pmSendDescReq(pmcd->pc_fd, handle, PM_ID_NULL)) >= 0) {
 	pinpdu = __pmGetPDU(pmcd->pc_fd, ANY_SIZE, pmcd->pc_tout_sec, &pb);
 	if (pinpdu == PDU_ERROR)
@@ -519,7 +523,6 @@ ping_pmcd(int handle, __pmPMCDCtl *pmcd)
 	if (pinpdu > 0)
 	    __pmUnpinPDUBuf(pb);
     }
-    PM_UNLOCK(pmcd->pc_lock);
 
     if (sts != PM_ERR_PMID) {
 	/* pmcd is not well on this context ... */
@@ -1115,24 +1118,28 @@ INIT_CONTEXT:
 		pmcd = contexts[i]->c_pmcd;
 		if (contexts[i]->c_type == new->c_type &&
 		    contexts[i]->c_flags == new->c_flags &&
-		    contexts[i]->c_flags == 0 &&
-		    strcmp(pmcd->pc_hosts[0].name, hosts[0].name) == 0 &&
-		    pmcd->pc_hosts[0].nports == hosts[0].nports) {
-		    int j, ports_same = 1;
+		    contexts[i]->c_flags == 0) {
+		    PM_LOCK(pmcd->pc_lock);
+		    if (strcmp(pmcd->pc_hosts[0].name, hosts[0].name) == 0 &&
+			pmcd->pc_hosts[0].nports == hosts[0].nports) {
+			int j, ports_same = 1;
 
-		    for (j = 0; j < hosts[0].nports; j++) {
-			if (pmcd->pc_hosts[0].ports[j] != hosts[0].ports[j]) {
-			    ports_same = 0;
+			for (j = 0; j < hosts[0].nports; j++) {
+			    if (pmcd->pc_hosts[0].ports[j] != hosts[0].ports[j]) {
+				ports_same = 0;
+				break;
+			    }
+			}
+
+			/* ports match, check that pmcd is alive too */
+			if (ports_same && ping_pmcd(i, pmcd)) {
+			    new->c_pmcd = pmcd;
+			    new->c_pmcd->pc_refcnt++;
+			    PM_UNLOCK(pmcd->pc_lock);
 			    break;
 			}
 		    }
-
-		    /* ports match, check that pmcd is alive too */
-		    if (ports_same && ping_pmcd(i, pmcd)) {
-			new->c_pmcd = pmcd;
-			new->c_pmcd->pc_refcnt++;
-			break;
-		    }
+		    PM_UNLOCK(pmcd->pc_lock);
 		}
 	    }
 	}
@@ -1163,6 +1170,10 @@ INIT_CONTEXT:
 		__pmHashClear(attrs);
 		goto FAILED;
 	    }
+	    /*
+	     * THREADSAFE - don't need pc_lock here as __pmPMCDCtl is not
+	     * yet visible to other threads
+	     */
 	    new->c_pmcd->pc_fd = sts;
 	    new->c_pmcd->pc_hosts = hosts;
 	    new->c_pmcd->pc_nhosts = nhosts;
@@ -1284,6 +1295,7 @@ pmReconnectContext(int handle)
     PM_UNLOCK(contexts_lock);
     ctl = ctxp->c_pmcd;
     if (ctxp->c_type == PM_CONTEXT_HOST) {
+	PM_LOCK(ctl->pc_lock);
 	if (ctl->pc_timeout && time(NULL) < ctl->pc_again) {
 	    /* too soon to try again */
 #ifdef PCP_DEBUG
@@ -1291,6 +1303,7 @@ pmReconnectContext(int handle)
 	    fprintf(stderr, "pmReconnectContext(%d) -> %d, too soon (need wait another %d secs)\n",
 		handle, (int)-ETIMEDOUT, (int)(ctl->pc_again - time(NULL)));
 #endif
+	    PM_UNLOCK(ctl->pc_lock);
 	    PM_UNLOCK(ctxp->c_lock);
 	    return -ETIMEDOUT;
 	}
@@ -1309,6 +1322,7 @@ pmReconnectContext(int handle)
 		fprintf(stderr, "pmReconnectContext(%d), failed (wait %d secs before next attempt)\n",
 		    handle, (int)(ctl->pc_again - time(NULL)));
 #endif
+	    PM_UNLOCK(ctl->pc_lock);
 	    PM_UNLOCK(ctxp->c_lock);
 	    return -ETIMEDOUT;
 	}
@@ -1322,6 +1336,7 @@ pmReconnectContext(int handle)
 		fprintf(stderr, "pmReconnectContext(%d), done\n", handle);
 #endif
 	}
+	PM_UNLOCK(ctl->pc_lock);
     }
 
     /* clear any derived metrics and re-bind */
@@ -1370,8 +1385,10 @@ pmDupContext(void)
     PM_UNLOCK(contexts_lock);
     oldtype = oldcon->c_type | oldcon->c_flags;
     if (oldcon->c_type == PM_CONTEXT_HOST) {
+	PM_LOCK(oldcon->c_pmcd->pc_lock);
 	__pmUnparseHostSpec(oldcon->c_pmcd->pc_hosts,
 			oldcon->c_pmcd->pc_nhosts, hostspec, sizeof(hostspec));
+	PM_UNLOCK(oldcon->c_pmcd->pc_lock);
 	new = pmNewContext(oldtype, hostspec);
     }
     else if (oldcon->c_type == PM_CONTEXT_LOCAL)
@@ -1543,7 +1560,9 @@ __pmPMCDCtlFree(int handle, __pmPMCDCtl *cp)
     struct linger	dolinger = {0, 1};
 
     /* NB: incrementing in pmNewContext holds only the BPL, not the c_lock. */
+    PM_LOCK(cp->pc_lock);
     if (--cp->pc_refcnt != 0) {
+	PM_UNLOCK(cp->pc_lock);
 	return;
     }
     if (cp->pc_fd >= 0) {
@@ -1553,6 +1572,7 @@ __pmPMCDCtlFree(int handle, __pmPMCDCtl *cp)
 	__pmCloseSocket(cp->pc_fd);
     }
     __pmFreeHostSpec(cp->pc_hosts, cp->pc_nhosts);
+    PM_UNLOCK(cp->pc_lock);
     destroylock(&cp->pc_lock, "pc_lock");
     free(cp);
 }
@@ -1645,6 +1665,7 @@ __pmDumpContext(FILE *f, int context, pmInDom indom)
                 continue;
             }
 	    else if (con->c_type == PM_CONTEXT_HOST) {
+		PM_LOCK(con->c_pmcd->pc_lock);
 		fprintf(f, " host %s:", con->c_pmcd->pc_hosts[0].name);
 		fprintf(f, " pmcd=%s profile=%s fd=%d refcnt=%d",
 		    (con->c_pmcd->pc_fd < 0) ? "NOT CONNECTED" : "CONNECTED",
@@ -1653,6 +1674,7 @@ __pmDumpContext(FILE *f, int context, pmInDom indom)
 		    con->c_pmcd->pc_refcnt);
 		if (con->c_flags)
 		    fprintf(f, " flags=%x", con->c_flags);
+		PM_UNLOCK(con->c_pmcd->pc_lock);
 	    }
 	    else if (con->c_type == PM_CONTEXT_LOCAL) {
 		fprintf(f, " standalone:");
@@ -1761,6 +1783,7 @@ __pmCloseChannelbyContext(__pmContext *ctxp, int expect, int recv)
 	/* not a client of pmcd, so don't close any channels here */
 	return;
     }
+    PM_UNLOCK(ctxp->c_pmcd->pc_lock);
     /* guard against repeated calls for the same channel ... */
     if (ctxp->c_pmcd->pc_fd >= 0) {
 	char	errmsg[PM_MAXERRMSGLEN];
@@ -1785,6 +1808,7 @@ __pmCloseChannelbyContext(__pmContext *ctxp, int expect, int recv)
 	__pmCloseSocket(ctxp->c_pmcd->pc_fd);
 	ctxp->c_pmcd->pc_fd = -1;
     }
+    PM_UNLOCK(ctxp->c_pmcd->pc_lock);
 }
 
 #ifdef PM_MULTI_THREAD

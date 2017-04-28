@@ -211,17 +211,23 @@ pmGetPMNSLocation(void)
 
 	if ((n = pmWhichContext()) >= 0 && (ctxp = __pmHandleToPtr(n)) != NULL) {
 	    switch(ctxp->c_type) {
+		int	fd;
 		case PM_CONTEXT_HOST:
+		    PM_LOCK(ctxp->c_pmcd->pc_lock);
 		    if (ctxp->c_pmcd->pc_fd == -1) {
+			PM_UNLOCK(ctxp->c_pmcd->pc_lock);
 			pmns_location = PM_ERR_IPC;
 			goto done;
 		    }
-		    if ((sts = version = __pmVersionIPC(ctxp->c_pmcd->pc_fd)) < 0) {
+		    sts = version = __pmVersionIPC(ctxp->c_pmcd->pc_fd);
+		    fd = ctxp->c_pmcd->pc_fd;
+		    PM_UNLOCK(ctxp->c_pmcd->pc_lock);
+		    if (version < 0) {
 			char	errmsg[PM_MAXERRMSGLEN];
 			__pmNotifyErr(LOG_ERR, 
 				"pmGetPMNSLocation: version lookup failed "
 				"(context=%d, fd=%d): %s", 
-				n, ctxp->c_pmcd->pc_fd, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+				n, fd, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 			pmns_location = PM_ERR_NOPMNS;
 		    }
 		    else if (version == PDU_VERSION2) {
@@ -231,7 +237,7 @@ pmGetPMNSLocation(void)
 			__pmNotifyErr(LOG_ERR, 
 				"pmGetPMNSLocation: bad host PDU version "
 				"(context=%d, fd=%d, ver=%d)",
-				n, ctxp->c_pmcd->pc_fd, version);
+				n, fd, version);
 			pmns_location = PM_ERR_NOPMNS;
 		    }
 		    break;
@@ -252,8 +258,8 @@ pmGetPMNSLocation(void)
 		    }
 		    else {
 			__pmNotifyErr(LOG_ERR, "pmGetPMNSLocation: bad archive "
-				"version (context=%d, fd=%d, ver=%d)",
-				n, ctxp->c_pmcd->pc_fd, version); 
+				"version (context=%d, ver=%d)",
+				n, version); 
 			pmns_location = PM_ERR_NOPMNS;
 		    }
 		    break;
