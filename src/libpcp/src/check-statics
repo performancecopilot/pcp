@@ -181,6 +181,8 @@ context.o
     n_backoff			# guarded by contexts_lock mutex
     contexts			# guarded by contexts_lock mutex
     contexts_len		# guarded by contexts_lock mutex
+    contexts_map		# guarded by contexts_lock mutex
+    last_handle			# guarded by contexts_lock mutex
     hostbuf			# single-threaded
     ?curr_handle		# thread private (no __thread symbols for Mac OS X)
     ?curr_ctxp			# thread private (no __thread symbols for Mac OS X)

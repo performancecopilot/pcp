@@ -18,8 +18,10 @@
  * curr_handle needs to be thread-private
  * curr_ctx needs to be thread-private
  *
- * contexts[] et al and def_backoff[] et al are protected from changes
- * using the local contexts_lock mutex.
+ * contexts[], contexts_map[], contexts_len and last_handle are protected
+ * from changes * using the local contexts_lock mutex.
+ *
+ * Ditto for back n_backoff, def_backoff[] and backoff[].
  *
  * The actual contexts (__pmContext) are protected by the (recursive)
  * c_lock mutex which is intialized in pmNewContext() and pmDupContext(),
@@ -35,6 +37,13 @@
 
 static __pmContext	**contexts;		/* array of context ptrs */
 static int		contexts_len;		/* number of contexts */
+static int		last_handle = -1;	/* last returned context handle */
+/*
+ * For handle x above the PMAPI, if the context is valid, then for some
+ * j (<=0 and < contexts_len), contexts_map[j] == x, and the real
+ * __pmContext is found via contexts[j]
+ */
+static int		*contexts_map;
 
 #ifdef PM_MULTI_THREAD
 #ifdef HAVE___THREAD
@@ -67,6 +76,36 @@ __pmIsContextsLock(void *lock)
     return lock == (void *)&contexts_lock;
 }
 #endif
+
+/*
+ * Given a handle above the PMAPI, do the mapping to the index (ctxnum)
+ * of the matching contexts[] entry
+ */
+static int
+map_handle_nolock(int handle)
+{
+    int		ctxnum = -1;
+    int		i;
+
+    for (i = 0; i < contexts_len; i++) {
+	if (contexts_map[i] == handle && contexts_map[i] >= 0) {
+	    if (contexts[i]->c_type != PM_CONTEXT_INIT &&
+		contexts[i]->c_type != PM_CONTEXT_FREE) {
+		ctxnum = i;
+		break;
+	    }
+	}
+    }
+    return ctxnum;
+}
+
+static int
+map_handle(int handle)
+{
+    ASSERT_IS_LOCKED(contexts_lock);
+
+    return map_handle_nolock(handle);
+}
 
 static void
 waitawhile(__pmPMCDCtl *ctl)
@@ -138,27 +177,29 @@ waitawhile(__pmPMCDCtl *ctl)
 __pmContext *
 __pmHandleToPtr(int handle)
 {
+    int		i;
+
     PM_LOCK(contexts_lock);
-    if (handle < 0 || handle >= contexts_len ||
-	contexts[handle]->c_type == PM_CONTEXT_INIT ||
-	contexts[handle]->c_type == PM_CONTEXT_FREE) {
-	PM_UNLOCK(contexts_lock);
-	return NULL;
+    for (i = 0; i < contexts_len; i++) {
+	if (contexts_map[i] == handle && contexts_map[i] >= 0) {
+	    if (contexts[i]->c_type != PM_CONTEXT_INIT &&
+		contexts[i]->c_type != PM_CONTEXT_FREE) {
+		__pmContext	*sts = contexts[i];
+		/*
+		 * Important Note:
+		 *   Once c_lock is locked for _any_ context, the caller
+		 *   cannot call into the routines here where contexts_lock
+		 *   is acquired without first releasing the c_lock for all
+		 *   contexts that are locked.
+		 */
+		PM_LOCK(sts->c_lock);
+		PM_UNLOCK(contexts_lock);
+		return sts;
+	    }
+	}
     }
-    else {
-	__pmContext	*sts;
-	sts = contexts[handle];
-	/*
-	 * Important Note:
-	 *   Once c_lock is locked for _any_ context, the caller
-	 *   cannot call into the routines here where contexts_lock
-	 *   is acquired without first releasing the c_lock for all
-	 *   contexts that are locked.
-	 */
-	PM_LOCK(sts->c_lock);
-	PM_UNLOCK(contexts_lock);
-	return sts;
-    }
+    PM_UNLOCK(contexts_lock);
+    return NULL;
 }
 
 int
@@ -495,12 +536,12 @@ ctxflags(__pmHashCtl *attrs, int *flags)
 }
 
 static int
-ping_pmcd(int handle, __pmPMCDCtl *pmcd)
+ping_pmcd(int ctxnum, int handle, __pmPMCDCtl *pmcd)
 {
     __pmPDU	*pb;
     int		sts, pinpdu;
 
-    /* TODO - when not recursive ASSERT_IS_LOCKED(pmcd->pc_lock); */
+    ASSERT_IS_LOCKED(pmcd->pc_lock);
 
     /*
      * We're going to leverage an existing host context, just make sure
@@ -518,7 +559,7 @@ ping_pmcd(int handle, __pmPMCDCtl *pmcd)
 	    __pmDecodeError(pb, &sts);
 	else {
 	    /* wrong PDU type or PM_ERR_* ... close channel to pmcd */
-	    __pmCloseChannelbyContext(contexts[handle], PDU_ERROR, pinpdu);
+	    __pmCloseChannelbyContext(contexts[ctxnum], PDU_ERROR, pinpdu);
 	}
 	if (pinpdu > 0)
 	    __pmUnpinPDUBuf(pb);
@@ -963,11 +1004,12 @@ pmNewContext(int type, const char *name)
 {
     __pmContext	*new = NULL;
     __pmContext	**list;
+    int		*list_map;
     int		i;
     int		sts;
     int		old_curr_handle;
     __pmContext	*old_curr_ctxp;
-    int		save_handle;
+    int		ctxnum;		/* index into contexts[] for new context */
     /* A pointer to this stub object is put in contexts[] while a real __pmContext is being built. */
     static /*const*/ __pmContext being_initialized = { .c_type = PM_CONTEXT_INIT };
 
@@ -985,28 +1027,33 @@ pmNewContext(int type, const char *name)
     /* See if we can reuse a free context */
     for (i = 0; i < contexts_len; i++) {
 	if (contexts[i]->c_type == PM_CONTEXT_FREE) {
-	    PM_TPD(curr_handle) = i;
-	    PM_TPD(curr_ctxp) = new = contexts[i];
-	    contexts[i] = &being_initialized;
+	    ctxnum = i;
+	    new = contexts[ctxnum];
 	    goto INIT_CONTEXT;
 	}
     }
 
     /* Create a new one */
-    if (contexts == NULL)
+    if (contexts == NULL) {
 	list = (__pmContext **)malloc(sizeof(__pmContext *));
-    else
+	list_map = (int *)malloc(sizeof(int));
+    }
+    else {
 	list = (__pmContext **)realloc((void *)contexts, (1+contexts_len) * sizeof(__pmContext *));
-    if (list == NULL) {
+	list_map = (int *)realloc((void *)contexts_map, (1+contexts_len) * sizeof(int));
+    }
+    if (list == NULL || list_map == NULL) {
 	sts = -oserror();
 	goto FAILED_LOCKED;
     }
     contexts = list;
+    contexts_map = list_map;
     /*
-     * NB: it is harmless (not a leak) if contexts[] is realloc'd a
-     * little larger, and then the last slot is not initialized (since
-     * context_len is not incremented, and/or initialization fails.  A
-     * subsequent pmNewContext allocation attempt will just do the
+     * NB: it is harmless (not a leak) if contexts[] and/or contexts_map[]
+     * is realloc'd a little larger, and then the last slot is not
+     * initialized (since context_len is not incremented, and/or
+     * initialization fails.
+     * A subsequent pmNewContext allocation attempt will just do the
      * realloc again, and that time it'll be a trivial success.
      */
 
@@ -1016,11 +1063,7 @@ pmNewContext(int type, const char *name)
 	goto FAILED_LOCKED;
     }
 
-    contexts = list;
-    PM_TPD(curr_handle) = contexts_len;
-    PM_TPD(curr_ctxp) = new;
-    contexts[contexts_len] = &being_initialized;
-    new->c_handle = contexts_len;
+    ctxnum = contexts_len;
     contexts_len++;
 
     /*
@@ -1036,9 +1079,11 @@ INIT_CONTEXT:
     /*
      * Set up the default state
      */
-    save_handle = new->c_handle;
     memset(new, 0, sizeof(__pmContext));
-    new->c_handle = save_handle;
+    PM_TPD(curr_ctxp) = new;
+    PM_TPD(curr_handle) = new->c_handle = ++last_handle;
+    contexts[ctxnum] = &being_initialized;
+    contexts_map[ctxnum] = last_handle;
     initcontextlock(&new->c_lock);
     PM_UNLOCK(contexts_lock);
     new->c_type = (type & PM_CONTEXT_TYPEMASK);
@@ -1132,7 +1177,7 @@ INIT_CONTEXT:
 			}
 
 			/* ports match, check that pmcd is alive too */
-			if (ports_same && ping_pmcd(i, pmcd)) {
+			if (ports_same && ping_pmcd(i, contexts_map[i], pmcd)) {
 			    new->c_pmcd = pmcd;
 			    new->c_pmcd->pc_refcnt++;
 			    PM_UNLOCK(pmcd->pc_lock);
@@ -1215,12 +1260,10 @@ INIT_CONTEXT:
 	return PM_ERR_NOCONTEXT;
     }
 
-    sts = PM_TPD(curr_handle);
-
     /* Take contexts_lock mutex to update contexts[] with this fully operational
        battle station ^W context. */
     PM_LOCK(contexts_lock);
-    contexts[PM_TPD(curr_handle)] = new;
+    contexts[ctxnum] = new;
     PM_UNLOCK(contexts_lock);
 
     /* return the handle to the new (current) context */
@@ -1234,7 +1277,7 @@ INIT_CONTEXT:
     /* bind defined metrics if any ..., after the new context is in place */
     __dmopencontext(new);
 
-    return sts;
+    return PM_TPD(curr_handle);
 
 FAILED:
     /*
@@ -1255,7 +1298,7 @@ FAILED_LOCKED:
         /* We could memset-0 the struct, but this is not really
            necessary.  That's the first thing we'll do in INIT_CONTEXT. */
         new->c_type = PM_CONTEXT_FREE;
-        contexts[PM_TPD(curr_handle)] = new;
+        contexts[ctxnum] = new;
     }
     PM_TPD(curr_handle) = old_curr_handle;
     PM_TPD(curr_ctxp) = old_curr_ctxp;
@@ -1274,14 +1317,14 @@ pmReconnectContext(int handle)
     __pmContext	*ctxp;
     __pmPMCDCtl	*ctl;
     int		i, sts;
+    int		ctxnum;
 
     /* NB: This function may need parallelization, to permit multiple threads
        to pmReconnectContext() concurrently.  __pmConnectPMCD can take multiple
        seconds while holding the contexts_lock mutex, bogging other context
        operations down. */
     PM_LOCK(contexts_lock);
-    if (handle < 0 || handle >= contexts_len ||
-	contexts[handle]->c_type == PM_CONTEXT_FREE) {
+    if ((ctxnum = map_handle(handle)) < 0) {
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_CONTEXT)
 	    fprintf(stderr, "pmReconnectContext(%d) -> %d\n", handle, PM_ERR_NOCONTEXT);
@@ -1290,7 +1333,7 @@ pmReconnectContext(int handle)
 	return PM_ERR_NOCONTEXT;
     }
 
-    ctxp = contexts[handle];
+    ctxp = contexts[ctxnum];
     PM_LOCK(ctxp->c_lock);
     PM_UNLOCK(contexts_lock);
     ctl = ctxp->c_pmcd;
@@ -1375,13 +1418,23 @@ pmDupContext(void)
     __pmMultiLogCtl	*newmlcp, *oldmlcp;
     __pmInDomProfile	*q, *p, *p_end;
     int			i;
+    int			ctxnum;
 
     if ((old = pmWhichContext()) < 0) {
 	sts = old;
 	goto done;
     }
     PM_LOCK(contexts_lock);
-    oldcon = contexts[old];
+    if ((ctxnum = map_handle(old)) < 0) {
+#ifdef PCP_DEBUG
+	if (pmDebug & DBG_TRACE_CONTEXT)
+	    fprintf(stderr, "pmDupContext(%d) -> %d\n", old, PM_ERR_NOCONTEXT);
+#endif
+	PM_UNLOCK(contexts_lock);
+	return PM_ERR_NOCONTEXT;
+    }
+
+    oldcon = contexts[ctxnum];
     PM_UNLOCK(contexts_lock);
     oldtype = oldcon->c_type | oldcon->c_flags;
     if (oldcon->c_type == PM_CONTEXT_HOST) {
@@ -1401,7 +1454,12 @@ pmDupContext(void)
 	goto done;
     }
     PM_LOCK(contexts_lock);
-    newcon = contexts[new];
+    if ((ctxnum = map_handle(new)) < 0) {
+	sts = PM_ERR_NOCONTEXT;
+	PM_UNLOCK(contexts_lock);
+	goto done;
+    }
+    newcon = contexts[ctxnum];
     PM_LOCK(oldcon->c_lock);
     PM_LOCK(newcon->c_lock);
     PM_UNLOCK(contexts_lock);
@@ -1531,24 +1589,24 @@ done:
 int
 pmUseContext(int handle)
 {
+    int		ctxnum;
+
     PM_LOCK(contexts_lock);
-    if (handle < 0 || handle >= contexts_len ||
-	contexts[handle]->c_type == PM_CONTEXT_FREE ||
-        contexts[handle]->c_type == PM_CONTEXT_INIT) {
+    if ((ctxnum = map_handle(handle)) < 0) {
 #ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_CONTEXT)
-		fprintf(stderr, "pmUseContext(%d) -> %d\n", handle, PM_ERR_NOCONTEXT);
+	if (pmDebug & DBG_TRACE_CONTEXT)
+	    fprintf(stderr, "pmUseContext(%d) -> %d\n", handle, PM_ERR_NOCONTEXT);
 #endif
-	    PM_UNLOCK(contexts_lock);
-	    return PM_ERR_NOCONTEXT;
+	PM_UNLOCK(contexts_lock);
+	return PM_ERR_NOCONTEXT;
     }
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_CONTEXT)
-	fprintf(stderr, "pmUseContext(%d) -> 0\n", handle);
+	fprintf(stderr, "pmUseContext(%d) -> contexts[%d]\n", handle, ctxnum);
 #endif
     PM_TPD(curr_handle) = handle;
-    PM_TPD(curr_ctxp) = contexts[handle];
+    PM_TPD(curr_ctxp) = contexts[ctxnum];
 
     PM_UNLOCK(contexts_lock);
     return 0;
@@ -1580,21 +1638,20 @@ __pmPMCDCtlFree(int handle, __pmPMCDCtl *cp)
 int
 pmDestroyContext(int handle)
 {
-    __pmContext		*ctxp;
+    __pmContext	*ctxp;
+    int		ctxnum;
 
     PM_LOCK(contexts_lock);
-    if (handle < 0 || handle >= contexts_len ||
-	contexts[handle]->c_type == PM_CONTEXT_FREE ||
-	contexts[handle]->c_type == PM_CONTEXT_INIT) {
+    if ((ctxnum = map_handle(handle)) < 0) {
 #ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_CONTEXT)
-		fprintf(stderr, "pmDestroyContext(%d) -> %d\n", handle, PM_ERR_NOCONTEXT);
+	if (pmDebug & DBG_TRACE_CONTEXT)
+	fprintf(stderr, "pmDestroyContext(%d) -> %d\n", handle, PM_ERR_NOCONTEXT);
 #endif
-	    PM_UNLOCK(contexts_lock);
-	    return PM_ERR_NOCONTEXT;
+	PM_UNLOCK(contexts_lock);
+	return PM_ERR_NOCONTEXT;
     }
 
-    ctxp = contexts[handle];
+    ctxp = contexts[ctxnum];
     PM_LOCK(ctxp->c_lock);
     ctxp->c_type = PM_CONTEXT_FREE;
     PM_UNLOCK(contexts_lock);
@@ -1633,6 +1690,11 @@ static const char *_mode[] = { "LIVE", "INTERP", "FORW", "BACK" };
 /*
  * dump context(s); context == -1 for all contexts, indom == PM_INDOM_NULL
  * for all instance domains.
+ *
+ * Threadsafe Note:
+ *	contexts_lock mutex is not acquired here ... need to avoid
+ *	nested locking, and this is only a diagnositc routine so
+ *	any data race is an acceptable trade-off
  */
 void
 __pmDumpContext(FILE *f, int context, pmInDom indom)
@@ -1640,10 +1702,10 @@ __pmDumpContext(FILE *f, int context, pmInDom indom)
     int			i, j;
     __pmContext		*con;
 
-    fprintf(f, "Dump Contexts: current context = %d\n", PM_TPD(curr_handle));
-    if (PM_TPD(curr_handle) < 0) {
+    fprintf(f, "Dump Contexts: current -> contexts[%d] handle %d\n",
+	map_handle_nolock(PM_TPD(curr_handle)), PM_TPD(curr_handle));
+    if (PM_TPD(curr_handle) < 0)
 	return;
-    }
 
     if (indom != PM_INDOM_NULL) {
 	char	strbuf[20];
@@ -1655,7 +1717,7 @@ __pmDumpContext(FILE *f, int context, pmInDom indom)
     for (i = 0; i < contexts_len; i++) {
 	con = contexts[i];
 	if (context == -1 || context == i) {
-	    fprintf(f, "Context[%d]", i);
+	    fprintf(f, "contexts[%d]", i);
             if (con->c_type == PM_CONTEXT_FREE) {
 		fprintf(f, " free\n");
                 continue;
@@ -1665,6 +1727,7 @@ __pmDumpContext(FILE *f, int context, pmInDom indom)
                 continue;
             }
 	    else if (con->c_type == PM_CONTEXT_HOST) {
+		fprintf(f, " handle %d:", contexts_map[i]);
 		PM_LOCK(con->c_pmcd->pc_lock);
 		fprintf(f, " host %s:", con->c_pmcd->pc_hosts[0].name);
 		fprintf(f, " pmcd=%s profile=%s fd=%d refcnt=%d",
@@ -1677,11 +1740,13 @@ __pmDumpContext(FILE *f, int context, pmInDom indom)
 		PM_UNLOCK(con->c_pmcd->pc_lock);
 	    }
 	    else if (con->c_type == PM_CONTEXT_LOCAL) {
+		fprintf(f, " handle %d:", contexts_map[i]);
 		fprintf(f, " standalone:");
 		fprintf(f, " profile=%s\n",
 		    con->c_sent ? "SENT" : "NOT_SENT");
 	    }
 	    else if (con->c_type == PM_CONTEXT_ARCHIVE) {
+		fprintf(f, " handle %d:", contexts_map[i]);
 		for (j = 0; j < con->c_archctl->ac_num_logs; j++) {
 		    fprintf(f, " log %s:",
 			    con->c_archctl->ac_log_list[j]->ml_name);
