@@ -1561,8 +1561,8 @@ PCP_CALL extern int __pmMultiThreaded(int);
 
 #ifdef BUILD_WITH_LOCK_ASSERTS
 #include <assert.h>
-#define ASSERT_IS_LOCKED(lock) assert(__pmIsLocked(&(lock)) == 1);
-#define ASSERT_IS_UNLOCKED(lock) assert(__pmIsLocked(&(lock)) == 0);
+#define ASSERT_IS_LOCKED(lock) assert(__pmIsLocked(&(lock)));
+#define ASSERT_IS_UNLOCKED(lock) assert(!__pmIsLocked(&(lock)));
 #else
 #define ASSERT_IS_LOCKED(lock)
 #define ASSERT_IS_UNLOCKED(lock)
