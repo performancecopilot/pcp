@@ -49,3 +49,12 @@ __pmRequestTimeout -> __pmNotifyErr
 addpmid -> __pmNoMem
 addinst -> __pmNoMem
 __pmOptFetchAdd -> __pmNoMem
+
+# logutil.c
+__pmLogFetch -> __pmLogFetchInterp
+__pmLogFetch -> check_all_derived
+__pmLogFetch -> __pmLogChangeVol
+__pmLogFetch -> __pmLogRead
+__pmLogFetch -> __pmLogLookupDesc
+pmGetArchiveEnd -> __pmHandleToPtr
+

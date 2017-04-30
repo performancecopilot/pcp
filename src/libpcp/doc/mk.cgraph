@@ -221,6 +221,15 @@ s/)//
 		    optfetch_lock)
 			echo optfetch >>$tmp.locks
 			;;
+		    err_lock)
+			echo err >>$tmp.locks
+			;;
+		    lock_lock)
+			echo lock >>$tmp.locks
+			;;
+		    logutil_lock)
+			echo logutil >>$tmp.locks
+			;;
 		    *)
 			echo >&2 "Bad LOCK: $param"
 			exit

@@ -268,6 +268,8 @@ again:
 	    fprintf(stderr, "(err)");
 	else if (__pmIsLockLock(lock))
 	    fprintf(stderr, "(lock)");
+	else if (__pmIsLogutilLock(lock))
+	    fprintf(stderr, "(logutil)");
 	else if (lock == (void *)&__pmLock_extcall)
 	    fprintf(stderr, "(global_extcall)");
 	else
