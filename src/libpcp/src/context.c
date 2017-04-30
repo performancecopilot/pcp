@@ -45,6 +45,12 @@ static int		last_handle = -1;	/* last returned context handle */
  */
 static int		*contexts_map;
 
+/*
+ * Special sentinals for contexts_map[] ...
+ */
+#define MAP_FREE	-1		/* contexts[i] can be reused */
+#define MAP_TEARDOWN	-2		/* contexts[i] is being destroyed */
+
 #ifdef PM_MULTI_THREAD
 #ifdef HAVE___THREAD
 /* using a gcc construct here to make curr_handle thread-private */
@@ -89,8 +95,7 @@ map_handle_nolock(int handle)
 
     for (i = 0; i < contexts_len; i++) {
 	if (contexts_map[i] == handle && contexts_map[i] >= 0) {
-	    if (contexts[i]->c_type != PM_CONTEXT_INIT &&
-		contexts[i]->c_type != PM_CONTEXT_FREE) {
+	    if (contexts[i]->c_type != PM_CONTEXT_INIT) {
 		ctxnum = i;
 		break;
 	    }
@@ -182,8 +187,7 @@ __pmHandleToPtr(int handle)
     PM_LOCK(contexts_lock);
     for (i = 0; i < contexts_len; i++) {
 	if (contexts_map[i] == handle && contexts_map[i] >= 0) {
-	    if (contexts[i]->c_type != PM_CONTEXT_INIT &&
-		contexts[i]->c_type != PM_CONTEXT_FREE) {
+	    if (contexts[i]->c_type != PM_CONTEXT_INIT) {
 		__pmContext	*sts = contexts[i];
 		/*
 		 * Important Note:
@@ -413,6 +417,12 @@ initchannellock(pthread_mutex_t *lock)
     }
 }
 
+#if 0
+/*
+ * TODO ... would like to make this go away entirely, but need to
+ * address issue in TODO comment in __pmPMCDCtlFree() first
+ * ... also the empyy macro defn in the #else block below
+ */
 static void
 destroylock(pthread_mutex_t *lock, char *which)
 {
@@ -435,6 +445,7 @@ destroylock(pthread_mutex_t *lock, char *which)
 	}
     }
 }
+#endif
 #else
 #define initcontextlock(x)	do { } while (1)
 #define initchannellock(x)	do { } while (1)
@@ -610,6 +621,8 @@ __pmFindOrOpenArchive(__pmContext *ctxp, const char *name, int multi_arch)
     if (! multi_arch) {
 	for (i = 0; i < contexts_len; i++) {
 	    if (i == PM_TPD(curr_handle))
+		continue;
+	    if (contexts_map[i] < 0)
 		continue;
 
 	    /*
@@ -1026,7 +1039,7 @@ pmNewContext(int type, const char *name)
     PM_LOCK(contexts_lock);
     /* See if we can reuse a free context */
     for (i = 0; i < contexts_len; i++) {
-	if (contexts[i]->c_type == PM_CONTEXT_FREE) {
+	if (contexts_map[i] == MAP_FREE) {
 	    ctxnum = i;
 	    new = contexts[ctxnum];
 	    goto INIT_CONTEXT;
@@ -1062,6 +1075,8 @@ pmNewContext(int type, const char *name)
 	sts = -oserror();
 	goto FAILED_LOCKED;
     }
+    memset(new, 0, sizeof(__pmContext));
+    initcontextlock(&new->c_lock);
 
     ctxnum = contexts_len;
     contexts_len++;
@@ -1079,14 +1094,17 @@ INIT_CONTEXT:
     /*
      * Set up the default state
      */
-    memset(new, 0, sizeof(__pmContext));
     PM_TPD(curr_ctxp) = new;
     PM_TPD(curr_handle) = new->c_handle = ++last_handle;
     contexts[ctxnum] = &being_initialized;
     contexts_map[ctxnum] = last_handle;
-    initcontextlock(&new->c_lock);
     PM_UNLOCK(contexts_lock);
+    /* c_lock not re-initialized, created once from initcontextlock() above */
     new->c_type = (type & PM_CONTEXT_TYPEMASK);
+    new->c_mode = 0;
+    new->c_origin.tv_sec = new->c_origin.tv_usec = 0;
+    new->c_delta = 0;
+    new->c_sent = 0;
     new->c_flags = (type & ~PM_CONTEXT_TYPEMASK);
     if ((new->c_instprof = (__pmProfile *)calloc(1, sizeof(__pmProfile))) == NULL) {
 	/*
@@ -1160,8 +1178,11 @@ INIT_CONTEXT:
 
 		if (i == PM_TPD(curr_handle))
 		    continue;
+		if (contexts_map[i] < 0)
+		    continue;
 		pmcd = contexts[i]->c_pmcd;
-		if (contexts[i]->c_type == new->c_type &&
+		if (contexts_map[i] >= 0 &&
+		    contexts[i]->c_type == new->c_type &&
 		    contexts[i]->c_flags == new->c_flags &&
 		    contexts[i]->c_flags == 0) {
 		    PM_LOCK(pmcd->pc_lock);
@@ -1284,7 +1305,7 @@ FAILED:
      * We're contexts_lock unlocked at this stage.  We may have allocated a
      * __pmContext; we may have partially initialized it, but
      * something went wrong.  Let's install it as a blank
-     * PM_CONTEXT_FREE in contexts[] to replace the PM_CONTEXT_INIT
+     * free entry in contexts[] to replace the PM_CONTEXT_INIT
      * stub we left in its place.
     */
     PM_LOCK(contexts_lock);
@@ -1297,8 +1318,8 @@ FAILED_LOCKED:
         }
         /* We could memset-0 the struct, but this is not really
            necessary.  That's the first thing we'll do in INIT_CONTEXT. */
-        new->c_type = PM_CONTEXT_FREE;
         contexts[ctxnum] = new;
+	contexts_map[ctxnum] = MAP_FREE;
     }
     PM_TPD(curr_handle) = old_curr_handle;
     PM_TPD(curr_ctxp) = old_curr_ctxp;
@@ -1391,7 +1412,8 @@ pmReconnectContext(int handle)
 	/* mark profile as not sent for all contexts sharing this socket */
 	PM_LOCK(contexts_lock);
 	for (i = 0; i < contexts_len; i++) {
-	    if (contexts[i]->c_type != PM_CONTEXT_FREE &&
+	    if (contexts_map[i] != MAP_FREE &&
+		contexts_map[i] != MAP_TEARDOWN &&
 		contexts[i]->c_type != PM_CONTEXT_INIT &&
 		contexts[i]->c_pmcd == ctl) {
 		contexts[i]->c_sent = 0;
@@ -1574,7 +1596,7 @@ done_locked:
 done:
     /* return an error code, or the handle for the new context */
     if (sts < 0 && new >= 0)
-	newcon->c_type = PM_CONTEXT_FREE;
+	contexts_map[ctxnum] = MAP_FREE;
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_CONTEXT) {
 	fprintf(stderr, "pmDupContext() -> %d\n", sts);
@@ -1613,11 +1635,10 @@ pmUseContext(int handle)
 }
 
 static void
-__pmPMCDCtlFree(int handle, __pmPMCDCtl *cp)
+__pmPMCDCtlFree(__pmPMCDCtl *cp)
 {
     struct linger	dolinger = {0, 1};
 
-    /* NB: incrementing in pmNewContext holds only the BPL, not the c_lock. */
     PM_LOCK(cp->pc_lock);
     if (--cp->pc_refcnt != 0) {
 	PM_UNLOCK(cp->pc_lock);
@@ -1631,7 +1652,12 @@ __pmPMCDCtlFree(int handle, __pmPMCDCtl *cp)
     }
     __pmFreeHostSpec(cp->pc_hosts, cp->pc_nhosts);
     PM_UNLOCK(cp->pc_lock);
+#if 0
+    /* TODO ... not sure what's right here ... destroy the lock before
+     * all use has necessarily gone away or leak memory?
+     */
     destroylock(&cp->pc_lock, "pc_lock");
+#endif
     free(cp);
 }
 
@@ -1653,16 +1679,19 @@ pmDestroyContext(int handle)
 
     ctxp = contexts[ctxnum];
     PM_LOCK(ctxp->c_lock);
-    ctxp->c_type = PM_CONTEXT_FREE;
+    contexts_map[ctxnum] = MAP_TEARDOWN;
     PM_UNLOCK(contexts_lock);
     if (ctxp->c_pmcd != NULL) {
-	__pmPMCDCtlFree(handle, ctxp->c_pmcd);
+	__pmPMCDCtlFree(ctxp->c_pmcd);
+	ctxp->c_pmcd = NULL;
     }
     if (ctxp->c_archctl != NULL) {
 	__pmFreeInterpData(ctxp);
 	__pmArchCtlFree(ctxp->c_archctl);
+	ctxp->c_archctl = NULL;
     }
     __pmFreeAttrsSpec(&ctxp->c_attrs);
+    /* Note: __pmHashClear sets c_attrs.hsize = 0 and c_attrs.hash = NULL */
     __pmHashClear(&ctxp->c_attrs);
 
     if (handle == PM_TPD(curr_handle)) {
@@ -1672,6 +1701,8 @@ pmDestroyContext(int handle)
     }
 
     __pmFreeProfile(ctxp->c_instprof);
+    ctxp->c_instprof = NULL;
+    /* Note: __dmclosecontext sets ctxp->c_dm = NULL */
     __dmclosecontext(ctxp);
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_CONTEXT)
@@ -1680,7 +1711,10 @@ pmDestroyContext(int handle)
 #endif
 
     PM_UNLOCK(ctxp->c_lock);
-    destroylock(&ctxp->c_lock, "c_lock");
+
+    PM_LOCK(contexts_lock);
+    contexts_map[ctxnum] = MAP_FREE;
+    PM_UNLOCK(contexts_lock);
 
     return 0;
 }
@@ -1718,8 +1752,12 @@ __pmDumpContext(FILE *f, int context, pmInDom indom)
 	con = contexts[i];
 	if (context == -1 || context == i) {
 	    fprintf(f, "contexts[%d]", i);
-            if (con->c_type == PM_CONTEXT_FREE) {
+            if (contexts_map[i] == MAP_FREE) {
 		fprintf(f, " free\n");
+                continue;
+            }
+            else if (contexts_map[i] == MAP_TEARDOWN) {
+		fprintf(f, " being destroyed\n");
                 continue;
             }
             else if (con->c_type == PM_CONTEXT_INIT) {

@@ -766,7 +766,6 @@ typedef struct {
 
 #define __PM_MODE_MASK	0xffff
 
-#define PM_CONTEXT_FREE	-1		/* special type: free to reuse */
 #define PM_CONTEXT_INIT	-2		/* special type: being initialized, do not use */
 
 /*
