@@ -26,17 +26,20 @@ _filter_ncpu()
   tee -a $seq.full | sed -e 's, [0-9]*$, NUMBER,'
 }
 
-# there is a race between ...
+# depending on network setup, there is a race between ...
 # 192.0.2.10 -110 (Connection timed out)
 # and
 # 192.0.2.10 -101 (Network is unreachable)
+# and
+# 192.0.2.10 -113 (No route to host)
 # so treat 'em as equivalent here ...
 #
 _filter_connect_fail()
 {
     sed \
-	-e '/^192\..*-110$/s/-/-101 or -/' \
-	-e '/^192\..*-101$/s/$/ or -110/' \
+	-e '/^192\..*-113$/s/-113/-101 or -110 or -113/' \
+	-e '/^192\..*-110$/s/-110/-101 or -110 or -113/' \
+	-e '/^192\..*-101$/s/-101/-101 or -110 or -113/' \
     # end
 }
 
@@ -128,8 +131,8 @@ _run_helgrind src/multithread10 $archives $ips $archives $ips
 _filter_ncpu <$tmp.valgrind.out | _filter_connect_fail
 if [ -s $tmp.valgrind.err ]
 then
-    echo "=== stderr ==="
-    cat $tmp.valgrind.err
+    echo "=== filtered stderr ==="
+    grep -v 'warn fail multithread10' $tmp.valgrind.err
 fi
 date >> $seq.full
 

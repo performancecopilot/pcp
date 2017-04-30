@@ -21,125 +21,52 @@ localhost NUMBER
 === filtered valgrind report ===
 Helgrind, a thread error detector
 ERROR SUMMARY: 0 errors from 0 contexts ...
-192.0.2.10 -101 or -110
-192.0.2.11 -101 or -110
-192.0.2.12 -101 or -110
-192.0.2.13 -101 or -110
-192.0.2.14 -101 or -110
-192.0.2.15 -101 or -110
-192.0.2.16 -101 or -110
-192.0.2.17 -101 or -110
-192.0.2.18 -101 or -110
-192.0.2.19 -101 or -110
-192.0.2.20 -101 or -110
-192.0.2.21 -101 or -110
-192.0.2.22 -101 or -110
-192.0.2.23 -101 or -110
-192.0.2.24 -101 or -110
-192.0.2.25 -101 or -110
-192.0.2.26 -101 or -110
-192.0.2.27 -101 or -110
-192.0.2.28 -101 or -110
-192.0.2.29 -101 or -110
-192.0.2.30 -101 or -110
-192.0.2.31 -101 or -110
-192.0.2.32 -101 or -110
-192.0.2.33 -101 or -110
-192.0.2.34 -101 or -110
-192.0.2.35 -101 or -110
-192.0.2.36 -101 or -110
-192.0.2.37 -101 or -110
-192.0.2.38 -101 or -110
-192.0.2.39 -101 or -110
-192.0.2.40 -101 or -110
-192.0.2.41 -101 or -110
-192.0.2.42 -101 or -110
-192.0.2.43 -101 or -110
-192.0.2.44 -101 or -110
-192.0.2.45 -101 or -110
-192.0.2.46 -101 or -110
-192.0.2.47 -101 or -110
-192.0.2.48 -101 or -110
-192.0.2.49 -101 or -110
-A mixture of archives and hosts and unreachable hosts ...
-./archives/tzchange-10-a.meta -12357
-./archives/tzchange-10-b.meta -12357
-./archives/tzchange-11-a.meta -12357
-./archives/tzchange-11-b.meta -12357
-./archives/tzchange-12-a.meta -12357
-./archives/tzchange-12-b.meta -12357
-./archives/pcp-vmstat.meta NUMBER
-./archives/pmatop-log.meta NUMBER
-./archives/pmiostat_mark.meta NUMBER
-./archives/proc.meta NUMBER
-./archives/procpid-encode2.meta -12357
-./archives/procpid-encode.meta -12357
-./archives/eventrec-old.meta -12357
-./archives/fcsw_indom.meta -12357
-./archives/foo+.meta -12357
-./archives/gap2.meta NUMBER
-./archives/gap.meta NUMBER
-./archives/gmt-boring.meta NUMBER
-./archives/instant-1.meta -12357
-./archives/instant-base.meta -12357
-./archives/interpmark.meta NUMBER
-./archives/kenj-pc-1.meta NUMBER
-./archives/kenj-pc-2.meta -12357
-./archives/kenj-pc-diskstat.meta -12357
-./archives/20041125.meta -12357
-./archives/20071023-08-06-36.meta -12357
-./archives/20101004-trunc.meta NUMBER
-./archives/20130706.meta -2
-./archives/20150105.17.57-00.meta NUMBER
-./archives/20150105.17.57.meta NUMBER
-localhost NUMBER
-local: NUMBER
-localhost NUMBER
-local: NUMBER
-localhost NUMBER
-local: NUMBER
-127.0.0.1 NUMBER
-127.0.0.1 NUMBER
-192.0.2.10 -101 or -110
-192.0.2.11 -101 or -110
-192.0.2.12 -101 or -110
-192.0.2.13 -101 or -110
-192.0.2.14 -101 or -110
-192.0.2.15 -101 or -110
-192.0.2.16 -101 or -110
-192.0.2.17 -101 or -110
-192.0.2.18 -101 or -110
-192.0.2.19 -101 or -110
-192.0.2.20 -101 or -110
-192.0.2.21 -101 or -110
-192.0.2.22 -101 or -110
-192.0.2.23 -101 or -110
-192.0.2.24 -101 or -110
-192.0.2.25 -101 or -110
-192.0.2.26 -101 or -110
-192.0.2.27 -101 or -110
-192.0.2.28 -101 or -110
-192.0.2.29 -101 or -110
-192.0.2.10 -101 or -110
-192.0.2.11 -101 or -110
-192.0.2.12 -101 or -110
-192.0.2.13 -101 or -110
-192.0.2.14 -101 or -110
-192.0.2.15 -101 or -110
-192.0.2.16 -101 or -110
-192.0.2.17 -101 or -110
-192.0.2.18 -101 or -110
-192.0.2.19 -101 or -110
-192.0.2.20 -101 or -110
-192.0.2.21 -101 or -110
-192.0.2.22 -101 or -110
-192.0.2.23 -101 or -110
-192.0.2.24 -101 or -110
-192.0.2.25 -101 or -110
-192.0.2.26 -101 or -110
-192.0.2.27 -101 or -110
-192.0.2.28 -101 or -110
-192.0.2.29 -101 or -110
+192.0.2.10 -101 or -110 or -113
+192.0.2.11 -101 or -110 or -113
+192.0.2.12 -101 or -110 or -113
+192.0.2.13 -101 or -110 or -113
+192.0.2.14 -101 or -110 or -113
+192.0.2.15 -101 or -110 or -113
+192.0.2.16 -101 or -110 or -113
+192.0.2.17 -101 or -110 or -113
+192.0.2.18 -101 or -110 or -113
+192.0.2.19 -101 or -110 or -113
+192.0.2.20 -101 or -110 or -113
+192.0.2.21 -101 or -110 or -113
+192.0.2.22 -101 or -110 or -113
+192.0.2.23 -101 or -110 or -113
+192.0.2.24 -101 or -110 or -113
+192.0.2.25 -101 or -110 or -113
+192.0.2.26 -101 or -110 or -113
+192.0.2.27 -101 or -110 or -113
+192.0.2.28 -101 or -110 or -113
+192.0.2.29 -101 or -110 or -113
+192.0.2.30 -101 or -110 or -113
+192.0.2.31 -101 or -110 or -113
+192.0.2.32 -101 or -110 or -113
+192.0.2.33 -101 or -110 or -113
+192.0.2.34 -101 or -110 or -113
+192.0.2.35 -101 or -110 or -113
+192.0.2.36 -101 or -110 or -113
+192.0.2.37 -101 or -110 or -113
+192.0.2.38 -101 or -110 or -113
+192.0.2.39 -101 or -110 or -113
+192.0.2.40 -101 or -110 or -113
+192.0.2.41 -101 or -110 or -113
+192.0.2.42 -101 or -110 or -113
+192.0.2.43 -101 or -110 or -113
+192.0.2.44 -101 or -110 or -113
+192.0.2.45 -101 or -110 or -113
+192.0.2.46 -101 or -110 or -113
+192.0.2.47 -101 or -110 or -113
+192.0.2.48 -101 or -110 or -113
+192.0.2.49 -101 or -110 or -113
+=== filtered stderr ===
+
+=== A mixture of archives and hosts and unreachable hosts ===
+=== filtered valgrind report ===
+Helgrind, a thread error detector
+ERROR SUMMARY: 0 errors from 0 contexts ...
 ./archives/tzchange-10-a.meta -12357
 ./archives/tzchange-10-b.meta -12357
 ./archives/tzchange-11-a.meta -12357
@@ -178,43 +105,122 @@ localhost NUMBER
 local: NUMBER
 127.0.0.1 NUMBER
 127.0.0.1 NUMBER
-192.0.2.10 -101 or -110
-192.0.2.11 -101 or -110
-192.0.2.12 -101 or -110
-192.0.2.13 -101 or -110
-192.0.2.14 -101 or -110
-192.0.2.15 -101 or -110
-192.0.2.16 -101 or -110
-192.0.2.17 -101 or -110
-192.0.2.18 -101 or -110
-192.0.2.19 -101 or -110
-192.0.2.20 -101 or -110
-192.0.2.21 -101 or -110
-192.0.2.22 -101 or -110
-192.0.2.23 -101 or -110
-192.0.2.24 -101 or -110
-192.0.2.25 -101 or -110
-192.0.2.26 -101 or -110
-192.0.2.27 -101 or -110
-192.0.2.28 -101 or -110
-192.0.2.29 -101 or -110
-192.0.2.10 -101 or -110
-192.0.2.11 -101 or -110
-192.0.2.12 -101 or -110
-192.0.2.13 -101 or -110
-192.0.2.14 -101 or -110
-192.0.2.15 -101 or -110
-192.0.2.16 -101 or -110
-192.0.2.17 -101 or -110
-192.0.2.18 -101 or -110
-192.0.2.19 -101 or -110
-192.0.2.20 -101 or -110
-192.0.2.21 -101 or -110
-192.0.2.22 -101 or -110
-192.0.2.23 -101 or -110
-192.0.2.24 -101 or -110
-192.0.2.25 -101 or -110
-192.0.2.26 -101 or -110
-192.0.2.27 -101 or -110
-192.0.2.28 -101 or -110
-192.0.2.29 -101 or -110
+192.0.2.10 -101 or -110 or -113
+192.0.2.11 -101 or -110 or -113
+192.0.2.12 -101 or -110 or -113
+192.0.2.13 -101 or -110 or -113
+192.0.2.14 -101 or -110 or -113
+192.0.2.15 -101 or -110 or -113
+192.0.2.16 -101 or -110 or -113
+192.0.2.17 -101 or -110 or -113
+192.0.2.18 -101 or -110 or -113
+192.0.2.19 -101 or -110 or -113
+192.0.2.20 -101 or -110 or -113
+192.0.2.21 -101 or -110 or -113
+192.0.2.22 -101 or -110 or -113
+192.0.2.23 -101 or -110 or -113
+192.0.2.24 -101 or -110 or -113
+192.0.2.25 -101 or -110 or -113
+192.0.2.26 -101 or -110 or -113
+192.0.2.27 -101 or -110 or -113
+192.0.2.28 -101 or -110 or -113
+192.0.2.29 -101 or -110 or -113
+192.0.2.10 -101 or -110 or -113
+192.0.2.11 -101 or -110 or -113
+192.0.2.12 -101 or -110 or -113
+192.0.2.13 -101 or -110 or -113
+192.0.2.14 -101 or -110 or -113
+192.0.2.15 -101 or -110 or -113
+192.0.2.16 -101 or -110 or -113
+192.0.2.17 -101 or -110 or -113
+192.0.2.18 -101 or -110 or -113
+192.0.2.19 -101 or -110 or -113
+192.0.2.20 -101 or -110 or -113
+192.0.2.21 -101 or -110 or -113
+192.0.2.22 -101 or -110 or -113
+192.0.2.23 -101 or -110 or -113
+192.0.2.24 -101 or -110 or -113
+192.0.2.25 -101 or -110 or -113
+192.0.2.26 -101 or -110 or -113
+192.0.2.27 -101 or -110 or -113
+192.0.2.28 -101 or -110 or -113
+192.0.2.29 -101 or -110 or -113
+./archives/tzchange-10-a.meta -12357
+./archives/tzchange-10-b.meta -12357
+./archives/tzchange-11-a.meta -12357
+./archives/tzchange-11-b.meta -12357
+./archives/tzchange-12-a.meta -12357
+./archives/tzchange-12-b.meta -12357
+./archives/pcp-vmstat.meta NUMBER
+./archives/pmatop-log.meta NUMBER
+./archives/pmiostat_mark.meta NUMBER
+./archives/proc.meta NUMBER
+./archives/procpid-encode2.meta -12357
+./archives/procpid-encode.meta -12357
+./archives/eventrec-old.meta -12357
+./archives/fcsw_indom.meta -12357
+./archives/foo+.meta -12357
+./archives/gap2.meta NUMBER
+./archives/gap.meta NUMBER
+./archives/gmt-boring.meta NUMBER
+./archives/instant-1.meta -12357
+./archives/instant-base.meta -12357
+./archives/interpmark.meta NUMBER
+./archives/kenj-pc-1.meta NUMBER
+./archives/kenj-pc-2.meta -12357
+./archives/kenj-pc-diskstat.meta -12357
+./archives/20041125.meta -12357
+./archives/20071023-08-06-36.meta -12357
+./archives/20101004-trunc.meta NUMBER
+./archives/20130706.meta NUMBER
+./archives/20150105.17.57-00.meta NUMBER
+./archives/20150105.17.57.meta NUMBER
+localhost NUMBER
+local: NUMBER
+localhost NUMBER
+local: NUMBER
+localhost NUMBER
+local: NUMBER
+127.0.0.1 NUMBER
+127.0.0.1 NUMBER
+192.0.2.10 -101 or -110 or -113
+192.0.2.11 -101 or -110 or -113
+192.0.2.12 -101 or -110 or -113
+192.0.2.13 -101 or -110 or -113
+192.0.2.14 -101 or -110 or -113
+192.0.2.15 -101 or -110 or -113
+192.0.2.16 -101 or -110 or -113
+192.0.2.17 -101 or -110 or -113
+192.0.2.18 -101 or -110 or -113
+192.0.2.19 -101 or -110 or -113
+192.0.2.20 -101 or -110 or -113
+192.0.2.21 -101 or -110 or -113
+192.0.2.22 -101 or -110 or -113
+192.0.2.23 -101 or -110 or -113
+192.0.2.24 -101 or -110 or -113
+192.0.2.25 -101 or -110 or -113
+192.0.2.26 -101 or -110 or -113
+192.0.2.27 -101 or -110 or -113
+192.0.2.28 -101 or -110 or -113
+192.0.2.29 -101 or -110 or -113
+192.0.2.10 -101 or -110 or -113
+192.0.2.11 -101 or -110 or -113
+192.0.2.12 -101 or -110 or -113
+192.0.2.13 -101 or -110 or -113
+192.0.2.14 -101 or -110 or -113
+192.0.2.15 -101 or -110 or -113
+192.0.2.16 -101 or -110 or -113
+192.0.2.17 -101 or -110 or -113
+192.0.2.18 -101 or -110 or -113
+192.0.2.19 -101 or -110 or -113
+192.0.2.20 -101 or -110 or -113
+192.0.2.21 -101 or -110 or -113
+192.0.2.22 -101 or -110 or -113
+192.0.2.23 -101 or -110 or -113
+192.0.2.24 -101 or -110 or -113
+192.0.2.25 -101 or -110 or -113
+192.0.2.26 -101 or -110 or -113
+192.0.2.27 -101 or -110 or -113
+192.0.2.28 -101 or -110 or -113
+192.0.2.29 -101 or -110 or -113
+=== filtered stderr ===
