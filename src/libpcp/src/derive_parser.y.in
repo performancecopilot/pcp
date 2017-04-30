@@ -204,6 +204,8 @@ __dminit_component(const char *name, int descend, int recover)
 	    sts = -oserror();
 	    goto finish;
 	}
+	/* dirp is an on-stack variable, so readdir() is ... */
+	/* THREADSAFE */
 	while (setoserror(0), (dp = readdir(dirp)) != NULL) {
 	    char	path[MAXPATHLEN+1];
 	    int		localsts;
