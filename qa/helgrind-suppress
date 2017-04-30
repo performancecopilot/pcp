@@ -16,3 +16,14 @@
    fun:__pmXmitPDU
    ...
 }
+
+# similar case for libpcp/src/logutil.c ...
+#  __pmLogReads is a diagnostic counter that is maintained with
+#  non-atomic updates ... we've decided that it is acceptable for the
+#  value to be subject to possible (but unlikely) missed updates
+{
+   log read counter updates
+   Helgrind:Race
+   fun:__pmLogRead
+   ...
+}
