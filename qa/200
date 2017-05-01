@@ -99,6 +99,7 @@ $0 != last	{ print; last = $0 }' \
 	-e '/^__pmSendCreds:/d' \
 	-e '/^__pmSetSocketIPC:/d' \
 	-e '/^__pmSetVersionIPC:/d' \
+	-e '/^__pmSetFeaturesIPC:/d' \
 	-e '/^__pmDataIPC: /d' \
 	-e '/^__pmSetDataIPC:/d' \
 	-e '/^pmWhichContext(/d' \
