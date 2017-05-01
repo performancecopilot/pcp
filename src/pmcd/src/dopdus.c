@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2013 Red Hat.
+ * Copyright (c) 2012-2014,2017 Red Hat.
  * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -257,7 +257,7 @@ DoDesc(ClientInfo *cp, __pmPDU *pb)
 }
 
 int
-DoInstance(ClientInfo *cp, __pmPDU* pb)
+DoInstance(ClientInfo *cp, __pmPDU *pb)
 {
     int			sts, s;
     __pmTimeval		when;
@@ -272,15 +272,8 @@ DoInstance(ClientInfo *cp, __pmPDU* pb)
     if (sts < 0)
 	return sts;
     if (when.tv_sec != 0 || when.tv_usec != 0) {
-	/*
-	 * we have no idea how to do anything but current, yet!
-	 *
-	 * TODO EXCEPTION PCP 2.0 ...
-	 * this may be left over from the pmvcr days, and can be tossed?
-	 * ... leaving it here is benign
-	 */
 	if (name != NULL) free(name);
-	return PM_ERR_NYI;
+	return PM_ERR_IPC;
     }
     if ((ap = FindDomainAgent(((__pmInDom_int *)&indom)->domain)) == NULL) {
 	if (name != NULL) free(name);
@@ -1146,10 +1139,8 @@ DoCreds(ClientInfo *cp, __pmPDU *pb)
      * We still need to check local connections and allow those through
      * in all cases.
      */
-
-    if ( CheckCertRequired(cp) )
-        if ( (flags & PDU_FLAG_SECURE) == 0 )
-            return PM_ERR_NEEDCLIENTCERT;
+    if (CheckCertRequired(cp) && (flags & PDU_FLAG_SECURE) == 0)
+	return PM_ERR_NEEDCLIENTCERT;
 
     if (sts >= 0 && flags) {
 	/*
