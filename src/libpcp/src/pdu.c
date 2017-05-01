@@ -278,31 +278,34 @@ char *
 __pmPDUTypeStr_r(int type, char *buf, int buflen)
 {
     char	*res = NULL;
-    if (type == PDU_ERROR) res = "ERROR";
-    else if (type == PDU_RESULT) res = "RESULT";
-    else if (type == PDU_PROFILE) res = "PROFILE";
-    else if (type == PDU_FETCH) res = "FETCH";
-    else if (type == PDU_DESC_REQ) res = "DESC_REQ";
-    else if (type == PDU_DESC) res = "DESC";
-    else if (type == PDU_INSTANCE_REQ) res = "INSTANCE_REQ";
-    else if (type == PDU_INSTANCE) res = "INSTANCE";
-    else if (type == PDU_TEXT_REQ) res = "TEXT_REQ";
-    else if (type == PDU_TEXT) res = "TEXT";
-    else if (type == PDU_CONTROL_REQ) res = "CONTROL_REQ";
-    else if (type == PDU_CREDS) res = "CREDS";
-    else if (type == PDU_PMNS_IDS) res = "PMNS_IDS";
-    else if (type == PDU_PMNS_NAMES) res = "PMNS_NAMES";
-    else if (type == PDU_PMNS_CHILD) res = "PMNS_CHILD";
-    else if (type == PDU_PMNS_TRAVERSE) res = "PMNS_TRAVERSE";
-    else if (type == PDU_LOG_CONTROL) res = "LOG_CONTROL";
-    else if (type == PDU_LOG_STATUS) res = "LOG_STATUS";
-    else if (type == PDU_LOG_REQUEST) res = "LOG_REQUEST";
-    else if (type == PDU_ATTR) res = "ATTR";
-    if (res == NULL)
-	snprintf(buf, buflen, "TYPE-%d?", type);
-    else
-	snprintf(buf, buflen, "%s", res);
 
+    switch (type) {
+    case PDU_ERROR:		res = "ERROR"; break;
+    case PDU_RESULT:		res = "RESULT"; break;
+    case PDU_PROFILE:		res = "PROFILE"; break;
+    case PDU_FETCH:		res = "FETCH"; break;
+    case PDU_DESC_REQ:		res = "DESC_REQ"; break;
+    case PDU_DESC:		res = "DESC"; break;
+    case PDU_INSTANCE_REQ:	res = "INSTANCE_REQ"; break;
+    case PDU_INSTANCE:		res = "INSTANCE"; break;
+    case PDU_TEXT_REQ:		res = "TEXT_REQ"; break;
+    case PDU_TEXT:		res = "TEXT"; break;
+    case PDU_CONTROL_REQ:	res = "CONTROL_REQ"; break;
+    case PDU_CREDS:		res = "CREDS"; break;
+    case PDU_PMNS_IDS:		res = "PMNS_IDS"; break;
+    case PDU_PMNS_NAMES:	res = "PMNS_NAMES"; break;
+    case PDU_PMNS_CHILD:	res = "PMNS_CHILD"; break;
+    case PDU_PMNS_TRAVERSE:	res = "PMNS_TRAVERSE"; break;
+    case PDU_LOG_CONTROL:	res = "LOG_CONTROL"; break;
+    case PDU_LOG_STATUS:	res = "LOG_STATUS"; break;
+    case PDU_LOG_REQUEST:	res = "LOG_REQUEST"; break;
+    case PDU_ATTR:		res = "ATTR"; break;
+    default:			res = NULL; break;
+    }
+    if (res)
+	snprintf(buf, buflen, "%s", res);
+    else
+	snprintf(buf, buflen, "TYPE-%d?", type);
     return buf;
 }
 
