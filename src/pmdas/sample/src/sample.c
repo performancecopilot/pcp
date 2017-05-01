@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2015 Red Hat.
+ * Copyright (c) 2014-2015,2017 Red Hat.
  * Copyright (c) 1995-2003 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -2831,6 +2831,168 @@ sample_store(pmResult *result, pmdaExt *ep)
     return sts;
 }
 
+static int
+sample_label_domain(pmdaLabelSet **lp, pmdaExt *ep)
+{
+    __pmGetDomainLabels(ep->e_domain, ep->e_name, lp);
+    return pmdaAddLabels(lp, "{\"role\":\"testing\"}");
+}
+
+static int
+sample_label_indom(pmInDom indom, pmdaLabelSet **lp)
+{
+    if (indom == indomtab[COLOUR_INDOM].it_indom)
+	return pmdaAddLabels(lp, "{\"model\":\"RGB\"}");
+    if (indom == indomtab[FAMILY_INDOM].it_indom)
+	return pmdaAddLabels(lp, "{\"clan\":\"mcdonell\"}");
+    return 0;
+}
+
+static int
+sample_label_pmid(pmID pmid, pmdaLabelSet **lp)
+{
+    __pmID_int	*pmidp = (__pmID_int *)&pmid;
+
+    if (pmidp->cluster != 0)
+	return 0;
+
+    switch (pmidp->item) {
+	case 14:	/* long.write_me */
+	    return pmdaAddLabels(lp, "{\"changed\":%s}",
+					_long != 13? "true" : "false");
+	case 24:	/* longlong.write_me */
+	    return pmdaAddLabels(lp, "{\"changed\":%s}",
+					_longlong != 13? "true" : "false");
+	case 19:	/* float.write_me */
+	    return pmdaAddLabels(lp, "{\"changed\":%s}",
+					_float != 13? "true" : "false");
+	case 29:	/* double.write_me */
+	    return pmdaAddLabels(lp, "{\"changed\":%s}",
+					_double != 13? "true" : "false");
+	case 36:	/* write_me */
+	    return pmdaAddLabels(lp, "{\"changed\":%s}",
+					_write_me != 2? "true" : "false");
+	case 97:	/* ulong.write_me */
+	    return pmdaAddLabels(lp, "{\"changed\":%s}",
+					_ulong != 13? "true" : "false");
+	case 102:	/* ulonglong.write_me */
+	    return pmdaAddLabels(lp, "{\"changed\":%s}",
+					_ulonglong != 13? "true" : "false");
+
+	case 64:	/* rapid */
+	    pmdaAddLabels(lp, "{\"measure\":\"speed\"}");
+	    pmdaAddLabels(lp, "{\"units\":\"metres per second\"}");
+	    pmdaAddLabels(lp, "{\"unitsystem\":\"SI\"}");
+	    return 1;
+
+	default:
+	    break;
+    }
+    return 0;
+}
+
+static int
+sample_label_cb(pmDesc *descp, unsigned int inst, pmdaLabelSet **lp)
+{
+    __pmID_int	*pmidp = (__pmID_int *)&(descp->pmid);
+    pmInDom	indom = descp->indom;
+
+    if (indom == indomtab[BIN_INDOM].it_indom ||
+	indom == indomtab[SCRAMBLE_INDOM].it_indom) {
+	return pmdaAddLabels(lp, "{\"bin\":%u}\n", inst);
+    }
+
+    if (pmidp->item == 37 ||	/* mirage */
+	pmidp->item == 38) {	/* mirage_longlong */
+	/* instance zero is always present, the rest come and go */
+	return pmdaAddLabels(lp, "{\"transient\":%s}", inst ? "true" : "false");
+    }
+
+    return 0;
+}
+
+static pmDesc *
+sample_lookup_desc(pmID pmid)
+{
+    __pmID_int	*pmidp = (__pmID_int *)&pmid;
+    int		i;
+
+    if (direct_map) {
+	i = pmidp->item;
+	if (i < ndesc && desctab[i].pmid == pmid)
+	    return &desctab[i];
+    }
+    for (i = 0; desctab[i].pmid != PM_ID_NULL; i++) {
+	if (desctab[i].pmid == pmid)
+	    return &desctab[i];
+    }
+    return NULL;
+}
+
+static pmdaIndom *
+sample_lookup_indom(pmInDom indom)
+{
+    pmdaIndom	*idp;
+
+    for (idp = indomtab; idp->it_indom != PM_INDOM_NULL; idp++) {
+	if (idp->it_indom == indom)
+	    return idp;
+    }
+    return NULL;
+}
+
+static int
+sample_label_insts(pmID pmid, pmdaLabelSet **lpp)
+{
+    pmdaLabelSet *lp;
+    pmdaIndom	*idp;
+    pmDesc	*dp;
+    int		i, numinst;
+
+    if (not_ready > 0)
+	return limbo();
+
+    if ((dp = sample_lookup_desc(pmid)) == NULL)
+	return PM_ERR_PMID;
+
+    if ((idp = sample_lookup_indom(dp->indom)) == NULL)
+	return PM_ERR_INDOM;
+
+    if ((numinst = cntinst(dp->indom)) == 0)
+	return numinst;
+
+    if ((lp = (pmdaLabelSet *)calloc(numinst, sizeof(pmdaLabelSet))) == NULL)
+	return -oserror();
+
+    *lpp = lp;
+    for (i = 0; i < numinst; i++, lp++) {
+	lp->inst = idp->it_set[i].i_inst;
+	sample_label_cb(dp, lp->inst, &lp);
+    }
+    return numinst;
+}
+
+static int
+sample_label(int ident, int type, pmdaLabelSet **lp, pmdaExt *ep)
+{
+    sample_inc_recv(ep->e_context);
+    sample_inc_xmit(ep->e_context);
+
+    switch (type) {
+	case PM_LABEL_DOMAIN:
+	    return sample_label_domain(lp, ep);
+	case PM_LABEL_INDOM:
+	    return sample_label_indom((pmInDom)ident, lp);
+	case PM_LABEL_PMID:
+	    return sample_label_pmid((pmID)ident, lp);
+	case PM_LABEL_INSTS:
+	    return sample_label_insts((pmID)ident, lp);
+	default:
+	    break;
+    }
+    return pmdaLabel(ident, type, lp, ep);
+}
+
 void
 __PMDA_INIT_CALL
 sample_init(pmdaInterface *dp)
@@ -2862,6 +3024,7 @@ sample_init(pmdaInterface *dp)
     dp->version.four.name = sample_name;
     dp->version.four.children = sample_children;
     dp->version.six.attribute = sample_attribute;
+    dp->version.seven.label = sample_label;
     pmdaSetEndContextCallBack(dp, sample_ctx_end);
 
     pmdaInit(dp, NULL, 0, NULL, 0);	/* don't use indomtab or metrictab */

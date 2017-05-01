@@ -1,0 +1,115 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2016-2017 Red Hat.  All Rights Reserved.
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.TH PMDALABEL 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmdaLabel\f1,
+\f3pmdaSetLabelCallBack\f1 \- fill pmdaLabelSet structure with requested metric labels
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.br
+#include <pcp/impl.h>
+.br
+#include <pcp/pmda.h>
+.sp
+.ad l
+.hy 0
+.in +8n
+.ti -8n
+int pmdaLabel(int \fIident\fP, int \fItype\fP, pmdaLabelSet **\fIsets\fP, pmdaExt *\fIpmda\fP);
+.br
+.ti -8n
+int pmdaSetLabelCallBack(pmdaInterface *\fIdispatch\fP, pmdaLabelCallBack\ \fIcallback\fP);
+.sp
+.in
+.hy
+.ad
+cc ... \-lpcp_pmda \-lpcp
+.ft 1
+.SH DESCRIPTION
+As part of the Performance Metrics Domain Agent (PMDA) API (see
+.BR PMDA (3)),
+.B pmdaLabel
+uses the standard
+.BR PMDA (3)
+data structures to return the labels for metric, instance domain
+or instance
+.I ident
+in "JSONB" format in the given
+.I sets
+data structure.
+.PP
+The
+.I type
+argument determines the interpretation of
+.I ident
+and the requested form of label,
+as follows:
+.TP 4n
+.B PM_LABEL_DOMAIN
+if
+.I ident
+is a PMDA domain identifier,
+.TP 4n
+.B PM_LABEL_PMID
+if
+.I ident
+is a metric identifier,
+.TP 4n
+.B PM_LABEL_INDOM
+if
+.I ident
+is an instance domain identifier, or
+.TP 4n
+.B PM_LABEL_INSTS
+if
+.I ident
+is a metric identifier and labels for all instances are being requested.
+.PP
+The label
+.I sets
+pointer must be initialised to NULL before calling
+.B pmdaLabel
+and space is only to be allocated when labels are present and returned.
+In this case, the return code must indicate the number of label
+.I sets
+that have been allocated.
+This will only ever be greater than one in the 
+.B PM_LABEL_INSTS
+case.
+.PP
+.SH DIAGNOSTICS
+If the requested labels
+could not be obtained, 
+.B pmdaLabel
+will return
+.BR PM_ERR_LABELS .
+.SH CAVEAT
+The PMDA must be using 
+.B PMDA_PROTOCOL_7
+or later, as specified in the call to 
+.BR pmdaDSO (3)
+or 
+.BR pmdaDaemon (3).
+.SH SEE ALSO
+.BR pminfo (1),
+.BR malloc (3),
+.BR PMAPI (3),
+.BR PMDA (3),
+.BR pmdaDaemon (3),
+.BR pmdaDSO (3),
+.BR pmdaInit (3),
+and
+.BR pmGetLabels (3).

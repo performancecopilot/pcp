@@ -11,6 +11,7 @@ children of "pmcd" ...
     control             <s = 1>
     cputime             <s = 1>
     datasize            <s = 0>
+    labels              <s = 0>
     numagents           <s = 0>
     numclients          <s = 0>
     openfds             <s = 0>

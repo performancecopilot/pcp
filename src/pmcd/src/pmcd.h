@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2016 Red Hat.
+ * Copyright (c) 2012-2017 Red Hat.
  * Copyright (c) 1995-2001 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -202,6 +202,7 @@ extern int pmcd_load_libpcp_pmda(void);
 extern int DoFetch(ClientInfo *, __pmPDU *);
 extern int DoProfile(ClientInfo *, __pmPDU *);
 extern int DoDesc(ClientInfo *, __pmPDU *);
+extern int DoLabel(ClientInfo *, __pmPDU *);
 extern int DoInstance(ClientInfo *, __pmPDU *);
 extern int DoText(ClientInfo *, __pmPDU *);
 extern int DoStore(ClientInfo *, __pmPDU *);

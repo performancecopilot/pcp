@@ -1,6 +1,6 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2012-2016 Red Hat.
+.\" Copyright (c) 2012-2017 Red Hat.
 .\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
 .\" 
 .\" This program is free software; you can redistribute it and/or modify it
@@ -655,8 +655,11 @@ There are two kinds of operations that occur via
 .B fetch
 allows retrieval of information from
 .BR pmcd .
-This may be information about a metric (e.g. its description, instance domain
-or help text) or a value for a metric.
+This may be information about a metric (e.g. its description, instance domain,
+labels or help text) or a value for a metric.
+See
+.BR pminfo (1)
+for further information.
 .TP 15
 .B store
 allows
@@ -667,6 +670,9 @@ zero).  Alternatively, it may be a value used by the PMDA to introduce a
 change to some aspect of monitoring of that metric (e.g. server side event
 filtering) \- possibly even only for the active client tool performing the
 store operation, and not others.
+See
+.BR pmstore (1)
+for further information.
 .PP
 Access to
 .B pmcd
@@ -1155,17 +1161,27 @@ additional environment variables that will be set when
 executes.
 Only settings of the form "PMCD_VARIABLE=value" will be honoured.
 .TP
+.B $PCP_SYSCONF_DIR/labels
+global metric labels that will be set for every client context
+created by
+.BR pmcd .
+These files are ``JSONB'' formatted name:value pairs, and the merged
+set can be queried via the
+.B pmcd.labels
+metric.
+Context labels are applied universally to all values.
+.TP
 .B \&./pmcd.log
 (or
 .B $PCP_LOG_DIR/pmcd/pmcd.log
 when started automatically)
+.br
+All messages and diagnostics are directed here.
 .TP
 .B $PCP_RUN_DIR/pmcd.pid
 contains an ascii decimal representation of the process ID of 
-.B pmcd
-, when it's running.
-.br
-All messages and diagnostics are directed here
+.BR pmcd ,
+when it's running.
 .TP
 .B /etc/pki/nssdb
 default Network Security Services (NSS) certificate database

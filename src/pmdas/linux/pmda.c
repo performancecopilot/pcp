@@ -5250,7 +5250,7 @@ typedef struct {
 
 typedef struct {
     linux_container_t	container;
-    linux_access_t            access;
+    linux_access_t	access;
 } perctx_t;
 
 static perctx_t *ctxtab;
@@ -7590,7 +7590,7 @@ linux_grow_ctxtab(int ctx)
 }
 
 static void
-linux_end_context(int ctx)
+linux_endContextCallBack(int ctx)
 {
     if (ctx >= 0 && ctx < num_ctx) {
 	if (ctxtab[ctx].container.name)
@@ -7604,7 +7604,8 @@ linux_end_context(int ctx)
 static int
 linux_attribute(int ctx, int attr, const char *value, int len, pmdaExt *pmda)
 {
-    int id = -1;
+    int		id = -1;
+
     if (attr == PCP_ATTR_USERID || attr == PCP_ATTR_CONTAINER ) {
 	if (ctx >= num_ctx)
 	    linux_grow_ctxtab(ctx);
@@ -7623,6 +7624,154 @@ linux_attribute(int ctx, int attr, const char *value, int len, pmdaExt *pmda)
 	ctxtab[ctx].container.pid = 0;
     }
     return pmdaAttribute(ctx, attr, value, len, pmda);
+}
+
+static int
+linux_labelInDom(pmInDom indom, pmdaLabelSet **lp)
+{
+    __pmInDom_int	*inp = (__pmInDom_int *)&indom;
+    int			sts;
+
+    switch (inp->serial) {
+    case CPU_INDOM:
+	sts = pmdaAddLabels(lp, "{\"device\":\"cpu\"}");
+	break;
+    case MD_INDOM:
+    case DM_INDOM:
+    case DISK_INDOM:
+    case SCSI_INDOM:
+    case PARTITIONS_INDOM:
+	sts = pmdaAddLabels(lp, "{\"device\":\"block\"}");
+	break;
+    case NODE_INDOM:
+	sts = pmdaAddLabels(lp, "{\"device\":\"numanode\"}");
+	break;
+    case NET_DEV_INDOM:
+    case NET_ADDR_INDOM:
+	sts = pmdaAddLabels(lp, "{\"device\":\"interface\"}");
+	break;
+    case SWAPDEV_INDOM:
+	sts = pmdaAddLabels(lp, "{\"device\":[\"block\",\"memory\"]}");
+	break;
+    case SLAB_INDOM:
+	sts = pmdaAddLabels(lp, "{\"device\":\"memory\"}");
+	break;
+    case ZONEINFO_INDOM:
+    case BUDDYINFO_INDOM:
+	sts = pmdaAddLabels(lp, "{\"device\":[\"numanode\",\"memory\"]}");
+	break;
+    default:
+	sts = 0;
+	break;
+    }
+    return sts;
+}
+
+static int
+linux_labelPMID(pmID pmid, pmdaLabelSet **lp)
+{
+    __pmID_int		*idp = (__pmID_int *)&pmid;
+    int			sts;
+
+    switch (idp->cluster) {
+    case CLUSTER_STAT:
+	if (idp->item >= 62 && idp->item <= 71)	/* kernel.pernode.cpu */
+	    sts = pmdaAddLabels(lp, "{\"device\":[\"numanode\",\"cpu\"]}");
+	else if ((idp->item >= 20 && idp->item <= 23) || /* kernel.all.cpu */
+	    (idp->item >= 53 && idp->item <= 55))
+	    sts = pmdaAddLabels(lp, "{\"device\":\"cpu\"}");
+	else switch (idp->item) {
+	case 77:					/* kernel.pernode.cpu */
+	case 85:
+	case 86:
+	    sts = pmdaAddLabels(lp, "{\"device\":[\"numanode\",\"cpu\"]}");
+	case 34:					/* kernel.all.cpu */
+	case 35:
+	case 60:
+	case 78:
+	case 81:
+	case 82:
+	    sts = pmdaAddLabels(lp, "{\"device\":\"cpu\"}");
+	default:
+	    sts = 0;
+	}
+	break;
+
+    case CLUSTER_LOADAVG:
+	sts = pmdaAddLabels(lp, "{\"statistic\":\"average\"}");
+	break;
+
+    default:
+	sts = 0;
+	break;
+    }
+    return sts;
+}
+
+static int
+linux_labelCallBack(pmdaMetric *mdesc, unsigned int inst, pmdaLabelSet **lp)
+{
+    __pmInDom_int	*inp = (__pmInDom_int *)&mdesc->m_desc.indom;
+    unsigned int	numanode, value;
+    char		*name, zone[32];
+    int			sts;
+
+    if (mdesc->m_desc.indom == PM_INDOM_NULL)
+	return 0;
+
+    switch (inp->serial) {
+    case CPU_INDOM:
+	return pmdaAddLabels(lp, "{\"cpu\":%u}", inst);
+
+    case NODE_INDOM:
+	return pmdaAddLabels(lp, "{\"numanode\":%u}", inst);
+
+    case BUDDYINFO_INDOM:
+	if (inst >= proc_buddyinfo.nbuddys)
+	    return PM_ERR_INST;
+	numanode = atoi(proc_buddyinfo.buddys[inst].node_name);
+	value = proc_buddyinfo.buddys[inst].order;
+	return pmdaAddLabels(lp,
+		    "{\"numanode\":%u,\"zone\":\"%s\",\"order\":%u}",
+		    numanode, proc_buddyinfo.buddys[inst].zone_name, value);
+
+    case ZONEINFO_INDOM:
+	sts = pmdaCacheLookup(INDOM(ZONEINFO_INDOM), inst, &name, NULL);
+	if (sts < 0 || sts == PMDA_CACHE_INACTIVE)
+	    return 0;
+	if (sscanf(name, "%s::node%u", zone, &numanode) != 2)
+	    return PM_ERR_INST;
+	return pmdaAddLabels(lp, "{\"numanode\":%u,\"zone\":\"%s\"}",
+		    numanode, zone);
+
+    case ZONEINFO_PROTECTION_INDOM:
+	sts = pmdaCacheLookup(INDOM(ZONEINFO_PROTECTION_INDOM), inst, &name, NULL);
+	if (sts < 0 || sts == PMDA_CACHE_INACTIVE)
+	    return 0;
+	if (sscanf(name, "%s::node%u::lowmem_reserved%u", zone, &numanode, &value) != 3)
+	    return PM_ERR_INST;
+	return pmdaAddLabels(lp,
+		"{\"numanode\":%u,\"zone\":\"%s\",\"lowmem_reserved\":%u}",
+		    numanode, zone, value);
+
+    default:
+	break;
+    }
+    return 0;
+}
+
+static int
+linux_label(int ident, int type, pmdaLabelSet **lpp, pmdaExt *pmda)
+{
+    switch (type) {
+    case PM_LABEL_INDOM:
+	return linux_labelInDom((pmInDom)ident, lpp);
+    case PM_LABEL_PMID:
+	return linux_labelPMID((pmID)ident, lpp);
+    default:
+	break;
+    }
+    return pmdaLabel(ident, type, lpp, pmda);
 }
 
 pmInDom
@@ -7704,7 +7853,7 @@ linux_init(pmdaInterface *dp)
 	int sep = __pmPathSeparator();
 	snprintf(helppath, sizeof(helppath), "%s%c" "linux" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
-	pmdaDSO(dp, PMDA_INTERFACE_6, "linux DSO", helppath);
+	pmdaDSO(dp, PMDA_INTERFACE_7, "linux DSO", helppath);
     } else {
 	if (username)
 	    __pmSetProcessIdentity(username);
@@ -7714,14 +7863,16 @@ linux_init(pmdaInterface *dp)
 	return;
     dp->comm.flags |= (PDU_FLAG_AUTH|PDU_FLAG_CONTAINER);
 
-    dp->version.six.instance = linux_instance;
-    dp->version.six.fetch = linux_fetch;
-    dp->version.six.text = linux_text;
-    dp->version.six.pmid = linux_pmid;
-    dp->version.six.name = linux_name;
-    dp->version.six.children = linux_children;
-    dp->version.six.attribute = linux_attribute;
-    dp->version.six.ext->e_endCallBack = linux_end_context;
+    dp->version.seven.instance = linux_instance;
+    dp->version.seven.fetch = linux_fetch;
+    dp->version.seven.text = linux_text;
+    dp->version.seven.pmid = linux_pmid;
+    dp->version.seven.name = linux_name;
+    dp->version.seven.children = linux_children;
+    dp->version.seven.attribute = linux_attribute;
+    dp->version.seven.label = linux_label;
+    pmdaSetLabelCallBack(dp, linux_labelCallBack);
+    pmdaSetEndContextCallBack(dp, linux_endContextCallBack);
     pmdaSetFetchCallBack(dp, linux_fetchCallBack);
 
     proc_buddyinfo.indom = &indomtab[BUDDYINFO_INDOM];
@@ -7859,7 +8010,7 @@ main(int argc, char **argv)
 
     snprintf(helppath, sizeof(helppath), "%s%c" "linux" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
-    pmdaDaemon(&dispatch, PMDA_INTERFACE_6, pmProgname, LINUX, "linux.log", helppath);
+    pmdaDaemon(&dispatch, PMDA_INTERFACE_7, pmProgname, LINUX, "linux.log", helppath);
 
     pmdaGetOptions(argc, argv, &opts, &dispatch);
     if (opts.errors) {

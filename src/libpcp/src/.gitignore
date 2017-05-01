@@ -1,4 +1,6 @@
 check.done
+jsmn.h
+jsmn.c
 getdate.h
 getdate.tab.?
 derive_parser.y

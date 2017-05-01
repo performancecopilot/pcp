@@ -1,0 +1,75 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2016-2017 Red Hat.  All Rights Reserved.
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.TH PMDALABELS 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmMergeLabels\f1 \- merge sets of performance metric labels
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.sp
+int pmMergeLabels(char **\fIsets\fP, int \fInsets\fP, char *\fIbuffer\fP, int \fIlength\fP);
+.sp
+cc ... \-lpcp
+.ft 1
+.SH DESCRIPTION
+.B pmMergeLabels
+takes multiple (\c
+.IR nsets )
+performance metric label
+.I sets
+and merges them into a single result
+.I buffer
+of
+.I length
+bytes.
+Both the input
+.I sets
+and the result
+.I buffer
+are
+.IR name : value
+pairs in the "JSONB" format described on
+.BR pmGetLabels (1).
+.PP
+Although names may repeat across the provided label
+.IR sets ,
+duplicate names are not allowed in the final
+.IR buffer .
+Any label names occuring in more than one of the input label
+.I sets
+are reduced to one using the rules described in the "PRECEDENCE"
+section of
+.BR pmGetLabels .
+The position of each element in the
+.I sets
+array is significant in terms of the precedence rules \- earlier
+positions are taken to be of lower precedence to later positions.
+.PP
+Values must be primitive JSON entities (e.g. numbers, strings),
+one-dimensional arrays or maps (i.e. simple associative arrays).
+.PP
+.SH DIAGNOSTICS
+On success,
+.B pmMergeLabels
+returns the number of bytes written into the supplied
+.IR buffer .
+.PP
+Failure to parse the input strings, failure to allocate memory, or any
+internal inconsistencies found will result in a negative return code.
+.SH SEE ALSO
+.BR pminfo (1),
+.BR PMAPI (3)
+and
+.BR pmGetLabels (3).

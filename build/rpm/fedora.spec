@@ -2565,6 +2565,7 @@ cd
 %config(noreplace) %{_sysconfdir}/sysconfig/pmproxy
 %config(noreplace) %{_sysconfdir}/sysconfig/pmcd
 %config %{_sysconfdir}/pcp.env
+%dir %{_confdir}/labels
 %dir %{_confdir}/pmcd
 %config(noreplace) %{_confdir}/pmcd/pmcd.conf
 %config(noreplace) %{_confdir}/pmcd/pmcd.options

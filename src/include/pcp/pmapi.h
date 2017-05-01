@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2016 Red Hat.
+ * Copyright (c) 2012-2017 Red Hat.
  * Copyright (c) 1997,2004 Silicon Graphics, Inc.  All Rights Reserved.
  *
  * This library is free software; you can redistribute it and/or modify it
@@ -195,6 +195,7 @@ typedef struct pmDesc {
 #define PM_ERR_LOGCHANGEINDOM	(-PM_ERR_BASE-61)   /* The instance domain of a metric has changed in an archive */
 #define PM_ERR_LOGCHANGEUNITS	(-PM_ERR_BASE-62)   /* The units of a metric have changed in an archive */
 #define PM_ERR_NEEDCLIENTCERT	(-PM_ERR_BASE-63)   /* PMCD requires a client certificate */
+#define PM_ERR_NOLABELS		(-PM_ERR_BASE-64)    /* No support for label metadata */
 
 /* retired PM_ERR_CTXBUSY (-PM_ERR_BASE-97) Context is busy */
 #define PM_ERR_TOOSMALL		(-PM_ERR_BASE-98)   /* Insufficient elements in list */
@@ -476,6 +477,25 @@ PCP_CALL extern int pmFetch(int, pmID *, pmResult **);
  * Variant that is used to return a pmResult from an archive
  */
 PCP_CALL extern int pmFetchArchive(pmResult **);
+
+/*
+ * Support for metric values annotated with name:value pairs (labels).
+ *
+ * The full set of labels for a given metric instance is the union of
+ * those found at the levels: source (host/archive), domain (agent),
+ * indom, metric, and finally instances (individual metric values).
+ */
+PCP_CALL extern int pmGetLabels(pmID, int **, char ***);
+PCP_CALL extern int pmGetPMIDLabels(pmID, char **);
+PCP_CALL extern int pmGetInDomLabels(pmInDom, char **);
+PCP_CALL extern int pmGetDomainLabels(int, char **);
+PCP_CALL extern int pmGetContextLabels(char **);
+
+/*
+ * The full set is formed by merging labels from all levels of the
+ * hierarchy using the precedence rules described in pmGetLabels(3).
+ */
+PCP_CALL extern int pmMergeLabels(char **, int, char *, int);
 
 /*
  * struct timeval is sometimes 2 x 64-bit ... we use a 2 x 32-bit format for

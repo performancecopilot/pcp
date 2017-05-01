@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2015 Red Hat.
+ * Copyright (c) 2012-2017 Red Hat.
  * Copyright (c) 1995-2001 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -277,5 +277,12 @@ extern int __pmAddPorts(const char *, int **, int) _PCP_HIDDEN;
 
 extern void __pmCloseChannelbyContext(__pmContext *, int, int) _PCP_HIDDEN;
 extern void __pmCloseChannelbyFd(int, int, int) _PCP_HIDDEN;
+
+#define MAXLABELS		((1<<8)-1)
+#define MAXLABELJSONLEN		((1<<16)-1)
+#define MAXLABELNAMELEN		((1<<8)-1)
+#define MAXLABELVALUELEN	((1<<16)-1)
+extern int __pmRecvLabel(int, __pmContext *, int, int *, int *,
+			 __pmLabelSet **, int *) _PCP_HIDDEN;
 
 #endif /* _LIBPCP_INTERNAL_H */

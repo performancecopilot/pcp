@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 Red Hat.
+ * Copyright (c) 2013,2016 Red Hat.
  * Copyright (c) 1999-2000 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -19,7 +19,8 @@
 #define HAVE_V_FOUR(interface)	((interface) >= PMDA_INTERFACE_4)
 #define HAVE_V_FIVE(interface)	((interface) >= PMDA_INTERFACE_5)
 #define HAVE_V_SIX(interface)	((interface) >= PMDA_INTERFACE_6)
-#define HAVE_ANY(interface)	((interface) <= PMDA_INTERFACE_6 && HAVE_V_TWO(interface))
+#define HAVE_V_SEVEN(interface)	((interface) >= PMDA_INTERFACE_7)
+#define HAVE_ANY(interface)	((interface) <= PMDA_INTERFACE_7 && HAVE_V_TWO(interface))
 
 /*
  * Auxilliary structure used to save data from pmdaDSO or pmdaDaemon and

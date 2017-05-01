@@ -97,6 +97,7 @@ logcontrol
 lookupnametest
 mark-bug
 matchInstanceName
+mergelabels
 mkfiles
 mmv_genstats
 mmv_instances

@@ -1,0 +1,49 @@
+QA output created by 561
+=> One label merged, value should be v2
+Low: {"name":"v1"}
+High: {"name":"v2"}
+Result: {"name":"v2"}
+Verified: OK
+
+=> Simple labels, different basic values
+Low: {"n0":"s","n1":34,"n2":true,"n3":null}
+High: {"high":"priority"}
+Result: {"high":"priority","n0":"s","n1":34,"n2":true,"n3":null}
+Verified: OK
+
+=> Complex labels, maps as values, single element
+Low: {}
+High: {"map":{"priority":"one"}}
+Result: {"map":{"priority":"one"}}
+Verified: OK
+
+=> Complex labels, maps as values, multiple elements
+Low: {}
+High: {"map":{"priority":"one","ratio":2.5}}
+Result: {"map":{"priority":"one","ratio":2.5}}
+Verified: OK
+
+=> Complex labels, multiple maps as values, multiple element
+Low: {"map"}
+High: {"map":{"priority":"one","ratio":2.5},"map2":{"foo":"bar"}}
+Result: {"map":{"priority":"one","ratio":2.5},"map2":{"foo":"bar"}}
+Verified: OK
+
+=> Complex labels, arrays as values, single element
+Low: {}
+High: {"a":["priority"]}
+Result: {"a":["priority"]}
+Verified: OK
+
+=> Complex labels, arrays as values, multiple elements
+Low: {}
+High: {"a":["priority","one","ratio",2.5]}
+Result: {"a":["priority","one","ratio",2.5]}
+Verified: OK
+
+=> Complex labels, multiple arrays as values, multiple elements
+Low: {"a":[1]}
+High: {"a":["priority","one","ratio",2.5],"a2":["foo","bar"]}
+Result: {"a":["priority","one","ratio",2.5],"a2":["foo","bar"]}
+Verified: OK
+

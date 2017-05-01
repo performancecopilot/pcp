@@ -42,7 +42,7 @@ CFILES = disk_test.c exercise.c context_test.c chkoptfetch.c \
 	github-50.c archfetch.c fetchloop.c sortinst.c fetchgroup.c \
 	loadderived.c sum16.c badmmv.c multictx.c mmv_simple.c \
 	mmv2_genstats.c mmv2_instances.c mmv2_nostats.c mmv2_simple.c \
-	httpfetch.c json_test.c check_pmiend_fdleak.c
+	httpfetch.c json_test.c check_pmiend_fdleak.c mergelabels.c
 
 ifeq ($(shell test -f ../localconfig && echo 1), 1)
 include ../localconfig
@@ -342,6 +342,10 @@ slow_af:	slow_af.c
 mmv_poke:	mmv_poke.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ mmv_poke.c $(LDLIBS)
+
+mergelabels:	mergelabels.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ mergelabels.c  $(LDLIBS)
 
 # --- need libpcp but also PM_CONTEXT_LOCAL
 #

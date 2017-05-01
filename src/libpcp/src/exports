@@ -541,7 +541,33 @@ PCP_3.17 {
 } PCP_3.16;
 
 PCP_3.18 {
+  global:
+    pmGetContextLabels;
+    pmGetDomainLabels;
+    pmGetInDomLabels;
+    pmGetPMIDLabels;
+    pmGetLabels;
+    pmMergeLabels;
+
     __pmLock_extcall;
     __pmFeaturesIPC;
     __pmSetFeaturesIPC;
+
+    __pmAddLabels;
+    __pmMergeLabels;
+    __pmParseLabels;
+    __pmParseLabelSet;
+    __pmGetContextLabels;
+    __pmGetDomainLabels;
+    __pmDumpLabelSet;
+    __pmDumpLabelSetArray;
+    __pmFreeLabelSet;
+    __pmFreeLabelSetArray;
+
+    __pmSendLabel;
+    __pmSendLabelReq;
+    __pmRecvLabel;
+    __pmRecvLabelReq;
+    __pmDecodeLabel;
+    __pmDecodeLabelReq;
 } PCP_3.17;

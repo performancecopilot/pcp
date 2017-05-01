@@ -22,6 +22,7 @@ typedef struct {
     char	id_name[128];
     char	node_name[64];
     char	zone_name[64];
+    int		order;
     int		value;
 } buddyinfo_t;
 

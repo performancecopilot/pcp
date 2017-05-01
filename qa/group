@@ -221,6 +221,9 @@ wrap
 # pmstore command and pmStore() libpcp routine
 pmstore
 
+# metadata labels and pmGetLabels() libpcp routines
+labels
+
 # trace library and PMDA
 trace
 
@@ -889,6 +892,9 @@ oldversion
 558 pmie local
 559 pmlogsummary local
 560 pmda.simple local pmda.install
+561:reserved libpcp labels local
+562:reserved pmcd pmda.pmcd pmda.sample labels local
+563:reserved pmcd pmda labels local
 564 logutil local pmlogextract
 565 pmda.sendmail local pmda.install
 566 pmlogcheck local

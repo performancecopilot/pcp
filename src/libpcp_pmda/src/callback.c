@@ -738,6 +738,149 @@ pmdaText(int ident, int type, char **buffer, pmdaExt *pmda)
 }
 
 /*
+ * Provide default handlers to fill set(s) of labels for the
+ * context or requested ID of type domain, indom, pmid, insts.
+ */
+
+int
+pmdaLabel(int ident, int type, pmdaLabelSet **lpp, pmdaExt *pmda)
+{
+    e_ext_t		*extp = (e_ext_t *)pmda->e_ext;
+    pmdaLabelSet	*rlp, *lp = NULL;
+    pmdaMetric		metabuf;
+    pmdaMetric		*metap;
+    size_t		size;
+    pmDesc		*dp;
+    char		idbuf[32];
+    char		errbuf[PM_MAXERRMSGLEN];
+    int			sts = 0, count, inst, numinst;
+
+    if (extp->dispatch->comm.pmda_interface >= PMDA_INTERFACE_5)
+	__pmdaSetContext(pmda->e_context);
+
+    switch (type) {
+    case PM_LABEL_CONTEXT:
+	if (pmDebug & DBG_TRACE_LABEL)
+	    fprintf(stderr, "pmdaLabel: context %d labels request\n",
+			pmda->e_context);
+	return __pmGetContextLabels(lpp);
+
+    case PM_LABEL_DOMAIN:
+	if (pmDebug & DBG_TRACE_LABEL)
+	    fprintf(stderr, "pmdaLabel: domain %d (%s) labels request\n",
+			pmda->e_domain, pmda->e_name);
+	return __pmGetDomainLabels(pmda->e_domain, pmda->e_name, lpp);
+
+    case PM_LABEL_PMID:
+	if (pmDebug & DBG_TRACE_LABEL)
+	    fprintf(stderr, "pmdaLabel: PMID %s labels request\n",
+			    pmIDStr_r(ident, idbuf, sizeof(idbuf)));
+	return 0;
+
+    case PM_LABEL_INDOM:
+	if (pmDebug & DBG_TRACE_LABEL)
+	    fprintf(stderr, "pmdaLabel: InDom %s labels request\n",
+			    pmInDomStr_r(ident, idbuf, sizeof(idbuf)));
+	return 0;
+
+    case PM_LABEL_INSTS:
+	if (extp->dispatch->comm.pmda_interface < PMDA_INTERFACE_7)
+	    return 0;
+	if ((metap = __pmdaMetricSearch(pmda, ident, &metabuf, extp)) == NULL)
+	    return 0;
+
+	dp = &(metap->m_desc);
+	if (dp->indom == PM_INDOM_NULL)
+	    numinst = 1;
+	else
+	    numinst = __pmdaCntInst(dp->indom, pmda);
+
+	if (pmDebug & DBG_TRACE_LABEL)
+	    fprintf(stderr, "pmdaLabel: PMID %s %d instance labels request\n",
+			    pmIDStr_r(ident, idbuf, sizeof(idbuf)), numinst);
+
+	if (numinst == 0)
+	    return 0;
+
+	/* allocate minimally-sized chunk of contiguous memory upfront */
+	size = numinst * sizeof(pmdaLabelSet);
+	if ((lp = (pmdaLabelSet *)malloc(size)) == NULL)
+	    return -oserror();
+	*lpp = lp;
+
+	inst = PM_IN_NULL;
+	if (dp->indom != PM_INDOM_NULL) {
+	    __pmdaStartInst(dp->indom, pmda);
+	    __pmdaNextInst(&inst, pmda);
+	}
+
+	count = 0;
+	do {
+	    if (count == numinst) {
+		/* more instances than expected! */
+		numinst++;
+		size = numinst * sizeof(pmdaLabelSet);
+		if ((rlp = (pmdaLabelSet *)realloc(*lpp, size)) == NULL)
+		    return -oserror();
+		*lpp = rlp;
+		lp = rlp + count;
+	    }
+	    memset(lp, 0, sizeof(*lp));
+
+	    if ((sts = (*(pmda->e_labelCallBack))(metap, inst, &lp)) < 0) {
+		pmIDStr_r(ident, idbuf, sizeof(idbuf));
+		pmErrStr_r(sts, errbuf, sizeof(errbuf));
+		__pmNotifyErr(LOG_DEBUG, "pmdaLabel: "
+				"PMID %s[%d]: %s\n", idbuf, inst, errbuf);
+	    }
+	    lp->nlabels = sts;
+	    lp->inst = inst;
+	    count++;
+	    lp++;
+
+	} while (dp->indom != PM_INDOM_NULL && __pmdaNextInst(&inst, pmda));
+
+	return count;
+
+    default:
+	break;
+    }
+
+    return PM_ERR_TYPE;
+}
+
+/*
+ * Add labels (name:value pairs) to a labelset, varargs style
+ */
+
+int
+pmdaAddLabels(pmdaLabelSet **lsp, const char *fmt, ...)
+{
+    char		errbuf[PM_MAXERRMSGLEN];
+    char		buf[PM_MAXLABELJSONLEN];
+    va_list		arg;
+    int			sts;
+
+    va_start(arg, fmt);
+    if ((sts = vsnprintf(buf, sizeof(buf), fmt, arg)) < 0)
+	return sts;
+    va_end(arg);
+    buf[sizeof(buf)-1] = '\0';
+
+#ifdef PCP_DEBUG
+    if (pmDebug & DBG_TRACE_LABEL)
+	fprintf(stderr, "pmdaAddLabels: %s\n", buf);
+#endif
+
+    if ((sts = __pmAddLabels(lsp, buf)) < 0) {
+	__pmNotifyErr(LOG_ERR, "pmdaAddLabels: %s (%s)\n", buf,
+		pmErrStr_r(sts, errbuf, sizeof(errbuf)));
+    }
+    return sts;
+}
+
+
+/*
  * Tell PMCD there is nothing to store
  */
 

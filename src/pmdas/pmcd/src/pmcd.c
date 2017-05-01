@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2016 Red Hat.
+ * Copyright (c) 2013-2017 Red Hat.
  * Copyright (c) 1995-2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -81,6 +81,8 @@ static pmDesc	desctab[] = {
     { PMDA_PMID(0,21), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) },
 /* sighups */
     { PMDA_PMID(0,22), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
+/* labels */
+    { PMDA_PMID(0,23), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
 
 /* pdu_in.error */
     { PMDA_PMID(1,0), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
@@ -118,6 +120,10 @@ static pmDesc	desctab[] = {
     { PMDA_PMID(1,17), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
 /* pdu_in.auth */
     { PMDA_PMID(1,18), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
+/* pdu_in.label_req */
+    { PMDA_PMID(1,19), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
+/* pdu_in.label */
+    { PMDA_PMID(1,20), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
 
 /* pdu_out.error */
     { PMDA_PMID(2,0), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
@@ -155,6 +161,10 @@ static pmDesc	desctab[] = {
     { PMDA_PMID(2,17), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
 /* pdu_out.auth */
     { PMDA_PMID(2,18), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
+/* pdu_out.label_req */
+    { PMDA_PMID(2,19), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
+/* pdu_out.label */
+    { PMDA_PMID(2,20), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
 
 /* pmlogger.port */
     { PMDA_PMID(3,0), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) },
@@ -1145,16 +1155,25 @@ ctx_container(int ctx)
 }
 
 static char *
-fetch_hostname(int ctx, pmAtomValue *avp, char *hostname)
+ctx_hostname(int ctx, char **hostname)
+{
+    (void)ctx;
+    if (*hostname)
+	return *hostname;
+    else if (_pmcd_hostname)
+	return _pmcd_hostname;
+    return *hostname = hostnameinfo();
+}
+
+static char *
+fetch_hostname(int ctx, pmAtomValue *avp, char **hostname)
 {
     static char		host[MAXHOSTNAMELEN];
     pmcd_container_t	*container;
     int			sts;
 
-    if (hostname) {	/* ensure we only ever refresh once-per-fetch */
-	avp->cp = hostname;
-	return hostname;
-    }
+    if (*hostname)	/* ensure we only ever refresh once-per-fetch */
+	return avp->cp = *hostname;
 
     /* see if we're dealing with a request within a container */
     if ((container = ctx_container(ctx)) != NULL &&
@@ -1162,18 +1181,25 @@ fetch_hostname(int ctx, pmAtomValue *avp, char *hostname)
 					container->name,
 					container->length,
 					host, sizeof(host)) >= 0))) {
-	avp->cp = hostname = host;
-	return hostname;
+	return avp->cp = *hostname = host;
     }
 
-    if (_pmcd_hostname) {
-	avp->cp = hostname = _pmcd_hostname;
-    } else {
-	if (!hostname)
-	    hostname = hostnameinfo();
-	avp->cp = hostname;
-    }
-    return hostname;
+    return avp->cp = *hostname = ctx_hostname(ctx, hostname);
+}
+
+static char *
+fetch_labels(int ctx, pmAtomValue *avp, char **hostname)
+{
+    pmcd_container_t	*container;
+    __pmLabelSet	*set;
+
+    __pmGetContextLabels(&set);
+    pmdaAddLabels(&set, "{\"hostname\":\"%s\"}", ctx_hostname(ctx, hostname));
+    if ((container = ctx_container(ctx)) != NULL)
+	pmdaAddLabels(&set, "{\"container\":\"%s\"}", container->name);
+    avp->cp = strndup(set->json, set->jsonlen + 1);
+    __pmFreeLabelSet(set);
+    return avp->cp;
 }
 
 static int
@@ -1452,12 +1478,15 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 				break;
 
 			case 21:	/* hostname */
-				need = pmda->e_context;	/* client context ID */
-				host = fetch_hostname(need, &atom, host);
+				fetch_hostname(pmda->e_context, &atom, &host);
 				break;
 
 			case 22:	/* SIGHUPs received */
 				atom.ul = pmcd_sighups;
+				break;
+
+			case 23:	/* context labels */
+				fetch_labels(pmda->e_context, &atom, &host);
 				break;
 
 			default:

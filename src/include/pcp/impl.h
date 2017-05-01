@@ -306,7 +306,8 @@ PCP_DATA extern int pmDebug;
 #define DBG_TRACE_DISCOVERY	(1<<25) /* service discovery tracing */
 #define DBG_TRACE_ATTR		(1<<26) /* all connection attributes */
 #define DBG_TRACE_HTTP		(1<<27) /* trace HTTP operations */
-/* not yet allocated, bits (1<<28) ... (1<<29) */
+#define DBG_TRACE_LABEL		(1<<28) /* label metadata operations */
+/* not yet allocated, bit (1<<29) */
 #define DBG_TRACE_DESPERATE	(1<<30) /* verbose/desperate level */
 
 PCP_CALL extern int __pmParseDebug(const char *);
@@ -495,6 +496,50 @@ PCP_CALL extern void __pmFreeProfile(__pmProfile *);
 PCP_CALL extern __pmInDomProfile *__pmFindProfile(pmInDom, const __pmProfile *);
 PCP_CALL extern int __pmInProfile(pmInDom, const __pmProfile *, int);
 PCP_CALL extern void __pmFreeInResult(__pmInResult *);
+
+/*
+ * Internal stuctures for label metadata (name:value pairs).
+ * Only the PMDAs and pmcd need to know about this.
+ */
+
+typedef struct __pmLabel {
+    unsigned int	name : 16;	/* label name offset in JSONB string */
+    unsigned int	namelen : 8;	/* length of name excluding the null */
+    unsigned int	padding : 8;	/* zero, reserved for future use */
+    unsigned int	value : 16;	/* offset of the label value */
+    unsigned int	valuelen : 16;	/* length of value in bytes */
+} __pmLabel;
+
+typedef struct __pmLabelSet {
+    unsigned int 	inst;		/* instance ID / PM_IN_NULL */
+    int			nlabels;	/* count of labels or error code */
+    char		*json;		/* JSON formatted labels string */
+    unsigned int	jsonlen : 16;	/* JSON string length byte count */
+    unsigned int	padding : 16;	/* zero, reserved for future use */
+    __pmLabel		*labels;	/* indexing into the JSON string */
+} __pmLabelSet;
+
+#define PM_MAXLABELS		((1<<8)-1)
+#define PM_MAXLABELJSONLEN	((1<<16)-1)
+
+PCP_CALL extern void __pmDumpLabelSet(FILE *, const __pmLabelSet *);
+PCP_CALL extern void __pmDumpLabelSetArray(FILE *, const __pmLabelSet *, int);
+PCP_CALL extern void __pmFreeLabelSet(__pmLabelSet *);
+PCP_CALL extern void __pmFreeLabelSetArray(__pmLabelSet *, int);
+
+/* Label hierarchy identifiers */
+#define PM_LABEL_CONTEXT	(1<<0)
+#define PM_LABEL_DOMAIN		(1<<1)
+#define PM_LABEL_INDOM		(1<<2)
+#define PM_LABEL_PMID		(1<<3)
+#define PM_LABEL_INSTS		(1<<4)
+
+PCP_CALL extern int __pmAddLabels(__pmLabelSet **, const char *);
+PCP_CALL extern int __pmMergeLabels(const char *, const char *, char *, int);
+PCP_CALL extern int __pmParseLabels(const char *, int, __pmLabel *, int, char *, int *);
+PCP_CALL extern int __pmParseLabelSet(const char *, int, __pmLabelSet **);
+PCP_CALL extern int __pmGetContextLabels(__pmLabelSet **);
+PCP_CALL extern int __pmGetDomainLabels(int, const char *, __pmLabelSet **);
 
 /*
  * Version and capabilities information for PDU exchanges
@@ -836,6 +881,7 @@ typedef struct {
 #define PDU_FLAG_NO_NSS_INIT	(1U<<5)
 #define PDU_FLAG_CONTAINER	(1U<<6)
 #define PDU_FLAG_CERT_REQD	(1U<<7)
+#define PDU_FLAG_LABEL		(1U<<8)
 
 /* Credential CVERSION PDU elements look like this */
 typedef struct {
@@ -901,7 +947,9 @@ PCP_CALL extern void __pmCountPDUBuf(int, int *, int *);
 #define PDU_PMNS_TRAVERSE	0x7010
 #define PDU_ATTR		0x7011
 #define PDU_AUTH		PDU_ATTR
-#define PDU_FINISH		0x7011
+#define PDU_LABEL_REQ		0x7012
+#define PDU_LABEL		0x7013
+#define PDU_FINISH		0x7013
 #define PDU_MAX		 	(PDU_FINISH - PDU_START)
 
 /*
@@ -961,6 +1009,10 @@ PCP_CALL extern int __pmSendAuth(int, int, int, const char *, int);
 PCP_CALL extern int __pmDecodeAuth(__pmPDU *, int *, char **, int *);
 PCP_CALL extern int __pmSendAttr(int, int, int, const char *, int);
 PCP_CALL extern int __pmDecodeAttr(__pmPDU *, int *, char **, int *);
+PCP_CALL extern int __pmSendLabelReq(int, int, int, int);
+PCP_CALL extern int __pmDecodeLabelReq(__pmPDU *, int *, int *);
+PCP_CALL extern int __pmSendLabel(int, int, int, int, struct __pmLabelSet *, int);
+PCP_CALL extern int __pmDecodeLabel(__pmPDU *, int *, int *, struct __pmLabelSet **, int *);
 
 #if defined(HAVE_64BIT_LONG)
 
