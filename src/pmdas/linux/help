@@ -983,47 +983,57 @@ table entry.
 @ mem.zoneinfo.present present space in each zone for each NUMA node
 @ mem.zoneinfo.managed managed space in each zone for each NUMA node
 @ mem.zoneinfo.nr_free_pages number of free pages in each zone for each NUMA node.
-@ mem.zoneinfo.nr_alloc_batch
-number of pages allocated to other zone due to insufficient memory in each zone for each NUMA node.
-@ mem.zoneinfo.nr_inactive_anon number of inactive anonymous memory pages in each zone for each NUMA node.
-@ mem.zoneinfo.nr_active_anon number of active anonymous memory pages in each zone for each NUMA node.
-@ mem.zoneinfo.nr_inactive_file number of inactive file memory pages in each zone for each NUMA node.
-@ mem.zoneinfo.nr_active_file number of active file memory memory pages in each zone for each NUMA node.
-@ mem.zoneinfo.nr_unevictable number of unevictable pages in each zone for each NUMA node.
-@ mem.zoneinfo.nr_mlock number of pages under mlock in each zone for each NUMA node.
-@ mem.zoneinfo.nr_anon_pages number of anonymous mapped pagecache pages in each zone for each NUMA node.
-@ mem.zoneinfo.nr_mapped number of mapped pagecache pages in each zone for each NUMA node.
-@ mem.zoneinfo.nr_file_pages number of file pagecache pages in each zone for each NUMA node.
-@ mem.zoneinfo.nr_dirty number of pages dirty state in each zone for each NUMA node.
-@ mem.zoneinfo.nr_writeback number of pages writeback state in each zone for each NUMA node.
-@ mem.zoneinfo.nr_slab_reclaimable number of reclaimable slab pages in each zone for each NUMA node.
-@ mem.zoneinfo.nr_slab_unreclaimable number of unreclaimable slab pages in each zone for each NUMA node.
-@ mem.zoneinfo.nr_page_table_pages number of page table pages in each zone for each NUMA node.
-@ mem.zoneinfo.nr_kernel_stack number of pages of kernel stack in each zone for each NUMA node.
-@ mem.zoneinfo.nr_unstable number of pages unstable state in each zone for each NUMA node.
-@ mem.zoneinfo.nr_bounce number of bounce buffer pages in each zone for each NUMA node.
-@ mem.zoneinfo.nr_vmscan_write
+@ mem.zoneinfo.nr_alloc_batch number of pages allocated to other zones due to insufficient memory
+Number of pages allocated to other zones due to insufficient memory, for
+each zone for each NUMA node.
+@ mem.zoneinfo.nr_inactive_anon number of inactive anonymous memory pages in each zone for each NUMA node
+@ mem.zoneinfo.nr_active_anon number of active anonymous memory pages in each zone for each NUMA node
+@ mem.zoneinfo.nr_inactive_file number of inactive file memory pages in each zone for each NUMA node
+@ mem.zoneinfo.nr_active_file number of active file memory memory pages in each zone for each NUMA node
+@ mem.zoneinfo.nr_unevictable number of unevictable pages in each zone for each NUMA node
+@ mem.zoneinfo.nr_mlock number of pages under mlock in each zone for each NUMA node
+@ mem.zoneinfo.nr_anon_pages number of anonymous mapped pagecache pages in each zone for each NUMA node
+@ mem.zoneinfo.nr_mapped number of mapped pagecache pages in each zone for each NUMA node
+@ mem.zoneinfo.nr_file_pages number of file pagecache pages in each zone for each NUMA node
+@ mem.zoneinfo.nr_dirty number of pages dirty state in each zone for each NUMA node
+@ mem.zoneinfo.nr_writeback number of pages writeback state in each zone for each NUMA node
+@ mem.zoneinfo.nr_slab_reclaimable number of reclaimable slab pages in each zone for each NUMA node
+@ mem.zoneinfo.nr_slab_unreclaimable number of unreclaimable slab pages in each zone for each NUMA node
+@ mem.zoneinfo.nr_page_table_pages number of page table pages in each zone for each NUMA node
+@ mem.zoneinfo.nr_kernel_stack number of pages of kernel stack in each zone for each NUMA node
+@ mem.zoneinfo.nr_unstable number of pages unstable state in each zone for each NUMA node
+@ mem.zoneinfo.nr_bounce number of bounce buffer pages in each zone for each NUMA node
+@ mem.zoneinfo.nr_vmscan_write pages written from the LRU by the VM scanner
 Count of pages written from the LRU by the VM scanner in each zone
 for each NUMA node.The VM is supposed to minimise the number of
 pages which get written from the LRU (for IO scheduling efficiency,
 and for high reclaim-success rates).
-@ mem.zoneinfo.nr_vmscan_immediate_reclaim prioritise for reclaim when writeback ends in each zone for each NUMA node.
-@ mem.zoneinfo.nr_writeback_temp number of temporary writeback pages in each zone for each NUMA node.
-@ mem.zoneinfo.nr_isolated_anon number of isolated anonymous memory pages in each zone for each NUMA node.
-@ mem.zoneinfo.nr_isolated_file number of isolated file memory pages in each zone for each NUMA node.
-@ mem.zoneinfo.nr_shmem number of shared memory pages in each zone for each NUMA node.
-@ mem.zoneinfo.nr_dirtied count of pages entering dirty state in each zone for each NUMA node.
-@ mem.zoneinfo.nr_written count of pages written out in each zone for each NUMA node.
-@ mem.zoneinfo.numa_hit count of successful allocations from preferred NUMA zone in each zone for each NUMA node.
-@ mem.zoneinfo.numa_miss count of unsuccessful allocations from preferred NUMA zone in each zone for each NUMA node.
-@ mem.zoneinfo.numa_foreign count of foreign NUMA zone allocations in each zone for each NUMA node.
-@ mem.zoneinfo.numa_interleave count of interleaved NUMA allocations in each zone for each NUMA node.
-@ mem.zoneinfo.numa_local count of successful allocations from local NUMA zone in each zone for each NUMA node.
-@ mem.zoneinfo.numa_other count of unsuccessful allocations from local NUMA zone in each zone for each NUMA node.
-@ mem.zoneinfo.workingset_refault count of refaults of previously evicted pages in each zone for each NUMA node.
-@ mem.zoneinfo.workingset_activate count of page activations to form the working set in each zone for each NUMA node.
-@ mem.zoneinfo.workingset_nodereclaim count of NUMA node working set page reclaims in each zone for each NUMA node.
-@ mem.zoneinfo.nr_anon_transparent_hugepages number of anonymous transparent huge pages in each zone for each NUMA node.
+@ mem.zoneinfo.nr_vmscan_immediate_reclaim prioritise for reclaim when writeback ends in each zone for each NUMA node
+@ mem.zoneinfo.nr_writeback_temp number of temporary writeback pages in each zone for each NUMA node
+@ mem.zoneinfo.nr_isolated_anon number of isolated anonymous memory pages in each zone for each NUMA node
+@ mem.zoneinfo.nr_isolated_file number of isolated file memory pages in each zone for each NUMA node
+@ mem.zoneinfo.nr_shmem number of shared memory pages in each zone for each NUMA node
+@ mem.zoneinfo.nr_dirtied count of pages entering dirty state in each zone for each NUMA node
+@ mem.zoneinfo.nr_written count of pages written out in each zone for each NUMA node
+@ mem.zoneinfo.numa_hit successful allocations from preferred NUMA zone
+Count of successful allocations from preferred NUMA zone in each zone
+for each NUMA node.
+@ mem.zoneinfo.numa_miss unsuccessful allocations from preferred NUMA zone
+Count of unsuccessful allocations from preferred NUMA zone in each zone
+for each NUMA node.
+@ mem.zoneinfo.numa_foreign foreign NUMA zone allocations
+Count of foreign NUMA zone allocations in each zone for each NUMA node.
+@ mem.zoneinfo.numa_interleave count of interleaved NUMA allocations in each zone for each NUMA node
+@ mem.zoneinfo.numa_local successful allocations from local NUMA zone
+Count of successful allocations from local NUMA zone in each zone for
+each NUMA node.
+@ mem.zoneinfo.numa_other unsuccessful allocations from local NUMA zone
+Count of unsuccessful allocations from local NUMA zone in each zone for
+each NUMA node.
+@ mem.zoneinfo.workingset_refault count of refaults of previously evicted pages in each zone for each NUMA node
+@ mem.zoneinfo.workingset_activate count of page activations to form the working set in each zone for each NUMA node
+@ mem.zoneinfo.workingset_nodereclaim count of NUMA node working set page reclaims in each zone for each NUMA node
+@ mem.zoneinfo.nr_anon_transparent_hugepages number of anonymous transparent huge pages in each zone for each NUMA node
 @ mem.zoneinfo.nr_free_cma count of free Contiguous Memory Allocator pages in each zone for each NUMA node.
 @ mem.zoneinfo.protection protection space in each zone for each NUMA node
 @ mem.ksm.full_scans Number of times that KSM has scanned for duplicated content

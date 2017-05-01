@@ -1,7 +1,7 @@
 QA output created by 024
 === expected to pass ===
 __pmDecodeXtendError: got error PDU (code=0, datum=DATA, version=2)
-__pmSetVersionIPC: fd=<n> version=2
+__pmSetFeaturesIPC: fd=<n> version=2 features=<n>
 __pmSendCreds: #0 = 1020000
 __pmConnectPMCD(<localhost>): pmcd connection port=<n> fd=<n> PDU version=2
 pmNewContext(1, <localhost>) -> 0
@@ -18,7 +18,7 @@ pmDestroyContext(1) -> 0, curr_handle=-1
 pmUseContext(0) -> contexts[0]
 
 __pmDecodeXtendError: got error PDU (code=0, datum=DATA, version=2)
-__pmSetVersionIPC: fd=<n> version=2
+__pmSetFeaturesIPC: fd=<n> version=2 features=<n>
 __pmSendCreds: #0 = 1020000
 __pmConnectPMCD(<localhost>): pmcd connection port=<n> fd=<n> PDU version=2
 pmNewContext(1, <localhost>) -> 0
@@ -35,7 +35,7 @@ pmDestroyContext(1) -> 0, curr_handle=-1
 pmUseContext(0) -> contexts[0]
 
 __pmDecodeXtendError: got error PDU (code=0, datum=DATA, version=2)
-__pmSetVersionIPC: fd=<n> version=2
+__pmSetFeaturesIPC: fd=<n> version=2 features=<n>
 __pmSendCreds: #0 = 1020000
 __pmConnectPMCD(<localhost>): pmcd connection port=<n> fd=<n> PDU version=2
 pmNewContext(1, <localhost>) -> 0
@@ -43,7 +43,7 @@ Dump Contexts: current -> contexts[0] handle 0
 contexts[0] handle 0: host <localhost>: pmcd=CONNECTED profile=NOT_SENT fd=<n> refcnt=1 origin=0.000000 delta=0
 Dump Instance Profile state=INCLUDE, 0 profiles
 __pmDecodeXtendError: got error PDU (code=0, datum=DATA, version=2)
-__pmSetVersionIPC: fd=<n> version=2
+__pmSetFeaturesIPC: fd=<n> version=2 features=<n>
 __pmSendCreds: #0 = 1020000
 __pmConnectPMCD(<localhost>): pmcd connection port=<n> fd=<n> PDU version=2
 pmNewContext(1, <localhost>) -> 1
@@ -55,7 +55,7 @@ pmDestroyContext(1) -> 0, curr_handle=-1
 pmUseContext(0) -> contexts[0]
 
 __pmDecodeXtendError: got error PDU (code=0, datum=DATA, version=2)
-__pmSetVersionIPC: fd=<n> version=2
+__pmSetFeaturesIPC: fd=<n> version=2 features=<n>
 __pmSendCreds: #0 = 1020000
 __pmConnectPMCD(<localhost>): pmcd connection port=<n> fd=<n> PDU version=2
 pmNewContext(1, <localhost>) -> 0
@@ -63,7 +63,7 @@ Dump Contexts: current -> contexts[0] handle 0
 contexts[0] handle 0: host <localhost>: pmcd=CONNECTED profile=NOT_SENT fd=<n> refcnt=1 origin=0.000000 delta=0
 Dump Instance Profile state=INCLUDE, 0 profiles
 __pmDecodeXtendError: got error PDU (code=0, datum=DATA, version=2)
-__pmSetVersionIPC: fd=<n> version=2
+__pmSetFeaturesIPC: fd=<n> version=2 features=<n>
 __pmSendCreds: #0 = 1020000
 __pmConnectPMCD(<remotehost>): pmcd connection port=<n> fd=<n> PDU version=2
 pmNewContext(1, <remotehost>) -> 1
@@ -77,7 +77,7 @@ pmUseContext(0) -> contexts[0]
 
 === try CONTEXT_LOCAL ===
 __pmDecodeXtendError: got error PDU (code=0, datum=DATA, version=2)
-__pmSetVersionIPC: fd=<n> version=2
+__pmSetFeaturesIPC: fd=<n> version=2 features=<n>
 __pmSendCreds: #0 = 1020000
 __pmConnectPMCD(<localhost>): pmcd connection port=<n> fd=<n> PDU version=2
 pmNewContext(1, <localhost>) -> 0

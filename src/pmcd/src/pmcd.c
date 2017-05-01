@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2016 Red Hat.
+ * Copyright (c) 2012-2017 Red Hat.
  * Copyright (c) 1995-2001,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -680,9 +680,8 @@ CheckNewClient(__pmFdSet * fdset, int rfd, int family)
 		cp->pduInfo.features |= PDU_FLAG_COMPRESS;
 	    if (__pmServerHasFeature(PM_SERVER_FEATURE_AUTH))       /*optional*/
 		cp->pduInfo.features |= PDU_FLAG_AUTH;
-            if (__pmServerHasFeature(PM_SERVER_FEATURE_CERT_REQD)){ /* Required for remote connections only */
+            if (__pmServerHasFeature(PM_SERVER_FEATURE_CERT_REQD))  /* Required for remote connections only */
 		cp->pduInfo.features |= PDU_FLAG_CERT_REQD;	    /* Enforced in connect.c:check_feature_flags */
-	    }
 	    if (__pmServerHasFeature(PM_SERVER_FEATURE_CREDS_REQD)) /*required*/
 		cp->pduInfo.features |= PDU_FLAG_CREDS_REQD;
 	    if (__pmServerHasFeature(PM_SERVER_FEATURE_CONTAINERS))

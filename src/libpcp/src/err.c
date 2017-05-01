@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2016 Red Hat.
+ * Copyright (c) 2013-2017 Red Hat.
  * Copyright (c) 1995-2001,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -162,15 +162,15 @@ static const struct {
     { PM_ERR_FAULT,		"PM_ERR_FAULT",
 	"QA fault injected" },
     { PM_ERR_THREAD,		"PM_ERR_THREAD",
-        "Operation not supported for multi-threaded applications" },
+	"Operation not supported for multi-threaded applications" },
     { PM_ERR_NOCONTAINER,	"PM_ERR_NOCONTAINER",
-        "Container not found" },
+	"Container not found" },
     { PM_ERR_BADSTORE,		"PM_ERR_BADSTORE",
-        "Bad input to pmstore" },
+	"Bad input to pmstore" },
     { PM_ERR_LOGOVERLAP,	"PM_ERR_LOGOVERLAP",
-        "Archives overlap in time" },
+	"Archives overlap in time" },
     { PM_ERR_LOGHOST,		"PM_ERR_LOGHOST",
-        "Archives differ by host" },
+	"Archives differ by host" },
     { PM_ERR_LOGCHANGETYPE,	"PM_ERR_LOGCHANGETYPE",
 	"The type of a metric has changed in an archive" },
     { PM_ERR_LOGCHANGESEM,	"PM_ERR_LOGCHANGESEM",

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015 Red Hat.
+ * Copyright (c) 2013-2017 Red Hat.
  * Copyright (c) 1995,2005 Silicon Graphics, Inc.  All Rights Reserved.
  *
  * This library is free software; you can redistribute it and/or modify it
@@ -36,6 +36,16 @@ extern "C" {
  * Type of I/O connection to PMCD (pmdaUnknown defaults to pmdaPipe)
  */
 typedef enum {pmdaPipe, pmdaInet, pmdaUnix, pmdaUnknown, pmdaIPv6} pmdaIoType;
+
+/*
+ * Forward declarations of structures so that inclusion of (internal) impl.h
+ * header file is not mandated if this header file is included.
+ */
+typedef struct __pmnsTree  pmdaNameSpace;
+typedef struct __pmHashCtl pmdaHashTable;
+typedef struct __pmProfile pmdaInProfile;
+typedef struct __pmInResult pmdaInResult;
+typedef struct __pmnsNode pmnsNode;
 
 /*
  * Instance description: index and name
@@ -87,27 +97,20 @@ typedef void (*pmdaResultCallBack)(pmResult *);
  */
 typedef int (*pmdaCheckCallBack)(void);
 
-/* 
+/*
  * Type of function call back used by pmdaMain after each PDU has been
  * processed.
  */
 typedef void (*pmdaDoneCallBack)(void);
 
-/* 
+/*
  * Type of function call back used by pmdaMain when a client context is
  * closed by PMCD.
  */
 typedef void (*pmdaEndContextCallBack)(int);
 
 /*
- * Forward declarations of structures so that inclusion of (internal) impl.h
- * header file is not mandated if this header file is included.
  */
-typedef struct __pmnsTree  pmdaNameSpace;
-typedef struct __pmHashCtl pmdaHashTable;
-typedef struct __pmProfile pmdaInProfile;
-typedef struct __pmInResult pmdaInResult;
-typedef struct __pmnsNode pmnsNode;
 
 /*
  * libpcp_pmda extension structure.
@@ -115,7 +118,6 @@ typedef struct __pmnsNode pmnsNode;
  * The fields of this structure are initialised using pmdaDaemon() or pmdaDSO()
  * (if the agent is a daemon or a DSO respectively), pmdaGetOpt() and
  * pmdaInit().
- * 
  */
 typedef struct pmdaExt {
 
@@ -143,10 +145,11 @@ typedef struct pmdaExt {
     pmdaIndom	*e_idp;		/* used in instance domain expansion */
     pmdaMetric	*e_metrics;	/* metric description table */
 
-    pmdaResultCallBack e_resultCallBack; /* callback to clean up pmResult after fetch */
-    pmdaFetchCallBack  e_fetchCallBack;  /* callback to assign metric values in fetch */
-    pmdaCheckCallBack  e_checkCallBack;  /* callback on receipt of a PDU */
-    pmdaDoneCallBack   e_doneCallBack;   /* callback after PDU has been processed */
+    pmdaResultCallBack	e_resultCallBack; /* callback to clean up pmResult after fetch */
+    pmdaFetchCallBack	e_fetchCallBack;  /* callback to assign metric values in fetch */
+    pmdaCheckCallBack	e_checkCallBack;  /* callback on receipt of a PDU */
+    pmdaDoneCallBack	e_doneCallBack;   /* callback after PDU has been processed */
+
     /* added for PMDA_INTERFACE_5 */
     int		e_context;	/* client context id from pmcd */
     pmdaEndContextCallBack	e_endCallBack;	/* callback after client context closed */
@@ -378,7 +381,7 @@ typedef struct pmdaOptions {
  *      libpcp_pmda internally use direct or hashed PMID metric table mapping.
  *      Can be called multiple times - effects are cumulative - no flag can be
  *      cleared, although libpcp_pmda may disable a flag later on if it cannot
- *      enact the requested behaviour.
+ *      enact the requested behaviour. Must be called before pmdaInit.
  *
  * pmdaInit
  *      Further initialises the pmdaExt structure with the instance domain and
@@ -455,7 +458,7 @@ PMDA_CALL extern void pmdaSetEndContextCallBack(pmdaInterface *, pmdaEndContextC
  *	Return description of instances and instance domains.
  *
  * pmdaDesc
- *	Return the metric desciption.
+ *	Return the metric description.
  *
  * pmdaText
  *	Return the help text for the metric.

@@ -2,5 +2,5 @@ blib
 COPYING
 Makefile
 META.yml
-PCP-LogSummary-*.tar.gz
+PCP-LogSummary-*
 pm_to_blib

@@ -27,11 +27,14 @@
  * descriptor here.
  * The version field holds the version of the software at the other
  * end of the connection end point (0 is unknown, 1 or 2 are also valid).
- * The socket field is used to tell whether this is a socket or
- * pipe (or a file) connection, which is most important for the
- * Windows port, as socket interfaces are "special" and do not use
- * the usual file descriptor read/write/close calls, but must rather
- * use recv/send/closesocket.
+ * The socket field is used to tell whether this is a socket or pipe
+ * (or a file) connection, which is most important for the Windows
+ * port as socket interfaces are special and do not use the usual
+ * file descriptor read/write/close calls, but must rather use
+ * recv/send/closesocket.
+ * The features field holds any feature bits received from the other
+ * end of the connection, so we can test for the presense/absence of
+ * (remote) features.
  *
  * The table entries are of fixed length, but the actual size depends
  * on compile time options used (in particular, the secure sockets
@@ -39,8 +42,10 @@
  * security metadata for each socket).
  */
 typedef struct {
-    int		version;	/* one or two */
-    int		socket;		/* true or false */
+    int		version : 8;	/* remote version (v1 or v2, so far) */
+    unsigned	socket : 1;	/* true or false */
+    int		padding : 7;	/* unused zeroes */
+    int		features : 16;	/* remote features (i.e. PDU_FLAG_s) */
     char	data[0];	/* opaque data (optional) */
 } __pmIPC;
 
@@ -99,9 +104,8 @@ resize(int fd)
     return 0;
 }
 
-static
-int
-version(int fd)
+static int
+version_locked(int fd)
 {
     ASSERT_IS_LOCKED(ipc_lock);
 
@@ -110,12 +114,41 @@ version(int fd)
     if (__pmIPCTable == NULL || fd < 0 || fd >= ipctablecount) {
 	if (pmDebug & DBG_TRACE_CONTEXT)
 	    fprintf(stderr,
-		"IPC protocol botch: table->" PRINTF_P_PFX "%p fd=%d sz=%d\n",
+		"IPC protocol botch: version: table->" PRINTF_P_PFX "%p fd=%d sz=%d\n",
 		__pmIPCTable, fd, ipctablecount);
-	PM_UNLOCK(ipc_lock);
 	return UNKNOWN_VERSION;
     }
     return __pmIPCTablePtr(fd)->version;
+}
+
+static int
+socket_locked(int fd)
+{
+    ASSERT_IS_LOCKED(ipc_lock);
+
+    if (__pmIPCTable == NULL || fd < 0 || fd >= ipctablecount) {
+	if (pmDebug & DBG_TRACE_CONTEXT)
+	    fprintf(stderr,
+		"IPC protocol botch: socket: table->" PRINTF_P_PFX "%p fd=%d sz=%d\n",
+		__pmIPCTable, fd, ipctablecount);
+	return 0;
+    }
+    return __pmIPCTablePtr(fd)->socket;
+}
+
+static int
+features_locked(int fd)
+{
+    ASSERT_IS_LOCKED(ipc_lock);
+
+    if (__pmIPCTable == NULL || fd < 0 || fd >= ipctablecount) {
+	if (pmDebug & DBG_TRACE_CONTEXT)
+	    fprintf(stderr,
+		"IPC protocol botch: features: table->" PRINTF_P_PFX "%p fd=%d sz=%d\n",
+		__pmIPCTable, fd, ipctablecount);
+	return 0;
+    }
+    return __pmIPCTablePtr(fd)->features;
 }
 
 static void
@@ -159,6 +192,34 @@ __pmSetVersionIPC(int fd, int version)
 }
 
 int
+__pmSetFeaturesIPC(int fd, int version, int features)
+{
+    __pmIPC	*ipc;
+    int		sts;
+
+    if (pmDebug & DBG_TRACE_CONTEXT)
+	fprintf(stderr, "__pmSetFeaturesIPC: fd=%d version=%d features=%d\n",
+		fd, version, features);
+
+    PM_LOCK(ipc_lock);
+    if ((sts = resize(fd)) < 0) {
+	PM_UNLOCK(ipc_lock);
+	return sts;
+    }
+
+    ipc = __pmIPCTablePtr(fd);
+    ipc->features = features;
+    ipc->version = version;
+    __pmLastUsedFd = fd;
+
+    if (pmDebug & DBG_TRACE_CONTEXT)
+	print();
+
+    PM_UNLOCK(ipc_lock);
+    return sts;
+}
+
+int
 __pmSetSocketIPC(int fd)
 {
     int sts;
@@ -188,7 +249,7 @@ __pmVersionIPC(int fd)
     int		sts;
 
     PM_LOCK(ipc_lock);
-    sts = version(fd);
+    sts = version_locked(fd);
     PM_UNLOCK(ipc_lock);
     return sts;
 }
@@ -199,7 +260,7 @@ __pmLastVersionIPC()
     int		sts;
 
     PM_LOCK(ipc_lock);
-    sts = version(__pmLastUsedFd);
+    sts = version_locked(__pmLastUsedFd);
     PM_UNLOCK(ipc_lock);
     return sts;
 }
@@ -210,12 +271,18 @@ __pmSocketIPC(int fd)
     int		sts;
 
     PM_LOCK(ipc_lock);
-    if (__pmIPCTable == NULL || fd < 0 || fd >= ipctablecount) {
-	PM_UNLOCK(ipc_lock);
-	return 0;
-    }
-    sts = __pmIPCTablePtr(fd)->socket;
+    sts = socket_locked(fd);
+    PM_UNLOCK(ipc_lock);
+    return sts;
+}
 
+int
+__pmFeaturesIPC(int fd)
+{
+    int		sts;
+
+    PM_LOCK(ipc_lock);
+    sts = features_locked(fd);
     PM_UNLOCK(ipc_lock);
     return sts;
 }

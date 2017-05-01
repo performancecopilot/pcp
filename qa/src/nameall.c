@@ -10,9 +10,7 @@
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
 
-#if PMAPI_VERSION == 2
 static int 	pmns_style = 1;
-#endif
 static int	vflag;
 static char	*host = "localhost";
 static char	*namespace = PM_NS_DEFAULT;
@@ -51,18 +49,13 @@ parse_args(int argc, char **argv)
     int		c;
     int		sts;
     static char	*usage = "[-h hostname] [-[N|n] namespace] [-v]";
+    static char *style_str = "[-s 1|2]";
     char	*endnum;
 
 #ifdef PCP_DEBUG
     static char	*debug = "[-D N]";
 #else
     static char	*debug = "";
-#endif
-
-#if PMAPI_VERSION == 2
-    static char *style_str = "[-s 1|2]";
-#else 
-    static char *style_str = "";
 #endif
 
     __pmSetProgname(argv[0]);
@@ -98,7 +91,6 @@ parse_args(int argc, char **argv)
 	    vflag++;
 	    break;
 
-#if PMAPI_VERSION == 2
 	case 's':	/* pmns style */
 	    pmns_style = (int)strtol(optarg, &endnum, 10);
 	    if (*endnum != '\0') {
@@ -106,7 +98,6 @@ parse_args(int argc, char **argv)
 		errflag++;
 	    }
 	    break;
-#endif
 
 	case '?':
 	default:
