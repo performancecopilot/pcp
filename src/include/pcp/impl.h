@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2016 Red Hat.
+ * Copyright (c) 2012-2017 Red Hat.
  * Copyright (c) 2008-2009 Aconex.  All Rights Reserved.
  * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
  *
@@ -278,14 +278,14 @@ PCP_CALL extern void __pmNotifyErr(int, const char *, ...) __PM_PRINTFLIKE(2,3);
  * These are for debugging only (but are present in the shipped libpcp)
  */
 PCP_DATA extern int pmDebug;
-#define DBG_TRACE_PDU		1	/* PDU send and receive */
-#define DBG_TRACE_FETCH		2	/* dump pmFetch results */
-#define DBG_TRACE_PROFILE	4	/* trace profile changes */
-#define DBG_TRACE_VALUE		8	/* metric value conversions */
-#define DBG_TRACE_CONTEXT	16	/* trace PMAPI context changes */
-#define DBG_TRACE_INDOM		32	/* instance domain operations */
-#define DBG_TRACE_PDUBUF	64	/* PDU buffer management */
-#define DBG_TRACE_LOG		128	/* generic archive log operations */
+#define DBG_TRACE_PDU		(1<<0)	/* PDU send and receive */
+#define DBG_TRACE_FETCH		(1<<1)	/* dump pmFetch results */
+#define DBG_TRACE_PROFILE	(1<<2)	/* trace profile changes */
+#define DBG_TRACE_VALUE		(1<<3)	/* metric value conversions */
+#define DBG_TRACE_CONTEXT	(1<<4)	/* trace PMAPI context changes */
+#define DBG_TRACE_INDOM		(1<<5)	/* instance domain operations */
+#define DBG_TRACE_PDUBUF	(1<<6)	/* PDU buffer management */
+#define DBG_TRACE_LOG		(1<<7)	/* generic archive log operations */
 #define DBG_TRACE_LOGMETA	(1<<8)	/* meta data in archives */
 #define DBG_TRACE_OPTFETCH	(1<<9)	/* optFetch tracing */
 #define DBG_TRACE_AF		(1<<10)	/* trace async timer events */
@@ -776,7 +776,7 @@ PCP_CALL extern __pmContext *__pmHandleToPtr(int);
 /*
  * Dump the current context (source details + instance profile),
  * for a particular instance domain.
- * If indom == PM_INDOM_NULL, then print all all instance domains
+ * If indom == PM_INDOM_NULL, then print all instance domains
  */
 PCP_CALL extern void __pmDumpContext(FILE *, int, pmInDom);
 
