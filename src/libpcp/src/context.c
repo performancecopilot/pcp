@@ -226,6 +226,8 @@ pmGetContextHostName_r(int ctxid, char *buf, int buflen)
     __pmContext	*save_ctxp;
     int		sts;
 
+    PM_INIT_LOCKS();
+
     buf[0] = '\0';
 
     if ((ctxp = __pmHandleToPtr(ctxid)) != NULL) {
@@ -316,6 +318,8 @@ pmWhichContext(void)
      */
     int		sts;
 
+    PM_INIT_LOCKS();
+
     if (PM_TPD(curr_handle) > PM_CONTEXT_UNDEF)
 	sts = PM_TPD(curr_handle);
     else
@@ -332,6 +336,8 @@ pmWhichContext(void)
 __pmContext *
 __pmCurrentContext(void)
 {
+    PM_INIT_LOCKS();
+
     return PM_TPD(curr_ctxp);
 }
 
@@ -594,6 +600,8 @@ __pmFindOrOpenArchive(__pmContext *ctxp, const char *name, int multi_arch)
     __pmLogCtl	*lcp2;
     int		i;
     int		sts;
+
+    PM_INIT_LOCKS();
 
     /*
      * We're done with the current archive, if any. Close it, if necessary.
@@ -1613,6 +1621,8 @@ pmUseContext(int handle)
 {
     int		ctxnum;
 
+    PM_INIT_LOCKS();
+
     PM_LOCK(contexts_lock);
     if ((ctxnum = map_handle(handle)) < 0) {
 #ifdef PCP_DEBUG
@@ -1666,6 +1676,8 @@ pmDestroyContext(int handle)
 {
     __pmContext	*ctxp;
     int		ctxnum;
+
+    PM_INIT_LOCKS();
 
     PM_LOCK(contexts_lock);
     if ((ctxnum = map_handle(handle)) < 0) {
@@ -1735,6 +1747,8 @@ __pmDumpContext(FILE *f, int context, pmInDom indom)
 {
     int			i, j;
     __pmContext		*con;
+
+    PM_INIT_LOCKS();
 
     fprintf(f, "Dump Contexts: current -> contexts[%d] handle %d\n",
 	map_handle_nolock(PM_TPD(curr_handle)), PM_TPD(curr_handle));

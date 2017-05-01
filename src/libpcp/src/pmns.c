@@ -141,6 +141,7 @@ void
 __pmUsePMNS(__pmnsTree *t)
 {
     PM_INIT_LOCKS();
+
     PM_TPD(useExtPMNS) = 1;
     PM_TPD(curr_pmns) = t;
 }
@@ -194,6 +195,7 @@ pmGetPMNSLocation(void)
     int sts;
 
     PM_INIT_LOCKS();
+
     if (PM_TPD(useExtPMNS)) {
 	pmns_location = PMNS_LOCAL;
 	goto done;
@@ -1542,6 +1544,8 @@ pmLookupName(int numpmid, char *namelist[], pmID pmidlist[])
     int		i;
     int		nfail = 0;
 
+    PM_INIT_LOCKS();
+
     if (numpmid < 1) {
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_PMNS) {
@@ -1960,6 +1964,8 @@ pmGetChildrenStatus(const char *name, char ***offspring, int **statuslist)
     int		sts;
     int		ctx;
     __pmContext	*ctxp;
+
+    PM_INIT_LOCKS();
 
     if (pmns_location < 0)
 	return pmns_location;
@@ -2725,6 +2731,8 @@ pmTrimNameSpace(void)
     __pmHashNode *hp;
     int		pmns_location = GetLocation();
 
+    PM_INIT_LOCKS();
+
     if (pmns_location < 0)
 	return pmns_location;
     else if (pmns_location == PMNS_REMOTE)
@@ -2774,6 +2782,8 @@ void
 __pmDumpNameSpace(FILE *f, int verbosity)
 {
     int pmns_location = GetLocation();
+
+    PM_INIT_LOCKS();
 
     if (pmns_location < 0)
 	fprintf(f, "__pmDumpNameSpace: Unable to determine PMNS location\n");
