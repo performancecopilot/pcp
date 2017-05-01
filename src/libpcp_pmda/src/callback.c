@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014 Red Hat.
+ * Copyright (c) 2013-2014,2017 Red Hat.
  * Copyright (c) 1995-2000 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -182,6 +182,24 @@ __pmdaNextInst(int *inst, pmdaExt *pmda)
     return 0;
 }
 
+static int
+__pmdaCountInst(pmDesc *dp, pmdaExt *pmda)
+{
+    int		inst, numval = 0;
+
+    if (dp->indom != PM_INDOM_NULL) {
+	/* count instances in indom */
+	__pmdaStartInst(dp->indom, pmda);
+	while (__pmdaNextInst(&inst, pmda))
+	    numval++;
+    }
+    else {
+	/* singular instance domains */
+	numval = 1;
+    }
+    return numval;
+}
+
 
 /*
  * Helper routines for performing metric table searches.
@@ -234,6 +252,31 @@ __pmdaLinearSearch(pmID pmid, pmdaExt *pmda)
     return NULL;
 }
 
+static pmdaMetric *
+__pmdaMetricSearch(pmdaExt *pmda, pmID pmid, pmdaMetric *mbuf, e_ext_t *extp)
+{
+    pmdaMetric	*metap;
+
+    if (pmda->e_flags & PMDA_EXT_FLAG_HASHED)
+	metap = __pmdaHashedSearch(pmid, &extp->hashpmids);
+    else if (pmda->e_direct)
+	metap = __pmdaDirectSearch(pmid, pmda);
+    else
+	metap = __pmdaLinearSearch(pmid, pmda);
+
+    /* possibly a highly dynamic metric with null metrictab[] */
+    if (!metap) {
+	metap = mbuf;
+	memset(metap, 0, sizeof(pmdaMetric));
+
+	if (extp->dispatch->version.any.desc != NULL) {
+	    /* may need a temporary pmdaMetric for callback interfaces */
+	    (*(extp->dispatch->version.any.desc))(pmid, &mbuf->m_desc, pmda);
+        }
+    }
+    return metap;
+}
+
 /*
  * Save the profile away for use in __pmdaNextInst() during subsequent
  * fetches ... it is the _caller_ of pmdaProfile()'s responsibility to
@@ -254,7 +297,7 @@ pmdaProfile(__pmProfile *prof, pmdaExt *pmda)
 }
 
 /*
- * return desciption of an instance or instance domain
+ * return description of an instance or instance domain
  */
 
 int
@@ -450,7 +493,7 @@ pmdaFetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
     int			numval;
     pmValueSet		*vset;
     pmDesc		*dp;
-    pmdaMetric          metaBuf;
+    pmdaMetric          metabuf;
     pmdaMetric		*metap;
     pmAtomValue		atom;
     int			type;
@@ -481,45 +524,11 @@ pmdaFetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
        if present.  Fall back to .desc callback if not found (for highly
        dynamic pmdas). */
     for (i = 0; i < numpmid; i++) {
-        dp = NULL;
+	metap = __pmdaMetricSearch(pmda, pmidlist[i], &metabuf, extp);
+	dp = &(metap->m_desc);
 
-	if (pmda->e_flags & PMDA_EXT_FLAG_HASHED)
-	    metap = __pmdaHashedSearch(pmidlist[i], &extp->hashpmids);
-	else if (pmda->e_direct)
-	    metap = __pmdaDirectSearch(pmidlist[i], pmda);
-	else
-	    metap = __pmdaLinearSearch(pmidlist[i], pmda);
-
-	if (metap != NULL)
-	    dp = &(metap->m_desc);
-        else {
-            /* possibly a highly dynamic metric with null metrictab[] */
-            if (extp->dispatch->version.any.desc != NULL) {
-                /* may need a temporary pmdaMetric for passing to e_fetchCallBack */
-                sts = (*(extp->dispatch->version.any.desc))(pmidlist[i], &metaBuf.m_desc, pmda);
-                if (sts >= 0) {
-                    metaBuf.m_user = NULL;
-                    metap = &metaBuf;
-                    dp = &metaBuf.m_desc;
-                }
-            }
-        }
-
-	if (dp != NULL) {
-	    if (dp->indom != PM_INDOM_NULL) {
-		/* count instances in the profile */
-		numval = 0;
-		/* count instances in indom */
-		__pmdaStartInst(dp->indom, pmda);
-		while (__pmdaNextInst(&inst, pmda)) {
-		    numval++;
-		}
-	    }
-	    else {
-		/* singular instance domains */
-		numval = 1;
-	    }
-	}
+	if (dp != NULL)
+	    numval = __pmdaCountInst(dp, pmda);
 	else {
 	    /* dynamic name metrics may often vanish, avoid log spam */
 	    if (extp->dispatch->comm.pmda_interface < PMDA_INTERFACE_4) {

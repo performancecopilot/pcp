@@ -71,9 +71,21 @@ typedef struct hdr {
 #define CACHE_STRINGS	0x4
 
 static hdr_t	*base;		/* start of cache headers */
-static char 	filename[MAXPATHLEN];
-				/* for load/save ops */
-static char	*vdp;		/* first trip mkdir for load/save */
+
+char *
+pmda_config_path(char *path, int pathlen)
+{
+    static char	*vdp;		/* first trip mkdir for load/save */
+    int		sep = __pmPathSeparator();
+
+    if (vdp == NULL) {
+	if ((vdp = pmGetOptionalConfig("PCP_VAR_DIR")) == NULL)
+	    return NULL;
+    }
+    snprintf(path, pathlen, "%s%c" "config" "%c" "pmda", vdp, sep, sep);
+    mkdir2(path, 0755);
+    return path;
+}
 
 /*
  * Count character to end of string or first space, whichever comes
@@ -723,23 +735,21 @@ load_cache(hdr_t *h)
     int		inst;
     int		keylen = 0;
     void	*key = NULL;
-    int		s;
-    char	buf[1024];	/* input line buffer, is this big enough? */
+    char 	filename[MAXPATHLEN];
+    char	strbuf[20];
+    char	buf[1024];
+    char	*vdp;
     char	*p;
+    int		s;
     int		sts;
     int		sep = __pmPathSeparator();
-    char	strbuf[20];
 
-    if (vdp == NULL) {
-	if ((vdp = pmGetOptionalConfig("PCP_VAR_DIR")) == NULL)
-	    return PM_ERR_GENERIC;
-	snprintf(filename, sizeof(filename),
-		"%s%c" "config" "%c" "pmda", vdp, sep, sep);
-	mkdir2(filename, 0755);
-    }
+    if ((vdp = pmda_config_path(filename, sizeof(filename))) == NULL)
+	return PM_ERR_GENERIC;
 
+    pmInDomStr_r(h->indom, strbuf, sizeof(strbuf));
     snprintf(filename, sizeof(filename), "%s%cconfig%cpmda%c%s",
-		vdp, sep, sep, sep, pmInDomStr_r(h->indom, strbuf, sizeof(strbuf)));
+		vdp, sep, sep, sep, strbuf);
     if ((fp = fopen(filename, "r")) == NULL)
 	return -oserror();
     if (fgets(buf, sizeof(buf), fp) == NULL) {
@@ -885,20 +895,17 @@ save_cache(hdr_t *h, int hstate)
     time_t	now;
     int		sep = __pmPathSeparator();
     int		state = h->hstate & ~CACHE_STRINGS;
+    char 	filename[MAXPATHLEN];
     char	strbuf[20];
+    char	*vdp;
 
     if ((state & hstate) == 0) {
 	/* nothing to be done */
 	return 0;
     }
 
-    if (vdp == NULL) {
-	if ((vdp = pmGetOptionalConfig("PCP_VAR_DIR")) == NULL)
-	    return PM_ERR_GENERIC;
-	snprintf(filename, sizeof(filename),
-		"%s%c" "config" "%c" "pmda", vdp, sep, sep);
-	mkdir2(filename, 0755);
-    }
+    if ((vdp = pmda_config_path(filename, sizeof(filename))) == NULL)
+	return PM_ERR_GENERIC;
 
     snprintf(filename, sizeof(filename), "%s%cconfig%cpmda%c%s",
 		vdp, sep, sep, sep, pmInDomStr_r(h->indom, strbuf, sizeof(strbuf)));
