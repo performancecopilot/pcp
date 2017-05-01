@@ -56,7 +56,12 @@ The default path to the help text (see
 .BR pmdaText (3)).
 If no help text is installed, or you are not using
 .BR pmdaText (3),
-then this should be set to NULL.
+then this should be set to NULL, otherwise
+.I helptext
+will be copied, so the storage associated with
+.I helptext
+may be released after the call to
+.BR pmdaDSO .
 .PP
 The callbacks are initialized to 
 .BR pmdaProfile (3),

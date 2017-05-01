@@ -63,6 +63,13 @@ The default path to the log file.  This may be replaced by the
 .B \-l
 command line option if using 
 .BR pmdaGetOpt .
+.I logfile
+will be copied with
+.BR strdup (3),
+so the storage associated with
+.I logfile
+may be released after the call to
+.BR pmdaDaemon .
 .TP
 .I helptext
 The default path to the help text (see 
@@ -73,7 +80,14 @@ command line option if using
 .BR pmdaGetOpt (3).
 If no help text is installed, or you are not using
 .BR pmdaText (3),
-then this should be set to NULL.
+then this should be set to NULL, otherwise
+.I helptext
+will be copied with
+.BR strdup (3),
+so the storage associated with
+.I helptext
+may be released after the call to
+.BR pmdaDaemon .
 .PP
 The callbacks are initialized to 
 .BR pmdaProfile (3),
