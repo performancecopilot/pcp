@@ -5,7 +5,7 @@ dll.base
 dll.exp
 Makefile
 META.yml
-PCP-PMDA-*.tar.gz
+PCP-PMDA-*
 PMDA.bs
 PMDA.c
 PMDA.def
