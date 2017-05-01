@@ -186,8 +186,11 @@ context.o
     hostbuf			# single-threaded
     ?curr_handle		# thread private (no __thread symbols for Mac OS X)
     ?curr_ctxp			# thread private (no __thread symbols for Mac OS X)
-    ?__emutls_t.curcontext	# thread private (MinGW)
-    ?__emutls_v.curcontext	# thread private (MinGW)
+    ?__emutls_t.curcontext	# thread private (*BSD, MinGW)
+    ?__emutls_v.curcontext	# thread private (*BSD, MinGW)
+    ?__emutls_t.curr_ctxp	# thread private (*BSD, MinGW)
+    ?__emutls_t.curr_handle	# thread private (*BSD, MinGW)
+
 derive_fetch.o
     ?promote			# const
 derive_parser.tab.o
