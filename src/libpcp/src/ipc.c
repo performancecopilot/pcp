@@ -27,17 +27,21 @@
  * The version field holds the version of the software at the other end of the
  * connection end point (0 is unknown, 1 or 2 are also valid).
  * The socket field is used to tell whether this is a socket or pipe (or a file)
- * connection, which is most important for the Windows port, as socket interfaces
- * are "special" and do not use the usual file descriptor read/write/close calls,
+ * connection, which is most important for the Windows port as socket interfaces
+ * are special and do not use the usual file descriptor read/write/close calls,
  * but must rather use recv/send/closesocket.
+ * The features field holds any feature bits received from the other end of the
+ * connection, so we can test for the presense/absence of (remote) features.
  *
  * The table entries are of fixed length, but the actual size depends on compile
  * time options used (in particular, the secure sockets setting requires further
  * space allocated to hold the additional security metadata for each socket).
  */
 typedef struct {
-    int		version;	/* one or two */
-    int		socket;		/* true or false */
+    int		version : 8;	/* remote version (v1 or v2, so far) */
+    int		socket : 1;	/* true or false */
+    int		padding : 7;	/* unused zeroes */
+    int		features : 16;	/* remote features (i.e. PDU_FLAG_s) */
     char	data[0];	/* opaque data (optional) */
 } __pmIPC;
 
@@ -106,6 +110,35 @@ __pmSetVersionIPC(int fd, int version)
 }
 
 int
+__pmSetFeaturesIPC(int fd, int version, int features)
+{
+    __pmIPC	*ipc;
+    int		sts;
+
+    if (pmDebug & DBG_TRACE_CONTEXT)
+	fprintf(stderr, "__pmSetFeaturesIPC: fd=%d version=%d features=%d\n",
+		fd, version, features);
+
+    PM_INIT_LOCKS();
+    PM_LOCK(__pmLock_libpcp);
+    if ((sts = __pmResizeIPC(fd)) < 0) {
+	PM_UNLOCK(__pmLock_libpcp);
+	return sts;
+    }
+
+    ipc = __pmIPCTablePtr(fd);
+    ipc->features = features;
+    ipc->version = version;
+    __pmLastUsedFd = fd;
+
+    if (pmDebug & DBG_TRACE_CONTEXT)
+	__pmPrintIPC();
+
+    PM_UNLOCK(__pmLock_libpcp);
+    return sts;
+}
+
+int
 __pmSetSocketIPC(int fd)
 {
     int sts;
@@ -148,7 +181,6 @@ __pmVersionIPC(int fd)
 	return UNKNOWN_VERSION;
     }
     sts = __pmIPCTablePtr(fd)->version;
-
     PM_UNLOCK(__pmLock_libpcp);
     return sts;
 }
@@ -177,7 +209,22 @@ __pmSocketIPC(int fd)
 	return 0;
     }
     sts = __pmIPCTablePtr(fd)->socket;
+    PM_UNLOCK(__pmLock_libpcp);
+    return sts;
+}
 
+int
+__pmFeaturesIPC(int fd)
+{
+    int		sts;
+
+    PM_INIT_LOCKS();
+    PM_LOCK(__pmLock_libpcp);
+    if (__pmIPCTable == NULL || fd < 0 || fd >= ipctablecount) {
+	PM_UNLOCK(__pmLock_libpcp);
+	return 0;
+    }
+    sts = __pmIPCTablePtr(fd)->features;
     PM_UNLOCK(__pmLock_libpcp);
     return sts;
 }

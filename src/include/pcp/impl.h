@@ -1213,11 +1213,13 @@ typedef int (*__pmConnectHostType)(int, int);
 
 PCP_CALL extern int __pmSetSocketIPC(int);
 PCP_CALL extern int __pmSetVersionIPC(int, int);
+PCP_CALL extern int __pmSetFeaturesIPC(int, int, int);
 PCP_CALL extern int __pmSetDataIPC(int, void *);
 PCP_CALL extern int __pmDataIPCSize(void);
 PCP_CALL extern int __pmLastVersionIPC(void);
 PCP_CALL extern int __pmVersionIPC(int);
 PCP_CALL extern int __pmSocketIPC(int);
+PCP_CALL extern int __pmFeaturesIPC(int);
 PCP_CALL extern int __pmDataIPC(int, void *);
 PCP_CALL extern void __pmOverrideLastFd(int);
 PCP_CALL extern void __pmPrintIPC(void);
