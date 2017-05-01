@@ -39,7 +39,7 @@
  */
 typedef struct {
     int		version : 8;	/* remote version (v1 or v2, so far) */
-    int		socket : 1;	/* true or false */
+    unsigned	socket : 1;	/* true or false */
     int		padding : 7;	/* unused zeroes */
     int		features : 16;	/* remote features (i.e. PDU_FLAG_s) */
     char	data[0];	/* opaque data (optional) */

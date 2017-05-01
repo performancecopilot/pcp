@@ -181,7 +181,7 @@ done:
     if (pmDebug & DBG_TRACE_FETCH) {
 	fprintf(stderr, "pmFetch returns ...\n");
 	if (sts > 0) {
-	    fprintf(stderr, "PMCD state changes:");
+	    fprintf(stderr, "PMCD state changes: agent(s)");
 	    if (sts & PMCD_ADD_AGENT) fprintf(stderr, " added");
 	    if (sts & PMCD_RESTART_AGENT) fprintf(stderr, " restarted");
 	    if (sts & PMCD_DROP_AGENT) fprintf(stderr, " dropped");
