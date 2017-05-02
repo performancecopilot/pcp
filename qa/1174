@@ -1,0 +1,88 @@
+#!/bin/sh
+# PCP QA Test No. 1174
+# lock correctness for:
+#	PMNS concurrency
+#	PMNS Load/Unload & Traverse concurrency
+#
+# See qa/449 for the non-helgrind versions of these tests.
+#
+# Copyright (c) 2017 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_check_valgrind
+_get_libpcp_config
+$multi_threaded || _notrun "No libpcp threading support"
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter3()
+{
+    #     b                4194304 1.0.0 0x00400000
+    sed \
+	-e '/0x[0-9a-f][0-9a-f]*$/{
+s/ 0x[0-9a-f][0-9a-f]*$//
+s/ [0-9][0-9]* / /
+}'
+}
+
+_filter4()
+{
+    # traverse: found 1346 metrics, sts 29
+    $PCP_AWK_PROG '
+BEGIN			{ first = 1 }
+$1 == "traverse:" && $3 ~ /[0-9][0-9]*/ && $6 ~ /[0-9][0-9]*/	{
+			  if (first) {
+			    found = $3
+			    sts = $6
+			  }
+			  if ($3 == found && $6 == sts) {
+			    $3 = "MYNUMBER"
+			    $6 = "MYSTS"
+			  }
+			}
+			{ print }' \
+| LC_COLLATE=POSIX sort \
+| uniq
+}
+
+# real QA test starts here
+echo "=== PMNS concurrency ===" | tee -a $seq.full
+_run_helgrind src/multithread3 $tmp.pmns
+if [ -s $tmp.valgrind.err ]
+then
+    echo "=== stderr ==="
+    cat $tmp.valgrind.err
+fi
+echo "=== stdout ==="
+_filter3 <$tmp.valgrind.out
+
+echo | tee -a $seq.full
+echo "=== PMNS Load/Unload & Traverse concurrency ===" | tee -a $seq.full
+_run_helgrind src/multithread4
+if [ -s $tmp.valgrind.err ]
+then
+    echo "=== stderr ==="
+    cat $tmp.valgrind.err
+fi
+echo "=== stdout ==="
+_filter4 <$tmp.valgrind.out
+
+# success, all done
+status=0
+exit

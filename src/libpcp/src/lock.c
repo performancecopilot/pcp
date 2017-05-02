@@ -32,6 +32,23 @@ typedef struct {
 static int		multi_init[PM_SCOPE_MAX+1];
 static pthread_t	multi_seen[PM_SCOPE_MAX+1];
 
+#ifdef PM_MULTI_THREAD
+static pthread_mutex_t	lock_lock = PTHREAD_MUTEX_INITIALIZER;
+#else
+void			*lock_lock;
+#endif
+
+#if defined(PM_MULTI_THREAD) && defined(PM_MULTI_THREAD_DEBUG)
+/*
+ * return true if lock == lock_lock
+ */
+int
+__pmIsLockLock(void *lock)
+{
+    return lock == (void *)&lock_lock;
+}
+#endif
+
 /* the big libpcp lock */
 #ifdef PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP
 pthread_mutex_t	__pmLock_libpcp = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
@@ -150,8 +167,7 @@ __pmMultiThreaded(int scope)
 {
     int		sts = 0;
 
-    PM_INIT_LOCKS();
-    PM_LOCK(__pmLock_libpcp);
+    PM_LOCK(lock_lock);
     if (!multi_init[scope]) {
 	multi_init[scope] = 1;
 	multi_seen[scope] = pthread_self();
@@ -160,7 +176,7 @@ __pmMultiThreaded(int scope)
 	if (!pthread_equal(multi_seen[scope], pthread_self()))
 	    sts = 1;
     }
-    PM_UNLOCK(__pmLock_libpcp);
+    PM_UNLOCK(lock_lock);
     return sts;
 }
 
@@ -242,6 +258,18 @@ again:
 	    fprintf(stderr, "(pdubuf)");
 	else if (__pmIsUtilLock(lock))
 	    fprintf(stderr, "(util)");
+	else if (__pmIsContextsLock(lock))
+	    fprintf(stderr, "(contexts)");
+	else if (__pmIsIpcLock(lock))
+	    fprintf(stderr, "(ipc)");
+	else if (__pmIsOptfetchLock(lock))
+	    fprintf(stderr, "(optfetch)");
+	else if (__pmIsErrLock(lock))
+	    fprintf(stderr, "(err)");
+	else if (__pmIsLockLock(lock))
+	    fprintf(stderr, "(lock)");
+	else if (__pmIsLogutilLock(lock))
+	    fprintf(stderr, "(logutil)");
 	else if (lock == (void *)&__pmLock_extcall)
 	    fprintf(stderr, "(global_extcall)");
 	else
@@ -264,7 +292,7 @@ again:
 	fputc('\n', stderr);
 #ifdef HAVE_BACKTRACE
 #define MAX_TRACE_DEPTH 32
-	{
+	if (pmDebug & DBG_TRACE_DESPERATE) {
 	    void	*backaddr[MAX_TRACE_DEPTH];
 	    sts = backtrace(backaddr, MAX_TRACE_DEPTH);
 	    if (sts > 0) {
@@ -304,6 +332,27 @@ __pmLock(void *lock, const char *file, int line)
 }
 
 int
+__pmIsLocked(void *lock)
+{
+    int		sts;
+
+    if ((sts = pthread_mutex_trylock(lock)) != 0) {
+	if (sts == EBUSY)
+	    return 1;
+	sts = -sts;
+	if (pmDebug & DBG_TRACE_DESPERATE)
+	    fprintf(stderr, "islocked: trylock %p failed: %s\n", lock, pmErrStr(sts));
+	return 0;
+    }
+    if ((sts = pthread_mutex_unlock(lock)) != 0) {
+	sts = -sts;
+	if (pmDebug & DBG_TRACE_DESPERATE)
+	    fprintf(stderr, "islocked: unlock %p failed: %s\n", lock, pmErrStr(sts));
+    }
+    return 0;
+}
+
+int
 __pmUnlock(void *lock, const char *file, int line)
 {
     int		sts; 
@@ -332,5 +381,6 @@ void __pmInitLocks(void)
 }
 int __pmMultiThreaded(int scope) { (void)scope; return 0; }
 int __pmLock(void *l, const char *f, int n) { (void)l, (void)f, (void)n; return 0; }
+int __pmIsLocked(void *l) { (void)l; return 0; }
 int __pmUnlock(void *l, const char *f, int n) { (void)l, (void)f, (void)n; return 0; }
 #endif

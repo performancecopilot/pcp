@@ -545,3 +545,7 @@ PCP_3.18 {
     __pmFeaturesIPC;
     __pmSetFeaturesIPC;
 } PCP_3.17;
+
+PCP_3.19 {
+    __pmCurrentContext;
+} PCP_3.18;

@@ -761,17 +761,22 @@ typedef struct {
     void		*c_dm;		/* derived metrics, if any */
     int			c_flags;	/* ctx flags (set via type/env/attrs) */
     __pmHashCtl		c_attrs;	/* various optional context attributes */
+    int			c_handle;	/* context number above PMAPI */
 } __pmContext;
 
 #define __PM_MODE_MASK	0xffff
 
-#define PM_CONTEXT_FREE	-1		/* special type: free to reuse */
 #define PM_CONTEXT_INIT	-2		/* special type: being initialized, do not use */
 
 /*
  * Convert opaque context handle to __pmContext pointer
  */
 PCP_CALL extern __pmContext *__pmHandleToPtr(int);
+
+/*
+ * Like __pmHandleToPtr(pmWhichContext()), but with no locking
+ */
+PCP_CALL __pmContext *__pmCurrentContext(void);
 
 /*
  * Dump the current context (source details + instance profile),
@@ -1536,6 +1541,7 @@ PCP_CALL extern int __pmRegisterAnon(const char *, int);
  */
 PCP_CALL extern void __pmInitLocks(void);
 PCP_CALL extern int __pmLock(void *, const char *, int);
+PCP_CALL extern int __pmIsLocked(void *);
 PCP_CALL extern int __pmUnlock(void *, const char *, int);
 
 /*
@@ -1553,6 +1559,15 @@ PCP_CALL extern int __pmMultiThreaded(int);
 #define PM_MULTIPLE_THREADS(x)	__pmMultiThreaded(x)
 #define PM_LOCK(lock)		__pmLock(&(lock), __FILE__, __LINE__)
 #define PM_UNLOCK(lock)		__pmUnlock(&(lock), __FILE__, __LINE__)
+
+#ifdef BUILD_WITH_LOCK_ASSERTS
+#include <assert.h>
+#define ASSERT_IS_LOCKED(lock) assert(__pmIsLocked(&(lock)));
+#define ASSERT_IS_UNLOCKED(lock) assert(!__pmIsLocked(&(lock)));
+#else
+#define ASSERT_IS_LOCKED(lock)
+#define ASSERT_IS_UNLOCKED(lock)
+#endif /* BUILD_WITH_LOCK_ASSERTS */
 
 #ifdef HAVE_PTHREAD_MUTEX_T
 /* the big libpcp lock */

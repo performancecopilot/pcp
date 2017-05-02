@@ -414,6 +414,11 @@ ipv6_enabled(void)
 #else
 #define SERVICE_DISCOVERY_ENABLED	disabled
 #endif
+#if defined(BUILD_WITH_LOCK_ASSERTS)
+#define LOCK_ASSERTS_ENABLED	enabled
+#else
+#define LOCK_ASSERTS_ENABLED	disabled
+#endif
 
 typedef const char *(*feature_detector)(void);
 static struct {
@@ -436,6 +441,7 @@ static struct {
 	{ "static_probes",	STATIC_PROBES_ENABLED },	/* from pcp-3.8.3 */
 	{ "service_discovery",	SERVICE_DISCOVERY_ENABLED },	/* from pcp-3.8.6 */
 	{ "multi_archive_contexts", enabled },			/* from pcp-3.11.1 */
+	{ "lock_asserts",	LOCK_ASSERTS_ENABLED },		/* from pcp-3.11.10 */
 };
 
 void

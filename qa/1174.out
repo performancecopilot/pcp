@@ -1,0 +1,43 @@
+QA output created by 1174
+=== PMNS concurrency ===
+=== filtered valgrind report ===
+Helgrind, a thread error detector
+ERROR SUMMARY: 0 errors from 0 contexts ...
+=== stdout ===
+ root            
+     a               
+         one              0.0.0
+         two              0.1.0
+         three           
+             foo              0.2.0
+             bar              0.2.1
+     b                1.0.0
+     c                2.0.0
+func1: pmGetChildrenStatus -> 4
+[0] a non-leaf
+[1] b leaf
+[2] c leaf
+[3] event non-leaf
+func1: [0] b -> 1.0.0 -> b
+func1: [0] a.three.foo -> 0.2.0 -> a.three.foo
+func1: [0] d.f.fumble -> PM_ID_NULL
+func1: pmGetChildrenStatus[1] -> PMNS not accessible
+func1: [2] b -> 1.0.0 -> b
+func1: [2] a.three.foo -> 0.2.0 -> a.three.foo
+func1: [2] d.f.fumble -> PM_ID_NULL
+func1: [3] b -> 1.0.0 -> b
+func1: [3] a.three.foo -> 0.2.0 -> a.three.foo
+func1: [3] d.f.fumble -> 3.0.1 -> d.f.fumble
+func1: [4] b -> 1.0.0 -> b
+func1: [4] a.three.foo -> 0.2.0 -> a.three.foo
+func1: [4] d.f.fumble -> 3.0.1 -> d.f.fumble
+
+=== PMNS Load/Unload & Traverse concurrency ===
+=== filtered valgrind report ===
+Helgrind, a thread error detector
+ERROR SUMMARY: 0 errors from 0 contexts ...
+=== stdout ===
+Total PDU counts
+in: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+out: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+traverse: found MYNUMBER metrics, sts MYSTS

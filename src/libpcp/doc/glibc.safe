@@ -3,6 +3,7 @@ access
 asctime_r
 assert
 atexit
+atof
 atoi
 basename
 calloc
@@ -181,3 +182,9 @@ vfprintf
 vprintf
 vsnprintf
 write
+
+# we don't care about any exit status race issues in libpcp, so exit
+# is not in the unsafe list (although it was at an earlier iteration
+# of the locking and concurrency control refactoring work)
+# Add it here to avoid warnings from mk.cgraph
+exit
