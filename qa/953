@@ -1,6 +1,8 @@
 #!/bin/sh
-# PCP QA Test No. 4751
-# multi-threaded context-creation
+# PCP QA Test No. 953
+# non-valgrind version of 4751
+#
+# Copyright (c) 2017 Ken McDonell.  All Rights Reserved.
 
 seq=`basename $0`
 echo "QA output created by $seq"
@@ -10,15 +12,6 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-case `hostname`
-in
-    vm34)
-	_notrun "multithread10 and helgrind are not happy campers on `hostname`"
-	# NOTREACHED
-	;;
-esac
-
-_check_valgrind
 _get_libpcp_config
 $multi_threaded || _notrun "No libpcp threading support"
 
@@ -53,45 +46,26 @@ _filter_connect_fail()
 
 # real QA test starts here
 echo "=== Only one context ===" | tee -a $seq.full
-date >> $seq.full
-_run_helgrind src/multithread10 localhost
-_filter_ncpu <$tmp.valgrind.out
-if [ -s $tmp.valgrind.err ]
-then
-    echo "=== stderr ==="
-    cat $tmp.valgrind.err
-fi
-date >> $seq.full
+src/multithread10 localhost \
+| _filter_ncpu 
 
 echo | tee -a $seq.full
 echo "=== A couple of localhosts ===" | tee -a $seq.full
-date >> $seq.full
-_run_helgrind src/multithread10 localhost 127.0.0.1 localhost localhost local: local: localhost
-_filter_ncpu <$tmp.valgrind.out | _filter_connect_fail
-if [ -s $tmp.valgrind.err ]
-then
-    echo "=== stderr ==="
-    cat $tmp.valgrind.err
-fi
-date >> $seq.full
+src/multithread10 localhost 127.0.0.1 localhost localhost local: local: localhost \
+| _filter_ncpu \
+| _filter_connect_fail
 
 echo | tee -a $seq.full
 echo "=== A couple of unreachable hosts ===" | tee -a $seq.full
-date >> $seq.full
 ips=""
 for i in 1 2 3 4; do
     for j in 0 1 2 3 4 5 6 7 8 9; do
         ips="$ips 192.0.2.${i}${j}"
     done
 done
-_run_helgrind src/multithread10 $ips
-_filter_ncpu <$tmp.valgrind.out | _filter_connect_fail
-if [ -s $tmp.valgrind.err ]
-then
-    echo "=== filtered stderr ==="
-    grep -v 'warn fail multithread10' $tmp.valgrind.err
-fi
-date >> $seq.full
+src/multithread10 $ips \
+| _filter_ncpu \
+| _filter_connect_fail
 
 echo | tee -a $seq.full
 echo "=== A mixture of archives and hosts and unreachable hosts ===" | tee -a $seq.full
@@ -134,15 +108,9 @@ archives="
 ./archives/20150105.17.57-00.meta
 ./archives/20150105.17.57.meta
 "
-date >> $seq.full
-_run_helgrind --sudo src/multithread10 $archives $ips $archives $ips
-_filter_ncpu <$tmp.valgrind.out | _filter_connect_fail
-if [ -s $tmp.valgrind.err ]
-then
-    echo "=== filtered stderr ==="
-    grep -v 'warn fail multithread10' $tmp.valgrind.err
-fi
-date >> $seq.full
+src/multithread10 $archives $ips $archives $ips \
+| _filter_ncpu \
+| _filter_connect_fail
 
 # success, all done
 exit
