@@ -27,6 +27,7 @@ extern int __pmConvertTimeout(int) _PCP_HIDDEN;
 extern int __pmConnectWithFNDELAY(int, void *, __pmSockLen) _PCP_HIDDEN;
 
 extern int __pmPtrToHandle(__pmContext *) _PCP_HIDDEN;
+extern int __pmGetArchiveEnd_locked(__pmContext *, struct timeval *) _PCP_HIDDEN;
 
 extern int __pmGetDate(struct timespec *, char const *, struct timespec const *)  _PCP_HIDDEN;
 
@@ -103,10 +104,11 @@ extern void __htonll(char *) _PCP_HIDDEN;	/* 64bit int */
 extern pthread_key_t __pmTPDKey _PCP_HIDDEN;
 
 typedef struct {
-    int		curcontext;	/* current context */
+    int		curr_handle;	/* current context # */
     char	*derive_errmsg;	/* derived metric parser error message */
     __pmnsTree  *curr_pmns;     /* current pmns */
     int         useExtPMNS;     /* ... was the result of a __pmUsePMNS */
+    __pmContext	*curr_ctxp;	/* -> current __pmContext */
 } __pmTPD;
 
 static inline __pmTPD *
@@ -133,6 +135,12 @@ extern int __pmIsFaultLock(void *) _PCP_HIDDEN;
 extern int __pmIsPduLock(void *) _PCP_HIDDEN;
 extern int __pmIsPdubufLock(void *) _PCP_HIDDEN;
 extern int __pmIsUtilLock(void *) _PCP_HIDDEN;
+extern int __pmIsContextsLock(void *) _PCP_HIDDEN;
+extern int __pmIsIpcLock(void *) _PCP_HIDDEN;
+extern int __pmIsOptfetchLock(void *) _PCP_HIDDEN;
+extern int __pmIsErrLock(void *) _PCP_HIDDEN;
+extern int __pmIsLockLock(void *) _PCP_HIDDEN;
+extern int __pmIsLogutilLock(void *) _PCP_HIDDEN;
 #endif
 
 /* AF_UNIX socket family internals */

@@ -66,6 +66,7 @@ _filter()
 	-e "/^pmNewContext/d" \
 	-e "/^Dump /d" \
 	-e "/^Context\[/d" \
+	-e "/^contexts\[/d" \
 	-e "/^Local Context PMDA Table/d" \
 	-e "s;$tmp;TMP;g" \
 	-e "s/host:      @/host:      HOST/g" \

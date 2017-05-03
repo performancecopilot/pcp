@@ -395,7 +395,7 @@ pmdaGetOptions(int argc, char *const *argv, pmdaOptions *opts, pmdaInterface *di
 	    break;
 
 	case 'h':	/* over-ride default help file */
-	    pmda->e_helptext = opts->optarg;
+	    pmda->e_helptext = strdup(opts->optarg);
 	    break;
 
 	case 'i':
@@ -412,7 +412,7 @@ pmdaGetOptions(int argc, char *const *argv, pmdaOptions *opts, pmdaInterface *di
 	    break;
 
 	case 'l':	/* over-ride default log file */
-	    pmda->e_logfile = opts->optarg;
+	    pmda->e_logfile = strdup(opts->optarg);
 	    break;
 
 	case 'p':
@@ -990,8 +990,8 @@ pmdaDaemon(pmdaInterface *dispatch, int version, const char *name, int domain,
 	return;
 
     pmda = dispatch->version.any.ext;
-    pmda->e_logfile = logfile;
-    pmda->e_helptext = helptext;
+    pmda->e_logfile = strdup(logfile);
+    pmda->e_helptext = (helptext == NULL ? NULL : strdup(helptext));
 
     __pmSetInternalState(PM_STATE_PMCS);
 }
@@ -1009,7 +1009,7 @@ pmdaDSO(pmdaInterface *dispatch, int version, char *name, char *helptext)
     if (dispatch->status < 0)
 	return;
 
-    dispatch->version.any.ext->e_helptext = helptext;
+    dispatch->version.any.ext->e_helptext = (helptext == NULL ? NULL : strdup(helptext));
 }
 
 /*

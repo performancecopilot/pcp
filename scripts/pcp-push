@@ -65,8 +65,26 @@ fi
 
 unset GIT_EXTERNAL_DIFF
 pull=`git config remote.origin.url`
-push=`echo "$pull" | sed -e 's/^git:/ssh:/' -e "s;/git.pcp.io/;/git.pcp.io/oss/git/;"`
-push="$push $branch"
+case "$pull"
+in
+    *oss.sgi.com*|*git.pcp.io*)
+	# old school ... does not work any more
+	#
+	push=`echo "$pull" | sed -e 's/^git:/ssh:/' -e "s;/git.pcp.io/;/git.pcp.io/oss/git/;"`
+	;;
+
+    *github*)
+	# new school ...
+	#
+	push=''
+	;;
+
+    *)
+	echo "Sorry, no recipe to handle repo: $pull"
+	exit 1
+	;;
+esac
+
 echo "Changes committed to $pull $branch" >/tmp/msg
 echo >>/tmp/msg
 git shortlog --no-merges --numbered $range >$tmp.tmp
@@ -95,7 +113,12 @@ echo "(all of this for email is in /tmp/msg)"
 rm -f $tmp.y
 while true
 do
-    echo -n "Push to $push? [y|n|q] (or ctrl+C to abort) "
+    if [ -z "$push" ]
+    then
+	echo -n "Push to $pull [y|n|q] (or ctrl+C to abort) "
+    else
+	echo -n "Push to $push? [y|n|q] (or ctrl+C to abort) "
+    fi
     read ans </dev/tty
     if [ -z "$ans" ]
     then

@@ -1,14 +1,8 @@
-QA output created by 4751
+QA output created by 953
 === Only one context ===
-=== filtered valgrind report ===
-Helgrind, a thread error detector
-ERROR SUMMARY: 0 errors from 0 contexts ...
 localhost NUMBER
 
 === A couple of localhosts ===
-=== filtered valgrind report ===
-Helgrind, a thread error detector
-ERROR SUMMARY: 0 errors from 0 contexts ...
 localhost NUMBER
 127.0.0.1 NUMBER
 localhost NUMBER
@@ -18,9 +12,6 @@ local: NUMBER
 localhost NUMBER
 
 === A couple of unreachable hosts ===
-=== filtered valgrind report ===
-Helgrind, a thread error detector
-ERROR SUMMARY: 0 errors from 0 contexts ...
 192.0.2.10 -101 or -110 or -113
 192.0.2.11 -101 or -110 or -113
 192.0.2.12 -101 or -110 or -113
@@ -61,12 +52,8 @@ ERROR SUMMARY: 0 errors from 0 contexts ...
 192.0.2.47 -101 or -110 or -113
 192.0.2.48 -101 or -110 or -113
 192.0.2.49 -101 or -110 or -113
-=== filtered stderr ===
 
 === A mixture of archives and hosts and unreachable hosts ===
-=== filtered valgrind report ===
-Helgrind, a thread error detector
-ERROR SUMMARY: 0 errors from 0 contexts ...
 ./archives/tzchange-10-a.meta -12357
 ./archives/tzchange-10-b.meta -12357
 ./archives/tzchange-11-a.meta -12357
@@ -223,4 +210,3 @@ local: NUMBER
 192.0.2.27 -101 or -110 or -113
 192.0.2.28 -101 or -110 or -113
 192.0.2.29 -101 or -110 or -113
-=== filtered stderr ===

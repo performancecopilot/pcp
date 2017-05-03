@@ -89,6 +89,7 @@ $0 != last	{ print; last = $0 }' \
 	-e 's/[A-Z][a-z][a-z] [A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9]/DATE/' \
 	-e '/recon([0-9][0-9]*)/s//recon(PID)/' \
 	-e '/^Context\[/d' \
+	-e '/^contexts\[/d' \
 	-e '/^pmReconnectContext(/d' \
 	-e '/^Dump Contexts:/d' \
 	-e '/^Dump Instance Profile /d' \

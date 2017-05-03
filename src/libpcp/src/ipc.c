@@ -23,19 +23,23 @@
 #endif
 
 /*
- * We keep a table of connection state for each interesting file descriptor here.
- * The version field holds the version of the software at the other end of the
- * connection end point (0 is unknown, 1 or 2 are also valid).
- * The socket field is used to tell whether this is a socket or pipe (or a file)
- * connection, which is most important for the Windows port as socket interfaces
- * are special and do not use the usual file descriptor read/write/close calls,
- * but must rather use recv/send/closesocket.
- * The features field holds any feature bits received from the other end of the
- * connection, so we can test for the presense/absence of (remote) features.
+ * We keep a table of connection state for each interesting file
+ * descriptor here.
+ * The version field holds the version of the software at the other
+ * end of the connection end point (0 is unknown, 1 or 2 are also valid).
+ * The socket field is used to tell whether this is a socket or pipe
+ * (or a file) connection, which is most important for the Windows
+ * port as socket interfaces are special and do not use the usual
+ * file descriptor read/write/close calls, but must rather use
+ * recv/send/closesocket.
+ * The features field holds any feature bits received from the other
+ * end of the connection, so we can test for the presense/absence of
+ * (remote) features.
  *
- * The table entries are of fixed length, but the actual size depends on compile
- * time options used (in particular, the secure sockets setting requires further
- * space allocated to hold the additional security metadata for each socket).
+ * The table entries are of fixed length, but the actual size depends
+ * on compile time options used (in particular, the secure sockets
+ * setting requires further space allocated to hold the additional
+ * security metadata for each socket).
  */
 typedef struct {
     int		version : 8;	/* remote version (v1 or v2, so far) */
@@ -48,6 +52,23 @@ typedef struct {
 static int	__pmLastUsedFd = -INT_MAX;
 static __pmIPC	*__pmIPCTable;
 static int	ipctablecount;
+
+#ifdef PM_MULTI_THREAD
+static pthread_mutex_t	ipc_lock = PTHREAD_MUTEX_INITIALIZER;
+#else
+void			*ipc_lock;
+#endif
+
+#if defined(PM_MULTI_THREAD) && defined(PM_MULTI_THREAD_DEBUG)
+/*
+ * return true if lock == ipc_lock
+ */
+int
+__pmIsIpcLock(void *lock)
+{
+    return lock == (void *)&ipc_lock;
+}
+#endif
 static int	ipcentrysize;
 
 static inline __pmIPC *
@@ -57,14 +78,13 @@ __pmIPCTablePtr(int fd)
     return (__pmIPC *)(entry + fd * ipcentrysize);
 }
 
-/*
- * always called with __pmLock_libpcp held
- */
 static int
-__pmResizeIPC(int fd)
+resize(int fd)
 {
     size_t size;
     int	oldcount;
+
+    ASSERT_IS_LOCKED(ipc_lock);
 
     if (__pmIPCTable == NULL || fd >= ipctablecount) {
 	if (ipcentrysize == 0)
@@ -84,6 +104,69 @@ __pmResizeIPC(int fd)
     return 0;
 }
 
+static int
+version_locked(int fd)
+{
+    ASSERT_IS_LOCKED(ipc_lock);
+
+    if (fd == PDU_OVERRIDE2)
+	return PDU_VERSION2;
+    if (__pmIPCTable == NULL || fd < 0 || fd >= ipctablecount) {
+	if (pmDebug & DBG_TRACE_CONTEXT)
+	    fprintf(stderr,
+		"IPC protocol botch: version: table->" PRINTF_P_PFX "%p fd=%d sz=%d\n",
+		__pmIPCTable, fd, ipctablecount);
+	return UNKNOWN_VERSION;
+    }
+    return __pmIPCTablePtr(fd)->version;
+}
+
+static int
+socket_locked(int fd)
+{
+    ASSERT_IS_LOCKED(ipc_lock);
+
+    if (__pmIPCTable == NULL || fd < 0 || fd >= ipctablecount) {
+	if (pmDebug & DBG_TRACE_CONTEXT)
+	    fprintf(stderr,
+		"IPC protocol botch: socket: table->" PRINTF_P_PFX "%p fd=%d sz=%d\n",
+		__pmIPCTable, fd, ipctablecount);
+	return 0;
+    }
+    return __pmIPCTablePtr(fd)->socket;
+}
+
+static int
+features_locked(int fd)
+{
+    ASSERT_IS_LOCKED(ipc_lock);
+
+    if (__pmIPCTable == NULL || fd < 0 || fd >= ipctablecount) {
+	if (pmDebug & DBG_TRACE_CONTEXT)
+	    fprintf(stderr,
+		"IPC protocol botch: features: table->" PRINTF_P_PFX "%p fd=%d sz=%d\n",
+		__pmIPCTable, fd, ipctablecount);
+	return 0;
+    }
+    return __pmIPCTablePtr(fd)->features;
+}
+
+static void
+print(void)
+{
+    int		i;
+
+    ASSERT_IS_LOCKED(ipc_lock);
+
+    fprintf(stderr, "IPC table fd(PDU version):");
+    for (i = 0; i < ipctablecount; i++) {
+	if (__pmIPCTablePtr(i)->version != UNKNOWN_VERSION)
+	    fprintf(stderr, " %d(%d,%d)", i, __pmIPCTablePtr(i)->version,
+					     __pmIPCTablePtr(i)->socket);
+    }
+    fputc('\n', stderr);
+}
+
 int
 __pmSetVersionIPC(int fd, int version)
 {
@@ -92,10 +175,9 @@ __pmSetVersionIPC(int fd, int version)
     if (pmDebug & DBG_TRACE_CONTEXT)
 	fprintf(stderr, "__pmSetVersionIPC: fd=%d version=%d\n", fd, version);
 
-    PM_INIT_LOCKS();
-    PM_LOCK(__pmLock_libpcp);
-    if ((sts = __pmResizeIPC(fd)) < 0) {
-	PM_UNLOCK(__pmLock_libpcp);
+    PM_LOCK(ipc_lock);
+    if ((sts = resize(fd)) < 0) {
+	PM_UNLOCK(ipc_lock);
 	return sts;
     }
 
@@ -103,9 +185,9 @@ __pmSetVersionIPC(int fd, int version)
     __pmLastUsedFd = fd;
 
     if (pmDebug & DBG_TRACE_CONTEXT)
-	__pmPrintIPC();
+	print();
 
-    PM_UNLOCK(__pmLock_libpcp);
+    PM_UNLOCK(ipc_lock);
     return sts;
 }
 
@@ -119,10 +201,9 @@ __pmSetFeaturesIPC(int fd, int version, int features)
 	fprintf(stderr, "__pmSetFeaturesIPC: fd=%d version=%d features=%d\n",
 		fd, version, features);
 
-    PM_INIT_LOCKS();
-    PM_LOCK(__pmLock_libpcp);
-    if ((sts = __pmResizeIPC(fd)) < 0) {
-	PM_UNLOCK(__pmLock_libpcp);
+    PM_LOCK(ipc_lock);
+    if ((sts = resize(fd)) < 0) {
+	PM_UNLOCK(ipc_lock);
 	return sts;
     }
 
@@ -132,9 +213,9 @@ __pmSetFeaturesIPC(int fd, int version, int features)
     __pmLastUsedFd = fd;
 
     if (pmDebug & DBG_TRACE_CONTEXT)
-	__pmPrintIPC();
+	print();
 
-    PM_UNLOCK(__pmLock_libpcp);
+    PM_UNLOCK(ipc_lock);
     return sts;
 }
 
@@ -146,10 +227,9 @@ __pmSetSocketIPC(int fd)
     if (pmDebug & DBG_TRACE_CONTEXT)
 	fprintf(stderr, "__pmSetSocketIPC: fd=%d\n", fd);
 
-    PM_INIT_LOCKS();
-    PM_LOCK(__pmLock_libpcp);
-    if ((sts = __pmResizeIPC(fd)) < 0) {
-	PM_UNLOCK(__pmLock_libpcp);
+    PM_LOCK(ipc_lock);
+    if ((sts = resize(fd)) < 0) {
+	PM_UNLOCK(ipc_lock);
 	return sts;
     }
 
@@ -157,9 +237,9 @@ __pmSetSocketIPC(int fd)
     __pmLastUsedFd = fd;
 
     if (pmDebug & DBG_TRACE_CONTEXT)
-	__pmPrintIPC();
+	print();
 
-    PM_UNLOCK(__pmLock_libpcp);
+    PM_UNLOCK(ipc_lock);
     return sts;
 }
 
@@ -168,20 +248,9 @@ __pmVersionIPC(int fd)
 {
     int		sts;
 
-    if (fd == PDU_OVERRIDE2)
-	return PDU_VERSION2;
-    PM_INIT_LOCKS();
-    PM_LOCK(__pmLock_libpcp);
-    if (__pmIPCTable == NULL || fd < 0 || fd >= ipctablecount) {
-	if (pmDebug & DBG_TRACE_CONTEXT)
-	    fprintf(stderr,
-		"IPC protocol botch: table->" PRINTF_P_PFX "%p fd=%d sz=%d\n",
-		__pmIPCTable, fd, ipctablecount);
-	PM_UNLOCK(__pmLock_libpcp);
-	return UNKNOWN_VERSION;
-    }
-    sts = __pmIPCTablePtr(fd)->version;
-    PM_UNLOCK(__pmLock_libpcp);
+    PM_LOCK(ipc_lock);
+    sts = version_locked(fd);
+    PM_UNLOCK(ipc_lock);
     return sts;
 }
 
@@ -190,10 +259,9 @@ __pmLastVersionIPC()
 {
     int		sts;
 
-    PM_INIT_LOCKS();
-    PM_LOCK(__pmLock_libpcp);
-    sts = __pmVersionIPC(__pmLastUsedFd);
-    PM_UNLOCK(__pmLock_libpcp);
+    PM_LOCK(ipc_lock);
+    sts = version_locked(__pmLastUsedFd);
+    PM_UNLOCK(ipc_lock);
     return sts;
 }
 
@@ -202,14 +270,9 @@ __pmSocketIPC(int fd)
 {
     int		sts;
 
-    PM_INIT_LOCKS();
-    PM_LOCK(__pmLock_libpcp);
-    if (__pmIPCTable == NULL || fd < 0 || fd >= ipctablecount) {
-	PM_UNLOCK(__pmLock_libpcp);
-	return 0;
-    }
-    sts = __pmIPCTablePtr(fd)->socket;
-    PM_UNLOCK(__pmLock_libpcp);
+    PM_LOCK(ipc_lock);
+    sts = socket_locked(fd);
+    PM_UNLOCK(ipc_lock);
     return sts;
 }
 
@@ -218,14 +281,9 @@ __pmFeaturesIPC(int fd)
 {
     int		sts;
 
-    PM_INIT_LOCKS();
-    PM_LOCK(__pmLock_libpcp);
-    if (__pmIPCTable == NULL || fd < 0 || fd >= ipctablecount) {
-	PM_UNLOCK(__pmLock_libpcp);
-	return 0;
-    }
-    sts = __pmIPCTablePtr(fd)->features;
-    PM_UNLOCK(__pmLock_libpcp);
+    PM_LOCK(ipc_lock);
+    sts = features_locked(fd);
+    PM_UNLOCK(ipc_lock);
     return sts;
 }
 
@@ -235,10 +293,9 @@ __pmSetDataIPC(int fd, void *data)
     char	*dest;
     int		sts;
 
-    PM_INIT_LOCKS();
-    PM_LOCK(__pmLock_libpcp);
-    if ((sts = __pmResizeIPC(fd)) < 0) {
-	PM_UNLOCK(__pmLock_libpcp);
+    PM_LOCK(ipc_lock);
+    if ((sts = resize(fd)) < 0) {
+	PM_UNLOCK(ipc_lock);
 	return sts;
     }
 
@@ -251,9 +308,9 @@ __pmSetDataIPC(int fd, void *data)
     __pmLastUsedFd = fd;
 
     if (pmDebug & DBG_TRACE_CONTEXT)
-	__pmPrintIPC();
+	print();
 
-    PM_UNLOCK(__pmLock_libpcp);
+    PM_UNLOCK(ipc_lock);
     return sts;
 }
 
@@ -262,11 +319,10 @@ __pmDataIPC(int fd, void *data)
 {
     char	*source;
 
-    PM_INIT_LOCKS();
-    PM_LOCK(__pmLock_libpcp);
+    PM_LOCK(ipc_lock);
     if (fd < 0 || fd >= ipctablecount || __pmIPCTable == NULL ||
 	ipcentrysize == sizeof(__pmIPC)) {
-	PM_UNLOCK(__pmLock_libpcp);
+	PM_UNLOCK(ipc_lock);
 	return -ESRCH;
     }
     source = ((char *)__pmIPCTablePtr(fd)) + sizeof(__pmIPC);
@@ -275,7 +331,7 @@ __pmDataIPC(int fd, void *data)
 		fd, source, (int)(ipcentrysize - sizeof(__pmIPC)));
     memcpy(data, source, ipcentrysize - sizeof(__pmIPC));
 
-    PM_UNLOCK(__pmLock_libpcp);
+    PM_UNLOCK(ipc_lock);
     return 0;
 }
 
@@ -288,35 +344,24 @@ __pmDataIPC(int fd, void *data)
 void
 __pmOverrideLastFd(int fd)
 {
-    PM_INIT_LOCKS();
-    PM_LOCK(__pmLock_libpcp);
+    PM_LOCK(ipc_lock);
     __pmLastUsedFd = fd;
-    PM_UNLOCK(__pmLock_libpcp);
+    PM_UNLOCK(ipc_lock);
 }
 
 void
 __pmResetIPC(int fd)
 {
-    PM_INIT_LOCKS();
-    PM_LOCK(__pmLock_libpcp);
+    PM_LOCK(ipc_lock);
     if (__pmIPCTable && fd >= 0 && fd < ipctablecount)
 	memset(__pmIPCTablePtr(fd), 0, ipcentrysize);
-    PM_UNLOCK(__pmLock_libpcp);
+    PM_UNLOCK(ipc_lock);
 }
 
 void
 __pmPrintIPC(void)
 {
-    int	i;
-
-    PM_INIT_LOCKS();
-    PM_LOCK(__pmLock_libpcp);
-    fprintf(stderr, "IPC table fd(PDU version):");
-    for (i = 0; i < ipctablecount; i++) {
-	if (__pmIPCTablePtr(i)->version != UNKNOWN_VERSION)
-	    fprintf(stderr, " %d(%d,%d)", i, __pmIPCTablePtr(i)->version,
-					     __pmIPCTablePtr(i)->socket);
-    }
-    fputc('\n', stderr);
-    PM_UNLOCK(__pmLock_libpcp);
+    PM_LOCK(ipc_lock);
+    print();
+    PM_UNLOCK(ipc_lock);
 }

@@ -1253,7 +1253,9 @@ __pmGetAddrInfo(const char *hostName)
 	hints.ai_flags = AI_ADDRCONFIG; /* Only return configured address types */
 #endif
 
+	PM_LOCK(__pmLock_extcall);
 	sts = getaddrinfo(hostName, NULL, &hints, &hostEntry->addresses);
+	PM_UNLOCK(__pmLock_extcall);
 	if (sts != 0) {
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_DESPERATE)

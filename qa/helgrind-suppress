@@ -1,0 +1,29 @@
+# from libpcp/src/pdu.c ...
+#   __pmPDUCntIn[] and __pmPDUCntOut[] are diagnostic counters that are
+#   maintained with non-atomic updates ... we've decided that it is
+#   acceptable for their values to be subject to possible (but unlikely)
+#   missed updates
+#
+{
+   pdu counter updates
+   Helgrind:Race
+   fun:__pmGetPDU
+   ...
+}
+{
+   pdu counter updates
+   Helgrind:Race
+   fun:__pmXmitPDU
+   ...
+}
+
+# similar case for libpcp/src/logutil.c ...
+#  __pmLogReads is a diagnostic counter that is maintained with
+#  non-atomic updates ... we've decided that it is acceptable for the
+#  value to be subject to possible (but unlikely) missed updates
+{
+   log read counter updates
+   Helgrind:Race
+   fun:__pmLogRead
+   ...
+}

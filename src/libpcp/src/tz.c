@@ -50,6 +50,8 @@ _pushTZ(void)
 {
     char	*p;
 
+    ASSERT_IS_LOCKED(__pmLock_extcall);
+
     if (savetz) {
 	/* don't need previous saved value any more */
 	free(savetz);
@@ -76,6 +78,8 @@ _pushTZ(void)
 static void
 _popTZ(void)
 {
+    ASSERT_IS_LOCKED(__pmLock_extcall);
+
     if (savetz != NULL)
 	setenv("TZ", savetz, 1);	/* THREADSAFE */
     else
@@ -104,6 +108,8 @@ __pmSquashTZ(char *tzbuffer)
     char	*tzn;
 #ifndef IS_MINGW
     time_t	offset; 
+
+    ASSERT_IS_LOCKED(__pmLock_extcall);
 
     tzset();
     t = localtime(&now);		/* THREADSAFE */
@@ -414,7 +420,7 @@ pmNewContextZone(void)
     __pmContext	*ctxp;
     int		sts;
 
-    if ((ctxp = __pmHandleToPtr(pmWhichContext())) == NULL)
+    if ((ctxp = __pmCurrentContext()) == NULL)
 	return PM_ERR_NOCONTEXT;
 
     if (ctxp->c_type == PM_CONTEXT_ARCHIVE) {

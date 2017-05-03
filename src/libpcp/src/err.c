@@ -27,6 +27,23 @@
 extern const char *strerror_r(int, char *, size_t);
 #endif
 
+#ifdef PM_MULTI_THREAD
+static pthread_mutex_t	err_lock = PTHREAD_MUTEX_INITIALIZER;
+#else
+void			*err_lock;
+#endif
+
+#if defined(PM_MULTI_THREAD) && defined(PM_MULTI_THREAD_DEBUG)
+/*
+ * return true if lock == err_lock
+ */
+int
+__pmIsErrLock(void *lock)
+{
+    return lock == (void *)&err_lock;
+}
+#endif
+
 /*
  * Note:
  *     These error codes must match the errors defined in pmapi.h
@@ -237,6 +254,7 @@ pmErrStr_r(int code, char *buf, int buflen)
     }
 
 #ifndef IS_MINGW
+    PM_LOCK(err_lock);
     if (first) {
 	/*
 	 * reference message for an unrecognized error code.
@@ -271,6 +289,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_ALLOC);
 	}
 	first = 0;
     }
+    PM_UNLOCK(err_lock);
     if (code < 0 && code > -PM_ERR_BASE) {
 	/* intro(2) / errno(3) errors, maybe */
 	strerror_x(-code, buf, buflen);

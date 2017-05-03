@@ -14,7 +14,7 @@
  *
  * Thread-safe notes:
  *
- * maxsize - monotonic increasing and rarely changes, so use global
+ * maxsize - monotonic increasing and rarely changes, so use pdu_lock
  * 	mutex to protect updates, but allow reads without locking
  * 	as seeing an unexpected newly updated value is benign
  *
@@ -99,6 +99,7 @@ __pmRequestTimeout(void)
     PM_LOCK(pdu_lock);
     if (!req_wait_done) {
 	req_wait_done = 1;
+	PM_UNLOCK(pdu_lock);
 	PM_LOCK(__pmLock_extcall);
 	timeout_str = getenv("PMCD_REQUEST_TIMEOUT");		/* THREADSAFE */
 	if (timeout_str != NULL)
@@ -117,6 +118,7 @@ __pmRequestTimeout(void)
 	}
 	else
 	    PM_UNLOCK(__pmLock_extcall);
+	PM_LOCK(pdu_lock);
     }
     timeout = __pmtimevalToReal(&req_wait);
     PM_UNLOCK(pdu_lock);

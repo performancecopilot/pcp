@@ -1818,8 +1818,8 @@ build_dsotab:  parsing ...
 pmWhichContext() -> 0, cur=0
 pmWhichContext() -> 0, cur=0
 pmNewContext(3, localhost) -> 0
-Dump Contexts: current context = 0
-Context[0] standalone: profile=NOT_SENT
+Dump Contexts: current -> contexts[0] handle 0
+contexts[0] handle 0: standalone: profile=NOT_SENT
 Dump Instance Profile state=INCLUDE, 0 profiles
 __pmConnectLogger(host=localhost, pid=0, port=-2)
 __pmConnectLogger: __pmLogFindPort -> pid = PID

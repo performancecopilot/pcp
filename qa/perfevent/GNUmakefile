@@ -49,7 +49,7 @@ COV_FLAGS= --coverage
 COV_DIR=$(OUTDIR)/gcov
 COV_OBJS= $(patsubst %.c,$(COV_DIR)/%.o,$(notdir $(SRCS)))
 
-CFLAGS = -Wall -O0 -ggdb
+CFLAGS = -Wall -O0 -ggdb -fPIC
 CPPFLAGS = -I$(SRCDIR) -D_GNU_SOURCE -DFILESYSTEM_ROOT='"./fakefs/"'
 LDFLAGS = -Wl,--wrap,syscall -Wl,--wrap,ioctl -Wl,--wrap,read -Wl,--wrap,close -Wl,--wrap,malloc -Wl,--wrap,sysconf
 LDLIBS = -lm
