@@ -1204,6 +1204,7 @@ oldversion
 951 pmie local pmval
 952 threads valgrind local
 953 libpcp threads valgrind local
+954 libpcp threads derive local
 955 pmda.linux local
 956 pmcd local
 957 pmda.linux local valgrind
