@@ -1228,8 +1228,8 @@ fi
 
 _run_helgrind()
 {
-    rm -f $tmp.valgrind.err tmp.valgrind.out $tmp.valgrind.log
-    touch $tmp.valgrind.err tmp.valgrind.out $tmp.valgrind.log
+    rm -f $tmp.valgrind.err $tmp.valgrind.out $tmp.valgrind.log
+    touch $tmp.valgrind.err $tmp.valgrind.out $tmp.valgrind.log
     if [ x"$1" = "x--sudo" ]
     then
 	_helgrind_prefix=$sudo

@@ -1203,6 +1203,8 @@ oldversion
 950 pmproxy avahi local
 951 pmie local pmval
 952 threads valgrind local
+953 libpcp threads valgrind local
+954 libpcp threads derive local
 955 pmda.linux local
 956 pmcd local
 957 pmda.linux local valgrind
@@ -1342,4 +1344,4 @@ oldversion
 1113 pcp python local
 1121 pmda.linux local
 1174 threads valgrind local
-4751 libpcp threads
+4751 libpcp threads valgrind local

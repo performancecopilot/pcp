@@ -1563,12 +1563,16 @@ PM_FAULT_CHECK(PM_FAULT_PMAPI);
 int
 pmLoadDerivedConfig(const char *fname)
 {
+    int		sts;
+
     PM_INIT_LOCKS();
     initialize_mutex();
     PM_LOCK(registered.mutex);
     __dminit();
+    sts = __dminit_parse(fname, 0 /*non-recovering*/);
+    PM_UNLOCK(registered.mutex);
 
-    return __dminit_parse(fname, 0 /*non-recovering*/);
+    return sts;
 }
 
 static int
