@@ -85,6 +85,7 @@ endif
 include $(BUILDRULES)
 
 *.o: internal.h compiler.h derive.h
+jsmn.o: jsmn.c jsmn.h
 rtime.o: getdate.h
 derive.o derive_fetch.o: derive.h derive_parser.tab.h
 util.o:	$(TOPDIR)/src/include/pcp/pmdbg.h
@@ -124,7 +125,7 @@ ifneq ($(STATICLIBTARGET),)
 endif
 
 $(XFILES):
-	$(LN_S) $(TOPDIR)/src/external/$@ $@
+	$(LN_S) $(TOPDIR)/src/external/$@ .
 
 default_pcp : default
 
@@ -143,7 +144,5 @@ check.done:	$(OBJECTS)
 	touch check.done
 
 ifneq ($(LIBTARGET),)
-$(LIBTARGET): $(VERSION_SCRIPT) $(XFILES)
+$(LIBTARGET): $(VERSION_SCRIPT)
 endif
-
-jsmn.o:		jsmn.c jsmn.h
