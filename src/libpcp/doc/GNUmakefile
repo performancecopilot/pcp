@@ -5,7 +5,7 @@
 PNGFILES = access.png accounts.png AF.png auxconnect.png \
 	   auxserver.png avahi.png checksum.png config.png \
 	   connect.png connectlocal.png context.png \
-	   derive.png derive_fetch.png desc.png discovery.png \
+	   derive_parser.png derive_fetch.png desc.png discovery.png \
 	   endian.png err.png events.png fault.png \
 	   fetch.png fetchgroup.png fetchlocal.png freeresult.png \
 	   getdate.tab.png getopt.png hash.png help.png instance.png \
@@ -19,7 +19,7 @@ PNGFILES = access.png accounts.png AF.png auxconnect.png \
 	   store.png stuffvalue.png tv.png tz.png \
 	   units.png util.png win32.png \
 	   access_part.png access_prune.png \
-	   derive_part.png \
+	   derive_parser_part.png \
 	   probe_part.png probe_prune.png \
 	   tz_part.png
 
@@ -41,6 +41,9 @@ $(PNGFILES) $(PNGFILES:.png=.dot): mk.cgraph \
 %.dot:	../src/%.c
 	mk.cgraph -w -f $< >$@
 
+%.dot:	../src/%.y
+	mk.cgraph -w -f $< >$@
+
 util.dot:	../src/config.c
 
 access_part.png:	access_part.dot
@@ -52,9 +55,9 @@ access_prune.dot:	access.dot
 	cp access_part.dot access_prune.dot
 	prune.cgraph access_prune.dot
 
-derive_part.png:	derive_part.dot
-derive_part.dot:	../src/derive.c
-	mk.cgraph -w -s __pmNotifyErr -f ../src/derive.c >derive_part.dot
+derive_parser_part.png:	derive_parser_part.dot
+derive_parser_part.dot:	../src/derive_parser.y
+	mk.cgraph -w -s __pmNotifyErr -f ../src/derive_parser.y >derive_parser_part.dot
 
 probe_part.png:	probe_part.dot
 probe_part.dot:	../src/probe.c

@@ -284,7 +284,7 @@ s/)//
 	    # in a C source file, and (b) looks like a function
 	    #
 	    ( cd ../src; cscope -I../../include/pcp -L -1"$calls" ) \
-	    | awk '$1 ~ /.*\.c$/ { print }' \
+	    | awk '$1 ~ /.*\.[cy]$/ { print }' \
 	    | sed >$tmp.csout 2>$tmp.cserr \
 		-e "/$calls;/d" \
 		-e "/#define[ 	][ 	]*$calls[ 	(]/d"
@@ -347,7 +347,7 @@ then
 	echo "# created from $file on `date`"
 	echo
     fi
-    echo "digraph `basename $file .c` {"
+    echo "digraph `basename -s .c -s .y $file` {"
     echo
 else
     echo "digraph $1 {"
