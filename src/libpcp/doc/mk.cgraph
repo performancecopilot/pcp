@@ -347,7 +347,7 @@ then
 	echo "# created from $file on `date`"
 	echo
     fi
-    echo "digraph `basename -s .c -s .y $file` {"
+    echo "digraph `echo $file | sed -e 's@.*/@@' -e 's/\.[cy]$//'` {"
     echo
 else
     echo "digraph $1 {"

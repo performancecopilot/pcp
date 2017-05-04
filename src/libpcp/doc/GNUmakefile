@@ -19,7 +19,7 @@ PNGFILES = access.png accounts.png AF.png auxconnect.png \
 	   store.png stuffvalue.png tv.png tz.png \
 	   units.png util.png win32.png \
 	   access_part.png access_prune.png \
-	   derive_parser_part.png \
+	   derive_parser_part.png logutil_part.png \
 	   probe_part.png probe_prune.png \
 	   tz_part.png
 
@@ -71,4 +71,8 @@ probe_prune.dot:	probe.dot
 tz_part.png:	tz_part.dot
 tz_part.dot:	../src/tz.c
 	mk.cgraph -w -s pmLookupName,pmFetch,pmFreeResult,__pmNoMem -f ../src/tz.c >tz_part.dot
+
+logutil_part.png:	logutil_part.dot
+logutil_part.dot:	../src/logutil.c
+	mk.cgraph -w -s __pmNotifyErr -f ../src/logutil.c >logutil_part.dot
 
