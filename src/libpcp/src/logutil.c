@@ -303,20 +303,46 @@ fopen_securetmp(const char *fname)
     cur_umask = umask(S_IXUSR | S_IRWXG | S_IRWXO);
 #if HAVE_MKSTEMP
     if ((msg = pmGetOptionalConfig("PCP_TMPFILE_DIR")) == NULL) {
+#ifdef PCP_DEBUG
+	if (pmDebug & DBG_TRACE_LOG) {
+	    fprintf(stderr, "fopen_securetmp: pmGetOptionalConfig -> NULL\n");
+	}
+#endif
 	umask(cur_umask);
 	return -1;
     }
     snprintf(tmpname, sizeof(tmpname), "%s/XXXXXX", msg);
     msg = tmpname;
     fd = mkstemp(tmpname);
+#ifdef PCP_DEBUG
+    if (fd < 0) {
+	if (pmDebug & DBG_TRACE_LOG) {
+	    char	errmsg[PM_MAXERRMSGLEN];
+	    fprintf(stderr, "fopen_securetmp: mkstemp(%s): %s\n", tmpname, osstrerror_r(errmsg, sizeof(errmsg)));
+	}
+    }
+#endif
 #else
     PM_LOCK(__pmLock_extcall);
     if ((msg = tmpnam(NULL)) == NULL) {		/* THREADSAFE */
 	PM_UNLOCK(__pmLock_extcall);
+#ifdef PCP_DEBUG
+	if (pmDebug & DBG_TRACE_LOG) {
+	    char	errmsg[PM_MAXERRMSGLEN];
+	    fprintf(stderr, "fopen_securetmp: tmpname: %s\n", osstrerror_r(errmsg, sizeof(errmsg)));
+	}
+#endif
 	umask(cur_umask);
 	return -1;
     }
     fd = open(msg, O_RDWR|O_CREAT|O_EXCL, 0600);
+#ifdef PCP_DEBUG
+    if (fd < 0) {
+	if (pmDebug & DBG_TRACE_LOG) {
+	    char	errmsg[PM_MAXERRMSGLEN];
+	    fprintf(stderr, "fopen_securetmp: open(%s): %s\n", msg, osstrerror_r(errmsg, sizeof(errmsg)));
+	}
+#endif
 #endif
     /*
      * unlink temporary file to avoid namespace pollution and allow O/S
@@ -360,8 +386,15 @@ fopen_compress(const char *fname)
     char	*cmd;
     FILE	*fp;
 
-    if ((i = index_compress(fname)) < 0)
+
+    if ((i = index_compress(fname)) < 0) {
+#ifdef PCP_DEBUG
+	if (pmDebug & DBG_TRACE_LOG) {
+	    fprintf(stderr, "__pmLogOpen: index_compress -> %d\n", i);
+	}
+#endif
 	return NULL;
+    }
 
     if (compress_ctl[i].appl == USE_XZ)
 	cmd = "xz -dc";
@@ -371,6 +404,11 @@ fopen_compress(const char *fname)
 	cmd = "gzip -dc";
     else {
 	/* botch in compress_ctl[] ... should not happen */
+#ifdef PCP_DEBUG
+	if (pmDebug & DBG_TRACE_LOG) {
+	    fprintf(stderr, "__pmLogOpen: botch in compress_ctl[]: i=%d\n", i);
+	}
+#endif
 	return NULL;
     }
 
@@ -418,6 +456,12 @@ fopen_compress(const char *fname)
 	return NULL;
     }
     if ((fp = fdopen(fd, "r")) == NULL) {
+#ifdef PCP_DEBUG
+	if (pmDebug & DBG_TRACE_LOG) {
+	    char	errmsg[PM_MAXERRMSGLEN];
+	    fprintf(stderr, "__pmLogOpen: fdopen failed: %s\n", osstrerror_r(errmsg, sizeof(errmsg)));
+	}
+#endif
 	sts = oserror();
 	close(fd);
 	setoserror(sts);
@@ -453,7 +497,7 @@ _logpeek(__pmLogCtl *lcp, int vol)
 int
 __pmLogChangeVol(__pmLogCtl *lcp, int vol)
 {
-    char	name[MAXPATHLEN];
+    char	fname[MAXPATHLEN];
     int		sts;
 
     if (lcp->l_curvol == vol)
@@ -463,15 +507,17 @@ __pmLogChangeVol(__pmLogCtl *lcp, int vol)
 	__pmResetIPC(fileno(lcp->l_mfp));
 	fclose(lcp->l_mfp);
     }
-    snprintf(name, sizeof(name), "%s.%d", lcp->l_name, vol);
-    if ((lcp->l_mfp = fopen(name, "r")) == NULL) {
+    snprintf(fname, sizeof(fname), "%s.%d", lcp->l_name, vol);
+    if ((lcp->l_mfp = fopen(fname, "r")) == NULL) {
 	/* try for a compressed file */
-	if ((lcp->l_mfp = fopen_compress(name)) == NULL)
+	if ((lcp->l_mfp = fopen_compress(fname)) == NULL) {
 	    return -oserror();
+	}
     }
 
-    if ((sts = __pmLogChkLabel(lcp, lcp->l_mfp, &lcp->l_label, vol)) < 0)
+    if ((sts = __pmLogChkLabel(lcp, lcp->l_mfp, &lcp->l_label, vol)) < 0) {
 	return sts;
+    }
 
     lcp->l_curvol = vol;
 #ifdef PCP_DEBUG
