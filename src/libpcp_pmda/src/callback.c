@@ -525,9 +525,12 @@ pmdaFetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
        dynamic pmdas). */
     for (i = 0; i < numpmid; i++) {
 	metap = __pmdaMetricSearch(pmda, pmidlist[i], &metabuf, extp);
+	/*
+	 * if search failed, then metap == metabuf, and metabuf.m_desc.pmid
+	 * will be zero
+	 */
 	dp = &(metap->m_desc);
-
-	if (dp != NULL)
+	if (dp->pmid != 0)
 	    numval = __pmdaCountInst(dp, pmda);
 	else {
 	    /* dynamic name metrics may often vanish, avoid log spam */

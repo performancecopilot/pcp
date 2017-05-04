@@ -226,11 +226,18 @@ __pmconfig(__pmConfigCallback formatter, int fatal)
 	    if (prefix != NULL) free(prefix);
 	    return;
 	}
-	pmprintf(
+	/*
+	 * we used to pmprintf() here to be sure the message
+	 * would be seen, given the seriousness of the situation
+	 * ... but that introduces recursion back into
+	 * pmGetOptionalConfig() to get the PCP settings that
+	 * control what how to dispose of output from pmprintf()
+	 * ... and kaboom.
+	 */
+	fprintf(stderr,
 	    "FATAL PCP ERROR: could not open config file \"%s\" : %s\n"
 	    "You may need to set PCP_CONF or PCP_DIR in your environment.\n",
 		conf, osstrerror_r(errmsg, sizeof(errmsg)));
-	pmflush();
 	free(conf);
 	if (prefix != NULL) free(prefix);
 	exit(1);
@@ -273,8 +280,7 @@ static char *
 pmgetconfig(const char *name, int fatal)
 {
     /*
-     * state controls one-trip initialization, and recursion guard
-     * for pathological failures in initialization
+     * state controls one-trip initialization
      */
     static int		state = 0;
     char		*val;
@@ -282,20 +288,7 @@ pmgetconfig(const char *name, int fatal)
     PM_LOCK(config_lock);
     if (state == 0) {
 	state = 1;
-	PM_UNLOCK(config_lock);
 	__pmconfig(__pmNativeConfig, fatal);
-	PM_LOCK(config_lock);
-	state = 2;
-    }
-    else if (state == 1) {
-	/* recursion from error in __pmConfig() ... no value is possible */
-	PM_UNLOCK(config_lock);
-	if (pmDebug & DBG_TRACE_CONFIG)
-	    fprintf(stderr, "pmgetconfig: %s= ... recursion error\n", name);
-	if (!fatal)
-	    return NULL;
-	val = "";
-	return val;
     }
     PM_UNLOCK(config_lock);
 
@@ -306,6 +299,9 @@ pmgetconfig(const char *name, int fatal)
      */
     val = getenv(name);		/* THREAD-UNSAFE! */
     if (val == NULL) {
+	if (pmDebug & DBG_TRACE_CONFIG) {
+	    fprintf(stderr, "pmgetconfig: getenv(%s) -> NULL\n", name);
+	}
 	if (!fatal)
 	    return NULL;
 	val = "";

@@ -990,7 +990,7 @@ pmdaDaemon(pmdaInterface *dispatch, int version, const char *name, int domain,
 	return;
 
     pmda = dispatch->version.any.ext;
-    pmda->e_logfile = strdup(logfile);
+    pmda->e_logfile = (logfile == NULL ? NULL : strdup(logfile));
     pmda->e_helptext = (helptext == NULL ? NULL : strdup(helptext));
 
     __pmSetInternalState(PM_STATE_PMCS);

@@ -23,9 +23,10 @@ trap _cleanup 0 1 2 3 15
 
 # for some hosts, especially single CPU ones, running 15 pmcd connects
 # back-to-back may be a problem, so avoid the derived metric chatter at
-# pmNewContext()
+# pmNewContext() and increase the pmcd connect timeout
 #
 export PCP_DERIVED_CONFIG=''
+export PMCD_CONNECT_TIMEOUT=60
 
 # real QA test starts here
 
