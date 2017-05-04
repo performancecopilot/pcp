@@ -427,7 +427,7 @@ initchannellock(pthread_mutex_t *lock)
 /*
  * TODO ... would like to make this go away entirely, but need to
  * address issue in TODO comment in __pmPMCDCtlFree() first
- * ... also the empyy macro defn in the #else block below
+ * ... also the empty macro defn in the #else block below
  */
 static void
 destroylock(pthread_mutex_t *lock, char *which)
@@ -1739,7 +1739,7 @@ static const char *_mode[] = { "LIVE", "INTERP", "FORW", "BACK" };
  *
  * Threadsafe Note:
  *	contexts_lock mutex is not acquired here ... need to avoid
- *	nested locking, and this is only a diagnositc routine so
+ *	nested locking, and this is only a diagnostic routine so
  *	any data race is an acceptable trade-off
  */
 void
