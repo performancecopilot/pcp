@@ -1,2 +1,6 @@
+jsmn.c
+jsmn.h
+http_parser.c
+http_parser.h
 libpcp_web.so
 libpcp_web.so.1
