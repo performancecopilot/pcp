@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 Red Hat.
+ * Copyright (c) 2013,2017 Red Hat.
  * Copyright (c) 1995 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -111,8 +111,9 @@ fix_dynamic_pmid(char *name, pmID *pmidp)
 	OPEN CLOSE DESC GETDESC FETCH INSTANCE PROFILE HELP 
 	WATCH DBG QUIT STATUS STORE INFO TIMER NAMESPACE WAIT
 	PMNS_NAME PMNS_PMID PMNS_CHILDREN PMNS_TRAVERSE ATTR
+	LABEL CONTEXT DOMAIN INDOM INSTS
 	DSO PIPE SOCK UNIX INET IPV6
-	ADD DEL ALL NONE INDOM ON OFF
+	ADD DEL ALL NONE ON OFF
 	PLUS EOL
 
 %type <y_num>
@@ -292,19 +293,19 @@ stmt	: OPEN EOL				{
 		param.name = $2;
 		stmt_type = PMNS_PMID; YYACCEPT;
 	    }
-	| PMNS_CHILDREN EOL				{
+	| PMNS_CHILDREN EOL			{
 		param.number = PMNS_CHILDREN; param.pmid = HELP_USAGE;
 		stmt_type = HELP; YYACCEPT;
 	    }
-	| PMNS_CHILDREN NAME EOL			{
+	| PMNS_CHILDREN NAME EOL		{
 		param.name = $2;
 		stmt_type = PMNS_CHILDREN; YYACCEPT;
 	    }
-	| PMNS_TRAVERSE EOL				{
+	| PMNS_TRAVERSE EOL			{
 		param.number = PMNS_TRAVERSE; param.pmid = HELP_USAGE;
 		stmt_type = HELP; YYACCEPT;
 	    }
-	| PMNS_TRAVERSE NAME EOL			{
+	| PMNS_TRAVERSE NAME EOL		{
 		param.name = $2;
 		stmt_type = PMNS_TRAVERSE; YYACCEPT;
 	    }
@@ -316,20 +317,51 @@ stmt	: OPEN EOL				{
 		param.number = ATTR; param.pmid = HELP_USAGE;
 		stmt_type = HELP; YYACCEPT;
 	    }
-	| ATTR attribute EOL		{
+	| ATTR attribute EOL			{
 		param.number = $2;
 		param.name = NULL;
 		stmt_type = ATTR; YYACCEPT;
 	    }
-	| ATTR attribute STRING EOL	{
+	| ATTR attribute STRING EOL		{
 		param.number = $2;
 		param.name = $3;
 		stmt_type = ATTR; YYACCEPT;
+	    }
+	| LABEL EOL				{
+		param.number = LABEL; param.pmid = HELP_USAGE;
+		stmt_type = HELP; YYACCEPT;
+	    }
+	| LABEL CONTEXT EOL			{
+		param.number = PM_LABEL_CONTEXT;
+		stmt_type = LABEL; YYACCEPT;
+	    }
+	| LABEL DOMAIN EOL			{
+		param.number = PM_LABEL_DOMAIN;
+		stmt_type = LABEL; YYACCEPT;
+	    }
+	| LABEL INDOM indom EOL			{
+		param.number = PM_LABEL_INDOM;
+		param.indom = indom.whole;
+		stmt_type = LABEL; YYACCEPT;
+	    }
+	| LABEL metric EOL			{
+		param.number = PM_LABEL_PMID;
+		param.pmid = (pmID)$2;
+		stmt_type = LABEL; YYACCEPT;
+	    }
+	| LABEL INSTS metric EOL		{
+		param.number = PM_LABEL_INSTS;
+		param.pmid = (pmID)$3;
+		stmt_type = LABEL; YYACCEPT;
 	    }
 
 	| HELP EOL				{ 
 		param.number = -1; param.pmid = HELP_FULL; 
 		stmt_type = HELP; YYACCEPT; 
+	    }
+	| HELP ATTR EOL				{
+		param.number = ATTR; param.pmid = HELP_FULL; 
+		stmt_type = HELP; YYACCEPT;
 	    }
 	| HELP CLOSE EOL			{
 		param.number = CLOSE; param.pmid = HELP_FULL; 
@@ -359,6 +391,10 @@ stmt	: OPEN EOL				{
 		param.number = INSTANCE; param.pmid = HELP_FULL; 
 		stmt_type = HELP; YYACCEPT;
 	    }
+	| HELP LABEL EOL			{
+		param.number = LABEL; param.pmid = HELP_FULL; 
+		stmt_type = HELP; YYACCEPT;
+	    }
 	| HELP NAMESPACE EOL			{
 		param.number = NAMESPACE; param.pmid = HELP_FULL; 
 		stmt_type = HELP; YYACCEPT;
@@ -367,7 +403,7 @@ stmt	: OPEN EOL				{
 		param.number = OPEN; param.pmid = HELP_FULL; 
 		stmt_type = HELP; YYACCEPT;
 	    }
-	| HELP PMNS_CHILDREN EOL			{
+	| HELP PMNS_CHILDREN EOL		{
 		param.number = PMNS_CHILDREN; param.pmid = HELP_FULL; 
 		stmt_type = HELP; YYACCEPT;
 	    }
@@ -379,12 +415,8 @@ stmt	: OPEN EOL				{
 		param.number = PMNS_PMID; param.pmid = HELP_FULL; 
 		stmt_type = HELP; YYACCEPT;
 	    }
-	| HELP PMNS_TRAVERSE EOL			{
+	| HELP PMNS_TRAVERSE EOL		{
 		param.number = PMNS_TRAVERSE; param.pmid = HELP_FULL; 
-		stmt_type = HELP; YYACCEPT;
-	    }
-	| HELP ATTR EOL			{
-		param.number = ATTR; param.pmid = HELP_FULL; 
 		stmt_type = HELP; YYACCEPT;
 	    }
 	| HELP PROFILE EOL			{

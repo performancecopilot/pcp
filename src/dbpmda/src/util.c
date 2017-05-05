@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 Red Hat.
+ * Copyright (c) 2013,2017 Red Hat.
  * Copyright (c) 1995-2001 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -40,7 +40,8 @@ static int		argc;
 static char* debugFlags[] = {
     "pdu", "fetch", "profile", "value", "context", "indom", "pdubuf", "log",
     "logmeta", "optfetch", "af", "appl0", "appl1", "appl2", "pmns", "libpmda",
-    "timecontrol", "pmc", "derive", "lock", "interp", "config", "loop", "fault"
+    "timecontrol", "pmc", "derive", "lock", "interp", "config", "loop", "fault",
+    "auth", "discovery", "attr", "http", "label", "desperate"
 };
 
 static int numFlags = sizeof(debugFlags)/sizeof(debugFlags[0]);
@@ -241,6 +242,7 @@ dohelp(int command, int full)
 	dohelp(FETCH, HELP_USAGE);
 	dohelp(GETDESC, HELP_USAGE);
 	dohelp(INSTANCE, HELP_USAGE);
+	dohelp(LABEL, HELP_USAGE);
 	dohelp(PMNS_NAME, HELP_USAGE);
 	dohelp(NAMESPACE, HELP_USAGE);
 	dohelp(OPEN, HELP_USAGE);
@@ -287,6 +289,13 @@ dohelp(int command, int full)
 	    break;
 	case INSTANCE:
 	    puts("instance indom# [ number | name | \"name\" ]");
+	    break;
+	case LABEL:
+	    puts("label context");
+	    puts("label domain");
+	    puts("label indom indom#");
+	    puts("label metric");
+	    puts("label insts metric");
 	    break;
 	case NAMESPACE:
 	    puts("namespace fname");

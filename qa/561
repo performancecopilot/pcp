@@ -57,8 +57,8 @@ merge '{"a":[1]}' '{"a":["priority","one","ratio",2.5],"a2":["foo","bar"]}'
 
 echo "=> Complex labels2, multiple arrays as values, multiple elements"
 merge '{"datacenter":"torquay","environment":"production"}' \
-      '{ "services" : [ "indexer", "database" ] }' \
-      '{ "none":none, "some":[1,2,3], "more": {"all":false,"none":true} }'
+      '{"services":["indexer","database"]}' \
+      '{"none":none,"some":[1,2,3],"more":{"all":false,"none":true}}'
 
 # success, all done
 status=0

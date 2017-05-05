@@ -431,7 +431,11 @@ __pmParseLabels(const char *s, int slen,
 	    break;
 	}
     }
-    if (!nlabels || sts < 0)
+    if (nlabels == 0) {
+	sts = nlabels;
+	goto done;
+    }
+    if (sts < 0)
 	goto done;
 
     if (json - buffer > 0)
