@@ -1325,7 +1325,7 @@ oldversion
 1072 pmrep python archive local
 1073 pmda.linux local
 1074 threads valgrind local
-1075:reserved pmlogrewrite local
+1075 pmlogrewrite valgrind local
 1078 pcp python local
 1079 pcp atop local
 1080 valgrind pcp atop local
