@@ -1158,7 +1158,7 @@ AS_IF([test "x$do_qt3d" != "xno"], [
     if test -f /usr/include/Coin3/Inventor/Qt/SoQt.h
     then
 	enable_qt3d=$enable_qt
-    elif test -a "$do_qt3d" = "yes"
+    elif test x"$do_qt3d" = x"yes"
     then
 	AC_MSG_ERROR([cannot enable support for 3D scene graph API])
     fi
