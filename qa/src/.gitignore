@@ -93,6 +93,7 @@ keycache
 keycache2
 killparent
 loadderived
+loadconfig2
 logcontrol
 lookupnametest
 mark-bug
