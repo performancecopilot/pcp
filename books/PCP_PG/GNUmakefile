@@ -11,7 +11,6 @@ PUB = Book_Info.xml
 CFG = publican.cfg
 
 CP = cp -rdp
-LSRCFILES = $(XML) $(PUB) $(CFG) $(PDF)
 LDIRDIRT = pdf html en-US tmp
 LDIRT = built.* publican.cfg
 CWD = $(shell pwd)
@@ -32,7 +31,11 @@ built.$(BOOK_TOOLCHAIN):	$(XML) $(CFG)
 	$(CP) $(CWD)/$(TOPDIR)/images en-US/
 	$(PUBLICAN) build --langs=en-US --formats=pdf
 	$(PUBLICAN) build --langs=en-US --formats=html,html-single
-	$(LN_S) $(CWD)/tmp/en-US/pdf/*.pdf pdf/$(IAM).pdf
+	# workaround publican/fop interaction issues (RHBZ 1290423)
+	$(CP) $(CWD)/fop.xconf tmp/en-US/xml/
+	$(LN_S) $(CWD)/tmp/en-US/xml/images $(CWD)/tmp/en-US/xml/images/images
+	cd tmp/en-US/xml && fop -c fop.xconf -fo $(IAM).fo -pdf ../pdf/$(IAM).pdf
+	$(LN_S) $(CWD)/tmp/en-US/pdf/$(IAM).pdf pdf/$(IAM).pdf
 endif
 
 ifeq "$(BOOK_TOOLCHAIN)" "dblatex"
