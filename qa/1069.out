@@ -396,7 +396,7 @@ PCP_VERSION
 No matching instances found.
 
 Requested global instances:
-wrong
+['wrong']
   m.u.free
      Kbyte
      38220
@@ -443,6 +443,35 @@ wrong
                                          1 minute          5 minute               sda
       count/s             Kbyte                                               count/s
           N/A             38220             0.820             0.700               N/A
+=== more instance handling
+No matching instances found.
+
+Requested global instances:
+['xxx', 'yyy', 'zzz']
+No matching instances found.
+
+Requested global instances:
+['sda', 'sdc']
+No matching instances found.
+
+Requested global instances:
+['sda']
+   l2   l3
+  sda  sda
+  cou  cou
+  N/A  N/A
+  d.d.read
+       sda
+   count/s
+       N/A
+  d.d.read
+       sda
+   count/s
+       N/A
+  label
+    sda
+  count
+    N/A
 == exercise option priority
           m.u.free
              Kbyte

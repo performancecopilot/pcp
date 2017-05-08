@@ -406,7 +406,9 @@ class PMReporter(object):
         reader = csv.reader([instances])
         for i, inst in enumerate(list(reader)[0]):
             if inst.startswith('"') or inst.startswith("'"):
-                inst = inst[1:-1]
+                inst = inst[1:]
+            if inst.endswith('"') or inst.endswith("'"):
+                inst = inst[:-1]
             insts.append(inst)
         return insts
 
@@ -432,6 +434,8 @@ class PMReporter(object):
                 self.type = 1
             else:
                 self.type = 0
+        elif name == 'instances':
+            self.instances = value.split(",")
         else:
             try:
                 setattr(self, name, int(value))
@@ -490,22 +494,22 @@ class PMReporter(object):
     def parse_metric_info(self, metrics, key, value):
         """ Parse metric information """
         # NB. Uses the config key, not the metric, as the dict key
-        if ',' in value:
+        if ',' in value or ('.' in key and key.rsplit(".")[1] not in self.metricspec):
             # Compact / one-line definition
             spec, insts = self.parse_metric_spec_instances(key + "," + value)
             metrics[key] = spec.split(",")
             metrics[key][2] = insts
         else:
             # Verbose / multi-line definition
-            if not '.' in key or key.rsplit(".", 1)[1] not in self.metricspec:
+            if not '.' in key or key.rsplit(".")[1] not in self.metricspec:
                 # New metric
-                metrics[key] = value.split()
+                metrics[key] = [value]
                 for index in range(0, 6):
                     if len(metrics[key]) <= index:
                         metrics[key].append(None)
             else:
                 # Additional info
-                key, spec = key.rsplit(".", 1)
+                key, spec = key.rsplit(".")
                 if key not in metrics:
                     sys.stderr.write("Undeclared metric key %s.\n" % key)
                     sys.exit(1)
@@ -767,14 +771,13 @@ class PMReporter(object):
         # Prepare for non-leaf metrics
         metrics = self.metrics
         self.metrics = OrderedDict()
+
         for metric in metrics:
             try:
                 l = len(self.pmids)
-                self.tmp = []
-                if len(metrics[metric]) > 1:
-                    self.tmp = metrics[metric][1]
-                    if not 'append' in dir(self.tmp):
-                        self.tmp = [None]
+                self.tmp = metrics[metric][1]
+                if not 'append' in dir(self.tmp):
+                    self.tmp = [self.tmp]
                 self.context.pmTraversePMNS(metric, self.check_metric)
                 if len(self.pmids) == l + 1:
                     # Leaf
@@ -799,7 +802,7 @@ class PMReporter(object):
             # Try to help the user to get the instance specifications right
             if self.instances:
                 print("\nRequested global instances:")
-                print("\n".join(self.instances))
+                print(self.instances)
             sys.exit(1)
 
         # Finalize the metrics set
