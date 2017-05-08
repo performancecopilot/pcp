@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Red Hat.
+ * Copyright (c) 2014-2017 Red Hat.
  * Copyright (c) 1995-2001 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -708,7 +708,8 @@ do_work(task_t *tp)
 		if (needindom) {
 		    /*
 		     * Note.  We do NOT free() instlist and namelist allocated
-		     *	  here ... look for magic below log{Put,Get}InDom ...
+		     *	  here unless this indom is a duplicate.
+		     *    Look for magic below log{Put,Get}InDom.
 		     */
 		    if ((numinst = pmGetInDom(desc.indom, &instlist, &namelist)) < 0) {
 			fprintf(stderr, "pmGetInDom(%s): %s\n", pmInDomStr(desc.indom), pmErrStr(numinst));
@@ -719,6 +720,10 @@ do_work(task_t *tp)
 		    if ((sts = __pmLogPutInDom(&logctl, desc.indom, &tmp, numinst, instlist, namelist)) < 0) {
 			fprintf(stderr, "__pmLogPutInDom: %s\n", pmErrStr(sts));
 			exit(1);
+		    }
+		    if (sts == PMLOGPUTINDOM_DUP) {
+			free(instlist);
+			free(namelist);
 		    }
 		    needti = 1;
 #ifdef PCP_DEBUG

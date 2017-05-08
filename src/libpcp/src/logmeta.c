@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2016 Red Hat.
+ * Copyright (c) 2013-2017 Red Hat.
  * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -73,25 +73,6 @@ sameindom(const __pmLogInDom *idp1, const __pmLogInDom *idp2)
 }
 
 /*
- * Free the given indom.
- * See the comment for the allocation of__pmLogInDom in impl.h
- */
-static void
-freeindom(__pmLogInDom *idp)
-{
-    if (idp->buf) {
-	free(idp->buf);
-	if (idp->allinbuf == 0)
-	    free(idp->namelist);
-    }
-    else {
-	free(idp->instlist);
-	free(idp->namelist);
-    }
-    free(idp);
-}
-
-/*
  * Add the given instance domain to the hashed instance domain.
  * Filter out duplicates.
  */
@@ -127,12 +108,10 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_ALLOC);
     if ((hp = __pmHashSearch((unsigned int)indom, &lcp->l_hashindom)) == NULL) {
 	idp->next = NULL;
 	sts = __pmHashAdd((unsigned int)indom, (void *)idp, &lcp->l_hashindom);
-	if (sts >= 0) {
-	    /* __pmHashAdd returns 1 for success, but we want zero. */
+	if (sts > 0) {
+	    /* __pmHashAdd returns 1 for success, but we want 0. */
 	    sts = 0;
 	}
-	else
-	    freeindom(idp); /* error */
 	return sts;
     }
 
@@ -146,6 +125,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_ALLOC);
      * must do it explicitly. Duplicates must be moved to the head of their
      * time slot.
      */
+    sts = 0;
     idp_prev = NULL;
     for (idp_cached = (__pmLogInDom *)hp->data; idp_cached; idp_cached = idp_cached->next) {
 	timecmp = __pmTimevalCmp(&idp_cached->stamp, &idp->stamp);
@@ -164,12 +144,12 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_ALLOC);
 	 * at the head of the time slot.
 	 */
 	if (timecmp == 0) {
-	    sts = 0;
+	    assert(sts == 0);
 	    idp_time = idp_prev; /* just before this time slot */
 	    do {
 		/* Have we found a duplicate? */
 		if (sameindom(idp_cached, idp)) {
-		    sts = 1; /* duplicate */
+		    sts = PMLOGPUTINDOM_DUP; /* duplicate */
 		    break;
 		}
 		/* Try the next one */
@@ -180,14 +160,18 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_ALLOC);
 		timecmp = __pmTimevalCmp(&idp_cached->stamp, &idp->stamp);
 	    } while (timecmp == 0);
 
-	    if (sts == 1) {
+	    if (sts == PMLOGPUTINDOM_DUP) {
 		/*
-		 * We found a duplicate.  Free the new one.
+		 * We found a duplicate. We can't free instlist, namelist and
+		 * indom_buf because we don't know where the storage
+		 * came from. Only the caller knows. The best we can do is to
+		 * indicate that we found a duplicate and let the caller manage
+		 * them. We do, however need to free idp.
 		 */
-		freeindom(idp);
+		free(idp);
 		if (idp_prev == idp_time) {
 		    /* The duplicate is already in the right place. */
-		    return 0; /* ok */
+		    return sts; /* ok -- duplicate */
 		}
 
 		/* Unlink the duplicate and set it up to be re-inserted. */
@@ -224,7 +208,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_ALLOC);
 	idp_prev->next = idp;
     }
 
-    return 0; /* ok */
+    return sts;
 }
 
 /*
@@ -523,6 +507,13 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":4", PM_FAULT_ALLOC);
 	    }
 	    if ((sts = addindom(lcp, indom, when, numinst, instlist, namelist, tbuf, allinbuf)) < 0)
 		goto end;
+	    /* If this indom was a duplicate, then we need to free tbuf and
+	       namelist, as appropriate. */
+	    if (sts == PMLOGPUTINDOM_DUP) {
+		free(tbuf);
+		if (namelist != NULL && !allinbuf)
+		    free(namelist);
+	    }
 	}
 	else
 	    fseek(f, (long)rlen, SEEK_CUR);
@@ -855,7 +846,6 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":6", PM_FAULT_ALLOC);
     free(out);
 
     sts = addindom(lcp, indom, tp, numinst, instlist, namelist, NULL, 0);
-
     return sts;
 }
 
