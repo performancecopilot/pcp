@@ -233,6 +233,12 @@ pmrep -s 1 $log2 -c $tmp.iiconfig :test5
 pmrep -s 1 $log2 -c $tmp.iiconfig :test6
 pmrep -s 1 $log2 -c $tmp.iiconfig :test7
 
+echo "== test ignoring and omitting metrics"
+pmrep -C $log2 -u -U -q MB    mem.util
+pmrep -C $log2 -u -U -q MB -I mem.util
+pmrep -C $log2 -u    -i sda mem.util.free disk.dev mem.util
+pmrep -C $log2 -u -v -i sda mem.util.free disk.dev mem.util
+
 echo "== exercise option priority"
 echo '[options]' > $tmp.pconfig
 echo 'header = yes' >> $tmp.pconfig

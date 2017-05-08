@@ -206,7 +206,9 @@ class PMReporter(object):
         self.runtime = -1
         self.delay = 0
         self.type = 0
+        self.ignore_incompat = 0
         self.instances = []
+        self.omit_flat = 0
         self.colxrow = None
         self.width = 0
         self.precision = 3 # .3f
@@ -248,7 +250,7 @@ class PMReporter(object):
         opts = pmapi.pmOptions()
         opts.pmSetOptionCallback(self.option)
         opts.pmSetOverrideCallback(self.option_override)
-        opts.pmSetShortOptions("a:h:LK:c:Co:F:e:D:V?HUGpA:S:T:O:s:t:Z:zdri:X:w:P:l:xE:f:uq:b:y:")
+        opts.pmSetShortOptions("a:h:LK:c:Co:F:e:D:V?HUGpA:S:T:O:s:t:Z:zdrIi:vX:w:P:l:xE:f:uq:b:y:")
         opts.pmSetShortUsage("[option...] metricspec [...]")
 
         opts.pmSetLongOptionHeader("General options")
@@ -282,7 +284,9 @@ class PMReporter(object):
         opts.pmSetLongOptionHostZone()     # -z/--hostzone
         opts.pmSetLongOption("delay", 0, "d", "", "delay, pause between updates for archive replay")
         opts.pmSetLongOption("raw", 0, "r", "", "output raw counter values (no rate conversion)")
+        opts.pmSetLongOption("ignore-incompat", 0, "I", "", "ignore incompatible instances (default: abort)")
         opts.pmSetLongOption("instances", 1, "i", "STR", "instances to report (default: all current)")
+        opts.pmSetLongOption("omit-flat", 0, "v", "", "omit single-valued metrics with -i (default: include)")
         opts.pmSetLongOption("colxrow", 1, "X", "STR", "swap stdout columns and rows using header label")
         opts.pmSetLongOption("width", 1, "w", "N", "default column width")
         opts.pmSetLongOption("precision", 1, "P", "N", "N digits after the decimal separator (if width enough)")
@@ -348,8 +352,12 @@ class PMReporter(object):
             self.delay = 1
         elif opt == 'r':
             self.type = 1
+        elif opt == 'I':
+            self.ignore_incompat = 1
         elif opt == 'i':
             self.instances = self.instances + self.parse_instances(optarg)
+        elif opt == 'v':
+            self.omit_flat = 1
         elif opt == 'X':
             self.colxrow = optarg
         elif opt == 'w':
@@ -683,6 +691,9 @@ class PMReporter(object):
 
     def check_metric(self, metric):
         """ Validate individual metric and get its details """
+        if metric in self.metrics:
+            # Always ignore duplicates
+            return
         try:
             pmid = self.context.pmLookupName(metric)[0]
             desc = self.context.pmLookupDescs(pmid)[0]
@@ -706,6 +717,8 @@ class PMReporter(object):
                     mtype == PM_TYPE_STRING):
                 raise pmapi.pmErr(PM_ERR_TYPE)
             instances = self.instances if not self.tmp[0] else self.tmp
+            if self.omit_flat and instances and not inst[1][0]:
+                return
             if instances and inst[1][0]:
                 found = [[], []]
                 for r in instances:
@@ -721,6 +734,8 @@ class PMReporter(object):
             self.descs.append(desc)
             self.insts.append(inst)
         except pmapi.pmErr as error:
+            if self.ignore_incompat:
+                return
             sys.stderr.write("Invalid metric %s (%s).\n" % (metric, str(error)))
             sys.exit(1)
 
@@ -779,7 +794,10 @@ class PMReporter(object):
                 if not 'append' in dir(self.tmp):
                     self.tmp = [self.tmp]
                 self.context.pmTraversePMNS(metric, self.check_metric)
-                if len(self.pmids) == l + 1:
+                if len(self.pmids) == l:
+                    # No compatible metrics found
+                    next
+                elif len(self.pmids) == l + 1:
                     # Leaf
                     if metric == self.context.pmNameID(self.pmids[l]):
                         self.metrics[metric] = metrics[metric]
@@ -806,6 +824,7 @@ class PMReporter(object):
             sys.exit(1)
 
         # Finalize the metrics set
+        incompat_metrics = {}
         for i, metric in enumerate(self.metrics):
             # Fill in all fields for easier checking later
             for index in range(0, 6):
@@ -886,8 +905,30 @@ class PMReporter(object):
                 self.metrics[metric][4] = len(TRUNC) # Forced minimum
 
             # Add fetchgroup item
-            scale = self.metrics[metric][2][0]
-            self.metrics[metric][5] = self.pmfg.extend_indom(metric, mtype, scale, 1024)
+            try:
+                scale = self.metrics[metric][2][0]
+                if scale.endswith("/h"):
+                    scale += "r"
+                self.metrics[metric][5] = self.pmfg.extend_indom(metric, mtype, scale, 1024)
+            except:
+                if self.ignore_incompat:
+                    # Schedule the metric for removal
+                    incompat_metrics[metric] = i
+                else:
+                    raise
+
+        # Remove all traces of incompatible metrics
+        for metric in incompat_metrics:
+            del self.pmids[incompat_metrics[metric]]
+            del self.descs[incompat_metrics[metric]]
+            del self.insts[incompat_metrics[metric]]
+            del self.metrics[metric]
+        incompat_metrics = {}
+
+        # Verify that we have valid metrics
+        if not self.metrics:
+            sys.stderr.write("No compatible metrics found.\n")
+            sys.exit(1)
 
     def get_local_tz(self, set_dst=-1):
         """ Figure out the local timezone using the PCP convention """
