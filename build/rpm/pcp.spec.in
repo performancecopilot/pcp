@@ -1827,6 +1827,16 @@ This meta-package contains the PCP performance monitoring dependencies.  This
 includes a large number of packages for analysing PCP metrics in various ways.
 # monitor
 
+%package zeroconf
+License: GPLv2+
+Group: Applications/System
+Summary: Performance Co-Pilot (PCP) Zeroconf Package
+URL: http://www.pcp.io
+Requires: pcp
+%description zeroconf
+This package contains configuration tweaks and files to increase metrics gathering
+frequency as well as several extended pmlogger configurations.
+
 %prep
 %setup -q
 
@@ -2075,6 +2085,7 @@ awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/shping' > pmda_shping_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/summary' > pmda_summary_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/trace' > pmda_trace_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/weblog' > pmda_weblog_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e 'zeroconf' > zeroconf_files
 
 touch gui_files webapi_files manager_files pmda_infiniband_files pmda_papi_files \
       pmda_perfevent_files pmda_bonding_files pmda_dbping_files \
@@ -2089,7 +2100,8 @@ touch gui_files webapi_files manager_files pmda_infiniband_files pmda_papi_files
       pmda_lmsensors_files pmda_logger_files \
       pmda_mailq_files pmda_mounts_files pmda_nvidia_files pmda_roomtemp_files \
       pmda_rpm_files pmda_sendmail_files pmda_shping_files pmda_summary_files \
-      pmda_trace_files pmda_weblog_files pmda_dm_files pmda_systemd_files
+      pmda_trace_files pmda_weblog_files pmda_dm_files pmda_systemd_files \
+      zeroconf_files
 
 %if "@have_python@" == "true"
 touch pmda_gluster_files pmda_zswap_files pmda_unbound_files \
@@ -2250,6 +2262,7 @@ BEGIN {
     while( getline < "selinux_files") selinux[$0]=1;
 %endif
     while( getline < "conf_files") conf[nconf++]=$0;
+    while( getline < "zeroconf_files") zeroconf_files[$0]=1;
 }
 {
     if (cfg[$NF]) f="cfg_files.rpm";
@@ -2363,6 +2376,7 @@ BEGIN {
     else if (import_mrtg2pcp[$NF]) f="import_mrtg2pcp_files.rpm";
     else if (import_ganglia2pcp[$NF]) f="import_ganglia2pcp_files.rpm";
     else if (import_collectl2pcp[$NF]) f="import_collectl2pcp_files.rpm";
+    else if (zeroconf_files[$NF]) f="zeroconf.rpm";
     else f="base_files.rpm"
 }
 $1 == "d" {
@@ -2530,6 +2544,19 @@ chown -R pcp:pcp "$PCP_LOG_DIR/pmmgr" 2>/dev/null
     /sbin/service pmlogger condrestart
 %endif
 
+%post zeroconf
+%if "@enable_systemd@" == "true"
+    systemctl restart pmcd >/dev/null 2>&1
+    systemctl restart pmlogger >/dev/null 2>&1
+    systemctl enable pmcd >/dev/null 2>&1
+    systemctl enable pmlogger >/dev/null 2>&1
+%else
+    /sbin/chkconfig --add pmcd >/dev/null 2>&1
+    /sbin/chkconfig --add pmlogger >/dev/null 2>&1
+    /sbin/service pmcd condrestart
+    /sbin/service pmlogger condrestart
+%endif #zeroconf
+
 %if "@enable_selinux@" == "true"
 %post selinux
 %{selinux_handle_policy "$1" "pcpupstream.pp"}
@@ -2541,6 +2568,16 @@ chown -R pcp:pcp "$PCP_LOG_DIR/pmmgr" 2>/dev/null
 %{selinux_handle_policy "$1" "pcpupstream-container.pp"}
 
 %endif #enable_selinux
+
+%pre zeroconf
+PCP_PMDAS_DIR=@pcp_pmdas_dir@
+PCP_SYSCONF_DIR=@pcp_sysconf_dir@
+PCP_ETC_DIR=@pcp_etc_dir@
+if ls "$PCP_PMDAS_DIR" | grep -q nfsclient 2>/dev/null
+then
+    touch "$PCP_PMDAS_DIR/nfsclient/.NeedInstall"
+fi
+sed -i 's/^\#\ PMLOGGER_INTERVAL.*/PMLOGGER_INTERVAL=10/g' "$PCP_ETC_DIR/sysconfig/pmlogger"
 
 %if "@pmda_rpm@" == "true"
 %preun pmda-rpm
@@ -3126,3 +3163,6 @@ cd
 %files collector
 
 %files monitor
+
+%files zeroconf -f zeroconf.rpm
+
