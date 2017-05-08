@@ -30,7 +30,7 @@ CFILES = connect.c context.c desc.c err.c fetch.c fetchgroup.c freeresult.c \
 	connectlocal.c derive_fetch.c events.c lock.c hash.c \
 	fault.c access.c getopt.c probe.c jsmn.c
 HFILES = derive.h internal.h avahi.h probe.h compiler.h jsmn.h
-XFILES = jsmn.h jsmn.c
+XFILES = jsmn.h jsmn.c sort_r.h
 YFILES = getdate.y derive_parser.y
 VERSION_SCRIPT = exports
 

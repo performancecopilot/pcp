@@ -18,6 +18,7 @@
 #include "impl.h"
 #include "pmda.h"
 #include "internal.h"
+#include "sort_r.h"
 #include "fault.h"
 #include "jsmn.h"
 
@@ -252,7 +253,7 @@ sort_labels(__pmLabel *lp, int nlabels, const char *json)
     void	*data = (void *)json;
     int		i;
 
-    qsort_r(lp, nlabels, sizeof(__pmLabel), namecmp, data);
+    sort_r(lp, nlabels, sizeof(__pmLabel), namecmp, data);
 
     for (i = 0; i < nlabels-1; i++) {
 	if (namecmp(&lp[i], &lp[i+1], data) == 0) {
