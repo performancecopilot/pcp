@@ -1,6 +1,6 @@
 #!gmake
 #
-# Copyright (c) 2015-2016 Red Hat.
+# Copyright (c) 2015-2017 Red Hat.
 # Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
 # NB: this GNUmakefile is only for use from within the PCP build tree.  It governs
@@ -62,7 +62,7 @@ COMMON = common.check common.config common.filter \
 	 common.python 
 
 OTHERS = group qa_hosts.master README sanity.coverage \
-	 $(shell echo valgrind-suppress*)
+	 $(shell echo valgrind-suppress* helgrind-suppress*)
 
 DOTOUTFILES = $(shell [ -f qa_outfiles ] && cat qa_outfiles || ls -1 | grep '^[0-9]' | grep -v '^[0-9][0-9][0-9]$$' | grep -v '^[0-9][0-9][0-9][0-9]$$' | egrep -v '^[0-9][0-9][0-9]*\.(full|out\.bad|notrun|work)' | tee qa_outfiles)
 
