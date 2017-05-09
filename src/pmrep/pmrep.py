@@ -906,8 +906,6 @@ class PMReporter(object):
             # Add fetchgroup item
             try:
                 scale = self.metrics[metric][2][0]
-                if scale.endswith("/h"):
-                    scale += "r"
                 self.metrics[metric][5] = self.pmfg.extend_indom(metric, mtype, scale, 1024)
             except:
                 if self.ignore_incompat:
