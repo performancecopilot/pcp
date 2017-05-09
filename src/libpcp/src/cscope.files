@@ -1,3 +1,4 @@
+-I../../include/pcp
 access.c
 accounts.c
 AF.c
