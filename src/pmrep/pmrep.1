@@ -293,10 +293,6 @@ and
 .BR $PCP_SYSCONF_DIR/pmrep/pmrep.conf .
 See
 .BR pmrep.conf (5).
-Unlike with other options,
-.I config
-must be separated by a space from
-.BR \-c .
 .TP
 .B \-\-container
 Fetch performance metrics from the specified
@@ -804,8 +800,6 @@ $ pmrep -o archive -F ./a -t 5s -T 5m ds389 xfs kernel.all.cpu disk mem
 .BI $PCP_SYSCONF_DIR/pmrep/pmrep.conf
 System provided configuration file.
 .PD
-.SH BUGS
-No command line option can follow metrics.
 .SH "PCP ENVIRONMENT"
 Environment variables with the prefix
 .B PCP_
