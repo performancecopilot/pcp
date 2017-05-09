@@ -7726,7 +7726,7 @@ if test "x$do_qt3d" != "xno"; then :
     if test -f /usr/include/Coin3/Inventor/Qt/SoQt.h
     then
 	enable_qt3d=$enable_qt
-    elif test -a "$do_qt3d" = "yes"
+    elif test x"$do_qt3d" = x"yes"
     then
 	as_fn_error $? "cannot enable support for 3D scene graph API" "$LINENO" 5
     fi

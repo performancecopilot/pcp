@@ -14,10 +14,9 @@
 # License for more details.
 #
 
-LCFLAGS += -DPM_FAULT_INJECTION=1 -DPM_MULTI_THREAD_DEBUG=1
-
 TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
+include ../../libpcp/src/GNUlibrarydefs
 -include ./GNUlocaldefs
 
 # files that will be symbolic-linked to here from libpcp directory
@@ -48,6 +47,8 @@ HFILES = derive.h internal.h avahi.h probe.h compiler.h jsmn.h
 XFILES = jsmn.h jsmn.c
 YFILES = getdate.y derive_parser.y
 VERSION_SCRIPT = exports
+
+CFLAGS_OPT = -DPM_FAULT_INJECTION=1 -DPM_MULTI_THREAD_DEBUG=1
 
 LCFLAGS = -DPCP_INTERNAL '-DEXEC_SUFFIX="$(EXECSUFFIX)"' \
 	'-DDSO_SUFFIX="$(DSOSUFFIX)"'
@@ -106,8 +107,8 @@ LIBTARGET =
 SYMTARGET =
 endif
 
-LDIRT += $(SYMTARGET) $(YFILES:%.y=%.tab.?) getdate.h getdate.y check.done \
-	derive_parser.y $(LFILES) $(XFILES)
+LDIRT += $(SYMTARGET) $(YFILES:%.y=%.tab.?) getdate.h check.done \
+	$(LFILES) $(XFILES) $(YFILES) derive_parser.y.in exports
 
 base default : $(HFILES) $(CFILES) $(VERSION_SCRIPT) $(INFILES) \
 	$(LIBTARGET) $(SYMTARGET) $(STATICLIBTARGET)
@@ -122,10 +123,10 @@ endif
 
 include $(BUILDRULES)
 
-*.o: internal.h
+*.o: internal.h compiler.h derive.h
 jsmn.o: jsmn.c jsmn.h
 rtime.o: getdate.h
-derive.o derive_fetch.o: derive.h
+derive.o derive_fetch.o: derive.h derive_parser.tab.h
 util.o:	$(TOPDIR)/src/include/pcp/pmdbg.h
 fault.o:	$(TOPDIR)/src/include/pcp/fault.h
 

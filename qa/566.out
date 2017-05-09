@@ -276,9 +276,25 @@ Note: timezone set to local timezone of host "HOST" from archive
 Processed 9 pmResult records
 Scanning for components of archive "archives/badlog-3.0"
 archives/badlog-3.0: start pass0
+archives/badlog-3.0:[16:13:20.248]: timestamp before label timestamp: 04:34:32.257
 archives/badlog-3.0:[16:13:20.248]: timestamp went backwards, prior timestamp: 04:34:33.248
 archives/badlog-3.index: start pass0
 archives/badlog-3.meta: start pass0
 archives/badlog-3: start pass1 (check temporal index)
 archives/badlog-3: start pass2
 archives/badlog-3: start pass3
+
+archives/badlog-4.0:
+
+Note: timezone set to local timezone of host "HOST" from archive
+Processed 9 pmResult records
+Scanning for components of archive "archives/badlog-4.0"
+archives/badlog-4.0: start pass0
+archives/badlog-4.0:[04:34:32.257]: timestamp before label timestamp: 04:34:35.258
+archives/badlog-4.0:[04:34:33.248]: timestamp before label timestamp: 04:34:35.258
+archives/badlog-4.0:[04:34:34.248]: timestamp before label timestamp: 04:34:35.258
+archives/badlog-4.index: start pass0
+archives/badlog-4.meta: start pass0
+archives/badlog-4: start pass1 (check temporal index)
+archives/badlog-4: start pass2
+archives/badlog-4: start pass3

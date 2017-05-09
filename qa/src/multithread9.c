@@ -36,6 +36,8 @@ static int	sum_traverse[NMETRIC] = { 264, 0, 0, 80 };
 
 static pthread_barrier_t barrier;
 
+static pthread_mutex_t	chn_lock = PTHREAD_MUTEX_INITIALIZER;
+
 static int	ctx1;
 static int	ctx2;
 static int	ctx3;
@@ -125,6 +127,7 @@ foo(FILE *f, char *fn, int i, void *closure)
 	for (j = 0; j < sts; j++) {
 	    if (stsset[j] == PMNS_LEAF_STATUS) leaf++;
 	}
+	PM_LOCK(chn_lock);
 	if (leaf_chn[i] == -1) {
 	    leaf_chn[i] = leaf;
 	    nonleaf_chn[i] = sts - leaf;
@@ -139,6 +142,7 @@ foo(FILE *f, char *fn, int i, void *closure)
 	    for (j = 0; j < sts; j++) {
 		if (strcmp(chn[i][j], names[j]) != 0) {
 		    fprintf(f, "\n%s: %s: Botch: child[%d] expecting %s, got %s\n", fn, namelist[i], j, chn[i][j], names[j]);
+		    PM_UNLOCK(chn_lock);
 		    pthread_exit("botch");
 		}
 	    }
@@ -151,18 +155,22 @@ foo(FILE *f, char *fn, int i, void *closure)
 	fprintf(f, " pmGetChildrenStatus OK");
 	if ((sts = pmGetChildren(namelist[i], &names)) < 0) {
 	    fprintf(f, "\n%s: %s ...: pmGetChildren Error: %s\n", fn, namelist[i], pmErrStr(sts));
+	    PM_UNLOCK(chn_lock);
 	    pthread_exit("botch");
 	}
 	if (sts != leaf_chn[i] + nonleaf_chn[i]) {
 	    fprintf(f, "\n%s: %s: Botch: expecting %d children, got %d\n", fn, namelist[i], leaf_chn[i] + nonleaf_chn[i], sts);
+	    PM_UNLOCK(chn_lock);
 	    pthread_exit("botch");
 	}
 	for (j = 0; j < sts; j++) {
 	    if (strcmp(chn[i][j], names[j]) != 0) {
 		fprintf(f, "\n%s: %s: Botch: child[%d] expecting %s, got %s\n", fn, namelist[i], j, chn[i][j], names[j]);
+		PM_UNLOCK(chn_lock);
 		pthread_exit("botch");
 	    }
 	}
+	PM_UNLOCK(chn_lock);
 	free(names);
 	fprintf(f, " pmGetChildren OK");
 	*((int *)closure) = 0;
