@@ -43,6 +43,12 @@ overrideCB: got option 'b'
 optionsCB: got option ''b' [index=0]
 Done!
 
+check handling of non-option operands
+overrideCB: got option 'b'
+optionsCB: got option ''b' [index=0]
+Non-option arguments: ['param1', 'param2']
+Done!
+
 check version message generation
 test_pcp_options.py version X.Y.Z
 

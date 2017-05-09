@@ -45,6 +45,8 @@
 #endif
 
 static pmOptions options;
+static char **argVector;
+static int argCount;
 static int longOptionsCount;
 static PyObject *optionCallback;
 static PyObject *overridesCallback;
@@ -743,19 +745,47 @@ options_callback(int opt, pmOptions *opts)
     }
 }
 
+/*
+ * Access command line operands in a way that handles the reordering
+ * that can happen via pmgetopt_r(3) in non-POSIXLY_CORRECT mode.
+ */
 static PyObject *
-getNonOptionsFromList(PyObject *self, PyObject *args, PyObject *keywords)
+getOperands(PyObject *self, PyObject *args)
 {
-    int argc, length, i;
     PyObject *result;
-    PyObject *pyargv = NULL;
-    char *keyword_list[] = {"argv", NULL};
+    int i, length = 0;
 
     /* Caller must perform pmGetOptions before running this, check */
     if (!(options.flags & PM_OPTFLAG_DONE)) {
-	PyErr_SetString(PyExc_RuntimeError, "pmGetOptions must be called first");
+	PyErr_SetString(PyExc_RuntimeError, "pmGetOptions is not yet done");
 	return NULL;
     }
+
+    if (argCount > 0)
+	length = argCount - options.optind;
+    if (length <= 0) {
+	Py_INCREF(Py_None);
+	return Py_None;
+    }
+
+    if ((result = PyList_New(length)) == NULL)
+	return PyErr_NoMemory();
+
+    for (i = 0; i < length; i++) {
+	PyObject *pyarg = Py_BuildValue("s", argVector[options.optind + i]);
+	Py_INCREF(pyarg);
+	PyList_SET_ITEM(result, i, pyarg);
+    }
+    Py_INCREF(result);
+    return result;
+}
+
+/* backward compatibility only, use the getOperands interface now */
+static PyObject *
+getNonOptionsFromList(PyObject *self, PyObject *args, PyObject *keywords)
+{
+    PyObject *pyargv = NULL;
+    char *keyword_list[] = {"argv", NULL};
 
     if (!PyArg_ParseTupleAndKeywords(args, keywords,
 			"O:pmGetNonOptionsFromList", keyword_list, &pyargv))
@@ -767,32 +797,13 @@ getNonOptionsFromList(PyObject *self, PyObject *args, PyObject *keywords)
 	return NULL;
     }
 
-    length = 0;
-    if ((argc = PyList_GET_SIZE(pyargv)) > 0)
-	length = argc - options.optind;
-
-    if (length <= 0) {
-	Py_INCREF(Py_None);
-	return Py_None;
-    }
-
-    if ((result = PyList_New(length)) == NULL)
-	return PyErr_NoMemory();
-
-    for (i = 0; i < length; i++) {
-	PyObject *pyarg = PyList_GET_ITEM(pyargv, options.optind + i);
-	Py_INCREF(pyarg);
-	PyList_SET_ITEM(result, i, pyarg);
-    }
-    Py_INCREF(result);
-    return result;
+    return getOperands(self, args);
 }
 
 static PyObject *
 getOptionsFromList(PyObject *self, PyObject *args, PyObject *keywords)
 {
-    int i, argc;
-    char **argv;
+    int i;
     PyObject *pyargv = NULL;
     char *keyword_list[] = {"argv", NULL};
 
@@ -811,15 +822,15 @@ getOptionsFromList(PyObject *self, PyObject *args, PyObject *keywords)
 	return NULL;
     }
 
-    if ((argc = PyList_GET_SIZE(pyargv)) <= 0) {
+    if ((argCount = PyList_GET_SIZE(pyargv)) <= 0)
 	return Py_BuildValue("i", 0);
-    }
 
-    if ((argv = malloc(argc * sizeof(char *))) == NULL) {
+    if ((argVector = malloc(argCount * sizeof(char *))) == NULL) {
+	argCount = 0;
 	return PyErr_NoMemory();
     }
 
-    for (i = 0; i < argc; i++) {
+    for (i = 0; i < argCount; i++) {
 	PyObject *pyarg = PyList_GET_ITEM(pyargv, i);
 #if PY_MAJOR_VERSION >= 3
 	char *string = PyUnicode_AsUTF8(pyarg);
@@ -827,21 +838,23 @@ getOptionsFromList(PyObject *self, PyObject *args, PyObject *keywords)
 	char *string = PyString_AsString(pyarg);
 #endif
 
-	/* argv[0] parameter will be used for pmProgname, so need to
-	 * ensure the memory that backs it will be with us forever.
+	/* All parameters may be referred back to later, e.g. via
+	 * pmProgname or getOperands (and others), so we need to
+	 * allocate the memory to hold these strings permanently.
          */
-	if (i == 0 && (string = strdup(string)) == NULL) {
-	    free(argv);
+	if ((string = strdup(string)) == NULL) {
+	    free(argVector);
+	    argCount = 0;
+	    argVector = NULL;
 	    return PyErr_NoMemory();
 	}
-	argv[i] = string;
+	argVector[i] = string;
     }
 
     if (overridesCallback)
 	options.override = override_callback;
-    while ((i = pmGetOptions(argc, argv, &options)) != -1)
+    while ((i = pmGetOptions(argCount, argVector, &options)) != -1)
 	options_callback(i, &options);
-    free(argv);
 
     if (options.flags & PM_OPTFLAG_EXIT)
 	return Py_BuildValue("i", PM_ERR_APPVERSION);
@@ -1299,6 +1312,9 @@ static PyMethodDef methods[] = {
     { .ml_name = "pmGetOptionsFromList",
 	.ml_meth = (PyCFunction) getOptionsFromList,
         .ml_flags = METH_VARARGS | METH_KEYWORDS },
+    { .ml_name = "pmGetOperands",
+	.ml_meth = (PyCFunction) getOperands,
+        .ml_flags = METH_NOARGS },
     { .ml_name = "pmGetNonOptionsFromList",
 	.ml_meth = (PyCFunction) getNonOptionsFromList,
         .ml_flags = METH_VARARGS | METH_KEYWORDS },
