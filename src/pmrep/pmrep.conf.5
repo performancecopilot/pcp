@@ -1,7 +1,7 @@
 '\"! tbl | mmdoc
 '\"macro stdmacro
 .\"
-.\" Copyright (C) 2015-2016 Marko Myllynen <myllynen@redhat.com>
+.\" Copyright (C) 2015-2017 Marko Myllynen <myllynen@redhat.com>
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -195,11 +195,24 @@ Corresponding command line option is \fB-r\fR. Allowed values are
 \fBdefault\fR or \fBraw\fR.
 .RE
 .P
+ignore_incompat (string)
+.RS 4
+Indicates that incompatible metrics are to be ignored. Corresponding
+command line option is \fB-I\fR. Defaults to \fBno\fR.
+.RE
+.P
 instances (string)
 .RS 4
 Indicates the instances to be reported. Corresponding command line
 option is \fB-i\fR. Undefined (all current instances are reported)
 by default.
+.RE
+.P
+omit_flat (string)
+.RS 4
+Indicates that single-valued ``flat'' metrics are to be omitted when
+instances were requested. Corresponding command line option is \fB-v\fR.
+Defaults to \fBno\fR.
 .RE
 .P
 colxrow (string)

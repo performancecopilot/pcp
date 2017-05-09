@@ -179,15 +179,65 @@ pmrep -s 1 $log2 disk.dev.read,,sda
 pmrep -s 1 $log2 disk.dev.read,,sda,,,16
 pmrep -s 1 $log2 disk.dev.read,,"'sda','sdb'"
 pmrep -s 1 $log2 disk.dev.read,,"'sda','sdb'",,,16
-echo '[test]' > $tmp.pconfig
-echo 'instances = wrong' >> $tmp.pconfig
-echo 'sysfork = kernel.all.sysfork' >> $tmp.pconfig
-echo 'mem.util.free = free,,,,16' >> $tmp.pconfig
+echo '[test]' > $tmp.iconfig
+echo 'instances = wrong' >> $tmp.iconfig
+echo 'sysfork = kernel.all.sysfork' >> $tmp.iconfig
+echo 'mem.util.free = free,,,,16' >> $tmp.iconfig
 # We want: kernel.all.load = load,"'1 minute','5 minute','15 min'",,,16
-echo "kernel.all.load = load,\"'1 minute','5 minute','15 min'\",,,16" >> $tmp.pconfig
-echo 'disk.dev.read = read,sda,,,16' >> $tmp.pconfig
-echo 'disk.dev.write = write,wrong,,,16' >> $tmp.pconfig
-pmrep -s 1 $log2 -c $tmp.pconfig :test
+echo "kernel.all.load = load,\"'1 minute','5 minute','15 min'\",,,16" >> $tmp.iconfig
+echo 'disk.dev.read = read,sda,,,16' >> $tmp.iconfig
+echo 'disk.dev.write = write,wrong,,,16' >> $tmp.iconfig
+pmrep -s 1 $log2 -c $tmp.iconfig :test
+
+echo "=== more instance handling"
+cat << EOF > $tmp.iiconfig
+[test1] # fails
+instances = xxx,yyy,zzz
+foo = disk.dev.read
+foo.instances = wrong
+
+[test2] # fails
+instances = sda,sdc
+foo = disk.dev.read
+foo.instances = sdx
+
+[test3] # fails
+instances = sda
+disk.dev.read = sdx,sdy
+
+[test4] # 1: fails, 2,3: works
+instances = sda
+disk.dev.read = l1,sdx
+disk.dev.write = l2
+disk.dev.total = l3,
+
+[test5] # works
+instances = sdx
+foo = disk.dev.read
+foo.instances = sda
+
+[test6] # works
+instances = sda,sdx
+foo = disk.dev.read
+foo.instances = sda
+
+[test7] # works
+instances = sdx
+disk.dev.read = label,'sda,sdx'
+EOF
+pmrep -s 1 $log2 -c $tmp.iiconfig :test1
+pmrep -s 1 $log2 -c $tmp.iiconfig :test2
+pmrep -s 1 $log2 -c $tmp.iiconfig :test3
+pmrep -s 1 $log2 -c $tmp.iiconfig :test4
+pmrep -s 1 $log2 -c $tmp.iiconfig :test5
+pmrep -s 1 $log2 -c $tmp.iiconfig :test6
+pmrep -s 1 $log2 -c $tmp.iiconfig :test7
+
+echo "== test ignoring and omitting metrics"
+pmrep -C $log2 -u -U -q MB    mem.util
+pmrep -C $log2 -u -U -q MB -I mem.util
+pmrep -C $log2 -u    -i sda mem.util.free disk.dev mem.util
+pmrep -C $log2 -u -v -i sda mem.util.free disk.dev mem.util
 
 echo "== exercise option priority"
 echo '[options]' > $tmp.pconfig

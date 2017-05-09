@@ -1153,7 +1153,7 @@ __pmParseUnitsStrPart(const char *str, const char *str_end, pmUnitsBig * out, do
 	{"sec", PM_TIME_SEC},
 	{"s", PM_TIME_SEC},
 	{"minutes", PM_TIME_MIN}, {"minute", PM_TIME_MIN}, {"min", PM_TIME_MIN},
-	{"hours", PM_TIME_HOUR}, {"hour", PM_TIME_HOUR}, {"hr", PM_TIME_HOUR},
+	{"hours", PM_TIME_HOUR}, {"hour", PM_TIME_HOUR}, {"hr", PM_TIME_HOUR}, {"h", PM_TIME_HOUR},
 	{"time-0", 0}, /* { "time-1", 1 }, */ {"time-2", 2}, {"time-3", 3},
 	{"time-4", 4}, {"time-5", 5}, {"time-6", 6}, {"time-7", 7},
 	{"time-8", 8}, {"time-9", 9}, {"time-10", 10}, {"time-11", 11},
