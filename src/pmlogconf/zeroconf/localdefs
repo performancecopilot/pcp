@@ -1,4 +1,5 @@
 FILES = \
       	atop-proc \
+	nfsclient \
 	xfs-perdev
 # END

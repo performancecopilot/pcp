@@ -1,5 +1,5 @@
 Name:    pcp
-Version: 3.11.9
+Version: 3.11.10
 Release: 1%{?dist}
 Summary: System-level performance monitoring and performance management
 License: GPLv2+ and LGPLv2.1+ and CC-BY
@@ -1752,10 +1752,11 @@ Group: Applications/System
 Summary: Performance Co-Pilot (PCP) Zeroconf Package
 URL: http://www.pcp.io
 Requires: pcp
+Requires: pcp-pmda-dm pcp-pmda-nfsclient
 %description zeroconf
-This package contains configuration tweaks and files to increase metrics gathering
-frequency as well as several extended pmlogger configurations.
-
+This package contains configuration tweaks and files to increase metrics
+gathering frequency, several extended pmlogger configurations, as well as
+automated pmie diagnosis, alerting and self-healing for the localhost.
 
 %if !%{disable_python2}
 #
@@ -2444,17 +2445,31 @@ chown -R pcp:pcp %{_logsdir}/pmmgr 2>/dev/null
 %endif
 
 %post zeroconf
+PCP_PMDAS_DIR=%{_pmdasdir}
+PCP_SYSCONFIG_DIR=%{_sysconfdir}/sysconfig
+# auto-install important PMDAs for RH Support
+for PMDA in dm nfsclient ; do
+    touch "$PCP_PMDAS_DIR/$PMDA/.NeedInstall"
+done
+# increase default pmlogger recording frequency
+sed -i 's/^\#\ PMLOGGER_INTERVAL.*/PMLOGGER_INTERVAL=10/g' "$PCP_SYSCONFIG_DIR/pmlogger"
+# auto-enable these usually optional pmie rules
+pmieconf -c enable dmthin
 %if 0%{?rhel}
 %if !%{disable_systemd}
     systemctl restart pmcd >/dev/null 2>&1
     systemctl restart pmlogger >/dev/null 2>&1
+    systemctl restart pmie >/dev/null 2>&1
     systemctl enable pmcd >/dev/null 2>&1
     systemctl enable pmlogger >/dev/null 2>&1
+    systemctl enable pmie >/dev/null 2>&1
 %else
     /sbin/chkconfig --add pmcd >/dev/null 2>&1
     /sbin/chkconfig --add pmlogger >/dev/null 2>&1
+    /sbin/chkconfig --add pmie >/dev/null 2>&1
     /sbin/service pmcd condrestart
     /sbin/service pmlogger condrestart
+    /sbin/service pmie condrestart
 %endif
 %endif #zeroconf
 
@@ -2468,15 +2483,6 @@ chown -R pcp:pcp %{_logsdir}/pmmgr 2>/dev/null
 %triggerin selinux -- container-selinux
 %{selinux_handle_policy "$1" "pcpupstream-container.pp"}
 %endif
-
-%pre zeroconf
-PCP_PMDAS_DIR=%{_pmdasdir}
-PCP_ETC_DIR=%{_sysconfdir}
-if ls "$PCP_PMDAS_DIR" | grep -q nfsclient 2>/dev/null
-then
-    touch "$PCP_PMDAS_DIR/nfsclient/.NeedInstall"
-fi
-sed -i 's/^\#\ PMLOGGER_INTERVAL.*/PMLOGGER_INTERVAL=10/g' "$PCP_ETC_DIR/sysconfig/pmlogger"
 
 %post
 PCP_LOG_DIR=%{_logsdir}
