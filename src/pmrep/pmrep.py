@@ -468,7 +468,6 @@ class PMReporter(object):
     def read_cmd_line(self):
         """ Read command line options """
         pmapi.c_api.pmSetOptionFlags(pmapi.c_api.PM_OPTFLAG_DONE)  # Do later
-        pmapi.c_api.pmSetOptionFlags(pmapi.c_api.PM_OPTFLAG_POSIX) # RHBZ#1289912
         if pmapi.c_api.pmGetOptionsFromList(sys.argv):
             raise pmapi.pmUsageErr()
 
@@ -531,7 +530,7 @@ class PMReporter(object):
 
     def prepare_metrics(self):
         """ Construct and prepare the initial metrics set """
-        metrics = self.opts.pmGetNonOptionsFromList(sys.argv)
+        metrics = self.opts.pmGetOperands()
         if not metrics:
             sys.stderr.write("No metrics specified.\n")
             raise pmapi.pmUsageErr()
