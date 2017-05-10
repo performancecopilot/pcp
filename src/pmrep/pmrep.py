@@ -385,11 +385,11 @@ class PMReporter(object):
 
     def set_config_file(self):
         """ Set configuration file """
-        config = DEFAULT_CONFIG[0]
+        config = None
         for conf in DEFAULT_CONFIG:
             conf = conf.replace("$HOME", os.getenv("HOME"))
             conf = conf.replace("$PCP_SYSCONF_DIR", pmapi.pmContext.pmGetConfig("PCP_SYSCONF_DIR"))
-            if os.path.isfile(conf) or os.access(conf, os.R_OK):
+            if os.path.isfile(conf) and os.access(conf, os.R_OK):
                 config = conf
                 break
 
@@ -399,9 +399,12 @@ class PMReporter(object):
         for arg in args:
             if arg in self.arghelp:
                 return None
-            if arg == '-c' or arg == '--config':
+            if arg == '-c' or arg == '--config' or arg.startswith("-c"):
                 try:
-                    config = next(args)
+                    if arg == '-c' or arg == '--config':
+                        config = next(args)
+                    else:
+                        config = arg.replace("-c", "", 1)
                     if not os.path.isfile(config) or not os.access(config, os.R_OK):
                         raise IOError("Failed to read configuration file '%s'." % config)
                 except StopIteration:
@@ -452,10 +455,9 @@ class PMReporter(object):
 
     def read_config(self):
         """ Read options from configuration file """
-        if not self.config:
-            return
         config = ConfigParser.SafeConfigParser()
-        config.read(self.config)
+        if self.config:
+            config.read(self.config)
         if not config.has_section('options'):
             return
         for opt in config.options('options'):
@@ -537,7 +539,8 @@ class PMReporter(object):
 
         # Read config
         config = ConfigParser.SafeConfigParser()
-        config.read(self.config)
+        if self.config:
+            config.read(self.config)
 
         # First read global metrics (if not disabled already)
         globmet = OrderedDict()
