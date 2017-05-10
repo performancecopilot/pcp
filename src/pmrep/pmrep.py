@@ -206,7 +206,9 @@ class PMReporter(object):
         self.runtime = -1
         self.delay = 0
         self.type = 0
+        self.ignore_incompat = 0
         self.instances = []
+        self.omit_flat = 0
         self.colxrow = None
         self.width = 0
         self.precision = 3 # .3f
@@ -248,7 +250,7 @@ class PMReporter(object):
         opts = pmapi.pmOptions()
         opts.pmSetOptionCallback(self.option)
         opts.pmSetOverrideCallback(self.option_override)
-        opts.pmSetShortOptions("a:h:LK:c:Co:F:e:D:V?HUGpA:S:T:O:s:t:Z:zdri:X:w:P:l:xE:f:uq:b:y:")
+        opts.pmSetShortOptions("a:h:LK:c:Co:F:e:D:V?HUGpA:S:T:O:s:t:Z:zdrIi:vX:w:P:l:xE:f:uq:b:y:")
         opts.pmSetShortUsage("[option...] metricspec [...]")
 
         opts.pmSetLongOptionHeader("General options")
@@ -282,7 +284,9 @@ class PMReporter(object):
         opts.pmSetLongOptionHostZone()     # -z/--hostzone
         opts.pmSetLongOption("delay", 0, "d", "", "delay, pause between updates for archive replay")
         opts.pmSetLongOption("raw", 0, "r", "", "output raw counter values (no rate conversion)")
+        opts.pmSetLongOption("ignore-incompat", 0, "I", "", "ignore incompatible instances (default: abort)")
         opts.pmSetLongOption("instances", 1, "i", "STR", "instances to report (default: all current)")
+        opts.pmSetLongOption("omit-flat", 0, "v", "", "omit single-valued metrics with -i (default: include)")
         opts.pmSetLongOption("colxrow", 1, "X", "STR", "swap stdout columns and rows using header label")
         opts.pmSetLongOption("width", 1, "w", "N", "default column width")
         opts.pmSetLongOption("precision", 1, "P", "N", "N digits after the decimal separator (if width enough)")
@@ -348,8 +352,12 @@ class PMReporter(object):
             self.delay = 1
         elif opt == 'r':
             self.type = 1
+        elif opt == 'I':
+            self.ignore_incompat = 1
         elif opt == 'i':
             self.instances = self.instances + self.parse_instances(optarg)
+        elif opt == 'v':
+            self.omit_flat = 1
         elif opt == 'X':
             self.colxrow = optarg
         elif opt == 'w':
@@ -377,11 +385,11 @@ class PMReporter(object):
 
     def set_config_file(self):
         """ Set configuration file """
-        config = DEFAULT_CONFIG[0]
+        config = None
         for conf in DEFAULT_CONFIG:
             conf = conf.replace("$HOME", os.getenv("HOME"))
             conf = conf.replace("$PCP_SYSCONF_DIR", pmapi.pmContext.pmGetConfig("PCP_SYSCONF_DIR"))
-            if os.path.isfile(conf) or os.access(conf, os.R_OK):
+            if os.path.isfile(conf) and os.access(conf, os.R_OK):
                 config = conf
                 break
 
@@ -391,9 +399,12 @@ class PMReporter(object):
         for arg in args:
             if arg in self.arghelp:
                 return None
-            if arg == '-c' or arg == '--config':
+            if arg == '-c' or arg == '--config' or arg.startswith("-c"):
                 try:
-                    config = next(args)
+                    if arg == '-c' or arg == '--config':
+                        config = next(args)
+                    else:
+                        config = arg.replace("-c", "", 1)
                     if not os.path.isfile(config) or not os.access(config, os.R_OK):
                         raise IOError("Failed to read configuration file '%s'." % config)
                 except StopIteration:
@@ -406,7 +417,9 @@ class PMReporter(object):
         reader = csv.reader([instances])
         for i, inst in enumerate(list(reader)[0]):
             if inst.startswith('"') or inst.startswith("'"):
-                inst = inst[1:-1]
+                inst = inst[1:]
+            if inst.endswith('"') or inst.endswith("'"):
+                inst = inst[:-1]
             insts.append(inst)
         return insts
 
@@ -432,6 +445,8 @@ class PMReporter(object):
                 self.type = 1
             else:
                 self.type = 0
+        elif name == 'instances':
+            self.instances = value.split(",")
         else:
             try:
                 setattr(self, name, int(value))
@@ -440,10 +455,9 @@ class PMReporter(object):
 
     def read_config(self):
         """ Read options from configuration file """
-        if not self.config:
-            return
         config = ConfigParser.SafeConfigParser()
-        config.read(self.config)
+        if self.config:
+            config.read(self.config)
         if not config.has_section('options'):
             return
         for opt in config.options('options'):
@@ -456,7 +470,6 @@ class PMReporter(object):
     def read_cmd_line(self):
         """ Read command line options """
         pmapi.c_api.pmSetOptionFlags(pmapi.c_api.PM_OPTFLAG_DONE)  # Do later
-        pmapi.c_api.pmSetOptionFlags(pmapi.c_api.PM_OPTFLAG_POSIX) # RHBZ#1289912
         if pmapi.c_api.pmGetOptionsFromList(sys.argv):
             raise pmapi.pmUsageErr()
 
@@ -490,22 +503,22 @@ class PMReporter(object):
     def parse_metric_info(self, metrics, key, value):
         """ Parse metric information """
         # NB. Uses the config key, not the metric, as the dict key
-        if ',' in value:
+        if ',' in value or ('.' in key and key.rsplit(".")[1] not in self.metricspec):
             # Compact / one-line definition
             spec, insts = self.parse_metric_spec_instances(key + "," + value)
             metrics[key] = spec.split(",")
             metrics[key][2] = insts
         else:
             # Verbose / multi-line definition
-            if not '.' in key or key.rsplit(".", 1)[1] not in self.metricspec:
+            if not '.' in key or key.rsplit(".")[1] not in self.metricspec:
                 # New metric
-                metrics[key] = value.split()
+                metrics[key] = [value]
                 for index in range(0, 6):
                     if len(metrics[key]) <= index:
                         metrics[key].append(None)
             else:
                 # Additional info
-                key, spec = key.rsplit(".", 1)
+                key, spec = key.rsplit(".")
                 if key not in metrics:
                     sys.stderr.write("Undeclared metric key %s.\n" % key)
                     sys.exit(1)
@@ -519,14 +532,15 @@ class PMReporter(object):
 
     def prepare_metrics(self):
         """ Construct and prepare the initial metrics set """
-        metrics = self.opts.pmGetNonOptionsFromList(sys.argv)
+        metrics = self.opts.pmGetOperands()
         if not metrics:
             sys.stderr.write("No metrics specified.\n")
             raise pmapi.pmUsageErr()
 
         # Read config
         config = ConfigParser.SafeConfigParser()
-        config.read(self.config)
+        if self.config:
+            config.read(self.config)
 
         # First read global metrics (if not disabled already)
         globmet = OrderedDict()
@@ -679,6 +693,9 @@ class PMReporter(object):
 
     def check_metric(self, metric):
         """ Validate individual metric and get its details """
+        if metric in self.metrics:
+            # Always ignore duplicates
+            return
         try:
             pmid = self.context.pmLookupName(metric)[0]
             desc = self.context.pmLookupDescs(pmid)[0]
@@ -702,6 +719,8 @@ class PMReporter(object):
                     mtype == PM_TYPE_STRING):
                 raise pmapi.pmErr(PM_ERR_TYPE)
             instances = self.instances if not self.tmp[0] else self.tmp
+            if self.omit_flat and instances and not inst[1][0]:
+                return
             if instances and inst[1][0]:
                 found = [[], []]
                 for r in instances:
@@ -717,6 +736,8 @@ class PMReporter(object):
             self.descs.append(desc)
             self.insts.append(inst)
         except pmapi.pmErr as error:
+            if self.ignore_incompat:
+                return
             sys.stderr.write("Invalid metric %s (%s).\n" % (metric, str(error)))
             sys.exit(1)
 
@@ -767,16 +788,18 @@ class PMReporter(object):
         # Prepare for non-leaf metrics
         metrics = self.metrics
         self.metrics = OrderedDict()
+
         for metric in metrics:
             try:
                 l = len(self.pmids)
-                self.tmp = []
-                if len(metrics[metric]) > 1:
-                    self.tmp = metrics[metric][1]
-                    if not 'append' in dir(self.tmp):
-                        self.tmp = [None]
+                self.tmp = metrics[metric][1]
+                if not 'append' in dir(self.tmp):
+                    self.tmp = [self.tmp]
                 self.context.pmTraversePMNS(metric, self.check_metric)
-                if len(self.pmids) == l + 1:
+                if len(self.pmids) == l:
+                    # No compatible metrics found
+                    next
+                elif len(self.pmids) == l + 1:
                     # Leaf
                     if metric == self.context.pmNameID(self.pmids[l]):
                         self.metrics[metric] = metrics[metric]
@@ -799,10 +822,11 @@ class PMReporter(object):
             # Try to help the user to get the instance specifications right
             if self.instances:
                 print("\nRequested global instances:")
-                print("\n".join(self.instances))
+                print(self.instances)
             sys.exit(1)
 
         # Finalize the metrics set
+        incompat_metrics = {}
         for i, metric in enumerate(self.metrics):
             # Fill in all fields for easier checking later
             for index in range(0, 6):
@@ -883,8 +907,28 @@ class PMReporter(object):
                 self.metrics[metric][4] = len(TRUNC) # Forced minimum
 
             # Add fetchgroup item
-            scale = self.metrics[metric][2][0]
-            self.metrics[metric][5] = self.pmfg.extend_indom(metric, mtype, scale, 1024)
+            try:
+                scale = self.metrics[metric][2][0]
+                self.metrics[metric][5] = self.pmfg.extend_indom(metric, mtype, scale, 1024)
+            except:
+                if self.ignore_incompat:
+                    # Schedule the metric for removal
+                    incompat_metrics[metric] = i
+                else:
+                    raise
+
+        # Remove all traces of incompatible metrics
+        for metric in incompat_metrics:
+            del self.pmids[incompat_metrics[metric]]
+            del self.descs[incompat_metrics[metric]]
+            del self.insts[incompat_metrics[metric]]
+            del self.metrics[metric]
+        incompat_metrics = {}
+
+        # Verify that we have valid metrics
+        if not self.metrics:
+            sys.stderr.write("No compatible metrics found.\n")
+            sys.exit(1)
 
     def get_local_tz(self, set_dst=-1):
         """ Figure out the local timezone using the PCP convention """

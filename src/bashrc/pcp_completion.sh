@@ -42,7 +42,7 @@ _pcp_complete()
         ;;
 
         pmrep)
-        opt_regex="-[AaBbCcDdEeFfGHhiKLlOoPpQqrSsTtUuVwXxYyZz]"
+        opt_regex="-[AabCcDdEeFfGHhIiKLlOoPpqrSsTtUuVvwXxyZz]"
         curpos_expand=1
         ;;
 

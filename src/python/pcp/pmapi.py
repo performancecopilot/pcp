@@ -1,7 +1,7 @@
 # pylint: disable=C0103
 """ Wrapper module for LIBPCP - the core Performace Co-Pilot API """
 #
-# Copyright (C) 2012-2016 Red Hat
+# Copyright (C) 2012-2017 Red Hat
 # Copyright (C) 2009-2012 Michael T. Werner
 #
 # This file is part of the "pcp" module, the python interfaces for the
@@ -882,10 +882,19 @@ class pmOptions(object):
         """ Set sampling interval (pmParseInterval string) """
         return c_api.pmSetOptionInterval(interval)
 
+    def pmGetOperands(self):
+        """ After a pmGetOptions(3) call has been made this method
+            returns a list of any remaining parameters which were
+            not parsed as command line options, aka "operands".
+            http://pubs.opengroup.org/onlinepubs/009695399/basedefs/xbd_chap03.html#tag_03_254
+        """
+        return c_api.pmGetOperands()
+
+    # Deprecated, use pmGetOperands() above instead
     def pmGetNonOptionsFromList(self, argv):
         return c_api.pmGetNonOptionsFromList(argv)
 
-    # Deprecated, use pmGetNonOptionsFromList() above instead
+    # Deprecated, use pmGetOperands() above instead
     def pmNonOptionsFromList(self, argv):
         return c_api.pmGetNonOptionsFromList(argv)
 

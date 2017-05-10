@@ -99,6 +99,7 @@ pcp.spec: pcp.spec.in
 	    -e's|@have_python@|$(HAVE_PYTHON)|g' \
 	    -e's|@have_webapps@|$(HAVE_WEBAPPS)|g' \
 	    -e"s|@build_root@|$${DIST_ROOT}|g" \
+	    -e's|@pcp_sysconfig_dir@|$(PCP_SYSCONFIG_DIR)|g' \
 	    -e's|@pcp_sysconf_dir@|$(PCP_SYSCONF_DIR)|g' \
 	    -e's|@pcp_share_dir@|$(PCP_SHARE_DIR)|g' \
 	    -e's|@pcp_log_dir@|$(PCP_LOG_DIR)|g' \

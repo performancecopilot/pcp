@@ -396,7 +396,7 @@ PCP_VERSION
 No matching instances found.
 
 Requested global instances:
-wrong
+['wrong']
   m.u.free
      Kbyte
      38220
@@ -443,6 +443,44 @@ wrong
                                          1 minute          5 minute               sda
       count/s             Kbyte                                               count/s
           N/A             38220             0.820             0.700               N/A
+=== more instance handling
+No matching instances found.
+
+Requested global instances:
+['xxx', 'yyy', 'zzz']
+No matching instances found.
+
+Requested global instances:
+['sda', 'sdc']
+No matching instances found.
+
+Requested global instances:
+['sda']
+   l2   l3
+  sda  sda
+  cou  cou
+  N/A  N/A
+  d.d.read
+       sda
+   count/s
+       N/A
+  d.d.read
+       sda
+   count/s
+       N/A
+  label
+    sda
+  count
+    N/A
+== test ignoring and omitting metrics
+pmrep: Impossible value or scale conversion
+  m.u.used  m.u.free  m.u.shared  m.u.bufmem  m.u.cached  m.u.other  m.u.swapCached  m.u.active  m.u.inactive  m.u.highTotal  m.u.highFree  m.u.lowTotal  m.u.lowFree  m.u.swapTotal  m.u.swapFree  m.u.dirty  m.u.writeback  m.u.mapped  m.u.slab  m.u.committed_AS  m.u.pageTables  m.u.reverseMaps  m.u.cache_clean  m.u.anonpages  m.u.commitLimit  m.u.bounce  m.u.NFS_Unstable  m.u.slabReclaimable  m.u.slabUnreclaimable  m.u.active_anon  m.u.inactive_anon  m.u.active_file  m.u.inactive_file  m.u.unevictable  m.u.mlocked  m.u.shmem  m.u.kernelStack  m.u.directMap4k  m.u.directMap2M  m.u.vmallocTotal  m.u.vmallocUsed  m.u.vmallocChunk  m.u.mmap_copy  m.u.quicklists  m.u.corrupthardware  m.u.anonhugepages
+  m.u.free  d.d.avactive  d.d.read  d.d.write  d.d.total  d.d.read_bytes  d.d.write_bytes  m.u.used  m.u.shared  m.u.bufmem  m.u.cached  m.u.other  m.u.swapCached  m.u.active  m.u.inactive  m.u.highTotal  m.u.highFree  m.u.lowTotal  m.u.lowFree  m.u.swapTotal  m.u.swapFree  m.u.dirty  m.u.writeback  m.u.mapped  m.u.slab  m.u.committed_AS  m.u.pageTables  m.u.reverseMaps  m.u.cache_clean  m.u.anonpages  m.u.commitLimit  m.u.bounce  m.u.NFS_Unstable  m.u.slabReclaimable  m.u.slabUnreclaimable  m.u.active_anon  m.u.inactive_anon  m.u.active_file  m.u.inactive_file  m.u.unevictable  m.u.mlocked  m.u.shmem  m.u.kernelStack  m.u.hugepagesTotal  m.u.hugepagesFree  m.u.hugepagesRsvd  m.u.hugepagesSurp  m.u.directMap4k  m.u.directMap2M  m.u.vmallocTotal  m.u.vmallocUsed  m.u.vmallocChunk  m.u.mmap_copy  m.u.quicklists  m.u.corrupthardware  m.u.anonhugepages
+                     sda       sda        sda        sda             sda              sda                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
+     Kbyte          ms/s   count/s    count/s    count/s         Kbyte/s          Kbyte/s     Kbyte       Kbyte       Kbyte       Kbyte      Kbyte           Kbyte       Kbyte         Kbyte          Kbyte         Kbyte         Kbyte        Kbyte          Kbyte         Kbyte      Kbyte          Kbyte       Kbyte     Kbyte             Kbyte           Kbyte            Kbyte            Kbyte          Kbyte            Kbyte       Kbyte             Kbyte                Kbyte                  Kbyte            Kbyte              Kbyte            Kbyte              Kbyte            Kbyte        Kbyte      Kbyte            Kbyte               count              count              count              count            Kbyte            Kbyte             Kbyte            Kbyte             Kbyte          Kbyte           Kbyte                Kbyte              Kbyte
+  d.d.avactive  d.d.read  d.d.write  d.d.total  d.d.read_bytes  d.d.write_bytes
+           sda       sda        sda        sda             sda              sda
+          ms/s   count/s    count/s    count/s         Kbyte/s          Kbyte/s
 == exercise option priority
           m.u.free
              Kbyte

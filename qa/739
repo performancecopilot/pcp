@@ -2,7 +2,7 @@
 # PCP QA Test No. 739
 # Exercise python script automated option handling
 #
-# Copyright (c) 2014 Red Hat.
+# Copyright (c) 2014,2017 Red Hat.
 #
 
 seq=`basename $0`
@@ -51,6 +51,9 @@ $python $here/src/test_pcp_options.py --list /tmp --force
 
 echo && echo check custom local short options
 $python $here/src/test_pcp_options.py -b
+
+echo && echo check handling of non-option operands
+$python $here/src/test_pcp_options.py param1 -b param2
 
 echo && echo check version message generation
 # more python3 sickness here ... if stdout is redirected, the
