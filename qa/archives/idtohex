@@ -1,0 +1,16 @@
+#!/bin/sh
+#
+# Convert pmID or pmInDom to hex ... useful as input to bvi when making
+# "bad" archives
+#
+
+for id
+do
+    echo "$id" | awk -F. '
+NF == 2		{ printf "%08x\n", or(lshift($1,22),$2); next }
+NF == 3		{ printf "%08x\n", or(lshift(or(lshift($1,12),$2),10),$3); next }
+		{ print "Bozo! no clue what to do with \"" $0 "\"" }
+'
+done
+
+exit
