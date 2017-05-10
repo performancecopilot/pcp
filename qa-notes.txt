@@ -24,17 +24,6 @@ test.  But we can do a few things:
 - increase pmwebd logging (-v in /etc/pcp/pmwebd/pmwebd.options)
 
 
-== blinkenlights ==
-
-- tweak the refresh-interval slider to observe timely refreshes
-- add other predicates such as
-  "kernel.all.nprocs < 5" and "kernel.all.nprocs >= 5"
-  to confirm calculation polarities
-- test "local" connection; kernel.* metrics should stay resolveable
-- test a remote pmcd hostspec, if available; metrics should change value but stay alive
-- check pmwebd.log to see new contexts coming, old ones expiring
-
-
 == graphite ==
 
 - ensure some local pmlogger and/or pmmgr data is already available, ideally from
