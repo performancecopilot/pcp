@@ -4,6 +4,8 @@
 # linux_kernel_ulong.conf
 #	Needs to be done dynamically because the type of KERNEL_ULONG is
 #	platform dependent.
+# linux_kernel_fixups.conf
+#	Miscellaneous corrections to metadata for the linux PMDA.
 #
 
 tmp=/var/tmp/$$
@@ -76,6 +78,14 @@ metric swapdev.priority { units -> 0,0,0,0,0,0 }
 # network.interface.baudrate changed to 64 bits:
 #
 metric network.interface.baudrate { type -> U64 }
+
+# hinv.cpu.cache had incorrect units:
+#
+metric hinv.cpu.cache { units -> 1,0,0,KBYTE,0,0 }
+
+# hinv.cpu.clock is frequency in MHz which had incorrect units:
+#
+metric hinv.cpu.clock { units -> 0,-1,0,0,USEC,0 }
 End-of-File
 
 exit 0

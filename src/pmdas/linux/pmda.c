@@ -3827,7 +3827,7 @@ static pmdaMetric metrictab[] = {
 /* hinv.cpu.clock */
   { NULL,
     { PMDA_PMID(CLUSTER_CPUINFO, 0), PM_TYPE_FLOAT, CPU_INDOM, PM_SEM_DISCRETE,
-    PMDA_PMUNITS(0,0,1,0,-6,0) } },
+    PMDA_PMUNITS(0,-1,0,0,PM_TIME_USEC,0) } },
 
 /* hinv.cpu.vendor */
   { NULL,
@@ -3847,7 +3847,7 @@ static pmdaMetric metrictab[] = {
 /* hinv.cpu.cache */
   { NULL,
     { PMDA_PMID(CLUSTER_CPUINFO, 4), PM_TYPE_U32, CPU_INDOM, PM_SEM_DISCRETE,
-    PMDA_PMUNITS(0,0,0,PM_SPACE_KBYTE,0,0) } },
+    PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) } },
 
 /* hinv.cpu.bogomips */
   { NULL,
