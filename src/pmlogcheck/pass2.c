@@ -17,8 +17,6 @@
 #include "impl.h"
 #include "logcheck.h"
 
-/* TODO */
-
 int
 pass2(__pmContext *ctxp, char *archname)
 {
