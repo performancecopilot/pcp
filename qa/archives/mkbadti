@@ -117,7 +117,7 @@ do
     then
 	:
     else
-	target=`echo $file | sed -e "s/badti-$X\./..\/src\/ok-foo./"`
+	target=`echo $file | sed -e "s/badti-$X\./.\/ok-foo./"`
 	if cp $target $file
 	then
 	    :
