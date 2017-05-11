@@ -34,21 +34,28 @@ function arrayize(field, defaults) {
 
 // normalize the input parameters, fill in defaults
 var metrics = arrayize("metric", [
-    // roughly the set of the hard-coded default.json dashboard
+    // exactly the set of the hard-coded default.json dashboard
     "kernel.all.load.1 minute",
-    "kernel.all.running,kernel.all.blocked",
     "network.interface.in.bytes.*,network.interface.out.bytes.*",
     "disk.dev.read_bytes.*,disk.dev.write_bytes.*",
+    "kernel.all.running,kernel.all.blocked",
     "mem.util.available,mem.util.used",
     "filesys.full.*"
 ]);
-var titles = arrayize("title", new Array(metrics.length));
-var styles = arrayize("style", new Array(metrics.length));
-var heights = arrayize("height", new Array(metrics.length));
-
-// time bounds, will be passed along to multichart per-host views
+var titles = arrayize("title", [
+    "1-minute load average",
+    "network i/o bytes/s",
+    "disk read/write kbytes/s",
+    "running/blocked processes",
+    "available/used memory kbytes",
+    "filesystem fullness %"
+]);
+// other parameters will be passed along to multichart as a whole
+var style = ARGS["style"]; if (style == null) { style = "flot"; }
 var from = ARGS["from"]; if (from == null) { from = "now-2d"; }
 var to = ARGS["to"];     if (to == null)   { to = "now"; }
+var span12s = ARGS["span12s"]; if (span12s == null) { span12s = "4"; } /* 12ths of a grafana row */
+var height = ARGS["height"]; if (height == null) { height = 200; }
 
 
 // XXX: other ideas:
@@ -57,24 +64,36 @@ var to = ARGS["to"];     if (to == null)   { to = "now"; }
 
 
 // assemble a url querystring suffix, passing along the incoming
-// metrics/titles/styles/heights to a call to multichart.js, and
+// metrics/titles/styles to a call to multichart.js, and
 // substituting the target_prefix into each metric
 function assemble_multichart_url(target_prefix,dispname) {
     var suffix="";
     suffix = suffix + "&from=" + encodeURIComponent(from);
     suffix = suffix + "&to=" + encodeURIComponent(to);
-    var def_style = (target_prefix=="*" ? "png" : "json");
-    var def_height = (target_prefix=="*" ? "200" : "150");
+    suffix = suffix + "&span12s=" + encodeURIComponent(span12s);
+    suffix = suffix + "&height=" + encodeURIComponent(height);
+    suffix = suffix + "&style=" + encodeURIComponent(style);
+    if (target_prefix == "") {
+        suffix = suffix + "&template=*";
+    }
     for (var i=0; i<metrics.length; i++) {
         var m = metrics[i].split(','); // NB: possibly comma-separated; need to put target_prefix before each part
         var submetrics = [];
-        for (s in m) {
-            submetrics.push (target_prefix+"."+m[s]);
+        if (target_prefix == "") {
+            for (s in m) {
+                submetrics.push (m[s]);
+            }
+        } else {
+            for (s in m) {
+                submetrics.push (target_prefix+"."+m[s]);
+            }
         }
         suffix = suffix + "&target=" + encodeURIComponent(submetrics.join(','));
-        suffix = suffix + "&title=" + (titles[i]==null ? encodeURIComponent(metrics[i]) : encodeURIComponent(titles[i]));
-        suffix = suffix + "&style=" + (styles[i]==null ? def_style : encodeURIComponent(styles[i]));
-        suffix = suffix + "&height=" + (heights[i]==null ? def_height : encodeURIComponent(heights[i]));
+        if (titles[i] != null) {
+            suffix = suffix + "&title=" + encodeURIComponent(titles[i]);
+        } else {
+            suffix = suffix + "&title"; // placeholder
+        }
     }
     suffix = suffix + "&name=" + encodeURIComponent(dispname);
     return suffix;
@@ -185,8 +204,8 @@ return function(callback) {
             }
             markdown = markdown + "\n\n";
 
-            markdown = markdown + "### ... on all hosts (png graphs)\n";
-            markdown = markdown + "* [all hosts]("+multichart+assemble_multichart_url("*","all hosts")+")";
+            markdown = markdown + "### ... on all hosts (host-selector template)\n";
+            markdown = markdown + "* [all hosts]("+multichart+assemble_multichart_url("","all hosts")+")";
             markdown = markdown + "\n\n";
             
             var target_suffix = ".proc.nprocs";

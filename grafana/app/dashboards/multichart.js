@@ -25,7 +25,6 @@ var dashboard = {
           }
 };
 
-
 // normalize the input parameters
 function arrayize(field, defaults) {
     var array;
@@ -42,16 +41,41 @@ function arrayize(field, defaults) {
 
 var targets = arrayize("target", [null]);
 var titles = arrayize("title", []);
-var styles = arrayize("style", []);
-var heights = arrayize("height", []);
+var style = ARGS["style"]; if (style == null) { style = "flot"; }
+var height;
+var heights = ARGS["height"]; if (heights == null) { height = 200; } else { height = parseInt(heights); }
+
 // XXX: other ideas
 // a parameter to select overall dashboard color theme
 var name = ARGS["name"]; if (name == null) { name = "PCP+Grafana charts"; }
+var template = ARGS["template"];
+var template_p = true;
+if (template == null) { template_p = false; }
+var span12s = ARGS["span12s"]; if (span12s == null) { span12 = 4; } else { span12=parseInt(span12s); }
+
+if (template_p) {
+    dashboard.templating = {
+        enable: true,
+        list: [ { datasource: null,
+                  includeAll: true,
+                  name: "host", /* -> $host elsewhere */
+                  query: template,
+                  refresh_on_load: true,
+                  refresh: true,
+                  type: 'query',
+                  regex: '/(.*)/',
+                  allFormat: 'wildcard',
+                  options: [ { text: 'All', value: '*' } ],
+                  current: { text: 'All', value: '*' }
+                } ] };
+}
 
 dashboard.title = name;
 
 // console.log(targets);
 
+var totalspan = 0;
+var panels = [];
 for (var i = 0; i<targets.length; i++) {
     var TARGET = targets[i];
     if (TARGET == null || TARGET=="") {
@@ -63,21 +87,16 @@ for (var i = 0; i<targets.length; i++) {
     }
     
     var TITLE = titles[i];
-    if (TITLE == null) TITLE = TARGET;
-
-    var STYLE = styles[i];
-    if (STYLE == null || STYLE != "png") STYLE = "flot"; // default "flot"
-
-    var HEIGHT = heights[i];
-    if (HEIGHT == null) HEIGHT = "150px";
+    if (TITLE == null) TITLE = TARGET.replace(',',' '); // can get wide :(
 
     var panel = {
         title: TITLE,
         type: 'graph',
-        span: 12,
+        span: span12,
         fill: 1,
         linewidth: 2,
-        nullPointMode: "connected",
+        nullPointMode: "null", /* "connected" ? */
+        /*        tooltip: { shared: true }, */
         targets: [],
         seriesOverrides: [ {
             yaxis: 2,
@@ -85,23 +104,31 @@ for (var i = 0; i<targets.length; i++) {
             linewidth: 5
         } ]
     };
-
-    var SUBTARGETS = TARGET.split(',');
-    for (j in SUBTARGETS) {
-        panel.targets.push({target: SUBTARGETS[j]});
-    }
-    
-    if (STYLE == "png") {
+    if (style == "png") {
         panel.renderer = "png";
         panel.legend = true;
     } else {
         panel.legend = false;
     }
 
-    dashboard.rows.push({
-        title: 'Chart',
-        height: HEIGHT,
-        panels: [ panel ]});
+    var SUBTARGETS = TARGET.split(',');
+    for (j in SUBTARGETS) {
+        panel.targets.push({target: (template_p ? "$host."+SUBTARGETS[j] : SUBTARGETS[j])});
+    }
+
+    /* Shift panels onto a row when we fill up the twelve 12ths, or 
+       we've just processed the last panel. */
+    panels.push(panel);
+    totalspan = totalspan + span12;
+    
+    if (span12 > 12 || (i+1 == targets.length)) {
+        dashboard.rows.push({
+            title: 'Chart',
+            height: height,
+            panels: panels});
+        totalspan = 0;
+        panels = [];
+    }
 }
 
 return dashboard;
