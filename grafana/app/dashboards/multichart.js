@@ -64,6 +64,11 @@ if (template_p) {
                   refresh: true,
                   type: 'query',
                   regex: '/(.*)/',
+                  // NB: it'd be nice if grafana accepted the template (FOO* wildcard)
+                  // here too.  That way "all" could mean "all matching the glob",
+                  // not "unrestricted all".  Alternatively, pmwebd could accept the
+                  // {pfx,pfx,pfx}.target syntax for graphite metrics, and then the
+                  // this template could use allFormat=glob.
                   allFormat: 'wildcard',
                   options: [ { text: 'All', value: '*' } ],
                   current: { text: 'All', value: '*' }
