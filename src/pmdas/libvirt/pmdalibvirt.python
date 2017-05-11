@@ -1,6 +1,6 @@
 #!/usr/bin/env pmpython
 #
-# Copyright (C) 2016 Marko Myllynen <myllynen@redhat.com>
+# Copyright (C) 2016-2017 Marko Myllynen <myllynen@redhat.com>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -79,20 +79,20 @@ class LibvirtPMDA(PMDA):
         self.hv_metrics = [
             # Name - method - type - semantics - units - help
             # See libvirt.py
-            [ 'hv.uri',                          'getURI',                   PM_TYPE_STRING, PM_SEM_DISCRETE, units_none,  'Libvirt URI'                     ],
-            [ 'hv.driver',                       'getType',                  PM_TYPE_STRING, PM_SEM_DISCRETE, units_none,  'Libvirt driver'                  ],
-            [ 'hv.version',                      'getVersion',               PM_TYPE_U32,    PM_SEM_DISCRETE, units_none,  'Libvirt version'                 ],
-            [ 'hv.domains.active',               'numOfDomains',             PM_TYPE_U32,    PM_SEM_INSTANT,  units_count, 'Libvirt domains, active'         ],
-            [ 'hv.domains.inactive',             'numOfDefinedDomains',      PM_TYPE_U32,    PM_SEM_INSTANT,  units_count, 'Libvirt domains, inactive'       ],
-            [ 'hv.devices',                      'numOfDevices',             PM_TYPE_U32,    PM_SEM_INSTANT,  units_count, 'Libvirt devices'                 ],
-            [ 'hv.storagepools.active',          'numOfStoragePools',        PM_TYPE_U32,    PM_SEM_INSTANT,  units_count, 'Libvirt storage pools, active'   ],
-            [ 'hv.storagepools.inactive',        'numOfDefinedStoragePools', PM_TYPE_U32,    PM_SEM_INSTANT,  units_count, 'Libvirt storage pools, inactive' ],
-            [ 'hv.networks.active',              'numOfNetworks',            PM_TYPE_U32,    PM_SEM_INSTANT,  units_count, 'Libvirt networks, active'        ],
-            [ 'hv.networks.inactive',            'numOfDefinedNetworks',     PM_TYPE_U32,    PM_SEM_INSTANT,  units_count, 'Libvirt networks, inactive'      ],
-            [ 'hv.interfaces.active',            'numOfInterfaces',          PM_TYPE_U32,    PM_SEM_INSTANT,  units_count, 'Libvirt interfaces, active'      ],
-            [ 'hv.interfaces.inactive',          'numOfDefinedInterfaces',   PM_TYPE_U32,    PM_SEM_INSTANT,  units_count, 'Libvirt interfaces, inactive'    ],
-            [ 'hv.networkfilters',               'numOfNWFilters',           PM_TYPE_U32,    PM_SEM_INSTANT,  units_count, 'Libvirt network filters'         ],
-            [ 'hv.secrets',                      'numOfSecrets',             PM_TYPE_U32,    PM_SEM_INSTANT,  units_count, 'Libvirt secrets'                 ],
+            [ 'hv.uri',                                'getURI',                   PM_TYPE_STRING, PM_SEM_DISCRETE, units_none,  'Libvirt URI'                            ],
+            [ 'hv.driver',                             'getType',                  PM_TYPE_STRING, PM_SEM_DISCRETE, units_none,  'Libvirt driver'                         ],
+            [ 'hv.version',                            'getVersion',               PM_TYPE_U32,    PM_SEM_DISCRETE, units_none,  'Libvirt version'                        ],
+            [ 'hv.domains.active',                     'numOfDomains',             PM_TYPE_U32,    PM_SEM_INSTANT,  units_count, 'Libvirt domains, active'                ],
+            [ 'hv.domains.inactive',                   'numOfDefinedDomains',      PM_TYPE_U32,    PM_SEM_INSTANT,  units_count, 'Libvirt domains, inactive'              ],
+            [ 'hv.devices',                            'numOfDevices',             PM_TYPE_U32,    PM_SEM_INSTANT,  units_count, 'Libvirt devices'                        ],
+            [ 'hv.storagepools.active',                'numOfStoragePools',        PM_TYPE_U32,    PM_SEM_INSTANT,  units_count, 'Libvirt storage pools, active'          ],
+            [ 'hv.storagepools.inactive',              'numOfDefinedStoragePools', PM_TYPE_U32,    PM_SEM_INSTANT,  units_count, 'Libvirt storage pools, inactive'        ],
+            [ 'hv.networks.active',                    'numOfNetworks',            PM_TYPE_U32,    PM_SEM_INSTANT,  units_count, 'Libvirt networks, active'               ],
+            [ 'hv.networks.inactive',                  'numOfDefinedNetworks',     PM_TYPE_U32,    PM_SEM_INSTANT,  units_count, 'Libvirt networks, inactive'             ],
+            [ 'hv.interfaces.active',                  'numOfInterfaces',          PM_TYPE_U32,    PM_SEM_INSTANT,  units_count, 'Libvirt interfaces, active'             ],
+            [ 'hv.interfaces.inactive',                'numOfDefinedInterfaces',   PM_TYPE_U32,    PM_SEM_INSTANT,  units_count, 'Libvirt interfaces, inactive'           ],
+            [ 'hv.networkfilters',                     'numOfNWFilters',           PM_TYPE_U32,    PM_SEM_INSTANT,  units_count, 'Libvirt network filters'                ],
+            [ 'hv.secrets',                            'numOfSecrets',             PM_TYPE_U32,    PM_SEM_INSTANT,  units_count, 'Libvirt secrets'                        ],
         ]
 
         self.vm_indom = self.indom(0)
@@ -103,18 +103,18 @@ class LibvirtPMDA(PMDA):
         self.vm_metrics = [
             # Name - xpath - type - semantics - units - help
             # See https://libvirt.org/formatdomain.html
-            [ 'dominfo.type',                    '/domain/@type',            PM_TYPE_STRING, PM_SEM_DISCRETE, units_none,  'VM type'                           ],
-            [ 'dominfo.name',                    '/domain/name',             PM_TYPE_STRING, PM_SEM_DISCRETE, units_none,  'VM name'                           ],
-            [ 'dominfo.uuid',                    '/domain/uuid',             PM_TYPE_STRING, PM_SEM_DISCRETE, units_none,  'VM UUID'                           ],
-            [ 'dominfo.title',                   '/domain/title',            PM_TYPE_STRING, PM_SEM_DISCRETE, units_none,  'VM title'                          ],
-            [ 'dominfo.description',             '/domain/description',      PM_TYPE_STRING, PM_SEM_DISCRETE, units_none,  'VM description'                    ],
-            [ 'dominfo.container',               '/domain/os/init',          PM_TYPE_STRING, PM_SEM_DISCRETE, units_none,  'VM container'                      ],
-            [ 'dominfo.os.type',                 '/domain/os/type',          PM_TYPE_STRING, PM_SEM_DISCRETE, units_none,  'VM OS type'                        ],
-            [ 'dominfo.vcpu.current',            '/domain/vcpu/@current',    PM_TYPE_U32,    PM_SEM_INSTANT,  units_count, 'VM vCPUs, current'                 ],
-            [ 'dominfo.vcpu.max',                '/domain/vcpu',             PM_TYPE_U32,    PM_SEM_INSTANT,  units_count, 'VM vCPUs, maximum'                 ],
-            [ 'dominfo.memory.boot',             '/domain/memory',           PM_TYPE_U64,    PM_SEM_INSTANT,  units_kbyte, 'VM memory, at boot'                ],
-            [ 'dominfo.memory.current',          '/domain/currentMemory',    PM_TYPE_U64,    PM_SEM_INSTANT,  units_kbyte, 'VM memory, current'                ],
-            [ 'dominfo.memory.max',              '/domain/maxMemory',        PM_TYPE_U64,    PM_SEM_INSTANT,  units_kbyte, 'VM memory, maximum'                ],
+            [ 'dominfo.type',                          '/domain/@type',            PM_TYPE_STRING, PM_SEM_DISCRETE, units_none,  'VM type'                                ],
+            [ 'dominfo.name',                          '/domain/name',             PM_TYPE_STRING, PM_SEM_DISCRETE, units_none,  'VM name'                                ],
+            [ 'dominfo.uuid',                          '/domain/uuid',             PM_TYPE_STRING, PM_SEM_DISCRETE, units_none,  'VM UUID'                                ],
+            [ 'dominfo.title',                         '/domain/title',            PM_TYPE_STRING, PM_SEM_DISCRETE, units_none,  'VM title'                               ],
+            [ 'dominfo.description',                   '/domain/description',      PM_TYPE_STRING, PM_SEM_DISCRETE, units_none,  'VM description'                         ],
+            [ 'dominfo.container',                     '/domain/os/init',          PM_TYPE_STRING, PM_SEM_DISCRETE, units_none,  'VM container'                           ],
+            [ 'dominfo.os.type',                       '/domain/os/type',          PM_TYPE_STRING, PM_SEM_DISCRETE, units_none,  'VM OS type'                             ],
+            [ 'dominfo.vcpu.current',                  '/domain/vcpu/@current',    PM_TYPE_U32,    PM_SEM_INSTANT,  units_count, 'VM vCPUs, current'                      ],
+            [ 'dominfo.vcpu.max',                      '/domain/vcpu',             PM_TYPE_U32,    PM_SEM_INSTANT,  units_count, 'VM vCPUs, maximum'                      ],
+            [ 'dominfo.memory.boot',                   '/domain/memory',           PM_TYPE_U64,    PM_SEM_INSTANT,  units_kbyte, 'VM memory, at boot'                     ],
+            [ 'dominfo.memory.current',                '/domain/currentMemory',    PM_TYPE_U64,    PM_SEM_INSTANT,  units_kbyte, 'VM memory, current'                     ],
+            [ 'dominfo.memory.max',                    '/domain/maxMemory',        PM_TYPE_U64,    PM_SEM_INSTANT,  units_kbyte, 'VM memory, maximum'                     ],
         ]
 
         self.vm_cpustats_res = []
@@ -122,9 +122,9 @@ class LibvirtPMDA(PMDA):
         self.vm_cpustats = [
             # Name - empty - type - semantics - units - help
             # See libvirt.git/src/libvirt-domain.c
-            [ 'domstats.cpu.time',               None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_nsecs, 'VM CPU time, total'                ],
-            [ 'domstats.cpu.system',             None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_nsecs, 'VM CPU time, system'               ],
-            [ 'domstats.cpu.user',               None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_nsecs, 'VM CPU time, user'                 ],
+            [ 'domstats.cpu.time',                     None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_nsecs, 'VM CPU time, total'                     ],
+            [ 'domstats.cpu.system',                   None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_nsecs, 'VM CPU time, system'                    ],
+            [ 'domstats.cpu.user',                     None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_nsecs, 'VM CPU time, user'                      ],
         ]
 
         self.vm_vcpu_indom = self.indom(1)
@@ -136,14 +136,16 @@ class LibvirtPMDA(PMDA):
         self.vm_vcpustats = [
             # Name - empty - type - semantics - units - help
             # See libvirt.git/src/libvirt-domain.c
-            [ 'domstats.vcpu.current',           None,                       PM_TYPE_U32,    PM_SEM_INSTANT,  units_count, 'VM vCPUs, current'                 ],
-            [ 'domstats.vcpu.maximum',           None,                       PM_TYPE_U32,    PM_SEM_INSTANT,  units_count, 'VM vCPUs, maximum'                 ],
-            [ 'domstats.vcpu.all.state',         None,                       PM_TYPE_U32,    PM_SEM_INSTANT,  units_none,  'VM vCPUs, total state'             ],
-            [ 'domstats.vcpu.all.time',          None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_nsecs, 'VM vCPUs, total time'              ],
-            [ 'domstats.vcpu.all.wait',          None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_nsecs, 'VM vCPUs, total wait'              ],
-            [ 'domstats.vcpu.state',             None,                       PM_TYPE_U32,    PM_SEM_INSTANT,  units_none,  'VM vCPU, state'                    ],
-            [ 'domstats.vcpu.time',              None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_nsecs, 'VM vCPU, time'                     ],
-            [ 'domstats.vcpu.wait',              None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_nsecs, 'VM vCPU, wait'                     ],
+            [ 'domstats.vcpu.current',                 None,                       PM_TYPE_U32,    PM_SEM_INSTANT,  units_count, 'VM vCPUs, current'                      ],
+            [ 'domstats.vcpu.maximum',                 None,                       PM_TYPE_U32,    PM_SEM_INSTANT,  units_count, 'VM vCPUs, maximum'                      ],
+            [ 'domstats.vcpu.all.state',               None,                       PM_TYPE_U32,    PM_SEM_INSTANT,  units_none,  'VM vCPUs, total state'                  ],
+            [ 'domstats.vcpu.all.time',                None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_nsecs, 'VM vCPUs, total time'                   ],
+            [ 'domstats.vcpu.all.wait',                None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_nsecs, 'VM vCPUs, total wait'                   ],
+            [ 'domstats.vcpu.state',                   None,                       PM_TYPE_U32,    PM_SEM_INSTANT,  units_none,  'VM vCPU, state'                         ],
+            [ 'domstats.vcpu.time',                    None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_nsecs, 'VM vCPU, time'                          ],
+            [ 'domstats.vcpu.wait',                    None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_nsecs, 'VM vCPU, wait'                          ],
+            [ 'domstats.vcpu.all.halted',              None,                       PM_TYPE_U32,    PM_SEM_INSTANT,  units_count, 'VM vCPUs, total halted'                 ],
+            [ 'domstats.vcpu.halted',                  None,                       PM_TYPE_U32,    PM_SEM_INSTANT,  units_count, 'VM vCPU, halted'                        ],
         ]
 
         self.vm_memstats_res = {}
@@ -151,14 +153,14 @@ class LibvirtPMDA(PMDA):
         self.vm_memstats = [
             # Name - empty - type - semantics - units - help
             # See libvirt.git/include/libvirt/libvirt-domain.h
-            [ 'domstats.mem.swap_in',            None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_kbyte, 'VM memory, swapped in total'       ],
-            [ 'domstats.mem.swap_out',           None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_kbyte, 'VM memory, swapped out total'      ],
-            [ 'domstats.mem.major_fault',        None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM memory, major faults'           ],
-            [ 'domstats.mem.minor_fault',        None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM memory, minor faults'           ],
-            [ 'domstats.mem.unused',             None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_kbyte, 'VM memory, unused'                 ],
-            [ 'domstats.mem.available',          None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_kbyte, 'VM memory, available'              ],
-            [ 'domstats.mem.actual',             None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_kbyte, 'VM memory, balloon size'           ],
-            [ 'domstats.mem.rss',                None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_kbyte, 'VM memory, proc RSS'               ],
+            [ 'domstats.mem.swap_in',                  None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_kbyte, 'VM memory, swapped in total'            ],
+            [ 'domstats.mem.swap_out',                 None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_kbyte, 'VM memory, swapped out total'           ],
+            [ 'domstats.mem.major_fault',              None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM memory, major faults'                ],
+            [ 'domstats.mem.minor_fault',              None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM memory, minor faults'                ],
+            [ 'domstats.mem.unused',                   None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_kbyte, 'VM memory, unused'                      ],
+            [ 'domstats.mem.available',                None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_kbyte, 'VM memory, available'                   ],
+            [ 'domstats.mem.actual',                   None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_kbyte, 'VM memory, balloon size'                ],
+            [ 'domstats.mem.rss',                      None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_kbyte, 'VM memory, proc RSS'                    ],
         ]
 
         self.vm_balloonstats_res = []
@@ -166,17 +168,17 @@ class LibvirtPMDA(PMDA):
         self.vm_balloonstats = [
             # Name - empty - type - semantics - units - help
             # See libvirt.git/src/libvirt-domain.c
-            [ 'domstats.balloon.current',        None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_kbyte, 'VM balloon, current size'          ],
-            [ 'domstats.balloon.maximum',        None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_kbyte, 'VM balloon, maximum size'          ],
-            [ 'domstats.balloon.swap_in',        None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_kbyte, 'VM balloon, swapped in total'      ],
-            [ 'domstats.balloon.swap_out',       None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_kbyte, 'VM balloon, swapped out total'     ],
-            [ 'domstats.balloon.major_fault',    None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM balloon, major faults'          ],
-            [ 'domstats.balloon.minor_fault',    None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM balloon, minor faults'          ],
-            [ 'domstats.balloon.unused',         None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_kbyte, 'VM balloon, unused'                ],
-            [ 'domstats.balloon.available',      None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_kbyte, 'VM balloon, available'             ],
-            [ 'domstats.balloon.rss',            None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_kbyte, 'VM balloon, proc RSS'              ],
-            [ 'domstats.balloon.usable',         None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_kbyte, 'VM balloon, usable w/o swap'       ],
-            [ 'domstats.balloon.last_update',    None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_secs,  'VM balloon, update timestamp'      ],
+            [ 'domstats.balloon.current',              None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_kbyte, 'VM balloon, current size'               ],
+            [ 'domstats.balloon.maximum',              None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_kbyte, 'VM balloon, maximum size'               ],
+            [ 'domstats.balloon.swap_in',              None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_kbyte, 'VM balloon, swapped in total'           ],
+            [ 'domstats.balloon.swap_out',             None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_kbyte, 'VM balloon, swapped out total'          ],
+            [ 'domstats.balloon.major_fault',          None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM balloon, major faults'               ],
+            [ 'domstats.balloon.minor_fault',          None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM balloon, minor faults'               ],
+            [ 'domstats.balloon.unused',               None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_kbyte, 'VM balloon, unused'                     ],
+            [ 'domstats.balloon.available',            None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_kbyte, 'VM balloon, available'                  ],
+            [ 'domstats.balloon.rss',                  None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_kbyte, 'VM balloon, proc RSS'                   ],
+            [ 'domstats.balloon.usable',               None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_kbyte, 'VM balloon, usable w/o swap'            ],
+            [ 'domstats.balloon.last_update',          None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_secs,  'VM balloon, update timestamp'           ],
         ]
 
         self.vm_block_indom = self.indom(2)
@@ -187,36 +189,39 @@ class LibvirtPMDA(PMDA):
         self.vm_blockstats_cluster = 6
         self.vm_blockstats = [
             # Name - empty - type - semantics - units - help
-            # See libvirt.git/src/libvirt-domain.c
-            [ 'domstats.block.count',            None,                       PM_TYPE_U32,    PM_SEM_INSTANT,  units_count, 'VM block devs, count'              ],
-            [ 'domstats.block.all.name',         None,                       PM_TYPE_STRING, PM_SEM_INSTANT,  units_none,  'VM block devs, all names'          ],
-            [ 'domstats.block.all.backingIndex', None,                       PM_TYPE_U32,    PM_SEM_INSTANT,  units_count, 'VM block devs, backing chain imgs' ],
-            [ 'domstats.block.all.path',         None,                       PM_TYPE_STRING, PM_SEM_INSTANT,  units_none,  'VM block devs, all paths'          ],
-            [ 'domstats.block.all.rd.reqs',      None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM block devs, total rd reqs'      ],
-            [ 'domstats.block.all.rd.bytes',     None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_bytes, 'VM block devs, total rd bytes'     ],
-            [ 'domstats.block.all.rd.times',     None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_nsecs, 'VM block devs, total rd times'     ],
-            [ 'domstats.block.all.wr.reqs',      None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM block devs, total wr reqs'      ],
-            [ 'domstats.block.all.wr.bytes',     None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_bytes, 'VM block devs, total wr bytes'     ],
-            [ 'domstats.block.all.wr.times',     None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_nsecs, 'VM block devs, total wr times'     ],
-            [ 'domstats.block.all.fl.reqs',      None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM block devs, total fl reqs'      ],
-            [ 'domstats.block.all.fl.times',     None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_nsecs, 'VM block devs, total fl times'     ],
-            [ 'domstats.block.all.allocation',   None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_bytes, 'VM backing imgs, total allocation' ],
-            [ 'domstats.block.all.capacity',     None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_bytes, 'VM backing imgs, total capacity'   ],
-            [ 'domstats.block.all.physical',     None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_bytes, 'VM backing imgs, total physical'   ],
-            [ 'domstats.block.name',             None,                       PM_TYPE_STRING, PM_SEM_INSTANT,  units_none,  'VM block dev, name'                ],
-            [ 'domstats.block.backingIndex',     None,                       PM_TYPE_U32,    PM_SEM_INSTANT,  units_count, 'VM block dev, backing chain img'   ],
-            [ 'domstats.block.path',             None,                       PM_TYPE_STRING, PM_SEM_INSTANT,  units_none,  'VM block dev, path'                ],
-            [ 'domstats.block.rd.reqs',          None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM block dev, rd reqs'             ],
-            [ 'domstats.block.rd.bytes',         None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_bytes, 'VM block dev, rd bytes'            ],
-            [ 'domstats.block.rd.times',         None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_nsecs, 'VM block dev, rd times'            ],
-            [ 'domstats.block.wr.reqs',          None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM block dev, wr reqs'             ],
-            [ 'domstats.block.wr.bytes',         None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_bytes, 'VM block dev, wr bytes'            ],
-            [ 'domstats.block.wr.times',         None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_nsecs, 'VM block dev, wr times'            ],
-            [ 'domstats.block.fl.reqs',          None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM block dev, fl reqs'             ],
-            [ 'domstats.block.fl.times',         None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_nsecs, 'VM block dev, fl times'            ],
-            [ 'domstats.block.allocation',       None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_bytes, 'VM backing img, allocation'        ],
-            [ 'domstats.block.capacity',         None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_bytes, 'VM backing img, capacity'          ],
-            [ 'domstats.block.physical',         None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_bytes, 'VM backing img, physical'          ],
+            # See libvirt.git/src/libvirt-domain.c and https://www.berrange.com/posts/2017/02/10/the-surprisingly-complicated-world-of-disk-image-sizes/
+            # Below allocation <=> length in the blog post, capacity <=> capacity, physical <=> allocation
+            [ 'domstats.block.count',                  None,                       PM_TYPE_U32,    PM_SEM_INSTANT,  units_count, 'VM block devs, count'                   ],
+            [ 'domstats.block.all.name',               None,                       PM_TYPE_STRING, PM_SEM_INSTANT,  units_none,  'VM block devs, all names'               ],
+            [ 'domstats.block.all.backingIndex',       None,                       PM_TYPE_U32,    PM_SEM_INSTANT,  units_count, 'VM block devs, backing chain imgs'      ],
+            [ 'domstats.block.all.path',               None,                       PM_TYPE_STRING, PM_SEM_INSTANT,  units_none,  'VM block devs, all paths'               ],
+            [ 'domstats.block.all.rd.reqs',            None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM block devs, total rd reqs'           ],
+            [ 'domstats.block.all.rd.bytes',           None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_bytes, 'VM block devs, total rd bytes'          ],
+            [ 'domstats.block.all.rd.times',           None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_nsecs, 'VM block devs, total rd times'          ],
+            [ 'domstats.block.all.wr.reqs',            None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM block devs, total wr reqs'           ],
+            [ 'domstats.block.all.wr.bytes',           None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_bytes, 'VM block devs, total wr bytes'          ],
+            [ 'domstats.block.all.wr.times',           None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_nsecs, 'VM block devs, total wr times'          ],
+            [ 'domstats.block.all.fl.reqs',            None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM block devs, total fl reqs'           ],
+            [ 'domstats.block.all.fl.times',           None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_nsecs, 'VM block devs, total fl times'          ],
+            [ 'domstats.block.all.allocation',         None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_bytes, 'VM backing imgs, total allocation'      ],
+            [ 'domstats.block.all.capacity',           None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_bytes, 'VM backing imgs, total capacity'        ],
+            [ 'domstats.block.all.physical',           None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_bytes, 'VM backing imgs, total physical'        ],
+            [ 'domstats.block.name',                   None,                       PM_TYPE_STRING, PM_SEM_INSTANT,  units_none,  'VM block dev, name'                     ],
+            [ 'domstats.block.backingIndex',           None,                       PM_TYPE_U32,    PM_SEM_INSTANT,  units_count, 'VM block dev, backing chain img'        ],
+            [ 'domstats.block.path',                   None,                       PM_TYPE_STRING, PM_SEM_INSTANT,  units_none,  'VM block dev, path'                     ],
+            [ 'domstats.block.rd.reqs',                None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM block dev, rd reqs'                  ],
+            [ 'domstats.block.rd.bytes',               None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_bytes, 'VM block dev, rd bytes'                 ],
+            [ 'domstats.block.rd.times',               None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_nsecs, 'VM block dev, rd times'                 ],
+            [ 'domstats.block.wr.reqs',                None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM block dev, wr reqs'                  ],
+            [ 'domstats.block.wr.bytes',               None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_bytes, 'VM block dev, wr bytes'                 ],
+            [ 'domstats.block.wr.times',               None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_nsecs, 'VM block dev, wr times'                 ],
+            [ 'domstats.block.fl.reqs',                None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM block dev, fl reqs'                  ],
+            [ 'domstats.block.fl.times',               None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_nsecs, 'VM block dev, fl times'                 ],
+            [ 'domstats.block.allocation',             None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_bytes, 'VM backing img, allocation'             ],
+            [ 'domstats.block.capacity',               None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_bytes, 'VM backing img, capacity'               ],
+            [ 'domstats.block.physical',               None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_bytes, 'VM backing img, physical'               ],
+            [ 'domstats.block.all.threshold',          None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_bytes, 'VM backing imgs, total threshold'       ],
+            [ 'domstats.block.threshold',              None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_bytes, 'VM backing img, threshold'              ],
         ]
 
         self.vm_net_indom = self.indom(3)
@@ -228,39 +233,54 @@ class LibvirtPMDA(PMDA):
         self.vm_netstats = [
             # Name - empty - type - semantics - units - help
             # See libvirt.git/src/libvirt-domain.c
-            [ 'domstats.net.count',              None,                       PM_TYPE_U32,    PM_SEM_INSTANT,  units_count, 'VM NICs, count'                    ],
-            [ 'domstats.net.all.name',           None,                       PM_TYPE_STRING, PM_SEM_INSTANT,  units_none,  'VM NICs, all names'                ],
-            [ 'domstats.net.all.rx.bytes',       None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_bytes, 'VM NICs, total rx bytes'           ],
-            [ 'domstats.net.all.rx.pkts',        None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM NICs, total rx pkts'            ],
-            [ 'domstats.net.all.rx.errs',        None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM NICs, total rx errs'            ],
-            [ 'domstats.net.all.rx.drop',        None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM NICs, total rx drop'            ],
-            [ 'domstats.net.all.tx.bytes',       None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_bytes, 'VM NICs, total tx bytes'           ],
-            [ 'domstats.net.all.tx.pkts',        None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM NICs, total tx pkts'            ],
-            [ 'domstats.net.all.tx.errs',        None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM NICs, total tx errs'            ],
-            [ 'domstats.net.all.tx.drop',        None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM NICs, total tx drop'            ],
-            [ 'domstats.net.name',               None,                       PM_TYPE_STRING, PM_SEM_INSTANT,  units_none,  'VM NIC, name'                      ],
-            [ 'domstats.net.rx.bytes',           None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_bytes, 'VM NIC, rx bytes'                  ],
-            [ 'domstats.net.rx.pkts',            None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM NIC, rx pkts'                   ],
-            [ 'domstats.net.rx.errs',            None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM NIC, rx errs'                   ],
-            [ 'domstats.net.rx.drop',            None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM NIC, rx drop'                   ],
-            [ 'domstats.net.tx.bytes',           None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_bytes, 'VM NIC, tx bytes'                  ],
-            [ 'domstats.net.tx.pkts',            None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM NIC, tx pkts'                   ],
-            [ 'domstats.net.tx.errs',            None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM NIC, tx errs'                   ],
-            [ 'domstats.net.tx.drop',            None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM NIC, tx drop'                   ],
+            [ 'domstats.net.count',                    None,                       PM_TYPE_U32,    PM_SEM_INSTANT,  units_count, 'VM NICs, count'                         ],
+            [ 'domstats.net.all.name',                 None,                       PM_TYPE_STRING, PM_SEM_INSTANT,  units_none,  'VM NICs, all names'                     ],
+            [ 'domstats.net.all.rx.bytes',             None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_bytes, 'VM NICs, total rx bytes'                ],
+            [ 'domstats.net.all.rx.pkts',              None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM NICs, total rx pkts'                 ],
+            [ 'domstats.net.all.rx.errs',              None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM NICs, total rx errs'                 ],
+            [ 'domstats.net.all.rx.drop',              None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM NICs, total rx drop'                 ],
+            [ 'domstats.net.all.tx.bytes',             None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_bytes, 'VM NICs, total tx bytes'                ],
+            [ 'domstats.net.all.tx.pkts',              None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM NICs, total tx pkts'                 ],
+            [ 'domstats.net.all.tx.errs',              None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM NICs, total tx errs'                 ],
+            [ 'domstats.net.all.tx.drop',              None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM NICs, total tx drop'                 ],
+            [ 'domstats.net.name',                     None,                       PM_TYPE_STRING, PM_SEM_INSTANT,  units_none,  'VM NIC, name'                           ],
+            [ 'domstats.net.rx.bytes',                 None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_bytes, 'VM NIC, rx bytes'                       ],
+            [ 'domstats.net.rx.pkts',                  None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM NIC, rx pkts'                        ],
+            [ 'domstats.net.rx.errs',                  None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM NIC, rx errs'                        ],
+            [ 'domstats.net.rx.drop',                  None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM NIC, rx drop'                        ],
+            [ 'domstats.net.tx.bytes',                 None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_bytes, 'VM NIC, tx bytes'                       ],
+            [ 'domstats.net.tx.pkts',                  None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM NIC, tx pkts'                        ],
+            [ 'domstats.net.tx.errs',                  None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM NIC, tx errs'                        ],
+            [ 'domstats.net.tx.drop',                  None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM NIC, tx drop'                        ],
         ]
 
         self.vm_perfstats_res = []
         self.vm_perfstats_cluster = 8
         self.vm_perfstats = [
             # Name - empty - type - semantics - units - help
-            # See libvirt.git/src/libvirt-domain.c
-            [ 'domstats.perf.cmt',               None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_bytes, 'VM perf stats, cmt'                ],
-            [ 'domstats.perf.mbmt',              None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_bpers, 'VM perf stats, mbmt'               ],
-            [ 'domstats.perf.mbml',              None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_bpers, 'VM perf stats, mbml'               ],
-            [ 'domstats.perf.cpu_cycles',        None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM perf stats, CPU cycles'         ],
-            [ 'domstats.perf.instructions',      None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM perf stats, instructions count' ],
-            [ 'domstats.perf.cache_references',  None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM perf stats, cache references'   ],
-            [ 'domstats.perf.cache_misses',      None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM perf stats, cache misses'       ],
+            # See libvirt.git/src/libvirt-domain.c and https://libvirt.org/formatdomain.html
+            [ 'domstats.perf.cmt',                     None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_bytes, 'VM perf stats, cmt'                     ],
+            [ 'domstats.perf.mbmt',                    None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_bpers, 'VM perf stats, mbmt'                    ],
+            [ 'domstats.perf.mbml',                    None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_bpers, 'VM perf stats, mbml'                    ],
+            [ 'domstats.perf.cpu_cycles',              None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM perf stats, CPU cycles'              ],
+            [ 'domstats.perf.instructions',            None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM perf stats, instructions count'      ],
+            [ 'domstats.perf.cache_references',        None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM perf stats, cache references'        ],
+            [ 'domstats.perf.cache_misses',            None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM perf stats, cache misses'            ],
+            [ 'domstats.perf.branch_instructions',     None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM perf stats, branch instructions'     ],
+            [ 'domstats.perf.branch_misses',           None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM perf stats, branch misses'           ],
+            [ 'domstats.perf.bus_cycles',              None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM perf stats, bus cycles'              ],
+            [ 'domstats.perf.stalled_cycles_frontend', None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM perf stats, stalled frontend cycles' ],
+            [ 'domstats.perf.stalled_cycles_backend',  None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM perf stats, stalled backend cycles'  ],
+            [ 'domstats.perf.ref_cpu_cycles',          None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM perf stats, reference CPU cycles'    ],
+            [ 'domstats.perf.cpu_clock',               None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM perf stats, CPU clock time'          ],
+            [ 'domstats.perf.task_clock',              None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM perf stats, task clock time'         ],
+            [ 'domstats.perf.page_faults',             None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM perf stats, page faults'             ],
+            [ 'domstats.perf.context_switches',        None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM perf stats, context switches'        ],
+            [ 'domstats.perf.cpu_migrations',          None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM perf stats, CPU migrations'          ],
+            [ 'domstats.perf.page_faults_min',         None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM perf stats, minor page faults'       ],
+            [ 'domstats.perf.page_faults_maj',         None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM perf stats, major page faults'       ],
+            [ 'domstats.perf.alignment_faults',        None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM perf stats, alignment faults'        ],
+            [ 'domstats.perf.emulation_faults',        None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM perf stats, emulation faults'        ],
         ]
 
         for item in range(len(self.hv_metrics)):
@@ -278,14 +298,17 @@ class LibvirtPMDA(PMDA):
                 self.vm_cpustats[item][2], self.vm_indom, self.vm_cpustats[item][3],
                 self.vm_cpustats[item][4]), self.vm_cpustats[item][5], self.vm_cpustats[item][5])
 
-        # Note the different instance domains
-        for item in range(len(self.vm_vcpustats) - 3):
+        for item in range(len(self.vm_vcpustats)):
+            if item < 5:    # Old combined metrics
+                indom = self.vm_indom
+            elif item < 8:  # Old per-device metrics
+                indom = self.vm_vcpu_indom
+            elif item % 2:  # New metrics added in pairs
+                indom = self.vm_vcpu_indom
+            else:           # New metrics added in pairs
+                indom = self.vm_indom            
             self.add_metric(name + '.' + self.vm_vcpustats[item][0], pmdaMetric(self.pmid(self.vm_vcpustats_cluster, item),
-                self.vm_vcpustats[item][2], self.vm_indom, self.vm_vcpustats[item][3],
-                self.vm_vcpustats[item][4]), self.vm_vcpustats[item][5], self.vm_vcpustats[item][5])
-        for item in range(len(self.vm_vcpustats) - 3, len(self.vm_vcpustats)):
-            self.add_metric(name + '.' + self.vm_vcpustats[item][0], pmdaMetric(self.pmid(self.vm_vcpustats_cluster, item),
-                self.vm_vcpustats[item][2], self.vm_vcpu_indom, self.vm_vcpustats[item][3],
+                self.vm_vcpustats[item][2], indom, self.vm_vcpustats[item][3],
                 self.vm_vcpustats[item][4]), self.vm_vcpustats[item][5], self.vm_vcpustats[item][5])
 
         for item in range(len(self.vm_memstats)):
@@ -297,25 +320,31 @@ class LibvirtPMDA(PMDA):
             self.add_metric(name + '.' + self.vm_balloonstats[item][0], pmdaMetric(self.pmid(self.vm_balloonstats_cluster, item),
                 self.vm_balloonstats[item][2], self.vm_indom, self.vm_balloonstats[item][3],
                 self.vm_balloonstats[item][4]), self.vm_balloonstats[item][5], self.vm_balloonstats[item][5])
-
-        # Note the different instance domains
-        for item in range(len(self.vm_blockstats) - 14):
+                
+        for item in range(len(self.vm_blockstats)):
+            if item < 15:
+                indom = self.vm_indom
+            elif item < 29:
+                indom = self.vm_block_indom
+            elif item % 2:
+                indom = self.vm_indom
+            else:
+                indom = self.vm_block_indom
             self.add_metric(name + '.' + self.vm_blockstats[item][0], pmdaMetric(self.pmid(self.vm_blockstats_cluster, item),
-                self.vm_blockstats[item][2], self.vm_indom, self.vm_blockstats[item][3],
-                self.vm_blockstats[item][4]), self.vm_blockstats[item][5], self.vm_blockstats[item][5])
-        for item in range(len(self.vm_blockstats) - 14, len(self.vm_blockstats)):
-            self.add_metric(name + '.' + self.vm_blockstats[item][0], pmdaMetric(self.pmid(self.vm_blockstats_cluster, item),
-                self.vm_blockstats[item][2], self.vm_block_indom, self.vm_blockstats[item][3],
+                self.vm_blockstats[item][2], indom, self.vm_blockstats[item][3],
                 self.vm_blockstats[item][4]), self.vm_blockstats[item][5], self.vm_blockstats[item][5])
 
-        # Note the different instance domains
-        for item in range(len(self.vm_netstats) - 9):
+        for item in range(len(self.vm_netstats)):
+            if item < 11:
+                indom = self.vm_indom
+            elif item < 19:
+                indom = self.vm_net_indom
+            elif item % 2:
+                indom = self.vm_indom
+            else:
+                indom = self.vm_net_indom
             self.add_metric(name + '.' + self.vm_netstats[item][0], pmdaMetric(self.pmid(self.vm_netstats_cluster, item),
-                self.vm_netstats[item][2], self.vm_indom, self.vm_netstats[item][3],
-                self.vm_netstats[item][4]), self.vm_netstats[item][5], self.vm_netstats[item][5])
-        for item in range(len(self.vm_netstats) - 9, len(self.vm_netstats)):
-            self.add_metric(name + '.' + self.vm_netstats[item][0], pmdaMetric(self.pmid(self.vm_netstats_cluster, item),
-                self.vm_netstats[item][2], self.vm_net_indom, self.vm_netstats[item][3],
+                self.vm_netstats[item][2], indom, self.vm_netstats[item][3],
                 self.vm_netstats[item][4]), self.vm_netstats[item][5], self.vm_netstats[item][5])
 
         for item in range(len(self.vm_perfstats)):
@@ -732,11 +761,14 @@ class LibvirtPMDA(PMDA):
 
                 # Locate the correct instance domain
                 pos = -1
-                if cluster == 3 and item > 4:
+                if cluster == 3 and \
+                   ((item >= 5 and item < 8) or (item >= 8 and item % 2)):
                    uuid = self.vm_vcpu_insts.inst_name_lookup(inst)
-                elif cluster == 6 and item > 14:
+                elif cluster == 6 and \
+                   ((item >= 15 and item < 29) or (item >= 29 and not item % 2)):
                    uuid = self.vm_block_insts.inst_name_lookup(inst)
-                elif cluster == 7 and item > 9:
+                elif cluster == 7 and \
+                   ((item >= 11 and item < 19) or (item >= 20 and not item % 2)):
                    uuid = self.vm_net_insts.inst_name_lookup(inst)
                 else:
                    uuid = self.vm_insts.inst_name_lookup(inst)
