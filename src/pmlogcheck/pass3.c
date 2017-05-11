@@ -280,6 +280,18 @@ docheck(pmResult *result)
 		fprintf(stderr, "] ");
 		print_metric(stderr, vsp->pmid);
 		fprintf(stderr, ": pmLookupDesc failed: %s\n", pmErrStr(sts));
+		/*
+		 * add to hashlist to suppress repeated error messages
+		 * ... but of course no checks on pmResult values that depend
+		 * on the pmDesc are possible
+		 */
+		if (__pmHashAdd(vsp->pmid, NULL, &hashlist) < 0) {
+		    fprintf(stderr, "%s.%d:[", l_archname, l_ctxp->c_archctl->ac_vol);
+		    print_stamp(stderr, &result->timestamp);
+		    fprintf(stderr, "] ");
+		    print_metric(stderr, vsp->pmid);
+		    fprintf(stderr, ": __pmHashAdd bad failed (internal pmlogcheck error)\n");
+		}
 		continue;
 	    }
 
@@ -296,12 +308,12 @@ docheck(pmResult *result)
 		checkdata->valfmt = vsp->valfmt;
 	    else
 		checkdata->valfmt = -1;
-	    if (__pmHashAdd(checkdata->desc.pmid, (void*)checkdata, &hashlist) < 0) {
+	    if (__pmHashAdd(vsp->pmid, (void*)checkdata, &hashlist) < 0) {
 		fprintf(stderr, "%s.%d:[", l_archname, l_ctxp->c_archctl->ac_vol);
 		print_stamp(stderr, &result->timestamp);
 		fprintf(stderr, "] ");
 		print_metric(stderr, vsp->pmid);
-		fprintf(stderr, ": __pmHashAdd failed (internal pmlogcheck error)\n");
+		fprintf(stderr, ": __pmHashAdd good failed (internal pmlogcheck error)\n");
 		/* free memory allocated above on insert failure */
 		for (j = 0; j < vsp->numval; j++) {
 		    if (checkdata->instlist[j] != NULL)
@@ -312,7 +324,8 @@ docheck(pmResult *result)
 		continue;
 	    }
 	}
-	else {	/* pmid exists - update statistics */
+	else if (hptr->data != NULL) {
+	    /* pmid previously looked up - update statistics */
 	    checkdata = (checkData *)hptr->data;
 	    if (vsp->numval > 0) {
 		if (checkdata->valfmt == -1)
@@ -361,7 +374,7 @@ docheck(pmResult *result)
 
 		timediff = result->timestamp;
 		tsub(&timediff, &(checkdata->instlist[k]->lasttime));
-		if (timediff.tv_sec < 0) {
+		if (timediff.tv_sec < 0 || timediff.tv_usec < 0) {
 		    /* clip negative values at zero */
 		    timediff.tv_sec = 0;
 		    timediff.tv_usec = 0;
@@ -387,7 +400,8 @@ docheck(pmResult *result)
 			fprintf(stderr, ": current counter value is %.0f\n", av.d);
 		    }
 #endif
-		    unwrap(av.d, &(result->timestamp), checkdata, k);
+		    if (nowrap == 0)
+			unwrap(av.d, &(result->timestamp), checkdata, k);
 		}
 		checkdata->instlist[k]->lastval = av.d;
 		checkdata->instlist[k]->lasttime = result->timestamp;
@@ -402,25 +416,38 @@ pass3(__pmContext *ctxp, char *archname, pmOptions *opts)
     struct timeval	timespan;
     int			sts;
     pmResult		*result;
+    struct timeval	label_stamp;
     struct timeval	last_stamp;
     struct timeval	delta_stamp;
 
     l_ctxp = ctxp;
     l_archname = archname;
 
+    label_stamp.tv_sec = log_label.ill_start.tv_sec;
+    label_stamp.tv_usec = log_label.ill_start.tv_usec;
+
     if (vflag)
 	fprintf(stderr, "%s: start pass3\n", archname);
-    
-    if ((sts = pmSetMode(PM_MODE_FORW, &opts->start, 0)) < 0) {
-	fprintf(stderr, "%s: pmSetMode failed: %s\n", l_archname, pmErrStr(sts));
-	return STS_FATAL;
-    }
 
     /* check which timestamp print format we should be using */
     timespan = opts->finish;
     tsub(&timespan, &opts->start);
     if (timespan.tv_sec > 86400) /* seconds per day: 60*60*24 */
 	dayflag = 1;
+
+    if (opts->start_optarg == NULL && opts->origin_optarg == NULL && 
+	opts->align_optarg == NULL) {
+	/*
+	 * No -S or -O or -A ... start from the epoch in case there are
+	 * records with a timestamp _before_ the label timestamp.
+	 */
+	opts->start.tv_sec = opts->start.tv_usec = 0;
+    }
+
+    if ((sts = pmSetMode(PM_MODE_FORW, &opts->start, 0)) < 0) {
+	fprintf(stderr, "%s: pmSetMode failed: %s\n", l_archname, pmErrStr(sts));
+	return STS_FATAL;
+    }
 
     sts = 0;
     last_stamp = opts->start;
@@ -433,6 +460,15 @@ pass3(__pmContext *ctxp, char *archname, pmOptions *opts)
 	if ((sts = __pmLogRead(l_ctxp->c_archctl->ac_log, l_ctxp->c_mode, NULL, &result, PMLOGREAD_NEXT)) < 0)
 	    break;
 	result_count++;
+	delta_stamp = result->timestamp;
+	tsub(&delta_stamp, &label_stamp);
+	if (delta_stamp.tv_sec < 0 || delta_stamp.tv_usec < 0) {
+	    fprintf(stderr, "%s.%d:[", l_archname, l_ctxp->c_archctl->ac_vol);
+	    print_stamp(stderr, &result->timestamp);
+	    fprintf(stderr, "]: timestamp before label timestamp: ");
+	    print_stamp(stderr, &label_stamp);
+	    fprintf(stderr, "\n");
+	}
 	delta_stamp = result->timestamp;
 	tsub(&delta_stamp, &last_stamp);
 #ifdef PCP_DEBUG
@@ -463,7 +499,7 @@ pass3(__pmContext *ctxp, char *archname, pmOptions *opts)
 	    fputc('\n', stderr);
 	}
 #endif
-	if (delta_stamp.tv_sec < 0) {
+	if (delta_stamp.tv_sec < 0 || delta_stamp.tv_usec < 0) {
 	    /* time went backwards! */
 	    fprintf(stderr, "%s.%d:[", l_archname, l_ctxp->c_archctl->ac_vol);
 	    print_stamp(stderr, &result->timestamp);

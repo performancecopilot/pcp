@@ -27,3 +27,18 @@
    fun:__pmLogRead
    ...
 }
+
+# glibc problem ...
+# at 0x598156C: ??? (in /lib/i386-linux-gnu/libgcc_s.so.1)
+# by 0x405388D: pthread_once (pthread_once.S:122)
+# by 0x598312D: ??? (in /lib/i386-linux-gnu/libgcc_s.so.1)
+# by 0x598371D: _Unwind_ForcedUnwind (in /lib/i386-linux-gnu/libgcc_s.so.1)
+# by 0x40570C1: _Unwind_ForcedUnwind (unwind-forcedunwind.c:132)
+# by 0x4054BC7: __pthread_unwind (unwind.c:130)
+# by 0x404ED0F: pthread_exit (pthreadP.h:265)
+# by 0x8049149: func (multithread1.c:129)
+{
+   glibc _Unwind_ForcedUnwind race
+   Helgrind:Race
+   obj:/lib/i386-linux-gnu/libgcc_s.so.1
+}

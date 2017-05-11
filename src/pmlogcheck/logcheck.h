@@ -8,6 +8,7 @@
 
 extern char		sep;
 extern int		vflag;
+extern int		nowrap;
 extern int		index_state;
 extern int		meta_state;
 extern int		log_state;
