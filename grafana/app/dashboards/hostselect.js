@@ -104,23 +104,30 @@ function assemble_multichart_url(target_prefix,dispname) {
 // Should match pmwebd's pmgraphite_metric_decode() routine, though
 // this copy is only for aesthetic (human reading) purposes, so can
 // let glitches through.
-function pmwebd_demangle(X,str) {
+function pmwebd_demangle(J,X,str) {
     // http://stackoverflow.com/a/4209150/661150
-    if (X) {
-        return str.replace(/~([0-9A-F][0-9A-F])/g, function() {
-            return String.fromCharCode(parseInt(arguments[1], 16));
-        });
+    // console.log("demangle:", J, X, str);
+    if (J) {
+        return str; // only the one-way mangling from pmgraphite_metric_encode_1way
     } else {
-        return str.replace(/-([0-9A-F][0-9A-F])-/g, function() {
-            return String.fromCharCode(parseInt(arguments[1], 16));
-        });
+        if (X) {
+            return str.replace(/~([0-9A-F][0-9A-F])/g, function() {
+                return String.fromCharCode(parseInt(arguments[1], 16));
+            });
+        } else {
+            return str.replace(/-([0-9A-F][0-9A-F])-/g, function() {
+                return String.fromCharCode(parseInt(arguments[1], 16));
+            });
+        }
     }
 }
 
 // host names may include "_", which we don't want markdown
 // to interpret as italic markup
 function markdown_escape(str) {
-    return str.replace(/_/g,"\\_");
+    var r = str.replace(/_/g,"\\_");
+    console.log (r);
+    return r;
 }
 
 
@@ -171,6 +178,9 @@ return function(callback) {
                 if(target.match(/[\/~]/)) { // guess at -X mode being on or off by presence of special chars
                     pmwebd_X_mode = true;
                     pmwebd_J_mode = false;
+                } else if (target.match(/-2E-meta$/)) {
+                    pmwebd_X_mode = false;
+                    pmwebd_J_mode = false;
                 }
 
                 var hostname, host_basename, host_contname;
@@ -180,11 +190,11 @@ return function(callback) {
                     // containers just show up as separate hosts
                 } else if (pmwebd_X_mode) {
                     //                            vv---pmmgr---vv vv--pmlogger--vv
-                    hostname = target.replace(/\/(archive|reduced|\d\d\d\d\d\d\d\d).*$/, "");
+                    hostname = target.replace(/\/(archive-|reduced-|\d\d\d\d\d\d\d\d).*$/, "");
                     host_basename = hostname.replace(/--.*$/,"");
                     host_contname = hostname.replace(/^.*--/,"");
                 } else {
-                    hostname = target.replace(/-2F-(archive|reduced|\d\d\d\d\d\d\d\d).*$/, "");
+                    hostname = target.replace(/-2F-(archive-2D-|reduced-2D-|\d\d\d\d\d\d\d\d).*$/, "");
                     host_basename = hostname.replace(/-2D--2D-.*$/,"");
                     host_contname = hostname.replace(/^.*-2D--2D-/,"");
                 }
@@ -213,7 +223,7 @@ return function(callback) {
             markdown = markdown + "\n### ... on individual hosts (flot graphs)\n\n";
             for (var hostname in hosts) {
                 if (hosts.hasOwnProperty(hostname)) {
-                    hostdispname = pmwebd_demangle(pmwebd_X_mode, hostname);
+                    hostdispname = pmwebd_demangle(pmwebd_J_mode, pmwebd_X_mode, hostname);
                     hostarchives = pmwebd_J_mode ? hostname : (hostname + "*");
                     markdown = markdown + "* ["+markdown_escape(hostdispname)+"]("+multichart+assemble_multichart_url(hostarchives,hostdispname)+")";
                     // iterate over its containers
