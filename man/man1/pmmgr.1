@@ -248,6 +248,13 @@ The default is to maintain
 .BR "no pmlogger"
 (and no other configuration in this section is processed).
 .TP
+.I pmlogger-timefmt
+Specify a time format to use in the archive-* name for
+.B pmlogger
+generated archives. The default is "%Y%m%d.%H%M%S". Expected to be in 
+.BR strftime (3)
+format.
+.TP
 .I pmlogconf
 If and only if this file exists,
 .B pmmgr
