@@ -58,10 +58,10 @@ class ScanPrometheus(object):
 
 		def __init__(self):
 			self.name = None
-			self.desc = None
+			self.description = None
 			self.instances = None
 			self.type = None
-			self.semantic = None
+			self.semantics = None
 			self.units_str = None
 			self.prometheus_name = None
 
@@ -108,10 +108,10 @@ class ScanPrometheus(object):
 		# First commented line of the metric is the description
 		# Second commented line of the metric is the type
 		tokens = lines[0].split(' ')
-		desc = ' '.join(tokens[3:])
+		description = ' '.join(tokens[3:])
 		name = tokens[2]
 		type_ = lines[1].split(' ')[3]
-		return (desc, name, type_)
+		return (description, name, type_)
 
 	def get_metric_instance(self, line):
 		# Returns the instances of the prometheus metric
@@ -127,15 +127,15 @@ class ScanPrometheus(object):
 
 	def parse_metric(self, lines):
 		''' Iterates over the instances of a metric '''
-		(desc, name, type_) = self.get_metric_metadata(lines)
+		(description, name, type_) = self.get_metric_metadata(lines)
 		metric = self.Metric()
 		metric.name = name
-		metric.desc = desc
+		metric.description = description
 		metric.type = DOUBLE
 		if(type_ == "counter"):
-			metric.semantic = COUNTER
+			metric.semantics = COUNTER
 		else:
-			metric.semantic = INSTANT
+			metric.semantics = INSTANT
 		metric.units_str = ""
 
 		for line in lines[2:]:
@@ -170,7 +170,7 @@ class Metric(object):
 	''' Metric information class '''
 	__name_re = re.compile(r'^[a-zA-Z][\w_\.]+$')
 	def __init__(self, name_prefix, cluster, pmda):
-		self.desc = ''
+		self.description = ''
 		self.__name = ''
 		self.full_name = ''
 		self.units_str = ''
@@ -238,7 +238,7 @@ class Metric(object):
 		''' Parses the metric metadata json '''
 		try:
 			self.name = json_obj["name"]
-			self.desc = json_obj["desc"]
+			self.description = json_obj["description"]
 
 			type_ = json_obj["type"]
 			# Types can be only of the TYPES constant
@@ -246,10 +246,10 @@ class Metric(object):
 				raise ValueError("Invalid type: %s" %(type_))
 			self.type = TYPES.get(type_)
 
-			semantic = json_obj["semantic"]
-			if not SEMANTICS.get(semantic):
+			semantics = json_obj["semantics"]
+			if not SEMANTICS.get(semantics):
 				raise ValueError("Invalid semantic: %s" %(semantic))
-			self.semantic = SEMANTICS.get(semantic)
+			self.semantics = SEMANTICS.get(semantics)
 
 			self.units_str = json_obj["units_str"]
 			self.prometheus_name = json_obj.get("prometheus_name")
@@ -596,7 +596,7 @@ class PrometheusSource(object):
 		''' Create and add a metric to the pmda. '''
 		metric.create()
 		self.pmda.add_metric(metric.full_name, metric.obj,
-								   metric.desc)
+								   metric.description)
 		self.metrics_by_id[metric.idx] = metric
 
 	def parse_metrics_values(self, raw_data):
@@ -672,11 +672,11 @@ class PrometheusPMDA(PMDA):
 		metric_info = Metric(self.pmda_name, 0, self)
 		metric_info.name = 'fetches'
 		metric_info.type = c_api.PM_TYPE_64
-		metric_info.desc = 'Number of times data fetched'
+		metric_info.description = 'Number of times data fetched'
 		metric_info.idx = 0
 		metric_info.create()
 		self.add_metric(metric_info.full_name, metric_info.obj,
-						metric_info.desc)
+						metric_info.description)
 
 	def load_prometheus_sources(self):
 		''' Initializes the PrometheusSource for all the prometheus sources '''
@@ -743,9 +743,9 @@ if __name__ == '__main__':
 		to produce json configration in PCP_PMDAS_DIR inside the config
 		folder
 	'''
-	parser = argparse.ArgumentParser(description='Prometheus PMDA heuristics metrics config generator.')
-	parser.add_argument('-g', '--generate', help="Generate heuristics metrics", action="store_true")
-	parser.add_argument('-u','--url', help='Prometheus endpoint whose config has to be generated')
+	parser = argparse.ArgumentParser(description='Prometheus PMDA heuristics metrics metadata generator.')
+	parser.add_argument('-g', '--generate', help="Generate heuristics metadata", action="store_true")
+	parser.add_argument('-u','--url', help='Prometheus endpoint whose metadata has to be generated')
 	parser.add_argument('-n','--name', help="Name to be used as the prometheus cluster name")
 	args = parser.parse_args()
 
