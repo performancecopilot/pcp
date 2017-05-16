@@ -50,21 +50,21 @@ _filter_labels()
 
 _pmcd_labels()
 {
-    echo "** Labels on $1 $2 values via pmcd"
+    echo "** Labels on $1 $2 via pmcd"
     pminfo --labels $2
     echo
 }
 
 _dso_labels()
 {
-    echo "** Labels on $1 $2 values via local context"
+    echo "** Labels on $1 $2 via local context"
     pminfo --labels -L $2
     echo
 }
 
-_dbpmda_labels()
+_dbpipe_labels()
 {
-    echo "** Labels on $1 $2 values via dbpmda (pipe)"
+    echo "** Labels on $1 $2 via dbpmda (pipe)"
     one=$1
     two=$2
     [ $one = metric ] && one=""
@@ -76,7 +76,7 @@ End-of-File
 
 _dbdso_labels()
 {
-    echo "** Labels on $1 $2 values via dbpmda (dso)"
+    echo "** Labels on $1 $2 via dbpmda (dso)"
     one=$1
     two=$2
     [ $one = metric ] && one=""
@@ -108,14 +108,22 @@ _dso_labels metric sampledso.rapid	| _filter_labels
 _dso_labels metric sampledso.bin	| _filter_labels
 _dso_labels indom 30.1			| _filter_labels
 
-echo == dbpmda labels
-_dbpmda_labels metric sampledso.colour	| _filter_labels
-_dbdso_labels metric sampledso.darkness | _filter_labels
-_dbpmda_labels metric sampledso.rapid	| _filter_labels
-_dbdso_labels insts sampledso.bin	| _filter_labels
-_dbpmda_labels indom 29.1		| _filter_labels
+echo == dbpmda DSO labels
 _dbdso_labels context 			| _filter_labels
-_dbpmda_labels domain			| _filter_labels
+_dbdso_labels domain 			| _filter_labels
+_dbdso_labels metric sampledso.colour	| _filter_labels
+_dbdso_labels metric sampledso.rapid	| _filter_labels
+_dbdso_labels indom 30.1		| _filter_labels
+_dbdso_labels metric sampledso.darkness | _filter_labels
+_dbdso_labels insts sampledso.bin	| _filter_labels
+
+echo == dbpmda PIPE labels
+_dbpipe_labels domain			| _filter_labels
+_dbpipe_labels metric sample.colour	| _filter_labels
+_dbpipe_labels metric sample.rapid	| _filter_labels
+_dbpipe_labels indom 29.1		| _filter_labels
+_dbpipe_labels metric sample.darkness	| _filter_labels
+_dbpipe_labels insts sample.bin		| _filter_labels
 
 # success, all done
 status=0

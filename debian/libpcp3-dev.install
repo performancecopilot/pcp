@@ -80,6 +80,8 @@ usr/share/man/man3/pmFreeEventResult.3.gz
 usr/share/man/man3/pmFreeHighResEventResult.3.gz
 usr/share/man/man3/__pmFreeHostAttrsSpec.3.gz
 usr/share/man/man3/__pmFreeHostSpec.3.gz
+usr/share/man/man3/pmfreelabelsets.3.gz
+usr/share/man/man3/pmFreeLabelSets.3.gz
 usr/share/man/man3/pmFreeMetricSpec.3.gz
 usr/share/man/man3/pmFreeOptions.3.gz
 usr/share/man/man3/pmfreeprofile.3.gz

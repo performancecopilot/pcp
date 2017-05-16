@@ -354,8 +354,8 @@ dopmda(int pdu)
     pmDesc		desc;
     pmDesc		*desc_list = NULL;
     pmResult		*result = NULL;
+    pmLabelSet		*labelset = NULL;
     __pmInResult	*inresult;
-    __pmLabelSet	*labelset = NULL;
     __pmPDU		*pb;
     int			i;
     int			j;
@@ -641,14 +641,14 @@ dopmda(int pdu)
 			    else
 				printf("Labels:\n");
 			    for (j = 0; j < labelset[i].nlabels; j++) {
-				__pmLabel *lp = &labelset[i].labels[j];
+				pmLabel	*lp = &labelset[i].labels[j];
 				char *name = labelset[i].json + lp->name;
 				char *value = labelset[i].json + lp->value;
 				printf("    %.*s=%.*s\n", lp->namelen, name, lp->valuelen, value);
 			    }
 			}
 			if (numsets > 0)
-			    __pmFreeLabelSetArray(labelset, numsets);
+			    pmFreeLabelSets(labelset, numsets);
 			else
 			    printf("Info: __pmDecodeLabel() returns 0 label sets\n");
 		    }

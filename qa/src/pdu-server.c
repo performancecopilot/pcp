@@ -55,7 +55,7 @@ decode_encode(int fd, __pmPDU *pb, int type)
     int		inst;
     char	*name;
     __pmInResult	*inres;
-    __pmLabelSet	*sets;
+    pmLabelSet	*sets = NULL;
     int		nsets;
     int		control;
     int		length;
@@ -294,11 +294,11 @@ decode_encode(int fd, __pmPDU *pb, int type)
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_APPL0) {
 		fprintf(stderr, "+ PDU_LABEL: ident=%d type=0x%x", ident, type);
-		__pmDumpLabelSetArray(stderr, sets, nsets);
+		__pmDumpLabelSets(stderr, sets, nsets);
 	    }
 #endif
 	    e = __pmSendLabel(fd, mypid, ident, type, sets, nsets);
-	    __pmFreeLabelSetArray(sets, nsets);
+	    pmFreeLabelSets(sets, nsets);
 	    if (e < 0) {
 		fprintf(stderr, "%s: Error: SendLabel: %s\n", pmProgname, pmErrStr(e));
 		break;

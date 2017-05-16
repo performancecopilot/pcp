@@ -147,11 +147,10 @@ inst [0 or "/::cpu0"] value 713787
 inst [1 or "/::cpu1"] value 353969
 inst [2 or "/app::cpu0"] value 407816
 inst [3 or "/app::cpu1"] value 202747
-Labels:
-inst [0 or "/::cpu0"] labels {"device":"cpu","cgroup":"/","cpu":0}
-inst [1 or "/::cpu1"] labels {"device":"cpu","cgroup":"/","cpu":1}
-inst [2 or "/app::cpu0"] labels {"device":"cpu","cgroup":"/app","cpu":0}
-inst [3 or "/app::cpu1"] labels {"device":"cpu","cgroup":"/app","cpu":1}
+inst [0 or "/::cpu0"] labels {"device_type":"cpu","cgroup":"/","cpu":0}
+inst [1 or "/::cpu1"] labels {"device_type":"cpu","cgroup":"/","cpu":1}
+inst [2 or "/app::cpu0"] labels {"device_type":"cpu","cgroup":"/app","cpu":0}
+inst [3 or "/app::cpu1"] labels {"device_type":"cpu","cgroup":"/app","cpu":1}
 .in
 .fi
 .ft 1
@@ -161,7 +160,7 @@ inst [3 or "/app::cpu1"] labels {"device":"cpu","cgroup":"/app","cpu":1}
 .B "$ pminfo \-\-labels 3.22"
 InDom: 3.22 0xc00016
 .in +0.5i
-Labels: {"device":"cpu"}
+labels {"device_type":"cpu"}
 .in
 .fi
 .ft 1
@@ -187,9 +186,8 @@ Data Type: 64-bit unsigned int  InDom: 60.0 0xf000000
 Semantics: counter  Units: millisec
 inst [0 or "cpu0"] value 6770
 inst [1 or "cpu1"] value 100
-Labels: {}
-inst [0 or "cpu0"] labels {"device":"cpu"}
-inst [1 or "cpu1"] labels {"device":"cpu"}
+inst [0 or "cpu0"] labels {"device_type":"cpu"}
+inst [1 or "cpu1"] labels {"device_type":"cpu"}
 .in
 .fi
 .ft 1
@@ -199,7 +197,7 @@ inst [1 or "cpu1"] labels {"device":"cpu"}
 .B "$ pminfo \-\-labels 60.0"
 InDom: 60.0 0xf000000
 .in +0.5i
-Labels: {"device":"cpu"}
+labels {"device_type":"cpu"}
 .in
 .fi
 .ft 1
@@ -208,7 +206,7 @@ Although these two metrics have different instance domains (\c
 .I 60.0
 and
 .I 3.22
-respectively) and are sourced from different PMDAs, the "device"
+respectively) and are sourced from different PMDAs, the "device_type"
 label identifies the common device to which these values relate.
 .SH DIAGNOSTICS
 If any errors occur during the execution of

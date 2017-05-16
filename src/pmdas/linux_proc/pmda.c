@@ -3234,7 +3234,7 @@ proc_children(const char *name, int flag, char ***kids, int **sts, pmdaExt *pmda
 }
 
 static int
-proc_labelCallBack(pmdaMetric *mdesc, unsigned int inst, pmdaLabelSet **lp)
+proc_labelCallBack(pmdaMetric *mdesc, unsigned int inst, pmLabelSet **lp)
 {
     __pmInDom_int	*indomp = (__pmInDom_int *)&(mdesc->m_desc.indom);
     char		*name, *device;
@@ -3243,23 +3243,29 @@ proc_labelCallBack(pmdaMetric *mdesc, unsigned int inst, pmdaLabelSet **lp)
     switch (indomp->serial) {
     case PROC_INDOM:
     case HOTPROC_INDOM:
-	return pmdaAddLabels(lp, "{\"pid\":%u}", inst);
+	if ((sts = pmdaAddLabels(lp, "{\"pid\":%u}", inst)) < 0)
+	    return sts;
+	return 1;
 
     case CGROUP_PERDEVBLKIO_INDOM:
 	sts = pmdaCacheLookup(mdesc->m_desc.indom, inst, &name, NULL);
 	if (sts < 0 || sts == PMDA_CACHE_INACTIVE)
 	    return 0;
 	device = strrchr(name, ':');
-	return pmdaAddLabels(lp, "{\"cgroup\":\"%.*s\",\"blockdev\":\"%s\"}",
-				(int)(device - name) - 1, name, device + 1);
+	if ((sts = pmdaAddLabels(lp, "{\"cgroup\":\"%.*s\",\"device_name\":\"%s\"}",
+				(int)(device - name) - 1, name, device + 1)) < 0)
+	    return sts;
+	return 1;
 
     case CGROUP_PERCPUACCT_INDOM:
 	sts = pmdaCacheLookup(mdesc->m_desc.indom, inst, &name, NULL);
 	if (sts < 0 || sts == PMDA_CACHE_INACTIVE)
 	    return 0;
 	device = strrchr(name, ':');
-	return pmdaAddLabels(lp, "{\"cgroup\":\"%.*s\",\"cpu\":\"%s\"}",
-				(int)(device - name) - 1, name, device + 4);
+	if ((sts = pmdaAddLabels(lp, "{\"cgroup\":\"%.*s\",\"cpu\":\"%s\"}",
+				(int)(device - name) - 1, name, device + 4)) < 0)
+	    return sts;
+	return 1;
 
     case CGROUP_CPUSET_INDOM:
     case CGROUP_CPUACCT_INDOM:
@@ -3270,7 +3276,9 @@ proc_labelCallBack(pmdaMetric *mdesc, unsigned int inst, pmdaLabelSet **lp)
 	sts = pmdaCacheLookup(mdesc->m_desc.indom, inst, &name, NULL);
 	if (sts < 0 || sts == PMDA_CACHE_INACTIVE)
 	    return 0;
-	return pmdaAddLabels(lp, "{\"cgroup\":\"%s\"}", name);
+	if ((sts = pmdaAddLabels(lp, "{\"cgroup\":\"%s\"}", name)) < 0)
+	    return sts;
+	return 1;
 
     default:
 	break;
@@ -3279,23 +3287,32 @@ proc_labelCallBack(pmdaMetric *mdesc, unsigned int inst, pmdaLabelSet **lp)
 }
 
 static int
-proc_label_indom(pmInDom indom, pmdaLabelSet **lp, pmdaExt *pmda)
+proc_label_indom(pmInDom indom, pmLabelSet **lp, pmdaExt *pmda)
 {
     __pmInDom_int	*indomp = (__pmInDom_int *)&indom;
+    int			sts;
 
     switch (indomp->serial) {
     case CGROUP_CPUSET_INDOM:
     case CGROUP_CPUACCT_INDOM:
     case CGROUP_CPUSCHED_INDOM:
     case CGROUP_PERCPUACCT_INDOM:
-	return pmdaAddLabels(lp, "{\"device\":\"cpu\"}");
+	if ((sts = pmdaAddLabels(lp, "{\"device_type\":\"cpu\"}")) < 0)
+	    return sts;
+	return 1;
     case CGROUP_MEMORY_INDOM:
-	return pmdaAddLabels(lp, "{\"device\":\"memory\"}");
+	if ((sts = pmdaAddLabels(lp, "{\"device_type\":\"memory\"}")) < 0)
+	    return sts;
+	return 1;
     case CGROUP_NETCLS_INDOM:
-	return pmdaAddLabels(lp, "{\"device\":\"interface\"}");
+	if ((sts = pmdaAddLabels(lp, "{\"device_type\":\"interface\"}")) < 0)
+	    return sts;
+	return 1;
     case CGROUP_BLKIO_INDOM:
     case CGROUP_PERDEVBLKIO_INDOM:
-	return pmdaAddLabels(lp, "{\"device\":\"block\"}");
+	if ((sts = pmdaAddLabels(lp, "{\"device_type\":\"block\"}")) < 0)
+	    return sts;
+	return 1;
     default:
 	break;
     }
@@ -3303,7 +3320,7 @@ proc_label_indom(pmInDom indom, pmdaLabelSet **lp, pmdaExt *pmda)
 }
 
 static int
-proc_label(int ident, int type, pmdaLabelSet **lp, pmdaExt *pmda)
+proc_label(int ident, int type, pmLabelSet **lp, pmdaExt *pmda)
 {
     if (type & PM_LABEL_INDOM)
 	return proc_label_indom(ident, lp, pmda);

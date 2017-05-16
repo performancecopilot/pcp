@@ -11,12 +11,12 @@ Verified: OK
 
 => Complex labels, maps as values, single element
 Low ->  {} {"map":{"priority":"one"}}  <- High
-Result: {"":null,"map":{"priority":"one"}}
+Result: {"map":{"priority":"one"}}
 Verified: OK
 
 => Complex labels, maps as values, multiple elements
 Low ->  {} {"map":{"priority":"one","ratio":2.5}}  <- High
-Result: {"":null,"map":{"priority":"one","ratio":2.5}}
+Result: {"map":{"priority":"one","ratio":2.5}}
 Verified: OK
 
 => Complex labels, multiple maps as values, multiple element
@@ -26,12 +26,12 @@ Verified: OK
 
 => Complex labels, arrays as values, single element
 Low ->  {} {"a":["priority"]}  <- High
-Result: {"":null,"a":["priority"]}
+Result: {"a":["priority"]}
 Verified: OK
 
 => Complex labels, arrays as values, multiple elements
 Low ->  {} {"a":["priority","one","ratio",2.5]}  <- High
-Result: {"":null,"a":["priority","one","ratio",2.5]}
+Result: {"a":["priority","one","ratio",2.5]}
 Verified: OK
 
 => Complex labels1, multiple arrays as values, multiple elements

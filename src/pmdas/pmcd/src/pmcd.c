@@ -1191,14 +1191,14 @@ static char *
 fetch_labels(int ctx, pmAtomValue *avp, char **hostname)
 {
     pmcd_container_t	*container;
-    __pmLabelSet	*set;
+    pmLabelSet		*set;
 
     __pmGetContextLabels(&set);
     pmdaAddLabels(&set, "{\"hostname\":\"%s\"}", ctx_hostname(ctx, hostname));
     if ((container = ctx_container(ctx)) != NULL)
 	pmdaAddLabels(&set, "{\"container\":\"%s\"}", container->name);
     avp->cp = strndup(set->json, set->jsonlen + 1);
-    __pmFreeLabelSet(set);
+    pmFreeLabelSets(set, 1);
     return avp->cp;
 }
 

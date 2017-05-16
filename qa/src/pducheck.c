@@ -120,8 +120,8 @@ _z(void)
     pmID		*pmidp;
     __pmInResult	inres;
     __pmInResult	*inresp;
-    __pmLabelSet	*labels;
-    __pmLabelSet	*rlabels;
+    pmLabelSet		*labels;
+    pmLabelSet		*rlabels;
     pmInDom		indom;
     int			inst;
     pmDesc		result_desc;
@@ -870,10 +870,10 @@ _z(void)
 				    i, rlabels->labels[i].valuelen, labels->labels[i].valuelen);
 		    }
 		}
-		__pmFreeLabelSetArray(labels, nsets);
+		pmFreeLabelSets(rlabels, nsets);
 	    }
 	}
-	__pmFreeLabelSet(rlabels);
+	pmFreeLabelSets(labels, 1);
     }
 
 /* PDU_TEXT_REQ */

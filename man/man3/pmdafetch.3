@@ -50,14 +50,15 @@ The request from
 is initiated by a client calling
 .BR pmFetch (3).
 .PP
-This is the only generic callback in
+This is one of the few generic callbacks in
 .I libpcp_pmda
 (see
 .BR PMDA (3))
 that is incomplete, requiring
 a further
 .B pmdaFetchCallBack
-method of its own.  The additional callback should be registered using
+method of its own.
+The additional callback should be registered using
 .B pmdaSetFetchCallBack
 and the
 .B pmdaFetchCallBack

@@ -554,7 +554,10 @@ PCP_3.19 {
     pmGetInDomLabels;
     pmGetPMIDLabels;
     pmGetLabels;
+
     pmMergeLabels;
+    pmMergeLabelSets;
+    pmFreeLabelSets;
 
     __pmAddLabels;
     __pmMergeLabels;
@@ -563,9 +566,7 @@ PCP_3.19 {
     __pmGetContextLabels;
     __pmGetDomainLabels;
     __pmDumpLabelSet;
-    __pmDumpLabelSetArray;
-    __pmFreeLabelSet;
-    __pmFreeLabelSetArray;
+    __pmDumpLabelSets;
 
     __pmSendLabel;
     __pmSendLabelReq;

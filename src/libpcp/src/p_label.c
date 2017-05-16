@@ -18,10 +18,10 @@
 #include "internal.h"
 
 void
-__pmDumpLabelSet(FILE *fp, const __pmLabelSet *set)
+__pmDumpLabelSet(FILE *fp, const pmLabelSet *set)
 {
     char	buffer[MAXLABELJSONLEN];
-    const char	type[] = "__pmLabelSet";
+    const char	type[] = "pmLabelSet";
     int		i;
 
     for (i = 0; i < set->jsonlen; i++)
@@ -41,7 +41,7 @@ __pmDumpLabelSet(FILE *fp, const __pmLabelSet *set)
 }
 
 void
-__pmDumpLabelSetArray(FILE *fp, const __pmLabelSet *sets, int nsets)
+__pmDumpLabelSets(FILE *fp, const pmLabelSet *sets, int nsets)
 {
     int		n;
 
@@ -68,11 +68,11 @@ LabelTypeString(int type)
 }
 
 static void
-DumpLabelSets(char *func, int ident, int type, __pmLabelSet *sets, int nsets)
+DumpLabelSets(char *func, int ident, int type, pmLabelSet *sets, int nsets)
 {
     fprintf(stderr, "%s(ident=%d,type=0x%x[%s], %d sets @"PRINTF_P_PFX"%p)\n",
 	    func, ident, type, LabelTypeString(type), nsets, sets);
-    __pmDumpLabelSetArray(stderr, sets, nsets);
+    __pmDumpLabelSets(stderr, sets, nsets);
 }
 #endif
 
@@ -162,7 +162,7 @@ typedef struct {
 } label_t;
 
 int
-__pmSendLabel(int fd, int from, int ident, int type, __pmLabelSet *sets, int nsets)
+__pmSendLabel(int fd, int from, int ident, int type, pmLabelSet *sets, int nsets)
 {
     size_t	json_offset;
     size_t	need;
@@ -224,7 +224,7 @@ __pmSendLabel(int fd, int from, int ident, int type, __pmLabelSet *sets, int nse
 
 int
 __pmRecvLabel(int fd, __pmContext *ctxp, int timeout,
-	 	int *ident, int *type, __pmLabelSet **sets, int *nsets)
+	 	int *ident, int *type, pmLabelSet **sets, int *nsets)
 {
     __pmPDU	*pb;
     int		oident = *ident;
@@ -254,9 +254,9 @@ __pmRecvLabel(int fd, __pmContext *ctxp, int timeout,
 }
 
 int
-__pmDecodeLabel(__pmPDU *pdubuf, int *ident, int *type, __pmLabelSet **setsp, int *nsetp)
+__pmDecodeLabel(__pmPDU *pdubuf, int *ident, int *type, pmLabelSet **setsp, int *nsetp)
 {
-    __pmLabelSet *sets, *sp;
+    pmLabelSet	*sets, *sp;
     label_t	*label_pdu;
     char	*pdu_end;
     char	*json;
@@ -285,7 +285,7 @@ __pmDecodeLabel(__pmPDU *pdubuf, int *ident, int *type, __pmLabelSet **setsp, in
     }
 
     /* allocate space for label set and name/value indices */
-    if ((sets = (__pmLabelSet *)calloc(nsets, sizeof(__pmLabelSet))) == NULL)
+    if ((sets = (pmLabelSet *)calloc(nsets, sizeof(pmLabelSet))) == NULL)
 	return -ENOMEM;
 
     for (i = 0; i < nsets; i++) {
@@ -325,6 +325,6 @@ success:
     return 0;
 
 corrupt:
-    __pmFreeLabelSetArray(sets, nsets);
+    pmFreeLabelSets(sets, nsets);
     return PM_ERR_IPC;
 }

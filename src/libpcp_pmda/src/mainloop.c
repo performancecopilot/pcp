@@ -54,7 +54,7 @@ __pmdaMainPDU(pmdaInterface *dispatch)
     int			inst;
     char		*iname;
     __pmInResult	*inres;
-    __pmLabelSet	*labelset = NULL;
+    pmLabelSet		*labels = NULL;
     char		*buffer;
     __pmProfile  	*new_profile;
     static __pmProfile	*profile = NULL;
@@ -334,13 +334,16 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 	}
 #endif
 
-	if ((sts = __pmDecodeLabelReq(pb, &ident, &type)) >= 0)
-	    sts = dispatch->version.seven.label(ident, type, &labelset, pmda);
+	if ((sts = __pmDecodeLabelReq(pb, &ident, &type)) >= 0 &&
+	    HAVE_V_SEVEN(dispatch->comm.pmda_interface)) {
+	    ctxnum = dispatch->version.seven.ext->e_context;
+	    sts = dispatch->version.seven.label(ident, type, &labels, pmda);
+	}
 	if (sts < 0)
 	    __pmSendError(pmda->e_outfd, FROM_ANON, sts);
 	else {
-	    __pmSendLabel(pmda->e_outfd, FROM_ANON, ident, type, labelset, sts);
-	    __pmFreeLabelSetArray(labelset, sts);
+	    __pmSendLabel(pmda->e_outfd, FROM_ANON, ident, type, labels, sts);
+	    pmFreeLabelSets(labels, sts);
 	}
 	break;
 

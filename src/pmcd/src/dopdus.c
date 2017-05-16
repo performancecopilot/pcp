@@ -348,7 +348,7 @@ DoInstance(ClientInfo *cp, __pmPDU *pb)
 }
 
 static int
-GetContextLabels(ClientInfo *cp, __pmLabelSet **sets)
+GetContextLabels(ClientInfo *cp, pmLabelSet **sets)
 {
     __pmHashNode	*node;
     const char		*userid;
@@ -382,7 +382,8 @@ GetContextLabels(ClientInfo *cp, __pmLabelSet **sets)
 	    sts += snprintf(buf+sts, sizeof(buf)-sts, ",\"container\":%s",
 			    container);
 	snprintf(buf+sts, sizeof(buf)-sts, "}");
-	sts = __pmAddLabels(sets, buf);
+	if ((sts = __pmAddLabels(sets, buf)) > 0)
+	    return 1;
     }
     return sts;
 }
@@ -392,7 +393,7 @@ DoLabel(ClientInfo *cp, __pmPDU *pb)
 {
     int			sts, s;
     int			ident, type, nsets = 0;
-    __pmLabelSet	*sets = NULL;
+    pmLabelSet		*sets = NULL;
     AgentInfo		*ap = NULL;
     int			fdfail = -1;
 
@@ -485,7 +486,7 @@ response:
 	    pmcd_trace(TR_XMIT_ERR, cp->fd, PDU_LABEL, sts);
 	    CleanupClient(cp, sts);
 	}
-	__pmFreeLabelSetArray(sets, nsets);
+	pmFreeLabelSets(sets, nsets);
     }
     else {
 	if (ap && ap->ipcType != AGENT_DSO &&

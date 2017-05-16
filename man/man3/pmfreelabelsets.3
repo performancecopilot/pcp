@@ -1,26 +1,25 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
-.\" 
+.\" Copyright (c) 2017 Red Hat.  All Rights Reserved.
+.\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
 .\" Free Software Foundation; either version 2 of the License, or (at your
 .\" option) any later version.
-.\" 
+.\"
 .\" This program is distributed in the hope that it will be useful, but
 .\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
-.\" 
 .\"
-.TH PMFREERESULT 3 "PCP" "Performance Co-Pilot"
+.TH PMFREELABELSETS 3 "PCP" "Performance Co-Pilot"
 .SH NAME
-\f3pmFreeResult\f1 \- release storage allocated for performance metrics values
+\f3pmFreeLabelSets\f1 \- release storage allocated for performance metric labels
 .SH "C SYNOPSIS"
 .ft 3
 #include <pcp/pmapi.h>
 .sp
-void pmFreeResult(pmResult *\fIresult\fP);
+void pmFreeLabelSets(pmLabelSet *\fIsets\fP, int \fInsets\fP);
 .sp
 cc ... \-lpcp
 .ft 1
@@ -29,34 +28,41 @@ cc ... \-lpcp
 .ie t \f(CW\\$1\f1\\$2
 .el \fI\\$1\f1\\$2
 ..
-The variable sized results returned by
-.BR pmFetch (3)
-are allocated below the
+The array of label
+.I sets
+returned by
+.BR pmGetLabels (3)
+and related APIs are allocated below the
 Performance Metrics Application Programming Interface (PMAPI)
-using a combination of dynamic (i.e. \c
+using a variety of calls to the system's dynamic memory
+allocation (i.e. \c
 .BR malloc (3))
-and specialized allocation strategies.
+interfaces.
 .PP
 Applications should call
-.B pmFreeResult
-to release the storage previously allocated for
-.I result
-by
-.BR pmFetch (3),
-when the application no longer requires access to the
-.CW pmResult
-structure.
+.B pmFreeLabelSets
+to release the storage previously allocated for the label
+.I sets
+array when access to the structure is no longer needed.
+The return value from
+.B pmGetLabels
+indicates the number of elements in the label
+.I sets
+array, and this should be passed in using the
+.I nsets
+parameter.
 .PP
 Under
 .B no
 circumstances should an application use
-.CW "free(result)"
+.CW "free(labelset)"
 to release storage previously allocated for a
-.CW pmResult
+.CW pmLabelSet
 by
-.BR pmFetch (3).
+.BR pmGetLabels (3)
+or related APIs.
 .SH SEE ALSO
 .BR malloc (3),
 .BR PMAPI (3)
 and
-.BR pmFetch (3).
+.BR pmGetLabels (3).

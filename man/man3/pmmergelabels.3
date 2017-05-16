@@ -12,14 +12,17 @@
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
 .\"
-.TH PMDALABELS 3 "PCP" "Performance Co-Pilot"
+.TH PMMERGELABELS 3 "PCP" "Performance Co-Pilot"
 .SH NAME
-\f3pmMergeLabels\f1 \- merge sets of performance metric labels
+\f3pmMergeLabels\f1,
+\f3pmMergeLabelSets\f1 \- merge sets of performance metric labels
 .SH "C SYNOPSIS"
 .ft 3
 #include <pcp/pmapi.h>
 .sp
 int pmMergeLabels(char **\fIsets\fP, int \fInsets\fP, char *\fIbuffer\fP, int \fIlength\fP);
+.br
+int pmMergeLabelSets(pmLabelSet **\fIsets\fP, int \fInsets\fP, char *\fIbuffer\fP, int \fIlength\fP);
 .sp
 cc ... \-lpcp
 .ft 1
@@ -43,6 +46,11 @@ are
 pairs in the "JSONB" format described on
 .BR pmGetLabels (1).
 .PP
+The format of the
+.I pmLabelSet
+data structure is described in detail in
+.BR pmGetLabels (3).
+.PP
 Although names may repeat across the provided label
 .IR sets ,
 duplicate names are not allowed in the final
@@ -61,8 +69,10 @@ Values must be primitive JSON entities (e.g. numbers, strings),
 one-dimensional arrays or maps (i.e. simple associative arrays).
 .PP
 .SH DIAGNOSTICS
-On success,
+On success, both
 .B pmMergeLabels
+and
+.B pmMergeLabelSets
 returns the number of bytes written into the supplied
 .IR buffer .
 .PP

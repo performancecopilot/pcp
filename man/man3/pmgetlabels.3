@@ -1,3 +1,4 @@
+'\"! tbl | mmdoc
 '\"macro stdmacro
 .\"
 .\" Copyright (c) 2016-2017 Red Hat.
@@ -12,64 +13,60 @@
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
 .\"
-.\"
 .TH PMGETLABELS 3 "PCP" "Performance Co-Pilot"
 .SH NAME
 \f3pmGetLabels\f1,
 \f3pmGetPMIDLabels\f1,
 \f3pmGetInDomLabels\f1,
 \f3pmGetDomainLabels\f1,
-\f3pmGetContextLabels\f1 \- get labels associated with performance metric values
+\f3pmGetContextLabels\f1 \- retrieve labels associated with performance metric values
 .SH "C SYNOPSIS"
 .ft 3
 #include <pcp/pmapi.h>
 .sp
 .nf
-int pmGetLabels(pmID \fIpmid\fP, int **\fIinstlist\fP, char ***\fIlabelslist\fP);
-.sp
-int pmGetPMIDLabels(pmID \fIpmid\fP, char **\fIlabels\fP);
+int pmGetLabels(pmID \fIpmid\fP, pmLabelSet **\fIlabelsets\fP);
 .br
-int pmGetInDomLabels(pmInDom \fIindom\fP, char **\fIlabels\fP);
+int pmGetPMIDLabels(pmID \fIpmid\fP, pmLabelSet **\fIlabelsets\fP);
 .br
-int pmGetDomainLabels(int \fIdomain\fP, char **\fIlabels\fP);
+int pmGetInDomLabels(pmInDom \fIindom\fP, pmLabelSet **\fIlabelsets\fP);
 .br
-int pmGetContextLabels(char **\fIlabels\fP);
+int pmGetDomainLabels(int \fIdomain\fP, pmLabelSet **\fIlabelsets\fP);
+.br
+int pmGetContextLabels(pmLabelSet **\fIlabelsets\fP);
 .sp
 cc ... \-lpcp
 .ft 1
 .SH DESCRIPTION
+.de CW
+.ie t \f(CW\\$1\fR\\$2
+.el \fI\\$1\fR\\$2
+..
 Labels are
 .IR name : value
-pairs associated with performance metric values,
-for the purpose of associating additional metadata with values.
+pairs associated with performance metric values for the
+purpose of attaching additional metric metadata to values.
 This metadata is optional, less structured, and above and beyond
-the metric descriptor available for every metric from
+the metric descriptor available for every PCP metric from
 .BR pmLookupDesc (3).
 .PP
-Metric value
-.I labels
-adhere to strict naming conventions, are presented using JSONB format,
-and are collated according to the precedence rules.
-These characteristics of labels are described in detail in the "SYNTAX"
-and "PRECEDENCE" sections below.
-.SH MERGING LABEL SETS
-To reduce duplication, and for efficiency in communication and
-storage, within the PMCS labels are maintained as a hierarchy.
+For efficiency in communication, storage and searching, within the
+PMCS labels are maintained using a hierarchy.
 The set of labels associated with any individual metric value
-consists of the union of labels from each of these sets:
+consists of the union of labels from each of these sets of labels:
 .TP 4n
-1. Global labels (apply to every metric in the PMCS)
+1. Global labels (apply to all metric values from a host or archive context)
 .TP 8n
 .B pmGetContextLabels
-provides the set of
-.I labels
+provides the
+.I labelset
 associated with all metric values from a given source (PMAPI context).
 .TP 4n
-2. Domain labels (apply to every metric from a PMDA)
+2. Domain labels (apply to every metric within a PMDA)
 .TP 8n
 .B pmGetDomainLabels
-provides the set of
-.I labels
+provides the
+.I labelset
 associated with the
 .I domain
 identifier.
@@ -77,33 +74,34 @@ identifier.
 3. Instance Domain labels (apply to all metrics sharing that indom)
 .TP 8n
 .B pmGetInDomLabels
-provides the set of
-.I labels
+provides the
+.I labelset
 associated with the instance domain identifier
 .IR indom .
 .TP 4n
 4. Metric labels (apply to an individual performance metric)
 .TP 8n
 .B pmGetPMIDLabels
-provides the set of
-.I labels
+provides the
+.I labelset
 associated with the metric identifier
 .IR pmid .
 .TP 4n
 5. Instance labels (apply to individual instances of a metric)
 .TP 8n
 .BR pmGetLabels
-provides the set of instances in
-.I instlist
-with their associated labels in
-.I labelslist
-for each instance identifier associated with the metric identifier
+provides the set of instance identifiers and labels in
+.I labelsets
+for each instance associated with the metric identifier
 .IR pmid .
+The return value indicates the number of elements in the result \- one
+.I labelset
+for each instance.
 .PP
-These independent sets of
-.I labels
+These independent
+.I labelsets
 can be merged using
-.BR pmMergeLabels (3)
+.BR pmMergeLabelSets (3)
 to form the complete set of all labels associated with a given value.
 .PP
 .SH LABEL SYNTAX
@@ -111,13 +109,18 @@ Labels are stored and communicated within PCP using JSONB format.
 This format is a restricted form of JSON suitable for indexing
 and other operations.
 In JSONB form, insignificant whitespace is discarded,
-and the order of object keys is not preserved.
-Duplicate object keys are not kept - the later value for a given
-key is the only one stored.
+and the order of label names is not preserved.
+Within the PMCS a lexicographically sorted key space is always
+maintained, however.
+Duplicate label names are not permitted.
+The label with highest precedence is the only one presented.
+If duplicate names are presented at the same hierarchy level, only
+one will be preserved (exactly which one wins is arbitrary, so do
+not rely on this).
 .PP
-The given \f2name\f1:\f2value\f1 pair(s) will be converted to
+All \f2name\f1:\f2value\f1 pair(s) present will be converted to
 JSONB form and merged with the existing set of labels for the
-requested entity (metric, indom or instance).
+requested entity (context, domain, indom, metric or instance).
 .PP
 The label names are further constrained to the same set of rules
 defined for
@@ -138,6 +141,7 @@ of a label offers significantly more freedom, and may be any valid
 value as defined by the JSON (\c
 .IR http://json.org )
 specification.
+Redundant whitespace is always removed within the PMCS.
 .SH PRECEDENCE
 The complete set of labels associated with any metric value is
 built from several sources and duplicate label names may exist
@@ -167,74 +171,201 @@ associated with an individual PMID are the next highest precedence.
 .TP 4n
 5. Instance labels
 associated with a metric instance identifier have highest precedence.
-.SH EXAMPLES
-Consider a deployment with global labels as follows:
-.P
-.ft CW
-.nf
-.B "$ cat $PCP_SYSCONF_DIR/labels/*"
-{"tier":"production"}
-{"datacenter":"hkg"}
-.fi
-.ft 1
-.P
-An unlabeled context switch metric (\c
-.IR kernel.all.pswitch ,
-PMID
-.IR 60.2.0 )
-and the kernel load average metric (\c
-.IR kernel.all.load ,
-PMID
-.IR 60.0.13 )
-with a single label named "statistic" with value "average".
-.PP
-In this scenario, the calls to
-.B pmGetContextLabels
-and
-.B pmGetPMIDLabels
-for these metrics will return the following merged
-.IR labels :
-.PP
-.P
-.ft CW
-.nf
-.B "$ pminfo -m --labels kernel.all.load kernel.all.pswitch"
-.P
-kernel.all.load PMID 60.2.0
-.in +0.5i
-Labels: {"datacenter":"hkg","tier":"production","statistic":"average"}
-.in
-.fi
-.P
-kernel.all.pswitch 60.0.13
-.in +0.5i
-Labels: {"datacenter":"hkg","tier":"production"}
-.in
-.fi
-.ft 1
-.P
-.SH DIAGNOSTICS
-As mentioned above, these APIs return the optional labels metadata
-associated with performance metrics.
-If no labels exist for the requested
-.IR type ,
-the return code will be zero and no space will have been allocated.
-.PP
-On successful completion, the return code will be a code indicating
-than number of results returned.
-In this case the
-.IR labels ,
-.I instlist
-and
-.I labelslist
-will have been dynamically allocated and must be released using a
-single call to
-.BR free (3)
-once the caller is finished with them.
-In the special case of
+.SH DATA STRUCTURES
+The primary output from
 .B pmGetLabels
-itself, the return code indicates the number of elements in the
-returned lists.
+is returned in the
+argument
+.I labelset
+as an array, using the following component data structures;
+.PP
+.ft CW
+.nf
+.in +0.5i
+struct {
+    uint     name : 16;      /* label name offset in JSONB string */
+    uint     namelen : 8;    /* length of name excluding the null */
+    uint     flags : 8;      /* information about this label */
+    uint     value : 16;     /* offset of the label value */
+    uint     valuelen : 16;  /* length of value in bytes */
+} pmLabel;
+
+struct {
+    uint     inst;           /* PM_IN_NULL or the instance ID */
+    int      nlabels;        /* count of labels or error code */
+    char     *json;          /* JSON formatted labels string */
+    uint     jsonlen : 16;   /* JSON string length byte count */
+    uint     padding : 16;   /* zero, reserved for future use */
+    pmLabel  *labels;        /* indexing into the JSON string */
+} pmLabelSet;
+.in
+.fi
+.ft 1
+.PP
+The
+.CW pmLabel
+provides information about an individual label.
+This includes the offsets to
+the start of its
+.CW name
+and
+.CW value
+in the
+.CW json
+string of a
+.CW pmLabelSet ,
+their respective lengths, and also any informative flags associated
+with the label (describing where it lies in the hierarchy of labels,
+and whether it is an intrinsic or extrinsic label).
+.PP
+Building on this, the
+.CW pmLabelSet
+provides information about the set of labels associated with an
+entity (context, domain, indom, metric or instance).
+The entity will be from any one level of the label hierarchy.
+If at the lowest hierarchy level (which happens to be highest
+precedence \- PM_LABEL_INSTS) then the
+.CW inst
+field will contain an actual instance identifier instead of PM_IN_NULL.
+.PP
+The
+.CW nlabels
+field describes the number of labels (name:value pairs) that can be
+found in both the accompanying
+.CW json
+string (which is JSONB format \- no unnecessary whitespace and with
+no duplicate label names)
+and the accompanying
+.CW labels
+array (which has
+.CW nlabels
+elements).
+.SH EXAMPLES
+Consider a deployment with global labels (assume $PCP_SYSCONF_DIR
+is set to its usual location of
+.IR /etc/pcp )
+as follows:
+.P
+.ft CW
+.nf
+.B "$ cat /etc/pcp/labels/*"
+{
+  "tier": "production",
+  "datacenter": "hkg",
+  "services": ["indexer","database"]
+}
+.fi
+.ft 1
+.P
+Use
+.B pminfo
+to form the merged
+.I labelsets
+for several
+.BR pmdasample (1)
+metrics as follows:
+.PP
+.P
+.ft CW
+.nf
+.B "$ pminfo -m -f --labels sample.rapid sample.colour sample.mirage"
+.P
+sample.rapid PMID: 30.0.64
+.in +0.5i
+value 800000000
+.br
+labels {"agent":"sample","datacenter":"sydney","hostname":"acme.com","measure":"speed","role":"testing","services":["indexer","database"],"tier":"production","units":"metres per second","unitsystem":"SI"}
+.in
+.fi
+.P
+.ft CW
+.nf
+sample.colour PMID: 30.0.5
+.in +0.5i
+inst [0 or "red"] value 101
+.br
+inst [1 or "green"] value 202
+.br
+inst [2 or "blue"] value 303
+.br
+inst [0 or "red"] labels {"agent":"sample","datacenter":"syd","hostname":"acme.com","model":"RGB","role":"testing","services":["indexer","database"],"tier":"production"}
+.br
+inst [1 or "green"] labels {"agent":"sample","datacenter":"syd","hostname":"acme.com","model":"RGB","role":"testing","services":["indexer","database"],"tier":"production"}
+.br
+inst [2 or "blue"] labels {"agent":"sample","datacenter":"syd","hostname":"acme.com","model":"RGB","role":"testing","services":["indexer","database"],"tier":"production"}
+.in
+.fi
+.P
+.ft CW
+.nf
+sample.mirage PMID: 29.0.37
+.in +0.5i
+inst [0 or "m-00"] value 99
+.br
+inst [0 or "m-00"] labels {"agent":"sample","datacenter":"sydney","hostname":"acme.com","role":"testing","services":["indexer","database"],"tier":"production","transient":false}
+.in
+.fi
+.ft 1
+.P
+Here,
+.B pminfo
+has merged the separate sets of labels returned from
+.B pmGetContextLabels
+(\c
+.IR name s:
+datacenter, hostname, services, tier),
+.B pmGetDomainLabels
+(\c
+.IR name s:
+role, agent),
+.B pmGetInDomLabels
+(\c
+.IR name s:
+model),
+.B pmGetPMIDLabels
+(\c
+.IR name s:
+units, unitsystem)
+and
+.B pmGetLabels
+(\c
+.IR name s:
+transient)
+to form the complete set for each of the metrics.
+.SH DIAGNOSTICS
+On success these interfaces all return the number of elements in
+the
+.I labelsets
+array.
+associated with performance metrics.
+The memory associated with
+.I labelsets
+should be released using
+.BR pmFreeLabelSets (3)
+when no longer needed.
+.PP
+If no labels exist at all for the requested hierarchy level the
+return code will be zero and no space will have been allocated.
+.PP
+In the case of
+.BR pmGetLabels ,
+which can return multiple elements in its
+.I labelsets
+result (one set of labels for each instance), the
+.I nlabels
+field may be either zero indicating no labels for that instance,
+or a positive count of labels, or a negative PMAPI error code.
+.PP
+On successful completion, the return code will be the number of
+elements in the returned
+.I labelsets
+array.
+.PP
+Note that it is mandatory for a call to
+.B pmGetLabels
+to be preceded by a call to
+.BR pmGetInDom (3)
+to ensure the instances have been resolved within the PMDA.
 .PP
 If no result can be obtained,
 e.g. due to IPC failure using the current PMAPI context then
@@ -248,6 +379,7 @@ will return a negative error code which may be examined using
 .BR pmGetInDom (3),
 .BR pmLookupDesc (3),
 .BR pmLookupName (3),
-.BR pmMergeLabels (3)
+.BR pmFreeLabelSets (3),
+.BR pmMergeLabelSets (3)
 and
 .BR pmNewContext (3).

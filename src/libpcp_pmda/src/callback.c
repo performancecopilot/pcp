@@ -746,10 +746,10 @@ pmdaText(int ident, int type, char **buffer, pmdaExt *pmda)
  */
 
 int
-pmdaLabel(int ident, int type, pmdaLabelSet **lpp, pmdaExt *pmda)
+pmdaLabel(int ident, int type, pmLabelSet **lpp, pmdaExt *pmda)
 {
     e_ext_t		*extp = (e_ext_t *)pmda->e_ext;
-    pmdaLabelSet	*rlp, *lp = NULL;
+    pmLabelSet		*rlp, *lp = NULL;
     pmdaMetric		metabuf;
     pmdaMetric		*metap;
     size_t		size;
@@ -806,8 +806,8 @@ pmdaLabel(int ident, int type, pmdaLabelSet **lpp, pmdaExt *pmda)
 	    return 0;
 
 	/* allocate minimally-sized chunk of contiguous memory upfront */
-	size = numinst * sizeof(pmdaLabelSet);
-	if ((lp = (pmdaLabelSet *)malloc(size)) == NULL)
+	size = numinst * sizeof(pmLabelSet);
+	if ((lp = (pmLabelSet *)malloc(size)) == NULL)
 	    return -oserror();
 	*lpp = lp;
 
@@ -822,8 +822,8 @@ pmdaLabel(int ident, int type, pmdaLabelSet **lpp, pmdaExt *pmda)
 	    if (count == numinst) {
 		/* more instances than expected! */
 		numinst++;
-		size = numinst * sizeof(pmdaLabelSet);
-		if ((rlp = (pmdaLabelSet *)realloc(*lpp, size)) == NULL)
+		size = numinst * sizeof(pmLabelSet);
+		if ((rlp = (pmLabelSet *)realloc(*lpp, size)) == NULL)
 		    return -oserror();
 		*lpp = rlp;
 		lp = rlp + count;
@@ -857,7 +857,7 @@ pmdaLabel(int ident, int type, pmdaLabelSet **lpp, pmdaExt *pmda)
  */
 
 int
-pmdaAddLabels(pmdaLabelSet **lsp, const char *fmt, ...)
+pmdaAddLabels(pmLabelSet **lsp, const char *fmt, ...)
 {
     char		errbuf[PM_MAXERRMSGLEN];
     char		buf[PM_MAXLABELJSONLEN];

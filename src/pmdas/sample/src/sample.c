@@ -46,6 +46,8 @@ static struct sysinfo {
 #define roundup(x,y) ((((x) + ((y) - 1)) / (y)) * (y))
 #endif
 
+#define boolstr(truth)	((truth) ? "true" : "false")
+
 static int need_mirage;	/* only do mirage glop is someone asks for it */
 static int need_dynamic;/* only do dynamic glop is someone asks for it */
 
@@ -2832,24 +2834,41 @@ sample_store(pmResult *result, pmdaExt *ep)
 }
 
 static int
-sample_label_domain(pmdaLabelSet **lp, pmdaExt *ep)
+sample_label_domain(pmLabelSet **sets, pmdaExt *ep)
 {
-    __pmGetDomainLabels(ep->e_domain, ep->e_name, lp);
-    return pmdaAddLabels(lp, "{\"role\":\"testing\"}");
-}
+    pmLabelSet	*lp = NULL;
+    int		sts;
 
-static int
-sample_label_indom(pmInDom indom, pmdaLabelSet **lp)
-{
-    if (indom == indomtab[COLOUR_INDOM].it_indom)
-	return pmdaAddLabels(lp, "{\"model\":\"RGB\"}");
-    if (indom == indomtab[FAMILY_INDOM].it_indom)
-	return pmdaAddLabels(lp, "{\"clan\":\"mcdonell\"}");
+    if ((sts = __pmGetDomainLabels(ep->e_domain, ep->e_name, &lp)) < 0)
+	return sts;
+    if ((sts = pmdaAddLabels(&lp, "{\"role\":\"testing\"}")) > 0) {
+	*sets = lp;
+	return 1;
+    }
+    pmFreeLabelSets(lp, 1);
     return 0;
 }
 
 static int
-sample_label_pmid(pmID pmid, pmdaLabelSet **lp)
+sample_label_indom(pmInDom indom, pmLabelSet **lp)
+{
+    int		sts;
+
+    if (indom == indomtab[COLOUR_INDOM].it_indom) {
+	if ((sts = pmdaAddLabels(lp, "{\"model\":\"RGB\"}")) < 0)
+	    return sts;
+	return 1;
+    }
+    if (indom == indomtab[FAMILY_INDOM].it_indom) {
+	if ((sts = pmdaAddLabels(lp, "{\"clan\":\"mcdonell\"}")) < 0)
+	    return sts;
+	return 1;
+    }
+    return 0;
+}
+
+static int
+sample_label_pmid(pmID pmid, pmLabelSet **lp)
 {
     __pmID_int	*pmidp = (__pmID_int *)&pmid;
 
@@ -2858,26 +2877,26 @@ sample_label_pmid(pmID pmid, pmdaLabelSet **lp)
 
     switch (pmidp->item) {
 	case 14:	/* long.write_me */
-	    return pmdaAddLabels(lp, "{\"changed\":%s}",
-					_long != 13? "true" : "false");
+	    pmdaAddLabels(lp, "{\"changed\":%s}", boolstr(_long != 13));
+	    return 1;
 	case 24:	/* longlong.write_me */
-	    return pmdaAddLabels(lp, "{\"changed\":%s}",
-					_longlong != 13? "true" : "false");
+	    pmdaAddLabels(lp, "{\"changed\":%s}", boolstr(_longlong != 13));
+	    return 1;
 	case 19:	/* float.write_me */
-	    return pmdaAddLabels(lp, "{\"changed\":%s}",
-					_float != 13? "true" : "false");
+	    pmdaAddLabels(lp, "{\"changed\":%s}", boolstr(_float != 13));
+	    return 1;
 	case 29:	/* double.write_me */
-	    return pmdaAddLabels(lp, "{\"changed\":%s}",
-					_double != 13? "true" : "false");
+	    pmdaAddLabels(lp, "{\"changed\":%s}", boolstr(_double != 13));
+	    return 1;
 	case 36:	/* write_me */
-	    return pmdaAddLabels(lp, "{\"changed\":%s}",
-					_write_me != 2? "true" : "false");
+	    pmdaAddLabels(lp, "{\"changed\":%s}", boolstr(_write_me != 2));
+	    return 1;
 	case 97:	/* ulong.write_me */
-	    return pmdaAddLabels(lp, "{\"changed\":%s}",
-					_ulong != 13? "true" : "false");
+	    pmdaAddLabels(lp, "{\"changed\":%s}", boolstr(_ulong != 13));
+	    return 1;
 	case 102:	/* ulonglong.write_me */
-	    return pmdaAddLabels(lp, "{\"changed\":%s}",
-					_ulonglong != 13? "true" : "false");
+	    pmdaAddLabels(lp, "{\"changed\":%s}", boolstr(_ulonglong != 13));
+	    return 1;
 
 	case 64:	/* rapid */
 	    pmdaAddLabels(lp, "{\"measure\":\"speed\"}");
@@ -2892,20 +2911,22 @@ sample_label_pmid(pmID pmid, pmdaLabelSet **lp)
 }
 
 static int
-sample_label_cb(pmDesc *descp, unsigned int inst, pmdaLabelSet **lp)
+sample_label_cb(pmDesc *descp, unsigned int inst, pmLabelSet **lp)
 {
     __pmID_int	*pmidp = (__pmID_int *)&(descp->pmid);
     pmInDom	indom = descp->indom;
 
     if (indom == indomtab[BIN_INDOM].it_indom ||
 	indom == indomtab[SCRAMBLE_INDOM].it_indom) {
-	return pmdaAddLabels(lp, "{\"bin\":%u}\n", inst);
+	pmdaAddLabels(lp, "{\"bin\":%u}\n", inst);
+	return 1;
     }
 
     if (pmidp->item == 37 ||	/* mirage */
 	pmidp->item == 38) {	/* mirage_longlong */
 	/* instance zero is always present, the rest come and go */
-	return pmdaAddLabels(lp, "{\"transient\":%s}", inst ? "true" : "false");
+	pmdaAddLabels(lp, "{\"transient\":%s}", inst ? "true" : "false");
+	return 1;
     }
 
     return 0;
@@ -2942,9 +2963,9 @@ sample_lookup_indom(pmInDom indom)
 }
 
 static int
-sample_label_insts(pmID pmid, pmdaLabelSet **lpp)
+sample_label_insts(pmID pmid, pmLabelSet **lpp)
 {
-    pmdaLabelSet *lp;
+    pmLabelSet	*lp;
     pmdaIndom	*idp;
     pmDesc	*dp;
     int		i, numinst;
@@ -2961,7 +2982,7 @@ sample_label_insts(pmID pmid, pmdaLabelSet **lpp)
     if ((numinst = cntinst(dp->indom)) == 0)
 	return numinst;
 
-    if ((lp = (pmdaLabelSet *)calloc(numinst, sizeof(pmdaLabelSet))) == NULL)
+    if ((lp = (pmLabelSet *)calloc(numinst, sizeof(pmLabelSet))) == NULL)
 	return -oserror();
 
     *lpp = lp;
@@ -2973,7 +2994,7 @@ sample_label_insts(pmID pmid, pmdaLabelSet **lpp)
 }
 
 static int
-sample_label(int ident, int type, pmdaLabelSet **lp, pmdaExt *ep)
+sample_label(int ident, int type, pmLabelSet **lp, pmdaExt *ep)
 {
     sample_inc_recv(ep->e_context);
     sample_inc_xmit(ep->e_context);

@@ -498,48 +498,30 @@ PCP_CALL extern int __pmInProfile(pmInDom, const __pmProfile *, int);
 PCP_CALL extern void __pmFreeInResult(__pmInResult *);
 
 /*
- * Internal stuctures for label metadata (name:value pairs).
- * Only the PMDAs and pmcd need to know about this.
+ * Internal interfaces for metadata labels (name:value pairs).
  */
+static inline int
+pmlabel_extrinsic(pmLabel *lp)
+{
+    return (lp->flags & PM_LABEL_OPTIONAL) != 0;
+}
 
-typedef struct __pmLabel {
-    unsigned int	name : 16;	/* label name offset in JSONB string */
-    unsigned int	namelen : 8;	/* length of name excluding the null */
-    unsigned int	padding : 8;	/* zero, reserved for future use */
-    unsigned int	value : 16;	/* offset of the label value */
-    unsigned int	valuelen : 16;	/* length of value in bytes */
-} __pmLabel;
+static inline int
+pmlabel_intrinsic(pmLabel *lp)
+{
+    return (lp->flags & PM_LABEL_OPTIONAL) == 0;
+}
 
-typedef struct __pmLabelSet {
-    unsigned int 	inst;		/* instance ID / PM_IN_NULL */
-    int			nlabels;	/* count of labels or error code */
-    char		*json;		/* JSON formatted labels string */
-    unsigned int	jsonlen : 16;	/* JSON string length byte count */
-    unsigned int	padding : 16;	/* zero, reserved for future use */
-    __pmLabel		*labels;	/* indexing into the JSON string */
-} __pmLabelSet;
-
-#define PM_MAXLABELS		((1<<8)-1)
-#define PM_MAXLABELJSONLEN	((1<<16)-1)
-
-PCP_CALL extern void __pmDumpLabelSet(FILE *, const __pmLabelSet *);
-PCP_CALL extern void __pmDumpLabelSetArray(FILE *, const __pmLabelSet *, int);
-PCP_CALL extern void __pmFreeLabelSet(__pmLabelSet *);
-PCP_CALL extern void __pmFreeLabelSetArray(__pmLabelSet *, int);
-
-/* Label hierarchy identifiers */
-#define PM_LABEL_CONTEXT	(1<<0)
-#define PM_LABEL_DOMAIN		(1<<1)
-#define PM_LABEL_INDOM		(1<<2)
-#define PM_LABEL_PMID		(1<<3)
-#define PM_LABEL_INSTS		(1<<4)
-
-PCP_CALL extern int __pmAddLabels(__pmLabelSet **, const char *);
+PCP_CALL extern int __pmAddLabels(pmLabelSet **, const char *);
 PCP_CALL extern int __pmMergeLabels(const char *, const char *, char *, int);
-PCP_CALL extern int __pmParseLabels(const char *, int, __pmLabel *, int, char *, int *);
-PCP_CALL extern int __pmParseLabelSet(const char *, int, __pmLabelSet **);
-PCP_CALL extern int __pmGetContextLabels(__pmLabelSet **);
-PCP_CALL extern int __pmGetDomainLabels(int, const char *, __pmLabelSet **);
+PCP_CALL extern int __pmParseLabels(const char *, int, pmLabel *, int, char *, int *);
+PCP_CALL extern int __pmParseLabelSet(const char *, int, pmLabelSet **);
+
+PCP_CALL extern int __pmGetContextLabels(pmLabelSet **);
+PCP_CALL extern int __pmGetDomainLabels(int, const char *, pmLabelSet **);
+
+PCP_CALL extern void __pmDumpLabelSet(FILE *, const pmLabelSet *);
+PCP_CALL extern void __pmDumpLabelSets(FILE *, const pmLabelSet *, int);
 
 /*
  * Version and capabilities information for PDU exchanges
@@ -1016,8 +998,8 @@ PCP_CALL extern int __pmSendAttr(int, int, int, const char *, int);
 PCP_CALL extern int __pmDecodeAttr(__pmPDU *, int *, char **, int *);
 PCP_CALL extern int __pmSendLabelReq(int, int, int, int);
 PCP_CALL extern int __pmDecodeLabelReq(__pmPDU *, int *, int *);
-PCP_CALL extern int __pmSendLabel(int, int, int, int, struct __pmLabelSet *, int);
-PCP_CALL extern int __pmDecodeLabel(__pmPDU *, int *, int *, struct __pmLabelSet **, int *);
+PCP_CALL extern int __pmSendLabel(int, int, int, int, pmLabelSet *, int);
+PCP_CALL extern int __pmDecodeLabel(__pmPDU *, int *, int *, pmLabelSet **, int *);
 
 #if defined(HAVE_64BIT_LONG)
 

@@ -484,18 +484,53 @@ PCP_CALL extern int pmFetchArchive(pmResult **);
  * The full set of labels for a given metric instance is the union of
  * those found at the levels: source (host/archive), domain (agent),
  * indom, metric, and finally instances (individual metric values).
+ *
+ * Individual labels can be intrinsic to a metric value (i.e. they
+ * form an inherent part of its identity like the pmDesc metadata)
+ * or extrinsic (i.e. they are simply optional annotations).
  */
-PCP_CALL extern int pmGetLabels(pmID, int **, char ***);
-PCP_CALL extern int pmGetPMIDLabels(pmID, char **);
-PCP_CALL extern int pmGetInDomLabels(pmInDom, char **);
-PCP_CALL extern int pmGetDomainLabels(int, char **);
-PCP_CALL extern int pmGetContextLabels(char **);
+typedef struct pmLabel {
+    unsigned int	name : 16;	/* label name offset in JSONB string */
+    unsigned int	namelen : 8;	/* length of name excluding the null */
+    unsigned int	flags : 8;	/* information about this label */
+    unsigned int	value : 16;	/* offset of the label value */
+    unsigned int	valuelen : 16;	/* length of value in bytes */
+} pmLabel;
+
+typedef struct pmLabelSet {
+    unsigned int 	inst;		/* PM_IN_NULL or the instance ID */
+    int			nlabels;	/* count of labels or error code */
+    char		*json;		/* JSON formatted labels string */
+    unsigned int	jsonlen : 16;	/* JSON string length byte count */
+    unsigned int	padding : 16;	/* zero, reserved for future use */
+    pmLabel		*labels;	/* indexing into the JSON string */
+} pmLabelSet;
+
+#define PM_MAXLABELS		((1<<8)-1)
+#define PM_MAXLABELJSONLEN	((1<<16)-1)
+
+#define PM_LABEL_CONTEXT	(1<<0)
+#define PM_LABEL_DOMAIN		(1<<1)
+#define PM_LABEL_INDOM		(1<<2)
+#define PM_LABEL_PMID		(1<<3)
+#define PM_LABEL_INSTS		(1<<4)
+#define PM_LABEL_OPTIONAL	(1<<7)
+
+PCP_CALL extern int pmGetLabels(pmID, pmLabelSet **);
+PCP_CALL extern int pmGetPMIDLabels(pmID, pmLabelSet **);
+PCP_CALL extern int pmGetInDomLabels(pmInDom, pmLabelSet **);
+PCP_CALL extern int pmGetDomainLabels(int, pmLabelSet **);
+PCP_CALL extern int pmGetContextLabels(pmLabelSet **);
 
 /*
  * The full set is formed by merging labels from all levels of the
  * hierarchy using the precedence rules described in pmGetLabels(3).
  */
 PCP_CALL extern int pmMergeLabels(char **, int, char *, int);
+PCP_CALL extern int pmMergeLabelSets(pmLabelSet **, int, char *, int);
+
+/* Free a labelset array */
+PCP_CALL extern void pmFreeLabelSets(pmLabelSet *, int);
 
 /*
  * struct timeval is sometimes 2 x 64-bit ... we use a 2 x 32-bit format for

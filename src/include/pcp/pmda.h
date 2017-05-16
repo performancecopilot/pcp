@@ -46,7 +46,6 @@ typedef struct __pmnsTree  pmdaNameSpace;
 typedef struct __pmHashCtl pmdaHashTable;
 typedef struct __pmProfile pmdaInProfile;
 typedef struct __pmInResult pmdaInResult;
-typedef struct __pmLabelSet pmdaLabelSet;
 typedef struct __pmnsNode pmnsNode;
 
 /*
@@ -114,7 +113,7 @@ typedef void (*pmdaEndContextCallBack)(int);
 /*
  * Type of function call back used by pmdaLabel.
  */
-typedef int (*pmdaLabelCallBack)(pmdaMetric *, unsigned int, pmdaLabelSet **);
+typedef int (*pmdaLabelCallBack)(pmdaMetric *, unsigned int, pmLabelSet **);
 
 
 /*
@@ -283,7 +282,7 @@ typedef struct pmdaInterface {
 	    int     (*name)(pmID, char ***, pmdaExt *);
 	    int     (*children)(const char *, int, char ***, int **, pmdaExt *);
 	    int     (*attribute)(int, int, const char *, int, pmdaExt *);
-	    int	    (*label)(int, int, pmdaLabelSet **, pmdaExt *);
+	    int	    (*label)(int, int, pmLabelSet **, pmdaExt *);
 	} seven;
 
     } version;
@@ -536,7 +535,7 @@ PMDA_CALL extern int pmdaPMID(const char *, pmID *, pmdaExt *);
 PMDA_CALL extern int pmdaName(pmID, char ***, pmdaExt *);
 PMDA_CALL extern int pmdaChildren(const char *, int, char ***, int **, pmdaExt *);
 PMDA_CALL extern int pmdaAttribute(int, int, const char *, int, pmdaExt *);
-PMDA_CALL extern int pmdaLabel(int, int, pmdaLabelSet **, pmdaExt *);
+PMDA_CALL extern int pmdaLabel(int, int, pmLabelSet **, pmdaExt *);
 
 /*
  * PMDA "help" text manipulation
@@ -549,7 +548,7 @@ PMDA_CALL extern char *pmdaGetInDomHelp(int, pmInDom, int);
 /*
  * PMDA "label" metadata (name:value pairs) manipulation
  */
-PMDA_CALL extern int pmdaAddLabels(pmdaLabelSet **, const char *, ...) __PM_PRINTFLIKE(2,3);
+PMDA_CALL extern int pmdaAddLabels(pmLabelSet **, const char *, ...) __PM_PRINTFLIKE(2,3);
 
 /*
  * Dynamic metric table manipulation

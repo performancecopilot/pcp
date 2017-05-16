@@ -291,6 +291,6 @@ extern void __pmCloseChannelbyFd(int, int, int) _PCP_HIDDEN;
 #define MAXLABELNAMELEN		((1<<8)-1)
 #define MAXLABELVALUELEN	((1<<16)-1)
 extern int __pmRecvLabel(int, __pmContext *, int, int *, int *,
-			 __pmLabelSet **, int *) _PCP_HIDDEN;
+			 pmLabelSet **, int *) _PCP_HIDDEN;
 
 #endif /* _LIBPCP_INTERNAL_H */
