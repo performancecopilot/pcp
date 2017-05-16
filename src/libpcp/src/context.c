@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2016 Red Hat.
+ * Copyright (c) 2012-2017 Red Hat.
  * Copyright (c) 2007-2008 Aconex.  All Rights Reserved.
  * Copyright (c) 1995-2002,2004,2006,2008 Silicon Graphics, Inc.  All Rights Reserved.
  * 
@@ -637,7 +637,7 @@ __pmFindOrOpenArchive(__pmContext *ctxp, const char *name, int multi_arch)
 	     * See if there is already an archive opened with this name and
 	     * not part of a multi-archive context.
 	     */
-	    ctxp2 = contexts[i];
+	    ctxp2 = contexts[contexts_map[i]];
 	    if (ctxp2->c_type == PM_CONTEXT_ARCHIVE) {
 		acp2 = ctxp2->c_archctl;
 		if (! acp2->ac_log->l_multi &&
