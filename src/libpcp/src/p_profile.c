@@ -123,6 +123,8 @@ __pmDecodeProfile(__pmPDU *pdubuf, int *ctxnump, __pmProfile **resultp)
 	return PM_ERR_IPC;
 
     ctxnum = ntohl(pduProfile->ctxnum);
+    if (ctxnum < 0)
+	return PM_ERR_IPC;
 PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_ALLOC);
     if ((instprof = (__pmProfile *)malloc(sizeof(__pmProfile))) == NULL)
 	return -oserror();
