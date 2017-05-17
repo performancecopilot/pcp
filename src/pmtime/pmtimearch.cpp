@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, Red Hat.
+ * Copyright (c) 2012-2017, Red Hat.
  * Copyright (c) 2006, Ken McDonell.  All Rights Reserved.
  * Copyright (c) 2006-2007, Aconex.  All Rights Reserved.
  * 
@@ -624,6 +624,8 @@ void PmTimeArch::addTimezone(const char *string)
 
     if (!my.tzActions) {
 	my.tzActions = new QActionGroup(this);
+	connect(my.tzActions, SIGNAL(triggered(QAction *)),
+			this, SLOT(setTimezone(QAction *)));
 	connect(my.tzActions, SIGNAL(selected(QAction *)),
 			this, SLOT(setTimezone(QAction *)));
     }

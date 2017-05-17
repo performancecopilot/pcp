@@ -324,6 +324,7 @@ _pcp () {
       "(-S --start $exargs)"{-S+,--start}'[set start of time window]:timespec:' \
       "(-T --finish $exargs)"{-T+,--finish}'[set end of time window]:timespec:' \
       "(-v --verbose $exargs)"{-v,--verbose}'[verbose output]' \
+      "(-w --nowrap $exargs)"{-w,--nowrap}'[suppress counter wrap warnings]' \
       "(-Z --timezone -z --hostzone $exargs)"{-Z+,--timezone}'[set reporting timezone]:timezone:_time_zone' \
       "(-z --hostzone -Z --timezone $exargs)"{-z,--hostzone}'[use metrics source timezone]' \
       '1:archive:->archives' \

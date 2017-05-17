@@ -18,6 +18,7 @@ include $(TOPDIR)/src/include/builddefs
 
 CFILES	= simple.c
 CMDTARGET = pmdasimple$(EXECSUFFIX)
+LIBTARGET = pmda_simple.$(DSOSUFFIX)
 LLDLIBS = $(PCP_PMDALIB)
 LCFLAGS = -I.
 DFILES	= README help
@@ -32,7 +33,7 @@ PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
 
 LDIRT	= domain.h *.o $(IAM).log pmda$(IAM) pmda_$(IAM).so
 
-default_pcp default:	$(CMDTARGET)
+default_pcp default:	$(CMDTARGET) $(LIBTARGET)
 
 include $(BUILDRULES)
 
