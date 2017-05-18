@@ -150,6 +150,7 @@ typedef struct {
     int		nlabels;	/* number of labels or an error code */
     int		json;		/* offset to start of the JSON string */
     int		jsonlen;	/* length in bytes of the JSON string */
+    pmLabel	labels[0];	/* zero or more label indices + flags */
 } labelset_t;
 
 typedef struct {
@@ -164,25 +165,32 @@ typedef struct {
 int
 __pmSendLabel(int fd, int from, int ident, int type, pmLabelSet *sets, int nsets)
 {
+    size_t	labels_offset;
+    size_t	labels_need;
     size_t	json_offset;
-    size_t	need;
+    size_t	json_need;
+    labelset_t	*lsp;
     label_t	*pp;
+    pmLabel	*lp;
     int		sts;
-    int		i;
+    int		i, j;
 
     if (nsets < 0)
 	return -EINVAL;
-    need = sizeof(label_t) + (sizeof(labelset_t) * (nsets - 1));
+    labels_need = sizeof(label_t) + (sizeof(labelset_t) * (nsets - 1));
+    json_need = 0;
     for (i = 0; i < nsets; i++) {
 	if (sets[i].jsonlen < 0)
 	    return -EINVAL;
-	need += sets[i].jsonlen;
+	json_need += sets[i].jsonlen;
+	if (sets[i].nlabels > 0)
+	    labels_need += sets[i].nlabels * sizeof(pmLabel);
     }
 
-    if ((pp = (label_t *)__pmFindPDUBuf((int)need)) == NULL)
+    if ((pp = (label_t *)__pmFindPDUBuf((int)labels_need + json_need)) == NULL)
 	return -oserror();
 
-    pp->hdr.len = (int)need;
+    pp->hdr.len = (int)(labels_need + json_need);
     pp->hdr.type = PDU_LABEL;
     pp->hdr.from = from;
 
@@ -199,12 +207,28 @@ __pmSendLabel(int fd, int from, int ident, int type, pmLabelSet *sets, int nsets
     pp->padding = 0;
     pp->nsets = htonl(nsets);
 
-    json_offset = sizeof(label_t) + (sizeof(labelset_t) * (nsets - 1));
+    labels_offset = (char *)&pp->sets[0] - (char *)pp;
+    json_offset = labels_need;	/* JSONB immediately follows labelsets */
+
     for (i = 0; i < nsets; i++) {
-	pp->sets[i].inst = htonl(sets[i].inst);
-	pp->sets[i].nlabels = htonl(sets[i].nlabels);
-	pp->sets[i].json = htonl(json_offset);
-	pp->sets[i].jsonlen = htonl(sets[i].jsonlen);
+	lsp = (labelset_t *)((char *)pp + labels_offset);
+	lsp->inst = htonl(sets[i].inst);
+	lsp->nlabels = htonl(sets[i].nlabels);
+	lsp->json = htonl(json_offset);
+	lsp->jsonlen = htonl(sets[i].jsonlen);
+
+	if (sets[i].nlabels > 0) {
+	    for (j = 0; j < sets[i].nlabels; j++) {
+		lp = &lsp->labels[j];
+		lp->name = htons(sets[i].labels[j].name);
+		lp->namelen = sets[i].labels[j].namelen;	/* byte copy */
+		lp->flags = sets[i].labels[j].flags;		/* byte copy */
+		lp->value = htons(sets[i].labels[j].value);
+		lp->valuelen = sets[i].labels[j].valuelen;	/* byte copy */
+	    }
+	    labels_offset += sets[i].nlabels * sizeof(pmLabel);
+	}
+	labels_offset += sizeof(labelset_t);
 
 	if (sets[i].jsonlen) {
 	    memcpy((char *)pp + json_offset, sets[i].json, sets[i].jsonlen);
@@ -256,21 +280,27 @@ __pmRecvLabel(int fd, __pmContext *ctxp, int timeout,
 int
 __pmDecodeLabel(__pmPDU *pdubuf, int *ident, int *type, pmLabelSet **setsp, int *nsetp)
 {
-    pmLabelSet	*sets, *sp;
+    pmLabelSet	*sets;
+    pmLabelSet	*sp;
+    pmLabel	*lp;
+    labelset_t	*lsp;
     label_t	*label_pdu;
+    size_t	pdu_length;
     char	*pdu_end;
     char	*json;
+    int		labeloff;
+    int		labellen;
     int		jsonlen;
     int		jsonoff;
     int		nlabels;
     int		nsets;
-    int		sts;
-    int		i;
+    int		i, j;
 
     label_pdu = (label_t *)pdubuf;
     pdu_end = (char *)pdubuf + label_pdu->hdr.len;
+    pdu_length = pdu_end - (char *)label_pdu;
 
-    if (pdu_end - (char *)label_pdu < sizeof(label_t) - sizeof(labelset_t))
+    if (pdu_length < sizeof(label_t) - sizeof(labelset_t))
 	return PM_ERR_IPC;
 
     *ident = ntohl(label_pdu->ident);
@@ -288,30 +318,66 @@ __pmDecodeLabel(__pmPDU *pdubuf, int *ident, int *type, pmLabelSet **setsp, int 
     if ((sets = (pmLabelSet *)calloc(nsets, sizeof(pmLabelSet))) == NULL)
 	return -ENOMEM;
 
-    for (i = 0; i < nsets; i++) {
-	nlabels = ntohl(label_pdu->sets[i].nlabels);
-	jsonlen = ntohl(label_pdu->sets[i].jsonlen);
-	jsonoff = ntohl(label_pdu->sets[i].json);
-	json = (char *)label_pdu + jsonoff;
+    labeloff = (char *)&label_pdu->sets[0] - (char *)label_pdu;
 
-	/* validity checks - none of these conditions should happen */
+    for (i = 0; i < nsets; i++) {
+	lsp = (labelset_t *)((char *)label_pdu + labeloff);
+	nlabels = ntohl(lsp->nlabels);
+	jsonlen = ntohl(lsp->jsonlen);
+	jsonoff = ntohl(lsp->json);
+
+	json = (char *)label_pdu + jsonoff;
+	labellen = sizeof(labelset_t);
+	if (nlabels > 0)
+	    labellen += nlabels * sizeof(pmLabel);
+
+	/* validity checks - these conditions should not happen */
 	if (nlabels >= MAXLABELS)
 	    goto corrupt;
 	if (jsonlen < 0 || jsonlen >= MAXLABELJSONLEN)
 	    goto corrupt;
 
 	/* check JSON content fits within the PDU bounds */
-	if (pdu_end - (char *)label_pdu < jsonoff + jsonlen)
+	if (pdu_length < jsonoff + jsonlen)
 	    goto corrupt;
 
-	if ((sts = __pmParseLabelSet(json, jsonlen, &sp)) < 0)
+	/* check label content fits within the PDU bounds */
+	if (pdu_length < labeloff + labellen)
 	    goto corrupt;
-	if (sts > 0 && sp->nlabels != nlabels)
-	    goto corrupt;
+
+	sp = &sets[i];
+	sp->inst = ntohl(lsp->inst);
 	sp->nlabels = nlabels;
-	sp->inst = ntohl(label_pdu->sets[i].inst);
-	sets[i] = *sp;
-	free(sp);
+	if (nlabels > 0) {
+	    if ((json = malloc(jsonlen + 1)) == NULL)
+		goto corrupt;
+	    if ((lp = (pmLabel *)calloc(nlabels, sizeof(pmLabel))) == NULL) {
+		free(json);
+		goto corrupt;
+	    }
+	    memcpy(json, (char *)label_pdu + jsonoff, jsonlen);
+	    json[jsonlen] = '\0';
+
+	    sp->json = json;
+	    sp->jsonlen = jsonlen;
+	    sp->labels = lp;
+
+	    for (j = 0; j < nlabels; j++) {
+		lp = &sp->labels[j];
+		lp->name = ntohs(lsp->labels[j].name);
+		lp->namelen = lsp->labels[j].namelen;		/* byte copy */
+		lp->flags = lsp->labels[j].flags;		/* byte copy */
+		lp->value = htons(lsp->labels[j].value);
+		lp->valuelen = lsp->labels[j].valuelen;		/* byte copy */
+
+		if (pdu_length < lp->name + lp->namelen)
+		    goto corrupt;
+		if (pdu_length < lp->value + lp->valuelen)
+		    goto corrupt;
+	    }
+	    labeloff += nlabels * sizeof(pmLabel);
+	}
+	labeloff += sizeof(labelset_t);
     }
 
 success:
