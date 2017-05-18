@@ -1,5 +1,41 @@
+pcp-3.11.11 (30 June 2017)
+    - work-in-progress, see http://pcp.io/roadmap
+
 pcp-3.11.10 (17 May 2017)
-    - Work-in-progress - see http://pcp.io/roadmap
+    - books: add missing images into the pdf builds
+    - build: selinux module checking
+    - build: debian build fixes
+    - build: MAC OS X build fixes
+    - build: Qt5 now used on all fedora releases
+    - build: correctly handle LDIRT when building perl modules
+    - build: create dso variant of pmdasimple
+    - install: debian install fixes
+    - install: Add pcp-zeroconf rpm subpackage
+    - libpcp: multithreaded locking improvements
+    - libpcp: provide more general features-capabilities mechanism for fds
+    - libvirt pmda: add new block, perf, vcpu metrics
+    - man: debian man page migrations
+    - man: pmlogcheck.1: document new -w option
+    - pcpqa: ongoing improvements
+    - pmcd: restore context to pcp_var_run_t after pmcd start
+    - pmcd: timeout countdown fix, during pmda shutdown phase of exiting
+    - pmchart: fix reaction to timezone changes from pmtime
+    - pmdalinux: fix resource leaks in zoneinfo code
+    - pmdalinux: add Linux kernel entropy metrics
+    - pmdalinux: several additional mem.zoneinfo metrics
+    - pmdalinux: correct metadata for hinv.cpu.clock and hinv.cpu.cache
+    - pmdammv: fix resource leaks on error paths
+    - pmdaperfevent: fix leaks, incorrect free, dead code
+    - pminfo: improve formatting with one-line help text error message
+    - pmmgr: heap management improvements
+    - pmrep: correctly handle endtime in uninterpolated mode
+    - pmrep: add support for ignoring (-I) and omitting (-v) metrics
+    - pmrep: cmd line improvements
+    - python api: fix memory leaks
+    - python api: handle non-POSIXLY_CORRECT getopt cases
+    - selinux: several updates to pcp policy
+    - stdpmid: reserve a domain number for Prometheus endpoint PMDA
+    - zsh: Add --nowrap to the completions for pmlogcheck
 
 pcp-3.11.9 (31 March 2017)
     - derived metrics: add defined() function
