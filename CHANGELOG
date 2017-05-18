@@ -1,3 +1,6 @@
+pcp-3.11.11 (30 June 2017)
+    - work-in-progress, see http://pcp.io/roadmap
+
 pcp-3.11.10 (17 May 2017)
     - books: add missing images into the pdf builds
     - build: selinux module checking

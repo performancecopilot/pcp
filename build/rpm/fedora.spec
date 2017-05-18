@@ -3012,6 +3012,9 @@ cd
 %endif
 
 %changelog
+* Fri Jun 30 2017 Lukas Berk <lberk@redhat.com> - 3.11.11-1
+- Work-in-progress, see http://pcp.io/roadmap
+
 * Wed May 17 2017 Dave Brolley <brolley@redhat.com> - 3.11.10-1
 - python api: handle non-POSIXLY_CORRECT getopt cases (BZ 1289912)
 - Fix pmchart reaction to timezone changes from pmtime (BZ 968823)
