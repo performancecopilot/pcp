@@ -11,13 +11,13 @@ defctx: pmDelProfile: Attempt to use an illegal context
 defctx: pmAddProfile: Attempt to use an illegal context
 defctx: pmFetch: Attempt to use an illegal context
 defctx: pmWhichContext: Attempt to use an illegal context
-NewContext: 0
 NewContext: 1
-Destroy(0)
-WhichContext: 1
-NewContext: 0
-Destroy(0)
+NewContext: 2
 Destroy(1)
+WhichContext: 2
+NewContext: 3
+Destroy(3)
+Destroy(2)
 
 explicit archive context ...
 first pmFetch is OK
@@ -28,13 +28,13 @@ defctx: pmDelProfile: Attempt to use an illegal context
 defctx: pmAddProfile: Attempt to use an illegal context
 defctx: pmFetch: Attempt to use an illegal context
 defctx: pmWhichContext: Attempt to use an illegal context
-NewContext: 0
 NewContext: 1
-Destroy(0)
-WhichContext: 1
-NewContext: 0
-Destroy(0)
+NewContext: 2
 Destroy(1)
+WhichContext: 2
+NewContext: 3
+Destroy(3)
+Destroy(2)
 
 explicit multi-volume archive context ...
 first pmFetch is OK
@@ -45,13 +45,13 @@ defctx: pmDelProfile: Attempt to use an illegal context
 defctx: pmAddProfile: Attempt to use an illegal context
 defctx: pmFetch: Attempt to use an illegal context
 defctx: pmWhichContext: Attempt to use an illegal context
-NewContext: 0
 NewContext: 1
-Destroy(0)
-WhichContext: 1
-NewContext: 0
-Destroy(0)
+NewContext: 2
 Destroy(1)
+WhichContext: 2
+NewContext: 3
+Destroy(3)
+Destroy(2)
 
 explicit no index archive context ...
 first pmFetch is OK
@@ -62,10 +62,10 @@ defctx: pmDelProfile: Attempt to use an illegal context
 defctx: pmAddProfile: Attempt to use an illegal context
 defctx: pmFetch: Attempt to use an illegal context
 defctx: pmWhichContext: Attempt to use an illegal context
-NewContext: 0
 NewContext: 1
-Destroy(0)
-WhichContext: 1
-NewContext: 0
-Destroy(0)
+NewContext: 2
 Destroy(1)
+WhichContext: 2
+NewContext: 3
+Destroy(3)
+Destroy(2)

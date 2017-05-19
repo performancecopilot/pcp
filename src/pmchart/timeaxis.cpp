@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2017, Red Hat.  All Rights Reserved.
  * Copyright (c) 2007-2008, Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -68,10 +69,13 @@ public:
 	    QwtScaleDraw::getBorderDistHint(f, start, end);
 	}
     }
+
+    void clearScaleCache() { invalidateCache(); }
 };
 
 TimeAxis::TimeAxis(QWidget *parent) : QwtPlot(parent)
 {
+    my.timeScaleDraw = new TimeScaleDraw(this);
     clearScaleCache();
     setFocusPolicy(Qt::NoFocus);
 
@@ -79,6 +83,11 @@ TimeAxis::TimeAxis(QWidget *parent) : QwtPlot(parent)
     canvas->resize(QSize(0.0, 0.0));
     setCanvas(canvas);
     canvas->hide();
+}
+
+TimeAxis::~TimeAxis()
+{
+    delete my.timeScaleDraw;
 }
 
 void TimeAxis::init()
@@ -90,7 +99,7 @@ void TimeAxis::init()
 
     setAutoReplot(false);
     setAxisFont(QwtPlot::xBottom, *globalFont);
-    setAxisScaleDraw(QwtPlot::xBottom, new TimeScaleDraw(this));
+    setAxisScaleDraw(QwtPlot::xBottom, my.timeScaleDraw);
     setAxisLabelAlignment(QwtPlot::xBottom, Qt::AlignHCenter | Qt::AlignBottom);
 }
 
@@ -118,6 +127,7 @@ void TimeAxis::clearScaleCache()
 {
     my.points = 0;
     my.delta = my.scale = 0.0;
+    my.timeScaleDraw->clearScaleCache();
 }
 
 double TimeAxis::scaleValue(double delta, int points)

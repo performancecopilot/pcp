@@ -2,11 +2,11 @@
 #
 # Recipes for making badlog-* family of archives.
 # 
-# Every one is based on a version of ../src/ok-foo, with binary editing using
+# Every one is based on a version of ./ok-foo, with binary editing using
 # bvi (or similar) and cut-n-paste with dd.
 #
 
-src=../src/ok-foo
+src=./ok-foo
 
 tmp=/var/tmp/$$
 trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
@@ -38,6 +38,8 @@ fi
 # 496	start record[3]
 # 708	start record[4]
 # 920	start record[5]
+# 1132	start record[6]
+# ...
 #
 # within an record (after the first)
 # +0	length header
@@ -79,6 +81,8 @@ fi
 # +196 ... value block for sample.lights 
 #
 
+# First Pass - edit selected files
+#
 case $X
 in
     1)	# log broken in the middle of an entry
@@ -93,6 +97,16 @@ in
     3)	# timestamp goes backwards at record[3] 500 = 496+4
 	cp $src.0 badlog-$X.0
 	echo '500s\\....\\2FAF0800\\' >$tmp.ex
+	;;
+
+    4)	# timestamp in label comes from record[4], so records[1], [2] and [3]
+        # have a timestamp before the label timestamp
+	# and truncated temporal index (only 1 entry)
+	cp $src.0 badlog-$X.0
+	cp $src.meta badlog-$X.meta
+	dd if=$src.index of=badlog-$X.index bs=1 count=152
+	echo '12s\\....\\35C9F73B\\' >$tmp.ex
+	echo '16s\\....\\0003F149\\' >>$tmp.ex
 	;;
 
     *)
@@ -121,13 +135,15 @@ then
 
 fi
 
+# Second Pass - copy any missing files
+#
 for file in badlog-$X.0 badlog-$X.meta badlog-$X.index
 do
     if [ -f $file ]
     then
 	:
     else
-	target=`echo $file | sed -e "s/badlog-$X\./..\/src\/ok-foo./"`
+	target=`echo $file | sed -e "s/badlog-$X/.\/ok-foo/"`
 	if cp $target $file
 	then
 	    :
@@ -137,6 +153,20 @@ do
 	fi
     fi
 done
+
+# Third Pass - fix ups
+#
+case $X
+in
+    4)  # whack timestamp in index entry[0]
+	echo '132s\\....\\35C9F73B\\' >$tmp.ex
+	echo '136s\\....\\0003F149\\' >>$tmp.ex
+	echo 'w' >>$tmp.ex
+	echo 'q' >>$tmp.ex
+	bvi -f $tmp.ex badlog-4.index
+	;;
+
+esac
 
 echo "badlog-$X created."
 

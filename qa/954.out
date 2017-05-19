@@ -1,0 +1,44 @@
+QA output created by 954
+=== one config ===
+pmLoadConfig(TMP.c1) -> 1
+qa.a
+lock(derived_metric)
+lock(derived_metric) [count=1]
+unlock(derived_metric) [count=2]
+lock(derived_metric) [count=1]
+unlock(derived_metric) [count=2]
+lock(derived_metric) [count=1]
+unlock(derived_metric) [count=2]
+unlock(derived_metric)
+lock(derived_metric)
+lock(derived_metric) [count=1]
+unlock(derived_metric) [count=2]
+unlock(derived_metric)
+lock(derived_metric)
+unlock(derived_metric)
+
+=== two configs ===
+pmLoadConfig(TMP.c1) -> 1
+pmLoadConfig(TMP.c2) -> 1
+qa.a
+qa.b
+lock(derived_metric)
+lock(derived_metric) [count=1]
+unlock(derived_metric) [count=2]
+lock(derived_metric) [count=1]
+unlock(derived_metric) [count=2]
+lock(derived_metric) [count=1]
+unlock(derived_metric) [count=2]
+unlock(derived_metric)
+lock(derived_metric)
+lock(derived_metric) [count=1]
+unlock(derived_metric) [count=2]
+unlock(derived_metric)
+lock(derived_metric)
+lock(derived_metric) [count=1]
+unlock(derived_metric) [count=2]
+lock(derived_metric) [count=1]
+unlock(derived_metric) [count=2]
+unlock(derived_metric)
+lock(derived_metric)
+unlock(derived_metric)

@@ -277,13 +277,38 @@ in
 	;;
     *)
 	# Debian packaging ...
-	if yes Y | sudo dpkg -i --force-depends build/deb/*.deb >>$HOME/daily.log 2>&1
-	then
-	    echo "Info: dpkg install" | tee -a $HOME/daily.log
-	else
-	    echo "Error: dpkg failed!" | tee -a $HOME/daily.log
-	    exit 1
-	fi
+	apt_ver=`apt-get -v | sed -n -e '/^apt/{
+s/apt //
+s/ .*//p
+}'`
+	case "$apt_ver"
+	in
+	    0.*|1.0.*)
+		# the old-school dpkg way
+		#
+		if yes Y | sudo dpkg -i --force-depends build/deb/*.deb >>$HOME/daily.log 2>&1
+		then
+		    echo "Info: dpkg install" | tee -a $HOME/daily.log
+		else
+		    echo "Error: dpkg failed!" | tee -a $HOME/daily.log
+		    exit 1
+		fi
+		;;
+	    *)
+		# the new-school apt-get way
+		#
+		here=`pwd`
+		cd build/deb
+		if sudo apt-get --yes --reinstall install ./*.deb >>$HOME/daily.log 2>&1
+		then
+		    echo "Info: apt-get install" | tee -a $HOME/daily.log
+		else
+		    echo "Error: apt-get failed!" | tee -a $HOME/daily.log
+		    exit 1
+		fi
+		cd $here
+		;;
+	esac
 	notfound=false
 	;;
 esac

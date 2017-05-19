@@ -13,10 +13,6 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 # 
-# You should have received a copy of the GNU General Public License along
-# with this program; if not, write to the Free Software Foundation, Inc.,
-# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
-# 
 
 TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
@@ -27,7 +23,8 @@ TESTCODE  =
 PERLDOCS  = Changes MANIFEST
 LSRCFILES = Makefile.PL $(PERLDOCS) $(PERLMOD) $(INTERFACE) $(TESTCODE)
 
-LPKGDIRT = PCP-LogImport-* tmp MYMETA.yml MYMETA.json
+LPKGDIRT = PCP-LogImport-*.tar.gz tmp MYMETA.yml MYMETA.json
+LDIRDIRT = PCP-LogImport-*
 LDIRT = Makefile COPYING LogImport.bs LogImport.c LogImport.o cvalue pm_to_blib blib \
 	Makefile.old $(LPKGDIRT)
 

@@ -22,7 +22,8 @@ TESTCODE  = test.pl server.pl
 PERLDOCS  = Changes MANIFEST
 LSRCFILES = Makefile.PL $(PERLDOCS) $(PERLMOD) $(INTERFACE) $(TESTCODE)
 
-LPKGDIRT = PCP-MMV-* MYMETA.yml MYMETA.json
+LPKGDIRT = PCP-MMV-*.tar.gz MYMETA.yml MYMETA.json
+LDIRDIRT = PCP-MMV-*
 LDIRT = Makefile COPYING MMV.bs MMV.c MMV.o pm_to_blib blib \
 	Makefile.old $(LPKGDIRT)
 

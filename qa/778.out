@@ -33,7 +33,6 @@ validate values ...
 === pg_stat_activity ===
 client_port: match
 backend_start: match
-(current_query|query): match
 
 === pg_stat_bgwriter ===
 checkpoints_timed: match

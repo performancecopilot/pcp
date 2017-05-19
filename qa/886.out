@@ -23,11 +23,9 @@ Aggregate count of each CPUs interrupt processing count, calculated
 as the sum of all interrupt types in /proc/interrupts for each CPU.
 
 kernel.percpu.interrupts.I_O One-line Help: Error: One-line or help text is not available
-
 Full Help: Error: One-line or help text is not available
 
 kernel.percpu.interrupts.EXT One-line Help: Error: One-line or help text is not available
-
 Full Help: Error: One-line or help text is not available
 
 == done
@@ -442,11 +440,9 @@ Help:
 Posted-interrupt notification event
 
 kernel.percpu.interrupts.MIS One-line Help: Error: One-line or help text is not available
-
 Full Help: Error: One-line or help text is not available
 
 kernel.percpu.interrupts.ERR One-line Help: Error: One-line or help text is not available
-
 Full Help: Error: One-line or help text is not available
 
 kernel.percpu.interrupts.HYP [Hypervisor callback interrupts]

@@ -786,6 +786,7 @@ MAKE
 enable_qt3d
 qmake
 enable_qt
+qt_version
 qt_release
 QMAKE
 PMDA_LIBVIRT
@@ -918,6 +919,7 @@ infodir
 docdir
 oldincludedir
 includedir
+runstatedir
 localstatedir
 sharedstatedir
 sysconfdir
@@ -1056,6 +1058,7 @@ datadir='${datarootdir}'
 sysconfdir='${prefix}/etc'
 sharedstatedir='${prefix}/com'
 localstatedir='${prefix}/var'
+runstatedir='${localstatedir}/run'
 includedir='${prefix}/include'
 oldincludedir='/usr/include'
 docdir='${datarootdir}/doc/${PACKAGE}'
@@ -1308,6 +1311,15 @@ do
   | -silent | --silent | --silen | --sile | --sil)
     silent=yes ;;
 
+  -runstatedir | --runstatedir | --runstatedi | --runstated \
+  | --runstate | --runstat | --runsta | --runst | --runs \
+  | --run | --ru | --r)
+    ac_prev=runstatedir ;;
+  -runstatedir=* | --runstatedir=* | --runstatedi=* | --runstated=* \
+  | --runstate=* | --runstat=* | --runsta=* | --runst=* | --runs=* \
+  | --run=* | --ru=* | --r=*)
+    runstatedir=$ac_optarg ;;
+
   -sbindir | --sbindir | --sbindi | --sbind | --sbin | --sbi | --sb)
     ac_prev=sbindir ;;
   -sbindir=* | --sbindir=* | --sbindi=* | --sbind=* | --sbin=* \
@@ -1445,7 +1457,7 @@ fi
 for ac_var in	exec_prefix prefix bindir sbindir libexecdir datarootdir \
 		datadir sysconfdir sharedstatedir localstatedir includedir \
 		oldincludedir docdir infodir htmldir dvidir pdfdir psdir \
-		libdir localedir mandir
+		libdir localedir mandir runstatedir
 do
   eval ac_val=\$$ac_var
   # Remove trailing slashes.
@@ -1598,6 +1610,7 @@ Fine tuning of the installation directories:
   --sysconfdir=DIR        read-only single-machine data [PREFIX/etc]
   --sharedstatedir=DIR    modifiable architecture-independent data [PREFIX/com]
   --localstatedir=DIR     modifiable single-machine data [PREFIX/var]
+  --runstatedir=DIR       modifiable per-process data [LOCALSTATEDIR/run]
   --libdir=DIR            object code libraries [EPREFIX/lib]
   --includedir=DIR        C header files [PREFIX/include]
   --oldincludedir=DIR     C header files for non-gcc [/usr/include]
@@ -3988,7 +4001,7 @@ if test "${enable_ssp+set}" = set; then :
 fi
 
 
-if test "x$cc_is_gcc" = xyes -a "x$enable_ssp" != xno ; then :
+if test "x$cc_is_gcc" = xyes -a "x$enable_ssp" != xno -a "x$use_optimization" = xyes ; then :
 
        save_CFLAGS="$CFLAGS"
        CFLAGS="$CFLAGS -O -fstack-protector-all -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2"
@@ -7609,6 +7622,7 @@ $as_echo "no" >&6; }; fi
 qmake=$QMAKE
 enable_qt=false
 qt_release=release
+qt_version=0
 if test "x$do_qt" != "xno"; then :
 
     enable_qt=true
@@ -7683,6 +7697,7 @@ $as_echo "$QT_MAJOR.$QT_MINOR.$QT_POINT" >&6; }
 	    echo Qt version 4.4 or later is required for Qt builds.
 	    enable_qt=false
 	fi
+	qt_version=$QT_MAJOR
     fi
 
     if test "$do_qt" != "check" -a "$enable_qt" != "true"
@@ -7704,13 +7719,14 @@ fi
 
 
 
+
 enable_qt3d=false
 if test "x$do_qt3d" != "xno"; then :
 
     if test -f /usr/include/Coin3/Inventor/Qt/SoQt.h
     then
 	enable_qt3d=$enable_qt
-    elif test -a "$do_qt3d" = "yes"
+    elif test x"$do_qt3d" = x"yes"
     then
 	as_fn_error $? "cannot enable support for 3D scene graph API" "$LINENO" 5
     fi
@@ -12460,7 +12476,7 @@ fi
 $as_echo "$ans" >&6; }
 
 cat >>confdefs.h <<_ACEOF
-#define SIZEOF_SUSECONDS_T $ans
+#define PM_SIZEOF_SUSECONDS_T $ans
 _ACEOF
 
 
@@ -12484,7 +12500,7 @@ fi
 $as_echo "$ans" >&6; }
 
 cat >>confdefs.h <<_ACEOF
-#define SIZEOF_TIME_T $ans
+#define PM_SIZEOF_TIME_T $ans
 _ACEOF
 
 

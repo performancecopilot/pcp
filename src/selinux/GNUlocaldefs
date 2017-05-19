@@ -30,3 +30,12 @@ PCP_PMLOGGER_SYSTEM_STATUS_RULE="allow pcp_pmlogger_t init_t:system status\;"
 PCP_PMIE_SYSTEM_STATUS_RULE="allow pcp_pmie_t init_t:system status\;"
 endif
 
+ifneq "$(shell seinfo -t | grep 'systemd_unit_file_t$$' | sed -e 's/^[ \t]*//')" ""
+PCP_SYSTEMCTL_UNIT_FILE_T="type systemd_unit_file_t\;"
+PCP_SYSTEMCTL_UNIT_FILE_RULE="allow pcp_pmie_t systemd_unit_file_t:file getattr\;"
+endif
+
+ifneq "$(shell seinfo -t | grep 'systemd_systemctl_exec_t$$' | sed -e 's/^[ \t]*//')" ""
+PCP_SYSTEMCTL_EXEC_T="type systemd_systemctl_exec_t\;"
+PCP_SYSTEMCTL_EXEC_RULE="allow pcp_pmie_t systemd_systemctl_exec_t:file { execute execute_no_trans open read }\;"
+endif

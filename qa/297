@@ -84,6 +84,7 @@ _filter_pmproxy()
         -e '/^__pmDataIPC: fd=/d' \
         -e '/^IPC table fd/d' \
 	-e '/^__pmSetVersionIPC: fd=/d' \
+	-e '/^__pmSetFeaturesIPC: fd=/d' \
 	-e 's/localhost/MY_HOST/g'
 }
 

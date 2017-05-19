@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2016, Red Hat.  All Rights Reserved.
+ * Copyright (c) 2012-2017, Red Hat.  All Rights Reserved.
  * Copyright (c) 2007-2008, Aconex.  All Rights Reserved.
  * Copyright (c) 2006, Ken McDonell.  All Rights Reserved.
  * 
@@ -117,8 +117,9 @@ GroupControl::updateTimeAxis(void)
 	pmchart->timeAxis()->setAxisScale(QwtPlot::xBottom,
 		my.timeData[my.visible - 1], my.timeData[0],
 		pmchart->timeAxis()->scaleValue(my.realDelta, my.visible));
-	pmchart->setDateLabel(my.position.tv_sec, tz);
+	pmchart->timeAxis()->clearScaleCache();
 	pmchart->timeAxis()->replot();
+	pmchart->setDateLabel(my.position.tv_sec, tz);
     } else {
 	pmchart->timeAxis()->noArchiveSources();
 	pmchart->setDateLabel(tr("[No open archives]"));
@@ -585,7 +586,7 @@ GroupControl::setTimezone(QmcTime::Packet *packet, char *tz)
 
     useTZ(QString(tz));
 
-    if (isActive(packet))
+    if (isActive(packet)) 
 	updateTimeAxis();
 }
 

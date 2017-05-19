@@ -5,8 +5,7 @@
 TOPDIR = ..
 include $(TOPDIR)/src/include/builddefs
 
-SUBDIRS = PCP_UAG PCP_PG PCP_TCS
-LSRCFILES = README
+SUBDIRS = PCP_UAG PCP_PG
 
 default install: $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)

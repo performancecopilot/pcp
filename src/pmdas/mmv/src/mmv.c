@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2016 Red Hat.
+ * Copyright (c) 2012-2017 Red Hat.
  * Copyright (c) 2009-2010 Aconex. All Rights Reserved.
  * Copyright (c) 1995-2000,2009 Silicon Graphics, Inc. All Rights Reserved.
  *
@@ -181,11 +181,15 @@ create_client_stat(const char *client, const char *path, size_t size)
 	    }
 
 	    /* must have entries for at least metric descs and values */
-	    if (header.tocs < 2)
+	    if (header.tocs < 2) {
+		__pmMemoryUnmap(m, size);
 		return -EINVAL;
+	    }
 	    offset = header.tocs * sizeof(mmv_disk_toc_t);
-	    if (size < sizeof(mmv_disk_header_t) + offset)
+	    if (size < sizeof(mmv_disk_header_t) + offset) {
+		__pmMemoryUnmap(m, size);
 		return -EINVAL;
+	    }
 
 	    /* optionally verify the creator PID is running */
 	    if (header.process && (header.flags & MMV_FLAG_PROCESS) &&

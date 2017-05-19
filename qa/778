@@ -310,7 +310,9 @@ echo "--- PCP values ---" >>$here/$seq.full
 cat $tmp.pcp >>$here/$seq.full
 _match client_port
 _match backend_start
-_match "(current_query|query)" current_query
+# current query could be a bit of a crap-shoot ... don't try to match
+#
+#_match "(current_query|query)" current_query
 
 echo | tee -a $here/$seq.full
 echo "=== pg_stat_bgwriter ===" | tee -a $here/$seq.full

@@ -1756,63 +1756,54 @@ value from xs_qm_dqinact_reclaims field of struct xfsstats
 No value(s) available!
 
 xfs.perdev.buffer.get PMID: 11.18.140 One-line Help: Error: One-line or help text is not available
-
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Full Help: Error: One-line or help text is not available
 No value(s) available!
 
 xfs.perdev.buffer.create PMID: 11.18.141 One-line Help: Error: One-line or help text is not available
-
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Full Help: Error: One-line or help text is not available
 No value(s) available!
 
 xfs.perdev.buffer.get_locked PMID: 11.18.142 One-line Help: Error: One-line or help text is not available
-
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Full Help: Error: One-line or help text is not available
 No value(s) available!
 
 xfs.perdev.buffer.get_locked_waited PMID: 11.18.143 One-line Help: Error: One-line or help text is not available
-
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Full Help: Error: One-line or help text is not available
 No value(s) available!
 
 xfs.perdev.buffer.busy_locked PMID: 11.18.144 One-line Help: Error: One-line or help text is not available
-
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Full Help: Error: One-line or help text is not available
 No value(s) available!
 
 xfs.perdev.buffer.miss_locked PMID: 11.18.145 One-line Help: Error: One-line or help text is not available
-
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Full Help: Error: One-line or help text is not available
 No value(s) available!
 
 xfs.perdev.buffer.page_retries PMID: 11.18.146 One-line Help: Error: One-line or help text is not available
-
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Full Help: Error: One-line or help text is not available
 No value(s) available!
 
 xfs.perdev.buffer.page_found PMID: 11.18.147 One-line Help: Error: One-line or help text is not available
-
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Full Help: Error: One-line or help text is not available
 No value(s) available!
 
 xfs.perdev.buffer.get_read PMID: 11.18.148 One-line Help: Error: One-line or help text is not available
-
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Full Help: Error: One-line or help text is not available
@@ -4151,7 +4142,6 @@ value from xs_qm_dqinact_reclaims field of struct xfsstats
     inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 0
 
 xfs.perdev.buffer.get PMID: 11.18.140 One-line Help: Error: One-line or help text is not available
-
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Full Help: Error: One-line or help text is not available
@@ -4159,7 +4149,6 @@ Full Help: Error: One-line or help text is not available
     inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 2411
 
 xfs.perdev.buffer.create PMID: 11.18.141 One-line Help: Error: One-line or help text is not available
-
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Full Help: Error: One-line or help text is not available
@@ -4167,7 +4156,6 @@ Full Help: Error: One-line or help text is not available
     inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 76
 
 xfs.perdev.buffer.get_locked PMID: 11.18.142 One-line Help: Error: One-line or help text is not available
-
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Full Help: Error: One-line or help text is not available
@@ -4175,7 +4163,6 @@ Full Help: Error: One-line or help text is not available
     inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 2386
 
 xfs.perdev.buffer.get_locked_waited PMID: 11.18.143 One-line Help: Error: One-line or help text is not available
-
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Full Help: Error: One-line or help text is not available
@@ -4183,7 +4170,6 @@ Full Help: Error: One-line or help text is not available
     inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 0
 
 xfs.perdev.buffer.busy_locked PMID: 11.18.144 One-line Help: Error: One-line or help text is not available
-
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Full Help: Error: One-line or help text is not available
@@ -4191,7 +4177,6 @@ Full Help: Error: One-line or help text is not available
     inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 0
 
 xfs.perdev.buffer.miss_locked PMID: 11.18.145 One-line Help: Error: One-line or help text is not available
-
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Full Help: Error: One-line or help text is not available
@@ -4199,7 +4184,6 @@ Full Help: Error: One-line or help text is not available
     inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 25
 
 xfs.perdev.buffer.page_retries PMID: 11.18.146 One-line Help: Error: One-line or help text is not available
-
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Full Help: Error: One-line or help text is not available
@@ -4207,7 +4191,6 @@ Full Help: Error: One-line or help text is not available
     inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 0
 
 xfs.perdev.buffer.page_found PMID: 11.18.147 One-line Help: Error: One-line or help text is not available
-
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Full Help: Error: One-line or help text is not available
@@ -4215,7 +4198,6 @@ Full Help: Error: One-line or help text is not available
     inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 46
 
 xfs.perdev.buffer.get_read PMID: 11.18.148 One-line Help: Error: One-line or help text is not available
-
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Full Help: Error: One-line or help text is not available

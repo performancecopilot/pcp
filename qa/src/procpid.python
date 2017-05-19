@@ -1,6 +1,6 @@
 #!/usr/bin/env pmpython
 #
-# Copyright (C) 2015 Red Hat.
+# Copyright (C) 2015-2017 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -55,7 +55,7 @@ if __name__ == '__main__':
             origin = options.pmGetOptionOrigin()
             manager.pmSetMode(PM_MODE_FORW, origin, 0)
         manager.printer = ProcReport()
-        METRICS = options.pmGetNonOptionsFromList(sys.argv)
+        METRICS = options.pmGetOperands()
         if METRICS == None:
             raise pmapi.pmUsageErr()
         manager['proc'] = METRICS

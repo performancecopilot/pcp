@@ -1,0 +1,134 @@
+#!/bin/sh
+#
+# Recipes for making badmeta-* family of archives.
+# 
+# Every one is based on a version of ./ok-foo, with binary editing using
+# bvi (or similar) and cut-n-paste with dd.
+#
+# This is the good .meta file
+#
+# Byte offsets into ok-foo.meta
+# 0	start label record
+# 132	start metric pmcd.pmlogger.host
+# 	+0 record header len (58)
+# 	+4 type (1, TYPE_DESC)
+#	+8 pmid (start of pmDesc)
+#	+12 type
+#	+16 indom
+#	+20 sem
+#	+24 units
+#	+28 numnames
+#	+32 len name[0]
+#	+36... name[0]
+# 186	record trailer len
+# 190	start indom 2.1
+# 	+0 record header len (41)
+# 	+4 type (2, TYPE_INDOM)
+# ...
+# 231	start metric pmcd.pmlogger.port
+# ...
+# 289	start metric pmcd.pmlogger.archive
+# ...
+# 350	start metric sample.lights
+# ...
+# 403	start metric sample.drift
+# ...
+# 455	start metric sample.bin
+# ...
+# 505	start indom 29.2
+# ...
+# 677	start metric sample.colour
+# ...
+# 730	start indom 29.1
+# ...
+# 797	start sample.seconds
+#	
+
+src=./ok-foo
+
+tmp=/var/tmp/$$
+trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+
+if [ $# -eq 0 ]
+then
+    # Set up for a new badmeta-X archive
+    #
+    X=`ls badmeta-*.index 2>/dev/null | tail -1 | sed -e 's/badmeta-//' -e 's/\.index//'`
+    if [ -z "$X" ]
+    then
+	X=1
+    else
+	X=`expr $X + 1`
+    fi
+elif [ $# -eq 1 ]
+then
+    X="$1"
+    rm -f badmeta-$X.*
+else
+    echo "Usage: mkbadmeta [case#]"
+    exit 1
+fi
+
+case $X
+in
+    1)	# metadata truncted before last pmDesc
+	dd if=$src.meta of=badmeta-$X.meta bs=1 count=797
+	;;
+
+    2)	# sample.drift, bad type in pmDesc, domain (33) wrong in indom
+	# sample.bin, bad semantics (7)
+    	# sample.lights, bad dimensions -3 for units, bad scale for Time
+    	# sample.colour, bad dimensions +3 for units, bad scale for Space
+	cp $src.meta badmeta-$X.meta
+	echo '415s\\........\\0000001008400002\\' >$tmp.ex
+	echo '475s\\....\\00000007\\' >>$tmp.ex
+	echo '374s\\....\\DDD66000\\' >>$tmp.ex
+	echo '701s\\....\\33375000\\' >>$tmp.ex
+	;;
+
+    *)
+	echo "Error: no recipe for badmeta-$X"
+	exit 1
+	;;
+
+esac
+
+if [ -f $tmp.ex ]
+then
+    echo 'w' >>$tmp.ex
+    echo 'q' >>$tmp.ex
+
+    for file in badmeta-$X.*
+    do
+	if which bvi >/dev/null 2>&1
+	then
+	    bvi -f $tmp.ex $file
+	else
+	    echo "bvi not installed"
+	    echo "Need to apply the equivalent of this binary editing to $file"
+	    cat $tmp.ex
+	fi
+    done
+
+fi
+
+for file in badmeta-$X.0 badmeta-$X.meta badmeta-$X.index
+do
+    if [ -f $file ]
+    then
+	:
+    else
+	target=`echo $file | sed -e "s/badmeta-$X\./.\/ok-foo./"`
+	if cp $target $file
+	then
+	    :
+	else
+	    echo "Failed: cp $target $file"
+	    exit 1
+	fi
+    fi
+done
+
+echo "badmeta-$X created."
+
+exit

@@ -20,93 +20,94 @@
 #include "fault.h"
 
 static int
+__pmRecvText(int fd, __pmContext *ctxp, int timeout, char **buffer)
+{
+    __pmPDU	*pb;
+    int		sts, ident, pinpdu;
+
+    pinpdu = sts = __pmGetPDU(fd, ANY_SIZE, timeout, &pb);
+    if (sts == PDU_TEXT)
+	sts = __pmDecodeText(pb, &ident, buffer);
+    else if (sts == PDU_ERROR)
+	__pmDecodeError(pb, &sts);
+    else {
+	__pmCloseChannelbyContext(ctxp, PDU_TEXT, sts);
+	if (sts != PM_ERR_TIMEOUT)
+	    sts = PM_ERR_IPC;
+    }
+    if (pinpdu > 0)
+	__pmUnpinPDUBuf(pb);
+    return sts;
+}
+
+static int
 lookuptext(int ident, int type, char **buffer)
 {
-    int		n;
     __pmContext	*ctxp;
     __pmDSO	*dp;
+    int		fd, ctx, sts, tout;
 
+    if ((sts = ctx = pmWhichContext()) < 0)
+	return sts;
 
-    if ((n = pmWhichContext()) >= 0) {
-	int	ctx = n;
-	ctxp = __pmHandleToPtr(ctx);
-	if (ctxp == NULL)
-	    return PM_ERR_NOCONTEXT;
-	if (ctxp->c_type == PM_CONTEXT_HOST) {
-	    PM_LOCK(ctxp->c_pmcd->pc_lock);
-again:
-	    n = __pmSendTextReq(ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp), ident, type);
-	    if (n < 0)
-		n = __pmMapErrno(n);
-	    else {
-		__pmPDU	*pb;
-		int		pinpdu;
+    if ((ctxp = __pmHandleToPtr(ctx)) == NULL)
+	return PM_ERR_NOCONTEXT;
 
-PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_TIMEOUT);
-		pinpdu = n = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE,
-					ctxp->c_pmcd->pc_tout_sec, &pb);
-		if (n == PDU_TEXT) {
-		    int x_ident;
-		    n = __pmDecodeText(pb, &x_ident, buffer);
-		}
-		else if (n == PDU_ERROR)
-		    __pmDecodeError(pb, &n);
-		else {
-		    __pmCloseChannelbyContext(ctxp, PDU_TEXT, n);
-		    if (n != PM_ERR_TIMEOUT)
-			n = PM_ERR_IPC;
-		}
-		if (pinpdu > 0)
-		    __pmUnpinPDUBuf(pb);
-		/*
-		 * Note: __pmDecodeText does not swab ident because it
-		 * does not know whether it's a pmID or a pmInDom.
-		 */
-
-		if (n == 0 && (*buffer)[0] == '\0' && (type & PM_TEXT_HELP)) {
-		    /* fall back to one-line, if possible */
-		    free(*buffer);
-		    type &= ~PM_TEXT_HELP;
-		    type |= PM_TEXT_ONELINE;
-		    goto again;
-		}
-	    }
-	    PM_UNLOCK(ctxp->c_pmcd->pc_lock);
-	}
-	else if (ctxp->c_type == PM_CONTEXT_LOCAL) {
-	    if (PM_MULTIPLE_THREADS(PM_SCOPE_DSO_PMDA))
-		/* Local context requires single-threaded applications */
-		n = PM_ERR_THREAD;
-	    else if ((dp = __pmLookupDSO(((__pmID_int *)&ident)->domain)) == NULL)
-		n = PM_ERR_NOAGENT;
-	    else {
-again_local:
-		if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_5)
-		    dp->dispatch.version.four.ext->e_context = ctx;
-		n = dp->dispatch.version.any.text(ident, type, buffer, dp->dispatch.version.any.ext);
-		if (n == 0 && (*buffer)[0] == '\0' && (type & PM_TEXT_HELP)) {
-		    /* fall back to one-line, if possible */
-		    type &= ~PM_TEXT_HELP;
-		    type |= PM_TEXT_ONELINE;
-		    goto again_local;
-		}
-		if (n == 0) {
-		    /*
-		     * PMDAs don't malloc the buffer but the caller will
-		     * free it, so malloc and copy
-		     */
-		    *buffer = strdup(*buffer);
-		}
-	    }
-	}
+    if (ctxp->c_type == PM_CONTEXT_HOST) {
+	PM_LOCK(ctxp->c_pmcd->pc_lock);
+	tout = ctxp->c_pmcd->pc_tout_sec;
+	fd = ctxp->c_pmcd->pc_fd;
+again_host:
+	sts = __pmSendTextReq(fd, __pmPtrToHandle(ctxp), ident, type);
+	if (sts < 0)
+	    sts = __pmMapErrno(sts);
 	else {
-	    /* assume PM_CONTEXT_ARCHIVE -- this is an error */
-	    n = PM_ERR_NOTHOST;
+	    PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_TIMEOUT);
+	    sts = __pmRecvText(fd, ctxp, tout, buffer);
+	    if (sts == 0 && (*buffer)[0] == '\0' && (type & PM_TEXT_HELP)) {
+		/* fall back to one-line, if possible */
+		free(*buffer);
+		type &= ~PM_TEXT_HELP;
+		type |= PM_TEXT_ONELINE;
+		goto again_host;
+	    }
 	}
-	PM_UNLOCK(ctxp->c_lock);
+	PM_UNLOCK(ctxp->c_pmcd->pc_lock);
+    }
+    else if (ctxp->c_type == PM_CONTEXT_LOCAL) {
+	if (PM_MULTIPLE_THREADS(PM_SCOPE_DSO_PMDA))
+	    /* Local context requires single-threaded applications */
+	    sts = PM_ERR_THREAD;
+	else if ((dp = __pmLookupDSO(((__pmID_int *)&ident)->domain)) == NULL)
+	    sts = PM_ERR_NOAGENT;
+	else {
+	    pmdaInterface *pmda = &dp->dispatch;
+	    if (pmda->comm.pmda_interface >= PMDA_INTERFACE_5)
+		    pmda->version.four.ext->e_context = ctx;
+again_local:
+	    sts = pmda->version.any.text(ident, type, buffer, pmda->version.any.ext);
+	    if (sts == 0 && (*buffer)[0] == '\0' && (type & PM_TEXT_HELP)) {
+		/* fall back to one-line, if possible */
+		type &= ~PM_TEXT_HELP;
+		type |= PM_TEXT_ONELINE;
+		goto again_local;
+	    }
+	    if (sts == 0) {
+		/*
+		 * PMDAs don't malloc the buffer but the caller will
+		 * free it, so malloc and copy
+		 */
+		*buffer = strdup(*buffer);
+	    }
+	}
+    }
+    else {
+	/* assume PM_CONTEXT_ARCHIVE -- this is an error */
+	sts = PM_ERR_NOTHOST;
     }
 
-    return n;
+    PM_UNLOCK(ctxp->c_lock);
+    return sts;
 }
 
 int

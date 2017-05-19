@@ -33,4 +33,9 @@ typedef struct {
     __pmHashCtl		hashpmids;	/* hashed metrictab lookups */
 } e_ext_t;
 
+/*
+ * Local hash function
+ */
+extern __uint32_t hash(const signed char *, int, __uint32_t);
+
 #endif /* LIBDEFS_H */

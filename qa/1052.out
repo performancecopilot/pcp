@@ -1,12 +1,12 @@
 QA output created by 1052
-dbpmda> open pipe $PCP_PYTHON_PROG $PCP_PMDAS_DIR/json/pmdajson.python
+open pipe $PCP_PYTHON_PROG $PCP_PMDAS_DIR/json/pmdajson.python
 Start python PMDA: $PCP_PYTHON_PROG $PCP_PMDAS_DIR/json/pmdajson.python
-dbpmda> getdesc on
-dbpmda> desc json.nsources
+getdesc on
+desc json.nsources
 PMID: 137.0.0
 Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
 Semantics: instant  Units: none
-dbpmda> fetch json.nsources
+fetch json.nsources
 PMID(s): 137.0.0
 pmResult ... numpmid: 1
 137.0.0 (<noname>): numval: 1 valfmt: 1 vlist[]:
@@ -22,8 +22,8 @@ leaf nsources
 Metric: json
 Metric: json.s1
 PMID(s): 137.0.0
-dbpmda> children json
-dbpmda> children json.s1
+children json
+children json.s1
 fetch json.nsources
 leaf counter
 leaf debug
@@ -38,26 +38,26 @@ desc json.s1.counter
 PMID: 137.1.2
 Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
 Semantics: counter  Units: none
-dbpmda> desc json.s1.discrete
+desc json.s1.discrete
 PMID: 137.1.3
 Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
 Semantics: discrete  Units: none
-dbpmda> fetch json.s1.string
+fetch json.s1.string
 PMID(s): 137.1.0
 pmResult ... numpmid: 1
 137.1.0 (<noname>): numval: 1 valfmt: 1 vlist[]:
 value "original value"
-dbpmda> fetch json.s1.value
+fetch json.s1.value
 PMID(s): 137.1.1
 pmResult ... numpmid: 1
 137.1.1 (<noname>): numval: 1 valfmt: 1 vlist[]:
 value 0
-dbpmda> fetch json.s1.counter
+fetch json.s1.counter
 PMID(s): 137.1.2
 pmResult ... numpmid: 1
 137.1.2 (<noname>): numval: 1 valfmt: 1 vlist[]:
 value 5
-dbpmda> fetch json.s1.discrete
+fetch json.s1.discrete
 PMID(s): 137.1.3
 pmResult ... numpmid: 1
 137.1.3 (<noname>): numval: 1 valfmt: 1 vlist[]:
@@ -68,22 +68,22 @@ PMID(s): 137.0.0
 pmResult ... numpmid: 1
 137.0.0 (<noname>): numval: 1 valfmt: 1 vlist[]:
 value 1
-dbpmda> fetch json.s1.string
+fetch json.s1.string
 PMID(s): 137.1.0
 pmResult ... numpmid: 1
 137.1.0 (<noname>): numval: 1 valfmt: 1 vlist[]:
 value "new value"
-dbpmda> fetch json.s1.value
+fetch json.s1.value
 PMID(s): 137.1.1
 pmResult ... numpmid: 1
 137.1.1 (<noname>): numval: 1 valfmt: 1 vlist[]:
 value 99
-dbpmda> fetch json.s1.counter
+fetch json.s1.counter
 PMID(s): 137.1.2
 pmResult ... numpmid: 1
 137.1.2 (<noname>): numval: 1 valfmt: 1 vlist[]:
 value 10
-dbpmda> fetch json.s1.discrete
+fetch json.s1.discrete
 PMID(s): 137.1.3
 pmResult ... numpmid: 1
 137.1.3 (<noname>): numval: 1 valfmt: 1 vlist[]:
@@ -100,8 +100,8 @@ Metric: json
 Metric: json.s1
 Metric: json.s2
 children json
-dbpmda> children json.s1
-dbpmda> children json.s2
+children json.s1
+children json.s2
 leaf counter
 leaf debug
 leaf discrete
@@ -116,23 +116,23 @@ pmInDom: 137.0
 [  0] inst: 0 name: "__internal__"
 [  1] inst: 1 name: "s1"
 [  2] inst: 2 name: "s2"
-dbpmda> desc json.s2.array_data.counter
+desc json.s2.array_data.counter
 PMID: 137.2.2
 Data Type: double  InDom: 137.4 0x22400004
 Semantics: counter  Units: none
-dbpmda> fetch json.s2.array_data.count
+fetch json.s2.array_data.count
 PMID(s): 137.2.0
 pmResult ... numpmid: 1
 137.2.0 (<noname>): numval: 2 valfmt: 1 vlist[]:
 inst [0 or ???] value 0
 inst [1 or ???] value 99
-dbpmda> fetch json.s2.array_data.value
+fetch json.s2.array_data.value
 PMID(s): 137.2.1
 pmResult ... numpmid: 1
 137.2.1 (<noname>): numval: 2 valfmt: 1 vlist[]:
 inst [0 or ???] value 1024
 inst [1 or ???] value 2048
-dbpmda> fetch json.s2.array_data.counter
+fetch json.s2.array_data.counter
 PMID(s): 137.2.2
 pmResult ... numpmid: 1
 137.2.2 (<noname>): numval: 2 valfmt: 1 vlist[]:
@@ -153,19 +153,19 @@ pmResult ... numpmid: 1
 137.2.0 (<noname>): numval: 2 valfmt: 1 vlist[]:
 inst [1 or ???] value 100
 inst [2 or ???] value 3
-dbpmda> fetch json.s2.array_data.value
+fetch json.s2.array_data.value
 PMID(s): 137.2.1
 pmResult ... numpmid: 1
 137.2.1 (<noname>): numval: 2 valfmt: 1 vlist[]:
 inst [1 or ???] value 2049
 inst [2 or ???] value 3072
-dbpmda> fetch json.s2.array_data.counter
+fetch json.s2.array_data.counter
 PMID(s): 137.2.2
 pmResult ... numpmid: 1
 137.2.2 (<noname>): numval: 2 valfmt: 1 vlist[]:
 inst [1 or ???] value 10
 inst [2 or ???] value 7
-dbpmda> instance 137.4
+instance 137.4
 pmInDom: 137.4
 [  0] inst: 1 name: "second"
 [  1] inst: 2 name: "third"
@@ -179,19 +179,19 @@ PMID(s): 137.2.0
 pmResult ... numpmid: 1
 137.2.0 (<noname>): numval: 1 valfmt: 1 vlist[]:
 inst [3 or ???] value 4
-dbpmda> fetch json.s2.array_data.value
+fetch json.s2.array_data.value
 PMID(s): 137.2.1
 pmResult ... numpmid: 1
 137.2.1 (<noname>): numval: 2 valfmt: 1 vlist[]:
 inst [0 or ???] value 1025
 inst [3 or ???] value 999
-dbpmda> fetch json.s2.array_data.counter
+fetch json.s2.array_data.counter
 PMID(s): 137.2.2
 pmResult ... numpmid: 1
 137.2.2 (<noname>): numval: 2 valfmt: 1 vlist[]:
 inst [0 or ???] value 6
 inst [3 or ???] value 13
-dbpmda> instance 137.4
+instance 137.4
 pmInDom: 137.4
 [  0] inst: 0 name: "first"
 [  1] inst: 3 name: "fourth"
@@ -206,17 +206,17 @@ PMID(s): 137.2.0
 pmResult ... numpmid: 1
 137.2.0 (<noname>): numval: 1 valfmt: 1 vlist[]:
 inst [0 or ???] value 2
-dbpmda> fetch json.s2.array_data.value
+fetch json.s2.array_data.value
 PMID(s): 137.2.1
 pmResult ... numpmid: 1
 137.2.1 (<noname>): numval: 1 valfmt: 1 vlist[]:
 inst [0 or ???] value 1026
-dbpmda> fetch json.s2.array_data.counter
+fetch json.s2.array_data.counter
 PMID(s): 137.2.2
 pmResult ... numpmid: 1
 137.2.2 (<noname>): numval: 1 valfmt: 1 vlist[]:
 inst [0 or ???] value 9
-dbpmda> instance 137.4
+instance 137.4
 pmInDom: 137.4
 [  0] inst: 0 name: "first"
 
@@ -237,9 +237,9 @@ Metric: json.ceph
 Metric: json.s1
 Metric: json.s2
 children json
-dbpmda> children json.ceph
-dbpmda> children json.s1
-dbpmda> children json.s2
+children json.ceph
+children json.s1
+children json.s2
 leaf counter
 leaf debug
 leaf discrete
@@ -282,12 +282,12 @@ pmInDom: 137.0
 [  1] inst: 1 name: "s1"
 [  2] inst: 2 name: "s2"
 [  3] inst: 3 name: "ceph"
-dbpmda> fetch json.ceph.filestore.journal_wr_bytes.sum
+fetch json.ceph.filestore.journal_wr_bytes.sum
 PMID(s): 137.3.ID
 pmResult ... numpmid: 1
 137.3.ID (<noname>): numval: 1 valfmt: 1 vlist[]:
 value 1585152
-dbpmda> fetch json.ceph.osd.stat_bytes
+fetch json.ceph.osd.stat_bytes
 PMID(s): 137.3.ID
 pmResult ... numpmid: 1
 137.3.ID (<noname>): numval: 1 valfmt: 1 vlist[]:

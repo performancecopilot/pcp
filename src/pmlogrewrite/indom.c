@@ -1,6 +1,7 @@
 /*
  * Indom metadata support for pmlogrewrite
  *
+ * Copyright (c) 2017 Red Hat.
  * Copyright (c) 2011 Ken McDonell.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -207,6 +208,8 @@ _pmUnpackInDom(__pmPDU *pdubuf, pmInDom *indom, __pmTimeval *tp, int *numinst, i
     int		i;
     int		*ip;
     char	*strbuf;
+    char	*s;
+    size_t	size;
 
     idp = (indom_t *)pdubuf;
 
@@ -214,6 +217,8 @@ _pmUnpackInDom(__pmPDU *pdubuf, pmInDom *indom, __pmTimeval *tp, int *numinst, i
     tp->tv_usec = ntohl(idp->stamp.tv_usec);
     *indom = ntoh_pmInDom(idp->indom);
     *numinst = ntohl(idp->numinst);
+
+    /* Copy the instances to a new buffer. */
     *instlist = (int *)malloc(*numinst * sizeof(int));
     if (*instlist == NULL) {
 	fprintf(stderr, "_pmUnpackInDom instlist malloc(%d) failed: %s\n", (int)(*numinst * sizeof(int)), strerror(errno));
@@ -223,19 +228,66 @@ _pmUnpackInDom(__pmPDU *pdubuf, pmInDom *indom, __pmTimeval *tp, int *numinst, i
     ip = (int *)idp->other;
     for (i = 0; i < *numinst; i++)
 	(*instlist)[i] = ntohl(*ip++);
-    *inamelist = (char **)malloc(*numinst * sizeof(char *));
+
+    /*
+     * Copy the name list to a new buffer. Place the pointers and the names
+     * in the same buffer so that they can be easily freed.
+     *
+     * ip[i] is stridx[i], which is an offset into strbuf[]
+     */
+    strbuf = (char *)&ip[*numinst];
+    size = *numinst * sizeof(char *);
+    for (i = 0; i < *numinst; i++)
+	size += strlen(&strbuf[ntohl(ip[i])]) + 1;
+    *inamelist = (char **)malloc(size);
     if (*inamelist == NULL) {
-	fprintf(stderr, "_pmUnpackInDom inamelist malloc(%d) failed: %s\n", (int)(*numinst * sizeof(char *)), strerror(errno));
+	fprintf(stderr, "_pmUnpackInDom inamelist malloc(%d) failed: %s\n",
+		(int)size, strerror(errno));
 	abandon();
 	/*NOTREACHED*/
     }
-    /*
-     * ip[i] is stridx[i], which is offset into strbuf[]
-     */
-    strbuf = (char *)&ip[*numinst];
+    s = (char *)(*inamelist + *numinst);
     for (i = 0; i < *numinst; i++) {
-	(*inamelist)[i] = &strbuf[ntohl(ip[i])];
+	(*inamelist)[i] = s;
+	strcpy(s, &strbuf[ntohl(ip[i])]);
+	s += strlen(s) + 1;
     }
+}
+
+static void
+_pmDupInDomData(int numinst, int **instlist, char ***inamelist)
+{
+    int		*new_ilist;
+    char	**new_namelist;
+    size_t	size;
+
+    /* Copy the instance list. */
+    size = numinst * sizeof(int);
+    new_ilist = (int *)malloc(size);
+    if (new_ilist == NULL) {
+	fprintf(stderr, "_pmDupInDomData instlist malloc(%d) failed: %s\n",
+		(int)size, strerror(errno));
+	abandon();
+	/*NOTREACHED*/
+    }
+    memcpy (new_ilist, *instlist, size);
+    *instlist = new_ilist;
+
+    /*
+     * Copy the name list. It's ok to share the same string buffer.
+     * It will be reallocated and the string pointers updated, if necessary,
+     * later.
+     */
+    size = numinst * sizeof(char *);
+    new_namelist = (char **)malloc(size);
+    if (new_namelist == NULL) {
+	fprintf(stderr, "_pmpmDupInDomData inamelist malloc(%d) failed: %s\n",
+		(int)size, strerror(errno));
+	abandon();
+	/*NOTREACHED*/
+    }
+    memcpy (new_namelist, *inamelist, size);
+    *inamelist = new_namelist;
 }
 
 /*
@@ -275,8 +327,8 @@ do_indom(void)
 	    continue;
 	if (ip->indom_flags & INDOM_DUPLICATE) {
 	    /*
-	     * save the old indom without changes, then operate on the
-	     * duplicate
+	     * Save the old indom without changes, then operate on the
+	     * duplicate.
 	     */
 	    if ((sts = __pmLogPutInDom(&outarch.logctl, indom, &stamp, numinst, instlist, inamelist)) < 0) {
 		fprintf(stderr, "%s: Error: __pmLogPutInDom: %s: %s\n",
@@ -284,6 +336,16 @@ do_indom(void)
 		abandon();
 		/*NOTREACHED*/
 	    }
+
+	    /*
+	     * If the old indom was not a duplicate, then libpcp, via
+	     * __pmLogPutInDom(), assumes control of the storage pointed to by
+	     * instlist and inamelist. In that case, we need to operate on copies
+	     * from this point on.
+	     */
+	    if (sts != PMLOGPUTINDOM_DUP)
+		_pmDupInDomData(numinst, &instlist, &inamelist);
+
 #if PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_APPL0) {
 		fprintf(stderr, "Metadata: write pre-duplicate InDom %s @ offset=%ld\n", pmInDomStr(indom), out_offset);
@@ -362,20 +424,29 @@ do_indom(void)
 	}
     }
 
+    /*
+     * libpcp, via __pmLogPutInDom(), assumes control of the storage pointed
+     * to by instlist and inamelist.
+     */
     if ((sts = __pmLogPutInDom(&outarch.logctl, indom, &stamp, numinst, instlist, inamelist)) < 0) {
 	fprintf(stderr, "%s: Error: __pmLogPutInDom: %s: %s\n",
 			pmProgname, pmInDomStr(indom), pmErrStr(sts));
 	abandon();
 	/*NOTREACHED*/
     }
+    /*
+     * If the indom was a duplicate, then we are responsible for freeing the
+     * associated storage.
+     */
+    if (sts == PMLOGPUTINDOM_DUP) {
+	if (need_alloc)
+	    free(inamelist[0]);
+	free(inamelist);
+	free(instlist);
+    }
 #if PCP_DEBUG
     if (pmDebug & DBG_TRACE_APPL0) {
 	fprintf(stderr, "Metadata: write InDom %s @ offset=%ld\n", pmInDomStr(indom), out_offset);
     }
 #endif
-
-    free(instlist);
-    if (need_alloc)
-	free(inamelist[0]);
-    free(inamelist);
 }

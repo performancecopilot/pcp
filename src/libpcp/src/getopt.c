@@ -646,7 +646,9 @@ void
 __pmAddOptContainer(pmOptions *opts, char *arg)
 {
     (void)opts;
-    setenv("PCP_CONTAINER", arg ? arg : "", 1);
+    PM_LOCK(__pmLock_extcall);
+    setenv("PCP_CONTAINER", arg ? arg : "", 1);		/* THREADSAFE */
+    PM_UNLOCK(__pmLock_extcall);
 }
 
 static void
@@ -1151,7 +1153,10 @@ __pmgetopt_initialize(int argc, char *const *argv, pmOptions *d)
      */
     d->__first_nonopt = d->__last_nonopt = d->optind;
     d->__nextchar = NULL;
-    d->__posixly_correct = posixly_correct | !!getenv ("POSIXLY_CORRECT");
+    d->__posixly_correct = posixly_correct;
+    PM_LOCK(__pmLock_extcall);
+    d->__posixly_correct |= !!getenv ("POSIXLY_CORRECT");	/* THREADSAFE */
+    PM_UNLOCK(__pmLock_extcall);
 
     /* Determine how to handle the ordering of options and nonoptions. */
     if (optstring[0] == '-') {
