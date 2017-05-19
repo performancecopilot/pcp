@@ -1,3 +1,19 @@
+pcp (3.11.10-0+dschinn1) dschinn-backports; urgency=low
+
+  * Uploading to dschinn-backports, remaining changes:
+    - Updating maintainer field.
+    - Updating uploaders field.
+    - Updating bugs field.
+    - Updating vcs fields.
+    - Updating source local-options.
+    - Updating source format.
+    - Updating package to fix FTBFS when building architecture independent
+      packages only (Closes: #805955).
+  * Merging upstream version 3.11.10.
+  * Merging debian version 3.11.10.
+
+ -- Daniel Baumann <daniel.baumann@progress-linux.org>  Fri, 19 May 2017 13:21:25 +0200
+
 pcp (3.11.10) unstable; urgency=low
 
   * New release (full details in CHANGELOG).
