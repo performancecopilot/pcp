@@ -669,7 +669,17 @@ BEGIN	{ for (t='$start'; t<='$end'; t++) printf "%03d\n",t }' \
 	| while read id
 	do
 	    # if test not present, silently forget about it
-	    [ -f $id ] || continue
+	    if [ ! -f $id ]
+	    then
+		if [ $id = $start ]
+		then
+		    echo "$id - no such test, skipped"
+		elif [ $id = $end ]
+		then
+		    echo "$id - no such test, skipped"
+		fi
+		continue
+	    fi
 	    if egrep -s "^$id([ 	]|$)" $tmp.group >/dev/null
 	    then
 		# in group file ... OK

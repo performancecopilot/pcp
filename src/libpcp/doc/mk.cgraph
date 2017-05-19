@@ -144,6 +144,8 @@ _dofunc()
     | awk '
 $2 == "defined"		{ next }	# cscope botch on #if defined()?
 $2 == "PM_UNLOCK"	{ next }	# we do not care about these
+$2 == "ASSERT_IS_LOCKED"	{ next }	# we do not care about these
+$2 == "ASSERT_IS_UNLOCKED"	{ next }	# we do not care about these
 $2 == "formatter"	{		# function pointer in config.c
 			  print "posix_formatter"
 			  print "dos_formatter"
@@ -177,13 +179,16 @@ s/)//
 		    __pmLock_libpcp)
 			echo libpcp >>$tmp.locks
 			;;
+		    __pmLock_extcall)
+			echo extcall >>$tmp.locks
+			;;
 		    registered.mutex)
 			echo derived >>$tmp.locks
 			;;
 		    c_lock|*-\>c_lock)
-			echo context >>$tmp.locks
+			echo c_lock >>$tmp.locks
 			;;
-		    *c_pmcd-\>pc_lock)
+		    *-\>pc_lock)
 			echo pmcd >>$tmp.locks
 			;;
 		    context-\>addrLock)
@@ -191,6 +196,39 @@ s/)//
 			;;
 		    context-\>urlLock)
 			echo probe.url >>$tmp.locks
+			;;
+		    config_lock)
+			echo config >>$tmp.locks
+			;;
+		    auxconnect_lock)
+			echo auxconnect >>$tmp.locks
+			;;
+		    pdubuf_lock)
+			echo pdubuf >>$tmp.locks
+			;;
+		    util_lock)
+			echo util >>$tmp.locks
+			;;
+		    pdu_lock)
+			echo pdu >>$tmp.locks
+			;;
+		    contexts_lock)
+			echo contexts >>$tmp.locks
+			;;
+		    ipc_lock)
+			echo ipc >>$tmp.locks
+			;;
+		    optfetch_lock)
+			echo optfetch >>$tmp.locks
+			;;
+		    err_lock)
+			echo err >>$tmp.locks
+			;;
+		    lock_lock)
+			echo lock >>$tmp.locks
+			;;
+		    logutil_lock)
+			echo logutil >>$tmp.locks
 			;;
 		    *)
 			echo >&2 "Bad LOCK: $param"
@@ -242,9 +280,14 @@ s/)//
 	    touch $tmp.output
 	else
 	    # assumed to be in libpcp, but may be a macro so use cscope
-	    # to see if there exists a global definition
+	    # to see if there exists a global definition that (a) is
+	    # in a C source file, and (b) looks like a function
 	    #
-	    ( cd ../src; cscope -I../../include/pcp -L -1"$calls" ) >$tmp.csout 2>$tmp.cserr
+	    ( cd ../src; cscope -I../../include/pcp -L -1"$calls" ) \
+	    | awk '$1 ~ /.*\.[cy]$/ { print }' \
+	    | sed >$tmp.csout 2>$tmp.cserr \
+		-e "/$calls;/d" \
+		-e "/#define[ 	][ 	]*$calls[ 	(]/d"
 	    if [ -s $tmp.cserr ]
 	    then
 		echo >&2 "Unexpected errors from cscope(1) ..."
@@ -284,6 +327,14 @@ s/)//
 
 }
 
+# turn nolock.calls into a sed script to post-process the .dot config
+#
+sed <nolock.calls >$tmp.nolock \
+    -e '/^[ 	]*$/d' \
+    -e '/^#/d' \
+    -e 's@.*@/&/s/;/ [style="dashed"];/@' \
+# end
+
 for i
 do
     echo $i >>$tmp.todo
@@ -296,14 +347,16 @@ then
 	echo "# created from $file on `date`"
 	echo
     fi
-    echo "digraph `basename $file .c` {"
+    echo "digraph `echo $file | sed -e 's@.*/@@' -e 's/\.[cy]$//'` {"
     echo
+else
+    echo "digraph $1 {"
 fi
 
 while [ -s $tmp.todo ]
 do
     func=`head -1 $tmp.todo`
-    _dofunc $func
+    _dofunc $func | sed -f $tmp.nolock
     echo $func >>$tmp.done
     sed -e 1d <$tmp.todo >$tmp.tmp
     mv $tmp.tmp $tmp.todo
@@ -330,6 +383,6 @@ do
     fi
 done
 
-$fflag && echo "}"
+echo "}"
 
 sts=0

@@ -8,7 +8,7 @@ RUN apt-get build-dep -y pcp
 RUN mkdir -p /pcpsrc/ && cd /pcpsrc/ && git clone git://git.pcp.io/pcp/pcp.git && cd pcp && ./configure --prefix=/usr --libexecdir=/usr/lib --sysconfdir=/etc --localstatedir=/var --with-rcdir=/etc/init.d --with-sysconfigdir=/etc/default --without-systemd
 RUN apt-get update && cd /pcpsrc/pcp/debian && ./fixcontrol.master > control && echo "y" | mk-build-deps --install /pcpsrc/pcp/debian/control
 RUN cd /pcpsrc/pcp/ && ./Makepkgs --verbose
-RUN cd /pcpsrc/pcp/build/deb && dpkg -i ./*.deb ; apt-get install -f -y && dpkg -i ./*.deb
+RUN cd /pcpsrc/pcp/build/deb && apt-get install ./*.deb
 
 RUN systemctl enable pmcd pmlogger
 

@@ -14,7 +14,7 @@
  *
  * Thread-safe notes:
  *
- * maxsize - monotonic increasing and rarely changes, so use global
+ * maxsize - monotonic increasing and rarely changes, so use pdu_lock
  * 	mutex to protect updates, but allow reads without locking
  * 	as seeing an unexpected newly updated value is benign
  *
@@ -34,6 +34,23 @@
 #include "internal.h"
 #include "fault.h"
 #include <assert.h>
+
+#ifdef PM_MULTI_THREAD
+static pthread_mutex_t	pdu_lock = PTHREAD_MUTEX_INITIALIZER;
+#else
+void			*pdu_lock;
+#endif
+
+#if defined(PM_MULTI_THREAD) && defined(PM_MULTI_THREAD_DEBUG)
+/*
+ * return true if lock == pdu_lock
+ */
+int
+__pmIsPduLock(void *lock)
+{
+    return lock == (void *)&pdu_lock;
+}
+#endif
 
 PCP_DATA int	pmDebug;		/* the real McCoy */
 
@@ -64,11 +81,11 @@ __pmSetRequestTimeout(double timeout)
     if (timeout < 0.0)
 	return -EINVAL;
 
-    PM_INIT_LOCKS();
-    PM_LOCK(__pmLock_libpcp);
-    __pmtimevalFromReal(timeout, &req_wait);
+    PM_LOCK(pdu_lock);
     req_wait_done = 1;
-    PM_UNLOCK(__pmLock_libpcp);
+    /* THREADSAFE - no locks acquired in __pmtimevalFromReal() */
+    __pmtimevalFromReal(timeout, &req_wait);
+    PM_UNLOCK(pdu_lock);
     return 0;
 }
 
@@ -79,22 +96,32 @@ __pmRequestTimeout(void)
     double	timeout;
 
     /* get optional PMCD request timeout from the environment */
-    PM_INIT_LOCKS();
-    PM_LOCK(__pmLock_libpcp);
+    PM_LOCK(pdu_lock);
     if (!req_wait_done) {
-	if ((timeout_str = getenv("PMCD_REQUEST_TIMEOUT")) != NULL) {
+	req_wait_done = 1;
+	PM_UNLOCK(pdu_lock);
+	PM_LOCK(__pmLock_extcall);
+	timeout_str = getenv("PMCD_REQUEST_TIMEOUT");		/* THREADSAFE */
+	if (timeout_str != NULL)
+	    timeout_str = strdup(timeout_str);
+	if (timeout_str != NULL) {
 	    timeout = strtod(timeout_str, &end_ptr);
-	    if (*end_ptr != '\0' || timeout < 0.0)
+	    PM_UNLOCK(__pmLock_extcall);
+	    if (*end_ptr != '\0' || timeout < 0.0) {
 		__pmNotifyErr(LOG_WARNING,
 			      "ignored bad PMCD_REQUEST_TIMEOUT = '%s'\n",
 			      timeout_str);
+	    }
 	    else
 		__pmtimevalFromReal(timeout, &req_wait);
+	    free(timeout_str);
 	}
-	req_wait_done = 1;
+	else
+	    PM_UNLOCK(__pmLock_extcall);
+	PM_LOCK(pdu_lock);
     }
     timeout = __pmtimevalToReal(&req_wait);
-    PM_UNLOCK(__pmLock_libpcp);
+    PM_UNLOCK(pdu_lock);
     return timeout;
 }
 
@@ -152,8 +179,11 @@ pduread(int fd, char *buf, int len, int part, int timeout)
 		wait.tv_sec = timeout;
 		wait.tv_usec = 0;
 	    }
-	    else
+	    else {
+		PM_LOCK(pdu_lock);
 		wait = req_wait;
+		PM_UNLOCK(pdu_lock);
+	    }
 	    if (onetrip) {
 		/*
 		 * Need all parts of the PDU to be received by dead_hand
@@ -194,8 +224,10 @@ pduread(int fd, char *buf, int len, int part, int timeout)
 			tosec = (int)timeout;
 			tomsec = 0;
 		    } else {
+			PM_LOCK(pdu_lock);
 			tosec = (int)req_wait.tv_sec;
 			tomsec = 1000*(int)req_wait.tv_usec;
+			PM_UNLOCK(pdu_lock);
 		    }
 
 		    __pmNotifyErr(LOG_WARNING, 
@@ -248,31 +280,34 @@ char *
 __pmPDUTypeStr_r(int type, char *buf, int buflen)
 {
     char	*res = NULL;
-    if (type == PDU_ERROR) res = "ERROR";
-    else if (type == PDU_RESULT) res = "RESULT";
-    else if (type == PDU_PROFILE) res = "PROFILE";
-    else if (type == PDU_FETCH) res = "FETCH";
-    else if (type == PDU_DESC_REQ) res = "DESC_REQ";
-    else if (type == PDU_DESC) res = "DESC";
-    else if (type == PDU_INSTANCE_REQ) res = "INSTANCE_REQ";
-    else if (type == PDU_INSTANCE) res = "INSTANCE";
-    else if (type == PDU_TEXT_REQ) res = "TEXT_REQ";
-    else if (type == PDU_TEXT) res = "TEXT";
-    else if (type == PDU_CONTROL_REQ) res = "CONTROL_REQ";
-    else if (type == PDU_CREDS) res = "CREDS";
-    else if (type == PDU_PMNS_IDS) res = "PMNS_IDS";
-    else if (type == PDU_PMNS_NAMES) res = "PMNS_NAMES";
-    else if (type == PDU_PMNS_CHILD) res = "PMNS_CHILD";
-    else if (type == PDU_PMNS_TRAVERSE) res = "PMNS_TRAVERSE";
-    else if (type == PDU_LOG_CONTROL) res = "LOG_CONTROL";
-    else if (type == PDU_LOG_STATUS) res = "LOG_STATUS";
-    else if (type == PDU_LOG_REQUEST) res = "LOG_REQUEST";
-    else if (type == PDU_ATTR) res = "ATTR";
-    if (res == NULL)
-	snprintf(buf, buflen, "TYPE-%d?", type);
-    else
-	snprintf(buf, buflen, "%s", res);
 
+    switch (type) {
+    case PDU_ERROR:		res = "ERROR"; break;
+    case PDU_RESULT:		res = "RESULT"; break;
+    case PDU_PROFILE:		res = "PROFILE"; break;
+    case PDU_FETCH:		res = "FETCH"; break;
+    case PDU_DESC_REQ:		res = "DESC_REQ"; break;
+    case PDU_DESC:		res = "DESC"; break;
+    case PDU_INSTANCE_REQ:	res = "INSTANCE_REQ"; break;
+    case PDU_INSTANCE:		res = "INSTANCE"; break;
+    case PDU_TEXT_REQ:		res = "TEXT_REQ"; break;
+    case PDU_TEXT:		res = "TEXT"; break;
+    case PDU_CONTROL_REQ:	res = "CONTROL_REQ"; break;
+    case PDU_CREDS:		res = "CREDS"; break;
+    case PDU_PMNS_IDS:		res = "PMNS_IDS"; break;
+    case PDU_PMNS_NAMES:	res = "PMNS_NAMES"; break;
+    case PDU_PMNS_CHILD:	res = "PMNS_CHILD"; break;
+    case PDU_PMNS_TRAVERSE:	res = "PMNS_TRAVERSE"; break;
+    case PDU_LOG_CONTROL:	res = "LOG_CONTROL"; break;
+    case PDU_LOG_STATUS:	res = "LOG_STATUS"; break;
+    case PDU_LOG_REQUEST:	res = "LOG_REQUEST"; break;
+    case PDU_ATTR:		res = "ATTR"; break;
+    default:			res = NULL; break;
+    }
+    if (res)
+	snprintf(buf, buflen, "%s", res);
+    else
+	snprintf(buf, buflen, "TYPE-%d?", type);
     return buf;
 }
 
@@ -477,15 +512,14 @@ check_read_len:
 	int		tmpsize;
 	int		have = len;
 
-	PM_INIT_LOCKS();
-	PM_LOCK(__pmLock_libpcp);
+	PM_LOCK(pdu_lock);
 	if (php->len > maxsize) {
 	    tmpsize = PDU_CHUNK * ( 1 + php->len / PDU_CHUNK);
 	    maxsize = tmpsize;
 	}
 	else
 	    tmpsize = maxsize;
-	PM_UNLOCK(__pmLock_libpcp);
+	PM_UNLOCK(pdu_lock);
 
 	pdubuf_prev = pdubuf;
 	if ((pdubuf = __pmFindPDUBuf(tmpsize)) == NULL) {

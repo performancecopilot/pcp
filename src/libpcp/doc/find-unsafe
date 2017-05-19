@@ -1,0 +1,162 @@
+#!/bin/sh
+#
+# Find routines that have been identified as possibly thread unsafe
+#
+# If the code has been analyzed and either mutual exclusion is
+# guaranteed, e.g. by holding a lock, or the results of the call are not
+# invalidated by any concurrency then the source file may be annotated
+# with the word THREADSAFE (assumed to be in a comment).
+#
+# This annotation can either be on the source line that contains
+# the potentially unsafe call, or on the proceeding source line (provided
+# it is the only thing on that source line.  For example
+#	rand();	/* THREADSAFE */
+# or
+# 	/* THREADSAFE */
+# 	rand();
+#
+
+tmp=/var/tmp/$$
+sts=0
+trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
+rm -f $tmp.*
+
+_usage()
+{
+    echo >&2 "Usage: $0 [options] [file ...]"
+    echo >&2
+    echo >&2 "Options:"
+    echo >&2 " -a	ignore THREADSAFE tagging"
+    echo >&2 "   	[default is to suppress these ones]"
+    echo >&2 " -c	don't use comment skipping heuristic"
+    echo >&2 " -u file	unsafe functions list, may be more than"
+    echo >&2 "   	one -u option [default is posix.unsafe]"
+    echo >&2 " -U	use all the *.unsafe files"
+}
+
+unsafelist=""
+all=false
+skipcomment=true
+while getopts "acu:U?" c
+do
+    case $c
+    in
+	a)
+	    all=true
+	    ;;
+
+	c)
+	    skipcomment=false
+	    ;;
+
+	u)
+	    unsafelist="$unsafelist $OPTARG"
+	    ;;
+
+	U)
+	    unsafelist="`echo *.unsafe`"
+	    ;;
+
+	?)
+	    _usage
+	    sts=1
+	    exit
+	    ;;
+    esac
+done
+shift `expr $OPTIND - 1`
+
+if [ $# -eq 0 ]
+then
+    set -- ../src/*.c
+fi
+
+[ -z "$unsafelist" ] && unsafelist=posix.unsafe
+for unsafe in $unsafelist
+do
+    if [ ! -f $unsafe ]
+    then
+	echo >&2 "Error: cannot find file: $unsafe"
+	sts=1
+	exit
+    fi
+done
+
+echo "BEGIN { safe = 0 }" >$tmp.match
+cat $unsafelist \
+| sed >>$tmp.match \
+    -e '/^[ 	]*$/d' \
+    -e '/^#/d' \
+    -e 's/.*/\/[^a-zA-Z0-9_"]&[ 	]*\\(\/ { found = 1 }/'
+
+if $all
+then
+    echo 'found == 1	{ print NR; found = 0 }' >>$tmp.match
+else
+    cat <<'End-of-File' >>$tmp.match
+/THREADSAFE/	{ safe = 1 }
+$1 = "/*" && $2 == "THREADSAFE" && $3 == "*/"	{ safe = 2 }
+found == 1	{ if (safe == 0) print NR
+		  found = 0
+		}
+safe > 0	{ safe-- }
+End-of-File
+fi
+
+#debug# head $tmp.match
+cp $tmp.match eek.awk
+
+touch $tmp.first
+for file
+do
+    if $skipcomment
+    then
+	sed <$file \
+	    -e 's/^/|/' \
+	    -e 's/\/\* \(THREADSAFE[^*/]*\) \*\//| \1 |/' \
+	| pmcpp \
+	| sed \
+	    -e '/^#/d' \
+	    -e 's/^|//' \
+	    -e 's/| \(THREADSAFE.*\) |/\/* \1 *\//'
+    else
+	cat $file
+    fi \
+    | awk -f $tmp.match >$tmp.lineno
+    [ -s $tmp.lineno ] || continue
+    #debug# head $tmp.lineno
+    if [ -e $tmp.first ]
+    then
+	rm -f $tmp.first
+    else
+	echo
+    fi
+    echo "$file:"
+    awk <$tmp.lineno >$tmp.show '
+BEGIN	{ last = 0; print "{ pfx = \" \"}" }
+	{ print $1 " == NR { pfx = \"+\" }" 
+	  f = $1-2
+	  if (f < 1) f = 1
+	  l = $1+2
+	  #debug# print "f=" f " $1=" $1 " l=" l " first=" first " last=" last
+	  if (f > last) {
+	    # new range
+	    if (last > 0) {
+		print first " == NR { print \"--- " first "," last " ---\" }"
+		print first " <= NR && NR <= " last " { print pfx,$0 }"
+	    }
+	    first = f;
+	    last = l;
+	  }
+	  else
+	    last = l
+	}
+END	{ if (last > 0)
+	    print first " == NR { print \"--- " first "," last " ---\" }"
+	    print first " <= NR && NR <= " last " { print pfx,$0 }"
+	}'
+
+    #debug# head $tmp.show
+    awk -f $tmp.show $file
+
+done

@@ -306,7 +306,6 @@ decode_encode(int fd, __pmPDU *pb, int type)
 	    free(buffer);
 	    break;
 
-#if PCP_VER >= 3800
 	case PDU_AUTH:
 	    if ((e = __pmDecodeAuth(pb, &attr, &buffer, &length)) < 0) {
 		fprintf(stderr, "%s: Error: DecodeAuth: %s\n", pmProgname, pmErrStr(e));
@@ -334,7 +333,6 @@ decode_encode(int fd, __pmPDU *pb, int type)
 	    }
 	    fail = 0;
 	    break;
-#endif
 
 	case PDU_CREDS:
 	    if ((e = __pmDecodeCreds(pb, &sender, &count, &creds)) < 0) {

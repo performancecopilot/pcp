@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2013 Red Hat.
+ * Copyright (c) 2012-2017 Red Hat.
  * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -17,8 +17,6 @@
 #include "impl.h"
 #include "fault.h"
 #include "internal.h"
-
-#define LIMIT_CTXNUM	2048
 
 /*
  * PDU used to transmit __pmProfile prior to pmFetch (PDU_PROFILE)
@@ -125,7 +123,7 @@ __pmDecodeProfile(__pmPDU *pdubuf, int *ctxnump, __pmProfile **resultp)
 	return PM_ERR_IPC;
 
     ctxnum = ntohl(pduProfile->ctxnum);
-    if (ctxnum < 0 || ctxnum > LIMIT_CTXNUM)
+    if (ctxnum < 0)
 	return PM_ERR_IPC;
 PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_ALLOC);
     if ((instprof = (__pmProfile *)malloc(sizeof(__pmProfile))) == NULL)

@@ -421,7 +421,7 @@ then
 else
     AC_ARG_ENABLE([ssp],
     [AS_HELP_STRING([--disable-ssp], [disable gcc stack-protector])])
-    AS_IF([test "x$cc_is_gcc" = xyes -a "x$enable_ssp" != xno ],[
+    AS_IF([test "x$cc_is_gcc" = xyes -a "x$enable_ssp" != xno -a "x$use_optimization" = xyes ],[
        save_CFLAGS="$CFLAGS"
        CFLAGS="$CFLAGS -O -fstack-protector-all -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2"
        AC_COMPILE_IFELSE([AC_LANG_SOURCE([int something ();])], [
@@ -1103,6 +1103,7 @@ if $pmda_libvirt; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
 qmake=$QMAKE
 enable_qt=false
 qt_release=release
+qt_version=0
 AS_IF([test "x$do_qt" != "xno"], [
     enable_qt=true
     
@@ -1129,6 +1130,7 @@ AS_IF([test "x$do_qt" != "xno"], [
 	    echo Qt version 4.4 or later is required for Qt builds.
 	    enable_qt=false
 	fi
+	qt_version=$QT_MAJOR
     fi
 
     if test "$do_qt" != "check" -a "$enable_qt" != "true"
@@ -1147,6 +1149,7 @@ AS_IF([test "x$do_qt" != "xno"], [
     fi
 ])
 AC_SUBST(qt_release)
+AC_SUBST(qt_version)
 AC_SUBST(enable_qt)
 AC_SUBST(qmake)
 
@@ -1155,7 +1158,7 @@ AS_IF([test "x$do_qt3d" != "xno"], [
     if test -f /usr/include/Coin3/Inventor/Qt/SoQt.h
     then
 	enable_qt3d=$enable_qt
-    elif test -a "$do_qt3d" = "yes"
+    elif test x"$do_qt3d" = x"yes"
     then
 	AC_MSG_ERROR([cannot enable support for 3D scene graph API])
     fi
@@ -2433,7 +2436,7 @@ End-of-File
     rm -rf conftest conftest.*
 fi
 AC_MSG_RESULT($ans)
-AC_DEFINE_UNQUOTED(SIZEOF_SUSECONDS_T, $ans, [sizeof suseconds_t])
+AC_DEFINE_UNQUOTED(PM_SIZEOF_SUSECONDS_T, $ans, [sizeof suseconds_t])
 
 AC_MSG_CHECKING([sizeof time_t])
 if test "$cross_compiling" = "yes"; then
@@ -2451,7 +2454,7 @@ End-of-File
     rm -rf conftest conftest.*
 fi
 AC_MSG_RESULT($ans)
-AC_DEFINE_UNQUOTED(SIZEOF_TIME_T, $ans, [sizeof time_t])
+AC_DEFINE_UNQUOTED(PM_SIZEOF_TIME_T, $ans, [sizeof time_t])
 
 dnl check sizeof long
 AC_MSG_CHECKING([sizeof long])

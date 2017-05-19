@@ -77,6 +77,10 @@ static const char *dynproc_members[] = {
 	[DYNPROC_HOTPROC]   = "hotproc",
 };
 
+/*
+ * Remember to add help text to help_text.h for any new dynamic metrics
+ */
+
 static dynproc_metric_t psinfo_metrics[] = {
 	{ .name = "pid",	    .cluster = CLUSTER_PID_STAT,	.item=0 },
 	{ .name = "cmd",	    .cluster = CLUSTER_PID_STAT,	.item=1 },

@@ -1191,6 +1191,8 @@ oldversion
 938 derive local
 939 derive local
 940 selinux local
+941 pmcd local
+942 threads valgrind local
 943 pmprobe pmda.proc local
 944 pmcd secure local
 945 pmlogrewrite pmda.xfs local
@@ -1200,6 +1202,9 @@ oldversion
 949 python local timezone
 950 pmproxy avahi local
 951 pmie local pmval
+952 threads valgrind local
+953 libpcp threads valgrind local
+954 libpcp threads derive local
 955 pmda.linux local
 956 pmcd local
 957 pmda.linux local valgrind
@@ -1318,6 +1323,11 @@ oldversion
 1070 pmrep pmimport python perl local
 1071 pmrep python local
 1072 pmrep python archive local
+1073 pmda.linux local
+1074 threads valgrind local
+1075 pmlogrewrite valgrind local
+1076 pmlogcheck local
+1077 pmcd libpcp archive local
 1078 pcp python local
 1079 pcp atop local
 1080 valgrind pcp atop local
@@ -1336,3 +1346,5 @@ oldversion
 1112 pmda.linux local
 1113 pcp python local
 1121 pmda.linux local
+1174 threads valgrind local
+4751 libpcp threads valgrind local

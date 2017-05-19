@@ -40,6 +40,23 @@ typedef struct {
 
 #ifdef PM_FAULT_INJECTION
 
+#ifdef PM_MULTI_THREAD
+static pthread_mutex_t	fault_lock = PTHREAD_MUTEX_INITIALIZER;
+#else
+void			*fault_lock;
+#endif
+
+#if defined(PM_MULTI_THREAD) && defined(PM_MULTI_THREAD_DEBUG)
+/*
+ * return true if lock == fault_lock
+ */
+int
+__pmIsFaultLock(void *lock)
+{
+    return lock == (void *)&fault_lock;
+}
+#endif
+
 int	__pmFault_arm;
 
 #define FAULT_INDOM pmInDom_build(DYNAMIC_PMID, 1024)
@@ -57,8 +74,15 @@ __pmFaultInject(const char *ident, int class)
     int		sts;
     control_t	*cp;
 
+    PM_LOCK(fault_lock);
     if (first) {
-	char	*fname = getenv("PM_FAULT_CONTROL");
+	char	*fname;
+	first = 0;
+	PM_LOCK(__pmLock_extcall);
+	fname = getenv("PM_FAULT_CONTROL");		/* THREADSAFE */
+	if (fname != NULL)
+	    fname = strdup(fname);
+	PM_UNLOCK(__pmLock_extcall);
 	if (fname != NULL) {
 	    FILE	*f;
 	    if ((f = fopen(fname, "r")) == NULL) {
@@ -79,7 +103,9 @@ __pmFaultInject(const char *ident, int class)
 		 * default guard is ">0", i.e. fault on every trip
 		 * leading # => comment
 		 */
-		pmdaCacheOp(FAULT_INDOM, PMDA_CACHE_CULL);
+		PM_LOCK(__pmLock_extcall);
+		pmdaCacheOp(FAULT_INDOM, PMDA_CACHE_CULL);	/* THREADSAFE */
+		PM_UNLOCK(__pmLock_extcall);
 		while (fgets(line, sizeof(line), f) != NULL) {
 		    char	*lp = line;
 		    char	*sp;
@@ -161,7 +187,9 @@ __pmFaultInject(const char *ident, int class)
 		    cp->ntrip = cp->nfault = 0;
 		    cp->op = op;
 		    cp->thres = thres;
-		    sts = pmdaCacheStore(FAULT_INDOM, PMDA_CACHE_ADD, sp, cp);
+		    PM_LOCK(__pmLock_extcall);
+		    sts = pmdaCacheStore(FAULT_INDOM, PMDA_CACHE_ADD, sp, cp);	/* THREADSAFE */
+		    PM_UNLOCK(__pmLock_extcall);
 		    if (sts < 0) {
 			char	errmsg[PM_MAXERRMSGLEN];
 			fprintf(stderr, "%s[%d]: %s\n", fname, lineno, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
@@ -169,6 +197,7 @@ __pmFaultInject(const char *ident, int class)
 		}
 		fclose(f);
 	    }
+	    free(fname);
 	}
 #ifdef HAVE_ATEXIT
 #ifdef PCP_DEBUG
@@ -176,10 +205,12 @@ __pmFaultInject(const char *ident, int class)
 	    atexit(__pmFaultAtExit);
 #endif
 #endif
-	first = 0;
     }
+    PM_UNLOCK(fault_lock);
 
-    sts = pmdaCacheLookupName(FAULT_INDOM, ident, NULL, (void **)&cp);
+    PM_LOCK(__pmLock_extcall);
+    sts = pmdaCacheLookupName(FAULT_INDOM, ident, NULL, (void **)&cp);	/* THREADSAFE */
+    PM_UNLOCK(__pmLock_extcall);
     if (sts == PMDA_CACHE_ACTIVE) {
 	cp->ntrip++;
 	__pmFault_arm = 0;
@@ -241,11 +272,12 @@ __pmFaultSummary(FILE *f)
     int		sts;
     static char	*opstr[] = { "<", "<=", "==", ">=", ">", "!=", "%" };
 
-    pmdaCacheOp(FAULT_INDOM, PMDA_CACHE_WALK_REWIND);
-
     fprintf(f, "=== Fault Injection Summary Report ===\n");
-    while ((inst = pmdaCacheOp(FAULT_INDOM, PMDA_CACHE_WALK_NEXT)) != -1) {
-	sts = pmdaCacheLookup(FAULT_INDOM, inst, &ident, (void **)&cp);
+
+    PM_LOCK(__pmLock_extcall);
+    pmdaCacheOp(FAULT_INDOM, PMDA_CACHE_WALK_REWIND);		/* THREADSAFE */
+    while ((inst = pmdaCacheOp(FAULT_INDOM, PMDA_CACHE_WALK_NEXT)) != -1) {	/* THREADSAFE */
+	sts = pmdaCacheLookup(FAULT_INDOM, inst, &ident, (void **)&cp);	/* THREADSAFE */
 	if (sts < 0) {
 	    char	strbuf[20];
 	    char	errmsg[PM_MAXERRMSGLEN];
@@ -255,6 +287,7 @@ __pmFaultSummary(FILE *f)
 	    fprintf(f, "%s: guard trip%s%d, %d trips, %d faults\n", ident, opstr[cp->op], cp->thres, cp->ntrip, cp->nfault);
 
     }
+    PM_UNLOCK(__pmLock_extcall);
 }
 
 void

@@ -1,0 +1,24 @@
+# qa/720 on vm34 (Arch Linux) ...
+# at 0x4C2ABD0: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+# by 0x5C1F152: sasl_client_new (in /usr/lib/libsasl2.so.3.0.0)
+# by 0x4E8C2C7: __pmSecureClientIPCFlags (secureconnect.c:949)
+# by 0x4E8C2C7: __pmSecureClientHandshake (secureconnect.c:1239)
+# by 0x4E49823: attributes_handshake (connect.c:187)
+# by 0x4E49823: __pmConnectHandshake (connect.c:288)
+# by 0x4E4A0D2: __pmConnectPMCD (connect.c:456)
+# by 0x4E4CD11: pmNewContext (context.c:1232)
+# by 0x401981: main (pminfo.c:702)
+{
+   sasle_client_new
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:sasl_client_new
+   fun:__pmSecureClientIPCFlags
+   fun:__pmSecureClientHandshake
+   fun:attributes_handshake
+   fun:__pmConnectHandshake
+   fun:__pmConnectPMCD
+   fun:pmNewContext
+   fun:main
+}

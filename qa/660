@@ -53,6 +53,8 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 # * Connection refused
 # * connect to ::1 port 44323 failed: Connection refused
 # WARNING: gnome-keyring:: couldn't connect to: ...
+# * TCP_NODELAY set
+# * Curl_http_done: called premature == 0
 # * [othewise blank line]
 # [blank line]
 #
@@ -68,6 +70,8 @@ _filter()
 	-e '/^\* Connection refused/d' \
 	-e '/^\* connect to .*: Connection refused/d' \
 	-e '/WARNING: gnome-keyring::/d' \
+	-e '/^\* TCP_NODELAY set/d' \
+	-e '/^\* Curl_http_done: called premature == 0/d' \
 	-e '/^\*$/d' \
 	-e '/^[ 	]*$/d'
 }

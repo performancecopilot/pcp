@@ -40,6 +40,23 @@
 /* default costs */
 static optcost_t	optcost = { 4, 1, 15, 10, 2, 0 };
 
+#ifdef PM_MULTI_THREAD
+static pthread_mutex_t	optfetch_lock = PTHREAD_MUTEX_INITIALIZER;
+#else
+void			*optfetch_lock;
+#endif
+
+#if defined(PM_MULTI_THREAD) && defined(PM_MULTI_THREAD_DEBUG)
+/*
+ * return true if lock == util_lock
+ */
+int
+__pmIsOptfetchLock(void *lock)
+{
+    return lock == (void *)&optfetch_lock;
+}
+#endif
+
 static int
 addpmid(fetchctl_t *fp, pmID pmid)
 {
@@ -55,6 +72,7 @@ addpmid(fetchctl_t *fp, pmID pmid)
     fp->f_numpmid++;
     fp->f_pmidlist = (pmID *)realloc(fp->f_pmidlist, fp->f_numpmid*sizeof(pmID));
     if (fp->f_pmidlist == NULL) {
+	PM_UNLOCK(optfetch_lock);
 	__pmNoMem("addpmid", fp->f_numpmid*sizeof(pmID), PM_FATAL_ERR);
     }
 
@@ -91,6 +109,7 @@ addinst(int *numinst, int **instlist, optreq_t *new)
 
     ilist = (int *)realloc(*instlist, (numi + new->r_numinst)*sizeof(int));
     if (ilist == NULL) {
+	PM_UNLOCK(optfetch_lock);
 	__pmNoMem("addinst.up", (numi + new->r_numinst)*sizeof(int), PM_FATAL_ERR);
     }
 
@@ -114,6 +133,7 @@ addinst(int *numinst, int **instlist, optreq_t *new)
 
     ilist = (int *)realloc(ilist, numi*sizeof(int));
     if (ilist == NULL) {
+	PM_UNLOCK(optfetch_lock);
 	__pmNoMem("addinst.down", numi*sizeof(int), PM_FATAL_ERR);
     }
     
@@ -134,7 +154,8 @@ missinst(int numa, int *lista, int numb, int *listb)
     int		i;
     int		j;
 
-    PM_LOCK(__pmLock_libpcp);
+    ASSERT_IS_LOCKED(optfetch_lock);
+
     /* count in lista[] but _not_ in listb[] */
     if (numa == 0) {
 	/* special case for all instances in lista[] */
@@ -162,7 +183,6 @@ missinst(int numa, int *lista, int numb, int *listb)
 	xtra += (numa - i) + (numb - j);
     }
 
-    PM_UNLOCK(__pmLock_libpcp);
     return xtra;
 }
 
@@ -212,7 +232,8 @@ optCost(fetchctl_t *fp)
     int			cost = 0;
     int			done;
 
-    PM_LOCK(__pmLock_libpcp);
+    ASSERT_IS_LOCKED(optfetch_lock);
+
     /*
      * cost per PMD for the pmids in this fetch
      */
@@ -264,7 +285,6 @@ optCost(fetchctl_t *fp)
 	}
     }
 
-    PM_UNLOCK(__pmLock_libpcp);
     return cost;
 }
 
@@ -360,10 +380,10 @@ __pmOptFetchAdd(fetchctl_t **root, optreq_t *new)
     pmInDom		indom = new->r_desc->indom;
     pmID		pmid = new->r_desc->pmid;
 
-    PM_INIT_LOCKS();
-    PM_LOCK(__pmLock_libpcp);
+    PM_LOCK(optfetch_lock);
     /* add new fetch as first option ... will be reclaimed later if not used */
     if ((fp = (fetchctl_t *)calloc(1, sizeof(fetchctl_t))) == NULL) {
+	PM_UNLOCK(optfetch_lock);
 	__pmNoMem("optAddFetch.fetch", sizeof(fetchctl_t), PM_FATAL_ERR);
     }
     fp->f_next = *root;
@@ -391,6 +411,7 @@ __pmOptFetchAdd(fetchctl_t **root, optreq_t *new)
 
 	if (change & OPT_STATE_XINDOM) {
 	    if ((idp = (indomctl_t *)calloc(1, sizeof(indomctl_t))) == NULL) {
+		PM_UNLOCK(optfetch_lock);
 		__pmNoMem("optAddFetch.indomctl", sizeof(indomctl_t), PM_FATAL_ERR);
 	    }
 	    idp->i_indom = indom;
@@ -400,6 +421,7 @@ __pmOptFetchAdd(fetchctl_t **root, optreq_t *new)
 	}
 	if (change & OPT_STATE_XPMID) {
 	    if ((pmp = (pmidctl_t *)calloc(1, sizeof(pmidctl_t))) == NULL) {
+		PM_UNLOCK(optfetch_lock);
 		__pmNoMem("optAddFetch.pmidctl", sizeof(pmidctl_t), PM_FATAL_ERR);
 	    }
 	    pmp->p_next = idp->i_pmp;
@@ -516,7 +538,7 @@ __pmOptFetchAdd(fetchctl_t **root, optreq_t *new)
 	}
     }
 
-    PM_UNLOCK(__pmLock_libpcp);
+    PM_UNLOCK(optfetch_lock);
     return;
 }
 
@@ -599,7 +621,9 @@ __pmOptFetchDel(fetchctl_t **root, optreq_t *new)
 				else
 				    fprintf(stderr, "%d", fp->f_cost);
 			    }
+			    PM_LOCK(optfetch_lock);
 			    fp->f_cost = optCost(fp);
+			    PM_UNLOCK(optfetch_lock);
 			    if ((pmDebug & DBG_TRACE_OPTFETCH) && (pmDebug & DBG_TRACE_DESPERATE)) {
 				fprintf(stderr, " new cost=");
 				if (fp->f_cost == OPT_COST_INFINITY)
@@ -668,7 +692,7 @@ __pmOptFetchRedo(fetchctl_t **root)
 
     if (numreq) {
 	/* something to do, randomly cut and splice the list of requests */
-	numreq = (int)lrand48() % numreq;
+	numreq = (int)lrand48() % numreq;	/* THREADSAFE - don't care */
 	t_rqp = rlist;
 	p_rqp = NULL;
 	for (rqp = rlist; rqp != NULL; rqp = rqp->r_next) {
@@ -703,19 +727,17 @@ __pmOptFetchRedo(fetchctl_t **root)
 void
 __pmOptFetchGetParams(optcost_t *ocp)
 {
-    PM_INIT_LOCKS();
-    PM_LOCK(__pmLock_libpcp);
+    PM_LOCK(optfetch_lock);
     *ocp = optcost;
-    PM_UNLOCK(__pmLock_libpcp);
+    PM_UNLOCK(optfetch_lock);
     return;
 }
 
 void
 __pmOptFetchPutParams(optcost_t *ocp)
 {
-    PM_INIT_LOCKS();
-    PM_LOCK(__pmLock_libpcp);
+    PM_LOCK(optfetch_lock);
     optcost = *ocp;
-    PM_UNLOCK(__pmLock_libpcp);
+    PM_UNLOCK(optfetch_lock);
     return;
 }

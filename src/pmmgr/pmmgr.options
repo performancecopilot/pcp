@@ -27,3 +27,6 @@
 # PMCD_RECONNECT_TIMEOUT=10,20,30
 # PMCD_REQUEST_TIMEOUT=10
 HOME=/var/lib/pcp
+
+# avoid numerous 64MB arenas that glibc defaults give us
+MALLOC_ARENA_MAX=8

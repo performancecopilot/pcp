@@ -90,7 +90,7 @@ void cleanup_pmu_list(struct pmu *pmu)
 
     for (curr_pmu = pmu; curr_pmu; curr_pmu = pmu_del) {
         pmu_del = curr_pmu->next;
-        cleanup_pmu(pmu_del);
+        cleanup_pmu(curr_pmu);
     }
 }
 
@@ -334,15 +334,17 @@ static int fetch_format_properties(char *format_path, struct property **prop)
             pp->next = tmp;
         }
     }
-
+    closedir(format_dir);
     *prop = head;
     return 0;
+
  free_property:
     cleanup_property(tmp);
  free_buf:
     free(buf);
  free_prop_list:
     cleanup_property_list(head);
+    closedir(format_dir);
     return ret;
 }
 
@@ -420,7 +422,6 @@ static int parse_event_string(char *buf, struct pmu_event *event,
 {
     struct property_info *pi, *head = NULL, *tmp;
     char *start, *ptr, *nptr, **endptr, *str;
-    int ret = 0;
 
     start = buf;
 
@@ -480,11 +481,7 @@ static int parse_event_string(char *buf, struct pmu_event *event,
         }
     }
 
-    if (ret)
-        return ret;
-
-    ret = fetch_event_config(head, event, pmu);
-    return ret;
+    return fetch_event_config(head, event, pmu);
 }
 
 /*

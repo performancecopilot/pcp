@@ -2,7 +2,7 @@
 #
 # Recipes for making badlabel-* family of archives.
 # 
-# Every one is based on a version of foo, with binary editing using
+# Every one is based on a version of ./ok-foo, with binary editing using
 # bvi (or similar) and cut-n-paste with dd.
 
 tmp=/var/tmp/$$
@@ -23,9 +23,9 @@ do
 done
 if [ $X -eq 0 ]
 then
-    cp ../src/foo.0 badlabel-0.0
-    cp ../src/foo.meta badlabel-0.meta
-    cp ../src/foo.index badlabel-0.index
+    cp ./ok-foo.0 badlabel-0.0
+    cp ./ok-foo.meta badlabel-0.meta
+    cp ./ok-foo.index badlabel-0.index
     X=1
 fi
 
@@ -33,11 +33,11 @@ case $X
 in
     1)	# bad magic in metadata label
 	vol=meta
-	if cp ../src/foo.$vol badlabel-$X.$vol
+	if cp ./ok-foo.$vol badlabel-$X.$vol
 	then
 	    :
 	else
-	    echo "Failed: cp ../src/foo.$vol badlabel-$X.$vol"
+	    echo "Failed: cp ./ok-foo.$vol badlabel-$X.$vol"
 	    exit 1
 	fi
 	echo '4s\\...\\deadbe\\' >$tmp.ex
@@ -45,11 +45,11 @@ in
 
     2)	# bad version in index label
 	vol=index
-	if cp ../src/foo.$vol badlabel-$X.$vol
+	if cp ./ok-foo.$vol badlabel-$X.$vol
 	then
 	    :
 	else
-	    echo "Failed: cp ../src/foo.$vol badlabel-$X.$vol"
+	    echo "Failed: cp ./ok-foo.$vol badlabel-$X.$vol"
 	    exit 1
 	fi
 	echo '7s\\.\\00\\' >$tmp.ex

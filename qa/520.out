@@ -1,8 +1,8 @@
 QA output created by 520
-findFetch: fetch=ADDR000 host=ADDR001 delta=2.000000 handle=0
-findFetch: fetch=ADDR002 host=ADDR003 delta=2.000000 handle=1
-findFetch: fetch=ADDR004 host=ADDR005 delta=2.000000 handle=2
-findFetch: fetch=ADDR006 host=ADDR007 delta=2.000000 handle=3
+findFetch: fetch=ADDR000 host=ADDR001 delta=2.000000 handle=8
+findFetch: fetch=ADDR002 host=ADDR003 delta=2.000000 handle=9
+findFetch: fetch=ADDR004 host=ADDR005 delta=2.000000 handle=10
+findFetch: fetch=ADDR006 host=ADDR007 delta=2.000000 handle=11
 Rule: expr_1
 Expr dump @ ADDR008
   op=0 (->) arg1=ADDR009 arg2=ADDR010 parent=(nil)
