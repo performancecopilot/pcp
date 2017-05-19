@@ -18,75 +18,81 @@
 #include "internal.h"
 #include "fault.h"
 
+static int
+__pmRecvDesc(int fd, __pmContext *ctxp, int timeout, pmDesc *desc)
+{
+    int		sts, pinpdu;
+    __pmPDU	*pb;
+
+    pinpdu = sts = __pmGetPDU(fd, ANY_SIZE, timeout, &pb);
+    if (sts == PDU_DESC)
+	sts = __pmDecodeDesc(pb, desc);
+    else if (sts == PDU_ERROR)
+	__pmDecodeError(pb, &sts);
+    else {
+	__pmCloseChannelbyContext(ctxp, PDU_DESC, sts);
+	if (sts != PM_ERR_TIMEOUT)
+	    sts = PM_ERR_IPC;
+    }
+    if (pinpdu > 0)
+	__pmUnpinPDUBuf(pb);
+    return sts;
+}
+
 int
 pmLookupDesc(pmID pmid, pmDesc *desc)
 {
-    int		n;
     __pmContext	*ctxp;
-    __pmPDU	*pb;
+    __pmDSO	*dp;
+    int		fd, ctx, sts, tout;
 
-    if ((n = pmWhichContext()) < 0)
-	goto done;
-    if ((ctxp = __pmHandleToPtr(n)) == NULL) {
-	n = PM_ERR_NOCONTEXT;
-	goto done;
-    }
+    if ((sts = ctx = pmWhichContext()) < 0)
+	return sts;
+    if ((ctxp = __pmHandleToPtr(ctx)) == NULL)
+	return PM_ERR_NOCONTEXT;
 
     if (ctxp->c_type == PM_CONTEXT_HOST) {
 	PM_LOCK(ctxp->c_pmcd->pc_lock);
-	if ((n = __pmSendDescReq(ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp), pmid)) < 0)
-	    n = __pmMapErrno(n);
-	else {
-	    int		pinpdu;
-PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_TIMEOUT);
-	    pinpdu = n = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE,
-				    ctxp->c_pmcd->pc_tout_sec, &pb);
-	    if (n == PDU_DESC)
-		n = __pmDecodeDesc(pb, desc);
-	    else if (n == PDU_ERROR)
-		__pmDecodeError(pb, &n);
-	    else {
-		__pmCloseChannelbyContext(ctxp, PDU_DESC, n);
-		if (n != PM_ERR_TIMEOUT)
-		    n = PM_ERR_IPC;
-	    }
-	    if (pinpdu > 0)
-		__pmUnpinPDUBuf(pb);
+	tout = ctxp->c_pmcd->pc_tout_sec;
+	fd = ctxp->c_pmcd->pc_fd;
+	if ((sts = __pmSendDescReq(fd, __pmPtrToHandle(ctxp), pmid)) < 0) {
+	    sts = __pmMapErrno(sts);
+	} else {
+	    PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_TIMEOUT);
+	    sts = __pmRecvDesc(fd, ctxp, tout, desc);
 	}
 	PM_UNLOCK(ctxp->c_pmcd->pc_lock);
     }
     else if (ctxp->c_type == PM_CONTEXT_LOCAL) {
-	int		ctx = n;
-	__pmDSO		*dp;
 	if (PM_MULTIPLE_THREADS(PM_SCOPE_DSO_PMDA))
 	    /* Local context requires single-threaded applications */
-	    n = PM_ERR_THREAD;
+	    sts = PM_ERR_THREAD;
 	else if ((dp = __pmLookupDSO(((__pmID_int *)&pmid)->domain)) == NULL)
-	    n = PM_ERR_NOAGENT;
+	    sts = PM_ERR_NOAGENT;
 	else {
-	    if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_5)
-		dp->dispatch.version.four.ext->e_context = ctx;
-	    n = dp->dispatch.version.any.desc(pmid, desc, dp->dispatch.version.any.ext);
+	    pmdaInterface *pmda = &dp->dispatch;
+	    if (pmda->comm.pmda_interface >= PMDA_INTERFACE_5)
+		pmda->version.four.ext->e_context = ctx;
+	    sts = pmda->version.any.desc(pmid, desc, pmda->version.any.ext);
 	}
     }
     else {
 	/* assume PM_CONTEXT_ARCHIVE */
-	n = __pmLogLookupDesc(ctxp->c_archctl->ac_log, pmid, desc);
+	sts = __pmLogLookupDesc(ctxp->c_archctl->ac_log, pmid, desc);
     }
 
-    if (n == PM_ERR_PMID || n == PM_ERR_PMID_LOG || n == PM_ERR_NOAGENT) {
-	int		sts;
+    if (sts == PM_ERR_PMID || sts == PM_ERR_PMID_LOG || sts == PM_ERR_NOAGENT) {
+	int		sts2;
 	/*
 	 * check for derived metric ... keep error status from above
 	 * unless we have success with the derived metrics
 	 */
-	sts = __dmdesc(ctxp, pmid, desc);
-	if (sts >= 0)
-	    n = sts;
+	sts2 = __dmdesc(ctxp, pmid, desc);
+	if (sts2 >= 0)
+	    sts = sts2;
     }
     PM_UNLOCK(ctxp->c_lock);
 
-done:
-    return n;
+    return sts;
 }
 

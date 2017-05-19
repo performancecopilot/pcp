@@ -141,6 +141,7 @@ void
 __pmUsePMNS(__pmnsTree *t)
 {
     PM_INIT_LOCKS();
+
     PM_TPD(useExtPMNS) = 1;
     PM_TPD(curr_pmns) = t;
 }
@@ -194,10 +195,13 @@ pmGetPMNSLocation(void)
     int sts;
 
     PM_INIT_LOCKS();
+
     if (PM_TPD(useExtPMNS)) {
 	pmns_location = PMNS_LOCAL;
 	goto done;
     }
+
+    PM_LOCK(__pmLock_libpcp);
 
     /* 
      * Determine if we are to use PDUs or local PMNS file.
@@ -209,17 +213,23 @@ pmGetPMNSLocation(void)
 
 	if ((n = pmWhichContext()) >= 0 && (ctxp = __pmHandleToPtr(n)) != NULL) {
 	    switch(ctxp->c_type) {
+		int	fd;
 		case PM_CONTEXT_HOST:
+		    PM_LOCK(ctxp->c_pmcd->pc_lock);
 		    if (ctxp->c_pmcd->pc_fd == -1) {
+			PM_UNLOCK(ctxp->c_pmcd->pc_lock);
 			pmns_location = PM_ERR_IPC;
 			goto done;
 		    }
-		    if ((sts = version = __pmVersionIPC(ctxp->c_pmcd->pc_fd)) < 0) {
+		    sts = version = __pmVersionIPC(ctxp->c_pmcd->pc_fd);
+		    fd = ctxp->c_pmcd->pc_fd;
+		    PM_UNLOCK(ctxp->c_pmcd->pc_lock);
+		    if (version < 0) {
 			char	errmsg[PM_MAXERRMSGLEN];
 			__pmNotifyErr(LOG_ERR, 
 				"pmGetPMNSLocation: version lookup failed "
 				"(context=%d, fd=%d): %s", 
-				n, ctxp->c_pmcd->pc_fd, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+				n, fd, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 			pmns_location = PM_ERR_NOPMNS;
 		    }
 		    else if (version == PDU_VERSION2) {
@@ -229,7 +239,7 @@ pmGetPMNSLocation(void)
 			__pmNotifyErr(LOG_ERR, 
 				"pmGetPMNSLocation: bad host PDU version "
 				"(context=%d, fd=%d, ver=%d)",
-				n, ctxp->c_pmcd->pc_fd, version);
+				n, fd, version);
 			pmns_location = PM_ERR_NOPMNS;
 		    }
 		    break;
@@ -250,8 +260,8 @@ pmGetPMNSLocation(void)
 		    }
 		    else {
 			__pmNotifyErr(LOG_ERR, "pmGetPMNSLocation: bad archive "
-				"version (context=%d, fd=%d, ver=%d)",
-				n, ctxp->c_pmcd->pc_fd, version); 
+				"version (context=%d, ver=%d)",
+				n, version); 
 			pmns_location = PM_ERR_NOPMNS;
 		    }
 		    break;
@@ -275,7 +285,6 @@ pmGetPMNSLocation(void)
 	    pmns_location = PMNS_LOCAL;
     }
 
-    PM_LOCK(__pmLock_libpcp);
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_PMNS) {
 	static int last_pmns_location = -1;
@@ -291,9 +300,9 @@ pmGetPMNSLocation(void)
     /* fix up curr_pmns for API ops */
     if (pmns_location == PMNS_LOCAL)
 	PM_TPD(curr_pmns) = main_pmns;
-    PM_UNLOCK(__pmLock_libpcp);
 
 done:
+    PM_UNLOCK(__pmLock_libpcp);
     return pmns_location;
 }
 
@@ -418,6 +427,8 @@ lex(int reset)
 	    char	*alt;
 	    char	cmd[80+MAXPATHLEN];
 
+	    /* always get here after acquiring __pmLock_libpcp */
+	    /* THREADSAFE */
 	    if ((alt = getenv("PCP_ALT_CPP")) != NULL) {
 		/* $PCP_ALT_CPP used in the build before pmcpp installed */
 		snprintf(cmd, sizeof(cmd), "%s %s", alt, fname);
@@ -1214,7 +1225,8 @@ getfname(const char *filename)
     if (filename == PM_NS_DEFAULT || (__psint_t)filename == 0xffffffff) {
 	char	*def_pmns;
 
-	def_pmns = getenv("PMNS_DEFAULT");
+	/* always get here after acquiring __pmLock_libpcp */
+	def_pmns = getenv("PMNS_DEFAULT");		/* THREADSAFE */
 	if (def_pmns != NULL) {
 	    /* get default PMNS name from environment */
 	    return def_pmns;
@@ -1531,6 +1543,8 @@ pmLookupName(int numpmid, char *namelist[], pmID pmidlist[])
     int		ctx;
     int		i;
     int		nfail = 0;
+
+    PM_INIT_LOCKS();
 
     if (numpmid < 1) {
 #ifdef PCP_DEBUG
@@ -1950,6 +1964,8 @@ pmGetChildrenStatus(const char *name, char ***offspring, int **statuslist)
     int		sts;
     int		ctx;
     __pmContext	*ctxp;
+
+    PM_INIT_LOCKS();
 
     if (pmns_location < 0)
 	return pmns_location;
@@ -2715,6 +2731,8 @@ pmTrimNameSpace(void)
     __pmHashNode *hp;
     int		pmns_location = GetLocation();
 
+    PM_INIT_LOCKS();
+
     if (pmns_location < 0)
 	return pmns_location;
     else if (pmns_location == PMNS_REMOTE)
@@ -2723,7 +2741,7 @@ pmTrimNameSpace(void)
     /* for PMNS_LOCAL (or PMNS_ARCHIVE) ... */
     PM_INIT_LOCKS();
 
-    if ((ctxp = __pmHandleToPtr(pmWhichContext())) == NULL)
+    if ((ctxp = __pmCurrentContext()) == NULL)
 	return PM_ERR_NOCONTEXT;
 
     if (ctxp->c_type != PM_CONTEXT_ARCHIVE) {
@@ -2764,6 +2782,8 @@ void
 __pmDumpNameSpace(FILE *f, int verbosity)
 {
     int pmns_location = GetLocation();
+
+    PM_INIT_LOCKS();
 
     if (pmns_location < 0)
 	fprintf(f, "__pmDumpNameSpace: Unable to determine PMNS location\n");

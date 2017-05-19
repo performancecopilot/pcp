@@ -139,6 +139,7 @@ __pmHashClear(__pmHashCtl *hcp)
 {
     if (hcp->hsize != 0) {
 	free(hcp->hash);
+	hcp->hash = NULL;
 	hcp->hsize = 0;
     }
 }

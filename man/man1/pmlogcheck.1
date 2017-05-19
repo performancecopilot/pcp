@@ -18,7 +18,7 @@
 \f3pmlogcheck\f1 \- checks for invalid data in a PCP archive
 .SH SYNOPSIS
 \f3pmlogcheck\f1
-[\f3\-lz\f1]
+[\f3\-lwz\f1]
 [\f3\-n\f1 \f2pmnsfile\f1]
 [\f3\-S\f1 \f2start\f1]
 [\f3\-T\f1 \f2finish\f1]
@@ -149,6 +149,10 @@ produces output describing the metric name (with instance identifiers where
 appropriate), the internal storage type for the metric, the value of the
 metric before the counter wrap (with its associated timestamp), and the value of
 the metric after the wrap (also with a timestamp).
+.PP
+The
+.B \-w
+option may be used to suppress reporting of counter wraps.
 .PP
 .B pmlogcheck
 produces two different timestamp formats, depending on the interval over

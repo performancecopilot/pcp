@@ -3,7 +3,7 @@ initMetric: sampledso.colour from vm00: instance domain specinst=0
   indom[0] 0 "red"
   indom[1] 1 "green"
   indom[2] 2 "blue"
-findFetch: fetch=ADDR000 host=ADDR001 delta=2.000000 handle=0
+findFetch: fetch=ADDR000 host=ADDR001 delta=2.000000 handle=5
 Rule: vm00
 Expr dump @ ADDR002
   op=1 (<fetch node>) arg1=(nil) arg2=(nil) parent=(nil)

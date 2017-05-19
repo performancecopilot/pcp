@@ -2,7 +2,7 @@
 '\"macro stdmacro
 .\"
 .\" Copyright (c) 2016 Red Hat.
-.\" Copyright (C) 2015 Marko Myllynen <myllynen@redhat.com>
+.\" Copyright (C) 2015-2017 Marko Myllynen <myllynen@redhat.com>
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -20,7 +20,7 @@
 \f3pmrep\f1 \- performance metrics reporter
 .SH SYNOPSIS
 \f3pmrep\f1
-[\f3\-CdGHLpruUVxz?\f1]
+[\f3\-CdGHILpruUvVxz?\f1]
 [\f3\-a\f1 \f2archive\f1]
 [\f3\--archive-folio\f1 \f2folio\f1]
 [\f3\-A\f1 \f2align\f1]
@@ -293,10 +293,6 @@ and
 .BR $PCP_SYSCONF_DIR/pmrep/pmrep.conf .
 See
 .BR pmrep.conf (5).
-Unlike with other options,
-.I config
-must be separated by a space from
-.BR \-c .
 .TP
 .B \-\-container
 Fetch performance metrics from the specified
@@ -378,7 +374,9 @@ By default all current instances are reported.
 This is a global option that is used for all metrics unless a
 metric-specific instance definition is provided as part of a
 .IR metricspec .
-Metrics without instances are reported as usual.
+By default metrics without instances are reported as usual, use
+.B \-v
+to change this.
 .RS
 .PP
 The list may consist of one or more comma-separated instances.
@@ -406,6 +404,16 @@ However, this would report only the 1-minute instance:
 $ pmrep \-i '"1 minute","5 minute"' kernel.all.load,,"1 minute"
 .EE
 .RE
+.TP
+.B \-I
+Ignore incompatible metrics. By default incompatible metrics
+(that is, their type is unsupported or they cannot be scaled
+as requested) will cause
+.B pmrep
+to terminate with an error message.
+With this option all incompatible metrics are silently omitted
+from reporting. This may be especially useful when requesting
+non-leaf nodes of the PMNS tree for reporting.
 .TP
 .B \-K
 When fetching metrics from a local context (see
@@ -633,6 +641,14 @@ to disable).
 .B \-U
 Omit unit information from of headers.
 .TP
+.B \-v
+Omit single-valued ``flat'' metrics from reporting when instances
+were requested.
+See
+.B -\i
+and
+.BR -\I .
+.TP
 .B \-V
 Display version number and exit.
 .TP
@@ -706,11 +722,22 @@ The examples expect the default configuration file to contain the
 .I metricset
 specifications.
 .PP
-Display network interface statistics on the local host:
+Display network interface metrics on the local host:
 .RS +4
 .ft CW
 .nf
 $ pmrep network.interface.total.bytes
+.fi
+.ft P
+.RE
+.PP
+Display all outgoing network metrics for the
+.I wlan0
+interface:
+.RS +4
+.ft CW
+.nf
+$ pmrep -i wlan0 -v network.interface.out
 .fi
 .ft P
 .RE
@@ -773,8 +800,6 @@ $ pmrep -o archive -F ./a -t 5s -T 5m ds389 xfs kernel.all.cpu disk mem
 .BI $PCP_SYSCONF_DIR/pmrep/pmrep.conf
 System provided configuration file.
 .PD
-.SH BUGS
-No command line option can follow metrics.
 .SH "PCP ENVIRONMENT"
 Environment variables with the prefix
 .B PCP_

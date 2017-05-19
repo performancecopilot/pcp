@@ -84,7 +84,7 @@ stmt   		: dowhat
 			metric_cnt = -1;
 			return 0;
 		    }
-		    if (ConnectPMCD()) {
+		    if (ConnectPMCD() < 0) {
 			yyerror("");
 			metric_cnt = -1;
 			return 0;

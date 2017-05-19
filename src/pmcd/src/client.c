@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2013,2015 Red Hat.
+ * Copyright (c) 2012-2013,2015,2017 Red Hat.
  * Copyright (c) 1995-2001,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -176,7 +176,10 @@ NewClient(void)
 void
 DeleteClient(ClientInfo *cp)
 {
-    int i;
+    __pmHashCtl		*hcp;
+    __pmHashNode	*hp;
+    __pmProfile		*profile;
+    int			i;
 
     for (i = 0; i < nClients; i++)
 	if (cp == &client[i])
@@ -209,12 +212,18 @@ DeleteClient(ClientInfo *cp)
 		maxClientFd = client[i].fd;
 	}
     }
-    for (i = 0; i < cp->szProfile; i++) {
-	if (cp->profile[i] != NULL) {
-	    __pmFreeProfile(cp->profile[i]);
-	    cp->profile[i] = NULL;
+    hcp = &cp->profile;
+    for (i = 0; i < hcp->hsize; i++) {
+	for (hp = hcp->hash[i]; hp != NULL; hp = hp->next) {
+	    profile = (__pmProfile *)hp->data;
+	    if (profile != NULL) {
+		__pmFreeProfile(profile);
+		hp->data = NULL;
+	    }
+
 	}
     }
+    __pmHashClear(hcp);
     __pmFreeAttrsSpec(&cp->attrs);
     __pmHashClear(&cp->attrs);
     __pmSockAddrFree(cp->addr);

@@ -414,6 +414,10 @@ then
     # might be running from cron as unprivileged user
     [ $? -ne 0 -a "$PMLOGGER_CTL" = "off" ] && exit 0
     chown $PCP_USER:$PCP_GROUP "$PCP_RUN_DIR"
+    if which restorecon >/dev/null 2>&1
+    then
+	restorecon -r "$PCP_RUN_DIR"
+    fi
 fi
 echo $$ >"$PCP_RUN_DIR/pmlogger_daily.pid"
 

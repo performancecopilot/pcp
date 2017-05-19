@@ -324,6 +324,7 @@ _pcp () {
       "(-S --start $exargs)"{-S+,--start}'[set start of time window]:timespec:' \
       "(-T --finish $exargs)"{-T+,--finish}'[set end of time window]:timespec:' \
       "(-v --verbose $exargs)"{-v,--verbose}'[verbose output]' \
+      "(-w --nowrap $exargs)"{-w,--nowrap}'[suppress counter wrap warnings]' \
       "(-Z --timezone -z --hostzone $exargs)"{-Z+,--timezone}'[set reporting timezone]:timezone:_time_zone' \
       "(-z --hostzone -Z --timezone $exargs)"{-z,--hostzone}'[use metrics source timezone]' \
       '1:archive:->archives' \
@@ -439,7 +440,9 @@ _pcp () {
       "(-p --timestamps $exargs)"{-p,--timestamps}'[print timestamps]' \
       "(-d --delay --container -h --host -L --local-PMDA -K --spec-local -u --no-interpol $exargs)"{-d,--delay}'[delay between updates in archive mode]' \
       "(-r --raw $exargs)"{-r,--raw}'[report raw values]' \
+      "(-I --ignore-incompat)"{-I,--ignore-incompat}'[ignore incompatible metrics]' \
       "($exargs)"\*{-i+,--instances}'[specify instances to report]:instances:->instances' \
+      "(-v --omit-flat)"{-v,--omit-flat}'[omit single-valued metrics with -i]' \
       "(-X --colxrow $exargs)"{-X+,--colxrow}'[swap stdout columns and rows using header label]:label:' \
       "(-w --width $exargs)"{-w+,--width}'[set default column width]:width:' \
       "(-P --precision $exargs)"{-P+,--precision}'[set floating point precision]:precision:' \

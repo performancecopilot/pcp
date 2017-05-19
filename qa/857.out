@@ -581,11 +581,9 @@ Help:
 Posted-interrupt notification event
 
 kernel.percpu.interrupts.MIS One-line Help: Error: One-line or help text is not available
-
 Full Help: Error: One-line or help text is not available
 
 kernel.percpu.interrupts.ERR One-line Help: Error: One-line or help text is not available
-
 Full Help: Error: One-line or help text is not available
 
 kernel.percpu.interrupts.HYP [Hypervisor callback interrupts]
@@ -725,43 +723,33 @@ Help:
 IR-IO-APIC 2-edge timer
 
 kernel.percpu.softirqs.RCU One-line Help: Error: One-line or help text is not available
-
 Full Help: Error: One-line or help text is not available
 
 kernel.percpu.softirqs.HRTIMER One-line Help: Error: One-line or help text is not available
-
 Full Help: Error: One-line or help text is not available
 
 kernel.percpu.softirqs.SCHED One-line Help: Error: One-line or help text is not available
-
 Full Help: Error: One-line or help text is not available
 
 kernel.percpu.softirqs.TASKLET One-line Help: Error: One-line or help text is not available
-
 Full Help: Error: One-line or help text is not available
 
 kernel.percpu.softirqs.BLOCK_IOPOLL One-line Help: Error: One-line or help text is not available
-
 Full Help: Error: One-line or help text is not available
 
 kernel.percpu.softirqs.BLOCK One-line Help: Error: One-line or help text is not available
-
 Full Help: Error: One-line or help text is not available
 
 kernel.percpu.softirqs.NET_RX One-line Help: Error: One-line or help text is not available
-
 Full Help: Error: One-line or help text is not available
 
 kernel.percpu.softirqs.NET_TX One-line Help: Error: One-line or help text is not available
-
 Full Help: Error: One-line or help text is not available
 
 kernel.percpu.softirqs.TIMER One-line Help: Error: One-line or help text is not available
-
 Full Help: Error: One-line or help text is not available
 
 kernel.percpu.softirqs.HI One-line Help: Error: One-line or help text is not available
-
 Full Help: Error: One-line or help text is not available
 === std err ===
 === filtered valgrind report ===

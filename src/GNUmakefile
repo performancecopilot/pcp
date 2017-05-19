@@ -106,6 +106,7 @@ OTHER_SUBDIRS = \
 	pmpython \
 	derived \
 	selinux \
+	zeroconf \
 	#
 
 SUBDIRS = \

@@ -122,6 +122,196 @@ refresh_proc_zoneinfo(pmInDom indom, pmInDom protection_indom)
 		values++;
 		continue;
 	    }
+            else if ((sscanf(buf, "    nr_free_pages %llu", &value)) == 1) {
+                info->values[ZONE_NR_FREE_PAGES] = (value << _pm_pageshift) / 1024;
+                values++;
+                continue;
+            }
+            else if ((sscanf(buf, "    nr_alloc_batch %llu", &value)) == 1) {
+                info->values[ZONE_NR_ALLOC_BATCH] = (value << _pm_pageshift) / 1024;
+                values++;
+                continue;
+            }
+            else if ((sscanf(buf, "    nr_inactive_anon %llu", &value)) == 1) {
+                info->values[ZONE_NR_INACTIVE_ANON] = (value << _pm_pageshift) / 1024;
+                values++;
+                continue;
+            }
+            else if ((sscanf(buf, "    nr_active_anon %llu", &value)) == 1) {
+                info->values[ZONE_NR_ACTIVE_ANON] = (value << _pm_pageshift) / 1024;
+                values++;
+                continue;
+            }
+            else if ((sscanf(buf, "    nr_inactive_file %llu", &value)) == 1) {
+                info->values[ZONE_NR_INACTIVE_FILE] = (value << _pm_pageshift) / 1024;
+                values++;
+                continue;
+            }
+            else if ((sscanf(buf, "    nr_active_file %llu", &value)) == 1) {
+                info->values[ZONE_NR_ACTIVE_FILE] = (value << _pm_pageshift) / 1024;
+                values++;
+                continue;
+            }
+            else if ((sscanf(buf, "    nr_unevictable %llu", &value)) == 1) {
+                info->values[ZONE_NR_UNEVICTABLE] = (value << _pm_pageshift) / 1024;
+                values++;
+                continue;
+            }
+            else if ((sscanf(buf, "    nr_mlock %llu", &value)) == 1) {
+                info->values[ZONE_NR_MLOCK] = (value << _pm_pageshift) / 1024;
+                values++;
+                continue;
+            }
+            else if ((sscanf(buf, "    nr_anon_pages %llu", &value)) == 1) {
+                info->values[ZONE_NR_ANON_PAGES] = (value << _pm_pageshift) / 1024;
+                values++;
+                continue;
+            }
+            else if ((sscanf(buf, "    nr_mapped %llu", &value)) == 1) {
+                info->values[ZONE_NR_MAPPED] = (value << _pm_pageshift) / 1024;
+                values++;
+                continue;
+            }
+            else if ((sscanf(buf, "    nr_file_pages %llu", &value)) == 1) {
+                info->values[ZONE_NR_FILE_PAGES] = (value << _pm_pageshift) / 1024;
+                values++;
+                continue;
+            }
+            else if ((sscanf(buf, "    nr_dirty %llu", &value)) == 1) {
+                info->values[ZONE_NR_DIRTY] = (value << _pm_pageshift) / 1024;
+                values++;
+                continue;
+            }
+            else if ((sscanf(buf, "    nr_writeback %llu", &value)) == 1) {
+                info->values[ZONE_NR_WRITEBACK] = (value << _pm_pageshift) / 1024;
+                values++;
+                continue;
+            }
+            else if ((sscanf(buf, "    nr_slab_reclaimable %llu", &value)) == 1) {
+                info->values[ZONE_NR_SLAB_RECLAIMABLE] = (value << _pm_pageshift) / 1024;
+                values++;
+                continue;
+            }
+            else if ((sscanf(buf, "    nr_slab_unreclaimable %llu", &value)) == 1) {
+                info->values[ZONE_NR_SLAB_UNRECLAIMABLE] = (value << _pm_pageshift) / 1024;
+                values++;
+                continue;
+            }
+            else if ((sscanf(buf, "    nr_page_table_pages %llu", &value)) == 1) {
+                info->values[ZONE_NR_PAGE_TABLE_PAGES] = (value << _pm_pageshift) / 1024;
+                values++;
+                continue;
+            }
+            else if ((sscanf(buf, "    nr_kernel_stack %llu", &value)) == 1) {
+                info->values[ZONE_NR_KERNEL_STACK] = (value << _pm_pageshift) / 1024;
+                values++;
+                continue;
+            }
+            else if ((sscanf(buf, "    nr_unstable %llu", &value)) == 1) {
+                info->values[ZONE_NR_UNSTABLE] = (value << _pm_pageshift) / 1024;
+                values++;
+                continue;
+            }
+            else if ((sscanf(buf, "    nr_bounce %llu", &value)) == 1) {
+                info->values[ZONE_NR_BOUNCE] = (value << _pm_pageshift) / 1024;
+                values++;
+                continue;
+            }
+            else if ((sscanf(buf, "    nr_vmscan_write %llu", &value)) == 1) {
+                info->values[ZONE_NR_VMSCAN_WRITE] = (value << _pm_pageshift) / 1024;
+                values++;
+                continue;
+            }
+            else if ((sscanf(buf, "    nr_vmscan_immediate_reclaim %llu", &value)) == 1) {
+                info->values[ZONE_NR_VMSCAN_IMMEDIATE_RECLAIM] = (value << _pm_pageshift) / 1024;
+                values++;
+                continue;
+            }
+            else if ((sscanf(buf, "    nr_writeback_temp %llu", &value)) == 1) {
+                info->values[ZONE_NR_WRITEBACK_TEMP] = (value << _pm_pageshift) / 1024;
+                values++;
+                continue;
+            }
+            else if ((sscanf(buf, "    nr_isolated_anon %llu", &value)) == 1) {
+                info->values[ZONE_NR_ISOLATED_ANON] = (value << _pm_pageshift) / 1024;
+                values++;
+                continue;
+            }
+            else if ((sscanf(buf, "    nr_isolated_file %llu", &value)) == 1) {
+                info->values[ZONE_NR_ISOLATED_FILE] = (value << _pm_pageshift) / 1024;
+                values++;
+                continue;
+            }
+            else if ((sscanf(buf, "    nr_shmem %llu", &value)) == 1) {
+                info->values[ZONE_NR_SHMEM] = (value << _pm_pageshift) / 1024;
+                values++;
+                continue;
+            }
+            else if ((sscanf(buf, "    nr_dirtied %llu", &value)) == 1) {
+                info->values[ZONE_NR_DIRTIED] = (value << _pm_pageshift) / 1024;
+                values++;
+                continue;
+            }
+            else if ((sscanf(buf, "    nr_written %llu", &value)) == 1) {
+                info->values[ZONE_NR_WRITTEN] = (value << _pm_pageshift) / 1024;
+                values++;
+                continue;
+            }
+            else if ((sscanf(buf, "    numa_hit %llu", &value)) == 1) {
+                info->values[ZONE_NUMA_HIT] = (value << _pm_pageshift) / 1024;
+                values++;
+                continue;
+            }
+            else if ((sscanf(buf, "    numa_miss %llu", &value)) == 1) {
+                info->values[ZONE_NUMA_MISS] = (value << _pm_pageshift) / 1024;
+                values++;
+                continue;
+            }
+            else if ((sscanf(buf, "    numa_foreign %llu", &value)) == 1) {
+                info->values[ZONE_NUMA_FOREIGN] = (value << _pm_pageshift) / 1024;
+                values++;
+                continue;
+            }
+            else if ((sscanf(buf, "    numa_interleave %llu", &value)) == 1) {
+                info->values[ZONE_NUMA_INTERLEAVE] = (value << _pm_pageshift) / 1024;
+                values++;
+                continue;
+            }
+            else if ((sscanf(buf, "    numa_local %llu", &value)) == 1) {
+                info->values[ZONE_NUMA_LOCAL] = (value << _pm_pageshift) / 1024;
+                values++;
+                continue;
+            }
+            else if ((sscanf(buf, "    numa_other %llu", &value)) == 1) {
+                info->values[ZONE_NUMA_OTHER] = (value << _pm_pageshift) / 1024;
+                values++;
+                continue;
+            }
+            else if ((sscanf(buf, "    workingset_refault %llu", &value)) == 1) {
+                info->values[ZONE_WORKINGSET_REFAULT] = (value << _pm_pageshift) / 1024;
+                values++;
+                continue;
+            }
+            else if ((sscanf(buf, "    workingset_activate %llu", &value)) == 1) {
+                info->values[ZONE_WORKINGSET_ACTIVATE] = (value << _pm_pageshift) / 1024;
+                values++;
+                continue;
+            }
+            else if ((sscanf(buf, "    workingset_nodereclaim %llu", &value)) == 1) {
+                info->values[ZONE_WORKINGSET_NODERECLAIM] = (value << _pm_pageshift) / 1024;
+                values++;
+                continue;
+            }
+            else if ((sscanf(buf, "    nr_anon_transparent_hugepages %llu", &value)) == 1) {
+                info->values[ZONE_NR_ANON_TRANSPARENT_HUGEPAGES] = (value << _pm_pageshift) / 1024;
+                values++;
+                continue;
+            }
+            else if ((sscanf(buf, "    nr_free_cma %llu", &value)) == 1) {
+                info->values[ZONE_NR_FREE_CMA] = (value << _pm_pageshift) / 1024;
+                values++;
+                continue;
+            }
             else if (strncmp(buf, "        protection: (", 20) == 0) {
 		extract_zone_protection(buf+20+1, instname, protection_indom);
 		values++;

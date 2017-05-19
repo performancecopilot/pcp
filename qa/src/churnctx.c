@@ -9,8 +9,6 @@
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
 
-#define BUILD_STANDALONE 1
-
 static int	nmetric;
 static char	**name = NULL;
 static pmID	*pmid = NULL;
@@ -92,11 +90,7 @@ main(int argc, char **argv)
 
 	case 'a':	/* archive name */
 	    if (type != 0) {
-#ifdef BUILD_STANDALONE
 		fprintf(stderr, "%s: at most one of -a, -h and -L allowed\n", pmProgname);
-#else
-		fprintf(stderr, "%s: at most one of -a and -h allowed\n", pmProgname);
-#endif
 		errflag++;
 	    }
 	    type = PM_CONTEXT_ARCHIVE;
@@ -140,18 +134,13 @@ main(int argc, char **argv)
 
 	case 'h':	/* contact PMCD on this hostname */
 	    if (type != 0) {
-#ifdef BUILD_STANDALONE
 		fprintf(stderr, "%s: at most one of -a, -h and -L allowed\n", pmProgname);
-#else
-		fprintf(stderr, "%s: at most one of -a and -h allowed\n", pmProgname);
-#endif
 		errflag++;
 	    }
 	    host = optarg;
 	    type = PM_CONTEXT_HOST;
 	    break;
 
-#ifdef BUILD_STANDALONE
 	case 'L':	/* LOCAL, no PMCD */
 	    if (type != 0) {
 		fprintf(stderr, "%s: at most one of -a, -h, -L and -U allowed\n", pmProgname);
@@ -162,7 +151,6 @@ main(int argc, char **argv)
 	    putenv("PMDA_LOCAL_PROC=");		/* if proc PMDA needed */
 	    putenv("PMDA_LOCAL_SAMPLE=");	/* if sampledso PMDA needed */
 	    break;
-#endif
 
 	case 'l':	/* logfile */
 	    logfile = optarg;
@@ -203,11 +191,7 @@ main(int argc, char **argv)
 
 	case 'U':	/* uninterpolated archive log */
 	    if (type != 0) {
-#ifdef BUILD_STANDALONE
 		fprintf(stderr, "%s: at most one of -a, -h, -L and -U allowed\n", pmProgname);
-#else
-		fprintf(stderr, "%s: at most one of -a, -h and -U allowed\n", pmProgname);
-#endif
 		errflag++;
 	    }
 	    type = PM_CONTEXT_ARCHIVE;
@@ -258,11 +242,9 @@ Options:\n\
   -d             use pmDupContext [default: pmNewContext]\n\
   -f samples     pmFetch samples before churning contexts [default 1]\n\
   -h host        metrics source is PMCD on host\n\
-  -l logfile     redirect diagnostics and trace output\n"
-#ifdef BUILD_STANDALONE
-"  -L             use local context instead of PMCD\n"
-#endif
-"  -n pmnsfile    use an alternative PMNS\n\
+  -l logfile     redirect diagnostics and trace output\n\
+  -L             use local context instead of PMCD\n\
+  -n pmnsfile    use an alternative PMNS\n\
   -O offset      initial offset into the time window\n\
   -s samples     terminate after this many iterations [default 1]\n\
   -S starttime   start of the time window\n\

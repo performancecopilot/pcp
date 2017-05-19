@@ -60,6 +60,7 @@ _filter_auth()
 	-e '/Error: Authentication/s/ - no mechanism available/ - authentication failure/g' \
 	-e '/Error: Authentication/s/ - user not found/ - authentication failure/g' \
 	-e '/Error: Authentication/s/ - not supported/ - authentication failure/g' \
+	-e '/indirectly lost:/d' \
     # end
 }
 

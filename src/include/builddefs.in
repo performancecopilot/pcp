@@ -232,6 +232,7 @@ PCP_SELINUX_DIR = @pcp_selinux_dir@
 NEED_OLD_TBL_HEADER = @need_old_tbl_header@
 RDYNAMIC_FLAG = @rdynamic_flag@
 QT_RELEASE = @qt_release@
+QT_VERSION = @qt_version@
 
 # configuration state affecting the entire build
 ENABLE_SHARED = @enable_shared@

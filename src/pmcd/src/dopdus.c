@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2013 Red Hat.
+ * Copyright (c) 2012-2014,2017 Red Hat.
  * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -133,42 +133,18 @@ DoText(ClientInfo *cp, __pmPDU* pb)
 int
 DoProfile(ClientInfo *cp, __pmPDU *pb)
 {
+    __pmHashCtl	*hcp;
     __pmProfile	*newProf;
     int		ctxnum, sts, i;
 
     sts = __pmDecodeProfile(pb, &ctxnum, &newProf);
     if (sts >= 0) {
-	/* Allocate more profile pointers if required */
-	if (ctxnum >= cp->szProfile) {
-	    __pmProfile	**newProfPtrs;
-	    int		need, oldSize = cp->szProfile;
-
-	    if (ctxnum - cp->szProfile < 4)
-		cp->szProfile += 4;
-	    else
-		cp->szProfile = ctxnum + 1;
-	    need = cp->szProfile * (int)sizeof(__pmProfile *);
-	    if ((newProfPtrs = (__pmProfile **)malloc(need)) == NULL) {
-		cp->szProfile = oldSize;
-		__pmNoMem("DoProfile.newProfPtrs", need, PM_RECOV_ERR);
-		__pmFreeProfile(newProf);
-		return -oserror();
-	    }
-
-	    /* Copy any old pointers and zero the newly allocated ones */
-	    if ((need = oldSize * (int)sizeof(__pmProfile *))) {
-		memcpy(newProfPtrs, cp->profile, need);
-		free(cp->profile);	/* But not the __pmProfile ptrs! */
-	    }
-	    need = (cp->szProfile - oldSize) * (int)sizeof(__pmProfile *);
-	    memset(&newProfPtrs[oldSize], 0, need);
-	    cp->profile = newProfPtrs;
+	hcp = &cp->profile;
+	if ((sts = __pmHashAdd(ctxnum, newProf, hcp)) > 0) {
+	    /* __pmHashAdd returns 1 for success, but we want zero. */
+	    sts = 0;
 	}
-	else				/* cp->profile is big enough */
-	    if (cp->profile[ctxnum] != NULL)
-		__pmFreeProfile(cp->profile[ctxnum]);
-	cp->profile[ctxnum] = newProf;
-
+    
 	/* "Invalidate" any references to the client context's profile in the
 	 * agents to which the old profile was last sent
 	 */
@@ -257,7 +233,7 @@ DoDesc(ClientInfo *cp, __pmPDU *pb)
 }
 
 int
-DoInstance(ClientInfo *cp, __pmPDU* pb)
+DoInstance(ClientInfo *cp, __pmPDU *pb)
 {
     int			sts, s;
     __pmTimeval		when;
@@ -272,15 +248,8 @@ DoInstance(ClientInfo *cp, __pmPDU* pb)
     if (sts < 0)
 	return sts;
     if (when.tv_sec != 0 || when.tv_usec != 0) {
-	/*
-	 * we have no idea how to do anything but current, yet!
-	 *
-	 * TODO EXCEPTION PCP 2.0 ...
-	 * this may be left over from the pmvcr days, and can be tossed?
-	 * ... leaving it here is benign
-	 */
 	if (name != NULL) free(name);
-	return PM_ERR_NYI;
+	return PM_ERR_IPC;
     }
     if ((ap = FindDomainAgent(((__pmInDom_int *)&indom)->domain)) == NULL) {
 	if (name != NULL) free(name);
@@ -1146,10 +1115,8 @@ DoCreds(ClientInfo *cp, __pmPDU *pb)
      * We still need to check local connections and allow those through
      * in all cases.
      */
-
-    if ( CheckCertRequired(cp) )
-        if ( (flags & PDU_FLAG_SECURE) == 0 )
-            return PM_ERR_NEEDCLIENTCERT;
+    if (CheckCertRequired(cp) && (flags & PDU_FLAG_SECURE) == 0)
+	return PM_ERR_NEEDCLIENTCERT;
 
     if (sts >= 0 && flags) {
 	/*

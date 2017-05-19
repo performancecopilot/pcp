@@ -40,9 +40,7 @@ __pmSendTextReq(int fd, int from, int ident, int type)
 
     if (type & PM_TEXT_PMID)
 	pp->ident = __htonpmID((pmID)ident);
-    else if (type & PM_TEXT_INDOM)
-	pp->ident = __htonpmInDom((pmInDom)ident);
-    else
+    else /* (type & PM_TEXT_INDOM) */
 	pp->ident = __htonpmInDom((pmInDom)ident);
 
     pp->type = htonl(type);
@@ -103,7 +101,7 @@ __pmSendText(int fd, int ctx, int ident, const char *buffer)
      * The caller has to do this because the type of ident is not
      * part of the transmitted PDU_TEXT pdu; ident may be either
      * a pmID or pmInDom, and so the caller must use either
-     * __htonpmID or __htonpmInDom (respectfully).
+     * __htonpmID or __htonpmInDom (respectively).
      */
     pp->ident = ident;
 

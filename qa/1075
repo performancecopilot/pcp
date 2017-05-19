@@ -1,0 +1,35 @@
+#!/bin/sh
+# PCP QA Test No. 1075
+# check for reuse of freed memory in pmlogrewrite
+#
+# Copyright (c) 2017 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+which pmlogrewrite >/dev/null 2>&1 || _notrun "pmlogrewrite not installed"
+_check_valgrind
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s;$tmp;TMP;g" \
+	-e "s/^\([+-][+-][+-] TMP\...t*\).*/\1/"
+}
+
+# real QA test starts here
+rm -f $tmp.new.*
+_run_valgrind pmlogrewrite -q archives/pcp-pidstat $tmp.new 2>&1 | _filter
+
+# success, all done
+exit

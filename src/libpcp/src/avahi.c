@@ -661,25 +661,33 @@ discoveryTimeout(void)
     static int		done_default = 0;
     static double	def_timeout = 0.5; /* 0.5 seconds */
 
-    PM_INIT_LOCKS();
-    PM_LOCK(__pmLock_libpcp);
+    PM_LOCK(__pmLock_extcall);
     if (!done_default) {
 	char	*timeout_str;
 	char	*end_ptr;
 	double	new_timeout;
-	if ((timeout_str = getenv("AVAHI_DISCOVERY_TIMEOUT")) != NULL) {
+	done_default = 1;
+	timeout_str = getenv("AVAHI_DISCOVERY_TIMEOUT");	/* THREADSAFE */
+	if (timeout_str != NULL) {
 	    new_timeout = strtod(timeout_str, &end_ptr);
 	    if (*end_ptr != '\0' || def_timeout < 0.0) {
+		char	*fromenv = strdup(timeout_str);
+		PM_UNLOCK(__pmLock_extcall);
 		__pmNotifyErr(LOG_WARNING,
 			      "ignored bad AVAHI_DISCOVERY_TIMEOUT = '%s'\n",
-			      timeout_str);
+			      fromenv);
 	    }
-	    else
+	    else {
 		def_timeout = new_timeout;
+		PM_UNLOCK(__pmLock_extcall);
+	    }
 	}
-	done_default = 1;
+	else
+	    PM_UNLOCK(__pmLock_extcall);
     }
-    PM_UNLOCK(__pmLock_libpcp);
+    else
+	PM_UNLOCK(__pmLock_extcall);
+
     return def_timeout;
 }
 

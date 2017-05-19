@@ -2,24 +2,55 @@
 # really are mostly simple macros or other obscure constructs
 # that have nothing to do with analysis of the locking logic
 #
-PM_MULTIPLE_THREADS
-PM_INIT_LOCKS
-PM_TPD
-PM_FAULT_POINT
+ABS
+CLEAR_SCANNED
+DECODE_SASL_SPECIFIC_ERROR
+DECODE_SECURE_SOCKETS_ERROR
+detector
+__HI
+IS_DERIVED
+IS_DYNAMIC_ROOT
+IS_MARK
+IS_SCANNED
+IS_UNDEFINED
+is_upper
+IS_VALUE
+__LO
+mkdir2
 PM_FAULT_CHECK
-PM_PDU_SIZE
-PM_PDU_SIZE_BYTES
-PMLC_GET_MAND
-PMLC_GET_ON
-PMLC_GET_INLOG
+PM_FAULT_POINT
+PM_INIT_LOCKS
 PMLC_GET_AVAIL
 PMLC_GET_DELTA
-IS_DYNAMIC_ROOT
-DECODE_SECURE_SOCKETS_ERROR
-DECODE_SASL_SPECIFIC_ERROR
-ABS
-IS_DERIVED
+PMLC_GET_INLOG
+PMLC_GET_MAND
+PMLC_GET_ON
+PM_MULTIPLE_THREADS
+PM_PDU_SIZE
+PM_PDU_SIZE_BYTES
+PM_TPD
+pmXTBdeltaToTimeval
+SET_MARK
+SET_SCANNED
+SET_UNDEFINED
+SET_VALUE
+streqskip
+TO_STRING
+XLATE_ERR_1TO2
 
+# wrappers for ntohl() or nothing from (PCP) internal.h
+__ntohpmID
+__ntohpmInDom
+# wrappers for htonl() or nothing from (PCP) internal.h
+__htonpmID
+__htonpmInDom
+# wrapers for __htonll() or nothing from (PCP) internal.h
+__htond
+__ntohll
+# wrapers for __ntohll() or nothing from (PCP) internal.h
+__ntohd
+# wrapers for __htonf() or nothing from (PCP) internal.h
+__ntohf
 # strerror_r(), errno and h_errno wrappers from (PCP) config.h
 osstrerror_r
 netstrerror_r
@@ -27,6 +58,18 @@ setoserror
 oserror
 neterror
 hosterror
+
+# in libpcp but threadsafe by inspection
+__htonll
+__htonf
+__ntohpmCred
+__htonpmCred
+__ntohpmPDUInfo
+__htonpmPDUInfo
+__ntohpmUnits
+__htonpmUnits
+wsastrerror
+strerror_x
 
 # pmdaInterface methods ... not safe per se, but PM_MULTIPLE_THREADS guard
 # ensures all these are called from a single thread
@@ -40,12 +83,14 @@ pmid
 name
 children
 attribute
+
 # PMID access macros
 pmid_cluster
 pmid_domain
 pmid_item
 
 # select(2) macros
+FD_ISSET
 FD_SET
 FD_ZERO
 
@@ -53,25 +98,40 @@ FD_ZERO
 S_ISDIR
 S_ISREG
 
+# wait(2) macros
+WEXITSTATUS
+WIFEXITED
+WIFSIGNALED
+WTERMSIG
+WIFSTOPPED
+WSTOPSIG
+
 # libnspr
 PR_Close
 PR_ErrorToString
-PR_GetError
-PR_Read
-PR_Write
+PR_ExplodeTime
 PR_FileDesc2NativeHandle
+PR_FormatTime
+PR_GetError
+PR_ImportTCPSocket
+PR_Init
+PR_Initialized
+PR_MillisecondsToInterval
+PR_Now
+PR_Read
 PR_SetSocketOption
+PR_Write
 
 # libpthread
+pthread_equal
+pthread_mutexattr_destroy
+pthread_mutexattr_init
+pthread_mutexattr_settype
+pthread_mutex_destroy
 pthread_mutex_init
 pthread_mutex_lock
 pthread_mutex_unlock
-pthread_mutexattr_init
-pthread_mutexattr_settype
-pthread_mutexattr_destroy
-
-# libsasl
-sasl_errstring
+pthread_self
 
 # misc ... mostly gcc internal macros and functions
 __ASSERT_VOID_CAST
@@ -86,12 +146,22 @@ __fpclassifyl
 __nonnull
 __format__
 __asm__
+__attribute__
+getpw
+likely
+unlikely
+fpclassify
 
 # Windows
-SetCommTimeouts
-_get_osfhandle
 closesocket
 CreateMutex
 CreateWaitableTimer
+FreeLibrary
+_get_osfhandle
+GetProcAddress
+GetSystemTimeAsFileTime
+GetTimeZoneInformation
+LoadLibrary
+SetCommTimeouts
 SetLastError
 SleepEx

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 Red Hat.
+ * Copyright (c) 2012-2014,2017 Red Hat.
  * Copyright (c) 1995-2002,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -14,7 +14,7 @@
  *
  * Thread-safe notes
  *
- * Do not need ctxp->c_pmcd->pc_lock lock around __pmSendCreds() call,
+ * Do not need ctxp->c_pmcd->pc_lock mutex around __pmSendCreds() call,
  * as the context has not been created, so no-one else could be using
  * the context's fd.
  */
@@ -103,13 +103,13 @@ check_feature_flags(int ctxflags, int features, int local_conn)
 	 */
 	pduflags |= PDU_FLAG_CREDS_REQD;
 
-    if ( (features & PDU_FLAG_CERT_REQD) && !local_conn ){
+    if ((features & PDU_FLAG_CERT_REQD) && !local_conn) {
 	/*
 	 * This is a mandatory connection feature for remote connections.
 	 * pmcd must be sent a trusted certificate.
 	 */
 	pduflags |= PDU_FLAG_CERT_REQD;
-	if( !(ctxflags & PM_CTXFLAG_SECURE) ){
+	if (!(ctxflags & PM_CTXFLAG_SECURE)) {
 	    /* PMCD requires a client cert, but we are not even setup for secure connections */
 	    return PM_ERR_NEEDCLIENTCERT;
 	}
@@ -198,21 +198,17 @@ attributes_handshake(int fd, int flags, const char *host, __pmHashCtl *attrs)
 static int
 is_local_connection(const char *hostname, __pmHashCtl *attrs)
 {
-   /* 
-    * If attrs has PCP_ATTR_UNIXSOCK or PCP_ATTR_LOCAL
-    * OR
-    * If hostname contains localhost
-    *	We consider this a local connection and don't enforce CERT_REQD
-    */
-
-    if ( __pmHashSearch(PCP_ATTR_UNIXSOCK, attrs) || 
-	 __pmHashSearch(PCP_ATTR_LOCAL, attrs) || 
-	 strstr( hostname, "localhost") ){
-	 return 1;
-    }
-    else{
-	return 0;
-    }
+    /* 
+     * If attrs has PCP_ATTR_UNIXSOCK or PCP_ATTR_LOCAL
+     * OR
+     * If hostname contains localhost
+     *	We consider this a local connection and don't enforce CERT_REQD
+     */
+    if (__pmHashSearch(PCP_ATTR_UNIXSOCK, attrs) || 
+	__pmHashSearch(PCP_ATTR_LOCAL, attrs) || 
+	strstr(hostname, "localhost"))
+	return 1;
+    return 0;
 }
 
 /*
@@ -258,7 +254,7 @@ __pmConnectHandshake(int fd, const char *hostname, int ctxflags, __pmHashCtl *at
 	    int			pduflags;
 	    int			local_conn;
 
-	    local_conn = is_local_connection( hostname, attrs );
+	    local_conn = is_local_connection(hostname, attrs);
 
 	    pduinfo = __ntohpmPDUInfo(*(__pmPDUInfo *)&challenge);
 	    pduflags = sts = check_feature_flags(ctxflags, pduinfo.features, local_conn);
@@ -267,7 +263,7 @@ __pmConnectHandshake(int fd, const char *hostname, int ctxflags, __pmHashCtl *at
 		return sts;
 	    }
 
-	    if ((ok = __pmSetVersionIPC(fd, version)) < 0) {
+	    if ((ok = __pmSetFeaturesIPC(fd, version, pduinfo.features)) < 0) {
 		__pmUnpinPDUBuf(pb);
 		return ok;
 	    }
@@ -328,8 +324,10 @@ load_proxy_hostspec(pmHostSpec *proxy)
     char	errmsg[PM_MAXERRMSGLEN];
     char	*envstr;
 
-    if ((envstr = getenv("PMPROXY_HOST")) != NULL) {
+    PM_LOCK(__pmLock_extcall);
+    if ((envstr = getenv("PMPROXY_HOST")) != NULL) {		/* THREADSAFE */
 	proxy->name = strdup(envstr);
+	PM_UNLOCK(__pmLock_extcall);
 	if (proxy->name == NULL) {
 	    __pmNotifyErr(LOG_WARNING,
 			  "__pmConnectPMCD: cannot save PMPROXY_HOST: %s\n",
@@ -343,6 +341,9 @@ load_proxy_hostspec(pmHostSpec *proxy)
 	    proxy->nports = __pmProxyAddPorts(&proxy->ports, proxy->nports);
 	}
     }
+    else
+	PM_UNLOCK(__pmLock_extcall);
+
 }
 
 void

@@ -2,7 +2,7 @@
 # PCP QA Test No. 968
 # Exercise several corner cases in the Python PMAPI wrappers.
 #
-# Copyright (c) 2015 Red Hat.
+# Copyright (c) 2015,2017 Red Hat.
 #
 
 seq=`basename $0`
@@ -20,6 +20,7 @@ cat > $tmp.opts <<EOF
 from pcp import pmapi
 import sys
 opts = pmapi.pmOptions()
+nops = opts.pmGetOperands()
 nops = opts.pmGetNonOptionsFromList(sys.argv)
 ctx = pmapi.pmContext.fromOptions(opts, sys.argv)
 EOF

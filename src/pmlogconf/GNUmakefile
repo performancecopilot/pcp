@@ -17,6 +17,14 @@ include $(TOPDIR)/src/include/builddefs
 
 SUBDIRS = v1.0 platform disk sgi memory cpu kernel filesystem networking tools
 
+# Only evaluate zeroconf configurations if we package that.
+# Otherwise zeroconf will be installed for all platforms as
+# the default, which is not what we want (it's opt-in).
+#
+ifneq "$(RPMPROG)" ""
+SUBDIRS += zeroconf
+endif
+
 default: makefiles pmlogconf.sh pmlogconf-setup.sh
 
 include $(BUILDRULES)

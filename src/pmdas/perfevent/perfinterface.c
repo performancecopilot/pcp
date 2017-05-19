@@ -707,6 +707,7 @@ static int perf_setup_dynamic_events(perfdata_t *inst,
                 free(inst->events);
                 inst->nevents = 0;
                 inst->events = NULL;
+                if (cpuarr) free(cpuarr);
                 return -E_PERFEVENT_REALLOC;
             }
 
@@ -726,7 +727,7 @@ static int perf_setup_dynamic_events(perfdata_t *inst,
                 ret = 0;
                 continue;
             }
-            curr->info = calloc(ncpus, (sizeof *(curr->info)) * ncpus);
+            curr->info = calloc(ncpus, sizeof *(curr->info));
             curr->ncpus = 0;
 
             eventcpuinfo_t *info = &curr->info[0];
@@ -763,6 +764,10 @@ static int perf_setup_dynamic_events(perfdata_t *inst,
                 ++info;
                 ++(curr->ncpus);
             }
+
+            if (ncpus > 0)
+                 free(cpuarr);
+	    cpuarr = NULL;
 
             if(curr->ncpus > 0) {
                 ++nevents;
@@ -1245,6 +1250,7 @@ perfhandle_t *perf_event_create(const char *config_file)
     }
 
     free_configuration(perfconfig);
+    free(pmu_list);
 
 out:
 

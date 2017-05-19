@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<fop version="1.0">
+	<base>.</base>
+	<source-resolution>72</source-resolution>
+	<target-resolution>72</target-resolution>
+	<default-page-settings height="240mm" width="120mm"/>
+	<renderers>
+		<renderer mime="application/pdf">
+			<filterList>
+				<value>flate</value>
+			</filterList>
+			<fonts>
+				<auto-detect/>
+			</fonts>
+		</renderer>
+	</renderers>
+</fop>
