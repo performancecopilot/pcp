@@ -1,5 +1,5 @@
 # 
-# Copyright (c) 2013,2016 Red Hat.
+# Copyright (c) 2013,2017 Red Hat.
 # Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -17,8 +17,7 @@ TOPDIR = ../..
 include	$(TOPDIR)/src/include/builddefs
 include $(TOPDIR)/src/libpcp/src/GNUlibrarydefs
 
-MKFILE_SUBDIRS = cpu filesys memory percpu pernetif global primary
-
+MKFILE_SUBDIRS = cpu entropy filesys memory percpu pernetif global primary
 SUBDIRS	= $(MKFILE_SUBDIRS)
 
 CMDTARGET = pmieconf$(EXECSUFFIX)
@@ -37,9 +36,7 @@ STATIC_LDLIBS = $(PCPLIB_EXTRAS) $(LIBPCP_LDLIBS)
 endif
 
 LDIRT = local $(CMDTARGET) $(STATICTARGETS) rate-syscalls \
-	pmlogconf.tmp pmlogconf \
-	cpu/GNUmakefile filesys/GNUmakefile memory/GNUmakefile \
-	percpu/GNUmakefile pernetif/GNUmakefile
+	pmlogconf.tmp pmlogconf $(shell echo */GNUmakefile)
 LDIRDIRT = rules .pcp
 
 default: $(CMDTARGET) $(STATICTARGETS) makefiles local pmlogconf
@@ -68,7 +65,6 @@ local: $(STATICTARGETS) $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
 	HOME=`pwd` $(PMIECONF) -F -r rules -f local
 	HOME=`pwd` $(PMIECONF) -r rules -f local modify primary enabled yes
-
 
 pmlogconf: $(SUBDIRS)
 	@rm -f pmlogconf

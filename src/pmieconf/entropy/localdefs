@@ -1,0 +1,7 @@
+ALL_RULES = available
+
+ifeq ($(TARGET_OS), linux)
+LOCAL_RULES = $(ALL_RULES)
+else
+LOCAL_RULES =
+endif
