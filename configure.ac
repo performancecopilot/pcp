@@ -872,7 +872,7 @@ dnl default <import string> is "import module_name"
 dnl
 dnl sets $have_python_<module_name> as true or false
 dnl
-AC_DEFUN(PCP_CHECK_PYTHON_MODULE,
+AC_DEFUN([PCP_CHECK_PYTHON_MODULE],
   [ AC_MSG_CHECKING(for Python module $1)
     if test -n "$2"
     then
@@ -2277,7 +2277,7 @@ rm -rf conftest.* conftest
 
 AC_MSG_CHECKING([strtol or strtoll for int64_t])
 if test "$cross_compiling" = "yes"; then
-    ans=$strtoint64
+    ans="$strtoint64"
     echo "cross-compile -> \"$ans\"" >&5
 else
     cat <<End-of-File >conftest.c
@@ -2307,18 +2307,18 @@ fi
 case "$ans"
 in
     strtol)
-	AC_DEFINE(strtoint64, strtol)
-	AC_DEFINE(strtouint64, strtoul)
+	AC_DEFINE(strtoint64, [strtol], [Define strtoint64 as strtol])
+	AC_DEFINE(strtouint64, [strtoul], [Define strtoint64 as strtoul])
 	AC_MSG_RESULT([strtol])
 	;;
     strtoll)
-	AC_DEFINE(strtoint64, strtoll)
-	AC_DEFINE(strtouint64, strtoull)
+	AC_DEFINE(strtoint64, [strtoll], [Define strtoint64 as strtoll])
+	AC_DEFINE(strtouint64, [strtoull], [Define strtoint64 as strtoull])
 	AC_MSG_RESULT([strtoll])
 	;;
     *)
-	AC_DEFINE(strtoint64, strtoll)
-	AC_DEFINE(strtouint64, strtoull)
+	AC_DEFINE(strtoint64, [strtoll], [Default strtoint64 to strtoll])
+	AC_DEFINE(strtouint64, [strtoull], [Default strtouint64 to strtoull])
 	AC_MSG_RESULT([assuming strtoll])
 	;;
 esac

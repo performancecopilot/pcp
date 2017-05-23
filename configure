@@ -12210,7 +12210,7 @@ rm -rf conftest.* conftest
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking strtol or strtoll for int64_t" >&5
 $as_echo_n "checking strtol or strtoll for int64_t... " >&6; }
 if test "$cross_compiling" = "yes"; then
-    ans=$strtoint64
+    ans="$strtoint64"
     echo "cross-compile -> \"$ans\"" >&5
 else
     cat <<End-of-File >conftest.c
@@ -12240,25 +12240,31 @@ fi
 case "$ans"
 in
     strtol)
-	$as_echo "#define strtoint64 strtol" >>confdefs.h
 
-	$as_echo "#define strtouint64 strtoul" >>confdefs.h
+$as_echo "#define strtoint64 strtol" >>confdefs.h
+
+
+$as_echo "#define strtouint64 strtoul" >>confdefs.h
 
 	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: strtol" >&5
 $as_echo "strtol" >&6; }
 	;;
     strtoll)
-	$as_echo "#define strtoint64 strtoll" >>confdefs.h
 
-	$as_echo "#define strtouint64 strtoull" >>confdefs.h
+$as_echo "#define strtoint64 strtoll" >>confdefs.h
+
+
+$as_echo "#define strtouint64 strtoull" >>confdefs.h
 
 	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: strtoll" >&5
 $as_echo "strtoll" >&6; }
 	;;
     *)
-	$as_echo "#define strtoint64 strtoll" >>confdefs.h
 
-	$as_echo "#define strtouint64 strtoull" >>confdefs.h
+$as_echo "#define strtoint64 strtoll" >>confdefs.h
+
+
+$as_echo "#define strtouint64 strtoull" >>confdefs.h
 
 	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: assuming strtoll" >&5
 $as_echo "assuming strtoll" >&6; }
