@@ -74,23 +74,6 @@ sh_quote(const string& input)
 }
 
 
-// A little class that impersonates an ostream to the extent that it can
-// take << streaming operations.  It batches up the bits into an internal
-// stringstream until it is destroyed; then flushes to the original ostream.
-class obatched
-{
-private:
-  ostream& o;
-  stringstream stro;
-public:
-  obatched(ostream& oo): o(oo) {}
-  ~obatched() { o << stro.str(); o.flush(); }
-  operator ostream& () { return stro; }
-  template <typename T> ostream& operator << (const T& t) { stro << t; return stro; }
-};
-
-
-
 // Print a string to cout/cerr progress reports, similar to the
 // stuff produced by __pmNotifyErr
 ostream&
@@ -151,6 +134,25 @@ private:
   lock_t* m;
 };
 
+
+
+// A little class that impersonates an ostream to the extent that it can
+// take << streaming operations.  It batches up the bits into an internal
+// stringstream until it is destroyed; then flushes to the original ostream.
+class lock_t;
+class obatched
+{
+private:
+  ostream& o;
+  stringstream stro;
+  static lock_t lock;
+public:
+  obatched(ostream& oo): o(oo) { }
+  ~obatched() { locker do_not_cross_the_streams(& obatched::lock); o << stro.str(); o.flush(); }
+  operator ostream& () { return stro; }
+  template <typename T> ostream& operator << (const T& t) { stro << t; return stro; }
+};
+lock_t obatched::lock; // just the one, since cout/cerr iostreams are not thread-safe
 
 
 extern "C" void *
