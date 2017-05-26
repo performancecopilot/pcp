@@ -469,7 +469,7 @@ static pmLongOptions longopts[] = {
     { "check", 0, 'C', 0, "parse configuration and exit" },
     PMOPT_DEBUG,
     PMOPT_HOST,
-    { "labelhost", 1, 'H', "LABELHOST", "redirect diagnostics and trace output" },
+    { "labelhost", 1, 'H', "LABELHOST", "override the hostname written into the label" },
     { "log", 1, 'l', "FILE", "redirect diagnostics and trace output" },
     { "linger", 0, 'L', 0, "run even if not primary logger instance and nothing to log" },
     { "note", 1, 'm', "MSG", "descriptive note to be added to the port map file" },
