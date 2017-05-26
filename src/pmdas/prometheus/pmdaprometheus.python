@@ -77,7 +77,7 @@ class ScanPrometheus(object):
 			return { key: dict_[key] for key in dict_ if dict_[key] is not None}
 
 	def save_metadata(self):
-		# Saves the metadata of the prometheus endpoint in PCP_PMDAS_DIR
+		# Saves the metadata of the Prometheus endpoint in PCP_PMDAS_DIR
 		config = { "name": self.name, "endpoint": self.endpoint, "metrics": [] }
 		for k in self.metrics_by_name:
 			config["metrics"].append(self.metrics_by_name[k].export())
@@ -95,12 +95,12 @@ class ScanPrometheus(object):
 			f.close()
 
 	def fetch_raw_metrics(self):
-		# Fetches prometheus metrics from the endpoint
+		# Fetches Prometheus metrics from the endpoint
 		try:
 			req = requests.get(self.endpoint)
 			self.raw_metrics = req.text
 		except ValueError as e:
-			raise ValueError("Unable to connect to the prometheus "
+			raise ValueError("Unable to connect to the Prometheus "
 								"endpoint = %s\n%s" % (self.endpoint, str(e)))
 
 	def get_metric_metadata(self, lines):
@@ -114,8 +114,8 @@ class ScanPrometheus(object):
 		return (description, name, type_)
 
 	def get_metric_instance(self, line):
-		# Returns the instances of the prometheus metric
-		# labels of prometheus metric is translated into the labels
+		# Returns the instances of the Prometheus metric
+		# labels of Prometheus metric is translated into the labels
 		tokens = line.split(' ')
 		p_name = tokens[0]
 		name = p_name
@@ -132,7 +132,7 @@ class ScanPrometheus(object):
 		metric.name = name
 		metric.description = description
 		metric.type = DOUBLE
-		if(type_ == "counter"):
+		if type_ == "counter":
 			metric.semantics = COUNTER
 		else:
 			metric.semantics = INSTANT
@@ -153,14 +153,14 @@ class ScanPrometheus(object):
 	def parse_raw(self):
 		''' Iterates over all the metrics in the source'''
 		lines = self.raw_metrics.splitlines()
-		lineIter=0
+		lineIter = 0
 		while lineIter<len(lines):
-			if(lines[lineIter][0]!="#" or lines[lineIter+1][0]!='#'):
+			if lines[lineIter][0] != "#" or lines[lineIter+1][0] != '#':
 				raise ValueError("Invalid format of Prometheus metrics metadata"
 					"\n%s" %(lines[lineIter]))
 			metricLines = [lines[lineIter], lines[lineIter+1]]
 			metricIter = lineIter + 2
-			while(metricIter < len(lines) and lines[metricIter][0]!='#'):
+			while (metricIter < len(lines) and lines[metricIter][0] != '#'):
 				metricLines.append(lines[metricIter])
 				metricIter += 1
 			lineIter = metricIter
@@ -207,7 +207,7 @@ class Metric(object):
 		self.__indom_cache = indom
 		for inst in self.instances:
 			try:
-				id= self.__indom_cache.lookup_name(inst["name"])
+				id = self.__indom_cache.lookup_name(inst["name"])
 			except KeyError:
 				try:
 					id = self.__indom_cache.next_value()
@@ -235,7 +235,7 @@ class Metric(object):
 			raise RuntimeError("Invalid metric name '%s'" % name)
 
 	def parse(self, json_obj):
-		''' Parses the metric metadata json '''
+		''' Parses the metric metadata JSON '''
 		try:
 			self.name = json_obj["name"]
 			self.description = json_obj["description"]
@@ -281,7 +281,7 @@ class Metric(object):
 	def fetch(self, inst, values):
 		''' Fetch value of this metric '''
 		if self.__indom_cache:
-			if inst==c_api.PM_INDOM_NULL:
+			if inst == c_api.PM_INDOM_NULL:
 				self.log("Empty instance on fetch for metric %s" \
 					% self.name)
 				return [c_api.PM_ERR_INDOM, 0]
@@ -294,7 +294,7 @@ class Metric(object):
 					% self.name)
 				return [c_api.PM_ERR_NODATA, 0]
 		else:
-			if inst!=c_api.PM_INDOM_NULL:
+			if inst != c_api.PM_INDOM_NULL:
 				self.log("Invalid instance given for single metric type on "
 					"fetch: %s" % self.name)
 				return [c_api.PM_ERR_INDOM, 0]
@@ -479,7 +479,7 @@ class PrometheusSource(object):
 		return
 
 	def load_metrics_metadata(self):
-		''' Load the prometheus source metadata'''
+		''' Load the Prometheus source metadata'''
 		metadata = None
 		try:
 			fobj = open(self.path)
@@ -604,7 +604,7 @@ class PrometheusSource(object):
 		lines = raw_data.splitlines()
 		for line in lines:
 			tokens = line.split(' ')
-			if tokens[0]=='#':
+			if tokens[0] == '#':
 				continue
 			self.metrics_value[tokens[0]] = float(tokens[1])
 
@@ -679,7 +679,7 @@ class PrometheusPMDA(PMDA):
 						metric_info.description)
 
 	def load_prometheus_sources(self):
-		''' Initializes the PrometheusSource for all the prometheus sources '''
+		''' Initializes the PrometheusSource for all the Prometheus sources '''
 		new_source_seen = False
 		for dir in self.dirs:
 			for root, dirs, files in os.walk(dir):
@@ -728,8 +728,8 @@ class PrometheusPMDA(PMDA):
 		''' Main fetch callback which returns the value of the metric '''
 		# cluster 0 is reserved for the static metrics
 		self.log("requesting " + str(item) + " cluster" + str(cluster))
-		if cluster==0:
-			if item!=0 or inst != c_api.PM_IN_NULL:
+		if cluster == 0:
+			if item != 0 or inst != c_api.PM_IN_NULL:
 				return [c_api.PM_ERR_PMID, 0]
 			else:
 				return [self.numfetch, 1]
@@ -739,17 +739,17 @@ class PrometheusPMDA(PMDA):
 
 if __name__ == '__main__':
 	'''
-		Prometheus source configuration generator parse the metrics
-		to produce json configration in PCP_PMDAS_DIR inside the config
-		folder
+		Prometheus source configuration generator - parse the metrics
+		to produce JSON configurations as used in the $PCP_PMDAS_DIR/
+                metadata directory
 	'''
 	parser = argparse.ArgumentParser(description='Prometheus PMDA heuristics metrics metadata generator.')
 	parser.add_argument('-g', '--generate', help="Generate heuristics metadata", action="store_true")
 	parser.add_argument('-u','--url', help='Prometheus endpoint whose metadata has to be generated')
-	parser.add_argument('-n','--name', help="Name to be used as the prometheus cluster name")
+	parser.add_argument('-n','--name', help="Name to be used as the Prometheus cluster name")
 	args = parser.parse_args()
 
-	# If generate then scan the metrics and produce the metadata json
+	# If generate then scan the metrics and produce the metadata JSON
 	if args.generate:
 		if not args.url or not args.name:
 			parser.error("Name and URL of the endpoint required")

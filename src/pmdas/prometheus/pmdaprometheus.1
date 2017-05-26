@@ -21,7 +21,8 @@
 metrics from Prometheus endpoints which expose text based Prometheus metrics.
 .PP
 Further details on the Prometheus exposition format can
-be found at https://prometheus.io/docs/instrumenting/exposition_formats
+be found at
+.I https://prometheus.io/docs/instrumenting/exposition_formats
 .SH METADATA SOURCES
 .B pmdaprometheus
 scans the
@@ -48,7 +49,7 @@ The associated metadata file would look like the following:
   "metrics": [
     {
       "semantics": "instantaneous",
-      "type": "double",
+      "type": "uint64",
       "units_str": "",
       "prometheus_name": "go_goroutines",
       "name": "go_goroutines",
@@ -79,8 +80,9 @@ complete metric name as used in Prometheus
 \fB description\fR=\fI\,STRING\/\fR
 text description of the metric
 .SH METADATA GENERATOR
+The
 .PP
-PMDA Prometheus metadata generator helps in generating the heuristic metadata
+Prometheus PMDA metadata generator helps in generating the heuristic metadata
 for the Prometheus metrics endpoint.
 .PP
 .B $PCP_PMDAS_DIR/prometheus/pmdaprometheus.python
@@ -93,12 +95,12 @@ Following are the mandatory options:
 generate the heuristic metadata
 .TP
 \fB\-u\fR, \fB\-\-url\fR=\fI\,STRING\/\fR
-url of the prometheus endpoint
+URL of the Prometheus endpoint
 .TP
 \fB\-n\fR, \fB\-\-name\fR=\fI\,STRING\/\fR
-name of the prometheus endpoint
+name of the Prometheus endpoint
 .SH INSTALLATION
-Install the prometheus PMDA by using the Install script as root:
+Install the Prometheus PMDA by using the Install script as root:
 .PP
       # cd $PCP_PMDAS_DIR/prometheus
 .br
@@ -130,6 +132,7 @@ The \fB$PCP_CONF\fR variable may be used to specify an alternative
 configuration file, as described in \fIpcp.conf\fR(5).
 .SH SEE ALSO
 .BR pmcd (1),
-.BR pminfo (1)
+.BR pminfo (1),
+.BR pmprobe (1)
 and
-.BR pmprobe (1).
+.IR https://prometheus.io/docs/instrumenting/exposition_formats .
