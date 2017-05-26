@@ -47,7 +47,7 @@ install_pcp install:	default
 	$(INSTALL) -m 755 -d $(DEMODIR)
 	$(INSTALL) -m 644 Makefile.demos $(DEMODIR)/Makefile
 	$(INSTALL) -m 644 README.demos $(DEMODIR)/README
-	$(INSTALL) -m 644 $(CFILES) $(LCFILES) $(DEMODIR)
+	$(INSTALL) -m 644 acme_json.c $(DEMODIR)/acme_json.c
 	@$(INSTALL_MAN)
 else
 build-me:
