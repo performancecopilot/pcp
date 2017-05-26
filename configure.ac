@@ -872,7 +872,7 @@ dnl default <import string> is "import module_name"
 dnl
 dnl sets $have_python_<module_name> as true or false
 dnl
-AC_DEFUN(PCP_CHECK_PYTHON_MODULE,
+AC_DEFUN([PCP_CHECK_PYTHON_MODULE],
   [ AC_MSG_CHECKING(for Python module $1)
     if test -n "$2"
     then
@@ -897,6 +897,8 @@ PCP_CHECK_PYTHON_MODULE(setuptools)
 AC_SUBST(have_python_setuptools)
 PCP_CHECK_PYTHON_MODULE(requests)
 AC_SUBST(have_python_requests)
+PCP_CHECK_PYTHON_MODULE(libvirt)
+AC_SUBST(have_python_libvirt)
 PCP_CHECK_PYTHON_MODULE(six)
 AC_SUBST(have_python_six)
 
@@ -909,9 +911,6 @@ AS_IF([test "x$do_pmdajson" = "xcheck"], [
 ])
 AC_SUBST(PMDA_JSON, $pmda_json)
 if $pmda_json; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
-
-PCP_CHECK_PYTHON_MODULE(libvirt)
-AC_SUBST(have_python_libvirt)
 
 dnl check if perl available for the build and runtime
 AC_CHECK_PROGS(PERL, perl)
@@ -1084,12 +1083,24 @@ fi
 AC_SUBST(PMDA_LIO, $pmda_lio)
 if $pmda_lio; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
 
+AC_MSG_CHECKING([if the Prometheus PMDA should be included])
+pmda_prometheus=false
+if test "$have_python" = true
+then
+    if test "$have_python_requests" = true
+    then
+	pmda_prometheus=true
+    fi
+fi
+AC_SUBST(PMDA_PROMETHEUS, $pmda_prometheus)
+if $pmda_prometheus; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
+
 AC_MSG_CHECKING([if the libvirt PMDA should be included])
 pmda_libvirt=false
 if test "$have_python" = true
 then
     dnl rpm build for libvirt PMDA needs Python libvirt and lxml modules
-    if $pcp_python_prog -c "import libvirt" >/dev/null 2>&1
+    if test "$have_python_libvirt" = true
     then
 	if $pcp_python_prog -c "import lxml" >/dev/null 2>&1
 	then
@@ -2277,7 +2288,7 @@ rm -rf conftest.* conftest
 
 AC_MSG_CHECKING([strtol or strtoll for int64_t])
 if test "$cross_compiling" = "yes"; then
-    ans=$strtoint64
+    ans="$strtoint64"
     echo "cross-compile -> \"$ans\"" >&5
 else
     cat <<End-of-File >conftest.c
@@ -2307,18 +2318,18 @@ fi
 case "$ans"
 in
     strtol)
-	AC_DEFINE(strtoint64, strtol)
-	AC_DEFINE(strtouint64, strtoul)
+	AC_DEFINE(strtoint64, [strtol], [Define strtoint64 as strtol])
+	AC_DEFINE(strtouint64, [strtoul], [Define strtoint64 as strtoul])
 	AC_MSG_RESULT([strtol])
 	;;
     strtoll)
-	AC_DEFINE(strtoint64, strtoll)
-	AC_DEFINE(strtouint64, strtoull)
+	AC_DEFINE(strtoint64, [strtoll], [Define strtoint64 as strtoll])
+	AC_DEFINE(strtouint64, [strtoull], [Define strtoint64 as strtoull])
 	AC_MSG_RESULT([strtoll])
 	;;
     *)
-	AC_DEFINE(strtoint64, strtoll)
-	AC_DEFINE(strtouint64, strtoull)
+	AC_DEFINE(strtoint64, [strtoll], [Default strtoint64 to strtoll])
+	AC_DEFINE(strtouint64, [strtoull], [Default strtouint64 to strtoull])
 	AC_MSG_RESULT([assuming strtoll])
 	;;
 esac

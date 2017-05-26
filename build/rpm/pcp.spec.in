@@ -1450,6 +1450,30 @@ target.
 #end pcp-pmda-lio
 %endif
 
+%if "@pmda_prometheus@" == "true"
+#
+# pcp-pmda-prometheus
+#
+%package pmda-prometheus
+License: GPLv2+
+Group: Applications/System
+Summary: Performance Co-Pilot (PCP) metrics from Prometheus endpoints
+URL: http://www.pcp.io
+Requires: pcp-libs = @package_version@
+%if "@enable_python3@" == "true"
+Requires: python3-pcp = @package_version@
+Requires: python3-requests
+%else
+Requires: python-pcp = @package_version@
+Requires: python-requests
+%endif
+
+%description pmda-prometheus
+This package contains the PCP Performance Metrics Domain Agent (PMDA) for
+extracting statistics from programs instrumented as Prometheus endpoints.
+#end pcp-pmda-prometheus
+%endif
+
 %if "@pmda_json@" == "true"
 #
 # pcp-pmda-json
@@ -1766,6 +1790,9 @@ Requires: pcp-pmda-libvirt
 %if "@pmda_lio@" == "true"
 Requires: pcp-pmda-lio
 %endif
+%if "@pmda_prometheus@" == "true"
+Requires: pcp-pmda-prometheus
+%endif
 %if "@pmda_rpm@" == "true"
 Requires: pcp-pmda-rpm
 %endif
@@ -2058,6 +2085,9 @@ awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/libvirt' > pmda_libvirt_files
 %if "@pmda_lio@" == "true"
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/lio' > pmda_lio_files
 %endif
+%if "@pmda_prometheus@" == "true"
+awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/prometheus' > pmda_prometheus_files
+%endif
 %if "@have_python@" == "true"
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/gluster' > pmda_gluster_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/zswap' > pmda_zswap_files
@@ -2117,6 +2147,9 @@ touch pmda_libvirt_files
 %endif
 %if "@pmda_lio@" == "true"
 touch pmda_lio_files
+%endif
+%if "@pmda_prometheus@" == "true"
+touch pmda_prometheus_files
 %endif
 %if "@pmda_snmp@" == "true"
 touch pmda_snmp_files
@@ -2236,6 +2269,9 @@ BEGIN {
 %if "@pmda_lio@" == "true"
     while( getline < "pmda_lio_files") pmda_lio[$0]=1;
 %endif
+%if "@pmda_prometheus@" == "true"
+    while( getline < "pmda_prometheus_files") pmda_prometheus[$0]=1;
+%endif
     while( getline < "pmda_apache_files") pmda_apache[$0]=1;
     while( getline < "pmda_bash_files") pmda_bash[$0]=1;
     while( getline < "pmda_cifs_files") pmda_cifs[$0]=1;
@@ -2353,6 +2389,9 @@ BEGIN {
 %endif
 %if "@pmda_lio@" == "true"
     else if (pmda_lio[$NF]) f="pmda_lio_files.rpm";
+%endif
+%if "@pmda_prometheus@" == "true"
+    else if (pmda_prometheus[$NF]) f="pmda_prometheus_files.rpm";
 %endif
     else if (pmda_apache[$NF]) f="pmda_apache_files.rpm";
     else if (pmda_bash[$NF]) f="pmda_bash_files.rpm";
@@ -2625,6 +2664,11 @@ pmieconf -c enable dmthin
 %preun pmda-lio
 %{pmda_remove "$1" "lio"}
 %endif #preun pmda-lio
+
+%if "@pmda_prometheus@" == "true"
+%preun pmda-prometheus
+%{pmda_remove "$1" "prometheus"}
+%endif #preun pmda-prometheus
 
 %if "@pmda_nginx@" == "true"
 %preun pmda-nginx
@@ -3093,6 +3137,10 @@ cd
 
 %if "@pmda_lio@" == "true"
 %files pmda-lio -f pmda_lio_files.rpm
+%endif
+
+%if "@pmda_prometheus@" == "true"
+%files pmda-prometheus -f pmda_prometheus_files.rpm
 %endif
 
 %files pmda-apache -f pmda_apache_files.rpm

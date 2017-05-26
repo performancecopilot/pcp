@@ -215,7 +215,7 @@ pmda.weblog
 pmda.xfs
 pmda.zswap
 
-# tools which use PCP_COUNTER_WRAP 
+# tools which use PCP_COUNTER_WRAP
 wrap
 
 # pmstore command and pmStore() libpcp routine
@@ -1154,7 +1154,7 @@ oldversion
 895 pmlogger local
 896 pmlogger local
 897 pmlc pmlogger local
-898 pmlogmv local 
+898 pmlogmv local
 899 libpcp getopt local
 900 libpcp sanity local timezone
 901 libpcp event local
@@ -1204,7 +1204,7 @@ oldversion
 945 pmlogrewrite pmda.xfs local
 946 pmfind avahi local
 947 pmlogger local
-948 pmlogger context_local local 
+948 pmlogger context_local local
 949 python local timezone
 950 pmproxy avahi local
 951 pmie local pmval
@@ -1353,4 +1353,5 @@ oldversion
 1113 pcp python local
 1121 pmda.linux local
 1174 threads valgrind local
+1191 pmda.prometheus local
 4751 libpcp threads valgrind local
