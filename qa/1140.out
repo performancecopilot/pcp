@@ -1,14 +1,4 @@
 QA output created by 1140
-PCP Archive Log Rewrite Specifications Summary
-
-Metric: proc.psinfo.cmd (3.8.1)
-Semantics:	instant -> discrete
-
-Metric: kernel.uname.nodename (60.12.4)
-Semantics:	instant -> discrete
-
-Metric: kernel.uname.sysname (60.12.2)
-Semantics:	instant -> discrete
 
 === testing pidstat replay of rewritten archive
 Linux  4.4.0-31-generic  (ram-Lenovo)  08/05/16  x86_64    (4 CPU)

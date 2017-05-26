@@ -32,7 +32,7 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
 mkdir -p $tmp/pidstat
-$PCP_BINADM_DIR/pmlogrewrite -v -c $PCP_VAR_DIR/config/pmlogrewrite archives/pcp-pidstat $tmp/pidstat/pcp-pidstat || exit 1
+$PCP_BINADM_DIR/pmlogrewrite -c $PCP_VAR_DIR/config/pmlogrewrite archives/pcp-pidstat $tmp/pidstat/pcp-pidstat || exit 1
 
 echo; echo === testing pidstat replay of rewritten archive
 pcp -s 3 pidstat -a $tmp/pidstat/pcp-pidstat -G pmda || exit 1
