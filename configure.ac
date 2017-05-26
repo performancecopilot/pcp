@@ -897,6 +897,8 @@ PCP_CHECK_PYTHON_MODULE(setuptools)
 AC_SUBST(have_python_setuptools)
 PCP_CHECK_PYTHON_MODULE(requests)
 AC_SUBST(have_python_requests)
+PCP_CHECK_PYTHON_MODULE(libvirt)
+AC_SUBST(have_python_libvirt)
 PCP_CHECK_PYTHON_MODULE(six)
 AC_SUBST(have_python_six)
 
@@ -909,9 +911,6 @@ AS_IF([test "x$do_pmdajson" = "xcheck"], [
 ])
 AC_SUBST(PMDA_JSON, $pmda_json)
 if $pmda_json; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
-
-PCP_CHECK_PYTHON_MODULE(libvirt)
-AC_SUBST(have_python_libvirt)
 
 dnl check if perl available for the build and runtime
 AC_CHECK_PROGS(PERL, perl)
@@ -1084,12 +1083,24 @@ fi
 AC_SUBST(PMDA_LIO, $pmda_lio)
 if $pmda_lio; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
 
+AC_MSG_CHECKING([if the Prometheus PMDA should be included])
+pmda_prometheus=false
+if test "$have_python" = true
+then
+    if test "$have_python_requests" = true
+    then
+	pmda_prometheus=true
+    fi
+fi
+AC_SUBST(PMDA_PROMETHEUS, $pmda_prometheus)
+if $pmda_prometheus; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
+
 AC_MSG_CHECKING([if the libvirt PMDA should be included])
 pmda_libvirt=false
 if test "$have_python" = true
 then
     dnl rpm build for libvirt PMDA needs Python libvirt and lxml modules
-    if $pcp_python_prog -c "import libvirt" >/dev/null 2>&1
+    if test "$have_python_libvirt" = true
     then
 	if $pcp_python_prog -c "import lxml" >/dev/null 2>&1
 	then

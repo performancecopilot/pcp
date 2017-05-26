@@ -30,7 +30,7 @@ default_pcp default:	build-me
 
 include $(BUILDRULES)
 
-ifeq "$(HAVE_PYTHON)" "true"
+ifeq "$(PMDA_LIO)" "true"
 build-me:	check_domain
 install_pcp install:	default 
 	$(INSTALL) -m 755 -d $(PMDADIR)
