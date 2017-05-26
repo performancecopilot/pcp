@@ -225,17 +225,17 @@ static pmdaMetric metrictab[] = {
 
 /* proc.psinfo.vsize */
   { NULL,
-    { PMDA_PMID(CLUSTER_PID_STAT,22), PM_TYPE_U32, PROC_INDOM, PM_SEM_INSTANT, 
+    { PMDA_PMID(CLUSTER_PID_STAT,22), PM_TYPE_U64, PROC_INDOM, PM_SEM_INSTANT, 
     PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) } },
 
 /* proc.psinfo.rss */
   { NULL,
-    { PMDA_PMID(CLUSTER_PID_STAT,23), PM_TYPE_U32, PROC_INDOM, PM_SEM_INSTANT, 
+    { PMDA_PMID(CLUSTER_PID_STAT,23), PM_TYPE_U64, PROC_INDOM, PM_SEM_INSTANT, 
     PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) } },
 
 /* proc.psinfo.rss_rlim */
   { NULL,
-    { PMDA_PMID(CLUSTER_PID_STAT,24), PM_TYPE_U32, PROC_INDOM, PM_SEM_INSTANT, 
+    { PMDA_PMID(CLUSTER_PID_STAT,24), PM_TYPE_U64, PROC_INDOM, PM_SEM_INSTANT, 
     PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) } },
 
 /* proc.psinfo.start_code */
@@ -1963,16 +1963,16 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		f = _pm_getfield(entry->stat_buf, idp->item);
 		if (f == NULL)
 		    return 0;
-		atom->ul = (__uint32_t)strtoul(f, &tail, 0);
-		atom->ul /= 1024;
+		atom->ull = strtoull(f, &tail, 0);
+		atom->ull /= 1024;
 		break;
 
 	    case PROC_PID_STAT_RSS: /* pages converted to kbytes */ /* proc.psinfo.rss */
 		f = _pm_getfield(entry->stat_buf, idp->item);
 		if (f == NULL)
 		    return 0;
-		atom->ul = (__uint32_t)strtoul(f, &tail, 0);
-		atom->ul *= _pm_system_pagesize / 1024;
+		atom->ull = strtoull(f, &tail, 0);
+		atom->ull *= _pm_system_pagesize / 1024;
 		break;
 
 	    case PROC_PID_STAT_UTIME: /* proc.psinfo.utime */
