@@ -1434,9 +1434,9 @@ pmmgr_pmlogger_daemon::daemon_command_line()
   if (now != NULL)
     {
       char timestr2[100];
-      int rc = strftime(timestr2, sizeof(timestr2), pmlogger_timefmt, now);
+      int rc = strftime(timestr2, sizeof(timestr2), pmlogger_timefmt.c_str(), now);
       if (rc > 0)
-        timestr += "-"
+        timestr += "-";
 	timestr += timestr2; // no sh_quote required
     }
 
