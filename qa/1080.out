@@ -15,3 +15,11 @@ LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
 ERROR SUMMARY: 0 errors from 0 contexts ...
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: PCP-ATOP -r .../archives/pcp-zeroconf 1 15
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...

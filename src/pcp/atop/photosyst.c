@@ -200,9 +200,10 @@ update_mdd(struct perdsk *dsk, int id, char *name, pmResult *rp, pmDesc *dp)
 static void
 update_mnt(struct pernfsmount *mp, int id, char *name, pmResult *rp, pmDesc *dp)
 {
-	(void)name;	/* unused - local client mount - use server export */
+	/* use local client mount unless server export is available */
+	strncpy(mp->mountdev, name, sizeof(mp->mountdev));
 	extract_string_inst(rp, dp, PERNFS_EXPORT, &mp->mountdev[0],
-				sizeof(mp->mountdev), id);
+				sizeof(mp->mountdev)-1, id);
 	mp->mountdev[sizeof(mp->mountdev)-1] = '\0';
 
 	mp->age = extract_count_t_inst(rp, dp, PERNFS_AGE, id);
