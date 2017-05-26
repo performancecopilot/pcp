@@ -118,7 +118,7 @@ static pmdaMetric metrictab[] = {
 
 /* proc.psinfo.cmd */
   { NULL,
-    { PMDA_PMID(CLUSTER_PID_STAT,1), PM_TYPE_STRING, PROC_INDOM, PM_SEM_INSTANT, 
+    { PMDA_PMID(CLUSTER_PID_STAT,1), PM_TYPE_STRING, PROC_INDOM, PM_SEM_DISCRETE, 
     PMDA_PMUNITS(0,0,0,0,0,0) } },
 
 /* proc.psinfo.sname */
@@ -310,7 +310,7 @@ static pmdaMetric metrictab[] = {
 
 /* proc.psinfo.ttyname */
   { NULL,
-    { PMDA_PMID(CLUSTER_PID_STAT,39), PM_TYPE_STRING, PROC_INDOM, PM_SEM_INSTANT, 
+    { PMDA_PMID(CLUSTER_PID_STAT,39), PM_TYPE_STRING, PROC_INDOM, PM_SEM_DISCRETE, 
     PMDA_PMUNITS(0,0,0,0,0,0) } },
 
 /* proc.psinfo.wchan_s -- added by Mike Mason <mmlnx@us.ibm.com> */
@@ -320,7 +320,7 @@ static pmdaMetric metrictab[] = {
 
 /* proc.psinfo.psargs -- modified by Mike Mason <mmlnx@us.ibm.com> */
   { NULL,
-    { PMDA_PMID(CLUSTER_PID_STAT,41), PM_TYPE_STRING, PROC_INDOM, PM_SEM_INSTANT, 
+    { PMDA_PMID(CLUSTER_PID_STAT,41), PM_TYPE_STRING, PROC_INDOM, PM_SEM_DISCRETE, 
     PMDA_PMUNITS(0,0,0,0,0,0)}},
 
 /* proc.psinfo.rt_priority */

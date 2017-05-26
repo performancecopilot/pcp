@@ -36,7 +36,8 @@ YFILES		= gram.y
 
 SCRIPTS		= Install Remove
 LOGREWRITERS	= linux_proc_migrate.conf cgroup_units.conf \
-		  proc_kernel_ulong.conf proc_jiffies.conf proc_scheduler.conf
+		  proc_kernel_ulong.conf proc_jiffies.conf proc_scheduler.conf \
+		  proc_discrete_strings.conf
 VERSION_SCRIPT	= exports
 HELPTARGETS	= help.dir help.pag
 LDIRT		= $(HELPTARGETS) domain.h $(VERSION_SCRIPT) $(YFILES:%.y=%.tab.?) \
