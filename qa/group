@@ -315,6 +315,9 @@ zbxpcp
 # pcp-atop and related commands
 atop
 
+# pcp-pidstat
+pidstat
+
 # pcp-iostat
 pmiostat
 
@@ -1334,7 +1337,7 @@ oldversion
 1075 pmlogrewrite valgrind local
 1076 pmlogcheck local
 1077 pmcd libpcp archive local
-1078 pcp python local
+1078 pcp python pidstat local
 1079 pcp atop local
 1080 valgrind pcp atop local
 1081 python pcp local
@@ -1352,6 +1355,7 @@ oldversion
 1112 pmda.linux local
 1113 pcp python local
 1121 pmda.linux local
+1140 pidstat local
 1174 threads valgrind local
 1191 pmda.prometheus local
 4751 libpcp threads valgrind local
