@@ -1422,7 +1422,6 @@ __pmSetSockOpt(int fd, int level, int option_name, const void *option_value,
 		 */
 #ifdef IS_MINGW
 	    case SO_EXCLUSIVEADDRUSE: /* Only exists on MINGW */
-#endif
 	    {
 		/*
 		 * There is no direct mapping of this option in NSPR.
@@ -1432,6 +1431,7 @@ __pmSetSockOpt(int fd, int level, int option_name, const void *option_value,
 	        fd = PR_FileDesc2NativeHandle(socket.nsprFd);
 		return setsockopt(fd, level, option_name, option_value, option_len);
 	    }
+#endif /* IS_MINGW */
 	    case SO_KEEPALIVE:
 	        option_data.option = PR_SockOpt_Keepalive;
 		option_data.value.keep_alive = sockOptValue(option_value, option_len);
