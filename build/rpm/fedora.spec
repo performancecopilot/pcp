@@ -2074,7 +2074,7 @@ cat base_bin.list base_exec.list |\
 %endif
 cat base_pmdas.list base_bin.list base_exec.list |\
   grep -E -v 'pmdaib|pmmgr|pmweb|pmsnap|2pcp|pmdas/systemd' |\
-  grep -E -v "$PCP_GUI|pixmaps|pcp-doc|tutorials|selinux" |\
+  grep -E -v "$PCP_GUI|pixmaps|pcp-doc|tutorials|selinux|zeroconf" |\
   grep -E -v %{_confdir} | grep -E -v %{_logsdir} > base.list
 
 # all devel pcp package files except those split out into sub packages
