@@ -16,7 +16,26 @@ echo "QA output created by $seq"
 [ -f $PCP_PMDAS_DIR/prometheus/pmdaprometheus.python ] || _notrun "prometheus pmda not installed"
 
 status=1    # failure is the default!
-$sudo rm -rf $tmp.* $seq.full
+$sudo rm -rf $tmp $tmp.* $seq.full
+
+save_config()
+{
+    if [ -d $PCP_PMDAS_DIR/prometheus/metadata ]
+        then
+        mkdir $tmp.metadata
+        chmod ugo+rwx $tmp.metadata
+        $sudo mv $PCP_PMDAS_DIR/prometheus/metadata $tmp.metadata
+    fi
+}
+
+restore_config()
+{
+    if [ -d $tmp.metadata ]
+        then
+        $sudo mv $tmp.metadata/metadata $PCP_PMDAS_DIR/prometheus/metadata
+        $sudo rm -rf $tmp.metadata
+    fi
+}
 
 pmdaprometheus_remove()
 {
@@ -41,7 +60,9 @@ pmdaprometheus_install()
 
 _prepare_pmda prometheus
 # note: _restore_auto_restart pmcd done in _cleanup_pmda()
-trap "_cleanup_pmda named; exit \$status" 0 1 2 3 15
+trap "_cleanup_pmda prometheus; exit \$status" 0 1 2 3 15
+
+save_config
 
 # real QA test starts here
 pmdaprometheus_install
@@ -56,5 +77,8 @@ fi
 cat $tmp.info $tmp.err
 
 pmdaprometheus_remove
+
+restore_config
+
 status=0
 exit

@@ -643,7 +643,7 @@ class PrometheusPMDA(PMDA):
 		self.numfetch = 0
 
 		pmdaDir = "%s/%s/metadata/" % (pmContext.pmGetConfig('PCP_PMDAS_DIR'), pmda_name)
-		self.dirs = [".", pmdaDir]
+		self.dirs = [ pmdaDir ]
 		self.source_by_cluster = {}
 		self.source_by_name = {}
 
