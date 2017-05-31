@@ -71,7 +71,8 @@ _save_config $PCP_PMDAS_DIR/prometheus/metadata
 echo "== starting container"
 container=`$docker run -d -p 127.0.0.1:9090:9090 quay.io/prometheus/prometheus`
 echo "== container: $container" >> $here/$seq.full
-sleep 1
+# Wait for the prometheus container to complete setup
+sleep 5
 
 generate_config
 
