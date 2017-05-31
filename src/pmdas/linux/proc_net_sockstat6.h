@@ -1,6 +1,5 @@
 /*
- * Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
- * Copyright (c) 2017 Fujitsu.
+ * Copyright (c) 2017 Fujitsu.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,19 +12,13 @@
  * for more details.
 */
 typedef struct {
-    int total;
-    int tcp_inuse;
-    int tcp_orphan;
-    int tcp_tw;
-    int tcp_alloc;
-    int tcp_mem;
-    int udp_inuse;
-    int udp_mem;
-    int udplite_inuse;
-    int raw_inuse;
-    int frag_inuse;
-    int frag_memory;
-} proc_net_sockstat_t;
+    int tcp6_inuse;
+    int udp6_inuse;
+    int udplite6_inuse;
+    int raw6_inuse;
+    int frag6_inuse;
+    int frag6_memory;
+} proc_net_sockstat6_t;
 
-extern int refresh_proc_net_sockstat(proc_net_sockstat_t *);
+extern int refresh_proc_net_sockstat6(proc_net_sockstat6_t *);
 
