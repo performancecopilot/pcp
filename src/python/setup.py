@@ -1,6 +1,6 @@
 """ Build script for the PCP python package """
 #
-# Copyright (C) 2012-2016 Red Hat.
+# Copyright (C) 2012-2017 Red Hat.
 # Copyright (C) 2009-2012 Michael T. Werner
 #
 # This file is part of the "pcp" module, the python interfaces for the
@@ -29,7 +29,7 @@ with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
     long_description = f.read()
 
 setup(name = 'pcp',
-    version = '1.1',
+    version = '1.2',
     description = 'Performance Co-Pilot collector, monitor and instrumentation APIs',
     long_description = long_description,
     license = 'GPLv2+',
