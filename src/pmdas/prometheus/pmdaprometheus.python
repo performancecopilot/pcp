@@ -661,7 +661,8 @@ class PrometheusPMDA(PMDA):
 		self.numfetch = 0
 
 		pmdaDir = "%s/%s/metadata/" % (pmContext.pmGetConfig('PCP_PMDAS_DIR'), pmda_name)
-		self.dirs = [ pmdaDir ]
+		self.dir = pmdaDir
+		self.dir_mtime = os.stat(self.dir).st_mtime
 		self.source_by_cluster = {}
 		self.source_by_name = {}
 
@@ -699,46 +700,53 @@ class PrometheusPMDA(PMDA):
 	def load_prometheus_sources(self):
 		''' Initializes the PrometheusSource for all the Prometheus sources '''
 		new_source_seen = False
-		for dir in self.dirs:
-			for root, dirs, files in os.walk(dir):
-				for file in files:
-					path = os.path.join(root, file)
-					source = PrometheusSource(path, self)
-					if not source.name:
-						continue
-					try:
-						# If we already have a cluster with this name
-						cluster_idx \
-							= self.cluster_cache.lookup_name(source.name)
-						if self.debug:
-							self.log("Found %s in cluster cache: %d" %
-									 (source.name, cluster_idx))
-					except KeyError:
-						# Assign cluster to a new source
-						try:
-							cluster_idx = self.cluster_cache.next_value()
-							if self.debug:
-								self.log("allocating new cluster idx"
-										 " %d for source %s" %
-										 (cluster_idx, source.name))
-						except ValueError:
-							self.log("Skipping source '%s' -"
-									 " max cluster reached" % root)
-							continue
-
+		for root, dirs, files in os.walk(self.dir):
+			for file in files:
+				path = os.path.join(root, file)
+				source = PrometheusSource(path, self)
+				if not source.name:
+					continue
+				try:
+					# If we already have a cluster with this name
+					cluster_idx \
+						= self.cluster_cache.lookup_name(source.name)
 					if self.debug:
-						self.log("Adding source '%s', cluster_idx %d"
-								 % (source.name, cluster_idx))
-					self.cluster_cache.add_value(source.name, cluster_idx)
-					source.cluster = cluster_idx
-					self.source_by_cluster[cluster_idx] = source
-					self.source_by_name[source.name] = source
-					new_source_seen = True
+						self.log("Found %s in cluster cache: %d" %
+								 (source.name, cluster_idx))
+				except KeyError:
+					# Assign cluster to a new source
+					try:
+						cluster_idx = self.cluster_cache.next_value()
+						if self.debug:
+							self.log("allocating new cluster idx"
+									 " %d for source %s" %
+									 (cluster_idx, source.name))
+					except ValueError:
+						self.log("Skipping source '%s' -"
+								 " max cluster reached" % root)
+						continue
+
+				if self.debug:
+					self.log("Adding source '%s', cluster_idx %d"
+							 % (source.name, cluster_idx))
+				self.cluster_cache.add_value(source.name, cluster_idx)
+				source.cluster = cluster_idx
+				self.source_by_cluster[cluster_idx] = source
+				self.source_by_name[source.name] = source
+				new_source_seen = True
 		if new_source_seen:
 			self.cluster_cache.refresh()
 
 	def prometheus_fetch(self):
 		''' Called once before calling prometheus_fetch_callback '''
+
+		# Lookup the metadata directory for any new source
+		if self.dir_mtime < os.stat(self.dir).st_mtime:
+			self.dir_mtime = os.stat(self.dir).st_mtime
+			self.reset_metrics()
+			self.add_static_metrics()
+			self.load_prometheus_sources()
+			self.pmns_refresh()
 		# Count the number of times fetch called
 		self.numfetch += 1
 
