@@ -1171,15 +1171,24 @@ See also network.interface.speed for the Megabytes/second value.
 @ network.interface.ipv6_addr string IPv6 interface address (ifconfig style)
 @ network.interface.ipv6_scope string IPv6 interface scope (ifconfig style)
 @ network.interface.hw_addr hardware address (from sysfs)
+@ network.sockstat.total total number of sockets used by the system.
 @ network.sockstat.tcp.inuse instantaneous number of tcp sockets currently in use
-@ network.sockstat.tcp.highest highest number of tcp sockets in use at any one time since boot
-@ network.sockstat.tcp.util instantaneous tcp socket utilization (100 * inuse/highest)
+@ network.sockstat.tcp.orphan instantaneous number of orphan sockets
+@ network.sockstat.tcp.tw instantaneous number of sockets wating close
+@ network.sockstat.tcp.alloc instantaneous number of allocated sockets
+@ network.sockstat.tcp.mem instantaneous number of used memory for tcp 
 @ network.sockstat.udp.inuse instantaneous number of udp sockets currently in use
-@ network.sockstat.udp.highest highest number of udp sockets in use at any one time since boot
-@ network.sockstat.udp.util instantaneous udp socket utilization (100 * inuse/highest)
+@ network.sockstat.udp.mem nstantaneous number of used memory for udp
+@ network.sockstat.udplite.inuse instantaneous number of udplite sockets currently in use
 @ network.sockstat.raw.inuse instantaneous number of raw sockets currently in use
-@ network.sockstat.raw.highest highest number of raw sockets in use at any one time since boot
-@ network.sockstat.raw.util instantaneous raw socket utilization (100 * inuse/highest)
+@ network.sockstat.frag.inuse instantaneous number of frag sockets currently in use
+@ network.sockstat.frag.memory nstantaneous number of used memory for frag
+@ network.sockstat.tcp6.inuse instantaneous number of tcp6 sockets currently in use
+@ network.sockstat.udp6.inuse instantaneous number of udp6 sockets currently in use
+@ network.sockstat.udplite6.inuse instantaneous number of udplite6 sockets currently in use
+@ network.sockstat.raw6.inuse instantaneous number of raw6 sockets currently in use
+@ network.sockstat.frag6.inuse instantaneous number of frag6 sockets currently in use
+@ network.sockstat.frag6.memory instantaneous number of used memory for frag6
 @ network.softnet.processed number of packets (not including netpoll) received by the interrupt handler
 @ network.softnet.dropped number of packets that were dropped because netdev_max_backlog was exceeded
 @ network.softnet.time_squeeze number of times ksoftirq ran out of netdev_budget or time slice with work remaining
