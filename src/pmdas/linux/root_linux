@@ -642,7 +642,7 @@ network.interface.total {
 }
 
 network.sockstat {
-    total		60:11:0
+    total		60:11:9
     tcp
     udp
     udplite
@@ -656,16 +656,16 @@ network.sockstat {
 }
 
 network.sockstat.tcp {
-    inuse 		60:11:1
-    orphan 		60:11:2
-    tw			60:11:3
-    alloc		60:11:4
-    mem			60:11:5
+    inuse 		60:11:0
+    orphan 		60:11:10
+    tw			60:11:11
+    alloc		60:11:12
+    mem			60:11:13
 }
 
 network.sockstat.udp {
-    inuse 		60:11:6
-    mem 		60:11:7
+    inuse 		60:11:3
+    mem 		60:11:14
 }
 
 network.sockstat.udplite {
@@ -673,12 +673,12 @@ network.sockstat.udplite {
 }
 
 network.sockstat.raw {
-    inuse 		60:11:9
+    inuse 		60:11:6
 }
 
 network.sockstat.frag {
-    inuse 		60:11:10
-    memory 		60:11:11
+    inuse 		60:11:15
+    memory 		60:11:16
 }
 
 network.sockstat.tcp6 {

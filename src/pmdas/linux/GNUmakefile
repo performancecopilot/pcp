@@ -55,7 +55,7 @@ HFILES		= linux.h convert.h \
 
 VERSION_SCRIPT	= exports
 HELPTARGETS	= help.dir help.pag
-CONFTARGETS	= linux_kernel_ulong.conf linux_kernel_fixups.conf
+CONFTARGETS	= linux_kernel_ulong.conf linux_kernel_fixups.conf proc_net_sockstat_deprecate.conf
 LDIRT		= $(HELPTARGETS) domain.h $(VERSION_SCRIPT) $(CONFTARGETS)
 
 LLDLIBS		= $(PCP_PMDALIB)

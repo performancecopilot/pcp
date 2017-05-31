@@ -1337,6 +1337,7 @@ oldversion
 1081 python pcp local
 1082 python local
 1083 pmcd local
+1084 pmda.linux local
 1087 pmda.bind2 local
 1090 pmwebapi local context
 1091 pmns libpcp context local

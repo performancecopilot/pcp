@@ -44,7 +44,7 @@ refresh_proc_net_sockstat(proc_net_sockstat_t *proc_net_sockstat)
 	if (strncmp(buf, "UDP:", 4) == 0) {
 	    sscanf(buf, "%s %s %d %s %d", fmt, fmt, 
 	    	&proc_net_sockstat->udp_inuse, fmt,
-	    	&proc_net_sockstat->udp_mem, fmt);
+	    	&proc_net_sockstat->udp_mem);
 	}
 	else
 	if (strncmp(buf, "UDPLITE:", 8) == 0) {
