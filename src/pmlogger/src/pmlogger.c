@@ -616,7 +616,7 @@ main(int argc, char **argv)
 	    break;
 
 	case 'H':		/* hostname to put in label*/
-	    pmcd_host_label = opts.optarg;
+	    pmcd_host_label = strndup(opts.optarg, PM_LOG_MAXHOSTLEN-1);
 	    break;
 
 	case 'l':		/* log file name */
