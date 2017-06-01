@@ -1282,7 +1282,6 @@ oldversion
 1056 derive local
 1057 pmlogrewrite local
 1058 pmda.bash local
-1059 pmlogger local
 1062 pmrep python local
 1065 libpcp valgrind local
 1067 zabbix zbxpcp local
@@ -1296,6 +1295,7 @@ oldversion
 1080 valgrind pcp atop local
 1081 python pcp local
 1082 python local
+1085 pmlogger local
 1090 pmwebapi local context
 1091 pmns libpcp context local
 1092 libpcp local

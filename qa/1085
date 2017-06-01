@@ -1,5 +1,5 @@
 #!/bin/sh
-# PCP QA Test No. 1059
+# PCP QA Test No. 1085
 # Excercise pmlogger -H
 #
 # Copyright (c) 2017 Martins Innus.  All Rights Reserved.
