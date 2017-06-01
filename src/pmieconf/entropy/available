@@ -1,0 +1,49 @@
+#pmieconf-rules 1
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(5)
+# 
+
+rule	entropy.available
+	summary	= "$rule$"
+	enumerate = hosts
+	predicate =
+"some_host (
+	( 100 * kernel.all.entropy.avail $hosts$ /
+          kernel.all.entropy.poolsize $hosts$ ) >= 0 &&
+	( kernel.all.entropy.avail <= $threshold$ )
+)"
+	enabled	= yes
+	version	= 1
+	help	=
+"Available entropy for random number generation is significantly
+depleted, and requests for random numbers will stall completely,
+or suffer reduction in quality, depending on the interface being
+used (/dev/random or /dev/urandom).";
+
+string	rule
+	default	= "Low random number entropy available"
+	modify	= no
+	display	= no;
+
+unsigned	threshold
+	default	= 150
+	help	=
+"The threshold of entropy remaining available from the pool, in
+the range zero (none) to kernel.all.entropy.poolsize (plenty).";
+
+string	delta
+	default = "2 min"
+	help =
+"Sample interval between evaluations of this rule.";
+
+string	action_expand
+	default	= "%v%avail@%h"
+	display	= no
+	modify	= no;
+
+string	email_expand
+	default	= "host: %h entropy available: %v%"
+	display	= no
+	modify	= no;
+
+# 
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(5)

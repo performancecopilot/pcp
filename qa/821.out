@@ -74,6 +74,33 @@ mem.buddyinfo.total
 mem.freemem
     value 4650860
 
+mem.ksm.full_scans
+    value 0
+
+mem.ksm.merge_across_nodes
+    value 0
+
+mem.ksm.pages_shared
+    value 0
+
+mem.ksm.pages_sharing
+    value 0
+
+mem.ksm.pages_to_scan
+    value 0
+
+mem.ksm.pages_unshared
+    value 0
+
+mem.ksm.pages_volatile
+    value 0
+
+mem.ksm.run_state
+    value 0
+
+mem.ksm.sleep_time
+    value 0
+
 mem.numa.alloc.foreign
     inst [0 or "node0"] value 0
 
@@ -131,10 +158,19 @@ No value(s) available!
 mem.numa.util.hugepagesFree
     inst [0 or "node0"] value 0
 
+mem.numa.util.hugepagesFreeBytes
+    inst [0 or "node0"] value 0
+
 mem.numa.util.hugepagesSurp
     inst [0 or "node0"] value 0
 
+mem.numa.util.hugepagesSurpBytes
+    inst [0 or "node0"] value 0
+
 mem.numa.util.hugepagesTotal
+    inst [0 or "node0"] value 0
+
+mem.numa.util.hugepagesTotalBytes
     inst [0 or "node0"] value 0
 
 mem.numa.util.inactive
@@ -284,13 +320,25 @@ No value(s) available!
 mem.util.hugepagesFree
     value 0
 
+mem.util.hugepagesFreeBytes
+    value 0
+
 mem.util.hugepagesRsvd
+    value 0
+
+mem.util.hugepagesRsvdBytes
     value 0
 
 mem.util.hugepagesSurp
     value 0
 
+mem.util.hugepagesSurpBytes
+    value 0
+
 mem.util.hugepagesTotal
+    value 0
+
+mem.util.hugepagesTotalBytes
     value 0
 
 mem.util.inactive
@@ -389,7 +437,19 @@ mem.vmstat.balloon_migrate
 mem.vmstat.compact_blocks_moved
 No value(s) available!
 
+mem.vmstat.compact_daemon_wake
+No value(s) available!
+
 mem.vmstat.compact_fail
+    value 0
+
+mem.vmstat.compact_free_scanned
+    value 0
+
+mem.vmstat.compact_isolated
+    value 0
+
+mem.vmstat.compact_migrate_scanned
     value 0
 
 mem.vmstat.compact_pagemigrate_failed
@@ -402,6 +462,12 @@ mem.vmstat.compact_stall
     value 0
 
 mem.vmstat.compact_success
+    value 0
+
+mem.vmstat.drop_pagecache
+    value 0
+
+mem.vmstat.drop_slab
     value 0
 
 mem.vmstat.htlb_buddy_alloc_fail
@@ -452,6 +518,9 @@ mem.vmstat.nr_dirty_background_threshold
 mem.vmstat.nr_dirty_threshold
     value 588487
 
+mem.vmstat.nr_free_cma
+    value 0
+
 mem.vmstat.nr_free_pages
     value 1159538
 
@@ -479,8 +548,17 @@ mem.vmstat.nr_mlock
 mem.vmstat.nr_page_table_pages
     value 14211
 
+mem.vmstat.nr_pages_scanned
+    value 0
+
 mem.vmstat.nr_shmem
     value 101558
+
+mem.vmstat.nr_shmem_hugepages
+No value(s) available!
+
+mem.vmstat.nr_shmem_pmdmapped
+No value(s) available!
 
 mem.vmstat.nr_slab
     value 334774
@@ -497,6 +575,9 @@ mem.vmstat.nr_unevictable
 mem.vmstat.nr_unstable
     value 0
 
+mem.vmstat.nr_vmscan_immediate_reclaim
+    value 0
+
 mem.vmstat.nr_vmscan_write
     value 0
 
@@ -508,6 +589,27 @@ mem.vmstat.nr_writeback_temp
 
 mem.vmstat.nr_written
     value 4480980
+
+mem.vmstat.nr_zone_active_anon
+No value(s) available!
+
+mem.vmstat.nr_zone_active_file
+No value(s) available!
+
+mem.vmstat.nr_zone_inactive_anon
+No value(s) available!
+
+mem.vmstat.nr_zone_inactive_file
+No value(s) available!
+
+mem.vmstat.nr_zone_unevictable
+No value(s) available!
+
+mem.vmstat.nr_zone_write_pending
+No value(s) available!
+
+mem.vmstat.nr_zspages
+No value(s) available!
 
 mem.vmstat.numa_foreign
     value 0
@@ -525,6 +627,12 @@ mem.vmstat.numa_miss
     value 0
 
 mem.vmstat.numa_other
+    value 0
+
+mem.vmstat.numa_pages_migrated
+    value 0
+
+mem.vmstat.numa_pte_updates
     value 0
 
 mem.vmstat.pageoutrun
@@ -560,8 +668,17 @@ mem.vmstat.pgfree
 mem.vmstat.pginodesteal
     value 0
 
+mem.vmstat.pglazyfreed
+No value(s) available!
+
 mem.vmstat.pgmajfault
     value 9578
+
+mem.vmstat.pgmigrate_fail
+    value 0
+
+mem.vmstat.pgmigrate_success
+    value 0
 
 mem.vmstat.pgpgin
     value 5282454
@@ -647,14 +764,32 @@ mem.vmstat.thp_collapse_alloc
 mem.vmstat.thp_collapse_alloc_failed
     value 0
 
+mem.vmstat.thp_deferred_split_page
+No value(s) available!
+
 mem.vmstat.thp_fault_alloc
     value 0
 
 mem.vmstat.thp_fault_fallback
     value 0
 
+mem.vmstat.thp_file_alloc
+No value(s) available!
+
+mem.vmstat.thp_file_mapped
+No value(s) available!
+
 mem.vmstat.thp_split
     value 0
+
+mem.vmstat.thp_split_page
+No value(s) available!
+
+mem.vmstat.thp_split_page_failed
+No value(s) available!
+
+mem.vmstat.thp_split_pmd
+No value(s) available!
 
 mem.vmstat.thp_zero_page_alloc
     value 0
@@ -686,6 +821,15 @@ mem.vmstat.unevictable_pgs_scanned
 mem.vmstat.unevictable_pgs_stranded
     value 0
 
+mem.vmstat.workingset_activate
+    value 0
+
+mem.vmstat.workingset_nodereclaim
+    value 0
+
+mem.vmstat.workingset_refault
+    value 0
+
 mem.vmstat.zone_reclaim_failed
     value 0
 
@@ -693,6 +837,245 @@ mem.zoneinfo.free
     inst [N or "DMA32::node0"] value 284860
     inst [N or "DMA::node0"] value 15852
     inst [N or "Normal::node0"] value 4349528
+
+mem.zoneinfo.high
+    inst [N or "DMA32::node0"] value 2424
+    inst [N or "DMA::node0"] value 16
+    inst [N or "Normal::node0"] value 21480
+
+mem.zoneinfo.low
+    inst [N or "DMA32::node0"] value 2020
+    inst [N or "DMA::node0"] value 12
+    inst [N or "Normal::node0"] value 17900
+
+mem.zoneinfo.managed
+    inst [N or "DMA32::node0"] value 1627896
+    inst [N or "DMA::node0"] value 15900
+    inst [N or "Normal::node0"] value 14378344
+
+mem.zoneinfo.min
+    inst [N or "DMA32::node0"] value 1616
+    inst [N or "DMA::node0"] value 12
+    inst [N or "Normal::node0"] value 14320
+
+mem.zoneinfo.nr_active_anon
+    inst [N or "DMA32::node0"] value 219088
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 1649340
+
+mem.zoneinfo.nr_active_file
+    inst [N or "DMA32::node0"] value 472712
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 3495524
+
+mem.zoneinfo.nr_alloc_batch
+    inst [N or "DMA32::node0"] value 344
+    inst [N or "DMA::node0"] value 4
+    inst [N or "Normal::node0"] value 924
+
+mem.zoneinfo.nr_anon_pages
+    inst [N or "DMA32::node0"] value 218220
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 1645020
+
+mem.zoneinfo.nr_anon_transparent_hugepages
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_bounce
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_dirtied
+    inst [N or "DMA32::node0"] value 2459612
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 18737368
+
+mem.zoneinfo.nr_dirty
+    inst [N or "DMA32::node0"] value 36
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 308
+
+mem.zoneinfo.nr_file_pages
+    inst [N or "DMA32::node0"] value 900036
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 6732696
+
+mem.zoneinfo.nr_free_cma
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_free_pages
+    inst [N or "DMA32::node0"] value 284860
+    inst [N or "DMA::node0"] value 15852
+    inst [N or "Normal::node0"] value 4349528
+
+mem.zoneinfo.nr_inactive_anon
+    inst [N or "DMA32::node0"] value 47476
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 353556
+
+mem.zoneinfo.nr_inactive_file
+    inst [N or "DMA32::node0"] value 378980
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 2879232
+
+mem.zoneinfo.nr_isolated_anon
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_isolated_file
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_kernel_stack
+    inst [N or "DMA32::node0"] value 344
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 2940
+
+mem.zoneinfo.nr_mapped
+    inst [N or "DMA32::node0"] value 67616
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 476592
+
+mem.zoneinfo.nr_mlock
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 16
+
+mem.zoneinfo.nr_page_table_pages
+    inst [N or "DMA32::node0"] value 6912
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 49016
+
+mem.zoneinfo.nr_shmem
+    inst [N or "DMA32::node0"] value 48344
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 357940
+
+mem.zoneinfo.nr_slab_reclaimable
+    inst [N or "DMA32::node0"] value 126912
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 936644
+
+mem.zoneinfo.nr_slab_unreclaimable
+    inst [N or "DMA32::node0"] value 32808
+    inst [N or "DMA::node0"] value 32
+    inst [N or "Normal::node0"] value 242896
+
+mem.zoneinfo.nr_unevictable
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 16
+
+mem.zoneinfo.nr_unstable
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_vmscan_immediate_reclaim
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_vmscan_write
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_writeback
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_writeback_temp
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_written
+    inst [N or "DMA32::node0"] value 2062668
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 15844068
+
+mem.zoneinfo.numa_foreign
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.numa_hit
+    inst [N or "DMA32::node0"] value 153624216
+    inst [N or "DMA::node0"] value 84
+    inst [N or "Normal::node0"] value 1151779584
+
+mem.zoneinfo.numa_interleave
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 94236
+
+mem.zoneinfo.numa_local
+    inst [N or "DMA32::node0"] value 153624216
+    inst [N or "DMA::node0"] value 84
+    inst [N or "Normal::node0"] value 1151779584
+
+mem.zoneinfo.numa_miss
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.numa_other
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.present
+    inst [N or "DMA32::node0"] value 1724008
+    inst [N or "DMA::node0"] value 15984
+    inst [N or "Normal::node0"] value 14653440
+
+mem.zoneinfo.protection
+    inst [N or "DMA32::node0::lowmem_reserved0"] value 0
+    inst [N or "DMA32::node0::lowmem_reserved1"] value 0
+    inst [N or "DMA32::node0::lowmem_reserved2"] value 56164
+    inst [N or "DMA32::node0::lowmem_reserved3"] value 56164
+    inst [N or "DMA::node0::lowmem_reserved0"] value 0
+    inst [N or "DMA::node0::lowmem_reserved1"] value 6336
+    inst [N or "DMA::node0::lowmem_reserved2"] value 62500
+    inst [N or "DMA::node0::lowmem_reserved3"] value 62500
+    inst [N or "Normal::node0::lowmem_reserved0"] value 0
+    inst [N or "Normal::node0::lowmem_reserved1"] value 0
+    inst [N or "Normal::node0::lowmem_reserved2"] value 0
+    inst [N or "Normal::node0::lowmem_reserved3"] value 0
+
+mem.zoneinfo.scanned
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.spanned
+    inst [N or "DMA32::node0"] value 4177920
+    inst [N or "DMA::node0"] value 16380
+    inst [N or "Normal::node0"] value 14653440
+
+mem.zoneinfo.workingset_activate
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.workingset_nodereclaim
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.workingset_refault
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
 
 == done
 
@@ -1750,6 +2133,245 @@ mem.zoneinfo.free
     inst [N or "DMA::node0"] value 15852
     inst [N or "Normal::node0"] value 4349528
 
+mem.zoneinfo.high
+    inst [N or "DMA32::node0"] value 2424
+    inst [N or "DMA::node0"] value 16
+    inst [N or "Normal::node0"] value 21480
+
+mem.zoneinfo.low
+    inst [N or "DMA32::node0"] value 2020
+    inst [N or "DMA::node0"] value 12
+    inst [N or "Normal::node0"] value 17900
+
+mem.zoneinfo.managed
+    inst [N or "DMA32::node0"] value 1627896
+    inst [N or "DMA::node0"] value 15900
+    inst [N or "Normal::node0"] value 14378344
+
+mem.zoneinfo.min
+    inst [N or "DMA32::node0"] value 1616
+    inst [N or "DMA::node0"] value 12
+    inst [N or "Normal::node0"] value 14320
+
+mem.zoneinfo.nr_active_anon
+    inst [N or "DMA32::node0"] value 219088
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 1649340
+
+mem.zoneinfo.nr_active_file
+    inst [N or "DMA32::node0"] value 472712
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 3495524
+
+mem.zoneinfo.nr_alloc_batch
+    inst [N or "DMA32::node0"] value 344
+    inst [N or "DMA::node0"] value 4
+    inst [N or "Normal::node0"] value 924
+
+mem.zoneinfo.nr_anon_pages
+    inst [N or "DMA32::node0"] value 218220
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 1645020
+
+mem.zoneinfo.nr_anon_transparent_hugepages
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_bounce
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_dirtied
+    inst [N or "DMA32::node0"] value 2459612
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 18737368
+
+mem.zoneinfo.nr_dirty
+    inst [N or "DMA32::node0"] value 36
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 308
+
+mem.zoneinfo.nr_file_pages
+    inst [N or "DMA32::node0"] value 900036
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 6732696
+
+mem.zoneinfo.nr_free_cma
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_free_pages
+    inst [N or "DMA32::node0"] value 284860
+    inst [N or "DMA::node0"] value 15852
+    inst [N or "Normal::node0"] value 4349528
+
+mem.zoneinfo.nr_inactive_anon
+    inst [N or "DMA32::node0"] value 47476
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 353556
+
+mem.zoneinfo.nr_inactive_file
+    inst [N or "DMA32::node0"] value 378980
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 2879232
+
+mem.zoneinfo.nr_isolated_anon
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_isolated_file
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_kernel_stack
+    inst [N or "DMA32::node0"] value 344
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 2940
+
+mem.zoneinfo.nr_mapped
+    inst [N or "DMA32::node0"] value 67616
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 476592
+
+mem.zoneinfo.nr_mlock
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 16
+
+mem.zoneinfo.nr_page_table_pages
+    inst [N or "DMA32::node0"] value 6912
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 49016
+
+mem.zoneinfo.nr_shmem
+    inst [N or "DMA32::node0"] value 48344
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 357940
+
+mem.zoneinfo.nr_slab_reclaimable
+    inst [N or "DMA32::node0"] value 126912
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 936644
+
+mem.zoneinfo.nr_slab_unreclaimable
+    inst [N or "DMA32::node0"] value 32808
+    inst [N or "DMA::node0"] value 32
+    inst [N or "Normal::node0"] value 242896
+
+mem.zoneinfo.nr_unevictable
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 16
+
+mem.zoneinfo.nr_unstable
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_vmscan_immediate_reclaim
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_vmscan_write
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_writeback
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_writeback_temp
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_written
+    inst [N or "DMA32::node0"] value 2062668
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 15844068
+
+mem.zoneinfo.numa_foreign
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.numa_hit
+    inst [N or "DMA32::node0"] value 153624216
+    inst [N or "DMA::node0"] value 84
+    inst [N or "Normal::node0"] value 1151779584
+
+mem.zoneinfo.numa_interleave
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 94236
+
+mem.zoneinfo.numa_local
+    inst [N or "DMA32::node0"] value 153624216
+    inst [N or "DMA::node0"] value 84
+    inst [N or "Normal::node0"] value 1151779584
+
+mem.zoneinfo.numa_miss
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.numa_other
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.present
+    inst [N or "DMA32::node0"] value 1724008
+    inst [N or "DMA::node0"] value 15984
+    inst [N or "Normal::node0"] value 14653440
+
+mem.zoneinfo.protection
+    inst [N or "DMA32::node0::lowmem_reserved0"] value 0
+    inst [N or "DMA32::node0::lowmem_reserved1"] value 0
+    inst [N or "DMA32::node0::lowmem_reserved2"] value 56164
+    inst [N or "DMA32::node0::lowmem_reserved3"] value 56164
+    inst [N or "DMA::node0::lowmem_reserved0"] value 0
+    inst [N or "DMA::node0::lowmem_reserved1"] value 6336
+    inst [N or "DMA::node0::lowmem_reserved2"] value 62500
+    inst [N or "DMA::node0::lowmem_reserved3"] value 62500
+    inst [N or "Normal::node0::lowmem_reserved0"] value 0
+    inst [N or "Normal::node0::lowmem_reserved1"] value 0
+    inst [N or "Normal::node0::lowmem_reserved2"] value 0
+    inst [N or "Normal::node0::lowmem_reserved3"] value 0
+
+mem.zoneinfo.scanned
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.spanned
+    inst [N or "DMA32::node0"] value 4177920
+    inst [N or "DMA::node0"] value 16380
+    inst [N or "Normal::node0"] value 14653440
+
+mem.zoneinfo.workingset_activate
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.workingset_nodereclaim
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.workingset_refault
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
 == done
 
 == Checking all mem metric values - meminfo-root-002.tgz
@@ -1762,6 +2384,33 @@ No value(s) available!
 
 mem.freemem
     value 87287012
+
+mem.ksm.full_scans
+    value 0
+
+mem.ksm.merge_across_nodes
+    value 0
+
+mem.ksm.pages_shared
+    value 0
+
+mem.ksm.pages_sharing
+    value 0
+
+mem.ksm.pages_to_scan
+    value 0
+
+mem.ksm.pages_unshared
+    value 0
+
+mem.ksm.pages_volatile
+    value 0
+
+mem.ksm.run_state
+    value 0
+
+mem.ksm.sleep_time
+    value 0
 
 mem.numa.alloc.foreign
     inst [0 or "node0"] value 0
@@ -1836,11 +2485,23 @@ mem.numa.util.hugepagesFree
     inst [0 or "node0"] value 0
     inst [1 or "node1"] value 0
 
+mem.numa.util.hugepagesFreeBytes
+    inst [0 or "node0"] value 0
+    inst [1 or "node1"] value 0
+
 mem.numa.util.hugepagesSurp
     inst [0 or "node0"] value 0
     inst [1 or "node1"] value 0
 
+mem.numa.util.hugepagesSurpBytes
+    inst [0 or "node0"] value 0
+    inst [1 or "node1"] value 0
+
 mem.numa.util.hugepagesTotal
+    inst [0 or "node0"] value 0
+    inst [1 or "node1"] value 0
+
+mem.numa.util.hugepagesTotalBytes
     inst [0 or "node0"] value 0
     inst [1 or "node1"] value 0
 
@@ -2007,13 +2668,25 @@ No value(s) available!
 mem.util.hugepagesFree
     value 0
 
+mem.util.hugepagesFreeBytes
+    value 0
+
 mem.util.hugepagesRsvd
+    value 0
+
+mem.util.hugepagesRsvdBytes
     value 0
 
 mem.util.hugepagesSurp
     value 0
 
+mem.util.hugepagesSurpBytes
+    value 0
+
 mem.util.hugepagesTotal
+    value 0
+
+mem.util.hugepagesTotalBytes
     value 0
 
 mem.util.inactive
@@ -2112,7 +2785,19 @@ No value(s) available!
 mem.vmstat.compact_blocks_moved
 No value(s) available!
 
+mem.vmstat.compact_daemon_wake
+No value(s) available!
+
 mem.vmstat.compact_fail
+    value 0
+
+mem.vmstat.compact_free_scanned
+    value 0
+
+mem.vmstat.compact_isolated
+    value 0
+
+mem.vmstat.compact_migrate_scanned
     value 0
 
 mem.vmstat.compact_pagemigrate_failed
@@ -2125,6 +2810,12 @@ mem.vmstat.compact_stall
     value 0
 
 mem.vmstat.compact_success
+    value 0
+
+mem.vmstat.drop_pagecache
+    value 0
+
+mem.vmstat.drop_slab
     value 0
 
 mem.vmstat.htlb_buddy_alloc_fail
@@ -2175,6 +2866,9 @@ mem.vmstat.nr_dirty_background_threshold
 mem.vmstat.nr_dirty_threshold
     value 11702906
 
+mem.vmstat.nr_free_cma
+    value 0
+
 mem.vmstat.nr_free_pages
     value 21821632
 
@@ -2202,8 +2896,17 @@ mem.vmstat.nr_mlock
 mem.vmstat.nr_page_table_pages
     value 10161
 
+mem.vmstat.nr_pages_scanned
+No value(s) available!
+
 mem.vmstat.nr_shmem
     value 250320
+
+mem.vmstat.nr_shmem_hugepages
+No value(s) available!
+
+mem.vmstat.nr_shmem_pmdmapped
+No value(s) available!
 
 mem.vmstat.nr_slab
     value 363002
@@ -2220,6 +2923,9 @@ mem.vmstat.nr_unevictable
 mem.vmstat.nr_unstable
     value 0
 
+mem.vmstat.nr_vmscan_immediate_reclaim
+    value 0
+
 mem.vmstat.nr_vmscan_write
     value 0
 
@@ -2231,6 +2937,27 @@ mem.vmstat.nr_writeback_temp
 
 mem.vmstat.nr_written
     value 9249283
+
+mem.vmstat.nr_zone_active_anon
+No value(s) available!
+
+mem.vmstat.nr_zone_active_file
+No value(s) available!
+
+mem.vmstat.nr_zone_inactive_anon
+No value(s) available!
+
+mem.vmstat.nr_zone_inactive_file
+No value(s) available!
+
+mem.vmstat.nr_zone_unevictable
+No value(s) available!
+
+mem.vmstat.nr_zone_write_pending
+No value(s) available!
+
+mem.vmstat.nr_zspages
+No value(s) available!
 
 mem.vmstat.numa_foreign
     value 0
@@ -2249,6 +2976,12 @@ mem.vmstat.numa_miss
 
 mem.vmstat.numa_other
     value 65468
+
+mem.vmstat.numa_pages_migrated
+    value 82217758
+
+mem.vmstat.numa_pte_updates
+    value 3569108086
 
 mem.vmstat.pageoutrun
     value 2
@@ -2283,8 +3016,17 @@ mem.vmstat.pgfree
 mem.vmstat.pginodesteal
     value 0
 
+mem.vmstat.pglazyfreed
+No value(s) available!
+
 mem.vmstat.pgmajfault
     value 1209
+
+mem.vmstat.pgmigrate_fail
+    value 1543168
+
+mem.vmstat.pgmigrate_success
+    value 82217758
 
 mem.vmstat.pgpgin
     value 6503076
@@ -2370,14 +3112,32 @@ mem.vmstat.thp_collapse_alloc
 mem.vmstat.thp_collapse_alloc_failed
     value 0
 
+mem.vmstat.thp_deferred_split_page
+No value(s) available!
+
 mem.vmstat.thp_fault_alloc
     value 514958
 
 mem.vmstat.thp_fault_fallback
     value 0
 
+mem.vmstat.thp_file_alloc
+No value(s) available!
+
+mem.vmstat.thp_file_mapped
+No value(s) available!
+
 mem.vmstat.thp_split
     value 6484
+
+mem.vmstat.thp_split_page
+No value(s) available!
+
+mem.vmstat.thp_split_page_failed
+No value(s) available!
+
+mem.vmstat.thp_split_pmd
+No value(s) available!
 
 mem.vmstat.thp_zero_page_alloc
     value 1
@@ -2409,6 +3169,15 @@ mem.vmstat.unevictable_pgs_scanned
 mem.vmstat.unevictable_pgs_stranded
     value 323
 
+mem.vmstat.workingset_activate
+    value 0
+
+mem.vmstat.workingset_nodereclaim
+    value 0
+
+mem.vmstat.workingset_refault
+    value 0
+
 mem.vmstat.zone_reclaim_failed
     value 0
 
@@ -2417,6 +3186,294 @@ mem.zoneinfo.free
     inst [N or "DMA::node0"] value 15320
     inst [N or "Normal::node0"] value 42201908
     inst [N or "Normal::node1"] value 44375624
+
+mem.zoneinfo.high
+    inst [N or "DMA32::node0"] value 1836
+    inst [N or "DMA::node0"] value 12
+    inst [N or "Normal::node0"] value 65580
+    inst [N or "Normal::node1"] value 67728
+
+mem.zoneinfo.low
+    inst [N or "DMA32::node0"] value 1528
+    inst [N or "DMA::node0"] value 8
+    inst [N or "Normal::node0"] value 54648
+    inst [N or "Normal::node1"] value 56440
+
+mem.zoneinfo.managed
+    inst [N or "DMA32::node0"] value 1796948
+    inst [N or "DMA::node0"] value 15896
+    inst [N or "Normal::node0"] value 63960660
+    inst [N or "Normal::node1"] value 66057548
+
+mem.zoneinfo.min
+    inst [N or "DMA32::node0"] value 1224
+    inst [N or "DMA::node0"] value 8
+    inst [N or "Normal::node0"] value 43720
+    inst [N or "Normal::node1"] value 45152
+
+mem.zoneinfo.nr_active_anon
+    inst [N or "DMA32::node0"] value 364668
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 3893724
+    inst [N or "Normal::node1"] value 6899892
+
+mem.zoneinfo.nr_active_file
+    inst [N or "DMA32::node0"] value 392872
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 9285188
+    inst [N or "Normal::node1"] value 3626496
+
+mem.zoneinfo.nr_alloc_batch
+    inst [N or "DMA32::node0"] value 308
+    inst [N or "DMA::node0"] value 4
+    inst [N or "Normal::node0"] value 8776
+    inst [N or "Normal::node1"] value 10300
+
+mem.zoneinfo.nr_anon_pages
+    inst [N or "DMA32::node0"] value 12464
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 252964
+    inst [N or "Normal::node1"] value 208660
+
+mem.zoneinfo.nr_anon_transparent_hugepages
+    inst [N or "DMA32::node0"] value 700
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 6708
+    inst [N or "Normal::node1"] value 12672
+
+mem.zoneinfo.nr_bounce
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.nr_dirtied
+    inst [N or "DMA32::node0"] value 979228
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 24452240
+    inst [N or "Normal::node1"] value 15528392
+
+mem.zoneinfo.nr_dirty
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 8
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.nr_file_pages
+    inst [N or "DMA32::node0"] value 671468
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 16585132
+    inst [N or "Normal::node1"] value 13987452
+
+mem.zoneinfo.nr_free_cma
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.nr_free_pages
+    inst [N or "DMA32::node0"] value 693676
+    inst [N or "DMA::node0"] value 15320
+    inst [N or "Normal::node0"] value 42201908
+    inst [N or "Normal::node1"] value 44375624
+
+mem.zoneinfo.nr_inactive_anon
+    inst [N or "DMA32::node0"] value 9040
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 231056
+    inst [N or "Normal::node1"] value 146488
+
+mem.zoneinfo.nr_inactive_file
+    inst [N or "DMA32::node0"] value 255364
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 6698636
+    inst [N or "Normal::node1"] value 9974976
+
+mem.zoneinfo.nr_isolated_anon
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.nr_isolated_file
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.nr_kernel_stack
+    inst [N or "DMA32::node0"] value 36
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 1552
+    inst [N or "Normal::node1"] value 1500
+
+mem.zoneinfo.nr_mapped
+    inst [N or "DMA32::node0"] value 5496
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 141048
+    inst [N or "Normal::node1"] value 42432
+
+mem.zoneinfo.nr_mlock
+    inst [N or "DMA32::node0"] value 14244
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 122792
+    inst [N or "Normal::node1"] value 12672
+
+mem.zoneinfo.nr_page_table_pages
+    inst [N or "DMA32::node0"] value 1692
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 19056
+    inst [N or "Normal::node1"] value 19896
+
+mem.zoneinfo.nr_shmem
+    inst [N or "DMA32::node0"] value 22744
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 592552
+    inst [N or "Normal::node1"] value 385984
+
+mem.zoneinfo.nr_slab_reclaimable
+    inst [N or "DMA32::node0"] value 32920
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 801816
+    inst [N or "Normal::node1"] value 408136
+
+mem.zoneinfo.nr_slab_unreclaimable
+    inst [N or "DMA32::node0"] value 5120
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 124460
+    inst [N or "Normal::node1"] value 79556
+
+mem.zoneinfo.nr_unevictable
+    inst [N or "DMA32::node0"] value 14244
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 122792
+    inst [N or "Normal::node1"] value 12672
+
+mem.zoneinfo.nr_unstable
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.nr_vmscan_immediate_reclaim
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.nr_vmscan_write
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.nr_writeback
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.nr_writeback_temp
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.nr_written
+    inst [N or "DMA32::node0"] value 844052
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 21335500
+    inst [N or "Normal::node1"] value 14817580
+
+mem.zoneinfo.numa_foreign
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.numa_hit
+    inst [N or "DMA32::node0"] value 63240112
+    inst [N or "DMA::node0"] value 576
+    inst [N or "Normal::node0"] value 1302059204
+    inst [N or "Normal::node1"] value 1125446956
+
+mem.zoneinfo.numa_interleave
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 143024
+    inst [N or "Normal::node1"] value 143084
+
+mem.zoneinfo.numa_local
+    inst [N or "DMA32::node0"] value 63230084
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 1302022456
+    inst [N or "Normal::node1"] value 1125232436
+
+mem.zoneinfo.numa_miss
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.numa_other
+    inst [N or "DMA32::node0"] value 10028
+    inst [N or "DMA::node0"] value 576
+    inst [N or "Normal::node0"] value 36748
+    inst [N or "Normal::node1"] value 214520
+
+mem.zoneinfo.present
+    inst [N or "DMA32::node0"] value 2049788
+    inst [N or "DMA::node0"] value 15988
+    inst [N or "Normal::node0"] value 65011712
+    inst [N or "Normal::node1"] value 67108864
+
+mem.zoneinfo.protection
+    inst [N or "DMA32::node0::lowmem_reserved0"] value 0
+    inst [N or "DMA32::node0::lowmem_reserved1"] value 0
+    inst [N or "DMA32::node0::lowmem_reserved2"] value 249844
+    inst [N or "DMA32::node0::lowmem_reserved3"] value 249844
+    inst [N or "DMA::node0::lowmem_reserved0"] value 0
+    inst [N or "DMA::node0::lowmem_reserved1"] value 7016
+    inst [N or "DMA::node0::lowmem_reserved2"] value 256864
+    inst [N or "DMA::node0::lowmem_reserved3"] value 256864
+    inst [N or "Normal::node0::lowmem_reserved0"] value 0
+    inst [N or "Normal::node0::lowmem_reserved1"] value 0
+    inst [N or "Normal::node0::lowmem_reserved2"] value 0
+    inst [N or "Normal::node0::lowmem_reserved3"] value 0
+    inst [N or "Normal::node1::lowmem_reserved0"] value 0
+    inst [N or "Normal::node1::lowmem_reserved1"] value 0
+    inst [N or "Normal::node1::lowmem_reserved2"] value 0
+    inst [N or "Normal::node1::lowmem_reserved3"] value 0
+
+mem.zoneinfo.scanned
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.spanned
+    inst [N or "DMA32::node0"] value 4177920
+    inst [N or "DMA::node0"] value 16380
+    inst [N or "Normal::node0"] value 65011712
+    inst [N or "Normal::node1"] value 67108864
+
+mem.zoneinfo.workingset_activate
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.workingset_nodereclaim
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.workingset_refault
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
 
 == done
 
@@ -3361,6 +4418,4668 @@ mem.zoneinfo.free
     inst [N or "DMA::node0"] value 15320
     inst [N or "Normal::node0"] value 42201908
     inst [N or "Normal::node1"] value 44375624
+
+mem.zoneinfo.high
+    inst [N or "DMA32::node0"] value 1836
+    inst [N or "DMA::node0"] value 12
+    inst [N or "Normal::node0"] value 65580
+    inst [N or "Normal::node1"] value 67728
+
+mem.zoneinfo.low
+    inst [N or "DMA32::node0"] value 1528
+    inst [N or "DMA::node0"] value 8
+    inst [N or "Normal::node0"] value 54648
+    inst [N or "Normal::node1"] value 56440
+
+mem.zoneinfo.managed
+    inst [N or "DMA32::node0"] value 1796948
+    inst [N or "DMA::node0"] value 15896
+    inst [N or "Normal::node0"] value 63960660
+    inst [N or "Normal::node1"] value 66057548
+
+mem.zoneinfo.min
+    inst [N or "DMA32::node0"] value 1224
+    inst [N or "DMA::node0"] value 8
+    inst [N or "Normal::node0"] value 43720
+    inst [N or "Normal::node1"] value 45152
+
+mem.zoneinfo.nr_active_anon
+    inst [N or "DMA32::node0"] value 364668
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 3893724
+    inst [N or "Normal::node1"] value 6899892
+
+mem.zoneinfo.nr_active_file
+    inst [N or "DMA32::node0"] value 392872
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 9285188
+    inst [N or "Normal::node1"] value 3626496
+
+mem.zoneinfo.nr_alloc_batch
+    inst [N or "DMA32::node0"] value 308
+    inst [N or "DMA::node0"] value 4
+    inst [N or "Normal::node0"] value 8776
+    inst [N or "Normal::node1"] value 10300
+
+mem.zoneinfo.nr_anon_pages
+    inst [N or "DMA32::node0"] value 12464
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 252964
+    inst [N or "Normal::node1"] value 208660
+
+mem.zoneinfo.nr_anon_transparent_hugepages
+    inst [N or "DMA32::node0"] value 700
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 6708
+    inst [N or "Normal::node1"] value 12672
+
+mem.zoneinfo.nr_bounce
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.nr_dirtied
+    inst [N or "DMA32::node0"] value 979228
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 24452240
+    inst [N or "Normal::node1"] value 15528392
+
+mem.zoneinfo.nr_dirty
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 8
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.nr_file_pages
+    inst [N or "DMA32::node0"] value 671468
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 16585132
+    inst [N or "Normal::node1"] value 13987452
+
+mem.zoneinfo.nr_free_cma
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.nr_free_pages
+    inst [N or "DMA32::node0"] value 693676
+    inst [N or "DMA::node0"] value 15320
+    inst [N or "Normal::node0"] value 42201908
+    inst [N or "Normal::node1"] value 44375624
+
+mem.zoneinfo.nr_inactive_anon
+    inst [N or "DMA32::node0"] value 9040
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 231056
+    inst [N or "Normal::node1"] value 146488
+
+mem.zoneinfo.nr_inactive_file
+    inst [N or "DMA32::node0"] value 255364
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 6698636
+    inst [N or "Normal::node1"] value 9974976
+
+mem.zoneinfo.nr_isolated_anon
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.nr_isolated_file
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.nr_kernel_stack
+    inst [N or "DMA32::node0"] value 36
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 1552
+    inst [N or "Normal::node1"] value 1500
+
+mem.zoneinfo.nr_mapped
+    inst [N or "DMA32::node0"] value 5496
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 141048
+    inst [N or "Normal::node1"] value 42432
+
+mem.zoneinfo.nr_mlock
+    inst [N or "DMA32::node0"] value 14244
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 122792
+    inst [N or "Normal::node1"] value 12672
+
+mem.zoneinfo.nr_page_table_pages
+    inst [N or "DMA32::node0"] value 1692
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 19056
+    inst [N or "Normal::node1"] value 19896
+
+mem.zoneinfo.nr_shmem
+    inst [N or "DMA32::node0"] value 22744
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 592552
+    inst [N or "Normal::node1"] value 385984
+
+mem.zoneinfo.nr_slab_reclaimable
+    inst [N or "DMA32::node0"] value 32920
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 801816
+    inst [N or "Normal::node1"] value 408136
+
+mem.zoneinfo.nr_slab_unreclaimable
+    inst [N or "DMA32::node0"] value 5120
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 124460
+    inst [N or "Normal::node1"] value 79556
+
+mem.zoneinfo.nr_unevictable
+    inst [N or "DMA32::node0"] value 14244
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 122792
+    inst [N or "Normal::node1"] value 12672
+
+mem.zoneinfo.nr_unstable
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.nr_vmscan_immediate_reclaim
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.nr_vmscan_write
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.nr_writeback
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.nr_writeback_temp
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.nr_written
+    inst [N or "DMA32::node0"] value 844052
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 21335500
+    inst [N or "Normal::node1"] value 14817580
+
+mem.zoneinfo.numa_foreign
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.numa_hit
+    inst [N or "DMA32::node0"] value 63240112
+    inst [N or "DMA::node0"] value 576
+    inst [N or "Normal::node0"] value 1302059204
+    inst [N or "Normal::node1"] value 1125446956
+
+mem.zoneinfo.numa_interleave
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 143024
+    inst [N or "Normal::node1"] value 143084
+
+mem.zoneinfo.numa_local
+    inst [N or "DMA32::node0"] value 63230084
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 1302022456
+    inst [N or "Normal::node1"] value 1125232436
+
+mem.zoneinfo.numa_miss
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.numa_other
+    inst [N or "DMA32::node0"] value 10028
+    inst [N or "DMA::node0"] value 576
+    inst [N or "Normal::node0"] value 36748
+    inst [N or "Normal::node1"] value 214520
+
+mem.zoneinfo.present
+    inst [N or "DMA32::node0"] value 2049788
+    inst [N or "DMA::node0"] value 15988
+    inst [N or "Normal::node0"] value 65011712
+    inst [N or "Normal::node1"] value 67108864
+
+mem.zoneinfo.protection
+    inst [N or "DMA32::node0::lowmem_reserved0"] value 0
+    inst [N or "DMA32::node0::lowmem_reserved1"] value 0
+    inst [N or "DMA32::node0::lowmem_reserved2"] value 249844
+    inst [N or "DMA32::node0::lowmem_reserved3"] value 249844
+    inst [N or "DMA::node0::lowmem_reserved0"] value 0
+    inst [N or "DMA::node0::lowmem_reserved1"] value 7016
+    inst [N or "DMA::node0::lowmem_reserved2"] value 256864
+    inst [N or "DMA::node0::lowmem_reserved3"] value 256864
+    inst [N or "Normal::node0::lowmem_reserved0"] value 0
+    inst [N or "Normal::node0::lowmem_reserved1"] value 0
+    inst [N or "Normal::node0::lowmem_reserved2"] value 0
+    inst [N or "Normal::node0::lowmem_reserved3"] value 0
+    inst [N or "Normal::node1::lowmem_reserved0"] value 0
+    inst [N or "Normal::node1::lowmem_reserved1"] value 0
+    inst [N or "Normal::node1::lowmem_reserved2"] value 0
+    inst [N or "Normal::node1::lowmem_reserved3"] value 0
+
+mem.zoneinfo.scanned
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.spanned
+    inst [N or "DMA32::node0"] value 4177920
+    inst [N or "DMA::node0"] value 16380
+    inst [N or "Normal::node0"] value 65011712
+    inst [N or "Normal::node1"] value 67108864
+
+mem.zoneinfo.workingset_activate
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.workingset_nodereclaim
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.workingset_refault
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+== done
+
+== Checking all mem metric values - meminfo-root-003.tgz
+
+mem.buddyinfo.pages
+No value(s) available!
+
+mem.buddyinfo.total
+No value(s) available!
+
+mem.freemem
+    value 87287012
+
+mem.ksm.full_scans
+    value 0
+
+mem.ksm.merge_across_nodes
+    value 0
+
+mem.ksm.pages_shared
+    value 0
+
+mem.ksm.pages_sharing
+    value 0
+
+mem.ksm.pages_to_scan
+    value 0
+
+mem.ksm.pages_unshared
+    value 0
+
+mem.ksm.pages_volatile
+    value 0
+
+mem.ksm.run_state
+    value 0
+
+mem.ksm.sleep_time
+    value 0
+
+mem.numa.alloc.foreign
+    inst [0 or "node0"] value 0
+    inst [1 or "node1"] value 0
+
+mem.numa.alloc.hit
+    inst [0 or "node0"] value 341323977
+    inst [1 or "node1"] value 281361558
+
+mem.numa.alloc.interleave_hit
+    inst [0 or "node0"] value 35756
+    inst [1 or "node1"] value 35771
+
+mem.numa.alloc.local_node
+    inst [0 or "node0"] value 341312139
+    inst [1 or "node1"] value 281307928
+
+mem.numa.alloc.miss
+    inst [0 or "node0"] value 0
+    inst [1 or "node1"] value 0
+
+mem.numa.alloc.other_node
+    inst [0 or "node0"] value 11838
+    inst [1 or "node1"] value 53630
+
+mem.numa.max_bandwidth
+No value(s) available!
+
+mem.numa.util.NFS_Unstable
+    inst [0 or "node0"] value 0
+    inst [1 or "node1"] value 0
+
+mem.numa.util.active
+    inst [0 or "node0"] value 13935968
+    inst [1 or "node1"] value 10526388
+
+mem.numa.util.active_anon
+    inst [0 or "node0"] value 4257908
+    inst [1 or "node1"] value 6899892
+
+mem.numa.util.active_file
+    inst [0 or "node0"] value 9678060
+    inst [1 or "node1"] value 3626496
+
+mem.numa.util.anonpages
+    inst [0 or "node0"] value 4057600
+    inst [1 or "node1"] value 6696000
+
+mem.numa.util.bounce
+    inst [0 or "node0"] value 0
+    inst [1 or "node1"] value 0
+
+mem.numa.util.dirty
+    inst [0 or "node0"] value 8
+    inst [1 or "node1"] value 0
+
+mem.numa.util.filePages
+    inst [0 or "node0"] value 17256600
+    inst [1 or "node1"] value 13987452
+
+mem.numa.util.free
+    inst [0 or "node0"] value 42911652
+    inst [1 or "node1"] value 44375624
+
+mem.numa.util.highFree
+No value(s) available!
+
+mem.numa.util.highTotal
+No value(s) available!
+
+mem.numa.util.hugepagesFree
+    inst [0 or "node0"] value 161
+    inst [1 or "node1"] value 20
+
+mem.numa.util.hugepagesFreeBytes
+    inst [0 or "node0"] value 337641472
+    inst [1 or "node1"] value 41943040
+
+mem.numa.util.hugepagesSurp
+    inst [0 or "node0"] value 8
+    inst [1 or "node1"] value 0
+
+mem.numa.util.hugepagesSurpBytes
+    inst [0 or "node0"] value 16777216
+    inst [1 or "node1"] value 0
+
+mem.numa.util.hugepagesTotal
+    inst [0 or "node0"] value 120
+    inst [1 or "node1"] value 80
+
+mem.numa.util.hugepagesTotalBytes
+    inst [0 or "node0"] value 251658240
+    inst [1 or "node1"] value 167772160
+
+mem.numa.util.inactive
+    inst [0 or "node0"] value 7194096
+    inst [1 or "node1"] value 10121464
+
+mem.numa.util.inactive_anon
+    inst [0 or "node0"] value 240096
+    inst [1 or "node1"] value 146488
+
+mem.numa.util.inactive_file
+    inst [0 or "node0"] value 6954000
+    inst [1 or "node1"] value 9974976
+
+mem.numa.util.kernelStack
+    inst [0 or "node0"] value 6352
+    inst [1 or "node1"] value 6000
+
+mem.numa.util.lowFree
+No value(s) available!
+
+mem.numa.util.lowTotal
+No value(s) available!
+
+mem.numa.util.mapped
+    inst [0 or "node0"] value 146544
+    inst [1 or "node1"] value 42432
+
+mem.numa.util.mlocked
+    inst [0 or "node0"] value 137036
+    inst [1 or "node1"] value 12672
+
+mem.numa.util.pageTables
+    inst [0 or "node0"] value 20748
+    inst [1 or "node1"] value 19896
+
+mem.numa.util.shmem
+    inst [0 or "node0"] value 615296
+    inst [1 or "node1"] value 385984
+
+mem.numa.util.slab
+    inst [0 or "node0"] value 964316
+    inst [1 or "node1"] value 487692
+
+mem.numa.util.slabReclaimable
+    inst [0 or "node0"] value 834736
+    inst [1 or "node1"] value 408136
+
+mem.numa.util.slabUnreclaimable
+    inst [0 or "node0"] value 129580
+    inst [1 or "node1"] value 79556
+
+mem.numa.util.total
+    inst [0 or "node0"] value 67077488
+    inst [1 or "node1"] value 67108864
+
+mem.numa.util.unevictable
+    inst [0 or "node0"] value 137036
+    inst [1 or "node1"] value 12672
+
+mem.numa.util.used
+    inst [0 or "node0"] value 24165836
+    inst [1 or "node1"] value 22733240
+
+mem.numa.util.writeback
+    inst [0 or "node0"] value 0
+    inst [1 or "node1"] value 0
+
+mem.numa.util.writebackTmp
+    inst [0 or "node0"] value 0
+    inst [1 or "node1"] value 0
+
+mem.physmem
+    value 131831052
+
+mem.slabinfo.objects.active
+No value(s) available!
+
+mem.slabinfo.objects.size
+No value(s) available!
+
+mem.slabinfo.objects.total
+No value(s) available!
+
+mem.slabinfo.slabs.active
+No value(s) available!
+
+mem.slabinfo.slabs.objects_per_slab
+No value(s) available!
+
+mem.slabinfo.slabs.pages_per_slab
+No value(s) available!
+
+mem.slabinfo.slabs.total
+No value(s) available!
+
+mem.slabinfo.slabs.total_size
+No value(s) available!
+
+mem.util.NFS_Unstable
+    value 12
+
+mem.util.active
+    value 24462356
+
+mem.util.active_anon
+    value 11157800
+
+mem.util.active_file
+    value 13304556
+
+mem.util.anonhugepages
+    value 10280960
+
+mem.util.anonpages
+    value 10753600
+
+mem.util.available
+    value 118425544
+
+mem.util.bounce
+    value 16
+
+mem.util.bufmem
+    value 15072
+
+mem.util.cache_clean
+    value 31228968
+
+mem.util.cached
+    value 31228980
+
+mem.util.commitLimit
+    value 70109824
+
+mem.util.committed_AS
+    value 18030504
+
+mem.util.corrupthardware
+    value 4
+
+mem.util.directMap1G
+    value 124780544
+
+mem.util.directMap2M
+    value 11151360
+
+mem.util.directMap4k
+    value 351996
+
+mem.util.dirty
+    value 8
+
+mem.util.free
+    value 87287012
+
+mem.util.highFree
+No value(s) available!
+
+mem.util.highTotal
+No value(s) available!
+
+mem.util.hugepagesFree
+    value 185344
+
+mem.util.hugepagesFreeBytes
+    value 388694540288
+
+mem.util.hugepagesRsvd
+    value 11264
+
+mem.util.hugepagesRsvdBytes
+    value 23622320128
+
+mem.util.hugepagesSurp
+    value 8192
+
+mem.util.hugepagesSurpBytes
+    value 17179869184
+
+mem.util.hugepagesTotal
+    value 204800
+
+mem.util.hugepagesTotalBytes
+    value 429496729600
+
+mem.util.inactive
+    value 17315560
+
+mem.util.inactive_anon
+    value 386584
+
+mem.util.inactive_file
+    value 16928976
+
+mem.util.kernelStack
+    value 12352
+
+mem.util.lowFree
+No value(s) available!
+
+mem.util.lowTotal
+No value(s) available!
+
+mem.util.mapped
+    value 188976
+
+mem.util.mlocked
+    value 149708
+
+mem.util.mmap_copy
+No value(s) available!
+
+mem.util.other
+    value 13299988
+
+mem.util.pageTables
+    value 40644
+
+mem.util.quicklists
+No value(s) available!
+
+mem.util.reverseMaps
+No value(s) available!
+
+mem.util.shared
+No value(s) available!
+
+mem.util.shmem
+    value 1001280
+
+mem.util.slab
+    value 1452008
+
+mem.util.slabReclaimable
+    value 1242872
+
+mem.util.slabUnreclaimable
+    value 209136
+
+mem.util.swapCached
+    value 24
+
+mem.util.swapFree
+    value 4194300
+
+mem.util.swapTotal
+    value 4194300
+
+mem.util.unevictable
+    value 149708
+
+mem.util.used
+    value 44544040
+
+mem.util.vmallocChunk
+    value 34290880168
+
+mem.util.vmallocTotal
+    value 34359738367
+
+mem.util.vmallocUsed
+    value 513640
+
+mem.util.writeback
+    value 4
+
+mem.vmstat.allocstall
+    value 0
+
+mem.vmstat.balloon_deflate
+No value(s) available!
+
+mem.vmstat.balloon_inflate
+No value(s) available!
+
+mem.vmstat.balloon_migrate
+No value(s) available!
+
+mem.vmstat.compact_blocks_moved
+No value(s) available!
+
+mem.vmstat.compact_daemon_wake
+No value(s) available!
+
+mem.vmstat.compact_fail
+    value 0
+
+mem.vmstat.compact_free_scanned
+    value 0
+
+mem.vmstat.compact_isolated
+    value 0
+
+mem.vmstat.compact_migrate_scanned
+    value 0
+
+mem.vmstat.compact_pagemigrate_failed
+No value(s) available!
+
+mem.vmstat.compact_pages_moved
+No value(s) available!
+
+mem.vmstat.compact_stall
+    value 0
+
+mem.vmstat.compact_success
+    value 0
+
+mem.vmstat.drop_pagecache
+    value 0
+
+mem.vmstat.drop_slab
+    value 0
+
+mem.vmstat.htlb_buddy_alloc_fail
+    value 0
+
+mem.vmstat.htlb_buddy_alloc_success
+    value 0
+
+mem.vmstat.kswapd_high_wmark_hit_quickly
+    value 0
+
+mem.vmstat.kswapd_inodesteal
+    value 0
+
+mem.vmstat.kswapd_low_wmark_hit_quickly
+    value 0
+
+mem.vmstat.kswapd_skip_congestion_wait
+No value(s) available!
+
+mem.vmstat.kswapd_steal
+No value(s) available!
+
+mem.vmstat.nr_active_anon
+    value 2789571
+
+mem.vmstat.nr_active_file
+    value 3326139
+
+mem.vmstat.nr_anon_pages
+    value 118522
+
+mem.vmstat.nr_anon_transparent_hugepages
+    value 5020
+
+mem.vmstat.nr_bounce
+    value 0
+
+mem.vmstat.nr_dirtied
+    value 10239965
+
+mem.vmstat.nr_dirty
+    value 2
+
+mem.vmstat.nr_dirty_background_threshold
+    value 1462863
+
+mem.vmstat.nr_dirty_threshold
+    value 11702906
+
+mem.vmstat.nr_free_cma
+    value 0
+
+mem.vmstat.nr_free_pages
+    value 21821632
+
+mem.vmstat.nr_inactive_anon
+    value 96646
+
+mem.vmstat.nr_inactive_file
+    value 4232244
+
+mem.vmstat.nr_isolated_anon
+    value 0
+
+mem.vmstat.nr_isolated_file
+    value 0
+
+mem.vmstat.nr_kernel_stack
+    value 772
+
+mem.vmstat.nr_mapped
+    value 47244
+
+mem.vmstat.nr_mlock
+    value 37427
+
+mem.vmstat.nr_page_table_pages
+    value 10161
+
+mem.vmstat.nr_pages_scanned
+No value(s) available!
+
+mem.vmstat.nr_shmem
+    value 250320
+
+mem.vmstat.nr_shmem_hugepages
+No value(s) available!
+
+mem.vmstat.nr_shmem_pmdmapped
+No value(s) available!
+
+mem.vmstat.nr_slab
+    value 363002
+
+mem.vmstat.nr_slab_reclaimable
+    value 310718
+
+mem.vmstat.nr_slab_unreclaimable
+    value 52284
+
+mem.vmstat.nr_unevictable
+    value 37427
+
+mem.vmstat.nr_unstable
+    value 0
+
+mem.vmstat.nr_vmscan_immediate_reclaim
+    value 0
+
+mem.vmstat.nr_vmscan_write
+    value 0
+
+mem.vmstat.nr_writeback
+    value 0
+
+mem.vmstat.nr_writeback_temp
+    value 0
+
+mem.vmstat.nr_written
+    value 9249283
+
+mem.vmstat.nr_zone_active_anon
+No value(s) available!
+
+mem.vmstat.nr_zone_active_file
+No value(s) available!
+
+mem.vmstat.nr_zone_inactive_anon
+No value(s) available!
+
+mem.vmstat.nr_zone_inactive_file
+No value(s) available!
+
+mem.vmstat.nr_zone_unevictable
+No value(s) available!
+
+mem.vmstat.nr_zone_write_pending
+No value(s) available!
+
+mem.vmstat.nr_zspages
+No value(s) available!
+
+mem.vmstat.numa_foreign
+    value 0
+
+mem.vmstat.numa_hit
+    value 622686531
+
+mem.vmstat.numa_interleave
+    value 71527
+
+mem.vmstat.numa_local
+    value 622621063
+
+mem.vmstat.numa_miss
+    value 0
+
+mem.vmstat.numa_other
+    value 65468
+
+mem.vmstat.numa_pages_migrated
+    value 82217758
+
+mem.vmstat.numa_pte_updates
+    value 3569108086
+
+mem.vmstat.pageoutrun
+    value 2
+
+mem.vmstat.pgactivate
+    value 3808573
+
+mem.vmstat.pgalloc_dma
+    value 144
+
+mem.vmstat.pgalloc_dma32
+    value 34623462
+
+mem.vmstat.pgalloc_high
+No value(s) available!
+
+mem.vmstat.pgalloc_movable
+    value 0
+
+mem.vmstat.pgalloc_normal
+    value 983753256
+
+mem.vmstat.pgdeactivate
+    value 0
+
+mem.vmstat.pgfault
+    value 1891461678
+
+mem.vmstat.pgfree
+    value 1040204715
+
+mem.vmstat.pginodesteal
+    value 0
+
+mem.vmstat.pglazyfreed
+No value(s) available!
+
+mem.vmstat.pgmajfault
+    value 1209
+
+mem.vmstat.pgmigrate_fail
+    value 1543168
+
+mem.vmstat.pgmigrate_success
+    value 82217758
+
+mem.vmstat.pgpgin
+    value 6503076
+
+mem.vmstat.pgpgout
+    value 39010237
+
+mem.vmstat.pgrefill_dma
+    value 0
+
+mem.vmstat.pgrefill_dma32
+    value 0
+
+mem.vmstat.pgrefill_high
+No value(s) available!
+
+mem.vmstat.pgrefill_movable
+    value 0
+
+mem.vmstat.pgrefill_normal
+    value 0
+
+mem.vmstat.pgrotated
+    value 131
+
+mem.vmstat.pgscan_direct_dma
+    value 0
+
+mem.vmstat.pgscan_direct_dma32
+    value 0
+
+mem.vmstat.pgscan_direct_high
+No value(s) available!
+
+mem.vmstat.pgscan_direct_movable
+    value 0
+
+mem.vmstat.pgscan_direct_normal
+    value 0
+
+mem.vmstat.pgscan_kswapd_dma
+    value 0
+
+mem.vmstat.pgscan_kswapd_dma32
+    value 0
+
+mem.vmstat.pgscan_kswapd_high
+No value(s) available!
+
+mem.vmstat.pgscan_kswapd_movable
+    value 0
+
+mem.vmstat.pgscan_kswapd_normal
+    value 0
+
+mem.vmstat.pgsteal_dma
+No value(s) available!
+
+mem.vmstat.pgsteal_dma32
+No value(s) available!
+
+mem.vmstat.pgsteal_high
+No value(s) available!
+
+mem.vmstat.pgsteal_movable
+No value(s) available!
+
+mem.vmstat.pgsteal_normal
+No value(s) available!
+
+mem.vmstat.pswpin
+    value 0
+
+mem.vmstat.pswpout
+    value 0
+
+mem.vmstat.slabs_scanned
+    value 0
+
+mem.vmstat.thp_collapse_alloc
+    value 6198
+
+mem.vmstat.thp_collapse_alloc_failed
+    value 0
+
+mem.vmstat.thp_deferred_split_page
+No value(s) available!
+
+mem.vmstat.thp_fault_alloc
+    value 514958
+
+mem.vmstat.thp_fault_fallback
+    value 0
+
+mem.vmstat.thp_file_alloc
+No value(s) available!
+
+mem.vmstat.thp_file_mapped
+No value(s) available!
+
+mem.vmstat.thp_split
+    value 6484
+
+mem.vmstat.thp_split_page
+No value(s) available!
+
+mem.vmstat.thp_split_page_failed
+No value(s) available!
+
+mem.vmstat.thp_split_pmd
+No value(s) available!
+
+mem.vmstat.thp_zero_page_alloc
+    value 1
+
+mem.vmstat.thp_zero_page_alloc_failed
+    value 0
+
+mem.vmstat.unevictable_pgs_cleared
+    value 323
+
+mem.vmstat.unevictable_pgs_culled
+    value 9227
+
+mem.vmstat.unevictable_pgs_mlocked
+    value 24306
+
+mem.vmstat.unevictable_pgs_mlockfreed
+No value(s) available!
+
+mem.vmstat.unevictable_pgs_munlocked
+    value 14150
+
+mem.vmstat.unevictable_pgs_rescued
+    value 11751
+
+mem.vmstat.unevictable_pgs_scanned
+    value 0
+
+mem.vmstat.unevictable_pgs_stranded
+    value 323
+
+mem.vmstat.workingset_activate
+    value 0
+
+mem.vmstat.workingset_nodereclaim
+    value 0
+
+mem.vmstat.workingset_refault
+    value 0
+
+mem.vmstat.zone_reclaim_failed
+    value 0
+
+mem.zoneinfo.free
+    inst [N or "DMA32::node0"] value 693676
+    inst [N or "DMA::node0"] value 15320
+    inst [N or "Normal::node0"] value 42201908
+    inst [N or "Normal::node1"] value 44375624
+
+mem.zoneinfo.high
+    inst [N or "DMA32::node0"] value 1836
+    inst [N or "DMA::node0"] value 12
+    inst [N or "Normal::node0"] value 65580
+    inst [N or "Normal::node1"] value 67728
+
+mem.zoneinfo.low
+    inst [N or "DMA32::node0"] value 1528
+    inst [N or "DMA::node0"] value 8
+    inst [N or "Normal::node0"] value 54648
+    inst [N or "Normal::node1"] value 56440
+
+mem.zoneinfo.managed
+    inst [N or "DMA32::node0"] value 1796948
+    inst [N or "DMA::node0"] value 15896
+    inst [N or "Normal::node0"] value 63960660
+    inst [N or "Normal::node1"] value 66057548
+
+mem.zoneinfo.min
+    inst [N or "DMA32::node0"] value 1224
+    inst [N or "DMA::node0"] value 8
+    inst [N or "Normal::node0"] value 43720
+    inst [N or "Normal::node1"] value 45152
+
+mem.zoneinfo.nr_active_anon
+    inst [N or "DMA32::node0"] value 364668
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 3893724
+    inst [N or "Normal::node1"] value 6899892
+
+mem.zoneinfo.nr_active_file
+    inst [N or "DMA32::node0"] value 392872
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 9285188
+    inst [N or "Normal::node1"] value 3626496
+
+mem.zoneinfo.nr_alloc_batch
+    inst [N or "DMA32::node0"] value 308
+    inst [N or "DMA::node0"] value 4
+    inst [N or "Normal::node0"] value 8776
+    inst [N or "Normal::node1"] value 10300
+
+mem.zoneinfo.nr_anon_pages
+    inst [N or "DMA32::node0"] value 12464
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 252964
+    inst [N or "Normal::node1"] value 208660
+
+mem.zoneinfo.nr_anon_transparent_hugepages
+    inst [N or "DMA32::node0"] value 700
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 6708
+    inst [N or "Normal::node1"] value 12672
+
+mem.zoneinfo.nr_bounce
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.nr_dirtied
+    inst [N or "DMA32::node0"] value 979228
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 24452240
+    inst [N or "Normal::node1"] value 15528392
+
+mem.zoneinfo.nr_dirty
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 8
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.nr_file_pages
+    inst [N or "DMA32::node0"] value 671468
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 16585132
+    inst [N or "Normal::node1"] value 13987452
+
+mem.zoneinfo.nr_free_cma
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.nr_free_pages
+    inst [N or "DMA32::node0"] value 693676
+    inst [N or "DMA::node0"] value 15320
+    inst [N or "Normal::node0"] value 42201908
+    inst [N or "Normal::node1"] value 44375624
+
+mem.zoneinfo.nr_inactive_anon
+    inst [N or "DMA32::node0"] value 9040
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 231056
+    inst [N or "Normal::node1"] value 146488
+
+mem.zoneinfo.nr_inactive_file
+    inst [N or "DMA32::node0"] value 255364
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 6698636
+    inst [N or "Normal::node1"] value 9974976
+
+mem.zoneinfo.nr_isolated_anon
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.nr_isolated_file
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.nr_kernel_stack
+    inst [N or "DMA32::node0"] value 36
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 1552
+    inst [N or "Normal::node1"] value 1500
+
+mem.zoneinfo.nr_mapped
+    inst [N or "DMA32::node0"] value 5496
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 141048
+    inst [N or "Normal::node1"] value 42432
+
+mem.zoneinfo.nr_mlock
+    inst [N or "DMA32::node0"] value 14244
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 122792
+    inst [N or "Normal::node1"] value 12672
+
+mem.zoneinfo.nr_page_table_pages
+    inst [N or "DMA32::node0"] value 1692
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 19056
+    inst [N or "Normal::node1"] value 19896
+
+mem.zoneinfo.nr_shmem
+    inst [N or "DMA32::node0"] value 22744
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 592552
+    inst [N or "Normal::node1"] value 385984
+
+mem.zoneinfo.nr_slab_reclaimable
+    inst [N or "DMA32::node0"] value 32920
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 801816
+    inst [N or "Normal::node1"] value 408136
+
+mem.zoneinfo.nr_slab_unreclaimable
+    inst [N or "DMA32::node0"] value 5120
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 124460
+    inst [N or "Normal::node1"] value 79556
+
+mem.zoneinfo.nr_unevictable
+    inst [N or "DMA32::node0"] value 14244
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 122792
+    inst [N or "Normal::node1"] value 12672
+
+mem.zoneinfo.nr_unstable
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.nr_vmscan_immediate_reclaim
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.nr_vmscan_write
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.nr_writeback
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.nr_writeback_temp
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.nr_written
+    inst [N or "DMA32::node0"] value 844052
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 21335500
+    inst [N or "Normal::node1"] value 14817580
+
+mem.zoneinfo.numa_foreign
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.numa_hit
+    inst [N or "DMA32::node0"] value 63240112
+    inst [N or "DMA::node0"] value 576
+    inst [N or "Normal::node0"] value 1302059204
+    inst [N or "Normal::node1"] value 1125446956
+
+mem.zoneinfo.numa_interleave
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 143024
+    inst [N or "Normal::node1"] value 143084
+
+mem.zoneinfo.numa_local
+    inst [N or "DMA32::node0"] value 63230084
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 1302022456
+    inst [N or "Normal::node1"] value 1125232436
+
+mem.zoneinfo.numa_miss
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.numa_other
+    inst [N or "DMA32::node0"] value 10028
+    inst [N or "DMA::node0"] value 576
+    inst [N or "Normal::node0"] value 36748
+    inst [N or "Normal::node1"] value 214520
+
+mem.zoneinfo.present
+    inst [N or "DMA32::node0"] value 2049788
+    inst [N or "DMA::node0"] value 15988
+    inst [N or "Normal::node0"] value 65011712
+    inst [N or "Normal::node1"] value 67108864
+
+mem.zoneinfo.protection
+    inst [N or "DMA32::node0::lowmem_reserved0"] value 0
+    inst [N or "DMA32::node0::lowmem_reserved1"] value 0
+    inst [N or "DMA32::node0::lowmem_reserved2"] value 249844
+    inst [N or "DMA32::node0::lowmem_reserved3"] value 249844
+    inst [N or "DMA::node0::lowmem_reserved0"] value 0
+    inst [N or "DMA::node0::lowmem_reserved1"] value 7016
+    inst [N or "DMA::node0::lowmem_reserved2"] value 256864
+    inst [N or "DMA::node0::lowmem_reserved3"] value 256864
+    inst [N or "Normal::node0::lowmem_reserved0"] value 0
+    inst [N or "Normal::node0::lowmem_reserved1"] value 0
+    inst [N or "Normal::node0::lowmem_reserved2"] value 0
+    inst [N or "Normal::node0::lowmem_reserved3"] value 0
+    inst [N or "Normal::node1::lowmem_reserved0"] value 0
+    inst [N or "Normal::node1::lowmem_reserved1"] value 0
+    inst [N or "Normal::node1::lowmem_reserved2"] value 0
+    inst [N or "Normal::node1::lowmem_reserved3"] value 0
+
+mem.zoneinfo.scanned
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.spanned
+    inst [N or "DMA32::node0"] value 4177920
+    inst [N or "DMA::node0"] value 16380
+    inst [N or "Normal::node0"] value 65011712
+    inst [N or "Normal::node1"] value 67108864
+
+mem.zoneinfo.workingset_activate
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.workingset_nodereclaim
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.workingset_refault
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+== done
+
+== Checking slabinfo metric values - meminfo-root-003.tgz
+
+mem.slabinfo.objects.active
+    inst [0 or "nf_conntrack_ffff881026e52400"] value 0
+    inst [1 or "nf_conntrack_ffff881026e50000"] value 0
+    inst [2 or "nf_conntrack_ffffffff81a25e00"] value 1632
+    inst [3 or "fuse_inode"] value 0
+    inst [4 or "btrfs_delayed_data_ref"] value 0
+    inst [5 or "btrfs_delayed_ref_head"] value 0
+    inst [6 or "btrfs_delayed_node"] value 0
+    inst [7 or "btrfs_ordered_extent"] value 0
+    inst [8 or "btrfs_extent_buffer"] value 0
+    inst [9 or "btrfs_delalloc_work"] value 0
+    inst [10 or "btrfs_path"] value 0
+    inst [11 or "btrfs_trans_handle"] value 0
+    inst [12 or "btrfs_inode"] value 0
+    inst [13 or "sw_flow"] value 58
+    inst [14 or "t10_alua_tg_pt_gp_cache"] value 0
+    inst [15 or "t10_pr_reg_cache"] value 0
+    inst [16 or "se_sess_cache"] value 0
+    inst [17 or "fat_inode_cache"] value 90
+    inst [18 or "fat_cache"] value 102
+    inst [19 or "kvm_vcpu"] value 78
+    inst [20 or "kvm_mmu_page_header"] value 2160
+    inst [21 or "ext4_groupinfo_4k"] value 30
+    inst [22 or "ext4_inode_cache"] value 62
+    inst [23 or "ext4_xattr"] value 0
+    inst [24 or "ext4_free_data"] value 0
+    inst [25 or "ext4_allocation_context"] value 0
+    inst [26 or "ext4_io_end"] value 0
+    inst [27 or "ext4_extent_status"] value 204
+    inst [28 or "jbd2_journal_handle"] value 0
+    inst [29 or "jbd2_journal_head"] value 0
+    inst [30 or "jbd2_revoke_table_s"] value 256
+    inst [31 or "jbd2_revoke_record_s"] value 0
+    inst [32 or "nfsd4_openowners"] value 0
+    inst [33 or "rpc_inode_cache"] value 51
+    inst [34 or "xfs_dqtrx"] value 0
+    inst [35 or "xfs_dquot"] value 0
+    inst [36 or "xfs_icr"] value 0
+    inst [37 or "xfs_ili"] value 129055
+    inst [38 or "xfs_inode"] value 317289
+    inst [39 or "xfs_efd_item"] value 2400
+    inst [40 or "xfs_da_state"] value 1088
+    inst [41 or "xfs_btree_cur"] value 1248
+    inst [42 or "xfs_log_ticket"] value 2904
+    inst [43 or "scsi_cmd_cache"] value 3636
+    inst [44 or "qla2xxx_srbs"] value 459
+    inst [45 or "kcopyd_job"] value 0
+    inst [46 or "dm_uevent"] value 0
+    inst [47 or "dm_rq_target_io"] value 780
+    inst [48 or "UDPLITEv6"] value 0
+    inst [49 or "UDPv6"] value 560
+    inst [50 or "tw_sock_TCPv6"] value 0
+    inst [51 or "TCPv6"] value 465
+    inst [52 or "uhci_urb_priv"] value 6602
+    inst [53 or "cfq_queue"] value 4515
+    inst [54 or "bsg_cmd"] value 0
+    inst [55 or "mqueue_inode_cache"] value 108
+    inst [56 or "hugetlbfs_inode_cache"] value 159
+    inst [57 or "configfs_dir_cache"] value 46
+    inst [58 or "dquot"] value 0
+    inst [59 or "kioctx"] value 0
+    inst [60 or "userfaultfd_ctx_cache"] value 0
+    inst [61 or "pid_namespace"] value 30
+    inst [62 or "user_namespace"] value 0
+    inst [63 or "posix_timers_cache"] value 528
+    inst [64 or "UDP-Lite"] value 0
+    inst [65 or "RAW"] value 1632
+    inst [66 or "UDP"] value 1024
+    inst [67 or "tw_sock_TCP"] value 544
+    inst [68 or "TCP"] value 510
+    inst [69 or "blkdev_queue"] value 90
+    inst [70 or "blkdev_requests"] value 25378
+    inst [71 or "blkdev_ioc"] value 1248
+    inst [72 or "fsnotify_event_holder"] value 127330
+    inst [73 or "fsnotify_event"] value 4012
+    inst [74 or "sock_inode_cache"] value 2448
+    inst [75 or "net_namespace"] value 14
+    inst [76 or "shmem_inode_cache"] value 3264
+    inst [77 or "Acpi-ParseExt"] value 7280
+    inst [78 or "Acpi-Namespace"] value 4386
+    inst [79 or "taskstats"] value 1568
+    inst [80 or "proc_inode_cache"] value 43979
+    inst [81 or "sigqueue"] value 1632
+    inst [82 or "bdev_cache"] value 234
+    inst [83 or "sysfs_dir_cache"] value 61207
+    inst [84 or "inode_cache"] value 35310
+    inst [85 or "dentry"] value 540173
+    inst [86 or "iint_cache"] value 0
+    inst [87 or "selinux_inode_security"] value 394783
+    inst [88 or "buffer_head"] value 6365463
+    inst [89 or "vm_area_struct"] value 24880
+    inst [90 or "mm_struct"] value 880
+    inst [91 or "files_cache"] value 1683
+    inst [92 or "signal_cache"] value 3209
+    inst [93 or "sighand_cache"] value 1477
+    inst [94 or "task_xstate"] value 5532
+    inst [95 or "task_struct"] value 1566
+    inst [96 or "anon_vma"] value 21485
+    inst [97 or "shared_policy_node"] value 4930
+    inst [98 or "numa_policy"] value 1023
+    inst [99 or "radix_tree_node"] value 169624
+    inst [100 or "idr_layer_cache"] value 885
+    inst [101 or "dma-kmalloc-8192"] value 0
+    inst [102 or "dma-kmalloc-4096"] value 0
+    inst [103 or "dma-kmalloc-2048"] value 0
+    inst [104 or "dma-kmalloc-1024"] value 0
+    inst [105 or "dma-kmalloc-512"] value 0
+    inst [106 or "dma-kmalloc-256"] value 0
+    inst [107 or "dma-kmalloc-128"] value 0
+    inst [108 or "dma-kmalloc-64"] value 0
+    inst [109 or "dma-kmalloc-32"] value 0
+    inst [110 or "dma-kmalloc-16"] value 0
+    inst [111 or "dma-kmalloc-8"] value 0
+    inst [112 or "dma-kmalloc-192"] value 0
+    inst [113 or "dma-kmalloc-96"] value 0
+    inst [114 or "kmalloc-8192"] value 437
+    inst [115 or "kmalloc-4096"] value 2059
+    inst [116 or "kmalloc-2048"] value 2593
+    inst [117 or "kmalloc-1024"] value 7808
+    inst [118 or "kmalloc-512"] value 6704
+    inst [119 or "kmalloc-256"] value 10613
+    inst [120 or "kmalloc-192"] value 17708
+    inst [121 or "kmalloc-128"] value 10627
+    inst [122 or "kmalloc-96"] value 13683
+    inst [123 or "kmalloc-64"] value 729033
+    inst [124 or "kmalloc-32"] value 169856
+    inst [125 or "kmalloc-16"] value 141513
+    inst [126 or "kmalloc-8"] value 102400
+    inst [127 or "kmem_cache_node"] value 1027
+    inst [128 or "kmem_cache"] value 480
+
+mem.slabinfo.objects.size
+    inst [0 or "nf_conntrack_ffff881026e52400"] value 320
+    inst [1 or "nf_conntrack_ffff881026e50000"] value 320
+    inst [2 or "nf_conntrack_ffffffff81a25e00"] value 320
+    inst [3 or "fuse_inode"] value 768
+    inst [4 or "btrfs_delayed_data_ref"] value 96
+    inst [5 or "btrfs_delayed_ref_head"] value 160
+    inst [6 or "btrfs_delayed_node"] value 304
+    inst [7 or "btrfs_ordered_extent"] value 424
+    inst [8 or "btrfs_extent_buffer"] value 280
+    inst [9 or "btrfs_delalloc_work"] value 152
+    inst [10 or "btrfs_path"] value 144
+    inst [11 or "btrfs_trans_handle"] value 176
+    inst [12 or "btrfs_inode"] value 1008
+    inst [13 or "sw_flow"] value 552
+    inst [14 or "t10_alua_tg_pt_gp_cache"] value 408
+    inst [15 or "t10_pr_reg_cache"] value 696
+    inst [16 or "se_sess_cache"] value 896
+    inst [17 or "fat_inode_cache"] value 720
+    inst [18 or "fat_cache"] value 40
+    inst [19 or "kvm_vcpu"] value 16256
+    inst [20 or "kvm_mmu_page_header"] value 168
+    inst [21 or "ext4_groupinfo_4k"] value 136
+    inst [22 or "ext4_inode_cache"] value 1048
+    inst [23 or "ext4_xattr"] value 88
+    inst [24 or "ext4_free_data"] value 64
+    inst [25 or "ext4_allocation_context"] value 128
+    inst [26 or "ext4_io_end"] value 80
+    inst [27 or "ext4_extent_status"] value 40
+    inst [28 or "jbd2_journal_handle"] value 48
+    inst [29 or "jbd2_journal_head"] value 112
+    inst [30 or "jbd2_revoke_table_s"] value 16
+    inst [31 or "jbd2_revoke_record_s"] value 32
+    inst [32 or "nfsd4_openowners"] value 440
+    inst [33 or "rpc_inode_cache"] value 640
+    inst [34 or "xfs_dqtrx"] value 528
+    inst [35 or "xfs_dquot"] value 472
+    inst [36 or "xfs_icr"] value 144
+    inst [37 or "xfs_ili"] value 152
+    inst [38 or "xfs_inode"] value 1088
+    inst [39 or "xfs_efd_item"] value 400
+    inst [40 or "xfs_da_state"] value 480
+    inst [41 or "xfs_btree_cur"] value 208
+    inst [42 or "xfs_log_ticket"] value 184
+    inst [43 or "scsi_cmd_cache"] value 448
+    inst [44 or "qla2xxx_srbs"] value 320
+    inst [45 or "kcopyd_job"] value 3312
+    inst [46 or "dm_uevent"] value 2608
+    inst [47 or "dm_rq_target_io"] value 136
+    inst [48 or "UDPLITEv6"] value 1152
+    inst [49 or "UDPv6"] value 1152
+    inst [50 or "tw_sock_TCPv6"] value 256
+    inst [51 or "TCPv6"] value 2112
+    inst [52 or "uhci_urb_priv"] value 56
+    inst [53 or "cfq_queue"] value 232
+    inst [54 or "bsg_cmd"] value 312
+    inst [55 or "mqueue_inode_cache"] value 896
+    inst [56 or "hugetlbfs_inode_cache"] value 608
+    inst [57 or "configfs_dir_cache"] value 88
+    inst [58 or "dquot"] value 256
+    inst [59 or "kioctx"] value 576
+    inst [60 or "userfaultfd_ctx_cache"] value 128
+    inst [61 or "pid_namespace"] value 2176
+    inst [62 or "user_namespace"] value 280
+    inst [63 or "posix_timers_cache"] value 248
+    inst [64 or "UDP-Lite"] value 1024
+    inst [65 or "RAW"] value 960
+    inst [66 or "UDP"] value 1024
+    inst [67 or "tw_sock_TCP"] value 256
+    inst [68 or "TCP"] value 1920
+    inst [69 or "blkdev_queue"] value 2088
+    inst [70 or "blkdev_requests"] value 384
+    inst [71 or "blkdev_ioc"] value 104
+    inst [72 or "fsnotify_event_holder"] value 24
+    inst [73 or "fsnotify_event"] value 120
+    inst [74 or "sock_inode_cache"] value 640
+    inst [75 or "net_namespace"] value 4608
+    inst [76 or "shmem_inode_cache"] value 680
+    inst [77 or "Acpi-ParseExt"] value 72
+    inst [78 or "Acpi-Namespace"] value 40
+    inst [79 or "taskstats"] value 328
+    inst [80 or "proc_inode_cache"] value 656
+    inst [81 or "sigqueue"] value 160
+    inst [82 or "bdev_cache"] value 832
+    inst [83 or "sysfs_dir_cache"] value 112
+    inst [84 or "inode_cache"] value 592
+    inst [85 or "dentry"] value 192
+    inst [86 or "iint_cache"] value 80
+    inst [87 or "selinux_inode_security"] value 80
+    inst [88 or "buffer_head"] value 104
+    inst [89 or "vm_area_struct"] value 216
+    inst [90 or "mm_struct"] value 1600
+    inst [91 or "files_cache"] value 640
+    inst [92 or "signal_cache"] value 1152
+    inst [93 or "sighand_cache"] value 2112
+    inst [94 or "task_xstate"] value 832
+    inst [95 or "task_struct"] value 2944
+    inst [96 or "anon_vma"] value 64
+    inst [97 or "shared_policy_node"] value 48
+    inst [98 or "numa_policy"] value 264
+    inst [99 or "radix_tree_node"] value 584
+    inst [100 or "idr_layer_cache"] value 2112
+    inst [101 or "dma-kmalloc-8192"] value 8192
+    inst [102 or "dma-kmalloc-4096"] value 4096
+    inst [103 or "dma-kmalloc-2048"] value 2048
+    inst [104 or "dma-kmalloc-1024"] value 1024
+    inst [105 or "dma-kmalloc-512"] value 512
+    inst [106 or "dma-kmalloc-256"] value 256
+    inst [107 or "dma-kmalloc-128"] value 128
+    inst [108 or "dma-kmalloc-64"] value 64
+    inst [109 or "dma-kmalloc-32"] value 32
+    inst [110 or "dma-kmalloc-16"] value 16
+    inst [111 or "dma-kmalloc-8"] value 8
+    inst [112 or "dma-kmalloc-192"] value 192
+    inst [113 or "dma-kmalloc-96"] value 96
+    inst [114 or "kmalloc-8192"] value 8192
+    inst [115 or "kmalloc-4096"] value 4096
+    inst [116 or "kmalloc-2048"] value 2048
+    inst [117 or "kmalloc-1024"] value 1024
+    inst [118 or "kmalloc-512"] value 512
+    inst [119 or "kmalloc-256"] value 256
+    inst [120 or "kmalloc-192"] value 192
+    inst [121 or "kmalloc-128"] value 128
+    inst [122 or "kmalloc-96"] value 96
+    inst [123 or "kmalloc-64"] value 64
+    inst [124 or "kmalloc-32"] value 32
+    inst [125 or "kmalloc-16"] value 16
+    inst [126 or "kmalloc-8"] value 8
+    inst [127 or "kmem_cache_node"] value 64
+    inst [128 or "kmem_cache"] value 256
+
+mem.slabinfo.objects.total
+    inst [0 or "nf_conntrack_ffff881026e52400"] value 0
+    inst [1 or "nf_conntrack_ffff881026e50000"] value 0
+    inst [2 or "nf_conntrack_ffffffff81a25e00"] value 1632
+    inst [3 or "fuse_inode"] value 0
+    inst [4 or "btrfs_delayed_data_ref"] value 0
+    inst [5 or "btrfs_delayed_ref_head"] value 0
+    inst [6 or "btrfs_delayed_node"] value 0
+    inst [7 or "btrfs_ordered_extent"] value 0
+    inst [8 or "btrfs_extent_buffer"] value 0
+    inst [9 or "btrfs_delalloc_work"] value 0
+    inst [10 or "btrfs_path"] value 0
+    inst [11 or "btrfs_trans_handle"] value 0
+    inst [12 or "btrfs_inode"] value 0
+    inst [13 or "sw_flow"] value 58
+    inst [14 or "t10_alua_tg_pt_gp_cache"] value 0
+    inst [15 or "t10_pr_reg_cache"] value 0
+    inst [16 or "se_sess_cache"] value 0
+    inst [17 or "fat_inode_cache"] value 90
+    inst [18 or "fat_cache"] value 102
+    inst [19 or "kvm_vcpu"] value 78
+    inst [20 or "kvm_mmu_page_header"] value 2160
+    inst [21 or "ext4_groupinfo_4k"] value 30
+    inst [22 or "ext4_inode_cache"] value 62
+    inst [23 or "ext4_xattr"] value 0
+    inst [24 or "ext4_free_data"] value 0
+    inst [25 or "ext4_allocation_context"] value 0
+    inst [26 or "ext4_io_end"] value 0
+    inst [27 or "ext4_extent_status"] value 204
+    inst [28 or "jbd2_journal_handle"] value 0
+    inst [29 or "jbd2_journal_head"] value 0
+    inst [30 or "jbd2_revoke_table_s"] value 256
+    inst [31 or "jbd2_revoke_record_s"] value 0
+    inst [32 or "nfsd4_openowners"] value 0
+    inst [33 or "rpc_inode_cache"] value 51
+    inst [34 or "xfs_dqtrx"] value 0
+    inst [35 or "xfs_dquot"] value 0
+    inst [36 or "xfs_icr"] value 0
+    inst [37 or "xfs_ili"] value 129055
+    inst [38 or "xfs_inode"] value 317370
+    inst [39 or "xfs_efd_item"] value 2640
+    inst [40 or "xfs_da_state"] value 1088
+    inst [41 or "xfs_btree_cur"] value 1248
+    inst [42 or "xfs_log_ticket"] value 3036
+    inst [43 or "scsi_cmd_cache"] value 3636
+    inst [44 or "qla2xxx_srbs"] value 459
+    inst [45 or "kcopyd_job"] value 0
+    inst [46 or "dm_uevent"] value 0
+    inst [47 or "dm_rq_target_io"] value 780
+    inst [48 or "UDPLITEv6"] value 0
+    inst [49 or "UDPv6"] value 560
+    inst [50 or "tw_sock_TCPv6"] value 0
+    inst [51 or "TCPv6"] value 465
+    inst [52 or "uhci_urb_priv"] value 6862
+    inst [53 or "cfq_queue"] value 4690
+    inst [54 or "bsg_cmd"] value 0
+    inst [55 or "mqueue_inode_cache"] value 108
+    inst [56 or "hugetlbfs_inode_cache"] value 159
+    inst [57 or "configfs_dir_cache"] value 46
+    inst [58 or "dquot"] value 0
+    inst [59 or "kioctx"] value 0
+    inst [60 or "userfaultfd_ctx_cache"] value 0
+    inst [61 or "pid_namespace"] value 30
+    inst [62 or "user_namespace"] value 0
+    inst [63 or "posix_timers_cache"] value 528
+    inst [64 or "UDP-Lite"] value 0
+    inst [65 or "RAW"] value 1632
+    inst [66 or "UDP"] value 1024
+    inst [67 or "tw_sock_TCP"] value 544
+    inst [68 or "TCP"] value 510
+    inst [69 or "blkdev_queue"] value 90
+    inst [70 or "blkdev_requests"] value 25578
+    inst [71 or "blkdev_ioc"] value 1248
+    inst [72 or "fsnotify_event_holder"] value 127330
+    inst [73 or "fsnotify_event"] value 4114
+    inst [74 or "sock_inode_cache"] value 2448
+    inst [75 or "net_namespace"] value 14
+    inst [76 or "shmem_inode_cache"] value 3264
+    inst [77 or "Acpi-ParseExt"] value 7280
+    inst [78 or "Acpi-Namespace"] value 4386
+    inst [79 or "taskstats"] value 1568
+    inst [80 or "proc_inode_cache"] value 44639
+    inst [81 or "sigqueue"] value 1632
+    inst [82 or "bdev_cache"] value 234
+    inst [83 or "sysfs_dir_cache"] value 61236
+    inst [84 or "inode_cache"] value 35310
+    inst [85 or "dentry"] value 540456
+    inst [86 or "iint_cache"] value 0
+    inst [87 or "selinux_inode_security"] value 395658
+    inst [88 or "buffer_head"] value 6365463
+    inst [89 or "vm_area_struct"] value 25271
+    inst [90 or "mm_struct"] value 880
+    inst [91 or "files_cache"] value 1683
+    inst [92 or "signal_cache"] value 3500
+    inst [93 or "sighand_cache"] value 1515
+    inst [94 or "task_xstate"] value 5928
+    inst [95 or "task_struct"] value 1606
+    inst [96 or "anon_vma"] value 22144
+    inst [97 or "shared_policy_node"] value 4930
+    inst [98 or "numa_policy"] value 1023
+    inst [99 or "radix_tree_node"] value 169624
+    inst [100 or "idr_layer_cache"] value 885
+    inst [101 or "dma-kmalloc-8192"] value 0
+    inst [102 or "dma-kmalloc-4096"] value 0
+    inst [103 or "dma-kmalloc-2048"] value 0
+    inst [104 or "dma-kmalloc-1024"] value 0
+    inst [105 or "dma-kmalloc-512"] value 0
+    inst [106 or "dma-kmalloc-256"] value 0
+    inst [107 or "dma-kmalloc-128"] value 0
+    inst [108 or "dma-kmalloc-64"] value 0
+    inst [109 or "dma-kmalloc-32"] value 0
+    inst [110 or "dma-kmalloc-16"] value 0
+    inst [111 or "dma-kmalloc-8"] value 0
+    inst [112 or "dma-kmalloc-192"] value 0
+    inst [113 or "dma-kmalloc-96"] value 0
+    inst [114 or "kmalloc-8192"] value 476
+    inst [115 or "kmalloc-4096"] value 2120
+    inst [116 or "kmalloc-2048"] value 2672
+    inst [117 or "kmalloc-1024"] value 7808
+    inst [118 or "kmalloc-512"] value 7040
+    inst [119 or "kmalloc-256"] value 11616
+    inst [120 or "kmalloc-192"] value 18270
+    inst [121 or "kmalloc-128"] value 13952
+    inst [122 or "kmalloc-96"] value 13776
+    inst [123 or "kmalloc-64"] value 730816
+    inst [124 or "kmalloc-32"] value 169856
+    inst [125 or "kmalloc-16"] value 142336
+    inst [126 or "kmalloc-8"] value 102400
+    inst [127 or "kmem_cache_node"] value 1088
+    inst [128 or "kmem_cache"] value 480
+
+mem.slabinfo.slabs.active
+    inst [0 or "nf_conntrack_ffff881026e52400"] value 0
+    inst [1 or "nf_conntrack_ffff881026e50000"] value 0
+    inst [2 or "nf_conntrack_ffffffff81a25e00"] value 0
+    inst [3 or "fuse_inode"] value 0
+    inst [4 or "btrfs_delayed_data_ref"] value 0
+    inst [5 or "btrfs_delayed_ref_head"] value 0
+    inst [6 or "btrfs_delayed_node"] value 0
+    inst [7 or "btrfs_ordered_extent"] value 0
+    inst [8 or "btrfs_extent_buffer"] value 0
+    inst [9 or "btrfs_delalloc_work"] value 0
+    inst [10 or "btrfs_path"] value 0
+    inst [11 or "btrfs_trans_handle"] value 0
+    inst [12 or "btrfs_inode"] value 0
+    inst [13 or "sw_flow"] value 0
+    inst [14 or "t10_alua_tg_pt_gp_cache"] value 0
+    inst [15 or "t10_pr_reg_cache"] value 0
+    inst [16 or "se_sess_cache"] value 0
+    inst [17 or "fat_inode_cache"] value 0
+    inst [18 or "fat_cache"] value 0
+    inst [19 or "kvm_vcpu"] value 0
+    inst [20 or "kvm_mmu_page_header"] value 0
+    inst [21 or "ext4_groupinfo_4k"] value 0
+    inst [22 or "ext4_inode_cache"] value 0
+    inst [23 or "ext4_xattr"] value 0
+    inst [24 or "ext4_free_data"] value 0
+    inst [25 or "ext4_allocation_context"] value 0
+    inst [26 or "ext4_io_end"] value 0
+    inst [27 or "ext4_extent_status"] value 0
+    inst [28 or "jbd2_journal_handle"] value 0
+    inst [29 or "jbd2_journal_head"] value 0
+    inst [30 or "jbd2_revoke_table_s"] value 0
+    inst [31 or "jbd2_revoke_record_s"] value 0
+    inst [32 or "nfsd4_openowners"] value 0
+    inst [33 or "rpc_inode_cache"] value 0
+    inst [34 or "xfs_dqtrx"] value 0
+    inst [35 or "xfs_dquot"] value 0
+    inst [36 or "xfs_icr"] value 0
+    inst [37 or "xfs_ili"] value 0
+    inst [38 or "xfs_inode"] value 0
+    inst [39 or "xfs_efd_item"] value 0
+    inst [40 or "xfs_da_state"] value 0
+    inst [41 or "xfs_btree_cur"] value 0
+    inst [42 or "xfs_log_ticket"] value 0
+    inst [43 or "scsi_cmd_cache"] value 0
+    inst [44 or "qla2xxx_srbs"] value 0
+    inst [45 or "kcopyd_job"] value 0
+    inst [46 or "dm_uevent"] value 0
+    inst [47 or "dm_rq_target_io"] value 0
+    inst [48 or "UDPLITEv6"] value 0
+    inst [49 or "UDPv6"] value 0
+    inst [50 or "tw_sock_TCPv6"] value 0
+    inst [51 or "TCPv6"] value 0
+    inst [52 or "uhci_urb_priv"] value 0
+    inst [53 or "cfq_queue"] value 0
+    inst [54 or "bsg_cmd"] value 0
+    inst [55 or "mqueue_inode_cache"] value 0
+    inst [56 or "hugetlbfs_inode_cache"] value 0
+    inst [57 or "configfs_dir_cache"] value 0
+    inst [58 or "dquot"] value 0
+    inst [59 or "kioctx"] value 0
+    inst [60 or "userfaultfd_ctx_cache"] value 0
+    inst [61 or "pid_namespace"] value 0
+    inst [62 or "user_namespace"] value 0
+    inst [63 or "posix_timers_cache"] value 0
+    inst [64 or "UDP-Lite"] value 0
+    inst [65 or "RAW"] value 0
+    inst [66 or "UDP"] value 0
+    inst [67 or "tw_sock_TCP"] value 0
+    inst [68 or "TCP"] value 0
+    inst [69 or "blkdev_queue"] value 0
+    inst [70 or "blkdev_requests"] value 0
+    inst [71 or "blkdev_ioc"] value 0
+    inst [72 or "fsnotify_event_holder"] value 0
+    inst [73 or "fsnotify_event"] value 0
+    inst [74 or "sock_inode_cache"] value 0
+    inst [75 or "net_namespace"] value 0
+    inst [76 or "shmem_inode_cache"] value 0
+    inst [77 or "Acpi-ParseExt"] value 0
+    inst [78 or "Acpi-Namespace"] value 0
+    inst [79 or "taskstats"] value 0
+    inst [80 or "proc_inode_cache"] value 0
+    inst [81 or "sigqueue"] value 0
+    inst [82 or "bdev_cache"] value 0
+    inst [83 or "sysfs_dir_cache"] value 0
+    inst [84 or "inode_cache"] value 0
+    inst [85 or "dentry"] value 0
+    inst [86 or "iint_cache"] value 0
+    inst [87 or "selinux_inode_security"] value 0
+    inst [88 or "buffer_head"] value 0
+    inst [89 or "vm_area_struct"] value 0
+    inst [90 or "mm_struct"] value 0
+    inst [91 or "files_cache"] value 0
+    inst [92 or "signal_cache"] value 0
+    inst [93 or "sighand_cache"] value 0
+    inst [94 or "task_xstate"] value 0
+    inst [95 or "task_struct"] value 0
+    inst [96 or "anon_vma"] value 0
+    inst [97 or "shared_policy_node"] value 0
+    inst [98 or "numa_policy"] value 0
+    inst [99 or "radix_tree_node"] value 0
+    inst [100 or "idr_layer_cache"] value 0
+    inst [101 or "dma-kmalloc-8192"] value 0
+    inst [102 or "dma-kmalloc-4096"] value 0
+    inst [103 or "dma-kmalloc-2048"] value 0
+    inst [104 or "dma-kmalloc-1024"] value 0
+    inst [105 or "dma-kmalloc-512"] value 0
+    inst [106 or "dma-kmalloc-256"] value 0
+    inst [107 or "dma-kmalloc-128"] value 0
+    inst [108 or "dma-kmalloc-64"] value 0
+    inst [109 or "dma-kmalloc-32"] value 0
+    inst [110 or "dma-kmalloc-16"] value 0
+    inst [111 or "dma-kmalloc-8"] value 0
+    inst [112 or "dma-kmalloc-192"] value 0
+    inst [113 or "dma-kmalloc-96"] value 0
+    inst [114 or "kmalloc-8192"] value 0
+    inst [115 or "kmalloc-4096"] value 0
+    inst [116 or "kmalloc-2048"] value 0
+    inst [117 or "kmalloc-1024"] value 0
+    inst [118 or "kmalloc-512"] value 0
+    inst [119 or "kmalloc-256"] value 0
+    inst [120 or "kmalloc-192"] value 0
+    inst [121 or "kmalloc-128"] value 0
+    inst [122 or "kmalloc-96"] value 0
+    inst [123 or "kmalloc-64"] value 0
+    inst [124 or "kmalloc-32"] value 0
+    inst [125 or "kmalloc-16"] value 0
+    inst [126 or "kmalloc-8"] value 0
+    inst [127 or "kmem_cache_node"] value 0
+    inst [128 or "kmem_cache"] value 0
+
+mem.slabinfo.slabs.objects_per_slab
+No value(s) available!
+
+mem.slabinfo.slabs.pages_per_slab
+    inst [0 or "nf_conntrack_ffff881026e52400"] value 4
+    inst [1 or "nf_conntrack_ffff881026e50000"] value 4
+    inst [2 or "nf_conntrack_ffffffff81a25e00"] value 4
+    inst [3 or "fuse_inode"] value 8
+    inst [4 or "btrfs_delayed_data_ref"] value 1
+    inst [5 or "btrfs_delayed_ref_head"] value 2
+    inst [6 or "btrfs_delayed_node"] value 4
+    inst [7 or "btrfs_ordered_extent"] value 4
+    inst [8 or "btrfs_extent_buffer"] value 2
+    inst [9 or "btrfs_delalloc_work"] value 2
+    inst [10 or "btrfs_path"] value 1
+    inst [11 or "btrfs_trans_handle"] value 2
+    inst [12 or "btrfs_inode"] value 8
+    inst [13 or "sw_flow"] value 4
+    inst [14 or "t10_alua_tg_pt_gp_cache"] value 4
+    inst [15 or "t10_pr_reg_cache"] value 8
+    inst [16 or "se_sess_cache"] value 8
+    inst [17 or "fat_inode_cache"] value 8
+    inst [18 or "fat_cache"] value 1
+    inst [19 or "kvm_vcpu"] value 8
+    inst [20 or "kvm_mmu_page_header"] value 2
+    inst [21 or "ext4_groupinfo_4k"] value 1
+    inst [22 or "ext4_inode_cache"] value 8
+    inst [23 or "ext4_xattr"] value 1
+    inst [24 or "ext4_free_data"] value 1
+    inst [25 or "ext4_allocation_context"] value 1
+    inst [26 or "ext4_io_end"] value 1
+    inst [27 or "ext4_extent_status"] value 1
+    inst [28 or "jbd2_journal_handle"] value 1
+    inst [29 or "jbd2_journal_head"] value 1
+    inst [30 or "jbd2_revoke_table_s"] value 1
+    inst [31 or "jbd2_revoke_record_s"] value 1
+    inst [32 or "nfsd4_openowners"] value 4
+    inst [33 or "rpc_inode_cache"] value 8
+    inst [34 or "xfs_dqtrx"] value 4
+    inst [35 or "xfs_dquot"] value 4
+    inst [36 or "xfs_icr"] value 1
+    inst [37 or "xfs_ili"] value 2
+    inst [38 or "xfs_inode"] value 8
+    inst [39 or "xfs_efd_item"] value 4
+    inst [40 or "xfs_da_state"] value 4
+    inst [41 or "xfs_btree_cur"] value 2
+    inst [42 or "xfs_log_ticket"] value 2
+    inst [43 or "scsi_cmd_cache"] value 4
+    inst [44 or "qla2xxx_srbs"] value 4
+    inst [45 or "kcopyd_job"] value 8
+    inst [46 or "dm_uevent"] value 8
+    inst [47 or "dm_rq_target_io"] value 1
+    inst [48 or "UDPLITEv6"] value 8
+    inst [49 or "UDPv6"] value 8
+    inst [50 or "tw_sock_TCPv6"] value 2
+    inst [51 or "TCPv6"] value 8
+    inst [52 or "uhci_urb_priv"] value 1
+    inst [53 or "cfq_queue"] value 2
+    inst [54 or "bsg_cmd"] value 4
+    inst [55 or "mqueue_inode_cache"] value 8
+    inst [56 or "hugetlbfs_inode_cache"] value 8
+    inst [57 or "configfs_dir_cache"] value 1
+    inst [58 or "dquot"] value 2
+    inst [59 or "kioctx"] value 4
+    inst [60 or "userfaultfd_ctx_cache"] value 1
+    inst [61 or "pid_namespace"] value 8
+    inst [62 or "user_namespace"] value 2
+    inst [63 or "posix_timers_cache"] value 2
+    inst [64 or "UDP-Lite"] value 8
+    inst [65 or "RAW"] value 8
+    inst [66 or "UDP"] value 8
+    inst [67 or "tw_sock_TCP"] value 2
+    inst [68 or "TCP"] value 8
+    inst [69 or "blkdev_queue"] value 8
+    inst [70 or "blkdev_requests"] value 4
+    inst [71 or "blkdev_ioc"] value 1
+    inst [72 or "fsnotify_event_holder"] value 1
+    inst [73 or "fsnotify_event"] value 1
+    inst [74 or "sock_inode_cache"] value 8
+    inst [75 or "net_namespace"] value 8
+    inst [76 or "shmem_inode_cache"] value 8
+    inst [77 or "Acpi-ParseExt"] value 1
+    inst [78 or "Acpi-Namespace"] value 1
+    inst [79 or "taskstats"] value 4
+    inst [80 or "proc_inode_cache"] value 8
+    inst [81 or "sigqueue"] value 2
+    inst [82 or "bdev_cache"] value 8
+    inst [83 or "sysfs_dir_cache"] value 1
+    inst [84 or "inode_cache"] value 8
+    inst [85 or "dentry"] value 2
+    inst [86 or "iint_cache"] value 1
+    inst [87 or "selinux_inode_security"] value 1
+    inst [88 or "buffer_head"] value 1
+    inst [89 or "vm_area_struct"] value 2
+    inst [90 or "mm_struct"] value 8
+    inst [91 or "files_cache"] value 8
+    inst [92 or "signal_cache"] value 8
+    inst [93 or "sighand_cache"] value 8
+    inst [94 or "task_xstate"] value 8
+    inst [95 or "task_struct"] value 8
+    inst [96 or "anon_vma"] value 1
+    inst [97 or "shared_policy_node"] value 1
+    inst [98 or "numa_policy"] value 2
+    inst [99 or "radix_tree_node"] value 4
+    inst [100 or "idr_layer_cache"] value 8
+    inst [101 or "dma-kmalloc-8192"] value 8
+    inst [102 or "dma-kmalloc-4096"] value 8
+    inst [103 or "dma-kmalloc-2048"] value 8
+    inst [104 or "dma-kmalloc-1024"] value 8
+    inst [105 or "dma-kmalloc-512"] value 4
+    inst [106 or "dma-kmalloc-256"] value 2
+    inst [107 or "dma-kmalloc-128"] value 1
+    inst [108 or "dma-kmalloc-64"] value 1
+    inst [109 or "dma-kmalloc-32"] value 1
+    inst [110 or "dma-kmalloc-16"] value 1
+    inst [111 or "dma-kmalloc-8"] value 1
+    inst [112 or "dma-kmalloc-192"] value 2
+    inst [113 or "dma-kmalloc-96"] value 1
+    inst [114 or "kmalloc-8192"] value 8
+    inst [115 or "kmalloc-4096"] value 8
+    inst [116 or "kmalloc-2048"] value 8
+    inst [117 or "kmalloc-1024"] value 8
+    inst [118 or "kmalloc-512"] value 4
+    inst [119 or "kmalloc-256"] value 2
+    inst [120 or "kmalloc-192"] value 2
+    inst [121 or "kmalloc-128"] value 1
+    inst [122 or "kmalloc-96"] value 1
+    inst [123 or "kmalloc-64"] value 1
+    inst [124 or "kmalloc-32"] value 1
+    inst [125 or "kmalloc-16"] value 1
+    inst [126 or "kmalloc-8"] value 1
+    inst [127 or "kmem_cache_node"] value 1
+    inst [128 or "kmem_cache"] value 2
+
+mem.slabinfo.slabs.total
+    inst [0 or "nf_conntrack_ffff881026e52400"] value 0
+    inst [1 or "nf_conntrack_ffff881026e50000"] value 0
+    inst [2 or "nf_conntrack_ffffffff81a25e00"] value 0
+    inst [3 or "fuse_inode"] value 0
+    inst [4 or "btrfs_delayed_data_ref"] value 0
+    inst [5 or "btrfs_delayed_ref_head"] value 0
+    inst [6 or "btrfs_delayed_node"] value 0
+    inst [7 or "btrfs_ordered_extent"] value 0
+    inst [8 or "btrfs_extent_buffer"] value 0
+    inst [9 or "btrfs_delalloc_work"] value 0
+    inst [10 or "btrfs_path"] value 0
+    inst [11 or "btrfs_trans_handle"] value 0
+    inst [12 or "btrfs_inode"] value 0
+    inst [13 or "sw_flow"] value 0
+    inst [14 or "t10_alua_tg_pt_gp_cache"] value 0
+    inst [15 or "t10_pr_reg_cache"] value 0
+    inst [16 or "se_sess_cache"] value 0
+    inst [17 or "fat_inode_cache"] value 0
+    inst [18 or "fat_cache"] value 0
+    inst [19 or "kvm_vcpu"] value 0
+    inst [20 or "kvm_mmu_page_header"] value 0
+    inst [21 or "ext4_groupinfo_4k"] value 0
+    inst [22 or "ext4_inode_cache"] value 0
+    inst [23 or "ext4_xattr"] value 0
+    inst [24 or "ext4_free_data"] value 0
+    inst [25 or "ext4_allocation_context"] value 0
+    inst [26 or "ext4_io_end"] value 0
+    inst [27 or "ext4_extent_status"] value 0
+    inst [28 or "jbd2_journal_handle"] value 0
+    inst [29 or "jbd2_journal_head"] value 0
+    inst [30 or "jbd2_revoke_table_s"] value 0
+    inst [31 or "jbd2_revoke_record_s"] value 0
+    inst [32 or "nfsd4_openowners"] value 0
+    inst [33 or "rpc_inode_cache"] value 0
+    inst [34 or "xfs_dqtrx"] value 0
+    inst [35 or "xfs_dquot"] value 0
+    inst [36 or "xfs_icr"] value 0
+    inst [37 or "xfs_ili"] value 0
+    inst [38 or "xfs_inode"] value 0
+    inst [39 or "xfs_efd_item"] value 0
+    inst [40 or "xfs_da_state"] value 0
+    inst [41 or "xfs_btree_cur"] value 0
+    inst [42 or "xfs_log_ticket"] value 0
+    inst [43 or "scsi_cmd_cache"] value 0
+    inst [44 or "qla2xxx_srbs"] value 0
+    inst [45 or "kcopyd_job"] value 0
+    inst [46 or "dm_uevent"] value 0
+    inst [47 or "dm_rq_target_io"] value 0
+    inst [48 or "UDPLITEv6"] value 0
+    inst [49 or "UDPv6"] value 0
+    inst [50 or "tw_sock_TCPv6"] value 0
+    inst [51 or "TCPv6"] value 0
+    inst [52 or "uhci_urb_priv"] value 0
+    inst [53 or "cfq_queue"] value 0
+    inst [54 or "bsg_cmd"] value 0
+    inst [55 or "mqueue_inode_cache"] value 0
+    inst [56 or "hugetlbfs_inode_cache"] value 0
+    inst [57 or "configfs_dir_cache"] value 0
+    inst [58 or "dquot"] value 0
+    inst [59 or "kioctx"] value 0
+    inst [60 or "userfaultfd_ctx_cache"] value 0
+    inst [61 or "pid_namespace"] value 0
+    inst [62 or "user_namespace"] value 0
+    inst [63 or "posix_timers_cache"] value 0
+    inst [64 or "UDP-Lite"] value 0
+    inst [65 or "RAW"] value 0
+    inst [66 or "UDP"] value 0
+    inst [67 or "tw_sock_TCP"] value 0
+    inst [68 or "TCP"] value 0
+    inst [69 or "blkdev_queue"] value 0
+    inst [70 or "blkdev_requests"] value 0
+    inst [71 or "blkdev_ioc"] value 0
+    inst [72 or "fsnotify_event_holder"] value 0
+    inst [73 or "fsnotify_event"] value 0
+    inst [74 or "sock_inode_cache"] value 0
+    inst [75 or "net_namespace"] value 0
+    inst [76 or "shmem_inode_cache"] value 0
+    inst [77 or "Acpi-ParseExt"] value 0
+    inst [78 or "Acpi-Namespace"] value 0
+    inst [79 or "taskstats"] value 0
+    inst [80 or "proc_inode_cache"] value 0
+    inst [81 or "sigqueue"] value 0
+    inst [82 or "bdev_cache"] value 0
+    inst [83 or "sysfs_dir_cache"] value 0
+    inst [84 or "inode_cache"] value 0
+    inst [85 or "dentry"] value 0
+    inst [86 or "iint_cache"] value 0
+    inst [87 or "selinux_inode_security"] value 0
+    inst [88 or "buffer_head"] value 0
+    inst [89 or "vm_area_struct"] value 0
+    inst [90 or "mm_struct"] value 0
+    inst [91 or "files_cache"] value 0
+    inst [92 or "signal_cache"] value 0
+    inst [93 or "sighand_cache"] value 0
+    inst [94 or "task_xstate"] value 0
+    inst [95 or "task_struct"] value 0
+    inst [96 or "anon_vma"] value 0
+    inst [97 or "shared_policy_node"] value 0
+    inst [98 or "numa_policy"] value 0
+    inst [99 or "radix_tree_node"] value 0
+    inst [100 or "idr_layer_cache"] value 0
+    inst [101 or "dma-kmalloc-8192"] value 0
+    inst [102 or "dma-kmalloc-4096"] value 0
+    inst [103 or "dma-kmalloc-2048"] value 0
+    inst [104 or "dma-kmalloc-1024"] value 0
+    inst [105 or "dma-kmalloc-512"] value 0
+    inst [106 or "dma-kmalloc-256"] value 0
+    inst [107 or "dma-kmalloc-128"] value 0
+    inst [108 or "dma-kmalloc-64"] value 0
+    inst [109 or "dma-kmalloc-32"] value 0
+    inst [110 or "dma-kmalloc-16"] value 0
+    inst [111 or "dma-kmalloc-8"] value 0
+    inst [112 or "dma-kmalloc-192"] value 0
+    inst [113 or "dma-kmalloc-96"] value 0
+    inst [114 or "kmalloc-8192"] value 0
+    inst [115 or "kmalloc-4096"] value 0
+    inst [116 or "kmalloc-2048"] value 0
+    inst [117 or "kmalloc-1024"] value 0
+    inst [118 or "kmalloc-512"] value 0
+    inst [119 or "kmalloc-256"] value 0
+    inst [120 or "kmalloc-192"] value 0
+    inst [121 or "kmalloc-128"] value 0
+    inst [122 or "kmalloc-96"] value 0
+    inst [123 or "kmalloc-64"] value 0
+    inst [124 or "kmalloc-32"] value 0
+    inst [125 or "kmalloc-16"] value 0
+    inst [126 or "kmalloc-8"] value 0
+    inst [127 or "kmem_cache_node"] value 0
+    inst [128 or "kmem_cache"] value 0
+
+mem.slabinfo.slabs.total_size
+    inst [0 or "nf_conntrack_ffff881026e52400"] value 0
+    inst [1 or "nf_conntrack_ffff881026e50000"] value 0
+    inst [2 or "nf_conntrack_ffffffff81a25e00"] value 524288
+    inst [3 or "fuse_inode"] value 0
+    inst [4 or "btrfs_delayed_data_ref"] value 0
+    inst [5 or "btrfs_delayed_ref_head"] value 0
+    inst [6 or "btrfs_delayed_node"] value 0
+    inst [7 or "btrfs_ordered_extent"] value 0
+    inst [8 or "btrfs_extent_buffer"] value 0
+    inst [9 or "btrfs_delalloc_work"] value 0
+    inst [10 or "btrfs_path"] value 0
+    inst [11 or "btrfs_trans_handle"] value 0
+    inst [12 or "btrfs_inode"] value 0
+    inst [13 or "sw_flow"] value 32768
+    inst [14 or "t10_alua_tg_pt_gp_cache"] value 0
+    inst [15 or "t10_pr_reg_cache"] value 0
+    inst [16 or "se_sess_cache"] value 0
+    inst [17 or "fat_inode_cache"] value 65536
+    inst [18 or "fat_cache"] value 4096
+    inst [19 or "kvm_vcpu"] value 1277952
+    inst [20 or "kvm_mmu_page_header"] value 368640
+    inst [21 or "ext4_groupinfo_4k"] value 4096
+    inst [22 or "ext4_inode_cache"] value 65536
+    inst [23 or "ext4_xattr"] value 0
+    inst [24 or "ext4_free_data"] value 0
+    inst [25 or "ext4_allocation_context"] value 0
+    inst [26 or "ext4_io_end"] value 0
+    inst [27 or "ext4_extent_status"] value 8192
+    inst [28 or "jbd2_journal_handle"] value 0
+    inst [29 or "jbd2_journal_head"] value 0
+    inst [30 or "jbd2_revoke_table_s"] value 4096
+    inst [31 or "jbd2_revoke_record_s"] value 0
+    inst [32 or "nfsd4_openowners"] value 0
+    inst [33 or "rpc_inode_cache"] value 32768
+    inst [34 or "xfs_dqtrx"] value 0
+    inst [35 or "xfs_dquot"] value 0
+    inst [36 or "xfs_icr"] value 0
+    inst [37 or "xfs_ili"] value 19947520
+    inst [38 or "xfs_inode"] value 346564198
+    inst [39 or "xfs_efd_item"] value 983040
+    inst [40 or "xfs_da_state"] value 524288
+    inst [41 or "xfs_btree_cur"] value 262144
+    inst [42 or "xfs_log_ticket"] value 540672
+    inst [43 or "scsi_cmd_cache"] value 1654784
+    inst [44 or "qla2xxx_srbs"] value 147456
+    inst [45 or "kcopyd_job"] value 0
+    inst [46 or "dm_uevent"] value 0
+    inst [47 or "dm_rq_target_io"] value 106496
+    inst [48 or "UDPLITEv6"] value 0
+    inst [49 or "UDPv6"] value 655360
+    inst [50 or "tw_sock_TCPv6"] value 0
+    inst [51 or "TCPv6"] value 1015808
+    inst [52 or "uhci_urb_priv"] value 370435
+    inst [53 or "cfq_queue"] value 1056768
+    inst [54 or "bsg_cmd"] value 0
+    inst [55 or "mqueue_inode_cache"] value 98304
+    inst [56 or "hugetlbfs_inode_cache"] value 98304
+    inst [57 or "configfs_dir_cache"] value 4096
+    inst [58 or "dquot"] value 0
+    inst [59 or "kioctx"] value 0
+    inst [60 or "userfaultfd_ctx_cache"] value 0
+    inst [61 or "pid_namespace"] value 65536
+    inst [62 or "user_namespace"] value 0
+    inst [63 or "posix_timers_cache"] value 131072
+    inst [64 or "UDP-Lite"] value 0
+    inst [65 or "RAW"] value 1572864
+    inst [66 or "UDP"] value 1048576
+    inst [67 or "tw_sock_TCP"] value 139264
+    inst [68 or "TCP"] value 983040
+    inst [69 or "blkdev_queue"] value 196608
+    inst [70 or "blkdev_requests"] value 9899836
+    inst [71 or "blkdev_ioc"] value 131072
+    inst [72 or "fsnotify_event_holder"] value 3067904
+    inst [73 or "fsnotify_event"] value 483328
+    inst [74 or "sock_inode_cache"] value 1572864
+    inst [75 or "net_namespace"] value 65536
+    inst [76 or "shmem_inode_cache"] value 2228224
+    inst [77 or "Acpi-ParseExt"] value 532480
+    inst [78 or "Acpi-Namespace"] value 176128
+    inst [79 or "taskstats"] value 524288
+    inst [80 or "proc_inode_cache"] value 29410283
+    inst [81 or "sigqueue"] value 262144
+    inst [82 or "bdev_cache"] value 196608
+    inst [83 or "sysfs_dir_cache"] value 6963996
+    inst [84 or "inode_cache"] value 21037056
+    inst [85 or "dentry"] value 105359457
+    inst [86 or "iint_cache"] value 0
+    inst [87 or "selinux_inode_security"] value 31706493
+    inst [88 or "buffer_head"] value 668536832
+    inst [89 or "vm_area_struct"] value 5508566
+    inst [90 or "mm_struct"] value 1441792
+    inst [91 or "files_cache"] value 1081344
+    inst [92 or "signal_cache"] value 3755446
+    inst [93 or "sighand_cache"] value 3226555
+    inst [94 or "task_xstate"] value 4648014
+    inst [95 or "task_struct"] value 4664971
+    inst [96 or "anon_vma"] value 1375040
+    inst [97 or "shared_policy_node"] value 237568
+    inst [98 or "numa_policy"] value 270336
+    inst [99 or "radix_tree_node"] value 99254272
+    inst [100 or "idr_layer_cache"] value 1933312
+    inst [101 or "dma-kmalloc-8192"] value 0
+    inst [102 or "dma-kmalloc-4096"] value 0
+    inst [103 or "dma-kmalloc-2048"] value 0
+    inst [104 or "dma-kmalloc-1024"] value 0
+    inst [105 or "dma-kmalloc-512"] value 0
+    inst [106 or "dma-kmalloc-256"] value 0
+    inst [107 or "dma-kmalloc-128"] value 0
+    inst [108 or "dma-kmalloc-64"] value 0
+    inst [109 or "dma-kmalloc-32"] value 0
+    inst [110 or "dma-kmalloc-16"] value 0
+    inst [111 or "dma-kmalloc-8"] value 0
+    inst [112 or "dma-kmalloc-192"] value 0
+    inst [113 or "dma-kmalloc-96"] value 0
+    inst [114 or "kmalloc-8192"] value 3579904
+    inst [115 or "kmalloc-4096"] value 8433664
+    inst [116 or "kmalloc-2048"] value 5310464
+    inst [117 or "kmalloc-1024"] value 7995392
+    inst [118 or "kmalloc-512"] value 3432448
+    inst [119 or "kmalloc-256"] value 2716928
+    inst [120 or "kmalloc-192"] value 3453903
+    inst [121 or "kmalloc-128"] value 1360256
+    inst [122 or "kmalloc-96"] value 1334418
+    inst [123 or "kmalloc-64"] value 46658112
+    inst [124 or "kmalloc-32"] value 5435392
+    inst [125 or "kmalloc-16"] value 2264208
+    inst [126 or "kmalloc-8"] value 819200
+    inst [127 or "kmem_cache_node"] value 65728
+    inst [128 or "kmem_cache"] value 122880
+
+== done
+
+== Checking buddyinfo metric values - meminfo-root-003.tgz
+
+mem.buddyinfo.pages
+No value(s) available!
+
+mem.buddyinfo.total
+No value(s) available!
+
+== done
+
+== Checking zoneinfo metric values - meminfo-root-003.tgz
+
+mem.zoneinfo.free
+    inst [N or "DMA32::node0"] value 693676
+    inst [N or "DMA::node0"] value 15320
+    inst [N or "Normal::node0"] value 42201908
+    inst [N or "Normal::node1"] value 44375624
+
+mem.zoneinfo.high
+    inst [N or "DMA32::node0"] value 1836
+    inst [N or "DMA::node0"] value 12
+    inst [N or "Normal::node0"] value 65580
+    inst [N or "Normal::node1"] value 67728
+
+mem.zoneinfo.low
+    inst [N or "DMA32::node0"] value 1528
+    inst [N or "DMA::node0"] value 8
+    inst [N or "Normal::node0"] value 54648
+    inst [N or "Normal::node1"] value 56440
+
+mem.zoneinfo.managed
+    inst [N or "DMA32::node0"] value 1796948
+    inst [N or "DMA::node0"] value 15896
+    inst [N or "Normal::node0"] value 63960660
+    inst [N or "Normal::node1"] value 66057548
+
+mem.zoneinfo.min
+    inst [N or "DMA32::node0"] value 1224
+    inst [N or "DMA::node0"] value 8
+    inst [N or "Normal::node0"] value 43720
+    inst [N or "Normal::node1"] value 45152
+
+mem.zoneinfo.nr_active_anon
+    inst [N or "DMA32::node0"] value 364668
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 3893724
+    inst [N or "Normal::node1"] value 6899892
+
+mem.zoneinfo.nr_active_file
+    inst [N or "DMA32::node0"] value 392872
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 9285188
+    inst [N or "Normal::node1"] value 3626496
+
+mem.zoneinfo.nr_alloc_batch
+    inst [N or "DMA32::node0"] value 308
+    inst [N or "DMA::node0"] value 4
+    inst [N or "Normal::node0"] value 8776
+    inst [N or "Normal::node1"] value 10300
+
+mem.zoneinfo.nr_anon_pages
+    inst [N or "DMA32::node0"] value 12464
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 252964
+    inst [N or "Normal::node1"] value 208660
+
+mem.zoneinfo.nr_anon_transparent_hugepages
+    inst [N or "DMA32::node0"] value 700
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 6708
+    inst [N or "Normal::node1"] value 12672
+
+mem.zoneinfo.nr_bounce
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.nr_dirtied
+    inst [N or "DMA32::node0"] value 979228
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 24452240
+    inst [N or "Normal::node1"] value 15528392
+
+mem.zoneinfo.nr_dirty
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 8
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.nr_file_pages
+    inst [N or "DMA32::node0"] value 671468
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 16585132
+    inst [N or "Normal::node1"] value 13987452
+
+mem.zoneinfo.nr_free_cma
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.nr_free_pages
+    inst [N or "DMA32::node0"] value 693676
+    inst [N or "DMA::node0"] value 15320
+    inst [N or "Normal::node0"] value 42201908
+    inst [N or "Normal::node1"] value 44375624
+
+mem.zoneinfo.nr_inactive_anon
+    inst [N or "DMA32::node0"] value 9040
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 231056
+    inst [N or "Normal::node1"] value 146488
+
+mem.zoneinfo.nr_inactive_file
+    inst [N or "DMA32::node0"] value 255364
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 6698636
+    inst [N or "Normal::node1"] value 9974976
+
+mem.zoneinfo.nr_isolated_anon
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.nr_isolated_file
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.nr_kernel_stack
+    inst [N or "DMA32::node0"] value 36
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 1552
+    inst [N or "Normal::node1"] value 1500
+
+mem.zoneinfo.nr_mapped
+    inst [N or "DMA32::node0"] value 5496
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 141048
+    inst [N or "Normal::node1"] value 42432
+
+mem.zoneinfo.nr_mlock
+    inst [N or "DMA32::node0"] value 14244
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 122792
+    inst [N or "Normal::node1"] value 12672
+
+mem.zoneinfo.nr_page_table_pages
+    inst [N or "DMA32::node0"] value 1692
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 19056
+    inst [N or "Normal::node1"] value 19896
+
+mem.zoneinfo.nr_shmem
+    inst [N or "DMA32::node0"] value 22744
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 592552
+    inst [N or "Normal::node1"] value 385984
+
+mem.zoneinfo.nr_slab_reclaimable
+    inst [N or "DMA32::node0"] value 32920
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 801816
+    inst [N or "Normal::node1"] value 408136
+
+mem.zoneinfo.nr_slab_unreclaimable
+    inst [N or "DMA32::node0"] value 5120
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 124460
+    inst [N or "Normal::node1"] value 79556
+
+mem.zoneinfo.nr_unevictable
+    inst [N or "DMA32::node0"] value 14244
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 122792
+    inst [N or "Normal::node1"] value 12672
+
+mem.zoneinfo.nr_unstable
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.nr_vmscan_immediate_reclaim
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.nr_vmscan_write
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.nr_writeback
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.nr_writeback_temp
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.nr_written
+    inst [N or "DMA32::node0"] value 844052
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 21335500
+    inst [N or "Normal::node1"] value 14817580
+
+mem.zoneinfo.numa_foreign
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.numa_hit
+    inst [N or "DMA32::node0"] value 63240112
+    inst [N or "DMA::node0"] value 576
+    inst [N or "Normal::node0"] value 1302059204
+    inst [N or "Normal::node1"] value 1125446956
+
+mem.zoneinfo.numa_interleave
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 143024
+    inst [N or "Normal::node1"] value 143084
+
+mem.zoneinfo.numa_local
+    inst [N or "DMA32::node0"] value 63230084
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 1302022456
+    inst [N or "Normal::node1"] value 1125232436
+
+mem.zoneinfo.numa_miss
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.numa_other
+    inst [N or "DMA32::node0"] value 10028
+    inst [N or "DMA::node0"] value 576
+    inst [N or "Normal::node0"] value 36748
+    inst [N or "Normal::node1"] value 214520
+
+mem.zoneinfo.present
+    inst [N or "DMA32::node0"] value 2049788
+    inst [N or "DMA::node0"] value 15988
+    inst [N or "Normal::node0"] value 65011712
+    inst [N or "Normal::node1"] value 67108864
+
+mem.zoneinfo.protection
+    inst [N or "DMA32::node0::lowmem_reserved0"] value 0
+    inst [N or "DMA32::node0::lowmem_reserved1"] value 0
+    inst [N or "DMA32::node0::lowmem_reserved2"] value 249844
+    inst [N or "DMA32::node0::lowmem_reserved3"] value 249844
+    inst [N or "DMA::node0::lowmem_reserved0"] value 0
+    inst [N or "DMA::node0::lowmem_reserved1"] value 7016
+    inst [N or "DMA::node0::lowmem_reserved2"] value 256864
+    inst [N or "DMA::node0::lowmem_reserved3"] value 256864
+    inst [N or "Normal::node0::lowmem_reserved0"] value 0
+    inst [N or "Normal::node0::lowmem_reserved1"] value 0
+    inst [N or "Normal::node0::lowmem_reserved2"] value 0
+    inst [N or "Normal::node0::lowmem_reserved3"] value 0
+    inst [N or "Normal::node1::lowmem_reserved0"] value 0
+    inst [N or "Normal::node1::lowmem_reserved1"] value 0
+    inst [N or "Normal::node1::lowmem_reserved2"] value 0
+    inst [N or "Normal::node1::lowmem_reserved3"] value 0
+
+mem.zoneinfo.scanned
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.spanned
+    inst [N or "DMA32::node0"] value 4177920
+    inst [N or "DMA::node0"] value 16380
+    inst [N or "Normal::node0"] value 65011712
+    inst [N or "Normal::node1"] value 67108864
+
+mem.zoneinfo.workingset_activate
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.workingset_nodereclaim
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.workingset_refault
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+== done
+
+== Checking all mem metric values - meminfo-root-004.tgz
+
+mem.buddyinfo.pages
+No value(s) available!
+
+mem.buddyinfo.total
+No value(s) available!
+
+mem.freemem
+    value 3264460
+
+mem.ksm.full_scans
+    value 0
+
+mem.ksm.merge_across_nodes
+    value 0
+
+mem.ksm.pages_shared
+    value 0
+
+mem.ksm.pages_sharing
+    value 0
+
+mem.ksm.pages_to_scan
+    value 0
+
+mem.ksm.pages_unshared
+    value 0
+
+mem.ksm.pages_volatile
+    value 0
+
+mem.ksm.run_state
+    value 0
+
+mem.ksm.sleep_time
+    value 0
+
+mem.numa.alloc.foreign
+    inst [0 or "node0"] value 0
+
+mem.numa.alloc.hit
+    inst [0 or "node0"] value 770051
+
+mem.numa.alloc.interleave_hit
+    inst [0 or "node0"] value 19088
+
+mem.numa.alloc.local_node
+    inst [0 or "node0"] value 770051
+
+mem.numa.alloc.miss
+    inst [0 or "node0"] value 0
+
+mem.numa.alloc.other_node
+    inst [0 or "node0"] value 0
+
+mem.numa.max_bandwidth
+No value(s) available!
+
+mem.numa.util.NFS_Unstable
+    inst [0 or "node0"] value 0
+
+mem.numa.util.active
+    inst [0 or "node0"] value 366764
+
+mem.numa.util.active_anon
+    inst [0 or "node0"] value 274508
+
+mem.numa.util.active_file
+    inst [0 or "node0"] value 92256
+
+mem.numa.util.anonpages
+    inst [0 or "node0"] value 273808
+
+mem.numa.util.bounce
+    inst [0 or "node0"] value 0
+
+mem.numa.util.dirty
+    inst [0 or "node0"] value 0
+
+mem.numa.util.filePages
+    inst [0 or "node0"] value 308732
+
+mem.numa.util.free
+    inst [0 or "node0"] value 3264468
+
+mem.numa.util.highFree
+No value(s) available!
+
+mem.numa.util.highTotal
+No value(s) available!
+
+mem.numa.util.hugepagesFree
+    inst [0 or "node0"] value 0
+
+mem.numa.util.hugepagesFreeBytes
+    inst [0 or "node0"] value 0
+
+mem.numa.util.hugepagesSurp
+    inst [0 or "node0"] value 0
+
+mem.numa.util.hugepagesSurpBytes
+    inst [0 or "node0"] value 0
+
+mem.numa.util.hugepagesTotal
+    inst [0 or "node0"] value 0
+
+mem.numa.util.hugepagesTotalBytes
+    inst [0 or "node0"] value 0
+
+mem.numa.util.inactive
+    inst [0 or "node0"] value 215708
+
+mem.numa.util.inactive_anon
+    inst [0 or "node0"] value 568
+
+mem.numa.util.inactive_file
+    inst [0 or "node0"] value 215140
+
+mem.numa.util.kernelStack
+    inst [0 or "node0"] value 4992
+
+mem.numa.util.lowFree
+No value(s) available!
+
+mem.numa.util.lowTotal
+No value(s) available!
+
+mem.numa.util.mapped
+    inst [0 or "node0"] value 0
+
+mem.numa.util.mlocked
+    inst [0 or "node0"] value 0
+
+mem.numa.util.pageTables
+    inst [0 or "node0"] value 20784
+
+mem.numa.util.shmem
+    inst [0 or "node0"] value 1344
+
+mem.numa.util.slab
+    inst [0 or "node0"] value 109724
+
+mem.numa.util.slabReclaimable
+    inst [0 or "node0"] value 48840
+
+mem.numa.util.slabUnreclaimable
+    inst [0 or "node0"] value 60884
+
+mem.numa.util.total
+    inst [0 or "node0"] value 4020980
+
+mem.numa.util.unevictable
+    inst [0 or "node0"] value 0
+
+mem.numa.util.used
+    inst [0 or "node0"] value 756512
+
+mem.numa.util.writeback
+    inst [0 or "node0"] value 0
+
+mem.numa.util.writebackTmp
+    inst [0 or "node0"] value 0
+
+mem.physmem
+    value 4020980
+
+mem.slabinfo.objects.active
+No value(s) available!
+
+mem.slabinfo.objects.size
+No value(s) available!
+
+mem.slabinfo.objects.total
+No value(s) available!
+
+mem.slabinfo.slabs.active
+No value(s) available!
+
+mem.slabinfo.slabs.objects_per_slab
+No value(s) available!
+
+mem.slabinfo.slabs.pages_per_slab
+No value(s) available!
+
+mem.slabinfo.slabs.total
+No value(s) available!
+
+mem.slabinfo.slabs.total_size
+No value(s) available!
+
+mem.util.NFS_Unstable
+    value 0
+
+mem.util.active
+    value 366576
+
+mem.util.active_anon
+    value 274436
+
+mem.util.active_file
+    value 92140
+
+mem.util.anonhugepages
+    value 0
+
+mem.util.anonpages
+    value 273580
+
+mem.util.available
+    value 3391008
+
+mem.util.bounce
+    value 0
+
+mem.util.bufmem
+    value 27028
+
+mem.util.cache_clean
+    value 281572
+
+mem.util.cached
+    value 281572
+
+mem.util.commitLimit
+    value 4631924
+
+mem.util.committed_AS
+    value 1989248
+
+mem.util.corrupthardware
+    value 0
+
+mem.util.directMap1G
+No value(s) available!
+
+mem.util.directMap2M
+    value 4100096
+
+mem.util.directMap4k
+    value 94076
+
+mem.util.dirty
+    value 0
+
+mem.util.free
+    value 3264460
+
+mem.util.highFree
+No value(s) available!
+
+mem.util.highTotal
+No value(s) available!
+
+mem.util.hugepagesFree
+    value 0
+
+mem.util.hugepagesFreeBytes
+    value 0
+
+mem.util.hugepagesRsvd
+    value 0
+
+mem.util.hugepagesRsvdBytes
+    value 0
+
+mem.util.hugepagesSurp
+    value 0
+
+mem.util.hugepagesSurpBytes
+    value 0
+
+mem.util.hugepagesTotal
+    value 0
+
+mem.util.hugepagesTotalBytes
+    value 0
+
+mem.util.inactive
+    value 215716
+
+mem.util.inactive_anon
+    value 588
+
+mem.util.inactive_file
+    value 215128
+
+mem.util.kernelStack
+    value 4992
+
+mem.util.lowFree
+No value(s) available!
+
+mem.util.lowTotal
+No value(s) available!
+
+mem.util.mapped
+    value 158248
+
+mem.util.mlocked
+    value 0
+
+mem.util.mmap_copy
+No value(s) available!
+
+mem.util.other
+    value 447920
+
+mem.util.pageTables
+    value 20784
+
+mem.util.quicklists
+No value(s) available!
+
+mem.util.reverseMaps
+No value(s) available!
+
+mem.util.shared
+No value(s) available!
+
+mem.util.shmem
+    value 1340
+
+mem.util.slab
+    value 109736
+
+mem.util.slabReclaimable
+    value 48840
+
+mem.util.slabUnreclaimable
+    value 60896
+
+mem.util.swapCached
+    value 0
+
+mem.util.swapFree
+    value 2621436
+
+mem.util.swapTotal
+    value 2621436
+
+mem.util.unevictable
+    value 0
+
+mem.util.used
+    value 756520
+
+mem.util.vmallocChunk
+    value 0
+
+mem.util.vmallocTotal
+    value 34359738367
+
+mem.util.vmallocUsed
+    value 0
+
+mem.util.writeback
+    value 0
+
+mem.vmstat.allocstall
+No value(s) available!
+
+mem.vmstat.balloon_deflate
+    value 0
+
+mem.vmstat.balloon_inflate
+    value 0
+
+mem.vmstat.balloon_migrate
+    value 0
+
+mem.vmstat.compact_blocks_moved
+No value(s) available!
+
+mem.vmstat.compact_daemon_wake
+    value 0
+
+mem.vmstat.compact_fail
+    value 0
+
+mem.vmstat.compact_free_scanned
+    value 0
+
+mem.vmstat.compact_isolated
+    value 0
+
+mem.vmstat.compact_migrate_scanned
+    value 0
+
+mem.vmstat.compact_pagemigrate_failed
+No value(s) available!
+
+mem.vmstat.compact_pages_moved
+No value(s) available!
+
+mem.vmstat.compact_stall
+    value 0
+
+mem.vmstat.compact_success
+    value 0
+
+mem.vmstat.drop_pagecache
+    value 0
+
+mem.vmstat.drop_slab
+    value 0
+
+mem.vmstat.htlb_buddy_alloc_fail
+    value 0
+
+mem.vmstat.htlb_buddy_alloc_success
+    value 0
+
+mem.vmstat.kswapd_high_wmark_hit_quickly
+    value 0
+
+mem.vmstat.kswapd_inodesteal
+    value 0
+
+mem.vmstat.kswapd_low_wmark_hit_quickly
+    value 0
+
+mem.vmstat.kswapd_skip_congestion_wait
+No value(s) available!
+
+mem.vmstat.kswapd_steal
+No value(s) available!
+
+mem.vmstat.nr_active_anon
+    value 68583
+
+mem.vmstat.nr_active_file
+    value 23035
+
+mem.vmstat.nr_anon_pages
+    value 68395
+
+mem.vmstat.nr_anon_transparent_hugepages
+    value 0
+
+mem.vmstat.nr_bounce
+    value 0
+
+mem.vmstat.nr_dirtied
+    value 6101
+
+mem.vmstat.nr_dirty
+    value 0
+
+mem.vmstat.nr_dirty_background_threshold
+    value 86152
+
+mem.vmstat.nr_dirty_threshold
+    value 172515
+
+mem.vmstat.nr_free_cma
+    value 0
+
+mem.vmstat.nr_free_pages
+    value 816140
+
+mem.vmstat.nr_inactive_anon
+    value 143
+
+mem.vmstat.nr_inactive_file
+    value 53782
+
+mem.vmstat.nr_isolated_anon
+    value 0
+
+mem.vmstat.nr_isolated_file
+    value 0
+
+mem.vmstat.nr_kernel_stack
+    value 4992
+
+mem.vmstat.nr_mapped
+    value 39562
+
+mem.vmstat.nr_mlock
+    value 0
+
+mem.vmstat.nr_page_table_pages
+    value 5196
+
+mem.vmstat.nr_pages_scanned
+    value 0
+
+mem.vmstat.nr_shmem
+    value 331
+
+mem.vmstat.nr_shmem_hugepages
+    value 0
+
+mem.vmstat.nr_shmem_pmdmapped
+    value 0
+
+mem.vmstat.nr_slab
+    value 27434
+
+mem.vmstat.nr_slab_reclaimable
+    value 12210
+
+mem.vmstat.nr_slab_unreclaimable
+    value 15224
+
+mem.vmstat.nr_unevictable
+    value 0
+
+mem.vmstat.nr_unstable
+    value 0
+
+mem.vmstat.nr_vmscan_immediate_reclaim
+    value 0
+
+mem.vmstat.nr_vmscan_write
+    value 0
+
+mem.vmstat.nr_writeback
+    value 0
+
+mem.vmstat.nr_writeback_temp
+    value 0
+
+mem.vmstat.nr_written
+    value 6100
+
+mem.vmstat.nr_zone_active_anon
+    value 68583
+
+mem.vmstat.nr_zone_active_file
+    value 23035
+
+mem.vmstat.nr_zone_inactive_anon
+    value 143
+
+mem.vmstat.nr_zone_inactive_file
+    value 53782
+
+mem.vmstat.nr_zone_unevictable
+    value 0
+
+mem.vmstat.nr_zone_write_pending
+    value 0
+
+mem.vmstat.nr_zspages
+    value 0
+
+mem.vmstat.numa_foreign
+    value 0
+
+mem.vmstat.numa_hit
+    value 761863
+
+mem.vmstat.numa_interleave
+    value 19088
+
+mem.vmstat.numa_local
+    value 761863
+
+mem.vmstat.numa_miss
+    value 0
+
+mem.vmstat.numa_other
+    value 0
+
+mem.vmstat.numa_pages_migrated
+    value 0
+
+mem.vmstat.numa_pte_updates
+    value 0
+
+mem.vmstat.pageoutrun
+    value 0
+
+mem.vmstat.pgactivate
+    value 21693
+
+mem.vmstat.pgalloc_dma
+    value 2
+
+mem.vmstat.pgalloc_dma32
+    value 15
+
+mem.vmstat.pgalloc_high
+No value(s) available!
+
+mem.vmstat.pgalloc_movable
+    value 0
+
+mem.vmstat.pgalloc_normal
+    value 782550
+
+mem.vmstat.pgdeactivate
+    value 0
+
+mem.vmstat.pgfault
+    value 986124
+
+mem.vmstat.pgfree
+    value 1599432
+
+mem.vmstat.pginodesteal
+    value 0
+
+mem.vmstat.pglazyfreed
+    value 0
+
+mem.vmstat.pgmajfault
+    value 2055
+
+mem.vmstat.pgmigrate_fail
+    value 0
+
+mem.vmstat.pgmigrate_success
+    value 0
+
+mem.vmstat.pgpgin
+    value 305153
+
+mem.vmstat.pgpgout
+    value 27860
+
+mem.vmstat.pgrefill_dma
+No value(s) available!
+
+mem.vmstat.pgrefill_dma32
+No value(s) available!
+
+mem.vmstat.pgrefill_high
+No value(s) available!
+
+mem.vmstat.pgrefill_movable
+No value(s) available!
+
+mem.vmstat.pgrefill_normal
+No value(s) available!
+
+mem.vmstat.pgrotated
+    value 0
+
+mem.vmstat.pgscan_direct_dma
+No value(s) available!
+
+mem.vmstat.pgscan_direct_dma32
+No value(s) available!
+
+mem.vmstat.pgscan_direct_high
+No value(s) available!
+
+mem.vmstat.pgscan_direct_movable
+No value(s) available!
+
+mem.vmstat.pgscan_direct_normal
+No value(s) available!
+
+mem.vmstat.pgscan_kswapd_dma
+No value(s) available!
+
+mem.vmstat.pgscan_kswapd_dma32
+No value(s) available!
+
+mem.vmstat.pgscan_kswapd_high
+No value(s) available!
+
+mem.vmstat.pgscan_kswapd_movable
+No value(s) available!
+
+mem.vmstat.pgscan_kswapd_normal
+No value(s) available!
+
+mem.vmstat.pgsteal_dma
+No value(s) available!
+
+mem.vmstat.pgsteal_dma32
+No value(s) available!
+
+mem.vmstat.pgsteal_high
+No value(s) available!
+
+mem.vmstat.pgsteal_movable
+No value(s) available!
+
+mem.vmstat.pgsteal_normal
+No value(s) available!
+
+mem.vmstat.pswpin
+    value 0
+
+mem.vmstat.pswpout
+    value 0
+
+mem.vmstat.slabs_scanned
+    value 0
+
+mem.vmstat.thp_collapse_alloc
+    value 0
+
+mem.vmstat.thp_collapse_alloc_failed
+    value 0
+
+mem.vmstat.thp_deferred_split_page
+    value 0
+
+mem.vmstat.thp_fault_alloc
+    value 0
+
+mem.vmstat.thp_fault_fallback
+    value 0
+
+mem.vmstat.thp_file_alloc
+    value 0
+
+mem.vmstat.thp_file_mapped
+    value 0
+
+mem.vmstat.thp_split
+    value 0
+
+mem.vmstat.thp_split_page
+    value 0
+
+mem.vmstat.thp_split_page_failed
+    value 0
+
+mem.vmstat.thp_split_pmd
+    value 0
+
+mem.vmstat.thp_zero_page_alloc
+    value 0
+
+mem.vmstat.thp_zero_page_alloc_failed
+    value 0
+
+mem.vmstat.unevictable_pgs_cleared
+    value 0
+
+mem.vmstat.unevictable_pgs_culled
+    value 7170
+
+mem.vmstat.unevictable_pgs_mlocked
+    value 9096
+
+mem.vmstat.unevictable_pgs_mlockfreed
+No value(s) available!
+
+mem.vmstat.unevictable_pgs_munlocked
+    value 9096
+
+mem.vmstat.unevictable_pgs_rescued
+    value 5666
+
+mem.vmstat.unevictable_pgs_scanned
+    value 0
+
+mem.vmstat.unevictable_pgs_stranded
+    value 0
+
+mem.vmstat.workingset_activate
+    value 0
+
+mem.vmstat.workingset_nodereclaim
+    value 0
+
+mem.vmstat.workingset_refault
+    value 0
+
+mem.vmstat.zone_reclaim_failed
+    value 0
+
+mem.zoneinfo.free
+    inst [N or "DMA::node0"] value 3030056
+    inst [N or "Normal::node0"] value 218480
+
+mem.zoneinfo.high
+    inst [N or "DMA::node0"] value 396
+    inst [N or "Normal::node0"] value 24708
+
+mem.zoneinfo.low
+    inst [N or "DMA::node0"] value 332
+    inst [N or "Normal::node0"] value 20592
+
+mem.zoneinfo.managed
+    inst [N or "DMA::node0"] value 15908
+    inst [N or "Normal::node0"] value 974140
+
+mem.zoneinfo.min
+    inst [N or "DMA::node0"] value 268
+    inst [N or "Normal::node0"] value 16476
+
+mem.zoneinfo.nr_active_anon
+    inst [N or "DMA::node0"] value 274332
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_active_file
+    inst [N or "DMA::node0"] value 92140
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_alloc_batch
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_anon_pages
+    inst [N or "DMA::node0"] value 273580
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_anon_transparent_hugepages
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_bounce
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_dirtied
+    inst [N or "DMA::node0"] value 24404
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_dirty
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_file_pages
+    inst [N or "DMA::node0"] value 308592
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_free_cma
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_free_pages
+    inst [N or "DMA::node0"] value 15900
+    inst [N or "Normal::node0"] value 218480
+
+mem.zoneinfo.nr_inactive_anon
+    inst [N or "DMA::node0"] value 580
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_inactive_file
+    inst [N or "DMA::node0"] value 215128
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_isolated_anon
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_isolated_file
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_kernel_stack
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 19968
+
+mem.zoneinfo.nr_mapped
+    inst [N or "DMA::node0"] value 158248
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_mlock
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_page_table_pages
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 20784
+
+mem.zoneinfo.nr_shmem
+    inst [N or "DMA::node0"] value 1332
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_slab_reclaimable
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 48840
+
+mem.zoneinfo.nr_slab_unreclaimable
+    inst [N or "DMA::node0"] value 8
+    inst [N or "Normal::node0"] value 60888
+
+mem.zoneinfo.nr_unevictable
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_unstable
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_vmscan_immediate_reclaim
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_vmscan_write
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_writeback
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_writeback_temp
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_written
+    inst [N or "DMA::node0"] value 24400
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.numa_foreign
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.numa_hit
+    inst [N or "DMA::node0"] value 4
+    inst [N or "Normal::node0"] value 3048324
+
+mem.zoneinfo.numa_interleave
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 76352
+
+mem.zoneinfo.numa_local
+    inst [N or "DMA::node0"] value 4
+    inst [N or "Normal::node0"] value 3048324
+
+mem.zoneinfo.numa_miss
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.numa_other
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.present
+    inst [N or "DMA::node0"] value 15992
+    inst [N or "Normal::node0"] value 1048576
+
+mem.zoneinfo.protection
+    inst [N or "DMA::node0::lowmem_reserved0"] value 0
+    inst [N or "DMA::node0::lowmem_reserved1"] value 11736
+    inst [N or "DMA::node0::lowmem_reserved2"] value 15544
+    inst [N or "DMA::node0::lowmem_reserved3"] value 15544
+    inst [N or "DMA::node0::lowmem_reserved4"] value 15544
+    inst [N or "Normal::node0::lowmem_reserved0"] value 0
+    inst [N or "Normal::node0::lowmem_reserved1"] value 0
+    inst [N or "Normal::node0::lowmem_reserved2"] value 0
+    inst [N or "Normal::node0::lowmem_reserved3"] value 0
+    inst [N or "Normal::node0::lowmem_reserved4"] value 0
+
+mem.zoneinfo.scanned
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.spanned
+    inst [N or "DMA::node0"] value 16380
+    inst [N or "Normal::node0"] value 1048576
+
+mem.zoneinfo.workingset_activate
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.workingset_nodereclaim
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.workingset_refault
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+== done
+
+== Checking slabinfo metric values - meminfo-root-004.tgz
+
+mem.slabinfo.objects.active
+    inst [0 or "nf_conntrack_expect"] value 0
+    inst [1 or "nf_conntrack"] value 84
+    inst [2 or "nfs4_layout_stateid"] value 0
+    inst [3 or "nfsd4_delegations"] value 0
+    inst [4 or "nfsd4_files"] value 0
+    inst [5 or "nfsd4_lockowners"] value 0
+    inst [6 or "nfsd4_openowners"] value 0
+    inst [7 or "rpc_inode_cache"] value 28
+    inst [8 or "ext4_groupinfo_4k"] value 217
+    inst [9 or "ip6-frags"] value 0
+    inst [10 or "ip6_dst_cache"] value 84
+    inst [11 or "UDPv6"] value 95
+    inst [12 or "tw_sock_TCPv6"] value 0
+    inst [13 or "request_sock_TCPv6"] value 0
+    inst [14 or "TCPv6"] value 10
+    inst [15 or "kcopyd_job"] value 0
+    inst [16 or "dm_uevent"] value 0
+    inst [17 or "sgpool-128"] value 18
+    inst [18 or "sgpool-64"] value 48
+    inst [19 or "sgpool-32"] value 100
+    inst [20 or "cfq_queue"] value 136
+    inst [21 or "bsg_cmd"] value 0
+    inst [22 or "mqueue_inode_cache"] value 22
+    inst [23 or "jbd2_transaction_s"] value 100
+    inst [24 or "jbd2_journal_handle"] value 340
+    inst [25 or "jbd2_journal_head"] value 442
+    inst [26 or "jbd2_revoke_table_s"] value 512
+    inst [27 or "ext4_inode_cache"] value 6524
+    inst [28 or "ext4_allocation_context"] value 128
+    inst [29 or "ext4_prealloc_space"] value 96
+    inst [30 or "ext4_io_end"] value 256
+    inst [31 or "ext4_extent_status"] value 4488
+    inst [32 or "mbcache"] value 292
+    inst [33 or "fscrypt_info"] value 256
+    inst [34 or "fscrypt_ctx"] value 0
+    inst [35 or "userfaultfd_ctx_cache"] value 0
+    inst [36 or "fsnotify_mark"] value 0
+    inst [37 or "pid_namespace"] value 0
+    inst [38 or "posix_timers_cache"] value 0
+    inst [39 or "UNIX"] value 493
+    inst [40 or "RAW"] value 88
+    inst [41 or "UDP"] value 84
+    inst [42 or "tw_sock_TCP"] value 25
+    inst [43 or "request_sock_TCP"] value 21
+    inst [44 or "TCP"] value 33
+    inst [45 or "hugetlbfs_inode_cache"] value 87
+    inst [46 or "dquot"] value 0
+    inst [47 or "inotify_inode_mark"] value 156
+    inst [48 or "scsi_data_buffer"] value 129370
+    inst [49 or "request_queue"] value 14
+    inst [50 or "blkdev_requests"] value 483
+    inst [51 or "blkdev_ioc"] value 126
+    inst [52 or "user_namespace"] value 100
+    inst [53 or "dmaengine-unmap-256"] value 15
+    inst [54 or "dmaengine-unmap-128"] value 30
+    inst [55 or "sock_inode_cache"] value 660
+    inst [56 or "file_lock_cache"] value 120
+    inst [57 or "file_lock_ctx"] value 850
+    inst [58 or "net_namespace"] value 9
+    inst [59 or "shmem_inode_cache"] value 1229
+    inst [60 or "task_delay_info"] value 450
+    inst [61 or "taskstats"] value 96
+    inst [62 or "proc_inode_cache"] value 3627
+    inst [63 or "sigqueue"] value 100
+    inst [64 or "bdev_cache"] value 84
+    inst [65 or "kernfs_node_cache"] value 21312
+    inst [66 or "mnt_cache"] value 414
+    inst [67 or "inode_cache"] value 15004
+    inst [68 or "dentry"] value 30141
+    inst [69 or "selinux_inode_security"] value 26980
+    inst [70 or "key_jar"] value 100
+    inst [71 or "buffer_head"] value 10335
+    inst [72 or "nsproxy"] value 292
+    inst [73 or "mm_struct"] value 143
+    inst [74 or "files_cache"] value 133
+    inst [75 or "signal_cache"] value 242
+    inst [76 or "sighand_cache"] value 224
+    inst [77 or "task_struct"] value 321
+    inst [78 or "cred_jar"] value 19444
+    inst [79 or "Acpi-ParseExt"] value 156
+    inst [80 or "Acpi-State"] value 561
+    inst [81 or "anon_vma_chain"] value 11348
+    inst [82 or "anon_vma"] value 6598
+    inst [83 or "pid"] value 480
+    inst [84 or "numa_policy"] value 31
+    inst [85 or "debug_objects_cache"] value 12428
+    inst [86 or "radix_tree_node"] value 3269
+    inst [87 or "trace_event_file"] value 1334
+    inst [88 or "ftrace_event_field"] value 3145
+    inst [89 or "idr_layer_cache"] value 630
+    inst [90 or "task_group"] value 92
+    inst [91 or "page->ptl"] value 7507
+    inst [92 or "dma-kmalloc-8192"] value 0
+    inst [93 or "dma-kmalloc-4096"] value 0
+    inst [94 or "dma-kmalloc-2048"] value 0
+    inst [95 or "dma-kmalloc-1024"] value 0
+    inst [96 or "dma-kmalloc-512"] value 16
+    inst [97 or "dma-kmalloc-256"] value 0
+    inst [98 or "dma-kmalloc-128"] value 0
+    inst [99 or "dma-kmalloc-64"] value 0
+    inst [100 or "dma-kmalloc-32"] value 0
+    inst [101 or "dma-kmalloc-16"] value 0
+    inst [102 or "dma-kmalloc-8"] value 0
+    inst [103 or "dma-kmalloc-192"] value 0
+    inst [104 or "dma-kmalloc-96"] value 0
+    inst [105 or "kmalloc-8192"] value 76
+    inst [106 or "kmalloc-4096"] value 749
+    inst [107 or "kmalloc-2048"] value 706
+    inst [108 or "kmalloc-1024"] value 832
+    inst [109 or "kmalloc-512"] value 6312
+    inst [110 or "kmalloc-256"] value 2794
+    inst [111 or "kmalloc-192"] value 66654
+    inst [112 or "kmalloc-128"] value 2304
+    inst [113 or "kmalloc-96"] value 6006
+    inst [114 or "kmalloc-64"] value 31488
+    inst [115 or "kmalloc-32"] value 133888
+    inst [116 or "kmalloc-16"] value 64256
+    inst [117 or "kmalloc-8"] value 90112
+    inst [118 or "kmem_cache_node"] value 160
+    inst [119 or "kmem_cache"] value 150
+
+mem.slabinfo.objects.size
+    inst [0 or "nf_conntrack_expect"] value 296
+    inst [1 or "nf_conntrack"] value 384
+    inst [2 or "nfs4_layout_stateid"] value 584
+    inst [3 or "nfsd4_delegations"] value 344
+    inst [4 or "nfsd4_files"] value 360
+    inst [5 or "nfsd4_lockowners"] value 520
+    inst [6 or "nfsd4_openowners"] value 560
+    inst [7 or "rpc_inode_cache"] value 1152
+    inst [8 or "ext4_groupinfo_4k"] value 264
+    inst [9 or "ip6-frags"] value 336
+    inst [10 or "ip6_dst_cache"] value 384
+    inst [11 or "UDPv6"] value 1664
+    inst [12 or "tw_sock_TCPv6"] value 320
+    inst [13 or "request_sock_TCPv6"] value 384
+    inst [14 or "TCPv6"] value 3008
+    inst [15 or "kcopyd_job"] value 4392
+    inst [16 or "dm_uevent"] value 2632
+    inst [17 or "sgpool-128"] value 5120
+    inst [18 or "sgpool-64"] value 2560
+    inst [19 or "sgpool-32"] value 1280
+    inst [20 or "cfq_queue"] value 240
+    inst [21 or "bsg_cmd"] value 312
+    inst [22 or "mqueue_inode_cache"] value 1472
+    inst [23 or "jbd2_transaction_s"] value 320
+    inst [24 or "jbd2_journal_handle"] value 48
+    inst [25 or "jbd2_journal_head"] value 120
+    inst [26 or "jbd2_revoke_table_s"] value 16
+    inst [27 or "ext4_inode_cache"] value 2264
+    inst [28 or "ext4_allocation_context"] value 128
+    inst [29 or "ext4_prealloc_space"] value 168
+    inst [30 or "ext4_io_end"] value 64
+    inst [31 or "ext4_extent_status"] value 40
+    inst [32 or "mbcache"] value 56
+    inst [33 or "fscrypt_info"] value 32
+    inst [34 or "fscrypt_ctx"] value 96
+    inst [35 or "userfaultfd_ctx_cache"] value 384
+    inst [36 or "fsnotify_mark"] value 144
+    inst [37 or "pid_namespace"] value 2280
+    inst [38 or "posix_timers_cache"] value 304
+    inst [39 or "UNIX"] value 1920
+    inst [40 or "RAW"] value 1472
+    inst [41 or "UDP"] value 1536
+    inst [42 or "tw_sock_TCP"] value 320
+    inst [43 or "request_sock_TCP"] value 384
+    inst [44 or "TCP"] value 2816
+    inst [45 or "hugetlbfs_inode_cache"] value 1120
+    inst [46 or "dquot"] value 448
+    inst [47 or "inotify_inode_mark"] value 152
+    inst [48 or "scsi_data_buffer"] value 24
+    inst [49 or "request_queue"] value 4136
+    inst [50 or "blkdev_requests"] value 376
+    inst [51 or "blkdev_ioc"] value 216
+    inst [52 or "user_namespace"] value 640
+    inst [53 or "dmaengine-unmap-256"] value 2112
+    inst [54 or "dmaengine-unmap-128"] value 1088
+    inst [55 or "sock_inode_cache"] value 1088
+    inst [56 or "file_lock_cache"] value 272
+    inst [57 or "file_lock_ctx"] value 120
+    inst [58 or "net_namespace"] value 8256
+    inst [59 or "shmem_inode_cache"] value 1344
+    inst [60 or "task_delay_info"] value 136
+    inst [61 or "taskstats"] value 328
+    inst [62 or "proc_inode_cache"] value 1096
+    inst [63 or "sigqueue"] value 160
+    inst [64 or "bdev_cache"] value 1536
+    inst [65 or "kernfs_node_cache"] value 168
+    inst [66 or "mnt_cache"] value 448
+    inst [67 or "inode_cache"] value 1040
+    inst [68 or "dentry"] value 320
+    inst [69 or "selinux_inode_security"] value 112
+    inst [70 or "key_jar"] value 320
+    inst [71 or "buffer_head"] value 104
+    inst [72 or "nsproxy"] value 56
+    inst [73 or "mm_struct"] value 2432
+    inst [74 or "files_cache"] value 832
+    inst [75 or "signal_cache"] value 1472
+    inst [76 or "sighand_cache"] value 2240
+    inst [77 or "task_struct"] value 12864
+    inst [78 or "cred_jar"] value 192
+    inst [79 or "Acpi-ParseExt"] value 104
+    inst [80 or "Acpi-State"] value 80
+    inst [81 or "anon_vma_chain"] value 64
+    inst [82 or "anon_vma"] value 200
+    inst [83 or "pid"] value 128
+    inst [84 or "numa_policy"] value 264
+    inst [85 or "debug_objects_cache"] value 40
+    inst [86 or "radix_tree_node"] value 584
+    inst [87 or "trace_event_file"] value 88
+    inst [88 or "ftrace_event_field"] value 48
+    inst [89 or "idr_layer_cache"] value 544
+    inst [90 or "task_group"] value 704
+    inst [91 or "page->ptl"] value 72
+    inst [92 or "dma-kmalloc-8192"] value 8192
+    inst [93 or "dma-kmalloc-4096"] value 4096
+    inst [94 or "dma-kmalloc-2048"] value 2048
+    inst [95 or "dma-kmalloc-1024"] value 1024
+    inst [96 or "dma-kmalloc-512"] value 512
+    inst [97 or "dma-kmalloc-256"] value 256
+    inst [98 or "dma-kmalloc-128"] value 128
+    inst [99 or "dma-kmalloc-64"] value 64
+    inst [100 or "dma-kmalloc-32"] value 32
+    inst [101 or "dma-kmalloc-16"] value 16
+    inst [102 or "dma-kmalloc-8"] value 8
+    inst [103 or "dma-kmalloc-192"] value 192
+    inst [104 or "dma-kmalloc-96"] value 96
+    inst [105 or "kmalloc-8192"] value 8192
+    inst [106 or "kmalloc-4096"] value 4096
+    inst [107 or "kmalloc-2048"] value 2048
+    inst [108 or "kmalloc-1024"] value 1024
+    inst [109 or "kmalloc-512"] value 512
+    inst [110 or "kmalloc-256"] value 256
+    inst [111 or "kmalloc-192"] value 192
+    inst [112 or "kmalloc-128"] value 128
+    inst [113 or "kmalloc-96"] value 96
+    inst [114 or "kmalloc-64"] value 64
+    inst [115 or "kmalloc-32"] value 32
+    inst [116 or "kmalloc-16"] value 16
+    inst [117 or "kmalloc-8"] value 8
+    inst [118 or "kmem_cache_node"] value 128
+    inst [119 or "kmem_cache"] value 320
+
+mem.slabinfo.objects.total
+    inst [0 or "nf_conntrack_expect"] value 0
+    inst [1 or "nf_conntrack"] value 84
+    inst [2 or "nfs4_layout_stateid"] value 0
+    inst [3 or "nfsd4_delegations"] value 0
+    inst [4 or "nfsd4_files"] value 0
+    inst [5 or "nfsd4_lockowners"] value 0
+    inst [6 or "nfsd4_openowners"] value 0
+    inst [7 or "rpc_inode_cache"] value 28
+    inst [8 or "ext4_groupinfo_4k"] value 217
+    inst [9 or "ip6-frags"] value 0
+    inst [10 or "ip6_dst_cache"] value 84
+    inst [11 or "UDPv6"] value 95
+    inst [12 or "tw_sock_TCPv6"] value 0
+    inst [13 or "request_sock_TCPv6"] value 0
+    inst [14 or "TCPv6"] value 10
+    inst [15 or "kcopyd_job"] value 0
+    inst [16 or "dm_uevent"] value 0
+    inst [17 or "sgpool-128"] value 18
+    inst [18 or "sgpool-64"] value 48
+    inst [19 or "sgpool-32"] value 100
+    inst [20 or "cfq_queue"] value 136
+    inst [21 or "bsg_cmd"] value 0
+    inst [22 or "mqueue_inode_cache"] value 22
+    inst [23 or "jbd2_transaction_s"] value 100
+    inst [24 or "jbd2_journal_handle"] value 340
+    inst [25 or "jbd2_journal_head"] value 442
+    inst [26 or "jbd2_revoke_table_s"] value 512
+    inst [27 or "ext4_inode_cache"] value 6524
+    inst [28 or "ext4_allocation_context"] value 128
+    inst [29 or "ext4_prealloc_space"] value 96
+    inst [30 or "ext4_io_end"] value 256
+    inst [31 or "ext4_extent_status"] value 4488
+    inst [32 or "mbcache"] value 292
+    inst [33 or "fscrypt_info"] value 256
+    inst [34 or "fscrypt_ctx"] value 0
+    inst [35 or "userfaultfd_ctx_cache"] value 0
+    inst [36 or "fsnotify_mark"] value 0
+    inst [37 or "pid_namespace"] value 0
+    inst [38 or "posix_timers_cache"] value 0
+    inst [39 or "UNIX"] value 493
+    inst [40 or "RAW"] value 88
+    inst [41 or "UDP"] value 84
+    inst [42 or "tw_sock_TCP"] value 25
+    inst [43 or "request_sock_TCP"] value 21
+    inst [44 or "TCP"] value 33
+    inst [45 or "hugetlbfs_inode_cache"] value 87
+    inst [46 or "dquot"] value 0
+    inst [47 or "inotify_inode_mark"] value 156
+    inst [48 or "scsi_data_buffer"] value 129370
+    inst [49 or "request_queue"] value 14
+    inst [50 or "blkdev_requests"] value 483
+    inst [51 or "blkdev_ioc"] value 126
+    inst [52 or "user_namespace"] value 100
+    inst [53 or "dmaengine-unmap-256"] value 15
+    inst [54 or "dmaengine-unmap-128"] value 30
+    inst [55 or "sock_inode_cache"] value 660
+    inst [56 or "file_lock_cache"] value 120
+    inst [57 or "file_lock_ctx"] value 850
+    inst [58 or "net_namespace"] value 9
+    inst [59 or "shmem_inode_cache"] value 1320
+    inst [60 or "task_delay_info"] value 450
+    inst [61 or "taskstats"] value 96
+    inst [62 or "proc_inode_cache"] value 3915
+    inst [63 or "sigqueue"] value 100
+    inst [64 or "bdev_cache"] value 84
+    inst [65 or "kernfs_node_cache"] value 21312
+    inst [66 or "mnt_cache"] value 414
+    inst [67 or "inode_cache"] value 15004
+    inst [68 or "dentry"] value 30325
+    inst [69 or "selinux_inode_security"] value 27000
+    inst [70 or "key_jar"] value 100
+    inst [71 or "buffer_head"] value 10335
+    inst [72 or "nsproxy"] value 292
+    inst [73 or "mm_struct"] value 143
+    inst [74 or "files_cache"] value 133
+    inst [75 or "signal_cache"] value 242
+    inst [76 or "sighand_cache"] value 224
+    inst [77 or "task_struct"] value 348
+    inst [78 or "cred_jar"] value 19719
+    inst [79 or "Acpi-ParseExt"] value 156
+    inst [80 or "Acpi-State"] value 561
+    inst [81 or "anon_vma_chain"] value 11776
+    inst [82 or "anon_vma"] value 6780
+    inst [83 or "pid"] value 480
+    inst [84 or "numa_policy"] value 31
+    inst [85 or "debug_objects_cache"] value 13668
+    inst [86 or "radix_tree_node"] value 3640
+    inst [87 or "trace_event_file"] value 1334
+    inst [88 or "ftrace_event_field"] value 3145
+    inst [89 or "idr_layer_cache"] value 630
+    inst [90 or "task_group"] value 92
+    inst [91 or "page->ptl"] value 8120
+    inst [92 or "dma-kmalloc-8192"] value 0
+    inst [93 or "dma-kmalloc-4096"] value 0
+    inst [94 or "dma-kmalloc-2048"] value 0
+    inst [95 or "dma-kmalloc-1024"] value 0
+    inst [96 or "dma-kmalloc-512"] value 16
+    inst [97 or "dma-kmalloc-256"] value 0
+    inst [98 or "dma-kmalloc-128"] value 0
+    inst [99 or "dma-kmalloc-64"] value 0
+    inst [100 or "dma-kmalloc-32"] value 0
+    inst [101 or "dma-kmalloc-16"] value 0
+    inst [102 or "dma-kmalloc-8"] value 0
+    inst [103 or "dma-kmalloc-192"] value 0
+    inst [104 or "dma-kmalloc-96"] value 0
+    inst [105 or "kmalloc-8192"] value 76
+    inst [106 or "kmalloc-4096"] value 768
+    inst [107 or "kmalloc-2048"] value 752
+    inst [108 or "kmalloc-1024"] value 928
+    inst [109 or "kmalloc-512"] value 6944
+    inst [110 or "kmalloc-256"] value 3008
+    inst [111 or "kmalloc-192"] value 66654
+    inst [112 or "kmalloc-128"] value 2304
+    inst [113 or "kmalloc-96"] value 6006
+    inst [114 or "kmalloc-64"] value 31488
+    inst [115 or "kmalloc-32"] value 133888
+    inst [116 or "kmalloc-16"] value 64256
+    inst [117 or "kmalloc-8"] value 90112
+    inst [118 or "kmem_cache_node"] value 160
+    inst [119 or "kmem_cache"] value 150
+
+mem.slabinfo.slabs.active
+    inst [0 or "nf_conntrack_expect"] value 0
+    inst [1 or "nf_conntrack"] value 0
+    inst [2 or "nfs4_layout_stateid"] value 0
+    inst [3 or "nfsd4_delegations"] value 0
+    inst [4 or "nfsd4_files"] value 0
+    inst [5 or "nfsd4_lockowners"] value 0
+    inst [6 or "nfsd4_openowners"] value 0
+    inst [7 or "rpc_inode_cache"] value 0
+    inst [8 or "ext4_groupinfo_4k"] value 0
+    inst [9 or "ip6-frags"] value 0
+    inst [10 or "ip6_dst_cache"] value 0
+    inst [11 or "UDPv6"] value 0
+    inst [12 or "tw_sock_TCPv6"] value 0
+    inst [13 or "request_sock_TCPv6"] value 0
+    inst [14 or "TCPv6"] value 0
+    inst [15 or "kcopyd_job"] value 0
+    inst [16 or "dm_uevent"] value 0
+    inst [17 or "sgpool-128"] value 0
+    inst [18 or "sgpool-64"] value 0
+    inst [19 or "sgpool-32"] value 0
+    inst [20 or "cfq_queue"] value 0
+    inst [21 or "bsg_cmd"] value 0
+    inst [22 or "mqueue_inode_cache"] value 0
+    inst [23 or "jbd2_transaction_s"] value 0
+    inst [24 or "jbd2_journal_handle"] value 0
+    inst [25 or "jbd2_journal_head"] value 0
+    inst [26 or "jbd2_revoke_table_s"] value 0
+    inst [27 or "ext4_inode_cache"] value 0
+    inst [28 or "ext4_allocation_context"] value 0
+    inst [29 or "ext4_prealloc_space"] value 0
+    inst [30 or "ext4_io_end"] value 0
+    inst [31 or "ext4_extent_status"] value 0
+    inst [32 or "mbcache"] value 0
+    inst [33 or "fscrypt_info"] value 0
+    inst [34 or "fscrypt_ctx"] value 0
+    inst [35 or "userfaultfd_ctx_cache"] value 0
+    inst [36 or "fsnotify_mark"] value 0
+    inst [37 or "pid_namespace"] value 0
+    inst [38 or "posix_timers_cache"] value 0
+    inst [39 or "UNIX"] value 0
+    inst [40 or "RAW"] value 0
+    inst [41 or "UDP"] value 0
+    inst [42 or "tw_sock_TCP"] value 0
+    inst [43 or "request_sock_TCP"] value 0
+    inst [44 or "TCP"] value 0
+    inst [45 or "hugetlbfs_inode_cache"] value 0
+    inst [46 or "dquot"] value 0
+    inst [47 or "inotify_inode_mark"] value 0
+    inst [48 or "scsi_data_buffer"] value 0
+    inst [49 or "request_queue"] value 0
+    inst [50 or "blkdev_requests"] value 0
+    inst [51 or "blkdev_ioc"] value 0
+    inst [52 or "user_namespace"] value 0
+    inst [53 or "dmaengine-unmap-256"] value 0
+    inst [54 or "dmaengine-unmap-128"] value 0
+    inst [55 or "sock_inode_cache"] value 0
+    inst [56 or "file_lock_cache"] value 0
+    inst [57 or "file_lock_ctx"] value 0
+    inst [58 or "net_namespace"] value 0
+    inst [59 or "shmem_inode_cache"] value 0
+    inst [60 or "task_delay_info"] value 0
+    inst [61 or "taskstats"] value 0
+    inst [62 or "proc_inode_cache"] value 0
+    inst [63 or "sigqueue"] value 0
+    inst [64 or "bdev_cache"] value 0
+    inst [65 or "kernfs_node_cache"] value 0
+    inst [66 or "mnt_cache"] value 0
+    inst [67 or "inode_cache"] value 0
+    inst [68 or "dentry"] value 0
+    inst [69 or "selinux_inode_security"] value 0
+    inst [70 or "key_jar"] value 0
+    inst [71 or "buffer_head"] value 0
+    inst [72 or "nsproxy"] value 0
+    inst [73 or "mm_struct"] value 0
+    inst [74 or "files_cache"] value 0
+    inst [75 or "signal_cache"] value 0
+    inst [76 or "sighand_cache"] value 0
+    inst [77 or "task_struct"] value 0
+    inst [78 or "cred_jar"] value 0
+    inst [79 or "Acpi-ParseExt"] value 0
+    inst [80 or "Acpi-State"] value 0
+    inst [81 or "anon_vma_chain"] value 0
+    inst [82 or "anon_vma"] value 0
+    inst [83 or "pid"] value 0
+    inst [84 or "numa_policy"] value 0
+    inst [85 or "debug_objects_cache"] value 0
+    inst [86 or "radix_tree_node"] value 0
+    inst [87 or "trace_event_file"] value 0
+    inst [88 or "ftrace_event_field"] value 0
+    inst [89 or "idr_layer_cache"] value 0
+    inst [90 or "task_group"] value 0
+    inst [91 or "page->ptl"] value 0
+    inst [92 or "dma-kmalloc-8192"] value 0
+    inst [93 or "dma-kmalloc-4096"] value 0
+    inst [94 or "dma-kmalloc-2048"] value 0
+    inst [95 or "dma-kmalloc-1024"] value 0
+    inst [96 or "dma-kmalloc-512"] value 0
+    inst [97 or "dma-kmalloc-256"] value 0
+    inst [98 or "dma-kmalloc-128"] value 0
+    inst [99 or "dma-kmalloc-64"] value 0
+    inst [100 or "dma-kmalloc-32"] value 0
+    inst [101 or "dma-kmalloc-16"] value 0
+    inst [102 or "dma-kmalloc-8"] value 0
+    inst [103 or "dma-kmalloc-192"] value 0
+    inst [104 or "dma-kmalloc-96"] value 0
+    inst [105 or "kmalloc-8192"] value 0
+    inst [106 or "kmalloc-4096"] value 0
+    inst [107 or "kmalloc-2048"] value 0
+    inst [108 or "kmalloc-1024"] value 0
+    inst [109 or "kmalloc-512"] value 0
+    inst [110 or "kmalloc-256"] value 0
+    inst [111 or "kmalloc-192"] value 0
+    inst [112 or "kmalloc-128"] value 0
+    inst [113 or "kmalloc-96"] value 0
+    inst [114 or "kmalloc-64"] value 0
+    inst [115 or "kmalloc-32"] value 0
+    inst [116 or "kmalloc-16"] value 0
+    inst [117 or "kmalloc-8"] value 0
+    inst [118 or "kmem_cache_node"] value 0
+    inst [119 or "kmem_cache"] value 0
+
+mem.slabinfo.slabs.objects_per_slab
+No value(s) available!
+
+mem.slabinfo.slabs.pages_per_slab
+    inst [0 or "nf_conntrack_expect"] value 2
+    inst [1 or "nf_conntrack"] value 2
+    inst [2 or "nfs4_layout_stateid"] value 4
+    inst [3 or "nfsd4_delegations"] value 2
+    inst [4 or "nfsd4_files"] value 2
+    inst [5 or "nfsd4_lockowners"] value 4
+    inst [6 or "nfsd4_openowners"] value 4
+    inst [7 or "rpc_inode_cache"] value 8
+    inst [8 or "ext4_groupinfo_4k"] value 2
+    inst [9 or "ip6-frags"] value 2
+    inst [10 or "ip6_dst_cache"] value 2
+    inst [11 or "UDPv6"] value 8
+    inst [12 or "tw_sock_TCPv6"] value 2
+    inst [13 or "request_sock_TCPv6"] value 2
+    inst [14 or "TCPv6"] value 8
+    inst [15 or "kcopyd_job"] value 8
+    inst [16 or "dm_uevent"] value 8
+    inst [17 or "sgpool-128"] value 8
+    inst [18 or "sgpool-64"] value 8
+    inst [19 or "sgpool-32"] value 8
+    inst [20 or "cfq_queue"] value 1
+    inst [21 or "bsg_cmd"] value 2
+    inst [22 or "mqueue_inode_cache"] value 8
+    inst [23 or "jbd2_transaction_s"] value 2
+    inst [24 or "jbd2_journal_handle"] value 1
+    inst [25 or "jbd2_journal_head"] value 1
+    inst [26 or "jbd2_revoke_table_s"] value 1
+    inst [27 or "ext4_inode_cache"] value 8
+    inst [28 or "ext4_allocation_context"] value 1
+    inst [29 or "ext4_prealloc_space"] value 1
+    inst [30 or "ext4_io_end"] value 1
+    inst [31 or "ext4_extent_status"] value 1
+    inst [32 or "mbcache"] value 1
+    inst [33 or "fscrypt_info"] value 1
+    inst [34 or "fscrypt_ctx"] value 1
+    inst [35 or "userfaultfd_ctx_cache"] value 2
+    inst [36 or "fsnotify_mark"] value 1
+    inst [37 or "pid_namespace"] value 8
+    inst [38 or "posix_timers_cache"] value 2
+    inst [39 or "UNIX"] value 8
+    inst [40 or "RAW"] value 8
+    inst [41 or "UDP"] value 8
+    inst [42 or "tw_sock_TCP"] value 2
+    inst [43 or "request_sock_TCP"] value 2
+    inst [44 or "TCP"] value 8
+    inst [45 or "hugetlbfs_inode_cache"] value 8
+    inst [46 or "dquot"] value 2
+    inst [47 or "inotify_inode_mark"] value 1
+    inst [48 or "scsi_data_buffer"] value 1
+    inst [49 or "request_queue"] value 8
+    inst [50 or "blkdev_requests"] value 2
+    inst [51 or "blkdev_ioc"] value 1
+    inst [52 or "user_namespace"] value 4
+    inst [53 or "dmaengine-unmap-256"] value 8
+    inst [54 or "dmaengine-unmap-128"] value 8
+    inst [55 or "sock_inode_cache"] value 8
+    inst [56 or "file_lock_cache"] value 2
+    inst [57 or "file_lock_ctx"] value 1
+    inst [58 or "net_namespace"] value 8
+    inst [59 or "shmem_inode_cache"] value 8
+    inst [60 or "task_delay_info"] value 1
+    inst [61 or "taskstats"] value 2
+    inst [62 or "proc_inode_cache"] value 8
+    inst [63 or "sigqueue"] value 1
+    inst [64 or "bdev_cache"] value 8
+    inst [65 or "kernfs_node_cache"] value 1
+    inst [66 or "mnt_cache"] value 2
+    inst [67 or "inode_cache"] value 8
+    inst [68 or "dentry"] value 2
+    inst [69 or "selinux_inode_security"] value 1
+    inst [70 or "key_jar"] value 2
+    inst [71 or "buffer_head"] value 1
+    inst [72 or "nsproxy"] value 1
+    inst [73 or "mm_struct"] value 8
+    inst [74 or "files_cache"] value 4
+    inst [75 or "signal_cache"] value 8
+    inst [76 or "sighand_cache"] value 8
+    inst [77 or "task_struct"] value 8
+    inst [78 or "cred_jar"] value 1
+    inst [79 or "Acpi-ParseExt"] value 1
+    inst [80 or "Acpi-State"] value 1
+    inst [81 or "anon_vma_chain"] value 1
+    inst [82 or "anon_vma"] value 1
+    inst [83 or "pid"] value 1
+    inst [84 or "numa_policy"] value 2
+    inst [85 or "debug_objects_cache"] value 1
+    inst [86 or "radix_tree_node"] value 4
+    inst [87 or "trace_event_file"] value 1
+    inst [88 or "ftrace_event_field"] value 1
+    inst [89 or "idr_layer_cache"] value 4
+    inst [90 or "task_group"] value 4
+    inst [91 or "page->ptl"] value 1
+    inst [92 or "dma-kmalloc-8192"] value 8
+    inst [93 or "dma-kmalloc-4096"] value 8
+    inst [94 or "dma-kmalloc-2048"] value 8
+    inst [95 or "dma-kmalloc-1024"] value 4
+    inst [96 or "dma-kmalloc-512"] value 2
+    inst [97 or "dma-kmalloc-256"] value 1
+    inst [98 or "dma-kmalloc-128"] value 1
+    inst [99 or "dma-kmalloc-64"] value 1
+    inst [100 or "dma-kmalloc-32"] value 1
+    inst [101 or "dma-kmalloc-16"] value 1
+    inst [102 or "dma-kmalloc-8"] value 1
+    inst [103 or "dma-kmalloc-192"] value 1
+    inst [104 or "dma-kmalloc-96"] value 1
+    inst [105 or "kmalloc-8192"] value 8
+    inst [106 or "kmalloc-4096"] value 8
+    inst [107 or "kmalloc-2048"] value 8
+    inst [108 or "kmalloc-1024"] value 4
+    inst [109 or "kmalloc-512"] value 2
+    inst [110 or "kmalloc-256"] value 1
+    inst [111 or "kmalloc-192"] value 1
+    inst [112 or "kmalloc-128"] value 1
+    inst [113 or "kmalloc-96"] value 1
+    inst [114 or "kmalloc-64"] value 1
+    inst [115 or "kmalloc-32"] value 1
+    inst [116 or "kmalloc-16"] value 1
+    inst [117 or "kmalloc-8"] value 1
+    inst [118 or "kmem_cache_node"] value 1
+    inst [119 or "kmem_cache"] value 2
+
+mem.slabinfo.slabs.total
+    inst [0 or "nf_conntrack_expect"] value 0
+    inst [1 or "nf_conntrack"] value 0
+    inst [2 or "nfs4_layout_stateid"] value 0
+    inst [3 or "nfsd4_delegations"] value 0
+    inst [4 or "nfsd4_files"] value 0
+    inst [5 or "nfsd4_lockowners"] value 0
+    inst [6 or "nfsd4_openowners"] value 0
+    inst [7 or "rpc_inode_cache"] value 0
+    inst [8 or "ext4_groupinfo_4k"] value 0
+    inst [9 or "ip6-frags"] value 0
+    inst [10 or "ip6_dst_cache"] value 0
+    inst [11 or "UDPv6"] value 0
+    inst [12 or "tw_sock_TCPv6"] value 0
+    inst [13 or "request_sock_TCPv6"] value 0
+    inst [14 or "TCPv6"] value 0
+    inst [15 or "kcopyd_job"] value 0
+    inst [16 or "dm_uevent"] value 0
+    inst [17 or "sgpool-128"] value 0
+    inst [18 or "sgpool-64"] value 0
+    inst [19 or "sgpool-32"] value 0
+    inst [20 or "cfq_queue"] value 0
+    inst [21 or "bsg_cmd"] value 0
+    inst [22 or "mqueue_inode_cache"] value 0
+    inst [23 or "jbd2_transaction_s"] value 0
+    inst [24 or "jbd2_journal_handle"] value 0
+    inst [25 or "jbd2_journal_head"] value 0
+    inst [26 or "jbd2_revoke_table_s"] value 0
+    inst [27 or "ext4_inode_cache"] value 0
+    inst [28 or "ext4_allocation_context"] value 0
+    inst [29 or "ext4_prealloc_space"] value 0
+    inst [30 or "ext4_io_end"] value 0
+    inst [31 or "ext4_extent_status"] value 0
+    inst [32 or "mbcache"] value 0
+    inst [33 or "fscrypt_info"] value 0
+    inst [34 or "fscrypt_ctx"] value 0
+    inst [35 or "userfaultfd_ctx_cache"] value 0
+    inst [36 or "fsnotify_mark"] value 0
+    inst [37 or "pid_namespace"] value 0
+    inst [38 or "posix_timers_cache"] value 0
+    inst [39 or "UNIX"] value 0
+    inst [40 or "RAW"] value 0
+    inst [41 or "UDP"] value 0
+    inst [42 or "tw_sock_TCP"] value 0
+    inst [43 or "request_sock_TCP"] value 0
+    inst [44 or "TCP"] value 0
+    inst [45 or "hugetlbfs_inode_cache"] value 0
+    inst [46 or "dquot"] value 0
+    inst [47 or "inotify_inode_mark"] value 0
+    inst [48 or "scsi_data_buffer"] value 0
+    inst [49 or "request_queue"] value 0
+    inst [50 or "blkdev_requests"] value 0
+    inst [51 or "blkdev_ioc"] value 0
+    inst [52 or "user_namespace"] value 0
+    inst [53 or "dmaengine-unmap-256"] value 0
+    inst [54 or "dmaengine-unmap-128"] value 0
+    inst [55 or "sock_inode_cache"] value 0
+    inst [56 or "file_lock_cache"] value 0
+    inst [57 or "file_lock_ctx"] value 0
+    inst [58 or "net_namespace"] value 0
+    inst [59 or "shmem_inode_cache"] value 0
+    inst [60 or "task_delay_info"] value 0
+    inst [61 or "taskstats"] value 0
+    inst [62 or "proc_inode_cache"] value 0
+    inst [63 or "sigqueue"] value 0
+    inst [64 or "bdev_cache"] value 0
+    inst [65 or "kernfs_node_cache"] value 0
+    inst [66 or "mnt_cache"] value 0
+    inst [67 or "inode_cache"] value 0
+    inst [68 or "dentry"] value 0
+    inst [69 or "selinux_inode_security"] value 0
+    inst [70 or "key_jar"] value 0
+    inst [71 or "buffer_head"] value 0
+    inst [72 or "nsproxy"] value 0
+    inst [73 or "mm_struct"] value 0
+    inst [74 or "files_cache"] value 0
+    inst [75 or "signal_cache"] value 0
+    inst [76 or "sighand_cache"] value 0
+    inst [77 or "task_struct"] value 0
+    inst [78 or "cred_jar"] value 0
+    inst [79 or "Acpi-ParseExt"] value 0
+    inst [80 or "Acpi-State"] value 0
+    inst [81 or "anon_vma_chain"] value 0
+    inst [82 or "anon_vma"] value 0
+    inst [83 or "pid"] value 0
+    inst [84 or "numa_policy"] value 0
+    inst [85 or "debug_objects_cache"] value 0
+    inst [86 or "radix_tree_node"] value 0
+    inst [87 or "trace_event_file"] value 0
+    inst [88 or "ftrace_event_field"] value 0
+    inst [89 or "idr_layer_cache"] value 0
+    inst [90 or "task_group"] value 0
+    inst [91 or "page->ptl"] value 0
+    inst [92 or "dma-kmalloc-8192"] value 0
+    inst [93 or "dma-kmalloc-4096"] value 0
+    inst [94 or "dma-kmalloc-2048"] value 0
+    inst [95 or "dma-kmalloc-1024"] value 0
+    inst [96 or "dma-kmalloc-512"] value 0
+    inst [97 or "dma-kmalloc-256"] value 0
+    inst [98 or "dma-kmalloc-128"] value 0
+    inst [99 or "dma-kmalloc-64"] value 0
+    inst [100 or "dma-kmalloc-32"] value 0
+    inst [101 or "dma-kmalloc-16"] value 0
+    inst [102 or "dma-kmalloc-8"] value 0
+    inst [103 or "dma-kmalloc-192"] value 0
+    inst [104 or "dma-kmalloc-96"] value 0
+    inst [105 or "kmalloc-8192"] value 0
+    inst [106 or "kmalloc-4096"] value 0
+    inst [107 or "kmalloc-2048"] value 0
+    inst [108 or "kmalloc-1024"] value 0
+    inst [109 or "kmalloc-512"] value 0
+    inst [110 or "kmalloc-256"] value 0
+    inst [111 or "kmalloc-192"] value 0
+    inst [112 or "kmalloc-128"] value 0
+    inst [113 or "kmalloc-96"] value 0
+    inst [114 or "kmalloc-64"] value 0
+    inst [115 or "kmalloc-32"] value 0
+    inst [116 or "kmalloc-16"] value 0
+    inst [117 or "kmalloc-8"] value 0
+    inst [118 or "kmem_cache_node"] value 0
+    inst [119 or "kmem_cache"] value 0
+
+mem.slabinfo.slabs.total_size
+    inst [0 or "nf_conntrack_expect"] value 0
+    inst [1 or "nf_conntrack"] value 32768
+    inst [2 or "nfs4_layout_stateid"] value 0
+    inst [3 or "nfsd4_delegations"] value 0
+    inst [4 or "nfsd4_files"] value 0
+    inst [5 or "nfsd4_lockowners"] value 0
+    inst [6 or "nfsd4_openowners"] value 0
+    inst [7 or "rpc_inode_cache"] value 32768
+    inst [8 or "ext4_groupinfo_4k"] value 57344
+    inst [9 or "ip6-frags"] value 0
+    inst [10 or "ip6_dst_cache"] value 32768
+    inst [11 or "UDPv6"] value 163840
+    inst [12 or "tw_sock_TCPv6"] value 0
+    inst [13 or "request_sock_TCPv6"] value 0
+    inst [14 or "TCPv6"] value 32768
+    inst [15 or "kcopyd_job"] value 0
+    inst [16 or "dm_uevent"] value 0
+    inst [17 or "sgpool-128"] value 98304
+    inst [18 or "sgpool-64"] value 131072
+    inst [19 or "sgpool-32"] value 131072
+    inst [20 or "cfq_queue"] value 32768
+    inst [21 or "bsg_cmd"] value 0
+    inst [22 or "mqueue_inode_cache"] value 32768
+    inst [23 or "jbd2_transaction_s"] value 32768
+    inst [24 or "jbd2_journal_handle"] value 16384
+    inst [25 or "jbd2_journal_head"] value 53248
+    inst [26 or "jbd2_revoke_table_s"] value 8192
+    inst [27 or "ext4_inode_cache"] value 15269888
+    inst [28 or "ext4_allocation_context"] value 16384
+    inst [29 or "ext4_prealloc_space"] value 16384
+    inst [30 or "ext4_io_end"] value 16384
+    inst [31 or "ext4_extent_status"] value 180224
+    inst [32 or "mbcache"] value 16384
+    inst [33 or "fscrypt_info"] value 8192
+    inst [34 or "fscrypt_ctx"] value 0
+    inst [35 or "userfaultfd_ctx_cache"] value 0
+    inst [36 or "fsnotify_mark"] value 0
+    inst [37 or "pid_namespace"] value 0
+    inst [38 or "posix_timers_cache"] value 0
+    inst [39 or "UNIX"] value 950272
+    inst [40 or "RAW"] value 131072
+    inst [41 or "UDP"] value 131072
+    inst [42 or "tw_sock_TCP"] value 8192
+    inst [43 or "request_sock_TCP"] value 8192
+    inst [44 or "TCP"] value 98304
+    inst [45 or "hugetlbfs_inode_cache"] value 98304
+    inst [46 or "dquot"] value 0
+    inst [47 or "inotify_inode_mark"] value 24576
+    inst [48 or "scsi_data_buffer"] value 3117056
+    inst [49 or "request_queue"] value 65536
+    inst [50 or "blkdev_requests"] value 188416
+    inst [51 or "blkdev_ioc"] value 28672
+    inst [52 or "user_namespace"] value 65536
+    inst [53 or "dmaengine-unmap-256"] value 32768
+    inst [54 or "dmaengine-unmap-128"] value 32768
+    inst [55 or "sock_inode_cache"] value 720896
+    inst [56 or "file_lock_cache"] value 32768
+    inst [57 or "file_lock_ctx"] value 102400
+    inst [58 or "net_namespace"] value 98304
+    inst [59 or "shmem_inode_cache"] value 1677994
+    inst [60 or "task_delay_info"] value 61440
+    inst [61 or "taskstats"] value 32768
+    inst [62 or "proc_inode_cache"] value 4098259
+    inst [63 or "sigqueue"] value 16384
+    inst [64 or "bdev_cache"] value 131072
+    inst [65 or "kernfs_node_cache"] value 3637248
+    inst [66 or "mnt_cache"] value 188416
+    inst [67 or "inode_cache"] value 15859712
+    inst [68 or "dentry"] value 9876602
+    inst [69 or "selinux_inode_security"] value 3069724
+    inst [70 or "key_jar"] value 32768
+    inst [71 or "buffer_head"] value 1085440
+    inst [72 or "nsproxy"] value 16384
+    inst [73 or "mm_struct"] value 360448
+    inst [74 or "files_cache"] value 114688
+    inst [75 or "signal_cache"] value 360448
+    inst [76 or "sighand_cache"] value 524288
+    inst [77 or "task_struct"] value 5259264
+    inst [78 or "cred_jar"] value 3792505
+    inst [79 or "Acpi-ParseExt"] value 16384
+    inst [80 or "Acpi-State"] value 45056
+    inst [81 or "anon_vma_chain"] value 726272
+    inst [82 or "anon_vma"] value 1351270
+    inst [83 or "pid"] value 61440
+    inst [84 or "numa_policy"] value 8192
+    inst [85 or "debug_objects_cache"] value 499069
+    inst [86 or "radix_tree_node"] value 1912832
+    inst [87 or "trace_event_file"] value 118784
+    inst [88 or "ftrace_event_field"] value 151552
+    inst [89 or "idr_layer_cache"] value 344064
+    inst [90 or "task_group"] value 65536
+    inst [91 or "page->ptl"] value 549083
+    inst [92 or "dma-kmalloc-8192"] value 0
+    inst [93 or "dma-kmalloc-4096"] value 0
+    inst [94 or "dma-kmalloc-2048"] value 0
+    inst [95 or "dma-kmalloc-1024"] value 0
+    inst [96 or "dma-kmalloc-512"] value 8192
+    inst [97 or "dma-kmalloc-256"] value 0
+    inst [98 or "dma-kmalloc-128"] value 0
+    inst [99 or "dma-kmalloc-64"] value 0
+    inst [100 or "dma-kmalloc-32"] value 0
+    inst [101 or "dma-kmalloc-16"] value 0
+    inst [102 or "dma-kmalloc-8"] value 0
+    inst [103 or "dma-kmalloc-192"] value 0
+    inst [104 or "dma-kmalloc-96"] value 0
+    inst [105 or "kmalloc-8192"] value 622592
+    inst [106 or "kmalloc-4096"] value 3067904
+    inst [107 or "kmalloc-2048"] value 1445888
+    inst [108 or "kmalloc-1024"] value 851968
+    inst [109 or "kmalloc-512"] value 3231744
+    inst [110 or "kmalloc-256"] value 715264
+    inst [111 or "kmalloc-192"] value 13000704
+    inst [112 or "kmalloc-128"] value 294912
+    inst [113 or "kmalloc-96"] value 585728
+    inst [114 or "kmalloc-64"] value 2015232
+    inst [115 or "kmalloc-32"] value 4284416
+    inst [116 or "kmalloc-16"] value 1028096
+    inst [117 or "kmalloc-8"] value 720896
+    inst [118 or "kmem_cache_node"] value 20480
+    inst [119 or "kmem_cache"] value 49152
+
+== done
+
+== Checking buddyinfo metric values - meminfo-root-004.tgz
+
+mem.buddyinfo.pages
+No value(s) available!
+
+mem.buddyinfo.total
+No value(s) available!
+
+== done
+
+== Checking zoneinfo metric values - meminfo-root-004.tgz
+
+mem.zoneinfo.free
+    inst [N or "DMA::node0"] value 3030056
+    inst [N or "Normal::node0"] value 218480
+
+mem.zoneinfo.high
+    inst [N or "DMA::node0"] value 396
+    inst [N or "Normal::node0"] value 24708
+
+mem.zoneinfo.low
+    inst [N or "DMA::node0"] value 332
+    inst [N or "Normal::node0"] value 20592
+
+mem.zoneinfo.managed
+    inst [N or "DMA::node0"] value 15908
+    inst [N or "Normal::node0"] value 974140
+
+mem.zoneinfo.min
+    inst [N or "DMA::node0"] value 268
+    inst [N or "Normal::node0"] value 16476
+
+mem.zoneinfo.nr_active_anon
+    inst [N or "DMA::node0"] value 274332
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_active_file
+    inst [N or "DMA::node0"] value 92140
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_alloc_batch
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_anon_pages
+    inst [N or "DMA::node0"] value 273580
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_anon_transparent_hugepages
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_bounce
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_dirtied
+    inst [N or "DMA::node0"] value 24404
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_dirty
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_file_pages
+    inst [N or "DMA::node0"] value 308592
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_free_cma
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_free_pages
+    inst [N or "DMA::node0"] value 15900
+    inst [N or "Normal::node0"] value 218480
+
+mem.zoneinfo.nr_inactive_anon
+    inst [N or "DMA::node0"] value 580
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_inactive_file
+    inst [N or "DMA::node0"] value 215128
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_isolated_anon
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_isolated_file
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_kernel_stack
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 19968
+
+mem.zoneinfo.nr_mapped
+    inst [N or "DMA::node0"] value 158248
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_mlock
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_page_table_pages
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 20784
+
+mem.zoneinfo.nr_shmem
+    inst [N or "DMA::node0"] value 1332
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_slab_reclaimable
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 48840
+
+mem.zoneinfo.nr_slab_unreclaimable
+    inst [N or "DMA::node0"] value 8
+    inst [N or "Normal::node0"] value 60888
+
+mem.zoneinfo.nr_unevictable
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_unstable
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_vmscan_immediate_reclaim
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_vmscan_write
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_writeback
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_writeback_temp
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.nr_written
+    inst [N or "DMA::node0"] value 24400
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.numa_foreign
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.numa_hit
+    inst [N or "DMA::node0"] value 4
+    inst [N or "Normal::node0"] value 3048324
+
+mem.zoneinfo.numa_interleave
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 76352
+
+mem.zoneinfo.numa_local
+    inst [N or "DMA::node0"] value 4
+    inst [N or "Normal::node0"] value 3048324
+
+mem.zoneinfo.numa_miss
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.numa_other
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.present
+    inst [N or "DMA::node0"] value 15992
+    inst [N or "Normal::node0"] value 1048576
+
+mem.zoneinfo.protection
+    inst [N or "DMA::node0::lowmem_reserved0"] value 0
+    inst [N or "DMA::node0::lowmem_reserved1"] value 11736
+    inst [N or "DMA::node0::lowmem_reserved2"] value 15544
+    inst [N or "DMA::node0::lowmem_reserved3"] value 15544
+    inst [N or "DMA::node0::lowmem_reserved4"] value 15544
+    inst [N or "Normal::node0::lowmem_reserved0"] value 0
+    inst [N or "Normal::node0::lowmem_reserved1"] value 0
+    inst [N or "Normal::node0::lowmem_reserved2"] value 0
+    inst [N or "Normal::node0::lowmem_reserved3"] value 0
+    inst [N or "Normal::node0::lowmem_reserved4"] value 0
+
+mem.zoneinfo.scanned
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.spanned
+    inst [N or "DMA::node0"] value 16380
+    inst [N or "Normal::node0"] value 1048576
+
+mem.zoneinfo.workingset_activate
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.workingset_nodereclaim
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.workingset_refault
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
 
 == done
 

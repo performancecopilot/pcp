@@ -1,0 +1,34 @@
+Upgrade checklists for each of the bundled webapps
+
+== general ==
+
+The web applications we ship are prepared, deployable versions.
+For most, this means a build of some kind to conver from their
+upstream sources to the deployable applications.
+
+== vector ==
+
+- http://vectoross.io/docs/building-vector-source.html
+  and in particular:
+  $ npm install
+  $ bower install
+  $ gulp build
+  ... the deployable Vector is then in the dist/ directory.
+
+== graphite ==
+
+- Re-build process is not known, but probably related is:
+  http://graphite.readthedocs.io/en/latest/development.html
+
+== grafana ==
+
+- Re-build process is not known.  Building current recent grafana
+  is documented here (but does not apply to the 1.9.1 version!)
+  https://github.com/grafana/grafana/blob/master/README.md
+
+== blinkenlights ==
+
+- This is a static demo, not expected to ever change now, so no
+  work to do here.  It does embed versions of jquery & jquery-ui
+  however, which may need to be updated someday.
+

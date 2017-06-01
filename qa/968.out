@@ -1,12 +1,12 @@
 QA output created by 968
 == options error message
-RuntimeError: pmGetOptions must be called first
+RuntimeError: pmGetOptions is not yet done
 == check setmode
 == check import
 == check derive
 Impossible value or scale conversion Error: pmRegisterDerivedMetric("fuu", ...) syntax error
 rat(disk.dev.read)
-   ^
-Arithmetic operator expected
+    ^
+Unexpected '('
 
 == done

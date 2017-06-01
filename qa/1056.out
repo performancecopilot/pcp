@@ -1,7 +1,6 @@
 QA output created by 1056
 
 cpus One-line Help: Error: One-line or help text is not available
-
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
 Full Help: Error: One-line or help text is not available

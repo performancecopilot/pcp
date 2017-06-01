@@ -1,0 +1,35 @@
+#!/bin/sh
+# PCP QA Test No. 936
+# Exercise the pcp-tapestat command.
+#
+# Copyright (c) 2017 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.python
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
+
+pcp_tapestat="$PCP_BINADM_DIR/pcp-tapestat"
+test -x $pcp_tapestat || _notrun "No pcp-tapestat(1) installed"
+pcp_tapestat="$python $pcp_tapestat"
+
+archive1="-a $here/archives/pcp-tapestat-archive -t 10 -z"
+
+# real QA test starts here
+echo && echo pcp-tapestat output: ctime prefix, precision 2
+pcp $archive1 tapestat -x t -P 2
+
+echo && echo pcp-tapestat output: no headers, no idle, precision 5
+pcp $archive1 tapestat -x h,noidle -P 5
+
+echo && echo pcp-tapestat output: no extended options, precision 0
+pcp $archive1 tapestat -P 0
+
+# success, all done
+status=0
+exit

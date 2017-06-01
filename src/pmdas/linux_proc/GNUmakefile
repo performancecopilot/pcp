@@ -36,11 +36,12 @@ YFILES		= gram.y
 
 SCRIPTS		= Install Remove
 LOGREWRITERS	= linux_proc_migrate.conf cgroup_units.conf \
-		  proc_kernel_ulong.conf proc_jiffies.conf proc_scheduler.conf
+		  proc_kernel_ulong.conf proc_jiffies.conf proc_scheduler.conf \
+		  proc_discrete_strings.conf proc_kernel_ulong_migrate.conf
 VERSION_SCRIPT	= exports
 HELPTARGETS	= help.dir help.pag
 LDIRT		= $(HELPTARGETS) domain.h $(VERSION_SCRIPT) $(YFILES:%.y=%.tab.?) \
-		  proc_kernel_ulong.conf proc_jiffies.conf
+		  proc_kernel_ulong.conf proc_jiffies.conf proc_kernel_ulong_migrate.conf
 
 LLDLIBS		= $(PCP_PMDALIB)
 LCFLAGS		= $(INVISIBILITY)
@@ -97,7 +98,7 @@ domain.h: ../../pmns/stdpmid
 
 $(OBJECTS): domain.h
 
-proc_kernel_ulong.conf proc_jiffies.conf:	mk.rewrite
+proc_kernel_ulong.conf proc_jiffies.conf proc_kernel_ulong_migrate.conf: mk.rewrite
 	CPP="$(CPP)" INCDIR="$(TOPDIR)/src/include" ./mk.rewrite
 
 gram.tab.o:	hotproc.h

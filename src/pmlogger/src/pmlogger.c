@@ -1268,14 +1268,16 @@ newvolume(int vol_switch_type)
 	    __pmLogWriteLabel(logctl.l_mfp, &logctl.l_label);
 	    logctl.l_state = PM_LOG_STATE_INIT;
 	}
-#if 0
-	if (last_stamp.tv_sec != 0) {
-	    __pmTimeval	tmp;
-	    tmp.tv_sec = (__int32_t)last_stamp.tv_sec;
-	    tmp.tv_usec = (__int32_t)last_stamp.tv_usec;
-	    __pmLogPutIndex(&logctl, &tmp);
-	}
-#endif
+
+	/*
+	 * Note:
+	 * 	No need to update the temporal index here.
+	 *	The new volume is empty (other than the label record)
+	 *	at this stage, but when the first data record is
+	 *	added we update the temporal index at that time ...
+	 *	this happens in do_work() over in callback.c
+	 */
+
 	fclose(logctl.l_mfp);
 	logctl.l_mfp = newfp;
 	logctl.l_label.ill_vol = logctl.l_curvol = nextvol;

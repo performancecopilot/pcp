@@ -67,6 +67,7 @@ main(int argc, char **argv)
     pmID	metrics[2];
     pmResult	*resp;
     pmDesc	desc;
+    __pmContext	*ctxp;
     int		handle[50];		/* need 3 x MAXC */
 #ifdef PCP_DEBUG
     static char	*debug = "[-D N] ";
@@ -172,6 +173,19 @@ main(int argc, char **argv)
 	    }
 	}
 	handle[i] = sts;
+
+	/*
+	 * integrity assertions ...
+	 */
+	ctxp = __pmCurrentContext();
+	if (ctxp == NULL) {
+	    fprintf(stderr, "__pmCurrentContext: returns NULL, sts %d\n", sts);
+	    exit(1);
+	}
+	if (ctxp->c_handle != sts) {
+	    fprintf(stderr, "__pmCurrentContext: c_handle %d != sts %d\n", ctxp->c_handle, sts);
+	    exit(1);
+	}
 
 	if ((sts = pmLookupDesc(metrics[0], &desc)) < 0) {
 	    fprintf(stderr, "pmLookupDesc: context=%d bin: %s\n", handle[i], pmErrStr(sts));

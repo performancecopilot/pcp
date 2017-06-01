@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Red Hat.
+ * Copyright (c) 2016-2017 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -22,7 +22,7 @@
  * fetch cluster numbers
  */
 enum {
-	CLUSTER_STAT = 0,	/*  0 /proc/stat */
+	CLUSTER_STAT = 0,	/*  0 /proc/stat (plus others, historical) */
 	CLUSTER_MEMINFO,	/*  1 /proc/meminfo */
 	CLUSTER_LOADAVG,	/*  2 /proc/loadavg */
 	CLUSTER_NET_DEV,	/*  3 /proc/net/dev */
@@ -91,6 +91,11 @@ enum {
 	CLUSTER_SEM_STAT,	/* 66 msgctl(SEM_STAT) system call */
 	CLUSTER_BUDDYINFO,	/* 67 /proc/buddyinfo */
 	CLUSTER_ZONEINFO,	/* 68 /proc/zoneinfo */
+	CLUSTER_KSM_INFO,	/* 69 /sys/kernel/mm/ksm */
+	CLUSTER_ZONEINFO_PROTECTION,	/* 70 /proc/zoneinfo protection item */
+	CLUSTER_TAPEDEV,	/* 71 /sys/class/scsi_tape */
+	CLUSTER_RANDOM,		/* 72 /proc/sys/kernel/random entropy state */
+	CLUSTER_NET_SOCKSTAT6,	/* 73 /proc/net/sockstat6 */
 
 	NUM_CLUSTERS		/* one more than highest numbered cluster */
 };
@@ -149,6 +154,8 @@ enum {
 	IPC_SEM_INDOM,	        /* 30 - ipc sem_stat msgid */
 	BUDDYINFO_INDOM,	/* 31 - kernel buddys */
 	ZONEINFO_INDOM,	        /* 32 - proc zoneinfo */
+	ZONEINFO_PROTECTION_INDOM,	/* 33 - proc zoneinfo protection item */
+	TAPEDEV_INDOM,		/* 34 - tape devices */
 
 	NUM_INDOMS		/* one more than highest numbered cluster */
 };
@@ -158,6 +165,15 @@ extern pmInDom linux_indom(int);
 
 extern pmdaIndom *linux_pmda_indom(int);
 #define PMDAINDOM(i) linux_pmda_indom(i)
+
+/*
+ * Bitflag states representing various modes for testing.
+ */
+#define	LINUX_TEST_MODE		(1<<0)
+#define	LINUX_TEST_STATSPATH	(1<<1)
+#define	LINUX_TEST_MEMINFO	(1<<2)
+#define	LINUX_TEST_NCPUS	(1<<3)
+extern int linux_test_mode;
 
 /*  
  * Optional path prefix for all stats files, used for testing.
@@ -202,7 +218,60 @@ int linux_strings_insert(const char *);
 	if ((size)==8) { (atomp)->ull = (val); } else { (atomp)->ul = (val); } \
     } while (0)
 
-extern int _pm_ncpus;
+extern int _pm_ncpus;			/* max CPU count, not online CPUs */
 extern int _pm_pageshift;
+
+typedef struct {
+    unsigned long long	user;
+    unsigned long long	sys;
+    unsigned long long	nice;
+    unsigned long long	idle;
+    unsigned long long	wait;
+    unsigned long long	irq;
+    unsigned long long	sirq;
+    unsigned long long	steal;
+    unsigned long long	guest;
+    unsigned long long	guest_nice;
+} cpuacct_t;
+
+typedef struct {
+    float		clock;
+    float		bogomips;
+    int			sapic;		/* strings dictionary hash key */
+    int			vendor;		/* strings dictionary hash key */
+    int			model;		/* strings dictionary hash key */
+    int			model_name;	/* strings dictionary hash key */
+    int			stepping;	/* strings dictionary hash key */
+    int			flags;		/* strings dictionary hash key */
+    unsigned int	cache;
+    unsigned int	cache_align;
+} cpuinfo_t;
+
+typedef struct {
+    unsigned int	flags;
+    uint64_t		processed;
+    uint64_t		dropped;
+    uint64_t		time_squeeze;
+    uint64_t		cpu_collision;
+    uint64_t		received_rps;
+    uint64_t		flow_limit_count;
+} softnet_t;
+
+typedef struct {
+    unsigned int	cpuid;
+    unsigned int	nodeid;
+    char		*name;
+    cpuacct_t		stat;
+    cpuinfo_t		info;
+    softnet_t		*softnet;
+} percpu_t;
+
+typedef struct {
+    unsigned int	nodeid;
+    cpuacct_t		stat;
+    struct linux_table	*meminfo;
+    struct linux_table	*memstat;
+    double		bandwidth;
+} pernode_t;
 
 #endif /* LINUX_PMDA_H */

@@ -7,7 +7,7 @@
 ** This source-file contains functions to calculate the differences for
 ** the system-level and process-level counters since the previous sample.
 **
-** Copyright (C) 2015 Red Hat.
+** Copyright (C) 2015,2017 Red Hat.
 ** Copyright (C) 2000-2010 Gerlof Langeveld
 **
 ** This program is free software; you can redistribute it and/or modify it
@@ -982,14 +982,20 @@ deviatsyst(struct sstat *cur, struct sstat *pre, struct sstat *dev, double inter
 	dev->nfs.client.rpcautrefresh = subcount(cur->nfs.client.rpcautrefresh,
 	                                         pre->nfs.client.rpcautrefresh);
 
-
+	if (cur->nfs.nrmounts != dev->nfs.nrmounts)
+	{
+		size = (cur->nfs.nrmounts + 1) * sizeof(struct pernfsmount);
+		dev->nfs.nfsmnt = (struct pernfsmount *)realloc(dev->nfs.nfsmnt, size);
+		ptrverify(dev->nfs.nfsmnt, "deviatsyst nfs [%ld]\n", (long)size);
+	}
 	for (i=j=0; i < cur->nfs.nrmounts; i++, j++)
 	{
 		/*
  		** check if nfsmounts have been added or removed since
 		** previous interval
 		*/
-		if ( strcmp(cur->nfs.nfsmnt[i].mountdev,
+		if (j >= pre->nfs.nrmounts ||
+		    strcmp( cur->nfs.nfsmnt[i].mountdev,
 		            pre->nfs.nfsmnt[j].mountdev) != 0)
 		{
 			for (j=0; j < pre->nfs.nrmounts; j++)
@@ -1001,17 +1007,24 @@ deviatsyst(struct sstat *cur, struct sstat *pre, struct sstat *dev, double inter
 
 			/*
 			** either the corresponding entry has been found
-			** in the case that a container has been removed,
+			** in the case that an NFS mount has been removed,
 			** or an empty entry has been found (all counters
-			** on zero) in the case that a container has
+			** on zero) in the case that an NFS mount has
 			** been added during the last sample
 			*/
 		}
+
+		if (j >= pre->nfs.nrmounts)
+			memset(&(dev->nfs.nfsmnt[i]), 0,
+					sizeof(struct pernfsmount));
 
 		strcpy(dev->nfs.nfsmnt[i].mountdev,
 		       cur->nfs.nfsmnt[i].mountdev);
 
                 dev->nfs.nfsmnt[i].age = cur->nfs.nfsmnt[i].age;
+
+		if (j >= pre->nfs.nrmounts)
+			continue;
 
 		if (dev->nfs.nfsmnt[i].age <= interval)
 			memset(&(pre->nfs.nfsmnt[j]), 0, 
@@ -1055,13 +1068,20 @@ deviatsyst(struct sstat *cur, struct sstat *pre, struct sstat *dev, double inter
 	/*
 	** calculate deviations for containers
 	*/
+	if (cur->cfs.nrcontainer != dev->cfs.nrcontainer)
+	{
+		size = (cur->cfs.nrcontainer + 1) * sizeof(struct percontainer);
+		dev->cfs.cont = (struct percontainer *)realloc(dev->cfs.cont, size);
+		ptrverify(dev->cfs.cont, "deviatsyst cont [%ld]\n", (long)size);
+	}
 	for (i=j=0; i < cur->cfs.nrcontainer; i++, j++)
 	{
 		/*
  		** check if containers have been added or removed since
 		** previous interval
 		*/
-		if (cur->cfs.cont[i].ctid != pre->cfs.cont[j].ctid)
+		if (j >= pre->cfs.nrcontainer ||
+		    cur->cfs.cont[i].ctid != pre->cfs.cont[j].ctid)
 		{
 			for (j=0; j < pre->cfs.nrcontainer; j++)
 			{
@@ -1079,19 +1099,25 @@ deviatsyst(struct sstat *cur, struct sstat *pre, struct sstat *dev, double inter
 			*/
 		}
 
+		if (j >= pre->cfs.nrcontainer)
+			memset(&(dev->cfs.cont[i]), 0,
+					sizeof(struct percontainer));
+
 		dev->cfs.cont[i].ctid    = cur->cfs.cont[i].ctid;
 		dev->cfs.cont[i].numproc = cur->cfs.cont[i].numproc;
+		dev->cfs.cont[i].physpages = cur->cfs.cont[i].physpages;
+
+		if (j >= pre->cfs.nrcontainer)
+			continue;
 
 		dev->cfs.cont[i].system  = subcount(cur->cfs.cont[i].system,
-		                                    pre->cfs.cont[i].system);
+		                                    pre->cfs.cont[j].system);
 		dev->cfs.cont[i].user    = subcount(cur->cfs.cont[i].user,
-		                                    pre->cfs.cont[i].user);
+		                                    pre->cfs.cont[j].user);
 		dev->cfs.cont[i].nice    = subcount(cur->cfs.cont[i].nice,
-		                                    pre->cfs.cont[i].nice);
+		                                    pre->cfs.cont[j].nice);
 		dev->cfs.cont[i].uptime  = subcount(cur->cfs.cont[i].uptime,
-		                                    pre->cfs.cont[i].uptime);
-
-		dev->cfs.cont[i].physpages = cur->cfs.cont[i].physpages;
+		                                    pre->cfs.cont[j].uptime);
 	}
 
 	dev->cfs.nrcontainer = cur->cfs.nrcontainer;

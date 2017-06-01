@@ -27,9 +27,25 @@
 # blank lines before the @ line are ignored
 #
 
-@ TRACE.0 Instance domain "trace tag name" for trace PMDA
-There is one instance for each transaction which has been seen by
-the trace PMDA during the reporting period.
+@ TRACE.0 Instance domain of transaction tags for the trace PMDA
+There is one instance for each transaction tag (from a call to pmtracebegin)
+which has been seen by the trace PMDA during the reporting period.
+The trace.transact.* metrics are enumerated over this instance domain.
+
+@ TRACE.1 Instance domain of point tags for the trace PMDA
+There is one instance for each point tag (from a call to pmtracepoint)
+which has been seen by the trace PMDA during the reporting period.
+The trace.point.* metrics are enumerated over this instance domain.
+
+@ TRACE.2 Instance domain of observation tags for the trace PMDA
+There is one instance for each observation tag (from a call to pmtraceobs)
+which has been seen by the trace PMDA during the reporting period.
+The trace.observe.* metrics are enumerated over this instance domain.
+
+@ TRACE.3 Instance domain of counter tags for the trace PMDA
+There is one instance for each counter tag (from a call to pmtracecounter)
+which has been seen by the trace PMDA during the reporting period.
+The trace.counter.* metrics are enumerated over this instance domain.
 
 @ trace.transact.count count by transaction
 Count by transaction tag of transactions serviced since the trace

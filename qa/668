@@ -49,9 +49,9 @@ _cleanup()
 {
     if [ -n "$pid" ]; then $sudo kill $pid; fi
     # restart pmcd and primary pmlogger
-    $sudo $PCP_RC_DIR/pcp restart >>$seq.full 2>&1
+    _service pcp restart >>$seq.full 2>&1
     _wait_for_pmcd
-    # no need for _wait_for_pmlogger
+    _wait_for_pmlogger
     $sudo rm -fr $tmp.dir
     $sudo rm -f $tmp.*
     exit $status

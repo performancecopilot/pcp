@@ -2,7 +2,7 @@
 #
 # Recipes for making badti-* family of archives.
 # 
-# Every one is based on a version of ../src/ok-foo, with binary editing using
+# Every one is based on a version of ./ok-foo, with binary editing using
 # bvi (or similar) and cut-n-paste with dd.
 #
 # This is the good temporal index
@@ -14,7 +14,7 @@
 # 04:34:40.258       0          851         1768	172
 #                                                       191 <- EOF
 
-src=../src/ok-foo
+src=./ok-foo
 
 tmp=/var/tmp/$$
 trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
@@ -117,7 +117,7 @@ do
     then
 	:
     else
-	target=`echo $file | sed -e "s/badti-$X\./..\/src\/ok-foo./"`
+	target=`echo $file | sed -e "s/badti-$X\./.\/ok-foo./"`
 	if cp $target $file
 	then
 	    :

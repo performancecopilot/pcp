@@ -31,7 +31,7 @@ _cleanup()
 {
     [ -n "$killpid" ] && $signal $killpid
     $sudo $signal -a pmproxy >/dev/null 2>&1
-    $sudo $PCP_RC_DIR/pmproxy restart >/dev/null 2>&1
+    _service pmproxy restart >/dev/null 2>&1
 }
 
 realname=`hostname`
@@ -84,10 +84,11 @@ _filter_pmproxy()
         -e '/^__pmDataIPC: fd=/d' \
         -e '/^IPC table fd/d' \
 	-e '/^__pmSetVersionIPC: fd=/d' \
+	-e '/^__pmSetFeaturesIPC: fd=/d' \
 	-e 's/localhost/MY_HOST/g'
 }
 
-$sudo $PCP_RC_DIR/pmproxy stop >/dev/null 2>&1
+_service pmproxy stop >/dev/null 2>&1
 $sudo $signal -a pmproxy >/dev/null 2>&1
 
 export PMCD_RECONNECT_TIMEOUT=1
@@ -119,14 +120,14 @@ $PCP_BINADM_DIR/pmproxy $proxyargs -l $tmp.log 2>&1 | _filter_pmproxy
 
 sleep 4
 echo "killing pmcd ..."
-$sudo $PCP_RC_DIR/pcp stop >/dev/null 2>&1
+_service pcp stop >/dev/null 2>&1
 sleep 2
 echo >>$seq.full
 echo "1st pmcd log" >>$seq.full
 cat $PMCDLOG >>$seq.full
 
 echo "re-starting pmcd ..."
-$sudo $PCP_RC_DIR/pcp restart >/dev/null 2>&1
+_service pcp restart >/dev/null 2>&1
 _wait_for_pmcd
 _wait_for_pmlogger
 

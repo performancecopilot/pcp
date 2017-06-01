@@ -1,7 +1,7 @@
 /*
  * Linux NUMA meminfo metrics cluster from sysfs
  *
- * Copyright (c) 2012,2016 Red Hat.
+ * Copyright (c) 2012,2016-2017 Red Hat.
  * Copyright (c) 2009 Silicon Graphics, Inc.  All Rights Reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -18,9 +18,8 @@
 #include <dirent.h>
 #include <sys/stat.h>
 #include "linux.h"
-#include "linux_table.h"
-#include "proc_cpuinfo.h"
 #include "proc_stat.h"
+#include "linux_table.h"
 #include "numa_meminfo.h"
 
 /* sysfs file for numa meminfo */
@@ -71,73 +70,69 @@ static struct linux_table numa_memstat_table[] = {
     { field: NULL }
 };
 
-int refresh_numa_meminfo(numa_meminfo_t *numa_meminfo, proc_cpuinfo_t *proc_cpuinfo, proc_stat_t *proc_stat)
+int
+refresh_numa_meminfo(void)
 {
-    int i;
-    FILE *fp;
-    pmdaIndom *idp = PMDAINDOM(NODE_INDOM);
-    static int started;
-    int sep;
+    int		i, refresh_bandwidth;
+    FILE	*fp;
+    char	buf[MAXPATHLEN];
+    pmInDom	nodes = INDOM(NODE_INDOM);
+    pernode_t	*np;
+    static char	bandwidth_conf[PATH_MAX];
+    static int	started;
 
-    /* First time only */
     if (!started) {
-	refresh_proc_stat(proc_cpuinfo, proc_stat);
-
-	if (!numa_meminfo->node_info)	/* may have allocated this, but failed below */
-	    numa_meminfo->node_info = (nodeinfo_t *)calloc(idp->it_numinst, sizeof(nodeinfo_t));
-	if (!numa_meminfo->node_info) {
-	    fprintf(stderr, "%s: error allocating numa node_info: %s\n",
-		__FUNCTION__, osstrerror());
-	    return -1;
-	}
-
-	for (i = 0; i < idp->it_numinst; i++) {
-	    numa_meminfo->node_info[i].meminfo = linux_table_clone(numa_meminfo_table);
-	    if (!numa_meminfo->node_info[i].meminfo) {
-		fprintf(stderr, "%s: error allocating meminfo: %s\n",
-		    __FUNCTION__, osstrerror());
+	cpu_node_setup();
+	for (pmdaCacheOp(nodes, PMDA_CACHE_WALK_REWIND);;) {
+	    if ((i = pmdaCacheOp(nodes, PMDA_CACHE_WALK_NEXT)) < 0)
+		break;
+	    if (!pmdaCacheLookup(nodes, i, NULL, (void **)&np) || !np)
+		continue;
+	    if ((np->meminfo = linux_table_clone(numa_meminfo_table)) == NULL) {
+		fprintf(stderr, "%s: error allocating meminfo for node%d: %s\n",
+		    __FUNCTION__, np->nodeid, osstrerror());
 		return -1;
 	    }
-	    numa_meminfo->node_info[i].memstat = linux_table_clone(numa_memstat_table);
-	    if (!numa_meminfo->node_info[i].memstat) {
-		fprintf(stderr, "%s: error allocating memstat: %s\n",
-		    __FUNCTION__, osstrerror());
+	    if ((np->memstat = linux_table_clone(numa_memstat_table)) == NULL) {
+		fprintf(stderr, "%s: error allocating memstat for node%d: %s\n",
+		    __FUNCTION__, np->nodeid, osstrerror());
 		return -1;
 	    }
 	}
-
-	sep = __pmPathSeparator();
-	snprintf(numa_meminfo->bandwidth_conf,
-		 sizeof(numa_meminfo->bandwidth_conf),
-		 "%s%c%s%c%s.conf", pmGetConfig("PCP_PMDAS_DIR"), sep, "linux",
-		 sep, "bandwidth");
-
-	numa_meminfo->node_indom = idp;
+	snprintf(bandwidth_conf, sizeof(bandwidth_conf),
+		 "%s/linux/bandwidth.conf", pmGetConfig("PCP_PMDAS_DIR"));
 	started = 1;
     }
 
-    /* Refresh */
-    for (i = 0; i < idp->it_numinst; i++) {
-	char buf[MAXPATHLEN];
+    refresh_bandwidth = bandwidth_conf_changed(bandwidth_conf);
+
+    for (pmdaCacheOp(nodes, PMDA_CACHE_WALK_REWIND);;) {
+	if ((i = pmdaCacheOp(nodes, PMDA_CACHE_WALK_NEXT)) < 0)
+	    break;
+	if (!pmdaCacheLookup(nodes, i, NULL, (void **)&np) || !np)
+	    continue;
 
 	snprintf(buf, sizeof(buf), "%s/sys/devices/system/node/node%d/meminfo",
 		linux_statspath, i);
 	if ((fp = fopen(buf, "r")) != NULL) {
-	    linux_table_scan(fp, numa_meminfo->node_info[i].meminfo);
+	    linux_table_scan(fp, np->meminfo);
 	    fclose(fp);
 	}
 
 	snprintf(buf, sizeof(buf), "%s/sys/devices/system/node/node%d/numastat",
 		linux_statspath, i);
 	if ((fp = fopen(buf, "r")) != NULL) {
-	    linux_table_scan(fp, numa_meminfo->node_info[i].memstat);
+	    linux_table_scan(fp, np->memstat);
 	    fclose(fp);
 	}
+
+	if (refresh_bandwidth)
+	    np->bandwidth = 0.0;	/* reset */
     }
 
     /* Read NUMA bandwidth info from the bandwidth.conf file (optional) */
-    if (bandwidth_conf_changed(numa_meminfo->bandwidth_conf))
-	get_memory_bandwidth_conf(numa_meminfo, idp->it_numinst);
+    if (refresh_bandwidth)
+	get_memory_bandwidth_conf(bandwidth_conf);
 
     return 0;
 }

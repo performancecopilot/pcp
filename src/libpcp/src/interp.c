@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016 Red Hat.
+ * Copyright (c) 2015-2017 Red Hat.
  * Copyright (c) 1995,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -76,7 +76,6 @@ typedef union {				/* value from pmResult */
 #define IS_SCANNED(state) ((state & S_SCANNED) == S_SCANNED)
 
 typedef struct instcntl {		/* metric-instance control */
-    struct instcntl	*next;		/* next for this metric control */
     struct instcntl	*want;		/* ones of interest */
     struct instcntl	*unbound;	/* not yet bound above [or below] */
     int			search;		/* looking for found this one? */
@@ -98,7 +97,7 @@ typedef struct pmidcntl {		/* metric control */
     int			valfmt;		/* used to build result */
     int			numval;		/* number of instances in this result */
     int			last_numval;	/* number of instances in previous result */
-    struct instcntl	*first;		/* first metric-instace control */
+    __pmHashCtl		hc;		/* metric-instances */
 } pmidcntl_t;
 
 typedef struct {
@@ -399,6 +398,7 @@ update_bounds(__pmContext *ctxp, double t_req, pmResult *logrp, int do_mark, int
     int		i;
     __pmHashCtl	*hcp = &ctxp->c_archctl->ac_pmid_hc;
     __pmHashNode	*hp;
+    __pmHashNode	*ihp;
     pmidcntl_t	*pcp;
     instcntl_t	*icp;
     double	t_this;
@@ -409,8 +409,11 @@ update_bounds(__pmContext *ctxp, double t_req, pmResult *logrp, int do_mark, int
     tmp.tv_usec = (__int32_t)logrp->timestamp.tv_usec;
     t_this = __pmTimevalSub(&tmp, __pmLogStartTime(ctxp->c_archctl));
 
-    if (logrp->numpmid == 0 && do_mark != UPD_MARK_NONE) {
+    if (logrp->numpmid == 0) {
 	/* mark record, discontinuity in log */
+	if (do_mark == UPD_MARK_NONE)
+	    return 0; /* ok */
+
 	for (icp = (instcntl_t *)ctxp->c_archctl->ac_want; icp != NULL; icp = icp->want) {
 	    if (t_this <= t_req &&
 		(t_this >= icp->t_prior || icp->t_prior > t_req)) {
@@ -438,9 +441,10 @@ update_bounds(__pmContext *ctxp, double t_req, pmResult *logrp, int do_mark, int
 		}
 
 		if (icp->metric->valfmt != PM_VAL_INSITU) {
-		    if (icp->v_prior.pval != NULL)
+		    if (icp->v_prior.pval != NULL) {
 			__pmUnpinPDUBuf((void *)icp->v_prior.pval);
-		    icp->v_prior.pval = NULL;
+			icp->v_prior.pval = NULL;
+		    }
 		}
 #ifdef PCP_DEBUG
 		if (pmDebug & DBG_TRACE_INTERP)
@@ -472,10 +476,12 @@ update_bounds(__pmContext *ctxp, double t_req, pmResult *logrp, int do_mark, int
 		    }
 #endif
 		}
+
 		if (icp->metric->valfmt != PM_VAL_INSITU) {
-		    if (icp->v_next.pval != NULL)
+		    if (icp->v_next.pval != NULL) {
 			__pmUnpinPDUBuf((void *)icp->v_next.pval);
-		    icp->v_next.pval = NULL;
+			icp->v_next.pval = NULL;
+		    }
 		}
 #ifdef PCP_DEBUG
 		if (pmDebug & DBG_TRACE_INTERP)
@@ -506,106 +512,110 @@ update_bounds(__pmContext *ctxp, double t_req, pmResult *logrp, int do_mark, int
 #endif
 	    return PM_ERR_LOGREC;
 	}
-	for (icp = pcp->first; icp != NULL; icp = icp->next) {
-	    for (i = 0; i < logrp->vset[k]->numval; i++) {
-		if (logrp->vset[k]->vlist[i].inst == icp->inst ||
-		    icp->inst == PM_IN_NULL) {
-		    /* matched on instance */
+	for (i = 0; i < logrp->vset[k]->numval; i++) {
+	    pmInDom vlistIndom = logrp->vset[k]->vlist[i].inst;
+
+	    ihp = __pmHashSearch((int)vlistIndom, &pcp->hc);
+	    if (ihp == NULL) {
+		ihp = __pmHashSearch(PM_IN_NULL, &pcp->hc);
+		if (ihp == NULL)
+		    continue;
+	    }
+	    icp = (instcntl_t *)ihp->data;
+	    
 #ifdef PCP_DEBUG
-		    if ((pmDebug & DBG_TRACE_INTERP) && (pmDebug & DBG_TRACE_DESPERATE))
-			dumpicp("update_bounds: match", icp);
+	    if (icp->inst == PM_IN_NULL)
+		assert(i == 0);
+	    if ((pmDebug & DBG_TRACE_INTERP) && (pmDebug & DBG_TRACE_DESPERATE))
+		dumpicp("update_bounds: match", icp);
 #endif
-		    if (t_this <= t_req &&
-			(icp->t_prior > t_req || t_this >= icp->t_prior)) {
-			/*
-			 * at or before the requested time, and this is the
-			 * closest-to-date lower bound
-			 */
-			changed = 1;
-			if (icp->t_prior < icp->t_next && icp->t_prior >= t_req) {
-			    /* shuffle prior to next */
-			    icp->t_next = icp->t_prior;
-			    icp->s_next = icp->s_prior;
-			    CLEAR_SCANNED(icp->s_next);
-			    if (pcp->valfmt == PM_VAL_INSITU)
-				icp->v_next.lval = icp->v_prior.lval;
-			    else {
-				if (icp->v_next.pval != NULL)
-				    __pmUnpinPDUBuf((void *)icp->v_next.pval);
-				icp->v_next.pval = icp->v_prior.pval;
-			    }
-			}
-			icp->t_prior = t_this;
-			SET_VALUE(icp->s_prior);
-			if (pcp->valfmt == PM_VAL_INSITU)
-			    icp->v_prior.lval = logrp->vset[k]->vlist[i].value.lval;
-			else {
-			    if (icp->v_prior.pval != NULL)
-				__pmUnpinPDUBuf((void *)icp->v_prior.pval);
-			    icp->v_prior.pval = logrp->vset[k]->vlist[i].value.pval;
-			    __pmPinPDUBuf((void *)icp->v_prior.pval);
-			}
-			if (do_mark == UPD_MARK_BACK && icp->search && done != NULL) {
-			    /* one we were looking for */
-			    changed |= 2;
-			    icp->search = 0;
-			    (*done)++;
-			    /* don't need to scan this region again */
-			    SET_SCANNED(icp->s_prior);
-			}
+
+	    if (t_this <= t_req &&
+		(icp->t_prior > t_req || t_this >= icp->t_prior)) {
+		/*
+		 * at or before the requested time, and this is the
+		 * closest-to-date lower bound
+		 */
+		changed = 1;
+		if (icp->t_prior < icp->t_next && icp->t_prior >= t_req) {
+		    /* shuffle prior to next */
+		    icp->t_next = icp->t_prior;
+		    icp->s_next = icp->s_prior;
+		    CLEAR_SCANNED(icp->s_next);
+		    if (pcp->valfmt == PM_VAL_INSITU)
+			icp->v_next.lval = icp->v_prior.lval;
+		    else {
+			if (icp->v_next.pval != NULL)
+			    __pmUnpinPDUBuf((void *)icp->v_next.pval);
+			icp->v_next.pval = icp->v_prior.pval;
 		    }
-		    if (t_this >= t_req &&
-			    (icp->t_next < t_req || t_this <= icp->t_next)) {
-			/*
-			 * at or after the requested time, and this is the
-			 * closest-to-date upper bound
-			 */
-			changed |= 1;
-			if (icp->t_prior < icp->t_next && icp->t_next <= t_req) {
-			    /* shuffle next to prior */
-			    icp->t_prior = icp->t_next;
-			    icp->s_prior = icp->s_next;
-			    CLEAR_SCANNED(icp->s_prior);
-			    if (pcp->valfmt == PM_VAL_INSITU)
-				icp->v_prior.lval = icp->v_next.lval;
-			    else {
-				if (icp->v_prior.pval != NULL)
-				    __pmUnpinPDUBuf((void *)icp->v_prior.pval);
-				icp->v_prior.pval = icp->v_next.pval;
-			    }
-			}
-			icp->t_next = t_this;
-			SET_VALUE(icp->s_next);
-			if (pcp->valfmt == PM_VAL_INSITU)
-			    icp->v_next.lval = logrp->vset[k]->vlist[i].value.lval;
-			else {
-			    if (icp->v_next.pval != NULL)
-				__pmUnpinPDUBuf((void *)icp->v_next.pval);
-			    icp->v_next.pval = logrp->vset[k]->vlist[i].value.pval;
-			    __pmPinPDUBuf((void *)icp->v_next.pval);
-			}
-			if (do_mark == UPD_MARK_FORW && icp->search && done != NULL) {
-			    /* one we were looking for */
-			    changed |= 2;
-			    icp->search = 0;
-			    (*done)++;
-			    /* don't need to scan this region again */
-			    SET_SCANNED(icp->s_next);
-			}
-		    }
-#ifdef PCP_DEBUG
-		    if ((pmDebug & DBG_TRACE_INTERP) && changed) {
-			if (changed & 2)
-			    dumpicp("update_bounds: update+search", icp);
-			else
-			    dumpicp("update_bounds: update", icp);
-		    }
-#endif
-		    goto next_inst;
+		}
+		icp->t_prior = t_this;
+		SET_VALUE(icp->s_prior);
+		if (pcp->valfmt == PM_VAL_INSITU)
+		    icp->v_prior.lval = logrp->vset[k]->vlist[i].value.lval;
+		else {
+		    if (icp->v_prior.pval != NULL)
+			__pmUnpinPDUBuf((void *)icp->v_prior.pval);
+		    icp->v_prior.pval = logrp->vset[k]->vlist[i].value.pval;
+		    __pmPinPDUBuf((void *)icp->v_prior.pval);
+		}
+		if (do_mark == UPD_MARK_BACK && icp->search && done != NULL) {
+		    /* one we were looking for */
+		    changed |= 2;
+		    icp->search = 0;
+		    (*done)++;
+		    /* don't need to scan this region again */
+		    SET_SCANNED(icp->s_prior);
 		}
 	    }
-next_inst:
-	    ;
+	    if (t_this >= t_req &&
+		(icp->t_next < t_req || t_this <= icp->t_next)) {
+		/*
+		 * at or after the requested time, and this is the
+		 * closest-to-date upper bound
+		 */
+		changed |= 1;
+		if (icp->t_prior < icp->t_next && icp->t_next <= t_req) {
+		    /* shuffle next to prior */
+		    icp->t_prior = icp->t_next;
+		    icp->s_prior = icp->s_next;
+		    CLEAR_SCANNED(icp->s_prior);
+		    if (pcp->valfmt == PM_VAL_INSITU)
+			icp->v_prior.lval = icp->v_next.lval;
+		    else {
+			if (icp->v_prior.pval != NULL)
+			    __pmUnpinPDUBuf((void *)icp->v_prior.pval);
+			icp->v_prior.pval = icp->v_next.pval;
+		    }
+		}
+		icp->t_next = t_this;
+		SET_VALUE(icp->s_next);
+		if (pcp->valfmt == PM_VAL_INSITU)
+		    icp->v_next.lval = logrp->vset[k]->vlist[i].value.lval;
+		else {
+		    if (icp->v_next.pval != NULL)
+			__pmUnpinPDUBuf((void *)icp->v_next.pval);
+		    icp->v_next.pval = logrp->vset[k]->vlist[i].value.pval;
+		    __pmPinPDUBuf((void *)icp->v_next.pval);
+		}
+		if (do_mark == UPD_MARK_FORW && icp->search && done != NULL) {
+		    /* one we were looking for */
+		    changed |= 2;
+		    icp->search = 0;
+		    (*done)++;
+		    /* don't need to scan this region again */
+		    SET_SCANNED(icp->s_next);
+		}
+	    }
+#ifdef PCP_DEBUG
+	    if ((pmDebug & DBG_TRACE_INTERP) && changed) {
+		if (changed & 2)
+		    dumpicp("update_bounds: update+search", icp);
+		else
+		    dumpicp("update_bounds: update", icp);
+	    }
+#endif
 	}
     }
 
@@ -688,6 +698,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 {
     int		i;
     int		j;
+    int		k;
     int		sts;
     double	t_req;
     double	t_this;
@@ -695,8 +706,10 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
     pmResult	*logrp;
     __pmHashCtl	*hcp = &ctxp->c_archctl->ac_pmid_hc;
     __pmHashNode	*hp;
+    __pmHashNode	*ihp;
     pmidcntl_t	*pcp = NULL;	/* initialize to pander to gcc */
-    instcntl_t	*icp;
+    instcntl_t	*icp = NULL;	/* initialize to pander to gcc */
+    instcntl_t	*ub, *ub_prev;
     int		back = 0;
     int		forw = 0;
     int		done;
@@ -706,16 +719,15 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
     __pmTimeval	tmp;
     struct timeval delta_tv;
 
-    PM_INIT_LOCKS();
-    PM_LOCK(__pmLock_libpcp);
+    PM_LOCK(__pmLock_extcall);
     if (dowrap == -1) {
 	/* PCP_COUNTER_WRAP in environment enables "counter wrap" logic */
-	if (getenv("PCP_COUNTER_WRAP") == NULL)
+	if (getenv("PCP_COUNTER_WRAP") == NULL)		/* THREADSAFE */
 	    dowrap = 0;
 	else
 	    dowrap = 1;
     }
-    PM_UNLOCK(__pmLock_libpcp);
+    PM_UNLOCK(__pmLock_extcall);
 
     t_req = __pmTimevalSub(&ctxp->c_origin, __pmLogStartTime(ctxp->c_archctl));
 
@@ -765,24 +777,6 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 	}
     }
 
-    if ((rp = (pmResult *)malloc(sizeof(pmResult) + (numpmid - 1) * sizeof(pmValueSet *))) == NULL)
-	return -oserror();
-
-    rp->timestamp.tv_sec = ctxp->c_origin.tv_sec;
-    rp->timestamp.tv_usec = ctxp->c_origin.tv_usec;
-    rp->numpmid = numpmid;
-
-    /* zeroth pass ... clear search and inresult flags */
-    for (j = 0; j < hcp->hsize; j++) {
-	for (hp = hcp->hash[j]; hp != NULL; hp = hp->next) {
-	    pcp = (pmidcntl_t *)hp->data;
-	    for (icp = pcp->first; icp != NULL; icp = icp->next) {
-		icp->search = icp->inresult = 0;
-		icp->unbound = icp->want = NULL;
-	    }
-	}
-    }
-
     /*
      * first pass ... scan all metrics, establish which ones are in
      * the log, and which instances are being requested ... also build
@@ -800,12 +794,10 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 		/*NOTREACHED*/
 	    }
 	    pcp->valfmt = -1;
-	    pcp->first = NULL;
 	    pcp->last_numval = -1;
+	    __pmHashInit(&pcp->hc);
 	    sts = __pmHashAdd((int)pmidlist[j], (void *)pcp, hcp);
 	    if (sts < 0) {
-		rp->numpmid = j;
-		pmFreeResult(rp);
 		free(pcp);
 		return sts;
 	    }
@@ -817,7 +809,8 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 		/* enumerate all the instances from the domain underneath */
 		int		*instlist = NULL;
 		char		**namelist = NULL;
-		instcntl_t	*lcp;
+		int		hsts = 0;
+
 		if (pcp->desc.indom == PM_INDOM_NULL) {
 		    sts = 1;
 		    if ((instlist = (int *)malloc(sizeof(int))) == NULL) {
@@ -827,31 +820,39 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 		}
 		else {
 		    sts = pmGetInDomArchive(pcp->desc.indom, &instlist, &namelist);
+		    if (sts > 0) {
+			/* Pre allocate enough space for the instance domain. */
+			hsts = __pmHashPreAlloc(sts, &pcp->hc);
+			if (hsts < 0) {
+			    free(pcp);
+			    goto done_icp;
+			}
+		    }
 		}
-		lcp = NULL;
 		for (i = 0; i < sts; i++) {
 		    if ((icp = (instcntl_t *)malloc(sizeof(instcntl_t))) == NULL) {
 			__pmNoMem("__pmLogFetchInterp.instcntl_t", sizeof(instcntl_t), PM_FATAL_ERR);
 		    }
-		    if (lcp)
-			lcp->next = icp;
-		    else
-			pcp->first = icp;
-		    lcp = icp;
 		    icp->metric = pcp;
-		    icp->inresult = icp->search = 0;
-		    icp->next = icp->want = icp->unbound = NULL;
 		    icp->inst = instlist[i];
 		    icp->t_first = icp->t_last = -1;
 		    icp->t_prior = icp->t_next = -1;
 		    SET_UNDEFINED(icp->s_prior);
 		    SET_UNDEFINED(icp->s_next);
 		    icp->v_prior.pval = icp->v_next.pval = NULL;
+		    hsts = __pmHashAdd((int)instlist[i], (void *)icp, &pcp->hc);
+		    if (hsts < 0) {
+			free(icp);
+			goto done_icp;
+		    }
 		}
+	    done_icp:
 		if (instlist != NULL)
 		    free(instlist);
 		if (namelist != NULL)
 		    free(namelist);
+		if (hsts < 0)
+		    return hsts; /* hash allocation error */
 	    }
 	}
 	else
@@ -864,22 +865,35 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 	}
 	else if (pcp->desc.indom != PM_INDOM_NULL) {
 	    /* use the profile to filter the instances to be returned */
-	    for (icp = pcp->first; icp != NULL; icp = icp->next) {
-		if (__pmInProfile(pcp->desc.indom, ctxp->c_instprof, icp->inst)) {
-		    icp->inresult = 1;
-		    icp->want = (instcntl_t *)ctxp->c_archctl->ac_want;
-		    ctxp->c_archctl->ac_want = icp;
-		    pcp->numval++;
+	    for (i = 0; i < pcp->hc.hsize; i++) {
+		for (ihp = pcp->hc.hash[i]; ihp != NULL; ihp = ihp->next) {
+		    icp = (instcntl_t *)ihp->data;
+		    icp->search = 0;
+		    if (__pmInProfile(pcp->desc.indom, ctxp->c_instprof, icp->inst)) {
+			icp->inresult = 1;
+			icp->want = (instcntl_t *)ctxp->c_archctl->ac_want;
+			ctxp->c_archctl->ac_want = icp;
+			pcp->numval++;
+		    }
+		    else
+			icp->inresult = 0;
 		}
-		else
-		    icp->inresult = 0;
 	    }
 	}
 	else {
-	    pcp->first->inresult = 1;
-	    pcp->first->want = (instcntl_t *)ctxp->c_archctl->ac_want;
-	    ctxp->c_archctl->ac_want = pcp->first;
+	    /* There will be only one instance */
+	    ihp = __pmHashWalk(&pcp->hc, PM_HASH_WALK_START);
+	    assert(ihp);
+	    icp = (instcntl_t *)ihp->data;
+	    icp->inresult = 1;
+	    icp->search = 0;
+	    icp->want = (instcntl_t *)ctxp->c_archctl->ac_want;
+	    ctxp->c_archctl->ac_want = icp;
 	    pcp->numval = 1;
+#ifdef PCP_DEBUG
+	    ihp = __pmHashWalk(&pcp->hc, PM_HASH_WALK_NEXT);
+	    assert(!ihp);
+#endif
 	}
     }
 
@@ -908,8 +922,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 		assert(ctxp->c_archctl->ac_offset >= 0);
 		ctxp->c_archctl->ac_vol = ctxp->c_archctl->ac_log->l_curvol;
 		sts = update_bounds(ctxp, t_req, logrp, UPD_MARK_NONE, NULL, NULL);
-		if (sts < 0) {
-		    free(rp);
+		if (sts < 0) {		
 		    return sts;
 		}
 	    }
@@ -927,7 +940,6 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 		ctxp->c_archctl->ac_vol = ctxp->c_archctl->ac_log->l_curvol;
 		sts = update_bounds(ctxp, t_req, logrp, UPD_MARK_NONE, NULL, NULL);
 		if (sts < 0) {
-		    free(rp);
 		    return sts;
 		}
 	    }
@@ -965,59 +977,60 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
      * second pass ... see which metrics are not currently bounded below
      */
     ctxp->c_archctl->ac_unbound = NULL;
-    for (j = 0; j < numpmid; j++) {
-	if (pmidlist[j] == PM_ID_NULL)
+    for (icp = (instcntl_t *)ctxp->c_archctl->ac_want; icp != NULL; icp = icp->want) {
+	assert(icp->inresult);
+	if (icp->t_first >= 0 && t_req < icp->t_first)
+	    /* before earliest, don't bother */
 	    continue;
-	hp = __pmHashSearch((int)pmidlist[j], hcp);
-	assert(hp != NULL);
-	pcp = (pmidcntl_t *)hp->data;
-	if (pcp->numval > 0) {
-	    for (icp = pcp->first; icp != NULL; icp = icp->next) {
-		if (!icp->inresult)
-		    continue;
-		if (icp->t_first >= 0 && t_req < icp->t_first)
-		    /* before earliest, don't bother */
-		    continue;
 
-		if (icp->t_prior < 0 || icp->t_prior > t_req) {
-		    if (back == 0 && !done_roll) {
-			done_roll = 1;
-			if (ctxp->c_delta > 0)  {
-			    /* forwards before scanning back */
-			    sts = do_roll(ctxp, t_req, &seen_mark);
-			    if (sts < 0) {
-				free(rp);
-				return sts;
-			    }
-			}
+	if (icp->t_prior < 0 || icp->t_prior > t_req) {
+	    if (back == 0 && !done_roll) {
+		done_roll = 1;
+		if (ctxp->c_delta > 0)  {
+		    /* forwards before scanning back */
+		    sts = do_roll(ctxp, t_req, &seen_mark);
+		    if (sts < 0) {
+			return sts;
 		    }
 		}
-
-		/*
-		 *  At this stage there _may_ be a value earlier in the
-		 *  archive of interest ...
-		 *  s_prior undefined => have not explored in this direction,
-		 *  	so need to go back (unless we've already scanned in
-		 *  	this direction)
-		 *  t_prior > t_req and reading backwards or not already
-		 *  	scanned in this direction => need to push t_prior to
-		 *  	be <= t_req if possible
-		 *  t_next is mark and t_prior == t_req => search back
-		 *  	to try and bound t_req with valid values
-		 */
-		if ((IS_UNDEFINED(icp->s_prior) && !IS_SCANNED(icp->s_prior)) ||
-		    (icp->t_prior > t_req && (ctxp->c_delta < 0 || !IS_SCANNED(icp->s_prior))) ||
-		    (IS_MARK(icp->s_next) && icp->t_prior == t_req)) {
-		    back++;
-		    icp->search = 1;
-		    icp->unbound = (instcntl_t *)ctxp->c_archctl->ac_unbound;
-		    ctxp->c_archctl->ac_unbound = icp;
-#ifdef PCP_DEBUG
-			if (pmDebug & DBG_TRACE_INTERP)
-			    dumpicp("search back", icp);
-#endif
-		}
 	    }
+	}
+
+	/*
+	 *  At this stage there _may_ be a value earlier in the
+	 *  archive of interest ...
+	 *  s_prior undefined => have not explored in this direction,
+	 *  	so need to go back (unless we've already scanned in
+	 *  	this direction)
+	 *  t_prior > t_req and reading backwards or not already
+	 *  	scanned in this direction => need to push t_prior to
+	 *  	be <= t_req if possible
+	 *  t_next is mark and t_prior == t_req => search back
+	 *  	to try and bound t_req with valid values
+	 */
+	if ((IS_UNDEFINED(icp->s_prior) && !IS_SCANNED(icp->s_prior)) ||
+	    (icp->t_prior > t_req && (ctxp->c_delta < 0 || !IS_SCANNED(icp->s_prior))) ||
+	    (IS_MARK(icp->s_next) && icp->t_prior == t_req)) {
+	    back++;
+	    icp->search = 1;
+	    /* Add it to the unbound list in descending order of t_first */
+	    ub_prev = NULL;
+	    for (ub = (instcntl_t *)ctxp->c_archctl->ac_unbound;
+		 ub != NULL;
+		 ub = ub->unbound) {
+		if (icp->t_first >= ub->t_first)
+		    break;
+		ub_prev = ub;
+	    }
+	    if (ub_prev)
+		ub_prev->unbound = icp;
+	    else
+		ctxp->c_archctl->ac_unbound = icp;
+	    icp->unbound = ub;
+#ifdef PCP_DEBUG
+	    if (pmDebug & DBG_TRACE_INTERP)
+		dumpicp("search back", icp);
+#endif
 	}
     }
 
@@ -1052,20 +1065,31 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 	    }
 	    sts = update_bounds(ctxp, t_req, logrp, UPD_MARK_BACK, &done, &seen_mark);
 	    if (sts < 0) {
-		free(rp);
 		return sts;
 	    }
 
 	    /*
-	     * forget about those that can never be found from here
-	     * in this direction
+	     * Forget about those that can never be found from here
+	     * in this direction. The unbound list is sorted in order of
+	     * descending t_first. We can abandon the traversal once t_first is
+	     * less than t_this. Trim the list as instances are resolved.
 	     */
+	    ub_prev = NULL;
 	    for (icp = (instcntl_t *)ctxp->c_archctl->ac_unbound; icp != NULL; icp = icp->unbound) {
-		if (icp->search && t_this <= icp->t_first) {
+		if (icp->t_first < t_this)
+		    break;
+		if (icp->search) {
 		    icp->search = 0;
 		    SET_SCANNED(icp->s_prior);
 		    done++;
+		    /* Remove this item from the list. */
+		    if (ub_prev)
+			ub_prev->unbound = icp->unbound;
+		    else
+			ctxp->c_archctl->ac_unbound = icp->unbound;
 		}
+		else
+		    ub_prev = icp;
 	    }
 	}
 	/* end of search, trim t_first as required */
@@ -1087,59 +1111,62 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
      * third pass ... see which metrics are not currently bounded above
      */
     ctxp->c_archctl->ac_unbound = NULL;
-    for (j = 0; j < numpmid; j++) {
-	if (pmidlist[j] == PM_ID_NULL)
-	    continue;
-	hp = __pmHashSearch((int)pmidlist[j], hcp);
-	assert(hp != NULL);
-	pcp = (pmidcntl_t *)hp->data;
-	if (pcp->numval > 0) {
-	    for (icp = pcp->first; icp != NULL; icp = icp->next) {
-		if (!icp->inresult)
-		    continue;
-		if (icp->t_last >= 0 && t_req > icp->t_last)
-		    /* after latest, don't bother */
-		    continue;
+    for (icp = (instcntl_t *)ctxp->c_archctl->ac_want; icp != NULL; icp = icp->want) {
+	assert(icp->inresult);
 
-		if (icp->t_next < 0 || icp->t_next < t_req) {
-		    if (forw == 0 && !done_roll) {
-			done_roll = 1;
-			if (ctxp->c_delta < 0)  {
-			    /* backwards before scanning forwards */
-			    sts = do_roll(ctxp, t_req, &seen_mark);
-			    if (sts < 0) {
-				free(rp);
-				return sts;
-			    }
-			}
+	if (icp->t_last >= 0 && t_req > icp->t_last)
+	    /* after latest, don't bother */
+	    continue;
+
+	if (icp->t_next < 0 || icp->t_next < t_req) {
+	    if (forw == 0 && !done_roll) {
+		done_roll = 1;
+		if (ctxp->c_delta < 0)  {
+		    /* backwards before scanning forwards */
+		    sts = do_roll(ctxp, t_req, &seen_mark);
+		    if (sts < 0) {
+			return sts;
 		    }
 		}
-
-		/*
-		 *  At this stage there _may_ be a value later in the
-		 *  archive of interest ...
-		 *  s_next undefined => have not explored in this direction,
-		 *  	so need to go back (unless we've already scanned in
-		 *  	this direction)
-		 *  t_next < t_req and reading forwards or not already
-		 *  	scanned in this direction => need to push t_next to
-		 *  	be >= t_req if possible
-		 *  t_prior is mark and t_next == t_req => search forward
-		 *  	to try and bound t_req with valid values
-		 */
-		if ((IS_UNDEFINED(icp->s_next) && !IS_SCANNED(icp->s_next)) ||
-		    (icp->t_next < t_req && (ctxp->c_delta > 0 || !IS_SCANNED(icp->s_next))) ||
-		    (IS_MARK(icp->s_prior) && icp->t_next == t_req)) {
-		    forw++;
-		    icp->search = 1;
-		    icp->unbound = (instcntl_t *)ctxp->c_archctl->ac_unbound;
-		    ctxp->c_archctl->ac_unbound = icp;
-#ifdef PCP_DEBUG
-			if (pmDebug & DBG_TRACE_INTERP)
-			    dumpicp("search forw", icp);
-#endif
-		}
 	    }
+	}
+
+	/*
+	 *  At this stage there _may_ be a value later in the
+	 *  archive of interest ...
+	 *  s_next undefined => have not explored in this direction,
+	 *  	so need to go back (unless we've already scanned in
+	 *  	this direction)
+	 *  t_next < t_req and reading forwards or not already
+	 *  	scanned in this direction => need to push t_next to
+	 *  	be >= t_req if possible
+	 *  t_prior is mark and t_next == t_req => search forward
+	 *  	to try and bound t_req with valid values
+	 */
+	if ((IS_UNDEFINED(icp->s_next) && !IS_SCANNED(icp->s_next)) ||
+	    (icp->t_next < t_req && (ctxp->c_delta > 0 || !IS_SCANNED(icp->s_next))) ||
+	    (IS_MARK(icp->s_prior) && icp->t_next == t_req)) {
+	    forw++;
+	    icp->search = 1;
+
+	    /* Add it to the unbound list in ascending order of t_last */
+	    ub_prev = NULL;
+	    for (ub = (instcntl_t *)ctxp->c_archctl->ac_unbound;
+		 ub != NULL;
+		 ub = ub->unbound) {
+		if (icp->t_last <= ub->t_last)
+		    break;
+		ub_prev = ub;
+	    }
+	    if (ub_prev)
+		ub_prev->unbound = icp;
+	    else
+		ctxp->c_archctl->ac_unbound = icp;
+	    icp->unbound = ub;
+#ifdef PCP_DEBUG
+	    if (pmDebug & DBG_TRACE_INTERP)
+		dumpicp("search forw", icp);
+#endif
 	}
     }
 
@@ -1152,8 +1179,9 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 	fseek(ctxp->c_archctl->ac_log->l_mfp, ctxp->c_archctl->ac_offset, SEEK_SET);
 	done = 0;
 
+	sts = 0;
 	while (done < forw) {
-	    if (cache_read(ctxp->c_archctl, PM_MODE_FORW, &logrp) < 0) {
+	    if ((sts = cache_read(ctxp->c_archctl, PM_MODE_FORW, &logrp)) < 0) {
 		/* ran into end of log */
 #ifdef PCP_DEBUG
 		if (pmDebug & DBG_TRACE_INTERP) {
@@ -1174,22 +1202,35 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 	    }
 	    sts = update_bounds(ctxp, t_req, logrp, UPD_MARK_FORW, &done, &seen_mark);
 	    if (sts < 0) {
-		free(rp);
 		return sts;
 	    }
 
 	    /*
-	     * forget about those that can never be found from here
-	     * in this direction
+	     * Forget about those that can never be found from here
+	     * in this direction. The unbound list is sorted in order of
+	     * ascending t_last. We can abandon the traversal once t_last
+	     * is greater than than t_this. Trim the list as instances are
+	     * resolved.
 	     */
+	    ub_prev = NULL;
 	    for (icp = (instcntl_t *)ctxp->c_archctl->ac_unbound; icp != NULL; icp = icp->unbound) {
-		if (icp->search && icp->t_last >= 0 && t_this >= icp->t_last) {
+		if (icp->t_last > t_this)
+		    break;
+		if (icp->search && icp->t_last >= 0) {
 		    icp->search = 0;
 		    SET_SCANNED(icp->s_next);
 		    done++;
+		    /* Remove this item from the list. */
+		    if (ub_prev)
+			ub_prev->unbound = icp->unbound;
+		    else
+			ctxp->c_archctl->ac_unbound = icp->unbound;
 		}
+		else
+		    ub_prev = icp;
 	    }
 	}
+	//	fprintf(stderr, "sts==%10d, t_req==%.2f, forw==%d, done==%d, remaining==%d\n", sts, t_req, forw, done, forw - done);
 	/* end of search, trim t_last as required */
 	for (icp = (instcntl_t *)ctxp->c_archctl->ac_unbound; icp != NULL; icp = icp->unbound) {
 	    if (icp->t_next < t_req &&
@@ -1200,7 +1241,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 		if (pmDebug & DBG_TRACE_INTERP) {
 		    char	strbuf[20];
 		    fprintf(stderr, "pmid %s inst %d no values after t_last=%.6f\n",
-			pmIDStr_r(icp->metric->desc.pmid, strbuf, sizeof(strbuf)), icp->inst, icp->t_last);
+			    pmIDStr_r(icp->metric->desc.pmid, strbuf, sizeof(strbuf)), icp->inst, icp->t_last);
 		}
 #endif
 	    }
@@ -1211,61 +1252,62 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
     /*
      * check to see how many qualifying values there are really going to be
      */
-    for (j = 0; j < numpmid; j++) {
-	if (pmidlist[j] == PM_ID_NULL)
-	    continue;
-	hp = __pmHashSearch((int)pmidlist[j], hcp);
-	assert(hp != NULL);
-	pcp = (pmidcntl_t *)hp->data;
-	for (icp = pcp->first; icp != NULL; icp = icp->next) {
-	    if (!icp->inresult)
-		continue;
-	    if (pcp->desc.sem == PM_SEM_DISCRETE) {
-		if (IS_MARK(icp->s_prior) || IS_UNDEFINED(icp->s_prior) ||
-		    icp->t_prior > t_req) {
-		    /* no earlier value, so no value */
-		    pcp->numval--;
-		    icp->inresult = 0;
-		}
+    for (icp = (instcntl_t *)ctxp->c_archctl->ac_want; icp != NULL; icp = icp->want) {
+	assert(icp->inresult);
+	pcp = (pmidcntl_t *)icp->metric;
+	if (pcp->desc.sem == PM_SEM_DISCRETE) {
+	    if (IS_MARK(icp->s_prior) || IS_UNDEFINED(icp->s_prior) ||
+		icp->t_prior > t_req) {
+		/* no earlier value, so no value */
+		pcp->numval--;
+		icp->inresult = 0;
 	    }
-	    else {
-		/* assume COUNTER or INSTANT */
-		if (IS_MARK(icp->s_prior) || IS_UNDEFINED(icp->s_prior) ||
-		    icp->t_prior > t_req ||
-		    IS_MARK(icp->s_next) || IS_UNDEFINED(icp->s_next) || icp->t_next < t_req) {
-		    /* in mid-range, and no bound, so no value */
+	}
+	else {
+	    /* assume COUNTER or INSTANT */
+	    if (IS_MARK(icp->s_prior) || IS_UNDEFINED(icp->s_prior) ||
+		icp->t_prior > t_req ||
+		IS_MARK(icp->s_next) || IS_UNDEFINED(icp->s_next) || icp->t_next < t_req) {
+		/* in mid-range, and no bound, so no value */
+		pcp->numval--;
+		icp->inresult = 0;
+	    }
+	    else if (pcp->desc.sem == PM_SEM_COUNTER) {
+		/*
+		 * for counters, has to be arithmetic also,
+		 * else cannot interpolate ...
+		 */
+		if (pcp->desc.type != PM_TYPE_32 &&
+		    pcp->desc.type != PM_TYPE_U32 &&
+		    pcp->desc.type != PM_TYPE_64 &&
+		    pcp->desc.type != PM_TYPE_U64 &&
+		    pcp->desc.type != PM_TYPE_FLOAT &&
+		    pcp->desc.type != PM_TYPE_DOUBLE)
+		    pcp->numval = PM_ERR_TYPE;
+		else if (seen_mark && pcp->last_numval > 0) {
+		    /*
+		     * Counter metric and immediately previous
+		     * __pmLogFetchInterp() returned some values, but
+		     * found a <mark> record scanning archive, return
+		     * "no values" this time so PMAPI clients do not
+		     * assume last inst-values and this inst-values are
+		     * part of a continuous data stream, so for example
+		     * rate conversion should not happen.
+		     */
 		    pcp->numval--;
 		    icp->inresult = 0;
-		}
-		else if (pcp->desc.sem == PM_SEM_COUNTER) {
-		    /*
-		     * for counters, has to be arithmetic also,
-		     * else cannot interpolate ...
-		     */
-		    if (pcp->desc.type != PM_TYPE_32 &&
-			pcp->desc.type != PM_TYPE_U32 &&
-			pcp->desc.type != PM_TYPE_64 &&
-			pcp->desc.type != PM_TYPE_U64 &&
-			pcp->desc.type != PM_TYPE_FLOAT &&
-			pcp->desc.type != PM_TYPE_DOUBLE)
-			    pcp->numval = PM_ERR_TYPE;
-		    else if (seen_mark && pcp->last_numval > 0) {
-			/*
-			 * Counter metric and immediately previous
-			 * __pmLogFetchInterp() returned some values, but
-			 * found a <mark> record scanning archive, return
-			 * "no values" this time so PMAPI clients do not
-			 * assume last inst-values and this inst-values are
-			 * part of a continuous data stream, so for example
-			 * rate conversion should not happen.
-			 */
-			pcp->numval--;
-			icp->inresult = 0;
-		    }
 		}
 	    }
 	}
     }
+
+    /* Build the final result. */
+    if ((rp = (pmResult *)malloc(sizeof(pmResult) + (numpmid - 1) * sizeof(pmValueSet *))) == NULL)
+	return -oserror();
+
+    rp->timestamp.tv_sec = ctxp->c_origin.tv_sec;
+    rp->timestamp.tv_usec = ctxp->c_origin.tv_usec;
+    rp->numpmid = numpmid;
 
     for (j = 0; j < numpmid; j++) {
 	if (pmidlist[j] == PM_ID_NULL) {
@@ -1299,401 +1341,404 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 
 	i = 0;
 	if (pcp->numval > 0) {
-	    for (icp = pcp->first; icp != NULL; icp = icp->next) {
-		if (!icp->inresult)
-		    continue;
+	    for (k = 0; k < pcp->hc.hsize; k++) {
+		for (ihp = pcp->hc.hash[k]; ihp != NULL; ihp = ihp->next) {
+		    icp = (instcntl_t *)ihp->data;
+		    if (!icp->inresult)
+			continue;
 #ifdef PCP_DEBUG
-		if (pmDebug & DBG_TRACE_INTERP && done_roll) {
-		    char	strbuf[20];
-		    fprintf(stderr, "pmid %s inst %d prior: t=%.6f",
-			    pmIDStr_r(pmidlist[j], strbuf, sizeof(strbuf)), icp->inst, icp->t_prior);
-		    dumpval(stderr, pcp->desc.type, icp->metric->valfmt, 1, icp);
-		    fprintf(stderr, " next: t=%.6f", icp->t_next);
-		    dumpval(stderr, pcp->desc.type, icp->metric->valfmt, 0, icp);
-		    fprintf(stderr, " t_first=%.6f t_last=%.6f\n",
-			icp->t_first, icp->t_last);
-		}
+		    if (pmDebug & DBG_TRACE_INTERP && done_roll) {
+			char	strbuf[20];
+			fprintf(stderr, "pmid %s inst %d prior: t=%.6f",
+				pmIDStr_r(pmidlist[j], strbuf, sizeof(strbuf)), icp->inst, icp->t_prior);
+			dumpval(stderr, pcp->desc.type, icp->metric->valfmt, 1, icp);
+			fprintf(stderr, " next: t=%.6f", icp->t_next);
+			dumpval(stderr, pcp->desc.type, icp->metric->valfmt, 0, icp);
+			fprintf(stderr, " t_first=%.6f t_last=%.6f\n",
+				icp->t_first, icp->t_last);
+		    }
 #endif
-		rp->vset[j]->vlist[i].inst = icp->inst;
-		if (pcp->desc.type == PM_TYPE_32 || pcp->desc.type == PM_TYPE_U32) {
-		    if (icp->t_prior == t_req)
-			rp->vset[j]->vlist[i++].value.lval = icp->v_prior.lval;
-		    else if (icp->t_next == t_req)
-			rp->vset[j]->vlist[i++].value.lval = icp->v_next.lval;
-		    else {
-			if (pcp->desc.sem == PM_SEM_DISCRETE) {
-			    if (icp->t_prior >= 0)
-				rp->vset[j]->vlist[i++].value.lval = icp->v_prior.lval;
-			}
-			else if (pcp->desc.sem == PM_SEM_INSTANT) {
-			    if (icp->t_prior >= 0 && icp->t_next >= 0)
-				rp->vset[j]->vlist[i++].value.lval = icp->v_prior.lval;
-			}
+		    rp->vset[j]->vlist[i].inst = icp->inst;
+		    if (pcp->desc.type == PM_TYPE_32 || pcp->desc.type == PM_TYPE_U32) {
+			if (icp->t_prior == t_req)
+			    rp->vset[j]->vlist[i++].value.lval = icp->v_prior.lval;
+			else if (icp->t_next == t_req)
+			    rp->vset[j]->vlist[i++].value.lval = icp->v_next.lval;
 			else {
-			    /* assume COUNTER */
-			    if (icp->t_prior >= 0 && icp->t_next >= 0) {
-				if (pcp->desc.type == PM_TYPE_32) {
-				    if (icp->v_next.lval >= icp->v_prior.lval ||
-					dowrap == 0) {
-					rp->vset[j]->vlist[i++].value.lval = 0.5 +
-					    icp->v_prior.lval + (t_req - icp->t_prior) *
-					    (icp->v_next.lval - icp->v_prior.lval) /
-					    (icp->t_next - icp->t_prior);
+			    if (pcp->desc.sem == PM_SEM_DISCRETE) {
+				if (icp->t_prior >= 0)
+				    rp->vset[j]->vlist[i++].value.lval = icp->v_prior.lval;
+			    }
+			    else if (pcp->desc.sem == PM_SEM_INSTANT) {
+				if (icp->t_prior >= 0 && icp->t_next >= 0)
+				    rp->vset[j]->vlist[i++].value.lval = icp->v_prior.lval;
+			    }
+			    else {
+				/* assume COUNTER */
+				if (icp->t_prior >= 0 && icp->t_next >= 0) {
+				    if (pcp->desc.type == PM_TYPE_32) {
+					if (icp->v_next.lval >= icp->v_prior.lval ||
+					    dowrap == 0) {
+					    rp->vset[j]->vlist[i++].value.lval = 0.5 +
+						icp->v_prior.lval + (t_req - icp->t_prior) *
+						(icp->v_next.lval - icp->v_prior.lval) /
+						(icp->t_next - icp->t_prior);
+					}
+					else {
+					    /* not monotonic increasing and want wrap */
+					    rp->vset[j]->vlist[i++].value.lval = 0.5 +
+						(t_req - icp->t_prior) *
+						(__int32_t)(UINT_MAX - icp->v_prior.lval + 1 + icp->v_next.lval) /
+						(icp->t_next - icp->t_prior);
+					    rp->vset[j]->vlist[i].value.lval += icp->v_prior.lval;
+					}
 				    }
 				    else {
-					/* not monotonic increasing and want wrap */
-					rp->vset[j]->vlist[i++].value.lval = 0.5 +
-					    (t_req - icp->t_prior) *
-					    (__int32_t)(UINT_MAX - icp->v_prior.lval + 1 + icp->v_next.lval) /
-					    (icp->t_next - icp->t_prior);
-					rp->vset[j]->vlist[i].value.lval += icp->v_prior.lval;
-				    }
-				}
-				else {
-				    pmAtomValue     av;
-				    pmAtomValue     *avp_prior = (pmAtomValue *)&icp->v_prior.lval;
-				    pmAtomValue     *avp_next = (pmAtomValue *)&icp->v_next.lval;
-				    if (avp_next->ul >= avp_prior->ul) {
-					av.ul = 0.5 + avp_prior->ul +
+					pmAtomValue     av;
+					pmAtomValue     *avp_prior = (pmAtomValue *)&icp->v_prior.lval;
+					pmAtomValue     *avp_next = (pmAtomValue *)&icp->v_next.lval;
+					if (avp_next->ul >= avp_prior->ul) {
+					    av.ul = 0.5 + avp_prior->ul +
 						(t_req - icp->t_prior) *
 						(avp_next->ul - avp_prior->ul) /
 						(icp->t_next - icp->t_prior);
-				    }
-				    else {
-					/* not monotonic increasing */
-					if (dowrap) {
-					    av.ul = 0.5 +
+					}
+					else {
+					    /* not monotonic increasing */
+					    if (dowrap) {
+						av.ul = 0.5 +
 						    (t_req - icp->t_prior) *
 						    (__uint32_t)(UINT_MAX - avp_prior->ul + 1 + avp_next->ul ) /
 						    (icp->t_next - icp->t_prior);
-					    av.ul += avp_prior->ul;
-					}
-					else {
-					    __uint32_t	tmp;
-					    tmp = avp_prior->ul - avp_next->ul;
-					    av.ul = 0.5 + avp_prior->ul -
+						av.ul += avp_prior->ul;
+					    }
+					    else {
+						__uint32_t	tmp;
+						tmp = avp_prior->ul - avp_next->ul;
+						av.ul = 0.5 + avp_prior->ul -
 						    (t_req - icp->t_prior) * tmp /
 						    (icp->t_next - icp->t_prior);
+					    }
 					}
+					rp->vset[j]->vlist[i++].value.lval = av.ul;
 				    }
-				    rp->vset[j]->vlist[i++].value.lval = av.ul;
 				}
 			    }
 			}
 		    }
-		}
-		else if (pcp->desc.type == PM_TYPE_FLOAT && icp->metric->valfmt == PM_VAL_INSITU) {
-		    /* OLD style FLOAT insitu */
-		    if (icp->t_prior == t_req)
-			rp->vset[j]->vlist[i++].value.lval = icp->v_prior.lval;
-		    else if (icp->t_next == t_req)
-			rp->vset[j]->vlist[i++].value.lval = icp->v_next.lval;
-		    else {
-			if (pcp->desc.sem == PM_SEM_DISCRETE) {
-			    if (icp->t_prior >= 0)
-				rp->vset[j]->vlist[i++].value.lval = icp->v_prior.lval;
-			}
-			else if (pcp->desc.sem == PM_SEM_INSTANT) {
-			    if (icp->t_prior >= 0 && icp->t_next >= 0)
-				rp->vset[j]->vlist[i++].value.lval = icp->v_prior.lval;
-			}
+		    else if (pcp->desc.type == PM_TYPE_FLOAT && icp->metric->valfmt == PM_VAL_INSITU) {
+			/* OLD style FLOAT insitu */
+			if (icp->t_prior == t_req)
+			    rp->vset[j]->vlist[i++].value.lval = icp->v_prior.lval;
+			else if (icp->t_next == t_req)
+			    rp->vset[j]->vlist[i++].value.lval = icp->v_next.lval;
 			else {
-			    /* assume COUNTER */
-			    pmAtomValue	av;
-			    pmAtomValue	*avp_prior = (pmAtomValue *)&icp->v_prior.lval;
-			    pmAtomValue	*avp_next = (pmAtomValue *)&icp->v_next.lval;
-			    if (icp->t_prior >= 0 && icp->t_next >= 0) {
-				av.f = avp_prior->f + (t_req - icp->t_prior) *
+			    if (pcp->desc.sem == PM_SEM_DISCRETE) {
+				if (icp->t_prior >= 0)
+				    rp->vset[j]->vlist[i++].value.lval = icp->v_prior.lval;
+			    }
+			    else if (pcp->desc.sem == PM_SEM_INSTANT) {
+				if (icp->t_prior >= 0 && icp->t_next >= 0)
+				    rp->vset[j]->vlist[i++].value.lval = icp->v_prior.lval;
+			    }
+			    else {
+				/* assume COUNTER */
+				pmAtomValue	av;
+				pmAtomValue	*avp_prior = (pmAtomValue *)&icp->v_prior.lval;
+				pmAtomValue	*avp_next = (pmAtomValue *)&icp->v_next.lval;
+				if (icp->t_prior >= 0 && icp->t_next >= 0) {
+				    av.f = avp_prior->f + (t_req - icp->t_prior) *
 					(avp_next->f - avp_prior->f) /
 					(icp->t_next - icp->t_prior);
-				/* yes this IS correct ... */
-				rp->vset[j]->vlist[i++].value.lval = av.l;
+				    /* yes this IS correct ... */
+				    rp->vset[j]->vlist[i++].value.lval = av.l;
+				}
 			    }
 			}
 		    }
-		}
-		else if (pcp->desc.type == PM_TYPE_FLOAT) {
-		    /* NEW style FLOAT in pmValueBlock */
-		    int			need;
-		    pmValueBlock	*vp;
-		    int			ok = 1;
+		    else if (pcp->desc.type == PM_TYPE_FLOAT) {
+			/* NEW style FLOAT in pmValueBlock */
+			int			need;
+			pmValueBlock	*vp;
+			int			ok = 1;
 
-		    need = PM_VAL_HDR_SIZE + sizeof(float);
-		    if ((vp = (pmValueBlock *)malloc(need)) == NULL) {
-			sts = -oserror();
-			goto bad_alloc;
-		    }
-		    vp->vlen = need;
-		    vp->vtype = PM_TYPE_FLOAT;
-		    rp->vset[j]->valfmt = PM_VAL_DPTR;
-		    rp->vset[j]->vlist[i++].value.pval = vp;
-		    if (icp->t_prior == t_req)
-			memcpy((void *)vp->vbuf, (void *)icp->v_prior.pval->vbuf, sizeof(float));
-		    else if (icp->t_next == t_req)
-			memcpy((void *)vp->vbuf, (void *)icp->v_next.pval->vbuf, sizeof(float));
-		    else {
-			if (pcp->desc.sem == PM_SEM_DISCRETE) {
-			    if (icp->t_prior >= 0)
-				memcpy((void *)vp->vbuf, (void *)icp->v_prior.pval->vbuf, sizeof(float));
-			    else
-				ok = 0;
+			need = PM_VAL_HDR_SIZE + sizeof(float);
+			if ((vp = (pmValueBlock *)malloc(need)) == NULL) {
+			    sts = -oserror();
+			    goto bad_alloc;
 			}
-			else if (pcp->desc.sem == PM_SEM_INSTANT) {
-			    if (icp->t_prior >= 0 && icp->t_next >= 0)
-				memcpy((void *)vp->vbuf, (void *)icp->v_prior.pval->vbuf, sizeof(float));
-			    else
-				ok = 0;
-			}
+			vp->vlen = need;
+			vp->vtype = PM_TYPE_FLOAT;
+			rp->vset[j]->valfmt = PM_VAL_DPTR;
+			rp->vset[j]->vlist[i++].value.pval = vp;
+			if (icp->t_prior == t_req)
+			    memcpy((void *)vp->vbuf, (void *)icp->v_prior.pval->vbuf, sizeof(float));
+			else if (icp->t_next == t_req)
+			    memcpy((void *)vp->vbuf, (void *)icp->v_next.pval->vbuf, sizeof(float));
 			else {
-			    /* assume COUNTER */
-			    if (icp->t_prior >= 0 && icp->t_next >= 0) {
-				pmAtomValue	av;
-				void		*avp_prior = icp->v_prior.pval->vbuf;
-				void		*avp_next = icp->v_next.pval->vbuf;
-				float	f_prior;
-				float	f_next;
+			    if (pcp->desc.sem == PM_SEM_DISCRETE) {
+				if (icp->t_prior >= 0)
+				    memcpy((void *)vp->vbuf, (void *)icp->v_prior.pval->vbuf, sizeof(float));
+				else
+				    ok = 0;
+			    }
+			    else if (pcp->desc.sem == PM_SEM_INSTANT) {
+				if (icp->t_prior >= 0 && icp->t_next >= 0)
+				    memcpy((void *)vp->vbuf, (void *)icp->v_prior.pval->vbuf, sizeof(float));
+				else
+				    ok = 0;
+			    }
+			    else {
+				/* assume COUNTER */
+				if (icp->t_prior >= 0 && icp->t_next >= 0) {
+				    pmAtomValue	av;
+				    void		*avp_prior = icp->v_prior.pval->vbuf;
+				    void		*avp_next = icp->v_next.pval->vbuf;
+				    float	f_prior;
+				    float	f_next;
 
-				memcpy((void *)&av.f, avp_prior, sizeof(av.f));
-				f_prior = av.f;
-				memcpy((void *)&av.f, avp_next, sizeof(av.f));
-				f_next = av.f;
-
-				av.f = f_prior + (t_req - icp->t_prior) *
+				    memcpy((void *)&av.f, avp_prior, sizeof(av.f));
+				    f_prior = av.f;
+				    memcpy((void *)&av.f, avp_next, sizeof(av.f));
+				    f_next = av.f;
+				    
+				    av.f = f_prior + (t_req - icp->t_prior) *
 					(f_next - f_prior) /
 					(icp->t_next - icp->t_prior);
-				memcpy((void *)vp->vbuf, (void *)&av.f, sizeof(av.f));
-			    }
-			    else
-				ok = 0;
-			}
-		    }
-		    if (!ok) {
-			i--;
-			free(vp);
-		    }
-		}
-		else if (pcp->desc.type == PM_TYPE_64 || pcp->desc.type == PM_TYPE_U64) {
-		    int			need;
-		    pmValueBlock	*vp;
-		    int			ok = 1;
-
-		    need = PM_VAL_HDR_SIZE + sizeof(__int64_t);
-		    if ((vp = (pmValueBlock *)malloc(need)) == NULL) {
-			sts = -oserror();
-			goto bad_alloc;
-		    }
-		    vp->vlen = need;
-		    if (pcp->desc.type == PM_TYPE_64)
-			vp->vtype = PM_TYPE_64;
-		    else
-			vp->vtype = PM_TYPE_U64;
-		    rp->vset[j]->valfmt = PM_VAL_DPTR;
-		    rp->vset[j]->vlist[i++].value.pval = vp;
-		    if (icp->t_prior == t_req)
-			memcpy((void *)vp->vbuf, (void *)icp->v_prior.pval->vbuf, sizeof(__int64_t));
-		    else if (icp->t_next == t_req)
-			memcpy((void *)vp->vbuf, (void *)icp->v_next.pval->vbuf, sizeof(__int64_t));
-		    else {
-			if (pcp->desc.sem == PM_SEM_DISCRETE) {
-			    if (icp->t_prior >= 0)
-				memcpy((void *)vp->vbuf, (void *)icp->v_prior.pval->vbuf, sizeof(__int64_t));
-			    else
-				ok = 0;
-			}
-			else if (pcp->desc.sem == PM_SEM_INSTANT) {
-			    if (icp->t_prior >= 0 && icp->t_next >= 0)
-				memcpy((void *)vp->vbuf, (void *)icp->v_prior.pval->vbuf, sizeof(__int64_t));
-			    else
-				ok = 0;
-			}
-			else {
-			    /* assume COUNTER */
-			    if (icp->t_prior >= 0 && icp->t_next >= 0) {
-				pmAtomValue	av;
-				void		*avp_prior = (void *)icp->v_prior.pval->vbuf;
-				void		*avp_next = (void *)icp->v_next.pval->vbuf;
-				if (pcp->desc.type == PM_TYPE_64) {
-				    __int64_t	ll_prior;
-				    __int64_t	ll_next;
-				    memcpy((void *)&av.ll, avp_prior, sizeof(av.ll));
-				    ll_prior = av.ll;
-				    memcpy((void *)&av.ll, avp_next, sizeof(av.ll));
-				    ll_next = av.ll;
-				    if (ll_next >= ll_prior || dowrap == 0)
-					av.ll = ll_next - ll_prior;
-				    else
-					/* not monotonic increasing and want wrap */
-					av.ll = (__int64_t)(ULONGLONG_MAX - ll_prior + 1 +  ll_next);
-				    av.ll = (__int64_t)(0.5 + (double)ll_prior +
-					    (t_req - icp->t_prior) * (double)av.ll / (icp->t_next - icp->t_prior));
-				    memcpy((void *)vp->vbuf, (void *)&av.ll, sizeof(av.ll));
+				    memcpy((void *)vp->vbuf, (void *)&av.f, sizeof(av.f));
 				}
-				else {
-				    __int64_t	ull_prior;
-				    __int64_t	ull_next;
-				    memcpy((void *)&av.ull, avp_prior, sizeof(av.ull));
-				    ull_prior = av.ull;
-				    memcpy((void *)&av.ull, avp_next, sizeof(av.ull));
-				    ull_next = av.ull;
-				    if (ull_next >= ull_prior) {
-					av.ull = ull_next - ull_prior;
-#if !defined(HAVE_CAST_U64_DOUBLE)
-					{
-					    double tmp;
-
-					    if (SIGN_64_MASK & av.ull)
-						tmp = (double)(__int64_t)(av.ull & (~SIGN_64_MASK)) + (__uint64_t)SIGN_64_MASK;
-					    else
-						tmp = (double)(__int64_t)av.ull;
-
-					    av.ull = (__uint64_t)(0.5 + (double)ull_prior +
-						    (t_req - icp->t_prior) * tmp /
-						    (icp->t_next - icp->t_prior));
-					}
-#else
-					av.ull = (__uint64_t)(0.5 + (double)ull_prior +
-						(t_req - icp->t_prior) * (double)av.ull /
-						(icp->t_next - icp->t_prior));
-#endif
+				else
+				    ok = 0;
+			    }
+			}
+			if (!ok) {
+			    i--;
+			    free(vp);
+			}
+		    }
+		    else if (pcp->desc.type == PM_TYPE_64 || pcp->desc.type == PM_TYPE_U64) {
+			int			need;
+			pmValueBlock	*vp;
+			int			ok = 1;
+			
+			need = PM_VAL_HDR_SIZE + sizeof(__int64_t);
+			if ((vp = (pmValueBlock *)malloc(need)) == NULL) {
+			    sts = -oserror();
+			    goto bad_alloc;
+			}
+			vp->vlen = need;
+			if (pcp->desc.type == PM_TYPE_64)
+			    vp->vtype = PM_TYPE_64;
+			else
+			    vp->vtype = PM_TYPE_U64;
+			rp->vset[j]->valfmt = PM_VAL_DPTR;
+			rp->vset[j]->vlist[i++].value.pval = vp;
+			if (icp->t_prior == t_req)
+			    memcpy((void *)vp->vbuf, (void *)icp->v_prior.pval->vbuf, sizeof(__int64_t));
+			else if (icp->t_next == t_req)
+			    memcpy((void *)vp->vbuf, (void *)icp->v_next.pval->vbuf, sizeof(__int64_t));
+			else {
+			    if (pcp->desc.sem == PM_SEM_DISCRETE) {
+				if (icp->t_prior >= 0)
+				    memcpy((void *)vp->vbuf, (void *)icp->v_prior.pval->vbuf, sizeof(__int64_t));
+				else
+				    ok = 0;
+			    }
+			    else if (pcp->desc.sem == PM_SEM_INSTANT) {
+				if (icp->t_prior >= 0 && icp->t_next >= 0)
+				    memcpy((void *)vp->vbuf, (void *)icp->v_prior.pval->vbuf, sizeof(__int64_t));
+				else
+				    ok = 0;
+			    }
+			    else {
+				/* assume COUNTER */
+				if (icp->t_prior >= 0 && icp->t_next >= 0) {
+				    pmAtomValue	av;
+				    void		*avp_prior = (void *)icp->v_prior.pval->vbuf;
+				    void		*avp_next = (void *)icp->v_next.pval->vbuf;
+				    if (pcp->desc.type == PM_TYPE_64) {
+					__int64_t	ll_prior;
+					__int64_t	ll_next;
+					memcpy((void *)&av.ll, avp_prior, sizeof(av.ll));
+					ll_prior = av.ll;
+					memcpy((void *)&av.ll, avp_next, sizeof(av.ll));
+					ll_next = av.ll;
+					if (ll_next >= ll_prior || dowrap == 0)
+					    av.ll = ll_next - ll_prior;
+					else
+					    /* not monotonic increasing and want wrap */
+					    av.ll = (__int64_t)(ULONGLONG_MAX - ll_prior + 1 +  ll_next);
+					av.ll = (__int64_t)(0.5 + (double)ll_prior +
+							    (t_req - icp->t_prior) * (double)av.ll / (icp->t_next - icp->t_prior));
+					memcpy((void *)vp->vbuf, (void *)&av.ll, sizeof(av.ll));
 				    }
 				    else {
-					/* not monotonic increasing */
-					if (dowrap) {
-					    av.ull = ULONGLONG_MAX - ull_prior + 1 +
-						     ull_next;
+					__int64_t	ull_prior;
+					__int64_t	ull_next;
+					memcpy((void *)&av.ull, avp_prior, sizeof(av.ull));
+					ull_prior = av.ull;
+					memcpy((void *)&av.ull, avp_next, sizeof(av.ull));
+					ull_next = av.ull;
+					if (ull_next >= ull_prior) {
+					    av.ull = ull_next - ull_prior;
 #if !defined(HAVE_CAST_U64_DOUBLE)
 					    {
 						double tmp;
-
+						
 						if (SIGN_64_MASK & av.ull)
 						    tmp = (double)(__int64_t)(av.ull & (~SIGN_64_MASK)) + (__uint64_t)SIGN_64_MASK;
 						else
 						    tmp = (double)(__int64_t)av.ull;
-
+						
 						av.ull = (__uint64_t)(0.5 + (double)ull_prior +
-							(t_req - icp->t_prior) * tmp /
-							(icp->t_next - icp->t_prior));
+								      (t_req - icp->t_prior) * tmp /
+								      (icp->t_next - icp->t_prior));
 					    }
 #else
 					    av.ull = (__uint64_t)(0.5 + (double)ull_prior +
-						    (t_req - icp->t_prior) * (double)av.ull /
-						    (icp->t_next - icp->t_prior));
+								  (t_req - icp->t_prior) * (double)av.ull /
+								  (icp->t_next - icp->t_prior));
 #endif
 					}
 					else {
-					    __uint64_t	tmp;
-					    tmp = ull_prior - ull_next;
+					    /* not monotonic increasing */
+					    if (dowrap) {
+						av.ull = ULONGLONG_MAX - ull_prior + 1 +
+						    ull_next;
 #if !defined(HAVE_CAST_U64_DOUBLE)
-					    {
-						double xtmp;
-
-						if (SIGN_64_MASK & av.ull)
-						    xtmp = (double)(__int64_t)(tmp & (~SIGN_64_MASK)) + (__uint64_t)SIGN_64_MASK;
-						else
-						    xtmp = (double)(__int64_t)tmp;
-							
-						av.ull = (__uint64_t)(0.5 + (double)ull_prior -
-							(t_req - icp->t_prior) * xtmp /
-							(icp->t_next - icp->t_prior));
-					    }
+						{
+						    double tmp;
+						    
+						    if (SIGN_64_MASK & av.ull)
+							tmp = (double)(__int64_t)(av.ull & (~SIGN_64_MASK)) + (__uint64_t)SIGN_64_MASK;
+						    else
+							tmp = (double)(__int64_t)av.ull;
+						    
+						    av.ull = (__uint64_t)(0.5 + (double)ull_prior +
+									  (t_req - icp->t_prior) * tmp /
+									  (icp->t_next - icp->t_prior));
+						}
 #else
-					    av.ull = (__uint64_t)(0.5 + (double)ull_prior -
-						    (t_req - icp->t_prior) * (double)tmp /
-						    (icp->t_next - icp->t_prior));
+						av.ull = (__uint64_t)(0.5 + (double)ull_prior +
+								      (t_req - icp->t_prior) * (double)av.ull /
+								      (icp->t_next - icp->t_prior));
 #endif
+					    }
+					    else {
+						__uint64_t	tmp;
+						tmp = ull_prior - ull_next;
+#if !defined(HAVE_CAST_U64_DOUBLE)
+						{
+						    double xtmp;
+						    
+						    if (SIGN_64_MASK & av.ull)
+							xtmp = (double)(__int64_t)(tmp & (~SIGN_64_MASK)) + (__uint64_t)SIGN_64_MASK;
+						    else
+							xtmp = (double)(__int64_t)tmp;
+						    
+						    av.ull = (__uint64_t)(0.5 + (double)ull_prior -
+									  (t_req - icp->t_prior) * xtmp /
+									  (icp->t_next - icp->t_prior));
+						}
+#else
+						av.ull = (__uint64_t)(0.5 + (double)ull_prior -
+								      (t_req - icp->t_prior) * (double)tmp /
+								      (icp->t_next - icp->t_prior));
+#endif
+					    }
 					}
+					memcpy((void *)vp->vbuf, (void *)&av.ull, sizeof(av.ull));
 				    }
-				    memcpy((void *)vp->vbuf, (void *)&av.ull, sizeof(av.ull));
 				}
+				else
+				    ok = 0;
 			    }
-			    else
-				ok = 0;
+			}
+			if (!ok) {
+			    i--;
+			    free(vp);
 			}
 		    }
-		    if (!ok) {
-			i--;
-			free(vp);
-		    }
-		}
-		else if (pcp->desc.type == PM_TYPE_DOUBLE) {
-		    int			need;
-		    pmValueBlock	*vp;
-		    int			ok = 1;
-
-		    need = PM_VAL_HDR_SIZE + sizeof(double);
-		    if ((vp = (pmValueBlock *)malloc(need)) == NULL) {
-			sts = -oserror();
-			goto bad_alloc;
-		    }
-		    vp->vlen = need;
-		    vp->vtype = PM_TYPE_DOUBLE;
-		    rp->vset[j]->valfmt = PM_VAL_DPTR;
-		    rp->vset[j]->vlist[i++].value.pval = vp;
-		    if (icp->t_prior == t_req)
-			memcpy((void *)vp->vbuf, (void *)icp->v_prior.pval->vbuf, sizeof(double));
-		    else if (icp->t_next == t_req)
-			memcpy((void *)vp->vbuf, (void *)icp->v_next.pval->vbuf, sizeof(double));
-		    else {
-			if (pcp->desc.sem == PM_SEM_DISCRETE) {
-			    if (icp->t_prior >= 0)
-				memcpy((void *)vp->vbuf, (void *)icp->v_prior.pval->vbuf, sizeof(double));
-			    else
-				ok = 0;
+		    else if (pcp->desc.type == PM_TYPE_DOUBLE) {
+			int			need;
+			pmValueBlock	*vp;
+			int			ok = 1;
+			
+			need = PM_VAL_HDR_SIZE + sizeof(double);
+			if ((vp = (pmValueBlock *)malloc(need)) == NULL) {
+			    sts = -oserror();
+			    goto bad_alloc;
 			}
-			else if (pcp->desc.sem == PM_SEM_INSTANT) {
-			    if (icp->t_prior >= 0 && icp->t_next >= 0)
-				memcpy((void *)vp->vbuf, (void *)icp->v_prior.pval->vbuf, sizeof(double));
-			    else
-				ok = 0;
-			}
+			vp->vlen = need;
+			vp->vtype = PM_TYPE_DOUBLE;
+			rp->vset[j]->valfmt = PM_VAL_DPTR;
+			rp->vset[j]->vlist[i++].value.pval = vp;
+			if (icp->t_prior == t_req)
+			    memcpy((void *)vp->vbuf, (void *)icp->v_prior.pval->vbuf, sizeof(double));
+			else if (icp->t_next == t_req)
+			    memcpy((void *)vp->vbuf, (void *)icp->v_next.pval->vbuf, sizeof(double));
 			else {
-			    /* assume COUNTER */
-			    if (icp->t_prior >= 0 && icp->t_next >= 0) {
-				pmAtomValue	av;
-				void		*avp_prior = (void *)icp->v_prior.pval->vbuf;
-				void		*avp_next = (void *)icp->v_next.pval->vbuf;
-				double	d_prior;
-				double	d_next;
-				memcpy((void *)&av.d, avp_prior, sizeof(av.d));
-				d_prior = av.d;
-				memcpy((void *)&av.d, avp_next, sizeof(av.d));
-				d_next = av.d;
-				av.d = d_prior + (t_req - icp->t_prior) *
+			    if (pcp->desc.sem == PM_SEM_DISCRETE) {
+				if (icp->t_prior >= 0)
+				    memcpy((void *)vp->vbuf, (void *)icp->v_prior.pval->vbuf, sizeof(double));
+				else
+				    ok = 0;
+			    }
+			    else if (pcp->desc.sem == PM_SEM_INSTANT) {
+				if (icp->t_prior >= 0 && icp->t_next >= 0)
+				    memcpy((void *)vp->vbuf, (void *)icp->v_prior.pval->vbuf, sizeof(double));
+				else
+				    ok = 0;
+			    }
+			    else {
+				/* assume COUNTER */
+				if (icp->t_prior >= 0 && icp->t_next >= 0) {
+				    pmAtomValue	av;
+				    void		*avp_prior = (void *)icp->v_prior.pval->vbuf;
+				    void		*avp_next = (void *)icp->v_next.pval->vbuf;
+				    double	d_prior;
+				    double	d_next;
+				    memcpy((void *)&av.d, avp_prior, sizeof(av.d));
+				    d_prior = av.d;
+				    memcpy((void *)&av.d, avp_next, sizeof(av.d));
+				    d_next = av.d;
+				    av.d = d_prior + (t_req - icp->t_prior) *
 					(d_next - d_prior) /
 					(icp->t_next - icp->t_prior);
-				memcpy((void *)vp->vbuf, (void *)&av.d, sizeof(av.d));
+				    memcpy((void *)vp->vbuf, (void *)&av.d, sizeof(av.d));
+				}
+				else
+				    ok = 0;
 			    }
-			    else
-				ok = 0;
+			}
+			if (!ok) {
+			    i--;
+			    free(vp);
 			}
 		    }
-		    if (!ok) {
+		    else if ((pcp->desc.type == PM_TYPE_AGGREGATE ||
+			      pcp->desc.type == PM_TYPE_EVENT ||
+			      pcp->desc.type == PM_TYPE_HIGHRES_EVENT ||
+			      pcp->desc.type == PM_TYPE_STRING) &&
+			     icp->t_prior >= 0) {
+			int		need;
+			pmValueBlock	*vp;
+			
+			need = icp->v_prior.pval->vlen;
+			
+			vp = (pmValueBlock *)malloc(need);
+			if (vp == NULL) {
+			    sts = -oserror();
+			    goto bad_alloc;
+			}
+			rp->vset[j]->valfmt = PM_VAL_DPTR;
+			rp->vset[j]->vlist[i++].value.pval = vp;
+			memcpy((void *)vp, icp->v_prior.pval, need);
+		    }
+		    else {
+			/* unknown type - skip it, else junk in result */
 			i--;
-			free(vp);
 		    }
-		}
-		else if ((pcp->desc.type == PM_TYPE_AGGREGATE ||
-			  pcp->desc.type == PM_TYPE_EVENT ||
-			  pcp->desc.type == PM_TYPE_HIGHRES_EVENT ||
-			  pcp->desc.type == PM_TYPE_STRING) &&
-			 icp->t_prior >= 0) {
-		    int		need;
-		    pmValueBlock	*vp;
-
-		    need = icp->v_prior.pval->vlen;
-
-		    vp = (pmValueBlock *)malloc(need);
-		    if (vp == NULL) {
-			sts = -oserror();
-			goto bad_alloc;
-		    }
-		    rp->vset[j]->valfmt = PM_VAL_DPTR;
-		    rp->vset[j]->vlist[i++].value.pval = vp;
-		    memcpy((void *)vp, icp->v_prior.pval, need);
-		}
-		else {
-		    /* unknown type - skip it, else junk in result */
-		    i--;
 		}
 	    }
 	}
@@ -1753,7 +1798,8 @@ __pmLogResetInterp(__pmContext *ctxp)
     __pmHashCtl	*hcp = &ctxp->c_archctl->ac_pmid_hc;
     double	t_req;
     __pmHashNode	*hp;
-    int		k;
+    __pmHashNode	*ihp;
+    int		i, k;
     pmidcntl_t	*pcp;
     instcntl_t	*icp;
 
@@ -1765,18 +1811,21 @@ __pmLogResetInterp(__pmContext *ctxp)
     for (k = 0; k < hcp->hsize; k++) {
 	for (hp = hcp->hash[k]; hp != NULL; hp = hp->next) {
 	    pcp = (pmidcntl_t *)hp->data;
-	    for (icp = pcp->first; icp != NULL; icp = icp->next) {
-		if (icp->t_prior > t_req || icp->t_next < t_req) {
-		    icp->t_prior = icp->t_next = -1;
-		    SET_UNDEFINED(icp->s_prior);
-		    SET_UNDEFINED(icp->s_next);
-		    if (pcp->valfmt != PM_VAL_INSITU) {
-			if (icp->v_prior.pval != NULL)
-			    __pmUnpinPDUBuf((void *)icp->v_prior.pval);
-			if (icp->v_next.pval != NULL)
-			    __pmUnpinPDUBuf((void *)icp->v_next.pval);
+	    for (i = 0; i < pcp->hc.hsize; i++) {
+		for (ihp = pcp->hc.hash[i]; ihp != NULL; ihp = ihp->next) {
+		    icp = (instcntl_t *)ihp->data;
+		    if (icp->t_prior > t_req || icp->t_next < t_req) {
+			icp->t_prior = icp->t_next = -1;
+			SET_UNDEFINED(icp->s_prior);
+			SET_UNDEFINED(icp->s_next);
+			if (pcp->valfmt != PM_VAL_INSITU) {
+			    if (icp->v_prior.pval != NULL)
+				__pmUnpinPDUBuf((void *)icp->v_prior.pval);
+			    if (icp->v_next.pval != NULL)
+				__pmUnpinPDUBuf((void *)icp->v_next.pval);
+			}
+			icp->v_prior.pval = icp->v_next.pval = NULL;
 		    }
-		    icp->v_prior.pval = icp->v_next.pval = NULL;
 		}
 	    }
 	}
@@ -1798,55 +1847,71 @@ __pmFreeInterpData(__pmContext *ctxp)
 	/* we have done some interpolation ... */
 	__pmHashCtl	*hcp = &ctxp->c_archctl->ac_pmid_hc;
 	__pmHashNode	*hp;
+	__pmHashNode	*ihp;
 	pmidcntl_t	*pcp;
 	instcntl_t	*icp;
-	int		j;
+	int		i, j;
 
 	for (j = 0; j < hcp->hsize; j++) {
 	    __pmHashNode	*last_hp = NULL;
 	    /*
 	     * Don't free __pmHashNode until hp->next has been traversed,
 	     * hence free lags one node in the chain (last_hp used for free).
-	     * Same for linked list of instcntl_t structs (use last_icp
+	     * Same for linked list of instcntl_t structs (use last_ihp
 	     * for free in this case).
 	     */
 	    for (hp = hcp->hash[j]; hp != NULL; hp = hp->next) {
-		instcntl_t		*last_icp = NULL;
 		pcp = (pmidcntl_t *)hp->data;
-		for (icp = pcp->first; icp != NULL; icp = icp->next) {
-		    if (pcp->valfmt != PM_VAL_INSITU) {
-			/*
-			 * Held values may be in PDU buffers, unpin the PDU
-			 * buffers just in case (__pmUnpinPDUBuf is a NOP if
-			 * the value is not in a PDU buffer)
-			 */
-			if (icp->v_prior.pval != NULL) {
+		for (i = 0; i < pcp->hc.hsize; i++) {
+		    __pmHashNode	*last_ihp = NULL;
+		    for (ihp = pcp->hc.hash[i]; ihp != NULL; ihp = ihp->next) {
+			icp = (instcntl_t *)ihp->data;
+			if (pcp->valfmt != PM_VAL_INSITU) {
+			    /*
+			     * Held values may be in PDU buffers, unpin the PDU
+			     * buffers just in case (__pmUnpinPDUBuf is a NOP if
+			     * the value is not in a PDU buffer)
+			     */
+			    if (icp->v_prior.pval != NULL) {
 #ifdef PCP_DEBUG
-			    if ((pmDebug & DBG_TRACE_INTERP) && (pmDebug & DBG_TRACE_DESPERATE)) {
-			    char	strbuf[20];
-			    fprintf(stderr, "release pmid %s inst %d prior\n",
-				pmIDStr_r(pcp->desc.pmid, strbuf, sizeof(strbuf)), icp->inst);
-			    }
+				if ((pmDebug & DBG_TRACE_INTERP) && (pmDebug & DBG_TRACE_DESPERATE)) {
+				    char	strbuf[20];
+				    fprintf(stderr, "release pmid %s inst %d prior\n",
+					    pmIDStr_r(pcp->desc.pmid, strbuf, sizeof(strbuf)), icp->inst);
+				}
 #endif
-			    __pmUnpinPDUBuf((void *)icp->v_prior.pval);
-			}
-			if (icp->v_next.pval != NULL) {
+				__pmUnpinPDUBuf((void *)icp->v_prior.pval);
+			    }
+			    if (icp->v_next.pval != NULL) {
 #ifdef PCP_DEBUG
-			    if ((pmDebug & DBG_TRACE_INTERP) && (pmDebug & DBG_TRACE_DESPERATE)) {
-			    char	strbuf[20];
-			    fprintf(stderr, "release pmid %s inst %d next\n",
-				pmIDStr_r(pcp->desc.pmid, strbuf, sizeof(strbuf)), icp->inst);
-			    }
+				if ((pmDebug & DBG_TRACE_INTERP) && (pmDebug & DBG_TRACE_DESPERATE)) {
+				    char	strbuf[20];
+				    fprintf(stderr, "release pmid %s inst %d next\n",
+					    pmIDStr_r(pcp->desc.pmid, strbuf, sizeof(strbuf)), icp->inst);
+				}
 #endif
-			    __pmUnpinPDUBuf((void *)icp->v_next.pval);
+				__pmUnpinPDUBuf((void *)icp->v_next.pval);
+			    }
 			}
+			if (last_ihp != NULL) {
+			    if (last_ihp->data != NULL)
+				free(last_ihp->data);
+			    free(last_ihp);
+			}
+			last_ihp = ihp;
 		    }
-		    if (last_icp != NULL)
-			free(last_icp);
-		    last_icp = icp;
+		    if (last_ihp != NULL) {
+			if (last_ihp->data != NULL)
+			    free(last_ihp->data);
+			free(last_ihp);
+		    }
 		}
-		if (last_icp != NULL)
-		    free(last_icp);
+		if (pcp->hc.hash) {
+		    free(pcp->hc.hash);
+		    /* just being paranoid here */
+		    pcp->hc.hash = NULL;
+		}
+		pcp->hc.hsize = 0;
 		if (last_hp != NULL) {
 		    if (last_hp->data != NULL)
 			free(last_hp->data);
@@ -1859,11 +1924,13 @@ __pmFreeInterpData(__pmContext *ctxp)
 		    free(last_hp->data);
 		free(last_hp);
 	    }
+	}
+	if (hcp->hash) {
 	    free(hcp->hash);
 	    /* just being paranoid here */
 	    hcp->hash = NULL;
-	    hcp->hsize = 0;
 	}
+	hcp->hsize = 0;
     }
 
     if (ctxp->c_archctl->ac_cache != NULL) {

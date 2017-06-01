@@ -14,13 +14,14 @@
 # License for more details.
 #
 
-LCFLAGS += -DPM_FAULT_INJECTION=1 -DPM_MULTI_THREAD_DEBUG=1
-
 TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
+include ../../libpcp/src/GNUlibrarydefs
 -include ./GNUlocaldefs
 
-CFILES = connect.c context.c desc.c err.c fetch.c freeresult.c \
+CFLAGS_OPT = -DPM_FAULT_INJECTION=1 -DPM_MULTI_THREAD_DEBUG=1
+
+CFILES = connect.c context.c desc.c err.c fetch.c fetchgroup.c freeresult.c \
 	help.c instance.c p_desc.c p_error.c p_fetch.c p_instance.c \
 	p_profile.c p_result.c p_text.c p_pmns.c p_creds.c p_attr.c \
 	pdu.c pdubuf.c pmns.c profile.c store.c units.c util.c ipc.c \
@@ -28,54 +29,31 @@ CFILES = connect.c context.c desc.c err.c fetch.c freeresult.c \
 	checksum.c rtime.c tv.c spec.c fetchlocal.c optfetch.c AF.c \
 	stuffvalue.c endian.c config.c auxconnect.c auxserver.c discovery.c \
 	p_lcontrol.c p_lrequest.c p_lstatus.c logconnect.c logcontrol.c \
-	connectlocal.c derive.c derive_fetch.c events.c lock.c hash.c \
+	connectlocal.c derive_fetch.c events.c lock.c hash.c \
 	fault.c access.c getopt.c probe.c
 HFILES = derive.h internal.h avahi.h probe.h compiler.h
-YFILES = getdate.y
+YFILES = getdate.y derive_parser.y
 VERSION_SCRIPT = exports
 
-LSRCFILES = check-statics $(VERSION_SCRIPT)
+LSRCFILES = check-statics $(VERSION_SCRIPT) derive_parser.y.in
+LCFLAGS = -DPCP_INTERNAL '-DEXEC_SUFFIX="$(EXECSUFFIX)"' \
+	'-DDSO_SUFFIX="$(DSOSUFFIX)"'
+LCFLAGS += $(LIBPCP_CFLAGS)
+LLDLIBS += $(LIBPCP_LDLIBS) -L../../libpcp_pmda/src -lpcp_pmda
 
 ifeq "$(ENABLE_SECURE)" "true"
-LLDLIBS += $(LIB_FOR_SSL) $(LIB_FOR_NSS) $(LIB_FOR_NSPR) $(LIB_FOR_SASL)
-LCFLAGS += $(NSSCFLAGS) $(NSPRCFLAGS) $(SASLCFLAGS)
 CFILES += secureserver.c secureconnect.c
-else
-LSRCFILES += secureserver.c secureconnect.c
 endif
 
 ifeq "$(ENABLE_AVAHI)" "true"
-LLDLIBS += $(LIB_FOR_AVAHI)
-LCFLAGS += $(AVAHICFLAGS)
 CFILES += avahi.c
-else
-LSRCFILES += avahi.c
 endif
 
 ifneq "$(TARGET_OS)" "mingw"
 CFILES += accounts.c
-LSRCFILES += win32.c
 else
 CFILES += win32.c
-LSRCFILES += accounts.c
-LLDLIBS	+= -lpsapi -lws2_32
 endif
-
-ifeq "$(TARGET_OS)" "solaris"
-# enables standards compliant thread-safe interfaces (accounts.c)
-LCFLAGS += -D_POSIX_PTHREAD_SEMANTICS
-endif
-
-ifeq "$(LIB_FOR_BASENAME)" "-lpcp"
-# don't need to be linked to myself in this case!
-LIB_FOR_BASENAME =
-endif
-
-LLDLIBS	+= $(LIB_FOR_MATH) $(LIB_FOR_PTHREADS) $(LIB_FOR_RT)
-LLDLIBS	+= -lpcp_pmda
-
-LCFLAGS += -DPCP_INTERNAL '-DEXEC_SUFFIX="$(EXECSUFFIX)"' \
-	'-DDSO_SUFFIX="$(DSOSUFFIX)"'
 
 DSOVERSION = 3
 STATICLIBTARGET = libpcp_fault.a
@@ -96,7 +74,8 @@ LIBTARGET =
 SYMTARGET =
 endif
 
-LDIRT += $(SYMTARGET) $(YFILES:%.y=%.tab.?) getdate.h check.done
+LDIRT += $(SYMTARGET) $(YFILES:%.y=%.tab.?) getdate.h check.done \
+	$(CFILES) $(HFILES) $(YFILES) derive_parser.y.in exports
 
 base default : $(HFILES) $(CFILES) $(VERSION_SCRIPT) $(LIBTARGET) $(SYMTARGET) $(STATICLIBTARGET)
 
@@ -110,9 +89,9 @@ endif
 
 include $(BUILDRULES)
 
-*.o: internal.h
+*.o: internal.h compiler.h derive.h
 rtime.o: getdate.h
-derive.o derive_fetch.o: derive.h
+derive.o derive_fetch.o: derive.h derive_parser.tab.h
 util.o:	$(TOPDIR)/src/include/pcp/pmdbg.h
 fault.o:	$(TOPDIR)/src/include/pcp/fault.h
 
@@ -123,6 +102,13 @@ $(OBJECTS):	$(TOPDIR)/src/include/pcp/pmapi.h \
 .NOTPARALLEL:
 getdate.h getdate.tab.c: getdate.y
 	$(YACC) -d -b `basename $< .y` $< && cp `basename $@ .h`.tab.h $@
+
+.NOTPARALLEL:
+derive_parser.tab.h derive_parser.tab.c: derive_parser.y derive.h
+	$(YACC) -d -b `basename $< .y` $<
+
+derive_parser.y: derive_parser.y.in ../../libpcp/src/fix_derive_parser_y
+	../../libpcp/src/fix_derive_parser_y
 
 ifeq "$(TARGET_OS)" "mingw"
 kernel_pmda_dso	= windows
@@ -144,7 +130,7 @@ ifneq ($(STATICLIBTARGET),)
 endif
 	$(INSTALL) -m 644 $(TOPDIR)/src/include/pcp/fault.h $(PCP_INC_DIR)/fault.h
 
-$(HFILES) $(CFILES) $(YFILES):
+$(HFILES) $(CFILES) getdate.y derive_parser.y.in:
 	ln -s ../../libpcp/src/$@ .
 
 $(VERSION_SCRIPT): ../../libpcp/src/$(VERSION_SCRIPT) mk.exports

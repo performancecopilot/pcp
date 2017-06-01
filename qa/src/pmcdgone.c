@@ -327,9 +327,9 @@ Options:\n\
     err += exer(numpmid, pmidlist, 0);
 
     fprintf(stderr, "Kill off pmcd ...\n");
-    sts = system(". $PCP_DIR/etc/pcp.env; $PCP_RC_DIR/pcp stop");
+    sts = system(". $PCP_DIR/etc/pcp.env; $PCP_RC_DIR/pmcd stop");
     if (sts != 0)
-	fprintf(stderr, "Warning: stop script returns %d\n", sts);
+	fprintf(stderr, "Warning: pmcd stop script returns %d\n", sts);
     sleep(10);
     _text = _indom_text = 0;
     __pmCloseSocket(ctlport);
@@ -367,9 +367,9 @@ Options:\n\
     if (sts != 0)
 	fprintf(stderr, "Warning: folio removal script %d\n", sts);
     __pmCloseSocket(ctlport);
-    sts = system(". $PCP_DIR/etc/pcp.env; $PCP_RC_DIR/pcp start");
+    sts = system(". $PCP_DIR/etc/pcp.env; $PCP_RC_DIR/pmcd start");
     if (sts != 0)
-	fprintf(stderr, "Warning: stop script returns %d\n", sts);
+	fprintf(stderr, "Warning: pmcd start script returns %d\n", sts);
 
     sprintf(path, "%s/pmcd_wait", binadm);
     if(access(path, X_OK) == 0) {
@@ -377,6 +377,9 @@ Options:\n\
 	if (sts != 0)
 	    fprintf(stderr, "Warning: pmcd_wait script returns %d\n", sts);
     }
+    sts = system(". $PCP_DIR/etc/pcp.env; $PCP_RC_DIR/pmlogger start");
+    if (sts != 0)
+	fprintf(stderr, "Warning: pmlogger start script returns %d\n", sts);
 
     sts = system(". $PCP_DIR/etc/pcp.env; ( cat common.check; echo _wait_for_pmlogger -P $PCP_LOG_DIR/pmlogger/`hostname`/pmlogger.log ) | sh");
     if (sts != 0)

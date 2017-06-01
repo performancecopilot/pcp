@@ -105,6 +105,8 @@ OTHER_SUBDIRS = \
 	zabbix-agent \
 	pmpython \
 	derived \
+	selinux \
+	zeroconf \
 	#
 
 SUBDIRS = \

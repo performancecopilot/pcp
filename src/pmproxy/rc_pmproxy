@@ -221,6 +221,10 @@ Error: pmproxy options file "$PMPROXYOPTS" is missing, cannot start pmproxy.'
 	    then
 		mkdir -p -m 775 "$PCP_RUN_DIR"
 		chown $PCP_USER:$PCP_GROUP "$PCP_RUN_DIR"
+		if which restorecon >/dev/null 2>&1
+		then
+		    restorecon -r "$PCP_RUN_DIR"
+		fi
 	    fi
 	    # create directory which will serve as cwd
 	    if [ ! -d "$RUNDIR" ]

@@ -357,7 +357,7 @@ myoneline(unsigned int ident, int type)
 	free(buffer);
     }
     else
-	printf(" One-line Help: Error: %s\n", pmErrStr(sts));
+	printf(" One-line Help: Error: %s", pmErrStr(sts));
 }
 
 static void

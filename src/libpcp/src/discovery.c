@@ -195,9 +195,24 @@ __pmDiscoverServicesWithOptions(const char *service,
 			     timeoutSleep, &options);
 	pthread_attr_destroy(&threadAttr);
 	if (sts != 0) {
+	    char errmsg[PM_MAXERRMSGLEN];
 	    sts = oserror();
+#ifdef HAVE_STRERROR_R_PTR
+	    {
+		char	*p;
+		p = strerror_r(sts, errmsg, sizeof(errmsg));
+		if (p != errmsg)
+		    strncpy(errmsg, p, sizeof(errmsg));
+	    }
+#else
+	    /*
+	     * the more normal POSIX and XSI compliant variants always
+	     * fill the message buffer
+	     */
+	    strerror_r(sts, errmsg, sizeof(errmsg));
+#endif
 	    __pmNotifyErr(LOG_ERR, "Service discovery global timeout could not be set: %s",
-			  strerror(sts));
+			  errmsg);
 	    return -sts;
 	}
 	timeoutSet = 1;

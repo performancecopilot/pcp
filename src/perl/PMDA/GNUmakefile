@@ -23,7 +23,8 @@ TESTCODE  = test.pl cvalue.c
 PERLDOCS  = Changes MANIFEST
 LSRCFILES = Makefile.PL $(PERLDOCS) $(PERLMOD) $(INTERFACE) $(TESTCODE)
 
-LPKGDIRT = PCP-PMDA-* MYMETA.yml MYMETA.json
+LPKGDIRT = PCP-PMDA-*.tar.gz MYMETA.yml MYMETA.json
+LDIRDIRT = PCP-PMDA-*
 LDIRT = Makefile COPYING PMDA.bs PMDA.c PMDA.o cvalue pm_to_blib blib \
 	Makefile.old local.o $(LPKGDIRT)
 

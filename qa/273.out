@@ -36,7 +36,6 @@ sampledso.kbyte_rate [instantaneous Kbytes/second]
 sampledso.byte_rate_perhour [instantaneous bytes/hour]
 sampledso.datasize [Space allocated for PMDA's data segment]
 sampledso.secret.foo.bar.max.redirect One-line Help: Error: No PMCD agent for domain of request
-
 sampledso.secret.foo.bar.three [dynamic *.secret.foo.bar.three metric]
 sampledso.secret.foo.bar.four [dynamic *.secret.foo.bar.four metric]
 sampledso.secret.foo.bar.grunt.five [dynamic *.secret.foo.bar.grunt.five metric]
@@ -1816,9 +1815,11 @@ pmResult ... numpmid: 3
 Quitting need at least 4 metrics for profile tests
 
 build_dsotab:  parsing ...
+pmWhichContext() -> 0, cur=0
+pmWhichContext() -> 0, cur=0
 pmNewContext(3, localhost) -> 0
-Dump Contexts: current context = 0
-Context[0] standalone: profile=NOT_SENT
+Dump Contexts: current -> contexts[0] handle 0
+contexts[0] handle 0: standalone: profile=NOT_SENT
 Dump Instance Profile state=INCLUDE, 0 profiles
 __pmConnectLogger(host=localhost, pid=0, port=-2)
 __pmConnectLogger: __pmLogFindPort -> pid = PID

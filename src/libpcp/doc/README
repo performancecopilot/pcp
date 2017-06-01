@@ -1,0 +1,49 @@
+libpcp Documentation
+
+Locking and Concurrency Control
+
+  - libpcp-locking.odt
+    This document describes how the locking and concurrency control
+    is supposed to work for multi-threaded applications using libpcp.
+
+    It also documents known issues and is intended to be updated to
+    reflect the historical and current status as changes are made.
+
+    At this point the document is a WIP and not yet complete.
+
+  - mk.cgraph
+    A tool to use cscope to build static call graphs (in dot(1) format
+    that can be turned into PNG images ... see the GNUmakefile for
+    examples).
+
+    The graphs contain a number of node types:
+    + black ellipse: a thread-safe routine that does no locking and
+      only calls thread-safe routines
+    + black ellipse with red boundary and red text: a known
+      thread-unsafe routine (needs mutex protection)
+    + red box: routines that acquire libpcp locks, the label of
+      the node includes the routine name and the locks acquired
+      as follows:
+      	libpcp	=> the global __pmLock_libpcp mutex
+      	extcall	=> the global __pmLock_extcall mutex
+	derived => the registered.mutex mutex for derived metrics
+	context => the c_lock mutex in a __pmContext structure
+	pmcd => the pc_lock mutext in a __pmPMCDCtl structure
+	probe.addr => the addrLock mutex in a connectionContext structure
+	probe.url => the urlLock mutex in a connectionContext structure
+	local => a local mutex to protect data structures in one source
+		 file
+
+  - prune.cgraph
+    Using cscope and the .dot file created by mk.cgraph, do a recursive
+    'leaf-to-root' prune of the call graph removing nodes that are
+    thread-safe ... meaning they don't acquire locks and don't call
+    any unsafe routines
+
+  - find-posix-unsafe
+    Search source files for uses of routines named in posix.unsafe.
+    Comment tagging with /* THREADSAFE */ can be used to mark cases
+    that have been analyzed.
+
+  - *.safe and *.unsafe
+    Various thread-safe and thread-unsafe routines external to libpcp.

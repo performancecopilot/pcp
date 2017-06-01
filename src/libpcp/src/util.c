@@ -19,13 +19,38 @@
  *
  * pmState - no side-effects, don't bother locking
  *
+ * dosyslog - no side-effects, other than non-determinism with concurrent
+ *	attempts to set/clear the state in __pmSyslog() which locking will
+ *	not avoid
+ *
  * pmProgname - most likely set in main(), not worth protecting here
  * 	and impossible to capture all the read uses in other places
  *
  * base (in __pmProcessDataSize) - no real side-effects, don't bother
  *	locking
  *
- * pmprintf_atexit_installed is protected by the __pmLock_libpcp mutex.
+ * pmprintf_atexit_installed is protected by the util_lock mutex.
+ *
+ * done_exit is protected by the util_lock mutex.
+ *
+ * filelog[] and nfilelog are protected by the util_lock mutex.
+ *
+ * fptr, msgsize, fname and ferr are all protected by the util_lock
+ * mutex.
+ *
+ * the one-trip initialization of xconfirm is guarded by xconfirm_init
+ * ... there is no locking here as the same value would result from
+ * concurrent execution, and we don't want to hold util_lock when
+ * calling pmGetOptionalConfig()
+ *
+ * the one-trip initialization of tmpdir is guarded by tmpdir_init
+ * ... there is no locking here as the same value would result from
+ * concurrent execution, and we don't want to hold util_lock when
+ * calling pmGetOptionalConfig()
+ *
+ * errtype - no side-effects (same value would result from concurrent
+ *	execution of the initialization block, unchanged after that),
+ *	don't bother locking
  */
 
 #include <stdarg.h>
@@ -65,10 +90,29 @@ static int	done_exit;
 #ifdef HAVE_ATEXIT
 static int	pmprintf_atexit_installed = 0;
 #endif
+static int	xconfirm_init = 0;
+static char 	*xconfirm = NULL;
 
 PCP_DATA char	*pmProgname = "pcp";		/* the real McCoy */
 
 static int vpmprintf(const char *, va_list);
+
+#ifdef PM_MULTI_THREAD
+static pthread_mutex_t	util_lock = PTHREAD_MUTEX_INITIALIZER;
+#else
+void			*util_lock;
+#endif
+
+#if defined(PM_MULTI_THREAD) && defined(PM_MULTI_THREAD_DEBUG)
+/*
+ * return true if lock == util_lock
+ */
+int
+__pmIsUtilLock(void *lock)
+{
+    return lock == (void *)&util_lock;
+}
+#endif
 
 /*
  * if onoff == 1, logging is to syslog and stderr, else logging is
@@ -77,14 +121,11 @@ static int vpmprintf(const char *, va_list);
 void
 __pmSyslog(int onoff)
 {
-    PM_INIT_LOCKS();
-    PM_LOCK(__pmLock_libpcp);
     dosyslog = onoff;
     if (dosyslog)
 	openlog("pcp", LOG_PID, LOG_DAEMON);
     else
 	closelog();
-    PM_UNLOCK(__pmLock_libpcp);
 }
 
 /*
@@ -98,13 +139,12 @@ __pmNotifyErr(int priority, const char *message, ...)
     char		*p;
     char		*level;
     struct timeval	tv;
+    char		ct_buf[26];
 
     va_start(arg, message);
 
     gettimeofday(&tv, NULL);
 
-    PM_INIT_LOCKS();
-    PM_LOCK(__pmLock_libpcp);
     if (dosyslog) {
 	char	syslogmsg[2048];
 
@@ -113,7 +153,6 @@ __pmNotifyErr(int priority, const char *message, ...)
 	va_start(arg, message);
 	syslog(priority, "%s", syslogmsg);
     }
-    PM_UNLOCK(__pmLock_libpcp);
 
     /*
      * do the stderr equivalent
@@ -149,13 +188,11 @@ __pmNotifyErr(int priority, const char *message, ...)
 	    break;
     }
 
-    PM_INIT_LOCKS();
-    PM_LOCK(__pmLock_libpcp);
+    ctime_r(&tv.tv_sec, ct_buf);
     /* when profiling use "[%.19s.%lu]" for extra precision */
-    pmprintf("[%.19s] %s(%" FMT_PID ") %s: ", ctime(&tv.tv_sec),
+    pmprintf("[%.19s] %s(%" FMT_PID ") %s: ", ct_buf,
 		/* (unsigned long)tv.tv_usec, */
 		pmProgname, getpid(), level);
-    PM_UNLOCK(__pmLock_libpcp);
     vpmprintf(message, arg);
     va_end(arg);
     /* trailing \n if needed */
@@ -169,27 +206,27 @@ __pmNotifyErr(int priority, const char *message, ...)
 static void
 logheader(const char *progname, FILE *log, const char *act)
 {
-    time_t	now;
     char	host[MAXHOSTNAMELEN];
+    time_t	now;
+    char	ct_buf[26];
 
     setlinebuf(log);		/* line buffering for log files */
     gethostname(host, MAXHOSTNAMELEN);
     host[MAXHOSTNAMELEN-1] = '\0';
     time(&now);
-    PM_LOCK(__pmLock_libpcp);
-    fprintf(log, "Log for %s on %s %s %s\n", progname, host, act, ctime(&now));
-    PM_UNLOCK(__pmLock_libpcp);
+    ctime_r(&now, ct_buf);
+    fprintf(log, "Log for %s on %s %s %s\n", progname, host, act, ct_buf);
 }
 
 static void
 logfooter(FILE *log, const char *act)
 {
     time_t	now;
+    char	ct_buf[26];
 
     time(&now);
-    PM_LOCK(__pmLock_libpcp);
-    fprintf(log, "\nLog %s %s", act, ctime(&now));
-    PM_UNLOCK(__pmLock_libpcp);
+    ctime_r(&now, ct_buf);
+    fprintf(log, "\nLog %s %s", act, ct_buf);
 }
 
 static void
@@ -197,16 +234,16 @@ logonexit(void)
 {
     int		i;
 
-    PM_LOCK(__pmLock_libpcp);
+    PM_LOCK(util_lock);
     if (++done_exit != 1) {
-	PM_UNLOCK(__pmLock_libpcp);
+	PM_UNLOCK(util_lock);
 	return;
     }
 
     for (i = 0; i < nfilelog; i++)
 	logfooter(filelog[i], "finished");
 
-    PM_UNLOCK(__pmLock_libpcp);
+    PM_UNLOCK(util_lock);
 }
 
 /* common code shared by __pmRotateLog and __pmOpenLog */
@@ -217,6 +254,7 @@ logreopen(const char *progname, const char *logname, FILE *oldstream,
     int		oldfd;
     int		dupoldfd;
     FILE	*dupoldstream = oldstream;
+    char	errmsg[PM_MAXERRMSGLEN];
 
     /*
      * Do our own version of freopen() because the standard one closes the
@@ -239,7 +277,7 @@ logreopen(const char *progname, const char *logname, FILE *oldstream,
 
 	oldstream = freopen(logname, "w", oldstream);
 	if (oldstream == NULL) {
-	    int	save_error = oserror();	/* need for error message */
+	    int		save_error = oserror();	/* need for error message */
 
 	    close(oldfd);
 	    if (dup(dupoldfd) != oldfd) {
@@ -274,8 +312,22 @@ logreopen(const char *progname, const char *logname, FILE *oldstream,
 		/* put oldstream back for return value */
 		oldstream = dupoldstream;
 	    }
+#ifdef HAVE_STRERROR_R_PTR
+	    {
+		char	*p;
+		p = strerror_r(save_error, errmsg, sizeof(errmsg));
+		if (p != errmsg)
+		    strncpy(errmsg, p, sizeof(errmsg));
+	    }
+#else
+	    /*
+	     * the more normal POSIX and XSI compliant variants always
+	     * fill the message buffer
+	     */
+	    strerror_r(save_error, errmsg, sizeof(errmsg));
+#endif
 	    pmprintf("%s: cannot open log \"%s\" for writing : %s\n",
-		    progname, logname, strerror(save_error));
+		    progname, logname, errmsg);
 	    pmflush();
 	}
 	else {
@@ -286,7 +338,7 @@ logreopen(const char *progname, const char *logname, FILE *oldstream,
     }
     else {
 	pmprintf("%s: cannot redirect log output to \"%s\": %s\n",
-		progname, logname, strerror(errno));
+		progname, logname, osstrerror_r(errmsg, sizeof(errmsg)));
 	pmflush();
     }
     return oldstream;
@@ -297,21 +349,22 @@ __pmOpenLog(const char *progname, const char *logname, FILE *oldstream,
 	    int *status)
 {
     oldstream = logreopen(progname, logname, oldstream, status);
-    PM_INIT_LOCKS();
     logheader(progname, oldstream, "started");
 
-    PM_LOCK(__pmLock_libpcp);
+    PM_LOCK(util_lock);
     nfilelog++;
     if (nfilelog == 1)
 	atexit(logonexit);
 
     filelog = (FILE **)realloc(filelog, nfilelog * sizeof(FILE *));
     if (filelog == NULL) {
+	PM_UNLOCK(util_lock);
 	__pmNoMem("__pmOpenLog", nfilelog * sizeof(FILE *), PM_FATAL_ERR);
+	/* NOTREACHED */
     }
     filelog[nfilelog-1] = oldstream;
 
-    PM_UNLOCK(__pmLock_libpcp);
+    PM_UNLOCK(util_lock);
     return oldstream;
 }
 
@@ -320,20 +373,28 @@ __pmRotateLog(const char *progname, const char *logname, FILE *oldstream,
 	    int *status)
 {
     int		i;
+    FILE	*newstream = oldstream;
 
-    PM_INIT_LOCKS();
-    PM_LOCK(__pmLock_libpcp);
+    PM_LOCK(util_lock);
     for (i = 0; i < nfilelog; i++) {
-	if (oldstream == filelog[i]) {
-	    logfooter(oldstream, "rotated");	/* old */
-	    oldstream = logreopen(progname, logname, oldstream, status);
-	    logheader(progname, oldstream, "rotated");	/* new */
-	    filelog[i] = oldstream;
+	if (oldstream == filelog[i])
 	    break;
+    }
+    if (i < nfilelog) {
+	PM_UNLOCK(util_lock);
+	logfooter(oldstream, "rotated");	/* old */
+	newstream = logreopen(progname, logname, oldstream, status);
+	logheader(progname, newstream, "rotated");	/* new */
+	PM_LOCK(util_lock);
+	for (i = 0; i < nfilelog; i++) {
+	    if (oldstream == filelog[i]) {
+		filelog[i] = newstream;
+		break;
+	    }
 	}
     }
-    PM_UNLOCK(__pmLock_libpcp);
-    return oldstream;
+    PM_UNLOCK(util_lock);
+    return newstream;
 }
 
 /* pmID -> string, max length is 20 bytes */
@@ -1342,22 +1403,30 @@ static char	*ferr;		/* error output filename from PCP_STDERR */
 #define PM_USESTDERR       1
 #define PM_USEFILE         2
 
+/*
+ * called with util_lock held
+ */
 static int
 pmfstate(int state)
 {
-    static int	errtype = -1;
+    static int	errtype = PM_QUERYERR;
     char	errmsg[PM_MAXERRMSGLEN];
+
+    ASSERT_IS_LOCKED(util_lock);
 
     if (state > PM_QUERYERR)
 	errtype = state;
 
-    PM_INIT_LOCKS();
-    PM_LOCK(__pmLock_libpcp);
     if (errtype == PM_QUERYERR) {
+	/* one-trip initialization */
 	errtype = PM_USESTDERR;
-	if ((ferr = getenv("PCP_STDERR")) != NULL) {
+	PM_LOCK(__pmLock_extcall);
+	ferr = getenv("PCP_STDERR");		/* THREADSAFE */
+	if (ferr != NULL)
+	    ferr = strdup(ferr);
+	PM_UNLOCK(__pmLock_extcall);
+	if (ferr != NULL) {
 	    if (strcasecmp(ferr, "DISPLAY") == 0) {
-		char *xconfirm = pmGetOptionalConfig("PCP_XCONFIRM_PROG");
 		if (!xconfirm)
 		    fprintf(stderr, "%s: using stderr - no PCP_XCONFIRM_PROG\n",
 			    pmProgname);
@@ -1371,7 +1440,6 @@ pmfstate(int state)
 		errtype = PM_USEFILE;
 	}
     }
-    PM_UNLOCK(__pmLock_libpcp);
     return errtype;
 }
 
@@ -1392,12 +1460,18 @@ static int
 vpmprintf(const char *msg, va_list arg)
 {
     int		lsize = 0;
+    static int	tmpdir_init = 0;
+    static char	*tmpdir;
 
-    PM_INIT_LOCKS();
-    PM_LOCK(__pmLock_libpcp);
+    /* see thread-safe notes above */
+    if (!tmpdir_init) {
+	tmpdir = pmGetOptionalConfig("PCP_TMPFILE_DIR");
+	tmpdir_init = 1;
+    }
+
+    PM_LOCK(util_lock);
     if (fptr == NULL && msgsize == 0) {		/* create scratch file */
 	int	fd = -1;
-	char	*tmpdir = pmGetOptionalConfig("PCP_TMPFILE_DIR");
 
 #ifdef HAVE_ATEXIT
 	if (pmprintf_atexit_installed == 0) {
@@ -1463,7 +1537,7 @@ fail:
     else
 	msgsize += (lsize = vfprintf(fptr, msg, arg));
 
-    PM_UNLOCK(__pmLock_libpcp);
+    PM_UNLOCK(util_lock);
     return lsize;
 }
 
@@ -1486,12 +1560,16 @@ pmflush(void)
     int		len;
     int		state;
     FILE	*eptr = NULL;
-    char	*envptr;
     char	outbuf[MSGBUFLEN];
     char	errmsg[PM_MAXERRMSGLEN];
 
-    PM_INIT_LOCKS();
-    PM_LOCK(__pmLock_libpcp);
+    /* see thread-safe notes above */
+    if (!xconfirm_init) {
+	xconfirm = pmGetOptionalConfig("PCP_XCONFIRM_PROG");
+	xconfirm_init = 1;
+    }
+
+    PM_LOCK(util_lock);
     if (fptr != NULL && msgsize > 0) {
 	fflush(fptr);
 	state = pmfstate(PM_QUERYERR);
@@ -1516,16 +1594,17 @@ pmflush(void)
 	    break;
 	case PM_USEDIALOG:
 	    /* If we're here, it means xconfirm has passed access test */
-	    if ((envptr = pmGetOptionalConfig("PCP_XCONFIRM_PROG")) == NULL) {
+	    if (xconfirm == NULL) {
 		fprintf(stderr, "%s: no PCP_XCONFIRM_PROG\n", pmProgname);
 		sts = PM_ERR_GENERIC;
 		break;
 	    }
 	    snprintf(outbuf, sizeof(outbuf), "%s -file %s -c -B OK -icon info"
 		    " %s -header 'PCP Information' >/dev/null",
-		    __pmNativePath(envptr), fname,
+		    __pmNativePath(xconfirm), fname,
 		    (msgsize > 80 ? "-useslider" : ""));
-	    if (system(outbuf) < 0) {
+	    /* no thread-safe issue here ... we're executing xconfirm */
+	    if (system(outbuf) < 0) {		/* THREADSAFE */
 		fprintf(stderr, "%s: system failed: %s\n", pmProgname,
 			osstrerror_r(errmsg, sizeof(errmsg)));
 		sts = -oserror();
@@ -1554,7 +1633,7 @@ pmflush(void)
 
     msgsize = 0;
 
-    PM_UNLOCK(__pmLock_libpcp);
+    PM_UNLOCK(util_lock);
     return sts;
 }
 
@@ -1803,25 +1882,23 @@ scandir(const char *dirname, struct dirent ***namelist,
     struct dirent	*dp;
     struct dirent	*tp;
 
-    PM_INIT_LOCKS();
-    PM_LOCK(__pmLock_libpcp);
     if ((dirp = opendir(dirname)) == NULL)
 	return -1;
 
+    /* dirp is an on-stack variable, so readdir() is ... */
+    /* THREADSAFE */
     while ((dp = readdir(dirp)) != NULL) {
 	if (select && (*select)(dp) == 0)
 	    continue;
 
 	n++;
 	if ((names = (struct dirent **)realloc(names, n * sizeof(dp))) == NULL) {
-	    PM_UNLOCK(__pmLock_libpcp);
 	    closedir(dirp);
 	    return -1;
 	}
 
 	if ((names[n-1] = tp = (struct dirent *)malloc(
 		sizeof(*dp)-sizeof(dp->d_name)+strlen(dp->d_name)+1)) == NULL) {
-	    PM_UNLOCK(__pmLock_libpcp);
 	    closedir(dirp);
 	    n--;
 	    while (n >= 1) {
@@ -1841,7 +1918,6 @@ scandir(const char *dirname, struct dirent ***namelist,
 	memcpy(tp->d_name, dp->d_name, strlen(dp->d_name)+1);
     }
     closedir(dirp);
-    PM_UNLOCK(__pmLock_libpcp);
     *namelist = names;
 
     if (n && compare)

@@ -9,6 +9,7 @@
 -  add JSON output support
 -  add XML output support (like sadf)
 -  add XLS output support (like sar2xls)
+-  add more test cases, both expected ok / fail cases
 -  possibly add more command line switch sanity checking
 -  modularize code to allow creating custom output plugins
 -    (e.g. pcp2graphite type socket, top-like output, separate pcp2zabbix)
@@ -20,16 +21,15 @@
 -  consider using the csv module for csv output (?)
 -  add option to prevent truncating string output (?)
 -  generalized zabbix_interval (limit writes to archive) (?)
--  support for multiple output targets (e.g. archive+stdout) (?)
--  optionally ignore incompatible/unsupported metrics rather than abort [-I] (?)
+-  support for concurrent output targets (e.g. archive+stdout) (?)
 
 -----
 
 In use / reserved cmd line options:
-AaBbCcDdEeFfGHhiKLlOoPpQqrSsTtUuVwXxYyZz
+AaBbCcDdEeFfGHhIiKLlOoPpQqrSsTtUuVvwXxYyZz
 
 Tentatively planned:
-IkMmR
+kMmR
 
 Available:
-gJjNnXvW
+gJjNnW

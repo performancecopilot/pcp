@@ -27,6 +27,13 @@ extern void yywarn(const char *s);
 
 static char emsg[256]; /* error message */
 
+%}
+
+%option noinput
+%option nounput
+
+%{
+
 #ifdef FLEX_SCANNER
 #ifndef YY_NO_UNPUT
 #define YY_NO_UNPUT
@@ -42,9 +49,6 @@ int	yylineno;
 #define yyterminate() return END;
 
 %}
-
-%option noinput
-%option nounput
 
 %%
 

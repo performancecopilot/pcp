@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2013 Red Hat.
+ * Copyright (c) 2012-2017 Red Hat.
  * Copyright (c) 1995 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -194,6 +194,9 @@ MakeBadResult(int npmids, pmID *list, int sts)
 static pmResult *
 SendFetch(DomPmidList *dpList, AgentInfo *aPtr, ClientInfo *cPtr, int ctxnum)
 {
+    __pmHashCtl		*hcp;
+    __pmHashNode	*hp;
+    __pmProfile		*profile;
     pmResult		*result = NULL;
     int			sts = 0;
     static __pmTimeval	when = {0, 0};	/* Agents never see archive requests */
@@ -232,17 +235,23 @@ SendFetch(DomPmidList *dpList, AgentInfo *aPtr, ClientInfo *cPtr, int ctxnum)
     aPtr->status.madeDsoResult = 0;
 
     if (aPtr->profClient != cPtr || ctxnum != aPtr->profIndex) {
+	hcp = &cPtr->profile;
+	hp = __pmHashSearch(ctxnum, hcp);
+	if (hp != NULL)
+	    profile = (__pmProfile *)hp->data;
+	else
+	    profile = NULL;
 	if (aPtr->ipcType == AGENT_DSO) {
 	    if (aPtr->ipc.dso.dispatch.comm.pmda_interface >= PMDA_INTERFACE_5)
 		aPtr->ipc.dso.dispatch.version.four.ext->e_context = cPtr - client;
-	    sts = aPtr->ipc.dso.dispatch.version.any.profile(cPtr->profile[ctxnum],
+	    sts = aPtr->ipc.dso.dispatch.version.any.profile(profile,
 				     aPtr->ipc.dso.dispatch.version.any.ext);
 	}
 	else {
 	    if (aPtr->status.notReady == 0) {
 		pmcd_trace(TR_XMIT_PDU, aPtr->inFd, PDU_PROFILE, ctxnum);
 		if ((sts = __pmSendProfile(aPtr->inFd, cPtr - client,
-					   ctxnum, cPtr->profile[ctxnum])) < 0) {
+					   ctxnum, profile)) < 0) {
 		    pmcd_trace(TR_XMIT_ERR, aPtr->inFd, PDU_PROFILE, sts);
 		}
 	    } else {
@@ -350,6 +359,9 @@ DoFetch(ClientInfo *cip, __pmPDU* pb)
     int			nWait;
     int			maxFd;
     struct timeval	timeout;
+    __pmHashCtl		*hcp;
+    __pmHashNode	*hp;
+    __pmProfile		*profile;
 
     if (nAgents > nDoms) {
 	if (results != NULL)
@@ -370,10 +382,16 @@ DoFetch(ClientInfo *cip, __pmPDU* pb)
 	return sts;
 
     /* Check that a profile has been received from the specified context */
-    if (ctxnum < 0 || ctxnum >= cip->szProfile ||
-	cip->profile[ctxnum] == NULL) {
+    profile = NULL;
+    if (ctxnum >= 0) {
+	hcp = &cip->profile;
+	hp = __pmHashSearch(ctxnum, hcp);
+	if (hp != NULL)
+	    profile = (__pmProfile *)hp->data;
+    }
+    if (ctxnum < 0 || profile == NULL) {
 	__pmUnpinPDUBuf(pb);
-	if (ctxnum < 0 || ctxnum >= cip->szProfile)
+	if (ctxnum < 0)
 	    __pmNotifyErr(LOG_ERR, "DoFetch: bad ctxnum=%d\n", ctxnum);
 	else
 	    __pmNotifyErr(LOG_ERR, "DoFetch: no profile for ctxnum=%d\n", ctxnum);

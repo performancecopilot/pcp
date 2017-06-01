@@ -120,8 +120,10 @@ refresh_proc_buddyinfo(proc_buddyinfo_t *proc_buddyinfo)
         proc_buddyinfo->nbuddys = 0;
         if ((fp = linux_statsfile("/proc/buddyinfo", buf, sizeof(buf))) == NULL)
             return -oserror();
-        if (fgets(buf,sizeof(buf),fp) == NULL) /* read first line */
+        if (fgets(buf,sizeof(buf),fp) == NULL) { /* read first line */
+            fclose(fp);
             return -oserror();
+        }
         fclose(fp);
         MAX_ORDER = read_buddyinfo(buf,read_buf,0) - 5; /* get maximum page order */
     }
@@ -148,9 +150,13 @@ refresh_proc_buddyinfo(proc_buddyinfo_t *proc_buddyinfo)
             proc_buddyinfo->buddys = (buddyinfo_t *)realloc(proc_buddyinfo->buddys, proc_buddyinfo->nbuddys * sizeof(buddyinfo_t));
             for (j=0; j < MAX_ORDER; j++) {
                 proc_buddyinfo->buddys[i+j].id = next_id++;
-                strcpy(proc_buddyinfo->buddys[i+j].node_name, node_name);
-                strcpy(proc_buddyinfo->buddys[i+j].zone_name, zone_name);
-                sprintf(proc_buddyinfo->buddys[i+j].id_name, "%s::order%u::%s", zone_name, j, node_name);
+                strncpy(proc_buddyinfo->buddys[i+j].node_name, node_name,
+			sizeof(proc_buddyinfo->buddys[i+j].node_name) - 1);
+                strncpy(proc_buddyinfo->buddys[i+j].zone_name, zone_name,
+			sizeof(proc_buddyinfo->buddys[i+j].zone_name) - 1);
+                snprintf(proc_buddyinfo->buddys[i+j].id_name,
+			 sizeof(proc_buddyinfo->buddys[i+j].id_name),
+			 "%s::order%u::%s", zone_name, j, node_name);
             }
         }
         /* update data */
@@ -158,6 +164,7 @@ refresh_proc_buddyinfo(proc_buddyinfo_t *proc_buddyinfo)
             proc_buddyinfo->buddys[i+j].value = values[j];
         }
     }
+    fclose(fp);
 
     /* refresh buddyinfo indom */
     if (proc_buddyinfo->indom->it_numinst != proc_buddyinfo->nbuddys) {

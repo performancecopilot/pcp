@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2016 Red Hat.
+ * Copyright (c) 2013-2017 Red Hat.
  * Copyright (c) 1995-2001,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -25,6 +25,23 @@
 #endif
 #ifdef IS_MINGW
 extern const char *strerror_r(int, char *, size_t);
+#endif
+
+#ifdef PM_MULTI_THREAD
+static pthread_mutex_t	err_lock = PTHREAD_MUTEX_INITIALIZER;
+#else
+void			*err_lock;
+#endif
+
+#if defined(PM_MULTI_THREAD) && defined(PM_MULTI_THREAD_DEBUG)
+/*
+ * return true if lock == err_lock
+ */
+int
+__pmIsErrLock(void *lock)
+{
+    return lock == (void *)&err_lock;
+}
 #endif
 
 /*
@@ -145,15 +162,15 @@ static const struct {
     { PM_ERR_FAULT,		"PM_ERR_FAULT",
 	"QA fault injected" },
     { PM_ERR_THREAD,		"PM_ERR_THREAD",
-        "Operation not supported for multi-threaded applications" },
+	"Operation not supported for multi-threaded applications" },
     { PM_ERR_NOCONTAINER,	"PM_ERR_NOCONTAINER",
-        "Container not found" },
+	"Container not found" },
     { PM_ERR_BADSTORE,		"PM_ERR_BADSTORE",
-        "Bad input to pmstore" },
+	"Bad input to pmstore" },
     { PM_ERR_LOGOVERLAP,	"PM_ERR_LOGOVERLAP",
-        "Archives overlap in time" },
+	"Archives overlap in time" },
     { PM_ERR_LOGHOST,		"PM_ERR_LOGHOST",
-        "Archives differ by host" },
+	"Archives differ by host" },
     { PM_ERR_LOGCHANGETYPE,	"PM_ERR_LOGCHANGETYPE",
 	"The type of a metric has changed in an archive" },
     { PM_ERR_LOGCHANGESEM,	"PM_ERR_LOGCHANGESEM",
@@ -222,8 +239,11 @@ pmErrStr_r(int code, char *buf, int buflen)
 #define DECODE_SASL_SPECIFIC_ERROR(c)	((c) < -1000 ? 0 : (c))
 
 	int error = DECODE_SECURE_SOCKETS_ERROR(code);
-	if (DECODE_SASL_SPECIFIC_ERROR(error))
-	    snprintf(buf, buflen, "Authentication - %s", sasl_errstring(error, NULL, NULL));
+	if (DECODE_SASL_SPECIFIC_ERROR(error)) {
+	    PM_LOCK(__pmLock_extcall);
+	    snprintf(buf, buflen, "Authentication - %s", sasl_errstring(error, NULL, NULL));	/* THREADSAFE */
+	    PM_UNLOCK(__pmLock_extcall);
+	}
 	else
 	    strncpy(buf, PR_ErrorToString(error, PR_LANGUAGE_EN), buflen);
 	buf[buflen-1] = '\0';
@@ -232,6 +252,7 @@ pmErrStr_r(int code, char *buf, int buflen)
     }
 
 #ifndef IS_MINGW
+    PM_LOCK(err_lock);
     if (first) {
 	/*
 	 * reference message for an unrecognized error code.
@@ -266,6 +287,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_ALLOC);
 	}
 	first = 0;
     }
+    PM_UNLOCK(err_lock);
     if (code < 0 && code > -PM_ERR_BASE) {
 	/* intro(2) / errno(3) errors, maybe */
 	strerror_x(-code, buf, buflen);
@@ -291,10 +313,10 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_ALLOC);
 	else {
 	    /* No strerror_r in MinGW, so need to lock */
 	    char	*tbp;
-	    PM_LOCK(__pmLock_libpcp);
-	    tbp = strerror(-code);
+	    PM_LOCK(__pmLock_extcall);
+	    tbp = strerror(-code);		/* THREADSAFE */
 	    strncpy(buf, tbp, buflen);
-	    PM_UNLOCK(__pmLock_libpcp);
+	    PM_UNLOCK(__pmLock_extcall);
 	}
 
 	if (strncmp(buf, unknown, strlen(unknown)) != 0)

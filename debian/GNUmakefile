@@ -328,22 +328,24 @@ pcp.postrm:	pcp.postrm.head configversions pcp.postrm.tail
 	cat pcp.postrm.head configversions pcp.postrm.tail > $@
 
 VECTOR = $(shell echo $(PCP_SHARE_DIR)/webapps/vector | sed -e 's,^/,,g')
-VECTORTGZ = $(PWDDIR)/../build/tar/vector.tar.gz
 VECTORPKG = pcp-webapp-vector
+VECTORTGZ = $(PWDDIR)/../../../tar/$(VECTORPKG).tar.gz
 
 vector:
-ifeq ($(HAVE_VECTOR), true)
-	$(TAR) tvzf $(VECTORTGZ) | \
-	$(AWK) '/^d/ { printf "$(VECTOR)/%s\n", $$NF }' > $(VECTORPKG).dirs
-	$(TAR) tvzf $(VECTORTGZ) | \
-	$(AWK) '/^-/ { printf "$(VECTOR)/%s\n", $$NF }' > $(VECTORPKG).install
+ifeq ($(HAVE_WEBAPPS), true)
+ifeq ($(PACKAGE_DISTRIBUTION), debian)
 	mkdir -p pcp/$(VECTOR) 2>/dev/null || exit 0
-	cd pcp/$(VECTOR) && $(TAR) xzf $(VECTORTGZ)
+	cd pcp/$(VECTOR) && $(TAR) xzf $(VECTORTGZ) --strip-components=1
+	( cd pcp/$(VECTOR) && find . -type d ) \
+		| sed -e "s,^.,$(VECTOR),g" > $(VECTORPKG).dirs
+	( cd pcp/$(VECTOR) && find . -type f ) \
+		| sed -e "s,^.,$(VECTOR),g" > $(VECTORPKG).install
+endif
 endif
 
 control:	control.master control.webapi control.pcpgui fixcontrol.master
 	./fixcontrol.master >control
-ifeq ($(HAVE_VECTOR), true)
+ifeq ($(HAVE_WEBAPPS), true)
 	cat control.vector >>control
 endif
 ifeq ($(ENABLE_WEBAPI), true)

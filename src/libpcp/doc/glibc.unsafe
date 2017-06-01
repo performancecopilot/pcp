@@ -1,0 +1,17 @@
+# thread-unsafe routines in glibc that are extras beyond the posix.unsafe
+# list
+#
+cuserid
+tmpnam
+# *_unlocked require flockfile() and funlockfile() wrappers
+fgetc_unlocked
+fputc_unlocked
+fputs_unlocked
+fwrite_unlocked
+# used in a setgrent-endgrent block
+getgrent_r
+# used in a setpwent-endpwent block
+getpwent_r
+# potential race on *DIR
+readdir
+readdir64

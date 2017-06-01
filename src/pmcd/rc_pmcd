@@ -94,6 +94,10 @@ _reboot_setup()
     then
 	mkdir -p -m 775 "$PCP_RUN_DIR"
 	chown $PCP_USER:$PCP_GROUP "$PCP_RUN_DIR"
+	if which restorecon >/dev/null 2>&1
+	then
+	    restorecon -r "$PCP_RUN_DIR"
+	fi
     fi
 
     # setup and clean up base directories and house-keeping for tracking
@@ -105,6 +109,10 @@ _reboot_setup()
     then
 	mkdir -p -m 775 "$PCP_TMP_DIR/pmlogger"
 	chown $PCP_USER:$PCP_GROUP "$PCP_TMP_DIR/pmlogger"
+	if which restorecon >/dev/null 2>&1
+	then
+	    restorecon -r "$PCP_TMP_DIR"
+	fi
     else
 	rm -rf $tmp/ent $tmp/pid
 	here=`pwd`
@@ -466,6 +474,10 @@ Error: pmcd control file '"$PCP_PMCDCONF_PATH"' is missing, cannot start pmcd.'
 	    then
 		mkdir -p -m 775 "$RUNDIR"
 		chown $PCP_USER:$PCP_GROUP "$RUNDIR"
+		if which restorecon >/dev/null 2>&1
+		then
+		    restorecon -r "$RUNDIR"
+		fi
 	    fi
 	    cd "$RUNDIR"
 

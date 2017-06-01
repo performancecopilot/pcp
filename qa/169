@@ -30,13 +30,13 @@ _filter_dots()
 
 _cleanup()
 {
-    $sudo $PCP_RC_DIR/pcp stop >$tmp.stop
+    _service pcp stop >$tmp.stop
     # primary pmlogger exiting during the test is racey depending on timing
     # of fetches and stopping/starting pmcd (this is also not under test).
     _filter_pcp_stop <$tmp.stop | _filter_dots | sed -e '/logger not running/d'
     _restore_config $PCP_PMCDCONF_PATH
-    $sudo $PCP_RC_DIR/pcp start >$tmp.start
-    _restore_systemd_restart pmcd
+    _service pcp start >$tmp.start
+    _restore_auto_restart pmcd
     _filter_pcp_start <$tmp.start | _filter_dots
     _wait_for_pmcd
     _wait_for_pmlogger
@@ -48,7 +48,7 @@ status=1	# failure is the default!
 trap "_cleanup; exit \$status" 0 1 2 3 15
 rm -f $seq.full
 
-_stop_systemd_restart pmcd
+_stop_auto_restart pmcd
 
 # real QA test starts here
 
@@ -137,11 +137,14 @@ $PCP_AWK_PROG <$PCP_PMCDCONF_PATH >>$tmp.tmp '$1 == "pmcd" { print }'
 
 pmcdlog=$PCP_PMCDLOG_PATH
 
-$sudo $signal -a -s TERM pmie
-$sudo $signal -a -s TERM pmlogger
+_service pmlogger stop >>$here/$seq.full 2>&1
+_service pmie stop >>$here/$seq.full 2>&1
 
 $sudo cp $tmp.tmp $PCP_PMCDCONF_PATH
-$sudo $PCP_RC_DIR/pmcd start >$tmp.start
+# Note: need to use $PCP_RC_DIR/pmcd here, not _service pmcd so that
+# systemd (if it is available) does not notice any pmcd exiting
+#
+$sudo $PCP_RC_DIR/pmcd restart >$tmp.start
 _filter_pcp_start <$tmp.start | sed -e 's/\.\.\.\.\.*/[dots]/'
 _wait_for_pmcd
 if _check_pmcd_procs 1

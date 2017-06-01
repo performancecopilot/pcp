@@ -41,8 +41,28 @@ _filter()
     #end
 }
 
+_filter_libvirt()
+{
+    if _libvirt_is_ok
+    then
+	cat
+    else
+	# lines like ...
+	# libvirt.dominfo.memory.max: Try again. Information not currently available
+	# libvirt.dominfo.memory.boot: IPC protocol failure
+	# libvirt: pmLookupDesc: Unknown or illegal metric identifier
+	# libvirt.dominfo.os.type: pmLookupDesc: No PMCD agent for domain of request
+	sed \
+	    -e '/^libvirt\..*: Try again\./d' \
+	    -e '/^libvirt\..*: IPC protocol failure/d' \
+	    -e '/^libvirt: pmLookupDesc: Unknown or illegal metric/d' \
+	    -e '/^libvirt\..*: pmLookupDesc: No PMCD agent for domain/d' \
+	# end
+    fi
+}
+
 # real QA test starts here
-pminfo -v 2>&1 | _filter >$tmp.out
+pminfo -v 2>&1 | _filter | _filter_libvirt >$tmp.out
 
 if [ -s $tmp.out ]
 then

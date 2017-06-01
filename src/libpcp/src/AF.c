@@ -161,9 +161,10 @@ static void
 printdelta(FILE *f, struct timeval *tp)
 {
     struct tm	*tmp;
+    struct tm	gmtbuf;
     time_t	tt =  (time_t)tp->tv_sec;
 
-    tmp = gmtime(&tt);
+    tmp = gmtime_r(&tt, &gmtbuf);
     fprintf(stderr, "%02d:%02d:%02d.%06ld", tmp->tm_hour, tmp->tm_min, tmp->tm_sec, (long)tp->tv_usec);
 }
 #endif

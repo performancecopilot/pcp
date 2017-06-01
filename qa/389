@@ -40,8 +40,9 @@ echo "=== empty config and -L, no reconnect and no exit ===" | tee -a $here/$seq
 $sudo rm -f $tmp.*
 _start_up_pmlogger -L -c /dev/null -l $tmp.log $tmp
 _wait_for_pmlogger $pid $tmp.log 5
-$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+_service pcp restart | _filter_pcp_start
 _wait_for_pmcd
+_wait_for_pmlogger
 echo "expect pmlogger process ..."
 ps $PCP_PS_ALL_FLAGS | $PCP_AWK_PROG '$2 == "'$pid'" { print "OK"}'
 _filter_pmlogger_log <$tmp.log | sed -e "s/$host/HOST/"
@@ -55,8 +56,9 @@ _start_up_pmlogger -c $tmp.config -l $tmp.log $tmp
 _wait_for_pmlogger $pid $tmp.log 5
 echo "pid=$pid" >>$here/$seq.full
 ps $PCP_PS_ALL_FLAGS | grep pmlogger >>$here/$seq.full
-$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+_service pcp restart | _filter_pcp_start
 _wait_for_pmcd
+_wait_for_pmlogger
 echo "expect pmlogger process ..." | tee -a $here/$seq.full
 ps $PCP_PS_ALL_FLAGS \
 | grep pmlogger \

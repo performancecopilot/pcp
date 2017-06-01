@@ -1,0 +1,78 @@
+#!/bin/sh
+# PCP QA Test No. 910
+# Exercise online/offline state changes in the Linux kernel PMDA.
+#
+# Copyright (c) 2017 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "cd $here; $sudo rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e '/^host:/d' \
+	-e '/^samples:/s/25/26/' \
+    # end
+}
+
+# real QA test starts here
+mkdir $tmp.root
+export LINUX_NCPUS=8
+export LINUX_STATSPATH=$tmp.root
+cd $tmp.root
+tar xzf $here/linux/meminfo-root-001.tgz
+cd $here
+
+echo "Running pmval in the background"
+pmda=$PCP_PMDAS_DIR/linux/pmda_linux.so
+pmval -f2 -w5 -t0.2sec -T5sec -L -Kclear -Kadd,60,$pmda,linux_init \
+	kernel.percpu.cpu.user > $tmp.out 2> $tmp.err &
+echo pmval started: `date` >> $seq.full
+
+pmsleep 1.75
+
+echo "Mutating the CPU instance domain"
+echo Initial /proc/stat contents: `date` >> $seq.full
+ls -li $tmp.root/proc/stat >> $seq.full
+cat $tmp.root/proc/stat >> $seq.full
+
+# Take some processors offline
+cp $tmp.root/proc/stat $tmp.orig
+cp $tmp.root/proc/stat $tmp.stat
+sed -i -e '/^cpu3 /d' -e '/^cpu7 /d' $tmp.stat
+mv -f $tmp.stat $tmp.root/proc/stat
+
+pmsleep 1.75
+
+echo Changed /proc/stat contents: `date` >> $seq.full
+ls -li $tmp.root/proc/stat >> $seq.full
+cat $tmp.root/proc/stat >> $seq.full
+
+# re-enable all processors
+mv -f $tmp.orig $tmp.root/proc/stat
+echo Final /proc/stat contents: `date` >> $seq.full
+ls -li $tmp.root/proc/stat >> $seq.full
+cat $tmp.root/proc/stat >> $seq.full
+
+echo .
+wait	# for reporting tool to complete (-T option)
+echo Finished wait for pmval: `date` >> $seq.full
+
+echo "Observed from running pmval:"
+cat $tmp.out | tee -a $seq.full | _filter | uniq
+
+cat $tmp.err >>$seq.full
+
+# success, all done
+status=0
+exit

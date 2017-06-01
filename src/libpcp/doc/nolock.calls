@@ -1,0 +1,60 @@
+# Calls without locks ... add a caller -> callee line in
+# this file when ...
+# - every call from caller to callee is done outside a PM_LOCK-PM_UNLOCK
+#   block in the caller file
+#
+# Do not add an entry if the callee only locks __pmLock_extcall (this is
+# the lowest lock in the hierarchy, so it does not matter what locks are
+# held when __pmLock_extcall is locked as this cannot cause lock inversion
+# or deadlock
+#
+# Note, we are not concerned about any locks that may be held on entry
+# to the caller routine, this is just about locking in the caller and
+# calls to the callee.  By adding an entry in this file we are asserting
+# that calls from caller to callee cannot be contributing to any lock
+# inversion problems or violation of the documented lock hierarchy in
+# libpcp.
+#
+# Lines in this file starting with # are treated as comments.
+#
+# Blank lines in this file are ignored
+#
+
+# util.c
+pmflush -> pmGetOptionalConfig
+vpmprintf -> pmGetOptionalConfig
+__pmOpenLog -> logreopen
+__pmOpenLog -> logheader
+__pmRotateLog -> logreopen
+__pmRotateLog -> logheader
+__pmOpenLog -> __pmNoMem
+
+# config.c
+__pmconfig -> pmflush
+
+# pdu.c
+__pmGetPDU -> __pmFindPDUBuf
+__pmGetPDU -> pduread
+__pmGetPDU -> __pmUnpinPDUBuf
+__pmGetPDU -> __pmNotifyErr;
+pduread -> __pmSocketIPC;
+pduread -> __pmRequestTimeout;
+pduread -> __pmSocketReady;
+pduread -> __pmNotifyErr;
+pduread -> __pmRecv;
+pduread -> __pmOverrideLastFd;
+__pmRequestTimeout -> __pmNotifyErr
+
+# optfetch.c
+addpmid -> __pmNoMem
+addinst -> __pmNoMem
+__pmOptFetchAdd -> __pmNoMem
+
+# logutil.c
+__pmLogFetch -> __pmLogFetchInterp
+__pmLogFetch -> check_all_derived
+__pmLogFetch -> __pmLogChangeVol
+__pmLogFetch -> __pmLogRead
+__pmLogFetch -> __pmLogLookupDesc
+pmGetArchiveEnd -> __pmHandleToPtr
+

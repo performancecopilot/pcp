@@ -58,27 +58,6 @@ static void skim_through_whitespace(char *start_ptr, char *end_ptr)
 	start_ptr++;
 }
 
-static void reset_bandwidth(numa_meminfo_t *numa_meminfo, int nr_nodes)
-{
-    int i;
-
-    for (i = 0; i < nr_nodes; i++)
-	numa_meminfo->node_info[i].bandwidth = 0.0;
-}
-
-static int find_node_match(char *name, int nr_nodes)
-{
-    int i;
-    char node_name[MAX_NAME_LEN];
-
-    for (i = 0; i < nr_nodes; i++) {
-	snprintf(node_name, MAX_NAME_LEN, "%s%d", "node", i);
-	if (!strncmp(node_name, name, strlen(name)))
-	    return i;
-    }
-    return -1;
-}
-
 static int validate_conf_version(const char *conf, char *start, char *end)
 {
     char *ptr;
@@ -99,21 +78,22 @@ static int validate_conf_version(const char *conf, char *start, char *end)
     return -1;
 }
 
-int get_memory_bandwidth_conf(numa_meminfo_t *numa_meminfo, int nr_nodes)
+int get_memory_bandwidth_conf(char *config)
 {
-    const char *config = numa_meminfo->bandwidth_conf;
     size_t len = 0;
     char *start_ptr, *end_ptr, *value_str, *line = NULL;
     FILE *fp;
+    pmInDom nodes;
+    pernode_t *np;
     ssize_t ret = 0;
     char *node_name;
-    int nodes_found = 0, id;
+    int nodes_found = 0;
     int version_found = 0;
-
-    reset_bandwidth(numa_meminfo, nr_nodes);
 
     if ((fp = fopen(config, "r")) == NULL)
 	return 0;
+
+    nodes = INDOM(NODE_INDOM);
 
     while (ret >= 0) {
 	ret = getline(&line, &len, fp);
@@ -160,18 +140,18 @@ int get_memory_bandwidth_conf(numa_meminfo_t *numa_meminfo, int nr_nodes)
 
 	    node_name = start_ptr;
 
-	    id = find_node_match(node_name, nr_nodes);
-	    if (id == -1) {
+	    np = NULL;
+	    if (!pmdaCacheLookupName(nodes, node_name, NULL, (void **)&np) || !np) {
 		fprintf(stderr, "Unknown node '%s' in %s\n", node_name, config);
 		ret = -1;
 		goto free_line;
 	    }
-	    numa_meminfo->node_info[id].bandwidth = atof(value_str);
+	    np->bandwidth = atof(value_str);
 	    nodes_found++;
 	}
     }
 
-    if (nodes_found == nr_nodes)
+    if (nodes_found == pmdaCacheOp(nodes, PMDA_CACHE_SIZE))
 	ret = 0;
 
  free_line:

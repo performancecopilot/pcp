@@ -1,0 +1,51 @@
+#!/bin/sh
+# PCP QA Test No. 1077
+# Exercise handling of large context numbers by pmcd and libpcp.
+#
+# Copyright (c) 2017 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e '/^__pmFindPDUBuf/d' \
+	-e '/^hinv\.ncpu.*value/d' \
+	-e '/^kernel\.percpu\.cpu\.user.*value/d' \
+	-e '/^kernel\.percpu\.cpu\.user.*values/d' \
+    #end
+}
+
+# real QA test starts here
+metrics="hinv.ncpu kernel.percpu.cpu.user"
+archive="$here/archives/moomba.client"
+
+echo "=== Testing PMCD contexts ==="
+$here/src/churnctx -s 10000 -t 0 $metrics 2>&1 | _filter
+
+echo "=== Testing DSO PMDA contexts ==="
+$here/src/churnctx -L -s 10000 -t 0 $metrics 2>&1 | _filter
+
+echo "=== Testing PCP archive contexts ==="
+$here/src/churnctx -a $archive -s 10000 -t 0 $metrics 2>&1 | _filter
+
+# success, all done
+status=0
+exit

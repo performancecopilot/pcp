@@ -1,0 +1,28 @@
+#!/bin/sh
+#
+# remake the disk archive ...
+# this archive is intended to be checked in and not remade, this script is
+# simply a record of how it was created
+#
+
+. /etc/pcp.env
+
+tmp=/var/tmp/$$
+rm -f $tmp.*
+trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+
+cat <<End-of-File >>$tmp.config
+log mandatory on once {
+    hinv
+}
+
+log mandatory on 10 sec {
+    disk
+}
+End-of-File
+
+base=`hostname`-disk
+
+rm -f $base.0 $base.meta $base.index
+
+pmlogger -s 20 -c $tmp.config $base

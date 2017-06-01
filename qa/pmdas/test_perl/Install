@@ -20,6 +20,8 @@
 iam=test_perl
 perl_opt=true
 daemon_opt=false
+# set this in the env to force a new pmcd instance
+forced_restart=${PCPQA_RESTART_PMCD-false}
 
 pmdaSetup
 pmdaInstall

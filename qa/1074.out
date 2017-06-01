@@ -1,0 +1,71 @@
+QA output created by 1074
+=== __pmMultiThreaded ===
+=== filtered valgrind report ===
+Helgrind, a thread error detector
+ERROR SUMMARY: 0 errors from 0 contexts ...
+=== stdout ===
+func: is multithreaded
+func: is multithreaded
+main0: is NOT multithreaded
+main1: is NOT multithreaded
+main2: is NOT multithreaded
+
+=== PM_CONTEXT_LOCAL ===
+=== filtered valgrind report ===
+Helgrind, a thread error detector
+ERROR SUMMARY: 0 errors from 0 contexts ...
+=== stdout ===
+pmDupContext: -> 1
+pmDupContext: Operation not supported for multi-threaded applications
+pmFetch: -> OK
+pmFetch: Operation not supported for multi-threaded applications
+pmGetChildrenStatus: -> 0
+pmGetChildrenStatus: Operation not supported for multi-threaded applications
+pmGetInDom: -> 3
+pmGetInDom: 30.1: Operation not supported for multi-threaded applications
+pmGetPMNSLocation: -> 1
+pmGetPMNSLocation: Operation not supported for multi-threaded applications
+pmLookupDesc: -> 30.0.5 type=32 indom=30.1
+pmLookupDesc: Operation not supported for multi-threaded applications
+pmLookupInDom: Operation not supported for multi-threaded applications
+pmLookupInDom: red -> 0
+pmLookupName: -> 30.0.5
+pmLookupName: Operation not supported for multi-threaded applications
+pmLookupText: -> Metrics with a "saw-tooth" trend over time
+pmLookupText: Operation not supported for multi-threaded applications
+pmNameInDom: 0 -> red
+pmNameInDom: Operation not supported for multi-threaded applications
+pmNewContext: -> 0
+pmNewContext: Operation not supported for multi-threaded applications
+pmStore: -> OK
+pmStore: Operation not supported for multi-threaded applications
+pmUseContext(0) -> 0
+pmUseContext(0) -> 0
+
+=== PM_SCOPE_AF and PM_SCOPE_ACL ===
+=== filtered valgrind report ===
+Helgrind, a thread error detector
+ERROR SUMMARY: 0 errors from 0 contexts ...
+=== stdout ===
+func1: __pmAFregister -> OK
+func1: __pmAFunregister -> OK
+func2: __pmAFregister -> Operation not supported for multi-threaded applications
+func2: __pmAFunregister -> Operation not supported for multi-threaded applications
+func1: __pmAccAddOp(1) -> OK
+func1: __pmAccAddOp(2) -> OK
+func1: __pmAccAddHost -> OK
+
+Host access list:
+00 01 Cur/MaxCons host-spec                               host-mask                               lvl host-name
+== == =========== ======================================= ======================================= === ==============
+y 0 3 IPADDR IPMASK 0 localhost
+
+func1: __pmAccSaveHosts -> OK
+func1: __pmAccRestoreHosts -> OK
+func1: __pmAccAddClient -> 0
+func2: __pmAccAddOp(1) -> Operation not supported for multi-threaded applications
+func2: __pmAccAddOp(2) -> Operation not supported for multi-threaded applications
+func2: __pmAccAddHost -> Operation not supported for multi-threaded applications
+func2: __pmAccSaveHosts -> Operation not supported for multi-threaded applications
+func2: __pmAccRestoreHosts -> Operation not supported for multi-threaded applications
+func2: __pmAccAddClient -> Operation not supported for multi-threaded applications

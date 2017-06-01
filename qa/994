@@ -107,16 +107,19 @@ p
 	if [ "$_mode" != "$mode" ]
 	then
 	    echo "$target: wrong mode: expected $mode (from $makefile), found $_mode"
+	    ls -ld $target
 	    $fix && ( $sudo chmod $mode $target ; echo "Fixed." )
 	fi
 	if [ "$_owner" != "$owner" ]
 	then
 	    echo "$target: wrong owner: expected $owner (from $makefile), found $_owner"
+	    ls -ld $target
 	    $fix && ( $sudo chown $owner $target ; echo "Fixed." )
 	fi
 	if [ "$_group" != "$group" ]
 	then
 	    echo "$target: wrong group: expected $group (from $makefile), found $_group"
+	    ls -ld $target
 	    $fix && ( $sudo chgrp $group $target ; echo "Fixed." )
 	fi
     fi

@@ -4,6 +4,8 @@
 # linux_kernel_ulong.conf
 #	Needs to be done dynamically because the type of KERNEL_ULONG is
 #	platform dependent.
+# linux_kernel_fixups.conf
+#	Miscellaneous corrections to metadata for the linux PMDA.
 #
 
 tmp=/var/tmp/$$
@@ -72,6 +74,36 @@ cat <<End-of-File >linux_kernel_fixups.conf
 # swapdev.priority had the wrong Units:
 #
 metric swapdev.priority { units -> 0,0,0,0,0,0 }
+
+# network.interface.baudrate changed to 64 bits:
+#
+metric network.interface.baudrate { type -> U64 }
+
+# hinv.cpu.cache had incorrect units:
+#
+metric hinv.cpu.cache { units -> 1,0,0,KBYTE,0,0 }
+
+# hinv.cpu.clock is frequency in MHz which had incorrect units:
+#
+metric hinv.cpu.clock { units -> 0,-1,0,0,USEC,0 }
+
+# several string typed metrics should be discrete; their string value
+# prevails over time and changes very infrequently, if at all.
+#
+metric kernel_uname.release { sem -> discrete }
+metric kernel.uname.version { sem -> discrete }
+metric kernel.uname.sysname { sem -> discrete }
+metric kernel.uname.machine { sem -> discrete }
+metric kernel.uname.nodename { sem -> discrete }
+metric kernel.uname.distro { sem -> discrete }
+metric pmda.uname { sem -> discrete }
+metric pmda.version { sem -> discrete }
+metric disk.dev.scheduler { sem -> discrete }
+metric network.interface.inet_addr { sem -> discrete }
+metric network.interface.ipv6_addr { sem -> discrete }
+metric network.interface.ipv6_scope { sem -> discrete }
+metric network.interface.hw_addr { sem -> discrete }
+
 End-of-File
 
 exit 0

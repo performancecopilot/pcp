@@ -1,6 +1,6 @@
 #!/usr/bin/env pmpython
 #
-# Copyright (C) 2014-2016 Red Hat.
+# Copyright (C) 2014-2017 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -163,7 +163,7 @@ if __name__ == '__main__':
         options.pmSetLongOptionVersion()
         options.pmSetLongOptionHelp()
         manager = pmcc.MetricGroupManager.builder(options, sys.argv)
-        manager.printer = DmCachePrinter(options.pmGetNonOptionsFromList(sys.argv))
+        manager.printer = DmCachePrinter(options.pmGetOperands())
         manager['dmcache'] = CACHE_METRICS
         manager.run()
     except pmapi.pmErr as error:

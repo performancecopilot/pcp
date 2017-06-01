@@ -1,0 +1,41 @@
+#!/bin/sh
+# PCP QA Test No. 924
+# pmdadocker threading safety
+#
+# Copyright (c) 2016-2017 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+# will have to use docker tests
+_check_valgrind
+
+_filter()
+{
+    sed \
+	-e '/indirectly/{
+s/240 bytes/0 bytes/
+s/10 blocks/0 blocks/
+}' \
+    # end
+}
+
+status=1	# failure is the default!
+username=`id -un`
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "cd $here; $sudo rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+valgrind --tool=helgrind $PCP_PMDAS_DIR/docker/pmdadocker -C -U $username 2>&1 \
+| _filter_helgrind \
+| _filter
+
+# success, all done
+status=0
+exit

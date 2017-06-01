@@ -128,10 +128,11 @@ AF.o
     ?afsetup			# guarded by __pmLock_libpcp mutex
     ?aftimer			# guarded by __pmLock_libpcp mutex
 auxconnect.o
-    conn_wait			# guarded by __pmLock_libpcp mutex
-    conn_wait_done		# guarded by __pmLock_libpcp mutex
-    pmcd_ports			# guarded by __pmLock_libpcp mutex
-    pmcd_socket			# guarded by __pmLock_libpcp mutex
+    ?auxconnect_lock		# local mutex
+    conn_wait			# guarded by auxconnect_lock
+    conn_wait_done		# guarded by auxconnect_lock
+    pmcd_ports			# guarded by auxconnect_lock
+    pmcd_socket			# guarded by auxconnect_lock
 auxserver.o
     nport			# single-threaded server scope
     portlist			# single-threaded server scope
@@ -153,12 +154,13 @@ discovery.o
     simplePoll			# single-threaded server scope
     client			# single-threaded server scope
     group			# single-threaded server scope
-    done_default		# guarded by __pmLock_libpcp mutex
-    def_timeout			# guarded by __pmLock_libpcp mutex
+    done_default		# guarded by __pmLock_extcall mutex
+    def_timeout			# guarded by __pmLock_extcall mutex
 checksum.o
 config.o
     ?__pmNativeConfig		# const
-    state			# guarded by __pmLock_libpcp mutex
+    ?config_lock		# local mutex
+    state			# guarded by config_lock
     ?features			# const
 connectlocal.o
     atexit_installed		# guarded by __pmLock_libpcp mutex
@@ -171,49 +173,92 @@ connect.o
     first_time			# guarded by __pmLock_libpcp mutex
     proxy			# guarded by __pmLock_libpcp mutex
 context.o
+    ?contexts_lock		# local mutex
     _mode			# const
     being_initialized           # const
-    def_backoff			# guarded by __pmLock_libpcp mutex
-    backoff			# guarded by __pmLock_libpcp mutex
-    n_backoff			# guarded by __pmLock_libpcp mutex
-    contexts			# guarded by __pmLock_libpcp mutex
-    contexts_len		# guarded by __pmLock_libpcp mutex
+    def_backoff			# guarded by contexts_lock mutex
+    backoff			# guarded by contexts_lock mutex
+    n_backoff			# guarded by contexts_lock mutex
+    contexts			# guarded by contexts_lock mutex
+    contexts_len		# guarded by contexts_lock mutex
+    contexts_map		# guarded by contexts_lock mutex
+    last_handle			# guarded by contexts_lock mutex
     hostbuf			# single-threaded
-    ?curcontext			# thread private (no __thread symbols for Mac OS X)
-    ?__emutls_t.curcontext	# thread private (MinGW)
-    ?__emutls_v.curcontext	# thread private (MinGW)
+    ?curr_handle		# thread private (no __thread symbols for Mac OS X)
+    ?curr_ctxp			# thread private (no __thread symbols for Mac OS X)
+    ?__emutls_t.curcontext	# thread private (*BSD, MinGW)
+    ?__emutls_v.curcontext	# thread private (*BSD, MinGW)
+    ?__emutls_t.curr_ctxp	# thread private (*BSD, MinGW)
+    ?__emutls_t.curr_handle	# thread private (*BSD, MinGW)
+
 derive_fetch.o
-derive.o
+    ?promote			# const
+derive_parser.tab.o
     ?fmt			# const
     ?func			# const
-    ?init			# local initialize_mutex mutex
-    ?done			# guarded by local initialize_mutex mutex
-    type_dbg			# const
-    ?type_c			# const
-    state_dbg			# const
     ?promote			# const
     ?timefactor			# const
+    ?aexpr_str			# const
+    ?bexpr_str			# const
+    ?op_str			# const
+    ?name_str			# const
+    ?unexpected_str		# const
+    ?initial_str		# const
+    ?follow			# const
+    ?typetab			# const
+    ?init			# local initialize_mutex mutex
+    ?done			# guarded by local initialize_mutex mutex
     need_init			# guarded by registered.mutex
     tokbuf			# guarded by registered.mutex
     tokbuflen			# guarded by registered.mutex
     string			# guarded by registered.mutex
-    lexpeek			# guarded by registered.mutex
     this			# guarded by registered.mutex
+    lexpeek			# guarded by registered.mutex
     ?registered			# guarded by registered.mutex
     pmid			# guarded by registered.mutex
+    specdesc			# guarded by registered.mutex
+    errmsg			# sort of guarded by registered.mutex (on
+    				# error path, and unlikely that two threads
+				# are trying to run pmRegisterDerived at the
+				# same time)
+
     ?derive_errmsg		# thread private (no __thread symbols for Mac OS X)
+    yytranslate            	# const
+    ?yyrline			# const
+    ?yytname			# const
+    ?yytoknum			# const
+    yypact                 	# const
+    yydefact               	# const
+    yypgoto                	# const
+    yydefgoto              	# const
+    yytable                	# const
+    yycheck                	# const
+    ?yystos                	# const, may be optimized away
+    yyr1                   	# const
+    yyr2                   	# const
+    ?yyprhs			# const
+    ?yyrhs			# const
+    derive_char			# guarded by registered.mutex
+    derive_debug		# guarded by registered.mutex
+    derive_lval			# guarded by registered.mutex
+    derive_nerrs		# guarded by registered.mutex
+    parse_tree			# guarded by registered.mutex
+    np				# guarded by registered.mutex
+    ?n_eh_str			# guarded by registered.mutex
+    ?n_eh_c			# guarded by registered.mutex
+    ?l_eh_str			# guarded by registered.mutex
+    noUnits			# const
+    ?yyval_default		# local to parser ... depends on yacc/bison version
     ?__emutls_v.derive_errmsg	# thread private (MinGW)
-    ?func			# const (MinGW)
-    ?promote			# const (MinGW)
-    ?timefactor			# const (MinGW)
     ?type_c			# const (MinGW)
     ?.LpmRegisterDerivedMetric.fmt	# static string (FreeBSD gcc)
     ?pmRegisterDerivedMetric.fmt	# static string (FreeBSD 10.2 gcc)
 desc.o
 endian.o
 err.o
+    ?err_lock			# local mutex
     ?errtab			# const
-    ?first			# guarded by __pmLock_libpcp mutex
+    ?first			# guarded by err_lock mutex
     unknown			# guarded by __pmLock_libpcp mutex or const (MinGW)
     errmsg			# pmErrStr deprecated by pmErrStr_r
 events.o
@@ -252,28 +297,32 @@ hash.o
 help.o
 instance.o
 interp.o
-    dowrap			# guarded by __pmLock_libpcp mutex
+    dowrap			# guarded by __pmLock_extcall mutex
     nr				# diag counters, no atomic updates
     nr_cache			# diag counters, no atomic updates
 ipc.o
-    __pmIPCTable		# guarded by __pmLock_libpcp mutex
-    __pmLastUsedFd		# guarded by __pmLock_libpcp mutex
-    ipcentrysize		# guarded by __pmLock_libpcp mutex
-    ipctablecount		# guarded by __pmLock_libpcp mutex
+    ?ipc_lock			# local mutex
+    __pmIPCTable		# guarded by ipc_lock mutex
+    __pmLastUsedFd		# guarded by ipc_lock mutex
+    ipcentrysize		# guarded by ipc_lock mutex
+    ipctablecount		# guarded by ipc_lock mutex
 lock.o
+    ?lock_lock			# local mutex
     __pmLock_libpcp		# the global libpcp mutex
+    __pmLock_extcall		# mutex for calls to external routines that are not thread-safe
     ?init			# local __pmInitLocks mutex
     ?done			# guarded by local __pmInitLocks mutex
     ?__pmTPDKey			# one-trip initialization then read-only
-    ?multi_init			# guarded by __pmLock_libpcp mutex
-    ?multi_seen			# guarded by __pmLock_libpcp mutex
+    ?multi_init			# guarded by lock_lock mutex
+    ?multi_seen			# guarded by lock_lock mutex
     ?hashctl			# for lock debug tracing
     ?__pmTPDKey			# if don't have __thread support
 logconnect.o
-    done_default		# guarded by __pmLock_libpcp mutex
-    timeout			# guarded by __pmLock_libpcp mutex
+    done_default		# one-trip initialization then read-only
+    timeout			# one-trip initialization then read-only
 logcontrol.o
 logmeta.o
+    ihash			# single-threaded PM_SCOPE_LOGPORT
 logportmap.o
     nlogports			# single-threaded PM_SCOPE_LOGPORT
     szlogport			# single-threaded PM_SCOPE_LOGPORT
@@ -281,29 +330,35 @@ logportmap.o
     match			# single-threaded PM_SCOPE_LOGPORT
     ?namelist			# const (LLVM)
 logutil.o
+    ?logutil_lock		# local mutex
     tbuf			# __pmLogName deprecated by __pmLogName_r
     compress_ctl		# const
     ?ncompress			# const
     ?__pmLogReads		# diag counter, no atomic updates
-    pc_hc			# guarded by __pmLock_libpcp mutex
+    pc_hc			# guarded by logutil_mutex
 secureserver.o
     secure_server		# guarded by __pmLock_libpcp mutex
 secureconnect.o
     common_callbacks		# const
     initialized			# single-threaded
 optfetch.o
-    optcost			# guarded by __pmLock_libpcp mutex
+    ?optfetch_lock		# local mutex
+    optcost			# guarded by optfetch_lock mutex
 p_attr.o
 p_creds.o
 p_desc.o
 pdubuf.o
-    buf_tree			# guarded by __pmLock_libpcp mutex
-    pdu_bufcnt_need		# guarded by __pmLock_libpcp mutex
-    pdu_bufcnt			# guarded by __pmLock_libpcp mutex
+    ?pdubuf_lock		# local mutex
+    buf_tree			# guarded by pdubuf_lock mutex
+    pdu_bufcnt_need		# guarded by pdubuf_lock mutex
+    pdu_bufcnt			# guarded by pdubuf_lock mutex
 pdu.o
-    req_wait			# guarded by __pmLock_libpcp mutex
-    req_wait_done		# guarded by __pmLock_libpcp mutex
-    pmDebug			# set-once in main(), read-only elsewhere
+    ?pdu_lock			# local mutex
+    req_wait			# guarded by pdu_lock mutex
+    req_wait_done		# guarded by pdu_lock mutex
+    pmDebug			# set-once from main(), read-only elsewhere
+    				# also guarded by __pmLock_extcall when set
+				# from __pmInitLocks()
     ceiling			# no unsafe side-effects
     ?sigpipe_done		# no unsafe side-effects
     mypid			# no unsafe side-effects
@@ -312,7 +367,7 @@ pdu.o
     __pmPDUCntOut		# pointer to diag counters, no atomic updates
     inctrs			# diag counters, no atomic updates
     outctrs			# diag counters, no atomic updates
-    maxsize			# guarded by __pmLock_libpcp mutex
+    maxsize			# guarded by pdu_lock mutex
 p_error.o
 p_profile.o
 p_result.o
@@ -391,6 +446,7 @@ units.o
     ?time_scales                # const
     ?pmParseUnitsStr.time_scales	# const
 util.o
+    ?util_lock			# local mutex
     idbuf			# pmIDStr deprecated by pmIDStr_r
     indombuf			# pmInDomStr deprecated by pmInDomStr_r
     ebuf			# pmEventFlagsStr deprecated by pmEventFlagsStr_r
@@ -400,14 +456,14 @@ util.o
     ?num_debug			# const
     pmState			# no unsafe side-effects, see notes in util.c
     pmProgname			# no unsafe side-effects, see notes in util.c
-    filelog			# guarded by __pmLock_libpcp mutex
-    nfilelog			# guarded by __pmLock_libpcp mutex
-    dosyslog			# guarded by __pmLock_libpcp mutex
-    done_exit			# guarded by __pmLock_libpcp mutex
+    filelog			# guarded by util_lock mutex
+    nfilelog			# guarded by util_lock mutex
+    dosyslog			# no unsafe side-effects, see notes in util.c
+    done_exit			# guarded by util_lock mutex
     ?pmprintf_atexit_installed	# guarded by __pmLock_libpcp mutex
     ferr			# guarded by __pmLock_libpcp mutex
-    errtype			# guarded by __pmLock_libpcp mutex
-    fptr			# guarded by __pmLock_libpcp mutex
+    errtype			# no unsafe side-effects, see notes in util.c
+    fptr			# guarded by util_lock mutex
     fname			# guarded by __pmLock_libpcp mutex
     msgsize			# guarded by __pmLock_libpcp mutex
     ?base			# no unsafe side-effects, see notes in util.c
@@ -417,6 +473,10 @@ util.o
     ?bp				# const
     ?dp_h			# const
     ?dp_l			# const
+    xconfirm_init		# no unsafe side-effects, see notes in util.c
+    xconfirm			# no unsafe side-effects, see notes in util.c
+    tmpdir_init			# no unsafe side-effects, see notes in util.c
+    tmpdir			# no unsafe side-effects, see notes in util.c
 ?win32.o
 END				# this is magic, DO NOT DELETE THIS LINE
 End-of-File
