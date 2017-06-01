@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2016 Red Hat.
+ * Copyright (c) 2012-2017 Red Hat.
  * Copyright (c) 2008-2009 Aconex.  All Rights Reserved.
  * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
  *
@@ -278,14 +278,14 @@ PCP_CALL extern void __pmNotifyErr(int, const char *, ...) __PM_PRINTFLIKE(2,3);
  * These are for debugging only (but are present in the shipped libpcp)
  */
 PCP_DATA extern int pmDebug;
-#define DBG_TRACE_PDU		1	/* PDU send and receive */
-#define DBG_TRACE_FETCH		2	/* dump pmFetch results */
-#define DBG_TRACE_PROFILE	4	/* trace profile changes */
-#define DBG_TRACE_VALUE		8	/* metric value conversions */
-#define DBG_TRACE_CONTEXT	16	/* trace PMAPI context changes */
-#define DBG_TRACE_INDOM		32	/* instance domain operations */
-#define DBG_TRACE_PDUBUF	64	/* PDU buffer management */
-#define DBG_TRACE_LOG		128	/* generic archive log operations */
+#define DBG_TRACE_PDU		(1<<0)	/* PDU send and receive */
+#define DBG_TRACE_FETCH		(1<<1)	/* dump pmFetch results */
+#define DBG_TRACE_PROFILE	(1<<2)	/* trace profile changes */
+#define DBG_TRACE_VALUE		(1<<3)	/* metric value conversions */
+#define DBG_TRACE_CONTEXT	(1<<4)	/* trace PMAPI context changes */
+#define DBG_TRACE_INDOM		(1<<5)	/* instance domain operations */
+#define DBG_TRACE_PDUBUF	(1<<6)	/* PDU buffer management */
+#define DBG_TRACE_LOG		(1<<7)	/* generic archive log operations */
 #define DBG_TRACE_LOGMETA	(1<<8)	/* meta data in archives */
 #define DBG_TRACE_OPTFETCH	(1<<9)	/* optFetch tracing */
 #define DBG_TRACE_AF		(1<<10)	/* trace async timer events */
@@ -366,6 +366,7 @@ typedef enum {
 } __pmHashWalkState;
 
 PCP_CALL extern void __pmHashInit(__pmHashCtl *);
+PCP_CALL extern int __pmHashPreAlloc(int, __pmHashCtl *);
 typedef __pmHashWalkState(*__pmHashWalkCallback)(const __pmHashNode *, void *);
 PCP_CALL extern void __pmHashWalkCB(__pmHashWalkCallback, void *, const __pmHashCtl *);
 PCP_CALL extern __pmHashNode *__pmHashWalk(__pmHashCtl *, __pmHashWalkState);
@@ -760,11 +761,11 @@ typedef struct {
     void		*c_dm;		/* derived metrics, if any */
     int			c_flags;	/* ctx flags (set via type/env/attrs) */
     __pmHashCtl		c_attrs;	/* various optional context attributes */
+    int			c_handle;	/* context number above PMAPI */
 } __pmContext;
 
 #define __PM_MODE_MASK	0xffff
 
-#define PM_CONTEXT_FREE	-1		/* special type: free to reuse */
 #define PM_CONTEXT_INIT	-2		/* special type: being initialized, do not use */
 
 /*
@@ -773,9 +774,14 @@ typedef struct {
 PCP_CALL extern __pmContext *__pmHandleToPtr(int);
 
 /*
+ * Like __pmHandleToPtr(pmWhichContext()), but with no locking
+ */
+PCP_CALL __pmContext *__pmCurrentContext(void);
+
+/*
  * Dump the current context (source details + instance profile),
  * for a particular instance domain.
- * If indom == PM_INDOM_NULL, then print all all instance domains
+ * If indom == PM_INDOM_NULL, then print all instance domains
  */
 PCP_CALL extern void __pmDumpContext(FILE *, int, pmInDom);
 
@@ -1115,6 +1121,7 @@ PCP_CALL extern void __pmArchCtlFree (__pmArchCtl *);
 
 PCP_CALL extern int __pmLogPutDesc(__pmLogCtl *, const pmDesc *, int, char **);
 PCP_CALL extern int __pmLogLookupDesc(__pmLogCtl *, pmID, pmDesc *);
+#define PMLOGPUTINDOM_DUP       1
 PCP_CALL extern int __pmLogPutInDom(__pmLogCtl *, pmInDom, const __pmTimeval *, int, int *, char **);
 PCP_CALL extern int __pmLogGetInDom(__pmLogCtl *, pmInDom, __pmTimeval *, int **, char ***);
 PCP_CALL extern int __pmLogLookupInDom(__pmLogCtl *, pmInDom, __pmTimeval *, const char *);
@@ -1212,11 +1219,13 @@ typedef int (*__pmConnectHostType)(int, int);
 
 PCP_CALL extern int __pmSetSocketIPC(int);
 PCP_CALL extern int __pmSetVersionIPC(int, int);
+PCP_CALL extern int __pmSetFeaturesIPC(int, int, int);
 PCP_CALL extern int __pmSetDataIPC(int, void *);
 PCP_CALL extern int __pmDataIPCSize(void);
 PCP_CALL extern int __pmLastVersionIPC(void);
 PCP_CALL extern int __pmVersionIPC(int);
 PCP_CALL extern int __pmSocketIPC(int);
+PCP_CALL extern int __pmFeaturesIPC(int);
 PCP_CALL extern int __pmDataIPC(int, void *);
 PCP_CALL extern void __pmOverrideLastFd(int);
 PCP_CALL extern void __pmPrintIPC(void);
@@ -1533,6 +1542,7 @@ PCP_CALL extern int __pmRegisterAnon(const char *, int);
  */
 PCP_CALL extern void __pmInitLocks(void);
 PCP_CALL extern int __pmLock(void *, const char *, int);
+PCP_CALL extern int __pmIsLocked(void *);
 PCP_CALL extern int __pmUnlock(void *, const char *, int);
 
 /*
@@ -1551,10 +1561,23 @@ PCP_CALL extern int __pmMultiThreaded(int);
 #define PM_LOCK(lock)		__pmLock(&(lock), __FILE__, __LINE__)
 #define PM_UNLOCK(lock)		__pmUnlock(&(lock), __FILE__, __LINE__)
 
+#ifdef BUILD_WITH_LOCK_ASSERTS
+#include <assert.h>
+#define ASSERT_IS_LOCKED(lock) assert(__pmIsLocked(&(lock)));
+#define ASSERT_IS_UNLOCKED(lock) assert(!__pmIsLocked(&(lock)));
+#else
+#define ASSERT_IS_LOCKED(lock)
+#define ASSERT_IS_UNLOCKED(lock)
+#endif /* BUILD_WITH_LOCK_ASSERTS */
+
 #ifdef HAVE_PTHREAD_MUTEX_T
-PCP_CALL extern pthread_mutex_t	__pmLock_libpcp;	/* big libpcp lock */
+/* the big libpcp lock */
+PCP_CALL extern pthread_mutex_t	__pmLock_libpcp;
+/* mutex for calls to external routines that are not thread-safe */
+PCP_CALL extern pthread_mutex_t	__pmLock_extcall;
 #else
 PCP_CALL extern void *__pmLock_libpcp;			/* symbol exposure */
+PCP_CALL extern void *__pmLock_extcall;			/* symbol exposure */
 #endif
 
 /*

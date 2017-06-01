@@ -93,7 +93,7 @@ _traceme()
 }
 
 # real QA test starts here
-$sudo $PCP_RC_DIR/pcp restart \
+_service pcp restart \
 | _filter_pcp_start
 _wait_for_pmcd
 _wait_for_pmlogger

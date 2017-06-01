@@ -633,9 +633,8 @@ new(CLASS,name,domain)
 	dispatch.version.four.name = pmns_name;
 	dispatch.version.four.children = pmns_children;
 
-	if (!getenv("PCP_PERL_PMNS") && !getenv("PCP_PERL_DOMAIN")) {
+	if (!local_install())
 	    pmdaOpenLog(&dispatch);
-	}
 	metric_names = newHV();
 	metric_oneline = newHV();
 	metric_helptext = newHV();
@@ -808,6 +807,12 @@ pmda_ulong()
     OUTPUT:
 	RETVAL
 
+int
+pmda_install()
+    CODE:
+	RETVAL = local_install();
+    OUTPUT:
+	RETVAL
 
 void
 error(self,message)
@@ -1070,7 +1075,7 @@ add_timer(self,timeout,callback,data)
     PREINIT:
 	(void)self;
     CODE:
-	if (getenv("PCP_PERL_PMNS") || getenv("PCP_PERL_DOMAIN") || !callback)
+	if (local_install() || !callback)
 	    XSRETURN_UNDEF;
 	RETVAL = local_timer(timeout, newSVsv(callback), data);
     OUTPUT:
@@ -1085,7 +1090,7 @@ add_pipe(self,command,callback,data)
     PREINIT:
 	(void)self;
     CODE:
-	if (getenv("PCP_PERL_PMNS") || getenv("PCP_PERL_DOMAIN") || !callback)
+	if (local_install() || !callback)
 	    XSRETURN_UNDEF;
 	RETVAL = local_pipe(command, newSVsv(callback), data);
     OUTPUT:
@@ -1100,7 +1105,7 @@ add_tail(self,filename,callback,data)
     PREINIT:
 	(void)self;
     CODE:
-	if (getenv("PCP_PERL_PMNS") || getenv("PCP_PERL_DOMAIN") || !callback)
+	if (local_install() || !callback)
 	    XSRETURN_UNDEF;
 	RETVAL = local_tail(filename, newSVsv(callback), data);
     OUTPUT:
@@ -1116,7 +1121,7 @@ add_sock(self,hostname,port,callback,data)
     PREINIT:
 	(void)self;
     CODE:
-	if (getenv("PCP_PERL_PMNS") || getenv("PCP_PERL_DOMAIN") || !callback)
+	if (local_install() || !callback)
 	    XSRETURN_UNDEF;
 	RETVAL = local_sock(hostname, port, newSVsv(callback), data);
     OUTPUT:
@@ -1158,22 +1163,13 @@ connect_pmcd(self)
 	pmdaInterface *self
     CODE:
 	/*
-	 * Need to mimic the same special cases handled in run()
-	 * that explicitly do NOT connect to pmcd and treat these
-	 * as no-ops here
-	 *
-	 * Otherwise call pmdaConnet() to complete the PMDA's IPC
-	 * channel setup and complete the connection handshake with
-	 * pmcd.
+	 * Call pmdaConnect() to complete the PMDA's IPC channel setup
+	 * and complete the connection handshake with pmcd.
 	 */
-	if (getenv("PCP_PERL_PMNS") != NULL)
-	    ;
-	else if (getenv("PCP_PERL_DOMAIN") != NULL)
-	    ;
-	else {
+	if (!local_install()) {
 	    /*
-	     * On success pmdaConnect sets PMDA_EXT_CONNECTED in e_flags ...
-	     * this used in the guard below to stop run() calling
+	     * On success pmdaConnect sets PMDA_EXT_CONNECTED in e_flags
+	     * ... this is used in the guard below to stop run() calling
 	     * pmdaConnect() again.
 	     */
 	    pmdaConnect(self);

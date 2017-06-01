@@ -1,0 +1,56 @@
+QA output created by 1084
+== Checking network.softstat metrics
+
+network.sockstat.total
+    value 1866
+
+network.sockstat.tcp.inuse
+    value 74
+
+network.sockstat.tcp.orphan
+    value 9
+
+network.sockstat.tcp.tw
+    value 0
+
+network.sockstat.tcp.alloc
+    value 86
+
+network.sockstat.tcp.mem
+    value 13
+
+network.sockstat.udp.inuse
+    value 15
+
+network.sockstat.udp.mem
+    value 17
+
+network.sockstat.udplite.inuse
+    value 0
+
+network.sockstat.raw.inuse
+    value 0
+
+network.sockstat.frag.inuse
+    value 0
+
+network.sockstat.frag.memory
+    value 0
+
+network.sockstat.tcp6.inuse
+    value 10
+
+network.sockstat.udp6.inuse
+    value 10
+
+network.sockstat.udplite6.inuse
+    value 0
+
+network.sockstat.raw6.inuse
+    value 1
+
+network.sockstat.frag6.inuse
+    value 0
+
+network.sockstat.frag6.memory
+    value 0

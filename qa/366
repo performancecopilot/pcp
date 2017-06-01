@@ -69,6 +69,7 @@ networking/nfs4-server
 networking/softnet
 tools/atop
 tools/atop-httpstats
+tools/atop-nfsclient
 tools/atop-proc
 tools/cockpit
 tools/collectl
@@ -98,6 +99,12 @@ oracle/summary
 mmv/summary
 memory/proc-linux
 disk/perpartition
+zeroconf/atop-proc
+zeroconf/nfsclient
+zeroconf/xfs-perdev
+zeroconf/pidstat-summary
+zeroconf/tapestat
+zeroconf/numastat
 End-of-File
 
 # turn $tmp.cull-list into an awk program to cull groups like

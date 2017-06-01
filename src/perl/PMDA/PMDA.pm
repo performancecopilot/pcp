@@ -10,7 +10,7 @@ require DynaLoader;
 @ISA = qw(Exporter DynaLoader);
 @EXPORT = qw(
     pmda_pmid pmda_pmid_name pmda_pmid_text pmda_inst_name pmda_inst_lookup
-    pmda_units pmda_config pmda_uptime pmda_long pmda_ulong
+    pmda_units pmda_config pmda_uptime pmda_long pmda_ulong pmda_install
     PM_ID_NULL PM_INDOM_NULL PM_IN_NULL
     PM_SPACE_BYTE PM_SPACE_KBYTE PM_SPACE_MBYTE PM_SPACE_GBYTE PM_SPACE_TBYTE
     PM_TIME_NSEC PM_TIME_USEC PM_TIME_MSEC PM_TIME_SEC PM_TIME_MIN PM_TIME_HOUR
@@ -32,11 +32,13 @@ require DynaLoader;
 	PM_ERR_NOTCONN PM_ERR_NEEDPORT PM_ERR_NONLEAF
 	PM_ERR_PMDANOTREADY PM_ERR_PMDAREADY
 	PM_ERR_TOOSMALL PM_ERR_TOOBIG PM_ERR_FAULT
-	PM_ERR_THREAD PM_ERR_NOCONTAINER PM_ERR_BADSTORE
+	PM_ERR_THREAD PM_ERR_NOCONTAINER PM_ERR_BADSTORE PM_ERR_LOGHOST
+	PM_ERR_LOGCHANGETYPE PM_ERR_LOGCHANGESEM PM_ERR_LOGCHANGEINDOM
+	PM_ERR_LOGCHANGEUNITS PM_ERR_NEEDCLIENTCERT
 	PM_ERR_NYI
 );
 @EXPORT_OK = qw();
-$VERSION = '1.15';
+$VERSION = '1.16';
 
 # metric identification
 sub PM_ID_NULL		{ 0xffffffff; }
@@ -449,6 +451,11 @@ signed long integer.
 
 Return either PM_TYPE_U32 or PM_TYPE_U64 depending on the platform size for an
 unsigned long integer.
+
+=item pmda_install()
+
+Boolean result indicating whether PMDA installation is in progress, or if this
+is an actual PMDA invocation via B<pmcd>(1).
 
 =back
 

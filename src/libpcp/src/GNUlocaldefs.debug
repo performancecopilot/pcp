@@ -3,6 +3,6 @@
 # 	$ ln GNUlocaldefs.debug GNUlocaldefs
 #	$ make
 #	$ sudo make install
-# this one turns optimization off and debug info on
+# this one turns optimization off and debug info on and lock assertions on
 #
-CFLAGS_OPT = -O0 -g
+CFLAGS_OPT = -O0 -g -DBUILD_WITH_LOCK_ASSERTS

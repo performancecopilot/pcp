@@ -17,16 +17,22 @@ include $(TOPDIR)/src/include/builddefs
 
 IAM	= json
 PYSCRIPT = pmda$(IAM).python
-LSRCFILES = Install Remove $(PYSCRIPT)
+LCFILES = acme_json.c
+LTARGET = acme_json$(EXECSUFFIX)
+LSRCFILES = Install Remove $(PYSCRIPT) $(LCFILES) README.demos Makefile.demos
 
 DOMAIN	= JSON
 PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
+DEMODIR = $(PCP_DEMOS_DIR)/$(IAM)
+DEMOFILES = README.demos Makefile.demos
 
 MAN_SECTION = 1
 MAN_PAGES = pmda$(IAM).$(MAN_SECTION)
 MAN_DEST = $(PCP_MAN_DIR)/man$(MAN_SECTION)
 
-LDIRT	= domain.h $(IAM).log
+LLDFLAGS = -L$(TOPDIR)/src/libpcp/src
+LLDLIBS = $(PCPLIB)
+LDIRT	= domain.h $(IAM).log acme_json
 
 default_pcp default:	build-me
 
@@ -38,6 +44,10 @@ install_pcp install:	default
 	$(INSTALL) -m 755 -d $(PMDADIR)
 	$(INSTALL) -m 755 Install Remove $(PYSCRIPT) generate_ceph_metadata $(PMDADIR)
 	$(INSTALL) -m 644 config.json README $(PMDADIR)
+	$(INSTALL) -m 755 -d $(DEMODIR)
+	$(INSTALL) -m 644 Makefile.demos $(DEMODIR)/Makefile
+	$(INSTALL) -m 644 README.demos $(DEMODIR)/README
+	$(INSTALL) -m 644 acme_json.c $(DEMODIR)/acme_json.c
 	@$(INSTALL_MAN)
 else
 build-me:
@@ -47,3 +57,7 @@ endif
 
 check_domain:	../../pmns/stdpmid
 	$(DOMAIN_PYTHONRULE)
+
+# check-build only, binary not installed (but source is)
+$(LTARGET):	acme_json.c
+	$(CCF) -o $@ $^ $(LDFLAGS) $(LDLIBS)

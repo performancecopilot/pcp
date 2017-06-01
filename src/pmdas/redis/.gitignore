@@ -1,0 +1,14 @@
+# Emacs temporary files
+\#*\#
+*~
+
+# Vim temporary files
+*.sw*
+
+# Log and PID files
+*.log
+*.pid
+
+# Ignore temporary pmns files
+pmns
+pmns.perl

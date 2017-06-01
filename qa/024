@@ -30,6 +30,7 @@ _filter()
 	-e "s/`hostname`\([):]\)/<localhost>\1/" \
 	-e "s/$remote\([):]\)/<remotehost>\1/" \
 	-e 's/fd=[0-9][0-9]*/fd=<n>/g' \
+	-e 's/features=[0-9][0-9]*/features=<n>/g' \
 	-e 's/port=[0-9][0-9]*/port=<n>/g' \
 	-e 's/handle=0x0/handle=(nil)/' \
 	-e '/ Debug: reload_nodes: /d'\

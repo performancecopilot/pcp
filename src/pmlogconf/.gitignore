@@ -9,3 +9,4 @@ sgi/GNUmakefile
 sqlserver/GNUmakefile
 v1.0/GNUmakefile
 tools/GNUmakefile
+zeroconf/GNUmakefile

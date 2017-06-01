@@ -1,0 +1,57 @@
+#!/bin/sh
+# PCP QA Test No. 1073
+# Exercise the vfs and random entropy metrics (/proc/sys)
+#
+# Copyright (c) 2017 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ $PCP_PLATFORM = linux ] || _notrun "Linux-specific kernel metric testing"
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+root=$tmp.root
+export LINUX_STATSPATH=$root
+pmda=$PCP_PMDAS_DIR/linux/pmda_linux.so,linux_init
+local="-L -K clear -K add,60,$pmda"
+
+vfs_metrics=`pminfo $local vfs | LC_COLLATE=POSIX sort`
+entropy_metrics=`pminfo $local kernel.all.entropy | LC_COLLATE=POSIX sort`
+for tgz in $here/linux/procsys-*.tgz
+do
+    rm -fr $root
+    mkdir $root || _fail "root in use when processing $tgz"
+    cd $root
+    tar xzf $tgz
+    base=`basename $tgz`
+
+    echo "== Checking VFS metric values - $base"
+    pminfo $local -f $vfs_metrics
+    echo && echo "== done" && echo
+
+    echo "== Checking entropy metric values - $base"
+    pminfo $local -f $entropy_metrics
+    echo && echo "== done" && echo
+
+    cd $here
+done
+
+# success, all done
+status=0
+exit

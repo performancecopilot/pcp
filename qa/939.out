@@ -1,0 +1,355 @@
+QA output created by 939
+pmRegisterDerived: register metric[0] event.flags = anon(PM_TYPE_U32)
+pmRegisterDerived: register metric[1] event.missed = anon(PM_TYPE_U32)
+Derived metric initialization from $PCP_DERIVED_CONFIG
+pmLoadDerivedConfig("TMP.config")
+pmRegisterDerived: register metric[2] a.m1 = 1
+pmRegisterDerived: register metric[3] a.m2 = mkconst(2, type="32")
+pmRegisterDerived: register metric[4] a.m3 = mkconst(3, type=32)
+pmRegisterDerived: register metric[5] a.m4 = mkconst(4, type="U32")
+pmRegisterDerived: register metric[6] a.m5 = mkconst(5, type="u32")
+pmRegisterDerived: register metric[7] a.m6 = mkconst(6, type=U32)
+pmRegisterDerived: register metric[8] a.m7 = mkconst(7, type=u32)
+pmRegisterDerived: register metric[9] a.m8 = mkconst(8, type=64)
+pmRegisterDerived: register metric[10] a.m9 = mkconst(9, type=U64)
+pmRegisterDerived: register metric[11] a.m10 = mkconst(10, type=FLOAT)
+pmRegisterDerived: register metric[12] a.m11 = mkconst(11.1, type=float)
+pmRegisterDerived: register metric[13] a.m12 = mkconst(12, type=DOUBLE)
+pmRegisterDerived: register metric[14] a.m13 = mkconst(13.3, type=DOUBLE)
+pmRegisterDerived: register metric[15] a.m14 = mkconst(14, semantics=counter)
+pmRegisterDerived: register metric[16] a.m15 = mkconst(15, semantics="COUNTER")
+pmRegisterDerived: register metric[17] a.m16 = mkconst(16.6, semantics=instant)
+pmRegisterDerived: register metric[18] a.m17 = mkconst(17.7, semantics=DISCRETE)
+pmRegisterDerived: register metric[19] a.m18 = mkconst(18.8, units="kbyte")
+pmRegisterDerived: register metric[20] a.m19 = mkconst(19, units="kbyte / count")
+pmRegisterDerived: register metric[21] a.m20 = mkconst(20, type=u64, semantics=counter, units=ms)
+[TMP.config:27] Error: pmRegisterDerived(a.err.m1, ...) syntax error
+ mkconst(123, type="foo bar")
+                   ^         
+Unrecognized value for type 'foo bar'
+[TMP.config:28] Error: pmRegisterDerived(a.err.m2, ...) syntax error
+ mkconst(123.456, type=32)
+                         ^
+Incompatible floating point constant and type '32'
+[TMP.config:29] Error: pmRegisterDerived(a.err.m3, ...) syntax error
+ mkconst(123, semantics="foo bar")
+                        ^         
+Unrecognized value for semantics 'foo bar'
+__dmopencontext: bind metric[0] event.flags
+__dmopencontext: bind metric[1] event.missed
+__dmgetpmid: metric "a.m1" -> PMID 511.0.3
+__dmopencontext: bind metric[2] a.m1
+__dmgetpmid: metric "a.m2" -> PMID 511.0.4
+__dmopencontext: bind metric[3] a.m2
+__dmgetpmid: metric "a.m3" -> PMID 511.0.5
+__dmopencontext: bind metric[4] a.m3
+__dmgetpmid: metric "a.m4" -> PMID 511.0.6
+__dmopencontext: bind metric[5] a.m4
+__dmgetpmid: metric "a.m5" -> PMID 511.0.7
+__dmopencontext: bind metric[6] a.m5
+__dmgetpmid: metric "a.m6" -> PMID 511.0.8
+__dmopencontext: bind metric[7] a.m6
+__dmgetpmid: metric "a.m7" -> PMID 511.0.9
+__dmopencontext: bind metric[8] a.m7
+__dmgetpmid: metric "a.m8" -> PMID 511.0.10
+__dmopencontext: bind metric[9] a.m8
+__dmgetpmid: metric "a.m9" -> PMID 511.0.11
+__dmopencontext: bind metric[10] a.m9
+__dmgetpmid: metric "a.m10" -> PMID 511.0.12
+__dmopencontext: bind metric[11] a.m10
+__dmgetpmid: metric "a.m11" -> PMID 511.0.13
+__dmopencontext: bind metric[12] a.m11
+__dmgetpmid: metric "a.m12" -> PMID 511.0.14
+__dmopencontext: bind metric[13] a.m12
+__dmgetpmid: metric "a.m13" -> PMID 511.0.15
+__dmopencontext: bind metric[14] a.m13
+__dmgetpmid: metric "a.m14" -> PMID 511.0.16
+__dmopencontext: bind metric[15] a.m14
+__dmgetpmid: metric "a.m15" -> PMID 511.0.17
+__dmopencontext: bind metric[16] a.m15
+__dmgetpmid: metric "a.m16" -> PMID 511.0.18
+__dmopencontext: bind metric[17] a.m16
+__dmgetpmid: metric "a.m17" -> PMID 511.0.19
+__dmopencontext: bind metric[18] a.m17
+__dmgetpmid: metric "a.m18" -> PMID 511.0.20
+__dmopencontext: bind metric[19] a.m18
+__dmgetpmid: metric "a.m19" -> PMID 511.0.21
+__dmopencontext: bind metric[20] a.m19
+__dmgetpmid: metric "a.m20" -> PMID 511.0.22
+__dmopencontext: bind metric[21] a.m20
+__dmtraverse: name="a" added "a.m1"
+__dmtraverse: name="a" added "a.m2"
+__dmtraverse: name="a" added "a.m3"
+__dmtraverse: name="a" added "a.m4"
+__dmtraverse: name="a" added "a.m5"
+__dmtraverse: name="a" added "a.m6"
+__dmtraverse: name="a" added "a.m7"
+__dmtraverse: name="a" added "a.m8"
+__dmtraverse: name="a" added "a.m9"
+__dmtraverse: name="a" added "a.m10"
+__dmtraverse: name="a" added "a.m11"
+__dmtraverse: name="a" added "a.m12"
+__dmtraverse: name="a" added "a.m13"
+__dmtraverse: name="a" added "a.m14"
+__dmtraverse: name="a" added "a.m15"
+__dmtraverse: name="a" added "a.m16"
+__dmtraverse: name="a" added "a.m17"
+__dmtraverse: name="a" added "a.m18"
+__dmtraverse: name="a" added "a.m19"
+__dmtraverse: name="a" added "a.m20"
+__dmgetpmid: metric "a.m1" -> PMID 511.0.3
+__dmgetpmid: metric "a.m2" -> PMID 511.0.4
+__dmgetpmid: metric "a.m3" -> PMID 511.0.5
+__dmgetpmid: metric "a.m4" -> PMID 511.0.6
+__dmgetpmid: metric "a.m5" -> PMID 511.0.7
+__dmgetpmid: metric "a.m6" -> PMID 511.0.8
+__dmgetpmid: metric "a.m7" -> PMID 511.0.9
+__dmgetpmid: metric "a.m8" -> PMID 511.0.10
+__dmgetpmid: metric "a.m9" -> PMID 511.0.11
+__dmgetpmid: metric "a.m10" -> PMID 511.0.12
+__dmgetpmid: metric "a.m11" -> PMID 511.0.13
+__dmgetpmid: metric "a.m12" -> PMID 511.0.14
+__dmgetpmid: metric "a.m13" -> PMID 511.0.15
+__dmgetpmid: metric "a.m14" -> PMID 511.0.16
+__dmgetpmid: metric "a.m15" -> PMID 511.0.17
+__dmgetpmid: metric "a.m16" -> PMID 511.0.18
+__dmgetpmid: metric "a.m17" -> PMID 511.0.19
+__dmgetpmid: metric "a.m18" -> PMID 511.0.20
+__dmgetpmid: metric "a.m19" -> PMID 511.0.21
+__dmgetpmid: metric "a.m20" -> PMID 511.0.22
+
+a.m1
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+    value 1
+
+a.m2
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+    value 2
+
+a.m3
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+    value 3
+
+a.m4
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+    value 4
+
+a.m5
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+    value 5
+
+a.m6
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+    value 6
+
+a.m7
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+    value 7
+
+a.m8
+    Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+    value 8
+
+a.m9
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+    value 9
+
+a.m10
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+    value 10
+
+a.m11
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+    value 11.1
+
+a.m12
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+    value 12
+
+a.m13
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+    value 13.3
+
+a.m14
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: none
+    value 14
+
+a.m15
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: none
+    value 15
+
+a.m16
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+    value 16.6
+
+a.m17
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+    value 17.7
+
+a.m18
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: Kbyte
+    value 18.8
+
+a.m19
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: Kbyte / count
+    value 19
+
+a.m20
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: millisec
+    value 20
+From the man page ...
+
+disk.dev.total
+    Data Type: 64-bit unsigned int  InDom: 60.1 0xf000001
+    Semantics: counter  Units: count
+Note: timezone set to local timezone of host "bozo" from archive
+
+metric:    disk.dev.total
+archive:   archives/bozo-disk
+host:      bozo
+start:     Thu Mar 16 10:31:13 2017
+end:       Thu Mar 16 10:34:13 2017
+semantics: cumulative counter (converting to rate)
+units:     count (converting to count / sec)
+samples:   10
+interval:  1.00 sec
+10:31:13.870  No values available
+
+                           sda                   sdb                   sdc                   sdd                   sde    
+10:31:14.870  No values available
+10:31:15.870              34.00                  2.000                41.00                227.0                   1.000  
+10:31:16.870              34.00                  1.000                41.00                228.0                   0.0    
+10:31:17.870              34.00                  2.000                42.00                227.0                   1.000  
+10:31:18.870              34.00                  1.000                41.00                228.0                   0.0    
+10:31:19.870              34.00                  2.000                42.00                227.0                   0.0    
+10:31:20.870              34.00                  1.000                41.00                228.0                   1.000  
+10:31:21.870              33.00                  2.000                41.00                227.0                   0.0    
+10:31:22.870              34.00                  1.000                42.00                228.0                   1.000  
+10:31:23.870              34.00                  2.000                41.00                227.0                   0.0    
+
+disk.dev.total_bytes
+    Data Type: 32-bit unsigned int  InDom: 60.1 0xf000001
+    Semantics: counter  Units: Kbyte
+Note: timezone set to local timezone of host "bozo" from archive
+
+metric:    disk.dev.total_bytes
+archive:   archives/bozo-disk
+host:      bozo
+start:     Thu Mar 16 10:31:13 2017
+end:       Thu Mar 16 10:34:13 2017
+semantics: cumulative counter (converting to rate)
+units:     Kbyte (converting to Kbyte / sec)
+samples:   10
+interval:  1.00 sec
+10:31:13.870  No values available
+
+                 sda         sdb         sdc         sdd         sde    
+10:31:14.870  No values available
+10:31:15.870   725.0        37.00      736.0      1.824E+04      1.000  
+10:31:16.870   726.0        38.00      736.0      1.824E+04      2.000  
+10:31:17.870   725.0        38.00      736.0      1.824E+04      1.000  
+10:31:18.870   726.0        37.00      736.0      1.824E+04      2.000  
+10:31:19.870   726.0        38.00      736.0      1.824E+04      2.000  
+10:31:20.870   725.0        37.00      736.0      1.823E+04      1.000  
+10:31:21.870   726.0        38.00      736.0      1.824E+04      2.000  
+10:31:22.870   725.0        38.00      736.0      1.824E+04      1.000  
+10:31:23.870   726.0        37.00      736.0      1.824E+04      2.000  
+
+avg_io_size
+    Data Type: double  InDom: 60.1 0xf000001
+    Semantics: instant  Units: Kbyte / count
+Note: timezone set to local timezone of host "bozo" from archive
+
+metric:    avg_io_size
+archive:   archives/bozo-disk
+host:      bozo
+start:     Thu Mar 16 10:31:13 2017
+end:       Thu Mar 16 10:34:13 2017
+semantics: instantaneous value
+units:     Kbyte / count
+samples:   10
+interval:  1.00 sec
+10:31:13.870  No values available
+10:31:14.870  No values available
+
+                              sda                   sdb                   sdc                   sdd                   sde 
+10:31:15.870              21.32                 18.50                 17.95                 80.33                  1.000  
+10:31:16.870              21.35                 38.00                 17.95                 79.98              -1.000E+00 
+10:31:17.870              21.32                 19.00                 17.52                 80.33                  1.000  
+10:31:18.870              21.35                 37.00                 17.95                 79.98              -1.000E+00 
+10:31:19.870              21.35                 19.00                 17.52                 80.33              -1.000E+00 
+10:31:20.870              21.32                 37.00                 17.95                 79.97                  1.000  
+10:31:21.870              22.00                 19.00                 17.95                 80.33              -1.000E+00 
+10:31:22.870              21.32                 38.00                 17.52                 79.98                  1.000  
+
+myalarm
+    Data Type: 32-bit unsigned int  InDom: 60.1 0xf000001
+    Semantics: instant  Units: none
+Note: timezone set to local timezone of host "bozo" from archive
+
+metric:    myalarm
+archive:   archives/bozo-disk
+host:      bozo
+start:     Thu Mar 16 10:31:13 2017
+end:       Thu Mar 16 10:34:13 2017
+semantics: instantaneous value
+units:     none
+samples:   10
+interval:  1.00 sec
+10:31:13.870  No values available
+10:31:14.870  No values available
+
+                    sda         sdb         sdc         sdd         sde 
+10:31:15.870          1           0           1           1           0 
+10:31:16.870          1           0           1           1           0 
+10:31:17.870          1           0           1           1           0 
+10:31:18.870          1           0           1           1           0 
+10:31:19.870          1           0           1           1           0 
+10:31:20.870          1           0           1           1           0 
+10:31:21.870          1           0           1           1           0 
+10:31:22.870          1           0           1           1           0 
+
+idle
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+Note: timezone set to local timezone of host "smash" from archive
+
+metric:    idle
+archive:   archives/pcp-free
+host:      smash
+start:     Fri Apr  4 11:35:46 2014
+end:       Fri Apr  4 11:35:56 2014
+semantics: instantaneous value
+units:     none
+samples:   10
+interval:  1.00 sec
+11:35:46.566  No values available
+11:35:47.566          1
+11:35:48.566          1
+11:35:49.566          1
+11:35:50.566          1
+11:35:51.566          0
+11:35:52.566          0
+11:35:53.566          0
+11:35:54.566          0
+11:35:55.566          0

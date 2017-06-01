@@ -1,6 +1,6 @@
 #!/usr/bin/env pmpython
 #
-# Copyright (C) 2014-2015 Red Hat.
+# Copyright (C) 2014-2017 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -102,7 +102,7 @@ network.""")
         self.metrics = []
         self.pmids = []
         self.descs = []
-        metrics = self.opts.pmGetNonOptionsFromList(sys.argv)
+        metrics = self.opts.pmGetOperands()
         if metrics:
             for m in metrics:
                 try:

@@ -1,0 +1,73 @@
+# strerror() wrappers from (PCP) config.h
+osstrerror
+netstrerror
+hoststrerror
+
+# libpcp_pmda
+pmdaCacheOp
+pmdaCacheStore
+pmdaCacheLookup
+pmdaCacheLookupName
+
+# libsasl
+sasl_client_init
+sasl_client_new
+sasl_client_start
+sasl_client_step
+sasl_dispose
+sasl_errstring
+sasl_getprop
+sasl_listmech
+sasl_setprop
+sasl_set_path
+
+# libssl
+SSL_BadCertHook
+SSL_ClearSessionCache
+SSL_CipherPolicySet
+SSL_ConfigMPServerSIDCache
+SSL_ConfigSecureServer
+SSL_DataPending
+SSL_ForceHandshakeWithTimeout
+SSL_GetClientAuthDataHook
+SSL_GetImplementedCiphers
+SSL_ImportFD
+SSL_OptionSet
+SSL_PeerCertificate
+SSL_ResetHandshake
+SSL_RevealURL
+SSL_SecurityStatus
+SSL_SetURL
+SSL_ShutdownServerSessionIDCache
+
+# libnss
+CERT_CreateSubjectCertList
+CERT_DestroyCertificate
+CERT_DestroyCertList
+CERT_GetDefaultCertDB
+CERT_LIST_END
+CERT_LIST_HEAD
+CERT_LIST_NEXT
+CERT_VerifyCertificate
+DER_GeneralizedTimeToTime
+DER_UTCTimeToTime
+NSS_FindCertKEAType
+NSS_Init
+NSS_InitReadWrite
+NSS_Shutdown
+PK11_Authenticate
+PK11_FindCertFromNickname
+PK11_FindKeyByAnyCert
+PK11_FreeSlot
+PK11_GetInternalKeySlot
+PK11_InitPin
+PK11_NeedLogin
+PK11_NeedUserInit
+PK11_SetPasswordFunc
+PORT_Alloc
+PORT_Free
+SECKEY_DestroyPrivateKey
+
+# Windows
+RegisterEventSource
+DeregisterEventSource

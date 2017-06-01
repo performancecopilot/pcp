@@ -1,0 +1,134 @@
+#!/bin/sh
+# PCP QA Test No. 941
+# pmcd health check
+#
+# With a single --check option, is silent except if there is a problem
+# and runs just the integrity check.  This could be used from check or
+# check.callback
+#
+# Copyright (c) 2017 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+
+check=false
+if [ $# -ge 1 -a "$1" = "--check" ]
+then
+    check=true
+    # if 2nd arg present then use this as $seq ... we're being called from
+    # check.callback more than likely
+    #
+    [ $# -ge 2 -a "$2" != "" ] && seq="$2"
+fi
+
+$check || echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+$check || $sudo rm -f $seq.full
+$sudo rm -rf $tmp $tmp.*
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+
+if $check
+then
+    echo "--- running 941 --check @ `date` ---" >>$here/$seq.full
+fi
+
+_get_pids_by_name pmcd >$tmp.pids
+num_pmcds=`cat $tmp.pids | wc -l | sed -e 's/ //g'`
+case "$num_pmcds"
+in
+    0)
+    	echo "Error: no pmcd running!"
+	status=1
+	exit
+	;;
+    1)
+	$check || echo "OK: one pmcd running"
+    	;;
+    *)
+    	echo "Error: $num_pmcds pmcd processes running"
+	$PCP_PS_PROG $PCP_PS_ALL_FLAGS >$tmp.ps
+	for pid in `cat $tmp.pids`
+	do
+	    $PCP_AWK_PROG <$tmp.ps '$2 == '$pid' { print }' >$tmp.out
+	    if [ -s $tmp.out ]
+	    then
+		grep PPID $tmp.ps
+		cat $tmp.out
+	    else
+		echo "PID $pid has gone missing from ps(1) output?"
+	    fi
+	    for log in pmcd.log pmcd.log.prev
+	    do
+		if [ -f $PCP_LOG_DIR/pmcd/$log ]
+		then
+		    if grep "pmcd: PID = $pid," $PCP_LOG_DIR/pmcd/$log >/dev/null
+		    then
+			echo "==> start matching $PCP_LOG_DIR/pmcd/$log file ==>"
+			cat $PCP_LOG_DIR/pmcd/$log
+			echo "<== end matching $PCP_LOG_DIR/pmcd/$log file <=="
+		    fi
+		fi
+	    done
+	done
+	status=1
+	exit
+	;;
+esac
+
+pid=`cat $tmp.pids`
+if [ -f $PCP_LOG_DIR/pmcd/pmcd.log ]
+then
+    if grep "pmcd: PID = $pid," $PCP_LOG_DIR/pmcd/pmcd.log >/dev/null
+    then
+	$check || echo "OK: pmcd.log is for running pmcd"
+    else
+	echo "Error: $PCP_LOG_DIR/pmcd/pmcd.log not for running pmcd (PID=$pid)"
+	echo "==> start $PCP_LOG_DIR/pmcd/pmcd.log file ==>"
+	cat $PCP_LOG_DIR/pmcd/pmcd.log
+	echo "<= end $PCP_LOG_DIR/pmcd/pmcd.log file <=="
+    fi
+else
+    echo "Error: $PCP_LOG_DIR/pmcd/pmcd.log missing!"
+fi
+
+if [ -f $PCP_LOG_DIR/pmcd/pmcd.log.prev ]
+then
+    if grep "pmcd: PID = $pid," $PCP_LOG_DIR/pmcd/pmcd.log.prev >/dev/null
+    then
+	echo "Error: $PCP_LOG_DIR/pmcd/pmcd.log.prev for running pmcd (PID=$pid)"
+	echo "==> start $PCP_LOG_DIR/pmcd/pmcd.log.prev file ==>"
+	cat $PCP_LOG_DIR/pmcd/pmcd.log.prev
+	echo "<= end $PCP_LOG_DIR/pmcd/pmcd.log.prev file <=="
+    fi
+fi
+
+if [ -f $PCP_RUN_DIR/pmcd.pid ]
+then
+    if [ "$pid" = "`cat $PCP_RUN_DIR/pmcd.pid`" ]
+    then
+	$check || echo "OK: run file has pmcd's pid"
+    else
+	echo "Error: $PCP_RUN_DIR/pmcd.pid -> PID `cat $PCP_RUN_DIR/pmcd.pid` not pmcd (PID=$pid)"
+	status = 1
+    fi
+else
+    echo "Error: $PCP_RUN_DIR/pmcd.pid missing"
+    status = 1
+fi
+
+# success, all done
+exit

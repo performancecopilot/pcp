@@ -1,0 +1,111 @@
+#!/bin/sh
+# PCP QA Test No. 1059
+# pmcd run file and (maybe) unix domain socket are all OK
+#
+# Copyright (c) 2017 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=0	# success is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "cd $here; $sudo rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
+
+error=false
+warn=false
+
+# real QA test starts here
+_get_pids_by_name -a pmcd >$tmp.pid
+
+if [ ! -s $tmp.pid ]
+then
+    echo "Error: no running pmcd process"
+    error=true
+else
+    if [ "`wc -l <$tmp.pid | sed -e 's/ //g'`" -gt 1 ]
+    then
+	echo "Error: multiple pmcd processes running"
+	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[P]PID|pmcd'
+	error=true
+    fi
+    if [ -d $PCP_RUN_DIR ]
+    then
+	if [ ! -f $PCP_RUN_DIR/pmcd.pid ]
+	then
+	    echo "Error: no $PCP_RUN_DIR/pmcd.pid file"
+	    error=true
+	else
+	    if grep "^`cat $PCP_RUN_DIR/pmcd.pid`\$" $tmp.pid >/dev/null
+	    then
+		echo "Info: pmcd's PID matches $PCP_RUN_DIR/pmcd.pid"
+	    else
+		echo "Error: $PCP_RUN_DIR/pmcd.pid (`cat $PCP_RUN_DIR/pmcd.pid`) does not match running pmcds:"
+		sed -e 's/^/	/' <$tmp.out
+		error=true
+	    fi
+	    if grep -v "^`cat $PCP_RUN_DIR/pmcd.pid`\$" $tmp.pid >$tmp.out
+	    then
+		echo "Error: $PCP_RUN_DIR/pmcd.pid (`cat $PCP_RUN_DIR/pmcd.pid`) does not match these pmcd PID(s):"
+		sed -e 's/^/	/' <$tmp.out
+	    fi
+	fi
+	if [ -e $PCP_RUN_DIR/pmcd.socket ]
+	then
+	    if [ -S $PCP_RUN_DIR/pmcd.socket ]
+	    then
+		if which lsof >/dev/null 2>&1
+		then
+		    $sudo lsof -U 2>/dev/null \
+		    | grep $PCP_RUN_DIR/pmcd.socket \
+		    | $PCP_AWK_PROG '$1 != "COMMAND" { print $1,$2 }' \
+		    | sort \
+		    | uniq >$tmp.tmp
+		    if grep "^pmcd `cat $PCP_RUN_DIR/pmcd.pid`\$" $tmp.tmp >/dev/null
+		    then
+			echo "Info: pmcd's PID matches $PCP_RUN_DIR/pmcd.socket owner"
+		    else
+			echo "Error: pmcd's PMID (`cat $PCP_RUN_DIR/pmcd.pid`) does not match $PCP_RUN_DIR/pmcd.socket owner"
+			$sudo lsof -U | grep $PCP_RUN_DIR/pmcd.socket
+			error=true
+		    fi
+		    if grep -v "^pmcd `cat $PCP_RUN_DIR/pmcd.pid`\$" $tmp.tmp >$tmp.out
+		    then
+			echo "Error: $PCP_RUN_DIR/pmcd.socket attached to processes other than pmcd:"
+			sed -e 's/^/	/' <$tmp.out
+		    fi
+		else
+		    # no lsof, sigh ... fake it
+		    echo "Info: pmcd's PID matches $PCP_RUN_DIR/pmcd.socket owner"
+		fi
+	    else
+		echo "Error: $PCP_RUN_DIR/pmcd.socket is not a socket"
+		ls -l $PCP_RUN_DIR/pmcd.socket
+	    fi
+	else
+	    echo "Error: no $PCP_RUN_DIR/pmcd.socket socket"
+	fi
+    else
+	echo "Warning: no $PCP_RUN_DIR directory"
+	warn=true
+    fi
+fi
+
+# all done, exit status depends on errors or warnings
+#
+if $error
+then
+    status=4
+elif $warn
+then
+    status=1
+else
+    status=0
+fi
+
+exit

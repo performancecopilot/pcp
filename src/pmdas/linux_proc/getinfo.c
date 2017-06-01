@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Red Hat.
+ * Copyright (c) 2016-2017 Red Hat.
  * Copyright (c) 2010 Aconex.  All Rights Reserved.
  * Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
  *
@@ -15,6 +15,7 @@
  */
 
 #include <sys/stat.h>
+#include <dirent.h>
 #include <ctype.h>
 #include <fcntl.h>
 #include "pmapi.h"
@@ -43,26 +44,30 @@ get_encoded_dev(const char *devnum)
 char *
 get_ttyname_info(int pid, dev_t dev)
 {
-    int i;
-    size_t length;
     struct stat statbuf;
-    char ttypath[MAXPATHLEN];
-    char procpath[MAXPATHLEN];
+    char fullpath[MAXPATHLEN];
     static char ttyname[MAXPATHLEN];
-    const int fds[] = { STDIN_FILENO, STDOUT_FILENO, STDERR_FILENO };
+    char *path, *devpath = "/dev/";
+    struct dirent *drp;
+    DIR *rundir;
 
     strcpy(ttyname, "?");
-    for (i = 0; i < sizeof(fds)/sizeof(int); i++) {
-	sprintf(procpath, "/proc/%d/fd/%d", pid, fds[i]);
-	if ((length = readlink(procpath, ttypath, sizeof(ttypath)-1)) < 0)
+    if ((rundir = opendir(devpath)) == NULL)
+	return ttyname;
+
+    while ((drp = readdir(rundir)) != NULL) {
+	if (*(path = &drp->d_name[0]) == '.')
 	    continue;
-	ttypath[length] = '\0';
-	if (strncmp(ttypath, "/dev/", 5) == 0 &&
-	    stat(ttypath, &statbuf) == 0 &&
-	    S_ISCHR(statbuf.st_mode) && dev == statbuf.st_rdev) {
-	    strcpy(ttyname, &ttypath[5]); /* skip "/dev/" prefix */
+	snprintf(fullpath, sizeof(fullpath), "%s%s", devpath, path);
+	fullpath[sizeof(fullpath)-1] = '\0';
+	if (!stat(fullpath, &statbuf))
+	    continue;
+	if (S_ISCHR(statbuf.st_mode) && dev == statbuf.st_rdev) {
+	    strncpy(ttyname, &fullpath[5], sizeof(ttyname));
+	    ttyname[sizeof(ttyname)-1] = '\0';
 	    break;
 	}
     }
+    closedir(rundir);
     return ttyname;
 }

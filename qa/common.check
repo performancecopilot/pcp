@@ -13,6 +13,10 @@ fi
 # need to know what version we're running
 . ./localconfig
 
+# Ken is never going to use systemd to control PCP daemons during QA
+#
+[ "`id -un`" = kenj ] && export PCPQA_SYSTEMD=no
+
 # common routine for preventing a test from running on some platforms
 # use: _notrun "Reason for not running this test is ..."
 # 
@@ -124,7 +128,7 @@ _restore_config()
 
 # systemd config changes
 #
-_stop_systemd_restart()
+_stop_auto_restart()
 {
     if [ -n "$PCP_SYSTEMDUNIT_DIR" -a -f $PCP_SYSTEMDUNIT_DIR/$1.service ]
     then
@@ -143,7 +147,7 @@ _stop_systemd_restart()
     fi
 }
 
-_restore_systemd_restart()
+_restore_auto_restart()
 {
     if [ -n "$PCP_SYSTEMDUNIT_DIR" -a -f $PCP_SYSTEMDUNIT_DIR/$1.service.$seq ]
     then
@@ -154,6 +158,163 @@ _restore_systemd_restart()
 	else
 	    $sudo kill -HUP 1
 	fi
+    fi
+}
+
+# Wrapper for PCP daemon init scripts ... use systemctl if available,
+# else run the PCP scripts directly
+#
+# Based on similar logic in the $PCP_RC_DIR/pcp script, but note this
+# one has to do the $sudo and the journal dredging and handle "pcp" as
+# the special non-service case ...
+#
+# Usage: _service <service> [on|off|restart|...]
+#
+_service()
+{
+    if [ $# -ne 2 ]
+    then
+	echo "_service: expect 2 arguments, not $# ($*)"
+	exit
+    fi
+    _do_systemctl=false
+    if [ "$PCPQA_SYSTEMD" = no ]
+    then
+	# don't ever use systemctl
+	:
+    else
+	which systemctl >/dev/null 2>&1 && _do_systemctl=true
+	if $_do_systemctl
+	then
+	    case "$1"
+	    in
+		pcp)
+		    if [ -n "$PCP_SYSTEMDUNIT_DIR" -a -f $PCP_SYSTEMDUNIT_DIR/pmcd.service -a -f $PCP_SYSTEMDUNIT_DIR/pmlogger.service -a -f $PCP_RC_DIR/pcp ]
+		    then
+			:
+		    else
+			_do_systemctl=false
+		    fi
+		    ;;
+		*)
+		    if [ -n "$PCP_SYSTEMDUNIT_DIR" -a -f $PCP_SYSTEMDUNIT_DIR/$1.service ]
+		    then
+			:
+		    else
+			_do_systemctl=false
+		    fi
+		    ;;
+	    esac
+	fi
+    fi
+
+    if $_do_systemctl
+    then
+	# smells like systemctl is the go ...
+	#
+	# need to extract relevant journal entries, like
+	# Jan 28 13:48:39 vm31.localdomain pmcd[24352]: Starting pmcd ...
+	# but not these
+	# -- Logs begin at Tue 2016-11-15 02:41:52 AEDT, end at Sun 2017-01-29 07:01:06 AEDT. --
+	# Jan 28 13:48:39 vm31.localdomain systemd[1]: Starting Performance Metrics Collector Daemon...
+	#
+	case "$1"
+	in
+	    pcp)
+		# not a systemd service but a wrapper for the pmcd and pmlogger
+		# services, so a little different ...
+		#
+		if `which journalctl >/dev/null 2>&1`
+		then
+		    $sudo journalctl -n 10 -u pmcd -u pmlogger \
+		    | egrep " (pmcd)|(pmlogger)\\[" \
+		    | sed -e 's/\.\.done$//' >$tmp.journal.pre
+		elif `which systemd-journalctl >/dev/null 2>&1`
+		then
+		    $sudo systemd-journalctl -a -q -n 100 \
+		    | egrep " (pmcd)|(pmlogger)\\[" \
+		    | sed -e 's/\.\.done$//' >$tmp.journal.pre
+		fi
+		$sudo $PCP_RC_DIR/pcp $2
+		sleep 2
+		if `which journalctl >/dev/null 2>&1`
+		then
+		    $sudo journalctl -n 10 -u pmcd -u pmlogger \
+		    | egrep " (pmcd)|(pmlogger)\\[" \
+		    | sed -e 's/\.\.done$//' >$tmp.journal.post
+		elif `which systemd-journalctl >/dev/null 2>&1`
+		then
+		    $sudo systemd-journalctl -a -q -n 100 \
+		    | egrep " (pmcd)|(pmlogger)\\[" \
+		    | sed -e 's/\.\.done$//' >$tmp.journal.post
+		fi
+		;;
+	    *)
+		if `which journalctl >/dev/null 2>&1`
+		then
+		    $sudo journalctl -n 10 -u $1 \
+		    | grep " $1\\[" \
+		    | sed -e 's/\.\.done$//' >$tmp.journal.pre
+		elif `which systemd-journalctl >/dev/null 2>&1`
+		then
+		    $sudo systemd-journalctl -a -q -n 100 \
+		    | egrep " $1\\[" \
+		    | sed -e 's/\.\.done$//' >$tmp.journal.pre
+		fi
+		$sudo systemctl $2 $1.service
+		sleep 2
+		if `which journalctl >/dev/null 2>&1`
+		then
+		    $sudo journalctl -n 10 -u $1 \
+		    | grep " $1\\[" \
+		    | sed -e 's/\.\.done$//' >$tmp.journal.post
+		elif `which systemd-journalctl >/dev/null 2>&1`
+		then
+		    $sudo systemd-journalctl -a -q -n 100 \
+		    | egrep " $1\\[" \
+		    | sed -e 's/\.\.done$//' >$tmp.journal.post
+		fi
+		;;
+	esac
+	# logic copied from pmdaproc.sh ...
+	#
+	# diff the pre and post journal lines to find those most recently
+	# added:
+	#	- lines beginning with a digit are ed(1) commands, ignore
+	#	- --- lines are diff fluff
+	#	- lines beginnning < are only in journal.pre, ignore
+	#	- strip journal datestamp and process id info
+	#	- add trailing space for some output lines to match
+	#	  non-systemd output and QA *.out files
+	#	- bizarro (on vm19) the .post file may contain lines
+	#	  _before_ the start of a non-empty .pre file, so any
+	#	  > lines after 0a? are nonsense, but need to make sure
+	#	  the .pre file is not empty (sigh)
+	#
+	echo "--- journal _service $1 $2 pre ---" >>$here/$seq.full
+	[ -s $tmp.journal.pre ] || echo "-- added by _service() --" >$tmp.journal.pre
+	cat $tmp.journal.pre >>$here/$seq.full
+	echo "--- journal _service $1 $2 post ---" >>$here/$seq.full
+	cat $tmp.journal.post >>$here/$seq.full
+	diff $tmp.journal.pre $tmp.journal.post \
+	| $PCP_AWK_PROG '
+BEGIN		{ skip = 0 }
+$1 ~ /^0a/	{ skip = 1; next }
+skip == 1 && $1 != ">"	{ skip = 0 }
+skip == 0	{ print }' \
+	| sed \
+	    -e '/^[<0-9]/d' \
+	    -e '/^---$/d' \
+	    -e "s/^.*\\[[0-9]*]: //" \
+	    -e '/^Starting p.*[^ ]$/s/$/ /' \
+	    -e '/^Stopping p.*[^ ]$/s/$/ /' \
+	# end
+    elif [ -f $PCP_RC_DIR/$1 ]
+    then
+	$sudo $PCP_RC_DIR/$1 $2
+    else
+	echo "_service: $1 is not a systemctl service nor a $PCP_RC_DIR script!"
+	exit
     fi
 }
 
@@ -229,8 +390,8 @@ _cleanup_pmda()
 	:
     else
 	_restore_config $PCP_PMCDCONF_PATH
-	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
-	_restore_systemd_restart pmcd
+	_service pcp restart | _filter_pcp_start
+	_restore_auto_restart pmcd
 	_wait_for_pmcd
 	_wait_for_pmlogger
 	if $install_on_cleanup
@@ -245,6 +406,23 @@ _cleanup_pmda()
 	done_clean=true
     fi
     $sudo rm -f $tmp.*
+}
+
+#
+# create a Linux /proc/stat-alike file for a given number of CPUs
+#
+_make_proc_stat()
+{
+    __path=$1
+    __ncpu=$2
+
+    echo cpu 0 0 0 0 0 0 0 0 0 > $__path
+    __cpu=0
+    while [ $__cpu -lt $__ncpu ]
+    do
+	echo cpu$__cpu 0 0 0 0 0 0 0 0 0 >> $__path
+	__cpu=`expr $__cpu + 1`
+    done
 }
 
 _make_helptext()
@@ -376,10 +554,13 @@ _wait_for_pmcd()
     #debug# ping -c 2 $_host
     #debug# pcp -h $_host
     #debug# pcp -h `hostname`
+    rm -f $tmp._wait_for_pmcd.err $tmp._wait_for_pmcd.out
     while [ $_i -lt $_can_wait ]
     do
+	echo "-- $_i --" >>$tmp._wait_for_pmcd.err
+	echo "-- $_i --" >>$tmp._wait_for_pmcd.out
 	#debug# pmprobe -n $PCP_VAR_DIR/pmns/root_pmcd -h $_host pmcd.numclients
-	_sts=`pmprobe -n $PCP_VAR_DIR/pmns/root_pmcd -h $_host pmcd.numclients 2>/dev/null | $PCP_AWK_PROG '{print $2}'`
+	_sts=`pmprobe -n $PCP_VAR_DIR/pmns/root_pmcd -h $_host pmcd.numclients 2>>$tmp._wait_for_pmcd.err | tee -a $tmp._wait_for_pmcd.out | $PCP_AWK_PROG '{print $2}'`
 	if [ "${_sts:-0}" -gt 0 ]
 	then
 	    # numval really > 0, we're done
@@ -394,7 +575,11 @@ _wait_for_pmcd()
     then
 	date
 	echo "Arrgghhh ... pmcd at $_host failed to start after $_can_wait seconds"
-	echo "=== failing pmprobe ==="
+	echo "=== failing pmprobes stdout ==="
+	cat $tmp._wait_for_pmcd.out
+	echo "=== failing pmprobes stderr ==="
+	cat $tmp._wait_for_pmcd.err
+	echo "... and now"
 	echo "+ pmprobe -n $PCP_VAR_DIR/pmns/root_pmcd -h $_host pmcd.numclients"
 	pmprobe -n $PCP_VAR_DIR/pmns/root_pmcd -h $_host pmcd.numclients
 	case $_host
@@ -908,6 +1093,8 @@ EOF
 #
 # Main code...
 #   _run_valgrind app [arg1 [arg2] ... ]
+# or
+#   _run_helgrind [--sudo] app [arg1 [arg2] ... ]
 #
 
 _check_valgrind()
@@ -953,6 +1140,22 @@ _filter_valgrind()
 	-e '/Ignoring non-Dwarf2\/3\/4 block in .debug_info/d' \
 	-e '/Last block truncated in .debug_info; ignoring/d' \
 	-e '/parse_CU_Header: is neither DWARF2 nor DWARF3 nor DWARF4/d' \
+    # end
+}
+
+_filter_helgrind()
+{
+    sed \
+	-e 's/^==*[1-9][0-9]*==* *//' \
+	-e '/^$/d' \
+	-e '/^Parent PID:/d' \
+	-e '/^Copyright (/d' \
+	-e '/^Using Valgrind-/d' \
+	-e '/^Command: /d' \
+	-e '/^For counts of detected and suppressed errors,/d' \
+	-e '/^Use --history-level=approx or =none/d' \
+	-e '/^the cost of reduced accuracy of conflicting-access/d' \
+	-e '/^ERROR SUMMARY:/s/ (suppressed: [^)]*)/ .../' \
     # end
 }
 
@@ -1022,6 +1225,37 @@ if which valgrind >/dev/null 2>&1; then
 	     --suppressions=$here/valgrind-suppress $__extra \
 	     --log-fd=1"
 fi
+
+_run_helgrind()
+{
+    rm -f $tmp.valgrind.err $tmp.valgrind.out $tmp.valgrind.log
+    touch $tmp.valgrind.err $tmp.valgrind.out $tmp.valgrind.log
+    if [ x"$1" = "x--sudo" ]
+    then
+	_helgrind_prefix=$sudo
+	shift
+    else
+	_helgrind_prefix=''
+    fi
+    __version=`valgrind --version | sed -e 's/valgrind-//'`
+    if [ -f $here/helgrind-suppress-$__version ]
+    then
+	__extra="--suppressions=$here/helgrind-suppress-$__version"
+	echo "Warning: using extra $__extra" >>$here/$seq.full
+    else
+	__extra=''
+    fi
+
+    $_helgrind_prefix valgrind \
+	--tool=helgrind --gen-suppressions=all \
+	--suppressions=$here/helgrind-suppress $__extra \
+	--log-file=$tmp.valgrind.log \
+	    $* 2>$tmp.valgrind.err >$tmp.valgrind.out
+    echo "=== valgrind report ===" >>$here/$seq.full
+    cat $tmp.valgrind.log >>$here/$seq.full
+    echo "=== filtered valgrind report ==="
+    _filter_helgrind <$tmp.valgrind.log
+}
 
 #
 # Checks that given_value is in range of correct_value +/- tolerance.
@@ -1866,7 +2100,13 @@ p
     fi
 }
 
-# disable all system pmloggers running via the control file(s)
+# This used to disable all system pmloggers running via the control
+# file(s), but that was problematic and so now replaces the control
+# file with a simple one that starts a primary pmlogger with /dev/null
+# as the configuration file so pmlogger makes not requests to pmcd.
+# 
+# See _restore_loggers() below for the logic to re-instate the original
+# control file(s).
 #
 _disable_loggers()
 {
@@ -2042,4 +2282,38 @@ _get_libpcp_config()
     pmconfig -L -s > $tmp.config
     . $tmp.config
     rm $tmp.config
+}
+
+# core dumping deep inside the libvirt Python wrapper layer ...
+# not much we can do here other than skip libvirtpmda stuff`
+#
+_libvirt_is_ok()
+{
+    if [ -f /etc/lsb-release ]
+    then
+	if grep -q 'DISTRIB_ID=Ubuntu' /etc/lsb-release
+	then
+	    # OK, Ubuntu ... now let's check the libvirt version
+	    #
+	    cat <<'End-of-File' >$tmp.py
+import sys
+import libvirt
+conn = libvirt.open('qemu:///system')
+if conn != None:
+    ver = conn.getVersion()
+    print(str(ver))
+    conn.close()
+exit(0)
+End-of-File
+	    _libvirt_ver=`$PCP_PYTHON_PROG $tmp.py 2>/dev/null`
+	    echo "Ubuntu and libvert version $_libvirt_ver" >>$here/$seq.full
+	    case "$_libvirt_ver"
+	    in
+		2005000)
+		    return 1
+		    ;;
+	    esac
+	fi
+    fi
+    return 0
 }

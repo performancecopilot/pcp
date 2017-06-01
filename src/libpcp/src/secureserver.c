@@ -543,12 +543,14 @@ __pmAuthServerSetAttributes(sasl_conn_t *conn, __pmHashCtl *attrs)
     sts = sasl_getprop(conn, SASL_USERNAME, &property);
     username = (char *)property;
     if (sts == SASL_OK && username) {
+	int len = strlen(username);
+
 	__pmNotifyErr(LOG_INFO,
 			"Successful authentication for user \"%s\"\n",
 			username);
 	if ((username = strdup(username)) == NULL) {
 	    __pmNoMem("__pmAuthServerSetAttributes",
-			strlen(username), PM_RECOV_ERR);
+			len, PM_RECOV_ERR);
 	    return -ENOMEM;
 	}
     } else {

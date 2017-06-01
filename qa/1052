@@ -303,7 +303,7 @@ PCP_PYTHON_PMNS=root $python "$pmda_script" > ${pmns_root}
 # Start dbpmda in the background, redirecting its stdin/stdout to the
 # fifos.
 cd $here	# create pmda log file somewhere safe (for debugging)
-$sudo dbpmda -n ${pmns_root} -ie <${fifo_in} >${fifo_out} 2>&1 &
+$sudo dbpmda -n ${pmns_root} -e <${fifo_in} >${fifo_out} 2>&1 &
 
 # Open fd 3 for write and fd 4 for read. Note that we need to avoid
 # closing either fifo below, so we have to be careful with redirects.

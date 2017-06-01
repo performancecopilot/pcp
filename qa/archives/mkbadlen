@@ -2,7 +2,7 @@
 #
 # Recipes for making badlen-* family of archives.
 # 
-# Every one is based on a version of ../src/foo, with binary editing using
+# Every one is based on a version of ./ok-foo, with binary editing using
 # bvi (or similar) and cut-n-paste with dd.
 
 tmp=/var/tmp/$$
@@ -23,9 +23,9 @@ do
 done
 if [ $X -eq 0 ]
 then
-    cp ../src/foo.0 badlen-0.0
-    cp ../src/foo.meta badlen-0.meta
-    cp ../src/foo.index badlen-0.index
+    cp ./ok-foo.0 badlen-0.0
+    cp ./ok-foo.meta badlen-0.meta
+    cp ./ok-foo.index badlen-0.index
     X=1
 fi
 
@@ -35,7 +35,7 @@ ln badlen-0.index badlen-$X.index
 case $X
 in
     1)	# Trailer len of first pmResult smaller than header len.
-	cp ../src/foo.0 badlen-$X.0
+	cp ./ok-foo.0 badlen-$X.0
 	echo '263s\\.\\80\\' >$tmp.ex
 	;;
 
@@ -58,25 +58,25 @@ in
 	;;
 
     6)	# Label header len 64 not 132 as expected
-	cp ../src/foo.0 badlen-$X.0
+	cp ./ok-foo.0 badlen-$X.0
 	echo '3s\\.\\40\\' >$tmp.ex
 	;;
 
     7)	# Label trailer len 64 not 132 as expected
-	cp ../src/foo.0 badlen-$X.0
+	cp ./ok-foo.0 badlen-$X.0
 	echo '131s\\.\\40\\' >$tmp.ex
 	;;
 
     8)	# Label bad PM_LOG_VER
-	cp ../src/foo.0 badlen-$X.0
+	cp ./ok-foo.0 badlen-$X.0
 	echo '7s\\.\\FF\\' >$tmp.ex
 	;;
 
     9)  # Truncated metadata file
-	cp ../src/foo.0 badlen-$X.0
-	cp ../src/foo.index badlen-$X.index
+	cp ./ok-foo.0 badlen-$X.0
+	cp ./ok-foo.index badlen-$X.index
 	rm -f badlen-$X.meta
-	dd if=../src/foo.meta of=badlen-$X.meta bs=1 count=840
+	dd if=./ok-foo.meta of=badlen-$X.meta bs=1 count=840
 	;;
 
     10)	# Data file truncated in trailer of label record

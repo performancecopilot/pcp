@@ -22,6 +22,23 @@
 #include <strings.h>
 #endif
 
+#ifdef PM_MULTI_THREAD
+static pthread_mutex_t	config_lock = PTHREAD_MUTEX_INITIALIZER;
+#else
+void			*config_lock;
+#endif
+
+#if defined(PM_MULTI_THREAD) && defined(PM_MULTI_THREAD_DEBUG)
+/*
+ * return true if lock == config_lock
+ */
+int
+__pmIsConfigLock(void *lock)
+{
+    return lock == (void *)&config_lock;
+}
+#endif
+
 #ifdef IS_MINGW
 /*
  * Fix up the Windows path separator quirkiness - PCP code deals
@@ -98,13 +115,16 @@ static int posix_style(void)
 {
     char	*s;
     int		sts;
-    PM_LOCK(__pmLock_libpcp);
-    s = getenv("SHELL");
+    PM_LOCK(__pmLock_extcall);
+    s = getenv("SHELL");		/* THREADSAFE */
     sts = (s && strncmp(s, "/bin/", 5) == 0);
-    PM_UNLOCK(__pmLock_libpcp);
+    PM_UNLOCK(__pmLock_extcall);
     return sts;
 }
 
+/*
+ * Called with __pmLock_extcall held, so putenv() is thread-safe.
+ */
 static void
 dos_formatter(char *var, char *prefix, char *val)
 {
@@ -118,9 +138,7 @@ dos_formatter(char *var, char *prefix, char *val)
     else {
 	snprintf(envbuf, sizeof(envbuf), "%s=%s", var, val);
     }
-    PM_LOCK(__pmLock_libpcp);
-    putenv(strdup(envbuf));
-    PM_UNLOCK(__pmLock_libpcp);
+    putenv(strdup(envbuf));		/* THREADSAFE */
 }
 
 PCP_DATA const __pmConfigCallback __pmNativeConfig = dos_formatter;
@@ -132,6 +150,9 @@ char *__pmNativePath(char *path) { return path; }
 int __pmAbsolutePath(char *path) { return path[0] == '/'; }
 int __pmPathSeparator() { return '/'; }
 
+/*
+ * Called with __pmLock_extcall held, so putenv() is thread-safe.
+ */
 static void
 posix_formatter(char *var, char *prefix, char *val)
 {
@@ -155,9 +176,7 @@ posix_formatter(char *var, char *prefix, char *val)
     strncat(envbuf, vp, vend-vp+1);
     envbuf[strlen(var)+1+vend-vp+1+1] = '\0';
 
-    PM_LOCK(__pmLock_libpcp);
-    putenv(strdup(envbuf));
-    PM_UNLOCK(__pmLock_libpcp);
+    putenv(strdup(envbuf));		/* THREADSAFE */
     (void)prefix;
 }
 
@@ -182,29 +201,45 @@ __pmconfig(__pmConfigCallback formatter, int fatal)
     char *val;
     char *p;
 
-    PM_INIT_LOCKS();
-    PM_LOCK(__pmLock_libpcp);
-    prefix = getenv("PCP_DIR");
-    if ((conf = getenv("PCP_CONF")) == NULL) {
+    PM_LOCK(__pmLock_extcall);
+    prefix = getenv("PCP_DIR");		/* THREADSAFE */
+    conf = getenv("PCP_CONF");		/* THREADSAFE */
+    if (conf == NULL) {
 	strncpy(confpath, "/etc/pcp.conf", sizeof(confpath));
-	if (prefix == NULL)
+	if (prefix == NULL) {
+	    /* THREADSAFE - no locks acquired in __pmNativePath() */
 	    conf = __pmNativePath(confpath);
+	}
 	else {
 	    snprintf(dir, sizeof(dir),
 			 "%s%s", prefix, __pmNativePath(confpath));
 	    conf = dir;
 	}
     }
+    conf = strdup(conf);
+    if (prefix != NULL) prefix = strdup(prefix);
+    PM_UNLOCK(__pmLock_extcall);
 
     if ((fp = fopen(conf, "r")) == NULL) {
-	PM_UNLOCK(__pmLock_libpcp);
-	if (!fatal)
+	if (!fatal) {
+	    free(conf);
+	    if (prefix != NULL) free(prefix);
 	    return;
-	pmprintf(
+	}
+	/*
+	 * we used to pmprintf() here to be sure the message
+	 * would be seen, given the seriousness of the situation
+	 * ... but that introduces recursion back into
+	 * pmGetOptionalConfig() to get the PCP settings that
+	 * control what how to dispose of output from pmprintf()
+	 * ... and kaboom.
+	 */
+	fprintf(stderr,
 	    "FATAL PCP ERROR: could not open config file \"%s\" : %s\n"
 	    "You may need to set PCP_CONF or PCP_DIR in your environment.\n",
 		conf, osstrerror_r(errmsg, sizeof(errmsg)));
-	pmflush();
+	free(conf);
+	if (prefix != NULL) free(prefix);
 	exit(1);
     }
 
@@ -215,16 +250,24 @@ __pmconfig(__pmConfigCallback formatter, int fatal)
 	val = p+1;
 	if ((p = strrchr(val, '\n')) != NULL)
 	    *p = '\0';
-	if ((p = getenv(var)) != NULL)
+	PM_LOCK(__pmLock_extcall);
+	p = getenv(var);		/* THREADSAFE */
+	if (p != NULL)
 	    val = p;
-	else
+	else {
+	    /*
+	     * THREADSAFE - no locks acquired in formatter() which is
+	     * really dos_formatter() or posix_formatter()
+	     */
 	    formatter(var, prefix, val);
-
+	}
 	if (pmDebug & DBG_TRACE_CONFIG)
 	    fprintf(stderr, "pmgetconfig: (init) %s=%s\n", var, val);
+	PM_UNLOCK(__pmLock_extcall);
     }
     fclose(fp);
-    PM_UNLOCK(__pmLock_libpcp);
+    free(conf);
+    if (prefix != NULL) free(prefix);
 }
 
 void
@@ -237,34 +280,28 @@ static char *
 pmgetconfig(const char *name, int fatal)
 {
     /*
-     * state controls one-trip initialization, and recursion guard
-     * for pathological failures in initialization
+     * state controls one-trip initialization
      */
     static int		state = 0;
     char		*val;
 
-    PM_INIT_LOCKS();
-    PM_LOCK(__pmLock_libpcp);
+    PM_LOCK(config_lock);
     if (state == 0) {
 	state = 1;
-	PM_UNLOCK(__pmLock_libpcp);
 	__pmconfig(__pmNativeConfig, fatal);
-	PM_LOCK(__pmLock_libpcp);
-	state = 2;
     }
-    else if (state == 1) {
-	/* recursion from error in __pmConfig() ... no value is possible */
-	PM_UNLOCK(__pmLock_libpcp);
-	if (pmDebug & DBG_TRACE_CONFIG)
-	    fprintf(stderr, "pmgetconfig: %s= ... recursion error\n", name);
-	if (!fatal)
-	    return NULL;
-	val = "";
-	return val;
-    }
-    PM_UNLOCK(__pmLock_libpcp);
+    PM_UNLOCK(config_lock);
 
-    if ((val = getenv(name)) == NULL) {
+    /*
+     * THREADSAFE TODO ... this is bad (and documented), returning a
+     * direct pointer into the env ... should strdup() here and fix all
+     * callers to free() as needed later
+     */
+    val = getenv(name);		/* THREAD-UNSAFE! */
+    if (val == NULL) {
+	if (pmDebug & DBG_TRACE_CONFIG) {
+	    fprintf(stderr, "pmgetconfig: getenv(%s) -> NULL\n", name);
+	}
 	if (!fatal)
 	    return NULL;
 	val = "";
@@ -373,6 +410,16 @@ ipv6_enabled(void)
 #else
 #define SERVICE_DISCOVERY_ENABLED	disabled
 #endif
+#if defined(BUILD_WITH_LOCK_ASSERTS)
+#define LOCK_ASSERTS_ENABLED	enabled
+#else
+#define LOCK_ASSERTS_ENABLED	disabled
+#endif
+#if defined(PM_MULTI_THREAD_DEBUG)
+#define LOCK_DEBUG_ENABLED	enabled
+#else
+#define LOCK_DEBUG_ENABLED	disabled
+#endif
 
 typedef const char *(*feature_detector)(void);
 static struct {
@@ -395,6 +442,8 @@ static struct {
 	{ "static_probes",	STATIC_PROBES_ENABLED },	/* from pcp-3.8.3 */
 	{ "service_discovery",	SERVICE_DISCOVERY_ENABLED },	/* from pcp-3.8.6 */
 	{ "multi_archive_contexts", enabled },			/* from pcp-3.11.1 */
+	{ "lock_asserts",	LOCK_ASSERTS_ENABLED },		/* from pcp-3.11.10 */
+	{ "lock_debug",		LOCK_DEBUG_ENABLED },		/* from pcp-3.11.10 */
 };
 
 void

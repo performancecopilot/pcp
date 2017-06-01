@@ -1267,8 +1267,8 @@ pmExtendFetchGroup_item(pmFG pmfg,
 	    saved_origin.tv_usec = ctxp->c_origin.tv_usec;
 	    saved_mode = ctxp->c_mode;
 	    saved_delta = ctxp->c_delta;
+	    sts = __pmGetArchiveEnd_locked(ctxp, &archive_end);
 	    PM_UNLOCK(ctxp->c_lock);
-	    sts = pmGetArchiveEnd(&archive_end);
 	    if (sts < 0)
 		goto out;
 	    sts = pmSetMode(PM_MODE_BACK, &archive_end, 0);
@@ -1442,8 +1442,8 @@ pmExtendFetchGroup_event(pmFG pmfg,
 	    saved_origin.tv_usec = ctxp->c_origin.tv_usec;
 	    saved_mode = ctxp->c_mode;
 	    saved_delta = ctxp->c_delta;
+	    sts = __pmGetArchiveEnd_locked(ctxp, &archive_end);
 	    PM_UNLOCK(ctxp->c_lock);
-	    sts = pmGetArchiveEnd(&archive_end);
 	    if (sts < 0)
 		goto out;
 	    sts = pmSetMode (PM_MODE_BACK, &archive_end, 0);

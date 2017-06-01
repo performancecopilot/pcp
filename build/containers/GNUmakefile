@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015 Red Hat.
+# Copyright (c) 2015,2017 Red Hat.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -18,7 +18,22 @@ BUILDDEFS = $(TOPDIR)/src/include/builddefs
 include $(BUILDDEFS)
 -include ./GNUlocaldefs
 
-SUBDIRS = pcp-base pcp-collector pcp-monitor pcp-pmlogger pcp-pmie pcp-testsuite pcp-pmwebd
+SUBDIRS = \
+	pcp-base \
+	pcp-collector \
+	pcp-monitor \
+	pcp-pmlogger \
+	pcp-pmie \
+	pcp-testsuite \
+	pcp-pmwebd \
+	\
+	pcp-standalone \
+	pcp-java-app \
+	pcp-go-app \
+	pcp-apache \
+	pcp-nginx \
+	pcp-redis \
+	# end
 
 default default_pcp install install_pcp pack_pcp: $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)

@@ -1,6 +1,6 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2014 Red Hat.
+.\" Copyright (c) 2014,2017 Red Hat.
 .\" Copyright (c) 2012-2013 Chandana De Silva.
 .\" Copyright (c) 2008 Aconex.  All Rights Reserved.
 .\" 
@@ -13,14 +13,13 @@
 .\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
-.\" 
 .\"
 .TH PMDAMYSQL 1 "PCP" "Performance Co-Pilot"
 .SH NAME
-\f3pmdamysql\f1 \- MySQL database PMDA
+\f3pmdamysql\f1 \- MySQL and MariaDB database PMDA
 .SH DESCRIPTION
 \f3pmdamysql\f1 is a Performance Co-Pilot \s-1PMDA\s0 which extracts
-live performance data from a running MySQL database.
+live performance data from a running MySQL or MariaDB database.
 .SH INSTALLATION
 \f3pmdamysql\f1 uses a configuration file from (in this order):
 .IP "\(bu" 4
@@ -31,12 +30,25 @@ live performance data from a running MySQL database.
 This file can contain overridden values (Perl code) for the settings
 listed at the start of pmdamysql.pl, namely:
 .IP "\(bu" 4
-database name (see \s-1\fIDBI\s0\fR\|(3) for details)
+database name (see \s-1\fIDBI\s0\fR\|(3) for details, default is "DBI:mysql:mysql")
 .IP "\(bu" 4
-database username
+database username (default is "dbmonitor")
+.IP "\(bu" 4
+database password (default is "dbmonitor")
+.IP "\(bu" 4
+login account (default is "pcp")
 .PP
-Once this is setup, you can access the names and values for the
-mysql performance metrics by doing the following as root:
+On some versions of MariaDB (10+) the performance schema is disabled by
+default, and must be enabled for the PMDA to function.
+This is achieved by adding the string "performance_schema" into
+the "[mysqld]" section of the MariaDB configuration file (either
+.I my.cnf
+or
+.IR my.ini ).
+The "SHOW ENGINES" SQL statement shows support for the performance schema.
+.PP
+Once these initial setup actions are complete, you can access the names and
+values for the mysql performance metrics by doing the following as root:
 .PP
       # cd $PCP_PMDAS_DIR/mysql
 .br

@@ -27,7 +27,7 @@
 # blank lines before the @ line are ignored
 #
 
-@ PIPE.1 Instance domain of pipe commands
+@ PIPE.0 Instance domain of pipe commands
 
 @ pipe.numclients The number of attached clients
 @ pipe.maxmemory Maximum number of queued event bytes for each client

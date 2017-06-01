@@ -204,16 +204,16 @@ pmLoadDerivedConfig("TMP.config")
 [TMP.config:1] Error: pmRegisterDerived(myname.a, ...) syntax error
  delta(
       ^
-End of input
+Metric name expected to follow delta(
 pmRegisterDerived: register metric[2] myname.b = delta + 3
 [TMP.config:3] Error: pmRegisterDerived(myname.c, ...) syntax error
  delta(sample.long.one + sample.long.hundred)
                        ^                     
-')' expected
+Metric name expected to follow delta(
 [TMP.config:4] Error: pmRegisterDerived(myname.d, ...) syntax error
  delta(12345)
        ^     
-Metric name expected
+Metric name expected to follow delta(
 __dmopencontext: bind metric[0] event.flags
 __dmopencontext: bind metric[1] event.missed
 __dmgetpmid: metric "myname.b" -> PMID 511.0.3

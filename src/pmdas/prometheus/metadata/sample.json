@@ -1,0 +1,2832 @@
+{
+  "name": "prome",
+  "metrics": [
+    {
+      "semantics": "counter",
+      "type": "double",
+      "units_str": "",
+      "prometheus_name": "prometheus_sd_ec2_refresh_failures_total",
+      "name": "prometheus_sd_ec2_refresh_failures_total",
+      "description": "The number of EC2-SD scrape failures."
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "instances": [
+        {
+          "prometheus_name": "prometheus_target_sync_length_seconds_count{scrape_job=\"prometheus\"}",
+          "name": "scrape_job=\"prometheus\""
+        }
+      ],
+      "name": "prometheus_target_sync_length_seconds_count",
+      "description": "Actual interval to sync the scrape pool."
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "prometheus_name": "go_memstats_gc_sys_bytes",
+      "name": "go_memstats_gc_sys_bytes",
+      "description": "Number of bytes used for garbage collection system metadata."
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "prometheus_name": "prometheus_evaluator_duration_seconds_sum",
+      "name": "prometheus_evaluator_duration_seconds_sum",
+      "description": "The duration of rule group evaluations."
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "instances": [
+        {
+          "prometheus_name": "http_request_size_bytes_count{handler=\"alertmanagers\"}",
+          "name": "handler=\"alertmanagers\""
+        },
+        {
+          "prometheus_name": "http_request_size_bytes_count{handler=\"alerts\"}",
+          "name": "handler=\"alerts\""
+        },
+        {
+          "prometheus_name": "http_request_size_bytes_count{handler=\"config\"}",
+          "name": "handler=\"config\""
+        },
+        {
+          "prometheus_name": "http_request_size_bytes_count{handler=\"consoles\"}",
+          "name": "handler=\"consoles\""
+        },
+        {
+          "prometheus_name": "http_request_size_bytes_count{handler=\"drop_series\"}",
+          "name": "handler=\"drop_series\""
+        },
+        {
+          "prometheus_name": "http_request_size_bytes_count{handler=\"federate\"}",
+          "name": "handler=\"federate\""
+        },
+        {
+          "prometheus_name": "http_request_size_bytes_count{handler=\"flags\"}",
+          "name": "handler=\"flags\""
+        },
+        {
+          "prometheus_name": "http_request_size_bytes_count{handler=\"graph\"}",
+          "name": "handler=\"graph\""
+        },
+        {
+          "prometheus_name": "http_request_size_bytes_count{handler=\"heap\"}",
+          "name": "handler=\"heap\""
+        },
+        {
+          "prometheus_name": "http_request_size_bytes_count{handler=\"label_values\"}",
+          "name": "handler=\"label_values\""
+        },
+        {
+          "prometheus_name": "http_request_size_bytes_count{handler=\"options\"}",
+          "name": "handler=\"options\""
+        },
+        {
+          "prometheus_name": "http_request_size_bytes_count{handler=\"prometheus\"}",
+          "name": "handler=\"prometheus\""
+        },
+        {
+          "prometheus_name": "http_request_size_bytes_count{handler=\"query\"}",
+          "name": "handler=\"query\""
+        },
+        {
+          "prometheus_name": "http_request_size_bytes_count{handler=\"query_range\"}",
+          "name": "handler=\"query_range\""
+        },
+        {
+          "prometheus_name": "http_request_size_bytes_count{handler=\"rules\"}",
+          "name": "handler=\"rules\""
+        },
+        {
+          "prometheus_name": "http_request_size_bytes_count{handler=\"series\"}",
+          "name": "handler=\"series\""
+        },
+        {
+          "prometheus_name": "http_request_size_bytes_count{handler=\"static\"}",
+          "name": "handler=\"static\""
+        },
+        {
+          "prometheus_name": "http_request_size_bytes_count{handler=\"status\"}",
+          "name": "handler=\"status\""
+        },
+        {
+          "prometheus_name": "http_request_size_bytes_count{handler=\"targets\"}",
+          "name": "handler=\"targets\""
+        },
+        {
+          "prometheus_name": "http_request_size_bytes_count{handler=\"version\"}",
+          "name": "handler=\"version\""
+        }
+      ],
+      "name": "http_request_size_bytes_count",
+      "description": "The HTTP request sizes in bytes."
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "instances": [
+        {
+          "prometheus_name": "prometheus_target_interval_length_seconds_count{interval=\"15s\"}",
+          "name": "interval=\"15s\""
+        }
+      ],
+      "name": "prometheus_target_interval_length_seconds_count",
+      "description": "Actual intervals between scrapes."
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "instances": [
+        {
+          "prometheus_name": "prometheus_local_storage_checkpoint_series_chunks_written{quantile=\"0.5\"}",
+          "name": "quantile=\"0.5\""
+        },
+        {
+          "prometheus_name": "prometheus_local_storage_checkpoint_series_chunks_written{quantile=\"0.9\"}",
+          "name": "quantile=\"0.9\""
+        },
+        {
+          "prometheus_name": "prometheus_local_storage_checkpoint_series_chunks_written{quantile=\"0.99\"}",
+          "name": "quantile=\"0.99\""
+        }
+      ],
+      "name": "prometheus_local_storage_checkpoint_series_chunks_written",
+      "description": "The number of chunk written per series while checkpointing open chunks and chunks yet to be persisted."
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "prometheus_name": "prometheus_local_storage_checkpoint_last_duration_seconds",
+      "name": "prometheus_local_storage_checkpoint_last_duration_seconds",
+      "description": "The duration in seconds it took to last checkpoint open chunks and chunks yet to be persisted."
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "prometheus_name": "prometheus_local_storage_checkpoint_duration_seconds_sum",
+      "name": "prometheus_local_storage_checkpoint_duration_seconds_sum",
+      "description": "The duration in seconds taken for checkpointing open chunks and chunks yet to be persisted"
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "prometheus_name": "go_goroutines",
+      "name": "go_goroutines",
+      "description": "Number of goroutines that currently exist."
+    },
+    {
+      "semantics": "counter",
+      "type": "double",
+      "units_str": "",
+      "instances": [
+        {
+          "prometheus_name": "prometheus_local_storage_series_ops_total{type=\"archive\"}",
+          "name": "type=\"archive\""
+        },
+        {
+          "prometheus_name": "prometheus_local_storage_series_ops_total{type=\"create\"}",
+          "name": "type=\"create\""
+        },
+        {
+          "prometheus_name": "prometheus_local_storage_series_ops_total{type=\"maintenance_in_archive\"}",
+          "name": "type=\"maintenance_in_archive\""
+        },
+        {
+          "prometheus_name": "prometheus_local_storage_series_ops_total{type=\"maintenance_in_memory\"}",
+          "name": "type=\"maintenance_in_memory\""
+        },
+        {
+          "prometheus_name": "prometheus_local_storage_series_ops_total{type=\"purge_from_archive\"}",
+          "name": "type=\"purge_from_archive\""
+        },
+        {
+          "prometheus_name": "prometheus_local_storage_series_ops_total{type=\"purge_from_memory\"}",
+          "name": "type=\"purge_from_memory\""
+        },
+        {
+          "prometheus_name": "prometheus_local_storage_series_ops_total{type=\"purge_on_request\"}",
+          "name": "type=\"purge_on_request\""
+        },
+        {
+          "prometheus_name": "prometheus_local_storage_series_ops_total{type=\"quarantine_completed\"}",
+          "name": "type=\"quarantine_completed\""
+        },
+        {
+          "prometheus_name": "prometheus_local_storage_series_ops_total{type=\"quarantine_dropped\"}",
+          "name": "type=\"quarantine_dropped\""
+        },
+        {
+          "prometheus_name": "prometheus_local_storage_series_ops_total{type=\"quarantine_failed\"}",
+          "name": "type=\"quarantine_failed\""
+        },
+        {
+          "prometheus_name": "prometheus_local_storage_series_ops_total{type=\"unarchive\"}",
+          "name": "type=\"unarchive\""
+        }
+      ],
+      "name": "prometheus_local_storage_series_ops_total",
+      "description": "The total number of series operations by their type."
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "prometheus_name": "go_memstats_last_gc_time_seconds",
+      "name": "go_memstats_last_gc_time_seconds",
+      "description": "Number of seconds since 1970 of last garbage collection."
+    },
+    {
+      "semantics": "counter",
+      "type": "double",
+      "units_str": "",
+      "prometheus_name": "go_memstats_heap_released_bytes_total",
+      "name": "go_memstats_heap_released_bytes_total",
+      "description": "Total number of heap bytes released to OS."
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "instances": [
+        {
+          "prometheus_name": "http_request_size_bytes{handler=\"alertmanagers\",quantile=\"0.5\"}",
+          "name": "handler=\"alertmanagers\"::quantile=\"0.5\""
+        },
+        {
+          "prometheus_name": "http_request_size_bytes{handler=\"alertmanagers\",quantile=\"0.9\"}",
+          "name": "handler=\"alertmanagers\"::quantile=\"0.9\""
+        },
+        {
+          "prometheus_name": "http_request_size_bytes{handler=\"alertmanagers\",quantile=\"0.99\"}",
+          "name": "handler=\"alertmanagers\"::quantile=\"0.99\""
+        },
+        {
+          "prometheus_name": "http_request_size_bytes{handler=\"alerts\",quantile=\"0.5\"}",
+          "name": "handler=\"alerts\"::quantile=\"0.5\""
+        },
+        {
+          "prometheus_name": "http_request_size_bytes{handler=\"alerts\",quantile=\"0.9\"}",
+          "name": "handler=\"alerts\"::quantile=\"0.9\""
+        },
+        {
+          "prometheus_name": "http_request_size_bytes{handler=\"alerts\",quantile=\"0.99\"}",
+          "name": "handler=\"alerts\"::quantile=\"0.99\""
+        },
+        {
+          "prometheus_name": "http_request_size_bytes{handler=\"config\",quantile=\"0.5\"}",
+          "name": "handler=\"config\"::quantile=\"0.5\""
+        },
+        {
+          "prometheus_name": "http_request_size_bytes{handler=\"config\",quantile=\"0.9\"}",
+          "name": "handler=\"config\"::quantile=\"0.9\""
+        },
+        {
+          "prometheus_name": "http_request_size_bytes{handler=\"config\",quantile=\"0.99\"}",
+          "name": "handler=\"config\"::quantile=\"0.99\""
+        },
+        {
+          "prometheus_name": "http_request_size_bytes{handler=\"consoles\",quantile=\"0.5\"}",
+          "name": "handler=\"consoles\"::quantile=\"0.5\""
+        },
+        {
+          "prometheus_name": "http_request_size_bytes{handler=\"consoles\",quantile=\"0.9\"}",
+          "name": "handler=\"consoles\"::quantile=\"0.9\""
+        },
+        {
+          "prometheus_name": "http_request_size_bytes{handler=\"consoles\",quantile=\"0.99\"}",
+          "name": "handler=\"consoles\"::quantile=\"0.99\""
+        },
+        {
+          "prometheus_name": "http_request_size_bytes{handler=\"drop_series\",quantile=\"0.5\"}",
+          "name": "handler=\"drop_series\"::quantile=\"0.5\""
+        },
+        {
+          "prometheus_name": "http_request_size_bytes{handler=\"drop_series\",quantile=\"0.9\"}",
+          "name": "handler=\"drop_series\"::quantile=\"0.9\""
+        },
+        {
+          "prometheus_name": "http_request_size_bytes{handler=\"drop_series\",quantile=\"0.99\"}",
+          "name": "handler=\"drop_series\"::quantile=\"0.99\""
+        },
+        {
+          "prometheus_name": "http_request_size_bytes{handler=\"federate\",quantile=\"0.5\"}",
+          "name": "handler=\"federate\"::quantile=\"0.5\""
+        },
+        {
+          "prometheus_name": "http_request_size_bytes{handler=\"federate\",quantile=\"0.9\"}",
+          "name": "handler=\"federate\"::quantile=\"0.9\""
+        },
+        {
+          "prometheus_name": "http_request_size_bytes{handler=\"federate\",quantile=\"0.99\"}",
+          "name": "handler=\"federate\"::quantile=\"0.99\""
+        },
+        {
+          "prometheus_name": "http_request_size_bytes{handler=\"flags\",quantile=\"0.5\"}",
+          "name": "handler=\"flags\"::quantile=\"0.5\""
+        },
+        {
+          "prometheus_name": "http_request_size_bytes{handler=\"flags\",quantile=\"0.9\"}",
+          "name": "handler=\"flags\"::quantile=\"0.9\""
+        },
+        {
+          "prometheus_name": "http_request_size_bytes{handler=\"flags\",quantile=\"0.99\"}",
+          "name": "handler=\"flags\"::quantile=\"0.99\""
+        },
+        {
+          "prometheus_name": "http_request_size_bytes{handler=\"graph\",quantile=\"0.5\"}",
+          "name": "handler=\"graph\"::quantile=\"0.5\""
+        },
+        {
+          "prometheus_name": "http_request_size_bytes{handler=\"graph\",quantile=\"0.9\"}",
+          "name": "handler=\"graph\"::quantile=\"0.9\""
+        },
+        {
+          "prometheus_name": "http_request_size_bytes{handler=\"graph\",quantile=\"0.99\"}",
+          "name": "handler=\"graph\"::quantile=\"0.99\""
+        },
+        {
+          "prometheus_name": "http_request_size_bytes{handler=\"heap\",quantile=\"0.5\"}",
+          "name": "handler=\"heap\"::quantile=\"0.5\""
+        },
+        {
+          "prometheus_name": "http_request_size_bytes{handler=\"heap\",quantile=\"0.9\"}",
+          "name": "handler=\"heap\"::quantile=\"0.9\""
+        },
+        {
+          "prometheus_name": "http_request_size_bytes{handler=\"heap\",quantile=\"0.99\"}",
+          "name": "handler=\"heap\"::quantile=\"0.99\""
+        },
+        {
+          "prometheus_name": "http_request_size_bytes{handler=\"label_values\",quantile=\"0.5\"}",
+          "name": "handler=\"label_values\"::quantile=\"0.5\""
+        },
+        {
+          "prometheus_name": "http_request_size_bytes{handler=\"label_values\",quantile=\"0.9\"}",
+          "name": "handler=\"label_values\"::quantile=\"0.9\""
+        },
+        {
+          "prometheus_name": "http_request_size_bytes{handler=\"label_values\",quantile=\"0.99\"}",
+          "name": "handler=\"label_values\"::quantile=\"0.99\""
+        },
+        {
+          "prometheus_name": "http_request_size_bytes{handler=\"options\",quantile=\"0.5\"}",
+          "name": "handler=\"options\"::quantile=\"0.5\""
+        },
+        {
+          "prometheus_name": "http_request_size_bytes{handler=\"options\",quantile=\"0.9\"}",
+          "name": "handler=\"options\"::quantile=\"0.9\""
+        },
+        {
+          "prometheus_name": "http_request_size_bytes{handler=\"options\",quantile=\"0.99\"}",
+          "name": "handler=\"options\"::quantile=\"0.99\""
+        },
+        {
+          "prometheus_name": "http_request_size_bytes{handler=\"prometheus\",quantile=\"0.5\"}",
+          "name": "handler=\"prometheus\"::quantile=\"0.5\""
+        },
+        {
+          "prometheus_name": "http_request_size_bytes{handler=\"prometheus\",quantile=\"0.9\"}",
+          "name": "handler=\"prometheus\"::quantile=\"0.9\""
+        },
+        {
+          "prometheus_name": "http_request_size_bytes{handler=\"prometheus\",quantile=\"0.99\"}",
+          "name": "handler=\"prometheus\"::quantile=\"0.99\""
+        },
+        {
+          "prometheus_name": "http_request_size_bytes{handler=\"query\",quantile=\"0.5\"}",
+          "name": "handler=\"query\"::quantile=\"0.5\""
+        },
+        {
+          "prometheus_name": "http_request_size_bytes{handler=\"query\",quantile=\"0.9\"}",
+          "name": "handler=\"query\"::quantile=\"0.9\""
+        },
+        {
+          "prometheus_name": "http_request_size_bytes{handler=\"query\",quantile=\"0.99\"}",
+          "name": "handler=\"query\"::quantile=\"0.99\""
+        },
+        {
+          "prometheus_name": "http_request_size_bytes{handler=\"query_range\",quantile=\"0.5\"}",
+          "name": "handler=\"query_range\"::quantile=\"0.5\""
+        },
+        {
+          "prometheus_name": "http_request_size_bytes{handler=\"query_range\",quantile=\"0.9\"}",
+          "name": "handler=\"query_range\"::quantile=\"0.9\""
+        },
+        {
+          "prometheus_name": "http_request_size_bytes{handler=\"query_range\",quantile=\"0.99\"}",
+          "name": "handler=\"query_range\"::quantile=\"0.99\""
+        },
+        {
+          "prometheus_name": "http_request_size_bytes{handler=\"rules\",quantile=\"0.5\"}",
+          "name": "handler=\"rules\"::quantile=\"0.5\""
+        },
+        {
+          "prometheus_name": "http_request_size_bytes{handler=\"rules\",quantile=\"0.9\"}",
+          "name": "handler=\"rules\"::quantile=\"0.9\""
+        },
+        {
+          "prometheus_name": "http_request_size_bytes{handler=\"rules\",quantile=\"0.99\"}",
+          "name": "handler=\"rules\"::quantile=\"0.99\""
+        },
+        {
+          "prometheus_name": "http_request_size_bytes{handler=\"series\",quantile=\"0.5\"}",
+          "name": "handler=\"series\"::quantile=\"0.5\""
+        },
+        {
+          "prometheus_name": "http_request_size_bytes{handler=\"series\",quantile=\"0.9\"}",
+          "name": "handler=\"series\"::quantile=\"0.9\""
+        },
+        {
+          "prometheus_name": "http_request_size_bytes{handler=\"series\",quantile=\"0.99\"}",
+          "name": "handler=\"series\"::quantile=\"0.99\""
+        },
+        {
+          "prometheus_name": "http_request_size_bytes{handler=\"static\",quantile=\"0.5\"}",
+          "name": "handler=\"static\"::quantile=\"0.5\""
+        },
+        {
+          "prometheus_name": "http_request_size_bytes{handler=\"static\",quantile=\"0.9\"}",
+          "name": "handler=\"static\"::quantile=\"0.9\""
+        },
+        {
+          "prometheus_name": "http_request_size_bytes{handler=\"static\",quantile=\"0.99\"}",
+          "name": "handler=\"static\"::quantile=\"0.99\""
+        },
+        {
+          "prometheus_name": "http_request_size_bytes{handler=\"status\",quantile=\"0.5\"}",
+          "name": "handler=\"status\"::quantile=\"0.5\""
+        },
+        {
+          "prometheus_name": "http_request_size_bytes{handler=\"status\",quantile=\"0.9\"}",
+          "name": "handler=\"status\"::quantile=\"0.9\""
+        },
+        {
+          "prometheus_name": "http_request_size_bytes{handler=\"status\",quantile=\"0.99\"}",
+          "name": "handler=\"status\"::quantile=\"0.99\""
+        },
+        {
+          "prometheus_name": "http_request_size_bytes{handler=\"targets\",quantile=\"0.5\"}",
+          "name": "handler=\"targets\"::quantile=\"0.5\""
+        },
+        {
+          "prometheus_name": "http_request_size_bytes{handler=\"targets\",quantile=\"0.9\"}",
+          "name": "handler=\"targets\"::quantile=\"0.9\""
+        },
+        {
+          "prometheus_name": "http_request_size_bytes{handler=\"targets\",quantile=\"0.99\"}",
+          "name": "handler=\"targets\"::quantile=\"0.99\""
+        },
+        {
+          "prometheus_name": "http_request_size_bytes{handler=\"version\",quantile=\"0.5\"}",
+          "name": "handler=\"version\"::quantile=\"0.5\""
+        },
+        {
+          "prometheus_name": "http_request_size_bytes{handler=\"version\",quantile=\"0.9\"}",
+          "name": "handler=\"version\"::quantile=\"0.9\""
+        },
+        {
+          "prometheus_name": "http_request_size_bytes{handler=\"version\",quantile=\"0.99\"}",
+          "name": "handler=\"version\"::quantile=\"0.99\""
+        }
+      ],
+      "name": "http_request_size_bytes",
+      "description": "The HTTP request sizes in bytes."
+    },
+    {
+      "semantics": "counter",
+      "type": "double",
+      "units_str": "",
+      "prometheus_name": "go_memstats_alloc_bytes_total",
+      "name": "go_memstats_alloc_bytes_total",
+      "description": "Total number of bytes allocated, even if freed."
+    },
+    {
+      "semantics": "counter",
+      "type": "double",
+      "units_str": "",
+      "instances": [
+        {
+          "prometheus_name": "prometheus_target_scrape_pool_sync_total{scrape_job=\"prometheus\"}",
+          "name": "scrape_job=\"prometheus\""
+        }
+      ],
+      "name": "prometheus_target_scrape_pool_sync_total",
+      "description": "Total number of syncs that were executed on a scrape pool."
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "prometheus_name": "prometheus_local_storage_checkpoint_duration_seconds_count",
+      "name": "prometheus_local_storage_checkpoint_duration_seconds_count",
+      "description": "The duration in seconds taken for checkpointing open chunks and chunks yet to be persisted"
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "instances": [
+        {
+          "prometheus_name": "prometheus_local_storage_series_chunks_persisted_bucket{le=\"1\"}",
+          "name": "le=\"1\""
+        },
+        {
+          "prometheus_name": "prometheus_local_storage_series_chunks_persisted_bucket{le=\"2\"}",
+          "name": "le=\"2\""
+        },
+        {
+          "prometheus_name": "prometheus_local_storage_series_chunks_persisted_bucket{le=\"4\"}",
+          "name": "le=\"4\""
+        },
+        {
+          "prometheus_name": "prometheus_local_storage_series_chunks_persisted_bucket{le=\"8\"}",
+          "name": "le=\"8\""
+        },
+        {
+          "prometheus_name": "prometheus_local_storage_series_chunks_persisted_bucket{le=\"16\"}",
+          "name": "le=\"16\""
+        },
+        {
+          "prometheus_name": "prometheus_local_storage_series_chunks_persisted_bucket{le=\"32\"}",
+          "name": "le=\"32\""
+        },
+        {
+          "prometheus_name": "prometheus_local_storage_series_chunks_persisted_bucket{le=\"64\"}",
+          "name": "le=\"64\""
+        },
+        {
+          "prometheus_name": "prometheus_local_storage_series_chunks_persisted_bucket{le=\"128\"}",
+          "name": "le=\"128\""
+        },
+        {
+          "prometheus_name": "prometheus_local_storage_series_chunks_persisted_bucket{le=\"+Inf\"}",
+          "name": "le=\"+Inf\""
+        }
+      ],
+      "name": "prometheus_local_storage_series_chunks_persisted_bucket",
+      "description": "The number of chunks persisted per series."
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "instances": [
+        {
+          "prometheus_name": "go_gc_duration_seconds{quantile=\"0\"}",
+          "name": "quantile=\"0\""
+        },
+        {
+          "prometheus_name": "go_gc_duration_seconds{quantile=\"0.25\"}",
+          "name": "quantile=\"0.25\""
+        },
+        {
+          "prometheus_name": "go_gc_duration_seconds{quantile=\"0.5\"}",
+          "name": "quantile=\"0.5\""
+        },
+        {
+          "prometheus_name": "go_gc_duration_seconds{quantile=\"0.75\"}",
+          "name": "quantile=\"0.75\""
+        },
+        {
+          "prometheus_name": "go_gc_duration_seconds{quantile=\"1\"}",
+          "name": "quantile=\"1\""
+        }
+      ],
+      "name": "go_gc_duration_seconds",
+      "description": "A summary of the GC invocation durations."
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "prometheus_name": "prometheus_sd_ec2_refresh_duration_seconds_sum",
+      "name": "prometheus_sd_ec2_refresh_duration_seconds_sum",
+      "description": "The duration of a EC2-SD refresh in seconds."
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "instances": [
+        {
+          "prometheus_name": "http_request_duration_microseconds{handler=\"alertmanagers\",quantile=\"0.5\"}",
+          "name": "handler=\"alertmanagers\"::quantile=\"0.5\""
+        },
+        {
+          "prometheus_name": "http_request_duration_microseconds{handler=\"alertmanagers\",quantile=\"0.9\"}",
+          "name": "handler=\"alertmanagers\"::quantile=\"0.9\""
+        },
+        {
+          "prometheus_name": "http_request_duration_microseconds{handler=\"alertmanagers\",quantile=\"0.99\"}",
+          "name": "handler=\"alertmanagers\"::quantile=\"0.99\""
+        },
+        {
+          "prometheus_name": "http_request_duration_microseconds{handler=\"alerts\",quantile=\"0.5\"}",
+          "name": "handler=\"alerts\"::quantile=\"0.5\""
+        },
+        {
+          "prometheus_name": "http_request_duration_microseconds{handler=\"alerts\",quantile=\"0.9\"}",
+          "name": "handler=\"alerts\"::quantile=\"0.9\""
+        },
+        {
+          "prometheus_name": "http_request_duration_microseconds{handler=\"alerts\",quantile=\"0.99\"}",
+          "name": "handler=\"alerts\"::quantile=\"0.99\""
+        },
+        {
+          "prometheus_name": "http_request_duration_microseconds{handler=\"config\",quantile=\"0.5\"}",
+          "name": "handler=\"config\"::quantile=\"0.5\""
+        },
+        {
+          "prometheus_name": "http_request_duration_microseconds{handler=\"config\",quantile=\"0.9\"}",
+          "name": "handler=\"config\"::quantile=\"0.9\""
+        },
+        {
+          "prometheus_name": "http_request_duration_microseconds{handler=\"config\",quantile=\"0.99\"}",
+          "name": "handler=\"config\"::quantile=\"0.99\""
+        },
+        {
+          "prometheus_name": "http_request_duration_microseconds{handler=\"consoles\",quantile=\"0.5\"}",
+          "name": "handler=\"consoles\"::quantile=\"0.5\""
+        },
+        {
+          "prometheus_name": "http_request_duration_microseconds{handler=\"consoles\",quantile=\"0.9\"}",
+          "name": "handler=\"consoles\"::quantile=\"0.9\""
+        },
+        {
+          "prometheus_name": "http_request_duration_microseconds{handler=\"consoles\",quantile=\"0.99\"}",
+          "name": "handler=\"consoles\"::quantile=\"0.99\""
+        },
+        {
+          "prometheus_name": "http_request_duration_microseconds{handler=\"drop_series\",quantile=\"0.5\"}",
+          "name": "handler=\"drop_series\"::quantile=\"0.5\""
+        },
+        {
+          "prometheus_name": "http_request_duration_microseconds{handler=\"drop_series\",quantile=\"0.9\"}",
+          "name": "handler=\"drop_series\"::quantile=\"0.9\""
+        },
+        {
+          "prometheus_name": "http_request_duration_microseconds{handler=\"drop_series\",quantile=\"0.99\"}",
+          "name": "handler=\"drop_series\"::quantile=\"0.99\""
+        },
+        {
+          "prometheus_name": "http_request_duration_microseconds{handler=\"federate\",quantile=\"0.5\"}",
+          "name": "handler=\"federate\"::quantile=\"0.5\""
+        },
+        {
+          "prometheus_name": "http_request_duration_microseconds{handler=\"federate\",quantile=\"0.9\"}",
+          "name": "handler=\"federate\"::quantile=\"0.9\""
+        },
+        {
+          "prometheus_name": "http_request_duration_microseconds{handler=\"federate\",quantile=\"0.99\"}",
+          "name": "handler=\"federate\"::quantile=\"0.99\""
+        },
+        {
+          "prometheus_name": "http_request_duration_microseconds{handler=\"flags\",quantile=\"0.5\"}",
+          "name": "handler=\"flags\"::quantile=\"0.5\""
+        },
+        {
+          "prometheus_name": "http_request_duration_microseconds{handler=\"flags\",quantile=\"0.9\"}",
+          "name": "handler=\"flags\"::quantile=\"0.9\""
+        },
+        {
+          "prometheus_name": "http_request_duration_microseconds{handler=\"flags\",quantile=\"0.99\"}",
+          "name": "handler=\"flags\"::quantile=\"0.99\""
+        },
+        {
+          "prometheus_name": "http_request_duration_microseconds{handler=\"graph\",quantile=\"0.5\"}",
+          "name": "handler=\"graph\"::quantile=\"0.5\""
+        },
+        {
+          "prometheus_name": "http_request_duration_microseconds{handler=\"graph\",quantile=\"0.9\"}",
+          "name": "handler=\"graph\"::quantile=\"0.9\""
+        },
+        {
+          "prometheus_name": "http_request_duration_microseconds{handler=\"graph\",quantile=\"0.99\"}",
+          "name": "handler=\"graph\"::quantile=\"0.99\""
+        },
+        {
+          "prometheus_name": "http_request_duration_microseconds{handler=\"heap\",quantile=\"0.5\"}",
+          "name": "handler=\"heap\"::quantile=\"0.5\""
+        },
+        {
+          "prometheus_name": "http_request_duration_microseconds{handler=\"heap\",quantile=\"0.9\"}",
+          "name": "handler=\"heap\"::quantile=\"0.9\""
+        },
+        {
+          "prometheus_name": "http_request_duration_microseconds{handler=\"heap\",quantile=\"0.99\"}",
+          "name": "handler=\"heap\"::quantile=\"0.99\""
+        },
+        {
+          "prometheus_name": "http_request_duration_microseconds{handler=\"label_values\",quantile=\"0.5\"}",
+          "name": "handler=\"label_values\"::quantile=\"0.5\""
+        },
+        {
+          "prometheus_name": "http_request_duration_microseconds{handler=\"label_values\",quantile=\"0.9\"}",
+          "name": "handler=\"label_values\"::quantile=\"0.9\""
+        },
+        {
+          "prometheus_name": "http_request_duration_microseconds{handler=\"label_values\",quantile=\"0.99\"}",
+          "name": "handler=\"label_values\"::quantile=\"0.99\""
+        },
+        {
+          "prometheus_name": "http_request_duration_microseconds{handler=\"options\",quantile=\"0.5\"}",
+          "name": "handler=\"options\"::quantile=\"0.5\""
+        },
+        {
+          "prometheus_name": "http_request_duration_microseconds{handler=\"options\",quantile=\"0.9\"}",
+          "name": "handler=\"options\"::quantile=\"0.9\""
+        },
+        {
+          "prometheus_name": "http_request_duration_microseconds{handler=\"options\",quantile=\"0.99\"}",
+          "name": "handler=\"options\"::quantile=\"0.99\""
+        },
+        {
+          "prometheus_name": "http_request_duration_microseconds{handler=\"prometheus\",quantile=\"0.5\"}",
+          "name": "handler=\"prometheus\"::quantile=\"0.5\""
+        },
+        {
+          "prometheus_name": "http_request_duration_microseconds{handler=\"prometheus\",quantile=\"0.9\"}",
+          "name": "handler=\"prometheus\"::quantile=\"0.9\""
+        },
+        {
+          "prometheus_name": "http_request_duration_microseconds{handler=\"prometheus\",quantile=\"0.99\"}",
+          "name": "handler=\"prometheus\"::quantile=\"0.99\""
+        },
+        {
+          "prometheus_name": "http_request_duration_microseconds{handler=\"query\",quantile=\"0.5\"}",
+          "name": "handler=\"query\"::quantile=\"0.5\""
+        },
+        {
+          "prometheus_name": "http_request_duration_microseconds{handler=\"query\",quantile=\"0.9\"}",
+          "name": "handler=\"query\"::quantile=\"0.9\""
+        },
+        {
+          "prometheus_name": "http_request_duration_microseconds{handler=\"query\",quantile=\"0.99\"}",
+          "name": "handler=\"query\"::quantile=\"0.99\""
+        },
+        {
+          "prometheus_name": "http_request_duration_microseconds{handler=\"query_range\",quantile=\"0.5\"}",
+          "name": "handler=\"query_range\"::quantile=\"0.5\""
+        },
+        {
+          "prometheus_name": "http_request_duration_microseconds{handler=\"query_range\",quantile=\"0.9\"}",
+          "name": "handler=\"query_range\"::quantile=\"0.9\""
+        },
+        {
+          "prometheus_name": "http_request_duration_microseconds{handler=\"query_range\",quantile=\"0.99\"}",
+          "name": "handler=\"query_range\"::quantile=\"0.99\""
+        },
+        {
+          "prometheus_name": "http_request_duration_microseconds{handler=\"rules\",quantile=\"0.5\"}",
+          "name": "handler=\"rules\"::quantile=\"0.5\""
+        },
+        {
+          "prometheus_name": "http_request_duration_microseconds{handler=\"rules\",quantile=\"0.9\"}",
+          "name": "handler=\"rules\"::quantile=\"0.9\""
+        },
+        {
+          "prometheus_name": "http_request_duration_microseconds{handler=\"rules\",quantile=\"0.99\"}",
+          "name": "handler=\"rules\"::quantile=\"0.99\""
+        },
+        {
+          "prometheus_name": "http_request_duration_microseconds{handler=\"series\",quantile=\"0.5\"}",
+          "name": "handler=\"series\"::quantile=\"0.5\""
+        },
+        {
+          "prometheus_name": "http_request_duration_microseconds{handler=\"series\",quantile=\"0.9\"}",
+          "name": "handler=\"series\"::quantile=\"0.9\""
+        },
+        {
+          "prometheus_name": "http_request_duration_microseconds{handler=\"series\",quantile=\"0.99\"}",
+          "name": "handler=\"series\"::quantile=\"0.99\""
+        },
+        {
+          "prometheus_name": "http_request_duration_microseconds{handler=\"static\",quantile=\"0.5\"}",
+          "name": "handler=\"static\"::quantile=\"0.5\""
+        },
+        {
+          "prometheus_name": "http_request_duration_microseconds{handler=\"static\",quantile=\"0.9\"}",
+          "name": "handler=\"static\"::quantile=\"0.9\""
+        },
+        {
+          "prometheus_name": "http_request_duration_microseconds{handler=\"static\",quantile=\"0.99\"}",
+          "name": "handler=\"static\"::quantile=\"0.99\""
+        },
+        {
+          "prometheus_name": "http_request_duration_microseconds{handler=\"status\",quantile=\"0.5\"}",
+          "name": "handler=\"status\"::quantile=\"0.5\""
+        },
+        {
+          "prometheus_name": "http_request_duration_microseconds{handler=\"status\",quantile=\"0.9\"}",
+          "name": "handler=\"status\"::quantile=\"0.9\""
+        },
+        {
+          "prometheus_name": "http_request_duration_microseconds{handler=\"status\",quantile=\"0.99\"}",
+          "name": "handler=\"status\"::quantile=\"0.99\""
+        },
+        {
+          "prometheus_name": "http_request_duration_microseconds{handler=\"targets\",quantile=\"0.5\"}",
+          "name": "handler=\"targets\"::quantile=\"0.5\""
+        },
+        {
+          "prometheus_name": "http_request_duration_microseconds{handler=\"targets\",quantile=\"0.9\"}",
+          "name": "handler=\"targets\"::quantile=\"0.9\""
+        },
+        {
+          "prometheus_name": "http_request_duration_microseconds{handler=\"targets\",quantile=\"0.99\"}",
+          "name": "handler=\"targets\"::quantile=\"0.99\""
+        },
+        {
+          "prometheus_name": "http_request_duration_microseconds{handler=\"version\",quantile=\"0.5\"}",
+          "name": "handler=\"version\"::quantile=\"0.5\""
+        },
+        {
+          "prometheus_name": "http_request_duration_microseconds{handler=\"version\",quantile=\"0.9\"}",
+          "name": "handler=\"version\"::quantile=\"0.9\""
+        },
+        {
+          "prometheus_name": "http_request_duration_microseconds{handler=\"version\",quantile=\"0.99\"}",
+          "name": "handler=\"version\"::quantile=\"0.99\""
+        }
+      ],
+      "name": "http_request_duration_microseconds",
+      "description": "The HTTP request latencies in microseconds."
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "instances": [
+        {
+          "prometheus_name": "prometheus_sd_consul_rpc_duration_seconds{call=\"service\",endpoint=\"catalog\",quantile=\"0.5\"}",
+          "name": "call=\"service\"::endpoint=\"catalog\"::quantile=\"0.5\""
+        },
+        {
+          "prometheus_name": "prometheus_sd_consul_rpc_duration_seconds{call=\"service\",endpoint=\"catalog\",quantile=\"0.9\"}",
+          "name": "call=\"service\"::endpoint=\"catalog\"::quantile=\"0.9\""
+        },
+        {
+          "prometheus_name": "prometheus_sd_consul_rpc_duration_seconds{call=\"service\",endpoint=\"catalog\",quantile=\"0.99\"}",
+          "name": "call=\"service\"::endpoint=\"catalog\"::quantile=\"0.99\""
+        },
+        {
+          "prometheus_name": "prometheus_sd_consul_rpc_duration_seconds{call=\"services\",endpoint=\"catalog\",quantile=\"0.5\"}",
+          "name": "call=\"services\"::endpoint=\"catalog\"::quantile=\"0.5\""
+        },
+        {
+          "prometheus_name": "prometheus_sd_consul_rpc_duration_seconds{call=\"services\",endpoint=\"catalog\",quantile=\"0.9\"}",
+          "name": "call=\"services\"::endpoint=\"catalog\"::quantile=\"0.9\""
+        },
+        {
+          "prometheus_name": "prometheus_sd_consul_rpc_duration_seconds{call=\"services\",endpoint=\"catalog\",quantile=\"0.99\"}",
+          "name": "call=\"services\"::endpoint=\"catalog\"::quantile=\"0.99\""
+        }
+      ],
+      "name": "prometheus_sd_consul_rpc_duration_seconds",
+      "description": "The duration of a Consul RPC call in seconds."
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "instances": [
+        {
+          "prometheus_name": "prometheus_sd_file_scan_duration_seconds{quantile=\"0.5\"}",
+          "name": "quantile=\"0.5\""
+        },
+        {
+          "prometheus_name": "prometheus_sd_file_scan_duration_seconds{quantile=\"0.9\"}",
+          "name": "quantile=\"0.9\""
+        },
+        {
+          "prometheus_name": "prometheus_sd_file_scan_duration_seconds{quantile=\"0.99\"}",
+          "name": "quantile=\"0.99\""
+        }
+      ],
+      "name": "prometheus_sd_file_scan_duration_seconds",
+      "description": "The duration of the File-SD scan in seconds."
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "prometheus_name": "go_memstats_other_sys_bytes",
+      "name": "go_memstats_other_sys_bytes",
+      "description": "Number of bytes used for other system allocations."
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "prometheus_name": "go_memstats_heap_inuse_bytes",
+      "name": "go_memstats_heap_inuse_bytes",
+      "description": "Number of heap bytes that are in use."
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "prometheus_name": "prometheus_sd_azure_refresh_duration_seconds_sum",
+      "name": "prometheus_sd_azure_refresh_duration_seconds_sum",
+      "description": "The duration of a Azure-SD refresh in seconds."
+    },
+    {
+      "semantics": "counter",
+      "type": "double",
+      "units_str": "",
+      "instances": [
+        {
+          "prometheus_name": "prometheus_rule_evaluation_failures_total{rule_type=\"alerting\"}",
+          "name": "rule_type=\"alerting\""
+        },
+        {
+          "prometheus_name": "prometheus_rule_evaluation_failures_total{rule_type=\"recording\"}",
+          "name": "rule_type=\"recording\""
+        }
+      ],
+      "name": "prometheus_rule_evaluation_failures_total",
+      "description": "The total number of rule evaluation failures."
+    },
+    {
+      "semantics": "counter",
+      "type": "double",
+      "units_str": "",
+      "prometheus_name": "prometheus_target_scrapes_exceeded_sample_limit_total",
+      "name": "prometheus_target_scrapes_exceeded_sample_limit_total",
+      "description": "Total number of scrapes that hit the sample limit and were rejected."
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "prometheus_name": "process_start_time_seconds",
+      "name": "process_start_time_seconds",
+      "description": "Start time of the process since unix epoch in seconds."
+    },
+    {
+      "semantics": "counter",
+      "type": "double",
+      "units_str": "",
+      "prometheus_name": "prometheus_target_skipped_scrapes_total",
+      "name": "prometheus_target_skipped_scrapes_total",
+      "description": "Total number of scrapes that were skipped because the metric storage was throttled."
+    },
+    {
+      "semantics": "counter",
+      "type": "double",
+      "units_str": "",
+      "instances": [
+        {
+          "prometheus_name": "prometheus_local_storage_chunk_ops_total{type=\"create\"}",
+          "name": "type=\"create\""
+        },
+        {
+          "prometheus_name": "prometheus_local_storage_chunk_ops_total{type=\"persist\"}",
+          "name": "type=\"persist\""
+        },
+        {
+          "prometheus_name": "prometheus_local_storage_chunk_ops_total{type=\"transcode\"}",
+          "name": "type=\"transcode\""
+        }
+      ],
+      "name": "prometheus_local_storage_chunk_ops_total",
+      "description": "The total number of chunk operations by their type."
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "prometheus_name": "prometheus_local_storage_checkpoint_series_chunks_written_sum",
+      "name": "prometheus_local_storage_checkpoint_series_chunks_written_sum",
+      "description": "The number of chunk written per series while checkpointing open chunks and chunks yet to be persisted."
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "prometheus_name": "prometheus_local_storage_memory_chunks",
+      "name": "prometheus_local_storage_memory_chunks",
+      "description": "The current number of chunks in memory, excluding cloned chunks (i.e. chunks without a descriptor)."
+    },
+    {
+      "semantics": "counter",
+      "type": "double",
+      "units_str": "",
+      "prometheus_name": "prometheus_evaluator_iterations_skipped_total",
+      "name": "prometheus_evaluator_iterations_skipped_total",
+      "description": "The total number of rule group evaluations skipped due to throttled metric storage."
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "instances": [
+        {
+          "prometheus_name": "prometheus_sd_ec2_refresh_duration_seconds{quantile=\"0.5\"}",
+          "name": "quantile=\"0.5\""
+        },
+        {
+          "prometheus_name": "prometheus_sd_ec2_refresh_duration_seconds{quantile=\"0.9\"}",
+          "name": "quantile=\"0.9\""
+        },
+        {
+          "prometheus_name": "prometheus_sd_ec2_refresh_duration_seconds{quantile=\"0.99\"}",
+          "name": "quantile=\"0.99\""
+        }
+      ],
+      "name": "prometheus_sd_ec2_refresh_duration_seconds",
+      "description": "The duration of a EC2-SD refresh in seconds."
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "prometheus_name": "go_memstats_heap_idle_bytes",
+      "name": "go_memstats_heap_idle_bytes",
+      "description": "Number of heap bytes waiting to be used."
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "prometheus_name": "prometheus_sd_gce_refresh_duration_count",
+      "name": "prometheus_sd_gce_refresh_duration_count",
+      "description": "The duration of a GCE-SD refresh in seconds."
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "prometheus_name": "prometheus_notifications_queue_length",
+      "name": "prometheus_notifications_queue_length",
+      "description": "The number of alert notifications in the queue."
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "instances": [
+        {
+          "prometheus_name": "prometheus_local_storage_maintain_series_duration_seconds_sum{location=\"archived\"}",
+          "name": "location=\"archived\""
+        },
+        {
+          "prometheus_name": "prometheus_local_storage_maintain_series_duration_seconds_sum{location=\"memory\"}",
+          "name": "location=\"memory\""
+        }
+      ],
+      "name": "prometheus_local_storage_maintain_series_duration_seconds_sum",
+      "description": "The duration in seconds it took to perform maintenance on a series."
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "prometheus_name": "prometheus_local_storage_max_memory_chunks",
+      "name": "prometheus_local_storage_max_memory_chunks",
+      "description": "The configured maximum number of chunks that can be held in memory"
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "prometheus_name": "prometheus_local_storage_checkpoint_last_size_bytes",
+      "name": "prometheus_local_storage_checkpoint_last_size_bytes",
+      "description": "The size of the last checkpoint of open chunks and chunks yet to be persisted"
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "prometheus_name": "go_memstats_mspan_sys_bytes",
+      "name": "go_memstats_mspan_sys_bytes",
+      "description": "Number of bytes used for mspan structures obtained from system."
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "prometheus_name": "prometheus_local_storage_indexing_batch_duration_seconds_count",
+      "name": "prometheus_local_storage_indexing_batch_duration_seconds_count",
+      "description": "Quantiles for batch indexing duration in seconds."
+    },
+    {
+      "semantics": "counter",
+      "type": "double",
+      "units_str": "",
+      "prometheus_name": "prometheus_local_storage_inconsistencies_total",
+      "name": "prometheus_local_storage_inconsistencies_total",
+      "description": "A counter incremented each time an inconsistency in the local storage is detected. If this is greater zero, restart the server as soon as possible."
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "prometheus_name": "prometheus_local_storage_checkpointing",
+      "name": "prometheus_local_storage_checkpointing",
+      "description": "1 if the storage is checkpointing, 0 otherwise."
+    },
+    {
+      "semantics": "counter",
+      "type": "double",
+      "units_str": "",
+      "prometheus_name": "prometheus_local_storage_non_existent_series_matches_total",
+      "name": "prometheus_local_storage_non_existent_series_matches_total",
+      "description": "How often a non-existent series was referred to during label matching or chunk preloading. This is an indication of outdated label indexes."
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "prometheus_name": "go_memstats_heap_sys_bytes",
+      "name": "go_memstats_heap_sys_bytes",
+      "description": "Number of heap bytes obtained from system."
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "prometheus_name": "prometheus_local_storage_series_chunks_persisted_count",
+      "name": "prometheus_local_storage_series_chunks_persisted_count",
+      "description": "The number of chunks persisted per series."
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "instances": [
+        {
+          "prometheus_name": "prometheus_sd_azure_refresh_duration_seconds{quantile=\"0.5\"}",
+          "name": "quantile=\"0.5\""
+        },
+        {
+          "prometheus_name": "prometheus_sd_azure_refresh_duration_seconds{quantile=\"0.9\"}",
+          "name": "quantile=\"0.9\""
+        },
+        {
+          "prometheus_name": "prometheus_sd_azure_refresh_duration_seconds{quantile=\"0.99\"}",
+          "name": "quantile=\"0.99\""
+        }
+      ],
+      "name": "prometheus_sd_azure_refresh_duration_seconds",
+      "description": "The duration of a Azure-SD refresh in seconds."
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "instances": [
+        {
+          "prometheus_name": "prometheus_local_storage_maintain_series_duration_seconds{location=\"archived\",quantile=\"0.5\"}",
+          "name": "location=\"archived\"::quantile=\"0.5\""
+        },
+        {
+          "prometheus_name": "prometheus_local_storage_maintain_series_duration_seconds{location=\"archived\",quantile=\"0.9\"}",
+          "name": "location=\"archived\"::quantile=\"0.9\""
+        },
+        {
+          "prometheus_name": "prometheus_local_storage_maintain_series_duration_seconds{location=\"archived\",quantile=\"0.99\"}",
+          "name": "location=\"archived\"::quantile=\"0.99\""
+        },
+        {
+          "prometheus_name": "prometheus_local_storage_maintain_series_duration_seconds{location=\"memory\",quantile=\"0.5\"}",
+          "name": "location=\"memory\"::quantile=\"0.5\""
+        },
+        {
+          "prometheus_name": "prometheus_local_storage_maintain_series_duration_seconds{location=\"memory\",quantile=\"0.9\"}",
+          "name": "location=\"memory\"::quantile=\"0.9\""
+        },
+        {
+          "prometheus_name": "prometheus_local_storage_maintain_series_duration_seconds{location=\"memory\",quantile=\"0.99\"}",
+          "name": "location=\"memory\"::quantile=\"0.99\""
+        }
+      ],
+      "name": "prometheus_local_storage_maintain_series_duration_seconds",
+      "description": "The duration in seconds it took to perform maintenance on a series."
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "instances": [
+        {
+          "prometheus_name": "prometheus_sd_gce_refresh_duration{quantile=\"0.5\"}",
+          "name": "quantile=\"0.5\""
+        },
+        {
+          "prometheus_name": "prometheus_sd_gce_refresh_duration{quantile=\"0.9\"}",
+          "name": "quantile=\"0.9\""
+        },
+        {
+          "prometheus_name": "prometheus_sd_gce_refresh_duration{quantile=\"0.99\"}",
+          "name": "quantile=\"0.99\""
+        }
+      ],
+      "name": "prometheus_sd_gce_refresh_duration",
+      "description": "The duration of a GCE-SD refresh in seconds."
+    },
+    {
+      "semantics": "counter",
+      "type": "double",
+      "units_str": "",
+      "prometheus_name": "prometheus_local_storage_queued_chunks_to_persist_total",
+      "name": "prometheus_local_storage_queued_chunks_to_persist_total",
+      "description": "The total number of chunks queued for persistence."
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "prometheus_name": "go_memstats_heap_objects",
+      "name": "go_memstats_heap_objects",
+      "description": "Number of allocated objects."
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "instances": [
+        {
+          "prometheus_name": "prometheus_evaluator_duration_seconds{quantile=\"0.01\"}",
+          "name": "quantile=\"0.01\""
+        },
+        {
+          "prometheus_name": "prometheus_evaluator_duration_seconds{quantile=\"0.05\"}",
+          "name": "quantile=\"0.05\""
+        },
+        {
+          "prometheus_name": "prometheus_evaluator_duration_seconds{quantile=\"0.5\"}",
+          "name": "quantile=\"0.5\""
+        },
+        {
+          "prometheus_name": "prometheus_evaluator_duration_seconds{quantile=\"0.9\"}",
+          "name": "quantile=\"0.9\""
+        },
+        {
+          "prometheus_name": "prometheus_evaluator_duration_seconds{quantile=\"0.99\"}",
+          "name": "quantile=\"0.99\""
+        }
+      ],
+      "name": "prometheus_evaluator_duration_seconds",
+      "description": "The duration of rule group evaluations."
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "prometheus_name": "prometheus_sd_file_scan_duration_seconds_sum",
+      "name": "prometheus_sd_file_scan_duration_seconds_sum",
+      "description": "The duration of the File-SD scan in seconds."
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "instances": [
+        {
+          "prometheus_name": "prometheus_local_storage_maintain_series_duration_seconds_count{location=\"archived\"}",
+          "name": "location=\"archived\""
+        },
+        {
+          "prometheus_name": "prometheus_local_storage_maintain_series_duration_seconds_count{location=\"memory\"}",
+          "name": "location=\"memory\""
+        }
+      ],
+      "name": "prometheus_local_storage_maintain_series_duration_seconds_count",
+      "description": "The duration in seconds it took to perform maintenance on a series."
+    },
+    {
+      "semantics": "counter",
+      "type": "double",
+      "units_str": "",
+      "prometheus_name": "prometheus_sd_consul_rpc_failures_total",
+      "name": "prometheus_sd_consul_rpc_failures_total",
+      "description": "The number of Consul RPC call failures."
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "prometheus_name": "prometheus_notifications_queue_capacity",
+      "name": "prometheus_notifications_queue_capacity",
+      "description": "The capacity of the alert notifications queue."
+    },
+    {
+      "semantics": "counter",
+      "type": "double",
+      "units_str": "",
+      "prometheus_name": "prometheus_local_storage_fingerprint_mappings_total",
+      "name": "prometheus_local_storage_fingerprint_mappings_total",
+      "description": "The total number of fingerprints being mapped to avoid collisions."
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "instances": [
+        {
+          "prometheus_name": "prometheus_sd_consul_rpc_duration_seconds_sum{call=\"service\",endpoint=\"catalog\"}",
+          "name": "call=\"service\"::endpoint=\"catalog\""
+        },
+        {
+          "prometheus_name": "prometheus_sd_consul_rpc_duration_seconds_sum{call=\"services\",endpoint=\"catalog\"}",
+          "name": "call=\"services\"::endpoint=\"catalog\""
+        }
+      ],
+      "name": "prometheus_sd_consul_rpc_duration_seconds_sum",
+      "description": "The duration of a Consul RPC call in seconds."
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "prometheus_name": "go_gc_duration_seconds_count",
+      "name": "go_gc_duration_seconds_count",
+      "description": "A summary of the GC invocation durations."
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "instances": [
+        {
+          "prometheus_name": "http_request_size_bytes_sum{handler=\"alertmanagers\"}",
+          "name": "handler=\"alertmanagers\""
+        },
+        {
+          "prometheus_name": "http_request_size_bytes_sum{handler=\"alerts\"}",
+          "name": "handler=\"alerts\""
+        },
+        {
+          "prometheus_name": "http_request_size_bytes_sum{handler=\"config\"}",
+          "name": "handler=\"config\""
+        },
+        {
+          "prometheus_name": "http_request_size_bytes_sum{handler=\"consoles\"}",
+          "name": "handler=\"consoles\""
+        },
+        {
+          "prometheus_name": "http_request_size_bytes_sum{handler=\"drop_series\"}",
+          "name": "handler=\"drop_series\""
+        },
+        {
+          "prometheus_name": "http_request_size_bytes_sum{handler=\"federate\"}",
+          "name": "handler=\"federate\""
+        },
+        {
+          "prometheus_name": "http_request_size_bytes_sum{handler=\"flags\"}",
+          "name": "handler=\"flags\""
+        },
+        {
+          "prometheus_name": "http_request_size_bytes_sum{handler=\"graph\"}",
+          "name": "handler=\"graph\""
+        },
+        {
+          "prometheus_name": "http_request_size_bytes_sum{handler=\"heap\"}",
+          "name": "handler=\"heap\""
+        },
+        {
+          "prometheus_name": "http_request_size_bytes_sum{handler=\"label_values\"}",
+          "name": "handler=\"label_values\""
+        },
+        {
+          "prometheus_name": "http_request_size_bytes_sum{handler=\"options\"}",
+          "name": "handler=\"options\""
+        },
+        {
+          "prometheus_name": "http_request_size_bytes_sum{handler=\"prometheus\"}",
+          "name": "handler=\"prometheus\""
+        },
+        {
+          "prometheus_name": "http_request_size_bytes_sum{handler=\"query\"}",
+          "name": "handler=\"query\""
+        },
+        {
+          "prometheus_name": "http_request_size_bytes_sum{handler=\"query_range\"}",
+          "name": "handler=\"query_range\""
+        },
+        {
+          "prometheus_name": "http_request_size_bytes_sum{handler=\"rules\"}",
+          "name": "handler=\"rules\""
+        },
+        {
+          "prometheus_name": "http_request_size_bytes_sum{handler=\"series\"}",
+          "name": "handler=\"series\""
+        },
+        {
+          "prometheus_name": "http_request_size_bytes_sum{handler=\"static\"}",
+          "name": "handler=\"static\""
+        },
+        {
+          "prometheus_name": "http_request_size_bytes_sum{handler=\"status\"}",
+          "name": "handler=\"status\""
+        },
+        {
+          "prometheus_name": "http_request_size_bytes_sum{handler=\"targets\"}",
+          "name": "handler=\"targets\""
+        },
+        {
+          "prometheus_name": "http_request_size_bytes_sum{handler=\"version\"}",
+          "name": "handler=\"version\""
+        }
+      ],
+      "name": "http_request_size_bytes_sum",
+      "description": "The HTTP request sizes in bytes."
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "prometheus_name": "prometheus_local_storage_started_dirty",
+      "name": "prometheus_local_storage_started_dirty",
+      "description": "Whether the local storage was found to be dirty (and crash recovery occurred) during Prometheus startup."
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "prometheus_name": "prometheus_local_storage_memory_series",
+      "name": "prometheus_local_storage_memory_series",
+      "description": "The current number of series in memory."
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "prometheus_name": "prometheus_local_storage_chunks_to_persist",
+      "name": "prometheus_local_storage_chunks_to_persist",
+      "description": "The current number of chunks waiting for persistence."
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "instances": [
+        {
+          "prometheus_name": "prometheus_target_sync_length_seconds{scrape_job=\"prometheus\",quantile=\"0.01\"}",
+          "name": "scrape_job=\"prometheus\"::quantile=\"0.01\""
+        },
+        {
+          "prometheus_name": "prometheus_target_sync_length_seconds{scrape_job=\"prometheus\",quantile=\"0.05\"}",
+          "name": "scrape_job=\"prometheus\"::quantile=\"0.05\""
+        },
+        {
+          "prometheus_name": "prometheus_target_sync_length_seconds{scrape_job=\"prometheus\",quantile=\"0.5\"}",
+          "name": "scrape_job=\"prometheus\"::quantile=\"0.5\""
+        },
+        {
+          "prometheus_name": "prometheus_target_sync_length_seconds{scrape_job=\"prometheus\",quantile=\"0.9\"}",
+          "name": "scrape_job=\"prometheus\"::quantile=\"0.9\""
+        },
+        {
+          "prometheus_name": "prometheus_target_sync_length_seconds{scrape_job=\"prometheus\",quantile=\"0.99\"}",
+          "name": "scrape_job=\"prometheus\"::quantile=\"0.99\""
+        }
+      ],
+      "name": "prometheus_target_sync_length_seconds",
+      "description": "Actual interval to sync the scrape pool."
+    },
+    {
+      "semantics": "counter",
+      "type": "double",
+      "units_str": "",
+      "prometheus_name": "prometheus_treecache_zookeeper_failures_total",
+      "name": "prometheus_treecache_zookeeper_failures_total",
+      "description": "The total number of ZooKeeper failures."
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "prometheus_name": "process_resident_memory_bytes",
+      "name": "process_resident_memory_bytes",
+      "description": "Resident memory size in bytes."
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "prometheus_name": "prometheus_local_storage_max_chunks_to_persist",
+      "name": "prometheus_local_storage_max_chunks_to_persist",
+      "description": "The maximum number of chunks that can be waiting for persistence before sample ingestion will stop."
+    },
+    {
+      "semantics": "counter",
+      "type": "double",
+      "units_str": "",
+      "prometheus_name": "prometheus_sd_file_read_errors_total",
+      "name": "prometheus_sd_file_read_errors_total",
+      "description": "The number of File-SD read errors."
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "prometheus_name": "go_memstats_mcache_sys_bytes",
+      "name": "go_memstats_mcache_sys_bytes",
+      "description": "Number of bytes used for mcache structures obtained from system."
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "prometheus_name": "prometheus_local_storage_indexing_queue_capacity",
+      "name": "prometheus_local_storage_indexing_queue_capacity",
+      "description": "The capacity of the indexing queue."
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "prometheus_name": "prometheus_local_storage_series_chunks_persisted_sum",
+      "name": "prometheus_local_storage_series_chunks_persisted_sum",
+      "description": "The number of chunks persisted per series."
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "prometheus_name": "prometheus_sd_ec2_refresh_duration_seconds_count",
+      "name": "prometheus_sd_ec2_refresh_duration_seconds_count",
+      "description": "The duration of a EC2-SD refresh in seconds."
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "instances": [
+        {
+          "prometheus_name": "prometheus_build_info{branch=\"master\",goversion=\"go1.7.5\",revision=\"bd1182d29f462c39544f94cc822830e1c64cf55b\",version=\"1.5.2\"}",
+          "name": "branch=\"master\"::goversion=\"go1.7.5\"::revision=\"bd1182d29f462c39544f94cc822830e1c64cf55b\"::version=\"1.5.2\""
+        }
+      ],
+      "name": "prometheus_build_info",
+      "description": "A metric with a constant '1' value labeled by version, revision, branch, and goversion from which prometheus was built."
+    },
+    {
+      "semantics": "counter",
+      "type": "double",
+      "units_str": "",
+      "prometheus_name": "go_memstats_mallocs_total",
+      "name": "go_memstats_mallocs_total",
+      "description": "Total number of mallocs."
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "prometheus_name": "prometheus_local_storage_persistence_urgency_score",
+      "name": "prometheus_local_storage_persistence_urgency_score",
+      "description": "A score of urgency to persist chunks, 0 is least urgent, 1 most."
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "prometheus_name": "prometheus_sd_marathon_refresh_duration_seconds_sum",
+      "name": "prometheus_sd_marathon_refresh_duration_seconds_sum",
+      "description": "The duration of a Marathon-SD refresh in seconds."
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "prometheus_name": "prometheus_local_storage_indexing_batch_duration_seconds_sum",
+      "name": "prometheus_local_storage_indexing_batch_duration_seconds_sum",
+      "description": "Quantiles for batch indexing duration in seconds."
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "prometheus_name": "prometheus_local_storage_indexing_batch_sizes_sum",
+      "name": "prometheus_local_storage_indexing_batch_sizes_sum",
+      "description": "Quantiles for indexing batch sizes (number of metrics per batch)."
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "instances": [
+        {
+          "prometheus_name": "prometheus_sd_consul_rpc_duration_seconds_count{call=\"service\",endpoint=\"catalog\"}",
+          "name": "call=\"service\"::endpoint=\"catalog\""
+        },
+        {
+          "prometheus_name": "prometheus_sd_consul_rpc_duration_seconds_count{call=\"services\",endpoint=\"catalog\"}",
+          "name": "call=\"services\"::endpoint=\"catalog\""
+        }
+      ],
+      "name": "prometheus_sd_consul_rpc_duration_seconds_count",
+      "description": "The duration of a Consul RPC call in seconds."
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "prometheus_name": "go_memstats_mspan_inuse_bytes",
+      "name": "go_memstats_mspan_inuse_bytes",
+      "description": "Number of bytes in use by mspan structures."
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "instances": [
+        {
+          "prometheus_name": "http_request_duration_microseconds_sum{handler=\"alertmanagers\"}",
+          "name": "handler=\"alertmanagers\""
+        },
+        {
+          "prometheus_name": "http_request_duration_microseconds_sum{handler=\"alerts\"}",
+          "name": "handler=\"alerts\""
+        },
+        {
+          "prometheus_name": "http_request_duration_microseconds_sum{handler=\"config\"}",
+          "name": "handler=\"config\""
+        },
+        {
+          "prometheus_name": "http_request_duration_microseconds_sum{handler=\"consoles\"}",
+          "name": "handler=\"consoles\""
+        },
+        {
+          "prometheus_name": "http_request_duration_microseconds_sum{handler=\"drop_series\"}",
+          "name": "handler=\"drop_series\""
+        },
+        {
+          "prometheus_name": "http_request_duration_microseconds_sum{handler=\"federate\"}",
+          "name": "handler=\"federate\""
+        },
+        {
+          "prometheus_name": "http_request_duration_microseconds_sum{handler=\"flags\"}",
+          "name": "handler=\"flags\""
+        },
+        {
+          "prometheus_name": "http_request_duration_microseconds_sum{handler=\"graph\"}",
+          "name": "handler=\"graph\""
+        },
+        {
+          "prometheus_name": "http_request_duration_microseconds_sum{handler=\"heap\"}",
+          "name": "handler=\"heap\""
+        },
+        {
+          "prometheus_name": "http_request_duration_microseconds_sum{handler=\"label_values\"}",
+          "name": "handler=\"label_values\""
+        },
+        {
+          "prometheus_name": "http_request_duration_microseconds_sum{handler=\"options\"}",
+          "name": "handler=\"options\""
+        },
+        {
+          "prometheus_name": "http_request_duration_microseconds_sum{handler=\"prometheus\"}",
+          "name": "handler=\"prometheus\""
+        },
+        {
+          "prometheus_name": "http_request_duration_microseconds_sum{handler=\"query\"}",
+          "name": "handler=\"query\""
+        },
+        {
+          "prometheus_name": "http_request_duration_microseconds_sum{handler=\"query_range\"}",
+          "name": "handler=\"query_range\""
+        },
+        {
+          "prometheus_name": "http_request_duration_microseconds_sum{handler=\"rules\"}",
+          "name": "handler=\"rules\""
+        },
+        {
+          "prometheus_name": "http_request_duration_microseconds_sum{handler=\"series\"}",
+          "name": "handler=\"series\""
+        },
+        {
+          "prometheus_name": "http_request_duration_microseconds_sum{handler=\"static\"}",
+          "name": "handler=\"static\""
+        },
+        {
+          "prometheus_name": "http_request_duration_microseconds_sum{handler=\"status\"}",
+          "name": "handler=\"status\""
+        },
+        {
+          "prometheus_name": "http_request_duration_microseconds_sum{handler=\"targets\"}",
+          "name": "handler=\"targets\""
+        },
+        {
+          "prometheus_name": "http_request_duration_microseconds_sum{handler=\"version\"}",
+          "name": "handler=\"version\""
+        }
+      ],
+      "name": "http_request_duration_microseconds_sum",
+      "description": "The HTTP request latencies in microseconds."
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "instances": [
+        {
+          "prometheus_name": "prometheus_local_storage_indexing_batch_duration_seconds{quantile=\"0.5\"}",
+          "name": "quantile=\"0.5\""
+        },
+        {
+          "prometheus_name": "prometheus_local_storage_indexing_batch_duration_seconds{quantile=\"0.9\"}",
+          "name": "quantile=\"0.9\""
+        },
+        {
+          "prometheus_name": "prometheus_local_storage_indexing_batch_duration_seconds{quantile=\"0.99\"}",
+          "name": "quantile=\"0.99\""
+        }
+      ],
+      "name": "prometheus_local_storage_indexing_batch_duration_seconds",
+      "description": "Quantiles for batch indexing duration in seconds."
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "instances": [
+        {
+          "prometheus_name": "http_response_size_bytes{handler=\"alertmanagers\",quantile=\"0.5\"}",
+          "name": "handler=\"alertmanagers\"::quantile=\"0.5\""
+        },
+        {
+          "prometheus_name": "http_response_size_bytes{handler=\"alertmanagers\",quantile=\"0.9\"}",
+          "name": "handler=\"alertmanagers\"::quantile=\"0.9\""
+        },
+        {
+          "prometheus_name": "http_response_size_bytes{handler=\"alertmanagers\",quantile=\"0.99\"}",
+          "name": "handler=\"alertmanagers\"::quantile=\"0.99\""
+        },
+        {
+          "prometheus_name": "http_response_size_bytes{handler=\"alerts\",quantile=\"0.5\"}",
+          "name": "handler=\"alerts\"::quantile=\"0.5\""
+        },
+        {
+          "prometheus_name": "http_response_size_bytes{handler=\"alerts\",quantile=\"0.9\"}",
+          "name": "handler=\"alerts\"::quantile=\"0.9\""
+        },
+        {
+          "prometheus_name": "http_response_size_bytes{handler=\"alerts\",quantile=\"0.99\"}",
+          "name": "handler=\"alerts\"::quantile=\"0.99\""
+        },
+        {
+          "prometheus_name": "http_response_size_bytes{handler=\"config\",quantile=\"0.5\"}",
+          "name": "handler=\"config\"::quantile=\"0.5\""
+        },
+        {
+          "prometheus_name": "http_response_size_bytes{handler=\"config\",quantile=\"0.9\"}",
+          "name": "handler=\"config\"::quantile=\"0.9\""
+        },
+        {
+          "prometheus_name": "http_response_size_bytes{handler=\"config\",quantile=\"0.99\"}",
+          "name": "handler=\"config\"::quantile=\"0.99\""
+        },
+        {
+          "prometheus_name": "http_response_size_bytes{handler=\"consoles\",quantile=\"0.5\"}",
+          "name": "handler=\"consoles\"::quantile=\"0.5\""
+        },
+        {
+          "prometheus_name": "http_response_size_bytes{handler=\"consoles\",quantile=\"0.9\"}",
+          "name": "handler=\"consoles\"::quantile=\"0.9\""
+        },
+        {
+          "prometheus_name": "http_response_size_bytes{handler=\"consoles\",quantile=\"0.99\"}",
+          "name": "handler=\"consoles\"::quantile=\"0.99\""
+        },
+        {
+          "prometheus_name": "http_response_size_bytes{handler=\"drop_series\",quantile=\"0.5\"}",
+          "name": "handler=\"drop_series\"::quantile=\"0.5\""
+        },
+        {
+          "prometheus_name": "http_response_size_bytes{handler=\"drop_series\",quantile=\"0.9\"}",
+          "name": "handler=\"drop_series\"::quantile=\"0.9\""
+        },
+        {
+          "prometheus_name": "http_response_size_bytes{handler=\"drop_series\",quantile=\"0.99\"}",
+          "name": "handler=\"drop_series\"::quantile=\"0.99\""
+        },
+        {
+          "prometheus_name": "http_response_size_bytes{handler=\"federate\",quantile=\"0.5\"}",
+          "name": "handler=\"federate\"::quantile=\"0.5\""
+        },
+        {
+          "prometheus_name": "http_response_size_bytes{handler=\"federate\",quantile=\"0.9\"}",
+          "name": "handler=\"federate\"::quantile=\"0.9\""
+        },
+        {
+          "prometheus_name": "http_response_size_bytes{handler=\"federate\",quantile=\"0.99\"}",
+          "name": "handler=\"federate\"::quantile=\"0.99\""
+        },
+        {
+          "prometheus_name": "http_response_size_bytes{handler=\"flags\",quantile=\"0.5\"}",
+          "name": "handler=\"flags\"::quantile=\"0.5\""
+        },
+        {
+          "prometheus_name": "http_response_size_bytes{handler=\"flags\",quantile=\"0.9\"}",
+          "name": "handler=\"flags\"::quantile=\"0.9\""
+        },
+        {
+          "prometheus_name": "http_response_size_bytes{handler=\"flags\",quantile=\"0.99\"}",
+          "name": "handler=\"flags\"::quantile=\"0.99\""
+        },
+        {
+          "prometheus_name": "http_response_size_bytes{handler=\"graph\",quantile=\"0.5\"}",
+          "name": "handler=\"graph\"::quantile=\"0.5\""
+        },
+        {
+          "prometheus_name": "http_response_size_bytes{handler=\"graph\",quantile=\"0.9\"}",
+          "name": "handler=\"graph\"::quantile=\"0.9\""
+        },
+        {
+          "prometheus_name": "http_response_size_bytes{handler=\"graph\",quantile=\"0.99\"}",
+          "name": "handler=\"graph\"::quantile=\"0.99\""
+        },
+        {
+          "prometheus_name": "http_response_size_bytes{handler=\"heap\",quantile=\"0.5\"}",
+          "name": "handler=\"heap\"::quantile=\"0.5\""
+        },
+        {
+          "prometheus_name": "http_response_size_bytes{handler=\"heap\",quantile=\"0.9\"}",
+          "name": "handler=\"heap\"::quantile=\"0.9\""
+        },
+        {
+          "prometheus_name": "http_response_size_bytes{handler=\"heap\",quantile=\"0.99\"}",
+          "name": "handler=\"heap\"::quantile=\"0.99\""
+        },
+        {
+          "prometheus_name": "http_response_size_bytes{handler=\"label_values\",quantile=\"0.5\"}",
+          "name": "handler=\"label_values\"::quantile=\"0.5\""
+        },
+        {
+          "prometheus_name": "http_response_size_bytes{handler=\"label_values\",quantile=\"0.9\"}",
+          "name": "handler=\"label_values\"::quantile=\"0.9\""
+        },
+        {
+          "prometheus_name": "http_response_size_bytes{handler=\"label_values\",quantile=\"0.99\"}",
+          "name": "handler=\"label_values\"::quantile=\"0.99\""
+        },
+        {
+          "prometheus_name": "http_response_size_bytes{handler=\"options\",quantile=\"0.5\"}",
+          "name": "handler=\"options\"::quantile=\"0.5\""
+        },
+        {
+          "prometheus_name": "http_response_size_bytes{handler=\"options\",quantile=\"0.9\"}",
+          "name": "handler=\"options\"::quantile=\"0.9\""
+        },
+        {
+          "prometheus_name": "http_response_size_bytes{handler=\"options\",quantile=\"0.99\"}",
+          "name": "handler=\"options\"::quantile=\"0.99\""
+        },
+        {
+          "prometheus_name": "http_response_size_bytes{handler=\"prometheus\",quantile=\"0.5\"}",
+          "name": "handler=\"prometheus\"::quantile=\"0.5\""
+        },
+        {
+          "prometheus_name": "http_response_size_bytes{handler=\"prometheus\",quantile=\"0.9\"}",
+          "name": "handler=\"prometheus\"::quantile=\"0.9\""
+        },
+        {
+          "prometheus_name": "http_response_size_bytes{handler=\"prometheus\",quantile=\"0.99\"}",
+          "name": "handler=\"prometheus\"::quantile=\"0.99\""
+        },
+        {
+          "prometheus_name": "http_response_size_bytes{handler=\"query\",quantile=\"0.5\"}",
+          "name": "handler=\"query\"::quantile=\"0.5\""
+        },
+        {
+          "prometheus_name": "http_response_size_bytes{handler=\"query\",quantile=\"0.9\"}",
+          "name": "handler=\"query\"::quantile=\"0.9\""
+        },
+        {
+          "prometheus_name": "http_response_size_bytes{handler=\"query\",quantile=\"0.99\"}",
+          "name": "handler=\"query\"::quantile=\"0.99\""
+        },
+        {
+          "prometheus_name": "http_response_size_bytes{handler=\"query_range\",quantile=\"0.5\"}",
+          "name": "handler=\"query_range\"::quantile=\"0.5\""
+        },
+        {
+          "prometheus_name": "http_response_size_bytes{handler=\"query_range\",quantile=\"0.9\"}",
+          "name": "handler=\"query_range\"::quantile=\"0.9\""
+        },
+        {
+          "prometheus_name": "http_response_size_bytes{handler=\"query_range\",quantile=\"0.99\"}",
+          "name": "handler=\"query_range\"::quantile=\"0.99\""
+        },
+        {
+          "prometheus_name": "http_response_size_bytes{handler=\"rules\",quantile=\"0.5\"}",
+          "name": "handler=\"rules\"::quantile=\"0.5\""
+        },
+        {
+          "prometheus_name": "http_response_size_bytes{handler=\"rules\",quantile=\"0.9\"}",
+          "name": "handler=\"rules\"::quantile=\"0.9\""
+        },
+        {
+          "prometheus_name": "http_response_size_bytes{handler=\"rules\",quantile=\"0.99\"}",
+          "name": "handler=\"rules\"::quantile=\"0.99\""
+        },
+        {
+          "prometheus_name": "http_response_size_bytes{handler=\"series\",quantile=\"0.5\"}",
+          "name": "handler=\"series\"::quantile=\"0.5\""
+        },
+        {
+          "prometheus_name": "http_response_size_bytes{handler=\"series\",quantile=\"0.9\"}",
+          "name": "handler=\"series\"::quantile=\"0.9\""
+        },
+        {
+          "prometheus_name": "http_response_size_bytes{handler=\"series\",quantile=\"0.99\"}",
+          "name": "handler=\"series\"::quantile=\"0.99\""
+        },
+        {
+          "prometheus_name": "http_response_size_bytes{handler=\"static\",quantile=\"0.5\"}",
+          "name": "handler=\"static\"::quantile=\"0.5\""
+        },
+        {
+          "prometheus_name": "http_response_size_bytes{handler=\"static\",quantile=\"0.9\"}",
+          "name": "handler=\"static\"::quantile=\"0.9\""
+        },
+        {
+          "prometheus_name": "http_response_size_bytes{handler=\"static\",quantile=\"0.99\"}",
+          "name": "handler=\"static\"::quantile=\"0.99\""
+        },
+        {
+          "prometheus_name": "http_response_size_bytes{handler=\"status\",quantile=\"0.5\"}",
+          "name": "handler=\"status\"::quantile=\"0.5\""
+        },
+        {
+          "prometheus_name": "http_response_size_bytes{handler=\"status\",quantile=\"0.9\"}",
+          "name": "handler=\"status\"::quantile=\"0.9\""
+        },
+        {
+          "prometheus_name": "http_response_size_bytes{handler=\"status\",quantile=\"0.99\"}",
+          "name": "handler=\"status\"::quantile=\"0.99\""
+        },
+        {
+          "prometheus_name": "http_response_size_bytes{handler=\"targets\",quantile=\"0.5\"}",
+          "name": "handler=\"targets\"::quantile=\"0.5\""
+        },
+        {
+          "prometheus_name": "http_response_size_bytes{handler=\"targets\",quantile=\"0.9\"}",
+          "name": "handler=\"targets\"::quantile=\"0.9\""
+        },
+        {
+          "prometheus_name": "http_response_size_bytes{handler=\"targets\",quantile=\"0.99\"}",
+          "name": "handler=\"targets\"::quantile=\"0.99\""
+        },
+        {
+          "prometheus_name": "http_response_size_bytes{handler=\"version\",quantile=\"0.5\"}",
+          "name": "handler=\"version\"::quantile=\"0.5\""
+        },
+        {
+          "prometheus_name": "http_response_size_bytes{handler=\"version\",quantile=\"0.9\"}",
+          "name": "handler=\"version\"::quantile=\"0.9\""
+        },
+        {
+          "prometheus_name": "http_response_size_bytes{handler=\"version\",quantile=\"0.99\"}",
+          "name": "handler=\"version\"::quantile=\"0.99\""
+        }
+      ],
+      "name": "http_response_size_bytes",
+      "description": "The HTTP response sizes in bytes."
+    },
+    {
+      "semantics": "counter",
+      "type": "double",
+      "units_str": "",
+      "prometheus_name": "prometheus_sd_gce_refresh_failures_total",
+      "name": "prometheus_sd_gce_refresh_failures_total",
+      "description": "The number of GCE-SD refresh failures."
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "prometheus_name": "prometheus_sd_file_scan_duration_seconds_count",
+      "name": "prometheus_sd_file_scan_duration_seconds_count",
+      "description": "The duration of the File-SD scan in seconds."
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "prometheus_name": "prometheus_config_last_reload_success_timestamp_seconds",
+      "name": "prometheus_config_last_reload_success_timestamp_seconds",
+      "description": "Timestamp of the last successful configuration reload."
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "prometheus_name": "prometheus_local_storage_rushed_mode",
+      "name": "prometheus_local_storage_rushed_mode",
+      "description": "1 if the storage is in rushed mode, 0 otherwise. In rushed mode, the system behaves as if the persistence_urgency_score is 1."
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "prometheus_name": "go_memstats_stack_inuse_bytes",
+      "name": "go_memstats_stack_inuse_bytes",
+      "description": "Number of bytes in use by the stack allocator."
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "prometheus_name": "prometheus_sd_triton_refresh_duration_seconds_sum",
+      "name": "prometheus_sd_triton_refresh_duration_seconds_sum",
+      "description": "The duration of a Triton-SD refresh in seconds."
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "prometheus_name": "process_max_fds",
+      "name": "process_max_fds",
+      "description": "Maximum number of open file descriptors."
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "instances": [
+        {
+          "prometheus_name": "http_response_size_bytes_count{handler=\"alertmanagers\"}",
+          "name": "handler=\"alertmanagers\""
+        },
+        {
+          "prometheus_name": "http_response_size_bytes_count{handler=\"alerts\"}",
+          "name": "handler=\"alerts\""
+        },
+        {
+          "prometheus_name": "http_response_size_bytes_count{handler=\"config\"}",
+          "name": "handler=\"config\""
+        },
+        {
+          "prometheus_name": "http_response_size_bytes_count{handler=\"consoles\"}",
+          "name": "handler=\"consoles\""
+        },
+        {
+          "prometheus_name": "http_response_size_bytes_count{handler=\"drop_series\"}",
+          "name": "handler=\"drop_series\""
+        },
+        {
+          "prometheus_name": "http_response_size_bytes_count{handler=\"federate\"}",
+          "name": "handler=\"federate\""
+        },
+        {
+          "prometheus_name": "http_response_size_bytes_count{handler=\"flags\"}",
+          "name": "handler=\"flags\""
+        },
+        {
+          "prometheus_name": "http_response_size_bytes_count{handler=\"graph\"}",
+          "name": "handler=\"graph\""
+        },
+        {
+          "prometheus_name": "http_response_size_bytes_count{handler=\"heap\"}",
+          "name": "handler=\"heap\""
+        },
+        {
+          "prometheus_name": "http_response_size_bytes_count{handler=\"label_values\"}",
+          "name": "handler=\"label_values\""
+        },
+        {
+          "prometheus_name": "http_response_size_bytes_count{handler=\"options\"}",
+          "name": "handler=\"options\""
+        },
+        {
+          "prometheus_name": "http_response_size_bytes_count{handler=\"prometheus\"}",
+          "name": "handler=\"prometheus\""
+        },
+        {
+          "prometheus_name": "http_response_size_bytes_count{handler=\"query\"}",
+          "name": "handler=\"query\""
+        },
+        {
+          "prometheus_name": "http_response_size_bytes_count{handler=\"query_range\"}",
+          "name": "handler=\"query_range\""
+        },
+        {
+          "prometheus_name": "http_response_size_bytes_count{handler=\"rules\"}",
+          "name": "handler=\"rules\""
+        },
+        {
+          "prometheus_name": "http_response_size_bytes_count{handler=\"series\"}",
+          "name": "handler=\"series\""
+        },
+        {
+          "prometheus_name": "http_response_size_bytes_count{handler=\"static\"}",
+          "name": "handler=\"static\""
+        },
+        {
+          "prometheus_name": "http_response_size_bytes_count{handler=\"status\"}",
+          "name": "handler=\"status\""
+        },
+        {
+          "prometheus_name": "http_response_size_bytes_count{handler=\"targets\"}",
+          "name": "handler=\"targets\""
+        },
+        {
+          "prometheus_name": "http_response_size_bytes_count{handler=\"version\"}",
+          "name": "handler=\"version\""
+        }
+      ],
+      "name": "http_response_size_bytes_count",
+      "description": "The HTTP response sizes in bytes."
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "prometheus_name": "go_memstats_sys_bytes",
+      "name": "go_memstats_sys_bytes",
+      "description": "Number of bytes obtained by system. Sum of all system allocations."
+    },
+    {
+      "semantics": "counter",
+      "type": "double",
+      "units_str": "",
+      "prometheus_name": "prometheus_local_storage_persist_errors_total",
+      "name": "prometheus_local_storage_persist_errors_total",
+      "description": "The total number of errors while persisting chunks."
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "prometheus_name": "prometheus_engine_queries",
+      "name": "prometheus_engine_queries",
+      "description": "The current number of queries being executed or waiting."
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "prometheus_name": "prometheus_evaluator_duration_seconds_count",
+      "name": "prometheus_evaluator_duration_seconds_count",
+      "description": "The duration of rule group evaluations."
+    },
+    {
+      "semantics": "counter",
+      "type": "double",
+      "units_str": "",
+      "prometheus_name": "go_memstats_frees_total",
+      "name": "go_memstats_frees_total",
+      "description": "Total number of frees."
+    },
+    {
+      "semantics": "counter",
+      "type": "double",
+      "units_str": "",
+      "instances": [
+        {
+          "prometheus_name": "prometheus_sd_kubernetes_events_total{event=\"add\",role=\"endpoints\"}",
+          "name": "event=\"add\"::role=\"endpoints\""
+        },
+        {
+          "prometheus_name": "prometheus_sd_kubernetes_events_total{event=\"add\",role=\"node\"}",
+          "name": "event=\"add\"::role=\"node\""
+        },
+        {
+          "prometheus_name": "prometheus_sd_kubernetes_events_total{event=\"add\",role=\"pod\"}",
+          "name": "event=\"add\"::role=\"pod\""
+        },
+        {
+          "prometheus_name": "prometheus_sd_kubernetes_events_total{event=\"add\",role=\"service\"}",
+          "name": "event=\"add\"::role=\"service\""
+        },
+        {
+          "prometheus_name": "prometheus_sd_kubernetes_events_total{event=\"delete\",role=\"endpoints\"}",
+          "name": "event=\"delete\"::role=\"endpoints\""
+        },
+        {
+          "prometheus_name": "prometheus_sd_kubernetes_events_total{event=\"delete\",role=\"node\"}",
+          "name": "event=\"delete\"::role=\"node\""
+        },
+        {
+          "prometheus_name": "prometheus_sd_kubernetes_events_total{event=\"delete\",role=\"pod\"}",
+          "name": "event=\"delete\"::role=\"pod\""
+        },
+        {
+          "prometheus_name": "prometheus_sd_kubernetes_events_total{event=\"delete\",role=\"service\"}",
+          "name": "event=\"delete\"::role=\"service\""
+        },
+        {
+          "prometheus_name": "prometheus_sd_kubernetes_events_total{event=\"update\",role=\"endpoints\"}",
+          "name": "event=\"update\"::role=\"endpoints\""
+        },
+        {
+          "prometheus_name": "prometheus_sd_kubernetes_events_total{event=\"update\",role=\"node\"}",
+          "name": "event=\"update\"::role=\"node\""
+        },
+        {
+          "prometheus_name": "prometheus_sd_kubernetes_events_total{event=\"update\",role=\"pod\"}",
+          "name": "event=\"update\"::role=\"pod\""
+        },
+        {
+          "prometheus_name": "prometheus_sd_kubernetes_events_total{event=\"update\",role=\"service\"}",
+          "name": "event=\"update\"::role=\"service\""
+        }
+      ],
+      "name": "prometheus_sd_kubernetes_events_total",
+      "description": "The number of Kubernetes events handled."
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "prometheus_name": "prometheus_local_storage_indexing_queue_length",
+      "name": "prometheus_local_storage_indexing_queue_length",
+      "description": "The number of metrics waiting to be indexed."
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "instances": [
+        {
+          "prometheus_name": "prometheus_sd_marathon_refresh_duration_seconds{quantile=\"0.5\"}",
+          "name": "quantile=\"0.5\""
+        },
+        {
+          "prometheus_name": "prometheus_sd_marathon_refresh_duration_seconds{quantile=\"0.9\"}",
+          "name": "quantile=\"0.9\""
+        },
+        {
+          "prometheus_name": "prometheus_sd_marathon_refresh_duration_seconds{quantile=\"0.99\"}",
+          "name": "quantile=\"0.99\""
+        }
+      ],
+      "name": "prometheus_sd_marathon_refresh_duration_seconds",
+      "description": "The duration of a Marathon-SD refresh in seconds."
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "prometheus_name": "prometheus_treecache_watcher_goroutines",
+      "name": "prometheus_treecache_watcher_goroutines",
+      "description": "The current number of watcher goroutines."
+    },
+    {
+      "semantics": "counter",
+      "type": "double",
+      "units_str": "",
+      "prometheus_name": "prometheus_sd_dns_lookup_failures_total",
+      "name": "prometheus_sd_dns_lookup_failures_total",
+      "description": "The number of DNS-SD lookup failures."
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "prometheus_name": "prometheus_engine_queries_concurrent_max",
+      "name": "prometheus_engine_queries_concurrent_max",
+      "description": "The max number of concurrent queries."
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "instances": [
+        {
+          "prometheus_name": "prometheus_target_interval_length_seconds{interval=\"15s\",quantile=\"0.01\"}",
+          "name": "interval=\"15s\"::quantile=\"0.01\""
+        },
+        {
+          "prometheus_name": "prometheus_target_interval_length_seconds{interval=\"15s\",quantile=\"0.05\"}",
+          "name": "interval=\"15s\"::quantile=\"0.05\""
+        },
+        {
+          "prometheus_name": "prometheus_target_interval_length_seconds{interval=\"15s\",quantile=\"0.5\"}",
+          "name": "interval=\"15s\"::quantile=\"0.5\""
+        },
+        {
+          "prometheus_name": "prometheus_target_interval_length_seconds{interval=\"15s\",quantile=\"0.9\"}",
+          "name": "interval=\"15s\"::quantile=\"0.9\""
+        },
+        {
+          "prometheus_name": "prometheus_target_interval_length_seconds{interval=\"15s\",quantile=\"0.99\"}",
+          "name": "interval=\"15s\"::quantile=\"0.99\""
+        }
+      ],
+      "name": "prometheus_target_interval_length_seconds",
+      "description": "Actual intervals between scrapes."
+    },
+    {
+      "semantics": "counter",
+      "type": "double",
+      "units_str": "",
+      "prometheus_name": "prometheus_sd_azure_refresh_failures_total",
+      "name": "prometheus_sd_azure_refresh_failures_total",
+      "description": "Number of Azure-SD refresh failures."
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "prometheus_name": "go_gc_duration_seconds_sum",
+      "name": "go_gc_duration_seconds_sum",
+      "description": "A summary of the GC invocation durations."
+    },
+    {
+      "semantics": "counter",
+      "type": "double",
+      "units_str": "",
+      "instances": [
+        {
+          "prometheus_name": "prometheus_local_storage_out_of_order_samples_total{reason=\"multiple_values_for_timestamp\"}",
+          "name": "reason=\"multiple_values_for_timestamp\""
+        },
+        {
+          "prometheus_name": "prometheus_local_storage_out_of_order_samples_total{reason=\"timestamp_out_of_order\"}",
+          "name": "reason=\"timestamp_out_of_order\""
+        }
+      ],
+      "name": "prometheus_local_storage_out_of_order_samples_total",
+      "description": "The total number of samples that were discarded because their timestamps were at or before the last received sample for a series."
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "prometheus_name": "prometheus_sd_marathon_refresh_duration_seconds_count",
+      "name": "prometheus_sd_marathon_refresh_duration_seconds_count",
+      "description": "The duration of a Marathon-SD refresh in seconds."
+    },
+    {
+      "semantics": "counter",
+      "type": "double",
+      "units_str": "",
+      "prometheus_name": "prometheus_sd_dns_lookups_total",
+      "name": "prometheus_sd_dns_lookups_total",
+      "description": "The number of DNS-SD lookups."
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "prometheus_name": "prometheus_local_storage_memory_chunkdescs",
+      "name": "prometheus_local_storage_memory_chunkdescs",
+      "description": "The current number of chunk descriptors in memory."
+    },
+    {
+      "semantics": "counter",
+      "type": "double",
+      "units_str": "",
+      "prometheus_name": "process_cpu_seconds_total",
+      "name": "process_cpu_seconds_total",
+      "description": "Total user and system CPU time spent in seconds."
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "prometheus_name": "prometheus_sd_azure_refresh_duration_seconds_count",
+      "name": "prometheus_sd_azure_refresh_duration_seconds_count",
+      "description": "The duration of a Azure-SD refresh in seconds."
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "prometheus_name": "go_memstats_next_gc_bytes",
+      "name": "go_memstats_next_gc_bytes",
+      "description": "Number of heap bytes when next garbage collection will take place."
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "instances": [
+        {
+          "prometheus_name": "prometheus_local_storage_checkpoint_duration_seconds{quantile=\"0.5\"}",
+          "name": "quantile=\"0.5\""
+        },
+        {
+          "prometheus_name": "prometheus_local_storage_checkpoint_duration_seconds{quantile=\"0.9\"}",
+          "name": "quantile=\"0.9\""
+        },
+        {
+          "prometheus_name": "prometheus_local_storage_checkpoint_duration_seconds{quantile=\"0.99\"}",
+          "name": "quantile=\"0.99\""
+        }
+      ],
+      "name": "prometheus_local_storage_checkpoint_duration_seconds",
+      "description": "The duration in seconds taken for checkpointing open chunks and chunks yet to be persisted"
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "prometheus_name": "prometheus_local_storage_checkpoint_series_chunks_written_count",
+      "name": "prometheus_local_storage_checkpoint_series_chunks_written_count",
+      "description": "The number of chunk written per series while checkpointing open chunks and chunks yet to be persisted."
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "instances": [
+        {
+          "prometheus_name": "prometheus_target_interval_length_seconds_sum{interval=\"15s\"}",
+          "name": "interval=\"15s\""
+        }
+      ],
+      "name": "prometheus_target_interval_length_seconds_sum",
+      "description": "Actual intervals between scrapes."
+    },
+    {
+      "semantics": "counter",
+      "type": "double",
+      "units_str": "",
+      "instances": [
+        {
+          "prometheus_name": "http_requests_total{code=\"200\",handler=\"prometheus\",method=\"get\"}",
+          "name": "code=\"200\"::handler=\"prometheus\"::method=\"get\""
+        }
+      ],
+      "name": "http_requests_total",
+      "description": "Total number of HTTP requests made."
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "prometheus_name": "go_memstats_alloc_bytes",
+      "name": "go_memstats_alloc_bytes",
+      "description": "Number of bytes allocated and still in use."
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "prometheus_name": "go_memstats_heap_alloc_bytes",
+      "name": "go_memstats_heap_alloc_bytes",
+      "description": "Number of heap bytes allocated and still in use."
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "instances": [
+        {
+          "prometheus_name": "prometheus_sd_triton_refresh_duration_seconds{quantile=\"0.5\"}",
+          "name": "quantile=\"0.5\""
+        },
+        {
+          "prometheus_name": "prometheus_sd_triton_refresh_duration_seconds{quantile=\"0.9\"}",
+          "name": "quantile=\"0.9\""
+        },
+        {
+          "prometheus_name": "prometheus_sd_triton_refresh_duration_seconds{quantile=\"0.99\"}",
+          "name": "quantile=\"0.99\""
+        }
+      ],
+      "name": "prometheus_sd_triton_refresh_duration_seconds",
+      "description": "The duration of a Triton-SD refresh in seconds."
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "prometheus_name": "go_memstats_buck_hash_sys_bytes",
+      "name": "go_memstats_buck_hash_sys_bytes",
+      "description": "Number of bytes used by the profiling bucket hash table."
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "prometheus_name": "process_open_fds",
+      "name": "process_open_fds",
+      "description": "Number of open file descriptors."
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "prometheus_name": "prometheus_local_storage_memory_dirty_series",
+      "name": "prometheus_local_storage_memory_dirty_series",
+      "description": "The current number of series that would require a disk seek during crash recovery."
+    },
+    {
+      "semantics": "counter",
+      "type": "double",
+      "units_str": "",
+      "prometheus_name": "prometheus_sd_marathon_refresh_failures_total",
+      "name": "prometheus_sd_marathon_refresh_failures_total",
+      "description": "The number of Marathon-SD refresh failures."
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "prometheus_name": "go_memstats_stack_sys_bytes",
+      "name": "go_memstats_stack_sys_bytes",
+      "description": "Number of bytes obtained from system for stack allocator."
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "prometheus_name": "prometheus_config_last_reload_successful",
+      "name": "prometheus_config_last_reload_successful",
+      "description": "Whether the last configuration reload attempt was successful."
+    },
+    {
+      "semantics": "counter",
+      "type": "double",
+      "units_str": "",
+      "prometheus_name": "prometheus_local_storage_ingested_samples_total",
+      "name": "prometheus_local_storage_ingested_samples_total",
+      "description": "The total number of samples ingested."
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "instances": [
+        {
+          "prometheus_name": "prometheus_target_sync_length_seconds_sum{scrape_job=\"prometheus\"}",
+          "name": "scrape_job=\"prometheus\""
+        }
+      ],
+      "name": "prometheus_target_sync_length_seconds_sum",
+      "description": "Actual interval to sync the scrape pool."
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "instances": [
+        {
+          "prometheus_name": "http_response_size_bytes_sum{handler=\"alertmanagers\"}",
+          "name": "handler=\"alertmanagers\""
+        },
+        {
+          "prometheus_name": "http_response_size_bytes_sum{handler=\"alerts\"}",
+          "name": "handler=\"alerts\""
+        },
+        {
+          "prometheus_name": "http_response_size_bytes_sum{handler=\"config\"}",
+          "name": "handler=\"config\""
+        },
+        {
+          "prometheus_name": "http_response_size_bytes_sum{handler=\"consoles\"}",
+          "name": "handler=\"consoles\""
+        },
+        {
+          "prometheus_name": "http_response_size_bytes_sum{handler=\"drop_series\"}",
+          "name": "handler=\"drop_series\""
+        },
+        {
+          "prometheus_name": "http_response_size_bytes_sum{handler=\"federate\"}",
+          "name": "handler=\"federate\""
+        },
+        {
+          "prometheus_name": "http_response_size_bytes_sum{handler=\"flags\"}",
+          "name": "handler=\"flags\""
+        },
+        {
+          "prometheus_name": "http_response_size_bytes_sum{handler=\"graph\"}",
+          "name": "handler=\"graph\""
+        },
+        {
+          "prometheus_name": "http_response_size_bytes_sum{handler=\"heap\"}",
+          "name": "handler=\"heap\""
+        },
+        {
+          "prometheus_name": "http_response_size_bytes_sum{handler=\"label_values\"}",
+          "name": "handler=\"label_values\""
+        },
+        {
+          "prometheus_name": "http_response_size_bytes_sum{handler=\"options\"}",
+          "name": "handler=\"options\""
+        },
+        {
+          "prometheus_name": "http_response_size_bytes_sum{handler=\"prometheus\"}",
+          "name": "handler=\"prometheus\""
+        },
+        {
+          "prometheus_name": "http_response_size_bytes_sum{handler=\"query\"}",
+          "name": "handler=\"query\""
+        },
+        {
+          "prometheus_name": "http_response_size_bytes_sum{handler=\"query_range\"}",
+          "name": "handler=\"query_range\""
+        },
+        {
+          "prometheus_name": "http_response_size_bytes_sum{handler=\"rules\"}",
+          "name": "handler=\"rules\""
+        },
+        {
+          "prometheus_name": "http_response_size_bytes_sum{handler=\"series\"}",
+          "name": "handler=\"series\""
+        },
+        {
+          "prometheus_name": "http_response_size_bytes_sum{handler=\"static\"}",
+          "name": "handler=\"static\""
+        },
+        {
+          "prometheus_name": "http_response_size_bytes_sum{handler=\"status\"}",
+          "name": "handler=\"status\""
+        },
+        {
+          "prometheus_name": "http_response_size_bytes_sum{handler=\"targets\"}",
+          "name": "handler=\"targets\""
+        },
+        {
+          "prometheus_name": "http_response_size_bytes_sum{handler=\"version\"}",
+          "name": "handler=\"version\""
+        }
+      ],
+      "name": "http_response_size_bytes_sum",
+      "description": "The HTTP response sizes in bytes."
+    },
+    {
+      "semantics": "counter",
+      "type": "double",
+      "units_str": "",
+      "prometheus_name": "prometheus_notifications_dropped_total",
+      "name": "prometheus_notifications_dropped_total",
+      "description": "Total number of alerts dropped due to errors when sending to Alertmanager."
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "instances": [
+        {
+          "prometheus_name": "http_request_duration_microseconds_count{handler=\"alertmanagers\"}",
+          "name": "handler=\"alertmanagers\""
+        },
+        {
+          "prometheus_name": "http_request_duration_microseconds_count{handler=\"alerts\"}",
+          "name": "handler=\"alerts\""
+        },
+        {
+          "prometheus_name": "http_request_duration_microseconds_count{handler=\"config\"}",
+          "name": "handler=\"config\""
+        },
+        {
+          "prometheus_name": "http_request_duration_microseconds_count{handler=\"consoles\"}",
+          "name": "handler=\"consoles\""
+        },
+        {
+          "prometheus_name": "http_request_duration_microseconds_count{handler=\"drop_series\"}",
+          "name": "handler=\"drop_series\""
+        },
+        {
+          "prometheus_name": "http_request_duration_microseconds_count{handler=\"federate\"}",
+          "name": "handler=\"federate\""
+        },
+        {
+          "prometheus_name": "http_request_duration_microseconds_count{handler=\"flags\"}",
+          "name": "handler=\"flags\""
+        },
+        {
+          "prometheus_name": "http_request_duration_microseconds_count{handler=\"graph\"}",
+          "name": "handler=\"graph\""
+        },
+        {
+          "prometheus_name": "http_request_duration_microseconds_count{handler=\"heap\"}",
+          "name": "handler=\"heap\""
+        },
+        {
+          "prometheus_name": "http_request_duration_microseconds_count{handler=\"label_values\"}",
+          "name": "handler=\"label_values\""
+        },
+        {
+          "prometheus_name": "http_request_duration_microseconds_count{handler=\"options\"}",
+          "name": "handler=\"options\""
+        },
+        {
+          "prometheus_name": "http_request_duration_microseconds_count{handler=\"prometheus\"}",
+          "name": "handler=\"prometheus\""
+        },
+        {
+          "prometheus_name": "http_request_duration_microseconds_count{handler=\"query\"}",
+          "name": "handler=\"query\""
+        },
+        {
+          "prometheus_name": "http_request_duration_microseconds_count{handler=\"query_range\"}",
+          "name": "handler=\"query_range\""
+        },
+        {
+          "prometheus_name": "http_request_duration_microseconds_count{handler=\"rules\"}",
+          "name": "handler=\"rules\""
+        },
+        {
+          "prometheus_name": "http_request_duration_microseconds_count{handler=\"series\"}",
+          "name": "handler=\"series\""
+        },
+        {
+          "prometheus_name": "http_request_duration_microseconds_count{handler=\"static\"}",
+          "name": "handler=\"static\""
+        },
+        {
+          "prometheus_name": "http_request_duration_microseconds_count{handler=\"status\"}",
+          "name": "handler=\"status\""
+        },
+        {
+          "prometheus_name": "http_request_duration_microseconds_count{handler=\"targets\"}",
+          "name": "handler=\"targets\""
+        },
+        {
+          "prometheus_name": "http_request_duration_microseconds_count{handler=\"version\"}",
+          "name": "handler=\"version\""
+        }
+      ],
+      "name": "http_request_duration_microseconds_count",
+      "description": "The HTTP request latencies in microseconds."
+    },
+    {
+      "semantics": "counter",
+      "type": "double",
+      "units_str": "",
+      "prometheus_name": "go_memstats_lookups_total",
+      "name": "go_memstats_lookups_total",
+      "description": "Total number of pointer lookups."
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "prometheus_name": "prometheus_sd_triton_refresh_duration_seconds_count",
+      "name": "prometheus_sd_triton_refresh_duration_seconds_count",
+      "description": "The duration of a Triton-SD refresh in seconds."
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "prometheus_name": "process_virtual_memory_bytes",
+      "name": "process_virtual_memory_bytes",
+      "description": "Virtual memory size in bytes."
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "instances": [
+        {
+          "prometheus_name": "prometheus_local_storage_indexing_batch_sizes{quantile=\"0.5\"}",
+          "name": "quantile=\"0.5\""
+        },
+        {
+          "prometheus_name": "prometheus_local_storage_indexing_batch_sizes{quantile=\"0.9\"}",
+          "name": "quantile=\"0.9\""
+        },
+        {
+          "prometheus_name": "prometheus_local_storage_indexing_batch_sizes{quantile=\"0.99\"}",
+          "name": "quantile=\"0.99\""
+        }
+      ],
+      "name": "prometheus_local_storage_indexing_batch_sizes",
+      "description": "Quantiles for indexing batch sizes (number of metrics per batch)."
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "prometheus_name": "prometheus_local_storage_indexing_batch_sizes_count",
+      "name": "prometheus_local_storage_indexing_batch_sizes_count",
+      "description": "Quantiles for indexing batch sizes (number of metrics per batch)."
+    },
+    {
+      "semantics": "counter",
+      "type": "double",
+      "units_str": "",
+      "prometheus_name": "prometheus_sd_triton_refresh_failures_total",
+      "name": "prometheus_sd_triton_refresh_failures_total",
+      "description": "The number of Triton-SD scrape failures."
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "prometheus_name": "go_memstats_mcache_inuse_bytes",
+      "name": "go_memstats_mcache_inuse_bytes",
+      "description": "Number of bytes in use by mcache structures."
+    },
+    {
+      "semantics": "instantaneous",
+      "type": "double",
+      "units_str": "",
+      "prometheus_name": "prometheus_sd_gce_refresh_duration_sum",
+      "name": "prometheus_sd_gce_refresh_duration_sum",
+      "description": "The duration of a GCE-SD refresh in seconds."
+    }
+  ],
+  "endpoint": "http://localhost:9090/metrics"
+}

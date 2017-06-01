@@ -19,10 +19,10 @@ status=1	# failure is the default!
 _cleanup()
 {
     _restore_config $PCP_PMCDCONF_PATH
-    $sudo rm -f $tmp.*
-    $sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+    _service pcp restart | _filter_pcp_start
     _wait_for_pmcd
     _wait_for_pmlogger
+    $sudo rm -f $tmp.*
 }
 
 _check()
@@ -51,7 +51,7 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 # real QA test starts here
 
 # terminate any pmcds and get rid of core file to get to a sane starting place
-$sudo $PCP_RC_DIR/pcp stop >/dev/null 2>&1
+_service pcp stop >/dev/null 2>&1
 $sudo rm -f $PCP_LOG_DIR/core* $PCP_LOG_DIR/pmcd/core* $PCP_PMCDLOG_PATH
 
 _check
@@ -63,7 +63,11 @@ $sudo cp /dev/null $PCP_PMCDCONF_PATH
 # should be empty
 echo "--- pmcd.conf contents follow ---"
 cat $PCP_PMCDCONF_PATH
-$sudo $PCP_RC_DIR/pcp restart 2>&1 \
+# Note: need to use $PCP_RC_DIR/* here, not _service pcp so that
+# systemd does not get a chance to have a look in and syphon off our
+# (expected) error messages.
+#
+( $sudo $PCP_RC_DIR/pmcd restart; $sudo $PCP_RC_DIR/pmlogger restart ) 2>&1 \
 | _filter_pcp_start \
 | fgrep -v "Waiting for PMCD to terminate" \
 | fgrep -v "pmcd_wait failed:"

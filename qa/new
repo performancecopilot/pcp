@@ -13,7 +13,7 @@
 . ./common.rc
 
 min=700
-max=1099
+max=1199
 
 tmp=/tmp/$$
 trap "rm -f $tmp.*; exit" 0 1 2 3 15
@@ -165,9 +165,15 @@ echo "QA output created by \$seq"
 
 # test for-some-thing || _notrun No support for some-thing
 
+_cleanup()
+{
+    cd \$here
+    \$sudo rm -rf \$tmp \$tmp.*
+}
+
 status=1	# failure is the default!
 \$sudo rm -rf \$tmp \$tmp.* \$seq.full
-trap "cd \$here; \$sudo rm -rf \$tmp \$tmp.*; exit \\\$status" 0 1 2 3 15
+trap "_cleanup; exit \\\$status" 0 1 2 3 15
 
 # real QA test starts here
 
@@ -180,7 +186,6 @@ exit
 
 # success, all done
 status=0
-
 exit
 End-of-File
 

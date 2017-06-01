@@ -94,8 +94,10 @@ __pmGroupnameFromID(gid_t gid, char *buf, size_t size)
 {
     struct group *result;
 
-    result = getgrgid(gid);
+    PM_LOCK(__pmLock_extcall);
+    result = getgrgid(gid);		/* THREADSAFE */
     snprintf(buf, size, "%s", result ? result->gr_name : "unknown");
+    PM_UNLOCK(__pmLock_extcall);
     buf[size-1] = '\0';
     return buf;
 }
@@ -121,8 +123,10 @@ __pmUsernameFromID(uid_t uid, char *buf, size_t size)
 {
     struct passwd *result;
 
-    result = getpwuid(uid);
+    PM_LOCK(__pmLock_extcall);
+    result = getpwuid(uid);		/* THREADSAFE */
     snprintf(buf, size, "%s", result ? result->pw_name : "unknown");
+    PM_UNLOCK(__pmLock_extcall);
     buf[size-1] = '\0';
     return buf;
 }
@@ -149,10 +153,14 @@ __pmUsernameToID(const char *name, uid_t *uid)
 {
     struct passwd *result;
 
-    result = getpwnam(name);
-    if (!result)
+    PM_LOCK(__pmLock_extcall);
+    result = getpwnam(name);		/* THREADSAFE */
+    if (result == NULL) {
+	PM_UNLOCK(__pmLock_extcall);
 	return -ENOENT;
+    }
     *uid = result->pw_uid;
+    PM_UNLOCK(__pmLock_extcall);
     return 0;
 }
 #else
@@ -178,10 +186,14 @@ __pmGroupnameToID(const char *name, gid_t *gid)
 {
     struct group *result;
 
-    result = getgrnam(name);
-    if (result == NULL)
+    PM_LOCK(__pmLock_extcall);
+    result = getgrnam(name);		/* THREADSAFE */
+    if (result == NULL) {
+	PM_UNLOCK(__pmLock_extcall);
 	return -ENOENT;
+    }
     *gid = result->gr_gid;
+    PM_UNLOCK(__pmLock_extcall);
     return 0;
 }
 #else
@@ -200,10 +212,14 @@ __pmHomedirFromID(uid_t uid, char *buf, size_t size)
      * Use $HOME, if it is set, otherwise get the information from
      * getpwuid_r()
      */
-    env = getenv("HOME");
-    if (env != NULL)
+    PM_LOCK(__pmLock_extcall);
+    env = getenv("HOME");		/* THREADSAFE */
+    if (env != NULL) {
 	snprintf(buf, size, "%s", env);
+	PM_UNLOCK(__pmLock_extcall);
+    }
     else {
+	PM_UNLOCK(__pmLock_extcall);
 	getpwuid_r(uid, &pwd, namebuf, sizeof(namebuf), &result);
 	if (result == NULL)
 	    return NULL;
@@ -222,14 +238,20 @@ __pmHomedirFromID(uid_t uid, char *buf, size_t size)
      * Use $HOME, if it is set, otherwise get the information from
      * getpwuid()
      */
-    env = getenv("HOME");
-    if (env != NULL)
+    PM_LOCK(__pmLock_extcall);
+    env = getenv("HOME");		/* THREADSAFE */
+    if (env != NULL) {
 	snprintf(buf, size, "%s", env);
+	PM_UNLOCK(__pmLock_extcall);
+    }
     else {
-	result = getpwuid(uid);
-	if (result == NULL)
+	result = getpwuid(uid);			/* THREADSAFE */
+	if (result == NULL) {
+	    PM_UNLOCK(__pmLock_extcall);
 	    return NULL;
+	}
 	snprintf(buf, size, "%s", result->pw_dir);
+	PM_UNLOCK(__pmLock_extcall);
     }
     buf[size-1] = '\0';
     return buf;
@@ -283,27 +305,33 @@ __pmUsersGroupIDs(const char *username, gid_t **groupids, unsigned int *ngroups)
 	return sts;
 
     /* search for groups in which the given user is a member */
-    setgrent();
+    PM_LOCK(__pmLock_extcall);
+    setgrent();			/* THREADSAFE */
     while (1) {
 	grp = NULL;
 #ifdef IS_SOLARIS
+	/* THREADSAFE */
 	if ((grp = getgrent_r(&gr, grbuf, sizeof(grbuf))) == NULL)
 	    break;
 #else
+	/* THREADSAFE */
 	if (getgrent_r(&gr, grbuf, sizeof(grbuf), &grp) != 0 || grp == NULL)
 	    break;
 #endif
 	for (i = 0; grp->gr_mem[i]; i++) {
 	    if (strcmp(username, grp->gr_mem[i]) != 0)
 		continue;
+	    /* THREADSAFE - no locks acquired in __pmAddGroupID() */
 	    if ((sts = __pmAddGroupID(grp->gr_gid, &gidlist, &count)) < 0) {
-		endgrent();
+		endgrent();		/* THREADSAFE */
+		PM_UNLOCK(__pmLock_extcall);
 		return sts;
 	    }
 	    break;
 	}
     }
-    endgrent();
+    endgrent();		/* THREADSAFE */
+    PM_UNLOCK(__pmLock_extcall);
 
     *groupids = gidlist;
     *ngroups = count;
@@ -315,35 +343,45 @@ __pmUsersGroupIDs(const char *username, gid_t **groupids, unsigned int *ngroups)
 {
     int			i, sts;
     unsigned int	count = 0;
+    gid_t		gid;
     gid_t		*gidlist = NULL;
     struct passwd	*result;
     struct group	*grp;
 
-    result = getpwnam(username);
-    if (!result)
+    PM_LOCK(__pmLock_extcall);
+    result = getpwnam(username);		/* THREADSAFE */
+    if (result == NULL) {
+	PM_UNLOCK(__pmLock_extcall);
 	return -ENOENT;
+    }
+    gid = result->pw_gid;
+    PM_UNLOCK(__pmLock_extcall);
 
     /* add the primary group in right away, before supplementary groups */
-    if ((sts = __pmAddGroupID(result->pw_gid, &gidlist, &count)) < 0)
+    if ((sts = __pmAddGroupID(gid, &gidlist, &count)) < 0)
 	return sts;
 
     /* search for groups in which the given user is a member */
-    setgrent();
+    PM_LOCK(__pmLock_extcall);
+    setgrent();		/* THREADSAFE */
     while (1) {
 	grp = NULL;
-	if ((grp = getgrent()) == NULL)
+	if ((grp = getgrent()) == NULL)		/* THREADSAFE */
 	    break;
 	for (i = 0; grp->gr_mem[i]; i++) {
 	    if (strcmp(username, grp->gr_mem[i]) != 0)
 		continue;
+	    /* THREADSAFE - no locks acquired in __pmAddGroupID() */
 	    if ((sts = __pmAddGroupID(grp->gr_gid, &gidlist, &count)) < 0) {
-		endgrent();
+		endgrent();		/* THREADSAFE */
+		PM_UNLOCK(__pmLock_extcall);
 		return sts;
 	    }
 	    break;
 	}
     }
-    endgrent();
+    endgrent();		/* THREADSAFE */
+    PM_UNLOCK(__pmLock_extcall);
 
     *groupids = gidlist;
     *ngroups = count;
@@ -400,34 +438,41 @@ __pmGroupsUserIDs(const char *groupname, uid_t **userids, unsigned int *nusers)
     names = grp->gr_mem;	/* supplementaries */
 
     /* for a given list of usernames, lookup the user IDs */
-    setpwent();
+    PM_LOCK(__pmLock_extcall);
+    setpwent();		/* THREADSAFE */
     while (1) {
 #ifdef IS_SOLARIS
+	/* THREADSAFE */
 	if ((pwp = getpwent_r(&pw, buf, sizeof(buf))) == NULL)
 	    break;
 #else
 	pwp = NULL;
+	/* THREADSAFE */
 	if (getpwent_r(&pw, buf, sizeof(buf), &pwp) != 0 || pwp == NULL)
 	    break;
 #endif
 	/* check to see if this user has given group as primary */
+	/* THREADSAFE - no locks acquired in __pmAddUserID() */
 	if (pwp->pw_gid == groupid &&
 	    (sts = __pmAddUserID(pwp->pw_uid, &uidlist, &count)) < 0) {
-	    endpwent();
+	    endpwent();		/* THREADSAFE */
+	    PM_UNLOCK(__pmLock_extcall);
 	    return sts;
 	}
 	/* check to see if this user is listed in groups file */
 	for (i = 0; names[i]; i++) {
 	    if (strcmp(pwp->pw_name, names[i]) == 0) {
 		if ((sts = __pmAddUserID(pwp->pw_uid, &uidlist, &count)) < 0) {
-		    endpwent();
+		    endpwent();		/* THREADSAFE */
+		    PM_UNLOCK(__pmLock_extcall);
 		    return sts;
 		}
 		break;
 	    }
 	}
     }
-    endpwent();
+    endpwent();		/* THREADSAFE */
+    PM_UNLOCK(__pmLock_extcall);
 
     *userids = uidlist;
     *nusers = count;
@@ -446,32 +491,40 @@ __pmGroupsUserIDs(const char *name, uid_t **userids, unsigned int *nusers)
     unsigned int	i, count = 0;
 
     /* for a given group name, find gid and user names */
-    if ((grp = getgrnam(name)) == NULL)
+    PM_LOCK(__pmLock_extcall);
+    grp = getgrnam(name);		/* THREADSAFE */
+    if (grp == NULL) {
+	PM_UNLOCK(__pmLock_extcall);
 	return -EINVAL;
+    }
     groupid = grp->gr_gid;
     names = grp->gr_mem;
 
-    setpwent();
+    setpwent();		/* THREADSAFE */
     while (1) {
-	if ((pwp = getpwent()) == NULL)
+	if ((pwp = getpwent()) == NULL)		/* THREADSAFE */
 	    break;
 	/* check to see if this user has given group as primary */
+	/* THREADSAFE - no locks acquired in __pmAddUserID() */
 	if (pwp->pw_gid == groupid &&
 	    (sts = __pmAddUserID(pwp->pw_uid, &uidlist, &count)) < 0) {
-	    endpwent();
+	    endpwent();		/* THREADSAFE */
+	    PM_UNLOCK(__pmLock_extcall);
 	    return sts;
 	}
 	for (i = 0; names[i]; i++) {
 	    if (strcmp(pwp->pw_name, names[i]) == 0) {
 		if ((sts = __pmAddUserID(pwp->pw_uid, &uidlist, &count)) < 0) {
-		    endpwent();
+		    endpwent();		/* THREADSAFE */
+		    PM_UNLOCK(__pmLock_extcall);
 		    return sts;
 		}
 		break;
 	    }
 	}
     }
-    endpwent();
+    endpwent();		/* THREADSAFE */
+    PM_UNLOCK(__pmLock_extcall);
 
     *userids = uidlist;
     *nusers = count;
@@ -516,13 +569,17 @@ __pmGetUserIdentity(const char *username, uid_t *uid, gid_t *gid, int mode)
     struct passwd *pw;
 
     setoserror(0);
-    if ((pw = getpwnam(username)) == 0) {
+    PM_LOCK(__pmLock_extcall);
+    pw = getpwnam(username);		/* THREADSAFE */
+    if (pw == NULL) {
+	PM_UNLOCK(__pmLock_extcall);
 	__pmNotifyErr(LOG_CRIT,
 		"cannot find the %s user to switch to\n", username);
 	if (mode == PM_FATAL_ERR)
 	    exit(1);
 	return -ENOENT;
     } else if (oserror() != 0) {
+	PM_UNLOCK(__pmLock_extcall);
 	__pmNotifyErr(LOG_CRIT, "getpwnam(%s) failed: %s\n",
 		username, pmErrStr_r(oserror(), errmsg, sizeof(errmsg)));
 	if (mode == PM_FATAL_ERR)
@@ -531,6 +588,7 @@ __pmGetUserIdentity(const char *username, uid_t *uid, gid_t *gid, int mode)
     }
     *uid = pw->pw_uid;
     *gid = pw->pw_gid;
+    PM_UNLOCK(__pmLock_extcall);
     return 0;
 }
 #else

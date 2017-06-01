@@ -18,7 +18,7 @@
 import os
 import sys
 from pcp import pmapi
-from cpmapi import PM_TYPE_U64
+from cpmapi import PM_TYPE_U64, PM_CONTEXT_ARCHIVE
 
 if sys.version >= '3':
     long = int  # python2 to python3 portability (no long() in python3)
@@ -87,11 +87,14 @@ class NUMAStat(object):
         """
         metrics = ('mem.numa.alloc.hit', 'mem.numa.alloc.miss',
                    'mem.numa.alloc.foreign', 'mem.numa.alloc.interleave_hit',
-                   'mem.numa.alloc.local_node',        'mem.numa.alloc.other_node')
+                   'mem.numa.alloc.local_node', 'mem.numa.alloc.other_node')
 
         pmids = self.context.pmLookupName(metrics)
         descs = self.context.pmLookupDescs(pmids)
-        (insts, nodes) = self.context.pmGetInDom(descs[0])
+        if self.context.type == PM_CONTEXT_ARCHIVE:
+            (insts, nodes) = self.context.pmGetInDomArchive(descs[0])
+        else:
+            (insts, nodes) = self.context.pmGetInDom(descs[0])
         result = self.context.pmFetch(pmids)
         values = self.extract(descs, insts, result)
         self.context.pmFreeResult(result)

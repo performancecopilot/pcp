@@ -31,6 +31,7 @@ $python -c "from pcp import pmda" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "python pcp pmda module not installed"
 $python -c "import libvirt" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "python libvirt module not installed"
+_is_libvirt_ok || _notrun "bad python libvirt version"
 $python -c "import lxml" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "python lxml module not installed"
 
@@ -89,14 +90,14 @@ pmdalibvirt_cleanup()
     else
 	$sudo rm -f $PCP_PMDAS_DIR/libvirt/libvirt.conf
     fi
-    # note: _restore_systemd_restart pmcd done in _cleanup_pmda()
+    # note: _restore_auto_restart pmcd done in _cleanup_pmda()
     _cleanup_pmda libvirt
 }
 
 _prepare_pmda libvirt
 trap "pmdalibvirt_cleanup; exit \$status" 0 1 2 3 15
 
-_stop_systemd_restart pmcd
+_stop_auto_restart pmcd
 
 _filter()
 {

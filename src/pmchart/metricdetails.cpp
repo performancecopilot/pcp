@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, Red Hat.
+ * Copyright (c) 2016-2017, Red Hat.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -35,6 +35,9 @@ MetricDetailsWindow::setupTable(Chart *chart)
     QList<ChartItem *> &items = chart->items();
     for (int i = 0; i < items.size(); i++) {
 	ChartItem *item = items[i];
+	// Make sure this item is active.
+	if (item->removed())
+	    continue;
 	const QString &cursorInfo = item->cursorInfo();
 	if (!cursorInfo.isEmpty())
 	    ++rows;
@@ -46,10 +49,13 @@ MetricDetailsWindow::setupTable(Chart *chart)
     tableWidget->setRowCount(rows);
     int row = 0;
     for (int i = 0; i < items.size(); i++) {
+	// Make sure this item is active.
 	ChartItem *item = items[i];
-	const QString &cursorInfo = item->cursorInfo();
+	if (item->removed())
+	    continue;
 
 	// Add this item's cursor info, if it is not empty.
+	const QString &cursorInfo = item->cursorInfo();
 	if (!cursorInfo.isEmpty()) {
 	    // The host name.
 	    TableWidgetItem *twItem = new TableWidgetItem(item->hostname());
@@ -85,9 +91,10 @@ MetricDetailsWindow::setupTable(Chart *chart)
 		twItem = new TableWidgetItem(itemStr);
 	    tableWidget->setItem(row, valueColumn(), twItem);
 
-	    // The time of the sample
-	    Q_ASSERT(dataStr.left(3) == "at ");
-	    dataStr.remove(0, 3);
+	    // The time of the sample -- located after "at " in the data string.
+	    int atIx = dataStr.indexOf("at ");
+	    Q_ASSERT(atIx != -1);
+	    dataStr.remove(0, atIx + 3);
 	    dataEnd = dataStr.indexOf(']');
 	    Q_ASSERT(dataEnd != -1);
 	    itemStr = dataStr.left(dataEnd);

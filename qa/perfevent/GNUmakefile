@@ -32,6 +32,7 @@ SRCS = perf_event_test.c \
        rapl-interface.c \
        configparser.yytest.c \
        $(SRCDIR)/perfinterface.c \
+	$(SRCDIR)/parse_events.c
 
 THREAD_SRCS = threadtest.c \
 	      $(SRCDIR)/perfmanager.c \
@@ -48,7 +49,7 @@ COV_FLAGS= --coverage
 COV_DIR=$(OUTDIR)/gcov
 COV_OBJS= $(patsubst %.c,$(COV_DIR)/%.o,$(notdir $(SRCS)))
 
-CFLAGS = -Wall -O0 -ggdb
+CFLAGS = -Wall -O0 -ggdb -fPIC
 CPPFLAGS = -I$(SRCDIR) -D_GNU_SOURCE -DFILESYSTEM_ROOT='"./fakefs/"'
 LDFLAGS = -Wl,--wrap,syscall -Wl,--wrap,ioctl -Wl,--wrap,read -Wl,--wrap,close -Wl,--wrap,malloc -Wl,--wrap,sysconf
 LDLIBS = -lm

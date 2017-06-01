@@ -219,6 +219,7 @@ cat >$tmp.suppress <<End-of-File
    fun:malloc
    fun:realloc
    ...
+   fun:__pmSetFeaturesIPC
    fun:__pmSetVersionIPC
    fun:__pmLogChkLabel
    fun:__pmLogChangeVol

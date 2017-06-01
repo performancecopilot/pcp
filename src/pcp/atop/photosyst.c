@@ -1,5 +1,5 @@
 /*
-** Copyright (C) 2015-2016 Red Hat.
+** Copyright (C) 2015-2017 Red Hat.
 ** Copyright (C) 2000-2012 Gerlof Langeveld.
 **
 ** This program is free software; you can redistribute it and/or modify it
@@ -200,9 +200,10 @@ update_mdd(struct perdsk *dsk, int id, char *name, pmResult *rp, pmDesc *dp)
 static void
 update_mnt(struct pernfsmount *mp, int id, char *name, pmResult *rp, pmDesc *dp)
 {
-	(void)name;	/* unused - local client mount - use server export */
+	/* use local client mount unless server export is available */
+	strncpy(mp->mountdev, name, sizeof(mp->mountdev));
 	extract_string_inst(rp, dp, PERNFS_EXPORT, &mp->mountdev[0],
-				sizeof(mp->mountdev), id);
+				sizeof(mp->mountdev)-1, id);
 	mp->mountdev[sizeof(mp->mountdev)-1] = '\0';
 
 	mp->age = extract_count_t_inst(rp, dp, PERNFS_AGE, id);
@@ -318,8 +319,8 @@ photosyst(struct sstat *si)
 	si->mem.freemem = extract_count_t(result, descs, MEM_FREEMEM);
 	si->mem.buffermem = extract_count_t(result, descs, MEM_BUFFERMEM);
 	si->mem.shmem = extract_count_t(result, descs, MEM_SHMEM);
-	si->mem.totswap = extract_count_t(result, descs, MEM_TOTSWAP);
-	si->mem.freeswap = extract_count_t(result, descs, MEM_FREESWAP);
+	si->mem.totswap = extract_count_t(result, descs, MEM_TOTSWAP) / 1024;
+	si->mem.freeswap = extract_count_t(result, descs, MEM_FREESWAP) / 1024;
 	si->mem.slabmem  = extract_count_t(result, descs, MEM_SLABMEM);
 	si->mem.slabreclaim = extract_count_t(result, descs, MEM_SLABRECLAIM);
 	si->mem.committed = extract_count_t(result, descs, MEM_COMMITTED);

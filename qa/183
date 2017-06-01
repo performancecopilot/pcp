@@ -13,10 +13,20 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+_cleanup()
+{
+    _restore_auto_restart pmcd
+    _restore_auto_restart pmlogger
+    $sudo rm -f $tmp.* /tmp/Latest
+}
+
 signal=$PCP_BINADM_DIR/pmsignal
 newlog=$PCP_BINADM_DIR/pmnewlog
-trap "$sudo rm -f $tmp.* /tmp/Latest; exit \$status" 0 1 2 3 15
+trap "_cleanup; exit \$status" 0 1 2 3 15
 status=1
+
+_stop_auto_restart pmcd
+_stop_auto_restart pmlogger
 
 # used to debug qa test (tes:June/2000)
 rm -rf $seq.full
@@ -106,7 +116,9 @@ echo "=== no primary logger ===" >>$seq.full
 $sudo $signal -a -s TERM pmlogger
 pmsleep 1.1
 $sudo $newlog $tmp 2>&1 | tee -a $seq.full | _filter
-$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+_service pcp restart \
+| _filter_pcp_start \
+| sed -e '/pmlogger not running/d'
 _wait_for_pmcd
 _wait_for_pmlogger
 

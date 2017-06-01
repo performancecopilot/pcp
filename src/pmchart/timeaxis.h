@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2017, Red Hat.  All Rights Reserved.
  * Copyright (c) 2007, Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -20,12 +21,14 @@
 #include <QResizeEvent>
 
 class Tab;
+class TimeScaleDraw;
 
 class TimeAxis : public QwtPlot 
 {
     Q_OBJECT
 public:
     TimeAxis(QWidget *);
+    virtual ~TimeAxis();
 
     void init();
     void resetFont();
@@ -44,6 +47,7 @@ private:
 	int points;
 	double delta;
 	double scale;
+	TimeScaleDraw *timeScaleDraw;
     } my;
 };
 

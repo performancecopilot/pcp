@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 Red Hat.
+ * Copyright (c) 2013,2017 Red Hat.
  * Copyright (c) 1995-2000 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -98,7 +98,7 @@ __pmdaMainPDU(pmdaInterface *dispatch)
     if (pmda->e_checkCallBack) {
 	op_sts = (*(pmda->e_checkCallBack))();
 	if (op_sts < 0) {
-	    if (sts != PDU_PROFILE)
+	    if (sts != PDU_PROFILE && sts != PDU_ATTR)
 		/* all other PDUs expect an ACK */
 		__pmSendError(pmda->e_outfd, FROM_ANON, op_sts);
 	    __pmUnpinPDUBuf(pb);

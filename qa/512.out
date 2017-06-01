@@ -1,35 +1,59 @@
 QA output created by 512
 == pminfo ==
+lock(auxconnect)
+lock(config)
 lock(ctx 0 ipc channel)
 lock(ctx 0)
 lock(derived_metric)
 lock(derived_metric) [count=1]
+lock(fault)
+lock(global_extcall)
 lock(global_libpcp)
-lock(global_libpcp) [count=1]
+lock(pdu)
+lock(pdubuf)
+unlock(auxconnect)
+unlock(config)
 unlock(ctx 0 ipc channel)
 unlock(ctx 0)
 unlock(derived_metric)
 unlock(derived_metric) [count=2]
+unlock(fault)
+unlock(global_extcall)
 unlock(global_libpcp)
-unlock(global_libpcp) [count=2]
+unlock(pdu)
+unlock(pdubuf)
 
 == pmlogger ==
+lock(auxconnect)
+lock(config)
 lock(ctx 0 ipc channel)
 lock(ctx 0)
 lock(ctx 0) [count=1]
 lock(derived_metric)
 lock(derived_metric) [count=1]
+lock(fault)
+lock(global_extcall)
 lock(global_libpcp)
 lock(global_libpcp) [count=1]
 lock(global_libpcp) [count=2]
+lock(pdu)
+lock(pdubuf)
+lock(util)
+unlock(auxconnect)
+unlock(config)
 unlock(ctx 0 ipc channel)
 unlock(ctx 0)
 unlock(ctx 0) [count=2]
 unlock(derived_metric)
 unlock(derived_metric) [count=2]
+unlock(fault)
+unlock(global_extcall)
 unlock(global_libpcp)
 unlock(global_libpcp) [count=2]
 unlock(global_libpcp) [count=3]
+unlock(pdu)
+unlock(pdubuf)
+unlock(util)
 
 == pmlogextract ==
 lock(ctx 0)
@@ -39,8 +63,10 @@ lock(ctx 1) [count=1]
 lock(ctx 2)
 lock(ctx 2) [count=1]
 lock(derived_metric)
+lock(fault)
+lock(global_extcall)
 lock(global_libpcp)
-lock(global_libpcp) [count=1]
+lock(pdubuf)
 unlock(ctx 0)
 unlock(ctx 0) [count=2]
 unlock(ctx 1)
@@ -48,30 +74,50 @@ unlock(ctx 1) [count=2]
 unlock(ctx 2)
 unlock(ctx 2) [count=2]
 unlock(derived_metric)
+unlock(fault)
+unlock(global_extcall)
 unlock(global_libpcp)
-unlock(global_libpcp) [count=2]
+unlock(pdubuf)
 
 == pmdumplog ==
+lock(config)
 lock(ctx 0)
 lock(ctx 0) [count=1]
 lock(derived_metric)
 lock(derived_metric) [count=1]
+lock(fault)
+lock(global_extcall)
 lock(global_libpcp)
+lock(pdubuf)
+unlock(config)
 unlock(ctx 0)
 unlock(ctx 0) [count=2]
 unlock(derived_metric)
 unlock(derived_metric) [count=2]
+unlock(fault)
+unlock(global_extcall)
 unlock(global_libpcp)
+unlock(pdubuf)
 
 == dbpmda ==
+lock(config)
 lock(ctx 0)
 lock(ctx 0) [count=1]
 lock(derived_metric)
 lock(derived_metric) [count=1]
+lock(fault)
+lock(global_extcall)
 lock(global_libpcp)
 lock(global_libpcp) [count=1]
+lock(pdu)
+lock(pdubuf)
+unlock(config)
 unlock(ctx 0) [count=2]
 unlock(derived_metric)
 unlock(derived_metric) [count=2]
+unlock(fault)
+unlock(global_extcall)
 unlock(global_libpcp)
 unlock(global_libpcp) [count=2]
+unlock(pdu)
+unlock(pdubuf)

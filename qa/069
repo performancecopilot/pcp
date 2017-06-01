@@ -121,8 +121,8 @@ cleanup()
 	pmafm $LOGGING_DIR/$LOCALHOST/Latest remove >$tmp.cmd 2>&1 \
 	&& $sudo sh $tmp.cmd
 	echo "Restarting pmcd"
-	$sudo $PCP_RC_DIR/pcp restart >/dev/null
-	_restore_systemd_restart pmcd
+	_service pcp restart >/dev/null
+	_restore_auto_restart pmcd
 	_wait_for_pmcd
 	_wait_for_pmlogger
     fi
@@ -140,7 +140,8 @@ interrupt()
 trap "interrupt; exit \$status" 1 2 3 15
 trap "cleanup; exit \$status" 0
 
-_stop_systemd_restart pmcd
+_stop_auto_restart pmcd
+_service pcp stop | _filter_pcp_stop
 
 cat <<End-of-File >$tmp.c
 #include <pcp/pmapi.h>
@@ -167,14 +168,13 @@ _get_hex_addr()
 
 # Number of clients is platform/config dependent ...
 # 1. pmie
-# 2. primary pmlogger
-# 3. pmie (maybe)
-# 4. pmlogger for pmmgr (maybe)
+# 2. pmie (maybe)
+# 3. pmlogger for pmmgr (maybe)
 #
 _filter_numclients()
 {
     $PCP_AWK_PROG '
-$1 == "value"	{ if ($2 == 2 || $2 == 3 || $2 == 4) $2 = "2..4" }
+$1 == "value"	{ if ($2 == 1 || $2 == 2 || $2 == 3) $2 = "1..3" }
 		{ print }'
 }
 
@@ -213,20 +213,26 @@ $sudo cp $config $oconfig
 $sudo cp $nconfig $config
 echo "--- initial pmcd.conf ---" >>$seq.full
 cat $config >>$seq.full
+
+# need to start pmcd indirectly in a shell script because sudo
+# may cleanse the environment, which also means we cannot use
+# the _service wrapper
+#
 export PMCD_CONNECT_TIMEOUT=30
 export PMCD_PORT=$port
-echo "export PMCD_CONNECT_TIMEOUT=30" >$tmp.start
-echo "export PMCD_PORT=$port" >>$tmp.start
-echo "sh $PCP_RC_DIR/pcp restart" >>$tmp.start
+echo "export PMCD_CONNECT_TIMEOUT=$PMCD_CONNECT_TIMEOUT" >$tmp.start
+echo "export PMCD_PORT=$PMCD_PORT" >>$tmp.start
+echo "$PCP_RC_DIR/pmcd restart" >>$tmp.start
 $sudo sh $tmp.start 2>&1 \
 | tee -a $seq.full \
 | sed '/Wait/d' \
 | _filter_pcp_start
 _wait_for_pmcd
-_wait_for_pmlogger
 
 echo "should be OK"
 pminfo -f pmcd.numclients | _filter_numclients
+
+sleep 2		# make sure pmcd.conf timestamp changes
 
 cat <<End-of-File >>$nconfig
 

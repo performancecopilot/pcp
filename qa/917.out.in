@@ -1,0 +1,53 @@
+QA output created by 917
+full policy modules list on the system
+Checking that pcpupstream policy module has been properly installed
+pcpupstream
+Checking policies.
+--- begin avrule block ---
+decl 1:
+  allow [init_t] [pcp_log_t] : [dir] { read };
+  allow [init_t] [pcp_log_t] : [file] { getattr };
+  allow [init_t] [pcp_var_lib_t] : [dir] { add_name read write };
+  allow [init_t] [pcp_var_lib_t] : [file] { append create execute execute_no_trans getattr ioctl open read write };
+  allow [init_t] [pcp_var_lib_t] : [lnk_file] { read };
+  allow [init_t] [tmp_t] : [file] { open };
+  allow [pcp_pmcd_t] [svirt_sandbox_file_t] : [dir] { open read search };
+  allow [pcp_pmcd_t] [svirt_lxc_net_t] : [dir] { open read search };
+  allow [pcp_pmcd_t] [sysctl_net_t] : [dir] { search };
+  allow [pcp_pmcd_t] [sysctl_net_t] : [file] { getattr open read };
+  allow [pcp_pmcd_t] [user_home_t] : [file] { execute execute_no_trans open read };
+  allow [pcp_pmcd_t] [debugfs_t] : [dir] { read };
+  allow [pcp_pmcd_t] [debugfs_t] : [file] { getattr ioctl open read };
+  allow [pcp_pmcd_t] [pcp_pmie_exec_t] : [file] { execute execute_no_trans open read };
+  allow [pcp_pmcd_t] self : [capability] { sys_ptrace net_admin };
+  allow [pcp_pmcd_t] [initctl_t] : [fifo_file] { getattr };
+  allow [pcp_pmcd_t] [proc_kcore_t] : [file] { getattr };
+  allow [pcp_pmcd_t] self : [cap_userns] { sys_ptrace };
+  allow [pcp_pmcd_t] self : [capability] { sys_chroot };
+  allow [pcp_pmcd_t] [nsfs_t] : [file] { open read };
+  allow [pcp_pmcd_t] [pcp_log_t] : [fifo_file] { getattr read open };
+  allow [pcp_pmlogger_t] [kmsg_device_t] : [chr_file] { open write };
+  allow [pcp_pmlogger_t] self : [capability] { kill };
+  allow [pcp_pmlogger_t] [init_t] : [system] { status };
+  allow [pcp_pmlogger_t] [devlog_t] : [sock_file] { write };
+  allow [pcp_pmlogger_t] self : [capability] { sys_ptrace };
+  allow [pcp_pmlogger_t] [unconfined_t] : [process] { signal };
+  allow [pcp_pmie_t] [hostname_exec_t] : [file] { execute execute_no_trans getattr open read };
+  allow [pcp_pmie_t] self : [capability] { kill net_admin chown };
+  allow [pcp_pmie_t] [init_t] : [unix_stream_socket] { connectto };
+  allow [pcp_pmie_t] [initrc_var_run_t] : [file] { lock open read };
+  allow [pcp_pmie_t] [init_t] : [system] { status };
+  allow [pcp_pmie_t] [systemd_unit_file_t] : [file] { getattr };
+  allow [pcp_pmie_t] [systemd_systemctl_exec_t] : [file] { execute execute_no_trans open read };
+  allow [pcp_pmcd_t] [configfs_t] : [dir] { open read search };
+  allow [pcp_pmcd_t] [configfs_t] : [file] { getattr open read };
+  allow [pcp_pmcd_t] [configfs_t] : [lnk_file] { read getattr };
+  allow [pcp_pmcd_t] [ldconfig_exec_t] : [file] { execute execute_no_trans getattr open read };
+  allow [pcp_pmcd_t] [modules_conf_t] : [dir] { open read getattr };
+  allow [pcp_pmcd_t] [modules_conf_t] : [file] { getattr open read };
+  allow [pcp_pmcd_t] [modules_object_t] : [dir] { search };
+  allow [pcp_pmcd_t] [modules_object_t] : [file] { getattr open read };
+  allow [pcp_pmcd_t] [saslauthd_t] : [unix_stream_socket] { connectto };
+  allow [pcp_pmproxy_t] self : [capability] { net_admin };
+  allow [pcp_pmproxy_t] [sysctl_net_t] : [file] { getattr open read };
+

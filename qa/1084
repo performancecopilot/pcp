@@ -1,0 +1,44 @@
+#!/bin/sh
+# PCP QA Test No. 1084
+# check network.sockstat metrics
+#
+# Copyright (c) 2017 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+# test for-some-thing || _notrun No support for some-thing
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+
+root=$tmp.root
+export LINUX_STATSPATH=$root
+pmda=$PCP_PMDAS_DIR/linux/pmda_linux.so,linux_init
+
+rm -fr $root
+mkdir -p $root/proc/net || _fail "root in use when processing $file"
+cp $here/linux/proc_net_sockstat $root/proc/net/sockstat
+cp $here/linux/proc_net_sockstat6 $root/proc/net/sockstat6
+
+echo "== Checking network.softstat metrics"
+pminfo -f -L -K clear -K add,60,$pmda network.sockstat
+
+# success, all done
+status=0
+exit

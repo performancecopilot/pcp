@@ -2,6 +2,13 @@
 # PCP QA Test No. 964
 # Ensure pmlogger not (re)started via PMDA Install.
 #
+# We cannot use a PMDA that _might_ provide metrics that the primary
+# pmlogger is logging ... when we Remove that PMDA, then pmlogger will
+# at some point notice the metrics have gone away and exit ... leaving
+# no pmlogger to be tested in this test case.
+#
+# So we use the test_perl PMDA.
+#
 # Copyright (c) 2015-2016 Red Hat.
 #
 
@@ -13,13 +20,10 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-[ -d $PCP_PMDAS_DIR/xfs ] || _notrun "xfs PMDA directory is not installed"
-
-[ -f /etc/gentoo-release ] && _notrun "Gentoo is lacking chkconfig support"
-[ -f /etc/slackware-version ] && _notrun "Slackware is lacking chkconfig support"
+perl -e "use PCP::PMDA" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "perl PCP::PMDA module not installed"
 
 status=1	# failure is the default!
-LOCALHOST=`hostname`
 _needclean=true
 $sudo rm -rf $tmp $tmp.* $seq.full
 
@@ -33,12 +37,13 @@ _cleanup()
     cd $here
     if $_needclean
     then
-	echo "Resetting system state"
-	_restore_pmda_install xfs
-	$sudo $PCP_RC_DIR/pmcd restart | _filter_pcp_start
-	_restore_systemd_restart pmcd
-	_wait_for_pmcd
-	_wait_for_pmlogger
+	if pmprobe -I pmcd.agent.status | grep '"test_perl"' >/dev/null
+	then
+	    cd $here/pmdas/test_perl
+	    $sudo ./Remove >>$here/$seq.full 2>&1
+	    $sudo rm -f domain.h.perl
+	    cd $here
+	fi
 	_needclean=false
     fi
     $sudo rm -f $tmp.*
@@ -48,73 +53,138 @@ _cleanup()
 trap "_cleanup" 0
 trap "_interrupt; _cleanup" 1 2 3 15
 
-_stop_systemd_restart pmcd
+_stop_auto_restart pmcd
 
-_count_pmloggers()
+_find_primary_pmlogger()
 {
-    count=0
     if [ -d $PCP_TMP_DIR/pmlogger ]
-    then cd $PCP_TMP_DIR/pmlogger
-    else return 0
-    fi
-
-    ls -l >>$here/$seq.full
-    plist=`ls -1`
-    cd $here
-
-    for process in $plist
-    do
-	[ "$process" = "primary" ] && continue
-	ps -p $process >>$here/$seq.full 2>&1
-	if [ $? = 1 ]
+    then
+	cd $PCP_TMP_DIR/pmlogger
+	ls -l >>$here/$seq.full
+	if [ -L primary ]
 	then
-	    echo "urk, $PCP_TMP_DIR/pmlogger/$process has no running pmlogger instance"
+	    echo "`ls -l primary | sed -e 's;.*/;;'`"
 	else
-	    count=`expr $count + 1`
+	    echo "No primary logger file?" >>$here/$seq.full
 	fi
-    done
-
-    return $count
+    fi
 }
 
-_filter_xfs_install()
+_filter_test_perl_install()
 {
     _filter_pmda_install \
     | _filter_pcp_stop \
     | tee -a $here/$seq.full \
     | $PCP_AWK_PROG '
-/Check xfs metrics have appeared/ { if ($7 >= 0) $7 = "X"
+/Check test_perl metrics have appeared/ { if ($7 >= 0) $7 = "X"
                                            if ($10 >= 0) $10 = "Y"
                                          }
                                          { print }'
 }
 
 # real QA test starts here
-_prepare_pmda_install xfs
 
-# switch off pmcd
-$sudo $PCP_RC_DIR/pmcd stop | _filter_pcp_stop
+pmcd_pid=`_get_pids_by_name pmcd`
+if [ -n "$pmcd_pid" ]
+then
+    echo "Found initial pmcd"
+else
+    echo "Error: initial pmcd missing?"
+    exit
+fi
 
-_count_pmloggers
-echo "pmlogger count after pmcd stop (expect 1): $?" | tee -a $here/$seq.full
+pid=`_find_primary_pmlogger`
+if [ -n "$pid" ]
+then
+    echo "Found primary pmlogger"
+else
+    echo "Error: primary pmlogger missing?"
+fi
 echo
 
-# install a PMDA, which should restart only pmcd
-cd $PCP_PMDAS_DIR/xfs
-$sudo ./Install < /dev/null 2>&1 | _filter_xfs_install
+cd pmdas/test_perl
 
-# verify pmlogger still running
-_count_pmloggers
-echo "pmlogger count at end of Install (expect 1): $?" | tee -a $here/$seq.full
+# install a PMDA, which should NOT restart pmcd
+$sudo ./Install </dev/null \
+| _filter_test_perl_install
+
+# verify pmcd not restarted
+#
+new_pmcd_pid=`_get_pids_by_name pmcd`
+if [ -n "$new_pmcd_pid" ]
+then
+    if [ "$pmcd_pid" = "$new_pmcd_pid" ]
+    then
+	echo "Found same pmcd"
+    else
+	echo "Error: pmcd restarted? PID changed from $pmcd_pid to $new_pmcd_pid"
+	pmcd_pid=$new_pmcd_pid
+    fi
+else
+    echo "Error: pmcd missing?"
+    exit
+fi
+
+# verify primary pmlogger still running
+#
+echo "Expect same primary pmlogger to be running ..."
+newpid=`_find_primary_pmlogger`
+if [ -n "$newpid" ]
+then
+    if [ "$pid" = "$newpid" ]
+    then
+	echo "Found same primary pmlogger"
+    else
+	echo "Found new primary pmlogger"
+	echo "Error: PID changed from $pid to $newpid"
+	pid=$newpid
+    fi
+else
+    echo "Error: primary pmlogger missing?"
+fi
 echo
 
-# install a PMDA, should restart both pmcd and pmlogger
-cd $PCP_PMDAS_DIR/xfs
-$sudo ./Install < /dev/null 2>&1 | _filter_xfs_install
+# install a PMDA, should restart pmcd ...
+# historically this would have caused the primary pmlogger to
+# be restarted, but these days pmlogger will reconnect to the new
+# pmcd here ...
+#
+$sudo sh -c "PCPQA_RESTART_PMCD=true ./Install </dev/null" \
+| _filter_test_perl_install
 
-# verify pmlogger is running
-_count_pmloggers
-echo "pmlogger count at end of Install (expect 1): $?" | tee -a $here/$seq.full
+# verify pmcd restarted
+#
+new_pmcd_pid=`_get_pids_by_name pmcd`
+if [ -n "$new_pmcd_pid" ]
+then
+    if [ "$pmcd_pid" = "$new_pmcd_pid" ]
+    then
+	echo "Error: found the same pmcd"
+    else
+	echo "Found a new pmcd"
+    fi
+else
+    echo "Error: new pmcd missing?"
+    exit
+fi
+
+# verify primary pmlogger still running
+#
+echo "Expect same primary pmlogger to be running ..."
+newpid=`_find_primary_pmlogger`
+if [ -n "$newpid" ]
+then
+    if [ "$pid" = "$newpid" ]
+    then
+	echo "Found same primary pmlogger"
+    else
+	echo "Found new primary pmlogger"
+	echo "Error: PID changed from $pid to $newpid"
+	pid=$newpid
+    fi
+else
+    echo "Error: primary pmlogger missing?"
+fi
 echo
 
 # success, all done

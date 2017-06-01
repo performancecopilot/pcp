@@ -1,0 +1,36 @@
+QA output created by 1073
+== Checking VFS metric values - procsys-root-001.tgz
+
+vfs.dentry.count
+    value 110820
+
+vfs.dentry.free
+    value 88379
+
+vfs.files.count
+    value 10784
+
+vfs.files.free
+    value 0
+
+vfs.files.max
+    value 1598938
+
+vfs.inodes.count
+    value 90368
+
+vfs.inodes.free
+    value 479
+
+== done
+
+== Checking entropy metric values - procsys-root-001.tgz
+
+kernel.all.entropy.avail
+    value 3944
+
+kernel.all.entropy.poolsize
+    value 4096
+
+== done
+

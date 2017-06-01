@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015 Red Hat.
+# Copyright (c) 2015,2017 Red Hat.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -11,15 +11,19 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 #
-
 TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 -include ./GNUlocaldefs
 
-# Directory containing PCP RPMs to be installed in the base container.
-# The default is the RPMs just build by the Makepkgs script. These packages
-# will also be used to build all containers layered on pcp-base.
-PACKAGES=../../rpm
+# The PCP RPMs to be installed in the base container is defined by the yum
+# repo that is enabled in $(TOPDIR)/build/containers/pcp-base/pcp.repo.
+# This can be easily modified, e.g. to use the packages just built by the
+# Makepkgs script (as defined by the PACKAGES macro below), if desired.
+# The repo enabled in the pcp.repo file supplies the packages that will be
+# used to build all containers layered on pcp-base. Also see the comments in
+# pcp-base/Dockerfile.
+#
+PACKAGES=$(shell echo ../../rpm/*.rpm)
 
 CONTAINER = pcp-base
 LDIRT = $(CONTAINER)-$(CONTAINER_VERSION).$(CONTAINER_ARCH).tgz RPMS
@@ -30,8 +34,8 @@ default default_pcp install install_pcp:
 pack_pcp: RPMS $(CONTAINER)-$(CONTAINER_VERSION).$(CONTAINER_ARCH).tgz
 
 RPMS: # Docker build runs createrepo RPMS
-	@echo Using PCP RPMS from $(PACKAGES)
-	cp -a $(PACKAGES) RPMS
+	@echo Adding PCP RPMS from $(PACKAGES)
+	test ! -d RPMS && mkdir RPMS; cp -a $(PACKAGES) RPMS
 
 # rule to build $(CONTAINER).tgz from Dockerfile
 include ../GNUlocalrules

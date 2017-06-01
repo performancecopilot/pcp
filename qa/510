@@ -27,7 +27,7 @@ _cleanup()
 	_restore_config $control
 	needclean=false
 	_restore_primary_logger
-	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+	_service pcp restart | _filter_pcp_start
 	_wait_for_pmcd
     fi
     $sudo rm -f $tmp.*
@@ -45,13 +45,14 @@ control=$PCP_PMLOGGERCONTROL_PATH
 control=$PCP_PMLOGGERCONTROL_PATH.d/local
 
 # stop primary logger, add -Dall to config file and restart pmlogger
-$sudo $PCP_RC_DIR/pcp stop >/dev/null 2>&1
+_service pcp stop >/dev/null 2>&1
 sed -e '/^LOCALHOSTNAME/s/$/ -Dall/' < $control >$tmp.control
 _save_config $control
 $sudo cp $tmp.control $control
 _writable_primary_logger
-$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+_service pcp restart | _filter_pcp_start
 _wait_for_pmcd
+_wait_for_pmlogger
 
 # real QA test starts here
 pmlc -ie <<End-of-File | _filter

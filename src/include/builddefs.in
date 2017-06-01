@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2012-2016 Red Hat.
+# Copyright (c) 2012-2017 Red Hat.
 # Copyright (c) 2008 Aconex.  All Rights Reserved.
 # Copyright (c) 2000,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
@@ -227,10 +227,12 @@ PCP_MAN_DIR = @pcp_man_dir@
 PCP_BOOKS_DIR = @pcp_books_dir@
 PCP_ICONS_DIR = @pcp_icons_dir@
 PCP_DESKTOP_DIR = @pcp_desktop_dir@
+PCP_SELINUX_DIR = @pcp_selinux_dir@
 
 NEED_OLD_TBL_HEADER = @need_old_tbl_header@
 RDYNAMIC_FLAG = @rdynamic_flag@
 QT_RELEASE = @qt_release@
+QT_VERSION = @qt_version@
 
 # configuration state affecting the entire build
 ENABLE_SHARED = @enable_shared@
@@ -244,6 +246,7 @@ ENABLE_PYTHON3 = @enable_python3@
 ENABLE_SYSTEMD = @enable_systemd@
 ENABLE_MANAGER = @enable_manager@
 ENABLE_WEBAPI = @enable_webapi@
+ENABLE_SELINUX = @enable_selinux@
 
 # for code supporting any modern version of perl
 HAVE_PERL = @have_perl@
@@ -258,9 +261,7 @@ HAVE_PYTHON_SETUPTOOLS = @have_python_setuptools@
 HAVE_PYTHON_JSONPOINTER = @have_python_jsonpointer@
 
 # for building packages from external sources
-HAVE_PARFAIT = @have_parfait@
-HAVE_VECTOR = @have_vector@
-HAVE_WEBJS = @have_webjs@
+HAVE_WEBAPPS = @have_webapps@
 
 # additional libraries needed for particular functions
 LIB_FOR_BASENAME = @lib_for_basename@
@@ -300,6 +301,7 @@ PMDA_PAPI = @PMDA_PAPI@
 PMDA_LIBVIRT = @PMDA_LIBVIRT@
 PMDA_SYSTEMD = @PMDA_SYSTEMD@
 PMDA_PERFEVENT = @PMDA_PERFEVENT@
+PMDA_PROMETHEUS = @PMDA_PROMETHEUS@
 PMDA_INFINIBAND = @PMDA_INFINIBAND@
 PMDA_MYSQL = @PMDA_MYSQL@
 PMDA_ORACLE = @PMDA_ORACLE@
@@ -309,6 +311,9 @@ PMDA_SNMP = @PMDA_SNMP@
 PMDA_NGINX = @PMDA_NGINX@
 PMDA_ACTIVEMQ = @PMDA_ACTIVEMQ@
 PMDA_POSTFIX = @PMDA_POSTFIX@
+PMDA_BIND2 = @PMDA_BIND2@
+PMDA_NUTCRACKER = @PMDA_NUTCRACKER@
+PMDA_LIO = @PMDA_LIO@
 
 SHELL = /bin/sh
 IMAGES_DIR = $(TOPDIR)/all-images

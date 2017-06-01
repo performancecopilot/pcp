@@ -1,5 +1,7 @@
 *.c
 *.y
+*.y.in
 *.h
+GNUlocaldefs
 exports
 libpcp_fault.*

@@ -77,7 +77,7 @@ chmod 755 $tmp.test-lxc-info.sh
 export PCP_LXC_DIR=$root/var/lib/lxc
 
 # real QA test starts here
-$sudo $PCP_RC_DIR/pmcd stop | _filter_pcp_stop
+_service pmcd stop | _filter_pcp_stop
 echo >> $tmp.conf
 echo "# from QA $seq ..." >> $tmp.conf
 echo PCP_LXC_DIR=$root/var/lib/lxc >> $tmp.conf
@@ -85,8 +85,9 @@ echo PCP_LXC_INFO=$tmp.test-lxc-info.sh >> $tmp.conf
 echo PCP_DOCKER_DIR=$root/var/lib/docker >> $tmp.conf
 echo PCP_SYSTEMD_CGROUP=/tmp >> $tmp.conf
 $sudo cp $tmp.conf $PCP_DIR/etc/pcp.conf
-$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+_service pcp restart | _filter_pcp_start
 _wait_for_pmcd
+_wait_for_pmlogger
 
 echo "=== Checking empty containers configuration, no values"
 pmprobe -v containers | LC_COLLATE=POSIX sort

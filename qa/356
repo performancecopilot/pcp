@@ -46,8 +46,10 @@ echo "bad_in_pkts;" | pmie -t 1 -T+12 -v >$tmp.out 2>&1 &
 sleep 3
 
 unset PCP_DERIVED_CONFIG
-$sudo $PCP_RC_DIR/pcp restart \
+_service pcp restart \
 | _filter_pcp_start
+_wait_for_pmcd
+_wait_for_pmlogger
 
 wait
 

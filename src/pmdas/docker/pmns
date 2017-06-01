@@ -1,0 +1,103 @@
+/*
+ * Metrics for docker PMDA
+ *
+ * Copyright (c) 2016 Red Hat.
+ * 
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+ * for more details.
+ */
+
+docker {
+    pid		        DOCKER:0:0
+    name	 	DOCKER:0:1
+    running	 	DOCKER:0:2
+    paused	 	DOCKER:0:3
+    restarting	 	DOCKER:0:4
+    version      	DOCKER:1:0
+    os     	 	DOCKER:1:1
+    kernel     	 	DOCKER:1:2
+    go     	 	DOCKER:1:3
+    commit     	 	DOCKER:1:4
+    arch     	 	DOCKER:1:5
+    api_version   	DOCKER:1:6
+    cpu_stats
+    memory_stats
+    control
+}
+docker.control {
+    timing              DOCKER:3:0
+}
+
+docker.cpu_stats {
+    cpu_usage
+    system_cpu_usage    DOCKER:2:3
+    throttling_data
+}
+
+docker.cpu_stats.cpu_usage {
+    total_usage         DOCKER:2:0
+    usage_in_kernelmode DOCKER:2:1
+    usage_in_usermode   DOCKER:2:2
+}
+
+docker.cpu_stats.throttling_data {
+    periods             DOCKER:2:4
+    throttled_periods   DOCKER:2:5
+    throttled_time      DOCKER:2:6
+}
+
+docker.memory_stats {
+    failcnt             DOCKER:2:7
+    limit               DOCKER:2:8
+    max_usage           DOCKER:2:9
+    stats
+    usage               DOCKER:2:48
+}
+
+docker.memory_stats.stats {
+    active_anon                DOCKER:2:10
+    active_file                DOCKER:2:11
+    cache                      DOCKER:2:12
+    dirty                      DOCKER:2:13
+    hierarchical_memory_limit  DOCKER:2:14
+    hierarchical_memsw_limit   DOCKER:2:15
+    inactive_anon              DOCKER:2:16
+    inactive_file              DOCKER:2:17
+    mapped_file                DOCKER:2:18
+    pgfault                    DOCKER:2:19
+    pgmajfault                 DOCKER:2:20
+    pgpgin                     DOCKER:2:21
+    pgpgout		       DOCKER:2:22
+    recent_rotated_anon        DOCKER:2:23
+    recent_rotated_file        DOCKER:2:24
+    recent_scanned_anon        DOCKER:2:25
+    recent_scanned_file        DOCKER:2:26
+    rss               	       DOCKER:2:27
+    rss_huge                   DOCKER:2:28
+    swap               	       DOCKER:2:29
+    total_active_anon          DOCKER:2:30
+    total_active_file          DOCKER:2:31
+    total_cache                DOCKER:2:32
+    total_dirty                DOCKER:2:33
+    total_inactive_anon        DOCKER:2:34
+    total_inactive_file        DOCKER:2:35
+    total_mapped_file          DOCKER:2:36
+    total_pgfault              DOCKER:2:37
+    total_pgmajfault           DOCKER:2:38
+    total_pgpgin               DOCKER:2:39
+    total_pgpgout              DOCKER:2:40
+    total_rss                  DOCKER:2:41
+    total_rss_huge             DOCKER:2:42
+    total_swap                 DOCKER:2:43
+    total_unevictable          DOCKER:2:44
+    total_writeback            DOCKER:2:45
+    unevictable                DOCKER:2:46
+    writeback                  DOCKER:2:47
+}
