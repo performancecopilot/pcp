@@ -87,6 +87,7 @@ _pcp () {
       "$common_help[@]" \
       "(-A --align $exargs)"{-A+,--align}'[set initial sample time alignment]:timespec:' \
       "(-h --host -H --hostsfile -L --local-PMDA -K --spec-local $exargs)"\*{-a+,--archive}'[specify metrics source archive]:archive:->archives' \
+      "(-H --labelhost $exargs)"{-H+,--labelhost}'[specify hostname label]:label:' \
       "(-a --archive -L --local-PMDA -K --spec-local $exargs)"\*{-h+,--host}'[specify metrics source host]:host:_hosts' \
       "(-a --archive -L --local-PMDA -K --spec-local $exargs)"\*{-H+,--hostsfile}'[specify metrics source hosts file]:file:_files' \
       "(-n --namespace $exargs)"{-n+,--namespace}'[specify alternative PMNS]:pmnsfile:_files' \
