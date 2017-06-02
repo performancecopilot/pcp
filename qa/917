@@ -25,6 +25,7 @@ docker_var_lib_t=""
 svirt_lxc_net_t=`seinfo -t | grep "svirt_lxc_net_t$"`
 systemd_systemctl_exec_t=`seinfo -t | grep "systemd_systemctl_exec_t$"`
 systemd_systemctl_unit_file_t=`seinfo -t | grep "systemd_systemctl_unit_file_t$"`
+devlog_t=`seinfo -t | grep "devlog_t$"`
 
 _filter_semodule()
 {
@@ -48,6 +49,7 @@ _filter_outfile()
 	-v class_status="$class_status" \
 	-v systemd_systemctl_exec_t="$systemd_systemctl_exec_t" \
 	-v systemd_systemctl_unit_file_t="$systemd_systemctl_unit_file_t" \
+	-v devlog_t="$devlog_t" \
     '{
     	if (container_t == "" && /container_runtime_t/)
 	   !/container_runtime_t/ ;
@@ -61,6 +63,8 @@ _filter_outfile()
 	   !/systemd_systemctl_exec_t/ ;
     	else if (systemd_systemctl_unit_file_t == "" && /systemd_systemctl_unit_file_t/)
 	   !/systemd_systemctl_unit_file_t/ ;
+	else if (devlog_t == "" && /devlog_t/)
+	   !/devlog_t/ ;
 	else
 	   print;
     }'
