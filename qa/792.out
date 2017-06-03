@@ -17,7 +17,7 @@ pmWhichContext() -> 0, cur=0
 pmWhichContext() -> 0, cur=0
 pmWhichContext() -> 0, cur=0
 pmWhichContext() -> 0, cur=0
-pmFetch: calling __pmSendProfile, context: 0
+pmFetch: calling __pmSendProfile, context: 0 slot: 0
 Dump Instance Profile state=INCLUDE, 0 profiles
 pmFetch returns ...
 pmResult ... numpmid: 7
@@ -77,7 +77,7 @@ pmWhichContext() -> 0, cur=0
 pmWhichContext() -> 0, cur=0
 pmWhichContext() -> 0, cur=0
 pmWhichContext() -> 0, cur=0
-pmFetch: calling __pmSendProfile, context: 0
+pmFetch: calling __pmSendProfile, context: 0 slot: 0
 Dump Instance Profile state=INCLUDE, 0 profiles
 pmFetch returns ...
 pmResult ... numpmid: 7
@@ -137,7 +137,7 @@ pmWhichContext() -> 0, cur=0
 pmWhichContext() -> 0, cur=0
 pmWhichContext() -> 0, cur=0
 pmWhichContext() -> 0, cur=0
-pmFetch: calling __pmSendProfile, context: 0
+pmFetch: calling __pmSendProfile, context: 0 slot: 0
 Dump Instance Profile state=INCLUDE, 0 profiles
 pmFetch returns ...
 pmResult ... numpmid: 7
@@ -197,7 +197,7 @@ pmWhichContext() -> 0, cur=0
 pmWhichContext() -> 0, cur=0
 pmWhichContext() -> 0, cur=0
 pmWhichContext() -> 0, cur=0
-pmFetch: calling __pmSendProfile, context: 0
+pmFetch: calling __pmSendProfile, context: 0 slot: 0
 Dump Instance Profile state=INCLUDE, 0 profiles
 pmFetch returns ...
 pmResult ... numpmid: 7
