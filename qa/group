@@ -1338,7 +1338,6 @@ oldversion
 1082 python local
 1083 pmcd local
 1084 pmda.linux local
-1085 libpcp pmcd local
 1087 pmda.bind2 local
 1090 pmwebapi local context
 1091 pmns libpcp context local
@@ -1355,4 +1354,5 @@ oldversion
 1174 threads valgrind local
 1191 pmda.prometheus pmda.install local
 1192 pmda.prometheus local
+1199 libpcp pmcd local
 4751 libpcp threads valgrind local
