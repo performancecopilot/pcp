@@ -18,25 +18,6 @@ echo "QA output created by $seq"
 status=1    # failure is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
 
-save_config()
-{
-    if [ -d $PCP_PMDAS_DIR/prometheus/metadata ]
-        then
-        mkdir $tmp.metadata
-        chmod ugo+rwx $tmp.metadata
-        $sudo mv $PCP_PMDAS_DIR/prometheus/metadata $tmp.metadata
-    fi
-}
-
-restore_config()
-{
-    if [ -d $tmp.metadata ]
-        then
-        $sudo mv $tmp.metadata/metadata $PCP_PMDAS_DIR/prometheus/metadata
-        $sudo rm -rf $tmp.metadata
-    fi
-}
-
 pmdaprometheus_remove()
 {
     echo
@@ -62,7 +43,7 @@ _prepare_pmda prometheus
 # note: _restore_auto_restart pmcd done in _cleanup_pmda()
 trap "_cleanup_pmda prometheus; exit \$status" 0 1 2 3 15
 
-save_config
+_save_config $PCP_PMDAS_DIR/prometheus/metadata
 
 # real QA test starts here
 pmdaprometheus_install
@@ -78,7 +59,7 @@ cat $tmp.info $tmp.err
 
 pmdaprometheus_remove
 
-restore_config
+_restore_config $PCP_PMDAS_DIR/prometheus/metadata
 
 status=0
 exit

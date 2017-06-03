@@ -52,29 +52,6 @@ pmdaprometheus_install()
     cat $tmp.out >>$here/$seq.full
 }
 
-save_config()
-{
-	if [ -d $PCP_PMDAS_DIR/prometheus/metadata ]
-		then
-		mkdir $tmp.metadata
-		chmod ugo+rwx $tmp.metadata
-		$sudo mv $PCP_PMDAS_DIR/prometheus/metadata $tmp.metadata
-	fi
-}
-
-restore_config()
-{
-	if [ -d $PCP_PMDAS_DIR/prometheus/metadata ]
-		then
-		$sudo rm -rf $PCP_PMDAS_DIR/prometheus/metadata
-	fi
-
-	if [ -d $tmp.metadata ]
-		then
-		$sudo mv $tmp.metadata/metadata $PCP_PMDAS_DIR/prometheus/metadata
-	fi
-}
-
 generate_config()
 {
 	cd $PCP_PMDAS_DIR/prometheus
@@ -87,14 +64,15 @@ _prepare_pmda prometheus
 trap "_cleanup; _cleanup_pmda prometheus; exit \$status" 0 1 2 3 15
 
 _stop_auto_restart pmcd
-save_config
+_save_config $PCP_PMDAS_DIR/prometheus/metadata
 
 # real QA test starts here
 
 echo "== starting container"
 container=`$docker run -d -p 127.0.0.1:9090:9090 quay.io/prometheus/prometheus`
 echo "== container: $container" >> $here/$seq.full
-sleep 1
+# Wait for the prometheus container to complete setup
+sleep 5
 
 generate_config
 
@@ -119,7 +97,7 @@ fi
 
 pmdaprometheus_remove
 
-restore_config
+_restore_config $PCP_PMDAS_DIR/prometheus/metadata
 # success, all done
 status=0
 exit

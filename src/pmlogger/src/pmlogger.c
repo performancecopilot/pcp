@@ -39,6 +39,7 @@ int		primary;		/* Non-zero for primary pmlogger */
 char	    	*archBase;		/* base name for log files */
 char		*pmcd_host;
 char		*pmcd_host_conn;
+char		*pmcd_host_label;
 int		host_context = PM_CONTEXT_HOST;	 /* pmcd / local context mode */
 int		archive_version = PM_LOG_VERS02; /* Type of archive to create */
 int		linger = 0;		/* linger with no tasks/events */
@@ -468,6 +469,7 @@ static pmLongOptions longopts[] = {
     { "check", 0, 'C', 0, "parse configuration and exit" },
     PMOPT_DEBUG,
     PMOPT_HOST,
+    { "labelhost", 1, 'H', "LABELHOST", "override the hostname written into the label" },
     { "log", 1, 'l', "FILE", "redirect diagnostics and trace output" },
     { "linger", 0, 'L', 0, "run even if not primary logger instance and nothing to log" },
     { "note", 1, 'm', "MSG", "descriptive note to be added to the port map file" },
@@ -491,7 +493,7 @@ static pmLongOptions longopts[] = {
 };
 
 static pmOptions opts = {
-    .short_options = "c:CD:h:l:K:Lm:n:op:Prs:T:t:uU:v:V:x:y?",
+    .short_options = "c:CD:h:H:l:K:Lm:n:op:Prs:T:t:uU:v:V:x:y?",
     .long_options = longopts,
     .short_usage = "[options] archive",
 };
@@ -611,6 +613,10 @@ main(int argc, char **argv)
 
 	case 'h':		/* hostname for PMCD to contact */
 	    pmcd_host_conn = opts.optarg;
+	    break;
+
+	case 'H':		/* hostname to put in label*/
+	    pmcd_host_label = strndup(opts.optarg, PM_LOG_MAXHOSTLEN-1);
 	    break;
 
 	case 'l':		/* log file name */
@@ -904,6 +910,10 @@ main(int argc, char **argv)
     if (!primary && tasklist == NULL && !linger) {
 	fprintf(stderr, "Nothing to log, and not the primary logger instance ... good-bye\n");
 	exit(1);
+    }
+
+    if (pmcd_host_label != NULL) {
+	pmcd_host=pmcd_host_label;
     }
 
     if ((sts = __pmLogCreate(pmcd_host, archBase, archive_version, &logctl)) < 0) {

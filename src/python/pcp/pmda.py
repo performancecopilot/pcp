@@ -264,6 +264,7 @@ class MetricDispatch(object):
         del self._metrictable[:]
         self._metrics.clear()
         self._metric_names.clear()
+        self._metric_names_map.clear()
         self._metric_oneline.clear()
         self._metric_helptext.clear()
 
