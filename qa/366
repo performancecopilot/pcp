@@ -80,6 +80,7 @@ tools/mpstat-summary
 tools/mpstat-interrupts
 tools/pidstat
 tools/pidstat-summary
+tools/tapestat
 tools/vector
 tools/vector-summary
 tools/vmstat
