@@ -126,15 +126,15 @@ _filter <$tmp.trace
 echo | tee -a $seq.full
 echo "== pmdumplog ==" | tee -a $seq.full
 _pre $SRC/pmdumplog pmdumplog
-$SRC/pmdumplog/pmdumplog.debug -a -Dlock $tmp-out >$tmp.trace 2>&1
+$SRC/pmdumplog/pmdumplog.debug -a -Dlock $tmp-out >$tmp.err 2>$tmp.out
 _post $SRC/pmdumplog pmdumplog
-_filter <$tmp.trace
+cat $tmp.out $tmp.err | _filter
 
 echo | tee -a $seq.full
 echo "== dbpmda ==" | tee -a $seq.full
 _pre $SRC/dbpmda/src dbpmda
 # based on QA 137
-$SRC/dbpmda/src/dbpmda.debug -Dlock -n $PCP_PMDAS_DIR/simple/root -ie >$tmp.trace 2>&1 <<End-of-File
+$SRC/dbpmda/src/dbpmda.debug -Dlock -n $PCP_PMDAS_DIR/simple/root -ie >$tmp.out 2>$tmp.err <<End-of-File
 open dso $PCP_PMDAS_DIR/simple/pmda_simple.$DSO_SUFFIX simple_init 253
 getdesc on
 desc simple.numfetch
@@ -150,7 +150,7 @@ fetch simple.color
 instance 253.0
 End-of-File
 _post $SRC/dbpmda/src dbpmda
-_filter <$tmp.trace
+cat $tmp.out $tmp.err | _filter
 
 
 # success, all done
