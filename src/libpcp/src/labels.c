@@ -194,10 +194,14 @@ stash_chars(const char *s, int slen, char **buffer, int *buflen)
 }
 
 static int
-stash_label(pmLabel *lp, const char *json, char **buffer, int *buflen)
+stash_label(const pmLabel *lp, const char *json, char **buffer, int *buflen,
+	int (*filter)(const pmLabel *, const char *, void *), void *arg)
 {
-    int		bytes = *buflen;
     char	*bp = *buffer;
+    int		bytes = *buflen;
+
+    if (filter != NULL && filter(lp, json, arg) == 0)
+	return 0;
 
     if ((lp->namelen + 2 + 1 + lp->valuelen + 1) >= bytes)
 	return -E2BIG;
@@ -445,28 +449,12 @@ done:
 }
 
 int
-__pmMergeLabels(const char *a, const char *b, char *buffer, int buflen)
+__pmMergeLabelSets(pmLabel *alabels, const char *abuf, int na,
+	pmLabel *blabels, const char *bbuf, int nb, char *buffer, int buflen,
+	int (*filter)(const pmLabel *, const char *, void *), void *arg)
 {
-    pmLabel	alabels[MAXLABELS], blabels[MAXLABELS];
-    char	abuf[MAXLABELJSONLEN], bbuf[MAXLABELJSONLEN];
     char	*bp = buffer;
-    int		abufsz = MAXLABELJSONLEN, bbufsz = MAXLABELJSONLEN;
-    int		sts, na = 0, nb = 0, i, j;
-
-    if (!a || (na = strlen(a)) == 0)
-	abufsz = 0;
-    else if ((sts = na = __pmParseLabels(a, na,
-				alabels, MAXLABELS, abuf, &abufsz)) < 0)
-	goto done;
-
-    if (!b || (nb = strlen(b)) == 0)
-	bbufsz = 0;
-    else if ((sts = nb = __pmParseLabels(b, strlen(b),
-				blabels, MAXLABELS, bbuf, &bbufsz)) < 0)
-	goto done;
-
-    if (!abufsz && !bbufsz)
-	return 0;
+    int		sts, i, j;
 
     /* Walk over both label sets inserting all names into the result
      * buffer, but prefering b-group values over those in the a-group.
@@ -483,23 +471,25 @@ __pmMergeLabels(const char *a, const char *b, char *buffer, int buflen)
 		if (j && namecmp4(&alabels[i], abuf, &blabels[j-1], bbuf) == 0)
 		    i++;	/* but skip if its a duplicate name */
 		else if ((sts = stash_label(&alabels[i++], abuf,
-					    &bp, &buflen)) < 0)
+					    &bp, &buflen, filter, arg)) < 0)
 		    goto done;
 	    } else if (namecmp4(&alabels[i], abuf, &blabels[j], bbuf) < 0) {
 		if (j && namecmp4(&alabels[i], abuf, &blabels[j-1], bbuf) == 0) /* dup */
 		    i++;
 		else if ((sts = stash_label(&alabels[i++], abuf,
-					    &bp, &buflen)) < 0)
+					    &bp, &buflen, filter, arg)) < 0)
 		    goto done;
 	    }
 	}
 	if (j < nb) {
 	    /* use this b-group label? - compare to current a-group name */
 	    if (i >= na) {	/* reached end of a-group, so use it */
-		if ((sts = stash_label(&blabels[j++], bbuf, &bp, &buflen)) < 0)
+		if ((sts = stash_label(&blabels[j++], bbuf,
+					&bp, &buflen, filter, arg)) < 0)
 		    goto done;
 	    } else if (namecmp4(&alabels[i], abuf, &blabels[j], bbuf) >= 0) {
-		if ((sts = stash_label(&blabels[j++], bbuf, &bp, &buflen)) < 0)
+		if ((sts = stash_label(&blabels[j++], bbuf,
+					&bp, &buflen, filter, arg)) < 0)
 		    goto done;
 	    }
 	}
@@ -517,12 +507,42 @@ done:
     return sts;
 }
 
+int
+__pmMergeLabels(const char *a, const char *b, char *buffer, int buflen)
+{
+    pmLabel	alabels[MAXLABELS], blabels[MAXLABELS];
+    char	abuf[MAXLABELJSONLEN], bbuf[MAXLABELJSONLEN];
+    int		abufsz = MAXLABELJSONLEN, bbufsz = MAXLABELJSONLEN;
+    int		sts, na = 0, nb = 0;
+
+    if (!a || (na = strlen(a)) == 0)
+	abufsz = 0;
+    else if ((sts = na = __pmParseLabels(a, na,
+				alabels, MAXLABELS, abuf, &abufsz)) < 0)
+	return sts;
+
+    if (!b || (nb = strlen(b)) == 0)
+	bbufsz = 0;
+    else if ((sts = nb = __pmParseLabels(b, strlen(b),
+				blabels, MAXLABELS, bbuf, &bbufsz)) < 0)
+	return sts;
+
+    if (!abufsz && !bbufsz)
+	return 0;
+
+    return __pmMergeLabelSets(alabels, abuf, na, blabels, bbuf, nb,
+				buffer, buflen, NULL, NULL);
+}
+
 /*
  * Walk the "sets" array left to right (increasing precendence)
  * and produce the merged set into the supplied buffer.
+ * An optional user-supplied callback routine allows fine-tuning
+ * of the resulting set of labels.
  */
 int
-pmMergeLabelSets(pmLabelSet **sets, int nsets, char *buffer, int buflen)
+pmMergeLabelSets(pmLabelSet **sets, int nsets, char *buffer, int buflen,
+	int (*filter)(const char *, pmLabel *, void *), void *arg)
 {
     char	buf[MAXLABELJSONLEN];
     int		bytes = 0;
@@ -548,6 +568,7 @@ pmMergeLabelSets(pmLabelSet **sets, int nsets, char *buffer, int buflen)
 /*
  * Walk the "sets" array left to right (increasing precendence)
  * of JSON and produce the merged set into the supplied buffer.
+ * JSONB-only variant (no indexing or flags available).
  */
 int
 pmMergeLabels(char **sets, int nsets, char *buffer, int buflen)

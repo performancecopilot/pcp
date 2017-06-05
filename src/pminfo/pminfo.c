@@ -449,7 +449,8 @@ myinstlabels(pmDesc *dp, pmID id, pmLabelSet **sets, int nsets, char *buffer, in
 		continue;
 	    /* merge all the labels down to each leaf instance */
 	    sets[nsets-1] = &ilabels[i];
-	    if ((sts = pmMergeLabelSets(sets, nsets, buffer, buflen)) > 0)
+	    if ((sts = pmMergeLabelSets(sets, nsets, buffer, buflen,
+					NULL, NULL)) > 0)
 		printf("    inst [%d or \"%s\"] labels %s\n",
 			ilabels[i].inst, iname, buffer);
 	    else if (sts < 0)
@@ -475,7 +476,7 @@ mylabels(unsigned int ident, int type, pmDesc *dp)
 	labels[0] = lookup_context_labels();
 	labels[1] = lookup_domain_labels(pmInDom_domain(ident));
 	labels[2] = lookup_indom_labels(ident);
-	sts = pmMergeLabelSets(labels, 3, buf, sizeof(buf));
+	sts = pmMergeLabelSets(labels, 3, buf, sizeof(buf), NULL, NULL);
 	break;
 
     case PM_LABEL_PMID:
@@ -487,7 +488,7 @@ mylabels(unsigned int ident, int type, pmDesc *dp)
 	    myinstlabels(dp, ident, labels, 5, buf, sizeof(buf));
 	    return;
 	}
-	sts = pmMergeLabelSets(labels, 4, buf, sizeof(buf));
+	sts = pmMergeLabelSets(labels, 4, buf, sizeof(buf), NULL, NULL);
 	break;
 
     default:

@@ -528,7 +528,8 @@ PCP_CALL extern int pmGetContextLabels(pmLabelSet **);
  * hierarchy using the precedence rules described in pmGetLabels(3).
  */
 PCP_CALL extern int pmMergeLabels(char **, int, char *, int);
-PCP_CALL extern int pmMergeLabelSets(pmLabelSet **, int, char *, int);
+PCP_CALL extern int pmMergeLabelSets(pmLabelSet **, int, char *, int,
+		int (*filter)(const char *, pmLabel *, void *), void *);
 
 /* Free a labelset array */
 PCP_CALL extern void pmFreeLabelSets(pmLabelSet *, int);

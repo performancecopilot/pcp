@@ -20,10 +20,18 @@
 .ft 3
 #include <pcp/pmapi.h>
 .sp
+.ad l
+.hy 0
+.in +8n
+.ti -8n
 int pmMergeLabels(char **\fIsets\fP, int \fInsets\fP, char *\fIbuffer\fP, int \fIlength\fP);
-.br
-int pmMergeLabelSets(pmLabelSet **\fIsets\fP, int \fInsets\fP, char *\fIbuffer\fP, int \fIlength\fP);
 .sp
+.ti -8n
+int pmMergeLabelSets(pmLabelSet **\fIsets\fP, int \fInsets\fP, char *\fIbuffer\fP, int \fIlength\fP, int (*\fIfilter\fP)(const pmLabel *, const char *, void *), void *\fIarg\fP);
+.sp
+.in
+.hy
+.ad
 cc ... \-lpcp
 .ft 1
 .SH DESCRIPTION
@@ -46,6 +54,11 @@ are
 pairs in the "JSONB" format described on
 .BR pmGetLabels (1).
 .PP
+The
+.B pmMergeLabelSets
+interface serves the same purpose, but allows for indexed
+.I sets
+of labels to be merged.
 The format of the
 .I pmLabelSet
 data structure is described in detail in
@@ -67,6 +80,28 @@ positions are taken to be of lower precedence to later positions.
 .PP
 Values must be primitive JSON entities (e.g. numbers, strings),
 one-dimensional arrays or maps (i.e. simple associative arrays).
+.PP
+In addition to using indexed label
+.I sets
+the
+.B pmMergeLabelSets
+interface provides an optional
+.I filter
+callback function.
+If non-NULL, this function will be called for each label that
+would be added to the output
+.IR buffer ,
+allowing finer-grained control over the final merged set.
+This mechanism can be used to
+.I filter
+individual labels based on their name, value, and/or flags.
+If the
+.I filter
+function returns zero (false), then the given label is filtered
+from the resulting set.
+Any non-zero return value indicates that the label should be
+included in the
+.IR buffer .
 .PP
 .SH DIAGNOSTICS
 On success, both
