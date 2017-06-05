@@ -19,6 +19,8 @@ IAM	= prometheus
 PYSCRIPT = pmda$(IAM).python
 LDIRT	= domain.h root pmns $(IAM).log
 
+SUBDIRS	= metadata
+
 MAN_SECTION = 1
 MAN_PAGES = pmda$(IAM).$(MAN_SECTION)
 MAN_DEST = $(PCP_MAN_DIR)/man$(MAN_SECTION)
@@ -26,13 +28,20 @@ MAN_DEST = $(PCP_MAN_DIR)/man$(MAN_SECTION)
 DOMAIN	= prometheus
 PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
 
-default_pcp default:	build-me
+default_pcp default ::	build-me
 
 include $(BUILDRULES)
 
 ifeq "$(PMDA_PROMETHEUS)" "true"
-build-me:	check_domain
-install_pcp install:	default
+build-me:	check_domain $(SUBDIRS)
+
+default_pcp default :: $(SUBDIRS)
+	$(SUBDIRS_MAKERULE)
+
+install_pcp install :: $(SUBDIRS)
+	$(SUBDIRS_MAKERULE)
+
+install_pcp install :: default
 	$(INSTALL) -m 755 -d $(PMDADIR)
 	$(INSTALL) -m 755 Install Remove $(PYSCRIPT) $(PMDADIR)
 	@$(INSTALL_MAN)
