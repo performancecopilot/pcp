@@ -663,15 +663,11 @@ __pmAuthServerNegotiation(int fd, int ssf, __pmHashCtl *attrs)
 			    saslsts == SASL_CONTINUE ? "continue" : "ok");
 	    }
 	}
-    } else if (sts == PDU_ERROR) {
-	__pmDecodeError(pb, &sts);
-    } else {
-	/* PDU type 0 is also expected here */
-	if (sts != 0)
-	    __pmCloseChannelbyFd(fd, PDU_AUTH, sts);
-	if (sts != PM_ERR_TIMEOUT)
-	    sts = PM_ERR_IPC;
     }
+    else if (sts == PDU_ERROR)
+	__pmDecodeError(pb, &sts);
+    else if (sts != PM_ERR_TIMEOUT)
+	sts = PM_ERR_IPC;
 
     if (pinned > 0)
 	__pmUnpinPDUBuf(pb);
@@ -709,15 +705,11 @@ __pmAuthServerNegotiation(int fd, int ssf, __pmHashCtl *attrs)
 				    " step recv (%d bytes)\n", length);
 		}
 	    }
-	} else if (sts == PDU_ERROR) {
-	    __pmDecodeError(pb, &sts);
-	} else {
-	    /* PDU type 0 is also expected here */
-	    if (sts != 0)
-		__pmCloseChannelbyFd(fd, PDU_AUTH, sts);
-	    if (sts != PM_ERR_TIMEOUT)
-		sts = PM_ERR_IPC;
 	}
+	else if (sts == PDU_ERROR)
+	    __pmDecodeError(pb, &sts);
+	else if (sts != PM_ERR_TIMEOUT)
+	    sts = PM_ERR_IPC;
 
 	if (pinned > 0)
 	    __pmUnpinPDUBuf(pb);

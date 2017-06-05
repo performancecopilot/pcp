@@ -53,7 +53,6 @@ __pmRecvFetch(int fd, __pmContext *ctxp, int timeout, pmResult **result)
     do {
 	sts = pinpdu = __pmGetPDU(fd, ANY_SIZE, timeout, &pb);
 	if (sts == PDU_RESULT) {
-	    PM_UNLOCK(ctxp->c_pmcd->pc_lock);
 	    sts = __pmDecodeResult(pb, result);
 	}
 	else if (sts == PDU_ERROR) {
@@ -61,15 +60,10 @@ __pmRecvFetch(int fd, __pmContext *ctxp, int timeout, pmResult **result)
 	    if (sts > 0)
 		/* PMCD state change protocol */
 		changed |= sts;
-	    else
-		PM_UNLOCK(ctxp->c_pmcd->pc_lock);
 	}
-	else {
-	    __pmCloseChannelbyContext(ctxp, PDU_RESULT, sts);
-	    PM_UNLOCK(ctxp->c_pmcd->pc_lock);
-	    if (sts != PM_ERR_TIMEOUT)
-		sts = PM_ERR_IPC;
-	}
+	else if (sts != PM_ERR_TIMEOUT)
+	    sts = PM_ERR_IPC;
+
 	if (pinpdu > 0)
 	    __pmUnpinPDUBuf(pb);
     } while (sts > 0);
@@ -129,26 +123,14 @@ pmFetch(int numpmid, pmID pmidlist[], pmResult **result)
 	}
 
 	if (ctxp->c_type == PM_CONTEXT_HOST) {
-	    /*
-	     * Thread-safe note
-	     *
-	     * Need to be careful here, because the PMCD changed protocol
-	     * may mean several PDUs are returned, but __pmDecodeResult()
-	     * may request more info from PMCD if pmDebug is set.
-	     *
-	     * So unlock ctxp->c_pmcd->pc_lock as soon as possible.
-	     */
-	    PM_LOCK(ctxp->c_pmcd->pc_lock);
 	    tout = ctxp->c_pmcd->pc_tout_sec;
 	    fd = ctxp->c_pmcd->pc_fd;
 	    if ((sts = __pmUpdateProfile(fd, ctxp, tout)) < 0) {
 		sts = __pmMapErrno(sts);
-		PM_UNLOCK(ctxp->c_pmcd->pc_lock);
 	    }
 	    else if ((sts = __pmSendFetch(fd, __pmPtrToHandle(ctxp), ctxp->c_slot,
 				&ctxp->c_origin, numpmid, pmidlist)) < 0) {
 		sts = __pmMapErrno(sts);
-		PM_UNLOCK(ctxp->c_pmcd->pc_lock);
 	    }
 	    else {
 		PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_TIMEOUT);

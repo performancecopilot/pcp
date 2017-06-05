@@ -12,11 +12,6 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
  *
- * Thread-safe notes
- *
- * Do not need ctxp->c_pmcd->pc_lock mutex around __pmSendCreds() call,
- * as the connection to pmlogger has not been created, so no-one else
- * could be using the fd.
  */
 
 #include "pmapi.h"
