@@ -12,8 +12,8 @@
 # generic initialization
 . ./common.rc
 
-min=700
-max=1199
+min=504
+max=1399
 
 tmp=/tmp/$$
 trap "rm -f $tmp.*; exit" 0 1 2 3 15

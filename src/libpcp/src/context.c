@@ -1104,6 +1104,7 @@ INIT_CONTEXT:
      */
     PM_TPD(curr_ctxp) = new;
     PM_TPD(curr_handle) = new->c_handle = ++last_handle;
+    new->c_slot = ctxnum;
     contexts[ctxnum] = &being_initialized;
     contexts_map[ctxnum] = last_handle;
     PM_UNLOCK(contexts_lock);

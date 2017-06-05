@@ -23,6 +23,10 @@ typedef struct {
 	unsigned int	changes : 3;	/* PMCD_* bits for changes since last fetch */
 	unsigned int	attributes: 1;	/* Connection attributes have changed */
     } status;
+    /* There is a profile associated with each client context.
+     * The context slot number (not the context number) sent with each
+     * profile/fetch is used as the key to the profile hash table.
+     */
     __pmHashCtl		profile;	/* Client context profile pointers */
     unsigned int	denyOps;	/* Disallowed operations for client */
     __pmPDUInfo		pduInfo;
