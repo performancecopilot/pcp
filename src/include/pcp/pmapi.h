@@ -23,6 +23,7 @@
 #include <sys/types.h>
 #include <sys/param.h>
 #include <sys/time.h>
+#include <time.h>
 
 /*
  * Platform and environment customization
@@ -614,17 +615,17 @@ PCP_CALL extern int pmLookupInDomText(pmInDom, int, char **);
  */
 PCP_CALL extern const char *pmIDStr(pmID);			/* NOT thread-safe */
 PCP_CALL extern char *pmIDStr_r(pmID, char *, int);
-PCP_CALL extern const char *pmInDomStr(pmInDom);			/* NOT thread-safe */
+PCP_CALL extern const char *pmInDomStr(pmInDom);		/* NOT thread-safe */
 PCP_CALL extern char *pmInDomStr_r(pmInDom, char *, int);
 PCP_CALL extern const char *pmTypeStr(int);			/* NOT thread-safe */
 PCP_CALL extern char *pmTypeStr_r(int, char *, int);
 PCP_CALL extern const char *pmSemStr(int);			/* NOT thread-safe */
 PCP_CALL extern char *pmSemStr_r(int, char *, int);
-PCP_CALL extern const char *pmUnitsStr(const pmUnits *);		/* NOT thread-safe */
+PCP_CALL extern const char *pmUnitsStr(const pmUnits *);	/* NOT thread-safe */
 PCP_CALL extern char *pmUnitsStr_r(const pmUnits *, char *, int);
-PCP_CALL extern const char *pmAtomStr(const pmAtomValue *, int);	/* NOT thread-safe */
+PCP_CALL extern const char *pmAtomStr(const pmAtomValue *, int);/* NOT thread-safe */
 PCP_CALL extern char *pmAtomStr_r(const pmAtomValue *, int, char *, int);
-PCP_CALL extern const char *pmNumberStr(double);			/* NOT thread-safe */
+PCP_CALL extern const char *pmNumberStr(double);		/* NOT thread-safe */
 PCP_CALL extern char *pmNumberStr_r(double, char *, int);
 PCP_CALL extern const char *pmEventFlagsStr(int);		/* NOT thread-safe */
 PCP_CALL extern char *pmEventFlagsStr_r(int, char *, int);

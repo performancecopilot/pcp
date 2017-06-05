@@ -790,6 +790,7 @@ qt_version
 qt_release
 QMAKE
 PMDA_LIBVIRT
+PMDA_PROMETHEUS
 PMDA_LIO
 PMDA_NUTCRACKER
 PMDA_BIND2
@@ -803,9 +804,9 @@ PMDA_SNMP
 have_perl
 pcp_perl_prog
 PERL
-have_python_libvirt
 PMDA_JSON
 have_python_six
+have_python_libvirt
 have_python_requests
 have_python_setuptools
 have_python_jsonpointer
