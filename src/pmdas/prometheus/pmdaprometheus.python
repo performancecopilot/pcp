@@ -303,7 +303,7 @@ class Metric(object):
 			except Exception as e:
 				self.log("Invalid instance given for metric on fetch: %s" \
 					% self.name)
-				return [c_api.PM_ERR_NODATA, 0]
+				return [c_api.PM_ERR_INST, 0]
 		else:
 			if inst != c_api.PM_INDOM_NULL:
 				self.log("Invalid instance given for single metric type on "
@@ -312,7 +312,7 @@ class Metric(object):
 			elif self.prometheus_name not in values:
 				self.log("Value not available on fetch for metric %s" \
 					% self.name)
-				return [c_api.PM_ERR_NODATA, 0]
+				return [c_api.PM_ERR_INST, 0]
 			return [values[self.prometheus_name], 1]
 
 class IndomCache(pmdaIndom):
@@ -644,7 +644,7 @@ class PrometheusSource(object):
 
 		# Fetch fails when the metrics value could be refreshed
 		if self.fetch_failed:
-			return [c_api.PM_ERR_NODATA, 0]
+			return [c_api.PM_ERR_INST, 0]
 
 		if item not in self.metrics_by_id:
 			return [c_api.PM_ERR_PMID, 0]
