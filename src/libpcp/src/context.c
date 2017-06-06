@@ -946,7 +946,7 @@ pmNewContext(int type, const char *name)
     int		sts;
     int		old_curr_handle;
     __pmContext	*old_curr_ctxp;
-    int		ctxnum;		/* index into contexts[] for new context */
+    int		ctxnum = -1;	/* index into contexts[] for new context */
     /* A pointer to this stub object is put in contexts[] while a real __pmContext is being built. */
     static /*const*/ __pmContext being_initialized = { .c_type = PM_CONTEXT_INIT };
 
@@ -1155,6 +1155,7 @@ FAILED:
 
 FAILED_LOCKED:
     if (new != NULL) {
+	/* new has been allocated and ctxnum set */
 	if (new->c_instprof != NULL) {
 	    free(new->c_instprof);
             new->c_instprof = NULL;
@@ -1180,7 +1181,7 @@ pmReconnectContext(int handle)
 {
     __pmContext	*ctxp;
     __pmPMCDCtl	*ctl;
-    int		i, sts;
+    int		sts;
     int		ctxnum;
 
     /* NB: This function may need parallelization, to permit multiple threads
