@@ -240,7 +240,9 @@ again:
 	fprintf(stderr, "(ctx %d)", ctx);
     }
     else if (report == DBG_TRACE_APPL2) {
-	if (__pmIsDeriveLock(lock))
+	if ((ctx = __pmIsChannelLock(lock)) >= 0)
+	    fprintf(stderr, "(ctx %d ipc channel)", ctx);
+	else if (__pmIsDeriveLock(lock))
 	    fprintf(stderr, "(derived_metric)");
 	else if (__pmIsAuxconnectLock(lock))
 	    fprintf(stderr, "(auxconnect)");
@@ -266,8 +268,6 @@ again:
 	    fprintf(stderr, "(err)");
 	else if (__pmIsLockLock(lock))
 	    fprintf(stderr, "(lock)");
-	else if (__pmIsLogutilLock(lock))
-	    fprintf(stderr, "(logutil)");
 	else if (lock == (void *)&__pmLock_extcall)
 	    fprintf(stderr, "(global_extcall)");
 	else
