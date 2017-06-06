@@ -51,6 +51,8 @@ _prepare_pmda prometheus
 trap "_cleanup_pmda prometheus; exit \$status" 0 1 2 3 15
 
 _save_config $PCP_PMDAS_DIR/prometheus/metadata
+$sudo rm -f $PCP_PMDAS_DIR/prometheus/metadata/*
+
 cat > $tmp.json <<EOF
 # HELP sample_gauge Sample gauge metric.
 # TYPE sample_gauge gauge
