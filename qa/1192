@@ -65,6 +65,7 @@ trap "_cleanup; _cleanup_pmda prometheus; exit \$status" 0 1 2 3 15
 
 _stop_auto_restart pmcd
 _save_config $PCP_PMDAS_DIR/prometheus/metadata
+$sudo rm -f $PCP_PMDAS_DIR/prometheus/metadata/*
 
 # real QA test starts here
 

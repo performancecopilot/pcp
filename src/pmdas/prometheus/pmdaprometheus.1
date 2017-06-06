@@ -60,7 +60,7 @@ The associated metadata file would look like the following:
 .fam T
 .fi
 .PP
-Allowable values for each metadata fields are:
+Allowable values for each of the metadata fields are:
 .TP
 \fB semantics\fR=[counter, instantaneous]\/\fR
 the semantics of the metric
@@ -81,18 +81,16 @@ complete metric name as used in Prometheus
 text description of the metric
 .SH METADATA GENERATOR
 The
+.B pmdaprometheus
+metadata generation helper script
+helps in providing initial content for the (heuristic-based)
+metric metadata, from a Prometheus endpoint.
 .PP
-Prometheus PMDA metadata generator helps in generating the heuristic metadata
-for the Prometheus metrics endpoint.
-.PP
-.B $PCP_PMDAS_DIR/prometheus/pmdaprometheus.python
+.B $PCP_PMDAS_DIR/prometheus/Generate
 [\fI\,OPTIONS]
 .PP
-Mandatory  arguments  to  long  options are mandatory for short options too.
+Mandatory arguments to long options are mandatory for short options too.
 Following are the mandatory options:
-.TP
-\fB\-g\fR, \fB\-\-generate\fR
-generate the heuristic metadata
 .TP
 \fB\-u\fR, \fB\-\-url\fR=\fI\,STRING\/\fR
 URL of the Prometheus endpoint
@@ -120,6 +118,8 @@ agent is installed or removed.
 installation script for the \fBpmdaprometheus\fR agent
 .IP "\fB$PCP_PMDAS_DIR/prometheus/Remove\fR" 4
 undo installation script for the \fBpmdaprometheus\fR agent
+.IP "\fB$PCP_PMDAS_DIR/prometheus/Generate\fR" 4
+generate metadata describing available metrics based on heuristics
 .IP "\fB$PCP_PMDAS_DIR/prometheus/metadata/\fR" 4
 metadata files for the \fBpmdaprometheus\fR agent
 .IP "\fB$PCP_LOG_DIR/pmcd/prometheus.log\fR" 4
