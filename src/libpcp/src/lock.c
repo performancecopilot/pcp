@@ -157,7 +157,7 @@ __pmInitLocks(void)
 	    exit(4);
 	}
 	memset((void *)tpd, 0, sizeof(*tpd));
-	tpd->curcontext = PM_CONTEXT_UNDEF;
+	tpd->curr_handle = PM_CONTEXT_UNDEF;
     }
 #endif
 }
