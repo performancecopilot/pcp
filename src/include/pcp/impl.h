@@ -789,6 +789,7 @@ typedef struct {
     int			c_flags;	/* ctx flags (set via type/env/attrs) */
     __pmHashCtl		c_attrs;	/* various optional context attributes */
     int			c_handle;	/* context number above PMAPI */
+    int			c_slot;		/* index to contexts[] below PMAPI */
 } __pmContext;
 
 #define __PM_MODE_MASK	0xffff

@@ -139,12 +139,23 @@ DoProfile(ClientInfo *cp, __pmPDU *pb)
 
     sts = __pmDecodeProfile(pb, &ctxnum, &newProf);
     if (sts >= 0) {
+	__pmHashNode	*hp;
 	hcp = &cp->profile;
-	if ((sts = __pmHashAdd(ctxnum, newProf, hcp)) > 0) {
-	    /* __pmHashAdd returns 1 for success, but we want zero. */
-	    sts = 0;
+	if ((hp = __pmHashSearch(ctxnum, hcp)) != NULL) {
+	    /* seen this context slot before for this client */
+	    __pmProfile	*profile = (__pmProfile *)hp->data;
+	    if (profile != NULL)
+		__pmFreeProfile(profile);
+	    hp->data = (void *)newProf;
 	}
-    
+	else {
+	    /* first time for this context slot for this client */
+	    if ((sts = __pmHashAdd(ctxnum, newProf, hcp)) > 0) {
+		/* __pmHashAdd returns 1 for success, but we want zero. */
+		sts = 0;
+	    }
+	}
+
 	/* "Invalidate" any references to the client context's profile in the
 	 * agents to which the old profile was last sent
 	 */

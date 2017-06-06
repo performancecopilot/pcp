@@ -18,7 +18,7 @@
 #include "fault.h"
 
 static int
-__pmUpdateProfile(int fd, __pmContext *ctxp, int timeout, int ctxid)
+__pmUpdateProfile(int fd, __pmContext *ctxp, int timeout)
 {
     int		sts;
 
@@ -30,13 +30,13 @@ __pmUpdateProfile(int fd, __pmContext *ctxp, int timeout, int ctxid)
 	 */
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_PROFILE) {
-	    fprintf(stderr, "pmFetch: calling __pmSendProfile, context: %d\n",
-	            ctxid);
+	    fprintf(stderr, "pmFetch: calling __pmSendProfile, context: %d slot: %d\n",
+	            ctxp->c_handle, ctxp->c_slot);
 	    __pmDumpProfile(stderr, PM_INDOM_NULL, ctxp->c_instprof);
 	}
 #endif
 	if ((sts = __pmSendProfile(fd, __pmPtrToHandle(ctxp),
-				   ctxid, ctxp->c_instprof)) < 0)
+				   ctxp->c_slot, ctxp->c_instprof)) < 0)
 	    return sts;
 	else
 	    ctxp->c_sent = 1;
@@ -141,11 +141,11 @@ pmFetch(int numpmid, pmID pmidlist[], pmResult **result)
 	    PM_LOCK(ctxp->c_pmcd->pc_lock);
 	    tout = ctxp->c_pmcd->pc_tout_sec;
 	    fd = ctxp->c_pmcd->pc_fd;
-	    if ((sts = __pmUpdateProfile(fd, ctxp, tout, ctx)) < 0) {
+	    if ((sts = __pmUpdateProfile(fd, ctxp, tout)) < 0) {
 		sts = __pmMapErrno(sts);
 		PM_UNLOCK(ctxp->c_pmcd->pc_lock);
 	    }
-	    else if ((sts = __pmSendFetch(fd, __pmPtrToHandle(ctxp), ctx,
+	    else if ((sts = __pmSendFetch(fd, __pmPtrToHandle(ctxp), ctxp->c_slot,
 				&ctxp->c_origin, numpmid, pmidlist)) < 0) {
 		sts = __pmMapErrno(sts);
 		PM_UNLOCK(ctxp->c_pmcd->pc_lock);

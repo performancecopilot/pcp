@@ -1,0 +1,60 @@
+#!/bin/sh
+# PCP QA Test No. 1199
+# expose pmcd mem leak after change in libpcp context management
+#
+# Copyright (c) 2017 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_service pmcd restart | _filter_pcp_start
+pminfo -v sample >/dev/null
+
+# real QA test starts here
+pmprobe -v pmcd.datasize | tee -a $here/$seq.full >$tmp.tmp
+start=`cat $tmp.tmp | awk '{print $3}'`
+echo "start=$start" >>$here/$seq.full
+
+src/churnctx -i bin-100,bin-200,bin-300,bin-400,bin-900 -s 1000 -t 0 sample.bin sample.long.one >$tmp.out 2>$tmp.err
+
+echo >>$here/$seq.full
+echo '=== stderr'  >>$here/$seq.full
+cat $tmp.err >>$here/$seq.full
+
+echo >>$here/$seq.full
+echo '=== stdout'  >>$here/$seq.full
+cat $tmp.out >>$here/$seq.full
+
+grep sample $tmp.out \
+| sort \
+| uniq -c \
+| sed -e 's/  */ /g'
+
+pmprobe -v pmcd.datasize | tee -a $here/$seq.full >$tmp.tmp
+end=`cat $tmp.tmp | awk '{print $3}'`
+echo "end=$start" >>$here/$seq.full
+
+if [ "$start" != "$end" ]
+then
+    echo "Arrgh ... pmcd memory leak from $start to $end during test"
+fi
+
+# success, all done
+status=0
+exit
