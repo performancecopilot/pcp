@@ -995,7 +995,7 @@ __pmAttrKeyStr_r(__pmAttrKey key, char *string, size_t size)
     case PCP_ATTR_CONTAINER:
 	return snprintf(string, size, "container");
     case PCP_ATTR_EXCLUSIVE:
-	return snprintf(string, size, "exclusive (deprecated)");
+	return snprintf(string, size, "exclusive");
     case PCP_ATTR_NONE:
     default:
 	break;
