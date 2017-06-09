@@ -215,15 +215,12 @@ pmGetPMNSLocation(void)
 	    switch(ctxp->c_type) {
 		int	fd;
 		case PM_CONTEXT_HOST:
-		    PM_LOCK(ctxp->c_pmcd->pc_lock);
 		    if (ctxp->c_pmcd->pc_fd == -1) {
-			PM_UNLOCK(ctxp->c_pmcd->pc_lock);
 			pmns_location = PM_ERR_IPC;
 			goto done;
 		    }
 		    sts = version = __pmVersionIPC(ctxp->c_pmcd->pc_fd);
 		    fd = ctxp->c_pmcd->pc_fd;
-		    PM_UNLOCK(ctxp->c_pmcd->pc_lock);
 		    if (version < 0) {
 			char	errmsg[PM_MAXERRMSGLEN];
 			__pmNotifyErr(LOG_ERR, 
@@ -1711,7 +1708,6 @@ pmLookupName(int numpmid, char *namelist[], pmID pmidlist[])
 	    fputc('\n', stderr);
 	}
 #endif
-	PM_LOCK(ctxp->c_pmcd->pc_lock);
 	sts = __pmSendNameList(ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp),
 		numpmid, namelist, NULL);
 	if (sts < 0)
@@ -1734,16 +1730,14 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_TIMEOUT);
 		if (sts >= 0)
 		    sts = op_status;
 	    }
-	    else if (sts == PDU_ERROR) {
+	    else if (sts == PDU_ERROR)
 		__pmDecodeError(pb, &sts);
-	    }
-	    else {
-		__pmCloseChannelbyContext(ctxp, PDU_PMNS_IDS, sts);
-		if (sts != PM_ERR_TIMEOUT)
-		    sts = PM_ERR_IPC;
-	    }
+	    else if (sts != PM_ERR_TIMEOUT)
+		sts = PM_ERR_IPC;
+
 	    if (pinpdu > 0)
 		__pmUnpinPDUBuf(pb);
+
 	    if (sts >= 0)
 		nfail = numpmid - sts;
 #ifdef PCP_DEBUG
@@ -1761,7 +1755,6 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_TIMEOUT);
 	    }
 #endif
 	}
-	PM_UNLOCK(ctxp->c_pmcd->pc_lock);
 	PM_UNLOCK(ctxp->c_lock);
     }
 
@@ -1825,7 +1818,6 @@ GetChildrenStatusRemote(__pmContext *ctxp, const char *name,
 {
     int n;
 
-    PM_LOCK(ctxp->c_pmcd->pc_lock);
     n = __pmSendChildReq(ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp),
 		name, statuslist == NULL ? 0 : 1);
     if (n < 0)
@@ -1845,15 +1837,12 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":2", PM_FAULT_TIMEOUT);
 	}
 	else if (n == PDU_ERROR)
 	    __pmDecodeError(pb, &n);
-	else {
-	    __pmCloseChannelbyContext(ctxp, PDU_PMNS_NAMES, n);
-	    if (n != PM_ERR_TIMEOUT)
-		n = PM_ERR_IPC;
-	}
+	else if (n != PM_ERR_TIMEOUT)
+	    n = PM_ERR_IPC;
+
 	if (pinpdu > 0)
 	    __pmUnpinPDUBuf(pb);
     }
-    PM_UNLOCK(ctxp->c_pmcd->pc_lock);
 
     return n;
 }
@@ -2269,11 +2258,8 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":3", PM_FAULT_TIMEOUT);
     }
     else if (n == PDU_ERROR)
 	__pmDecodeError(pb, &n);
-    else {
-	__pmCloseChannelbyContext(ctxp, PDU_PMNS_NAMES, n);
-	if (n != PM_ERR_TIMEOUT)
-	    n = PM_ERR_IPC;
-    }
+    else if (n != PM_ERR_TIMEOUT)
+	n = PM_ERR_IPC;
 
     if (pinpdu > 0)
 	__pmUnpinPDUBuf(pb);
@@ -2389,11 +2375,9 @@ pmNameID(pmID pmid, char **name)
     else {
 	/* assume PMNS_REMOTE */
 	assert(c_type == PM_CONTEXT_HOST);
-	PM_LOCK(ctxp->c_pmcd->pc_lock);
 	if ((sts = request_namebypmid(ctxp, pmid)) >= 0) {
 	    sts = receive_a_name(ctxp, name);
 	}
-	PM_UNLOCK(ctxp->c_pmcd->pc_lock);
 	PM_UNLOCK(ctxp->c_lock);
     }
 
@@ -2526,11 +2510,9 @@ pmNameAll(pmID pmid, char ***namelist)
     else {
 	/* assume PMNS_REMOTE */
 	assert(c_type == PM_CONTEXT_HOST);
-	PM_LOCK(ctxp->c_pmcd->pc_lock);
 	if ((sts = request_namebypmid (ctxp, pmid)) >= 0) {
 	    sts = receive_namesbyid (ctxp, namelist);
 	}
-	PM_UNLOCK(ctxp->c_pmcd->pc_lock);
 	PM_UNLOCK(ctxp->c_lock);
 	if (sts > 0)
 	    return sts;
@@ -2631,11 +2613,9 @@ TraversePMNS(const char *name, void(*func)(const char *), void(*func_r)(const ch
 	/* As we have PMNS_REMOTE there must be a current host context */
 	if ((sts = pmWhichContext()) < 0 || (ctxp = __pmHandleToPtr(sts)) == NULL)
 	    return PM_ERR_NOCONTEXT;
-	PM_LOCK(ctxp->c_pmcd->pc_lock);
 	sts = __pmSendTraversePMNSReq(ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp), name);
 	if (sts < 0) {
 	    sts = __pmMapErrno(sts);
-	    PM_UNLOCK(ctxp->c_pmcd->pc_lock);
 	    PM_UNLOCK(ctxp->c_lock);
 	}
 	else {
@@ -2648,7 +2628,6 @@ TraversePMNS(const char *name, void(*func)(const char *), void(*func_r)(const ch
 PM_FAULT_POINT("libpcp/" __FILE__ ":4", PM_FAULT_TIMEOUT);
 	    pinpdu = sts = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE, 
 				      TIMEOUT_DEFAULT, &pb);
-	    PM_UNLOCK(ctxp->c_pmcd->pc_lock);
 	    PM_UNLOCK(ctxp->c_lock);
 	    if (sts == PDU_PMNS_NAMES) {
 		sts = __pmDecodeNameList(pb, &numnames, 
@@ -2677,7 +2656,6 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":4", PM_FAULT_TIMEOUT);
 		numnames = 0;
 	    }
 	    else {
-		__pmCloseChannelbyContext(ctxp, PDU_PMNS_NAMES, sts);
 		if (pinpdu > 0)
 		    __pmUnpinPDUBuf(pb);
 		return (sts == PM_ERR_TIMEOUT) ? sts : PM_ERR_IPC;

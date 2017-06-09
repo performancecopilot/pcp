@@ -1326,11 +1326,6 @@ disconnect(int sts)
 	}
 	numfds = maxfd() + 1;
 	ctxp->c_pmcd->pc_fd = -1;
-	/*
-	 * since there is only one context in play here, pc_refcnt is not
-	 * really in play, but reset it for consistency
-	 */
-	ctxp->c_pmcd->pc_refcnt = 0;
     }
 
     /*
