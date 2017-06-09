@@ -722,7 +722,6 @@ getlabels(int ident, int type, pmLabelSet **sets, int *nsets)
 	return PM_ERR_NOCONTEXT;
 
     if (ctxp->c_type == PM_CONTEXT_HOST) {
-	PM_LOCK(ctxp->c_pmcd->pc_lock);
 	int	handle = __pmPtrToHandle(ctxp);
 	int	tout = ctxp->c_pmcd->pc_tout_sec;
 	int	fd = ctxp->c_pmcd->pc_fd;
@@ -736,7 +735,6 @@ getlabels(int ident, int type, pmLabelSet **sets, int *nsets)
 	    PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_TIMEOUT);
 	    sts = __pmRecvLabel(fd, ctxp, tout, &x_ident, &x_type, sets, nsets);
 	}
-	PM_UNLOCK(ctxp->c_pmcd->pc_lock);
     }
     else if (ctxp->c_type == PM_CONTEXT_LOCAL) {
 	__pmDSO	*dp;

@@ -267,13 +267,12 @@ __pmRecvLabel(int fd, __pmContext *ctxp, int timeout,
     }
     else if (sts == PDU_ERROR)
 	__pmDecodeError(pb, &sts);
-    else {
-	__pmCloseChannelbyContext(ctxp, PDU_LABEL, sts);
-	if (sts != PM_ERR_TIMEOUT)
-	    sts = PM_ERR_IPC;
-    }
+    else if (sts != PM_ERR_TIMEOUT)
+	sts = PM_ERR_IPC;
+
     if (pinpdu > 0)
 	__pmUnpinPDUBuf(pb);
+
     return sts;
 }
 
