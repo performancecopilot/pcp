@@ -18,8 +18,14 @@ include	$(TOPDIR)/src/include/builddefs
 CFILES		= pmda.c dmthin.c dmcache.c
 HFILES		= indom.h dmthin.h dmcache.h
 CMDTARGET	= pmdadm
-
 LLDLIBS		= $(PCP_PMDALIB)
+
+ifeq "$(HAVE_DEVMAPPER)" "true"
+CFILES		+= dmstats.c
+HFILES		+= dmstats.h
+LLDLIBS		+= $(LIB_FOR_DEVMAPPER)
+LCFLAGS		+= -DHAVE_DEVMAPPER=1
+endif
 
 IAM		= dm
 DOMAIN		= DM
@@ -42,7 +48,8 @@ build-me: $(CMDTARGET) $(LIBTARGET)
 
 install: default
 	$(INSTALL) -m 755 -d $(PMDADIR)
-	$(INSTALL) -m 644 root pmns.dmcache pmns.dmthin domain.h help $(PMDADIR)
+	$(INSTALL) -m 644 root domain.h help $(PMDADIR)
+	$(INSTALL) -m 644 pmns.dmcache pmns.dmthin pmns.dmstats $(PMDADIR)
 	$(INSTALL) -m 755 Install Remove $(CMDTARGET) $(PMDADIR)
 	$(INSTALL) -m 644 dmthin.data_high_util.pmie $(PMIEDIR)/data_high_util
 	$(INSTALL) -m 644 dmthin.metadata_high_util.pmie $(PMIEDIR)/metadata_high_util
@@ -64,3 +71,6 @@ domain.h: ../../pmns/stdpmid
 pmda.o dmcache.o dmthin.o: indom.h
 pmda.o dmcache.o: dmcache.h
 pmda.o dmthin.o: dmthin.h
+ifeq "$(HAVE_DEVMAPPER)" "true"
+pmda.o dmstats.o: dmstats.h
+endif
