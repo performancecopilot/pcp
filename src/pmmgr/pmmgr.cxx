@@ -1118,6 +1118,7 @@ pmmgr_pmlogger_daemon::daemon_command_line()
 
   // collect -h direction
   pmlogger_options += " -h " + sh_quote(spec);
+  pmlogger_options += " -H " + sh_quote(hostid);
 
   // hard-code -r to report metrics & expected disk usage rate
   pmlogger_options += " -r";
