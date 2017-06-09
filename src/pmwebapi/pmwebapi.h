@@ -44,6 +44,7 @@ typedef int MHD_socket;
 // over again on the heap, were it not for some interning machinery
 // such as boost::flyweight.
 #ifdef HAVE_BOOST_FLYWEIGHT_HPP
+#undef uint_t
 #include <boost/flyweight.hpp>
 #include <boost/flyweight/no_tracking.hpp>
 #include <boost/flyweight/hashed_factory.hpp>
