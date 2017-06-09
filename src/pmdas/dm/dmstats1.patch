@@ -1,0 +1,256 @@
+diff --git a/src/pmdas/dm/GNUmakefile b/src/pmdas/dm/GNUmakefile
+index 75cba24e5..c96977b46 100644
+--- a/src/pmdas/dm/GNUmakefile
++++ b/src/pmdas/dm/GNUmakefile
+@@ -19,7 +19,7 @@ CFILES		= pmda.c dmthin.c dmcache.c dm.c
+ HFILES		= indom.h dmthin.h dmcache.h dm.h
+ CMDTARGET	= pmdadm
+ 
+-LLDLIBS		= $(PCP_PMDALIB) -I /home/fumiya/lvm2/libdm -L /home/fumiya/lvm2/libdm/ioctl -ldevmapper
++LLDLIBS         = $(PCP_PMDALIB) -ldevmapper
+ 
+ IAM		= dm
+ DOMAIN		= DM
+diff --git a/src/pmdas/dm/dm.c b/src/pmdas/dm/dm.c
+index 215519353..41b2d8122 100644
+--- a/src/pmdas/dm/dm.c
++++ b/src/pmdas/dm/dm.c
+@@ -1,18 +1,18 @@
+ #include "pmapi.h"
+ #include "impl.h"
+ #include "pmda.h"
+-
+ #include "indom.h"
+ #include "dm.h"
+ 
+-#include <inttypes.h>
++#ifdef HAVE_DMSTATS
+ 
++#include <inttypes.h>
+ #include <libdevmapper.h>
+ 
+ int
+ dm_stats_fetch(int item, struct dm_stats_counter *dmsc, pmAtomValue *atom)
+ {
+-	if (item < 0 || item >= NUM_DM_STATS_COUNTER)
++	if (item < 0 || item >= DM_STATS_NR_COUNTERS)
+ 		return  PM_ERR_PMID;
+ 
+ 	switch(item) {
+@@ -190,3 +190,4 @@ void
+ dm_stats_setup(void)
+ {
+ }
++#endif 
+diff --git a/src/pmdas/dm/dm.h b/src/pmdas/dm/dm.h
+index ee738a439..f4aee6b83 100644
+--- a/src/pmdas/dm/dm.h
++++ b/src/pmdas/dm/dm.h
+@@ -1,51 +1,9 @@
+-#ifndef DM_H
+-#define DM_H
+-
+-typedef enum {
+-	DM_STATS_RD_MERGES_PER_SEC,
+-	DM_STATS_WR_MERGES_PER_SEC,
+-	DM_STATS_READS_PER_SEC,
+-	DM_STATS_WRITES_PER_SEC,
+-	DM_STATS_READ_SECTORS_PER_SEC,
+-	DM_STATS_WRITE_SECTORS_PER_SEC,
+-	DM_STATS_AVERAGE_REQUEST_SIZE,
+-	DM_STATS_AVERAGE_QUEUE_SIZE,
+-	DM_STATS_AVERAGE_WAIT_TIME,
+-	DM_STATS_AVERAGE_RD_WAIT_TIME,
+-	DM_STATS_AVERAGE_WR_WAIT_TIME,
+-	DM_STATS_SERVICE_TIME,
+-	DM_STATS_THROUGHPUT,
+-	DM_STATS_UTILIZATION,
+-	DM_STATS_NR_METRICS,
+-	NUM_DM_STATS
+-} dm_stats_metric_t;
+-
+-
+-typedef enum {
+-	DM_STATS_READS_COUNT,
+-	DM_STATS_READS_MERGED_COUNT,
+-	DM_STATS_READ_SECTORS_COUNT,
+-	DM_STATS_READ_NSECS,
+-	DM_STATS_WRITES_COUNT,
+-	DM_STATS_WRITES_MERGED_COUNT,
+-	DM_STATS_WRITE_SECTORS_COUNT,
+-	DM_STATS_WRITE_NSECS,
+-	DM_STATS_IO_IN_PROGRESS_COUNT,
+-	DM_STATS_IO_NSECS,
+-	DM_STATS_WEIGHTED_IO_NSECS,
+-	DM_STATS_TOTAL_READ_NSECS,
+-	DM_STATS_TOTAL_WRITE_NSECS,
+-	DM_STATS_NR_COUNTERS,
+-	NUM_DM_STATS_COUNTER
+-} dm_stats_counter_t;
++#define HAVE_DMSTATS 1
+ 
++#ifdef HAVE_DMSTATS
+ 
+-struct dm_pcp_stats {
+-	uint64_t test_0;
+-	uint64_t test_1;
+-	char *dname;
+-	uint64_t tt;
+-};
++#ifndef DM_H
++#define DM_H
+ 
+ struct dm_stats_counter {
+ 	uint64_t reads;		    /* Num reads completed */
+@@ -64,12 +22,15 @@ struct dm_stats_counter {
+ 	struct dm_histogram *histogram; /* Histogram. */
+ };
+ 
++/*
+ struct dm_stats_metric {
+ };
++*/
+ 
+ extern int dm_stats_fetch(int, struct dm_stats_counter *, pmAtomValue *);
++extern int dm_refresh_stats_counter(const char *, struct dm_stats_counter *);
+ extern int dm_stats_instance_refresh(void);
+-extern int dm_fetch_refresh_stats_counter(const char *, struct dm_stats_counter *);
+ extern void dm_stats_setup(void);
+ 
+ #endif
++#endif
+diff --git a/src/pmdas/dm/pmda.c b/src/pmdas/dm/pmda.c
+index ce845da27..12cc1c4f3 100644
+--- a/src/pmdas/dm/pmda.c
++++ b/src/pmdas/dm/pmda.c
+@@ -22,13 +22,17 @@
+ #include "domain.h"
+ #include "dmthin.h"
+ #include "dmcache.h"
++
+ #include "dm.h"
++#include <libdevmapper.h>
+ 
+ enum {
+     CLUSTER_CACHE = 0,		/* DM-Cache Caches */
+     CLUSTER_POOL = 1,		/* DM-Thin Pools */
+     CLUSTER_VOL = 2,		/* DM-Thin Volumes */
++#ifdef HAVE_DMSTATS
+     CLUSTER_DM_COUNTER = 3,
++#endif
+     NUM_CLUSTERS
+ };
+ 
+@@ -157,6 +161,7 @@ static pmdaMetric metrictable[] = {
+         PM_TYPE_U64, DM_THIN_VOL_INDOM, PM_SEM_INSTANT,
+         PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+     /* DM_STATS Basic Counters*/
++#ifdef HAVE_DMSTATS
+     { .m_desc = {
+         PMDA_PMID(CLUSTER_DM_COUNTER, DM_STATS_READS_COUNT),
+         PM_TYPE_U64, DM_STATS_INDOM, PM_SEM_COUNTER,
+@@ -209,13 +214,16 @@ static pmdaMetric metrictable[] = {
+         PMDA_PMID(CLUSTER_DM_COUNTER, DM_STATS_TOTAL_WRITE_NSECS),
+         PM_TYPE_U64, DM_STATS_INDOM, PM_SEM_INSTANT,
+         PMDA_PMUNITS(0,1,0,0,PM_TIME_NSEC,0) }, },
++#endif
+ };
+ 
+ static pmdaIndom indomtable[] = {
+     { .it_indom = DM_CACHE_INDOM }, 
+     { .it_indom = DM_THIN_POOL_INDOM },
+     { .it_indom = DM_THIN_VOL_INDOM },
++#ifdef HAVE_DMSTATS
+     { .it_indom = DM_STATS_INDOM},
++#endif
+ };
+ 
+ pmInDom
+@@ -230,7 +238,9 @@ dm_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaExt
+     dm_cache_instance_refresh();
+     dm_thin_pool_instance_refresh();
+     dm_thin_vol_instance_refresh();
++#ifdef HAVE_DMSTATS
+     dm_stats_instance_refresh();
++#endif
+     return pmdaInstance(indom, inst, name, result, pmda);
+ }
+ 
+@@ -296,6 +306,7 @@ dm_fetch_refresh(pmdaExt *pmda, int *need_refresh)
+         }
+     }
+ 
++#ifdef HAVE_DMSTATS
+     if (need_refresh[CLUSTER_DM_COUNTER]) {
+         struct dm_stats_counter *dmsc;
+ 
+@@ -314,6 +325,7 @@ dm_fetch_refresh(pmdaExt *pmda, int *need_refresh)
+ 	    }
+         }
+      }
++#endif
+ 	
+     return sts;
+ }
+@@ -345,7 +357,9 @@ dm_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
+     struct cache_stats *cache;
+     struct pool_stats *pool;
+     struct vol_stats *vol;
++#ifdef HAVE_DMSTATS
+     struct dm_stats_counter *dmsc;
++#endif
+     int sts;
+ 
+     switch (idp->cluster) {
+@@ -367,11 +381,13 @@ dm_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
+ 	        return sts;
+ 	    return dm_thin_vol_fetch(idp->item, vol, atom);
+ 
++#ifdef HAVE_DMSTATS
+ 	case CLUSTER_DM_COUNTER:
+ 	    sts = pmdaCacheLookup(dm_indom(DM_STATS_INDOM), inst, NULL, (void**)&dmsc);
+ 	    if (sts < 0)
+ 	        return sts;
+ 	    return dm_stats_fetch(idp->item, dmsc, atom);
++#endif
+ 
+         default: /* unknown cluster */
+ 	    return PM_ERR_PMID;
+@@ -389,7 +405,9 @@ dm_init(pmdaInterface *dp)
+     /* Check for environment variables allowing test injection */
+     dm_cache_setup();
+     dm_thin_setup();
++#ifdef HAVE_DMSTATS
+     dm_stats_setup();
++#endif
+ 
+     int	nindoms = sizeof(indomtable)/sizeof(indomtable[0]);
+     int	nmetrics = sizeof(metrictable)/sizeof(metrictable[0]);
+diff --git a/src/pmdas/dm/pmns.dm b/src/pmdas/dm/pmns.dm
+index 65fdf2106..77cca7b2c 100644
+--- a/src/pmdas/dm/pmns.dm
++++ b/src/pmdas/dm/pmns.dm
+@@ -1,16 +1,15 @@
+ dm {
+-	read_count	    DM:3:0
+-	reads_merged_count  DM:3:1
+-	read_sector_count   DM:3:2
++	read	            DM:3:0
++	reads_merged        DM:3:1
++	read_sector         DM:3:2
+ 	read_time           DM:3:3
+-	write_count	    DM:3:4
+-	writes_merged_count DM:3:5
+-	write_sector_count  DM:3:6
++	write	            DM:3:4
++	writes_merged       DM:3:5
++	write_sector        DM:3:6
+ 	writes_time         DM:3:7
+-	in_progress_count   DM:3:8
++	in_progress         DM:3:8
+ 	io_ticks            DM:3:9
+ 	queue_ticks         DM:3:10
+ 	read_ticks          DM:3:11
+ 	write_ticks         DM:3:12
+-
+ }

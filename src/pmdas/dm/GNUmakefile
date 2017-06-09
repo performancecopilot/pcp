@@ -1,4 +1,4 @@
-#
+
 # Copyright (c) 2015 Red Hat.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -15,11 +15,11 @@
 TOPDIR = ../../..
 include	$(TOPDIR)/src/include/builddefs
 
-CFILES		= pmda.c dmthin.c dmcache.c
-HFILES		= indom.h dmthin.h dmcache.h
+CFILES		= pmda.c dmthin.c dmcache.c dm.c
+HFILES		= indom.h dmthin.h dmcache.h dm.h
 CMDTARGET	= pmdadm
 
-LLDLIBS		= $(PCP_PMDALIB)
+LLDLIBS         = $(PCP_PMDALIB) -ldevmapper
 
 IAM		= dm
 DOMAIN		= DM
@@ -38,11 +38,11 @@ default:	build-me
 include $(BUILDRULES)
 
 ifeq "$(TARGET_OS)" "linux"
-build-me: $(CMDTARGET) $(LIBTARGET)
+build-me: $(CMDTARGET) $(LIBTARGET) 
 
 install: default
 	$(INSTALL) -m 755 -d $(PMDADIR)
-	$(INSTALL) -m 644 root pmns.dmcache pmns.dmthin domain.h help $(PMDADIR)
+	$(INSTALL) -m 644 root pmns.dmcache pmns.dmthin pmns.dm domain.h help $(PMDADIR)
 	$(INSTALL) -m 755 Install Remove $(CMDTARGET) $(PMDADIR)
 	$(INSTALL) -m 644 dmthin.data_high_util.pmie $(PMIEDIR)/data_high_util
 	$(INSTALL) -m 644 dmthin.metadata_high_util.pmie $(PMIEDIR)/metadata_high_util
@@ -61,6 +61,7 @@ $(OBJECTS): domain.h
 domain.h: ../../pmns/stdpmid
 	$(DOMAIN_MAKERULE)
 
-pmda.o dmcache.o dmthin.o: indom.h
+pmda.o dmcache.o dmthin.o dm.o: indom.h
 pmda.o dmcache.o: dmcache.h
 pmda.o dmthin.o: dmthin.h
+pmda.o dm.o: dm.h 
