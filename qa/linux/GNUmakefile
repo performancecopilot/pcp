@@ -6,7 +6,7 @@ ROOTFILES = $(shell echo *-root-*.tgz)
 SYSFSFILES = $(shell echo sysfs-*-*.tgz)
 CPUINFOFILES = $(shell echo cpuinfo-*)
 PROCIRQFILES = $(shell echo interrupts-* softirqs-*)
-PROCNETFILES = $(shell echo procnet-*)
+PROCNETFILES = $(shell echo procnet-* proc_net_*)
 PROCSYSFILES = $(shell echo procsys-*)
 BIGPIDFILE = $(shell echo proc-big-pid-001.tgz)
 

@@ -790,6 +790,7 @@ qt_version
 qt_release
 QMAKE
 PMDA_LIBVIRT
+PMDA_PROMETHEUS
 PMDA_LIO
 PMDA_NUTCRACKER
 PMDA_BIND2
@@ -803,9 +804,9 @@ PMDA_SNMP
 have_perl
 pcp_perl_prog
 PERL
-have_python_libvirt
 PMDA_JSON
 have_python_six
+have_python_libvirt
 have_python_requests
 have_python_setuptools
 have_python_jsonpointer
@@ -7286,6 +7287,28 @@ $as_echo "no" >&6; }
     fi
 
 
+ { $as_echo "$as_me:${as_lineno-$LINENO}: checking for Python module libvirt" >&5
+$as_echo_n "checking for Python module libvirt... " >&6; }
+    if test -n ""
+    then
+	txt=""
+    else
+	txt="import libvirt"
+    fi
+    $pcp_python_prog -c 'import sys;
+'"$txt" >>config.log 2>&1
+    if test "$?" = 0
+    then
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+	eval have_python_libvirt=true
+    else
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+	eval have_python_libvirt=false
+    fi
+
+
  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for Python module six" >&5
 $as_echo_n "checking for Python module six... " >&6; }
     if test -n ""
@@ -7325,29 +7348,6 @@ PMDA_JSON=$pmda_json
 if $pmda_json; then { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }; else { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
 $as_echo "no" >&6; }; fi
-
- { $as_echo "$as_me:${as_lineno-$LINENO}: checking for Python module libvirt" >&5
-$as_echo_n "checking for Python module libvirt... " >&6; }
-    if test -n ""
-    then
-	txt=""
-    else
-	txt="import libvirt"
-    fi
-    $pcp_python_prog -c 'import sys;
-'"$txt" >>config.log 2>&1
-    if test "$?" = 0
-    then
-	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-$as_echo "yes" >&6; }
-	eval have_python_libvirt=true
-    else
-	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-	eval have_python_libvirt=false
-    fi
-
-
 
 for ac_prog in perl
 do
@@ -7600,12 +7600,28 @@ if $pmda_lio; then { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }; else { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
 $as_echo "no" >&6; }; fi
 
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking if the Prometheus PMDA should be included" >&5
+$as_echo_n "checking if the Prometheus PMDA should be included... " >&6; }
+pmda_prometheus=false
+if test "$have_python" = true
+then
+    if test "$have_python_requests" = true
+    then
+	pmda_prometheus=true
+    fi
+fi
+PMDA_PROMETHEUS=$pmda_prometheus
+
+if $pmda_prometheus; then { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }; else { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }; fi
+
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking if the libvirt PMDA should be included" >&5
 $as_echo_n "checking if the libvirt PMDA should be included... " >&6; }
 pmda_libvirt=false
 if test "$have_python" = true
 then
-        if $pcp_python_prog -c "import libvirt" >/dev/null 2>&1
+        if test "$have_python_libvirt" = true
     then
 	if $pcp_python_prog -c "import lxml" >/dev/null 2>&1
 	then
@@ -12210,7 +12226,7 @@ rm -rf conftest.* conftest
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking strtol or strtoll for int64_t" >&5
 $as_echo_n "checking strtol or strtoll for int64_t... " >&6; }
 if test "$cross_compiling" = "yes"; then
-    ans=$strtoint64
+    ans="$strtoint64"
     echo "cross-compile -> \"$ans\"" >&5
 else
     cat <<End-of-File >conftest.c
@@ -12240,25 +12256,31 @@ fi
 case "$ans"
 in
     strtol)
-	$as_echo "#define strtoint64 strtol" >>confdefs.h
 
-	$as_echo "#define strtouint64 strtoul" >>confdefs.h
+$as_echo "#define strtoint64 strtol" >>confdefs.h
+
+
+$as_echo "#define strtouint64 strtoul" >>confdefs.h
 
 	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: strtol" >&5
 $as_echo "strtol" >&6; }
 	;;
     strtoll)
-	$as_echo "#define strtoint64 strtoll" >>confdefs.h
 
-	$as_echo "#define strtouint64 strtoull" >>confdefs.h
+$as_echo "#define strtoint64 strtoll" >>confdefs.h
+
+
+$as_echo "#define strtouint64 strtoull" >>confdefs.h
 
 	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: strtoll" >&5
 $as_echo "strtoll" >&6; }
 	;;
     *)
-	$as_echo "#define strtoint64 strtoll" >>confdefs.h
 
-	$as_echo "#define strtouint64 strtoull" >>confdefs.h
+$as_echo "#define strtoint64 strtoll" >>confdefs.h
+
+
+$as_echo "#define strtouint64 strtoull" >>confdefs.h
 
 	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: assuming strtoll" >&5
 $as_echo "assuming strtoll" >&6; }

@@ -1,0 +1,35 @@
+#!/bin/sh
+# PCP QA Test No. 1085
+# Excercise pmlogger -H
+#
+# Copyright (c) 2017 Martins Innus.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "cd $here; $sudo rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
+
+metric="sample.control"
+cat <<EOF >$tmp.config
+log mandatory on 1 sec {
+    $metric
+}
+EOF
+
+pmlogger -H my_new_label_hostname -s1 -c $tmp.config -l $tmp.log $tmp.arch 1>$tmp.out 2>&1
+cat $tmp.log >> $seq.full
+
+pmdumplog -l $tmp.arch | sed -e '/commencing/d' -e '/ending/d'
+
+# success, all done
+status=0
+
+exit

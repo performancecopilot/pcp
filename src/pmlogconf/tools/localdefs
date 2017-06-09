@@ -24,6 +24,7 @@ FILES = \
 	pmstat \
 	sar \
 	sar-summary \
+	tapestat \
 	uptime \
 	vector \
 	vector-summary \

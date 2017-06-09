@@ -64,8 +64,8 @@ echo "--- final config ---" >>$seq.full
 cat $tmp.in >>$seq.full
 
 echo "Expect few differences ..."
-LC_COLLATE=POSIX sort $tmp.ref >$tmp.ref.sort
-LC_COLLATE=POSIX sort $tmp.in >$tmp.in.sort
+sed -e '/^[ 	]*$/d' $tmp.ref | LC_COLLATE=POSIX sort >$tmp.ref.sort
+sed -e '/^[ 	]*$/d' $tmp.in | LC_COLLATE=POSIX sort >$tmp.in.sort
 diff $tmp.ref.sort $tmp.in.sort
 
 # success, all done

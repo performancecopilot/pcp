@@ -1,4 +1,5 @@
 cpu/GNUmakefile
+entropy/GNUmakefile
 filesys/GNUmakefile
 global/GNUmakefile
 local

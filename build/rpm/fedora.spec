@@ -200,6 +200,7 @@ Obsoletes: pcp-gui-debuginfo
 %global _pmdasdir %{_localstatedir}/lib/pcp/pmdas
 %global _testsdir %{_localstatedir}/lib/pcp/testsuite
 %global _selinuxdir %{_localstatedir}/lib/pcp/selinux
+%global _logconfdir %{_localstatedir}/lib/pcp/config/pmlogconf
 %global _pixmapdir %{_datadir}/pcp-gui/pixmaps
 %global _booksdir %{_datadir}/doc/pcp-doc
 
@@ -2072,7 +2073,10 @@ ls -1 $RPM_BUILD_ROOT/%{_pixmapdir} |\
 cat base_bin.list base_exec.list |\
   grep -E "$PCP_GUI" >> pcp-gui.list
 %endif
-cat base_pmdas.list base_bin.list base_exec.list |\
+ls -1 $RPM_BUILD_ROOT/%{_logconfdir}/ |\
+    sed -e 's#^#'%{_logconfdir}'\/#' |\
+    grep -E -v 'zeroconf' >pcp-logconf.list
+cat base_pmdas.list base_bin.list base_exec.list pcp-logconf.list |\
   grep -E -v 'pmdaib|pmmgr|pmweb|pmsnap|2pcp|pmdas/systemd' |\
   grep -E -v "$PCP_GUI|pixmaps|pcp-doc|tutorials|selinux" |\
   grep -E -v %{_confdir} | grep -E -v %{_logsdir} > base.list
@@ -2629,7 +2633,6 @@ cd
 %{_localstatedir}/lib/pcp/config/pmieconf
 %dir %attr(0775,pcp,pcp) %{_localstatedir}/lib/pcp/config/pmlogger
 %{_localstatedir}/lib/pcp/config/pmlogger/*
-%{_localstatedir}/lib/pcp/config/pmlogconf
 %{_localstatedir}/lib/pcp/config/pmlogrewrite
 %dir %attr(0775,pcp,pcp) %{_localstatedir}/lib/pcp/config/pmda
 
@@ -3012,8 +3015,14 @@ cd
 %endif
 
 %changelog
+* Fri Jun 30 2017 Lukas Berk <lberk@redhat.com> - 3.11.11-1
+- Work-in-progress, see http://pcp.io/roadmap
+
 * Wed May 17 2017 Dave Brolley <brolley@redhat.com> - 3.11.10-1
-- Work-in-progress - see http://pcp.io/roadmap
+- python api: handle non-POSIXLY_CORRECT getopt cases (BZ 1289912)
+- Fix pmchart reaction to timezone changes from pmtime (BZ 968823)
+- Require Qt5 for Fedora.
+- Update to latest PCP Sources.
 
 * Fri Mar 31 2017 Nathan Scott <nathans@redhat.com> - 3.11.9-1
 - Fix pmchart chart legends toggling behaviour (BZ 1359961)

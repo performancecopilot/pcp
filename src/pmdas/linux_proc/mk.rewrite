@@ -27,10 +27,22 @@ eval `${CPP-cpp} -I${INCDIR-.} $tmp.c \
 cat <<End-of-File >proc_kernel_ulong.conf
 # These metrics are all exported from the proc PMDA
 # using the KERNEL_ULONG type which might be PM_TYPE_U32
-# or could be PM_TYPE_U64.
+# or could be PM_TYPE_U64. 
 
 metric proc.psinfo.wchan { type -> $KERNEL_ULONG }
 metric proc.schedstat.pcount { type -> $KERNEL_ULONG }
+End-of-File
+
+cat <<End-of-File >proc_kernel_ulong_migrate.conf
+# These metrics are exported by the kernel as unsigned long long on
+# both 32bit and 64bit systems. So they all migrate from U32 to U64.
+# See kernel function seq_put_decimal_ull() in fs/seq_file.c and it's
+# use in fs/proc/array.c. There are others too, but these are the
+# most important, especially proc.psinfo.vsize.
+
+metric proc.psinfo.vsize { type -> U64 }
+metric proc.psinfo.rss { type -> U64 }
+metric proc.psinfo.rss_lim { type -> U64 }
 End-of-File
 
 cat <<End-of-File >proc_jiffies.conf

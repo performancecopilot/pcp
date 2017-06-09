@@ -87,6 +87,7 @@ _pcp () {
       "$common_help[@]" \
       "(-A --align $exargs)"{-A+,--align}'[set initial sample time alignment]:timespec:' \
       "(-h --host -H --hostsfile -L --local-PMDA -K --spec-local $exargs)"\*{-a+,--archive}'[specify metrics source archive]:archive:->archives' \
+      "(-H --labelhost $exargs)"{-H+,--labelhost}'[specify hostname label]:label:' \
       "(-a --archive -L --local-PMDA -K --spec-local $exargs)"\*{-h+,--host}'[specify metrics source host]:host:_hosts' \
       "(-a --archive -L --local-PMDA -K --spec-local $exargs)"\*{-H+,--hostsfile}'[specify metrics source hosts file]:file:_files' \
       "(-n --namespace $exargs)"{-n+,--namespace}'[specify alternative PMNS]:pmnsfile:_files' \
@@ -324,6 +325,7 @@ _pcp () {
       "(-S --start $exargs)"{-S+,--start}'[set start of time window]:timespec:' \
       "(-T --finish $exargs)"{-T+,--finish}'[set end of time window]:timespec:' \
       "(-v --verbose $exargs)"{-v,--verbose}'[verbose output]' \
+      "(-w --nowrap $exargs)"{-w,--nowrap}'[suppress counter wrap warnings]' \
       "(-Z --timezone -z --hostzone $exargs)"{-Z+,--timezone}'[set reporting timezone]:timezone:_time_zone' \
       "(-z --hostzone -Z --timezone $exargs)"{-z,--hostzone}'[use metrics source timezone]' \
       '1:archive:->archives' \

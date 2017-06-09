@@ -552,7 +552,7 @@ typedef enum {
     PCP_ATTR_LOCAL	= 13,	/* AF_UNIX socket with localhost fallback */
     PCP_ATTR_PROCESSID	= 14,	/* pid - process identifier (posix) */
     PCP_ATTR_CONTAINER	= 15,	/* container name (linux) */
-    PCP_ATTR_EXCLUSIVE	= 16,	/* exclusive socket tied to this context */
+    PCP_ATTR_EXCLUSIVE	= 16,	/* DEPRECATED exclusive socket tied to this context */
 } __pmAttrKey;
 
 PCP_CALL extern __pmAttrKey __pmLookupAttrKey(const char *, size_t);
@@ -570,8 +570,6 @@ PCP_CALL extern void __pmFreeAttrsSpec(__pmHashCtl *);
  * Control for connection to a PMCD
  */
 typedef struct {
-    __pmMutex		pc_lock;	/* mutex pmcd ipc */
-    int			pc_refcnt;	/* number of contexts using this socket */
     int			pc_fd;		/* socket for comm with pmcd */
 					/* ... -1 means no connection */
     pmHostSpec		*pc_hosts;	/* pmcd and proxy host specifications */
@@ -762,6 +760,7 @@ typedef struct {
     int			c_flags;	/* ctx flags (set via type/env/attrs) */
     __pmHashCtl		c_attrs;	/* various optional context attributes */
     int			c_handle;	/* context number above PMAPI */
+    int			c_slot;		/* index to contexts[] below PMAPI */
 } __pmContext;
 
 #define __PM_MODE_MASK	0xffff

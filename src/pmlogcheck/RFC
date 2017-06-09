@@ -12,9 +12,9 @@ But things changed and archives could be created in more ways ...
 - pmlogreduce, same as pmlogmerge
 
 With the introduction of libpcp_import and bindings for Perl and
-Python, we now have the possibility of and infinite number of scripts
+Python, we now have the possibility of an infinite number of scripts
 creating archives using low-level calls that can be combined to
-produce and infinite variety of corrupted archives.  The first example
+produce an infinite variety of corrupted archives.  The first example
 of this class is https://bugzilla.redhat.com/show_bug.cgi?id=958745
 but we should expect more of these to be lurking in the future.
 
@@ -26,10 +26,10 @@ a corrupted archive, not an application or libpcp failure.
 Some corruption we can (and do) catch in libpcp.  We could probably
 do more there, but the most common usage with "interp" mode replay
 makes it almost impossible to check timestamps on the fly, so the
-but above would be most unlikely to be found there.
+bug above would be most unlikely to be found there.
 
-So, in the spirit of the original Unix filesystem, I'm proposing
-an ncheck/icheck (none of you're whimpy fsck in those days) tool,
+So, in the spirit of the original Unix filesystem, we've created
+an ncheck/icheck (none of your whimpy fsck in those days!) tool,
 pmlogcheck.
 
 The objective would be to have one anally retentive tool that can

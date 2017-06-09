@@ -133,41 +133,28 @@ DoText(ClientInfo *cp, __pmPDU* pb)
 int
 DoProfile(ClientInfo *cp, __pmPDU *pb)
 {
+    __pmHashCtl	*hcp;
     __pmProfile	*newProf;
     int		ctxnum, sts, i;
 
     sts = __pmDecodeProfile(pb, &ctxnum, &newProf);
     if (sts >= 0) {
-	/* Allocate more profile pointers if required */
-	if (ctxnum >= cp->szProfile) {
-	    __pmProfile	**newProfPtrs;
-	    int		need, oldSize = cp->szProfile;
-
-	    if (ctxnum - cp->szProfile < 4)
-		cp->szProfile += 4;
-	    else
-		cp->szProfile = ctxnum + 1;
-	    need = cp->szProfile * (int)sizeof(__pmProfile *);
-	    if ((newProfPtrs = (__pmProfile **)malloc(need)) == NULL) {
-		cp->szProfile = oldSize;
-		__pmNoMem("DoProfile.newProfPtrs", need, PM_RECOV_ERR);
-		__pmFreeProfile(newProf);
-		return -oserror();
-	    }
-
-	    /* Copy any old pointers and zero the newly allocated ones */
-	    if ((need = oldSize * (int)sizeof(__pmProfile *))) {
-		memcpy(newProfPtrs, cp->profile, need);
-		free(cp->profile);	/* But not the __pmProfile ptrs! */
-	    }
-	    need = (cp->szProfile - oldSize) * (int)sizeof(__pmProfile *);
-	    memset(&newProfPtrs[oldSize], 0, need);
-	    cp->profile = newProfPtrs;
+	__pmHashNode	*hp;
+	hcp = &cp->profile;
+	if ((hp = __pmHashSearch(ctxnum, hcp)) != NULL) {
+	    /* seen this context slot before for this client */
+	    __pmProfile	*profile = (__pmProfile *)hp->data;
+	    if (profile != NULL)
+		__pmFreeProfile(profile);
+	    hp->data = (void *)newProf;
 	}
-	else				/* cp->profile is big enough */
-	    if (cp->profile[ctxnum] != NULL)
-		__pmFreeProfile(cp->profile[ctxnum]);
-	cp->profile[ctxnum] = newProf;
+	else {
+	    /* first time for this context slot for this client */
+	    if ((sts = __pmHashAdd(ctxnum, newProf, hcp)) > 0) {
+		/* __pmHashAdd returns 1 for success, but we want zero. */
+		sts = 0;
+	    }
+	}
 
 	/* "Invalidate" any references to the client context's profile in the
 	 * agents to which the old profile was last sent

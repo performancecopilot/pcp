@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2013 Red Hat.
+ * Copyright (c) 2012-2017 Red Hat.
  * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -18,8 +18,6 @@
 #include "fault.h"
 #include "internal.h"
 
-#define LIMIT_CTXNUM	2048
-
 /*
  * PDU used to transmit __pmProfile prior to pmFetch (PDU_PROFILE)
  */
@@ -32,14 +30,14 @@ typedef struct {
 
 typedef struct {
     __pmPDUHdr	hdr;
-    int		ctxnum;
+    int		ctxid;		/* context slot index from the client */
     int		g_state;	/* global include/exclude */
     int		numprof;	/* no. of elts to follow */
     int		pad;		/* protocol backward compatibility */
 } profile_t;
 
 int
-__pmSendProfile(int fd, int from, int ctxnum, __pmProfile *instprof)
+__pmSendProfile(int fd, int from, int ctxid, __pmProfile *instprof)
 {
     __pmInDomProfile	*prof, *p_end;
     profile_t		*pduProfile;
@@ -70,7 +68,7 @@ __pmSendProfile(int fd, int from, int ctxnum, __pmProfile *instprof)
      * backwards compatibility issues
      */
     pduProfile->hdr.from = from;
-    pduProfile->ctxnum = htonl(ctxnum);
+    pduProfile->ctxid = htonl(ctxid);
     pduProfile->g_state = htonl(instprof->state);
     pduProfile->numprof = htonl(instprof->profile_len);
     pduProfile->pad = 0;
@@ -107,7 +105,7 @@ __pmSendProfile(int fd, int from, int ctxnum, __pmProfile *instprof)
 }
 
 int
-__pmDecodeProfile(__pmPDU *pdubuf, int *ctxnump, __pmProfile **resultp)
+__pmDecodeProfile(__pmPDU *pdubuf, int *ctxidp, __pmProfile **resultp)
 {
     __pmProfile		*instprof;
     __pmInDomProfile	*prof, *p_end;
@@ -115,7 +113,7 @@ __pmDecodeProfile(__pmPDU *pdubuf, int *ctxnump, __pmProfile **resultp)
     instprof_t		*pduInstProf;
     __pmPDU		*p = (__pmPDU *)pdubuf;
     char		*pdu_end;
-    int			ctxnum;
+    int			ctxid;
     int			sts = 0;
 
     /* First the profile */
@@ -124,8 +122,8 @@ __pmDecodeProfile(__pmPDU *pdubuf, int *ctxnump, __pmProfile **resultp)
     if (pdu_end - (char*)pdubuf < sizeof(profile_t))
 	return PM_ERR_IPC;
 
-    ctxnum = ntohl(pduProfile->ctxnum);
-    if (ctxnum < 0 || ctxnum > LIMIT_CTXNUM)
+    ctxid = ntohl(pduProfile->ctxid);
+    if (ctxid < 0)
 	return PM_ERR_IPC;
 PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_ALLOC);
     if ((instprof = (__pmProfile *)malloc(sizeof(__pmProfile))) == NULL)
@@ -213,7 +211,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":3", PM_FAULT_ALLOC);
     }
 
     *resultp = instprof;
-    *ctxnump = ctxnum;
+    *ctxidp = ctxid;
     return 0;
 
 fail:

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2015 Red Hat.
+ * Copyright (c) 2012-2017 Red Hat.
  * Copyright (c) 1995 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -23,12 +23,11 @@ typedef struct {
 	unsigned int	changes : 3;	/* PMCD_* bits for changes since last fetch */
 	unsigned int	attributes: 1;	/* Connection attributes have changed */
     } status;
-    /* There is an array of profiles, as there is a profile associated
-     * with each client context.  The array is not guaranteed to be dense.
-     * The context number sent with each profile/fetch is used to index it.
+    /* There is a profile associated with each client context.
+     * The context slot number (not the context number) sent with each
+     * profile/fetch is used as the key to the profile hash table.
      */
-    __pmProfile		**profile;	/* Client context profile pointers */
-    int			szProfile;	/* Size of array */
+    __pmHashCtl		profile;	/* Client context profile pointers */
     unsigned int	denyOps;	/* Disallowed operations for client */
     __pmPDUInfo		pduInfo;
     unsigned int	seq;		/* Client sequence number (pmdapmcd) */
