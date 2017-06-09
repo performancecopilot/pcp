@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015 Red Hat.
+# Copyright (c) 2015-2017 Red Hat.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -21,8 +21,8 @@ CMDTARGET	= pmdadm
 LLDLIBS		= $(PCP_PMDALIB)
 
 ifeq "$(HAVE_DEVMAPPER)" "true"
-CFILES		+= dmstats.c
-HFILES		+= dmstats.h
+CFILES		+= dm.c
+HFILES		+= dm.h
 LLDLIBS		+= $(LIB_FOR_DEVMAPPER)
 LCFLAGS		+= -DHAVE_DEVMAPPER=1
 endif
@@ -49,7 +49,7 @@ build-me: $(CMDTARGET) $(LIBTARGET)
 install: default
 	$(INSTALL) -m 755 -d $(PMDADIR)
 	$(INSTALL) -m 644 root domain.h help $(PMDADIR)
-	$(INSTALL) -m 644 pmns.dmcache pmns.dmthin pmns.dmstats $(PMDADIR)
+	$(INSTALL) -m 644 pmns.dmcache pmns.dmthin pmns.dm $(PMDADIR)
 	$(INSTALL) -m 755 Install Remove $(CMDTARGET) $(PMDADIR)
 	$(INSTALL) -m 644 dmthin.data_high_util.pmie $(PMIEDIR)/data_high_util
 	$(INSTALL) -m 644 dmthin.metadata_high_util.pmie $(PMIEDIR)/metadata_high_util
@@ -72,5 +72,5 @@ pmda.o dmcache.o dmthin.o: indom.h
 pmda.o dmcache.o: dmcache.h
 pmda.o dmthin.o: dmthin.h
 ifeq "$(HAVE_DEVMAPPER)" "true"
-pmda.o dmstats.o: dmstats.h
+pmda.o dm.o: dm.h
 endif
