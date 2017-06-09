@@ -229,13 +229,19 @@ Obsoletes: pcp-gui-debuginfo
 
 %if %{disable_infiniband}
 %global _with_ib --with-infiniband=no
+%else
+%global _with_ib --with-infiniband=yes
 %endif
 
-%if !%{disable_papi}
+%if %{disable_papi}
+%global _with_papi --with-papi=no
+%else
 %global _with_papi --with-papi=yes
 %endif
 
-%if !%{disable_perfevent}
+%if %{disable_perfevent}
+%global _with_perfevent --with-perfevent=no
+%else
 %global _with_perfevent --with-perfevent=yes
 %endif
 
