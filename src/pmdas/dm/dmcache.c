@@ -222,7 +222,7 @@ dm_cache_instance_refresh(void)
 void
 dm_cache_setup(void)
 {
-    static char dmcache_command[] = "dmsetup status --target cache";
+    static char dmcache_command[] = "dmsetup status --target dmcache";
     char *env_command;
 
     /* allow override at startup for QA testing */
