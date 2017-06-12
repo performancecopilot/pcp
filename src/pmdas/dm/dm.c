@@ -1,18 +1,18 @@
 #include "pmapi.h"
 #include "impl.h"
 #include "pmda.h"
-
 #include "indom.h"
 #include "dm.h"
 
-#include <inttypes.h>
+#ifdef HAVE_DMSTATS
 
+#include <inttypes.h>
 #include <libdevmapper.h>
 
 int
 dm_stats_fetch(int item, struct dm_stats_counter *dmsc, pmAtomValue *atom)
 {
-	if (item < 0 || item >= NUM_DM_STATS_COUNTER)
+	if (item < 0 || item >= DM_STATS_NR_COUNTERS)
 		return  PM_ERR_PMID;
 
 	switch(item) {
@@ -190,3 +190,4 @@ void
 dm_stats_setup(void)
 {
 }
+#endif 
