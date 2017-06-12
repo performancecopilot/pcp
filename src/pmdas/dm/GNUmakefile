@@ -55,7 +55,7 @@ build-me: $(CMDTARGET) $(LIBTARGET)
 install: default
 	$(INSTALL) -m 755 -d $(PMDADIR)
 	$(INSTALL) -m 644 root domain.h help $(PMDADIR)
-	$(INSTALL) -m 644 pmns.dmcache pmns.dmthin pmns.dm $(PMDADIR)
+	$(INSTALL) -m 644 pmns.dmcache pmns.dmthin pmns.dmstats $(PMDADIR)
 	$(INSTALL) -m 755 Install Remove $(CMDTARGET) $(PMDADIR)
 	$(INSTALL) -m 644 dmthin.data_high_util.pmie $(PMIEDIR)/data_high_util
 	$(INSTALL) -m 644 dmthin.metadata_high_util.pmie $(PMIEDIR)/metadata_high_util

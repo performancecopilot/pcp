@@ -16,4 +16,4 @@ root {
 
 #include "pmns.dmcache"
 #include "pmns.dmthin"
-#include "pmns.dm"
+#include "pmns.dmstats"
