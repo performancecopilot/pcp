@@ -87,17 +87,12 @@ iter 4: ctx 1: pmLookupName metric: slow.seventeen
 iter 5: ctx 2: pmGetInDom metric: 2.0.18 (aka pmcd.buf.alloc)
 iter 6: ctx 0: pmNameID metric: 29.0.50 (aka sample.part_bin)
 iter 7: ctx 1: pmFetch metric: 243.0.0 (aka slow.seventeen)
-[DATE] multictx(PID) Error: __pmCloseChannelbyContext: fd=3 context=1 expected PDU_RESULT received: Timeout waiting for a response from PMCD
 Error: Timeout waiting for a response from PMCD
 iter 8: ctx 2: pmNameInDom metric: 2.0.18 (aka pmcd.buf.alloc)
-Error: IPC protocol failure
 iter 9: ctx 0: pmGetInDom metric: 29.0.50 (aka sample.part_bin)
-Error: IPC protocol failure
 iter 10: pmReconnectContext(1) -> 1 OK
 iter 10: ctx 1: pmGetChildrenStatus metric: slow
-iter 11: pmReconnectContext(2) -> 2 OK
 iter 11: ctx 2: pmLookupInDom metric: 2.0.18 (aka pmcd.buf.alloc)
-iter 12: pmReconnectContext(0) -> 0 OK
 iter 12: ctx 0: pmNameInDom metric: 29.0.50 (aka sample.part_bin)
 iter 13: ctx 1: pmTraversePMNS metric: slow
 iter 14: ctx 2: pmLookupText metric: 2.0.18 (aka pmcd.buf.alloc)
@@ -127,17 +122,12 @@ iter 34: ctx 1: pmLookupName metric: slow.seventeen
 iter 35: ctx 2: pmGetInDom metric: 2.0.18 (aka pmcd.buf.alloc)
 iter 36: ctx 0: pmNameID metric: 29.0.50 (aka sample.part_bin)
 iter 37: ctx 1: pmFetch metric: 243.0.0 (aka slow.seventeen)
-[DATE] multictx(PID) Error: __pmCloseChannelbyContext: fd=3 context=1 expected PDU_RESULT received: Timeout waiting for a response from PMCD
 Error: Timeout waiting for a response from PMCD
 iter 38: ctx 2: pmNameInDom metric: 2.0.18 (aka pmcd.buf.alloc)
-Error: IPC protocol failure
 iter 39: ctx 0: pmGetInDom metric: 29.0.50 (aka sample.part_bin)
-Error: IPC protocol failure
 iter 40: pmReconnectContext(1) -> 1 OK
 iter 40: ctx 1: pmGetChildrenStatus metric: slow
-iter 41: pmReconnectContext(2) -> 2 OK
 iter 41: ctx 2: pmLookupInDom metric: 2.0.18 (aka pmcd.buf.alloc)
-iter 42: pmReconnectContext(0) -> 0 OK
 iter 42: ctx 0: pmNameInDom metric: 29.0.50 (aka sample.part_bin)
 iter 43: ctx 1: pmTraversePMNS metric: slow
 iter 44: ctx 2: pmLookupText metric: 2.0.18 (aka pmcd.buf.alloc)

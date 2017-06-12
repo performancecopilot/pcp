@@ -157,7 +157,7 @@ __pmInitLocks(void)
 	    exit(4);
 	}
 	memset((void *)tpd, 0, sizeof(*tpd));
-	tpd->curcontext = PM_CONTEXT_UNDEF;
+	tpd->curr_handle = PM_CONTEXT_UNDEF;
     }
 #endif
 }
@@ -240,9 +240,7 @@ again:
 	fprintf(stderr, "(ctx %d)", ctx);
     }
     else if (report == DBG_TRACE_APPL2) {
-	if ((ctx = __pmIsChannelLock(lock)) >= 0)
-	    fprintf(stderr, "(ctx %d ipc channel)", ctx);
-	else if (__pmIsDeriveLock(lock))
+	if (__pmIsDeriveLock(lock))
 	    fprintf(stderr, "(derived_metric)");
 	else if (__pmIsAuxconnectLock(lock))
 	    fprintf(stderr, "(auxconnect)");

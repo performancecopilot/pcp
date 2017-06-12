@@ -103,6 +103,15 @@ unique host-id string is computed for each potential target pmcd from
 specified metric values.  This host-id is also used as a subdirectory
 name for locating daemon data.
 .TP
+.I hostid\-static
+This file contains a single line specifying the static string that should be
+used for the host-id value.  Specifying a value in this file overrides the
+.I hostid\-metrics
+file specified below.  It should be noted that using this option will cause
+all target pmcds to be assigned the same hostid.  Thus, this is useful in
+monitoring single hosts, or if each monitored host has its own configuration
+directory.
+.TP
 .I hostid\-metrics
 This file contains one or more lines of metric specifications in the format
 accepted by
@@ -241,6 +250,13 @@ already adds \-h, \-f, \-r, \-l, and perhaps \-c.)
 The default is to maintain
 .BR "no pmlogger"
 (and no other configuration in this section is processed).
+.TP
+.I pmlogger\-timefmt
+Specify a time format to use in the archive\-* name for
+.B pmlogger
+generated archives. The default is "%Y%m%d.%H%M%S". Expected to be in 
+.BR strftime (3)
+format.
 .TP
 .I pmlogconf
 If and only if this file exists,

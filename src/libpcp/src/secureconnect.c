@@ -1107,15 +1107,11 @@ __pmAuthClientNegotiation(int fd, int ssf, const char *hostname, __pmHashCtl *at
 				    saslsts, pmErrStr(sts));
 	    }
 	}
-    } else if (sts == PDU_ERROR) {
-	__pmDecodeError(pb, &sts);
-    } else {
-	/* PDU type 0 is also expected here */
-	if (sts != 0)
-	    __pmCloseChannelbyFd(fd, PDU_AUTH, sts);
-	if (sts != PM_ERR_TIMEOUT)
-	    sts = PM_ERR_IPC;
     }
+    else if (sts == PDU_ERROR)
+	__pmDecodeError(pb, &sts);
+    else if (sts != PM_ERR_TIMEOUT)
+	sts = PM_ERR_IPC;
 
     if (pinned > 0)
 	__pmUnpinPDUBuf(pb);
@@ -1169,15 +1165,11 @@ __pmAuthClientNegotiation(int fd, int ssf, const char *hostname, __pmHashCtl *at
 				    " step recv (%d bytes)", __FILE__, length);
 		}
 	    }
-	} else if (sts == PDU_ERROR) {
-	    __pmDecodeError(pb, &sts);
-	} else {
-	    /* PDU type 0 is also expected here */
-	    if (sts != 0)
-		__pmCloseChannelbyFd(fd, PDU_AUTH, sts);
-	    if (sts != PM_ERR_TIMEOUT)
-		sts = PM_ERR_IPC;
 	}
+	else if (sts == PDU_ERROR)
+	    __pmDecodeError(pb, &sts);
+	else if (sts != PM_ERR_TIMEOUT)
+	    sts = PM_ERR_IPC;
 
 	if (pinned > 0)
 	    __pmUnpinPDUBuf(pb);
@@ -1217,7 +1209,6 @@ __pmSecureClientHandshake(int fd, int flags, const char *hostname, __pmHashCtl *
 
 	pinpdu = sts = __pmGetPDU(fd, ANY_SIZE, TIMEOUT_DEFAULT, &rpdu);
 	if (sts != PDU_ERROR) {
-	    __pmCloseChannelbyFd(fd, PDU_ERROR, sts);
 	    if (pinpdu > 0)
 		__pmUnpinPDUBuf(&rpdu);
 	    return PM_ERR_IPC;
@@ -1422,7 +1413,6 @@ __pmSetSockOpt(int fd, int level, int option_name, const void *option_value,
 		 */
 #ifdef IS_MINGW
 	    case SO_EXCLUSIVEADDRUSE: /* Only exists on MINGW */
-#endif
 	    {
 		/*
 		 * There is no direct mapping of this option in NSPR.
@@ -1432,6 +1422,7 @@ __pmSetSockOpt(int fd, int level, int option_name, const void *option_value,
 	        fd = PR_FileDesc2NativeHandle(socket.nsprFd);
 		return setsockopt(fd, level, option_name, option_value, option_len);
 	    }
+#endif /* IS_MINGW */
 	    case SO_KEEPALIVE:
 	        option_data.option = PR_SockOpt_Keepalive;
 		option_data.value.keep_alive = sockOptValue(option_value, option_len);

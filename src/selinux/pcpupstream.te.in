@@ -29,6 +29,7 @@ require {
 	@PCP_SYSTEMCTL_EXEC_T@
 	type debugfs_t; # pmdalibvirt
 	type unconfined_t; #RHBZ1443632
+	type devlog_t; #RHBZ1449671
 	class lnk_file { read getattr };
 	class file { append create execute execute_no_trans getattr ioctl lock open read write };
 	class dir { add_name open read search write getattr };
@@ -38,6 +39,7 @@ require {
 	class chr_file { open write };
 	class fifo_file { getattr read open }; # qa/455
 	class process signal; #RHBZ1443632
+	class sock_file write; #RHBZ1449671
 	@PCP_CLASS_STATUS@
 }
 
@@ -100,6 +102,9 @@ allow pcp_pmcd_t pcp_log_t:fifo_file { getattr read open }; # qa/455
 allow pcp_pmlogger_t kmsg_device_t:chr_file { open write };
 allow pcp_pmlogger_t self:capability kill;
 @PCP_PMLOGGER_SYSTEM_STATUS_RULE@
+
+#type=AVC msg=audit(1494326424.876:88): avc:  denied  { write } for  pid=18266 comm="logger" name="log" dev="devtmpfs" ino=1413 scontext=system_u:system_r:pcp_pmlogger_t:s0 tcontext=system_u:object_r:devlog_t:s0 tclass=sock_file
+allow pcp_pmlogger_t devlog_t:sock_file write;
 
 # type=AVC msg=audit(1484681301.380:174695): avc:  denied  { sys_ptrace } for  pid=21962 comm="ps" capability=19  scontext=system_u:system_r:pcp_pmlogger_t:s0 tcontext=system_u:system_r:pcp_pmlogger_t:s0 tclass=capability
 # src/pmlogger/pmnewlog.sh

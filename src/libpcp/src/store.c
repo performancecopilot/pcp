@@ -43,14 +43,6 @@ pmStore(const pmResult *result)
 	if (ctxp == NULL)
 	    return PM_ERR_NOCONTEXT;
 	if (ctxp->c_type == PM_CONTEXT_HOST) {
-	    /*
-	     * TODO - should really be pc_lock here, but __pmSendResult
-	     * may do other PDU exchange before the store (from __pmDumpResult)
-	     * and __pmSendResult called from other places for IPC to pmlogger
-	     * not pmcd!
-	     */
-	    PM_INIT_LOCKS();
-	    PM_LOCK(__pmLock_libpcp);
 	    sts = __pmSendResult(ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp), result);
 	    if (sts < 0)
 		sts = __pmMapErrno(sts);
@@ -63,15 +55,12 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_TIMEOUT);
 					  ctxp->c_pmcd->pc_tout_sec, &pb);
 		if (sts == PDU_ERROR)
 		    __pmDecodeError(pb, &sts);
-		else {
-		    __pmCloseChannelbyContext(ctxp, PDU_ERROR, sts);
-		    if (sts != PM_ERR_TIMEOUT)
-			sts = PM_ERR_IPC;
-		}
+		else if (sts != PM_ERR_TIMEOUT)
+		    sts = PM_ERR_IPC;
+
 		if (pinpdu > 0)
 		    __pmUnpinPDUBuf(pb);
 	    }
-	    PM_UNLOCK(__pmLock_libpcp);
 	}
 	else if (ctxp->c_type == PM_CONTEXT_LOCAL) {
 	    /*

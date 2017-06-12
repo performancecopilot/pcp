@@ -44,9 +44,10 @@ SEMANTICS = { COUNTER: c_api.PM_SEM_COUNTER, INSTANT: c_api.PM_SEM_INSTANT }
 class ScanPrometheus(object):
 	''' Scans Prometheus Endpoint to Generate Metadata for the given endpoint'''
 
-	def __init__(self, name, endpoint):
+	def __init__(self, name, endpoint=None, filepath=None):
 		self.name = name
 		self.endpoint = endpoint
+		self.filepath = filepath
 		self.raw_metrics = None
 		self.metrics_by_name = {}
 		self.fetch_raw_metrics()
@@ -78,7 +79,11 @@ class ScanPrometheus(object):
 
 	def save_metadata(self):
 		# Saves the metadata of the Prometheus endpoint in PCP_PMDAS_DIR
-		config = { "name": self.name, "endpoint": self.endpoint, "metrics": [] }
+		config = { "name": self.name, "metrics": [] }
+		if self.filepath:
+			config["filepath"] = os.path.abspath(self.filepath)
+		else:
+			config["endpoint"] = self.endpoint
 		for k in self.metrics_by_name:
 			config["metrics"].append(self.metrics_by_name[k].export())
 		raw_config = json.dumps(config, indent=2)
@@ -96,12 +101,18 @@ class ScanPrometheus(object):
 
 	def fetch_raw_metrics(self):
 		# Fetches Prometheus metrics from the endpoint
-		try:
-			req = requests.get(self.endpoint)
-			self.raw_metrics = req.text
-		except ValueError as e:
-			raise ValueError("Unable to connect to the Prometheus "
-								"endpoint = %s\n%s" % (self.endpoint, str(e)))
+		if self.filepath:
+			try:
+				self.raw_metrics = open(self.filepath,'r').read()
+			except IOError as e:
+				raise ValueError('Invalid filepath=%s\n%s'%(self.filepath,str(e)))
+		else:
+			try:
+				req = requests.get(self.endpoint)
+				self.raw_metrics = req.text
+			except ValueError as e:
+				raise ValueError("Unable to connect to the Prometheus "
+									"endpoint = %s\n%s" % (self.endpoint, str(e)))
 
 	def get_metric_metadata(self, lines):
 		# Returns the metric metadata name, descriptions and type
@@ -292,7 +303,7 @@ class Metric(object):
 			except Exception as e:
 				self.log("Invalid instance given for metric on fetch: %s" \
 					% self.name)
-				return [c_api.PM_ERR_NODATA, 0]
+				return [c_api.PM_ERR_INST, 0]
 		else:
 			if inst != c_api.PM_INDOM_NULL:
 				self.log("Invalid instance given for single metric type on "
@@ -301,7 +312,7 @@ class Metric(object):
 			elif self.prometheus_name not in values:
 				self.log("Value not available on fetch for metric %s" \
 					% self.name)
-				return [c_api.PM_ERR_NODATA, 0]
+				return [c_api.PM_ERR_INST, 0]
 			return [values[self.prometheus_name], 1]
 
 class IndomCache(pmdaIndom):
@@ -449,6 +460,8 @@ class PrometheusSource(object):
 		self.numfetch = 0
 		self.metrics_cache = None
 		self.metadata = None
+		self.endpoint = None
+		self.filepath = None
 		self.load_metrics_metadata()
 		self.prepare_passed = self.prepare_metrics_metadata()
 
@@ -506,13 +519,13 @@ class PrometheusSource(object):
 		self.name = metadata.get("name")
 		if not self.name:
 			self.log("Invalid name of Prometheus metadata from %s"
-					% self.path)
+					% self.name)
+			return False
+		if not ( metadata.get("endpoint") or metadata.get("filepath") ):
+			self.log("Invalid endpoint/filepath with null value")
 			return False
 		self.endpoint = metadata.get("endpoint")
-		if not self.name:
-			self.log("Invalid endpoint of Prometheus metadata from %s"
-					% self.path)
-			return False
+		self.filepath = metadata.get("filepath")
 		return True
 
 	def parse_metrics_metadata(self):
@@ -611,10 +624,15 @@ class PrometheusSource(object):
 	def refresh_metrics(self):
 		''' Refreshes the metric values of this cluster'''
 		try:
-			req = requests.get(self.endpoint)
-			self.parse_metrics_values(req.text)
-			self.fetch_failed = False
-		except ValueError as e:
+			if self.endpoint:
+				req = requests.get(self.endpoint)
+				self.parse_metrics_values(req.text)
+				self.fetch_failed = False
+			else:
+				data = open(self.filepath,'r').read()
+				self.parse_metrics_values(data)
+				self.fetch_failed = False
+		except:
 			self.fetch_failed = True
 
 	def fetch(self, item, inst):
@@ -626,7 +644,7 @@ class PrometheusSource(object):
 
 		# Fetch fails when the metrics value could be refreshed
 		if self.fetch_failed:
-			return [c_api.PM_ERR_NODATA, 0]
+			return [c_api.PM_ERR_INST, 0]
 
 		if item not in self.metrics_by_id:
 			return [c_api.PM_ERR_PMID, 0]
@@ -643,7 +661,8 @@ class PrometheusPMDA(PMDA):
 		self.numfetch = 0
 
 		pmdaDir = "%s/%s/metadata/" % (pmContext.pmGetConfig('PCP_PMDAS_DIR'), pmda_name)
-		self.dirs = [".", pmdaDir]
+		self.dir = pmdaDir
+		self.dir_mtime = os.stat(self.dir).st_mtime
 		self.source_by_cluster = {}
 		self.source_by_name = {}
 
@@ -681,46 +700,53 @@ class PrometheusPMDA(PMDA):
 	def load_prometheus_sources(self):
 		''' Initializes the PrometheusSource for all the Prometheus sources '''
 		new_source_seen = False
-		for dir in self.dirs:
-			for root, dirs, files in os.walk(dir):
-				for file in files:
-					path = os.path.join(root, file)
-					source = PrometheusSource(path, self)
-					if not source.name:
-						continue
-					try:
-						# If we already have a cluster with this name
-						cluster_idx \
-							= self.cluster_cache.lookup_name(source.name)
-						if self.debug:
-							self.log("Found %s in cluster cache: %d" %
-									 (source.name, cluster_idx))
-					except KeyError:
-						# Assign cluster to a new source
-						try:
-							cluster_idx = self.cluster_cache.next_value()
-							if self.debug:
-								self.log("allocating new cluster idx"
-										 " %d for source %s" %
-										 (cluster_idx, source.name))
-						except ValueError:
-							self.log("Skipping source '%s' -"
-									 " max cluster reached" % root)
-							continue
-
+		for root, dirs, files in os.walk(self.dir):
+			for file in files:
+				path = os.path.join(root, file)
+				source = PrometheusSource(path, self)
+				if not source.name:
+					continue
+				try:
+					# If we already have a cluster with this name
+					cluster_idx \
+						= self.cluster_cache.lookup_name(source.name)
 					if self.debug:
-						self.log("Adding source '%s', cluster_idx %d"
-								 % (source.name, cluster_idx))
-					self.cluster_cache.add_value(source.name, cluster_idx)
-					source.cluster = cluster_idx
-					self.source_by_cluster[cluster_idx] = source
-					self.source_by_name[source.name] = source
-					new_source_seen = True
+						self.log("Found %s in cluster cache: %d" %
+								 (source.name, cluster_idx))
+				except KeyError:
+					# Assign cluster to a new source
+					try:
+						cluster_idx = self.cluster_cache.next_value()
+						if self.debug:
+							self.log("allocating new cluster idx"
+									 " %d for source %s" %
+									 (cluster_idx, source.name))
+					except ValueError:
+						self.log("Skipping source '%s' -"
+								 " max cluster reached" % root)
+						continue
+
+				if self.debug:
+					self.log("Adding source '%s', cluster_idx %d"
+							 % (source.name, cluster_idx))
+				self.cluster_cache.add_value(source.name, cluster_idx)
+				source.cluster = cluster_idx
+				self.source_by_cluster[cluster_idx] = source
+				self.source_by_name[source.name] = source
+				new_source_seen = True
 		if new_source_seen:
 			self.cluster_cache.refresh()
 
 	def prometheus_fetch(self):
 		''' Called once before calling prometheus_fetch_callback '''
+
+		# Lookup the metadata directory for any new source
+		if self.dir_mtime < os.stat(self.dir).st_mtime:
+			self.dir_mtime = os.stat(self.dir).st_mtime
+			self.reset_metrics()
+			self.add_static_metrics()
+			self.load_prometheus_sources()
+			self.pmns_refresh()
 		# Count the number of times fetch called
 		self.numfetch += 1
 
@@ -746,14 +772,15 @@ if __name__ == '__main__':
 	parser = argparse.ArgumentParser(description='Prometheus PMDA heuristics metrics metadata generator.')
 	parser.add_argument('-g', '--generate', help="Generate heuristics metadata", action="store_true")
 	parser.add_argument('-u','--url', help='Prometheus endpoint whose metadata has to be generated')
+	parser.add_argument('-f','--filepath', help='Prometheus file based endpoint whose metadata has to be generated')
 	parser.add_argument('-n','--name', help="Name to be used as the Prometheus cluster name")
 	args = parser.parse_args()
 
 	# If generate then scan the metrics and produce the metadata JSON
 	if args.generate:
-		if not args.url or not args.name:
-			parser.error("Name and URL of the endpoint required")
+		if not ( args.url or args.filepath ) or not args.name:
+			parser.error("Name and url or filepath of the endpoint required")
 			os.exit(1)
-		ScanPrometheus(args.name, args.url)
+		ScanPrometheus(args.name, args.url, args.filepath)
 	else:
 		PrometheusPMDA('prometheus', 144).run()

@@ -95,6 +95,7 @@ enum {
 	CLUSTER_ZONEINFO_PROTECTION,	/* 70 /proc/zoneinfo protection item */
 	CLUSTER_TAPEDEV,	/* 71 /sys/class/scsi_tape */
 	CLUSTER_RANDOM,		/* 72 /proc/sys/kernel/random entropy state */
+	CLUSTER_NET_SOCKSTAT6,	/* 73 /proc/net/sockstat6 */
 
 	NUM_CLUSTERS		/* one more than highest numbered cluster */
 };

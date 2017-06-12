@@ -12,6 +12,7 @@ force	available
 	proc.psinfo.priority
 	proc.psinfo.nice
 	proc.psinfo.start_time
+	proc.psinfo.guest_time
 	proc.psinfo.vsize
 	proc.psinfo.rss
 	proc.psinfo.processor

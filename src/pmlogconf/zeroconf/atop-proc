@@ -12,6 +12,7 @@ delta   10 seconds
 	proc.psinfo.stime
 	proc.psinfo.priority
 	proc.psinfo.nice
+	proc.psinfo.guest_time
 	proc.psinfo.start_time
 	proc.psinfo.vsize
 	proc.psinfo.rss

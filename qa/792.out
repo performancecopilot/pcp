@@ -10,14 +10,14 @@ __pmConnectPMCD(/var/run/pcp/pmcd.socket): ...
 IPC table fd(PDU version): 3(2,1)
 pmNewContext(1, local:) -> 0
 Dump Contexts: current -> contexts[0] handle 0
-contexts[0] handle 0: host /var/run/pcp/pmcd.socket: pmcd=CONNECTED profile=NOT_SENT fd=3 refcnt=1 origin=0.000000 delta=0
+contexts[0] handle 0: host /var/run/pcp/pmcd.socket: pmcd=CONNECTED profile=NOT_SENT fd=3 origin=0.000000 delta=0
 Dump Instance Profile state=INCLUDE, 0 profiles
 pmWhichContext() -> 0, cur=0
 pmWhichContext() -> 0, cur=0
 pmWhichContext() -> 0, cur=0
 pmWhichContext() -> 0, cur=0
 pmWhichContext() -> 0, cur=0
-pmFetch: calling __pmSendProfile, context: 0
+pmFetch: calling __pmSendProfile, context: 0 slot: 0
 Dump Instance Profile state=INCLUDE, 0 profiles
 pmFetch returns ...
 pmResult ... numpmid: 7
@@ -70,14 +70,14 @@ __pmConnectPMCD(/var/run/pcp/pmcd.socket): ...
 IPC table fd(PDU version): 3(2,1)
 pmNewContext(1, local:) -> 0
 Dump Contexts: current -> contexts[0] handle 0
-contexts[0] handle 0: host /var/run/pcp/pmcd.socket: pmcd=CONNECTED profile=NOT_SENT fd=3 refcnt=1 origin=0.000000 delta=0
+contexts[0] handle 0: host /var/run/pcp/pmcd.socket: pmcd=CONNECTED profile=NOT_SENT fd=3 origin=0.000000 delta=0
 Dump Instance Profile state=INCLUDE, 0 profiles
 pmWhichContext() -> 0, cur=0
 pmWhichContext() -> 0, cur=0
 pmWhichContext() -> 0, cur=0
 pmWhichContext() -> 0, cur=0
 pmWhichContext() -> 0, cur=0
-pmFetch: calling __pmSendProfile, context: 0
+pmFetch: calling __pmSendProfile, context: 0 slot: 0
 Dump Instance Profile state=INCLUDE, 0 profiles
 pmFetch returns ...
 pmResult ... numpmid: 7
@@ -130,14 +130,14 @@ __pmConnectPMCD(/var/run/pcp/pmcd.socket): ...
 IPC table fd(PDU version): 3(2,1)
 pmNewContext(1, local:) -> 0
 Dump Contexts: current -> contexts[0] handle 0
-contexts[0] handle 0: host /var/run/pcp/pmcd.socket: pmcd=CONNECTED profile=NOT_SENT fd=3 refcnt=1 origin=0.000000 delta=0
+contexts[0] handle 0: host /var/run/pcp/pmcd.socket: pmcd=CONNECTED profile=NOT_SENT fd=3 origin=0.000000 delta=0
 Dump Instance Profile state=INCLUDE, 0 profiles
 pmWhichContext() -> 0, cur=0
 pmWhichContext() -> 0, cur=0
 pmWhichContext() -> 0, cur=0
 pmWhichContext() -> 0, cur=0
 pmWhichContext() -> 0, cur=0
-pmFetch: calling __pmSendProfile, context: 0
+pmFetch: calling __pmSendProfile, context: 0 slot: 0
 Dump Instance Profile state=INCLUDE, 0 profiles
 pmFetch returns ...
 pmResult ... numpmid: 7
@@ -190,14 +190,14 @@ __pmConnectPMCD(/var/run/pcp/pmcd.socket): ...
 IPC table fd(PDU version): 3(2,1)
 pmNewContext(1, local:) -> 0
 Dump Contexts: current -> contexts[0] handle 0
-contexts[0] handle 0: host /var/run/pcp/pmcd.socket: pmcd=CONNECTED profile=NOT_SENT fd=3 refcnt=1 origin=0.000000 delta=0
+contexts[0] handle 0: host /var/run/pcp/pmcd.socket: pmcd=CONNECTED profile=NOT_SENT fd=3 origin=0.000000 delta=0
 Dump Instance Profile state=INCLUDE, 0 profiles
 pmWhichContext() -> 0, cur=0
 pmWhichContext() -> 0, cur=0
 pmWhichContext() -> 0, cur=0
 pmWhichContext() -> 0, cur=0
 pmWhichContext() -> 0, cur=0
-pmFetch: calling __pmSendProfile, context: 0
+pmFetch: calling __pmSendProfile, context: 0 slot: 0
 Dump Instance Profile state=INCLUDE, 0 profiles
 pmFetch returns ...
 pmResult ... numpmid: 7

@@ -29,13 +29,12 @@ __pmRecvDesc(int fd, __pmContext *ctxp, int timeout, pmDesc *desc)
 	sts = __pmDecodeDesc(pb, desc);
     else if (sts == PDU_ERROR)
 	__pmDecodeError(pb, &sts);
-    else {
-	__pmCloseChannelbyContext(ctxp, PDU_DESC, sts);
-	if (sts != PM_ERR_TIMEOUT)
-	    sts = PM_ERR_IPC;
-    }
+    else if (sts != PM_ERR_TIMEOUT)
+	sts = PM_ERR_IPC;
+
     if (pinpdu > 0)
 	__pmUnpinPDUBuf(pb);
+
     return sts;
 }
 
@@ -52,7 +51,6 @@ pmLookupDesc(pmID pmid, pmDesc *desc)
 	return PM_ERR_NOCONTEXT;
 
     if (ctxp->c_type == PM_CONTEXT_HOST) {
-	PM_LOCK(ctxp->c_pmcd->pc_lock);
 	tout = ctxp->c_pmcd->pc_tout_sec;
 	fd = ctxp->c_pmcd->pc_fd;
 	if ((sts = __pmSendDescReq(fd, __pmPtrToHandle(ctxp), pmid)) < 0) {
@@ -61,7 +59,6 @@ pmLookupDesc(pmID pmid, pmDesc *desc)
 	    PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_TIMEOUT);
 	    sts = __pmRecvDesc(fd, ctxp, tout, desc);
 	}
-	PM_UNLOCK(ctxp->c_pmcd->pc_lock);
     }
     else if (ctxp->c_type == PM_CONTEXT_LOCAL) {
 	if (PM_MULTIPLE_THREADS(PM_SCOPE_DSO_PMDA))
