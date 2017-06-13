@@ -82,6 +82,7 @@ _filter_linux()
     else
 	sed \
 	    -e '/^network.softnet.* Metric not supported/d' \
+	    -e '/^network.sockstat.* Unknown or illegal metric identifier/d' \
 	    -e '/^proc.namespaces.* Metric not supported/d' \
 	# linux
     fi
