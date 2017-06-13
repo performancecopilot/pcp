@@ -1339,6 +1339,7 @@ oldversion
 1083 pmcd local
 1084 pmda.linux local
 1085 pmlogger local
+1086 pmprobe local
 1087 pmda.bind2 local
 1088 pmmgr local
 1090 pmwebapi local context
