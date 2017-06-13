@@ -79,7 +79,7 @@ _setup()
     done
     sort -u $tmp/pmprobe.in > $tmp/pmprobe
     [ -z "$HOST" ] && HOST=local:
-    pmprobe -h $HOST -v `cat $tmp/pmprobe` >> $tmp/pmprobe.out
+    pmprobe -F -h $HOST -v `cat $tmp/pmprobe` >> $tmp/pmprobe.out
 }
 
 quick=false
