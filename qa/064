@@ -1,0 +1,39 @@
+#!/bin/sh
+# PCP QA Test No. 064
+#
+# Testing pcp-pidstat's -f argument
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+# test pcp-pidstat's -f argument || _notrun No support for any other functionalities of pcp-pidstat  
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+pcp pidstat -f %c -a archives/pcp-pidstat
+# if error
+#exit
+
+# optional stuff if your test has verbose output to help resolve problems
+#echo
+#echo "If failure, check $seq.full"
+
+# success, all done
+status=0
+exit
