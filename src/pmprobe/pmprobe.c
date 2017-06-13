@@ -114,6 +114,7 @@ main(int argc, char **argv)
 {
     int		c, i, j, sts;
     int		fetch_sts;
+    int		fetched;
     int		numinst;
     int		fflag = 0;		/* -f pmGetIndom or pmGetIndomArchive for instances */
     int		Fflag = 0;		/* -F for fast leaf names access */
@@ -248,7 +249,7 @@ main(int argc, char **argv)
 	numpmid = j;
     }
 
-    fetch_sts = 0;
+    fetch_sts = fetched = 0;
     for (i = 0; i < numpmid; i++) {
 	printf("%s ", namelist[i]);
 
@@ -301,8 +302,9 @@ main(int argc, char **argv)
 	    fetch_sts = pmFetch(1, &pmidlist[i], &result);
 	}
 	else {
-	    if (i == 0)
+	    if (!fetched)
 		fetch_sts = pmFetch(numpmid, pmidlist, &result);
+	    fetched = 1;
 	}
 
 	if (fetch_sts < 0) {
