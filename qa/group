@@ -330,6 +330,10 @@ libpcp_web
 # Old PCP versions interoperability
 oldversion
 
+# Shell command completion
+bash
+zsh
+
 # test-group association ... one line per test
 # add :retired or :reserved as a tag immediately after the test number
 # to keep the test number allocated, but prevent the test from being run
@@ -1348,6 +1352,7 @@ oldversion
 1093 pmcpp local
 1094 logutil local
 1099 archive pmiostat local pmie
+1100 bash zsh local
 1108 logutil local folio pmlogextract
 1111 pcp2influxdb python local
 1112 pmda.linux local
