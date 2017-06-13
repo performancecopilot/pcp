@@ -529,6 +529,7 @@ class PidstatOptions(pmapi.pmOptions):
         self.pmSetLongOption("",0,"R","","Report realtime priority and scheduling policy information.")
         self.pmSetLongOption("",0,"r","","Report page faults and memory utilization.")
         self.pmSetLongOption("",0,"k","","Report stack utilization.")
+        self.pmSetLongOption("",0,"f","","Format the timestamp output")
         self.pmSetLongOptionVersion()
         self.pmSetLongOptionHelp()
 
