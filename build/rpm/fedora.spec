@@ -1882,6 +1882,7 @@ Group: Applications/System
 Summary: Selinux policy package
 URL: http://www.pcp.io
 BuildRequires: selinux-policy-devel
+BuildRequires: selinux-policy-targeted
 %if 0%{?rhel} == 5
 BuildRequires: setools
 %else

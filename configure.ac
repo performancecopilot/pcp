@@ -1875,6 +1875,63 @@ done
 AC_SUBST(enable_selinux)
 AC_SUBST(pcp_selinux_dir)
 
+pcp_selinux_class_status=false
+pcp_selinux_container_runtime=false
+pcp_selinux_nsfs=false
+pcp_selinux_docker_var_lib=false
+pcp_selinux_svirt_lxc_net=false
+pcp_selinux_systemd_unit_file=false
+pcp_selinux_systemd_exec=false
+AS_IF([test "x$enable_selinux" != "xfalse"], [
+for policy_file in /etc/selinux/targeted/policy/policy.*
+do
+    if test -f "$policy_file"
+    then
+        class_status=`eval seinfo -x --class=system $policy_file | grep status | awk '{ print $1 }'`
+    	if test "x$class_status" != "x"
+	then
+	    pcp_selinux_class_status=true
+	fi
+	container_runtime=`eval seinfo -t $policy_file | grep container_runtime_t | awk '{ print $1 }'`
+	if test "x$container_runtime" != "x"
+	then
+	    pcp_selinux_container_runtime=true
+	fi
+	nsfs=`eval seinfo -t $policy_file | grep nsfs_t | awk '{ print $1 }'`
+	if test "x$nsfs" != "x"
+	then
+	    pcp_selinux_nsfs=true
+	fi
+	docker_var_lib=`eval seinfo -t $policy_file | grep docker_var_lib_t | awk '{ print $1 }'`
+	if test "x$docker_var_lib" != "x"
+	then
+	    pcp_selinux_docker_var_lib=true
+	fi
+	svirt_lxc_net=`eval seinfo -t $policy_file | grep svirt_lxc_net_t | awk '{ print $1 }'`
+	if test "x$svirt_lxc_net" != "x"
+	then
+	    pcp_selinux_svirt_lxc_net=true
+	fi
+	systemd_unit_file=`eval seinfo -t $policy_file | grep systemd_unit_file_t | awk '{ print $1 }'`
+	if test "x$systemd_unit_file" != "x"
+	then
+	    pcp_selinux_systemd_unit_file=true
+	fi
+	systemd_exec=`eval seinfo -t $policy_file | grep systemd_systemctl_exec_t | awk '{ print $1 }'`
+	if test "x$systemd_exec" != "x"
+	then
+	    pcp_selinux_systemd_exec=true
+	fi
+    fi
+done  
+])
+AC_SUBST(pcp_selinux_class_status)
+AC_SUBST(pcp_selinux_container_runtime)
+AC_SUBST(pcp_selinux_nsfs)
+AC_SUBST(pcp_selinux_docker_var_lib)
+AC_SUBST(pcp_selinux_svirt_lxc_net)
+AC_SUBST(pcp_selinux_systemd_unit_file)
+AC_SUBST(pcp_selinux_systemd_exec)
 
 dnl Checks for library functions.
 AC_TYPE_SIGNAL

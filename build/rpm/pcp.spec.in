@@ -700,6 +700,7 @@ Group: Applications/System
 Summary: Selinux policy package
 URL: http://www.pcp.io
 BuildRequires: selinux-policy-devel
+BuildRequires: selinux-policy-targeted
 %if 0%{?fedora} >= 19 || 0%{?rhel} >= 6 || 0%{?suse_version} >= 1200
 BuildRequires: setools-console
 %else
