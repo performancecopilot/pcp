@@ -227,15 +227,11 @@ Obsoletes: pcp-gui-debuginfo
 %endif
 %endif
 
-%if %{disable_infiniband}
-%global _with_ib --with-infiniband=no
-%else
+%if !%{disable_infiniband}
 %global _with_ib --with-infiniband=yes
 %endif
 
-%if %{disable_papi}
-%global _with_papi --with-papi=no
-%else
+%if !%{disable_papi}
 %global _with_papi --with-papi=yes
 %endif
 

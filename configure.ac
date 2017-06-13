@@ -1749,7 +1749,11 @@ End-of-File
 ])
 
 pmda_perfevent=false
-AS_IF([test "x$do_perfevent" != "xno" ], [
+AS_IF([test "x$do_perfevent" = "xyes"], [
+    pmda_perfevent=true
+    pfm_libs="-lpfm"
+    AC_SUBST(PFM_LIBS, $pfm_libs)
+], [test "x$do_perfevent" != "xno" ], [
     enable_perfevent=true
 
     savedLIBS=$LIBS

@@ -10714,7 +10714,14 @@ $as_echo "yes" >&6; }
 fi
 
 pmda_perfevent=false
-if test "x$do_perfevent" != "xno" ; then :
+if test "x$do_perfevent" = "xyes"; then :
+
+    pmda_perfevent=true
+    pfm_libs="-lpfm"
+    PFM_LIBS=$pfm_libs
+
+
+elif test "x$do_perfevent" != "xno" ; then :
 
     enable_perfevent=true
 
