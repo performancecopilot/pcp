@@ -2,12 +2,12 @@
  * Device Mapper PMDA
  *
  * Copyright (c) 2015 Red Hat.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
@@ -23,7 +23,7 @@
 #include "dmthin.h"
 #include "dmcache.h"
 
-#include "dm.h"
+#include "dmstats.h"
 #include <libdevmapper.h>
 
 enum {
@@ -40,7 +40,7 @@ enum {
  * all metrics supported in this PMDA - one table entry for each
  *
  */
-static pmdaMetric metrictable[] = { 
+static pmdaMetric metrictable[] = {
     /* DMCACHE_STATS */
     { .m_desc =  {
         PMDA_PMID(CLUSTER_CACHE, CACHE_SIZE),
@@ -114,7 +114,7 @@ static pmdaMetric metrictable[] = {
        { .m_desc =  {
         PMDA_PMID(CLUSTER_POOL, POOL_TRANS_ID),
         PM_TYPE_U64, DM_THIN_POOL_INDOM, PM_SEM_INSTANT,
-        PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, }, 
+        PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
     { .m_desc =  {
         PMDA_PMID(CLUSTER_POOL, POOL_META_USED),
         PM_TYPE_U64, DM_THIN_POOL_INDOM, PM_SEM_INSTANT,
@@ -218,7 +218,7 @@ static pmdaMetric metrictable[] = {
 };
 
 static pmdaIndom indomtable[] = {
-    { .it_indom = DM_CACHE_INDOM }, 
+    { .it_indom = DM_CACHE_INDOM },
     { .it_indom = DM_THIN_POOL_INDOM },
     { .it_indom = DM_THIN_VOL_INDOM },
 #ifdef HAVE_DMSTATS
@@ -326,7 +326,7 @@ dm_fetch_refresh(pmdaExt *pmda, int *need_refresh)
         }
      }
 #endif
-	
+
     return sts;
 }
 
