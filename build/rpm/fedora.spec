@@ -227,15 +227,17 @@ Obsoletes: pcp-gui-debuginfo
 %endif
 %endif
 
-%if %{disable_infiniband}
-%global _with_ib --with-infiniband=no
+%if !%{disable_infiniband}
+%global _with_ib --with-infiniband=yes
 %endif
 
 %if !%{disable_papi}
 %global _with_papi --with-papi=yes
 %endif
 
-%if !%{disable_perfevent}
+%if %{disable_perfevent}
+%global _with_perfevent --with-perfevent=no
+%else
 %global _with_perfevent --with-perfevent=yes
 %endif
 
@@ -1876,6 +1878,7 @@ Group: Applications/System
 Summary: Selinux policy package
 URL: http://www.pcp.io
 BuildRequires: selinux-policy-devel
+BuildRequires: selinux-policy-targeted
 %if 0%{?rhel} == 5
 BuildRequires: setools
 %else

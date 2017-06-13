@@ -347,6 +347,7 @@ type and/or semantics and/or units for operands, e.g.
 .br
 .ft CW
 idle = mem.util.free > mkconst(10485760, units=Kbyte)
+.br
 avg_io_size = delta(disk.dev.total) == 0 ? \e
     -mkconst(1.0, semantics=instant, units="kbyte / count") : \e
     delta(disk.dev.total_bytes) / delta(disk.dev.total)

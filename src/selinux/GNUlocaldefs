@@ -1,4 +1,4 @@
-ifneq "$(shell seinfo -t | grep 'container_runtime_t$$' | sed -e 's/^[ \t]*//')" ""
+ifeq "$(PCP_SELINUX_CONTAINER_RUNTIME)" "true"
 PCP_CONTAINER_RUNTIME_T="type container_runtime_t\;"
 PCP_CONTAINER_RUNTIME_RULE="allow pcp_pmcd_t container_runtime_t:unix_stream_socket connectto\;"
 else
@@ -6,12 +6,12 @@ PCP_CONTAINER_RUNTIME_RULE=""
 PCP_CONTAINER_RUNTIME_T=""
 endif
 
-ifneq "$(shell seinfo -t | grep 'nsfs_t$$' | sed -e 's/^[ \t]*//')" ""
+ifeq "$(PCP_SELINUX_NSFS)" "true"
 PCP_NSFS_T="type nsfs_t\; \# filesys.used"
 PCP_NSFS_RULE="allow pcp_pmcd_t nsfs_t:file { read open }\;"
 endif
 
-ifneq "$(shell seinfo -t | grep 'docker_var_lib_t$$' | sed -e 's/^[ \t]*//')" ""
+ifeq "$(PCP_SELINUX_DOCKER_VAR_LIB)" "true"
 PCP_DOCKER_VAR_LIB_T="type docker_var_lib_t\;"
 PCP_DOCKER_VAR_LIB_RULE="allow pcp_pmcd_t docker_var_lib_t:dir search\;"
 else
@@ -19,23 +19,23 @@ PCP_DOCKER_VAR_LIB_T=""
 PCP_DOCKER_VAR_LIB_RULE=""
 endif
 
-ifneq "$(shell seinfo -t | grep 'svirt_lxc_net_t$$' | sed -e 's/^[ \t]*//')" ""
+ifeq "$(PCP_SELINUX_SVIRT_LXC_NET)" "true"
 PCP_SVIRT_LXC_NET_T="type svirt_lxc_net_t\;"
 PCP_SVIRT_LXC_NET_RULE="allow pcp_pmcd_t svirt_lxc_net_t:dir { open read search }\;"
 endif
 
-ifneq "$(shell seinfo -x --class=system | grep 'status')" ""
+ifeq "$(PCP_SELINUX_CLASS_STATUS)" "true"
 PCP_CLASS_STATUS="class system status\;"
 PCP_PMLOGGER_SYSTEM_STATUS_RULE="allow pcp_pmlogger_t init_t:system status\;"
 PCP_PMIE_SYSTEM_STATUS_RULE="allow pcp_pmie_t init_t:system status\;"
 endif
 
-ifneq "$(shell seinfo -t | grep 'systemd_unit_file_t$$' | sed -e 's/^[ \t]*//')" ""
+ifeq "$(PCP_SELINUX_SYSTEMD_UNIT_FILE)" "true"
 PCP_SYSTEMCTL_UNIT_FILE_T="type systemd_unit_file_t\;"
 PCP_SYSTEMCTL_UNIT_FILE_RULE="allow pcp_pmie_t systemd_unit_file_t:file getattr\;"
 endif
 
-ifneq "$(shell seinfo -t | grep 'systemd_systemctl_exec_t$$' | sed -e 's/^[ \t]*//')" ""
+ifeq "$(PCP_SELINUX_SYSTEMD_EXEC)" "true"
 PCP_SYSTEMCTL_EXEC_T="type systemd_systemctl_exec_t\;"
 PCP_SYSTEMCTL_EXEC_RULE="allow pcp_pmie_t systemd_systemctl_exec_t:file { execute execute_no_trans open read }\;"
 endif
