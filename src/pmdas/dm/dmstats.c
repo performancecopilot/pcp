@@ -1,8 +1,23 @@
+/*
+ * Device Mapper PMDA - Cache (dm-cache) Stats
+ *
+ * Copyright (c) 2017 Fumiya Shigemitsu.
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+ * for more details.
+ */
 #include "pmapi.h"
 #include "impl.h"
 #include "pmda.h"
 #include "indom.h"
-#include "dm.h"
+#include "dmstats.h"
 
 #ifdef HAVE_DMSTATS
 
@@ -59,7 +74,7 @@ dm_stats_fetch(int item, struct dm_stats_counter *dmsc, pmAtomValue *atom)
 	return 1;
 }
 
-int 
+int
 dm_refresh_stats_counter(const char *name, struct dm_stats_counter *dmsc)
 {
 	struct dm_stats *dms;
@@ -77,7 +92,7 @@ dm_refresh_stats_counter(const char *name, struct dm_stats_counter *dmsc)
 		goto bad;
 
 	dm_stats_foreach_region(dms) {
-		reads              
+		reads
 			+= dm_stats_get_counter(dms, DM_STATS_READS_COUNT, DM_STATS_REGION_CURRENT, DM_STATS_AREA_CURRENT);
 		reads_merged
 			+= dm_stats_get_counter(dms, DM_STATS_READS_MERGED_COUNT, DM_STATS_REGION_CURRENT, DM_STATS_AREA_CURRENT);
@@ -87,21 +102,21 @@ dm_refresh_stats_counter(const char *name, struct dm_stats_counter *dmsc)
 			+= dm_stats_get_counter(dms, DM_STATS_READ_NSECS, DM_STATS_REGION_CURRENT, DM_STATS_AREA_CURRENT);
 		writes
 			+= dm_stats_get_counter(dms, DM_STATS_WRITES_COUNT, DM_STATS_REGION_CURRENT, DM_STATS_AREA_CURRENT);
-		writes_merged      
+		writes_merged
 			+= dm_stats_get_counter(dms, DM_STATS_WRITES_MERGED_COUNT, DM_STATS_REGION_CURRENT, DM_STATS_AREA_CURRENT);
-		write_sectors      
+		write_sectors
 			+= dm_stats_get_counter(dms, DM_STATS_WRITE_SECTORS_COUNT, DM_STATS_REGION_CURRENT, DM_STATS_AREA_CURRENT);
-		write_nsecs        
+		write_nsecs
 			+= dm_stats_get_counter(dms, DM_STATS_WRITE_NSECS, DM_STATS_REGION_CURRENT, DM_STATS_AREA_CURRENT);
-		io_in_progress     
+		io_in_progress
 			+= dm_stats_get_counter(dms, DM_STATS_IO_IN_PROGRESS_COUNT, DM_STATS_REGION_CURRENT, DM_STATS_AREA_CURRENT);
-		io_nsecs           
+		io_nsecs
 			+= dm_stats_get_counter(dms, DM_STATS_IO_NSECS, DM_STATS_REGION_CURRENT, DM_STATS_AREA_CURRENT);
-		weighted_io_nsecs  
+		weighted_io_nsecs
 			+= dm_stats_get_counter(dms, DM_STATS_WEIGHTED_IO_NSECS, DM_STATS_REGION_CURRENT, DM_STATS_AREA_CURRENT);
-		total_read_nsecs   
+		total_read_nsecs
 			+= dm_stats_get_counter(dms, DM_STATS_TOTAL_READ_NSECS, DM_STATS_REGION_CURRENT, DM_STATS_AREA_CURRENT);
-		total_write_nsecs  
+		total_write_nsecs
 			+= dm_stats_get_counter(dms, DM_STATS_TOTAL_WRITE_NSECS, DM_STATS_REGION_CURRENT, DM_STATS_AREA_CURRENT);
 	}
 	dmsc->reads             = reads;
@@ -123,28 +138,29 @@ dm_refresh_stats_counter(const char *name, struct dm_stats_counter *dmsc)
 	return 0;
 
 bad:
-	dmsc->reads             = 0; 
-	dmsc->reads_merged      = 0; 
-	dmsc->read_sectors      = 0; 
-	dmsc->read_nsecs        = 0; 
-	dmsc->writes            = 0; 
-	dmsc->writes_merged     = 0; 
+	dmsc->reads             = 0;
+	dmsc->reads_merged      = 0;
+	dmsc->read_sectors      = 0;
+	dmsc->read_nsecs        = 0;
+	dmsc->writes            = 0;
+	dmsc->writes_merged     = 0;
 	dmsc->write_sectors     = 0;
-	dmsc->write_nsecs       = 0; 
-	dmsc->io_in_progress    = 0; 
-	dmsc->io_nsecs          = 0; 
-	dmsc->weighted_io_nsecs = 0; 
-	dmsc->total_read_nsecs  = 0; 
-	dmsc->total_write_nsecs = 0; 
+	dmsc->write_nsecs       = 0;
+	dmsc->io_in_progress    = 0;
+	dmsc->io_nsecs          = 0;
+	dmsc->weighted_io_nsecs = 0;
+	dmsc->total_read_nsecs  = 0;
+	dmsc->total_write_nsecs = 0;
 
 	return 0;
 }
 
-int 
+int
 dm_stats_instance_refresh(void)
 {
 	struct dm_stats_counter *dmsc;
 	struct dm_task *dmt;
+	struct dm_stats *dms;
 	struct dm_names *names;
 	unsigned next = 0;
 	int sts;
@@ -153,7 +169,7 @@ dm_stats_instance_refresh(void)
 	pmdaCacheOp(indom, PMDA_CACHE_INACTIVE);
 
 	if (!(dmt = dm_task_create(DM_DEVICE_LIST)))
-		return 0;
+		goto out;
 
 	if (!dm_task_enable_checks(dmt))
 		goto out;
@@ -162,6 +178,15 @@ dm_stats_instance_refresh(void)
 		goto out;
 
 	if(!(names = dm_task_get_names(dmt)))
+		goto out;
+
+	if (!(dms = dm_stats_create(DM_STATS_ALL_PROGRAMS)))
+		goto out;
+
+	if (!dm_stats_bind_name(dms, names->name))
+		goto out;
+
+	if (!dm_stats_populate(dms, DM_STATS_ALL_PROGRAMS, DM_STATS_REGIONS_ALL))
 		goto out;
 
 
@@ -183,11 +208,11 @@ dm_stats_instance_refresh(void)
 
 out:
 	dm_task_destroy(dmt);
-	return 0;
+	return -oserror();
 }
 
-void 
+void
 dm_stats_setup(void)
 {
 }
-#endif 
+#endif

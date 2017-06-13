@@ -14,22 +14,18 @@
 TOPDIR = ../../..
 include	$(TOPDIR)/src/include/builddefs
 
-CFILES		= pmda.c dmthin.c dmcache.c dm.c
-HFILES		= indom.h dmthin.h dmcache.h dm.h
+CFILES		= pmda.c dmthin.c dmcache.c
+HFILES		= indom.h dmthin.h dmcache.h
 CMDTARGET	= pmdadm
 
 LLDLIBS		= $(PCP_PMDALIB)
 
 ifeq "$(HAVE_DEVMAPPER)" "true"
-CFILES		+= dm.c
-HFILES		+= dm.h
+CFILES		+= dmstats.c
+HFILES		+= dmstats.h
 
 LLDLIBS		+= $(LIB_FOR_DEVMAPPER)
 LCFLAGS		+= -DHAVE_DEVMAPPER=1
-
-#
-# LLDLIBS	+= $(PCP_PMDALIB) -I /home/fumiya/lvm2/libdm -L /home/fumiya/lvm2/libdm/ioctl -ldevmapper
-# LCFLAGS	+= -I /home/fumiya/lvm2/libdm
 
 endif
 
@@ -77,10 +73,6 @@ domain.h: ../../pmns/stdpmid
 pmda.o dmcache.o dmthin.o dm.o: indom.h
 pmda.o dmcache.o: dmcache.h
 pmda.o dmthin.o: dmthin.h
-<<<<<<< HEAD
-pmda.o dm.o: dm.h
-=======
 ifeq "$(HAVE_DEVMAPPER)" "true"
-pmda.o dm.o: dm.h
+pmda.o dmstats.o: dmstats.h
 endif
->>>>>>> remotes/good/dmstats
