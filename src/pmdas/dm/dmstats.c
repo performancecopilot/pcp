@@ -146,6 +146,7 @@ int
 dm_stats_search_region(struct dm_names *names)
 {
 	struct dm_stats *dms;
+	uint64_t nr_regions;
 
 	if (!(dms = dm_stats_create(DM_STATS_ALL_PROGRAMS)))
 		goto bad;
@@ -153,8 +154,12 @@ dm_stats_search_region(struct dm_names *names)
 	if (!dm_stats_bind_name(dms, names->name))
 		goto bad;
 
-	if (!dm_stats_populate(dms, DM_STATS_ALL_PROGRAMS, DM_STATS_REGIONS_ALL))
+	if (!dm_stats_list(dms, DM_STATS_ALL_PROGRAMS))
 		goto bad;
+
+	if (!(nr_regions = dm_stats_get_nr_regions(dms)))
+		goto bad;
+
 
 	dm_stats_destroy(dms);
 	return 1;
