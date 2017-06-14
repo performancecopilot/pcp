@@ -25,57 +25,57 @@
 #include <libdevmapper.h>
 
 int
-dm_stats_fetch(int item, struct dm_stats_counter *dmsc, pmAtomValue *atom)
+dm_stats_fetch(int item, struct pm_dm_stats_counter *dmsc, pmAtomValue *atom)
 {
 	if (item < 0 || item >= DM_STATS_NR_COUNTERS)
 		return  PM_ERR_PMID;
 
 	switch(item) {
 		case DM_STATS_READS_COUNT:
-			atom->ull = dmsc->reads;
+			atom->ull = dmsc->pm_reads;
 			break;
 		case DM_STATS_READS_MERGED_COUNT:
-			atom->ull = dmsc->reads_merged;
+			atom->ull = dmsc->pm_reads_merged;
 			break;
 		case DM_STATS_READ_SECTORS_COUNT:
-			atom->ull = dmsc->read_sectors;
+			atom->ull = dmsc->pm_read_sectors;
 			break;
 		case DM_STATS_READ_NSECS:
-			atom->ull = dmsc->read_nsecs;
+			atom->ull = dmsc->pm_read_nsecs;
 			break;
 		case DM_STATS_WRITES_COUNT:
-			atom->ull = dmsc->writes;
+			atom->ull = dmsc->pm_writes;
 			break;
 		case DM_STATS_WRITES_MERGED_COUNT:
-			atom->ull = dmsc->writes_merged;
+			atom->ull = dmsc->pm_writes_merged;
 			break;
 		case DM_STATS_WRITE_SECTORS_COUNT:
-			atom->ull = dmsc->write_sectors;
+			atom->ull = dmsc->pm_write_sectors;
 			break;
 		case DM_STATS_WRITE_NSECS:
-			atom->ull = dmsc->write_nsecs;
+			atom->ull = dmsc->pm_write_nsecs;
 			break;
 		case DM_STATS_IO_IN_PROGRESS_COUNT:
-			atom->ull = dmsc->io_in_progress;
+			atom->ull = dmsc->pm_io_in_progress;
 			break;
 		case DM_STATS_IO_NSECS:
-			atom->ull = dmsc->io_nsecs;
+			atom->ull = dmsc->pm_io_nsecs;
 			break;
 		case DM_STATS_WEIGHTED_IO_NSECS:
-			atom->ull = dmsc->weighted_io_nsecs;
+			atom->ull = dmsc->pm_weighted_io_nsecs;
 			break;
 		case DM_STATS_TOTAL_READ_NSECS:
-			atom->ull = dmsc->total_read_nsecs;
+			atom->ull = dmsc->pm_total_read_nsecs;
 			break;
 		case DM_STATS_TOTAL_WRITE_NSECS:
-			atom->ull = dmsc->total_write_nsecs;
+			atom->ull = dmsc->pm_total_write_nsecs;
 			break;
 	}
 	return 1;
 }
 
 int
-dm_refresh_stats_counter(const char *name, struct dm_stats_counter *dmsc)
+dm_refresh_stats_counter(const char *name, struct pm_dm_stats_counter *dmsc)
 {
 	struct dm_stats *dms;
 	uint64_t reads = 0, reads_merged = 0, read_sectors = 0, read_nsecs = 0;
@@ -119,46 +119,33 @@ dm_refresh_stats_counter(const char *name, struct dm_stats_counter *dmsc)
 		total_write_nsecs
 			+= dm_stats_get_counter(dms, DM_STATS_TOTAL_WRITE_NSECS, DM_STATS_REGION_CURRENT, DM_STATS_AREA_CURRENT);
 	}
-	dmsc->reads             = reads;
-	dmsc->reads_merged      = reads_merged;
-	dmsc->read_sectors      = read_sectors;
-	dmsc->read_nsecs        = read_nsecs;
-	dmsc->writes            = writes;
-	dmsc->writes_merged     = writes_merged;
-	dmsc->write_sectors     = write_sectors;
-	dmsc->write_nsecs       = write_nsecs;
-	dmsc->io_in_progress    = io_in_progress;
-	dmsc->io_nsecs          = io_nsecs;
-	dmsc->weighted_io_nsecs = weighted_io_nsecs;
-	dmsc->total_read_nsecs  = total_read_nsecs;
-	dmsc->total_write_nsecs = total_write_nsecs;
+	dmsc->pm_reads             += reads;
+	dmsc->pm_reads_merged      += reads_merged;
+	dmsc->pm_read_sectors      += read_sectors;
+	dmsc->pm_read_nsecs        += read_nsecs;
+	dmsc->pm_writes            += writes;
+	dmsc->pm_writes_merged     += writes_merged;
+	dmsc->pm_write_sectors     += write_sectors;
+	dmsc->pm_write_nsecs       += write_nsecs;
+	dmsc->pm_io_in_progress    += io_in_progress;
+	dmsc->pm_io_nsecs          += io_nsecs;
+	dmsc->pm_weighted_io_nsecs += weighted_io_nsecs;
+	dmsc->pm_total_read_nsecs  += total_read_nsecs;
+	dmsc->pm_total_write_nsecs += total_write_nsecs;
 
 	dm_stats_destroy(dms);
 
 	return 0;
 
 bad:
-	dmsc->reads             = 0;
-	dmsc->reads_merged      = 0;
-	dmsc->read_sectors      = 0;
-	dmsc->read_nsecs        = 0;
-	dmsc->writes            = 0;
-	dmsc->writes_merged     = 0;
-	dmsc->write_sectors     = 0;
-	dmsc->write_nsecs       = 0;
-	dmsc->io_in_progress    = 0;
-	dmsc->io_nsecs          = 0;
-	dmsc->weighted_io_nsecs = 0;
-	dmsc->total_read_nsecs  = 0;
-	dmsc->total_write_nsecs = 0;
-
-	return 0;
+	dm_stats_destroy(dms);
+	return -oserror();
 }
 
 int
 dm_stats_instance_refresh(void)
 {
-	struct dm_stats_counter *dmsc;
+	struct pm_dm_stats_counter *dmsc;
 	struct dm_task *dmt;
 	struct dm_stats *dms;
 	struct dm_names *names;
@@ -180,14 +167,7 @@ dm_stats_instance_refresh(void)
 	if(!(names = dm_task_get_names(dmt)))
 		goto out;
 
-	if (!(dms = dm_stats_create(DM_STATS_ALL_PROGRAMS)))
-		goto out;
 
-	if (!dm_stats_bind_name(dms, names->name))
-		goto out;
-
-	if (!dm_stats_populate(dms, DM_STATS_ALL_PROGRAMS, DM_STATS_REGIONS_ALL))
-		goto out;
 
 
 	do {
@@ -197,6 +177,15 @@ dm_stats_instance_refresh(void)
 			dmsc = calloc(1, sizeof(*dmsc));
 			if (dmsc == NULL)
 				return PM_ERR_AGAIN;
+
+			if (!(dms = dm_stats_create(DM_STATS_ALL_PROGRAMS)))
+				goto bad;
+
+			if (!dm_stats_bind_name(dms, names->name))
+				goto bad;
+
+			if (!dm_stats_populate(dms, DM_STATS_ALL_PROGRAMS, DM_STATS_REGIONS_ALL))
+				goto bad;
 		}
 		pmdaCacheStore(indom, PMDA_CACHE_ADD, names->name, (void *)dmsc);
 		next = names->next;
@@ -208,6 +197,10 @@ dm_stats_instance_refresh(void)
 
 out:
 	dm_task_destroy(dmt);
+	return -oserror();
+bad:
+	dm_task_destroy(dmt);
+	dm_stats_destroy(dms);
 	return -oserror();
 }
 

@@ -308,7 +308,7 @@ dm_fetch_refresh(pmdaExt *pmda, int *need_refresh)
 
 #ifdef HAVE_DMSTATS
     if (need_refresh[CLUSTER_DM_COUNTER]) {
-        struct dm_stats_counter *dmsc;
+        struct pm_dm_stats_counter *dmsc;
 
         if ((sts = dm_stats_instance_refresh()) < 0)
 	    return sts;
@@ -358,7 +358,7 @@ dm_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     struct pool_stats *pool;
     struct vol_stats *vol;
 #ifdef HAVE_DMSTATS
-    struct dm_stats_counter *dmsc;
+    struct pm_dm_stats_counter *dmsc;
 #endif
     int sts;
 
@@ -398,7 +398,7 @@ dm_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 /*
  * Initialise the agent (both daemon and DSO).
  */
-void 
+void
 __PMDA_INIT_CALL
 dm_init(pmdaInterface *dp)
 {
