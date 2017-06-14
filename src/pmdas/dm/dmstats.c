@@ -25,7 +25,7 @@
 #include <libdevmapper.h>
 
 int
-dm_stats_fetch(int item, struct pm_dm_stats_counter *dmsc, pmAtomValue *atom)
+pm_dm_stats_fetch(int item, struct pm_dm_stats_counter *dmsc, pmAtomValue *atom)
 {
 	if (item < 0 || item >= DM_STATS_NR_COUNTERS)
 		return  PM_ERR_PMID;
@@ -75,7 +75,7 @@ dm_stats_fetch(int item, struct pm_dm_stats_counter *dmsc, pmAtomValue *atom)
 }
 
 int
-dm_refresh_stats_counter(const char *name, struct pm_dm_stats_counter *dmsc)
+pm_dm_refresh_stats_counter(const char *name, struct pm_dm_stats_counter *dmsc)
 {
 	struct dm_stats *dms;
 	uint64_t reads = 0, reads_merged = 0, read_sectors = 0, read_nsecs = 0;
@@ -143,7 +143,7 @@ bad:
 }
 
 int
-dm_stats_search_region(struct dm_names *names)
+pm_dm_stats_search_region(struct dm_names *names)
 {
 	struct dm_stats *dms;
 	uint64_t nr_regions;
@@ -169,7 +169,7 @@ bad:
 }
 
 int
-dm_stats_instance_refresh(void)
+pm_dm_stats_instance_refresh(void)
 {
 	struct pm_dm_stats_counter *dmsc;
 	struct dm_task *dmt;
@@ -201,7 +201,7 @@ dm_stats_instance_refresh(void)
 			if (dmsc == NULL)
 				return PM_ERR_AGAIN;
 
-			if (!dm_stats_search_region(names)) {
+			if (!pm_dm_stats_search_region(names)) {
 				next = names->next;
 				continue;
 			}
@@ -220,7 +220,7 @@ out:
 }
 
 void
-dm_stats_setup(void)
+pm_dm_stats_setup(void)
 {
 }
 #endif

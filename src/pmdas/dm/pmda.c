@@ -239,7 +239,7 @@ dm_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaExt 
     dm_thin_pool_instance_refresh();
     dm_thin_vol_instance_refresh();
 #ifdef HAVE_DMSTATS
-    dm_stats_instance_refresh();
+    pm_dm_stats_instance_refresh();
 #endif
     return pmdaInstance(indom, inst, name, result, pmda);
 }
@@ -310,7 +310,7 @@ dm_fetch_refresh(pmdaExt *pmda, int *need_refresh)
     if (need_refresh[CLUSTER_DM_COUNTER]) {
         struct pm_dm_stats_counter *dmsc;
 
-        if ((sts = dm_stats_instance_refresh()) < 0)
+        if ((sts = pm_dm_stats_instance_refresh()) < 0)
 	    return sts;
 
         indom = dm_indom(DM_STATS_INDOM);
@@ -321,7 +321,7 @@ dm_fetch_refresh(pmdaExt *pmda, int *need_refresh)
 	    if (!pmdaCacheLookup(indom, inst, &name, (void **)&dmsc) || !dmsc)
 	        continue;
             if (need_refresh[CLUSTER_DM_COUNTER]) {
-                dm_refresh_stats_counter(name, dmsc);
+                pm_dm_refresh_stats_counter(name, dmsc);
 	    }
         }
      }
@@ -386,7 +386,7 @@ dm_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    sts = pmdaCacheLookup(dm_indom(DM_STATS_INDOM), inst, NULL, (void**)&dmsc);
 	    if (sts < 0)
 	        return sts;
-	    return dm_stats_fetch(idp->item, dmsc, atom);
+	    return pm_dm_stats_fetch(idp->item, dmsc, atom);
 #endif
 
         default: /* unknown cluster */
@@ -406,7 +406,7 @@ dm_init(pmdaInterface *dp)
     dm_cache_setup();
     dm_thin_setup();
 #ifdef HAVE_DMSTATS
-    dm_stats_setup();
+    pm_dm_stats_setup();
 #endif
 
     int	nindoms = sizeof(indomtable)/sizeof(indomtable[0]);
