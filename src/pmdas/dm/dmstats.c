@@ -143,11 +143,31 @@ bad:
 }
 
 int
+dm_stats_search_region(struct dm_names *names)
+{
+	struct dm_stats *dms;
+
+	if (!(dms = dm_stats_create(DM_STATS_ALL_PROGRAMS)))
+		goto bad;
+
+	if (!dm_stats_bind_name(dms, names->name))
+		goto bad;
+
+	if (!dm_stats_populate(dms, DM_STATS_ALL_PROGRAMS, DM_STATS_REGIONS_ALL))
+		goto bad;
+
+	dm_stats_destroy(dms);
+	return 1;
+bad:
+	dm_stats_destroy(dms);
+	return 0;
+}
+
+int
 dm_stats_instance_refresh(void)
 {
 	struct pm_dm_stats_counter *dmsc;
 	struct dm_task *dmt;
-	struct dm_stats *dms;
 	struct dm_names *names;
 	unsigned next = 0;
 	int sts;
@@ -168,8 +188,6 @@ dm_stats_instance_refresh(void)
 		goto out;
 
 
-
-
 	do {
 		names = (struct dm_names*)((char *) names + next);
 		sts = pmdaCacheLookupName(indom, names->name, NULL, (void **)&dmsc);
@@ -178,14 +196,10 @@ dm_stats_instance_refresh(void)
 			if (dmsc == NULL)
 				return PM_ERR_AGAIN;
 
-			if (!(dms = dm_stats_create(DM_STATS_ALL_PROGRAMS)))
-				goto bad;
-
-			if (!dm_stats_bind_name(dms, names->name))
-				goto bad;
-
-			if (!dm_stats_populate(dms, DM_STATS_ALL_PROGRAMS, DM_STATS_REGIONS_ALL))
-				goto bad;
+			if (!dm_stats_search_region(names)) {
+				next = names->next;
+				continue;
+			}
 		}
 		pmdaCacheStore(indom, PMDA_CACHE_ADD, names->name, (void *)dmsc);
 		next = names->next;
@@ -197,10 +211,6 @@ dm_stats_instance_refresh(void)
 
 out:
 	dm_task_destroy(dmt);
-	return -oserror();
-bad:
-	dm_task_destroy(dmt);
-	dm_stats_destroy(dms);
 	return -oserror();
 }
 

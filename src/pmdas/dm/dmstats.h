@@ -20,6 +20,8 @@
 #ifndef DM_H
 #define DM_H
 
+#include <libdevmapper.h>
+
 struct pm_dm_stats_counter {
 	uint64_t pm_reads;		    /* Num reads completed */
 	uint64_t pm_reads_merged;	    /* Num reads merged */
@@ -44,6 +46,7 @@ struct dm_stats_metric {
 
 extern int dm_stats_fetch(int, struct pm_dm_stats_counter *, pmAtomValue *);
 extern int dm_refresh_stats_counter(const char *, struct pm_dm_stats_counter *);
+int dm_stats_search_region(struct dm_names *);
 extern int dm_stats_instance_refresh(void);
 extern void dm_stats_setup(void);
 
