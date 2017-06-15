@@ -231,7 +231,8 @@ photosyst(struct sstat *si)
 	pmResult	*result;
 	size_t		size;
 	char		**insts;
-	int		*ids, i;
+	int		*ids;
+	unsigned int    i;
 
 	if (!setup)
 	{
