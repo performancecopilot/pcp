@@ -142,8 +142,8 @@ bad:
 	return -oserror();
 }
 
-int
-pm_dm_stats_search_region(struct dm_names *names)
+static int
+_dm_stats_search_region(struct dm_names *names)
 {
 	struct dm_stats *dms;
 	uint64_t nr_regions;
@@ -201,7 +201,7 @@ pm_dm_stats_instance_refresh(void)
 			if (dmsc == NULL)
 				return PM_ERR_AGAIN;
 
-			if (!pm_dm_stats_search_region(names)) {
+			if (!_dm_stats_search_region(names)) {
 				next = names->next;
 				continue;
 			}

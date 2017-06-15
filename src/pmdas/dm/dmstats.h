@@ -46,7 +46,6 @@ struct dm_stats_metric {
 
 extern int pm_dm_stats_fetch(int, struct pm_dm_stats_counter *, pmAtomValue *);
 extern int pm_dm_refresh_stats_counter(const char *, struct pm_dm_stats_counter *);
-int pm_dm_stats_search_region(struct dm_names *);
 extern int pm_dm_stats_instance_refresh(void);
 extern void pm_dm_stats_setup(void);
 
