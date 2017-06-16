@@ -10,4 +10,9 @@ context #CONTEXT fetch names=pmcd.hostname,pmcd.client.container response code 2
   pmcd.client.container[CONTAINER ID]
   pmcd.hostname[CONTAINER HOST]
   => successfully fetched.
+context #CONTEXT store pmcd.client.container response code 200
+  => successfully stored.
+context #CONTEXT fetch names=pmcd.hostname,pmcd.client.container response code 200
+  pmcd.hostname[LOCALHOST HOST]
+  => successfully fetched.
 == removing container
