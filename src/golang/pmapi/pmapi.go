@@ -115,6 +115,7 @@ import (
 
 type PMAPI interface {
 	PmLookupName(names ...string) ([]PmID, error)
+	PmGetChildren(name string) ([]string, error)
 	PmFetch(pmids ...PmID) (*PmResult, error)
 	PmLookupDesc(pmid PmID) (PmDesc, error)
 	PmExtractValue(value_format int, pm_type int, pm_value *PmValue) (PmAtomValue, error)
@@ -286,6 +287,40 @@ func (c *PmapiContext) PmLookupName(names ...string) ([]PmID, error) {
 	}
 
 	return pmids, nil
+}
+
+func (c *PmapiContext) PmGetChildren(name string) ([]string, error) {
+	context_err := c.pmUseContext()
+	if(context_err != nil) {
+		return nil, context_err
+	}
+
+	name_ptr := C.CString(name)
+	defer C.free(unsafe.Pointer(name_ptr))
+
+	var children_ptr **C.char
+
+	err_or_number_of_children := int(C.pmGetChildren(name_ptr, &children_ptr))
+	if(err_or_number_of_children < 0) {
+		return nil, newPmError(err_or_number_of_children)
+	}
+	/* No children, return an empty list */
+	if(err_or_number_of_children == 0) {
+		return []string{}, nil
+	}
+	/* Only bother free-ing if we actually have children as specified in the programmers guide */
+	defer C.free(unsafe.Pointer(children_ptr))
+
+	children_ptr_slice := (*[1 << 30]*C.char)(unsafe.Pointer(children_ptr))
+
+	/* Convert from C strings into golang  */
+	children := make([]string, err_or_number_of_children)
+	for i := 0; i < err_or_number_of_children; i++ {
+		children[i] =  C.GoString(children_ptr_slice[i])
+	}
+
+	return children, nil
+
 }
 
 func (c *PmapiContext) PmLookupDesc(pmid PmID) (PmDesc, error) {

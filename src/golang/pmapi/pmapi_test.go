@@ -217,6 +217,36 @@ func TestPmNewContext_supportsALocalContext(t *testing.T) {
 	assert.NotNil(t, c)
 }
 
+func TestPmapiContext_PmGetChildren_returnsTheChildrenFromNonLeafNode(t *testing.T) {
+	children, _ := localContext().PmGetChildren("sample.many")
+
+	assert.Equal(t, []string{"count", "int"}, children)
+}
+
+func TestPmapiContext_PmGetChildren_returnsNoErrorForANonLeafNode(t *testing.T) {
+	_, err := localContext().PmGetChildren("sample.many")
+
+	assert.NoError(t, err)
+}
+
+func TestPmapiContext_PmGetChildren_returnsAnEmptySliceForALeafNode(t *testing.T) {
+	children, _ := localContext().PmGetChildren("sample.many.count")
+
+	assert.Empty(t, children)
+}
+
+func TestPmapiContext_PmGetChildren_returnsNoErrorForALeafNode(t *testing.T) {
+	_, err := localContext().PmGetChildren("sample.many.count")
+
+	assert.NoError(t, err)
+}
+
+func TestPmapiContext_PmGetChildren_returnsAnErrorForUnknownMetrics(t *testing.T) {
+	_, err := localContext().PmGetChildren("not.a.metric")
+
+	assert.Error(t, err)
+}
+
 func assertWithinDuration(t *testing.T, time1 time.Time, time2 time.Time, duration time.Duration) {
 	rounded1 := time1.Round(duration)
 	rounded2 := time2.Round(duration)
