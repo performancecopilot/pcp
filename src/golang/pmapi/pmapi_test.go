@@ -247,6 +247,46 @@ func TestPmapiContext_PmGetChildren_returnsAnErrorForUnknownMetrics(t *testing.T
 	assert.Error(t, err)
 }
 
+func TestPmapiContext_PmGetChildrenStatus_returnsChildrenFromNonLeafNode(t *testing.T) {
+	children, _ := localContext().PmGetChildrenStatus("sample.ulong")
+
+	assert.Equal(t, []PMNSNode{
+		{name: "one", 		leaf:PmLeafStatus},
+		{name: "ten", 		leaf:PmLeafStatus},
+		{name: "hundred", 	leaf:PmLeafStatus},
+		{name: "million", 	leaf:PmLeafStatus},
+		{name: "write_me", 	leaf:PmLeafStatus},
+		{name: "bin", 		leaf:PmLeafStatus},
+		{name: "bin_ctr", 	leaf:PmLeafStatus},
+		{name: "count", 	leaf:PmNonLeafStatus},
+	}, children)
+}
+
+func TestPmapiContext_PmGetChildrenStatus_returnsNoErrorForANonLeafNode(t *testing.T) {
+	_, err := localContext().PmGetChildrenStatus("sample.many")
+
+	assert.NoError(t, err)
+}
+
+func TestPmapiContext_PmGetChildrenStatus_returnsAnEmptySliceForALeafNode(t *testing.T) {
+	children, _ := localContext().PmGetChildrenStatus("sample.many.count")
+
+	assert.Empty(t, children)
+}
+
+func TestPmapiContext_PmGetChildrenStatus_returnsNoErrorForALeafNode(t *testing.T) {
+	_, err := localContext().PmGetChildrenStatus("sample.many.count")
+
+	assert.NoError(t, err)
+}
+
+func TestPmapiContext_PmGetChildrenStatus_returnsAnErrorForUnknownMetrics(t *testing.T) {
+	_, err := localContext().PmGetChildrenStatus("not.a.metric")
+
+	assert.Error(t, err)
+}
+
+
 func assertWithinDuration(t *testing.T, time1 time.Time, time2 time.Time, duration time.Duration) {
 	rounded1 := time1.Round(duration)
 	rounded2 := time2.Round(duration)

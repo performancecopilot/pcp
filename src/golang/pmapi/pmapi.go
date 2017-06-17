@@ -116,10 +116,16 @@ import (
 type PMAPI interface {
 	PmLookupName(names ...string) ([]PmID, error)
 	PmGetChildren(name string) ([]string, error)
+	PmGetChildrenStatus(name string) ([]PMNSNode, error)
 	PmFetch(pmids ...PmID) (*PmResult, error)
 	PmLookupDesc(pmid PmID) (PmDesc, error)
 	PmExtractValue(value_format int, pm_type int, pm_value *PmValue) (PmAtomValue, error)
 	PmGetInDom(indom PmInDom) (map[int]string, error)
+}
+
+type PMNSNode struct {
+	name string
+	leaf int
 }
 
 type PmapiContext struct {
@@ -221,6 +227,9 @@ const (
 	PmValInsitu = int(C.PM_VAL_INSITU)
 	PmValDptr = int(C.PM_VAL_DPTR)
 	PmValSptr = int(C.PM_VAL_SPTR)
+
+	PmLeafStatus = int(C.PMNS_LEAF_STATUS)
+	PmNonLeafStatus = int(C.PMNS_NONLEAF_STATUS)
 )
 
 func PmNewContext(context_type PmContextType, host_or_archive string) (*PmapiContext, error) {
@@ -321,6 +330,44 @@ func (c *PmapiContext) PmGetChildren(name string) ([]string, error) {
 
 	return children, nil
 
+}
+
+func (c *PmapiContext) PmGetChildrenStatus(name string) ([]PMNSNode, error) {
+	context_err := c.pmUseContext()
+	if (context_err != nil) {
+		return nil, context_err
+	}
+
+	name_ptr := C.CString(name)
+	defer C.free(unsafe.Pointer(name_ptr))
+
+	var children_ptr **C.char
+	var children_status_ptr *C.int
+
+	err_or_number_of_children := int(C.pmGetChildrenStatus(name_ptr, &children_ptr, &children_status_ptr))
+	if (err_or_number_of_children < 0) {
+		return nil, newPmError(err_or_number_of_children)
+	}
+	/* No children, return an empty slice */
+	if (err_or_number_of_children == 0) {
+		return []PMNSNode{}, nil
+	}
+
+	/* Only bother free-ing if we actually have children. Specified for pmGetChildren() in the programmers guide so
+	 assuming the same here seeing as pmGetChildren() delegates to pmGetChildrenStatus() anyway */
+	defer C.free(unsafe.Pointer(children_ptr))
+	defer C.free(unsafe.Pointer(children_status_ptr))
+
+	children_ptr_slice := (*[1 << 30]*C.char)(unsafe.Pointer(children_ptr))
+	children_status_ptr_slice := (*[1 << 30]C.int)(unsafe.Pointer(children_status_ptr))
+
+	/* Convert from C strings into golang  */
+	children := make([]PMNSNode, err_or_number_of_children)
+	for i := 0; i < err_or_number_of_children; i++ {
+		children[i] = PMNSNode{name: C.GoString(children_ptr_slice[i]), leaf: int(children_status_ptr_slice[i])}
+	}
+
+	return children, nil
 }
 
 func (c *PmapiContext) PmLookupDesc(pmid PmID) (PmDesc, error) {
