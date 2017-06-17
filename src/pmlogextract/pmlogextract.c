@@ -1154,6 +1154,15 @@ nextmeta(void)
 	    fprintf(stderr, "%s: botch: __pmHandleToPtr(%d) returns NULL!\n", pmProgname, iap->ctx);
 	    abandon_extract();
 	}
+	/*
+	 * Note: This application is single threaded, and once we have ctxp
+	 *	 the associated __pmContext will not move and will only be
+	 *	 accessed or modified synchronously either here or in libpcp.
+	 *	 We unlock the context so that it can be locked as required
+	 *	 within libpcp.
+	 */
+	PM_UNLOCK(ctxp->c_lock);
+
 	lcp = ctxp->c_archctl->ac_log;
 
 againmeta:
