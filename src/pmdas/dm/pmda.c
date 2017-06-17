@@ -205,7 +205,7 @@ static pmdaMetric metrictable[] = {
     { .m_desc = {
         PMDA_PMID(CLUSTER_DM_COUNTER, DM_STATS_WEIGHTED_IO_NSECS),
         PM_TYPE_U64, DM_STATS_INDOM, PM_SEM_INSTANT,
-        PMDA_PMUNITS(0,0,0,0,0,0) }, },
+        PMDA_PMUNITS(0,1,0,0,PM_TIME_NSEC,0) }, },
     { .m_desc = {
         PMDA_PMID(CLUSTER_DM_COUNTER, DM_STATS_TOTAL_READ_NSECS),
         PM_TYPE_U64, DM_STATS_INDOM, PM_SEM_INSTANT,

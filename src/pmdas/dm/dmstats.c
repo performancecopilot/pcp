@@ -1,5 +1,5 @@
 /*
- * Device Mapper PMDA - Cache (dm-cache) Stats
+ * Device Mapper PMDA - DM (device-mapper) Stats with dmstats API
  *
  * Copyright (c) 2017 Fumiya Shigemitsu.
  *
