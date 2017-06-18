@@ -37,8 +37,9 @@ pm_dm_stats_fetch(int item, struct pm_dm_stats_counter *dmsc, pmAtomValue *atom)
 		case DM_STATS_READS_MERGED_COUNT:
 			atom->ull = dmsc->pm_reads_merged;
 			break;
+		/* Correspond with kbytes units */
 		case DM_STATS_READ_SECTORS_COUNT:
-			atom->ull = dmsc->pm_read_sectors;
+			atom->ull = dmsc->pm_read_sectors / 2;
 			break;
 		case DM_STATS_READ_NSECS:
 			atom->ull = dmsc->pm_read_nsecs;
@@ -49,8 +50,9 @@ pm_dm_stats_fetch(int item, struct pm_dm_stats_counter *dmsc, pmAtomValue *atom)
 		case DM_STATS_WRITES_MERGED_COUNT:
 			atom->ull = dmsc->pm_writes_merged;
 			break;
+		/* Correspond with kbytes units */
 		case DM_STATS_WRITE_SECTORS_COUNT:
-			atom->ull = dmsc->pm_write_sectors;
+			atom->ull = dmsc->pm_write_sectors / 2;
 			break;
 		case DM_STATS_WRITE_NSECS:
 			atom->ull = dmsc->pm_write_nsecs;
