@@ -107,7 +107,7 @@ map_handle_nolock(int handle)
 static int
 map_handle(int handle)
 {
-    ASSERT_IS_LOCKED(contexts_lock);
+    PM_ASSERT_IS_LOCKED(contexts_lock);
 
     return map_handle_nolock(handle);
 }
@@ -374,7 +374,7 @@ initcontextlock(pthread_mutex_t *lock)
     int			sts;
     char		errmsg[PM_MAXERRMSGLEN];
 
-    ASSERT_IS_LOCKED(contexts_lock);
+    PM_ASSERT_IS_LOCKED(contexts_lock);
 
     /*
      * Need context lock to be recursive as we sometimes call

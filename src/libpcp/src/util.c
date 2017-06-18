@@ -1412,7 +1412,7 @@ pmfstate(int state)
     static int	errtype = PM_QUERYERR;
     char	errmsg[PM_MAXERRMSGLEN];
 
-    ASSERT_IS_LOCKED(util_lock);
+    PM_ASSERT_IS_LOCKED(util_lock);
 
     if (state > PM_QUERYERR)
 	errtype = state;
