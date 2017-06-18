@@ -286,6 +286,12 @@ func TestPmapiContext_PmGetChildrenStatus_returnsAnErrorForUnknownMetrics(t *tes
 	assert.Error(t, err)
 }
 
+func BenchmarkPmapiContext_PmFetch(b *testing.B) {
+	context1 := localContext()
+	for i := 0; i < b.N; i++ {
+		context1.PmFetch(sampleDoubleMillionPmID)
+	}
+}
 
 func assertWithinDuration(t *testing.T, time1 time.Time, time2 time.Time, duration time.Duration) {
 	rounded1 := time1.Round(duration)
