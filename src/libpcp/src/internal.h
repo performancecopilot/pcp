@@ -27,7 +27,6 @@ extern int __pmConvertTimeout(int) _PCP_HIDDEN;
 extern int __pmConnectWithFNDELAY(int, void *, __pmSockLen) _PCP_HIDDEN;
 
 extern int __pmPtrToHandle(__pmContext *) _PCP_HIDDEN;
-extern int __pmGetArchiveEnd_locked(__pmContext *, struct timeval *) _PCP_HIDDEN;
 
 extern int __pmGetDate(struct timespec *, char const *, struct timespec const *)  _PCP_HIDDEN;
 
