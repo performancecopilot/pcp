@@ -406,6 +406,42 @@ typedef struct {
 } __pmLogTI;
 
 /*
+ * PCP archive file. This abstracts archive i/o, allowing different handlers,
+ * e.g. for stdio pass-thru and transparent decompression (xz, gz, etc).
+ */
+typedef struct {
+    struct __pm_fops *fops;	/* i/o handler, assigned based on file type */
+    __pm_off_t	position;	/* current uncompressed file position */
+    void	*private;	/* private data, e.g. for fd, blk cache, etc */
+} __pmFILE;
+
+typedef struct __pm_fops {
+    void	*(*open) (__pmFILE *, const char *, const char *);
+    __pm_off_t	(*seek) (__pmFILE *, __pm_off_t, int);
+    ssize_t	(*read) (__pmFILE *, void *, size_t);
+    ssize_t	(*write) (__pmFILE *, void *, size_t);
+    int		(*fileno) (__pmFILE *);
+    int		(*flush) (__pmFILE *);
+    int		(*close) (__pmFILE *);
+} __pm_fops;
+
+/*
+ * Open a PCP archive file with given mode and return a __pmFILE. An i/o
+ * handler is automatically chosen based on filename suffix, e.g. .xz, .gz,
+ * etc. The stdio pass-thru handler will be chosen for the standard suffixes
+ * ".meta", ".index" and for uncompressed data volumes matching "*.[0-9]+".
+ * The stdio handler is the only handler currently supporting write operations.
+ * Return a valid __pmFILE pointer on success or NULL on failure.
+ */
+PCP_CALL extern __pmFILE *__pmOpen(const char *, const char *);
+
+/*
+ * Close and deallocate a PCP archive file that was previously opened
+ * with __pmOpenArchive(). Return 0 for success.
+ */
+PCP_CALL extern int __pmClose(__pmFILE *);
+
+/*
  * Log/Archive Control
  */
 typedef struct {
