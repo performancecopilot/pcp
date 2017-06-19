@@ -215,7 +215,7 @@ __pmPtrToHandle(__pmContext *ctxp)
  * Determine the hostname associated with the given context.
  */
 char *
-pmGetContextHostName_r(int ctxid, char *buf, int buflen)
+pmGetContextHostName_r(int handle, char *buf, int buflen)
 {
     __pmContext *ctxp;
     char	*name;
@@ -229,7 +229,7 @@ pmGetContextHostName_r(int ctxid, char *buf, int buflen)
 
     buf[0] = '\0';
 
-    if ((ctxp = __pmHandleToPtr(ctxid)) != NULL) {
+    if ((ctxp = __pmHandleToPtr(handle)) != NULL) {
 	switch (ctxp->c_type) {
 	case PM_CONTEXT_HOST:
 	    /*
@@ -242,16 +242,16 @@ pmGetContextHostName_r(int ctxid, char *buf, int buflen)
 	     * context switch, then switch back.
 	     */
 	    if (pmDebug & DBG_TRACE_CONTEXT)
-		fprintf(stderr, "pmGetContextHostName_r context(%d) -> 0\n", ctxid);
+		fprintf(stderr, "pmGetContextHostName_r context(%d) -> 0\n", handle);
 	    save_handle = PM_TPD(curr_handle);
 	    save_ctxp = PM_TPD(curr_ctxp);
-	    PM_TPD(curr_handle) = ctxid;
+	    PM_TPD(curr_handle) = handle;
 	    PM_TPD(curr_ctxp) = ctxp;
 
 	    name = "pmcd.hostname";
-	    sts = pmLookupName(1, &name, &pmid);
+	    sts = pmLookupName_ctx(ctxp, 1, &name, &pmid);
 	    if (sts >= 0)
-		sts = pmFetch(1, &pmid, &resp);
+		sts = pmFetch_ctx(ctxp, 1, &pmid, &resp);
 	    if (pmDebug & DBG_TRACE_CONTEXT)
 		fprintf(stderr, "pmGetContextHostName_r reset(%d) -> 0\n", save_handle);
 
@@ -294,6 +294,7 @@ pmGetContextHostName_r(int ctxid, char *buf, int buflen)
 	PM_UNLOCK(ctxp->c_lock);
     }
 
+    PM_CHECK_IS_UNLOCKED(ctxp->c_lock);
     return buf;
 }
 
@@ -301,10 +302,10 @@ pmGetContextHostName_r(int ctxid, char *buf, int buflen)
  * Backward-compatibility interface, non-thread-safe variant.
  */
 const char *
-pmGetContextHostName(int ctxid)
+pmGetContextHostName(int handle)
 {
     static char	hostbuf[MAXHOSTNAMELEN];
-    return (const char *)pmGetContextHostName_r(ctxid, hostbuf, (int)sizeof(hostbuf));
+    return (const char *)pmGetContextHostName_r(handle, hostbuf, (int)sizeof(hostbuf));
 }
 
 int
@@ -330,6 +331,11 @@ pmWhichContext(void)
     return sts;
 }
 
+/*
+ * Don't use this function ... the return value is a pointer to a context
+ * that is NOT LOCKED,
+ * TODO - when libpcp version changes, cull this function.
+ */
 __pmContext *
 __pmCurrentContext(void)
 {
@@ -1121,6 +1127,7 @@ INIT_CONTEXT:
 		    type, name);
 	}
 #endif
+	PM_CHECK_IS_UNLOCKED(new->c_lock);
 	return PM_ERR_NOCONTEXT;
     }
 
@@ -1141,6 +1148,7 @@ INIT_CONTEXT:
     /* bind defined metrics if any ..., after the new context is in place */
     __dmopencontext(new);
 
+    PM_CHECK_IS_UNLOCKED(new->c_lock);
     return PM_TPD(curr_handle);
 
 FAILED:
@@ -1173,6 +1181,9 @@ FAILED_LOCKED:
 	    type, name, sts, PM_TPD(curr_handle));
 #endif
     PM_UNLOCK(contexts_lock);
+
+    if (old_curr_ctxp != NULL)
+	PM_CHECK_IS_UNLOCKED(old_curr_ctxp->c_lock);
     return sts;
 }
 
@@ -1211,6 +1222,7 @@ pmReconnectContext(int handle)
 		handle, (int)-ETIMEDOUT, (int)(ctl->pc_again - time(NULL)));
 #endif
 	    PM_UNLOCK(ctxp->c_lock);
+	    PM_CHECK_IS_UNLOCKED(ctxp->c_lock);
 	    return -ETIMEDOUT;
 	}
 
@@ -1229,6 +1241,7 @@ pmReconnectContext(int handle)
 		    handle, (int)(ctl->pc_again - time(NULL)));
 #endif
 	    PM_UNLOCK(ctxp->c_lock);
+	    PM_CHECK_IS_UNLOCKED(ctxp->c_lock);
 	    return -ETIMEDOUT;
 	}
 	else {
@@ -1253,9 +1266,16 @@ pmReconnectContext(int handle)
 	fprintf(stderr, "pmReconnectContext(%d) -> %d\n", handle, handle);
 #endif
 
+    PM_CHECK_IS_UNLOCKED(ctxp->c_lock);
     return handle;
 }
 
+/*
+ * TODO - move all the context copying earlier to a local temporary
+ * under the protection of oldcon->c_lock ... then release oldcon->c_lock
+ * and after the new one is created lock newcon->c_lock and cherry-pick
+ * copy from the local temporary to the new __pmContext
+ */
 int
 pmDupContext(void)
 {
@@ -1415,6 +1435,8 @@ pmDupContext(void)
 done_locked:
     PM_UNLOCK(oldcon->c_lock);
     PM_UNLOCK(newcon->c_lock);
+    PM_CHECK_IS_UNLOCKED(oldcon->c_lock);
+    PM_CHECK_IS_UNLOCKED(newcon->c_lock);
 
 done:
     /* return an error code, or the handle for the new context */
@@ -1460,6 +1482,8 @@ pmUseContext(int handle)
     PM_TPD(curr_ctxp) = contexts[ctxnum];
 
     PM_UNLOCK(contexts_lock);
+
+    PM_CHECK_IS_UNLOCKED(contexts[ctxnum]->c_lock);
     return 0;
 }
 
@@ -1535,6 +1559,7 @@ pmDestroyContext(int handle)
     contexts_map[ctxnum] = MAP_FREE;
     PM_UNLOCK(contexts_lock);
 
+    PM_CHECK_IS_UNLOCKED(ctxp->c_lock);
     return 0;
 }
 
