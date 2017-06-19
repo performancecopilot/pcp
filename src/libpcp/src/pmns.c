@@ -2832,7 +2832,8 @@ pmTrimNameSpace(void)
     /* for PMNS_LOCAL (or PMNS_ARCHIVE) ... */
     PM_INIT_LOCKS();
 
-    if ((ctxp = __pmCurrentContext()) == NULL)
+    ctxp = __pmHandleToPtr(pmWhichContext());
+    if (ctxp == NULL) 
 	return PM_ERR_NOCONTEXT;
 
     if (ctxp->c_type != PM_CONTEXT_ARCHIVE) {

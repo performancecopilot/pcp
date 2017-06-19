@@ -292,14 +292,14 @@ again:
 	if (hp != NULL) {
 	    ldp = (lockdbg_t *)hp->data;
 	    if (op == PM_LOCK_OP) {
-		if (ldp->count != 0)
-		    fprintf(stderr, " [count=%d]", ldp->count);
 		ldp->count++;
-	    }
-	    else {
 		if (ldp->count != 1)
 		    fprintf(stderr, " [count=%d]", ldp->count);
+	    }
+	    else {
 		ldp->count--;
+		if (ldp->count != 0)
+		    fprintf(stderr, " [count=%d]", ldp->count);
 	    }
 	}
 	fputc('\n', stderr);
@@ -333,14 +333,15 @@ __pmLock(void *lock, const char *file, int line)
 {
     int		sts;
 
-    if (pmDebug & DBG_TRACE_LOCK)
-	__pmDebugLock(PM_LOCK_OP, lock, file, line);
-
     if ((sts = pthread_mutex_lock(lock)) != 0) {
 	sts = -sts;
 	if (pmDebug & DBG_TRACE_DESPERATE)
 	    fprintf(stderr, "%s:%d: lock failed: %s\n", file, line, pmErrStr(sts));
     }
+
+    if (pmDebug & DBG_TRACE_LOCK)
+	__pmDebugLock(PM_LOCK_OP, lock, file, line);
+
     return sts;
 }
 
@@ -403,6 +404,7 @@ __pmUnlock(void *lock, const char *file, int line)
 	if (pmDebug & DBG_TRACE_DESPERATE)
 	    fprintf(stderr, "%s:%d: unlock failed: %s\n", file, line, pmErrStr(sts));
     }
+
     return sts;
 }
 
