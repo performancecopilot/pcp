@@ -111,6 +111,7 @@ import (
 	"errors"
 	"runtime"
 	"time"
+	"sync"
 )
 
 type PMAPI interface {
@@ -182,6 +183,7 @@ type PmContextType int
 type PmID uint32
 type PmInDom uint32
 
+var contextLock = sync.Mutex{}
 
 const (
 	PmContextHost = PmContextType(int(C.PM_CONTEXT_HOST))
@@ -253,24 +255,23 @@ func PmNewContext(context_type PmContextType, host_or_archive string) (*PmapiCon
 }
 
 func (c *PmapiContext) PmGetContextHostname() (string, error) {
-	err := c.pmUseContext()
-	if(err != nil) {
-		return "", err
-	}
 	string_buffer := make([]C.char, C.MAXHOSTNAMELEN)
 	raw_char_ptr := (*C.char)(unsafe.Pointer(&string_buffer[0]))
 
-	C.pmGetContextHostName_r(C.int(c.context), raw_char_ptr, C.MAXHOSTNAMELEN)
+	_, err := c.withinContext(func() int {
+		C.pmGetContextHostName_r(C.int(c.context), raw_char_ptr, C.MAXHOSTNAMELEN)
+		/* pmGetContextHostName_r does not return a status code so fake one to satisfy
+		 the function definition. It's a bit hacky but worth the consistency IMO */
+		return 0
+	})
+	if(err != nil) {
+		return "", err
+	}
 
 	return C.GoString(raw_char_ptr), nil
 }
 
 func (c *PmapiContext) PmLookupName(names ...string) ([]PmID, error) {
-	context_err := c.pmUseContext()
-	if(context_err != nil) {
-		return nil, context_err
-	}
-
 	number_of_names := len(names)
 	c_pmids := make([]C.pmID, number_of_names)
 	c_names := make([]*C.char, number_of_names)
@@ -283,9 +284,11 @@ func (c *PmapiContext) PmLookupName(names ...string) ([]PmID, error) {
 	}
 
 	/* Do the actual lookup */
-	err := int(C.pmLookupName(C.int(number_of_names), &c_names[0], &c_pmids[0]))
-	if(err < 0 ) {
-		return nil, newPmError(err)
+	_, err := c.withinContext(func() int {
+		return int(C.pmLookupName(C.int(number_of_names), &c_names[0], &c_pmids[0]))
+	})
+	if(err != nil) {
+		return nil, err
 	}
 
 	/* Collect up the C.pmIDs into Go PmID's. Originally when returning the slice that was passed
@@ -299,22 +302,20 @@ func (c *PmapiContext) PmLookupName(names ...string) ([]PmID, error) {
 }
 
 func (c *PmapiContext) PmGetChildren(name string) ([]string, error) {
-	context_err := c.pmUseContext()
-	if(context_err != nil) {
-		return nil, context_err
-	}
-
 	name_ptr := C.CString(name)
 	defer C.free(unsafe.Pointer(name_ptr))
 
 	var children_ptr **C.char
 
-	err_or_number_of_children := int(C.pmGetChildren(name_ptr, &children_ptr))
-	if(err_or_number_of_children < 0) {
-		return nil, newPmError(err_or_number_of_children)
+	number_of_children, err := c.withinContext(func() int {
+		return int(C.pmGetChildren(name_ptr, &children_ptr))
+	})
+	if(err != nil) {
+		return nil, err
 	}
+
 	/* No children, return an empty list */
-	if(err_or_number_of_children == 0) {
+	if(number_of_children == 0) {
 		return []string{}, nil
 	}
 	/* Only bother free-ing if we actually have children as specified in the programmers guide */
@@ -323,8 +324,8 @@ func (c *PmapiContext) PmGetChildren(name string) ([]string, error) {
 	children_ptr_slice := (*[1 << 30]*C.char)(unsafe.Pointer(children_ptr))
 
 	/* Convert from C strings into golang  */
-	children := make([]string, err_or_number_of_children)
-	for i := 0; i < err_or_number_of_children; i++ {
+	children := make([]string, number_of_children)
+	for i := 0; i < number_of_children; i++ {
 		children[i] =  C.GoString(children_ptr_slice[i])
 	}
 
@@ -333,23 +334,21 @@ func (c *PmapiContext) PmGetChildren(name string) ([]string, error) {
 }
 
 func (c *PmapiContext) PmGetChildrenStatus(name string) ([]PMNSNode, error) {
-	context_err := c.pmUseContext()
-	if (context_err != nil) {
-		return nil, context_err
-	}
-
 	name_ptr := C.CString(name)
 	defer C.free(unsafe.Pointer(name_ptr))
 
 	var children_ptr **C.char
 	var children_status_ptr *C.int
 
-	err_or_number_of_children := int(C.pmGetChildrenStatus(name_ptr, &children_ptr, &children_status_ptr))
-	if (err_or_number_of_children < 0) {
-		return nil, newPmError(err_or_number_of_children)
+	number_of_children, err := c.withinContext(func() int {
+		return int(C.pmGetChildrenStatus(name_ptr, &children_ptr, &children_status_ptr))
+	})
+	if (err != nil) {
+		return nil, err
 	}
+
 	/* No children, return an empty slice */
-	if (err_or_number_of_children == 0) {
+	if (number_of_children == 0) {
 		return []PMNSNode{}, nil
 	}
 
@@ -362,8 +361,8 @@ func (c *PmapiContext) PmGetChildrenStatus(name string) ([]PMNSNode, error) {
 	children_status_ptr_slice := (*[1 << 30]C.int)(unsafe.Pointer(children_status_ptr))
 
 	/* Convert from C strings into golang  */
-	children := make([]PMNSNode, err_or_number_of_children)
-	for i := 0; i < err_or_number_of_children; i++ {
+	children := make([]PMNSNode, number_of_children)
+	for i := 0; i < number_of_children; i++ {
 		children[i] = PMNSNode{name: C.GoString(children_ptr_slice[i]), leaf: int(children_status_ptr_slice[i])}
 	}
 
@@ -371,16 +370,13 @@ func (c *PmapiContext) PmGetChildrenStatus(name string) ([]PMNSNode, error) {
 }
 
 func (c *PmapiContext) PmLookupDesc(pmid PmID) (PmDesc, error) {
-	context_err := c.pmUseContext()
-	if(context_err != nil) {
-		return PmDesc{}, context_err
-	}
-
 	c_pmdesc := C.pmDesc{}
 
-	err := int(C.pmLookupDesc(C.pmID(pmid), &c_pmdesc))
-	if(err < 0) {
-		return PmDesc{}, newPmError(err)
+	_, err := c.withinContext(func() int {
+		return int(C.pmLookupDesc(C.pmID(pmid), &c_pmdesc))
+	})
+	if(err != nil) {
+		return PmDesc{}, err
 	}
 
 	return PmDesc{
@@ -400,18 +396,16 @@ func (c *PmapiContext) PmLookupDesc(pmid PmID) (PmDesc, error) {
 }
 
 func (c *PmapiContext) PmGetInDom(indom PmInDom) (map[int]string, error) {
-	context_err := c.pmUseContext()
-	if(context_err != nil) {
-		return nil, context_err
-	}
-
 	var c_instance_ids *C.int
 	var c_instance_names **C.char
 
-	err_or_number_of_instances := int(C.pmGetInDom(C.pmInDom(indom), &c_instance_ids, &c_instance_names))
-	if(err_or_number_of_instances < 0) {
-		return nil, newPmError(err_or_number_of_instances)
+	number_of_instances, err := c.withinContext(func() int {
+		return int(C.pmGetInDom(C.pmInDom(indom), &c_instance_ids, &c_instance_names))
+	})
+	if(err != nil) {
+		return nil, err
 	}
+
 	defer C.free(unsafe.Pointer(c_instance_ids))
 	defer C.free(unsafe.Pointer(c_instance_names))
 
@@ -421,7 +415,7 @@ func (c *PmapiContext) PmGetInDom(indom PmInDom) (map[int]string, error) {
 	c_instance_names_slice := (*[1 << 30]*C.char)(unsafe.Pointer(c_instance_names))
 
 	indom_map := make(map[int]string)
-	for i := 0; i < err_or_number_of_instances; i++ {
+	for i := 0; i < number_of_instances; i++ {
 		indom_map[int(c_instance_ids_slice[i])] = C.GoString(c_instance_names_slice[i])
 	}
 
@@ -429,19 +423,16 @@ func (c *PmapiContext) PmGetInDom(indom PmInDom) (map[int]string, error) {
 }
 
 func (c *PmapiContext) PmFetch(pmids ...PmID) (*PmResult, error) {
-	context_err := c.pmUseContext()
-	if(context_err != nil) {
-		return &PmResult{}, context_err
-	}
-
 	number_of_pmids := len(pmids)
 
 	var c_pm_result *C.pmResult
 	c_pmids := (*C.pmID)(unsafe.Pointer(&pmids[0]))
 
-	err := int(C.pmFetch(C.int(number_of_pmids), c_pmids, &c_pm_result))
-	if(err < 0) {
-		return nil, newPmError(err)
+	_, err := c.withinContext(func() int {
+		return int(C.pmFetch(C.int(number_of_pmids), c_pmids, &c_pm_result))
+	})
+	if(err != nil) {
+		return nil, err
 	}
 	/*
 	Its safe to free the *pmResult here as we copy any result data with
@@ -551,6 +542,28 @@ func (c *PmapiContext) pmUseContext() error {
 		return newPmError(err)
 	}
 	return nil
+}
+
+func (c *PmapiContext) withinContext(pmapiCall func() int) (int, error) {
+	/* Synchronise calls within the pmapi context. With multiple instances of a pmapi context,
+	its possible that the incorrect context is loaded without sync'ing calls. EG:
+
+	thread1: pmUseContext(1)
+	thread2: pmUseContext(2)
+	thread1: pmFetch() <- called against the wrong context
+	*/
+	contextLock.Lock()
+	defer contextLock.Unlock()
+
+	err := c.pmUseContext()
+	if(err != nil) {
+		return -1, err
+	}
+	error_code_or_count_of_something := pmapiCall()
+	if(error_code_or_count_of_something < 0 ) {
+		return -1, newPmError(error_code_or_count_of_something)
+	}
+	return error_code_or_count_of_something, nil
 }
 
 func newPmError(err int) error {
