@@ -407,7 +407,7 @@ free_expr(node_t *np)
  * expression tree and initialize the info block
  */
 static node_t *
-bind_expr(int n, node_t *np, int lookup_err_ok)
+bind_expr(__pmContext *ctxp, int n, node_t *np, int lookup_err_ok)
 {
     node_t	*new;
 
@@ -418,9 +418,9 @@ bind_expr(int n, node_t *np, int lookup_err_ok)
 	 * defined(name) is special ... 
 	 */
 	if (np->type == N_DEFINED)
-	    new->left = bind_expr(n, np->left, 1);
+	    new->left = bind_expr(ctxp, n, np->left, 1);
 	else
-	    new->left = bind_expr(n, np->left, 0);
+	    new->left = bind_expr(ctxp, n, np->left, 0);
 	if (new->left == NULL) {
 	    /* error, reported deeper in the recursion, clean up */
 	    free_expr(new);
@@ -428,7 +428,7 @@ bind_expr(int n, node_t *np, int lookup_err_ok)
 	}
     }
     if (np->right != NULL) {
-	if ((new->right = bind_expr(n, np->right, 0)) == NULL) {
+	if ((new->right = bind_expr(ctxp, n, np->right, 0)) == NULL) {
 	    /* error, reported deeper in the recursion, clean up */
 	    free_expr(new);
 	    return(NULL);
@@ -465,7 +465,7 @@ bind_expr(int n, node_t *np, int lookup_err_ok)
     if (new->type == N_NAME) {
 	int	sts;
 
-	sts = pmLookupName(1, &new->value, &new->info->pmid);
+	sts = pmLookupName_ctx(ctxp, 1, &new->value, &new->info->pmid);
 	if (sts < 0) {
 	    if (lookup_err_ok) {
 		/* derived(x) -> false case */
@@ -481,7 +481,7 @@ bind_expr(int n, node_t *np, int lookup_err_ok)
 	    free_expr(new);
 	    return NULL;
 	}
-	sts = pmLookupDesc(new->info->pmid, &new->desc);
+	sts = pmLookupDesc_ctx(ctxp, new->info->pmid, &new->desc);
 	if (sts < 0) {
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_DERIVE) {
@@ -2036,7 +2036,7 @@ __dmopencontext(__pmContext *ctxp)
 	     * derived metric searching is performed if the name is valid
 	     * for a real metric in the current context.
 	     */
-	    sts = pmLookupName(1, &registered.mlist[i].name, &pmid);
+	    sts = pmLookupName_ctx(ctxp, 1, &registered.mlist[i].name, &pmid);
 	    if (sts >= 0 && !IS_DERIVED(pmid)) {
 #ifdef PCP_DEBUG
 		if (pmDebug & DBG_TRACE_DERIVE) {
@@ -2050,7 +2050,7 @@ __dmopencontext(__pmContext *ctxp)
 	    }
 	}
 	/* failures must be reported in bind_expr() or below */
-	cp->mlist[i].expr = bind_expr(i, registered.mlist[i].expr, 0);
+	cp->mlist[i].expr = bind_expr(ctxp, i, registered.mlist[i].expr, 0);
 	if (cp->mlist[i].expr != NULL) {
 	    /* failures must be reported in check_expr() or below */
 	    sts = check_expr(i, cp->mlist[i].expr);

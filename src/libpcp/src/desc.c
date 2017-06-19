@@ -38,17 +38,28 @@ __pmRecvDesc(int fd, __pmContext *ctxp, int timeout, pmDesc *desc)
     return sts;
 }
 
+/*
+ * Internal variant of pmLookupDesc() ... ctxp is not NULL for
+ * internal callers where the current context is already locked, but
+ * NULL for callers from above the PMAPI or internal callers when the
+ * current context is not locked.
+ */
 int
-pmLookupDesc(pmID pmid, pmDesc *desc)
+pmLookupDesc_ctx(__pmContext *ctxp, pmID pmid, pmDesc *desc)
 {
-    __pmContext	*ctxp;
+    int		need_unlock = 0;
     __pmDSO	*dp;
     int		fd, ctx, sts, tout;
 
     if ((sts = ctx = pmWhichContext()) < 0)
 	return sts;
-    if ((ctxp = __pmHandleToPtr(ctx)) == NULL)
-	return PM_ERR_NOCONTEXT;
+
+    if (ctxp == NULL) {
+	ctxp = __pmHandleToPtr(ctx);
+	if (ctxp == NULL)
+	    return PM_ERR_NOCONTEXT;
+	need_unlock = 1;
+    }
 
     if (ctxp->c_type == PM_CONTEXT_HOST) {
 	tout = ctxp->c_pmcd->pc_tout_sec;
@@ -88,8 +99,19 @@ pmLookupDesc(pmID pmid, pmDesc *desc)
 	if (sts2 >= 0)
 	    sts = sts2;
     }
-    PM_UNLOCK(ctxp->c_lock);
+    if (need_unlock)
+	PM_UNLOCK(ctxp->c_lock);
 
+    if (need_unlock) CHECK_C_LOCK;
+    return sts;
+}
+
+int
+pmLookupDesc(pmID pmid, pmDesc *desc)
+{
+    int	sts;
+    sts = pmLookupDesc_ctx(NULL, pmid, desc);
+    CHECK_C_LOCK;
     return sts;
 }
 
