@@ -1673,9 +1673,19 @@ __pmSetClientId(const char *id)
     char        	*ipaddr = NULL;
     __pmHostEnt		*servInfo;
     int			vblen;
+    __pmContext		*ctxp;
 
-    if ((sts = pmLookupName(1, &name, &pmid)) < 0)
+    if ((sts = pmWhichContext()) < 0) {
 	return sts;
+    }
+    ctxp = __pmHandleToPtr(sts);
+    if (ctxp == NULL)
+	return PM_ERR_NOCONTEXT;
+
+    if ((sts = pmLookupName_ctx(ctxp, 1, &name, &pmid)) < 0) {
+	PM_UNLOCK(ctxp->c_lock);
+	return sts;
+    }
 
     /*
      * Try to obtain the address and the actual host name.
@@ -1728,6 +1738,7 @@ __pmSetClientId(const char *id)
     /* build pmResult for pmStore() */
     pmvb = (pmValueBlock *)calloc(1, PM_VAL_HDR_SIZE+vblen);
     if (pmvb == NULL) {
+	PM_UNLOCK(ctxp->c_lock);
 	__pmNoMem("__pmSetClientId", PM_VAL_HDR_SIZE+vblen, PM_RECOV_ERR);
 	return -ENOMEM;
     }
@@ -1752,8 +1763,9 @@ __pmSetClientId(const char *id)
     memset(&store, 0, sizeof(store));
     store.numpmid = 1;
     store.vset[0] = &pmvs;
-    sts = pmStore(&store);
+    sts = pmStore_ctx(ctxp, &store);
     free(pmvb);
+    PM_UNLOCK(ctxp->c_lock);
     return sts;
 }
 
