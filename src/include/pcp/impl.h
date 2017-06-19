@@ -412,7 +412,7 @@ typedef struct {
 typedef struct {
     struct __pm_fops *fops;	/* i/o handler, assigned based on file type */
     __pm_off_t	position;	/* current uncompressed file position */
-    void	*private;	/* private data, e.g. for fd, blk cache, etc */
+    void	*priv;		/* private data, e.g. for fd, blk cache, etc */
 } __pmFILE;
 
 typedef struct __pm_fops {

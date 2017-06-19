@@ -27,16 +27,16 @@ stdio_open(__pmFILE *f, const char *path, const char *mode)
 {
     FILE *fp;
 
-    if ((f->private = malloc(sizeof(FILE *))) == NULL)
+    if ((f->priv = malloc(sizeof(FILE *))) == NULL)
 	return NULL;
 
     if ((fp = fopen(path, mode)) == NULL) {
-	free(f->private);
+	free(f->priv);
     	free(f);
 	return NULL;
     }
 
-    *((FILE **)f->private) = fp;
+    *((FILE **)f->priv) = fp;
     f->position = 0;
 
     return f;
@@ -45,7 +45,7 @@ stdio_open(__pmFILE *f, const char *path, const char *mode)
 static __pm_off_t
 stdio_seek(__pmFILE *f, __pm_off_t offset, int whence)
 {
-    FILE *fp = *(FILE **)f->private;
+    FILE *fp = *(FILE **)f->priv;
 
     f->position = fseek(fp, offset, whence);
 
@@ -55,7 +55,7 @@ stdio_seek(__pmFILE *f, __pm_off_t offset, int whence)
 static ssize_t
 stdio_read(__pmFILE *f, void *buf, size_t count)
 {
-    FILE *fp = *(FILE **)f->private;
+    FILE *fp = *(FILE **)f->priv;
     size_t n = fread(buf, count, 1, fp);
 
     f->position = ftell(fp);
@@ -66,7 +66,7 @@ stdio_read(__pmFILE *f, void *buf, size_t count)
 static ssize_t
 stdio_write(__pmFILE *f, void *buf, size_t count)
 {
-    FILE *fp = *(FILE **)f->private;
+    FILE *fp = *(FILE **)f->priv;
     size_t n = fwrite(buf, count, 1, fp);
 
     f->position = ftell(fp);
@@ -77,7 +77,7 @@ stdio_write(__pmFILE *f, void *buf, size_t count)
 static int
 stdio_fileno(__pmFILE *f)
 {
-    FILE *fp = *(FILE **)f->private;
+    FILE *fp = *(FILE **)f->priv;
 
     return fileno(fp);
 }
@@ -85,7 +85,7 @@ stdio_fileno(__pmFILE *f)
 static int
 stdio_flush(__pmFILE *f)
 {
-    FILE *fp = *(FILE **)f->private;
+    FILE *fp = *(FILE **)f->priv;
 
     return fflush(fp);
 }
@@ -94,12 +94,12 @@ static int
 stdio_close(__pmFILE *f)
 {
     /*
-     * close file, deallocate f, free private
+     * close file, deallocate f, free priv
      */
-    FILE *fp = *(FILE **)f->private;
+    FILE *fp = *(FILE **)f->priv;
     int ret = fclose(fp);
 
-    free(f->private);
+    free(f->priv);
     free(f);
 
     return ret;
