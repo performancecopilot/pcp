@@ -1,6 +1,7 @@
 #!/usr/bin/env pmpython
 #
 # Copyright (C) 2016 Sitaram Shelke.
+# Copyright (C) Alperen Karaoglu.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -348,7 +349,6 @@ class CpuUsageReporter:
         self.pidstat_options = pidstat_options
 
     def print_report(self, timestamp, ncpu):
-
         if self.pidstat_options.show_process_user:
             self.printer ("Timestamp\tUName\tPID\tusr\tsystem\tguest\t%CPU\tCPU\tCommand")
         else:
@@ -362,17 +362,11 @@ class CpuUsageReporter:
 
             if self.pidstat_options.per_processor_usage and total_percent is not None:
                 total_percent = float("%.2f"%(total_percent/ncpu))
-            if PidstatOptions.timefmt != None:
-                tstamp = datetime.fromtimestamp(time.time()).strftime(PidstatOptions.timefmt)
-                if self.pidstat_options.show_process_user:
-                    self.printer("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s" % (tstamp,process.user_name(),process.pid(),user_percent,system_percent,guest_percent,total_percent,process.cpu_number(),process.process_name()))
-                else:
-                    self.printer("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s" % (tstamp,process.user_id(),process.pid(),user_percent,system_percent,guest_percent,total_percent,process.cpu_number(),process.process_name()))
+
+            if self.pidstat_options.show_process_user:
+                self.printer("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s" % (timestamp,process.user_name(),process.pid(),user_percent,system_percent,guest_percent,total_percent,process.cpu_number(),process.process_name()))
             else:
-                if self.pidstat_options.show_process_user:
-                    self.printer("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s" % (timestamp,process.user_name(),process.pid(),user_percent,system_percent,guest_percent,total_percent,process.cpu_number(),process.process_name()))
-                else:
-                    self.printer("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s" % (timestamp,process.user_id(),process.pid(),user_percent,system_percent,guest_percent,total_percent,process.cpu_number(),process.process_name()))
+                self.printer("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s" % (timestamp,process.user_id(),process.pid(),user_percent,system_percent,guest_percent,total_percent,process.cpu_number(),process.process_name()))
 
 class CpuProcessPrioritiesReporter:
     def __init__(self, process_priority, process_filter, printer, pidstat_options):
@@ -385,20 +379,12 @@ class CpuProcessPrioritiesReporter:
         self.printer ("Timestamp\tUID\tPID\tprio\tpolicy\tCommand")
         processes = self.process_filter.filter_processes(self.process_priority.get_processes())
         for process in processes:
-            if PidstatOptions.timefmt != None:
-                tstamp = datetime.fromtimestamp(time.time()).strftime(PidstatOptions.timefmt)
-                if self.pidstat_options.show_process_user:
-                    self.printer("%s\t%s\t%s\t%s\t%s\t%s" % (tstamp,process.user_name(),process.pid(),process.priority(),process.policy(),process.process_name()))
-                else:
-                    self.printer("%s\t%s\t%s\t%s\t%s\t%s" % (tstamp,process.user_id(),process.pid(),process.priority(),process.policy(),process.process_name()))
+            if self.pidstat_options.show_process_user:
+                self.printer("%s\t%s\t%s\t%s\t%s\t%s" % (timestamp,process.user_name(),process.pid(),process.priority(),process.policy(),process.process_name()))
             else:
-                if self.pidstat_options.show_process_user:
-                    self.printer("%s\t%s\t%s\t%s\t%s\t%s" % (timestamp,process.user_name(),process.pid(),process.priority(),process.policy(),process.process_name()))
-                else:
-                    self.printer("%s\t%s\t%s\t%s\t%s\t%s" % (timestamp,process.user_id(),process.pid(),process.priority(),process.policy(),process.process_name()))
+                self.printer("%s\t%s\t%s\t%s\t%s\t%s" % (timestamp,process.user_id(),process.pid(),process.priority(),process.policy(),process.process_name()))
+
 class CpuProcessMemoryUtilReporter:
-
-
     def __init__(self, process_memory_util, process_filter, delta_time, printer, pidstat_options):
         self.process_memory_util = process_memory_util
         self.process_filter = process_filter
@@ -412,17 +398,11 @@ class CpuProcessMemoryUtilReporter:
         for process in processes:
             maj_flt = process.majflt()
             min_flt = process.minflt()
-            if PidstatOptions.timefmt != None:
-                tstamp = datetime.fromtimestamp(time.time()).strftime(PidstatOptions.timefmt)
-                if self.pidstat_options.show_process_user:
-                    self.printer("%s\t%s\t%s\t%s\t\t%s\t\t%s\t%s\t%s\t%s" % (tstamp,process.user_name(),process.pid(),min_flt,maj_flt,process.vsize(),process.rss(),process.mem(),process.process_name()))
-                else:
-                    self.printer("%s\t%s\t%s\t%s\t\t%s\t\t%s\t%s\t%s\t%s" % (tstamp,process.user_id(),process.pid(),min_flt,maj_flt,process.vsize(),process.rss(),process.mem(),process.process_name()))
+            if self.pidstat_options.show_process_user:
+                self.printer("%s\t%s\t%s\t%s\t\t%s\t\t%s\t%s\t%s\t%s" % (timestamp,process.user_name(),process.pid(),min_flt,maj_flt,process.vsize(),process.rss(),process.mem(),process.process_name()))
             else:
-                if self.pidstat_options.show_process_user:
-                    self.printer("%s\t%s\t%s\t%s\t\t%s\t\t%s\t%s\t%s\t%s" % (timestamp,process.user_name(),process.pid(),min_flt,maj_flt,process.vsize(),process.rss(),process.mem(),process.process_name()))
-                else:
-                    self.printer("%s\t%s\t%s\t%s\t\t%s\t\t%s\t%s\t%s\t%s" % (timestamp,process.user_id(),process.pid(),min_flt,maj_flt,process.vsize(),process.rss(),process.mem(),process.process_name()))
+                self.printer("%s\t%s\t%s\t%s\t\t%s\t\t%s\t%s\t%s\t%s" % (timestamp,process.user_id(),process.pid(),min_flt,maj_flt,process.vsize(),process.rss(),process.mem(),process.process_name()))
+
 class CpuProcessStackUtilReporter:
     def __init__(self, process_stack_util, process_filter, printer, pidstat_options):
         self.process_stack_util = process_stack_util
@@ -434,17 +414,12 @@ class CpuProcessStackUtilReporter:
         self.printer ("Timestamp\tUID\tPID\tStkSize\tCommand")
         processes = self.process_filter.filter_processes(self.process_stack_util.get_processes())
         for process in processes:
-            if PidstatOptions.timefmt != None:
-                tstamp = datetime.fromtimestamp(time.time()).strftime(PidstatOptions.timefmt)
-                if self.pidstat_options.show_process_user:
-                    self.printer("%s\t%s\t%s\t%s\t%s" % (tstamp,process.user_name(),process.pid(),process.stack_size(),process.process_name()))
-                else:
-                    self.printer("%s\t%s\t%s\t%s\t%s" % (tstamp,process.user_id(),process.pid(),process.stack_size(),process.process_name()))
+            if self.pidstat_options.show_process_user:
+                self.printer("%s\t%s\t%s\t%s\t%s" % (timestamp,process.user_name(),process.pid(),process.stack_size(),process.process_name()))
             else:
-                if self.pidstat_options.show_process_user:
-                    self.printer("%s\t%s\t%s\t%s\t%s" % (timestamp,process.user_name(),process.pid(),process.stack_size(),process.process_name()))
-                else:
-                    self.printer("%s\t%s\t%s\t%s\t%s" % (timestamp,process.user_id(),process.pid(),process.stack_size(),process.process_name()))
+                self.printer("%s\t%s\t%s\t%s\t%s" % (timestamp,process.user_id(),process.pid(),process.stack_size(),process.process_name()))
+
+
 class NoneHandlingPrinterDecorator:
     def __init__(self, printer):
         self.printer = printer
