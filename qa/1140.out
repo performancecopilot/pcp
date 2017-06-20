@@ -3,19 +3,19 @@ QA output created by 1140
 === testing pidstat replay of rewritten archive
 Linux  4.4.0-31-generic  (ram-Lenovo)  08/05/16  x86_64    (4 CPU)
 Timestamp	UID	PID	usr	system	guest	%CPU	CPU	Command
-12:05:06	0	1235	?	?	?	?	2	pmdaroot
-12:05:06	1000	1238	?	?	?	?	3	pmdaproc
-12:05:06	0	1240	?	?	?	?	0	pmdaxfs
-12:05:06	999	1241	?	?	?	?	2	pmdasample
-12:05:06	0	1242	?	?	?	?	2	pmdalinux
-12:05:06	999	1243	?	?	?	?	3	pmdasimple
+07:35:06	0	1235	?	?	?	?	2	pmdaroot
+07:35:06	1000	1238	?	?	?	?	3	pmdaproc
+07:35:06	0	1240	?	?	?	?	0	pmdaxfs
+07:35:06	999	1241	?	?	?	?	2	pmdasample
+07:35:06	0	1242	?	?	?	?	2	pmdalinux
+07:35:06	999	1243	?	?	?	?	3	pmdasimple
 Timestamp	UID	PID	usr	system	guest	%CPU	CPU	Command
-12:05:07	0	1235	0.0	0.0	0.0	0.0	2	pmdaroot
-12:05:07	1000	1238	0.0	1.0	0.0	1.0	3	pmdaproc
-12:05:07	0	1240	0.0	0.0	0.0	0.0	0	pmdaxfs
-12:05:07	999	1241	0.0	0.0	0.0	0.0	2	pmdasample
-12:05:07	0	1242	0.0	0.0	0.0	0.0	1	pmdalinux
-12:05:07	999	1243	0.0	0.0	0.0	0.0	3	pmdasimple
+07:35:07	0	1235	0.0	0.0	0.0	0.0	2	pmdaroot
+07:35:07	1000	1238	0.0	1.0	0.0	1.0	3	pmdaproc
+07:35:07	0	1240	0.0	0.0	0.0	0.0	0	pmdaxfs
+07:35:07	999	1241	0.0	0.0	0.0	0.0	2	pmdasample
+07:35:07	0	1242	0.0	0.0	0.0	0.0	1	pmdalinux
+07:35:07	999	1243	0.0	0.0	0.0	0.0	3	pmdasimple
 
 === testing pcp-pidstat on pcp-zeroconf archive
 Linux  4.10.13-200.fc25.x86_64  (foobar)  05/24/17  x86_64    (4 CPU)
@@ -71,6 +71,8 @@ Mem:      32567420   32198752     368668          0       6456   17862896
 Swap      16777212      16364   16760848
 
 === testing pcp-vmstat on pcp-zeroconf archive
+Note: timezone set to local timezone of host "foobar" from archive
+
 @ Wed May 24 11:34:37 2017
  loadavg                      memory      swap        io    system                 cpu
    1 min   swpd   free   buff  cache   pi   po   bi   bo   in   cs  us  sy  id  wa  st
