@@ -151,21 +151,21 @@ _dm_stats_search_region(struct dm_names *names)
 	uint64_t nr_regions;
 
 	if (!(dms = dm_stats_create(DM_STATS_ALL_PROGRAMS)))
-		goto bad;
+		goto nostats;
 
 	if (!dm_stats_bind_name(dms, names->name))
-		goto bad;
+		goto nostats;
 
 	if (!dm_stats_list(dms, DM_STATS_ALL_PROGRAMS))
-		goto bad;
+		goto nostats;
 
 	if (!(nr_regions = dm_stats_get_nr_regions(dms)))
-		goto bad;
+		goto nostats;
 
 
 	dm_stats_destroy(dms);
 	return 1;
-bad:
+nostats:
 	dm_stats_destroy(dms);
 	return 0;
 }
@@ -183,16 +183,16 @@ pm_dm_stats_instance_refresh(void)
 	pmdaCacheOp(indom, PMDA_CACHE_INACTIVE);
 
 	if (!(dmt = dm_task_create(DM_DEVICE_LIST)))
-		goto out;
+		goto nodevice;
 
 	if (!dm_task_enable_checks(dmt))
-		goto out;
+		goto nodevice;
 
 	if (!dm_task_run(dmt))
-		goto out;
+		goto nodevice;
 
 	if(!(names = dm_task_get_names(dmt)))
-		goto out;
+		goto nodevice;
 
 
 	do {
@@ -216,7 +216,7 @@ pm_dm_stats_instance_refresh(void)
 	dm_task_destroy(dmt);
 	return 0;
 
-out:
+nodevice:
 	dm_task_destroy(dmt);
 	return -oserror();
 }
