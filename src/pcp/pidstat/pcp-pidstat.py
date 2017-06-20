@@ -1,7 +1,7 @@
 #!/usr/bin/env pmpython
 #
 # Copyright (C) 2016 Sitaram Shelke.
-# Copyright (C) Alperen Karaoglu.
+# Copyright (C) 2017 Alperen Karaoglu.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -439,7 +439,7 @@ class PidstatOptions(pmapi.pmOptions):
     filtered_process_user = None
     pid_filter = None
     pid_list = []
-    timefmt = None
+    timefmt = "%H:%M:%S"
 
     def checkOptions(self):
         if (self.show_process_priority and self.show_process_memory_util):
@@ -548,6 +548,8 @@ class PidstatReport(pmcc.MetricGroupPrinter):
             self.Machine_info_count = 1
 
         timestamp = group.contextCache.pmCtime(int(group.timestamp)).rstrip().split()
+        ts = group.contextCache.pmLocaltime(int(group.timestamp))
+        timestamp = time.strftime(PidstatOptions.timefmt, ts.struct_time())
         interval_in_seconds = self.timeStampDelta(group)
         ncpu = self.get_ncpu(group)
 
@@ -560,7 +562,7 @@ class PidstatReport(pmcc.MetricGroupPrinter):
             printdecorator = NoneHandlingPrinterDecorator(stdout)
             report = CpuProcessStackUtilReporter(process_stack_util, process_filter, printdecorator.Print, PidstatOptions)
 
-            report.print_report(timestamp[3])
+            report.print_report(timestamp)
         elif(PidstatOptions.show_process_memory_util):
             process_memory_util = CpuProcessMemoryUtil(metric_repository)
             process_filter = ProcessFilter(PidstatOptions)
@@ -568,7 +570,7 @@ class PidstatReport(pmcc.MetricGroupPrinter):
             printdecorator = NoneHandlingPrinterDecorator(stdout)
             report = CpuProcessMemoryUtilReporter(process_memory_util, process_filter, interval_in_seconds, printdecorator.Print, PidstatOptions)
 
-            report.print_report(timestamp[3])
+            report.print_report(timestamp)
         elif(PidstatOptions.show_process_priority):
             process_priority = CpuProcessPriorities(metric_repository)
             process_filter = ProcessFilter(PidstatOptions)
@@ -576,7 +578,7 @@ class PidstatReport(pmcc.MetricGroupPrinter):
             printdecorator = NoneHandlingPrinterDecorator(stdout)
             report = CpuProcessPrioritiesReporter(process_priority, process_filter, printdecorator.Print, PidstatOptions)
 
-            report.print_report(timestamp[3])
+            report.print_report(timestamp)
         else:
             cpu_usage = CpuUsage(metric_repository)
             process_filter = ProcessFilter(PidstatOptions)
@@ -584,7 +586,7 @@ class PidstatReport(pmcc.MetricGroupPrinter):
             printdecorator = NoneHandlingPrinterDecorator(stdout)
             report = CpuUsageReporter(cpu_usage, process_filter, interval_in_seconds, printdecorator.Print, PidstatOptions)
 
-            report.print_report(timestamp[3],ncpu)
+            report.print_report(timestamp,ncpu)
 
 
 if __name__ == "__main__":

@@ -2,7 +2,7 @@
 # PCP QA Test No. 064
 #
 # Testing pcp-pidstat's -f argument
-# Copyright (c) 2017 Alperen Karaoglu
+# Copyright (C) 2017 Alperen Karaoglu
 #
 
 seq=`basename $0`
