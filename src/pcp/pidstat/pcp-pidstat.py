@@ -319,9 +319,12 @@ class ProcessFilter:
         return True
 
     def __matches_process_name(self, process):
+        name = process.process_name()
+        if name is None:
+            return False # no match
         if self.options.process_name is not None:
-            return re.search(self.options.process_name, process.process_name())
-        return True
+            return re.search(self.options.process_name, name)
+        return True # all match
 
     def __matches_process_priority(self, process):
         if self.options.show_process_priority and process.priority() is not None:
