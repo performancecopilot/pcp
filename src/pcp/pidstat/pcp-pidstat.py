@@ -547,7 +547,6 @@ class PidstatReport(pmcc.MetricGroupPrinter):
             self.print_machine_info(group, manager)
             self.Machine_info_count = 1
 
-        timestamp = group.contextCache.pmCtime(int(group.timestamp)).rstrip().split()
         ts = group.contextCache.pmLocaltime(int(group.timestamp))
         timestamp = time.strftime(PidstatOptions.timefmt, ts.struct_time())
         interval_in_seconds = self.timeStampDelta(group)
