@@ -74,6 +74,10 @@ typedef struct {
  */
 static __pmHashCtl	pc_hc;
 
+static int LogCheckForNextArchive(__pmContext *, int, pmResult **);
+static int LogChangeToNextArchive(__pmContext *);
+static int LogChangeToPreviousArchive(__pmContext *);
+
 #ifdef PM_MULTI_THREAD
 static pthread_mutex_t	logutil_lock = PTHREAD_MUTEX_INITIALIZER;
 #else
@@ -1611,12 +1615,9 @@ __pmLogGenerateMark(__pmLogCtl *lcp, int mode, pmResult **result)
 }
 
 static void
-clearMarkDone(void)
+clearMarkDone(__pmContext *ctxp)
 {
-    __pmContext		*ctxp;
-
-    /* Get the current context. It must be an archive context. */
-    ctxp = __pmCurrentContext();
+    /* The current context should be an archive context. */
     if (ctxp != NULL) {
 	if (ctxp->c_type == PM_CONTEXT_ARCHIVE)
 	    ctxp->c_archctl->ac_mark_done = 0;
@@ -1702,7 +1703,7 @@ __pmLogRead_ctx(__pmContext *ctxp, int mode, FILE *peekf, pmResult **result, int
 		     * No more volumes. See if there is a previous archive to
 		     * switch to.
 		     */
-		    sts = __pmLogCheckForNextArchive(lcp, PM_MODE_BACK, result);
+		    sts = LogCheckForNextArchive(ctxp, PM_MODE_BACK, result);
 		    if (sts == 0) {
 			/* There is a next archive to change to. */
 			if (*result != NULL)
@@ -1712,7 +1713,8 @@ __pmLogRead_ctx(__pmContext *ctxp, int mode, FILE *peekf, pmResult **result, int
 			 * Mark was previously generated. Try the previous
 			 * archive, if any.
 			 */
-			if ((sts = __pmLogChangeToPreviousArchive(&lcp)) == 0) {
+			if ((sts = LogChangeToPreviousArchive(ctxp)) == 0) {
+			    lcp = ctxp->c_archctl->ac_log;
 			    f = lcp->l_mfp;
 			    offset = ftell(f);
 			    assert(offset >= 0);
@@ -1763,14 +1765,15 @@ again:
 		 * No more volumes. See if there is another archive to switch
 		 * to.
 		 */
-		sts = __pmLogCheckForNextArchive(lcp, PM_MODE_FORW, result);
+		sts = LogCheckForNextArchive(ctxp, PM_MODE_FORW, result);
 		if (sts == 0) {
 		    /* There is a next archive to change to. */
 		    if (*result != NULL)
 			return 0; /* A mark record was generated */
 
 		    /* Mark was previously generated. Try the next archive. */
-		    if ((sts = __pmLogChangeToNextArchive(&lcp)) == 0) {
+		    if ((sts = LogChangeToNextArchive(ctxp)) == 0) {
+			lcp = ctxp->c_archctl->ac_log;
 			f = lcp->l_mfp;
 			offset = ftell(f);
 			assert(offset >= 0);
@@ -1806,7 +1809,7 @@ again:
      * ac_mark_done flag here automatically handles changes in direction which
      * happen right at the boundary.
      */
-    clearMarkDone();
+    clearMarkDone(ctxp);
 
     /*
      * This is pretty ugly (forward case shown backwards is similar) ...
@@ -3020,21 +3023,16 @@ __pmLogChangeArchive(__pmContext *ctxp, int arch)
 /*
  * Check whether there is a next archive to switch to. Generate a MARK
  * record if one has not already been generated.
+ *
+ * Internal variant of __pmLogCheckForNextArchive() ... using a
+ * __pmContext * instead of a __pmLogCtl * as the first argument
+ * so that the current context can be carried down the call stack.
  */
-int
-__pmLogCheckForNextArchive(__pmLogCtl *lcp, int mode, pmResult **result)
+static int
+LogCheckForNextArchive(__pmContext *ctxp, int mode, pmResult **result)
 {
-    __pmContext		*ctxp;
-    __pmArchCtl		*acp;
+    __pmArchCtl	*acp;
     int		sts = 0;
-
-    /* Get the current context. It must be an archive context. */
-    ctxp = __pmCurrentContext();
-    if (ctxp == NULL)
-	return PM_ERR_EOL;
-    if (ctxp->c_type != PM_CONTEXT_ARCHIVE) {
-	return PM_ERR_NOTARCHIVE;
-    }
 
     /*
      * Check whether there is a subsequent archive to switch to.
@@ -3059,31 +3057,53 @@ __pmLogCheckForNextArchive(__pmLogCtl *lcp, int mode, pmResult **result)
     return sts;
 }
 
-/* Advance forward to the next archive in the context, if any. */
+/*
+ * TODO - when libpcp version changes, cull this function from impl.h
+ * ... and move declaration to internal.h or drop the function entirely
+ * if not used outside this source file
+ */
 int
-__pmLogChangeToNextArchive(__pmLogCtl **lcp)
+__pmLogCheckForNextArchive(__pmLogCtl *lcp, int mode, pmResult **result)
 {
+    int		sts;
     __pmContext	*ctxp;
-    __pmArchCtl	*acp;
-    __pmTimeval prev_endtime;
-    __pmTimeval	save_origin;
-    int		save_mode;
 
-    /* Get the current context. It must be an archive context. */
-    ctxp = __pmCurrentContext();
+    if ((sts = pmWhichContext()) < 0)
+	return sts;
+    ctxp = __pmHandleToPtr(sts);
     if (ctxp == NULL)
 	return PM_ERR_NOCONTEXT;
     if (ctxp->c_type != PM_CONTEXT_ARCHIVE) {
 	PM_UNLOCK(ctxp->c_lock);
 	return PM_ERR_NOTARCHIVE;
     }
+    sts = LogCheckForNextArchive(ctxp, mode, result);
+    PM_UNLOCK(ctxp->c_lock);
+    CHECK_C_LOCK;
+    return sts;
+}
+
+/*
+ * Advance forward to the next archive in the context, if any.
+ *
+ * Internal variant of __pmLogChangeToNextArchive() ... using a
+ * __pmContext * instead of a __pmLogCtl * as the first argument
+ * so that the current context can be carried down the call stack.
+ */
+static int
+LogChangeToNextArchive(__pmContext *ctxp)
+{
+    __pmLogCtl	*lcp = ctxp->c_archctl->ac_log;
+    __pmArchCtl	*acp;
+    __pmTimeval prev_endtime;
+    __pmTimeval	save_origin;
+    int		save_mode;
 
     /*
      * Check whether there is a subsequent archive to switch to.
      */
     acp = ctxp->c_archctl;
     if (acp->ac_cur_log >= acp->ac_num_logs - 1) {
-	PM_UNLOCK(ctxp->c_lock);
 	return PM_ERR_EOL; /* no more archives */
     }
 
@@ -3098,7 +3118,7 @@ __pmLogChangeToNextArchive(__pmLogCtl **lcp)
      * l_endtime for the current archive was updated when the <mark>
      * record was generated. Save it.
      */
-    prev_endtime = (*lcp)->l_endtime;
+    prev_endtime = lcp->l_endtime;
 	       
     /*
      * __pmLogChangeArchive() will update the c_origin and c_mode fields of
@@ -3110,7 +3130,7 @@ __pmLogChangeToNextArchive(__pmLogCtl **lcp)
     save_mode = ctxp->c_mode;
     /* Switch to the next archive. */
     __pmLogChangeArchive(ctxp, acp->ac_cur_log + 1);
-    *lcp = acp->ac_log;
+    lcp = acp->ac_log;
     ctxp->c_origin = save_origin;
     ctxp->c_mode = save_mode;
 
@@ -3125,35 +3145,58 @@ __pmLogChangeToNextArchive(__pmLogCtl **lcp)
      * Check for temporal overlap here. Do this last in case the API client
      * chooses to keep reading anyway.
      */
-    if (__pmTimevalSub(&prev_endtime, &(*lcp)->l_label.ill_start) > 0) {
-	PM_UNLOCK(ctxp->c_lock);
+    if (__pmTimevalSub(&prev_endtime, &lcp->l_label.ill_start) > 0) {
 	return PM_ERR_LOGOVERLAP;
     }
 
-    PM_UNLOCK(ctxp->c_lock);
     return 0;
 }
 
-/* Advance backward to the previous archive in the context, if any. */
+/*
+ * TODO - when libpcp version changes, cull this function from impl.h
+ * ... and move declaration to internal.h or drop the function entirely
+ * if not used outside this source file
+ */
 int
-__pmLogChangeToPreviousArchive(__pmLogCtl **lcp)
+__pmLogChangeToNextArchive(__pmLogCtl **lcp)
 {
-    __pmContext		*ctxp;
-    __pmArchCtl		*acp;
-    struct timeval	current_endtime;
-    __pmTimeval		prev_starttime;
-    __pmTimeval		save_origin;
-    int			save_mode;
-    int			sts;
+    int		sts;
+    __pmContext	*ctxp;
 
-    /* Get the current context. It must be an archive context. */
-    ctxp = __pmCurrentContext();
+    if ((sts = pmWhichContext()) < 0)
+	return sts;
+    ctxp = __pmHandleToPtr(sts);
     if (ctxp == NULL)
 	return PM_ERR_NOCONTEXT;
     if (ctxp->c_type != PM_CONTEXT_ARCHIVE) {
 	PM_UNLOCK(ctxp->c_lock);
 	return PM_ERR_NOTARCHIVE;
     }
+    if ((sts = LogChangeToNextArchive(ctxp)) == 0) {
+	*lcp = ctxp->c_archctl->ac_log;
+    }
+    PM_UNLOCK(ctxp->c_lock);
+    CHECK_C_LOCK;
+    return sts;
+}
+
+/*
+ * Advance backward to the previous archive in the context, if any.
+ *
+ * Internal variant of __pmLogChangeToPreviousArchive() ... using a
+ * __pmContext * instead of a __pmLogCtl * as the first argument
+ * so that the current context can be carried down the call stack.
+ */
+static int
+LogChangeToPreviousArchive(__pmContext *ctxp)
+{
+    __pmLogCtl		*lcp = ctxp->c_archctl->ac_log;
+    __pmArchCtl		*acp;
+    struct timeval	current_endtime;
+    __pmTimeval		prev_starttime;
+    __pmTimeval		save_origin;
+    int			save_mode;
+    int			sts;
 
     /*
      * Check whether there is a previous archive to switch to.
@@ -3174,7 +3217,7 @@ __pmLogChangeToPreviousArchive(__pmLogCtl **lcp)
      *
      * Save the start time of the current archive.
      */
-    prev_starttime = (*lcp)->l_label.ill_start;
+    prev_starttime = lcp->l_label.ill_start;
 
     /*
      * __pmLogChangeArchive() will update the c_origin and c_mode fields of
@@ -3187,7 +3230,7 @@ __pmLogChangeToPreviousArchive(__pmLogCtl **lcp)
     save_mode = ctxp->c_mode;
     /* Switch to the next archive. */
     __pmLogChangeArchive(ctxp, acp->ac_cur_log - 1);
-    *lcp = acp->ac_log;
+    lcp = acp->ac_log;
     ctxp->c_origin = save_origin;
     ctxp->c_mode = save_mode;
 
@@ -3201,9 +3244,9 @@ __pmLogChangeToPreviousArchive(__pmLogCtl **lcp)
     }
 
     /* Set up to scan backwards from the end of the archive. */
-    __pmLogChangeVol(*lcp, (*lcp)->l_maxvol);
-    fseek((*lcp)->l_mfp, (long)0, SEEK_END);
-    ctxp->c_archctl->ac_offset = ftell((*lcp)->l_mfp);
+    __pmLogChangeVol(lcp, lcp->l_maxvol);
+    fseek(lcp->l_mfp, (long)0, SEEK_END);
+    ctxp->c_archctl->ac_offset = ftell(lcp->l_mfp);
     assert(ctxp->c_archctl->ac_offset >= 0);
     ctxp->c_archctl->ac_vol = ctxp->c_archctl->ac_log->l_curvol;
 
@@ -3211,13 +3254,41 @@ __pmLogChangeToPreviousArchive(__pmLogCtl **lcp)
      * Check for temporal overlap here. Do this last in case the API client
      * chooses to keep reading anyway.
      */
-    if (__pmTimevalSub(&(*lcp)->l_endtime, &prev_starttime) > 0) {
+    if (__pmTimevalSub(&lcp->l_endtime, &prev_starttime) > 0) {
 	PM_UNLOCK(ctxp->c_lock);
 	return PM_ERR_LOGOVERLAP;  /* temporal overlap */
     }
 
     PM_UNLOCK(ctxp->c_lock);
     return 0;
+}
+
+/*
+ * TODO - when libpcp version changes, cull this function from impl.h
+ * ... and move declaration to internal.h or drop the function entirely
+ * if not used outside this source file
+ */
+int
+__pmLogChangeToPreviousArchive(__pmLogCtl **lcp)
+{
+    int		sts;
+    __pmContext	*ctxp;
+
+    if ((sts = pmWhichContext()) < 0)
+	return sts;
+    ctxp = __pmHandleToPtr(sts);
+    if (ctxp == NULL)
+	return PM_ERR_NOCONTEXT;
+    if (ctxp->c_type != PM_CONTEXT_ARCHIVE) {
+	PM_UNLOCK(ctxp->c_lock);
+	return PM_ERR_NOTARCHIVE;
+    }
+    if ((sts = LogChangeToPreviousArchive(ctxp)) == 0) {
+	*lcp = ctxp->c_archctl->ac_log;
+    }
+    PM_UNLOCK(ctxp->c_lock);
+    CHECK_C_LOCK;
+    return sts;
 }
 
 __pmTimeval *
