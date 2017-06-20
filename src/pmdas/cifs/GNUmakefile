@@ -43,8 +43,7 @@ build-me: $(CMDTARGET) $(LIBTARGET)
 install: default
 	$(INSTALL) -m 755 -d $(PMDADIR)
 	$(INSTALL) -m 644 root pmns domain.h help $(PMDADIR)
-	$(INSTALL) -m 755 Install Remove $(CMDTARGET) $(PMDADIR)
-	$(INSTALL) -m 755 Install Remove $(LIBTARGET) $(PMDADIR)
+	$(INSTALL) -m 755 Install Remove $(CMDTARGET) $(LIBTARGET) $(PMDADIR)
 	@$(INSTALL_MAN)
 else
 build-me:

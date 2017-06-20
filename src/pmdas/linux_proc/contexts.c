@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013,2015 Red Hat.
+ * Copyright (c) 2013,2015,2017 Red Hat.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -80,11 +80,22 @@ proc_ctx_set_groupid(int ctx, const char *value)
 static void
 proc_ctx_set_container(int ctx, const char *value, int length)
 {
+    char	*name = length > 1 ? strndup(value, length) : NULL;
+
     proc_ctx_growtab(ctx);
     ctxtab[ctx].container.pid = 0;
-    ctxtab[ctx].container.length = length;
-    ctxtab[ctx].container.name = strndup(value, length);
-    ctxtab[ctx].state |= (CTX_ACTIVE | CTX_CONTAINER);
+    if (name) {
+	ctxtab[ctx].container.name = name;
+	ctxtab[ctx].container.length = length;
+	ctxtab[ctx].state |= CTX_CONTAINER;
+    } else {
+	if (ctxtab[ctx].container.name != NULL)
+	    free((void *)ctxtab[ctx].container.name);
+	ctxtab[ctx].container.name = NULL;
+	ctxtab[ctx].container.length = 0;
+	ctxtab[ctx].state &= ~CTX_CONTAINER;
+    }
+    ctxtab[ctx].state |= CTX_ACTIVE;
 }
 
 int

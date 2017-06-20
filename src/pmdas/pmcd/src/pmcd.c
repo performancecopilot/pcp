@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2016 Red Hat.
+ * Copyright (c) 2013-2017 Red Hat.
  * Copyright (c) 1995-2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -1915,13 +1915,16 @@ pmcd_attribute(int ctx, int attr, const char *value, int len, pmdaExt *pmda)
     if (ctx >= num_ctx)
 	grow_ctxtab(ctx);
     if (attr == PCP_ATTR_CONTAINER) {
+	char	*name = len > 1 ? strndup(value, len) : NULL;
+
 	ctxtab[ctx].id = this_client_id;
 	ctxtab[ctx].seq = client[this_client_id].seq;
 	if (ctxtab[ctx].container.name)
 	    free(ctxtab[ctx].container.name);
-	if ((ctxtab[ctx].container.name = strdup(value)) == NULL)
-	    return -ENOMEM;
-	ctxtab[ctx].container.length = len;
+	if ((ctxtab[ctx].container.name = name) != NULL)
+	    ctxtab[ctx].container.length = len;
+	else
+	    ctxtab[ctx].container.length = 0;
     }
     return pmdaAttribute(ctx, attr, value, len, pmda);
 }

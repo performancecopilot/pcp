@@ -11,7 +11,7 @@
 #		when the group was added to the configuration file
 #	delta	delta argument for pmlogger "logging ... on delta" clause
 #
-# Copyright (c) 2014,2016 Red Hat.
+# Copyright (c) 2014,2016,2017 Red Hat.
 # Copyright (c) 1998,2003 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -56,6 +56,30 @@ _usage()
 {
     pmgetopt --progname=$prog --config=$tmp/usage --usage
     exit
+}
+
+# Setup the $tmp/pmprobe.out file for use
+_setup()
+{
+    rm -f $tmp/pmprobe.out $tmp/pmprobe.in $tmp/pmprobe
+    find $BASE -type f \
+    | sed \
+	-e '/\/v1.0\//d' \
+    | LC_COLLATE=POSIX sort \
+    | while read tag
+    do
+	if sed 1q <"$tag" | grep '^#pmlogconf-setup 2.0' >/dev/null
+	then
+	    :
+	else
+	    # not one of our group files, skip it ...
+	    continue
+	fi
+	grep "^probe" $tag | $PCP_AWK_PROG '{ print $2 }' >>$tmp/pmprobe.in
+    done
+    sort -u $tmp/pmprobe.in > $tmp/pmprobe
+    [ -z "$HOST" ] && HOST=local:
+    pmprobe -F -h $HOST -v `cat $tmp/pmprobe` >> $tmp/pmprobe.out
 }
 
 quick=false
@@ -191,7 +215,7 @@ BEGIN						{ out = "'"$tmp/pre"'" }
 						{ print >out }'
 	    mv $tmp/pre $tmp/ctl
 	    [ -z "$HOST" ] && HOST=local:
-	    if $PCP_BINADM_DIR/pmlogconf-setup -h $HOST $setupflags $BASE/"$tag" 2>$tmp/err >$tmp/out
+	    if $PCP_BINADM_DIR/pmlogconf-setup -h $HOST -t $tmp/pmprobe.out $setupflags $BASE/"$tag" 2>$tmp/err >$tmp/out
 	    then
 		:
 	    else
@@ -215,7 +239,7 @@ BEGIN						{ out = "'"$tmp/pre"'" }
 	if $reprobe
 	then
 	    [ -z "$HOST" ] && HOST=local:
-	    if $PCP_BINADM_DIR/pmlogconf-setup -h $HOST $setupflags $BASE/"$tag" 2>$tmp/err >$tmp/out
+	    if $PCP_BINADM_DIR/pmlogconf-setup -h $HOST -t $tmp/pmprobe.out $setupflags $BASE/"$tag" 2>$tmp/err >$tmp/out
 	    then
 		:
 	    else
@@ -478,6 +502,7 @@ then
     new=true
     [ -z "$HOST" ] && HOST=local:
     [ -z "$BASE" ] && BASE=$PCP_VAR_DIR/config/pmlogconf
+    _setup
 
     cat <<End-of-File >$tmp/in
 #pmlogconf 2.0
@@ -508,7 +533,7 @@ End-of-File
 	    # not one of our group files, skip it ...
 	    continue
 	fi
-	if $PCP_BINADM_DIR/pmlogconf-setup -h $HOST $setupflags "$tag" 2>$tmp/err >$tmp/out
+	if $PCP_BINADM_DIR/pmlogconf-setup -h $HOST -t $tmp/pmprobe.out $setupflags "$tag" 2>$tmp/err >$tmp/out
 	then
 	    :
 	else
