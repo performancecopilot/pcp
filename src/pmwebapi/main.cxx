@@ -1,7 +1,7 @@
 /*
  * JSON web bridge for PMAPI.
  *
- * Copyright (c) 2011-2016 Red Hat.
+ * Copyright (c) 2011-2017 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -360,6 +360,10 @@ server_dump_configuration ()
         clog << "\tPermissive mode enabled" << endl;
     else
         clog << "\tPermissive mode disabled" << endl;
+    if (__pmServerHasFeature(PM_SERVER_FEATURE_CREDS_REQD))
+        clog << "\tMandatory authentication enabled" << endl;
+    else
+        clog << "\tMandatory authentication disabled" << endl;
     clog << "\tUsing libmicrohttpd " << MHD_get_version () << endl;
 
     cwd = getcwd (cwdpath, sizeof (cwdpath));
@@ -497,6 +501,7 @@ longopts[] = {
     {"resources", 1, 'R', "DIR", "serve non-API files from given directory"},
     {"log", 1, 'l', "FILE", "redirect diagnostics and trace output"},
     { "", 0, 'S', 0, "disable service advertisement" },
+    { "", 0, 'C', 0, "allow only authenticated clients" },
     {"verbose", 0, 'v', 0, "increase verbosity"},
 #ifdef HAVE_PTHREAD_H
     {"threads", 1, 'M', 0, "allow multiple threads [default 0]"},
@@ -536,7 +541,7 @@ main (int argc, char *argv[])
     __pmGetUsername (&username_str);
     __pmServerSetFeature (PM_SERVER_FEATURE_DISCOVERY);
 
-    opts.short_options = "A:a:c:D:h:Ll:NM:Pp:R:Gi:It:U:vx:d:SX46?";
+    opts.short_options = "A:a:c:CD:h:Ll:NM:Pp:R:Gi:It:U:vx:d:SX46?";
     opts.long_options = longopts;
     opts.override = option_overrides;
 
@@ -675,6 +680,10 @@ main (int argc, char *argv[])
             logfile = opts.optarg;
             break;
 
+	case 'C':	/* only allow authenticated clients */
+	    __pmServerSetFeature (PM_SERVER_FEATURE_CREDS_REQD);
+	    break;
+
 	case 'S':	/* disable pmwebd service advertising */
 	    __pmServerClearFeature (PM_SERVER_FEATURE_DISCOVERY);
 	    break;
@@ -692,6 +701,11 @@ main (int argc, char *argv[])
 
     if (!permissive && localmode) {
         pmprintf ( "%s: non-permissive and local-context modes are mutually exclusive\n", pmProgname);
+        opts.errors++;
+    }
+
+    if (permissive && __pmServerHasFeature (PM_SERVER_FEATURE_CREDS_REQD)) {
+        pmprintf ( "%s: permissive and mandatory authentication modes are mutually exclusive\n", pmProgname);
         opts.errors++;
     }
 
