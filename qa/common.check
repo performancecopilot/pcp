@@ -1168,6 +1168,7 @@ _run_valgrind()
 	echo "Warning: using extra $__extra" >>$here/$seq.full
     else
 	__extra=''
+	echo "Warning: no extra suppressions found for valgrind version $__version" >>$here/$seq.full
     fi
     valgrind \
 	--leak-check=full --read-var-info=yes --gen-suppressions=all \
@@ -1197,11 +1198,14 @@ _run_valgrind()
 #
 _valgrind_clean_assert=
 if which valgrind >/dev/null 2>&1; then
+    # Note:
+    # 	$here and $seq may not be set here, and this is not a shell
+    # 	procedure, so skip any echoing
+    #
     __version=`valgrind --version | sed -e 's/valgrind-//'`
     if [ -f $here/valgrind-suppress-$__version ]
     then
 	__extra="--suppressions=$here/valgrind-suppress-$__version"
-	echo "Warning: using extra $__extra" >>$here/$seq.full
     else
 	__extra=''
     fi
@@ -1244,6 +1248,7 @@ _run_helgrind()
 	echo "Warning: using extra $__extra" >>$here/$seq.full
     else
 	__extra=''
+	echo "Warning: no extra suppressions found for helgrind version $__version" >>$here/$seq.full
     fi
 
     $_helgrind_prefix valgrind \

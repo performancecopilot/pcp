@@ -1,0 +1,61 @@
+# Broken valgrind 3.10.1 seen on i686 openSUSE 13.2
+#
+# Conditional jump or move depends on uninitialised value(s)
+# at 0x408498D: __pmLogFetchInterp (interp.c:1494)
+# by 0x408017D: __pmLogFetch (logutil.c:1752)
+# by 0x4063C66: pmFetch (fetch.c:151)
+# by 0x804925B: main (interp0.c:179)
+{
+   Valgrind 3.10.1 botch - case (a)
+   Memcheck:Cond
+   fun:__pmLogFetchInterp
+   fun:__pmLogFetch
+   fun:pmFetch
+   fun:main
+}
+
+# Conditional jump or move depends on uninitialised value(s)
+# at 0x408C955: __pmLogFetchInterp (interp.c:1292)
+# by 0x408817D: __pmLogFetch (logutil.c:1752)
+# by 0x406BC66: pmFetch (fetch.c:151)
+# by 0x806C4A3: fetch_metrics (various.c:817)
+# by 0x8057114: photosyst (photosyst.c:213)
+# by 0x804A62C: engine (atop.c:566)
+# by 0x804A62C: main (atop.c:455)
+{
+   Valgrind 3.10.1 botch - case (a)
+   Memcheck:Cond
+   fun:__pmLogFetchInterp
+   fun:__pmLogFetch
+   fun:pmFetch
+   fun:fetch_metrics
+   fun:photosyst
+   fun:engine
+   fun:main
+}
+
+# inside libsasl ... seen on bozo-vm
+# Memcheck, a memory error detector
+# at 0x4C28C20: malloc (vg_replace_malloc.c:296)
+# by 0x5C6C890: sasl_client_new (in /usr/lib/x86_64-linux-gnu/libsasl2.so.2.0.25)
+# by 0x4EA35C2: __pmSecureClientIPCFlags (secureconnect.c:949)
+# by 0x4EA409F: __pmSecureClientHandshake (secureconnect.c:1230)
+# by 0x4E481B2: attributes_handshake (connect.c:182)
+# by 0x4E483EB: __pmConnectHandshake (connect.c:283)
+# by 0x4E488A7: __pmConnectPMCD (connect.c:444)
+# by 0x4E4AF8A: pmNewContext (context.c:1085)
+# ...
+{
+   libsasl-bad
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:sasl_client_new
+   fun:__pmSecureClientIPCFlags
+   fun:__pmSecureClientHandshake
+   fun:attributes_handshake
+   fun:__pmConnectHandshake
+   fun:__pmConnectPMCD
+   fun:pmNewContext
+   ...
+}
