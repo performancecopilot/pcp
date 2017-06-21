@@ -282,7 +282,6 @@ Timestamp	UID	PID	usr	system	guest	%CPU	CPU	Command
 07:35:06	0	9418	?	?	?	?	1	kworker/1:2
 07:35:06	1000	11682	?	?	?	?	1	chrome
 07:35:06	1000	13421	?	?	?	?	3	pmlogger
-07:35:06	1000	13766	?	?	?	?	?	?
 07:35:06	1000	14017	?	?	?	?	0	Makepkgs
 07:35:06	1000	14018	?	?	?	?	0	dpkg-buildpacka
 07:35:06	0	17377	?	?	?	?	2	kworker/2:1
@@ -579,10 +578,8 @@ Timestamp	UID	PID	usr	system	guest	%CPU	CPU	Command
 07:35:07	0	9418	0.0	0.0	0.0	0.0	1	kworker/1:2
 07:35:07	1000	11682	1.0	0.0	0.0	1.0	0	chrome
 07:35:07	1000	13421	0.0	0.0	0.0	0.0	3	pmlogger
-07:35:07	1000	13766	?	?	?	?	?	?
 07:35:07	1000	14017	0.0	0.0	0.0	0.0	0	Makepkgs
 07:35:07	1000	14018	0.0	0.0	0.0	0.0	0	dpkg-buildpacka
-07:35:07	1000	15055	?	?	?	?	?	?
 07:35:07	0	17377	0.0	0.0	0.0	0.0	2	kworker/2:1
 07:35:07	1000	17406	0.0	0.0	0.0	0.0	0	bash
 07:35:07	1000	17478	0.0	0.0	0.0	0.0	0	gvfsd-network
@@ -868,8 +865,6 @@ Timestamp	UID	PID	usr	system	guest	%CPU	CPU	Command
 07:35:08	1000	8251	0.0	0.0	0.0	0.0	0	gnome-terminal-
 07:35:08	1000	8258	0.0	0.0	0.0	0.0	1	bash
 07:35:08	0	8480	0.0	0.0	0.0	0.0	0	kworker/0:1
-07:35:08	1000	8649	?	?	?	?	?	?
-07:35:08	1000	8652	?	?	?	?	?	?
 07:35:08	999	8712	0.0	0.0	0.0	0.0	3	pmlogger
 07:35:08	1000	8800	0.0	0.0	0.0	0.0	3	python
 07:35:08	0	8899	0.0	0.0	0.0	0.0	3	kworker/3:1
@@ -877,11 +872,8 @@ Timestamp	UID	PID	usr	system	guest	%CPU	CPU	Command
 07:35:08	0	9418	0.0	0.0	0.0	0.0	1	kworker/1:2
 07:35:08	1000	11682	0.0	0.0	0.0	0.0	1	chrome
 07:35:08	1000	13421	0.0	0.0	0.0	0.0	3	pmlogger
-07:35:08	1000	13766	?	?	?	?	?	?
 07:35:08	1000	14017	0.0	0.0	0.0	0.0	0	Makepkgs
 07:35:08	1000	14018	0.0	0.0	0.0	0.0	0	dpkg-buildpacka
-07:35:08	1000	15055	?	?	?	?	?	?
-07:35:08	1000	16677	?	?	?	?	?	?
 07:35:08	0	17377	0.0	0.0	0.0	0.0	2	kworker/2:1
 07:35:08	1000	17406	0.0	0.0	0.0	0.0	0	bash
 07:35:08	1000	17478	0.0	0.0	0.0	0.0	0	gvfsd-network
@@ -1179,7 +1171,6 @@ Timestamp	UName	PID	usr	system	guest	%CPU	CPU	Command
 07:35:06	root	9418	?	?	?	?	1	kworker/1:2
 07:35:06	ram	11682	?	?	?	?	1	chrome
 07:35:06	ram	13421	?	?	?	?	3	pmlogger
-07:35:06	ram	13766	?	?	?	?	?	?
 07:35:06	ram	14017	?	?	?	?	0	Makepkgs
 07:35:06	ram	14018	?	?	?	?	0	dpkg-buildpacka
 07:35:06	root	17377	?	?	?	?	2	kworker/2:1
@@ -1476,10 +1467,8 @@ Timestamp	UName	PID	usr	system	guest	%CPU	CPU	Command
 07:35:07	root	9418	0.0	0.0	0.0	0.0	1	kworker/1:2
 07:35:07	ram	11682	1.0	0.0	0.0	1.0	0	chrome
 07:35:07	ram	13421	0.0	0.0	0.0	0.0	3	pmlogger
-07:35:07	ram	13766	?	?	?	?	?	?
 07:35:07	ram	14017	0.0	0.0	0.0	0.0	0	Makepkgs
 07:35:07	ram	14018	0.0	0.0	0.0	0.0	0	dpkg-buildpacka
-07:35:07	ram	15055	?	?	?	?	?	?
 07:35:07	root	17377	0.0	0.0	0.0	0.0	2	kworker/2:1
 07:35:07	ram	17406	0.0	0.0	0.0	0.0	0	bash
 07:35:07	ram	17478	0.0	0.0	0.0	0.0	0	gvfsd-network
@@ -1765,8 +1754,6 @@ Timestamp	UName	PID	usr	system	guest	%CPU	CPU	Command
 07:35:08	ram	8251	0.0	0.0	0.0	0.0	0	gnome-terminal-
 07:35:08	ram	8258	0.0	0.0	0.0	0.0	1	bash
 07:35:08	root	8480	0.0	0.0	0.0	0.0	0	kworker/0:1
-07:35:08	ram	8649	?	?	?	?	?	?
-07:35:08	ram	8652	?	?	?	?	?	?
 07:35:08	pcp	8712	0.0	0.0	0.0	0.0	3	pmlogger
 07:35:08	ram	8800	0.0	0.0	0.0	0.0	3	python
 07:35:08	root	8899	0.0	0.0	0.0	0.0	3	kworker/3:1
@@ -1774,11 +1761,8 @@ Timestamp	UName	PID	usr	system	guest	%CPU	CPU	Command
 07:35:08	root	9418	0.0	0.0	0.0	0.0	1	kworker/1:2
 07:35:08	ram	11682	0.0	0.0	0.0	0.0	1	chrome
 07:35:08	ram	13421	0.0	0.0	0.0	0.0	3	pmlogger
-07:35:08	ram	13766	?	?	?	?	?	?
 07:35:08	ram	14017	0.0	0.0	0.0	0.0	0	Makepkgs
 07:35:08	ram	14018	0.0	0.0	0.0	0.0	0	dpkg-buildpacka
-07:35:08	ram	15055	?	?	?	?	?	?
-07:35:08	ram	16677	?	?	?	?	?	?
 07:35:08	root	17377	0.0	0.0	0.0	0.0	2	kworker/2:1
 07:35:08	ram	17406	0.0	0.0	0.0	0.0	0	bash
 07:35:08	ram	17478	0.0	0.0	0.0	0.0	0	gvfsd-network
@@ -1817,7 +1801,6 @@ Timestamp	UID	PID	prio	policy	Command
 07:35:06	0	21	99	FIFO	watchdog/3
 07:35:06	0	22	99	FIFO	migration/3
 07:35:06	0	463	50	FIFO	irq/29-mei_me
-07:35:06	1000	13766	?	?	?
 Timestamp	UID	PID	prio	policy	Command
 07:35:07	0	9	99	FIFO	migration/0
 07:35:07	0	10	99	FIFO	watchdog/0
@@ -1828,8 +1811,6 @@ Timestamp	UID	PID	prio	policy	Command
 07:35:07	0	21	99	FIFO	watchdog/3
 07:35:07	0	22	99	FIFO	migration/3
 07:35:07	0	463	50	FIFO	irq/29-mei_me
-07:35:07	1000	13766	?	?	?
-07:35:07	1000	15055	?	?	?
 Timestamp	UID	PID	prio	policy	Command
 07:35:08	0	9	99	FIFO	migration/0
 07:35:08	0	10	99	FIFO	watchdog/0
@@ -1840,11 +1821,6 @@ Timestamp	UID	PID	prio	policy	Command
 07:35:08	0	21	99	FIFO	watchdog/3
 07:35:08	0	22	99	FIFO	migration/3
 07:35:08	0	463	50	FIFO	irq/29-mei_me
-07:35:08	1000	8649	?	?	?
-07:35:08	1000	8652	?	?	?
-07:35:08	1000	13766	?	?	?
-07:35:08	1000	15055	?	?	?
-07:35:08	1000	16677	?	?	?
 
 === pcp-pidstat memory utilization
 Linux  4.4.0-31-generic  (ram-Lenovo)  08/05/16  x86_64    (4 CPU)
@@ -2015,7 +1991,6 @@ Timestamp	UID	PID	MinFlt/s	MajFlt/s	VSize	RSS	%Mem	Command
 07:35:06	1000	8993	?		?		4512	1704	0.04	Makepkgs
 07:35:06	1000	11682	?		?		1319172	410252	10.81	chrome
 07:35:06	1000	13421	?		?		37316	3444	0.09	pmlogger
-07:35:06	1000	13766	?		?		?	?	?	?
 07:35:06	1000	14017	?		?		4512	176	0.0	Makepkgs
 07:35:06	1000	14018	?		?		52784	14680	0.39	dpkg-buildpacka
 07:35:06	1000	17406	?		?		34064	9476	0.25	bash
@@ -2193,10 +2168,8 @@ Timestamp	UID	PID	MinFlt/s	MajFlt/s	VSize	RSS	%Mem	Command
 07:35:07	1000	8993	0.0		0.0		4512	1704	0.04	Makepkgs
 07:35:07	1000	11682	45.0		0.0		1319172	410516	10.82	chrome
 07:35:07	1000	13421	45.0		0.0		37752	3972	0.1	pmlogger
-07:35:07	1000	13766	?		?		?	?	?	?
 07:35:07	1000	14017	0.0		0.0		4512	176	0.0	Makepkgs
 07:35:07	1000	14018	0.0		0.0		52784	14680	0.39	dpkg-buildpacka
-07:35:07	1000	15055	?		?		?	?	?	?
 07:35:07	1000	17406	0.0		0.0		34064	9476	0.25	bash
 07:35:07	1000	17478	0.0		0.0		360016	6572	0.17	gvfsd-network
 07:35:07	1000	17540	0.0		0.0		368792	8588	0.23	gvfsd-dnssd
@@ -2365,18 +2338,13 @@ Timestamp	UID	PID	MinFlt/s	MajFlt/s	VSize	RSS	%Mem	Command
 07:35:08	33	7766	0.0		0.0		360732	4404	0.12	apache2
 07:35:08	1000	8251	3.0		0.0		660040	23632	0.62	gnome-terminal-
 07:35:08	1000	8258	0.0		0.0		34976	10284	0.27	bash
-07:35:08	1000	8649	?		?		?	?	?	?
-07:35:08	1000	8652	?		?		?	?	?	?
 07:35:08	999	8712	0.0		0.0		43908	2820	0.07	pmlogger
 07:35:08	1000	8800	0.0		0.0		82868	41196	1.09	python
 07:35:08	1000	8993	0.0		0.0		4512	1704	0.04	Makepkgs
 07:35:08	1000	11682	54.0		0.0		1319172	410780	10.83	chrome
 07:35:08	1000	13421	22.0		0.0		37980	4136	0.11	pmlogger
-07:35:08	1000	13766	?		?		?	?	?	?
 07:35:08	1000	14017	0.0		0.0		4512	176	0.0	Makepkgs
 07:35:08	1000	14018	0.0		0.0		52784	14680	0.39	dpkg-buildpacka
-07:35:08	1000	15055	?		?		?	?	?	?
-07:35:08	1000	16677	?		?		?	?	?	?
 07:35:08	1000	17406	0.0		0.0		34064	9476	0.25	bash
 07:35:08	1000	17478	0.0		0.0		360016	6572	0.17	gvfsd-network
 07:35:08	1000	17540	0.0		0.0		368792	8588	0.23	gvfsd-dnssd
@@ -2555,7 +2523,6 @@ Timestamp	UID	PID	StkSize	Command
 07:35:06	1000	8993	140	Makepkgs
 07:35:06	1000	11682	136	chrome
 07:35:06	1000	13421	140	pmlogger
-07:35:06	1000	13766	?	?
 07:35:06	1000	14017	140	Makepkgs
 07:35:06	1000	14018	140	dpkg-buildpacka
 07:35:06	1000	17406	136	bash
@@ -2733,10 +2700,8 @@ Timestamp	UID	PID	StkSize	Command
 07:35:07	1000	8993	140	Makepkgs
 07:35:07	1000	11682	136	chrome
 07:35:07	1000	13421	140	pmlogger
-07:35:07	1000	13766	?	?
 07:35:07	1000	14017	140	Makepkgs
 07:35:07	1000	14018	140	dpkg-buildpacka
-07:35:07	1000	15055	?	?
 07:35:07	1000	17406	136	bash
 07:35:07	1000	17478	136	gvfsd-network
 07:35:07	1000	17540	136	gvfsd-dnssd
@@ -2905,18 +2870,13 @@ Timestamp	UID	PID	StkSize	Command
 07:35:08	33	7766	136	apache2
 07:35:08	1000	8251	136	gnome-terminal-
 07:35:08	1000	8258	136	bash
-07:35:08	1000	8649	?	?
-07:35:08	1000	8652	?	?
 07:35:08	999	8712	136	pmlogger
 07:35:08	1000	8800	136	python
 07:35:08	1000	8993	140	Makepkgs
 07:35:08	1000	11682	136	chrome
 07:35:08	1000	13421	140	pmlogger
-07:35:08	1000	13766	?	?
 07:35:08	1000	14017	140	Makepkgs
 07:35:08	1000	14018	140	dpkg-buildpacka
-07:35:08	1000	15055	?	?
-07:35:08	1000	16677	?	?
 07:35:08	1000	17406	136	bash
 07:35:08	1000	17478	136	gvfsd-network
 07:35:08	1000	17540	136	gvfsd-dnssd

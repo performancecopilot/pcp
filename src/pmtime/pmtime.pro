@@ -22,3 +22,4 @@ LIBS		+= -lpcp_qwt -lpcp_qmc -lpcp
 win32:LIBS	+= -lwsock32 -liphlpapi
 QT		+= network widgets
 QMAKE_INFO_PLIST = pmtime.info
+QMAKE_CXXFLAGS	+= $$(PCP_CFLAGS)

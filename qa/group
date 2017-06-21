@@ -405,6 +405,7 @@ zsh
 061 pmlogger local ostest pmdumplog
 062 pmcd local ostest
 063 fetch local ostest
+064 pidstat local
 065 libpcp local ostest pmstore
 066 pmcd ostest remote
 067 pmcd local ostest
