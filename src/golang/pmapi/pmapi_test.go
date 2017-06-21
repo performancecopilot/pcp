@@ -30,6 +30,7 @@ var sampleDoubleMillionPmID PmID = 121634844
 var sampleMillisecondsPmID PmID = 121634819
 var sampleColourInDom PmInDom = 121634817
 var sampleStringHulloPmID PmID = 121634847
+var notARealPmID PmID = 123
 
 func TestPmapiContext_PmGetContextHostname(t *testing.T) {
 	c, _ := PmNewContext(PmContextHost, "localhost")
@@ -284,6 +285,30 @@ func TestPmapiContext_PmGetChildrenStatus_returnsAnErrorForUnknownMetrics(t *tes
 	_, err := localContext().PmGetChildrenStatus("not.a.metric")
 
 	assert.Error(t, err)
+}
+
+func TestPmapiContext_PmNameID_returnsTheNameForAValidPmID(t *testing.T) {
+	name, _ := localContext().PmNameID(sampleDoubleMillionPmID)
+
+	assert.Equal(t, "sample.double.million", name)
+}
+
+func TestPmapiContext_PmNameID_returnsNoErrorForAValidPmID(t *testing.T) {
+	_, err := localContext().PmNameID(sampleDoubleMillionPmID)
+
+	assert.NoError(t, err)
+}
+
+func TestPmapiContext_PmNameID_returnsAnErrorIfThePmIDIsInvalid(t *testing.T) {
+	_, err := localContext().PmNameID(notARealPmID)
+
+	assert.Error(t, err)
+}
+
+func TestPmapiContext_PmNameID_returnsAnEmptyNameIfThePmIDIsInvalid(t *testing.T) {
+	name, _ := localContext().PmNameID(notARealPmID)
+
+	assert.Empty(t, name)
 }
 
 func BenchmarkPmapiContext_PmFetch(b *testing.B) {

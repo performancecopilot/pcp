@@ -118,6 +118,7 @@ type PMAPI interface {
 	PmLookupName(names ...string) ([]PmID, error)
 	PmGetChildren(name string) ([]string, error)
 	PmGetChildrenStatus(name string) ([]PMNSNode, error)
+	PmNameID(pmid PmID) (string, error)
 	PmFetch(pmids ...PmID) (*PmResult, error)
 	PmLookupDesc(pmid PmID) (PmDesc, error)
 	PmExtractValue(value_format int, pm_type int, pm_value *PmValue) (PmAtomValue, error)
@@ -367,6 +368,21 @@ func (c *PmapiContext) PmGetChildrenStatus(name string) ([]PMNSNode, error) {
 	}
 
 	return children, nil
+}
+
+func (c *PmapiContext) PmNameID(pmid PmID) (string, error) {
+
+	var name_ptr *C.char
+
+	_, err := c.withinContext(func() int {
+		return int(C.pmNameID(C.pmID(pmid), &name_ptr))
+	})
+	if(err != nil) {
+		return "", err
+	}
+	defer C.free(unsafe.Pointer(name_ptr))
+
+	return C.GoString(name_ptr), nil
 }
 
 func (c *PmapiContext) PmLookupDesc(pmid PmID) (PmDesc, error) {
