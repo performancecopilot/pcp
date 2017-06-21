@@ -38,10 +38,13 @@ _filter()
 
 # Note - sed at the end is because of non-determinism depending if the
 # 	 kernel PMDA is configured to use a dso or other IPC option
+#      - pmWhichContext() is called different numbers of times depending
+#        on how libpcp was compiled, so strip these lines
 #
 _filter2()
 {
     sed \
+	-e '/^pmWhichContext()/d' \
 	-e '/pmResult/s/ .* numpmid/ ... numpmid/' \
 	-e '/build_dsotab/s/parsing .*/ parsing .../' \
 	-e '/^\[[0-9][0-9]*]/d' \

@@ -317,6 +317,7 @@ lock.o
     ?multi_seen			# guarded by lock_lock mutex
     ?hashctl			# for lock debug tracing
     ?__pmTPDKey			# if don't have __thread support
+    ?locknamebuf		# for lock debug tracing
 logconnect.o
     done_default		# one-trip initialization then read-only
     timeout			# one-trip initialization then read-only

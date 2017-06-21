@@ -274,14 +274,6 @@ main(int argc, char *argv[])
     if (lflag)
 	dumpLabel();
 
-    /*
-     * Note: ctxp->c_lock remains locked throughout ... __pmHandleToPtr()
-     *       is only called once, and a single context is used throughout
-     *       ... so there is no PM_UNLOCK(ctxp->c_lock) anywhere in the
-     *       pmchecklog code.
-     *       This works because ctxp->c_lock is a recursive lock and
-     *       pmchecklog is single-threaded.
-     */
     if ((n = pmWhichContext()) >= 0) {
 	if ((ctxp = __pmHandleToPtr(n)) == NULL) {
 	    fprintf(stderr, "%s: botch: __pmHandleToPtr(%d) returns NULL!\n", pmProgname, n);
@@ -292,6 +284,14 @@ main(int argc, char *argv[])
 	fprintf(stderr, "%s: botch: %s!\n", pmProgname, pmErrStr(PM_ERR_NOCONTEXT));
 	exit(EXIT_FAILURE);
     }
+    /*
+     * Note: This application is single threaded, and once we have ctxp
+     *	     the associated __pmContext will not move and will only be
+     *	     accessed or modified synchronously either here or in libpcp.
+     *	     We unlock the context so that it can be locked as required
+     *	     within libpcp.
+     */
+    PM_UNLOCK(ctxp->c_lock);
 
     if (strcmp(archdirname, ".") == 0)
 	/* skip ./ prefix */

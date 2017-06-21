@@ -454,10 +454,10 @@ pass3(__pmContext *ctxp, char *archname, pmOptions *opts)
     for ( ; ; ) {
 	/*
 	 * we need the next record with no fancy checks or record
-	 * skipping in libpcp, so use __pmLogRead() in preference
+	 * skipping in libpcp, so use __pmLogRead_ctx() in preference
 	 * to pmFetchArchive()
 	 */
-	if ((sts = __pmLogRead(l_ctxp->c_archctl->ac_log, l_ctxp->c_mode, NULL, &result, PMLOGREAD_NEXT)) < 0)
+	if ((sts = __pmLogRead_ctx(l_ctxp, l_ctxp->c_mode, NULL, &result, PMLOGREAD_NEXT)) < 0)
 	    break;
 	result_count++;
 	delta_stamp = result->timestamp;
