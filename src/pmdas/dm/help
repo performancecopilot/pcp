@@ -142,13 +142,13 @@ Count of writes merged this interval per dm device.
 @ dm.write_bytes The number of kbyte written
 Count of kbytes writes this interval per dm-device.
 
-@ dm.writes_times The number of nanoseconds spent writing
+@ dm.writes_time The number of nanoseconds spent writing
 Accumulated duration of all write requests per dm device.
 
 @ dm.in_progress The number of I/Os
 Count of requests currently in progress per dm device.
 
-@ dm.io_nsecs The number of nanoseconds spend doing I/Os
+@ dm.io_ticks The number of nanoseconds spend doing I/Os
 Nanoseconds spent servicing requestst per dm device.
 
 @ dm.queue_ticks The weighted number of nanoseconds spend doing I/Os
