@@ -7,17 +7,30 @@
 seq=`basename $0`
 echo "QA output created by $seq"
 
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
 status=1       # failure is the default!
 
 # sources
-bash_comp=$PCP_DIR/share/bash-completion/completions/pcp
-zsh_comp=$PCP_DIR/share/zsh/site-functions/_pcp
+bash_comp=`echo $PCP_SHARE_DIR | sed -e 's;/pcp$;;'`/bash-completion/completions/pcp
+zsh_comp=`echo $PCP_SHARE_DIR | sed -e 's;/pcp$;;'`/zsh/site-functions/_pcp
+
+export PCP_STDERR=$tmp.err
 
 # functions
-_check_completion_bash() {
+_check_completion_bash()
+{
   for cmd in $(grep '  pm.*)' $bash_comp | tr -d ')'); do
     comps=$(grep -A 1 "  $cmd)" $bash_comp | tail -n 1 | sed -e 's,opt_regex="-\[,,' -e 's,\]",,')
-    opts=$($cmd --help 2>&1 | grep -Eo -- ' -.' | tr -d '-' | tr -d '?' | sort | uniq)
+    # Need $tmp.err and PCP_STDERR for pmchart ...
+    #
+    rm -f $tmp.err
+    touch $tmp.err
+    $cmd --help >$tmp.out 2>&1
+    opts=$(cat $tmp.out $tmp.err | grep -Eo -- ' -.' | tr -d '-' | tr -d '?' | sort | uniq)
 
     for opt in $opts; do
       echo $comps | grep $opt > /dev/null 2>&1
@@ -36,13 +49,19 @@ _check_completion_bash() {
   done
 }
 
-_check_completion_zsh() {
+_check_completion_zsh()
+{
   for cmd in $(grep '#compdef' $zsh_comp | sed -e 's,#compdef ,,'); do
     echo $cmd | grep = > /dev/null 2>&1 && continue
     common=$(awk /common_most=/,/\ \ \)/ $zsh_comp)
     version=V
     comps=$(awk /$cmd\)/,/\;\;/ $zsh_comp)
-    opts=$($cmd --help 2>&1 | grep -Eo -- ' -.' | tr -d '-' | tr -d '?' | sort | uniq)
+    # Need $tmp.err and PCP_STDERR for pmchart ...
+    #
+    rm -f $tmp.err
+    touch $tmp.err
+    $cmd --help >$tmp.out 2>&1
+    opts=$(cat $tmp.out $tmp.err | grep -Eo -- ' -.' | tr -d '-' | tr -d '?' | sort | uniq)
 
     for opt in $opts; do
       echo $comps | grep -- -$opt > /dev/null 2>&1
