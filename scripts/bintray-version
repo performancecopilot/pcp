@@ -61,8 +61,10 @@ table["f22"] = "Performance Co-Pilot builds for Fedora 22"
 table["f23"] = "Performance Co-Pilot builds for Fedora 23"
 table["f24"] = "Performance Co-Pilot builds for Fedora 24"
 table["f25"] = "Performance Co-Pilot builds for Fedora 25"
+table["f26"] = "Performance Co-Pilot builds for Fedora 26"
 table["jessie"] = "Performance Co-Pilot builds for Debian 7 (jessie)"
 table["wheezy"] = "Performance Co-Pilot builds for Debian 8 (wheezy)"
+table["stretch"] = "Performance Co-Pilot builds for Debian 9 (stretch)"
 table["trusty"] = "Performance Co-Pilot builds for Ubuntu 14.04 (trusty tahr)"
 table["vivid"] = "Performance Co-Pilot builds for Ubuntu 15.04 (vivid vervet)"
 table["xenial"] = "Performance Co-Pilot builds for Ubuntu 16.04 (xenial xerus)"
@@ -75,10 +77,10 @@ table["solaris11"] = "Performance Co-Pilot builds for Solaris 11"
 	}'
 }
 
-debian="jessie wheezy"
+debian="jessie wheezy stretch"
 ubuntu="trusty vivid xenial zesty"
 macosx="macosx"
-redhat="el5 el6 el7 f21 f22 f23 f24 f25"
+redhat="el5 el6 el7 f21 f22 f23 f24 f25 f26"
 solaris="solaris11"
 suse="opensuse13"
 
