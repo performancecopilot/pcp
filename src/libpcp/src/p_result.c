@@ -148,7 +148,7 @@ __pmEncodeResult(int targetfd, const pmResult *result, __pmPDU **pdubuf)
 }
 
 /*
- * Internal variant of __pmDecodeResult() with current context.
+ * Internal variant of __pmSendResult() with current context.
  */
 int
 __pmSendResult_ctx(__pmContext *ctxp, int fd, int from, const pmResult *result)
