@@ -548,6 +548,10 @@ PCP_3.18 {
 } PCP_3.17;
 
 PCP_3.19 {
+    __pmLogRead_ctx;
+} PCP_3.18;
+
+PCP_3.20 {
   global:
     pmGetContextLabels;
     pmGetDomainLabels;
@@ -574,4 +578,4 @@ PCP_3.19 {
     __pmRecvLabelReq;
     __pmDecodeLabel;
     __pmDecodeLabelReq;
-} PCP_3.18;
+} PCP_3.19;

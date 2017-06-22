@@ -17,9 +17,13 @@ status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
+# Note - pmWhichContext() is called different numbers of times depending
+#        on how libpcp was compiled, so strip these lines
+#
 _filter()
 {
     sed \
+	-e '/^pmWhichContext()/d' \
 	-e '/^_/s/: .*/: .../' \
     | _filter_dumpresult
 }

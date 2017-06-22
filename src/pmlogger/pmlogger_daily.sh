@@ -256,19 +256,16 @@ LOGNAME=`date "+%Y%m%d.%H.%M"`
 
 _error()
 {
-    _report Error "$@"
+    echo "$prog: [$controlfile:$line]"
+    echo "Error: $@"
+    echo "... logging for host \"$host\" unchanged"
     touch $tmp/err
 }
 
 _warning()
 {
-    _report Warning "$@"
-}
-
-_report()
-{
-    echo "$prog: $1: $2"
-    echo "[$controlfile:$line] ... logging for host \"$host\" unchanged"
+    echo "$prog [$controlfile:$line]"
+    echo "Warning: $@"
 }
 
 _skipping()
@@ -429,6 +426,8 @@ echo $$ >"$PCP_RUN_DIR/pmlogger_daily.pid"
 #
 version=''
 
+# if this file exists at the end, we encountered a serious error
+#
 rm -f $tmp/err
 
 _parse_control()
@@ -536,10 +535,10 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	#
 	if [ ! -d "$dir" ]
 	then
-	    mkdir_and_chown "$dir" 755 $PCP_USER:$PCP_GROUP >$tmp/err 2>&1
+	    mkdir_and_chown "$dir" 755 $PCP_USER:$PCP_GROUP >$tmp/tmp 2>&1
 	    if [ ! -d "$dir" ]
 	    then
-		cat $tmp/err
+		cat $tmp/tmp
 		_error "cannot create directory ($dir) for PCP archive files"
 		continue
 	    else
@@ -605,7 +604,7 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 		else
 		    echo "$prog: `cat $tmp/out`"
 		fi
-		_warning "failed to acquire exclusive lock ($dir/lock) ..."
+		_error "failed to acquire exclusive lock ($dir/lock) ..."
 		continue
 	    fi
 	fi

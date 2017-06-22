@@ -67,12 +67,19 @@ myFetch(int numpmid, pmID pmidlist[], __pmPDU **pdup)
 	ctxp = __pmHandleToPtr(ctx);
 	if (ctxp == NULL)
 	    return PM_ERR_NOCONTEXT;
+	/*
+	 * Note: This application is single threaded, and once we have ctxp
+	 *	 the associated __pmContext will not move and will only be
+	 *	 accessed or modified synchronously either here or in libpcp.
+	 *	 We unlock the context so that it can be locked as required
+	 *	 within libpcp.
+	 */
+	PM_UNLOCK(ctxp->c_lock);
 	if (ctxp->c_type != PM_CONTEXT_HOST) {
 	    if (ctxp->c_type == PM_CONTEXT_LOCAL)
 		n = myLocalFetch(ctxp, numpmid, pmidlist, pdup);
 	    else
 		n = PM_ERR_NOTHOST;
-	    PM_UNLOCK(ctxp->c_lock);
 	    return n;
 	}
     }

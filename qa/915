@@ -21,6 +21,8 @@ interface=`_host_to_ipaddr $host`
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
 
+echo "interface=$interface" >>$here/$seq.full
+
 _cleanup()
 {
     # ensure we do not leave local-only settings enabled
@@ -38,7 +40,7 @@ _cleanup()
 
 _filter()
 {
-    tee -a $seq.full | \
+    tee -a $here/$seq.full | \
     sed \
 	-e "s/$host/HOSTNAME/g" \
 	-e "s/$interface/INTERFACE/g" \

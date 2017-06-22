@@ -48,6 +48,7 @@ _xtract()
     # Usage: _xtract metric
     #
     pmdumplog -D1 $tmp.merge $1 2>&1 \
+    | tee -a $here/$seq.full \
     | $PCP_AWK_PROG '
 $1 == "pmResult"		{ state=1; time=$7; stamp=$6; next }
 state == 1 && /\('"$1"'\)/	{ state=2; next }

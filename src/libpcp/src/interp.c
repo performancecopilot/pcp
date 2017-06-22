@@ -36,6 +36,7 @@
 #include <assert.h>
 #include "pmapi.h"
 #include "impl.h"
+#include "internal.h"
 
 #define UPD_MARK_NONE	0
 #define UPD_MARK_FORW	1
@@ -124,8 +125,9 @@ static long	nr[PM_MODE_BACK+1];
  * called with the context lock held
  */
 static int
-cache_read(__pmArchCtl *acp, int mode, pmResult **rp)
+cache_read(__pmContext *ctxp, int mode, pmResult **rp)
 {
+    __pmArchCtl	*acp = ctxp->c_archctl;
     long	posn;
     cache_t	*cp;
     cache_t	*lfup;
@@ -140,7 +142,7 @@ cache_read(__pmArchCtl *acp, int mode, pmResult **rp)
      * changed direction, then we need to generate that record again.
      */
     if (acp->ac_mark_done != 0 && acp->ac_mark_done != mode) {
-	sts = __pmLogGenerateMark(acp->ac_log, acp->ac_mark_done, rp);
+	sts = __pmLogGenerateMark_ctx(ctxp, acp->ac_mark_done, rp);
 	acp->ac_mark_done = 0;
 	return sts;
     }
@@ -226,7 +228,7 @@ cache_read(__pmArchCtl *acp, int mode, pmResult **rp)
     }
     save_curvol = acp->ac_log->l_curvol;
 
-    lfup->sts = __pmLogRead(acp->ac_log, mode, NULL, &lfup->rp, PMLOGREAD_NEXT);
+    lfup->sts = __pmLogRead_ctx(ctxp, mode, NULL, &lfup->rp, PMLOGREAD_NEXT);
     if (lfup->sts < 0)
 	lfup->rp = NULL;
     *rp = lfup->rp;
@@ -236,7 +238,7 @@ cache_read(__pmArchCtl *acp, int mode, pmResult **rp)
 
     /*
      * vol/arch switch since last time, or vol/arch switch or virtual mark
-     * record generated in __pmLogRead() ...
+     * record generated in __pmLogRead_ctx() ...
      * new vol/arch, stdio stream and we don't know where we started from
      * ... don't cache
      */
@@ -635,7 +637,7 @@ do_roll(__pmContext *ctxp, double t_req, int *seen_mark)
      * to make sure we are up to t_req
      */
     if (ctxp->c_delta > 0) {
-	while (cache_read(ctxp->c_archctl, PM_MODE_FORW, &logrp) >= 0) {
+	while (cache_read(ctxp, PM_MODE_FORW, &logrp) >= 0) {
 	    tmp.tv_sec = (__int32_t)logrp->timestamp.tv_sec;
 	    tmp.tv_usec = (__int32_t)logrp->timestamp.tv_usec;
 	    t_this = __pmTimevalSub(&tmp, __pmLogStartTime(ctxp->c_archctl));
@@ -656,7 +658,7 @@ do_roll(__pmContext *ctxp, double t_req, int *seen_mark)
 	}
     }
     else {
-	while (cache_read(ctxp->c_archctl, PM_MODE_BACK, &logrp) >= 0) {
+	while (cache_read(ctxp, PM_MODE_BACK, &logrp) >= 0) {
 	    tmp.tv_sec = (__int32_t)logrp->timestamp.tv_sec;
 	    tmp.tv_usec = (__int32_t)logrp->timestamp.tv_usec;
 	    t_this = __pmTimevalSub(&tmp, __pmLogStartTime(ctxp->c_archctl));
@@ -761,7 +763,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 	 * Past end of the current archive ... see if it has grown since we
 	 * last looked, or if we can switch to the next archive in the context.
 	 */
-	if (__pmGetArchiveEnd(ctxp->c_archctl->ac_log, &end) >= 0) {
+	if (__pmGetArchiveEnd_ctx(ctxp, &end) >= 0) {
 	    tmp.tv_sec = (__int32_t)end.tv_sec;
 	    tmp.tv_usec = (__int32_t)end.tv_usec;
 	    ctxp->c_archctl->ac_end = __pmTimevalSub(&tmp, __pmLogStartTime(ctxp->c_archctl));
@@ -819,7 +821,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 		    instlist[0] = PM_IN_NULL;
 		}
 		else {
-		    sts = pmGetInDomArchive(pcp->desc.indom, &instlist, &namelist);
+		    sts = pmGetInDomArchive_ctx(ctxp, pcp->desc.indom, &instlist, &namelist);
 		    if (sts > 0) {
 			/* Pre allocate enough space for the instance domain. */
 			hsts = __pmHashPreAlloc(sts, &pcp->hc);
@@ -911,7 +913,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 	 * to make sure
 	 */
 	if (ctxp->c_delta > 0) {
-	    while (cache_read(ctxp->c_archctl, PM_MODE_BACK, &logrp) >= 0) {
+	    while (cache_read(ctxp, PM_MODE_BACK, &logrp) >= 0) {
 		tmp.tv_sec = (__int32_t)logrp->timestamp.tv_sec;
 		tmp.tv_usec = (__int32_t)logrp->timestamp.tv_usec;
 		t_this = __pmTimevalSub(&tmp, __pmLogStartTime(ctxp->c_archctl));
@@ -928,7 +930,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 	    }
 	}
 	else {
-	    while (cache_read(ctxp->c_archctl, PM_MODE_FORW, &logrp) >= 0) {
+	    while (cache_read(ctxp, PM_MODE_FORW, &logrp) >= 0) {
 		tmp.tv_sec = (__int32_t)logrp->timestamp.tv_sec;
 		tmp.tv_usec = (__int32_t)logrp->timestamp.tv_usec;
 		t_this = __pmTimevalSub(&tmp, __pmLogStartTime(ctxp->c_archctl));
@@ -1044,7 +1046,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 	done = 0;
 
 	while (done < back) {
-	    if (cache_read(ctxp->c_archctl, PM_MODE_BACK, &logrp) < 0) {
+	    if (cache_read(ctxp, PM_MODE_BACK, &logrp) < 0) {
 		/* ran into start of log */
 #ifdef PCP_DEBUG
 		if (pmDebug & DBG_TRACE_INTERP) {
@@ -1181,7 +1183,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 
 	sts = 0;
 	while (done < forw) {
-	    if ((sts = cache_read(ctxp->c_archctl, PM_MODE_FORW, &logrp)) < 0) {
+	    if ((sts = cache_read(ctxp, PM_MODE_FORW, &logrp)) < 0) {
 		/* ran into end of log */
 #ifdef PCP_DEBUG
 		if (pmDebug & DBG_TRACE_INTERP) {

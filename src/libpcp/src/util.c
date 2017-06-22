@@ -671,7 +671,7 @@ restore_debug(int saved)
 }
 
 static void
-dump_valueset(FILE *f, pmValueSet *vsp)
+dump_valueset(__pmContext *ctxp, FILE *f, pmValueSet *vsp)
 {
     pmDesc	desc;
     char	errmsg[PM_MAXERRMSGLEN];
@@ -683,7 +683,7 @@ dump_valueset(FILE *f, pmValueSet *vsp)
     int		n, j;
 
     pmid = pmIDStr_r(vsp->pmid, strbuf, sizeof(strbuf));
-    if ((n = pmNameAll(vsp->pmid, &names)) < 0)
+    if ((n = pmNameAll_ctx(ctxp, vsp->pmid, &names)) < 0)
 	fprintf(f, "  %s (%s):", pmid, "<noname>");
     else {
 	int	j;
@@ -705,7 +705,7 @@ dump_valueset(FILE *f, pmValueSet *vsp)
 	return;
     }
     if (__pmGetInternalState() == PM_STATE_PMCS ||
-	pmLookupDesc(vsp->pmid, &desc) < 0) {
+	pmLookupDesc_ctx(ctxp, vsp->pmid, &desc) < 0) {
 	/* don't know, so punt on the most common cases */
 	desc.indom = PM_INDOM_NULL;
 	have_desc = 0;
@@ -718,7 +718,7 @@ dump_valueset(FILE *f, pmValueSet *vsp)
 	if (vsp->numval > 1 || vp->inst != PM_INDOM_NULL) {
 	    fprintf(f, "    inst [%d", vp->inst);
 	    if (have_desc &&
-		pmNameInDom(desc.indom, vp->inst, &p) >= 0) {
+		pmNameInDom_ctx(ctxp, desc.indom, vp->inst, &p) >= 0) {
 		fprintf(f, " or \"%s\"]", p);
 		free(p);
 	    }
@@ -743,8 +743,9 @@ dump_valueset(FILE *f, pmValueSet *vsp)
     }
 }
 
+/* Internal variant of __pmDumpResult() with current context. */
 void
-__pmDumpResult(FILE *f, const pmResult *resp)
+__pmDumpResult_ctx(__pmContext *ctxp, FILE *f, const pmResult *resp)
 {
     int		i, saved;
 
@@ -754,12 +755,19 @@ __pmDumpResult(FILE *f, const pmResult *resp)
     __pmPrintStamp(f, &resp->timestamp);
     fprintf(f, " numpmid: %d\n", resp->numpmid);
     for (i = 0; i < resp->numpmid; i++)
-	dump_valueset(f, resp->vset[i]);
+	dump_valueset(ctxp, f, resp->vset[i]);
     restore_debug(saved);
 }
 
 void
-__pmDumpHighResResult(FILE *f, const pmHighResResult *hresp)
+__pmDumpResult(FILE *f, const pmResult *resp)
+{
+    __pmDumpResult_ctx(NULL, f, resp);
+}
+
+/* Internal variant of __pmDumpHighResResult() with current context. */
+void
+__pmDumpHighResResult_ctx(__pmContext *ctxp, FILE *f, const pmHighResResult *hresp)
 {
     int		i, saved;
 
@@ -769,8 +777,15 @@ __pmDumpHighResResult(FILE *f, const pmHighResResult *hresp)
     __pmPrintHighResStamp(f, &hresp->timestamp);
     fprintf(f, " numpmid: %d\n", hresp->numpmid);
     for (i = 0; i < hresp->numpmid; i++)
-	dump_valueset(f, hresp->vset[i]);
+	dump_valueset(ctxp, f, hresp->vset[i]);
     restore_debug(saved);
+}
+
+void
+__pmDumpHighResResult(FILE *f, const pmHighResResult *hresp)
+{
+    __pmDumpHighResResult_ctx(NULL, f, hresp);
+
 }
 
 static void
@@ -1412,7 +1427,7 @@ pmfstate(int state)
     static int	errtype = PM_QUERYERR;
     char	errmsg[PM_MAXERRMSGLEN];
 
-    ASSERT_IS_LOCKED(util_lock);
+    PM_ASSERT_IS_LOCKED(util_lock);
 
     if (state > PM_QUERYERR)
 	errtype = state;
@@ -1658,9 +1673,19 @@ __pmSetClientId(const char *id)
     char        	*ipaddr = NULL;
     __pmHostEnt		*servInfo;
     int			vblen;
+    __pmContext		*ctxp;
 
-    if ((sts = pmLookupName(1, &name, &pmid)) < 0)
+    if ((sts = pmWhichContext()) < 0) {
 	return sts;
+    }
+    ctxp = __pmHandleToPtr(sts);
+    if (ctxp == NULL)
+	return PM_ERR_NOCONTEXT;
+
+    if ((sts = pmLookupName_ctx(ctxp, 1, &name, &pmid)) < 0) {
+	PM_UNLOCK(ctxp->c_lock);
+	return sts;
+    }
 
     /*
      * Try to obtain the address and the actual host name.
@@ -1713,6 +1738,7 @@ __pmSetClientId(const char *id)
     /* build pmResult for pmStore() */
     pmvb = (pmValueBlock *)calloc(1, PM_VAL_HDR_SIZE+vblen);
     if (pmvb == NULL) {
+	PM_UNLOCK(ctxp->c_lock);
 	__pmNoMem("__pmSetClientId", PM_VAL_HDR_SIZE+vblen, PM_RECOV_ERR);
 	return -ENOMEM;
     }
@@ -1737,8 +1763,9 @@ __pmSetClientId(const char *id)
     memset(&store, 0, sizeof(store));
     store.numpmid = 1;
     store.vset[0] = &pmvs;
-    sts = pmStore(&store);
+    sts = pmStore_ctx(ctxp, &store);
     free(pmvb);
+    PM_UNLOCK(ctxp->c_lock);
     return sts;
 }
 
