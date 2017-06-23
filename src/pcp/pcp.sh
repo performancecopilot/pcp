@@ -1,6 +1,6 @@
 #! /bin/sh
 # 
-# Copyright (c) 2013-2015 Red Hat.
+# Copyright (c) 2013-2015 2017 Red Hat.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -20,14 +20,14 @@ tmp=`mktemp -d /tmp/pcp.XXXXXXXXX` || exit 1
 trap "rm -rf $tmp; exit \$sts" 0 1 2 3 15
 
 progname=`basename $0`
-for var in Aflag aflag Dflag gflag hflag Lflag nflag Oflag pflag Sflag sflag Tflag tflag Zflag zflag
+for var in Aflag aflag dflag Dflag gflag hflag Lflag nflag Oflag pflag Sflag sflag Tflag tflag Zflag zflag
 do
     eval $var=false
 done
 
 # usage spec for pmgetopt, note posix flag (commands mean no reordering)
 cat > $tmp/usage << EOF
-# getopts: A:a:D:gh:Ln:O:p:PS:s:T:t:VZ:z?
+# getopts: A:a:dD:gh:Ln:O:p:PS:s:T:t:VZ:z?
 # Usage: [options] [[...] command [...]]
 
 Summary Options:
@@ -112,6 +112,9 @@ do
 	pcp_archive="$2"
 	shift
 	;;
+      -d)
+	  dflag=true
+	  ;;
       -D)
 	Dflag=true
 	pcp_debug="$2"
@@ -209,6 +212,14 @@ then
 elif [ -x "$PCP_BINADM_DIR/pcp-$command" ]
 then
     command="$PCP_BINADM_DIR/pcp-$command"
+elif [ "$dflag" == "true" ]
+then
+    if [ -x "$command" ]
+    then
+	break
+    else
+	_usage "Cannot find a $command command to execute"
+    fi
 else
     _usage "Cannot find a pcp-$command command to execute"
 fi
