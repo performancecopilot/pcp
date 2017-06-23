@@ -1,0 +1,22 @@
+#
+# metric names and access macros for numasyst.[ch]
+#
+numametrics {
+	# numa nodes
+	kernel.pernode.cpu.nice			NUMA_NTIME
+	kernel.pernode.cpu.user			NUMA_UTIME
+	kernel.pernode.cpu.sys			NUMA_STIME
+	kernel.pernode.cpu.idle			NUMA_ITIME
+	kernel.pernode.cpu.intr			NUMA_INTR
+	kernel.pernode.cpu.steal		NUMA_STEAL
+	kernel.pernode.cpu.guest		NUMA_GUEST
+	kernel.pernode.cpu.vuser		NUMA_VUSER
+	kernel.pernode.cpu.vnice		NUMA_VNICE
+	kernel.pernode.cpu.wait.total		NUMA_WTIME
+	kernel.pernode.cpu.irq.soft		NUMA_SOFTIRQ
+	kernel.pernode.cpu.irq.hard		NUMA_HARDIRQ
+	
+	# end marker - provides count
+	.					NUMA_NMETRICS
+
+}

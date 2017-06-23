@@ -250,6 +250,15 @@ struct wwwstat {
 
 /************************************************************************/
 
+/*
+** Status metrics from numa nodes
+*/
+
+struct numastat {
+    int           nrnodes; /* number of nodes */
+    struct percpu *node;
+};
+/************************************************************************/
 struct	sstat {
 	struct timeval	stamp;
 
@@ -262,6 +271,8 @@ struct	sstat {
 	struct contstat	cfs;
 
 	struct wwwstat	www;
+
+       struct numastat numa;
 };
 
 /*

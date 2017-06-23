@@ -5,6 +5,7 @@ pmgenmap.sh
 hostmetrics.h
 procmetrics.h
 systmetrics.h
+numametrics.h
 ifpropmetrics.h
 pcp-atop.1.*
 pcp-atoprc.5.*

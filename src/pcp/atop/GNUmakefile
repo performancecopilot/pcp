@@ -96,7 +96,9 @@ ifpropmetrics.h:	pmgenmap.sh ifpropmetrics.map
 hostmetrics.h:	pmgenmap.sh hostmetrics.map
 	$(PMGENMAP) hostmetrics.map > hostmetrics.h
 
+numametrics.h: pmgenmap.sh numametrics.map
+	$(PMGENMAP) numametrics.map > numametrics.h
 photoproc.o:	procmetrics.h
-photosyst.o:	systmetrics.h
+photosyst.o:	systmetrics.h numametrics.h
 ifprop.o:	ifpropmetrics.h
 various.o:	hostmetrics.h

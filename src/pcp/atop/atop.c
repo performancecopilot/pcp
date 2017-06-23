@@ -150,6 +150,7 @@ unsigned int	pagesize;
 unsigned int	hinv_nrcpus;
 unsigned int	hinv_nrdisk;
 unsigned int	hinv_nrintf;
+unsigned int   hinv_nrnodes;
 int 		osrel;
 int 		osvers;
 int 		ossub;

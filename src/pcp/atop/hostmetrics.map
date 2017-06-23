@@ -2,6 +2,7 @@ hostmetrics {
 	hinv.ncpu		NRCPUS
 	hinv.ndisk		NRDISK
 	hinv.ninterface		NRINTF
+	hinv.nnode		NNODE
 	hinv.map.dmname		MAP_DMNAME
 	hinv.map.mdname		MAP_MDNAME
 

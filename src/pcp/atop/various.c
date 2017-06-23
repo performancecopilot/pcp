@@ -686,6 +686,8 @@ setup_globals(pmOptions *opts)
 		hinv_nrdisk = 1;
 	if ((hinv_nrintf = extract_integer(result, descs, NRINTF)) <= 0)
 		hinv_nrintf = 1;
+	if ((hinv_nrnodes = extract_integer(result, descs, NNODE)) <= 0)
+		hinv_nrcpus = 1;
 
 	pmFreeResult(result);
 	setup_step_mode(opts, 0);

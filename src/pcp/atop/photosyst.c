@@ -19,6 +19,7 @@
 #include "atop.h"
 #include "photosyst.h"
 #include "systmetrics.h"
+#include "numametrics.h"
 
 /*
 ** Allocate the fixes space for system statistics and the associated
@@ -58,6 +59,10 @@ sstat_alloc(const char *purpose)
 	ptrverify(ptr, "Alloc failed for %s (NFS mounts)\n", purpose);
 	sstat->nfs.nfsmnt = (struct pernfsmount *)ptr;
 
+	ptr = calloc(1, sizeof(struct numastat));
+	ptrverify(ptr, "Alloc failed for %s (numa nodes)\n", purpose);
+	sstat->numa.node = (struct percpu *)ptr;
+
 	return sstat;
 }
 
@@ -68,8 +73,8 @@ sstat_alloc(const char *purpose)
 void
 sstat_reset(struct sstat *sstat)
 {
-	void		*cpu, *intf, *mdd, *lvm, *dsk, *nfs;
-	unsigned int	nrcpu, nrintf, nrdsk, nrlvm, nrmdd, nrnfs;
+       void		*cpu, *intf, *mdd, *lvm, *dsk, *nfs, *node;
+	unsigned int	nrcpu, nrintf, nrdsk, nrlvm, nrmdd, nrnfs, nrnodes;
 
 	cpu = sstat->cpu.cpu;
 	intf = sstat->intf.intf;
@@ -77,6 +82,7 @@ sstat_reset(struct sstat *sstat)
 	lvm = sstat->dsk.lvm;
 	mdd = sstat->dsk.mdd;
 	nfs = sstat->nfs.nfsmnt;
+	node = sstat->numa.node;
 
 	nrcpu = sstat->cpu.nrcpu;
 	nrintf = sstat->intf.nrintf;
@@ -84,6 +90,7 @@ sstat_reset(struct sstat *sstat)
 	nrlvm = sstat->dsk.nlvm;
 	nrmdd = sstat->dsk.nmdd;
 	nrnfs = sstat->nfs.nrmounts;
+	nrnodes = sstat->numa.nrnodes;
 
 	/* clear fixed portion now that pointers/sized are safe */
 	memset(sstat, 0, sizeof(struct sstat));
@@ -95,6 +102,7 @@ sstat_reset(struct sstat *sstat)
 	memset(lvm, 0, sizeof(struct perdsk) * nrlvm);
 	memset(mdd, 0, sizeof(struct perdsk) * nrmdd);
 	memset(nfs, 0, sizeof(struct pernfsmount) * nrnfs);
+	memset(node, 0, sizeof(struct percpu) * nrnodes);
 
 	/* stitch the main sstat buffer back together once more */
 	sstat->cpu.cpu = cpu;
@@ -103,6 +111,7 @@ sstat_reset(struct sstat *sstat)
 	sstat->dsk.lvm = lvm;
 	sstat->dsk.mdd = mdd;
 	sstat->nfs.nfsmnt = nfs;
+	sstat->numa.node = node;
 
 	sstat->cpu.nrcpu = nrcpu;
 	sstat->intf.nrintf = nrintf;
@@ -110,6 +119,7 @@ sstat_reset(struct sstat *sstat)
 	sstat->dsk.nlvm = nrlvm;
 	sstat->dsk.nmdd = nrmdd;
 	sstat->nfs.nrmounts = nrnfs;
+	sstat->numa.nrnodes = nrnodes;
 }
 
 static void
@@ -217,6 +227,22 @@ update_mnt(struct pernfsmount *mp, int id, char *name, pmResult *rp, pmDesc *dp)
 	mp->pagesmwrite = extract_count_t_inst(rp, dp, PERNFS_WRPAGES, id);
 }
 
+static void
+update_node(struct percpu *cpu, int id, pmResult *result, pmDesc *descs)
+{
+	cpu->cpunr = id;
+
+	cpu->stime = extract_count_t_inst(result, descs, NUMA_STIME, id);
+	cpu->utime = extract_count_t_inst(result, descs, NUMA_UTIME, id);
+	cpu->ntime = extract_count_t_inst(result, descs, NUMA_NTIME, id);
+	cpu->itime = extract_count_t_inst(result, descs, NUMA_ITIME, id);
+	cpu->wtime = extract_count_t_inst(result, descs, NUMA_WTIME, id);
+	cpu->Itime = extract_count_t_inst(result, descs, NUMA_HARDIRQ, id);
+	cpu->Stime = extract_count_t_inst(result, descs, NUMA_SOFTIRQ, id);
+	cpu->steal = extract_count_t_inst(result, descs, NUMA_STEAL, id);
+	cpu->guest = extract_count_t_inst(result, descs, NUMA_GUEST, id);
+}
+
 void
 photosyst(struct sstat *si)
 {
@@ -226,8 +252,12 @@ photosyst(struct sstat *si)
 	unsigned int	onrcpu, onrdisk, onrintf;
 	unsigned int	nrlvm, nrmdd, nrnfs;
 	unsigned int	onrlvm, onrmdd, onrnfs;
+	unsigned int    nrnodes;
+	unsigned int    onrnodes;
 	static pmID	pmids[SYST_NMETRICS];
 	static pmDesc	descs[SYST_NMETRICS];
+	static pmID	numa_pmids[NUMA_NMETRICS];
+	static pmDesc	numa_descs[NUMA_NMETRICS];
 	pmResult	*result;
 	size_t		size;
 	char		**insts;
@@ -237,17 +267,19 @@ photosyst(struct sstat *si)
 	if (!setup)
 	{
 		setup_metrics(systmetrics, pmids, descs, SYST_NMETRICS);
+		setup_metrics(numametrics, numa_pmids, numa_descs, NUMA_NMETRICS);
 		setup = 1;
 	}
 
 	fetch_metrics("system", SYST_NMETRICS, pmids, &result);
 
-	onrcpu  = si->cpu.nrcpu;
-	onrintf = si->intf.nrintf;
-	onrdisk = si->dsk.ndsk;
-	onrlvm  = si->dsk.nlvm;
-	onrmdd  = si->dsk.nmdd;
-	onrnfs  = si->nfs.nrmounts;
+	onrcpu   = si->cpu.nrcpu;
+	onrintf  = si->intf.nrintf;
+	onrdisk  = si->dsk.ndsk;
+	onrlvm   = si->dsk.nlvm;
+	onrmdd   = si->dsk.nmdd;
+	onrnfs   = si->nfs.nrmounts;
+	onrnodes = si->numa.nrnodes;
 
 	sstat_reset(si);
 	si->stamp = result->timestamp;
@@ -601,6 +633,29 @@ photosyst(struct sstat *si)
 	}
 	si->nfs.nfsmnt[nrnfs].mountdev[0] = '\0'; 
 	si->nfs.nrmounts = nrnfs;
+	free(insts);
+	free(ids);
+
+	/* NUMA node statistics */
+	insts = NULL;
+	ids = NULL;
+
+	nrnodes = get_instances("numa", NUMA_UTIME, numa_descs, &ids, &insts);
+	if (nrnodes == 0)
+	    nrnodes = hinv_nrnodes;
+	if (nrnodes > onrnodes)
+	{
+		size = nrnodes * sizeof(struct percpu);
+		si->numa.node = (struct percpu *)realloc(si->numa.node, size);
+		ptrverify(si->cpu.cpu, "photosyst nodes [%ld]", (long)size);
+	}
+	for (i=0; i < nrnodes; i++)
+	    {
+		if (pmDebug & DBG_TRACE_APPL0)
+			fprintf(stderr, "%s: updating numda node %d: %s\n",
+				pmProgname, ids[i], insts[i]);
+		update_node(&si->numa.node[i], ids[i], result, descs);
+	    }
 	free(insts);
 	free(ids);
 

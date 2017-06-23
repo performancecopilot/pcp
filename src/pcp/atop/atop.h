@@ -101,6 +101,7 @@ extern unsigned int	pagesize;
 extern unsigned int	hinv_nrcpus;
 extern unsigned int	hinv_nrdisk;
 extern unsigned int	hinv_nrintf;
+extern unsigned int	hinv_nrnodes;
 
 extern int		supportflags;
 
