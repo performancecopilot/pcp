@@ -1,0 +1,103 @@
+#!/bin/sh
+# PCP QA Test No. 1202
+# [what am I here for?]
+#
+# Copyright (c) 2017 [who are you?].  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+# test for-some-thing || _notrun No support for some-thing
+
+root=$tmp.root
+export DM_STATS="cat $root/dmstats"
+
+_install_pmda()
+{
+    # install the PMDA
+    cd /usr/local$PCP_PMDAS_DIR/$iam
+    $sudo ./Remove < /dev/null >/dev/null 2>&1
+    $sudo ./Install < /dev/null >$tmp.out 2>&1
+    cat $tmp.out | _filter_pmda_install | sed \
+    -e '/.*pmcd.*/d' \
+    -e '/.*pmlogger.*/d' \
+    -e '/Latest.*/d' \
+    -e '/Duplicate.*/d'
+}
+
+_remove_pmda()
+{
+    cd /usr/local/$PCP_PMDAS_DIR/$iam
+    $sudo ./Remove < /dev/null > /dev/null 2>&1
+}
+
+_cleanup()
+{
+    if $restore_pcpqa_systemd
+    then
+	export PCPQA_SYSTEMD="$save_pcpqa_systemd"
+    else
+	unset PCPQA_SYSTEMD
+    fi
+    _service pcp restart | _filter_pcp_start
+    _restore_auto_restart pmcd
+    _wait_for_pmcd
+    _wait_for_pmlogger
+    $sudo rm -fr $root
+    $sudo rm -fr $tmp.*.dir
+    $sudo rm -f $tmp.*
+    exit $status
+}
+
+_dm_test_device()
+{
+	$sudo dmstats create /dev/mapper/looptest0
+}
+
+iam=dm
+status=1 # failure is the default!
+trap "_cleanup $iam" 0 1 2 3 15
+_stop_auto_restart pmcd
+
+$sudo rm -fr $root
+$sudo rm -fr $tmp.*.dir
+$sudo rm -f $tmp.* $seq.full
+touch $here/$seq.full
+
+# real QA test starts here
+cd $here
+
+echo
+echo "=== Setting up QA fakeroot testing data ==="
+$sudo rm -fr $root
+mkdir $root || _fail "root in use when processing fakeroot"
+cd $root
+echo ``
+cd $here
+
+echo
+echo "=== Installing Device Mapper PMDA ==="
+_prepare_pmda_install $iam
+_install_pmda
+
+echo
+echo "=== Prepare for DM Device ==="
+_dm_test_device
+
+echo
+echo "=== Check dmstats metrics ==="
+pminfo -dfmtT dm
+
+$sudo dmstats delete --alldevices --allregions
+
+# cleanup
+_remove_pmda
+
+status=0
+exit

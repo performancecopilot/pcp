@@ -1,0 +1,123 @@
+QA output created by 1202
+
+=== Setting up QA fakeroot testing data ===
+
+
+=== Installing Device Mapper PMDA ===
+You will need to choose an appropriate configuration for installation of
+the "dm" Performance Metrics Domain Agent (PMDA).
+
+  collector	collect performance statistics on this system
+  monitor	allow this system to monitor local and/or remote systems
+  both		collector and monitor configuration for this system
+
+Please enter c(ollector) or m(onitor) or b(oth) [b] Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+[...install files, make output...]
+Updating the PMCD control file, and notifying PMCD ...
+Check dmcache metrics have appeared ... 16 metrics and 0 values
+Check dmthin metrics have appeared ... 13 metrics and 0 values
+Check dmstats metrics have appeared ... 1 warnings, 1 metrics and 0 values
+
+=== Prepare for DM Device ===
+looptest0: Created new region with 1 area(s) as region ID 0
+
+=== Check dmstats metrics ===
+
+dm.read PMID: 129.3.0 One-line Help: Error: One-line or help text is not available
+    Data Type: 64-bit unsigned int  InDom: 129.3 0x20400003
+    Semantics: counter  Units: count
+Full Help: Error: One-line or help text is not available
+    inst [0 or "looptest0"] value 0
+
+dm.reads_merged PMID: 129.3.1 One-line Help: Error: One-line or help text is not available
+    Data Type: 64-bit unsigned int  InDom: 129.3 0x20400003
+    Semantics: counter  Units: count
+Full Help: Error: One-line or help text is not available
+    inst [0 or "looptest0"] value 0
+
+dm.read_sector PMID: 129.3.2 One-line Help: Error: One-line or help text is not available
+    Data Type: 64-bit unsigned int  InDom: 129.3 0x20400003
+    Semantics: counter  Units: Kbyte
+Full Help: Error: One-line or help text is not available
+    inst [0 or "looptest0"] value 0
+
+dm.read_time PMID: 129.3.3 One-line Help: Error: One-line or help text is not available
+    Data Type: 64-bit unsigned int  InDom: 129.3 0x20400003
+    Semantics: instant  Units: nanosec
+Full Help: Error: One-line or help text is not available
+    inst [0 or "looptest0"] value 0
+
+dm.write PMID: 129.3.4 One-line Help: Error: One-line or help text is not available
+    Data Type: 64-bit unsigned int  InDom: 129.3 0x20400003
+    Semantics: counter  Units: count
+Full Help: Error: One-line or help text is not available
+    inst [0 or "looptest0"] value 0
+
+dm.writes_merged PMID: 129.3.5 One-line Help: Error: One-line or help text is not available
+    Data Type: 64-bit unsigned int  InDom: 129.3 0x20400003
+    Semantics: counter  Units: count
+Full Help: Error: One-line or help text is not available
+    inst [0 or "looptest0"] value 0
+
+dm.write_sector PMID: 129.3.6 One-line Help: Error: One-line or help text is not available
+    Data Type: 64-bit unsigned int  InDom: 129.3 0x20400003
+    Semantics: counter  Units: Kbyte
+Full Help: Error: One-line or help text is not available
+    inst [0 or "looptest0"] value 0
+
+dm.writes_time PMID: 129.3.7 One-line Help: Error: One-line or help text is not available
+    Data Type: 64-bit unsigned int  InDom: 129.3 0x20400003
+    Semantics: instant  Units: nanosec
+Full Help: Error: One-line or help text is not available
+    inst [0 or "looptest0"] value 0
+
+dm.in_progress PMID: 129.3.8 One-line Help: Error: One-line or help text is not available
+    Data Type: 64-bit unsigned int  InDom: 129.3 0x20400003
+    Semantics: counter  Units: count
+Full Help: Error: One-line or help text is not available
+    inst [0 or "looptest0"] value 0
+
+dm.io_ticks PMID: 129.3.9 One-line Help: Error: One-line or help text is not available
+    Data Type: 64-bit unsigned int  InDom: 129.3 0x20400003
+    Semantics: instant  Units: nanosec
+Full Help: Error: One-line or help text is not available
+    inst [0 or "looptest0"] value 0
+
+dm.queue_ticks PMID: 129.3.10 One-line Help: Error: One-line or help text is not available
+    Data Type: 64-bit unsigned int  InDom: 129.3 0x20400003
+    Semantics: instant  Units: nanosec
+Full Help: Error: One-line or help text is not available
+    inst [0 or "looptest0"] value 0
+
+dm.read_ticks PMID: 129.3.11 One-line Help: Error: One-line or help text is not available
+    Data Type: 64-bit unsigned int  InDom: 129.3 0x20400003
+    Semantics: instant  Units: nanosec
+Full Help: Error: One-line or help text is not available
+    inst [0 or "looptest0"] value 0
+
+dm.write_ticks PMID: 129.3.12 One-line Help: Error: One-line or help text is not available
+    Data Type: 64-bit unsigned int  InDom: 129.3 0x20400003
+    Semantics: instant  Units: nanosec
+Full Help: Error: One-line or help text is not available
+    inst [0 or "looptest0"] value 0
+
+dm.reads_time PMID: 129.3.3 One-line Help: Error: One-line or help text is not available
+    Data Type: 64-bit unsigned int  InDom: 129.3 0x20400003
+    Semantics: instant  Units: nanosec
+Full Help: Error: One-line or help text is not available
+    inst [0 or "looptest0"] value 0
+
+dm.read_bytes PMID: 129.3.2 One-line Help: Error: One-line or help text is not available
+    Data Type: 64-bit unsigned int  InDom: 129.3 0x20400003
+    Semantics: counter  Units: Kbyte
+Full Help: Error: One-line or help text is not available
+    inst [0 or "looptest0"] value 0
+
+dm.write_bytes PMID: 129.3.6 One-line Help: Error: One-line or help text is not available
+    Data Type: 64-bit unsigned int  InDom: 129.3 0x20400003
+    Semantics: counter  Units: Kbyte
+Full Help: Error: One-line or help text is not available
+    inst [0 or "looptest0"] value 0
+Starting pmcd ... 
+Starting pmlogger ... 
