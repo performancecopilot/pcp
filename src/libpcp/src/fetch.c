@@ -114,6 +114,8 @@ pmFetch_ctx(__pmContext *ctxp, int numpmid, pmID *pmidlist, pmResult **result)
 	    if (ctxp != NULL)
 		need_unlock = 1;
 	}
+	else
+	    PM_ASSERT_IS_LOCKED(ctxp->c_lock);
 
 	if (ctxp == NULL) {
 	    sts = PM_ERR_NOCONTEXT;
@@ -168,8 +170,6 @@ pmFetch_ctx(__pmContext *ctxp, int numpmid, pmID *pmidlist, pmResult **result)
 	    if (newlist != NULL)
 		free(newlist);
 	}
-	if (need_unlock)
-	    PM_UNLOCK(ctxp->c_lock);
     }
 
 done:
@@ -191,6 +191,9 @@ done:
 	}
     }
 #endif
+
+    if (need_unlock)
+	PM_UNLOCK(ctxp->c_lock);
 
     if (need_unlock) CHECK_C_LOCK;
     return sts;

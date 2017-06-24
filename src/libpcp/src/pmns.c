@@ -217,10 +217,14 @@ pmGetPMNSLocation_ctx(__pmContext *ctxp)
 	int		version;
 
 	n = pmWhichContext();
-	if (n >= 0 && ctxp == NULL) {
-	    ctxp = __pmHandleToPtr(n);
-	    if (ctxp != NULL)
-		need_unlock = 1;
+	if (n >= 0) {
+	    if (ctxp == NULL) {
+		ctxp = __pmHandleToPtr(n);
+		if (ctxp != NULL)
+		    need_unlock = 1;
+	    }
+	    else
+		PM_ASSERT_IS_LOCKED(ctxp->c_lock);
 	}
 
 	if (n >= 0 && ctxp != NULL) {
@@ -1572,8 +1576,6 @@ pmLookupName_ctx(__pmContext *ctxp, int numpmid, char *namelist[], pmID pmidlist
     int		i;
     int		nfail = 0;
 
-    PM_INIT_LOCKS();
-
     if (numpmid < 1) {
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_PMNS) {
@@ -1593,6 +1595,8 @@ pmLookupName_ctx(__pmContext *ctxp, int numpmid, char *namelist[], pmID pmidlist
 		return PM_ERR_NOCONTEXT;
 	    need_unlock = 1;
 	}
+	else
+	    PM_ASSERT_IS_LOCKED(ctxp->c_lock);
 	c_type = ctxp->c_type;
     }
     else {
@@ -2482,8 +2486,10 @@ pmNameAll_ctx(__pmContext *ctxp, pmID pmid, char ***namelist)
 		c_type = ctxp->c_type;
 	    }
 	}
-	else
+	else {
+	    PM_ASSERT_IS_LOCKED(ctxp->c_lock);
 	    c_type = ctxp->c_type;
+	}
     }
     else {
 	ctxp = NULL;

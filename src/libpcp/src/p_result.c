@@ -157,6 +157,9 @@ __pmSendResult_ctx(__pmContext *ctxp, int fd, int from, const pmResult *result)
     __pmPDU	*pdubuf;
     result_t	*pp;
 
+    if (ctxp != NULL)
+	PM_ASSERT_IS_LOCKED(ctxp->c_lock);
+
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_PDU)
 	__pmDumpResult_ctx(ctxp, stderr, result);
@@ -216,6 +219,9 @@ __pmDecodeResult_ctx(__pmContext *ctxp, __pmPDU *pdubuf, pmResult **result)
 #else
     Bozo - unexpected sizeof pointer!!
 #endif
+
+    if (ctxp != NULL)
+	PM_ASSERT_IS_LOCKED(ctxp->c_lock);
 
     pp = (result_t *)pdubuf;
     pduend = (char *)pdubuf + pp->hdr.len;

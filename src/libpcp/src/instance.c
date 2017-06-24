@@ -116,6 +116,8 @@ pmNameInDom_ctx(__pmContext *ctxp, pmInDom indom, int inst, char **name)
 		return PM_ERR_NOCONTEXT;
 	    need_unlock = 1;
 	}
+	else
+	    PM_ASSERT_IS_LOCKED(ctxp->c_lock);
 	if (ctxp->c_type == PM_CONTEXT_HOST) {
 	    n = __pmSendInstanceReq(ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp),
 				    &ctxp->c_origin, indom, inst, NULL);

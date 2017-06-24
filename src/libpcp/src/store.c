@@ -53,6 +53,8 @@ pmStore_ctx(__pmContext *ctxp, const pmResult *result)
 	    return PM_ERR_NOCONTEXT;
 	need_unlock = 1;
     }
+    else
+	PM_ASSERT_IS_LOCKED(ctxp->c_lock);
 
     if (ctxp->c_type == PM_CONTEXT_HOST) {
 	sts = __pmSendResult_ctx(ctxp, ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp), result);
