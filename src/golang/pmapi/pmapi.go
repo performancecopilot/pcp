@@ -132,6 +132,7 @@ type PMNSNode struct {
 
 type PmapiContext struct {
 	context int
+	contextLocker sync.Locker
 }
 
 type PmDesc struct {
@@ -235,7 +236,16 @@ const (
 	PmNonLeafStatus = int(C.PMNS_NONLEAF_STATUS)
 )
 
+/* Higher-performance version of PmNewContext that's safe if it's the only context in the process */
+func PmNewContextUnsafe(context_type PmContextType, host_or_archive string) (*PmapiContext, error) {
+	return pmNewContext(context_type, host_or_archive, noopLocker{})
+}
+
 func PmNewContext(context_type PmContextType, host_or_archive string) (*PmapiContext, error) {
+	return pmNewContext(context_type, host_or_archive, &contextLock)
+}
+
+func pmNewContext(context_type PmContextType, host_or_archive string, locker sync.Locker) (*PmapiContext, error) {
 	host_or_archive_ptr := C.CString(host_or_archive)
 	defer C.free(unsafe.Pointer(host_or_archive_ptr))
 
@@ -246,6 +256,7 @@ func PmNewContext(context_type PmContextType, host_or_archive string) (*PmapiCon
 
 	context := &PmapiContext{
 		context: context_id,
+		contextLocker: locker,
 	}
 
 	runtime.SetFinalizer(context, func(c *PmapiContext) {
@@ -568,8 +579,8 @@ func (c *PmapiContext) withinContext(pmapiCall func() int) (int, error) {
 	thread2: pmUseContext(2)
 	thread1: pmFetch() <- called against the wrong context
 	*/
-	contextLock.Lock()
-	defer contextLock.Unlock()
+	c.contextLocker.Lock()
+	defer c.contextLocker.Unlock()
 
 	err := c.pmUseContext()
 	if(err != nil) {

@@ -24,6 +24,7 @@ import (
 	"testing"
 	"time"
 	"github.com/stretchr/testify/assert"
+	"sync"
 )
 
 var sampleDoubleMillionPmID PmID = 121634844
@@ -312,10 +313,31 @@ func TestPmapiContext_PmNameID_returnsAnEmptyNameIfThePmIDIsInvalid(t *testing.T
 }
 
 func BenchmarkPmapiContext_PmFetch(b *testing.B) {
-	context1 := localContext()
+	context, _ := PmNewContext(PmContextHost, "localhost")
+
 	for i := 0; i < b.N; i++ {
-		context1.PmFetch(sampleDoubleMillionPmID)
+		concurrentlyFetch(10, context)
 	}
+}
+
+func BenchmarkPmapiContextUnsafe_PmFetch(b *testing.B) {
+	context, _ := PmNewContextUnsafe(PmContextHost, "localhost")
+
+	for i := 0; i < b.N; i++ {
+		concurrentlyFetch(10, context)
+	}
+}
+
+func concurrentlyFetch(concurrency int, context *PmapiContext) {
+	wg := sync.WaitGroup{}
+	wg.Add(concurrency)
+	for i := 0; i < concurrency; i++ {
+		go func() {
+			context.PmFetch(sampleDoubleMillionPmID)
+			wg.Done()
+		}()
+	}
+	wg.Wait()
 }
 
 func assertWithinDuration(t *testing.T, time1 time.Time, time2 time.Time, duration time.Duration) {
