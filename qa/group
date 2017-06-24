@@ -655,10 +655,10 @@ zsh
 314 pmie local pmieutil
 315 pmie local pmieutil
 316 libpcp local
-317 logutil pmlogsummary local
+317 logutil pmlogsummary local pmlogcheck
 318 pmie local
 319 pmie local
-320 local folio
+320 local folio pmlogcheck
 321 pmie local
 322 pmlc pmlogger remote
 323 pmda.shping pmda.proc local pmda.install
@@ -957,7 +957,7 @@ zsh
 666 pmmgr local slow valgrind
 667 python local
 668 pmmgr local containers
-669 pmmgr local
+669 pmmgr local pmlogcheck
 670 libpcp local
 701 pmlogcheck local
 702 python libpcp local
@@ -1206,7 +1206,7 @@ zsh
 945 pmlogrewrite pmda.xfs local
 946 pmfind avahi local
 947 pmlogger local
-948 pmlogger context_local local
+948 pmlogger context_local local pmlogcheck
 949 python local timezone
 950 pmproxy avahi local
 951 pmie local pmval
@@ -1255,7 +1255,7 @@ zsh
 994 other verify
 995 python local
 996 pmdiff local
-997 pmlogextract local
+997 pmlogextract local pmlogcheck
 998 threads libpcp local
 999 pmns local
 1000 pmdumptext local
