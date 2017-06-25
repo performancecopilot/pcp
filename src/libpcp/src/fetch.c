@@ -122,8 +122,6 @@ pmFetch_ctx(__pmContext *ctxp, int numpmid, pmID *pmidlist, pmResult **result)
 	if (ctxp->c_type == PM_CONTEXT_LOCAL && PM_MULTIPLE_THREADS(PM_SCOPE_DSO_PMDA)) {
 	    /* Local context requires single-threaded applications */
 	    sts = PM_ERR_THREAD;
-	    if (need_unlock)
-		PM_UNLOCK(ctxp->c_lock);
 	    goto done;
 	}
 
