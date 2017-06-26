@@ -14,6 +14,8 @@ echo "QA output created by $seq"
 which curl >/dev/null 2>&1 || _notrun "No curl binary installed"
 [ -f ${PCP_BINADM_DIR}/pmwebd ] || _notrun "pmwebd binary not installed"
 
+full_hostname=`hostname`
+
 sasl_notrun_checks saslpasswd2 sasldblistusers2
 $pluginviewer -a | grep 'Plugin "sasldb"' >/dev/null
 test $? -eq 0 || _notrun "SASL sasldb auxprop plugin unavailable"
@@ -56,6 +58,7 @@ _filter_listusers2()
 {
     sed \
         -e "s/^$username/USER/" \
+        -e "s/@$full_hostname:/@HOST:/" \
         -e "s/@$hostname:/@HOST:/"
 }
 
