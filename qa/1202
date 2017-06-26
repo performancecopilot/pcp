@@ -38,18 +38,17 @@ _remove_pmda()
 
 _setup_dm_device()
 {
-	echo "creating pseudo device"
+	echo "Creating pseudo device"
 	$sudo dd if=/dev/zero of=$tmp.loop bs=1M count=512 > /dev/null 2>&1
-	echo "creating loop device $loopdevice"
 	$sudo losetup $loopdevice $tmp.loop
 	$sudo echo "\$sudo dmsetup create $dmdevice --table \"0 $[512*2048] linear $loopdevice 0\""  >  $tmp.table
 	source $tmp.table
-	echo "creating device mapper device stastics $dmdevice"
 	$sudo dmstats create $dmdevice
 }
 
 _clean_device()
 {
+	echo "Removing pseudo device"
     	$sudo dmstats delete $dmdevice --allregions
    	$sudo dmsetup remove $dmdevice
     	$sudo losetup -d $loopdevice
@@ -84,6 +83,12 @@ _dm_filter_pminfo()
 # check for unused loop device
 loopdevice=`$sudo losetup -f`
 dmdevice="looptest0"
+
+if [ -e /dev/mapper/$dmdevice ]; then
+	_notrun
+else
+	echo
+fi
 
 iam=dm
 status=1 # failure is the default!

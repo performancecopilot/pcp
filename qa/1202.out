@@ -1,5 +1,6 @@
 QA output created by 1202
 
+
 === Setting up QA fakeroot testing data ===
 
 
@@ -17,12 +18,10 @@ Terminate PMDA if already installed ...
 Updating the PMCD control file, and notifying PMCD ...
 Check dmcache metrics have appeared ... 16 metrics and 0 values
 Check dmthin metrics have appeared ... 13 metrics and 0 values
-Check dmstats metrics have appeared ... 1 warnings, 1 metrics and 0 values
+Check dmstats metrics have appeared ... 13 metrics and 0 values
 
 === Preparing for Test Device Mapper Device
-creating pseudo device
-creating loop device /dev/loop0
-creating device mapper device stastics looptest0
+Creating pseudo device
 looptest0: Created new region with 1 area(s) as region ID 0
 
 === Check dmstats metrics ===
@@ -144,6 +143,7 @@ Count of kbytes writes this interval per dm-device.
     inst [0 or "looptest0"] value NUMBER
 
 === Clean up ===
+Removing pseudo device
 Starting pmcd ... 
 Starting pmlogger ... 
 Starting pmcd ... 

@@ -11,7 +11,7 @@
 root {
     dmcache
     dmthin
-    dm
+    dmstats
 }
 
 #include "pmns.dmcache"
