@@ -1,4 +1,4 @@
 QA output created by 727
 Verify pmwebd avahi service advertising
-   hostname = [HOSTNAME.local]
+= <interface> IPv4 PCP pmwebd on HOSTNAME.localdomain _pmwebd._tcp local
 Verify pmwebd avahi discovery disabling option

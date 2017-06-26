@@ -41,11 +41,19 @@ avahi_verify()
 
     # strip any domain part ... e.g. if hostname is vm08.localdomain,
     # avahi reports this as vm08.local
+    # look for a line like this ...
+    # = eth0 IPv4 PCP pmwebd on vm04.localdomain _pmwebd._tcp local
     #
     hostname=`hostname | sed -e 's/\..*//'`
     echo "hostname=$hostname" >>$here/$seq.full
     avahi-browse -rt -d local "_$service._tcp" 2>&1 | \
 	tee -a $here/$seq.full | \
-	grep -m1 "hostname = .$hostname.local]" | \
-	sed -e "s/$hostname/HOSTNAME/g"
+	sed -n \
+	    -e '/^= .* '"$hostname"'\./{
+s/  */ /g
+s/'"$hostname"'/HOSTNAME/
+s/= [^ ]* /= <interface> /
+p
+q
+}'
 }
