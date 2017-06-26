@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # PCP QA Test No. 1202
 # [what am I here for?]
 #
@@ -14,14 +14,13 @@ echo "QA output created by $seq"
 . ./common.check
 
 # test for-some-thing || _notrun No support for some-thing
-
 root=$tmp.root
 export DM_STATS="cat $root/dmstats"
 
 _install_pmda()
 {
     # install the PMDA
-    cd /usr/local$PCP_PMDAS_DIR/$iam
+    cd $PCP_PMDAS_DIR/$iam
     $sudo ./Remove < /dev/null >/dev/null 2>&1
     $sudo ./Install < /dev/null >$tmp.out 2>&1
     cat $tmp.out | _filter_pmda_install | sed \
@@ -33,32 +32,58 @@ _install_pmda()
 
 _remove_pmda()
 {
-    cd /usr/local/$PCP_PMDAS_DIR/$iam
+    cd $PCP_PMDAS_DIR/$iam
     $sudo ./Remove < /dev/null > /dev/null 2>&1
+}
+
+_setup_dm_device()
+{
+	echo "creating pseudo device"
+	$sudo dd if=/dev/zero of=$tmp.loop bs=1M count=512 > /dev/null 2>&1
+	echo "creating loop device $loopdevice"
+	$sudo losetup $loopdevice $tmp.loop
+	$sudo echo "\$sudo dmsetup create $dmdevice --table \"0 $[512*2048] linear $loopdevice 0\""  >  $tmp.table
+	source $tmp.table
+	echo "creating device mapper device stastics $dmdevice"
+	$sudo dmstats create $dmdevice
+}
+
+_clean_device()
+{
+    	$sudo dmstats delete $dmdevice --allregions
+   	$sudo dmsetup remove $dmdevice
+    	$sudo losetup -d $loopdevice
 }
 
 _cleanup()
 {
-    if $restore_pcpqa_systemd
-    then
-	export PCPQA_SYSTEMD="$save_pcpqa_systemd"
-    else
-	unset PCPQA_SYSTEMD
-    fi
-    _service pcp restart | _filter_pcp_start
-    _restore_auto_restart pmcd
-    _wait_for_pmcd
-    _wait_for_pmlogger
-    $sudo rm -fr $root
-    $sudo rm -fr $tmp.*.dir
-    $sudo rm -f $tmp.*
-    exit $status
+	if $restore_pcpqa_systemd
+	then
+	   export PCPQA_SYSTEMD="$save_pcpqa_systemd"
+	else
+	   unset PCPQA_SYSTEMD
+	fi
+	_service pcp restart | _filter_pcp_start
+	_restore_auto_restart pmcd
+	_wait_for_pmcd
+	_wait_for_pmlogger
+   	$sudo rm -f $tmp.loop
+    	$sudo rm -fr $root
+    	$sudo rm -fr $tmp.*.dir
+    	$sudo rm -f $tmp.*
 }
 
-_dm_test_device()
+_dm_filter_pminfo()
 {
-	$sudo dmstats create /dev/mapper/looptest0
+	# Just want to check both are found and have some values
+	tee -a $here/$seq.full | sed \
+	    -e 's/value [-?0-9.e+][-?0-9.e+]*/value NUMBER/'
 }
+
+
+# check for unused loop device
+loopdevice=`$sudo losetup -f`
+dmdevice="looptest0"
 
 iam=dm
 status=1 # failure is the default!
@@ -87,16 +112,17 @@ _prepare_pmda_install $iam
 _install_pmda
 
 echo
-echo "=== Prepare for DM Device ==="
-_dm_test_device
+echo "=== Preparing for Test Device Mapper Device"
+_setup_dm_device
 
 echo
 echo "=== Check dmstats metrics ==="
-pminfo -dfmtT dm
+pminfo -dfmtT dm | _dm_filter_pminfo
 
-$sudo dmstats delete --alldevices --allregions
-
-# cleanup
+echo
+echo "=== Clean up ==="
+_clean_device
+_cleanup
 _remove_pmda
 
 status=0
