@@ -1150,7 +1150,7 @@ for my $op_name (@all_ops) {
 
 &nfsclient_parse_proc_mountstats;
 
-$nfsclient_indom = $pmda->add_indom($nfsclient_indom, {}, '', '');
+$nfsclient_indom = $pmda->add_indom($nfsclient_indom, {}, 'NFS client mount points', '');
 
 $pmda->set_fetch(\&nfsclient_fetch);
 $pmda->set_fetch_callback(\&nfsclient_fetch_callback);
