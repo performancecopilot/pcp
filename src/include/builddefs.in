@@ -250,6 +250,7 @@ ENABLE_SELINUX = @enable_selinux@
 
 # selinux configuraiton bits
 PCP_SELINUX_CLASS_STATUS = @pcp_selinux_class_status@
+PCP_SELINUX_CAP_USERNS_PTRACE = @pcp_selinux_cap_userns_ptrace@
 PCP_SELINUX_CONTAINER_RUNTIME = @pcp_selinux_container_runtime@
 PCP_SELINUX_NSFS = @pcp_selinux_nsfs@
 PCP_SELINUX_DOCKER_VAR_LIB = @pcp_selinux_docker_var_lib@

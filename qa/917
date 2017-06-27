@@ -19,6 +19,7 @@ which sedismod >/dev/null 2>&1 || _notrun "sedismod tool not installed (module d
 which semodule >/dev/null 2>&1 || _notrun "semodule tool not installed"
 which seinfo >/dev/null 2>&1 || _notrun "seinfo tool not installed"
 [ -f "$policy_file" ] || _notrun "upstream policy package not installed"
+$sudo semodule -l 2>&1 | grep -q $policy_name || _notrun "upstream policy package not loaded"
 
 nsfs_t=`seinfo -t | grep 'nsfs_t$'`
 docker_var_lib_t=""
@@ -26,6 +27,8 @@ svirt_lxc_net_t=`seinfo -t | grep "svirt_lxc_net_t$"`
 systemd_systemctl_exec_t=`seinfo -t | grep "systemd_systemctl_exec_t$"`
 systemd_systemctl_unit_file_t=`seinfo -t | grep "systemd_systemctl_unit_file_t$"`
 devlog_t=`seinfo -t | grep "devlog_t$"`
+init_t=`seinfo -t | grep "init_t$"`
+cap_userns_ptrace=`seinfo --class=cap_userns -x 2>&1 | grep "sys_ptrace$"`
 
 _filter_semodule()
 {
@@ -50,6 +53,8 @@ _filter_outfile()
 	-v systemd_systemctl_exec_t="$systemd_systemctl_exec_t" \
 	-v systemd_systemctl_unit_file_t="$systemd_systemctl_unit_file_t" \
 	-v devlog_t="$devlog_t" \
+	-v init_t="$init_t" \
+	-v cap_userns_ptrace="$cap_userns_ptrace" \
     '{
     	if (container_t == "" && /container_runtime_t/)
 	   !/container_runtime_t/ ;
@@ -65,6 +70,10 @@ _filter_outfile()
 	   !/systemd_systemctl_unit_file_t/ ;
 	else if (devlog_t == "" && /devlog_t/)
 	   !/devlog_t/ ;
+	else if (init_t == "" && /init_t/)
+	   !/init_t/ ;
+	else if (cap_userns_ptrace == "" && /cap_userns/)
+	   !/cap_userns/ ;
 	else
 	   print;
     }'
@@ -80,7 +89,7 @@ cat $seq.out.in | _filter_outfile > $seq.out
 echo "full policy modules list on the system"
 $sudo semodule -l >> $seq.full
 echo "Checking that pcpupstream policy module has been properly installed"
-grep "pcpupstream$" $seq.full | _filter_semodule
+awk '{ print $1 }' $seq.full | grep "pcpupstream$"  | _filter_semodule
 # real QA test starts here
 echo "Checking policies."
 printf '1\nq\n' | sedismod $policy_file | _filter_sedismod | _filter_sedismod1
