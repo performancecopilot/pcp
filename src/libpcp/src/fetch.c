@@ -166,8 +166,6 @@ pmFetch_ctx(__pmContext *ctxp, int numpmid, pmID *pmidlist, pmResult **result)
 	    if (newlist != NULL)
 		free(newlist);
 	}
-	if (need_unlock)
-	    PM_UNLOCK(ctxp->c_lock);
     }
 
 done:
@@ -189,6 +187,8 @@ done:
 	}
     }
 #endif
+    if (need_unlock)
+	PM_UNLOCK(ctxp->c_lock);
 
     if (need_unlock) CHECK_C_LOCK;
     return sts;
