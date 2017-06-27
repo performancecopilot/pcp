@@ -179,6 +179,7 @@ pmda.jbd2
 pmda.json
 pmda.kvm
 pmda.lio
+pmda.libvirt
 pmda.logger
 pmda.lustre
 pmda.mailq
