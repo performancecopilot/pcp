@@ -352,10 +352,12 @@ class CpuUsageReporter:
         self.pidstat_options = pidstat_options
 
     def print_report(self, timestamp, ncpu):
+        indentation = "        " if len(timestamp)<9 else (len(timestamp)-7)*" "
         if self.pidstat_options.show_process_user:
-            self.printer ("Timestamp\tUName\tPID\tusr\tsystem\tguest\t%CPU\tCPU\tCommand")
+            self.printer ("Timestamp" + indentation + "UName\tPID\tusr\tsystem\tguest\t%CPU\tCPU\tCommand")
         else:
-            self.printer ("Timestamp\tUID\tPID\tusr\tsystem\tguest\t%CPU\tCPU\tCommand")
+            self.printer ("Timestamp" + indentation + "UID\tPID\tusr\tsystem\tguest\t%CPU\tCPU\tCommand")
+        indentation = ((len(indentation)+9)-len(timestamp))*" "
         processes = self.process_filter.filter_processes(self.cpu_usage.get_processes(self.delta_time))
         for process in processes:
             user_percent = process.user_percent()
@@ -367,25 +369,27 @@ class CpuUsageReporter:
                 total_percent = float("%.2f"%(total_percent/ncpu))
 
             if self.pidstat_options.show_process_user:
-                self.printer("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s" % (timestamp,process.user_name(),process.pid(),user_percent,system_percent,guest_percent,total_percent,process.cpu_number(),process.process_name()))
+                self.printer("%s%s%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s" % (timestamp,indentation,process.user_name(),process.pid(),user_percent,system_percent,guest_percent,total_percent,process.cpu_number(),process.process_name()))
             else:
-                self.printer("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s" % (timestamp,process.user_id(),process.pid(),user_percent,system_percent,guest_percent,total_percent,process.cpu_number(),process.process_name()))
+                self.printer("%s%s%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s" % (timestamp,indentation,process.user_id(),process.pid(),user_percent,system_percent,guest_percent,total_percent,process.cpu_number(),process.process_name()))
 
 class CpuProcessPrioritiesReporter:
     def __init__(self, process_priority, process_filter, printer, pidstat_options):
         self.process_priority = process_priority
         self.process_filter = process_filter
         self.printer = printer
-        self.pidstat_options = pidstat_options
+        self.pidstat_options = pidstat_option
 
     def print_report(self, timestamp):
-        self.printer ("Timestamp\tUID\tPID\tprio\tpolicy\tCommand")
+        indentation = "        " if len(timestamp)<9 else (len(timestamp)-7)*" "
+        self.printer ("Timestamp" + indentation + "UID\tPID\tprio\tpolicy\tCommand")
+        indentation = ((len(indentation)+9)-len(timestamp))*" "
         processes = self.process_filter.filter_processes(self.process_priority.get_processes())
         for process in processes:
             if self.pidstat_options.show_process_user:
-                self.printer("%s\t%s\t%s\t%s\t%s\t%s" % (timestamp,process.user_name(),process.pid(),process.priority(),process.policy(),process.process_name()))
+                self.printer("%s%s%s\t%s\t%s\t%s\t%s" % (timestamp,indentation,process.user_name(),process.pid(),process.priority(),process.policy(),process.process_name()))
             else:
-                self.printer("%s\t%s\t%s\t%s\t%s\t%s" % (timestamp,process.user_id(),process.pid(),process.priority(),process.policy(),process.process_name()))
+                self.printer("%s%s%s\t%s\t%s\t%s\t%s" % (timestamp,indentation,process.user_id(),process.pid(),process.priority(),process.policy(),process.process_name()))
 
 class CpuProcessMemoryUtilReporter:
     def __init__(self, process_memory_util, process_filter, delta_time, printer, pidstat_options):
@@ -396,15 +400,17 @@ class CpuProcessMemoryUtilReporter:
         self.pidstat_options = pidstat_options
 
     def print_report(self, timestamp):
-        self.printer ("Timestamp\tUID\tPID\tMinFlt/s\tMajFlt/s\tVSize\tRSS\t%Mem\tCommand")
+        indentation = "        " if len(timestamp)<9 else (len(timestamp)-7)*" "
+        self.printer ("Timestamp" + indentation + "UID\tPID\tMinFlt/s\tMajFlt/s\tVSize\tRSS\t%Mem\tCommand")
+        indentation = ((len(indentation)+9)-len(timestamp))*" "
         processes = self.process_filter.filter_processes(self.process_memory_util.get_processes(self.delta_time))
         for process in processes:
             maj_flt = process.majflt()
             min_flt = process.minflt()
             if self.pidstat_options.show_process_user:
-                self.printer("%s\t%s\t%s\t%s\t\t%s\t\t%s\t%s\t%s\t%s" % (timestamp,process.user_name(),process.pid(),min_flt,maj_flt,process.vsize(),process.rss(),process.mem(),process.process_name()))
+                self.printer("%s%s%s\t%s\t%s\t\t%s\t\t%s\t%s\t%s\t%s" % (timestamp, indentation,process.user_name(),process.pid(),min_flt,maj_flt,process.vsize(),process.rss(),process.mem(),process.process_name()))
             else:
-                self.printer("%s\t%s\t%s\t%s\t\t%s\t\t%s\t%s\t%s\t%s" % (timestamp,process.user_id(),process.pid(),min_flt,maj_flt,process.vsize(),process.rss(),process.mem(),process.process_name()))
+                self.printer("%s%s%s\t%s\t%s\t\t%s\t\t%s\t%s\t%s\t%s" % (timestamp, indentation,process.user_id(),process.pid(),min_flt,maj_flt,process.vsize(),process.rss(),process.mem(),process.process_name()))
 
 class CpuProcessStackUtilReporter:
     def __init__(self, process_stack_util, process_filter, printer, pidstat_options):
@@ -414,13 +420,15 @@ class CpuProcessStackUtilReporter:
         self.pidstat_options = pidstat_options
 
     def print_report(self, timestamp):
-        self.printer ("Timestamp\tUID\tPID\tStkSize\tCommand")
+        indentation = "        " if len(timestamp)<9 else (len(timestamp)-7)*" "
+        self.printer ("Timestamp" + indentation + "UID\tPID\tStkSize\tCommand")
+        indentation = ((len(indentation)+9)-len(timestamp))*" "
         processes = self.process_filter.filter_processes(self.process_stack_util.get_processes())
         for process in processes:
             if self.pidstat_options.show_process_user:
-                self.printer("%s\t%s\t%s\t%s\t%s" % (timestamp,process.user_name(),process.pid(),process.stack_size(),process.process_name()))
+                self.printer("%s%s%s\t%s\t%s\t%s" % (timestamp,indentation,process.user_name(),process.pid(),process.stack_size(),process.process_name()))
             else:
-                self.printer("%s\t%s\t%s\t%s\t%s" % (timestamp,process.user_id(),process.pid(),process.stack_size(),process.process_name()))
+                self.printer("%s%s%s\t%s\t%s\t%s" % (timestamp,indentation,process.user_id(),process.pid(),process.stack_size(),process.process_name()))
 
 
 class NoneHandlingPrinterDecorator:
