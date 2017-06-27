@@ -35,7 +35,7 @@ require {
 	class dir { add_name open read search write getattr };
 	class unix_stream_socket connectto;
 	class capability { kill sys_ptrace net_admin chown sys_chroot };
-	class cap_userns sys_ptrace; #pmdaproc
+	@PCP_CAPUSERNS_PTRACE@
 	class chr_file { open write };
 	class fifo_file { getattr read open unlink }; # qa/455
 	class process signal; #RHBZ1443632
@@ -87,7 +87,7 @@ allow pcp_pmcd_t initctl_t:fifo_file getattr;
 allow pcp_pmcd_t proc_kcore_t:file getattr;
 
 #type=AVC msg=audit(1491581538.587:10952): avc:  denied  { sys_ptrace } for  pid=9375 comm="pmdaproc" capability=19  scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=cap_userns permissive=1
-allow pcp_pmcd_t self:cap_userns sys_ptrace;
+@PCP_CAPUSERNS_PTRACE_RULE@
 
 
 #type=AVC msg=audit(1485899863.032:3024): avc:  denied  { sys_chroot } for  pid=25873 comm="pmdalinux" capability=18  scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=capability
