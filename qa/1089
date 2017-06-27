@@ -16,6 +16,9 @@ echo "QA output created by $seq"
 host=`hostname`
 [ -z "$host" ] && _notrun "Cannot discover local host name"
 
+ATOP="$PCP_BINADM_DIR/pcp-atop"
+test -f "$ATOP" || _notrun "$ATOP is not installed, skipped"
+
 _cleanup()
 {
     cd $here
@@ -43,7 +46,7 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
 echo "starting pcp-atop with no limit, we should have to kill this instance"
-pcp-atop -w $tmp/no-end >$tmp.out 2>$tmp.err &
+$ATOP -w $tmp/no-end >$tmp.out 2>$tmp.err &
 atop_pmid=$!
 
 pmsleep 5
@@ -58,7 +61,7 @@ cat $tmp.err
 rm $tmp.out $tmp.err
 
 echo "starting pcp-atop with a sample count, should end automatically"
-pcp-atop -w $tmp/end 1 5 >$tmp.out 2>$tmp.err
+$ATOP -w $tmp/end 1 5 >$tmp.out 2>$tmp.err
 atop_pmid=$!
 pmsleep 6
 #
