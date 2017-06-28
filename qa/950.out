@@ -1,3 +1,3 @@
 QA output created by 950
 Verify pmproxy avahi service advertising
-= <interface> IPv4 PCP pmproxy on HOSTNAME.localdomain _pmproxy._tcp local
+. <interface> <protocol> PCP pmproxy on HOSTNAME _pmproxy._tcp local
