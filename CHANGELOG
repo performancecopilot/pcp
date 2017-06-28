@@ -9,6 +9,7 @@ pcp-3.12.0 (30 June 2017)
     - containers: allow clearing a previously set container context
     - python api: handle duplicate metric name in PMDA module correctly
     - python api: clear the _metric_names_map at appropriate times
+    - perl api: fix instance domain help text handling for PMDAs
     - pcp-pidstat: configurable timestamp formatting (-f option)
     - pcp-pidstat: fix traceback at end of archive with -G option
     - pcp-numastat: use pmFetchArchive when replaying an archive
