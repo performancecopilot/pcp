@@ -2682,6 +2682,8 @@ cd
 %{_libdir}/libpcp_trace.so
 %{_libdir}/libpcp_import.so
 %{_libdir}/libpcp_web.so
+%{_libdir}/pkgconfig/libpcp.pc
+%{_libdir}/pkgconfig/libpcp_pmda.pc
 %{_includedir}/pcp/*.h
 
 %files devel -f devel.list
