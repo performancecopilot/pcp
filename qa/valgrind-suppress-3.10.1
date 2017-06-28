@@ -46,7 +46,7 @@
 # by 0x4E4AF8A: pmNewContext (context.c:1085)
 # ...
 {
-   libsasl-bad
+   libsasl-bad-0
    Memcheck:Leak
    match-leak-kinds: definite
    fun:malloc
@@ -55,6 +55,28 @@
    fun:__pmSecureClientHandshake
    fun:attributes_handshake
    fun:__pmConnectHandshake
+   fun:__pmConnectPMCD
+   fun:pmNewContext
+   ...
+}
+
+# and similar on vm18 and vm27
+# at 0x4C2AB80: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+# by 0x5C5EF72: sasl_client_new (in /usr/lib/x86_64-linux-gnu/libsasl2.so.2.0.25)
+# by 0x4E8DC47: __pmSecureClientHandshake (in /usr/lib/libpcp.so.3)
+# by 0x4E4A105: ??? (in /usr/lib/libpcp.so.3)
+# by 0x4E4A786: __pmConnectPMCD (in /usr/lib/libpcp.so.3)
+# by 0x4E4CB0A: pmNewContext (in /usr/lib/libpcp.so.3)
+# by 0x401A20: ??? (in /usr/bin/pminfo)
+# by 0x50E0F44: (below main) (libc-start.c:287)
+{
+   libsasl-bad-0
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:sasl_client_new
+   fun:__pmSecureClientHandshake
+   ...
    fun:__pmConnectPMCD
    fun:pmNewContext
    ...

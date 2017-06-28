@@ -37,3 +37,22 @@
    fun:pmNewContext
    ...
 }
+
+# same bogus condition seen with earlier versions of valgrind
+# (this time with pmFetch_ctx() on the call stack)
+#
+# Conditional jump or move depends on uninitialised value(s)
+# at 0x408AEAD: __pmLogFetchInterp (interp.c:1476)
+# by 0x4085AC2: __pmLogFetch (logutil.c:2066)
+# by 0x40670B7: pmFetch_ctx (fetch.c:156)
+# by 0x40675E6: pmFetch (fetch.c:201)
+# by 0x8049B99: main (pmlogreduce.c:364)
+{
+   valgrind 3.10.0 condjump botch - 0
+   Memcheck:Cond
+   fun:__pmLogFetchInterp
+   fun:__pmLogFetch
+   fun:pmFetch_ctx
+   fun:pmFetch
+   ...
+}
