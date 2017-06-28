@@ -1,5 +1,5 @@
 Name:    pcp
-Version: 3.11.10
+Version: 3.12.0
 Release: 1%{?dist}
 Summary: System-level performance monitoring and performance management
 License: GPLv2+ and LGPLv2.1+ and CC-BY
@@ -3020,8 +3020,10 @@ cd
 %endif
 
 %changelog
-* Fri Jun 30 2017 Lukas Berk <lberk@redhat.com> - 3.11.11-1
-- Work-in-progress, see http://pcp.io/roadmap
+* Fri Jun 30 2017 Lukas Berk <lberk@redhat.com> - 3.12.0-1
+- Fix pcp-atop failure in open-ended write mode (BZ 1431292)
+- Resolve additional selinux policy issues (BZ 1317515)
+- Update to latest PCP Sources.
 
 * Wed May 17 2017 Dave Brolley <brolley@redhat.com> - 3.11.10-1
 - python api: handle non-POSIXLY_CORRECT getopt cases (BZ 1289912)
