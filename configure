@@ -620,6 +620,7 @@ ac_includes_default="\
 #endif"
 
 ac_subst_vars='PACKAGE_CONFIGURE
+pcp_prefix
 have_webapps
 HAVE_ZLIB
 zlib_LIBS
@@ -15566,6 +15567,8 @@ $as_echo "$as_me: adding web applications to the build" >&6;}
     have_webapps=true
 fi
 
+
+pcp_prefix=`eval echo $prefix`
 
 
 

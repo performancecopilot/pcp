@@ -3430,6 +3430,8 @@ fi
 AC_SUBST(have_webapps)
 
 dnl Capture special options passed to configure
+pcp_prefix=`eval echo $prefix`
+AC_SUBST(pcp_prefix)
 AC_SUBST(PACKAGE_CONFIGURE)
 
 dnl

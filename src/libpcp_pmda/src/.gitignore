@@ -5,3 +5,4 @@ libpcp_pmda.so.3
 libpcp_pmda.3.dylib
 libpcp_pmda.dylib
 libpcp_pmda.dll
+libpcp_pmda.pc

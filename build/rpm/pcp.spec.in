@@ -1913,10 +1913,12 @@ sed -e 's/^/\//' $CFGFILELIST >cfg_files
 sed -e 's/^/\//' $LIBFILELIST >libs_files
 sed -e 's/^/\//' $DEVFILELIST >dev_files
 grep "\.h$" $DEVFILELIST | cut -f2 -d":" >lib_devel_files
+grep "\.pc$" $DEVFILELIST | cut -f2 -d":" >>lib_devel_files
 grep "\.so$" $DEVFILELIST | cut -f2 -d":" >>lib_devel_files
 grep "\.a$" $DEVFILELIST | cut -f2 -d":" >>lib_devel_files
 sed -i -e 's/^/\//' lib_devel_files
 sed -i '/.h$/d' dev_files
+sed -i '/.pc$/d' dev_files
 sed -i '/.so$/d' dev_files
 sed -i '/.a$/d' dev_files
 
