@@ -3023,6 +3023,7 @@ cd
 * Fri Jun 30 2017 Lukas Berk <lberk@redhat.com> - 3.12.0-1
 - Fix pcp-atop failure in open-ended write mode (BZ 1431292)
 - Resolve additional selinux policy issues (BZ 1317515)
+- Improve poor pmlogconf performance (BZ1376857)
 - Update to latest PCP Sources.
 
 * Wed May 17 2017 Dave Brolley <brolley@redhat.com> - 3.11.10-1
