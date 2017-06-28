@@ -529,7 +529,7 @@ PCP_CALL extern int pmGetContextLabels(pmLabelSet **);
  */
 PCP_CALL extern int pmMergeLabels(char **, int, char *, int);
 PCP_CALL extern int pmMergeLabelSets(pmLabelSet **, int, char *, int,
-		int (*filter)(const char *, pmLabel *, void *), void *);
+		int (*filter)(const pmLabel *, const char *, void *), void *);
 
 /* Free a labelset array */
 PCP_CALL extern void pmFreeLabelSets(pmLabelSet *, int);

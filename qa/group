@@ -907,6 +907,7 @@ zsh
 564 logutil local pmlogextract
 565 pmda.sendmail local pmda.install
 566 pmlogcheck local
+567 libpcp labels local
 569 pmprobe #679693 local sanity
 570:retired pmns #690735 local
 571 pmlogger local pmdumplog
