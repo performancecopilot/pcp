@@ -361,7 +361,7 @@ pdu.o
     				# also guarded by __pmLock_extcall when set
 				# from __pmInitLocks()
     ceiling			# no unsafe side-effects
-    ?sigpipe_done		# no unsafe side-effects
+    ?sigpipe_done		# guarded by pdu_lock mutex
     mypid			# no unsafe side-effects
     tbuf			# __pmPDUTypeStr deprecated by __pmPDUTypeStr_r
     __pmPDUCntIn		# pointer to diag counters, no atomic updates
