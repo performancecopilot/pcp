@@ -571,6 +571,38 @@ class pmLogLabel(Structure):
         """ Return the timezone from the structure as native str """
         return str(self.tz.decode())
 
+class pmLabel(Structure):
+    """Structure describing label's specification"""
+
+    if c_api.HAVE_BITFIELDS_LTOR:
+        _fields_ = [ ("name", c_int, 16),
+                     ("namelen", c_int, 8),
+                     ("flags", c_int, 8),
+                     ("value", c_int, 16),
+                     ("valuelen", c_int, 16)]
+    else:
+        _fields_ = [ ("name", c_int, 16),
+                     ("value", c_int, 16),
+                     ("valuelen", c_int, 16),
+                     ("namelen", c_int, 8),
+                     ("flags", c_int, 8)]
+
+pmLabelPtr = POINTER(pmLabel)
+pmLabelPtr.name = property(lambda x: x.contents.name, None, None, None)
+pmLabelPtr.namelen = property(lambda x: x.contents.namelen, None, None, None)
+pmLabelPtr.flags = property(lambda x: x.contents.flags, None, None, None)
+pmLabelPtr.value = property(lambda x: x.contents.value, None, None, None)
+pmLabelPtr.valuelen = property(lambda x: x.contents.valuelen, None, None, None)
+
+class pmLabelSet(Structure):
+    """ Structure describing label set sepecifications"""
+    _fields_ = [ ("inst", c_uint),
+                 ("nlabels", c_int),
+                 ("json", c_char_p),
+                 ("jsonlen", c_int, 16),
+                 ("padding", c_int, 16),
+                 ("labels", POINTER(pmLabel))]
+
 
 ##############################################################################
 #
@@ -795,6 +827,31 @@ LIBPCP.pmprintf.argtypes = [c_char_p]
 LIBPCP.pmSortInstances.restype = None
 LIBPCP.pmSortInstances.argtypes = [POINTER(pmResult)]
 
+LIBPCP.pmGetLabels.restype = c_int
+LIBPCP.pmGetLabels.argtypes = [c_int, POINTER(POINTER(pmLabelSet))]
+
+LIBPCP.pmGetPMIDLabels.restype = c_int
+LIBPCP.pmGetPMIDLabels.argtypes = [c_int, POINTER(POINTER(pmLabelSet))]
+
+LIBPCP.pmGetInDomLabels.restype = c_int
+LIBPCP.pmGetInDomLabels.argtypes = [c_int, POINTER(POINTER(pmLabelSet))]
+
+LIBPCP.pmGetDomainLabels.restype = c_int
+LIBPCP.pmGetDomainLabels.argtypes = [c_int, POINTER(POINTER(pmLabelSet))]
+
+LIBPCP.pmGetContextLabels.restype = c_int
+LIBPCP.pmGetContextLabels.argtypes = [POINTER(POINTER(pmLabelSet))]
+
+LIBPCP.pmMergeLabels.restype = c_int
+LIBPCP.pmMergeLabels.argtypes = [POINTER(c_char_p), c_int, c_char_p, c_int]
+
+mergeLabelSetsCB_type = CFUNCTYPE(c_int, POINTER(pmLabel), c_char_p, c_void_p)
+LIBPCP.pmMergeLabelSets.restype = c_int
+LIBPCP.pmMergeLabelSets.argtypes = [POINTER(POINTER(pmLabelSet)), c_int,
+    c_char_p, c_int, mergeLabelSetsCB_type, c_void_p]
+
+LIBPCP.pmFreeLabelSets.restype = None
+LIBPCP.pmFreeLabelSets.argtypes = [POINTER(pmLabelSet), c_int]
 
 ##############################################################################
 #
@@ -1917,9 +1974,112 @@ class pmContext(object):
             raise pmErr(status)
         return result_p
 
+    def pmGetLabels(self, pmid):
+        """PMAPI - Get labels
+        """
+        result_p = POINTER(pmLabelSet)()
+        status = LIBPCP.pmUseContext(self.ctx)
+        if status < 0:
+            raise pmErr(status)
+        status = LIBPCP.pmGetLabels(pmid, byref(result_p))
+        if status < 0:
+            raise pmErr(status)
+        return result_p
+
+    def pmGetPMIDLabels(self, pmid):
+        """PMAPI - Get labels of a given pmID
+        """
+        result_p = POINTER(pmLabelSet)()
+        status = LIBPCP.pmUseContext(self.ctx)
+        if status < 0:
+            raise pmErr(status)
+        status = LIBPCP.pmGetPMIDLabels(pmid, byref(result_p))
+        if status < 0:
+            raise pmErr(status)
+        return result_p
+
+    def pmGetInDomLabels(self, pmInDom):
+        """PMAPI - Get labels of a given instance domain
+        """
+        result_p = POINTER(pmLabelSet)()
+        status = LIBPCP.pmUseContext(self.ctx)
+        if status < 0:
+            raise pmErr(status)
+        status = LIBPCP.pmGetInDomLabels(pmInDom, byref(result_p))
+        if status < 0:
+            raise pmErr(status)
+        return result_p
+
+    def pmGetDomainLabels(self, dom):
+        """PMAPI - Get labels of a given domain
+        """
+        result_p = POINTER(pmLabelSet)()
+        status = LIBPCP.pmUseContext(self.ctx)
+        if status < 0:
+            raise pmErr(status)
+        status = LIBPCP.pmGetDomainLabels(dom, byref(result_p))
+        if status < 0:
+            raise pmErr(status)
+        return result_p
+
+    def pmGetContextLabels(self):
+        """PMAPI - Get labels of the current context
+        """
+        result_p = POINTER(pmLabelSet)()
+        status = LIBPCP.pmUseContext(self.ctx)
+        if status < 0:
+            raise pmErr(status)
+        status = LIBPCP.pmGetContextLabels(byref(result_p))
+        if status < 0:
+            raise pmErr(status)
+        return result_p
 
     ##
     # PMAPI Ancilliary Support Services
+
+    @staticmethod
+    def pmMergeLabels(labels):
+        """PMAPI - Merges string labels into a string
+        """
+        result_p = (c_char * c_api.PM_MAXLABELJSONLEN)()
+        arg_arr = (c_char_p * len(labels))()
+        arg_arr[:] = labels
+        status = LIBPCP.pmMergeLabels(arg_arr, len(arg_arr),
+            cast(byref(result_p), c_char_p), len(result_p))
+        if status < 0:
+            raise pmErr(status)
+        return result_p
+
+    @staticmethod
+    def pmMergeLabelSets(labelSets, callback, arg):
+        """PMAPI - Merges pmLabelSets based on labelSets hierarchy
+            into a string
+        """
+        result_p = (c_char * c_api.PM_MAXLABELJSONLEN)()
+        cb_func = None
+        if callback is not None:
+            cb_func = mergeLabelSetsCB_type(callback)
+        arg_arr = (POINTER(pmLabelSet) * len(labelSets))()
+        for i in range(len(labelSets)):
+            arg_arr[i] = cast(byref(y), POINTER(pmLabelSet))
+        arg =  cast(c_char_p(arg), c_void_p)
+        status = LIBPCP.pmMergeLabels(arg_arr, len(arg_arr),
+            cast(byref(result_p), c_char_p), len(result_p), cb_func, arg)
+        if status < 0:
+            raise pmErr(status)
+        return result_p
+
+    @staticmethod
+    def pmFreeLabelSets(labelSets):
+        """PMAPI - Free the pmLabelSets memory
+        """
+        arg_arr = (POINTER(pmLabelSet) * len(labelSets))()
+        for i in range(len(labelSets)):
+            arg_arr[i] = cast(byref(y), POINTER(pmLabelSet))
+        status = LIBPCP.pmMergeLabels(arg_arr, len(arg_arr))
+        if status < 0:
+            raise pmErr(status)
+        return
 
     @staticmethod
     def pmGetConfig(variable):
@@ -2322,7 +2482,7 @@ class fetchgroup(object):
         def __del__(self):
             """Override pmContext ctor to eschew pmDestroyContext."""
             self._ctx = c_api.PM_ERR_NOCONTEXT
-            
+
     def __init__(self, typed=c_api.PM_CONTEXT_HOST, target="local:"):
         """Create a fetchgroup from a pmContext."""
 
@@ -2335,7 +2495,7 @@ class fetchgroup(object):
             raise pmErr(sts)
         self.ctx = fetchgroup.pmContext_borrowed(LIBPCP.pmGetFetchGroupContext(self.pmfg),
                                                  typed, target)
-        
+
     def __del__(self):
         """Destroy the fetchgroup.  Drop references to fetchgroup_* items."""
 
@@ -2351,9 +2511,9 @@ class fetchgroup(object):
         WARNING: mutation of this context by other PMAPI functions
         may disrupt fetchgroup functionality.
         """
-        
+
         return self.ctx
-        
+
     def extend_item(self, metric=None, mtype=None, scale=None, instance=None):
         """Extend the fetchgroup with a single metric.  Infer type if
         necessary.  Convert scale/rate if appropriate/requested.

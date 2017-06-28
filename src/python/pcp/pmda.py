@@ -430,6 +430,10 @@ class PMDA(MetricDispatch):
         return cpmda.set_fetch(fetch)
 
     @staticmethod
+    def set_label(label):
+        return cpmda.set_label(label)
+
+    @staticmethod
     def set_refresh(refresh):
         return cpmda.set_refresh(refresh)
 
@@ -440,6 +444,10 @@ class PMDA(MetricDispatch):
     @staticmethod
     def set_fetch_callback(fetch_callback):
         return cpmda.set_fetch_callback(fetch_callback)
+
+    @staticmethod
+    def set_label_callback(label_callback):
+        return cpmda.set_label_callback(label_callback)
 
     @staticmethod
     def set_store_callback(store_callback):
