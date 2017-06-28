@@ -48,6 +48,8 @@ $(IAM).te: $(IAM).te.in
 		-e 's;@PCP_SYSTEMCTL_UNIT_FILE_RULE@;'$(PCP_SYSTEMCTL_UNIT_FILE_RULE)';' \
 		-e 's;@PCP_SYSTEMCTL_EXEC_T@;'$(PCP_SYSTEMCTL_EXEC_T)';' \
 		-e 's;@PCP_SYSTEMCTL_EXEC_RULE@;'$(PCP_SYSTEMCTL_EXEC_RULE)';' \
+		-e 's;@PCP_CAPUSERNS_PTRACE@;'$(PCP_CAPUSERNS_PTRACE)';' \
+		-e 's;@PCP_CAPUSERNS_PTRACE_RULE@;'$(PCP_CAPUSERNS_PTRACE_RULE)';' \
 
 	# END
 	make -f /usr/share/selinux/devel/Makefile

@@ -12,6 +12,7 @@ usr/include/pcp/pmdbg.h
 usr/lib/libpcp.a
 usr/lib/libpcp.so
 usr/lib/pcp/bin/install-sh
+usr/lib/pkgconfig/libpcp.pc
 usr/share/man/man3/logimport.3.gz
 usr/share/man/man3/LOGIMPORT.3.gz
 usr/share/man/man3/pcpintro.3.gz

@@ -1880,6 +1880,7 @@ AC_SUBST(enable_selinux)
 AC_SUBST(pcp_selinux_dir)
 
 pcp_selinux_class_status=false
+pcp_selinux_cap_userns_ptrace=false
 pcp_selinux_container_runtime=false
 pcp_selinux_nsfs=false
 pcp_selinux_docker_var_lib=false
@@ -1926,10 +1927,16 @@ do
 	then
 	    pcp_selinux_systemd_exec=true
 	fi
+	cap_userns_ptrace=`eval seinfo -x --class=cap_userns $policy_file 2>&1 | grep sys_ptrace | awk '{ print $1 }'`
+    	if test "x$cap_userns_ptrace" != "x"
+	then
+	    pcp_selinux_cap_userns_ptrace=true
+	fi
     fi
 done  
 ])
 AC_SUBST(pcp_selinux_class_status)
+AC_SUBST(pcp_selinux_cap_userns_ptrace)
 AC_SUBST(pcp_selinux_container_runtime)
 AC_SUBST(pcp_selinux_nsfs)
 AC_SUBST(pcp_selinux_docker_var_lib)
@@ -3423,6 +3430,8 @@ fi
 AC_SUBST(have_webapps)
 
 dnl Capture special options passed to configure
+pcp_prefix=`eval echo $prefix`
+AC_SUBST(pcp_prefix)
 AC_SUBST(PACKAGE_CONFIGURE)
 
 dnl

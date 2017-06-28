@@ -1,7 +1,7 @@
 /*
  * General Utility Routines
  *
- * Copyright (c) 2012-2016 Red Hat.
+ * Copyright (c) 2012-2017 Red Hat.
  * Copyright (c) 2009 Aconex.  All Rights Reserved.
  * Copyright (c) 1995-2002,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
@@ -503,6 +503,9 @@ pmEventFlagsStr_r(int flags, char *buf, int buflen)
      * both start and end would be set for the one event record)
      */
     int started = 0;
+
+    if (buflen < 26)
+	return NULL;
 
     if (flags & PM_EVENT_FLAG_MISSED)
 	return strcpy(buf, "missed");
