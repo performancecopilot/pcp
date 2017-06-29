@@ -586,12 +586,13 @@ label_callback(pmdaMetric *metric, unsigned int inst, pmLabelSet **lp)
         return -EINVAL;
     }
 
-    if(s == NULL){
-        sts = 0;
-    }else{
-        pmdaAddLabels(lp, s);
-        sts = 1;
-    }
+    sts = 1;
+
+    if(s == NULL)
+    s = "";
+
+    if((sts = pmdaAddLabels(lp, s, "")) < 0)
+    __pmNotifyErr(LOG_ERR, "label callback gave bad result (expected string)");
 
     Py_DECREF(result);
     return sts;

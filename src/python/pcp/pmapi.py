@@ -270,8 +270,8 @@ class tm(Structure):
                 ("tm_wday", c_int),
                 ("tm_yday", c_int),
                 ("tm_isdst", c_int),
-                ("tm_gmtoff", c_long),	# glibc/bsd extension
-                ("tm_zone", c_char_p)]	# glibc/bsd extension
+                ("tm_gmtoff", c_long),  # glibc/bsd extension
+                ("tm_zone", c_char_p)]  # glibc/bsd extension
 
     def struct_time(self):
         # convert POSIX representations - see mktime(3) - to python:
@@ -898,9 +898,9 @@ class pmOptions(object):
             c_api.pmSetOptionFlags(flags)
         else:   # good default for scripts - always evaluating log bounds
             c_api.pmSetOptionFlags(c_api.PM_OPTFLAG_BOUNDARIES)
-        self._delta = 1			# default archive pmSetMode delta
+        self._delta = 1         # default archive pmSetMode delta
         self._mode = c_api.PM_MODE_INTERP # default pmSetMode access mode
-        self._need_reset = False	# flag for __del__ memory reclaim
+        self._need_reset = False    # flag for __del__ memory reclaim
 
     def __del__(self):
         if LIBPCP and self._need_reset != False:
@@ -1090,63 +1090,63 @@ class pmOptions(object):
         """ Add support for --host-list into PMAPI monitor tool """
         return c_api.pmSetLongOptionHostList()
 
-    def pmGetOptionContext(self):	# int (typed)
+    def pmGetOptionContext(self):   # int (typed)
         return c_api.pmGetOptionContext()
 
-    def pmGetOptionHosts(self):		# str list
+    def pmGetOptionHosts(self):     # str list
         return c_api.pmGetOptionHosts()
 
-    def pmGetOptionArchives(self):	# str list
+    def pmGetOptionArchives(self):  # str list
         return c_api.pmGetOptionArchives()
 
-    def pmGetOptionAlignment(self):	# timeval
+    def pmGetOptionAlignment(self): # timeval
         alignment = c_api.pmGetOptionAlign_optarg()
         if alignment == None:
             return None
         return timeval.fromInterval(alignment)
 
-    def pmGetOptionStart(self):		# timeval
+    def pmGetOptionStart(self):     # timeval
         sec = c_api.pmGetOptionStart_sec()
         if sec == None:
             return None
         return timeval(sec, c_api.pmGetOptionStart_usec())
 
-    def pmGetOptionAlignOptarg(self):	# string
+    def pmGetOptionAlignOptarg(self):   # string
         return c_api.pmGetOptionAlign_optarg()
 
-    def pmGetOptionFinishOptarg(self):	# string
+    def pmGetOptionFinishOptarg(self):  # string
         return c_api.pmGetOptionFinish_optarg()
 
-    def pmGetOptionFinish(self):	# timeval
+    def pmGetOptionFinish(self):    # timeval
         sec = c_api.pmGetOptionFinish_sec()
         if sec == None:
             return None
         return timeval(sec, c_api.pmGetOptionFinish_usec())
 
-    def pmGetOptionOrigin(self):	# timeval
+    def pmGetOptionOrigin(self):    # timeval
         sec = c_api.pmGetOptionOrigin_sec()
         if sec == None:
             return None
         return timeval(sec, c_api.pmGetOptionOrigin_usec())
 
-    def pmGetOptionInterval(self):	# timeval
+    def pmGetOptionInterval(self):  # timeval
         sec = c_api.pmGetOptionInterval_sec()
         if sec == None:
             return None
         return timeval(sec, c_api.pmGetOptionInterval_usec())
 
-    def pmGetOptionSamples(self):	# int
+    def pmGetOptionSamples(self):   # int
         return c_api.pmGetOptionSamples()
 
-    def pmGetOptionHostZone(self):	# boolean
+    def pmGetOptionHostZone(self):  # boolean
         if c_api.pmGetOptionHostZone() == 0:
             return False
         return True
 
-    def pmGetOptionTimezone(self):	# str
+    def pmGetOptionTimezone(self):  # str
         return c_api.pmGetOptionTimezone()
 
-    def pmGetOptionContainer(self):	# str
+    def pmGetOptionContainer(self): # str
         return c_api.pmGetOptionContainer()
 
     def pmGetOptionLocalPMDA(self):        # boolean
@@ -1154,22 +1154,22 @@ class pmOptions(object):
             return False
         return True
 
-    def pmSetOptionArchive(self, archive):	# str
+    def pmSetOptionArchive(self, archive):  # str
         return c_api.pmSetOptionArchive(archive)
 
-    def pmSetOptionArchiveList(self, archives):	# str
+    def pmSetOptionArchiveList(self, archives): # str
         return c_api.pmSetOptionArchiveList(archives)
 
-    def pmSetOptionArchiveFolio(self, folio):	# str
+    def pmSetOptionArchiveFolio(self, folio):   # str
         return c_api.pmSetOptionArchiveFolio(folio)
 
-    def pmSetOptionContainer(self, container):	# str
+    def pmSetOptionContainer(self, container):  # str
         return c_api.pmSetOptionContainer(container)
 
-    def pmSetOptionHost(self, host):	# str
+    def pmSetOptionHost(self, host):    # str
         return c_api.pmSetOptionHost(host)
 
-    def pmSetOptionHostList(self, hosts):	# str
+    def pmSetOptionHostList(self, hosts):   # str
         return c_api.pmSetOptionHostList(hosts)
 
     def pmSetOptionSpecLocal(self, spec):        # str
@@ -2041,33 +2041,34 @@ class pmContext(object):
     def pmMergeLabels(labels):
         """PMAPI - Merges string labels into a string
         """
-        result_p = (c_char * c_api.PM_MAXLABELJSONLEN)()
+        result_p = ctypes.create_string_buffer(c_api.PM_MAXLABELJSONLEN)
         arg_arr = (c_char_p * len(labels))()
         arg_arr[:] = labels
         status = LIBPCP.pmMergeLabels(arg_arr, len(arg_arr),
-            cast(byref(result_p), c_char_p), len(result_p))
+                    result_p, len(result_p))
         if status < 0:
             raise pmErr(status)
-        return result_p
+        result = result_p.value
+        return str(result.decode('ascii', 'ignore'))
 
     @staticmethod
     def pmMergeLabelSets(labelSets, callback, arg):
         """PMAPI - Merges pmLabelSets based on labelSets hierarchy
             into a string
         """
-        result_p = (c_char * c_api.PM_MAXLABELJSONLEN)()
-        cb_func = None
-        if callback is not None:
-            cb_func = mergeLabelSetsCB_type(callback)
+        result_p = ctypes.create_string_buffer(c_api.PM_MAXLABELJSONLEN)
+        if callback is None:
+            callback = cast(None, mergeLabelSetsCB_type)
+        cb_func = mergeLabelSetsCB_type(callback)
         arg_arr = (POINTER(pmLabelSet) * len(labelSets))()
         for i in range(len(labelSets)):
-            arg_arr[i] = cast(byref(y), POINTER(pmLabelSet))
+            arg_arr[i] = cast(byref(labelSets[i]), POINTER(pmLabelSet))
         arg =  cast(c_char_p(arg), c_void_p)
-        status = LIBPCP.pmMergeLabels(arg_arr, len(arg_arr),
-            cast(byref(result_p), c_char_p), len(result_p), cb_func, arg)
+        status = LIBPCP.pmMergeLabelSets(arg_arr, len(arg_arr), result_p, len(result_p), cb_func, arg)
         if status < 0:
             raise pmErr(status)
-        return result_p
+        result = result_p.value
+        return str(result.decode('ascii', 'ignore'))
 
     @staticmethod
     def pmFreeLabelSets(labelSets):

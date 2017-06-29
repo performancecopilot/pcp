@@ -25,7 +25,7 @@ import os
 import cpmapi
 import cpmda
 from pcp.pmapi import pmContext as PCP
-from pcp.pmapi import pmInDom, pmDesc, pmUnits, pmErr
+from pcp.pmapi import pmInDom, pmDesc, pmUnits, pmErr, pmLabelSet
 
 from ctypes.util import find_library
 from ctypes import CDLL, c_int, c_long, c_char_p, c_void_p, cast, byref
@@ -58,6 +58,15 @@ LIBPCP_PMDA.pmdaCacheOp.argtypes = [pmInDom, c_long]
 LIBPCP_PMDA.pmdaCacheResize.restype = c_int
 LIBPCP_PMDA.pmdaCacheResize.argtypes = [pmInDom, c_int]
 
+LIBPCP_PMDA.pmdaAddLabels.restype = c_int
+LIBPCP_PMDA.pmdaAddLabels.argtypes = [POINTER(POINTER(pmLabelSet)), c_char_p]
+
+def pmdaAddLabels(label):
+    result_p = POINTER(pmLabelSet)()
+    status = LIBPCP_PMDA.pmdaAddLabels(byref(result_p), label)
+    if status < 0:
+        raise pmErr(status)
+    return result_p
 
 ##
 # Definition of structures used by C library libpcp_pmda, derived from <pcp/pmda.h>
