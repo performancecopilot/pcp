@@ -1,7 +1,7 @@
 /*
  * PMCD privileged co-process (root) PMDA.
  *
- * Copyright (c) 2014-2016 Red Hat.
+ * Copyright (c) 2014-2017 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -225,7 +225,10 @@ root_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    atom->cp = cp->engine->name;
 	    break;
 	case 1:		/* containers.name */
-	    atom->cp = *cp->name == '/' ? cp->name+1 : cp->name;
+	    if (cp->name)
+		atom->cp = *cp->name == '/' ? cp->name+1 : cp->name;
+	    else
+		atom->cp = "?";
 	    break;
 	case 2:		/* containers.pid */
 	    if (cp->pid <= 0)
