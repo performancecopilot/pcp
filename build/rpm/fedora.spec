@@ -1362,12 +1362,12 @@ URL: http://www.pcp.io
 %if !%{disable_python3}
 Requires: python3-pcp
 Requires: libvirt-python3 python3-lxml
-BuildRequires: libvirt-python3
+BuildRequires: libvirt-python3 python3-lxml
 %else
 Requires: python-pcp
 Requires: libvirt-python python-lxml
 %if 0%{?rhel} == 0 || 0%{?rhel} > 5
-BuildRequires: libvirt-python
+BuildRequires: libvirt-python python-lxml
 %endif
 %endif
 %description pmda-libvirt
@@ -1387,9 +1387,11 @@ URL: http://www.pcp.io
 %if !%{disable_python3}
 Requires: python3-pcp
 Requires: python3-rtslib
+BuildRequires: python3-rtslib
 %else
 Requires: python-pcp
 Requires: python-rtslib
+BuildRequires: python-rtslib
 %endif
 %description pmda-lio
 This package provides a PMDA to gather performance metrics from the kernels
@@ -1398,6 +1400,30 @@ kernels configfs filesystem. The PMDA provides per LUN level stats, and a
 summary instance per iSCSI target, which aggregates all LUN metrics within the
 target.
 #end pcp-pmda-lio
+
+#
+# pcp-pmda-prometheus
+#
+%package pmda-prometheus
+License: GPLv2+
+Group: Applications/System
+Summary: Performance Co-Pilot (PCP) metrics from Prometheus endpoints
+URL: http://www.pcp.io
+Requires: pcp-libs = @package_version@
+%if !%{disable_python3}
+Requires: python3-pcp
+Requires: python3-requests
+BuildRequires: python3-requests
+%else
+Requires: python-pcp
+Requires: python-requests
+BuildRequires: python-requests
+%endif
+
+%description pmda-prometheus
+This package contains the PCP Performance Metrics Domain Agent (PMDA) for
+extracting statistics from programs instrumented as Prometheus endpoints.
+#end pcp-pmda-prometheus
 
 %endif # !%{disable_python2} || !%{disable_python3}
 
@@ -1710,7 +1736,8 @@ Requires: pcp-pmda-lustrecomm pcp-pmda-logger pcp-pmda-docker pcp-pmda-bind2
 Requires: pcp-pmda-nutcracker
 %endif
 %if !%{disable_python2} || !%{disable_python3}
-Requires: pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound pcp-pmda-mic pcp-pmda-libvirt pcp-pmda-lio
+Requires: pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound pcp-pmda-mic
+Requires: pcp-pmda-libvirt pcp-pmda-lio pcp-pmda-prometheus
 %endif
 %if !%{disable_snmp}
 Requires: pcp-pmda-snmp
@@ -2273,6 +2300,9 @@ fi
 %preun pmda-lio
 %{pmda_remove "$1" "lio"}
 
+%preun pmda-prometheus
+%{pmda_remove "$1" "prometheus"}
+
 %preun pmda-lustre
 %{pmda_remove "$1" "lustre"}
 
@@ -2820,6 +2850,9 @@ cd
 
 %files pmda-lio
 %{_pmdasdir}/lio
+
+%files pmda-prometheus
+%{_pmdasdir}/prometheus
 
 %files pmda-lustre
 %{_pmdasdir}/lustre
