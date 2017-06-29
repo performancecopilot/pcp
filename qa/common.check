@@ -604,6 +604,55 @@ _wait_for_pmcd()
     fi
 }
 
+# wait_for_pmcd_stop [maxdelay]
+#
+_wait_for_pmcd_stop()
+{
+    # 20 seconds default seems like a reasonble max time to get shutdown
+    #debug# set -x
+    _can_wait=${1-20}
+    _i=0
+    _stopped=false
+    rm -f $tmp._wait_for_pmcd_stop.err $tmp._wait_for_pmcd_stop.out
+    while [ $_i -lt $_can_wait ]
+    do
+	echo "-- $_i --" >>$tmp._wait_for_pmcd_stop.out.all
+	echo "-- $_i --" >>$tmp._wait_for_pmcd_stop.err.all
+	#debug# pmprobe -n $PCP_VAR_DIR/pmns/root_pmcd pmcd.numclients
+	pmprobe -n $PCP_VAR_DIR/pmns/root_pmcd pmcd.numclients >$tmp._wait_for_pmcd_stop.out 2>$tmp._wait_for_pmcd_stop.err
+	if grep 'pmprobe: Cannot connect to PMCD' $tmp._wait_for_pmcd_stop.err >/dev/null
+	then
+	    # we're done
+	    #
+	    _stopped=true
+	    break
+	fi
+	cat $tmp._wait_for_pmcd_stop.out >>$tmp._wait_for_pmcd_stop.out.all
+	cat $tmp._wait_for_pmcd_stop.err >>$tmp._wait_for_pmcd_stop.err.all
+	sleep 1
+	_i=`expr $_i + 1`
+    done
+    if $_stopped
+    then
+	:
+    else
+	date
+	echo "Arrgghhh ... pmcd failed to stop after $_can_wait seconds"
+	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[p]mcd|[P]ID'
+	echo "=== successful pmprobes stdout ==="
+	cat $tmp._wait_for_pmcd_stop.out
+	echo "=== successful pmprobes stderr ==="
+	cat $tmp._wait_for_pmcd_stop.err
+	echo "... and now"
+	echo "+ pmprobe -n $PCP_VAR_DIR/pmns/root_pmcd pmcd.numclients"
+	pmprobe -n $PCP_VAR_DIR/pmns/root_pmcd pmcd.numclients
+	echo "=== pmcd.log ==="
+	cat $PCP_LOG_DIR/pmcd/pmcd.log
+	status=2
+	exit $status
+    fi
+}
+
 # wait_for_pmlogger [pid logfile [maxdelay]]
 #
 _wait_for_pmlogger()
