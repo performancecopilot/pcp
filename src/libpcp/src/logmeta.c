@@ -1041,6 +1041,8 @@ pmGetInDomArchive_ctx(__pmContext *ctxp, pmInDom indom, int **instlist, char ***
 	    return PM_ERR_NOCONTEXT;
 	need_unlock = 1;
     }
+    else
+	PM_ASSERT_IS_LOCKED(ctxp->c_lock);
     if (ctxp->c_type != PM_CONTEXT_ARCHIVE) {
 	if (need_unlock)
 	    PM_UNLOCK(ctxp->c_lock);

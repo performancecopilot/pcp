@@ -23,11 +23,11 @@
  *
  * Ditto for back n_backoff, def_backoff[] and backoff[].
  *
- * The actual contexts (__pmContext) are protected by the (recursive)
- * c_lock mutex which is intialized in pmNewContext() and pmDupContext(),
- * then locked in __pmHandleToPtr() ... it is the responsibility of all
- * __pmHandleToPtr() callers to call PM_UNLOCK(ctxp->c_lock) when they
- * are finished with the context.
+ * The actual contexts (__pmContext) are protected by the c_lock mutex
+ * (no longer recursive) which is intialized in pmNewContext()
+ * and pmDupContext(), then locked in __pmHandleToPtr() ... it is
+ * the responsibility of all __pmHandleToPtr() callers to call
+ * PM_UNLOCK(ctxp->c_lock) when they are finished with the context.
  */
 
 #include "pmapi.h"
@@ -394,13 +394,22 @@ initcontextlock(pthread_mutex_t *lock)
 		contexts_len-1, errmsg);
 	exit(4);
     }
-    if ((sts = pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE)) != 0) {
+    if ((sts = pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_ERRORCHECK)) != 0) {
 	pmErrStr_r(-sts, errmsg, sizeof(errmsg));
 	fprintf(stderr, "pmNewContext: "
 		"context=%d lock pthread_mutexattr_settype failed: %s",
 		contexts_len-1, errmsg);
 	exit(4);
     }
+#if 0
+    if ((sts = pthread_mutexattr_setrobust(&attr, PTHREAD_MUTEX_ROBUST)) != 0) {
+	pmErrStr_r(-sts, errmsg, sizeof(errmsg));
+	fprintf(stderr, "pmNewContext: "
+		"context=%d lock pthread_mutexattr_setrobust failed: %s",
+		contexts_len-1, errmsg);
+	exit(4);
+    }
+#endif
     if ((sts = pthread_mutex_init(lock, &attr)) != 0) {
 	pmErrStr_r(-sts, errmsg, sizeof(errmsg));
 	fprintf(stderr, "pmNewContext: "
@@ -1145,8 +1154,15 @@ INIT_CONTEXT:
     }
 #endif
 
-    /* bind defined metrics if any ..., after the new context is in place */
+    /*
+     * Bind defined metrics if any ..., after the new context is in place.
+     *
+     * Need to lock context because routines caled from _dmopencontext()
+     * may assume the context is locked.
+     */
+    PM_LOCK(new->c_lock);
     __dmopencontext(new);
+    PM_UNLOCK(new->c_lock);
 
     PM_CHECK_IS_UNLOCKED(new->c_lock);
     return PM_TPD(curr_handle);

@@ -368,26 +368,32 @@ __pmIsLocked(void *lock)
 }
 
 /*
- * special version for glibc and recursive locks ... looks inside
- * the pthread_mutex_t at the __data.__lock field ... this is not
- * threadsafe, but is intended to be used to detect residual lock
- * holds on return from libpcp
+ * Assumes lock is a pthread mutex and not recursive.
  */
 void
 __pmCheckIsUnlocked(void *lock, char *file, int line)
 {
+    pthread_mutex_t	*lockp = (pthread_mutex_t *)lock;
+    int	sts;
+
+    if ((sts = pthread_mutex_trylock(lockp)) != 0) {
+	if (sts == EBUSY) {
 #ifdef __GLIBC__
-   pthread_mutex_t	*lockp = (pthread_mutex_t *)lock;
-   if (lockp != NULL && lockp->__data.__lock != 0) {
-#ifdef PM_MULTI_THREAD_DEBUG
-       fprintf(stderr, "__pmCheckIsUnlocked(%s): [%s:%d] __lock=%d __count=%d\n", lockname(lockp), file, line, lockp->__data.__lock, lockp->__data.__count);
+	   fprintf(stderr, "__pmCheckIsUnlocked(%s): [%s:%d] __lock=%d __count=%d\n", lockname(lockp), file, line, lockp->__data.__lock, lockp->__data.__count);
 #else
-       fprintf(stderr, "__pmCheckIsUnlocked: [%s:%d] __lock=%d\n", file, line, lockp->__data.__lock);
+	   fprintf(stderr, "__pmCheckIsUnlocked(%s): [%s:%d] locked\n", lockname(lockp), file, line);
 #endif
+	}
+	else
+	    fprintf(stderr, "__pmCheckIsUnlocked: trylock(%s) failed: %s\n", lockname(lockp), pmErrStr(-sts));
+	return 0;
     }
-#else
+    else {
+	if ((sts = pthread_mutex_unlock(lockp)) != 0) {
+	    fprintf(stderr, "__pmCheckIsUnlocked: unlock(%s) failed: %s\n", lockname(lockp), pmErrStr(-sts));
+	}
+    }
     return;
-#endif
 }
 #endif /* BUILD_WITH_LOCK_ASSERTS */
 

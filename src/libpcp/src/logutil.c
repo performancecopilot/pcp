@@ -1558,6 +1558,8 @@ __pmLogGenerateMark_ctx(__pmContext *ctxp, int mode, pmResult **result)
     int			sts;
     struct timeval	end;
 
+    PM_ASSERT_IS_LOCKED(ctxp->c_lock);
+
     if ((pr = (pmResult *)malloc(sizeof(pmResult))) == NULL)
 	__pmNoMem("generateMark", sizeof(pmResult), PM_FATAL_ERR);
 
@@ -1648,6 +1650,8 @@ __pmLogRead_ctx(__pmContext *ctxp, int mode, FILE *peekf, pmResult **result, int
     __pmPDU	*pb;
     FILE	*f;
     int		n;
+
+    PM_ASSERT_IS_LOCKED(ctxp->c_lock);
 
     /*
      * Strip any XTB data from mode, its not used here
@@ -2707,6 +2711,9 @@ __pmGetArchiveEnd_ctx(__pmContext *ctxp, struct timeval *tp)
     __pm_off_t	logend;
     __pm_off_t	physend = 0;
 
+    if (ctxp != NULL)
+	PM_ASSERT_IS_LOCKED(ctxp->c_lock);
+
     /*
      * default, when all else fails ...
      */
@@ -2933,10 +2940,8 @@ pmGetArchiveEnd_ctx(__pmContext *ctxp, struct timeval *tp)
 	    return PM_ERR_NOCONTEXT;
 	need_unlock = 1;
     }
-
-    /* TODO - when c_lock is not recursive replace assert() with
-     * PM_ASSERT_IS_LOCKED(ctxp->c_lock); */
-    /* assert(ctxp->c_lock.__data.__count > 0); */
+    else
+	PM_ASSERT_IS_LOCKED(ctxp->c_lock);
 
     /*
      * set l_physend and l_endtime
