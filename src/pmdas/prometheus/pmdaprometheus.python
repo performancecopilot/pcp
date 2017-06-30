@@ -73,9 +73,12 @@ class ScanPrometheus(object):
 			self.instances.append({"name": name, "prometheus_name": prometheus_name})
 
 		def export(self):
-			# Returns non null values
-			dict_ = self.__dict__
-			return { key: dict_[key] for key in dict_ if dict_[key] is not None}
+			# Returns a dictionary of attributes with non null values
+			metadata = {}
+			for key in self.__dict__:
+				if self.__dict__[key] is not None:
+					metadata[key] = self.__dict__[key]
+			return metadata
 
 	def save_metadata(self):
 		# Saves the metadata of the Prometheus endpoint in PCP_PMDAS_DIR

@@ -2,6 +2,6 @@
 # This file is used by configure to get version information
 #
 PACKAGE_MAJOR=3
-PACKAGE_MINOR=11
-PACKAGE_REVISION=11
+PACKAGE_MINOR=12
+PACKAGE_REVISION=1
 PACKAGE_BUILD=1

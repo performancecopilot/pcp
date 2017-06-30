@@ -1,7 +1,7 @@
 /*
  * JSON web bridge for PMAPI.
  *
- * Copyright (c) 2011-2016 Red Hat Inc.
+ * Copyright (c) 2011-2017 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -12,10 +12,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
 /*
@@ -224,6 +220,27 @@ pmwebapi_respond_new_context (struct MHD_Connection *connection,
         } else {
             /* Ignore the parse error at this stage; pmNewContext will give it to us. */
             free (hostAttrsError);
+        }
+
+        if (__pmServerHasFeature(PM_SERVER_FEATURE_CREDS_REQD) &&
+	    (userid == "" || password == "")) {
+            static char creds_reqd_msg[] = "credentials required";
+            struct MHD_Response *resp;
+
+            resp = MHD_create_response_from_buffer (strlen (creds_reqd_msg), creds_reqd_msg,
+                                                    MHD_RESPMEM_PERSISTENT);
+            if (!resp) {
+                rc = -ENOMEM;
+                goto out;
+            }
+            /* We need the user to resubmit this with authentication info. */
+            rc = MHD_queue_response (connection, MHD_HTTP_FORBIDDEN, resp);
+            MHD_destroy_response (resp);
+            if (rc != MHD_YES) {
+                rc = -ENOMEM;
+                goto out;
+            }
+            return MHD_YES;
         }
 
         context = pmNewContext (PM_CONTEXT_HOST, val.c_str ());	/* XXX: limit access */
@@ -1353,8 +1370,8 @@ pmwebapi_respond (struct MHD_Connection *connection, const http_params & params,
     assert (c != NULL);
     /* Process HTTP Basic userid/password, if supplied.  Both returned strings
        need to be free(3)'d later.  */
-    if (c->userid != "") {
-        /* Did this context requires userid/password auth? */
+    if (c->userid != "" || __pmServerHasFeature(PM_SERVER_FEATURE_CREDS_REQD)) {
+        /* Did this context require userid/password auth? */
         char *userid = NULL;
         char *password = NULL;
         userid = MHD_basic_auth_get_username_password (connection, &password);

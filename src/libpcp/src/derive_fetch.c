@@ -618,7 +618,7 @@ bin_op(int type, int op, pmAtomValue a, int ltype, int lmul, int ldiv, pmAtomVal
  * towards the root node of the tree.
  */
 static int
-eval_expr(node_t *np, pmResult *rp, int level)
+eval_expr(__pmContext *ctxp, node_t *np, pmResult *rp, int level)
 {
     int		sts;
     int		i;
@@ -628,7 +628,7 @@ eval_expr(node_t *np, pmResult *rp, int level)
 
     assert(np != NULL);
     if (np->left != NULL) {
-	sts = eval_expr(np->left, rp, level+1);
+	sts = eval_expr(ctxp, np->left, rp, level+1);
 	if (sts < 0) {
 	    if (np->type == N_COUNT) {
 		/* count() ... special case, map errors to 0 */
@@ -648,7 +648,7 @@ eval_expr(node_t *np, pmResult *rp, int level)
 	}
     }
     if (np->right != NULL) {
-	sts = eval_expr(np->right, rp, level+1);
+	sts = eval_expr(ctxp, np->right, rp, level+1);
 	if (sts < 0) return sts;
     }
 
@@ -1374,7 +1374,7 @@ eval_expr(node_t *np, pmResult *rp, int level)
 	    if (pmDebug & DBG_TRACE_DERIVE) {
 		char	strbuf[20];
 		fprintf(stderr, "eval_expr: botch: operand %s not in the extended pmResult\n", pmIDStr_r(np->info->pmid, strbuf, sizeof(strbuf)));
-		__pmDumpResult(stderr, rp);
+		__pmDumpResult_ctx(ctxp, stderr, rp);
 	    }
 #endif
 	    return PM_ERR_PMID;
@@ -1621,7 +1621,7 @@ __dmpostfetch(__pmContext *ctxp, pmResult **result)
 			    valfmt = PM_VAL_INSITU;
 			else
 			    valfmt = PM_VAL_DPTR;
-			numval = eval_expr(cp->mlist[m].expr, rp, 1);
+			numval = eval_expr(ctxp, cp->mlist[m].expr, rp, 1);
 #ifdef PCP_DEBUG
     if ((pmDebug & DBG_TRACE_DERIVE) && (pmDebug & DBG_TRACE_APPL2)) {
 	int	k;

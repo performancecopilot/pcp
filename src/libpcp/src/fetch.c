@@ -53,7 +53,7 @@ __pmRecvFetch(int fd, __pmContext *ctxp, int timeout, pmResult **result)
     do {
 	sts = pinpdu = __pmGetPDU(fd, ANY_SIZE, timeout, &pb);
 	if (sts == PDU_RESULT) {
-	    sts = __pmDecodeResult(pb, result);
+	    sts = __pmDecodeResult_ctx(ctxp, pb, result);
 	}
 	else if (sts == PDU_ERROR) {
 	    __pmDecodeError(pb, &sts);
@@ -87,9 +87,16 @@ __pmFinishResult(__pmContext *ctxp, int count, pmResult **resultp)
     return count;
 }
 
+/*
+ * Internal variant of pmFetch() ... ctxp is not NULL for
+ * internal callers where the current context is already locked, but
+ * NULL for callers from above the PMAPI or internal callers when the
+ * current context is not locked.
+ */
 int
-pmFetch(int numpmid, pmID pmidlist[], pmResult **result)
+pmFetch_ctx(__pmContext *ctxp, int numpmid, pmID *pmidlist, pmResult **result)
 {
+    int		need_unlock = 0;
     int		fd, ctx, sts, tout;
 
     if (numpmid < 1) {
@@ -98,10 +105,15 @@ pmFetch(int numpmid, pmID pmidlist[], pmResult **result)
     }
 
     if ((sts = ctx = pmWhichContext()) >= 0) {
-	__pmContext	*ctxp = __pmHandleToPtr(ctx);
 	int		newcnt;
 	pmID		*newlist = NULL;
 	int		have_dm;
+
+	if (ctxp == NULL) {
+	    ctxp = __pmHandleToPtr(ctx);
+	    if (ctxp != NULL)
+		need_unlock = 1;
+	}
 
 	if (ctxp == NULL) {
 	    sts = PM_ERR_NOCONTEXT;
@@ -110,7 +122,6 @@ pmFetch(int numpmid, pmID pmidlist[], pmResult **result)
 	if (ctxp->c_type == PM_CONTEXT_LOCAL && PM_MULTIPLE_THREADS(PM_SCOPE_DSO_PMDA)) {
 	    /* Local context requires single-threaded applications */
 	    sts = PM_ERR_THREAD;
-	    PM_UNLOCK(ctxp->c_lock);
 	    goto done;
 	}
 
@@ -155,7 +166,6 @@ pmFetch(int numpmid, pmID pmidlist[], pmResult **result)
 	    if (newlist != NULL)
 		free(newlist);
 	}
-	PM_UNLOCK(ctxp->c_lock);
     }
 
 done:
@@ -170,14 +180,26 @@ done:
 	    fputc('\n', stderr);
 	}
 	if (sts >= 0)
-	    __pmDumpResult(stderr, *result);
+	    __pmDumpResult_ctx(ctxp, stderr, *result);
 	else {
 	    char	errmsg[PM_MAXERRMSGLEN];
 	    fprintf(stderr, "Error: %s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	}
     }
 #endif
+    if (need_unlock)
+	PM_UNLOCK(ctxp->c_lock);
 
+    if (need_unlock) CHECK_C_LOCK;
+    return sts;
+}
+
+int
+pmFetch(int numpmid, pmID *pmidlist, pmResult **result)
+{
+    int	sts;
+    sts = pmFetch_ctx(NULL, numpmid, pmidlist, result);
+    CHECK_C_LOCK;
     return sts;
 }
 
@@ -210,6 +232,7 @@ pmFetchArchive(pmResult **result)
 	}
     }
 
+    CHECK_C_LOCK;
     return sts;
 }
 
@@ -260,5 +283,7 @@ pmSetMode(int mode, const struct timeval *when, int delta)
 	}
 	PM_UNLOCK(ctxp->c_lock);
     }
+
+    CHECK_C_LOCK;
     return sts;
 }

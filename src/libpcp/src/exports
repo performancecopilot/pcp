@@ -547,6 +547,10 @@ PCP_3.18 {
     __pmCurrentContext;
 } PCP_3.17;
 PCP_3.19 {
+  global:
+    __pmLogRead_ctx;
+} PCP_3.18;
+PCP_3.20 {
     __pmFopen;
     __pmFseek;
     __pmRewind;
@@ -557,4 +561,4 @@ PCP_3.19 {
     __pmLseek;
     __pmFstat;
     __pmFclose;
-} PCP_3.18;
+} PCP_3.19;

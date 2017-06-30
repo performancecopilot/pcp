@@ -174,11 +174,13 @@ pmda.docker
 pmda.environ
 pmda.gfs2
 pmda.gpfs
+pmda.haproxy
 pmda.hotproc
 pmda.jbd2
 pmda.json
 pmda.kvm
 pmda.lio
+pmda.libvirt
 pmda.logger
 pmda.lustre
 pmda.mailq
@@ -402,6 +404,7 @@ zsh
 061 pmlogger local ostest pmdumplog
 062 pmcd local ostest
 063 fetch local ostest
+064 pidstat local
 065 libpcp local ostest pmstore
 066 pmcd ostest remote
 067 pmcd local ostest
@@ -654,10 +657,10 @@ zsh
 314 pmie local pmieutil
 315 pmie local pmieutil
 316 libpcp local
-317 logutil pmlogsummary local
+317 logutil pmlogsummary local pmlogcheck
 318 pmie local
 319 pmie local
-320 local folio
+320 local folio pmlogcheck
 321 pmie local
 322 pmlc pmlogger remote
 323 pmda.shping pmda.proc local pmda.install
@@ -956,7 +959,7 @@ zsh
 666 pmmgr local slow valgrind
 667 python local
 668 pmmgr local containers
-669 pmmgr local
+669 pmmgr local pmlogcheck
 670 libpcp local
 701 pmlogcheck local
 702 python libpcp local
@@ -1205,7 +1208,7 @@ zsh
 945 pmlogrewrite pmda.xfs local
 946 pmfind avahi local
 947 pmlogger local
-948 pmlogger context_local local
+948 pmlogger context_local local pmlogcheck
 949 python local timezone
 950 pmproxy avahi local
 951 pmie local pmval
@@ -1254,7 +1257,7 @@ zsh
 994 other verify
 995 python local
 996 pmdiff local
-997 pmlogextract local
+997 pmlogextract local pmlogcheck
 998 threads libpcp local
 999 pmns local
 1000 pmdumptext local
@@ -1355,14 +1358,18 @@ zsh
 1099 archive pmiostat local pmie
 1100 bash zsh local
 1108 logutil local folio pmlogextract
+1110 pmda.haproxy local
 1111 pcp2influxdb python local
 1112 pmda.linux local
 1113 pcp python local
 1121 pmda.linux local
 1140 pidstat local
+1141 selinux local
 1174 threads valgrind local
 1191 pmda.prometheus pmda.install local
 1192 pmda.prometheus local
 1193 pmda.prometheus local
 1199 libpcp pmcd local
+1331 verify local
+1388 pmwebapi local
 4751 libpcp threads valgrind local

@@ -226,7 +226,7 @@ nextlog(void)
     lcp = inarch.ctxp->c_archctl->ac_log;
     old_vol = inarch.ctxp->c_archctl->ac_log->l_curvol;
 
-    if ((sts = __pmLogRead(lcp, PM_MODE_FORW, NULL, &inarch.rp, PMLOGREAD_NEXT)) < 0) {
+    if ((sts = __pmLogRead_ctx(inarch.ctxp, PM_MODE_FORW, NULL, &inarch.rp, PMLOGREAD_NEXT)) < 0) {
 	if (sts != PM_ERR_EOL) {
 	    fprintf(stderr, "%s: Error: __pmLogRead[log %s]: %s\n",
 		    pmProgname, inarch.name, pmErrStr(sts));
@@ -898,6 +898,14 @@ main(int argc, char **argv)
     }
     inarch.ctxp = __pmHandleToPtr(inarch.ctx);
     assert(inarch.ctxp != NULL);
+    /*
+     * Note: This application is single threaded, and once we have ctxp
+     *	     the associated __pmContext will not move and will only be
+     *	     accessed or modified synchronously either here or in libpcp.
+     *	     We unlock the context so that it can be locked as required
+     *	     within libpcp.
+     */
+    PM_UNLOCK(inarch.ctxp->c_lock);
 
     if ((sts = pmGetArchiveLabel(&inarch.label)) < 0) {
 	fprintf(stderr, "%s: Error: cannot get archive label record (%s): %s\n",

@@ -1184,6 +1184,10 @@ rawwrite(pmOptions *opts, const char *name,
 		duration = (double) (mktime(tp) - now);
 	}
 
+	/* need to avoid elapsed.tv_sec going negative */
+	if (duration > INT_MAX)
+	    duration = INT_MAX - 1;
+
 	if (pmDebug & DBG_TRACE_APPL1)
 	{
 		fprintf(stderr, "%s: start recording, %.2fsec duration [%s].\n",

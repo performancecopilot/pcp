@@ -1,0 +1,35 @@
+#!/bin/sh
+# PCP QA Test No. 064
+#
+# Testing pcp-pidstat's -f argument
+# Copyright (C) 2017 Alperen Karaoglu
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.python
+
+test -x $pcp_pidstat || _notrun "No pcp-pidstat(1) installed"
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+pcp_pidstat="$PCP_BINADM_DIR/pcp-pidstat"
+pcp_pidstat="$python $pcp_pidstat"
+pcp_archive="-z -a archives/pcp-pidstat"
+
+# real QA test starts here
+echo && echo === pcp-pidstat with -f formatting of the timestamps
+pcp $pcp_archive pidstat -f %c
+# success, all done
+status=0
+exit

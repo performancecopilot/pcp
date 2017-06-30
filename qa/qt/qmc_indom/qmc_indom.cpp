@@ -16,6 +16,7 @@ main(int argc, char* argv[])
 {
     int		sts = 0;
     int		c;
+    __pmContext	*ctxp;
 
     pmProgname = basename(argv[0]);
 
@@ -98,8 +99,14 @@ main(int argc, char* argv[])
     indom.dump(cout);
     indom.genProfile();
 
-    __pmProfile* profile = __pmHandleToPtr(pmWhichContext())->c_instprof;
-    __pmDumpProfile(stderr, PM_INDOM_NULL, profile);
+    ctxp = __pmHandleToPtr(pmWhichContext());
+    if (ctxp == NULL) {
+	pmprintf("%s: Error: no current context first time?\n", pmProgname);
+	pmflush();
+	return 1;
+    }
+    __pmDumpProfile(stderr, PM_INDOM_NULL, ctxp->c_instprof);
+    PM_UNLOCK(ctxp->c_lock);
 
     if (indom.diffProfile()) {
 	pmprintf("%s: Error: Profile just generated but flag still set\n",
@@ -118,15 +125,22 @@ main(int argc, char* argv[])
 
     indom.dump(cout);
     indom.genProfile();
-    
-    profile = __pmHandleToPtr(pmWhichContext())->c_instprof;
-    __pmDumpProfile(stderr, PM_INDOM_NULL, profile);
+
+    ctxp = __pmHandleToPtr(pmWhichContext());
+    if (ctxp == NULL) {
+	pmprintf("%s: Error: no current context second time?\n", pmProgname);
+	pmflush();
+	return 1;
+    }
+    __pmDumpProfile(stderr, PM_INDOM_NULL, ctxp->c_instprof);
+    PM_UNLOCK(ctxp->c_lock);
 
     if (indom.diffProfile()) {
 	pmprintf("%s: Error: Profile just generated but flag still set\n",
 		 pmProgname);
 	sts = 1;
     }
+
 
     pmflush();
     return sts;

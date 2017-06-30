@@ -540,8 +540,8 @@ static int
 pmcd_instance_reg(int inst, char *name, __pmInResult **result)
 {
     __pmInResult	*res;
-    int		i;
-    char	idx[3];		/* ok for NUMREG <= 99 */
+    int			i;
+    char		idx[12];
 
     res = (__pmInResult *)malloc(sizeof(__pmInResult));
     if (res == NULL)

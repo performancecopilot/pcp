@@ -1,0 +1,17 @@
+QA output created by 1388
+Creating temporary sasldb, add user running QA to it
+Verify saslpasswd2 has successfully added a new user
+USER@HOST: userPassword
+Start pmcd with this shiny new sasldb
+Start pmwebd with mandatory authentication
+
+=== pmwebd no authentication (expect errors) ===
+credentials required
+credentials required
+credentials required
+
+=== pmwebd with authentication (expect success) ===
+{ "context": CTX }
+Waiting for pmcd to terminate ...
+Starting pmcd ... 
+Starting pmlogger ... 

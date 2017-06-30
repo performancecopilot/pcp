@@ -1140,6 +1140,7 @@ PCP_CALL extern int __pmLogCreate(const char *, const char *, int, __pmLogCtl *)
 #define PMLOGREAD_NEXT		0
 #define PMLOGREAD_TO_EOF	1
 PCP_CALL extern int __pmLogRead(__pmLogCtl *, int, FILE *, pmResult **, int);
+PCP_CALL extern int __pmLogRead_ctx(__pmContext *, int, FILE *, pmResult **, int);
 PCP_CALL extern int __pmLogWriteLabel(FILE *, const __pmLogLabel *);
 PCP_CALL extern int __pmLogOpen(const char *, __pmContext *);
 PCP_CALL extern int __pmLogLoadLabel(__pmLogCtl *, const char *);
@@ -1581,8 +1582,11 @@ PCP_CALL extern int __pmRegisterAnon(const char *, int);
  */
 PCP_CALL extern void __pmInitLocks(void);
 PCP_CALL extern int __pmLock(void *, const char *, int);
-PCP_CALL extern int __pmIsLocked(void *);
 PCP_CALL extern int __pmUnlock(void *, const char *, int);
+#ifdef BUILD_WITH_LOCK_ASSERTS
+PCP_CALL extern int __pmIsLocked(void *);
+PCP_CALL extern void __pmCheckIsUnlocked(void *, char *, int);
+#endif /* BUILD_WITH_LOCK_ASSERTS */
 
 /*
  * Each of these scopes defines one or more PMAPI routines that will
@@ -1599,15 +1603,6 @@ PCP_CALL extern int __pmMultiThreaded(int);
 #define PM_MULTIPLE_THREADS(x)	__pmMultiThreaded(x)
 #define PM_LOCK(lock)		__pmLock(&(lock), __FILE__, __LINE__)
 #define PM_UNLOCK(lock)		__pmUnlock(&(lock), __FILE__, __LINE__)
-
-#ifdef BUILD_WITH_LOCK_ASSERTS
-#include <assert.h>
-#define ASSERT_IS_LOCKED(lock) assert(__pmIsLocked(&(lock)));
-#define ASSERT_IS_UNLOCKED(lock) assert(!__pmIsLocked(&(lock)));
-#else
-#define ASSERT_IS_LOCKED(lock)
-#define ASSERT_IS_UNLOCKED(lock)
-#endif /* BUILD_WITH_LOCK_ASSERTS */
 
 #ifdef HAVE_PTHREAD_MUTEX_T
 /* the big libpcp lock */

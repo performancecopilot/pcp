@@ -67,6 +67,7 @@ ifneq "$(findstring $(TARGET_OS),darwin mingw)" ""
 	$(INSTALL) -m 755 -d $(PCP_SASLCONF_DIR)
 	$(INSTALL) -m 755 -d $(PCP_BIN_DIR)
 	$(INSTALL) -m 755 -d $(PCP_LIB_DIR)
+	$(INSTALL) -m 755 -d $(PCP_LIB_DIR)/pkgconfig
 	$(INSTALL) -m 755 -d $(PCP_MAN_DIR)
 	$(INSTALL) -m 755 -d $(PCP_MAN_DIR)/man1
 	$(INSTALL) -m 755 -d $(PCP_MAN_DIR)/man3

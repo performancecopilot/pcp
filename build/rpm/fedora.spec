@@ -1,5 +1,5 @@
 Name:    pcp
-Version: 3.11.10
+Version: 3.12.1
 Release: 1%{?dist}
 Summary: System-level performance monitoring and performance management
 License: GPLv2+ and LGPLv2.1+ and CC-BY
@@ -1352,6 +1352,24 @@ collecting metrics about Intel MIC cards.
 # end pcp-pmda-mic
 
 #
+# pcp-pmda-haproxy
+#
+%package pmda-haproxy
+License: GPLv2+
+Group: Applications/System
+Summary: Performance Co-Pilot (PCP) metrics for HAProxy
+URL: http://www.pcp.io
+%if !%{disable_python3}
+Requires: python3-pcp
+%else
+Requires: python-pcp
+%endif
+%description pmda-haproxy
+This package contains the PCP Performance Metrics Domain Agent (PMDA) for
+extracting performance metrics from HAProxy over the HAProxy stats socket.
+# end pcp-pmda-haproxy
+
+#
 # pcp-pmda-libvirt
 #
 %package pmda-libvirt
@@ -1362,12 +1380,12 @@ URL: http://www.pcp.io
 %if !%{disable_python3}
 Requires: python3-pcp
 Requires: libvirt-python3 python3-lxml
-BuildRequires: libvirt-python3
+BuildRequires: libvirt-python3 python3-lxml
 %else
 Requires: python-pcp
 Requires: libvirt-python python-lxml
 %if 0%{?rhel} == 0 || 0%{?rhel} > 5
-BuildRequires: libvirt-python
+BuildRequires: libvirt-python python-lxml
 %endif
 %endif
 %description pmda-libvirt
@@ -1387,9 +1405,11 @@ URL: http://www.pcp.io
 %if !%{disable_python3}
 Requires: python3-pcp
 Requires: python3-rtslib
+BuildRequires: python3-rtslib
 %else
 Requires: python-pcp
 Requires: python-rtslib
+BuildRequires: python-rtslib
 %endif
 %description pmda-lio
 This package provides a PMDA to gather performance metrics from the kernels
@@ -1398,6 +1418,30 @@ kernels configfs filesystem. The PMDA provides per LUN level stats, and a
 summary instance per iSCSI target, which aggregates all LUN metrics within the
 target.
 #end pcp-pmda-lio
+
+#
+# pcp-pmda-prometheus
+#
+%package pmda-prometheus
+License: GPLv2+
+Group: Applications/System
+Summary: Performance Co-Pilot (PCP) metrics from Prometheus endpoints
+URL: http://www.pcp.io
+Requires: pcp-libs = %{version}-%{release}
+%if !%{disable_python3}
+Requires: python3-pcp
+Requires: python3-requests
+BuildRequires: python3-requests
+%else
+Requires: python-pcp
+Requires: python-requests
+BuildRequires: python-requests
+%endif
+
+%description pmda-prometheus
+This package contains the PCP Performance Metrics Domain Agent (PMDA) for
+extracting statistics from programs instrumented as Prometheus endpoints.
+#end pcp-pmda-prometheus
 
 %endif # !%{disable_python2} || !%{disable_python3}
 
@@ -1710,7 +1754,8 @@ Requires: pcp-pmda-lustrecomm pcp-pmda-logger pcp-pmda-docker pcp-pmda-bind2
 Requires: pcp-pmda-nutcracker
 %endif
 %if !%{disable_python2} || !%{disable_python3}
-Requires: pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound pcp-pmda-mic pcp-pmda-libvirt pcp-pmda-lio
+Requires: pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound pcp-pmda-mic
+Requires: pcp-pmda-libvirt pcp-pmda-lio pcp-pmda-prometheus pcp-pmda-haproxy
 %endif
 %if !%{disable_snmp}
 Requires: pcp-pmda-snmp
@@ -2031,6 +2076,7 @@ ls -1 $RPM_BUILD_ROOT/%{_pmdasdir} |\
   grep -E -v '^gluster' |\
   grep -E -v '^zswap' |\
   grep -E -v '^unbound' |\
+  grep -E -v '^haproxy' |\
   sed -e 's#^#'%{_pmdasdir}'\/#' >base_pmdas.list
 
 # all base pcp package files except those split out into sub packages
@@ -2273,6 +2319,9 @@ fi
 %preun pmda-lio
 %{pmda_remove "$1" "lio"}
 
+%preun pmda-prometheus
+%{pmda_remove "$1" "prometheus"}
+
 %preun pmda-lustre
 %{pmda_remove "$1" "lustre"}
 
@@ -2332,6 +2381,9 @@ fi
 
 %preun pmda-mic
 %{pmda_remove "$1" "mic"}
+
+%preun pmda-haproxy
+%{pmda_remove "$1" "haproxy"}
 
 %preun pmda-libvirt
 %{pmda_remove "$1" "libvirt"}
@@ -2682,6 +2734,8 @@ cd
 %{_libdir}/libpcp_trace.so
 %{_libdir}/libpcp_import.so
 %{_libdir}/libpcp_web.so
+%{_libdir}/pkgconfig/libpcp.pc
+%{_libdir}/pkgconfig/libpcp_pmda.pc
 %{_includedir}/pcp/*.h
 
 %files devel -f devel.list
@@ -2819,6 +2873,9 @@ cd
 %files pmda-lio
 %{_pmdasdir}/lio
 
+%files pmda-prometheus
+%{_pmdasdir}/prometheus
+
 %files pmda-lustre
 %{_pmdasdir}/lustre
 
@@ -2901,6 +2958,9 @@ cd
 
 %files pmda-mic
 %{_pmdasdir}/mic
+
+%files pmda-haproxy
+%{_pmdasdir}/haproxy
 
 %files pmda-libvirt
 %{_pmdasdir}/libvirt
@@ -3018,8 +3078,20 @@ cd
 %endif
 
 %changelog
-* Fri Jun 30 2017 Lukas Berk <lberk@redhat.com> - 3.11.11-1
+* Wed Aug 16 2017 Mark Goodwin <mgoodwin@redhat.com> - 3.12.1-1
 - Work-in-progress, see http://pcp.io/roadmap
+
+* Fri Jun 30 2017 Lukas Berk <lberk@redhat.com> - 3.12.0-1
+- Fix pcp-atop failure in open-ended write mode (BZ 1431292)
+- Resolve additional selinux policy issues (BZ 1317515)
+- Improve poor pmlogconf performance (BZ1376857)
+- Update to latest PCP Sources.
+
+* Mon Jun 05 2017 Jitka Plesnikova <jplesnik@redhat.com> - 3.11.10-3
+- Perl 5.26 rebuild
+
+* Fri Jun 2 2017 Lukas Berk <lberk@redhat.com> - 3.11.10-2
+- Correct subrpm inclusion of zeroconf config files (BZ 1456262)
 
 * Wed May 17 2017 Dave Brolley <brolley@redhat.com> - 3.11.10-1
 - python api: handle non-POSIXLY_CORRECT getopt cases (BZ 1289912)
