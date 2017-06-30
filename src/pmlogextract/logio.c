@@ -1,6 +1,7 @@
 /*
  * utils for pmlogextract
  *
+ * Copyright (c) 2014,2016 Red Hat.
  * Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -37,7 +38,7 @@ _pmLogGet(__pmLogCtl *lcp, int vol, __pmPDU **pb)
     else
 	f = lcp->l_mfp;
 
-    offset = ftell(f);
+    offset = __pmFtell(f);
     assert(offset >= 0);
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_LOG) {
@@ -47,14 +48,14 @@ _pmLogGet(__pmLogCtl *lcp, int vol, __pmPDU **pb)
 #endif
 
 again:
-    sts = (int)fread(&head, 1, sizeof(head), f);
+    sts = (int)__pmFread(&head, 1, sizeof(head), f);
     if (sts != sizeof(head)) {
 	if (sts == 0) {
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_LOG)
 		fprintf(stderr, "AFTER end\n");
 #endif
-	    fseek(f, offset, SEEK_SET);
+	    __pmFseek(f, offset, SEEK_SET);
 	    if (vol != PM_LOG_VOL_META) {
 		if (lcp->l_curvol < lcp->l_maxvol) {
 		    if (__pmLogChangeVol(lcp, lcp->l_curvol+1) == 0) {
@@ -81,18 +82,18 @@ again:
 	    fprintf(stderr, "Error: _pmLogGet:(%d) %s\n",
 		(int)ntohl(head), osstrerror());
 #endif
-	fseek(f, offset, SEEK_SET);
+	__pmFseek(f, offset, SEEK_SET);
 	return -oserror();
     }
 
     lpb[0] = head;
-    if ((sts = (int)fread(&lpb[1], 1, ntohl(head) - sizeof(head), f)) != ntohl(head) - sizeof(head)) {
+    if ((sts = (int)__pmFread(&lpb[1], 1, ntohl(head) - sizeof(head), f)) != ntohl(head) - sizeof(head)) {
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_LOG)
 	    fprintf(stderr, "Error: data fread=%d %s\n", sts, osstrerror());
 #endif
 	if (sts == 0) {
-	    fseek(f, offset, SEEK_SET);
+	    __pmFseek(f, offset, SEEK_SET);
 	    free(lpb);
 	    return PM_ERR_EOL;
 	}

@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 1995-2001 Silicon Graphics, Inc.  All Rights Reserved.
  * Copyright (c) 2014 Ken McDonell.  All Rights Reserved.
+ * Copyright (c) 2017 Red Hat.
  *
  * Excercise __pmLogPutResult() and __pmLogPutResult2().
  */
@@ -114,8 +115,8 @@ Options:\n\
 	exit(1);
     }
 
-    fflush(ctl.l_mfp);
-    fflush(ctl.l_mdfp);
+    __pmFflush(ctl.l_mfp);
+    __pmFflush(ctl.l_mdfp);
     __pmLogPutIndex(&ctl, &epoch);
 
     pmids = (pmID *)malloc(nmetric*sizeof(pmID));
@@ -175,8 +176,8 @@ Options:\n\
 	pmFreeResult(rp);
     }
 
-    fflush(ctl.l_mfp);
-    fflush(ctl.l_mdfp);
+    __pmFflush(ctl.l_mfp);
+    __pmFflush(ctl.l_mdfp);
     __pmLogPutIndex(&ctl, &epoch);
 
     return 0;

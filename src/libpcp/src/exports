@@ -546,3 +546,15 @@ PCP_3.18 {
     __pmSetFeaturesIPC;
     __pmCurrentContext;
 } PCP_3.17;
+PCP_3.19 {
+    __pmFopen;
+    __pmFseek;
+    __pmRewind;
+    __pmFtell;
+    __pmFread;
+    __pmFflush;
+    __pmFsync;
+    __pmLseek;
+    __pmFstat;
+    __pmFclose;
+} PCP_3.18;

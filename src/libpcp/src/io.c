@@ -22,20 +22,25 @@
 #include "impl.h"
 #include "internal.h"
 
+#if 0 /* not yet .... */
 extern __pm_fops __pm_stdio;
 extern __pm_fops __pm_xz;
-
+#endif
 /*
- * Open a PCP archive file with given mode and return a __pmFILE. An i/o
+ * Open a PCP file with given mode and return a __pmFILE. An i/o
  * handler is automatically chosen based on filename suffix, e.g. .xz, .gz,
- * etc. The stdio pass-thru handler will be chosen for the standard suffixes
- * ".meta", ".index" and for uncompressed data volumes matching "*.[0-9]+".
+ * etc. The stdio pass-thru handler will be chosen for other files.
  * The stdio handler is the only handler currently supporting write operations.
  * Return a valid __pmFILE pointer on success or NULL on failure.
+ *
+ * For now, so that we can still compile while converting calls, __pmFILE
+ * is the same as FILE and most function simply map directly to the stdio
+ * equivalents.
  */
 __pmFILE *
-__pmOpen(const char *path, const char *mode)
+__pmFopen(const char *path, const char *mode)
 {
+#if 0 /* not yet .... */
     __pmFILE *f;
 
     if ((f = (__pmFILE *)malloc(sizeof(__pmFILE))) == NULL)
@@ -65,6 +70,57 @@ __pmOpen(const char *path, const char *mode)
      * and other functions as needed, etc. 
      */
     return f;
+#else /* for now */
+    return fopen(path, mode);
+#endif
+}
+
+int
+__pmFseek(__pmFILE *stream, long offset, int whence)
+{
+    return fseek(stream, offset, whence);
+}
+
+void
+__pmRewind(__pmFILE *stream)
+{
+    rewind(stream);
+}
+
+long
+__pmFtell(__pmFILE *stream)
+{
+    return ftell(stream);
+}
+
+size_t
+__pmFread(void *ptr, size_t size, size_t nmemb, __pmFILE *stream)
+{
+    return fread(ptr, size, nmemb, stream);
+}
+
+int
+__pmFflush(__pmFILE *stream)
+{
+    return fflush(stream);
+}
+
+int
+__pmFsync(__pmFILE *stream)
+{
+    return fsync(fileno(stream));
+}
+
+off_t
+__pmLseek(__pmFILE *stream, off_t offset, int whence)
+{
+    return lseek(fileno(stream), offset, whence);
+}
+
+int
+__pmFstat(__pmFILE *stream, struct stat *buf)
+{
+    return fstat(fileno(stream), buf);
 }
 
 /*
@@ -72,13 +128,16 @@ __pmOpen(const char *path, const char *mode)
  * with __pmOpenArchive(). Return 0 for success.
  */
 int
-__pmClose(__pmFILE *f)
+__pmFclose(__pmFILE *stream)
 {
+#if 0 /* not yet .... */
     int err;
     
-    err = f->fops->close(f);
-    memset(f, 0, sizeof(__pmFILE));
-    free(f);
+    err = f->fops->close(stream);
+    free(stream);
 
     return err;
+#else /* for now */
+    return fclose(stream);
+#endif
 }

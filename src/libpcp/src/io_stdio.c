@@ -12,7 +12,7 @@
  * License for more details.
  *
  */
-
+#if 0 /* not yet */
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -118,3 +118,4 @@ __pm_fops __pm_stdio = {
     .close = stdio_close
 };
 
+#endif /* not yet */

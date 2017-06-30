@@ -405,9 +405,12 @@ typedef struct {
     __pm_off_t	ti_log;		/* end of metrics log file */
 } __pmLogTI;
 
+#if 0 /* not yet ..... but soon! */
 /*
- * PCP archive file. This abstracts archive i/o, allowing different handlers,
+ * PCP file. This abstracts i/o, allowing different handlers,
  * e.g. for stdio pass-thru and transparent decompression (xz, gz, etc).
+ * This could conceivably be used for any kind of file within PCP, but
+ * is currently used only for archive files.
  */
 typedef struct {
     struct __pm_fops *fops;	/* i/o handler, assigned based on file type */
@@ -424,22 +427,23 @@ typedef struct __pm_fops {
     int		(*flush) (__pmFILE *);
     int		(*close) (__pmFILE *);
 } __pm_fops;
+#else /* for now */
+typedef FILE __pmFILE;
+#endif
 
 /*
- * Open a PCP archive file with given mode and return a __pmFILE. An i/o
- * handler is automatically chosen based on filename suffix, e.g. .xz, .gz,
- * etc. The stdio pass-thru handler will be chosen for the standard suffixes
- * ".meta", ".index" and for uncompressed data volumes matching "*.[0-9]+".
- * The stdio handler is the only handler currently supporting write operations.
- * Return a valid __pmFILE pointer on success or NULL on failure.
+ * Provide a stdio-like API for __pmFILE.
  */
-PCP_CALL extern __pmFILE *__pmOpen(const char *, const char *);
-
-/*
- * Close and deallocate a PCP archive file that was previously opened
- * with __pmOpenArchive(). Return 0 for success.
- */
-PCP_CALL extern int __pmClose(__pmFILE *);
+PCP_CALL extern __pmFILE *__pmFopen(const char *, const char *);
+PCP_CALL extern int __pmFseek(__pmFILE *, long, int);
+PCP_CALL extern void __pmRewind(__pmFILE *);
+PCP_CALL extern long __pmFtell(__pmFILE *);
+PCP_CALL extern size_t __pmFread(void *, size_t, size_t, __pmFILE *);
+PCP_CALL extern int __pmFflush(__pmFILE *);
+PCP_CALL extern int __pmFsync(__pmFILE *);
+PCP_CALL extern off_t __pmLseek(__pmFILE *, off_t, int);
+PCP_CALL extern int __pmFstat(__pmFILE *, struct stat *);
+PCP_CALL extern int __pmFclose(__pmFILE *);
 
 /*
  * Log/Archive Control
@@ -447,9 +451,9 @@ PCP_CALL extern int __pmClose(__pmFILE *);
 typedef struct {
     int		l_refcnt;	/* number of contexts using this log */
     char	*l_name;	/* external log base name */
-    FILE	*l_tifp;	/* temporal index */
-    FILE	*l_mdfp;	/* meta data */
-    FILE	*l_mfp;		/* current metrics log */
+    __pmFILE	*l_tifp;	/* temporal index */
+    __pmFILE	*l_mdfp;	/* meta data */
+    __pmFILE	*l_mfp;		/* current metrics log */
     int		l_curvol;	/* current metrics log volume no. */
     int		l_state;	/* (when writing) log state */
     __pmHashCtl	l_hashpmid;	/* PMID hashed access */

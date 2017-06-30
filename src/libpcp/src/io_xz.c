@@ -13,6 +13,7 @@
  *
  */
 
+#if 0 /* not yet */
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -85,3 +86,4 @@ __pm_fops __pm_xz = {
     .close = xz_close
 };
 
+#endif /* not yet */

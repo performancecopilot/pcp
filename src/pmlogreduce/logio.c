@@ -91,11 +91,11 @@ newvolume(char *base, __pmTimeval *tvp)
     struct timeval	stamp;
 
     if ((newfp = __pmLogNewFile(base, nextvol)) != NULL) {
-	fclose(logctl.l_mfp);
+	__pmFclose(logctl.l_mfp);
 	logctl.l_mfp = newfp;
 	logctl.l_label.ill_vol = logctl.l_curvol = nextvol;
 	__pmLogWriteLabel(logctl.l_mfp, &logctl.l_label);
-	fflush(logctl.l_mfp);
+	__pmFflush(logctl.l_mfp);
 	stamp.tv_sec = tvp->tv_sec;
 	stamp.tv_usec = tvp->tv_usec;
 	fprintf(stderr, "%s: New log volume %d, at ",
