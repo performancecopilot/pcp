@@ -8,6 +8,11 @@
 seq=`basename $0`
 echo "QA output created by $seq"
 
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
 policy_name="pcpupstream"
 policy_file="$PCP_VAR_DIR/selinux/$policy_name.pp"
 which sedismod >/dev/null 2>&1 || _notrun "sedismod tool not installed (module disassembly)"
