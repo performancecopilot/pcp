@@ -386,7 +386,7 @@ __pmCheckIsUnlocked(void *lock, char *file, int line)
 	}
 	else
 	    fprintf(stderr, "__pmCheckIsUnlocked: trylock(%s) failed: %s\n", lockname(lockp), pmErrStr(-sts));
-	return 0;
+	return;
     }
     else {
 	if ((sts = pthread_mutex_unlock(lockp)) != 0) {
