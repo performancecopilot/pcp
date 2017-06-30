@@ -1,5 +1,5 @@
 Name:    pcp
-Version: 3.12.0
+Version: 3.12.1
 Release: 1%{?dist}
 Summary: System-level performance monitoring and performance management
 License: GPLv2+ and LGPLv2.1+ and CC-BY
@@ -3053,6 +3053,9 @@ cd
 %endif
 
 %changelog
+* Wed Aug 16 2017 Mark Goodwin <mgoodwin@redhat.com> - 3.12.1-1
+- Work-in-progress, see http://pcp.io/roadmap
+
 * Fri Jun 30 2017 Lukas Berk <lberk@redhat.com> - 3.12.0-1
 - Fix pcp-atop failure in open-ended write mode (BZ 1431292)
 - Resolve additional selinux policy issues (BZ 1317515)

@@ -1,3 +1,6 @@
+pcp-3.12.1 (16 August 2017)
+    - Work-in-progress, see http://pcp.io/roadmap
+
 pcp-3.12.0 (30 June 2017)
     - pmdaprometheus: new PMDA exporting Prometheus end point metrics
     - pmdalinux: deprecate some socket stats, add IPv6 socket stats
