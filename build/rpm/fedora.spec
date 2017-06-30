@@ -1409,7 +1409,7 @@ License: GPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot (PCP) metrics from Prometheus endpoints
 URL: http://www.pcp.io
-Requires: pcp-libs = @package_version@
+Requires: pcp-libs = %{version}-%{release}
 %if !%{disable_python3}
 Requires: python3-pcp
 Requires: python3-requests
@@ -3058,6 +3058,12 @@ cd
 - Resolve additional selinux policy issues (BZ 1317515)
 - Improve poor pmlogconf performance (BZ1376857)
 - Update to latest PCP Sources.
+
+* Mon Jun 05 2017 Jitka Plesnikova <jplesnik@redhat.com> - 3.11.10-3
+- Perl 5.26 rebuild
+
+* Fri Jun 2 2017 Lukas Berk <lberk@redhat.com> - 3.11.10-2
+- Correct subrpm inclusion of zeroconf config files (BZ 1456262)
 
 * Wed May 17 2017 Dave Brolley <brolley@redhat.com> - 3.11.10-1
 - python api: handle non-POSIXLY_CORRECT getopt cases (BZ 1289912)
