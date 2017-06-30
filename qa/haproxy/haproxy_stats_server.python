@@ -78,10 +78,10 @@ while True:
     conn, cli = stats.accept()
     try:
         data = conn.recv(4096)
-        if 'show info' in data:
-            conn.sendall(info)
-        if 'show stat' in data:
-            conn.sendall(stat)
+        if b'show info' in data:
+            conn.sendall(bytes(info, 'UTF-8'))
+        if b'show stat' in data:
+            conn.sendall(bytes(stat, 'UTF-8'))
     finally:
         conn.close()
 stats.close()

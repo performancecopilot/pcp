@@ -32,7 +32,7 @@ from cpmapi import PM_INDOM_NULL
 from cpmapi import PM_TYPE_32, PM_TYPE_U32, PM_TYPE_U64, PM_TYPE_STRING
 from cpmapi import PM_SEM_COUNTER, PM_SEM_INSTANT, PM_SEM_DISCRETE
 from cpmapi import PM_COUNT_ONE, PM_SPACE_BYTE, PM_SPACE_MBYTE, PM_TIME_MSEC, PM_TIME_SEC
-from cpmapi import PM_ERR_NOTCONN, PM_ERR_PMID, PM_ERR_APPVERSION
+from cpmapi import PM_ERR_AGAIN, PM_ERR_PMID, PM_ERR_APPVERSION
 
 if sys.version_info[0] >= 3:
     long = int
@@ -256,7 +256,7 @@ class HAProxyPMDA(PMDA):
         """ Read data from socket """
         resp = ""
         while True:
-            data = skt.recv(4096)
+            data = skt.recv(4096).decode('UTF-8')
             if not data: break
             resp += data
         return resp
@@ -274,7 +274,7 @@ class HAProxyPMDA(PMDA):
 
         if cluster == self.info_cluster:
             self.info = {}
-            stats.send("show info\n")
+            stats.send(b"show info\n")
             for line in self.read_socket(stats).splitlines():
                 if ': ' in line:
                     k, v = line.split(': ')
@@ -283,7 +283,7 @@ class HAProxyPMDA(PMDA):
         if cluster == self.stat_cluster:
             insts = {}
             self.stat = {}
-            stats.send("show stat\n")
+            stats.send(b"show stat\n")
             for line in self.read_socket(stats).splitlines():
                 if not line.startswith('#') and ',' in line:
                     name = line.split(',')[0] + "::" + line.split(',')[1]
@@ -299,7 +299,7 @@ class HAProxyPMDA(PMDA):
         """ Fetch callback """
         if cluster == self.info_cluster:
             if not self.info:
-                return [PM_ERR_NOTCONN, 0]
+                return [PM_ERR_AGAIN, 0]
             try:
                 if self.info_metrics[item][1] == PM_TYPE_STRING:
                     return [self.info[self.info_metrics[item][4]], 1]
@@ -310,7 +310,7 @@ class HAProxyPMDA(PMDA):
 
         if cluster == self.stat_cluster:
             if not self.stat:
-                return [PM_ERR_NOTCONN, 0]
+                return [PM_ERR_AGAIN, 0]
             try:
                 name = self.stat_insts.inst_name_lookup(inst)
                 if self.stat_metrics[item][1] == PM_TYPE_STRING:
