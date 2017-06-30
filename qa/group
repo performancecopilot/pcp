@@ -174,6 +174,7 @@ pmda.docker
 pmda.environ
 pmda.gfs2
 pmda.gpfs
+pmda.haproxy
 pmda.hotproc
 pmda.jbd2
 pmda.json
@@ -1357,6 +1358,7 @@ zsh
 1099 archive pmiostat local pmie
 1100 bash zsh local
 1108 logutil local folio pmlogextract
+1110 pmda.haproxy local
 1111 pcp2influxdb python local
 1112 pmda.linux local
 1113 pcp python local

@@ -1352,6 +1352,24 @@ collecting metrics about Intel MIC cards.
 # end pcp-pmda-mic
 
 #
+# pcp-pmda-haproxy
+#
+%package pmda-haproxy
+License: GPLv2+
+Group: Applications/System
+Summary: Performance Co-Pilot (PCP) metrics for HAProxy
+URL: http://www.pcp.io
+%if !%{disable_python3}
+Requires: python3-pcp
+%else
+Requires: python-pcp
+%endif
+%description pmda-haproxy
+This package contains the PCP Performance Metrics Domain Agent (PMDA) for
+extracting performance metrics from HAProxy over the HAProxy stats socket.
+# end pcp-pmda-haproxy
+
+#
 # pcp-pmda-libvirt
 #
 %package pmda-libvirt
@@ -1737,7 +1755,7 @@ Requires: pcp-pmda-nutcracker
 %endif
 %if !%{disable_python2} || !%{disable_python3}
 Requires: pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound pcp-pmda-mic
-Requires: pcp-pmda-libvirt pcp-pmda-lio pcp-pmda-prometheus
+Requires: pcp-pmda-libvirt pcp-pmda-lio pcp-pmda-prometheus pcp-pmda-haproxy
 %endif
 %if !%{disable_snmp}
 Requires: pcp-pmda-snmp
@@ -2058,6 +2076,7 @@ ls -1 $RPM_BUILD_ROOT/%{_pmdasdir} |\
   grep -E -v '^gluster' |\
   grep -E -v '^zswap' |\
   grep -E -v '^unbound' |\
+  grep -E -v '^haproxy' |\
   sed -e 's#^#'%{_pmdasdir}'\/#' >base_pmdas.list
 
 # all base pcp package files except those split out into sub packages
@@ -2362,6 +2381,9 @@ fi
 
 %preun pmda-mic
 %{pmda_remove "$1" "mic"}
+
+%preun pmda-haproxy
+%{pmda_remove "$1" "haproxy"}
 
 %preun pmda-libvirt
 %{pmda_remove "$1" "libvirt"}
@@ -2936,6 +2958,9 @@ cd
 
 %files pmda-mic
 %{_pmdasdir}/mic
+
+%files pmda-haproxy
+%{_pmdasdir}/haproxy
 
 %files pmda-libvirt
 %{_pmdasdir}/libvirt
