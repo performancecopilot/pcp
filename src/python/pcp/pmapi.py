@@ -574,18 +574,11 @@ class pmLogLabel(Structure):
 class pmLabel(Structure):
     """Structure describing label's specification"""
 
-    if c_api.HAVE_BITFIELDS_LTOR:
-        _fields_ = [ ("name", c_int, 16),
-                     ("namelen", c_int, 8),
-                     ("flags", c_int, 8),
-                     ("value", c_int, 16),
-                     ("valuelen", c_int, 16)]
-    else:
-        _fields_ = [ ("name", c_int, 16),
-                     ("value", c_int, 16),
-                     ("valuelen", c_int, 16),
-                     ("namelen", c_int, 8),
-                     ("flags", c_int, 8)]
+    _fields_ = [ ("name", c_int, 16),
+                 ("namelen", c_int, 8),
+                 ("flags", c_int, 8),
+                 ("value", c_int, 16),
+                 ("valuelen", c_int, 16)]
 
 pmLabelPtr = POINTER(pmLabel)
 pmLabelPtr.name = property(lambda x: x.contents.name, None, None, None)
@@ -596,6 +589,7 @@ pmLabelPtr.valuelen = property(lambda x: x.contents.valuelen, None, None, None)
 
 class pmLabelSet(Structure):
     """ Structure describing label set sepecifications"""
+
     _fields_ = [ ("inst", c_uint),
                  ("nlabels", c_int),
                  ("json", c_char_p),
@@ -2043,7 +2037,8 @@ class pmContext(object):
         """
         result_p = ctypes.create_string_buffer(c_api.PM_MAXLABELJSONLEN)
         arg_arr = (c_char_p * len(labels))()
-        arg_arr[:] = labels
+        for i in range(len(labels)):
+            arg_arr[i] = c_char_p(labels[i].encode('utf-8'))
         status = LIBPCP.pmMergeLabels(arg_arr, len(arg_arr),
                     result_p, len(result_p))
         if status < 0:
@@ -2058,17 +2053,19 @@ class pmContext(object):
         """
         result_p = ctypes.create_string_buffer(c_api.PM_MAXLABELJSONLEN)
         if callback is None:
-            callback = cast(None, mergeLabelSetsCB_type)
+            callback = lambda x,y,z: 1
         cb_func = mergeLabelSetsCB_type(callback)
         arg_arr = (POINTER(pmLabelSet) * len(labelSets))()
         for i in range(len(labelSets)):
             arg_arr[i] = cast(byref(labelSets[i]), POINTER(pmLabelSet))
         arg =  cast(c_char_p(arg), c_void_p)
-        status = LIBPCP.pmMergeLabelSets(arg_arr, len(arg_arr), result_p, len(result_p), cb_func, arg)
+        status = LIBPCP.pmMergeLabelSets(arg_arr, len(labelSets), result_p,
+                    len(result_p), cb_func, arg)
         if status < 0:
             raise pmErr(status)
         result = result_p.value
         return str(result.decode('ascii', 'ignore'))
+
 
     @staticmethod
     def pmFreeLabelSets(labelSets):

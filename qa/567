@@ -18,7 +18,12 @@ $sudo rm -rf $tmp $tmp.* $seq.full
 trap "cd $here; $sudo rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
+echo "Core mergelabelsets output:"
 echo
 $here/src/mergelabelsets
+
+echo "Python mergelabelsets output:"
+echo
+$here/src/mergelabelsets.py
 status=$?
 exit
