@@ -192,9 +192,6 @@ done:
     if (need_unlock)
 	PM_UNLOCK(ctxp->c_lock);
 
-    if (need_unlock)
-	PM_UNLOCK(ctxp->c_lock);
-
     if (need_unlock) CHECK_C_LOCK;
     return sts;
 }
