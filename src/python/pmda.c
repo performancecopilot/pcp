@@ -419,21 +419,50 @@ fetch(int numpmid, pmID *pmidlist, pmResult **rp, pmdaExt *pmda)
 static int
 label(int ident, int type, pmLabelSet **lp, pmdaExt *ep)
 {
-    if(label_func){
+    int sts = 0, item = 0, cluster = ident;
+    char *s;
+
+    if (type == PM_LABEL_INSTS){
+        return pmdaLabel(ident, type, lp, ep);
+    }
+
+    if (type == PM_LABEL_PMID){
+        __pmID_int *pmidp = (__pmID_int *)&ident;
+        cluster = pmidp->cluster;
+        item = pmidp->item;
+    }
+
+    if (label_func){
         PyObject *arglist, *result;
 
-        arglist = Py_BuildValue("()");
+        arglist = Py_BuildValue("(iii)", type, cluster, item);
         if (arglist == NULL)
             return -ENOMEM;
         result = PyEval_CallObject(label_func, arglist);
         Py_DECREF(arglist);
+
         if (!result) {
             PyErr_Print();
             return -EAGAIN;
         }
+
+        if(PyArg_Parse(result, "s:label", &s) == 0) {
+            __pmNotifyErr(LOG_ERR, "label gave bad result (expected string)");
+            Py_DECREF(result);
+            return -EINVAL;
+        }
+
+        sts = 0;
+        if(s == NULL)
+        s = "{}";
+
+        if((sts = pmdaAddLabels(lp, s, "")) < 0)
+        __pmNotifyErr(LOG_ERR, "label gave bad result (expected string)");
+
         Py_DECREF(result);
     }
-    return pmdaLabel(ident, type, lp, ep);
+
+    return sts;
 }
 
 static int
@@ -586,10 +615,10 @@ label_callback(pmdaMetric *metric, unsigned int inst, pmLabelSet **lp)
         return -EINVAL;
     }
 
-    sts = 1;
+    sts = 0;
 
     if(s == NULL)
-    s = "";
+    s = "{}";
 
     if((sts = pmdaAddLabels(lp, s, "")) < 0)
     __pmNotifyErr(LOG_ERR, "label callback gave bad result (expected string)");
@@ -783,11 +812,11 @@ init_dispatch(PyObject *self, PyObject *args, PyObject *keywords)
             pmDebug = 0;
 
     if (access(help, R_OK) != 0) {
-        pmdaDaemon(&dispatch, PMDA_INTERFACE_6, name, domain, logfile, NULL);
+        pmdaDaemon(&dispatch, PMDA_INTERFACE_7, name, domain, logfile, NULL);
         dispatch.version.four.text = text;
     } else {
         p = strdup(help);
-        pmdaDaemon(&dispatch, PMDA_INTERFACE_6, name, domain, logfile, p);
+        pmdaDaemon(&dispatch, PMDA_INTERFACE_7, name, domain, logfile, p);
     }
     dispatch.version.seven.fetch = fetch;
     dispatch.version.seven.store = store;
