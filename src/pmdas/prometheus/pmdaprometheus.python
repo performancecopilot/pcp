@@ -30,6 +30,8 @@ import os
 import re
 import requests
 
+from ctypes import *
+
 MAX_CLUSTER = 0xfff
 MAX_METRIC = 0x3ff
 MAX_INDOM = 0x7fffffff
@@ -62,19 +64,26 @@ class ScanPrometheus(object):
 			self.description = None
 			self.instances = None
 			self.type = None
+			self.label = None
 			self.semantics = None
 			self.units_str = None
 			self.prometheus_name = None
 
-		def add_instance(self, name, prometheus_name):
+		def add_instance(self, name, prometheus_name, label):
 			# Adds the instances to the metric
 			if self.instances == None:
 				self.instances = []
-			self.instances.append({"name": name, "prometheus_name": prometheus_name})
+			self.instances.append({
+				"name": name,
+				"prometheus_name": prometheus_name,
+				"label": label
+			})
 
 		def export(self):
 			# Returns a dictionary of attributes with non null values
 			metadata = {}
+			if self.instances is not None:
+				self.label = None
 			for key in self.__dict__:
 				if self.__dict__[key] is not None:
 					metadata[key] = self.__dict__[key]
@@ -127,17 +136,32 @@ class ScanPrometheus(object):
 		type_ = lines[1].split(' ')[3]
 		return (description, name, type_)
 
+	# Translates Prometheus labels into JSON
+	# Eg: {le="0.05"} to {"le": "0.05"}
+	def label_formatter(self, raw_labels):
+		raw_label_list = raw_labels.split(',')
+		label_list = []
+		for raw_label in raw_label_list:
+			label_tokens = raw_label.split('=')
+			label = "\"%s\": %s" %(label_tokens[0], label_tokens[1])
+			label_list.append(label)
+		return "{" + ','.join(label_list) + '}'
+
 	def get_metric_instance(self, line):
 		# Returns the instances of the Prometheus metric
 		# labels of Prometheus metric is translated into the labels
 		tokens = line.split(' ')
 		p_name = tokens[0]
 		name = p_name
+		label = None
 		instance = None
 		if name.rfind('}') != -1:
+			label = self.label_formatter(
+				name[name.find('{') + 1  : name.find('}')]
+			)
 			name = name[:name.find('{')]
 			instance = "::".join(p_name[p_name.find('{') + 1 : len(p_name) - 1].split(','))
-		return (p_name, name ,instance)
+		return (p_name, name ,instance, label)
 
 	def parse_metric(self, lines):
 		''' Iterates over the instances of a metric '''
@@ -153,14 +177,17 @@ class ScanPrometheus(object):
 		metric.units_str = ""
 
 		for line in lines[2:]:
-			(prometheus_name, name, instance) = self.get_metric_instance(line)
+			(prometheus_name,
+				name, instance, label) = self.get_metric_instance(line)
 			if not self.metrics_by_name.get(name):
 				metric.name = name
 				metric.prometheus_name = None
 				metric.instances = None
+				metric.label = label
 				self.metrics_by_name[name] = copy.deepcopy(metric)
 			if instance:
-				self.metrics_by_name[name].add_instance(instance, prometheus_name)
+				self.metrics_by_name[name].add_instance(instance,
+					prometheus_name, label)
 			else:
 				self.metrics_by_name[name].prometheus_name = prometheus_name
 
@@ -192,14 +219,15 @@ class Metric(object):
 		self.name_prefix = name_prefix
 		self.sem = c_api.PM_SEM_INSTANT
 		self.type = c_api.PM_TYPE_UNKNOWN
-		self.__units_val = pmUnits(0, 0, 0, 0, 0, 0)
 		self.instances = None
 		self.instance_by_name = {}
 		self.cluster = cluster
 		self.idx = -1
-		self.__pmda = pmda
 		self.obj = None
+		self.label = None
+		self.__pmda = pmda
 		self.__indom_cache = None
+		self.__units_val = pmUnits(0, 0, 0, 0, 0, 0)
 
 	def log(self, string):
 		''' Log an informational message '''
@@ -268,10 +296,13 @@ class Metric(object):
 			self.units_str = json_obj["units_str"]
 			self.prometheus_name = json_obj.get("prometheus_name")
 			self.instances = json_obj.get("instances")
+			self.label = json_obj.get("label")
 			if self.instances:
 				for instance in self.instances:
-					self.instance_by_name[instance["name"]] \
-						= instance["prometheus_name"]
+					self.instance_by_name[instance["name"]] = {
+						"name": instance["prometheus_name"],
+						"label": instance["label"]
+					}
 		except ValueError as e:
 			raise e
 
@@ -292,6 +323,29 @@ class Metric(object):
 			self.obj = pmdaMetric(self.pmid, self.type, c_api.PM_INDOM_NULL,
 								  self.sem, self.__units_val)
 
+	def label_func(self, inst):
+		''' Label value of this metric '''
+		ret_label = "{}"
+		if self.__indom_cache:
+			if inst == c_api.PM_INDOM_NULL:
+				self.log("Empty instance on label for metric %s" \
+					% self.name)
+			try:
+				name = self.__indom_cache.lookup_value(inst)
+				label = self.instance_by_name[name]["label"]
+				if label is not None:
+					ret_label = label
+			except Exception as e:
+				self.log("Invalid instance given for metric on label: %s" \
+					% self.name)
+		else:
+			if inst != c_api.PM_INDOM_NULL:
+				self.log("Invalid instance given for single metric type on "
+					"label: %s" % self.name)
+			elif self.label is not None:
+				ret_label = self.label
+		return ret_label
+
 	def fetch(self, inst, values):
 		''' Fetch value of this metric '''
 		if self.__indom_cache:
@@ -301,7 +355,7 @@ class Metric(object):
 				return [c_api.PM_ERR_INDOM, 0]
 			try:
 				name = self.__indom_cache.lookup_value(inst)
-				prometheus_name = self.instance_by_name[name]
+				prometheus_name = self.instance_by_name[name]["name"]
 				return [values[prometheus_name], 1]
 			except Exception as e:
 				self.log("Invalid instance given for metric on fetch: %s" \
@@ -653,6 +707,12 @@ class PrometheusSource(object):
 			return [c_api.PM_ERR_PMID, 0]
 		return self.metrics_by_id[item].fetch(inst, self.metrics_value)
 
+	def label(self, item, inst):
+		if item not in self.metrics_by_id:
+			self.log("Invalid item given for cluster:%s on label" % self.name)
+			return "{}"
+		return self.metrics_by_id[item].label_func(inst)
+
 class PrometheusPMDA(PMDA):
 
 	def __init__(self, pmda_name, domain):
@@ -685,7 +745,9 @@ class PrometheusPMDA(PMDA):
 		self.add_static_metrics()
 		self.load_prometheus_sources()
 		self.set_fetch(self.prometheus_fetch)
+		self.set_label(self.prometheus_label)
 		self.set_fetch_callback(self.prometheus_fetch_callback)
+		self.set_label_callback(self.prometheus_label_callback)
 
 	def add_static_metrics(self):
 		'''
@@ -753,10 +815,29 @@ class PrometheusPMDA(PMDA):
 		# Count the number of times fetch called
 		self.numfetch += 1
 
+	def prometheus_label(self, type, cluster, item):
+		# self.log("Label: Cluster: " + str(cluster) + ",item: " + str(item))
+
+		if type == c_api.PM_LABEL_DOMAIN:
+			return "{\"agent\":\"PMDAPrometheus\"}"
+
+		if type == c_api.PM_LABEL_INDOM:
+			return "{}"
+
+		if type == c_api.PM_LABEL_PMID:
+			return "{}"
+
+
+	def prometheus_label_callback(self, cluster, item, inst):
+		# self.log("Label_cb: Cluster: " + str(cluster) + ",item: " + str(item) + ",inst: " + str(inst))
+		if cluster in self.source_by_cluster:
+			return self.source_by_cluster[cluster].label(item, inst)
+		return "{}"
+
 	def prometheus_fetch_callback(self, cluster, item, inst):
 		''' Main fetch callback which returns the value of the metric '''
 		# cluster 0 is reserved for the static metrics
-		self.log("requesting " + str(item) + " cluster" + str(cluster))
+		# self.log("Fetch: Cluster: " + str(cluster) + ",item: " + str(item) + ",inst: " + str(inst))
 		if cluster == 0:
 			if item != 0 or inst != c_api.PM_IN_NULL:
 				return [c_api.PM_ERR_PMID, 0]
