@@ -31,6 +31,7 @@ var sampleDoubleMillionPmID PmID = 121634844
 var sampleMillisecondsPmID PmID = 121634819
 var sampleColourInDom PmInDom = 121634817
 var sampleStringHulloPmID PmID = 121634847
+var sampleFloatTenAlsoSampleDupnamesTwoFloatTen PmID = 121634832
 var notARealPmID PmID = 123
 
 func TestPmapiContext_PmGetContextHostname(t *testing.T) {
@@ -307,6 +308,36 @@ func TestPmapiContext_PmNameID_returnsAnErrorIfThePmIDIsInvalid(t *testing.T) {
 }
 
 func TestPmapiContext_PmNameID_returnsAnEmptyNameIfThePmIDIsInvalid(t *testing.T) {
+	name, _ := localContext().PmNameID(notARealPmID)
+
+	assert.Empty(t, name)
+}
+
+func TestPmapiContext_PmNameAll_returnsTheNamesForAValidPmID(t *testing.T) {
+	name, _ := localContext().PmNameAll(sampleDoubleMillionPmID)
+
+	assert.Equal(t, []string{"sample.double.million"}, name)
+}
+
+func TestPmapiContext_PmNameAll_returnsAllTheNamesForAValidPmID(t *testing.T) {
+	name, _ := localContext().PmNameAll(sampleFloatTenAlsoSampleDupnamesTwoFloatTen)
+
+	assert.Equal(t, []string{"sample.dupnames.two.float.ten", "sample.float.ten"}, name)
+}
+
+func TestPmapiContext_PmNameAll_returnsNoErrorForAValidPmID(t *testing.T) {
+	_, err := localContext().PmNameAll(sampleDoubleMillionPmID)
+
+	assert.NoError(t, err)
+}
+
+func TestPmapiContext_PmNameAll_returnsAnErrorIfThePmIDIsInvalid(t *testing.T) {
+	_, err := localContext().PmNameAll(notARealPmID)
+
+	assert.Error(t, err)
+}
+
+func TestPmapiContext_PmNameAll_returnsEmptyIfThePmIDIsInvalid(t *testing.T) {
 	name, _ := localContext().PmNameID(notARealPmID)
 
 	assert.Empty(t, name)

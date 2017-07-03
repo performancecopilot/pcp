@@ -396,6 +396,27 @@ func (c *PmapiContext) PmNameID(pmid PmID) (string, error) {
 	return C.GoString(name_ptr), nil
 }
 
+func (c *PmapiContext) PmNameAll(pmid PmID) ([]string, error) {
+
+	var names_ptr **C.char
+
+	name_count, err := c.withinContext(func() int {
+		return int(C.pmNameAll(C.pmID(pmid), &names_ptr))
+	})
+	if(err != nil) {
+		return nil, err
+	}
+	defer C.free(unsafe.Pointer(names_ptr))
+
+	children_ptr_slice := (*[1 << 30]*C.char)(unsafe.Pointer(names_ptr))
+	names := make([]string, name_count)
+	for i := 0; i < name_count; i++ {
+		names[i] = C.GoString(children_ptr_slice[i])
+	}
+
+	return names, nil
+}
+
 func (c *PmapiContext) PmLookupDesc(pmid PmID) (PmDesc, error) {
 	c_pmdesc := C.pmDesc{}
 
