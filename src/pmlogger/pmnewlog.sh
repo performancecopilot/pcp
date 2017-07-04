@@ -66,6 +66,7 @@ pmnewlog options:
 pmlogger options:
   --debug
   -c=FILE, --config=FILE  file to load configuration from
+  -H=LABELHOST, --labelhost override the hostname written into the label
   -l=FILE, --log=FILE     redirect diagnostics and trace output
   -L, --linger            run even if not primary logger instance and nothing to log
   -m=MSG, --note=MSG      descriptive note to be added to the port map file
@@ -283,7 +284,7 @@ do
 		args="${args}$1 "
 		;;
 
-	-D|-K|-m|-t|-T|-v)
+	-D|-H|-K|-m|-t|-T|-v)
 		args="${args}$1 $2 "
 		shift
 		;;

@@ -2,7 +2,20 @@
 .SH NAME
 \f3 pcp-pidstat\f1 \- Report statistics for Linux tasks.
 .SH SYNOPSIS
-\f3pcp\f1 \f3pidstat\f1 [\f3\-s\f1 N] [\f3\-t\f1 DELTA] [\f3\-I \f1] [\f3\-a\f1 FILE]  [\f3\-G\f1 NAME] [\f3\-U\f1[USERNAME]] [\f3\-p\f1 PID1,PID2..] [\f3\-R\f1/\f3\-r/\f3\-k\f1] [\f3\-V\f1] [\f3\-?\f1]
+\f3pcp\f1
+\f3pidstat\f1
+[\f3\-s\f1 N]
+[\f3\-t\f1 DELTA]
+[\f3\-I\f1]
+[\f3\-a\f1 FILE]
+[\f3\-f\f1 FORMAT]
+[\f3\-G\f1 NAME]
+[\f3\-U\f1[USERNAME]]
+[\f3\-p\f1 PID1,PID2..]
+[\f3\-R\f1/\f3\-r/\f3\-k\f1]
+[\f3\-V\f1]
+[\f3\-?\f1]
+
 .SH DESCRIPTION
 .B pcp-pidstat
 command is used for monitoring individual tasks currently being managed by the Linux kernel. Using various options it helps user to see useful information related with the processes. This information can include percentage CPU, memory and stack usages, scheduling and priority information.
@@ -33,6 +46,11 @@ In  an  SMP environment, indicates that tasks CPU usage should be divided by the
 Causes pcp\-pidstat to use the specified archive than connecting to PMCD. The argument to -a is a comma-separated
 list of names, each of which may be the base name of an archive or the name of a directory containing one or more archives. Archives can be created using
 .BR pmlogger (1)\.
+
+.TP
+.BR \-f \fR
+Use the format string for formatting the timestamp. The format will be used with Python's datetime.strftime method which is mostly the same as that described
+in strftime(3). An empty format string(i.e,"") will remove the timestamps from the output. The default with stdout is %H:%M:%S.
 
 .TP
 .BR \-R \fR

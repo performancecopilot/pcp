@@ -27,7 +27,6 @@ extern int __pmConvertTimeout(int) _PCP_HIDDEN;
 extern int __pmConnectWithFNDELAY(int, void *, __pmSockLen) _PCP_HIDDEN;
 
 extern int __pmPtrToHandle(__pmContext *) _PCP_HIDDEN;
-extern int __pmGetArchiveEnd_locked(__pmContext *, struct timeval *) _PCP_HIDDEN;
 
 extern int __pmGetDate(struct timespec *, char const *, struct timespec const *)  _PCP_HIDDEN;
 
@@ -127,7 +126,6 @@ __pmTPDGet(void)
 #if defined(PM_MULTI_THREAD) && defined(PM_MULTI_THREAD_DEBUG)
 extern void __pmDebugLock(int, void *, const char *, int) _PCP_HIDDEN;
 extern int __pmIsContextLock(void *) _PCP_HIDDEN;
-extern int __pmIsChannelLock(void *) _PCP_HIDDEN;
 extern int __pmIsDeriveLock(void *) _PCP_HIDDEN;
 extern int __pmIsAuxconnectLock(void *) _PCP_HIDDEN;
 extern int __pmIsConfigLock(void *) _PCP_HIDDEN;
@@ -283,7 +281,42 @@ extern int __pmProxyAddPorts(int **, int) _PCP_HIDDEN;
 extern int __pmWebdAddPorts(int **, int) _PCP_HIDDEN;
 extern int __pmAddPorts(const char *, int **, int) _PCP_HIDDEN;
 
-extern void __pmCloseChannelbyContext(__pmContext *, int, int) _PCP_HIDDEN;
-extern void __pmCloseChannelbyFd(int, int, int) _PCP_HIDDEN;
+/*
+ * Internal variants for with extra __pmContext parameter to allow
+ * for context being locked or not locked
+ */
+extern int pmLookupName_ctx(__pmContext *, int, char **, pmID *) _PCP_HIDDEN;
+extern int pmNameAll_ctx(__pmContext *, pmID, char ***) _PCP_HIDDEN;
+extern int pmLookupDesc_ctx(__pmContext *, pmID, pmDesc *) _PCP_HIDDEN;
+extern int pmNameInDom_ctx(__pmContext *, pmInDom, int, char **) _PCP_HIDDEN;
+extern int pmGetInDomArchive_ctx(__pmContext *, pmInDom, int **, char ***) _PCP_HIDDEN;
+extern int pmFetch_ctx(__pmContext *, int, pmID *, pmResult **) _PCP_HIDDEN;
+extern int pmStore_ctx(__pmContext *, const pmResult *) _PCP_HIDDEN;
+extern int __pmDecodeResult_ctx(__pmContext *, __pmPDU *, pmResult **) _PCP_HIDDEN;
+extern int __pmSendResult_ctx(__pmContext *, int, int, const pmResult *) _PCP_HIDDEN;
+extern void __pmDumpResult_ctx(__pmContext *, FILE *, const pmResult *) _PCP_HIDDEN;
+extern int pmGetArchiveEnd_ctx(__pmContext *, struct timeval *) _PCP_HIDDEN;
+extern int __pmGetArchiveEnd_ctx(__pmContext *, struct timeval *) _PCP_HIDDEN;
+extern int __pmLogGenerateMark_ctx(__pmContext *, int, pmResult **) _PCP_HIDDEN;
+
+#ifdef BUILD_WITH_LOCK_ASSERTS
+#include <assert.h>
+#define PM_ASSERT_IS_LOCKED(lock) assert(__pmIsLocked(&(lock)))
+#define PM_ASSERT_IS_UNLOCKED(lock) assert(!__pmIsLocked(&(lock)))
+#define PM_CHECK_IS_UNLOCKED(lock) __pmCheckIsUnlocked(&(lock), __FILE__, __LINE__)
+#define CHECK_C_LOCK {\
+__pmContext *__ctxp = __pmHandleToPtr(pmWhichContext());\
+if (__ctxp != NULL) {\
+    PM_UNLOCK(__ctxp->c_lock);\
+    __pmCheckIsUnlocked(&__ctxp->c_lock, __FILE__, __LINE__);\
+}\
+}
+#else
+#define PM_ASSERT_IS_LOCKED(lock)
+#define PM_ASSERT_IS_UNLOCKED(lock)
+#define PM_CHECK_IS_UNLOCKED(lock)
+#define CHECK_C_LOCK
+#endif /* BUILD_WITH_LOCK_ASSERTS */
+
 
 #endif /* _LIBPCP_INTERNAL_H */

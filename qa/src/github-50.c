@@ -18,6 +18,7 @@ main(int argc, char **argv)
     int		sts;
     int		errflag = 0;
     int		type = 0;
+    int		try = 0;
     char	*host = NULL;			/* pander to gcc */
     pmLogLabel	label;
     __pmContext	*ctxp;
@@ -149,8 +150,9 @@ Options:\n\
      * In the bug case, when the context is valid and _not_ an archive,
      * the Unlock OK happens twice
      */
-    while ((sts = PM_UNLOCK(ctxp->c_lock)) == 0) {
+    while (try < 3 && (sts = PM_UNLOCK(ctxp->c_lock)) == 0) {
 	fprintf(stderr, "Unlock OK\n");
+	try++;
     }
     fprintf(stderr, "Unlock Fail: %s\n", pmErrStr(sts));
 

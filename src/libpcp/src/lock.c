@@ -157,7 +157,7 @@ __pmInitLocks(void)
 	    exit(4);
 	}
 	memset((void *)tpd, 0, sizeof(*tpd));
-	tpd->curcontext = PM_CONTEXT_UNDEF;
+	tpd->curr_handle = PM_CONTEXT_UNDEF;
     }
 #endif
 }
@@ -181,6 +181,52 @@ __pmMultiThreaded(int scope)
 }
 
 #ifdef PM_MULTI_THREAD_DEBUG
+static char
+*lockname(void *lock)
+{
+    static char locknamebuf[20];
+    int		ctxid;
+
+    if (__pmIsDeriveLock(lock))
+	return "derived_metric";
+    else if (__pmIsAuxconnectLock(lock))
+	return "auxconnect";
+    else if (__pmIsConfigLock(lock))
+	return "config";
+#ifdef PM_FAULT_INJECTION
+    else if (__pmIsFaultLock(lock))
+	return "fault";
+#endif
+    else if (__pmIsPduLock(lock))
+	return "pdu";
+    else if (__pmIsPdubufLock(lock))
+	return "pdubuf";
+    else if (__pmIsUtilLock(lock))
+	return "util";
+    else if (__pmIsContextsLock(lock))
+	return "contexts";
+    else if (__pmIsIpcLock(lock))
+	return "ipc";
+    else if (__pmIsOptfetchLock(lock))
+	return "optfetch";
+    else if (__pmIsErrLock(lock))
+	return "err";
+    else if (__pmIsLockLock(lock))
+	return "lock";
+    else if (__pmIsLogutilLock(lock))
+	return "logutil";
+    else if (lock == (void *)&__pmLock_extcall)
+	return "global_extcall";
+    else if ((ctxid = __pmIsContextLock(lock)) != -1) {
+	snprintf(locknamebuf, sizeof(locknamebuf), "c_lock[slot %d]", ctxid);
+	return locknamebuf;
+    }
+    else {
+	snprintf(locknamebuf, sizeof(locknamebuf), PRINTF_P_PFX "%p", lock);
+	return locknamebuf;
+    }
+}
+
 void
 __pmDebugLock(int op, void *lock, const char *file, int line)
 {
@@ -240,53 +286,20 @@ again:
 	fprintf(stderr, "(ctx %d)", ctx);
     }
     else if (report == DBG_TRACE_APPL2) {
-	if ((ctx = __pmIsChannelLock(lock)) >= 0)
-	    fprintf(stderr, "(ctx %d ipc channel)", ctx);
-	else if (__pmIsDeriveLock(lock))
-	    fprintf(stderr, "(derived_metric)");
-	else if (__pmIsAuxconnectLock(lock))
-	    fprintf(stderr, "(auxconnect)");
-	else if (__pmIsConfigLock(lock))
-	    fprintf(stderr, "(config)");
-#ifdef PM_FAULT_INJECTION
-	else if (__pmIsFaultLock(lock))
-	    fprintf(stderr, "(fault)");
-#endif
-	else if (__pmIsPduLock(lock))
-	    fprintf(stderr, "(pdu)");
-	else if (__pmIsPdubufLock(lock))
-	    fprintf(stderr, "(pdubuf)");
-	else if (__pmIsUtilLock(lock))
-	    fprintf(stderr, "(util)");
-	else if (__pmIsContextsLock(lock))
-	    fprintf(stderr, "(contexts)");
-	else if (__pmIsIpcLock(lock))
-	    fprintf(stderr, "(ipc)");
-	else if (__pmIsOptfetchLock(lock))
-	    fprintf(stderr, "(optfetch)");
-	else if (__pmIsErrLock(lock))
-	    fprintf(stderr, "(err)");
-	else if (__pmIsLockLock(lock))
-	    fprintf(stderr, "(lock)");
-	else if (__pmIsLogutilLock(lock))
-	    fprintf(stderr, "(logutil)");
-	else if (lock == (void *)&__pmLock_extcall)
-	    fprintf(stderr, "(global_extcall)");
-	else
-	    fprintf(stderr, "(" PRINTF_P_PFX "%p)", lock);
+	fprintf(stderr, "(%s)", lockname(lock));
     }
     if (report) {
 	if (hp != NULL) {
 	    ldp = (lockdbg_t *)hp->data;
 	    if (op == PM_LOCK_OP) {
-		if (ldp->count != 0)
-		    fprintf(stderr, " [count=%d]", ldp->count);
 		ldp->count++;
-	    }
-	    else {
 		if (ldp->count != 1)
 		    fprintf(stderr, " [count=%d]", ldp->count);
+	    }
+	    else {
 		ldp->count--;
+		if (ldp->count != 0)
+		    fprintf(stderr, " [count=%d]", ldp->count);
 	    }
 	}
 	fputc('\n', stderr);
@@ -320,17 +333,19 @@ __pmLock(void *lock, const char *file, int line)
 {
     int		sts;
 
-    if (pmDebug & DBG_TRACE_LOCK)
-	__pmDebugLock(PM_LOCK_OP, lock, file, line);
-
     if ((sts = pthread_mutex_lock(lock)) != 0) {
 	sts = -sts;
 	if (pmDebug & DBG_TRACE_DESPERATE)
 	    fprintf(stderr, "%s:%d: lock failed: %s\n", file, line, pmErrStr(sts));
     }
+
+    if (pmDebug & DBG_TRACE_LOCK)
+	__pmDebugLock(PM_LOCK_OP, lock, file, line);
+
     return sts;
 }
 
+#ifdef BUILD_WITH_LOCK_ASSERTS
 int
 __pmIsLocked(void *lock)
 {
@@ -352,6 +367,30 @@ __pmIsLocked(void *lock)
     return 0;
 }
 
+/*
+ * special version for glibc and recursive locks ... looks inside
+ * the pthread_mutex_t at the __data.__lock field ... this is not
+ * threadsafe, but is intended to be used to detect residual lock
+ * holds on return from libpcp
+ */
+void
+__pmCheckIsUnlocked(void *lock, char *file, int line)
+{
+#ifdef __GLIBC__
+   pthread_mutex_t	*lockp = (pthread_mutex_t *)lock;
+   if (lockp != NULL && lockp->__data.__lock != 0) {
+#ifdef PM_MULTI_THREAD_DEBUG
+       fprintf(stderr, "__pmCheckIsUnlocked(%s): [%s:%d] __lock=%d __count=%d\n", lockname(lockp), file, line, lockp->__data.__lock, lockp->__data.__count);
+#else
+       fprintf(stderr, "__pmCheckIsUnlocked: [%s:%d] __lock=%d\n", file, line, lockp->__data.__lock);
+#endif
+    }
+#else
+    return;
+#endif
+}
+#endif /* BUILD_WITH_LOCK_ASSERTS */
+
 int
 __pmUnlock(void *lock, const char *file, int line)
 {
@@ -365,6 +404,7 @@ __pmUnlock(void *lock, const char *file, int line)
 	if (pmDebug & DBG_TRACE_DESPERATE)
 	    fprintf(stderr, "%s:%d: unlock failed: %s\n", file, line, pmErrStr(sts));
     }
+
     return sts;
 }
 

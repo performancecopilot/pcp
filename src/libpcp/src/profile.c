@@ -14,6 +14,7 @@
 
 #include "pmapi.h"
 #include "impl.h"
+#include "internal.h"
 
 static int *
 _subtract(int *list, int *list_len, int *arg, int arg_len)
@@ -217,6 +218,7 @@ pmAddProfile(pmInDom indom, int instlist_len, int instlist[])
 	if ((prof = _newprof(indom, ctxp)) == NULL) {
 	    /* fail */
 	    PM_UNLOCK(ctxp->c_lock);
+	    CHECK_C_LOCK;
 	    return -oserror();
 	}
 	else {
@@ -268,6 +270,7 @@ SUCCESS:
     }
 #endif
     PM_UNLOCK(ctxp->c_lock);
+    CHECK_C_LOCK;
     return 0;
 }
 
@@ -297,6 +300,7 @@ pmDelProfile(pmInDom indom, int instlist_len, int instlist[])
 	if ((prof = _newprof(indom, ctxp)) == NULL) {
 	    /* fail */
 	    PM_UNLOCK(ctxp->c_lock);
+	    CHECK_C_LOCK;
 	    return -oserror();
 	}
 	else {
@@ -348,6 +352,7 @@ SUCCESS:
     }
 #endif
     PM_UNLOCK(ctxp->c_lock);
+    CHECK_C_LOCK;
     return 0;
 }
 

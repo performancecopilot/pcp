@@ -22,14 +22,14 @@
  */
 typedef struct {
     __pmPDUHdr		hdr;
-    int			ctxnum;		/* context no. */
+    int			ctxid;		/* context slot index from the client */
     __pmTimeval      	when;		/* desired time */
     int			numpmid;	/* no. PMIDs to follow */
     pmID		pmidlist[1];	/* one or more */
 } fetch_t;
 
 int
-__pmSendFetch(int fd, int from, int ctxnum, __pmTimeval *when, int numpmid, pmID *pmidlist)
+__pmSendFetch(int fd, int from, int ctxid, __pmTimeval *when, int numpmid, pmID *pmidlist)
 {
     size_t	need;
     fetch_t	*pp;
@@ -46,7 +46,7 @@ __pmSendFetch(int fd, int from, int ctxnum, __pmTimeval *when, int numpmid, pmID
      * backwards compatibility issues
      */
     pp->hdr.from = from;
-    pp->ctxnum = htonl(ctxnum);
+    pp->ctxid = htonl(ctxid);
     if (when == NULL)
 	memset((void *)&pp->when, 0, sizeof(pp->when));
     else {
@@ -68,7 +68,7 @@ __pmSendFetch(int fd, int from, int ctxnum, __pmTimeval *when, int numpmid, pmID
 }
 
 int
-__pmDecodeFetch(__pmPDU *pdubuf, int *ctxnum, __pmTimeval *when, int *numpmidp, pmID **pmidlist)
+__pmDecodeFetch(__pmPDU *pdubuf, int *ctxidp, __pmTimeval *when, int *numpmidp, pmID **pmidlist)
 {
     fetch_t	*pp;
     char	*pduend;
@@ -91,7 +91,7 @@ __pmDecodeFetch(__pmPDU *pdubuf, int *ctxnum, __pmTimeval *when, int *numpmidp, 
     for (j = 0; j < numpmid; j++)
 	pp->pmidlist[j] = __ntohpmID(pp->pmidlist[j]);
 
-    *ctxnum = ntohl(pp->ctxnum);
+    *ctxidp = ntohl(pp->ctxid);
     when->tv_sec = ntohl(pp->when.tv_sec);
     when->tv_usec = ntohl(pp->when.tv_usec);
     *numpmidp = numpmid;

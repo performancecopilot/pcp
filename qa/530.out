@@ -1,8 +1,9 @@
 QA output created by 530
 
 === [] regular show ===
-PMLOGGER.DAILY: Error: no pmlogger instance running for host "HOST"
-[TMP/control:2] ... logging for host "HOST" unchanged
+PMLOGGER.DAILY: [TMP/control:2]
+Error: no pmlogger instance running for host "HOST"
+... logging for host "HOST" unchanged
 NOW-2.00.02.0
 NOW-2.00.02.index
 NOW-2.00.02.meta
@@ -28,8 +29,9 @@ control
 sed
 
 === [] nothing to do but cull some more ===
-PMLOGGER.DAILY: Error: no pmlogger instance running for host "HOST"
-[TMP/control:2] ... logging for host "HOST" unchanged
+PMLOGGER.DAILY: [TMP/control:2]
+Error: no pmlogger instance running for host "HOST"
+... logging for host "HOST" unchanged
 NOW-2.00.02.0
 NOW-2.00.02.index
 NOW-2.00.02.meta
@@ -49,8 +51,9 @@ save.meta
 sed
 
 === [] error, output already exists ===
-PMLOGGER.DAILY: Error: no pmlogger instance running for host "HOST"
-[TMP/control:2] ... logging for host "HOST" unchanged
+PMLOGGER.DAILY: [TMP/control:2]
+Error: no pmlogger instance running for host "HOST"
+... logging for host "HOST" unchanged
 PMLOGGER.DAILY: Warning: output archive (YESTERDAY) already exists
 [TMP/control:2] ... skip log merging, culling and compressing for host "HOST"
 NOW-2.00.02.0
@@ -78,8 +81,9 @@ sed
 
 === daily maintenance of PCP archives for host HOST ===
 
-PMLOGGER.DAILY: Error: no pmlogger instance running for host "HOST"
-[TMP/control:2] ... logging for host "HOST" unchanged
+PMLOGGER.DAILY: [TMP/control:2]
+Error: no pmlogger instance running for host "HOST"
+... logging for host "HOST" unchanged
 
 Input archives to be merged:
 	YESTERDAY.00.02
@@ -121,8 +125,9 @@ sed
 
 === daily maintenance of PCP archives for host HOST ===
 
-PMLOGGER.DAILY: Error: no pmlogger instance running for host "HOST"
-[TMP/control:2] ... logging for host "HOST" unchanged
+PMLOGGER.DAILY: [TMP/control:2]
+Error: no pmlogger instance running for host "HOST"
+... logging for host "HOST" unchanged
 
 PMLOGGER.DAILY: Warning: no archives found to merge
 Archive files older than 2 days being removed ...
@@ -150,8 +155,9 @@ sed
 
 === daily maintenance of PCP archives for host HOST ===
 
-PMLOGGER.DAILY: Error: no pmlogger instance running for host "HOST"
-[TMP/control:2] ... logging for host "HOST" unchanged
+PMLOGGER.DAILY: [TMP/control:2]
+Error: no pmlogger instance running for host "HOST"
+... logging for host "HOST" unchanged
 
 PMLOGGER.DAILY: Warning: output archive (YESTERDAY) already exists
 [TMP/control:2] ... skip log merging, culling and compressing for host "HOST"

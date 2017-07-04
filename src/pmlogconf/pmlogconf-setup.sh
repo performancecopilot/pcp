@@ -3,7 +3,7 @@
 # pmlogconf-setup - parse and process a group file to produce an
 # initial configuration file control line
 #
-# Copyright (c) 2014 Red Hat.
+# Copyright (c) 2014,2017 Red Hat.
 # Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -31,6 +31,7 @@ cat > $tmp/usage << EOF
 
 Options:
   --host
+  -t
   -v,--verbose   increase diagnostic verbosity
   --help
 EOF
@@ -43,6 +44,7 @@ _usage()
 
 HOST=local:
 verbose=false
+probelist=''
 
 ARGS=`pmgetopt --progname=$prog --config=$tmp/usage -- "$@"`
 [ $? != 0 ] && exit 1
@@ -60,6 +62,11 @@ do
 	-v)	# verbose
 		verbose=true
 		;;
+
+	-t)     #list from pmprobe
+	        probelist="$2"
+		shift
+	        ;;
 
 	--)	shift
 		break
@@ -119,7 +126,12 @@ if [ -n "$metric" ]
 then
     # probe
     echo "$options"
-    echo "data `pmprobe -h $HOST -v $metric`"
+    if [ -s "$probelist" ]
+    then
+	echo "data `grep "^$metric" "$probelist"`"
+    else
+	echo "data `pmprobe -h $HOST -v $metric`"
+    fi
     # need to handle these variants of pmprobe output
     # sample.string.hullo 1 "hullo world!"
     # sample.colour 3 101 202 303
@@ -127,6 +139,7 @@ then
 else
     # force
     $PCP_ECHO_PROG "force $force"
+    # the '^G' character is used as a field separator in awk
 fi \
 | sed \
     -e '/^data /!{

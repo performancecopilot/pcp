@@ -162,7 +162,8 @@ be added to the \f2type\fP to indicate if the connection to \f3pmcd\fP(1)
 should be encrypted (\f3PM_CTXFLAG_SECURE\fP), deferred (\f3PM_CTXFLAG_SHALLOW\fP)
 and if the file descriptor used to communicate with \f3pmcd\fP(1), should not be
 shared across contexts (\f3PM_CTXFLAG_EXCLUSIVE\fP).
-The \f3PM_CTXFLAG_SHALLOW\fP flag is now deprecated and ignored.
+Both the \f3PM_CTXFLAG_SHALLOW\fP and \f3PM_CTXFLAG_EXCLUSIVE\fP flags are
+now deprecated and ignored.
 .PP
 The initial instance
 profile is set up to select all instances in all instance domains. 

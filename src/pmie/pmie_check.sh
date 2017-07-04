@@ -459,7 +459,11 @@ fi
 #
 version=''
 
-rm -f $tmp/err $tmp/pmies
+# if this file exists at the end, we encountered a serious error
+#
+rm -f $tmp/err
+
+rm -f $tmp/pmies
 
 _parse_control()
 {
@@ -606,10 +610,10 @@ s/^\\$//
 	#
 	if [ ! -d "$dir" ]
 	then
-	    mkdir_and_chown "$dir" 755 $PCP_USER:$PCP_GROUP >$tmp/err 2>&1
+	    mkdir_and_chown "$dir" 755 $PCP_USER:$PCP_GROUP >$tmp/tmp 2>&1
 	    if [ ! -d "$dir" ]
 	    then
-		cat $tmp/err
+		cat $tmp/tmp
 		_error "cannot create directory ($dir) for pmie log file"
 		continue
 	    fi

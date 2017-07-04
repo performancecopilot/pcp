@@ -330,11 +330,12 @@ __pmPDUTypeStr(int type)
  * user had already changed the handler from SIG_DFL, put back what was there
  * before.
  */
-static int sigpipe_done = 0;		/* First time check for installation of
-					   non-default SIGPIPE handler */
 void
 __pmIgnoreSignalPIPE(void)
 {
+    static int sigpipe_done = 0;	/* First time check for installation of
+					   non-default SIGPIPE handler */
+    PM_LOCK(pdu_lock);
     if (!sigpipe_done) {       /* Make sure SIGPIPE is handled */
 	SIG_PF  user_onpipe;
 	user_onpipe = signal(SIGPIPE, SIG_IGN);
@@ -342,6 +343,7 @@ __pmIgnoreSignalPIPE(void)
 	     signal(SIGPIPE, user_onpipe);
 	sigpipe_done = 1;
     }
+    PM_UNLOCK(pdu_lock);
 }
 #else
 void __pmIgnoreSignalPIPE(void) {}

@@ -52,7 +52,7 @@ The associated metadata.json file would look like the following:
       {
         "name": "string_value",
         "pointer": "/string_value",
-        "type": "string",
+        "type": "string"
       },
       {
         "name": "read_count",

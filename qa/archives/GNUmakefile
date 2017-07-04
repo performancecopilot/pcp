@@ -1,7 +1,7 @@
 #!gmake
 #
 # Copyright (c) 2015 Ken McDonell.  All Rights Reserved.
-# Copyright (c) 2012,2014 Red Hat.
+# Copyright (c) 2012,2014,2017 Red Hat.
 # Copyright (c) 2009 Aconex.  All Rights Reserved.
 # Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
@@ -23,12 +23,16 @@ SRCOTHER = bozo.client_v2.meta.bad.1 bozo.client_v2.meta.bad.2 \
 	   $(patsubst %.0,%.meta,$(SRCNOTI))
 
 # now all the rest ...
-SRCFULL = $(shell echo *.[0-9]) 20130706.0.bz2
+SRCFULL = $(shell echo *.[0-9])
 SRCARCH = $(filter-out $(SRCNOTI),$(SRCFULL))
-SRCMETA = $(patsubst %.0,%.meta,$(SRCARCH)) 20130706.meta
-SRCIDX = $(patsubst %.0,%.index,$(SRCARCH)) 20130706.index
+SRCMETA = $(patsubst %.0,%.meta,$(SRCARCH))
+SRCIDX = $(patsubst %.0,%.index,$(SRCARCH))
 
 FOLIOS = $(shell echo *.folio)
+
+DEFLATE = small.0.xz small.meta small.index \
+	  20130706.0.bz2 20130706.meta 20130706.index \
+	  pcp-zeroconf.0.gz pcp-zeroconf.meta pcp-zeroconf.index
 
 SCRIPTS = mk.diff.sh mk.gap.sh mk.mysql.sh mk.schizo.sh mk.foo+.sh \
 	  mk.dynmetric.sh mk.instant.sh \
@@ -41,8 +45,7 @@ SCRIPTS = mk.diff.sh mk.gap.sh mk.mysql.sh mk.schizo.sh mk.foo+.sh \
 CONFIGS = config.verify config.shping YWhcCi.toium.config \
 	  kenj-pc-2.config reduce.config uwrap.config wrap.config
 
-OTHERS = ds390-access.gz collectl-qa small.0.xz small.meta small.index \
-	bigace.pmns README
+OTHERS = ds390-access.gz collectl-qa bigace.pmns README
 
 LDIRT = pmlogger.log
 
@@ -55,7 +58,7 @@ install install_pcp: $(SUBDIRS)
 	$(INSTALL) -m 644 GNUmakefile.install $(TESTDIR)/GNUmakefile
 	$(INSTALL) -m 644 $(SRCARCH) $(SRCNOTI) $(SRCPART) $(TESTDIR)
 	$(INSTALL) -m 644 $(SRCMETA) $(SRCOTHER) $(TESTDIR)
-	$(INSTALL) -m 644 $(SRCIDX) $(TESTDIR)
+	$(INSTALL) -m 644 $(SRCIDX) $(DEFLATE) $(TESTDIR)
 	$(INSTALL) -m 644 $(OTHERS) $(CONFIGS) $(FOLIOS) $(TESTDIR)
 	$(SUBDIRS_MAKERULE)
 

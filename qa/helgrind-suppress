@@ -24,7 +24,7 @@
 {
    log read counter updates
    Helgrind:Race
-   fun:__pmLogRead
+   fun:__pmLogRead_ctx
    ...
 }
 

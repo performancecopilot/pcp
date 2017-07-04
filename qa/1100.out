@@ -1,0 +1,4 @@
+QA output created by 1100
+== only pmlogger/V should be missing
+V missing for pmlogger zsh completions
+== done

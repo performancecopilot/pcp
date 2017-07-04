@@ -546,3 +546,8 @@ PCP_3.18 {
     __pmSetFeaturesIPC;
     __pmCurrentContext;
 } PCP_3.17;
+
+PCP_3.19 {
+  global:
+    __pmLogRead_ctx;
+} PCP_3.18;

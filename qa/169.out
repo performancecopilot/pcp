@@ -26,7 +26,6 @@ pmcd timeout = 10
 pmcd.control.timeout old value=5 new value=10
 
 Expect dummyproc to fail (timeout for pmcd failure):
-[DATE] pminfo(PID) Error: __pmCloseChannelbyContext: fd=3 context=0 expected PDU_DESC received: Timeout waiting for a response from PMCD
 dummyproc: pmLookupDesc: Timeout waiting for a response from PMCD
 
 pmcd did NOT terminate the dumb_pmda agent as desired

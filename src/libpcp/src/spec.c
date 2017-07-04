@@ -820,7 +820,7 @@ __pmLookupAttrKey(const char *attribute, size_t size)
 	strncmp(attribute, "container", size) == 0)
 	return PCP_ATTR_CONTAINER;
     if (size == sizeof("exclusive") &&
-	strncmp(attribute, "exclusive", size) == 0)
+	strncmp(attribute, "exclusive", size) == 0)	/* deprecated */
 	return PCP_ATTR_EXCLUSIVE;
     return PCP_ATTR_NONE;
 }
@@ -995,7 +995,7 @@ __pmAttrKeyStr_r(__pmAttrKey key, char *string, size_t size)
     case PCP_ATTR_CONTAINER:
 	return snprintf(string, size, "container");
     case PCP_ATTR_EXCLUSIVE:
-	return snprintf(string, size, "exclusive");
+	return snprintf(string, size, "exclusive");	/* deprecated */
     case PCP_ATTR_NONE:
     default:
 	break;
@@ -1029,7 +1029,7 @@ __pmAttrStr_r(__pmAttrKey key, const char *data, char *string, size_t size)
     case PCP_ATTR_LOCAL:
     case PCP_ATTR_COMPRESS:
     case PCP_ATTR_USERAUTH:
-    case PCP_ATTR_EXCLUSIVE:
+    case PCP_ATTR_EXCLUSIVE:	/* deprecated */
 	return snprintf(string, size, "%s", name);
 
     case PCP_ATTR_NONE:

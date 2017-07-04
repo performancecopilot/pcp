@@ -310,6 +310,11 @@ pmmgr_job_spec::parse_metric_spec (const string& spec) const
 pmmgr_hostid
 pmmgr_job_spec::compute_hostid (const pcp_context_spec& ctx) const
 {
+  // static hostid takes precedence
+  string hostid_static = get_config_single ("hostid-static");
+  if (hostid_static != "")
+    return pmmgr_hostid (hostid_static);
+
   pmFG fg;
   int sts = pmCreateFetchGroup (&fg, PM_CONTEXT_HOST, ctx.c_str());
   if (sts < 0)
@@ -1420,14 +1425,21 @@ pmmgr_pmlogger_daemon::daemon_command_line()
   // synthesize a logfile name similarly as pmlogger_check, but add %S (seconds)
   // to reduce likelihood of conflict with a short poll interval
   string timestr = "archive";
+
+  string pmlogger_timefmt = get_config_single ("pmlogger-timefmt");
+  if (pmlogger_timefmt == "") pmlogger_timefmt = "%Y%m%d.%H%M%S";
+
   time_t now2 = time(NULL);
   struct tm *now = gmtime(& now2);
   if (now != NULL)
     {
       char timestr2[100];
-      int rc = strftime(timestr2, sizeof(timestr2), "-%Y%m%d.%H%M%S", now);
+      int rc = strftime(timestr2, sizeof(timestr2), pmlogger_timefmt.c_str(), now);
       if (rc > 0)
-	timestr += timestr2; // no sh_quote required
+        {
+          timestr += "-";
+          timestr += timestr2; // no sh_quote required
+        }
     }
 
   // last argument

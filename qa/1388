@@ -1,0 +1,114 @@
+#!/bin/sh
+# PCP QA Test No. 1388
+# Exercise pmwebd mandatory authentication mode.
+#
+# Copyright (c) 2017 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.secure
+. ./common.webapi
+
+which curl >/dev/null 2>&1 || _notrun "No curl binary installed"
+[ -f ${PCP_BINADM_DIR}/pmwebd ] || _notrun "pmwebd binary not installed"
+
+full_hostname=`hostname`
+
+sasl_notrun_checks saslpasswd2 sasldblistusers2
+$pluginviewer -a | grep 'Plugin "sasldb"' >/dev/null
+test $? -eq 0 || _notrun "SASL sasldb auxprop plugin unavailable"
+$pluginviewer -c | grep 'Plugin "plain"' >/dev/null 2>&1
+test $? -eq 0 || _notrun 'No client support for plain authentication'
+$pluginviewer -s | grep 'Plugin "plain"' >/dev/null 2>&1
+test $? -eq 0 || _notrun 'No server support for plain authentication'
+
+$sudo rm -f $tmp.* $seq.full
+
+signal=$PCP_BINADM_DIR/pmsignal
+status=1	# failure is the default!
+
+webargs="-U $username"
+webport=`_find_free_port`
+webpid=""
+
+_cleanup()
+{
+    # stop pmwebd pmcd client up front
+    if [ "X$webpid" != "X" ]; then
+	$signal -s TERM $webpid
+	webpid=""
+    fi
+
+    # restore any modified pmcd configuration files
+    _restore_config $PCP_SASLCONF_DIR/pmcd.conf
+
+    _service pcp stop 2>&1 | _filter_pcp_stop
+    _service pcp start 2>&1 | _filter_pcp_start
+    _wait_for_pmcd
+    _wait_for_pmlogger
+
+    $sudo rm -f $tmp.*
+}
+
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter_listusers2()
+{
+    sed \
+        -e "s/^$username/USER/" \
+        -e "s/@$full_hostname:/@HOST:/" \
+        -e "s/@$hostname:/@HOST:/"
+}
+
+_filter_context()
+{
+    sed -e 's/: [0-9][0-9]*/: CTX/g'
+}
+
+# start pmcd in sasldb authenticating mode
+_save_config $PCP_SASLCONF_DIR/pmcd.conf
+echo 'mech_list: plain' >$tmp.sasl
+echo "sasldb_path: $tmp.passwd.db" >>$tmp.sasl
+$sudo cp $tmp.sasl $PCP_SASLCONF_DIR/pmcd.conf
+$sudo chown pcp:pcp $PCP_SASLCONF_DIR/pmcd.conf
+ls -l $PCP_SASLCONF_DIR/pmcd.conf >>$seq.full
+$sudo -u pcp cat $PCP_SASLCONF_DIR/pmcd.conf >>$seq.full
+
+echo "Creating temporary sasldb, add user running QA to it" | tee -a $seq.full
+echo y | saslpasswd2 -p -a pmcd -f $tmp.passwd.db $username
+
+echo "Verify saslpasswd2 has successfully added a new user" | tee -a $seq.full
+sasldblistusers2 -f $tmp.passwd.db \
+| tee -a $seq.full \
+| _filter_listusers2
+
+echo "Start pmcd with this shiny new sasldb"
+_service pcp restart | tee -a $seq.full >$tmp.out
+_wait_for_pmcd
+_wait_for_pmlogger
+
+echo "Start pmwebd with mandatory authentication"
+$PCP_BINADM_DIR/pmwebd $webargs -p $webport -l $tmp.out -v -t5 -C &
+webpid=$!
+echo "pid=$webpid" >>$seq.full
+echo "webport=$webport" >>$seq.full
+echo "webargs=$webargs" >>$seq.full
+
+_wait_for_pmwebd_logfile $tmp.out $webport
+
+echo && echo "=== pmwebd no authentication (expect errors) ==="
+curl -s -S "http://localhost:$webport/pmapi/context?hostspec=localhost"
+echo
+curl -s -S "http://localhost:$webport/pmapi/context?hostspec=localhost%3Fusername%3Dbob"
+echo
+curl -s -S "http://localhost:$webport/pmapi/context?hostspec=localhost%3Fpassword%3Dbib"
+echo
+
+echo && echo "=== pmwebd with authentication (expect success) ==="
+curl -s -S "http://localhost:$webport/pmapi/context?hostspec=localhost%3Fusername%3D$username%26password%3Dy" 2>&1 | _filter_context
+echo
+
+status=0
+exit

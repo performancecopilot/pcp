@@ -45,11 +45,8 @@ __pmControlLog(int fd, const pmResult *request, int control, int state, int delt
 	}
 	else if (n == PDU_ERROR)
 	    __pmDecodeError(pb, &n);
-	else {
-	    __pmCloseChannelbyFd(fd, PDU_RESULT, n);
-	    if (n != PM_ERR_TIMEOUT)
-		n = PM_ERR_IPC; /* unknown reply type */
-	}
+	else if (n != PM_ERR_TIMEOUT)
+	    n = PM_ERR_IPC; /* unknown reply type */
 	if (pinpdu > 0)
 	    __pmUnpinPDUBuf(pb);
     }

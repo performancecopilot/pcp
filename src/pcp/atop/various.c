@@ -1184,6 +1184,10 @@ rawwrite(pmOptions *opts, const char *name,
 		duration = (double) (mktime(tp) - now);
 	}
 
+	/* need to avoid elapsed.tv_sec going negative */
+	if (duration > INT_MAX)
+	    duration = INT_MAX - 1;
+
 	if (pmDebug & DBG_TRACE_APPL1)
 	{
 		fprintf(stderr, "%s: start recording, %.2fsec duration [%s].\n",
@@ -1229,13 +1233,15 @@ rawwrite(pmOptions *opts, const char *name,
 	/*
 	** start pmlogger with a deadhand timer, ensuring it will stop
 	*/
-	snprintf(args, sizeof(args), "-T%.3fseconds", duration);
-	args[sizeof(args)-1] = '\0';
-	if ((sts = pmRecordControl(record, PM_REC_SETARG, args)) < 0)
-	{
-		fprintf(stderr, "%s: setting loggers arguments: %s\n",
-			pmProgname, pmErrStr(sts));
-		cleanstop(1);
+	if (opts->samples || midnightflag) {
+	    snprintf(args, sizeof(args), "-T%.3fseconds", duration);
+	    args[sizeof(args)-1] = '\0';
+	    if ((sts = pmRecordControl(record, PM_REC_SETARG, args)) < 0)
+		{
+		    fprintf(stderr, "%s: setting loggers arguments: %s\n",
+			    pmProgname, pmErrStr(sts));
+		    cleanstop(1);
+		}
 	}
 	if ((sts = pmRecordControl(NULL, PM_REC_ON, "")) < 0)
 	{

@@ -872,7 +872,7 @@ dnl default <import string> is "import module_name"
 dnl
 dnl sets $have_python_<module_name> as true or false
 dnl
-AC_DEFUN(PCP_CHECK_PYTHON_MODULE,
+AC_DEFUN([PCP_CHECK_PYTHON_MODULE],
   [ AC_MSG_CHECKING(for Python module $1)
     if test -n "$2"
     then
@@ -897,6 +897,8 @@ PCP_CHECK_PYTHON_MODULE(setuptools)
 AC_SUBST(have_python_setuptools)
 PCP_CHECK_PYTHON_MODULE(requests)
 AC_SUBST(have_python_requests)
+PCP_CHECK_PYTHON_MODULE(libvirt)
+AC_SUBST(have_python_libvirt)
 PCP_CHECK_PYTHON_MODULE(six)
 AC_SUBST(have_python_six)
 
@@ -909,9 +911,6 @@ AS_IF([test "x$do_pmdajson" = "xcheck"], [
 ])
 AC_SUBST(PMDA_JSON, $pmda_json)
 if $pmda_json; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
-
-PCP_CHECK_PYTHON_MODULE(libvirt)
-AC_SUBST(have_python_libvirt)
 
 dnl check if perl available for the build and runtime
 AC_CHECK_PROGS(PERL, perl)
@@ -1084,12 +1083,24 @@ fi
 AC_SUBST(PMDA_LIO, $pmda_lio)
 if $pmda_lio; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
 
+AC_MSG_CHECKING([if the Prometheus PMDA should be included])
+pmda_prometheus=false
+if test "$have_python" = true
+then
+    if test "$have_python_requests" = true
+    then
+	pmda_prometheus=true
+    fi
+fi
+AC_SUBST(PMDA_PROMETHEUS, $pmda_prometheus)
+if $pmda_prometheus; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
+
 AC_MSG_CHECKING([if the libvirt PMDA should be included])
 pmda_libvirt=false
 if test "$have_python" = true
 then
     dnl rpm build for libvirt PMDA needs Python libvirt and lxml modules
-    if $pcp_python_prog -c "import libvirt" >/dev/null 2>&1
+    if test "$have_python_libvirt" = true
     then
 	if $pcp_python_prog -c "import lxml" >/dev/null 2>&1
 	then
@@ -1738,7 +1749,11 @@ End-of-File
 ])
 
 pmda_perfevent=false
-AS_IF([test "x$do_perfevent" != "xno" ], [
+AS_IF([test "x$do_perfevent" = "xyes"], [
+    pmda_perfevent=true
+    pfm_libs="-lpfm"
+    AC_SUBST(PFM_LIBS, $pfm_libs)
+], [test "x$do_perfevent" != "xno" ], [
     enable_perfevent=true
 
     savedLIBS=$LIBS
@@ -1864,6 +1879,70 @@ done
 AC_SUBST(enable_selinux)
 AC_SUBST(pcp_selinux_dir)
 
+pcp_selinux_class_status=false
+pcp_selinux_cap_userns_ptrace=false
+pcp_selinux_container_runtime=false
+pcp_selinux_nsfs=false
+pcp_selinux_docker_var_lib=false
+pcp_selinux_svirt_lxc_net=false
+pcp_selinux_systemd_unit_file=false
+pcp_selinux_systemd_exec=false
+AS_IF([test "x$enable_selinux" != "xfalse"], [
+for policy_file in /etc/selinux/targeted/policy/policy.*
+do
+    if test -f "$policy_file"
+    then
+        class_status=`eval seinfo -x --class=system $policy_file | grep status | awk '{ print $1 }'`
+    	if test "x$class_status" != "x"
+	then
+	    pcp_selinux_class_status=true
+	fi
+	container_runtime=`eval seinfo -t $policy_file | grep container_runtime_t | awk '{ print $1 }'`
+	if test "x$container_runtime" != "x"
+	then
+	    pcp_selinux_container_runtime=true
+	fi
+	nsfs=`eval seinfo -t $policy_file | grep nsfs_t | awk '{ print $1 }'`
+	if test "x$nsfs" != "x"
+	then
+	    pcp_selinux_nsfs=true
+	fi
+	docker_var_lib=`eval seinfo -t $policy_file | grep docker_var_lib_t | awk '{ print $1 }'`
+	if test "x$docker_var_lib" != "x"
+	then
+	    pcp_selinux_docker_var_lib=true
+	fi
+	svirt_lxc_net=`eval seinfo -t $policy_file | grep svirt_lxc_net_t | awk '{ print $1 }'`
+	if test "x$svirt_lxc_net" != "x"
+	then
+	    pcp_selinux_svirt_lxc_net=true
+	fi
+	systemd_unit_file=`eval seinfo -t $policy_file | grep systemd_unit_file_t | awk '{ print $1 }'`
+	if test "x$systemd_unit_file" != "x"
+	then
+	    pcp_selinux_systemd_unit_file=true
+	fi
+	systemd_exec=`eval seinfo -t $policy_file | grep systemd_systemctl_exec_t | awk '{ print $1 }'`
+	if test "x$systemd_exec" != "x"
+	then
+	    pcp_selinux_systemd_exec=true
+	fi
+	cap_userns_ptrace=`eval seinfo -x --class=cap_userns $policy_file 2>&1 | grep sys_ptrace | awk '{ print $1 }'`
+    	if test "x$cap_userns_ptrace" != "x"
+	then
+	    pcp_selinux_cap_userns_ptrace=true
+	fi
+    fi
+done  
+])
+AC_SUBST(pcp_selinux_class_status)
+AC_SUBST(pcp_selinux_cap_userns_ptrace)
+AC_SUBST(pcp_selinux_container_runtime)
+AC_SUBST(pcp_selinux_nsfs)
+AC_SUBST(pcp_selinux_docker_var_lib)
+AC_SUBST(pcp_selinux_svirt_lxc_net)
+AC_SUBST(pcp_selinux_systemd_unit_file)
+AC_SUBST(pcp_selinux_systemd_exec)
 
 dnl Checks for library functions.
 AC_TYPE_SIGNAL
@@ -2277,7 +2356,7 @@ rm -rf conftest.* conftest
 
 AC_MSG_CHECKING([strtol or strtoll for int64_t])
 if test "$cross_compiling" = "yes"; then
-    ans=$strtoint64
+    ans="$strtoint64"
     echo "cross-compile -> \"$ans\"" >&5
 else
     cat <<End-of-File >conftest.c
@@ -2307,18 +2386,18 @@ fi
 case "$ans"
 in
     strtol)
-	AC_DEFINE(strtoint64, strtol)
-	AC_DEFINE(strtouint64, strtoul)
+	AC_DEFINE(strtoint64, [strtol], [Define strtoint64 as strtol])
+	AC_DEFINE(strtouint64, [strtoul], [Define strtoint64 as strtoul])
 	AC_MSG_RESULT([strtol])
 	;;
     strtoll)
-	AC_DEFINE(strtoint64, strtoll)
-	AC_DEFINE(strtouint64, strtoull)
+	AC_DEFINE(strtoint64, [strtoll], [Define strtoint64 as strtoll])
+	AC_DEFINE(strtouint64, [strtoull], [Define strtoint64 as strtoull])
 	AC_MSG_RESULT([strtoll])
 	;;
     *)
-	AC_DEFINE(strtoint64, strtoll)
-	AC_DEFINE(strtouint64, strtoull)
+	AC_DEFINE(strtoint64, [strtoll], [Default strtoint64 to strtoll])
+	AC_DEFINE(strtouint64, [strtoull], [Default strtouint64 to strtoull])
 	AC_MSG_RESULT([assuming strtoll])
 	;;
 esac
@@ -3351,6 +3430,8 @@ fi
 AC_SUBST(have_webapps)
 
 dnl Capture special options passed to configure
+pcp_prefix=`eval echo $prefix`
+AC_SUBST(pcp_prefix)
 AC_SUBST(PACKAGE_CONFIGURE)
 
 dnl

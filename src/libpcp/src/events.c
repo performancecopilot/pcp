@@ -25,6 +25,7 @@
 #include <inttypes.h>
 #include "pmapi.h"
 #include "impl.h"
+#include "internal.h"
 #include "fault.h"
 
 static void
@@ -488,9 +489,11 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":3", PM_FAULT_ALLOC);
 /*
  * Process the idx'th instance of an event record metric value
  * and unpack the array of event records into a pmResult.
+ *
+ * Internal variant of pmUnpackEventRecords() with current context ptr.
  */
-int
-pmUnpackEventRecords(pmValueSet *vsp, int idx, pmResult ***rap)
+static int
+UnpackEventRecords(__pmContext *ctxp, pmValueSet *vsp, int idx, pmResult ***rap)
 {
     pmEventArray	*eap;
     const char		caller[] = "pmUnpackEventRecords";
@@ -559,7 +562,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":4", PM_FAULT_ALLOC);
 	fprintf(stderr, "pmUnpackEventRecords returns ...\n");
 	for (r = 0; r < eap->ea_nrecords; r++) {
 	    fprintf(stderr, "pmResult[%d]\n", r);
-	    __pmDumpResult(stderr, (*rap)[r]);
+	    __pmDumpResult_ctx(ctxp, stderr, (*rap)[r]);
 	}
     }
 
@@ -573,6 +576,15 @@ bail:
     }
     free(*rap);
     *rap = NULL;
+    return sts;
+}
+
+int
+pmUnpackEventRecords(pmValueSet *vsp, int idx, pmResult ***rap)
+{
+    int	sts;
+    sts = UnpackEventRecords(NULL, vsp, idx, rap);
+    CHECK_C_LOCK;
     return sts;
 }
 

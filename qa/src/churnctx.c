@@ -9,10 +9,15 @@
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
 
-static int	nmetric;
+static int	nmetric;		/* for metric ... args */
 static char	**name = NULL;
 static pmID	*pmid = NULL;
 static pmDesc	*desc = NULL;
+
+static int	ninst;			/* for -i */
+static char	**instname = NULL;
+static int	*inst = NULL;
+static pmInDom	indom;
 
 void
 dometric(const char *new_name)
@@ -38,6 +43,27 @@ dometric(const char *new_name)
     }
     if ((sts = pmLookupDesc(pmid[nmetric-1], &desc[nmetric-1])) < 0) {
 	fprintf(stderr, "Warning: pmLookupDesc(\"%s\",...) failed: %s\n", name[nmetric-1], pmErrStr(sts));
+    }
+    if (desc[nmetric-1].indom != PM_INDOM_NULL && ninst > 0 && inst == NULL) {
+	/*
+	 * first time through for a metric with an instance domain ...
+	 * try to map the external instance names from -i to internal
+	 * instance ids
+	 */
+	int	j;
+	indom = desc[nmetric-1].indom;
+	inst = (int *)malloc(ninst*sizeof(inst[0]));
+	if (instname == NULL) {
+	    __pmNoMem("inst", ninst*sizeof(inst[0]), PM_FATAL_ERR);
+	    /* NOTREACHED */
+	}
+	for (j = 0; j < ninst; j++) {
+	    inst[j] = pmLookupInDom(indom, instname[j]);
+	    if (inst[j] < 0) {
+		fprintf(stderr, "Warning: pmLookupInDom(%s, \"%s\") failed for metric %s: %s\n", pmInDomStr(indom), instname[j], new_name, pmErrStr(inst[j]));
+		inst[j] = PM_IN_NULL;
+	    }
+	}
     }
 }
 
@@ -72,6 +98,7 @@ main(int argc, char **argv)
     char	*endnum;
     pmResult	*rp;
     char	*highwater = NULL;
+    char	*q;
     struct timeval delta = { 15, 0 };
     struct timeval startTime;
     struct timeval endTime;
@@ -85,7 +112,7 @@ main(int argc, char **argv)
     setvbuf(stdout, NULL, _IONBF, 0);
     setvbuf(stderr, NULL, _IONBF, 0);
 
-    while ((c = getopt(argc, argv, "a:A:c:D:df:h:l:Ln:O:s:S:t:T:U:vzZ:?")) != EOF) {
+    while ((c = getopt(argc, argv, "a:A:c:D:df:h:i:l:Ln:O:s:S:t:T:U:vzZ:?")) != EOF) {
 	switch (c) {
 
 	case 'a':	/* archive name */
@@ -139,6 +166,27 @@ main(int argc, char **argv)
 	    }
 	    host = optarg;
 	    type = PM_CONTEXT_HOST;
+	    break;
+
+	case 'i':	/* list of external instance names */
+	    q = optarg;
+	    while ((q = index(optarg, ',')) != NULL) {
+		ninst++;
+		instname = (char **)realloc(instname, ninst*sizeof(instname[0]));
+		if (instname == NULL) {
+		    __pmNoMem("instname", ninst*sizeof(instname[0]), PM_FATAL_ERR);
+		    /* NOTREACHED */
+		}
+		*q = '\0';
+		instname[ninst-1] = strdup(optarg);
+		optarg = &q[1];
+	    }
+	    ninst++;
+	    if (instname == NULL) {
+		__pmNoMem("instname", ninst*sizeof(instname[0]), PM_FATAL_ERR);
+		/* NOTREACHED */
+	    }
+	    instname[ninst-1] = strdup(optarg);
 	    break;
 
 	case 'L':	/* LOCAL, no PMCD */
@@ -242,6 +290,8 @@ Options:\n\
   -d             use pmDupContext [default: pmNewContext]\n\
   -f samples     pmFetch samples before churning contexts [default 1]\n\
   -h host        metrics source is PMCD on host\n\
+  -i instid[,instid...]\n\
+                 fetch some instances (1,2,...,1,2,...) each iteration\n\
   -l logfile     redirect diagnostics and trace output\n\
   -L             use local context instead of PMCD\n\
   -n pmnsfile    use an alternative PMNS\n\
@@ -413,6 +463,11 @@ Options:\n\
 	}
 
 	if (nmetric > 0) {
+	    if (ninst > 0) {
+		if ((sts = pmAddProfile(indom, ((iter-1) % ninst)+1, inst)) < 0) {
+		    fprintf(stderr, "Warning: pmAddProfile(...,%d) failed: %s\n", (iter % ninst)+1, pmErrStr(sts));
+		}
+	    }
 	    if ((sts = pmFetch(nmetric, pmid, &rp)) < 0) {
 		fprintf(stderr, "%s: pmFetch failed: %s\n", pmProgname, pmErrStr(sts));
 		exit(1);

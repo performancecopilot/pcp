@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014 Red Hat.
+ * Copyright (c) 2013-2014,2016-2017 Red Hat.
  * Copyright (c) 2008-2012 Aconex.  All Rights Reserved.
  * Copyright (c) 2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
@@ -454,6 +454,7 @@ text(int ident, int type, char **buffer, pmdaExt *pmda)
     const char *hash;
     int size;
     SV **sv;
+    HV *hv;
 
     if (need_refresh)
 	pmns_refresh();
@@ -462,21 +463,27 @@ text(int ident, int type, char **buffer, pmdaExt *pmda)
 	hash = pmIDStr((pmID)ident);
 	size = strlen(hash);
 	if (type & PM_TEXT_ONELINE)
-	    sv = hv_fetch(metric_oneline, hash, size, 0);
+	    hv = metric_oneline;
 	else
-	    sv = hv_fetch(metric_helptext, hash, size, 0);
+	    hv = metric_helptext;
     }
     else {
 	hash = pmInDomStr((pmInDom)ident);
 	size = strlen(hash);
 	if (type & PM_TEXT_ONELINE)
-	    sv = hv_fetch(indom_oneline, hash, size, 0);
+	    hv = indom_oneline;
 	else
-	    sv = hv_fetch(indom_helptext, hash, size, 0);
+	    hv = indom_helptext;
     }
+    if (hv_exists(hv, hash, size))
+	sv = hv_fetch(hv, hash, size, 0);
+    else
+	sv = NULL;
 
     if (sv && (*sv))
 	*buffer = SvPV_nolen(*sv);
+    else
+	*buffer = NULL;
     return (*buffer == NULL) ? PM_ERR_TEXT : 0;
 }
 
@@ -1016,12 +1023,13 @@ add_indom(self,indom,insts,help,longhelp)
 	    itab_size = 0;
 	    XSRETURN_UNDEF;
 	}
+	indom = pmInDom_build(self->domain, indom);
 
 	p = indomtab + itab_size;
 	memset(p, 0, sizeof(pmdaIndom));
-	p->it_indom = pmInDom_build(self->domain, indom);
+	p->it_indom = indom;
 
-	sts = update_indom(insts, p->it_indom, &p->it_set);
+	sts = update_indom(insts, indom, &p->it_set);
 	if (sts < 0)
 	    XSRETURN_UNDEF;
 	p->it_numinst = sts;

@@ -2,7 +2,7 @@
 # PCP QA Test No. 1080
 # Exercise pcp-atop functionality.
 #
-# Copyright (c) 2015 Red Hat.
+# Copyright (c) 2015,2017 Red Hat.
 #
 
 seq=`basename $0`
@@ -41,6 +41,8 @@ _run_valgrind $ATOP 1 3 \
 	| tee -a $here/$seq.full | _filter
 export PCP_ORIGIN=1.1
 _run_valgrind $ATOP -r $here/archives/pcp-atop.folio \
+	| tee -a $here/$seq.full | _filter
+_run_valgrind $ATOP -r $here/archives/pcp-zeroconf 1 15 \
 	| tee -a $here/$seq.full | _filter
 
 # success, all done
