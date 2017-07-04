@@ -32,9 +32,9 @@ require {
 	type debugfs_t; # pmdalibvirt
 	type unconfined_t; #RHBZ1443632
 	type devlog_t; #RHBZ1449671
-	type unreserved_port_t;
+	@PCP_UNRESERVED_PORT@
 	type user_tmp_t;
-	type tracefs_t;
+	@PCP_TRACEFS@
 	class lnk_file { read getattr };
 	class file { append create execute execute_no_trans getattr ioctl lock open read write };
 	class dir { add_name open read search write getattr };
@@ -109,7 +109,7 @@ allow pcp_pmcd_t pcp_log_t:fifo_file { getattr read open }; # qa/455
 
 #type=AVC msg=audit(1498835003.745:8276): avc:  denied  { name_bind } for  pid=7079 comm="pmdasimple" src=5650 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:unreserved_port_t:s0 tclass=tcp_socket permissive=0
 #type=AVC msg=audit(1498835005.744:8277): avc:  denied  { name_connect } for  pid=29238 comm="pmcd" dest=5650 scontex =system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:unreserved_port_t:s0 tclass=tcp_socket permissive=0
-allow pcp_pmcd_t unreserved_port_t:tcp_socket { name_bind name_connect };
+@PCP_UNRESERVED_PORT_RULE@
 
 #type=AVC msg=audit(1498835613.883:11808): avc:  denied  { unix_read } for  pid=14552 comm="pmdalinux" key=0  scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 tclass=shm permissive=0
 #type=AVC msg=audit(1498846768.313:12024): avc:  denied  { getattr associate } for  pid=8128 comm="pmdalinux" key=0  scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 tclass=shm permissive=0
@@ -132,16 +132,16 @@ allow pcp_pmcd_t pcp_tmp_t:file { execute execute_no_trans };
 allow pcp_pmcd_t hostname_exec_t:file { getattr execute read open execute_no_trans };
 
 #type=AVC msg=audit(1498845911.359:7642): avc:  denied  { mount } for  pid=22090 comm="pmdaperfevent" name="/" dev="tracefs" ino=1 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:tracefs_t:s0 tclass=filesystem permissive=0
-allow pcp_pmcd_t tracefs_t:filesystem mount;
+@PCP_TRACEFS_FS_RULE@
 
 #type=AVC msg=audit(1498845911.360:7643): avc:  denied  { search } for  pid=22090 comm="pmdaperfevent" name="/" dev="tracefs" ino=1 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:tracefs_t:s0 tclass=dir permissive=0
 #type=AVC msg=audit(1498845911.360:7644): avc:  denied  { read } for  pid=22090 comm="pmdaperfevent" name="events" dev="tracefs" ino=176 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:tracefs_t:s0 tclass=dir permissive=0
 #type=AVC msg=audit(1498845911.360:7645): avc:  denied  { open } for  pid=22090 comm="pmdaperfevent" path="/sys/kernel/debug/tracing/events" dev="tracefs" ino=176 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:tracefs_t:s0 tclass=dir permissive=0
-allow pcp_pmcd_t tracefs_t:dir { search read open };
+@PCP_TRACEFS_DIR_RULE@
 
 #type=AVC msg=audit(1498845911.360:7646): avc:  denied  { read } for  pid=22090 comm="pmdaperfevent" name="id" dev="tracefs" ino=321619 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:tracefs_t:s0 tclass=file permissive=0
 #type=AVC msg=audit(1498845911.360:7647): avc:  denied  { open } for  pid=22090 comm="pmdaperfevent" path="/sys/kernel/debug/tracing/events/gfs2/gfs2_glock_state_change/id" dev="tracefs" ino=321619 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:tracefs_t:s0 tclass=file permissive=0
-allow pcp_pmcd_t tracefs_t:file { read open };
+@PCP_TRACEFS_FILE_RULE@
 
 
 #============= pcp_pmlogger_t ==============
@@ -224,7 +224,7 @@ allow pcp_pmproxy_t sysctl_net_t:dir search;
 #============= pcp_pmmgr_t ==============
 
 #type=AVC msg=audit(1498835526.281:10254): avc:  denied  { name_bind } for  pid=13114 comm="pmlogger" src=4332 scontext=system_u:system_r:pcp_pmmgr_t:s0 tcontext=system_u:object_r:unreserved_port_t:s0 tclass=tcp_socket permissive=0
-allow pcp_pmmgr_t unreserved_port_t:tcp_socket name_bind;
+@PCP_UNRESERVED_PORT_RULE_PMMGR@
 
 #type=AVC msg=audit(1498835400.826:9769): avc:  denied  { connectto } for  pid=16715 comm="pmmgr" path="/run/pcp/pmcd.socket" scontext=system_u:system_r:pcp_pmmgr_t:s0 tcontext=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 tclass=unix_stream_socket permissive=0
 allow pcp_pmmgr_t unconfined_t:unix_stream_socket connectto;

@@ -249,7 +249,7 @@ ENABLE_MANAGER = @enable_manager@
 ENABLE_WEBAPI = @enable_webapi@
 ENABLE_SELINUX = @enable_selinux@
 
-# selinux configuraiton bits
+# selinux configuration bits
 PCP_SELINUX_CLASS_STATUS = @pcp_selinux_class_status@
 PCP_SELINUX_CAP_USERNS_PTRACE = @pcp_selinux_cap_userns_ptrace@
 PCP_SELINUX_CONTAINER_RUNTIME = @pcp_selinux_container_runtime@
@@ -258,7 +258,8 @@ PCP_SELINUX_DOCKER_VAR_LIB = @pcp_selinux_docker_var_lib@
 PCP_SELINUX_SVIRT_LXC_NET = @pcp_selinux_svirt_lxc_net@
 PCP_SELINUX_SYSTEMD_UNIT_FILE = @pcp_selinux_systemd_unit_file@
 PCP_SELINUX_SYSTEMD_EXEC = @pcp_selinux_systemd_exec@
-
+PCP_SELINUX_UNRESERVED_PORT = @pcp_selinux_unreserved_port@
+PCP_SELINUX_TRACEFS = @pcp_selinux_tracefs@
 
 # for code supporting any modern version of perl
 HAVE_PERL = @have_perl@
