@@ -1,3 +1,10 @@
+pcp (3.12.0) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+  * Fix some python2/python3 packaging issues (closes: #866520)
+
+ -- Nathan Scott <nathans@debian.org>  Fri, 30 Jun 2017 10:30:27 +1000
+
 pcp (3.11.10-0+dschinn1) dschinn-backports; urgency=low
 
   * Uploading to dschinn-backports, remaining changes:
