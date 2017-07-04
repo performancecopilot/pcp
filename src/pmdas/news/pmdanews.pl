@@ -29,7 +29,7 @@ use vars qw( $total $news_regex %news_hash @news_count @news_last );
 my ($nnrpd_count, $rn_count, $trn_count, $xrn_count, $vn_count) = (0,0,0,0,0);
 my $news_file = pmda_config('PCP_PMDAS_DIR') . '/news/active';
 my $news_indom = 0;
-my $ps_command = pmda_config('PCP_PS_PROG') . ' -' . pmda_config('PCP_PS_ALL_FLAGS') . ' |';
+my $ps_command = pmda_config('PCP_PS_PROG') . ' ' . pmda_config('PCP_PS_ALL_FLAGS') . ' |';
 my $pmda;
 
 sub news_fetch		# called once per ``fetch'' pdu, before callbacks
