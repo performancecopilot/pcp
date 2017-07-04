@@ -1166,7 +1166,7 @@ AC_SUBST(qmake)
 
 enable_qt3d=false
 AS_IF([test "x$do_qt3d" != "xno"], [
-    if test -f /usr/include/Coin3/Inventor/Qt/SoQt.h
+    if test -f /usr/include/Coin3/Inventor/Qt/SoQt.h -o -f /usr/include/Inventor/Qt/SoQt.h
     then
 	enable_qt3d=$enable_qt
     elif test x"$do_qt3d" = x"yes"
