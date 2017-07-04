@@ -45,6 +45,7 @@
 #include "proc_net_dev.h"
 #include "proc_net_rpc.h"
 #include "proc_net_sockstat.h"
+#include "proc_net_sockstat6.h"
 #include "proc_net_tcp.h"
 #include "proc_partitions.h"
 #include "proc_net_netstat.h"
@@ -69,6 +70,7 @@ static proc_loadavg_t		proc_loadavg;
 static proc_net_rpc_t		proc_net_rpc;
 static proc_net_tcp_t		proc_net_tcp;
 static proc_net_sockstat_t	proc_net_sockstat;
+static proc_net_sockstat6_t	proc_net_sockstat6;
 static struct utsname		kernel_uname;
 static char 			uname_string[sizeof(kernel_uname)];
 static proc_slabinfo_t		proc_slabinfo;
@@ -522,8 +524,8 @@ static pmdaMetric metrictab[] = {
 
 /* disk.dev.scheduler */
     { NULL, 
-      { PMDA_PMID(CLUSTER_STAT,59), PM_TYPE_STRING, DISK_INDOM,
-	PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+      { PMDA_PMID(CLUSTER_STAT,59), PM_TYPE_STRING, DISK_INDOM, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
 /* disk.dev.read_rawactive */
     { NULL, 
@@ -1521,22 +1523,22 @@ static pmdaMetric metrictab[] = {
 
 /* network.interface.inet_addr */
     { NULL, 
-      { PMDA_PMID(CLUSTER_NET_ADDR,0), PM_TYPE_STRING, NET_ADDR_INDOM, PM_SEM_INSTANT, 
+      { PMDA_PMID(CLUSTER_NET_ADDR,0), PM_TYPE_STRING, NET_ADDR_INDOM, PM_SEM_DISCRETE, 
       PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
 /* network.interface.ipv6_addr */
     { NULL, 
-      { PMDA_PMID(CLUSTER_NET_ADDR,1), PM_TYPE_STRING, NET_ADDR_INDOM, PM_SEM_INSTANT, 
+      { PMDA_PMID(CLUSTER_NET_ADDR,1), PM_TYPE_STRING, NET_ADDR_INDOM, PM_SEM_DISCRETE, 
       PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
 /* network.interface.ipv6_scope */
     { NULL, 
-      { PMDA_PMID(CLUSTER_NET_ADDR,2), PM_TYPE_STRING, NET_ADDR_INDOM, PM_SEM_INSTANT, 
+      { PMDA_PMID(CLUSTER_NET_ADDR,2), PM_TYPE_STRING, NET_ADDR_INDOM, PM_SEM_DISCRETE, 
       PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
 /* network.interface.hw_addr */
     { NULL, 
-      { PMDA_PMID(CLUSTER_NET_ADDR,3), PM_TYPE_STRING, NET_ADDR_INDOM, PM_SEM_INSTANT, 
+      { PMDA_PMID(CLUSTER_NET_ADDR,3), PM_TYPE_STRING, NET_ADDR_INDOM, PM_SEM_DISCRETE, 
       PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
 /*
@@ -1675,50 +1677,95 @@ static pmdaMetric metrictab[] = {
  * socket stat cluster
  */
 
+/* network.sockstat.total */
+  { &proc_net_sockstat.total,
+    { PMDA_PMID(CLUSTER_NET_SOCKSTAT,9), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
 /* network.sockstat.tcp.inuse */
-  { &proc_net_sockstat.tcp[_PM_SOCKSTAT_INUSE],
+  { &proc_net_sockstat.tcp_inuse,
     { PMDA_PMID(CLUSTER_NET_SOCKSTAT,0), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
-/* network.sockstat.tcp.highest */
-  { &proc_net_sockstat.tcp[_PM_SOCKSTAT_HIGHEST],
-    { PMDA_PMID(CLUSTER_NET_SOCKSTAT,1), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT,
+/* network.sockstat.tcp.orphan */
+  { &proc_net_sockstat.tcp_orphan,
+    { PMDA_PMID(CLUSTER_NET_SOCKSTAT,10), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
-/* network.sockstat.tcp.util */
-  { &proc_net_sockstat.tcp[_PM_SOCKSTAT_UTIL],
-    { PMDA_PMID(CLUSTER_NET_SOCKSTAT,2), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT,
-    PMDA_PMUNITS(0,0,0,0,0,0) } },
+/* network.sockstat.tcp.tw */
+  { &proc_net_sockstat.tcp_tw,
+    { PMDA_PMID(CLUSTER_NET_SOCKSTAT,11), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.sockstat.tcp.alloc */
+  { &proc_net_sockstat.tcp_alloc,
+    { PMDA_PMID(CLUSTER_NET_SOCKSTAT,12), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.sockstat.tcp.mem */
+  { &proc_net_sockstat.tcp_mem,
+    { PMDA_PMID(CLUSTER_NET_SOCKSTAT,13), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /* network.sockstat.udp.inuse */
-  { &proc_net_sockstat.udp[_PM_SOCKSTAT_INUSE],
+  { &proc_net_sockstat.udp_inuse,
     { PMDA_PMID(CLUSTER_NET_SOCKSTAT,3), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
-/* network.sockstat.udp.highest */
-  { &proc_net_sockstat.udp[_PM_SOCKSTAT_HIGHEST],
-    { PMDA_PMID(CLUSTER_NET_SOCKSTAT,4), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT,
+/* network.sockstat.udp.mem */
+  { &proc_net_sockstat.udp_mem,
+    { PMDA_PMID(CLUSTER_NET_SOCKSTAT,14), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
-/* network.sockstat.udp.util */
-  { &proc_net_sockstat.udp[_PM_SOCKSTAT_UTIL],
-    { PMDA_PMID(CLUSTER_NET_SOCKSTAT,5), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT,
-    PMDA_PMUNITS(0,0,0,0,0,0) } },
+/* network.sockstat.udplite.inuse */
+  { &proc_net_sockstat.udplite_inuse,
+    { PMDA_PMID(CLUSTER_NET_SOCKSTAT,8), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /* network.sockstat.raw.inuse */
-  { &proc_net_sockstat.raw[_PM_SOCKSTAT_INUSE],
+  { &proc_net_sockstat.raw_inuse,
     { PMDA_PMID(CLUSTER_NET_SOCKSTAT,6), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
-/* network.sockstat.raw.highest */
-  { &proc_net_sockstat.raw[_PM_SOCKSTAT_HIGHEST],
-    { PMDA_PMID(CLUSTER_NET_SOCKSTAT,7), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT,
+/* network.sockstat.frag.inuse */
+  { &proc_net_sockstat.frag_inuse,
+    { PMDA_PMID(CLUSTER_NET_SOCKSTAT,15), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
-/* network.sockstat.raw.util */
-  { &proc_net_sockstat.raw[_PM_SOCKSTAT_UTIL],
-    { PMDA_PMID(CLUSTER_NET_SOCKSTAT,8), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT,
-    PMDA_PMUNITS(0,0,0,0,0,0) } },
+/* network.sockstat.frag.memory */
+  { &proc_net_sockstat.frag_memory,
+    { PMDA_PMID(CLUSTER_NET_SOCKSTAT,16), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.sockstat.tcp6.inuse */
+  { &proc_net_sockstat6.tcp6_inuse,
+    { PMDA_PMID(CLUSTER_NET_SOCKSTAT6,0), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.sockstat.udp6.inuse */
+  { &proc_net_sockstat6.udp6_inuse,
+    { PMDA_PMID(CLUSTER_NET_SOCKSTAT6,1), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.sockstat.udplite6.inuse */
+  { &proc_net_sockstat6.udplite6_inuse,
+    { PMDA_PMID(CLUSTER_NET_SOCKSTAT6,2), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.sockstat.raw6.inuse */
+  { &proc_net_sockstat6.raw6_inuse,
+    { PMDA_PMID(CLUSTER_NET_SOCKSTAT6,3), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.sockstat.frag6.inuse */
+  { &proc_net_sockstat6.frag6_inuse,
+    { PMDA_PMID(CLUSTER_NET_SOCKSTAT6,4), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.sockstat.frag6.memory */
+  { &proc_net_sockstat6.frag6_memory,
+    { PMDA_PMID(CLUSTER_NET_SOCKSTAT6,5), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /*
  * nfs cluster
@@ -2079,17 +2126,17 @@ static pmdaMetric metrictab[] = {
 
 /* kernel.uname.release */
   { kernel_uname.release,
-    { PMDA_PMID(CLUSTER_KERNEL_UNAME, 0), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_INSTANT, 
+    { PMDA_PMID(CLUSTER_KERNEL_UNAME, 0), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE, 
     PMDA_PMUNITS(0,0,0,0,0,0) } },
 
 /* kernel.uname.version */
   { kernel_uname.version,
-    { PMDA_PMID(CLUSTER_KERNEL_UNAME, 1), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_INSTANT, 
+    { PMDA_PMID(CLUSTER_KERNEL_UNAME, 1), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE, 
     PMDA_PMUNITS(0,0,0,0,0,0) } },
 
 /* kernel.uname.sysname */
   { kernel_uname.sysname,
-    { PMDA_PMID(CLUSTER_KERNEL_UNAME, 2), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_INSTANT, 
+    { PMDA_PMID(CLUSTER_KERNEL_UNAME, 2), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE, 
     PMDA_PMUNITS(0,0,0,0,0,0) } },
 
 /* kernel.uname.machine */
@@ -2099,22 +2146,22 @@ static pmdaMetric metrictab[] = {
 
 /* kernel.uname.nodename */
   { kernel_uname.nodename,
-    { PMDA_PMID(CLUSTER_KERNEL_UNAME, 4), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_INSTANT, 
+    { PMDA_PMID(CLUSTER_KERNEL_UNAME, 4), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE, 
     PMDA_PMUNITS(0,0,0,0,0,0) } },
 
 /* pmda.uname */
   { NULL,
-    { PMDA_PMID(CLUSTER_KERNEL_UNAME, 5), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_INSTANT, 
+    { PMDA_PMID(CLUSTER_KERNEL_UNAME, 5), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE, 
     PMDA_PMUNITS(0,0,0,0,0,0) } },
 
 /* pmda.version */
   { NULL,
-    { PMDA_PMID(CLUSTER_KERNEL_UNAME, 6), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_INSTANT, 
+    { PMDA_PMID(CLUSTER_KERNEL_UNAME, 6), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE, 
     PMDA_PMUNITS(0,0,0,0,0,0) } },
 
 /* kernel.uname.distro */
   { NULL,
-    { PMDA_PMID(CLUSTER_KERNEL_UNAME, 7), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_INSTANT, 
+    { PMDA_PMID(CLUSTER_KERNEL_UNAME, 7), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE, 
     PMDA_PMUNITS(0,0,0,0,0,0) } },
 
 /*
@@ -5250,7 +5297,7 @@ typedef struct {
 
 typedef struct {
     linux_container_t	container;
-    linux_access_t            access;
+    linux_access_t	access;
 } perctx_t;
 
 static perctx_t *ctxtab;
@@ -5322,6 +5369,9 @@ linux_refresh(pmdaExt *pmda, int *need_refresh, int context)
 
     if (need_refresh[CLUSTER_NET_SOCKSTAT])
 	refresh_proc_net_sockstat(&proc_net_sockstat);
+
+    if (need_refresh[CLUSTER_NET_SOCKSTAT6])
+	refresh_proc_net_sockstat6(&proc_net_sockstat6);
 
     if (need_refresh[CLUSTER_NET_SNMP])
 	refresh_proc_net_snmp(&_pm_proc_net_snmp);
@@ -7614,11 +7664,14 @@ linux_attribute(int ctx, int attr, const char *value, int len, pmdaExt *pmda)
 	ctxtab[ctx].access.uid = id = atoi(value);
     }
     if (attr == PCP_ATTR_CONTAINER) {
+	char	*name = len > 1 ? strndup(value, len) : 0;
+
 	if (ctxtab[ctx].container.name)
 	    free(ctxtab[ctx].container.name);
-	if ((ctxtab[ctx].container.name = strdup(value)) == NULL)
-	    return -ENOMEM;
-	ctxtab[ctx].container.length = len;
+	if ((ctxtab[ctx].container.name = name) != NULL)
+	    ctxtab[ctx].container.length = len;
+	else
+	    ctxtab[ctx].container.length = 0;
 	ctxtab[ctx].container.netfd = -1;
 	ctxtab[ctx].container.pid = 0;
     }

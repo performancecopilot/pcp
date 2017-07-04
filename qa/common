@@ -671,12 +671,15 @@ BEGIN	{ for (t='$start'; t<='$end'; t++) printf "%03d\n",t }' \
 	    # if test not present, silently forget about it
 	    if [ ! -f $id ]
 	    then
-		if [ $id = $start ]
+		if [ "$iam" != "show-me" ]
 		then
-		    echo "$id - no such test, skipped"
-		elif [ $id = $end ]
-		then
-		    echo "$id - no such test, skipped"
+		    if [ $id = $start ]
+		    then
+			echo "$id - no such test, skipped"
+		    elif [ $id = $end ]
+		    then
+			echo "$id - no such test, skipped"
+		    fi
 		fi
 		continue
 	    fi

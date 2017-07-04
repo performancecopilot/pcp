@@ -1,7 +1,7 @@
 /*
  * pmprobe - light-weight pminfo for configuring monitor apps
  *
- * Copyright (c) 2013-2016 Red Hat.
+ * Copyright (c) 2013-2017 Red Hat.
  * Copyright (c) 2000-2001 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -43,6 +43,7 @@ static pmLongOptions longopts[] = {
     PMOPT_HELP,
     PMAPI_OPTIONS_HEADER("Reporting options"),
     { "force", 0, 'f', 0, "report all pmGetIndom or pmGetInDomArchive instances" },
+    { "faster", 0, 'F', 0, "assume given metric names are PMNS leaf nodes" },
     { "external", 0, 'I', 0, "list external instance names" },
     { "internal", 0, 'i', 0, "list internal instance numbers" },
     { "verbose", 0, 'V', 0, "report PDU operations (verbose)" },
@@ -60,7 +61,7 @@ overrides(int opt, pmOptions *opts)
 
 static pmOptions opts = {
     .flags = PM_OPTFLAG_STDOUT_TZ,
-    .short_options = "a:D:efh:IiK:Ln:O:VvZ:z?",
+    .short_options = "a:D:efh:IiK:Ln:FO:VvZ:z?",
     .long_options = longopts,
     .short_usage = "[options] [metricname ...]",
     .override = overrides,
@@ -113,8 +114,10 @@ main(int argc, char **argv)
 {
     int		c, i, j, sts;
     int		fetch_sts;
+    int		fetched;
     int		numinst;
     int		fflag = 0;		/* -f pmGetIndom or pmGetIndomArchive for instances */
+    int		Fflag = 0;		/* -F for fast leaf names access */
     int		iflag = 0;		/* -i for instance numbers */
     int		Iflag = 0;		/* -I for instance names */
     int		vflag = 0;		/* -v for values */
@@ -145,6 +148,10 @@ main(int argc, char **argv)
 		opts.errors++;
 	    }
 	    Iflag++;
+	    break;
+
+	case 'F':	/* optimised access to leaf names */
+	    Fflag++;
 	    break;
 
 	case 'd':	/* version (d'oh - 'V' already in use) */
@@ -210,6 +217,10 @@ main(int argc, char **argv)
 
     if (opts.optind >= argc)
 	pmTraversePMNS("", dometric);
+    else if (Fflag) {
+	for (i = opts.optind; i < argc; i++)
+	    dometric(argv[i]);
+    }
     else {
 	for (i = opts.optind; i < argc; i++) {
 	    sts = pmTraversePMNS(argv[i], dometric);
@@ -238,7 +249,7 @@ main(int argc, char **argv)
 	numpmid = j;
     }
 
-    fetch_sts = 0;
+    fetch_sts = fetched = 0;
     for (i = 0; i < numpmid; i++) {
 	printf("%s ", namelist[i]);
 
@@ -291,8 +302,9 @@ main(int argc, char **argv)
 	    fetch_sts = pmFetch(1, &pmidlist[i], &result);
 	}
 	else {
-	    if (i == 0)
+	    if (!fetched)
 		fetch_sts = pmFetch(numpmid, pmidlist, &result);
+	    fetched = 1;
 	}
 
 	if (fetch_sts < 0) {

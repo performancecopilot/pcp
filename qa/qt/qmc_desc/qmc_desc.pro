@@ -11,3 +11,4 @@ LIBS            += -L../../../src/libpcp_qmc/src
 LIBS            += -L../../../src/libpcp_qmc/src/$$DESTDIR
 LIBS            += -lpcp_qmc -lpcp
 QT		-= gui
+QMAKE_CXXFLAGS	+= $$(PCP_CFLAGS)

@@ -1,6 +1,6 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2013-2016 Red Hat, Inc.  All Rights Reserved.
+.\" Copyright (c) 2013-2017 Red Hat, Inc.  All Rights Reserved.
 .\" 
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -25,6 +25,7 @@
 [\f3\-c\f1 \f2number\f1]
 [\f3\-h\f1 \f2hostname\f1]
 [\f3\-a\f1 \f2archive\f1]
+[\f3\-C\f1]
 [\f3\-P\f1]
 [\f3\-L\f1]
 [\f3\-N\f1]
@@ -155,6 +156,16 @@ to the given host (with an extended syntax as given in
 .BR PCPIntro (1)),
 or archive file, or the PM_CONTEXT_LOCAL.
 .TP
+\f3\-C\f1
+Mandatory authentication mode, where all host specifications at context
+creation time must be accompanied by credentials (username and password).
+These are then passed to
+.BR pmcd (1)
+when creating the context.
+In addition, subsequent PMAPI context operations require matching
+HTTP Basic authentication credentials.
+This setting is incompatible with the permissive mode of operation.
+.TP
 \f3\-P\f1
 Run in permissive mode, allowing Unix domain socket connections and/or
 local PMDA contexts.
@@ -170,6 +181,7 @@ clients will be able to access
 potentially sensitive performance metric values which an unauthenticated
 .BR PMAPI (3)
 client usually would not be able to.
+Refer to CVE-2012-3419 for additional details.
 .TP
 \f3\-N\f1
 Disable creation of new PMWEBAPI contexts via HTTP requests, leaving only

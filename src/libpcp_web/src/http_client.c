@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014,2016 Red Hat.
+ * Copyright (c) 2014,2016-2017 Red Hat.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -62,10 +62,8 @@ http_client_connectunix(const char *path, struct timeval *timeout)
     /* Attempt to connect */
     fdFlags = __pmConnectTo(fd, myAddr, -1);
     __pmSockAddrFree(myAddr);
-    if (fdFlags < 0) {
-	__pmCloseSocket(fd);
+    if (fdFlags < 0)
 	return -ECONNREFUSED;
-    }
 
     /* FNDELAY and we're in progress - wait on select */
     stv = *timeout;
@@ -155,14 +153,8 @@ http_client_connectto(const char *host, int port, struct timeval *timeout)
 	/* Attempt to connect */
 	fdFlags[fd] = __pmConnectTo(fd, myAddr, port);
 	__pmSockAddrFree(myAddr);
-	if (fdFlags[fd] < 0) {
-	    /*
-	     * Mark failure in case we fall out the end of the loop
-	     * and try next address
-	     */
-	    __pmCloseSocket(fd);
+	if (fdFlags[fd] < 0)
 	    continue;
-	}
 
 	/* Add it to the fd set. */
 	__pmFD_SET(fd, &allFds);

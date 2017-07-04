@@ -1,5 +1,5 @@
 Name:    pcp
-Version: 3.11.10
+Version: 3.12.0
 Release: 1%{?dist}
 Summary: System-level performance monitoring and performance management
 License: GPLv2+ and LGPLv2.1+ and CC-BY
@@ -200,6 +200,7 @@ Obsoletes: pcp-gui-debuginfo
 %global _pmdasdir %{_localstatedir}/lib/pcp/pmdas
 %global _testsdir %{_localstatedir}/lib/pcp/testsuite
 %global _selinuxdir %{_localstatedir}/lib/pcp/selinux
+%global _logconfdir %{_localstatedir}/lib/pcp/config/pmlogconf
 %global _pixmapdir %{_datadir}/pcp-gui/pixmaps
 %global _booksdir %{_datadir}/doc/pcp-doc
 
@@ -226,15 +227,17 @@ Obsoletes: pcp-gui-debuginfo
 %endif
 %endif
 
-%if %{disable_infiniband}
-%global _with_ib --with-infiniband=no
+%if !%{disable_infiniband}
+%global _with_ib --with-infiniband=yes
 %endif
 
 %if !%{disable_papi}
 %global _with_papi --with-papi=yes
 %endif
 
-%if !%{disable_perfevent}
+%if %{disable_perfevent}
+%global _with_perfevent --with-perfevent=no
+%else
 %global _with_perfevent --with-perfevent=yes
 %endif
 
@@ -1359,12 +1362,12 @@ URL: http://www.pcp.io
 %if !%{disable_python3}
 Requires: python3-pcp
 Requires: libvirt-python3 python3-lxml
-BuildRequires: libvirt-python3
+BuildRequires: libvirt-python3 python3-lxml
 %else
 Requires: python-pcp
 Requires: libvirt-python python-lxml
 %if 0%{?rhel} == 0 || 0%{?rhel} > 5
-BuildRequires: libvirt-python
+BuildRequires: libvirt-python python-lxml
 %endif
 %endif
 %description pmda-libvirt
@@ -1384,9 +1387,11 @@ URL: http://www.pcp.io
 %if !%{disable_python3}
 Requires: python3-pcp
 Requires: python3-rtslib
+BuildRequires: python3-rtslib
 %else
 Requires: python-pcp
 Requires: python-rtslib
+BuildRequires: python-rtslib
 %endif
 %description pmda-lio
 This package provides a PMDA to gather performance metrics from the kernels
@@ -1395,6 +1400,30 @@ kernels configfs filesystem. The PMDA provides per LUN level stats, and a
 summary instance per iSCSI target, which aggregates all LUN metrics within the
 target.
 #end pcp-pmda-lio
+
+#
+# pcp-pmda-prometheus
+#
+%package pmda-prometheus
+License: GPLv2+
+Group: Applications/System
+Summary: Performance Co-Pilot (PCP) metrics from Prometheus endpoints
+URL: http://www.pcp.io
+Requires: pcp-libs = %{version}-%{release}
+%if !%{disable_python3}
+Requires: python3-pcp
+Requires: python3-requests
+BuildRequires: python3-requests
+%else
+Requires: python-pcp
+Requires: python-requests
+BuildRequires: python-requests
+%endif
+
+%description pmda-prometheus
+This package contains the PCP Performance Metrics Domain Agent (PMDA) for
+extracting statistics from programs instrumented as Prometheus endpoints.
+#end pcp-pmda-prometheus
 
 %endif # !%{disable_python2} || !%{disable_python3}
 
@@ -1707,7 +1736,8 @@ Requires: pcp-pmda-lustrecomm pcp-pmda-logger pcp-pmda-docker pcp-pmda-bind2
 Requires: pcp-pmda-nutcracker
 %endif
 %if !%{disable_python2} || !%{disable_python3}
-Requires: pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound pcp-pmda-mic pcp-pmda-libvirt pcp-pmda-lio
+Requires: pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound pcp-pmda-mic
+Requires: pcp-pmda-libvirt pcp-pmda-lio pcp-pmda-prometheus
 %endif
 %if !%{disable_snmp}
 Requires: pcp-pmda-snmp
@@ -1875,6 +1905,7 @@ Group: Applications/System
 Summary: Selinux policy package
 URL: http://www.pcp.io
 BuildRequires: selinux-policy-devel
+BuildRequires: selinux-policy-targeted
 %if 0%{?rhel} == 5
 BuildRequires: setools
 %else
@@ -2072,7 +2103,10 @@ ls -1 $RPM_BUILD_ROOT/%{_pixmapdir} |\
 cat base_bin.list base_exec.list |\
   grep -E "$PCP_GUI" >> pcp-gui.list
 %endif
-cat base_pmdas.list base_bin.list base_exec.list |\
+ls -1 $RPM_BUILD_ROOT/%{_logconfdir}/ |\
+    sed -e 's#^#'%{_logconfdir}'\/#' |\
+    grep -E -v 'zeroconf' >pcp-logconf.list
+cat base_pmdas.list base_bin.list base_exec.list pcp-logconf.list |\
   grep -E -v 'pmdaib|pmmgr|pmweb|pmsnap|2pcp|pmdas/systemd' |\
   grep -E -v "$PCP_GUI|pixmaps|pcp-doc|tutorials|selinux" |\
   grep -E -v %{_confdir} | grep -E -v %{_logsdir} > base.list
@@ -2265,6 +2299,9 @@ fi
 
 %preun pmda-lio
 %{pmda_remove "$1" "lio"}
+
+%preun pmda-prometheus
+%{pmda_remove "$1" "prometheus"}
 
 %preun pmda-lustre
 %{pmda_remove "$1" "lustre"}
@@ -2629,7 +2666,6 @@ cd
 %{_localstatedir}/lib/pcp/config/pmieconf
 %dir %attr(0775,pcp,pcp) %{_localstatedir}/lib/pcp/config/pmlogger
 %{_localstatedir}/lib/pcp/config/pmlogger/*
-%{_localstatedir}/lib/pcp/config/pmlogconf
 %{_localstatedir}/lib/pcp/config/pmlogrewrite
 %dir %attr(0775,pcp,pcp) %{_localstatedir}/lib/pcp/config/pmda
 
@@ -2676,6 +2712,8 @@ cd
 %{_libdir}/libpcp_trace.so
 %{_libdir}/libpcp_import.so
 %{_libdir}/libpcp_web.so
+%{_libdir}/pkgconfig/libpcp.pc
+%{_libdir}/pkgconfig/libpcp_pmda.pc
 %{_includedir}/pcp/*.h
 
 %files devel -f devel.list
@@ -2812,6 +2850,9 @@ cd
 
 %files pmda-lio
 %{_pmdasdir}/lio
+
+%files pmda-prometheus
+%{_pmdasdir}/prometheus
 
 %files pmda-lustre
 %{_pmdasdir}/lustre
@@ -3012,6 +3053,18 @@ cd
 %endif
 
 %changelog
+* Fri Jun 30 2017 Lukas Berk <lberk@redhat.com> - 3.12.0-1
+- Fix pcp-atop failure in open-ended write mode (BZ 1431292)
+- Resolve additional selinux policy issues (BZ 1317515)
+- Improve poor pmlogconf performance (BZ1376857)
+- Update to latest PCP Sources.
+
+* Mon Jun 05 2017 Jitka Plesnikova <jplesnik@redhat.com> - 3.11.10-3
+- Perl 5.26 rebuild
+
+* Fri Jun 2 2017 Lukas Berk <lberk@redhat.com> - 3.11.10-2
+- Correct subrpm inclusion of zeroconf config files (BZ 1456262)
+
 * Wed May 17 2017 Dave Brolley <brolley@redhat.com> - 3.11.10-1
 - python api: handle non-POSIXLY_CORRECT getopt cases (BZ 1289912)
 - Fix pmchart reaction to timezone changes from pmtime (BZ 968823)

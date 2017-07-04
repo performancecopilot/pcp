@@ -83,14 +83,13 @@ setup_context(void)
 	exit(1);
     }
     /*
-     * Note: ctxp->c_lock remains locked throughout ... setup_context()
-     *       is only called once, and a single context is used throughout
-     *       to "fake" out the connection to the current PMDA ... so
-     *       there is no PM_UNLOCK(ctxp->c_lock) anywhere in the dbpmda
-     *       code.
-     *       This works because ctxp->c_lock is a recursive lock and
-     *       dbpmda is single-threaded.
+     * Note: This application is single threaded, and once we have ctxp
+     *	     the associated __pmContext will not move and will only be
+     *	     accessed or modified synchronously either here or in libpcp.
+     *	     We unlock the context so that it can be locked as required
+     *	     within libpcp.
      */
+    PM_UNLOCK(ctxp->c_lock);
 
 #ifdef PM_MULTI_THREAD
     /* need to be careful about the initialized lock */

@@ -70,7 +70,6 @@ _proc_filter()
 	-e 's/^ //' \
 	-e 's/ $//' \
 	-e 's/fd=[0-9][0-9]*/fd=N/g' \
-	-e 's/refcnt=[0-9]/refcnt=N/g' \
 	-e 's/inst \[.*\] value/inst [NNN] value/' \
 	-e 's/inst \[[0-9][0-9]* or ".*/inst [NNN]/' \
 	-e '/value /{

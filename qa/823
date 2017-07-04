@@ -2,7 +2,7 @@
 # PCP QA Test No. 823
 # Exercise basic SASL functionality using a custom sasldb.
 #
-# Copyright (c) 2013 Red Hat.
+# Copyright (c) 2013,2017 Red Hat.
 #
 # NOTE
 #	This test is likely to fail unless hostname(1) returns
@@ -17,19 +17,8 @@ echo "QA output created by $seq"
 
 _get_libpcp_config
 $authentication || _notrun "No authentication support available"
-for helper in saslpasswd2 sasldblistusers2; do
-    which $helper >/dev/null 2>&1 || _notrun "SASL $helper tool unavailable"
-done
-gotplugins=false
-which pluginviewer >/dev/null 2>&1 && gotplugins=true
-if $gotplugins
-then
-    pluginviewer=pluginviewer
-else
-    which saslpluginviewer >/dev/null 2>&1 && gotplugins=true
-    pluginviewer=saslpluginviewer
-fi
-$gotplugins || _notrun "SASL pluginviewer utility unavailable"
+
+sasl_notrun_checks saslpasswd2 sasldblistusers2
 $pluginviewer -a | grep 'Plugin "sasldb"' >/dev/null
 test $? -eq 0 || _notrun "SASL sasldb auxprop plugin unavailable"
 $pluginviewer -c | grep 'Plugin "plain"' >/dev/null 2>&1

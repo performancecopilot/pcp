@@ -1,6 +1,6 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2016 Red Hat.  All Rights Reserved.
+.\" Copyright (c) 2016-2017 Red Hat.  All Rights Reserved.
 .\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
 .\" 
 .\" This program is free software; you can redistribute it and/or modify it
@@ -19,7 +19,7 @@
 \f3pmprobe\f1 \- lightweight probe for performance metrics
 .SH SYNOPSIS
 \f3pmprobe\f1
-[\f3\-fIiLVvz\f1]
+[\f3\-fFIiLVvz\f1]
 [\f3\-a\f1 \f2archive\f1]
 [\f3\-h\f1 \f2hostname\f1]
 [\f3\-K\f1 \f2spec\f1]
@@ -45,6 +45,14 @@ will recursively descend the PMNS and report on all leaf nodes.
 If no
 .I metricname
 argument is given, the root of the namespace is used.
+.PP
+This recursive expansion of the PMNS can be inhibited by the
+.B \-F
+(go faster) option, which reduces the number of roundtrips to
+.BR pmcd (1)
+when the
+.I metricname
+arguments are known to be leaf nodes ahead of time.
 .PP
 The output format is spartan and intended for use in wrapper
 scripts creating configuration files for other PCP tools.

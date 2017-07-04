@@ -21,6 +21,7 @@
 \f3pmlogger\f1
 [\f3\-c\f1 \f2configfile\f1]
 [\f3\-h\f1 \f2host\f1]
+[\f3\-H\f1 \f2hostname\f1]
 [\f3\-K\f1 \f2spec\f1]
 [\f3\-l\f1 \f2logfile\f1]
 [\f3\-L\f1]
@@ -449,6 +450,19 @@ option is used, or to indicate that this
 .B pmlogger
 instance was started under the control of
 .BR pmlogger_check (1).
+.P
+The
+.B \-H
+option allows the hostname written into the archive label to be overridden.
+This mirrors the
+.B \-H
+option of
+.BR pmcd (1)
+, but allows it to be specified on the
+.B pmlogger
+process. Without this option, the value returned from the logged
+.BR pmcd (1)
+is used.
 .SH CONFIGURATION FILE SYNTAX
 The configuration file may be specified with the
 .B \-c

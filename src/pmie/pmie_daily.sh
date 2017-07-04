@@ -298,7 +298,11 @@ _date_filter()
 #
 version=''
 
-rm -f $tmp/err $tmp/mail
+# if this file exists at the end, we encountered a serious error
+#
+rm -f $tmp/err
+
+rm -f $tmp/mail
 
 _parse_control()
 {

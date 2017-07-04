@@ -42,7 +42,10 @@ then
 	[ -z "`echo $delta | tr -d '[0-9]'`" ] && break
 	echo "Error: interval \"$delta\" must be an integer, please try again"
     done
-    args="$PCP_BIN_DIR/pmie -x -t $delta $PCP_PMDAS_DIR/summary/expr.pmie"
+    # Use localhost (inet socket) by default now as local: may pass pmdasummary
+    # user account ($PCP_USER) credentials, which may not always be appropriate
+    #
+    args="$PCP_BIN_DIR/pmie -h localhost -x -t $delta $PCP_PMDAS_DIR/summary/expr.pmie"
     check_delay=15
 fi
 

@@ -8,6 +8,7 @@ QT		= core gui network svg
 greaterThan(QT_MAJOR_VERSION, 4) {
 QT		+= concurrent printsupport
 }
+QMAKE_CXXFLAGS	+= $$(PCP_CFLAGS)
 
 HEADERS	+= \
 	qwt.h \

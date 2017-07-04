@@ -1,6 +1,6 @@
 #!/usr/bin/env pmpython
 #
-# Copyright (C) 2014-2016 Red Hat.
+# Copyright (C) 2014-2017 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -18,10 +18,11 @@
 import os
 import sys
 from pcp import pmapi
-from cpmapi import PM_TYPE_U64
+from cpmapi import PM_TYPE_U64, PM_CONTEXT_ARCHIVE
 
 if sys.version >= '3':
     long = int  # python2 to python3 portability (no long() in python3)
+    xrange = range  # more back-compat (xrange() is range() in python3)
 
 class NUMAStat(object):
     """ Gives a short summary of per-node NUMA memory information.
@@ -68,9 +69,9 @@ class NUMAStat(object):
     def extract(self, descs, insts, result):
         """ Extract the set of metric values from a given pmResult """
         values = [[]]
-        for metrics in range(len(descs)):
+        for metrics in xrange(len(descs)):
             values.append([])
-            for nodes in range(len(insts)):
+            for nodes in xrange(len(insts)):
                 if result.contents.get_numval(metrics) > 0:
                     atom = self.context.pmExtractValue(
                                 result.contents.get_valfmt(metrics),
@@ -87,11 +88,14 @@ class NUMAStat(object):
         """
         metrics = ('mem.numa.alloc.hit', 'mem.numa.alloc.miss',
                    'mem.numa.alloc.foreign', 'mem.numa.alloc.interleave_hit',
-                   'mem.numa.alloc.local_node',        'mem.numa.alloc.other_node')
+                   'mem.numa.alloc.local_node', 'mem.numa.alloc.other_node')
 
         pmids = self.context.pmLookupName(metrics)
         descs = self.context.pmLookupDescs(pmids)
-        (insts, nodes) = self.context.pmGetInDom(descs[0])
+        if self.context.type == PM_CONTEXT_ARCHIVE:
+            (insts, nodes) = self.context.pmGetInDomArchive(descs[0])
+        else:
+            (insts, nodes) = self.context.pmGetInDom(descs[0])
         result = self.context.pmFetch(pmids)
         values = self.extract(descs, insts, result)
         self.context.pmFreeResult(result)
@@ -112,7 +116,7 @@ class NUMAStat(object):
             for node in nodes:
                 header += '%16s' % node
             print(header)
-        for index in range(len(metrics)):
+        for index in xrange(len(metrics)):
             title = self.prefix(metrics[index])
             self.metric(title, nodes, values[index], maxnodes)
 
@@ -125,11 +129,12 @@ class NUMAStat(object):
         while done < len(nodes):
             header = '%-16s' % ''
             window = '%-16s' % prefix
-            for index in range(maxnodes):
+            for index in xrange(maxnodes):
                 current = done + index
-                if current < len(nodes):
-                    header += '%16s' % (nodes[current])
-                    window += '%16d' % (values[current])
+                if current >= len(nodes):
+                    break
+                header += '%16s' % (nodes[current])
+                window += '%16d' % (values[current])
             if done > maxnodes or maxnodes <= len(nodes):
                 print('%s\n%s' % (header, window))
             else:

@@ -10,7 +10,7 @@
 # under the terms of the GNU General Public License as published by the
 # Free Software Foundation; either version 2 of the License, or (at your
 # option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
@@ -232,6 +232,7 @@ class MetricDispatch(object):
         self._metrictable = []
         self._metrics = {}
         self._metric_names = {}
+        self._metric_names_map = {}
         self._metric_oneline = {}
         self._metric_helptext = {}
         cpmda.init_dispatch(domain, name, logfile, helpfile)
@@ -263,6 +264,7 @@ class MetricDispatch(object):
         del self._metrictable[:]
         self._metrics.clear()
         self._metric_names.clear()
+        self._metric_names_map.clear()
         self._metric_oneline.clear()
         self._metric_helptext.clear()
 
@@ -281,14 +283,15 @@ class MetricDispatch(object):
 
     def add_metric(self, name, metric, oneline = '', text = ''):
         pmid = metric.m_desc.pmid
-        if (pmid in self._metric_names):
-            raise KeyError('attempt to add_metric with an existing name')
+        if (name in self._metric_names_map):
+            raise KeyError('attempt to add_metric with an existing name=%s' % (name))
         if (pmid in self._metrics):
             raise KeyError('attempt to add_metric with an existing PMID')
 
         self._metrictable.append(metric)
         self._metrics[pmid] = metric
         self._metric_names[pmid] = name
+        self._metric_names_map[name] = pmid
         self._metric_oneline[pmid] = oneline
         self._metric_helptext[pmid] = text
         cpmda.set_need_refresh()
@@ -485,4 +488,4 @@ class PMDA(MetricDispatch):
 #    set_unix_socket
 #    pmda_pmid_name(cluster,item)
 #    pmda_pmid_text(cluster,item)
-#    
+#

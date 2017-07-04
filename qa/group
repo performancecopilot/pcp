@@ -179,6 +179,7 @@ pmda.jbd2
 pmda.json
 pmda.kvm
 pmda.lio
+pmda.libvirt
 pmda.logger
 pmda.lustre
 pmda.mailq
@@ -215,7 +216,7 @@ pmda.weblog
 pmda.xfs
 pmda.zswap
 
-# tools which use PCP_COUNTER_WRAP 
+# tools which use PCP_COUNTER_WRAP
 wrap
 
 # pmstore command and pmStore() libpcp routine
@@ -312,6 +313,9 @@ zbxpcp
 # pcp-atop and related commands
 atop
 
+# pcp-pidstat
+pidstat
+
 # pcp-iostat
 pmiostat
 
@@ -326,6 +330,10 @@ libpcp_web
 
 # Old PCP versions interoperability
 oldversion
+
+# Shell command completion
+bash
+zsh
 
 # test-group association ... one line per test
 # add :retired or :reserved as a tag immediately after the test number
@@ -395,6 +403,7 @@ oldversion
 061 pmlogger local ostest pmdumplog
 062 pmcd local ostest
 063 fetch local ostest
+064 pidstat local
 065 libpcp local ostest pmstore
 066 pmcd ostest remote
 067 pmcd local ostest
@@ -647,10 +656,10 @@ oldversion
 314 pmie local pmieutil
 315 pmie local pmieutil
 316 libpcp local
-317 logutil pmlogsummary local
+317 logutil pmlogsummary local pmlogcheck
 318 pmie local
 319 pmie local
-320 local folio
+320 local folio pmlogcheck
 321 pmie local
 322 pmlc pmlogger remote
 323 pmda.shping pmda.proc local pmda.install
@@ -949,7 +958,7 @@ oldversion
 666 pmmgr local slow valgrind
 667 python local
 668 pmmgr local containers
-669 pmmgr local
+669 pmmgr local pmlogcheck
 670 libpcp local
 701 pmlogcheck local
 702 python libpcp local
@@ -1148,7 +1157,7 @@ oldversion
 895 pmlogger local
 896 pmlogger local
 897 pmlc pmlogger local
-898 pmlogmv local 
+898 pmlogmv local
 899 libpcp getopt local
 900 libpcp sanity local timezone
 901 libpcp event local
@@ -1198,7 +1207,7 @@ oldversion
 945 pmlogrewrite pmda.xfs local
 946 pmfind avahi local
 947 pmlogger local
-948 pmlogger context_local local 
+948 pmlogger context_local local pmlogcheck
 949 python local timezone
 950 pmproxy avahi local
 951 pmie local pmval
@@ -1247,7 +1256,7 @@ oldversion
 994 other verify
 995 python local
 996 pmdiff local
-997 pmlogextract local
+997 pmlogextract local pmlogcheck
 998 threads libpcp local
 999 pmns local
 1000 pmdumptext local
@@ -1328,23 +1337,37 @@ oldversion
 1075 pmlogrewrite valgrind local
 1076 pmlogcheck local
 1077 pmcd libpcp archive local
-1078 pcp python local
+1078 pcp python pidstat local
 1079 pcp atop local
 1080 valgrind pcp atop local
 1081 python pcp local
 1082 python local
 1083 pmcd local
+1084 pmda.linux local
+1085 pmlogger local
+1086 pmprobe local
 1087 pmda.bind2 local
+1088 pmmgr local
+1089 atop local
 1090 pmwebapi local context
 1091 pmns libpcp context local
 1092 libpcp local
 1093 pmcpp local
 1094 logutil local
 1099 archive pmiostat local pmie
+1100 bash zsh local
 1108 logutil local folio pmlogextract
 1111 pcp2influxdb python local
 1112 pmda.linux local
 1113 pcp python local
 1121 pmda.linux local
+1140 pidstat local
+1141 selinux local
 1174 threads valgrind local
+1191 pmda.prometheus pmda.install local
+1192 pmda.prometheus local
+1193 pmda.prometheus local
+1199 libpcp pmcd local
+1331 verify local
+1388 pmwebapi local
 4751 libpcp threads valgrind local

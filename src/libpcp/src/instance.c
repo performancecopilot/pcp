@@ -34,7 +34,6 @@ pmLookupInDom(pmInDom indom, const char *name)
 	if (ctxp == NULL)
 	    return PM_ERR_NOCONTEXT;
 	if (ctxp->c_type == PM_CONTEXT_HOST) {
-	    PM_LOCK(ctxp->c_pmcd->pc_lock);
 	    n = __pmSendInstanceReq(ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp),
 				    &ctxp->c_origin, indom, PM_IN_NULL, name);
 	    if (n < 0)
@@ -55,15 +54,12 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":3", PM_FAULT_TIMEOUT);
 		}
 		else if (n == PDU_ERROR)
 		    __pmDecodeError(pb, &n);
-		else {
-		    __pmCloseChannelbyContext(ctxp, PDU_INSTANCE, n);
-		    if (n != PM_ERR_TIMEOUT)
-			n = PM_ERR_IPC;
-		}
+		else if (n != PM_ERR_TIMEOUT)
+		    n = PM_ERR_IPC;
+
 		if (pinpdu > 0)
 		    __pmUnpinPDUBuf(pb);
 	    }
-	    PM_UNLOCK(ctxp->c_pmcd->pc_lock);
 	}
 	else if (ctxp->c_type == PM_CONTEXT_LOCAL) {
 	    __pmDSO		*dp;
@@ -92,25 +88,35 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":3", PM_FAULT_TIMEOUT);
 	PM_UNLOCK(ctxp->c_lock);
     }
 
+    CHECK_C_LOCK;
     return n;
 }
 
+/*
+ * Internal variant of pmNameInDom() ... ctxp is not NULL for
+ * internal callers where the current context is already locked, but
+ * NULL for callers from above the PMAPI or internal callers when the
+ * current context is not locked.
+ */
 int
-pmNameInDom(pmInDom indom, int inst, char **name)
+pmNameInDom_ctx(__pmContext *ctxp, pmInDom indom, int inst, char **name)
 {
+    int			need_unlock = 0;
     int			n;
     __pmInResult	*result;
-    __pmContext		*ctxp;
 
     if (indom == PM_INDOM_NULL)
 	return PM_ERR_INDOM;
+
     if ((n = pmWhichContext()) >= 0) {
 	int	ctx = n;
-	ctxp = __pmHandleToPtr(ctx);
-	if (ctxp == NULL)
-	    return PM_ERR_NOCONTEXT;
+	if (ctxp == NULL) {
+	    ctxp = __pmHandleToPtr(ctx);
+	    if (ctxp == NULL)
+		return PM_ERR_NOCONTEXT;
+	    need_unlock = 1;
+	}
 	if (ctxp->c_type == PM_CONTEXT_HOST) {
-	    PM_LOCK(ctxp->c_pmcd->pc_lock);
 	    n = __pmSendInstanceReq(ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp),
 				    &ctxp->c_origin, indom, inst, NULL);
 	    if (n < 0)
@@ -132,15 +138,12 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":2", PM_FAULT_TIMEOUT);
 		}
 		else if (n == PDU_ERROR)
 		    __pmDecodeError(pb, &n);
-		else {
-		    __pmCloseChannelbyContext(ctxp, PDU_INSTANCE, n);
-		    if (n != PM_ERR_TIMEOUT)
-			n = PM_ERR_IPC;
-		}
+		else if (n != PM_ERR_TIMEOUT)
+		    n = PM_ERR_IPC;
+
 		if (pinpdu > 0)
 		    __pmUnpinPDUBuf(pb);
 	    }
-	    PM_UNLOCK(ctxp->c_pmcd->pc_lock);
 	}
 	else if (ctxp->c_type == PM_CONTEXT_LOCAL) {
 	    __pmDSO	*dp;
@@ -168,10 +171,21 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":2", PM_FAULT_TIMEOUT);
 		    n = -oserror();
 	    }
 	}
-	PM_UNLOCK(ctxp->c_lock);
+	if (need_unlock)
+	    PM_UNLOCK(ctxp->c_lock);
     }
 
+    if (need_unlock) CHECK_C_LOCK;
     return n;
+}
+
+int
+pmNameInDom(pmInDom indom, int inst, char **name)
+{
+    int	sts;
+    sts = pmNameInDom_ctx(NULL, indom, inst, name);
+    CHECK_C_LOCK;
+    return sts;
 }
 
 static int
@@ -238,7 +252,6 @@ pmGetInDom(pmInDom indom, int **instlist, char ***namelist)
 	if (ctxp == NULL)
 	    return PM_ERR_NOCONTEXT;
 	if (ctxp->c_type == PM_CONTEXT_HOST) {
-	    PM_LOCK(ctxp->c_pmcd->pc_lock);
 	    n = __pmSendInstanceReq(ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp),
 				    &ctxp->c_origin, indom, PM_IN_NULL, NULL);
 	    if (n < 0)
@@ -255,22 +268,20 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_TIMEOUT);
 		    if ((n = __pmDecodeInstance(pb, &result)) < 0) {
 			if (pinpdu > 0)
 			    __pmUnpinPDUBuf(pb);
-			PM_UNLOCK(ctxp->c_pmcd->pc_lock);
+			PM_UNLOCK(ctxp->c_lock);
+			CHECK_C_LOCK;
 			return n;
 		    }
 		    n = inresult_to_lists(result, instlist, namelist);
 		}
 		else if (n == PDU_ERROR)
 		    __pmDecodeError(pb, &n);
-		else {
-		    __pmCloseChannelbyContext(ctxp, PDU_INSTANCE, n);
-		    if (n != PM_ERR_TIMEOUT)
-			n = PM_ERR_IPC;
-		}
+		else if (n != PM_ERR_TIMEOUT)
+		    n = PM_ERR_IPC;
+
 		if (pinpdu > 0)
 		    __pmUnpinPDUBuf(pb);
 	    }
-	    PM_UNLOCK(ctxp->c_pmcd->pc_lock);
 	}
 	else if (ctxp->c_type == PM_CONTEXT_LOCAL) {
 	    __pmDSO	*dp;
@@ -299,11 +310,13 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_TIMEOUT);
 		    need += sizeof(char *) + strlen(nametmp[i]) + 1;
 		if ((ilist = (int *)malloc(n * sizeof(insttmp[0]))) == NULL) {
 		    PM_UNLOCK(ctxp->c_lock);
+		    CHECK_C_LOCK;
 		    return -oserror();
 		}
 		if ((nlist = (char **)malloc(need)) == NULL) {
 		    free(ilist);
 		    PM_UNLOCK(ctxp->c_lock);
+		    CHECK_C_LOCK;
 		    return -oserror();
 		}
 		*instlist = ilist;
@@ -326,6 +339,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_TIMEOUT);
 	*namelist = NULL;
     }
 
+    CHECK_C_LOCK;
     return n;
 }
 

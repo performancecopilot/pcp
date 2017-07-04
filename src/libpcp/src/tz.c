@@ -26,6 +26,7 @@
 
 #include "pmapi.h"
 #include "impl.h"
+#include "internal.h"
 
 static char	*envtz;			/* buffer in env */
 static int	envtzlen;
@@ -50,7 +51,7 @@ _pushTZ(void)
 {
     char	*p;
 
-    ASSERT_IS_LOCKED(__pmLock_extcall);
+    PM_ASSERT_IS_LOCKED(__pmLock_extcall);
 
     if (savetz) {
 	/* don't need previous saved value any more */
@@ -78,7 +79,7 @@ _pushTZ(void)
 static void
 _popTZ(void)
 {
-    ASSERT_IS_LOCKED(__pmLock_extcall);
+    PM_ASSERT_IS_LOCKED(__pmLock_extcall);
 
     if (savetz != NULL)
 	setenv("TZ", savetz, 1);	/* THREADSAFE */
@@ -109,7 +110,7 @@ __pmSquashTZ(char *tzbuffer)
 #ifndef IS_MINGW
     time_t	offset; 
 
-    ASSERT_IS_LOCKED(__pmLock_extcall);
+    PM_ASSERT_IS_LOCKED(__pmLock_extcall);
 
     tzset();
     t = localtime(&now);		/* THREADSAFE */
@@ -420,7 +421,8 @@ pmNewContextZone(void)
     __pmContext	*ctxp;
     int		sts;
 
-    if ((ctxp = __pmCurrentContext()) == NULL)
+    ctxp = __pmHandleToPtr(pmWhichContext());
+    if (ctxp == NULL) 
 	return PM_ERR_NOCONTEXT;
 
     if (ctxp->c_type == PM_CONTEXT_ARCHIVE) {

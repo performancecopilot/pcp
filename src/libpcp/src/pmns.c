@@ -186,10 +186,16 @@ LoadDefault(char *reason_msg, int use_cpp)
 
 /*
  * Return the pmns_location.  Possibly load the default PMNS.
+ *
+ * Internal variant of pmGetPMNSLocation() ... ctxp is not NULL for
+ * internal callers where the current context is already locked, but
+ * NULL for callers from above the PMAPI or internal callers when the
+ * current context is not locked.
  */
-int 
-pmGetPMNSLocation(void)
+static int
+pmGetPMNSLocation_ctx(__pmContext *ctxp)
 {
+    int	need_unlock = 0;
     int pmns_location = PM_ERR_NOPMNS;
     int n;
     int sts;
@@ -208,22 +214,27 @@ pmGetPMNSLocation(void)
      * Load PMNS if necessary.
      */
     if (!havePmLoadCall) {
-	__pmContext  	*ctxp;
 	int		version;
 
-	if ((n = pmWhichContext()) >= 0 && (ctxp = __pmHandleToPtr(n)) != NULL) {
+	n = pmWhichContext();
+	if (n >= 0 && ctxp == NULL) {
+	    ctxp = __pmHandleToPtr(n);
+	    if (ctxp != NULL)
+		need_unlock = 1;
+	}
+
+	if (n >= 0 && ctxp != NULL) {
 	    switch(ctxp->c_type) {
 		int	fd;
 		case PM_CONTEXT_HOST:
-		    PM_LOCK(ctxp->c_pmcd->pc_lock);
 		    if (ctxp->c_pmcd->pc_fd == -1) {
-			PM_UNLOCK(ctxp->c_pmcd->pc_lock);
 			pmns_location = PM_ERR_IPC;
+			if (need_unlock)
+			    PM_UNLOCK(ctxp->c_lock);
 			goto done;
 		    }
 		    sts = version = __pmVersionIPC(ctxp->c_pmcd->pc_fd);
 		    fd = ctxp->c_pmcd->pc_fd;
-		    PM_UNLOCK(ctxp->c_pmcd->pc_lock);
 		    if (version < 0) {
 			char	errmsg[PM_MAXERRMSGLEN];
 			__pmNotifyErr(LOG_ERR, 
@@ -272,7 +283,8 @@ pmGetPMNSLocation(void)
 		    pmns_location = PM_ERR_NOPMNS;
 		    break;
 	    }
-	    PM_UNLOCK(ctxp->c_lock);
+	    if (need_unlock)
+		PM_UNLOCK(ctxp->c_lock);
 	}
 	else {
 	    pmns_location = PM_ERR_NOPMNS; /* no context for client */
@@ -303,16 +315,26 @@ pmGetPMNSLocation(void)
 
 done:
     PM_UNLOCK(__pmLock_libpcp);
+    if (need_unlock) CHECK_C_LOCK;
     return pmns_location;
+}
+
+int
+pmGetPMNSLocation(void)
+{
+    int	sts;
+    sts = pmGetPMNSLocation_ctx(NULL);
+    CHECK_C_LOCK;
+    return sts;
 }
 
 /*
  * Our own PMNS locator.  Don't distinguish between ARCHIVE or LOCAL.
  */
 static int
-GetLocation(void)
+GetLocation(__pmContext *ctxp)
 {
-    int	loc = pmGetPMNSLocation();
+    int	loc = pmGetPMNSLocation_ctx(ctxp);
 
     if (loc == PMNS_ARCHIVE)
 	return PMNS_LOCAL;
@@ -1532,12 +1554,18 @@ pmUnloadNameSpace(void)
     PM_UNLOCK(__pmLock_libpcp);
 }
 
+/*
+ * Internal variant of pmLookupName() ... ctxp is not NULL for
+ * internal callers where the current context is already locked, but
+ * NULL for callers from above the PMAPI or internal callers when the
+ * current context is not locked.
+ */
 int
-pmLookupName(int numpmid, char *namelist[], pmID pmidlist[])
+pmLookupName_ctx(__pmContext *ctxp, int numpmid, char *namelist[], pmID pmidlist[])
 {
-    int pmns_location = GetLocation();
-    int	sts = 0;
-    __pmContext	*ctxp;
+    int		need_unlock = 0;
+    int		pmns_location = GetLocation(ctxp);
+    int		sts = 0;
     int		c_type;
     int		lsts;
     int		ctx;
@@ -1559,7 +1587,12 @@ pmLookupName(int numpmid, char *namelist[], pmID pmidlist[])
 
     ctx = lsts = pmWhichContext();
     if (lsts >= 0) {
-	ctxp = __pmHandleToPtr(ctx);
+	if (ctxp == NULL) {
+	    ctxp = __pmHandleToPtr(ctx);
+	    if (ctxp == NULL)
+		return PM_ERR_NOCONTEXT;
+	    need_unlock = 1;
+	}
 	c_type = ctxp->c_type;
     }
     else {
@@ -1572,7 +1605,9 @@ pmLookupName(int numpmid, char *namelist[], pmID pmidlist[])
     }
     if (ctxp != NULL && c_type == PM_CONTEXT_LOCAL && PM_MULTIPLE_THREADS(PM_SCOPE_DSO_PMDA)) {
 	/* Local context requires single-threaded applications */
-	PM_UNLOCK(ctxp->c_lock);
+	if (need_unlock)
+	    PM_UNLOCK(ctxp->c_lock);
+	CHECK_C_LOCK;
 	return PM_ERR_THREAD;
     }
 
@@ -1584,7 +1619,7 @@ pmLookupName(int numpmid, char *namelist[], pmID pmidlist[])
     memset(pmidlist, PM_ID_NULL, numpmid * sizeof(pmID));
 
     if (pmns_location < 0) {
-	if (ctxp != NULL)
+	if (need_unlock)
 	    PM_UNLOCK(ctxp->c_lock);
 	sts = pmns_location;
 	/* only hope is derived metrics ... set up for this */
@@ -1595,7 +1630,7 @@ pmLookupName(int numpmid, char *namelist[], pmID pmidlist[])
 	char		*xp;
 	__pmnsNode	*np;
 
-	if (ctxp != NULL)
+	if (need_unlock)
 	    PM_UNLOCK(ctxp->c_lock);
 	for (i = 0; i < numpmid; i++) {
 	    /*
@@ -1711,7 +1746,6 @@ pmLookupName(int numpmid, char *namelist[], pmID pmidlist[])
 	    fputc('\n', stderr);
 	}
 #endif
-	PM_LOCK(ctxp->c_pmcd->pc_lock);
 	sts = __pmSendNameList(ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp),
 		numpmid, namelist, NULL);
 	if (sts < 0)
@@ -1734,16 +1768,14 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_TIMEOUT);
 		if (sts >= 0)
 		    sts = op_status;
 	    }
-	    else if (sts == PDU_ERROR) {
+	    else if (sts == PDU_ERROR)
 		__pmDecodeError(pb, &sts);
-	    }
-	    else {
-		__pmCloseChannelbyContext(ctxp, PDU_PMNS_IDS, sts);
-		if (sts != PM_ERR_TIMEOUT)
-		    sts = PM_ERR_IPC;
-	    }
+	    else if (sts != PM_ERR_TIMEOUT)
+		sts = PM_ERR_IPC;
+
 	    if (pinpdu > 0)
 		__pmUnpinPDUBuf(pb);
+
 	    if (sts >= 0)
 		nfail = numpmid - sts;
 #ifdef PCP_DEBUG
@@ -1761,8 +1793,8 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_TIMEOUT);
 	    }
 #endif
 	}
-	PM_UNLOCK(ctxp->c_pmcd->pc_lock);
-	PM_UNLOCK(ctxp->c_lock);
+	if (need_unlock)
+	    PM_UNLOCK(ctxp->c_lock);
     }
 
     if (sts < 0 || nfail > 0) {
@@ -1816,6 +1848,16 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_TIMEOUT);
     }
 #endif
 
+    if (need_unlock) CHECK_C_LOCK;
+    return sts;
+}
+
+int
+pmLookupName(int numpmid, char *namelist[], pmID pmidlist[])
+{
+    int	sts;
+    sts = pmLookupName_ctx(NULL, numpmid, namelist, pmidlist);
+    CHECK_C_LOCK;
     return sts;
 }
 
@@ -1825,7 +1867,6 @@ GetChildrenStatusRemote(__pmContext *ctxp, const char *name,
 {
     int n;
 
-    PM_LOCK(ctxp->c_pmcd->pc_lock);
     n = __pmSendChildReq(ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp),
 		name, statuslist == NULL ? 0 : 1);
     if (n < 0)
@@ -1845,15 +1886,12 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":2", PM_FAULT_TIMEOUT);
 	}
 	else if (n == PDU_ERROR)
 	    __pmDecodeError(pb, &n);
-	else {
-	    __pmCloseChannelbyContext(ctxp, PDU_PMNS_NAMES, n);
-	    if (n != PM_ERR_TIMEOUT)
-		n = PM_ERR_IPC;
-	}
+	else if (n != PM_ERR_TIMEOUT)
+	    n = PM_ERR_IPC;
+
 	if (pinpdu > 0)
 	    __pmUnpinPDUBuf(pb);
     }
-    PM_UNLOCK(ctxp->c_pmcd->pc_lock);
 
     return n;
 }
@@ -1956,7 +1994,7 @@ int
 pmGetChildrenStatus(const char *name, char ***offspring, int **statuslist)
 {
     int		*status = NULL;
-    int		pmns_location = GetLocation();
+    int		pmns_location = GetLocation(NULL);
     int		num;
     int		dm_num;
     char	**dm_offspring;
@@ -2229,6 +2267,7 @@ report:
     }
 #endif
 
+    CHECK_C_LOCK;
     return num;
 }
 
@@ -2269,11 +2308,8 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":3", PM_FAULT_TIMEOUT);
     }
     else if (n == PDU_ERROR)
 	__pmDecodeError(pb, &n);
-    else {
-	__pmCloseChannelbyContext(ctxp, PDU_PMNS_NAMES, n);
-	if (n != PM_ERR_TIMEOUT)
-	    n = PM_ERR_IPC;
-    }
+    else if (n != PM_ERR_TIMEOUT)
+	n = PM_ERR_IPC;
 
     if (pinpdu > 0)
 	__pmUnpinPDUBuf(pb);
@@ -2304,7 +2340,7 @@ receive_a_name(__pmContext *ctxp, char **name)
 int
 pmNameID(pmID pmid, char **name)
 {
-    int 	pmns_location = GetLocation();
+    int 	pmns_location = GetLocation(NULL);
     int		ctx;
     __pmContext	*ctxp;
     int		c_type;
@@ -2329,6 +2365,7 @@ pmNameID(pmID pmid, char **name)
     if (ctxp != NULL && c_type == PM_CONTEXT_LOCAL && PM_MULTIPLE_THREADS(PM_SCOPE_DSO_PMDA)) {
 	/* Local context requires single-threaded applications */
 	PM_UNLOCK(ctxp->c_lock);
+	CHECK_C_LOCK;
 	return PM_ERR_THREAD;
     }
 
@@ -2345,13 +2382,18 @@ pmNameID(pmID pmid, char **name)
 	    PM_UNLOCK(ctxp->c_lock);
 	if (IS_DYNAMIC_ROOT(pmid)) {
 	    /* cannot return name for dynamic PMID from local PMNS */
+	    CHECK_C_LOCK;
 	    return PM_ERR_PMID;
 	}
 	for (np = PM_TPD(curr_pmns)->htab[pmid % PM_TPD(curr_pmns)->htabsize];
              np != NULL;
              np = np->hash) {
-	    if (np->pmid == pmid)
-		return backname(np, name);
+	    if (np->pmid == pmid) {
+		int	tsts;
+		tsts = backname(np, name);
+		CHECK_C_LOCK;
+		return tsts;
+	    }
 	}
 	/* not found in PMNS ... try some other options */
 	sts = PM_ERR_PMID;
@@ -2389,43 +2431,59 @@ pmNameID(pmID pmid, char **name)
     else {
 	/* assume PMNS_REMOTE */
 	assert(c_type == PM_CONTEXT_HOST);
-	PM_LOCK(ctxp->c_pmcd->pc_lock);
 	if ((sts = request_namebypmid(ctxp, pmid)) >= 0) {
 	    sts = receive_a_name(ctxp, name);
 	}
-	PM_UNLOCK(ctxp->c_pmcd->pc_lock);
 	PM_UNLOCK(ctxp->c_lock);
     }
 
-    if (sts >= 0) return sts;
+    if (sts >= 0) {
+	CHECK_C_LOCK;
+	return sts;
+    }
 
     /*
      * failed everything else, try derived metric, but if this fails
      * return last error from above ...
      */
     lsts = __dmgetname(pmid, name);
+    CHECK_C_LOCK;
     return lsts >= 0 ? lsts : sts;
 }
 
+
+/*
+ * Internal variant of pmNameAll() ... ctxp is not NULL for
+ * internal callers where the current context is already locked, but
+ * NULL for callers from above the PMAPI or internal callers when the
+ * current context is not locked.
+ */
 int
-pmNameAll(pmID pmid, char ***namelist)
+pmNameAll_ctx(__pmContext *ctxp, pmID pmid, char ***namelist)
 {
-    int		pmns_location = GetLocation();
+    int		need_unlock = 0;
+    int		pmns_location = GetLocation(ctxp);
     char	**tmp = NULL;
     int		len = 0;
     int		n = 0;
     char	*sp;
     int		ctx;
-    __pmContext	*ctxp;
-    int		c_type;
+    int		c_type = 0;
     int		sts;
 
     PM_INIT_LOCKS();
 
     sts = ctx = pmWhichContext();
     if (ctx >= 0) {
-	ctxp = __pmHandleToPtr(ctx);
-	c_type = ctxp->c_type;
+       if (ctxp == NULL) {
+	    ctxp = __pmHandleToPtr(ctx);
+	    if (ctxp != NULL) {
+		need_unlock = 1;
+		c_type = ctxp->c_type;
+	    }
+	}
+	else
+	    c_type = ctxp->c_type;
     }
     else {
 	ctxp = NULL;
@@ -2437,12 +2495,14 @@ pmNameAll(pmID pmid, char ***namelist)
     }
     if (ctxp != NULL && c_type == PM_CONTEXT_LOCAL && PM_MULTIPLE_THREADS(PM_SCOPE_DSO_PMDA)) {
 	/* Local context requires single-threaded applications */
-	PM_UNLOCK(ctxp->c_lock);
+	if (need_unlock)
+	    PM_UNLOCK(ctxp->c_lock);
+	if (need_unlock) CHECK_C_LOCK;
 	return PM_ERR_THREAD;
     }
 
     if (pmns_location < 0) {
-	if (ctxp != NULL)
+	if (need_unlock)
 	    PM_UNLOCK(ctxp->c_lock);
 	sts = pmns_location;
 	/* only hope is derived metrics ... */
@@ -2451,10 +2511,11 @@ pmNameAll(pmID pmid, char ***namelist)
     	__pmnsNode	*np;
 	int		i;
 
-	if (ctxp != NULL)
+	if (need_unlock)
 	    PM_UNLOCK(ctxp->c_lock);
 	if (IS_DYNAMIC_ROOT(pmid)) {
 	    /* cannot return name(s) for dynamic PMID from local PMNS */
+	    if (need_unlock) CHECK_C_LOCK;
 	    return PM_ERR_PMID;
 	}
 	for (np = PM_TPD(curr_pmns)->htab[pmid % PM_TPD(curr_pmns)->htabsize];
@@ -2476,14 +2537,18 @@ pmNameAll(pmID pmid, char ***namelist)
 		len += strlen(tmp[n-1])+1;
 	    }
 	}
-	if (sts < 0)
+	if (sts < 0) {
+	    if (need_unlock) CHECK_C_LOCK;
 	    return sts;
+	}
 
 	if (n > 0) {
 	    /* all good ... rearrange to a contiguous allocation and return */
 	    len += n * sizeof(tmp[0]);
-	    if ((tmp = (char **)realloc(tmp, len)) == NULL)
+	    if ((tmp = (char **)realloc(tmp, len)) == NULL) {
+		if (need_unlock) CHECK_C_LOCK;
 		return -oserror();
+	    }
 
 	    sp = (char *)&tmp[n];
 	    for (i = 0; i < n; i++) {
@@ -2494,6 +2559,7 @@ pmNameAll(pmID pmid, char ***namelist)
 	    }
 
 	    *namelist = tmp;
+	    if (need_unlock) CHECK_C_LOCK;
 	    return n;
 	}
 	/* not found in PMNS ... try some other options */
@@ -2514,6 +2580,7 @@ pmNameAll(pmID pmid, char ***namelist)
 				    dp->dispatch.version.four.ext);
 		    if (n > 0) {
 			*namelist = tmp;
+			if (need_unlock) CHECK_C_LOCK;
 			return n;
 		    }
 		}
@@ -2526,12 +2593,12 @@ pmNameAll(pmID pmid, char ***namelist)
     else {
 	/* assume PMNS_REMOTE */
 	assert(c_type == PM_CONTEXT_HOST);
-	PM_LOCK(ctxp->c_pmcd->pc_lock);
 	if ((sts = request_namebypmid (ctxp, pmid)) >= 0) {
 	    sts = receive_namesbyid (ctxp, namelist);
 	}
-	PM_UNLOCK(ctxp->c_pmcd->pc_lock);
-	PM_UNLOCK(ctxp->c_lock);
+	if (need_unlock)
+	    PM_UNLOCK(ctxp->c_lock);
+	if (need_unlock) CHECK_C_LOCK;
 	if (sts > 0)
 	    return sts;
     }
@@ -2540,22 +2607,38 @@ pmNameAll(pmID pmid, char ***namelist)
      * failed everything else, try derived metric, but if this fails
      * return last error from above ...
      */
-    if ((tmp = (char **)malloc(sizeof(tmp[0]))) == NULL)
+    if ((tmp = (char **)malloc(sizeof(tmp[0]))) == NULL) {
+	if (need_unlock) CHECK_C_LOCK;
 	return -oserror();
+    }
     n = __dmgetname(pmid, tmp);
     if (n < 0) {
 	free(tmp);
+	if (need_unlock) CHECK_C_LOCK;
 	return sts < 0 ? sts : PM_ERR_PMID;
     }
     len = sizeof(tmp[0]) + strlen(tmp[0])+1;
-    if ((tmp = (char **)realloc(tmp, len)) == NULL)
+    if ((tmp = (char **)realloc(tmp, len)) == NULL) {
+	if (need_unlock) CHECK_C_LOCK;
 	return -oserror();
+    }
     sp = (char *)&tmp[1];
     strcpy(sp, tmp[0]);
     free(tmp[0]);
     tmp[0] = sp;
     *namelist = tmp;
+
+    if (need_unlock) CHECK_C_LOCK;
     return 1;
+}
+
+int
+pmNameAll(pmID pmid, char ***namelist)
+{
+    int	sts;
+    sts = pmNameAll_ctx(NULL, pmid, namelist);
+    CHECK_C_LOCK;
+    return sts;
 }
 
 
@@ -2609,13 +2692,17 @@ static int
 TraversePMNS(const char *name, void(*func)(const char *), void(*func_r)(const char *, void *), void *closure)
 {
     int	sts;
-    int	pmns_location = GetLocation();
+    int	pmns_location = GetLocation(NULL);
 
-    if (pmns_location < 0)
+    if (pmns_location < 0) {
+	CHECK_C_LOCK;
 	return pmns_location;
+    }
 
-    if (name == NULL) 
+    if (name == NULL)  {
+	CHECK_C_LOCK;
 	return PM_ERR_NAME;
+    }
 
     PM_INIT_LOCKS();
 
@@ -2629,13 +2716,13 @@ TraversePMNS(const char *name, void(*func)(const char *), void(*func_r)(const ch
 	__pmContext  *ctxp;
 
 	/* As we have PMNS_REMOTE there must be a current host context */
-	if ((sts = pmWhichContext()) < 0 || (ctxp = __pmHandleToPtr(sts)) == NULL)
+	if ((sts = pmWhichContext()) < 0 || (ctxp = __pmHandleToPtr(sts)) == NULL) {
+	    CHECK_C_LOCK;
 	    return PM_ERR_NOCONTEXT;
-	PM_LOCK(ctxp->c_pmcd->pc_lock);
+	}
 	sts = __pmSendTraversePMNSReq(ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp), name);
 	if (sts < 0) {
 	    sts = __pmMapErrno(sts);
-	    PM_UNLOCK(ctxp->c_pmcd->pc_lock);
 	    PM_UNLOCK(ctxp->c_lock);
 	}
 	else {
@@ -2648,7 +2735,6 @@ TraversePMNS(const char *name, void(*func)(const char *), void(*func_r)(const ch
 PM_FAULT_POINT("libpcp/" __FILE__ ":4", PM_FAULT_TIMEOUT);
 	    pinpdu = sts = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE, 
 				      TIMEOUT_DEFAULT, &pb);
-	    PM_UNLOCK(ctxp->c_pmcd->pc_lock);
 	    PM_UNLOCK(ctxp->c_lock);
 	    if (sts == PDU_PMNS_NAMES) {
 		sts = __pmDecodeNameList(pb, &numnames, 
@@ -2665,6 +2751,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":4", PM_FAULT_TIMEOUT);
 		}
 		else {
 		    __pmUnpinPDUBuf(pb);
+		    CHECK_C_LOCK;
 		    return sts;
 		}
 	    }
@@ -2672,14 +2759,15 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":4", PM_FAULT_TIMEOUT);
 		__pmDecodeError(pb, &sts);
 		if (sts != PM_ERR_NAME) {
 		    __pmUnpinPDUBuf(pb);
+		    CHECK_C_LOCK;
 		    return sts;
 		}
 		numnames = 0;
 	    }
 	    else {
-		__pmCloseChannelbyContext(ctxp, PDU_PMNS_NAMES, sts);
 		if (pinpdu > 0)
 		    __pmUnpinPDUBuf(pb);
+		CHECK_C_LOCK;
 		return (sts == PM_ERR_TIMEOUT) ? sts : PM_ERR_IPC;
 	    }
 
@@ -2703,10 +2791,13 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":4", PM_FAULT_TIMEOUT);
 		free(namelist);
 	    }
 
-	    if (sts > 0)
+	    if (sts > 0) {
+		CHECK_C_LOCK;
 		return numnames;
+	    }
 	}
     }
+    CHECK_C_LOCK;
     return sts;
 }
 
@@ -2729,7 +2820,7 @@ pmTrimNameSpace(void)
     __pmContext	*ctxp;
     __pmHashCtl	*hcp;
     __pmHashNode *hp;
-    int		pmns_location = GetLocation();
+    int		pmns_location = GetLocation(NULL);
 
     PM_INIT_LOCKS();
 
@@ -2741,7 +2832,8 @@ pmTrimNameSpace(void)
     /* for PMNS_LOCAL (or PMNS_ARCHIVE) ... */
     PM_INIT_LOCKS();
 
-    if ((ctxp = __pmCurrentContext()) == NULL)
+    ctxp = __pmHandleToPtr(pmWhichContext());
+    if (ctxp == NULL) 
 	return PM_ERR_NOCONTEXT;
 
     if (ctxp->c_type != PM_CONTEXT_ARCHIVE) {
@@ -2753,6 +2845,7 @@ pmTrimNameSpace(void)
 	    mark_all(PM_TPD(curr_pmns), 0);
 	}
 	PM_UNLOCK(ctxp->c_lock);
+	CHECK_C_LOCK;
 	return 0;
     }
 
@@ -2775,13 +2868,14 @@ pmTrimNameSpace(void)
     }
     PM_UNLOCK(ctxp->c_lock);
 
+    CHECK_C_LOCK;
     return 0;
 }
 
 void
 __pmDumpNameSpace(FILE *f, int verbosity)
 {
-    int pmns_location = GetLocation();
+    int pmns_location = GetLocation(NULL);
 
     PM_INIT_LOCKS();
 

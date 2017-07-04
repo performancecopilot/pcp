@@ -389,6 +389,14 @@ indomspec	: TOK_INDOM indom_int
 
 			    ctxp = __pmHandleToPtr(pmWhichContext());
 			    assert(ctxp != NULL);
+    /*
+     * Note: This application is single threaded, and once we have ctxp
+     *	     the associated __pmContext will not move and will only be
+     *	     accessed or modified synchronously either here or in libpcp.
+     *	     We unlock the context so that it can be locked as required
+     *	     within libpcp.
+     */
+			    PM_UNLOCK(ctxp->c_lock);
 			    hcp = &ctxp->c_archctl->ac_log->l_hashindom;
 			    star_domain = pmInDom_domain($2);
 			    for (node = __pmHashWalk(hcp, PM_HASH_WALK_START);
@@ -571,6 +579,14 @@ metricspec	: TOK_METRIC pmid_or_name
 
 			    ctxp = __pmHandleToPtr(pmWhichContext());
 			    assert(ctxp != NULL);
+    /*
+     * Note: This application is single threaded, and once we have ctxp
+     *	     the associated __pmContext will not move and will only be
+     *	     accessed or modified synchronously either here or in libpcp.
+     *	     We unlock the context so that it can be locked as required
+     *	     within libpcp.
+     */
+			    PM_UNLOCK(ctxp->c_lock);
 			    hcp = &ctxp->c_archctl->ac_log->l_hashpmid;
 			    star_domain = pmid_domain($2);
 			    if (current_star_metric == 1)

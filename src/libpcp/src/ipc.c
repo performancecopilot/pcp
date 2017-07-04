@@ -15,6 +15,7 @@
 
 #include "pmapi.h"
 #include "impl.h"
+#include "internal.h"
 #ifdef HAVE_VALUES_H
 #include <values.h>
 #endif
@@ -84,7 +85,7 @@ resize(int fd)
     size_t size;
     int	oldcount;
 
-    ASSERT_IS_LOCKED(ipc_lock);
+    PM_ASSERT_IS_LOCKED(ipc_lock);
 
     if (__pmIPCTable == NULL || fd >= ipctablecount) {
 	if (ipcentrysize == 0)
@@ -107,7 +108,7 @@ resize(int fd)
 static int
 version_locked(int fd)
 {
-    ASSERT_IS_LOCKED(ipc_lock);
+    PM_ASSERT_IS_LOCKED(ipc_lock);
 
     if (fd == PDU_OVERRIDE2)
 	return PDU_VERSION2;
@@ -124,7 +125,7 @@ version_locked(int fd)
 static int
 socket_locked(int fd)
 {
-    ASSERT_IS_LOCKED(ipc_lock);
+    PM_ASSERT_IS_LOCKED(ipc_lock);
 
     if (__pmIPCTable == NULL || fd < 0 || fd >= ipctablecount) {
 	if (pmDebug & DBG_TRACE_CONTEXT)
@@ -139,7 +140,7 @@ socket_locked(int fd)
 static int
 features_locked(int fd)
 {
-    ASSERT_IS_LOCKED(ipc_lock);
+    PM_ASSERT_IS_LOCKED(ipc_lock);
 
     if (__pmIPCTable == NULL || fd < 0 || fd >= ipctablecount) {
 	if (pmDebug & DBG_TRACE_CONTEXT)
@@ -156,7 +157,7 @@ print(void)
 {
     int		i;
 
-    ASSERT_IS_LOCKED(ipc_lock);
+    PM_ASSERT_IS_LOCKED(ipc_lock);
 
     fprintf(stderr, "IPC table fd(PDU version):");
     for (i = 0; i < ipctablecount; i++) {

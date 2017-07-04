@@ -68,8 +68,9 @@ sed
 
 === daily maintenance of PCP archives for host HOST ===
 
-PMLOGGER.DAILY: Error: no pmlogger instance running for host "HOST"
-[TMP/control:2] ... logging for host "HOST" unchanged
+PMLOGGER.DAILY: [TMP/control:2]
+Error: no pmlogger instance running for host "HOST"
+... logging for host "HOST" unchanged
 
 Input archives to be merged:
 	TODAY-3.1H.MM

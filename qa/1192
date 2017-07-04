@@ -1,0 +1,104 @@
+#!/bin/sh
+# PCP QA Test No. 1192
+# Exercise the Prometheus PMDA with docker.
+#
+# Copyright (c) 2017 Ronak Jain.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.product
+. ./common.filter
+. ./common.check
+. ./common.docker
+
+_check_containers
+_check_docker_images "quay.io/prometheus/prometheus"
+count=`_count_docker_containers`
+[ "$count" -gt 0 ] && \
+    _notrun "Needs quay.io/prometheus/prometheus docker setup ($count running containers found)"
+
+
+_cleanup()
+{
+    if [ -n "$container" ]
+    then
+        echo "== removing container"
+        _remove_docker_containers $container
+        container=""
+    fi
+    $sudo rm -rf $tmp.* $tmp.*
+}
+
+pmdaprometheus_remove()
+{
+    echo
+    echo "=== remove prometheus agent ==="
+    $sudo ./Remove >$tmp.out 2>&1
+    _filter_pmda_remove <$tmp.out
+}
+
+pmdaprometheus_install()
+{
+    # start from known starting points
+    cd $PCP_PMDAS_DIR/prometheus
+    $sudo ./Remove >/dev/null 2>&1
+    _service pmcd stop 2>&1 | _filter_pcp_stop
+
+    echo
+    echo "=== prometheus agent installation ==="
+    $sudo ./Install </dev/null >$tmp.out 2>&1
+    cat $tmp.out >>$here/$seq.full
+}
+
+generate_config()
+{
+	cd $PCP_PMDAS_DIR/prometheus
+	$sudo ./pmdaprometheus.python -g -n "test" -u "http://127.0.0.1:9090/metrics"
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+_prepare_pmda prometheus
+trap "_cleanup; _cleanup_pmda prometheus; exit \$status" 0 1 2 3 15
+
+_stop_auto_restart pmcd
+_save_config $PCP_PMDAS_DIR/prometheus/metadata
+$sudo rm -f $PCP_PMDAS_DIR/prometheus/metadata/*
+
+# real QA test starts here
+
+echo "== starting container"
+container=`$docker run -d -p 127.0.0.1:9090:9090 quay.io/prometheus/prometheus`
+echo "== container: $container" >> $here/$seq.full
+# Wait for the prometheus container to complete setup
+sleep 5
+
+generate_config
+
+pmdaprometheus_install
+
+if pminfo -v prometheus > $tmp.info 2> $tmp.err
+then
+	echo "Installation ok"
+else
+	echo "Installation failed"
+	cat $tmp.out
+fi
+
+if pminfo -f prometheus.test.go_goroutines > $tmp.info 2> $tmp.err
+then
+	echo "Fetch prometheus.go_goroutines: success"
+	pminfo -d prometheus.test.go_goroutines
+else
+	echo "Fetch prometheus.go_goroutines: failed"
+	cat $tmp.err
+fi
+
+pmdaprometheus_remove
+
+_restore_config $PCP_PMDAS_DIR/prometheus/metadata
+# success, all done
+status=0
+exit

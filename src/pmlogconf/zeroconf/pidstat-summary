@@ -1,0 +1,11 @@
+#pmlogconf-setup 2.0
+ident   metrics sampled once by the pcp-pidstat(1) command
+probe	kernel.uname.sysname ~ Linux ? include : exclude
+delta	once
+
+        hinv.ncpu
+        kernel.uname.nodename
+        kernel.uname.release
+        kernel.uname.sysname
+        kernel.uname.machine
+        mem.physmem

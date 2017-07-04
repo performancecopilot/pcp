@@ -22,6 +22,7 @@
 
 #include "pmapi.h"
 #include "impl.h"
+#include "internal.h"
 #include <assert.h>
 
 /*
@@ -154,7 +155,7 @@ missinst(int numa, int *lista, int numb, int *listb)
     int		i;
     int		j;
 
-    ASSERT_IS_LOCKED(optfetch_lock);
+    PM_ASSERT_IS_LOCKED(optfetch_lock);
 
     /* count in lista[] but _not_ in listb[] */
     if (numa == 0) {
@@ -232,7 +233,7 @@ optCost(fetchctl_t *fp)
     int			cost = 0;
     int			done;
 
-    ASSERT_IS_LOCKED(optfetch_lock);
+    PM_ASSERT_IS_LOCKED(optfetch_lock);
 
     /*
      * cost per PMD for the pmids in this fetch
