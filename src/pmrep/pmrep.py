@@ -693,11 +693,11 @@ class PMReporter(object):
 
     def check_metric(self, metric):
         """ Validate individual metric and get its details """
-        if metric in self.metrics:
-            # Always ignore duplicates
-            return
         try:
             pmid = self.context.pmLookupName(metric)[0]
+            if pmid in self.pmids:
+                # Always ignore duplicates
+                return
             desc = self.context.pmLookupDescs(pmid)[0]
             try:
                 if self.context.type == PM_CONTEXT_ARCHIVE:

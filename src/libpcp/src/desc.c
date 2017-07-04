@@ -29,30 +29,39 @@ __pmRecvDesc(int fd, __pmContext *ctxp, int timeout, pmDesc *desc)
 	sts = __pmDecodeDesc(pb, desc);
     else if (sts == PDU_ERROR)
 	__pmDecodeError(pb, &sts);
-    else {
-	__pmCloseChannelbyContext(ctxp, PDU_DESC, sts);
-	if (sts != PM_ERR_TIMEOUT)
-	    sts = PM_ERR_IPC;
-    }
+    else if (sts != PM_ERR_TIMEOUT)
+	sts = PM_ERR_IPC;
+
     if (pinpdu > 0)
 	__pmUnpinPDUBuf(pb);
+
     return sts;
 }
 
+/*
+ * Internal variant of pmLookupDesc() ... ctxp is not NULL for
+ * internal callers where the current context is already locked, but
+ * NULL for callers from above the PMAPI or internal callers when the
+ * current context is not locked.
+ */
 int
-pmLookupDesc(pmID pmid, pmDesc *desc)
+pmLookupDesc_ctx(__pmContext *ctxp, pmID pmid, pmDesc *desc)
 {
-    __pmContext	*ctxp;
+    int		need_unlock = 0;
     __pmDSO	*dp;
     int		fd, ctx, sts, tout;
 
     if ((sts = ctx = pmWhichContext()) < 0)
 	return sts;
-    if ((ctxp = __pmHandleToPtr(ctx)) == NULL)
-	return PM_ERR_NOCONTEXT;
+
+    if (ctxp == NULL) {
+	ctxp = __pmHandleToPtr(ctx);
+	if (ctxp == NULL)
+	    return PM_ERR_NOCONTEXT;
+	need_unlock = 1;
+    }
 
     if (ctxp->c_type == PM_CONTEXT_HOST) {
-	PM_LOCK(ctxp->c_pmcd->pc_lock);
 	tout = ctxp->c_pmcd->pc_tout_sec;
 	fd = ctxp->c_pmcd->pc_fd;
 	if ((sts = __pmSendDescReq(fd, __pmPtrToHandle(ctxp), pmid)) < 0) {
@@ -61,7 +70,6 @@ pmLookupDesc(pmID pmid, pmDesc *desc)
 	    PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_TIMEOUT);
 	    sts = __pmRecvDesc(fd, ctxp, tout, desc);
 	}
-	PM_UNLOCK(ctxp->c_pmcd->pc_lock);
     }
     else if (ctxp->c_type == PM_CONTEXT_LOCAL) {
 	if (PM_MULTIPLE_THREADS(PM_SCOPE_DSO_PMDA))
@@ -91,8 +99,19 @@ pmLookupDesc(pmID pmid, pmDesc *desc)
 	if (sts2 >= 0)
 	    sts = sts2;
     }
-    PM_UNLOCK(ctxp->c_lock);
+    if (need_unlock)
+	PM_UNLOCK(ctxp->c_lock);
 
+    if (need_unlock) CHECK_C_LOCK;
+    return sts;
+}
+
+int
+pmLookupDesc(pmID pmid, pmDesc *desc)
+{
+    int	sts;
+    sts = pmLookupDesc_ctx(NULL, pmid, desc);
+    CHECK_C_LOCK;
     return sts;
 }
 

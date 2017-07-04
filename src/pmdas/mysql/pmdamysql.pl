@@ -1801,6 +1801,12 @@ $pmda->add_metric(pmda_pmid(3,33), PM_TYPE_U32, PM_INDOM_NULL,
 $pmda->add_metric(pmda_pmid(3,34), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_DISCRETE, pmda_units(0,0,0,0,0,0),
 		  'mysql.slave_status.master_ssl_allowed_num', '','');
+$pmda->add_metric(pmda_pmid(3,35), PM_TYPE_U32, PM_INDOM_NULL,
+		  PM_SEM_INSTANT, pmda_units(0,1,0,0,PM_TIME_SEC,0),
+		  'mysql.slave_status.sql_delay', '','');
+$pmda->add_metric(pmda_pmid(3,36), PM_TYPE_U32, PM_INDOM_NULL,
+		  PM_SEM_INSTANT, pmda_units(0,1,0,0,PM_TIME_SEC,0),
+		  'mysql.slave_status.sql_remaining_delay', '','');
 		  
 $pmda->add_indom($process_indom, \@process_instances,
 		 'Instance domain exporting each MySQL process', '');

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2015 Red Hat.
+ * Copyright (c) 2012-2015,2017 Red Hat.
  * Copyright (c) 2000,2004,2005 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -685,9 +685,10 @@ __pmConnectTo(int fd, const __pmSockAddr *addr, int port)
     if (__pmSetFileStatusFlags(fd, fdFlags | FNDELAY) < 0) {
 	char	errmsg[PM_MAXERRMSGLEN];
 
-        __pmNotifyErr(LOG_ERR, "%s:__pmConnectTo: cannot set FNDELAY - "
+	__pmNotifyErr(LOG_ERR, "%s:__pmConnectTo: cannot set FNDELAY - "
 		      "fcntl(%d,F_SETFL,0x%x) failed: %s\n",
-		      __FILE__, fd, fdFlags|FNDELAY , osstrerror_r(errmsg, sizeof(errmsg)));
+		      __FILE__, fd, fdFlags | FNDELAY,
+		      osstrerror_r(errmsg, sizeof(errmsg)));
     }
     
     if (__pmConnectWithFNDELAY(fd, &myAddr, sizeof(myAddr)) < 0) {
@@ -942,11 +943,7 @@ __pmAuxConnectPMCDPort(const char *hostname, int pmcd_port)
 	fdFlags[fd] = __pmConnectTo(fd, myAddr, pmcd_port);
 	__pmSockAddrFree(myAddr);
 	if (fdFlags[fd] < 0) {
-	    /*
-	     * Mark failure in case we fall out the end of the loop
-	     * and try next address
-	     */
-	    __pmCloseSocket(fd);
+	    /* __pmConnectTo() has closed the fd, try next address. */
 	    continue;
 	}
 
@@ -1085,10 +1082,8 @@ __pmAuxConnectPMCDUnixSocket(const char *sock_path)
     /* Attempt to connect */
     fdFlags = __pmConnectTo(fd, myAddr, -1);
     __pmSockAddrFree(myAddr);
-    if (fdFlags < 0) {
-	__pmCloseSocket(fd);
+    if (fdFlags < 0)
 	return -ECONNREFUSED;
-    }
 
     /*
      * FNDELAY and we're in progress - wait on select

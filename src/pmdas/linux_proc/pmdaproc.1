@@ -1,6 +1,6 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2014-2015 Red Hat.
+.\" Copyright (c) 2014-2017 Red Hat.
 .\" Copyright (c) 2015 Martins Innus.  All Rights Reserved.
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
@@ -58,6 +58,15 @@ Disables use of the credentials provided by
 .B PMAPI
 client tools,
 and simply runs everything under the "root" account.
+Only enable this option if you understand the risks involved, and
+are sure that all remote accesses will be from benevolent users.
+If enabled, unauthenticated remote
+.B PMAPI
+clients will be able to access potentially sensitive performance
+metric values which an unauthenticated
+.B PMAPI
+client usually would not be able to.
+Refer to CVE-2012-3419 for additional details.
 .TP
 .B \-L
 Changes the per-process instance domain used by most

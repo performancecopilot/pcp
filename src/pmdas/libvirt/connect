@@ -1,6 +1,6 @@
 #!/usr/bin/env pmpython
 #
-# Copyright (C) 2016 Marko Myllynen <myllynen@redhat.com>
+# Copyright (C) 2016-2017 Marko Myllynen <myllynen@redhat.com>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -54,7 +54,7 @@ if config.has_section('pmda'):
             sys.exit(1)
 
 if len(sys.argv) > 1 and (sys.argv[1] == '-c' or sys.argv[1] == '--config'):
-    sys.stdout.write("user=%s\nuri=%s\nbacking=%s\noldapi=%s" % (user, uri, backing, oldapi))
+    sys.stdout.write("user=%s\nuri=%s\nbacking=%s\noldapi=%s\n" % (user, uri, backing, oldapi))
     sys.exit(0)
 
 try:
@@ -67,8 +67,8 @@ except:
 try:
     conn = libvirt.openReadOnly(uri)
     doms = conn.listAllDomains(libvirt.VIR_CONNECT_LIST_DOMAINS_ACTIVE)
-except:
-    sys.stdout.write("Connection as %s to %s failed!\n" % (user, uri))
+except Exception as e:
+    sys.stdout.write("Connection as %s to %s failed: %s\n" % (user, uri, e))
     sys.exit(1)
 
 sys.stdout.write("Connection as %s to %s ok.\n" % (user, uri))

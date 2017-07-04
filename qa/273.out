@@ -1815,8 +1815,6 @@ pmResult ... numpmid: 3
 Quitting need at least 4 metrics for profile tests
 
 build_dsotab:  parsing ...
-pmWhichContext() -> 0, cur=0
-pmWhichContext() -> 0, cur=0
 pmNewContext(3, localhost) -> 0
 Dump Contexts: current -> contexts[0] handle 0
 contexts[0] handle 0: standalone: profile=NOT_SENT
@@ -1827,10 +1825,6 @@ __pmDecodeError: got error PDU (code=2, fromversion=2)
 __pmSetVersionIPC: fd=N version=2
 __pmSendCreds: ...
 __pmConnectLogger: PDU version=2 fd=N
-pmWhichContext() -> 0, cur=0
-pmWhichContext() -> 0, cur=0
-pmWhichContext() -> 0, cur=0
-pmWhichContext() -> 0, cur=0
 pmResult ... numpmid: 3
   2.0.0 (pmcd.control.debug): No PMCD agent for domain of request
   30.0.14 (sampledso.long.write_me): numval: 1 valfmt: 0 vlist[]:

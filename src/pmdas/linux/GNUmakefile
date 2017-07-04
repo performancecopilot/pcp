@@ -37,7 +37,8 @@ CFILES		= pmda.c \
 		  sysfs_kernel.c linux_table.c numa_meminfo.c \
 		  proc_net_netstat.c namespaces.c proc_net_softnet.c \
 		  proc_net_snmp6.c mem_bandwidth.c proc_buddyinfo.c \
-		  proc_zoneinfo.c ksm.c sysfs_tapestats.c
+		  proc_zoneinfo.c ksm.c sysfs_tapestats.c \
+		  proc_net_sockstat6.c
 
 HFILES		= linux.h convert.h \
 		  proc_stat.h proc_meminfo.h proc_loadavg.h \
@@ -50,11 +51,11 @@ HFILES		= linux.h convert.h \
 		  sysfs_kernel.h linux_table.h numa_meminfo.h \
 		  proc_net_netstat.h namespaces.h proc_net_softnet.h \
 		  proc_net_snmp6.h proc_buddyinfo.h proc_zoneinfo.h \
-		  ksm.h sysfs_tapestats.h
+		  ksm.h sysfs_tapestats.h proc_net_sockstat6.h
 
 VERSION_SCRIPT	= exports
 HELPTARGETS	= help.dir help.pag
-CONFTARGETS	= linux_kernel_ulong.conf linux_kernel_fixups.conf
+CONFTARGETS	= linux_kernel_ulong.conf linux_kernel_fixups.conf proc_net_sockstat_deprecate.conf
 LDIRT		= $(HELPTARGETS) domain.h $(VERSION_SCRIPT) $(CONFTARGETS)
 
 LLDLIBS		= $(PCP_PMDALIB)
@@ -124,6 +125,7 @@ pmda.o proc_net_netstat.o:	proc_net_netstat.h
 pmda.o proc_net_rpc.o:	proc_net_rpc.h
 pmda.o proc_net_snmp.o:	proc_net_snmp.h
 pmda.o proc_net_sockstat.o:	proc_net_sockstat.h
+pmda.o proc_net_sockstat6.o:	proc_net_sockstat6.h
 pmda.o proc_net_tcp.o:	proc_net_tcp.h
 pmda.o proc_partitions.o:	proc_partitions.h
 pmda.o proc_scsi.o:	proc_scsi.h

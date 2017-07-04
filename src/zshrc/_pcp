@@ -337,6 +337,7 @@ _pcp () {
       "(-c --config $exargs)"{-c+,--config}'[specify config file]:file:_files' \
       "(-C --check $exargs)"{-C,--check}'[check config only]' \
       "(-h --host -o --local-PMDA -K --spec-local $exargs)"{-h+,--host}'[specify metrics source host]:host:_hosts' \
+      "(-H --labelhost $exargs)"{-H+,--labelhost}'[specify hostname label]:label:' \
       "(-l --log $exargs)"{-l+,--log}'[specify log file]:file:_files' \
       "(-L --linger $exargs)"{-L,--linger}'[linger even if not logging]' \
       "(-m --note $exargs)"{-m+,--note}'[define map file note]:note:' \
@@ -413,6 +414,7 @@ _pcp () {
       "(-n --namespace $exargs)"{-n+,--namespace}'[specify alternative PMNS]:pmnsfile:_files' \
       "(-O --origin $exargs)"{-O+,--origin}'[set initial sample time origin]:timespec:' \
       "(-f --force $exargs)"{-f,--force}'[report all instances]' \
+      "(-F --faster $exargs)"{-F,--faster}'[assume metrics are PMNS leaf nodes]' \
       "(-I --external -v --values $exargs)"{-I,--external}'[list external instance names]' \
       "(-i --internal -v --values $exargs)"{-i,--internal}'[list internal instance numbers]' \
       "(-V --verbose $exargs)"{-V,--verbose}'[report PDU operations]' \

@@ -983,6 +983,7 @@ General options:
 
 Reporting options:
   -f, --force           report all pmGetIndom or pmGetInDomArchive instances
+  -F, --faster          assume given metric names are PMNS leaf nodes
   -I, --external        list external instance names
   -i, --internal        list internal instance numbers
   -V, --verbose         report PDU operations (verbose)
@@ -1012,6 +1013,7 @@ General options:
 
 Reporting options:
   -f, --force           report all pmGetIndom or pmGetInDomArchive instances
+  -F, --faster          assume given metric names are PMNS leaf nodes
   -I, --external        list external instance names
   -i, --internal        list internal instance numbers
   -V, --verbose         report PDU operations (verbose)

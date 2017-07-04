@@ -1,0 +1,63 @@
+#!/bin/sh
+# PCP QA Test No. 1140
+#
+# Test rewriting the qa/archives/pcp-pidstat archive after changing the
+# semantics of some of the string typed metrics from instant to discrete,
+# and replaying the result with pcp-pidstat.
+#
+# Also test replaying the qa/archives/pcp-zeroconf archive with various
+# tools that are expected to be able to replay such archives (created
+# as a result of installing the pcp-zeroconf package).
+#
+# Copyright (c) 2017 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+mkdir -p $tmp/pidstat
+$PCP_BINADM_DIR/pmlogrewrite -c $PCP_VAR_DIR/config/pmlogrewrite archives/pcp-pidstat $tmp/pidstat/pcp-pidstat || exit 1
+
+echo; echo === testing pidstat replay of rewritten archive
+pcp -z -s 3 pidstat -a $tmp/pidstat/pcp-pidstat -G pmda || exit 1
+
+echo; echo === testing pcp-pidstat on pcp-zeroconf archive
+pcp -z -s 3 -S +10s -a archives/pcp-zeroconf pidstat -t 5s -G pmda || exit 1
+
+echo; echo === testing pcp-iostat on pcp-zeroconf archive
+pcp -z -s 3 -S +10s -a archives/pcp-zeroconf iostat -t 5s || exit 1
+
+echo; echo === testing pcp-tapestat on pcp-zeroconf archive
+pcp -z -s 3 -S +10s -a archives/pcp-zeroconf tapestat -t 5s || exit 1
+
+echo; echo === testing pcp-numastat on pcp-zeroconf archive
+pcp -z -s 3 -S +10s -a archives/pcp-zeroconf numastat || exit 1
+
+echo; echo === testing pcp-uptime on pcp-zeroconf archive
+pcp -z -s 3 -S +10s -a archives/pcp-zeroconf uptime || exit 1
+
+echo; echo === testing pcp-free on pcp-zeroconf archive
+pcp -z -s 3 -S +10s -a archives/pcp-zeroconf free || exit 1
+
+echo; echo === testing pcp-vmstat on pcp-zeroconf archive
+pcp -z -s 3 -S +10s -a archives/pcp-zeroconf vmstat || exit 1
+
+# success, all done
+status=0
+exit

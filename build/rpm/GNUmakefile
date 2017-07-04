@@ -71,6 +71,7 @@ pcp.spec: pcp.spec.in
 	    -e's|@pmda_systemd@|$(PMDA_SYSTEMD)|g' \
 	    -e's|@pmda_infiniband@|$(PMDA_INFINIBAND)|g' \
 	    -e's|@pmda_perfevent@|$(PMDA_PERFEVENT)|g' \
+	    -e's|@pmda_prometheus@|$(PMDA_PROMETHEUS)|g' \
 	    -e's|@pmda_libvirt@|$(PMDA_LIBVIRT)|g' \
 	    -e's|@pmda_lio@|$(PMDA_LIO)|g' \
 	    -e's|@pmda_json@|$(PMDA_JSON)|g' \

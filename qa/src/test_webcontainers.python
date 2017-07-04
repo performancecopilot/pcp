@@ -1,7 +1,7 @@
 #!/usr/bin/env pmpython
 """ Test PCP web daemon accessing container metrics -*- python -*- """
 #
-# Copyright (C) 2015 Red Hat.
+# Copyright (C) 2015,2017 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -38,7 +38,7 @@ def test_fetch(ctx, metrics):
     # print(result)
     for metric in sorted(result['values'], key=lambda x: x['name']):
         for inst in sorted(metric['instances'], key=lambda x: x['instance']):
-            print('  ' + metric['name'] + '[' + inst['value'] + ']')
+            print('  ' + metric['name'] + '[' + str(inst['value']) + ']')
     print('  => successfully fetched.')
 
 # ------------------------------------------------------------------------
@@ -61,6 +61,10 @@ print('Received PM_CONTEXT_HOST #' + str(ctx_host))
 
 test_fetch(ctx_host,'names=pmcd.hostname,pmcd.client.container')
 for container in args.container:
+    # fetch with the requested container
     test_store(ctx_host,'pmcd.client.container',container)
+    test_fetch(ctx_host,'names=pmcd.hostname,pmcd.client.container')
+    # clear the requested container, and check we're back to host
+    test_store(ctx_host,'pmcd.client.container','')
     test_fetch(ctx_host,'names=pmcd.hostname,pmcd.client.container')
 

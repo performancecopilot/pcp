@@ -107,7 +107,7 @@ map_handle_nolock(int handle)
 static int
 map_handle(int handle)
 {
-    ASSERT_IS_LOCKED(contexts_lock);
+    PM_ASSERT_IS_LOCKED(contexts_lock);
 
     return map_handle_nolock(handle);
 }
@@ -115,7 +115,6 @@ map_handle(int handle)
 static void
 waitawhile(__pmPMCDCtl *ctl)
 {
-    ASSERT_IS_LOCKED(ctl->pc_lock);
     /*
      * after failure, compute delay before trying again ...
      */
@@ -216,7 +215,7 @@ __pmPtrToHandle(__pmContext *ctxp)
  * Determine the hostname associated with the given context.
  */
 char *
-pmGetContextHostName_r(int ctxid, char *buf, int buflen)
+pmGetContextHostName_r(int handle, char *buf, int buflen)
 {
     __pmContext *ctxp;
     char	*name;
@@ -230,7 +229,7 @@ pmGetContextHostName_r(int ctxid, char *buf, int buflen)
 
     buf[0] = '\0';
 
-    if ((ctxp = __pmHandleToPtr(ctxid)) != NULL) {
+    if ((ctxp = __pmHandleToPtr(handle)) != NULL) {
 	switch (ctxp->c_type) {
 	case PM_CONTEXT_HOST:
 	    /*
@@ -243,16 +242,16 @@ pmGetContextHostName_r(int ctxid, char *buf, int buflen)
 	     * context switch, then switch back.
 	     */
 	    if (pmDebug & DBG_TRACE_CONTEXT)
-		fprintf(stderr, "pmGetContextHostName_r context(%d) -> 0\n", ctxid);
+		fprintf(stderr, "pmGetContextHostName_r context(%d) -> 0\n", handle);
 	    save_handle = PM_TPD(curr_handle);
 	    save_ctxp = PM_TPD(curr_ctxp);
-	    PM_TPD(curr_handle) = ctxid;
+	    PM_TPD(curr_handle) = handle;
 	    PM_TPD(curr_ctxp) = ctxp;
 
 	    name = "pmcd.hostname";
-	    sts = pmLookupName(1, &name, &pmid);
+	    sts = pmLookupName_ctx(ctxp, 1, &name, &pmid);
 	    if (sts >= 0)
-		sts = pmFetch(1, &pmid, &resp);
+		sts = pmFetch_ctx(ctxp, 1, &pmid, &resp);
 	    if (pmDebug & DBG_TRACE_CONTEXT)
 		fprintf(stderr, "pmGetContextHostName_r reset(%d) -> 0\n", save_handle);
 
@@ -274,14 +273,12 @@ pmGetContextHostName_r(int ctxid, char *buf, int buflen)
 	     * 'localhost', then use gethostname(). Otherwise, use the name
 	     * from the context structure.
 	     */
-	    PM_LOCK(ctxp->c_pmcd->pc_lock);
 	    name = ctxp->c_pmcd->pc_hosts[0].name;
 	    if (!name || name[0] == __pmPathSeparator() || /* AF_UNIX */
 		(strncmp(name, "localhost", 9) == 0)) /* localhost[46] */
 		gethostname(buf, buflen);
 	    else
 		strncpy(buf, name, buflen-1);
-	    PM_UNLOCK(ctxp->c_pmcd->pc_lock);
 	    break;
 
 	case PM_CONTEXT_LOCAL:
@@ -297,6 +294,7 @@ pmGetContextHostName_r(int ctxid, char *buf, int buflen)
 	PM_UNLOCK(ctxp->c_lock);
     }
 
+    PM_CHECK_IS_UNLOCKED(ctxp->c_lock);
     return buf;
 }
 
@@ -304,10 +302,10 @@ pmGetContextHostName_r(int ctxid, char *buf, int buflen)
  * Backward-compatibility interface, non-thread-safe variant.
  */
 const char *
-pmGetContextHostName(int ctxid)
+pmGetContextHostName(int handle)
 {
     static char	hostbuf[MAXHOSTNAMELEN];
-    return (const char *)pmGetContextHostName_r(ctxid, hostbuf, (int)sizeof(hostbuf));
+    return (const char *)pmGetContextHostName_r(handle, hostbuf, (int)sizeof(hostbuf));
 }
 
 int
@@ -333,6 +331,11 @@ pmWhichContext(void)
     return sts;
 }
 
+/*
+ * Don't use this function ... the return value is a pointer to a context
+ * that is NOT LOCKED,
+ * TODO - when libpcp version changes, cull this function.
+ */
 __pmContext *
 __pmCurrentContext(void)
 {
@@ -377,7 +380,7 @@ initcontextlock(pthread_mutex_t *lock)
     int			sts;
     char		errmsg[PM_MAXERRMSGLEN];
 
-    ASSERT_IS_LOCKED(contexts_lock);
+    PM_ASSERT_IS_LOCKED(contexts_lock);
 
     /*
      * Need context lock to be recursive as we sometimes call
@@ -408,54 +411,8 @@ initcontextlock(pthread_mutex_t *lock)
     pthread_mutexattr_destroy(&attr);
 }
 
-static void
-initchannellock(pthread_mutex_t *lock)
-{
-    int		sts;
-    char	errmsg[PM_MAXERRMSGLEN];
-
-    if ((sts = pthread_mutex_init(lock, NULL)) != 0) {
-	pmErrStr_r(-sts, errmsg, sizeof(errmsg));
-	fprintf(stderr, "pmNewContext: "
-		"context=%d pmcd channel lock pthread_mutex_init failed: %s",
-		contexts_len, errmsg);
-	exit(4);
-    }
-}
-
-#if 0
-/*
- * TODO ... would like to make this go away entirely, but need to
- * address issue in TODO comment in __pmPMCDCtlFree() first
- * ... also the empty macro defn in the #else block below
- */
-static void
-destroylock(pthread_mutex_t *lock, char *which)
-{
-    int		psts;
-    char	errmsg[PM_MAXERRMSGLEN];
-
-    if ((psts = pthread_mutex_destroy(lock)) != 0) {
-	pmErrStr_r(-psts, errmsg, sizeof(errmsg));
-	fprintf(stderr, "pmDestroyContext: pthread_mutex_destroy(%s) failed: %s\n", which, errmsg);
-	/*
-	 * Most likely cause is the mutex still being locked ... this is a
-	 * a library bug, but potentially recoverable ...
-	 */
-	while (PM_UNLOCK(lock) >= 0) {
-	    fprintf(stderr, "pmDestroyContext: extra %s unlock?\n", which);
-	}
-	if ((psts = pthread_mutex_destroy(lock)) != 0) {
-	    pmErrStr_r(-psts, errmsg, sizeof(errmsg));
-	    fprintf(stderr, "pmDestroyContext: pthread_mutex_destroy(%s) failed second try: %s\n", which, errmsg);
-	}
-    }
-}
-#endif
 #else
 #define initcontextlock(x)	do { } while (1)
-#define initchannellock(x)	do { } while (1)
-#define destroylock(x,y)	do { } while (1)
 #endif
 
 static int
@@ -546,49 +503,14 @@ ctxflags(__pmHashCtl *attrs, int *flags)
 	    PM_UNLOCK(__pmLock_extcall);
     }
 
-    if (__pmHashSearch(PCP_ATTR_EXCLUSIVE, attrs) != NULL)
-	*flags |= PM_CTXFLAG_EXCLUSIVE;
+    /*
+     * PCP_ATTR_EXCLUSIVE attr -> PM_CTXFLAG_EXCLUSIVE mapping used to
+     * happen here, but has been deprecated when mulitplexing of the
+     * client-pmcd socket was abandonded.
+     */
 
     return 0;
 }
-
-static int
-ping_pmcd(int ctxnum, int handle, __pmPMCDCtl *pmcd)
-{
-    __pmPDU	*pb;
-    int		sts, pinpdu;
-
-    ASSERT_IS_LOCKED(pmcd->pc_lock);
-
-    /*
-     * We're going to leverage an existing host context, just make sure
-     * pmcd is still alive at the other end ... we don't have a "ping"
-     * PDU, but sending a pmDesc request for PM_ID_NULL is pretty much
-     * the same thing ... expect a PM_ERR_PMID error PDU back.
-     * The code here is based on pmLookupDesc() with some short cuts
-     * because we know it is a host context and we already hold the
-     * contexts_lock mutex.
-     */
-
-    if ((sts = __pmSendDescReq(pmcd->pc_fd, handle, PM_ID_NULL)) >= 0) {
-	pinpdu = __pmGetPDU(pmcd->pc_fd, ANY_SIZE, pmcd->pc_tout_sec, &pb);
-	if (pinpdu == PDU_ERROR)
-	    __pmDecodeError(pb, &sts);
-	else {
-	    /* wrong PDU type or PM_ERR_* ... close channel to pmcd */
-	    __pmCloseChannelbyContext(contexts[ctxnum], PDU_ERROR, pinpdu);
-	}
-	if (pinpdu > 0)
-	    __pmUnpinPDUBuf(pb);
-    }
-
-    if (sts != PM_ERR_PMID) {
-	/* pmcd is not well on this context ... */
-	return 0;
-    }
-    return 1;
-}
-
 
 int
 __pmFindOrOpenArchive(__pmContext *ctxp, const char *name, int multi_arch)
@@ -1030,7 +952,7 @@ pmNewContext(int type, const char *name)
     int		sts;
     int		old_curr_handle;
     __pmContext	*old_curr_ctxp;
-    int		ctxnum;		/* index into contexts[] for new context */
+    int		ctxnum = -1;	/* index into contexts[] for new context */
     /* A pointer to this stub object is put in contexts[] while a real __pmContext is being built. */
     static /*const*/ __pmContext being_initialized = { .c_type = PM_CONTEXT_INIT };
 
@@ -1104,6 +1026,7 @@ INIT_CONTEXT:
      */
     PM_TPD(curr_ctxp) = new;
     PM_TPD(curr_handle) = new->c_handle = ++last_handle;
+    new->c_slot = ctxnum;
     contexts[ctxnum] = &being_initialized;
     contexts_map[ctxnum] = last_handle;
     PM_UNLOCK(contexts_lock);
@@ -1155,111 +1078,29 @@ INIT_CONTEXT:
 	}
 
 	/*
-	 * As an optimization, if there is already a connection to the
-	 * same PMCD, we try to reuse (share) it.  This is not viable
-	 * in several situations - when pmproxy is in use, or when any
-	 * connection attribute(s) are set, or when exclusion has been
-	 * explicitly requested (i.e. PM_CTXFLAG_EXCLUSIVE in c_flags).
-	 * A reference count greater than one indicates active sharing.
-	 *
-	 * Note the detection of connection-to-same-pmcd is flawed, as
-	 * hostname equality does not necessarily mean the connections
-	 * are equal; e.g., the IP address might have changed.
-	 *
-	 * It is the topic of some debate as to whether PMCD connection
-	 * sharing is of much value at all, especially considering the
-	 * number of subtle and nasty bugs it has caused over time.  Do
-	 * not rely on this behaviour, it may well be removed someday.
-	 *
-	 * NB: Take the contexts_lock mutex while we search the contexts[].
-	 * This is not great, as the ping_pmcd() check can take some
-	 * milliseconds, but it is necessary to avoid races between
-	 * pmDestroyContext() and/or memory ordering.  For connections
-	 * being shared, the refcnt is incremented under contexts_lock mutex.
-	 * Decrementing refcnt occurs in pmDestroyContext while holding
-	 * both the contexts_lock mutex and the c_lock mutex.
+	 * Try to establish the connection.
+	 * If this fails, restore the original current context
+	 * and return an error.
 	 */
-	PM_LOCK(contexts_lock);
-	if (nhosts == 1) { /* not proxied */
-	    for (i = 0; i < contexts_len; i++) {
-		__pmPMCDCtl *pmcd;
-
-		if (i == PM_TPD(curr_handle))
-		    continue;
-		if (contexts_map[i] < 0)
-		    continue;
-		pmcd = contexts[i]->c_pmcd;
-		if (contexts_map[i] >= 0 &&
-		    contexts[i]->c_type == new->c_type &&
-		    contexts[i]->c_flags == new->c_flags &&
-		    contexts[i]->c_flags == 0) {
-		    PM_LOCK(pmcd->pc_lock);
-		    if (strcmp(pmcd->pc_hosts[0].name, hosts[0].name) == 0 &&
-			pmcd->pc_hosts[0].nports == hosts[0].nports) {
-			int j, ports_same = 1;
-
-			for (j = 0; j < hosts[0].nports; j++) {
-			    if (pmcd->pc_hosts[0].ports[j] != hosts[0].ports[j]) {
-				ports_same = 0;
-				break;
-			    }
-			}
-
-			/* ports match, check that pmcd is alive too */
-			if (ports_same && ping_pmcd(i, contexts_map[i], pmcd)) {
-			    new->c_pmcd = pmcd;
-			    new->c_pmcd->pc_refcnt++;
-			    PM_UNLOCK(pmcd->pc_lock);
-			    break;
-			}
-		    }
-		    PM_UNLOCK(pmcd->pc_lock);
-		}
-	    }
-	}
-	PM_UNLOCK(contexts_lock);
-
-	if (new->c_pmcd == NULL) {
-	    /*
-	     * Try to establish the connection.
-	     * If this fails, restore the original current context
-	     * and return an error.  We unlock during the __pmConnectPMCD
-             * to permit another pmNewContext to start during this time.
-             * This is OK because this particular context won't be accessed
-             * by valid code, except in the above search for shareable contexts.
-             * But that code will reject it because our c_pmcd == NULL.
-             */
-            sts = __pmConnectPMCD(hosts, nhosts, new->c_flags, &new->c_attrs);
-            if (sts < 0) {
-		__pmFreeHostAttrsSpec(hosts, nhosts, attrs);
-		__pmHashClear(attrs);
-		goto FAILED;
-	    }
-
-	    new->c_pmcd = (__pmPMCDCtl *)calloc(1,sizeof(__pmPMCDCtl));
-	    if (new->c_pmcd == NULL) {
-		sts = -oserror();
-		__pmCloseSocket(sts);
-		__pmFreeHostAttrsSpec(hosts, nhosts, attrs);
-		__pmHashClear(attrs);
-		goto FAILED;
-	    }
-	    /*
-	     * THREADSAFE - don't need pc_lock here as __pmPMCDCtl is not
-	     * yet visible to other threads
-	     */
-	    new->c_pmcd->pc_fd = sts;
-	    new->c_pmcd->pc_hosts = hosts;
-	    new->c_pmcd->pc_nhosts = nhosts;
-	    new->c_pmcd->pc_tout_sec = __pmConvertTimeout(TIMEOUT_DEFAULT) / 1000;
-	    initchannellock(&new->c_pmcd->pc_lock);
-            new->c_pmcd->pc_refcnt++;
-	}
-	else {
-	    /* duplicate of an existing context, don't need the __pmHostSpec */
+	sts = __pmConnectPMCD(hosts, nhosts, new->c_flags, &new->c_attrs);
+	if (sts < 0) {
 	    __pmFreeHostAttrsSpec(hosts, nhosts, attrs);
 	    __pmHashClear(attrs);
+	    goto FAILED;
 	}
+
+	new->c_pmcd = (__pmPMCDCtl *)calloc(1,sizeof(__pmPMCDCtl));
+	if (new->c_pmcd == NULL) {
+	    sts = -oserror();
+	    __pmCloseSocket(sts);
+	    __pmFreeHostAttrsSpec(hosts, nhosts, attrs);
+	    __pmHashClear(attrs);
+	    goto FAILED;
+	}
+	new->c_pmcd->pc_fd = sts;
+	new->c_pmcd->pc_hosts = hosts;
+	new->c_pmcd->pc_nhosts = nhosts;
+	new->c_pmcd->pc_tout_sec = __pmConvertTimeout(TIMEOUT_DEFAULT) / 1000;
     }
     else if (new->c_type == PM_CONTEXT_LOCAL) {
 	if ((sts = ctxlocal(&new->c_attrs)) != 0)
@@ -1286,6 +1127,7 @@ INIT_CONTEXT:
 		    type, name);
 	}
 #endif
+	PM_CHECK_IS_UNLOCKED(new->c_lock);
 	return PM_ERR_NOCONTEXT;
     }
 
@@ -1306,6 +1148,7 @@ INIT_CONTEXT:
     /* bind defined metrics if any ..., after the new context is in place */
     __dmopencontext(new);
 
+    PM_CHECK_IS_UNLOCKED(new->c_lock);
     return PM_TPD(curr_handle);
 
 FAILED:
@@ -1320,6 +1163,7 @@ FAILED:
 
 FAILED_LOCKED:
     if (new != NULL) {
+	/* new has been allocated and ctxnum set */
 	if (new->c_instprof != NULL) {
 	    free(new->c_instprof);
             new->c_instprof = NULL;
@@ -1337,6 +1181,9 @@ FAILED_LOCKED:
 	    type, name, sts, PM_TPD(curr_handle));
 #endif
     PM_UNLOCK(contexts_lock);
+
+    if (old_curr_ctxp != NULL)
+	PM_CHECK_IS_UNLOCKED(old_curr_ctxp->c_lock);
     return sts;
 }
 
@@ -1345,7 +1192,7 @@ pmReconnectContext(int handle)
 {
     __pmContext	*ctxp;
     __pmPMCDCtl	*ctl;
-    int		i, sts;
+    int		sts;
     int		ctxnum;
 
     /* NB: This function may need parallelization, to permit multiple threads
@@ -1367,7 +1214,6 @@ pmReconnectContext(int handle)
     PM_UNLOCK(contexts_lock);
     ctl = ctxp->c_pmcd;
     if (ctxp->c_type == PM_CONTEXT_HOST) {
-	PM_LOCK(ctl->pc_lock);
 	if (ctl->pc_timeout && time(NULL) < ctl->pc_again) {
 	    /* too soon to try again */
 #ifdef PCP_DEBUG
@@ -1375,8 +1221,8 @@ pmReconnectContext(int handle)
 	    fprintf(stderr, "pmReconnectContext(%d) -> %d, too soon (need wait another %d secs)\n",
 		handle, (int)-ETIMEDOUT, (int)(ctl->pc_again - time(NULL)));
 #endif
-	    PM_UNLOCK(ctl->pc_lock);
 	    PM_UNLOCK(ctxp->c_lock);
+	    PM_CHECK_IS_UNLOCKED(ctxp->c_lock);
 	    return -ETIMEDOUT;
 	}
 
@@ -1394,8 +1240,8 @@ pmReconnectContext(int handle)
 		fprintf(stderr, "pmReconnectContext(%d), failed (wait %d secs before next attempt)\n",
 		    handle, (int)(ctl->pc_again - time(NULL)));
 #endif
-	    PM_UNLOCK(ctl->pc_lock);
 	    PM_UNLOCK(ctxp->c_lock);
+	    PM_CHECK_IS_UNLOCKED(ctxp->c_lock);
 	    return -ETIMEDOUT;
 	}
 	else {
@@ -1408,7 +1254,6 @@ pmReconnectContext(int handle)
 		fprintf(stderr, "pmReconnectContext(%d), done\n", handle);
 #endif
 	}
-	PM_UNLOCK(ctl->pc_lock);
     }
 
     /* clear any derived metrics and re-bind */
@@ -1416,28 +1261,21 @@ pmReconnectContext(int handle)
     __dmopencontext(ctxp);
     PM_UNLOCK(ctxp->c_lock);
 
-    if (ctxp->c_type == PM_CONTEXT_HOST) {
-	/* mark profile as not sent for all contexts sharing this socket */
-	PM_LOCK(contexts_lock);
-	for (i = 0; i < contexts_len; i++) {
-	    if (contexts_map[i] != MAP_FREE &&
-		contexts_map[i] != MAP_TEARDOWN &&
-		contexts[i]->c_type != PM_CONTEXT_INIT &&
-		contexts[i]->c_pmcd == ctl) {
-		contexts[i]->c_sent = 0;
-	    }
-	}
-	PM_UNLOCK(contexts_lock);
-    }
-
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_CONTEXT)
 	fprintf(stderr, "pmReconnectContext(%d) -> %d\n", handle, handle);
 #endif
 
+    PM_CHECK_IS_UNLOCKED(ctxp->c_lock);
     return handle;
 }
 
+/*
+ * TODO - move all the context copying earlier to a local temporary
+ * under the protection of oldcon->c_lock ... then release oldcon->c_lock
+ * and after the new one is created lock newcon->c_lock and cherry-pick
+ * copy from the local temporary to the new __pmContext
+ */
 int
 pmDupContext(void)
 {
@@ -1468,10 +1306,8 @@ pmDupContext(void)
     PM_UNLOCK(contexts_lock);
     oldtype = oldcon->c_type | oldcon->c_flags;
     if (oldcon->c_type == PM_CONTEXT_HOST) {
-	PM_LOCK(oldcon->c_pmcd->pc_lock);
 	__pmUnparseHostSpec(oldcon->c_pmcd->pc_hosts,
 			oldcon->c_pmcd->pc_nhosts, hostspec, sizeof(hostspec));
-	PM_UNLOCK(oldcon->c_pmcd->pc_lock);
 	new = pmNewContext(oldtype, hostspec);
     }
     else if (oldcon->c_type == PM_CONTEXT_LOCAL)
@@ -1497,7 +1333,6 @@ pmDupContext(void)
      * cherry-pick the fields of __pmContext that need to be copied
      */
     newcon->c_mode = oldcon->c_mode;
-    newcon->c_pmcd = oldcon->c_pmcd;
     newcon->c_origin = oldcon->c_origin;
     newcon->c_delta = oldcon->c_delta;
     newcon->c_flags = oldcon->c_flags;
@@ -1600,11 +1435,17 @@ pmDupContext(void)
 done_locked:
     PM_UNLOCK(oldcon->c_lock);
     PM_UNLOCK(newcon->c_lock);
+    PM_CHECK_IS_UNLOCKED(oldcon->c_lock);
+    PM_CHECK_IS_UNLOCKED(newcon->c_lock);
 
 done:
     /* return an error code, or the handle for the new context */
-    if (sts < 0 && new >= 0)
+    if (sts < 0 && new >= 0) {
+	PM_LOCK(contexts_lock);
 	contexts_map[ctxnum] = MAP_FREE;
+	PM_UNLOCK(contexts_lock);
+    }
+
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_CONTEXT) {
 	fprintf(stderr, "pmDupContext() -> %d\n", sts);
@@ -1641,6 +1482,8 @@ pmUseContext(int handle)
     PM_TPD(curr_ctxp) = contexts[ctxnum];
 
     PM_UNLOCK(contexts_lock);
+
+    PM_CHECK_IS_UNLOCKED(contexts[ctxnum]->c_lock);
     return 0;
 }
 
@@ -1649,11 +1492,6 @@ __pmPMCDCtlFree(__pmPMCDCtl *cp)
 {
     struct linger	dolinger = {0, 1};
 
-    PM_LOCK(cp->pc_lock);
-    if (--cp->pc_refcnt != 0) {
-	PM_UNLOCK(cp->pc_lock);
-	return;
-    }
     if (cp->pc_fd >= 0) {
 	/* before close, unsent data should be flushed */
 	__pmSetSockOpt(cp->pc_fd, SOL_SOCKET, SO_LINGER,
@@ -1661,13 +1499,6 @@ __pmPMCDCtlFree(__pmPMCDCtl *cp)
 	__pmCloseSocket(cp->pc_fd);
     }
     __pmFreeHostSpec(cp->pc_hosts, cp->pc_nhosts);
-    PM_UNLOCK(cp->pc_lock);
-#if 0
-    /* TODO ... not sure what's right here ... destroy the lock before
-     * all use has necessarily gone away or leak memory?
-     */
-    destroylock(&cp->pc_lock, "pc_lock");
-#endif
     free(cp);
 }
 
@@ -1728,6 +1559,7 @@ pmDestroyContext(int handle)
     contexts_map[ctxnum] = MAP_FREE;
     PM_UNLOCK(contexts_lock);
 
+    PM_CHECK_IS_UNLOCKED(ctxp->c_lock);
     return 0;
 }
 
@@ -1780,16 +1612,13 @@ __pmDumpContext(FILE *f, int context, pmInDom indom)
             }
 	    else if (con->c_type == PM_CONTEXT_HOST) {
 		fprintf(f, " handle %d:", contexts_map[i]);
-		PM_LOCK(con->c_pmcd->pc_lock);
 		fprintf(f, " host %s:", con->c_pmcd->pc_hosts[0].name);
-		fprintf(f, " pmcd=%s profile=%s fd=%d refcnt=%d",
+		fprintf(f, " pmcd=%s profile=%s fd=%d",
 		    (con->c_pmcd->pc_fd < 0) ? "NOT CONNECTED" : "CONNECTED",
 		    con->c_sent ? "SENT" : "NOT_SENT",
-		    con->c_pmcd->pc_fd,
-		    con->c_pmcd->pc_refcnt);
+		    con->c_pmcd->pc_fd);
 		if (con->c_flags)
 		    fprintf(f, " flags=%x", con->c_flags);
-		PM_UNLOCK(con->c_pmcd->pc_lock);
 	    }
 	    else if (con->c_type == PM_CONTEXT_LOCAL) {
 		fprintf(f, " handle %d:", contexts_map[i]);
@@ -1835,99 +1664,6 @@ __pmDumpContext(FILE *f, int context, pmInDom indom)
     PM_UNLOCK(contexts_lock);
 }
 
-#define TYPESTRLEN 20
-/*
- * Come here after TIMEOUT or IPC error at the PDU layer in the
- * communication with another process (usually during a __pmGetPDU()
- * call.
- *
- * If we are a client of pmcd, then close the channel to prevent
- * cascading errors from any context that is communicating with
- * the same pmcd over the same socket.
- *
- * If we are not a client of pmcd (e.g. pmcd or dbpmda commnicating
- * with a PMDA), do nothing ... the higher level logic will handle
- * the error and there is no socket multiplexing in play.
- *
- * We were expecting a PDU of type expect, but received one
- * of type recv (which may be an error, e.g PM_ERR_TIMEOUT).
- *
- * No need to be delicate here, rip the socket down so other
- * contexts are not compromised by stale data on the channel.
- *
- * If the channel's fd is < 0, we've been here before (or someone
- * else has nuked the channel), so be silent.
- */
-void
-__pmCloseChannelbyFd(int fd, int expect, int recv)
-{
-    char	errmsg[PM_MAXERRMSGLEN];
-    char	expect_str[TYPESTRLEN];
-    char	recv_str[TYPESTRLEN];
-    if (__pmGetInternalState() == PM_STATE_PMCS) {
-	/* not a client of pmcd, so don't close any channels here */
-	return;
-    }
-    __pmPDUTypeStr_r(expect, expect_str, TYPESTRLEN);
-    if (recv < 0) {
-	/* error or timeout */
-	__pmNotifyErr(LOG_ERR, "__pmCloseChannelbyFd: fd=%d expected PDU_%s received: %s",
-	    fd, expect_str, pmErrStr_r(recv, errmsg, sizeof(errmsg)));
-    }
-    else if (recv > 0) {
-	/* wrong pdu type */
-	__pmPDUTypeStr_r(recv, recv_str, TYPESTRLEN);
-	__pmNotifyErr(LOG_ERR, "__pmCloseChannelbyFd: fd=%d expected PDU_%s received: PDU_%s",
-	    fd, expect_str, recv_str);
-    }
-    else {
-	/* EOF aka PDU-0, nothing to report */
-	;
-    }
-    __pmCloseSocket(fd);
-}
-
-/*
- * See comments above for __pmCloseChannelbyFd() ...
- *
- * In this case we are dealing with a PMAPI context and come here
- * holding the c_lock.
- */
-void
-__pmCloseChannelbyContext(__pmContext *ctxp, int expect, int recv)
-{
-    if (__pmGetInternalState() == PM_STATE_PMCS) {
-	/* not a client of pmcd, so don't close any channels here */
-	return;
-    }
-    PM_UNLOCK(ctxp->c_pmcd->pc_lock);
-    /* guard against repeated calls for the same channel ... */
-    if (ctxp->c_pmcd->pc_fd >= 0) {
-	char	errmsg[PM_MAXERRMSGLEN];
-	char	expect_str[TYPESTRLEN];
-	char	recv_str[TYPESTRLEN];
-	__pmPDUTypeStr_r(expect, expect_str, TYPESTRLEN);
-	if (recv < 0) {
-	    /* error or timeout */
-	    __pmNotifyErr(LOG_ERR, "__pmCloseChannelbyContext: fd=%d context=%d expected PDU_%s received: %s",
-		ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp), expect_str, pmErrStr_r(recv, errmsg, sizeof(errmsg)));
-	}
-	else if (recv > 0) {
-	    /* wrong pdu type */
-	    __pmPDUTypeStr_r(recv, recv_str, TYPESTRLEN);
-	    __pmNotifyErr(LOG_ERR, "__pmCloseChannelbyContext: fd=%d context=%d expected PDU_%s received: PDU_%s",
-		ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp), expect_str, recv_str);
-	}
-	else {
-	    /* EOF aka PDU-0, nothing to report */
-	    ;
-	}
-	__pmCloseSocket(ctxp->c_pmcd->pc_fd);
-	ctxp->c_pmcd->pc_fd = -1;
-    }
-    PM_UNLOCK(ctxp->c_pmcd->pc_lock);
-}
-
 #ifdef PM_MULTI_THREAD
 #ifdef PM_MULTI_THREAD_DEBUG
 /*
@@ -1940,21 +1676,6 @@ __pmIsContextLock(void *lock)
     int		i;
     for (i = 0; i < contexts_len; i++) {
 	if ((void *)&contexts[i]->c_lock == lock)
-	    return i;
-    }
-    return -1;
-}
-
-/*
- * return context if lock == pc_lock for a context ... no locking here
- * to avoid recursion ad nauseum
- */
-int
-__pmIsChannelLock(void *lock)
-{
-    int		i;
-    for (i = 0; i < contexts_len; i++) {
-	if ((void *)&contexts[i]->c_pmcd->pc_lock == lock)
 	    return i;
     }
     return -1;

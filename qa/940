@@ -19,6 +19,7 @@ which sedismod >/dev/null 2>&1 || _notrun "sedismod tool not installed (module d
 which semodule >/dev/null 2>&1 || _notrun "semodule tool not installed"
 which seinfo >/dev/null 2>&1 || _notrun "seinfo tool not installed"
 [ -f "$policy_file" ] || _notrun "upstream container policy package not installed"
+$sudo semodule -l 2>&1 | grep -q "$policy_name" || _notrun "upstream container policy package not loaded"
 
 _cleanup()
 {

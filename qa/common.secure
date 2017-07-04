@@ -1,6 +1,6 @@
 #
 # Common shell routines for testing security extensions
-# Copyright (c) 2012-2014 Red Hat.
+# Copyright (c) 2012-2014,2017 Red Hat.
 #
 
 # get standard environment, filters and checks
@@ -21,6 +21,25 @@ groupname=`id -g -n`
 
 qahost=`_get_fqdn`
 hostname=`hostname | sed -e 's/\..*//'`
+
+sasl_notrun_checks()
+{
+    gotplugins=false
+    which pluginviewer >/dev/null 2>&1 && gotplugins=true
+    if $gotplugins
+    then
+	pluginviewer=pluginviewer
+    else
+	which saslpluginviewer >/dev/null 2>&1 && gotplugins=true
+	pluginviewer=saslpluginviewer
+    fi
+    $gotplugins || _notrun "SASL pluginviewer utility unavailable"
+
+    for helper in $@
+    do
+	which $helper >/dev/null 2>&1 || _notrun "SASL $helper tool unavailable"
+    done
+}
 
 nss_notrun_checks()
 {

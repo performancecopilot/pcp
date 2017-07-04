@@ -165,7 +165,7 @@ cpid=CPID
 
 --- Check profile in context dump... ---
 Dump Contexts: current -> contexts[0] handle 0
-contexts[0] handle 0: host localhost: pmcd=CONNECTED profile=NOT_SENT fd=N refcnt=N origin=0.000000 delta=0
+contexts[0] handle 0: host localhost: pmcd=CONNECTED profile=NOT_SENT fd=N origin=0.000000 delta=0
 Dump Instance Profile state=INCLUDE, 1 profiles
 	Profile [0] indom=INDOM [INDOM] state=EXCLUDE 2 instances
 		Instances: [PID] [PPID]

@@ -7,6 +7,8 @@ Warning - failed to expand action for rule cpu.system
   string: "$syslog_prefix$$rule$^ $action_expand$"
 Warning - failed to expand action for rule cpu.util
   string: "$syslog_prefix$$rule$^ $action_expand$"
+Warning - failed to expand action for rule entropy.available
+  string: "$syslog_prefix$$rule$^ $action_expand$"
 Warning - failed to expand action for rule filesys.filling
   string: "$syslog_prefix$$rule$^ $action_expand$"
 Warning - failed to expand action for rule memory.exhausted

@@ -30,13 +30,12 @@ __pmRecvText(int fd, __pmContext *ctxp, int timeout, char **buffer)
 	sts = __pmDecodeText(pb, &ident, buffer);
     else if (sts == PDU_ERROR)
 	__pmDecodeError(pb, &sts);
-    else {
-	__pmCloseChannelbyContext(ctxp, PDU_TEXT, sts);
-	if (sts != PM_ERR_TIMEOUT)
-	    sts = PM_ERR_IPC;
-    }
+    else if (sts != PM_ERR_TIMEOUT)
+	sts = PM_ERR_IPC;
+
     if (pinpdu > 0)
 	__pmUnpinPDUBuf(pb);
+
     return sts;
 }
 
@@ -54,7 +53,6 @@ lookuptext(int ident, int type, char **buffer)
 	return PM_ERR_NOCONTEXT;
 
     if (ctxp->c_type == PM_CONTEXT_HOST) {
-	PM_LOCK(ctxp->c_pmcd->pc_lock);
 	tout = ctxp->c_pmcd->pc_tout_sec;
 	fd = ctxp->c_pmcd->pc_fd;
 again_host:
@@ -72,7 +70,6 @@ again_host:
 		goto again_host;
 	    }
 	}
-	PM_UNLOCK(ctxp->c_pmcd->pc_lock);
     }
     else if (ctxp->c_type == PM_CONTEXT_LOCAL) {
 	if (PM_MULTIPLE_THREADS(PM_SCOPE_DSO_PMDA))
@@ -107,6 +104,7 @@ again_local:
     }
 
     PM_UNLOCK(ctxp->c_lock);
+    CHECK_C_LOCK;
     return sts;
 }
 

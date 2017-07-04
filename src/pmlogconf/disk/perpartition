@@ -1,6 +1,6 @@
 #pmlogconf-setup 2.0
 ident	per logical block device activity
-force	available
+probe	disk.partitions.read values
 	disk.partitions.read
 	disk.partitions.write
 	disk.partitions.read_bytes

@@ -620,6 +620,7 @@ ac_includes_default="\
 #endif"
 
 ac_subst_vars='PACKAGE_CONFIGURE
+pcp_prefix
 have_webapps
 HAVE_ZLIB
 zlib_LIBS
@@ -699,6 +700,14 @@ fmt_uint64
 fmt_int64
 fmt_pid
 rdynamic_flag
+pcp_selinux_systemd_exec
+pcp_selinux_systemd_unit_file
+pcp_selinux_svirt_lxc_net
+pcp_selinux_docker_var_lib
+pcp_selinux_nsfs
+pcp_selinux_container_runtime
+pcp_selinux_cap_userns_ptrace
+pcp_selinux_class_status
 pcp_selinux_dir
 enable_selinux
 SEINFO
@@ -790,6 +799,7 @@ qt_version
 qt_release
 QMAKE
 PMDA_LIBVIRT
+PMDA_PROMETHEUS
 PMDA_LIO
 PMDA_NUTCRACKER
 PMDA_BIND2
@@ -803,9 +813,9 @@ PMDA_SNMP
 have_perl
 pcp_perl_prog
 PERL
-have_python_libvirt
 PMDA_JSON
 have_python_six
+have_python_libvirt
 have_python_requests
 have_python_setuptools
 have_python_jsonpointer
@@ -919,7 +929,6 @@ infodir
 docdir
 oldincludedir
 includedir
-runstatedir
 localstatedir
 sharedstatedir
 sysconfdir
@@ -1058,7 +1067,6 @@ datadir='${datarootdir}'
 sysconfdir='${prefix}/etc'
 sharedstatedir='${prefix}/com'
 localstatedir='${prefix}/var'
-runstatedir='${localstatedir}/run'
 includedir='${prefix}/include'
 oldincludedir='/usr/include'
 docdir='${datarootdir}/doc/${PACKAGE}'
@@ -1311,15 +1319,6 @@ do
   | -silent | --silent | --silen | --sile | --sil)
     silent=yes ;;
 
-  -runstatedir | --runstatedir | --runstatedi | --runstated \
-  | --runstate | --runstat | --runsta | --runst | --runs \
-  | --run | --ru | --r)
-    ac_prev=runstatedir ;;
-  -runstatedir=* | --runstatedir=* | --runstatedi=* | --runstated=* \
-  | --runstate=* | --runstat=* | --runsta=* | --runst=* | --runs=* \
-  | --run=* | --ru=* | --r=*)
-    runstatedir=$ac_optarg ;;
-
   -sbindir | --sbindir | --sbindi | --sbind | --sbin | --sbi | --sb)
     ac_prev=sbindir ;;
   -sbindir=* | --sbindir=* | --sbindi=* | --sbind=* | --sbin=* \
@@ -1457,7 +1456,7 @@ fi
 for ac_var in	exec_prefix prefix bindir sbindir libexecdir datarootdir \
 		datadir sysconfdir sharedstatedir localstatedir includedir \
 		oldincludedir docdir infodir htmldir dvidir pdfdir psdir \
-		libdir localedir mandir runstatedir
+		libdir localedir mandir
 do
   eval ac_val=\$$ac_var
   # Remove trailing slashes.
@@ -1610,7 +1609,6 @@ Fine tuning of the installation directories:
   --sysconfdir=DIR        read-only single-machine data [PREFIX/etc]
   --sharedstatedir=DIR    modifiable architecture-independent data [PREFIX/com]
   --localstatedir=DIR     modifiable single-machine data [PREFIX/var]
-  --runstatedir=DIR       modifiable per-process data [LOCALSTATEDIR/run]
   --libdir=DIR            object code libraries [EPREFIX/lib]
   --includedir=DIR        C header files [PREFIX/include]
   --oldincludedir=DIR     C header files for non-gcc [/usr/include]
@@ -7286,6 +7284,28 @@ $as_echo "no" >&6; }
     fi
 
 
+ { $as_echo "$as_me:${as_lineno-$LINENO}: checking for Python module libvirt" >&5
+$as_echo_n "checking for Python module libvirt... " >&6; }
+    if test -n ""
+    then
+	txt=""
+    else
+	txt="import libvirt"
+    fi
+    $pcp_python_prog -c 'import sys;
+'"$txt" >>config.log 2>&1
+    if test "$?" = 0
+    then
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+	eval have_python_libvirt=true
+    else
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+	eval have_python_libvirt=false
+    fi
+
+
  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for Python module six" >&5
 $as_echo_n "checking for Python module six... " >&6; }
     if test -n ""
@@ -7325,29 +7345,6 @@ PMDA_JSON=$pmda_json
 if $pmda_json; then { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }; else { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
 $as_echo "no" >&6; }; fi
-
- { $as_echo "$as_me:${as_lineno-$LINENO}: checking for Python module libvirt" >&5
-$as_echo_n "checking for Python module libvirt... " >&6; }
-    if test -n ""
-    then
-	txt=""
-    else
-	txt="import libvirt"
-    fi
-    $pcp_python_prog -c 'import sys;
-'"$txt" >>config.log 2>&1
-    if test "$?" = 0
-    then
-	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-$as_echo "yes" >&6; }
-	eval have_python_libvirt=true
-    else
-	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-	eval have_python_libvirt=false
-    fi
-
-
 
 for ac_prog in perl
 do
@@ -7600,12 +7597,28 @@ if $pmda_lio; then { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }; else { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
 $as_echo "no" >&6; }; fi
 
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking if the Prometheus PMDA should be included" >&5
+$as_echo_n "checking if the Prometheus PMDA should be included... " >&6; }
+pmda_prometheus=false
+if test "$have_python" = true
+then
+    if test "$have_python_requests" = true
+    then
+	pmda_prometheus=true
+    fi
+fi
+PMDA_PROMETHEUS=$pmda_prometheus
+
+if $pmda_prometheus; then { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }; else { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }; fi
+
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking if the libvirt PMDA should be included" >&5
 $as_echo_n "checking if the libvirt PMDA should be included... " >&6; }
 pmda_libvirt=false
 if test "$have_python" = true
 then
-        if $pcp_python_prog -c "import libvirt" >/dev/null 2>&1
+        if test "$have_python_libvirt" = true
     then
 	if $pcp_python_prog -c "import lxml" >/dev/null 2>&1
 	then
@@ -10703,7 +10716,14 @@ $as_echo "yes" >&6; }
 fi
 
 pmda_perfevent=false
-if test "x$do_perfevent" != "xno" ; then :
+if test "x$do_perfevent" = "xyes"; then :
+
+    pmda_perfevent=true
+    pfm_libs="-lpfm"
+    PFM_LIBS=$pfm_libs
+
+
+elif test "x$do_perfevent" != "xno" ; then :
 
     enable_perfevent=true
 
@@ -11150,6 +11170,72 @@ do
 done
 
 fi
+
+
+
+pcp_selinux_class_status=false
+pcp_selinux_cap_userns_ptrace=false
+pcp_selinux_container_runtime=false
+pcp_selinux_nsfs=false
+pcp_selinux_docker_var_lib=false
+pcp_selinux_svirt_lxc_net=false
+pcp_selinux_systemd_unit_file=false
+pcp_selinux_systemd_exec=false
+if test "x$enable_selinux" != "xfalse"; then :
+
+for policy_file in /etc/selinux/targeted/policy/policy.*
+do
+    if test -f "$policy_file"
+    then
+        class_status=`eval seinfo -x --class=system $policy_file | grep status | awk '{ print $1 }'`
+    	if test "x$class_status" != "x"
+	then
+	    pcp_selinux_class_status=true
+	fi
+	container_runtime=`eval seinfo -t $policy_file | grep container_runtime_t | awk '{ print $1 }'`
+	if test "x$container_runtime" != "x"
+	then
+	    pcp_selinux_container_runtime=true
+	fi
+	nsfs=`eval seinfo -t $policy_file | grep nsfs_t | awk '{ print $1 }'`
+	if test "x$nsfs" != "x"
+	then
+	    pcp_selinux_nsfs=true
+	fi
+	docker_var_lib=`eval seinfo -t $policy_file | grep docker_var_lib_t | awk '{ print $1 }'`
+	if test "x$docker_var_lib" != "x"
+	then
+	    pcp_selinux_docker_var_lib=true
+	fi
+	svirt_lxc_net=`eval seinfo -t $policy_file | grep svirt_lxc_net_t | awk '{ print $1 }'`
+	if test "x$svirt_lxc_net" != "x"
+	then
+	    pcp_selinux_svirt_lxc_net=true
+	fi
+	systemd_unit_file=`eval seinfo -t $policy_file | grep systemd_unit_file_t | awk '{ print $1 }'`
+	if test "x$systemd_unit_file" != "x"
+	then
+	    pcp_selinux_systemd_unit_file=true
+	fi
+	systemd_exec=`eval seinfo -t $policy_file | grep systemd_systemctl_exec_t | awk '{ print $1 }'`
+	if test "x$systemd_exec" != "x"
+	then
+	    pcp_selinux_systemd_exec=true
+	fi
+	cap_userns_ptrace=`eval seinfo -x --class=cap_userns $policy_file 2>&1 | grep sys_ptrace | awk '{ print $1 }'`
+    	if test "x$cap_userns_ptrace" != "x"
+	then
+	    pcp_selinux_cap_userns_ptrace=true
+	fi
+    fi
+done
+
+fi
+
+
+
+
+
 
 
 
@@ -12210,7 +12296,7 @@ rm -rf conftest.* conftest
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking strtol or strtoll for int64_t" >&5
 $as_echo_n "checking strtol or strtoll for int64_t... " >&6; }
 if test "$cross_compiling" = "yes"; then
-    ans=$strtoint64
+    ans="$strtoint64"
     echo "cross-compile -> \"$ans\"" >&5
 else
     cat <<End-of-File >conftest.c
@@ -12240,25 +12326,31 @@ fi
 case "$ans"
 in
     strtol)
-	$as_echo "#define strtoint64 strtol" >>confdefs.h
 
-	$as_echo "#define strtouint64 strtoul" >>confdefs.h
+$as_echo "#define strtoint64 strtol" >>confdefs.h
+
+
+$as_echo "#define strtouint64 strtoul" >>confdefs.h
 
 	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: strtol" >&5
 $as_echo "strtol" >&6; }
 	;;
     strtoll)
-	$as_echo "#define strtoint64 strtoll" >>confdefs.h
 
-	$as_echo "#define strtouint64 strtoull" >>confdefs.h
+$as_echo "#define strtoint64 strtoll" >>confdefs.h
+
+
+$as_echo "#define strtouint64 strtoull" >>confdefs.h
 
 	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: strtoll" >&5
 $as_echo "strtoll" >&6; }
 	;;
     *)
-	$as_echo "#define strtoint64 strtoll" >>confdefs.h
 
-	$as_echo "#define strtouint64 strtoull" >>confdefs.h
+$as_echo "#define strtoint64 strtoll" >>confdefs.h
+
+
+$as_echo "#define strtouint64 strtoull" >>confdefs.h
 
 	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: assuming strtoll" >&5
 $as_echo "assuming strtoll" >&6; }
@@ -15475,6 +15567,8 @@ $as_echo "$as_me: adding web applications to the build" >&6;}
     have_webapps=true
 fi
 
+
+pcp_prefix=`eval echo $prefix`
 
 
 

@@ -1,0 +1,68 @@
+#! /bin/sh
+# PCP QA Test No. 1088
+# excercise pmmgr pmlogger-timefmt and hostid-static
+#
+# Copyright (c) Martins Innus
+#
+seq=`basename $0`
+echo "QA output created by $seq"
+
+rm -f $seq.full
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+which pmmgr >/dev/null 2>&1 || _notrun "No pmmgr binary installed"
+
+status=1    # failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "cd $here; $sudo rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
+
+metric="sample.control"
+cat <<EOF >$tmp.pmloggerconfig
+log mandatory on 1 sec {
+    $metric
+}
+EOF
+
+echo "=== pmmgr configuration ===" | tee -a $seq.full
+$sudo rm -rf $tmp.dir
+mkdir $tmp.dir
+chmod 777 $tmp.dir
+
+echo 'localhost' >>$tmp.dir/target-host
+echo 'my_host_id' >>$tmp.dir/hostid-static
+echo 'static_date_string' >>$tmp.dir/pmlogger-timefmt
+$PCP_BINADM_DIR/pmmgr -v -p 2 -l $tmp.out -c $tmp.dir >$tmp.out 2>$tmp.err &
+pid=$!
+echo "pid=$pid" >>$seq.full
+
+echo "-c $tmp.pmloggerconfig" >$tmp.dir/pmlogger
+echo $tmp.dir >$tmp.dir/log-directory
+
+# Give it some time to run
+sleep 30
+
+echo "=== check outout ===" | tee -a $seq.full
+count=`ls -1 $tmp.dir/my_host_id/archive-static_date_string.meta | wc -l`
+if [ $count -gt 0 ]; then
+    echo Got archive
+else
+    echo "No archives"
+fi    
+
+ls -lR $tmp.dir >>$seq.full
+
+for f in $tmp.dir/my_host_id/*.meta; do
+    echo == $f == >>$seq.full
+    pmloglabel -l $f >>$seq.full
+    pmloglabel -l $f | grep "Log Label"
+done
+
+echo "=== kill pmmgr ===" | tee -a $seq.full
+kill $pid
+
+status=0
+exit
