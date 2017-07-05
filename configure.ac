@@ -1887,6 +1887,8 @@ pcp_selinux_docker_var_lib=false
 pcp_selinux_svirt_lxc_net=false
 pcp_selinux_systemd_unit_file=false
 pcp_selinux_systemd_exec=false
+pcp_selinux_tracefs=false
+pcp_selinux_unreserved_port=false
 AS_IF([test "x$enable_selinux" != "xfalse"], [
 for policy_file in /etc/selinux/targeted/policy/policy.*
 do
@@ -1932,6 +1934,17 @@ do
 	then
 	    pcp_selinux_cap_userns_ptrace=true
 	fi
+	unreserved_port=`eval seinfo -t $policy_file | grep unreserved_port_t | awk '{ print $1 }'`
+	if test "x$unreserved_port" != "x"
+	then
+	    pcp_selinux_unreserved_port=true
+	fi
+	tracefs=`eval seinfo -t $policy_file | grep tracefs_t | awk '{ print $1 }'`
+	if test "x$tracefs" != "x"
+	then
+	    pcp_selinux_tracefs=true
+	fi
+
     fi
 done  
 ])
@@ -1943,6 +1956,8 @@ AC_SUBST(pcp_selinux_docker_var_lib)
 AC_SUBST(pcp_selinux_svirt_lxc_net)
 AC_SUBST(pcp_selinux_systemd_unit_file)
 AC_SUBST(pcp_selinux_systemd_exec)
+AC_SUBST(pcp_selinux_unreserved_port)
+AC_SUBST(pcp_selinux_tracefs)
 
 dnl Checks for library functions.
 AC_TYPE_SIGNAL
