@@ -965,12 +965,23 @@ pmNewContext(int type, const char *name)
     /* A pointer to this stub object is put in contexts[] while a real __pmContext is being built. */
     static /*const*/ __pmContext being_initialized = { .c_type = PM_CONTEXT_INIT };
 
+#ifdef PCP_DEBUG
+    if (pmDebug & DBG_TRACE_PMAPI) {
+	if (name == NULL)
+	    fprintf(stderr, "pmNewContext(%d, NULL) <:", type);
+	else
+	    fprintf(stderr, "pmNewContext(%d, \"%s\") <:", type, name);
+    }
+#endif
+
     PM_INIT_LOCKS();
 
     if (PM_CONTEXT_LOCAL == (type & PM_CONTEXT_TYPEMASK) &&
-	PM_MULTIPLE_THREADS(PM_SCOPE_DSO_PMDA))
+	PM_MULTIPLE_THREADS(PM_SCOPE_DSO_PMDA)) {
 	/* Local context requires single-threaded applications */
-	return PM_ERR_THREAD;
+	sts = PM_ERR_THREAD;
+	goto pmapi_return;
+    }
 
     old_curr_handle = PM_TPD(curr_handle);
     old_curr_ctxp = PM_TPD(curr_ctxp);
@@ -1137,7 +1148,8 @@ INIT_CONTEXT:
 	}
 #endif
 	PM_CHECK_IS_UNLOCKED(new->c_lock);
-	return PM_ERR_NOCONTEXT;
+	sts = PM_ERR_NOCONTEXT;
+	goto pmapi_return;
     }
 
     /* Take contexts_lock mutex to update contexts[] with this fully operational
@@ -1165,7 +1177,8 @@ INIT_CONTEXT:
     PM_UNLOCK(new->c_lock);
 
     PM_CHECK_IS_UNLOCKED(new->c_lock);
-    return PM_TPD(curr_handle);
+    sts = PM_TPD(curr_handle);
+    goto pmapi_return;
 
 FAILED:
     /*
@@ -1200,6 +1213,21 @@ FAILED_LOCKED:
 
     if (old_curr_ctxp != NULL)
 	PM_CHECK_IS_UNLOCKED(old_curr_ctxp->c_lock);
+
+pmapi_return:
+
+#ifdef PCP_DEBUG
+    if (pmDebug & DBG_TRACE_PMAPI) {
+	fprintf(stderr, ":> returns ");
+	if (sts >= 0)
+	    fprintf(stderr, "%d\n", sts);
+	else {
+	    char	errmsg[PM_MAXERRMSGLEN];
+	    fprintf(stderr, "%s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	}
+    }
+#endif
+
     return sts;
 }
 
@@ -1210,6 +1238,12 @@ pmReconnectContext(int handle)
     __pmPMCDCtl	*ctl;
     int		sts;
     int		ctxnum;
+
+#ifdef PCP_DEBUG
+    if (pmDebug & DBG_TRACE_PMAPI) {
+	fprintf(stderr, "pmReconnectContext(%d) <:", handle);
+    }
+#endif
 
     /* NB: This function may need parallelization, to permit multiple threads
        to pmReconnectContext() concurrently.  __pmConnectPMCD can take multiple
@@ -1222,7 +1256,8 @@ pmReconnectContext(int handle)
 	    fprintf(stderr, "pmReconnectContext(%d) -> %d\n", handle, PM_ERR_NOCONTEXT);
 #endif
 	PM_UNLOCK(contexts_lock);
-	return PM_ERR_NOCONTEXT;
+	sts = PM_ERR_NOCONTEXT;
+	goto pmapi_return;
     }
 
     ctxp = contexts[ctxnum];
@@ -1239,7 +1274,8 @@ pmReconnectContext(int handle)
 #endif
 	    PM_UNLOCK(ctxp->c_lock);
 	    PM_CHECK_IS_UNLOCKED(ctxp->c_lock);
-	    return -ETIMEDOUT;
+	    sts = -ETIMEDOUT;
+	    goto pmapi_return;
 	}
 
 	if (ctl->pc_fd >= 0) {
@@ -1258,7 +1294,8 @@ pmReconnectContext(int handle)
 #endif
 	    PM_UNLOCK(ctxp->c_lock);
 	    PM_CHECK_IS_UNLOCKED(ctxp->c_lock);
-	    return -ETIMEDOUT;
+	    sts = -ETIMEDOUT;
+	    goto pmapi_return;
 	}
 	else {
 	    ctl->pc_fd = sts;
@@ -1283,7 +1320,23 @@ pmReconnectContext(int handle)
 #endif
 
     PM_CHECK_IS_UNLOCKED(ctxp->c_lock);
-    return handle;
+    sts = handle;
+
+pmapi_return:
+
+#ifdef PCP_DEBUG
+    if (pmDebug & DBG_TRACE_PMAPI) {
+	fprintf(stderr, ":> returns ");
+	if (sts >= 0)
+	    fprintf(stderr, "%d\n", sts);
+	else {
+	    char	errmsg[PM_MAXERRMSGLEN];
+	    fprintf(stderr, "%s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	}
+    }
+#endif
+
+    return sts;
 }
 
 /*
@@ -1304,6 +1357,12 @@ pmDupContext(void)
     int			i;
     int			ctxnum;
 
+#ifdef PCP_DEBUG
+    if (pmDebug & DBG_TRACE_PMAPI) {
+	fprintf(stderr, "pmDupContext() <:");
+    }
+#endif
+
     if ((old = pmWhichContext()) < 0) {
 	sts = old;
 	goto done;
@@ -1315,7 +1374,8 @@ pmDupContext(void)
 	    fprintf(stderr, "pmDupContext(%d) -> %d\n", old, PM_ERR_NOCONTEXT);
 #endif
 	PM_UNLOCK(contexts_lock);
-	return PM_ERR_NOCONTEXT;
+	sts = PM_ERR_NOCONTEXT;
+	goto pmapi_return;
     }
 
     oldcon = contexts[ctxnum];
@@ -1470,6 +1530,20 @@ done:
     }
 #endif
 
+pmapi_return:
+
+#ifdef PCP_DEBUG
+    if (pmDebug & DBG_TRACE_PMAPI) {
+	fprintf(stderr, ":> returns ");
+	if (sts >= 0)
+	    fprintf(stderr, "%d\n", sts);
+	else {
+	    char	errmsg[PM_MAXERRMSGLEN];
+	    fprintf(stderr, "%s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	}
+    }
+#endif
+
     return sts;
 }
 
@@ -1477,6 +1551,13 @@ int
 pmUseContext(int handle)
 {
     int		ctxnum;
+    int		sts;
+
+#ifdef PCP_DEBUG
+    if (pmDebug & DBG_TRACE_PMAPI) {
+	fprintf(stderr, "pmUseContext(%d) <:", handle);
+    }
+#endif
 
     PM_INIT_LOCKS();
 
@@ -1487,7 +1568,8 @@ pmUseContext(int handle)
 	    fprintf(stderr, "pmUseContext(%d) -> %d\n", handle, PM_ERR_NOCONTEXT);
 #endif
 	PM_UNLOCK(contexts_lock);
-	return PM_ERR_NOCONTEXT;
+	sts = PM_ERR_NOCONTEXT;
+	goto pmapi_return;
     }
 
 #ifdef PCP_DEBUG
@@ -1500,7 +1582,23 @@ pmUseContext(int handle)
     PM_UNLOCK(contexts_lock);
 
     PM_CHECK_IS_UNLOCKED(contexts[ctxnum]->c_lock);
-    return 0;
+    sts = 0;
+
+pmapi_return:
+
+#ifdef PCP_DEBUG
+    if (pmDebug & DBG_TRACE_PMAPI) {
+	fprintf(stderr, ":> returns ");
+	if (sts >= 0)
+	    fprintf(stderr, "%d\n", sts);
+	else {
+	    char	errmsg[PM_MAXERRMSGLEN];
+	    fprintf(stderr, "%s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	}
+    }
+#endif
+
+    return sts;
 }
 
 static void
@@ -1523,6 +1621,13 @@ pmDestroyContext(int handle)
 {
     __pmContext	*ctxp;
     int		ctxnum;
+    int		sts;
+
+#ifdef PCP_DEBUG
+    if (pmDebug & DBG_TRACE_PMAPI) {
+	fprintf(stderr, "pmDestroyContext(%d) <:", handle);
+    }
+#endif
 
     PM_INIT_LOCKS();
 
@@ -1533,7 +1638,8 @@ pmDestroyContext(int handle)
 	fprintf(stderr, "pmDestroyContext(%d) -> %d\n", handle, PM_ERR_NOCONTEXT);
 #endif
 	PM_UNLOCK(contexts_lock);
-	return PM_ERR_NOCONTEXT;
+	sts = PM_ERR_NOCONTEXT;
+	goto pmapi_return;
     }
 
     ctxp = contexts[ctxnum];
@@ -1576,7 +1682,23 @@ pmDestroyContext(int handle)
     PM_UNLOCK(contexts_lock);
 
     PM_CHECK_IS_UNLOCKED(ctxp->c_lock);
-    return 0;
+    sts = 0;
+
+pmapi_return:
+
+#ifdef PCP_DEBUG
+    if (pmDebug & DBG_TRACE_PMAPI) {
+	fprintf(stderr, ":> returns ");
+	if (sts >= 0)
+	    fprintf(stderr, "%d\n", sts);
+	else {
+	    char	errmsg[PM_MAXERRMSGLEN];
+	    fprintf(stderr, "%s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	}
+    }
+#endif
+
+    return sts;
 }
 
 static const char *_mode[] = { "LIVE", "INTERP", "FORW", "BACK" };

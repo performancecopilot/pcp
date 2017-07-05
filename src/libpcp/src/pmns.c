@@ -1576,13 +1576,23 @@ pmLookupName_ctx(__pmContext *ctxp, int numpmid, char *namelist[], pmID pmidlist
     int		i;
     int		nfail = 0;
 
+#ifdef PCP_DEBUG
+    if (pmDebug & DBG_TRACE_PMAPI) {
+	fprintf(stderr, "pmLookupName(%d, name[0] %s", numpmid, namelist[0]);
+	if (numpmid > 1)
+	    fprintf(stderr, " ... name[%d] %s", numpmid-1, namelist[numpmid-1]);
+	fprintf(stderr, ", ...) <:");
+    }
+#endif
+
     if (numpmid < 1) {
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_PMNS) {
 	    fprintf(stderr, "pmLookupName(%d, ...) bad numpmid!\n", numpmid);
 	}
 #endif
-	return PM_ERR_TOOSMALL;
+	sts = PM_ERR_TOOSMALL;
+	goto pmapi_return;
     }
 
     PM_INIT_LOCKS();
@@ -1591,8 +1601,10 @@ pmLookupName_ctx(__pmContext *ctxp, int numpmid, char *namelist[], pmID pmidlist
     if (lsts >= 0) {
 	if (ctxp == NULL) {
 	    ctxp = __pmHandleToPtr(ctx);
-	    if (ctxp == NULL)
-		return PM_ERR_NOCONTEXT;
+	    if (ctxp == NULL) {
+		sts = PM_ERR_NOCONTEXT;
+		goto pmapi_return;
+	    }
 	    need_unlock = 1;
 	}
 	else
@@ -1612,7 +1624,8 @@ pmLookupName_ctx(__pmContext *ctxp, int numpmid, char *namelist[], pmID pmidlist
 	if (need_unlock)
 	    PM_UNLOCK(ctxp->c_lock);
 	CHECK_C_LOCK;
-	return PM_ERR_THREAD;
+	sts = PM_ERR_THREAD;
+	goto pmapi_return;
     }
 
     /*
@@ -1839,6 +1852,25 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_TIMEOUT);
      */
     if (sts == 0 && numpmid == 1)
 	sts = PM_ERR_NAME;
+
+pmapi_return:
+
+#ifdef PCP_DEBUG
+    if (pmDebug & DBG_TRACE_PMAPI) {
+	fprintf(stderr, ":> returns ");
+	if (sts >= 0) {
+	    char    dbgbuf[20];
+	    fprintf(stderr, "%d (pmid[0] %s", sts, pmIDStr_r(pmidlist[0], dbgbuf, sizeof(dbgbuf)));
+	    if (sts > 1)
+		fprintf(stderr, " ... pmid[%d] %s", sts-1, pmIDStr_r(pmidlist[sts-1], dbgbuf, sizeof(dbgbuf)));
+	    fprintf(stderr, ")\n");
+	}
+	else {
+	    char	errmsg[PM_MAXERRMSGLEN];
+	    fprintf(stderr, "%s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	}
+    }
+#endif
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_PMNS) {

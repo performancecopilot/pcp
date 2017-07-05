@@ -34,23 +34,39 @@ pmStore_ctx(__pmContext *ctxp, const pmResult *result)
     int		ctx;
     __pmDSO	*dp;
 
-    if (result->numpmid < 1)
-        return PM_ERR_TOOSMALL;
+#ifdef PCP_DEBUG
+    if (pmDebug & DBG_TRACE_PMAPI) {
+	char    dbgbuf[20];
+	fprintf(stderr, "pmStore(...) pmid[0] %s", pmIDStr_r(result->vset[0]->pmid, dbgbuf, sizeof(dbgbuf)));
+	if (result->numpmid > 1)
+	    fprintf(stderr, " ... pmid[%d] %s", result->numpmid-1, pmIDStr_r(result->vset[result->numpmid-1]->pmid, dbgbuf, sizeof(dbgbuf)));
+	fprintf(stderr, " <:");
+    }
+#endif
+
+    if (result->numpmid < 1) {
+        sts = PM_ERR_TOOSMALL;
+	goto pmapi_return;
+    }
 
     for (n = 0; n < result->numpmid; n++) {
 	if (result->vset[n]->numval < 1) {
-	    return PM_ERR_VALUE;
+	    sts = PM_ERR_VALUE;
+	    goto pmapi_return;
 	}
     }
 
     if ((ctx = pmWhichContext()) < 0) {
-	return ctx;
+	sts = ctx;
+	goto pmapi_return;
     }
 
     if (ctxp == NULL) {
 	ctxp = __pmHandleToPtr(ctx);
-	if (ctxp == NULL)
-	    return PM_ERR_NOCONTEXT;
+	if (ctxp == NULL) {
+	    sts = PM_ERR_NOCONTEXT;
+	    goto pmapi_return;
+	}
 	need_unlock = 1;
     }
     else
@@ -114,6 +130,20 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_TIMEOUT);
 	PM_UNLOCK(ctxp->c_lock);
 
     if (need_unlock) CHECK_C_LOCK;
+
+pmapi_return:
+
+#ifdef PCP_DEBUG
+    if (pmDebug & DBG_TRACE_PMAPI) {
+	fprintf(stderr, ":> returns ");
+	if (sts >= 0)
+	    fprintf(stderr, "%d\n", sts);
+	else {
+	    char	errmsg[PM_MAXERRMSGLEN];
+	    fprintf(stderr, "%s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	}
+    }
+#endif
     return sts;
 }
 
