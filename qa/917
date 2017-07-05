@@ -25,10 +25,14 @@ nsfs_t=`seinfo -t | grep 'nsfs_t$'`
 docker_var_lib_t=""
 svirt_lxc_net_t=`seinfo -t | grep "svirt_lxc_net_t$"`
 systemd_systemctl_exec_t=`seinfo -t | grep "systemd_systemctl_exec_t$"`
-systemd_systemctl_unit_file_t=`seinfo -t | grep "systemd_systemctl_unit_file_t$"`
+systemd_systemctl_unit_file_t=`seinfo -t | grep "systemd_unit_file_t$"`
+systemd_systemctl_unit_dir_t=`seinfo -t | grep "systemd_unit_dir_t$"`
 devlog_t=`seinfo -t | grep "devlog_t$"`
 init_t=`seinfo -t | grep "init_t$"`
 cap_userns_ptrace=`seinfo --class=cap_userns -x 2>&1 | grep "sys_ptrace$"`
+unreserved_port_t=`seinfo -t | grep "unreserved_port_t$"`
+tracefs_t=`seinfo -t | grep "tracefs_t$"`
+class_status=`seinfo -x --class=system | grep "status$"`
 
 _filter_semodule()
 {
@@ -52,9 +56,12 @@ _filter_outfile()
 	-v class_status="$class_status" \
 	-v systemd_systemctl_exec_t="$systemd_systemctl_exec_t" \
 	-v systemd_systemctl_unit_file_t="$systemd_systemctl_unit_file_t" \
+	-v systemd_systemctl_unit_dir_t="$systemd_systemctl_unit_dir_t" \
 	-v devlog_t="$devlog_t" \
 	-v init_t="$init_t" \
 	-v cap_userns_ptrace="$cap_userns_ptrace" \
+	-v unreserved_port_t="$unreserved_port_t" \
+	-v tracefs_t="$tracefs_t" \
     '{
     	if (container_t == "" && /container_runtime_t/)
 	   !/container_runtime_t/ ;
@@ -66,14 +73,22 @@ _filter_outfile()
 	   !/svirt_lxc_net_t/ ;
     	else if (systemd_systemctl_exec_t == "" && /systemd_systemctl_exec_t/)
 	   !/systemd_systemctl_exec_t/ ;
-    	else if (systemd_systemctl_unit_file_t == "" && /systemd_systemctl_unit_file_t/)
-	   !/systemd_systemctl_unit_file_t/ ;
+    	else if (systemd_systemctl_unit_file_t == "" && /systemd_unit_file_t/)
+	   !/systemd_unit_file_t/ ;
+    	else if (systemd_systemctl_unit_dir_t == "" && /systemd_unit_dir_t/)
+	   !/systemd_unit_dir_t/ ;
 	else if (devlog_t == "" && /devlog_t/)
 	   !/devlog_t/ ;
 	else if (init_t == "" && /init_t/)
 	   !/init_t/ ;
 	else if (cap_userns_ptrace == "" && /cap_userns/)
 	   !/cap_userns/ ;
+	else if (unreserved_port_t == "" && /unreserved_port_t/)
+	   !/unreserved_port_t/ ;
+	else if (tracefs_t == "" && /tracefs_t/)
+	   !/tracefs_t/ ;
+        else if (class_status == "" && /system.*status/)
+           !/system.*status/ ;
 	else
 	   print;
     }'

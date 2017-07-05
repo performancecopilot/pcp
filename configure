@@ -700,6 +700,8 @@ fmt_uint64
 fmt_int64
 fmt_pid
 rdynamic_flag
+pcp_selinux_tracefs
+pcp_selinux_unreserved_port
 pcp_selinux_systemd_exec
 pcp_selinux_systemd_unit_file
 pcp_selinux_svirt_lxc_net
@@ -11193,6 +11195,8 @@ pcp_selinux_docker_var_lib=false
 pcp_selinux_svirt_lxc_net=false
 pcp_selinux_systemd_unit_file=false
 pcp_selinux_systemd_exec=false
+pcp_selinux_tracefs=false
+pcp_selinux_unreserved_port=false
 if test "x$enable_selinux" != "xfalse"; then :
 
 for policy_file in /etc/selinux/targeted/policy/policy.*
@@ -11239,10 +11243,23 @@ do
 	then
 	    pcp_selinux_cap_userns_ptrace=true
 	fi
+	unreserved_port=`eval seinfo -t $policy_file | grep unreserved_port_t | awk '{ print $1 }'`
+	if test "x$unreserved_port" != "x"
+	then
+	    pcp_selinux_unreserved_port=true
+	fi
+	tracefs=`eval seinfo -t $policy_file | grep tracefs_t | awk '{ print $1 }'`
+	if test "x$tracefs" != "x"
+	then
+	    pcp_selinux_tracefs=true
+	fi
+
     fi
 done
 
 fi
+
+
 
 
 
