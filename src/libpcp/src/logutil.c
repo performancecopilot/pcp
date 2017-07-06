@@ -484,10 +484,16 @@ _logpeek(__pmLogCtl *lcp, int vol)
     char		fname[MAXPATHLEN];
 
     snprintf(fname, sizeof(fname), "%s.%d", lcp->l_name, vol);
+    /* need mutual exclusion here to avoid race with a concurrent uncompress */
+    PM_LOCK(logutil_lock);
     if ((f = fopen(fname, "r")) == NULL) {
-	if ((f = fopen_compress(fname)) == NULL)
+	/* try for a compressed file */
+	if ((f = fopen_compress(fname)) == NULL) {
+	    PM_UNLOCK(logutil_lock);
 	    return f;
+	}
     }
+    PM_UNLOCK(logutil_lock);
 
     if ((sts = __pmLogChkLabel(lcp, f, &label, vol)) < 0) {
 	fclose(f);
@@ -512,12 +518,16 @@ __pmLogChangeVol(__pmLogCtl *lcp, int vol)
 	fclose(lcp->l_mfp);
     }
     snprintf(fname, sizeof(fname), "%s.%d", lcp->l_name, vol);
+    /* need mutual exclusion here to avoid race with a concurrent uncompress */
+    PM_LOCK(logutil_lock);
     if ((lcp->l_mfp = fopen(fname, "r")) == NULL) {
 	/* try for a compressed file */
 	if ((lcp->l_mfp = fopen_compress(fname)) == NULL) {
+	    PM_UNLOCK(logutil_lock);
 	    return -oserror();
 	}
     }
+    PM_UNLOCK(logutil_lock);
 
     if ((sts = __pmLogChkLabel(lcp, lcp->l_mfp, &lcp->l_label, vol)) < 0) {
 	return sts;
