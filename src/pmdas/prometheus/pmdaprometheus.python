@@ -29,6 +29,7 @@ import json
 import os
 import re
 import requests
+import subprocess
 
 MAX_CLUSTER = 0xfff
 MAX_METRIC = 0x3ff
@@ -44,14 +45,16 @@ SEMANTICS = { COUNTER: c_api.PM_SEM_COUNTER, INSTANT: c_api.PM_SEM_INSTANT }
 class ScanPrometheus(object):
 	''' Scans Prometheus Endpoint to Generate Metadata for the given endpoint'''
 
-	def __init__(self, name, endpoint=None, filepath=None):
+	def __init__(self, name, autoconfig, endpoint=None, filepath=None):
 		self.name = name
 		self.endpoint = endpoint
 		self.filepath = filepath
 		self.raw_metrics = None
+		self.autoconfig = autoconfig
 		self.metrics_by_name = {}
-		self.fetch_raw_metrics()
-		self.parse_raw()
+		if not autoconfig:
+			self.fetch_raw_metrics()
+			self.parse_raw()
 		self.save_metadata()
 
 	class Metric(object):
@@ -87,6 +90,8 @@ class ScanPrometheus(object):
 			config["filepath"] = os.path.abspath(self.filepath)
 		else:
 			config["endpoint"] = self.endpoint
+		if self.autoconfig:
+			config["autoconfig"] = True
 		for k in self.metrics_by_name:
 			config["metrics"].append(self.metrics_by_name[k].export())
 		raw_config = json.dumps(config, indent=2)
@@ -98,6 +103,8 @@ class ScanPrometheus(object):
 			except OSError as exc:
 				if exc.errno != errno.EEXIST:
 					raise
+		if os.path.exists(filename):
+			os.remove(filename)
 		with open(filename, "w") as f:
 			f.write(raw_config)
 			f.close()
@@ -459,6 +466,7 @@ class PrometheusSource(object):
 		self.metrics = []
 		self.metrics_by_id = {}
 		self.metrics_value = {}
+		self.autoconfig = False
 		self.fetch_failed = False
 		self.numfetch = 0
 		self.metrics_cache = None
@@ -468,7 +476,9 @@ class PrometheusSource(object):
 		self.load_metrics_metadata()
 		self.prepare_passed = self.prepare_metrics_metadata()
 
-		if not self.prepare_passed:
+		if self.autoconfig:
+			self.log("Prometheus autoconfig source found: %s" % self.path)
+		elif not self.prepare_passed:
 			self.log("Prometheus Source creation failed for %s" % self.path)
 
 	@property
@@ -526,6 +536,9 @@ class PrometheusSource(object):
 			return False
 		if not ( metadata.get("endpoint") or metadata.get("filepath") ):
 			self.log("Invalid endpoint/filepath with null value")
+			return False
+		if metadata.get("autoconfig") is not None:
+			self.autoconfig = True
 			return False
 		self.endpoint = metadata.get("endpoint")
 		self.filepath = metadata.get("filepath")
@@ -663,7 +676,8 @@ class PrometheusPMDA(PMDA):
 		self.connect_pmcd()
 		self.numfetch = 0
 
-		pmdaDir = "%s/%s/metadata/" % (pmContext.pmGetConfig('PCP_PMDAS_DIR'), pmda_name)
+		pmdasDir = pmContext.pmGetConfig('PCP_PMDAS_DIR')
+		pmdaDir = "%s/%s/metadata/" % (pmdasDir, pmda_name)
 		self.dir = pmdaDir
 		self.dir_mtime = os.stat(self.dir).st_mtime
 		self.source_by_cluster = {}
@@ -686,6 +700,8 @@ class PrometheusPMDA(PMDA):
 		self.load_prometheus_sources()
 		self.set_fetch(self.prometheus_fetch)
 		self.set_fetch_callback(self.prometheus_fetch_callback)
+		p = subprocess.Popen(['%s/%s/%s' % (pmdasDir, pmda_name,
+				"autoconfig_watch.python")])
 
 	def add_static_metrics(self):
 		'''
@@ -776,6 +792,7 @@ if __name__ == '__main__':
 	parser.add_argument('-g', '--generate', help="Generate heuristics metadata", action="store_true")
 	parser.add_argument('-u','--url', help='Prometheus endpoint whose metadata has to be generated')
 	parser.add_argument('-f','--filepath', help='Prometheus file based endpoint whose metadata has to be generated')
+	parser.add_argument('-a', '--autoconfig', help="Enable autoconfiguration during runtime", action="store_true")
 	parser.add_argument('-n','--name', help="Name to be used as the Prometheus cluster name")
 	args = parser.parse_args()
 
@@ -784,6 +801,6 @@ if __name__ == '__main__':
 		if not ( args.url or args.filepath ) or not args.name:
 			parser.error("Name and url or filepath of the endpoint required")
 			os.exit(1)
-		ScanPrometheus(args.name, args.url, args.filepath)
+		ScanPrometheus(args.name, args.autoconfig, args.url, args.filepath)
 	else:
 		PrometheusPMDA('prometheus', 144).run()
