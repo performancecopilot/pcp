@@ -32,6 +32,7 @@ enum {
     CLUSTER_VOL = 2,		/* DM-Thin Volumes */
 #ifdef HAVE_DMSTATS
     CLUSTER_DM_COUNTER = 3,
+    CLUSTER_DM_HISTOGRAM = 4,
 #endif
     NUM_CLUSTERS
 };
@@ -214,6 +215,11 @@ static pmdaMetric metrictable[] = {
         PMDA_PMID(CLUSTER_DM_COUNTER, DM_STATS_TOTAL_WRITE_NSECS),
         PM_TYPE_U64, DM_STATS_INDOM, PM_SEM_INSTANT,
         PMDA_PMUNITS(0,1,0,0,PM_TIME_NSEC,0) }, },
+    /* DM STATS latency histogram */
+    { .m_desc = {
+        PMDA_PMID(CLUSTER_DM_HISTOGRAM, DM_HISTOGRAM),
+        PM_TYPE_FLOAT, DM_HISTOGRAM_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,0,0,0,0) }, },
 #endif
 };
 
@@ -223,6 +229,7 @@ static pmdaIndom indomtable[] = {
     { .it_indom = DM_THIN_VOL_INDOM },
 #ifdef HAVE_DMSTATS
     { .it_indom = DM_STATS_INDOM},
+    { .it_indom = DM_HISTOGRAM_INDOM},
 #endif
 };
 
@@ -240,6 +247,7 @@ dm_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaExt 
     dm_thin_vol_instance_refresh();
 #ifdef HAVE_DMSTATS
     pm_dm_stats_instance_refresh();
+    pm_dm_histogram_instance_refresh();
 #endif
     return pmdaInstance(indom, inst, name, result, pmda);
 }
@@ -320,13 +328,31 @@ dm_fetch_refresh(pmdaExt *pmda, int *need_refresh)
 	        break;
 	    if (!pmdaCacheLookup(indom, inst, &name, (void **)&dmsc) || !dmsc)
 	        continue;
-            if (need_refresh[CLUSTER_DM_COUNTER]) {
+            if (need_refresh[CLUSTER_DM_COUNTER])
                 pm_dm_refresh_stats_counter(name, dmsc);
-	    }
         }
-     }
-#endif
+    }
 
+
+    if (need_refresh[CLUSTER_DM_HISTOGRAM]) {
+        struct pm_dm_histogram *pdmh;
+
+        if ((sts = pm_dm_histogram_instance_refresh()) < 0)
+	    return sts;
+
+        indom = dm_indom(DM_HISTOGRAM_INDOM);
+
+        for (pmdaCacheOp(indom, PMDA_CACHE_WALK_REWIND);;) {
+	    if ((inst = pmdaCacheOp(indom, PMDA_CACHE_WALK_NEXT)) < 0)
+	        break;
+	    if (!pmdaCacheLookup(indom, inst, &name, (void **)&pdmh) || !pdmh)
+	        continue;
+            if (need_refresh[CLUSTER_DM_HISTOGRAM])
+                pm_dm_refresh_stats_histogram(name, pdmh);
+        }
+    }
+
+#endif
     return sts;
 }
 
@@ -359,6 +385,7 @@ dm_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     struct vol_stats *vol;
 #ifdef HAVE_DMSTATS
     struct pm_dm_stats_counter *dmsc;
+    struct pm_dm_histogram *pdmh;
 #endif
     int sts;
 
@@ -387,6 +414,12 @@ dm_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    if (sts < 0)
 	        return sts;
 	    return pm_dm_stats_fetch(idp->item, dmsc, atom);
+
+	case CLUSTER_DM_HISTOGRAM:
+	    sts = pmdaCacheLookup(dm_indom(DM_HISTOGRAM_INDOM), inst, NULL, (void**)&pdmh);
+	    if (sts < 0)
+	        return sts;
+	    return pm_dm_histogram_fetch(idp->item, pdmh, atom);
 #endif
 
         default: /* unknown cluster */

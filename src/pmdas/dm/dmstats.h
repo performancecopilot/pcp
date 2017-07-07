@@ -44,9 +44,22 @@ struct dm_stats_metric {
 };
 */
 
+struct pm_dm_histogram {
+	float tmp;
+};
+
+typedef enum {
+	DM_HISTOGRAM
+} dm_histogram_t;
+
 extern int pm_dm_stats_fetch(int, struct pm_dm_stats_counter *, pmAtomValue *);
 extern int pm_dm_refresh_stats_counter(const char *, struct pm_dm_stats_counter *);
 extern int pm_dm_stats_instance_refresh(void);
+
+extern int pm_dm_histogram_fetch(int, struct pm_dm_histogram *, pmAtomValue *);
+extern int pm_dm_refresh_stats_histogram(const char *, struct pm_dm_histogram *);
+extern int pm_dm_histogram_instance_refresh(void);
+
 extern void pm_dm_stats_setup(void);
 
 #endif

@@ -13,6 +13,11 @@
  */
 
 dmstats {
+	counter
+	histogram
+}
+
+dmstats.counter {
 	read	            DM:3:0
 	reads_merged        DM:3:1
 	read_bytes          DM:3:2
@@ -26,4 +31,8 @@ dmstats {
 	queue_ticks         DM:3:10
 	read_ticks          DM:3:11
 	write_ticks         DM:3:12
+}
+
+dmstats.histogram {
+	tmp                 DM:4:0
 }

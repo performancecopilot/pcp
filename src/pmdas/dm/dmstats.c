@@ -77,6 +77,20 @@ pm_dm_stats_fetch(int item, struct pm_dm_stats_counter *dmsc, pmAtomValue *atom)
 }
 
 int
+pm_dm_histogram_fetch(int item, struct pm_dm_histogram *pdmh, pmAtomValue *atom)
+{
+	if (item < 0 || item > DM_HISTOGRAM)
+		return PM_ERR_PMID;
+
+	switch (item) {
+		case DM_HISTOGRAM:
+			atom->f = pdmh->tmp;
+			break;
+	}
+	return 1;
+}
+
+int
 pm_dm_refresh_stats_counter(const char *name, struct pm_dm_stats_counter *dmsc)
 {
 	struct dm_stats *dms;
@@ -140,6 +154,68 @@ pm_dm_refresh_stats_counter(const char *name, struct pm_dm_stats_counter *dmsc)
 	return 0;
 
 bad:
+	dm_stats_destroy(dms);
+	return -oserror();
+}
+
+static int
+pm_dm_populate()
+{
+}
+
+int
+pm_dm_refresh_stats_histogram(const char *name, struct pm_dm_histogram *pdmh)
+{
+	struct dm_stats *dms;
+	struct dm_histogram *dmh;
+	char buffer_name[BUFSIZ];
+	char *device_name;
+	char *region;
+	int walk;
+	uint64_t region_id, area_id;
+	dm_percent_t pr;
+	float val_fit;
+	int bin;
+
+	strcpy(buffer_name, name);
+	device_name = strtok(buffer_name, ":");
+	region = strtok(NULL , ":");
+	walk = atoi(region);
+	bin = atoi(strtok(NULL, "-"));
+
+	if (!(dms = dm_stats_create(DM_STATS_ALL_PROGRAMS)))
+		goto nostats;
+
+	if (!dm_stats_bind_name(dms, device_name))
+		goto nostats;
+
+	if (!dm_stats_list(dms, DM_STATS_ALL_PROGRAMS))
+		goto nostats;
+
+	for (int i = 0; i < walk; i++)
+		dm_stats_walk_next_region(dms);
+
+	region_id = dm_stats_get_current_region(dms);
+	area_id = dm_stats_get_current_area(dms);
+
+
+	if (!(dmh = dm_stats_get_histogram(dms, region_id, area_id)))
+		goto nostats;
+
+	if (bin == 0) {
+	if (!dm_stats_populate(dms, DM_STATS_ALL_PROGRAMS, region_id))
+		goto nostats;
+
+	}
+	pr = dm_histogram_get_bin_percent(dmh, bin);
+	val_fit = dm_percent_to_float(pr);
+
+	pdmh->tmp = val_fit;
+
+
+	return 0;
+
+nostats:
 	dm_stats_destroy(dms);
 	return -oserror();
 }
@@ -212,6 +288,116 @@ pm_dm_stats_instance_refresh(void)
 		next = names->next;
 	} while(next);
 
+
+	dm_task_destroy(dmt);
+	return 0;
+
+nodevice:
+	dm_task_destroy(dmt);
+	return -oserror();
+}
+
+#define NSEC_PER_USEC   1000L
+#define NSEC_PER_MSEC   1000000L
+#define NSEC_PER_SEC    1000000000L
+
+#define DM_HISTOGRAM_BOUNDS_MAX 0x30
+
+static void _scale_bound_value_to_suffix(uint64_t *bound, const char **suffix)
+{
+	*suffix = "ns";
+	if (!(*bound % NSEC_PER_SEC)) {
+		*bound /= NSEC_PER_SEC;
+		*suffix = "s";
+	} else if (!(*bound % NSEC_PER_MSEC)) {
+		*bound /= NSEC_PER_MSEC;
+		*suffix = "ms";
+	} else if (!(*bound % NSEC_PER_USEC)) {
+		*bound /= NSEC_PER_USEC;
+		*suffix = "us";
+	}
+}
+
+int
+pm_dm_histogram_instance_refresh(void)
+{
+	struct pm_dm_histogram *pdmh;
+	struct dm_histogram *dmh;
+	struct dm_task *dmt;
+	struct dm_names *names;
+	struct dm_stats *dms;
+	unsigned next = 0;
+	int sts;
+	pmInDom indom = dm_indom(DM_HISTOGRAM_INDOM);
+	char buffer[BUFSIZ];
+	uint64_t region_id, area_id;
+	int bins;
+	uint64_t bound_width;
+	const char *suffix = "";
+
+	pmdaCacheOp(indom, PMDA_CACHE_INACTIVE);
+
+	/* search whether there are dm devices */
+	if (!(dmt = dm_task_create(DM_DEVICE_LIST)))
+		goto nodevice;
+
+	if (!dm_task_enable_checks(dmt))
+		goto nodevice;
+
+	if (!dm_task_run(dmt))
+		goto nodevice;
+
+	if(!(names = dm_task_get_names(dmt)))
+		goto nodevice;
+
+	do {
+		names = (struct dm_names*)((char *) names + next);
+
+		/* search whether there are dm devices stastics*/
+		if (!(dms = dm_stats_create(DM_STATS_ALL_PROGRAMS)))
+			goto nostats;
+
+		if (!dm_stats_bind_name(dms, names->name))
+			goto nostats;
+
+		if (!dm_stats_list(dms, DM_STATS_ALL_PROGRAMS))
+			goto nostats;
+
+		if (!dm_stats_get_nr_regions(dms))
+			goto nostats;
+
+		/* get each region*/
+		dm_stats_foreach_region(dms){
+			region_id = dm_stats_get_current_region(dms);
+			area_id = dm_stats_get_current_area(dms);
+
+			/* Whether there is histogram */
+			if (!(dmh = dm_stats_get_histogram(dms, region_id, area_id)))
+				continue;
+
+			bins = dm_histogram_get_nr_bins(dmh);
+
+			for (int i = 0; i < bins - 1; i++) {
+				bound_width = dm_histogram_get_bin_upper(dmh, i);
+				_scale_bound_value_to_suffix(&bound_width, &suffix);
+				sprintf(buffer, "%s:%lu:%d-%lu%s", names->name, region_id, i, bound_width, suffix);
+
+				sts = pmdaCacheLookupName(indom, buffer, NULL, (void **)&pdmh);
+				if (sts == PM_ERR_INST || (sts >= 0 && pdmh == NULL)) {
+					pdmh = calloc(1, sizeof(*pdmh));
+
+					if (pdmh == NULL)
+						return PM_ERR_AGAIN;
+
+				}
+
+			pmdaCacheStore(indom, PMDA_CACHE_ADD, buffer, (void *)pdmh);
+			}
+		}
+nostats:
+		dm_stats_destroy(dms);
+		next = names->next;
+	} while(next);
 
 	dm_task_destroy(dmt);
 	return 0;

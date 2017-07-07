@@ -22,6 +22,7 @@ enum {
     DM_THIN_POOL_INDOM = 1,	/* 1 -- Thin Pools */
     DM_THIN_VOL_INDOM = 2,	/* 2 -- Thin Volumes */
     DM_STATS_INDOM = 3,
+    DM_HISTOGRAM_INDOM = 4,
     NUM_INDOMS
 };
 
