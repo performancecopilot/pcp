@@ -99,8 +99,6 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":3", PM_FAULT_TIMEOUT);
 	PM_UNLOCK(ctxp->c_lock);
     }
 
-    CHECK_C_LOCK;
-
 pmapi_return:
 
 #ifdef PCP_DEBUG
@@ -214,8 +212,6 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":2", PM_FAULT_TIMEOUT);
 	    PM_UNLOCK(ctxp->c_lock);
     }
 
-    if (need_unlock) CHECK_C_LOCK;
-
 pmapi_return:
 
 #ifdef PCP_DEBUG
@@ -238,7 +234,6 @@ pmNameInDom(pmInDom indom, int inst, char **name)
 {
     int	sts;
     sts = pmNameInDom_ctx(NULL, indom, inst, name);
-    CHECK_C_LOCK;
     return sts;
 }
 
@@ -334,7 +329,6 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_TIMEOUT);
 			if (pinpdu > 0)
 			    __pmUnpinPDUBuf(pb);
 			PM_UNLOCK(ctxp->c_lock);
-			CHECK_C_LOCK;
 			goto pmapi_return;
 		    }
 		    sts = inresult_to_lists(result, instlist, namelist);
@@ -375,14 +369,12 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_TIMEOUT);
 		    need += sizeof(char *) + strlen(nametmp[i]) + 1;
 		if ((ilist = (int *)malloc(sts * sizeof(insttmp[0]))) == NULL) {
 		    PM_UNLOCK(ctxp->c_lock);
-		    CHECK_C_LOCK;
 		    sts = -oserror();
 		    goto pmapi_return;
 		}
 		if ((nlist = (char **)malloc(need)) == NULL) {
 		    free(ilist);
 		    PM_UNLOCK(ctxp->c_lock);
-		    CHECK_C_LOCK;
 		    sts = -oserror();
 		    goto pmapi_return;
 		}
@@ -405,8 +397,6 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_TIMEOUT);
 	*instlist = NULL;
 	*namelist = NULL;
     }
-
-    CHECK_C_LOCK;
 
 pmapi_return:
 

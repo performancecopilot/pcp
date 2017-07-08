@@ -1622,7 +1622,6 @@ __pmLogGenerateMark(__pmLogCtl *lcp, int mode, pmResult **result)
     }
     sts = __pmLogGenerateMark_ctx(ctxp, mode, result);
     PM_UNLOCK(ctxp->c_lock);
-    CHECK_C_LOCK;
     return sts;
 }
 
@@ -2033,7 +2032,6 @@ __pmLogRead(__pmLogCtl *lcp, int mode, FILE *peekf, pmResult **result, int optio
     }
     sts = __pmLogRead_ctx(ctxp, mode, peekf, result, option);
     PM_UNLOCK(ctxp->c_lock);
-    CHECK_C_LOCK;
     return sts;
 }
 
@@ -2661,7 +2659,6 @@ pmGetArchiveLabel(pmLogLabel *lp)
 
 	if ((sts = __pmLogChangeArchive(ctxp, 0)) < 0) {
 	    PM_UNLOCK(ctxp->c_lock);
-	    CHECK_C_LOCK;
 	    return sts;
 	}
 	lcp = acp->ac_log;
@@ -2671,7 +2668,6 @@ pmGetArchiveLabel(pmLogLabel *lp)
     /* Get the label. */
     if ((sts = __pmGetArchiveLabel(lcp, lp)) < 0) {
 	PM_UNLOCK(ctxp->c_lock);
-	CHECK_C_LOCK;
 	return sts;
     }
 
@@ -2679,20 +2675,17 @@ pmGetArchiveLabel(pmLogLabel *lp)
 	/* Restore to the initial state. */
 	if ((sts = __pmLogChangeArchive(ctxp, save_arch)) < 0) {
 	    PM_UNLOCK(ctxp->c_lock);
-	    CHECK_C_LOCK;
 	    return sts;
 	}
 	lcp = ctxp->c_archctl->ac_log;
 	if ((sts = __pmLogChangeVol(lcp, save_vol)) < 0) {
 	    PM_UNLOCK(ctxp->c_lock);
-	    CHECK_C_LOCK;
 	    return sts;
 	}
 	fseek(lcp->l_mfp, save_offset, SEEK_SET);
     }
 
     PM_UNLOCK(ctxp->c_lock);
-    CHECK_C_LOCK;
     return 0;
 }
 
@@ -2911,7 +2904,6 @@ __pmGetArchiveEnd(__pmLogCtl *lcp, struct timeval *tp)
     }
     sts = __pmGetArchiveEnd_ctx(ctxp, tp);
     PM_UNLOCK(ctxp->c_lock);
-    CHECK_C_LOCK;
     return sts;
 }
 
@@ -2921,7 +2913,6 @@ pmGetArchiveEnd(struct timeval *tp)
 {
     int		sts;
     sts = pmGetArchiveEnd_ctx(NULL, tp);
-    CHECK_C_LOCK;
     return sts;
 
 }
@@ -3094,7 +3085,6 @@ __pmLogCheckForNextArchive(__pmLogCtl *lcp, int mode, pmResult **result)
     }
     sts = LogCheckForNextArchive(ctxp, mode, result);
     PM_UNLOCK(ctxp->c_lock);
-    CHECK_C_LOCK;
     return sts;
 }
 
@@ -3191,7 +3181,6 @@ __pmLogChangeToNextArchive(__pmLogCtl **lcp)
 	*lcp = ctxp->c_archctl->ac_log;
     }
     PM_UNLOCK(ctxp->c_lock);
-    CHECK_C_LOCK;
     return sts;
 }
 
@@ -3302,7 +3291,6 @@ __pmLogChangeToPreviousArchive(__pmLogCtl **lcp)
 	*lcp = ctxp->c_archctl->ac_log;
     }
     PM_UNLOCK(ctxp->c_lock);
-    CHECK_C_LOCK;
     return sts;
 }
 

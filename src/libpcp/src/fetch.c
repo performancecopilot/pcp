@@ -214,7 +214,6 @@ pmapi_return:
 #endif
     if (need_unlock) {
 	PM_UNLOCK(ctxp->c_lock);
-	CHECK_C_LOCK;
     }
 
     return sts;
@@ -225,7 +224,6 @@ pmFetch(int numpmid, pmID *pmidlist, pmResult **result)
 {
     int	sts;
     sts = pmFetch_ctx(NULL, numpmid, pmidlist, result);
-    CHECK_C_LOCK;
     return sts;
 }
 
@@ -258,7 +256,6 @@ pmFetchArchive(pmResult **result)
 	}
     }
 
-    CHECK_C_LOCK;
     return sts;
 }
 
@@ -310,6 +307,5 @@ pmSetMode(int mode, const struct timeval *when, int delta)
 	PM_UNLOCK(ctxp->c_lock);
     }
 
-    CHECK_C_LOCK;
     return sts;
 }

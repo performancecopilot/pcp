@@ -113,8 +113,6 @@ pmLookupDesc_ctx(__pmContext *ctxp, pmID pmid, pmDesc *desc)
     if (need_unlock)
 	PM_UNLOCK(ctxp->c_lock);
 
-    if (need_unlock) CHECK_C_LOCK;
-
 pmapi_return:
 
 #ifdef PCP_DEBUG
@@ -137,7 +135,6 @@ pmLookupDesc(pmID pmid, pmDesc *desc)
 {
     int	sts;
     sts = pmLookupDesc_ctx(NULL, pmid, desc);
-    CHECK_C_LOCK;
     return sts;
 }
 

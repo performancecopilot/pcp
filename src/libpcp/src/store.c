@@ -129,8 +129,6 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_TIMEOUT);
     if (need_unlock)
 	PM_UNLOCK(ctxp->c_lock);
 
-    if (need_unlock) CHECK_C_LOCK;
-
 pmapi_return:
 
 #ifdef PCP_DEBUG
@@ -152,6 +150,5 @@ pmStore(const pmResult *result)
 {
     int	sts;
     sts = pmStore_ctx(NULL, result);
-    CHECK_C_LOCK;
     return sts;
 }

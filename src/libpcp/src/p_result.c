@@ -178,7 +178,6 @@ __pmSendResult(int fd, int from, const pmResult *result)
 {
     int	sts;
     sts = __pmSendResult_ctx(NULL, fd, from, result);
-    CHECK_C_LOCK;
     return sts;
 }
 
@@ -674,6 +673,5 @@ __pmDecodeResult(__pmPDU *pdubuf, pmResult **result)
 {
     int	sts;
     sts = __pmDecodeResult_ctx(NULL, pdubuf, result);
-    CHECK_C_LOCK;
     return sts;
 }

@@ -584,7 +584,6 @@ pmUnpackEventRecords(pmValueSet *vsp, int idx, pmResult ***rap)
 {
     int	sts;
     sts = UnpackEventRecords(NULL, vsp, idx, rap);
-    CHECK_C_LOCK;
     return sts;
 }
 

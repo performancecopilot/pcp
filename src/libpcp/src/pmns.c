@@ -319,7 +319,6 @@ pmGetPMNSLocation_ctx(__pmContext *ctxp)
 
 done:
     PM_UNLOCK(__pmLock_libpcp);
-    if (need_unlock) CHECK_C_LOCK;
     return pmns_location;
 }
 
@@ -328,7 +327,6 @@ pmGetPMNSLocation(void)
 {
     int	sts;
     sts = pmGetPMNSLocation_ctx(NULL);
-    CHECK_C_LOCK;
     return sts;
 }
 
@@ -1623,7 +1621,6 @@ pmLookupName_ctx(__pmContext *ctxp, int numpmid, char *namelist[], pmID pmidlist
 	/* Local context requires single-threaded applications */
 	if (need_unlock)
 	    PM_UNLOCK(ctxp->c_lock);
-	CHECK_C_LOCK;
 	sts = PM_ERR_THREAD;
 	goto pmapi_return;
     }
@@ -1884,7 +1881,6 @@ pmapi_return:
     }
 #endif
 
-    if (need_unlock) CHECK_C_LOCK;
     return sts;
 }
 
@@ -1893,7 +1889,6 @@ pmLookupName(int numpmid, char *namelist[], pmID pmidlist[])
 {
     int	sts;
     sts = pmLookupName_ctx(NULL, numpmid, namelist, pmidlist);
-    CHECK_C_LOCK;
     return sts;
 }
 
@@ -2303,7 +2298,6 @@ report:
     }
 #endif
 
-    CHECK_C_LOCK;
     return num;
 }
 
@@ -2401,7 +2395,6 @@ pmNameID(pmID pmid, char **name)
     if (ctxp != NULL && c_type == PM_CONTEXT_LOCAL && PM_MULTIPLE_THREADS(PM_SCOPE_DSO_PMDA)) {
 	/* Local context requires single-threaded applications */
 	PM_UNLOCK(ctxp->c_lock);
-	CHECK_C_LOCK;
 	return PM_ERR_THREAD;
     }
 
@@ -2418,7 +2411,6 @@ pmNameID(pmID pmid, char **name)
 	    PM_UNLOCK(ctxp->c_lock);
 	if (IS_DYNAMIC_ROOT(pmid)) {
 	    /* cannot return name for dynamic PMID from local PMNS */
-	    CHECK_C_LOCK;
 	    return PM_ERR_PMID;
 	}
 	for (np = PM_TPD(curr_pmns)->htab[pmid % PM_TPD(curr_pmns)->htabsize];
@@ -2427,7 +2419,6 @@ pmNameID(pmID pmid, char **name)
 	    if (np->pmid == pmid) {
 		int	tsts;
 		tsts = backname(np, name);
-		CHECK_C_LOCK;
 		return tsts;
 	    }
 	}
@@ -2474,7 +2465,6 @@ pmNameID(pmID pmid, char **name)
     }
 
     if (sts >= 0) {
-	CHECK_C_LOCK;
 	return sts;
     }
 
@@ -2483,7 +2473,6 @@ pmNameID(pmID pmid, char **name)
      * return last error from above ...
      */
     lsts = __dmgetname(pmid, name);
-    CHECK_C_LOCK;
     return lsts >= 0 ? lsts : sts;
 }
 
@@ -2535,7 +2524,6 @@ pmNameAll_ctx(__pmContext *ctxp, pmID pmid, char ***namelist)
 	/* Local context requires single-threaded applications */
 	if (need_unlock)
 	    PM_UNLOCK(ctxp->c_lock);
-	if (need_unlock) CHECK_C_LOCK;
 	return PM_ERR_THREAD;
     }
 
@@ -2553,7 +2541,6 @@ pmNameAll_ctx(__pmContext *ctxp, pmID pmid, char ***namelist)
 	    PM_UNLOCK(ctxp->c_lock);
 	if (IS_DYNAMIC_ROOT(pmid)) {
 	    /* cannot return name(s) for dynamic PMID from local PMNS */
-	    if (need_unlock) CHECK_C_LOCK;
 	    return PM_ERR_PMID;
 	}
 	for (np = PM_TPD(curr_pmns)->htab[pmid % PM_TPD(curr_pmns)->htabsize];
@@ -2575,16 +2562,13 @@ pmNameAll_ctx(__pmContext *ctxp, pmID pmid, char ***namelist)
 		len += strlen(tmp[n-1])+1;
 	    }
 	}
-	if (sts < 0) {
-	    if (need_unlock) CHECK_C_LOCK;
+	if (sts < 0)
 	    return sts;
-	}
 
 	if (n > 0) {
 	    /* all good ... rearrange to a contiguous allocation and return */
 	    len += n * sizeof(tmp[0]);
 	    if ((tmp = (char **)realloc(tmp, len)) == NULL) {
-		if (need_unlock) CHECK_C_LOCK;
 		return -oserror();
 	    }
 
@@ -2597,7 +2581,6 @@ pmNameAll_ctx(__pmContext *ctxp, pmID pmid, char ***namelist)
 	    }
 
 	    *namelist = tmp;
-	    if (need_unlock) CHECK_C_LOCK;
 	    return n;
 	}
 	/* not found in PMNS ... try some other options */
@@ -2618,7 +2601,6 @@ pmNameAll_ctx(__pmContext *ctxp, pmID pmid, char ***namelist)
 				    dp->dispatch.version.four.ext);
 		    if (n > 0) {
 			*namelist = tmp;
-			if (need_unlock) CHECK_C_LOCK;
 			return n;
 		    }
 		}
@@ -2636,7 +2618,6 @@ pmNameAll_ctx(__pmContext *ctxp, pmID pmid, char ***namelist)
 	}
 	if (need_unlock)
 	    PM_UNLOCK(ctxp->c_lock);
-	if (need_unlock) CHECK_C_LOCK;
 	if (sts > 0)
 	    return sts;
     }
@@ -2646,18 +2627,15 @@ pmNameAll_ctx(__pmContext *ctxp, pmID pmid, char ***namelist)
      * return last error from above ...
      */
     if ((tmp = (char **)malloc(sizeof(tmp[0]))) == NULL) {
-	if (need_unlock) CHECK_C_LOCK;
 	return -oserror();
     }
     n = __dmgetname(pmid, tmp);
     if (n < 0) {
 	free(tmp);
-	if (need_unlock) CHECK_C_LOCK;
 	return sts < 0 ? sts : PM_ERR_PMID;
     }
     len = sizeof(tmp[0]) + strlen(tmp[0])+1;
     if ((tmp = (char **)realloc(tmp, len)) == NULL) {
-	if (need_unlock) CHECK_C_LOCK;
 	return -oserror();
     }
     sp = (char *)&tmp[1];
@@ -2666,7 +2644,6 @@ pmNameAll_ctx(__pmContext *ctxp, pmID pmid, char ***namelist)
     tmp[0] = sp;
     *namelist = tmp;
 
-    if (need_unlock) CHECK_C_LOCK;
     return 1;
 }
 
@@ -2675,7 +2652,6 @@ pmNameAll(pmID pmid, char ***namelist)
 {
     int	sts;
     sts = pmNameAll_ctx(NULL, pmid, namelist);
-    CHECK_C_LOCK;
     return sts;
 }
 
@@ -2732,13 +2708,10 @@ TraversePMNS(const char *name, void(*func)(const char *), void(*func_r)(const ch
     int	sts;
     int	pmns_location = GetLocation(NULL);
 
-    if (pmns_location < 0) {
-	CHECK_C_LOCK;
+    if (pmns_location < 0)
 	return pmns_location;
-    }
 
     if (name == NULL)  {
-	CHECK_C_LOCK;
 	return PM_ERR_NAME;
     }
 
@@ -2755,7 +2728,6 @@ TraversePMNS(const char *name, void(*func)(const char *), void(*func_r)(const ch
 
 	/* As we have PMNS_REMOTE there must be a current host context */
 	if ((sts = pmWhichContext()) < 0 || (ctxp = __pmHandleToPtr(sts)) == NULL) {
-	    CHECK_C_LOCK;
 	    return PM_ERR_NOCONTEXT;
 	}
 	sts = __pmSendTraversePMNSReq(ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp), name);
@@ -2789,7 +2761,6 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":4", PM_FAULT_TIMEOUT);
 		}
 		else {
 		    __pmUnpinPDUBuf(pb);
-		    CHECK_C_LOCK;
 		    return sts;
 		}
 	    }
@@ -2797,7 +2768,6 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":4", PM_FAULT_TIMEOUT);
 		__pmDecodeError(pb, &sts);
 		if (sts != PM_ERR_NAME) {
 		    __pmUnpinPDUBuf(pb);
-		    CHECK_C_LOCK;
 		    return sts;
 		}
 		numnames = 0;
@@ -2805,7 +2775,6 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":4", PM_FAULT_TIMEOUT);
 	    else {
 		if (pinpdu > 0)
 		    __pmUnpinPDUBuf(pb);
-		CHECK_C_LOCK;
 		return (sts == PM_ERR_TIMEOUT) ? sts : PM_ERR_IPC;
 	    }
 
@@ -2830,12 +2799,10 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":4", PM_FAULT_TIMEOUT);
 	    }
 
 	    if (sts > 0) {
-		CHECK_C_LOCK;
 		return numnames;
 	    }
 	}
     }
-    CHECK_C_LOCK;
     return sts;
 }
 
@@ -2883,7 +2850,6 @@ pmTrimNameSpace(void)
 	    mark_all(PM_TPD(curr_pmns), 0);
 	}
 	PM_UNLOCK(ctxp->c_lock);
-	CHECK_C_LOCK;
 	return 0;
     }
 
@@ -2906,7 +2872,6 @@ pmTrimNameSpace(void)
     }
     PM_UNLOCK(ctxp->c_lock);
 
-    CHECK_C_LOCK;
     return 0;
 }
 

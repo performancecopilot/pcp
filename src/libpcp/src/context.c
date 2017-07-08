@@ -294,7 +294,6 @@ pmGetContextHostName_r(int handle, char *buf, int buflen)
 	PM_UNLOCK(ctxp->c_lock);
     }
 
-    PM_CHECK_IS_UNLOCKED(ctxp->c_lock);
     return buf;
 }
 
@@ -1147,7 +1146,6 @@ INIT_CONTEXT:
 		    type, name);
 	}
 #endif
-	PM_CHECK_IS_UNLOCKED(new->c_lock);
 	sts = PM_ERR_NOCONTEXT;
 	goto pmapi_return;
     }
@@ -1176,7 +1174,6 @@ INIT_CONTEXT:
     __dmopencontext(new);
     PM_UNLOCK(new->c_lock);
 
-    PM_CHECK_IS_UNLOCKED(new->c_lock);
     sts = PM_TPD(curr_handle);
     goto pmapi_return;
 
@@ -1210,9 +1207,6 @@ FAILED_LOCKED:
 	    type, name, sts, PM_TPD(curr_handle));
 #endif
     PM_UNLOCK(contexts_lock);
-
-    if (old_curr_ctxp != NULL)
-	PM_CHECK_IS_UNLOCKED(old_curr_ctxp->c_lock);
 
 pmapi_return:
 
@@ -1273,7 +1267,6 @@ pmReconnectContext(int handle)
 		handle, (int)-ETIMEDOUT, (int)(ctl->pc_again - time(NULL)));
 #endif
 	    PM_UNLOCK(ctxp->c_lock);
-	    PM_CHECK_IS_UNLOCKED(ctxp->c_lock);
 	    sts = -ETIMEDOUT;
 	    goto pmapi_return;
 	}
@@ -1293,7 +1286,6 @@ pmReconnectContext(int handle)
 		    handle, (int)(ctl->pc_again - time(NULL)));
 #endif
 	    PM_UNLOCK(ctxp->c_lock);
-	    PM_CHECK_IS_UNLOCKED(ctxp->c_lock);
 	    sts = -ETIMEDOUT;
 	    goto pmapi_return;
 	}
@@ -1319,7 +1311,6 @@ pmReconnectContext(int handle)
 	fprintf(stderr, "pmReconnectContext(%d) -> %d\n", handle, handle);
 #endif
 
-    PM_CHECK_IS_UNLOCKED(ctxp->c_lock);
     sts = handle;
 
 pmapi_return:
@@ -1511,8 +1502,6 @@ pmDupContext(void)
 done_locked:
     PM_UNLOCK(oldcon->c_lock);
     PM_UNLOCK(newcon->c_lock);
-    PM_CHECK_IS_UNLOCKED(oldcon->c_lock);
-    PM_CHECK_IS_UNLOCKED(newcon->c_lock);
 
 done:
     /* return an error code, or the handle for the new context */
@@ -1581,7 +1570,6 @@ pmUseContext(int handle)
 
     PM_UNLOCK(contexts_lock);
 
-    PM_CHECK_IS_UNLOCKED(contexts[ctxnum]->c_lock);
     sts = 0;
 
 pmapi_return:
@@ -1681,7 +1669,6 @@ pmDestroyContext(int handle)
     contexts_map[ctxnum] = MAP_FREE;
     PM_UNLOCK(contexts_lock);
 
-    PM_CHECK_IS_UNLOCKED(ctxp->c_lock);
     sts = 0;
 
 pmapi_return:
