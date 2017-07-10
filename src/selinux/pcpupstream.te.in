@@ -19,6 +19,8 @@ require {
 	type sysctl_net_t;
 	type svirt_sandbox_file_t;
 	@PCP_SVIRT_LXC_NET_T@
+	type virtd_t; # pmda.libvirt
+	type virt_etc_t; # pmda.libvirt
 	type hostname_exec_t;
 	type ldconfig_exec_t; # pcp-lio
 	type configfs_t; # pcp-lio
@@ -35,6 +37,9 @@ require {
 	@PCP_UNRESERVED_PORT@
 	type user_tmp_t;
 	@PCP_TRACEFS@
+	type gconf_home_t; # pmda.libvirt
+	type haproxy_var_lib_t; # pmda.haproxy
+	type haproxy_t; # pmda.haproxy
 	class lnk_file { read getattr };
 	class file { append create execute execute_no_trans getattr ioctl lock open read write };
 	class dir { add_name open read search write getattr };
@@ -143,7 +148,14 @@ allow pcp_pmcd_t hostname_exec_t:file { getattr execute read open execute_no_tra
 #type=AVC msg=audit(1498845911.360:7647): avc:  denied  { open } for  pid=22090 comm="pmdaperfevent" path="/sys/kernel/debug/tracing/events/gfs2/gfs2_glock_state_change/id" dev="tracefs" ino=321619 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:tracefs_t:s0 tclass=file permissive=0
 @PCP_TRACEFS_FILE_RULE@
 
+allow pcp_pmcd_t gconf_home_t:dir search;
+allow pcp_pmcd_t virt_etc_t:dir search;
+allow pcp_pmcd_t virt_etc_t:file { read open };
+allow pcp_pmcd_t virtd_t:unix_stream_socket connectto;
 
+allow pcp_pmcd_t haproxy_var_lib_t:dir search;
+allow pcp_pmcd_t haproxy_var_lib_t:sock_file write;
+allow pcp_pmcd_t haproxy_t:unix_stream_socket connectto;
 #============= pcp_pmlogger_t ==============
 allow pcp_pmlogger_t kmsg_device_t:chr_file { open write };
 allow pcp_pmlogger_t self:capability kill;
