@@ -43,13 +43,13 @@ _setup_dm_device()
 	$sudo losetup $loopdevice $tmp.loop
 	$sudo echo "\$sudo dmsetup create $dmdevice --table \"0 $[512*2048] linear $loopdevice 0\""  >  $tmp.table
 	source $tmp.table
-	$sudo dmstats create $dmdevice
+	$sudo dmsetup stats create $dmdevice --precise
 }
 
 _clean_device()
 {
 	echo "Removing pseudo device"
-    	$sudo dmstats delete $dmdevice --allregions
+    	$sudo dmsetup stats delete $dmdevice --allregions
    	$sudo dmsetup remove $dmdevice
     	$sudo losetup -d $loopdevice
 }
@@ -74,11 +74,39 @@ _cleanup()
 
 _dm_filter_pminfo()
 {
-	# Just want to check both are found and have some values
-	tee -a $here/$seq.full | sed \
-	    -e 's/value [-?0-9.e+][-?0-9.e+]*/value NUMBER/'
+	# Just want to check $dmdevice's valu
+	tee -a $here/$seq.full | grep $dmdevice | awk '{print $NF}'
 }
 
+_dm_verify_value()
+{
+	WARN=0
+	$sudo dd if=/dev/mapper/$dmdevice of=/dev/null > /dev/null 2>&1
+	$sudo dd if=/dev/zero of=/dev/mapper/$dmdevice > /dev/null 2>&1
+	wait
+	DMS=(`$sudo dmsetup stats print $dmdevice --allregions`)
+	for num in `seq 0 12`
+	do
+		DMV=${DMS[$num+1]}
+		PMV=(`pminfo -f 129.3.$num | _dm_filter_pminfo`)
+
+		if [ $num = 2 ] || [ $num = 6 ] ;then
+			PMV=` expr 2 \* $PMV `
+		fi
+
+		if [ $DMV = $PMV ] ;then
+			WARN=` expr $WARN + 1 `
+		else
+			WARN=` expr $WARN + 0 `
+		fi
+	done
+
+	if [ $WARN = 13 ] ;then
+		echo "All instances' value is correct"
+	else
+		echo "Some instances' value is wrong"
+	fi
+}
 
 # check for unused loop device
 loopdevice=`$sudo losetup -f`
@@ -122,7 +150,7 @@ _setup_dm_device
 
 echo
 echo "=== Check dmstats metrics ==="
-pminfo -dfmtT dm | _dm_filter_pminfo
+_dm_verify_value
 
 echo
 echo "=== Clean up ==="

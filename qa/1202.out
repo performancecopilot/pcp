@@ -18,129 +18,14 @@ Terminate PMDA if already installed ...
 Updating the PMCD control file, and notifying PMCD ...
 Check dmcache metrics have appeared ... 16 metrics and 0 values
 Check dmthin metrics have appeared ... 13 metrics and 0 values
-Check dmstats metrics have appeared ... 13 metrics and 0 values
+Check dmstats metrics have appeared ... 13 metrics and 13 values
 
 === Preparing for Test Device Mapper Device
 Creating pseudo device
 looptest0: Created new region with 1 area(s) as region ID 0
 
 === Check dmstats metrics ===
-
-dm.read PMID: 129.3.0 [The number of reads completed]
-    Data Type: 64-bit unsigned int  InDom: 129.3 0x20400003
-    Semantics: counter  Units: count
-Help:
-Count of reads completed this interval per dm device.
-    inst [0 or "looptest0"] value NUMBER
-
-dm.reads_merged PMID: 129.3.1 [The number of reads merged]
-    Data Type: 64-bit unsigned int  InDom: 129.3 0x20400003
-    Semantics: counter  Units: count
-Help:
-Count of reads merged this interval per dm device.
-    inst [0 or "looptest0"] value NUMBER
-
-dm.read_sector PMID: 129.3.2 [The number of kbyte read]
-    Data Type: 64-bit unsigned int  InDom: 129.3 0x20400003
-    Semantics: counter  Units: Kbyte
-Help:
-Count of kbyte read this inteval per dm device.
-    inst [0 or "looptest0"] value NUMBER
-
-dm.read_time PMID: 129.3.3 [The number of nanoseconds spent reading]
-    Data Type: 64-bit unsigned int  InDom: 129.3 0x20400003
-    Semantics: instant  Units: nanosec
-Help:
-Accumulated duration of all read request per dm device.
-    inst [0 or "looptest0"] value NUMBER
-
-dm.write PMID: 129.3.4 [The number of writes completed]
-    Data Type: 64-bit unsigned int  InDom: 129.3 0x20400003
-    Semantics: counter  Units: count
-Help:
-Count of writes completed this interval per dm-device.
-    inst [0 or "looptest0"] value NUMBER
-
-dm.writes_merged PMID: 129.3.5 [The number of writes merged]
-    Data Type: 64-bit unsigned int  InDom: 129.3 0x20400003
-    Semantics: counter  Units: count
-Help:
-Count of writes merged this interval per dm device.
-    inst [0 or "looptest0"] value NUMBER
-
-dm.write_sector PMID: 129.3.6 [The number of kbyte written]
-    Data Type: 64-bit unsigned int  InDom: 129.3 0x20400003
-    Semantics: counter  Units: Kbyte
-Help:
-Count of kbytes writes this interval per dm-device.
-    inst [0 or "looptest0"] value NUMBER
-
-dm.writes_time PMID: 129.3.7 [The number of nanoseconds spent writing]
-    Data Type: 64-bit unsigned int  InDom: 129.3 0x20400003
-    Semantics: instant  Units: nanosec
-Help:
-Accumulated duration of all write requests per dm device.
-    inst [0 or "looptest0"] value NUMBER
-
-dm.in_progress PMID: 129.3.8 [The number of I/Os]
-    Data Type: 64-bit unsigned int  InDom: 129.3 0x20400003
-    Semantics: counter  Units: count
-Help:
-Count of requests currently in progress per dm device.
-    inst [0 or "looptest0"] value NUMBER
-
-dm.io_ticks PMID: 129.3.9 [The number of nanoseconds spend doing I/Os]
-    Data Type: 64-bit unsigned int  InDom: 129.3 0x20400003
-    Semantics: instant  Units: nanosec
-Help:
-Nanoseconds spent servicing requestst per dm device.
-    inst [0 or "looptest0"] value NUMBER
-
-dm.queue_ticks PMID: 129.3.10 [The weighted number of nanoseconds spend doing I/Os]
-    Data Type: 64-bit unsigned int  InDom: 129.3 0x20400003
-    Semantics: instant  Units: nanosec
-Help:
-This field is incremented at each I/O start, I/O completion, I/O merge,
-or read of these stats by the number of I/Os in progress multiplied by
-the number of nanoseconds spent doing I/O since the last update of
-this field. This can provide an easy measure of both I/O completion time
-and the backlog that may be accumulating.
-    inst [0 or "looptest0"] value NUMBER
-
-dm.read_ticks PMID: 129.3.11 [The total time spent reading]
-    Data Type: 64-bit unsigned int  InDom: 129.3 0x20400003
-    Semantics: instant  Units: nanosec
-Help:
-Nanoseconds spent servicing reads per dm device.
-    inst [0 or "looptest0"] value NUMBER
-
-dm.write_ticks PMID: 129.3.12 [The total time spent writing]
-    Data Type: 64-bit unsigned int  InDom: 129.3 0x20400003
-    Semantics: instant  Units: nanosec
-Help:
-Nanoseconds spent servicing writes per dm device.
-    inst [0 or "looptest0"] value NUMBER
-
-dm.reads_time PMID: 129.3.3 [The number of nanoseconds spent reading]
-    Data Type: 64-bit unsigned int  InDom: 129.3 0x20400003
-    Semantics: instant  Units: nanosec
-Help:
-Accumulated duration of all read request per dm device.
-    inst [0 or "looptest0"] value NUMBER
-
-dm.read_bytes PMID: 129.3.2 [The number of kbyte read]
-    Data Type: 64-bit unsigned int  InDom: 129.3 0x20400003
-    Semantics: counter  Units: Kbyte
-Help:
-Count of kbyte read this inteval per dm device.
-    inst [0 or "looptest0"] value NUMBER
-
-dm.write_bytes PMID: 129.3.6 [The number of kbyte written]
-    Data Type: 64-bit unsigned int  InDom: 129.3 0x20400003
-    Semantics: counter  Units: Kbyte
-Help:
-Count of kbytes writes this interval per dm-device.
-    inst [0 or "looptest0"] value NUMBER
+All instances' value is correct
 
 === Clean up ===
 Removing pseudo device
