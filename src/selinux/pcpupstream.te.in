@@ -40,6 +40,7 @@ require {
 	type gconf_home_t; # pmda.libvirt
 	type haproxy_var_lib_t; # pmda.haproxy
 	type haproxy_t; # pmda.haproxy
+	type websm_port_t; # pmda.prometheus
 	class lnk_file { read getattr };
 	class file { append create execute execute_no_trans getattr ioctl lock open read write };
 	class dir { add_name open read search write getattr };
@@ -115,6 +116,9 @@ allow pcp_pmcd_t pcp_log_t:fifo_file { getattr read open }; # qa/455
 #type=AVC msg=audit(1498835003.745:8276): avc:  denied  { name_bind } for  pid=7079 comm="pmdasimple" src=5650 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:unreserved_port_t:s0 tclass=tcp_socket permissive=0
 #type=AVC msg=audit(1498835005.744:8277): avc:  denied  { name_connect } for  pid=29238 comm="pmcd" dest=5650 scontex =system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:unreserved_port_t:s0 tclass=tcp_socket permissive=0
 @PCP_UNRESERVED_PORT_RULE@
+
+#type=AVC msg=audit(1499709840.120:5028): avc:  denied  { name_connect } for  pid=13816 comm="python3" dest=9090 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:websm_port_t:s0 tclass=tcp_socket permissive=0
+allow pcp_pmcd_t websm_port_t:tcp_socket name_connect; # pmda.prometheus
 
 #type=AVC msg=audit(1498835613.883:11808): avc:  denied  { unix_read } for  pid=14552 comm="pmdalinux" key=0  scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 tclass=shm permissive=0
 #type=AVC msg=audit(1498846768.313:12024): avc:  denied  { getattr associate } for  pid=8128 comm="pmdalinux" key=0  scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 tclass=shm permissive=0
