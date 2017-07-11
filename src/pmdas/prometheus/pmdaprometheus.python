@@ -28,8 +28,9 @@ import errno
 import json
 import os
 import re
+import time
 import requests
-import subprocess
+from multiprocessing import Process
 
 MAX_CLUSTER = 0xfff
 MAX_METRIC = 0x3ff
@@ -52,9 +53,11 @@ class ScanPrometheus(object):
 		self.raw_metrics = None
 		self.autoconfig = autoconfig
 		self.metrics_by_name = {}
-		if not autoconfig:
-			self.fetch_raw_metrics()
-			self.parse_raw()
+		if autoconfig is not None:
+			return self.save_autoconfig()
+
+		self.fetch_raw_metrics()
+		self.parse_raw()
 		self.save_metadata()
 
 	class Metric(object):
@@ -83,17 +86,34 @@ class ScanPrometheus(object):
 					metadata[key] = self.__dict__[key]
 			return metadata
 
+	def save_autoconfig(self):
+		filename = os.getenv('PCP_PMDAS_DIR') + \
+					"/prometheus/autoconfig.json"
+
+		if not os.path.exists(filename):
+			with open(filename, "w") as f:
+				f.write("[]")
+				f.close()
+
+		with open(filename, "r+") as f:
+			config_obj = { "name": self.name, "endpoint": self.endpoint }
+			config_list = json.load(f)
+			config_list.append(config_obj)
+			f.seek(0)
+			json.dump(config_list, f, indent=4)
+
 	def save_metadata(self):
 		# Saves the metadata of the Prometheus endpoint in PCP_PMDAS_DIR
 		config = { "name": self.name, "metrics": [] }
+
 		if self.filepath:
 			config["filepath"] = os.path.abspath(self.filepath)
 		else:
 			config["endpoint"] = self.endpoint
-		if self.autoconfig:
-			config["autoconfig"] = True
+
 		for k in self.metrics_by_name:
 			config["metrics"].append(self.metrics_by_name[k].export())
+
 		raw_config = json.dumps(config, indent=2)
 		filename = os.getenv('PCP_PMDAS_DIR') + \
 					"/prometheus/metadata/" + self.name + ".json"
@@ -466,7 +486,6 @@ class PrometheusSource(object):
 		self.metrics = []
 		self.metrics_by_id = {}
 		self.metrics_value = {}
-		self.autoconfig = False
 		self.fetch_failed = False
 		self.numfetch = 0
 		self.metrics_cache = None
@@ -476,9 +495,7 @@ class PrometheusSource(object):
 		self.load_metrics_metadata()
 		self.prepare_passed = self.prepare_metrics_metadata()
 
-		if self.autoconfig:
-			self.log("Prometheus autoconfig source found: %s" % self.path)
-		elif not self.prepare_passed:
+		if not self.prepare_passed:
 			self.log("Prometheus Source creation failed for %s" % self.path)
 
 	@property
@@ -537,9 +554,7 @@ class PrometheusSource(object):
 		if not ( metadata.get("endpoint") or metadata.get("filepath") ):
 			self.log("Invalid endpoint/filepath with null value")
 			return False
-		if metadata.get("autoconfig") is not None:
-			self.autoconfig = True
-			return False
+
 		self.endpoint = metadata.get("endpoint")
 		self.filepath = metadata.get("filepath")
 		return True
@@ -675,10 +690,13 @@ class PrometheusPMDA(PMDA):
 		PMDA.__init__(self, pmda_name, domain)
 		self.connect_pmcd()
 		self.numfetch = 0
+		self.watcher_process = None
+		self.watcher_refresh_seconds = 15
+		self.endpoint_fetch_timeout = 2
 
 		pmdasDir = pmContext.pmGetConfig('PCP_PMDAS_DIR')
-		pmdaDir = "%s/%s/metadata/" % (pmdasDir, pmda_name)
-		self.dir = pmdaDir
+		self.pmdaDir = "%s/%s" % (pmdasDir, pmda_name)
+		self.dir = self.pmdaDir + "/metadata"
 		self.dir_mtime = os.stat(self.dir).st_mtime
 		self.source_by_cluster = {}
 		self.source_by_name = {}
@@ -698,10 +716,9 @@ class PrometheusPMDA(PMDA):
 
 		self.add_static_metrics()
 		self.load_prometheus_sources()
+		self.fork_autoconfig_watcher()
 		self.set_fetch(self.prometheus_fetch)
 		self.set_fetch_callback(self.prometheus_fetch_callback)
-		p = subprocess.Popen(['%s/%s/%s' % (pmdasDir, pmda_name,
-				"autoconfig_watch.python")])
 
 	def add_static_metrics(self):
 		'''
@@ -756,6 +773,47 @@ class PrometheusPMDA(PMDA):
 		if new_source_seen:
 			self.cluster_cache.refresh()
 
+	def fork_autoconfig_watcher(self):
+		if self.watcher_process is not None and \
+			self.watcher_process.is_alive() is True:
+			return
+		self.watcher_timestamp  = time.time()
+		self.watcher_process = Process(target=self.autoconfig_watcher)
+		self.watcher_process.start()
+
+	def autoconfig_watcher(self):
+		filename = self.pmdaDir + '/autoconfig.json'
+		if not os.path.exists(filename):
+			return
+
+		config_list = []
+		# Configs of the endpoint which could be reached
+		failed_config_list = []
+
+		with open(filename, "r") as f:
+			config_list = json.load(f)
+			f.close()
+
+		for config in config_list:
+			try:
+				requests.get(config.get("endpoint"), \
+					timeout=self.endpoint_fetch_timeout)
+				ScanPrometheus(config.get("name"), None, config["endpoint"])
+				continue
+			except requests.ConnectionError:
+				pass
+			except Exception as e:
+				name = config.get("name")
+				endpoint = config.get("endpoint")
+				self.log("Autoconfig Exception name:%s endpoint:%s \
+				 exception: %s" % (name, endpoint, e))
+			# Add config to the failed list
+			failed_config_list.append(config)
+
+		with open(filename, "w") as f:
+			json.dump(failed_config_list, f)
+			f.close()
+
 	def prometheus_fetch(self):
 		''' Called once before calling prometheus_fetch_callback '''
 
@@ -766,13 +824,18 @@ class PrometheusPMDA(PMDA):
 			self.add_static_metrics()
 			self.load_prometheus_sources()
 			self.pmns_refresh()
+
+		# Watch autoconfigs for any live endpoint
+		timediff = time.time() - self.watcher_timestamp
+		if timediff >= self.watcher_refresh_seconds:
+			self.fork_autoconfig_watcher()
 		# Count the number of times fetch called
 		self.numfetch += 1
 
 	def prometheus_fetch_callback(self, cluster, item, inst):
 		''' Main fetch callback which returns the value of the metric '''
 		# cluster 0 is reserved for the static metrics
-		self.log("requesting " + str(item) + " cluster" + str(cluster))
+		# self.log("requesting " + str(item) + " cluster" + str(cluster))
 		if cluster == 0:
 			if item != 0 or inst != c_api.PM_IN_NULL:
 				return [c_api.PM_ERR_PMID, 0]
