@@ -656,7 +656,8 @@ class PrometheusSource(object):
 		''' Refreshes the metric values of this cluster'''
 		try:
 			if self.endpoint:
-				req = requests.get(self.endpoint)
+				req = requests.get(self.endpoint, \
+					timeout=self.pmda.endpoint_fetch_timeout)
 				self.parse_metrics_values(req.text)
 				self.fetch_failed = False
 			else:
@@ -691,7 +692,7 @@ class PrometheusPMDA(PMDA):
 		self.connect_pmcd()
 		self.numfetch = 0
 		self.watcher_process = None
-		self.watcher_refresh_seconds = 15
+		self.watcher_refresh_frequency = 120
 		self.endpoint_fetch_timeout = 2
 
 		pmdasDir = pmContext.pmGetConfig('PCP_PMDAS_DIR')
@@ -719,6 +720,7 @@ class PrometheusPMDA(PMDA):
 		self.fork_autoconfig_watcher()
 		self.set_fetch(self.prometheus_fetch)
 		self.set_fetch_callback(self.prometheus_fetch_callback)
+		self.set_store_callback(self.prometheus_store_callback)
 
 	def add_static_metrics(self):
 		'''
@@ -729,6 +731,24 @@ class PrometheusPMDA(PMDA):
 		metric_info.type = c_api.PM_TYPE_64
 		metric_info.description = 'Number of times data fetched'
 		metric_info.idx = 0
+		metric_info.create()
+		self.add_metric(metric_info.full_name, metric_info.obj,
+						metric_info.description)
+
+		metric_info = Metric(self.pmda_name + '.config', 0, self)
+		metric_info.name = 'watcher_refresh_frequency'
+		metric_info.type = c_api.PM_TYPE_64
+		metric_info.description = 'Frequency of refreshing autoconfig in seconds'
+		metric_info.idx = 1
+		metric_info.create()
+		self.add_metric(metric_info.full_name, metric_info.obj,
+						metric_info.description)
+
+		metric_info = Metric(self.pmda_name + '.config', 0, self)
+		metric_info.name = 'endpoint_fetch_timeout'
+		metric_info.type = c_api.PM_TYPE_64
+		metric_info.description = 'Timeout on endpoint fetch in seconds'
+		metric_info.idx = 2
 		metric_info.create()
 		self.add_metric(metric_info.full_name, metric_info.obj,
 						metric_info.description)
@@ -827,7 +847,7 @@ class PrometheusPMDA(PMDA):
 
 		# Watch autoconfigs for any live endpoint
 		timediff = time.time() - self.watcher_timestamp
-		if timediff >= self.watcher_refresh_seconds:
+		if timediff >= self.watcher_refresh_frequency:
 			self.fork_autoconfig_watcher()
 		# Count the number of times fetch called
 		self.numfetch += 1
@@ -837,13 +857,34 @@ class PrometheusPMDA(PMDA):
 		# cluster 0 is reserved for the static metrics
 		# self.log("requesting " + str(item) + " cluster" + str(cluster))
 		if cluster == 0:
-			if item != 0 or inst != c_api.PM_IN_NULL:
+			if inst != c_api.PM_IN_NULL:
 				return [c_api.PM_ERR_PMID, 0]
-			else:
+			elif item == 0:
 				return [self.numfetch, 1]
+			elif item == 1:
+				return [self.watcher_refresh_frequency, 1]
+			elif item == 2:
+				return [self.endpoint_fetch_timeout, 1]
+			else:
+				return [c_api.PM_ERR_PMID, 0]
 		elif cluster in self.source_by_cluster:
 			return self.source_by_cluster[cluster].fetch(item, inst)
 		return [c_api.PM_ERR_PMID, 1]
+
+	def prometheus_store_callback(self, cluster, item, inst, value):
+		''' Main store callback which stores the value of the metric'''
+		if inst != c_api.PM_IN_NULL:
+			return c_api.PM_ERR_PMID
+		if cluster == 0:
+			if item == 1:
+				self.watcher_refresh_frequency = value
+				return 1
+			elif item == 2:
+				self.endpoint_fetch_timeout = value
+				return 1
+			else:
+				return c_api.PM_ERR_PMID
+		return c_api.PM_ERR_PMID
 
 if __name__ == '__main__':
 	'''
