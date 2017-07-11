@@ -459,9 +459,9 @@ pass3(__pmContext *ctxp, char *archname, pmOptions *opts)
 	 *
 	 * we need to lock the context for the __pmLogRead_ctx() call
 	 */
-	PM_LOCK(ctxp->c_lock);
+	PM_LOCK(l_ctxp->c_lock);
 	sts = __pmLogRead_ctx(l_ctxp, l_ctxp->c_mode, NULL, &result, PMLOGREAD_NEXT);
-	PM_UNLOCK(ctxp->c_lock);
+	PM_UNLOCK(l_ctxp->c_lock);
 	if (sts < 0)
 	    break;
 	result_count++;
