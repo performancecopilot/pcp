@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2017 Red Hat.
  * Copyright (c) 1995-2003 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -187,11 +188,11 @@ do_preamble(void)
     }
 
     /* fudge the temporal index */
-    fseek(logctl.l_mfp, sizeof(__pmLogLabel)+2*sizeof(int), SEEK_SET);
-    fseek(logctl.l_mdfp, sizeof(__pmLogLabel)+2*sizeof(int), SEEK_SET);
+    __pmFseek(logctl.l_mfp, sizeof(__pmLogLabel)+2*sizeof(int), SEEK_SET);
+    __pmFseek(logctl.l_mdfp, sizeof(__pmLogLabel)+2*sizeof(int), SEEK_SET);
     __pmLogPutIndex(&logctl, &tmp);
-    fseek(logctl.l_mfp, 0L, SEEK_END);
-    fseek(logctl.l_mdfp, 0L, SEEK_END);
+    __pmFseek(logctl.l_mfp, 0L, SEEK_END);
+    __pmFseek(logctl.l_mdfp, 0L, SEEK_END);
     sts = 0;
 
     /*
