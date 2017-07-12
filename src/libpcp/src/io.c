@@ -99,6 +99,12 @@ __pmFread(void *ptr, size_t size, size_t nmemb, __pmFILE *stream)
     return fread(ptr, size, nmemb, stream);
 }
 
+size_t
+__pmFwrite(void *ptr, size_t size, size_t nmemb, __pmFILE *stream)
+{
+    return fwrite(ptr, size, nmemb, stream);
+}
+
 int
 __pmFflush(__pmFILE *stream)
 {
@@ -121,6 +127,12 @@ int
 __pmFstat(__pmFILE *stream, struct stat *buf)
 {
     return fstat(fileno(stream), buf);
+}
+
+int
+__pmFileno(__pmFILE *stream)
+{
+    return fileno(stream);
 }
 
 /*

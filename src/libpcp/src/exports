@@ -556,9 +556,11 @@ PCP_3.20 {
     __pmRewind;
     __pmFtell;
     __pmFread;
+    __pmFwrite;
     __pmFflush;
     __pmFsync;
     __pmLseek;
     __pmFstat;
+    __pmFileno;
     __pmFclose;
 } PCP_3.19;

@@ -439,10 +439,12 @@ PCP_CALL extern int __pmFseek(__pmFILE *, long, int);
 PCP_CALL extern void __pmRewind(__pmFILE *);
 PCP_CALL extern long __pmFtell(__pmFILE *);
 PCP_CALL extern size_t __pmFread(void *, size_t, size_t, __pmFILE *);
+PCP_CALL extern size_t __pmFwrite(void *, size_t, size_t, __pmFILE *);
 PCP_CALL extern int __pmFflush(__pmFILE *);
 PCP_CALL extern int __pmFsync(__pmFILE *);
 PCP_CALL extern off_t __pmLseek(__pmFILE *, off_t, int);
 PCP_CALL extern int __pmFstat(__pmFILE *, struct stat *);
+PCP_CALL extern int __pmFileno(__pmFILE *);
 PCP_CALL extern int __pmFclose(__pmFILE *);
 
 /*
