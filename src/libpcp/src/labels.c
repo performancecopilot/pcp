@@ -773,7 +773,6 @@ getlabels(int ident, int type, pmLabelSet **sets, int *nsets)
     }
 
     PM_UNLOCK(ctxp->c_lock);
-    CHECK_C_LOCK;
     return sts;
 }
 
