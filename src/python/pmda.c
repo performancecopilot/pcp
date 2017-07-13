@@ -420,19 +420,18 @@ static int
 label(int ident, int type, pmLabelSet **lp, pmdaExt *ep)
 {
     int sts = 0, item = 0, cluster = ident;
-    char *s;
+    char *s = NULL;
 
-    if (type == PM_LABEL_INSTS){
+    if (type == PM_LABEL_INSTS)
         return pmdaLabel(ident, type, lp, ep);
-    }
 
-    if (type == PM_LABEL_PMID){
+    if (type == PM_LABEL_PMID) {
         __pmID_int *pmidp = (__pmID_int *)&ident;
         cluster = pmidp->cluster;
         item = pmidp->item;
     }
 
-    if (label_func){
+    if (label_func) {
         PyObject *arglist, *result;
 
         arglist = Py_BuildValue("(iii)", type, cluster, item);
@@ -446,18 +445,14 @@ label(int ident, int type, pmLabelSet **lp, pmdaExt *ep)
             return -EAGAIN;
         }
 
-        if(PyArg_Parse(result, "s:label", &s) == 0) {
+        if (PyArg_Parse(result, "s:label", &s) == 0 || s == NULL) {
             __pmNotifyErr(LOG_ERR, "label gave bad result (expected string)");
             Py_DECREF(result);
             return -EINVAL;
         }
 
-        sts = 0;
-        if(s == NULL)
-        s = "{}";
-
-        if((sts = pmdaAddLabels(lp, s, "")) < 0)
-        __pmNotifyErr(LOG_ERR, "label gave bad result (expected string)");
+        if ((sts = pmdaAddLabels(lp, s, "")) < 0)
+            __pmNotifyErr(LOG_ERR, "pmdaAddLabels failed: %s", pmErrStr(sts));
 
         Py_DECREF(result);
     }
@@ -590,13 +585,13 @@ fetch_callback(pmdaMetric *metric, unsigned int inst, pmAtomValue *atom)
 int
 label_callback(pmdaMetric *metric, unsigned int inst, pmLabelSet **lp)
 {
-    char *s;
     int sts;
+    char *s = NULL;
     PyObject *arglist, *result;
     __pmID_int *pmid = (__pmID_int *)&metric->m_desc.pmid;
 
     if (label_cb_func == NULL)
-    return PM_ERR_VALUE;
+        return PM_ERR_VALUE;
 
     arglist = Py_BuildValue("(iiI)", pmid->cluster, pmid->item, inst);
     if (arglist == NULL) {
@@ -609,19 +604,14 @@ label_callback(pmdaMetric *metric, unsigned int inst, pmLabelSet **lp)
         PyErr_Print();
         return -EAGAIN; /* exception thrown */
     }
-    if(PyArg_Parse(result, "s:label_callback", &s) == 0) {
+    if (PyArg_Parse(result, "s:label_callback", &s) == 0 || s == NULL) {
         __pmNotifyErr(LOG_ERR, "label callback gave bad result (expected string)");
         Py_DECREF(result);
         return -EINVAL;
     }
 
-    sts = 0;
-
-    if(s == NULL)
-    s = "{}";
-
-    if((sts = pmdaAddLabels(lp, s, "")) < 0)
-    __pmNotifyErr(LOG_ERR, "label callback gave bad result (expected string)");
+    if ((sts = pmdaAddLabels(lp, s, "")) < 0)
+        __pmNotifyErr(LOG_ERR, "pmdaAddLabels failed: %s", pmErrStr(sts));
 
     Py_DECREF(result);
     return sts;
@@ -1021,7 +1011,6 @@ pmda_refresh_metrics(void)
 	dispatch.version.any.ext->e_nindoms = nindoms;
 	pmdaRehash(dispatch.version.any.ext, metric_buffer, nmetrics);
     }
-    return;
 }
 
 static PyObject *

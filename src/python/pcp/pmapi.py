@@ -588,7 +588,7 @@ pmLabelPtr.value = property(lambda x: x.contents.value, None, None, None)
 pmLabelPtr.valuelen = property(lambda x: x.contents.valuelen, None, None, None)
 
 class pmLabelSet(Structure):
-    """ Structure describing label set sepecifications"""
+    """ Structure describing label set specifications"""
 
     _fields_ = [ ("inst", c_uint),
                  ("nlabels", c_int),
@@ -1969,7 +1969,7 @@ class pmContext(object):
         return result_p
 
     def pmGetLabels(self, pmid):
-        """PMAPI - Get labels
+        """PMAPI - Get labels for the metric values (instances)
         """
         result_p = POINTER(pmLabelSet)()
         status = LIBPCP.pmUseContext(self.ctx)
@@ -1981,7 +1981,7 @@ class pmContext(object):
         return result_p
 
     def pmGetPMIDLabels(self, pmid):
-        """PMAPI - Get labels of a given pmID
+        """PMAPI - Get labels of a given metric identifier
         """
         result_p = POINTER(pmLabelSet)()
         status = LIBPCP.pmUseContext(self.ctx)
@@ -1992,26 +1992,26 @@ class pmContext(object):
             raise pmErr(status)
         return result_p
 
-    def pmGetInDomLabels(self, pmInDom):
+    def pmGetInDomLabels(self, indom):
         """PMAPI - Get labels of a given instance domain
         """
         result_p = POINTER(pmLabelSet)()
         status = LIBPCP.pmUseContext(self.ctx)
         if status < 0:
             raise pmErr(status)
-        status = LIBPCP.pmGetInDomLabels(pmInDom, byref(result_p))
+        status = LIBPCP.pmGetInDomLabels(indom, byref(result_p))
         if status < 0:
             raise pmErr(status)
         return result_p
 
-    def pmGetDomainLabels(self, dom):
-        """PMAPI - Get labels of a given domain
+    def pmGetDomainLabels(self, domain):
+        """PMAPI - Get labels of a given performance domain
         """
         result_p = POINTER(pmLabelSet)()
         status = LIBPCP.pmUseContext(self.ctx)
         if status < 0:
             raise pmErr(status)
-        status = LIBPCP.pmGetDomainLabels(dom, byref(result_p))
+        status = LIBPCP.pmGetDomainLabels(domain, byref(result_p))
         if status < 0:
             raise pmErr(status)
         return result_p

@@ -30,8 +30,6 @@ import os
 import re
 import requests
 
-from ctypes import *
-
 MAX_CLUSTER = 0xfff
 MAX_METRIC = 0x3ff
 MAX_INDOM = 0x7fffffff
