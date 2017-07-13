@@ -194,26 +194,45 @@ stash_chars(const char *s, int slen, char **buffer, int *buflen)
 }
 
 static int
-stash_label(const pmLabel *lp, const char *json, char **buffer, int *buflen,
-	int (*filter)(const pmLabel *, const char *, void *), void *arg)
+stash_label(const pmLabel *lp, const char *json,
+	    pmLabel *olabel, const char *obuffer, int *no,
+	    char **buffer, int *buflen,
+	    int (*filter)(const pmLabel *, const char *, void *), void *arg)
 {
     char	*bp = *buffer;
     int		bytes = *buflen;
+    int		valuelen;
 
     if (filter != NULL && filter(lp, json, arg) == 0)
 	return 0;
 
     if ((lp->namelen + 2 + 1 + lp->valuelen + 1) >= bytes)
 	return -E2BIG;
-    if (lp->valuelen)
+
+    if (lp->valuelen) {
 	bytes = sprintf(bp, "\"%.*s\":%.*s,",
 			(int)lp->namelen, label_name(lp, json),
 			(int)lp->valuelen, label_value(lp, json));
-    else
+	valuelen = lp->valuelen;
+    } else {
 	bytes = sprintf(bp, "\"%.*s\":null,",
 			(int)lp->namelen, label_name(lp, json));
+	valuelen = 4;
+    }
+
     *buffer = bp + bytes;
     *buflen -= bytes;
+
+    if (olabel) {
+	pmLabel	*op = &olabel[*no];
+	op->name = (bp - obuffer) + 1;
+	op->namelen = lp->namelen;
+	op->flags = lp->flags;
+	op->value = (bp - obuffer) + 1 + lp->namelen + 2;
+	op->valuelen = valuelen;
+	*no = *no + 1;
+    }
+
     return bytes;
 }
 
@@ -450,13 +469,17 @@ done:
 
 int
 __pmMergeLabelSets(pmLabel *alabels, const char *abuf, int na,
-	pmLabel *blabels, const char *bbuf, int nb, char *buffer, int buflen,
+		   pmLabel *blabels, const char *bbuf, int nb,
+		   pmLabel *olabels, char *output, int *no, int buflen,
 	int (*filter)(const pmLabel *, const char *, void *), void *arg)
 {
-    char	*bp = buffer;
+    char	*bp = output;
     int		sts, i, j;
 
-    /* Walk over both label sets inserting all names into the result
+    if (no)
+	*no = 0;	/* number of output labels */
+
+    /* Walk over both label sets inserting all names into the output
      * buffer, but prefering b-group values over those in the a-group.
      * As we go, check for duplicates between a-group & b-group (since
      * thats invalid and we'd generate invalid output - JSONB format).
@@ -471,12 +494,14 @@ __pmMergeLabelSets(pmLabel *alabels, const char *abuf, int na,
 		if (j && namecmp4(&alabels[i], abuf, &blabels[j-1], bbuf) == 0)
 		    i++;	/* but skip if its a duplicate name */
 		else if ((sts = stash_label(&alabels[i++], abuf,
+					    olabels, output, no,
 					    &bp, &buflen, filter, arg)) < 0)
 		    goto done;
 	    } else if (namecmp4(&alabels[i], abuf, &blabels[j], bbuf) < 0) {
 		if (j && namecmp4(&alabels[i], abuf, &blabels[j-1], bbuf) == 0) /* dup */
 		    i++;
 		else if ((sts = stash_label(&alabels[i++], abuf,
+					    olabels, output, no,
 					    &bp, &buflen, filter, arg)) < 0)
 		    goto done;
 	    }
@@ -485,10 +510,12 @@ __pmMergeLabelSets(pmLabel *alabels, const char *abuf, int na,
 	    /* use this b-group label? - compare to current a-group name */
 	    if (i >= na) {	/* reached end of a-group, so use it */
 		if ((sts = stash_label(&blabels[j++], bbuf,
+					olabels, output, no,
 					&bp, &buflen, filter, arg)) < 0)
 		    goto done;
 	    } else if (namecmp4(&alabels[i], abuf, &blabels[j], bbuf) >= 0) {
 		if ((sts = stash_label(&blabels[j++], bbuf,
+					olabels, output, no,
 					&bp, &buflen, filter, arg)) < 0)
 		    goto done;
 	    }
@@ -501,7 +528,7 @@ __pmMergeLabelSets(pmLabel *alabels, const char *abuf, int na,
     }
     if ((sts = stash_chars("}", 2, &bp, &buflen)) < 0)
 	goto done;
-    sts = bp - buffer;
+    sts = bp - output;
 
 done:
     return sts;
@@ -531,7 +558,7 @@ __pmMergeLabels(const char *a, const char *b, char *buffer, int buflen)
 	return 0;
 
     return __pmMergeLabelSets(alabels, abuf, na, blabels, bbuf, nb,
-				buffer, buflen, NULL, NULL);
+				NULL, buffer, NULL, buflen, NULL, NULL);
 }
 
 /*
@@ -542,27 +569,45 @@ __pmMergeLabels(const char *a, const char *b, char *buffer, int buflen)
  */
 int
 pmMergeLabelSets(pmLabelSet **sets, int nsets, char *buffer, int buflen,
-	int (*filter)(const char *, pmLabel *, void *), void *arg)
+	int (*filter)(const pmLabel *, const char *, void *), void *arg)
 {
+    pmLabel	olabels[PM_MAXLABELS];
+    pmLabel	blabels[PM_MAXLABELS];
     char	buf[MAXLABELJSONLEN];
-    int		bytes = 0;
-    int		i, sts;
+    int		nlabels = 0;
+    int		i, sts = 0;
 
     if (!sets || nsets < 1)
 	return -EINVAL;
 
-    memset(buf, 0, sizeof(buf));
     for (i = 0; i < nsets; i++) {
 	if (sets[i] == NULL)
 	    continue;
-	if (bytes)
-	    memcpy(buf, buffer, bytes);
-	if ((sts = bytes = __pmMergeLabels(buf, sets[i]->json, buffer, buflen)) < 0)
+
+	/* avoid overwriting the working set, if there is one */
+	if (sts > 0) {
+	    memcpy(buf, buffer, sts);
+	    memcpy(blabels, olabels, nlabels * sizeof(pmLabel));
+	} else {
+	    memset(buf, 0, sizeof(buf));
+	    memset(blabels, 0, sizeof(blabels));
+	}
+
+	if (pmDebug & DBG_TRACE_LABEL) {
+	    fprintf(stderr, "pmMergeLabelSets: merging set [%d] ", i);
+	    __pmDumpLabelSet(stderr, sets[i]);
+	}
+
+	if ((sts = __pmMergeLabelSets(sets[i]->labels,
+				sets[i]->json, sets[i]->nlabels,
+				blabels, buf, nlabels,
+				olabels, buffer, &nlabels, buflen,
+				filter, arg)) < 0)
 	    return sts;
-	if (bytes >= buflen || bytes >= MAXLABELJSONLEN)
+	if (sts >= buflen || sts >= MAXLABELJSONLEN)
 	    return -E2BIG;
     }
-    return bytes;
+    return sts;
 }
 
 /*
@@ -652,24 +697,62 @@ __pmGetContextLabels(pmLabelSet **set)
     return __pmParseLabelSet(buf, sts, set);
 }
 
+static char *
+archive_host_labels(__pmContext *ctxp, char *buffer, int buflen)
+{
+    /*
+     * Backward compatibility fallback, for archives created before
+     * labels support is added to pmlogger.
+     * Once that's implemented (TYPE_LABEL in .meta) fields will be
+     * added to the context structure and we'll be able to read 'em
+     * here to provide complete archive label support.
+     */
+    snprintf(buffer, buflen, "{\"hostname\":\"%s\"}",
+	     ctxp->c_archctl->ac_log->l_label.ill_hostname);
+    buffer[buflen-1] = '\0';
+    return buffer;
+}
+
+static int
+archive_context_labels(__pmContext *ctxp, pmLabelSet **sets)
+{
+    pmLabelSet	*lp = NULL;
+    char	buf[MAXLABELJSONLEN];
+    char	*hostp;
+    int		sts;
+
+    hostp = archive_host_labels(ctxp, buf, sizeof(buf));
+    if ((sts = __pmAddLabels(&lp, hostp)) < 0)
+	return sts;
+    *sets = lp;
+    return 1;
+}
+
+static char *
+local_host_labels(char *buffer, int buflen)
+{
+    char	host[MAXHOSTNAMELEN];
+
+    gethostname(host, sizeof(host));
+    host[sizeof(host)-1] = '\0';
+
+    snprintf(buffer, buflen, "{\"hostname\":\"%s\"}", host);
+    buffer[buflen-1] = '\0';
+    return buffer;
+}
+
 static int
 local_context_labels(pmLabelSet **sets)
 {
     pmLabelSet	*lp = NULL;
     char	buf[MAXLABELJSONLEN];
-    char	host[MAXHOSTNAMELEN];
+    char	*hostp;
     int		sts;
 
     if ((sts = __pmGetContextLabels(&lp)) < 0)
 	return sts;
-
-    gethostname(host, sizeof(host));
-    host[sizeof(host)-1] = '\0';
-
-    snprintf(buf, sizeof(buf), "{\"hostname\":\"%s\"}", host);
-    buf[sizeof(buf)-1] = '\0';
-
-    if ((sts = __pmAddLabels(&lp, buf)) > 0) {
+    hostp = local_host_labels(buf, sizeof(buf));
+    if ((sts = __pmAddLabels(&lp, hostp)) > 0) {
 	*sets = lp;
 	return 1;
     }
@@ -768,8 +851,12 @@ getlabels(int ident, int type, pmLabelSet **sets, int *nsets)
 	}
     }
     else {
-	/* assume PM_CONTEXT_ARCHIVE - no label metadata support currently */
-	sts = PM_ERR_NOLABELS;
+	if (type & PM_LABEL_DOMAIN)
+	    sts = archive_context_labels(ctxp, sets);
+	else
+	    sts = 0;
+	if (sts >= 0)
+	    *nsets = sts;
     }
 
     PM_UNLOCK(ctxp->c_lock);

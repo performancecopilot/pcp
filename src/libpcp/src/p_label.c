@@ -17,6 +17,38 @@
 #include "impl.h"
 #include "internal.h"
 
+static const char *
+LabelTypeString(int type)
+{
+    switch (type) {
+    case PM_LABEL_CONTEXT:  return "context";
+    case PM_LABEL_DOMAIN:   return "domain";
+    case PM_LABEL_INDOM:    return "indom";
+    case PM_LABEL_PMID:	    return "pmid";
+    case PM_LABEL_INSTS:    return "insts";
+    default:
+	break;
+    }
+    return "?";
+}
+
+static char *
+LabelFlagString(int flags, char *buf, int buflen)
+{
+    int		type = (flags & ~PM_LABEL_OPTIONAL);
+
+    /*
+     * buffer needs to be long enough to hold label source
+     * and any optional flag strings, separated by commas.
+     */
+    if (buflen <= 16)
+	return NULL;
+    strcpy(buf, LabelTypeString(type));
+    if (flags & PM_LABEL_OPTIONAL)
+	strcat(buf, ",optional");
+    return buf;
+}
+
 void
 __pmDumpLabelSet(FILE *fp, const pmLabelSet *set)
 {
@@ -35,9 +67,10 @@ __pmDumpLabelSet(FILE *fp, const pmLabelSet *set)
     if (set->nlabels)
 	fprintf(fp, "%s "PRINTF_P_PFX"%p index:\n", type, set);
     for (i = 0; i < set->nlabels; i++)
-	fprintf(fp, "    [%d] name(%d,%d) : value(%d,%d)\n", i,
+	fprintf(fp, "    [%d] name(%d,%d) : value(%d,%d) [%s]\n", i,
 	        set->labels[i].name, set->labels[i].namelen,
-	        set->labels[i].value, set->labels[i].valuelen);
+	        set->labels[i].value, set->labels[i].valuelen,
+		LabelFlagString(set->labels[i].flags, buffer, sizeof(buffer)));
 }
 
 void
@@ -52,21 +85,6 @@ __pmDumpLabelSets(FILE *fp, const pmLabelSet *sets, int nsets)
 }
 
 #ifdef PCP_DEBUG
-static const char *
-LabelTypeString(int type)
-{
-    switch (type) {
-    case PM_LABEL_CONTEXT:  return "CONTEXT";
-    case PM_LABEL_DOMAIN:   return "DOMAIN";
-    case PM_LABEL_INDOM:    return "INDOM";
-    case PM_LABEL_PMID:	    return "PMID";
-    case PM_LABEL_INSTS:    return "INSTS";
-    default:
-	break;
-    }
-    return "?";
-}
-
 static void
 DumpLabelSets(char *func, int ident, int type, pmLabelSet *sets, int nsets)
 {

@@ -1517,6 +1517,16 @@ MOD_INIT(cpmapi)
     dict_add(dict, "PMCD_RESTART_AGENT", PMCD_RESTART_AGENT);
     dict_add(dict, "PMCD_DROP_AGENT", PMCD_DROP_AGENT);
 
+    dict_add(dict, "PM_MAXLABELS", PM_MAXLABELS);
+    dict_add(dict, "PM_MAXLABELJSONLEN", PM_MAXLABELJSONLEN);
+
+    dict_add(dict, "PM_LABEL_CONTEXT", PM_LABEL_CONTEXT);
+    dict_add(dict, "PM_LABEL_DOMAIN", PM_LABEL_DOMAIN);
+    dict_add(dict, "PM_LABEL_INDOM", PM_LABEL_INDOM);
+    dict_add(dict, "PM_LABEL_PMID", PM_LABEL_PMID);
+    dict_add(dict, "PM_LABEL_INSTS", PM_LABEL_INSTS);
+    dict_add(dict, "PM_LABEL_OPTIONAL", PM_LABEL_OPTIONAL);
+
     dict_add(dict, "PM_MAXERRMSGLEN", PM_MAXERRMSGLEN);
     dict_add(dict, "PM_TZ_MAXLEN",    PM_TZ_MAXLEN);
 
@@ -1630,6 +1640,7 @@ MOD_INIT(cpmapi)
     edict_add(dict, edict, "PM_ERR_NEEDCLIENTCERT", PM_ERR_NEEDCLIENTCERT);
     edict_add(dict, edict, "PM_ERR_NOLABELS", PM_ERR_NOLABELS);
     edict_add(dict, edict, "PM_ERR_NYI", PM_ERR_NYI);
+    edict_add(dict, edict, "PM_ERR_NOLABELS", PM_ERR_NOLABELS);
 
     return MOD_SUCCESS_VAL(module);
 }

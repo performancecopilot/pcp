@@ -74,9 +74,8 @@ LIBTARGET =
 SYMTARGET =
 endif
 
-
-LDIRT += $(SYMTARGET) $(YFILES:%.y=%.tab.?) $(LIBCONFIG) \
-	getdate.h derive_parser.y check.done $(XFILES)
+LDIRT += $(SYMTARGET) $(YFILES:%.y=%.tab.?) $(XFILES) $(LIBCONFIG) \
+	getdate.h derive_parser.y check.done
 
 base default : $(XFILES) $(LIBTARGET) $(SYMTARGET) $(STATICLIBTARGET) \
 	$(LIBCONFIG) check.done

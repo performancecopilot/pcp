@@ -99,6 +99,7 @@ lookupnametest
 mark-bug
 matchInstanceName
 mergelabels
+mergelabelsets
 mkfiles
 mmv_genstats
 mmv_instances
