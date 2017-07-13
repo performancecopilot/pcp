@@ -27,7 +27,7 @@ _pcp_complete()
         ;;
 
         pminfo)
-        opt_regex="-[abcdFfhKLMmNnOTtVvxZz]"
+        opt_regex="-[abcdFfhKLlMmNnOTtVvxZz]"
         curpos_expand=1
         ;;
 

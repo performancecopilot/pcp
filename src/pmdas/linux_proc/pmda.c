@@ -3382,7 +3382,7 @@ proc_init(pmdaInterface *dp)
 	int sep = __pmPathSeparator();
 	snprintf(helppath, sizeof(helppath), "%s%c" "proc" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
-	pmdaDSO(dp, PMDA_INTERFACE_6, "proc DSO", helppath);
+	pmdaDSO(dp, PMDA_INTERFACE_7, "proc DSO", helppath);
     }
 
     if (dp->status != 0)

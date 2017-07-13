@@ -12,6 +12,11 @@ desc metric
 fetch metric [ metric ... ]
 getdesc on | off
 instance indom# [ number | name | "name" ]
+label context
+label domain
+label indom indom#
+label metric
+label insts metric
 name pmid#
 namespace fname
 open dso dsoname init_routine [ domain# ]
