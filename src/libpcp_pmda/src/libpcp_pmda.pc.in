@@ -1,0 +1,10 @@
+prefix=@PREFIX@
+exec_prefix=@PREFIX@
+libdir=@LIBDIR@
+includedir=@INCDIR@
+
+Name: libpcp_pmda
+Description: The Performance Metrics Domain Agent library
+Version: @VERSION@
+Libs: -L${libdir} -lpcp -lpcp_pmda
+Cflags: -I${includedir}

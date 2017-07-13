@@ -179,12 +179,9 @@ unrealizenano(RealTime rt, struct timespec *ts)
     ts->tv_nsec = (int)(1000000000 * (rt - ts->tv_sec));
 }
 
-#define SLEEP_EVAL	0
-#define SLEEP_RETRY	1
-
-/* sleep until eval or retry RealTime */
+/* sleep until eval RealTime */
 void
-sleepTight(Task *t, int type)
+sleepTight(Task *t)
 {
     RealTime	sched;
     RealTime	delay;	/* interval to sleep */
@@ -216,10 +213,9 @@ sleepTight(Task *t, int type)
 	struct timespec ts, tleft;
 	static RealTime	last_sched = -1;
 	static Task *last_t;
-	static int last_type;
 	RealTime cur = getReal();
 
-	sched = type == SLEEP_EVAL ? t->eval : t->retry;
+	sched = t->eval;
 
 	delay = sched - cur;
 	if (delay < 0) {
@@ -238,9 +234,10 @@ sleepTight(Task *t, int type)
 		}
 	    }
 #endif
+
 	    if (show_detail) {
 		if (last_sched > 0) {
-		    fprintf(stderr, "Last sleepTight (%s) until: ", last_type == SLEEP_EVAL ? "eval" : "retry");
+		    fprintf(stderr, "Last sleepTight until: ");
 		    showFullTime(stderr, last_sched);
 		    fputc('\n', stderr);
 		    fprintf(stderr, "Last ");
@@ -252,7 +249,7 @@ sleepTight(Task *t, int type)
 		fprintf(stderr, "Harvest children done: ");
 		showFullTime(stderr, cur);
 		fputc('\n', stderr);
-		fprintf(stderr, "Want sleepTight (%s) until: ", type == SLEEP_EVAL ? "eval" : "retry");
+		fprintf(stderr, "Want sleepTight until: ");
 		showFullTime(stderr, sched);
 		fputc('\n', stderr);
 		fprintf(stderr, "This ");
@@ -263,7 +260,7 @@ sleepTight(Task *t, int type)
 	    unrealizenano(delay, &ts);
 	    for (;;) {	/* loop to catch early wakeup from nanosleep */
 		if (ts.tv_sec < 0 || ts.tv_nsec > 999999999) {
-		    fprintf(stderr, "sleepTight: invalid args: %ld %ld\n",
+		    fprintf(stderr, "sleepTight: invalid args: %ld.%09ld\n",
 			    (long int)ts.tv_sec, (long int)ts.tv_nsec);
 		    break;
 		}
@@ -281,7 +278,6 @@ sleepTight(Task *t, int type)
 	    }
 	}
 	last_t = t;
-	last_type = type;
 	last_sched = sched;
     }
 }
@@ -1333,8 +1329,11 @@ dumpTask(Task *t)
     fprintf(stderr, "  eval time: ");
     showFullTime(stderr, t->eval);
     fputc('\n', stderr);
-    fprintf(stderr, "  retry time: ");
-    showFullTime(stderr, t->retry);
+    fprintf(stderr, "  retry delta: ");
+    if (t->retry == 0)
+	fprintf(stderr, "N/A");
+    else
+	fprintf(stderr, "%d", t->retry);
     fputc('\n', stderr);
     if (t->hosts == NULL)
 	fprintf(stderr, "  host=<null>\n");

@@ -1,39 +1,3 @@
-# Broken valgrind 3.10.1 seen on i686 openSUSE 13.2
-#
-# Conditional jump or move depends on uninitialised value(s)
-# at 0x408498D: __pmLogFetchInterp (interp.c:1494)
-# by 0x408017D: __pmLogFetch (logutil.c:1752)
-# by 0x4063C66: pmFetch (fetch.c:151)
-# by 0x804925B: main (interp0.c:179)
-{
-   Valgrind 3.10.1 botch - case (a)
-   Memcheck:Cond
-   fun:__pmLogFetchInterp
-   fun:__pmLogFetch
-   fun:pmFetch
-   fun:main
-}
-
-# Conditional jump or move depends on uninitialised value(s)
-# at 0x408C955: __pmLogFetchInterp (interp.c:1292)
-# by 0x408817D: __pmLogFetch (logutil.c:1752)
-# by 0x406BC66: pmFetch (fetch.c:151)
-# by 0x806C4A3: fetch_metrics (various.c:817)
-# by 0x8057114: photosyst (photosyst.c:213)
-# by 0x804A62C: engine (atop.c:566)
-# by 0x804A62C: main (atop.c:455)
-{
-   Valgrind 3.10.1 botch - case (a)
-   Memcheck:Cond
-   fun:__pmLogFetchInterp
-   fun:__pmLogFetch
-   fun:pmFetch
-   fun:fetch_metrics
-   fun:photosyst
-   fun:engine
-   fun:main
-}
-
 # inside libsasl ... seen on bozo-vm
 # Memcheck, a memory error detector
 # at 0x4C28C20: malloc (vg_replace_malloc.c:296)
@@ -46,7 +10,7 @@
 # by 0x4E4AF8A: pmNewContext (context.c:1085)
 # ...
 {
-   libsasl-bad
+   libsasl-bad-0
    Memcheck:Leak
    match-leak-kinds: definite
    fun:malloc
@@ -57,5 +21,38 @@
    fun:__pmConnectHandshake
    fun:__pmConnectPMCD
    fun:pmNewContext
+   ...
+}
+
+# and similar, just different compiler options for the build
+{
+   libsasl-bad-1
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:sasl_client_new
+   fun:__pmSecureClientHandshake
+   ...
+   fun:__pmConnectPMCD
+   fun:pmNewContext
+   ...
+}
+
+# same bogus condition seen with earlier versions of valgrind
+# (this time with pmFetch_ctx() on the call stack)
+#
+# Conditional jump or move depends on uninitialised value(s)
+# at 0x408AEAD: __pmLogFetchInterp (interp.c:1476)
+# by 0x4085AC2: __pmLogFetch (logutil.c:2066)
+# by 0x40670B7: pmFetch_ctx (fetch.c:156)
+# by 0x40675E6: pmFetch (fetch.c:201)
+# by 0x8049B99: main (pmlogreduce.c:364)
+{
+   valgrind 3.10.0 condjump botch - 0
+   Memcheck:Cond
+   fun:__pmLogFetchInterp
+   fun:__pmLogFetch
+   fun:pmFetch_ctx
+   fun:pmFetch
    ...
 }

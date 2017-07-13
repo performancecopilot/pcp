@@ -42,6 +42,10 @@ _cleanup()
 		$sudo $signal -a -s HUP pmcd
 	    fi
 	fi
+
+	_service pmlogger start >>$here/$seq.full
+	_wait_for_pmlogger
+
 	$sudo rm -f $tmp.*
 	exit $status
 }
@@ -99,6 +103,11 @@ _full()
 }
 
 rm -f $seq.full
+
+# pmlogger may get confused by pmcd reconfig ... safest to stop it
+# first, and restart it in cleanup()
+#
+_service pmlogger stop >>$here/$seq.full
 
 # real QA test starts here
 home=$PCP_PMDAS_DIR

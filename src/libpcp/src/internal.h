@@ -303,19 +303,9 @@ extern int __pmLogGenerateMark_ctx(__pmContext *, int, pmResult **) _PCP_HIDDEN;
 #include <assert.h>
 #define PM_ASSERT_IS_LOCKED(lock) assert(__pmIsLocked(&(lock)))
 #define PM_ASSERT_IS_UNLOCKED(lock) assert(!__pmIsLocked(&(lock)))
-#define PM_CHECK_IS_UNLOCKED(lock) __pmCheckIsUnlocked(&(lock), __FILE__, __LINE__)
-#define CHECK_C_LOCK {\
-__pmContext *__ctxp = __pmHandleToPtr(pmWhichContext());\
-if (__ctxp != NULL) {\
-    PM_UNLOCK(__ctxp->c_lock);\
-    __pmCheckIsUnlocked(&__ctxp->c_lock, __FILE__, __LINE__);\
-}\
-}
 #else
 #define PM_ASSERT_IS_LOCKED(lock)
 #define PM_ASSERT_IS_UNLOCKED(lock)
-#define PM_CHECK_IS_UNLOCKED(lock)
-#define CHECK_C_LOCK
 #endif /* BUILD_WITH_LOCK_ASSERTS */
 
 

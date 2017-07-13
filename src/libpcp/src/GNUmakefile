@@ -32,6 +32,8 @@ CFILES = connect.c context.c desc.c err.c fetch.c fetchgroup.c freeresult.c \
 HFILES = derive.h internal.h avahi.h probe.h compiler.h jsmn.h
 XFILES = jsmn.h jsmn.c sort_r.h
 YFILES = getdate.y derive_parser.y
+
+LIBCONFIG = libpcp.pc
 VERSION_SCRIPT = exports
 
 LCFLAGS = -DPCP_INTERNAL '-DEXEC_SUFFIX="$(EXECSUFFIX)"' \
@@ -72,10 +74,12 @@ LIBTARGET =
 SYMTARGET =
 endif
 
-LDIRT += $(SYMTARGET) $(YFILES:%.y=%.tab.?) getdate.h check.done \
-	derive_parser.y $(XFILES)
 
-base default : $(XFILES) $(LIBTARGET) check.done $(SYMTARGET) $(STATICLIBTARGET)
+LDIRT += $(SYMTARGET) $(YFILES:%.y=%.tab.?) $(LIBCONFIG) \
+	getdate.h derive_parser.y check.done $(XFILES)
+
+base default : $(XFILES) $(LIBTARGET) $(SYMTARGET) $(STATICLIBTARGET) \
+	$(LIBCONFIG) check.done
 
 ifneq "$(SYMTARGET)" ""
 $(SYMTARGET): 
@@ -114,6 +118,7 @@ endif
 install : default
 ifneq ($(LIBTARGET),)
 	$(INSTALL) -m 755 $(LIBTARGET) $(PCP_LIB_DIR)/$(LIBTARGET)
+	$(INSTALL) -m 444 $(LIBCONFIG) $(PCP_LIB_DIR)/pkgconfig/$(LIBCONFIG)
 endif
 ifneq ($(SYMTARGET),)
 	for tt in $(SYMTARGET); do \
@@ -145,4 +150,10 @@ check.done:	$(OBJECTS)
 
 ifneq ($(LIBTARGET),)
 $(LIBTARGET): $(VERSION_SCRIPT)
+$(LIBCONFIG): $(LIBCONFIG).in
+	@sed -e's|@PREFIX@|$(PCP_PREFIX)|g' \
+	     -e's|@LIBDIR@|$(PCP_LIB_DIR)|g' \
+	     -e's|@LDLIBS@|$(LIBPCP_LDLIBS)|g' \
+	     -e's|@INCDIR@|$(PCP_INC_DIR)|g' \
+	     -e's|@VERSION@|$(PCP_VERSION)|g' <$? >$@
 endif

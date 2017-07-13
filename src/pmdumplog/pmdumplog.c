@@ -935,7 +935,12 @@ main(int argc, char *argv[])
 	}
 	sts = 0;
 	for ( ; ; ) {
+	    /*
+	     * we need to lock the context for the __pmLogFetch() call
+	     */
+	    PM_LOCK(ctxp->c_lock);
 	    sts = __pmLogFetch(ctxp, 0, NULL, &raw_result);
+	    PM_UNLOCK(ctxp->c_lock);
 	    if (sts < 0)
 		break;
 	    if (numpmid == 0 || (raw_result->numpmid == 0 && Mflag)) {

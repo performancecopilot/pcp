@@ -484,10 +484,16 @@ _logpeek(__pmLogCtl *lcp, int vol)
     char		fname[MAXPATHLEN];
 
     snprintf(fname, sizeof(fname), "%s.%d", lcp->l_name, vol);
+    /* need mutual exclusion here to avoid race with a concurrent uncompress */
+    PM_LOCK(logutil_lock);
     if ((f = fopen(fname, "r")) == NULL) {
-	if ((f = fopen_compress(fname)) == NULL)
+	/* try for a compressed file */
+	if ((f = fopen_compress(fname)) == NULL) {
+	    PM_UNLOCK(logutil_lock);
 	    return f;
+	}
     }
+    PM_UNLOCK(logutil_lock);
 
     if ((sts = __pmLogChkLabel(lcp, f, &label, vol)) < 0) {
 	fclose(f);
@@ -512,12 +518,16 @@ __pmLogChangeVol(__pmLogCtl *lcp, int vol)
 	fclose(lcp->l_mfp);
     }
     snprintf(fname, sizeof(fname), "%s.%d", lcp->l_name, vol);
+    /* need mutual exclusion here to avoid race with a concurrent uncompress */
+    PM_LOCK(logutil_lock);
     if ((lcp->l_mfp = fopen(fname, "r")) == NULL) {
 	/* try for a compressed file */
 	if ((lcp->l_mfp = fopen_compress(fname)) == NULL) {
+	    PM_UNLOCK(logutil_lock);
 	    return -oserror();
 	}
     }
+    PM_UNLOCK(logutil_lock);
 
     if ((sts = __pmLogChkLabel(lcp, lcp->l_mfp, &lcp->l_label, vol)) < 0) {
 	return sts;
@@ -1558,6 +1568,8 @@ __pmLogGenerateMark_ctx(__pmContext *ctxp, int mode, pmResult **result)
     int			sts;
     struct timeval	end;
 
+    PM_ASSERT_IS_LOCKED(ctxp->c_lock);
+
     if ((pr = (pmResult *)malloc(sizeof(pmResult))) == NULL)
 	__pmNoMem("generateMark", sizeof(pmResult), PM_FATAL_ERR);
 
@@ -1610,7 +1622,6 @@ __pmLogGenerateMark(__pmLogCtl *lcp, int mode, pmResult **result)
     }
     sts = __pmLogGenerateMark_ctx(ctxp, mode, result);
     PM_UNLOCK(ctxp->c_lock);
-    CHECK_C_LOCK;
     return sts;
 }
 
@@ -1648,6 +1659,8 @@ __pmLogRead_ctx(__pmContext *ctxp, int mode, FILE *peekf, pmResult **result, int
     __pmPDU	*pb;
     FILE	*f;
     int		n;
+
+    PM_ASSERT_IS_LOCKED(ctxp->c_lock);
 
     /*
      * Strip any XTB data from mode, its not used here
@@ -2019,7 +2032,6 @@ __pmLogRead(__pmLogCtl *lcp, int mode, FILE *peekf, pmResult **result, int optio
     }
     sts = __pmLogRead_ctx(ctxp, mode, peekf, result, option);
     PM_UNLOCK(ctxp->c_lock);
-    CHECK_C_LOCK;
     return sts;
 }
 
@@ -2647,7 +2659,6 @@ pmGetArchiveLabel(pmLogLabel *lp)
 
 	if ((sts = __pmLogChangeArchive(ctxp, 0)) < 0) {
 	    PM_UNLOCK(ctxp->c_lock);
-	    CHECK_C_LOCK;
 	    return sts;
 	}
 	lcp = acp->ac_log;
@@ -2657,7 +2668,6 @@ pmGetArchiveLabel(pmLogLabel *lp)
     /* Get the label. */
     if ((sts = __pmGetArchiveLabel(lcp, lp)) < 0) {
 	PM_UNLOCK(ctxp->c_lock);
-	CHECK_C_LOCK;
 	return sts;
     }
 
@@ -2665,20 +2675,17 @@ pmGetArchiveLabel(pmLogLabel *lp)
 	/* Restore to the initial state. */
 	if ((sts = __pmLogChangeArchive(ctxp, save_arch)) < 0) {
 	    PM_UNLOCK(ctxp->c_lock);
-	    CHECK_C_LOCK;
 	    return sts;
 	}
 	lcp = ctxp->c_archctl->ac_log;
 	if ((sts = __pmLogChangeVol(lcp, save_vol)) < 0) {
 	    PM_UNLOCK(ctxp->c_lock);
-	    CHECK_C_LOCK;
 	    return sts;
 	}
 	fseek(lcp->l_mfp, save_offset, SEEK_SET);
     }
 
     PM_UNLOCK(ctxp->c_lock);
-    CHECK_C_LOCK;
     return 0;
 }
 
@@ -2706,6 +2713,9 @@ __pmGetArchiveEnd_ctx(__pmContext *ctxp, struct timeval *tp)
     int		vol;
     __pm_off_t	logend;
     __pm_off_t	physend = 0;
+
+    if (ctxp != NULL)
+	PM_ASSERT_IS_LOCKED(ctxp->c_lock);
 
     /*
      * default, when all else fails ...
@@ -2894,7 +2904,6 @@ __pmGetArchiveEnd(__pmLogCtl *lcp, struct timeval *tp)
     }
     sts = __pmGetArchiveEnd_ctx(ctxp, tp);
     PM_UNLOCK(ctxp->c_lock);
-    CHECK_C_LOCK;
     return sts;
 }
 
@@ -2904,7 +2913,6 @@ pmGetArchiveEnd(struct timeval *tp)
 {
     int		sts;
     sts = pmGetArchiveEnd_ctx(NULL, tp);
-    CHECK_C_LOCK;
     return sts;
 
 }
@@ -2933,10 +2941,8 @@ pmGetArchiveEnd_ctx(__pmContext *ctxp, struct timeval *tp)
 	    return PM_ERR_NOCONTEXT;
 	need_unlock = 1;
     }
-
-    /* TODO - when c_lock is not recursive replace assert() with
-     * PM_ASSERT_IS_LOCKED(ctxp->c_lock); */
-    /* assert(ctxp->c_lock.__data.__count > 0); */
+    else
+	PM_ASSERT_IS_LOCKED(ctxp->c_lock);
 
     /*
      * set l_physend and l_endtime
@@ -3079,7 +3085,6 @@ __pmLogCheckForNextArchive(__pmLogCtl *lcp, int mode, pmResult **result)
     }
     sts = LogCheckForNextArchive(ctxp, mode, result);
     PM_UNLOCK(ctxp->c_lock);
-    CHECK_C_LOCK;
     return sts;
 }
 
@@ -3176,7 +3181,6 @@ __pmLogChangeToNextArchive(__pmLogCtl **lcp)
 	*lcp = ctxp->c_archctl->ac_log;
     }
     PM_UNLOCK(ctxp->c_lock);
-    CHECK_C_LOCK;
     return sts;
 }
 
@@ -3287,7 +3291,6 @@ __pmLogChangeToPreviousArchive(__pmLogCtl **lcp)
 	*lcp = ctxp->c_archctl->ac_log;
     }
     PM_UNLOCK(ctxp->c_lock);
-    CHECK_C_LOCK;
     return sts;
 }
 

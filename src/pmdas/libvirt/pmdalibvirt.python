@@ -63,7 +63,7 @@ class LibvirtPMDA(PMDA):
 
         if self.oldapi:
             if not os.environ.get('PCP_PYTHON_DOMAIN') and not os.environ.get('PCP_PYTHON_PMNS'):
-                self.log("Using old libvirt API, some metrics are unavailable")
+                self.log("Using old libvirt API, some metrics are unavailable.")
 
         units_none  = pmUnits(0, 0, 0, 0, 0, 0)
         units_count = pmUnits(0, 0, 1, 0, 0, PM_COUNT_ONE)
@@ -360,7 +360,7 @@ class LibvirtPMDA(PMDA):
             """ Clean up """
             if self.conn:
                 if not os.environ.get('PCP_PYTHON_DOMAIN') and not os.environ.get('PCP_PYTHON_PMNS'):
-                    self.log("Closing connection to " + self.uri)
+                    self.log("Closing connection to " + self.uri + ".")
                 self.conn.close()
 
     def read_config(self):
@@ -386,7 +386,7 @@ class LibvirtPMDA(PMDA):
                        config.get('pmda', opt) == '1':
                         self.oldapi = True
                 else:
-                    self.err("Invalid directive '%s' in %s.\n" % (opt, conffile))
+                    self.err("Invalid directive '%s' in %s." % (opt, conffile))
                     sys.exit(1)
 
     def connect_libvirt(self):
@@ -396,7 +396,7 @@ class LibvirtPMDA(PMDA):
             conn = libvirt.openReadOnly(self.uri)
             self.doms = conn.listAllDomains(libvirt.VIR_CONNECT_LIST_DOMAINS_ACTIVE)
             if not os.environ.get('PCP_PYTHON_DOMAIN') and not os.environ.get('PCP_PYTHON_PMNS'):
-                self.log("Connected as " + self.user + " to " + self.uri)
+                self.log("Connected as " + self.user + " to " + self.uri + ".")
         except libvirt.libvirtError as error:
             self.log("Failed to connect to the hypervisor: %s" % error)
         return conn

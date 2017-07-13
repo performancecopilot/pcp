@@ -51,15 +51,26 @@ pmLookupDesc_ctx(__pmContext *ctxp, pmID pmid, pmDesc *desc)
     __pmDSO	*dp;
     int		fd, ctx, sts, tout;
 
+#ifdef PCP_DEBUG
+    if (pmDebug & DBG_TRACE_PMAPI) {
+	char    dbgbuf[20];
+	fprintf(stderr, "pmLookupDesc(%s, ...) <:", pmIDStr_r(pmid, dbgbuf, sizeof(dbgbuf)));
+    }
+#endif
+
     if ((sts = ctx = pmWhichContext()) < 0)
-	return sts;
+	goto pmapi_return;
 
     if (ctxp == NULL) {
 	ctxp = __pmHandleToPtr(ctx);
-	if (ctxp == NULL)
-	    return PM_ERR_NOCONTEXT;
+	if (ctxp == NULL) {
+	    sts = PM_ERR_NOCONTEXT;
+	    goto pmapi_return;
+	}
 	need_unlock = 1;
     }
+    else
+	PM_ASSERT_IS_LOCKED(ctxp->c_lock);
 
     if (ctxp->c_type == PM_CONTEXT_HOST) {
 	tout = ctxp->c_pmcd->pc_tout_sec;
@@ -102,7 +113,20 @@ pmLookupDesc_ctx(__pmContext *ctxp, pmID pmid, pmDesc *desc)
     if (need_unlock)
 	PM_UNLOCK(ctxp->c_lock);
 
-    if (need_unlock) CHECK_C_LOCK;
+pmapi_return:
+
+#ifdef PCP_DEBUG
+    if (pmDebug & DBG_TRACE_PMAPI) {
+	fprintf(stderr, ":> returns ");
+	if (sts >= 0)
+	    fprintf(stderr, "%d\n", sts);
+	else {
+	    char	errmsg[PM_MAXERRMSGLEN];
+	    fprintf(stderr, "%s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	}
+    }
+#endif
+
     return sts;
 }
 
@@ -111,7 +135,6 @@ pmLookupDesc(pmID pmid, pmDesc *desc)
 {
     int	sts;
     sts = pmLookupDesc_ctx(NULL, pmid, desc);
-    CHECK_C_LOCK;
     return sts;
 }
 

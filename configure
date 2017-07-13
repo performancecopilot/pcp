@@ -620,6 +620,7 @@ ac_includes_default="\
 #endif"
 
 ac_subst_vars='PACKAGE_CONFIGURE
+pcp_prefix
 have_webapps
 HAVE_ZLIB
 zlib_LIBS
@@ -699,12 +700,15 @@ fmt_uint64
 fmt_int64
 fmt_pid
 rdynamic_flag
+pcp_selinux_tracefs
+pcp_selinux_unreserved_port
 pcp_selinux_systemd_exec
 pcp_selinux_systemd_unit_file
 pcp_selinux_svirt_lxc_net
 pcp_selinux_docker_var_lib
 pcp_selinux_nsfs
 pcp_selinux_container_runtime
+pcp_selinux_cap_userns_ptrace
 pcp_selinux_class_status
 pcp_selinux_dir
 enable_selinux
@@ -927,6 +931,7 @@ infodir
 docdir
 oldincludedir
 includedir
+runstatedir
 localstatedir
 sharedstatedir
 sysconfdir
@@ -1065,6 +1070,7 @@ datadir='${datarootdir}'
 sysconfdir='${prefix}/etc'
 sharedstatedir='${prefix}/com'
 localstatedir='${prefix}/var'
+runstatedir='${localstatedir}/run'
 includedir='${prefix}/include'
 oldincludedir='/usr/include'
 docdir='${datarootdir}/doc/${PACKAGE}'
@@ -1317,6 +1323,15 @@ do
   | -silent | --silent | --silen | --sile | --sil)
     silent=yes ;;
 
+  -runstatedir | --runstatedir | --runstatedi | --runstated \
+  | --runstate | --runstat | --runsta | --runst | --runs \
+  | --run | --ru | --r)
+    ac_prev=runstatedir ;;
+  -runstatedir=* | --runstatedir=* | --runstatedi=* | --runstated=* \
+  | --runstate=* | --runstat=* | --runsta=* | --runst=* | --runs=* \
+  | --run=* | --ru=* | --r=*)
+    runstatedir=$ac_optarg ;;
+
   -sbindir | --sbindir | --sbindi | --sbind | --sbin | --sbi | --sb)
     ac_prev=sbindir ;;
   -sbindir=* | --sbindir=* | --sbindi=* | --sbind=* | --sbin=* \
@@ -1454,7 +1469,7 @@ fi
 for ac_var in	exec_prefix prefix bindir sbindir libexecdir datarootdir \
 		datadir sysconfdir sharedstatedir localstatedir includedir \
 		oldincludedir docdir infodir htmldir dvidir pdfdir psdir \
-		libdir localedir mandir
+		libdir localedir mandir runstatedir
 do
   eval ac_val=\$$ac_var
   # Remove trailing slashes.
@@ -1607,6 +1622,7 @@ Fine tuning of the installation directories:
   --sysconfdir=DIR        read-only single-machine data [PREFIX/etc]
   --sharedstatedir=DIR    modifiable architecture-independent data [PREFIX/com]
   --localstatedir=DIR     modifiable single-machine data [PREFIX/var]
+  --runstatedir=DIR       modifiable per-process data [LOCALSTATEDIR/run]
   --libdir=DIR            object code libraries [EPREFIX/lib]
   --includedir=DIR        C header files [PREFIX/include]
   --oldincludedir=DIR     C header files for non-gcc [/usr/include]
@@ -7734,7 +7750,7 @@ fi
 enable_qt3d=false
 if test "x$do_qt3d" != "xno"; then :
 
-    if test -f /usr/include/Coin3/Inventor/Qt/SoQt.h
+    if test -f /usr/include/Coin3/Inventor/Qt/SoQt.h -o -f /usr/include/Inventor/Qt/SoQt.h
     then
 	enable_qt3d=$enable_qt
     elif test x"$do_qt3d" = x"yes"
@@ -11172,12 +11188,15 @@ fi
 
 
 pcp_selinux_class_status=false
+pcp_selinux_cap_userns_ptrace=false
 pcp_selinux_container_runtime=false
 pcp_selinux_nsfs=false
 pcp_selinux_docker_var_lib=false
 pcp_selinux_svirt_lxc_net=false
 pcp_selinux_systemd_unit_file=false
 pcp_selinux_systemd_exec=false
+pcp_selinux_tracefs=false
+pcp_selinux_unreserved_port=false
 if test "x$enable_selinux" != "xfalse"; then :
 
 for policy_file in /etc/selinux/targeted/policy/policy.*
@@ -11219,10 +11238,29 @@ do
 	then
 	    pcp_selinux_systemd_exec=true
 	fi
+	cap_userns_ptrace=`eval seinfo -x --class=cap_userns $policy_file 2>&1 | grep sys_ptrace | awk '{ print $1 }'`
+    	if test "x$cap_userns_ptrace" != "x"
+	then
+	    pcp_selinux_cap_userns_ptrace=true
+	fi
+	unreserved_port=`eval seinfo -t $policy_file | grep unreserved_port_t | awk '{ print $1 }'`
+	if test "x$unreserved_port" != "x"
+	then
+	    pcp_selinux_unreserved_port=true
+	fi
+	tracefs=`eval seinfo -t $policy_file | grep tracefs_t | awk '{ print $1 }'`
+	if test "x$tracefs" != "x"
+	then
+	    pcp_selinux_tracefs=true
+	fi
+
     fi
 done
 
 fi
+
+
+
 
 
 
@@ -15558,6 +15596,8 @@ $as_echo "$as_me: adding web applications to the build" >&6;}
     have_webapps=true
 fi
 
+
+pcp_prefix=`eval echo $prefix`
 
 
 

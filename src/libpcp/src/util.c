@@ -1,7 +1,7 @@
 /*
  * General Utility Routines
  *
- * Copyright (c) 2012-2016 Red Hat.
+ * Copyright (c) 2012-2017 Red Hat.
  * Copyright (c) 2009 Aconex.  All Rights Reserved.
  * Copyright (c) 1995-2002,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
@@ -504,6 +504,9 @@ pmEventFlagsStr_r(int flags, char *buf, int buflen)
      */
     int started = 0;
 
+    if (buflen < 26)
+	return NULL;
+
     if (flags & PM_EVENT_FLAG_MISSED)
 	return strcpy(buf, "missed");
 
@@ -749,6 +752,9 @@ __pmDumpResult_ctx(__pmContext *ctxp, FILE *f, const pmResult *resp)
 {
     int		i, saved;
 
+    if (ctxp != NULL)
+	PM_ASSERT_IS_LOCKED(ctxp->c_lock);
+
     saved = save_debug();
     fprintf(f, "pmResult dump from " PRINTF_P_PFX "%p timestamp: %d.%06d ",
 	resp, (int)resp->timestamp.tv_sec, (int)resp->timestamp.tv_usec);
@@ -770,6 +776,9 @@ void
 __pmDumpHighResResult_ctx(__pmContext *ctxp, FILE *f, const pmHighResResult *hresp)
 {
     int		i, saved;
+
+    if (ctxp != NULL)
+	PM_ASSERT_IS_LOCKED(ctxp->c_lock);
 
     saved = save_debug();
     fprintf(f, "pmHighResResult dump from " PRINTF_P_PFX "%p timestamp: %d.%09d ",

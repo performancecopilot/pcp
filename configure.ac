@@ -1166,7 +1166,7 @@ AC_SUBST(qmake)
 
 enable_qt3d=false
 AS_IF([test "x$do_qt3d" != "xno"], [
-    if test -f /usr/include/Coin3/Inventor/Qt/SoQt.h
+    if test -f /usr/include/Coin3/Inventor/Qt/SoQt.h -o -f /usr/include/Inventor/Qt/SoQt.h
     then
 	enable_qt3d=$enable_qt
     elif test x"$do_qt3d" = x"yes"
@@ -1880,12 +1880,15 @@ AC_SUBST(enable_selinux)
 AC_SUBST(pcp_selinux_dir)
 
 pcp_selinux_class_status=false
+pcp_selinux_cap_userns_ptrace=false
 pcp_selinux_container_runtime=false
 pcp_selinux_nsfs=false
 pcp_selinux_docker_var_lib=false
 pcp_selinux_svirt_lxc_net=false
 pcp_selinux_systemd_unit_file=false
 pcp_selinux_systemd_exec=false
+pcp_selinux_tracefs=false
+pcp_selinux_unreserved_port=false
 AS_IF([test "x$enable_selinux" != "xfalse"], [
 for policy_file in /etc/selinux/targeted/policy/policy.*
 do
@@ -1926,16 +1929,35 @@ do
 	then
 	    pcp_selinux_systemd_exec=true
 	fi
+	cap_userns_ptrace=`eval seinfo -x --class=cap_userns $policy_file 2>&1 | grep sys_ptrace | awk '{ print $1 }'`
+    	if test "x$cap_userns_ptrace" != "x"
+	then
+	    pcp_selinux_cap_userns_ptrace=true
+	fi
+	unreserved_port=`eval seinfo -t $policy_file | grep unreserved_port_t | awk '{ print $1 }'`
+	if test "x$unreserved_port" != "x"
+	then
+	    pcp_selinux_unreserved_port=true
+	fi
+	tracefs=`eval seinfo -t $policy_file | grep tracefs_t | awk '{ print $1 }'`
+	if test "x$tracefs" != "x"
+	then
+	    pcp_selinux_tracefs=true
+	fi
+
     fi
 done  
 ])
 AC_SUBST(pcp_selinux_class_status)
+AC_SUBST(pcp_selinux_cap_userns_ptrace)
 AC_SUBST(pcp_selinux_container_runtime)
 AC_SUBST(pcp_selinux_nsfs)
 AC_SUBST(pcp_selinux_docker_var_lib)
 AC_SUBST(pcp_selinux_svirt_lxc_net)
 AC_SUBST(pcp_selinux_systemd_unit_file)
 AC_SUBST(pcp_selinux_systemd_exec)
+AC_SUBST(pcp_selinux_unreserved_port)
+AC_SUBST(pcp_selinux_tracefs)
 
 dnl Checks for library functions.
 AC_TYPE_SIGNAL
@@ -3423,6 +3445,8 @@ fi
 AC_SUBST(have_webapps)
 
 dnl Capture special options passed to configure
+pcp_prefix=`eval echo $prefix`
+AC_SUBST(pcp_prefix)
 AC_SUBST(PACKAGE_CONFIGURE)
 
 dnl

@@ -16,6 +16,7 @@ libpcp.so.3
 libpcp.3.dylib
 libpcp.dylib
 libpcp.dll
+libpcp.pc
 *.gcda
 *.gcno
 *.gcov

@@ -1,8 +1,15 @@
-pcp (3.11.11) unstable; urgency=low
+pcp (3.12.1) unstable; urgency=low
 
   * New release (full details in CHANGELOG).
 
- -- Nathan Scott <nathans@debian.org>  Fri, 30 Jun 2017 14:45:58 +1000
+ -- Nathan Scott <nathans@debian.org>  Wed, 16 Aug 2017 12:03:42 +1000
+
+pcp (3.12.0) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+  * Fix some python2/python3 packaging issues (closes: #866520)
+
+ -- Nathan Scott <nathans@debian.org>  Fri, 30 Jun 2017 10:30:27 +1000
 
 pcp (3.11.10) unstable; urgency=low
 

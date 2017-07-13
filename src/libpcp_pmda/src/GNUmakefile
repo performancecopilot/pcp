@@ -25,13 +25,14 @@ XFILES	= lookup2.c
 LLDLIBS	= -lpcp
 LCFLAGS += -DPMDA_INTERNAL
 
+LIBCONFIG = libpcp_pmda.pc
+VERSION_SCRIPT = exports
+
 STATICLIBTARGET = libpcp_pmda.a
 
 DSOVERSION = 3
 LIBTARGET = libpcp_pmda.$(DSOSUFFIX).$(DSOVERSION)
 SYMTARGET = libpcp_pmda.$(DSOSUFFIX)
-
-VERSION_SCRIPT = exports
 
 ifeq "$(TARGET_OS)" "darwin"
 LIBTARGET = libpcp_pmda.$(DSOVERSION).$(DSOSUFFIX)
@@ -47,10 +48,9 @@ LIBTARGET =
 SYMTARGET =
 endif
 
-LDIRT = $(XFILES) $(LIBTARGET) $(SYMTARGET) $(STATICLIBTARGET)
-LSRCFILES = $(VERSION_SCRIPT)
+LDIRT = $(XFILES) $(SYMTARGET) $(STATICLIBTARGET) $(LIBTARGET) $(LIBCONFIG)
 
-default: $(XFILES) $(LIBTARGET) $(SYMTARGET) $(STATICLIBTARGET)
+default: $(XFILES) $(SYMTARGET) $(STATICLIBTARGET) $(LIBTARGET) $(LIBCONFIG)
 
 ifneq ($(SYMTARGET),)
 $(SYMTARGET):
@@ -65,6 +65,7 @@ include $(BUILDRULES)
 install: default
 ifneq ($(LIBTARGET),)
 	$(INSTALL) -m 755 $(LIBTARGET) $(PCP_LIB_DIR)/$(LIBTARGET)
+	$(INSTALL) -m 444 $(LIBCONFIG) $(PCP_LIB_DIR)/pkgconfig/$(LIBCONFIG)
 endif
 ifneq ($(SYMTARGET),)
 	for tt in $(SYMTARGET); do \
@@ -84,4 +85,9 @@ install_pcp:	install
 
 ifneq ($(LIBTARGET),)
 $(LIBTARGET): $(VERSION_SCRIPT)
+$(LIBCONFIG): $(LIBCONFIG).in
+	@sed -e's|@PREFIX@|$(PCP_PREFIX)|g' \
+	     -e's|@LIBDIR@|$(PCP_LIB_DIR)|g' \
+	     -e's|@INCDIR@|$(PCP_INC_DIR)|g' \
+	     -e's|@VERSION@|$(PCP_VERSION)|g' <$? >$@
 endif
