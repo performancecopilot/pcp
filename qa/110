@@ -104,7 +104,7 @@ _full()
 
 rm -f $seq.full
 
-# pmloger may get confused by pmcd reconfig ... safest to stop it
+# pmlogger may get confused by pmcd reconfig ... safest to stop it
 # first, and restart it in cleanup()
 #
 _service pmlogger stop >>$here/$seq.full
