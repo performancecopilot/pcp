@@ -381,11 +381,6 @@ initcontextlock(pthread_mutex_t *lock)
 
     PM_ASSERT_IS_LOCKED(contexts_lock);
 
-    /*
-     * Need context lock to be recursive as we sometimes call
-     * __pmHandleToPtr() while the current context is already
-     * locked
-     */
     if ((sts = pthread_mutexattr_init(&attr)) != 0) {
 	pmErrStr_r(-sts, errmsg, sizeof(errmsg));
 	fprintf(stderr, "pmNewContext: "
@@ -400,15 +395,6 @@ initcontextlock(pthread_mutex_t *lock)
 		contexts_len-1, errmsg);
 	exit(4);
     }
-#if 0
-    if ((sts = pthread_mutexattr_setrobust(&attr, PTHREAD_MUTEX_ROBUST)) != 0) {
-	pmErrStr_r(-sts, errmsg, sizeof(errmsg));
-	fprintf(stderr, "pmNewContext: "
-		"context=%d lock pthread_mutexattr_setrobust failed: %s",
-		contexts_len-1, errmsg);
-	exit(4);
-    }
-#endif
     if ((sts = pthread_mutex_init(lock, &attr)) != 0) {
 	pmErrStr_r(-sts, errmsg, sizeof(errmsg));
 	fprintf(stderr, "pmNewContext: "

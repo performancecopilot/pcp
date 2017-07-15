@@ -215,6 +215,8 @@ static char
 	return "lock";
     else if (__pmIsLogutilLock(lock))
 	return "logutil";
+    else if (__pmIsPmnsLock(lock))
+	return "pmns";
     else if (lock == (void *)&__pmLock_extcall)
 	return "global_extcall";
     else if ((ctxid = __pmIsContextLock(lock)) != -1) {
@@ -337,6 +339,9 @@ __pmLock(void *lock, const char *file, int line)
 	sts = -sts;
 	if (pmDebug & DBG_TRACE_DESPERATE)
 	    fprintf(stderr, "%s:%d: lock failed: %s\n", file, line, pmErrStr(sts));
+#ifdef BUILD_WITH_LOCK_ASSERTS
+	assert(sts == 0);
+#endif
     }
 
     if (pmDebug & DBG_TRACE_LOCK)
@@ -345,7 +350,6 @@ __pmLock(void *lock, const char *file, int line)
     return sts;
 }
 
-#ifdef BUILD_WITH_LOCK_ASSERTS
 int
 __pmIsLocked(void *lock)
 {
@@ -367,6 +371,7 @@ __pmIsLocked(void *lock)
     return 0;
 }
 
+#ifdef BUILD_WITH_LOCK_ASSERTS
 /*
  * Assumes lock is a pthread mutex and not recursive.
  */
@@ -409,6 +414,9 @@ __pmUnlock(void *lock, const char *file, int line)
 	sts = -sts;
 	if (pmDebug & DBG_TRACE_DESPERATE)
 	    fprintf(stderr, "%s:%d: unlock failed: %s\n", file, line, pmErrStr(sts));
+#ifdef BUILD_WITH_LOCK_ASSERTS
+	assert(sts == 0);
+#endif
     }
 
     return sts;

@@ -336,7 +336,7 @@ logutil.o
     compress_ctl		# const
     ?ncompress			# const
     ?__pmLogReads		# diag counter, no atomic updates
-    pc_hc			# guarded by logutil_mutex
+    pc_hc			# guarded by logutil_lock mutex
 secureserver.o
     secure_server		# guarded by __pmLock_libpcp mutex
 secureconnect.o
@@ -380,27 +380,28 @@ p_lcontrol.o
 p_lrequest.o
 p_lstatus.o
 pmns.o
-    lineno			# guarded by __pmLock_libpcp mutex
-    export			# guarded by __pmLock_libpcp mutex
-    fin				# guarded by __pmLock_libpcp mutex
-    first			# guarded by __pmLock_libpcp mutex
-    use_cpp			# guarded by __pmLock_libpcp mutex
-    fname			# guarded by __pmLock_libpcp mutex
-    havePmLoadCall		# guarded by __pmLock_libpcp mutex
-    last_size			# guarded by __pmLock_libpcp mutex
-    last_mtim			# guarded by __pmLock_libpcp mutex
-    last_pmns_location		# guarded by __pmLock_libpcp mutex
-    linebuf			# guarded by __pmLock_libpcp mutex
-    linep			# guarded by __pmLock_libpcp mutex
-    lp				# guarded by __pmLock_libpcp mutex
-    seen			# guarded by __pmLock_libpcp mutex
-    seenpmid			# guarded by __pmLock_libpcp mutex
-    tokbuf			# guarded by __pmLock_libpcp mutex
-    tokpmid			# guarded by __pmLock_libpcp mutex
+    ?pmns_lock			# local mutex
+    lineno			# guarded by pmns_lock mutex
+    export			# guarded by pmns_lock mutex
+    fin				# guarded by pmns_lock mutex
+    first			# guarded by pmns_lock mutex
+    lex_use_cpp			# guarded by pmns_lock mutex
+    fname			# guarded by pmns_lock mutex
+    havePmLoadCall		# guarded by pmns_lock mutex
+    last_size			# guarded by pmns_lock mutex
+    last_mtim			# guarded by pmns_lock mutex
+    last_pmns_location		# guarded by pmns_lock mutex
+    linebuf			# guarded by pmns_lock mutex
+    linep			# guarded by pmns_lock mutex
+    lp				# guarded by pmns_lock mutex
+    seen			# guarded by pmns_lock mutex
+    seenpmid			# guarded by pmns_lock mutex
+    tokbuf			# guarded by pmns_lock mutex
+    tokpmid			# guarded by pmns_lock mutex
     ?useExtPMNS			# thread private (no __thread symbols for Mac OS X)
     ?__emutls_t.useExtPMNS	# thread private for OpenBSD
-    repname			# guarded by __pmLock_libpcp mutex
-    main_pmns			# guarded by __pmLock_libpcp mutex
+    repname			# guarded by pmns_lock mutex
+    main_pmns			# guarded by pmns_lock mutex
     ?curr_pmns			# thread private (no __thread symbols for Mac OS X)
     ?__emutls_t.curr_pmns	# thread private for OpenBSD
     locerr			# no unsafe side-effects, see notes in pmns.c
