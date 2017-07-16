@@ -25,10 +25,12 @@ from collections import OrderedDict
 from ctypes import c_int
 import copy
 import errno
+import math
 import json
 import os
 import re
 import requests
+import threading
 
 MAX_CLUSTER = 0xfff
 MAX_METRIC = 0x3ff
@@ -641,10 +643,6 @@ class PrometheusSource(object):
 	def fetch(self, item, inst):
 		''' Fetch called to fetch values of metrics of this cluster'''
 		# Refresh the metric values if the cluster is not refreshed recently
-		if self.pmda.numfetch > self.numfetch:
-			self.refresh_metrics()
-			self.numfetch = self.pmda.numfetch
-
 		# Fetch fails when the metrics value could be refreshed
 		if self.fetch_failed:
 			return [c_api.PM_ERR_INST, 0]
@@ -662,6 +660,7 @@ class PrometheusPMDA(PMDA):
 		PMDA.__init__(self, pmda_name, domain)
 		self.connect_pmcd()
 		self.numfetch = 0
+		self.num_threads = 8
 
 		pmdaDir = "%s/%s/metadata/" % (pmContext.pmGetConfig('PCP_PMDAS_DIR'), pmda_name)
 		self.dir = pmdaDir
@@ -685,6 +684,7 @@ class PrometheusPMDA(PMDA):
 		self.add_static_metrics()
 		self.load_prometheus_sources()
 		self.set_fetch(self.prometheus_fetch)
+		self.set_refresh_all(self.refresh_all)
 		self.set_fetch_callback(self.prometheus_fetch_callback)
 
 	def add_static_metrics(self):
@@ -756,7 +756,7 @@ class PrometheusPMDA(PMDA):
 	def prometheus_fetch_callback(self, cluster, item, inst):
 		''' Main fetch callback which returns the value of the metric '''
 		# cluster 0 is reserved for the static metrics
-		self.log("requesting " + str(item) + " cluster" + str(cluster))
+		# self.log("requesting " + str(item) + " cluster" + str(cluster))
 		if cluster == 0:
 			if item != 0 or inst != c_api.PM_IN_NULL:
 				return [c_api.PM_ERR_PMID, 0]
@@ -765,6 +765,29 @@ class PrometheusPMDA(PMDA):
 		elif cluster in self.source_by_cluster:
 			return self.source_by_cluster[cluster].fetch(item, inst)
 		return [c_api.PM_ERR_PMID, 1]
+
+	def refresh_worker(self, *clusters):
+		for i in clusters:
+			if i==0:
+				continue
+			self.source_by_cluster[i].refresh_metrics()
+
+	def refresh_all(self, clusters):
+		self.log("Here")
+		slicelen = math.ceil(len(clusters)/float(self.num_threads))
+		index = 0
+		threads = []
+		for i in range(self.num_threads):
+			if index >= len(clusters):
+				break
+			t = threading.Thread(target=self.refresh_worker,
+					args = clusters[index:index + slicelen])
+			index += slicelen
+			threads.append(t)
+			t.daemon = True
+			t.start()
+		for t in threads:
+			t.join()
 
 if __name__ == '__main__':
 	'''
