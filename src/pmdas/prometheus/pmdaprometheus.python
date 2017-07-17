@@ -28,7 +28,9 @@ import errno
 import json
 import os
 import re
+import time
 import requests
+from multiprocessing import Process
 
 MAX_CLUSTER = 0xfff
 MAX_METRIC = 0x3ff
@@ -44,12 +46,16 @@ SEMANTICS = { COUNTER: c_api.PM_SEM_COUNTER, INSTANT: c_api.PM_SEM_INSTANT }
 class ScanPrometheus(object):
 	''' Scans Prometheus Endpoint to Generate Metadata for the given endpoint'''
 
-	def __init__(self, name, endpoint=None, filepath=None):
+	def __init__(self, name, autoconfig, endpoint=None, filepath=None):
 		self.name = name
 		self.endpoint = endpoint
 		self.filepath = filepath
 		self.raw_metrics = None
+		self.autoconfig = autoconfig
 		self.metrics_by_name = {}
+		if autoconfig is not None:
+			return self.save_autoconfig()
+
 		self.fetch_raw_metrics()
 		self.parse_raw()
 		self.save_metadata()
@@ -80,15 +86,34 @@ class ScanPrometheus(object):
 					metadata[key] = self.__dict__[key]
 			return metadata
 
+	def save_autoconfig(self):
+		filename = os.getenv('PCP_PMDAS_DIR') + \
+					"/prometheus/autoconfig.json"
+
+		if not os.path.exists(filename):
+			with open(filename, "w") as f:
+				f.write("[]")
+				f.close()
+
+		with open(filename, "r+") as f:
+			config_obj = { "name": self.name, "endpoint": self.endpoint }
+			config_list = json.load(f)
+			config_list.append(config_obj)
+			f.seek(0)
+			json.dump(config_list, f, indent=4)
+
 	def save_metadata(self):
 		# Saves the metadata of the Prometheus endpoint in PCP_PMDAS_DIR
 		config = { "name": self.name, "metrics": [] }
+
 		if self.filepath:
 			config["filepath"] = os.path.abspath(self.filepath)
 		else:
 			config["endpoint"] = self.endpoint
+
 		for k in self.metrics_by_name:
 			config["metrics"].append(self.metrics_by_name[k].export())
+
 		raw_config = json.dumps(config, indent=2)
 		filename = os.getenv('PCP_PMDAS_DIR') + \
 					"/prometheus/metadata/" + self.name + ".json"
@@ -98,6 +123,8 @@ class ScanPrometheus(object):
 			except OSError as exc:
 				if exc.errno != errno.EEXIST:
 					raise
+		if os.path.exists(filename):
+			os.remove(filename)
 		with open(filename, "w") as f:
 			f.write(raw_config)
 			f.close()
@@ -527,6 +554,7 @@ class PrometheusSource(object):
 		if not ( metadata.get("endpoint") or metadata.get("filepath") ):
 			self.log("Invalid endpoint/filepath with null value")
 			return False
+
 		self.endpoint = metadata.get("endpoint")
 		self.filepath = metadata.get("filepath")
 		return True
@@ -628,7 +656,8 @@ class PrometheusSource(object):
 		''' Refreshes the metric values of this cluster'''
 		try:
 			if self.endpoint:
-				req = requests.get(self.endpoint)
+				req = requests.get(self.endpoint, \
+					timeout=self.pmda.endpoint_fetch_timeout)
 				self.parse_metrics_values(req.text)
 				self.fetch_failed = False
 			else:
@@ -662,9 +691,13 @@ class PrometheusPMDA(PMDA):
 		PMDA.__init__(self, pmda_name, domain)
 		self.connect_pmcd()
 		self.numfetch = 0
+		self.watcher_process = None
+		self.watcher_refresh_frequency = 120
+		self.endpoint_fetch_timeout = 2
 
-		pmdaDir = "%s/%s/metadata/" % (pmContext.pmGetConfig('PCP_PMDAS_DIR'), pmda_name)
-		self.dir = pmdaDir
+		pmdasDir = pmContext.pmGetConfig('PCP_PMDAS_DIR')
+		self.pmdaDir = "%s/%s" % (pmdasDir, pmda_name)
+		self.dir = self.pmdaDir + "/metadata"
 		self.dir_mtime = os.stat(self.dir).st_mtime
 		self.source_by_cluster = {}
 		self.source_by_name = {}
@@ -684,8 +717,10 @@ class PrometheusPMDA(PMDA):
 
 		self.add_static_metrics()
 		self.load_prometheus_sources()
+		self.fork_autoconfig_watcher()
 		self.set_fetch(self.prometheus_fetch)
 		self.set_fetch_callback(self.prometheus_fetch_callback)
+		self.set_store_callback(self.prometheus_store_callback)
 
 	def add_static_metrics(self):
 		'''
@@ -696,6 +731,24 @@ class PrometheusPMDA(PMDA):
 		metric_info.type = c_api.PM_TYPE_64
 		metric_info.description = 'Number of times data fetched'
 		metric_info.idx = 0
+		metric_info.create()
+		self.add_metric(metric_info.full_name, metric_info.obj,
+						metric_info.description)
+
+		metric_info = Metric(self.pmda_name + '.config', 0, self)
+		metric_info.name = 'watcher_refresh_frequency'
+		metric_info.type = c_api.PM_TYPE_64
+		metric_info.description = 'Frequency of refreshing autoconfig in seconds'
+		metric_info.idx = 1
+		metric_info.create()
+		self.add_metric(metric_info.full_name, metric_info.obj,
+						metric_info.description)
+
+		metric_info = Metric(self.pmda_name + '.config', 0, self)
+		metric_info.name = 'endpoint_fetch_timeout'
+		metric_info.type = c_api.PM_TYPE_64
+		metric_info.description = 'Timeout on endpoint fetch in seconds'
+		metric_info.idx = 2
 		metric_info.create()
 		self.add_metric(metric_info.full_name, metric_info.obj,
 						metric_info.description)
@@ -740,6 +793,47 @@ class PrometheusPMDA(PMDA):
 		if new_source_seen:
 			self.cluster_cache.refresh()
 
+	def fork_autoconfig_watcher(self):
+		if self.watcher_process is not None and \
+			self.watcher_process.is_alive() is True:
+			return
+		self.watcher_timestamp  = time.time()
+		self.watcher_process = Process(target=self.autoconfig_watcher)
+		self.watcher_process.start()
+
+	def autoconfig_watcher(self):
+		filename = self.pmdaDir + '/autoconfig.json'
+		if not os.path.exists(filename):
+			return
+
+		config_list = []
+		# Configs of the endpoint which could be reached
+		failed_config_list = []
+
+		with open(filename, "r") as f:
+			config_list = json.load(f)
+			f.close()
+
+		for config in config_list:
+			try:
+				requests.get(config.get("endpoint"), \
+					timeout=self.endpoint_fetch_timeout)
+				ScanPrometheus(config.get("name"), None, config["endpoint"])
+				continue
+			except requests.ConnectionError:
+				pass
+			except Exception as e:
+				name = config.get("name")
+				endpoint = config.get("endpoint")
+				self.log("Autoconfig Exception name:%s endpoint:%s \
+				 exception: %s" % (name, endpoint, e))
+			# Add config to the failed list
+			failed_config_list.append(config)
+
+		with open(filename, "w") as f:
+			json.dump(failed_config_list, f)
+			f.close()
+
 	def prometheus_fetch(self):
 		''' Called once before calling prometheus_fetch_callback '''
 
@@ -750,21 +844,47 @@ class PrometheusPMDA(PMDA):
 			self.add_static_metrics()
 			self.load_prometheus_sources()
 			self.pmns_refresh()
+
+		# Watch autoconfigs for any live endpoint
+		timediff = time.time() - self.watcher_timestamp
+		if timediff >= self.watcher_refresh_frequency:
+			self.fork_autoconfig_watcher()
 		# Count the number of times fetch called
 		self.numfetch += 1
 
 	def prometheus_fetch_callback(self, cluster, item, inst):
 		''' Main fetch callback which returns the value of the metric '''
 		# cluster 0 is reserved for the static metrics
-		self.log("requesting " + str(item) + " cluster" + str(cluster))
+		# self.log("requesting " + str(item) + " cluster" + str(cluster))
 		if cluster == 0:
-			if item != 0 or inst != c_api.PM_IN_NULL:
+			if inst != c_api.PM_IN_NULL:
 				return [c_api.PM_ERR_PMID, 0]
-			else:
+			elif item == 0:
 				return [self.numfetch, 1]
+			elif item == 1:
+				return [self.watcher_refresh_frequency, 1]
+			elif item == 2:
+				return [self.endpoint_fetch_timeout, 1]
+			else:
+				return [c_api.PM_ERR_PMID, 0]
 		elif cluster in self.source_by_cluster:
 			return self.source_by_cluster[cluster].fetch(item, inst)
 		return [c_api.PM_ERR_PMID, 1]
+
+	def prometheus_store_callback(self, cluster, item, inst, value):
+		''' Main store callback which stores the value of the metric'''
+		if inst != c_api.PM_IN_NULL:
+			return c_api.PM_ERR_PMID
+		if cluster == 0:
+			if item == 1:
+				self.watcher_refresh_frequency = value
+				return 1
+			elif item == 2:
+				self.endpoint_fetch_timeout = value
+				return 1
+			else:
+				return c_api.PM_ERR_PMID
+		return c_api.PM_ERR_PMID
 
 if __name__ == '__main__':
 	'''
@@ -776,6 +896,7 @@ if __name__ == '__main__':
 	parser.add_argument('-g', '--generate', help="Generate heuristics metadata", action="store_true")
 	parser.add_argument('-u','--url', help='Prometheus endpoint whose metadata has to be generated')
 	parser.add_argument('-f','--filepath', help='Prometheus file based endpoint whose metadata has to be generated')
+	parser.add_argument('-a', '--autoconfig', help="Enable autoconfiguration during runtime", action="store_true")
 	parser.add_argument('-n','--name', help="Name to be used as the Prometheus cluster name")
 	args = parser.parse_args()
 
@@ -784,6 +905,6 @@ if __name__ == '__main__':
 		if not ( args.url or args.filepath ) or not args.name:
 			parser.error("Name and url or filepath of the endpoint required")
 			os.exit(1)
-		ScanPrometheus(args.name, args.url, args.filepath)
+		ScanPrometheus(args.name, args.autoconfig, args.url, args.filepath)
 	else:
 		PrometheusPMDA('prometheus', 144).run()
