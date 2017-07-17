@@ -31,7 +31,7 @@ _pmLogGet(__pmLogCtl *lcp, int vol, __pmPDU **pb)
     long	offset;
     char	*p;
     __pmPDU	*lpb;
-    FILE	*f;
+    __pmFILE	*f;
 
     if (vol == PM_LOG_VOL_META)
 	f = lcp->l_mdfp;
@@ -43,7 +43,7 @@ _pmLogGet(__pmLogCtl *lcp, int vol, __pmPDU **pb)
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_LOG) {
 	fprintf(stderr, "_pmLogGet: fd=%d vol=%d posn=%ld ",
-	    fileno(f), vol, offset);
+	    __pmFileno(f), vol, offset);
     }
 #endif
 
@@ -170,7 +170,7 @@ again:
 }
 
 int
-_pmLogPut(FILE *f, __pmPDU *pb)
+_pmLogPut(__pmFILE *f, __pmPDU *pb)
 {
     int		rlen = ntohl(pb[0]);
     int		sts;
@@ -178,11 +178,11 @@ _pmLogPut(FILE *f, __pmPDU *pb)
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_LOG) {
 	fprintf(stderr, "_pmLogPut: fd=%d rlen=%d\n",
-	    fileno(f), rlen);
+	    __pmFileno(f), rlen);
     }
 #endif
 
-    if ((sts = (int)fwrite(pb, 1, rlen, f)) != rlen) {
+    if ((sts = (int)__pmFwrite(pb, 1, rlen, f)) != rlen) {
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_LOG)
 	    fprintf(stderr, "_pmLogPut: fwrite=%d %s\n", sts, osstrerror());

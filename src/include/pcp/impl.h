@@ -405,7 +405,6 @@ typedef struct {
     __pm_off_t	ti_log;		/* end of metrics log file */
 } __pmLogTI;
 
-#if 0 /* not yet ..... but soon! */
 /*
  * PCP file. This abstracts i/o, allowing different handlers,
  * e.g. for stdio pass-thru and transparent decompression (xz, gz, etc).
@@ -420,21 +419,29 @@ typedef struct {
 
 typedef struct __pm_fops {
     void	*(*open) (__pmFILE *, const char *, const char *);
-    __pm_off_t	(*seek) (__pmFILE *, __pm_off_t, int);
-    ssize_t	(*read) (__pmFILE *, void *, size_t);
-    ssize_t	(*write) (__pmFILE *, void *, size_t);
+    void        *(*fdopen)(__pmFILE *, int, const char *);
+    int         (*seek) (__pmFILE *, off_t, int);
+    void        (*rewind)(__pmFILE *);
+    off_t       (*tell)(__pmFILE *);
+    size_t	(*read)(void *, size_t, size_t, __pmFILE *);
+    size_t	(*write)(void *, size_t, size_t, __pmFILE *);
+    int         (*flush)(__pmFILE *);
+    int         (*fsync)(__pmFILE *);
     int		(*fileno) (__pmFILE *);
-    int		(*flush) (__pmFILE *);
+    off_t       (*lseek)(__pmFILE *, off_t, int);
+    int         (*fstat)(__pmFILE *, struct stat *);
+    int		(*feof) (__pmFILE *);
+    int		(*ferror) (__pmFILE *);
+    void	(*clearerr) (__pmFILE *);
+    int         (*setvbuf)(__pmFILE *, char *, int, size_t);
     int		(*close) (__pmFILE *);
 } __pm_fops;
-#else /* for now */
-typedef FILE __pmFILE;
-#endif
 
 /*
  * Provide a stdio-like API for __pmFILE.
  */
 PCP_CALL extern __pmFILE *__pmFopen(const char *, const char *);
+PCP_CALL extern __pmFILE *__pmFdopen(int, const char *);
 PCP_CALL extern int __pmFseek(__pmFILE *, long, int);
 PCP_CALL extern void __pmRewind(__pmFILE *);
 PCP_CALL extern long __pmFtell(__pmFILE *);
@@ -445,6 +452,10 @@ PCP_CALL extern int __pmFsync(__pmFILE *);
 PCP_CALL extern off_t __pmLseek(__pmFILE *, off_t, int);
 PCP_CALL extern int __pmFstat(__pmFILE *, struct stat *);
 PCP_CALL extern int __pmFileno(__pmFILE *);
+PCP_CALL extern int __pmFeof(__pmFILE *);
+PCP_CALL extern int __pmFerror(__pmFILE *);
+PCP_CALL extern void __pmClearerr(__pmFILE *);
+PCP_CALL extern int __pmSetvbuf(__pmFILE *, char *, int, size_t);
 PCP_CALL extern int __pmFclose(__pmFILE *);
 
 /*
@@ -1137,19 +1148,19 @@ PCP_CALL extern void __pmLogPutIndex(const __pmLogCtl *, const __pmTimeval *);
 
 PCP_CALL extern const char *__pmLogName_r(const char *, int, char *, int);
 PCP_CALL extern const char *__pmLogName(const char *, int);	/* NOT thread-safe */
-PCP_CALL extern FILE *__pmLogNewFile(const char *, int);
+PCP_CALL extern __pmFILE *__pmLogNewFile(const char *, int);
 PCP_CALL extern int __pmLogCreate(const char *, const char *, int, __pmLogCtl *);
 #define PMLOGREAD_NEXT		0
 #define PMLOGREAD_TO_EOF	1
-PCP_CALL extern int __pmLogRead(__pmLogCtl *, int, FILE *, pmResult **, int);
-PCP_CALL extern int __pmLogRead_ctx(__pmContext *, int, FILE *, pmResult **, int);
-PCP_CALL extern int __pmLogWriteLabel(FILE *, const __pmLogLabel *);
+PCP_CALL extern int __pmLogRead(__pmLogCtl *, int, __pmFILE *, pmResult **, int);
+PCP_CALL extern int __pmLogRead_ctx(__pmContext *, int, __pmFILE *, pmResult **, int);
+PCP_CALL extern int __pmLogWriteLabel(__pmFILE *, const __pmLogLabel *);
 PCP_CALL extern int __pmLogOpen(const char *, __pmContext *);
 PCP_CALL extern int __pmLogLoadLabel(__pmLogCtl *, const char *);
 PCP_CALL extern int __pmLogLoadIndex(__pmLogCtl *);
 PCP_CALL extern int __pmLogLoadMeta(__pmLogCtl *);
 PCP_CALL extern void __pmLogClose(__pmLogCtl *);
-PCP_CALL extern void __pmLogCacheClear(FILE *);
+PCP_CALL extern void __pmLogCacheClear(__pmFILE *);
 PCP_CALL extern char *__pmLogBaseName(char *);
 
 PCP_CALL extern __pmTimeval *__pmLogStartTime(__pmArchCtl *);
@@ -1178,7 +1189,7 @@ PCP_CALL extern void __pmLogResetInterp(__pmContext *);
 PCP_CALL extern void __pmFreeInterpData(__pmContext *);
 
 PCP_CALL extern int __pmLogChangeVol(__pmLogCtl *, int);
-PCP_CALL extern int __pmLogChkLabel(__pmLogCtl *, FILE *, __pmLogLabel *, int);
+PCP_CALL extern int __pmLogChkLabel(__pmLogCtl *, __pmFILE *, __pmLogLabel *, int);
 PCP_CALL extern int __pmGetArchiveLabel(__pmLogCtl *, pmLogLabel *);
 PCP_CALL extern int __pmGetArchiveEnd(__pmLogCtl *, struct timeval *);
 

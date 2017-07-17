@@ -137,10 +137,10 @@ do_preamble(void)
 	res->vset[i]->valfmt = sts;
     }
 
-    if ((sts = __pmEncodeResult(fileno(logctl.l_mfp), res, &pb)) < 0)
+    if ((sts = __pmEncodeResult(__pmFileno(logctl.l_mfp), res, &pb)) < 0)
 	goto done;
 
-    __pmOverrideLastFd(fileno(logctl.l_mfp));	/* force use of log version */
+    __pmOverrideLastFd(__pmFileno(logctl.l_mfp));	/* force use of log version */
     /* and start some writing to the archive log files ... */
     sts = __pmLogPutResult2(&logctl, pb);
     __pmUnpinPDUBuf(pb);

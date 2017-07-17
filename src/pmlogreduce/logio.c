@@ -18,7 +18,7 @@
 #include "pmlogreduce.h"
 
 int
-_pmLogPut(FILE *f, __pmPDU *pb)
+_pmLogPut(__pmFILE *f, __pmPDU *pb)
 {
     int		rlen = ntohl(pb[0]);
     int		sts;
@@ -26,11 +26,11 @@ _pmLogPut(FILE *f, __pmPDU *pb)
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_LOG) {
 	fprintf(stderr, "_pmLogPut: fd=%d rlen=%d\n",
-	    fileno(f), rlen);
+	    __pmFileno(f), rlen);
     }
 #endif
 
-    if ((sts = (int)fwrite(pb, 1, rlen, f)) != rlen) {
+    if ((sts = (int)__pmFwrite(pb, 1, rlen, f)) != rlen) {
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_LOG)
 	    fprintf(stderr, "_pmLogPut: fwrite=%d %s\n", sts, osstrerror());
@@ -86,7 +86,7 @@ writelabel(void)
 void
 newvolume(char *base, __pmTimeval *tvp)
 {
-    FILE		*newfp;
+    __pmFILE		*newfp;
     int			nextvol = logctl.l_curvol + 1;
     struct timeval	stamp;
 

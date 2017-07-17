@@ -370,7 +370,7 @@ abandon_extract(void)
  *  report that archive is corrupted
  */
 static void
-_report(FILE *fp)
+_report(__pmFILE *fp)
 {
     off_t	here;
     struct stat	sbuf;
@@ -392,7 +392,7 @@ _report(FILE *fp)
 static void
 newvolume(char *base, __pmTimeval *tvp)
 {
-    FILE		*newfp;
+    __pmFILE		*newfp;
     int			nextvol = logctl.l_curvol + 1;
 
     if ((newfp = __pmLogNewFile(base, nextvol)) != NULL) {

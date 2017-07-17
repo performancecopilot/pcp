@@ -82,7 +82,7 @@ int	wflag;				/* -w emit warnings */
  *  report that archive is corrupted
  */
 static void
-_report(FILE *fp)
+_report(__pmFILE *fp)
 {
     off_t	here;
     struct stat	sbuf;
@@ -106,7 +106,7 @@ _report(FILE *fp)
 void
 newvolume(int vol)
 {
-    FILE		*newfp;
+    __pmFILE		*newfp;
 
     if ((newfp = __pmLogNewFile(outarch.name, vol)) != NULL) {
 	__pmFclose(outarch.logctl.l_mfp);
@@ -1286,19 +1286,19 @@ main(int argc, char **argv)
 	 */
 	if (__pmFsync(outarch.logctl.l_mdfp) < 0) {
 	    fprintf(stderr, "%s: Error: fsync(%d) failed for output metadata file: %s\n",
-		pmProgname, fileno(outarch.logctl.l_mdfp), strerror(errno));
+		pmProgname, __pmFileno(outarch.logctl.l_mdfp), strerror(errno));
 		abandon();
 		/*NOTREACHED*/
 	}
 	if (__pmFsync(outarch.logctl.l_mfp) < 0) {
 	    fprintf(stderr, "%s: Error: fsync(%d) failed for output data file: %s\n",
-		pmProgname, fileno(outarch.logctl.l_mfp), strerror(errno));
+		pmProgname, __pmFileno(outarch.logctl.l_mfp), strerror(errno));
 		abandon();
 		/*NOTREACHED*/
 	}
 	if (__pmFsync(outarch.logctl.l_tifp) < 0) {
 	    fprintf(stderr, "%s: Error: fsync(%d) failed for output index file: %s\n",
-		pmProgname, fileno(outarch.logctl.l_tifp), strerror(errno));
+		pmProgname, __pmFileno(outarch.logctl.l_tifp), strerror(errno));
 		abandon();
 		/*NOTREACHED*/
 	}

@@ -227,7 +227,7 @@ __pmLogLoadMeta(__pmLogCtl *lcp)
     pmDesc		*olddp;
     int			sts = 0;
     __pmLogHdr		h;
-    FILE		*f = lcp->l_mdfp;
+    __pmFILE		*f = lcp->l_mdfp;
     int			numpmid = 0;
     int			n;
     int			numnames;
@@ -249,8 +249,8 @@ __pmLogLoadMeta(__pmLogCtl *lcp)
 	h.type = ntohl(h.type);
 
 	if (n != sizeof(__pmLogHdr) || h.len <= 0) {
-            if (feof(f)) {
-		clearerr(f);
+            if (__pmFeof(f)) {
+		__pmClearerr(f);
                 sts = 0;
 		goto end;
             }
@@ -260,8 +260,8 @@ __pmLogLoadMeta(__pmLogCtl *lcp)
 			n, (int)sizeof(__pmLogHdr), h.len);
 	    }
 #endif
-	    if (ferror(f)) {
-		clearerr(f);
+	    if (__pmFerror(f)) {
+		__pmClearerr(f);
 		sts = -oserror();
 	    }
 	    else
@@ -289,8 +289,8 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":2", PM_FAULT_ALLOC);
 			    n, (int)sizeof(pmDesc));
 		}
 #endif
-		if (ferror(f)) {
-		    clearerr(f);
+		if (__pmFerror(f)) {
+		    __pmClearerr(f);
 		    sts = -oserror();
 		}
 		else
@@ -359,8 +359,8 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":2", PM_FAULT_ALLOC);
 			    n, (int)sizeof(numnames));
 		}
 #endif
-		if (ferror(f)) {
-		    clearerr(f);
+		if (__pmFerror(f)) {
+		    __pmClearerr(f);
 		    sts = -oserror();
 		}
 		else
@@ -381,8 +381,8 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":2", PM_FAULT_ALLOC);
 				i, n, (int)sizeof(len));
 		    }
 #endif
-		    if (ferror(f)) {
-			clearerr(f);
+		    if (__pmFerror(f)) {
+			__pmClearerr(f);
 			sts = -oserror();
 		    }
 		    else
@@ -401,8 +401,8 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":2", PM_FAULT_ALLOC);
 				i, n, len);
 		    }
 #endif
-		    if (ferror(f)) {
-			clearerr(f);
+		    if (__pmFerror(f)) {
+			__pmClearerr(f);
 			sts = -oserror();
 		    }
 		    else
@@ -458,8 +458,8 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":3", PM_FAULT_ALLOC);
 			    n, rlen);
 		}
 #endif
-		if (ferror(f)) {
-		    clearerr(f);
+		if (__pmFerror(f)) {
+		    __pmClearerr(f);
 		    sts = -oserror();
 		}
 		else
@@ -526,8 +526,8 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":4", PM_FAULT_ALLOC);
 		    n, check, h.len, (int)(__pmFtell(f) - sizeof(check)));
 	    }
 #endif
-	    if (ferror(f)) {
-		clearerr(f);
+	    if (__pmFerror(f)) {
+		__pmClearerr(f);
 		sts = -oserror();
 	    }
 	    else
@@ -578,7 +578,7 @@ __pmLogLookupDesc(__pmLogCtl *lcp, pmID pmid, pmDesc *dp)
 int
 __pmLogPutDesc(__pmLogCtl *lcp, const pmDesc *dp, int numnames, char **names)
 {
-    FILE	*f = lcp->l_mdfp;
+    __pmFILE	*f = lcp->l_mdfp;
     pmDesc	*tdp;
     int		olen;		/* length to write out */
     int		i;

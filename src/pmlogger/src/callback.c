@@ -577,7 +577,7 @@ do_work(task_t *tp)
 		fprintf(stderr, "__pmLogPutResult2: %s\n", pmErrStr(sts));
 		exit(1);
 	    }
-	    __pmOverrideLastFd(fileno(logctl.l_mfp));
+	    __pmOverrideLastFd(__pmFileno(logctl.l_mfp));
 	}
 	resp = NULL; /* silence coverity */
 	if ((sts = __pmDecodeResult(pb, &resp)) < 0) {
@@ -604,7 +604,7 @@ do_work(task_t *tp)
 		if (IS_DERIVED(vsp->pmid))
 		    vsp->pmid = SET_DERIVED_LOGGED(vsp->pmid);
 	    }
-	    if ((sts = __pmEncodeResult(fileno(logctl.l_mfp), resp, &pdubuf)) < 0) {
+	    if ((sts = __pmEncodeResult(__pmFileno(logctl.l_mfp), resp, &pdubuf)) < 0) {
 		fprintf(stderr, "__pmEncodeResult: %s\n", pmErrStr(sts));
 		exit(1);
 	    }
@@ -613,7 +613,7 @@ do_work(task_t *tp)
 		exit(1);
 	    }
 	    __pmUnpinPDUBuf(pdubuf);
-	    __pmOverrideLastFd(fileno(logctl.l_mfp));
+	    __pmOverrideLastFd(__pmFileno(logctl.l_mfp));
 	    for (i = 0; i < resp->numpmid; i++) {
 		pmValueSet	*vsp = resp->vset[i];
 		if (IS_DERIVED_LOGGED(vsp->pmid))
@@ -895,7 +895,7 @@ putmark(void)
     mark.timestamp.tv_usec = htonl(mark.timestamp.tv_usec);
     mark.numpmid = htonl(0);
 
-    if (fwrite(&mark, 1, sizeof(mark), logctl.l_mfp) != sizeof(mark))
+    if (__pmFwrite(&mark, 1, sizeof(mark), logctl.l_mfp) != sizeof(mark))
 	return -oserror();
     else
 	return 0;

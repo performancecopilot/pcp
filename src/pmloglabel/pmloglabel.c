@@ -28,7 +28,7 @@ static int status;
  */
 
 int
-verify_label(FILE *f, const char *file)
+verify_label(__pmFILE *f, const char *file)
 {
     int version, magic;
     int n, len, xpectlen = sizeof(__pmLogLabel) + 2 * sizeof(len);
@@ -38,12 +38,12 @@ verify_label(FILE *f, const char *file)
     n = (int)__pmFread(&len, 1, sizeof(len), f);
     len = ntohl(len);
     if (n != sizeof(len)) {
-	if (feof(f)) {
+	if (__pmFeof(f)) {
 	    fprintf(stderr, "Bad prefix sentinel read for %s: file too short\n",
 			file);
 	    status = 2;
 	}
-	else if (ferror(f)) {
+	else if (__pmFerror(f)) {
 	    fprintf(stderr, "Prefix sentinel read error for %s: %s\n",
 			file, osstrerror());
 	    status = 2;
@@ -65,12 +65,12 @@ verify_label(FILE *f, const char *file)
     n = (int)__pmFread(&len, 1, sizeof(len), f);
     len = ntohl(len);
     if (n != sizeof(len)) {
-	if (feof(f)) {
+	if (__pmFeof(f)) {
 	    fprintf(stderr, "Bad suffix sentinel read for %s: file too short\n",
 			file);
 	    status = 2;
 	}
-	else if (ferror(f)) {
+	else if (__pmFerror(f)) {
 	    fprintf(stderr, "Suffix sentinel read error for %s: %s\n",
 			file, osstrerror());
 	    status = 2;
@@ -108,7 +108,7 @@ verify_label(FILE *f, const char *file)
  * we only use that to determine if this is good as a gold label.
  */
 void
-compare_golden(FILE *f, const char *file, int sts, int warnings)
+compare_golden(__pmFILE *f, const char *file, int sts, int warnings)
 {
     __pmLogLabel *label = &logctl.l_label;
 

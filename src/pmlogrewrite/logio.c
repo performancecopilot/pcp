@@ -31,7 +31,7 @@ _pmLogGet(__pmLogCtl *lcp, int vol, __pmPDU **pb)
     long	offset;
     char	*p;
     __pmPDU	*lpb;
-    FILE	*f;
+    __pmFILE	*f;
 
     if (vol == PM_LOG_VOL_META)
 	f = lcp->l_mdfp;
@@ -43,7 +43,7 @@ _pmLogGet(__pmLogCtl *lcp, int vol, __pmPDU **pb)
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_LOG) {
 	fprintf(stderr, "_pmLogGet: fd=%d vol=%d posn=%ld ",
-	    fileno(f), vol, offset);
+	    __pmFileno(f), vol, offset);
     }
 #endif
 

@@ -1224,7 +1224,7 @@ main(int argc, char **argv)
 int
 newvolume(int vol_switch_type)
 {
-    FILE	*newfp;
+    __pmFILE	*newfp;
     int		nextvol = logctl.l_curvol + 1;
     time_t	now;
     static char *vol_sw_strs[] = {

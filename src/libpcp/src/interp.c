@@ -298,7 +298,7 @@ cache_read(__pmContext *ctxp, int mode, pmResult **rp)
 }
 
 void
-__pmLogCacheClear(FILE *mfp)
+__pmLogCacheClear(__pmFILE *mfp)
 {
     /* retired ... functionality moved to __pmFreeInterpData() */
     return;

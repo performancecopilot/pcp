@@ -302,7 +302,7 @@ interp.o
     nr_cache			# diag counters, no atomic updates
 io.o
 io_stdio.o
-#    __pm_stdio			# file operations using stdio
+     __pm_stdio			# file operations using stdio
 io_xz.o
 #    __pm_xz			# file operations using xz decompression
 ipc.o

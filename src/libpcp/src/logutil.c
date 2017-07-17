@@ -139,7 +139,7 @@ checkLabelConsistency (__pmContext *ctxp, const __pmLogLabel *lp)
 }
 
 int
-__pmLogChkLabel(__pmLogCtl *lcp, FILE *f, __pmLogLabel *lp, int vol)
+__pmLogChkLabel(__pmLogCtl *lcp, __pmFILE *f, __pmLogLabel *lp, int vol)
 {
     int		len;
     int		version = UNKNOWN_VERSION;
@@ -173,8 +173,8 @@ __pmLogChkLabel(__pmLogCtl *lcp, FILE *f, __pmLogLabel *lp, int vol)
     n = (int)__pmFread(&len, 1, sizeof(len), f);
     len = ntohl(len);
     if (n != sizeof(len) || len != xpectlen) {
-	if (feof(f)) {
-	    clearerr(f);
+	if (__pmFeof(f)) {
+	    __pmClearerr(f);
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_LOG)
 		fprintf(stderr, " file is empty\n");
@@ -187,8 +187,8 @@ __pmLogChkLabel(__pmLogCtl *lcp, FILE *f, __pmLogLabel *lp, int vol)
 		fprintf(stderr, " header read -> %d (expect %d) or bad header len=%d (expected %d)\n",
 		    n, (int)sizeof(len), len, xpectlen);
 #endif
-	    if (ferror(f)) {
-		clearerr(f);
+	    if (__pmFerror(f)) {
+		__pmClearerr(f);
 		return -oserror();
 	    }
 	    else
@@ -202,8 +202,8 @@ __pmLogChkLabel(__pmLogCtl *lcp, FILE *f, __pmLogLabel *lp, int vol)
 	    fprintf(stderr, " bad label len=%d: expected %d\n",
 		n, (int)sizeof(__pmLogLabel));
 #endif
-	if (ferror(f)) {
-	    clearerr(f);
+	if (__pmFerror(f)) {
+	    __pmClearerr(f);
 	    return -oserror();
 	}
 	else
@@ -226,8 +226,8 @@ __pmLogChkLabel(__pmLogCtl *lcp, FILE *f, __pmLogLabel *lp, int vol)
 	    fprintf(stderr, " trailer read -> %d (expect %d) or bad trailer len=%d (expected %d)\n",
 		n, (int)sizeof(len), len, xpectlen);
 #endif
-	if (ferror(f)) {
-	    clearerr(f);
+	if (__pmFerror(f)) {
+	    __pmClearerr(f);
 	    return -oserror();
 	}
 	else
@@ -282,7 +282,7 @@ popen_uncompress(const char *cmd, const char *fname, const char *suffix, int fd)
 
     if ((finp = popen(pipecmd, "r")) == NULL)
 	return -1;
-    infd = __pmFileno(finp);
+    infd = fileno(finp);
 
     while ((bytes = read(infd, buffer, sizeof(buffer))) > 0) {
 	if (write(fd, buffer, bytes) != bytes) {
@@ -381,14 +381,14 @@ index_compress(const char *fname)
     return -1;
 }
 
-static FILE *
+static __pmFILE *
 fopen_compress(const char *fname)
 {
     int		sts;
     int		fd;
     int		i;
     char	*cmd;
-    FILE	*fp;
+    __pmFILE	*fp;
 
 
     if ((i = index_compress(fname)) < 0) {
@@ -459,7 +459,7 @@ fopen_compress(const char *fname)
 	setoserror(-PM_ERR_LOGREC);
 	return NULL;
     }
-    if ((fp = fdopen(fd, "r")) == NULL) {
+    if ((fp = __pmFdopen(fd, "r")) == NULL) {
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_LOG) {
 	    char	errmsg[PM_MAXERRMSGLEN];
@@ -475,11 +475,11 @@ fopen_compress(const char *fname)
     return fp;
 }
 
-static FILE *
+static __pmFILE *
 _logpeek(__pmLogCtl *lcp, int vol)
 {
     int			sts;
-    FILE		*f;
+    __pmFILE		*f;
     __pmLogLabel	label;
     char		fname[MAXPATHLEN];
 
@@ -535,7 +535,7 @@ int
 __pmLogLoadIndex(__pmLogCtl *lcp)
 {
     int		sts = 0;
-    FILE	*f = lcp->l_tifp;
+    __pmFILE	*f = lcp->l_tifp;
     int		n;
     __pmLogTI	*tip;
 
@@ -554,8 +554,8 @@ __pmLogLoadIndex(__pmLogCtl *lcp)
 	    n = (int)__pmFread(tip, 1, sizeof(__pmLogTI), f);
 
             if (n != sizeof(__pmLogTI)) {
-		if (feof(f)) {
-		    clearerr(f);
+		if (__pmFeof(f)) {
+		    __pmClearerr(f);
 		    sts = 0; 
 		    break;
 		}
@@ -564,8 +564,8 @@ __pmLogLoadIndex(__pmLogCtl *lcp)
 	    	    fprintf(stderr, "__pmLogLoadIndex: bad TI entry len=%d: expected %d\n",
 		            n, (int)sizeof(__pmLogTI));
 #endif
-		if (ferror(f)) {
-		    clearerr(f);
+		if (__pmFerror(f)) {
+		    __pmClearerr(f);
 		    sts = -oserror();
 		    break;
 		}
@@ -618,11 +618,11 @@ __pmLogName(const char *base, int vol)
     return __pmLogName_r(base, vol, tbuf, sizeof(tbuf));
 }
 
-FILE *
+__pmFILE *
 __pmLogNewFile(const char *base, int vol)
 {
     char	fname[MAXPATHLEN];
-    FILE	*f;
+    __pmFILE	*f;
     int		save_error;
 
     __pmLogName_r(base, vol, fname, sizeof(fname));
@@ -649,7 +649,7 @@ __pmLogNewFile(const char *base, int vol)
      * fwrite() maps to one logical record for each of the metadata
      * records, the index records and the data (pmResult) records.
      */
-    setvbuf(f, NULL, _IONBF, 0);
+    __pmSetvbuf(f, NULL, _IONBF, 0);
 
     if ((save_error = __pmSetVersionIPC(__pmFileno(f), PDU_VERSION)) < 0) {
 	char	errmsg[PM_MAXERRMSGLEN];
@@ -664,7 +664,7 @@ __pmLogNewFile(const char *base, int vol)
 }
 
 int
-__pmLogWriteLabel(FILE *f, const __pmLogLabel *lp)
+__pmLogWriteLabel(__pmFILE *f, const __pmLogLabel *lp)
 {
     int		sts = 0;
     struct {				/* skeletal external record */
@@ -1535,7 +1535,7 @@ paranoidCheck(int len, __pmPDU *pb)
 }
 
 static int
-paranoidLogRead(__pmContext *ctxp, int mode, FILE *peekf, pmResult **result)
+paranoidLogRead(__pmContext *ctxp, int mode, __pmFILE *peekf, pmResult **result)
 {
     return __pmLogRead_ctx(ctxp, mode, peekf, result, PMLOGREAD_TO_EOF);
 }
@@ -1637,7 +1637,7 @@ clearMarkDone(__pmContext *ctxp)
  * can be carried down the call stack.
  */
 int
-__pmLogRead_ctx(__pmContext *ctxp, int mode, FILE *peekf, pmResult **result, int option)
+__pmLogRead_ctx(__pmContext *ctxp, int mode, __pmFILE *peekf, pmResult **result, int option)
 {
     __pmLogCtl	*lcp = ctxp->c_archctl->ac_log;
     int		head;
@@ -1646,7 +1646,7 @@ __pmLogRead_ctx(__pmContext *ctxp, int mode, FILE *peekf, pmResult **result, int
     int		sts;
     long	offset;
     __pmPDU	*pb;
-    FILE	*f;
+    __pmFILE	*f;
     int		n;
 
     /*
@@ -1742,9 +1742,9 @@ again:
     n = (int)__pmFread(&head, 1, sizeof(head), f);
     head = ntohl(head); /* swab head */
     if (n != sizeof(head)) {
-	if (feof(f)) {
+	if (__pmFeof(f)) {
 	    /* no more data ... looks like End of Archive volume */
-	    clearerr(f);
+	    __pmClearerr(f);
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_LOG)
 		fprintf(stderr, "AFTER end\n");
@@ -1794,9 +1794,9 @@ again:
 	if (pmDebug & DBG_TRACE_LOG)
 	    fprintf(stderr, "\nError: header fread got %d expected %d\n", n, (int)sizeof(head));
 #endif
-	if (ferror(f)) {
+	if (__pmFerror(f)) {
 	    /* I/O error */
-	    clearerr(f);
+	    __pmClearerr(f);
 	    return -oserror();
 	}
 	else
@@ -1875,12 +1875,12 @@ again:
 	    fprintf(stderr, "\nError: data fread got %d expected %d\n", n, rlen);
 #endif
 	__pmFseek(f, offset, SEEK_SET);
-	if (ferror(f)) {
+	if (__pmFerror(f)) {
 	    /* I/O error */
-	    clearerr(f);
+	    __pmClearerr(f);
 	    return -oserror();
 	}
-	clearerr(f);
+	__pmClearerr(f);
 
 	/* corrupted archive */
 	return PM_ERR_LOGREC;
@@ -1924,12 +1924,12 @@ again:
 	    fprintf(stderr, "\nError: trailer fread got %d expected %d\n", n, (int)sizeof(trail));
 #endif
 	__pmFseek(f, offset, SEEK_SET);
-	if (ferror(f)) {
+	if (__pmFerror(f)) {
 	    /* I/O error */
-	    clearerr(f);
+	    __pmClearerr(f);
 	    return -oserror();
 	}
-	clearerr(f);
+	__pmClearerr(f);
 
 	/* corrupted archive */
 	return PM_ERR_LOGREC;
@@ -2003,7 +2003,7 @@ again:
 }
 
 int
-__pmLogRead(__pmLogCtl *lcp, int mode, FILE *peekf, pmResult **result, int option)
+__pmLogRead(__pmLogCtl *lcp, int mode, __pmFILE *peekf, pmResult **result, int option)
 {
     int		sts;
     __pmContext	*ctxp;
@@ -2424,7 +2424,7 @@ __pmLogSetTime(__pmContext *ctxp)
 	int		match = 0;
 	int		vol;
 	int		numti = lcp->l_numti;
-	FILE		*f;
+	__pmFILE		*f;
 	__pmLogTI	*tip = lcp->l_ti;
 	double		t_lo;
 	struct stat	sbuf;
@@ -2694,7 +2694,7 @@ __pmGetArchiveEnd_ctx(__pmContext *ctxp, struct timeval *tp)
 {
     __pmLogCtl	*lcp = ctxp->c_archctl->ac_log;
     struct stat	sbuf;
-    FILE	*f;
+    __pmFILE	*f;
     long	save = 0;
     pmResult	*rp = NULL;
     pmResult	*nrp;
@@ -2853,7 +2853,7 @@ __pmGetArchiveEnd_ctx(__pmContext *ctxp, struct timeval *tp)
     if (f == lcp->l_mfp)
 	__pmFseek(f, save, SEEK_SET); /* restore file pointer in current vol */ 
     else if (f != NULL)
-	/* temporary FILE * from _logpeek() */
+	/* temporary __pmFILE * from _logpeek() */
 	__pmFclose(f);
 
     if (found) {

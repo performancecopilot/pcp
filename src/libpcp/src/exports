@@ -552,6 +552,7 @@ PCP_3.19 {
 } PCP_3.18;
 PCP_3.20 {
     __pmFopen;
+    __pmFdopen;
     __pmFseek;
     __pmRewind;
     __pmFtell;
@@ -562,5 +563,9 @@ PCP_3.20 {
     __pmLseek;
     __pmFstat;
     __pmFileno;
+    __pmFeof;
+    __pmFerror;
+    __pmClearerr;
+    __pmSetvbuf;
     __pmFclose;
 } PCP_3.19;
