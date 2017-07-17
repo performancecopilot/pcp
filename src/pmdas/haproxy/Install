@@ -27,7 +27,19 @@ daemon_opt=false
 eval `$PCP_PYTHON_PROG $PCP_PMDAS_DIR/haproxy/connect --config`
 
 if [ -z "$user" ]; then
-    echo "Failed to get configuration, sorry this is fatal"
+    echo "Failed to get user configuration, sorry this is fatal"
+    status=1
+    exit
+fi
+
+if [ -z "$socket" ]; then
+    echo "Failed to get socket configuration, sorry this is fatal"
+    status=1
+    exit
+fi
+
+if [ ! -S "$socket" ]; then
+    echo "$socket: socket does not exist, sorry this is fatal"
     status=1
     exit
 fi

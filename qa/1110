@@ -13,6 +13,14 @@ echo "QA output created by $seq"
 $python -c "from pcp import pmda" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "python pcp pmda module not installed"
 
+[ -f $PCP_PMDAS_DIR/haproxy/connect ] || _notrun "haproxy PMDA not installed"
+
+# from the PMDA's Install script
+eval `$PCP_PYTHON_PROG $PCP_PMDAS_DIR/haproxy/connect --config`
+[ -n "$user" ] || _notrun "haproxy PMDA's connect script failed to set \$user"
+[ -n "$socket" ] || _notrun "haproxy PMDA's connect script failed to set \$socket"
+[ -S "$socket" ] || _notrun "$socket: socket does not exist"
+
 status=1       # failure is the default!
 signal=$PCP_BINADM_DIR/pmsignal
 username=`id -u -n`

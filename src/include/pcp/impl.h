@@ -300,7 +300,7 @@ PCP_DATA extern int pmDebug;
 #define DBG_TRACE_LOCK		(1<<19) /* lock tracing */
 #define DBG_TRACE_INTERP	(1<<20)	/* interpolate mode for archives */
 #define DBG_TRACE_CONFIG	(1<<21) /* configuration parameters */
-#define DBG_TRACE_LOOP		(1<<22) /* pmLoop tracing */
+#define DBG_TRACE_PMAPI		(1<<22) /* PMAPI call tracing */
 #define DBG_TRACE_FAULT		(1<<23) /* fault injection tracing */
 #define DBG_TRACE_AUTH		(1<<24) /* authentication tracing */
 #define DBG_TRACE_DISCOVERY	(1<<25) /* service discovery tracing */

@@ -228,7 +228,7 @@ prefetch(void)
 }
 
 int
-fetch(int numpmid, pmID *pmidlist, pmResult **rp, pmdaExt *pmda)
+fetch_wrapper(int numpmid, pmID *pmidlist, pmResult **rp, pmdaExt *pmda)
 {
     if (need_refresh)
 	pmns_refresh();
@@ -269,7 +269,7 @@ preinstance(pmInDom indom)
 }
 
 int
-instance(pmInDom indom, int a, char *b, __pmInResult **rp, pmdaExt *pmda)
+instance_wrapper(pmInDom indom, int a, char *b, __pmInResult **rp, pmdaExt *pmda)
 {
     if (need_refresh)
 	pmns_refresh();
@@ -633,8 +633,8 @@ new(CLASS,name,domain)
 	    pmdaDaemon(&dispatch, PMDA_INTERFACE_5, pmdaname, domain,
 			logfile, strdup(helpfile));
 	}
-	dispatch.version.four.fetch = fetch;
-	dispatch.version.four.instance = instance;
+	dispatch.version.four.fetch = fetch_wrapper;
+	dispatch.version.four.instance = instance_wrapper;
 	dispatch.version.four.desc = pmns_desc;
 	dispatch.version.four.pmid = pmns_pmid;
 	dispatch.version.four.name = pmns_name;

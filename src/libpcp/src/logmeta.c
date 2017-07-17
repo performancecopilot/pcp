@@ -867,13 +867,11 @@ pmLookupInDomArchive(pmInDom indom, const char *name)
 	    return PM_ERR_NOCONTEXT;
 	if (ctxp->c_type != PM_CONTEXT_ARCHIVE) {
 	    PM_UNLOCK(ctxp->c_lock);
-	    CHECK_C_LOCK;
 	    return PM_ERR_NOTARCHIVE;
 	}
 
 	if ((hp = __pmHashSearch((unsigned int)indom, &ctxp->c_archctl->ac_log->l_hashindom)) == NULL) {
 	    PM_UNLOCK(ctxp->c_lock);
-	    CHECK_C_LOCK;
 	    return PM_ERR_INDOM_LOG;
 	}
 
@@ -882,7 +880,6 @@ pmLookupInDomArchive(pmInDom indom, const char *name)
 	    for (j = 0; j < idp->numinst; j++) {
 		if (strcmp(name, idp->namelist[j]) == 0) {
 		    PM_UNLOCK(ctxp->c_lock);
-		    CHECK_C_LOCK;
 		    return idp->instlist[j];
 		}
 	    }
@@ -894,7 +891,6 @@ pmLookupInDomArchive(pmInDom indom, const char *name)
 		if (*p == ' ') {
 		    if (strncmp(name, idp->namelist[j], p - idp->namelist[j]) == 0) {
 			PM_UNLOCK(ctxp->c_lock);
-			CHECK_C_LOCK;
 			return idp->instlist[j];
 		    }
 		}
@@ -904,7 +900,6 @@ pmLookupInDomArchive(pmInDom indom, const char *name)
 	PM_UNLOCK(ctxp->c_lock);
     }
 
-    CHECK_C_LOCK;
     return n;
 }
 
@@ -926,13 +921,11 @@ pmNameInDomArchive(pmInDom indom, int inst, char **name)
 	    return PM_ERR_NOCONTEXT;
 	if (ctxp->c_type != PM_CONTEXT_ARCHIVE) {
 	    PM_UNLOCK(ctxp->c_lock);
-	    CHECK_C_LOCK;
 	    return PM_ERR_NOTARCHIVE;
 	}
 
 	if ((hp = __pmHashSearch((unsigned int)indom, &ctxp->c_archctl->ac_log->l_hashindom)) == NULL) {
 	    PM_UNLOCK(ctxp->c_lock);
-	    CHECK_C_LOCK;
 	    return PM_ERR_INDOM_LOG;
 	}
 
@@ -944,7 +937,6 @@ pmNameInDomArchive(pmInDom indom, int inst, char **name)
 		    else
 			n = 0;
 		    PM_UNLOCK(ctxp->c_lock);
-		    CHECK_C_LOCK;
 		    return n;
 		}
 	    }
@@ -953,7 +945,6 @@ pmNameInDomArchive(pmInDom indom, int inst, char **name)
 	PM_UNLOCK(ctxp->c_lock);
     }
 
-    CHECK_C_LOCK;
     return n;
 }
 
@@ -1041,17 +1032,17 @@ pmGetInDomArchive_ctx(__pmContext *ctxp, pmInDom indom, int **instlist, char ***
 	    return PM_ERR_NOCONTEXT;
 	need_unlock = 1;
     }
+    else
+	PM_ASSERT_IS_LOCKED(ctxp->c_lock);
     if (ctxp->c_type != PM_CONTEXT_ARCHIVE) {
 	if (need_unlock)
 	    PM_UNLOCK(ctxp->c_lock);
-	if (need_unlock) CHECK_C_LOCK;
 	return PM_ERR_NOTARCHIVE;
     }
 
     if ((hp = __pmHashSearch((unsigned int)indom, &ctxp->c_archctl->ac_log->l_hashindom)) == NULL) {
 	if (need_unlock)
 	    PM_UNLOCK(ctxp->c_lock);
-	if (need_unlock) CHECK_C_LOCK;
 	return PM_ERR_INDOM_LOG;
     }
 
@@ -1110,10 +1101,8 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":9", PM_FAULT_ALLOC);
     *namelist = olist;
     n = numinst;
 
-    if (need_unlock) {
+    if (need_unlock)
 	PM_UNLOCK(ctxp->c_lock);
-	CHECK_C_LOCK;
-    }
 
     return n;
 }
@@ -1123,6 +1112,5 @@ pmGetInDomArchive(pmInDom indom, int **instlist, char ***namelist)
 {
     int	sts;
     sts = pmGetInDomArchive_ctx(NULL, indom, instlist, namelist);
-    CHECK_C_LOCK;
     return sts;
 }
