@@ -34,5 +34,5 @@ dmstats.counter {
 }
 
 dmstats.histogram {
-	tmp                 DM:4:0
+	hist_count          DM:4:0
 }

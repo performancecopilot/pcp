@@ -45,7 +45,7 @@ struct dm_stats_metric {
 */
 
 struct pm_dm_histogram {
-	float tmp;
+	int pm_bin_value;
 };
 
 typedef enum {
