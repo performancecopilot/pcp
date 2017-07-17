@@ -1,3 +1,4 @@
 usr/include/pcp/import.h
 usr/lib/libpcp_import.a
 usr/lib/libpcp_import.so
+usr/lib/pkgconfig/libpcp_import.pc

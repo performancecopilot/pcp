@@ -2745,6 +2745,7 @@ cd
 %{_libdir}/libpcp_web.so
 %{_libdir}/pkgconfig/libpcp.pc
 %{_libdir}/pkgconfig/libpcp_pmda.pc
+%{_libdir}/pkgconfig/libpcp_import.pc
 %{_includedir}/pcp/*.h
 
 %files devel -f devel.list
