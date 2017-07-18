@@ -375,34 +375,10 @@ __pmConvertTimeout(int timeo)
 static void
 initcontextlock(pthread_mutex_t *lock)
 {
-    pthread_mutexattr_t	attr;
-    int			sts;
-    char		errmsg[PM_MAXERRMSGLEN];
 
     PM_ASSERT_IS_LOCKED(contexts_lock);
 
-    if ((sts = pthread_mutexattr_init(&attr)) != 0) {
-	pmErrStr_r(-sts, errmsg, sizeof(errmsg));
-	fprintf(stderr, "pmNewContext: "
-		"context=%d lock pthread_mutexattr_init failed: %s",
-		contexts_len-1, errmsg);
-	exit(4);
-    }
-    if ((sts = pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_ERRORCHECK)) != 0) {
-	pmErrStr_r(-sts, errmsg, sizeof(errmsg));
-	fprintf(stderr, "pmNewContext: "
-		"context=%d lock pthread_mutexattr_settype failed: %s",
-		contexts_len-1, errmsg);
-	exit(4);
-    }
-    if ((sts = pthread_mutex_init(lock, &attr)) != 0) {
-	pmErrStr_r(-sts, errmsg, sizeof(errmsg));
-	fprintf(stderr, "pmNewContext: "
-		"context=%d lock pthread_mutex_init failed: %s",
-		contexts_len-1, errmsg);
-	exit(4);
-    }
-    pthread_mutexattr_destroy(&attr);
+    __pmInitMutex(lock);
 }
 
 #else

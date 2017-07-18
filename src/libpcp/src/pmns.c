@@ -112,7 +112,7 @@ static int load(const char *, int, int);
 static __pmnsNode *locate(const char *, __pmnsNode *);
 
 #ifdef PM_MULTI_THREAD
-static pthread_mutex_t	pmns_lock = PTHREAD_MUTEX_INITIALIZER;
+static pthread_mutex_t	pmns_lock;
 #else
 void			*pmns_lock;
 #endif
@@ -138,6 +138,12 @@ typedef struct {
     int		need_pmns_unlock;	/* 1 if the pmns_lock was acquired */
     					/* in a call to lock_ctx_and_pmns() */
 } ctx_ctl_t;
+
+void
+init_pmns_lock(void)
+{
+    __pmInitMutex(&pmns_lock);
+}
 
 /*
  * ensure the current context, if any, is locked
