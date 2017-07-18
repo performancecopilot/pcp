@@ -1947,6 +1947,15 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_TIMEOUT);
 	}
     }
 
+    /*
+     * must release pmns_lock before getting the registered mutex
+     * for derived metrics
+     */
+    if (ctx_ctl.need_pmns_unlock) {
+	PM_UNLOCK(pmns_lock);
+	ctx_ctl.need_pmns_unlock = 0;
+    }
+
     if (sts < 0 || nfail > 0) {
 	/*
 	 * Try derived metrics for any remaining unknown pmids.
@@ -2400,6 +2409,15 @@ getchildren(__pmContext *ctxp, int needlocks, const char *name, char ***offsprin
 
 check:
     /*
+     * must release pmns_lock before getting the registered mutex
+     * for derived metrics
+     */
+    if (ctx_ctl.need_pmns_unlock) {
+	PM_UNLOCK(pmns_lock);
+	ctx_ctl.need_pmns_unlock = 0;
+    }
+
+    /*
      * see if there are derived metrics that qualify
      */
     dm_num = __dmchildren(ctxp, name, &dm_offspring, &dm_statuslist);
@@ -2631,6 +2649,16 @@ pmNameID(pmID pmid, char **name)
     if (sts >= 0)
 	goto pmapi_return;
 
+
+    /*
+     * must release pmns_lock before getting the registered mutex
+     * for derived metrics
+     */
+    if (ctx_ctl.need_pmns_unlock) {
+	PM_UNLOCK(pmns_lock);
+	ctx_ctl.need_pmns_unlock = 0;
+    }
+
     /*
      * failed everything else, try derived metric, but if this fails
      * return last error from above ...
@@ -2783,6 +2811,15 @@ pmNameAll_ctx(__pmContext *ctxp, pmID pmid, char ***namelist)
 	}
 	if (sts > 0)
 	    goto pmapi_return;
+    }
+
+    /*
+     * must release pmns_lock before getting the registered mutex
+     * for derived metrics
+     */
+    if (ctx_ctl.need_pmns_unlock) {
+	PM_UNLOCK(pmns_lock);
+	ctx_ctl.need_pmns_unlock = 0;
     }
 
     /*
