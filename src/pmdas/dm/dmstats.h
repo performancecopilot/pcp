@@ -49,7 +49,8 @@ struct pm_dm_histogram {
 };
 
 typedef enum {
-	DM_HISTOGRAM
+	DM_HISTOGRAM,
+	DM_HISTOGRAM_NR_COUNTER
 } dm_histogram_t;
 
 extern int pm_dm_stats_fetch(int, struct pm_dm_stats_counter *, pmAtomValue *);

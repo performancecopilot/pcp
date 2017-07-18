@@ -211,6 +211,7 @@ pm_dm_refresh_stats_histogram(const char *name, struct pm_dm_histogram *pdmh)
 
 	if (count == (bin - 1)) {
 		count = 0;
+		bin = 0;
 		free(buffer_data);
 	}
 
@@ -240,7 +241,6 @@ _dm_device_search(void)
 		goto nodevice;
 
 	return names;
-	dm_task_destroy(dmt);
 
 nodevice:
 	dm_task_destroy(dmt);
@@ -288,6 +288,12 @@ pm_dm_stats_instance_refresh(void)
 		return -oserror();
 
 	do {
+		/* need dm_stats_destroy()? */
+		if (!(dms = _dm_stats_search_region(names))) {
+			next = names->next;
+			continue;
+		}
+
 		names = (struct dm_names*)((char *) names + next);
 		sts = pmdaCacheLookupName(indom, names->name, NULL, (void **)&dmsc);
 		if (sts == PM_ERR_INST || (sts >= 0 && dmsc == NULL)) {
@@ -295,11 +301,6 @@ pm_dm_stats_instance_refresh(void)
 			if (dmsc == NULL)
 				return PM_ERR_AGAIN;
 
-			/* need dm_stats_destroy()? */
-			if (!(dms = _dm_stats_search_region(names))) {
-				next = names->next;
-				continue;
-			}
 		}
 		pmdaCacheStore(indom, PMDA_CACHE_ADD, names->name, (void *)dmsc);
 		next = names->next;
@@ -354,14 +355,15 @@ pm_dm_histogram_instance_refresh(void)
 	do {
 		names = (struct dm_names*)((char *) names + next);
 
-		if (!(dms = _dm_stats_search_region(names)))
-			goto nostats;
+		if (!(dms = _dm_stats_search_region(names))) {
+			next = names->next;
+			continue;
+		}
 
 		dm_stats_foreach_region(dms){
 			region_id = dm_stats_get_current_region(dms);
 			area_id = dm_stats_get_current_area(dms);
 
-			/* search Whether there is histogram */
 			if (!(dmh = dm_stats_get_histogram(dms, region_id, area_id)))
 				continue;
 
@@ -372,7 +374,6 @@ pm_dm_histogram_instance_refresh(void)
 				_scale_bound_value_to_suffix(&bound_width, &suffix);
 				sprintf(buffer, "%s:%lu:%lu%s", names->name, region_id, bound_width, suffix);
 
-				/* store the instance */
 				sts = pmdaCacheLookupName(indom, buffer, NULL, (void **)&pdmh);
 				if (sts == PM_ERR_INST || (sts >= 0 && pdmh == NULL)) {
 					pdmh = calloc(1, sizeof(*pdmh));
@@ -385,8 +386,6 @@ pm_dm_histogram_instance_refresh(void)
 			pmdaCacheStore(indom, PMDA_CACHE_ADD, buffer, (void *)pdmh);
 			}
 		}
-nostats:
-		dm_stats_destroy(dms);
 		next = names->next;
 	} while(next);
 
