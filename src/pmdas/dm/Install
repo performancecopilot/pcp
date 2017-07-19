@@ -34,11 +34,16 @@ fi
 pmdaSetup
 pmdaInstall
 
-NOSTATS="No devices found"
+NODEV="No devices found"
+NOSTATS=""
 DMSTATS=`dmsetup stats list`
-if [ "$NOSTATS" = "$DMSTATS" ]; then
+if [ "$NODEV" = "$DMSTATS" ]; then
 	echo ""
-	echo "NOTE: There are no statistics regions."
+	echo "NOTE: There are no device-mapper device."
+	echo "See also \"man pmdadm\" or \"man dmsetup\" "
+elif [ "$NOSTATS" = "$DMSTATS" ]; then
+	echo ""
+	echo "NOTE: There are no device-mapper statistics regions"
 	echo "If you want to use dmstats metrics, please create statistcs regions."
 	echo "See also \"man pmdadm\" "
 fi
