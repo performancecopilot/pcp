@@ -70,6 +70,13 @@ stdio_tell(__pmFILE *f)
     return ftell(fp);
 }
 
+static int
+stdio_getc(__pmFILE *f)
+{
+    FILE *fp = (FILE *)f->priv;
+    return fgetc(fp);
+}
+
 static size_t
 stdio_read(void *ptr, size_t size, size_t nmemb, __pmFILE *f)
 {
@@ -167,6 +174,7 @@ __pm_fops __pm_stdio = {
     .seek = stdio_seek,
     .rewind = stdio_rewind,
     .tell = stdio_tell,
+    .fgetc = stdio_getc,
     .read = stdio_read,
     .write = stdio_write,
     .flush = stdio_flush,

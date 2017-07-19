@@ -421,6 +421,7 @@ typedef struct __pm_fops {
     int         (*seek) (__pmFILE *, off_t, int);
     void        (*rewind)(__pmFILE *);
     off_t       (*tell)(__pmFILE *);
+    int         (*fgetc)(__pmFILE *);
     size_t	(*read)(void *, size_t, size_t, __pmFILE *);
     size_t	(*write)(void *, size_t, size_t, __pmFILE *);
     int         (*flush)(__pmFILE *);
@@ -443,6 +444,7 @@ PCP_CALL extern __pmFILE *__pmFdopen(int, const char *);
 PCP_CALL extern int __pmFseek(__pmFILE *, long, int);
 PCP_CALL extern void __pmRewind(__pmFILE *);
 PCP_CALL extern long __pmFtell(__pmFILE *);
+PCP_CALL extern int __pmFgetc(__pmFILE *);
 PCP_CALL extern size_t __pmFread(void *, size_t, size_t, __pmFILE *);
 PCP_CALL extern size_t __pmFwrite(void *, size_t, size_t, __pmFILE *);
 PCP_CALL extern int __pmFflush(__pmFILE *);

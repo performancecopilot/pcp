@@ -119,6 +119,12 @@ __pmFtell(__pmFILE *f)
     return f->fops->tell(f);
 }
 
+int
+__pmFgetc(__pmFILE *f)
+{
+    return f->fops->fgetc(f);
+}
+
 size_t
 __pmFread(void *ptr, size_t size, size_t nmemb, __pmFILE *f)
 {
