@@ -20,12 +20,34 @@ status=0	# success is the default!
 $sudo rm -rf $tmp.* $seq.full
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
+eval `pmconfig -L lock_asserts`
+
+_filter()
+{
+    if $lock_asserts
+    then
+	tee -a $here/$seq.full \
+	| sed \
+	    -e '/exerlock: lock.c:[0-9]*: __pmUnlock: Assertion .* failed/d' \
+	    -e '/Aborted (core dumped)/d' \
+	# end
+    else
+	cat
+    fi
+}
+
 # real QA test starts here
+#
+# test assumes mutex is recursive ... last test case
+# will return an error and the filter is required if
+# libpcp is built with BUILD_LOCK_ASSERTS defined
+#
 for arg in ilu ilululu illluluuluu ll iluu
 do
     echo
     echo "=== $arg ==="
-    src/exerlock $arg
+    ( sh -c "src/exerlock $arg" 2>&1 ) \
+    | _filter
 done
 
 # success, all done
