@@ -630,7 +630,8 @@ class PrometheusSource(object):
 		''' Refreshes the metric values of this cluster'''
 		try:
 			if self.endpoint:
-				req = requests.get(self.endpoint)
+				req = requests.get(self.endpoint, \
+					timeout=self.pmda.endpoint_fetch_timeout)
 				self.parse_metrics_values(req.text)
 				self.fetch_failed = False
 			else:
@@ -661,6 +662,8 @@ class PrometheusPMDA(PMDA):
 		self.connect_pmcd()
 		self.numfetch = 0
 		self.num_threads = 8
+		self.metadata_refresh_frequency = 120
+		self.endpoint_fetch_timeout = .5
 
 		pmdaDir = "%s/%s/metadata/" % (pmContext.pmGetConfig('PCP_PMDAS_DIR'), pmda_name)
 		self.dir = pmdaDir
@@ -686,6 +689,7 @@ class PrometheusPMDA(PMDA):
 		self.set_fetch(self.prometheus_fetch)
 		self.set_refresh_all(self.refresh_all)
 		self.set_fetch_callback(self.prometheus_fetch_callback)
+		self.set_store_callback(self.prometheus_store_callback)
 
 	def add_static_metrics(self):
 		'''
@@ -696,6 +700,24 @@ class PrometheusPMDA(PMDA):
 		metric_info.type = c_api.PM_TYPE_64
 		metric_info.description = 'Number of times data fetched'
 		metric_info.idx = 0
+		metric_info.create()
+		self.add_metric(metric_info.full_name, metric_info.obj,
+						metric_info.description)
+
+		metric_info = Metric(self.pmda_name + '.config', 0, self)
+		metric_info.name = 'metadata_refresh_frequency'
+		metric_info.type = c_api.PM_TYPE_64
+		metric_info.description = 'Frequency of refreshing  metadata in seconds'
+		metric_info.idx = 1
+		metric_info.create()
+		self.add_metric(metric_info.full_name, metric_info.obj,
+						metric_info.description)
+
+		metric_info = Metric(self.pmda_name + '.config', 0, self)
+		metric_info.name = 'endpoint_fetch_timeout'
+		metric_info.type = c_api.PM_TYPE_FLOAT
+		metric_info.description = 'Timeout on endpoint fetch in seconds'
+		metric_info.idx = 2
 		metric_info.create()
 		self.add_metric(metric_info.full_name, metric_info.obj,
 						metric_info.description)
@@ -758,13 +780,34 @@ class PrometheusPMDA(PMDA):
 		# cluster 0 is reserved for the static metrics
 		# self.log("requesting " + str(item) + " cluster" + str(cluster))
 		if cluster == 0:
-			if item != 0 or inst != c_api.PM_IN_NULL:
+			if inst != c_api.PM_IN_NULL:
 				return [c_api.PM_ERR_PMID, 0]
-			else:
+			elif item == 0:
 				return [self.numfetch, 1]
+			elif item == 1:
+				return [self.metadata_refresh_frequency, 1]
+			elif item == 2:
+				return [self.endpoint_fetch_timeout, 1]
+			else:
+				return [c_api.PM_ERR_PMID, 0]
 		elif cluster in self.source_by_cluster:
 			return self.source_by_cluster[cluster].fetch(item, inst)
 		return [c_api.PM_ERR_PMID, 1]
+
+	def prometheus_store_callback(self, cluster, item, inst, value):
+		''' Main store callback which stores the value of the metric'''
+		if inst != c_api.PM_IN_NULL:
+			return c_api.PM_ERR_PMID
+		if cluster == 0:
+			if item == 1:
+				self.metadata_refresh_frequency = value
+				return 1
+			elif item == 2:
+				self.endpoint_fetch_timeout = value
+				return 1
+			else:
+				return c_api.PM_ERR_PMID
+		return c_api.PM_ERR_PMID
 
 	def refresh_worker(self, *clusters):
 		for i in clusters:
@@ -773,10 +816,14 @@ class PrometheusPMDA(PMDA):
 			self.source_by_cluster[i].refresh_metrics()
 
 	def refresh_all(self, clusters):
-		self.log("Here")
+		''' Called once before fetch callbacks
+			Creates threads to parallely update the metric values
+		'''
+		# slicelen defines the number of clusters each thread should handle
 		slicelen = math.ceil(len(clusters)/float(self.num_threads))
 		index = 0
 		threads = []
+
 		for i in range(self.num_threads):
 			if index >= len(clusters):
 				break
@@ -786,6 +833,8 @@ class PrometheusPMDA(PMDA):
 			threads.append(t)
 			t.daemon = True
 			t.start()
+
+		# Wait for all the threads to terminate
 		for t in threads:
 			t.join()
 
