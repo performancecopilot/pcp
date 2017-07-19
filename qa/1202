@@ -1,8 +1,8 @@
 #!/bin/bash
 # PCP QA Test No. 1202
-# [what am I here for?]
+# Replay dmstats instance archive using pmrep
 #
-# Copyright (c) 2017 [who are you?].  All Rights Reserved.
+# Copyright (c) 2017 Fumiya Shigemitsu.  All Rights Reserved.
 #
 
 seq=`basename $0`
@@ -13,122 +13,13 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-# test for-some-thing || _notrun No support for some-thing
-root=$tmp.root
-export DM_STATS="cat $root/dmstats"
-
-_install_pmda()
-{
-    # install the PMDA
-    cd $PCP_PMDAS_DIR/$iam
-    $sudo ./Remove < /dev/null >/dev/null 2>&1
-    $sudo ./Install < /dev/null >$tmp.out 2>&1
-    cat $tmp.out | _filter_pmda_install | sed \
-    -e '/.*pmcd.*/d' \
-    -e '/.*pmlogger.*/d' \
-    -e '/Latest.*/d' \
-    -e '/Duplicate.*/d'
-}
-
-_remove_pmda()
-{
-    cd $PCP_PMDAS_DIR/$iam
-    $sudo ./Remove < /dev/null > /dev/null 2>&1
-}
-
-_setup_dm_device()
-{
-	echo "Creating pseudo device"
-	$sudo dd if=/dev/zero of=$tmp.loop bs=1M count=512 > /dev/null 2>&1
-	$sudo losetup $loopdevice $tmp.loop
-	$sudo echo "\$sudo dmsetup create $dmdevice --table \"0 $[512*2048] linear $loopdevice 0\""  >  $tmp.table
-	source $tmp.table
-	$sudo dmstats create $dmdevice
-}
-
-_clean_device()
-{
-	echo "Removing pseudo device"
-    	$sudo dmstats delete $dmdevice --allregions
-   	$sudo dmsetup remove $dmdevice
-    	$sudo losetup -d $loopdevice
-}
-
-_cleanup()
-{
-	if $restore_pcpqa_systemd
-	then
-	   export PCPQA_SYSTEMD="$save_pcpqa_systemd"
-	else
-	   unset PCPQA_SYSTEMD
-	fi
-	_service pcp restart | _filter_pcp_start
-	_restore_auto_restart pmcd
-	_wait_for_pmcd
-	_wait_for_pmlogger
-   	$sudo rm -f $tmp.loop
-    	$sudo rm -fr $root
-    	$sudo rm -fr $tmp.*.dir
-    	$sudo rm -f $tmp.*
-}
-
-_dm_filter_pminfo()
-{
-	# Just want to check both are found and have some values
-	tee -a $here/$seq.full | sed \
-	    -e 's/value [-?0-9.e+][-?0-9.e+]*/value NUMBER/'
-}
-
-
-# check for unused loop device
-loopdevice=`$sudo losetup -f`
-dmdevice="looptest0"
-
-if [ -e /dev/mapper/$dmdevice ]; then
-	_notrun
-else
-	echo
-fi
-
-iam=dm
 status=1 # failure is the default!
-trap "_cleanup $iam" 0 1 2 3 15
-_stop_auto_restart pmcd
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
-$sudo rm -fr $root
-$sudo rm -fr $tmp.*.dir
-$sudo rm -f $tmp.* $seq.full
-touch $here/$seq.full
-
-# real QA test starts here
-cd $here
-
-echo
-echo "=== Setting up QA fakeroot testing data ==="
-$sudo rm -fr $root
-mkdir $root || _fail "root in use when processing fakeroot"
-cd $root
-echo ``
-cd $here
-
-echo
-echo "=== Installing Device Mapper PMDA ==="
-_prepare_pmda_install $iam
-_install_pmda
-
-echo
-echo "=== Preparing for Test Device Mapper Device"
-_setup_dm_device
-
-echo
-echo "=== Check dmstats metrics ==="
-pminfo -dfmtT dm | _dm_filter_pminfo
-
-echo
-echo "=== Clean up ==="
-_clean_device
-_cleanup
-_remove_pmda
+pmrep -z -a archives/dm-stats dmstats.read dmstats.reads_merged dmstats.read_bytes dmstats.reads_time \
+	dmstats.write dmstats.writes_merged dmstats.write_bytes dmstats.writes_time \
+	dmstats.in_progress dmstats.io_ticks dmstats.queue_ticks dmstats.queue_ticks dmstats.read_ticks dmstats.write_ticks
 
 status=0
+
 exit
