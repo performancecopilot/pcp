@@ -91,6 +91,11 @@ extern void __htonll(char *) _PCP_HIDDEN;	/* 64bit int */
 #endif /* HAVE_NETWORK_BYTEORDER */
 
 #ifdef PM_MULTI_THREAD
+extern void __pmInitMutex(pthread_mutex_t *) _PCP_HIDDEN;	/* mutex initializer */
+
+/* local lock initilizer methods */
+extern void init_pmns_lock(void) _PCP_HIDDEN;
+
 #ifdef HAVE___THREAD
 /*
  * C compiler is probably gcc and supports __thread declarations
@@ -117,11 +122,11 @@ __pmTPDGet(void)
 }
 
 #define PM_TPD(x)  __pmTPDGet()->x
-#endif
+#endif /* HAVE___THREAD */
 #else /* !PM_MULTI_THREAD */
 /* No threads - just access global variables as-is */
 #define PM_TPD(x) x
-#endif
+#endif /* PM_MULTI_THREAD */
 
 #if defined(PM_MULTI_THREAD) && defined(PM_MULTI_THREAD_DEBUG)
 extern void __pmDebugLock(int, void *, const char *, int) _PCP_HIDDEN;
@@ -139,6 +144,7 @@ extern int __pmIsOptfetchLock(void *) _PCP_HIDDEN;
 extern int __pmIsErrLock(void *) _PCP_HIDDEN;
 extern int __pmIsLockLock(void *) _PCP_HIDDEN;
 extern int __pmIsLogutilLock(void *) _PCP_HIDDEN;
+extern int __pmIsPmnsLock(void *) _PCP_HIDDEN;
 #endif
 
 /* AF_UNIX socket family internals */

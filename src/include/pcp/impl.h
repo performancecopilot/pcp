@@ -1541,8 +1541,8 @@ PCP_CALL extern int __pmRegisterAnon(const char *, int);
 PCP_CALL extern void __pmInitLocks(void);
 PCP_CALL extern int __pmLock(void *, const char *, int);
 PCP_CALL extern int __pmUnlock(void *, const char *, int);
-#ifdef BUILD_WITH_LOCK_ASSERTS
 PCP_CALL extern int __pmIsLocked(void *);
+#ifdef BUILD_WITH_LOCK_ASSERTS
 PCP_CALL extern void __pmCheckIsUnlocked(void *, char *, int);
 #endif /* BUILD_WITH_LOCK_ASSERTS */
 
@@ -1561,6 +1561,7 @@ PCP_CALL extern int __pmMultiThreaded(int);
 #define PM_MULTIPLE_THREADS(x)	__pmMultiThreaded(x)
 #define PM_LOCK(lock)		__pmLock(&(lock), __FILE__, __LINE__)
 #define PM_UNLOCK(lock)		__pmUnlock(&(lock), __FILE__, __LINE__)
+#define PM_IS_LOCKED(lock) 	__pmIsLocked(&(lock))
 
 #ifdef HAVE_PTHREAD_MUTEX_T
 /* the big libpcp lock */
