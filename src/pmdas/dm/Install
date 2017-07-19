@@ -33,4 +33,14 @@ fi
 
 pmdaSetup
 pmdaInstall
+
+NOSTATS="No devices found"
+DMSTATS=`dmsetup stats list`
+if [ "$NOSTATS" = "$DMSTATS" ]; then
+	echo ""
+	echo "NOTE: There are no statistics regions."
+	echo "If you want to use dmstats metrics, please create statistcs regions."
+	echo "See also \"man pmdadm\" "
+fi
+
 exit
