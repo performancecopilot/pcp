@@ -245,8 +245,6 @@ typedef struct __pmnsTree {
     __pmnsNode		*root;  /* root of tree structure */
     __pmnsNode		**htab; /* hash table of nodes keyed on pmid */
     int			htabsize;     /* number of nodes in the table */
-    char		*symbol;     /* store all names contiguously */
-    int			contiguous;   /* is data stored contiguously ? */
     int			mark_state;   /* the total mark value for trimming */
 } __pmnsTree;
 

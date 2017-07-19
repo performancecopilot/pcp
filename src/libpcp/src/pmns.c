@@ -815,8 +815,6 @@ pass2(int dupok)
     main_pmns->root = NULL;
     main_pmns->htab = NULL;
     main_pmns->htabsize = 0;
-    main_pmns->symbol = NULL;
-    main_pmns->contiguous = 0;
     main_pmns->mark_state = UNKNOWN_MARK_STATE;
 
     /* Get the root subtree out of the seen list */
@@ -933,8 +931,6 @@ __pmNewPMNS(__pmnsTree **pmns)
     t->root = np;
     t->htab = NULL;
     t->htabsize = 0;
-    t->symbol = NULL;
-    t->contiguous = 0;
     t->mark_state = UNKNOWN_MARK_STATE;
 
     *pmns = t;
@@ -1069,11 +1065,6 @@ AddPMNSNode(__pmnsNode *root, int pmid, const char *name)
 int
 __pmAddPMNSNode(__pmnsTree *tree, int pmid, const char *name)
 {
-    if (tree->contiguous) {
-	/* Cannot add node to contiguously allocated tree! */ 
-	return -EINVAL;
-    }
-
     return AddPMNSNode(tree->root, pmid, name);
 }
 
@@ -1530,17 +1521,8 @@ void
 __pmFreePMNS(__pmnsTree *pmns)
 {
     if (pmns != NULL) {
-	if (pmns->contiguous) {
-	    free(pmns->root);
-	    free(pmns->htab);
-	    if (pmns->symbol != NULL)
-		free(pmns->symbol);
-	}
-	else { 
-	    free(pmns->htab);
-	    FreeTraversePMNS(pmns->root); 
-	}
-
+	free(pmns->htab);
+	FreeTraversePMNS(pmns->root);
 	free(pmns);
     }
 }
