@@ -1,6 +1,6 @@
 #!/usr/bin/env pmpython
 #
-# Copyright (C) 2014-2016 Red Hat.
+# Copyright (C) 2014-2017 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -21,6 +21,7 @@ from cpmapi import PM_TYPE_U64, PM_CONTEXT_ARCHIVE, PM_SPACE_KBYTE
 
 if sys.version >= '3':
     long = int  # python2 to python3 portability (no long() in python3)
+    xrange = range  # more back-compat (xrange() is range() in python3)
 
 class Free(object):
     """ Gives a short summary of kernel virtual memory information,
@@ -105,7 +106,7 @@ class Free(object):
     def extract(self, descs, result):
         """ Extract the set of metric values from a given pmResult """
         values = []
-        for index in range(len(descs)):
+        for index in xrange(len(descs)):
             if result.contents.get_numval(index) > 0:
                 atom = self.context.pmExtractValue(
                                 result.contents.get_valfmt(index),

@@ -1,4 +1,4 @@
 #pmlogconf-setup 2.0
 ident	network softnet statistics
-probe   kernel.uname.sysname ~ Linux ? include : exclude
+probe   network.softnet.processed values ? include : exclude
 	network.softnet

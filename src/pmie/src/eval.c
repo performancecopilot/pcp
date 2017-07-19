@@ -36,8 +36,6 @@ static void
 enque(Task *t)
 {
     Task	*q;
-    RealTime	tt;
-    RealTime	qt;
 
     q = taskq;
     if (q == NULL) {
@@ -46,10 +44,8 @@ enque(Task *t)
 	t->prev = NULL;
     }
     else {
-	tt = (t->retry && t->retry < t->eval) ? t->retry : t->eval;
 	while (q) {
-	    qt = (q->retry && q->retry < q->eval) ? q->retry : q->eval;
-	    if (tt <= qt) {
+	    if (t->eval <= q->eval) {
 		t->next = q;
 		t->prev = q->prev;
 		if (q->prev) q->prev->next = t;
@@ -182,6 +178,12 @@ enable(Task *t)
 
 	h = h->next;
     }
+
+    if (waiting(t) == 0) {
+	/* all clear now ... */
+	t->epoch = t->eval;
+	t->retry = 0;
+    }
 }
 
 
@@ -198,6 +200,13 @@ eval(Task *task)
     Symbol	*s;
     pmValueSet  *vset;
     int		i;
+
+#if PCP_DEBUG
+    if (pmDebug & DBG_TRACE_APPL2) {
+	fprintf(stderr, "Evaluating task:\n");
+	dumpTask(task);
+    }
+#endif
 
     /* fetch metrics */
     taskFetch(task);
@@ -802,7 +811,10 @@ run(void)
     t = taskq;
     while (t) {
 	t->eval = t->epoch = start;
-	t->retry = 0;
+	if (waiting(t))
+	    t->retry = RETRY;
+	else
+	    t->retry = 0;
 	t->tick = 0;
 	t = t->next;
     }
@@ -810,25 +822,33 @@ run(void)
     /* evaluate and reschedule */
     t = taskq;
     for (;;) {
-	if (t->retry && t->retry < t->eval) {
-	    now = t->retry;
-	    if (now > stop)
-		break;
-	    sleepTight(t, SLEEP_RETRY);
+	now = t->eval;
+	if (now > stop)
+	    break;
+	sleepTight(t);
+	if (t->retry)
 	    enable(t);
-	    t->retry = waiting(t) ? now + RETRY : 0;
+	reflectTime(t->delta);
+	eval(t);
+	if (waiting(t) && t->retry == 0) {
+	    /* just failed host or metric availability */
+	    t->retry = RETRY;
+	}
+	if (t->retry > 0) {
+	    if (t->retry < t->delta) {
+		/* exponential back-off, ... */
+		t->eval = now + t->retry;
+		t->retry *= 2;
+	    }
+	    else {
+		/* ... capped at delta */
+		t->eval = now + t->delta;
+	    }
 	}
 	else {
-	    now = t->eval;
-	    if (now > stop)
-		break;
-	    reflectTime(t->delta);
-	    sleepTight(t, SLEEP_EVAL);
-	    eval(t);
+	    /* regular eval, host and metrics available */
 	    t->tick++;
 	    t->eval = t->epoch + t->tick * t->delta;
-	    if ((! t->retry) && waiting(t))
-		t->retry = now + RETRY;
 	}
 	taskq = t->next;
 	if (taskq) taskq->prev = NULL;

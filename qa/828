@@ -259,6 +259,23 @@ cat >$tmp.suppress <<End-of-File
    ...
    obj:*
 }
+# and on vm02 this is an old favourite valgrind botch
+#
+# Conditional jump or move depends on uninitialised value(s)
+# at 0x408AEE7: __pmLogFetchInterp (interp.c:1478)
+# by 0x4085AC2: __pmLogFetch (logutil.c:2066)
+# by 0x40670B7: pmFetch_ctx (fetch.c:156)
+# by 0x40675E6: pmFetch (fetch.c:201)
+# by 0x8049AA9: main (churnctx.c:471)
+{
+   condjump botch
+   Memcheck:Cond
+   fun:__pmLogFetchInterp
+   fun:__pmLogFetch
+   fun:pmFetch_ctx
+   fun:pmFetch
+   ...
+}
 End-of-File
 
 gcc_ver=`gcc --version | sed -n -e '/^gcc/{

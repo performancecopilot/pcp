@@ -246,7 +246,6 @@ Package: python-pcp
 Section: python
 Architecture: any
 Depends: ${python:Depends}, ${misc:Depends}, ${shlibs:Depends}, libpcp3 (= ${binary:Version}), libpcp-pmda3 (= ${binary:Version}), libpcp-mmv1 (= ${binary:Version}), libpcp-gui2 (= ${binary:Version}), libpcp-import1 (= ${binary:Version})
-Provides: ${python:Provides} 
 Description: Performance Co-Pilot Python PMAPI module
  The PCP Python module contains the language bindings for
  building Performance Metric API client tools using Python.
@@ -259,8 +258,7 @@ Description: Performance Co-Pilot Python PMAPI module
 Package: python3-pcp
 Section: python
 Architecture: any
-Depends: ${python:Depends}, ${misc:Depends}, ${shlibs:Depends}, libpcp3 (= ${binary:Version}), libpcp-pmda3 (= ${binary:Version}), libpcp-mmv1 (= ${binary:Version}), libpcp-gui2 (= ${binary:Version}), libpcp-import1 (= ${binary:Version})
-Provides: ${python:Provides} 
+Depends: ${python3:Depends}, ${misc:Depends}, ${shlibs:Depends}, libpcp3 (= ${binary:Version}), libpcp-pmda3 (= ${binary:Version}), libpcp-mmv1 (= ${binary:Version}), libpcp-gui2 (= ${binary:Version}), libpcp-import1 (= ${binary:Version})
 Description: Performance Co-Pilot Python3 PMAPI module
  The PCP Python3 module contains the language bindings for
  building Performance Metric API client tools using Python3.

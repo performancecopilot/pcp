@@ -1,0 +1,3 @@
+QA output created by 1086
+sample.bad.unknown -12358 Unknown or illegal metric identifier (pmLookupDesc)
+sample.float.one 1 1

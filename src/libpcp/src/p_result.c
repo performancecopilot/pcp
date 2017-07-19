@@ -147,16 +147,22 @@ __pmEncodeResult(int targetfd, const pmResult *result, __pmPDU **pdubuf)
     return 0;
 }
 
+/*
+ * Internal variant of __pmSendResult() with current context.
+ */
 int
-__pmSendResult(int fd, int from, const pmResult *result)
+__pmSendResult_ctx(__pmContext *ctxp, int fd, int from, const pmResult *result)
 {
     int		sts;
     __pmPDU	*pdubuf;
     result_t	*pp;
 
+    if (ctxp != NULL)
+	PM_ASSERT_IS_LOCKED(ctxp->c_lock);
+
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_PDU)
-	__pmDumpResult(stderr, result);
+	__pmDumpResult_ctx(ctxp, stderr, result);
 #endif
     if ((sts = __pmEncodeResult(fd, result, &pdubuf)) < 0)
 	return sts;
@@ -167,12 +173,22 @@ __pmSendResult(int fd, int from, const pmResult *result)
     return sts;
 }
 
+int
+__pmSendResult(int fd, int from, const pmResult *result)
+{
+    int	sts;
+    sts = __pmSendResult_ctx(NULL, fd, from, result);
+    return sts;
+}
+
 /*
- * enter here with pdubuf already pinned ... result may point into
+ * Internal variant of __pmDecodeResult() with current context.
+ *
+ * Enter here with pdubuf already pinned ... result may point into
  * _another_ pdu buffer that is pinned on exit
  */
 int
-__pmDecodeResult(__pmPDU *pdubuf, pmResult **result)
+__pmDecodeResult_ctx(__pmContext *ctxp, __pmPDU *pdubuf, pmResult **result)
 {
     int		numpmid;	/* number of metrics */
     int		i;		/* range of metrics */
@@ -202,6 +218,9 @@ __pmDecodeResult(__pmPDU *pdubuf, pmResult **result)
 #else
     Bozo - unexpected sizeof pointer!!
 #endif
+
+    if (ctxp != NULL)
+	PM_ASSERT_IS_LOCKED(ctxp->c_lock);
 
     pp = (result_t *)pdubuf;
     pduend = (char *)pdubuf + pp->hdr.len;
@@ -633,7 +652,7 @@ __pmDecodeResult(__pmPDU *pdubuf, pmResult **result)
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_PDU)
-	__pmDumpResult(stderr, pr);
+	__pmDumpResult_ctx(ctxp, stderr, pr);
 #endif
 
     /*
@@ -647,4 +666,12 @@ __pmDecodeResult(__pmPDU *pdubuf, pmResult **result)
 corrupt:
     free(pr);
     return PM_ERR_IPC;
+}
+
+int
+__pmDecodeResult(__pmPDU *pdubuf, pmResult **result)
+{
+    int	sts;
+    sts = __pmDecodeResult_ctx(NULL, pdubuf, result);
+    return sts;
 }

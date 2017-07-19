@@ -1,0 +1,57 @@
+#!/bin/sh
+# PCP QA Test No. 1331
+# Exercise pkg-config support for core PCP libraries.
+#
+# Copyright (c) 2017 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+which pkg-config >/dev/null || _notrun "No pkg-config binary found"
+test -f "$PCP_LIB_DIR/pkgconfig/libpcp.pc" || _notrun "No PCP devel packages"
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.*
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_check_modversion()
+{
+    module=$1
+
+    echo "Checking $module modversion ..."
+
+    pkg-config --modversion $module >$tmp.out 2>$tmp.err
+    version=`cat $tmp.out`
+    if [ "$version" != "$PCP_VERSION" ]
+    then
+	echo "Unexpected output from pkg-config for $module"
+	echo "=== stdout ==="
+	cat $tmp.out
+	echo "=== stderr ==="
+	cat $tmp.err
+	echo
+    else
+	echo "$module passed"
+    fi
+}
+
+# real QA test starts here
+_check_modversion libpcp
+_check_modversion libpcp_pmda
+_check_modversion libpcp_import
+
+# success, all done
+status=0
+exit

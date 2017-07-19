@@ -1,0 +1,131 @@
+#!/bin/sh
+# Shell completion check / QA Test No. 1100
+#
+# Copyright (c) 2017 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+. ./common.config
+echo "PCPQA_CLOSE_X_SERVER=$PCPQA_CLOSE_X_SERVER" >>$here/$seq.full
+
+status=1       # failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+# sources
+share_dir=`dirname $PCP_SHARE_DIR`
+bash_comp=${share_dir}/bash-completion/completions/pcp
+zsh_comp=${share_dir}/zsh/site-functions/_pcp
+
+export PCP_STDERR=$tmp.err
+echo "DISPLAY=$DISPLAY" >>$here/$seq.full
+echo "PCPQA_CLOSE_X_SERVER=$PCPQA_CLOSE_X_SERVER" >>$here/$seq.full
+if [ -z "$DISPLAY" ]
+then
+    export DISPLAY=$PCPQA_CLOSE_X_SERVER
+    echo "DISPLAY=$DISPLAY" >>$here/$seq.full
+fi
+
+# functions
+_check_completion_bash()
+{
+  for cmd in $(grep '  pm.*)' $bash_comp | tr -d ')'); do
+    comps=$(grep -A 1 "  $cmd)" $bash_comp | tail -n 1 | sed -e 's,opt_regex="-\[,,' -e 's,\]",,')
+    # Need $tmp.err and PCP_STDERR for pmchart ...
+    #
+    rm -f $tmp.err
+    touch $tmp.err
+    echo "=== bash $cmd ===" >>$here/$seq.full
+    echo "comps=$comps" >>$here/$seq.full
+    $cmd --help >$tmp.out 2>&1
+    echo "--- stdout ---" >>$here/$seq.full
+    cat $tmp.out >>$here/$seq.full
+    echo "--- stderr ---" >>$here/$seq.full
+    cat $tmp.err >>$here/$seq.full
+    opts=$(cat $tmp.out $tmp.err | grep -Eo -- ' -.' | tr -d '-' | tr -d '?' | sort | uniq)
+    echo "opts=$opts" >>$here/$seq.full
+
+    for opt in $opts; do
+      echo $comps | grep $opt > /dev/null 2>&1
+      if [ $? -ne 0 ]; then
+        echo "$opt missing for $cmd bash completions"
+      fi
+    done
+
+    for comp in $(echo $comps | grep -o .); do
+      echo $opts | grep $comp > /dev/null 2>&1
+      if [ $? -ne 0 ]; then
+        echo "$comp looks extraneous for $cmd bash completions"
+      fi
+    done
+
+  done
+}
+
+_check_completion_zsh()
+{
+  for cmd in $(grep '#compdef' $zsh_comp | sed -e 's,#compdef ,,'); do
+    echo $cmd | grep = > /dev/null 2>&1 && continue
+    common=$(awk /common_most=/,/\ \ \)/ $zsh_comp)
+    version=V
+    comps=$(awk /$cmd\)/,/\;\;/ $zsh_comp)
+    # Need $tmp.err and PCP_STDERR for pmchart ...
+    #
+    rm -f $tmp.err
+    touch $tmp.err
+    echo "=== zsh $cmd ===" >>$here/$seq.full
+    echo "comps=$comps" >>$here/$seq.full
+    $cmd --help >$tmp.out 2>&1
+    echo "--- stdout ---" >>$here/$seq.full
+    cat $tmp.out >>$here/$seq.full
+    echo "--- stderr ---" >>$here/$seq.full
+    cat $tmp.err >>$here/$seq.full
+    opts=$(cat $tmp.out $tmp.err | grep -Eo -- ' -.' | tr -d '-' | tr -d '?' | sort | uniq)
+    echo "opts=$opts" >>$here/$seq.full
+
+    for opt in $opts; do
+      echo $comps | grep -- -$opt > /dev/null 2>&1
+      not_found=$?
+      if [ $not_found -ne 0 ]; then
+        echo $comps | grep common_most > /dev/null 2>&1
+        if [ $? -eq 0 ]; then
+          echo $common | grep -- -$opt > /dev/null 2>&1
+          not_found=$?
+        fi
+      fi
+      if [ $not_found -ne 0 ]; then
+        if [ "$opt" = "V" ]; then
+          echo $comps | grep common_help > /dev/null 2>&1
+          not_found=$?
+        fi
+      fi
+      if [ $not_found -ne 0 ]; then
+        echo "$opt missing for $cmd zsh completions"
+      fi
+    done
+
+    for comp in $(echo $comps | grep -o \"\(-. | tr -d '"' | tr -d '(' | tr -d '-'); do
+      echo $opts | grep $comp > /dev/null 2>&1
+      if [ $? -ne 0 ]; then
+        echo "$comp looks extraneous for $cmd zsh completions"
+      fi
+    done
+
+  done
+}
+
+# real QA test starts here
+echo "== only pmlogger/V should be missing"
+_check_completion_bash
+_check_completion_zsh
+
+# success, all done
+echo "== done"
+status=0
+exit

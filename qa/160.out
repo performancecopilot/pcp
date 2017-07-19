@@ -1,6 +1,6 @@
 QA output created by 160
 Error expected ...
-__pmSetClientId(...): PMNS not accessible
+__pmSetClientId(...): Attempt to use an illegal context
 inst [ INST-1 or "INST-1" ] value "<host> QA-clientid a"
 inst [ INST-1 or "INST-1" ] value "<host> QA-clientid bb"
 inst [ INST-1 or "INST-1" ] value "<host> QA-clientid ccc"

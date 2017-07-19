@@ -5297,7 +5297,7 @@ typedef struct {
 
 typedef struct {
     linux_container_t	container;
-    linux_access_t            access;
+    linux_access_t	access;
 } perctx_t;
 
 static perctx_t *ctxtab;
@@ -7664,11 +7664,14 @@ linux_attribute(int ctx, int attr, const char *value, int len, pmdaExt *pmda)
 	ctxtab[ctx].access.uid = id = atoi(value);
     }
     if (attr == PCP_ATTR_CONTAINER) {
+	char	*name = len > 1 ? strndup(value, len) : 0;
+
 	if (ctxtab[ctx].container.name)
 	    free(ctxtab[ctx].container.name);
-	if ((ctxtab[ctx].container.name = strdup(value)) == NULL)
-	    return -ENOMEM;
-	ctxtab[ctx].container.length = len;
+	if ((ctxtab[ctx].container.name = name) != NULL)
+	    ctxtab[ctx].container.length = len;
+	else
+	    ctxtab[ctx].container.length = 0;
 	ctxtab[ctx].container.netfd = -1;
 	ctxtab[ctx].container.pid = 0;
     }

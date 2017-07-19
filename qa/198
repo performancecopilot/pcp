@@ -25,7 +25,7 @@ for pmda in sample sampledso
 do
     echo "=== $pmda pmda ==="
     echo "=== $pmda pmda ===" >>$seq.full
-    then=`pmprobe -v $pmda.datasize`
+    then=`pmprobe -v $pmda.datasize | $PCP_AWK_PROG '{print $NF}'`
     echo "then=$then" >>$seq.full
 
     for i in 1 2 3 4
@@ -40,10 +40,13 @@ do
 	echo "thread $i: lines of output: `wc -l <$tmp.$i | sed -e 's/  *//g'`"
     done
 
-    now=`pmprobe -v $pmda.datasize`
+    now=`pmprobe -v $pmda.datasize | $PCP_AWK_PROG '{print $NF}'`
     echo "now=$now" >>$seq.full
+    delta=`expr $now - $then`
 
-    if [ "$then" != "$now" ]
+    # 4 (Kbyte) slop is allowed for one-trip non-determinism
+    #
+    if [ "$delta" -gt 4 ]
     then
 	echo "Arrgh ... memory leak"
 	echo "before: $then"

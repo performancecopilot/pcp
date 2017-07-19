@@ -1207,6 +1207,7 @@ pmCreateFetchGroup(pmFG *ptr, int type, const char *name)
 
     /* Other fields may be left 0-initialized. */
     *ptr = pmfg;
+
     return 0;
 }
 
@@ -1267,7 +1268,7 @@ pmExtendFetchGroup_item(pmFG pmfg,
 	    saved_origin.tv_usec = ctxp->c_origin.tv_usec;
 	    saved_mode = ctxp->c_mode;
 	    saved_delta = ctxp->c_delta;
-	    sts = __pmGetArchiveEnd_locked(ctxp, &archive_end);
+	    sts = pmGetArchiveEnd_ctx(ctxp, &archive_end);
 	    PM_UNLOCK(ctxp->c_lock);
 	    if (sts < 0)
 		goto out;
@@ -1307,10 +1308,12 @@ pmExtendFetchGroup_item(pmFG pmfg,
     /* link in */
     item->next = pmfg->items;
     pmfg->items = item;
+
     return 0;
 
 out:
     free(item);
+
     return sts;
 }
 
@@ -1334,6 +1337,7 @@ pmExtendFetchGroup_timestamp(pmFG pmfg, struct timeval *out_value)
     /* link in */
     item->next = pmfg->items;
     pmfg->items = item;
+
     return 0;
 }
 
@@ -1442,7 +1446,7 @@ pmExtendFetchGroup_event(pmFG pmfg,
 	    saved_origin.tv_usec = ctxp->c_origin.tv_usec;
 	    saved_mode = ctxp->c_mode;
 	    saved_delta = ctxp->c_delta;
-	    sts = __pmGetArchiveEnd_locked(ctxp, &archive_end);
+	    sts = pmGetArchiveEnd_ctx(ctxp, &archive_end);
 	    PM_UNLOCK(ctxp->c_lock);
 	    if (sts < 0)
 		goto out;

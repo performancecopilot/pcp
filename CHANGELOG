@@ -1,5 +1,57 @@
-pcp-3.11.11 (30 June 2017)
-    - work-in-progress, see http://pcp.io/roadmap
+pcp-3.12.1 (16 August 2017)
+    - Work-in-progress, see http://pcp.io/roadmap
+
+pcp-3.12.0 (30 June 2017)
+    - pmdaprometheus: new PMDA exporting Prometheus end point metrics
+    - pmdalinux: deprecate some socket stats, add IPv6 socket stats
+    - pmdalinux: change some string metrics from instant to discrete
+    - pmdamysql: additional MySQL slave metrics
+    - pmdaproc: migrate proc.psinfo.{vsize,rss,rss_lim} to U64
+    - pmdacifs: drop duplicate makefile installs
+    - pmdasummary: default to localhost for pmie pmcd connections
+    - containers: allow clearing a previously set container context
+    - python api: handle duplicate metric name in PMDA module correctly
+    - python api: clear the _metric_names_map at appropriate times
+    - perl api: fix instance domain help text handling for PMDAs
+    - pcp-pidstat: configurable timestamp formatting (-f option)
+    - pcp-pidstat: fix traceback at end of archive with -G option
+    - pcp-numastat: use pmFetchArchive when replaying an archive
+    - pcp-numastat: fix poor handling of non-tty output
+    - pcp-atop: fix sigsegv while handling NFS mounts metrics
+    - pcp-atop: fix rawwriting and bad -T option passed to pmlogger
+    - pmlogger: allow hostname to be over-ridden on the command line
+    - pmlogconf: group pmprobe calls together, performance optimisations
+    - pmlogconf: add proc.psinfo.guest_time to atop-proc for pcp-pidstat
+    - pmlogconf: add numastat, pidstat and tapestat to zeroconf config
+    - pmlogconf: add config for pcp-tapestat
+    - pmlogconf: improve probe used for some optional log configs
+    - pmieconf: add pmie rule detecting entropy starvation
+    - pmrep: improve corner case metric name duplicate detection
+    - pmwebd: add mandatory authentication mode (-C option)
+    - libpcp: changes to remove client-pmcd socket multiplexing
+    - libpcp: rework earlier changes to context handle semantics
+    - libpcp: fix double-close on __pmConnectTo failure
+    - libpcp: further locking improvements
+    - libpcp: add buffer length check to pmEventFlagStr_r(3)
+    - pmprobe: add -F option for further pmlogconf speedups
+    - pmprobe: fix sigsegv in the presense of bad metric descriptors
+    - pmlogger rc scripts: small changes cleaning up reports of warnings
+    - pmie rc scripts: small changes cleaning up reports of warnings
+    - selinux: policy updates to resolve a pmdabash issue
+    - selinux: add check for cap_userns class
+    - bashrc: bash completion updates
+    - zshrc: zsh completion updates
+    - build: pkg-config support for libpcp and libpcp_pmda
+    - build: change how selinux contexts are detected
+    - build: resolve problems with use of autoreconf
+    - build: exclude pcp-zeroconf files from base package
+    - build: take more control over perfevent rpm package builds
+    - build: honor CFLAGS in qmake project files
+    - docs: add a JSON demo similar to the existing MMV demo
+    - docs: add reference to the Rust MMV project as well
+    - docs: fix couple small typos on pmRegisterDerived man page
+    - docs: update pmdabash man page for current file paths
+    - docs: make pmdaproc text match pmwebd re authentication
 
 pcp-3.11.10 (17 May 2017)
     - books: add missing images into the pdf builds
