@@ -59,6 +59,12 @@ Source4: %{github}/pcp-webapp-blinkenlights/archive/1.0.0/pcp-webapp-blinkenligh
 %global disable_python3 1
 %endif
 
+%if 0%{?fedora} >= 24 || 0%{?rhel} > 7
+%global perl_interpreter perl-interpreter
+%else
+%global perl_interpreter perl
+%endif
+
 # support for pmdajson
 %if 0%{?rhel} == 0 || 0%{?rhel} > 6
 %if !%{disable_python2} || !%{disable_python3}
@@ -500,7 +506,7 @@ Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) Perl bindings and documentation
 URL: http://www.pcp.io
 Requires: pcp-libs = %{version}-%{release}
-Requires: perl
+Requires: %{perl_interpreter}
 
 %description -n perl-PCP-PMDA
 The PCP::PMDA Perl module contains the language bindings for
@@ -518,6 +524,7 @@ Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) Perl bindings for PCP Memory Mapped Values
 URL: http://www.pcp.io
 Requires: pcp-libs = %{version}-%{release}
+Requires: %{perl_interpreter}
 
 %description -n perl-PCP-MMV
 The PCP::MMV module contains the Perl language bindings for
@@ -536,6 +543,7 @@ Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) Perl bindings for importing external data into PCP archives
 URL: http://www.pcp.io
 Requires: pcp-libs = %{version}-%{release}
+Requires: %{perl_interpreter}
 
 %description -n perl-PCP-LogImport
 The PCP::LogImport module contains the Perl language bindings for
@@ -551,6 +559,7 @@ Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) Perl bindings for post-processing output of pmlogsummary
 URL: http://www.pcp.io
 Requires: pcp-libs = %{version}-%{release}
+Requires: %{perl_interpreter}
 
 %description -n perl-PCP-LogSummary
 The PCP::LogSummary module provides a Perl module for using the
@@ -2736,6 +2745,7 @@ cd
 %{_libdir}/libpcp_web.so
 %{_libdir}/pkgconfig/libpcp.pc
 %{_libdir}/pkgconfig/libpcp_pmda.pc
+%{_libdir}/pkgconfig/libpcp_import.pc
 %{_includedir}/pcp/*.h
 
 %files devel -f devel.list

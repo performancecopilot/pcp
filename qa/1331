@@ -50,6 +50,7 @@ _check_modversion()
 # real QA test starts here
 _check_modversion libpcp
 _check_modversion libpcp_pmda
+_check_modversion libpcp_import
 
 # success, all done
 status=0
