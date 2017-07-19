@@ -84,6 +84,15 @@ static pthread_mutex_t	logutil_lock = PTHREAD_MUTEX_INITIALIZER;
 void			*logutil_lock;
 #endif
 
+/*
+ * Control structure for the current context ...
+ */
+typedef struct {
+    __pmContext	*ctxp;			/* NULL or a locked context */
+    int		need_ctx_unlock;	/* 1 if the context lock was acquired */
+    					/* in a call to lock_ctx() */
+} ctx_ctl_t;
+
 #if defined(PM_MULTI_THREAD) && defined(PM_MULTI_THREAD_DEBUG)
 /*
  * return true if lock == logutil_lock
@@ -114,6 +123,26 @@ dumpbuf(int nch, __pmPDU *pb)
     fputc('\n', stderr);
 }
 #endif
+
+/*
+ * ensure the current context is locked
+ */
+static int
+lock_ctx(__pmContext *ctxp, ctx_ctl_t *ccp)
+{
+    if (ctxp == NULL)
+	return PM_ERR_NOCONTEXT;
+
+    ccp->ctxp = ctxp;
+    if (PM_IS_LOCKED(ctxp->c_lock))
+	ccp->need_ctx_unlock = 0;
+    else {
+	PM_LOCK(ctxp->c_lock);
+	ccp->need_ctx_unlock = 1;
+    }
+
+return 0;
+}
 
 static int
 checkLabelConsistency (__pmContext *ctxp, const __pmLogLabel *lp)
@@ -1650,7 +1679,7 @@ clearMarkDone(__pmContext *ctxp)
 int
 __pmLogRead_ctx(__pmContext *ctxp, int mode, FILE *peekf, pmResult **result, int option)
 {
-    __pmLogCtl	*lcp = ctxp->c_archctl->ac_log;
+    __pmLogCtl	*lcp;
     int		head;
     int		rlen;
     int		trail;
@@ -1659,8 +1688,13 @@ __pmLogRead_ctx(__pmContext *ctxp, int mode, FILE *peekf, pmResult **result, int
     __pmPDU	*pb;
     FILE	*f;
     int		n;
+    ctx_ctl_t	ctx_ctl = { NULL, 0 };
 
-    PM_ASSERT_IS_LOCKED(ctxp->c_lock);
+    sts = lock_ctx(ctxp, &ctx_ctl);
+    if (sts < 0)
+	goto func_return;
+
+    lcp = ctxp->c_archctl->ac_log;
 
     /*
      * Strip any XTB data from mode, its not used here
@@ -1719,8 +1753,11 @@ __pmLogRead_ctx(__pmContext *ctxp, int mode, FILE *peekf, pmResult **result, int
 		    sts = LogCheckForNextArchive(ctxp, PM_MODE_BACK, result);
 		    if (sts == 0) {
 			/* There is a next archive to change to. */
-			if (*result != NULL)
-			    return 0; /* A mark record was generated */
+			if (*result != NULL) {
+			    /* A mark record was generated */
+			    sts = 0;
+			    goto func_return;
+			}
 
 			/*
 			 * Mark was previously generated. Try the previous
@@ -1742,7 +1779,7 @@ __pmLogRead_ctx(__pmContext *ctxp, int mode, FILE *peekf, pmResult **result, int
 			/* No more archives */
 		    }
 		}
-		return sts;
+		goto func_return;
 	   }
 	   else {
 	       fseek(f, -(long)sizeof(head), SEEK_CUR);
@@ -1781,8 +1818,11 @@ again:
 		sts = LogCheckForNextArchive(ctxp, PM_MODE_FORW, result);
 		if (sts == 0) {
 		    /* There is a next archive to change to. */
-		    if (*result != NULL)
-			return 0; /* A mark record was generated */
+		    if (*result != NULL) {
+			/* A mark record was generated */
+			sts = 0;
+			goto func_return;
+		    }
 
 		    /* Mark was previously generated. Try the next archive. */
 		    if ((sts = LogChangeToNextArchive(ctxp)) == 0) {
@@ -1800,7 +1840,7 @@ again:
 		    }
 		}
 	    }
-	    return sts;
+	    goto func_return;
 	}
 
 #ifdef PCP_DEBUG
@@ -1810,11 +1850,14 @@ again:
 	if (ferror(f)) {
 	    /* I/O error */
 	    clearerr(f);
-	    return -oserror();
+	    sts = -oserror();
+	    goto func_return;
 	}
-	else
+	else {
 	    /* corrupted archive */
-	    return PM_ERR_LOGREC;
+	    sts = PM_ERR_LOGREC;
+	    goto func_return;
+	}
     }
 
     /*
@@ -1858,7 +1901,8 @@ again:
 	    fprintf(stderr, "\nError: truncated log? rlen=%d (offset %d)\n",
 		rlen, (int)offset);
 #endif
-	    return PM_ERR_LOGREC;
+	    sts = PM_ERR_LOGREC;
+	    goto func_return;
     }
     /*
      * need to add int at end for trailer in case buffer is used
@@ -1874,7 +1918,8 @@ again:
 	}
 #endif
 	fseek(f, offset, SEEK_SET);
-	return -oserror();
+	sts = -oserror();
+	goto func_return;
     }
 
     if (mode == PM_MODE_BACK)
@@ -1891,12 +1936,14 @@ again:
 	if (ferror(f)) {
 	    /* I/O error */
 	    clearerr(f);
-	    return -oserror();
+	    sts = -oserror();
+	    goto func_return;
 	}
 	clearerr(f);
 
 	/* corrupted archive */
-	return PM_ERR_LOGREC;
+	sts = PM_ERR_LOGREC;
+	goto func_return;
     }
     else {
 	__pmPDUHdr *header = (__pmPDUHdr *)pb;
@@ -1940,12 +1987,14 @@ again:
 	if (ferror(f)) {
 	    /* I/O error */
 	    clearerr(f);
-	    return -oserror();
+	    sts = -oserror();
+	    goto func_return;
 	}
 	clearerr(f);
 
 	/* corrupted archive */
-	return PM_ERR_LOGREC;
+	sts = PM_ERR_LOGREC;
+	goto func_return;
     }
     else {
 	/* swab trail */
@@ -1958,12 +2007,14 @@ again:
 	    fprintf(stderr, "\nError: record length mismatch: header (%d) != trailer (%d)\n", head, trail);
 #endif
 	__pmUnpinPDUBuf(pb);
-	return PM_ERR_LOGREC;
+	sts = PM_ERR_LOGREC;
+	goto func_return;
     }
 
     if (option == PMLOGREAD_TO_EOF && paranoidCheck(head, pb) == -1) {
 	__pmUnpinPDUBuf(pb);
-	return PM_ERR_LOGREC;
+	sts = PM_ERR_LOGREC;
+	goto func_return;
     }
 
     if (mode == PM_MODE_BACK)
@@ -1997,7 +2048,8 @@ again:
 
     if (sts < 0) {
 	__pmUnpinPDUBuf(pb);
-	return PM_ERR_LOGREC;
+	sts = PM_ERR_LOGREC;
+	goto func_return;
     }
 
 #ifdef PCP_DEBUG
@@ -2011,8 +2063,14 @@ again:
 #endif
 
     __pmUnpinPDUBuf(pb);
+    sts = 0;
 
-    return 0;
+func_return:
+
+    if (ctx_ctl.need_ctx_unlock)
+	PM_UNLOCK(ctx_ctl.ctxp->c_lock);
+
+    return sts;
 }
 
 int
@@ -2072,10 +2130,18 @@ __pmLogFetch(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **result)
     pmid_ctl	*pcp;
     int		nskip;
     __pmTimeval	tmp;
-    int		ctxp_mode = ctxp->c_mode & __PM_MODE_MASK;
+    int		ctxp_mode;
+    ctx_ctl_t	ctx_ctl = { NULL, 0 };
+
+    sts = lock_ctx(ctxp, &ctx_ctl);
+    if (sts < 0)
+	goto func_return;
+
+    ctxp_mode = ctxp->c_mode & __PM_MODE_MASK;
 
     if (ctxp_mode == PM_MODE_INTERP) {
-	return __pmLogFetchInterp(ctxp, numpmid, pmidlist, result);
+	sts = __pmLogFetchInterp(ctxp, numpmid, pmidlist, result);
+	goto func_return;
     }
 
     all_derived = check_all_derived(numpmid, pmidlist);
@@ -2231,7 +2297,7 @@ more:
 		    sts = __pmHashAdd((int)pmidlist[j], (void *)pcp, &pc_hc);
 		    if (sts < 0) {
 			PM_UNLOCK(logutil_lock);
-			return sts;
+			goto func_return;
 		    }
 		}
 		else
@@ -2330,6 +2396,11 @@ more:
     ctxp->c_archctl->ac_offset = ftell(ctxp->c_archctl->ac_log->l_mfp);
     assert(ctxp->c_archctl->ac_offset >= 0);
     ctxp->c_archctl->ac_vol = ctxp->c_archctl->ac_log->l_curvol;
+
+func_return:
+
+    if (ctx_ctl.need_ctx_unlock)
+	PM_UNLOCK(ctx_ctl.ctxp->c_lock);
 
     return sts;
 }
