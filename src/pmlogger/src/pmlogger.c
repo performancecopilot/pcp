@@ -1304,6 +1304,14 @@ disconnect(int sts)
 	fprintf(stderr, "%s: disconnect botch: cannot get context: %s\n", pmProgname, pmErrStr(ctx));
 	exit(1);
     }
+    /*
+     * Note: This application is single threaded, and once we have ctxp
+     *	     the associated __pmContext will not move and will only be
+     *	     accessed or modified synchronously either here or in libpcp.
+     *	     We unlock the context so that it can be locked as required
+     *	     within libpcp.
+     */
+    PM_UNLOCK(ctxp->c_lock);
 
     if (pmcdfd != -1) {
 	/*
@@ -1327,13 +1335,6 @@ disconnect(int sts)
 	numfds = maxfd() + 1;
 	ctxp->c_pmcd->pc_fd = -1;
     }
-
-    /*
-     * for repeated calls here, c_lock may have been locked again,
-     * so although there is no channel cleanup to be done, release
-     * the lock
-     */
-    PM_UNLOCK(ctxp->c_lock);
 }
 
 int
@@ -1351,13 +1352,20 @@ reconnect(void)
 		pmProgname, pmErrStr(ctx));
 	exit(1);
     }
+    /*
+     * Note: This application is single threaded, and once we have ctxp
+     *	     the associated __pmContext will not move and will only be
+     *	     accessed or modified synchronously either here or in libpcp.
+     *	     We unlock the context so that it can be locked as required
+     *	     within libpcp.
+     */
+    PM_UNLOCK(ctxp->c_lock);
     sts = pmReconnectContext(ctx);
     if (sts >= 0) {
 	pmcdfd = ctxp->c_pmcd->pc_fd;
 	__pmFD_SET(pmcdfd, &fds);
 	numfds = maxfd() + 1;
     }
-    PM_UNLOCK(ctxp->c_lock);
     if (sts < 0)
 	return sts;
 

@@ -100,6 +100,12 @@ Requires: initscripts
 %endif
 %global _tmpdir %{_localstatedir}/lib/pcp/tmp
 
+%if 0%{?fedora} >= 24 || 0%{?rhel} > 7
+%global perl_interpreter perl-interpreter
+%else
+%global perl_interpreter perl
+%endif
+
 # There is a problem here ... some distros are resisting adding more
 # repackaged perl-Foo-Bar rpms, but the default find-requires script
 # will turn all perl module we use into rpm package Requires clauses.
@@ -376,7 +382,7 @@ Summary: Performance Co-Pilot (PCP) Perl bindings and documentation
 URL: http://www.pcp.io
 BuildRequires: perl(ExtUtils::MakeMaker)
 Requires: pcp-libs = @package_version@
-Requires: perl
+Requires: %{perl_interpreter}
 
 %description -n perl-PCP-PMDA
 The PCP::PMDA Perl module contains the language bindings for
@@ -394,6 +400,7 @@ Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) Perl bindings for PCP Memory Mapped Values
 URL: http://www.pcp.io
 Requires: pcp = @package_version@
+Requires: %{perl_interpreter}
 
 %description -n perl-PCP-MMV
 The PCP::MMV module contains the Perl language bindings for
@@ -412,6 +419,7 @@ Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) Perl bindings for importing external data into PCP archives
 URL: http://www.pcp.io
 Requires: pcp = @package_version@
+Requires: %{perl_interpreter}
 
 %description -n perl-PCP-LogImport
 The PCP::LogImport module contains the Perl language bindings for
@@ -427,6 +435,7 @@ Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) Perl bindings for post-processing output of pmlogsummary
 URL: http://www.pcp.io
 Requires: pcp = @package_version@
+Requires: %{perl_interpreter}
 
 %description -n perl-PCP-LogSummary
 The PCP::LogSummary module provides a Perl module for using the
@@ -595,7 +604,7 @@ Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) Python bindings and documentation
 URL: http://www.pcp.io
 BuildRequires: python-devel
-%if "%{_vendor}" == "redhat" && 0%{?rhel} <= 5
+%if "%{_vendor}" == "redhat" && 0%{?rhel} <= 5 && 0%{?fedora} <= 25
 Requires: python-ctypes
 %endif
 Requires: pcp-libs = @package_version@
@@ -700,6 +709,7 @@ Group: Applications/System
 Summary: Selinux policy package
 URL: http://www.pcp.io
 BuildRequires: selinux-policy-devel
+BuildRequires: selinux-policy-targeted
 %if 0%{?fedora} >= 19 || 0%{?rhel} >= 6 || 0%{?suse_version} >= 1200
 BuildRequires: setools-console
 %else
@@ -1394,6 +1404,25 @@ Requires: python-pcp
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics about Intel MIC cards.
 # end pcp-pmda-mic
+
+#
+# pcp-pmda-haproxy
+#
+%package pmda-haproxy
+License: GPLv2+
+Group: Applications/System
+Summary: Performance Co-Pilot (PCP) metrics for HAProxy
+URL: http://www.pcp.io
+%if "@enable_python3@" == "true"
+Requires: python3-pcp
+%else
+Requires: python-pcp
+%endif
+%description pmda-haproxy
+This package contains the PCP Performance Metrics Domain Agent (PMDA) for
+extracting performance metrics from HAProxy over the HAProxy stats socket.
+# end pcp-pmda-haproxy
+
 %endif
 
 %if "@pmda_libvirt@" == "true"
@@ -1779,7 +1808,7 @@ Requires: pcp-pmda-lmsensors pcp-pmda-logger pcp-pmda-mailq pcp-pmda-mounts
 Requires: pcp-pmda-nvidia-gpu pcp-pmda-roomtemp pcp-pmda-sendmail pcp-pmda-shping
 Requires: pcp-pmda-lustrecomm pcp-pmda-redis pcp-pmda-docker
 %if "@have_python@" == "true"
-Requires: pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound pcp-pmda-mic
+Requires: pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound pcp-pmda-mic pcp-pmda-haproxy
 %endif
 %if "@pmda_json@" == "true"
 Requires: pcp-pmda-json
@@ -1912,10 +1941,12 @@ sed -e 's/^/\//' $CFGFILELIST >cfg_files
 sed -e 's/^/\//' $LIBFILELIST >libs_files
 sed -e 's/^/\//' $DEVFILELIST >dev_files
 grep "\.h$" $DEVFILELIST | cut -f2 -d":" >lib_devel_files
+grep "\.pc$" $DEVFILELIST | cut -f2 -d":" >>lib_devel_files
 grep "\.so$" $DEVFILELIST | cut -f2 -d":" >>lib_devel_files
 grep "\.a$" $DEVFILELIST | cut -f2 -d":" >>lib_devel_files
 sed -i -e 's/^/\//' lib_devel_files
 sed -i '/.h$/d' dev_files
+sed -i '/.pc$/d' dev_files
 sed -i '/.so$/d' dev_files
 sed -i '/.a$/d' dev_files
 
@@ -2093,6 +2124,7 @@ awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/gluster' > pmda_gluster_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/zswap' > pmda_zswap_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/unbound' > pmda_unbound_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/mic' > pmda_mic_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/haproxy' > pmda_haproxy_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pcp-|pmatop|pmcollectl|pmiostat|pmrep' |\
 egrep -e 'atop|collectl|dmcache|free|iostat|mpstat|numastat|pidstat|tapestat|verify|uptime|shping|pmrep' | \
 egrep -v 'testsuite|pmlogconf|pmieconf' \
@@ -2137,7 +2169,7 @@ touch gui_files webapi_files manager_files pmda_infiniband_files pmda_papi_files
 
 %if "@have_python@" == "true"
 touch pmda_gluster_files pmda_zswap_files pmda_unbound_files \
-      pmda_mic_files system_tools_files
+      pmda_mic_files pmda_haproxy_files system_tools_files
 %endif
 %if "@pmda_json@" == "true"
 touch pmda_json_files
@@ -2256,6 +2288,7 @@ BEGIN {
     while( getline < "pmda_zswap_files") pmda_zswap[$0]=1;
     while( getline < "pmda_unbound_files") pmda_unbound[$0]=1;
     while( getline < "pmda_mic_files") pmda_mic[$0]=1;
+    while( getline < "pmda_haproxy_files") pmda_haproxy[$0]=1;
     while( getline < "export_pcp2graphite_files") export_pcp2graphite[$0]=1;
     while( getline < "export_pcp2influxdb_files") export_pcp2influxdb[$0]=1;
 %endif
@@ -2377,6 +2410,7 @@ BEGIN {
     else if (pmda_zswap[$NF]) f="pmda_zswap_files.rpm";
     else if (pmda_unbound[$NF]) f="pmda_unbound_files.rpm";
     else if (pmda_mic[$NF]) f="pmda_mic_files.rpm";
+    else if (pmda_haproxy[$NF]) f="pmda_haproxy_files.rpm";
     else if (export_pcp2graphite[$NF]) f="export_pcp2graphite_files.rpm";
     else if (export_pcp2influxdb[$NF]) f="export_pcp2influxdb_files.rpm";
 %endif
@@ -2798,6 +2832,9 @@ pmieconf -c enable dmthin
 
 %preun pmda-mic
 %{pmda_remove "$1" "mic"}
+
+%preun pmda-haproxy
+%{pmda_remove "$1" "haproxy"}
 %endif #@have_python@
 
 %preun pmda-apache
@@ -3119,6 +3156,8 @@ cd
 %files pmda-unbound -f pmda_unbound_files.rpm
 
 %files pmda-mic -f pmda_mic_files.rpm
+
+%files pmda-haproxy -f pmda_haproxy_files.rpm
 
 %files export-pcp2graphite -f export_pcp2graphite_files.rpm
 

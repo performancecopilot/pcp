@@ -2,31 +2,19 @@
 # PCP QA Test No. 832
 # Exercise enforced-authentication modes for pmcd.
 #
-# Copyright (c) 2013 Red Hat.
+# Copyright (c) 2013,2017 Red Hat.
 #
 
 seq=`basename $0`
 echo "QA output created by $seq"
 
-# get standard environment, filters and checks
-. ./common.product
-. ./common.filter
-. ./common.check
+. ./common.secure
 
 _get_libpcp_config
 $unix_domain_sockets || _notrun "No unix domain socket support available"
 $authentication || _notrun "No authentication support available"
 
-gotplugins=false
-which pluginviewer >/dev/null 2>&1 && gotplugins=true
-if $gotplugins
-then
-    pluginviewer=pluginviewer
-else
-    which saslpluginviewer >/dev/null 2>&1 && gotplugins=true
-    pluginviewer=saslpluginviewer
-fi
-$gotplugins || _notrun "SASL pluginviewer utility unavailable"
+sasl_notrun_checks
 $pluginviewer -c | grep 'Plugin "plain"' >/dev/null 2>&1
 test $? -eq 0 || _notrun 'No client support for plain authentication'
 $pluginviewer -s | grep 'Plugin "plain"' >/dev/null 2>&1

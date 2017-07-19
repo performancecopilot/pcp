@@ -130,7 +130,7 @@ indom_changed(Metric *m)
 		    /* set up temporary context */
 		    if (old_handle < 0)
 			old_handle = pmWhichContext();
-		    handle = newContext(&m->hname, symName(m->hconn));
+		    handle = newContext(&m->hname, symName(m->hconn), 0);
 		}
 		if (handle < 0) {
 		    sts = -1;

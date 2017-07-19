@@ -1,0 +1,87 @@
+#!/usr/bin/env pmpython
+
+import os
+import sys
+import socket
+
+skt = sys.argv[1]
+
+info = '''Name: QAProxy
+Version: 1.7.6
+Release_date: 2017/06/16
+Nbproc: 1
+Process_num: 1
+Pid: 1457
+Uptime: 2d 20h57m42s
+Uptime_sec: 248262
+Memmax_MB: 0
+PoolAlloc_MB: 0
+PoolUsed_MB: 0
+PoolFailed: 0
+Ulimit-n: 40035
+Maxsock: 40035
+Maxconn: 20000
+Hard_maxconn: 20000
+CurrConns: 8
+CumConns: 12271
+CumReq: 12271
+MaxSslConns: 0
+CurrSslConns: 0
+CumSslConns: 0
+Maxpipes: 0
+PipesUsed: 0
+PipesFree: 0
+ConnRate: 0
+ConnRateLimit: 0
+MaxConnRate: 22
+SessRate: 0
+SessRateLimit: 0
+MaxSessRate: 22
+SslRate: 0
+SslRateLimit: 0
+MaxSslRate: 0
+SslFrontendKeyRate: 0
+SslFrontendMaxKeyRate: 0
+SslFrontendSessionReuse_pct: 0
+SslBackendKeyRate: 0
+SslBackendMaxKeyRate: 0
+SslCacheLookups: 0
+SslCacheMisses: 0
+CompressBpsIn: 0
+CompressBpsOut: 0
+CompressBpsRateLim: 0
+ZlibMemUsage: 0
+MaxZlibMemUsage: 0
+Tasks: 17
+Run_queue: 1
+Idle_pct: 100
+node: haproxy.example.com
+description: QA Test
+
+'''
+
+stat = '''# pxname,svname,qcur,qmax,scur,smax,slim,stot,bin,bout,dreq,dresp,ereq,econ,eresp,wretr,wredis,status,weight,act,bck,chkfail,chkdown,lastchg,downtime,qlimit,pid,iid,sid,throttle,lbtot,tracked,type,rate,rate_lim,rate_max,check_status,check_code,check_duration,hrsp_1xx,hrsp_2xx,hrsp_3xx,hrsp_4xx,hrsp_5xx,hrsp_other,hanafail,req_rate,req_rate_max,req_tot,cli_abrt,srv_abrt,comp_in,comp_out,comp_byp,comp_rsp,lastsess,last_chk,last_agt,qtime,ctime,rtime,ttime,agent_status,agent_code,agent_duration,check_desc,agent_desc,check_rise,check_fall,check_health,agent_rise,agent_fall,agent_health,addr,cookie,mode,algo,conn_rate,conn_rate_max,conn_tot,intercepted,dcon,dses,
+stats,FRONTEND,,,0,0,20000,0,0,0,0,0,0,,,,,OPEN,,,,,,,,100,1,2,0,0,,,0,0,0,0,,0,,0,0,0,0,0,0,,0,0,0,,,0,0,0,0,,,,,,,,,0,0,,,0,0,0,0,0,0,127.0.0.1:9000,,http,,,,,0,,,
+stats,BACKEND,0,0,0,0,2000,0,0,0,0,0,,0,0,0,0,UP,0,0,0,,0,248297,0,,1,2,0,,0,,1,0,,0,,,,0,0,0,0,0,0,,,,,0,0,0,0,0,0,-1,,,0,0,0,0,,,,,,,,,,,,,,http,source,,,,,,,
+pcp-qa-test-frontend,FRONTEND,,,8,35,20000,12268,385961958,1827141867,0,0,0,,,,,OPEN,,,,,,,,,1,3,0,,,,0,0,0,22,,,,,,,,,,,0,0,0,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,tcp,,0,0,0,,0,0,
+pcp-qa-test-backend,server1,0,0,0,22,,2790,12222973,47214951,,0,,666,2,1998,0,UP,1,1,0,223,75,53163,27942,,1,4,1,,792,,2,0,,23,L4OK,,0,,,,,,,0,,,,6,2,,,,,53186,,,0,0,0,14369,,,,,,,,,,,,10.10.10.11:1234,,http,,,,,,,,
+pcp-qa-test-backend,server2,0,0,5,18,,12521,213393853,879219891,,0,,388,9,1164,0,UP,1,1,0,121,41,53949,27997,,1,4,2,,11357,,2,0,,11,L4OK,,0,,,,,,,0,,,,73,9,,,,,188,,,0,0,0,2579,,,,,,,,,,,,10.10.10.12:1234,,http,,,,,,,,
+pcp-qa-test-backend,server3,0,0,3,15,,113,160344948,900707025,,0,,0,8,0,0,UP,1,1,0,122,41,53809,28008,,1,4,3,,113,,2,0,,10,L4OK,,0,,,,,,,0,,,,44,8,,,,,53187,,,0,0,0,8837,,,,,,,,,,,,10.10.10.13:1234,,http,,,,,,,,
+pcp-qa-test-backend,BACKEND,0,0,8,35,2000,12268,385961958,1827141867,0,0,,1060,19,3162,0,UP,3,3,0,,21,54330,27101,,1,4,0,,12262,,1,0,,22,,,,,,,,,,,,,,123,19,0,0,0,0,188,,,0,0,0,7286,,,,,,,,,,,,,,http,source,,,,,,,
+
+'''
+
+stats = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+stats.bind(skt)
+stats.listen(1)
+while True:
+    conn, cli = stats.accept()
+    try:
+        data = conn.recv(4096)
+        if b'show info' in data:
+            conn.sendall(bytes(info, 'UTF-8'))
+        if b'show stat' in data:
+            conn.sendall(bytes(stat, 'UTF-8'))
+    finally:
+        conn.close()
+stats.close()

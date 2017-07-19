@@ -24,7 +24,8 @@ pminfo -T \
 | $PCP_AWK_PROG -v maxlen=$maxlen '
 function skip_me(m)
 {
-    return (m == "kernel.percpu.interrupts.line21" || m ~ "^papi")
+    # for Prometheus and PAPI we forward on the underlying domain help text
+    return (m == "kernel.percpu.interrupts.line21" || m ~ "^papi" || m ~ "^prometheus")
 }
 /Help:/ { metric = line; next }
 { 

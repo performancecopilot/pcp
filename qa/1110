@@ -1,0 +1,98 @@
+#!/bin/sh
+# PCP QA Test No. 1110
+# Exercise the HAProxy PMDA - install, remove and values.
+#
+# Copyright (c) 2017 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.python
+
+$python -c "from pcp import pmda" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "python pcp pmda module not installed"
+
+[ -f $PCP_PMDAS_DIR/haproxy/connect ] || _notrun "haproxy PMDA not installed"
+
+# from the PMDA's Install script
+eval `$PCP_PYTHON_PROG $PCP_PMDAS_DIR/haproxy/connect --config`
+[ -n "$user" ] || _notrun "haproxy PMDA's connect script failed to set \$user"
+[ -n "$socket" ] || _notrun "haproxy PMDA's connect script failed to set \$socket"
+[ -S "$socket" ] || _notrun "$socket: socket does not exist"
+
+status=1       # failure is the default!
+signal=$PCP_BINADM_DIR/pmsignal
+username=`id -u -n`
+$sudo rm -rf $tmp.* $seq.full
+
+pmdahaproxy_remove()
+{
+    echo
+    echo "=== remove haproxy agent ==="
+    $sudo ./Remove >$tmp.out 2>&1
+    _filter_pmda_remove <$tmp.out
+}
+
+pmdahaproxy_install()
+{
+    # start from known starting points
+    cd $PCP_PMDAS_DIR/haproxy
+    $sudo ./Remove >/dev/null 2>&1
+
+    cat <<EOF >$tmp.config
+[pmda]
+user = $username
+socket = $tmp.stats
+EOF
+    echo "pmdahaproxy config:" >> $here/$seq.full
+    cat $tmp.config >> $here/$seq.full
+
+    [ -f $PCP_PMDAS_DIR/haproxy/haproxy.conf ] && \
+    $sudo cp $PCP_PMDAS_DIR/haproxy/haproxy.conf $tmp.backup
+    $sudo cp $tmp.config $PCP_PMDAS_DIR/haproxy/haproxy.conf
+
+    echo
+    echo "=== haproxy agent installation ==="
+    $sudo ./Install </dev/null >$tmp.out 2>&1
+    cat $tmp.out | _filter_pmda_install
+}
+
+pmdahaproxy_cleanup()
+{
+    [ "X$spid" != X ] && (( $signal $spid )&) >/dev/null 2>&1
+    if [ -f $tmp.backup ]; then
+        $sudo cp $tmp.backup $PCP_PMDAS_DIR/haproxy/haproxy.conf
+        $sudo rm $tmp.backup
+    else
+        $sudo rm -f $PCP_PMDAS_DIR/haproxy/haproxy.conf
+    fi
+    # note: _restore_auto_restart pmcd done in _cleanup_pmda()
+    _cleanup_pmda haproxy
+}
+
+_prepare_pmda haproxy
+trap "pmdahaproxy_cleanup; exit \$status" 0 1 2 3 15
+
+_stop_auto_restart pmcd
+
+# real QA test starts here
+rm -f $tmp.stats
+$python $here/haproxy/haproxy_stats_server.python $tmp.stats &
+spid=$!
+pmsleep 0.5	# give server a chance to start
+pmdahaproxy_install
+echo
+
+echo "=== report metric values ==="
+metrics=`pminfo haproxy | LC_COLLATE=POSIX sort`
+pminfo -dfmtT $metrics 2>&1 \
+| tee -a $here/$seq.full
+
+echo "=== verify metric values ==="
+pminfo -v haproxy 2>&1 \
+| tee -a $here/$seq.full
+pmdahaproxy_remove
+
+status=0
+exit

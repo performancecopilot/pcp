@@ -35,28 +35,28 @@ mkdir -p $tmp/pidstat
 $PCP_BINADM_DIR/pmlogrewrite -c $PCP_VAR_DIR/config/pmlogrewrite archives/pcp-pidstat $tmp/pidstat/pcp-pidstat || exit 1
 
 echo; echo === testing pidstat replay of rewritten archive
-pcp -s 3 pidstat -a $tmp/pidstat/pcp-pidstat -G pmda || exit 1
+pcp -z -s 3 pidstat -a $tmp/pidstat/pcp-pidstat -G pmda || exit 1
 
 echo; echo === testing pcp-pidstat on pcp-zeroconf archive
-pcp -s 3 -S +10s -a archives/pcp-zeroconf pidstat -t 5s -G pmda || exit 1
+pcp -z -s 3 -S +10s -a archives/pcp-zeroconf pidstat -t 5s -G pmda || exit 1
 
 echo; echo === testing pcp-iostat on pcp-zeroconf archive
-pcp -s 3 -S +10s -a archives/pcp-zeroconf iostat -t 5s || exit 1
+pcp -z -s 3 -S +10s -a archives/pcp-zeroconf iostat -t 5s || exit 1
 
 echo; echo === testing pcp-tapestat on pcp-zeroconf archive
-pcp -s 3 -S +10s -a archives/pcp-zeroconf tapestat -t 5s || exit 1
+pcp -z -s 3 -S +10s -a archives/pcp-zeroconf tapestat -t 5s || exit 1
 
 echo; echo === testing pcp-numastat on pcp-zeroconf archive
-pcp -s 3 -S +10s -a archives/pcp-zeroconf numastat || exit 1
+pcp -z -s 3 -S +10s -a archives/pcp-zeroconf numastat || exit 1
 
 echo; echo === testing pcp-uptime on pcp-zeroconf archive
-pcp -s 3 -S +10s -a archives/pcp-zeroconf uptime || exit 1
+pcp -z -s 3 -S +10s -a archives/pcp-zeroconf uptime || exit 1
 
 echo; echo === testing pcp-free on pcp-zeroconf archive
-pcp -s 3 -S +10s -a archives/pcp-zeroconf free || exit 1
+pcp -z -s 3 -S +10s -a archives/pcp-zeroconf free || exit 1
 
 echo; echo === testing pcp-vmstat on pcp-zeroconf archive
-pcp -s 3 -S +10s -a archives/pcp-zeroconf vmstat || exit 1
+pcp -z -s 3 -S +10s -a archives/pcp-zeroconf vmstat || exit 1
 
 # success, all done
 status=0

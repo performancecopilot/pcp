@@ -1,0 +1,10 @@
+prefix=@PREFIX@
+exec_prefix=@PREFIX@
+libdir=@LIBDIR@
+includedir=@INCDIR@
+
+Name: libpcp_import
+Description: The Performance Metrics archive import library
+Version: @VERSION@
+Libs: -L${libdir} -lpcp -lpcp_import
+Cflags: -I${includedir}

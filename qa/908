@@ -1,5 +1,5 @@
 #!/bin/sh
-# PCP QA Test No. 906
+# PCP QA Test No. 908
 # Verify indom help text across all installed PMDAs.
 #
 # Copyright (c) 2016 Red Hat.

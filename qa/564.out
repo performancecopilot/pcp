@@ -5,8 +5,9 @@ QA output created by 564
 
 === daily maintenance of PCP archives for host dist.engr ===
 
-pmlogger_daily: Error: no pmlogger instance running for host "dist.engr"
-[TMP/SEQ-PID.ctl:3] ... logging for host "dist.engr" unchanged
+pmlogger_daily: [TMP/SEQ-PID.ctl:3]
+Error: no pmlogger instance running for host "dist.engr"
+... logging for host "dist.engr" unchanged
 
 Archive files older than 14 days being removed ...
     FIVEMONTHS.0 FIVEMONTHS.index FIVEMONTHS.meta
@@ -18,8 +19,9 @@ Archive files older than 3 days being compressed ...
 
 === daily maintenance of PCP archives for host relay.engr ===
 
-pmlogger_daily: Error: no pmlogger instance running for host "relay.engr"
-[TMP/SEQ-PID.ctl:4] ... logging for host "relay.engr" unchanged
+pmlogger_daily: [TMP/SEQ-PID.ctl:4]
+Error: no pmlogger instance running for host "relay.engr"
+... logging for host "relay.engr" unchanged
 
 Archive files older than 14 days being removed ...
     FIVEMONTHS.0 FIVEMONTHS.index FIVEMONTHS.meta

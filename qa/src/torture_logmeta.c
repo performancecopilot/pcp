@@ -159,6 +159,8 @@ Options:\n\
 
 	/* once per indom ... null, good and bad */
 	for (i = 0; i < 3; i++) {
+	    __pmContext	*ctxp;
+
 	    if (fault && i != 1)
 		continue;
 	    if (i == 0) {
@@ -250,100 +252,110 @@ Options:\n\
 		}
 	    }
 
-	    if ((sts = pmWhichContext()) >= 0) {
-		__pmContext	*ctxp;
-		ctxp = __pmHandleToPtr(sts);
-		if (ctxp != NULL && ctxp->c_archctl != NULL) {
-		    __pmTimeval	now;
-		    int		iter;
-		    for (iter=0; iter < 2; iter++) {
+	    if ((sts = pmWhichContext()) < 0) {
+		/* not unexpected in this QA application */
+		continue;
+	    }
+	    ctxp = __pmHandleToPtr(sts);
+	    if (ctxp == NULL) {
+		/* not unexpected in this QA application */
+		continue;
+	    }
+	    if (ctxp->c_archctl == NULL) {
+		/* not unexpected in this QA application */
+		PM_UNLOCK(ctxp->c_lock);
+		continue;
+	    }
+	    else {
+		__pmTimeval	now;
+		int		iter;
+		__pmLogCtl	*lcp = ctxp->c_archctl->ac_log;
+		PM_UNLOCK(ctxp->c_lock);
+		for (iter=0; iter < 2; iter++) {
+		    /*
+		     * use -O time (defaults to start time) on first
+		     * iteration, then half the time between there
+		     * and the end
+		     */
+		     if (fault && iter != 1)
+			continue;
+		     if (iter == 0) {
+			now.tv_sec = appOffset.tv_sec;
+			now.tv_usec = appOffset.tv_usec;
+		     }
+		     else {
 			/*
-			 * use -O time (defaults to start time) on first
-			 * iteration, then half the time between there
-			 * and the end
+			 * danger! need to promote arithmetic to 64-bit
+			 * for platforms where tv_sec is 32-bit and
+			 * tv_sec + tv_sec => overflow
 			 */
-			 if (fault && iter != 1)
-			    continue;
-			 if (iter == 0) {
-			    now.tv_sec = appOffset.tv_sec;
-			    now.tv_usec = appOffset.tv_usec;
-			 }
-			 else {
-			    /*
-			     * danger! need to promote arithmetic to 64-bit
-			     * for platforms where tv_sec is 32-bit and
-			     * tv_sec + tv_sec => overflow
-			     */
-			    now.tv_sec = ((__int64_t)appOffset.tv_sec+(__int64_t)appEnd.tv_sec)/2;
-			    now.tv_usec = ((__int64_t)appOffset.tv_usec+(__int64_t)appEnd.tv_usec)/2;
-			 }
-			if ((sts = __pmLogGetInDom(ctxp->c_archctl->ac_log, indom[i], &now, &instlist, &namelist)) < 0) {
-			    fprintf(stderr, "__pmLogGetInDom(%s) -> ", pmInDomStr(indom[i]));
+			now.tv_sec = ((__int64_t)appOffset.tv_sec+(__int64_t)appEnd.tv_sec)/2;
+			now.tv_usec = ((__int64_t)appOffset.tv_usec+(__int64_t)appEnd.tv_usec)/2;
+		     }
+		    if ((sts = __pmLogGetInDom(lcp, indom[i], &now, &instlist, &namelist)) < 0) {
+			fprintf(stderr, "__pmLogGetInDom(%s) -> ", pmInDomStr(indom[i]));
+			fprintf(stderr, "%s\n", pmErrStr(sts));
+		    }
+		    else {
+			int	j;
+			fprintf(stderr, "__pmLogGetInDom(%s) -> ", pmInDomStr(indom[i]));
+			fprintf(stderr, "%d\n", sts);
+			for (j = 0; j < sts; j++)
+			    fprintf(stderr, "   [%d] %s\n", instlist[j], namelist[j]);
+		    }
+		    if (!fault) {
+			if ((sts = __pmLogLookupInDom(lcp, indom[i], &now, "foobar")) < 0) {
+			    fprintf(stderr, "__pmLogLookupInDom(%s, foobar) -> ", pmInDomStr(indom[i]));
 			    fprintf(stderr, "%s\n", pmErrStr(sts));
 			}
 			else {
-			    int	j;
-			    fprintf(stderr, "__pmLogGetInDom(%s) -> ", pmInDomStr(indom[i]));
+			    fprintf(stderr, "__pmLogLookupInDom(%s, foobar) -> ", pmInDomStr(indom[i]));
 			    fprintf(stderr, "%d\n", sts);
-			    for (j = 0; j < sts; j++)
-				fprintf(stderr, "   [%d] %s\n", instlist[j], namelist[j]);
 			}
-			if (!fault) {
-			    if ((sts = __pmLogLookupInDom(ctxp->c_archctl->ac_log, indom[i], &now, "foobar")) < 0) {
-				fprintf(stderr, "__pmLogLookupInDom(%s, foobar) -> ", pmInDomStr(indom[i]));
-				fprintf(stderr, "%s\n", pmErrStr(sts));
-			    }
-			    else {
-				fprintf(stderr, "__pmLogLookupInDom(%s, foobar) -> ", pmInDomStr(indom[i]));
-				fprintf(stderr, "%d\n", sts);
-			    }
+		    }
+		    if (xname != NULL) {
+			if ((sts = __pmLogLookupInDom(lcp, indom[i], &now, xname)) < 0) {
+			    fprintf(stderr, "__pmLogLookupInDom(%s, %s) -> ", pmInDomStr(indom[i]), xname);
+			    fprintf(stderr, "%s\n", pmErrStr(sts));
 			}
-			if (xname != NULL) {
-			    if ((sts = __pmLogLookupInDom(ctxp->c_archctl->ac_log, indom[i], &now, xname)) < 0) {
-				fprintf(stderr, "__pmLogLookupInDom(%s, %s) -> ", pmInDomStr(indom[i]), xname);
-				fprintf(stderr, "%s\n", pmErrStr(sts));
-			    }
-			    else {
-				fprintf(stderr, "__pmLogLookupInDom(%s, %s) -> ", pmInDomStr(indom[i]), xname);
-				fprintf(stderr, "%d\n", sts);
-			    }
+			else {
+			    fprintf(stderr, "__pmLogLookupInDom(%s, %s) -> ", pmInDomStr(indom[i]), xname);
+			    fprintf(stderr, "%d\n", sts);
 			}
-			if (xxname != NULL) {
-			    if ((sts = __pmLogLookupInDom(ctxp->c_archctl->ac_log, indom[i], &now, xxname)) < 0) {
-				fprintf(stderr, "__pmLogLookupInDom(%s, %s) -> ", pmInDomStr(indom[i]), xxname);
-				fprintf(stderr, "%s\n", pmErrStr(sts));
-			    }
-			    else {
-				fprintf(stderr, "__pmLogLookupInDom(%s, %s) -> ", pmInDomStr(indom[i]), xxname);
-				fprintf(stderr, "%d\n", sts);
-			    }
+		    }
+		    if (xxname != NULL) {
+			if ((sts = __pmLogLookupInDom(lcp, indom[i], &now, xxname)) < 0) {
+			    fprintf(stderr, "__pmLogLookupInDom(%s, %s) -> ", pmInDomStr(indom[i]), xxname);
+			    fprintf(stderr, "%s\n", pmErrStr(sts));
 			}
-			if (!fault) {
-			    if ((sts = __pmLogNameInDom(ctxp->c_archctl->ac_log, indom[i], &now, 1234567, &name)) < 0) {
-				fprintf(stderr, "__pmLogNameInDom(%s, 1234567) -> ", pmInDomStr(indom[i]));
-				fprintf(stderr, "%s\n", pmErrStr(sts));
-			    }
-			    else {
-				fprintf(stderr, "__pmLogNameInDom(%s, 1234567) -> ", pmInDomStr(indom[i]));
-				fprintf(stderr, "%s\n", name);
-			    }
+			else {
+			    fprintf(stderr, "__pmLogLookupInDom(%s, %s) -> ", pmInDomStr(indom[i]), xxname);
+			    fprintf(stderr, "%d\n", sts);
 			}
-			if (xinst != -1) {
-			    if ((sts = __pmLogNameInDom(ctxp->c_archctl->ac_log, indom[i], &now, xinst, &name)) < 0) {
-				fprintf(stderr, "__pmLogNameInDom(%s, %d) -> ", pmInDomStr(indom[i]), xinst);
-				fprintf(stderr, "%s\n", pmErrStr(sts));
-			    }
-			    else {
-				fprintf(stderr, "__pmLogNameInDom(%s, %d) -> ", pmInDomStr(indom[i]), xinst);
-				fprintf(stderr, "%s\n", name);
-			    }
+		    }
+		    if (!fault) {
+			if ((sts = __pmLogNameInDom(lcp, indom[i], &now, 1234567, &name)) < 0) {
+			    fprintf(stderr, "__pmLogNameInDom(%s, 1234567) -> ", pmInDomStr(indom[i]));
+			    fprintf(stderr, "%s\n", pmErrStr(sts));
+			}
+			else {
+			    fprintf(stderr, "__pmLogNameInDom(%s, 1234567) -> ", pmInDomStr(indom[i]));
+			    fprintf(stderr, "%s\n", name);
+			}
+		    }
+		    if (xinst != -1) {
+			if ((sts = __pmLogNameInDom(lcp, indom[i], &now, xinst, &name)) < 0) {
+			    fprintf(stderr, "__pmLogNameInDom(%s, %d) -> ", pmInDomStr(indom[i]), xinst);
+			    fprintf(stderr, "%s\n", pmErrStr(sts));
+			}
+			else {
+			    fprintf(stderr, "__pmLogNameInDom(%s, %d) -> ", pmInDomStr(indom[i]), xinst);
+			    fprintf(stderr, "%s\n", name);
 			}
 		    }
 		}
 	    }
-
 	}
-
     }
 
     return 0;

@@ -1,0 +1,326 @@
+#!/usr/bin/env pmpython
+#
+# Copyright (C) 2017 Marko Myllynen <myllynen@redhat.com>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+""" PCP HAProxy Performance Metrics Domain Agent """
+
+try:
+    import ConfigParser
+except ImportError:
+    import configparser as ConfigParser
+
+import os
+import sys
+import socket
+
+from ctypes import c_int
+
+from pcp.pmapi import pmUnits
+from pcp.pmapi import pmContext as PCP
+from pcp.pmda import PMDA, pmdaIndom, pmdaMetric
+from cpmapi import PM_INDOM_NULL
+from cpmapi import PM_TYPE_32, PM_TYPE_U32, PM_TYPE_U64, PM_TYPE_STRING
+from cpmapi import PM_SEM_COUNTER, PM_SEM_INSTANT, PM_SEM_DISCRETE
+from cpmapi import PM_COUNT_ONE, PM_SPACE_BYTE, PM_SPACE_MBYTE, PM_TIME_MSEC, PM_TIME_SEC
+from cpmapi import PM_ERR_AGAIN, PM_ERR_PMID, PM_ERR_APPVERSION
+
+if sys.version_info[0] >= 3:
+    long = int
+
+DEFAULT_USER   = 'root'
+DEFAULT_SOCKET = '/var/lib/haproxy/stats'
+
+class HAProxyPMDA(PMDA):
+    """ PCP HAProxy PMDA """
+    def __init__(self, name, domain):
+        """ Constructor """
+        PMDA.__init__(self, name, domain)
+
+        self.info = {}
+        self.stat = {}
+        self.user = DEFAULT_USER
+        self.skt = DEFAULT_SOCKET
+        self.read_config()
+        self.set_user(self.user)
+
+        self.connect_pmcd()
+        try:
+            stats = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+            stats.connect(self.skt)
+            stats.close()
+        except Exception as error:
+            self.log("Failed to connect to HAProxy socket %s: %s" % (self.skt, error))
+
+        units_none  = pmUnits(0, 0, 0, 0, 0, 0)
+        units_count = pmUnits(0, 0, 1, 0, 0, PM_COUNT_ONE)
+        units_cpers = pmUnits(0,-1, 1, 0, PM_TIME_SEC, PM_COUNT_ONE)
+        units_bytes = pmUnits(1, 0, 0, PM_SPACE_BYTE, 0, 0)
+        units_mbyte = pmUnits(1, 0, 0, PM_SPACE_MBYTE, 0, 0)
+        units_bpers = pmUnits(1,-1, 0, PM_SPACE_BYTE, PM_TIME_SEC, 0)
+        units_msecs = pmUnits(0, 1, 0, 0, PM_TIME_MSEC, 0)
+        units_secs  = pmUnits(0, 1, 0, 0, PM_TIME_SEC, 0)
+
+        self.info_indom = PM_INDOM_NULL
+        self.info_cluster = 0
+        self.info_metrics = [
+            # Name - type - semantics - units - help
+            # See src/stats.c
+            [ 'info.name',                        PM_TYPE_STRING, PM_SEM_DISCRETE, units_none,  'Name'                                                            ],
+            [ 'info.version',                     PM_TYPE_STRING, PM_SEM_DISCRETE, units_none,  'Version'                                                         ],
+            [ 'info.release_date',                PM_TYPE_STRING, PM_SEM_DISCRETE, units_none,  'Release_date'                                                    ],
+            [ 'info.nbproc',                      PM_TYPE_U32,    PM_SEM_DISCRETE, units_count, 'Nbproc'                                                          ],
+            [ 'info.process_num',                 PM_TYPE_U32,    PM_SEM_DISCRETE, units_none,  'Process_num'                                                     ],
+            [ 'info.pid',                         PM_TYPE_U32,    PM_SEM_DISCRETE, units_none,  'Pid'                                                             ],
+            [ 'info.uptime',                      PM_TYPE_STRING, PM_SEM_INSTANT,  units_none,  'Uptime'                                                          ],
+            [ 'info.uptime_sec',                  PM_TYPE_U32,    PM_SEM_COUNTER,  units_secs,  'Uptime_sec'                                                      ],
+            [ 'info.memmax_mb',                   PM_TYPE_U32,    PM_SEM_DISCRETE, units_mbyte, 'Memmax_MB'                                                       ],
+            [ 'info.poolalloc_mb',                PM_TYPE_U32,    PM_SEM_INSTANT,  units_mbyte, 'PoolAlloc_MB'                                                    ],
+            [ 'info.poolused_mb',                 PM_TYPE_U32,    PM_SEM_INSTANT,  units_mbyte, 'PoolUsed_MB'                                                     ],
+            [ 'info.poolfailed',                  PM_TYPE_U32,    PM_SEM_COUNTER,  units_count, 'PoolFailed'                                                      ],
+            [ 'info.ulimit_n',                    PM_TYPE_U32,    PM_SEM_DISCRETE, units_count, 'Ulimit-n'                                                        ],
+            [ 'info.maxsock',                     PM_TYPE_U32,    PM_SEM_DISCRETE, units_count, 'Maxsock'                                                         ],
+            [ 'info.maxconn',                     PM_TYPE_U32,    PM_SEM_DISCRETE, units_count, 'Maxconn'                                                         ],
+            [ 'info.hard_maxconn',                PM_TYPE_U32,    PM_SEM_DISCRETE, units_count, 'Hard_maxconn'                                                    ],
+            [ 'info.currconns',                   PM_TYPE_U32,    PM_SEM_INSTANT,  units_count, 'CurrConns'                                                       ],
+            [ 'info.cumconns',                    PM_TYPE_U32,    PM_SEM_COUNTER,  units_count, 'CumConns'                                                        ],
+            [ 'info.cumreq',                      PM_TYPE_U32,    PM_SEM_COUNTER,  units_count, 'CumReq'                                                          ],
+            [ 'info.maxsslconns',                 PM_TYPE_U32,    PM_SEM_INSTANT,  units_count, 'MaxSslConns'                                                     ],
+            [ 'info.currsslconns',                PM_TYPE_U32,    PM_SEM_INSTANT,  units_count, 'CurrSslConns'                                                    ],
+            [ 'info.cumsslconns',                 PM_TYPE_U32,    PM_SEM_COUNTER,  units_count, 'CumSslConns'                                                     ],
+            [ 'info.maxpipes',                    PM_TYPE_U32,    PM_SEM_DISCRETE, units_count, 'Maxpipes'                                                        ],
+            [ 'info.pipesused',                   PM_TYPE_U32,    PM_SEM_INSTANT,  units_count, 'PipesUsed'                                                       ],
+            [ 'info.pipesfree',                   PM_TYPE_U32,    PM_SEM_INSTANT,  units_count, 'PipesFree'                                                       ],
+            [ 'info.connrate',                    PM_TYPE_U32,    PM_SEM_INSTANT,  units_count, 'ConnRate'                                                        ],
+            [ 'info.connratelimit',               PM_TYPE_U32,    PM_SEM_DISCRETE, units_count, 'ConnRateLimit'                                                   ],
+            [ 'info.maxconnrate',                 PM_TYPE_U32,    PM_SEM_INSTANT,  units_count, 'MaxConnRate'                                                     ],
+            [ 'info.sessrate',                    PM_TYPE_U32,    PM_SEM_INSTANT,  units_count, 'SessRate'                                                        ],
+            [ 'info.sessratelimit',               PM_TYPE_U32,    PM_SEM_DISCRETE, units_count, 'SessRateLimit'                                                   ],
+            [ 'info.maxsessrate',                 PM_TYPE_U32,    PM_SEM_INSTANT,  units_count, 'MaxSessRate'                                                     ],
+            [ 'info.sslrate',                     PM_TYPE_U32,    PM_SEM_INSTANT,  units_count, 'SslRate'                                                         ],
+            [ 'info.sslratelimit',                PM_TYPE_U32,    PM_SEM_DISCRETE, units_count, 'SslRateLimit'                                                    ],
+            [ 'info.maxsslrate',                  PM_TYPE_U32,    PM_SEM_INSTANT,  units_count, 'MaxSslRate'                                                      ],
+            [ 'info.sslfrontendkeyrate',          PM_TYPE_U32,    PM_SEM_INSTANT,  units_count, 'SslFrontendKeyRate'                                              ],
+            [ 'info.sslfrontendmaxkeyrate',       PM_TYPE_U32,    PM_SEM_INSTANT,  units_count, 'SslFrontendMaxKeyRate'                                           ],
+            [ 'info.sslfrontendsessionreuse_pct', PM_TYPE_U32,    PM_SEM_INSTANT,  units_none,  'SslFrontendSessionReuse_pct'                                     ],
+            [ 'info.sslbackendkeyrate',           PM_TYPE_U32,    PM_SEM_INSTANT,  units_count, 'SslBackendKeyRate'                                               ],
+            [ 'info.sslbackendmaxkeyrate',        PM_TYPE_U32,    PM_SEM_INSTANT,  units_count, 'SslBackendMaxKeyRate'                                            ],
+            [ 'info.sslcachelookups',             PM_TYPE_U32,    PM_SEM_COUNTER,  units_count, 'SslCacheLookups'                                                 ],
+            [ 'info.sslcachemisses',              PM_TYPE_U32,    PM_SEM_COUNTER,  units_count, 'SslCacheMisses'                                                  ],
+            [ 'info.compressbpsin',               PM_TYPE_U32,    PM_SEM_INSTANT,  units_bpers, 'CompressBpsIn'                                                   ],
+            [ 'info.compressbpsout',              PM_TYPE_U32,    PM_SEM_INSTANT,  units_bpers, 'CompressBpsOut'                                                  ],
+            [ 'info.compressbpsratelim',          PM_TYPE_U32,    PM_SEM_DISCRETE, units_bpers, 'CompressBpsRateLim'                                              ],
+            [ 'info.zlibmemusage',                PM_TYPE_U32,    PM_SEM_INSTANT,  units_bytes, 'ZlibMemUsage'                                                    ],
+            [ 'info.maxzlibmemusage',             PM_TYPE_U32,    PM_SEM_DISCRETE, units_bytes, 'MaxZlibMemUsage'                                                 ],
+            [ 'info.tasks',                       PM_TYPE_U32,    PM_SEM_INSTANT,  units_count, 'Tasks'                                                           ],
+            [ 'info.run_queue',                   PM_TYPE_U32,    PM_SEM_INSTANT,  units_count, 'Run_queue'                                                       ],
+            [ 'info.idle_pct',                    PM_TYPE_U32,    PM_SEM_INSTANT,  units_none,  'Idle_pct'                                                        ],
+            [ 'info.node',                        PM_TYPE_STRING, PM_SEM_DISCRETE, units_none,  'node'                                                            ],
+            [ 'info.description',                 PM_TYPE_STRING, PM_SEM_DISCRETE, units_none,  'description'                                                     ],
+        ]
+
+        self.stat_indom = self.indom(0)
+        self.stat_insts = pmdaIndom(self.stat_indom, [])
+        self.add_indom(self.stat_insts)
+
+        self.stat_cluster = 1
+        self.stat_metrics = [
+            # Name - type - semantics - units - help
+            # See src/stats.c and https://www.haproxy.org/download/1.7/doc/management.txt
+            [ 'stat.pxname',                      PM_TYPE_STRING, PM_SEM_DISCRETE, units_none,  'proxy name'                                                      ],
+            [ 'stat.svname',                      PM_TYPE_STRING, PM_SEM_DISCRETE, units_none,  'service name'                                                    ],
+            [ 'stat.qcur',                        PM_TYPE_U32,    PM_SEM_INSTANT,  units_count, 'current queued requests'                                         ],
+            [ 'stat.qmax',                        PM_TYPE_U32,    PM_SEM_INSTANT,  units_count, 'max value of qcur'                                               ],
+            [ 'stat.scur',                        PM_TYPE_U32,    PM_SEM_INSTANT,  units_count, 'current sessions'                                                ],
+            [ 'stat.smax',                        PM_TYPE_U32,    PM_SEM_INSTANT,  units_count, 'max sessions'                                                    ],
+            [ 'stat.slim',                        PM_TYPE_U32,    PM_SEM_DISCRETE, units_count, 'configured session limit'                                        ],
+            [ 'stat.stot',                        PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'cumulative number of sessions'                                   ],
+            [ 'stat.bin',                         PM_TYPE_U64,    PM_SEM_COUNTER,  units_bytes, 'bytes in'                                                        ],
+            [ 'stat.bout',                        PM_TYPE_U64,    PM_SEM_COUNTER,  units_bytes, 'bytes out'                                                       ],
+            [ 'stat.dreq',                        PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'requests denied because of security concerns'                    ],
+            [ 'stat.dresp',                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'responses denied because of security concerns'                   ],
+            [ 'stat.ereq',                        PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'request errors'                                                  ],
+            [ 'stat.econ',                        PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'connection errors'                                               ],
+            [ 'stat.eresp',                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'response errors'                                                 ],
+            [ 'stat.wretr',                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'number of times a connection to a server was retried'            ],
+            [ 'stat.wredis',                      PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'number of times a request was redispatched to another'           ],
+            [ 'stat.status',                      PM_TYPE_STRING, PM_SEM_INSTANT,  units_none,  'status'                                                          ],
+            [ 'stat.weight',                      PM_TYPE_U32,    PM_SEM_INSTANT,  units_count, 'total weight (backend), server weight (server)'                  ],
+            [ 'stat.act',                         PM_TYPE_U32,    PM_SEM_INSTANT,  units_count, 'number of active servers (backend), server is active (server)'   ],
+            [ 'stat.bck',                         PM_TYPE_U32,    PM_SEM_INSTANT,  units_count, 'number of backup servers (backend), server is backup (server)'   ],
+            [ 'stat.chkfail',                     PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'number of failed checks'                                         ],
+            [ 'stat.chkdown',                     PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'number of UP->DOWN transitions'                                  ],
+            [ 'stat.lastchg',                     PM_TYPE_U32,    PM_SEM_INSTANT,  units_secs,  'number of seconds since the last UP<->DOWN transition'           ],
+            [ 'stat.downtime',                    PM_TYPE_U32,    PM_SEM_COUNTER,  units_secs,  'total downtime'                                                  ],
+            [ 'stat.qlimit',                      PM_TYPE_U32,    PM_SEM_DISCRETE, units_count, 'configured maxqueue for the server'                              ],
+            [ 'stat.pid',                         PM_TYPE_U32,    PM_SEM_DISCRETE, units_none,  'process id'                                                      ],
+            [ 'stat.iid',                         PM_TYPE_U32,    PM_SEM_DISCRETE, units_none,  'unique proxy id'                                                 ],
+            [ 'stat.sid',                         PM_TYPE_U32,    PM_SEM_DISCRETE, units_none,  'server id'                                                       ],
+            [ 'stat.throttle',                    PM_TYPE_U32,    PM_SEM_INSTANT,  units_none,  'current throttle percentage for the server'                      ],
+            [ 'stat.lbtot',                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'total number of times a server was selected'                     ],
+            [ 'stat.tracked',                     PM_TYPE_STRING, PM_SEM_DISCRETE, units_none,  'id of proxy/server if tracking is enabled'                       ],
+            [ 'stat.type',                        PM_TYPE_U32,    PM_SEM_DISCRETE, units_none,  '0=frontend, 1=backend, 2=server, 3=socket/listener'              ],
+            [ 'stat.rate',                        PM_TYPE_U32,    PM_SEM_INSTANT,  units_cpers, 'number of sessions per second over last elapsed second'          ],
+            [ 'stat.rate_lim',                    PM_TYPE_U32,    PM_SEM_DISCRETE, units_cpers, 'configured limit on new sessions per second'                     ],
+            [ 'stat.rate_max',                    PM_TYPE_U32,    PM_SEM_INSTANT,  units_cpers, 'max number of new sessions per second'                           ],
+            [ 'stat.check_status',                PM_TYPE_STRING, PM_SEM_INSTANT,  units_count, 'status of last health check'                                     ],
+            [ 'stat.check_code',                  PM_TYPE_U32,    PM_SEM_INSTANT,  units_none,  'layer5-7 code'                                                   ],
+            [ 'stat.check_duration',              PM_TYPE_U64,    PM_SEM_INSTANT,  units_msecs, 'time in ms took to finish last health check'                     ],
+            [ 'stat.hrsp_1xx',                    PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'http responses with 1xx code'                                    ],
+            [ 'stat.hrsp_2xx',                    PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'http responses with 2xx code'                                    ],
+            [ 'stat.hrsp_3xx',                    PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'http responses with 3xx code'                                    ],
+            [ 'stat.hrsp_4xx',                    PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'http responses with 4xx code'                                    ],
+            [ 'stat.hrsp_5xx',                    PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'http responses with 5xx code'                                    ],
+            [ 'stat.hrsp_other',                  PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'http responses with other codes'                                 ],
+            [ 'stat.hanafail',                    PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'failed health checks details'                                    ],
+            [ 'stat.req_rate',                    PM_TYPE_U32,    PM_SEM_INSTANT,  units_cpers, 'HTTP requests per second over last elapsed second'               ],
+            [ 'stat.req_rate_max',                PM_TYPE_U32,    PM_SEM_INSTANT,  units_cpers, 'max number of HTTP requests per second observed'                 ],
+            [ 'stat.req_tot',                     PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'total number of HTTP requests received'                          ],
+            [ 'stat.cli_abrt',                    PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'number of data transfers aborted by the client'                  ],
+            [ 'stat.srv_abrt',                    PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'number of data transfers aborted by the server'                  ],
+            [ 'stat.comp_in',                     PM_TYPE_U64,    PM_SEM_COUNTER,  units_bytes, 'number of HTTP response bytes fed to the compressor'             ],
+            [ 'stat.comp_out',                    PM_TYPE_U64,    PM_SEM_COUNTER,  units_bytes, 'number of HTTP response bytes emitted by the compressor'         ],
+            [ 'stat.comp_byp',                    PM_TYPE_U64,    PM_SEM_COUNTER,  units_bytes, 'number of bytes that bypassed the HTTP compressor'               ],
+            [ 'stat.comp_rsp',                    PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'number of HTTP responses that were compressed'                   ],
+            [ 'stat.lastsess',                    PM_TYPE_32,     PM_SEM_INSTANT,  units_secs,  'number of seconds since last session assigned to server/backend' ],
+            [ 'stat.last_chk',                    PM_TYPE_STRING, PM_SEM_INSTANT,  units_none,  'last health check contents or textual error'                     ],
+            [ 'stat.last_agt',                    PM_TYPE_STRING, PM_SEM_INSTANT,  units_none,  'last agent check contents or textual error'                      ],
+            [ 'stat.qtime',                       PM_TYPE_U32,    PM_SEM_INSTANT,  units_msecs, 'the average queue time in ms over the 1024 last requests'        ],
+            [ 'stat.ctime',                       PM_TYPE_U32,    PM_SEM_INSTANT,  units_msecs, 'the average connect time in ms over the 1024 last requests'      ],
+            [ 'stat.rtime',                       PM_TYPE_U32,    PM_SEM_INSTANT,  units_msecs, 'the average response time in ms over the 1024 last requests'     ],
+            [ 'stat.ttime',                       PM_TYPE_U32,    PM_SEM_INSTANT,  units_msecs, 'the average total session time in ms over the 1024 last'         ],
+            [ 'stat.agent_status',                PM_TYPE_STRING, PM_SEM_INSTANT,  units_none,  'status of last agent check'                                      ],
+            [ 'stat.agent_code',                  PM_TYPE_U32,    PM_SEM_INSTANT,  units_none,  'numeric code reported by agent'                                  ],
+            [ 'stat.agent_duration',              PM_TYPE_U64,    PM_SEM_INSTANT,  units_msecs, 'time in ms taken to finish last check'                           ],
+            [ 'stat.check_desc',                  PM_TYPE_STRING, PM_SEM_INSTANT,  units_none,  'short human-readable description of check_status'                ],
+            [ 'stat.agent_desc',                  PM_TYPE_STRING, PM_SEM_INSTANT,  units_none,  'short human-readable description of agent_status'                ],
+            [ 'stat.check_rise',                  PM_TYPE_U32,    PM_SEM_DISCRETE, units_none,  'server "rise" parameter used by checks'                          ],
+            [ 'stat.check_fall',                  PM_TYPE_U32,    PM_SEM_DISCRETE, units_none,  'server "fall" parameter used by checks'                          ],
+            [ 'stat.check_health',                PM_TYPE_U32,    PM_SEM_DISCRETE, units_none,  'server health parameter'                                         ],
+            [ 'stat.agent_rise',                  PM_TYPE_U32,    PM_SEM_DISCRETE, units_none,  'agent "rise" parameter'                                          ],
+            [ 'stat.agent_fall',                  PM_TYPE_U32,    PM_SEM_DISCRETE, units_none,  'agent "fall" parameter'                                          ],
+            [ 'stat.agent_health',                PM_TYPE_U32,    PM_SEM_DISCRETE, units_none,  'agent health parameter'                                          ],
+            [ 'stat.addr',                        PM_TYPE_STRING, PM_SEM_DISCRETE, units_none,  'address:port or "unix"'                                          ],
+            [ 'stat.cookie',                      PM_TYPE_STRING, PM_SEM_DISCRETE, units_none,  'servers cookie value or backends cookie name'                    ],
+            [ 'stat.mode',                        PM_TYPE_STRING, PM_SEM_DISCRETE, units_none,  'proxy mode'                                                      ],
+            [ 'stat.algo',                        PM_TYPE_STRING, PM_SEM_DISCRETE, units_none,  'load balancing algorithm'                                        ],
+            [ 'stat.conn_rate',                   PM_TYPE_U32,    PM_SEM_INSTANT,  units_count, 'number of connections over the last elapsed second'              ],
+            [ 'stat.conn_rate_max',               PM_TYPE_U32,    PM_SEM_INSTANT,  units_count, 'highest known conn_rate'                                         ],
+            [ 'stat.conn_tot',                    PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'cumulative number of connections'                                ],
+            [ 'stat.intercepted',                 PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'cumulative number of intercepted connections'                    ],
+            [ 'stat.dcon',                        PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'requests denied by "tcp-request connection" rules'               ],
+            [ 'stat.dses',                        PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'requests denied by "tcp-request session" rules'                  ],
+        ]
+
+        for item in range(len(self.info_metrics)):
+            self.add_metric(name + '.' + self.info_metrics[item][0], pmdaMetric(self.pmid(self.info_cluster, item),
+                self.info_metrics[item][1], self.info_indom, self.info_metrics[item][2],
+                self.info_metrics[item][3]), self.info_metrics[item][4], self.info_metrics[item][4])
+
+        for item in range(len(self.stat_metrics)):
+            self.add_metric(name + '.' + self.stat_metrics[item][0], pmdaMetric(self.pmid(self.stat_cluster, item),
+                self.stat_metrics[item][1], self.stat_indom, self.stat_metrics[item][2],
+                self.stat_metrics[item][3]), self.stat_metrics[item][4], self.stat_metrics[item][4])
+
+        self.set_refresh(self.haproxy_refresh)
+        self.set_fetch_callback(self.haproxy_fetch_callback)
+
+    def read_config(self):
+        """ Read configuration """
+        conffile = PCP.pmGetConfig('PCP_PMDAS_DIR')
+        conffile += '/' + self.read_name() + '/' + self.read_name() + '.conf'
+
+        # Silently ignore missing file/section
+        config = ConfigParser.SafeConfigParser()
+        config.read(conffile)
+        if config.has_section('pmda'):
+            for opt in config.options('pmda'):
+                if opt == 'user':
+                    self.user = config.get('pmda', opt)
+                elif opt == 'socket':
+                    self.skt = config.get('pmda', opt)
+                else:
+                    self.err("Invalid directive '%s' in %s." % (opt, conffile))
+                    sys.exit(1)
+
+    def read_socket(self, skt):
+        """ Read data from socket """
+        resp = ""
+        while True:
+            data = skt.recv(4096).decode('UTF-8')
+            if not data: break
+            resp += data
+        return resp
+
+    def haproxy_refresh(self, cluster):
+        """ Refresh """
+        stats = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        try:
+            stats.connect(self.skt)
+        except Exception as error:
+            self.log("Failed to connect to %s: %s" % (self.skt, error))
+            if self.info: self.info = {}
+            if self.stat: self.stat = {}
+            return
+
+        if cluster == self.info_cluster:
+            self.info = {}
+            stats.send(b"show info\n")
+            for line in self.read_socket(stats).splitlines():
+                if ': ' in line:
+                    k, v = line.split(': ')
+                    self.info[k] = v
+
+        if cluster == self.stat_cluster:
+            insts = {}
+            self.stat = {}
+            stats.send(b"show stat\n")
+            for line in self.read_socket(stats).splitlines():
+                if not line.startswith('#') and ',' in line:
+                    name = line.split(',')[0] + "::" + line.split(',')[1]
+                    self.stat[name] = line.split(',')
+                    insts[name] = c_int(1)
+
+            self.stat_insts.set_instances(self.stat_indom, insts)
+            self.replace_indom(self.stat_indom, insts)
+
+        stats.close()
+
+    def haproxy_fetch_callback(self, cluster, item, inst):
+        """ Fetch callback """
+        if cluster == self.info_cluster:
+            if not self.info:
+                return [PM_ERR_AGAIN, 0]
+            try:
+                if self.info_metrics[item][1] == PM_TYPE_STRING:
+                    return [self.info[self.info_metrics[item][4]], 1]
+                else:
+                    return [long(self.info[self.info_metrics[item][4]]), 1]
+            except:
+                return [PM_ERR_APPVERSION, 0]
+
+        if cluster == self.stat_cluster:
+            if not self.stat:
+                return [PM_ERR_AGAIN, 0]
+            try:
+                name = self.stat_insts.inst_name_lookup(inst)
+                if self.stat_metrics[item][1] == PM_TYPE_STRING:
+                    return [self.stat[name][item], 1]
+                else:
+                    return [long(self.stat[name][item]), 1]
+            except:
+                return [PM_ERR_APPVERSION, 0]
+
+        return [PM_ERR_PMID, 0]
+
+if __name__ == '__main__':
+    HAProxyPMDA('haproxy', 145).run()

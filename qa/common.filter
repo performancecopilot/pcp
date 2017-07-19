@@ -260,6 +260,7 @@ _filter_optional_pmdas()
 	-e '/pmdanvidia/d' \
 	-e '/pmdaperfevent/d' \
 	-e '/pmdapipe/d' \
+	-e '/pmdaprometheus/d' \
 	-e '/pmdaoracle/d' \
 	-e '/pmdaoraping/d' \
 	-e '/pmdapapi/d' \
@@ -363,6 +364,7 @@ _filter_top_pmns()
 	-e '/^    postfix /d' \
 	-e '/^    postgresql /d' \
 	-e '/^    proc /d' \
+	-e '/^    prometheus /d' \
 	-e '/^    rabbitmq /d' \
 	-e '/^    redis /d' \
 	-e '/^    rpm /d' \

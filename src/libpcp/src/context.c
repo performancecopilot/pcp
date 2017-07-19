@@ -23,11 +23,11 @@
  *
  * Ditto for back n_backoff, def_backoff[] and backoff[].
  *
- * The actual contexts (__pmContext) are protected by the (recursive)
- * c_lock mutex which is intialized in pmNewContext() and pmDupContext(),
- * then locked in __pmHandleToPtr() ... it is the responsibility of all
- * __pmHandleToPtr() callers to call PM_UNLOCK(ctxp->c_lock) when they
- * are finished with the context.
+ * The actual contexts (__pmContext) are protected by the c_lock mutex
+ * (no longer recursive) which is intialized in pmNewContext()
+ * and pmDupContext(), then locked in __pmHandleToPtr() ... it is
+ * the responsibility of all __pmHandleToPtr() callers to call
+ * PM_UNLOCK(ctxp->c_lock) when they are finished with the context.
  */
 
 #include "pmapi.h"
@@ -107,7 +107,7 @@ map_handle_nolock(int handle)
 static int
 map_handle(int handle)
 {
-    ASSERT_IS_LOCKED(contexts_lock);
+    PM_ASSERT_IS_LOCKED(contexts_lock);
 
     return map_handle_nolock(handle);
 }
@@ -215,7 +215,7 @@ __pmPtrToHandle(__pmContext *ctxp)
  * Determine the hostname associated with the given context.
  */
 char *
-pmGetContextHostName_r(int ctxid, char *buf, int buflen)
+pmGetContextHostName_r(int handle, char *buf, int buflen)
 {
     __pmContext *ctxp;
     char	*name;
@@ -229,7 +229,7 @@ pmGetContextHostName_r(int ctxid, char *buf, int buflen)
 
     buf[0] = '\0';
 
-    if ((ctxp = __pmHandleToPtr(ctxid)) != NULL) {
+    if ((ctxp = __pmHandleToPtr(handle)) != NULL) {
 	switch (ctxp->c_type) {
 	case PM_CONTEXT_HOST:
 	    /*
@@ -242,16 +242,16 @@ pmGetContextHostName_r(int ctxid, char *buf, int buflen)
 	     * context switch, then switch back.
 	     */
 	    if (pmDebug & DBG_TRACE_CONTEXT)
-		fprintf(stderr, "pmGetContextHostName_r context(%d) -> 0\n", ctxid);
+		fprintf(stderr, "pmGetContextHostName_r context(%d) -> 0\n", handle);
 	    save_handle = PM_TPD(curr_handle);
 	    save_ctxp = PM_TPD(curr_ctxp);
-	    PM_TPD(curr_handle) = ctxid;
+	    PM_TPD(curr_handle) = handle;
 	    PM_TPD(curr_ctxp) = ctxp;
 
 	    name = "pmcd.hostname";
-	    sts = pmLookupName(1, &name, &pmid);
+	    sts = pmLookupName_ctx(ctxp, 1, &name, &pmid);
 	    if (sts >= 0)
-		sts = pmFetch(1, &pmid, &resp);
+		sts = pmFetch_ctx(ctxp, 1, &pmid, &resp);
 	    if (pmDebug & DBG_TRACE_CONTEXT)
 		fprintf(stderr, "pmGetContextHostName_r reset(%d) -> 0\n", save_handle);
 
@@ -301,10 +301,10 @@ pmGetContextHostName_r(int ctxid, char *buf, int buflen)
  * Backward-compatibility interface, non-thread-safe variant.
  */
 const char *
-pmGetContextHostName(int ctxid)
+pmGetContextHostName(int handle)
 {
     static char	hostbuf[MAXHOSTNAMELEN];
-    return (const char *)pmGetContextHostName_r(ctxid, hostbuf, (int)sizeof(hostbuf));
+    return (const char *)pmGetContextHostName_r(handle, hostbuf, (int)sizeof(hostbuf));
 }
 
 int
@@ -330,6 +330,11 @@ pmWhichContext(void)
     return sts;
 }
 
+/*
+ * Don't use this function ... the return value is a pointer to a context
+ * that is NOT LOCKED,
+ * TODO - when libpcp version changes, cull this function.
+ */
 __pmContext *
 __pmCurrentContext(void)
 {
@@ -374,7 +379,7 @@ initcontextlock(pthread_mutex_t *lock)
     int			sts;
     char		errmsg[PM_MAXERRMSGLEN];
 
-    ASSERT_IS_LOCKED(contexts_lock);
+    PM_ASSERT_IS_LOCKED(contexts_lock);
 
     /*
      * Need context lock to be recursive as we sometimes call
@@ -388,13 +393,22 @@ initcontextlock(pthread_mutex_t *lock)
 		contexts_len-1, errmsg);
 	exit(4);
     }
-    if ((sts = pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE)) != 0) {
+    if ((sts = pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_ERRORCHECK)) != 0) {
 	pmErrStr_r(-sts, errmsg, sizeof(errmsg));
 	fprintf(stderr, "pmNewContext: "
 		"context=%d lock pthread_mutexattr_settype failed: %s",
 		contexts_len-1, errmsg);
 	exit(4);
     }
+#if 0
+    if ((sts = pthread_mutexattr_setrobust(&attr, PTHREAD_MUTEX_ROBUST)) != 0) {
+	pmErrStr_r(-sts, errmsg, sizeof(errmsg));
+	fprintf(stderr, "pmNewContext: "
+		"context=%d lock pthread_mutexattr_setrobust failed: %s",
+		contexts_len-1, errmsg);
+	exit(4);
+    }
+#endif
     if ((sts = pthread_mutex_init(lock, &attr)) != 0) {
 	pmErrStr_r(-sts, errmsg, sizeof(errmsg));
 	fprintf(stderr, "pmNewContext: "
@@ -950,12 +964,23 @@ pmNewContext(int type, const char *name)
     /* A pointer to this stub object is put in contexts[] while a real __pmContext is being built. */
     static /*const*/ __pmContext being_initialized = { .c_type = PM_CONTEXT_INIT };
 
+#ifdef PCP_DEBUG
+    if (pmDebug & DBG_TRACE_PMAPI) {
+	if (name == NULL)
+	    fprintf(stderr, "pmNewContext(%d, NULL) <:", type);
+	else
+	    fprintf(stderr, "pmNewContext(%d, \"%s\") <:", type, name);
+    }
+#endif
+
     PM_INIT_LOCKS();
 
     if (PM_CONTEXT_LOCAL == (type & PM_CONTEXT_TYPEMASK) &&
-	PM_MULTIPLE_THREADS(PM_SCOPE_DSO_PMDA))
+	PM_MULTIPLE_THREADS(PM_SCOPE_DSO_PMDA)) {
 	/* Local context requires single-threaded applications */
-	return PM_ERR_THREAD;
+	sts = PM_ERR_THREAD;
+	goto pmapi_return;
+    }
 
     old_curr_handle = PM_TPD(curr_handle);
     old_curr_ctxp = PM_TPD(curr_ctxp);
@@ -1121,7 +1146,8 @@ INIT_CONTEXT:
 		    type, name);
 	}
 #endif
-	return PM_ERR_NOCONTEXT;
+	sts = PM_ERR_NOCONTEXT;
+	goto pmapi_return;
     }
 
     /* Take contexts_lock mutex to update contexts[] with this fully operational
@@ -1138,10 +1164,18 @@ INIT_CONTEXT:
     }
 #endif
 
-    /* bind defined metrics if any ..., after the new context is in place */
+    /*
+     * Bind defined metrics if any ..., after the new context is in place.
+     *
+     * Need to lock context because routines caled from _dmopencontext()
+     * may assume the context is locked.
+     */
+    PM_LOCK(new->c_lock);
     __dmopencontext(new);
+    PM_UNLOCK(new->c_lock);
 
-    return PM_TPD(curr_handle);
+    sts = PM_TPD(curr_handle);
+    goto pmapi_return;
 
 FAILED:
     /*
@@ -1173,6 +1207,21 @@ FAILED_LOCKED:
 	    type, name, sts, PM_TPD(curr_handle));
 #endif
     PM_UNLOCK(contexts_lock);
+
+pmapi_return:
+
+#ifdef PCP_DEBUG
+    if (pmDebug & DBG_TRACE_PMAPI) {
+	fprintf(stderr, ":> returns ");
+	if (sts >= 0)
+	    fprintf(stderr, "%d\n", sts);
+	else {
+	    char	errmsg[PM_MAXERRMSGLEN];
+	    fprintf(stderr, "%s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	}
+    }
+#endif
+
     return sts;
 }
 
@@ -1183,6 +1232,12 @@ pmReconnectContext(int handle)
     __pmPMCDCtl	*ctl;
     int		sts;
     int		ctxnum;
+
+#ifdef PCP_DEBUG
+    if (pmDebug & DBG_TRACE_PMAPI) {
+	fprintf(stderr, "pmReconnectContext(%d) <:", handle);
+    }
+#endif
 
     /* NB: This function may need parallelization, to permit multiple threads
        to pmReconnectContext() concurrently.  __pmConnectPMCD can take multiple
@@ -1195,7 +1250,8 @@ pmReconnectContext(int handle)
 	    fprintf(stderr, "pmReconnectContext(%d) -> %d\n", handle, PM_ERR_NOCONTEXT);
 #endif
 	PM_UNLOCK(contexts_lock);
-	return PM_ERR_NOCONTEXT;
+	sts = PM_ERR_NOCONTEXT;
+	goto pmapi_return;
     }
 
     ctxp = contexts[ctxnum];
@@ -1211,7 +1267,8 @@ pmReconnectContext(int handle)
 		handle, (int)-ETIMEDOUT, (int)(ctl->pc_again - time(NULL)));
 #endif
 	    PM_UNLOCK(ctxp->c_lock);
-	    return -ETIMEDOUT;
+	    sts = -ETIMEDOUT;
+	    goto pmapi_return;
 	}
 
 	if (ctl->pc_fd >= 0) {
@@ -1229,7 +1286,8 @@ pmReconnectContext(int handle)
 		    handle, (int)(ctl->pc_again - time(NULL)));
 #endif
 	    PM_UNLOCK(ctxp->c_lock);
-	    return -ETIMEDOUT;
+	    sts = -ETIMEDOUT;
+	    goto pmapi_return;
 	}
 	else {
 	    ctl->pc_fd = sts;
@@ -1253,9 +1311,31 @@ pmReconnectContext(int handle)
 	fprintf(stderr, "pmReconnectContext(%d) -> %d\n", handle, handle);
 #endif
 
-    return handle;
+    sts = handle;
+
+pmapi_return:
+
+#ifdef PCP_DEBUG
+    if (pmDebug & DBG_TRACE_PMAPI) {
+	fprintf(stderr, ":> returns ");
+	if (sts >= 0)
+	    fprintf(stderr, "%d\n", sts);
+	else {
+	    char	errmsg[PM_MAXERRMSGLEN];
+	    fprintf(stderr, "%s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	}
+    }
+#endif
+
+    return sts;
 }
 
+/*
+ * TODO - move all the context copying earlier to a local temporary
+ * under the protection of oldcon->c_lock ... then release oldcon->c_lock
+ * and after the new one is created lock newcon->c_lock and cherry-pick
+ * copy from the local temporary to the new __pmContext
+ */
 int
 pmDupContext(void)
 {
@@ -1268,6 +1348,12 @@ pmDupContext(void)
     int			i;
     int			ctxnum;
 
+#ifdef PCP_DEBUG
+    if (pmDebug & DBG_TRACE_PMAPI) {
+	fprintf(stderr, "pmDupContext() <:");
+    }
+#endif
+
     if ((old = pmWhichContext()) < 0) {
 	sts = old;
 	goto done;
@@ -1279,7 +1365,8 @@ pmDupContext(void)
 	    fprintf(stderr, "pmDupContext(%d) -> %d\n", old, PM_ERR_NOCONTEXT);
 #endif
 	PM_UNLOCK(contexts_lock);
-	return PM_ERR_NOCONTEXT;
+	sts = PM_ERR_NOCONTEXT;
+	goto pmapi_return;
     }
 
     oldcon = contexts[ctxnum];
@@ -1432,6 +1519,20 @@ done:
     }
 #endif
 
+pmapi_return:
+
+#ifdef PCP_DEBUG
+    if (pmDebug & DBG_TRACE_PMAPI) {
+	fprintf(stderr, ":> returns ");
+	if (sts >= 0)
+	    fprintf(stderr, "%d\n", sts);
+	else {
+	    char	errmsg[PM_MAXERRMSGLEN];
+	    fprintf(stderr, "%s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	}
+    }
+#endif
+
     return sts;
 }
 
@@ -1439,6 +1540,13 @@ int
 pmUseContext(int handle)
 {
     int		ctxnum;
+    int		sts;
+
+#ifdef PCP_DEBUG
+    if (pmDebug & DBG_TRACE_PMAPI) {
+	fprintf(stderr, "pmUseContext(%d) <:", handle);
+    }
+#endif
 
     PM_INIT_LOCKS();
 
@@ -1449,7 +1557,8 @@ pmUseContext(int handle)
 	    fprintf(stderr, "pmUseContext(%d) -> %d\n", handle, PM_ERR_NOCONTEXT);
 #endif
 	PM_UNLOCK(contexts_lock);
-	return PM_ERR_NOCONTEXT;
+	sts = PM_ERR_NOCONTEXT;
+	goto pmapi_return;
     }
 
 #ifdef PCP_DEBUG
@@ -1460,7 +1569,24 @@ pmUseContext(int handle)
     PM_TPD(curr_ctxp) = contexts[ctxnum];
 
     PM_UNLOCK(contexts_lock);
-    return 0;
+
+    sts = 0;
+
+pmapi_return:
+
+#ifdef PCP_DEBUG
+    if (pmDebug & DBG_TRACE_PMAPI) {
+	fprintf(stderr, ":> returns ");
+	if (sts >= 0)
+	    fprintf(stderr, "%d\n", sts);
+	else {
+	    char	errmsg[PM_MAXERRMSGLEN];
+	    fprintf(stderr, "%s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	}
+    }
+#endif
+
+    return sts;
 }
 
 static void
@@ -1483,6 +1609,13 @@ pmDestroyContext(int handle)
 {
     __pmContext	*ctxp;
     int		ctxnum;
+    int		sts;
+
+#ifdef PCP_DEBUG
+    if (pmDebug & DBG_TRACE_PMAPI) {
+	fprintf(stderr, "pmDestroyContext(%d) <:", handle);
+    }
+#endif
 
     PM_INIT_LOCKS();
 
@@ -1493,7 +1626,8 @@ pmDestroyContext(int handle)
 	fprintf(stderr, "pmDestroyContext(%d) -> %d\n", handle, PM_ERR_NOCONTEXT);
 #endif
 	PM_UNLOCK(contexts_lock);
-	return PM_ERR_NOCONTEXT;
+	sts = PM_ERR_NOCONTEXT;
+	goto pmapi_return;
     }
 
     ctxp = contexts[ctxnum];
@@ -1535,7 +1669,23 @@ pmDestroyContext(int handle)
     contexts_map[ctxnum] = MAP_FREE;
     PM_UNLOCK(contexts_lock);
 
-    return 0;
+    sts = 0;
+
+pmapi_return:
+
+#ifdef PCP_DEBUG
+    if (pmDebug & DBG_TRACE_PMAPI) {
+	fprintf(stderr, ":> returns ");
+	if (sts >= 0)
+	    fprintf(stderr, "%d\n", sts);
+	else {
+	    char	errmsg[PM_MAXERRMSGLEN];
+	    fprintf(stderr, "%s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	}
+    }
+#endif
+
+    return sts;
 }
 
 static const char *_mode[] = { "LIVE", "INTERP", "FORW", "BACK" };

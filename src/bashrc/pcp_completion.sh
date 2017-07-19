@@ -12,47 +12,47 @@ _pcp_complete()
     case ${COMP_WORDS[0]} in
 
         pmdumplog)
-        opt_regex="-[nSTZ]"
+        opt_regex="-[adiLlmnrSsTtVvxZz]"
         curpos_expand=1
         ;;
 
         pmdumptext)
-        opt_regex="-[AacdfhnOPRsStTUwZ]"
+        opt_regex="-[AaCcdFfGHhilMmNnOoPRrSstTUuVXwZz]"
         curpos_expand=1
         ;;
 
         pmevent)
-        opt_regex="-[AafhinOpSsTtwZ]"
+        opt_regex="-[AadfghiKLnOprSsTtUVvwxZz]"
         curpos_expand=1
         ;;
 
         pminfo)
-        opt_regex="-[abhnOZ]"
+        opt_regex="-[abcdFfhKLMmNnOTtVvxZz]"
         curpos_expand=1
         ;;
 
         pmlogsummary)
-        opt_regex="-[BnpSTZ]"
+        opt_regex="-[aBbFfHIilMmNnpSTVvxZz]"
         curpos_expand=2
         ;;
 
         pmprobe)
-        opt_regex="-[ahnOZ]"
+        opt_regex="-[adfFhIiKLnOVvZz]"
         curpos_expand=1
         ;;
 
         pmrep)
-        opt_regex="-[AabCcDdEeFfGHhIiKLlOoPpqrSsTtUuVvwXxyZz]"
+        opt_regex="-[AabCcdEeFfGHhIiKLlOoPpqrSsTtUuVvwXxyZz]"
         curpos_expand=1
         ;;
 
         pmstore)
-        opt_regex="-[hin]"
+        opt_regex="-[fhiKLnV]"
         curpos_expand=1
         ;;
 
         pmval)
-        opt_regex="-[AafhinOpSsTtwZ]"
+        opt_regex="-[AadfghiKLnOprSsTtUvVwxZz]"
         curpos_expand=1
         ;;
 

@@ -136,7 +136,10 @@ cleanup()
 	_service pcp restart \
 	| tee -a $here/$seq.full \
 	| _filterall_pcp_start \
-	| sed -e '/Waiting for pmcd to terminate/d'
+	| sed \
+	    -e '/Waiting for pmcd to terminate/d' \
+	    -e '/Installing .* PMDA \.\.\./d'
+	_restore_auto_restart pmcd
 	_wait_for_pmcd
 	_wait_for_pmlogger
 	pmprobe pmcd.control.debug
@@ -165,10 +168,12 @@ then
     exit 1
 fi
 
-_service pcp stop | _filter_pcp_stop
+_stop_auto_restart pmcd
+_service pmlogger stop | tee -a $here/$seq.full | _filter_pcp_stop
+_service pmcd stop | tee -a $here/$seq.full | _filter_pcp_stop
+_service pmie stop >>$here/$seq.full
+
 _change_config pmlogger off
-$sudo $signal -a -s TERM pmie 2>/dev/null
-$sudo $signal -a -s TERM pmlogger 2>/dev/null
 
 # Create a fake namespace to force pminfo to query the fake agent
 FAKE_NS=$tmp/$seq.fake_ns

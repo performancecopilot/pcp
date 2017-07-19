@@ -14,6 +14,7 @@
 
 #include "pmapi.h"
 #include "impl.h"
+#include "internal.h"
 
 static int *
 _subtract(int *list, int *list_len, int *arg, int arg_len)

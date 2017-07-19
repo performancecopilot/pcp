@@ -7,11 +7,11 @@
 
 debug=false
 
-fmt="%-11.11s %-8.8s %-7.7s %s%s\n"
+fmt="%-11.11s %-8.8s %-7.7s %s%s%s\n"
 if [ "$1" = "-h" ]
 then
-    printf "$fmt" "Host" "PCP" "CPU" "Operating System"
-    printf "$fmt" "-----------" "--------" "------" "------------------"
+    printf "$fmt" "Host" "PCP" "CPU" "Operating System and Options"
+    printf "$fmt" "-----------" "--------" "------" "-----------------------------"
 fi
 
 from=''
@@ -141,6 +141,22 @@ then
 else
     pcpver=unknown
 fi
-printf "$fmt" "`hostname | sed -e 's/\..*//'`" "$pcpver" "$arch" "$os" "$from"
+
+opts=''
+if which pmpython >/dev/null 2>&1
+then
+    opts="$opts `pmpython --version 2>&1 | sed -e 's/Python /py=/'`"
+else
+    opts="$opts py=none"
+fi
+if which getenforce >/dev/null 2>&1
+then
+    opts="$opts se=`getenforce | tr '[A-Z]' '[a-z]'`"
+else
+    opts="$opts se=none"
+fi
+opts=" [`echo $opts | sed -e 's/^ //'`]"
+
+printf "$fmt" "`hostname | sed -e 's/\..*//'`" "$pcpver" "$arch" "$os" "$from" "$opts"
 
 exit 0

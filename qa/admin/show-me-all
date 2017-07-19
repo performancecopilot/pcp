@@ -14,6 +14,7 @@ _usage()
     echo "Options:"
     echo "  -f    show me seq.full if it exists"
     echo "  -l    run show-me -l"
+    echo "  -m    gather unique .out.bad files and prepare email"
     sts=1
     exit
 }
@@ -21,7 +22,8 @@ _usage()
 full=false
 verbose=false
 show_me_opts=''
-while getopts 'fl?' p
+prepare_mail=false
+while getopts 'flm?' p
 do
     case "$p"
     in
@@ -29,6 +31,8 @@ do
 		;;
 
 	l)	show_me_opts="$show_me_opts -l"
+		;;
+	m)	prepare_mail=true
 		;;
 	?)	_usage
 		# NOTREACHED
@@ -111,4 +115,65 @@ do
 	echo $host $sum >>$tmp.sum
 	#debug# cat $tmp.sum
     done
+
+    if $prepare_mail
+    then
+	var=0
+	rm -f /tmp/$seq.out.bad-*
+	rm -f $tmp.map $tmp.mail
+	touch $tmp.map
+	cat $tmp.sum \
+	| while read host sum
+	do
+	    [ -z "$host" ] && continue
+	    myvar=`grep " $sum\$" $tmp.map | sed -e 's/ .*//'`
+	    if [ -z "$myvar" ]
+	    then
+		cp $HOME/Logs/by-vm/$host/qa/$seq.out.bad /tmp/$seq.out.bad-$var
+		myvar=$var
+		echo "$var $sum" >>$tmp.map
+		var=`expr $var + 1`
+	    fi
+	    myhost=``
+	    if [ -f $HOME/whatami.out ]
+	    then
+		myhost=`grep "^$host " $HOME/whatami.out`
+	    fi
+	    [ -z "$myhost" ] && myhost=$host
+	    printf " %2d   %s\n" $myvar "$myhost" >>$tmp.mail
+	done
+	echo "Subject: QA failures for qa/$seq (`grep "^$seq " $HOME/src/pcp/qa/group | sed \
+-e "s/^$seq //" -e 's/ local//' -e 's/ remote//'`)"
+	echo
+	echo "QA test $seq is failing on a number of machines in the QA Farm."
+	echo
+	echo "If you can help with diagnosis that would be most appreciated."
+	echo
+	echo "Even better would be code changes if this indicates there is a"
+	echo "real bug or QA changes if it represents a QA test failure."
+	echo
+	numvar=`echo /tmp/$seq.out.bad-* | wc -w | sed -e 's/  */ /g'`
+	if [ "$numvar" -gt 1 ]
+	then
+	    echo "Details for qa/$seq failures."
+	    echo
+	    echo ".bad  Host        PCP      CPU     Operating System"
+	    sort -k1,1n -k2,2 <$tmp.mail
+	    echo
+	    echo "The $numvar variants of the $seq.out.bad file are attached."
+	    echo
+	    echo "Attachments: `echo /tmp/$seq.out.bad-*`"
+	else
+	    echo "The failure is the same on all the following hosts."
+	    echo
+	    echo "Host        PCP      CPU     Operating System"
+	    sort -k1,1n -k2,2 <$tmp.mail | sed -e 's/^......//'
+	    echo
+	    echo "The $seq.out.bad file is attached."
+	    echo
+	    mv /tmp/$seq.out.bad-0 /tmp/$seq.out.bad
+	    echo "Attachment: /tmp/$seq.out.bad"
+	fi
+    fi
+
 done

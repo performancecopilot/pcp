@@ -62,7 +62,7 @@ typedef unsigned int	TickTime;	/* time counted in deltas */
 typedef double		RealTime;	/* wall clock time or interval */
 #define MINUTE		60		/* one minute of real time */
 #define DELAY_MAX	32		/* maximum initial evaluation delay */
-#define RETRY		5		/* retry interval */
+#define RETRY		5		/* initial retry interval */
 #define DELTA_DFLT	10		/* default sample interval */
 #define DELTA_MIN	0.1		/* minimum sample interval */
 
@@ -210,7 +210,7 @@ typedef struct task {
     RealTime      delta;	/* sample interval */
     TickTime      tick;		/* count up deltas */
     RealTime      eval;		/* scheduled evaluation time */
-    RealTime	  retry;	/* scheduled retry down Hosts and Metrics */
+    int		  retry;	/* delta for retry down Hosts and Metrics */
     int		  nrules;	/* number of rules in this task */
     Symbol	  *rules;	/* array of rules to be evaluated */
     Host          *hosts;	/* fetches to be executed and waiting */
@@ -364,9 +364,7 @@ char *getStringValue(Expr *, int);
 
 RealTime getReal(void);			/* return current time */
 void reflectTime(RealTime);		/* update time vars to reflect now */
-#define SLEEP_EVAL	0
-#define SLEEP_RETRY	1
-void sleepTight(Task *, int);		/* sleep until retry or eval time */
+void sleepTight(Task *);		/* sleep until eval time */
 void logRotate(void);			/* close current, start a new log */
 
 /*

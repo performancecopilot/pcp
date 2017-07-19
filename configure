@@ -620,6 +620,7 @@ ac_includes_default="\
 #endif"
 
 ac_subst_vars='PACKAGE_CONFIGURE
+pcp_prefix
 have_webapps
 HAVE_ZLIB
 zlib_LIBS
@@ -699,6 +700,16 @@ fmt_uint64
 fmt_int64
 fmt_pid
 rdynamic_flag
+pcp_selinux_tracefs
+pcp_selinux_unreserved_port
+pcp_selinux_systemd_exec
+pcp_selinux_systemd_unit_file
+pcp_selinux_svirt_lxc_net
+pcp_selinux_docker_var_lib
+pcp_selinux_nsfs
+pcp_selinux_container_runtime
+pcp_selinux_cap_userns_ptrace
+pcp_selinux_class_status
 pcp_selinux_dir
 enable_selinux
 SEINFO
@@ -7748,7 +7759,7 @@ fi
 enable_qt3d=false
 if test "x$do_qt3d" != "xno"; then :
 
-    if test -f /usr/include/Coin3/Inventor/Qt/SoQt.h
+    if test -f /usr/include/Coin3/Inventor/Qt/SoQt.h -o -f /usr/include/Inventor/Qt/SoQt.h
     then
 	enable_qt3d=$enable_qt
     elif test x"$do_qt3d" = x"yes"
@@ -10802,7 +10813,14 @@ $as_echo "yes" >&6; }
 fi
 
 pmda_perfevent=false
-if test "x$do_perfevent" != "xno" ; then :
+if test "x$do_perfevent" = "xyes"; then :
+
+    pmda_perfevent=true
+    pfm_libs="-lpfm"
+    PFM_LIBS=$pfm_libs
+
+
+elif test "x$do_perfevent" != "xno" ; then :
 
     enable_perfevent=true
 
@@ -11249,6 +11267,87 @@ do
 done
 
 fi
+
+
+
+pcp_selinux_class_status=false
+pcp_selinux_cap_userns_ptrace=false
+pcp_selinux_container_runtime=false
+pcp_selinux_nsfs=false
+pcp_selinux_docker_var_lib=false
+pcp_selinux_svirt_lxc_net=false
+pcp_selinux_systemd_unit_file=false
+pcp_selinux_systemd_exec=false
+pcp_selinux_tracefs=false
+pcp_selinux_unreserved_port=false
+if test "x$enable_selinux" != "xfalse"; then :
+
+for policy_file in /etc/selinux/targeted/policy/policy.*
+do
+    if test -f "$policy_file"
+    then
+        class_status=`eval seinfo -x --class=system $policy_file | grep status | awk '{ print $1 }'`
+    	if test "x$class_status" != "x"
+	then
+	    pcp_selinux_class_status=true
+	fi
+	container_runtime=`eval seinfo -t $policy_file | grep container_runtime_t | awk '{ print $1 }'`
+	if test "x$container_runtime" != "x"
+	then
+	    pcp_selinux_container_runtime=true
+	fi
+	nsfs=`eval seinfo -t $policy_file | grep nsfs_t | awk '{ print $1 }'`
+	if test "x$nsfs" != "x"
+	then
+	    pcp_selinux_nsfs=true
+	fi
+	docker_var_lib=`eval seinfo -t $policy_file | grep docker_var_lib_t | awk '{ print $1 }'`
+	if test "x$docker_var_lib" != "x"
+	then
+	    pcp_selinux_docker_var_lib=true
+	fi
+	svirt_lxc_net=`eval seinfo -t $policy_file | grep svirt_lxc_net_t | awk '{ print $1 }'`
+	if test "x$svirt_lxc_net" != "x"
+	then
+	    pcp_selinux_svirt_lxc_net=true
+	fi
+	systemd_unit_file=`eval seinfo -t $policy_file | grep systemd_unit_file_t | awk '{ print $1 }'`
+	if test "x$systemd_unit_file" != "x"
+	then
+	    pcp_selinux_systemd_unit_file=true
+	fi
+	systemd_exec=`eval seinfo -t $policy_file | grep systemd_systemctl_exec_t | awk '{ print $1 }'`
+	if test "x$systemd_exec" != "x"
+	then
+	    pcp_selinux_systemd_exec=true
+	fi
+	cap_userns_ptrace=`eval seinfo -x --class=cap_userns $policy_file 2>&1 | grep sys_ptrace | awk '{ print $1 }'`
+    	if test "x$cap_userns_ptrace" != "x"
+	then
+	    pcp_selinux_cap_userns_ptrace=true
+	fi
+	unreserved_port=`eval seinfo -t $policy_file | grep unreserved_port_t | awk '{ print $1 }'`
+	if test "x$unreserved_port" != "x"
+	then
+	    pcp_selinux_unreserved_port=true
+	fi
+	tracefs=`eval seinfo -t $policy_file | grep tracefs_t | awk '{ print $1 }'`
+	if test "x$tracefs" != "x"
+	then
+	    pcp_selinux_tracefs=true
+	fi
+
+    fi
+done
+
+fi
+
+
+
+
+
+
+
 
 
 
@@ -15580,6 +15679,8 @@ $as_echo "$as_me: adding web applications to the build" >&6;}
     have_webapps=true
 fi
 
+
+pcp_prefix=`eval echo $prefix`
 
 
 

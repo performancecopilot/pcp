@@ -1,0 +1,11 @@
+prefix=@PREFIX@
+exec_prefix=@PREFIX@
+libdir=@LIBDIR@
+includedir=@INCDIR@
+
+Name: libpcp
+Description: The Performance Co-Pilot library
+Version: @VERSION@
+Libs: -L${libdir} -lpcp
+Cflags: -I${includedir}
+Libs.private: @LDLIBS@

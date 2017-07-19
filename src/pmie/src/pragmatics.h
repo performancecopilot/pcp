@@ -35,7 +35,7 @@ char *findsource(const char *, const char *);
 void pmcsInit(void);
 
 /* juggle contexts */
-int newContext(Symbol *, const char *);
+int newContext(Symbol *, const char *, int);
 
 /* initialize access to archive */
 int initArchive(Archive *);

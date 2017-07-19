@@ -1,0 +1,1237 @@
+QA output created by 1110
+
+=== haproxy agent installation ===
+You will need to choose an appropriate configuration for installation of
+the "haproxy" Performance Metrics Domain Agent (PMDA).
+
+  collector	collect performance statistics on this system
+  monitor	allow this system to monitor local and/or remote systems
+  both		collector and monitor configuration for this system
+
+Please enter c(ollector) or m(onitor) or b(oth) [b] Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+[...install files, make output...]
+Updating the PMCD control file, and notifying PMCD ...
+Check haproxy metrics have appeared ... 134 metrics and 405 values
+
+=== report metric values ===
+
+haproxy.info.compressbpsin PMID: 145.0.41 [CompressBpsIn]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: byte / sec
+Help:
+CompressBpsIn
+    value 0
+
+haproxy.info.compressbpsout PMID: 145.0.42 [CompressBpsOut]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: byte / sec
+Help:
+CompressBpsOut
+    value 0
+
+haproxy.info.compressbpsratelim PMID: 145.0.43 [CompressBpsRateLim]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: byte / sec
+Help:
+CompressBpsRateLim
+    value 0
+
+haproxy.info.connrate PMID: 145.0.25 [ConnRate]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help:
+ConnRate
+    value 0
+
+haproxy.info.connratelimit PMID: 145.0.26 [ConnRateLimit]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: count
+Help:
+ConnRateLimit
+    value 0
+
+haproxy.info.cumconns PMID: 145.0.17 [CumConns]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+CumConns
+    value 12271
+
+haproxy.info.cumreq PMID: 145.0.18 [CumReq]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+CumReq
+    value 12271
+
+haproxy.info.cumsslconns PMID: 145.0.21 [CumSslConns]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+CumSslConns
+    value 0
+
+haproxy.info.currconns PMID: 145.0.16 [CurrConns]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help:
+CurrConns
+    value 8
+
+haproxy.info.currsslconns PMID: 145.0.20 [CurrSslConns]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help:
+CurrSslConns
+    value 0
+
+haproxy.info.description PMID: 145.0.50 [description]
+    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+Help:
+description
+    value "QA Test"
+
+haproxy.info.hard_maxconn PMID: 145.0.15 [Hard_maxconn]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: count
+Help:
+Hard_maxconn
+    value 20000
+
+haproxy.info.idle_pct PMID: 145.0.48 [Idle_pct]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+Help:
+Idle_pct
+    value 100
+
+haproxy.info.maxconn PMID: 145.0.14 [Maxconn]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: count
+Help:
+Maxconn
+    value 20000
+
+haproxy.info.maxconnrate PMID: 145.0.27 [MaxConnRate]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help:
+MaxConnRate
+    value 22
+
+haproxy.info.maxpipes PMID: 145.0.22 [Maxpipes]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: count
+Help:
+Maxpipes
+    value 0
+
+haproxy.info.maxsessrate PMID: 145.0.30 [MaxSessRate]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help:
+MaxSessRate
+    value 22
+
+haproxy.info.maxsock PMID: 145.0.13 [Maxsock]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: count
+Help:
+Maxsock
+    value 40035
+
+haproxy.info.maxsslconns PMID: 145.0.19 [MaxSslConns]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help:
+MaxSslConns
+    value 0
+
+haproxy.info.maxsslrate PMID: 145.0.33 [MaxSslRate]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help:
+MaxSslRate
+    value 0
+
+haproxy.info.maxzlibmemusage PMID: 145.0.45 [MaxZlibMemUsage]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: byte
+Help:
+MaxZlibMemUsage
+    value 0
+
+haproxy.info.memmax_mb PMID: 145.0.8 [Memmax_MB]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: Mbyte
+Help:
+Memmax_MB
+    value 0
+
+haproxy.info.name PMID: 145.0.0 [Name]
+    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+Help:
+Name
+    value "QAProxy"
+
+haproxy.info.nbproc PMID: 145.0.3 [Nbproc]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: count
+Help:
+Nbproc
+    value 1
+
+haproxy.info.node PMID: 145.0.49 [node]
+    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+Help:
+node
+    value "haproxy.example.com"
+
+haproxy.info.pid PMID: 145.0.5 [Pid]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+Help:
+Pid
+    value 1457
+
+haproxy.info.pipesfree PMID: 145.0.24 [PipesFree]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help:
+PipesFree
+    value 0
+
+haproxy.info.pipesused PMID: 145.0.23 [PipesUsed]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help:
+PipesUsed
+    value 0
+
+haproxy.info.poolalloc_mb PMID: 145.0.9 [PoolAlloc_MB]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Mbyte
+Help:
+PoolAlloc_MB
+    value 0
+
+haproxy.info.poolfailed PMID: 145.0.11 [PoolFailed]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+PoolFailed
+    value 0
+
+haproxy.info.poolused_mb PMID: 145.0.10 [PoolUsed_MB]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Mbyte
+Help:
+PoolUsed_MB
+    value 0
+
+haproxy.info.process_num PMID: 145.0.4 [Process_num]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+Help:
+Process_num
+    value 1
+
+haproxy.info.release_date PMID: 145.0.2 [Release_date]
+    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+Help:
+Release_date
+    value "2017/06/16"
+
+haproxy.info.run_queue PMID: 145.0.47 [Run_queue]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help:
+Run_queue
+    value 1
+
+haproxy.info.sessrate PMID: 145.0.28 [SessRate]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help:
+SessRate
+    value 0
+
+haproxy.info.sessratelimit PMID: 145.0.29 [SessRateLimit]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: count
+Help:
+SessRateLimit
+    value 0
+
+haproxy.info.sslbackendkeyrate PMID: 145.0.37 [SslBackendKeyRate]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help:
+SslBackendKeyRate
+    value 0
+
+haproxy.info.sslbackendmaxkeyrate PMID: 145.0.38 [SslBackendMaxKeyRate]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help:
+SslBackendMaxKeyRate
+    value 0
+
+haproxy.info.sslcachelookups PMID: 145.0.39 [SslCacheLookups]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+SslCacheLookups
+    value 0
+
+haproxy.info.sslcachemisses PMID: 145.0.40 [SslCacheMisses]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+SslCacheMisses
+    value 0
+
+haproxy.info.sslfrontendkeyrate PMID: 145.0.34 [SslFrontendKeyRate]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help:
+SslFrontendKeyRate
+    value 0
+
+haproxy.info.sslfrontendmaxkeyrate PMID: 145.0.35 [SslFrontendMaxKeyRate]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help:
+SslFrontendMaxKeyRate
+    value 0
+
+haproxy.info.sslfrontendsessionreuse_pct PMID: 145.0.36 [SslFrontendSessionReuse_pct]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+Help:
+SslFrontendSessionReuse_pct
+    value 0
+
+haproxy.info.sslrate PMID: 145.0.31 [SslRate]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help:
+SslRate
+    value 0
+
+haproxy.info.sslratelimit PMID: 145.0.32 [SslRateLimit]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: count
+Help:
+SslRateLimit
+    value 0
+
+haproxy.info.tasks PMID: 145.0.46 [Tasks]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help:
+Tasks
+    value 17
+
+haproxy.info.ulimit_n PMID: 145.0.12 [Ulimit-n]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: count
+Help:
+Ulimit-n
+    value 40035
+
+haproxy.info.uptime PMID: 145.0.6 [Uptime]
+    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+Help:
+Uptime
+    value "2d 20h57m42s"
+
+haproxy.info.uptime_sec PMID: 145.0.7 [Uptime_sec]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: sec
+Help:
+Uptime_sec
+    value 248262
+
+haproxy.info.version PMID: 145.0.1 [Version]
+    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+Help:
+Version
+    value "1.7.6"
+
+haproxy.info.zlibmemusage PMID: 145.0.44 [ZlibMemUsage]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: byte
+Help:
+ZlibMemUsage
+    value 0
+
+haproxy.stat.act PMID: 145.1.19 [number of active servers (backend), server is active (server)]
+    Data Type: 32-bit unsigned int  InDom: 145.0 0x24400000
+    Semantics: instant  Units: count
+Help:
+number of active servers (backend), server is active (server)
+    inst [0 or "pcp-qa-test-backend::server3"] value 1
+    inst [1 or "pcp-qa-test-backend::server1"] value 1
+    inst [3 or "stats::BACKEND"] value 0
+    inst [4 or "pcp-qa-test-backend::BACKEND"] value 3
+    inst [6 or "pcp-qa-test-backend::server2"] value 1
+
+haproxy.stat.addr PMID: 145.1.73 [address:port or "unix"]
+    Data Type: string  InDom: 145.0 0x24400000
+    Semantics: discrete  Units: none
+Help:
+address:port or "unix"
+    inst [0 or "pcp-qa-test-backend::server3"] value "10.10.10.13:1234"
+    inst [1 or "pcp-qa-test-backend::server1"] value "10.10.10.11:1234"
+    inst [2 or "stats::FRONTEND"] value "127.0.0.1:9000"
+    inst [3 or "stats::BACKEND"] value ""
+    inst [4 or "pcp-qa-test-backend::BACKEND"] value ""
+    inst [5 or "pcp-qa-test-frontend::FRONTEND"] value ""
+    inst [6 or "pcp-qa-test-backend::server2"] value "10.10.10.12:1234"
+
+haproxy.stat.agent_code PMID: 145.1.63 [numeric code reported by agent]
+    Data Type: 32-bit unsigned int  InDom: 145.0 0x24400000
+    Semantics: instant  Units: none
+Help:
+numeric code reported by agent
+    inst [2 or "stats::FRONTEND"] value 0
+
+haproxy.stat.agent_desc PMID: 145.1.66 [short human-readable description of agent_status]
+    Data Type: string  InDom: 145.0 0x24400000
+    Semantics: instant  Units: none
+Help:
+short human-readable description of agent_status
+    inst [0 or "pcp-qa-test-backend::server3"] value ""
+    inst [1 or "pcp-qa-test-backend::server1"] value ""
+    inst [2 or "stats::FRONTEND"] value ""
+    inst [3 or "stats::BACKEND"] value ""
+    inst [4 or "pcp-qa-test-backend::BACKEND"] value ""
+    inst [5 or "pcp-qa-test-frontend::FRONTEND"] value ""
+    inst [6 or "pcp-qa-test-backend::server2"] value ""
+
+haproxy.stat.agent_duration PMID: 145.1.64 [time in ms taken to finish last check]
+    Data Type: 64-bit unsigned int  InDom: 145.0 0x24400000
+    Semantics: instant  Units: millisec
+Help:
+time in ms taken to finish last check
+    inst [2 or "stats::FRONTEND"] value 0
+
+haproxy.stat.agent_fall PMID: 145.1.71 [agent "fall" parameter]
+    Data Type: 32-bit unsigned int  InDom: 145.0 0x24400000
+    Semantics: discrete  Units: none
+Help:
+agent "fall" parameter
+    inst [2 or "stats::FRONTEND"] value 0
+
+haproxy.stat.agent_health PMID: 145.1.72 [agent health parameter]
+    Data Type: 32-bit unsigned int  InDom: 145.0 0x24400000
+    Semantics: discrete  Units: none
+Help:
+agent health parameter
+    inst [2 or "stats::FRONTEND"] value 0
+
+haproxy.stat.agent_rise PMID: 145.1.70 [agent "rise" parameter]
+    Data Type: 32-bit unsigned int  InDom: 145.0 0x24400000
+    Semantics: discrete  Units: none
+Help:
+agent "rise" parameter
+    inst [2 or "stats::FRONTEND"] value 0
+
+haproxy.stat.agent_status PMID: 145.1.62 [status of last agent check]
+    Data Type: string  InDom: 145.0 0x24400000
+    Semantics: instant  Units: none
+Help:
+status of last agent check
+    inst [0 or "pcp-qa-test-backend::server3"] value ""
+    inst [1 or "pcp-qa-test-backend::server1"] value ""
+    inst [2 or "stats::FRONTEND"] value ""
+    inst [3 or "stats::BACKEND"] value ""
+    inst [4 or "pcp-qa-test-backend::BACKEND"] value ""
+    inst [5 or "pcp-qa-test-frontend::FRONTEND"] value ""
+    inst [6 or "pcp-qa-test-backend::server2"] value ""
+
+haproxy.stat.algo PMID: 145.1.76 [load balancing algorithm]
+    Data Type: string  InDom: 145.0 0x24400000
+    Semantics: discrete  Units: none
+Help:
+load balancing algorithm
+    inst [0 or "pcp-qa-test-backend::server3"] value ""
+    inst [1 or "pcp-qa-test-backend::server1"] value ""
+    inst [2 or "stats::FRONTEND"] value ""
+    inst [3 or "stats::BACKEND"] value "source"
+    inst [4 or "pcp-qa-test-backend::BACKEND"] value "source"
+    inst [5 or "pcp-qa-test-frontend::FRONTEND"] value ""
+    inst [6 or "pcp-qa-test-backend::server2"] value ""
+
+haproxy.stat.bck PMID: 145.1.20 [number of backup servers (backend), server is backup (server)]
+    Data Type: 32-bit unsigned int  InDom: 145.0 0x24400000
+    Semantics: instant  Units: count
+Help:
+number of backup servers (backend), server is backup (server)
+    inst [0 or "pcp-qa-test-backend::server3"] value 0
+    inst [1 or "pcp-qa-test-backend::server1"] value 0
+    inst [3 or "stats::BACKEND"] value 0
+    inst [4 or "pcp-qa-test-backend::BACKEND"] value 0
+    inst [6 or "pcp-qa-test-backend::server2"] value 0
+
+haproxy.stat.bin PMID: 145.1.8 [bytes in]
+    Data Type: 64-bit unsigned int  InDom: 145.0 0x24400000
+    Semantics: counter  Units: byte
+Help:
+bytes in
+    inst [0 or "pcp-qa-test-backend::server3"] value 160344948
+    inst [1 or "pcp-qa-test-backend::server1"] value 12222973
+    inst [2 or "stats::FRONTEND"] value 0
+    inst [3 or "stats::BACKEND"] value 0
+    inst [4 or "pcp-qa-test-backend::BACKEND"] value 385961958
+    inst [5 or "pcp-qa-test-frontend::FRONTEND"] value 385961958
+    inst [6 or "pcp-qa-test-backend::server2"] value 213393853
+
+haproxy.stat.bout PMID: 145.1.9 [bytes out]
+    Data Type: 64-bit unsigned int  InDom: 145.0 0x24400000
+    Semantics: counter  Units: byte
+Help:
+bytes out
+    inst [0 or "pcp-qa-test-backend::server3"] value 900707025
+    inst [1 or "pcp-qa-test-backend::server1"] value 47214951
+    inst [2 or "stats::FRONTEND"] value 0
+    inst [3 or "stats::BACKEND"] value 0
+    inst [4 or "pcp-qa-test-backend::BACKEND"] value 1827141867
+    inst [5 or "pcp-qa-test-frontend::FRONTEND"] value 1827141867
+    inst [6 or "pcp-qa-test-backend::server2"] value 879219891
+
+haproxy.stat.check_code PMID: 145.1.37 [layer5-7 code]
+    Data Type: 32-bit unsigned int  InDom: 145.0 0x24400000
+    Semantics: instant  Units: none
+Help:
+layer5-7 code
+    inst [2 or "stats::FRONTEND"] value 0
+
+haproxy.stat.check_desc PMID: 145.1.65 [short human-readable description of check_status]
+    Data Type: string  InDom: 145.0 0x24400000
+    Semantics: instant  Units: none
+Help:
+short human-readable description of check_status
+    inst [0 or "pcp-qa-test-backend::server3"] value ""
+    inst [1 or "pcp-qa-test-backend::server1"] value ""
+    inst [2 or "stats::FRONTEND"] value ""
+    inst [3 or "stats::BACKEND"] value ""
+    inst [4 or "pcp-qa-test-backend::BACKEND"] value ""
+    inst [5 or "pcp-qa-test-frontend::FRONTEND"] value ""
+    inst [6 or "pcp-qa-test-backend::server2"] value ""
+
+haproxy.stat.check_duration PMID: 145.1.38 [time in ms took to finish last health check]
+    Data Type: 64-bit unsigned int  InDom: 145.0 0x24400000
+    Semantics: instant  Units: millisec
+Help:
+time in ms took to finish last health check
+    inst [0 or "pcp-qa-test-backend::server3"] value 0
+    inst [1 or "pcp-qa-test-backend::server1"] value 0
+    inst [6 or "pcp-qa-test-backend::server2"] value 0
+
+haproxy.stat.check_fall PMID: 145.1.68 [server "fall" parameter used by checks]
+    Data Type: 32-bit unsigned int  InDom: 145.0 0x24400000
+    Semantics: discrete  Units: none
+Help:
+server "fall" parameter used by checks
+    inst [2 or "stats::FRONTEND"] value 0
+
+haproxy.stat.check_health PMID: 145.1.69 [server health parameter]
+    Data Type: 32-bit unsigned int  InDom: 145.0 0x24400000
+    Semantics: discrete  Units: none
+Help:
+server health parameter
+    inst [2 or "stats::FRONTEND"] value 0
+
+haproxy.stat.check_rise PMID: 145.1.67 [server "rise" parameter used by checks]
+    Data Type: 32-bit unsigned int  InDom: 145.0 0x24400000
+    Semantics: discrete  Units: none
+Help:
+server "rise" parameter used by checks
+    inst [2 or "stats::FRONTEND"] value 0
+
+haproxy.stat.check_status PMID: 145.1.36 [status of last health check]
+    Data Type: string  InDom: 145.0 0x24400000
+    Semantics: instant  Units: count
+Help:
+status of last health check
+    inst [0 or "pcp-qa-test-backend::server3"] value "L4OK"
+    inst [1 or "pcp-qa-test-backend::server1"] value "L4OK"
+    inst [2 or "stats::FRONTEND"] value ""
+    inst [3 or "stats::BACKEND"] value ""
+    inst [4 or "pcp-qa-test-backend::BACKEND"] value ""
+    inst [5 or "pcp-qa-test-frontend::FRONTEND"] value ""
+    inst [6 or "pcp-qa-test-backend::server2"] value "L4OK"
+
+haproxy.stat.chkdown PMID: 145.1.22 [number of UP->DOWN transitions]
+    Data Type: 64-bit unsigned int  InDom: 145.0 0x24400000
+    Semantics: counter  Units: count
+Help:
+number of UP->DOWN transitions
+    inst [0 or "pcp-qa-test-backend::server3"] value 41
+    inst [1 or "pcp-qa-test-backend::server1"] value 75
+    inst [3 or "stats::BACKEND"] value 0
+    inst [4 or "pcp-qa-test-backend::BACKEND"] value 21
+    inst [6 or "pcp-qa-test-backend::server2"] value 41
+
+haproxy.stat.chkfail PMID: 145.1.21 [number of failed checks]
+    Data Type: 64-bit unsigned int  InDom: 145.0 0x24400000
+    Semantics: counter  Units: count
+Help:
+number of failed checks
+    inst [0 or "pcp-qa-test-backend::server3"] value 122
+    inst [1 or "pcp-qa-test-backend::server1"] value 223
+    inst [6 or "pcp-qa-test-backend::server2"] value 121
+
+haproxy.stat.cli_abrt PMID: 145.1.49 [number of data transfers aborted by the client]
+    Data Type: 64-bit unsigned int  InDom: 145.0 0x24400000
+    Semantics: counter  Units: count
+Help:
+number of data transfers aborted by the client
+    inst [0 or "pcp-qa-test-backend::server3"] value 44
+    inst [1 or "pcp-qa-test-backend::server1"] value 6
+    inst [3 or "stats::BACKEND"] value 0
+    inst [4 or "pcp-qa-test-backend::BACKEND"] value 123
+    inst [6 or "pcp-qa-test-backend::server2"] value 73
+
+haproxy.stat.comp_byp PMID: 145.1.53 [number of bytes that bypassed the HTTP compressor]
+    Data Type: 64-bit unsigned int  InDom: 145.0 0x24400000
+    Semantics: counter  Units: byte
+Help:
+number of bytes that bypassed the HTTP compressor
+    inst [2 or "stats::FRONTEND"] value 0
+    inst [3 or "stats::BACKEND"] value 0
+    inst [4 or "pcp-qa-test-backend::BACKEND"] value 0
+    inst [5 or "pcp-qa-test-frontend::FRONTEND"] value 0
+
+haproxy.stat.comp_in PMID: 145.1.51 [number of HTTP response bytes fed to the compressor]
+    Data Type: 64-bit unsigned int  InDom: 145.0 0x24400000
+    Semantics: counter  Units: byte
+Help:
+number of HTTP response bytes fed to the compressor
+    inst [2 or "stats::FRONTEND"] value 0
+    inst [3 or "stats::BACKEND"] value 0
+    inst [4 or "pcp-qa-test-backend::BACKEND"] value 0
+    inst [5 or "pcp-qa-test-frontend::FRONTEND"] value 0
+
+haproxy.stat.comp_out PMID: 145.1.52 [number of HTTP response bytes emitted by the compressor]
+    Data Type: 64-bit unsigned int  InDom: 145.0 0x24400000
+    Semantics: counter  Units: byte
+Help:
+number of HTTP response bytes emitted by the compressor
+    inst [2 or "stats::FRONTEND"] value 0
+    inst [3 or "stats::BACKEND"] value 0
+    inst [4 or "pcp-qa-test-backend::BACKEND"] value 0
+    inst [5 or "pcp-qa-test-frontend::FRONTEND"] value 0
+
+haproxy.stat.comp_rsp PMID: 145.1.54 [number of HTTP responses that were compressed]
+    Data Type: 64-bit unsigned int  InDom: 145.0 0x24400000
+    Semantics: counter  Units: count
+Help:
+number of HTTP responses that were compressed
+    inst [2 or "stats::FRONTEND"] value 0
+    inst [3 or "stats::BACKEND"] value 0
+    inst [4 or "pcp-qa-test-backend::BACKEND"] value 0
+    inst [5 or "pcp-qa-test-frontend::FRONTEND"] value 0
+
+haproxy.stat.conn_rate PMID: 145.1.77 [number of connections over the last elapsed second]
+    Data Type: 32-bit unsigned int  InDom: 145.0 0x24400000
+    Semantics: instant  Units: count
+Help:
+number of connections over the last elapsed second
+    inst [5 or "pcp-qa-test-frontend::FRONTEND"] value 0
+
+haproxy.stat.conn_rate_max PMID: 145.1.78 [highest known conn_rate]
+    Data Type: 32-bit unsigned int  InDom: 145.0 0x24400000
+    Semantics: instant  Units: count
+Help:
+highest known conn_rate
+    inst [5 or "pcp-qa-test-frontend::FRONTEND"] value 0
+
+haproxy.stat.conn_tot PMID: 145.1.79 [cumulative number of connections]
+    Data Type: 64-bit unsigned int  InDom: 145.0 0x24400000
+    Semantics: counter  Units: count
+Help:
+cumulative number of connections
+    inst [5 or "pcp-qa-test-frontend::FRONTEND"] value 0
+
+haproxy.stat.cookie PMID: 145.1.74 [servers cookie value or backends cookie name]
+    Data Type: string  InDom: 145.0 0x24400000
+    Semantics: discrete  Units: none
+Help:
+servers cookie value or backends cookie name
+    inst [0 or "pcp-qa-test-backend::server3"] value ""
+    inst [1 or "pcp-qa-test-backend::server1"] value ""
+    inst [2 or "stats::FRONTEND"] value ""
+    inst [3 or "stats::BACKEND"] value ""
+    inst [4 or "pcp-qa-test-backend::BACKEND"] value ""
+    inst [5 or "pcp-qa-test-frontend::FRONTEND"] value ""
+    inst [6 or "pcp-qa-test-backend::server2"] value ""
+
+haproxy.stat.ctime PMID: 145.1.59 [the average connect time in ms over the 1024 last requests]
+    Data Type: 32-bit unsigned int  InDom: 145.0 0x24400000
+    Semantics: instant  Units: millisec
+Help:
+the average connect time in ms over the 1024 last requests
+    inst [0 or "pcp-qa-test-backend::server3"] value 0
+    inst [1 or "pcp-qa-test-backend::server1"] value 0
+    inst [3 or "stats::BACKEND"] value 0
+    inst [4 or "pcp-qa-test-backend::BACKEND"] value 0
+    inst [6 or "pcp-qa-test-backend::server2"] value 0
+
+haproxy.stat.dcon PMID: 145.1.81 [requests denied by "tcp-request connection" rules]
+    Data Type: 64-bit unsigned int  InDom: 145.0 0x24400000
+    Semantics: counter  Units: count
+Help:
+requests denied by "tcp-request connection" rules
+    inst [5 or "pcp-qa-test-frontend::FRONTEND"] value 0
+
+haproxy.stat.downtime PMID: 145.1.24 [total downtime]
+    Data Type: 32-bit unsigned int  InDom: 145.0 0x24400000
+    Semantics: counter  Units: sec
+Help:
+total downtime
+    inst [0 or "pcp-qa-test-backend::server3"] value 28008
+    inst [1 or "pcp-qa-test-backend::server1"] value 27942
+    inst [3 or "stats::BACKEND"] value 0
+    inst [4 or "pcp-qa-test-backend::BACKEND"] value 27101
+    inst [6 or "pcp-qa-test-backend::server2"] value 27997
+
+haproxy.stat.dreq PMID: 145.1.10 [requests denied because of security concerns]
+    Data Type: 64-bit unsigned int  InDom: 145.0 0x24400000
+    Semantics: counter  Units: count
+Help:
+requests denied because of security concerns
+    inst [2 or "stats::FRONTEND"] value 0
+    inst [3 or "stats::BACKEND"] value 0
+    inst [4 or "pcp-qa-test-backend::BACKEND"] value 0
+    inst [5 or "pcp-qa-test-frontend::FRONTEND"] value 0
+
+haproxy.stat.dresp PMID: 145.1.11 [responses denied because of security concerns]
+    Data Type: 64-bit unsigned int  InDom: 145.0 0x24400000
+    Semantics: counter  Units: count
+Help:
+responses denied because of security concerns
+    inst [0 or "pcp-qa-test-backend::server3"] value 0
+    inst [1 or "pcp-qa-test-backend::server1"] value 0
+    inst [2 or "stats::FRONTEND"] value 0
+    inst [3 or "stats::BACKEND"] value 0
+    inst [4 or "pcp-qa-test-backend::BACKEND"] value 0
+    inst [5 or "pcp-qa-test-frontend::FRONTEND"] value 0
+    inst [6 or "pcp-qa-test-backend::server2"] value 0
+
+haproxy.stat.dses PMID: 145.1.82 [requests denied by "tcp-request session" rules]
+    Data Type: 64-bit unsigned int  InDom: 145.0 0x24400000
+    Semantics: counter  Units: count
+Help:
+requests denied by "tcp-request session" rules
+    inst [5 or "pcp-qa-test-frontend::FRONTEND"] value 0
+
+haproxy.stat.econ PMID: 145.1.13 [connection errors]
+    Data Type: 64-bit unsigned int  InDom: 145.0 0x24400000
+    Semantics: counter  Units: count
+Help:
+connection errors
+    inst [0 or "pcp-qa-test-backend::server3"] value 0
+    inst [1 or "pcp-qa-test-backend::server1"] value 666
+    inst [3 or "stats::BACKEND"] value 0
+    inst [4 or "pcp-qa-test-backend::BACKEND"] value 1060
+    inst [6 or "pcp-qa-test-backend::server2"] value 388
+
+haproxy.stat.ereq PMID: 145.1.12 [request errors]
+    Data Type: 64-bit unsigned int  InDom: 145.0 0x24400000
+    Semantics: counter  Units: count
+Help:
+request errors
+    inst [2 or "stats::FRONTEND"] value 0
+    inst [5 or "pcp-qa-test-frontend::FRONTEND"] value 0
+
+haproxy.stat.eresp PMID: 145.1.14 [response errors]
+    Data Type: 64-bit unsigned int  InDom: 145.0 0x24400000
+    Semantics: counter  Units: count
+Help:
+response errors
+    inst [0 or "pcp-qa-test-backend::server3"] value 8
+    inst [1 or "pcp-qa-test-backend::server1"] value 2
+    inst [3 or "stats::BACKEND"] value 0
+    inst [4 or "pcp-qa-test-backend::BACKEND"] value 19
+    inst [6 or "pcp-qa-test-backend::server2"] value 9
+
+haproxy.stat.hanafail PMID: 145.1.45 [failed health checks details]
+    Data Type: 64-bit unsigned int  InDom: 145.0 0x24400000
+    Semantics: counter  Units: count
+Help:
+failed health checks details
+    inst [0 or "pcp-qa-test-backend::server3"] value 0
+    inst [1 or "pcp-qa-test-backend::server1"] value 0
+    inst [6 or "pcp-qa-test-backend::server2"] value 0
+
+haproxy.stat.hrsp_1xx PMID: 145.1.39 [http responses with 1xx code]
+    Data Type: 64-bit unsigned int  InDom: 145.0 0x24400000
+    Semantics: counter  Units: count
+Help:
+http responses with 1xx code
+    inst [2 or "stats::FRONTEND"] value 0
+    inst [3 or "stats::BACKEND"] value 0
+
+haproxy.stat.hrsp_2xx PMID: 145.1.40 [http responses with 2xx code]
+    Data Type: 64-bit unsigned int  InDom: 145.0 0x24400000
+    Semantics: counter  Units: count
+Help:
+http responses with 2xx code
+    inst [2 or "stats::FRONTEND"] value 0
+    inst [3 or "stats::BACKEND"] value 0
+
+haproxy.stat.hrsp_3xx PMID: 145.1.41 [http responses with 3xx code]
+    Data Type: 64-bit unsigned int  InDom: 145.0 0x24400000
+    Semantics: counter  Units: count
+Help:
+http responses with 3xx code
+    inst [2 or "stats::FRONTEND"] value 0
+    inst [3 or "stats::BACKEND"] value 0
+
+haproxy.stat.hrsp_4xx PMID: 145.1.42 [http responses with 4xx code]
+    Data Type: 64-bit unsigned int  InDom: 145.0 0x24400000
+    Semantics: counter  Units: count
+Help:
+http responses with 4xx code
+    inst [2 or "stats::FRONTEND"] value 0
+    inst [3 or "stats::BACKEND"] value 0
+
+haproxy.stat.hrsp_5xx PMID: 145.1.43 [http responses with 5xx code]
+    Data Type: 64-bit unsigned int  InDom: 145.0 0x24400000
+    Semantics: counter  Units: count
+Help:
+http responses with 5xx code
+    inst [2 or "stats::FRONTEND"] value 0
+    inst [3 or "stats::BACKEND"] value 0
+
+haproxy.stat.hrsp_other PMID: 145.1.44 [http responses with other codes]
+    Data Type: 64-bit unsigned int  InDom: 145.0 0x24400000
+    Semantics: counter  Units: count
+Help:
+http responses with other codes
+    inst [2 or "stats::FRONTEND"] value 0
+    inst [3 or "stats::BACKEND"] value 0
+
+haproxy.stat.iid PMID: 145.1.27 [unique proxy id]
+    Data Type: 32-bit unsigned int  InDom: 145.0 0x24400000
+    Semantics: discrete  Units: none
+Help:
+unique proxy id
+    inst [0 or "pcp-qa-test-backend::server3"] value 4
+    inst [1 or "pcp-qa-test-backend::server1"] value 4
+    inst [2 or "stats::FRONTEND"] value 2
+    inst [3 or "stats::BACKEND"] value 2
+    inst [4 or "pcp-qa-test-backend::BACKEND"] value 4
+    inst [5 or "pcp-qa-test-frontend::FRONTEND"] value 3
+    inst [6 or "pcp-qa-test-backend::server2"] value 4
+
+haproxy.stat.intercepted PMID: 145.1.80 [cumulative number of intercepted connections]
+    Data Type: 64-bit unsigned int  InDom: 145.0 0x24400000
+    Semantics: counter  Units: count
+Help:
+cumulative number of intercepted connections
+    inst [2 or "stats::FRONTEND"] value 0
+
+haproxy.stat.last_agt PMID: 145.1.57 [last agent check contents or textual error]
+    Data Type: string  InDom: 145.0 0x24400000
+    Semantics: instant  Units: none
+Help:
+last agent check contents or textual error
+    inst [0 or "pcp-qa-test-backend::server3"] value ""
+    inst [1 or "pcp-qa-test-backend::server1"] value ""
+    inst [2 or "stats::FRONTEND"] value ""
+    inst [3 or "stats::BACKEND"] value ""
+    inst [4 or "pcp-qa-test-backend::BACKEND"] value ""
+    inst [5 or "pcp-qa-test-frontend::FRONTEND"] value ""
+    inst [6 or "pcp-qa-test-backend::server2"] value ""
+
+haproxy.stat.last_chk PMID: 145.1.56 [last health check contents or textual error]
+    Data Type: string  InDom: 145.0 0x24400000
+    Semantics: instant  Units: none
+Help:
+last health check contents or textual error
+    inst [0 or "pcp-qa-test-backend::server3"] value ""
+    inst [1 or "pcp-qa-test-backend::server1"] value ""
+    inst [2 or "stats::FRONTEND"] value ""
+    inst [3 or "stats::BACKEND"] value ""
+    inst [4 or "pcp-qa-test-backend::BACKEND"] value ""
+    inst [5 or "pcp-qa-test-frontend::FRONTEND"] value ""
+    inst [6 or "pcp-qa-test-backend::server2"] value ""
+
+haproxy.stat.lastchg PMID: 145.1.23 [number of seconds since the last UP<->DOWN transition]
+    Data Type: 32-bit unsigned int  InDom: 145.0 0x24400000
+    Semantics: instant  Units: sec
+Help:
+number of seconds since the last UP<->DOWN transition
+    inst [0 or "pcp-qa-test-backend::server3"] value 53809
+    inst [1 or "pcp-qa-test-backend::server1"] value 53163
+    inst [3 or "stats::BACKEND"] value 248297
+    inst [4 or "pcp-qa-test-backend::BACKEND"] value 54330
+    inst [6 or "pcp-qa-test-backend::server2"] value 53949
+
+haproxy.stat.lastsess PMID: 145.1.55 [number of seconds since last session assigned to server/backend]
+    Data Type: 32-bit int  InDom: 145.0 0x24400000
+    Semantics: instant  Units: sec
+Help:
+number of seconds since last session assigned to server/backend
+    inst [0 or "pcp-qa-test-backend::server3"] value 53187
+    inst [1 or "pcp-qa-test-backend::server1"] value 53186
+    inst [3 or "stats::BACKEND"] value -1
+    inst [4 or "pcp-qa-test-backend::BACKEND"] value 188
+    inst [6 or "pcp-qa-test-backend::server2"] value 188
+
+haproxy.stat.lbtot PMID: 145.1.30 [total number of times a server was selected]
+    Data Type: 64-bit unsigned int  InDom: 145.0 0x24400000
+    Semantics: counter  Units: count
+Help:
+total number of times a server was selected
+    inst [0 or "pcp-qa-test-backend::server3"] value 113
+    inst [1 or "pcp-qa-test-backend::server1"] value 792
+    inst [3 or "stats::BACKEND"] value 0
+    inst [4 or "pcp-qa-test-backend::BACKEND"] value 12262
+    inst [6 or "pcp-qa-test-backend::server2"] value 11357
+
+haproxy.stat.mode PMID: 145.1.75 [proxy mode]
+    Data Type: string  InDom: 145.0 0x24400000
+    Semantics: discrete  Units: none
+Help:
+proxy mode
+    inst [0 or "pcp-qa-test-backend::server3"] value "http"
+    inst [1 or "pcp-qa-test-backend::server1"] value "http"
+    inst [2 or "stats::FRONTEND"] value "http"
+    inst [3 or "stats::BACKEND"] value "http"
+    inst [4 or "pcp-qa-test-backend::BACKEND"] value "http"
+    inst [5 or "pcp-qa-test-frontend::FRONTEND"] value "tcp"
+    inst [6 or "pcp-qa-test-backend::server2"] value "http"
+
+haproxy.stat.pid PMID: 145.1.26 [process id]
+    Data Type: 32-bit unsigned int  InDom: 145.0 0x24400000
+    Semantics: discrete  Units: none
+Help:
+process id
+    inst [0 or "pcp-qa-test-backend::server3"] value 1
+    inst [1 or "pcp-qa-test-backend::server1"] value 1
+    inst [2 or "stats::FRONTEND"] value 1
+    inst [3 or "stats::BACKEND"] value 1
+    inst [4 or "pcp-qa-test-backend::BACKEND"] value 1
+    inst [5 or "pcp-qa-test-frontend::FRONTEND"] value 1
+    inst [6 or "pcp-qa-test-backend::server2"] value 1
+
+haproxy.stat.pxname PMID: 145.1.0 [proxy name]
+    Data Type: string  InDom: 145.0 0x24400000
+    Semantics: discrete  Units: none
+Help:
+proxy name
+    inst [0 or "pcp-qa-test-backend::server3"] value "pcp-qa-test-backend"
+    inst [1 or "pcp-qa-test-backend::server1"] value "pcp-qa-test-backend"
+    inst [2 or "stats::FRONTEND"] value "stats"
+    inst [3 or "stats::BACKEND"] value "stats"
+    inst [4 or "pcp-qa-test-backend::BACKEND"] value "pcp-qa-test-backend"
+    inst [5 or "pcp-qa-test-frontend::FRONTEND"] value "pcp-qa-test-frontend"
+    inst [6 or "pcp-qa-test-backend::server2"] value "pcp-qa-test-backend"
+
+haproxy.stat.qcur PMID: 145.1.2 [current queued requests]
+    Data Type: 32-bit unsigned int  InDom: 145.0 0x24400000
+    Semantics: instant  Units: count
+Help:
+current queued requests
+    inst [0 or "pcp-qa-test-backend::server3"] value 0
+    inst [1 or "pcp-qa-test-backend::server1"] value 0
+    inst [3 or "stats::BACKEND"] value 0
+    inst [4 or "pcp-qa-test-backend::BACKEND"] value 0
+    inst [6 or "pcp-qa-test-backend::server2"] value 0
+
+haproxy.stat.qlimit PMID: 145.1.25 [configured maxqueue for the server]
+    Data Type: 32-bit unsigned int  InDom: 145.0 0x24400000
+    Semantics: discrete  Units: count
+Help:
+configured maxqueue for the server
+    inst [2 or "stats::FRONTEND"] value 100
+
+haproxy.stat.qmax PMID: 145.1.3 [max value of qcur]
+    Data Type: 32-bit unsigned int  InDom: 145.0 0x24400000
+    Semantics: instant  Units: count
+Help:
+max value of qcur
+    inst [0 or "pcp-qa-test-backend::server3"] value 0
+    inst [1 or "pcp-qa-test-backend::server1"] value 0
+    inst [3 or "stats::BACKEND"] value 0
+    inst [4 or "pcp-qa-test-backend::BACKEND"] value 0
+    inst [6 or "pcp-qa-test-backend::server2"] value 0
+
+haproxy.stat.qtime PMID: 145.1.58 [the average queue time in ms over the 1024 last requests]
+    Data Type: 32-bit unsigned int  InDom: 145.0 0x24400000
+    Semantics: instant  Units: millisec
+Help:
+the average queue time in ms over the 1024 last requests
+    inst [0 or "pcp-qa-test-backend::server3"] value 0
+    inst [1 or "pcp-qa-test-backend::server1"] value 0
+    inst [3 or "stats::BACKEND"] value 0
+    inst [4 or "pcp-qa-test-backend::BACKEND"] value 0
+    inst [6 or "pcp-qa-test-backend::server2"] value 0
+
+haproxy.stat.rate PMID: 145.1.33 [number of sessions per second over last elapsed second]
+    Data Type: 32-bit unsigned int  InDom: 145.0 0x24400000
+    Semantics: instant  Units: count / sec
+Help:
+number of sessions per second over last elapsed second
+    inst [0 or "pcp-qa-test-backend::server3"] value 0
+    inst [1 or "pcp-qa-test-backend::server1"] value 0
+    inst [2 or "stats::FRONTEND"] value 0
+    inst [3 or "stats::BACKEND"] value 0
+    inst [4 or "pcp-qa-test-backend::BACKEND"] value 0
+    inst [5 or "pcp-qa-test-frontend::FRONTEND"] value 0
+    inst [6 or "pcp-qa-test-backend::server2"] value 0
+
+haproxy.stat.rate_lim PMID: 145.1.34 [configured limit on new sessions per second]
+    Data Type: 32-bit unsigned int  InDom: 145.0 0x24400000
+    Semantics: discrete  Units: count / sec
+Help:
+configured limit on new sessions per second
+    inst [2 or "stats::FRONTEND"] value 0
+    inst [5 or "pcp-qa-test-frontend::FRONTEND"] value 0
+
+haproxy.stat.rate_max PMID: 145.1.35 [max number of new sessions per second]
+    Data Type: 32-bit unsigned int  InDom: 145.0 0x24400000
+    Semantics: instant  Units: count / sec
+Help:
+max number of new sessions per second
+    inst [0 or "pcp-qa-test-backend::server3"] value 10
+    inst [1 or "pcp-qa-test-backend::server1"] value 23
+    inst [2 or "stats::FRONTEND"] value 0
+    inst [3 or "stats::BACKEND"] value 0
+    inst [4 or "pcp-qa-test-backend::BACKEND"] value 22
+    inst [5 or "pcp-qa-test-frontend::FRONTEND"] value 22
+    inst [6 or "pcp-qa-test-backend::server2"] value 11
+
+haproxy.stat.req_rate PMID: 145.1.46 [HTTP requests per second over last elapsed second]
+    Data Type: 32-bit unsigned int  InDom: 145.0 0x24400000
+    Semantics: instant  Units: count / sec
+Help:
+HTTP requests per second over last elapsed second
+    inst [2 or "stats::FRONTEND"] value 0
+    inst [5 or "pcp-qa-test-frontend::FRONTEND"] value 0
+
+haproxy.stat.req_rate_max PMID: 145.1.47 [max number of HTTP requests per second observed]
+    Data Type: 32-bit unsigned int  InDom: 145.0 0x24400000
+    Semantics: instant  Units: count / sec
+Help:
+max number of HTTP requests per second observed
+    inst [2 or "stats::FRONTEND"] value 0
+    inst [5 or "pcp-qa-test-frontend::FRONTEND"] value 0
+
+haproxy.stat.req_tot PMID: 145.1.48 [total number of HTTP requests received]
+    Data Type: 64-bit unsigned int  InDom: 145.0 0x24400000
+    Semantics: counter  Units: count
+Help:
+total number of HTTP requests received
+    inst [2 or "stats::FRONTEND"] value 0
+    inst [5 or "pcp-qa-test-frontend::FRONTEND"] value 0
+
+haproxy.stat.rtime PMID: 145.1.60 [the average response time in ms over the 1024 last requests]
+    Data Type: 32-bit unsigned int  InDom: 145.0 0x24400000
+    Semantics: instant  Units: millisec
+Help:
+the average response time in ms over the 1024 last requests
+    inst [0 or "pcp-qa-test-backend::server3"] value 0
+    inst [1 or "pcp-qa-test-backend::server1"] value 0
+    inst [3 or "stats::BACKEND"] value 0
+    inst [4 or "pcp-qa-test-backend::BACKEND"] value 0
+    inst [6 or "pcp-qa-test-backend::server2"] value 0
+
+haproxy.stat.scur PMID: 145.1.4 [current sessions]
+    Data Type: 32-bit unsigned int  InDom: 145.0 0x24400000
+    Semantics: instant  Units: count
+Help:
+current sessions
+    inst [0 or "pcp-qa-test-backend::server3"] value 3
+    inst [1 or "pcp-qa-test-backend::server1"] value 0
+    inst [2 or "stats::FRONTEND"] value 0
+    inst [3 or "stats::BACKEND"] value 0
+    inst [4 or "pcp-qa-test-backend::BACKEND"] value 8
+    inst [5 or "pcp-qa-test-frontend::FRONTEND"] value 8
+    inst [6 or "pcp-qa-test-backend::server2"] value 5
+
+haproxy.stat.sid PMID: 145.1.28 [server id]
+    Data Type: 32-bit unsigned int  InDom: 145.0 0x24400000
+    Semantics: discrete  Units: none
+Help:
+server id
+    inst [0 or "pcp-qa-test-backend::server3"] value 3
+    inst [1 or "pcp-qa-test-backend::server1"] value 1
+    inst [2 or "stats::FRONTEND"] value 0
+    inst [3 or "stats::BACKEND"] value 0
+    inst [4 or "pcp-qa-test-backend::BACKEND"] value 0
+    inst [5 or "pcp-qa-test-frontend::FRONTEND"] value 0
+    inst [6 or "pcp-qa-test-backend::server2"] value 2
+
+haproxy.stat.slim PMID: 145.1.6 [configured session limit]
+    Data Type: 32-bit unsigned int  InDom: 145.0 0x24400000
+    Semantics: discrete  Units: count
+Help:
+configured session limit
+    inst [2 or "stats::FRONTEND"] value 20000
+    inst [3 or "stats::BACKEND"] value 2000
+    inst [4 or "pcp-qa-test-backend::BACKEND"] value 2000
+    inst [5 or "pcp-qa-test-frontend::FRONTEND"] value 20000
+
+haproxy.stat.smax PMID: 145.1.5 [max sessions]
+    Data Type: 32-bit unsigned int  InDom: 145.0 0x24400000
+    Semantics: instant  Units: count
+Help:
+max sessions
+    inst [0 or "pcp-qa-test-backend::server3"] value 15
+    inst [1 or "pcp-qa-test-backend::server1"] value 22
+    inst [2 or "stats::FRONTEND"] value 0
+    inst [3 or "stats::BACKEND"] value 0
+    inst [4 or "pcp-qa-test-backend::BACKEND"] value 35
+    inst [5 or "pcp-qa-test-frontend::FRONTEND"] value 35
+    inst [6 or "pcp-qa-test-backend::server2"] value 18
+
+haproxy.stat.srv_abrt PMID: 145.1.50 [number of data transfers aborted by the server]
+    Data Type: 64-bit unsigned int  InDom: 145.0 0x24400000
+    Semantics: counter  Units: count
+Help:
+number of data transfers aborted by the server
+    inst [0 or "pcp-qa-test-backend::server3"] value 8
+    inst [1 or "pcp-qa-test-backend::server1"] value 2
+    inst [3 or "stats::BACKEND"] value 0
+    inst [4 or "pcp-qa-test-backend::BACKEND"] value 19
+    inst [6 or "pcp-qa-test-backend::server2"] value 9
+
+haproxy.stat.status PMID: 145.1.17 [status]
+    Data Type: string  InDom: 145.0 0x24400000
+    Semantics: instant  Units: none
+Help:
+status
+    inst [0 or "pcp-qa-test-backend::server3"] value "UP"
+    inst [1 or "pcp-qa-test-backend::server1"] value "UP"
+    inst [2 or "stats::FRONTEND"] value "OPEN"
+    inst [3 or "stats::BACKEND"] value "UP"
+    inst [4 or "pcp-qa-test-backend::BACKEND"] value "UP"
+    inst [5 or "pcp-qa-test-frontend::FRONTEND"] value "OPEN"
+    inst [6 or "pcp-qa-test-backend::server2"] value "UP"
+
+haproxy.stat.stot PMID: 145.1.7 [cumulative number of sessions]
+    Data Type: 64-bit unsigned int  InDom: 145.0 0x24400000
+    Semantics: counter  Units: count
+Help:
+cumulative number of sessions
+    inst [0 or "pcp-qa-test-backend::server3"] value 113
+    inst [1 or "pcp-qa-test-backend::server1"] value 2790
+    inst [2 or "stats::FRONTEND"] value 0
+    inst [3 or "stats::BACKEND"] value 0
+    inst [4 or "pcp-qa-test-backend::BACKEND"] value 12268
+    inst [5 or "pcp-qa-test-frontend::FRONTEND"] value 12268
+    inst [6 or "pcp-qa-test-backend::server2"] value 12521
+
+haproxy.stat.svname PMID: 145.1.1 [service name]
+    Data Type: string  InDom: 145.0 0x24400000
+    Semantics: discrete  Units: none
+Help:
+service name
+    inst [0 or "pcp-qa-test-backend::server3"] value "server3"
+    inst [1 or "pcp-qa-test-backend::server1"] value "server1"
+    inst [2 or "stats::FRONTEND"] value "FRONTEND"
+    inst [3 or "stats::BACKEND"] value "BACKEND"
+    inst [4 or "pcp-qa-test-backend::BACKEND"] value "BACKEND"
+    inst [5 or "pcp-qa-test-frontend::FRONTEND"] value "FRONTEND"
+    inst [6 or "pcp-qa-test-backend::server2"] value "server2"
+
+haproxy.stat.throttle PMID: 145.1.29 [current throttle percentage for the server]
+    Data Type: 32-bit unsigned int  InDom: 145.0 0x24400000
+    Semantics: instant  Units: none
+Help:
+current throttle percentage for the server
+    inst [2 or "stats::FRONTEND"] value 0
+
+haproxy.stat.tracked PMID: 145.1.31 [id of proxy/server if tracking is enabled]
+    Data Type: string  InDom: 145.0 0x24400000
+    Semantics: discrete  Units: none
+Help:
+id of proxy/server if tracking is enabled
+    inst [0 or "pcp-qa-test-backend::server3"] value ""
+    inst [1 or "pcp-qa-test-backend::server1"] value ""
+    inst [2 or "stats::FRONTEND"] value ""
+    inst [3 or "stats::BACKEND"] value ""
+    inst [4 or "pcp-qa-test-backend::BACKEND"] value ""
+    inst [5 or "pcp-qa-test-frontend::FRONTEND"] value ""
+    inst [6 or "pcp-qa-test-backend::server2"] value ""
+
+haproxy.stat.ttime PMID: 145.1.61 [the average total session time in ms over the 1024 last]
+    Data Type: 32-bit unsigned int  InDom: 145.0 0x24400000
+    Semantics: instant  Units: millisec
+Help:
+the average total session time in ms over the 1024 last
+    inst [0 or "pcp-qa-test-backend::server3"] value 8837
+    inst [1 or "pcp-qa-test-backend::server1"] value 14369
+    inst [3 or "stats::BACKEND"] value 0
+    inst [4 or "pcp-qa-test-backend::BACKEND"] value 7286
+    inst [6 or "pcp-qa-test-backend::server2"] value 2579
+
+haproxy.stat.type PMID: 145.1.32 [0=frontend, 1=backend, 2=server, 3=socket/listener]
+    Data Type: 32-bit unsigned int  InDom: 145.0 0x24400000
+    Semantics: discrete  Units: none
+Help:
+0=frontend, 1=backend, 2=server, 3=socket/listener
+    inst [0 or "pcp-qa-test-backend::server3"] value 2
+    inst [1 or "pcp-qa-test-backend::server1"] value 2
+    inst [2 or "stats::FRONTEND"] value 0
+    inst [3 or "stats::BACKEND"] value 1
+    inst [4 or "pcp-qa-test-backend::BACKEND"] value 1
+    inst [5 or "pcp-qa-test-frontend::FRONTEND"] value 0
+    inst [6 or "pcp-qa-test-backend::server2"] value 2
+
+haproxy.stat.weight PMID: 145.1.18 [total weight (backend), server weight (server)]
+    Data Type: 32-bit unsigned int  InDom: 145.0 0x24400000
+    Semantics: instant  Units: count
+Help:
+total weight (backend), server weight (server)
+    inst [0 or "pcp-qa-test-backend::server3"] value 1
+    inst [1 or "pcp-qa-test-backend::server1"] value 1
+    inst [3 or "stats::BACKEND"] value 0
+    inst [4 or "pcp-qa-test-backend::BACKEND"] value 3
+    inst [6 or "pcp-qa-test-backend::server2"] value 1
+
+haproxy.stat.wredis PMID: 145.1.16 [number of times a request was redispatched to another]
+    Data Type: 64-bit unsigned int  InDom: 145.0 0x24400000
+    Semantics: counter  Units: count
+Help:
+number of times a request was redispatched to another
+    inst [0 or "pcp-qa-test-backend::server3"] value 0
+    inst [1 or "pcp-qa-test-backend::server1"] value 0
+    inst [3 or "stats::BACKEND"] value 0
+    inst [4 or "pcp-qa-test-backend::BACKEND"] value 0
+    inst [6 or "pcp-qa-test-backend::server2"] value 0
+
+haproxy.stat.wretr PMID: 145.1.15 [number of times a connection to a server was retried]
+    Data Type: 64-bit unsigned int  InDom: 145.0 0x24400000
+    Semantics: counter  Units: count
+Help:
+number of times a connection to a server was retried
+    inst [0 or "pcp-qa-test-backend::server3"] value 0
+    inst [1 or "pcp-qa-test-backend::server1"] value 1998
+    inst [3 or "stats::BACKEND"] value 0
+    inst [4 or "pcp-qa-test-backend::BACKEND"] value 3162
+    inst [6 or "pcp-qa-test-backend::server2"] value 1164
+=== verify metric values ===
+
+=== remove haproxy agent ===
+Culling the Performance Metrics Name Space ...
+haproxy ... done
+Updating the PMCD control file, and notifying PMCD ...
+[...removing files...]
+Check haproxy metrics have gone away ... OK
+Waiting for pmcd to terminate ...
+Starting pmcd ... 
+Starting pmlogger ... 
