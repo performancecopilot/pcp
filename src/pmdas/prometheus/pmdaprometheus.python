@@ -29,8 +29,10 @@ import math
 import json
 import os
 import re
+import time
 import requests
 import threading
+from multiprocessing import Process
 
 MAX_CLUSTER = 0xfff
 MAX_METRIC = 0x3ff
@@ -43,6 +45,74 @@ INSTANT = "instantaneous"
 TYPES = { DOUBLE: c_api.PM_TYPE_DOUBLE, UINT: c_api.PM_TYPE_U64 }
 SEMANTICS = { COUNTER: c_api.PM_SEM_COUNTER, INSTANT: c_api.PM_SEM_INSTANT }
 
+def diffMetadata(self, new_metrics, old_metrics):
+	''' diffMetadata finds new/removed metrics by diffing'''
+	if old_metrics is None:
+		old_metrics = []
+	changes_map = {}
+	old_metrics_map = {}
+	new_metrics_map = {}
+	# Map old_metrics array into `name:metric`
+	for metric in old_metrics:
+		old_metrics_map[metric.get("name")] = metric
+	# Map new metrics array into `name:metrics`
+	for metric in new_metrics:
+		new_metrics_map[metric.get("name")] = metric
+
+	# Find newly added metrics/instances
+	for name in new_metrics_map:
+		if name not in old_metrics_map:
+			changes_map[name] = True
+			old_metrics_map[name] = new_metrics_map[name]
+			continue
+		metric = new_metrics_map[name]
+		instances = metric.get("instances")
+		if instances is None:
+			continue
+		old_metric = old_metrics_map[name]
+		old_instances = old_metric.get("instances")
+		if old_instances is None or len(old_instances) == 0:
+			changes_map[name] = True
+			old_metric["instances"] = instances
+			continue
+		for instance in instances:
+			if instance not in old_instances:
+				changes_map[name] = True
+				old_instances.append(instance)
+
+	# Find remove metrics/instances
+	for name in old_metrics_map:
+		if name not in new_metrics_map:
+			changes_map[name] = True
+			old_metrics_map.pop(name)
+			continue
+		old_metric = old_metrics_map[name]
+		old_instances = old_metric.get("instances")
+		if old_instances is None:
+			continue
+		metric = new_metrics_map[name]
+		instances = metric.get("instances")
+		if instances is None or len(instances) == 0:
+			changes_map[name] = True
+			old_metric["instances"] = None
+			continue
+		removed_instances = []
+		for instance in old_instances:
+			if instance not in instances:
+				removed_instances.append(instance)
+		if len(removed_instances) > 0:
+			changes_map[name] = True
+			for instance in removed_instances:
+				old_instances.remove(instance)
+
+	# Flatten map into array
+	metrics_arr = []
+	for i in old_metrics_map:
+		metrics_arr.append(old_metrics_map[i])
+
+	return (changes_map, metrics_arr)
+
+
 class ScanPrometheus(object):
 	''' Scans Prometheus Endpoint to Generate Metadata for the given endpoint'''
 
@@ -52,6 +122,8 @@ class ScanPrometheus(object):
 		self.filepath = filepath
 		self.raw_metrics = None
 		self.metrics_by_name = {}
+
+	def run(self):
 		self.fetch_raw_metrics()
 		self.parse_raw()
 		self.save_metadata()
@@ -82,15 +154,19 @@ class ScanPrometheus(object):
 					metadata[key] = self.__dict__[key]
 			return metadata
 
+	def exportMetrics(self):
+		metrics = []
+		for k in self.metrics_by_name:
+			metrics.append(self.metrics_by_name[k].export())
+		return metrics
+
 	def save_metadata(self):
 		# Saves the metadata of the Prometheus endpoint in PCP_PMDAS_DIR
-		config = { "name": self.name, "metrics": [] }
+		config = { "name": self.name, "metrics": self.exportMetrics() }
 		if self.filepath:
 			config["filepath"] = os.path.abspath(self.filepath)
 		else:
 			config["endpoint"] = self.endpoint
-		for k in self.metrics_by_name:
-			config["metrics"].append(self.metrics_by_name[k].export())
 		raw_config = json.dumps(config, indent=2)
 		filename = os.getenv('PCP_PMDAS_DIR') + \
 					"/prometheus/metadata/" + self.name + ".json"
@@ -171,7 +247,8 @@ class ScanPrometheus(object):
 		lines = self.raw_metrics.splitlines()
 		lineIter = 0
 		while lineIter<len(lines):
-			if lines[lineIter][0] != "#" or lines[lineIter+1][0] != '#':
+			if len(lines[lineIter]) == 0 or lines[lineIter][0] != "#" \
+				or lines[lineIter+1][0] != '#':
 				raise ValueError("Invalid format of Prometheus metrics metadata"
 					"\n%s" %(lines[lineIter]))
 			metricLines = [lines[lineIter], lines[lineIter+1]]
@@ -486,9 +563,9 @@ class PrometheusSource(object):
 		self.__metric_cache = IndomCache(self.__cluster,
 										 MAX_METRIC, self.pmda)
 		self.__metric_cache.load()
-		self.parse_metrics_metadata()
-		self.load_instance_domains()
-		self.load_metrics_idx()
+		self.metrics = self.parse_metrics_metadata(self.metadata)
+		self.load_instance_domains(self.metrics)
+		self.load_metrics_idx(self.metrics)
 
 	def log(self, string):
 		''' Log an informational message '''
@@ -533,9 +610,9 @@ class PrometheusSource(object):
 		self.filepath = metadata.get("filepath")
 		return True
 
-	def parse_metrics_metadata(self):
+	def parse_metrics_metadata(self, metadata):
 		''' Parses, initializes and stores the metrics from metadata '''
-		metrics_meta = self.metadata.get("metrics")
+		metrics_meta = metadata.get("metrics")
 		if not metrics_meta:
 			self.log("Empty metadata for PrometheusPmda cofnig with path: %s"
 					 % self.path)
@@ -550,11 +627,11 @@ class PrometheusSource(object):
 			except Exception as e:
 				self.log("Unable to parse metric for Prometheus PMDA: %s"
 						% meta)
-		self.metrics = metrics
+		return metrics
 
-	def load_instance_domains(self):
+	def load_instance_domains(self, metrics):
 		''' Assigns indoms to the metrics with instances '''
-		for metric in self.metrics:
+		for metric in metrics:
 			# Skip metrics without instances
 			if not metric.instances:
 				continue
@@ -579,9 +656,9 @@ class PrometheusSource(object):
 		# Stores the cached indoms
 		self.pmda.indom_cache.refresh()
 
-	def load_metrics_idx(self):
+	def load_metrics_idx(self, metrics):
 		''' Loads the metrics with pmid and adds them to the PMDA'''
-		for metric in self.metrics:
+		for metric in metrics:
 			name = metric.name
 
 			# Assigns the id to a metric and stores in the metric cache
@@ -620,6 +697,7 @@ class PrometheusSource(object):
 	def parse_metrics_values(self, raw_data):
 		''' Parses the metric values from the raw data '''
 		lines = raw_data.splitlines()
+		self.metrics_value = {}
 		for line in lines:
 			tokens = line.split(' ')
 			if tokens[0] == '#':
@@ -662,8 +740,10 @@ class PrometheusPMDA(PMDA):
 		self.connect_pmcd()
 		self.numfetch = 0
 		self.num_threads = 8
-		self.metadata_refresh_frequency = 120
+		self.metadata_refresh_frequency = 60
 		self.endpoint_fetch_timeout = .5
+		self.last_refresh_time = 0
+		self.refresh_process = None
 
 		pmdaDir = "%s/%s/metadata/" % (pmContext.pmGetConfig('PCP_PMDAS_DIR'), pmda_name)
 		self.dir = pmdaDir
@@ -764,7 +844,7 @@ class PrometheusPMDA(PMDA):
 
 	def prometheus_fetch(self):
 		''' Called once before calling prometheus_fetch_callback '''
-
+		self.refresh_metadata_helper()
 		# Lookup the metadata directory for any new source
 		if self.dir_mtime < os.stat(self.dir).st_mtime:
 			self.dir_mtime = os.stat(self.dir).st_mtime
@@ -809,7 +889,46 @@ class PrometheusPMDA(PMDA):
 				return c_api.PM_ERR_PMID
 		return c_api.PM_ERR_PMID
 
+	def refresh_metadata_helper(self):
+		currTime = time.time()
+		if (currTime - self.last_refresh_time) >= self.metadata_refresh_frequency:
+			if self.refresh_process is not None and \
+				self.refresh_process.is_alive() is True:
+				return
+			self.refresh_process = Process(target=self.refresh_metadata)
+			self.refresh_process.start()
+			self.last_refresh_time = time.time()
+
+
+	def refresh_metadata(self):
+		if len(self.source_by_cluster) == 0:
+			return
+		for i in self.source_by_cluster:
+			source = self.source_by_cluster[i]
+			metadata = source.metadata
+			data = None
+			try:
+				req = requests.get(source.endpoint, \
+					timeout=self.endpoint_fetch_timeout)
+				data = req.text
+			except:
+				continue
+			scanner = ScanPrometheus('')
+			scanner.raw_metrics = req.text
+			scanner.parse_raw()
+			new_metrics = scanner.exportMetrics()
+			(changes, metrics) = diffMetadata(self, new_metrics, \
+				 metadata.get('metrics'))
+
+			if len(changes) > 0:
+				metadata["metrics"] = metrics
+				with open(source.path, "w") as f:
+					f.write(json.dumps(metadata, indent=2))
+					f.close()
+
+
 	def refresh_worker(self, *clusters):
+		''' Worker targeted by refresh_all() to refresh metrics values'''
 		for i in clusters:
 			if i==0:
 				continue
@@ -856,6 +975,7 @@ if __name__ == '__main__':
 		if not ( args.url or args.filepath ) or not args.name:
 			parser.error("Name and url or filepath of the endpoint required")
 			os.exit(1)
-		ScanPrometheus(args.name, args.url, args.filepath)
+		scan = ScanPrometheus(args.name, args.url, args.filepath)
+		scan.run()
 	else:
 		PrometheusPMDA('prometheus', 144).run()
