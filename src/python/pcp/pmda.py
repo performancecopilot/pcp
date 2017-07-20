@@ -296,6 +296,21 @@ class MetricDispatch(object):
         self._metric_helptext[pmid] = text
         cpmda.set_need_refresh()
 
+    def remove_metric(self, name, metric):
+        pmid = metric.m_desc.pmid
+        if (name not in self._metric_names_map):
+            raise KeyError('attempt to remove_metric which does not existing')
+        if (pmid not in self._metrics):
+            raise KeyError('attempt to add_metric with an existing PMID')
+
+        self._metrictable.remove(metric)
+        self._metrics.pop(pmid)
+        self._metric_names.pop(pmid)
+        self._metric_names_map.pop(name)
+        self._metric_oneline.pop(pmid)
+        self._metric_helptext.pop(pmid)
+        cpmda.set_need_refresh()
+
     def add_indom(self, indom, oneline = '', text = ''):
         indomid = indom.it_indom
         for entry in self._indomtable:
