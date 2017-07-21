@@ -202,14 +202,14 @@ pm_dm_refresh_stats_histogram(const char *name, struct pm_dm_histogram *pdmh)
 
 		bin = dm_histogram_get_nr_bins(dmh);
 		buffer_data = (uint64_t *)malloc(sizeof(uint64_t)*bin);
-		for (int i = 0; i < bin - 1; i++)
+		for (int i = 0; i < bin; i++)
 			buffer_data[i] = dm_histogram_get_bin_count(dmh, i);
 	}
 
 	pdmh->pm_bin_value = buffer_data[count];
 	count++;
 
-	if (count == (bin - 1)) {
+	if (count == (bin)) {
 		count = 0;
 		bin = 0;
 		free(buffer_data);
@@ -304,6 +304,7 @@ pm_dm_stats_instance_refresh(void)
 		}
 		pmdaCacheStore(indom, PMDA_CACHE_ADD, names->name, (void *)dmsc);
 		next = names->next;
+		dm_stats_destroy(dms);
 	} while(next);
 
 	return 0;
@@ -369,8 +370,8 @@ pm_dm_histogram_instance_refresh(void)
 
 			bins = dm_histogram_get_nr_bins(dmh);
 
-			for (int i = 0; i < bins - 1; i++) {
-				bound_width = dm_histogram_get_bin_upper(dmh, i);
+			for (int i = 0; i < bins; i++) {
+				bound_width = dm_histogram_get_bin_lower(dmh, i);
 				_scale_bound_value_to_suffix(&bound_width, &suffix);
 				sprintf(buffer, "%s:%lu:%lu%s", names->name, region_id, bound_width, suffix);
 
@@ -387,6 +388,7 @@ pm_dm_histogram_instance_refresh(void)
 			}
 		}
 		next = names->next;
+		dm_stats_destroy(dms);
 	} while(next);
 
 	return 0;
