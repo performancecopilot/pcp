@@ -19,92 +19,10 @@
 //SOFTWARE.
 
 package pmapi
-// #cgo LDFLAGS: -lpcp
-// #include <pcp/pmapi.h>
-/*
-// cgo does not support packed pmUnit struct. Define some helper functions
-// to get the underlying data out of the struct
-int getPmUnitsDimSpace(pmUnits units) {
-	return units.dimSpace;
-}
-int getPmUnitsDimTime(pmUnits units) {
-	return units.dimTime;
-}
-int getPmUnitsDimCount(pmUnits units) {
-	return units.dimCount;
-}
-
-unsigned int getPmUnitsScaleSpace(pmUnits units) {
-	return units.scaleSpace;
-}
-unsigned int getPmUnitsScaleTime(pmUnits units) {
-	return units.scaleTime;
-}
-int getPmUnitsScaleCount(pmUnits units) {
-	return units.scaleCount;
-}
-
-pmValueSet* getPmValueSetFromPmResult(int index, pmResult *pm_result) {
-	return pm_result->vset[index];
-}
-
-// See comment in PmFetch() for an explanation of why we do this
-pmValue getDuplicatedPmValueFromPmValueSet(int index, pmValueSet *pm_value_set) {
-	pmValue pm_value = pm_value_set->vlist[index];
-
-	if(pm_value_set->valfmt == PM_VAL_DPTR) {
-		pmValueBlock *orig_vblock = pm_value.value.pval;
-		pmValueBlock *new_vblock = (pmValueBlock*)malloc(orig_vblock->vlen);
-		memcpy(new_vblock, orig_vblock, orig_vblock->vlen);
-		pm_value.value.pval = new_vblock;
-	}
-
-	return pm_value;
-}
-
-void freePmValue(pmValue pm_value, int valfmt) {
-	if(valfmt == PM_VAL_DPTR) {
-		free(pm_value.value.pval);
-	}
-}
-
-__int32_t getInt32FromPmAtomValue(pmAtomValue atom) {
-	return atom.l;
-}
-
-__uint32_t getUInt32FromPmAtomValue(pmAtomValue atom) {
-	return atom.ul;
-}
-
-__int64_t getInt64FromPmAtomValue(pmAtomValue atom) {
-	return atom.ll;
-}
-
-__uint64_t getUInt64FromPmAtomValue(pmAtomValue atom) {
-	return atom.ull;
-}
-
-float getFloatFromPmAtomValue(pmAtomValue atom) {
-	return atom.f;
-}
-
-double getDoubleFromPmAtomValue(pmAtomValue atom) {
-	return atom.d;
-}
-
-char *getStringFromPmAtomValue(pmAtomValue atom) {
-	return atom.cp;
-}
-
-void freeStringFromPmAtomValue(pmAtomValue atom) {
-	free(atom.cp);
-}
-
-void freePmValueBlockFromPmAtomValue(pmAtomValue atom) {
-	free(atom.vbp);
-}
-
-*/
+//#cgo CFLAGS: -I .
+//#cgo LDFLAGS: -L . -lpcp
+//#include <pcp/pmapi.h>
+//#include "c_glue.h"
 import "C"
 import (
 	"unsafe"
@@ -186,6 +104,11 @@ type PmID uint32
 type PmInDom uint32
 
 var contextLock = sync.Mutex{}
+
+/* Naive way to implement PMNS callback. This would need to be refactored if PmTraversePMNS was heavily used with
+multiple contexts */
+var currentPMNSCallback func(metric string)
+var currentPMNSCallbackLock = sync.Mutex{}
 
 const (
 	PmContextHost = PmContextType(int(C.PM_CONTEXT_HOST))
@@ -415,6 +338,36 @@ func (c *PmapiContext) PmNameAll(pmid PmID) ([]string, error) {
 	}
 
 	return names, nil
+}
+
+func (c *PmapiContext) PmTraversePMNS(name string, traverse_callback func(string)) (int, error) {
+	if traverse_callback == nil {
+		return 0, errors.New("traverse_callback cannot be nil")
+	}
+
+	name_ptr := C.CString(name)
+	defer C.free(unsafe.Pointer(name_ptr))
+
+	currentPMNSCallbackLock.Lock()
+	defer currentPMNSCallbackLock.Unlock()
+
+	currentPMNSCallback = traverse_callback
+	defer func() { currentPMNSCallback  = nil }()
+
+	metrics_found, err := c.withinContext(func() int {
+		return int(C.pmTraversePMNS(name_ptr, (C.pmTraversePMNSCGoCallbackType)(unsafe.Pointer(C.pmTraversePMNSCGoCallback))))
+	})
+
+	if err != nil {
+		return 0, err
+	}
+
+	return metrics_found, nil
+}
+
+//export goPmTraversePMNSCGoCallback
+func goPmTraversePMNSCGoCallback(name *C.char) {
+	currentPMNSCallback(C.GoString(name))
 }
 
 func (c *PmapiContext) PmLookupDesc(pmid PmID) (PmDesc, error) {

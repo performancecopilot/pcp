@@ -343,6 +343,45 @@ func TestPmapiContext_PmNameAll_returnsEmptyIfThePmIDIsInvalid(t *testing.T) {
 	assert.Empty(t, name)
 }
 
+func TestPmapiContext_PmTraversePMNS_traversesOverTheMetricNameSpace(t *testing.T) {
+	var metrics []string
+	localContext().PmTraversePMNS("sample.many", func(metric string) {
+		metrics = append(metrics, metric)
+	})
+
+	assert.Equal(t, []string{"sample.many.count", "sample.many.int"}, metrics)
+}
+
+func TestPmapiContext_PmTraversePMNS_returnsTheNumberOfNamesTraversed(t *testing.T) {
+	var metrics []string
+	num, _ := localContext().PmTraversePMNS("sample.many", func(metric string) {
+		metrics = append(metrics, metric)
+	})
+
+	assert.Equal(t, 2, num)
+}
+
+func TestPmapiContext_PmTraversePMNS_returnsNoErrorForAValidMetricRoot(t *testing.T) {
+	var metrics []string
+	_, err := localContext().PmTraversePMNS("sample.many", func(metric string) {
+		metrics = append(metrics, metric)
+	})
+
+	assert.NoError(t, err)
+}
+
+func TestPmapiContext_PmTraversePMNS_returnsAnErrorForAnInvalidRootName(t *testing.T) {
+	_, err := localContext().PmTraversePMNS("not-a-metric", func(metric string) {})
+
+	assert.Error(t, err)
+}
+
+func TestPmapiContext_PmTraversePMNS_returnsAnErrorForAnInvalidCallbackFunction(t *testing.T) {
+	_, err := localContext().PmTraversePMNS("sample.many", nil)
+
+	assert.Error(t, err)
+}
+
 func BenchmarkPmapiContext_PmFetch(b *testing.B) {
 	context, _ := PmNewContext(PmContextHost, "localhost")
 
@@ -356,6 +395,14 @@ func BenchmarkPmapiContextUnsafe_PmFetch(b *testing.B) {
 
 	for i := 0; i < b.N; i++ {
 		concurrentlyFetch(10, context)
+	}
+}
+
+func BenchmarkPmapiContext_PmTraversePMNS(b *testing.B) {
+	context := localContext()
+
+	for i := 0; i < b.N; i++ {
+		context.PmTraversePMNS("", func(name string) {})
 	}
 }
 
