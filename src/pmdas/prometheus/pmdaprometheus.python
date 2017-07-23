@@ -698,6 +698,12 @@ class PrometheusSource(object):
 		except KeyError:
 			pass
 
+	def remove_all(self):
+		for id in self.metrics_by_id:
+			metric = self.metrics_by_id[id]
+			self.pmda.remove_metric(metric.full_name, metric.obj)
+		self.metrics_by_id = {}
+
 	def parse_metrics_values(self, raw_data):
 		''' Parses the metric values from the raw data '''
 		lines = raw_data.splitlines()
@@ -778,6 +784,7 @@ class PrometheusPMDA(PMDA):
 		self.dir_mtime = os.stat(self.dir).st_mtime
 		self.source_by_cluster = {}
 		self.source_by_name = {}
+		self.source_by_path = {}
 
 		# Cluster cache stores the indoms of clusters
 		# Indom values start from 2 as Indom 1 is reserved for internal metrics
@@ -833,10 +840,14 @@ class PrometheusPMDA(PMDA):
 
 	def load_prometheus_sources(self):
 		''' Initializes the PrometheusSource for all the Prometheus sources '''
+		paths_seen = []
 		new_source_seen = False
 		for root, dirs, files in os.walk(self.dir):
 			for file in files:
 				path = os.path.join(root, file)
+				paths_seen.append(path)
+				if path in self.source_by_path:
+					continue
 				source = PrometheusSource(path, self)
 				if not source.name:
 					continue
@@ -867,9 +878,18 @@ class PrometheusPMDA(PMDA):
 				source.cluster = cluster_idx
 				self.source_by_cluster[cluster_idx] = source
 				self.source_by_name[source.name] = source
+				self.source_by_path[path] = source
 				new_source_seen = True
 		if new_source_seen:
 			self.cluster_cache.refresh()
+		# Remove sources whose metadata has been deleted
+		for path in self.source_by_path:
+			if path not in paths_seen:
+				source = self.source_by_path[path]
+				source.remove_all()
+				self.source_by_path.pop(path)
+				self.source_by_cluster.pop(source.cluster)
+				self.source_by_name.pop(source.name)
 
 	def prometheus_fetch(self):
 		''' Called once before calling prometheus_fetch_callback '''
@@ -877,10 +897,7 @@ class PrometheusPMDA(PMDA):
 		# Lookup the metadata directory for any new source
 		if self.dir_mtime < os.stat(self.dir).st_mtime:
 			self.dir_mtime = os.stat(self.dir).st_mtime
-			self.reset_metrics()
-			self.add_static_metrics()
 			self.load_prometheus_sources()
-			self.pmns_refresh()
 		# Count the number of times fetch called
 		self.numfetch += 1
 
