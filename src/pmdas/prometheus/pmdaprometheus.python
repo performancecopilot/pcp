@@ -49,72 +49,38 @@ def diffMetadata(new_metrics, old_metrics):
 	''' diffMetadata finds new/removed metrics by diffing'''
 	if old_metrics is None:
 		old_metrics = []
-	changes_map = {}
+	changed_names = {}
 	old_metrics_map = {}
 	new_metrics_map = {}
+	final_metrics = {}
+
 	# Map old_metrics array into `name:metric`
 	for metric in old_metrics:
 		old_metrics_map[metric.get("name")] = metric
+
 	# Map new metrics array into `name:metrics`
 	for metric in new_metrics:
 		new_metrics_map[metric.get("name")] = metric
 
-	# Find newly added metrics/instances
+	# Find removed and instances updated metrics
+	for name in old_metrics_map:
+		metric = old_metrics_map[name]
+		if name not in new_metrics_map:
+			changed_names[name] = True
+			continue
+
+		if metric.get("instances") != new_metrics_map[name].get("instances"):
+			metric["instances"] = new_metrics_map[name].get("instances")
+			changed_names[name] = True
+
+		final_metrics[name] = metric
+
+	# Find newly added metrics
 	for name in new_metrics_map:
 		if name not in old_metrics_map:
-			changes_map[name] = True
-			old_metrics_map[name] = new_metrics_map[name]
-			continue
-		metric = new_metrics_map[name]
-		instances = metric.get("instances")
-		if instances is None:
-			continue
-		old_metric = old_metrics_map[name]
-		old_instances = old_metric.get("instances")
-		if old_instances is None or len(old_instances) == 0:
-			changes_map[name] = True
-			old_metric["instances"] = instances
-			continue
-		for instance in instances:
-			if instance not in old_instances:
-				changes_map[name] = True
-				old_instances.append(instance)
-
-	removed_names = []
-	# Find remove metrics/instances
-	for name in old_metrics_map:
-		if name not in new_metrics_map:
-			changes_map[name] = True
-			removed_names.append(name)
-			continue
-		old_metric = old_metrics_map[name]
-		old_instances = old_metric.get("instances")
-		if old_instances is None:
-			continue
-		metric = new_metrics_map[name]
-		instances = metric.get("instances")
-		if instances is None or len(instances) == 0:
-			changes_map[name] = True
-			old_metric["instances"] = None
-			old_metric["prometheus_name"] = name
-			continue
-		removed_instances = []
-		for instance in old_instances:
-			if instance not in instances:
-				removed_instances.append(instance)
-		if len(removed_instances) > 0:
-			changes_map[name] = True
-			for instance in removed_instances:
-				old_instances.remove(instance)
-
-	for name in removed_names:
-		old_metrics_map.pop(name)
-	# Flatten map into array
-	metrics_arr = []
-	for i in old_metrics_map:
-		metrics_arr.append(old_metrics_map[i])
-
-	return (changes_map, metrics_arr, old_metrics_map)
+			changed_names[name] = True
+			final_metrics[name] = new_metrics_map[name]
+	return (changed_names, final_metrics)
 
 
 class ScanPrometheus(object):
@@ -574,6 +540,7 @@ class PrometheusSource(object):
 		self.metadata = None
 		self.endpoint = None
 		self.filepath = None
+		self.metadata_mtime = os.stat(path).st_mtime
 		self.metadata = self.load_metrics_metadata()
 		self.prepare_passed = self.prepare_metrics_metadata()
 
@@ -615,8 +582,8 @@ class PrometheusSource(object):
 		try:
 			metadata = json.load(fobj)
 		except ValueError:
-			self.log("Couldn't parse Prometheus metadata from %s"
-					 % self.path)
+			self.log("Couldn't parse Prometheus metadata from %s %s"
+					 % (self.path, str(e)))
 			return
 		fobj.close()
 		return metadata
@@ -642,9 +609,8 @@ class PrometheusSource(object):
 
 	def parse_metrics_metadata(self, metrics_meta):
 		''' Parses, initializes and stores the metrics from metadata '''
-		if not metrics_meta:
-			self.log("Empty metadata for PrometheusPmda cofnig with path: %s"
-					 % self.path)
+		if metrics_meta is None:
+			self.log("Invalid metadata")
 			return
 		metrics = []
 		full_name = "%s.%s" % (self.pmda.pmda_name, self.name)
@@ -754,26 +720,32 @@ class PrometheusSource(object):
 				data = open(self.filepath,'r').read()
 				self.parse_metrics_values(data)
 				self.fetch_failed = False
-		except:
+		except Exception as e:
+			self.log(str(e))
 			self.fetch_failed = True
 
 	def reload_metadata(self):
 		''' add/remove metrics by diffing metadatas '''
+		if os.stat(self.path).st_mtime <= self.metadata_mtime:
+			return
+		self.metadata_mtime = os.stat(self.path).st_mtime
 		new_metadata = self.load_metrics_metadata()
 		old_metrics = self.metadata.get("metrics")
 		new_metrics = new_metadata.get("metrics")
-		(changes, metrics_meta_list, metrics_meta_map) \
-			 = diffMetadata(new_metrics, old_metrics)
+		(changes, metrics) = diffMetadata(new_metrics, old_metrics)
 		if len(changes) == 0:
 			return
-		new_metrics_meta = []
+		self.metadata = new_metadata
+		updated_metrics = []
 		for name in changes:
-			if name in metrics_meta_map:
-				new_metrics_meta.append(metrics_meta_map[name])
-		metrics = self.parse_metrics_metadata(new_metrics_meta)
+			self.__remove_metric(name)
+			if name in metrics:
+				updated_metrics.append(metrics[name])
+		if len(updated_metrics) == 0:
+			return
+		metrics = self.parse_metrics_metadata(updated_metrics)
 		self.load_instance_domains(metrics)
 		self.load_metrics_idx(metrics)
-		self.metadata = new_metadata
 
 	def fetch(self, item, inst):
 		''' Fetch called to fetch values of metrics of this cluster'''
@@ -790,13 +762,12 @@ class PrometheusPMDA(PMDA):
 	def __init__(self, pmda_name, domain):
 		''' Initialize the PMDA'''
 		self.pmda_name = pmda_name
-		self.debug = True #('PCP_PYTHON_DEBUG' in os.environ)
+		self.debug = ('PCP_PYTHON_DEBUG' in os.environ)
 		PMDA.__init__(self, pmda_name, domain)
 		self.connect_pmcd()
 		self.numfetch = 0
 		self.num_threads = 8
 		self.metadata_refresh_frequency = 120
-		self.metadata_reload_delay = 10
 		self.endpoint_fetch_timeout = .5
 		self.last_refresh_time = 0
 		self.last_reload_time = 0
@@ -851,22 +822,11 @@ class PrometheusPMDA(PMDA):
 		self.add_metric(metric_info.full_name, metric_info.obj,
 						metric_info.description)
 
-
-		metric_info = Metric(self.pmda_name + '.config', 0, self)
-		metric_info.name = 'metadata_reload_delay'
-		metric_info.type = c_api.PM_TYPE_FLOAT
-		metric_info.description = 'Delay in reloading metadata after \
-			refreshing metadata in seconds'
-		metric_info.idx = 2
-		metric_info.create()
-		self.add_metric(metric_info.full_name, metric_info.obj,
-						metric_info.description)
-
 		metric_info = Metric(self.pmda_name + '.config', 0, self)
 		metric_info.name = 'endpoint_fetch_timeout'
 		metric_info.type = c_api.PM_TYPE_FLOAT
 		metric_info.description = 'Timeout on endpoint fetch in seconds'
-		metric_info.idx = 3
+		metric_info.idx = 2
 		metric_info.create()
 		self.add_metric(metric_info.full_name, metric_info.obj,
 						metric_info.description)
@@ -936,8 +896,6 @@ class PrometheusPMDA(PMDA):
 			elif item == 1:
 				return [self.metadata_refresh_frequency, 1]
 			elif item == 2:
-				return [self.metadata_reload_delay, 1]
-			elif item == 3:
 				return [self.endpoint_fetch_timeout, 1]
 			else:
 				return [c_api.PM_ERR_PMID, 0]
@@ -955,9 +913,6 @@ class PrometheusPMDA(PMDA):
 				return 1
 			elif item == 2:
 				self.metadata_reload_delay = value
-				return 1
-			elif item == 3:
-				self.endpoint_fetch_timeout = value
 				return 1
 			else:
 				return c_api.PM_ERR_PMID
@@ -991,11 +946,14 @@ class PrometheusPMDA(PMDA):
 			scanner.raw_metrics = req.text
 			scanner.parse_raw()
 			new_metrics = scanner.exportMetrics()
-			(changes, metrics, metrics_map) = diffMetadata(new_metrics, \
+			(changes, metrics) = diffMetadata(new_metrics, \
 				metadata.get('metrics'))
 
 			if len(changes) > 0:
-				metadata["metrics"] = metrics
+				metrics_arr = []
+				for name in metrics:
+					metrics_arr.append(metrics[name])
+				metadata["metrics"] = metrics_arr
 				with open(source.path, "w") as f:
 					f.write(json.dumps(metadata, indent=2))
 					f.close()
@@ -1033,7 +991,10 @@ class PrometheusPMDA(PMDA):
 
 	def refresh_metrics(self):
 		''' Reload metadata of each source'''
-		if (self.last_refresh_time - self.last_reload_time) >= self.metadata_reload_delay:
+		if self.refresh_process is not None and \
+				self.refresh_process.is_alive() is True:
+				return
+		if  self.last_refresh_time >= self.last_reload_time:
 			self.last_reload_time = time.time()
 			for i in self.source_by_cluster:
 				try:
