@@ -41,6 +41,8 @@ type PMAPI interface {
 	PmLookupDesc(pmid PmID) (PmDesc, error)
 	PmExtractValue(value_format int, pm_type int, pm_value *PmValue) (PmAtomValue, error)
 	PmGetInDom(indom PmInDom) (map[int]string, error)
+	PmNameAll(pmid PmID) ([]string, error)
+	PmTraversePMNS(name string, traverse_callback func(string)) (int, error)
 }
 
 type PMNSNode struct {

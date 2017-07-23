@@ -406,7 +406,7 @@ func BenchmarkPmapiContext_PmTraversePMNS(b *testing.B) {
 	}
 }
 
-func concurrentlyFetch(concurrency int, context *PmapiContext) {
+func concurrentlyFetch(concurrency int, context PMAPI) {
 	wg := sync.WaitGroup{}
 	wg.Add(concurrency)
 	for i := 0; i < concurrency; i++ {
@@ -426,7 +426,7 @@ func assertWithinDuration(t *testing.T, time1 time.Time, time2 time.Time, durati
 	}
 }
 
-func localContext() *PmapiContext {
+func localContext() PMAPI {
 	c, _ := PmNewContext(PmContextHost, "localhost")
 	return c
 }
