@@ -50,7 +50,7 @@ type PMNSNode struct {
 	leaf int
 }
 
-type PmapiContext struct {
+type pmapiContext struct {
 	context int
 	contextLocker sync.Locker
 }
@@ -162,15 +162,15 @@ const (
 )
 
 /* Higher-performance version of PmNewContext that's safe if it's the only context in the process */
-func PmNewContextUnsafe(context_type PmContextType, host_or_archive string) (*PmapiContext, error) {
+func PmNewContextUnsafe(context_type PmContextType, host_or_archive string) (*pmapiContext, error) {
 	return pmNewContext(context_type, host_or_archive, noopLocker{})
 }
 
-func PmNewContext(context_type PmContextType, host_or_archive string) (*PmapiContext, error) {
+func PmNewContext(context_type PmContextType, host_or_archive string) (*pmapiContext, error) {
 	return pmNewContext(context_type, host_or_archive, &contextLock)
 }
 
-func pmNewContext(context_type PmContextType, host_or_archive string, locker sync.Locker) (*PmapiContext, error) {
+func pmNewContext(context_type PmContextType, host_or_archive string, locker sync.Locker) (*pmapiContext, error) {
 	host_or_archive_ptr := C.CString(host_or_archive)
 	defer C.free(unsafe.Pointer(host_or_archive_ptr))
 
@@ -179,19 +179,19 @@ func pmNewContext(context_type PmContextType, host_or_archive string, locker syn
 		return nil, newPmError(context_id)
 	}
 
-	context := &PmapiContext{
+	context := &pmapiContext{
 		context: context_id,
 		contextLocker: locker,
 	}
 
-	runtime.SetFinalizer(context, func(c *PmapiContext) {
+	runtime.SetFinalizer(context, func(c *pmapiContext) {
 		C.pmDestroyContext(C.int(c.context))
 	})
 
 	return context, nil
 }
 
-func (c *PmapiContext) PmGetContextHostname() (string, error) {
+func (c *pmapiContext) PmGetContextHostname() (string, error) {
 	string_buffer := make([]C.char, C.MAXHOSTNAMELEN)
 	raw_char_ptr := (*C.char)(unsafe.Pointer(&string_buffer[0]))
 
@@ -208,7 +208,7 @@ func (c *PmapiContext) PmGetContextHostname() (string, error) {
 	return C.GoString(raw_char_ptr), nil
 }
 
-func (c *PmapiContext) PmLookupName(names ...string) ([]PmID, error) {
+func (c *pmapiContext) PmLookupName(names ...string) ([]PmID, error) {
 	number_of_names := len(names)
 	c_pmids := make([]C.pmID, number_of_names)
 	c_names := make([]*C.char, number_of_names)
@@ -238,7 +238,7 @@ func (c *PmapiContext) PmLookupName(names ...string) ([]PmID, error) {
 	return pmids, nil
 }
 
-func (c *PmapiContext) PmGetChildren(name string) ([]string, error) {
+func (c *pmapiContext) PmGetChildren(name string) ([]string, error) {
 	name_ptr := C.CString(name)
 	defer C.free(unsafe.Pointer(name_ptr))
 
@@ -270,7 +270,7 @@ func (c *PmapiContext) PmGetChildren(name string) ([]string, error) {
 
 }
 
-func (c *PmapiContext) PmGetChildrenStatus(name string) ([]PMNSNode, error) {
+func (c *pmapiContext) PmGetChildrenStatus(name string) ([]PMNSNode, error) {
 	name_ptr := C.CString(name)
 	defer C.free(unsafe.Pointer(name_ptr))
 
@@ -306,7 +306,7 @@ func (c *PmapiContext) PmGetChildrenStatus(name string) ([]PMNSNode, error) {
 	return children, nil
 }
 
-func (c *PmapiContext) PmNameID(pmid PmID) (string, error) {
+func (c *pmapiContext) PmNameID(pmid PmID) (string, error) {
 
 	var name_ptr *C.char
 
@@ -321,7 +321,7 @@ func (c *PmapiContext) PmNameID(pmid PmID) (string, error) {
 	return C.GoString(name_ptr), nil
 }
 
-func (c *PmapiContext) PmNameAll(pmid PmID) ([]string, error) {
+func (c *pmapiContext) PmNameAll(pmid PmID) ([]string, error) {
 
 	var names_ptr **C.char
 
@@ -342,7 +342,7 @@ func (c *PmapiContext) PmNameAll(pmid PmID) ([]string, error) {
 	return names, nil
 }
 
-func (c *PmapiContext) PmTraversePMNS(name string, traverse_callback func(string)) (int, error) {
+func (c *pmapiContext) PmTraversePMNS(name string, traverse_callback func(string)) (int, error) {
 	if traverse_callback == nil {
 		return 0, errors.New("traverse_callback cannot be nil")
 	}
@@ -372,7 +372,7 @@ func goPmTraversePMNSCGoCallback(name *C.char) {
 	currentPMNSCallback(C.GoString(name))
 }
 
-func (c *PmapiContext) PmLookupDesc(pmid PmID) (PmDesc, error) {
+func (c *pmapiContext) PmLookupDesc(pmid PmID) (PmDesc, error) {
 	c_pmdesc := C.pmDesc{}
 
 	_, err := c.withinContext(func() int {
@@ -398,7 +398,7 @@ func (c *PmapiContext) PmLookupDesc(pmid PmID) (PmDesc, error) {
 
 }
 
-func (c *PmapiContext) PmGetInDom(indom PmInDom) (map[int]string, error) {
+func (c *pmapiContext) PmGetInDom(indom PmInDom) (map[int]string, error) {
 	var c_instance_ids *C.int
 	var c_instance_names **C.char
 
@@ -425,7 +425,7 @@ func (c *PmapiContext) PmGetInDom(indom PmInDom) (map[int]string, error) {
 	return indom_map, nil
 }
 
-func (c *PmapiContext) PmFetch(pmids ...PmID) (*PmResult, error) {
+func (c *pmapiContext) PmFetch(pmids ...PmID) (*PmResult, error) {
 	number_of_pmids := len(pmids)
 
 	var c_pm_result *C.pmResult
@@ -501,7 +501,7 @@ func newPmValue(index int, c_vset *C.pmValueSet) *PmValue {
 	return pm_value
 }
 
-func (c *PmapiContext) PmExtractValue(value_format int, pm_type int, pm_value *PmValue) (PmAtomValue, error) {
+func (c *pmapiContext) PmExtractValue(value_format int, pm_type int, pm_value *PmValue) (PmAtomValue, error) {
 	return PmExtractValue(value_format, pm_type, pm_value)
 }
 
@@ -539,7 +539,7 @@ func PmExtractValue(value_format int, pm_type int, pm_value *PmValue) (PmAtomVal
 	return PmAtomValue{}, errors.New("Unknown type")
 }
 
-func (c *PmapiContext) pmUseContext() error {
+func (c *pmapiContext) pmUseContext() error {
 	err := int(C.pmUseContext(C.int(c.context)))
 	if(err < 0) {
 		return newPmError(err)
@@ -547,7 +547,7 @@ func (c *PmapiContext) pmUseContext() error {
 	return nil
 }
 
-func (c *PmapiContext) withinContext(pmapiCall func() int) (int, error) {
+func (c *pmapiContext) withinContext(pmapiCall func() int) (int, error) {
 	/* Synchronise calls within the pmapi context. With multiple instances of a pmapi context,
 	its possible that the incorrect context is loaded without sync'ing calls. EG:
 
@@ -582,6 +582,6 @@ func pmErrStr(error_no int) string {
 	return C.GoString(raw_char_ptr)
 }
 
-func (c *PmapiContext) GetContextId() int {
+func (c *pmapiContext) GetContextId() int {
 	return c.context
 }
