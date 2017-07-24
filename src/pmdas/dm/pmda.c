@@ -217,9 +217,13 @@ static pmdaMetric metrictable[] = {
         PMDA_PMUNITS(0,1,0,0,PM_TIME_NSEC,0) }, },
     /* DM STATS latency histogram */
     { .m_desc = {
-        PMDA_PMID(CLUSTER_DM_HISTOGRAM, DM_HISTOGRAM),
-        PM_TYPE_U64, DM_HISTOGRAM_INDOM, PM_SEM_INSTANT,
+        PMDA_PMID(CLUSTER_DM_HISTOGRAM, PM_DM_HISTOGRAM_COUNT),
+        PM_TYPE_U64, DM_HISTOGRAM_INDOM, PM_SEM_COUNTER,
         PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    { .m_desc = {
+        PMDA_PMID(CLUSTER_DM_HISTOGRAM, PM_DM_HISTOGRAM_PERCENT),
+        PM_TYPE_FLOAT, DM_HISTOGRAM_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,0,0,0,0) }, },
 #endif
 };
 

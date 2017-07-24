@@ -36,7 +36,6 @@ struct pm_dm_stats_counter {
 	uint64_t pm_weighted_io_nsecs; /* Weighted num milliseconds doing I/Os */
 	uint64_t pm_total_read_nsecs;  /* Total time spent reading in milliseconds */
 	uint64_t pm_total_write_nsecs; /* Total time spent writing in milliseconds */
-	struct dm_histogram *histogram; /* Histogram. */
 };
 
 /*
@@ -45,13 +44,15 @@ struct dm_stats_metric {
 */
 
 struct pm_dm_histogram {
-	int pm_bin_value;
+	uint64_t pm_bin_value;
+	float pm_bin_percent;
 };
 
 typedef enum {
-	DM_HISTOGRAM,
-	DM_HISTOGRAM_NR_COUNTER
-} dm_histogram_t;
+	PM_DM_HISTOGRAM_COUNT,
+	PM_DM_HISTOGRAM_PERCENT,
+	PM_DM_HISTOGRAM_NR_HISTOGRAMS,
+} pm_dm_histogram_t;
 
 extern int pm_dm_stats_fetch(int, struct pm_dm_stats_counter *, pmAtomValue *);
 extern int pm_dm_refresh_stats_counter(const char *, struct pm_dm_stats_counter *);
