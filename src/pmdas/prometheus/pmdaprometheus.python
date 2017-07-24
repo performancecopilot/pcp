@@ -509,8 +509,12 @@ class IndomCache(pmdaIndom):
 			self.cache_load()
 		except pmErr:
 			return
-		for (inst, name) in self.get_all_instances():
+		self.cache_mark_active()
+
+		for (inst, name) in self:
 			self.add_value_inactive(name)
+
+		self.cache_mark_inactive()
 
 	def next_value(self):
 		''' Return next value to be allocated. '''
