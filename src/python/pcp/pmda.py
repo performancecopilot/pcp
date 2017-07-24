@@ -108,7 +108,7 @@ class pmdaIndom(Structure):
 
     def __iter__(self):
         # Generates an iterator for the cache.
-        if self.it_numinst < 0:
+        if self.it_numinst <= 0:
             LIBPCP_PMDA.pmdaCacheOp(self.it_indom,
                                     cpmda.PMDA_CACHE_WALK_REWIND)
             while 1:
@@ -127,7 +127,7 @@ class pmdaIndom(Structure):
                     yield (inst, name)
 
     def inst_name_lookup(self, instance):
-        if self.it_numinst < 0:
+        if self.it_numinst <= 0:
             name = (c_char_p)()
             sts = LIBPCP_PMDA.pmdaCacheLookup(self.it_indom, instance,
                                               byref(name), None)
@@ -156,6 +156,7 @@ class pmdaIndom(Structure):
             key8 = key.encode('utf-8')
             LIBPCP_PMDA.pmdaCacheStore(indom, cpmda.PMDA_CACHE_ADD, key8, byref(insts[key]))
         LIBPCP_PMDA.pmdaCacheOp(indom, cpmda.PMDA_CACHE_SAVE)
+        self.it_numinst = -1
 
     def set_instances(self, indom, insts):
         if (insts == None):
