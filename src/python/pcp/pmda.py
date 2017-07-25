@@ -300,9 +300,9 @@ class MetricDispatch(object):
     def remove_metric(self, name, metric):
         pmid = metric.m_desc.pmid
         if (name not in self._metric_names_map):
-            raise KeyError('attempt to remove_metric which does not existing')
+            raise KeyError('attempt to remove non-existant metric name=%s' % (name))
         if (pmid not in self._metrics):
-            raise KeyError('attempt to add_metric with an existing PMID')
+            raise KeyError('attempt to remove_metric with non-existant PMID')
 
         self._metrictable.remove(metric)
         self._metrics.pop(pmid)

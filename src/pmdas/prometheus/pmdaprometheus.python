@@ -18,7 +18,7 @@ Performance Metrics Domain Agent exporting Prometheus endpoint metrics.
 
 import cpmapi as c_api
 from pcp.pmapi import pmUnits, pmContext, pmErr
-from pcp.pmda import PMDA, pmdaMetric, pmdaIndom, pmdaInstid
+from pcp.pmda import PMDA, pmdaMetric, pmdaIndom
 
 import argparse
 from collections import OrderedDict
@@ -29,6 +29,7 @@ import math
 import json
 import os
 import re
+import sys
 import time
 import requests
 import threading
@@ -312,7 +313,7 @@ class Metric(object):
 
 			semantics = json_obj["semantics"]
 			if not SEMANTICS.get(semantics):
-				raise ValueError("Invalid semantic: %s" %(semantic))
+				raise ValueError("Invalid semantic: %s" %(semantics))
 			self.semantics = SEMANTICS.get(semantics)
 
 			self.units_str = json_obj["units_str"]
@@ -353,7 +354,7 @@ class Metric(object):
 				name = self.__indom_cache.lookup_value(inst)
 				prometheus_name = self.instance_by_name[name]
 				return [values[prometheus_name], 1]
-			except Exception as e:
+			except Exception:
 				self.log("Invalid instance given for metric on fetch: %s %d" \
 					% (self.name, inst))
 				return [c_api.PM_ERR_INST, 0]
@@ -460,7 +461,7 @@ class IndomCache(pmdaIndom):
 	def lookup_name(self, name):
 		'''
 		Lookup name in an indom cache and return its associated value.
-		If name found in inactive values, add it to values and return it's value.
+		If name found in inactive values, add it to values and return its value.
 		'''
 		if name in self.__inactive_values:
 			value = self.__inactive_values[name]
@@ -585,7 +586,7 @@ class PrometheusSource(object):
 			return
 		try:
 			metadata = json.load(fobj)
-		except ValueError:
+		except ValueError as e:
 			self.log("Couldn't parse Prometheus metadata from %s %s"
 					 % (self.path, str(e)))
 			return
@@ -623,7 +624,7 @@ class PrometheusSource(object):
 				metric = Metric(full_name, self.__cluster, self.pmda)
 				metric.parse(meta)
 				metrics.append(metric)
-			except Exception as e:
+			except Exception:
 				self.log("Unable to parse metric for Prometheus PMDA: %s"
 						% meta)
 		return metrics
@@ -658,8 +659,6 @@ class PrometheusSource(object):
 	def load_metrics_idx(self, metrics):
 		''' Loads the metrics with pmid and adds them to the PMDA'''
 		for metric in metrics:
-			name = metric.name
-
 			# Assigns the id to a metric and stores in the metric cache
 			try:
 				metric.idx \
@@ -933,7 +932,7 @@ class PrometheusPMDA(PMDA):
 				self.metadata_refresh_frequency = value
 				return 1
 			elif item == 2:
-				self.metadata_reload_delay = value
+				self.endpoint_fetch_timeout = value
 				return 1
 			else:
 				return c_api.PM_ERR_PMID
@@ -964,7 +963,7 @@ class PrometheusPMDA(PMDA):
 			except:
 				continue
 			scanner = ScanPrometheus('')
-			scanner.raw_metrics = req.text
+			scanner.raw_metrics = data
 			scanner.parse_raw()
 			new_metrics = scanner.exportMetrics()
 			(changes, metrics) = diffMetadata(new_metrics, \
@@ -1040,7 +1039,7 @@ if __name__ == '__main__':
 	if args.generate:
 		if not ( args.url or args.filepath ) or not args.name:
 			parser.error("Name and url or filepath of the endpoint required")
-			os.exit(1)
+			sys.exit(1)
 		scan = ScanPrometheus(args.name, args.url, args.filepath)
 		scan.run()
 	else:

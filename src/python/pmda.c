@@ -425,10 +425,9 @@ refresh(int numpmid, pmID *pmidlist)
         if (j == count)
             clusters[count++] = cluster;
     }
-    if (refresh_all_func){
+    if (refresh_all_func)
         sts |= refresh_all_clusters(count, clusters);
-    }
-    if (refresh_func){
+    if (refresh_func) {
         for (j = 0; j < count; j++)
             sts |= refresh_cluster(clusters[j]);
     }
@@ -444,8 +443,8 @@ fetch(int numpmid, pmID *pmidlist, pmResult **rp, pmdaExt *pmda)
     maybe_refresh_all();
     if (fetch_func && (sts = prefetch()) < 0)
         return sts;
-    if ( (refresh_func || refresh_all_func)
-            && (sts = refresh(numpmid, pmidlist)) < 0)
+    if ((refresh_func || refresh_all_func) &&
+        (sts = refresh(numpmid, pmidlist)) < 0)
         return sts;
     return pmdaFetch(numpmid, pmidlist, rp, pmda);
 }
@@ -955,7 +954,7 @@ static void
 pmda_refresh_metrics(void)
 {
     // Update the metrics/indoms.
-    if (! update_indom_metric_buffers()) {
+    if (!update_indom_metric_buffers()) {
 	if (pmDebug & DBG_TRACE_LIBPMDA)
 	    fprintf(stderr,
 		    "pmda_refresh_metrics: rehash %ld indoms, %ld metrics\n",
@@ -964,7 +963,6 @@ pmda_refresh_metrics(void)
 	dispatch.version.any.ext->e_nindoms = nindoms;
 	pmdaRehash(dispatch.version.any.ext, metric_buffer, nmetrics);
     }
-    return;
 }
 
 static PyObject *
@@ -1207,7 +1205,6 @@ set_refresh_all(PyObject *self, PyObject *args)
     return set_callback(self, args, "O:set_refresh_all", &refresh_all_func);
 }
 
-
 static PyObject *
 set_refresh_metrics(PyObject *self, PyObject *args)
 {
@@ -1259,9 +1256,8 @@ static PyMethodDef methods[] = {
     { .ml_name = "set_refresh_metrics",
       .ml_meth = (PyCFunction)set_refresh_metrics,
       .ml_flags = METH_VARARGS|METH_KEYWORDS },
-    {   .ml_name = "set_refresh_all", .ml_meth = (PyCFunction)set_refresh_all,
-        .ml_flags = METH_VARARGS | METH_KEYWORDS
-    },
+    { .ml_name = "set_refresh_all", .ml_meth = (PyCFunction)set_refresh_all,
+        .ml_flags = METH_VARARGS | METH_KEYWORDS },
     { .ml_name = "pmda_log", .ml_meth = (PyCFunction)pmda_log,
         .ml_flags = METH_VARARGS|METH_KEYWORDS },
     { .ml_name = "pmda_err", .ml_meth = (PyCFunction)pmda_err,
