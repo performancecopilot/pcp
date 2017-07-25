@@ -428,7 +428,7 @@ do
     else
 	# really going to try and run this one
 	#
-	rm -f $seq.out.bad $seq.full
+	rm -f $seq.full
 	lasttime=`sed -n -e "/^$seq /s/.* //p" <check.time`
 	[ "X$lasttime" != X ] && $PCP_ECHO_PROG $PCP_ECHO_N " ${lasttime}s ...""$PCP_ECHO_C"
 	rm -f core $seq.notrun
@@ -500,6 +500,7 @@ do
 	    [ $color = true ] && tput sgr0 # reset
 	    notrun="$notrun $seq"
 	else
+	    $sudo rm -f $seq.out.bad
 	    if [ $sts -ne 0 ]
 	    then
 		$PCP_ECHO_PROG $PCP_ECHO_N " [failed, exit status $sts]""$PCP_ECHO_C"

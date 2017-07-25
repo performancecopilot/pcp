@@ -31,12 +31,11 @@ local
 ## installation to check.
 verify
 
-# flaky checks ... known to have intermittent races/hangs.
+# flakey checks ... known to have intermittent races/hangs.
 ## NOTE: some threading race conditions (possibly in tests),
 ## prevent 100% pass rate being achieved here.  Goal is to
 ## get this group devoid of any tests.
 flakey
-
 
 # tests requiring creation/manipulation of very large files
 # (can be extremely slow on certain devices), or otherwise
@@ -792,7 +791,7 @@ zsh
 446 trace local
 447 event local
 448 libpcp local
-449 threads local flakey
+449 threads local flakey pmns
 450 pmlogextract local #584487 pmval
 451 threads local
 452 pmda.linux local

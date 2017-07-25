@@ -226,12 +226,7 @@ nextlog(void)
     lcp = inarch.ctxp->c_archctl->ac_log;
     old_vol = inarch.ctxp->c_archctl->ac_log->l_curvol;
 
-    PM_LOCK(inarch.ctxp->c_lock);
-    /*
-     * we need to lock the context for the __pmLogRead_ctx() call
-     */
     sts = __pmLogRead_ctx(inarch.ctxp, PM_MODE_FORW, NULL, &inarch.rp, PMLOGREAD_NEXT);
-    PM_UNLOCK(inarch.ctxp->c_lock);
     if (sts < 0) {
 	if (sts != PM_ERR_EOL) {
 	    fprintf(stderr, "%s: Error: __pmLogRead[log %s]: %s\n",

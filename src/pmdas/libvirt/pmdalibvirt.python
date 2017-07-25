@@ -34,7 +34,7 @@ from cpmapi import PM_INDOM_NULL
 from cpmapi import PM_TYPE_U32, PM_TYPE_U64, PM_TYPE_STRING
 from cpmapi import PM_SEM_COUNTER, PM_SEM_INSTANT, PM_SEM_DISCRETE
 from cpmapi import PM_COUNT_ONE, PM_SPACE_BYTE, PM_SPACE_KBYTE, PM_TIME_SEC, PM_TIME_NSEC
-from cpmapi import PM_ERR_AGAIN, PM_ERR_INST, PM_ERR_NOTCONN, PM_ERR_NYI, PM_ERR_PMID, PM_ERR_VALUE
+from cpmapi import PM_ERR_AGAIN, PM_ERR_INST, PM_ERR_NYI, PM_ERR_PMID, PM_ERR_VALUE
 
 if sys.version_info[0] >= 3:
     long = int
@@ -669,7 +669,7 @@ class LibvirtPMDA(PMDA):
     def libvirt_fetch_callback(self, cluster, item, inst):
         """ Fetch callback """
         if not self.conn:
-            return [PM_ERR_NOTCONN, 0]
+            return [PM_ERR_AGAIN, 0]
 
         if cluster == self.hv_cluster:
             try:

@@ -100,6 +100,12 @@ Requires: initscripts
 %endif
 %global _tmpdir %{_localstatedir}/lib/pcp/tmp
 
+%if 0%{?fedora} >= 24 || 0%{?rhel} > 7
+%global perl_interpreter perl-interpreter
+%else
+%global perl_interpreter perl
+%endif
+
 # There is a problem here ... some distros are resisting adding more
 # repackaged perl-Foo-Bar rpms, but the default find-requires script
 # will turn all perl module we use into rpm package Requires clauses.
@@ -376,7 +382,7 @@ Summary: Performance Co-Pilot (PCP) Perl bindings and documentation
 URL: http://www.pcp.io
 BuildRequires: perl(ExtUtils::MakeMaker)
 Requires: pcp-libs = @package_version@
-Requires: perl
+Requires: %{perl_interpreter}
 
 %description -n perl-PCP-PMDA
 The PCP::PMDA Perl module contains the language bindings for
@@ -394,6 +400,7 @@ Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) Perl bindings for PCP Memory Mapped Values
 URL: http://www.pcp.io
 Requires: pcp = @package_version@
+Requires: %{perl_interpreter}
 
 %description -n perl-PCP-MMV
 The PCP::MMV module contains the Perl language bindings for
@@ -412,6 +419,7 @@ Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) Perl bindings for importing external data into PCP archives
 URL: http://www.pcp.io
 Requires: pcp = @package_version@
+Requires: %{perl_interpreter}
 
 %description -n perl-PCP-LogImport
 The PCP::LogImport module contains the Perl language bindings for
@@ -427,6 +435,7 @@ Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) Perl bindings for post-processing output of pmlogsummary
 URL: http://www.pcp.io
 Requires: pcp = @package_version@
+Requires: %{perl_interpreter}
 
 %description -n perl-PCP-LogSummary
 The PCP::LogSummary module provides a Perl module for using the
@@ -595,7 +604,7 @@ Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) Python bindings and documentation
 URL: http://www.pcp.io
 BuildRequires: python-devel
-%if "%{_vendor}" == "redhat" && 0%{?rhel} <= 5
+%if "%{_vendor}" == "redhat" && 0%{?rhel} <= 5 && 0%{?fedora} <= 25
 Requires: python-ctypes
 %endif
 Requires: pcp-libs = @package_version@

@@ -142,10 +142,11 @@ _dofunc()
     sed <$tmp.tmp \
 	-e 's/;$/ ;/' \
     | awk '
-$2 == "defined"		{ next }	# cscope botch on #if defined()?
-$2 == "PM_UNLOCK"	{ next }	# we do not care about these
-$2 == "ASSERT_IS_LOCKED"	{ next }	# we do not care about these
-$2 == "ASSERT_IS_UNLOCKED"	{ next }	# we do not care about these
+$2 == "defined"			{ next }	# cscope botch on #if defined()?
+$2 == "PM_UNLOCK"		{ next }	# we do not care about these
+$2 == "PM_IS_LOCKED"		{ next }	# we do not care about these
+$2 == "PM_ASSERT_IS_LOCKED"	{ next }	# we do not care about these
+$2 == "PM_ASSERT_IS_UNLOCKED"	{ next }	# we do not care about these
 $2 == "formatter"	{		# function pointer in config.c
 			  print "posix_formatter"
 			  print "dos_formatter"
@@ -230,6 +231,9 @@ s/)//
 		    logutil_lock)
 			echo logutil >>$tmp.locks
 			;;
+		    pmns_lock)
+			echo pmns >>$tmp.locks
+			;;
 		    *)
 			echo >&2 "Bad LOCK: $param"
 			exit
@@ -290,7 +294,7 @@ s/)//
 		-e "/#define[ 	][ 	]*$calls[ 	(]/d"
 	    if [ -s $tmp.cserr ]
 	    then
-		echo >&2 "Unexpected errors from cscope(1) ..."
+		echo >&2 "Unexpected errors from cscope(1) for calls=$calls ..."
 		cat >&2 $tmp.cserr
 		echo >&2 "... skipping $calls"
 		continue
