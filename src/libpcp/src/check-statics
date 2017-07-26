@@ -121,12 +121,13 @@ access.o
     userlist			# single-threaded PM_SCOPE_ACL
 accounts.o
 AF.o
+    AF_lock			# local mutex
     afid			# single-threaded PM_SCOPE_AF
     block			# single-threaded PM_SCOPE_AF
     root			# single-threaded PM_SCOPE_AF
-    ?afblock			# guarded by __pmLock_libpcp mutex
-    ?afsetup			# guarded by __pmLock_libpcp mutex
-    ?aftimer			# guarded by __pmLock_libpcp mutex
+    ?afblock			# guarded by AF_lock mutex
+    ?afsetup			# guarded by AF_lock mutex
+    ?aftimer			# guarded by AF_lock mutex
 auxconnect.o
     auxconnect_lock		# local mutex
     conn_wait			# guarded by auxconnect_lock

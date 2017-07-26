@@ -144,6 +144,8 @@ static char
 	return "logutil";
     else if (__pmIsPmnsLock(lock))
 	return "pmns";
+    else if (__pmIsAFLock(lock))
+	return "AF";
     else if (lock == (void *)&__pmLock_extcall)
 	return "global_extcall";
     else if ((ctxid = __pmIsContextLock(lock)) != -1) {
