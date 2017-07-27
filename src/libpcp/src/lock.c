@@ -359,6 +359,7 @@ __pmInitLocks(void)
 	 * Now initialize the local mutexes.
 	 */
 	init_pmns_lock();
+	init_AF_lock();
 
 	done = 1;
     }

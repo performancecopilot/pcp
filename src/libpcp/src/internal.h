@@ -95,6 +95,7 @@ extern void __pmInitMutex(pthread_mutex_t *) _PCP_HIDDEN;	/* mutex initializer *
 
 /* local lock initilizer methods */
 extern void init_pmns_lock(void) _PCP_HIDDEN;
+extern void init_AF_lock(void) _PCP_HIDDEN;
 
 #ifdef HAVE___THREAD
 /*

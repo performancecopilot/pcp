@@ -80,6 +80,7 @@ static int	afsetup;	/* one-time-setup: done flag */
 
 static void AFinit(void)
 {
+    PM_INIT_LOCKS();
     PM_LOCK(AF_lock);
     if (afsetup) {
 	PM_UNLOCK(AF_lock);
