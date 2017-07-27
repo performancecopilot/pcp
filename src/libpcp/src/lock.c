@@ -148,6 +148,8 @@ static char
 	return "AF";
     else if (__pmIsSecureserverLock(lock))
 	return "secureserver";
+    else if (__pmIsConnectLock(lock))
+	return "connect";
     else if (lock == (void *)&__pmLock_extcall)
 	return "global_extcall";
     else if ((ctxid = __pmIsContextLock(lock)) != -1) {
@@ -363,6 +365,7 @@ __pmInitLocks(void)
 	init_pmns_lock();
 	init_AF_lock();
 	init_secureserver_lock();
+	init_connect_lock();
 
 	done = 1;
     }
