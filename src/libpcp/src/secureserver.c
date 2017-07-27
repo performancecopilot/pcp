@@ -162,13 +162,11 @@ certificate_database_password(PK11SlotInfo *info, PRBool retry, void *arg)
     (void)arg;
     (void)info;
 
-    PM_INIT_LOCKS();
-    PM_LOCK(secureserver_lock);
+    PM_ASSERT_IS_LOCKED(secureserver_lock);
     passfile[0] = '\0';
     if (secure_server.password_file)
 	strncpy(passfile, secure_server.password_file, MAXPATHLEN-1);
     passfile[MAXPATHLEN-1] = '\0';
-    PM_UNLOCK(secureserver_lock);
 
     if (passfile[0] == '\0') {
 	__pmNotifyErr(LOG_ERR, "Password sought but no password file given");
