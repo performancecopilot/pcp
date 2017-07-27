@@ -96,6 +96,7 @@ extern void __pmInitMutex(pthread_mutex_t *) _PCP_HIDDEN;	/* mutex initializer *
 /* local lock initilizer methods */
 extern void init_pmns_lock(void) _PCP_HIDDEN;
 extern void init_AF_lock(void) _PCP_HIDDEN;
+extern void init_secureserver_lock(void) _PCP_HIDDEN;
 
 #ifdef HAVE___THREAD
 /*
@@ -147,6 +148,7 @@ extern int __pmIsLockLock(void *) _PCP_HIDDEN;
 extern int __pmIsLogutilLock(void *) _PCP_HIDDEN;
 extern int __pmIsPmnsLock(void *) _PCP_HIDDEN;
 extern int __pmIsAFLock(void *) _PCP_HIDDEN;
+extern int __pmIsSecureserverLock(void *) _PCP_HIDDEN;
 #endif
 
 /* AF_UNIX socket family internals */

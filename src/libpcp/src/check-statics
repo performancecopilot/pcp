@@ -339,7 +339,8 @@ logutil.o
     ?__pmLogReads		# diag counter, no atomic updates
     pc_hc			# guarded by logutil_lock mutex
 secureserver.o
-    secure_server		# guarded by __pmLock_libpcp mutex
+    secureserver_lock		# local mutex
+    secure_server		# guarded by secureserver_lock mutex
 secureconnect.o
     common_callbacks		# const
     initialized			# single-threaded
