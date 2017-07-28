@@ -29,7 +29,7 @@ enum {
 	CLUSTER_INTERRUPTS,	/*  4 /proc/interrupts */
 	CLUSTER_FILESYS,	/*  5 /proc/mounts + statfs */
 	CLUSTER_SWAPDEV,	/*  6 /proc/swaps */
-	CLUSTER_NET_NFS,	/*  7 /proc/net/rpc/nfs + /proc/net/rpc/nfsd */
+	CLUSTER_NET_NFS,	/*  7 /proc/net/rpc/nfs + /proc/net/rpc/nfsd + /proc/fs/nfsd */
 	PROC_PID_STAT,		/*  8 /proc/<pid>/stat -> proc PMDA */
 	PROC_PID_STATM,		/*  9 /proc/<pid>/statm + /proc/<pid>/maps -> proc PMDA */
 	CLUSTER_PARTITIONS,	/* 10 /proc/partitions */
