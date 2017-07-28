@@ -60,6 +60,7 @@
 #include "proc_net_softnet.h"
 #include "proc_buddyinfo.h"
 #include "proc_zoneinfo.h"
+#include "proc_fs_nfsd.h"
 #include "numa_meminfo.h"
 #include "ksm.h"
 #include "sysfs_tapestats.h"
@@ -87,6 +88,7 @@ static msg_info_t              _msg_info;
 static proc_net_softnet_t	proc_net_softnet;
 static proc_buddyinfo_t		proc_buddyinfo;
 static ksm_info_t               ksm_info;
+static proc_fs_nfsd_t 		proc_fs_nfsd;
 
 static int		_isDSO = 1;	/* =0 I am a daemon */
 static int		rootfd = -1;	/* af_unix pmdaroot */
@@ -2004,6 +2006,36 @@ static pmdaMetric metrictab[] = {
 /* rpc.server.ra_misses */
   { &proc_net_rpc.server.ra_misses,
     { PMDA_PMID(CLUSTER_NET_NFS,70), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* nfs.server.threads.total */
+  { &proc_fs_nfsd.th_cnt,
+    { PMDA_PMID(CLUSTER_NET_NFS,71), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* nfs.server.threads.pools */
+  { &proc_fs_nfsd.pool_cnt,
+    { PMDA_PMID(CLUSTER_NET_NFS,72), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* nfs.server.threads.requests */
+  { &proc_fs_nfsd.pkts_arrived,
+    { PMDA_PMID(CLUSTER_NET_NFS,73), KERNEL_ULONG, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* nfs.server.threads.enqueued */
+  { &proc_fs_nfsd.sock_enqueued,
+    { PMDA_PMID(CLUSTER_NET_NFS,74), KERNEL_ULONG, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* nfs.server.threads.processed */
+  { &proc_fs_nfsd.th_woken,
+    { PMDA_PMID(CLUSTER_NET_NFS,75), KERNEL_ULONG, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* nfs.server.threads.timedout */
+  { &proc_fs_nfsd.th_timedout,
+    { PMDA_PMID(CLUSTER_NET_NFS,76), KERNEL_ULONG, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /*
@@ -5364,8 +5396,10 @@ linux_refresh(pmdaExt *pmda, int *need_refresh, int context)
     if (need_refresh[CLUSTER_LOADAVG])
 	refresh_proc_loadavg(&proc_loadavg);
 
-    if (need_refresh[CLUSTER_NET_NFS])
+    if (need_refresh[CLUSTER_NET_NFS]) {
 	refresh_proc_net_rpc(&proc_net_rpc);
+	refresh_proc_fs_nfsd(&proc_fs_nfsd);
+    }
 
     if (need_refresh[CLUSTER_NET_SOCKSTAT])
 	refresh_proc_net_sockstat(&proc_net_sockstat);
@@ -5692,6 +5726,10 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    if (idp->item >= 51 && idp->item <= 57 && proc_net_rpc.server.errcode != 0)
 		/* no values available - expected without /proc/net/rpc/nfsd */
 	    	return 0; /* no values available */
+	    if (idp->item >= 71 && idp->item <= 76 && proc_fs_nfsd.errcode != 0) {
+		/* no values available - expected without /proc/fs/nfsd */
+	    	return 0; /* no values available */
+	    }
 	}
 	if (idp->cluster == CLUSTER_SYSFS_KERNEL) {
 	    /* no values available for udev metrics */

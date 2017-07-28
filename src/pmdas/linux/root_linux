@@ -1074,6 +1074,16 @@ nfs.client {
 nfs.server {
     calls		60:7:50
     reqs		60:7:12
+    threads
+}
+
+nfs.server.threads {
+    total		60:7:71
+    pools		60:7:72
+    requests		60:7:73
+    enqueued		60:7:74
+    processed		60:7:75
+    timedout		60:7:76
 }
 
 rpc {
