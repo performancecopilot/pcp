@@ -24,6 +24,9 @@
 #include <inttypes.h>
 #include <libdevmapper.h>
 
+const char *bc_programid = "pm_counter";
+const char *his_programid = "pm_histogram";
+
 int
 pm_dm_stats_fetch(int item, struct pm_dm_stats_counter *dmsc, pmAtomValue *atom)
 {
@@ -107,7 +110,7 @@ pm_dm_refresh_stats_counter(const char *name, struct pm_dm_stats_counter *dmsc)
 	if (!dm_stats_bind_name(dms, name))
 		goto bad;
 
-	if (!dm_stats_populate(dms, DM_STATS_ALL_PROGRAMS, DM_STATS_REGIONS_ALL))
+	if (!dm_stats_populate(dms, bc_programid, DM_STATS_REGIONS_ALL))
 		goto bad;
 
 	dm_stats_foreach_region(dms) {
@@ -164,9 +167,8 @@ bad:
 static float
 _make_percent(uint64_t numerator, uint64_t denominator)
 {
-	if (denominator) {
+	if (denominator)
 		return ((double)numerator / (double)denominator);
-	}
 
 	return 0;
 }
@@ -205,7 +207,7 @@ pm_dm_refresh_stats_histogram(const char *name, struct pm_dm_histogram *pdmh)
 
 
 	if (bin == 0) {
-		if (!dm_stats_populate(dms, DM_STATS_ALL_PROGRAMS, region_id))
+		if (!dm_stats_populate(dms, his_programid, region_id))
 			goto nostats;
 
 		if (!(dmh = dm_stats_get_histogram(dms, region_id, area_id)))
@@ -263,7 +265,7 @@ nodevice:
 }
 
 static struct dm_stats*
-_dm_stats_search_region(struct dm_names *names, struct dm_stats *dms)
+_dm_stats_search_region(struct dm_names *names, struct dm_stats *dms, const char *programid)
 {
 	uint64_t nr_regions;
 
@@ -273,7 +275,7 @@ _dm_stats_search_region(struct dm_names *names, struct dm_stats *dms)
 	if (!dm_stats_bind_name(dms, names->name))
 		goto nostats;
 
-	if (!dm_stats_list(dms, DM_STATS_ALL_PROGRAMS))
+	if (!dm_stats_list(dms, programid))
 		goto nostats;
 
 	if (!(nr_regions = dm_stats_get_nr_regions(dms)))
@@ -304,7 +306,7 @@ pm_dm_stats_instance_refresh(void)
 
 	do {
 		/* need dm_stats_destroy()? */
-		if (!(dms = _dm_stats_search_region(names, dms))) {
+		if (!(dms = _dm_stats_search_region(names, dms, bc_programid))) {
 			next = names->next;
 			continue;
 		}
@@ -372,7 +374,7 @@ pm_dm_histogram_instance_refresh(void)
 	do {
 		names = (struct dm_names*)((char *) names + next);
 
-		if (!(dms = _dm_stats_search_region(names, dms))) {
+		if (!(dms = _dm_stats_search_region(names, dms, his_programid))) {
 			next = names->next;
 			continue;
 		}
