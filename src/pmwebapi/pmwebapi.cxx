@@ -58,6 +58,9 @@ struct webcontext {
     time_t expires;		/* poll timeout, 0 if never expires */
     int context;			/* PMAPI context handle; owned */
 
+    map <string, pmID> metric_id_cache;
+    map <pmID, pmDesc> metric_desc_cache;
+
     ~webcontext ();
 };
 
@@ -1099,16 +1102,29 @@ metric_prometheus_traverse (const char *metric, void *closure)
     char *metrics[1] = {
         (char *) metric
     };
+    struct webcontext *c = mptc->c;
     pmID metric_id;
-    rc = pmLookupName (1, metrics, &metric_id); // XXX: should be cached
-    if (rc != 1)
-        return; // skip quietly
+
+    if (c->metric_id_cache.find(metric) != c->metric_id_cache.end()) {
+        metric_id = c->metric_id_cache.find(metric)->second;
+    } else {
+        rc = pmLookupName (1, metrics, &metric_id);
+        if (rc != 1)
+            return; // skip quietly
+        c->metric_id_cache[metric] = metric_id;
+    }
 
     pmDesc metric_desc;
     assert (metric_id != PM_ID_NULL);
-    rc = pmLookupDesc (metric_id, &metric_desc); // XXX: should be cached
-    if (rc != 0)
-        return; // skip quietly
+
+    if (c->metric_desc_cache.find(metric_id) != c->metric_desc_cache.end()) {
+        metric_desc = c->metric_desc_cache.find(metric_id)->second;
+    } else {
+        rc = pmLookupDesc (metric_id, &metric_desc);
+        if (rc != 0)
+            return; // skip quietly
+        c->metric_desc_cache[metric_id] = metric_desc;
+    }
 
     // Reject non-numeric types; we'll convert to DOUBLE for prometheus
     if (metric_desc.type != PM_TYPE_32 &&
