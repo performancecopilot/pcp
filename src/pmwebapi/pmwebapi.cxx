@@ -60,6 +60,7 @@ struct webcontext {
 
     map <string, pmID> metric_id_cache;
     map <pmID, pmDesc> metric_desc_cache;
+    map <pmID, string> metric_text_cache;
 
     ~webcontext ();
 };
@@ -1127,9 +1128,15 @@ metric_prometheus_traverse (const char *metric, void *closure)
     }
 
     char *help_text;
-    rc = pmLookupText(metric_id, PM_TEXT_ONELINE, &help_text);
-    if (rc != 0){
-        return;
+    if (c->metric_text_cache.find(metric_id) != c->metric_text_cache.end()) {
+        const char *t = c->metric_text_cache.find(metric_id)->second.c_str();
+        help_text = const_cast<char *>(t);
+    } else {
+        rc = pmLookupText(metric_id, PM_TEXT_ONELINE, &help_text);
+        if (rc != 0){
+            return;
+        }
+        c->metric_text_cache[metric_id] = help_text;
     }
 
     // Reject non-numeric types; we'll convert to DOUBLE for prometheus
