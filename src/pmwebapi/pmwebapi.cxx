@@ -1185,9 +1185,9 @@ metric_prometheus_traverse (const char *metric, void *closure)
     // append semantics tag
     if (metric_desc.sem == PM_SEM_COUNTER) {
         pn += "_total";
-        output << "# TYPE: " << pn << " counter" << endl;
+        output << "# TYPE " << pn << " counter" << endl;
     } else {
-        output << "# TYPE: " << pn << " gauge" << endl; // DISCRETE or INSTANT
+        output << "# TYPE " << pn << " gauge" << endl; // DISCRETE or INSTANT
     }
 
     // XXX: HELP: `pmLookupText (metric_id, PM_TEXT_ONELINE, &metric_text)`
