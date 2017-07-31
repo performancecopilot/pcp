@@ -1126,6 +1126,12 @@ metric_prometheus_traverse (const char *metric, void *closure)
         c->metric_desc_cache[metric_id] = metric_desc;
     }
 
+    char *help_text;
+    rc = pmLookupText(metric_id, PM_TEXT_ONELINE, &help_text);
+    if (rc != 0){
+        return;
+    }
+
     // Reject non-numeric types; we'll convert to DOUBLE for prometheus
     if (metric_desc.type != PM_TYPE_32 &&
         metric_desc.type != PM_TYPE_U32 &&
@@ -1141,6 +1147,8 @@ metric_prometheus_traverse (const char *metric, void *closure)
     // See also https://github.com/performancecopilot/pcp/issues/319 .
     string pn = metric;
     replace (pn.begin(), pn.end(), '.', ':');
+
+    output << "# HELP " << pn << " " << help_text << endl;
 
     // Append a metric_desc.units-based suffix, and compute an
     // pmConvScale vector to match conventions as per
