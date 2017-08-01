@@ -129,7 +129,7 @@ sub ds389_fetch {
 sub ds389_fetch_callback {
 	my ($cluster, $item, $inst) = @_;
 
-	if (!defined($ldap))		{ return (PM_ERR_NOTCONN, 0); }
+	if (!defined($ldap))		{ return (PM_ERR_AGAIN, 0); }
 	if ($inst != PM_INDOM_NULL)	{ return (PM_ERR_INST, 0); }
 
 	my $pmnm = pmda_pmid_name($cluster, $item);
