@@ -272,6 +272,7 @@ HAVE_PYTHON_SIX = @have_python_six@
 HAVE_PYTHON_REQUESTS = @have_python_requests@
 HAVE_PYTHON_SETUPTOOLS = @have_python_setuptools@
 HAVE_PYTHON_JSONPOINTER = @have_python_jsonpointer@
+HAVE_PYTHON_ORDEREDDICT = @have_python_OrderedDict@
 
 # for building packages from external sources
 HAVE_WEBAPPS = @have_webapps@

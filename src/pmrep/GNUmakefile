@@ -26,7 +26,7 @@ default:
 include $(BUILDRULES)
 
 install: default
-ifeq "$(HAVE_PYTHON)" "true"
+ifeq "$(HAVE_PYTHON_ORDEREDDICT)" "true"
 	$(INSTALL) -m 755 $(TARGET).py $(PCP_BIN_DIR)/$(TARGET)
 	$(INSTALL) -m 755 -d $(PCP_SYSCONF_DIR)/$(TARGET)
 	$(INSTALL) -m 644 $(CONFIG) $(PCP_SYSCONF_DIR)/$(TARGET)/$(CONFIG)
