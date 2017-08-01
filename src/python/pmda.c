@@ -376,12 +376,13 @@ static int
 refresh_all_clusters(int numclusters, int *clusters)
 {
     PyObject *arglist, *result, *list;
+    int i;
     list = PyList_New(numclusters);
     if (list == NULL){
         __pmNotifyErr(LOG_ERR, "refresh: Unable to allocate memory");
         return 1;
     }
-    for (int i = 0; i < numclusters; i++) {
+    for (i = 0; i < numclusters; i++) {
         PyObject *num = PyLong_FromLong(clusters[i]);
         PyList_SET_ITEM(list, i, num);
     }

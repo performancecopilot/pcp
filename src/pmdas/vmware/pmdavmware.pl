@@ -138,7 +138,7 @@ sub vmware_fetch_callback
 	if ($item == 1)	{ return ($interval, 1); }
     }
 
-    return (PM_ERR_NOTCONN, 0) unless defined($entity);
+    return (PM_ERR_AGAIN, 0) unless defined($entity);
 
     my $key = pmda_pmid_text($cluster, $item);
     return (PM_ERR_PMID, 0) unless defined($key);
