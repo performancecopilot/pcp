@@ -2334,16 +2334,12 @@ End-of-File
 #include <string.h>
 int main()
 {
-    char buf[[17]];
-    int64_t bozo = 0x12345678abcdLL;
-    sprintf(buf, "%lx", bozo);
-    if (strcmp(buf, "12345678abcd") == 0)
-	printf("\"ld\"\n");
-    else {
-	sprintf(buf, "%llx", bozo);
-	if (strcmp(buf, "12345678abcd") == 0)
-	    printf("\"lld\"\n");
-    }
+/* logic copied from <inttypes.h> */
+#if __WORDSIZE == 64
+    printf("\"lld\"\n");
+#else
+    printf("\"ld\"\n");
+#endif
     return(0);
 }
 End-of-File
