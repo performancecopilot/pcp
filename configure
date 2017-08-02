@@ -821,6 +821,7 @@ have_python_libvirt
 have_python_requests
 have_python_setuptools
 have_python_jsonpointer
+have_python_OrderedDict
 pcp_python_prog
 have_python
 enable_python3
@@ -7232,6 +7233,28 @@ fi
 
 
 
+ { $as_echo "$as_me:${as_lineno-$LINENO}: checking for Python module OrderedDict" >&5
+$as_echo_n "checking for Python module OrderedDict... " >&6; }
+    if test -n "from collections import OrderedDict"
+    then
+	txt="from collections import OrderedDict"
+    else
+	txt="import OrderedDict"
+    fi
+    $pcp_python_prog -c 'import sys;
+'"$txt" >>config.log 2>&1
+    if test "$?" = 0
+    then
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+	eval have_python_OrderedDict=true
+    else
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+	eval have_python_OrderedDict=false
+    fi
+
+
  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for Python module jsonpointer" >&5
 $as_echo_n "checking for Python module jsonpointer... " >&6; }
     if test -n ""
@@ -7351,7 +7374,8 @@ if test "x$do_pmdajson" = "xyes"; then :
 fi
 if test "x$do_pmdajson" = "xcheck"; then :
 
-        $have_python_jsonpointer && $have_python_six && pmda_json=true
+        $have_python_jsonpointer && $have_python_six && \
+	$have_python_OrderedDict && pmda_json=true
 
 fi
 PMDA_JSON=$pmda_json
@@ -7616,10 +7640,7 @@ $as_echo_n "checking if the Prometheus PMDA should be included... " >&6; }
 pmda_prometheus=false
 if test "$have_python" = true
 then
-    if test "$have_python_requests" = true
-    then
-	pmda_prometheus=true
-    fi
+    $have_python_requests && $have_python_OrderedDict && pmda_prometheus=true
 fi
 PMDA_PROMETHEUS=$pmda_prometheus
 
