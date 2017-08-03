@@ -345,7 +345,6 @@ dm_fetch_refresh(pmdaExt *pmda, int *need_refresh)
 	    return sts;
 
         indom = dm_indom(DM_HISTOGRAM_INDOM);
-     }
 
         for (pmdaCacheOp(indom, PMDA_CACHE_WALK_REWIND);;) {
 	    if ((inst = pmdaCacheOp(indom, PMDA_CACHE_WALK_NEXT)) < 0)
@@ -357,7 +356,6 @@ dm_fetch_refresh(pmdaExt *pmda, int *need_refresh)
         }
     }
 
-#endif
     return sts;
 }
 
@@ -385,7 +383,6 @@ static int
 dm_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
     __pmID_int *idp = (__pmID_int *)&(mdesc->m_desc.pmid);
-    struct pm_dm_stats_counter *dmsc;
     struct cache_stats *cache;
     struct pool_stats *pool;
     struct vol_stats *vol;
