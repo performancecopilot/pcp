@@ -4,7 +4,6 @@ force	include
 delta	once
 	hinv.ncpu
 	hinv.ndisk
-	hinv.ntape
 	hinv.nnode
 	hinv.physmem
 	pmda.uname

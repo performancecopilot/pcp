@@ -1,5 +1,5 @@
 /*
- * Device Mapper PMDA - DM (device-mapper) Stats with dmstast API
+ * Device Mapper PMDA - DM (device-mapper) stats with dmstats API
  *
  * Copyright (c) 2017 Fumiya Shigemitsu.
  *
@@ -13,14 +13,14 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  */
-#define HAVE_DMSTATS 1
+#ifndef DMSTATS_H
+#define DMSTATS_H
 
-#ifdef HAVE_DMSTATS
-
-#ifndef DM_H
-#define DM_H
-
+#ifdef HAVE_DEVMAPPER
 #include <libdevmapper.h>
+#endif
+
+struct dm_histogram;
 
 struct pm_dm_stats_counter {
 	uint64_t pm_reads;		    /* Num reads completed */
@@ -68,5 +68,14 @@ extern int pm_dm_histogram_instance_refresh(void);
 
 extern void pm_dm_stats_setup(void);
 
+#ifdef HAVE_DEVMAPPER
+extern int pm_dm_stats_fetch(int, struct pm_dm_stats_counter *, pmAtomValue *);
+extern int pm_dm_refresh_stats_counter(const char *, struct pm_dm_stats_counter *);
+extern int pm_dm_stats_instance_refresh(void);
+#else
+#define pm_dm_stats_fetch(item, ctr, atom)      (-EOPNOTSUPP)
+#define pm_dm_refresh_stats_counter(s, ctr)     do { } while (0)
+#define pm_dm_stats_instance_refresh(void)      (-EOPNOTSUPP)
 #endif
+
 #endif

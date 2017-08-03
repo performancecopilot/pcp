@@ -19,8 +19,6 @@
 #include "indom.h"
 #include "dmstats.h"
 
-#ifdef HAVE_DMSTATS
-
 #include <inttypes.h>
 #include <libdevmapper.h>
 
@@ -33,7 +31,7 @@ pm_dm_stats_fetch(int item, struct pm_dm_stats_counter *dmsc, pmAtomValue *atom)
 	if (item < 0 || item >= DM_STATS_NR_COUNTERS)
 		return  PM_ERR_PMID;
 
-	switch(item) {
+	switch (item) {
 		case DM_STATS_READS_COUNT:
 			atom->ull = dmsc->pm_reads;
 			break;
@@ -244,6 +242,8 @@ pm_dm_refresh_stats_histogram(const char *name, struct pm_dm_histogram *pdmh)
 
 	return 0;
 
+	dm_stats_destroy(dms);
+	return 1;
 nostats:
 	dm_stats_destroy(dms);
 	return -oserror();
@@ -262,7 +262,7 @@ _dm_device_search(struct dm_names *names, struct dm_task *dmt)
 	if (!dm_task_run(dmt))
 		goto nodevice;
 
-	if(!(names = dm_task_get_names(dmt)))
+	if (!(names = dm_task_get_names(dmt)))
 		goto nodevice;
 
 	return names;
@@ -332,6 +332,7 @@ pm_dm_stats_instance_refresh(void)
 		dm_stats_destroy(dms);
 	} while(next);
 
+	dm_task_destroy(dmt);
 	return 0;
 
 }
@@ -419,9 +420,3 @@ pm_dm_histogram_instance_refresh(void)
 
 	return 0;
 }
-
-void
-pm_dm_stats_setup(void)
-{
-}
-#endif

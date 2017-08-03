@@ -22,6 +22,7 @@ test -x $pcp_mpstat || _notrun "No pcp-mpstat(1) installed"
 
 pcp_mpstat="$python $pcp_mpstat"
 pcp_archive="-z -a archives/pcp-mpstat"
+pcp_archive2="-z -a archives/pcp-mpstat2"
 
 # real QA test starts here
 export LC_TIME=POSIX
@@ -50,11 +51,20 @@ pcp $pcp_archive mpstat -I CPU
 echo && echo === pcp-mpstat hard interrupt usage with cpu filter
 pcp $pcp_archive mpstat -I CPU -P 0,2
 
-echo && echo === pcp-mpstat all interrutp usages
+echo && echo === pcp-mpstat all interrupt usages
 pcp $pcp_archive mpstat -I ALL
 
 echo && echo === pcp-mpstat with all reports 
 pcp $pcp_archive mpstat -I SCPU
+
+echo && echo === pcp-mpstat without options nor interrupt metrics
+pcp $pcp_archive2 mpstat
+
+echo && echo === pcp-mpstat soft interrupt usage without metrics
+pcp $pcp_archive2 mpstat -I SCPU -s 2
+
+echo && echo === pcp-mpstat hard interrupt usage without metrics
+pcp $pcp_archive2 mpstat -I CPU -s 2
 
 # success, all done
 status=0

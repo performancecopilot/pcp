@@ -15,18 +15,15 @@ TOPDIR = ../../..
 include	$(TOPDIR)/src/include/builddefs
 
 CFILES		= pmda.c dmthin.c dmcache.c
-HFILES		= indom.h dmthin.h dmcache.h
+HFILES		= indom.h dmthin.h dmcache.h dmstats.h
 CMDTARGET	= pmdadm
 
 LLDLIBS		= $(PCP_PMDALIB)
 
 ifeq "$(HAVE_DEVMAPPER)" "true"
 CFILES		+= dmstats.c
-HFILES		+= dmstats.h
-
 LLDLIBS		+= $(LIB_FOR_DEVMAPPER)
 LCFLAGS		+= -DHAVE_DEVMAPPER=1
-
 endif
 
 IAM		= dm

@@ -891,6 +891,8 @@ AC_DEFUN([PCP_CHECK_PYTHON_MODULE],
 	eval have_python_$1=false
     fi
   ])
+PCP_CHECK_PYTHON_MODULE(OrderedDict, [from collections import OrderedDict])
+AC_SUBST(have_python_OrderedDict)
 PCP_CHECK_PYTHON_MODULE(jsonpointer)
 AC_SUBST(have_python_jsonpointer)
 PCP_CHECK_PYTHON_MODULE(setuptools)
@@ -907,7 +909,8 @@ pmda_json=false
 AS_IF([test "x$do_pmdajson" = "xyes"], [pmda_json=true])
 AS_IF([test "x$do_pmdajson" = "xcheck"], [
     dnl JSON PMDA needs both the six and jsonpointer Python modules
-    $have_python_jsonpointer && $have_python_six && pmda_json=true
+    $have_python_jsonpointer && $have_python_six && \
+	$have_python_OrderedDict && pmda_json=true
 ])
 AC_SUBST(PMDA_JSON, $pmda_json)
 if $pmda_json; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
@@ -1087,10 +1090,7 @@ AC_MSG_CHECKING([if the Prometheus PMDA should be included])
 pmda_prometheus=false
 if test "$have_python" = true
 then
-    if test "$have_python_requests" = true
-    then
-	pmda_prometheus=true
-    fi
+    $have_python_requests && $have_python_OrderedDict && pmda_prometheus=true
 fi
 AC_SUBST(PMDA_PROMETHEUS, $pmda_prometheus)
 if $pmda_prometheus; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
@@ -1623,6 +1623,18 @@ PKG_CHECK_MODULES([ncurses], [ncurses], [have_ncurses=true], [have_ncurses=false
 AC_SUBST(HAVE_NCURSES, [$have_ncurses])
 
 PKG_CHECK_MODULES([DEVMAPPER], [devmapper], [have_devmapper=true], [have_devmapper=false])
+if $have_devmapper
+then
+    AC_MSG_CHECKING([for dm_stats_counter_t ])
+    AC_TRY_COMPILE([
+            #include <libdevmapper.h>
+	],
+	[ dm_stats_counter_t ctr; ],
+	have_devmapper=true
+	AC_MSG_RESULT(yes),
+	have_devmapper=false
+	AC_MSG_RESULT(no))
+fi
 AC_SUBST(HAVE_DEVMAPPER, [$have_devmapper])
 
 PKG_CHECK_MODULES([SYSTEMD], [libsystemd],
@@ -2337,16 +2349,12 @@ End-of-File
 #include <string.h>
 int main()
 {
-    char buf[[17]];
-    int64_t bozo = 0x12345678abcdLL;
-    sprintf(buf, "%lx", bozo);
-    if (strcmp(buf, "12345678abcd") == 0)
-	printf("\"ld\"\n");
-    else {
-	sprintf(buf, "%llx", bozo);
-	if (strcmp(buf, "12345678abcd") == 0)
-	    printf("\"lld\"\n");
-    }
+/* logic copied from <inttypes.h> */
+#if __WORDSIZE == 64
+    printf("\"lld\"\n");
+#else
+    printf("\"ld\"\n");
+#endif
     return(0);
 }
 End-of-File

@@ -241,6 +241,9 @@ dpkg?	dh				[debhelper]
 dpkg?	/usr/bin/dh_pypy		[dh-python]
 dpkg?	/usr/share/doc/python-all-dev	[python-all-dev]
 dpkg?	/usr/share/doc/python3-all-dev	[python3-all-dev]
+# -- perl-interpreter (Fedora 24 or later, but we don't have release
+#    version control)
+rpm?	perl				[perl-interpreter]
 # -- cpan
 dpkg?		cpan
 rpm?		cpan
