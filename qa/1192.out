@@ -9,16 +9,12 @@ prometheus.test.queue_size
     value 90
 Fetch prometheus.test.requests_total: success
 
-prometheus.test.requests_total
-    inst [1 or "agent="prometheus"::type="fetch""] value 1
-    inst [2 or "agent="json"::type="store""] value 1
-    inst [3 or "agent="docker"::type="oneline""] value 1
-
 === remove prometheus agent ===
 Culling the Performance Metrics Name Space ...
 prometheus ... done
 Updating the PMCD control file, and notifying PMCD ...
 [...removing files...]
 Check prometheus metrics have gone away ... OK
+Waiting for pmcd to terminate ...
 Starting pmcd ... 
 Starting pmlogger ... 
