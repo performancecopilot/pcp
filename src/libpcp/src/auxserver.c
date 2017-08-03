@@ -930,7 +930,7 @@ static unsigned int server_features;
  * not building secureserver.c
  */
 int
-__pmIsSecureserverLock(void *lock)
+__pmIsSecureServerLock(void *lock)
 {
     return 0;
 }

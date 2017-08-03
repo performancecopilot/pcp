@@ -146,7 +146,7 @@ static char
 	return "pmns";
     else if (__pmIsAFLock(lock))
 	return "AF";
-    else if (__pmIsSecureserverLock(lock))
+    else if (__pmIsSecureServerLock(lock))
 	return "secureserver";
     else if (__pmIsConnectLock(lock))
 	return "connect";

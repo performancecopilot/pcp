@@ -56,7 +56,7 @@ void			*secureserver_lock;
  * return true if lock == secureserver_lock
  */
 int
-__pmIsSecureserverLock(void *lock)
+__pmIsSecureServerLock(void *lock)
 {
     return lock == (void *)&secureserver_lock;
 }
