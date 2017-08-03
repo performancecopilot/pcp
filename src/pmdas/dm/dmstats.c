@@ -19,8 +19,6 @@
 #include "indom.h"
 #include "dmstats.h"
 
-#ifdef HAVE_DMSTATS
-
 #include <inttypes.h>
 #include <libdevmapper.h>
 
@@ -30,7 +28,7 @@ pm_dm_stats_fetch(int item, struct pm_dm_stats_counter *dmsc, pmAtomValue *atom)
 	if (item < 0 || item >= DM_STATS_NR_COUNTERS)
 		return  PM_ERR_PMID;
 
-	switch(item) {
+	switch (item) {
 		case DM_STATS_READS_COUNT:
 			atom->ull = dmsc->pm_reads;
 			break;
@@ -162,7 +160,6 @@ _dm_stats_search_region(struct dm_names *names)
 	if (!(nr_regions = dm_stats_get_nr_regions(dms)))
 		goto nostats;
 
-
 	dm_stats_destroy(dms);
 	return 1;
 nostats:
@@ -191,9 +188,8 @@ pm_dm_stats_instance_refresh(void)
 	if (!dm_task_run(dmt))
 		goto nodevice;
 
-	if(!(names = dm_task_get_names(dmt)))
+	if (!(names = dm_task_get_names(dmt)))
 		goto nodevice;
-
 
 	do {
 		names = (struct dm_names*)((char *) names + next);
@@ -212,7 +208,6 @@ pm_dm_stats_instance_refresh(void)
 		next = names->next;
 	} while(next);
 
-
 	dm_task_destroy(dmt);
 	return 0;
 
@@ -220,9 +215,3 @@ nodevice:
 	dm_task_destroy(dmt);
 	return -oserror();
 }
-
-void
-pm_dm_stats_setup(void)
-{
-}
-#endif
