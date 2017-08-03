@@ -138,7 +138,7 @@ class ScanPrometheus(object):
 			config["filepath"] = os.path.abspath(self.filepath)
 		else:
 			config["endpoint"] = self.endpoint
-		raw_config = json.dumps(config, indent=2)
+		raw_config = json.dumps(config, sort_keys=True, indent=2)
 		filename = os.getenv('PCP_PMDAS_DIR') + \
 					"/prometheus/metadata/" + self.name + ".json"
 		if not os.path.exists(os.path.dirname(filename)):
@@ -991,7 +991,7 @@ class PrometheusPMDA(PMDA):
 			Creates threads to parallely update the metric values
 		'''
 		# slicelen defines the number of clusters each thread should handle
-		slicelen = math.ceil(len(clusters)/float(self.num_threads))
+		slicelen = int(math.ceil(len(clusters)/float(self.num_threads)))
 		index = 0
 		threads = []
 
