@@ -1623,6 +1623,18 @@ PKG_CHECK_MODULES([ncurses], [ncurses], [have_ncurses=true], [have_ncurses=false
 AC_SUBST(HAVE_NCURSES, [$have_ncurses])
 
 PKG_CHECK_MODULES([DEVMAPPER], [devmapper], [have_devmapper=true], [have_devmapper=false])
+if $have_devmapper
+then
+    AC_MSG_CHECKING([for dm_stats_counter_t ])
+    AC_TRY_COMPILE([
+            #include <libdevmapper.h>
+	],
+	[ dm_stats_counter_t ctr; ],
+	have_devmapper=true
+	AC_MSG_RESULT(yes),
+	have_devmapper=false
+	AC_MSG_RESULT(no))
+fi
 AC_SUBST(HAVE_DEVMAPPER, [$have_devmapper])
 
 PKG_CHECK_MODULES([SYSTEMD], [libsystemd],
