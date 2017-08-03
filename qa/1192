@@ -11,22 +11,16 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.filter
 . ./common.check
-. ./common.docker
+. ./common.python
 
-_check_containers
-_check_docker_images "quay.io/prometheus/prometheus"
-count=`_count_docker_containers`
-[ "$count" -gt 0 ] && \
-    _notrun "Needs quay.io/prometheus/prometheus docker setup ($count running containers found)"
-
+$python -c "import prometheus_client"
+[ $? -eq 0 ] || _notrun "python prometheus_client module not installed"
 
 _cleanup()
 {
-    if [ -n "$container" ]
+    if [ -n "$pid" ]
     then
-        echo "== removing container"
-        _remove_docker_containers $container
-        container=""
+        kill -9 $pid
     fi
     $sudo rm -rf $tmp.* $tmp.*
 }
@@ -55,7 +49,7 @@ pmdaprometheus_install()
 generate_config()
 {
 	cd $PCP_PMDAS_DIR/prometheus
-	$sudo ./pmdaprometheus.python -g -n "test" -u "http://127.0.0.1:9090/metrics"
+	$sudo ./pmdaprometheus.python -g -n "test" -u "http://127.0.0.1:9090"
 }
 
 status=1	# failure is the default!
@@ -69,11 +63,8 @@ $sudo rm -f $PCP_PMDAS_DIR/prometheus/metadata/*
 
 # real QA test starts here
 
-echo "== starting container"
-container=`$docker run -d -p 127.0.0.1:9090:9090 quay.io/prometheus/prometheus`
-echo "== container: $container" >> $here/$seq.full
-# Wait for the prometheus container to complete setup
-sleep 5
+$python $here/prometheus/prometheus_client_server.python &
+pid=$!
 
 generate_config
 
@@ -87,17 +78,25 @@ else
 	cat $tmp.out
 fi
 
-if pminfo -f prometheus.test.go_goroutines > $tmp.info 2> $tmp.err
+if pminfo -f prometheus.test.queue_size > $tmp.info 2> $tmp.err
 then
-	echo "Fetch prometheus.go_goroutines: success"
-	pminfo -d prometheus.test.go_goroutines
+	echo "Fetch prometheus.test.queue_size: success"
+	pminfo -f prometheus.test.queue_size
 else
-	echo "Fetch prometheus.go_goroutines: failed"
+	echo "Fetch prometheus.test.queue_size: failed"
 	cat $tmp.err
 fi
 
-pmdaprometheus_remove
+if pminfo -f prometheus.test.requests_total > $tmp.info 2> $tmp.err
+then
+    echo "Fetch prometheus.test.requests_total: success"
+    pminfo -f prometheus.test.requests_total
+else
+    echo "Fetch prometheus.test.requests_total: failed"
+    cat $tmp.err
+fi
 
+pmdaprometheus_remove
 _restore_config $PCP_PMDAS_DIR/prometheus/metadata
 # success, all done
 status=0

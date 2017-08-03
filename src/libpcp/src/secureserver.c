@@ -45,6 +45,29 @@ static struct {
     unsigned int	ssl_session_cache_setup : 1;	/* NSS */
 } secure_server;
 
+#ifdef PM_MULTI_THREAD
+static pthread_mutex_t	secureserver_lock;
+#else
+void			*secureserver_lock;
+#endif
+
+#if defined(PM_MULTI_THREAD) && defined(PM_MULTI_THREAD_DEBUG)
+/*
+ * return true if lock == secureserver_lock
+ */
+int
+__pmIsSecureServerLock(void *lock)
+{
+    return lock == (void *)&secureserver_lock;
+}
+#endif
+
+void
+init_secureserver_lock(void)
+{
+    __pmInitMutex(&secureserver_lock);
+}
+
 int
 __pmSecureServerSetFeature(__pmServerFeature wanted)
 {
@@ -139,13 +162,11 @@ certificate_database_password(PK11SlotInfo *info, PRBool retry, void *arg)
     (void)arg;
     (void)info;
 
-    PM_INIT_LOCKS();
-    PM_LOCK(__pmLock_libpcp);
+    PM_ASSERT_IS_LOCKED(secureserver_lock);
     passfile[0] = '\0';
     if (secure_server.password_file)
 	strncpy(passfile, secure_server.password_file, MAXPATHLEN-1);
     passfile[MAXPATHLEN-1] = '\0';
-    PM_UNLOCK(__pmLock_libpcp);
 
     if (passfile[0] == '\0') {
 	__pmNotifyErr(LOG_ERR, "Password sought but no password file given");
@@ -243,7 +264,7 @@ int
 __pmSecureServerCertificateSetup(const char *db, const char *passwd, const char *cert_nickname)
 {
     PM_INIT_LOCKS();
-    PM_LOCK(__pmLock_libpcp);
+    PM_LOCK(secureserver_lock);
 
     /* Configure optional (cmdline) password file in case DB locked */
     secure_server.password_file = passwd;
@@ -266,7 +287,7 @@ __pmSecureServerCertificateSetup(const char *db, const char *passwd, const char 
 	strncpy(secure_server.cert_nickname, SECURE_SERVER_CERTIFICATE, MAX_CERT_NAME_LENGTH-2);
     }
 
-    PM_UNLOCK(__pmLock_libpcp);
+    PM_UNLOCK(secureserver_lock);
     return 0;
 }
 
@@ -279,7 +300,7 @@ __pmSecureServerInit(void)
     int sts = 0;
 
     PM_INIT_LOCKS();
-    PM_LOCK(__pmLock_libpcp);
+    PM_LOCK(secureserver_lock);
 
     /* Only attempt this once. */
     if (secure_server.initialized)
@@ -425,7 +446,7 @@ __pmSecureServerInit(void)
     sts = 0;
 
 done:
-    PM_UNLOCK(__pmLock_libpcp);
+    PM_UNLOCK(secureserver_lock);
     return sts;
 }
 
@@ -433,7 +454,7 @@ void
 __pmSecureServerShutdown(void)
 {
     PM_INIT_LOCKS();
-    PM_LOCK(__pmLock_libpcp);
+    PM_LOCK(secureserver_lock);
     if (secure_server.certificate) {
 	CERT_DestroyCertificate(secure_server.certificate);
 	secure_server.certificate = NULL;
@@ -450,7 +471,7 @@ __pmSecureServerShutdown(void)
 	NSS_Shutdown();
 	secure_server.initialized = 0;
     }
-    PM_UNLOCK(__pmLock_libpcp);
+    PM_UNLOCK(secureserver_lock);
 }
 
 static int
@@ -467,12 +488,12 @@ __pmSecureServerNegotiation(int fd, int *strength)
 	return PM_ERR_IPC;
 
     PM_INIT_LOCKS();
-    PM_LOCK(__pmLock_libpcp);
+    PM_LOCK(secureserver_lock);
     secsts = SSL_ConfigSecureServer(sslsocket,
 			secure_server.certificate,
 			secure_server.private_key,
 			secure_server.certificate_KEA);
-    PM_UNLOCK(__pmLock_libpcp);
+    PM_UNLOCK(secureserver_lock);
 
     if (secsts != SECSuccess) {
 	__pmNotifyErr(LOG_ERR, "Unable to configure secure server: %s",

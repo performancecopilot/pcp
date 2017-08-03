@@ -456,12 +456,8 @@ pass3(__pmContext *ctxp, char *archname, pmOptions *opts)
 	 * we need the next record with no fancy checks or record
 	 * skipping in libpcp, so use __pmLogRead_ctx() in preference
 	 * to pmFetchArchive()
-	 *
-	 * we need to lock the context for the __pmLogRead_ctx() call
 	 */
-	PM_LOCK(ctxp->c_lock);
 	sts = __pmLogRead_ctx(l_ctxp, l_ctxp->c_mode, NULL, &result, PMLOGREAD_NEXT);
-	PM_UNLOCK(ctxp->c_lock);
 	if (sts < 0)
 	    break;
 	result_count++;

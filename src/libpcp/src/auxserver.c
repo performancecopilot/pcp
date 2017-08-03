@@ -924,6 +924,24 @@ static unsigned int server_features;
 
 #if !defined(HAVE_SECURE_SOCKETS)
 
+#if defined(PM_MULTI_THREAD) && defined(PM_MULTI_THREAD_DEBUG)
+/*
+ * return true if lock == secureserver_lock ... false because we're
+ * not building secureserver.c
+ */
+int
+__pmIsSecureServerLock(void *lock)
+{
+    return 0;
+}
+#endif
+
+/* nothing to initialize because we're not building secureserver.c */
+void
+init_secureserver_lock(void)
+{
+}
+
 int
 __pmSecureServerSetup(const char *db, const char *passwd)
 {

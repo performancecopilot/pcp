@@ -1,14 +1,18 @@
 QA output created by 1192
-== starting container
 Waiting for pmcd to terminate ...
 
 === prometheus agent installation ===
 Installation ok
-Fetch prometheus.go_goroutines: success
+Fetch prometheus.test.queue_size: success
 
-prometheus.test.go_goroutines
-    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
+prometheus.test.queue_size
+    value 90
+Fetch prometheus.test.requests_total: success
+
+prometheus.test.requests_total
+    inst [1 or "agent="prometheus"::type="fetch""] value 1
+    inst [2 or "agent="json"::type="store""] value 1
+    inst [3 or "agent="docker"::type="oneline""] value 1
 
 === remove prometheus agent ===
 Culling the Performance Metrics Name Space ...
@@ -16,7 +20,5 @@ prometheus ... done
 Updating the PMCD control file, and notifying PMCD ...
 [...removing files...]
 Check prometheus metrics have gone away ... OK
-== removing container
-Waiting for pmcd to terminate ...
 Starting pmcd ... 
 Starting pmlogger ... 

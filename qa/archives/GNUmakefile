@@ -48,6 +48,7 @@ CONFIGS = config.verify config.shping YWhcCi.toium.config \
 OTHERS = ds390-access.gz collectl-qa bigace.pmns README
 
 LDIRT = pmlogger.log
+LDIRDIRT = tmp
 
 default default_pcp setup: $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
@@ -104,3 +105,18 @@ changeinst.0:
 	rm -f changeinst.index changeinst.meta changeinst.0
 	pmlogextract tmp/A tmp/B tmp/C changeinst
 	rm -rf tmp
+
+# variant of the base mpstat archive without interrupts metrics
+# 
+pcp-mpstat2.0:
+	rm -rf tmp
+	mkdir tmp
+	pminfo -a pcp-mpstat \
+		| sed \
+			-e '/^kernel.percpu.interrupts/d' \
+			-e '/^kernel.percpu.softirqs/d' \
+			-e '/^event/d' -e '/^pmcd/d' \
+		> tmp/config
+	pmlogextract -c tmp/config pcp-mpstat pcp-mpstat2
+	rm -rf tmp
+

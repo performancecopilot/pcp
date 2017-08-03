@@ -22,17 +22,13 @@
 #include "domain.h"
 #include "dmthin.h"
 #include "dmcache.h"
-
 #include "dmstats.h"
-#include <libdevmapper.h>
 
 enum {
     CLUSTER_CACHE = 0,		/* DM-Cache Caches */
     CLUSTER_POOL = 1,		/* DM-Thin Pools */
     CLUSTER_VOL = 2,		/* DM-Thin Volumes */
-#ifdef HAVE_DMSTATS
     CLUSTER_DM_COUNTER = 3,
-#endif
     NUM_CLUSTERS
 };
 
@@ -160,8 +156,8 @@ static pmdaMetric metrictable[] = {
         PMDA_PMID(CLUSTER_VOL, VOL_HIGHEST_MAPPED_SECTORS),
         PM_TYPE_U64, DM_THIN_VOL_INDOM, PM_SEM_INSTANT,
         PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
-    /* DM_STATS Basic Counters*/
-#ifdef HAVE_DMSTATS
+#ifdef HAVE_DEVMAPPER
+    /* DM_STATS Basic Counters */
     { .m_desc = {
         PMDA_PMID(CLUSTER_DM_COUNTER, DM_STATS_READS_COUNT),
         PM_TYPE_U64, DM_STATS_INDOM, PM_SEM_COUNTER,
@@ -221,9 +217,7 @@ static pmdaIndom indomtable[] = {
     { .it_indom = DM_CACHE_INDOM },
     { .it_indom = DM_THIN_POOL_INDOM },
     { .it_indom = DM_THIN_VOL_INDOM },
-#ifdef HAVE_DMSTATS
     { .it_indom = DM_STATS_INDOM},
-#endif
 };
 
 pmInDom
@@ -238,9 +232,7 @@ dm_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaExt 
     dm_cache_instance_refresh();
     dm_thin_pool_instance_refresh();
     dm_thin_vol_instance_refresh();
-#ifdef HAVE_DMSTATS
-    pm_dm_stats_instance_refresh();
-#endif
+    (void)pm_dm_stats_instance_refresh();
     return pmdaInstance(indom, inst, name, result, pmda);
 }
 
@@ -306,7 +298,6 @@ dm_fetch_refresh(pmdaExt *pmda, int *need_refresh)
         }
     }
 
-#ifdef HAVE_DMSTATS
     if (need_refresh[CLUSTER_DM_COUNTER]) {
         struct pm_dm_stats_counter *dmsc;
 
@@ -325,7 +316,6 @@ dm_fetch_refresh(pmdaExt *pmda, int *need_refresh)
 	    }
         }
      }
-#endif
 
     return sts;
 }
@@ -354,12 +344,10 @@ static int
 dm_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
     __pmID_int *idp = (__pmID_int *)&(mdesc->m_desc.pmid);
+    struct pm_dm_stats_counter *dmsc;
     struct cache_stats *cache;
     struct pool_stats *pool;
     struct vol_stats *vol;
-#ifdef HAVE_DMSTATS
-    struct pm_dm_stats_counter *dmsc;
-#endif
     int sts;
 
     switch (idp->cluster) {
@@ -381,13 +369,11 @@ dm_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	        return sts;
 	    return dm_thin_vol_fetch(idp->item, vol, atom);
 
-#ifdef HAVE_DMSTATS
 	case CLUSTER_DM_COUNTER:
 	    sts = pmdaCacheLookup(dm_indom(DM_STATS_INDOM), inst, NULL, (void**)&dmsc);
 	    if (sts < 0)
 	        return sts;
 	    return pm_dm_stats_fetch(idp->item, dmsc, atom);
-#endif
 
         default: /* unknown cluster */
 	    return PM_ERR_PMID;
@@ -405,9 +391,6 @@ dm_init(pmdaInterface *dp)
     /* Check for environment variables allowing test injection */
     dm_cache_setup();
     dm_thin_setup();
-#ifdef HAVE_DMSTATS
-    pm_dm_stats_setup();
-#endif
 
     int	nindoms = sizeof(indomtable)/sizeof(indomtable[0]);
     int	nmetrics = sizeof(metrictable)/sizeof(metrictable[0]);
