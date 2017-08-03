@@ -36,4 +36,6 @@ dmstats.counter {
 dmstats.histogram {
 	hist_count_bounds    DM:4:0
 	hist_percent_bounds  DM:4:1
+	hist_region          DM:4:2
+	hist_bins            DM:4:3
 }

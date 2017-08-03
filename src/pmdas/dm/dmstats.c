@@ -24,8 +24,8 @@
 #include <inttypes.h>
 #include <libdevmapper.h>
 
-const char *bc_programid = "pm_counter";
-const char *his_programid = "pm_histogram";
+const char *bc_programid = "pcp_dm_counter";
+const char *hist_programid = "pcp_dm_histogram";
 
 int
 pm_dm_stats_fetch(int item, struct pm_dm_stats_counter *dmsc, pmAtomValue *atom)
@@ -91,6 +91,12 @@ pm_dm_histogram_fetch(int item, struct pm_dm_histogram *pdmh, pmAtomValue *atom)
 			break;
 		case PM_DM_HISTOGRAM_PERCENT:
 			atom->f = pdmh->pm_bin_percent;
+			break;
+		case PM_DM_HISTOGRAM_REGION:
+			atom->ull = pdmh->pm_region;
+			break;
+		case PM_DM_HISTOGRAM_BIN:
+			atom->ull = pdmh->pm_bin;
 			break;
 	}
 	return 1;
@@ -207,7 +213,7 @@ pm_dm_refresh_stats_histogram(const char *name, struct pm_dm_histogram *pdmh)
 
 
 	if (bin == 0) {
-		if (!dm_stats_populate(dms, his_programid, region_id))
+		if (!dm_stats_populate(dms, hist_programid, region_id))
 			goto nostats;
 
 		if (!(dmh = dm_stats_get_histogram(dms, region_id, area_id)))
@@ -224,6 +230,8 @@ pm_dm_refresh_stats_histogram(const char *name, struct pm_dm_histogram *pdmh)
 
 	pdmh->pm_bin_value += buffer_count_data[bin];
 	pdmh->pm_bin_percent = _make_percent(buffer_count_data[bin], total);
+	pdmh->pm_region = walk;
+	pdmh->pm_bin = number_of_bins;
 
 	bin++;
 
@@ -374,7 +382,7 @@ pm_dm_histogram_instance_refresh(void)
 	do {
 		names = (struct dm_names*)((char *) names + next);
 
-		if (!(dms = _dm_stats_search_region(names, dms, his_programid))) {
+		if (!(dms = _dm_stats_search_region(names, dms, hist_programid))) {
 			next = names->next;
 			continue;
 		}

@@ -46,11 +46,15 @@ struct dm_stats_metric {
 struct pm_dm_histogram {
 	uint64_t pm_bin_value;
 	float pm_bin_percent;
+	uint64_t pm_region;
+	uint64_t pm_bin;
 };
 
 typedef enum {
 	PM_DM_HISTOGRAM_COUNT,
 	PM_DM_HISTOGRAM_PERCENT,
+	PM_DM_HISTOGRAM_REGION,
+	PM_DM_HISTOGRAM_BIN,
 	PM_DM_HISTOGRAM_NR_HISTOGRAMS,
 } pm_dm_histogram_t;
 
