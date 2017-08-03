@@ -19,11 +19,15 @@
 .SH DESCRIPTION
 .B pmdadm
 is a Performance Metrics Domain Agent (PMDA) which exports
-metric values for Devic Mapper on the local system.
+metric values for Device Mapper on the local system.
 .PP
 This PMDA collects its data through the
 .BR dmsetup (8)
-utility and requires that the program is installed in order to function. 
+utility, dmstats API and requires that the program is installed in order to function.
+.PP
+In addition, at least a statistics region must be created to use
+.BR dmstats (8)
+in order to get the basic counter value.
 .PP
 Further details on device mapper can be found at
 http://redhat.com
@@ -41,7 +45,7 @@ To uninstall, do the following as root:
       # ./Remove
 .PP
 .B pmdadm
-is launched by 
+is launched by
 .BR pmcd (1)
 and should never be executed directly.
 The Install and Remove scripts notify
@@ -50,20 +54,76 @@ when the agent is installed or removed.
 .SH FILES
 .IP "\fB$PCP_PMDAS_DIR/dm/help\fR" 4
 default help text file for the dm metrics
-.IP "\fB$PCP_PMDAS_DIR/dm/Install\fR" 4 
-installation script for the \fBpmdadm\fR agent 
-.IP "\fB$PCP_PMDAS_DIR/dm/Remove\fR" 4 
-undo installation script for the \fBpmdadm\fR agent 
-.IP "\fB$PCP_LOG_DIR/pmcd/dm.log\fR" 4 
-default log file for error messages from \fBpmdadm\fR 
+.IP "\fB$PCP_PMDAS_DIR/dm/Install\fR" 4
+installation script for the \fBpmdadm\fR agent
+.IP "\fB$PCP_PMDAS_DIR/dm/Remove\fR" 4
+undo installation script for the \fBpmdadm\fR agent
+.IP "\fB$PCP_LOG_DIR/pmcd/dm.log\fR" 4
+default log file for error messages from \fBpmdadm\fR
+.SH dmstats metric
+This PMDA use the dmstats API (the userspace device-mapper support
+library) to allow dmstats performance data.
+.br
+Using this PMDA, users need the userspace device-mapper support library (libdevmapper)
+and the userspace command line tool (dmstats).
+Before getting the statistics metric, statistics regions have to be created.
+When creating the statistics regions of all device-mapper device under /dev/mapper as below:
+.PP
+	# dmstats create --alldevices
+.PP
+Further Detail on
+.BR dmstats(8)
+can be found at man page.
+.br
+.IP "\fBBasic Counters\fR" 4
+Basic counters provide access to the raw counter data from the kernel,
+allowing further processing to be carried out by another program.
+.br
+The Kernel provides thirteen separate counters for each statistics area.
+The first eleven of these match the counters provided in /proc/diskstats
+or /sys/block/*/*/stat. The final pair provide separate counters for
+read and write time.
+.RS 4
+.IP "\fBdm.read\fR" 4
+Count of reads completed this interval per device-mapper device.
+.IP "\fBdm.reads_merged\fR" 4
+Count of reads merged this interval per device-mapper device.
+.IP "\fBdm.read_bytes\fR" 4
+Count of kbytes read this interval per device-mapper device.
+.IP "\fBdm.reads_time\fR" 4
+Accumulated duration of all read requests per device-mapper device.
+.IP "\fBdm.write\fR" 4
+Count of writes completed this interval per device-mapper device.
+.IP "\fBdm.writes_merged\fR" 4
+Count of writes completed this interval per device-mapper device.
+.IP "\fBdm.write_bytes\fR" 4
+Count of kbytes write this interval per device-mapper device.
+.IP "\fBdm.writes_time\fR" 4
+Accumulated duration of all write requests per device-mapper device.
+.IP "\fBdm.in_progress\fR" 4
+Count of requests currently in progress per device-mapper device.
+.IP "\fBdm.io_ticks\fR" 4
+Nanoseconds spent servicing request per device-mapper device.
+.IP "\fBdm.queue_ticks\fR" 4
+This field is incremented at each I/O start, I/O completion, I/O merge,
+or read of these stats by the number of I/Os in progress multiplied by
+the number of nanoseconds spent doing I/O since the last update of
+this field. This can provide an easy measure of both I/O completion time
+and the backlog that may be accumulating.
+.IP "\fBdm.read_ticks\fR" 4
+Nanoseconds spent servicing reads per device-mapper device.
+.IP "\fBdm.write_ticks\fR" 4
+Nanoseconds spent servicing writes per device-mapper device.
+.RE
 .SH PCP ENVIRONMENT
 Environment variables with the prefix \fBPCP_\fR are used to parameterize
 the file and directory names used by \fBPCP\fR. On each installation, the
-file \fB/etc/pcp.conf\fR contains the local values for these variables. 
-The \fB$PCP_CONF\fR variable may be used to specify an alternative 
+file \fB/etc/pcp.conf\fR contains the local values for these variables.
+The \fB$PCP_CONF\fR variable may be used to specify an alternative
 configuration file, as described in \fIpcp.conf\fR(5).
 .SH SEE ALSO
 .BR pmcd (1),
 .BR pmstore (1),
+.BR dmsetup (8),
 and
-.BR dmsetup (8).
+.BR dmstats (8).

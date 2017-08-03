@@ -84,14 +84,14 @@ dm_cache_fetch(int item, struct cache_stats *cache_stats, pmAtomValue *atom)
         case CACHE_IOMODE:
             atom->cp = cache_stats->io_mode;
             break;
-    }     
+    }
     return 1;
 }
 
-/* 
+/*
  * Grab output from dmsetup status (or read in from cat when under QA),
  * Match the data to the pool which we wish to update the metrics and
- * assign the values to pool_stats. 
+ * assign the values to pool_stats.
  */
 int
 dm_refresh_cache(const char *cache_name, struct cache_stats *cache_stats)
@@ -115,7 +115,7 @@ dm_refresh_cache(const char *cache_name, struct cache_stats *cache_stats)
         token = strtok(NULL, ":");
 
         /* Pattern match our output to the given cache status
-         * output (minus cache name). 
+         * output (minus cache name).
          * The format is:
          * <name>: <start> <end> <target>
          *  <metadata block size> <used metadata blocks>/<total metadata blocks>
@@ -158,7 +158,7 @@ dm_refresh_cache(const char *cache_name, struct cache_stats *cache_stats)
     }
 
     if (pclose(fp) != 0)
-        return -oserror(); 
+        return -oserror();
 
     return 0;
 }
@@ -182,7 +182,7 @@ dm_cache_instance_refresh(void)
 
     pmdaCacheOp(indom, PMDA_CACHE_INACTIVE);
 
-    /* 
+    /*
      * update indom cache based off of thin pools listed by dmsetup
      */
     if ((fp = popen(dm_setup_cache, "r")) == NULL)
@@ -205,7 +205,7 @@ dm_cache_instance_refresh(void)
                     return -oserror();
                 return PM_ERR_AGAIN;
             }
-        }   
+        }
 	else if (sts < 0)
 	    continue;
 
@@ -214,7 +214,7 @@ dm_cache_instance_refresh(void)
     }
 
     if (pclose(fp) != 0)
-        return -oserror(); 
+        return -oserror();
 
     return 0;
 }

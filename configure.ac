@@ -1622,6 +1622,9 @@ AC_SUBST(lib_for_regex)
 PKG_CHECK_MODULES([ncurses], [ncurses], [have_ncurses=true], [have_ncurses=false])
 AC_SUBST(HAVE_NCURSES, [$have_ncurses])
 
+PKG_CHECK_MODULES([DEVMAPPER], [devmapper], [have_devmapper=true], [have_devmapper=false])
+AC_SUBST(HAVE_DEVMAPPER, [$have_devmapper])
+
 PKG_CHECK_MODULES([SYSTEMD], [libsystemd],
                   [pmda_systemd=true], [pmda_systemd=false])
 if $pmda_systemd
@@ -2334,16 +2337,12 @@ End-of-File
 #include <string.h>
 int main()
 {
-    char buf[[17]];
-    int64_t bozo = 0x12345678abcdLL;
-    sprintf(buf, "%lx", bozo);
-    if (strcmp(buf, "12345678abcd") == 0)
-	printf("\"ld\"\n");
-    else {
-	sprintf(buf, "%llx", bozo);
-	if (strcmp(buf, "12345678abcd") == 0)
-	    printf("\"lld\"\n");
-    }
+/* logic copied from <inttypes.h> */
+#if __WORDSIZE == 64
+    printf("\"lld\"\n");
+#else
+    printf("\"ld\"\n");
+#endif
     return(0);
 }
 End-of-File

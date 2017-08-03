@@ -144,6 +144,12 @@ static char
 	return "logutil";
     else if (__pmIsPmnsLock(lock))
 	return "pmns";
+    else if (__pmIsAFLock(lock))
+	return "AF";
+    else if (__pmIsSecureServerLock(lock))
+	return "secureserver";
+    else if (__pmIsConnectLock(lock))
+	return "connect";
     else if (lock == (void *)&__pmLock_extcall)
 	return "global_extcall";
     else if ((ctxid = __pmIsContextLock(lock)) != -1) {
@@ -357,6 +363,9 @@ __pmInitLocks(void)
 	 * Now initialize the local mutexes.
 	 */
 	init_pmns_lock();
+	init_AF_lock();
+	init_secureserver_lock();
+	init_connect_lock();
 
 	done = 1;
     }

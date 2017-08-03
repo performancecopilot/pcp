@@ -165,12 +165,16 @@ daemon
 socket
 Unix
 '"$tmp.fifo-1" | $sudo ./Install -e >>$tmp.out 2>&1
+echo "+++ fifo-1 PMDA log +++" >>$here/$seq.full
+cat $PMDA_LOG_PATH >>$here/$seq.full
 $sudo rm -f $PMDA_LOG_PATH
 echo 'both
 daemon
 socket
 Unix
 '"$tmp.fifo-2" | $sudo ./Install -e >>$tmp.out 2>&1
+echo "+++ fifo-2 PMDA log +++" >>$here/$seq.full
+cat $PMDA_LOG_PATH >>$here/$seq.full
 _full
 
 _filter <$tmp.out
