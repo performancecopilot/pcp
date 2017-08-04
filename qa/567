@@ -1,5 +1,5 @@
 #!/bin/sh
-# PCP QA Test No. 561
+# PCP QA Test No. 567
 # Exercise pmMergeLabelSets(3) handling of various input data.
 #
 # Copyright (c) 2017 Red Hat.
@@ -8,10 +8,7 @@
 seq=`basename $0`
 echo "QA output created by $seq"
 
-# get standard environment, filters and checks
-. ./common.product
-. ./common.filter
-. ./common.check
+. ./common.python
 
 status=1	# failure is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
@@ -24,6 +21,6 @@ $here/src/mergelabelsets
 
 echo "Python mergelabelsets output:"
 echo
-$here/src/mergelabelsets.py
+$python $here/src/mergelabelsets.python
 status=$?
 exit

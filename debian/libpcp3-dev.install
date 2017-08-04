@@ -97,6 +97,7 @@ usr/share/man/man3/pmgetchildren.3.gz
 usr/share/man/man3/pmGetChildren.3.gz
 usr/share/man/man3/pmgetchildrenstatus.3.gz
 usr/share/man/man3/pmGetChildrenStatus.3.gz
+usr/share/man/man3/pmGetClusterLabels.3.gz
 usr/share/man/man3/pmgetconfig.3.gz
 usr/share/man/man3/pmGetConfig.3.gz
 usr/share/man/man3/pmgetcontexthostname.3.gz
@@ -111,6 +112,8 @@ usr/share/man/man3/pmGetInDom.3.gz
 usr/share/man/man3/pmgetindomarchive.3.gz
 usr/share/man/man3/pmGetInDomArchive.3.gz
 usr/share/man/man3/pmGetInDomLabels.3.gz
+usr/share/man/man3/pmGetInstsLabels.3.gz
+usr/share/man/man3/pmGetItemLabels.3.gz
 usr/share/man/man3/pmgetlabels.3.gz
 usr/share/man/man3/pmGetLabels.3.gz
 usr/share/man/man3/pmGetOptionalConfig.3.gz

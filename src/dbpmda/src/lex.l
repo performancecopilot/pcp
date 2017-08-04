@@ -67,6 +67,7 @@ attr		{ return ATTR; }
 attribute	{ return ATTR; }
 children	{ return PMNS_CHILDREN; }
 close		{ return CLOSE; }
+cluster		{ return CLUSTER; }
 context		{ return CONTEXT; }
 debug		{ return DBG; }
 delete		{ return DEL; }
@@ -82,6 +83,7 @@ inet		{ return INET; }
 instance	{ return INSTANCE; }
 insts		{ return INSTS; }
 ipv6		{ return IPV6; }
+item		{ return ITEM; }
 label		{ return LABEL; }
 name		{ return PMNS_NAME; }
 namespace	{ BEGIN FNAME; return NAMESPACE; }

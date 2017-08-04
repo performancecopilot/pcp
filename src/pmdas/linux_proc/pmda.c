@@ -3322,8 +3322,12 @@ proc_label_indom(pmInDom indom, pmLabelSet **lp, pmdaExt *pmda)
 static int
 proc_label(int ident, int type, pmLabelSet **lp, pmdaExt *pmda)
 {
-    if (type & PM_LABEL_INDOM)
-	return proc_label_indom(ident, lp, pmda);
+    int sts;
+
+    if ((type & PM_LABEL_INDOM) &&
+	(sts = proc_label_indom(ident, lp, pmda)) < 0)
+	return sts;
+
     return pmdaLabel(ident, type, lp, pmda);
 }
 

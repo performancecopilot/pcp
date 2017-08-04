@@ -2868,7 +2868,7 @@ sample_label_indom(pmInDom indom, pmLabelSet **lp)
 }
 
 static int
-sample_label_pmid(pmID pmid, pmLabelSet **lp)
+sample_label_item(pmID pmid, pmLabelSet **lp)
 {
     __pmID_int	*pmidp = (__pmID_int *)&pmid;
 
@@ -2877,25 +2877,25 @@ sample_label_pmid(pmID pmid, pmLabelSet **lp)
 
     switch (pmidp->item) {
 	case 14:	/* long.write_me */
-	    pmdaAddLabels(lp, "{\"changed\":%s}", boolstr(_long != 13));
+	    pmdaAddNotes(lp, "{\"changed\":%s}", boolstr(_long != 13));
 	    return 1;
 	case 24:	/* longlong.write_me */
-	    pmdaAddLabels(lp, "{\"changed\":%s}", boolstr(_longlong != 13));
+	    pmdaAddNotes(lp, "{\"changed\":%s}", boolstr(_longlong != 13));
 	    return 1;
 	case 19:	/* float.write_me */
-	    pmdaAddLabels(lp, "{\"changed\":%s}", boolstr(_float != 13));
+	    pmdaAddNotes(lp, "{\"changed\":%s}", boolstr(_float != 13));
 	    return 1;
 	case 29:	/* double.write_me */
-	    pmdaAddLabels(lp, "{\"changed\":%s}", boolstr(_double != 13));
+	    pmdaAddNotes(lp, "{\"changed\":%s}", boolstr(_double != 13));
 	    return 1;
 	case 36:	/* write_me */
-	    pmdaAddLabels(lp, "{\"changed\":%s}", boolstr(_write_me != 2));
+	    pmdaAddNotes(lp, "{\"changed\":%s}", boolstr(_write_me != 2));
 	    return 1;
 	case 97:	/* ulong.write_me */
-	    pmdaAddLabels(lp, "{\"changed\":%s}", boolstr(_ulong != 13));
+	    pmdaAddNotes(lp, "{\"changed\":%s}", boolstr(_ulong != 13));
 	    return 1;
 	case 102:	/* ulonglong.write_me */
-	    pmdaAddLabels(lp, "{\"changed\":%s}", boolstr(_ulonglong != 13));
+	    pmdaAddNotes(lp, "{\"changed\":%s}", boolstr(_ulonglong != 13));
 	    return 1;
 
 	case 64:	/* rapid */
@@ -2989,6 +2989,7 @@ sample_label_insts(pmID pmid, pmLabelSet **lpp)
     for (i = 0; i < numinst; i++, lp++) {
 	lp->inst = idp->it_set[i].i_inst;
 	sample_label_cb(dp, lp->inst, &lp);
+	pmdaAddLabelFlags(lp, PM_LABEL_INSTS);
     }
     return numinst;
 }
@@ -2996,21 +2997,29 @@ sample_label_insts(pmID pmid, pmLabelSet **lpp)
 static int
 sample_label(int ident, int type, pmLabelSet **lp, pmdaExt *ep)
 {
+    int		sts = 0;
+
     sample_inc_recv(ep->e_context);
     sample_inc_xmit(ep->e_context);
 
     switch (type) {
 	case PM_LABEL_DOMAIN:
-	    return sample_label_domain(lp, ep);
+	    sts = sample_label_domain(lp, ep);
+	    break;
 	case PM_LABEL_INDOM:
-	    return sample_label_indom((pmInDom)ident, lp);
-	case PM_LABEL_PMID:
-	    return sample_label_pmid((pmID)ident, lp);
+	    sts = sample_label_indom((pmInDom)ident, lp);
+	    break;
+	case PM_LABEL_ITEM:
+	    sts = sample_label_item((pmID)ident, lp);
+	    break;
 	case PM_LABEL_INSTS:
+	    /* cannot use default handler, no indomtab */
 	    return sample_label_insts((pmID)ident, lp);
 	default:
 	    break;
     }
+    if (sts < 0)
+	return sts;
     return pmdaLabel(ident, type, lp, ep);
 }
 

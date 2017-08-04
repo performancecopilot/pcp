@@ -7728,7 +7728,7 @@ linux_labelInDom(pmInDom indom, pmLabelSet **lp)
 }
 
 static int
-linux_labelPMID(pmID pmid, pmLabelSet **lp)
+linux_labelItem(pmID pmid, pmLabelSet **lp)
 {
     __pmID_int		*idp = (__pmID_int *)&pmid;
     int			sts;
@@ -7856,11 +7856,17 @@ linux_labelCallBack(pmdaMetric *mdesc, unsigned int inst, pmLabelSet **lp)
 static int
 linux_label(int ident, int type, pmLabelSet **lpp, pmdaExt *pmda)
 {
+    int		sts;
+
     switch (type) {
     case PM_LABEL_INDOM:
-	return linux_labelInDom((pmInDom)ident, lpp);
-    case PM_LABEL_PMID:
-	return linux_labelPMID((pmID)ident, lpp);
+	if ((sts = linux_labelInDom((pmInDom)ident, lpp)) < 0)
+	    return sts;
+	break;
+    case PM_LABEL_ITEM:
+	if ((sts = linux_labelItem((pmID)ident, lpp)) < 0)
+	    return sts;
+	break;
     default:
 	break;
     }

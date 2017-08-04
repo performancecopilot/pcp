@@ -824,8 +824,14 @@ LIBPCP.pmSortInstances.argtypes = [POINTER(pmResult)]
 LIBPCP.pmGetLabels.restype = c_int
 LIBPCP.pmGetLabels.argtypes = [c_int, POINTER(POINTER(pmLabelSet))]
 
-LIBPCP.pmGetPMIDLabels.restype = c_int
-LIBPCP.pmGetPMIDLabels.argtypes = [c_int, POINTER(POINTER(pmLabelSet))]
+LIBPCP.pmGetInstsLabels.restype = c_int
+LIBPCP.pmGetInstsLabels.argtypes = [c_int, POINTER(POINTER(pmLabelSet))]
+
+LIBPCP.pmGetItemLabels.restype = c_int
+LIBPCP.pmGetItemLabels.argtypes = [c_int, POINTER(POINTER(pmLabelSet))]
+
+LIBPCP.pmGetClusterLabels.restype = c_int
+LIBPCP.pmGetClusterLabels.argtypes = [c_int, POINTER(POINTER(pmLabelSet))]
 
 LIBPCP.pmGetInDomLabels.restype = c_int
 LIBPCP.pmGetInDomLabels.argtypes = [c_int, POINTER(POINTER(pmLabelSet))]
@@ -1969,7 +1975,7 @@ class pmContext(object):
         return result_p
 
     def pmGetLabels(self, pmid):
-        """PMAPI - Get labels for the metric values (instances)
+        """PMAPI - Get merged labels for a single metric
         """
         result_p = POINTER(pmLabelSet)()
         status = LIBPCP.pmUseContext(self.ctx)
@@ -1980,14 +1986,38 @@ class pmContext(object):
             raise pmErr(status)
         return result_p
 
-    def pmGetPMIDLabels(self, pmid):
+    def pmGetInstsLabels(self, pmid):
+        """PMAPI - Get labels for all metric values (instances)
+        """
+        result_p = POINTER(pmLabelSet)()
+        status = LIBPCP.pmUseContext(self.ctx)
+        if status < 0:
+            raise pmErr(status)
+        status = LIBPCP.pmGetInstsLabels(pmid, byref(result_p))
+        if status < 0:
+            raise pmErr(status)
+        return result_p
+
+    def pmGetItemLabels(self, pmid):
         """PMAPI - Get labels of a given metric identifier
         """
         result_p = POINTER(pmLabelSet)()
         status = LIBPCP.pmUseContext(self.ctx)
         if status < 0:
             raise pmErr(status)
-        status = LIBPCP.pmGetPMIDLabels(pmid, byref(result_p))
+        status = LIBPCP.pmGetItemLabels(pmid, byref(result_p))
+        if status < 0:
+            raise pmErr(status)
+        return result_p
+
+    def pmGetClusterLabels(self, pmid):
+        """PMAPI - Get labels of a given metric cluster
+        """
+        result_p = POINTER(pmLabelSet)()
+        status = LIBPCP.pmUseContext(self.ctx)
+        if status < 0:
+            raise pmErr(status)
+        status = LIBPCP.pmGetClusterLabels(pmid, byref(result_p))
         if status < 0:
             raise pmErr(status)
         return result_p

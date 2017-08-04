@@ -42,7 +42,7 @@ __pmdaCntInst(pmInDom indom, pmdaExt *pmda)
 	}
 	if (i == pmda->e_nindoms) {
 	    char	strbuf[20];
-	    __pmNotifyErr(LOG_WARNING, "cntinst: unknown indom %s", pmInDomStr_r(indom, strbuf, sizeof(strbuf)));
+	    __pmNotifyErr(LOG_WARNING, "__pmdaCntInst: unknown indom %s", pmInDomStr_r(indom, strbuf, sizeof(strbuf)));
 	}
     }
 
@@ -771,7 +771,7 @@ pmdaLabel(int ident, int type, pmLabelSet **lpp, pmdaExt *pmda)
     pmdaMetric		*metap;
     size_t		size;
     pmDesc		*dp;
-    char		idbuf[32];
+    char		idbuf[32], *idp;
     char		errbuf[PM_MAXERRMSGLEN];
     int			sts = 0, count, inst, numinst;
 
@@ -783,25 +783,44 @@ pmdaLabel(int ident, int type, pmLabelSet **lpp, pmdaExt *pmda)
 	if (pmDebug & DBG_TRACE_LABEL)
 	    fprintf(stderr, "pmdaLabel: context %d labels request\n",
 			pmda->e_context);
-	return __pmGetContextLabels(lpp);
+	if ((lp = *lpp) == NULL)	/* use default handler */
+	    return __pmGetContextLabels(lpp);
+	return pmdaAddLabelFlags(lp, type);
 
     case PM_LABEL_DOMAIN:
 	if (pmDebug & DBG_TRACE_LABEL)
 	    fprintf(stderr, "pmdaLabel: domain %d (%s) labels request\n",
 			pmda->e_domain, pmda->e_name);
-	return __pmGetDomainLabels(pmda->e_domain, pmda->e_name, lpp);
-
-    case PM_LABEL_PMID:
-	if (pmDebug & DBG_TRACE_LABEL)
-	    fprintf(stderr, "pmdaLabel: PMID %s labels request\n",
-			    pmIDStr_r(ident, idbuf, sizeof(idbuf)));
-	return 0;
+	if ((lp = *lpp) == NULL)	/* use default handler */
+	    return __pmGetDomainLabels(pmda->e_domain, pmda->e_name, lpp);
+	return pmdaAddLabelFlags(lp, type);
 
     case PM_LABEL_INDOM:
 	if (pmDebug & DBG_TRACE_LABEL)
 	    fprintf(stderr, "pmdaLabel: InDom %s labels request\n",
 			    pmInDomStr_r(ident, idbuf, sizeof(idbuf)));
-	return 0;
+	if ((lp = *lpp) == NULL)	/* no default handler */
+	    return 0;
+	return pmdaAddLabelFlags(lp, type);
+
+    case PM_LABEL_CLUSTER:
+	if (pmDebug & DBG_TRACE_LABEL) {
+	    pmIDStr_r(ident, idbuf, sizeof(idbuf));
+	    idp = rindex(idbuf, '.');
+	    *idp = '\0';	/* drop the final (item) part */
+	    fprintf(stderr, "pmdaLabel: cluster %s labels request\n", idbuf);
+	}
+	if ((lp = *lpp) == NULL)	/* no default handler */
+	    return 0;
+	return pmdaAddLabelFlags(lp, type);
+
+    case PM_LABEL_ITEM:
+	if (pmDebug & DBG_TRACE_LABEL)
+	    fprintf(stderr, "pmdaLabel: cluster %s labels request\n",
+			    pmIDStr_r(ident, idbuf, sizeof(idbuf)));
+	if ((lp = *lpp) == NULL)	/* no default handler */
+	    return 0;
+	return pmdaAddLabelFlags(lp, type);
 
     case PM_LABEL_INSTS:
 	if (extp->dispatch->comm.pmda_interface < PMDA_INTERFACE_7)
@@ -853,7 +872,8 @@ pmdaLabel(int ident, int type, pmLabelSet **lpp, pmdaExt *pmda)
 		__pmNotifyErr(LOG_DEBUG, "pmdaLabel: "
 				"PMID %s[%d]: %s\n", idbuf, inst, errbuf);
 	    }
-	    lp->nlabels = sts;
+	    if ((lp->nlabels = sts) > 0)
+		pmdaAddLabelFlags(lp, type);
 	    lp->inst = inst;
 	    count++;
 	    lp++;
@@ -869,8 +889,20 @@ pmdaLabel(int ident, int type, pmLabelSet **lpp, pmdaExt *pmda)
     return PM_ERR_TYPE;
 }
 
+int
+pmdaAddLabelFlags(pmLabelSet *lsp, int flags)
+{
+    int		i;
+
+    if (lsp == NULL)
+	return 0;
+    for (i = 0; i < lsp->nlabels; i++)
+	lsp->labels[i].flags |= flags;
+    return 1;
+}
+
 /*
- * Add labels (name:value pairs) to a labelset, varargs style
+ * Add labels (name:value pairs) to a labelset, varargs style.
  */
 
 int
@@ -892,13 +924,42 @@ pmdaAddLabels(pmLabelSet **lsp, const char *fmt, ...)
 	fprintf(stderr, "pmdaAddLabels: %s\n", buf);
 #endif
 
-    if ((sts = __pmAddLabels(lsp, buf)) < 0) {
+    if ((sts = __pmAddLabels(lsp, buf, 0)) < 0) {
 	__pmNotifyErr(LOG_ERR, "pmdaAddLabels: %s (%s)\n", buf,
 		pmErrStr_r(sts, errbuf, sizeof(errbuf)));
     }
     return sts;
 }
 
+/*
+ * Add notes (optional name:value pairs) to a labelset, varargs style.
+ */
+
+int
+pmdaAddNotes(pmLabelSet **lsp, const char *fmt, ...)
+{
+    char		errbuf[PM_MAXERRMSGLEN];
+    char		buf[PM_MAXLABELJSONLEN];
+    va_list		arg;
+    int			sts;
+
+    va_start(arg, fmt);
+    if ((sts = vsnprintf(buf, sizeof(buf), fmt, arg)) < 0)
+	return sts;
+    va_end(arg);
+    buf[sizeof(buf)-1] = '\0';
+
+#ifdef PCP_DEBUG
+    if (pmDebug & DBG_TRACE_LABEL)
+	fprintf(stderr, "pmdaAddNotes: %s\n", buf);
+#endif
+
+    if ((sts = __pmAddLabels(lsp, buf, PM_LABEL_OPTIONAL)) < 0) {
+	__pmNotifyErr(LOG_ERR, "pmdaAddNotes: %s (%s)\n", buf,
+		pmErrStr_r(sts, errbuf, sizeof(errbuf)));
+    }
+    return sts;
+}
 
 /*
  * Tell PMCD there is nothing to store

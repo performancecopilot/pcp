@@ -141,10 +141,29 @@ lookup_indom_labels(pmInDom indom)
 }
 
 /*
- * Cache all of the most recently requested labels for a given pmID
+ * Cache all of the most recently requested labels for a given pmID item
  */
 static pmLabelSet *
-lookup_pmid_labels(pmID pmid)
+lookup_cluster_labels(pmID pmid)
+{
+    static pmID		last = PM_ID_NULL;
+    static pmLabelSet	*labels;
+
+    if (pmid_domain(pmid) != pmid_domain(last) ||
+	pmid_cluster(pmid) != pmid_cluster(last)) {
+	if (labels)
+	    pmFreeLabelSets(labels, 1);
+	labels = NULL;
+	pmGetClusterLabels(pmid, &labels);
+	last = pmid;
+    }
+    return labels;
+}
+/*
+ * Cache all of the most recently requested labels for a given pmID item
+ */
+static pmLabelSet *
+lookup_item_labels(pmID pmid)
 {
     static pmID		last = PM_ID_NULL;
     static pmLabelSet	*labels;
@@ -153,7 +172,7 @@ lookup_pmid_labels(pmID pmid)
 	if (labels)
 	    pmFreeLabelSets(labels, 1);
 	labels = NULL;
-	pmGetPMIDLabels(pmid, &labels);
+	pmGetItemLabels(pmid, &labels);
 	last = pmid;
     }
     return labels;
@@ -437,13 +456,13 @@ myoneline(unsigned int ident, int type)
 }
 
 static void
-myinstlabels(pmDesc *dp, pmID id, pmLabelSet **sets, int nsets, char *buffer, int buflen)
+myinstslabels(pmDesc *dp, pmID id, pmLabelSet **sets, int nsets, char *buffer, int buflen)
 {
     pmLabelSet	*ilabels = NULL;
     char	*iname;
     int		i, n, sts;
 
-    if ((sts = n = pmGetLabels(id, &ilabels)) > 0) {
+    if ((sts = n = pmGetInstsLabels(id, &ilabels)) > 0) {
 	for (i = 0; i < n; i++) {
 	    if ((iname = lookup_indom_names(dp->indom, ilabels[i].inst)) < 0)
 		continue;
@@ -459,7 +478,7 @@ myinstlabels(pmDesc *dp, pmID id, pmLabelSet **sets, int nsets, char *buffer, in
 	}
 	pmFreeLabelSets(ilabels, n);
     } else if (sts < 0) {
-	fprintf(stderr, "%s: pmGetLabels[%s] failed: %s\n",
+	fprintf(stderr, "%s: pmGetInstsLabels[%s] failed: %s\n",
 		pmProgname, pmIDStr(id), pmErrStr(sts));
     }
 }
@@ -467,7 +486,7 @@ myinstlabels(pmDesc *dp, pmID id, pmLabelSet **sets, int nsets, char *buffer, in
 static void
 mylabels(unsigned int ident, int type, pmDesc *dp)
 {
-    pmLabelSet	*labels[5] = {0}; /* 5: context, domain, indom, pmid, insts */
+    pmLabelSet	*labels[6] = {0}; /* context+domain+indom+cluster+item+insts */
     char	buf[PM_MAXLABELJSONLEN];
     int		sts = 0;
 
@@ -479,16 +498,17 @@ mylabels(unsigned int ident, int type, pmDesc *dp)
 	sts = pmMergeLabelSets(labels, 3, buf, sizeof(buf), NULL, NULL);
 	break;
 
-    case PM_LABEL_PMID:
+    case PM_LABEL_INSTS:
 	labels[0] = lookup_context_labels();
 	labels[1] = lookup_domain_labels(pmid_domain(ident));
 	labels[2] = lookup_indom_labels(dp->indom);
-	labels[3] = lookup_pmid_labels(ident);
+	labels[3] = lookup_cluster_labels(ident);
+	labels[4] = lookup_item_labels(ident);
 	if (dp->indom != PM_INDOM_NULL) {
-	    myinstlabels(dp, ident, labels, 5, buf, sizeof(buf));
+	    myinstslabels(dp, ident, labels, 6, buf, sizeof(buf));
 	    return;
 	}
-	sts = pmMergeLabelSets(labels, 4, buf, sizeof(buf), NULL, NULL);
+	sts = pmMergeLabelSets(labels, 5, buf, sizeof(buf), NULL, NULL);
 	break;
 
     default:
@@ -635,7 +655,7 @@ report(void)
 	if (p_value)
 	    mydump(&desc, vsp, NULL);
 	if (p_label)
-	    mylabels(pmidlist[i], PM_LABEL_PMID, &desc);
+	    mylabels(pmidlist[i], PM_LABEL_INSTS, &desc);
     }
 
     if (result != NULL) {

@@ -379,8 +379,16 @@ dodso(int pdu)
 		printf("pmInDom: %s\n", pmInDomStr(param.indom));
 		i = param.indom;
 	    }
-	    else if (param.number & (PM_LABEL_PMID|PM_LABEL_INSTS)) {
+	    else if (param.number & PM_LABEL_CLUSTER) {
+		printf("Cluster: %s\n", strcluster(param.pmid));
+		i = param.pmid;
+	    }
+	    else if (param.number & PM_LABEL_ITEM) {
 		printf("PMID: %s\n", pmIDStr(param.pmid));
+		i = param.pmid;
+	    }
+	    else if (param.number & PM_LABEL_INSTS) {
+		printf("Instances of PMID: %s\n", pmIDStr(param.pmid));
 		i = param.pmid;
 	    }
 	    else /* param.number & (PM_LABEL_DOMAIN|PM_LABEL_CONTEXT) */

@@ -8,10 +8,7 @@
 seq=`basename $0`
 echo "QA output created by $seq"
 
-# get standard environment, filters and checks
-. ./common.product
-. ./common.filter
-. ./common.check
+. ./common.python
 
 status=1	# failure is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
@@ -20,10 +17,10 @@ trap "cd $here; $sudo rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
 # real QA test starts here
 mergePy()
 {
-    result=`$here/src/mergelabels.py $@`
+    result=`$python $here/src/mergelabels.python $@`
 
     verify="FAIL"
-    $here/src/mergelabels.py "$result" {} >/dev/null
+    $python $here/src/mergelabels.python "$result" {} >/dev/null
     [ $? -eq 0 ] && verify="OK"
 
     echo "Verify Python mergelabels"

@@ -1523,7 +1523,8 @@ MOD_INIT(cpmapi)
     dict_add(dict, "PM_LABEL_CONTEXT", PM_LABEL_CONTEXT);
     dict_add(dict, "PM_LABEL_DOMAIN", PM_LABEL_DOMAIN);
     dict_add(dict, "PM_LABEL_INDOM", PM_LABEL_INDOM);
-    dict_add(dict, "PM_LABEL_PMID", PM_LABEL_PMID);
+    dict_add(dict, "PM_LABEL_CLUSTER", PM_LABEL_CLUSTER);
+    dict_add(dict, "PM_LABEL_ITEM", PM_LABEL_ITEM);
     dict_add(dict, "PM_LABEL_INSTS", PM_LABEL_INSTS);
     dict_add(dict, "PM_LABEL_OPTIONAL", PM_LABEL_OPTIONAL);
 

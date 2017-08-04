@@ -24,7 +24,8 @@ LabelTypeString(int type)
     case PM_LABEL_CONTEXT:  return "context";
     case PM_LABEL_DOMAIN:   return "domain";
     case PM_LABEL_INDOM:    return "indom";
-    case PM_LABEL_PMID:	    return "pmid";
+    case PM_LABEL_CLUSTER:  return "cluster";
+    case PM_LABEL_ITEM:	    return "pmid";
     case PM_LABEL_INSTS:    return "insts";
     default:
 	break;
@@ -116,7 +117,7 @@ __pmSendLabelReq(int fd, int from, int ident, int type)
 	nid = htonl(ident);
     else if (type & PM_LABEL_INDOM)
 	nid = __htonpmInDom((pmInDom)ident);
-    else if (type & (PM_LABEL_PMID | PM_LABEL_INSTS))
+    else if (type & (PM_LABEL_CLUSTER|PM_LABEL_ITEM|PM_LABEL_INSTS))
 	nid = __htonpmID((pmID)ident);
     else
 	return -EINVAL;
@@ -150,7 +151,7 @@ __pmDecodeLabelReq(__pmPDU *pdubuf, int *ident, int *otype)
     type = *otype = ntohl(pp->type);
     if (type & PM_LABEL_DOMAIN)
         *ident = ntohl(pp->ident);
-    else if (type & (PM_LABEL_PMID|PM_LABEL_INSTS))
+    else if (type & (PM_LABEL_CLUSTER|PM_LABEL_ITEM|PM_LABEL_INSTS))
 	*ident = __ntohpmID(pp->ident);
     else if (type & PM_LABEL_INDOM)
         *ident = __ntohpmInDom(pp->ident);
@@ -214,7 +215,7 @@ __pmSendLabel(int fd, int from, int ident, int type, pmLabelSet *sets, int nsets
 
     if (type & PM_LABEL_DOMAIN)
 	pp->ident = htonl(ident);
-    else if (type & (PM_LABEL_PMID | PM_LABEL_INSTS))
+    else if (type & (PM_LABEL_CLUSTER | PM_LABEL_ITEM | PM_LABEL_INSTS))
 	pp->ident = __htonpmID((pmID)ident);
     else if (type & PM_LABEL_INDOM)
 	pp->ident = __htonpmInDom((pmInDom)ident);

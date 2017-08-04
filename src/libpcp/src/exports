@@ -556,7 +556,9 @@ PCP_3.20 {
     pmGetContextLabels;
     pmGetDomainLabels;
     pmGetInDomLabels;
-    pmGetPMIDLabels;
+    pmGetClusterLabels;
+    pmGetItemLabels;
+    pmGetInstsLabels;
     pmGetLabels;
 
     pmMergeLabels;

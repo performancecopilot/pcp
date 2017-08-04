@@ -269,8 +269,10 @@ decode_encode(int fd, __pmPDU *pb, int type)
 		    fprintf(stderr, "DOMAIN %d", ident);
 		else if (type & PM_LABEL_INDOM)
 		    fprintf(stderr, "INDOM %s", pmInDomStr((pmInDom)ident));
-		else if (type & PM_LABEL_PMID)
-		    fprintf(stderr, "PMID %s", pmIDStr((pmID)ident));
+		else if (type & PM_LABEL_CLUSTER)
+		    fprintf(stderr, "PMID %s CLUSTER ", pmIDStr((pmID)ident));
+		else if (type & PM_LABEL_ITEM)
+		    fprintf(stderr, "PMID %s ITEM", pmIDStr((pmID)ident));
 		else if (type & PM_LABEL_INSTS)
 		    fprintf(stderr, "PMID %s INSTS", pmIDStr((pmID)ident));
 		else

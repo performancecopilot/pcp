@@ -510,10 +510,10 @@ pmlabel_intrinsic(pmLabel *lp)
     return (lp->flags & PM_LABEL_OPTIONAL) == 0;
 }
 
-PCP_CALL extern int __pmAddLabels(pmLabelSet **, const char *);
+PCP_CALL extern int __pmAddLabels(pmLabelSet **, const char *, int);
 PCP_CALL extern int __pmMergeLabels(const char *, const char *, char *, int);
 PCP_CALL extern int __pmParseLabels(const char *, int, pmLabel *, int, char *, int *);
-PCP_CALL extern int __pmParseLabelSet(const char *, int, pmLabelSet **);
+PCP_CALL extern int __pmParseLabelSet(const char *, int, int, pmLabelSet **);
 
 PCP_CALL extern int __pmGetContextLabels(pmLabelSet **);
 PCP_CALL extern int __pmGetDomainLabels(int, const char *, pmLabelSet **);

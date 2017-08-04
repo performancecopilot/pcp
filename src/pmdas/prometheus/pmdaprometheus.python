@@ -965,17 +965,8 @@ class PrometheusPMDA(PMDA):
 		self.numfetch += 1
 
 	def prometheus_label(self, type, cluster, item):
-		# self.log("Label: Cluster: " + str(cluster) + ",item: " + str(item))
-
-		if type == c_api.PM_LABEL_DOMAIN:
-			return "{\"agent\":\"PMDAPrometheus\"}"
-
-		if type == c_api.PM_LABEL_INDOM:
-			return "{}"
-
-		if type == c_api.PM_LABEL_PMID:
-			return "{}"
-
+		# self.log("Label: Type: " + str(type) + ", cluster: " + str(cluster) + ", item: " + str(item))
+		return "{}"
 
 	def prometheus_label_callback(self, cluster, item, inst):
 		# self.log("Label_cb: Cluster: " + str(cluster) + ",item: " + str(item) + ",inst: " + str(inst))

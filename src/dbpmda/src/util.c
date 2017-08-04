@@ -140,6 +140,18 @@ strnum(int n)
     return buf;
 }
 
+char *
+strcluster(pmID pmid)
+{
+    static char buffer[32];
+    char *p;
+
+    pmIDStr_r(pmid, buffer, sizeof(buffer));
+    p = rindex(buffer, '.');
+    *p = '\0';
+    return buffer;
+}
+
 void
 initmetriclist(void)
 {

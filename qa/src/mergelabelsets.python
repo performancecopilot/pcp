@@ -71,7 +71,7 @@ testingLabel1.name = 2
 testingLabel1.namelen = 4
 testingLabel1.value = 8
 testingLabel1.valuelen = 25
-testingLabel1.flags = c_api.PM_LABEL_PMID | c_api.PM_LABEL_OPTIONAL
+testingLabel1.flags = c_api.PM_LABEL_ITEM | c_api.PM_LABEL_OPTIONAL
 
 testingLabel2 = testingLabels[1]
 testingLabel2.name = 35

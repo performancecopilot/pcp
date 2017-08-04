@@ -16,7 +16,9 @@
 .TH PMGETLABELS 3 "PCP" "Performance Co-Pilot"
 .SH NAME
 \f3pmGetLabels\f1,
-\f3pmGetPMIDLabels\f1,
+\f3pmGetInstsLabels\f1,
+\f3pmGetItemLabels\f1,
+\f3pmGetClusterLabels\f1,
 \f3pmGetInDomLabels\f1,
 \f3pmGetDomainLabels\f1,
 \f3pmGetContextLabels\f1 \- retrieve labels associated with performance metric values
@@ -26,8 +28,12 @@
 .sp
 .nf
 int pmGetLabels(pmID \fIpmid\fP, pmLabelSet **\fIlabelsets\fP);
+.sp
+int pmGetInstsLabels(pmID \fIpmid\fP, pmLabelSet **\fIlabelsets\fP);
 .br
-int pmGetPMIDLabels(pmID \fIpmid\fP, pmLabelSet **\fIlabelsets\fP);
+int pmGetItemLabels(pmID \fIpmid\fP, pmLabelSet **\fIlabelsets\fP);
+.br
+int pmGetClusterLabels(pmID \fIpmid\fP, pmLabelSet **\fIlabelsets\fP);
 .br
 int pmGetInDomLabels(pmInDom \fIindom\fP, pmLabelSet **\fIlabelsets\fP);
 .br
@@ -46,12 +52,24 @@ Labels are
 .IR name : value
 pairs associated with performance metric values for the
 purpose of attaching additional metric metadata to values.
-This metadata is optional, less structured, and above and beyond
+This metadata is less structured and exists separately to
 the metric descriptor available for every PCP metric from
 .BR pmLookupDesc (3).
 .PP
-For efficiency in communication, storage and searching, within the
-PMCS labels are maintained using a hierarchy.
+Much like the metric descriptor metadata, labels are an
+integral part of the identity of each metric, and should
+rarely, if ever, change.
+.PP
+The
+.B pmGetLabels
+routine is a convenience interface providing label retrieval for
+all values associated with a single performance metric identifier,
+.IR pmid .
+It performs no caching of labels internally.
+.PP
+For efficiency in communication and storage within the various
+components of the PMCS (Performance Metrics Collection System),
+labels are maintained using a hierarchy.
 The set of labels associated with any individual metric value
 consists of the union of labels from each of these sets of labels:
 .TP 4n
@@ -79,17 +97,25 @@ provides the
 associated with the instance domain identifier
 .IR indom .
 .TP 4n
-4. Metric labels (apply to an individual performance metric)
+4. Cluster labels (apply to a group of metrics within one domain)
 .TP 8n
-.B pmGetPMIDLabels
+.B pmGetClusterLabels
 provides the
 .I labelset
-associated with the metric identifier
+associated with the metric cluster (domain,cluster) identified by
+.IR pmid .
+.TP 4n
+4. Item labels (apply to an individual performance metric)
+.TP 8n
+.B pmGetItemLabels
+provides the
+.I labelset
+associated with the metric item (domain,cluster,item) identified by
 .IR pmid .
 .TP 4n
 5. Instance labels (apply to individual instances of a metric)
 .TP 8n
-.BR pmGetLabels
+.BR pmGetInstsLabels
 provides the set of instance identifiers and labels in
 .I labelsets
 for each instance associated with the metric identifier
@@ -322,12 +348,12 @@ role, agent),
 (\c
 .IR name s:
 model),
-.B pmGetPMIDLabels
+.B pmGetItemLabels
 (\c
 .IR name s:
 units, unitsystem)
 and
-.B pmGetLabels
+.B pmGetInstsLabels
 (\c
 .IR name s:
 transient)
@@ -348,7 +374,7 @@ If no labels exist at all for the requested hierarchy level the
 return code will be zero and no space will have been allocated.
 .PP
 In the case of
-.BR pmGetLabels ,
+.BR pmGetInstsLabels ,
 which can return multiple elements in its
 .I labelsets
 result (one set of labels for each instance), the
@@ -362,14 +388,14 @@ elements in the returned
 array.
 .PP
 Note that it is mandatory for a call to
-.B pmGetLabels
+.B pmGetInstsLabels
 to be preceded by a call to
 .BR pmGetInDom (3)
 to ensure the instances have been resolved within the PMDA.
 .PP
 If no result can be obtained,
 e.g. due to IPC failure using the current PMAPI context then
-.B pmGetLabels
+.B pmGetInstsLabels
 will return a negative error code which may be examined using
 .BR pmErrStr (3).
 .SH SEE ALSO

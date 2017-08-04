@@ -62,7 +62,6 @@ static PyObject *instance_func;
 static PyObject *store_cb_func;
 static PyObject *fetch_cb_func;
 static PyObject *label_cb_func;
-static PyObject *refresh_all_func;
 static PyObject *refresh_metrics_func;
 
 static Py_ssize_t nindoms;
@@ -373,36 +372,6 @@ refresh_cluster(int cluster)
 }
 
 static int
-refresh_all_clusters(int numclusters, int *clusters)
-{
-    PyObject *arglist, *result, *list;
-    int i;
-    list = PyList_New(numclusters);
-    if (list == NULL){
-        __pmNotifyErr(LOG_ERR, "refresh: Unable to allocate memory");
-        return 1;
-    }
-    for (i = 0; i < numclusters; i++) {
-        PyObject *num = PyLong_FromLong(clusters[i]);
-        PyList_SET_ITEM(list, i, num);
-    }
-
-    arglist = Py_BuildValue("(N)", list);
-    if (arglist == NULL){
-        return -ENOMEM;
-    }
-    result = PyEval_CallObject(refresh_all_func, arglist);
-    Py_DECREF(list);
-    Py_DECREF(arglist);
-    if (result == NULL) {
-        PyErr_Print();
-        return -EAGAIN; /* exception thrown */
-    }
-    Py_DECREF(result);
-    return 0;
-}
-
-static int
 refresh(int numpmid, pmID *pmidlist)
 {
     size_t need;
@@ -428,12 +397,8 @@ refresh(int numpmid, pmID *pmidlist)
         if (j == count)
             clusters[count++] = cluster;
     }
-    if (refresh_all_func)
-        sts |= refresh_all_clusters(count, clusters);
-    if (refresh_func) {
-        for (j = 0; j < count; j++)
-            sts |= refresh_cluster(clusters[j]);
-    }
+    for (j = 0; j < count; j++)
+        sts |= refresh_cluster(clusters[j]);
     free(clusters);
     return sts;
 }
@@ -446,8 +411,7 @@ fetch(int numpmid, pmID *pmidlist, pmResult **rp, pmdaExt *pmda)
     maybe_refresh_all();
     if (fetch_func && (sts = prefetch()) < 0)
         return sts;
-    if ((refresh_func || refresh_all_func) &&
-        (sts = refresh(numpmid, pmidlist)) < 0)
+    if (refresh_func && (sts = refresh(numpmid, pmidlist)) < 0)
         return sts;
     return pmdaFetch(numpmid, pmidlist, rp, pmda);
 }
@@ -455,22 +419,27 @@ fetch(int numpmid, pmID *pmidlist, pmResult **rp, pmdaExt *pmda)
 static int
 label(int ident, int type, pmLabelSet **lp, pmdaExt *ep)
 {
-    int sts = 0, item = 0, cluster = ident;
+    int sts, item = 0, primary = ident;
     char *s = NULL;
 
-    if (type == PM_LABEL_INSTS)
-        return pmdaLabel(ident, type, lp, ep);
-
-    if (type == PM_LABEL_PMID) {
+    if (type == PM_LABEL_INDOM) {
+        __pmInDom_int *indomp = (__pmInDom_int *)&ident;
+        primary = indomp->serial;
+    }
+    else if (type == PM_LABEL_CLUSTER) {
         __pmID_int *pmidp = (__pmID_int *)&ident;
-        cluster = pmidp->cluster;
+        primary = pmidp->cluster;
+    }
+    else if (type == PM_LABEL_ITEM) {
+        __pmID_int *pmidp = (__pmID_int *)&ident;
+        primary = pmidp->cluster;
         item = pmidp->item;
     }
 
     if (label_func) {
         PyObject *arglist, *result;
 
-        arglist = Py_BuildValue("(iii)", type, cluster, item);
+        arglist = Py_BuildValue("(iii)", type, primary, item);
         if (arglist == NULL)
             return -ENOMEM;
         result = PyEval_CallObject(label_func, arglist);
@@ -487,13 +456,16 @@ label(int ident, int type, pmLabelSet **lp, pmdaExt *ep)
             return -EINVAL;
         }
 
-        if ((sts = pmdaAddLabels(lp, s, "")) < 0)
-            __pmNotifyErr(LOG_ERR, "pmdaAddLabels failed: %s", pmErrStr(sts));
+        if ((sts = __pmAddLabels(lp, s, 0)) < 0)
+            __pmNotifyErr(LOG_ERR, "__pmAddLabels failed: %s", pmErrStr(sts));
 
         Py_DECREF(result);
+
+	if (sts < 0)
+   	    return sts;
     }
 
-    return sts;
+    return pmdaLabel(ident, type, lp, ep);
 }
 
 static int
@@ -646,8 +618,8 @@ label_callback(pmdaMetric *metric, unsigned int inst, pmLabelSet **lp)
         return -EINVAL;
     }
 
-    if ((sts = pmdaAddLabels(lp, s, "")) < 0)
-        __pmNotifyErr(LOG_ERR, "pmdaAddLabels failed: %s", pmErrStr(sts));
+    if ((sts = __pmAddLabels(lp, s, 0)) < 0)
+        __pmNotifyErr(LOG_ERR, "__pmAddLabels failed: %s", pmErrStr(sts));
 
     Py_DECREF(result);
     return sts;
@@ -1038,7 +1010,7 @@ static void
 pmda_refresh_metrics(void)
 {
     // Update the metrics/indoms.
-    if (!update_indom_metric_buffers()) {
+    if (! update_indom_metric_buffers()) {
 	if (pmDebug & DBG_TRACE_LIBPMDA)
 	    fprintf(stderr,
 		    "pmda_refresh_metrics: rehash %ld indoms, %ld metrics\n",
@@ -1296,12 +1268,6 @@ set_label_callback(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-set_refresh_all(PyObject *self, PyObject *args)
-{
-    return set_callback(self, args, "O:set_refresh_all", &refresh_all_func);
-}
-
-static PyObject *
 set_refresh_metrics(PyObject *self, PyObject *args)
 {
     return set_callback(self, args, "O:set_refresh_metrics",
@@ -1356,8 +1322,6 @@ static PyMethodDef methods[] = {
     { .ml_name = "set_refresh_metrics",
       .ml_meth = (PyCFunction)set_refresh_metrics,
       .ml_flags = METH_VARARGS|METH_KEYWORDS },
-    { .ml_name = "set_refresh_all", .ml_meth = (PyCFunction)set_refresh_all,
-        .ml_flags = METH_VARARGS | METH_KEYWORDS },
     { .ml_name = "pmda_log", .ml_meth = (PyCFunction)pmda_log,
         .ml_flags = METH_VARARGS|METH_KEYWORDS },
     { .ml_name = "pmda_err", .ml_meth = (PyCFunction)pmda_err,

@@ -159,7 +159,7 @@ PCP_PMDA_3.7 {
   global:
     pmdaLabel;
     pmdaAddLabels;
-    pmdaDomainLabels;
-    pmdaContextLabels;
+    pmdaAddLabelFlags;
     pmdaSetLabelCallBack;
+    pmdaAddNotes;
 } PCP_PMDA_3.6;

@@ -93,13 +93,13 @@ Labels:
 dbpmda> 
 ** Labels on metric sampledso.colour via dbpmda (dso)
 dbpmda> open dso PCP_PMDAS_DIR/sample/pmda_sample.dso sample_init 30
-dbpmda> label  sampledso.colour
+dbpmda> label item sampledso.colour
 PMID: 30.0.5
 Info: DSO label() returns 0
 dbpmda> 
 ** Labels on metric sampledso.rapid via dbpmda (dso)
 dbpmda> open dso PCP_PMDAS_DIR/sample/pmda_sample.dso sample_init 30
-dbpmda> label  sampledso.rapid
+dbpmda> label item sampledso.rapid
 PMID: 30.0.64
 Labels:
     measure="speed"
@@ -115,14 +115,14 @@ Labels:
 dbpmda> 
 ** Labels on metric sampledso.darkness via dbpmda (dso)
 dbpmda> open dso PCP_PMDAS_DIR/sample/pmda_sample.dso sample_init 30
-dbpmda> label  sampledso.darkness
+dbpmda> label item sampledso.darkness
 PMID: 30.0.92
 Info: DSO label() returns 0
 dbpmda> 
 ** Labels on insts sampledso.bin via dbpmda (dso)
 dbpmda> open dso PCP_PMDAS_DIR/sample/pmda_sample.dso sample_init 30
 dbpmda> label insts sampledso.bin
-PMID: 30.0.6
+Instances of PMID: 30.0.6
 [  0] Labels inst: 100
     bin=100
 [  1] Labels inst: 200
@@ -154,14 +154,14 @@ dbpmda>
 ** Labels on metric sample.colour via dbpmda (pipe)
 dbpmda> open pipe PCP_PMDAS_DIR/sample/pmdasample -U USERNAME 29
 Start pmdasample PMDA: PCP_PMDAS_DIR/sample/pmdasample -U USERNAME 29
-dbpmda> label  sample.colour
+dbpmda> label item sample.colour
 PMID: 29.0.5
 Info: __pmDecodeLabel() returns 0 label sets
 dbpmda> 
 ** Labels on metric sample.rapid via dbpmda (pipe)
 dbpmda> open pipe PCP_PMDAS_DIR/sample/pmdasample -U USERNAME 29
 Start pmdasample PMDA: PCP_PMDAS_DIR/sample/pmdasample -U USERNAME 29
-dbpmda> label  sample.rapid
+dbpmda> label item sample.rapid
 PMID: 29.0.64
 Labels:
     measure="speed"
@@ -179,7 +179,7 @@ dbpmda>
 ** Labels on metric sample.darkness via dbpmda (pipe)
 dbpmda> open pipe PCP_PMDAS_DIR/sample/pmdasample -U USERNAME 29
 Start pmdasample PMDA: PCP_PMDAS_DIR/sample/pmdasample -U USERNAME 29
-dbpmda> label  sample.darkness
+dbpmda> label item sample.darkness
 PMID: 29.0.92
 Info: __pmDecodeLabel() returns 0 label sets
 dbpmda> 

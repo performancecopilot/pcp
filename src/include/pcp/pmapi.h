@@ -469,10 +469,14 @@ PCP_CALL extern int pmFetch(int, pmID *, pmResult **);
  * PMCD state changes returned as pmFetch function result for PM_CONTEXT_HOST
  * contexts, i.e. when communicating with PMCD
  */
+#define PMCD_ADD_AGENT		(1<<0)
+#define PMCD_RESTART_AGENT	(1<<1)
+#define PMCD_DROP_AGENT		(1<<2)
+
 #define PMCD_NO_CHANGE		0
-#define PMCD_ADD_AGENT		1
-#define PMCD_RESTART_AGENT	2
-#define PMCD_DROP_AGENT		4
+#define PMCD_AGENT_CHANGE	\
+	(PMCD_ADD_AGENT | PMCD_RESTART_AGENT | PMCD_DROP_AGENT)
+#define PMCD_LABEL_CHANGE	(1<<3)
 
 /*
  * Variant that is used to return a pmResult from an archive
@@ -513,12 +517,16 @@ typedef struct pmLabelSet {
 #define PM_LABEL_CONTEXT	(1<<0)
 #define PM_LABEL_DOMAIN		(1<<1)
 #define PM_LABEL_INDOM		(1<<2)
-#define PM_LABEL_PMID		(1<<3)
-#define PM_LABEL_INSTS		(1<<4)
+#define PM_LABEL_CLUSTER	(1<<3)
+#define PM_LABEL_ITEM		(1<<4)
+#define PM_LABEL_INSTS		(1<<5)
 #define PM_LABEL_OPTIONAL	(1<<7)
 
 PCP_CALL extern int pmGetLabels(pmID, pmLabelSet **);
-PCP_CALL extern int pmGetPMIDLabels(pmID, pmLabelSet **);
+
+PCP_CALL extern int pmGetInstsLabels(pmID, pmLabelSet **);
+PCP_CALL extern int pmGetItemLabels(pmID, pmLabelSet **);
+PCP_CALL extern int pmGetClusterLabels(pmID, pmLabelSet **);
 PCP_CALL extern int pmGetInDomLabels(pmInDom, pmLabelSet **);
 PCP_CALL extern int pmGetDomainLabels(int, pmLabelSet **);
 PCP_CALL extern int pmGetContextLabels(pmLabelSet **);

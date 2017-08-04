@@ -111,7 +111,7 @@ fix_dynamic_pmid(char *name, pmID *pmidp)
 	OPEN CLOSE DESC GETDESC FETCH INSTANCE PROFILE HELP 
 	WATCH DBG QUIT STATUS STORE INFO TIMER NAMESPACE WAIT
 	PMNS_NAME PMNS_PMID PMNS_CHILDREN PMNS_TRAVERSE ATTR
-	LABEL CONTEXT DOMAIN INDOM INSTS
+	LABEL CONTEXT DOMAIN INDOM CLUSTER ITEM INSTS
 	DSO PIPE SOCK UNIX INET IPV6
 	ADD DEL ALL NONE ON OFF
 	PLUS EOL
@@ -119,6 +119,7 @@ fix_dynamic_pmid(char *name, pmID *pmidp)
 %type <y_num>
 	metric
 	indom
+	cluster
 	optdomain
 	debug
 	raw_pmid
@@ -344,9 +345,14 @@ stmt	: OPEN EOL				{
 		param.indom = indom.whole;
 		stmt_type = LABEL; YYACCEPT;
 	    }
-	| LABEL metric EOL			{
-		param.number = PM_LABEL_PMID;
-		param.pmid = (pmID)$2;
+	| LABEL CLUSTER cluster EOL		{
+		param.number = PM_LABEL_CLUSTER;
+		param.pmid = (pmID)$3;
+		stmt_type = LABEL; YYACCEPT;
+	    }
+	| LABEL ITEM metric EOL			{
+		param.number = PM_LABEL_ITEM;
+		param.pmid = (pmID)$3;
 		stmt_type = LABEL; YYACCEPT;
 	    }
 	| LABEL INSTS metric EOL		{
@@ -600,6 +606,18 @@ metric	: NUMBER				{
 		    yyerror(pmErrStr(sts));
 		    YYERROR;
 		}
+		$$ = (int)pmid.whole;
+	    }
+	;
+
+cluster	: NUMBER				{ 
+		pmid.whole = $1;
+	        $$ = (int)pmid.whole;
+	    }
+	| NUMBER2D 				{
+		pmid.whole = 0;
+		pmid.part.domain = $1.num1;
+		pmid.part.cluster = $1.num2;
 		$$ = (int)pmid.whole;
 	    }
 	;

@@ -48,13 +48,13 @@ static pmLabelSet services = {
 static pmLabel testing_labels[] = {
     { .name = 2,   .namelen = 4,
       .value = 8, .valuelen = 25,
-      .flags = PM_LABEL_PMID|PM_LABEL_OPTIONAL },
+      .flags = PM_LABEL_ITEM|PM_LABEL_OPTIONAL },
     { .name = 35,  .namelen = 4,
       .value = 41, .valuelen = 4,
-      .flags = PM_LABEL_PMID|PM_LABEL_OPTIONAL },
+      .flags = PM_LABEL_ITEM|PM_LABEL_OPTIONAL },
     { .name = 47,  .namelen = 4,
       .value = 53, .valuelen = 7,
-      .flags = PM_LABEL_PMID|PM_LABEL_OPTIONAL },
+      .flags = PM_LABEL_ITEM|PM_LABEL_OPTIONAL },
 };
 
 static pmLabelSet testing = {

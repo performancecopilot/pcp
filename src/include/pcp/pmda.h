@@ -549,6 +549,8 @@ PMDA_CALL extern char *pmdaGetInDomHelp(int, pmInDom, int);
  * PMDA "label" metadata (name:value pairs) manipulation
  */
 PMDA_CALL extern int pmdaAddLabels(pmLabelSet **, const char *, ...) __PM_PRINTFLIKE(2,3);
+PMDA_CALL extern int pmdaAddNotes(pmLabelSet **, const char *, ...) __PM_PRINTFLIKE(2,3);
+PMDA_CALL extern int pmdaAddLabelFlags(pmLabelSet *, int);
 
 /*
  * Dynamic metric table manipulation

@@ -60,6 +60,8 @@ LIBPCP_PMDA.pmdaCacheResize.argtypes = [pmInDom, c_int]
 
 LIBPCP_PMDA.pmdaAddLabels.restype = c_int
 LIBPCP_PMDA.pmdaAddLabels.argtypes = [POINTER(POINTER(pmLabelSet)), c_char_p]
+LIBPCP_PMDA.pmdaAddLabelFlags.restype = c_int
+LIBPCP_PMDA.pmdaAddLabelFlags.argtypes = [POINTER(pmLabelSet), c_int]
 
 def pmdaAddLabels(label):
     result_p = POINTER(pmLabelSet)()
@@ -67,6 +69,12 @@ def pmdaAddLabels(label):
     if status < 0:
         raise pmErr(status)
     return result_p
+
+def pmdaAddLabelFlags(labels, flags):
+    status = LIBPCP_PMDA.pmdaAddLabelFlags(labels, flags)
+    if status < 0:
+        raise pmErr(status)
+    return status
 
 ##
 # Definition of structures used by C library libpcp_pmda, derived from <pcp/pmda.h>

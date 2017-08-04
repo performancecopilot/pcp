@@ -38,14 +38,14 @@ pmFreeLabelSets(pmLabelSet *sets, int nsets)
 }
 
 int
-__pmAddLabels(pmLabelSet **lspp, const char *extras)
+__pmAddLabels(pmLabelSet **lspp, const char *extras, int flags)
 {
     pmLabelSet		*lsp = *lspp;
     pmLabel		labels[MAXLABELS], *lp = NULL;
     char		*json = NULL;
     char		buffer[MAXLABELJSONLEN];
     char		result[MAXLABELJSONLEN];
-    int			bytes, size, sts;
+    int			bytes, size, sts, i;
 
     if (lsp)
 	json = lsp->json;
@@ -71,6 +71,8 @@ __pmAddLabels(pmLabelSet **lspp, const char *extras)
 	if ((lp = malloc(bytes)) == NULL)
 	    return -ENOMEM;
 	memcpy(lp, labels, bytes);
+	for (i = 0; i < sts; i++)
+	    lp[i].flags |= flags;
     }
 
     if ((json = strndup(result, size + 1)) == NULL) {
@@ -98,12 +100,12 @@ __pmAddLabels(pmLabelSet **lspp, const char *extras)
 }
 
 int
-__pmParseLabelSet(const char *json, int jlen, pmLabelSet **set)
+__pmParseLabelSet(const char *json, int jlen, int flags, pmLabelSet **set)
 {
     pmLabelSet	*result;
     pmLabel	*lp, labels[MAXLABELS];
     char	*bp, buf[MAXLABELJSONLEN];
-    int		sts, nlabels, bsz = MAXLABELJSONLEN;
+    int		i, sts, nlabels, bsz = MAXLABELJSONLEN;
 
     sts = nlabels = (!jlen || !json) ? 0 :
 	__pmParseLabels(json, jlen, labels, MAXLABELS, buf, &bsz);
@@ -113,6 +115,8 @@ __pmParseLabelSet(const char *json, int jlen, pmLabelSet **set)
     if (nlabels > 0) {
 	if ((lp = calloc(nlabels, sizeof(*lp))) == NULL)
 	    return -ENOMEM;
+	for (i = 0; i < nlabels; i++)
+	    lp[i].flags |= flags;
     } else {
 	lp = NULL;
     }
@@ -144,6 +148,7 @@ __pmParseLabelSet(const char *json, int jlen, pmLabelSet **set)
     return 1;
 }
 
+#define MAX_LEVELS	6	/* context,domain,indom,cluster,item,insts */
 #define MAX_TOKENS	(MAXLABELS * 4)
 #define INC_TOKENS	64
 
@@ -694,7 +699,7 @@ __pmGetContextLabels(pmLabelSet **set)
     if (sts < 0)
 	return sts;
 
-    return __pmParseLabelSet(buf, sts, set);
+    return __pmParseLabelSet(buf, sts, PM_LABEL_CONTEXT, set);
 }
 
 static char *
@@ -722,7 +727,7 @@ archive_context_labels(__pmContext *ctxp, pmLabelSet **sets)
     int		sts;
 
     hostp = archive_host_labels(ctxp, buf, sizeof(buf));
-    if ((sts = __pmAddLabels(&lp, hostp)) < 0)
+    if ((sts = __pmAddLabels(&lp, hostp, PM_LABEL_CONTEXT)) < 0)
 	return sts;
     *sets = lp;
     return 1;
@@ -752,7 +757,7 @@ local_context_labels(pmLabelSet **sets)
     if ((sts = __pmGetContextLabels(&lp)) < 0)
 	return sts;
     hostp = local_host_labels(buf, sizeof(buf));
-    if ((sts = __pmAddLabels(&lp, hostp)) > 0) {
+    if ((sts = __pmAddLabels(&lp, hostp, PM_LABEL_CONTEXT)) > 0) {
 	*sets = lp;
 	return 1;
     }
@@ -770,7 +775,7 @@ __pmGetDomainLabels(int domain, const char *name, pmLabelSet **set)
     length = snprintf(buf, sizeof(buf), "{\"agent\":\"%s\"}", name);
     buf[sizeof(buf)-1] = '\0';
 
-    return __pmParseLabelSet(buf, length, set);
+    return __pmParseLabelSet(buf, length, PM_LABEL_DOMAIN, set);
 }
 
 static int
@@ -788,7 +793,7 @@ lookup_domain(int ident, int type)
 	return ident;
     if (type & PM_LABEL_INDOM)
 	return pmInDom_domain(ident);
-    if (type & (PM_LABEL_PMID | PM_LABEL_INSTS))
+    if (type & (PM_LABEL_CLUSTER | PM_LABEL_ITEM | PM_LABEL_INSTS))
 	return pmid_domain(ident);
     return -EINVAL;
 }
@@ -900,13 +905,103 @@ pmGetInDomLabels(pmInDom indom, pmLabelSet **labels)
 }
 
 int
-pmGetPMIDLabels(pmID pmid, pmLabelSet **labels)
+pmGetClusterLabels(pmID pmid, pmLabelSet **labels)
 {
-    return dolabels(pmid, PM_LABEL_PMID, labels);
+    return dolabels(pmid, PM_LABEL_CLUSTER, labels);
+}
+
+int
+pmGetItemLabels(pmID pmid, pmLabelSet **labels)
+{
+    return dolabels(pmid, PM_LABEL_ITEM, labels);
+}
+
+int
+pmGetInstsLabels(pmID pmid, pmLabelSet **labels)
+{
+    return dolabels(pmid, PM_LABEL_INSTS, labels);
 }
 
 int
 pmGetLabels(pmID pmid, pmLabelSet **labels)
 {
-    return dolabels(pmid, PM_LABEL_INSTS, labels);
+    pmLabelSet	*lsp, *sets;
+    pmDesc	desc;
+    pmID	ident;
+    int		n, sts, count, total;
+
+    if ((sts = pmLookupDesc(pmid, &desc)) < 0)
+	return sts;
+
+    /* context, domain, [indom], cluster, item, [insts...] */
+    total = (desc.indom == PM_INDOM_NULL) ? 4 : 6;
+    if ((sets = calloc(total, sizeof(pmLabelSet))) == NULL)
+	return -ENOMEM;
+    count = 0;
+
+    if ((sts = pmGetContextLabels(&lsp)) < 0) {
+	free(sets);
+	return sts;
+    }
+    if (lsp) {
+	sets[count++] = *lsp;
+	free(lsp);
+    }
+
+    ident = pmid_domain(pmid);
+    if ((sts = pmGetDomainLabels(ident, &lsp)) < 0)
+	goto fail;
+    if (lsp) {
+	sets[count++] = *lsp;
+	free(lsp);
+    }
+
+    if (desc.indom != PM_INDOM_NULL) {
+	if ((sts = pmGetInDomLabels(desc.indom, &lsp)) < 0)
+	    goto fail;
+	if (lsp) {
+	    sets[count++] = *lsp;
+	    free(lsp);
+	}
+    }
+
+    ident = pmid_build(ident, pmid_cluster(pmid), 0);
+    if ((sts = pmGetClusterLabels(ident, &lsp)) < 0)
+	goto fail;
+    if (lsp) {
+	sets[count++] = *lsp;
+	free(lsp);
+    }
+
+    if ((sts = pmGetItemLabels(pmid, &lsp)) < 0)
+	goto fail;
+    if (lsp) {
+	sets[count++] = *lsp;
+	free(lsp);
+    }
+
+    if (desc.indom != PM_INDOM_NULL) {
+	if ((sts = n = pmGetInstsLabels(pmid, &lsp)) < 0)
+	    goto fail;
+	if (lsp && n + count > total) {
+	    /* make space on the end for additional instance sets */
+	    sets = realloc(sets, (count + n) * sizeof(pmLabelSet));
+	    if (sets == NULL) {
+		sts = -ENOMEM;
+		goto fail;
+	    }
+	}
+	if (lsp) {
+	    memcpy(&sets[count], lsp, n * sizeof(pmLabelSet));
+	    count += n;
+	    free(lsp);
+	}
+    }
+
+    *labels = sets;
+    return count;
+
+fail:
+    pmFreeLabelSets(sets, count);
+    return sts;
 }

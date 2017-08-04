@@ -369,7 +369,7 @@ GetContextLabels(ClientInfo *cp, pmLabelSet **sets)
 	    sts += snprintf(buf+sts, sizeof(buf)-sts, ",\"container\":%s",
 			    container);
 	snprintf(buf+sts, sizeof(buf)-sts, "}");
-	if ((sts = __pmAddLabels(sets, buf)) > 0)
+	if ((sts = __pmAddLabels(sets, buf, PM_LABEL_CONTEXT)) > 0)
 	    return 1;
     }
     return sts;
@@ -400,7 +400,8 @@ DoLabel(ClientInfo *cp, __pmPDU *pb)
 	    if (!(ap = FindDomainAgent(((__pmInDom_int *)&ident)->domain)))
 		return PM_ERR_INDOM;
 	    break;
-	case PM_LABEL_PMID:
+	case PM_LABEL_CLUSTER:
+	case PM_LABEL_ITEM:
 	case PM_LABEL_INSTS:
 	    if (!(ap = FindDomainAgent(((__pmID_int *)&ident)->domain)))
 		return PM_ERR_PMID;
