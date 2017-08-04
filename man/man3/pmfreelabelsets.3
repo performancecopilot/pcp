@@ -31,7 +31,7 @@ cc ... \-lpcp
 The array of label
 .I sets
 returned by
-.BR pmGetLabels (3)
+.BR pmLookupLabels (3)
 and related APIs are allocated below the
 Performance Metrics Application Programming Interface (PMAPI)
 using a variety of calls to the system's dynamic memory
@@ -45,7 +45,7 @@ to release the storage previously allocated for the label
 .I sets
 array when access to the structure is no longer needed.
 The return value from
-.B pmGetLabels
+.B pmLookupLabels
 indicates the number of elements in the label
 .I sets
 array, and this should be passed in using the
@@ -59,10 +59,10 @@ circumstances should an application use
 to release storage previously allocated for a
 .CW pmLabelSet
 by
-.BR pmGetLabels (3)
+.BR pmLookupLabels (3)
 or related APIs.
 .SH SEE ALSO
 .BR malloc (3),
 .BR PMAPI (3)
 and
-.BR pmGetLabels (3).
+.BR pmLookupLabels (3).

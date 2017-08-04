@@ -61,7 +61,13 @@ when
 .I ident
 is a PMDA domain identifier,
 .TP 4n
-.B PM_LABEL_PMID
+.B PM_LABEL_CLUSTER
+when
+.I ident
+is a metric identifier and labels for the cluster containing that
+metric are being requested.
+.TP 4n
+.B PM_LABEL_ITEM
 when
 .I ident
 is a metric identifier,
@@ -71,11 +77,11 @@ when
 .I ident
 is an instance domain identifier, or
 .TP 4n
-.B PM_LABEL_INSTS
+.B PM_LABEL_INSTANCES
 when
 .I ident
-is a metric identifier and labels for all instances of that metric are
-being requested.
+is a metric identifier and labels for all instances of that
+metric are being requested.
 .PP
 The label
 .I sets
@@ -86,7 +92,7 @@ In this case, the return code must indicate the number of label
 .I sets
 that have been allocated.
 This will only ever be greater than one in the 
-.B PM_LABEL_INSTS
+.B PM_LABEL_INSTANCES
 case.
 .PP
 This is one of the few generic callbacks in
@@ -123,7 +129,7 @@ returns the number of label
 .I sets
 created.
 This is usually zero or one, except in the case of
-.B PM_LABEL_INSTS
+.B PM_LABEL_INSTANCES
 where more than one label
 .I sets
 will often be returned, one for each instance of the requested metric.
@@ -153,4 +159,4 @@ or
 .BR pmdaDSO (3),
 .BR pmdaInit (3)
 and
-.BR pmGetLabels (3).
+.BR pmLookupLabels (3).

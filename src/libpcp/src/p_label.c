@@ -26,7 +26,7 @@ LabelTypeString(int type)
     case PM_LABEL_INDOM:    return "indom";
     case PM_LABEL_CLUSTER:  return "cluster";
     case PM_LABEL_ITEM:	    return "pmid";
-    case PM_LABEL_INSTS:    return "insts";
+    case PM_LABEL_INSTANCES:return "instances";
     default:
 	break;
     }
@@ -101,7 +101,7 @@ DumpLabelSets(char *func, int ident, int type, pmLabelSet *sets, int nsets)
 typedef struct {
     __pmPDUHdr	hdr;
     int		ident;		/* domain, PMID or pmInDom identifier */
-    int		type;		/* context/domain/metric/indom/insts */
+    int		type;		/* context/domain/indom/cluster/item/insts */
 } label_req_t;
 
 int
@@ -117,7 +117,7 @@ __pmSendLabelReq(int fd, int from, int ident, int type)
 	nid = htonl(ident);
     else if (type & PM_LABEL_INDOM)
 	nid = __htonpmInDom((pmInDom)ident);
-    else if (type & (PM_LABEL_CLUSTER|PM_LABEL_ITEM|PM_LABEL_INSTS))
+    else if (type & (PM_LABEL_CLUSTER|PM_LABEL_ITEM|PM_LABEL_INSTANCES))
 	nid = __htonpmID((pmID)ident);
     else
 	return -EINVAL;
@@ -151,7 +151,7 @@ __pmDecodeLabelReq(__pmPDU *pdubuf, int *ident, int *otype)
     type = *otype = ntohl(pp->type);
     if (type & PM_LABEL_DOMAIN)
         *ident = ntohl(pp->ident);
-    else if (type & (PM_LABEL_CLUSTER|PM_LABEL_ITEM|PM_LABEL_INSTS))
+    else if (type & (PM_LABEL_CLUSTER|PM_LABEL_ITEM|PM_LABEL_INSTANCES))
 	*ident = __ntohpmID(pp->ident);
     else if (type & PM_LABEL_INDOM)
         *ident = __ntohpmInDom(pp->ident);
@@ -175,7 +175,7 @@ typedef struct {
 typedef struct {
     __pmPDUHdr	hdr;
     int		ident;		/* domain, PMID or pmInDom identifier */
-    int		type;		/* context/domain/metric/indom/insts */
+    int		type;		/* context/domain/indom/cluster/item/insts */
     int		padding;
     int		nsets;
     labelset_t	sets[1];
@@ -215,7 +215,7 @@ __pmSendLabel(int fd, int from, int ident, int type, pmLabelSet *sets, int nsets
 
     if (type & PM_LABEL_DOMAIN)
 	pp->ident = htonl(ident);
-    else if (type & (PM_LABEL_CLUSTER | PM_LABEL_ITEM | PM_LABEL_INSTS))
+    else if (type & (PM_LABEL_CLUSTER | PM_LABEL_ITEM | PM_LABEL_INSTANCES))
 	pp->ident = __htonpmID((pmID)ident);
     else if (type & PM_LABEL_INDOM)
 	pp->ident = __htonpmInDom((pmInDom)ident);

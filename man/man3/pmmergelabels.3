@@ -52,7 +52,7 @@ and the result
 are
 .IR name : value
 pairs in the "JSONB" format described on
-.BR pmGetLabels (1).
+.BR pmLookupLabels (3).
 .PP
 The
 .B pmMergeLabelSets
@@ -62,7 +62,7 @@ of labels to be merged.
 The format of the
 .I pmLabelSet
 data structure is described in detail in
-.BR pmGetLabels (3).
+.BR pmLookupLabels (3).
 .PP
 Although names may repeat across the provided label
 .IR sets ,
@@ -72,7 +72,7 @@ Any label names occuring in more than one of the input label
 .I sets
 are reduced to one using the rules described in the "PRECEDENCE"
 section of
-.BR pmGetLabels .
+.BR pmLookupLabels .
 The position of each element in the
 .I sets
 array is significant in terms of the precedence rules \- earlier
@@ -117,4 +117,4 @@ internal inconsistencies found will result in a negative return code.
 .BR pminfo (1),
 .BR PMAPI (3)
 and
-.BR pmGetLabels (3).
+.BR pmLookupLabels (3).

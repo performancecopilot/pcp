@@ -81,7 +81,7 @@ help		{ return HELP; }
 indom		{ return INDOM; }
 inet		{ return INET; }
 instance	{ return INSTANCE; }
-insts		{ return INSTS; }
+instances	{ return INSTANCES; }
 ipv6		{ return IPV6; }
 item		{ return ITEM; }
 label		{ return LABEL; }

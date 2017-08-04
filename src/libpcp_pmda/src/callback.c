@@ -758,8 +758,8 @@ pmdaText(int ident, int type, char **buffer, pmdaExt *pmda)
 }
 
 /*
- * Provide default handlers to fill set(s) of labels for the
- * context or requested ID of type domain, indom, pmid, insts.
+ * Provide default handlers to fill set(s) of labels for the context
+ * or requested ID of type domain, indom, cluster, item or instances.
  */
 
 int
@@ -822,7 +822,7 @@ pmdaLabel(int ident, int type, pmLabelSet **lpp, pmdaExt *pmda)
 	    return 0;
 	return pmdaAddLabelFlags(lp, type);
 
-    case PM_LABEL_INSTS:
+    case PM_LABEL_INSTANCES:
 	if (extp->dispatch->comm.pmda_interface < PMDA_INTERFACE_7)
 	    return 0;
 	if ((metap = __pmdaMetricSearch(pmda, ident, &metabuf, extp)) == NULL)

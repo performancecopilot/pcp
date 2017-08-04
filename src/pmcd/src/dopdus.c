@@ -402,7 +402,7 @@ DoLabel(ClientInfo *cp, __pmPDU *pb)
 	    break;
 	case PM_LABEL_CLUSTER:
 	case PM_LABEL_ITEM:
-	case PM_LABEL_INSTS:
+	case PM_LABEL_INSTANCES:
 	    if (!(ap = FindDomainAgent(((__pmID_int *)&ident)->domain)))
 		return PM_ERR_PMID;
 	    break;

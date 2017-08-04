@@ -2989,7 +2989,7 @@ sample_label_insts(pmID pmid, pmLabelSet **lpp)
     for (i = 0; i < numinst; i++, lp++) {
 	lp->inst = idp->it_set[i].i_inst;
 	sample_label_cb(dp, lp->inst, &lp);
-	pmdaAddLabelFlags(lp, PM_LABEL_INSTS);
+	pmdaAddLabelFlags(lp, PM_LABEL_INSTANCES);
     }
     return numinst;
 }
@@ -3012,7 +3012,7 @@ sample_label(int ident, int type, pmLabelSet **lp, pmdaExt *ep)
 	case PM_LABEL_ITEM:
 	    sts = sample_label_item((pmID)ident, lp);
 	    break;
-	case PM_LABEL_INSTS:
+	case PM_LABEL_INSTANCES:
 	    /* cannot use default handler, no indomtab */
 	    return sample_label_insts((pmID)ident, lp);
 	default:

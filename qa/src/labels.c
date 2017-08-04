@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2017 Red Hat.
  *
- * Test helper program for exercising pmGetLabels(3).
+ * Test helper program for exercising pmLookupLabels(3).
  */
 
 #include <ctype.h>
@@ -103,7 +103,7 @@ main(int argc, char **argv)
 	    continue;
 	}
 
-	if ((sts = nsets = pmGetLabels(pmid, &sets)) < 0) {
+	if ((sts = nsets = pmLookupLabels(pmid, &sets)) < 0) {
 	    fprintf(stderr, "%s: cannot get labels for %s: %s\n",
 			pmProgname, metric, pmErrStr(sts));
 	    exit(1);
@@ -125,7 +125,7 @@ main(int argc, char **argv)
 		printf("  Cluster:\t%.*s\n", lsp->jsonlen, lsp->json);
 	    else if (flags & PM_LABEL_ITEM)
 		printf("  Item:\t%.*s\n", lsp->jsonlen, lsp->json);
-	    else if (flags & PM_LABEL_INSTS)
+	    else if (flags & PM_LABEL_INSTANCES)
 		printf("  Inst[%u]:\t%.*s\n", lsp->inst, lsp->jsonlen, lsp->json);
 	    else
 		printf("  ???[0x%x]:\t%.*s\n", flags, lsp->jsonlen, lsp->json);

@@ -13,10 +13,10 @@
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
 .\"
-.TH PMGETLABELS 3 "PCP" "Performance Co-Pilot"
+.TH PMLOOKUPLABELS 3 "PCP" "Performance Co-Pilot"
 .SH NAME
-\f3pmGetLabels\f1,
-\f3pmGetInstsLabels\f1,
+\f3pmLookupLabels\f1,
+\f3pmGetInstancesLabels\f1,
 \f3pmGetItemLabels\f1,
 \f3pmGetClusterLabels\f1,
 \f3pmGetInDomLabels\f1,
@@ -27,9 +27,9 @@
 #include <pcp/pmapi.h>
 .sp
 .nf
-int pmGetLabels(pmID \fIpmid\fP, pmLabelSet **\fIlabelsets\fP);
+int pmLookupLabels(pmID \fIpmid\fP, pmLabelSet **\fIlabelsets\fP);
 .sp
-int pmGetInstsLabels(pmID \fIpmid\fP, pmLabelSet **\fIlabelsets\fP);
+int pmGetInstancesLabels(pmID \fIpmid\fP, pmLabelSet **\fIlabelsets\fP);
 .br
 int pmGetItemLabels(pmID \fIpmid\fP, pmLabelSet **\fIlabelsets\fP);
 .br
@@ -61,9 +61,9 @@ integral part of the identity of each metric, and should
 rarely, if ever, change.
 .PP
 The
-.B pmGetLabels
-routine is a convenience interface providing label retrieval for
-all values associated with a single performance metric identifier,
+.B pmLookupLabels
+routine is a convenience interface providing retrieval for all
+labels associated with a single performance metric identifier,
 .IR pmid .
 It performs no caching of labels internally.
 .PP
@@ -105,7 +105,7 @@ provides the
 associated with the metric cluster (domain,cluster) identified by
 .IR pmid .
 .TP 4n
-4. Item labels (apply to an individual performance metric)
+5. Item labels (apply to an individual performance metric)
 .TP 8n
 .B pmGetItemLabels
 provides the
@@ -113,9 +113,9 @@ provides the
 associated with the metric item (domain,cluster,item) identified by
 .IR pmid .
 .TP 4n
-5. Instance labels (apply to individual instances of a metric)
+6. Instance labels (apply to individual instances of a metric)
 .TP 8n
-.BR pmGetInstsLabels
+.BR pmGetInstancesLabels
 provides the set of instance identifiers and labels in
 .I labelsets
 for each instance associated with the metric identifier
@@ -192,14 +192,17 @@ metric) are the lowest precedence.
 3. Instance Domain Labels
 associated with an InDom are the next highest precedence.
 .TP 4n
-4. Metric labels
+4. Metric cluster labels
+associated with a PMID cluster are the next highest precedence.
+.TP 4n
+5. Metric item labels
 associated with an individual PMID are the next highest precedence.
 .TP 4n
-5. Instance labels
+6. Instance labels
 associated with a metric instance identifier have highest precedence.
 .SH DATA STRUCTURES
 The primary output from
-.B pmGetLabels
+.B pmLookupLabels
 is returned in the
 argument
 .I labelset
@@ -250,7 +253,7 @@ provides information about the set of labels associated with an
 entity (context, domain, indom, metric or instance).
 The entity will be from any one level of the label hierarchy.
 If at the lowest hierarchy level (which happens to be highest
-precedence \- PM_LABEL_INSTS) then the
+precedence \- PM_LABEL_INSTANCES) then the
 .CW inst
 field will contain an actual instance identifier instead of PM_IN_NULL.
 .PP
@@ -353,7 +356,7 @@ model),
 .IR name s:
 units, unitsystem)
 and
-.B pmGetInstsLabels
+.B pmGetInstancesLabels
 (\c
 .IR name s:
 transient)
@@ -370,11 +373,19 @@ should be released using
 .BR pmFreeLabelSets (3)
 when no longer needed.
 .PP
-If no labels exist at all for the requested hierarchy level the
+Only in the case of
+.B pmLookupLabels
+will the resulting
+.I labelset
+be a merged set of labels from all hierarchy levels.
+.PP
+For the other routines, except for
+.BR pmGetInstancesLabels ,
+if no labels exist at all for the requested hierarchy level the
 return code will be zero and no space will have been allocated.
 .PP
 In the case of
-.BR pmGetInstsLabels ,
+.BR pmGetInstancesLabels ,
 which can return multiple elements in its
 .I labelsets
 result (one set of labels for each instance), the
@@ -382,20 +393,15 @@ result (one set of labels for each instance), the
 field may be either zero indicating no labels for that instance,
 or a positive count of labels, or a negative PMAPI error code.
 .PP
-On successful completion, the return code will be the number of
-elements in the returned
-.I labelsets
-array.
-.PP
 Note that it is mandatory for a call to
-.B pmGetInstsLabels
+.B pmGetInstancesLabels
 to be preceded by a call to
 .BR pmGetInDom (3)
 to ensure the instances have been resolved within the PMDA.
 .PP
 If no result can be obtained,
 e.g. due to IPC failure using the current PMAPI context then
-.B pmGetInstsLabels
+.B pmGetInstancesLabels
 will return a negative error code which may be examined using
 .BR pmErrStr (3).
 .SH SEE ALSO

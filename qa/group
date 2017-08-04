@@ -222,7 +222,7 @@ wrap
 # pmstore command and pmStore() libpcp routine
 pmstore
 
-# metadata labels and pmGetLabels() libpcp routines
+# metadata labels and pm*Labels() libpcp routines
 labels
 
 # trace library and PMDA

@@ -148,7 +148,6 @@ __pmParseLabelSet(const char *json, int jlen, int flags, pmLabelSet **set)
     return 1;
 }
 
-#define MAX_LEVELS	6	/* context,domain,indom,cluster,item,insts */
 #define MAX_TOKENS	(MAXLABELS * 4)
 #define INC_TOKENS	64
 
@@ -793,7 +792,7 @@ lookup_domain(int ident, int type)
 	return ident;
     if (type & PM_LABEL_INDOM)
 	return pmInDom_domain(ident);
-    if (type & (PM_LABEL_CLUSTER | PM_LABEL_ITEM | PM_LABEL_INSTS))
+    if (type & (PM_LABEL_CLUSTER | PM_LABEL_ITEM | PM_LABEL_INSTANCES))
 	return pmid_domain(ident);
     return -EINVAL;
 }
@@ -917,13 +916,13 @@ pmGetItemLabels(pmID pmid, pmLabelSet **labels)
 }
 
 int
-pmGetInstsLabels(pmID pmid, pmLabelSet **labels)
+pmGetInstancesLabels(pmID pmid, pmLabelSet **labels)
 {
-    return dolabels(pmid, PM_LABEL_INSTS, labels);
+    return dolabels(pmid, PM_LABEL_INSTANCES, labels);
 }
 
 int
-pmGetLabels(pmID pmid, pmLabelSet **labels)
+pmLookupLabels(pmID pmid, pmLabelSet **labels)
 {
     pmLabelSet	*lsp, *sets;
     pmDesc	desc;
@@ -981,7 +980,7 @@ pmGetLabels(pmID pmid, pmLabelSet **labels)
     }
 
     if (desc.indom != PM_INDOM_NULL) {
-	if ((sts = n = pmGetInstsLabels(pmid, &lsp)) < 0)
+	if ((sts = n = pmGetInstancesLabels(pmid, &lsp)) < 0)
 	    goto fail;
 	if (lsp && n + count > total) {
 	    /* make space on the end for additional instance sets */

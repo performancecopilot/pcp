@@ -462,7 +462,7 @@ myinstslabels(pmDesc *dp, pmID id, pmLabelSet **sets, int nsets, char *buffer, i
     char	*iname;
     int		i, n, sts;
 
-    if ((sts = n = pmGetInstsLabels(id, &ilabels)) > 0) {
+    if ((sts = n = pmGetInstancesLabels(id, &ilabels)) > 0) {
 	for (i = 0; i < n; i++) {
 	    if ((iname = lookup_indom_names(dp->indom, ilabels[i].inst)) < 0)
 		continue;
@@ -478,7 +478,7 @@ myinstslabels(pmDesc *dp, pmID id, pmLabelSet **sets, int nsets, char *buffer, i
 	}
 	pmFreeLabelSets(ilabels, n);
     } else if (sts < 0) {
-	fprintf(stderr, "%s: pmGetInstsLabels[%s] failed: %s\n",
+	fprintf(stderr, "%s: pmGetInstancesLabels[%s] failed: %s\n",
 		pmProgname, pmIDStr(id), pmErrStr(sts));
     }
 }
@@ -498,7 +498,7 @@ mylabels(unsigned int ident, int type, pmDesc *dp)
 	sts = pmMergeLabelSets(labels, 3, buf, sizeof(buf), NULL, NULL);
 	break;
 
-    case PM_LABEL_INSTS:
+    case PM_LABEL_INSTANCES:
 	labels[0] = lookup_context_labels();
 	labels[1] = lookup_domain_labels(pmid_domain(ident));
 	labels[2] = lookup_indom_labels(dp->indom);
@@ -655,7 +655,7 @@ report(void)
 	if (p_value)
 	    mydump(&desc, vsp, NULL);
 	if (p_label)
-	    mylabels(pmidlist[i], PM_LABEL_INSTS, &desc);
+	    mylabels(pmidlist[i], PM_LABEL_INSTANCES, &desc);
     }
 
     if (result != NULL) {

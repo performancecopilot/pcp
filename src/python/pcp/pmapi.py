@@ -821,11 +821,11 @@ LIBPCP.pmprintf.argtypes = [c_char_p]
 LIBPCP.pmSortInstances.restype = None
 LIBPCP.pmSortInstances.argtypes = [POINTER(pmResult)]
 
-LIBPCP.pmGetLabels.restype = c_int
-LIBPCP.pmGetLabels.argtypes = [c_int, POINTER(POINTER(pmLabelSet))]
+LIBPCP.pmLookupLabels.restype = c_int
+LIBPCP.pmLookupLabels.argtypes = [c_int, POINTER(POINTER(pmLabelSet))]
 
-LIBPCP.pmGetInstsLabels.restype = c_int
-LIBPCP.pmGetInstsLabels.argtypes = [c_int, POINTER(POINTER(pmLabelSet))]
+LIBPCP.pmGetInstancesLabels.restype = c_int
+LIBPCP.pmGetInstancesLabels.argtypes = [c_int, POINTER(POINTER(pmLabelSet))]
 
 LIBPCP.pmGetItemLabels.restype = c_int
 LIBPCP.pmGetItemLabels.argtypes = [c_int, POINTER(POINTER(pmLabelSet))]
@@ -1974,26 +1974,26 @@ class pmContext(object):
             raise pmErr(status)
         return result_p
 
-    def pmGetLabels(self, pmid):
-        """PMAPI - Get merged labels for a single metric
+    def pmLookupLabels(self, pmid):
+        """PMAPI - Get merged labelset for a single metric
         """
         result_p = POINTER(pmLabelSet)()
         status = LIBPCP.pmUseContext(self.ctx)
         if status < 0:
             raise pmErr(status)
-        status = LIBPCP.pmGetLabels(pmid, byref(result_p))
+        status = LIBPCP.pmLookupLabels(pmid, byref(result_p))
         if status < 0:
             raise pmErr(status)
         return result_p
 
-    def pmGetInstsLabels(self, pmid):
+    def pmGetInstancesLabels(self, pmid):
         """PMAPI - Get labels for all metric values (instances)
         """
         result_p = POINTER(pmLabelSet)()
         status = LIBPCP.pmUseContext(self.ctx)
         if status < 0:
             raise pmErr(status)
-        status = LIBPCP.pmGetInstsLabels(pmid, byref(result_p))
+        status = LIBPCP.pmGetInstancesLabels(pmid, byref(result_p))
         if status < 0:
             raise pmErr(status)
         return result_p

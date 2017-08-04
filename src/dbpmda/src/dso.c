@@ -387,7 +387,7 @@ dodso(int pdu)
 		printf("PMID: %s\n", pmIDStr(param.pmid));
 		i = param.pmid;
 	    }
-	    else if (param.number & PM_LABEL_INSTS) {
+	    else if (param.number & PM_LABEL_INSTANCES) {
 		printf("Instances of PMID: %s\n", pmIDStr(param.pmid));
 		i = param.pmid;
 	    }

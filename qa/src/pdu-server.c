@@ -273,8 +273,8 @@ decode_encode(int fd, __pmPDU *pb, int type)
 		    fprintf(stderr, "PMID %s CLUSTER ", pmIDStr((pmID)ident));
 		else if (type & PM_LABEL_ITEM)
 		    fprintf(stderr, "PMID %s ITEM", pmIDStr((pmID)ident));
-		else if (type & PM_LABEL_INSTS)
-		    fprintf(stderr, "PMID %s INSTS", pmIDStr((pmID)ident));
+		else if (type & PM_LABEL_INSTANCES)
+		    fprintf(stderr, "PMID %s INSTANCES", pmIDStr((pmID)ident));
 		else
 		    fprintf(stderr, "BAD TYPE");
 		fputc('\n', stderr);

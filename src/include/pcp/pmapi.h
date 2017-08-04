@@ -519,21 +519,21 @@ typedef struct pmLabelSet {
 #define PM_LABEL_INDOM		(1<<2)
 #define PM_LABEL_CLUSTER	(1<<3)
 #define PM_LABEL_ITEM		(1<<4)
-#define PM_LABEL_INSTS		(1<<5)
+#define PM_LABEL_INSTANCES	(1<<5)
 #define PM_LABEL_OPTIONAL	(1<<7)
 
-PCP_CALL extern int pmGetLabels(pmID, pmLabelSet **);
-
-PCP_CALL extern int pmGetInstsLabels(pmID, pmLabelSet **);
-PCP_CALL extern int pmGetItemLabels(pmID, pmLabelSet **);
-PCP_CALL extern int pmGetClusterLabels(pmID, pmLabelSet **);
-PCP_CALL extern int pmGetInDomLabels(pmInDom, pmLabelSet **);
-PCP_CALL extern int pmGetDomainLabels(int, pmLabelSet **);
 PCP_CALL extern int pmGetContextLabels(pmLabelSet **);
+PCP_CALL extern int pmGetDomainLabels(int, pmLabelSet **);
+PCP_CALL extern int pmGetInDomLabels(pmInDom, pmLabelSet **);
+PCP_CALL extern int pmGetClusterLabels(pmID, pmLabelSet **);
+PCP_CALL extern int pmGetItemLabels(pmID, pmLabelSet **);
+PCP_CALL extern int pmGetInstancesLabels(pmID, pmLabelSet **);
+
+PCP_CALL extern int pmLookupLabels(pmID, pmLabelSet **);
 
 /*
  * The full set is formed by merging labels from all levels of the
- * hierarchy using the precedence rules described in pmGetLabels(3).
+ * hierarchy using the precedence rules described in pmLookupLabels(3).
  */
 PCP_CALL extern int pmMergeLabels(char **, int, char *, int);
 PCP_CALL extern int pmMergeLabelSets(pmLabelSet **, int, char *, int,

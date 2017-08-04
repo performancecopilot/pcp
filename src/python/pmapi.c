@@ -1516,6 +1516,8 @@ MOD_INIT(cpmapi)
     dict_add(dict, "PMCD_ADD_AGENT", PMCD_ADD_AGENT);
     dict_add(dict, "PMCD_RESTART_AGENT", PMCD_RESTART_AGENT);
     dict_add(dict, "PMCD_DROP_AGENT", PMCD_DROP_AGENT);
+    dict_add(dict, "PMCD_AGENT_CHANGE", PMCD_AGENT_CHANGE);
+    dict_add(dict, "PMCD_LABEL_CHANGE", PMCD_LABEL_CHANGE);
 
     dict_add(dict, "PM_MAXLABELS", PM_MAXLABELS);
     dict_add(dict, "PM_MAXLABELJSONLEN", PM_MAXLABELJSONLEN);
@@ -1525,7 +1527,7 @@ MOD_INIT(cpmapi)
     dict_add(dict, "PM_LABEL_INDOM", PM_LABEL_INDOM);
     dict_add(dict, "PM_LABEL_CLUSTER", PM_LABEL_CLUSTER);
     dict_add(dict, "PM_LABEL_ITEM", PM_LABEL_ITEM);
-    dict_add(dict, "PM_LABEL_INSTS", PM_LABEL_INSTS);
+    dict_add(dict, "PM_LABEL_INSTANCES", PM_LABEL_INSTANCES);
     dict_add(dict, "PM_LABEL_OPTIONAL", PM_LABEL_OPTIONAL);
 
     dict_add(dict, "PM_MAXERRMSGLEN", PM_MAXERRMSGLEN);
