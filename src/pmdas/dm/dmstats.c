@@ -22,8 +22,8 @@
 #include <inttypes.h>
 #include <libdevmapper.h>
 
-const char *bc_programid = "pcp_dm_counter";
-const char *hist_programid = "pcp_dm_histogram";
+const char *bc_programid = "dmstats";
+const char *hist_programid = "dmstats";
 
 int
 pm_dm_stats_fetch(int item, struct pm_dm_stats_counter *dmsc, pmAtomValue *atom)
@@ -100,23 +100,14 @@ pm_dm_histogram_fetch(int item, struct pm_dm_histogram *pdmh, pmAtomValue *atom)
 	return 1;
 }
 
-int
-pm_dm_refresh_stats_counter(const char *name, struct pm_dm_stats_counter *dmsc)
+static void
+_pm_dm_stats_value(struct dm_stats *dms, uint64_t *stats_val, uint64_t region_id, uint64_t area_id, int flag)
 {
-	struct dm_stats *dms;
-	uint64_t reads = 0, reads_merged = 0, read_sectors = 0, read_nsecs = 0;
-	uint64_t writes = 0, writes_merged = 0, write_sectors = 0, write_nsecs = 0;
-	uint64_t io_in_progress = 0, io_nsecs = 0, weighted_io_nsecs = 0, total_read_nsecs = 0, total_write_nsecs = 0;
+	static uint64_t reads = 0, reads_merged = 0, read_sectors = 0, read_nsecs = 0;
+	static uint64_t writes = 0, writes_merged = 0, write_sectors = 0, write_nsecs = 0;
+	static uint64_t io_in_progress = 0, io_nsecs = 0, weighted_io_nsecs = 0, total_read_nsecs = 0, total_write_nsecs = 0;
 
-	if (!(dms = dm_stats_create(DM_STATS_ALL_PROGRAMS)))
-		goto bad;
-
-	if (!dm_stats_bind_name(dms, name))
-		goto bad;
-
-	if (!dm_stats_populate(dms, bc_programid, DM_STATS_REGIONS_ALL))
-		goto bad;
-
+	if (flag) {
 	dm_stats_foreach_region(dms) {
 		reads
 			+= dm_stats_get_counter(dms, DM_STATS_READS_COUNT, DM_STATS_REGION_CURRENT, DM_STATS_AREA_CURRENT);
@@ -145,25 +136,92 @@ pm_dm_refresh_stats_counter(const char *name, struct pm_dm_stats_counter *dmsc)
 		total_write_nsecs
 			+= dm_stats_get_counter(dms, DM_STATS_TOTAL_WRITE_NSECS, DM_STATS_REGION_CURRENT, DM_STATS_AREA_CURRENT);
 	}
-	dmsc->pm_reads             += reads;
-	dmsc->pm_reads_merged      += reads_merged;
-	dmsc->pm_read_sectors      += read_sectors;
-	dmsc->pm_read_nsecs        += read_nsecs;
-	dmsc->pm_writes            += writes;
-	dmsc->pm_writes_merged     += writes_merged;
-	dmsc->pm_write_sectors     += write_sectors;
-	dmsc->pm_write_nsecs       += write_nsecs;
-	dmsc->pm_io_in_progress    += io_in_progress;
-	dmsc->pm_io_nsecs          += io_nsecs;
-	dmsc->pm_weighted_io_nsecs += weighted_io_nsecs;
-	dmsc->pm_total_read_nsecs  += total_read_nsecs;
-	dmsc->pm_total_write_nsecs += total_write_nsecs;
 
+		stats_val[0]  = reads;
+		stats_val[1]  = reads_merged;
+		stats_val[2]  = read_sectors;
+		stats_val[3]  = read_nsecs;
+		stats_val[4]  = writes;
+		stats_val[5]  = writes_merged;
+		stats_val[6]  = write_sectors;
+		stats_val[7]  = write_nsecs;
+		stats_val[8]  = io_in_progress;
+		stats_val[9]  = io_nsecs;
+		stats_val[10] = weighted_io_nsecs;
+		stats_val[11] = total_read_nsecs;
+		stats_val[12] = total_write_nsecs;
+
+	} else {
+		reads
+			+= dm_stats_get_counter(dms, DM_STATS_READS_COUNT, region_id, area_id);
+		reads_merged
+			+= dm_stats_get_counter(dms, DM_STATS_READS_MERGED_COUNT, region_id, area_id);
+		read_sectors
+			+= dm_stats_get_counter(dms, DM_STATS_READ_SECTORS_COUNT, region_id, area_id);
+		read_nsecs
+			+= dm_stats_get_counter(dms, DM_STATS_READ_NSECS, region_id, area_id);
+		writes
+			+= dm_stats_get_counter(dms, DM_STATS_WRITES_COUNT, region_id, area_id);
+		writes_merged
+			+= dm_stats_get_counter(dms, DM_STATS_WRITES_MERGED_COUNT, region_id, area_id);
+		write_sectors
+			+= dm_stats_get_counter(dms, DM_STATS_WRITE_SECTORS_COUNT, region_id, area_id);
+		write_nsecs
+			+= dm_stats_get_counter(dms, DM_STATS_WRITE_NSECS, region_id, area_id);
+		io_in_progress
+			+= dm_stats_get_counter(dms, DM_STATS_IO_IN_PROGRESS_COUNT, region_id, area_id);
+		io_nsecs
+			+= dm_stats_get_counter(dms, DM_STATS_IO_NSECS, region_id, area_id);
+		weighted_io_nsecs
+			+= dm_stats_get_counter(dms, DM_STATS_WEIGHTED_IO_NSECS, region_id, area_id);
+		total_read_nsecs
+			+= dm_stats_get_counter(dms, DM_STATS_TOTAL_READ_NSECS, region_id, area_id);
+		total_write_nsecs
+			+= dm_stats_get_counter(dms, DM_STATS_TOTAL_WRITE_NSECS, region_id, area_id);
+	}
+
+}
+
+#define SUM 1
+#define EACH  0
+#define COUNTER_METRIC 13
+
+int
+pm_dm_refresh_stats_counter(const char *name, struct pm_dm_stats_counter *dmsc)
+{
+	struct dm_stats *dms;
+	uint64_t stats_val[COUNTER_METRIC] = {};
+
+	if (!(dms = dm_stats_create(DM_STATS_ALL_PROGRAMS)))
+		goto nostats;
+
+	if (!dm_stats_bind_name(dms, name))
+		goto nostats;
+
+	if (!dm_stats_populate(dms, bc_programid, DM_STATS_REGIONS_ALL))
+		goto nostats;
+
+	_pm_dm_stats_value(dms, stats_val, 0, 0, SUM);
+
+	dmsc->pm_reads             = stats_val[0];
+	dmsc->pm_reads_merged      = stats_val[1];
+	dmsc->pm_read_sectors      = stats_val[2];
+	dmsc->pm_read_nsecs        = stats_val[3];
+	dmsc->pm_writes            = stats_val[4];
+	dmsc->pm_writes_merged     = stats_val[5];
+	dmsc->pm_write_sectors     = stats_val[6];
+	dmsc->pm_write_nsecs       = stats_val[7];
+	dmsc->pm_io_in_progress    = stats_val[8];
+	dmsc->pm_io_nsecs          = stats_val[9];
+	dmsc->pm_weighted_io_nsecs = stats_val[10];
+	dmsc->pm_total_read_nsecs  = stats_val[11];
+	dmsc->pm_total_write_nsecs = stats_val[12];
 	dm_stats_destroy(dms);
 
 	return 0;
+	dm_stats_destroy(dms);
 
-bad:
+nostats:
 	dm_stats_destroy(dms);
 	return -oserror();
 }
@@ -188,6 +246,7 @@ pm_dm_refresh_stats_histogram(const char *name, struct pm_dm_histogram *pdmh)
 	char buffer_name[BUFSIZ], *device_name, *region;
 	int walk;
 	uint64_t region_id, area_id;
+	uint64_t stats_val[COUNTER_METRIC] = {};
 
 	strcpy(buffer_name, name);
 	device_name = strtok(buffer_name, ":");
@@ -213,6 +272,8 @@ pm_dm_refresh_stats_histogram(const char *name, struct pm_dm_histogram *pdmh)
 	if (bin == 0) {
 		if (!dm_stats_populate(dms, hist_programid, region_id))
 			goto nostats;
+
+		_pm_dm_stats_value(dms, stats_val, region_id, area_id, EACH);
 
 		if (!(dmh = dm_stats_get_histogram(dms, region_id, area_id)))
 			goto nostats;
@@ -240,10 +301,9 @@ pm_dm_refresh_stats_histogram(const char *name, struct pm_dm_histogram *pdmh)
 		free(buffer_count_data);
 	}
 
+	dm_stats_destroy(dms);
 	return 0;
 
-	dm_stats_destroy(dms);
-	return 1;
 nostats:
 	dm_stats_destroy(dms);
 	return -oserror();
