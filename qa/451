@@ -28,8 +28,9 @@ _filter()
     then
 	tee -a $here/$seq.full \
 	| sed \
-	    -e '/exerlock: lock.c:[0-9]*: __pmUnlock: Assertion .* failed/d' \
-	    -e '/Aborted (core dumped)/d' \
+	    -e '/^exerlock: lock.c:[0-9]*: __pmUnlock: Assertion .* failed/d' \
+	    -e '/^Aborted (core dumped)/d' \
+	    -e '/^Aborted$/d' \
 	# end
     else
 	cat

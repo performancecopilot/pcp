@@ -736,6 +736,9 @@ IB_LIBS
 PMDA_SYSTEMD
 SYSTEMD_LIBS
 SYSTEMD_CFLAGS
+HAVE_DEVMAPPER
+DEVMAPPER_LIBS
+DEVMAPPER_CFLAGS
 HAVE_NCURSES
 ncurses_LIBS
 ncurses_CFLAGS
@@ -1022,6 +1025,8 @@ avahi_LIBS
 SYSTEMD_SYSTEMUNITDIR
 ncurses_CFLAGS
 ncurses_LIBS
+DEVMAPPER_CFLAGS
+DEVMAPPER_LIBS
 SYSTEMD_CFLAGS
 SYSTEMD_LIBS
 papi_CFLAGS
@@ -1756,6 +1761,10 @@ Some influential environment variables:
               C compiler flags for ncurses, overriding pkg-config
   ncurses_LIBS
               linker flags for ncurses, overriding pkg-config
+  DEVMAPPER_CFLAGS
+              C compiler flags for DEVMAPPER, overriding pkg-config
+  DEVMAPPER_LIBS
+              linker flags for DEVMAPPER, overriding pkg-config
   SYSTEMD_CFLAGS
               C compiler flags for SYSTEMD, overriding pkg-config
   SYSTEMD_LIBS
@@ -10160,6 +10169,108 @@ HAVE_NCURSES=$have_ncurses
 
 
 pkg_failed=no
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for DEVMAPPER" >&5
+$as_echo_n "checking for DEVMAPPER... " >&6; }
+
+if test -n "$DEVMAPPER_CFLAGS"; then
+    pkg_cv_DEVMAPPER_CFLAGS="$DEVMAPPER_CFLAGS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"devmapper\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "devmapper") 2>&5
+  ac_status=$?
+  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_DEVMAPPER_CFLAGS=`$PKG_CONFIG --cflags "devmapper" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+if test -n "$DEVMAPPER_LIBS"; then
+    pkg_cv_DEVMAPPER_LIBS="$DEVMAPPER_LIBS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"devmapper\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "devmapper") 2>&5
+  ac_status=$?
+  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_DEVMAPPER_LIBS=`$PKG_CONFIG --libs "devmapper" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+
+
+
+if test $pkg_failed = yes; then
+   	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+
+if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
+        _pkg_short_errors_supported=yes
+else
+        _pkg_short_errors_supported=no
+fi
+        if test $_pkg_short_errors_supported = yes; then
+	        DEVMAPPER_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "devmapper" 2>&1`
+        else
+	        DEVMAPPER_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "devmapper" 2>&1`
+        fi
+	# Put the nasty error message in config.log where it belongs
+	echo "$DEVMAPPER_PKG_ERRORS" >&5
+
+	have_devmapper=false
+elif test $pkg_failed = untried; then
+     	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+	have_devmapper=false
+else
+	DEVMAPPER_CFLAGS=$pkg_cv_DEVMAPPER_CFLAGS
+	DEVMAPPER_LIBS=$pkg_cv_DEVMAPPER_LIBS
+        { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+	have_devmapper=true
+fi
+if $have_devmapper
+then
+    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for dm_stats_counter_t " >&5
+$as_echo_n "checking for dm_stats_counter_t ... " >&6; }
+    cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+            #include <libdevmapper.h>
+
+int
+main ()
+{
+ dm_stats_counter_t ctr;
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"; then :
+  have_devmapper=true
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+else
+  have_devmapper=false
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+fi
+HAVE_DEVMAPPER=$have_devmapper
+
+
+
+pkg_failed=no
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for SYSTEMD" >&5
 $as_echo_n "checking for SYSTEMD... " >&6; }
 
@@ -12308,16 +12419,12 @@ End-of-File
 #include <string.h>
 int main()
 {
-    char buf[17];
-    int64_t bozo = 0x12345678abcdLL;
-    sprintf(buf, "%lx", bozo);
-    if (strcmp(buf, "12345678abcd") == 0)
-	printf("\"ld\"\n");
-    else {
-	sprintf(buf, "%llx", bozo);
-	if (strcmp(buf, "12345678abcd") == 0)
-	    printf("\"lld\"\n");
-    }
+/* logic copied from <inttypes.h> */
+#if __WORDSIZE == 64
+    printf("\"lld\"\n");
+#else
+    printf("\"ld\"\n");
+#endif
     return(0);
 }
 End-of-File

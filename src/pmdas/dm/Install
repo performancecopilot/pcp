@@ -19,7 +19,7 @@
 . $PCP_SHARE_DIR/lib/pmdaproc.sh
 
 iam=dm
-pmns_name="dmcache dmthin"
+pmns_name="dmcache dmthin dmstats"
 pmda_interface=4
 forced_restart=true	# for env vars
 

@@ -1372,6 +1372,7 @@ zsh
 1192 pmda.prometheus local
 1193 pmda.prometheus local
 1199 libpcp pmcd local
+1202 pmdadm local
 1331 verify local
 1388 pmwebapi local
 4751 libpcp threads valgrind local

@@ -11,6 +11,22 @@
 . ./common.check
 
 seq=`basename $0`
+
+case $PCP_PLATFORM
+in
+    linux)
+	;;
+    *)
+	# for other platforms, the Linux PMDA logrewrite rules
+	# may not be present ...
+	#
+	for tree in snmp tcp
+	do
+	    [ -f "$PCP_VAR_DIR/config/pmlogrewrite/linux_proc_net_${tree}_migrate.conf" ] || _notrun "linux_proc_net_${tree}_migrate.conf: pmlogrewrite rules not installed"
+	done
+	;;
+esac
+
 echo "QA output created by $seq"
 
 status=1	# failure is the default!
