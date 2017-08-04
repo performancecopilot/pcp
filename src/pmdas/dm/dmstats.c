@@ -332,7 +332,6 @@ pm_dm_stats_instance_refresh(void)
 		dm_stats_destroy(dms);
 	} while(next);
 
-	dm_task_destroy(dmt);
 	return 0;
 
 }
