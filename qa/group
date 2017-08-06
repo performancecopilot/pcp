@@ -1371,6 +1371,7 @@ zsh
 1191 pmda.prometheus pmda.install local
 1192 pmda.prometheus local
 1193 pmda.prometheus local
+1194 pmda.prometheus local
 1199 libpcp pmcd local
 1202 pmdadm local
 1331 verify local
