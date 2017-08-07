@@ -25,49 +25,49 @@
 int
 pm_dm_stats_fetch(int item, struct pm_dm_stats_counter *dmsc, pmAtomValue *atom)
 {
-	if (item < 0 || item >= DM_STATS_NR_COUNTERS)
+	if (item < 0 || item >= PM_DM_STATS_NR_COUNTERS)
 		return  PM_ERR_PMID;
 
 	switch (item) {
-		case DM_STATS_READS_COUNT:
+		case PM_DM_STATS_READS:
 			atom->ull = dmsc->pm_reads;
 			break;
-		case DM_STATS_READS_MERGED_COUNT:
+		case PM_DM_STATS_READS_MERGED:
 			atom->ull = dmsc->pm_reads_merged;
 			break;
 		/* Correspond with kbytes units */
-		case DM_STATS_READ_SECTORS_COUNT:
+		case PM_DM_STATS_READ_SECTORS:
 			atom->ull = dmsc->pm_read_sectors / 2;
 			break;
-		case DM_STATS_READ_NSECS:
+		case PM_DM_STATS_READ_NSECS:
 			atom->ull = dmsc->pm_read_nsecs;
 			break;
-		case DM_STATS_WRITES_COUNT:
+		case PM_DM_STATS_WRITES:
 			atom->ull = dmsc->pm_writes;
 			break;
-		case DM_STATS_WRITES_MERGED_COUNT:
+		case PM_DM_STATS_WRITES_MERGED:
 			atom->ull = dmsc->pm_writes_merged;
 			break;
 		/* Correspond with kbytes units */
-		case DM_STATS_WRITE_SECTORS_COUNT:
+		case PM_DM_STATS_WRITE_SECTORS:
 			atom->ull = dmsc->pm_write_sectors / 2;
 			break;
-		case DM_STATS_WRITE_NSECS:
+		case PM_DM_STATS_WRITE_NSECS:
 			atom->ull = dmsc->pm_write_nsecs;
 			break;
-		case DM_STATS_IO_IN_PROGRESS_COUNT:
+		case PM_DM_STATS_IO_IN_PROGRESS:
 			atom->ull = dmsc->pm_io_in_progress;
 			break;
-		case DM_STATS_IO_NSECS:
+		case PM_DM_STATS_IO_NSECS:
 			atom->ull = dmsc->pm_io_nsecs;
 			break;
-		case DM_STATS_WEIGHTED_IO_NSECS:
+		case PM_DM_STATS_WEIGHTED_IO_NSECS:
 			atom->ull = dmsc->pm_weighted_io_nsecs;
 			break;
-		case DM_STATS_TOTAL_READ_NSECS:
+		case PM_DM_STATS_TOTAL_READ_NSECS:
 			atom->ull = dmsc->pm_total_read_nsecs;
 			break;
-		case DM_STATS_TOTAL_WRITE_NSECS:
+		case PM_DM_STATS_TOTAL_WRITE_NSECS:
 			atom->ull = dmsc->pm_total_write_nsecs;
 			break;
 	}
