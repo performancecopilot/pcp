@@ -1265,8 +1265,30 @@ __pmGetAddrInfo(const char *hostName)
     if (pmDebug & DBG_TRACE_DESPERATE) {
 	if (hostEntry == NULL)
 	    fprintf(stderr, "%s:__pmGetAddrInfo(%s) -> NULL\n", __FILE__, hostName);
-	else
-	    fprintf(stderr, "%s:__pmGetAddrInfo(%s) -> %s\n", __FILE__, hostName, hostEntry->name);
+	else {
+	    __pmSockAddr	*addr;
+	    void		*enumIx = NULL;
+	    char		*str;
+	    int			found = 0;
+	    fprintf(stderr, "%s:__pmGetAddrInfo(%s) -> ", __FILE__, hostName);
+	    for (addr = __pmHostEntGetSockAddr(hostEntry, &enumIx);
+		 addr != NULL;
+		 addr = __pmHostEntGetSockAddr(hostEntry, &enumIx)) {
+		str = __pmSockAddrToString(addr);
+		if (str != NULL) {
+		    if (found == 0)
+			fprintf(stderr, "%s", str);
+		    else
+			fprintf(stderr, ", %s", str);
+		    found++;
+		    free(str);
+		}
+	    }
+	    if (found)
+		fprintf(stderr, "\n");
+	    else
+		fprintf(stderr, "no ip addrs?\n");
+	}
     }
 #endif
     return hostEntry;
@@ -1505,8 +1527,13 @@ __pmRecv(int socket, void *buffer, size_t length, int flags)
     size = recv(socket, buffer, length, flags);
 #ifdef PCP_DEBUG
     if ((pmDebug & DBG_TRACE_PDU) && (pmDebug & DBG_TRACE_DESPERATE)) {
-	    fprintf(stderr, "%s:__pmRecv(%d, ..., %d, " PRINTF_P_PFX "%x) -> %d\n",
+	fprintf(stderr, "%s:__pmRecv(%d, ..., %d, " PRINTF_P_PFX "%x) -> %d",
 		__FILE__, socket, (int)length, flags, (int)size);
+	if (size < 0) {
+	    char	errmsg[PM_MAXERRMSGLEN];
+	    fprintf(stderr, " %s", pmErrStr_r(-oserror(), errmsg, sizeof(errmsg)));
+	}
+	fputc('\n', stderr);
     }
 #endif
     return size;
