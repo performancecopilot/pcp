@@ -201,7 +201,7 @@ End-of-File
 cat $tmp.config
 export PCP_DERIVED_CONFIG=$tmp.config
 #debug# src/torture_pmns -Dall -h localhost derived.tree >$tmp.out 2>&1
-src/torture_pmns -Dderive,appl1 -h localhost derived.tree >$tmp.out 2>&1
+src/torture_pmns -Dderive,appl1,appl2 -h localhost derived.tree >$tmp.out 2>&1
 _filter | _filter2
 
 # success, all done
