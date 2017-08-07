@@ -414,9 +414,7 @@ class CpuProcessStackUtilReporter:
         self.pidstat_options = pidstat_options
 
     def print_report(self, timestamp, header_indentation, value_indentation):
-        indentation = "        " if len(timestamp)<9 else (len(timestamp)-7)*" "
         self.printer ("Timestamp" + header_indentation + "UID\tPID\tStkSize\tCommand")
-        indentation = ((len(indentation)+9)-len(timestamp))*" "
         processes = self.process_filter.filter_processes(self.process_stack_util.get_processes())
         for process in processes:
             if self.pidstat_options.show_process_user:
