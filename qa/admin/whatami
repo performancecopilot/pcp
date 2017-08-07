@@ -6,6 +6,8 @@
 #
 
 debug=false
+tmp=/var/tmp/$$
+trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
 
 fmt="%-11.11s %-8.8s %-7.7s %s%s%s\n"
 if [ "$1" = "-h" ]
@@ -145,7 +147,12 @@ fi
 opts=''
 if which pmpython >/dev/null 2>&1
 then
-    opts="$opts `pmpython --version 2>&1 | sed -e 's/Python /py=/'`"
+    if pmpython --version >$tmp.out 2>&1
+    then
+	opts="$opts `sed -e 's/Python /py=/' <$tmp.out`"
+    else
+	opts="$opts py=none"
+    fi
 else
     opts="$opts py=none"
 fi

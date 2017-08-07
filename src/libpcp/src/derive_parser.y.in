@@ -4,6 +4,14 @@
  *
  * This parser is heavily based on the (much older) pmie parser.
  *
+ * Debug flags
+ *   DERIVE & APPL0
+ *	pmRegisterDerived(), lexical scanner, syntactic checks
+ *   DERIVE & APPL1
+ *	_dmopencontext(), semantic checks
+ *   DERIVE & APPL2
+ *	_dmchildren(), PMNS ops
+ *
  * Copyright (c) 1995 Silicon Graphics, Inc.  All Rights Reserved.
  * Copyright (c) 2017 Ken McDonell.  All Rights Reserved.
  * 
@@ -727,6 +735,19 @@ map_units(node_t *np)
     if (np->desc.units.dimSpace != 0 && left->units.dimSpace == 0)
 	np->desc.units.scaleSpace = right->units.scaleSpace;
 
+    /*
+     * and if the resulting dimension is zero, make the scale 0
+     * ... for most cases, if the dimension is zero we do not
+     * look at the scale, but the ternary operator semantic check
+     * is one exception
+     */
+    if (np->desc.units.dimCount == 0)
+	np->desc.units.scaleCount = 0;
+    if (np->desc.units.dimTime == 0)
+	np->desc.units.scaleTime = 0;
+    if (np->desc.units.dimSpace == 0)
+	np->desc.units.scaleSpace = 0;
+
 }
 
 static int
@@ -1087,6 +1108,16 @@ check_expr(int n, node_t *np)
 	     */
 	    np->desc = np->left->desc;
 	    if (np->left->desc.type != np->right->desc.type) {
+#ifdef PCP_DEBUG
+		if ((pmDebug & DBG_TRACE_DERIVE) && (pmDebug & DBG_TRACE_APPL1)) {
+		    char	strbuf[20];
+
+		    pmTypeStr_r(np->left->desc.type, strbuf, sizeof(strbuf));
+		    fprintf(stderr, "Semantic error: ternary op type: left=%s", strbuf);
+		    pmTypeStr_r(np->right->desc.type, strbuf, sizeof(strbuf));
+		    fprintf(stderr, " right=%s\n", strbuf);
+		}
+#endif
 		PM_TPD(derive_errmsg) = "Different types for ternary operands";
 		report_sem_error(registered.mlist[n].name, np);
 		return -1;
@@ -1094,6 +1125,16 @@ check_expr(int n, node_t *np)
 	    if (np->left->desc.indom != np->right->desc.indom &&
 	        np->left->desc.indom != PM_INDOM_NULL &&
 	        np->right->desc.indom != PM_INDOM_NULL) {
+#ifdef PCP_DEBUG
+		if ((pmDebug & DBG_TRACE_DERIVE) && (pmDebug & DBG_TRACE_APPL1)) {
+		    char	strbuf[20];
+
+		    pmInDomStr_r(np->left->desc.indom, strbuf, sizeof(strbuf));
+		    fprintf(stderr, "Semantic error: ternary op indom: left=%s", strbuf);
+		    pmInDomStr_r(np->right->desc.indom, strbuf, sizeof(strbuf));
+		    fprintf(stderr, " right=%s\n", strbuf);
+		}
+#endif
 		PM_TPD(derive_errmsg) = "Different instance domains for ternary operands";
 		report_sem_error(registered.mlist[n].name, np);
 		return -1;
@@ -1103,6 +1144,16 @@ check_expr(int n, node_t *np)
 	    else
 		np->desc.indom = np->right->desc.indom;
 	    if (np->left->desc.sem != np->right->desc.sem) {
+#ifdef PCP_DEBUG
+		if ((pmDebug & DBG_TRACE_DERIVE) && (pmDebug & DBG_TRACE_APPL1)) {
+		    char	strbuf[20];
+
+		    pmSemStr_r(np->left->desc.sem, strbuf, sizeof(strbuf));
+		    fprintf(stderr, "Semantic error: ternary op semantics: left=%s", strbuf);
+		    pmSemStr_r(np->right->desc.sem, strbuf, sizeof(strbuf));
+		    fprintf(stderr, " right=%s\n", strbuf);
+		}
+#endif
 		PM_TPD(derive_errmsg) = "Different semantics for ternary operands";
 		report_sem_error(registered.mlist[n].name, np);
 		return -1;
@@ -1110,6 +1161,16 @@ check_expr(int n, node_t *np)
 	    if (np->left->desc.units.dimSpace != np->right->desc.units.dimSpace ||
 	        np->left->desc.units.scaleSpace != np->right->desc.units.scaleSpace)
 		{
+#ifdef PCP_DEBUG
+		if ((pmDebug & DBG_TRACE_DERIVE) && (pmDebug & DBG_TRACE_APPL1)) {
+		    char	strbuf[60];
+
+		    pmUnitsStr_r(&np->left->desc.units, strbuf, sizeof(strbuf));
+		    fprintf(stderr, "Semantic error: ternary op units (space): left=%s (dim=%d scale=%d)", strbuf, np->left->desc.units.dimSpace, np->left->desc.units.scaleSpace);
+		    pmUnitsStr_r(&np->right->desc.units, strbuf, sizeof(strbuf));
+		    fprintf(stderr, " right=%s (dim=%d scale=%d)\n", strbuf, np->right->desc.units.dimSpace, np->right->desc.units.scaleSpace);
+		}
+#endif
 		PM_TPD(derive_errmsg) = "Different units or scale (space) for ternary operands";
 		report_sem_error(registered.mlist[n].name, np);
 		return -1;
@@ -1117,6 +1178,16 @@ check_expr(int n, node_t *np)
 	    if (np->left->desc.units.dimTime != np->right->desc.units.dimTime ||
 	        np->left->desc.units.scaleTime != np->right->desc.units.scaleTime)
 		{
+#ifdef PCP_DEBUG
+		if ((pmDebug & DBG_TRACE_DERIVE) && (pmDebug & DBG_TRACE_APPL1)) {
+		    char	strbuf[60];
+
+		    pmUnitsStr_r(&np->left->desc.units, strbuf, sizeof(strbuf));
+		    fprintf(stderr, "Semantic error: ternary op units (time): left=%s", strbuf);
+		    pmUnitsStr_r(&np->right->desc.units, strbuf, sizeof(strbuf));
+		    fprintf(stderr, " right=%s\n", strbuf);
+		}
+#endif
 		PM_TPD(derive_errmsg) = "Different units or scale (time) for ternary operands";
 		report_sem_error(registered.mlist[n].name, np);
 		return -1;
@@ -1124,6 +1195,16 @@ check_expr(int n, node_t *np)
 	    if (np->left->desc.units.dimCount != np->right->desc.units.dimCount ||
 	        np->left->desc.units.scaleCount != np->right->desc.units.scaleCount)
 		{
+#ifdef PCP_DEBUG
+		if ((pmDebug & DBG_TRACE_DERIVE) && (pmDebug & DBG_TRACE_APPL1)) {
+		    char	strbuf[60];
+
+		    pmUnitsStr_r(&np->left->desc.units, strbuf, sizeof(strbuf));
+		    fprintf(stderr, "Semantic error: ternary op units (count): left=%s", strbuf);
+		    pmUnitsStr_r(&np->right->desc.units, strbuf, sizeof(strbuf));
+		    fprintf(stderr, " right=%s\n", strbuf);
+		}
+#endif
 		PM_TPD(derive_errmsg) = "Different units or scale (count) for ternary operands";
 		report_sem_error(registered.mlist[n].name, np);
 		return -1;
@@ -1879,7 +1960,7 @@ __dmchildren(__pmContext *ctxp, const char *name, char ***offspring, int **statu
 		children[num_chn-1][len] = '\0';
 		need += len+1;
 #ifdef PCP_DEBUG
-		if ((pmDebug & DBG_TRACE_DERIVE) && (pmDebug & DBG_TRACE_APPL1)) {
+		if ((pmDebug & DBG_TRACE_DERIVE) && (pmDebug & DBG_TRACE_APPL2)) {
 		    fprintf(stderr, "__dmchildren: offspring[%d] %s", num_chn-1, children[num_chn-1]);
 		}
 #endif
@@ -1892,13 +1973,13 @@ __dmchildren(__pmContext *ctxp, const char *name, char ***offspring, int **statu
 		    }
 		    status[num_chn-1] = cp->mlist[i].name[start+len] == '\0' ? PMNS_LEAF_STATUS : PMNS_NONLEAF_STATUS;
 #ifdef PCP_DEBUG
-		    if ((pmDebug & DBG_TRACE_DERIVE) && (pmDebug & DBG_TRACE_APPL1)) {
+		    if ((pmDebug & DBG_TRACE_DERIVE) && (pmDebug & DBG_TRACE_APPL2)) {
 			fprintf(stderr, " (status=%d)", status[num_chn-1]);
 		}
 #endif
 		}
 #ifdef PCP_DEBUG
-		if ((pmDebug & DBG_TRACE_DERIVE) && (pmDebug & DBG_TRACE_APPL1)) {
+		if ((pmDebug & DBG_TRACE_DERIVE) && (pmDebug & DBG_TRACE_APPL2)) {
 		    fputc('\n', stderr);
 		}
 #endif

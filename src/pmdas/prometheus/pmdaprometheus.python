@@ -138,7 +138,7 @@ class ScanPrometheus(object):
 			config["filepath"] = os.path.abspath(self.filepath)
 		else:
 			config["endpoint"] = self.endpoint
-		raw_config = json.dumps(config, indent=2)
+		raw_config = json.dumps(config, sort_keys=True, indent=2)
 		filename = os.getenv('PCP_PMDAS_DIR') + \
 					"/prometheus/metadata/" + self.name + ".json"
 		if not os.path.exists(os.path.dirname(filename)):
@@ -176,17 +176,44 @@ class ScanPrometheus(object):
 		type_ = lines[1].split(' ')[3]
 		return (description, name, type_)
 
-	def get_metric_instance(self, line):
+	def get_metric_instance(self, s):
 		# Returns the instances of the Prometheus metric
 		# labels of Prometheus metric is translated into the labels
-		tokens = line.split(' ')
-		p_name = tokens[0]
-		name = p_name
-		instance = None
-		if name.rfind('}') != -1:
-			name = name[:name.find('{')]
-			instance = "::".join(p_name[p_name.find('{') + 1 : len(p_name) - 1].split(','))
-		return (p_name, name ,instance)
+		i = 0
+		while i < len(s) and s[i]!=' ' and s[i]!='{':
+			i+=1
+		if i==len(s):
+			raise Exception("Incorrect metric line: %s" % s)
+		# Metric without instances
+		if s[i]==' ':
+			return (s[:i], s[:i], None)
+
+		name = s[:i]
+		instance = []
+		while s[i]!='}':
+			j = i + s[i:].find('=')
+			if j==-1:
+				raise Exception("Incorrect metric line: %s" % s)
+			j += 2
+			while j < len(s):
+				if s[j] == '"' and s[j-1] != '\\':
+					break
+				j += 1
+			instance.append(s[i+1: j+1])
+			i = j+1
+		return (s[:i+1], name, "::".join(instance))
+
+	def get_metric_units(self, name):
+		if name.endswith("_seconds"):
+			return pmContext.pmUnitsStr(pmUnits(0,1,0,0,3))
+		elif name.endswith("_microseconds"):
+			return pmContext.pmUnitsStr(pmUnits(0,1,0,0,1))
+		elif name.endswith("_bytes"):
+			return pmContext.pmUnitsStr(pmUnits(1))
+		elif name.endswith("_count") or name.endswith("_total") \
+			or name.endswith("_sum"):
+			return pmContext.pmUnitsStr(pmUnits(0,0,1))
+		return ""
 
 	def parse_metric(self, lines):
 		''' Iterates over the instances of a metric '''
@@ -195,11 +222,11 @@ class ScanPrometheus(object):
 		metric.name = name
 		metric.description = description
 		metric.type = DOUBLE
+		metric.units_str = self.get_metric_units(name)
 		if type_ == "counter":
 			metric.semantics = COUNTER
 		else:
 			metric.semantics = INSTANT
-		metric.units_str = ""
 
 		for line in lines[2:]:
 			(prometheus_name, name, instance) = self.get_metric_instance(line)
@@ -218,13 +245,16 @@ class ScanPrometheus(object):
 		lines = self.raw_metrics.splitlines()
 		lineIter = 0
 		while lineIter<len(lines):
-			if len(lines[lineIter]) == 0 or lines[lineIter][0] != "#" \
+			if len(lines[lineIter]) == 0:
+				return
+			if lines[lineIter][0] != "#" \
 				or lines[lineIter+1][0] != '#':
 				raise ValueError("Invalid format of Prometheus metrics metadata"
 					"\n%s" %(lines[lineIter]))
 			metricLines = [lines[lineIter], lines[lineIter+1]]
 			metricIter = lineIter + 2
-			while (metricIter < len(lines) and lines[metricIter][0] != '#'):
+			while (metricIter < len(lines) and len(lines[metricIter])!=0 \
+				and lines[metricIter][0] != '#'):
 				metricLines.append(lines[metricIter])
 				metricIter += 1
 			lineIter = metricIter
@@ -232,7 +262,7 @@ class ScanPrometheus(object):
 
 class Metric(object):
 	''' Metric information class '''
-	__name_re = re.compile(r'^[a-zA-Z][\w_\.]+$')
+	__name_re = re.compile(r'^[a-zA-Z][\w_\.:]+$')
 	def __init__(self, name_prefix, cluster, pmda):
 		self.description = ''
 		self.__name = ''
@@ -315,7 +345,8 @@ class Metric(object):
 			if not SEMANTICS.get(semantics):
 				raise ValueError("Invalid semantic: %s" %(semantics))
 			self.semantics = SEMANTICS.get(semantics)
-
+			(unit, val) = pmContext.pmParseUnitsStr(json_obj["units_str"])
+			self.__units_val = unit
 			self.units_str = json_obj["units_str"]
 			self.prometheus_name = json_obj.get("prometheus_name")
 			self.instances = json_obj.get("instances")
@@ -712,10 +743,12 @@ class PrometheusSource(object):
 		lines = raw_data.splitlines()
 		self.metrics_value = {}
 		for line in lines:
-			tokens = line.split(' ')
-			if tokens[0] == '#':
+			if line[0] == '#':
 				continue
-			self.metrics_value[tokens[0]] = float(tokens[1])
+			pos = line.rfind(' ')
+			name = line[:pos]
+			value = line[pos+1:]
+			self.metrics_value[name] = float(value)
 
 	def refresh_metrics(self):
 		''' Refreshes the metric values of this cluster'''
@@ -730,7 +763,7 @@ class PrometheusSource(object):
 				self.parse_metrics_values(data)
 				self.fetch_failed = False
 		except Exception as e:
-			self.log(str(e))
+			self.log("Fetching metrics from endpoint failed : %s"%e)
 			self.fetch_failed = True
 
 	def reload_metadata(self):
@@ -842,7 +875,7 @@ class PrometheusPMDA(PMDA):
 						metric_info.description)
 
 	def load_prometheus_sources(self):
-		''' Initializes the PrometheusSource for all the Prometheus sources '''
+		''' Initializes the PrometheusSource for all the Prometheus sources'''
 		paths_seen = []
 		new_source_seen = False
 		for root, dirs, files in os.walk(self.dir):
@@ -874,9 +907,8 @@ class PrometheusPMDA(PMDA):
 								 " max cluster reached" % root)
 						continue
 
-				if self.debug:
-					self.log("Adding source '%s', cluster_idx %d"
-							 % (source.name, cluster_idx))
+				self.log("Adding source '%s', cluster_idx %d"
+					% (source.name, cluster_idx))
 				self.cluster_cache.add_value(source.name, cluster_idx)
 				source.cluster = cluster_idx
 				self.source_by_cluster[cluster_idx] = source
@@ -886,8 +918,10 @@ class PrometheusPMDA(PMDA):
 		if new_source_seen:
 			self.cluster_cache.refresh()
 		# Remove sources whose metadata has been deleted
-		for path in self.source_by_path:
+		for path in self.source_by_path.copy().keys():
 			if path not in paths_seen:
+				self.log("Removing source with path = '%s'"
+					% path)
 				source = self.source_by_path[path]
 				source.remove_all()
 				self.source_by_path.pop(path)
@@ -900,6 +934,8 @@ class PrometheusPMDA(PMDA):
 		# Lookup the metadata directory for any new source
 		if self.dir_mtime < os.stat(self.dir).st_mtime:
 			self.dir_mtime = os.stat(self.dir).st_mtime
+			self.log("Metadata directory has changed, "
+				"reloading prometheus sources")
 			self.load_prometheus_sources()
 		# Count the number of times fetch called
 		self.numfetch += 1
@@ -939,6 +975,10 @@ class PrometheusPMDA(PMDA):
 		return c_api.PM_ERR_PMID
 
 	def refresh_metadata_helper(self):
+		''' Creates subprocess to refresh the metadata of sources
+			Invoked on every fetch but forks a sub process based on
+			metadata_refresh_frequency
+		'''
 		curr_time = time.time()
 		if (curr_time - self.last_refresh_time) >= self.metadata_refresh_frequency:
 			if self.refresh_process is not None and \
@@ -947,7 +987,6 @@ class PrometheusPMDA(PMDA):
 			self.refresh_process = Process(target=self.refresh_metadata)
 			self.refresh_process.start()
 			self.last_refresh_time = time.time()
-
 
 	def refresh_metadata(self):
 		if len(self.source_by_cluster) == 0:
@@ -970,6 +1009,8 @@ class PrometheusPMDA(PMDA):
 				metadata.get('metrics'))
 
 			if len(changes) > 0:
+				self.log("Metadata of source with cluster_idx '%d' has changed"
+					% i)
 				metrics_arr = []
 				for name in metrics:
 					metrics_arr.append(metrics[name])
@@ -978,20 +1019,22 @@ class PrometheusPMDA(PMDA):
 					f.write(json.dumps(metadata, indent=2))
 					f.close()
 
-
 	def refresh_worker(self, *clusters):
 		''' Worker targeted by refresh_all() to refresh metrics values'''
 		for i in clusters:
 			if i==0:
 				continue
-			self.source_by_cluster[i].refresh_metrics()
+			try:
+				self.source_by_cluster[i].refresh_metrics()
+			except:
+				self.log("Refresh metric failed for cluster_idx '%d'" % i)
 
 	def refresh_all(self, clusters):
 		''' Called once before fetch callbacks
 			Creates threads to parallely update the metric values
 		'''
 		# slicelen defines the number of clusters each thread should handle
-		slicelen = math.ceil(len(clusters)/float(self.num_threads))
+		slicelen = int(math.ceil(len(clusters)/float(self.num_threads)))
 		index = 0
 		threads = []
 
@@ -1012,15 +1055,17 @@ class PrometheusPMDA(PMDA):
 	def refresh_metrics(self):
 		''' Reload metadata of each source'''
 		if self.refresh_process is not None and \
-				self.refresh_process.is_alive() is True:
-				return
+			self.refresh_process.is_alive() is True:
+			return
 		if  self.last_refresh_time >= self.last_reload_time:
 			self.last_reload_time = time.time()
 			for i in self.source_by_cluster:
 				try:
 					self.source_by_cluster[i].reload_metadata()
 				except:
-					pass
+					self.log("Reload metadata failed for cluster_idx '%d'"
+						% i)
+
 
 if __name__ == '__main__':
 	'''
@@ -1033,6 +1078,7 @@ if __name__ == '__main__':
 	parser.add_argument('-u','--url', help='Prometheus endpoint whose metadata has to be generated')
 	parser.add_argument('-f','--filepath', help='Prometheus file based endpoint whose metadata has to be generated')
 	parser.add_argument('-n','--name', help="Name to be used as the Prometheus cluster name")
+	parser.add_argument('-r','--runtime', help="Generate the metrics at runtime when the endpoint is reachable", action="store_true")
 	args = parser.parse_args()
 
 	# If generate then scan the metrics and produce the metadata JSON
@@ -1041,6 +1087,9 @@ if __name__ == '__main__':
 			parser.error("Name and url or filepath of the endpoint required")
 			sys.exit(1)
 		scan = ScanPrometheus(args.name, args.url, args.filepath)
-		scan.run()
+		if args.runtime:
+			scan.save_metadata()
+		else:
+			scan.run()
 	else:
 		PrometheusPMDA('prometheus', 144).run()
