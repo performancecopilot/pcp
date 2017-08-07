@@ -6,7 +6,7 @@ import unittest
 
 
 SERVICE_PMCD = "pmcd.service"
-SERVICE_PMLOGGER = "pmcd.service"
+SERVICE_PMLOGGER = "pmlogger.service"
 
 
 PORTS_PMCD = [44321]
