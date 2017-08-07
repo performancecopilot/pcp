@@ -427,6 +427,9 @@ pmjsonGet(json_metric_desc *json_metrics, int nmetrics, pmInDom indom,
 
 parsing:
 	sts = jsmn_parse(&parser, json, json_length, json_tokens, token_count);
+	if (pmDebug & DBG_TRACE_ATTR) {
+	    fprintf(stderr, "jsmn_parse() -> %d\n", sts);
+	}
 	if (sts < 0) {
 	    if (sts == JSMN_ERROR_PART)		/* keep consuming JSON */
 		continue;
