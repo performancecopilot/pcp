@@ -17,6 +17,7 @@ Terminate PMDA if already installed ...
 Updating the PMCD control file, and notifying PMCD ...
 Check dmcache metrics have appeared ... 16 metrics and 16 values
 Check dmthin metrics have appeared ... 13 metrics and 16 values
+Check dmstats metrics have appeared ... 13 warnings, 13 metrics and 0 values
 
 === Check dm-cache metrics ===
 
@@ -161,7 +162,7 @@ dmthin.pool.discard_passdown PMID: 129.1.7 [Discards passed or not]
     Data Type: string  InDom: 129.1 0x20400001
     Semantics: instant  Units: count
 Help:
-Whether or not discards are being passed down to the underlying device. 
+Whether or not discards are being passed down to the underlying device.
     inst [0 or "yy_pool"] value "no_discard_passdown"
 
 dmthin.pool.read_mode PMID: 129.1.8 [Read mode of the thin pool]
@@ -170,7 +171,7 @@ dmthin.pool.read_mode PMID: 129.1.8 [Read mode of the thin pool]
 Help:
 Indication of whether the pool is in read/write mode or read only mode.
 In the event that the pool encounters certain types of device failures
-it will drop into read-only metadata mode. 
+it will drop into read-only metadata mode.
     inst [0 or "yy_pool"] value "rw"
 
 dmthin.pool.no_space_mode PMID: 129.1.9 [Mode used when pool is out of space]
@@ -179,7 +180,7 @@ dmthin.pool.no_space_mode PMID: 129.1.9 [Mode used when pool is out of space]
 Help:
 If the pool runs out of data or metadata space, the pool will fallback
 to either queuing or error any IO destined to the data device. The
-default is to queue until more space is added to the pool. 
+default is to queue until more space is added to the pool.
     inst [0 or "yy_pool"] value "queue_if_no_space"
 
 dmthin.pool.metadata.used PMID: 129.1.2 [Number of metadata blocks used]

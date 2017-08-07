@@ -2,12 +2,12 @@
  * Device Mapper PMDA - Thin Provisioning (dm-thin) Stats
  *
  * Copyright (c) 2015 Red Hat.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
@@ -67,7 +67,7 @@ dm_thin_pool_fetch(int item, struct pool_stats *pool_stats, pmAtomValue *atom)
         case POOL_NO_SPACE_MODE:
             atom->cp = pool_stats->no_space_mode;
             break;
-    }     
+    }
     return 1;
 }
 
@@ -91,14 +91,14 @@ dm_thin_vol_fetch(int item, struct vol_stats *vol_stats, pmAtomValue *atom)
         case VOL_HIGHEST_MAPPED_SECTORS:
             atom->ull = vol_stats->high_mapped_sector;
             break;
-    }     
+    }
     return 1;
 }
 
-/* 
+/*
  * Grab output from dmsetup status (or read in from cat when under QA),
  * Match the data to the pool which we wish to update the metrics and
- * assign the values to pool_stats. 
+ * assign the values to pool_stats.
  */
 int
 dm_refresh_thin_pool(const char *pool_name, struct pool_stats *pool_stats)
@@ -121,7 +121,7 @@ dm_refresh_thin_pool(const char *pool_name, struct pool_stats *pool_stats)
         token = strtok(NULL, ":");
 
         /* Pattern match our output to the given thin-pool status
-         * output (minus pool name). 
+         * output (minus pool name).
          * The format is:
          * <name>:<start> <end> <target>
          *   <transaction id> <used metadata blocks>/<total metadata blocks>
@@ -144,15 +144,15 @@ dm_refresh_thin_pool(const char *pool_name, struct pool_stats *pool_stats)
     }
 
     if (pclose(fp) != 0)
-        return -oserror(); 
+        return -oserror();
 
     return 0;
 }
 
-/* 
+/*
  * Grab output from dmsetup status (or read in from cat when under QA),
  * Match the data to the volume which we wish to update the metrics and
- * assign the values to vol_stats. 
+ * assign the values to vol_stats.
  */
 int
 dm_refresh_thin_vol(const char *vol_name, struct vol_stats *vol_stats)
@@ -175,7 +175,7 @@ dm_refresh_thin_vol(const char *vol_name, struct vol_stats *vol_stats)
         token = strtok(NULL, ":");
 
         /* Pattern match our output to the given thin-volume status
-         * output (minus volume name). 
+         * output (minus volume name).
          * The format is:
          * <name>:<start> <end> <target>
          *     <nr mapped sectors> <highest mapped sector>
@@ -189,7 +189,7 @@ dm_refresh_thin_vol(const char *vol_name, struct vol_stats *vol_stats)
     }
 
     if (pclose(fp) != 0)
-        return -oserror(); 
+        return -oserror();
 
     return 0;
 }
@@ -213,7 +213,7 @@ dm_thin_pool_instance_refresh(void)
 
     pmdaCacheOp(indom, PMDA_CACHE_INACTIVE);
 
-    /* 
+    /*
      * update indom cache based off of thin pools listed by dmsetup
      */
     if ((fp = popen(dm_setup_thinpool, "r")) == NULL)
@@ -237,7 +237,7 @@ dm_thin_pool_instance_refresh(void)
                     return -oserror();
                 return PM_ERR_AGAIN;
             }
-        }   
+        }
 	else if (sts < 0)
 	    continue;
 
@@ -246,7 +246,7 @@ dm_thin_pool_instance_refresh(void)
     }
 
     if (pclose(fp) != 0)
-        return -oserror(); 
+        return -oserror();
 
     return 0;
 }
@@ -270,7 +270,7 @@ dm_thin_vol_instance_refresh(void)
 
     pmdaCacheOp(indom, PMDA_CACHE_INACTIVE);
 
-    /* 
+    /*
      * update indom cache based off of thin pools listed by dmsetup
      */
     if ((fp = popen(dm_setup_thin, "r")) == NULL)
@@ -294,7 +294,7 @@ dm_thin_vol_instance_refresh(void)
                     return -oserror();
                 return PM_ERR_AGAIN;
             }
-        }   
+        }
 	else if (sts < 0)
 	    continue;
 
@@ -303,7 +303,7 @@ dm_thin_vol_instance_refresh(void)
     }
 
     if (pclose(fp) != 0)
-        return -oserror(); 
+        return -oserror();
 
     return 0;
 }

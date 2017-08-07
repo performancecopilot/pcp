@@ -320,6 +320,7 @@ _filter_top_pmns()
 	-e '/^    datatape /d' \
 	-e '/^    dbping /d' \
 	-e '/^    dmcache /d' \
+	-e '/^    dmstats /d' \
 	-e '/^    dmthin /d' \
 	-e '/^    dmf /d' \
 	-e '/^    ds389 /d' \

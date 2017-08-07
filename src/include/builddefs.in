@@ -272,6 +272,7 @@ HAVE_PYTHON_SIX = @have_python_six@
 HAVE_PYTHON_REQUESTS = @have_python_requests@
 HAVE_PYTHON_SETUPTOOLS = @have_python_setuptools@
 HAVE_PYTHON_JSONPOINTER = @have_python_jsonpointer@
+HAVE_PYTHON_ORDEREDDICT = @have_python_OrderedDict@
 
 # for building packages from external sources
 HAVE_WEBAPPS = @have_webapps@
@@ -296,6 +297,8 @@ HAVE_CAIRO = @HAVE_CAIRO@
 LIB_FOR_CAIRO = @cairo_LIBS@
 HAVE_NCURSES = @HAVE_NCURSES@
 LIB_FOR_NCURSES = @ncurses_LIBS@
+HAVE_DEVMAPPER = @HAVE_DEVMAPPER@
+LIB_FOR_DEVMAPPER = @DEVMAPPER_LIBS@
 HAVE_LIBMICROHTTPD = @HAVE_LIBMICROHTTPD@
 LIB_FOR_MICROHTTPD = @libmicrohttpd_LIBS@
 HAVE_ZLIB = @HAVE_ZLIB@

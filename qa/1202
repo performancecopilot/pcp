@@ -1,0 +1,25 @@
+#!/bin/bash
+# PCP QA Test No. 1202
+# Replay dmstats instance archive using pmrep
+#
+# Copyright (c) 2017 Fumiya Shigemitsu.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1 # failure is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+pmrep -z -a archives/dm-stats dmstats.read dmstats.reads_merged dmstats.read_bytes dmstats.reads_time \
+	dmstats.write dmstats.writes_merged dmstats.write_bytes dmstats.writes_time \
+	dmstats.in_progress dmstats.io_ticks dmstats.queue_ticks dmstats.queue_ticks dmstats.read_ticks dmstats.write_ticks
+
+status=0
+
+exit

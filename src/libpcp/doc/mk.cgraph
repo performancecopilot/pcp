@@ -234,6 +234,15 @@ s/)//
 		    pmns_lock)
 			echo pmns >>$tmp.locks
 			;;
+		    AF_lock)
+			echo AF >>$tmp.locks
+			;;
+		    secureserver_lock)
+			echo secureserver >>$tmp.locks
+			;;
+		    connect_lock)
+			echo connect >>$tmp.locks
+			;;
 		    *)
 			echo >&2 "Bad LOCK: $param"
 			exit

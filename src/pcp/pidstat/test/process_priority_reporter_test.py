@@ -38,9 +38,9 @@ class TestProcessPriorityReporter(unittest.TestCase):
         process_filter.filter_processes = Mock(return_value=self.processes)
         reporter = CpuProcessPrioritiesReporter(process_priority, process_filter, printer, self.options)
 
-        reporter.print_report(123)
+        reporter.print_report(123, "  ", "    ")
 
-        printer.assert_called_with("123\t1000\t1\t99\tFIFO\tprocess_1")
+        printer.assert_called_with("123    1000\t1\t99\tFIFO\tprocess_1")
 
     def test_print_report_with_user_name(self):
         self.options.show_process_user = 'pcp'
@@ -50,9 +50,20 @@ class TestProcessPriorityReporter(unittest.TestCase):
         process_filter.filter_processes = Mock(return_value=self.processes)
         reporter = CpuProcessPrioritiesReporter(process_priority, process_filter, printer, self.options)
 
-        reporter.print_report(123)
+        reporter.print_report(123, "  ", "    ")
 
-        printer.assert_called_with("123\tpcp\t1\t99\tFIFO\tprocess_1")
+        printer.assert_called_with("123    pcp\t1\t99\tFIFO\tprocess_1")
+
+    def test_print_report_header(self):
+        process_priority = Mock()
+        process_filter = Mock()
+        printer = Mock()
+        process_filter.filter_processes = Mock(return_value=self.processes)
+        reporter = CpuProcessPrioritiesReporter(process_priority, process_filter, printer, self.options)
+
+        reporter.print_report(123, "  ", "    ")
+
+        printer.assert_any_call("Timestamp  UID\tPID\tprio\tpolicy\tCommand")
 
 if __name__ == "__main__":
     unittest.main()
