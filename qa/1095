@@ -1,0 +1,46 @@
+#!/bin/sh
+# PCP QA Test No. 1095
+# Unterminated string in derived metrics expression ... expect
+# parser error not looping until all memory consumed or toklen*2
+# goes negative.
+# [Marko's iopct bug]
+#
+# Copyright (c) 2017 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.*
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+cat <<'End-of-File' >$tmp.config
+a.err1 = delta(disk.all.read_bytes) + delta(disk.all.write_bytes) == 0 ?  mkconst(0, type="double", semantics="instant") : 100 * (delta(sampledso.long.bin_ctr) + delta(sampledso.long.bin_ctr) - delta(sampledso.long.bin_ctr)) / (delta(disk.all.read_bytes) + delta(disk.all.write_bytes))"
+a.err2 = delta(disk.all.read_bytes) + delta(disk.all.write_bytes) == 0 ?  mkconst(0, type="double", semantics="instant
+a.err1 = delta(disk.all.read_bytes) + delta(disk.all.write_bytes) == 0 ?  mkconst(0, type="double
+End-of-File
+
+PCP_DERIVED_CONFIG=$tmp.config pminfo -d a >$tmp.out 2>$tmp.err
+
+sed <$tmp.err \
+    -e "s;$tmp;TMP;" \
+# end
+
+cat $tmp.out
+
+# success, all done
+status=0
+exit
