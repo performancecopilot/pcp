@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 1995-2001 Silicon Graphics, Inc.  All Rights Reserved.
  * Copyright (c) 2014 Ken McDonell.  All Rights Reserved.
+ * Copyright (c) 2017 Red Hat.
  *
  * Excercise __pmLogPutResult() and __pmLogPutResult2().
  */
@@ -114,8 +115,8 @@ Options:\n\
 	exit(1);
     }
 
-    fflush(ctl.l_mfp);
-    fflush(ctl.l_mdfp);
+    __pmFflush(ctl.l_mfp);
+    __pmFflush(ctl.l_mdfp);
     __pmLogPutIndex(&ctl, &epoch);
 
     pmids = (pmID *)malloc(nmetric*sizeof(pmID));
@@ -152,11 +153,11 @@ Options:\n\
 	}
 	rp->timestamp.tv_sec = ++epoch.tv_sec;
 	rp->timestamp.tv_usec = epoch.tv_usec;
-	if ((sts = __pmEncodeResult(fileno(ctl.l_mfp), rp, &pdp)) < 0) {
+	if ((sts = __pmEncodeResult(__pmFileno(ctl.l_mfp), rp, &pdp)) < 0) {
 	    fprintf(stderr, "%s: __pmEncodeResult failed: %s\n", pmProgname, pmErrStr(sts));
 	    exit(1);
 	}
-	__pmOverrideLastFd(fileno(ctl.l_mfp));
+	__pmOverrideLastFd(__pmFileno(ctl.l_mfp));
 	if (bflag) {
 	    printf("__pmLogPutResult: %d metrics ...\n", i+1);
 	    if ((sts = __pmLogPutResult(&ctl, pdp)) < 0) {
@@ -175,8 +176,8 @@ Options:\n\
 	pmFreeResult(rp);
     }
 
-    fflush(ctl.l_mfp);
-    fflush(ctl.l_mdfp);
+    __pmFflush(ctl.l_mfp);
+    __pmFflush(ctl.l_mdfp);
     __pmLogPutIndex(&ctl, &epoch);
 
     return 0;

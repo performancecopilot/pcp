@@ -546,8 +546,27 @@ PCP_3.18 {
     __pmSetFeaturesIPC;
     __pmCurrentContext;
 } PCP_3.17;
-
 PCP_3.19 {
   global:
     __pmLogRead_ctx;
 } PCP_3.18;
+PCP_3.20 {
+    __pmFopen;
+    __pmFdopen;
+    __pmFseek;
+    __pmRewind;
+    __pmFtell;
+    __pmFgetc;
+    __pmFread;
+    __pmFwrite;
+    __pmFflush;
+    __pmFsync;
+    __pmLseek;
+    __pmFstat;
+    __pmFileno;
+    __pmFeof;
+    __pmFerror;
+    __pmClearerr;
+    __pmSetvbuf;
+    __pmFclose;
+} PCP_3.19;

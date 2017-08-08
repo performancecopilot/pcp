@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2016 Red Hat.
+ * Copyright (c) 2012-2017 Red Hat.
  * Copyright (c) 1995-2001,2003 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -82,7 +82,7 @@ run_done(int sts, char *msg)
 	__pmTimeval	tmp;
 	tmp.tv_sec = (__int32_t)last_stamp.tv_sec;
 	tmp.tv_usec = (__int32_t)last_stamp.tv_usec;
-	fseek(logctl.l_mfp, last_log_offset, SEEK_SET);
+	__pmFseek(logctl.l_mfp, last_log_offset, SEEK_SET);
 	__pmLogPutIndex(&logctl, &tmp);
     }
 
@@ -318,7 +318,7 @@ do_dialog(char cmd)
 	/* hack is close enough! */
 	now = 1;
 
-    archsize = vol_bytes + ftell(logctl.l_mfp);
+    archsize = vol_bytes + __pmFtell(logctl.l_mfp);
 
     nchar = add_msg(&p, 0, "");
     p[0] = '\0';
@@ -1224,7 +1224,7 @@ main(int argc, char **argv)
 int
 newvolume(int vol_switch_type)
 {
-    FILE	*newfp;
+    __pmFILE	*newfp;
     int		nextvol = logctl.l_curvol + 1;
     time_t	now;
     static char *vol_sw_strs[] = {
@@ -1233,7 +1233,7 @@ newvolume(int vol_switch_type)
     };
 
     vol_samples_counter = 0;
-    vol_bytes += ftell(logctl.l_mfp);
+    vol_bytes += __pmFtell(logctl.l_mfp);
     if (exit_bytes != -1) {
         if (vol_bytes >= exit_bytes) 
 	    run_done(0, "Byte limit reached");
@@ -1278,7 +1278,7 @@ newvolume(int vol_switch_type)
 	 *	this happens in do_work() over in callback.c
 	 */
 
-	fclose(logctl.l_mfp);
+	__pmFclose(logctl.l_mfp);
 	logctl.l_mfp = newfp;
 	logctl.l_label.ill_vol = logctl.l_curvol = nextvol;
 	__pmLogWriteLabel(logctl.l_mfp, &logctl.l_label);
