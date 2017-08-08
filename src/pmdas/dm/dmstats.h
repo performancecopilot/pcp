@@ -22,6 +22,24 @@
 
 struct dm_histogram;
 
+enum {
+    PM_DM_STATS_READS = 0,
+    PM_DM_STATS_READS_MERGED,
+    PM_DM_STATS_READ_SECTORS,
+    PM_DM_STATS_READ_NSECS,
+    PM_DM_STATS_WRITES,
+    PM_DM_STATS_WRITES_MERGED,
+    PM_DM_STATS_WRITE_SECTORS,
+    PM_DM_STATS_WRITE_NSECS,
+    PM_DM_STATS_IO_IN_PROGRESS,
+    PM_DM_STATS_IO_NSECS,
+    PM_DM_STATS_WEIGHTED_IO_NSECS,
+    PM_DM_STATS_TOTAL_READ_NSECS,
+    PM_DM_STATS_TOTAL_WRITE_NSECS,
+
+    PM_DM_STATS_NR_COUNTERS
+};
+
 struct pm_dm_stats_counter {
 	uint64_t pm_reads;		    /* Num reads completed */
 	uint64_t pm_reads_merged;	    /* Num reads merged */
@@ -44,9 +62,9 @@ extern int pm_dm_stats_fetch(int, struct pm_dm_stats_counter *, pmAtomValue *);
 extern int pm_dm_refresh_stats_counter(const char *, struct pm_dm_stats_counter *);
 extern int pm_dm_stats_instance_refresh(void);
 #else
-#define pm_dm_stats_fetch(item, ctr, atom)      (-EOPNOTSUPP)
+#define pm_dm_stats_fetch(item, ctr, atom)      (PM_ERR_APPVERSION)
 #define pm_dm_refresh_stats_counter(s, ctr)     do { } while (0)
-#define pm_dm_stats_instance_refresh(void)      (-EOPNOTSUPP)
+#define pm_dm_stats_instance_refresh(void)      (0)
 #endif
 
 #endif

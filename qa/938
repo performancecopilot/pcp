@@ -51,6 +51,8 @@ a.m5 = sample.long.one < 0 ? sample.bin-sample.bin : sample.bin
 a.m6 = sample.bin!=100 && sample.bin!=900 && sample.bin!=500 ? sample.long.ten : sample.bin
 # indom ? indom : singular
 a.m7 = sample.bin==100 || sample.bin==900 || sample.bin==500 ? sample.bin : sample.long.ten
+# based on Marko's I/O percentage example from pcp email 03 Aug 2017
+a.m8 = delta(disk.all.read_bytes) + delta(disk.all.write_bytes) == 0 ? mkconst(0, type="double", semantics="instant") : 100 * (delta(sample.byte_ctr) + delta(sample.kbyte_ctr) - delta(sampledso.byte_ctr)) / (delta(disk.all.read_bytes) + delta(disk.all.write_bytes))
 # error cases
 a.err.m1 = sample.bin > 400 ? sample.longlong.ten : sample.bin
 a.err.m2 = sample.long.one ? sample.byte_ctr : sample.kbyte_ctr
