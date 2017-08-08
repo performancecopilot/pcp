@@ -1253,7 +1253,7 @@ metric_prometheus_batch_fetch(void *closure) {
                 if (rc < 0)
                     instance_string="";
                 else {
-                    instance_string=/*XXX: \-escape*/ string(name);
+                    instance_string= escapeString(name);
                     free (name);
                 }
                 labels = "{instance=\"" + instance_string + "\"}";

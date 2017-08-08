@@ -196,6 +196,23 @@ std::string urlencode (const std::string &foo)
     return output.str ();
 }
 
+std::string escapeString(const std::string& input) {
+    std::ostringstream ss;
+    for (std::string::const_iterator iter = input.begin(); iter != input.end(); iter++) {
+        switch (*iter) {
+            case '\\': ss << "\\\\"; break;
+            case '"': ss << "\\\""; break;
+            case '/': ss << "\\/"; break;
+            case '\b': ss << "\\b"; break;
+            case '\f': ss << "\\f"; break;
+            case '\n': ss << "\\n"; break;
+            case '\r': ss << "\\r"; break;
+            case '\t': ss << "\\t"; break;
+            default: ss << *iter; break;
+        }
+    }
+    return ss.str();
+}
 
 /* Compress given input string via libz into a new malloc()-allocated buffer.
    Return compressed data length via *output_length.  Return NULL in case
