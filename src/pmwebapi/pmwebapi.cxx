@@ -62,7 +62,7 @@ struct webcontext {
     map <pmID, string> metric_name_cache;
     map <pmID, pmDesc> metric_desc_cache;
     map <pmID, string> metric_text_cache;
-
+    map <pmID, map<int, string> > metric_inst_cache;
     ~webcontext ();
 };
 
@@ -1227,6 +1227,9 @@ metric_prometheus_batch_fetch(void *closure) {
 
         // Iterate over the instances
         int i;
+        if(c->metric_inst_cache.find(metric_id) == c->metric_inst_cache.end())
+            c->metric_inst_cache[metric_id] = map<int, string>();
+        map<int, string> &inst_cache = c->metric_inst_cache[metric_id];
         for (i=0; i<pv->numval; i++) {
             const pmValue* v = & pv->vlist[i];
 
@@ -1239,13 +1242,14 @@ metric_prometheus_batch_fetch(void *closure) {
             if (rc < 0) continue; // skip just this one
 
             // Compute the "label" string from the instance name
-            // XXX: should be cached
             // XXX: ... and the forthcoming "metric labels" machinery
             //      ... which cannot be cached?
             int inst = v->inst;
             string labels;
             if (inst < 0) { // not an instanced metric
                 ;
+            } else if (inst_cache.find(inst) != inst_cache.end()){
+                labels = inst_cache[inst];
             } else {
                 char *name;
                 string instance_string;
@@ -1257,6 +1261,7 @@ metric_prometheus_batch_fetch(void *closure) {
                     free (name);
                 }
                 labels = "{instance=\"" + instance_string + "\"}";
+                inst_cache[inst] = labels;
             }
 
             // Finally, output the line
