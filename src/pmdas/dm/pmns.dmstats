@@ -1,30 +1,33 @@
 /*
- * Device Mapper PMDA instance domains
+ * Copyright (c) 2017 Fumiya Shigemitsu.
  *
- * Copyright (c) 2015 Red Hat.
- * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  */
 
-#ifndef INDOM_H
-#define INDOM_H
+dmstats {
+	counter
+}
 
-enum {
-    DM_CACHE_INDOM = 0,		/* 0 -- Caches */
-    DM_THIN_POOL_INDOM = 1,	/* 1 -- Thin Pools */
-    DM_THIN_VOL_INDOM = 2,	/* 2 -- Thin Volumes */
-    DM_STATS_INDOM = 3,
-    NUM_INDOMS
-};
-
-extern pmInDom dm_indom(int);
-
-#endif /* INDOM_H */
+dmstats.counter {
+	read	            DM:3:0
+	reads_merged        DM:3:1
+	read_bytes          DM:3:2
+	reads_time          DM:3:3
+	write	            DM:3:4
+	writes_merged       DM:3:5
+	write_bytes         DM:3:6
+	writes_time         DM:3:7
+	in_progress         DM:3:8
+	io_ticks            DM:3:9
+	queue_ticks         DM:3:10
+	read_ticks          DM:3:11
+	write_ticks         DM:3:12
+}

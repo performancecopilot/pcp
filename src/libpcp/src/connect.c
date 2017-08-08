@@ -22,6 +22,29 @@
 #define MY_BUFLEN (MAXHOSTNAMELEN+10)
 #define MY_VERSION "pmproxy-client 1\n"
 
+#ifdef PM_MULTI_THREAD
+static pthread_mutex_t	connect_lock;
+#else
+void			*connect_lock;
+#endif
+
+#if defined(PM_MULTI_THREAD) && defined(PM_MULTI_THREAD_DEBUG)
+/*
+ * return true if lock == connect_lock
+ */
+int
+__pmIsConnectLock(void *lock)
+{
+    return lock == (void *)&connect_lock;
+}
+#endif
+
+void
+init_connect_lock(void)
+{
+    __pmInitMutex(&connect_lock);
+}
+
 static int
 negotiate_proxy(int fd, const char *hostname, int port)
 {
@@ -312,6 +335,8 @@ load_proxy_hostspec(pmHostSpec *proxy)
     char	errmsg[PM_MAXERRMSGLEN];
     char	*envstr;
 
+    PM_INIT_LOCKS();
+    PM_ASSERT_IS_LOCKED(connect_lock);
     PM_LOCK(__pmLock_extcall);
     if ((envstr = getenv("PMPROXY_HOST")) != NULL) {		/* THREADSAFE */
 	proxy->name = strdup(envstr);
@@ -338,7 +363,7 @@ void
 __pmConnectGetPorts(pmHostSpec *host)
 {
     PM_INIT_LOCKS();
-    PM_LOCK(__pmLock_libpcp);
+    PM_LOCK(connect_lock);
     load_pmcd_ports();
     if (__pmAddHostPorts(host, global_portlist, global_nports) < 0) {
 	__pmNotifyErr(LOG_WARNING,
@@ -347,7 +372,7 @@ __pmConnectGetPorts(pmHostSpec *host)
 	host->ports[0] = SERVER_PORT;
 	host->nports = 1;
     }
-    PM_UNLOCK(__pmLock_libpcp);
+    PM_UNLOCK(connect_lock);
 }
 
 int
@@ -366,7 +391,7 @@ __pmConnectPMCD(pmHostSpec *hosts, int nhosts, int ctxflags, __pmHashCtl *attrs)
     static pmHostSpec proxy;
 
     PM_INIT_LOCKS();
-    PM_LOCK(__pmLock_libpcp);
+    PM_LOCK(connect_lock);
     if (first_time) {
 	/*
 	 * One-trip check for use of pmproxy(1) in lieu of pmcd(1),
@@ -396,7 +421,7 @@ __pmConnectPMCD(pmHostSpec *hosts, int nhosts, int ctxflags, __pmHashCtl *attrs)
 	/*
 	 * no proxy, connecting directly to pmcd
 	 */
-	PM_UNLOCK(__pmLock_libpcp);
+	PM_UNLOCK(connect_lock);
 
 	sts = -1;
 	/* Try connecting via the local unix domain socket, if requested and supported. */
@@ -508,7 +533,7 @@ __pmConnectPMCD(pmHostSpec *hosts, int nhosts, int ctxflags, __pmHashCtl *attrs)
 			hosts[0].name, proxyhost->name, proxyport, pmErrStr_r(-neterror(), errmsg, sizeof(errmsg)));
 	    }
 #endif
-	    PM_UNLOCK(__pmLock_libpcp);
+	    PM_UNLOCK(connect_lock);
 	    return fd;
 	}
 	if ((sts = version = negotiate_proxy(fd, hosts[0].name, ports[portIx])) < 0)
@@ -533,7 +558,7 @@ __pmConnectPMCD(pmHostSpec *hosts, int nhosts, int ctxflags, __pmHashCtl *attrs)
 	    fprintf(stderr, " failed: %s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	}
 #endif
-	PM_UNLOCK(__pmLock_libpcp);
+	PM_UNLOCK(connect_lock);
 	return sts;
     }
 
@@ -544,6 +569,6 @@ __pmConnectPMCD(pmHostSpec *hosts, int nhosts, int ctxflags, __pmHashCtl *attrs)
     }
 #endif
 
-    PM_UNLOCK(__pmLock_libpcp);
+    PM_UNLOCK(connect_lock);
     return fd;
 }
