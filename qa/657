@@ -43,14 +43,20 @@ export PCPQA_SYSTEMD=no
 _install_pmda()
 {
     # install the PMDA
+    # Note: warnings from dmstats install are optional, so filter 'em out
+    #
     cd $PCP_PMDAS_DIR/$iam
     $sudo ./Remove < /dev/null >/dev/null 2>&1
     $sudo ./Install < /dev/null >$tmp.out 2>&1
-    cat $tmp.out | _filter_pmda_install | sed \
-    -e '/.*pmcd.*/d' \
-    -e '/.*pmlogger.*/d' \
-    -e '/Latest.*/d' \
-    -e '/Duplicate.*/d'
+    cat $tmp.out \
+    | _filter_pmda_install \
+    | sed \
+	-e '/.*pmcd.*/d' \
+	-e '/.*pmlogger.*/d' \
+	-e '/Latest.*/d' \
+	-e '/Duplicate.*/d' \
+	-e '/^Check dmstats metrics/s/[0-9][0-9]* warnings, //' \
+    # end
 }
 
 _remove_pmda()
