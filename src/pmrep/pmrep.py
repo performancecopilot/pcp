@@ -957,7 +957,7 @@ class PMReporter(object):
                 step = self.interval.tv_sec
                 mode |= PM_XTB_SET(PM_TIME_SEC)
             else:
-                step = self.interval.tv_sec*1000 + self.interval.tv_usec/1000
+                step = self.interval.tv_sec * 1000 + self.interval.tv_usec / 1000
                 mode |= PM_XTB_SET(PM_TIME_MSEC)
         return (mode, int(step))
 
@@ -1022,14 +1022,14 @@ class PMReporter(object):
         else:
             self.repeat_header = 0
 
-        # Just checking
-        if self.check == 1:
-            return
-
         # Archive fetching mode
         if self.context.type == PM_CONTEXT_ARCHIVE:
             (mode, step) = self.get_mode_step()
             self.context.pmSetMode(mode, self.opts.pmGetOptionOrigin(), step)
+
+        # Just checking
+        if self.check == 1:
+            return
 
         lines = 0
         while self.samples != 0:
