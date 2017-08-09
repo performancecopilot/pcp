@@ -678,7 +678,7 @@ static int perf_setup_dynamic_events(perfdata_t *inst,
 				     pmcsetting_t *dynamic_setting,
 				     struct pmu *pmu_list)
 {
-    int i, ncpus, ret = 0, *cpuarr = NULL, nevents = inst->nevents;
+    int i, ncpus, ret = 0, *cpuarr = NULL, nevents = inst->nevents, *cpumask = NULL;
     event_t *events = inst->events;
     archinfo_t *archinfo = inst->archinfo;
     struct pmu *pmu_ptr;
@@ -707,15 +707,17 @@ static int perf_setup_dynamic_events(perfdata_t *inst,
                 free(inst->events);
                 inst->nevents = 0;
                 inst->events = NULL;
-                if (cpuarr) free(cpuarr);
+                free(cpumask);
                 return -E_PERFEVENT_REALLOC;
             }
 
-            setup_cpu_config(pmu_ptr, &ncpus, &cpuarr);
+            setup_cpu_config(pmu_ptr, &ncpus, &cpumask);
 
             if (ncpus <= 0) { /* Assume default cpu set */
                 cpuarr = archinfo->cpus.index;
                 ncpus = archinfo->cpus.count;
+            } else {
+                cpuarr = cpumask;
             }
 
             event_t *curr = events + nevents;
@@ -765,9 +767,8 @@ static int perf_setup_dynamic_events(perfdata_t *inst,
                 ++(curr->ncpus);
             }
 
-            if (ncpus > 0)
-                 free(cpuarr);
-	    cpuarr = NULL;
+            free(cpumask);
+            cpumask = NULL;
 
             if(curr->ncpus > 0) {
                 ++nevents;
