@@ -1227,7 +1227,7 @@ metric_prometheus_batch_fetch(void *closure) {
 
         // Iterate over the instances
         int i;
-        if(c->metric_inst_cache.find(metric_id) == c->metric_inst_cache.end())
+        if (c->metric_inst_cache.find(metric_id) == c->metric_inst_cache.end())
             c->metric_inst_cache[metric_id] = map<int, string>();
         map<int, string> &inst_cache = c->metric_inst_cache[metric_id];
         for (i=0; i<pv->numval; i++) {
@@ -1242,8 +1242,6 @@ metric_prometheus_batch_fetch(void *closure) {
             if (rc < 0) continue; // skip just this one
 
             // Compute the "label" string from the instance name
-            // XXX: ... and the forthcoming "metric labels" machinery
-            //      ... which cannot be cached?
             int inst = v->inst;
             string labels;
             if (inst < 0) { // not an instanced metric
