@@ -29,10 +29,14 @@ refresh_proc_fs_nfsd(proc_fs_nfsd_t *proc_fs_nfsd)
     if ((threadsp = linux_statsfile("/proc/fs/nfsd/pool_threads",
 				    buf, sizeof(buf))) == NULL) {
 	proc_fs_nfsd->errcode = -oserror();
-	if (err_reported == 0)
-	    fprintf(stderr, "Warning: nfsd thread metrics are not available : %s\n",
-		    osstrerror());
+#if PCP_DEBUG
+	if (pmDebug & DBG_TRACE_LIBPMDA) {
+	    if (err_reported == 0)
+		fprintf(stderr, "Warning: nfsd thread metrics are not available : %s\n",
+			osstrerror());
+	}
     }
+#endif
     else {
 	proc_fs_nfsd->errcode = 0;
 	if (fscanf(threadsp,  "%d", &proc_fs_nfsd->th_cnt) != 1)
