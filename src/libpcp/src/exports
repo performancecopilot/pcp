@@ -552,6 +552,27 @@ PCP_3.19 {
 } PCP_3.18;
 
 PCP_3.20 {
+    __pmFopen;
+    __pmFdopen;
+    __pmFseek;
+    __pmRewind;
+    __pmFtell;
+    __pmFgetc;
+    __pmFread;
+    __pmFwrite;
+    __pmFflush;
+    __pmFsync;
+    __pmLseek;
+    __pmFstat;
+    __pmFileno;
+    __pmFeof;
+    __pmFerror;
+    __pmClearerr;
+    __pmSetvbuf;
+    __pmFclose;
+} PCP_3.19;
+
+PCP_3.30 {
   global:
     pmGetContextLabels;
     pmGetDomainLabels;
@@ -579,4 +600,4 @@ PCP_3.20 {
     __pmRecvLabelReq;
     __pmDecodeLabel;
     __pmDecodeLabelReq;
-} PCP_3.19;
+} PCP_3.20;

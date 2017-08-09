@@ -1,7 +1,7 @@
 /*
  * pmlogextract - extract desired metrics from PCP archive logs
  *
- * Copyright (c) 2014,2016 Red Hat.
+ * Copyright (c) 2014,2017 Red Hat.
  * Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -370,15 +370,15 @@ abandon_extract(void)
  *  report that archive is corrupted
  */
 static void
-_report(FILE *fp)
+_report(__pmFILE *fp)
 {
     off_t	here;
     struct stat	sbuf;
 
-    here = lseek(fileno(fp), 0L, SEEK_CUR);
+    here = __pmLseek(fp, 0L, SEEK_CUR);
     fprintf(stderr, "%s: Error occurred at byte offset %ld into a file of",
 	    pmProgname, (long int)here);
-    if (fstat(fileno(fp), &sbuf) < 0)
+    if (__pmFstat(fp, &sbuf) < 0)
 	fprintf(stderr, ": stat: %s\n", osstrerror());
     else
 	fprintf(stderr, " %ld bytes.\n", (long int)sbuf.st_size);
@@ -392,16 +392,16 @@ _report(FILE *fp)
 static void
 newvolume(char *base, __pmTimeval *tvp)
 {
-    FILE		*newfp;
+    __pmFILE		*newfp;
     int			nextvol = logctl.l_curvol + 1;
 
     if ((newfp = __pmLogNewFile(base, nextvol)) != NULL) {
 	struct timeval	stamp;
-	fclose(logctl.l_mfp);
+	__pmFclose(logctl.l_mfp);
 	logctl.l_mfp = newfp;
 	logctl.l_label.ill_vol = logctl.l_curvol = nextvol;
 	__pmLogWriteLabel(logctl.l_mfp, &logctl.l_label);
-	fflush(logctl.l_mfp);
+	__pmFflush(logctl.l_mfp);
 	stamp.tv_sec = ntohl(tvp->tv_sec);
 	stamp.tv_usec = ntohl(tvp->tv_usec);
 	fprintf(stderr, "%s: New log volume %d, at ", pmProgname, nextvol);
@@ -513,11 +513,11 @@ newlabel(void)
 void
 writelabel_metati(int do_rewind)
 {
-    if (do_rewind) rewind(logctl.l_tifp);
+    if (do_rewind) __pmRewind(logctl.l_tifp);
     logctl.l_label.ill_vol = PM_LOG_VOL_TI;
     __pmLogWriteLabel(logctl.l_tifp, &logctl.l_label);
 
-    if (do_rewind) rewind(logctl.l_mdfp);
+    if (do_rewind) __pmRewind(logctl.l_mdfp);
     logctl.l_label.ill_vol = PM_LOG_VOL_META;
     __pmLogWriteLabel(logctl.l_mdfp, &logctl.l_label);
 }
@@ -884,7 +884,7 @@ write_rec(reclist_t *rec)
 	    len = ntohl(h->len);
 	    type = ntohl(h->type);
 	    fprintf(stderr, "write_rec: record len=%d, type=%d @ offset=%d\n",
-	    	len, type, (int)(ftell(logctl.l_mdfp) - sizeof(__pmLogHdr)));
+	    	len, type, (int)(__pmFtell(logctl.l_mdfp) - sizeof(__pmLogHdr)));
 	    if (type == TYPE_DESC) {
 		pmDesc	*dp;
 		pmDesc	desc;
@@ -1672,7 +1672,7 @@ fprintf(stderr, " break!\n");
 	 * Even without a -v option, we may need to switch volumes
 	 * if the data file exceeds 2^31-1 bytes
 	 */
-	peek_offset = ftell(logctl.l_mfp);
+	peek_offset = __pmFtell(logctl.l_mfp);
 	peek_offset += ((__pmPDUHdr *)pb)->len - sizeof(__pmPDUHdr) + 2*sizeof(int);
 	if (peek_offset > 0x7fffffff) {
 	    newvolume(outarchname, (__pmTimeval *)&pb[3]);
@@ -1683,7 +1683,7 @@ fprintf(stderr, " break!\n");
 	write_metareclist(elm->res, &needti);
 
 	/* write out log record */
-	old_log_offset = ftell(logctl.l_mfp);
+	old_log_offset = __pmFtell(logctl.l_mfp);
 	assert(old_log_offset >= 0);
 	if ((sts = __pmLogPutResult2(&logctl, pb)) < 0) {
 	    fprintf(stderr, "%s: Error: __pmLogPutResult2: log data: %s\n",
@@ -1696,7 +1696,7 @@ fprintf(stderr, " break!\n");
 	/* check whether we need to write TI (temporal index) */
 	if (old_log_offset == 0 ||
 	    old_log_offset == sizeof(__pmLogLabel)+2*sizeof(int) ||
-	    ftell(logctl.l_mfp) > flushsize)
+	    __pmFtell(logctl.l_mfp) > flushsize)
 		needti = 1;
 
 	/* make sure that we do not write out the temporal index more
@@ -1709,31 +1709,31 @@ fprintf(stderr, " break!\n");
 	if (needti) {
 	    titime = restime;
 
-	    fflush(logctl.l_mfp);
-	    fflush(logctl.l_mdfp);
+	    __pmFflush(logctl.l_mfp);
+	    __pmFflush(logctl.l_mdfp);
 
 	    if (old_log_offset == 0)
 		old_log_offset = sizeof(__pmLogLabel)+2*sizeof(int);
 
-            new_log_offset = ftell(logctl.l_mfp);
+            new_log_offset = __pmFtell(logctl.l_mfp);
 	    assert(new_log_offset >= 0);
-            new_meta_offset = ftell(logctl.l_mdfp);
+            new_meta_offset = __pmFtell(logctl.l_mdfp);
 	    assert(new_meta_offset >= 0);
 
-            fseek(logctl.l_mfp, (long)old_log_offset, SEEK_SET);
-            fseek(logctl.l_mdfp, (long)old_meta_offset, SEEK_SET);
+            __pmFseek(logctl.l_mfp, (long)old_log_offset, SEEK_SET);
+            __pmFseek(logctl.l_mdfp, (long)old_meta_offset, SEEK_SET);
 
             __pmLogPutIndex(&logctl, &restime);
 
-            fseek(logctl.l_mfp, (long)new_log_offset, SEEK_SET);
-            fseek(logctl.l_mdfp, (long)new_meta_offset, SEEK_SET);
+            __pmFseek(logctl.l_mfp, (long)new_log_offset, SEEK_SET);
+            __pmFseek(logctl.l_mdfp, (long)new_meta_offset, SEEK_SET);
 
-            old_log_offset = ftell(logctl.l_mfp);
+            old_log_offset = __pmFtell(logctl.l_mfp);
 	    assert(old_log_offset >= 0);
-            old_meta_offset = ftell(logctl.l_mdfp);
+            old_meta_offset = __pmFtell(logctl.l_mdfp);
 	    assert(old_meta_offset >= 0);
 
-            flushsize = ftell(logctl.l_mfp) + 100000;
+            flushsize = __pmFtell(logctl.l_mfp) + 100000;
         }
 
 	/* free PDU buffer */
@@ -2019,7 +2019,7 @@ main(int argc, char **argv)
 	ilog = -1;
 	curlog.tv_sec = 0;
 	curlog.tv_usec = 0;
-	old_meta_offset = ftell(logctl.l_mdfp);
+	old_meta_offset = __pmFtell(logctl.l_mdfp);
 	assert(old_meta_offset >= 0);
 
 	/* nextlog() resets ilog, and curlog (to the smallest timestamp)
@@ -2154,15 +2154,15 @@ cleanup:
     }
     else {
 	/* write the last time stamp */
-	fflush(logctl.l_mfp);
-	fflush(logctl.l_mdfp);
+	__pmFflush(logctl.l_mfp);
+	__pmFflush(logctl.l_mdfp);
 
 	if (old_log_offset == 0)
 	    old_log_offset = sizeof(__pmLogLabel)+2*sizeof(int);
 
-	new_log_offset = ftell(logctl.l_mfp);
+	new_log_offset = __pmFtell(logctl.l_mfp);
 	assert(new_log_offset >= 0);
-	new_meta_offset = ftell(logctl.l_mdfp);
+	new_meta_offset = __pmFtell(logctl.l_mdfp);
 	assert(new_meta_offset >= 0);
 
 #if 0
@@ -2170,7 +2170,7 @@ cleanup:
 	    mintime.tv_sec, mintime.tv_usec, tmptime.tv_sec, tmptime.tv_usec, logend.tv_sec, logend.tv_usec, winend.tv_sec, winend.tv_usec, current.tv_sec, current.tv_usec);
 #endif
 
-	fseek(logctl.l_mfp, old_log_offset, SEEK_SET);
+	__pmFseek(logctl.l_mfp, old_log_offset, SEEK_SET);
 	__pmLogPutIndex(&logctl, &current);
 
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 Red Hat.
+ * Copyright (c) 2012-2017 Red Hat.
  * Copyright (c) 1995-2001 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -1283,7 +1283,7 @@ sendstatus(void)
 	ls.ls_timenow.tv_sec = (__int32_t)now.tv_sec;
 	ls.ls_timenow.tv_usec = (__int32_t)now.tv_usec;
 	ls.ls_vol = logctl.l_curvol;
-	ls.ls_size = ftell(logctl.l_mfp);
+	ls.ls_size = __pmFtell(logctl.l_mfp);
 	assert(ls.ls_size >= 0);
 
 	/* be careful of buffer size mismatches when copying strings */
