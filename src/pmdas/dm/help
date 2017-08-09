@@ -123,45 +123,45 @@ The total number of mapped sectors to the thin volume.
 @ dmthin.vol.highest_mapped_sector Highest mapped sector
 The highest mapped sector of the thin volume.
 
-@ dmstats.counter.read The number of reads completed
+@ dmstats.read The number of reads completed
 Count of reads completed this interval per dm device.
 
-@ dmstats.counter.reads_merged The number of reads merged
+@ dmstats.reads_merged The number of reads merged
 Count of reads merged this interval per dm device.
 
-@ dmstats.counter.read_bytes The number of kbyte read
+@ dmstats.read_bytes The number of kbyte read
 Count of kbyte read this inteval per dm device.
 
-@ dmstats.counter.reads_time The number of nanoseconds spent reading
+@ dmstats.reads_time The number of nanoseconds spent reading
 Accumulated duration of all read request per dm device.
 
-@ dmstats.counter.write The number of writes completed
+@ dmstats.write The number of writes completed
 Count of writes completed this interval per dm-device.
 
-@ dmstats.counter.writes_merged The number of writes merged
+@ dmstats.writes_merged The number of writes merged
 Count of writes merged this interval per dm device.
 
-@ dmstats.counter.write_bytes The number of kbyte written
+@ dmstats.write_bytes The number of kbyte written
 Count of kbytes writes this interval per dm-device.
 
-@ dmstats.counter.writes_time The number of nanoseconds spent writing
+@ dmstats.writes_time The number of nanoseconds spent writing
 Accumulated duration of all write requests per dm device.
 
-@ dmstats.counter.in_progress The number of I/Os
+@ dmstats.in_progress The number of I/Os
 Count of requests currently in progress per dm device.
 
-@ dmstats.counter.io_ticks The number of nanoseconds spend doing I/Os
+@ dmstats.io_ticks The number of nanoseconds spend doing I/Os
 Nanoseconds spent servicing requestst per dm device.
 
-@ dmstats.counter.queue_ticks The weighted number of nanoseconds spend doing I/Os
+@ dmstats.queue_ticks The weighted number of nanoseconds spend doing I/Os
 This field is incremented at each I/O start, I/O completion, I/O merge,
 or read of these stats by the number of I/Os in progress multiplied by
 the number of nanoseconds spent doing I/O since the last update of
 this field. This can provide an easy measure of both I/O completion time
 and the backlog that may be accumulating.
 
-@ dmstats.counter.read_ticks The total time spent reading
+@ dmstats.read_ticks The total time spent reading
 Nanoseconds spent servicing reads per dm device.
 
-@ dmstats.counter.write_ticks The total time spent writing
+@ dmstats.write_ticks The total time spent writing
 Nanoseconds spent servicing writes per dm device.

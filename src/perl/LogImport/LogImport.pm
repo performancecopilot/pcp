@@ -178,7 +178,7 @@ Further details can be found at http://www.pcp.io
 
 =head1 AUTHOR
 
-Ken McDonell, E<lt>kenj@internode.on.netE<gt>
+Ken McDonell, E<lt>kenj@kenj.id.auE<gt>
 
 Copyright (C) 2010 by Ken McDonell.
 
