@@ -197,7 +197,7 @@ struct __pmHostEnt {
     __pmAddrInfo	*addresses;
 };
 
-extern const __pmAddrInfo *__pmHostEntGetAddrInfo(const __pmHostEnt *, const void *);
+extern const __pmAddrInfo *__pmHostEntGetAddrInfo(const __pmHostEnt *, const void *) _PCP_HIDDEN;
 #endif
 
 extern unsigned __pmFirstInetSubnetAddr(unsigned, int) _PCP_HIDDEN;
