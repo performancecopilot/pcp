@@ -2911,24 +2911,18 @@ sample_label_item(pmID pmid, pmLabelSet **lp)
 }
 
 static int
-sample_label_cb(pmDesc *descp, unsigned int inst, pmLabelSet **lp)
+sample_label_cb(pmInDom indom, unsigned int inst, pmLabelSet **lp)
 {
-    __pmID_int	*pmidp = (__pmID_int *)&(descp->pmid);
-    pmInDom	indom = descp->indom;
-
     if (indom == indomtab[BIN_INDOM].it_indom ||
 	indom == indomtab[SCRAMBLE_INDOM].it_indom) {
 	pmdaAddLabels(lp, "{\"bin\":%u}\n", inst);
 	return 1;
     }
-
-    if (pmidp->item == 37 ||	/* mirage */
-	pmidp->item == 38) {	/* mirage_longlong */
+    if (indom == indomtab[MIRAGE_INDOM].it_indom) {
 	/* instance zero is always present, the rest come and go */
 	pmdaAddLabels(lp, "{\"transient\":%s}", inst ? "true" : "false");
 	return 1;
     }
-
     return 0;
 }
 
@@ -2988,7 +2982,7 @@ sample_label_insts(pmID pmid, pmLabelSet **lpp)
     *lpp = lp;
     for (i = 0; i < numinst; i++, lp++) {
 	lp->inst = idp->it_set[i].i_inst;
-	sample_label_cb(dp, lp->inst, &lp);
+	sample_label_cb(dp->indom, lp->inst, &lp);
 	pmdaAddLabelFlags(lp, PM_LABEL_INSTANCES);
     }
     return numinst;

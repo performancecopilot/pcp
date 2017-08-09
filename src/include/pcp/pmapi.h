@@ -527,7 +527,7 @@ PCP_CALL extern int pmGetDomainLabels(int, pmLabelSet **);
 PCP_CALL extern int pmGetInDomLabels(pmInDom, pmLabelSet **);
 PCP_CALL extern int pmGetClusterLabels(pmID, pmLabelSet **);
 PCP_CALL extern int pmGetItemLabels(pmID, pmLabelSet **);
-PCP_CALL extern int pmGetInstancesLabels(pmID, pmLabelSet **);
+PCP_CALL extern int pmGetInstancesLabels(pmInDom, pmLabelSet **);
 
 PCP_CALL extern int pmLookupLabels(pmID, pmLabelSet **);
 

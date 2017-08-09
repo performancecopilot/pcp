@@ -916,9 +916,9 @@ pmGetItemLabels(pmID pmid, pmLabelSet **labels)
 }
 
 int
-pmGetInstancesLabels(pmID pmid, pmLabelSet **labels)
+pmGetInstancesLabels(pmInDom indom, pmLabelSet **labels)
 {
-    return dolabels(pmid, PM_LABEL_INSTANCES, labels);
+    return dolabels(indom, PM_LABEL_INSTANCES, labels);
 }
 
 int
@@ -980,7 +980,7 @@ pmLookupLabels(pmID pmid, pmLabelSet **labels)
     }
 
     if (desc.indom != PM_INDOM_NULL) {
-	if ((sts = n = pmGetInstancesLabels(pmid, &lsp)) < 0)
+	if ((sts = n = pmGetInstancesLabels(desc.indom, &lsp)) < 0)
 	    goto fail;
 	if (lsp && n + count > total) {
 	    /* make space on the end for additional instance sets */

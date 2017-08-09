@@ -111,9 +111,9 @@ typedef void (*pmdaDoneCallBack)(void);
 typedef void (*pmdaEndContextCallBack)(int);
 
 /*
- * Type of function call back used by pmdaLabel.
+ * Type of function call back used by pmdaLabel for instance labels.
  */
-typedef int (*pmdaLabelCallBack)(pmdaMetric *, unsigned int, pmLabelSet **);
+typedef int (*pmdaLabelCallBack)(pmInDom, unsigned int, pmLabelSet **);
 
 
 /*

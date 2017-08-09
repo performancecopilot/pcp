@@ -456,13 +456,32 @@ myoneline(unsigned int ident, int type)
 }
 
 static void
-myinstslabels(pmDesc *dp, pmID id, pmLabelSet **sets, int nsets, char *buffer, int buflen)
+myindomlabels(pmInDom indom)
+{
+    pmLabelSet	*labels[3] = {0}; /* context+domain+indom */
+    char	buf[PM_MAXLABELJSONLEN];
+    int		sts;
+
+    labels[0] = lookup_context_labels();
+    labels[1] = lookup_domain_labels(pmInDom_domain(indom));
+    labels[2] = lookup_indom_labels(indom);
+    sts = pmMergeLabelSets(labels, 3, buf, sizeof(buf), NULL, NULL);
+
+    if (sts > 0)
+	printf("    labels %s\n", buf);
+    else if (sts < 0)
+	fprintf(stderr, "%s: indom %s labels merge failed: %s\n",
+		pmProgname, pmInDomStr(indom), pmErrStr(sts));
+}
+
+static void
+myinstslabels(pmDesc *dp, pmLabelSet **sets, int nsets, char *buffer, int buflen)
 {
     pmLabelSet	*ilabels = NULL;
     char	*iname;
     int		i, n, sts;
 
-    if ((sts = n = pmGetInstancesLabels(id, &ilabels)) > 0) {
+    if ((sts = n = pmGetInstancesLabels(dp->indom, &ilabels)) > 0) {
 	for (i = 0; i < n; i++) {
 	    if ((iname = lookup_indom_names(dp->indom, ilabels[i].inst)) < 0)
 		continue;
@@ -473,52 +492,38 @@ myinstslabels(pmDesc *dp, pmID id, pmLabelSet **sets, int nsets, char *buffer, i
 		printf("    inst [%d or \"%s\"] labels %s\n",
 			ilabels[i].inst, iname, buffer);
 	    else if (sts < 0)
-		fprintf(stderr, "%s: labels merge failed: %s\n",
-				pmProgname, pmErrStr(sts));
+		fprintf(stderr, "%s: %s instances labels merge failed: %s\n",
+			pmProgname, pmInDomStr(dp->indom), pmErrStr(sts));
 	}
 	pmFreeLabelSets(ilabels, n);
     } else if (sts < 0) {
 	fprintf(stderr, "%s: pmGetInstancesLabels[%s] failed: %s\n",
-		pmProgname, pmIDStr(id), pmErrStr(sts));
+		pmProgname, pmInDomStr(dp->indom), pmErrStr(sts));
     }
 }
 
 static void
-mylabels(unsigned int ident, int type, pmDesc *dp)
+mylabels(pmDesc *dp)
 {
     pmLabelSet	*labels[6] = {0}; /* context+domain+indom+cluster+item+insts */
     char	buf[PM_MAXLABELJSONLEN];
     int		sts = 0;
 
-    switch (type) {
-    case PM_LABEL_INDOM:
-	labels[0] = lookup_context_labels();
-	labels[1] = lookup_domain_labels(pmInDom_domain(ident));
-	labels[2] = lookup_indom_labels(ident);
-	sts = pmMergeLabelSets(labels, 3, buf, sizeof(buf), NULL, NULL);
-	break;
-
-    case PM_LABEL_INSTANCES:
-	labels[0] = lookup_context_labels();
-	labels[1] = lookup_domain_labels(pmid_domain(ident));
-	labels[2] = lookup_indom_labels(dp->indom);
-	labels[3] = lookup_cluster_labels(ident);
-	labels[4] = lookup_item_labels(ident);
-	if (dp->indom != PM_INDOM_NULL) {
-	    myinstslabels(dp, ident, labels, 6, buf, sizeof(buf));
-	    return;
-	}
-	sts = pmMergeLabelSets(labels, 5, buf, sizeof(buf), NULL, NULL);
-	break;
-
-    default:
-	break;
+    labels[0] = lookup_context_labels();
+    labels[1] = lookup_domain_labels(pmid_domain(dp->pmid));
+    labels[2] = lookup_indom_labels(dp->indom);
+    labels[3] = lookup_cluster_labels(dp->pmid);
+    labels[4] = lookup_item_labels(dp->pmid);
+    if (dp->indom != PM_INDOM_NULL) {
+	myinstslabels(dp, labels, 6, buf, sizeof(buf));
+	return;
     }
-
+    sts = pmMergeLabelSets(labels, 5, buf, sizeof(buf), NULL, NULL);
     if (sts > 0)
 	printf("    labels %s\n", buf);
     else if (sts < 0)
-	fprintf(stderr, "%s: labels merge failed: %s\n", pmProgname, pmErrStr(sts));
+	fprintf(stderr, "%s: metric %s labels merge failed: %s\n",
+		pmProgname, pmIDStr(dp->pmid), pmErrStr(sts));
 }
 
 static void
@@ -655,7 +660,7 @@ report(void)
 	if (p_value)
 	    mydump(&desc, vsp, NULL);
 	if (p_label)
-	    mylabels(pmidlist[i], PM_LABEL_INSTANCES, &desc);
+	    mylabels(&desc);
     }
 
     if (result != NULL) {
@@ -716,7 +721,7 @@ doindom(pmInDom indom)
 	myoneline(indom, PM_TEXT_INDOM);
     putchar('\n');
     if (p_label)
-	mylabels(indom, PM_LABEL_INDOM, NULL);
+	myindomlabels(indom);
     if (p_help)
 	myhelptext(indom, PM_TEXT_INDOM);
     return 0;

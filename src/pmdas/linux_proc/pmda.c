@@ -1656,12 +1656,12 @@ proc_refresh(pmdaExt *pmda, int *need_refresh)
 static int
 proc_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaExt *pmda)
 {
-    __pmInDom_int	*indomp = (__pmInDom_int *)&indom;
+    unsigned int	serial = pmInDom_serial(indom);
     int			need_refresh[NUM_CLUSTERS] = { 0 };
     char		newname[16];		/* see Note below */
     int			sts;
 
-    switch (indomp->serial) {
+    switch (serial) {
     case PROC_INDOM:
     	need_refresh[CLUSTER_PID_STAT]++;
     	need_refresh[CLUSTER_PID_STATM]++;
@@ -1714,7 +1714,7 @@ proc_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaEx
     /* no default label : pmdaInstance will pick up errors */
     }
 
-    if ((indomp->serial == PROC_INDOM || indomp->serial == HOTPROC_INDOM) &&
+    if ((serial == PROC_INDOM || serial == HOTPROC_INDOM) &&
 	inst == PM_IN_NULL && name != NULL) {
     	/*
 	 * For the proc indoms if the name is a pid (as a string), and it
@@ -1741,7 +1741,7 @@ proc_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaEx
     sts = PM_ERR_PERMISSION;
     have_access = all_access || proc_ctx_access(pmda->e_context);
     if (have_access ||
-	((indomp->serial != PROC_INDOM) && (indomp->serial != HOTPROC_INDOM))) {
+	((serial != PROC_INDOM) && (serial != HOTPROC_INDOM))) {
 	if ((sts = proc_refresh(pmda, need_refresh)) == 0)
 	    sts = pmdaInstance(indom, inst, name, result, pmda);
     }
@@ -3234,13 +3234,12 @@ proc_children(const char *name, int flag, char ***kids, int **sts, pmdaExt *pmda
 }
 
 static int
-proc_labelCallBack(pmdaMetric *mdesc, unsigned int inst, pmLabelSet **lp)
+proc_labelCallBack(pmInDom indom, unsigned int inst, pmLabelSet **lp)
 {
-    __pmInDom_int	*indomp = (__pmInDom_int *)&(mdesc->m_desc.indom);
-    char		*name, *device;
-    int			sts;
+    char	*name, *device;
+    int		sts;
 
-    switch (indomp->serial) {
+    switch (pmInDom_serial(indom)) {
     case PROC_INDOM:
     case HOTPROC_INDOM:
 	if ((sts = pmdaAddLabels(lp, "{\"pid\":%u}", inst)) < 0)
@@ -3248,7 +3247,7 @@ proc_labelCallBack(pmdaMetric *mdesc, unsigned int inst, pmLabelSet **lp)
 	return 1;
 
     case CGROUP_PERDEVBLKIO_INDOM:
-	sts = pmdaCacheLookup(mdesc->m_desc.indom, inst, &name, NULL);
+	sts = pmdaCacheLookup(indom, inst, &name, NULL);
 	if (sts < 0 || sts == PMDA_CACHE_INACTIVE)
 	    return 0;
 	device = strrchr(name, ':');
@@ -3258,7 +3257,7 @@ proc_labelCallBack(pmdaMetric *mdesc, unsigned int inst, pmLabelSet **lp)
 	return 1;
 
     case CGROUP_PERCPUACCT_INDOM:
-	sts = pmdaCacheLookup(mdesc->m_desc.indom, inst, &name, NULL);
+	sts = pmdaCacheLookup(indom, inst, &name, NULL);
 	if (sts < 0 || sts == PMDA_CACHE_INACTIVE)
 	    return 0;
 	device = strrchr(name, ':');
@@ -3273,7 +3272,7 @@ proc_labelCallBack(pmdaMetric *mdesc, unsigned int inst, pmLabelSet **lp)
     case CGROUP_MEMORY_INDOM:
     case CGROUP_NETCLS_INDOM:
     case CGROUP_BLKIO_INDOM:
-	sts = pmdaCacheLookup(mdesc->m_desc.indom, inst, &name, NULL);
+	sts = pmdaCacheLookup(indom, inst, &name, NULL);
 	if (sts < 0 || sts == PMDA_CACHE_INACTIVE)
 	    return 0;
 	if ((sts = pmdaAddLabels(lp, "{\"cgroup\":\"%s\"}", name)) < 0)
@@ -3289,10 +3288,9 @@ proc_labelCallBack(pmdaMetric *mdesc, unsigned int inst, pmLabelSet **lp)
 static int
 proc_label_indom(pmInDom indom, pmLabelSet **lp, pmdaExt *pmda)
 {
-    __pmInDom_int	*indomp = (__pmInDom_int *)&indom;
-    int			sts;
+    int		sts;
 
-    switch (indomp->serial) {
+    switch (pmInDom_serial(indom)) {
     case CGROUP_CPUSET_INDOM:
     case CGROUP_CPUACCT_INDOM:
     case CGROUP_CPUSCHED_INDOM:
@@ -3322,7 +3320,7 @@ proc_label_indom(pmInDom indom, pmLabelSet **lp, pmdaExt *pmda)
 static int
 proc_label(int ident, int type, pmLabelSet **lp, pmdaExt *pmda)
 {
-    int sts;
+    int		sts;
 
     if ((type & PM_LABEL_INDOM) &&
 	(sts = proc_label_indom(ident, lp, pmda)) < 0)
@@ -3338,8 +3336,8 @@ proc_label(int ident, int type, pmLabelSet **lp, pmdaExt *pmda)
 char *
 proc_strings_lookup(int index)
 {
-    char *value;
-    pmInDom dict = INDOM(STRINGS_INDOM);
+    char	*value;
+    pmInDom	dict = INDOM(STRINGS_INDOM);
 
     if (pmdaCacheLookup(dict, index, &value, NULL) == PMDA_CACHE_ACTIVE)
 	return value;

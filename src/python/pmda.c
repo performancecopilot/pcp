@@ -455,27 +455,15 @@ fetch(int numpmid, pmID *pmidlist, pmResult **rp, pmdaExt *pmda)
 static int
 label(int ident, int type, pmLabelSet **lp, pmdaExt *ep)
 {
-    int sts, item = 0, primary = ident;
+    int id, sts;
     char *s = NULL;
-
-    if (type == PM_LABEL_INDOM) {
-        __pmInDom_int *indomp = (__pmInDom_int *)&ident;
-        primary = indomp->serial;
-    }
-    else if (type == PM_LABEL_CLUSTER) {
-        __pmID_int *pmidp = (__pmID_int *)&ident;
-        primary = pmidp->cluster;
-    }
-    else if (type == PM_LABEL_ITEM) {
-        __pmID_int *pmidp = (__pmID_int *)&ident;
-        primary = pmidp->cluster;
-        item = pmidp->item;
-    }
 
     if (label_func) {
         PyObject *arglist, *result;
 
-        arglist = Py_BuildValue("(iii)", type, primary, item);
+	id = (type == PM_LABEL_CLUSTER) ? pmid_cluster(ident) : ident;
+
+        arglist = Py_BuildValue("(ii)", id, type);
         if (arglist == NULL)
             return -ENOMEM;
         result = PyEval_CallObject(label_func, arglist);
@@ -492,7 +480,7 @@ label(int ident, int type, pmLabelSet **lp, pmdaExt *ep)
             return -EINVAL;
         }
 
-        if ((sts = __pmAddLabels(lp, s, 0)) < 0)
+        if ((sts = __pmAddLabels(lp, s, type)) < 0)
             __pmNotifyErr(LOG_ERR, "__pmAddLabels failed: %s", pmErrStr(sts));
 
         Py_DECREF(result);
@@ -627,17 +615,16 @@ fetch_callback(pmdaMetric *metric, unsigned int inst, pmAtomValue *atom)
 }
 
 int
-label_callback(pmdaMetric *metric, unsigned int inst, pmLabelSet **lp)
+label_callback(pmInDom indom, unsigned int inst, pmLabelSet **lp)
 {
     int sts;
     char *s = NULL;
     PyObject *arglist, *result;
-    __pmID_int *pmid = (__pmID_int *)&metric->m_desc.pmid;
 
     if (label_cb_func == NULL)
         return PM_ERR_VALUE;
 
-    arglist = Py_BuildValue("(iiI)", pmid->cluster, pmid->item, inst);
+    arglist = Py_BuildValue("(II)", indom, inst);
     if (arglist == NULL) {
         __pmNotifyErr(LOG_ERR, "fetch callback cannot alloc parameters");
         return -EINVAL;
@@ -654,7 +641,7 @@ label_callback(pmdaMetric *metric, unsigned int inst, pmLabelSet **lp)
         return -EINVAL;
     }
 
-    if ((sts = __pmAddLabels(lp, s, 0)) < 0)
+    if ((sts = __pmAddLabels(lp, s, PM_LABEL_INSTANCES)) < 0)
         __pmNotifyErr(LOG_ERR, "__pmAddLabels failed: %s", pmErrStr(sts));
 
     Py_DECREF(result);

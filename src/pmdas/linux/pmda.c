@@ -5542,11 +5542,10 @@ done:
 static int
 linux_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaExt *pmda)
 {
-    __pmInDom_int	*indomp = (__pmInDom_int *)&indom;
     int			need_refresh[NUM_REFRESHES] = {0};
     int			sts;
 
-    switch (indomp->serial) {
+    switch (pmInDom_serial(indom)) {
     case DISK_INDOM:
     case PARTITIONS_INDOM:
     case DM_INDOM:
@@ -7730,23 +7729,24 @@ linux_labelInDom(pmInDom indom, pmLabelSet **lp)
 static int
 linux_labelItem(pmID pmid, pmLabelSet **lp)
 {
-    __pmID_int		*idp = (__pmID_int *)&pmid;
+    unsigned int	cluster = pmid_cluster(pmid);
+    unsigned int	item = pmid_item(pmid);
     int			sts;
 
-    switch (idp->cluster) {
+    switch (cluster) {
     case CLUSTER_STAT:
-	if (idp->item >= 62 && idp->item <= 71)	{ /* kernel.pernode.cpu */
+	if (item >= 62 && item <= 71)	{ /* kernel.pernode.cpu */
 	    if ((sts = pmdaAddLabels(lp, "{\"device_type\":[\"numa_node\",\"cpu\"]}")) < 0)
 		return sts;
 	    return 1;
 	}
-	else if ((idp->item >= 20 && idp->item <= 23) || /* kernel.all.cpu */
-	    (idp->item >= 53 && idp->item <= 55)) {
+	else if ((item >= 20 && item <= 23) || /* kernel.all.cpu */
+	    (item >= 53 && item <= 55)) {
 	    if ((sts = pmdaAddLabels(lp, "{\"device_type\":\"cpu\"}")) < 0)
 		return sts;
 	    return 1;
 	}
-	else switch (idp->item) {
+	else switch (item) {
 	case 77:					/* kernel.pernode.cpu */
 	case 85:
 	case 86:
@@ -7772,17 +7772,16 @@ linux_labelItem(pmID pmid, pmLabelSet **lp)
 }
 
 static int
-linux_labelCallBack(pmdaMetric *mdesc, unsigned int inst, pmLabelSet **lp)
+linux_labelCallBack(pmInDom indom, unsigned int inst, pmLabelSet **lp)
 {
-    __pmInDom_int	*inp = (__pmInDom_int *)&mdesc->m_desc.indom;
     unsigned int	numanode, value;
     char		*name, zone[32];
     int			sts;
 
-    if (mdesc->m_desc.indom == PM_INDOM_NULL)
+    if (indom == PM_INDOM_NULL)
 	return 0;
 
-    switch (inp->serial) {
+    switch (pmInDom_serial(indom)) {
     case CPU_INDOM:
 	if ((sts = pmdaAddLabels(lp, "{\"cpu\":%u}", inst)) < 0)
 	    return sts;
@@ -7792,7 +7791,7 @@ linux_labelCallBack(pmdaMetric *mdesc, unsigned int inst, pmLabelSet **lp)
     case DM_INDOM:
     case MD_INDOM:
     case PARTITIONS_INDOM:
-	sts = pmdaCacheLookup(mdesc->m_desc.indom, inst, &name, NULL);
+	sts = pmdaCacheLookup(indom, inst, &name, NULL);
 	if (sts < 0 || sts == PMDA_CACHE_INACTIVE)
 	    return 0;
 	if ((sts = pmdaAddLabels(lp, "{\"device_name\":\"%s\"}", name)) < 0)
@@ -7800,7 +7799,7 @@ linux_labelCallBack(pmdaMetric *mdesc, unsigned int inst, pmLabelSet **lp)
 	return 1;
 
     case NET_DEV_INDOM:
-	sts = pmdaCacheLookup(mdesc->m_desc.indom, inst, &name, NULL);
+	sts = pmdaCacheLookup(indom, inst, &name, NULL);
 	if (sts < 0 || sts == PMDA_CACHE_INACTIVE)
 	    return 0;
 	if ((sts = pmdaAddLabels(lp, "{\"interface\":\"%s\"}", name)) < 0)
@@ -7836,7 +7835,7 @@ linux_labelCallBack(pmdaMetric *mdesc, unsigned int inst, pmLabelSet **lp)
 	return 1;
 
     case ZONEINFO_PROTECTION_INDOM:
-	sts = pmdaCacheLookup(mdesc->m_desc.indom, inst, &name, NULL);
+	sts = pmdaCacheLookup(indom, inst, &name, NULL);
 	if (sts < 0 || sts == PMDA_CACHE_INACTIVE)
 	    return 0;
 	if (sscanf(name, "%s::node%u::lowmem_reserved%u", zone, &numanode, &value) != 3)

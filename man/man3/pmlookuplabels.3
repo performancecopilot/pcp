@@ -29,7 +29,7 @@
 .nf
 int pmLookupLabels(pmID \fIpmid\fP, pmLabelSet **\fIlabelsets\fP);
 .sp
-int pmGetInstancesLabels(pmID \fIpmid\fP, pmLabelSet **\fIlabelsets\fP);
+int pmGetInstancesLabels(pmInDom \fIindom\fP, pmLabelSet **\fIlabelsets\fP);
 .br
 int pmGetItemLabels(pmID \fIpmid\fP, pmLabelSet **\fIlabelsets\fP);
 .br
@@ -118,8 +118,8 @@ associated with the metric item (domain,cluster,item) identified by
 .BR pmGetInstancesLabels
 provides the set of instance identifiers and labels in
 .I labelsets
-for each instance associated with the metric identifier
-.IR pmid .
+for each instance associated with the instance domain identifier
+.IR indom .
 The return value indicates the number of elements in the result \- one
 .I labelset
 for each instance.

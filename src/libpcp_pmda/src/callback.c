@@ -767,10 +767,7 @@ pmdaLabel(int ident, int type, pmLabelSet **lpp, pmdaExt *pmda)
 {
     e_ext_t		*extp = (e_ext_t *)pmda->e_ext;
     pmLabelSet		*rlp, *lp = NULL;
-    pmdaMetric		metabuf;
-    pmdaMetric		*metap;
     size_t		size;
-    pmDesc		*dp;
     char		idbuf[32], *idp;
     char		errbuf[PM_MAXERRMSGLEN];
     int			sts = 0, count, inst, numinst;
@@ -825,18 +822,15 @@ pmdaLabel(int ident, int type, pmLabelSet **lpp, pmdaExt *pmda)
     case PM_LABEL_INSTANCES:
 	if (extp->dispatch->comm.pmda_interface < PMDA_INTERFACE_7)
 	    return 0;
-	if ((metap = __pmdaMetricSearch(pmda, ident, &metabuf, extp)) == NULL)
-	    return 0;
 
-	dp = &(metap->m_desc);
-	if (dp->indom == PM_INDOM_NULL)
+	if (ident == PM_INDOM_NULL)
 	    numinst = 1;
 	else
-	    numinst = __pmdaCntInst(dp->indom, pmda);
+	    numinst = __pmdaCntInst(ident, pmda);
 
 	if (pmDebug & DBG_TRACE_LABEL)
-	    fprintf(stderr, "pmdaLabel: PMID %s %d instance labels request\n",
-			    pmIDStr_r(ident, idbuf, sizeof(idbuf)), numinst);
+	    fprintf(stderr, "pmdaLabel: InDom %s %d instance labels request\n",
+			    pmInDomStr_r(ident, idbuf, sizeof(idbuf)), numinst);
 
 	if (numinst == 0)
 	    return 0;
@@ -848,8 +842,8 @@ pmdaLabel(int ident, int type, pmLabelSet **lpp, pmdaExt *pmda)
 	*lpp = lp;
 
 	inst = PM_IN_NULL;
-	if (dp->indom != PM_INDOM_NULL) {
-	    __pmdaStartInst(dp->indom, pmda);
+	if (ident != PM_INDOM_NULL) {
+	    __pmdaStartInst(ident, pmda);
 	    __pmdaNextInst(&inst, pmda);
 	}
 
@@ -866,11 +860,11 @@ pmdaLabel(int ident, int type, pmLabelSet **lpp, pmdaExt *pmda)
 	    }
 	    memset(lp, 0, sizeof(*lp));
 
-	    if ((sts = (*(pmda->e_labelCallBack))(metap, inst, &lp)) < 0) {
-		pmIDStr_r(ident, idbuf, sizeof(idbuf));
+	    if ((sts = (*(pmda->e_labelCallBack))(ident, inst, &lp)) < 0) {
+		pmInDomStr_r(ident, idbuf, sizeof(idbuf));
 		pmErrStr_r(sts, errbuf, sizeof(errbuf));
 		__pmNotifyErr(LOG_DEBUG, "pmdaLabel: "
-				"PMID %s[%d]: %s\n", idbuf, inst, errbuf);
+				"InDom %s[%d]: %s\n", idbuf, inst, errbuf);
 	    }
 	    if ((lp->nlabels = sts) > 0)
 		pmdaAddLabelFlags(lp, type);
@@ -878,7 +872,7 @@ pmdaLabel(int ident, int type, pmLabelSet **lpp, pmdaExt *pmda)
 	    count++;
 	    lp++;
 
-	} while (dp->indom != PM_INDOM_NULL && __pmdaNextInst(&inst, pmda));
+	} while (ident != PM_INDOM_NULL && __pmdaNextInst(&inst, pmda));
 
 	return count;
 

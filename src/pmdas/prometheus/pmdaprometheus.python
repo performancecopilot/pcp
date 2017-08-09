@@ -107,26 +107,26 @@ class ScanPrometheus(object):
 			self.description = None
 			self.instances = None
 			self.type = None
-			self.label = None
+			self.labels = None
 			self.semantics = None
 			self.units_str = None
 			self.prometheus_name = None
 
-		def add_instance(self, name, prometheus_name, label):
+		def add_instance(self, name, prometheus_name, labels):
 			# Adds the instances to the metric
 			if self.instances == None:
 				self.instances = []
 			self.instances.append({
 				"name": name,
 				"prometheus_name": prometheus_name,
-				"label": label
+				"labels": labels
 			})
 
 		def export(self):
 			# Returns a dictionary of attributes with non null values
 			metadata = {}
 			if self.instances is not None:
-				self.label = None
+				self.labels = None
 			for key in self.__dict__:
 				if self.__dict__[key] is not None:
 					metadata[key] = self.__dict__[key]
@@ -244,16 +244,16 @@ class ScanPrometheus(object):
 
 		for line in lines[2:]:
 			(prometheus_name,
-				name, instance, label) = self.get_metric_instance(line)
+				name, instance, labels) = self.get_metric_instance(line)
 			if not self.metrics_by_name.get(name):
 				metric.name = name
 				metric.prometheus_name = None
 				metric.instances = None
-				metric.label = label
+				metric.labels = labels
 				self.metrics_by_name[name] = copy.deepcopy(metric)
 			if instance:
 				self.metrics_by_name[name].add_instance(instance,
-					prometheus_name, label)
+					prometheus_name, labels)
 			else:
 				self.metrics_by_name[name].prometheus_name = prometheus_name
 
@@ -396,7 +396,7 @@ class Metric(object):
 								  self.sem, self.__units_val)
 
 	def label_func(self, inst):
-		''' Label value of this metric '''
+		''' Label value of this instance '''
 		ret_label = "{}"
 		if self.__indom_cache:
 			if inst == c_api.PM_INDOM_NULL:
@@ -607,6 +607,7 @@ class IndomCache(pmdaIndom):
 class PrometheusSource(object):
 
 	def __init__(self, path, pmda):
+		self.__labels = None
 		self.__cluster = None
 		self.pmda = pmda
 		self.path = path
@@ -626,6 +627,10 @@ class PrometheusSource(object):
 
 		if not self.prepare_passed:
 			self.log("Prometheus Source creation failed for %s" % self.path)
+
+	@property
+	def labels(self):
+		return self.__labels
 
 	@property
 	def cluster(self):
@@ -843,12 +848,6 @@ class PrometheusSource(object):
 			return [c_api.PM_ERR_PMID, 0]
 		return self.metrics_by_id[item].fetch(inst, self.metrics_value)
 
-	def label(self, item, inst):
-		if item not in self.metrics_by_id:
-			self.log("Invalid item given for cluster:%s on label" % self.name)
-			return "{}"
-		return self.metrics_by_id[item].label_func(inst)
-
 class PrometheusPMDA(PMDA):
 
 	def __init__(self, pmda_name, domain):
@@ -992,14 +991,23 @@ class PrometheusPMDA(PMDA):
 		# Count the number of times fetch called
 		self.numfetch += 1
 
-	def prometheus_label(self, type, cluster, item):
-		# self.log("Label: Type: " + str(type) + ", cluster: " + str(cluster) + ", item: " + str(item))
+	def prometheus_label(self, ident, type):
+		# self.log("Label: ident: + str(ident) + ", type: " + str(type))
+		#if ident == c_api.PM_LABEL_CLUSTER:	# ident is cluster
+		#	if ident in self.source_by_cluster:
+		#		return self.source_by_cluster[ident].labels
+		#elif ident == c_api.PM_LABEL_ITEM:	# ident is PMID
+		#	# Note: these labels are for metrics
+		#	return self.metrics_by_id[ident].label_func()
 		return "{}"
 
-	def prometheus_label_callback(self, cluster, item, inst):
-		# self.log("Label_cb: Cluster: " + str(cluster) + ",item: " + str(item) + ",inst: " + str(inst))
-		if cluster in self.source_by_cluster:
-			return self.source_by_cluster[cluster].label(item, inst)
+	def prometheus_label_callback(self, indom, inst):
+		# self.log("label_cb: indom: " + str(indom) + ", inst: " + str(inst))
+		# Note: ident is now an InDom identifier and not a PMID
+		#if ident in self.indoms_by_id:
+		#	# TODO: maybe needs to become metrics_by_indom[ident]?
+		#	#       or does the IndomCache need a label_func()?
+		#	return self.metrics_by_id[ident].label_func(inst)
 		return "{}"
 
 	def prometheus_fetch_callback(self, cluster, item, inst):
