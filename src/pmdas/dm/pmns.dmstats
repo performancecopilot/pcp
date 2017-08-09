@@ -13,10 +13,6 @@
  */
 
 dmstats {
-	counter
-}
-
-dmstats.counter {
 	read	            DM:3:0
 	reads_merged        DM:3:1
 	read_bytes          DM:3:2
