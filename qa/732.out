@@ -152,6 +152,24 @@ nfs.server.reqs
     inst [16 or "readdir"] value 0
     inst [17 or "statfs"] value 0
 
+nfs.server.threads.total
+    value 0
+
+nfs.server.threads.pools
+    value 0
+
+nfs.server.threads.requests
+    value 0
+
+nfs.server.threads.enqueued
+    value 0
+
+nfs.server.threads.processed
+    value 0
+
+nfs.server.threads.timedout
+    value 0
+
 nfs3.client.calls
     value 0
 
@@ -497,6 +515,24 @@ nfs.server.reqs
     inst [15 or "rmdir"] value 0
     inst [16 or "readdir"] value 0
     inst [17 or "statfs"] value 0
+
+nfs.server.threads.total
+    value 8
+
+nfs.server.threads.pools
+    value 1
+
+nfs.server.threads.requests
+    value 49
+
+nfs.server.threads.enqueued
+    value 4
+
+nfs.server.threads.processed
+    value 45
+
+nfs.server.threads.timedout
+    value 0
 
 nfs3.client.calls
     value 4976

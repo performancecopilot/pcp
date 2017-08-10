@@ -227,7 +227,7 @@ __pmLogLoadMeta(__pmLogCtl *lcp)
     pmDesc		*olddp;
     int			sts = 0;
     __pmLogHdr		h;
-    FILE		*f = lcp->l_mdfp;
+    __pmFILE		*f = lcp->l_mdfp;
     int			numpmid = 0;
     int			n;
     int			numnames;
@@ -240,17 +240,17 @@ __pmLogLoadMeta(__pmLogCtl *lcp)
 	    goto end;
     }
 
-    fseek(f, (long)(sizeof(__pmLogLabel) + 2*sizeof(int)), SEEK_SET);
+    __pmFseek(f, (long)(sizeof(__pmLogLabel) + 2*sizeof(int)), SEEK_SET);
     for ( ; ; ) {
-	n = (int)fread(&h, 1, sizeof(__pmLogHdr), f);
+	n = (int)__pmFread(&h, 1, sizeof(__pmLogHdr), f);
 
 	/* swab hdr */
 	h.len = ntohl(h.len);
 	h.type = ntohl(h.type);
 
 	if (n != sizeof(__pmLogHdr) || h.len <= 0) {
-            if (feof(f)) {
-		clearerr(f);
+            if (__pmFeof(f)) {
+		__pmClearerr(f);
                 sts = 0;
 		goto end;
             }
@@ -260,8 +260,8 @@ __pmLogLoadMeta(__pmLogCtl *lcp)
 			n, (int)sizeof(__pmLogHdr), h.len);
 	    }
 #endif
-	    if (ferror(f)) {
-		clearerr(f);
+	    if (__pmFerror(f)) {
+		__pmClearerr(f);
 		sts = -oserror();
 	    }
 	    else
@@ -271,7 +271,7 @@ __pmLogLoadMeta(__pmLogCtl *lcp)
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_LOGMETA) {
 	    fprintf(stderr, "__pmLogLoadMeta: record len=%d, type=%d @ offset=%d\n",
-		h.len, h.type, (int)(ftell(f) - sizeof(__pmLogHdr)));
+		h.len, h.type, (int)(__pmFtell(f) - sizeof(__pmLogHdr)));
 	}
 #endif
 	rlen = h.len - (int)sizeof(__pmLogHdr) - (int)sizeof(int);
@@ -282,15 +282,15 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":2", PM_FAULT_ALLOC);
 		sts = -oserror();
 		goto end;
 	    }
-	    if ((n = (int)fread(dp, 1, sizeof(pmDesc), f)) != sizeof(pmDesc)) {
+	    if ((n = (int)__pmFread(dp, 1, sizeof(pmDesc), f)) != sizeof(pmDesc)) {
 #ifdef PCP_DEBUG
 		if (pmDebug & DBG_TRACE_LOGMETA) {
 		    fprintf(stderr, "__pmLogLoadMeta: pmDesc read -> %d: expected: %d\n",
 			    n, (int)sizeof(pmDesc));
 		}
 #endif
-		if (ferror(f)) {
-		    clearerr(f);
+		if (__pmFerror(f)) {
+		    __pmClearerr(f);
 		    sts = -oserror();
 		}
 		else
@@ -351,7 +351,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":2", PM_FAULT_ALLOC);
 	    }
 
 	    /* read in the names & store in PMNS tree ... */
-	    if ((n = (int)fread(&numnames, 1, sizeof(numnames), f)) != 
+	    if ((n = (int)__pmFread(&numnames, 1, sizeof(numnames), f)) != 
 		sizeof(numnames)) {
 #ifdef PCP_DEBUG
 		if (pmDebug & DBG_TRACE_LOGMETA) {
@@ -359,8 +359,8 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":2", PM_FAULT_ALLOC);
 			    n, (int)sizeof(numnames));
 		}
 #endif
-		if (ferror(f)) {
-		    clearerr(f);
+		if (__pmFerror(f)) {
+		    __pmClearerr(f);
 		    sts = -oserror();
 		}
 		else
@@ -373,7 +373,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":2", PM_FAULT_ALLOC);
 	    }
 
 	    for (i = 0; i < numnames; i++) {
-		if ((n = (int)fread(&len, 1, sizeof(len), f)) != 
+		if ((n = (int)__pmFread(&len, 1, sizeof(len), f)) != 
 		    sizeof(len)) {
 #ifdef PCP_DEBUG
 		    if (pmDebug & DBG_TRACE_LOGMETA) {
@@ -381,8 +381,8 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":2", PM_FAULT_ALLOC);
 				i, n, (int)sizeof(len));
 		    }
 #endif
-		    if (ferror(f)) {
-			clearerr(f);
+		    if (__pmFerror(f)) {
+			__pmClearerr(f);
 			sts = -oserror();
 		    }
 		    else
@@ -394,15 +394,15 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":2", PM_FAULT_ALLOC);
 		    len = ntohl(len);
 		}
 
-		if ((n = (int)fread(name, 1, len, f)) != len) {
+		if ((n = (int)__pmFread(name, 1, len, f)) != len) {
 #ifdef PCP_DEBUG
 		    if (pmDebug & DBG_TRACE_LOGMETA) {
 			fprintf(stderr, "__pmLogLoadMeta: name[%d] read -> %d: expected: %d\n",
 				i, n, len);
 		    }
 #endif
-		    if (ferror(f)) {
-			clearerr(f);
+		    if (__pmFerror(f)) {
+			__pmClearerr(f);
 			sts = -oserror();
 		    }
 		    else
@@ -451,15 +451,15 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":3", PM_FAULT_ALLOC);
 		sts = -oserror();
 		goto end;
 	    }
-	    if ((n = (int)fread(tbuf, 1, rlen, f)) != rlen) {
+	    if ((n = (int)__pmFread(tbuf, 1, rlen, f)) != rlen) {
 #ifdef PCP_DEBUG
 		if (pmDebug & DBG_TRACE_LOGMETA) {
 		    fprintf(stderr, "__pmLogLoadMeta: indom read -> %d: expected: %d\n",
 			    n, rlen);
 		}
 #endif
-		if (ferror(f)) {
-		    clearerr(f);
+		if (__pmFerror(f)) {
+		    __pmClearerr(f);
 		    sts = -oserror();
 		}
 		else
@@ -516,18 +516,18 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":4", PM_FAULT_ALLOC);
 	    }
 	}
 	else
-	    fseek(f, (long)rlen, SEEK_CUR);
-	n = (int)fread(&check, 1, sizeof(check), f);
+	    __pmFseek(f, (long)rlen, SEEK_CUR);
+	n = (int)__pmFread(&check, 1, sizeof(check), f);
 	check = ntohl(check);
 	if (n != sizeof(check) || h.len != check) {
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_LOGMETA) {
 		fprintf(stderr, "__pmLogLoadMeta: trailer read -> %d or len=%d: expected %d @ offset=%d\n",
-		    n, check, h.len, (int)(ftell(f) - sizeof(check)));
+		    n, check, h.len, (int)(__pmFtell(f) - sizeof(check)));
 	    }
 #endif
-	    if (ferror(f)) {
-		clearerr(f);
+	    if (__pmFerror(f)) {
+		__pmClearerr(f);
 		sts = -oserror();
 	    }
 	    else
@@ -537,7 +537,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":4", PM_FAULT_ALLOC);
     }/*for*/
 end:
     
-    fseek(f, (long)(sizeof(__pmLogLabel) + 2*sizeof(int)), SEEK_SET);
+    __pmFseek(f, (long)(sizeof(__pmLogLabel) + 2*sizeof(int)), SEEK_SET);
 
     if (sts == 0) {
 	if (numpmid == 0) {
@@ -578,7 +578,7 @@ __pmLogLookupDesc(__pmLogCtl *lcp, pmID pmid, pmDesc *dp)
 int
 __pmLogPutDesc(__pmLogCtl *lcp, const pmDesc *dp, int numnames, char **names)
 {
-    FILE	*f = lcp->l_mdfp;
+    __pmFILE	*f = lcp->l_mdfp;
     pmDesc	*tdp;
     int		olen;		/* length to write out */
     int		i;
@@ -632,7 +632,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":10", PM_FAULT_ALLOC);
 	out->numnames = out->hdr.len;
     }
 
-    if ((sts = fwrite(out, 1, len, f)) != len) {
+    if ((sts = __pmFwrite(out, 1, len, f)) != len) {
 	char	strbuf[20];
 	char	errmsg[PM_MAXERRMSGLEN];
 	pmprintf("__pmLogPutDesc(...,pmid=%s,name=%s): write failed: returned %d expecting %d: %s\n",
@@ -833,7 +833,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":6", PM_FAULT_ALLOC);
     /* trailer length */
     memmove((void *)str, &out->hdr.len, sizeof(out->hdr.len));
 
-    if ((sts = fwrite(out, 1, len, lcp->l_mdfp)) != len) {
+    if ((sts = __pmFwrite(out, 1, len, lcp->l_mdfp)) != len) {
 	char	strbuf[20];
 	char	errmsg[PM_MAXERRMSGLEN];
 	pmprintf("__pmLogPutInDom(...,indom=%s,numinst=%d): write failed: returned %d expecting %d: %s\n",

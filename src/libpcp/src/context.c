@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2016 Red Hat.
+ * Copyright (c) 2012-2017 Red Hat.
  * Copyright (c) 2007-2008 Aconex.  All Rights Reserved.
  * Copyright (c) 1995-2002,2004,2006,2008 Silicon Graphics, Inc.  All Rights Reserved.
  * 
@@ -1728,9 +1728,9 @@ __pmDumpContext(FILE *f, int context, pmInDom indom)
 		    fprintf(f, " mode=%s", _mode[con->c_mode & __PM_MODE_MASK]);
 		    fprintf(f, " profile=%s tifd=%d mdfd=%d mfd=%d\nrefcnt=%d vol=%d",
 			    con->c_sent ? "SENT" : "NOT_SENT",
-			    con->c_archctl->ac_log->l_tifp == NULL ? -1 : fileno(con->c_archctl->ac_log->l_tifp),
-			    fileno(con->c_archctl->ac_log->l_mdfp),
-			    fileno(con->c_archctl->ac_log->l_mfp),
+			    con->c_archctl->ac_log->l_tifp == NULL ? -1 : __pmFileno(con->c_archctl->ac_log->l_tifp),
+			    __pmFileno(con->c_archctl->ac_log->l_mdfp),
+			    __pmFileno(con->c_archctl->ac_log->l_mfp),
 			    con->c_archctl->ac_log->l_refcnt,
 			    con->c_archctl->ac_log->l_curvol);
 		    fprintf(f, " offset=%ld (vol=%d) serial=%d",

@@ -2022,6 +2022,12 @@ for f in $RPM_BUILD_ROOT/%{_initddir}/{pcp,pmcd,pmlogger,pmie,pmwebd,pmmgr,pmpro
 	sed -i -e '/^# chkconfig/s/:.*$/: - 95 05/' -e '/^# Default-Start:/s/:.*$/:/' $f
 done
 
+%if 0%{?fedora} > 26
+PCP_SYSCONFIG_DIR=%{_sysconfdir}/sysconfig
+sed -i 's/^\#\ PMLOGGER_LOCAL.*/PMLOGGER_LOCAL=1/g' "$RPM_BUILD_ROOT/$PCP_SYSCONFIG_DIR/pmlogger"
+sed -i 's/^\#\ PMCD_LOCAL.*/PMCD_LOCAL=1/g' "$RPM_BUILD_ROOT/$PCP_SYSCONFIG_DIR/pmcd"
+%endif
+
 # list of PMDAs in the base pkg
 ls -1 $RPM_BUILD_ROOT/%{_pmdasdir} |\
   grep -E -v '^simple|sample|trivial|txmon' |\
@@ -2451,11 +2457,10 @@ if [ "$1" -eq 0 ]
 then
     # stop daemons before erasing the package
     %if !%{disable_systemd}
-	systemctl --no-reload disable pmlogger.service >/dev/null 2>&1
-	systemctl --no-reload disable pmie.service >/dev/null 2>&1
-	systemctl --no-reload disable pmproxy.service >/dev/null 2>&1
-	systemctl --no-reload disable pmcd.service >/dev/null 2>&1
-
+       %systemd_preun pmlogger.service
+       %systemd_preun pmie.service
+       %systemd_preun pmproxy.service
+       %systemd_preun pmcd.service
 	systemctl stop pmlogger.service >/dev/null 2>&1
 	systemctl stop pmie.service >/dev/null 2>&1
 	systemctl stop pmproxy.service >/dev/null 2>&1
@@ -2590,9 +2595,12 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 touch "$PCP_PMNS_DIR/.NeedRebuild"
 chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %if !%{disable_systemd}
-    systemctl condrestart pmcd.service >/dev/null 2>&1
-    systemctl condrestart pmlogger.service >/dev/null 2>&1
-    systemctl condrestart pmie.service >/dev/null 2>&1
+    %systemd_postun_with_restart pmcd.service
+    %systemd_post pmcd.service
+    %systemd_postun_with_restart pmlogger.service
+    %systemd_post pmlogger.service
+    %systemd_postun_with_restart pmie.service
+    %systemd_post pmie.service
     systemctl condrestart pmproxy.service >/dev/null 2>&1
 %else
     /sbin/chkconfig --add pmcd >/dev/null 2>&1

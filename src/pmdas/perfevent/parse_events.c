@@ -725,7 +725,7 @@ static int populate_pmus(struct pmu **pmus)
 void setup_cpu_config(struct pmu *pmu_ptr, int *ncpus, int **cpuarr)
 {
     FILE *cpulist;
-    char cpumask_path[PATH_MAX], *line;
+    char cpumask_path[PATH_MAX], *line = NULL;
     int *on_cpus = NULL;
     size_t len = 0;
 
@@ -750,6 +750,7 @@ void setup_cpu_config(struct pmu *pmu_ptr, int *ncpus, int **cpuarr)
                 return;
             }
         } else {
+            fclose(cpulist);
             *cpuarr = NULL;
             return;
         }

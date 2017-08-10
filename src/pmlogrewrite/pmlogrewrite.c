@@ -1,7 +1,7 @@
 /*
  * pmlogrewrite - config-driven stream editor for PCP archives
  *
- * Copyright (c) 2013-2014 Red Hat.
+ * Copyright (c) 2013-2017 Red Hat.
  * Copyright (c) 2011 Ken McDonell.  All Rights Reserved.
  * Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
  * 
@@ -82,15 +82,15 @@ int	wflag;				/* -w emit warnings */
  *  report that archive is corrupted
  */
 static void
-_report(FILE *fp)
+_report(__pmFILE *fp)
 {
     off_t	here;
     struct stat	sbuf;
 
-    here = lseek(fileno(fp), 0L, SEEK_CUR);
+    here = __pmLseek(fp, 0L, SEEK_CUR);
     fprintf(stderr, "%s: Error occurred at byte offset %ld into a file of",
 	    pmProgname, (long)here);
-    if (fstat(fileno(fp), &sbuf) < 0)
+    if (__pmFstat(fp, &sbuf) < 0)
 	fprintf(stderr, ": stat: %s\n", osstrerror());
     else
 	fprintf(stderr, " %ld bytes.\n", (long)sbuf.st_size);
@@ -106,14 +106,14 @@ _report(FILE *fp)
 void
 newvolume(int vol)
 {
-    FILE		*newfp;
+    __pmFILE		*newfp;
 
     if ((newfp = __pmLogNewFile(outarch.name, vol)) != NULL) {
-	fclose(outarch.logctl.l_mfp);
+	__pmFclose(outarch.logctl.l_mfp);
 	outarch.logctl.l_mfp = newfp;
 	outarch.logctl.l_label.ill_vol = outarch.logctl.l_curvol = vol;
 	__pmLogWriteLabel(outarch.logctl.l_mfp, &outarch.logctl.l_label);
-	fflush(outarch.logctl.l_mfp);
+	__pmFflush(outarch.logctl.l_mfp);
     }
     else {
 	fprintf(stderr, "%s: __pmLogNewFile(%s,%d) Error: %s\n",
@@ -153,34 +153,34 @@ writelabel(int do_rewind)
     off_t	old_offset;
 
     if (do_rewind) {
-	old_offset = ftell(outarch.logctl.l_tifp);
+	old_offset = __pmFtell(outarch.logctl.l_tifp);
 	assert(old_offset >= 0);
-	rewind(outarch.logctl.l_tifp);
+	__pmRewind(outarch.logctl.l_tifp);
     }
     outarch.logctl.l_label.ill_vol = PM_LOG_VOL_TI;
     __pmLogWriteLabel(outarch.logctl.l_tifp, &outarch.logctl.l_label);
     if (do_rewind)
-	fseek(outarch.logctl.l_tifp, (long)old_offset, SEEK_SET);
+	__pmFseek(outarch.logctl.l_tifp, (long)old_offset, SEEK_SET);
 
     if (do_rewind) {
-	old_offset = ftell(outarch.logctl.l_mdfp);
+	old_offset = __pmFtell(outarch.logctl.l_mdfp);
 	assert(old_offset >= 0);
-	rewind(outarch.logctl.l_mdfp);
+	__pmRewind(outarch.logctl.l_mdfp);
     }
     outarch.logctl.l_label.ill_vol = PM_LOG_VOL_META;
     __pmLogWriteLabel(outarch.logctl.l_mdfp, &outarch.logctl.l_label);
     if (do_rewind)
-	fseek(outarch.logctl.l_mdfp, (long)old_offset, SEEK_SET);
+	__pmFseek(outarch.logctl.l_mdfp, (long)old_offset, SEEK_SET);
 
     if (do_rewind) {
-	old_offset = ftell(outarch.logctl.l_mfp);
+	old_offset = __pmFtell(outarch.logctl.l_mfp);
 	assert(old_offset >= 0);
-	rewind(outarch.logctl.l_mfp);
+	__pmRewind(outarch.logctl.l_mfp);
     }
     outarch.logctl.l_label.ill_vol = 0;
     __pmLogWriteLabel(outarch.logctl.l_mfp, &outarch.logctl.l_label);
     if (do_rewind)
-	fseek(outarch.logctl.l_mfp, (long)old_offset, SEEK_SET);
+	__pmFseek(outarch.logctl.l_mfp, (long)old_offset, SEEK_SET);
 }
 
 /*
@@ -1078,11 +1078,11 @@ main(int argc, char **argv)
     while (1) {
 	static long	in_offset;		/* for -Dappl0 */
 
-	fflush(outarch.logctl.l_mdfp);
-	old_meta_offset = ftell(outarch.logctl.l_mdfp);
+	__pmFflush(outarch.logctl.l_mdfp);
+	old_meta_offset = __pmFtell(outarch.logctl.l_mdfp);
 	assert(old_meta_offset >= 0);
 
-	in_offset = ftell(inarch.ctxp->c_archctl->ac_log->l_mfp);
+	in_offset = __pmFtell(inarch.ctxp->c_archctl->ac_log->l_mfp);
 	stslog = nextlog();
 	if (stslog < 0) {
 #if PCP_DEBUG
@@ -1142,7 +1142,7 @@ main(int argc, char **argv)
 	 */
 	for ( ; ; ) {
 	    if (stsmeta == 0) {
-		in_offset = ftell(inarch.ctxp->c_archctl->ac_log->l_mdfp);
+		in_offset = __pmFtell(inarch.ctxp->c_archctl->ac_log->l_mdfp);
 		stsmeta = nextmeta();
 #if PCP_DEBUG
 		if (pmDebug & DBG_TRACE_APPL0) {
@@ -1250,20 +1250,20 @@ main(int argc, char **argv)
 	tstamp.tv_usec = inarch.rp->timestamp.tv_usec;
 
 	if (needti) {
-	    fflush(outarch.logctl.l_mdfp);
-	    fflush(outarch.logctl.l_mfp);
-	    new_meta_offset = ftell(outarch.logctl.l_mdfp);
+	    __pmFflush(outarch.logctl.l_mdfp);
+	    __pmFflush(outarch.logctl.l_mfp);
+	    new_meta_offset = __pmFtell(outarch.logctl.l_mdfp);
 	    assert(new_meta_offset >= 0);
-            fseek(outarch.logctl.l_mdfp, (long)old_meta_offset, SEEK_SET);
+            __pmFseek(outarch.logctl.l_mdfp, (long)old_meta_offset, SEEK_SET);
             __pmLogPutIndex(&outarch.logctl, &tstamp);
-            fseek(outarch.logctl.l_mdfp, (long)new_meta_offset, SEEK_SET);
+            __pmFseek(outarch.logctl.l_mdfp, (long)new_meta_offset, SEEK_SET);
 	    needti = 0;
 	    doneti = 1;
         }
 	else
 	    doneti = 0;
 
-	old_log_offset = ftell(outarch.logctl.l_mfp);
+	old_log_offset = __pmFtell(outarch.logctl.l_mfp);
 	assert(old_log_offset >= 0);
 
 	if (inarch.rp->numpmid == 0)
@@ -1275,31 +1275,31 @@ main(int argc, char **argv)
 
     if (!doneti) {
 	/* Final temporal index entry */
-	fflush(outarch.logctl.l_mfp);
-	fseek(outarch.logctl.l_mfp, (long)old_log_offset, SEEK_SET);
+	__pmFflush(outarch.logctl.l_mfp);
+	__pmFseek(outarch.logctl.l_mfp, (long)old_log_offset, SEEK_SET);
 	__pmLogPutIndex(&outarch.logctl, &tstamp);
     }
 
     if (iflag) {
 	/*
-	 * fsync() to make sure new archive is safe before we start
+	 * __pmFsync() to make sure new archive is safe before we start
 	 * renaming ...
 	 */
-	if (fsync(fileno(outarch.logctl.l_mdfp)) < 0) {
+	if (__pmFsync(outarch.logctl.l_mdfp) < 0) {
 	    fprintf(stderr, "%s: Error: fsync(%d) failed for output metadata file: %s\n",
-		pmProgname, fileno(outarch.logctl.l_mdfp), strerror(errno));
+		pmProgname, __pmFileno(outarch.logctl.l_mdfp), strerror(errno));
 		abandon();
 		/*NOTREACHED*/
 	}
-	if (fsync(fileno(outarch.logctl.l_mfp)) < 0) {
+	if (__pmFsync(outarch.logctl.l_mfp) < 0) {
 	    fprintf(stderr, "%s: Error: fsync(%d) failed for output data file: %s\n",
-		pmProgname, fileno(outarch.logctl.l_mfp), strerror(errno));
+		pmProgname, __pmFileno(outarch.logctl.l_mfp), strerror(errno));
 		abandon();
 		/*NOTREACHED*/
 	}
-	if (fsync(fileno(outarch.logctl.l_tifp)) < 0) {
+	if (__pmFsync(outarch.logctl.l_tifp) < 0) {
 	    fprintf(stderr, "%s: Error: fsync(%d) failed for output index file: %s\n",
-		pmProgname, fileno(outarch.logctl.l_tifp), strerror(errno));
+		pmProgname, __pmFileno(outarch.logctl.l_tifp), strerror(errno));
 		abandon();
 		/*NOTREACHED*/
 	}

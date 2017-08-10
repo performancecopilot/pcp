@@ -32,7 +32,7 @@ unsigned permissive;            /* set by -P option */
 unsigned maxtimeout = 300;	/* set by -t option */
 int dumpstats = 300;            /* set by -d option */
 map<string,unsigned> clients_usage;
-unsigned perm_context = 1;	/* set by -c option, changed by -h/-a/-L */
+unsigned long perm_context = 1;	/* set by -c option, changed by -h/-a/-L */
 unsigned new_contexts_p = 1;	/* cleared by -N option */
 unsigned graphite_p;		/* set by -G option */
 unsigned graphite_encode = 1;	/* unset by -X option */
@@ -636,7 +636,7 @@ main (int argc, char *argv[])
                 __pmNotifyErr (LOG_ERR, "permanent bind failed\n");
                 exit (EXIT_FAILURE);
             }
-            __pmNotifyErr (LOG_INFO, "context (web%d=pm%d) created, host %s, permanent\n",
+            __pmNotifyErr (LOG_INFO, "context (web%lu=pm%d) created, host %s, permanent\n",
                            perm_context - 1, ctx, opts.optarg);
             break;
 
@@ -649,7 +649,7 @@ main (int argc, char *argv[])
                 __pmNotifyErr (LOG_ERR, "permanent bind failed\n");
                 exit (EXIT_FAILURE);
             }
-            __pmNotifyErr (LOG_INFO, "context (web%d=pm%d) created, archive %s, permanent\n",
+            __pmNotifyErr (LOG_INFO, "context (web%lu=pm%d) created, archive %s, permanent\n",
                            perm_context - 1, ctx, opts.optarg);
             break;
 
@@ -663,7 +663,7 @@ main (int argc, char *argv[])
                 __pmNotifyErr (LOG_ERR, "permanent bind failed\n");
                 exit (EXIT_FAILURE);
             }
-            __pmNotifyErr (LOG_INFO, "context (web%d=pm%d) created, local, permanent\n",
+            __pmNotifyErr (LOG_INFO, "context (web%lu=pm%d) created, local, permanent\n",
                            perm_context - 1, ctx);
             break;
 

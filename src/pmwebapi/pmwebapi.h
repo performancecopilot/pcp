@@ -103,7 +103,7 @@ extern int cursed_path_p (const std::string & blessed, const std::string & quest
 extern void json_quote (std::ostream & o, const std::string & value);
 extern struct MHD_Response *NOTMHD_compressible_response(struct MHD_Connection *connection,
                                                          const std::string& buf);
-
+extern std::string escapeString(const std::string&);
 
 // inlined right here
 

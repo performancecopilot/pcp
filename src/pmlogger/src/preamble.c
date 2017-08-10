@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2017 Red Hat.
  * Copyright (c) 1995-2003 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -136,10 +137,10 @@ do_preamble(void)
 	res->vset[i]->valfmt = sts;
     }
 
-    if ((sts = __pmEncodeResult(fileno(logctl.l_mfp), res, &pb)) < 0)
+    if ((sts = __pmEncodeResult(__pmFileno(logctl.l_mfp), res, &pb)) < 0)
 	goto done;
 
-    __pmOverrideLastFd(fileno(logctl.l_mfp));	/* force use of log version */
+    __pmOverrideLastFd(__pmFileno(logctl.l_mfp));	/* force use of log version */
     /* and start some writing to the archive log files ... */
     sts = __pmLogPutResult2(&logctl, pb);
     __pmUnpinPDUBuf(pb);
@@ -187,11 +188,11 @@ do_preamble(void)
     }
 
     /* fudge the temporal index */
-    fseek(logctl.l_mfp, sizeof(__pmLogLabel)+2*sizeof(int), SEEK_SET);
-    fseek(logctl.l_mdfp, sizeof(__pmLogLabel)+2*sizeof(int), SEEK_SET);
+    __pmFseek(logctl.l_mfp, sizeof(__pmLogLabel)+2*sizeof(int), SEEK_SET);
+    __pmFseek(logctl.l_mdfp, sizeof(__pmLogLabel)+2*sizeof(int), SEEK_SET);
     __pmLogPutIndex(&logctl, &tmp);
-    fseek(logctl.l_mfp, 0L, SEEK_END);
-    fseek(logctl.l_mdfp, 0L, SEEK_END);
+    __pmFseek(logctl.l_mfp, 0L, SEEK_END);
+    __pmFseek(logctl.l_mdfp, 0L, SEEK_END);
     sts = 0;
 
     /*

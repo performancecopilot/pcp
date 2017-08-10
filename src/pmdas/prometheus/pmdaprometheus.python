@@ -1078,7 +1078,7 @@ if __name__ == '__main__':
 	parser.add_argument('-u','--url', help='Prometheus endpoint whose metadata has to be generated')
 	parser.add_argument('-f','--filepath', help='Prometheus file based endpoint whose metadata has to be generated')
 	parser.add_argument('-n','--name', help="Name to be used as the Prometheus cluster name")
-	parser.add_argument('-r','--runtime', help="Generate the metrics at runtime when the endpoint is reachable", action="store_true")
+	parser.add_argument('-r','--runtime', help="Generate the metrics on runtime when the endpoint is reachable", action="store_true")
 	args = parser.parse_args()
 
 	# If generate then scan the metrics and produce the metadata JSON

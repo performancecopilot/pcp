@@ -42,6 +42,8 @@
 #include <map>
 #include <iostream>
 #include <sstream>
+#include <algorithm>
+
 
 using namespace std;
 
@@ -56,11 +58,16 @@ struct webcontext {
     time_t expires;		/* poll timeout, 0 if never expires */
     int context;			/* PMAPI context handle; owned */
 
+    map <string, pmID> metric_id_cache;
+    map <pmID, string> metric_name_cache;
+    map <pmID, pmDesc> metric_desc_cache;
+    map <pmID, string> metric_text_cache;
+    map <pmID, map<int, string> > metric_inst_cache;
     ~webcontext ();
 };
 
 
-typedef map <int, webcontext *>context_map;
+typedef map <unsigned long, webcontext *>context_map;
 static context_map contexts;	// map from webcontext#
 
 
@@ -393,9 +400,6 @@ out:
 
 /* ------------------------------------------------------------------------ */
 
-
-
-/* ------------------------------------------------------------------------ */
 
 struct metric_list_traverse_closure {
     struct MHD_Connection *connection;
@@ -1072,6 +1076,276 @@ out:
 
 /* ------------------------------------------------------------------------ */
 
+struct metric_prometheus_traverse_closure {
+    struct MHD_Connection *connection;
+    struct webcontext *c;
+    ostringstream *output;
+    vector<pmID> pmids;
+    unsigned num_metrics_attempted;
+    unsigned num_metrics_completed;
+};
+
+
+static void
+metric_prometheus_traverse (const char *metric, void *closure)
+{
+    struct metric_prometheus_traverse_closure *mptc = (struct metric_prometheus_traverse_closure *)
+            closure;
+    assert (mptc != NULL);
+    assert (mptc->connection != NULL);
+    assert (mptc->c != NULL);
+    assert (mptc->output != NULL);
+
+    mptc->num_metrics_attempted++;
+
+    int rc;
+    char *metrics[1] = {
+        (char *) metric
+    };
+    struct webcontext *c = mptc->c;
+    pmID metric_id;
+
+    if (c->metric_id_cache.find(metric) != c->metric_id_cache.end()) {
+        metric_id = c->metric_id_cache.find(metric)->second;
+    } else {
+        rc = pmLookupName (1, metrics, &metric_id);
+        if (rc != 1)
+            return; // skip quietly
+        c->metric_id_cache[metric] = metric_id;
+        c->metric_name_cache[metric_id] = metric;
+    }
+
+    pmDesc metric_desc;
+    assert (metric_id != PM_ID_NULL);
+
+    if (c->metric_desc_cache.find(metric_id) == c->metric_desc_cache.end()) {
+        rc = pmLookupDesc (metric_id, &metric_desc);
+        if (rc != 0)
+            return; // skip quietly
+        c->metric_desc_cache[metric_id] = metric_desc;
+    }
+
+    char *help_text;
+    if (c->metric_text_cache.find(metric_id) == c->metric_text_cache.end()) {
+        rc = pmLookupText(metric_id, PM_TEXT_ONELINE, &help_text);
+        if (rc != 0){
+            return;
+        }
+        c->metric_text_cache[metric_id] = help_text;
+    }
+
+    mptc->pmids.push_back(metric_id);
+}
+
+static void
+metric_prometheus_batch_fetch(void *closure) {
+    struct metric_prometheus_traverse_closure *mptc = (struct metric_prometheus_traverse_closure *)
+            closure;
+    int rc;
+    struct webcontext *c = mptc->c;
+    pmResult *result;
+    rc = pmFetch (mptc->pmids.size(), &mptc->pmids[0], &result);
+    if (rc < 0) {
+        char pmmsg[PM_MAXERRMSGLEN];
+        connstamp (cerr, mptc->connection) << "pmFetch failed: " << pmErrStr_r (rc, pmmsg, sizeof (pmmsg)) << endl;
+        return;
+    }
+
+    assert (result != NULL);
+    int j;
+    for(j=0; j<result->numpmid; j++) {
+        pmValueSet* pv = result->vset[j]; // slot dedicated to our metric
+        pmID metric_id = pv->pmid;
+        stringstream output;
+        assert (pv != NULL);
+        if (pv->numval < 0) {
+            char pmmsg[PM_MAXERRMSGLEN];
+            connstamp (cerr, mptc->connection) << "pmFetch value failed: " << pmErrStr_r (pv->numval,
+                                                                                    pmmsg, sizeof (pmmsg)) << endl;
+            continue;
+        }
+        pmDesc metric_desc = c->metric_desc_cache.find(metric_id)->second;
+        const char *help_text = c->metric_text_cache.find(metric_id)->second.c_str();
+        const char *metric = c->metric_name_cache.find(metric_id)->second.c_str();
+        // Reject non-numeric types; we'll convert to DOUBLE for prometheus
+        if (metric_desc.type != PM_TYPE_32 &&
+            metric_desc.type != PM_TYPE_U32 &&
+            metric_desc.type != PM_TYPE_64 &&
+            metric_desc.type != PM_TYPE_U64 &&
+            metric_desc.type != PM_TYPE_FLOAT &&
+            metric_desc.type != PM_TYPE_DOUBLE)
+            continue; // skip quietly
+
+        // Map the pcp pmns metric name into prometheus name.  Prometheus
+        // imposes tighter constraints (no dots to separate names).  Ideally,
+        // it should be reversible with respect to pmdaprometheus.
+        // See also https://github.com/performancecopilot/pcp/issues/319 .
+        string pn = metric;
+        replace (pn.begin(), pn.end(), '.', ':');
+
+        output << "# HELP " << pn << " " << help_text << endl;
+
+        // Append a metric_desc.units-based suffix, and compute an
+        // pmConvScale vector to match conventions as per
+        // https://prometheus.io/docs/practices/naming/
+        // Reject metrics with pcp pmunits of dimensionality inexpressible
+        // in prometheus.
+        pmUnits oconv = metric_desc.units;
+        if (metric_desc.units.dimSpace == 1 &&
+            metric_desc.units.dimTime == 0 &&
+            metric_desc.units.dimCount == 0) {
+            pn += "_bytes";
+            oconv.dimSpace = 1;
+            oconv.scaleSpace = PM_SPACE_BYTE;
+        } else if (metric_desc.units.dimSpace == 0 &&
+                   metric_desc.units.dimTime == 1 &&
+                   metric_desc.units.dimCount == 0) {
+            pn += "_seconds";
+            oconv.dimTime = 1;
+            oconv.scaleTime = PM_TIME_SEC;
+        } else if (metric_desc.units.dimSpace == 0 &&
+                   metric_desc.units.dimTime == 0 &&
+                   metric_desc.units.dimCount == 1) {
+            pn += "_count";
+            oconv.dimCount = 1;
+            oconv.scaleCount = PM_COUNT_ONE;
+        } else if (metric_desc.units.dimSpace == 0 &&
+                   metric_desc.units.dimTime == 0 &&
+                   metric_desc.units.dimCount == 0) {
+            // non-dimensional value, such as kernel.all.load
+        } else {
+            continue; // skip quietly
+        }
+
+        // append semantics tag
+        if (metric_desc.sem == PM_SEM_COUNTER) {
+            pn += "_total";
+            output << "# TYPE " << pn << " counter" << endl;
+        } else {
+            output << "# TYPE " << pn << " gauge" << endl; // DISCRETE or INSTANT
+        }
+
+        // Iterate over the instances
+        int i;
+        if (c->metric_inst_cache.find(metric_id) == c->metric_inst_cache.end())
+            c->metric_inst_cache[metric_id] = map<int, string>();
+        map<int, string> &inst_cache = c->metric_inst_cache[metric_id];
+        for (i=0; i<pv->numval; i++) {
+            const pmValue* v = & pv->vlist[i];
+
+            pmAtomValue extracted;
+            rc = pmExtractValue (pv->valfmt, v, metric_desc.type, & extracted, PM_TYPE_DOUBLE);
+            if (rc < 0) continue; // skip just this one
+
+            pmAtomValue scaled;
+            rc = pmConvScale (PM_TYPE_DOUBLE, & extracted, & metric_desc.units, & scaled, & oconv);
+            if (rc < 0) continue; // skip just this one
+
+            // Compute the "label" string from the instance name
+            int inst = v->inst;
+            string labels;
+            if (inst < 0) { // not an instanced metric
+                ;
+            } else if (inst_cache.find(inst) != inst_cache.end()){
+                labels = inst_cache[inst];
+            } else {
+                char *name;
+                string instance_string;
+                rc = pmNameInDom (metric_desc.indom, inst, & name);
+                if (rc < 0)
+                    instance_string="";
+                else {
+                    instance_string= escapeString(name);
+                    free (name);
+                }
+                labels = "{instance=\"" + instance_string + "\"}";
+                inst_cache[inst] = labels;
+            }
+
+            // Finally, output the line
+            output << pn << labels << " ";
+            if (std::numeric_limits<double>::is_specialized) {
+                // print more bits of precision for larger numeric types
+                output.precision (std::numeric_limits<double>::digits10 + 2 /* for rounding? */);
+                output << scaled.d;
+            } else {
+                output << scaled.d;
+            }
+            output << endl;
+
+            // NB: skip the timestamp
+        }
+        // Only now, with everything collected, append our data to the prometheus output stream
+        (*mptc->output) << output.str();
+        mptc->num_metrics_completed++;
+    }
+}
+
+
+static int
+pmwebapi_respond_prometheus (struct MHD_Connection *connection,
+                             const http_params &params,
+                             struct webcontext *c)
+{
+    vector<string> metrics = params.find_all ("target");
+    ostringstream output;
+    struct MHD_Response *resp;
+    int rc;
+    
+    metric_prometheus_traverse_closure mptc;
+    mptc.connection = connection;
+    mptc.c = c;
+    mptc.output = & output;
+    mptc.num_metrics_attempted = 0;
+    mptc.num_metrics_completed = 0;
+    for (unsigned i=0; i<metrics.size(); i++) {
+        const string& m = metrics[i];
+        (void) pmTraversePMNS_r (m.c_str(), &metric_prometheus_traverse, &mptc); /* cannot fail */
+    }
+    (void) metric_prometheus_batch_fetch(&mptc);
+    (*mptc.output) << endl
+                   << "# number of metrics attempted: " << mptc.num_metrics_attempted << endl
+                   << "# number of metrics completed: " << mptc.num_metrics_completed << endl;
+    
+    string s = mptc.output->str ();
+    resp = NOTMHD_compressible_response (connection, s);
+    if (resp == NULL) {
+        connstamp (cerr, connection) << "MHD_create_response_from_buffer failed" << endl;
+        rc = -ENOMEM;
+        goto out;
+    }
+
+    rc = MHD_add_response_header (resp, "Content-Type", "application/json");
+    if (rc != MHD_YES) {
+        connstamp (cerr, connection) << "MHD_add_response_header failed" << endl;
+        rc = -ENOMEM;
+        goto out1;
+    }
+
+    rc = MHD_add_response_header (resp, "Access-Control-Allow-Origin", "*");
+    if (rc != MHD_YES) {
+        connstamp (cerr, connection) << "MHD_add_response_header ACAO failed" << endl;
+        rc = -ENOMEM;
+        goto out1;
+    }
+
+    rc = MHD_queue_response (connection, MHD_HTTP_OK, resp);
+    if (rc != MHD_YES) {
+        connstamp (cerr, connection) << "MHD_queue_response failed" << endl;
+        rc = -ENOMEM;
+        goto out1;
+    }
+    MHD_destroy_response (resp);
+    return MHD_YES;
+out1:
+    MHD_destroy_response (resp);
+out:
+    return mhd_notify_error (connection, rc);
+}
+
+
+/* ------------------------------------------------------------------------ */
+
 
 static int
 pmwebapi_respond_metric_store (struct MHD_Connection *connection,
@@ -1322,7 +1596,7 @@ pmwebapi_respond (struct MHD_Connection *connection, const http_params & params,
        https://developer.mozilla.org/en-US/docs/HTTP/Access_control_CORS */
 
     /* NB: url is already edited to remove the /pmapi/ prefix. */
-    long webapi_ctx;
+    unsigned long webapi_ctx;
     struct webcontext *c;
     char *context_end;
     string context_command;
@@ -1348,7 +1622,7 @@ pmwebapi_respond (struct MHD_Connection *connection, const http_params & params,
     }
 
     errno = 0;
-    webapi_ctx = strtol (url[2].c_str (), &context_end, 10);	/* matches %d above */
+    webapi_ctx = strtoul (url[2].c_str (), &context_end, 10);	/* matches %d above */
     if (errno != 0 || webapi_ctx <= 0	/* range check, plus string-nonemptyness check */
             || webapi_ctx > INT_MAX	/* matches random() loop above */
             || *context_end != '\0') {
@@ -1359,7 +1633,7 @@ pmwebapi_respond (struct MHD_Connection *connection, const http_params & params,
     }
     context_command = url[3];
 
-    it = contexts.find ((int) webapi_ctx);
+    it = contexts.find (webapi_ctx);
     if (it == contexts.end ()) {
         connstamp (cerr, connection) << "unknown web context #" << webapi_ctx << endl;
         rc = PM_ERR_NOCONTEXT;
@@ -1460,7 +1734,12 @@ pmwebapi_respond (struct MHD_Connection *connection, const http_params & params,
     else if (context_command == "_store") {
         return pmwebapi_respond_metric_store (connection, params, c);
     }
-
+    /* -------------------------------------------------------------------- */
+    /* prometheus fetch: /context/$ID/metrics */
+    else if (context_command == "metrics") {
+        return pmwebapi_respond_prometheus (connection, params, c);
+    }
+    
     connstamp (cerr, connection) << "unknown context command " << context_command << endl;
 
     rc = -EINVAL;
