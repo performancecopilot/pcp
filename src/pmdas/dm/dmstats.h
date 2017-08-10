@@ -70,7 +70,6 @@ struct pm_wrap {
 	uint64_t region_id;
 	uint64_t area_id;
 	char *dev;
-	int populate;
 };
 
 typedef enum {

@@ -147,45 +147,46 @@ _pm_dm_refresh_stats_counter(const char *name, struct pm_wrap *pw)
 #define PER_COUNTER(STATS_COUNTER) dm_stats_get_counter(pw->dms, (STATS_COUNTER), \
 		pw->region_id, pw->area_id)
 static int
-_pm_dm_refresh_stats_hcounter(const char *name, struct pm_wrap *pw)
+_pm_dm_refresh_stats_hcounter(struct pm_wrap *pw, struct pm_wrap *pw2)
 {
 	uint64_t reads = 0, reads_merged = 0, read_sectors = 0, read_nsecs = 0;
 	uint64_t writes = 0, writes_merged = 0, write_sectors = 0, write_nsecs = 0;
 	uint64_t io_in_progress = 0, io_nsecs = 0, weighted_io_nsecs = 0, total_read_nsecs = 0, total_write_nsecs = 0;
 
 
-	reads             += SUM_COUNTER(DM_STATS_READS_COUNT);
-	reads_merged      += SUM_COUNTER(DM_STATS_READS_COUNT);
-	read_sectors      += SUM_COUNTER(DM_STATS_READ_SECTORS_COUNT);
-	read_nsecs        += SUM_COUNTER(DM_STATS_READ_NSECS);
-	writes            += SUM_COUNTER(DM_STATS_WRITES_COUNT);
-	writes_merged     += SUM_COUNTER(DM_STATS_WRITES_MERGED_COUNT);
-	write_sectors     += SUM_COUNTER(DM_STATS_WRITE_SECTORS_COUNT);
-	write_nsecs       += SUM_COUNTER(DM_STATS_WRITE_NSECS);
-	io_in_progress    += SUM_COUNTER(DM_STATS_IO_IN_PROGRESS_COUNT);
-	io_nsecs          += SUM_COUNTER(DM_STATS_IO_NSECS);
-	weighted_io_nsecs += SUM_COUNTER(DM_STATS_WEIGHTED_IO_NSECS);
-	total_read_nsecs  += SUM_COUNTER(DM_STATS_TOTAL_READ_NSECS);
-	total_write_nsecs += SUM_COUNTER(DM_STATS_TOTAL_WRITE_NSECS);
+	reads             = PER_COUNTER(DM_STATS_READS_COUNT);
+	reads_merged      = PER_COUNTER(DM_STATS_READS_COUNT);
+	read_sectors      = PER_COUNTER(DM_STATS_READ_SECTORS_COUNT);
+	read_nsecs        = PER_COUNTER(DM_STATS_READ_NSECS);
+	writes            = PER_COUNTER(DM_STATS_WRITES_COUNT);
+	writes_merged     = PER_COUNTER(DM_STATS_WRITES_MERGED_COUNT);
+	write_sectors     = PER_COUNTER(DM_STATS_WRITE_SECTORS_COUNT);
+	write_nsecs       = PER_COUNTER(DM_STATS_WRITE_NSECS);
+	io_in_progress    = PER_COUNTER(DM_STATS_IO_IN_PROGRESS_COUNT);
+	io_nsecs          = PER_COUNTER(DM_STATS_IO_NSECS);
+	weighted_io_nsecs = PER_COUNTER(DM_STATS_WEIGHTED_IO_NSECS);
+	total_read_nsecs  = PER_COUNTER(DM_STATS_TOTAL_READ_NSECS);
+	total_write_nsecs = PER_COUNTER(DM_STATS_TOTAL_WRITE_NSECS);
 
 
-	pw->dmsc->pm_reads             += reads;
-	pw->dmsc->pm_reads_merged      += reads_merged;
-	pw->dmsc->pm_read_sectors      += read_sectors;
-	pw->dmsc->pm_read_nsecs        += read_nsecs;
-	pw->dmsc->pm_writes            += writes;
-	pw->dmsc->pm_writes_merged     += writes_merged;
-	pw->dmsc->pm_write_sectors     += write_sectors;
-	pw->dmsc->pm_write_nsecs       += write_nsecs;
-	pw->dmsc->pm_io_in_progress    += io_in_progress;
-	pw->dmsc->pm_io_nsecs          += io_nsecs;
-	pw->dmsc->pm_weighted_io_nsecs += weighted_io_nsecs;
-	pw->dmsc->pm_total_read_nsecs  += total_read_nsecs;
-	pw->dmsc->pm_total_write_nsecs += total_write_nsecs;
+	pw2->dmsc->pm_reads             += reads;
+	pw2->dmsc->pm_reads_merged      += reads_merged;
+	pw2->dmsc->pm_read_sectors      += read_sectors;
+	pw2->dmsc->pm_read_nsecs        += read_nsecs;
+	pw2->dmsc->pm_writes            += writes;
+	pw2->dmsc->pm_writes_merged     += writes_merged;
+	pw2->dmsc->pm_write_sectors     += write_sectors;
+	pw2->dmsc->pm_write_nsecs       += write_nsecs;
+	pw2->dmsc->pm_io_in_progress    += io_in_progress;
+	pw2->dmsc->pm_io_nsecs          += io_nsecs;
+	pw2->dmsc->pm_weighted_io_nsecs += weighted_io_nsecs;
+	pw2->dmsc->pm_total_read_nsecs  += total_read_nsecs;
+	pw2->dmsc->pm_total_write_nsecs += total_write_nsecs;
 
 	return 0;
 
 }
+
 static float
 _make_percent(uint64_t numerator, uint64_t denominator)
 {
@@ -202,22 +203,16 @@ static int
 _pm_dm_refresh_stats_histogram(const char *name, struct pm_wrap *pw)
 {
 	struct dm_histogram *dmh;
-	struct pm_wrap *pw2;
 	static uint64_t *buffer_count_data;
 	static int number_of_bins = 0, bin = 0;
 	static uint64_t total = 0;
-	int walk;
 	uint64_t region_id, area_id;
-	char *dev;
-	pmInDom indom = dm_indom(DM_STATS_INDOM);
 
-	dev = pw->dev;
 	region_id = pw->region_id;
 	area_id = pw->area_id;
 
+
 	if (bin == 0) {
-		if (!dm_stats_populate(pw->dms, DM_STATS_ALL_PROGRAMS, pw->region_id))
-			goto nostats;
 		if (!(dmh = dm_stats_get_histogram(pw->dms, region_id, area_id)))
 			goto nostats;
 
@@ -251,6 +246,53 @@ nostats:
 	return -oserror();
 }
 
+static int
+_pm_dm_refresh_stats_hhistogram(struct pm_wrap *pw, struct pm_wrap *pw2)
+{
+	struct dm_histogram *dmh;
+	static uint64_t *buffer_count_data;
+	static int number_of_bins = 0, bin = 0;
+	static uint64_t total = 0;
+	uint64_t region_id, area_id;
+
+	region_id = pw2->region_id;
+	area_id = pw2->area_id;
+
+
+	if (bin == 0) {
+		if (!(dmh = dm_stats_get_histogram(pw->dms, region_id, area_id)))
+			goto nostats;
+
+		number_of_bins = dm_histogram_get_nr_bins(dmh);
+		total = dm_histogram_get_sum(dmh);
+
+		buffer_count_data = (uint64_t *)malloc(sizeof(uint64_t)*number_of_bins);
+		for (int i = 0; i < number_of_bins; i++) {
+			buffer_count_data[i] = dm_histogram_get_bin_count(dmh, i);
+		}
+	}
+
+	pw2->pdmh->pm_bin_value += buffer_count_data[bin];
+	pw2->pdmh->pm_bin_percent = _make_percent(buffer_count_data[bin], total);
+	pw2->pdmh->pm_region = region_id;
+	pw2->pdmh->pm_bin = number_of_bins;
+
+	bin++;
+
+	if (bin == number_of_bins) {
+		bin = 0;
+		total = 0;
+		number_of_bins = 0;
+		free(buffer_count_data);
+	}
+
+	return 0;
+
+nostats:
+	dm_stats_destroy(pw->dms);
+	return -oserror();
+}
+
 int pm_dm_refresh_stats(struct pm_wrap *pw, int flag)
 {
 	const char *tmp = "";
@@ -259,15 +301,30 @@ int pm_dm_refresh_stats(struct pm_wrap *pw, int flag)
     	int inst;
     	int sts = 0;
 
-
-
 	if (flag == 1) {
 		if (!dm_stats_populate(pw->dms, DM_STATS_ALL_PROGRAMS, DM_STATS_REGIONS_ALL))
 			goto nostats;
 		_pm_dm_refresh_stats_counter(tmp, pw);
-		/* whether there is hitogram */
+
+        	struct pm_wrap *pw2;
+
+        	if ((sts = pm_dm_histogram_instance_refresh()) < 0)
+		    	return sts;
+
+        	indom = dm_indom(DM_HISTOGRAM_INDOM);
+
+        	for (pmdaCacheOp(indom, PMDA_CACHE_WALK_REWIND);;) {
+		    	if ((inst = pmdaCacheOp(indom, PMDA_CACHE_WALK_NEXT)) < 0)
+		        	break;
+		    	if (!pmdaCacheLookup(indom, inst, &name, (void **)&pw2) || !pw2)
+		        	continue;
+        	    	if (!strcmp(pw2->dev, pw->dev))
+			  	  _pm_dm_refresh_stats_hhistogram(pw, pw2);
+        	}
 	}
 	if (flag == 0) {
+		if (!dm_stats_populate(pw->dms, DM_STATS_ALL_PROGRAMS, pw->region_id))
+			goto nostats;
 		_pm_dm_refresh_stats_histogram(tmp, pw);
 		struct pm_wrap *pw2;
 
@@ -282,8 +339,7 @@ int pm_dm_refresh_stats(struct pm_wrap *pw, int flag)
 		    	if (!pmdaCacheLookup(indom, inst, &name, (void **)&pw2) || !pw2)
 		        	continue;
         	    	if (!strcmp(pw2->dev, pw->dev)) {
-			   	 pw2->dms = pw->dms;
-				_pm_dm_refresh_stats_hcounter(tmp, pw2);
+				_pm_dm_refresh_stats_hcounter(pw, pw2);
 			   	break;
 		    	}
         	}

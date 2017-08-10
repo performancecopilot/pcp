@@ -333,7 +333,6 @@ indom = dm_indom(DM_CACHE_INDOM);
         }
     }
 
-
     if (need_refresh[CLUSTER_DM_HISTOGRAM]) {
         struct pm_wrap *pw;
 
