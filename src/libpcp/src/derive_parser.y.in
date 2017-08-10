@@ -3080,8 +3080,14 @@ derive_lex(void)
 		break;
 	    }
 	    else if (ltype == L_STRING) {
-		if (c != '"')
+		if (c != '"') {
+		    if (c == '\0') {
+			PM_TPD(derive_errmsg) = "unterminated STRING";
+			ret = L_ERROR;
+			break;
+		    }
 		    continue;
+		}
 		/* [-1] and [1] to strip quotes */
 		p[-1] = '\0';
 		if ((derive_lval.s = strdup(&tokbuf[1])) == NULL) {
