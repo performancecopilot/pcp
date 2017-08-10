@@ -44,8 +44,8 @@ struct pm_dm_stats_counter {
 	uint64_t pm_reads;		    /* Num reads completed */
 	uint64_t pm_reads_merged;	    /* Num reads merged */
 	uint64_t pm_read_sectors;	    /* Num sectors read */
-	uint64_t pm_read_nsecs;	    /* Num milliseconds spent reading */
-	uint64_t pm_writes;	    /* Num writes completed */
+	uint64_t pm_read_nsecs;	   	    /* Num milliseconds spent reading */
+	uint64_t pm_writes;	    	    /* Num writes completed */
 	uint64_t pm_writes_merged;	    /* Num writes merged */
 	uint64_t pm_write_sectors;	    /* Num sectors written */
 	uint64_t pm_write_nsecs;	    /* Num milliseconds spent writing */
@@ -56,16 +56,21 @@ struct pm_dm_stats_counter {
 	uint64_t pm_total_write_nsecs; /* Total time spent writing in milliseconds */
 };
 
-/*
-struct dm_stats_metric {
-};
-*/
-
 struct pm_dm_histogram {
 	uint64_t pm_bin_value;
 	float pm_bin_percent;
 	uint64_t pm_region;
 	uint64_t pm_bin;
+};
+
+struct pm_wrap {
+	struct dm_stats *dms;
+	struct pm_dm_stats_counter *dmsc;
+	struct pm_dm_histogram *pdmh;
+	uint64_t region_id;
+	uint64_t area_id;
+	char *dev;
+	int populate;
 };
 
 typedef enum {
@@ -76,20 +81,14 @@ typedef enum {
 	PM_DM_HISTOGRAM_NR_HISTOGRAMS,
 } pm_dm_histogram_t;
 
-extern int pm_dm_stats_fetch(int, struct pm_dm_stats_counter *, pmAtomValue *);
-extern int pm_dm_refresh_stats_counter(const char *, struct pm_dm_stats_counter *);
-extern int pm_dm_stats_instance_refresh(void);
-
-extern int pm_dm_histogram_fetch(int, struct pm_dm_histogram *, pmAtomValue *);
-extern int pm_dm_refresh_stats_histogram(const char *, struct pm_dm_histogram *);
-extern int pm_dm_histogram_instance_refresh(void);
-
-extern void pm_dm_stats_setup(void);
-
 #ifdef HAVE_DEVMAPPER
-extern int pm_dm_stats_fetch(int, struct pm_dm_stats_counter *, pmAtomValue *);
-extern int pm_dm_refresh_stats_counter(const char *, struct pm_dm_stats_counter *);
+extern int pm_dm_stats_fetch(int, struct pm_wrap *, pmAtomValue *);
+extern int pm_dm_refresh_stats_counter(const char *, struct pm_wrap *);
 extern int pm_dm_stats_instance_refresh(void);
+extern int pm_dm_histogram_fetch(int, struct pm_wrap *, pmAtomValue *);
+extern int pm_dm_refresh_stats_histogram(const char *, struct pm_wrap *);
+extern int pm_dm_histogram_instance_refresh(void);
+extern int pm_dm_refresh_stats(struct pm_wrap *, int);
 #else
 #define pm_dm_stats_fetch(item, ctr, atom)      (PM_ERR_APPVERSION)
 #define pm_dm_refresh_stats_counter(s, ctr)     do { } while (0)

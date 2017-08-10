@@ -24,185 +24,168 @@
 
 
 int
-pm_dm_stats_fetch(int item, struct pm_dm_stats_counter *dmsc, pmAtomValue *atom)
+pm_dm_stats_fetch(int item, struct pm_wrap *pw, pmAtomValue *atom)
 {
 	if (item < 0 || item >= PM_DM_STATS_NR_COUNTERS)
 		return  PM_ERR_PMID;
 
 	switch (item) {
 		case PM_DM_STATS_READS:
-			atom->ull = dmsc->pm_reads;
+			atom->ull = pw->dmsc->pm_reads;
 			break;
 		case PM_DM_STATS_READS_MERGED:
-			atom->ull = dmsc->pm_reads_merged;
+			atom->ull = pw->dmsc->pm_reads_merged;
 			break;
 		/* Correspond with kbytes units */
 		case PM_DM_STATS_READ_SECTORS:
-			atom->ull = dmsc->pm_read_sectors / 2;
+			atom->ull = pw->dmsc->pm_read_sectors / 2;
 			break;
 		case PM_DM_STATS_READ_NSECS:
-			atom->ull = dmsc->pm_read_nsecs;
+			atom->ull = pw->dmsc->pm_read_nsecs;
 			break;
 		case PM_DM_STATS_WRITES:
-			atom->ull = dmsc->pm_writes;
+			atom->ull = pw->dmsc->pm_writes;
 			break;
 		case PM_DM_STATS_WRITES_MERGED:
-			atom->ull = dmsc->pm_writes_merged;
+			atom->ull = pw->dmsc->pm_writes_merged;
 			break;
 		/* Correspond with kbytes units */
 		case PM_DM_STATS_WRITE_SECTORS:
-			atom->ull = dmsc->pm_write_sectors / 2;
+			atom->ull = pw->dmsc->pm_write_sectors / 2;
 			break;
 		case PM_DM_STATS_WRITE_NSECS:
-			atom->ull = dmsc->pm_write_nsecs;
+			atom->ull = pw->dmsc->pm_write_nsecs;
 			break;
 		case PM_DM_STATS_IO_IN_PROGRESS:
-			atom->ull = dmsc->pm_io_in_progress;
+			atom->ull = pw->dmsc->pm_io_in_progress;
 			break;
 		case PM_DM_STATS_IO_NSECS:
-			atom->ull = dmsc->pm_io_nsecs;
+			atom->ull = pw->dmsc->pm_io_nsecs;
 			break;
 		case PM_DM_STATS_WEIGHTED_IO_NSECS:
-			atom->ull = dmsc->pm_weighted_io_nsecs;
+			atom->ull = pw->dmsc->pm_weighted_io_nsecs;
 			break;
 		case PM_DM_STATS_TOTAL_READ_NSECS:
-			atom->ull = dmsc->pm_total_read_nsecs;
+			atom->ull = pw->dmsc->pm_total_read_nsecs;
 			break;
 		case PM_DM_STATS_TOTAL_WRITE_NSECS:
-			atom->ull = dmsc->pm_total_write_nsecs;
+			atom->ull = pw->dmsc->pm_total_write_nsecs;
 			break;
 	}
 	return 1;
 }
 
 int
-pm_dm_histogram_fetch(int item, struct pm_dm_histogram *pdmh, pmAtomValue *atom)
+pm_dm_histogram_fetch(int item, struct pm_wrap *pw, pmAtomValue *atom)
 {
 	if (item < 0 || item > PM_DM_HISTOGRAM_NR_HISTOGRAMS)
 		return PM_ERR_PMID;
 
 	switch (item) {
 		case PM_DM_HISTOGRAM_COUNT:
-			atom->ull = pdmh->pm_bin_value;
+			atom->ull = pw->pdmh->pm_bin_value;
 			break;
 		case PM_DM_HISTOGRAM_PERCENT:
-			atom->f = pdmh->pm_bin_percent;
+			atom->f = pw->pdmh->pm_bin_percent;
 			break;
 		case PM_DM_HISTOGRAM_REGION:
-			atom->ull = pdmh->pm_region;
+			atom->ull = pw->pdmh->pm_region;
 			break;
 		case PM_DM_HISTOGRAM_BIN:
-			atom->ull = pdmh->pm_bin;
+			atom->ull = pw->pdmh->pm_bin;
 			break;
 	}
 	return 1;
 }
 
-#define SUM_COUNTER(STATS_COUNTER) dm_stats_get_counter(dms, (STATS_COUNTER), \
+#define SUM_COUNTER(STATS_COUNTER) dm_stats_get_counter(pw->dms, (STATS_COUNTER), \
 		DM_STATS_REGION_CURRENT, DM_STATS_AREA_CURRENT)
-#define PER_COUNTER(STATS_COUNTER) dm_stats_get_counter(dms, \
-		(STATS_COUNTER), (region_id), (area_id))
 
-static void
-_pm_dm_stats_value(struct dm_stats *dms, uint64_t *stats_val, uint64_t region_id, uint64_t area_id)
+static int
+_pm_dm_refresh_stats_counter(const char *name, struct pm_wrap *pw)
 {
-	static uint64_t reads = 0, reads_merged = 0, read_sectors = 0, read_nsecs = 0;
-	static uint64_t writes = 0, writes_merged = 0, write_sectors = 0, write_nsecs = 0;
-	static uint64_t io_in_progress = 0, io_nsecs = 0, weighted_io_nsecs = 0, total_read_nsecs = 0, total_write_nsecs = 0;
+	uint64_t reads = 0, reads_merged = 0, read_sectors = 0, read_nsecs = 0;
+	uint64_t writes = 0, writes_merged = 0, write_sectors = 0, write_nsecs = 0;
+	uint64_t io_in_progress = 0, io_nsecs = 0, weighted_io_nsecs = 0, total_read_nsecs = 0, total_write_nsecs = 0;
 
-	if (region_id == DM_STATS_REGION_CURRENT) {
-		dm_stats_foreach_region(dms) {
-			reads             += SUM_COUNTER(DM_STATS_READS_COUNT);
-			reads_merged      += SUM_COUNTER(DM_STATS_READS_COUNT);
-			read_sectors      += SUM_COUNTER(DM_STATS_READ_SECTORS_COUNT);
-			read_nsecs        += SUM_COUNTER(DM_STATS_READ_NSECS);
-			writes            += SUM_COUNTER(DM_STATS_WRITES_COUNT);
-			writes_merged     += SUM_COUNTER(DM_STATS_WRITES_MERGED_COUNT);
-			write_sectors     += SUM_COUNTER(DM_STATS_WRITE_SECTORS_COUNT);
-			write_nsecs       += SUM_COUNTER(DM_STATS_WRITE_NSECS);
-			io_in_progress    += SUM_COUNTER(DM_STATS_IO_IN_PROGRESS_COUNT);
-			io_nsecs          += SUM_COUNTER(DM_STATS_IO_NSECS);
-			weighted_io_nsecs += SUM_COUNTER(DM_STATS_WEIGHTED_IO_NSECS);
-			total_read_nsecs  += SUM_COUNTER(DM_STATS_TOTAL_READ_NSECS);
-			total_write_nsecs += SUM_COUNTER(DM_STATS_TOTAL_WRITE_NSECS);
-		}
 
-		stats_val[0]  = reads;
-		stats_val[1]  = reads_merged;
-		stats_val[2]  = read_sectors;
-		stats_val[3]  = read_nsecs;
-		stats_val[4]  = writes;
-		stats_val[5]  = writes_merged;
-		stats_val[6]  = write_sectors;
-		stats_val[7]  = write_nsecs;
-		stats_val[8]  = io_in_progress;
-		stats_val[9]  = io_nsecs;
-		stats_val[10] = weighted_io_nsecs;
-		stats_val[11] = total_read_nsecs;
-		stats_val[12] = total_write_nsecs;
+	dm_stats_foreach_region(pw->dms) {
+		reads             += SUM_COUNTER(DM_STATS_READS_COUNT);
+		reads_merged      += SUM_COUNTER(DM_STATS_READS_COUNT);
+		read_sectors      += SUM_COUNTER(DM_STATS_READ_SECTORS_COUNT);
+		read_nsecs        += SUM_COUNTER(DM_STATS_READ_NSECS);
+		writes            += SUM_COUNTER(DM_STATS_WRITES_COUNT);
+		writes_merged     += SUM_COUNTER(DM_STATS_WRITES_MERGED_COUNT);
+		write_sectors     += SUM_COUNTER(DM_STATS_WRITE_SECTORS_COUNT);
+		write_nsecs       += SUM_COUNTER(DM_STATS_WRITE_NSECS);
+		io_in_progress    += SUM_COUNTER(DM_STATS_IO_IN_PROGRESS_COUNT);
+		io_nsecs          += SUM_COUNTER(DM_STATS_IO_NSECS);
+		weighted_io_nsecs += SUM_COUNTER(DM_STATS_WEIGHTED_IO_NSECS);
+		total_read_nsecs  += SUM_COUNTER(DM_STATS_TOTAL_READ_NSECS);
+		total_write_nsecs += SUM_COUNTER(DM_STATS_TOTAL_WRITE_NSECS);
 
-	} else {
-			reads             += PER_COUNTER(DM_STATS_READS_COUNT);
-			reads_merged      += PER_COUNTER(DM_STATS_READS_COUNT);
-			read_sectors      += PER_COUNTER(DM_STATS_READ_SECTORS_COUNT);
-			read_nsecs        += PER_COUNTER(DM_STATS_READ_NSECS);
-			writes            += PER_COUNTER(DM_STATS_WRITES_COUNT);
-			writes_merged     += PER_COUNTER(DM_STATS_WRITES_MERGED_COUNT);
-			write_sectors     += PER_COUNTER(DM_STATS_WRITE_SECTORS_COUNT);
-			write_nsecs       += PER_COUNTER(DM_STATS_WRITE_NSECS);
-			io_in_progress    += PER_COUNTER(DM_STATS_IO_IN_PROGRESS_COUNT);
-			io_nsecs          += PER_COUNTER(DM_STATS_IO_NSECS);
-			weighted_io_nsecs += PER_COUNTER(DM_STATS_WEIGHTED_IO_NSECS);
-			total_read_nsecs  += PER_COUNTER(DM_STATS_TOTAL_READ_NSECS);
-			total_write_nsecs += PER_COUNTER(DM_STATS_TOTAL_WRITE_NSECS);
 	}
 
-}
-
-#define SUM 1
-#define EACH  0
-#define COUNTER_METRIC 13
-
-int
-pm_dm_refresh_stats_counter(const char *name, struct pm_dm_stats_counter *dmsc)
-{
-	struct dm_stats *dms;
-	uint64_t stats_val[COUNTER_METRIC] = {};
-
-	if (!(dms = dm_stats_create(DM_STATS_ALL_PROGRAMS)))
-		goto nostats;
-
-	if (!dm_stats_bind_name(dms, name))
-		goto nostats;
-
-	if (!dm_stats_populate(dms, DM_STATS_ALL_PROGRAMS, DM_STATS_REGIONS_ALL))
-		goto nostats;
-
-	_pm_dm_stats_value(dms, stats_val, DM_STATS_REGION_CURRENT, DM_STATS_AREA_CURRENT);
-
-	dmsc->pm_reads             = stats_val[0];
-	dmsc->pm_reads_merged      = stats_val[1];
-	dmsc->pm_read_sectors      = stats_val[2];
-	dmsc->pm_read_nsecs        = stats_val[3];
-	dmsc->pm_writes            = stats_val[4];
-	dmsc->pm_writes_merged     = stats_val[5];
-	dmsc->pm_write_sectors     = stats_val[6];
-	dmsc->pm_write_nsecs       = stats_val[7];
-	dmsc->pm_io_in_progress    = stats_val[8];
-	dmsc->pm_io_nsecs          = stats_val[9];
-	dmsc->pm_weighted_io_nsecs = stats_val[10];
-	dmsc->pm_total_read_nsecs  = stats_val[11];
-	dmsc->pm_total_write_nsecs = stats_val[12];
-	dm_stats_destroy(dms);
+	pw->dmsc->pm_reads             += reads;
+	pw->dmsc->pm_reads_merged      += reads_merged;
+	pw->dmsc->pm_read_sectors      += read_sectors;
+	pw->dmsc->pm_read_nsecs        += read_nsecs;
+	pw->dmsc->pm_writes            += writes;
+	pw->dmsc->pm_writes_merged     += writes_merged;
+	pw->dmsc->pm_write_sectors     += write_sectors;
+	pw->dmsc->pm_write_nsecs       += write_nsecs;
+	pw->dmsc->pm_io_in_progress    += io_in_progress;
+	pw->dmsc->pm_io_nsecs          += io_nsecs;
+	pw->dmsc->pm_weighted_io_nsecs += weighted_io_nsecs;
+	pw->dmsc->pm_total_read_nsecs  += total_read_nsecs;
+	pw->dmsc->pm_total_write_nsecs += total_write_nsecs;
 
 	return 0;
-	dm_stats_destroy(dms);
 
-nostats:
-	dm_stats_destroy(dms);
-	return -oserror();
 }
 
+#define PER_COUNTER(STATS_COUNTER) dm_stats_get_counter(pw->dms, (STATS_COUNTER), \
+		pw->region_id, pw->area_id)
+static int
+_pm_dm_refresh_stats_hcounter(const char *name, struct pm_wrap *pw)
+{
+	uint64_t reads = 0, reads_merged = 0, read_sectors = 0, read_nsecs = 0;
+	uint64_t writes = 0, writes_merged = 0, write_sectors = 0, write_nsecs = 0;
+	uint64_t io_in_progress = 0, io_nsecs = 0, weighted_io_nsecs = 0, total_read_nsecs = 0, total_write_nsecs = 0;
+
+
+	reads             += SUM_COUNTER(DM_STATS_READS_COUNT);
+	reads_merged      += SUM_COUNTER(DM_STATS_READS_COUNT);
+	read_sectors      += SUM_COUNTER(DM_STATS_READ_SECTORS_COUNT);
+	read_nsecs        += SUM_COUNTER(DM_STATS_READ_NSECS);
+	writes            += SUM_COUNTER(DM_STATS_WRITES_COUNT);
+	writes_merged     += SUM_COUNTER(DM_STATS_WRITES_MERGED_COUNT);
+	write_sectors     += SUM_COUNTER(DM_STATS_WRITE_SECTORS_COUNT);
+	write_nsecs       += SUM_COUNTER(DM_STATS_WRITE_NSECS);
+	io_in_progress    += SUM_COUNTER(DM_STATS_IO_IN_PROGRESS_COUNT);
+	io_nsecs          += SUM_COUNTER(DM_STATS_IO_NSECS);
+	weighted_io_nsecs += SUM_COUNTER(DM_STATS_WEIGHTED_IO_NSECS);
+	total_read_nsecs  += SUM_COUNTER(DM_STATS_TOTAL_READ_NSECS);
+	total_write_nsecs += SUM_COUNTER(DM_STATS_TOTAL_WRITE_NSECS);
+
+
+	pw->dmsc->pm_reads             += reads;
+	pw->dmsc->pm_reads_merged      += reads_merged;
+	pw->dmsc->pm_read_sectors      += read_sectors;
+	pw->dmsc->pm_read_nsecs        += read_nsecs;
+	pw->dmsc->pm_writes            += writes;
+	pw->dmsc->pm_writes_merged     += writes_merged;
+	pw->dmsc->pm_write_sectors     += write_sectors;
+	pw->dmsc->pm_write_nsecs       += write_nsecs;
+	pw->dmsc->pm_io_in_progress    += io_in_progress;
+	pw->dmsc->pm_io_nsecs          += io_nsecs;
+	pw->dmsc->pm_weighted_io_nsecs += weighted_io_nsecs;
+	pw->dmsc->pm_total_read_nsecs  += total_read_nsecs;
+	pw->dmsc->pm_total_write_nsecs += total_write_nsecs;
+
+	return 0;
+
+}
 static float
 _make_percent(uint64_t numerator, uint64_t denominator)
 {
@@ -213,46 +196,29 @@ _make_percent(uint64_t numerator, uint64_t denominator)
 }
 
 int
-pm_dm_refresh_stats_histogram(const char *name, struct pm_dm_histogram *pdmh)
+pm_dm_stats_instance_refresh(void);
+
+static int
+_pm_dm_refresh_stats_histogram(const char *name, struct pm_wrap *pw)
 {
-	struct dm_stats *dms;
 	struct dm_histogram *dmh;
+	struct pm_wrap *pw2;
 	static uint64_t *buffer_count_data;
 	static int number_of_bins = 0, bin = 0;
 	static uint64_t total = 0;
-	char buffer_name[BUFSIZ], *device_name, *region;
 	int walk;
 	uint64_t region_id, area_id;
-	uint64_t stats_val[COUNTER_METRIC] = {};
+	char *dev;
+	pmInDom indom = dm_indom(DM_STATS_INDOM);
 
-	strcpy(buffer_name, name);
-	device_name = strtok(buffer_name, ":");
-	region = strtok(NULL , ":");
-	walk = atoi(region);
-
-	if (!(dms = dm_stats_create(DM_STATS_ALL_PROGRAMS)))
-		goto nostats;
-
-	if (!dm_stats_bind_name(dms, device_name))
-		goto nostats;
-
-	if (!dm_stats_list(dms, DM_STATS_ALL_PROGRAMS))
-		goto nostats;
-
-	for (int i = 0; i < walk; i++)
-		dm_stats_walk_next_region(dms);
-
-	region_id = dm_stats_get_current_region(dms);
-	area_id = dm_stats_get_current_area(dms);
-
+	dev = pw->dev;
+	region_id = pw->region_id;
+	area_id = pw->area_id;
 
 	if (bin == 0) {
-		if (!dm_stats_populate(dms, DM_STATS_ALL_PROGRAMS, region_id))
+		if (!dm_stats_populate(pw->dms, DM_STATS_ALL_PROGRAMS, pw->region_id))
 			goto nostats;
-
-		_pm_dm_stats_value(dms, stats_val, region_id, area_id);
-
-		if (!(dmh = dm_stats_get_histogram(dms, region_id, area_id)))
+		if (!(dmh = dm_stats_get_histogram(pw->dms, region_id, area_id)))
 			goto nostats;
 
 		number_of_bins = dm_histogram_get_nr_bins(dmh);
@@ -264,10 +230,10 @@ pm_dm_refresh_stats_histogram(const char *name, struct pm_dm_histogram *pdmh)
 		}
 	}
 
-	pdmh->pm_bin_value += buffer_count_data[bin];
-	pdmh->pm_bin_percent = _make_percent(buffer_count_data[bin], total);
-	pdmh->pm_region = walk;
-	pdmh->pm_bin = number_of_bins;
+	pw->pdmh->pm_bin_value += buffer_count_data[bin];
+	pw->pdmh->pm_bin_percent = _make_percent(buffer_count_data[bin], total);
+	pw->pdmh->pm_region = region_id;
+	pw->pdmh->pm_bin = number_of_bins;
 
 	bin++;
 
@@ -278,11 +244,55 @@ pm_dm_refresh_stats_histogram(const char *name, struct pm_dm_histogram *pdmh)
 		free(buffer_count_data);
 	}
 
-	dm_stats_destroy(dms);
 	return 0;
 
 nostats:
-	dm_stats_destroy(dms);
+	dm_stats_destroy(pw->dms);
+	return -oserror();
+}
+
+int pm_dm_refresh_stats(struct pm_wrap *pw, int flag)
+{
+	const char *tmp = "";
+    	pmInDom indom;
+    	char *name;
+    	int inst;
+    	int sts = 0;
+
+
+
+	if (flag == 1) {
+		if (!dm_stats_populate(pw->dms, DM_STATS_ALL_PROGRAMS, DM_STATS_REGIONS_ALL))
+			goto nostats;
+		_pm_dm_refresh_stats_counter(tmp, pw);
+		/* whether there is hitogram */
+	}
+	if (flag == 0) {
+		_pm_dm_refresh_stats_histogram(tmp, pw);
+		struct pm_wrap *pw2;
+
+        	if ((sts = pm_dm_stats_instance_refresh()) < 0)
+		    return sts;
+
+        	indom = dm_indom(DM_STATS_INDOM);
+
+        	for (pmdaCacheOp(indom, PMDA_CACHE_WALK_REWIND);;) {
+			if ((inst = pmdaCacheOp(indom, PMDA_CACHE_WALK_NEXT)) < 0)
+		        	break;
+		    	if (!pmdaCacheLookup(indom, inst, &name, (void **)&pw2) || !pw2)
+		        	continue;
+        	    	if (!strcmp(pw2->dev, pw->dev)) {
+			   	 pw2->dms = pw->dms;
+				_pm_dm_refresh_stats_hcounter(tmp, pw2);
+			   	break;
+		    	}
+        	}
+	}
+
+	return 0;
+
+nostats:
+	dm_stats_destroy(pw->dms);
 	return -oserror();
 }
 
@@ -335,9 +345,8 @@ nostats:
 int
 pm_dm_stats_instance_refresh(void)
 {
-	struct pm_dm_stats_counter *dmsc;
+	struct pm_wrap *pw;
 	struct dm_task *dmt = NULL;
-	struct dm_stats *dms = NULL;
 	struct dm_names *names = NULL;
 	unsigned next = 0;
 	int sts;
@@ -351,22 +360,20 @@ pm_dm_stats_instance_refresh(void)
 	do {
 		names = (struct dm_names*)((char *) names + next);
 
-		if (!(dms = _dm_stats_search_region(names, dms))) {
+		sts = pmdaCacheLookupName(indom, names->name, NULL, (void **)&pw);
+		if (sts == PM_ERR_INST || (sts >= 0 && pw == NULL)) {
+			pw = (struct pm_wrap *)malloc(sizeof(struct pm_wrap));
+			pw->dmsc = calloc(1, sizeof(pw->dmsc));
+			if (pw == NULL)
+				return PM_ERR_AGAIN;
+		}
+		if (!(pw->dms = _dm_stats_search_region(names, pw->dms))) {
 			next = names->next;
 			continue;
 		}
-
-		sts = pmdaCacheLookupName(indom, names->name, NULL, (void **)&dmsc);
-		if (sts == PM_ERR_INST || (sts >= 0 && dmsc == NULL)) {
-			dmsc = calloc(1, sizeof(*dmsc));
-			if (dmsc == NULL)
-				return PM_ERR_AGAIN;
-		}
-
-		pmdaCacheStore(indom, PMDA_CACHE_ADD, names->name, (void *)dmsc);
+		pw->dev = names->name;
+		pmdaCacheStore(indom, PMDA_CACHE_ADD, names->name, (void *)pw);
 		next = names->next;
-		dm_stats_destroy(dms);
-
 	} while(next);
 
 	return 0;
@@ -396,11 +403,11 @@ static void _scale_bound_value_to_suffix(uint64_t *bound, const char **suffix)
 int
 pm_dm_histogram_instance_refresh(void)
 {
-	struct pm_dm_histogram *pdmh;
-	struct dm_histogram *dmh = NULL;
+	struct pm_wrap *pw;
+	struct dm_stats *dms;
+	struct dm_histogram *dmh;
 	struct dm_names *names = NULL;
 	struct dm_task *dmt = NULL;
-	struct dm_stats *dms = NULL;
 	unsigned next = 0;
 	int sts;
 	pmInDom indom = dm_indom(DM_HISTOGRAM_INDOM);
@@ -437,19 +444,24 @@ pm_dm_histogram_instance_refresh(void)
 				_scale_bound_value_to_suffix(&bound_width, &suffix);
 				sprintf(buffer, "%s:%lu:%lu%s", names->name, region_id, bound_width, suffix);
 
-				sts = pmdaCacheLookupName(indom, buffer, NULL, (void **)&pdmh);
-				if (sts == PM_ERR_INST || (sts >= 0 && pdmh == NULL)) {
-					pdmh = calloc(1, sizeof(*pdmh));
+				sts = pmdaCacheLookupName(indom, buffer, NULL, (void **)&pw);
+				if (sts == PM_ERR_INST || (sts >= 0 && pw == NULL)) {
+					pw = (struct pm_wrap *)malloc(sizeof(struct pm_wrap));
+					pw->dmsc = calloc(1, sizeof(pw->dmsc));
+					pw->pdmh = calloc(1, sizeof(pw->pdmh));
 
-					if (pdmh == NULL)
+					if (pw == NULL)
 						return PM_ERR_AGAIN;
 
 				}
-				pmdaCacheStore(indom, PMDA_CACHE_ADD, buffer, (void *)pdmh);
+				pw->dms = dms;
+				pw->region_id = region_id;
+				pw->area_id = area_id;
+				pw->dev = names->name;
+				pmdaCacheStore(indom, PMDA_CACHE_ADD, buffer, (void *)pw);
 			}
 		}
 		next = names->next;
-		dm_stats_destroy(dms);
 	} while(next);
 
 	return 0;
