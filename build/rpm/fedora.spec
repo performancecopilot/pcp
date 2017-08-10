@@ -2022,6 +2022,12 @@ for f in $RPM_BUILD_ROOT/%{_initddir}/{pcp,pmcd,pmlogger,pmie,pmwebd,pmmgr,pmpro
 	sed -i -e '/^# chkconfig/s/:.*$/: - 95 05/' -e '/^# Default-Start:/s/:.*$/:/' $f
 done
 
+%if 0%{?fedora} > 26
+PCP_SYSCONFIG_DIR=%{_sysconfdir}/sysconfig
+sed -i 's/^\#\ PMLOGGER_LOCAL.*/PMLOGGER_LOCAL=1/g' "$RPM_BUILD_ROOT/$PCP_SYSCONFIG_DIR/pmlogger"
+sed -i 's/^\#\ PMCD_LOCAL.*/PMCD_LOCAL=1/g' "$RPM_BUILD_ROOT/$PCP_SYSCONFIG_DIR/pmcd"
+%endif
+
 # list of PMDAs in the base pkg
 ls -1 $RPM_BUILD_ROOT/%{_pmdasdir} |\
   grep -E -v '^simple|sample|trivial|txmon' |\
@@ -2611,9 +2617,6 @@ cd $PCP_PMNS_DIR && ./Rebuild -s && rm -f .NeedRebuild
 cd
 
 %post libs -p /sbin/ldconfig
-PCP_SYSCONFIG_DIR=%{_sysconfdir}/sysconfig
-sed -i 's/^\#\ PMLOGGER_LOCAL.*/PMLOGGER_LOCAL=1/g' "$PCP_SYSCONFIG_DIR/pmlogger"
-sed -i 's/^\#\ PMCD_LOCAL.*/PMCD_LOCAL=1/g' "$PCP_SYSCONFIG_DIR/pmcd"
 %postun libs -p /sbin/ldconfig
 
 %if !%{disable_selinux}

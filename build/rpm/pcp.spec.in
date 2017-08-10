@@ -1913,6 +1913,7 @@ BACKDIR=`pwd`;
 DIST_ROOT=$RPM_BUILD_ROOT
 WEBAPP_ROOT=${RPM_BUILD_ROOT}@pcp_share_dir@/webapps
 DIST_MANIFEST=`pwd`/install.manifest
+PCP_SYSCONFIG_DIR=@pcp_sysconfig_dir@
 export NO_CHOWN DIST_ROOT DIST_MANIFEST
 rm -f $DIST_MANIFEST
 @make@ install_pcp
@@ -1923,6 +1924,11 @@ do
     tar -xz -C $WEBAPP_ROOT/$WEBAPP --strip-components=1 \
 	-f $BACKDIR/../../build/tar/pcp-webapp-$WEBAPP.tar.gz
 done
+%endif
+
+%if 0%{?fedora} > 26
+sed -i 's/^\#\ PMLOGGER_LOCAL.*/PMLOGGER_LOCAL=1/g' "$RPM_BUILD_ROOT/$PCP_SYSCONFIG_DIR/pmlogger"
+sed -i 's/^\#\ PMCD_LOCAL.*/PMCD_LOCAL=1/g' "$RPM_BUILD_ROOT/$PCP_SYSCONFIG_DIR/pmcd"
 %endif
 
 PCP_CONF=$BACKDIR/src/include/pcp.conf
@@ -2920,9 +2926,6 @@ fi
 PCP_PMNS_DIR=@pcp_var_dir@/pmns
 PCP_LOG_DIR=@pcp_log_dir@
 PCP_SYSCONFIG_DIR=@pcp_sysconfig_dir@
-
-sed -i 's/^\#\ PMLOGGER_LOCAL.*/PMLOGGER_LOCAL=1/g' "$PCP_SYSCONFIG_DIR/pmlogger"
-sed -i 's/^\#\ PMCD_LOCAL.*/PMCD_LOCAL=1/g' "$PCP_SYSCONFIG_DIR/pmcd"
 
 # restore saved configs, if any
 test -s "$PCP_LOG_DIR/configs.sh" && source "$PCP_LOG_DIR/configs.sh"
