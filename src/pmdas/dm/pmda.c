@@ -317,9 +317,6 @@ indom = dm_indom(DM_CACHE_INDOM);
         if ((sts = pm_dm_stats_instance_refresh()) < 0)
 	    return sts;
 
-        if ((sts = pm_dm_histogram_instance_refresh()) < 0)
-	    return sts;
-
         indom = dm_indom(DM_STATS_INDOM);
 
         for (pmdaCacheOp(indom, PMDA_CACHE_WALK_REWIND);;) {
@@ -336,9 +333,6 @@ indom = dm_indom(DM_CACHE_INDOM);
         struct pm_wrap *pw;
 
         if ((sts = pm_dm_stats_instance_refresh()) < 0)
-	    return sts;
-
-        if ((sts = pm_dm_histogram_instance_refresh()) < 0)
 	    return sts;
 
         indom = dm_indom(DM_HISTOGRAM_INDOM);

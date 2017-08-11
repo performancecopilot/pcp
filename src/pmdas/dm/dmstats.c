@@ -429,9 +429,9 @@ pm_dm_stats_instance_refresh(void)
 
 		sts = pmdaCacheLookupName(indom, names->name, NULL, (void **)&pw);
 		if (sts == PM_ERR_INST || (sts >= 0 && pw == NULL)) {
-			pw = (struct pm_wrap *)malloc(sizeof(struct pm_wrap));
-			pw->dmsc = calloc(1, sizeof(pw->dmsc));
-			pw->pdmh = calloc(1, sizeof(pw->pdmh));
+			pw = (struct pm_wrap *)malloc(sizeof(*pw));
+			pw->dmsc = calloc(1, sizeof(*pw->dmsc));
+			pw->pdmh = calloc(1, sizeof(*pw->pdmh));
 			if (pw == NULL)
 				return PM_ERR_AGAIN;
 		}
@@ -511,9 +511,9 @@ pm_dm_histogram_instance_refresh(void)
 
 				sts = pmdaCacheLookupName(indom, buffer, NULL, (void **)&pw);
 				if (sts == PM_ERR_INST || (sts >= 0 && pw == NULL)) {
-					pw = (struct pm_wrap *)malloc(sizeof(struct pm_wrap));
-					pw->dmsc = calloc(1, sizeof(pw->dmsc));
-					pw->pdmh = calloc(1, sizeof(pw->pdmh));
+					pw = (struct pm_wrap *)malloc(sizeof(*pw));
+					pw->dmsc = calloc(1, sizeof(*pw->dmsc));
+					pw->pdmh = calloc(1, sizeof(*pw->pdmh));
 
 					if (pw == NULL)
 						return PM_ERR_AGAIN;
