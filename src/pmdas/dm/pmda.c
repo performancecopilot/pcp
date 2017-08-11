@@ -28,8 +28,8 @@ enum {
     CLUSTER_CACHE = 0,		/* DM-Cache Caches */
     CLUSTER_POOL = 1,		/* DM-Thin Pools */
     CLUSTER_VOL = 2,		/* DM-Thin Volumes */
-    CLUSTER_DM_COUNTER = 3,
-    CLUSTER_DM_HISTOGRAM = 4,
+    CLUSTER_DM_COUNTER = 3,     /* 3 -- Dmstats basic counter */
+    CLUSTER_DM_HISTOGRAM = 4,   /* 4 -- Dmstats latency histogram */
     NUM_CLUSTERS
 };
 
@@ -220,10 +220,6 @@ static pmdaMetric metrictable[] = {
         PM_TYPE_FLOAT, DM_HISTOGRAM_INDOM, PM_SEM_INSTANT,
         PMDA_PMUNITS(0,0,0,0,0,0) }, },
     { .m_desc = {
-        PMDA_PMID(CLUSTER_DM_HISTOGRAM, PM_DM_HISTOGRAM_REGION),
-        PM_TYPE_U64, DM_HISTOGRAM_INDOM, PM_SEM_INSTANT,
-        PMDA_PMUNITS(0,0,0,0,0,0) }, },
-    { .m_desc = {
         PMDA_PMID(CLUSTER_DM_HISTOGRAM, PM_DM_HISTOGRAM_BIN),
         PM_TYPE_U64, DM_HISTOGRAM_INDOM, PM_SEM_INSTANT,
         PMDA_PMUNITS(0,0,0,0,0,0) }, },
@@ -321,6 +317,9 @@ indom = dm_indom(DM_CACHE_INDOM);
         if ((sts = pm_dm_stats_instance_refresh()) < 0)
 	    return sts;
 
+        if ((sts = pm_dm_histogram_instance_refresh()) < 0)
+	    return sts;
+
         indom = dm_indom(DM_STATS_INDOM);
 
         for (pmdaCacheOp(indom, PMDA_CACHE_WALK_REWIND);;) {
@@ -329,12 +328,15 @@ indom = dm_indom(DM_CACHE_INDOM);
 	    if (!pmdaCacheLookup(indom, inst, &name, (void **)&pw) || !pw)
 	        continue;
             if (need_refresh[CLUSTER_DM_COUNTER])
-                pm_dm_refresh_stats(pw, 1);
+                sts = pm_dm_refresh_stats(pw, DM_STATS_INDOM);
         }
     }
 
     if (need_refresh[CLUSTER_DM_HISTOGRAM]) {
         struct pm_wrap *pw;
+
+        if ((sts = pm_dm_stats_instance_refresh()) < 0)
+	    return sts;
 
         if ((sts = pm_dm_histogram_instance_refresh()) < 0)
 	    return sts;
@@ -347,7 +349,7 @@ indom = dm_indom(DM_CACHE_INDOM);
 	    if (!pmdaCacheLookup(indom, inst, &name, (void **)&pw) || !pw)
 	        continue;
             if (need_refresh[CLUSTER_DM_HISTOGRAM])
-                pm_dm_refresh_stats(pw, 0);
+                sts = pm_dm_refresh_stats(pw, DM_HISTOGRAM_INDOM);
         }
     }
 
