@@ -1,0 +1,230 @@
+QA output created by 1129
+Note: timezone set to local timezone of host "bozo-vm" from archive
+
+metric:    disk.all.read_bytes
+archive:   archives/iopct
+host:      bozo-vm
+start:     Mon Aug 14 07:31:16 2017
+end:       Mon Aug 14 07:32:05 2017
+semantics: cumulative counter (converting to rate)
+units:     Kbyte (converting to Kbyte / sec)
+samples:   25
+interval:  0.50 sec
+07:31:16.859  No values available
+07:31:17.359  No values available
+07:31:17.859  No values available
+07:31:18.359  No values available
+07:31:18.859     33178.0
+07:31:19.359     53952.0
+07:31:19.859     44216.0
+07:31:20.359     49164.0
+07:31:20.859     49074.0
+07:31:21.359     32984.0
+07:31:21.859     32756.0
+07:31:22.359     13532.0
+07:31:22.859     51334.0
+07:31:23.359     33462.0
+07:31:23.859     46914.0
+07:31:24.359     51122.0
+07:31:24.859     51270.0
+07:31:25.359     47134.0
+07:31:25.859     60086.0
+07:31:26.359     38256.0
+07:31:26.859     34916.0
+07:31:27.359     63080.0
+07:31:27.859     34248.0
+07:31:28.359     63846.0
+07:31:28.859     33416.0
+07:31:29.359     42908.0
+Note: timezone set to local timezone of host "bozo-vm" from archive
+
+metric:    proc.io.read_bytes
+archive:   archives/iopct
+host:      bozo-vm
+start:     Mon Aug 14 07:31:16 2017
+end:       Mon Aug 14 07:32:05 2017
+semantics: cumulative counter (converting to rate)
+units:     byte (converting to byte / sec)
+samples:   25
+interval:  0.50 sec
+07:31:16.859  No values available
+07:31:17.359  No values available
+07:31:17.859  No values available
+
+                  004561       004879 
+07:31:18.359  No values available
+07:31:18.859         0.0   33975962.0 
+07:31:19.359         0.0   66619126.0 
+07:31:19.859         0.0   34054630.0 
+07:31:20.359         0.0   66778116.0 
+07:31:20.859         0.0   33886364.0 
+07:31:21.359         0.0   33556174.0 
+07:31:21.859         0.0   33542810.0 
+07:31:22.359         0.0   33454068.0 
+07:31:22.859         0.0   33391050.0 
+07:31:23.359         0.0   33841678.0 
+07:31:23.859         0.0   66671810.0 
+07:31:24.359         0.0   33968786.0 
+07:31:24.859         0.0   66753132.0 
+07:31:25.359         0.0   33942598.0 
+07:31:25.859         0.0   66509488.0 
+07:31:26.359         0.0   34086940.0 
+07:31:26.859         0.0   66735882.0 
+07:31:27.359         0.0   33959126.0 
+07:31:27.859         0.0   66773720.0 
+07:31:28.359         0.0   33786924.0 
+07:31:28.859         0.0   33681942.0 
+07:31:29.359         0.0   66732368.0 
+Note: timezone set to local timezone of host "bozo-vm" from archive
+
+metric:    disk.all.write_bytes
+archive:   archives/iopct
+host:      bozo-vm
+start:     Mon Aug 14 07:31:16 2017
+end:       Mon Aug 14 07:32:05 2017
+semantics: cumulative counter (converting to rate)
+units:     Kbyte (converting to Kbyte / sec)
+samples:   25
+interval:  0.50 sec
+07:31:16.859  No values available
+07:31:17.359  No values available
+07:31:17.859  No values available
+07:31:18.359  No values available
+07:31:18.859     51758.0
+07:31:19.359     47472.0
+07:31:19.859     55236.0
+07:31:20.359     43728.0
+07:31:20.859     48048.0
+07:31:21.359     46922.0
+07:31:21.859     26444.0
+07:31:22.359     11580.0
+07:31:22.859     38414.0
+07:31:23.359     47684.0
+07:31:23.859     47304.0
+07:31:24.359     51126.0
+07:31:24.859     47840.0
+07:31:25.359     53278.0
+07:31:25.859     45430.0
+07:31:26.359     51672.0
+07:31:26.859     47246.0
+07:31:27.359     45588.0
+07:31:27.859     53522.0
+07:31:28.359     42942.0
+07:31:28.859     47208.0
+07:31:29.359     44102.0
+Note: timezone set to local timezone of host "bozo-vm" from archive
+
+metric:    proc.io.write_bytes
+archive:   archives/iopct
+host:      bozo-vm
+start:     Mon Aug 14 07:31:16 2017
+end:       Mon Aug 14 07:32:05 2017
+semantics: cumulative counter (converting to rate)
+units:     byte (converting to byte / sec)
+samples:   25
+interval:  0.50 sec
+07:31:16.859  No values available
+07:31:17.359  No values available
+07:31:17.859  No values available
+
+                  004561       004879 
+07:31:18.359  No values available
+07:31:18.859       106.0   66645188.0 
+07:31:19.359         0.0   33984004.0 
+07:31:19.859         0.0   66700214.0 
+07:31:20.359         0.0   34047808.0 
+07:31:20.859         0.0   66617858.0 
+07:31:21.359         0.0   33994154.0 
+07:31:21.859         0.0   33542810.0 
+07:31:22.359         0.0     447862.0 
+07:31:22.859         0.0   50306610.0 
+07:31:23.359         0.0   49733610.0 
+07:31:23.859         0.0   33746800.0 
+07:31:24.359         0.0   66645448.0 
+07:31:24.859         0.0   34047160.0 
+07:31:25.359         0.0   66681006.0 
+07:31:25.859         0.0   33876684.0 
+07:31:26.359         0.0   66652876.0 
+07:31:26.859      8088.0   34090184.0 
+07:31:27.359       104.0   66636536.0 
+07:31:27.859         0.0   34061534.0 
+07:31:28.359         0.0   66396458.0 
+07:31:28.859         0.0   34234376.0 
+07:31:29.359         0.0   33578646.0 
+Note: timezone set to local timezone of host "bozo-vm" from archive
+
+metric:    proc.io.cancelled_write_bytes
+archive:   archives/iopct
+host:      bozo-vm
+start:     Mon Aug 14 07:31:16 2017
+end:       Mon Aug 14 07:32:05 2017
+semantics: cumulative counter (converting to rate)
+units:     byte (converting to byte / sec)
+samples:   25
+interval:  0.50 sec
+07:31:16.859  No values available
+07:31:17.359  No values available
+07:31:17.859  No values available
+
+                  004561       004879 
+07:31:18.359  No values available
+07:31:18.859         0.0          0.0 
+07:31:19.359         0.0          0.0 
+07:31:19.859         0.0          0.0 
+07:31:20.359         0.0          0.0 
+07:31:20.859         0.0          0.0 
+07:31:21.359         0.0          0.0 
+07:31:21.859         0.0          0.0 
+07:31:22.359         0.0          0.0 
+07:31:22.859         0.0          0.0 
+07:31:23.359         0.0          0.0 
+07:31:23.859         0.0          0.0 
+07:31:24.359         0.0          0.0 
+07:31:24.859         0.0          0.0 
+07:31:25.359         0.0          0.0 
+07:31:25.859         0.0          0.0 
+07:31:26.359         0.0          0.0 
+07:31:26.859         0.0          0.0 
+07:31:27.359         0.0          0.0 
+07:31:27.859         0.0          0.0 
+07:31:28.359         0.0          0.0 
+07:31:28.859         0.0          0.0 
+07:31:29.359         0.0          0.0 
+Note: timezone set to local timezone of host "bozo-vm" from archive
+
+metric:    iopct
+archive:   archives/iopct
+host:      bozo-vm
+start:     Mon Aug 14 07:31:16 2017
+end:       Mon Aug 14 07:32:05 2017
+semantics: instantaneous value
+units:     none
+samples:   25
+interval:  0.50 sec
+07:31:16.859  No values available
+07:31:17.359  No values available
+07:31:17.859  No values available
+07:31:18.359  No values available
+
+                  004561       004879 
+07:31:18.859      0.0001     115.6905 
+07:31:19.359      0.0000      96.8659 
+07:31:19.859      0.0000      98.9356 
+07:31:20.359      0.0000     105.9971 
+07:31:20.859      0.0000     101.0571 
+07:31:21.359      0.0000      82.5559 
+07:31:21.859      0.0000     110.6644 
+07:31:22.359      0.0000     131.8388 
+07:31:22.859      0.0000      91.0728 
+07:31:23.359      0.0000     100.5798 
+07:31:23.859      0.0000     104.0831 
+07:31:24.359      0.0000      96.0959 
+07:31:24.859      0.0000      99.3217 
+07:31:25.359      0.0000      97.8620 
+07:31:25.859      0.0000      92.9085 
+07:31:26.359      0.0000     109.3972 
+07:31:26.859      0.0096     119.8400 
+07:31:27.359      0.0001      90.4019 
+07:31:27.859      0.0000     112.1931 
+07:31:28.359      0.0000      91.6164 
+07:31:28.859      0.0000      82.2640 
