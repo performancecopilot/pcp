@@ -217,7 +217,7 @@ static pmdaMetric metrictable[] = {
         PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
     { .m_desc = {
         PMDA_PMID(CLUSTER_DM_HISTOGRAM, PM_DM_HISTOGRAM_PERCENT),
-        PM_TYPE_FLOAT, DM_HISTOGRAM_INDOM, PM_SEM_INSTANT,
+        PM_TYPE_FLOAT, DM_HISTOGRAM_INDOM, PM_SEM_DISCRETE,
         PMDA_PMUNITS(0,0,0,0,0,0) }, },
     { .m_desc = {
         PMDA_PMID(CLUSTER_DM_HISTOGRAM, PM_DM_HISTOGRAM_BIN),
@@ -332,7 +332,7 @@ indom = dm_indom(DM_CACHE_INDOM);
     if (need_refresh[CLUSTER_DM_HISTOGRAM]) {
         struct pm_wrap *pw;
 
-        if ((sts = pm_dm_stats_instance_refresh()) < 0)
+        if ((sts = pm_dm_histogram_instance_refresh()) < 0)
 	    return sts;
 
         indom = dm_indom(DM_HISTOGRAM_INDOM);

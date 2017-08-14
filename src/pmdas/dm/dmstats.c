@@ -469,17 +469,16 @@ int
 pm_dm_histogram_instance_refresh(void)
 {
 	struct pm_wrap *pw;
-	struct dm_stats *dms;
 	struct dm_histogram *dmh;
+	struct dm_stats *dms = NULL;
 	struct dm_names *names = NULL;
 	struct dm_task *dmt = NULL;
 	unsigned next = 0;
 	int sts;
 	pmInDom indom = dm_indom(DM_HISTOGRAM_INDOM);
 	char buffer[BUFSIZ];
-	uint64_t region_id, area_id;
+	uint64_t region_id, area_id, bound_width;
 	int bins;
-	uint64_t bound_width;
 	const char *suffix = "";
 
 	pmdaCacheOp(indom, PMDA_CACHE_INACTIVE);
