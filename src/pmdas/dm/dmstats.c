@@ -271,7 +271,7 @@ _pm_dm_refresh_stats_histogram_update(struct pm_wrap *pw, struct pm_wrap *pw2)
 		number_of_bins = dm_histogram_get_nr_bins(dmh);
 		total = dm_histogram_get_sum(dmh);
 
-		buffer_count_data = (uint64_t *)malloc(sizeof(uint64_t)*number_of_bins);
+		buffer_count_data = (uint64_t *)malloc(sizeof(*buffer_count_data)*number_of_bins);
 		for (int i = 0; i < number_of_bins; i++) {
 			buffer_count_data[i] = dm_histogram_get_bin_count(dmh, i);
 		}
