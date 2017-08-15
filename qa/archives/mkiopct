@@ -1,0 +1,37 @@
+#!/bin/sh
+#
+# Remake iopct archive.
+#
+# Motivated by Marko's problem child ...
+# iopct = 100 * ((delta(proc.io.read_bytes) + delta(proc.io.write_bytes) -
+# 	delta(proc.io.cancelled_write_bytes)) / (delta(disk.all.read_bytes) +
+# 	delta(disk.all.write_bytes)))
+#
+
+tmp=/var/tmp/$$
+trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+rm -f iopct.* $tmp.*
+
+pmlogger -L -c /dev/null -t 1sec -l iopct.log iopct &
+pmlogger_pid=$!
+
+sleep 1
+
+if [ -f ../tmparch/big1.0 ]
+then
+    dd if=../tmparch/big1.0 of=$tmp.copy bs=16M iflag=direct oflag=direct &
+    work_pid=$!
+else
+    find / -name foo >/dev/null 2>&1 &
+    work_pid=$!
+fi
+
+cat <<End-of-File | pmlc
+connect $pmlogger_pid
+log mandatory on 500msec { disk.all.read_bytes disk.all.write_bytes proc.io.read_bytes[$work_pid,$pmlogger_pid] proc.io.write_bytes[$work_pid,$pmlogger_pid] proc.io.cancelled_write_bytes[$work_pid,$pmlogger_pid] }
+End-of-File
+
+wait $work_pid
+sleep 2
+
+kill -TERM $pmlogger_pid
