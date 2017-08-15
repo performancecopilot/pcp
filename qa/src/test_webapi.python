@@ -301,6 +301,21 @@ check_vals(ctx_host, 'sample.colour')
 
 # ------------------------------------------------------------------------
 
+def test_metric(ctx, suffix):
+    # Check some prometheus format values
+    req = requests.get(url=url + 'pmapi/'+str(ctx)+'/metrics?'+suffix)
+    print('context #'+str(ctx)+' metrics '+suffix+' response code ' + str(req.status_code))
+    if (req.status_code != 200):
+        return
+    print('metrics: success')
+    print(req.text)
+
+test_metric(ctx_host, 'target=sample.dupnames.three.bin')
+test_metric(ctx_host, 'target=sample.float.bin')
+test_metric(ctx_host, 'target=sample.double.one')
+
+# ------------------------------------------------------------------------
+
 print('sleeping briefly to expire contexts')
 time.sleep(7) # >> polltimeout=5
 

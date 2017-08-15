@@ -309,6 +309,49 @@ context #### store name=sample.colour&value=40&iname=red,blue response code 200
 store: success
   sample.colour[141]
   sample.colour[342]
+context #### metrics target=sample.dupnames.three.bin response code 200
+metrics: success
+#### HELP sample:dupnames:three:bin Several constant instances
+#### TYPE sample:dupnames:three:bin gauge
+sample:dupnames:three:bin{instance="bin-100"} 100
+sample:dupnames:three:bin{instance="bin-200"} 200
+sample:dupnames:three:bin{instance="bin-300"} 300
+sample:dupnames:three:bin{instance="bin-400"} 400
+sample:dupnames:three:bin{instance="bin-500"} 500
+sample:dupnames:three:bin{instance="bin-600"} 600
+sample:dupnames:three:bin{instance="bin-700"} 700
+sample:dupnames:three:bin{instance="bin-800"} 800
+sample:dupnames:three:bin{instance="bin-900"} 900
+
+#### number of metrics attempted: 1
+#### number of metrics completed: 1
+
+context #### metrics target=sample.float.bin response code 200
+metrics: success
+#### HELP sample:float:bin like sample.bin but type FLOAT
+#### TYPE sample:float:bin gauge
+sample:float:bin{instance="bin-100"} 100
+sample:float:bin{instance="bin-200"} 200
+sample:float:bin{instance="bin-300"} 300
+sample:float:bin{instance="bin-400"} 400
+sample:float:bin{instance="bin-500"} 500
+sample:float:bin{instance="bin-600"} 600
+sample:float:bin{instance="bin-700"} 700
+sample:float:bin{instance="bin-800"} 800
+sample:float:bin{instance="bin-900"} 900
+
+#### number of metrics attempted: 1
+#### number of metrics completed: 1
+
+context #### metrics target=sample.double.one response code 200
+metrics: success
+#### HELP sample:double:one 1 as a 64-bit floating point value
+#### TYPE sample:double:one gauge
+sample:double:one 1
+
+#### number of metrics attempted: 1
+#### number of metrics completed: 1
+
 sleeping briefly to expire contexts
 context #### metadata names=kernel.all.nprocs response code 400
 context #### indom names=kernel.all.nprocs response code 400
@@ -622,6 +665,49 @@ context #### store name=sample.colour&value=40&iname=red,blue response code 200
 store: success
   sample.colour[141]
   sample.colour[342]
+context #### metrics target=sample.dupnames.three.bin response code 200
+metrics: success
+#### HELP sample:dupnames:three:bin Several constant instances
+#### TYPE sample:dupnames:three:bin gauge
+sample:dupnames:three:bin{instance="bin-100"} 100
+sample:dupnames:three:bin{instance="bin-200"} 200
+sample:dupnames:three:bin{instance="bin-300"} 300
+sample:dupnames:three:bin{instance="bin-400"} 400
+sample:dupnames:three:bin{instance="bin-500"} 500
+sample:dupnames:three:bin{instance="bin-600"} 600
+sample:dupnames:three:bin{instance="bin-700"} 700
+sample:dupnames:three:bin{instance="bin-800"} 800
+sample:dupnames:three:bin{instance="bin-900"} 900
+
+#### number of metrics attempted: 1
+#### number of metrics completed: 1
+
+context #### metrics target=sample.float.bin response code 200
+metrics: success
+#### HELP sample:float:bin like sample.bin but type FLOAT
+#### TYPE sample:float:bin gauge
+sample:float:bin{instance="bin-100"} 100
+sample:float:bin{instance="bin-200"} 200
+sample:float:bin{instance="bin-300"} 300
+sample:float:bin{instance="bin-400"} 400
+sample:float:bin{instance="bin-500"} 500
+sample:float:bin{instance="bin-600"} 600
+sample:float:bin{instance="bin-700"} 700
+sample:float:bin{instance="bin-800"} 800
+sample:float:bin{instance="bin-900"} 900
+
+#### number of metrics attempted: 1
+#### number of metrics completed: 1
+
+context #### metrics target=sample.double.one response code 200
+metrics: success
+#### HELP sample:double:one 1 as a 64-bit floating point value
+#### TYPE sample:double:one gauge
+sample:double:one 1
+
+#### number of metrics attempted: 1
+#### number of metrics completed: 1
+
 sleeping briefly to expire contexts
 context #### metadata names=kernel.all.nprocs response code 400
 context #### indom names=kernel.all.nprocs response code 400
