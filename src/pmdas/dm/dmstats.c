@@ -108,7 +108,6 @@ _pm_dm_refresh_stats_counter(struct pm_wrap *pw)
 
 	dms = pw->dms;
 
-
 	dm_stats_foreach_region(dms) {
 		reads             += SUM_COUNTER(DM_STATS_READS_COUNT);
 		reads_merged      += SUM_COUNTER(DM_STATS_READS_COUNT);
@@ -158,7 +157,6 @@ _pm_dm_refresh_stats_counter_update(struct pm_wrap *pw, struct pm_wrap *pw2)
 	dms = pw->dms;
 	region_id = pw->region_id;
 	area_id = pw->area_id;
-
 
 	reads             = PER_COUNTER(DM_STATS_READS_COUNT);
 	reads_merged      = PER_COUNTER(DM_STATS_READS_COUNT);
@@ -215,7 +213,6 @@ _pm_dm_refresh_stats_histogram(struct pm_wrap *pw)
 	region_id = pw->region_id;
 	area_id = pw->area_id;
 
-
 	if (bin == 0) {
 		if (!(dmh = dm_stats_get_histogram(dms, region_id, area_id)))
 			goto nostats;
@@ -262,7 +259,6 @@ _pm_dm_refresh_stats_histogram_update(struct pm_wrap *pw, struct pm_wrap *pw2)
 	dms = pw->dms;
 	region_id = pw2->region_id;
 	area_id = pw2->area_id;
-
 
 	if (bin == 0) {
 		if (!(dmh = dm_stats_get_histogram(dms, region_id, area_id)))
@@ -360,24 +356,24 @@ nostats:
 }
 
 static struct dm_names*
-_dm_device_search(struct dm_names *names, struct dm_task *dmt)
+_dm_device_search(struct dm_names *names, struct dm_task **dmt)
 {
-	if (!(dmt = dm_task_create(DM_DEVICE_LIST)))
+	if (!(*dmt = dm_task_create(DM_DEVICE_LIST)))
 		goto nodevice;
 
-	if (!dm_task_enable_checks(dmt))
+	if (!dm_task_enable_checks(*dmt))
 		goto nodevice;
 
-	if (!dm_task_run(dmt))
+	if (!dm_task_run(*dmt))
 		goto nodevice;
 
-	if (!(names = dm_task_get_names(dmt)))
+	if (!(names = dm_task_get_names(*dmt)))
 		goto nodevice;
 
 	return names;
 
 nodevice:
-	dm_task_destroy(dmt);
+	dm_task_destroy(*dmt);
 	return NULL;
 }
 
@@ -416,7 +412,7 @@ pm_dm_stats_instance_refresh(void)
 
 	pmdaCacheOp(indom, PMDA_CACHE_INACTIVE);
 
-	if (!(names = _dm_device_search(names, dmt)))
+	if (!(names = _dm_device_search(names, &dmt)))
 		return -oserror();
 
 	do {
@@ -440,6 +436,8 @@ pm_dm_stats_instance_refresh(void)
 		pmdaCacheStore(indom, PMDA_CACHE_ADD, names->name, (void *)pw);
 		next = names->next;
 	} while(next);
+
+	dm_task_destroy(dmt);
 
 	return 0;
 }
@@ -483,7 +481,7 @@ pm_dm_histogram_instance_refresh(void)
 
 	pmdaCacheOp(indom, PMDA_CACHE_INACTIVE);
 
-	if (!(names = _dm_device_search(names, dmt)))
+	if (!(names = _dm_device_search(names, &dmt)))
 		return -oserror();
 
 	do {
@@ -527,6 +525,8 @@ pm_dm_histogram_instance_refresh(void)
 		}
 		next = names->next;
 	} while(next);
+
+	dm_task_destroy(dmt);
 
 	return 0;
 }
