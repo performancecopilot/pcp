@@ -53,10 +53,13 @@ _install_pmda()
     | sed \
 	-e '/.*pmcd.*/d' \
 	-e '/.*pmlogger.*/d' \
+	-e '/^NOTE:.*/d' \
 	-e '/Latest.*/d' \
 	-e '/Duplicate.*/d' \
+	-e '/^See also.*/d' \
+	-e '/^To use the dmstats metrics.*/d' \
 	-e '/^Check dmstats metrics/s/[0-9][0-9]* warnings, //' \
-    # end
+    | tr -s '\n'
 }
 
 _remove_pmda()
