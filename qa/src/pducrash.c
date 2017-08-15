@@ -130,8 +130,8 @@ decode_label(const char *name)
     if (sts >= 0) { pmFreeLabelSets(sets, nsets); }
 
     fprintf(stderr, "[%s] checking access beyond basic buffer\n", name);
-    memset(labels, 0, sizeof(*labels) + 16);
-    labels->hdr.len = sizeof(*labels) + 16;
+    memset(labels, 0, sizeof(*labels));
+    labels->hdr.len = sizeof(*labels);
     labels->hdr.type = PDU_LABEL;
     labels->nsets = htonl(2);
     sts = __pmDecodeLabel((__pmPDU *)labels, &ident, &type, &sets, &nsets);
