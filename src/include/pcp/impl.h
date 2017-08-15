@@ -42,6 +42,9 @@
 #ifdef HAVE_NETDB_H
 #include <netdb.h>
 #endif
+#ifdef HAVE_SYS_STAT_H
+#include <sys/stat.h>
+#endif
 
 /*
  * Thread-safe support ... #define to enable thread-safe protection of
@@ -416,24 +419,24 @@ typedef struct {
 } __pmFILE;
 
 typedef struct __pm_fops {
-    void	*(*open) (__pmFILE *, const char *, const char *);
-    void        *(*fdopen)(__pmFILE *, int, const char *);
-    int         (*seek) (__pmFILE *, off_t, int);
-    void        (*rewind)(__pmFILE *);
-    off_t       (*tell)(__pmFILE *);
-    int         (*fgetc)(__pmFILE *);
-    size_t	(*read)(void *, size_t, size_t, __pmFILE *);
-    size_t	(*write)(void *, size_t, size_t, __pmFILE *);
-    int         (*flush)(__pmFILE *);
-    int         (*fsync)(__pmFILE *);
-    int		(*fileno) (__pmFILE *);
-    off_t       (*lseek)(__pmFILE *, off_t, int);
-    int         (*fstat)(__pmFILE *, struct stat *);
-    int		(*feof) (__pmFILE *);
-    int		(*ferror) (__pmFILE *);
-    void	(*clearerr) (__pmFILE *);
-    int         (*setvbuf)(__pmFILE *, char *, int, size_t);
-    int		(*close) (__pmFILE *);
+    void	*(*__pmopen) (__pmFILE *, const char *, const char *);
+    void        *(*__pmfdopen)(__pmFILE *, int, const char *);
+    int         (*__pmseek) (__pmFILE *, off_t, int);
+    void        (*__pmrewind)(__pmFILE *);
+    off_t       (*__pmtell)(__pmFILE *);
+    int         (*__pmfgetc)(__pmFILE *);
+    size_t	(*__pmread)(void *, size_t, size_t, __pmFILE *);
+    size_t	(*__pmwrite)(void *, size_t, size_t, __pmFILE *);
+    int         (*__pmflush)(__pmFILE *);
+    int         (*__pmfsync)(__pmFILE *);
+    int		(*__pmfileno) (__pmFILE *);
+    off_t       (*__pmlseek)(__pmFILE *, off_t, int);
+    int         (*__pmfstat)(__pmFILE *, struct stat *);
+    int		(*__pmfeof) (__pmFILE *);
+    int		(*__pmferror) (__pmFILE *);
+    void	(*__pmclearerr) (__pmFILE *);
+    int         (*__pmsetvbuf)(__pmFILE *, char *, int, size_t);
+    int		(*__pmclose) (__pmFILE *);
 } __pm_fops;
 
 /*
