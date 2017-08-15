@@ -77,13 +77,13 @@ __pm_fops __pm_xz = {
      * xz - transparent decompression only
      * Write not supported.
      */
-    .open = xz_open,
-    .seek = xz_seek,
-    .read = xz_read,
-    .write = xz_write,
-    .fileno = xz_fileno,
-    .flush = xz_flush,
-    .close = xz_close
+    .__pmopen = xz_open,
+    .__pmseek = xz_seek,
+    .__pmread = xz_read,
+    .__pmwrite = xz_write,
+    .__pmfileno = xz_fileno,
+    .__pmflush = xz_flush,
+    .__pmclose = xz_close
 };
 
 #endif /* not yet */
