@@ -325,7 +325,7 @@ indom = dm_indom(DM_CACHE_INDOM);
 	    if (!pmdaCacheLookup(indom, inst, &name, (void **)&pw) || !pw)
 	        continue;
             if (need_refresh[CLUSTER_DM_COUNTER])
-                sts = pm_dm_refresh_stats(pw, DM_STATS_INDOM);
+                pm_dm_refresh_stats(pw, DM_STATS_INDOM);
         }
     }
 
@@ -343,7 +343,7 @@ indom = dm_indom(DM_CACHE_INDOM);
 	    if (!pmdaCacheLookup(indom, inst, &name, (void **)&pw) || !pw)
 	        continue;
             if (need_refresh[CLUSTER_DM_HISTOGRAM])
-                sts = pm_dm_refresh_stats(pw, DM_HISTOGRAM_INDOM);
+                pm_dm_refresh_stats(pw, DM_HISTOGRAM_INDOM);
         }
     }
 

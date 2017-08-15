@@ -86,8 +86,10 @@ extern int pm_dm_histogram_instance_refresh(void);
 extern int pm_dm_refresh_stats(struct pm_wrap *, int);
 #else
 #define pm_dm_stats_fetch(item, ctr, atom)      (PM_ERR_APPVERSION)
-#define pm_dm_refresh_stats_counter(s, ctr)     do { } while (0)
 #define pm_dm_stats_instance_refresh(void)      (0)
+#define pm_dm_histogram_fetch(item, ctr, atom)  (PM_ERR_APPVERSION)
+#define pm_dm_histogram_instance_refresh(void)  (0)
+#define pm_dm_refresh_stats(item, ctr)          do { } while (0)
 #endif
 
 #endif
