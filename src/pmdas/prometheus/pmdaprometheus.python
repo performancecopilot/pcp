@@ -373,7 +373,7 @@ class Metric(object):
 				for instance in self.instances:
 					self.instance_by_name[instance["name"]] = {
 						"name": instance["prometheus_name"],
-						"label": instance["label"]
+						"label": instance["labels"]
 					}
 		except ValueError as e:
 			raise e
@@ -395,7 +395,7 @@ class Metric(object):
 			self.obj = pmdaMetric(self.pmid, self.type, c_api.PM_INDOM_NULL,
 								  self.sem, self.__units_val)
 
-	def label_func(self, inst):
+	def label_func(self, inst=c_api.PM_IN_NULL):
 		''' Label value of this instance '''
 		ret_label = "{}"
 		if self.__indom_cache:
@@ -733,6 +733,7 @@ class PrometheusSource(object):
 					break
 			indom = IndomCache(indom_idx, MAX_INDOM, self.pmda)
 			metric.indom_cache = indom
+			self.pmda.metrics_by_indom[indom.indom] = metric
 		# Stores the cached indoms
 		self.pmda.indom_cache.refresh()
 
@@ -771,6 +772,7 @@ class PrometheusSource(object):
 		self.pmda.add_metric(metric.full_name, metric.obj,
 								   metric.description)
 		self.metrics_by_id[metric.idx] = metric
+		self.pmda.metrics_by_pmid[metric.pmid] = metric
 
 	def __remove_metric(self, name):
 		try:
@@ -778,6 +780,7 @@ class PrometheusSource(object):
 			metric = self.metrics_by_id[id]
 			self.pmda.remove_metric(metric.full_name, metric.obj)
 			self.metrics_by_id.pop(id)
+			self.pmda.metrics_by_pmid.pop(metric.pmid)
 		except KeyError:
 			pass
 
@@ -785,6 +788,7 @@ class PrometheusSource(object):
 		for id in self.metrics_by_id:
 			metric = self.metrics_by_id[id]
 			self.pmda.remove_metric(metric.full_name, metric.obj)
+			self.pmda.metrics_by_pmid.pop(metric.pmid)
 		self.metrics_by_id = {}
 
 	def parse_metrics_values(self, raw_data):
@@ -871,6 +875,10 @@ class PrometheusPMDA(PMDA):
 		self.source_by_name = {}
 		self.source_by_path = {}
 
+		# PMID to metrics map used for labels (callback)
+		self.metrics_by_pmid = {}
+		self.metrics_by_indom = {}
+
 		# Cluster cache stores the indoms of clusters
 		# Indom values start from 2 as Indom 1 is reserved for internal metrics
 		# Indom 2 is reserved for caching  the indoms metrics with indoms
@@ -906,6 +914,7 @@ class PrometheusPMDA(PMDA):
 		metric_info.create()
 		self.add_metric(metric_info.full_name, metric_info.obj,
 						metric_info.description)
+		self.metrics_by_pmid[metric_info.pmid] = metric_info
 
 		metric_info = Metric(self.pmda_name + '.config', 0, self)
 		metric_info.name = 'metadata_refresh_frequency'
@@ -915,6 +924,7 @@ class PrometheusPMDA(PMDA):
 		metric_info.create()
 		self.add_metric(metric_info.full_name, metric_info.obj,
 						metric_info.description)
+		self.metrics_by_pmid[metric_info.pmid] = metric_info
 
 		metric_info = Metric(self.pmda_name + '.config', 0, self)
 		metric_info.name = 'endpoint_fetch_timeout'
@@ -924,6 +934,8 @@ class PrometheusPMDA(PMDA):
 		metric_info.create()
 		self.add_metric(metric_info.full_name, metric_info.obj,
 						metric_info.description)
+		self.metrics_by_pmid[metric_info.pmid] = metric_info
+
 
 	def load_prometheus_sources(self):
 		''' Initializes the PrometheusSource for all the Prometheus sources'''
@@ -992,22 +1004,20 @@ class PrometheusPMDA(PMDA):
 		self.numfetch += 1
 
 	def prometheus_label(self, ident, type):
-		# self.log("Label: ident: + str(ident) + ", type: " + str(type))
-		#if ident == c_api.PM_LABEL_CLUSTER:	# ident is cluster
-		#	if ident in self.source_by_cluster:
-		#		return self.source_by_cluster[ident].labels
-		#elif ident == c_api.PM_LABEL_ITEM:	# ident is PMID
-		#	# Note: these labels are for metrics
-		#	return self.metrics_by_id[ident].label_func()
+		if type == c_api.PM_LABEL_ITEM:
+			if ident in self.metrics_by_pmid:
+				return self.metrics_by_pmid[ident].label_func()
+			else:
+				self.log("Invalid pmid:%d requested"
+					"on label with type:%d"%(ident, type))
 		return "{}"
 
 	def prometheus_label_callback(self, indom, inst):
-		# self.log("label_cb: indom: " + str(indom) + ", inst: " + str(inst))
-		# Note: ident is now an InDom identifier and not a PMID
-		#if ident in self.indoms_by_id:
-		#	# TODO: maybe needs to become metrics_by_indom[ident]?
-		#	#       or does the IndomCache need a label_func()?
-		#	return self.metrics_by_id[ident].label_func(inst)
+		if indom in self.metrics_by_indom:
+			return self.metrics_by_indom[indom].label_func(inst)
+		else:
+			self.log("Invalid indom:%d requested "
+				"on label callback with inst:%d"%(indom, inst))
 		return "{}"
 
 	def prometheus_fetch_callback(self, cluster, item, inst):
