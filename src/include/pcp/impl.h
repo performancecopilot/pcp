@@ -1167,6 +1167,39 @@ typedef struct __pmLogInDom {
 } __pmLogInDom;
 
 /*
+ * __pmLogLabelSet is used to hold the sets of labels for the label
+ * hierarchy in memory.  Only in the case of instances will it have
+ * multiple labelsets.  For all other (higher) hierarchy levels, a
+ * single labelset suffices (nsets == 1, and nlabels >= 0).  Also,
+ * in memory labelsets are linked together in reverse chronological
+ * order (just like the __pmLogInDom structure above).
+ * -- externally we write these as
+ *	timestamp
+ *	type (int - PM_LABEL_* types)
+ *	ident (int - PM_IN_NULL, domain, indom, pmid)
+ *	nsets (int - usually 1, except for instances)
+ *	jsonb offset (int - offset to jsonb start)
+ *	labelset[0] ... labelset[numsets-1]
+ *	jsonb table (strings, concatenated)
+ *
+ * -- with each labelset array entry as
+ *	inst (int)
+ *	nlabels (int)
+ *	jsonb offset (int)
+ *	jsonb length (int)
+ *	label[0] ... label[nlabels-1] (struct pmLabel)
+ */
+
+typedef struct __pmLogLabelSet {
+    struct __pmLogLabelSet *next;
+    __pmTimeval		stamp;
+    int			type;
+    int			ident;
+    int			nsets;
+    __pmLabelSet	*labelsets;
+} __pmLogLabelSet;
+
+/*
  * record header in the metadata log file ... len (by itself) also is
  * used as a trailer
  */
@@ -1177,6 +1210,7 @@ typedef struct {
 
 #define TYPE_DESC	1	/* header, pmDesc, trailer */
 #define TYPE_INDOM	2	/* header, __pmLogInDom, trailer */
+#define TYPE_LABEL	3	/* header, __pmLogLabelSet, trailer */
 
 PCP_CALL extern void __pmLogPutIndex(const __pmLogCtl *, const __pmTimeval *);
 
