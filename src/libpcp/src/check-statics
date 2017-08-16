@@ -306,7 +306,7 @@ io.o
 io_stdio.o
      __pm_stdio			# file operations using stdio
 io_xz.o
-#    __pm_xz			# file operations using xz decompression
+    __pm_xz			# file operations using xz decompression
 ipc.o
     ipc_lock			# local mutex
     __pmIPCTable		# guarded by ipc_lock mutex

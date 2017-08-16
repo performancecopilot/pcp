@@ -12,78 +12,154 @@
  * License for more details.
  *
  */
-
-#if 0 /* not yet */
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <inttypes.h>
-#include <sys/stat.h>
+#include <stdio.h> /* for EOF */
 #include "pmapi.h"
 #include "impl.h"
-#include "internal.h"
 
 static void *
 xz_open(__pmFILE *f, const char *path, const char *mode)
 {
-    /* TODO */
+    fprintf(stderr, "libpcp internal error: %s not implemented\n", __func__);
     return NULL;
 }
 
-static __pm_off_t
-xz_seek(__pmFILE *f, __pm_off_t offset, int whence)
+static void *
+xz_fdopen(__pmFILE *f, int fd, const char *mode)
 {
-    /* TODO */
-    return 0;
-}
-
-static ssize_t
-xz_read(__pmFILE *f, void *buf, size_t count)
-{
-    /* TODO */
-    return 0;
-}
-
-static ssize_t
-xz_write(__pmFILE *f, void *buf, size_t count)
-{
-    /* TODO */
-    return 0;
+    fprintf(stderr, "libpcp internal error: %s not implemented\n", __func__);
+    return NULL;
 }
 
 static int
-xz_fileno(__pmFILE *f)
+xz_seek(__pmFILE *f, off_t offset, int whence)
 {
-    /* TODO */
+    fprintf(stderr, "libpcp internal error: %s not implemented\n", __func__);
+    return -1;
+}
+
+static void
+xz_rewind(__pmFILE *f)
+{
+    fprintf(stderr, "libpcp internal error: %s not implemented\n", __func__);
+}
+
+static off_t
+xz_tell(__pmFILE *f)
+{
+    fprintf(stderr, "libpcp internal error: %s not implemented\n", __func__);
+    return -1;
+}
+
+static int
+xz_getc(__pmFILE *f)
+{
+    fprintf(stderr, "libpcp internal error: %s not implemented\n", __func__);
+    return EOF;
+}
+
+static size_t
+xz_read(void *ptr, size_t size, size_t nmemb, __pmFILE *f)
+{
+    fprintf(stderr, "libpcp internal error: %s not implemented\n", __func__);
+    return 0;
+}
+
+static size_t
+xz_write(void *ptr, size_t size, size_t nmemb, __pmFILE *f)
+{
+    fprintf(stderr, "libpcp internal error: %s not implemented\n", __func__);
     return 0;
 }
 
 static int
 xz_flush(__pmFILE *f)
 {
-    /* TODO */
+    fprintf(stderr, "libpcp internal error: %s not implemented\n", __func__);
+    return EOF;
+}
+
+static int
+xz_fsync(__pmFILE *f)
+{
+    fprintf(stderr, "libpcp internal error: %s not implemented\n", __func__);
+    return -1;
+}
+
+static int
+xz_fileno(__pmFILE *f)
+{
+    fprintf(stderr, "libpcp internal error: %s not implemented\n", __func__);
+    return -1;
+}
+
+static off_t
+xz_lseek(__pmFILE *f, off_t offset, int whence)
+{
+    fprintf(stderr, "libpcp internal error: %s not implemented\n", __func__);
+    return -1;
+}
+
+static int
+xz_fstat(__pmFILE *f, struct stat *buf)
+{
+    fprintf(stderr, "libpcp internal error: %s not implemented\n", __func__);
+    return -1;
+}
+
+static int
+xz_feof(__pmFILE *f)
+{
+    fprintf(stderr, "libpcp internal error: %s not implemented\n", __func__);
     return 0;
+}
+
+static int
+xz_ferror(__pmFILE *f)
+{
+    fprintf(stderr, "libpcp internal error: %s not implemented\n", __func__);
+    return 0;
+}
+
+static void
+xz_clearerr(__pmFILE *f)
+{
+    fprintf(stderr, "libpcp internal error: %s not implemented\n", __func__);
+}
+
+static int
+xz_setvbuf(__pmFILE *f, char *buf, int mode, size_t size)
+{
+    fprintf(stderr, "libpcp internal error: %s not implemented\n", __func__);
+    return -1;
 }
 
 static int
 xz_close(__pmFILE *f)
 {
-    /* TODO */
-    return 0;
+    fprintf(stderr, "libpcp internal error: %s not implemented\n", __func__);
+    return EOF;
 }
 
 __pm_fops __pm_xz = {
     /*
-     * xz - transparent decompression only
-     * Write not supported.
+     * xz decompression
      */
     .open = xz_open,
+    .fdopen = xz_fdopen,
     .seek = xz_seek,
+    .rewind = xz_rewind,
+    .tell = xz_tell,
+    .fgetc = xz_getc,
     .read = xz_read,
     .write = xz_write,
-    .fileno = xz_fileno,
     .flush = xz_flush,
+    .fsync = xz_fsync,
+    .fileno = xz_fileno,
+    .lseek = xz_lseek,
+    .fstat = xz_fstat,
+    .feof = xz_feof,
+    .ferror = xz_ferror,
+    .clearerr = xz_clearerr,
+    .setvbuf = xz_setvbuf,
     .close = xz_close
 };
-
-#endif /* not yet */
