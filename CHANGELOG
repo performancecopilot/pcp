@@ -1,5 +1,41 @@
-pcp-3.12.1 (16 August 2017)
+pcp-3.12.2 (29 October 2017)
     - Work-in-progress, see http://pcp.io/roadmap
+
+pcp-3.12.1 (16 August 2017)
+    - pmdadm: device mapper stats API (statistics regions) metrics
+    - pmdahaproxy: new PMDA exporting HAProxy (haproxy.org) metrics
+    - pmdaperfevent: fix use after free in perf_setup_dynamic_events
+    - pmdaprometheus: add pmda config metrics and store callback
+    - pmdaprometheus: periodic metadata refresh of Prometheus endpoints
+    - pmdaprometheus: auto refresh and reload metadata changes
+    - pmdaprometheus: reload only added/removed sources on fetch
+    - pmdaprometheus: add units parsing and fix minor bugs
+    - pmdaprometheus: fix metadata generator for instances with whitespace
+    - pmdadarwin: instance domain help text added
+    - pmdalinux: add nfsd worker thread status values
+    - pmdanews: fixes to ps(1) command invocation on FreeBSD
+    - pmdaroot: defensive behaviour for containers lacking a Name
+    - pmrep: add per process metric sets to default pmrep.conf(5)
+    - pmrep: exit in check mode after all preparations
+    - pmie: modified back-off when metrics or hosts unavailable
+    - pmwebd: add Prometheus metrics exporter endpoint
+    - pcp-mpstat: gracefully handle the absence of interrupt metrics
+    - selinux: additional SELinux policy rules for several PMDAs
+    - libpcp: fix detection of unterminated string in derived metrics
+    - libpcp: fix ternary expression evaulation bug
+    - libpcp: tracing facility for PMAPI routine entry/exit
+    - libpcp: initial file I/O abstraction layer
+    - libpcp: further multi-threading improvements
+    - libpcp: only consider addresses with type SOCK_STREAM
+    - perl api: fixes for PMDA wrapper on FreeBSD
+    - python api: add refresh_all clusters method for PMDAs
+    - python api: add the remove_metric function for PMDAs
+    - build: add perl deps and perl-interpreter into RPM spec files
+    - build: add log import library pkg-config support
+    - build: add configury for python OrderedDict module
+    - build: add missing Debian autopkgtests and debian/watch file
+    - build: update with RPM systemd macros for service defaults
+    - build: change RPM location of local mode to %install, f27 onwards
 
 pcp-3.12.0 (30 June 2017)
     - pmdaprometheus: new PMDA exporting Prometheus end point metrics
