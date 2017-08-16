@@ -34,6 +34,8 @@ _filter_ncpu()
 # and
 # 192.0.2.10 -113 (No route to host)
 # and
+# 192.0.2.10 -111 (Connection refused)
+# and
 # 192.0.2.22 -60 (Operation timed out, Mac OS X)
 # and
 # 192.0.2.22 -51 (Network is unreachable, Mac OS X)
@@ -44,9 +46,10 @@ _filter_ncpu()
 _filter_connect_fail()
 {
     sed \
-	-e '/^192\..*-113$/s/-113/NETERROR/' \
 	-e '/^192\..*-110$/s/-110/NETERROR/' \
 	-e '/^192\..*-101$/s/-101/NETERROR/' \
+	-e '/^192\..*-113$/s/-113/NETERROR/' \
+	-e '/^192\..*-111$/s/-111/NETERROR/' \
 	-e '/^192\..*-60$/s/-60/NETERROR/' \
 	-e '/^192\..*-51$/s/-51/NETERROR/' \
 	-e '/^192\..*-65$/s/-65/NETERROR/' \
