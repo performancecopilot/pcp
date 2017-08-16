@@ -1,0 +1,50 @@
+#!/bin/sh
+# PCP QA Test No. 1129
+# Marko's iopct killer example ...
+#
+# Copyright (c) 2017 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.*
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# instances for proc.io metrics are pid of pmlogger and dd from the
+# iopct archive ... if that is remade, these will need to be adjusted
+#
+dd_pid=004879
+logger_pid=004561
+
+# also may need to tweak the number of samples
+samples=25
+
+# real QA test starts here
+
+pmval -z -t 0.5sec -s $samples -a archives/iopct -w 12 -f 1 disk.all.read_bytes
+pmval -z -t 0.5sec -s $samples -a archives/iopct -w 12 -f 1 -i $dd_pid,$logger_pid proc.io.read_bytes
+pmval -z -t 0.5sec -s $samples -a archives/iopct -w 12 -f 1 disk.all.write_bytes
+pmval -z -t 0.5sec -s $samples -a archives/iopct -w 12 -f 1 -i $dd_pid,$logger_pid proc.io.write_bytes
+pmval -z -t 0.5sec -s $samples -a archives/iopct -w 12 -f 1 -i $dd_pid,$logger_pid proc.io.cancelled_write_bytes
+
+cat <<End-of-File >$tmp.config
+iopct = delta(disk.all.read_bytes) + delta(disk.all.write_bytes) == 0 ?  mkconst(0, type="double", semantics="instant") : 100 * (delta(proc.io.read_bytes) + delta(proc.io.write_bytes) - delta(proc.io.cancelled_write_bytes)) / (delta(disk.all.read_bytes) + delta(disk.all.write_bytes))
+End-of-File
+PCP_DERIVED_CONFIG=$tmp.config pmval -z -t 0.5sec -s $samples -a archives/iopct -w 12 -f 4 -i $dd_pid,$logger_pid iopct
+
+# success, all done
+status=0
+exit

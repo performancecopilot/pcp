@@ -1365,6 +1365,7 @@ zsh
 1121 pmda.linux local
 1122 pmie local
 1128 pmie local
+1129 derive local
 1140 pidstat local
 1141 selinux local
 1174 threads valgrind local

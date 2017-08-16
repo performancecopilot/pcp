@@ -55,7 +55,7 @@ __pmFopen(const char *path, const char *mode)
      * this may allocate private data, so the matching close method must
      * be used to deallocate and close, see __pmClose() below.
      */
-    if (f->fops->open(f, path, mode) == NULL) {
+    if (f->fops->__pmopen(f, path, mode) == NULL) {
 	free(f);
     	return NULL;
     }
@@ -89,7 +89,7 @@ __pmFdopen(int fd, const char *mode)
      * this may allocate private data, so the matching close method must
      * be used to deallocate and close, see __pmClose() below.
      */
-    if (f->fops->fdopen(f, fd, mode) == NULL) {
+    if (f->fops->__pmfdopen(f, fd, mode) == NULL) {
 	free(f);
     	return NULL;
     }
@@ -104,91 +104,91 @@ __pmFdopen(int fd, const char *mode)
 int
 __pmFseek(__pmFILE *f, long offset, int whence)
 {
-    return f->fops->seek(f, offset, whence);
+    return f->fops->__pmseek(f, offset, whence);
 }
 
 void
 __pmRewind(__pmFILE *f)
 {
-    f->fops->rewind(f);
+    f->fops->__pmrewind(f);
 }
 
 long
 __pmFtell(__pmFILE *f)
 {
-    return f->fops->tell(f);
+    return f->fops->__pmtell(f);
 }
 
 int
 __pmFgetc(__pmFILE *f)
 {
-    return f->fops->fgetc(f);
+    return f->fops->__pmfgetc(f);
 }
 
 size_t
 __pmFread(void *ptr, size_t size, size_t nmemb, __pmFILE *f)
 {
-    return f->fops->read(ptr, size, nmemb, f);
+    return f->fops->__pmread(ptr, size, nmemb, f);
 }
 
 size_t
 __pmFwrite(void *ptr, size_t size, size_t nmemb, __pmFILE *f)
 {
-    return f->fops->write(ptr, size, nmemb, f);
+    return f->fops->__pmwrite(ptr, size, nmemb, f);
 }
 
 int
 __pmFflush(__pmFILE *f)
 {
-    return f->fops->flush(f);
+    return f->fops->__pmflush(f);
 }
 
 int
 __pmFsync(__pmFILE *f)
 {
-    return f->fops->fsync(f);
+    return f->fops->__pmfsync(f);
 }
 
 off_t
 __pmLseek(__pmFILE *f, off_t offset, int whence)
 {
-    return f->fops->lseek(f, offset, whence);
+    return f->fops->__pmlseek(f, offset, whence);
 }
 
 int
 __pmFstat(__pmFILE *f, struct stat *buf)
 {
-    return f->fops->fstat(f, buf);
+    return f->fops->__pmfstat(f, buf);
 }
 
 int
 __pmFileno(__pmFILE *f)
 {
-    return f->fops->fileno(f);
+    return f->fops->__pmfileno(f);
 }
 
 int
 __pmFeof(__pmFILE *f)
 {
-    return f->fops->feof(f);
+    return f->fops->__pmfeof(f);
 }
 
 int
 __pmFerror(__pmFILE *f)
 {
-    return f->fops->ferror(f);
+    return f->fops->__pmferror(f);
 }
 
 void
 __pmClearerr(__pmFILE *f)
 {
-    f->fops->clearerr(f);
+    f->fops->__pmclearerr(f);
 }
 
 int
 __pmSetvbuf(__pmFILE *f, char *buf, int mode, size_t size)
 {
-    return f->fops->setvbuf(f, buf, mode, size);
+    return f->fops->__pmsetvbuf(f, buf, mode, size);
 }
 
 /*
@@ -200,7 +200,7 @@ __pmFclose(__pmFILE *f)
 {
     int err;
     
-    err = f->fops->close(f);
+    err = f->fops->__pmclose(f);
     free(f);
 
     return err;
