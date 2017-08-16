@@ -1199,7 +1199,7 @@ typedef struct __pmLogLabelSet {
     int			type;
     int			ident;
     int			nsets;
-    __pmLabelSet	*labelsets;
+    pmLabelSet		*labelsets;
 } __pmLogLabelSet;
 
 /*
