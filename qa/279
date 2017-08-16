@@ -170,10 +170,6 @@ echo "__pmda_cull test: expect this to fail and restoration to fail ..."
 echo "__pmda_cull test: expect this to fail and restoration to fail ..." >>$seq.full
 echo
 
-# make sure pmcd wakes up and harvests any zombie PMDA processes
-#
-PMCD_REQUEST_TIMEOUT=1 pminfo -v >/dev/null 2>&1
-
 $sudo sh $tmp.cmd 2>&1 \
 | tee $tmp.out \
 | _filter
