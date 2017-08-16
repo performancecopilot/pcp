@@ -1,3 +1,6 @@
+pcp-3.12.2 (29 October 2017)
+    - Work-in-progress, see http://pcp.io/roadmap
+
 pcp-3.12.1 (16 August 2017)
     - pmdadm: device mapper stats API (statistics regions) metrics
     - pmdahaproxy: new PMDA exporting HAProxy (haproxy.org) metrics

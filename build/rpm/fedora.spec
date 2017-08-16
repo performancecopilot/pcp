@@ -1,5 +1,5 @@
 Name:    pcp
-Version: 3.12.1
+Version: 3.12.2
 Release: 1%{?dist}
 Summary: System-level performance monitoring and performance management
 License: GPLv2+ and LGPLv2.1+ and CC-BY
@@ -15,7 +15,7 @@ Source2: %{github}/pcp-webapp-grafana/archive/1.9.1/pcp-webapp-grafana-1.9.1.tar
 Source3: %{github}/pcp-webapp-graphite/archive/0.9.10/pcp-webapp-graphite-0.9.10.tar.gz
 Source4: %{github}/pcp-webapp-blinkenlights/archive/1.0.0/pcp-webapp-blinkenlights-1.0.0.tar.gz
 
-%if 0%{?fedora} || 0%{?rhel}
+%if 0%{?fedora} || 0%{?rhel} > 5
 %global disable_selinux 0
 %else
 %global disable_selinux 1
@@ -3096,6 +3096,9 @@ cd
 %endif
 
 %changelog
+* Fri Oct 29 2017 Mark Goodwin <mgoodwin@redhat.com> - 3.12.2-1
+- Work-in-progress, see http://pcp.io/roadmap
+
 * Wed Aug 16 2017 Nathan Scott <nathans@redhat.com> - 3.12.1-1
 - Update to latest PCP sources.
 
