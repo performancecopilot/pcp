@@ -121,4 +121,5 @@ PMU : software
 PMU : pmu1
 PMU : software
  ===== test_dynamic_events_config ==== 
+ ===== test_dynamic_events_cpumask_handling ==== 
 Unit tests Passed
