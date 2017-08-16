@@ -36,7 +36,7 @@ pmdaInstall
 
 NODEV="No devices found"
 NOSTATS=""
-DMSTATS=`dmsetup stats list`
+DMSTATS=`dmsetup stats list 2>/dev/null`
 if [ "$NODEV" = "$DMSTATS" ]; then
 	echo ""
 	echo "NOTE: There are currently no device-mapper devices."
