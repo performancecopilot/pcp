@@ -434,13 +434,20 @@ metric_list_traverse (const char *metric, void *closure)
         /* Quietly skip this metric. */
         return;
     }
+    pmLabelSet *labelSet;
+    string label = "{}";
+    rc = pmGetItemLabels(metric_id, &labelSet);
+    if (rc < 0) {
+        return;
+    } else if (rc != 0 && labelSet->jsonlen > 0) {
+        label = labelSet->json;
+    }
 
     if (mltc->num_metrics > 0) {
         *mltc->mhdb << ",\n";
     }
 
     *mltc->mhdb << "{";
-
     json_key_value (*mltc->mhdb, "name", string (metric), ",");
     rc = pmLookupText (metric_id, PM_TEXT_ONELINE, &metric_text);
     if (rc == 0) {
@@ -460,8 +467,8 @@ metric_list_traverse (const char *metric, void *closure)
                     string (metric_desc.sem == PM_SEM_COUNTER ? "counter" : metric_desc.sem == PM_SEM_INSTANT
                             ? "instant" : metric_desc.sem == PM_SEM_DISCRETE ? "discrete" : "unknown"), ",");
     json_key_value (*mltc->mhdb, "units", string (pmUnitsStr_r (&metric_desc.units, buffer, sizeof (buffer))), ",");
-    json_key_value (*mltc->mhdb, "type", string (pmTypeStr_r (metric_desc.type, buffer, sizeof (buffer))), "");
-
+    json_key_value (*mltc->mhdb, "type", string (pmTypeStr_r (metric_desc.type, buffer, sizeof (buffer))), ",");
+    *mltc->mhdb << "\"label\":" << label;
     *mltc->mhdb << "}";
     mltc->num_metrics++;
 }
@@ -999,12 +1006,28 @@ pmwebapi_respond_instance_list (struct MHD_Connection *connection,
         instlist = instances;
     }
 
+    pmLabelSet *labelSet;
+    int label_instances;
+    label_instances = pmGetInstancesLabels(inDom, &labelSet);
+    if (label_instances < 0)
+        goto out;
+
     output << "{";
     json_key_value (output, "indom", inDom, ",");
 
     output << "\"instances\":[\n";
     printed_instances = 0;
     for (i = 0; i < num_instances; i++) {
+        string label = "{}";
+        int j;
+        pmLabelSet *temp = labelSet;
+        for (j = 0; j < label_instances; j++) {
+            if ( (int) temp->inst == instlist[i] )
+                break;
+            temp++;
+        }
+        if (j < label_instances && temp->jsonlen > 0)
+            label = temp->json;
         char *instance_name;
         if (namelist != NULL) {
             instance_name = namelist[i];
@@ -1021,7 +1044,8 @@ pmwebapi_respond_instance_list (struct MHD_Connection *connection,
 
         output << "{";
         json_key_value (output, "instance", instlist[i], ",");
-        json_key_value (output, "name", string (instance_name));
+        json_key_value (output, "name", string (instance_name), ",");
+        output << "\"label\":" << label;
         output << "}";
         if (namelist == NULL) {
             free (instance_name);
@@ -1109,8 +1133,9 @@ metric_prometheus_traverse (const char *metric, void *closure)
         metric_id = c->metric_id_cache.find(metric)->second;
     } else {
         rc = pmLookupName (1, metrics, &metric_id);
-        if (rc != 1)
+        if (rc != 1) {
             return; // skip quietly
+        }
         c->metric_id_cache[metric] = metric_id;
         c->metric_name_cache[metric_id] = metric;
     }
@@ -1120,8 +1145,9 @@ metric_prometheus_traverse (const char *metric, void *closure)
 
     if (c->metric_desc_cache.find(metric_id) == c->metric_desc_cache.end()) {
         rc = pmLookupDesc (metric_id, &metric_desc);
-        if (rc != 0)
+        if (rc != 0) {
             return; // skip quietly
+        }
         c->metric_desc_cache[metric_id] = metric_desc;
     }
 
@@ -1133,7 +1159,7 @@ metric_prometheus_traverse (const char *metric, void *closure)
         }
         c->metric_text_cache[metric_id] = help_text;
     }
-
+    cout << metric_id<< endl;
     mptc->pmids.push_back(metric_id);
 }
 
@@ -1183,8 +1209,6 @@ metric_prometheus_batch_fetch(void *closure) {
         string pn = metric;
         replace (pn.begin(), pn.end(), '.', ':');
 
-        output << "# HELP " << pn << " " << help_text << endl;
-
         // Append a metric_desc.units-based suffix, and compute an
         // pmConvScale vector to match conventions as per
         // https://prometheus.io/docs/practices/naming/
@@ -1218,12 +1242,24 @@ metric_prometheus_batch_fetch(void *closure) {
         }
 
         // append semantics tag
-        if (metric_desc.sem == PM_SEM_COUNTER) {
+        if (metric_desc.sem == PM_SEM_COUNTER)
             pn += "_total";
+
+        output << "# HELP " << pn << " " << help_text << endl;
+
+        if (metric_desc.sem == PM_SEM_COUNTER) {
             output << "# TYPE " << pn << " counter" << endl;
         } else {
             output << "# TYPE " << pn << " gauge" << endl; // DISCRETE or INSTANT
         }
+
+        // Labels of the metric
+        pmLabelSet *labelSet;
+        int label_instances;
+        if (metric_desc.indom != PM_INDOM_NULL)
+            label_instances = pmGetInstancesLabels(metric_desc.indom, &labelSet);
+        else
+            label_instances = pmGetItemLabels(metric_id, &labelSet);
 
         // Iterate over the instances
         int i;
@@ -1245,12 +1281,14 @@ metric_prometheus_batch_fetch(void *closure) {
             int inst = v->inst;
             string labels;
             if (inst < 0) { // not an instanced metric
-                ;
+                if (label_instances > 0 && labelSet->jsonlen > 0)
+                    labels = "{" +json_to_prometheus(labelSet->json) + "}";
             } else if (inst_cache.find(inst) != inst_cache.end()){
                 labels = inst_cache[inst];
             } else {
                 char *name;
                 string instance_string;
+                string label;
                 rc = pmNameInDom (metric_desc.indom, inst, & name);
                 if (rc < 0)
                     instance_string="";
@@ -1258,7 +1296,22 @@ metric_prometheus_batch_fetch(void *closure) {
                     instance_string= escapeString(name);
                     free (name);
                 }
-                labels = "{instance=\"" + instance_string + "\"}";
+                if (label_instances > 0) {
+                    int j;
+                    pmLabelSet *temp = labelSet;
+                    for (j=0; j < label_instances; j++) {
+                        if ((int) temp->inst == inst )
+                            break;
+                        temp++;
+                    }
+                    if (j < label_instances && temp->jsonlen > 0) {
+                        label = json_to_prometheus(temp->json);
+                    }
+                }
+                labels = "{instance=\"" + instance_string + "\"";
+                if (label.length() > 0)
+                    labels += ',' + label;
+                labels += '}';
                 inst_cache[inst] = labels;
             }
 

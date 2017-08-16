@@ -196,6 +196,61 @@ std::string urlencode (const std::string &foo)
     return output.str ();
 }
 
+/* Convert the JSON key value pair into Prometheus label format
+   eg: {"key":"value"} ----> key="value"
+*/
+std::string json_to_prometheus(const std::string &input) {
+    stringstream output;
+    if (input.length() == 0)
+        return "";
+    int i = 1, length = input.length() - 1, labels_count = 0;
+    while (i < length) {
+        if (labels_count > 0)
+            output << ",";
+        int j = i;
+        string key, value;
+        // Find the key
+        if (input[j] == '\"') {
+            j += 1;
+            while (j < length){
+                if (input[j] == '\"' && input[j-1] != '\\')
+                    break;
+                j++;
+            }
+            key = input.substr(i+1, j-i-1);
+            i = j+2;
+        } else {
+            j = input.find_first_of(":", i + 1);
+            key = input.substr(i, j-i);
+            i = j+1;
+        }
+        j = i;
+        // Find value
+        if (input[j] == '\"') {
+            j += 1;
+            while (j < length){
+                if (input[j] == '\"' && input[j-1] != '\\')
+                    break;
+                j++;
+            }
+            value = input.substr(i+1, j-i-1);
+            i = j+2;
+        } else {
+            j = input.find_first_of(",", i + 1);
+            if (j == -1){
+                j = length;
+                value = input.substr(i, length - i);
+            }
+            else
+                value = input.substr(i, j-i);
+            i = j+1;
+        }
+        output << key << "=" << '\"' << value << '\"';
+        labels_count ++;
+    }
+    return output.str();
+}
+
 std::string escapeString(const std::string& input) {
     std::ostringstream ss;
     for (std::string::const_iterator iter = input.begin(); iter != input.end(); iter++) {
