@@ -623,6 +623,7 @@ _pcp () {
           [[ -f $f ]] && conf=$f && break
         done
       fi
+      [[ -z $conf ]] && return 1
       local -a sets
       for s in ${(f)"$(<${(e)conf})"}; do
         [[ $s == \[*\] && $s != \[(global|options)\] ]] && sets+=:${${s/\[}/\]}

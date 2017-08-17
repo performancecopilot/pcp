@@ -20,6 +20,20 @@ status=1	# failure is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
 trap "cd $here; $sudo rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
 
+rm -f $seq.out
+case $PCP_PLATFORM
+in
+    linux)
+	ln $seq.out.linux $seq.out || exit 1
+	;;
+    darwin)
+	ln $seq.out.darwin $seq.out || exit 1
+	;;
+    *)
+	_notrun "Need qualified $seq.out.$PCP_PLATFORM"
+	;;
+esac
+
 localhost=`hostname`
 
 _filter()
@@ -42,7 +56,7 @@ pmval -h $downrev -i bin-100,bin-500,bin-900 -s 2 -t 0.25 sample.bin 2>&1 \
 | _filter
 echo
 echo --- torture_api ---
-src/torture_api -h $downrev 2>&1 \
+src/torture_api -s 2 -h $downrev -n $seq.pmns 2>&1 \
 | _filter
 
 # Note:
@@ -56,7 +70,7 @@ ssh pcpqa@$downrev pmval -h $localhost -i bin-100,bin-500,bin-900 -s 2 -t 0.25 s
 | _filter
 echo
 echo --- torture_api ---
-ssh pcpqa@$downrev qa/src-oss/torture_api -h $localhost 2>&1 \
+ssh pcpqa@$downrev qa/src-oss/torture_api -s 2 -h $localhost 2>&1 \
 | _filter
 
 # success, all done
