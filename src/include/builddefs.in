@@ -217,6 +217,7 @@ DBLATEX	= @dblatex@
 PUBLICAN = @publican@
 BOOK_TOOLCHAIN = @book_toolchain@
 BOOK_BRAND = @book_brand@
+INKSCAPE = @inkscape@
 
 HAVE_MANPAGES = @have_manpages@
 HAVE_GZIPPED_MANPAGES = @have_gzipped_manpages@
@@ -276,6 +277,9 @@ HAVE_PYTHON_ORDEREDDICT = @have_python_OrderedDict@
 
 # for building packages from external sources
 HAVE_WEBAPPS = @have_webapps@
+
+# for desktop icons in a variety of img sizes
+HAVE_HICOLOR_ICONS = @have_hicolor_icons@
 
 # additional libraries needed for particular functions
 LIB_FOR_BASENAME = @lib_for_basename@

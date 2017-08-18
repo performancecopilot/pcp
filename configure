@@ -647,6 +647,9 @@ pcp_log_dir
 pcp_sysconfig_dir
 pcp_rc_dir
 pcp_desktop_dir
+have_hicolor_icons
+inkscape
+INKSCAPE
 pcp_icons_dir
 pcp_html_dir
 pcp_books_dir
@@ -935,7 +938,6 @@ infodir
 docdir
 oldincludedir
 includedir
-runstatedir
 localstatedir
 sharedstatedir
 sysconfdir
@@ -1076,7 +1078,6 @@ datadir='${datarootdir}'
 sysconfdir='${prefix}/etc'
 sharedstatedir='${prefix}/com'
 localstatedir='${prefix}/var'
-runstatedir='${localstatedir}/run'
 includedir='${prefix}/include'
 oldincludedir='/usr/include'
 docdir='${datarootdir}/doc/${PACKAGE}'
@@ -1329,15 +1330,6 @@ do
   | -silent | --silent | --silen | --sile | --sil)
     silent=yes ;;
 
-  -runstatedir | --runstatedir | --runstatedi | --runstated \
-  | --runstate | --runstat | --runsta | --runst | --runs \
-  | --run | --ru | --r)
-    ac_prev=runstatedir ;;
-  -runstatedir=* | --runstatedir=* | --runstatedi=* | --runstated=* \
-  | --runstate=* | --runstat=* | --runsta=* | --runst=* | --runs=* \
-  | --run=* | --ru=* | --r=*)
-    runstatedir=$ac_optarg ;;
-
   -sbindir | --sbindir | --sbindi | --sbind | --sbin | --sbi | --sb)
     ac_prev=sbindir ;;
   -sbindir=* | --sbindir=* | --sbindi=* | --sbind=* | --sbin=* \
@@ -1475,7 +1467,7 @@ fi
 for ac_var in	exec_prefix prefix bindir sbindir libexecdir datarootdir \
 		datadir sysconfdir sharedstatedir localstatedir includedir \
 		oldincludedir docdir infodir htmldir dvidir pdfdir psdir \
-		libdir localedir mandir runstatedir
+		libdir localedir mandir
 do
   eval ac_val=\$$ac_var
   # Remove trailing slashes.
@@ -1628,7 +1620,6 @@ Fine tuning of the installation directories:
   --sysconfdir=DIR        read-only single-machine data [PREFIX/etc]
   --sharedstatedir=DIR    modifiable architecture-independent data [PREFIX/com]
   --localstatedir=DIR     modifiable single-machine data [PREFIX/var]
-  --runstatedir=DIR       modifiable per-process data [LOCALSTATEDIR/run]
   --libdir=DIR            object code libraries [EPREFIX/lib]
   --includedir=DIR        C header files [PREFIX/include]
   --oldincludedir=DIR     C header files for non-gcc [/usr/include]
@@ -14581,6 +14572,58 @@ else
     pcp_icons_dir=`eval echo $datarootdir/pcp/pixmaps`
 fi
 pcp_icons_dir=`eval echo $pcp_icons_dir`
+
+
+test -z "$INKSCAPE" && # Extract the first word of "inkscape", so it can be a program name with args.
+set dummy inkscape; ac_word=$2
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+$as_echo_n "checking for $ac_word... " >&6; }
+if ${ac_cv_path_INKSCAPE+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  case $INKSCAPE in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_INKSCAPE="$INKSCAPE" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_path_INKSCAPE="$as_dir/$ac_word$ac_exec_ext"
+    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+  ;;
+esac
+fi
+INKSCAPE=$ac_cv_path_INKSCAPE
+if test -n "$INKSCAPE"; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $INKSCAPE" >&5
+$as_echo "$INKSCAPE" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+
+
+inkscape=$INKSCAPE
+
+
+have_hicolor_icons=false
+if test -d /usr/share/icons/hicolor -a -n "$INKSCAPE"
+then
+    { $as_echo "$as_me:${as_lineno-$LINENO}: adding hicolor desktop icons to the build" >&5
+$as_echo "$as_me: adding hicolor desktop icons to the build" >&6;}
+    have_hicolor_icons=true
+fi
 
 
 pcp_desktop_dir=`eval echo $datarootdir/applications`
