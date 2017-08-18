@@ -95,20 +95,17 @@ pm_dm_histogram_fetch(int item, struct pm_wrap *pw, pmAtomValue *atom)
 	return 1;
 }
 
-#define SUM_COUNTER(STATS_COUNTER) dm_stats_get_counter(dms, (STATS_COUNTER), \
+#define SUM_COUNTER(STATS_COUNTER) dm_stats_get_counter(pw->dms, (STATS_COUNTER), \
 		DM_STATS_REGION_CURRENT, DM_STATS_AREA_CURRENT)
 
 static int
 _pm_dm_refresh_stats_counter(struct pm_wrap *pw)
 {
-	struct dm_stats *dms;
 	uint64_t reads = 0, reads_merged = 0, read_sectors = 0, read_nsecs = 0;
 	uint64_t writes = 0, writes_merged = 0, write_sectors = 0, write_nsecs = 0;
 	uint64_t io_in_progress = 0, io_nsecs = 0, weighted_io_nsecs = 0, total_read_nsecs = 0, total_write_nsecs = 0;
 
-	dms = pw->dms;
-
-	dm_stats_foreach_region(dms) {
+	dm_stats_foreach_region(pw->dms) {
 		reads             += SUM_COUNTER(DM_STATS_READS_COUNT);
 		reads_merged      += SUM_COUNTER(DM_STATS_READS_COUNT);
 		read_sectors      += SUM_COUNTER(DM_STATS_READ_SECTORS_COUNT);
@@ -142,21 +139,15 @@ _pm_dm_refresh_stats_counter(struct pm_wrap *pw)
 
 }
 
-#define PER_COUNTER(STATS_COUNTER) dm_stats_get_counter(dms, (STATS_COUNTER), \
-		region_id, area_id)
+#define PER_COUNTER(STATS_COUNTER) dm_stats_get_counter(pw->dms, (STATS_COUNTER), \
+		pw->region_id, pw->area_id)
 
 static int
 _pm_dm_refresh_stats_counter_update(struct pm_wrap *pw, struct pm_wrap *pw2)
 {
-	struct dm_stats *dms;
-	uint64_t region_id, area_id;
 	uint64_t reads = 0, reads_merged = 0, read_sectors = 0, read_nsecs = 0;
 	uint64_t writes = 0, writes_merged = 0, write_sectors = 0, write_nsecs = 0;
 	uint64_t io_in_progress = 0, io_nsecs = 0, weighted_io_nsecs = 0, total_read_nsecs = 0, total_write_nsecs = 0;
-
-	dms = pw->dms;
-	region_id = pw->region_id;
-	area_id = pw->area_id;
 
 	reads             = PER_COUNTER(DM_STATS_READS_COUNT);
 	reads_merged      = PER_COUNTER(DM_STATS_READS_COUNT);
@@ -214,8 +205,10 @@ _pm_dm_refresh_stats_histogram(struct pm_wrap *pw)
 	area_id = pw->area_id;
 
 	if (bin == 0) {
-		if (!(dmh = dm_stats_get_histogram(dms, region_id, area_id)))
-			goto nostats;
+		if (!(dmh = dm_stats_get_histogram(dms, region_id, area_id))) {
+			dm_stats_destroy(dms);
+			return -oserror();
+		}
 
 		number_of_bins = dm_histogram_get_nr_bins(dmh);
 		total = dm_histogram_get_sum(dmh);
@@ -227,8 +220,8 @@ _pm_dm_refresh_stats_histogram(struct pm_wrap *pw)
 	}
 
 	pw->pdmh->pm_bin_count += buffer_count_data[bin];
-	pw->pdmh->pm_bin_percent = _make_percent(buffer_count_data[bin], total);
 	pw->pdmh->pm_bin = number_of_bins;
+	pw->pdmh->pm_bin_percent = _make_percent(buffer_count_data[bin], total);
 
 	bin++;
 
@@ -240,10 +233,6 @@ _pm_dm_refresh_stats_histogram(struct pm_wrap *pw)
 	}
 
 	return 0;
-
-nostats:
-	dm_stats_destroy(dms);
-	return -oserror();
 }
 
 static int
@@ -261,8 +250,10 @@ _pm_dm_refresh_stats_histogram_update(struct pm_wrap *pw, struct pm_wrap *pw2)
 	area_id = pw2->area_id;
 
 	if (bin == 0) {
-		if (!(dmh = dm_stats_get_histogram(dms, region_id, area_id)))
-			goto nostats;
+		if (!(dmh = dm_stats_get_histogram(dms, region_id, area_id))) {
+			dm_stats_destroy(dms);
+			return -oserror();
+		}
 
 		number_of_bins = dm_histogram_get_nr_bins(dmh);
 		total = dm_histogram_get_sum(dmh);
@@ -287,10 +278,6 @@ _pm_dm_refresh_stats_histogram_update(struct pm_wrap *pw, struct pm_wrap *pw2)
 	}
 
 	return 0;
-
-nostats:
-	dm_stats_destroy(dms);
-	return -oserror();
 }
 
 int pm_dm_refresh_stats(struct pm_wrap *pw, const int instance)

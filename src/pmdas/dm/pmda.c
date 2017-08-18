@@ -217,7 +217,7 @@ static pmdaMetric metrictable[] = {
         PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
     { .m_desc = {
         PMDA_PMID(CLUSTER_DM_HISTOGRAM, PM_DM_HISTOGRAM_PERCENT),
-        PM_TYPE_FLOAT, DM_HISTOGRAM_INDOM, PM_SEM_DISCRETE,
+        PM_TYPE_FLOAT, DM_HISTOGRAM_INDOM, PM_SEM_INSTANT,
         PMDA_PMUNITS(0,0,0,0,0,0) }, },
     { .m_desc = {
         PMDA_PMID(CLUSTER_DM_HISTOGRAM, PM_DM_HISTOGRAM_BIN),
