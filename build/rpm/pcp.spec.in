@@ -666,6 +666,7 @@ Group: Applications/System
 Summary: Visualization tools for the Performance Co-Pilot toolkit
 URL: http://www.pcp.io
 Requires: pcp-libs = %{version}-%{release}
+BuildRequires: inkscape
 
 %description gui
 Visualization tools for the Performance Co-Pilot toolkit.
@@ -2026,7 +2027,7 @@ awk '{print $NF}' $DIST_MANIFEST | egrep 'tutorials' >>docs_files
 awk '{print $NF}' $DIST_MANIFEST | egrep 'testsuite|etc/systemd/system' >testsuite_files
 %if "@enable_qt@" == "true"
 PCP_GUI='pmchart|pmconfirm|pmdumptext|pmmessage|pmquery|pmsnap|pmtime'
-awk '{print $NF}' $DIST_MANIFEST | egrep "$PCP_GUI|applications|pixmaps" | egrep -v '/pcp-doc/|/man/|pmtime.h' > gui_files
+awk '{print $NF}' $DIST_MANIFEST | egrep "$PCP_GUI|applications|pixmaps|hicolor" | egrep -v '/pcp-doc/|/man/|pmtime.h' > gui_files
 %endif
 %if "@enable_webapi@" == "true"
 awk '{print $NF}' $DIST_MANIFEST | egrep 'pmwebd|webapps$|PMWEBAPI' | \
