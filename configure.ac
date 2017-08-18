@@ -3122,6 +3122,18 @@ fi
 pcp_icons_dir=`eval echo $pcp_icons_dir`
 AC_SUBST(pcp_icons_dir)
 
+test -z "$INKSCAPE" && AC_PATH_PROG(INKSCAPE, inkscape)
+inkscape=$INKSCAPE
+AC_SUBST(inkscape)
+
+have_hicolor_icons=false
+if test -d /usr/share/icons/hicolor -a -n "$INKSCAPE"
+then
+    AC_MSG_NOTICE([adding hicolor desktop icons to the build])
+    have_hicolor_icons=true
+fi
+AC_SUBST(have_hicolor_icons)
+
 dnl desktop application entries
 pcp_desktop_dir=`eval echo $datarootdir/applications`
 pcp_desktop_dir=`eval echo $pcp_desktop_dir`
