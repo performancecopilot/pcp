@@ -1184,8 +1184,6 @@ metric_prometheus_batch_fetch(void *closure) {
         string pn = metric;
         replace (pn.begin(), pn.end(), '.', ':');
 
-        output << "# HELP " << pn << " " << help_text << endl;
-
         // Append a metric_desc.units-based suffix, and compute an
         // pmConvScale vector to match conventions as per
         // https://prometheus.io/docs/practices/naming/
@@ -1217,6 +1215,12 @@ metric_prometheus_batch_fetch(void *closure) {
         } else {
             continue; // skip quietly
         }
+
+        // append pcp metadata snapshot XXX: pmDesc bits: semantics, units?
+        output << "# PCP " << metric << endl;
+        
+        // append help text
+        output << "# HELP " << pn << " " << help_text << endl;
 
         // append semantics tag
         if (metric_desc.sem == PM_SEM_COUNTER) {
@@ -1277,7 +1281,7 @@ metric_prometheus_batch_fetch(void *closure) {
             // NB: skip the timestamp
         }
         // Only now, with everything collected, append our data to the prometheus output stream
-        (*mptc->output) << output.str();
+        (*mptc->output) << output.str() << endl; // plus a blank line between metrics
         mptc->num_metrics_completed++;
     }
 }
@@ -1316,7 +1320,7 @@ pmwebapi_respond_prometheus (struct MHD_Connection *connection,
         goto out;
     }
 
-    rc = MHD_add_response_header (resp, "Content-Type", "application/json");
+    rc = MHD_add_response_header (resp, "Content-Type", "text/plain");
     if (rc != MHD_YES) {
         connstamp (cerr, connection) << "MHD_add_response_header failed" << endl;
         rc = -ENOMEM;
