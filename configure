@@ -11307,6 +11307,8 @@ fi
 done
 
 
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking if selinux policy should be included" >&5
+$as_echo_n "checking if selinux policy should be included... " >&6; }
 enable_selinux=false
 if test "x$do_selinux" != "xno"; then :
 
@@ -11315,10 +11317,14 @@ do
     if test -f "$makefile" -a "x$SEINFO" != "x"
     then
 	enable_selinux=true
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
     fi
 done
 
 fi
+test "$enable_selinux" = "false" && { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
 
 
 
