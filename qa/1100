@@ -43,7 +43,7 @@ _check_completion_bash()
 {
   for cmd in $(grep '  pm.*)' $bash_comp | tr -d ')'); do
     $skip_pmrep && [ "$cmd" = pmrep ] && continue
-    comps=$(grep -A 1 "  $cmd)" $bash_comp | tail -n 1 | sed -e 's,opt_regex="-\[,,' -e 's,\]",,')
+    comps=$(grep -A 1 "  $cmd)" $bash_comp | tail -n 1 | sed -e 's,all_args=",,' -e 's,",,')
     # Need $tmp.err and PCP_STDERR for pmchart ...
     #
     rm -f $tmp.err

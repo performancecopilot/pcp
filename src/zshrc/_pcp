@@ -617,7 +617,12 @@ _pcp () {
       # pmrep(1) metricset
       [[ $service == pmrep ]] || return 1
       local conf=${~opt_args[-c]:-${~opt_args[--config]}}
-      [[ -z $conf ]] && conf=${${(M)${(f)"$(</etc/pcp.conf)"}:#PCP_SYSCONF_DIR=*}##PCP_SYSCONF_DIR=}/pmrep/pmrep.conf
+      if [[ -z $conf ]]; then
+        for f in ./pmrep.conf $HOME/.pmrep.conf $HOME/.pcp/pmrep.conf ${${(M)${(f)"$(</etc/pcp.conf)"}:#PCP_SYSCONF_DIR=*}##PCP_SYSCONF_DIR=}/pmrep/pmrep.conf; do
+          [[ -f $f ]] && conf=$f && break
+        done
+      fi
+      [[ -z $conf ]] && return 1
       local -a sets
       for s in ${(f)"$(<${(e)conf})"}; do
         [[ $s == \[*\] && $s != \[(global|options)\] ]] && sets+=:${${s/\[}/\]}

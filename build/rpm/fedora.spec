@@ -1,5 +1,5 @@
 Name:    pcp
-Version: 3.12.1
+Version: 3.12.2
 Release: 1%{?dist}
 Summary: System-level performance monitoring and performance management
 License: GPLv2+ and LGPLv2.1+ and CC-BY
@@ -15,7 +15,7 @@ Source2: %{github}/pcp-webapp-grafana/archive/1.9.1/pcp-webapp-grafana-1.9.1.tar
 Source3: %{github}/pcp-webapp-graphite/archive/0.9.10/pcp-webapp-graphite-0.9.10.tar.gz
 Source4: %{github}/pcp-webapp-blinkenlights/archive/1.0.0/pcp-webapp-blinkenlights-1.0.0.tar.gz
 
-%if 0%{?fedora} || 0%{?rhel}
+%if 0%{?fedora} || 0%{?rhel} > 5
 %global disable_selinux 0
 %else
 %global disable_selinux 1
@@ -208,6 +208,7 @@ Obsoletes: pcp-gui-debuginfo
 %global _selinuxdir %{_localstatedir}/lib/pcp/selinux
 %global _logconfdir %{_localstatedir}/lib/pcp/config/pmlogconf
 %global _pixmapdir %{_datadir}/pcp-gui/pixmaps
+%global _hicolordir %{_datadir}/icons/hicolor
 %global _booksdir %{_datadir}/doc/pcp-doc
 
 %if 0%{?fedora} >= 20 || 0%{?rhel} >= 8
@@ -1887,6 +1888,7 @@ Group: Applications/System
 Summary: Visualization tools for the Performance Co-Pilot toolkit
 URL: http://www.pcp.io
 Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
+BuildRequires: inkscape
 
 %description gui
 Visualization tools for the Performance Co-Pilot toolkit.
@@ -2005,6 +2007,7 @@ rm -fr $RPM_BUILD_ROOT/%{_selinuxdir}
 
 %if %{disable_qt}
 rm -fr $RPM_BUILD_ROOT/%{_pixmapdir}
+rm -fr $RPM_BUILD_ROOT/%{_hicolordir}
 rm -fr $RPM_BUILD_ROOT/%{_confdir}/pmsnap
 rm -fr $RPM_BUILD_ROOT/%{_localstatedir}/lib/pcp/config/pmsnap
 rm -fr $RPM_BUILD_ROOT/%{_localstatedir}/lib/pcp/config/pmchart
@@ -2134,6 +2137,8 @@ ls -1 $RPM_BUILD_ROOT/%{_selinuxdir} |\
 %if !%{disable_qt}
 ls -1 $RPM_BUILD_ROOT/%{_pixmapdir} |\
   sed -e 's#^#'%{_pixmapdir}'\/#' > pcp-gui.list
+ls -1 $RPM_BUILD_ROOT/%{_hicolordir} |\
+  sed -e 's#^#'%{_hicolordir}'\/#' >> pcp-gui.list
 cat base_bin.list base_exec.list |\
   grep -E "$PCP_GUI" >> pcp-gui.list
 %endif
@@ -2142,7 +2147,7 @@ ls -1 $RPM_BUILD_ROOT/%{_logconfdir}/ |\
     grep -E -v 'zeroconf' >pcp-logconf.list
 cat base_pmdas.list base_bin.list base_exec.list pcp-logconf.list |\
   grep -E -v 'pmdaib|pmmgr|pmweb|pmsnap|2pcp|pmdas/systemd' |\
-  grep -E -v "$PCP_GUI|pixmaps|pcp-doc|tutorials|selinux" |\
+  grep -E -v "$PCP_GUI|pixmaps|hicolor|pcp-doc|tutorials|selinux" |\
   grep -E -v %{_confdir} | grep -E -v %{_logsdir} > base.list
 
 # all devel pcp package files except those split out into sub packages
@@ -2708,7 +2713,7 @@ cd
 %{_localstatedir}/lib/pcp/config/pmlogrewrite
 %dir %attr(0775,pcp,pcp) %{_localstatedir}/lib/pcp/config/pmda
 
-%{_datadir}/bash-completion/completions/pcp
+%{_datadir}/bash-completion/completions/*
 %{_datadir}/zsh/site-functions/_pcp
 
 %if !%{disable_sdt}
@@ -3096,6 +3101,9 @@ cd
 %endif
 
 %changelog
+* Fri Oct 29 2017 Mark Goodwin <mgoodwin@redhat.com> - 3.12.2-1
+- Work-in-progress, see http://pcp.io/roadmap
+
 * Wed Aug 16 2017 Nathan Scott <nathans@redhat.com> - 3.12.1-1
 - Update to latest PCP sources.
 

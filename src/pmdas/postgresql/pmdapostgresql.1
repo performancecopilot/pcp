@@ -19,6 +19,13 @@
 .SH DESCRIPTION
 \f3pmdapostgresql\f1 is a Performance Co-Pilot \s-1PMDA\s0 which extracts
 live performance data from a running PostgreSQL database.
+.PP
+Many of the staticstics available from a PostgreSQL server may not
+be enabled by default.
+Refer to the online documentation at
+.I https://www.postgresql.org/docs/current/static/monitoring-stats.html
+which describes each of the available parameters related to statistics
+collection and how to enable them.
 .SH INSTALLATION
 \f3pmdapostgresql\f1 uses a configuration file from (in this order):
 .PD 0
