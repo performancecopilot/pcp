@@ -2714,7 +2714,7 @@ cd
 %{_localstatedir}/lib/pcp/config/pmlogrewrite
 %dir %attr(0775,pcp,pcp) %{_localstatedir}/lib/pcp/config/pmda
 
-%{_datadir}/bash-completion/completions/pcp
+%{_datadir}/bash-completion/completions/*
 %{_datadir}/zsh/site-functions/_pcp
 
 %if !%{disable_sdt}
