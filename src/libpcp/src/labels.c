@@ -855,7 +855,8 @@ getlabels(int ident, int type, pmLabelSet **sets, int *nsets)
 	}
     }
     else {
-	if (type & PM_LABEL_DOMAIN)
+	/* supply context labels for archives lacking label support */
+	if (type & PM_LABEL_CONTEXT)
 	    sts = archive_context_labels(ctxp, sets);
 	else
 	    sts = 0;
