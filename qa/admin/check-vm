@@ -458,16 +458,6 @@ pkg_add?	lxml.py	[?]
 pkg?	lxml.py		[?]
 slackpkg?	lxml.py	[?]
 pacman?	lxml.py		[?]
-# -- inkscape
-dpkg?		inkscape		[inkscape]
-rpm?		inkscape		[inkscape]
-urpmi?		inkscape		[?]
-emerge?		inkscape		[?]
-pkgin?		inkscape		[N/A]
-pkg_add?	inkscape		[?]
-pkg?		inkscape		[?]
-slackpkg?	inkscape		[?]
-pacman?		inkscape		[?]
 # perl modules
 # -- Time::HiRes
 dpkg?	Time::HiRes		[perl]
