@@ -71,12 +71,12 @@ inst_command_clean(char *command, size_t size)
 
     /* if command contains non printable chars - replace 'em */
     for (i = 0; i < size; i++) {
-	if (!isprint(command[i]))
+	if (!isprint((int)command[i]))
 	    command[i] = ' ';
     }
     /* and trailing whitespace - clean that */
     while (--size) {
-	if (isspace(command[size]))
+	if (isspace((int)command[size]))
 	    command[size] = '\0';
 	else
 	    break;
@@ -95,7 +95,7 @@ base_command_name(const char *command, char *base, size_t size)
 	    continue;
 	else if (*p == '/')
 	    start = end = p+1;
-	else if (isspace(*p))
+	else if (isspace((int)*p))
 	    break;
     }
     size--;	/* allow for a null */
