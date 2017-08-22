@@ -85,9 +85,11 @@ pm_dm_histogram_fetch(int item, struct pm_wrap *pw, pmAtomValue *atom)
 		case PM_DM_HISTOGRAM_COUNT:
 			atom->ull = pw->pdmh->pm_bin_count;
 			break;
+		/*
 		case PM_DM_HISTOGRAM_PERCENT:
 			atom->f = pw->pdmh->pm_bin_percent;
 			break;
+		*/
 		case PM_DM_HISTOGRAM_BIN:
 			atom->ull = pw->pdmh->pm_bin;
 			break;
@@ -181,6 +183,7 @@ _pm_dm_refresh_stats_counter_update(struct pm_wrap *pw, struct pm_wrap *pw2)
 
 }
 
+/*
 static float
 _make_percent(uint64_t numerator, uint64_t denominator)
 {
@@ -189,6 +192,7 @@ _make_percent(uint64_t numerator, uint64_t denominator)
 
 	return 0;
 }
+*/
 
 static int
 _pm_dm_refresh_stats_histogram(struct pm_wrap *pw)
@@ -197,7 +201,7 @@ _pm_dm_refresh_stats_histogram(struct pm_wrap *pw)
 	struct dm_histogram *dmh;
 	static uint64_t *buffer_count_data;
 	static int number_of_bins = 0, bin = 0;
-	static uint64_t total = 0;
+	/* static uint64_t total = 0; */
 	uint64_t region_id, area_id;
 
 	dms = pw->dms;
@@ -211,7 +215,7 @@ _pm_dm_refresh_stats_histogram(struct pm_wrap *pw)
 		}
 
 		number_of_bins = dm_histogram_get_nr_bins(dmh);
-		total = dm_histogram_get_sum(dmh);
+		/* total = dm_histogram_get_sum(dmh); */
 
 		buffer_count_data = (uint64_t *)malloc(sizeof(*buffer_count_data)*number_of_bins);
 		for (int i = 0; i < number_of_bins; i++) {
@@ -221,13 +225,13 @@ _pm_dm_refresh_stats_histogram(struct pm_wrap *pw)
 
 	pw->pdmh->pm_bin_count += buffer_count_data[bin];
 	pw->pdmh->pm_bin = number_of_bins;
-	pw->pdmh->pm_bin_percent = _make_percent(buffer_count_data[bin], total);
+	/* pw->pdmh->pm_bin_percent = _make_percent(buffer_count_data[bin], total); */
 
 	bin++;
 
 	if (bin == number_of_bins) {
 		bin = 0;
-		total = 0;
+		/* total = 0; */
 		number_of_bins = 0;
 		free(buffer_count_data);
 	}
@@ -242,7 +246,7 @@ _pm_dm_refresh_stats_histogram_update(struct pm_wrap *pw, struct pm_wrap *pw2)
 	struct dm_histogram *dmh;
 	static uint64_t *buffer_count_data;
 	static int number_of_bins = 0, bin = 0;
-	static uint64_t total = 0;
+	/* static uint64_t total = 0; */
 	uint64_t region_id, area_id;
 
 	dms = pw->dms;
@@ -256,7 +260,7 @@ _pm_dm_refresh_stats_histogram_update(struct pm_wrap *pw, struct pm_wrap *pw2)
 		}
 
 		number_of_bins = dm_histogram_get_nr_bins(dmh);
-		total = dm_histogram_get_sum(dmh);
+		/* total = dm_histogram_get_sum(dmh); */
 
 		buffer_count_data = (uint64_t *)malloc(sizeof(*buffer_count_data)*number_of_bins);
 		for (int i = 0; i < number_of_bins; i++) {
@@ -265,14 +269,14 @@ _pm_dm_refresh_stats_histogram_update(struct pm_wrap *pw, struct pm_wrap *pw2)
 	}
 
 	pw2->pdmh->pm_bin_count += buffer_count_data[bin];
-	pw2->pdmh->pm_bin_percent = _make_percent(buffer_count_data[bin], total);
+	/* pw2->pdmh->pm_bin_percent = _make_percent(buffer_count_data[bin], total); */
 	pw2->pdmh->pm_bin = number_of_bins;
 
 	bin++;
 
 	if (bin == number_of_bins) {
 		bin = 0;
-		total = 0;
+		/* total = 0; */
 		number_of_bins = 0;
 		free(buffer_count_data);
 	}

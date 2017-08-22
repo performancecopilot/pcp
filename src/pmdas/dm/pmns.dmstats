@@ -31,6 +31,5 @@ dmstats {
 
 dmstats.histogram {
 	hist_count           DM:4:0
-	hist_percent         DM:4:1
-	hist_bins            DM:4:2
+	hist_bins            DM:4:1
 }
