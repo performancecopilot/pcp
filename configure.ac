@@ -2349,11 +2349,19 @@ End-of-File
 #include <string.h>
 int main()
 {
+#ifdef __WORDSIZE
 /* logic copied from <inttypes.h> */
 #if __WORDSIZE == 64
-    printf("\"lld\"\n");
-#else
     printf("\"ld\"\n");
+#else
+    printf("\"lld\"\n");
+#endif
+#else
+/* on NetBSD, for example, there is no __WORDSIZE */
+    if (sizeof(int) == 8)
+	printf("\"ld\"\n");
+    else
+	printf("\"lld\"\n");
 #endif
     return(0);
 }
