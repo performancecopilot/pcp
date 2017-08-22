@@ -1888,7 +1888,7 @@ Group: Applications/System
 Summary: Visualization tools for the Performance Co-Pilot toolkit
 URL: http://www.pcp.io
 Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
-BuildRequires: inkscape
+BuildRequires: hicolor-icon-theme
 
 %description gui
 Visualization tools for the Performance Co-Pilot toolkit.
