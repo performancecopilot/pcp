@@ -1100,6 +1100,25 @@ s;\[.*;[N/A on host '"`hostname`"'];
     done
 fi
 
+# and if we are sure which version of Python we're using, remove lines
+# for the other versions
+#
+if `which pmpython >/dev/null 2>&1`
+then
+    pyver=`pmpython --version | sed -e 's/^[^0-9]*//' -e 's/\..*//'`
+    if [ -z "$pyver" ]
+    then
+	echo "Warning: cannot get Python version from: `pmpython --version`"
+    else
+	#debug# echo "pyver=$pyver"
+	sed <$tmp.main >$tmp.tmp -e '/\/python[0-9]/{
+/\/python'"$pyver"'[./]/!d
+}'
+	#debug# diff $tmp.main $tmp.tmp
+	mv $tmp.tmp $tmp.main
+    fi
+fi
+
 # main loop
 #
 cat $tmp.main \
