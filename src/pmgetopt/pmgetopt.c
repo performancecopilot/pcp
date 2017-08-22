@@ -22,7 +22,7 @@ static char buffer[4096];
 static inline char *
 skip_whitespace(char *buffer)
 {
-    while (buffer[0] && isspace(buffer[0]))
+    while (buffer[0] && isspace((int)buffer[0]))
 	buffer++;
     return buffer;
 }
@@ -30,7 +30,7 @@ skip_whitespace(char *buffer)
 static inline char *
 skip_nonwhitespace(char *buffer)
 {
-    while (buffer[0] && !isspace(buffer[0]))
+    while (buffer[0] && !isspace((int)buffer[0]))
 	buffer++;
     return buffer;
 }
@@ -256,7 +256,7 @@ options(pmOptions *opts, char *buffer, size_t length)
     }
 
     /* handle final two example cases above -- short options only */
-    if (isspace(start[1])) {
+    if (isspace((int)start[1])) {
 	fprintf(stderr, "%s: expected short option at \"%s\", line %d ignored\n",
 		pmProgname, start, lineno);
 	return -EINVAL;

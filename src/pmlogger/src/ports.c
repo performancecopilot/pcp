@@ -66,7 +66,7 @@ get_pid_from_symlink(const char *linkfile, pid_t *pidp)
 	}
 	else {
 	    for (p = pbuf; *p; p++) {
-		if (isdigit(*p))
+		if (isdigit((int)*p))
 		    break;
 	    }
 	    if (*p) {
@@ -711,7 +711,7 @@ init_ports(void)
 	    pidfile[pidlen] = '\0';
 	    for (i=0; i < pidlen; i++) {
 		/* first digit is the start of the PID */
-		if (isdigit(pidfile[i])) {
+		if (isdigit((int)pidfile[i])) {
 		    pid_t pid = atoi(pidfile + i);
 		    if (!__pmProcessExists(pid)) {
 			if (unlink(linkSocketPath) != 0) {

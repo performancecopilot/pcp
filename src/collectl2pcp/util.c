@@ -134,7 +134,7 @@ strfields(const char *s, int len, char **fields, int *fieldlen, int maxfields)
     for (i=0, p_end = p+len; i < maxfields;) {
         fields[i] = p;
 	fieldlen[i] = 0;
-        while(*p && !isspace(*p) && p < p_end) {
+        while(*p && !isspace((int)*p) && p < p_end) {
             p++;
 	    fieldlen[i]++;
 	}
@@ -142,7 +142,7 @@ strfields(const char *s, int len, char **fields, int *fieldlen, int maxfields)
 	if (!*p)
 	    break;
         *p++ ='\0';
-	while (isspace(*p))
+	while (isspace((int)*p))
 	    p++;
     }
 
@@ -159,7 +159,7 @@ fields_new(const char *s, int len)
     memset(f, 0, sizeof(fields_t));
     f->len = len;
     for (p=s; *p && p < s+len; p++) {
-	if (isspace(*p))
+	if (isspace((int)*p))
 	    n++;
     }
     /*
