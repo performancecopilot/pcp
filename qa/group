@@ -1355,6 +1355,7 @@ zsh
 1093 pmcpp local
 1094 logutil local
 1095 derive local
+1096 pmcd local
 1099 archive pmiostat local pmie
 1100 bash zsh local
 1108 logutil local folio pmlogextract
