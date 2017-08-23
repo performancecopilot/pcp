@@ -75,7 +75,7 @@ net_tcp_handler(handler_t *h, fields_t *f)
     if (f->nfields != 15)
     	return -1;
 
-    if (!isdigit(f->fields[1][0]))
+    if (!isdigit((int)(f->fields[1][0])))
     	return -1; /* skip column heading */
 
     n = 1;
@@ -108,7 +108,7 @@ net_udp_handler(handler_t *h, fields_t *f)
       */
     if (f->nfields != 7)
     	return -1;
-    if (!isdigit(f->fields[1][0]))
+    if (!isdigit((int)(f->fields[1][0])))
     	return -1; /* skip column heading */
 
     n = 1;

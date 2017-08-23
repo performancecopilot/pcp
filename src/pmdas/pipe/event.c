@@ -139,11 +139,11 @@ setup_cmdline(pipe_client *pc, pipe_command *cmd, char *params)
     for (p = start = params; *p != '\0'; p++) {
 	if (*p == ',')	/* accept comma as whitespace alternative */
 	    *p = ' ';
-	if (isspace(*p)) {
-	    if (!isspace(*start) && start != p)
+	if (isspace((int)*p)) {
+	    if (!isspace((int)*start) && start != p)
 		total += add_parameter(start, p, &nparams, &paramtab);
 	    start = p + 1;
-	} else if (!isalnum(*p)) {
+	} else if (!isalnum((int)*p)) {
 	    if (pmDebug & DBG_TRACE_APPL2)
 		fprintf(stderr, "invalid parameter string at '%c'", *p);
 	    goto fail;
@@ -606,7 +606,7 @@ event_parse_acl(const char *fname, char *p, int linenum)
 
     /* positioned at start of allow/disallow directive */
     token = p;
-    while (!isspace(*p) && *p != '\0')
+    while (!isspace((int)*p) && *p != '\0')
 	p++;
 
     if (strncmp(token, "disallow", sizeof("disallow")-1) == 0)
@@ -618,12 +618,12 @@ event_parse_acl(const char *fname, char *p, int linenum)
 			fname, linenum, token);
 	return -1;
     }
-    while (isspace(*p) && *p != '\0')
+    while (isspace((int)*p) && *p != '\0')
 	p++;
 
     /* positioned at start of user/group directive */
     token = p;
-    while (!isspace(*p) && *p != '\0')
+    while (!isspace((int)*p) && *p != '\0')
 	p++;
     if (strncmp(token, "group", sizeof("group")-1) == 0)
 	pa->group = 1;
@@ -634,12 +634,12 @@ event_parse_acl(const char *fname, char *p, int linenum)
 			fname, linenum, token);
 	return -1;
     }
-    while (isspace(*p) && *p != '\0')
+    while (isspace((int)*p) && *p != '\0')
 	p++;
 
     /* positioned at start of the actual user/group name */
     pa->name = p;
-    while (!isspace(*p) && *p != '\0' && *p != ':')
+    while (!isspace((int)*p) && *p != '\0' && *p != ':')
 	p++;
     *p++ = '\0';
     if (!pa->name || !*pa->name) {
@@ -647,18 +647,18 @@ event_parse_acl(const char *fname, char *p, int linenum)
 			fname, linenum, pa->user ? "user" : "group", pa->name);
 	return -1;
     }
-    while (isspace(*p) && *p != '\0')
+    while (isspace((int)*p) && *p != '\0')
 	p++;
     if (*p == ':') {
 	p++;
-	while (isspace(*p) && *p != '\0')
+	while (isspace((int)*p) && *p != '\0')
 	    p++;
     }
     pa->name = strdup(pa->name);
 
     /* positioned at start of the pipe instance name */
     pa->identifier = p;
-    while (!isspace(*p) && *p != '\0')
+    while (!isspace((int)*p) && *p != '\0')
 	p++;
     *p++ = '\0';
     if (!pa->identifier || !*pa->identifier) {
@@ -685,7 +685,7 @@ event_parse_cmd(const char *fname, char *p, int linenum)
      */
     pc = enlarge_cmdtab();
     pc->identifier = p;
-    while (!isspace(*p) && *p != '\0')
+    while (!isspace((int)*p) && *p != '\0')
 	p++;
     *p = '\0';
     pc->identifier = strdup(pc->identifier);
@@ -693,10 +693,10 @@ event_parse_cmd(const char *fname, char *p, int linenum)
 	goto done;
     p++;
 
-    while (isspace(*p))
+    while (isspace((int)*p))
 	p++;
     pc->user = p;
-    while (!isspace(*p) && *p != '\0')
+    while (!isspace((int)*p) && *p != '\0')
 	p++;
     *p = '\0';
     pc->user = strdup(pc->user);
@@ -704,7 +704,7 @@ event_parse_cmd(const char *fname, char *p, int linenum)
 	goto done;
     p++;
 
-    while (isspace(*p))
+    while (isspace((int)*p))
 	p++;
     pc->command = p;
     while (*p != '\n' && *p != '\r' && *p != '\0')
@@ -767,7 +767,7 @@ event_config(const char *fname)
 	p = line;
 
 	/* skip over any whitespace at start of line */
-	while (isspace(*p))
+	while (isspace((int)*p))
 	    p++;
 	/* skip empty or comment lines (hash-prefix) */
 	if (*p == '\n' || *p == '\0' || *p == '#')

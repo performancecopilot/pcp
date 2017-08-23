@@ -1881,6 +1881,7 @@ AC_SUBST(enable_manager)
 
 AC_CHECK_PROGS(SEINFO, seinfo)
 AC_SUBST(SEINFO)
+AC_MSG_CHECKING([if selinux policy should be included])
 enable_selinux=false
 AS_IF([test "x$do_selinux" != "xno"], [
 for makefile in /usr/share/selinux/devel/Makefile
@@ -1888,9 +1889,11 @@ do
     if test -f "$makefile" -a "x$SEINFO" != "x"
     then
 	enable_selinux=true
+	AC_MSG_RESULT(yes)
     fi
 done
 ])
+test "$enable_selinux" = "false" && AC_MSG_RESULT(no)
 AC_SUBST(enable_selinux)
 AC_SUBST(pcp_selinux_dir)
 
@@ -2349,11 +2352,19 @@ End-of-File
 #include <string.h>
 int main()
 {
+#ifdef __WORDSIZE
 /* logic copied from <inttypes.h> */
 #if __WORDSIZE == 64
-    printf("\"lld\"\n");
-#else
     printf("\"ld\"\n");
+#else
+    printf("\"lld\"\n");
+#endif
+#else
+/* on NetBSD, for example, there is no __WORDSIZE */
+    if (sizeof(int) == 8)
+	printf("\"ld\"\n");
+    else
+	printf("\"lld\"\n");
 #endif
     return(0);
 }

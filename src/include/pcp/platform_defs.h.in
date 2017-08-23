@@ -253,7 +253,6 @@ typedef void (*SIG_PF) (int);
 #endif
 
 /* Determine if we are on Windows with MinGW compiler */
-#undef IS_MINGW
 #ifdef IS_MINGW
 
 #ifdef PCP_INTERNAL
