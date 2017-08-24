@@ -1,0 +1,48 @@
+#!/bin/sh
+# PCP QA Test No. 1096
+# test multithreaded pmNewContext error handling
+#
+# Copyright (c) 2017 Red Hat.  All Rights Reserved.
+#
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+# On some VMs (especially with relatively small memory configs), helgrind
+# gets whacked by the kernel's OOM killer ... so don't waste our time
+# even trying to run this test on machines where this has been observed.
+#
+# Similarly on slow VMs we sometimes also see SIGALRM while calling
+# pthread_mutex_lock().  Skip these VMs also.
+#
+case `hostname`
+in
+    vm00|vm01|vm02|vm03|vm05|vm07|vm18|vm28|vm30|vm34)
+	_notrun "multithread10 and helgrind are not happy campers on `hostname`"
+	# NOTREACHED
+	;;
+esac
+
+_check_valgrind
+_get_libpcp_config
+$multi_threaded || _notrun "No libpcp threading support"
+
+status=0	# success is the default!
+$sudo rm -f $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# collect stderr as we go
+exec 2>> $seq.full
+
+# real QA test starts here
+echo "=== testing multithreaded pmNewContext with one good live context and one bad archive context ===" | tee -a $seq.full
+date >> $seq.full
+src/multithread11 localhost archives/empty
+[ $? -ne 0 ] && echo FAILED, see $seq.full && status=1
+
+# success, all done
+exit
