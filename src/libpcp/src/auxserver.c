@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2016 Red Hat.
+ * Copyright (c) 2013-2017 Red Hat.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -1108,3 +1108,39 @@ __pmServerHasFeature(__pmServerFeature query)
     }
     return sts;
 }
+
+#if !defined(IS_MINGW)
+/* Based on Stevens (Unix Network Programming, p.83) */
+void
+__pmServerStart(int argc, char **argv)
+{
+    pid_t childpid;
+
+    (void)argc; (void)argv;
+    fflush(stderr);
+
+#if defined(HAVE_TERMIO_SIGNALS)
+    signal(SIGTTOU, SIG_IGN);
+    signal(SIGTTIN, SIG_IGN);
+    signal(SIGTSTP, SIG_IGN);
+#endif
+
+    if ((childpid = fork()) < 0)
+	__pmNotifyErr(LOG_ERR, "__pmServerStart: fork");
+	/* but keep going */
+    else if (childpid > 0) {
+	/* parent, let her exit, but avoid ugly "Log finished" messages */
+	fclose(stderr);
+	exit(0);
+    }
+
+    /* not a process group leader, lose controlling tty */
+    if (setsid() == -1)
+	__pmNotifyErr(LOG_WARNING, "__pmServerStart: setsid");
+	/* but keep going */
+
+    close(0);
+    /* don't close other fd's -- we know that only good ones are open! */
+    /* don't chdir("/") -- we may still need to call __pmOpenLog() */
+}
+#endif

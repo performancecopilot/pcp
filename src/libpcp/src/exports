@@ -572,3 +572,8 @@ PCP_3.20 {
     __pmSetvbuf;
     __pmFclose;
 } PCP_3.19;
+
+PCP_3.21 {
+  global:
+    __pmServerStart;
+} PCP_3.20;

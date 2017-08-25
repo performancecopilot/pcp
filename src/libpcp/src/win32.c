@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2016 Red Hat.
+ * Copyright (c) 2013-2017 Red Hat.
  * Copyright (c) 2008-2010 Aconex.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -179,6 +179,49 @@ __pmSetProgname(const char *program)
     sts2 = __pmSetSignalHandler(SIGTERM, sigterm_callback);
 
     return sts1 | sts2;
+}
+
+void
+__pmServerStart(int argc, char **argv)
+{
+    PROCESS_INFORMATION piProcInfo;
+    STARTUPINFO siStartInfo;
+    LPTSTR cmdline = NULL;
+    int i, sz = 3; /* -f\0 */
+
+    fflush(stderr);
+
+    for (i = 0; i < argc; i++)
+	sz += strlen(argv[i]) + 1;
+    if ((cmdline = malloc(sz)) == NULL) {
+	__pmNotifyErr(LOG_ERR, "__pmServerStart: out-of-memory");
+	exit(1);
+    }
+    for (sz = i = 0; i < argc; i++)
+	sz += sprintf(cmdline, "%s ", argv[i]);
+    sprintf(cmdline + sz, "-f");
+
+    ZeroMemory(&piProcInfo, sizeof(PROCESS_INFORMATION));
+    ZeroMemory(&siStartInfo, sizeof(STARTUPINFO));
+    siStartInfo.cb = sizeof(STARTUPINFO);
+
+    if (0 == CreateProcess(
+		NULL, cmdline,
+		NULL, NULL,	/* process and thread attributes */
+		FALSE,		/* inherit handles */
+		CREATE_NEW_PROCESS_GROUP | CREATE_NO_WINDOW | DETACHED_PROCESS,
+		NULL,		/* environment (from parent) */
+		NULL,		/* current directory */
+		&siStartInfo,	/* STARTUPINFO pointer */
+		&piProcInfo)) {	/* receives PROCESS_INFORMATION */
+	__pmNotifyErr(LOG_ERR, "__pmServerStart: CreateProcess");
+	/* but keep going */
+    }
+    else {
+	/* parent, let her exit, but avoid ugly "Log finished" messages */
+	fclose(stderr);
+	exit(0);
+    }
 }
 
 void *
