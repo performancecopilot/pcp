@@ -38,7 +38,7 @@ require DynaLoader;
 	PM_ERR_NYI
 );
 @EXPORT_OK = qw();
-$VERSION = '1.16';
+$VERSION = '1.17';
 
 # metric identification
 sub PM_ID_NULL		{ 0xffffffff; }
@@ -279,6 +279,20 @@ a list.
 
 Refer to the earlier B<add_indom>() discussion concerning these two
 different types of instance domains definitions.
+
+=item $pmda->load_indom(index)
+
+When hash-based instance domains are in use, changes are
+automatically persisted when using B<replace_indom>() -
+this persisted indom can be restored (e.g. on startup)
+using this interface.
+
+The instance domain to be loaded is identified by I<index>,
+previously registered using B<add_indom>().
+
+Refer to the earlier B<add_indom>() discussion concerning the
+two different types of instance domains definitions - only
+hash-based instance domains are persisted.
 
 =item $pmda->add_pipe(command, callback, data)
 

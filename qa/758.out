@@ -10,7 +10,7 @@ Please enter c(ollector) or m(onitor) or b(oth) [b] Updating the Performance Met
 Terminate PMDA if already installed ...
 [...install files, make output...]
 Updating the PMCD control file, and notifying PMCD ...
-Check test_perl metrics have appeared ... 3 metrics and N values
+Check test_perl metrics have appeared ... 4 metrics and N values
 test_perl.some_value old value=N new value=0
 === Round 1 ===
 test_perl.other_indom.some_value 2
@@ -32,3 +32,9 @@ test_perl.some_indom.some_value 2
 test_perl.other_indom.some_value 0
 test_perl.some_value 1
 test_perl.some_indom.some_value 4
+
+=== Bonus Round ===
+
+test_perl.loaded_indom.some_value
+    inst [5 or "five"] value "five"
+    inst [9 or "nine"] value "nine"
