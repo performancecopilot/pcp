@@ -254,6 +254,10 @@ static void add_pmcsetting_name(configuration_t *config, char *name)
     {
         return;
     }
+
+    if (context_dynamic)
+        return add_pmc_setting_name_dynamic(config, name);
+
     if(0 == config->nConfigEntries) 
     {
         return;
@@ -261,8 +265,6 @@ static void add_pmcsetting_name(configuration_t *config, char *name)
 
     if (context_derived)
         return add_pmc_setting_name_derived(config, name);
-    else if (context_dynamic)
-        return add_pmc_setting_name_dynamic(config, name);
 
     entry = &config->configArr[config->nConfigEntries-1];
 
