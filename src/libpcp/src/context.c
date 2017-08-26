@@ -34,6 +34,7 @@
 #include "impl.h"
 #include "internal.h"
 #include <string.h>
+#include <assert.h>
 
 static __pmContext	**contexts;		/* array of context ptrs */
 static int		contexts_len;		/* number of contexts */
@@ -186,7 +187,7 @@ __pmHandleToPtr(int handle)
     PM_LOCK(contexts_lock);
     for (i = 0; i < contexts_len; i++) {
 	if (contexts_map[i] == handle && contexts_map[i] >= 0) {
-	    if (contexts[i]->c_type != PM_CONTEXT_INIT) {
+	    if (contexts[i]->c_type > PM_CONTEXT_UNDEF) {
 		__pmContext	*sts = contexts[i];
 		/*
 		 * Important Note:
@@ -196,7 +197,18 @@ __pmHandleToPtr(int handle)
 		 *   contexts that are locked.
 		 */
 		PM_LOCK(sts->c_lock);
+		/*
+		 * Note:
+		 *   Since we're holding the contexts_lock no
+		 *   pmDestroyContext() for this context can happen between
+		 *   the test above and the lock being granted ... and
+		 *   without a pmContextDestroy() there can be no reuse
+		 *   of the __pmContext struct, so the asserts below are
+		 *   to-be-sure-to-be-sure.
+		 */
 		PM_UNLOCK(contexts_lock);
+		assert(sts->c_handle == handle);
+		assert(sts->c_type > PM_CONTEXT_UNDEF);
 		return sts;
 	    }
 	}
@@ -909,6 +921,7 @@ initarchive(__pmContext	*ctxp, const char *name)
 	    free(acp->ac_log);
 	free(acp);
     }
+    ctxp->c_archctl = NULL;
     return sts;
 }
 
