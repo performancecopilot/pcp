@@ -32,6 +32,7 @@ if diff $config $tmp.tmp >/dev/null
 then
     echo "Nothing to cull."
 else
-    echo "Culled."
+    diff -u $config $tmp.tmp
     sudo cp $tmp.tmp $config
+    echo "Culled."
 fi
