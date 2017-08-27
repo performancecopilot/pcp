@@ -16,23 +16,31 @@ echo "QA output created by $seq"
 
 _cleanup()
 {
-    rm -f domain.h pmdawhacko help.pag help.dir
-    cd $here
-    $sudo rm -rf $tmp $tmp.*
     if $done_clean
     then
 	:
     else
+	# need to Remove whack to cleanse the PMNS
+	#
+	cd ..
+	[ -d sample ] && mv sample whacko
+	cd whacko
+	$sudo ./Remove 2>&1 | _filter_cull
+	# put pmcd.conf back
+	#
 	_restore_config $PCP_PMCDCONF_PATH
 	_service pcp restart | _filter_pcp_start
 	_wait_for_pmcd
 	_wait_for_pmlogger
-	# reinstall the sample PMDA ... the PMNS will have been
-	# trashed
+	# reinstall the sample PMDA ... the PMNS will have been trashed
+	#
 	cd $PCP_VAR_DIR/pmdas/sample
 	sudo ./Install </dev/null >>$here/$seq.full
 	done_clean=true
     fi
+    $sudo rm -f domain.h pmdawhacko help.pag help.dir
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
     exit $status
 }
 
