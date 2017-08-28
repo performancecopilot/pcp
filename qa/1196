@@ -26,6 +26,7 @@ _cleanup()
 	[ -d sample ] && mv sample whacko
 	cd whacko
 	$sudo ./Remove 2>&1 | _filter_cull
+	rm -f domain.h pmdawhacko help.pag help.dir
 	# put pmcd.conf back
 	#
 	_restore_config $PCP_PMCDCONF_PATH
@@ -38,7 +39,6 @@ _cleanup()
 	sudo ./Install </dev/null >>$here/$seq.full
 	done_clean=true
     fi
-    $sudo rm -f domain.h pmdawhacko help.pag help.dir
     cd $here
     $sudo rm -rf $tmp $tmp.*
     exit $status
@@ -66,6 +66,9 @@ _filter()
 
 # Handle lines like ...
 # Warning: /etc/pcp/pmcd/pmcd.conf[7] culling entry ...
+# and this one where the quoting may differ from one platform to the next
+# make: Nothing to be done for 'install'. 
+# make: Nothing to be done for `install'.
 #
 _filter_cull()
 {
@@ -74,6 +77,7 @@ _filter_cull()
 s@'"$PCP_PMCDCONF_PATH"'@PCP_PMCDCONF_PATH@
 s/\[[0-9][0-9]*]/[N]/
 }' \
+	-e "/Nothing to be done/s/.install./'install'/" \
     # end
 }
 
