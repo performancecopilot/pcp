@@ -851,6 +851,7 @@ do
 	    vm35)
 		# this is PCP 2.7.8, need to run as user pcpqa and just
 		# the sanity group and no -p or -m or -i flags
+		# and no -e processing
 		[ X"$what" = Xall ] && check_what='-g sanity'
 		user=pcpqa
 		qa_dir=/var/lib/pcp/testsuite/qa
@@ -868,6 +869,11 @@ do
 		then
 		    echo "Info: skip -i for vm35"
 		    iflag=false
+		fi
+		if [ -n "$efile" ]
+		then
+		    echo "Info: no -e $efile for vm35"
+		    efile=''
 		fi
 		;;
 	esac

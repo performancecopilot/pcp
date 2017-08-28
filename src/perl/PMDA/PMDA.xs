@@ -573,6 +573,27 @@ update_list_indom(SV *insts, pmdaInstid **set)
 }
 
 /*
+ * Reload a Perl instance reference into a populated indom.
+ * This interface allows either the hash or list formats,
+ * but only the hash format can be persisted and reloaded.
+ */
+static int
+reload_indom(SV *insts, pmInDom indom)
+{
+    SV *rv = (SV *) SvRV(insts);
+
+    if (! SvROK(insts)) {
+	warn("expected a reference for instances argument");
+	return -1;
+    }
+    if (SvTYPE(rv) == SVt_PVHV)
+	(void) pmdaCacheOp(indom, PMDA_CACHE_LOAD);
+    else if (SvTYPE(rv) != SVt_PVAV)
+        warn("instance argument is neither an array nor hash reference");
+    return 0;
+}
+
+/*
  * Converts a Perl instance reference into a populated indom.
  * This interface handles either the hash or list formats.
  */
@@ -1024,6 +1045,7 @@ add_indom(self,indom,insts,help,longhelp)
 	    XSRETURN_UNDEF;
 	}
 	indom = pmInDom_build(self->domain, indom);
+	reload_indom(insts, indom);
 
 	p = indomtab + itab_size;
 	memset(p, 0, sizeof(pmdaIndom));
@@ -1069,6 +1091,34 @@ replace_indom(self,index,insts)
 	    if (sts < 0)
 		XSRETURN_UNDEF;
 	    p->it_numinst = sts;
+	    RETVAL = sts;
+	}
+    OUTPUT:
+	RETVAL
+
+int
+load_indom(self,index)
+	pmdaInterface *	self
+	unsigned int	index
+    PREINIT:
+	pmdaIndom *	p;
+	int		sts;
+	(void)self;
+    CODE:
+	if (index >= itab_size) {
+	    warn("attempt to load non-existent instance domain");
+	    XSRETURN_UNDEF;
+	}
+	else {
+	    p = indomtab + index;
+	    /* is this indom setup via an array? (must be hash) */
+	    if (p->it_set) {
+		warn("cannot load an array instance domain");
+		XSRETURN_UNDEF;
+	    }
+	    sts = pmdaCacheOp(p->it_indom, PMDA_CACHE_LOAD);
+	    if (sts < 0)
+		warn("pmda cache load failed: %s", pmErrStr(sts));
 	    RETVAL = sts;
 	}
     OUTPUT:

@@ -984,8 +984,19 @@ pkg?		pluginviewer		[N/A (QA optional)]
 slackpkg?	pluginviewer		[? (QA optional)]
 pacman?		pluginviewer		[? (QA optional)]
 # -- selinux policy
-rpm?		seinfo			[setools-console (build optional)]
+rpm?		seinfo			[setools-console or setools (build optional)]
 rpm?    /usr/share/selinux/devel/Makefile [selinux-policy-devel (build optional)]
+rpm?    /etc/selinux/targeted/policy	 [selinux-policy-targeted (build optional)]
+# -- systemtap
+dpkg?		dtrace		[systemtap-sdt-dev (build optional)]
+rpm?		dtrace		[systemtap-sdt-devel (build optional)]
+urpmi?		dtrace		[systemtap-sdt-devel (build optional)]
+emerge?		dtrace		[? (build optional)]
+pkgin?		dtrace		[? (build optional)]
+pkg_add?	dtrace		[? (build optional)]
+pkg?		dtrace		[? (build optional)]
+slackpkg?	dtrace		[? (build optional)]
+pacman?		dtrace		[? (build optional)]
 #
 # misc
 #
@@ -1105,7 +1116,7 @@ fi
 #
 if `which pmpython >/dev/null 2>&1`
 then
-    pyver=`pmpython --version | sed -e 's/^[^0-9]*//' -e 's/\..*//'`
+    pyver=`pmpython --version 2>&1 | sed -e 's/^[^0-9]*//' -e 's/\..*//'`
     if [ -z "$pyver" ]
     then
 	echo "Warning: cannot get Python version from: `pmpython --version`"

@@ -25,7 +25,7 @@ _pcp_complete()
         arg_regex="-[AafhiKnOpSsTtUwxZ]"
     ;;
     pminfo)
-        all_args="abcdFfhKLMmNnOTtVvxZz"
+        all_args="abcdFfhKLlMmNnOTtVvxZz"
         arg_regex="-[abchKNnOZ]"
     ;;
     pmlogsummary)

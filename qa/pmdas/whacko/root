@@ -1,0 +1,10 @@
+/*
+ * fake "root" for validating the local PMNS subtree
+ */
+
+#include "domain.h"
+
+root { whacko }
+
+#include "pmns"
+

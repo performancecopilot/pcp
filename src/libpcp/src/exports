@@ -572,6 +572,11 @@ PCP_3.20 {
     __pmFclose;
 } PCP_3.19;
 
+PCP_3.21 {
+  global:
+    __pmServerStart;
+} PCP_3.20;
+
 PCP_3.30 {
   global:
     pmGetContextLabels;
@@ -600,4 +605,4 @@ PCP_3.30 {
     __pmRecvLabelReq;
     __pmDecodeLabel;
     __pmDecodeLabelReq;
-} PCP_3.20;
+} PCP_3.21;
