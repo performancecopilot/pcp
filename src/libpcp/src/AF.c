@@ -19,6 +19,7 @@
 
 #include "pmapi.h"
 #include "impl.h"
+#include "internal.h"
 
 #define MIN_ITIMER_USEC 100
 
@@ -35,6 +36,29 @@ static qelt		*root;
 static int		afid = 0x8000;
 static int		block;
 static void		onalarm(int);
+
+#ifdef PM_MULTI_THREAD
+static pthread_mutex_t	AF_lock;
+#else
+void			*AF_lock;
+#endif
+
+#if defined(PM_MULTI_THREAD) && defined(PM_MULTI_THREAD_DEBUG)
+/*
+ * return true if lock == AF_lock
+ */
+int
+__pmIsAFLock(void *lock)
+{
+    return lock == (void *)&AF_lock;
+}
+#endif
+
+void
+init_AF_lock(void)
+{
+    __pmInitMutex(&AF_lock);
+}
 
 /*
  * Platform dependent routines follow, Windows is very different
@@ -56,15 +80,16 @@ static int	afsetup;	/* one-time-setup: done flag */
 
 static void AFinit(void)
 {
-    PM_LOCK(__pmLock_libpcp);
+    PM_INIT_LOCKS();
+    PM_LOCK(AF_lock);
     if (afsetup) {
-	PM_UNLOCK(__pmLock_libpcp);
+	PM_UNLOCK(AF_lock);
 	return;
     }
     afsetup = 1;
     afblock = CreateMutex(NULL, FALSE, NULL);
     aftimer = CreateWaitableTimer(NULL, TRUE, NULL);
-    PM_UNLOCK(__pmLock_libpcp);
+    PM_UNLOCK(AF_lock);
 }
 static void AFhold(void)
 { 

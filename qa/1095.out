@@ -1,0 +1,14 @@
+QA output created by 1095
+[TMP.config:1] Error: pmRegisterDerived(a.err1, ...) syntax error
+ delta(disk.all.read_bytes) + delta(disk.all.write_bytes) == 0 ?  mkconst(0, type="double", semantics="instant") : 100 * (delta(sampledso.long.bin_ctr) + delta(sampledso.long.bin_ctr) - delta(sampledso.long.bin_ctr)) / (delta(disk.all.read_bytes) + delta(disk.all.write_bytes))"
+                                                                                                                                                                                                                                                                                     ^
+unterminated STRING
+[TMP.config:2] Error: pmRegisterDerived(a.err2, ...) syntax error
+ delta(disk.all.read_bytes) + delta(disk.all.write_bytes) == 0 ?  mkconst(0, type="double", semantics="instant
+                                                                                                      ^       
+unterminated STRING
+[TMP.config:3] Error: pmRegisterDerived(a.err1, ...) syntax error
+ delta(disk.all.read_bytes) + delta(disk.all.write_bytes) == 0 ?  mkconst(0, type="double
+                                                                                  ^      
+unterminated STRING
+Error: a: Unknown metric name

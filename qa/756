@@ -16,7 +16,6 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-test -f perfevent/perf_event_test.c || _notrun "Optional perf_event_test.c not present"
 [ -f $PCP_INC_DIR/builddefs ] || _notrun "No $PCP_INC_DIR/builddefs"
 grep 'PMDA_PERFEVENT[ 	]*=[ 	]*true' $PCP_INC_DIR/builddefs >/dev/null 2>&1 || _notrun "PMDA_PERFEVENT is not true in builddefs"
 

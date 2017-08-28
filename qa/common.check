@@ -640,9 +640,9 @@ _wait_for_pmcd_stop()
 	echo "Arrgghhh ... pmcd failed to stop after $_can_wait seconds"
 	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[p]mcd|[P]ID'
 	echo "=== successful pmprobes stdout ==="
-	cat $tmp._wait_for_pmcd_stop.out
+	cat $tmp._wait_for_pmcd_stop.out.all
 	echo "=== successful pmprobes stderr ==="
-	cat $tmp._wait_for_pmcd_stop.err
+	cat $tmp._wait_for_pmcd_stop.err.all
 	echo "... and now"
 	echo "+ pmprobe -n $PCP_VAR_DIR/pmns/root_pmcd pmcd.numclients"
 	pmprobe -n $PCP_VAR_DIR/pmns/root_pmcd pmcd.numclients
@@ -834,7 +834,7 @@ _wait_pmlogger_end()
 	    fi
 	    pmsleep 0.1
 	else
-	    # now there is an ugly race condition at the end of pmloger
+	    # now there is an ugly race condition at the end of pmlogger
 	    # ... once the control file has been removed (as per the test
 	    # above) the pmlogger log file is not complete until the atexit()
 	    # code is run ... so hang around waiting for the process to

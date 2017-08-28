@@ -1,0 +1,70 @@
+#!/bin/sh
+# PCP QA Test No. 1227
+# derived metrics - instance not filled in pmResult when scalar:indom
+# or indom:scalar and indom operand has one instance, e.g.
+# in Marko's example of pmval -i <pid> iopct
+#
+# Copyright (c) 2017 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.*
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e '/pmResult/s/ .* numpmid/ ... numpmid/' \
+	-e '/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]/s/[^ ]*/TIMESTAMP/' \
+	-e '/value /s/\(value.*\) ".*"/\1 STRING/' \
+    # end
+}
+
+# real QA test starts here
+
+# want guard to be true or false and indom to be right or left or both
+#
+cat <<'End-of-File' >$tmp.config
+true.right = sampledso.long.hundred == 100 ? mkconst(42, type="double", semantics="counter", units="Kbytes") : sampledso.double.bin_ctr
+false.right = sampledso.long.hundred != 100 ? mkconst(42, type="double", semantics="counter", units="Kbytes") : sampledso.double.bin_ctr
+true.left = sampledso.long.hundred == 100 ? sampledso.double.bin_ctr : mkconst(42, type="double", semantics="counter", units="Kbytes")
+false.left = sampledso.long.hundred != 100 ? sampledso.double.bin_ctr : mkconst(42, type="double", semantics="counter", units="Kbytes")
+true.both = sampledso.long.hundred == 100 ? sampledso.double.bin_ctr : sampledso.double.bin_ctr - sampledso.double.bin_ctr + mkconst(42, type="double", semantics="counter", units="Kbytes")
+false.both = sampledso.long.hundred != 100 ? sampledso.double.bin_ctr : sampledso.double.bin_ctr - sampledso.double.bin_ctr + mkconst(42, type="double", semantics="counter", units="Kbytes")
+End-of-File
+
+for metric in true.right false.right true.left false.left true.both false.both
+do
+    echo
+    echo "=== $metric ==="
+    # one instance
+    #
+    PCP_DERIVED_CONFIG=$tmp.config pmval -Dfetch -t 0.1sec -s 2 -i "bin-300" $metric >>$here/$seq.full 2>$tmp.out
+    _filter <$tmp.out
+    # two instances
+    #
+    PCP_DERIVED_CONFIG=$tmp.config pmval -Dfetch -t 0.1sec -s 2 -i "bin-200,bin-400" $metric >>$here/$seq.full 2>$tmp.out
+    _filter <$tmp.out
+    # all instances
+    #
+    PCP_DERIVED_CONFIG=$tmp.config pmval -Dfetch -t 0.1sec -s 2 $metric >>$here/$seq.full 2>$tmp.out
+    _filter <$tmp.out
+done
+
+# success, all done
+status=0
+exit

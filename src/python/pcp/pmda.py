@@ -108,7 +108,7 @@ class pmdaIndom(Structure):
 
     def __iter__(self):
         # Generates an iterator for the cache.
-        if self.it_numinst < 0:
+        if self.it_numinst <= 0:
             LIBPCP_PMDA.pmdaCacheOp(self.it_indom,
                                     cpmda.PMDA_CACHE_WALK_REWIND)
             while 1:
@@ -127,7 +127,7 @@ class pmdaIndom(Structure):
                     yield (inst, name)
 
     def inst_name_lookup(self, instance):
-        if self.it_numinst < 0:
+        if self.it_numinst <= 0:
             name = (c_char_p)()
             sts = LIBPCP_PMDA.pmdaCacheLookup(self.it_indom, instance,
                                               byref(name), None)
@@ -156,6 +156,7 @@ class pmdaIndom(Structure):
             key8 = key.encode('utf-8')
             LIBPCP_PMDA.pmdaCacheStore(indom, cpmda.PMDA_CACHE_ADD, key8, byref(insts[key]))
         LIBPCP_PMDA.pmdaCacheOp(indom, cpmda.PMDA_CACHE_SAVE)
+        self.it_numinst = -1
 
     def set_instances(self, indom, insts):
         if (insts == None):
@@ -294,6 +295,21 @@ class MetricDispatch(object):
         self._metric_names_map[name] = pmid
         self._metric_oneline[pmid] = oneline
         self._metric_helptext[pmid] = text
+        cpmda.set_need_refresh()
+
+    def remove_metric(self, name, metric):
+        pmid = metric.m_desc.pmid
+        if (name not in self._metric_names_map):
+            raise KeyError('attempt to remove non-existant metric name=%s' % (name))
+        if (pmid not in self._metrics):
+            raise KeyError('attempt to remove_metric with non-existant PMID')
+
+        self._metrictable.remove(metric)
+        self._metrics.pop(pmid)
+        self._metric_names.pop(pmid)
+        self._metric_names_map.pop(name)
+        self._metric_oneline.pop(pmid)
+        self._metric_helptext.pop(pmid)
         cpmda.set_need_refresh()
 
     def add_indom(self, indom, oneline = '', text = ''):
@@ -444,6 +460,10 @@ class PMDA(MetricDispatch):
     @staticmethod
     def set_store_callback(store_callback):
         return cpmda.set_store_callback(store_callback)
+
+    @staticmethod
+    def set_refresh_all(refresh_all):
+        return cpmda.set_refresh_all(refresh_all)
 
     @staticmethod
     def set_refresh_metrics(refresh_metrics):

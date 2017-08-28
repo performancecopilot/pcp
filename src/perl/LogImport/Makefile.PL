@@ -31,7 +31,7 @@ if ($ENV{TARGET_OS} eq "solaris") {
 
 WriteMakefile(
     NAME		=> 'PCP::LogImport',
-    AUTHOR		=> 'Ken McDonell <kenj@internode.on.net>',
+    AUTHOR		=> 'Ken McDonell <kenj@kenj.id.au>',
     VERSION_FROM	=> 'LogImport.pm', # finds $VERSION
     ABSTRACT_FROM	=> 'LogImport.pm', # retrieve abstract from module
     C			=> ['LogImport.c'],

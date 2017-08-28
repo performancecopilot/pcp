@@ -62,7 +62,7 @@ findsource(const char *host, const char *hconn)
  */
 
 int	/* >= 0: context handle,  -1: retry later */
-newContext(Symbol *host, const char *hconn)
+newContext(Symbol *host, const char *hconn, int is_temp)
 {
     int		sts = -1;
 
@@ -94,7 +94,7 @@ newContext(Symbol *host, const char *hconn)
 	}
 	sts = -1;
     }
-    else if (clientid != NULL)
+    else if (is_temp == 0 && clientid != NULL)
 	/* register client id with pmcd */
 	__pmSetClientId(clientid);
 
@@ -278,7 +278,7 @@ findFetch(Host *h, Metric *m)
     /* create new Fetch bundle */
     if (! f) {
 	f = newFetch(h);
-        f->handle = newContext(&h->name,symName(h->conn));
+        f->handle = newContext(&h->name,symName(h->conn), 0);
 	if (f->handle < 0) {
 	    free(f);
 	    h->down = 1;
@@ -641,7 +641,7 @@ initMetric(Metric *m)
     int		i, j;
 
     /* set up temporary context */
-    if ((handle = newContext(&m->hname, hconn)) < 0)
+    if ((handle = newContext(&m->hname, hconn, 1)) < 0)
 	return 0;
     hname = symName(m->hname);
 
@@ -823,7 +823,7 @@ reinitMetric(Metric *m)
     int		i, j;
 
     /* set up temporary context */
-    if ((handle = newContext(&m->hname, hconn)) < 0)
+    if ((handle = newContext(&m->hname, hconn, 1)) < 0)
 	return 0;
     hname = symName(m->hname);
 

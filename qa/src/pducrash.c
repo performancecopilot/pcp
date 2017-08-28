@@ -736,7 +736,7 @@ decode_name_request(const char *name, const char *caller, int pdutype)
     if (sts >= 0) { free(resnames); }
 
     fprintf(stderr, "[%s] checking access beyond extended buffer\n", name);
-    memset(xname_req, 0, sizeof(*xname_req));
+    memset(xname_req, 0, sizeof(*xname_req) + 16);
     xname_req->hdr.len = sizeof(*xname_req) + 16;
     xname_req->hdr.type = pdutype;
     xname_req->namelen = htonl(32);

@@ -989,7 +989,8 @@ showFullTime(FILE *f, RealTime rt)
 
     pmCtime(&t, bfr);
     bfr[24] = '\0';
-    fprintf(f, "%s.%06d", bfr, (int)((rt-t)*1000000));
+    bfr[19] = '\0';	/* before the year */
+    fprintf(f, "%s.%06d %s", bfr, (int)((rt-t)*1000000), &bfr[20]);
 }
 
 

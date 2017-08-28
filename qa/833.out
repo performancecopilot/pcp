@@ -384,103 +384,103 @@ churnctx: pmFetch failed: End of PCP archive log
 === host context, and pmNewContext ... just to be sure ===
 __pmFindPDUBuf(DEBUG)
 DATE
-kernel.all.load (60.2.0): 3 values
-hinv.ncpu (60.0.32): 1 value
+kernel.all.load (PMID): 3 values
+hinv.ncpu (PMID): 1 value
 sample.byte_ctr (29.0.81): 1 value
 __pmFindPDUBuf(DEBUG)
 DATE
-kernel.all.load (60.2.0): 3 values
-hinv.ncpu (60.0.32): 1 value
+kernel.all.load (PMID): 3 values
+hinv.ncpu (PMID): 1 value
 sample.byte_ctr (29.0.81): 1 value
 __pmFindPDUBuf(DEBUG)
 DATE
-kernel.all.load (60.2.0): 3 values
-hinv.ncpu (60.0.32): 1 value
+kernel.all.load (PMID): 3 values
+hinv.ncpu (PMID): 1 value
 sample.byte_ctr (29.0.81): 1 value
 __pmFindPDUBuf(DEBUG)
 DATE
-kernel.all.load (60.2.0): 3 values
-hinv.ncpu (60.0.32): 1 value
+kernel.all.load (PMID): 3 values
+hinv.ncpu (PMID): 1 value
 sample.byte_ctr (29.0.81): 1 value
 __pmFindPDUBuf(DEBUG)
 DATE
-kernel.all.load (60.2.0): 3 values
-hinv.ncpu (60.0.32): 1 value
+kernel.all.load (PMID): 3 values
+hinv.ncpu (PMID): 1 value
 sample.byte_ctr (29.0.81): 1 value
 __pmFindPDUBuf(DEBUG)
 DATE
-kernel.all.load (60.2.0): 3 values
-hinv.ncpu (60.0.32): 1 value
+kernel.all.load (PMID): 3 values
+hinv.ncpu (PMID): 1 value
 sample.byte_ctr (29.0.81): 1 value
 __pmFindPDUBuf(DEBUG)
 DATE
-kernel.all.load (60.2.0): 3 values
-hinv.ncpu (60.0.32): 1 value
+kernel.all.load (PMID): 3 values
+hinv.ncpu (PMID): 1 value
 sample.byte_ctr (29.0.81): 1 value
 __pmFindPDUBuf(DEBUG)
 DATE
-kernel.all.load (60.2.0): 3 values
-hinv.ncpu (60.0.32): 1 value
+kernel.all.load (PMID): 3 values
+hinv.ncpu (PMID): 1 value
 sample.byte_ctr (29.0.81): 1 value
 __pmFindPDUBuf(DEBUG)
 DATE
-kernel.all.load (60.2.0): 3 values
-hinv.ncpu (60.0.32): 1 value
+kernel.all.load (PMID): 3 values
+hinv.ncpu (PMID): 1 value
 sample.byte_ctr (29.0.81): 1 value
 __pmFindPDUBuf(DEBUG)
 DATE
-kernel.all.load (60.2.0): 3 values
-hinv.ncpu (60.0.32): 1 value
+kernel.all.load (PMID): 3 values
+hinv.ncpu (PMID): 1 value
 sample.byte_ctr (29.0.81): 1 value
 
 === local: context with attributes, and pmDupContext ===
 __pmFindPDUBuf(DEBUG)
 DATE
-kernel.all.load (60.2.0): 3 values
-hinv.ncpu (60.0.32): 1 value
+kernel.all.load (PMID): 3 values
+hinv.ncpu (PMID): 1 value
 sample.byte_ctr (29.0.81): 1 value
 __pmFindPDUBuf(DEBUG)
 DATE
-kernel.all.load (60.2.0): 3 values
-hinv.ncpu (60.0.32): 1 value
+kernel.all.load (PMID): 3 values
+hinv.ncpu (PMID): 1 value
 sample.byte_ctr (29.0.81): 1 value
 __pmFindPDUBuf(DEBUG)
 DATE
-kernel.all.load (60.2.0): 3 values
-hinv.ncpu (60.0.32): 1 value
+kernel.all.load (PMID): 3 values
+hinv.ncpu (PMID): 1 value
 sample.byte_ctr (29.0.81): 1 value
 __pmFindPDUBuf(DEBUG)
 DATE
-kernel.all.load (60.2.0): 3 values
-hinv.ncpu (60.0.32): 1 value
+kernel.all.load (PMID): 3 values
+hinv.ncpu (PMID): 1 value
 sample.byte_ctr (29.0.81): 1 value
 __pmFindPDUBuf(DEBUG)
 DATE
-kernel.all.load (60.2.0): 3 values
-hinv.ncpu (60.0.32): 1 value
+kernel.all.load (PMID): 3 values
+hinv.ncpu (PMID): 1 value
 sample.byte_ctr (29.0.81): 1 value
 __pmFindPDUBuf(DEBUG)
 DATE
-kernel.all.load (60.2.0): 3 values
-hinv.ncpu (60.0.32): 1 value
+kernel.all.load (PMID): 3 values
+hinv.ncpu (PMID): 1 value
 sample.byte_ctr (29.0.81): 1 value
 __pmFindPDUBuf(DEBUG)
 DATE
-kernel.all.load (60.2.0): 3 values
-hinv.ncpu (60.0.32): 1 value
+kernel.all.load (PMID): 3 values
+hinv.ncpu (PMID): 1 value
 sample.byte_ctr (29.0.81): 1 value
 __pmFindPDUBuf(DEBUG)
 DATE
-kernel.all.load (60.2.0): 3 values
-hinv.ncpu (60.0.32): 1 value
+kernel.all.load (PMID): 3 values
+hinv.ncpu (PMID): 1 value
 sample.byte_ctr (29.0.81): 1 value
 __pmFindPDUBuf(DEBUG)
 DATE
-kernel.all.load (60.2.0): 3 values
-hinv.ncpu (60.0.32): 1 value
+kernel.all.load (PMID): 3 values
+hinv.ncpu (PMID): 1 value
 sample.byte_ctr (29.0.81): 1 value
 __pmFindPDUBuf(DEBUG)
 DATE
-kernel.all.load (60.2.0): 3 values
-hinv.ncpu (60.0.32): 1 value
+kernel.all.load (PMID): 3 values
+hinv.ncpu (PMID): 1 value
 sample.byte_ctr (29.0.81): 1 value

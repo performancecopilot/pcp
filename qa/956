@@ -104,14 +104,18 @@ do
     $PCP_PS_PROG $PCP_PS_ALL_FLAGS >$tmp.tmp
     echo "ps probe #$i" >>$here/$seq.full
     egrep '[P]ID|[p]mdadynamic' $tmp.tmp >>$here/$seq.full
-    if egrep '(pmdadynamic.*defunct)|( Z .*pmdadynamic)' $tmp.tmp >/dev/null
+    # looking for a defunct PMDA process
+    #
+    if egrep '(pmdadynamic.*defunct)|( Z .*pmdadynamic)|\(pmdadynamic\)' $tmp.tmp >/dev/null
     then
 	rm -f $tmp.tmp
 	break
     elif grep "pmdadynamic" $tmp.tmp >/dev/null
     then
+	# still running, keep trying
 	:
     else
+	# not running at all
 	rm -f $tmp.tmp
 	break
     fi

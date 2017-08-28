@@ -12,8 +12,12 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.filter
 . ./common.check
+. ./common.python
 
 [ -f $PCP_PMDAS_DIR/prometheus/pmdaprometheus.python ] || _notrun "prometheus pmda not installed"
+
+$python -c "import requests"
+[ $? -eq 0 ] || _notrun "python requests module not installed"
 
 status=1    # failure is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
@@ -51,7 +55,9 @@ _prepare_pmda prometheus
 trap "_cleanup_pmda prometheus; exit \$status" 0 1 2 3 15
 
 _save_config $PCP_PMDAS_DIR/prometheus/metadata
+_save_config $PCP_VAR_DIR/config/pmda
 $sudo rm -f $PCP_PMDAS_DIR/prometheus/metadata/*
+$sudo rm -f $PCP_VAR_DIR/config/pmda/*
 
 cat > $tmp.json <<EOF
 # HELP sample_gauge Sample gauge metric.
@@ -129,6 +135,7 @@ fi
 pmdaprometheus_remove
 
 _restore_config $PCP_PMDAS_DIR/prometheus/metadata
+_restore_config $PCP_VAR_DIR/config/pmda
 
 status=0
 exit

@@ -1,6 +1,7 @@
 /*
  * Metric metadata support for pmlogrewrite
  *
+ * Copyright (c) 2017 Red Hat.
  * Copyright (c) 2011 Ken McDonell.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -157,7 +158,7 @@ do_desc(void)
     char		**names;
     long		out_offset;
 
-    out_offset = ftell(outarch.logctl.l_mdfp);
+    out_offset = __pmFtell(outarch.logctl.l_mdfp);
     _pmUnpackDesc(inarch.metarec, &desc, &numnames, &names);
 
     for (mp = metric_root; mp != NULL; mp = mp->m_next) {

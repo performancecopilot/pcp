@@ -99,9 +99,19 @@ pmFetch_ctx(__pmContext *ctxp, int numpmid, pmID *pmidlist, pmResult **result)
     int		need_unlock = 0;
     int		fd, ctx, sts, tout;
 
+#ifdef PCP_DEBUG
+    if (pmDebug & DBG_TRACE_PMAPI) {
+	char    dbgbuf[20];
+	fprintf(stderr, "pmFetch(%d, pmid[0] %s", numpmid, pmIDStr_r(pmidlist[0], dbgbuf, sizeof(dbgbuf)));
+	if (numpmid > 1)
+	    fprintf(stderr, " ... pmid[%d] %s", numpmid-1, pmIDStr_r(pmidlist[numpmid-1], dbgbuf, sizeof(dbgbuf)));
+	fprintf(stderr, ", ...) <:");
+    }
+#endif
+
     if (numpmid < 1) {
 	sts = PM_ERR_TOOSMALL;
-	goto done;
+	goto pmapi_return;
     }
 
     if ((sts = ctx = pmWhichContext()) >= 0) {
@@ -114,15 +124,17 @@ pmFetch_ctx(__pmContext *ctxp, int numpmid, pmID *pmidlist, pmResult **result)
 	    if (ctxp != NULL)
 		need_unlock = 1;
 	}
+	else
+	    PM_ASSERT_IS_LOCKED(ctxp->c_lock);
 
 	if (ctxp == NULL) {
 	    sts = PM_ERR_NOCONTEXT;
-	    goto done;
+	    goto pmapi_return;
 	}
 	if (ctxp->c_type == PM_CONTEXT_LOCAL && PM_MULTIPLE_THREADS(PM_SCOPE_DSO_PMDA)) {
 	    /* Local context requires single-threaded applications */
 	    sts = PM_ERR_THREAD;
-	    goto done;
+	    goto pmapi_return;
 	}
 
 	/* for derived metrics, may need to rewrite the pmidlist */
@@ -168,7 +180,20 @@ pmFetch_ctx(__pmContext *ctxp, int numpmid, pmID *pmidlist, pmResult **result)
 	}
     }
 
-done:
+pmapi_return:
+
+#ifdef PCP_DEBUG
+    if (pmDebug & DBG_TRACE_PMAPI) {
+	fprintf(stderr, ":> returns ");
+	if (sts >= 0)
+	    fprintf(stderr, "%d\n", sts);
+	else {
+	    char	errmsg[PM_MAXERRMSGLEN];
+	    fprintf(stderr, "%s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	}
+    }
+#endif
+
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_FETCH) {
 	fprintf(stderr, "pmFetch returns ...\n");
@@ -187,10 +212,10 @@ done:
 	}
     }
 #endif
-    if (need_unlock)
+    if (need_unlock) {
 	PM_UNLOCK(ctxp->c_lock);
+    }
 
-    if (need_unlock) CHECK_C_LOCK;
     return sts;
 }
 
@@ -199,7 +224,6 @@ pmFetch(int numpmid, pmID *pmidlist, pmResult **result)
 {
     int	sts;
     sts = pmFetch_ctx(NULL, numpmid, pmidlist, result);
-    CHECK_C_LOCK;
     return sts;
 }
 
@@ -232,7 +256,6 @@ pmFetchArchive(pmResult **result)
 	}
     }
 
-    CHECK_C_LOCK;
     return sts;
 }
 
@@ -284,6 +307,5 @@ pmSetMode(int mode, const struct timeval *when, int delta)
 	PM_UNLOCK(ctxp->c_lock);
     }
 
-    CHECK_C_LOCK;
     return sts;
 }

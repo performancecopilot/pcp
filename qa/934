@@ -25,17 +25,30 @@ _filter()
 {
     sed \
 	-e "s/\`/'/g" \
+	-e '/^mkdir: foo/{
+s/: foo/: cannot create directory "foo/
+s/bar:/bar":/
+s/"/'"'"'/g
+}' \
+	-e '/^chown: foo/{
+s/: foo/: changing ownership of "foo"/
+s/"/'"'"'/g
+}' \
     # end
 }
 
 
 _report()
 {
+    # ./: lines are there for Linux, not for ls(1) on other platforms
+    # like Mac OS X
+    #
     ls -lR | $PCP_AWK_PROG '
 NF < 4		{ print; next }
 $3 != "'"$PCP_USER"'" || $4 != "'"$PCP_GROUP"'"	{ print "mode=" $1 " name=" $NF; next }
 		{ print "mode= " $1 " user=pcp group=pcp name=" $NF }' \
     | sed \
+	-e '/^\.:$/d' \
 	-e '/^total /d' \
 	-e 's/\. user=/ user=/' \
 	-e 's/\. name=/ name=/' \

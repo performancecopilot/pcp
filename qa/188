@@ -23,8 +23,7 @@ if [ $PCP_PLATFORM = linux ] ; then
 	    'SUSE LINUX Enterprise Server 9 '*|\
 	    'SUSE Linux Enterprise Server 10 '*|\
 	    'SUSE Linux Enterprise Server 11 '*|\
-	    'openSUSE 11'*|\
-	    'openSUSE 12'*)
+	    'openSUSE '*)
 		ln $seq.linux $seq.out
 		;;
 	esac
