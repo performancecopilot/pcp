@@ -24,7 +24,7 @@
  * - allow an alternate sort key prefix char (pfx) from the command line
  */
 
-#define MAXLINELEN 200
+#define MAXLINELEN 1024
 
 /*
  * compare external instance names following the " character ...
@@ -40,6 +40,31 @@ compar_external(const void *a, const void *b)
 	;
     for (key_b++; key_b[0] && key_b[-1] != '"'; key_b++)
 	;
+
+    return strcmp(key_a, key_b);
+}
+
+/*
+ * compare metric values ...
+ * no error checking here, assume the QA engineer knows what they're doing
+ * examples:
+ * inst [100 or "bin-100"] value 100
+ * inst [N or ???] value "3"
+ */
+int
+compar_value(const void *a, const void *b)
+{
+    char *key_a = *((char **)a);
+    char *key_b = *((char **)b);
+
+    for (key_a++; key_a[0] && key_a[-1] != ']'; key_a++)
+	;
+    key_a += 7;
+    if (key_a[0] == '"') key_a++;
+    for (key_b++; key_b[0] && key_b[-1] != ']'; key_b++)
+	;
+    key_b += 7;
+    if (key_b[0] == '"') key_b++;
 
     return strcmp(key_a, key_b);
 }
@@ -81,11 +106,15 @@ main(int argc, char **argv)
 
     compar = compar_external;
 
-    while ((c = getopt(argc, argv, "i?")) != EOF) {
+    while ((c = getopt(argc, argv, "iv?")) != EOF) {
 	switch (c) {
 
-	case 'i':	/* sort in internal instance identifier */
+	case 'i':	/* sort on internal instance identifier */
 	    compar = compar_internal;
+	    break;
+
+	case 'v':	/* sort on metric's (string) value */
+	    compar = compar_value;
 	    break;
 
 	case '?':
