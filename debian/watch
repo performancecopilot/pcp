@@ -1,0 +1,3 @@
+version=3
+opts=filenamemangle=s/.+\/v?(\d\S+)\.tar\.gz/pcp-$1\.tar\.gz/ \
+  https://github.com/performancecopilot/pcp/tags .*/v?(\d\S+)\.tar\.gz
