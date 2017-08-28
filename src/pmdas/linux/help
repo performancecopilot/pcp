@@ -1339,6 +1339,12 @@ tools running on IRIX.
 @ nfs.client.reqs cumulative total of client NFSv2 requests by request type
 @ nfs.server.calls cumulative total of server NFSv2 requests
 @ nfs.server.reqs cumulative total of client NFSv2 requests by request type
+@ nfs.server.threads.total number of nfsd threads running
+@ nfs.server.threads.pools number of thread pools
+@ nfs.server.threads.requests cumulative total of requests received
+@ nfs.server.threads.enqueued cumulative total of requests that had to wait to be processed
+@ nfs.server.threads.processed cumulative total of requests processed immediately
+@ nfs.server.threads.timedout cumulative total of threads that timedout from inactivity
 @ nfs3.client.calls cumulative total of client NFSv3 requests
 @ nfs3.client.reqs cumulative total of client NFSv3 requests by request type
 @ nfs3.server.calls cumulative total of server NFSv3 requests

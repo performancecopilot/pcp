@@ -29,3 +29,5 @@ install:	default
 default_pcp:	default
 
 install_pcp:	install
+
+pmdbg.o:	$(TOPDIR)/src/include/pcp/pmdbg.h

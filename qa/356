@@ -31,6 +31,7 @@ _filter()
 	-e '/expr_1:.*?/d' \
 	-e '/expr_1: [0-9. ]*/s/ .*/ value(s)/' \
 	-e 's/Connection reset by peer/IPC protocol failure/' \
+	-e '/^  *$/d' \
     | $PCP_AWK_PROG '
 skip == 0 && /expr_1/	{ print; print "..."; print ""; skip = 1; next }
 skip == 1 && /expr_1/	{ next }

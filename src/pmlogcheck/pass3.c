@@ -457,7 +457,8 @@ pass3(__pmContext *ctxp, char *archname, pmOptions *opts)
 	 * skipping in libpcp, so use __pmLogRead_ctx() in preference
 	 * to pmFetchArchive()
 	 */
-	if ((sts = __pmLogRead_ctx(l_ctxp, l_ctxp->c_mode, NULL, &result, PMLOGREAD_NEXT)) < 0)
+	sts = __pmLogRead_ctx(l_ctxp, l_ctxp->c_mode, NULL, &result, PMLOGREAD_NEXT);
+	if (sts < 0)
 	    break;
 	result_count++;
 	delta_stamp = result->timestamp;

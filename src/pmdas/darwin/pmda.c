@@ -121,7 +121,7 @@ enum {
     DISK_INDOM,			/* 2 - set of all disk devices */
     CPU_INDOM,			/* 3 - set of all processors */
     NETWORK_INDOM,		/* 4 - set of all network interfaces */
-    NFS3_INDOM,			/* 6 - nfs v3 operations */
+    NFS3_INDOM,			/* 5 - nfs v3 operations */
     NUM_INDOMS			/* total number of instance domains */
 };
 

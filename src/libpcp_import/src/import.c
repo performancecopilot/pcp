@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013,2016 Red Hat.
+ * Copyright (c) 2013-2017 Red Hat.
  * Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -771,7 +771,7 @@ pmiPutMark(void)
     mark.timestamp.tv_usec = htonl(mark.timestamp.tv_usec);
     mark.numpmid = htonl(0);
 
-    if (fwrite(&mark, 1, sizeof(mark), lcp->l_mfp) != sizeof(mark))
+    if (__pmFwrite(&mark, 1, sizeof(mark), lcp->l_mfp) != sizeof(mark))
 	return -oserror();
 
     return 0;

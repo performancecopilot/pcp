@@ -1,0 +1,63 @@
+#!/bin/sh
+# PCP QA Test No. 1128
+# pmie retry back-off for bad metric
+#
+# Copyright (c) 2017 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.*
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+cat <<End-of-File >$tmp.config
+no.such.metric > 0 -> print "botch";
+End-of-File
+
+export PCP_DERIVED_CONFIG=
+pmie -Dappl2 -t 25 -c $tmp.config 2>$tmp.err &
+
+# expect back off 5 + 10 + 20 + 25 + 25 ... = 85 + 25 + ...
+#
+sleep 90
+kill -TERM $!
+
+cat $tmp.err >>$here/$seq.full
+
+# eval time lines look like
+# eval time: Wed Jul  5 19:51:44.118012 2017
+#
+sed -e 's/\:/ /'g <$tmp.err \
+| $PCP_AWK_PROG '
+/Evaluating task/	{ inblock = 1; next }
+/expr_/			{ inblock = 0; next }
+inblock == 1 && /retry delta/	{ print }
+inblock == 1 && /eval time/	{ this_time = $6*3600+$7*60+$8
+				  if (last_time == 0)
+					print $1,$2,"start"
+				  else {
+					delta = int(this_time - last_time + 0.5)
+					if (delta < 0)
+					    delta += 24*3600
+				  	print $1,$2,"last +",delta
+				  }
+				  last_time = this_time
+				}'
+
+# success, all done
+status=0
+exit

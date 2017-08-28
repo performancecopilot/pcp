@@ -13,7 +13,15 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-# test for-some-thing || _notrun No support for some-thing
+case $PCP_PLATFORM
+in
+    linux)
+	;;
+    *)
+	_notrun "Linux PMDA not relevant on platform $PCP_PLATFORM"
+	# NOTREACHED
+	;;
+esac
 
 _cleanup()
 {

@@ -56,9 +56,12 @@ _start_up_pmlogger -c $tmp.config -l $tmp.log $tmp
 _wait_for_pmlogger $pid $tmp.log 5
 echo "pid=$pid" >>$here/$seq.full
 ps $PCP_PS_ALL_FLAGS | grep pmlogger >>$here/$seq.full
-_service pcp restart | _filter_pcp_start
+_service pmcd stop | _filter_pcp_stop
+sleep 2
+_service pmcd start | _filter_pcp_start
 _wait_for_pmcd
 _wait_for_pmlogger
+sleep 2
 echo "expect pmlogger process ..." | tee -a $here/$seq.full
 ps $PCP_PS_ALL_FLAGS \
 | grep pmlogger \
@@ -66,11 +69,11 @@ ps $PCP_PS_ALL_FLAGS \
 | $PCP_AWK_PROG '$2 == "'$pid'" { print "OK"}'
 _filter_pmlogger_log <$tmp.log | _filter | sed -e "s/$host/HOST/"
 $sudo $signal -s TERM $pid
-sleep 1
+sleep 2
 echo "pmlogger log file ..." >>$here/$seq.full
 cat $tmp.log >>$here/$seq.full
 echo "expect one mark record ..."
-pmdumplog -M $tmp | grep '<mark>' | wc -l
+pmdumplog -M $tmp | grep '<mark>' | wc -l | sed -e 's/ //g'
 
 # success, all done
 status=0

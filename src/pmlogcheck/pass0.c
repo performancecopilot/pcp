@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2017 Red Hat.
  * Copyright (c) 2013 Ken McDonell, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -51,15 +52,15 @@
  * Checks here mimic those in __pmLogChkLabel().
  */
 static int
-checklabel(FILE *f, char *fname)
+checklabel(__pmFILE *f, char *fname)
 {
     static char 	*goldenfname = NULL;
     __pmLogLabel	label;
-    long		offset = ftell(f);
+    long		offset = __pmFtell(f);
     int			sts;
 
-    fseek(f, sizeof(int), SEEK_SET);
-    if ((sts = fread(&label, 1, sizeof(label), f)) != sizeof(label)) {
+    __pmFseek(f, sizeof(int), SEEK_SET);
+    if ((sts = __pmFread(&label, 1, sizeof(label), f)) != sizeof(label)) {
 	fprintf(stderr, "checklabel(...,%s): botch: read returns %d not %d as expected\n", fname, sts, (int)sizeof(label));
 	exit(1);
     }
@@ -111,7 +112,7 @@ checklabel(FILE *f, char *fname)
 	}
 #endif
     }
-    fseek(f, offset, SEEK_SET);
+    __pmFseek(f, offset, SEEK_SET);
     return sts; 
 }
 
@@ -125,13 +126,13 @@ pass0(char *fname)
     int		nrec = 0;
     int		is = IS_UNKNOWN;
     char	*p;
-    FILE	*f = NULL;
+    __pmFILE	*f = NULL;
     int		label_ok = STS_OK;
 
     if (vflag)
 	fprintf(stderr, "%s: start pass0\n", fname);
 
-    if ((f = fopen(fname, "r")) == NULL) {
+    if ((f = __pmFopen(fname, "r")) == NULL) {
 	fprintf(stderr, "%s: cannot open file: %s\n", fname, osstrerror());
 	sts = STS_FATAL;
 	goto done;
@@ -159,12 +160,12 @@ pass0(char *fname)
 	exit(1);
     }
 
-    while ((sts = fread(&len, 1, sizeof(len), f)) == sizeof(len)) {
+    while ((sts = __pmFread(&len, 1, sizeof(len), f)) == sizeof(len)) {
 	len = ntohl(len);
 	len -= 2 * sizeof(len);
 	/* gobble stuff between header and trailer without looking at it */
 	for (i = 0; i < len; i++) {
-	    check = fgetc(f);
+	    check = __pmFgetc(f);
 	    if (check == EOF) {
 		if (nrec == 0)
 		    fprintf(stderr, "%s: unexpected EOF in label record body\n", fname);
@@ -174,7 +175,7 @@ pass0(char *fname)
 		goto done;
 	    }
 	}
-	if ((sts = fread(&check, 1, sizeof(check), f)) != sizeof(check)) {
+	if ((sts = __pmFread(&check, 1, sizeof(check), f)) != sizeof(check)) {
 	    if (nrec == 0)
 		fprintf(stderr, "%s: unexpected EOF in label record trailer\n", fname);
 	    else
@@ -205,7 +206,7 @@ pass0(char *fname)
 	if (is == IS_INDEX) {
 	    /* for index files, done label record, now eat index records */
 	    __pmLogTI	tirec;
-	    while ((sts = fread(&tirec, 1, sizeof(tirec), f)) == sizeof(tirec)) { 
+	    while ((sts = __pmFread(&tirec, 1, sizeof(tirec), f)) == sizeof(tirec)) { 
 		nrec++;
 	    }
 	    if (sts != 0) {
@@ -227,7 +228,7 @@ empty_check:
 	sts = STS_WARNING;
     }
     /*
-     * sts == 0 (from fread) => STS_OK
+     * sts == 0 (from __pmFread) => STS_OK
      */
 done:
     if (is == IS_INDEX) {
@@ -257,7 +258,7 @@ done:
 	sts = label_ok;
 
     if (f != NULL)
-	fclose(f);
+	__pmFclose(f);
 
     return sts;
 }

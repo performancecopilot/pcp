@@ -19,7 +19,7 @@
 . $PCP_SHARE_DIR/lib/pmdaproc.sh
 
 iam=dm
-pmns_name="dmcache dmthin"
+pmns_name="dmcache dmthin dmstats"
 pmda_interface=4
 forced_restart=true	# for env vars
 
@@ -33,4 +33,19 @@ fi
 
 pmdaSetup
 pmdaInstall
+
+NODEV="No devices found"
+NOSTATS=""
+DMSTATS=`dmsetup stats list 2>/dev/null`
+if [ "$NODEV" = "$DMSTATS" ]; then
+	echo ""
+	echo "NOTE: There are currently no device-mapper devices."
+	echo "See also \"man pmdadm\" or \"man dmsetup\" "
+elif [ "$NOSTATS" = "$DMSTATS" ]; then
+	echo ""
+	echo "NOTE: There are no device-mapper statistics regions."
+	echo "To use the dmstats metrics you must create statistics regions."
+	echo "See also \"man pmdadm\" "
+fi
+
 exit

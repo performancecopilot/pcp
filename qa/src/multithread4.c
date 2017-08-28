@@ -88,11 +88,36 @@ main(int argc, char **argv)
     unsigned int	in[PDU_MAX+1];
     unsigned int	out[PDU_MAX+1];
     int			i;
+    int			c;
+    int			errflag = 0;
     char		msgbuf[PM_MAXERRMSGLEN];
+
+    __pmSetProgname(argv[0]);
 
     setvbuf(stdout, NULL, _IONBF, 0);
 
-    if (argc != 1) {
+    while ((c = getopt(argc, argv, "D:?")) != EOF) {
+	switch (c) {
+
+	case 'D':	/* debug flag */
+	    sts = __pmParseDebug(optarg);
+	    if (sts < 0) {
+		fprintf(stderr, "%s: unrecognized debug flag specification (%s)\n",
+		    pmProgname, optarg);
+		errflag++;
+	    }
+	    else
+		pmDebug |= sts;
+	    break;
+
+	case '?':
+	default:
+	    errflag++;
+	    break;
+	}
+    }
+
+    if (optind != argc) {
 	printf("Usage: multithread4\n");
 	exit(1);
     }

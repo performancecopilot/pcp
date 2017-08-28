@@ -22,40 +22,51 @@
 int
 pmLookupInDom(pmInDom indom, const char *name)
 {
-    int			n;
+    int			sts;
     __pmInResult	*result;
     __pmContext		*ctxp;
 
-    if (indom == PM_INDOM_NULL)
-	return PM_ERR_INDOM;
-    if ((n = pmWhichContext()) >= 0) {
-	int	ctx = n;
+#ifdef PCP_DEBUG
+    if (pmDebug & DBG_TRACE_PMAPI) {
+	char    dbgbuf[20];
+	fprintf(stderr, "pmLookupInDom(%s, %s) <:", pmInDomStr_r(indom, dbgbuf, sizeof(dbgbuf)), name);
+    }
+#endif
+
+    if (indom == PM_INDOM_NULL) {
+	sts = PM_ERR_INDOM;
+	goto pmapi_return;
+    }
+    if ((sts = pmWhichContext()) >= 0) {
+	int	ctx = sts;
 	ctxp = __pmHandleToPtr(ctx);
-	if (ctxp == NULL)
-	    return PM_ERR_NOCONTEXT;
+	if (ctxp == NULL) {
+	    sts = PM_ERR_NOCONTEXT;
+	    goto pmapi_return;
+	}
 	if (ctxp->c_type == PM_CONTEXT_HOST) {
-	    n = __pmSendInstanceReq(ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp),
+	    sts = __pmSendInstanceReq(ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp),
 				    &ctxp->c_origin, indom, PM_IN_NULL, name);
-	    if (n < 0)
-		n = __pmMapErrno(n);
+	    if (sts < 0)
+		sts = __pmMapErrno(sts);
 	    else {
 		__pmPDU	*pb;
 		int	pinpdu;
 
 PM_FAULT_POINT("libpcp/" __FILE__ ":3", PM_FAULT_TIMEOUT);
-		pinpdu = n = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE, 
+		pinpdu = sts = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE, 
 			       ctxp->c_pmcd->pc_tout_sec, &pb);
-		if (n == PDU_INSTANCE) {
+		if (sts == PDU_INSTANCE) {
 		    __pmInResult	*result;
-		    if ((n = __pmDecodeInstance(pb, &result)) >= 0) {
-			n = result->instlist[0];
+		    if ((sts = __pmDecodeInstance(pb, &result)) >= 0) {
+			sts = result->instlist[0];
 			__pmFreeInResult(result);
 		    }
 		}
-		else if (n == PDU_ERROR)
-		    __pmDecodeError(pb, &n);
-		else if (n != PM_ERR_TIMEOUT)
-		    n = PM_ERR_IPC;
+		else if (sts == PDU_ERROR)
+		    __pmDecodeError(pb, &sts);
+		else if (sts != PM_ERR_TIMEOUT)
+		    sts = PM_ERR_IPC;
 
 		if (pinpdu > 0)
 		    __pmUnpinPDUBuf(pb);
@@ -65,31 +76,44 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":3", PM_FAULT_TIMEOUT);
 	    __pmDSO		*dp;
 	    if (PM_MULTIPLE_THREADS(PM_SCOPE_DSO_PMDA))
 		/* Local context requires single-threaded applications */
-		n = PM_ERR_THREAD;
+		sts = PM_ERR_THREAD;
 	    else if ((dp = __pmLookupDSO(((__pmInDom_int *)&indom)->domain)) == NULL)
-		n = PM_ERR_NOAGENT;
+		sts = PM_ERR_NOAGENT;
 	    else {
 		/* We can safely cast away const here */
 		if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_5)
 		    dp->dispatch.version.four.ext->e_context = ctx;
-		n = dp->dispatch.version.any.instance(indom, PM_IN_NULL, 
+		sts = dp->dispatch.version.any.instance(indom, PM_IN_NULL, 
 							(char *)name, &result, 
 							dp->dispatch.version.any.ext);
 	    }
-	    if (n >= 0) {
-		n = result->instlist[0];
+	    if (sts >= 0) {
+		sts = result->instlist[0];
 		__pmFreeInResult(result);
 	    }
 	}
 	else {
 	    /* assume PM_CONTEXT_ARCHIVE */
-	    n = __pmLogLookupInDom(ctxp->c_archctl->ac_log, indom, &ctxp->c_origin, name);
+	    sts = __pmLogLookupInDom(ctxp->c_archctl->ac_log, indom, &ctxp->c_origin, name);
 	}
 	PM_UNLOCK(ctxp->c_lock);
     }
 
-    CHECK_C_LOCK;
-    return n;
+pmapi_return:
+
+#ifdef PCP_DEBUG
+    if (pmDebug & DBG_TRACE_PMAPI) {
+	fprintf(stderr, ":> returns ");
+	if (sts >= 0)
+	    fprintf(stderr, "%d\n", sts);
+	else {
+	    char	errmsg[PM_MAXERRMSGLEN];
+	    fprintf(stderr, "%s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	}
+    }
+#endif
+
+    return sts;
 }
 
 /*
@@ -102,44 +126,57 @@ int
 pmNameInDom_ctx(__pmContext *ctxp, pmInDom indom, int inst, char **name)
 {
     int			need_unlock = 0;
-    int			n;
+    int			sts;
     __pmInResult	*result;
 
-    if (indom == PM_INDOM_NULL)
-	return PM_ERR_INDOM;
+#ifdef PCP_DEBUG
+    if (pmDebug & DBG_TRACE_PMAPI) {
+	char    dbgbuf[20];
+	fprintf(stderr, "pmNameInDom(%s, %d, ...) <:", pmInDomStr_r(indom, dbgbuf, sizeof(dbgbuf)), inst);
+    }
+#endif
 
-    if ((n = pmWhichContext()) >= 0) {
-	int	ctx = n;
+    if (indom == PM_INDOM_NULL) {
+	sts = PM_ERR_INDOM;
+	goto pmapi_return;
+    }
+
+    if ((sts = pmWhichContext()) >= 0) {
+	int	ctx = sts;
 	if (ctxp == NULL) {
 	    ctxp = __pmHandleToPtr(ctx);
-	    if (ctxp == NULL)
-		return PM_ERR_NOCONTEXT;
+	    if (ctxp == NULL) {
+		sts = PM_ERR_NOCONTEXT;
+		goto pmapi_return;
+	    }
 	    need_unlock = 1;
 	}
+	else
+	    PM_ASSERT_IS_LOCKED(ctxp->c_lock);
 	if (ctxp->c_type == PM_CONTEXT_HOST) {
-	    n = __pmSendInstanceReq(ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp),
+	    sts = __pmSendInstanceReq(ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp),
 				    &ctxp->c_origin, indom, inst, NULL);
-	    if (n < 0)
-		n = __pmMapErrno(n);
+	    if (sts < 0)
+		sts = __pmMapErrno(sts);
 	    else {
 		__pmPDU	*pb;
 		int	pinpdu;
 
 PM_FAULT_POINT("libpcp/" __FILE__ ":2", PM_FAULT_TIMEOUT);
-		pinpdu = n = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE,
+		pinpdu = sts = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE,
 					ctxp->c_pmcd->pc_tout_sec, &pb);
-		if (n == PDU_INSTANCE) {
+		if (sts == PDU_INSTANCE) {
 		    __pmInResult *result;
-		    if ((n = __pmDecodeInstance(pb, &result)) >= 0) {
+		    if ((sts = __pmDecodeInstance(pb, &result)) >= 0) {
 			if ((*name = strdup(result->namelist[0])) == NULL)
-			    n = -oserror();
+			    sts = -oserror();
 			__pmFreeInResult(result);
 		    }
 		}
-		else if (n == PDU_ERROR)
-		    __pmDecodeError(pb, &n);
-		else if (n != PM_ERR_TIMEOUT)
-		    n = PM_ERR_IPC;
+		else if (sts == PDU_ERROR)
+		    __pmDecodeError(pb, &sts);
+		else if (sts != PM_ERR_TIMEOUT)
+		    sts = PM_ERR_IPC;
 
 		if (pinpdu > 0)
 		    __pmUnpinPDUBuf(pb);
@@ -149,34 +186,47 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":2", PM_FAULT_TIMEOUT);
 	    __pmDSO	*dp;
 	    if (PM_MULTIPLE_THREADS(PM_SCOPE_DSO_PMDA))
 		/* Local context requires single-threaded applications */
-		n = PM_ERR_THREAD;
+		sts = PM_ERR_THREAD;
 	    else if ((dp = __pmLookupDSO(((__pmInDom_int *)&indom)->domain)) == NULL)
-		n = PM_ERR_NOAGENT;
+		sts = PM_ERR_NOAGENT;
 	    else {
 		if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_5)
 		    dp->dispatch.version.four.ext->e_context = ctx;
-		n = dp->dispatch.version.any.instance(indom, inst, NULL, &result, dp->dispatch.version.any.ext);
+		sts = dp->dispatch.version.any.instance(indom, inst, NULL, &result, dp->dispatch.version.any.ext);
 	    }
-	    if (n >= 0) {
+	    if (sts >= 0) {
 		if ((*name = strdup(result->namelist[0])) == NULL)
-		    n = -oserror();
+		    sts = -oserror();
 		__pmFreeInResult(result);
 	    }
 	}
 	else {
 	    /* assume PM_CONTEXT_ARCHIVE */
 	    char	*tmp;
-	    if ((n = __pmLogNameInDom(ctxp->c_archctl->ac_log, indom, &ctxp->c_origin, inst, &tmp)) >= 0) {
+	    if ((sts = __pmLogNameInDom(ctxp->c_archctl->ac_log, indom, &ctxp->c_origin, inst, &tmp)) >= 0) {
 		if ((*name = strdup(tmp)) == NULL)
-		    n = -oserror();
+		    sts = -oserror();
 	    }
 	}
 	if (need_unlock)
 	    PM_UNLOCK(ctxp->c_lock);
     }
 
-    if (need_unlock) CHECK_C_LOCK;
-    return n;
+pmapi_return:
+
+#ifdef PCP_DEBUG
+    if (pmDebug & DBG_TRACE_PMAPI) {
+	fprintf(stderr, ":> returns ");
+	if (sts >= 0)
+	    fprintf(stderr, "%d (name %s)\n", sts, *name);
+	else {
+	    char	errmsg[PM_MAXERRMSGLEN];
+	    fprintf(stderr, "%s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	}
+    }
+#endif
+
+    return sts;
 }
 
 int
@@ -184,7 +234,6 @@ pmNameInDom(pmInDom indom, int inst, char **name)
 {
     int	sts;
     sts = pmNameInDom_ctx(NULL, indom, inst, name);
-    CHECK_C_LOCK;
     return sts;
 }
 
@@ -234,7 +283,7 @@ inresult_to_lists(__pmInResult *result, int **instlist, char ***namelist)
 int
 pmGetInDom(pmInDom indom, int **instlist, char ***namelist)
 {
-    int			n;
+    int			sts;
     int			i;
     __pmInResult	*result;
     __pmContext		*ctxp;
@@ -243,41 +292,51 @@ pmGetInDom(pmInDom indom, int **instlist, char ***namelist)
     int			*ilist;
     char		**nlist;
 
-    if (indom == PM_INDOM_NULL)
-	return PM_ERR_INDOM;
+#ifdef PCP_DEBUG
+    if (pmDebug & DBG_TRACE_PMAPI) {
+	char    dbgbuf[20];
+	fprintf(stderr, "pmGetInDom(%s, ...) <:", pmInDomStr_r(indom, dbgbuf, sizeof(dbgbuf)));
+    }
+#endif
 
-    if ((n = pmWhichContext()) >= 0) {
-	int	ctx = n;
+    if (indom == PM_INDOM_NULL) {
+	sts = PM_ERR_INDOM;
+	goto pmapi_return;
+    }
+
+    if ((sts = pmWhichContext()) >= 0) {
+	int	ctx = sts;
 	ctxp = __pmHandleToPtr(ctx);
-	if (ctxp == NULL)
-	    return PM_ERR_NOCONTEXT;
+	if (ctxp == NULL) {
+	    sts = PM_ERR_NOCONTEXT;
+	    goto pmapi_return;
+	}
 	if (ctxp->c_type == PM_CONTEXT_HOST) {
-	    n = __pmSendInstanceReq(ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp),
+	    sts = __pmSendInstanceReq(ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp),
 				    &ctxp->c_origin, indom, PM_IN_NULL, NULL);
-	    if (n < 0)
-		n = __pmMapErrno(n);
+	    if (sts < 0)
+		sts = __pmMapErrno(sts);
 	    else {
 		__pmPDU	*pb;
 		int	pinpdu;
 
 PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_TIMEOUT);
-		pinpdu = n = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE,
+		pinpdu = sts = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE,
 					ctxp->c_pmcd->pc_tout_sec, &pb);
-		if (n == PDU_INSTANCE) {
+		if (sts == PDU_INSTANCE) {
 		    __pmInResult	*result;
-		    if ((n = __pmDecodeInstance(pb, &result)) < 0) {
+		    if ((sts = __pmDecodeInstance(pb, &result)) < 0) {
 			if (pinpdu > 0)
 			    __pmUnpinPDUBuf(pb);
 			PM_UNLOCK(ctxp->c_lock);
-			CHECK_C_LOCK;
-			return n;
+			goto pmapi_return;
 		    }
-		    n = inresult_to_lists(result, instlist, namelist);
+		    sts = inresult_to_lists(result, instlist, namelist);
 		}
-		else if (n == PDU_ERROR)
-		    __pmDecodeError(pb, &n);
-		else if (n != PM_ERR_TIMEOUT)
-		    n = PM_ERR_IPC;
+		else if (sts == PDU_ERROR)
+		    __pmDecodeError(pb, &sts);
+		else if (sts != PM_ERR_TIMEOUT)
+		    sts = PM_ERR_IPC;
 
 		if (pinpdu > 0)
 		    __pmUnpinPDUBuf(pb);
@@ -287,42 +346,42 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_TIMEOUT);
 	    __pmDSO	*dp;
 	    if (PM_MULTIPLE_THREADS(PM_SCOPE_DSO_PMDA))
 		/* Local context requires single-threaded applications */
-		n = PM_ERR_THREAD;
+		sts = PM_ERR_THREAD;
 	    else if ((dp = __pmLookupDSO(((__pmInDom_int *)&indom)->domain)) == NULL)
-		n = PM_ERR_NOAGENT;
+		sts = PM_ERR_NOAGENT;
 	    else {
 		if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_5)
 		    dp->dispatch.version.four.ext->e_context = ctx;
-		n = dp->dispatch.version.any.instance(indom, PM_IN_NULL, NULL,
+		sts = dp->dispatch.version.any.instance(indom, PM_IN_NULL, NULL,
 					       &result,
 					       dp->dispatch.version.any.ext);
 	    }
-	    if (n >= 0)
-		n = inresult_to_lists(result, instlist, namelist);
+	    if (sts >= 0)
+		sts = inresult_to_lists(result, instlist, namelist);
 	}
 	else {
 	    /* assume PM_CONTEXT_ARCHIVE */
 	    int		*insttmp;
 	    char	**nametmp;
-	    if ((n = __pmLogGetInDom(ctxp->c_archctl->ac_log, indom, &ctxp->c_origin, &insttmp, &nametmp)) >= 0) {
+	    if ((sts = __pmLogGetInDom(ctxp->c_archctl->ac_log, indom, &ctxp->c_origin, &insttmp, &nametmp)) >= 0) {
 		need = 0;
-		for (i = 0; i < n; i++)
+		for (i = 0; i < sts; i++)
 		    need += sizeof(char *) + strlen(nametmp[i]) + 1;
-		if ((ilist = (int *)malloc(n * sizeof(insttmp[0]))) == NULL) {
+		if ((ilist = (int *)malloc(sts * sizeof(insttmp[0]))) == NULL) {
 		    PM_UNLOCK(ctxp->c_lock);
-		    CHECK_C_LOCK;
-		    return -oserror();
+		    sts = -oserror();
+		    goto pmapi_return;
 		}
 		if ((nlist = (char **)malloc(need)) == NULL) {
 		    free(ilist);
 		    PM_UNLOCK(ctxp->c_lock);
-		    CHECK_C_LOCK;
-		    return -oserror();
+		    sts = -oserror();
+		    goto pmapi_return;
 		}
 		*instlist = ilist;
 		*namelist = nlist;
-		p = (char *)&nlist[n];
-		for (i = 0; i < n; i++) {
+		p = (char *)&nlist[sts];
+		for (i = 0; i < sts; i++) {
 		    ilist[i] = insttmp[i];
 		    strcpy(p, nametmp[i]);
 		    nlist[i] = p;
@@ -333,14 +392,27 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_TIMEOUT);
 	PM_UNLOCK(ctxp->c_lock);
     }
 
-    if (n == 0) {
+    if (sts == 0) {
 	/* avoid ambiguity when no instances or errors */
 	*instlist = NULL;
 	*namelist = NULL;
     }
 
-    CHECK_C_LOCK;
-    return n;
+pmapi_return:
+
+#ifdef PCP_DEBUG
+    if (pmDebug & DBG_TRACE_PMAPI) {
+	fprintf(stderr, ":> returns ");
+	if (sts >= 0)
+	    fprintf(stderr, "%d\n", sts);
+	else {
+	    char	errmsg[PM_MAXERRMSGLEN];
+	    fprintf(stderr, "%s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	}
+    }
+#endif
+
+    return sts;
 }
 
 #ifdef PCP_DEBUG

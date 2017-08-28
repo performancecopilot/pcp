@@ -6,12 +6,22 @@
 #
 
 seq=`basename $0`
-echo "QA output created by $seq"
 
 # get standard environment, filters and checks
 . ./common.product
 . ./common.filter
 . ./common.check
+
+case $PCP_PLATFORM
+in
+    linux)
+	;;
+    *)
+	_notrun "No Linux PMDA for platform $PCP_PLATFORM"
+	;;
+esac
+
+echo "QA output created by $seq"
 
 status=1	# failure is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
@@ -49,8 +59,8 @@ cat $tmp.root/proc/stat >> $seq.full
 # Take some processors offline
 cp $tmp.root/proc/stat $tmp.orig
 cp $tmp.root/proc/stat $tmp.stat
-sed -i -e '/^cpu3 /d' -e '/^cpu7 /d' $tmp.stat
-mv -f $tmp.stat $tmp.root/proc/stat
+sed -e '/^cpu3 /d' -e '/^cpu7 /d' <$tmp.stat >$tmp.tmp
+mv -f $tmp.tmp $tmp.root/proc/stat
 
 pmsleep 1.75
 

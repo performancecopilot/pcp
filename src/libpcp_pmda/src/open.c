@@ -1028,6 +1028,11 @@ pmdaOpenLog(pmdaInterface *dispatch)
 
     __pmOpenLog(dispatch->version.any.ext->e_name, 
 		dispatch->version.any.ext->e_logfile, stderr, &c);
+#ifdef PCP_DEBUG
+    if ((pmDebug & DBG_TRACE_LIBPMDA) && (pmDebug & DBG_TRACE_DESPERATE)) {
+	setlinebuf(stderr);
+    }
+#endif
 }
 
 /*

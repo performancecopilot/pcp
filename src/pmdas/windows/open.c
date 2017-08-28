@@ -2,7 +2,7 @@
  * Copyright (c) 2008-2010 Aconex.  All Rights Reserved.
  * Copyright (c) 2004 Silicon Graphics, Inc.  All Rights Reserved.
  * Parts of this file contributed by Ken McDonell
- * (kenj At internode DoT on DoT net)
+ * (kenj At kenj DoT id DoT au)
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the

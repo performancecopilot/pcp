@@ -186,7 +186,9 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 	    result->timestamp.tv_sec = 0;
 	    result->timestamp.tv_usec = 0;
 	    __pmSendResult(pmda->e_outfd, FROM_ANON, result);
-	    (pmda->e_resultCallBack)(result);
+	    if (pmda->e_resultCallBack != NULL) {
+		(pmda->e_resultCallBack)(result);
+	    }
 	}
 	break;
 

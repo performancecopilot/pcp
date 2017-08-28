@@ -1,0 +1,43 @@
+#!/bin/sh
+# PCP QA Test No. 1122
+# pmie with bad host and bad metric, but expr still evaluated
+# (after back-off changes)
+#
+# Copyright (c) 2017 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.*
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+cat <<End-of-File >$tmp.config
+no.such.metric > 0 || sample.long.hundred > 99 -> print "OK disjunction";
+! (some_inst (sample.bin == 42) && no.such.metric > 0) -> print "OK conjunction";
+End-of-File
+
+export PCP_DERIVED_CONFIG=
+pmie -t 1 -T 0.5 -c $tmp.config 2>$tmp.err \
+| sed \
+    -e 's/[A-Z][a-z][a-z] [A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9] [0-9][0-9][0-9][0-9]/DATE/' \
+    # end
+
+cat $tmp.err >>$here/$seq.full
+
+# success, all done
+status=0
+exit

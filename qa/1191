@@ -12,8 +12,12 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.filter
 . ./common.check
+. ./common.python
 
 [ -f $PCP_PMDAS_DIR/prometheus/pmdaprometheus.python ] || _notrun "prometheus pmda not installed"
+
+$python -c "import requests"
+[ $? -eq 0 ] || _notrun "python requests module not installed"
 
 status=1    # failure is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full

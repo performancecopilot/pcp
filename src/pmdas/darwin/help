@@ -26,6 +26,14 @@
 #
 # blank lines before the @ line are ignored
 #
+
+@ 78.0 load averages for 1, 5, and 15 minutes
+@ 78.1 mounted block-device-backed filesystem
+@ 78.2 set of all disks
+@ 78.3 set of all processors
+@ 78.4 set of network interfaces
+@ 78.5 network filesystem (NFS) v3 operations
+
 @ kernel.uname.release release level of the running kernel
 @ kernel.uname.version version level (build number) and build date of the running kernel
 @ kernel.uname.sysname name of the implementation of the operating system

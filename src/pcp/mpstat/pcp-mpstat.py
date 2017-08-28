@@ -34,13 +34,6 @@ class StdoutPrinter:
     def Print(self, args):
         print(args)
 
-class MpStatUnknownMetic(Exception):
-    def __init__(self, msg):
-        self.errmessage = msg
-
-    def message(self):
-        return self.errmessage
-
 class NamedInterrupts:
     def __init__(self, context, metric):
         self.context = context
@@ -56,7 +49,7 @@ class NamedInterrupts:
                 self.context.pmTraversePMNS(self.metric,self.append_callback)
             except pmapi.pmErr as err:
                 if err.message() == "Unknown metric name":
-                    raise MpStatUnknownMetic("Unknown metric name: " + self.metric)
+                    pass
                 else:
                     raise
             self.interrupt_list.reverse()
@@ -654,9 +647,6 @@ if __name__ == '__main__':
         manager.printer = MpstatReport(cpu_util_reporter, total_interrupt_usage_reporter, soft_interrupt_usage_reporter, hard_interrupt_usage_reporter)
         sts = manager.run()
         sys.exit(sts)
-    except MpStatUnknownMetic as mpstat_unknown_metric:
-        sys.stderr.write(mpstat_unknown_metric.message()+"\n")
-        sys.exit(1)
     except pmapi.pmErr as pmerror:
         sys.stderr.write('%s: %s\n' % (pmerror.progname(),pmerror.message()))
     except pmapi.pmUsageErr as usage:

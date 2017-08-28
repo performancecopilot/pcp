@@ -1,0 +1,9 @@
+QA output created by 1186
+eval time start
+  retry delta  5
+eval time last + 5
+  retry delta  10
+eval time last + 10
+  retry delta  20
+eval time last + 12
+  retry delta  20
