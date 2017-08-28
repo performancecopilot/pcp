@@ -1116,7 +1116,7 @@ fi
 #
 if `which pmpython >/dev/null 2>&1`
 then
-    pyver=`pmpython --version | sed -e 's/^[^0-9]*//' -e 's/\..*//'`
+    pyver=`pmpython --version 2>&1 | sed -e 's/^[^0-9]*//' -e 's/\..*//'`
     if [ -z "$pyver" ]
     then
 	echo "Warning: cannot get Python version from: `pmpython --version`"
