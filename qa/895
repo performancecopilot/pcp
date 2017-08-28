@@ -20,7 +20,7 @@ $sudo rm -rf $tmp $tmp.* $seq.full
 trap "cd $here; $sudo rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
 
 cat <<End-of-File >$tmp.config
-log mandatory on 10 msec {
+log mandatory on 20 msec {
     cgroup
     containers
     disk
@@ -49,6 +49,29 @@ log mandatory on 10 msec {
 }
 End-of-File
 
+# some of these metrics are not available on some platforms ...
+#
+case $PCP_PLATFORM
+in
+    darwin)
+	sed <$tmp.config >$tmp.tmp \
+	    -e '/ cgroup$/d' \
+	    -e '/ ipc$/d' \
+	    -e '/ jbd2$/d' \
+	    -e '/ nfs$/d' \
+	    -e '/ nfs4$/d' \
+	    -e '/ quota$/d' \
+	    -e '/ swap$/d' \
+	    -e '/ swapdev$/d' \
+	    -e '/ sysfs$/d' \
+	    -e '/ tmpfs$/d' \
+	    -e '/ vfs$/d' \
+	    -e '/ xfs$/d' \
+	# end
+	mv $tmp.tmp $tmp.config
+	;;
+esac
+
 _filter()
 {
     cat \
@@ -76,17 +99,19 @@ state == 0		{ print }'
 pmlogger -h localhost -r -c $tmp.config -m qa_$seq -l $tmp.log $tmp &
 pid=$!
 
-sleep 3
+pmsleep 6
 kill -INT $pid
 wait
 
 _filter <$tmp.log
 
-# without timeouts, expect 3sec * 1000 * 5 fetch groups / 10msec = 1500 records
+# without timeouts, expect 6sec * 1000 * 5 fetch groups / 20msec = 1500 records
 #
 max_nrec=1500
 min_nrec=300
 nrec=`pmdumplog $tmp | grep '^[0-9]' | grep -v '<mark>' | wc -l | sed -e 's/ //g'`
+echo "nrec=$nrec" >>$here/$seq.full
+
 if [ "$nrec" -ge $min_nrec -a "$nrec" -le $max_nrec ]
 then
     echo "OK, between $min_nrec and $max_nrec archive records"

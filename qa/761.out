@@ -48,6 +48,36 @@ containers.cgroup
 No value(s) available!
 
 containers.engine
+    inst [N or "e137109040f53c67031325695ae541a3bf383c7b015af0fd718a412cc0f32da1"] value "docker"
+    inst [N or "e68c65472ffef4c1691c6c5d71327ce816231b2338753973550e7f5eda995fc9"] value "docker"
+
+containers.name
+    inst [N or "e137109040f53c67031325695ae541a3bf383c7b015af0fd718a412cc0f32da1"] value "?"
+    inst [N or "e68c65472ffef4c1691c6c5d71327ce816231b2338753973550e7f5eda995fc9"] value "happy_hoover"
+
+containers.pid
+No value(s) available!
+
+containers.state.paused
+    inst [N or "e137109040f53c67031325695ae541a3bf383c7b015af0fd718a412cc0f32da1"] value 0
+    inst [N or "e68c65472ffef4c1691c6c5d71327ce816231b2338753973550e7f5eda995fc9"] value 0
+
+containers.state.restarting
+    inst [N or "e137109040f53c67031325695ae541a3bf383c7b015af0fd718a412cc0f32da1"] value 0
+    inst [N or "e68c65472ffef4c1691c6c5d71327ce816231b2338753973550e7f5eda995fc9"] value 0
+
+containers.state.running
+    inst [N or "e137109040f53c67031325695ae541a3bf383c7b015af0fd718a412cc0f32da1"] value 0
+    inst [N or "e68c65472ffef4c1691c6c5d71327ce816231b2338753973550e7f5eda995fc9"] value 0
+
+== done
+
+== Checking values for active containers
+
+containers.cgroup
+No value(s) available!
+
+containers.engine
     inst [N or "781d21edbb014736f7fb4e1412ee55c5564c91ce0647be4879a7c547e6ebc1af"] value "docker"
     inst [N or "d4999f7c6d639c837c03634ab2bc51daa5b35fce1bf1e9f56ee9f8342fafa2ec"] value "docker"
 

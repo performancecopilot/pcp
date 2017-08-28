@@ -19,6 +19,8 @@ include $(TOPDIR)/src/include/builddefs
 
 CFILES	= import.c stuff.c archive.c
 HFILES	= private.h
+
+LIBCONFIG = libpcp_import.pc
 VERSION_SCRIPT = exports
 
 STATICLIBTARGET	= libpcp_import.a
@@ -41,11 +43,11 @@ endif
 LCFLAGS = -DPMI_INTERNAL
 LLDLIBS = -lpcp
 LSRCFILES = $(VERSION_SCRIPT)
-LDIRT = $(SYMTARGET) domain.h
+LDIRT = $(SYMTARGET) domain.h $(LIBCONFIG)
 
 DOMAIN = PMI_DOMAIN
 
-default:  $(LIBTARGET) $(SYMTARGET) $(STATICLIBTARGET)
+default:  $(LIBTARGET) $(SYMTARGET) $(STATICLIBTARGET) $(LIBCONFIG)
 
 $(OBJECTS): $(HFILES) domain.h
 
@@ -54,6 +56,7 @@ include $(BUILDRULES)
 install: default
 ifneq ($(LIBTARGET),)
 	$(INSTALL) -m 755 $(LIBTARGET) $(PCP_LIB_DIR)/$(LIBTARGET)
+	$(INSTALL) -m 444 $(LIBCONFIG) $(PCP_LIB_DIR)/pkgconfig/$(LIBCONFIG)
 endif
 ifneq ($(SYMTARGET),)
 	for tt in $(SYMTARGET); do \
@@ -75,6 +78,11 @@ endif
 
 ifneq ($(LIBTARGET),)
 $(LIBTARGET): $(VERSION_SCRIPT)
+$(LIBCONFIG): $(LIBCONFIG).in
+	@sed -e's|@PREFIX@|$(PCP_PREFIX)|g' \
+	     -e's|@LIBDIR@|$(PCP_LIB_DIR)|g' \
+	     -e's|@INCDIR@|$(PCP_INC_DIR)|g' \
+	     -e's|@VERSION@|$(PCP_VERSION)|g' <$? >$@
 endif
 
 domain.h: $(TOPDIR)/src/pmns/stdpmid

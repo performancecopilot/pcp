@@ -8,6 +8,11 @@
 seq=`basename $0`
 echo "QA output created by $seq"
 
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
 policy_name="pcpupstream"
 policy_file="$PCP_VAR_DIR/selinux/$policy_name.pp"
 which sedismod >/dev/null 2>&1 || _notrun "sedismod tool not installed (module disassembly)"
@@ -16,7 +21,7 @@ which seinfo >/dev/null 2>&1 || _notrun "seinfo tool not installed"
 [ -f "$policy_file" ] || _notrun "upstream policy package not installed"
 #if a matching module is already installed
 #then selinux will detect the similarity and not actually install the package
-$sudo semodule -l 2>&1 | grep -q "$policy_name" && _notrun "upstream policy package already properly loaded"
+$sudo semodule -l 2>&1 | grep -q "$policy_name" && exit 0
 semodule_x_option=`semodule -h | grep "\-X"`
 
 _cleanup()
@@ -47,11 +52,13 @@ cp $policy_file $tmp/selinux/pcpqa.pp
 if [ "x$semodule_x_option" == "x" ]
 then
     echo "Installing semodule without priority option" >> $tmp.full
-    error_line=`$sudo semodule -i $tmp/selinux/pcpqa.pp 2>&1 | grep ^Fail | cut -f2 -d":"` 
+    error_line=`$sudo semodule -i $tmp/selinux/pcpqa.pp 2>&1 | grep ^libsepol\. | cut -f3 -d":" |cut -f3 -d" "`
+    echo $error_line >> $tmp.full
 else
     echo "Installing semodule with priority 1" >> $tmp.full
     # install module with priority 1
     error_line=`$sudo semodule -X 1 -i $tmp/selinux/pcpqa.pp 2>&1 | grep ^Fail | cut -f2 -d":"`
+    echo $error_line >> $tmp.full
 fi
 
 if [ "x$error_line" == "x" ]
@@ -60,10 +67,15 @@ then
     status=0
     exit
 else
-    /usr/libexec/selinux/hll/pp 2>/dev/null $tmp/selinux/pcpqa.pp $tmp/selinux/pcpqa.cil
-    echo "Error on line: $error_line from pcpqa.cil"
-    awk -v error_line="$error_line" \
-	'FNR==error_line' $tmp/selinux/pcpqa.cil
+    if [ "x$semodule_x_option" == "x" ]
+    then
+	echo "Error from type: $error_line"
+    else
+	/usr/libexec/selinux/hll/pp 2>/dev/null $tmp/selinux/pcpqa.pp $tmp/selinux/pcpqa.cil
+	echo "Error on line: $error_line from pcpqa.cil"
+	awk -v error_line="$error_line" \
+	    'FNR==error_line' $tmp/selinux/pcpqa.cil
+    fi
     exit
 fi
 

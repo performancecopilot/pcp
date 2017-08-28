@@ -499,6 +499,16 @@ pmdaFetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
     int			type;
     e_ext_t		*extp = (e_ext_t *)pmda->e_ext;
 
+#ifdef PCP_DEBUG
+    if ((pmDebug & DBG_TRACE_LIBPMDA) && (pmDebug & DBG_TRACE_DESPERATE)) {
+	char	dbgbuf[20];
+	fprintf(stderr, "pmdaFetch(%d, pmid[0] %s", numpmid, pmIDStr_r(pmidlist[0], dbgbuf, sizeof(dbgbuf)));
+	if (numpmid > 1)
+	    fprintf(stderr, "... pmid[%d] %s", numpmid-1, pmIDStr_r(pmidlist[numpmid-1], dbgbuf, sizeof(dbgbuf)));
+	fprintf(stderr, ", ...) called\n");
+    }
+#endif
+
     if (extp->dispatch->version.any.ext != pmda)
 	fprintf(stderr, "Botch: pmdaFetch: PMDA domain=%d pmda=%p extp=%p backpointer=%p pmda-via-backpointer %p NOT EQUAL to pmda\n",
 	    pmda->e_domain, pmda, extp, extp->dispatch, extp->dispatch->version.any.ext);
@@ -695,6 +705,13 @@ pmdaDesc(pmID pmid, pmDesc *desc, pmdaExt *pmda)
     e_ext_t		*extp = (e_ext_t *)pmda->e_ext;
     pmdaMetric		*metric;
     char		strbuf[32];
+
+#ifdef PCP_DEBUG
+    if ((pmDebug & DBG_TRACE_LIBPMDA) && (pmDebug & DBG_TRACE_DESPERATE)) {
+	char	dbgbuf[20];
+	fprintf(stderr, "pmdaDesc(%s, ...) called\n", pmIDStr_r(pmid, dbgbuf, sizeof(dbgbuf)));
+    }
+#endif
 
     if (extp->dispatch->comm.pmda_interface >= PMDA_INTERFACE_5)
 	__pmdaSetContext(pmda->e_context);

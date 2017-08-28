@@ -1,7 +1,6 @@
 QA output created by 934
 Absolute path ... no chown
 return status=0
-.:
 mode=drwxr-xr-x name=foo
 
 ./foo:
@@ -14,7 +13,6 @@ mode=drwxr-xr-x name=foobar
 
 Absolute path ... with chown
 return status=0
-.:
 mode= drwxrwxr-x user=pcp group=pcp name=foo
 
 ./foo:
@@ -26,7 +24,6 @@ mode= drwxrwxr-x user=pcp group=pcp name=foobar
 ./foo/bar/foobar:
 Relative path ... no chown
 return status=0
-.:
 mode=drwxr-xr-x name=foo
 
 ./foo:
@@ -39,7 +36,6 @@ mode=drwxr-xr-x name=foobar
 
 Relative path ... with chown
 return status=0
-.:
 mode= drwxrwxr-x user=pcp group=pcp name=foo
 
 ./foo:
@@ -51,7 +47,6 @@ mode= drwxrwxr-x user=pcp group=pcp name=foobar
 ./foo/bar/foobar:
 Relative ./path, one level already exists ... no chown
 return status=0
-.:
 mode=drwxrwxr-x name=foo
 
 ./foo:
@@ -64,7 +59,6 @@ mode=drwxrwxr-x name=foobar
 
 Relative ./path, two levels already exist ... with chown
 return status=0
-.:
 mode=drwxrwxr-x name=foo
 
 ./foo:
@@ -81,7 +75,6 @@ Permissions for mkdir ...
 mkdir: cannot create directory 'foo/bar': Permission denied
 mkdir_and_chown: foo/bar: mkdir -m 755 failed
 return status=1
-.:
 mode=dr-xr-xr-x name=foo
 
 ./foo:
@@ -90,12 +83,10 @@ Not root for chown ...
 chown: changing ownership of 'foo': Operation not permitted
 mkdir_and_chown: foo: chown pcp:pcp failed
 return status=1
-.:
 
 Middle level path component exists and is not a directory ...
 mkdir_and_chown: foo/bar: already exists and is not a directory
 return status=1
-.:
 mode=drwxrwxr-x name=foo
 
 ./foo:
@@ -104,7 +95,6 @@ mode=-rw-r--r-- name=bar
 Target path exists and is not a directory ...
 mkdir_and_chown: foo/bar/foobar: already exists and is not a directory
 return status=1
-.:
 mode=drwxrwxr-x name=foo
 
 ./foo:

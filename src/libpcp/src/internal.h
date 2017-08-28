@@ -91,6 +91,14 @@ extern void __htonll(char *) _PCP_HIDDEN;	/* 64bit int */
 #endif /* HAVE_NETWORK_BYTEORDER */
 
 #ifdef PM_MULTI_THREAD
+extern void __pmInitMutex(pthread_mutex_t *) _PCP_HIDDEN;	/* mutex initializer */
+
+/* local lock initilizer methods */
+extern void init_pmns_lock(void) _PCP_HIDDEN;
+extern void init_AF_lock(void) _PCP_HIDDEN;
+extern void init_secureserver_lock(void) _PCP_HIDDEN;
+extern void init_connect_lock(void) _PCP_HIDDEN;
+
 #ifdef HAVE___THREAD
 /*
  * C compiler is probably gcc and supports __thread declarations
@@ -117,11 +125,11 @@ __pmTPDGet(void)
 }
 
 #define PM_TPD(x)  __pmTPDGet()->x
-#endif
+#endif /* HAVE___THREAD */
 #else /* !PM_MULTI_THREAD */
 /* No threads - just access global variables as-is */
 #define PM_TPD(x) x
-#endif
+#endif /* PM_MULTI_THREAD */
 
 #if defined(PM_MULTI_THREAD) && defined(PM_MULTI_THREAD_DEBUG)
 extern void __pmDebugLock(int, void *, const char *, int) _PCP_HIDDEN;
@@ -139,6 +147,10 @@ extern int __pmIsOptfetchLock(void *) _PCP_HIDDEN;
 extern int __pmIsErrLock(void *) _PCP_HIDDEN;
 extern int __pmIsLockLock(void *) _PCP_HIDDEN;
 extern int __pmIsLogutilLock(void *) _PCP_HIDDEN;
+extern int __pmIsPmnsLock(void *) _PCP_HIDDEN;
+extern int __pmIsAFLock(void *) _PCP_HIDDEN;
+extern int __pmIsSecureserverLock(void *) _PCP_HIDDEN;
+extern int __pmIsConnectLock(void *) _PCP_HIDDEN;
 #endif
 
 /* AF_UNIX socket family internals */
@@ -184,6 +196,8 @@ struct __pmHostEnt {
     char		*name;
     __pmAddrInfo	*addresses;
 };
+
+extern const __pmAddrInfo *__pmHostEntGetAddrInfo(const __pmHostEnt *, const void *) _PCP_HIDDEN;
 #endif
 
 extern unsigned __pmFirstInetSubnetAddr(unsigned, int) _PCP_HIDDEN;
@@ -303,19 +317,9 @@ extern int __pmLogGenerateMark_ctx(__pmContext *, int, pmResult **) _PCP_HIDDEN;
 #include <assert.h>
 #define PM_ASSERT_IS_LOCKED(lock) assert(__pmIsLocked(&(lock)))
 #define PM_ASSERT_IS_UNLOCKED(lock) assert(!__pmIsLocked(&(lock)))
-#define PM_CHECK_IS_UNLOCKED(lock) __pmCheckIsUnlocked(&(lock), __FILE__, __LINE__)
-#define CHECK_C_LOCK {\
-__pmContext *__ctxp = __pmHandleToPtr(pmWhichContext());\
-if (__ctxp != NULL) {\
-    PM_UNLOCK(__ctxp->c_lock);\
-    __pmCheckIsUnlocked(&__ctxp->c_lock, __FILE__, __LINE__);\
-}\
-}
 #else
 #define PM_ASSERT_IS_LOCKED(lock)
 #define PM_ASSERT_IS_UNLOCKED(lock)
-#define PM_CHECK_IS_UNLOCKED(lock)
-#define CHECK_C_LOCK
 #endif /* BUILD_WITH_LOCK_ASSERTS */
 
 

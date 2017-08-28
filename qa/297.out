@@ -6,7 +6,7 @@ re-starting pmcd ...
 __pmConnectPMCD(MY_HOST): proxy connection host=MY_HOST port=N fd=N version=N
 pmNewContext(1, MY_HOST) -> 0
 Dump Contexts: current -> contexts[0] handle 0
-contexts[0] handle 0: host MY_HOST: pmcd=CONNECTED profile=NOT_SENT fd=3 origin=0.000000 delta=0
+contexts[0] handle 0: host MY_HOST: pmcd=CONNECTED profile=NOT_SENT fd=N origin=0.000000 delta=0
 Dump Instance Profile state=INCLUDE, 0 profiles
 pmGetContextHostName_r context(0) -> 0
 pmGetContextHostName_r reset(0) -> 0

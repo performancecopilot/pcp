@@ -42,12 +42,12 @@ extern void rewrite_pdu(__pmPDU *);
 void
 writelabel_metati(int do_rewind)
 {
-    if (do_rewind) rewind(logctl.l_tifp);
+    if (do_rewind) __pmRewind(logctl.l_tifp);
     logctl.l_label.ill_vol = PM_LOG_VOL_TI;
     __pmLogWriteLabel(logctl.l_tifp, &logctl.l_label);
 
 
-    if (do_rewind) rewind(logctl.l_mdfp);
+    if (do_rewind) __pmRewind(logctl.l_mdfp);
     logctl.l_label.ill_vol = PM_LOG_VOL_META;
     __pmLogWriteLabel(logctl.l_mdfp, &logctl.l_label);
 }
@@ -65,9 +65,9 @@ _report(FILE *fp)
     off_t	here;
     struct stat	sbuf;
 
-    here = lseek(fileno(fp), 0L, SEEK_CUR);
+    here = __pmLseek(p, 0L, SEEK_CUR);
     fprintf(stderr, "Error occurred at byte offset %ld into a file of", here);
-    if (fstat(fileno(fp), &sbuf) < 0)
+    if (__pmFstat(fp, &sbuf) < 0)
 	fprintf(stderr, ": stat: %s\n", strerror(errno));
     else
 	fprintf(stderr, " %ld bytes.\n", sbuf.st_size);
@@ -266,14 +266,14 @@ Options\n\
 	    break;
 
 	if (inarch.pick[LOG]) {
-	    old_log_offset = ftell(logctl.l_mfp);
-	    old_meta_offset = ftell(logctl.l_mdfp);
+	    old_log_offset = __pmFtell(logctl.l_mfp);
+	    old_meta_offset = __pmFtell(logctl.l_mdfp);
 	    if (old_log_offset == 0) {
 		/* write label record for data file */
 		logctl.l_label.ill_start.tv_sec = current.tv_sec;
 		logctl.l_label.ill_start.tv_usec = current.tv_usec;
 		writelabel_data();
-		old_log_offset = ftell(logctl.l_mfp);
+		old_log_offset = __pmFtell(logctl.l_mfp);
 		needti = 1;
 	    }
 
@@ -301,15 +301,15 @@ Options\n\
 	    inarch.pick[LOG] = 0;
 
 	    if (needti) {
-		fflush(logctl.l_mfp);
-		fflush(logctl.l_mdfp);
-		new_log_offset = ftell(logctl.l_mfp);
-		new_meta_offset = ftell(logctl.l_mdfp);
-		fseek(logctl.l_mfp, old_log_offset, SEEK_SET);
-		fseek(logctl.l_mdfp, old_meta_offset, SEEK_SET);
+		__pmFflush(logctl.l_mfp);
+		__pmFflush(logctl.l_mdfp);
+		new_log_offset = __pmFtell(logctl.l_mfp);
+		new_meta_offset = __pmFtell(logctl.l_mdfp);
+		__pmFseek(logctl.l_mfp, old_log_offset, SEEK_SET);
+		__pmFseek(logctl.l_mdfp, old_meta_offset, SEEK_SET);
 		__pmLogPutIndex(&logctl, &current);
-		fseek(logctl.l_mfp, new_log_offset, SEEK_SET);
-		fseek(logctl.l_mdfp, new_log_offset, SEEK_SET);
+		__pmFseek(logctl.l_mfp, new_log_offset, SEEK_SET);
+		__pmFseek(logctl.l_mdfp, new_log_offset, SEEK_SET);
 		needti = 0;
 	    }
 	}

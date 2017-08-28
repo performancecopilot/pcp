@@ -315,7 +315,7 @@ do_indom(void)
     int		j;
     int		need_alloc = 0;
 
-    out_offset = ftell(outarch.logctl.l_mdfp);
+    out_offset = __pmFtell(outarch.logctl.l_mdfp);
     _pmUnpackInDom(inarch.metarec, &indom, &stamp, &numinst, &instlist, &inamelist);
 
     /*
@@ -351,7 +351,7 @@ do_indom(void)
 		fprintf(stderr, "Metadata: write pre-duplicate InDom %s @ offset=%ld\n", pmInDomStr(indom), out_offset);
 	    }
 #endif
-	    out_offset = ftell(outarch.logctl.l_mdfp);
+	    out_offset = __pmFtell(outarch.logctl.l_mdfp);
 	}
 	if (ip->new_indom != ip->old_indom)
 	    indom = ip->new_indom;

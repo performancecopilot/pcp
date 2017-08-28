@@ -31,12 +31,11 @@ local
 ## installation to check.
 verify
 
-# flaky checks ... known to have intermittent races/hangs.
+# flakey checks ... known to have intermittent races/hangs.
 ## NOTE: some threading race conditions (possibly in tests),
 ## prevent 100% pass rate being achieved here.  Goal is to
 ## get this group devoid of any tests.
 flakey
-
 
 # tests requiring creation/manipulation of very large files
 # (can be extremely slow on certain devices), or otherwise
@@ -174,6 +173,7 @@ pmda.docker
 pmda.environ
 pmda.gfs2
 pmda.gpfs
+pmda.haproxy
 pmda.hotproc
 pmda.jbd2
 pmda.json
@@ -788,7 +788,7 @@ zsh
 446 trace local
 447 event local
 448 libpcp local
-449 threads local flakey
+449 threads local flakey pmns
 450 pmlogextract local #584487 pmval
 451 threads local
 452 pmda.linux local
@@ -1354,20 +1354,29 @@ zsh
 1092 libpcp local
 1093 pmcpp local
 1094 logutil local
+1095 derive local
 1099 archive pmiostat local pmie
 1100 bash zsh local
 1108 logutil local folio pmlogextract
+1110 pmda.haproxy local
 1111 pcp2influxdb python local
 1112 pmda.linux local
 1113 pcp python local
 1121 pmda.linux local
+1122 pmie local
+1128 pmie local
+1129 derive local
 1140 pidstat local
 1141 selinux local
 1174 threads valgrind local
+1186 pmie local
 1191 pmda.prometheus pmda.install local
 1192 pmda.prometheus local
 1193 pmda.prometheus local
+1194 pmda.prometheus local
 1199 libpcp pmcd local
+1202 pmdadm local
+1227 derive local
 1331 verify local
 1388 pmwebapi local
 4751 libpcp threads valgrind local

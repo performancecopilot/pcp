@@ -1,0 +1,463 @@
+QA output created by 1227
+
+=== true.right ===
+pmFetch returns ...
+pmResult ... numpmid: 1
+  2.0.21 (pmcd.hostname): numval: 1 valfmt: 1 vlist[]:
+   value STRING
+pmFetch returns ...
+pmResult ... numpmid: 1
+  511.0.3 (true.right): numval: 1 valfmt: 1 vlist[]:
+    inst [300 or "bin-300"] value 42
+pmFetch returns ...
+pmResult ... numpmid: 1
+  511.0.3 (true.right): numval: 1 valfmt: 1 vlist[]:
+    inst [300 or "bin-300"] value 42
+pmFetch returns ...
+pmResult ... numpmid: 1
+  511.0.3 (true.right): numval: 1 valfmt: 1 vlist[]:
+    inst [300 or "bin-300"] value 42
+pmFetch returns ...
+pmResult ... numpmid: 1
+  2.0.21 (pmcd.hostname): numval: 1 valfmt: 1 vlist[]:
+   value STRING
+pmFetch returns ...
+pmResult ... numpmid: 1
+  511.0.3 (true.right): numval: 2 valfmt: 1 vlist[]:
+    inst [200 or "bin-200"] value 42
+    inst [400 or "bin-400"] value 42
+pmFetch returns ...
+pmResult ... numpmid: 1
+  511.0.3 (true.right): numval: 2 valfmt: 1 vlist[]:
+    inst [200 or "bin-200"] value 42
+    inst [400 or "bin-400"] value 42
+pmFetch returns ...
+pmResult ... numpmid: 1
+  511.0.3 (true.right): numval: 2 valfmt: 1 vlist[]:
+    inst [200 or "bin-200"] value 42
+    inst [400 or "bin-400"] value 42
+pmFetch returns ...
+pmResult ... numpmid: 1
+  2.0.21 (pmcd.hostname): numval: 1 valfmt: 1 vlist[]:
+   value STRING
+pmFetch returns ...
+pmResult ... numpmid: 1
+  511.0.3 (true.right): numval: 9 valfmt: 1 vlist[]:
+    inst [100 or "bin-100"] value 42
+    inst [200 or "bin-200"] value 42
+    inst [300 or "bin-300"] value 42
+    inst [400 or "bin-400"] value 42
+    inst [500 or "bin-500"] value 42
+    inst [600 or "bin-600"] value 42
+    inst [700 or "bin-700"] value 42
+    inst [800 or "bin-800"] value 42
+    inst [900 or "bin-900"] value 42
+pmFetch returns ...
+pmResult ... numpmid: 1
+  511.0.3 (true.right): numval: 9 valfmt: 1 vlist[]:
+    inst [100 or "bin-100"] value 42
+    inst [200 or "bin-200"] value 42
+    inst [300 or "bin-300"] value 42
+    inst [400 or "bin-400"] value 42
+    inst [500 or "bin-500"] value 42
+    inst [600 or "bin-600"] value 42
+    inst [700 or "bin-700"] value 42
+    inst [800 or "bin-800"] value 42
+    inst [900 or "bin-900"] value 42
+pmFetch returns ...
+pmResult ... numpmid: 1
+  511.0.3 (true.right): numval: 9 valfmt: 1 vlist[]:
+    inst [100 or "bin-100"] value 42
+    inst [200 or "bin-200"] value 42
+    inst [300 or "bin-300"] value 42
+    inst [400 or "bin-400"] value 42
+    inst [500 or "bin-500"] value 42
+    inst [600 or "bin-600"] value 42
+    inst [700 or "bin-700"] value 42
+    inst [800 or "bin-800"] value 42
+    inst [900 or "bin-900"] value 42
+
+=== false.right ===
+pmFetch returns ...
+pmResult ... numpmid: 1
+  2.0.21 (pmcd.hostname): numval: 1 valfmt: 1 vlist[]:
+   value STRING
+pmFetch returns ...
+pmResult ... numpmid: 1
+  511.0.4 (false.right): numval: 1 valfmt: 1 vlist[]:
+    inst [300 or "bin-300"] value 300
+pmFetch returns ...
+pmResult ... numpmid: 1
+  511.0.4 (false.right): numval: 1 valfmt: 1 vlist[]:
+    inst [300 or "bin-300"] value 300
+pmFetch returns ...
+pmResult ... numpmid: 1
+  511.0.4 (false.right): numval: 1 valfmt: 1 vlist[]:
+    inst [300 or "bin-300"] value 300
+pmFetch returns ...
+pmResult ... numpmid: 1
+  2.0.21 (pmcd.hostname): numval: 1 valfmt: 1 vlist[]:
+   value STRING
+pmFetch returns ...
+pmResult ... numpmid: 1
+  511.0.4 (false.right): numval: 2 valfmt: 1 vlist[]:
+    inst [200 or "bin-200"] value 200
+    inst [400 or "bin-400"] value 400
+pmFetch returns ...
+pmResult ... numpmid: 1
+  511.0.4 (false.right): numval: 2 valfmt: 1 vlist[]:
+    inst [200 or "bin-200"] value 200
+    inst [400 or "bin-400"] value 400
+pmFetch returns ...
+pmResult ... numpmid: 1
+  511.0.4 (false.right): numval: 2 valfmt: 1 vlist[]:
+    inst [200 or "bin-200"] value 200
+    inst [400 or "bin-400"] value 400
+pmFetch returns ...
+pmResult ... numpmid: 1
+  2.0.21 (pmcd.hostname): numval: 1 valfmt: 1 vlist[]:
+   value STRING
+pmFetch returns ...
+pmResult ... numpmid: 1
+  511.0.4 (false.right): numval: 9 valfmt: 1 vlist[]:
+    inst [100 or "bin-100"] value 100
+    inst [200 or "bin-200"] value 200
+    inst [300 or "bin-300"] value 300
+    inst [400 or "bin-400"] value 400
+    inst [500 or "bin-500"] value 500
+    inst [600 or "bin-600"] value 600
+    inst [700 or "bin-700"] value 700
+    inst [800 or "bin-800"] value 800
+    inst [900 or "bin-900"] value 900
+pmFetch returns ...
+pmResult ... numpmid: 1
+  511.0.4 (false.right): numval: 9 valfmt: 1 vlist[]:
+    inst [100 or "bin-100"] value 100
+    inst [200 or "bin-200"] value 200
+    inst [300 or "bin-300"] value 300
+    inst [400 or "bin-400"] value 400
+    inst [500 or "bin-500"] value 500
+    inst [600 or "bin-600"] value 600
+    inst [700 or "bin-700"] value 700
+    inst [800 or "bin-800"] value 800
+    inst [900 or "bin-900"] value 900
+pmFetch returns ...
+pmResult ... numpmid: 1
+  511.0.4 (false.right): numval: 9 valfmt: 1 vlist[]:
+    inst [100 or "bin-100"] value 100
+    inst [200 or "bin-200"] value 200
+    inst [300 or "bin-300"] value 300
+    inst [400 or "bin-400"] value 400
+    inst [500 or "bin-500"] value 500
+    inst [600 or "bin-600"] value 600
+    inst [700 or "bin-700"] value 700
+    inst [800 or "bin-800"] value 800
+    inst [900 or "bin-900"] value 900
+
+=== true.left ===
+pmFetch returns ...
+pmResult ... numpmid: 1
+  2.0.21 (pmcd.hostname): numval: 1 valfmt: 1 vlist[]:
+   value STRING
+pmFetch returns ...
+pmResult ... numpmid: 1
+  511.0.5 (true.left): numval: 1 valfmt: 1 vlist[]:
+    inst [300 or "bin-300"] value 300
+pmFetch returns ...
+pmResult ... numpmid: 1
+  511.0.5 (true.left): numval: 1 valfmt: 1 vlist[]:
+    inst [300 or "bin-300"] value 300
+pmFetch returns ...
+pmResult ... numpmid: 1
+  511.0.5 (true.left): numval: 1 valfmt: 1 vlist[]:
+    inst [300 or "bin-300"] value 300
+pmFetch returns ...
+pmResult ... numpmid: 1
+  2.0.21 (pmcd.hostname): numval: 1 valfmt: 1 vlist[]:
+   value STRING
+pmFetch returns ...
+pmResult ... numpmid: 1
+  511.0.5 (true.left): numval: 2 valfmt: 1 vlist[]:
+    inst [200 or "bin-200"] value 200
+    inst [400 or "bin-400"] value 400
+pmFetch returns ...
+pmResult ... numpmid: 1
+  511.0.5 (true.left): numval: 2 valfmt: 1 vlist[]:
+    inst [200 or "bin-200"] value 200
+    inst [400 or "bin-400"] value 400
+pmFetch returns ...
+pmResult ... numpmid: 1
+  511.0.5 (true.left): numval: 2 valfmt: 1 vlist[]:
+    inst [200 or "bin-200"] value 200
+    inst [400 or "bin-400"] value 400
+pmFetch returns ...
+pmResult ... numpmid: 1
+  2.0.21 (pmcd.hostname): numval: 1 valfmt: 1 vlist[]:
+   value STRING
+pmFetch returns ...
+pmResult ... numpmid: 1
+  511.0.5 (true.left): numval: 9 valfmt: 1 vlist[]:
+    inst [100 or "bin-100"] value 100
+    inst [200 or "bin-200"] value 200
+    inst [300 or "bin-300"] value 300
+    inst [400 or "bin-400"] value 400
+    inst [500 or "bin-500"] value 500
+    inst [600 or "bin-600"] value 600
+    inst [700 or "bin-700"] value 700
+    inst [800 or "bin-800"] value 800
+    inst [900 or "bin-900"] value 900
+pmFetch returns ...
+pmResult ... numpmid: 1
+  511.0.5 (true.left): numval: 9 valfmt: 1 vlist[]:
+    inst [100 or "bin-100"] value 100
+    inst [200 or "bin-200"] value 200
+    inst [300 or "bin-300"] value 300
+    inst [400 or "bin-400"] value 400
+    inst [500 or "bin-500"] value 500
+    inst [600 or "bin-600"] value 600
+    inst [700 or "bin-700"] value 700
+    inst [800 or "bin-800"] value 800
+    inst [900 or "bin-900"] value 900
+pmFetch returns ...
+pmResult ... numpmid: 1
+  511.0.5 (true.left): numval: 9 valfmt: 1 vlist[]:
+    inst [100 or "bin-100"] value 100
+    inst [200 or "bin-200"] value 200
+    inst [300 or "bin-300"] value 300
+    inst [400 or "bin-400"] value 400
+    inst [500 or "bin-500"] value 500
+    inst [600 or "bin-600"] value 600
+    inst [700 or "bin-700"] value 700
+    inst [800 or "bin-800"] value 800
+    inst [900 or "bin-900"] value 900
+
+=== false.left ===
+pmFetch returns ...
+pmResult ... numpmid: 1
+  2.0.21 (pmcd.hostname): numval: 1 valfmt: 1 vlist[]:
+   value STRING
+pmFetch returns ...
+pmResult ... numpmid: 1
+  511.0.6 (false.left): numval: 1 valfmt: 1 vlist[]:
+    inst [300 or "bin-300"] value 42
+pmFetch returns ...
+pmResult ... numpmid: 1
+  511.0.6 (false.left): numval: 1 valfmt: 1 vlist[]:
+    inst [300 or "bin-300"] value 42
+pmFetch returns ...
+pmResult ... numpmid: 1
+  511.0.6 (false.left): numval: 1 valfmt: 1 vlist[]:
+    inst [300 or "bin-300"] value 42
+pmFetch returns ...
+pmResult ... numpmid: 1
+  2.0.21 (pmcd.hostname): numval: 1 valfmt: 1 vlist[]:
+   value STRING
+pmFetch returns ...
+pmResult ... numpmid: 1
+  511.0.6 (false.left): numval: 2 valfmt: 1 vlist[]:
+    inst [200 or "bin-200"] value 42
+    inst [400 or "bin-400"] value 42
+pmFetch returns ...
+pmResult ... numpmid: 1
+  511.0.6 (false.left): numval: 2 valfmt: 1 vlist[]:
+    inst [200 or "bin-200"] value 42
+    inst [400 or "bin-400"] value 42
+pmFetch returns ...
+pmResult ... numpmid: 1
+  511.0.6 (false.left): numval: 2 valfmt: 1 vlist[]:
+    inst [200 or "bin-200"] value 42
+    inst [400 or "bin-400"] value 42
+pmFetch returns ...
+pmResult ... numpmid: 1
+  2.0.21 (pmcd.hostname): numval: 1 valfmt: 1 vlist[]:
+   value STRING
+pmFetch returns ...
+pmResult ... numpmid: 1
+  511.0.6 (false.left): numval: 9 valfmt: 1 vlist[]:
+    inst [100 or "bin-100"] value 42
+    inst [200 or "bin-200"] value 42
+    inst [300 or "bin-300"] value 42
+    inst [400 or "bin-400"] value 42
+    inst [500 or "bin-500"] value 42
+    inst [600 or "bin-600"] value 42
+    inst [700 or "bin-700"] value 42
+    inst [800 or "bin-800"] value 42
+    inst [900 or "bin-900"] value 42
+pmFetch returns ...
+pmResult ... numpmid: 1
+  511.0.6 (false.left): numval: 9 valfmt: 1 vlist[]:
+    inst [100 or "bin-100"] value 42
+    inst [200 or "bin-200"] value 42
+    inst [300 or "bin-300"] value 42
+    inst [400 or "bin-400"] value 42
+    inst [500 or "bin-500"] value 42
+    inst [600 or "bin-600"] value 42
+    inst [700 or "bin-700"] value 42
+    inst [800 or "bin-800"] value 42
+    inst [900 or "bin-900"] value 42
+pmFetch returns ...
+pmResult ... numpmid: 1
+  511.0.6 (false.left): numval: 9 valfmt: 1 vlist[]:
+    inst [100 or "bin-100"] value 42
+    inst [200 or "bin-200"] value 42
+    inst [300 or "bin-300"] value 42
+    inst [400 or "bin-400"] value 42
+    inst [500 or "bin-500"] value 42
+    inst [600 or "bin-600"] value 42
+    inst [700 or "bin-700"] value 42
+    inst [800 or "bin-800"] value 42
+    inst [900 or "bin-900"] value 42
+
+=== true.both ===
+pmFetch returns ...
+pmResult ... numpmid: 1
+  2.0.21 (pmcd.hostname): numval: 1 valfmt: 1 vlist[]:
+   value STRING
+pmFetch returns ...
+pmResult ... numpmid: 1
+  511.0.7 (true.both): numval: 1 valfmt: 1 vlist[]:
+    inst [300 or "bin-300"] value 300
+pmFetch returns ...
+pmResult ... numpmid: 1
+  511.0.7 (true.both): numval: 1 valfmt: 1 vlist[]:
+    inst [300 or "bin-300"] value 300
+pmFetch returns ...
+pmResult ... numpmid: 1
+  511.0.7 (true.both): numval: 1 valfmt: 1 vlist[]:
+    inst [300 or "bin-300"] value 300
+pmFetch returns ...
+pmResult ... numpmid: 1
+  2.0.21 (pmcd.hostname): numval: 1 valfmt: 1 vlist[]:
+   value STRING
+pmFetch returns ...
+pmResult ... numpmid: 1
+  511.0.7 (true.both): numval: 2 valfmt: 1 vlist[]:
+    inst [200 or "bin-200"] value 200
+    inst [400 or "bin-400"] value 400
+pmFetch returns ...
+pmResult ... numpmid: 1
+  511.0.7 (true.both): numval: 2 valfmt: 1 vlist[]:
+    inst [200 or "bin-200"] value 200
+    inst [400 or "bin-400"] value 400
+pmFetch returns ...
+pmResult ... numpmid: 1
+  511.0.7 (true.both): numval: 2 valfmt: 1 vlist[]:
+    inst [200 or "bin-200"] value 200
+    inst [400 or "bin-400"] value 400
+pmFetch returns ...
+pmResult ... numpmid: 1
+  2.0.21 (pmcd.hostname): numval: 1 valfmt: 1 vlist[]:
+   value STRING
+pmFetch returns ...
+pmResult ... numpmid: 1
+  511.0.7 (true.both): numval: 9 valfmt: 1 vlist[]:
+    inst [100 or "bin-100"] value 100
+    inst [200 or "bin-200"] value 200
+    inst [300 or "bin-300"] value 300
+    inst [400 or "bin-400"] value 400
+    inst [500 or "bin-500"] value 500
+    inst [600 or "bin-600"] value 600
+    inst [700 or "bin-700"] value 700
+    inst [800 or "bin-800"] value 800
+    inst [900 or "bin-900"] value 900
+pmFetch returns ...
+pmResult ... numpmid: 1
+  511.0.7 (true.both): numval: 9 valfmt: 1 vlist[]:
+    inst [100 or "bin-100"] value 100
+    inst [200 or "bin-200"] value 200
+    inst [300 or "bin-300"] value 300
+    inst [400 or "bin-400"] value 400
+    inst [500 or "bin-500"] value 500
+    inst [600 or "bin-600"] value 600
+    inst [700 or "bin-700"] value 700
+    inst [800 or "bin-800"] value 800
+    inst [900 or "bin-900"] value 900
+pmFetch returns ...
+pmResult ... numpmid: 1
+  511.0.7 (true.both): numval: 9 valfmt: 1 vlist[]:
+    inst [100 or "bin-100"] value 100
+    inst [200 or "bin-200"] value 200
+    inst [300 or "bin-300"] value 300
+    inst [400 or "bin-400"] value 400
+    inst [500 or "bin-500"] value 500
+    inst [600 or "bin-600"] value 600
+    inst [700 or "bin-700"] value 700
+    inst [800 or "bin-800"] value 800
+    inst [900 or "bin-900"] value 900
+
+=== false.both ===
+pmFetch returns ...
+pmResult ... numpmid: 1
+  2.0.21 (pmcd.hostname): numval: 1 valfmt: 1 vlist[]:
+   value STRING
+pmFetch returns ...
+pmResult ... numpmid: 1
+  511.0.8 (false.both): numval: 1 valfmt: 1 vlist[]:
+    inst [300 or "bin-300"] value 42
+pmFetch returns ...
+pmResult ... numpmid: 1
+  511.0.8 (false.both): numval: 1 valfmt: 1 vlist[]:
+    inst [300 or "bin-300"] value 42
+pmFetch returns ...
+pmResult ... numpmid: 1
+  511.0.8 (false.both): numval: 1 valfmt: 1 vlist[]:
+    inst [300 or "bin-300"] value 42
+pmFetch returns ...
+pmResult ... numpmid: 1
+  2.0.21 (pmcd.hostname): numval: 1 valfmt: 1 vlist[]:
+   value STRING
+pmFetch returns ...
+pmResult ... numpmid: 1
+  511.0.8 (false.both): numval: 2 valfmt: 1 vlist[]:
+    inst [200 or "bin-200"] value 42
+    inst [400 or "bin-400"] value 42
+pmFetch returns ...
+pmResult ... numpmid: 1
+  511.0.8 (false.both): numval: 2 valfmt: 1 vlist[]:
+    inst [200 or "bin-200"] value 42
+    inst [400 or "bin-400"] value 42
+pmFetch returns ...
+pmResult ... numpmid: 1
+  511.0.8 (false.both): numval: 2 valfmt: 1 vlist[]:
+    inst [200 or "bin-200"] value 42
+    inst [400 or "bin-400"] value 42
+pmFetch returns ...
+pmResult ... numpmid: 1
+  2.0.21 (pmcd.hostname): numval: 1 valfmt: 1 vlist[]:
+   value STRING
+pmFetch returns ...
+pmResult ... numpmid: 1
+  511.0.8 (false.both): numval: 9 valfmt: 1 vlist[]:
+    inst [100 or "bin-100"] value 42
+    inst [200 or "bin-200"] value 42
+    inst [300 or "bin-300"] value 42
+    inst [400 or "bin-400"] value 42
+    inst [500 or "bin-500"] value 42
+    inst [600 or "bin-600"] value 42
+    inst [700 or "bin-700"] value 42
+    inst [800 or "bin-800"] value 42
+    inst [900 or "bin-900"] value 42
+pmFetch returns ...
+pmResult ... numpmid: 1
+  511.0.8 (false.both): numval: 9 valfmt: 1 vlist[]:
+    inst [100 or "bin-100"] value 42
+    inst [200 or "bin-200"] value 42
+    inst [300 or "bin-300"] value 42
+    inst [400 or "bin-400"] value 42
+    inst [500 or "bin-500"] value 42
+    inst [600 or "bin-600"] value 42
+    inst [700 or "bin-700"] value 42
+    inst [800 or "bin-800"] value 42
+    inst [900 or "bin-900"] value 42
+pmFetch returns ...
+pmResult ... numpmid: 1
+  511.0.8 (false.both): numval: 9 valfmt: 1 vlist[]:
+    inst [100 or "bin-100"] value 42
+    inst [200 or "bin-200"] value 42
+    inst [300 or "bin-300"] value 42
+    inst [400 or "bin-400"] value 42
+    inst [500 or "bin-500"] value 42
+    inst [600 or "bin-600"] value 42
+    inst [700 or "bin-700"] value 42
+    inst [800 or "bin-800"] value 42
+    inst [900 or "bin-900"] value 42

@@ -13,6 +13,8 @@
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
 
+#define MAX_LOOP 1000
+
 int
 main(int argc, char **argv)
 {
@@ -27,6 +29,7 @@ main(int argc, char **argv)
     int		c;
     int		sts;
     int		errflag = 0;
+    int		loop;
 
     static const struct timeval delay = { 0, 10000 };
     /*
@@ -91,7 +94,7 @@ Options:\n\
 	exit(1);
     }
 
-    for ( ; ; ) {
+    for (loop = 0; loop < MAX_LOOP; loop++) {
 	if ((sts = pmFetch(1, pmidlist, &rp)) < 0) {
 	    fprintf(stderr, "pmFetch failed: %s\n", pmErrStr(sts));
 	    if (sts != PM_ERR_IPC && sts != -ECONNRESET) {
@@ -105,8 +108,12 @@ Options:\n\
 	pmFreeResult(rp);
 	__pmtimevalSleep(delay);
     }
+    if (loop == MAX_LOOP) {
+	fprintf(stderr, "Arrgh: pmFetch() failed %d times ... giving up!\n", loop);
+	exit(1);
+    }
 
-    for ( ; ; ) {
+    for (loop = 0; loop < MAX_LOOP; loop++) {
 	if ((sts = pmReconnectContext(ctx)) >= 0) {
 	    fprintf(stderr, "pmReconnectContext: success\n");
 	    gettimeofday(&now, (struct timezone *)0);
@@ -116,6 +123,11 @@ Options:\n\
 	}
 	__pmtimevalSleep(delay);
     }
+    if (loop == MAX_LOOP) {
+	fprintf(stderr, "Arrgh: pmReconnectContext() failed %d times ... giving up!\n", loop);
+	exit(1);
+    }
+
 
     exit(0);
 }

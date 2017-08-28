@@ -1,6 +1,7 @@
 /*
  * utils for pmlogextract
  *
+ * Copyright (c) 2014,2016 Red Hat.
  * Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -30,31 +31,31 @@ _pmLogGet(__pmLogCtl *lcp, int vol, __pmPDU **pb)
     long	offset;
     char	*p;
     __pmPDU	*lpb;
-    FILE	*f;
+    __pmFILE	*f;
 
     if (vol == PM_LOG_VOL_META)
 	f = lcp->l_mdfp;
     else
 	f = lcp->l_mfp;
 
-    offset = ftell(f);
+    offset = __pmFtell(f);
     assert(offset >= 0);
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_LOG) {
 	fprintf(stderr, "_pmLogGet: fd=%d vol=%d posn=%ld ",
-	    fileno(f), vol, offset);
+	    __pmFileno(f), vol, offset);
     }
 #endif
 
 again:
-    sts = (int)fread(&head, 1, sizeof(head), f);
+    sts = (int)__pmFread(&head, 1, sizeof(head), f);
     if (sts != sizeof(head)) {
 	if (sts == 0) {
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_LOG)
 		fprintf(stderr, "AFTER end\n");
 #endif
-	    fseek(f, offset, SEEK_SET);
+	    __pmFseek(f, offset, SEEK_SET);
 	    if (vol != PM_LOG_VOL_META) {
 		if (lcp->l_curvol < lcp->l_maxvol) {
 		    if (__pmLogChangeVol(lcp, lcp->l_curvol+1) == 0) {
@@ -81,18 +82,18 @@ again:
 	    fprintf(stderr, "Error: _pmLogGet:(%d) %s\n",
 		(int)ntohl(head), osstrerror());
 #endif
-	fseek(f, offset, SEEK_SET);
+	__pmFseek(f, offset, SEEK_SET);
 	return -oserror();
     }
 
     lpb[0] = head;
-    if ((sts = (int)fread(&lpb[1], 1, ntohl(head) - sizeof(head), f)) != ntohl(head) - sizeof(head)) {
+    if ((sts = (int)__pmFread(&lpb[1], 1, ntohl(head) - sizeof(head), f)) != ntohl(head) - sizeof(head)) {
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_LOG)
 	    fprintf(stderr, "Error: data fread=%d %s\n", sts, osstrerror());
 #endif
 	if (sts == 0) {
-	    fseek(f, offset, SEEK_SET);
+	    __pmFseek(f, offset, SEEK_SET);
 	    free(lpb);
 	    return PM_ERR_EOL;
 	}
@@ -169,7 +170,7 @@ again:
 }
 
 int
-_pmLogPut(FILE *f, __pmPDU *pb)
+_pmLogPut(__pmFILE *f, __pmPDU *pb)
 {
     int		rlen = ntohl(pb[0]);
     int		sts;
@@ -177,11 +178,11 @@ _pmLogPut(FILE *f, __pmPDU *pb)
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_LOG) {
 	fprintf(stderr, "_pmLogPut: fd=%d rlen=%d\n",
-	    fileno(f), rlen);
+	    __pmFileno(f), rlen);
     }
 #endif
 
-    if ((sts = (int)fwrite(pb, 1, rlen, f)) != rlen) {
+    if ((sts = (int)__pmFwrite(pb, 1, rlen, f)) != rlen) {
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_LOG)
 	    fprintf(stderr, "_pmLogPut: fwrite=%d %s\n", sts, osstrerror());

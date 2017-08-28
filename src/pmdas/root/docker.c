@@ -86,6 +86,7 @@ docker_indom_changed(container_engine_t *dp)
     if (stat(dp->path, &statbuf) != 0) {
 	if (oserror() == lasterrno)
 	    return 0;
+	memset(&lastsbuf, 0, sizeof(lastsbuf));
 	lasterrno = oserror();
 	return 1;
     }
@@ -188,11 +189,15 @@ docker_values_parse(FILE *fp, const char *name, container_t *values)
 			 docker_fread, (void *)fp)) < 0)
 	return sts;
 
-    values->pid = -1;
     if (local_metrics[0].values.l)
 	values->pid = local_metrics[0].values.l;
-    values->uptodate++;
-    values->name = strdup(local_metrics[1].values.cp);
+    else
+	values->pid = -1;
+    if (local_metrics[1].values.cp &&
+	(values->name = strdup(local_metrics[1].values.cp)) != NULL)
+	values->uptodate++;
+    else
+	values->name = NULL;
     if (local_metrics[2].values.ul)
 	values->flags = CONTAINER_FLAG_RUNNING;
     else if (local_metrics[3].values.ul)
@@ -287,10 +292,12 @@ docker_name_matching(struct container_engine *dp, const char *query,
     unsigned int ilength, qlength, limit;
     int i, fuzzy = 0;
 
-    if (strcmp(query, username) == 0)
-	return 100;
-    if (username[0] == '/' && strcmp(query, username+1) == 0)
-	return 99;
+    if (username) {
+	if (strcmp(query, username) == 0)
+	    return 100;
+	if (username[0] == '/' && strcmp(query, username+1) == 0)
+	    return 99;
+    }
     if (strcmp(query, instname) == 0)
 	return 98;
     qlength = strlen(query);

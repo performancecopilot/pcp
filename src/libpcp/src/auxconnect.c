@@ -882,6 +882,7 @@ __pmAuxConnectPMCDPort(const char *hostname, int pmcd_port)
 {
     __pmSockAddr	*myAddr;
     __pmHostEnt		*servInfo;
+    const __pmAddrInfo	*ai;
     int			fd;
     int			sts;
     int			fdFlags[FD_SETSIZE];
@@ -923,6 +924,16 @@ __pmAuxConnectPMCDPort(const char *hostname, int pmcd_port)
     for (myAddr = __pmHostEntGetSockAddr(servInfo, &enumIx);
 	 myAddr != NULL;
 	 myAddr = __pmHostEntGetSockAddr(servInfo, &enumIx)) {
+	/*
+	 * We should be ignoring any entry without SOCK_STREAM (= 1),
+	 * since we're connecting with TCP only. The other entries
+	 * (SOCK_RAW, SOCK_DGRAM) are not relevant.
+	 */
+	ai = __pmHostEntGetAddrInfo(servInfo, enumIx);
+	if (ai->ai_socktype != SOCK_STREAM) {
+	    __pmSockAddrFree(myAddr);
+	    continue;
+	}
 	/* Create a socket */
 	if (__pmSockAddrIsInet(myAddr))
 	    fd = __pmCreateSocket();
@@ -1195,6 +1206,23 @@ __pmHostEntGetSockAddr(const __pmHostEnt *he, void **ei)
     return addr;
 }
 
+const __pmAddrInfo *
+__pmHostEntGetAddrInfo(const __pmHostEnt *he, const void *ei)
+{
+    const __pmAddrInfo *ai;
+
+    /*
+     * If it is not NULL, the enumerator index, ei, is a pointer to the current
+     * address info.
+     */
+    if (ei == NULL)
+        ai = he->addresses;
+    else
+        ai = ei;
+
+    return ai;
+}
+
 char *
 __pmGetNameInfo(__pmSockAddr *address)
 {
@@ -1265,8 +1293,30 @@ __pmGetAddrInfo(const char *hostName)
     if (pmDebug & DBG_TRACE_DESPERATE) {
 	if (hostEntry == NULL)
 	    fprintf(stderr, "%s:__pmGetAddrInfo(%s) -> NULL\n", __FILE__, hostName);
-	else
-	    fprintf(stderr, "%s:__pmGetAddrInfo(%s) -> %s\n", __FILE__, hostName, hostEntry->name);
+	else {
+	    __pmSockAddr	*addr;
+	    void		*enumIx = NULL;
+	    char		*str;
+	    int			found = 0;
+	    fprintf(stderr, "%s:__pmGetAddrInfo(%s) -> ", __FILE__, hostName);
+	    for (addr = __pmHostEntGetSockAddr(hostEntry, &enumIx);
+		 addr != NULL;
+		 addr = __pmHostEntGetSockAddr(hostEntry, &enumIx)) {
+		str = __pmSockAddrToString(addr);
+		if (str != NULL) {
+		    if (found == 0)
+			fprintf(stderr, "%s", str);
+		    else
+			fprintf(stderr, ", %s", str);
+		    found++;
+		    free(str);
+		}
+	    }
+	    if (found)
+		fprintf(stderr, "\n");
+	    else
+		fprintf(stderr, "no ip addrs?\n");
+	}
     }
 #endif
     return hostEntry;
@@ -1505,8 +1555,13 @@ __pmRecv(int socket, void *buffer, size_t length, int flags)
     size = recv(socket, buffer, length, flags);
 #ifdef PCP_DEBUG
     if ((pmDebug & DBG_TRACE_PDU) && (pmDebug & DBG_TRACE_DESPERATE)) {
-	    fprintf(stderr, "%s:__pmRecv(%d, ..., %d, " PRINTF_P_PFX "%x) -> %d\n",
+	fprintf(stderr, "%s:__pmRecv(%d, ..., %d, " PRINTF_P_PFX "%x) -> %d",
 		__FILE__, socket, (int)length, flags, (int)size);
+	if (size < 0) {
+	    char	errmsg[PM_MAXERRMSGLEN];
+	    fprintf(stderr, " %s", pmErrStr_r(-oserror(), errmsg, sizeof(errmsg)));
+	}
+	fputc('\n', stderr);
     }
 #endif
     return size;

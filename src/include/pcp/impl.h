@@ -42,6 +42,9 @@
 #ifdef HAVE_NETDB_H
 #include <netdb.h>
 #endif
+#ifdef HAVE_SYS_STAT_H
+#include <sys/stat.h>
+#endif
 
 /*
  * Thread-safe support ... #define to enable thread-safe protection of
@@ -245,8 +248,6 @@ typedef struct __pmnsTree {
     __pmnsNode		*root;  /* root of tree structure */
     __pmnsNode		**htab; /* hash table of nodes keyed on pmid */
     int			htabsize;     /* number of nodes in the table */
-    char		*symbol;     /* store all names contiguously */
-    int			contiguous;   /* is data stored contiguously ? */
     int			mark_state;   /* the total mark value for trimming */
 } __pmnsTree;
 
@@ -300,7 +301,7 @@ PCP_DATA extern int pmDebug;
 #define DBG_TRACE_LOCK		(1<<19) /* lock tracing */
 #define DBG_TRACE_INTERP	(1<<20)	/* interpolate mode for archives */
 #define DBG_TRACE_CONFIG	(1<<21) /* configuration parameters */
-#define DBG_TRACE_LOOP		(1<<22) /* pmLoop tracing */
+#define DBG_TRACE_PMAPI		(1<<22) /* PMAPI call tracing */
 #define DBG_TRACE_FAULT		(1<<23) /* fault injection tracing */
 #define DBG_TRACE_AUTH		(1<<24) /* authentication tracing */
 #define DBG_TRACE_DISCOVERY	(1<<25) /* service discovery tracing */
@@ -406,14 +407,69 @@ typedef struct {
 } __pmLogTI;
 
 /*
+ * PCP file. This abstracts i/o, allowing different handlers,
+ * e.g. for stdio pass-thru and transparent decompression (xz, gz, etc).
+ * This could conceivably be used for any kind of file within PCP, but
+ * is currently used only for archive files.
+ */
+typedef struct {
+    struct __pm_fops *fops;	/* i/o handler, assigned based on file type */
+    __pm_off_t	position;	/* current uncompressed file position */
+    void	*priv;		/* private data, e.g. for fd, blk cache, etc */
+} __pmFILE;
+
+typedef struct __pm_fops {
+    void	*(*__pmopen) (__pmFILE *, const char *, const char *);
+    void        *(*__pmfdopen)(__pmFILE *, int, const char *);
+    int         (*__pmseek) (__pmFILE *, off_t, int);
+    void        (*__pmrewind)(__pmFILE *);
+    off_t       (*__pmtell)(__pmFILE *);
+    int         (*__pmfgetc)(__pmFILE *);
+    size_t	(*__pmread)(void *, size_t, size_t, __pmFILE *);
+    size_t	(*__pmwrite)(void *, size_t, size_t, __pmFILE *);
+    int         (*__pmflush)(__pmFILE *);
+    int         (*__pmfsync)(__pmFILE *);
+    int		(*__pmfileno) (__pmFILE *);
+    off_t       (*__pmlseek)(__pmFILE *, off_t, int);
+    int         (*__pmfstat)(__pmFILE *, struct stat *);
+    int		(*__pmfeof) (__pmFILE *);
+    int		(*__pmferror) (__pmFILE *);
+    void	(*__pmclearerr) (__pmFILE *);
+    int         (*__pmsetvbuf)(__pmFILE *, char *, int, size_t);
+    int		(*__pmclose) (__pmFILE *);
+} __pm_fops;
+
+/*
+ * Provide a stdio-like API for __pmFILE.
+ */
+PCP_CALL extern __pmFILE *__pmFopen(const char *, const char *);
+PCP_CALL extern __pmFILE *__pmFdopen(int, const char *);
+PCP_CALL extern int __pmFseek(__pmFILE *, long, int);
+PCP_CALL extern void __pmRewind(__pmFILE *);
+PCP_CALL extern long __pmFtell(__pmFILE *);
+PCP_CALL extern int __pmFgetc(__pmFILE *);
+PCP_CALL extern size_t __pmFread(void *, size_t, size_t, __pmFILE *);
+PCP_CALL extern size_t __pmFwrite(void *, size_t, size_t, __pmFILE *);
+PCP_CALL extern int __pmFflush(__pmFILE *);
+PCP_CALL extern int __pmFsync(__pmFILE *);
+PCP_CALL extern off_t __pmLseek(__pmFILE *, off_t, int);
+PCP_CALL extern int __pmFstat(__pmFILE *, struct stat *);
+PCP_CALL extern int __pmFileno(__pmFILE *);
+PCP_CALL extern int __pmFeof(__pmFILE *);
+PCP_CALL extern int __pmFerror(__pmFILE *);
+PCP_CALL extern void __pmClearerr(__pmFILE *);
+PCP_CALL extern int __pmSetvbuf(__pmFILE *, char *, int, size_t);
+PCP_CALL extern int __pmFclose(__pmFILE *);
+
+/*
  * Log/Archive Control
  */
 typedef struct {
     int		l_refcnt;	/* number of contexts using this log */
     char	*l_name;	/* external log base name */
-    FILE	*l_tifp;	/* temporal index */
-    FILE	*l_mdfp;	/* meta data */
-    FILE	*l_mfp;		/* current metrics log */
+    __pmFILE	*l_tifp;	/* temporal index */
+    __pmFILE	*l_mdfp;	/* meta data */
+    __pmFILE	*l_mfp;		/* current metrics log */
     int		l_curvol;	/* current metrics log volume no. */
     int		l_state;	/* (when writing) log state */
     __pmHashCtl	l_hashpmid;	/* PMID hashed access */
@@ -1095,19 +1151,19 @@ PCP_CALL extern void __pmLogPutIndex(const __pmLogCtl *, const __pmTimeval *);
 
 PCP_CALL extern const char *__pmLogName_r(const char *, int, char *, int);
 PCP_CALL extern const char *__pmLogName(const char *, int);	/* NOT thread-safe */
-PCP_CALL extern FILE *__pmLogNewFile(const char *, int);
+PCP_CALL extern __pmFILE *__pmLogNewFile(const char *, int);
 PCP_CALL extern int __pmLogCreate(const char *, const char *, int, __pmLogCtl *);
 #define PMLOGREAD_NEXT		0
 #define PMLOGREAD_TO_EOF	1
-PCP_CALL extern int __pmLogRead(__pmLogCtl *, int, FILE *, pmResult **, int);
-PCP_CALL extern int __pmLogRead_ctx(__pmContext *, int, FILE *, pmResult **, int);
-PCP_CALL extern int __pmLogWriteLabel(FILE *, const __pmLogLabel *);
+PCP_CALL extern int __pmLogRead(__pmLogCtl *, int, __pmFILE *, pmResult **, int);
+PCP_CALL extern int __pmLogRead_ctx(__pmContext *, int, __pmFILE *, pmResult **, int);
+PCP_CALL extern int __pmLogWriteLabel(__pmFILE *, const __pmLogLabel *);
 PCP_CALL extern int __pmLogOpen(const char *, __pmContext *);
 PCP_CALL extern int __pmLogLoadLabel(__pmLogCtl *, const char *);
 PCP_CALL extern int __pmLogLoadIndex(__pmLogCtl *);
 PCP_CALL extern int __pmLogLoadMeta(__pmLogCtl *);
 PCP_CALL extern void __pmLogClose(__pmLogCtl *);
-PCP_CALL extern void __pmLogCacheClear(FILE *);
+PCP_CALL extern void __pmLogCacheClear(__pmFILE *);
 PCP_CALL extern char *__pmLogBaseName(char *);
 
 PCP_CALL extern __pmTimeval *__pmLogStartTime(__pmArchCtl *);
@@ -1136,7 +1192,7 @@ PCP_CALL extern void __pmLogResetInterp(__pmContext *);
 PCP_CALL extern void __pmFreeInterpData(__pmContext *);
 
 PCP_CALL extern int __pmLogChangeVol(__pmLogCtl *, int);
-PCP_CALL extern int __pmLogChkLabel(__pmLogCtl *, FILE *, __pmLogLabel *, int);
+PCP_CALL extern int __pmLogChkLabel(__pmLogCtl *, __pmFILE *, __pmLogLabel *, int);
 PCP_CALL extern int __pmGetArchiveLabel(__pmLogCtl *, pmLogLabel *);
 PCP_CALL extern int __pmGetArchiveEnd(__pmLogCtl *, struct timeval *);
 
@@ -1543,8 +1599,8 @@ PCP_CALL extern int __pmRegisterAnon(const char *, int);
 PCP_CALL extern void __pmInitLocks(void);
 PCP_CALL extern int __pmLock(void *, const char *, int);
 PCP_CALL extern int __pmUnlock(void *, const char *, int);
-#ifdef BUILD_WITH_LOCK_ASSERTS
 PCP_CALL extern int __pmIsLocked(void *);
+#ifdef BUILD_WITH_LOCK_ASSERTS
 PCP_CALL extern void __pmCheckIsUnlocked(void *, char *, int);
 #endif /* BUILD_WITH_LOCK_ASSERTS */
 
@@ -1563,6 +1619,7 @@ PCP_CALL extern int __pmMultiThreaded(int);
 #define PM_MULTIPLE_THREADS(x)	__pmMultiThreaded(x)
 #define PM_LOCK(lock)		__pmLock(&(lock), __FILE__, __LINE__)
 #define PM_UNLOCK(lock)		__pmUnlock(&(lock), __FILE__, __LINE__)
+#define PM_IS_LOCKED(lock) 	__pmIsLocked(&(lock))
 
 #ifdef HAVE_PTHREAD_MUTEX_T
 /* the big libpcp lock */

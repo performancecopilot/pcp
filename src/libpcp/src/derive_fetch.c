@@ -958,12 +958,9 @@ eval_expr(__pmContext *ctxp, node_t *np, pmResult *rp, int level)
 		 */
 		/* default choice, use true operand */
 		pick_inst = np->right->left;
-		if (pick_inst->info->numval == 1 && np->right->right->info->numval > 1)
+		if (np->right->left->desc.indom == PM_INDOM_NULL && np->right->right->desc.indom != PM_INDOM_NULL)
 		    /* use false operand */
 		    pick_inst = np->right->right;
-		if (pick_inst->info->numval == 1 && np->left->info->numval > 1)
-		    /* use guard operand */
-		    pick_inst = np->left;
 		/* guard is left operand and value is arithmetic */
 		pick = NULL;
 		for (i = 0; i < numval; i++) {
