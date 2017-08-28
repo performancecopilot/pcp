@@ -27,50 +27,50 @@ dbpmda> fetch nfsclient.export
 PMID(s): 62.0.1
 pmResult ... numpmid: 1
   62.0.1 (<noname>): numval: 4 valfmt: 1 vlist[]:
-    inst [0 or ???] value STRING
-    inst [1 or ???] value STRING
-    inst [2 or ???] value STRING
-    inst [3 or ???] value STRING
+    inst [N or ???] value "124.10.30.235:/nfsdata/"
+    inst [N or ???] value "124.10.30.235:/nfsdata41"
+    inst [N or ???] value "ifs-nas.test.edu:/ifs"
+    inst [N or ???] value "ifs-nas.test.edu:/ifs/foo"
 dbpmda> fetch nfsclient.mountpoint
 PMID(s): 62.0.2
 pmResult ... numpmid: 1
   62.0.2 (<noname>): numval: 4 valfmt: 1 vlist[]:
-    inst [0 or ???] value STRING
-    inst [1 or ???] value STRING
-    inst [2 or ???] value STRING
-    inst [3 or ???] value STRING
+    inst [N or ???] value "/ifs"
+    inst [N or ???] value "/ifsfoo"
+    inst [N or ???] value "/mnt/nfs41"
+    inst [N or ???] value "/mnt/nfsv4"
 dbpmda> fetch nfsclient.options.string
 PMID(s): 62.1.1
 pmResult ... numpmid: 1
   62.1.1 (<noname>): numval: 4 valfmt: 1 vlist[]:
-    inst [0 or ???] value STRING
-    inst [1 or ???] value STRING
-    inst [2 or ???] value STRING
-    inst [3 or ???] value STRING
+    inst [N or ???] value "rw,vers=3,rsize=32768,wsize=32768,namlen=255,acregmin=3,acregmax=60,acdirmin=30,acdirmax=60,hard,proto=tcp,timeo=600,retrans=2,sec=sys,mountaddr=10.113.10.9,mountvers=3,mountport=300,mountproto=tcp,local_lock=none"
+    inst [N or ???] value "rw,vers=3,rsize=32768,wsize=32768,namlen=255,acregmin=3,acregmax=60,acdirmin=30,acdirmax=60,hard,proto=tcp,timeo=600,retrans=2,sec=sys,mountaddr=10.113.10.9,mountvers=3,mountport=300,mountproto=tcp,local_lock=none"
+    inst [N or ???] value "rw,vers=4,rsize=1048576,wsize=1048576,namlen=255,acregmin=3,acregmax=60,acdirmin=30,acdirmax=60,hard,proto=tcp,port=0,timeo=600,retrans=2,sec=sys,clientaddr=124.10.30.234,minorversion=0,local_lock=none"
+    inst [N or ???] value "rw,vers=4.1,rsize=1048576,wsize=1048576,namlen=255,acregmin=3,acregmax=60,acdirmin=30,acdirmax=60,hard,proto=tcp,port=0,timeo=600,retrans=2,sec=sys,clientaddr=124.10.30.234,local_lock=none"
 dbpmda> fetch nfsclient.options.proto
 PMID(s): 62.1.24
 pmResult ... numpmid: 1
   62.1.24 (<noname>): numval: 4 valfmt: 1 vlist[]:
-    inst [0 or ???] value STRING
-    inst [1 or ???] value STRING
-    inst [2 or ???] value STRING
-    inst [3 or ???] value STRING
+    inst [N or ???] value "tcp"
+    inst [N or ???] value "tcp"
+    inst [N or ???] value "tcp"
+    inst [N or ???] value "tcp"
 dbpmda> fetch nfsclient.options.vers
 PMID(s): 62.1.6
 pmResult ... numpmid: 1
   62.1.6 (<noname>): numval: 4 valfmt: 1 vlist[]:
-    inst [0 or ???] value STRING
-    inst [1 or ???] value STRING
-    inst [2 or ???] value STRING
-    inst [3 or ???] value STRING
+    inst [N or ???] value "3"
+    inst [N or ???] value "3"
+    inst [N or ???] value "4"
+    inst [N or ???] value "4.1"
 dbpmda> fetch nfsclient.options.vers
 PMID(s): 62.1.6
 pmResult ... numpmid: 1
   62.1.6 (<noname>): numval: 4 valfmt: 1 vlist[]:
-    inst [0 or ???] value STRING
-    inst [1 or ???] value STRING
-    inst [2 or ???] value STRING
-    inst [3 or ???] value STRING
+    inst [N or ???] value "3"
+    inst [N or ???] value "3"
+    inst [N or ???] value "4"
+    inst [N or ???] value "4.1"
 dbpmda> instance 62.0
 pmInDom: 62.0
 [  X] inst: X name: "/ifs"
@@ -108,32 +108,32 @@ dbpmda> fetch nfsclient.export
 PMID(s): 62.0.1
 pmResult ... numpmid: 1
   62.0.1 (<noname>): numval: 1 valfmt: 1 vlist[]:
-    inst [0 or ???] value STRING
+    inst [N or ???] value "nfs.f24.local:/home"
 dbpmda> fetch nfsclient.mountpoint
 PMID(s): 62.0.2
 pmResult ... numpmid: 1
   62.0.2 (<noname>): numval: 1 valfmt: 1 vlist[]:
-    inst [0 or ???] value STRING
+    inst [N or ???] value "/home"
 dbpmda> fetch nfsclient.options.string
 PMID(s): 62.1.1
 pmResult ... numpmid: 1
   62.1.1 (<noname>): numval: 1 valfmt: 1 vlist[]:
-    inst [0 or ???] value STRING
+    inst [N or ???] value "rw,vers=4.2,rsize=131072,wsize=131072,namlen=255,acregmin=3,acregmax=60,acdirmin=30,acdirmax=60,hard,proto=tcp,port=0,timeo=600,retrans=2,sec=krb5p,clientaddr=192.168.122.168,local_lock=none"
 dbpmda> fetch nfsclient.options.proto
 PMID(s): 62.1.24
 pmResult ... numpmid: 1
   62.1.24 (<noname>): numval: 1 valfmt: 1 vlist[]:
-    inst [0 or ???] value STRING
+    inst [N or ???] value "tcp"
 dbpmda> fetch nfsclient.options.vers
 PMID(s): 62.1.6
 pmResult ... numpmid: 1
   62.1.6 (<noname>): numval: 1 valfmt: 1 vlist[]:
-    inst [0 or ???] value STRING
+    inst [N or ???] value "4.2"
 dbpmda> fetch nfsclient.options.vers
 PMID(s): 62.1.6
 pmResult ... numpmid: 1
   62.1.6 (<noname>): numval: 1 valfmt: 1 vlist[]:
-    inst [0 or ???] value STRING
+    inst [N or ???] value "4.2"
 dbpmda> instance 62.0
 pmInDom: 62.0
 [  X] inst: X name: "/home"
@@ -301,127 +301,127 @@ dbpmda> fetch nfsclient.nfsv4
 PMID(s): 62.3.2
 pmResult ... numpmid: 1
   62.3.2 (<noname>): numval: 1 valfmt: 1 vlist[]:
-    inst [0 or ???] value STRING
+    inst [N or ???] value "bm0=0xfdffbfff,bm1=0x40f9be3e,bm2=0x10803,acl=0x3,sessions,pnfs=not configured"
 dbpmda> fetch nfsclient.ops.seek.ops
 PMID(s): 62.8.465
 pmResult ... numpmid: 1
   62.8.465 (<noname>): numval: 1 valfmt: 1 vlist[]:
-    inst [0 or ???] value NUMBER
+    inst [N or ???] value 1
 dbpmda> fetch nfsclient.ops.seek.ntrans
 PMID(s): 62.8.466
 pmResult ... numpmid: 1
   62.8.466 (<noname>): numval: 1 valfmt: 1 vlist[]:
-    inst [0 or ???] value NUMBER
+    inst [N or ???] value 2
 dbpmda> fetch nfsclient.ops.seek.timeouts
 PMID(s): 62.8.467
 pmResult ... numpmid: 1
   62.8.467 (<noname>): numval: 1 valfmt: 1 vlist[]:
-    inst [0 or ???] value NUMBER
+    inst [N or ???] value 3
 dbpmda> fetch nfsclient.ops.seek.bytes_sent
 PMID(s): 62.8.468
 pmResult ... numpmid: 1
   62.8.468 (<noname>): numval: 1 valfmt: 1 vlist[]:
-    inst [0 or ???] value NUMBER
+    inst [N or ???] value 4
 dbpmda> fetch nfsclient.ops.seek.bytes_recv
 PMID(s): 62.8.469
 pmResult ... numpmid: 1
   62.8.469 (<noname>): numval: 1 valfmt: 1 vlist[]:
-    inst [0 or ???] value NUMBER
+    inst [N or ???] value 5
 dbpmda> fetch nfsclient.ops.seek.queue
 PMID(s): 62.8.470
 pmResult ... numpmid: 1
   62.8.470 (<noname>): numval: 1 valfmt: 1 vlist[]:
-    inst [0 or ???] value NUMBER
+    inst [N or ???] value 6
 dbpmda> fetch nfsclient.ops.seek.rtt
 PMID(s): 62.8.471
 pmResult ... numpmid: 1
   62.8.471 (<noname>): numval: 1 valfmt: 1 vlist[]:
-    inst [0 or ???] value NUMBER
+    inst [N or ???] value 7
 dbpmda> fetch nfsclient.ops.seek.execute
 PMID(s): 62.8.472
 pmResult ... numpmid: 1
   62.8.472 (<noname>): numval: 1 valfmt: 1 vlist[]:
-    inst [0 or ???] value NUMBER
+    inst [N or ???] value 8
 dbpmda> fetch nfsclient.ops.allocate.ops
 PMID(s): 62.8.473
 pmResult ... numpmid: 1
   62.8.473 (<noname>): numval: 1 valfmt: 1 vlist[]:
-    inst [0 or ???] value NUMBER
+    inst [N or ???] value 9
 dbpmda> fetch nfsclient.ops.allocate.ntrans
 PMID(s): 62.8.474
 pmResult ... numpmid: 1
   62.8.474 (<noname>): numval: 1 valfmt: 1 vlist[]:
-    inst [0 or ???] value NUMBER
+    inst [N or ???] value 11
 dbpmda> fetch nfsclient.ops.allocate.timeouts
 PMID(s): 62.8.475
 pmResult ... numpmid: 1
   62.8.475 (<noname>): numval: 1 valfmt: 1 vlist[]:
-    inst [0 or ???] value NUMBER
+    inst [N or ???] value 13
 dbpmda> fetch nfsclient.ops.allocate.bytes_sent
 PMID(s): 62.8.476
 pmResult ... numpmid: 1
   62.8.476 (<noname>): numval: 1 valfmt: 1 vlist[]:
-    inst [0 or ???] value NUMBER
+    inst [N or ???] value 15
 dbpmda> fetch nfsclient.ops.allocate.bytes_recv
 PMID(s): 62.8.477
 pmResult ... numpmid: 1
   62.8.477 (<noname>): numval: 1 valfmt: 1 vlist[]:
-    inst [0 or ???] value NUMBER
+    inst [N or ???] value 17
 dbpmda> fetch nfsclient.ops.allocate.queue
 PMID(s): 62.8.478
 pmResult ... numpmid: 1
   62.8.478 (<noname>): numval: 1 valfmt: 1 vlist[]:
-    inst [0 or ???] value NUMBER
+    inst [N or ???] value 19
 dbpmda> fetch nfsclient.ops.allocate.rtt
 PMID(s): 62.8.479
 pmResult ... numpmid: 1
   62.8.479 (<noname>): numval: 1 valfmt: 1 vlist[]:
-    inst [0 or ???] value NUMBER
+    inst [N or ???] value 21
 dbpmda> fetch nfsclient.ops.allocate.execute
 PMID(s): 62.8.480
 pmResult ... numpmid: 1
   62.8.480 (<noname>): numval: 1 valfmt: 1 vlist[]:
-    inst [0 or ???] value NUMBER
+    inst [N or ???] value 23
 dbpmda> fetch nfsclient.ops.deallocate.ops
 PMID(s): 62.8.481
 pmResult ... numpmid: 1
   62.8.481 (<noname>): numval: 1 valfmt: 1 vlist[]:
-    inst [0 or ???] value NUMBER
+    inst [N or ???] value 10
 dbpmda> fetch nfsclient.ops.deallocate.ntrans
 PMID(s): 62.8.482
 pmResult ... numpmid: 1
   62.8.482 (<noname>): numval: 1 valfmt: 1 vlist[]:
-    inst [0 or ???] value NUMBER
+    inst [N or ???] value 12
 dbpmda> fetch nfsclient.ops.deallocate.timeouts
 PMID(s): 62.8.483
 pmResult ... numpmid: 1
   62.8.483 (<noname>): numval: 1 valfmt: 1 vlist[]:
-    inst [0 or ???] value NUMBER
+    inst [N or ???] value 14
 dbpmda> fetch nfsclient.ops.deallocate.bytes_sent
 PMID(s): 62.8.484
 pmResult ... numpmid: 1
   62.8.484 (<noname>): numval: 1 valfmt: 1 vlist[]:
-    inst [0 or ???] value NUMBER
+    inst [N or ???] value 16
 dbpmda> fetch nfsclient.ops.deallocate.bytes_recv
 PMID(s): 62.8.485
 pmResult ... numpmid: 1
   62.8.485 (<noname>): numval: 1 valfmt: 1 vlist[]:
-    inst [0 or ???] value NUMBER
+    inst [N or ???] value 18
 dbpmda> fetch nfsclient.ops.deallocate.queue
 PMID(s): 62.8.486
 pmResult ... numpmid: 1
   62.8.486 (<noname>): numval: 1 valfmt: 1 vlist[]:
-    inst [0 or ???] value NUMBER
+    inst [N or ???] value 20
 dbpmda> fetch nfsclient.ops.deallocate.rtt
 PMID(s): 62.8.487
 pmResult ... numpmid: 1
   62.8.487 (<noname>): numval: 1 valfmt: 1 vlist[]:
-    inst [0 or ???] value NUMBER
+    inst [N or ???] value 22
 dbpmda> fetch nfsclient.ops.deallocate.execute
 PMID(s): 62.8.488
 pmResult ... numpmid: 1
   62.8.488 (<noname>): numval: 1 valfmt: 1 vlist[]:
-    inst [0 or ???] value NUMBER
+    inst [N or ???] value 24
 dbpmda> 
 Log for pmdanfsclient on HOST ...
 Log finished ...
