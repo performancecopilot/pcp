@@ -142,6 +142,7 @@ linux_filter()
 	-e "/network\.tcp\.rcv.*: $unavailable/d" \
 	-e "/network\.tcp\.reqq.*: $unavailable/d" \
 	-e "/network\.tcp\.retrans.*: $unavailable/d" \
+	-e "/network\.tcp\.pawspassiverejected: $unavailable/d" \
 	-e "/network\.tcp\.sackdiscard: $unavailable/d" \
 	-e "/network\.tcp\.sackmerged: $unavailable/d" \
 	-e "/network\.tcp\.sackshifted: $unavailable/d" \
