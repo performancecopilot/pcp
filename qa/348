@@ -117,18 +117,27 @@ echo "=== check values ==="
 cat $tmp.all \
 | while read metric n1 vpcp n2 vsys
 do
-    if [ "$metric" = "kvm.halt_successful_poll" -o \
-	 "$metric" = "kvm.halt_poll_invalid" -o \
-	 "$metric" = "kvm.halt_attempted_poll" ] # version-specific metrics
-    then
-	_within_tolerance $metric $vpcp $vsys 2%
-	[ $? -eq 0 ] || echo Platform $metric is out of range $vpcp vs $vsys
-    elif [ "$n1" = 1 -a "$n2" = 1 ]
-    then
-	_within_tolerance $metric $vpcp $vsys 2% -v
-    else
-	echo "$metric: number of values not 1 as expected: pcp $n1 /sys $n2"
-    fi
+    # test for Linux kernel version-specific metrics ... these may not be present
+    #
+    case "$metric"
+    in
+	kvm.max_mmu_page_hash_collisions)	;;
+	kvm.req_event)				;;
+	kvm.halt_successful_poll)		;;
+	kvm.halt_poll_invalid)			;;
+	kvm.halt_attempted_poll)		# all of the above fallthrough
+	    _within_tolerance $metric $vpcp $vsys 2%
+	    [ $? -eq 0 ] || echo Platform $metric is out of range $vpcp vs $vsys
+	    ;;
+	*)
+	    if [ "$n1" = 1 -a "$n2" = 1 ]
+	    then
+		_within_tolerance $metric $vpcp $vsys 2% -v
+	    else
+		echo "$metric: number of values not 1 as expected: pcp $n1 /sys $n2"
+	    fi
+	    ;;
+    esac
 done | tee -a $here/$seq.full
 
 echo
