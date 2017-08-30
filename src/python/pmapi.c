@@ -228,7 +228,7 @@ update:
     lp[index].message = opt->message;
     memset(&lp[index+1], 0, sizeof(pmLongOptions));	/* PMAPI_OPTIONS_END */
     longOptionsCount++;
-    return 0;
+    return index;
 }
 
 static PyObject *
@@ -276,10 +276,11 @@ setLongOptionText(PyObject *self, PyObject *args, PyObject *keywords)
 static PyObject *
 addLongOptionObject(pmLongOptions *option)
 {
-    if (addLongOption(option, 1) < 0)
+    int		optindex;
+
+    if ((optindex = addLongOption(option, 1)) < 0)
 	return PyErr_NoMemory();
-    Py_INCREF(Py_None);
-    return Py_None;
+    return Py_BuildValue("i", optindex);
 }
 
 static PyObject *
@@ -295,7 +296,7 @@ setLongOption(PyObject *self, PyObject *args, PyObject *keywords)
 			&option.long_opt, &option.has_arg, &short_opt,
 			&option.argname, &option.message))
 	return NULL;
-    if (short_opt)
+    if (short_opt && (int)short_opt[0] != 0)
 	option.short_opt = (int)short_opt[0];
     return addLongOptionObject(&option);
 }
@@ -708,6 +709,9 @@ override_callback(int opt, pmOptions *opts)
     PyObject *arglist, *result;
     char argstring[2] = { (char)opt, '\0' };
     int sts;
+
+    if (!opt)
+	return 0;
 
     arglist = Py_BuildValue("(s)", argstring);
     if (!arglist) {
