@@ -76,9 +76,10 @@ if sys.version_info[0] >= 3:
     long = int # pylint: disable=redefined-builtin
 
 # Default config
-DEFAULT_CONFIG = [ "./pmrep.conf", "$HOME/.pmrep.conf", "$HOME/.pcp/pmrep.conf", "$PCP_SYSCONF_DIR/pmrep/pmrep.conf" ]
+DEFAULT_CONFIG = ["./pmrep.conf", "$HOME/.pmrep.conf", "$HOME/.pcp/pmrep.conf", "$PCP_SYSCONF_DIR/pmrep/pmrep.conf"]
 
-# Default field separators, config/time formats, missing/truncated values
+# Defaults
+CONFVER = 1
 CSVSEP  = ","
 CSVTIME = "%Y-%m-%d %H:%M:%S"
 OUTSEP  = "  "
@@ -88,7 +89,6 @@ ZBXPRFX = "pcp."
 NO_VAL  = "N/A"
 NO_INST = "~"
 TRUNC   = "xxx"
-VERSION = 1
 
 # Output targets
 OUTPUT_ARCHIVE = "archive"
@@ -190,7 +190,7 @@ class PMReporter(object):
         # 3 - built-in defaults defined below
         self.check = 0
         self.config = self.set_config_file()
-        self.version = VERSION
+        self.version = CONFVER
         self.source = "local:"
         self.format = None # stdout format
         self.output = OUTPUT_STDOUT
@@ -654,8 +654,8 @@ class PMReporter(object):
 
     def validate_config(self):
         """ Validate configuration options """
-        if self.version != VERSION:
-            sys.stderr.write("Incompatible configuration file version (read v%s, need v%d).\n" % (self.version, VERSION))
+        if self.version != CONFVER:
+            sys.stderr.write("Incompatible configuration file version (read v%s, need v%d).\n" % (self.version, CONFVER))
             sys.exit(1)
 
         if self.output == OUTPUT_ARCHIVE and not self.outfile:
@@ -972,9 +972,12 @@ class PMReporter(object):
         return (mode, int(step))
 
     def execute(self):
-        """ Using a PMAPI context (could be either host or archive),
-            fetch and report the requested set of values on stdout.
-        """
+        """ Fetch and report """
+        # Debug
+        if self.context.pmDebug(PM_DEBUG_APPL1):
+            sys.stdout.write("Known config file keywords: " + str(self.keys) + "\n")
+            sys.stdout.write("Known metric spec keywords: " + str(self.metricspec) + "\n")
+
         # Set output primitives
         if self.delimiter is None:
             if self.output == OUTPUT_CSV:
@@ -1008,6 +1011,7 @@ class PMReporter(object):
         if not self.timefmt:
             self.timestamp = 0
 
+        # Set delay mode, interpolation
         if self.context.type != PM_CONTEXT_ARCHIVE:
             self.delay = 1
             self.interpol = 1
@@ -1016,10 +1020,6 @@ class PMReporter(object):
         self.prepare_writer()
         if self.output == OUTPUT_STDOUT:
             self.prepare_stdout()
-
-        if self.context.pmDebug(PM_DEBUG_APPL1):
-            self.writer.write("Known config file keywords: " + str(self.keys) + "\n")
-            self.writer.write("Known metric spec keywords: " + str(self.metricspec) + "\n")
 
         # Headers
         if self.extheader == 1:
@@ -1041,6 +1041,7 @@ class PMReporter(object):
         if self.check == 1:
             return
 
+        # Main loop
         lines = 0
         while self.samples != 0:
             # Repeat the header if needed
@@ -1070,7 +1071,7 @@ class PMReporter(object):
             if self.delay and self.interpol and self.samples != 0:
                 self.context.pmtimevalSleep(self.interval)
 
-        # Allow modules to flush buffered values / say goodbye
+        # Allow to flush buffered values / say goodbye
         self.report(None)
 
     def report(self, tstamp):
@@ -1208,7 +1209,7 @@ class PMReporter(object):
         self.writer.write(comm + " timezone: " + timezone + "\n")
         self.writer.write(comm + "    start: " + time.asctime(time.localtime(self.opts.pmGetOptionOrigin())) + "\n")
         self.writer.write(comm + "      end: " + time.asctime(time.localtime(endtime)) + "\n")
-        self.writer.write(comm + "  metrics: " + str(len(self.pmids)) + "\n")
+        self.writer.write(comm + "  metrics: " + str(len(self.metrics)) + "\n")
         self.writer.write(comm + "  samples: " + str(samples) + "\n")
         if not (self.context.type == PM_CONTEXT_ARCHIVE and not self.interpol):
             self.writer.write(comm + " interval: " + str(float(self.interval)) + " sec\n")
@@ -1219,9 +1220,9 @@ class PMReporter(object):
         self.writer.write(comm + "\n")
 
     def write_header(self):
-        """ Write metrics header """
+        """ Write info header """
         if self.output == OUTPUT_ARCHIVE:
-            self.writer.write("Recording %d metrics to %s" % (len(self.pmids), self.outfile))
+            self.writer.write("Recording %d metrics to %s" % (len(self.metrics), self.outfile))
             if self.runtime != -1:
                 self.writer.write(":\n%s samples(s) with %.1f sec interval ~ %d sec duration.\n" % (self.samples, float(self.interval), self.runtime))
             elif self.samples:
@@ -1286,10 +1287,10 @@ class PMReporter(object):
                 self.delay = 0
                 self.interpol = 0
                 self.zabbix_interval = 250 # See zabbix_sender(8)
-                self.writer.write("Sending %d archived metrics to Zabbix server %s...\n(Ctrl-C to stop)\n" % (len(self.pmids), self.zabbix_server))
+                self.writer.write("Sending %d archived metrics to Zabbix server %s...\n(Ctrl-C to stop)\n" % (len(self.metrics), self.zabbix_server))
                 return
 
-            self.writer.write("Sending %d metrics to Zabbix server %s every %d sec" % (len(self.pmids), self.zabbix_server, self.zabbix_interval))
+            self.writer.write("Sending %d metrics to Zabbix server %s every %d sec" % (len(self.metrics), self.zabbix_server, self.zabbix_interval))
             if self.runtime != -1:
                 self.writer.write(":\n%s samples(s) with %.1f sec interval ~ %d sec runtime.\n" % (self.samples, float(self.interval), self.runtime))
             elif self.samples:
@@ -1509,7 +1510,7 @@ class PMReporter(object):
 
         # Avoid crossing the C/Python boundary more than once per metric
         res = OrderedDict()
-        for i, metric in enumerate(self.metrics):
+        for _, metric in enumerate(self.metrics):
             res[metric] = []
             try:
                 for inst, name, val in self.metrics[metric][5]():
