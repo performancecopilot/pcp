@@ -173,13 +173,14 @@ class PMReporter(object):
         self.opts = self.options()
 
         # Configuration directives
-        self.keys = ('source', 'output', 'derived', 'header', 'unitinfo',
-                     'globals', 'timestamp', 'samples', 'interval',
+        self.keys = ('source', 'output', 'derived', 'header', 'globals',
+                     'samples', 'interval',
+                     'timestamp', 'unitinfo', 'colxrow',
                      'delay', 'type', 'width', 'precision', 'delimiter',
                      'extheader', 'repeat_header', 'timefmt', 'interpol',
                      'count_scale', 'space_scale', 'time_scale', 'version',
                      'zabbix_server', 'zabbix_port', 'zabbix_host', 'zabbix_interval',
-                     'speclocal', 'instances', 'colxrow')
+                     'speclocal', 'instances', 'ignore_incompat', 'omit_flat')
 
         # Special command line switches
         self.arghelp = ('-?', '--help', '-V', '--version')
@@ -192,11 +193,7 @@ class PMReporter(object):
         self.config = self.set_config_file()
         self.version = CONFVER
         self.source = "local:"
-        self.format = None # stdout format
         self.output = OUTPUT_STDOUT
-        self.outfile = None
-        self.writer = None
-        self.pmi = None
         self.speclocal = None
         self.derived = None
         self.header = 1
@@ -206,8 +203,6 @@ class PMReporter(object):
         self.samples = None # forever
         self.interval = pmapi.timeval(1)      # 1 sec
         self.opts.pmSetOptionInterval(str(1)) # 1 sec
-        self.localtz = None
-        self.runtime = -1
         self.delay = 0
         self.type = 0
         self.ignore_incompat = 0
@@ -224,6 +219,16 @@ class PMReporter(object):
         self.count_scale = None
         self.space_scale = None
         self.time_scale = None
+
+        # Not in pmrep.conf, won't overwrite
+        self.outfile = None
+
+        # Internal
+        self.format = None # stdout format
+        self.writer = None
+        self.pmi = None
+        self.localtz = None
+        self.runtime = -1
 
         # Performance metrics store
         # key - metric name
