@@ -294,6 +294,54 @@ check_inst(pmValueSet *vsp, int hint, pmResult *lrp)
     return 0;
 }
 
+static int
+manageLabels(__pmLogCtl *logctl, pmDesc *desc, const __pmTimeval *tp) {
+	int i;
+	int len;
+	int sts;
+	unsigned int type;
+	unsigned int ident;
+	unsigned int label_types[4] = {
+		PM_LABEL_DOMAIN, PM_LABEL_INDOM, PM_LABEL_CLUSTER, PM_LABEL_ITEM
+	};
+	__pmLogLabelSet *label_ptr;
+	pmLabelSet *label;
+	
+	for (i = 0; i < 4; i++) {
+		type = label_types[i];
+		if (type == PM_LABEL_INDOM) {
+			if (desc->indom == PM_INDOM_NULL)
+				continue;
+			ident = desc->indom;
+		} else {
+			ident = desc->pmid;
+		}
+
+		/* Lookup returns 0 when the key exists*/
+		if (__pmLogLookupLabel(logctl, type, ident, &label_ptr) == 0) {
+			continue;
+		}
+
+		if (type == PM_LABEL_DOMAIN) {
+			len = pmGetDomainLabels(pmid_domain(desc->pmid), &label);
+		} else if (type == PM_LABEL_CLUSTER) {
+			len = pmGetClusterLabels(desc->pmid, &label);
+		} else if (type == PM_LABEL_INDOM) {
+			len = pmGetInDomLabels(desc->pmid, &label);
+		} else {
+			len = pmGetItemLabels(desc->pmid, &label);
+		}
+
+		if (len > 0) {
+			sts = __pmLogPutLabel(logctl, type, ident, len, label, tp);
+			if(sts < 0) {
+				return sts;
+			}
+		}
+	}
+	return sts;
+}
+
 /*
  * Lookup the first cache index associated with a given PMID in a given task.
  */
@@ -624,6 +672,7 @@ do_work(task_t *tp)
 	needti = 0;
 	old_meta_offset = __pmFtell(logctl.l_mdfp);
 	assert(old_meta_offset >= 0);
+
 	for (i = 0; i < resp->numpmid; i++) {
 	    pmValueSet	*vsp = resp->vset[i];
 	    pmDesc	desc;
@@ -652,6 +701,9 @@ do_work(task_t *tp)
 		    fprintf(stderr, "__pmLogPutDesc: %s\n", pmErrStr(sts));
 		    exit(1);
 		}
+
+		manageLabels(&logctl, &desc, &resp_tval);
+		
 		if (IS_DERIVED_LOGGED(desc.pmid))
 		    /* derived metric, restore cluster field ... */
 		    desc.pmid = CLEAR_DERIVED_LOGGED(desc.pmid);
