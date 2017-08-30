@@ -182,13 +182,15 @@ __pmSetProgname(const char *program)
 }
 
 void
-__pmServerStart(int argc, char **argv)
+__pmServerStart(int argc, char **argv, int flags)
 {
     PROCESS_INFORMATION piProcInfo;
     STARTUPINFO siStartInfo;
     LPTSTR cmdline = NULL;
     int i, sz = 3; /* -f\0 */
 
+    (void)flags;
+    fflush(stdout);
     fflush(stderr);
 
     for (i = 0; i < argc; i++)

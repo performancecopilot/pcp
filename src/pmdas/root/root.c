@@ -216,10 +216,18 @@ root_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	sts = pmdaCacheLookup(containers, inst, &name, (void**)&cp);
 	if (sts < 0)
 	    return sts;
-	if (sts != PMDA_CACHE_ACTIVE)
+	if (sts != PMDA_CACHE_ACTIVE) {
+	    if (pmDebug & DBG_TRACE_ATTR) {
+		__pmNotifyErr(LOG_DEBUG, "pmdaCacheLookup(indom=%s, inst=%d, ...) returns %d: %s\n", pmInDomStr(containers), inst, sts, pmErrStr(sts));
+	    }
 	    return PM_ERR_INST;
-	if (root_refresh_container_values(name, cp) < 0)
+	}
+	if ((sts = root_refresh_container_values(name, cp)) < 0) {
+	    if (pmDebug & DBG_TRACE_ATTR) {
+		__pmNotifyErr(LOG_DEBUG, "root_refresh_container_values(name=%s, ...) returns %d: %s\n", name, sts, pmErrStr(sts));
+	    }
 	    return PM_ERR_INST;
+	}
 	switch (idp->item) {
 	case 0:		/* containers.engine */
 	    atom->cp = cp->engine->name;

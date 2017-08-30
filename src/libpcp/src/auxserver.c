@@ -1112,11 +1112,12 @@ __pmServerHasFeature(__pmServerFeature query)
 #if !defined(IS_MINGW)
 /* Based on Stevens (Unix Network Programming, p.83) */
 void
-__pmServerStart(int argc, char **argv)
+__pmServerStart(int argc, char **argv, int flags)
 {
     pid_t childpid;
 
     (void)argc; (void)argv;
+    fflush(stdout);
     fflush(stderr);
 
 #if defined(HAVE_TERMIO_SIGNALS)
@@ -1139,7 +1140,8 @@ __pmServerStart(int argc, char **argv)
 	__pmNotifyErr(LOG_WARNING, "__pmServerStart: setsid");
 	/* but keep going */
 
-    close(0);
+    if (flags & 1)
+	close(0);
     /* don't close other fd's -- we know that only good ones are open! */
     /* don't chdir("/") -- we may still need to call __pmOpenLog() */
 }

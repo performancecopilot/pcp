@@ -566,7 +566,7 @@ main(int argc, char *argv[])
 
     __pmServerSetServiceSpec(PM_SERVER_PROXY_SPEC);
     if (run_daemon) {
-	__pmServerStart(argc, argv);
+	__pmServerStart(argc, argv, 1);
 	__pmServerCreatePIDFile(PM_SERVER_PROXY_SPEC, 0);
     }
 
