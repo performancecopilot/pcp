@@ -239,6 +239,7 @@ PCP_3.0 {
     __pmLogLoadMeta;
     __pmLogLookupDesc;
     __pmLogLookupInDom;
+    __pmLogLookupLabel;
     __pmLogName;
     __pmLogNameInDom;
     __pmLogName_r;
@@ -248,6 +249,7 @@ PCP_3.0 {
     __pmLogPutIndex;
     __pmLogPutInDom;
     __pmLogPutResult;
+    __pmLogPutLabel;
     __pmLogRead;
     __pmLogReads;
     __pmLogResetInterp;

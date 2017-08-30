@@ -477,6 +477,7 @@ typedef struct {
     __pmHashCtl	l_hashindom;	/* instance domain hashed access */
     __pmHashCtl	l_hashrange;	/* ptr to first and last value in log for */
 				/* each metric */
+    __pmHashCtl l_hashlabels; /* maps label type to _pmHashCtl */
     int		l_minvol;	/* (when reading) lowest known volume no. */
     int		l_maxvol;	/* (when reading) highest known volume no. */
     int		l_numseen;	/* (when reading) size of l_seen */
@@ -1250,6 +1251,9 @@ PCP_CALL extern int __pmLogPutInDom(__pmLogCtl *, pmInDom, const __pmTimeval *, 
 PCP_CALL extern int __pmLogGetInDom(__pmLogCtl *, pmInDom, __pmTimeval *, int **, char ***);
 PCP_CALL extern int __pmLogLookupInDom(__pmLogCtl *, pmInDom, __pmTimeval *, const char *);
 PCP_CALL extern int __pmLogNameInDom(__pmLogCtl *, pmInDom, __pmTimeval *, int, char **);
+
+PCP_CALL extern int __pmLogLookupLabel(__pmLogCtl *lcp, unsigned int type, unsigned int ident, __pmLogLabelSet **label);
+PCP_CALL extern int __pmLogPutLabel(__pmLogCtl *lcp, unsigned int type, unsigned int ident, int nsets, pmLabelSet *labelsets, const __pmTimeval *tp);
 
 PCP_CALL extern int __pmLogPutResult(__pmLogCtl *, __pmPDU *);
 PCP_CALL extern int __pmLogPutResult2(__pmLogCtl *, __pmPDU *);

@@ -40,6 +40,26 @@ __htonpmUnits(pmUnits units)
 }
 #endif
 
+#ifndef __htonpmUnits
+pmLabel
+__htonpmLabel(pmLabel label)
+{
+	__htonll((char *)&label);
+
+    return label;
+}
+#endif
+
+#ifndef __ntohpmLabel
+pmLabel
+__ntohpmLabel(pmLabel label)
+{
+    __htonll((char *)&label);
+
+    return label;
+}
+#endif
+
 #ifndef __ntohpmUnits
 pmUnits
 __ntohpmUnits(pmUnits units)

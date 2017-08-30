@@ -35,8 +35,10 @@ extern int __pmGetDate(struct timespec *, char const *, struct timespec const *)
  * no-ops if already in network byte order but
  * the value may be used in an expression.
  */
-#define __htonpmUnits(a)	(a)
-#define __ntohpmUnits(a)	(a)
+#define __htonpmUnits(a)    (a)
+#define __ntohpmUnits(a)    (a)
+#define __htonpmLabel(a)    (a)
+#define __ntohpmLabel(a)    (a)
 #define __htonpmID(a)		(a)
 #define __ntohpmID(a)		(a)
 #define __htonpmInDom(a)	(a)
@@ -68,11 +70,14 @@ extern int __pmGetDate(struct timespec *, char const *, struct timespec const *)
  */
 #define __htonpmID(a)		htonl(a)
 #define __ntohpmID(a)		ntohl(a)
-#define __htonpmInDom(a)	htonl(a)
-#define __ntohpmInDom(a)	ntohl(a)
+#define __htonpmInDom(a)    htonl(a)
+#define __ntohpmInDom(a)    ntohl(a)
+
 
 extern pmUnits __htonpmUnits(pmUnits) _PCP_HIDDEN;
 extern pmUnits __ntohpmUnits(pmUnits) _PCP_HIDDEN;
+extern pmLabel __htonpmLabel(pmLabel) _PCP_HIDDEN;
+extern pmLabel __ntohpmLabel(pmLabel) _PCP_HIDDEN;
 extern __pmPDUInfo __htonpmPDUInfo(__pmPDUInfo) _PCP_HIDDEN;
 extern __pmPDUInfo __ntohpmPDUInfo(__pmPDUInfo) _PCP_HIDDEN;
 extern __pmCred __htonpmCred(__pmCred) _PCP_HIDDEN;
