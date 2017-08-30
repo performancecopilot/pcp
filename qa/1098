@@ -1,0 +1,71 @@
+#!/bin/sh
+# PCP QA Test No. 1098
+# Exercise a couple of python PMDA module bugs/features.
+#
+# Copyright (c) 2017 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.python
+$python -c "from pcp import pmda" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "python pcp pmda module not installed"
+
+domain=242
+loaded=2
+
+_cleanup()
+{
+    if pmprobe -I pmcd.agent.status | grep '"test_python"' >/dev/null
+    then
+	$sudo rm $PCP_VAR_DIR/config/pmda/$domain.$loaded
+	cd $here/pmdas/test_python
+	$sudo ./Remove >>$here/$seq.full 2>&1
+	$sudo rm -f domain.h.python
+	cd $here
+    fi
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; _cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+cd pmdas/test_python
+cat > $tmp.conf <<EOF
+2 0 2147483647
+5 1503630694 five
+9 1503630694 nine
+EOF
+$sudo cp $tmp.conf $PCP_VAR_DIR/config/pmda/$domain.$loaded
+
+$sudo ./Install </dev/null \
+    | _filter_pmda_install \
+    | sed -e '/^Waiting for pmcd/s/\.\.\.[. ]*$/DOTS/' \
+    | $PCP_AWK_PROG '
+/Check test_python metrics have appeared/ { if ($10 >= 0 && $10 <= 9) $10 = "N" }
+                                          { print }'
+cd $here
+
+# start from a known place
+pmstore test_python.some_value 0 \
+    | sed -e 's/old value=./old value=N/g'
+
+# need a few invocations to tickle the bug
+for i in 1 2 3 4 5; do
+    echo "=== Round $i ===" | tee -a $here/$seq.full
+    pmprobe \
+        test_python.other_indom.some_value \
+        test_python.some_value \
+        test_python.some_indom.some_value
+done
+
+# exercise indom cache re-loading from backing store
+echo && echo "=== Bonus Round ===" | tee -a $here/$seq.full
+pmstore test_python.loaded_indom.some_value 0 >>$here/$seq.full
+pminfo -f test_python.loaded_indom.some_value | $here/src/sortinst
+
+# success, all done
+status=0
+exit
