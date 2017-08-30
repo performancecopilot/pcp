@@ -997,6 +997,8 @@ class pmOptions(object):
             its short option form (str), and two usage message hints (argname
             (str) and message (str) - see pmGetOptions(3) for details).
         """
+        if short_opt is None:
+            short_opt = ''
         return c_api.pmSetLongOption(long_opt, has_arg, short_opt, argname, message)
 
     def pmSetLongOptionHeader(self, heading):
