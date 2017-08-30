@@ -15,8 +15,14 @@
 # 
 
 import cpmapi as c_api
-from pcp.pmda import PMDA, pmdaMetric, pmdaIndom
+from ctypes import cast, c_char_p, Structure, POINTER
+from pcp.pmda import PMDA, pmdaMetric, pmdaIndom, pmdaInstid
 from pcp.pmapi import pmUnits, pmContext as PCP
+
+class Numeric(Structure):
+    _fields_ = [
+	("s", c_char_p)
+    ]
 
 class TestPMDA(PMDA):
     """
@@ -36,7 +42,8 @@ class TestPMDA(PMDA):
         self.loaded_indom = self.indom(2)
         self.add_indom(pmdaIndom(self.some_indom, self.some_instances))
         self.add_indom(pmdaIndom(self.other_indom, self.other_instances))
-        self.add_indom(pmdaIndom(self.loaded_indom, self.loaded_instances))
+        self.loaded = pmdaIndom(self.loaded_indom, self.loaded_instances)
+        self.add_indom(self.loaded)
 
         self.add_metric(name + '.some_value',
                 pmdaMetric(self.pmid(0, 0),
@@ -56,22 +63,25 @@ class TestPMDA(PMDA):
                 pmUnits(0, 0, 0, 0, 0, 0)))
 
         self.set_refresh(self.test_update_status)
+        self.set_refresh_all(self.test_refresh_all)
         self.set_fetch_callback(self.test_fetch_callback)
         self.set_store_callback(self.test_store_callback)
         self.set_user(PCP.pmGetConfig('PCP_USER'))
 
 
-    def test_update_status(self, cluster):
-        self.log("refresh callback for %d" % (cluster))
+    def test_refresh_all(self, clusters):
+        self.log("refresh_all callback")
         self.refreshes += 1
+
+    def test_update_status(self, cluster):
+        self.log("refresh callback for cluster %d" % (cluster))
 
         if cluster == 1:
             empty_instances = []
-            one_instances = [0, 'instance0']
-            two_instances = [0, 'instance0', 1, 'instance1']
-            never_seen_instances = [99, 'instance99', 100, 'instance100', 101, 'instance101', 102, 'instance102']
+            one_instances = [pmdaInstid(0, 'instance0')]
+            two_instances = [pmdaInstid(0, 'instance0'), pmdaInstid(1, 'instance1')]
+            never_seen_instances = [pmdaInstid(99, 'instance99'), pmdaInstid(100, 'instance100'), pmdaInstid(101, 'instance101'), pmdaInstid(102, 'instance102')]
 
-            self.log("refresh callback for %d WIP" % (cluster))
             if self.refreshes < 1:
                 self.replace_indom(self.some_indom, empty_instances)
             elif self.refreshes < 3:
@@ -83,21 +93,23 @@ class TestPMDA(PMDA):
             else:
                 self.replace_indom(self.some_indom, empty_instances)
                 self.refreshes = 0
-            self.log("refresh callback for %d complete" % (cluster))
         elif cluster == 2:
-            self.log("refresh callback for %d WIP" % (cluster))
-            if refreshes % 2 == 0:
+            if self.refreshes % 2 == 0:
                 self.other_instances = {}
             else:
-                self.other_instances = {'one': 'ONE', 'two': 'TWO'}
+                one = Numeric()
+                one.s = 'ONE'.encode('utf-8')
+                two = Numeric()
+                two.s = 'TWO'.encode('utf-8')
+                self.other_instances = {'one': one, 'two': two}
             self.replace_indom(self.other_indom, self.other_instances)
-            self.log("refresh callback for %d complete" % (cluster))
         elif cluster == 3:
-            self.log("refresh callback for %d WIP" % (cluster))
-            self.loaded_instances = {'five': 'FIVE', 'nine': 'NINE'}
+            five = Numeric()
+            five.s = 'FIVE'.encode('utf-8')
+            nine = Numeric()
+            nine.s = 'NINE'.encode('utf-8')
+            self.loaded_instances = {'five': five, 'nine': nine}
             self.replace_indom(self.loaded_indom, self.loaded_instances)
-            self.log("refresh callback for %d complete" % (cluster))
-        self.log("refresh callback for %d complete" % (cluster))
         return
 
 
@@ -108,25 +120,27 @@ class TestPMDA(PMDA):
         elif cluster == 1 and item == 0:
             return [123, 1]
         elif cluster == 2 and item == 0:
-            value = self.pmda_inst_name(self.other_indom, inst)
-            if value == None:
+            voidp = self.inst_lookup(self.other_indom, inst)
+            if voidp is None:
                 return [c_api.PM_ERR_INST, 0]
-            return [value, 1]
+            cache = cast(voidp, POINTER(Numeric))
+            return [str(cache.contents.s.decode('utf-8')), 1]
         elif cluster == 3 and item == 0:
-            value = self.pmda_inst_name(self.loaded_indom, inst)
-            if value == None:
+            voidp = self.inst_lookup(self.loaded_indom, inst)
+            if voidp is None:
                 return [c_api.PM_ERR_INST, 0]
-            return [value, 1]
+            cache = cast(voidp, POINTER(Numeric))
+            return [str(cache.contents.s.decode('utf-8')), 1]
         return [c_api.PM_ERR_PMID, 0]
 
 
     def test_store_callback(self, cluster, item, inst, value):
         self.log("store callback for %d.%d[%d]" % (cluster, item, inst))
         if cluster == 0 and item == 0:
-            refreshes = value
+            self.refreshes = value
             return 0
         elif cluster == 3 and item == 0:
-            self.load_indom(self.loaded_indom)
+            self.loaded.load()
             return 0
         return c_api.PM_ERR_PERMISSION
 
