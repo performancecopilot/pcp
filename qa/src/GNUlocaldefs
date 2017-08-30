@@ -127,7 +127,8 @@ PYTHONFILES = \
 	test_mmv.python test_webapi.python \
 	test_pcp_options.python test_pcp_getopts.python \
 	test_pcp_time.python test_pmnswalk.python \
-	pmapi_exceptions.python fsstats.python procpid.python \
+	pmapi_exceptions.python pmapi_daemon.python \
+	fsstats.python procpid.python \
 	test_set_source.python test_pmda_memleak.python \
 	test_webcontainers.python test_webprocesses.python \
         test_pmfg.python

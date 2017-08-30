@@ -849,6 +849,11 @@ class pmOptions(object):
         if LIBPCP and self._need_reset != False:
             c_api.pmResetAllOptions()
 
+    @staticmethod
+    def daemonize():
+        """ Cross-platform --daemonize (re-parent to init) option helper """
+        return c_api.pmServerStart()
+
     ##
     # general command line option access and manipulation
 

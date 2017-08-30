@@ -743,7 +743,7 @@ PCP_CALL extern int __pmServerHasFeature(__pmServerFeature);
 PCP_CALL extern int __pmServerSetFeature(__pmServerFeature);
 PCP_CALL extern int __pmServerClearFeature(__pmServerFeature);
 PCP_CALL extern int __pmServerCreatePIDFile(const char *, int);
-PCP_CALL extern void __pmServerStart(int, char **);
+PCP_CALL extern void __pmServerStart(int, char **, int);
 PCP_CALL extern int __pmServerAddPorts(const char *);
 PCP_CALL extern int __pmServerAddInterface(const char *);
 PCP_CALL extern void __pmServerSetLocalSocket(const char *);

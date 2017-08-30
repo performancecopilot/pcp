@@ -871,6 +871,14 @@ endOptions(PyObject *self, PyObject *args, PyObject *keywords)
 }
 
 static PyObject *
+serverStart(PyObject *self, PyObject *args, PyObject *keywords)
+{
+    __pmServerStart(argCount, argVector, 0);
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
 setContextOptions(PyObject *self, PyObject *args, PyObject *keywords)
 {
     int sts, ctx, step, mode, delta;
@@ -1320,6 +1328,9 @@ static PyMethodDef methods[] = {
         .ml_flags = METH_VARARGS | METH_KEYWORDS },
     { .ml_name = "pmEndOptions",
         .ml_meth = (PyCFunction) endOptions,
+        .ml_flags = METH_NOARGS },
+    { .ml_name = "pmServerStart",
+        .ml_meth = (PyCFunction) serverStart,
         .ml_flags = METH_NOARGS },
     { .ml_name = "pmSetContextOptions",
 	.ml_meth = (PyCFunction) setContextOptions,

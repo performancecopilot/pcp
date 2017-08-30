@@ -931,7 +931,7 @@ main(int argc, char *argv[])
     __pmServerSetServiceSpec(PM_SERVER_SERVICE_SPEC);
 
     if (run_daemon)
-	__pmServerStart(argc, argv);
+	__pmServerStart(argc, argv, 1);
 
 #ifdef HAVE_SA_SIGINFO
     act.sa_sigaction = SigIntProc;
