@@ -507,7 +507,13 @@ class PMReporter(object):
     def parse_metric_info(self, metrics, key, value):
         """ Parse metric information """
         # NB. Uses the config key, not the metric, as the dict key
+        compact = False
         if ',' in value or ('.' in key and key.rsplit(".")[1] not in self.metricspec):
+            compact = True
+        # NB. Formulas may now contain commas, see pmRegisterDerived(3)
+        if ',' in value and ('.' in key and key.rsplit(".")[1] == "formula"):
+            compact = False
+        if compact:
             # Compact / one-line definition
             spec, insts = self.parse_metric_spec_instances(key + "," + value)
             metrics[key] = spec.split(",")
@@ -530,7 +536,7 @@ class PMReporter(object):
                     if self.derived is None:
                         self.derived = metrics[key][0] + "=" + value
                     else:
-                        self.derived += "," + metrics[key][0] + "=" + value
+                        self.derived += "@" + metrics[key][0] + "=" + value
                 else:
                     metrics[key][self.metricspec.index(spec)+1] = value
 
@@ -766,10 +772,10 @@ class PMReporter(object):
                     sys.stderr.write("Failed to register derived metric: %s.\n" % str(error))
                     sys.exit(1)
             else:
-                for definition in self.derived.split(","):
+                for definition in self.derived.split("@"):
                     err = ""
                     try:
-                        name, expr = definition.split("=")
+                        name, expr = definition.split("=", 1)
                         self.context.pmLookupName(name.strip())
                     except pmapi.pmErr as error:
                         if error.args[0] != PM_ERR_NAME:
