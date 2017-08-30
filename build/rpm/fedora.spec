@@ -23,8 +23,8 @@ Source4: %{github}/pcp-webapp-blinkenlights/archive/1.0.0/pcp-webapp-blinkenligh
 
 %global disable_snmp 0
 
-# There are no papi/libpfm devel packages for s390 nor for some rhels, disable
-%ifarch s390 s390x
+# There are no papi/libpfm devel packages for s390, armv7hl nor for some rhels, disable
+%ifarch s390 s390x armv7hl
 %global disable_papi 1
 %global disable_perfevent 1
 %else
@@ -222,8 +222,8 @@ Obsoletes: pcp-gui-debuginfo
 %global _with_initd --with-rcdir=%{_initddir}
 %endif
 
-# we never want Infiniband on s390 platforms
-%ifarch s390 s390x
+# we never want Infiniband on s390 and armv7hl platforms
+%ifarch s390 s390x armv7hl
 %global disable_infiniband 1
 %else
 # we never want Infiniband on RHEL5 or earlier
@@ -1888,7 +1888,7 @@ Group: Applications/System
 Summary: Visualization tools for the Performance Co-Pilot toolkit
 URL: http://www.pcp.io
 Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
-BuildRequires: inkscape
+BuildRequires: hicolor-icon-theme
 
 %description gui
 Visualization tools for the Performance Co-Pilot toolkit.
@@ -2713,7 +2713,7 @@ cd
 %{_localstatedir}/lib/pcp/config/pmlogrewrite
 %dir %attr(0775,pcp,pcp) %{_localstatedir}/lib/pcp/config/pmda
 
-%{_datadir}/bash-completion/completions/pcp
+%{_datadir}/bash-completion/completions/*
 %{_datadir}/zsh/site-functions/_pcp
 
 %if !%{disable_sdt}
@@ -3103,6 +3103,12 @@ cd
 %changelog
 * Fri Oct 29 2017 Mark Goodwin <mgoodwin@redhat.com> - 3.12.2-1
 - Work-in-progress, see http://pcp.io/roadmap
+
+* Mon Aug 28 2017 Nathan Scott <nathans@redhat.com> - 3.12.1-3
+- Disable infiniband and papi packages on armv7hl (BZ 1485692)
+
+* Fri Aug 25 2017 Lukas Berk <lberk@redhat.com> - 3.12.1-2
+- Rebuild for infiniband dep breakage.
 
 * Wed Aug 16 2017 Nathan Scott <nathans@redhat.com> - 3.12.1-1
 - Update to latest PCP sources.

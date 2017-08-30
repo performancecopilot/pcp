@@ -16,12 +16,12 @@ HICOLORDIR = $(shell echo $(PCP_SHARE_DIR) | sed -e 's;/pcp$$;;')/icons/hicolor
 LDIRT = hicolor.done
 
 # use checked in files by default, so no default build rule
-default:	hicolor.done
+default:
 
 .NOTPARALLEL:
 hicolor.done:	$(DESKTOP_ICONS)
 ifeq ($(HAVE_HICOLOR_ICONS),true)
-	@rm -fr hicolor
+	@rm -f hicolor-*
 	for app in $(APPFILES); do \
 	    for sz in $(APPSIZES); do \
 		$(INKSCAPE) -e hicolor-$${sz}x$${sz}-$${app}.png -w $${sz} $${app}.svg; \

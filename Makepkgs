@@ -272,10 +272,10 @@ in
     mingw|mingw64|windows)
 	target=mingw
 	dorpm=false
-	configopts="$configopts --disable-ssp"
+	configopts="$configopts --disable-ssp --without-qt3d"
 	export configure="/usr/bin/mingw64-configure"
 	export MAKE="/usr/bin/mingw64-make"
-	export QMAKE="/usr/bin/mingw64-qmake-qt4"
+	export QMAKE="/usr/bin/mingw64-qmake-qt5"
 	export PKG_CONFIG="/usr/bin/mingw64-pkg-config"
 	;;
     linux)

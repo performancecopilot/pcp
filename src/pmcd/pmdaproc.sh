@@ -212,9 +212,12 @@ __pmda_cull()
 
     # remove matching entry from $PCP_PMCDCONF_PATH if present
     #
+    rm -f $tmp/pmcd.warn
     $PCP_AWK_PROG <$PCP_PMCDCONF_PATH >$tmp/pmcd.conf '
 BEGIN					{ status = 0 }
 $1 == "'"$1"'" && $2 == "'"$2"'" 	{ status = 1; next }
+$1=="'"$1"'" && $2!="'"$2"'"	{ print "Warning: '"$PCP_PMCDCONF_PATH"'[" NF "] culling entry with same PMDA name ('"$1"') but different domain (" $2 " not '"$2"')" >"'$tmp/pmcd.warn'"; status=1; next }
+$1!="'"$1"'" && $2=="'"$2"'"	{ print "Warning: '"$PCP_PMCDCONF_PATH"'[" NF "] culling entry with same PMDA domain ('"$2"') but different name (" $1 " not '"$1"')" >"'$tmp/pmcd.warn'"; status=1; next }
 					{ print }
 END					{ exit status }'
     if [ $? -eq 0 ]
@@ -222,6 +225,7 @@ END					{ exit status }'
 	# no match
 	:
     else
+	[ -f $tmp/pmcd.warn ] && cat $tmp/pmcd.warn >&2
 	
 	# log change to the PCP NOTICES file
 	#
@@ -361,16 +365,20 @@ __pmda_add()
     #
     echo >$tmp/pmcd.body
     echo >$tmp/pmcd.access
+    rm -f $tmp/pmcd.warn
     $PCP_AWK_PROG <$PCP_PMCDCONF_PATH '
 NF==0					{ next }
 /^[      ]*\[[   ]*access[       ]*\]/	{ state = 2 }
 state == 2				{ print >"'$tmp/pmcd.access'"; next }
 $1=="'$myname'" && $2=="'$mydomain'"	{ next }
+$1=="'$myname'" && $2!="'$mydomain'"	{ print "Warning: '"$PCP_PMCDCONF_PATH"'[" NF "] culling entry with same PMDA name ('$myname') but different domain (" $2 " not '$mydomain')" >"'$tmp/pmcd.warn'"; next }
+$1!="'$myname'" && $2=="'$mydomain'"	{ print "Warning: '"$PCP_PMCDCONF_PATH"'[" NF "] culling entry with same PMDA domain ('$mydomain') but different name (" $1 " not '$myname')" >"'$tmp/pmcd.warn'"; next }
 					{ print >"'$tmp/pmcd.body'"; next }'
     echo "$1" >> $tmp/pmcd.body 
     ( LC_COLLATE=POSIX sort -n -k2 $tmp/pmcd.body; echo; cat $tmp/pmcd.access )\
     >$PCP_PMCDCONF_PATH
-    rm -f $tmp/pmcd.access $tmp/pmcd.body
+    [ -f $tmp/pmcd.warn ] && cat $tmp/pmcd.warn >&2
+    rm -f $tmp/pmcd.access $tmp/pmcd.body $tmp/pmcd.warn
     eval $CHOWN root $PCP_PMCDCONF_PATH
     eval $CHMOD 644 $PCP_PMCDCONF_PATH
 

@@ -34,13 +34,18 @@ _cleanup()
 }
 
 trap "_cleanup; exit \$status" 0 1 2 3 15
+rm -f $seq.full
 
 _filter()
 {
-    sed \
+    tee -a $here/$seq.full \
+    | $here/src/sortinst -v \
+    | sed \
 	-e "s;$PCP_PMDAS_DIR;\$PCP_PMDAS_DIR;" \
 	-e "s;$script;pmdanfsclient.pl;" \
-    | _filter_dumpresult
+	-e '/pmResult/s/ .* numpmid/ ... numpmid/' \
+	-e '/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]/s/[^ ]*/TIMESTAMP/' \
+    # end
 }
 
 _filter_pmda_log()
@@ -63,9 +68,18 @@ _filter_indom()
     # [  2] inst: 2 name: "/ifs"
     # [  3] inst: 3 name: "/ifsfoo"
     # dbpmda> 
+    # and similarly for
+    # pmResult dump from 0x2529560 timestamp: 0.000000 10:00:00.000 numpmid: 1
+    #   62.0.2 (<noname>): numval: 4 valfmt: 1 vlist[]:
+    #   inst [1 or ???] value "/mnt/nfsv4"
+    #   inst [2 or ???] value "/mnt/nfs41"
+    #   inst [3 or ???] value "/ifs"
+    #   inst [4 or ???] value "/ifsfoo"
+    # dbpmda>
     #
     rm -f $tmp.1 $tmp.2 $tmp.3
-    $PCP_AWK_PROG '
+    sed -e 's/inst \[[0-4]/inst [N/' \
+    | $PCP_AWK_PROG '
 BEGIN						{ part = 1 }
 part == 2 && $1 == "dbpmda>"			{ part = 3 }
 						{ outname = "'$tmp'." part; print >outname }

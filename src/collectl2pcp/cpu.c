@@ -30,7 +30,7 @@ cpu_handler(handler_t *h, fields_t *f)
     if (f->fieldlen[0] < 3 || f->nfields < 9)
     	return -1;
 
-    if (f->fieldlen[0] > 3 && isdigit(f->fields[0][3])) {
+    if (f->fieldlen[0] > 3 && isdigit((int)(f->fields[0][3]))) {
 	/* kernel.percpu.cpu.* */
 	pmInDom indom = pmInDom_build(LINUX_DOMAIN, CPU_INDOM);
 

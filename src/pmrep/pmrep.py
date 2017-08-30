@@ -38,8 +38,13 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-# pylint: disable=fixme, line-too-long, bad-whitespace, invalid-name
 # pylint: disable=superfluous-parens
+# pylint: disable=invalid-name, line-too-long, no-self-use, bad-whitespace
+# pylint: disable=too-many-boolean-expressions, too-many-statements
+# pylint: disable=too-many-instance-attributes, too-many-locals
+# pylint: disable=too-many-branches, too-many-nested-blocks
+# pylint: disable=bare-except, broad-except
+
 """ Performance Metrics Reporter """
 
 from collections import OrderedDict
@@ -57,7 +62,6 @@ import struct
 import errno
 import time
 import math
-import copy
 import csv
 import sys
 import os
@@ -69,12 +73,13 @@ from cpmapi import PM_TYPE_32, PM_TYPE_U32, PM_TYPE_64, PM_TYPE_U64, PM_TYPE_FLO
 from cpmi import PMI_ERR_DUPINSTNAME
 
 if sys.version_info[0] >= 3:
-    long = int
+    long = int # pylint: disable=redefined-builtin
 
 # Default config
-DEFAULT_CONFIG = [ "./pmrep.conf", "$HOME/.pmrep.conf", "$HOME/.pcp/pmrep.conf", "$PCP_SYSCONF_DIR/pmrep/pmrep.conf" ]
+DEFAULT_CONFIG = ["./pmrep.conf", "$HOME/.pmrep.conf", "$HOME/.pcp/pmrep.conf", "$PCP_SYSCONF_DIR/pmrep/pmrep.conf"]
 
-# Default field separators, config/time formats, missing/truncated values
+# Defaults
+CONFVER = 1
 CSVSEP  = ","
 CSVTIME = "%Y-%m-%d %H:%M:%S"
 OUTSEP  = "  "
@@ -84,7 +89,6 @@ ZBXPRFX = "pcp."
 NO_VAL  = "N/A"
 NO_INST = "~"
 TRUNC   = "xxx"
-VERSION = 1
 
 # Output targets
 OUTPUT_ARCHIVE = "archive"
@@ -92,7 +96,7 @@ OUTPUT_CSV     = "csv"
 OUTPUT_STDOUT  = "stdout"
 OUTPUT_ZABBIX  = "zabbix"
 
-class ZabbixMetric(object):
+class ZabbixMetric(object): # pylint: disable=too-few-public-methods
     """ A Zabbix metric """
     def __init__(self, host, key, value, clock):
         self.host = host
@@ -169,13 +173,14 @@ class PMReporter(object):
         self.opts = self.options()
 
         # Configuration directives
-        self.keys = ('source', 'output', 'derived', 'header', 'unitinfo',
-                     'globals', 'timestamp', 'samples', 'interval',
+        self.keys = ('source', 'output', 'derived', 'header', 'globals',
+                     'samples', 'interval',
+                     'timestamp', 'unitinfo', 'colxrow',
                      'delay', 'type', 'width', 'precision', 'delimiter',
                      'extheader', 'repeat_header', 'timefmt', 'interpol',
                      'count_scale', 'space_scale', 'time_scale', 'version',
                      'zabbix_server', 'zabbix_port', 'zabbix_host', 'zabbix_interval',
-                     'speclocal', 'instances', 'colxrow')
+                     'speclocal', 'instances', 'ignore_incompat', 'omit_flat')
 
         # Special command line switches
         self.arghelp = ('-?', '--help', '-V', '--version')
@@ -186,13 +191,9 @@ class PMReporter(object):
         # 3 - built-in defaults defined below
         self.check = 0
         self.config = self.set_config_file()
-        self.version = VERSION
+        self.version = CONFVER
         self.source = "local:"
-        self.format = None # stdout format
         self.output = OUTPUT_STDOUT
-        self.outfile = None
-        self.writer = None
-        self.pmi = None
         self.speclocal = None
         self.derived = None
         self.header = 1
@@ -202,8 +203,6 @@ class PMReporter(object):
         self.samples = None # forever
         self.interval = pmapi.timeval(1)      # 1 sec
         self.opts.pmSetOptionInterval(str(1)) # 1 sec
-        self.localtz = None
-        self.runtime = -1
         self.delay = 0
         self.type = 0
         self.ignore_incompat = 0
@@ -220,6 +219,16 @@ class PMReporter(object):
         self.count_scale = None
         self.space_scale = None
         self.time_scale = None
+
+        # Not in pmrep.conf, won't overwrite
+        self.outfile = None
+
+        # Internal
+        self.format = None # stdout format
+        self.writer = None
+        self.pmi = None
+        self.localtz = None
+        self.runtime = -1
 
         # Performance metrics store
         # key - metric name
@@ -307,7 +316,7 @@ class PMReporter(object):
             return 1
         return 0
 
-    def option(self, opt, optarg, index):
+    def option(self, opt, optarg, index): # pylint: disable=unused-argument
         """ Perform setup for an individual command line option """
         if opt == 'K':
             if not self.speclocal or not self.speclocal.startswith("K:"):
@@ -415,7 +424,7 @@ class PMReporter(object):
         """ Parse user-supplied instances string """
         insts = []
         reader = csv.reader([instances])
-        for i, inst in enumerate(list(reader)[0]):
+        for _, inst in enumerate(list(reader)[0]):
             if inst.startswith('"') or inst.startswith("'"):
                 inst = inst[1:]
             if inst.endswith('"') or inst.endswith("'"):
@@ -446,7 +455,7 @@ class PMReporter(object):
             else:
                 self.type = 0
         elif name == 'instances':
-            self.instances = value.split(",")
+            self.instances = value.split(",") # pylint: disable=no-member
         else:
             try:
                 setattr(self, name, int(value))
@@ -503,7 +512,13 @@ class PMReporter(object):
     def parse_metric_info(self, metrics, key, value):
         """ Parse metric information """
         # NB. Uses the config key, not the metric, as the dict key
+        compact = False
         if ',' in value or ('.' in key and key.rsplit(".")[1] not in self.metricspec):
+            compact = True
+        # NB. Formulas may now contain commas, see pmRegisterDerived(3)
+        if ',' in value and ('.' in key and key.rsplit(".")[1] == "formula"):
+            compact = False
+        if compact:
             # Compact / one-line definition
             spec, insts = self.parse_metric_spec_instances(key + "," + value)
             metrics[key] = spec.split(",")
@@ -523,10 +538,10 @@ class PMReporter(object):
                     sys.stderr.write("Undeclared metric key %s.\n" % key)
                     sys.exit(1)
                 if spec == "formula":
-                    if self.derived == None:
+                    if self.derived is None:
                         self.derived = metrics[key][0] + "=" + value
                     else:
-                        self.derived += "," + metrics[key][0] + "=" + value
+                        self.derived += "@" + metrics[key][0] + "=" + value
                 else:
                     metrics[key][self.metricspec.index(spec)+1] = value
 
@@ -567,7 +582,7 @@ class PMReporter(object):
         # Get config and set details for configuration file metric sets
         confmet = OrderedDict()
         for spec in tempmet:
-            if tempmet[spec] == None:
+            if tempmet[spec] is None:
                 if config.has_section(spec):
                     parsemet = OrderedDict()
                     for key in config.options(spec):
@@ -587,7 +602,7 @@ class PMReporter(object):
             for metric in globmet:
                 self.metrics[metric] = globmet[metric]
         for metric in tempmet:
-            if type(tempmet[metric]) is list:
+            if isinstance(tempmet[metric], list):
                 self.metrics[metric] = tempmet[metric]
             else:
                 for m in tempmet[metric]:
@@ -644,8 +659,8 @@ class PMReporter(object):
 
     def validate_config(self):
         """ Validate configuration options """
-        if self.version != VERSION:
-            sys.stderr.write("Incompatible configuration file version (read v%s, need v%d).\n" % (self.version, VERSION))
+        if self.version != CONFVER:
+            sys.stderr.write("Incompatible configuration file version (read v%s, need v%d).\n" % (self.version, CONFVER))
             sys.exit(1)
 
         if self.output == OUTPUT_ARCHIVE and not self.outfile:
@@ -722,13 +737,13 @@ class PMReporter(object):
             if self.omit_flat and instances and not inst[1][0]:
                 return
             if instances and inst[1][0]:
-                found = [[], []]
+                found = tuple([[], []])
                 for r in instances:
-                   cr = re.compile('\A' + r + '\Z')
-                   for i, s in enumerate(inst[1]):
-                       if re.match(cr, s):
-                           found[0].append(inst[0][i])
-                           found[1].append(inst[1][i])
+                    cr = re.compile(r'\A' + r + r'\Z')
+                    for i, s in enumerate(inst[1]):
+                        if re.match(cr, s):
+                            found[0].append(inst[0][i])
+                            found[1].append(inst[1][i])
                 if not found[0]:
                     return
                 inst = found
@@ -762,10 +777,10 @@ class PMReporter(object):
                     sys.stderr.write("Failed to register derived metric: %s.\n" % str(error))
                     sys.exit(1)
             else:
-                for definition in self.derived.split(","):
+                for definition in self.derived.split("@"):
                     err = ""
                     try:
-                        name, expr = definition.split("=")
+                        name, expr = definition.split("=", 1)
                         self.context.pmLookupName(name.strip())
                     except pmapi.pmErr as error:
                         if error.args[0] != PM_ERR_NAME:
@@ -798,7 +813,7 @@ class PMReporter(object):
                 self.context.pmTraversePMNS(metric, self.check_metric)
                 if len(self.pmids) == l:
                     # No compatible metrics found
-                    next
+                    next # pylint: disable=pointless-statement
                 elif len(self.pmids) == l + 1:
                     # Leaf
                     if metric == self.context.pmNameID(self.pmids[l]):
@@ -839,7 +854,7 @@ class PMReporter(object):
                 name = ""
                 for m in metric.split("."):
                     name += m[0] + "."
-                self.metrics[metric][0] = name[:-2] + m
+                self.metrics[metric][0] = name[:-2] + m # pylint: disable=undefined-loop-variable
 
             # Rawness
             if self.metrics[metric][3] == 'raw' or self.type == 1 or \
@@ -962,11 +977,14 @@ class PMReporter(object):
         return (mode, int(step))
 
     def execute(self):
-        """ Using a PMAPI context (could be either host or archive),
-            fetch and report the requested set of values on stdout.
-        """
+        """ Fetch and report """
+        # Debug
+        if self.context.pmDebug(PM_DEBUG_APPL1):
+            sys.stdout.write("Known config file keywords: " + str(self.keys) + "\n")
+            sys.stdout.write("Known metric spec keywords: " + str(self.metricspec) + "\n")
+
         # Set output primitives
-        if self.delimiter == None:
+        if self.delimiter is None:
             if self.output == OUTPUT_CSV:
                 self.delimiter = CSVSEP
             else:
@@ -990,7 +1008,7 @@ class PMReporter(object):
             time.tzset()
             self.context.pmNewZone(self.opts.pmGetOptionTimezone())
 
-        if self.timefmt == None:
+        if self.timefmt is None:
             if self.output == OUTPUT_CSV:
                 self.timefmt = CSVTIME
             else:
@@ -998,6 +1016,7 @@ class PMReporter(object):
         if not self.timefmt:
             self.timestamp = 0
 
+        # Set delay mode, interpolation
         if self.context.type != PM_CONTEXT_ARCHIVE:
             self.delay = 1
             self.interpol = 1
@@ -1006,10 +1025,6 @@ class PMReporter(object):
         self.prepare_writer()
         if self.output == OUTPUT_STDOUT:
             self.prepare_stdout()
-
-        if self.context.pmDebug(PM_DEBUG_APPL1):
-            self.writer.write("Known config file keywords: " + str(self.keys) + "\n")
-            self.writer.write("Known metric spec keywords: " + str(self.metricspec) + "\n")
 
         # Headers
         if self.extheader == 1:
@@ -1031,6 +1046,7 @@ class PMReporter(object):
         if self.check == 1:
             return
 
+        # Main loop
         lines = 0
         while self.samples != 0:
             # Repeat the header if needed
@@ -1060,7 +1076,7 @@ class PMReporter(object):
             if self.delay and self.interpol and self.samples != 0:
                 self.context.pmtimevalSleep(self.interval)
 
-        # Allow modules to flush buffered values / say goodbye
+        # Allow to flush buffered values / say goodbye
         self.report(None)
 
     def report(self, tstamp):
@@ -1082,7 +1098,7 @@ class PMReporter(object):
         if not self.writer:
             if self.output == OUTPUT_ARCHIVE or \
                self.output == OUTPUT_ZABBIX or \
-               self.outfile == None:
+               self.outfile is None:
                 self.writer = sys.stdout
             else:
                 self.writer = open(self.outfile, 'wt')
@@ -1142,7 +1158,7 @@ class PMReporter(object):
         index += 2
 
         # Metrics
-        for i, metric in enumerate(self.metrics):
+        for _, metric in enumerate(self.metrics):
             l = str(self.metrics[metric][4])
             # Value truncated and aligned
             self.format += "{" + str(index) + ":>" + l + "." + l + "}"
@@ -1189,7 +1205,7 @@ class PMReporter(object):
             if not self.interpol and self.opts.pmGetOptionSamples():
                 samples = str(samples) + " (requested)"
             elif not self.interpol:
-                samples = "N/A"
+                samples = "N/A" # pylint: disable=redefined-variable-type
 
         self.writer.write(comm + "\n")
         if self.context.type == PM_CONTEXT_ARCHIVE:
@@ -1198,7 +1214,7 @@ class PMReporter(object):
         self.writer.write(comm + " timezone: " + timezone + "\n")
         self.writer.write(comm + "    start: " + time.asctime(time.localtime(self.opts.pmGetOptionOrigin())) + "\n")
         self.writer.write(comm + "      end: " + time.asctime(time.localtime(endtime)) + "\n")
-        self.writer.write(comm + "  metrics: " + str(len(self.pmids)) + "\n")
+        self.writer.write(comm + "  metrics: " + str(len(self.metrics)) + "\n")
         self.writer.write(comm + "  samples: " + str(samples) + "\n")
         if not (self.context.type == PM_CONTEXT_ARCHIVE and not self.interpol):
             self.writer.write(comm + " interval: " + str(float(self.interval)) + " sec\n")
@@ -1209,9 +1225,9 @@ class PMReporter(object):
         self.writer.write(comm + "\n")
 
     def write_header(self):
-        """ Write metrics header """
+        """ Write info header """
         if self.output == OUTPUT_ARCHIVE:
-            self.writer.write("Recording %d metrics to %s" % (len(self.pmids), self.outfile))
+            self.writer.write("Recording %d metrics to %s" % (len(self.metrics), self.outfile))
             if self.runtime != -1:
                 self.writer.write(":\n%s samples(s) with %.1f sec interval ~ %d sec duration.\n" % (self.samples, float(self.interval), self.runtime))
             elif self.samples:
@@ -1276,10 +1292,10 @@ class PMReporter(object):
                 self.delay = 0
                 self.interpol = 0
                 self.zabbix_interval = 250 # See zabbix_sender(8)
-                self.writer.write("Sending %d archived metrics to Zabbix server %s...\n(Ctrl-C to stop)\n" % (len(self.pmids), self.zabbix_server))
+                self.writer.write("Sending %d archived metrics to Zabbix server %s...\n(Ctrl-C to stop)\n" % (len(self.metrics), self.zabbix_server))
                 return
 
-            self.writer.write("Sending %d metrics to Zabbix server %s every %d sec" % (len(self.pmids), self.zabbix_server, self.zabbix_interval))
+            self.writer.write("Sending %d metrics to Zabbix server %s every %d sec" % (len(self.metrics), self.zabbix_server, self.zabbix_interval))
             if self.runtime != -1:
                 self.writer.write(":\n%s samples(s) with %.1f sec interval ~ %d sec runtime.\n" % (self.samples, float(self.interval), self.runtime))
             elif self.samples:
@@ -1290,16 +1306,16 @@ class PMReporter(object):
 
     def write_archive(self, timestamp):
         """ Write an archive record """
-        if timestamp == None:
+        if timestamp is None:
             # Complete and close
             self.pmi.pmiEnd()
             self.pmi = None
             return
 
-        if self.pmi == None:
+        if self.pmi is None:
             # Create a new archive
             self.pmi = pmi.pmiLogImport(self.outfile)
-            self.recorded = OrderedDict()
+            self.recorded = OrderedDict() # pylint: disable=attribute-defined-outside-init
             if self.context.type == PM_CONTEXT_ARCHIVE:
                 self.pmi.pmiSetHostname(self.context.pmGetArchiveLabel().hostname)
                 self.pmi.pmiSetTimezone(self.context.pmGetArchiveLabel().tz)
@@ -1343,7 +1359,7 @@ class PMReporter(object):
                         else:
                             self.pmi.pmiPutValue(metric, name, "%d" % value)
                         data = 1
-                    except Exception as e:
+                    except:
                         pass
             except:
                 pass
@@ -1354,7 +1370,7 @@ class PMReporter(object):
 
     def write_csv(self, timestamp):
         """ Write results in CSV format """
-        if timestamp == None:
+        if timestamp is None:
             # Silent goodbye
             return
 
@@ -1365,7 +1381,7 @@ class PMReporter(object):
                 line += self.delimiter
                 found = 0
                 try:
-                    for inst, name, val in self.metrics[metric][5]():
+                    for inst, name, val in self.metrics[metric][5](): # pylint: disable=unused-variable
                         if inst == PM_IN_NULL or inst == self.insts[i][0][j]:
                             found = 1
                             break
@@ -1375,13 +1391,13 @@ class PMReporter(object):
                     continue
 
                 try:
-                    value = val()
+                    value = val() # pylint: disable=undefined-loop-variable
                 except:
                     value = NO_VAL
-                if type(value) is float:
+                if isinstance(value, float):
                     fmt = "." + str(self.precision) + "f"
                     line += format(value, fmt)
-                elif type(value) is int or type(value) is long:
+                elif isinstance(value, (int, long)):
                     line += str(value)
                 else:
                     if value == NO_VAL:
@@ -1401,7 +1417,7 @@ class PMReporter(object):
 
     def write_stdout_std(self, timestamp):
         """ Write a line to standard formatted stdout """
-        if timestamp == None:
+        if timestamp is None:
             # Silent goodbye
             return
 
@@ -1424,7 +1440,7 @@ class PMReporter(object):
 
                 found = 0
                 try:
-                    for inst, name, val in self.metrics[metric][5]():
+                    for inst, name, val in self.metrics[metric][5](): # pylint: disable=unused-variable
                         if inst == PM_IN_NULL or inst == self.insts[i][0][j]:
                             found = 1
                             break
@@ -1434,21 +1450,21 @@ class PMReporter(object):
                     value = NO_VAL
                 else:
                     try:
-                        value = val()
-                        if type(value) is list:
-                             value = value[0]
+                        value = val() # pylint: disable=undefined-loop-variable
+                        if isinstance(value, list):
+                            value = value[0]
                     except:
                         value = NO_VAL
 
                 # Make sure the value fits
-                if type(value) is int or type(value) is long:
+                if isinstance(value, (int, long)):
                     if len(str(value)) > l:
                         value = TRUNC
                     else:
                         #fmt[k] = "{:" + str(l) + "d}"
                         fmt[k] = "{X:" + str(l) + "d}"
 
-                if type(value) is float and not math.isinf(value):
+                if isinstance(value, float) and not math.isinf(value):
                     c = self.precision
                     s = len(str(int(value)))
                     if s > l:
@@ -1474,7 +1490,7 @@ class PMReporter(object):
         index = 0
         nfmt = ""
         for f in fmt:
-            if type(line[index]) is float and math.isinf(line[index]):
+            if isinstance(line[index], float) and math.isinf(line[index]):
                 line[index] = "inf"
             nfmt += f.replace("{X:", "{" + str(index) + ":")
             index += 1
@@ -1486,7 +1502,7 @@ class PMReporter(object):
 
     def write_stdout_colxrow(self, timestamp):
         """ Write a line to columns and rows swapped stdout """
-        if timestamp == None:
+        if timestamp is None:
             # Silent goodbye
             return
 
@@ -1499,7 +1515,7 @@ class PMReporter(object):
 
         # Avoid crossing the C/Python boundary more than once per metric
         res = OrderedDict()
-        for i, metric in enumerate(self.metrics):
+        for _, metric in enumerate(self.metrics):
             res[metric] = []
             try:
                 for inst, name, val in self.metrics[metric][5]():
@@ -1553,21 +1569,21 @@ class PMReporter(object):
                         break
 
                 if not found:
-                        # Not an instance this metric has,
-                        # add a placeholder and move on
-                        line.append(NO_INST)
-                        line.append(self.delimiter)
-                        k += 1
-                        continue
+                    # Not an instance this metric has,
+                    # add a placeholder and move on
+                    line.append(NO_INST)
+                    line.append(self.delimiter)
+                    k += 1
+                    continue
 
                 # Make sure the value fits
-                if type(value) is int or type(value) is long:
+                if isinstance(value, (int, long)):
                     if len(str(value)) > l:
                         value = TRUNC
                     else:
                         fmt[k] = "{X:" + str(l) + "d}"
 
-                if type(value) is float and not math.isinf(value):
+                if isinstance(value, float) and not math.isinf(value):
                     c = self.precision
                     s = len(str(int(value)))
                     if s > l:
@@ -1592,7 +1608,7 @@ class PMReporter(object):
             index = 0
             nfmt = ""
             for f in fmt:
-                if type(line[index]) is float and math.isinf(line[index]):
+                if isinstance(line[index], float) and math.isinf(line[index]):
                     line[index] = "inf"
                 nfmt += f.replace("{X:", "{" + str(index) + ":")
                 index += 1
@@ -1606,7 +1622,7 @@ class PMReporter(object):
 
     def write_zabbix(self, timestamp):
         """ Write (send) metrics to a Zabbix server """
-        if timestamp == None:
+        if timestamp is None:
             # Send any remaining buffered values
             if self.zabbix_metrics:
                 send_to_zabbix(self.zabbix_metrics, self.zabbix_server, self.zabbix_port)
@@ -1616,11 +1632,11 @@ class PMReporter(object):
         # Collect the results
         td = self.pmfg_ts() - datetime.fromtimestamp(0)
         ts = (td.microseconds + (td.seconds + td.days * 24.0 * 3600.0) * 10.0**6) / 10.0**6
-        if self.zabbix_prevsend == None:
+        if self.zabbix_prevsend is None:
             self.zabbix_prevsend = ts
-        for i, metric in enumerate(self.metrics):
+        for _, metric in enumerate(self.metrics):
             try:
-                for inst, name, val in self.metrics[metric][5]():
+                for inst, name, val in self.metrics[metric][5](): # pylint: disable=unused-variable
                     key = ZBXPRFX + metric
                     if name:
                         key += "[" + name + "]"
@@ -1650,7 +1666,6 @@ class PMReporter(object):
             except socket.error as error:
                 if error.errno != errno.EPIPE:
                     raise
-                pass
             self.writer.close()
             self.writer = None
         if self.pmi:

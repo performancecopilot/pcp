@@ -1,0 +1,46 @@
+#!/bin/sh
+# PCP QA Test No. 1257
+# Exercise python daemon helper interface.
+#
+# Copyright (c) 2017 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.python
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+( $python $here/src/pmapi_daemon.python ) 2> $tmp.out &
+pmsleep 1.5
+cat $tmp.out >> $seq.full
+
+# verify process identifiers changed appropriately
+. $tmp.out
+if [ $A_PID -eq $D_PID ]
+then
+    echo "*** Unexpected PIDs ***"
+    cat $tmp.out
+else
+    echo "PID changed as expected"
+fi
+if [ $A_PPID -eq $D_PPID ]
+then
+    echo " *** Unexpected parent PIDs ***"
+    cat $tmp.out
+else
+    echo "PPID changed as expected"
+fi
+
+# success, all done
+status=0
+exit

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2014 Red Hat.
+ * Copyright (C) 2013-2015,2017 Red Hat.
  *
  * This file is part of the "pcp" module, the python interfaces for the
  * Performance Co-Pilot toolkit.
@@ -335,19 +335,27 @@ pmns_children(const char *name, int traverse, char ***kids, int **sts, pmdaExt *
 }
 
 static int
+callback_error(const char *name)
+{
+    __pmNotifyErr(LOG_ERR, "%s: callback failed", name);
+    /* force the stacktrace out now if there is one */
+    if (PyErr_Occurred())
+	PyErr_Print();
+    return -EAGAIN;
+}
+
+static int
 prefetch(void)
 {
     PyObject *arglist, *result;
 
     arglist = Py_BuildValue("()");
     if (arglist == NULL)
-        return -ENOMEM;
+	return -ENOMEM;
     result = PyEval_CallObject(fetch_func, arglist);
     Py_DECREF(arglist);
-    if (!result) {
-        PyErr_Print();
-        return -EAGAIN;	/* exception thrown */
-    }
+    if (result == NULL)
+	return callback_error("prefetch");
     Py_DECREF(result);
     return 0;
 }
@@ -359,13 +367,11 @@ refresh_cluster(int cluster)
 
     arglist = Py_BuildValue("(i)", cluster);
     if (arglist == NULL)
-        return -ENOMEM;
+	return -ENOMEM;
     result = PyEval_CallObject(refresh_func, arglist);
     Py_DECREF(arglist);
-    if (result == NULL) {
-        PyErr_Print();
-        return -EAGAIN;	/* exception thrown */
-    }
+    if (result == NULL)
+	return callback_error("refresh_cluster");
     Py_DECREF(result);
     return 0;
 }
@@ -386,16 +392,13 @@ refresh_all_clusters(int numclusters, int *clusters)
     }
 
     arglist = Py_BuildValue("(N)", list);
-    if (arglist == NULL){
-        return -ENOMEM;
-    }
+    if (arglist == NULL)
+	return -ENOMEM;
     result = PyEval_CallObject(refresh_all_func, arglist);
     Py_DECREF(list);
     Py_DECREF(arglist);
-    if (result == NULL) {
-        PyErr_Print();
-        return -EAGAIN; /* exception thrown */
-    }
+    if (result == NULL)
+	return callback_error("refresh_all_clusters");
     Py_DECREF(result);
     return 0;
 }
@@ -460,10 +463,8 @@ preinstance(pmInDom indom)
         return -ENOMEM;
     result = PyEval_CallObject(instance_func, arglist);
     Py_DECREF(arglist);
-    if (result == NULL) {
-        PyErr_Print();
-        return -EAGAIN;	/* exception thrown */
-    }
+    if (result == NULL)
+	return callback_error("preinstance");
     Py_DECREF(result);
     return 0;
 }
@@ -497,10 +498,9 @@ fetch_callback(pmdaMetric *metric, unsigned int inst, pmAtomValue *atom)
     }
     result = PyEval_CallObject(fetch_cb_func, arglist);
     Py_DECREF(arglist);
-    if (result == NULL) {
-        PyErr_Print();
-        return -EAGAIN;	/* exception thrown */
-    } else if (PyTuple_Check(result)) {
+    if (result == NULL)
+	return callback_error("fetch_callback");
+    else if (PyTuple_Check(result)) {
         __pmNotifyErr(LOG_ERR, "non-tuple returned from fetch callback");
         Py_DECREF(result);
 	return -EINVAL;
@@ -608,10 +608,8 @@ store_callback(__pmID_int *pmid, unsigned int inst, pmAtomValue av, int type)
     }
     result = PyEval_CallObject(store_cb_func, arglist);
     Py_DECREF(arglist);
-    if (!result) {
-        PyErr_Print();
-        return -EAGAIN;	/* exception thrown */
-    }
+    if (result == NULL)
+	return callback_error("store_callback");
     rc = PyArg_Parse(result, "i:store_callback", &code);
     Py_DECREF(result);
     if (rc == 0) {

@@ -131,6 +131,15 @@ echo "== derived metrics directly on command line"
 combo="sample.combo = sample.seconds + (sample.milliseconds / 1000)"
 pmrep -s 5 -t 2 $log -e "$combo" sample.combo
 
+echo "== derived metrics in pmrep.conf"
+cat > $tmp.derived-test.conf <<EOF
+[derived-test]
+iopct = p.i.io_pct
+iopct.formula = delta(disk.all.read_bytes) + delta(disk.all.write_bytes) == 0 ? mkconst(0, type="double", semantics="instant") : 100 * (delta(proc.io.read_bytes) + delta(proc.io.write_bytes) - delta(proc.io.cancelled_write_bytes)) / (delta(disk.all.read_bytes) + delta(disk.all.write_bytes))
+EOF
+pmrep -C -H -U -a $here/archives/proc -c $tmp.derived-test.conf :derived-test
+echo "No output expected."
+
 echo "== extended existing sample configuration"
 cp $tmp.config $tmp.dconfig
 cat >> $tmp.dconfig <<EOF

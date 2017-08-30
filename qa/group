@@ -1355,6 +1355,9 @@ zsh
 1093 pmcpp local
 1094 logutil local
 1095 derive local
+1096 libpcp threads valgrind local pmmgr local
+1097 pmlogconf local
+1098 python local
 1099 archive pmiostat local pmie
 1100 bash zsh local
 1108 logutil local folio pmlogextract
@@ -1374,9 +1377,11 @@ zsh
 1192 pmda.prometheus local
 1193 pmda.prometheus local
 1194 pmda.prometheus local
+1196 pmcd local
 1199 libpcp pmcd local
 1202 pmdadm local
 1227 derive local
+1257 libpcp python local
 1331 verify local
 1388 pmwebapi local
 4751 libpcp threads valgrind local

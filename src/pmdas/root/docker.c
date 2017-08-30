@@ -159,8 +159,12 @@ docker_fread(char *buffer, int buflen, void *data)
     FILE	*fp = (FILE *)data;
     int		sts;
 
-    if ((sts = fread(buffer, 1, buflen, fp)) > 0)
+    if ((sts = fread(buffer, 1, buflen, fp)) > 0) {
+	if ((pmDebug & DBG_TRACE_ATTR) && (pmDebug & DBG_TRACE_DESPERATE))
+	    __pmNotifyErr(LOG_DEBUG, "docker_fread[%d bytes]: %.*s\n",
+			sts, sts, buffer);
 	return sts;
+    }
     if (feof(fp))
 	return 0;
     return -ferror(fp);
@@ -193,11 +197,12 @@ docker_values_parse(FILE *fp, const char *name, container_t *values)
 	values->pid = local_metrics[0].values.l;
     else
 	values->pid = -1;
-    if (local_metrics[1].values.cp &&
-	(values->name = strdup(local_metrics[1].values.cp)) != NULL)
-	values->uptodate++;
+    if (local_metrics[1].values.cp)
+	values->name = strdup(local_metrics[1].values.cp);
     else
-	values->name = NULL;
+	values->name = strdup("?");
+    if (values->name)
+	values->uptodate++;
     if (local_metrics[2].values.ul)
 	values->flags = CONTAINER_FLAG_RUNNING;
     else if (local_metrics[3].values.ul)

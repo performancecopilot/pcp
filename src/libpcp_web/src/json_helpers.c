@@ -395,7 +395,7 @@ pmjsonGet(json_metric_desc *json_metrics, int nmetrics, pmInDom indom,
     int               sts = 0;
     jsmn_parser       parser;
     jsmntok_t         *json_tokens;
-    int               token_count = 16;
+    int               token_count = 256;
     int               json_length = 0;
     char              *json = NULL;
     char              buffer[BUFSIZ];

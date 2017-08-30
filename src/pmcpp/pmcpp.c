@@ -388,18 +388,18 @@ do_macro(void)
 	else if (rflag) {
 	    if (ip == &tp[1]) {
 		/* second character could be { or start of name */
-		if (*ip == '{' || isalnum(*ip))
+		if (*ip == '{' || isalnum((int)*ip))
 		    tok_end = 0;
 		else
 		    tok_end = 1;
 	    }
 	    else if (ip == &tp[2] && tp[1] == '{')
 		/* third character could be start of name if following { */
-		if (isalnum(*ip))
+		if (isalnum((int)*ip))
 		    tok_end = 0;
 		else
 		    tok_end = 1;
-	    else if (tp[1] != '{' && (isalnum(*ip) || *ip == '_'))
+	    else if (tp[1] != '{' && (isalnum((int)*ip) || *ip == '_'))
 		tok_end = 0;
 	    else if (tp[1] == '{') {
 		if (*ip != '}')
