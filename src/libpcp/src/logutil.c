@@ -375,6 +375,7 @@ fopen_securetmp(const char *fname)
 	    char	errmsg[PM_MAXERRMSGLEN];
 	    fprintf(stderr, "fopen_securetmp: open(%s): %s\n", msg, osstrerror_r(errmsg, sizeof(errmsg)));
 	}
+    }
 #endif
 #endif
     /*
