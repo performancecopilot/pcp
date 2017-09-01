@@ -321,7 +321,11 @@ __pmProcessCreate(char **argv, int *infd, int *outfd)
  
     for (command = argv[0], i = 0; command && *command; command = argv[++i]) {
 	int length = strlen(command);
-	cmdline = realloc(cmdline, sz + length + 1); /* 1space or 1null */
+	/* add 1space or 1null */
+	if ((cmdline = realloc(cmdline, sz + length + 1)) == NULL) {
+	    __pmNoMem("__pmProcessCreate", sz + length + 1, PM_FATAL_ERR);
+	    /* NOTREACHED */
+	}
 	strcpy(&cmdline[sz], command);
 	cmdline[sz + length] = ' ';
 	sz += length + 1;
