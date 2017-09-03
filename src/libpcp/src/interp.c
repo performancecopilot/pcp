@@ -17,6 +17,10 @@
  * nr[] and nr_cache[] are diagnostic counters that are maintained with
  * non-atomic updates ... we've decided that it is acceptable for their
  * values to be subject to possible (but unlikely) missed updates
+ *
+ * the one-trip initialization of ignore_mark_records and ignore_mark_gap
+ * is not guarded as the same value would result from concurrent repeated
+ * execution
  */
 
 /*
@@ -406,10 +410,205 @@ update_bounds(__pmContext *ctxp, double t_req, pmResult *logrp, int do_mark, int
     double	t_this;
     __pmTimeval	tmp;
     int		changed;
+    static int	ignore_mark_records = -1;
+    static double	ignore_mark_gap = 0;
 
     tmp.tv_sec = (__int32_t)logrp->timestamp.tv_sec;
     tmp.tv_usec = (__int32_t)logrp->timestamp.tv_usec;
     t_this = __pmTimevalSub(&tmp, __pmLogStartTime(ctxp->c_archctl));
+
+    if (logrp->numpmid == 0) {
+	if (ignore_mark_records == -1) {
+	    /* one-trip initialization */
+	    char	*str;
+	    PM_LOCK(__pmLock_extcall);
+	    str = getenv("PCP_IGNORE_MARK_RECORDS");	/* THREADSAFE */
+	    if (str != NULL) {
+		if (str[0] != '\0') {
+		    /*
+		     * set and value is time in -t format ... if <= this time
+		     * between pmResults, ignore the <mark> record
+		     */
+		    char		*endnum;
+		    struct timeval	gap;
+		    if (pmParseInterval(str, &gap, &endnum) < 0) {
+			/*
+			 * probably should use pmprintf(), but that takes us into
+			 * deadlock hell!
+			 */
+			fprintf(stderr, "%s: Warning: bad $PCP_IGNORE_MARK_RECORDS: not in pmParseInterval(3) format:\n%s\n",
+				pmProgname, endnum);
+			free(endnum);
+			ignore_mark_records = 0;
+		    }
+		    else {
+			ignore_mark_gap = __pmtimevalToReal(&gap);
+			ignore_mark_records = 1;
+		    }
+		}
+		else {
+		    /*
+		     * set and no value, 0 is the sentinal to ignore all <mark> records
+		     */
+		    ignore_mark_gap = 0;
+		    ignore_mark_records = 1;
+		}
+	    }
+	    else
+		/* do not ignore mark_records */
+		ignore_mark_records = 0;
+	    PM_UNLOCK(__pmLock_extcall);
+	}
+	if (ignore_mark_records && ignore_mark_gap == 0) {
+#ifdef PCP_DEBUG
+	    if (pmDebug & DBG_TRACE_INTERP)
+		fprintf(stderr, "update_bounds: ignore mark: unconditional\n");
+#endif
+	    return 0;
+	}
+	else if (ignore_mark_records) {
+	    /*
+	     * <prior>
+	     * <mark>	<-- we've just read this one
+	     * <next>
+	     * Need to peek backwards and forwards to get the timestamp
+	     * (don't care about anything else) from the <prior> and <next>
+	     * records, but be careful to leave the file in the same state
+	     * we found it wrt seek offset
+	     */
+	    double	t_next = -1;
+	    double	t_prior = -1;
+	    pmResult	*peek;
+	    int		sts;
+	    char	errmsg[PM_MAXERRMSGLEN];
+	    int		save_arch = 0;
+	    int		save_vol = 0;
+	    long	save_offset = 0;
+
+	    /* Save the initial state. */
+	    save_arch = ctxp->c_archctl->ac_cur_log;
+	    save_vol = ctxp->c_archctl->ac_vol;
+	    save_offset = ctxp->c_archctl->ac_offset;
+
+	    /* <next> */
+	    sts = __pmLogRead_ctx(ctxp, PM_MODE_FORW, NULL, &peek, PMLOGREAD_NEXT);
+	    if (sts < 0) {
+#ifdef PCP_DEBUG
+		if (pmDebug & DBG_TRACE_INTERP)
+		    fprintf(stderr, "update_bounds: mark read <next> failed: %s\n",
+			pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+#endif
+	    	/*
+		 * forward read failed, assume <mark> is at end of
+		 * archive and seek pointer still correct
+		 */
+		goto check;
+	    }
+	    tmp.tv_sec = (__int32_t)peek->timestamp.tv_sec;
+	    tmp.tv_usec = (__int32_t)peek->timestamp.tv_usec;
+	    t_next = __pmTimevalSub(&tmp, __pmLogStartTime(ctxp->c_archctl));
+	    pmFreeResult(peek);
+
+	    /* backup -> should be <next> record */
+	    sts = __pmLogRead_ctx(ctxp, PM_MODE_BACK, NULL, &peek, PMLOGREAD_NEXT);
+	    if (sts < 0) {
+#ifdef PCP_DEBUG
+		if (pmDebug & DBG_TRACE_INTERP)
+		    fprintf(stderr, "update_bounds: mark unread <next> failed: %s\n",
+			pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+#endif
+		/* should not happen ... */
+		goto restore;
+	    }
+	    pmFreeResult(peek);
+
+	    /* backup -> should be <mark> record */
+	    sts = __pmLogRead_ctx(ctxp, PM_MODE_BACK, NULL, &peek, PMLOGREAD_NEXT);
+	    if (sts < 0) {
+#ifdef PCP_DEBUG
+		if (pmDebug & DBG_TRACE_INTERP)
+		    fprintf(stderr, "update_bounds: mark unread <mark> failed: %s\n",
+			pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+#endif
+		/* should not happen ... */
+		goto restore;
+	    }
+#ifdef PCP_DEBUG
+	    if (peek->numpmid != 0) {
+		if (pmDebug & DBG_TRACE_INTERP)
+		    fprintf(stderr, "update_bounds: mark unread <mark> expecting <mark> got numpmid=%d\n", peek->numpmid);
+	    }
+#endif
+	    pmFreeResult(peek);
+
+	    /* <prior> */
+	    sts = __pmLogRead_ctx(ctxp, PM_MODE_BACK, NULL, &peek, PMLOGREAD_NEXT);
+	    if (sts < 0) {
+#ifdef PCP_DEBUG
+		if (pmDebug & DBG_TRACE_INTERP)
+		    fprintf(stderr, "update_bounds: mark read <prior> failed: %s\n",
+			pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+#endif
+	    	/*
+		 * backwards read failed, assume <mark> is at start of
+		 * archive and seek pointer still correct
+		 */
+		goto check;
+	    }
+	    tmp.tv_sec = (__int32_t)peek->timestamp.tv_sec;
+	    tmp.tv_usec = (__int32_t)peek->timestamp.tv_usec;
+	    t_prior = __pmTimevalSub(&tmp, __pmLogStartTime(ctxp->c_archctl));
+	    pmFreeResult(peek);
+
+	    /* backup -> should be <prior> record */
+	    sts = __pmLogRead_ctx(ctxp, PM_MODE_FORW, NULL, &peek, PMLOGREAD_NEXT);
+	    if (sts < 0) {
+#ifdef PCP_DEBUG
+		if (pmDebug & DBG_TRACE_INTERP)
+		    fprintf(stderr, "update_bounds: mark unread <prior> failed: %s\n",
+			pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+#endif
+		/* should not happen ... */
+		goto restore;
+	    }
+	    pmFreeResult(peek);
+
+	    /* backup -> should be <mark> record */
+	    sts = __pmLogRead_ctx(ctxp, PM_MODE_FORW, NULL, &peek, PMLOGREAD_NEXT);
+	    if (sts < 0) {
+#ifdef PCP_DEBUG
+		if (pmDebug & DBG_TRACE_INTERP)
+		    fprintf(stderr, "update_bounds: mark reread <mark> failed: %s\n",
+			pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+#endif
+		/* should not happen ... */
+		goto restore;
+	    }
+#ifdef PCP_DEBUG
+	    if (peek->numpmid != 0) {
+		if (pmDebug & DBG_TRACE_INTERP)
+		    fprintf(stderr, "update_bounds: mark reread <mark> expecting <mark> got numpmid=%d\n", peek->numpmid);
+	    }
+#endif
+	    pmFreeResult(peek);
+	    goto check;
+
+restore:
+	    /* Restore the initial state. */
+	    ctxp->c_archctl->ac_cur_log = save_arch;
+	    ctxp->c_archctl->ac_vol = save_vol;
+	    ctxp->c_archctl->ac_offset = save_offset;
+
+check:
+	    if (t_prior != -1 && t_next != -1 && t_next - t_prior <= ignore_mark_gap) {
+#ifdef PCP_DEBUG
+		if (pmDebug & DBG_TRACE_INTERP)
+		    fprintf(stderr, "update_bounds: ignore mark: gap %.6f - %.6f <= %.6f\n", t_next, t_prior, ignore_mark_gap);
+#endif
+		return 0;
+	    }
+	}
+    }
 
     if (logrp->numpmid == 0) {
 	/* mark record, discontinuity in log */
