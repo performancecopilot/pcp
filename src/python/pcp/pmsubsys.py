@@ -29,6 +29,10 @@ http://www.pcp.io
 # pylint: disable=R0201
 # pylint: disable=R0904
 
+import warnings
+warnings.warn("The pcp pmsubsys module is deprecated, and removed in PCP 4.x",
+              DeprecationWarning, stacklevel=2)
+
 import copy
 import cpmapi as c_api
 from pcp.pmapi import pmErr, timeval
