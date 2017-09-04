@@ -376,6 +376,7 @@ zsh
 032 pmlc local ostest pmlogger
 033 libirixpmda local ostest
 034 archive local ostest sanity pmdumplog
+035 pmrep local
 037 archive local ostest
 038 pmlogger local pmdumplog
 039 pmlogger archive local ostest pmdumplog
@@ -1360,7 +1361,6 @@ zsh
 1098 python local
 1099 archive pmiostat local pmie
 1100 bash zsh local
-1101 pmrep local
 1108 logutil local folio pmlogextract
 1110 pmda.haproxy local
 1111 pcp2influxdb python local

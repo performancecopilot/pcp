@@ -1,5 +1,5 @@
 #!/bin/sh
-# PCP QA Test No. 1101
+# PCP QA Test No. 035
 # Marko's pmrep segv case
 #
 # Copyright (c) 2017 Ken McDonell.  All Rights Reserved.
