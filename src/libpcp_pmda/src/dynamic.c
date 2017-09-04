@@ -218,7 +218,7 @@ pmdaDynamicMetricTable(pmdaExt *pmda)
 	/* Fits into the default metric table - reset it to original values */
 fallback:
 	if (pmda->e_metrics != fixed)
-	    free(pmda->e_metrics);
+	    /*free(pmda->e_metrics)*/;
 	pmdaRehash(pmda, fixed, total);
     } else {
 	resize += total;
@@ -229,7 +229,7 @@ fallback:
 	for (i = 0; i < dynamic_count; i++)
 	    offset = dynamic_metric_table(i, offset, pmda);
 	if (pmda->e_metrics != fixed)
-	    free(pmda->e_metrics);
+	    /*free(pmda->e_metrics)*/;
 	pmdaRehash(pmda, mtab, resize);
     }
 }
