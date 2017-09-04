@@ -1360,6 +1360,7 @@ zsh
 1098 python local
 1099 archive pmiostat local pmie
 1100 bash zsh local
+1101 pmrep local
 1108 logutil local folio pmlogextract
 1110 pmda.haproxy local
 1111 pcp2influxdb python local
