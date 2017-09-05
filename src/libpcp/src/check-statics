@@ -302,6 +302,8 @@ interp.o
     dowrap			# guarded by __pmLock_extcall mutex
     nr				# diag counters, no atomic updates
     nr_cache			# diag counters, no atomic updates
+    ignore_mark_records		# no unsafe side-effects, see notes in util.c
+    ignore_mark_gap		# no unsafe side-effects, see notes in util.c
 io.o
 io_stdio.o
      __pm_stdio			# file operations using stdio

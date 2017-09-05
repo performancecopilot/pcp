@@ -1,0 +1,27 @@
+# qa/1080 and qa/490 and qa/386 and qa/459 on vm12 (Fedora 26)
+# at 0x483123E: malloc (vg_replace_malloc.c:299)
+# by 0x4A92343: tsearch (in /usr/lib/libc-2.25.so)
+# by 0x487F84E: __pmFindPDUBuf (pdubuf.c:130)
+# ...
+{
+   tsearch
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:tsearch
+   fun:__pmFindPDUBuf
+   ...
+}
+
+# qa/1080 and qa/490 and qa/386 and qa/459 on vm12 (Fedora 26)
+# at 0x483123E: malloc (vg_replace_malloc.c:299)
+# by 0x487F7F4: __pmFindPDUBuf (pdubuf.c:119)
+# ...
+{
+   findpdubuf
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:__pmFindPDUBuf
+   ...
+}

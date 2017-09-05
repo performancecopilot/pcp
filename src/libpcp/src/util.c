@@ -612,6 +612,7 @@ __pmStringListAdd(char *item, int numElements, char ***list)
     newList = realloc(*list, newSize);
     if (newList == NULL) {
 	__pmNoMem("__pmStringListAdd", newSize, PM_FATAL_ERR);
+	/* NOTREACHED */
     }
 
     /*
@@ -1924,14 +1925,17 @@ scandir(const char *dirname, struct dirent ***namelist,
     /* dirp is an on-stack variable, so readdir() is ... */
     /* THREADSAFE */
     while ((dp = readdir(dirp)) != NULL) {
+	struct dirent	**names_new;
 	if (select && (*select)(dp) == 0)
 	    continue;
 
 	n++;
-	if ((names = (struct dirent **)realloc(names, n * sizeof(dp))) == NULL) {
+	if ((names_new = (struct dirent **)realloc(names, n * sizeof(dp))) == NULL) {
+	    free(names);
 	    closedir(dirp);
 	    return -1;
 	}
+	names = names_new;
 
 	if ((names[n-1] = tp = (struct dirent *)malloc(
 		sizeof(*dp)-sizeof(dp->d_name)+strlen(dp->d_name)+1)) == NULL) {

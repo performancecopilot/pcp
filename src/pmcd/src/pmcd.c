@@ -1036,6 +1036,7 @@ AddBadHost(struct __pmSockAddr *hostId)
 	need = szBadHosts * (int)sizeof(badHost[0]);
 	if ((badHost = (__pmSockAddr **)realloc(badHost, need)) == NULL) {
 	    __pmNoMem("pmcd.AddBadHost", need, PM_FATAL_ERR);
+	    /*NOTREACHED*/
 	}
     }
     badHost[nBadHosts++] = __pmSockAddrDup(hostId);
