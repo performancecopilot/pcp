@@ -171,7 +171,7 @@ ParseOptions(int argc, char *argv[], int *nports)
 
 	    case 'H':
 		/* use the given name as the pmcd.hostname for this host */
-		_pmcd_hostname = opts.optarg;
+		pmcd_hostname = opts.optarg;
 		break;
 
 	    case 'l':
@@ -245,7 +245,7 @@ ParseOptions(int argc, char *argv[], int *nports)
 			pmProgname);
 		    opts.errors++;
 		} else {
-		    _pmcd_timeout = val;
+		    pmcd_timeout = val;
 		}
 		break;
 
@@ -256,7 +256,7 @@ ParseOptions(int argc, char *argv[], int *nports)
 			pmProgname);
 		    opts.errors++;
 		} else {
-		    _pmcd_trace_mask = val;
+		    pmcd_trace_mask = val;
 		}
 		break;
 
@@ -317,7 +317,7 @@ HandleClientInput(__pmFdSet *fdsPtr)
 	cp = &client[i];
 	this_client_id = i;
 
-	pinpdu = sts = __pmGetPDU(cp->fd, LIMIT_SIZE, _pmcd_timeout, &pb);
+	pinpdu = sts = __pmGetPDU(cp->fd, LIMIT_SIZE, pmcd_timeout, &pb);
 	if (sts > 0) {
 	    pmcd_trace(TR_RECV_PDU, cp->fd, sts, (int)((__psint_t)pb & 0xffffffff));
 	} else {
@@ -603,7 +603,7 @@ HandleReadyAgents(__pmFdSet *readyFds)
 
 		/* Expect an error PDU containing PM_ERR_PMDAREADY */
 		reason = AT_COMM;	/* most errors are protocol failures */
-		pinpdu = sts = __pmGetPDU(ap->outFd, ANY_SIZE, _pmcd_timeout, &pb);
+		pinpdu = sts = __pmGetPDU(ap->outFd, ANY_SIZE, pmcd_timeout, &pb);
 		if (sts > 0)
 		    pmcd_trace(TR_RECV_PDU, ap->outFd, sts, (int)((__psint_t)pb & 0xffffffff));
 		if (sts == PDU_ERROR) {
@@ -899,6 +899,8 @@ main(int argc, char *argv[])
     static struct sigaction act;
 #endif
 
+    pmcd_pid = getpid();
+
     umask(022);
     __pmProcessDataSize(NULL);
     __pmGetUsername(&username);
@@ -930,8 +932,10 @@ main(int argc, char *argv[])
      */
     __pmServerSetServiceSpec(PM_SERVER_SERVICE_SPEC);
 
-    if (run_daemon)
+    if (run_daemon) {
 	__pmServerStart(argc, argv, 1);
+	pmcd_pid = getpid();
+    }
 
 #ifdef HAVE_SA_SIGINFO
     act.sa_sigaction = SigIntProc;
@@ -996,7 +1000,7 @@ main(int argc, char *argv[])
 
     PrintAgentInfo(stderr);
     __pmAccDumpLists(stderr);
-    fprintf(stderr, "\npmcd: PID = %" FMT_PID, getpid());
+    fprintf(stderr, "\npmcd: PID = %" FMT_PID, pmcd_pid);
     fprintf(stderr, ", PDU version = %u\n", PDU_VERSION);
     __pmServerDumpRequestPorts(stderr);
     fflush(stderr);
