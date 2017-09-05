@@ -2670,6 +2670,7 @@ pmNameAll_ctx(__pmContext *ctxp, pmID pmid, char ***namelist)
 {
     int		pmns_location;
     char	**tmp = NULL;
+    char	**tmp_new;
     int		len = 0;
     int		n = 0;
     char	*sp;
@@ -2720,10 +2721,12 @@ pmNameAll_ctx(__pmContext *ctxp, pmID pmid, char ***namelist)
              np = np->hash) {
 	    if (np->pmid == pmid) {
 		n++;
-		if ((tmp = (char **)realloc(tmp, n * sizeof(tmp[0]))) == NULL) {
+		if ((tmp_new = (char **)realloc(tmp, n * sizeof(tmp[0]))) == NULL) {
+		    free(tmp);
 		    sts = -oserror();
 		    break;
 		}
+		tmp = tmp_new;
 		if ((sts = backname(np, &tmp[n-1])) < 0) {
 		    /* error, ... free any partial allocations */
 		    for (i = n-2; i >= 0; i--)
@@ -2740,10 +2743,12 @@ pmNameAll_ctx(__pmContext *ctxp, pmID pmid, char ***namelist)
 	if (n > 0) {
 	    /* all good ... rearrange to a contiguous allocation and return */
 	    len += n * sizeof(tmp[0]);
-	    if ((tmp = (char **)realloc(tmp, len)) == NULL) {
+	    if ((tmp_new = (char **)realloc(tmp, len)) == NULL) {
+		free(tmp);
 		sts = -oserror();
 		goto pmapi_return;
 	    }
+	    tmp = tmp_new;
 
 	    sp = (char *)&tmp[n];
 	    for (i = 0; i < n; i++) {
@@ -2820,10 +2825,12 @@ pmNameAll_ctx(__pmContext *ctxp, pmID pmid, char ***namelist)
 	goto pmapi_return;
     }
     len = sizeof(tmp[0]) + strlen(tmp[0])+1;
-    if ((tmp = (char **)realloc(tmp, len)) == NULL) {
+    if ((tmp_new = (char **)realloc(tmp, len)) == NULL) {
+	free(tmp);
 	sts = -oserror();
 	goto pmapi_return;
     }
+    tmp = tmp_new;
     sp = (char *)&tmp[1];
     strcpy(sp, tmp[0]);
     free(tmp[0]);
@@ -2873,8 +2880,10 @@ TraversePMNS_local(__pmContext *ctxp, char *name, int *numnames, char ***namelis
 
 	for (j = 0; j < nchildren; j++) {
 	    size_t size = strlen(name) + 1 + strlen(enfants[j]) + 1;
-	    if ((newname = (char *)malloc(size)) == NULL)
+	    if ((newname = (char *)malloc(size)) == NULL) {
 		__pmNoMem("pmTraversePMNS_local: newname", size, PM_FATAL_ERR);
+		/*NOTREACHED*/
+	    }
 	    if (*name == '\0')
 		strcpy(newname, enfants[j]);
 	    else {
@@ -2894,14 +2903,20 @@ TraversePMNS_local(__pmContext *ctxp, char *name, int *numnames, char ***namelis
 	if (*sz_namelist == 0) {
 	    *sz_namelist = 128;
 	    *namelist = (char **)malloc(*sz_namelist * sizeof((*namelist)[0]));
-	    if (*namelist == NULL)
+	    if (*namelist == NULL) {
 		__pmNoMem("pmTraversePMNS_local: initial namelist", *sz_namelist * sizeof((*namelist)[0]), PM_FATAL_ERR);
+		/*NOTREACHED*/
+	    }
 	}
 	else if (*numnames == *sz_namelist - 1) {
+	    char	**namelist_new;
 	    *sz_namelist *= 2;
-	    *namelist = (char **)realloc(*namelist, *sz_namelist * sizeof((*namelist)[0]));
-	    if (*namelist == NULL)
+	    namelist_new = (char **)realloc(*namelist, *sz_namelist * sizeof((*namelist)[0]));
+	    if (namelist_new == NULL) {
 		__pmNoMem("pmTraversePMNS_local: double namelist", *sz_namelist * sizeof((*namelist)[0]), PM_FATAL_ERR);
+		/*NOTREACHED*/
+	    }
+	    *namelist = namelist_new;
 	}
 	(*namelist)[*numnames] = strdup(name);
 	(*numnames)++;

@@ -1,0 +1,76 @@
+#!/bin/sh
+# PCP QA Test No. 1114
+# Exercise $PCP_IGNORE_MARK_RECORDS with multi-archives.
+#
+# Copyright (c) 2017 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s@$tmp@TMP@" \
+    #end
+}
+
+# from qa/970 ...
+#
+DIR=archives/multi
+# First, run pmlogextract against the archives.
+IN="$DIR/20150508.11.44 $DIR/20150508.11.46 $DIR/20150508.11.50 $DIR/20150508.11.57"
+OUT=$tmp.concat
+rm -f $OUT.*
+pmlogextract -z $IN $OUT 2>&1 >> $seq.full
+[ $? -eq 0 ] || echo "Error running pmlogextract $IN $OUT -- see $seq.full"
+IN=`echo $IN | sed -e 's/ /,/g'`
+
+# real QA test starts here
+
+for metric in proc.nprocs 'kernel.all.load[1]' disk.all.total
+do
+    for arch in $tmp.concat $IN archives/multi
+    do
+	echo
+	echo "--- No PCP_IGNORE_MARK_RECORDS archive=$arch metric=$metric ---" \
+	| _filter
+	unset PCP_IGNORE_MARK_RECORDS
+	pmval -zr -t 30sec -a $tmp.concat $metric \
+	| _filter
+	echo
+	echo "--- PCP_IGNORE_MARK_RECORDS set in env archive=$arch metric=$metric ---" \
+	| _filter
+	PCP_IGNORE_MARK_RECORDS= pmval -zr -t30sec -a $tmp.concat $metric \
+	| _filter
+	echo
+	echo "--- PCP_IGNORE_MARK_RECORDS=1sec in env archive=$arch metric=$metric ---" \
+	| _filter
+	PCP_IGNORE_MARK_RECORDS=1sec pmval -zr -t30sec -a $tmp.concat $metric \
+	| _filter
+	echo
+	echo "--- PCP_IGNORE_MARK_RECORDS=2min in env archive=$arch metric=$metric ---" \
+	| _filter
+	PCP_IGNORE_MARK_RECORDS=2min pmval -zr -t30sec -a $tmp.concat $metric \
+	| _filter
+    done
+done
+
+# success, all done
+status=0
+exit

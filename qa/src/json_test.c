@@ -284,5 +284,6 @@ Options:\n\
 	    break;
 	}
     }
+    fclose(fp);
     return 0;
 }
