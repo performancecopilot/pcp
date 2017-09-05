@@ -268,19 +268,20 @@ __pmHomedirFromID(uid_t uid, char *buf, size_t size)
 static int
 __pmAddGroupID(gid_t gid, gid_t **gidlist, unsigned int *count)
 {
-    gid_t		*gids = *gidlist;
+    gid_t		*gidlist_new;
     size_t		need;
     unsigned int	i, total = *count;
 
     for (i = 0; i < total; i++)
-	if (gids[i] == gid)
+	if ((*gidlist)[i] == gid)
 	    return 0;	/* already in the list, we're done */
 
     need = (total + 1) * sizeof(gid_t);
-    if ((gids = (gid_t *)realloc(gids, need)) == NULL)
+    if ((gidlist_new = (gid_t *)realloc(*gidlist, need)) == NULL) {
 	return -ENOMEM;
-    gids[total++] = gid;
-    *gidlist = gids;
+    }
+    gidlist_new[total++] = gid;
+    *gidlist = gidlist_new;
     *count = total;
     return 0;
 }
@@ -399,19 +400,20 @@ __pmUsersGroupIDs(const char *username, gid_t **groupids, unsigned int *ngroups)
 static int
 __pmAddUserID(uid_t uid, uid_t **uidlist, unsigned int *count)
 {
-    uid_t		*uids = *uidlist;
+    uid_t		*uidlist_new;
     size_t		need;
     unsigned int	i, total = *count;
 
     for (i = 0; i < total; i++)
-	if (uids[i] == uid)
+	if ((*uidlist)[i] == uid)
 	    return 0;	/* already in the list, we're done */
 
     need = (total + 1) * sizeof(uid_t);
-    if ((uids = (uid_t *)realloc(uids, need)) == NULL)
+    if ((uidlist_new = (uid_t *)realloc(*uidlist, need)) == NULL) {
 	return -ENOMEM;
-    uids[total++] = uid;
-    *uidlist = uids;
+    }
+    uidlist_new[total++] = uid;
+    *uidlist = uidlist_new;
     *count = total;
     return 0;
 }

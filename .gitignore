@@ -47,3 +47,5 @@ GTAGS
 *#
 .#*
 provisioning/osxsierra.legally.ok
+*.gdb_history
+*vgcore.*

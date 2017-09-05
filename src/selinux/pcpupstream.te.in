@@ -10,6 +10,7 @@ require {
 	type initrc_var_run_t;
 	type kmsg_device_t;
 	type pcp_pmlogger_t;
+	type pcp_pmlogger_exec_t;
 	type pcp_var_lib_t;
 	type pcp_log_t;
 	type pcp_pmie_t;
@@ -178,6 +179,9 @@ allow pcp_pmlogger_t self:capability sys_ptrace;
 ## type=AVC msg=audit(04/19/2017 16:57:40.120:11020) : avc:  denied  { signal } for  pid=28414 comm=pmsignal scontext=system_u:system_r:pcp_pmlogger_t:s0 tcontext=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 tclass=process
 
 allow pcp_pmlogger_t unconfined_t:process signal;
+
+#type=AVC msg=audit(1503321970.417:261): avc:  denied  { execute_no_trans } for  pid=6760 comm="pmlogger_check" path="/usr/bin/pmlogger" dev="dm-1" ino=1051023 scontext=system_u:system_r:pcp_pmlogger_t:s0 tcontext=system_u:object_r:pcp_pmlogger_exec_t:s0 tclass=file permissive=0
+allow pcp_pmlogger_t pcp_pmlogger_exec_t:file execute_no_trans;
 
 #============= pcp_pmie_t ==============
 allow pcp_pmie_t hostname_exec_t:file { execute execute_no_trans getattr open read };

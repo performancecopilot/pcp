@@ -91,8 +91,11 @@ pmsignal -s KILL -a src/drain-server
 _change_config pmcd on
 _change_config pmlogger on
 _writable_primary_logger
-_service pcp restart >/dev/null 2>&1
+_service pmcd stop >/dev/null 2>&1
+_service pmlogger stop >/dev/null 2>&1
+_service pmcd start >/dev/null 2>&1
 _wait_for_pmcd
+_service pmlogger start >/dev/null 2>&1
 _wait_for_pmlogger
 
 $sudo sed -e "1s/.*/$port/" $PCP_TMP_DIR/pmlogger/primary >$tmp.primary

@@ -1,0 +1,615 @@
+QA output created by 1354
+
+--- No PCP_IGNORE_MARK_RECORDS metric=proc.nprocs ---
+Note: timezone set to local timezone of host "bozo" from archive
+
+metric:    proc.nprocs
+archive:   archives/gap2
+host:      bozo
+start:     Fri Sep  1 07:14:32 2017
+end:       Fri Sep  1 07:15:06 2017
+semantics: instantaneous value
+units:     none
+samples:   35
+interval:  1.00 sec
+07:14:32.296  No values available
+07:14:33.296        451
+07:14:34.296        451
+07:14:35.296        449
+07:14:36.296        449
+07:14:37.296        449
+07:14:38.296        449
+07:14:39.296        451
+07:14:40.296        451
+07:14:41.296  No values available
+07:14:42.296  No values available
+07:14:43.296  No values available
+07:14:44.296  No values available
+07:14:45.296  No values available
+07:14:46.296        449
+07:14:47.296        451
+07:14:48.296        453
+07:14:49.296        451
+07:14:50.296        451
+07:14:51.296        451
+07:14:52.296        451
+07:14:53.296        451
+07:14:54.296  No values available
+07:14:55.296  No values available
+07:14:56.296  No values available
+07:14:57.296  No values available
+07:14:58.296  No values available
+07:14:59.296        449
+07:15:00.296        449
+07:15:01.296        449
+07:15:02.296        449
+07:15:03.296        449
+07:15:04.296        449
+07:15:05.296        449
+07:15:06.296        449
+
+--- PCP_IGNORE_MARK_RECORDS set in env metric=proc.nprocs ---
+Note: timezone set to local timezone of host "bozo" from archive
+
+metric:    proc.nprocs
+archive:   archives/gap2
+host:      bozo
+start:     Fri Sep  1 07:14:32 2017
+end:       Fri Sep  1 07:15:06 2017
+semantics: instantaneous value
+units:     none
+samples:   35
+interval:  1.00 sec
+07:14:32.296  No values available
+07:14:33.296        451
+07:14:34.296        451
+07:14:35.296        449
+07:14:36.296        449
+07:14:37.296        449
+07:14:38.296        449
+07:14:39.296        451
+07:14:40.296        451
+07:14:41.296        451
+07:14:42.296        451
+07:14:43.296        451
+07:14:44.296        451
+07:14:45.296        451
+07:14:46.296        449
+07:14:47.296        451
+07:14:48.296        453
+07:14:49.296        451
+07:14:50.296        451
+07:14:51.296        451
+07:14:52.296        451
+07:14:53.296        451
+07:14:54.296        451
+07:14:55.296        451
+07:14:56.296        451
+07:14:57.296        451
+07:14:58.296        451
+07:14:59.296        449
+07:15:00.296        449
+07:15:01.296        449
+07:15:02.296        449
+07:15:03.296        449
+07:15:04.296        449
+07:15:05.296        449
+07:15:06.296        449
+
+--- PCP_IGNORE_MARK_RECORDS=1 in env metric=proc.nprocs ---
+Note: timezone set to local timezone of host "bozo" from archive
+
+metric:    proc.nprocs
+archive:   archives/gap2
+host:      bozo
+start:     Fri Sep  1 07:14:32 2017
+end:       Fri Sep  1 07:15:06 2017
+semantics: instantaneous value
+units:     none
+samples:   35
+interval:  1.00 sec
+07:14:32.296  No values available
+07:14:33.296        451
+07:14:34.296        451
+07:14:35.296        449
+07:14:36.296        449
+07:14:37.296        449
+07:14:38.296        449
+07:14:39.296        451
+07:14:40.296        451
+07:14:41.296  No values available
+07:14:42.296  No values available
+07:14:43.296  No values available
+07:14:44.296  No values available
+07:14:45.296  No values available
+07:14:46.296        449
+07:14:47.296        451
+07:14:48.296        453
+07:14:49.296        451
+07:14:50.296        451
+07:14:51.296        451
+07:14:52.296        451
+07:14:53.296        451
+07:14:54.296  No values available
+07:14:55.296  No values available
+07:14:56.296  No values available
+07:14:57.296  No values available
+07:14:58.296  No values available
+07:14:59.296        449
+07:15:00.296        449
+07:15:01.296        449
+07:15:02.296        449
+07:15:03.296        449
+07:15:04.296        449
+07:15:05.296        449
+07:15:06.296        449
+
+--- PCP_IGNORE_MARK_RECORDS=6 in env metric=proc.nprocs ---
+Note: timezone set to local timezone of host "bozo" from archive
+
+metric:    proc.nprocs
+archive:   archives/gap2
+host:      bozo
+start:     Fri Sep  1 07:14:32 2017
+end:       Fri Sep  1 07:15:06 2017
+semantics: instantaneous value
+units:     none
+samples:   35
+interval:  1.00 sec
+07:14:32.296  No values available
+07:14:33.296        451
+07:14:34.296        451
+07:14:35.296        449
+07:14:36.296        449
+07:14:37.296        449
+07:14:38.296        449
+07:14:39.296        451
+07:14:40.296        451
+07:14:41.296        451
+07:14:42.296        451
+07:14:43.296        451
+07:14:44.296        451
+07:14:45.296        451
+07:14:46.296        449
+07:14:47.296        451
+07:14:48.296        453
+07:14:49.296        451
+07:14:50.296        451
+07:14:51.296        451
+07:14:52.296        451
+07:14:53.296        451
+07:14:54.296        451
+07:14:55.296        451
+07:14:56.296        451
+07:14:57.296        451
+07:14:58.296        451
+07:14:59.296        449
+07:15:00.296        449
+07:15:01.296        449
+07:15:02.296        449
+07:15:03.296        449
+07:15:04.296        449
+07:15:05.296        449
+07:15:06.296        449
+
+--- No PCP_IGNORE_MARK_RECORDS metric=sample.bin[bin-100] ---
+Note: timezone set to local timezone of host "bozo" from archive
+
+metric:    sample.bin
+archive:   archives/gap2
+host:      bozo
+start:     Fri Sep  1 07:14:32 2017
+end:       Fri Sep  1 07:15:06 2017
+semantics: instantaneous value
+units:     none
+samples:   35
+interval:  1.00 sec
+07:14:32.296  No values available
+
+                bin-100 
+07:14:33.296        100 
+07:14:34.296        100 
+07:14:35.296        100 
+07:14:36.296        100 
+07:14:37.296        100 
+07:14:38.296        100 
+07:14:39.296        100 
+07:14:40.296        100 
+07:14:41.296  No values available
+07:14:42.296  No values available
+07:14:43.296  No values available
+07:14:44.296  No values available
+07:14:45.296  No values available
+
+                bin-100 
+07:14:46.296        100 
+07:14:47.296        100 
+07:14:48.296        100 
+07:14:49.296        100 
+07:14:50.296        100 
+07:14:51.296        100 
+07:14:52.296        100 
+07:14:53.296        100 
+07:14:54.296  No values available
+07:14:55.296  No values available
+07:14:56.296  No values available
+07:14:57.296  No values available
+07:14:58.296  No values available
+
+                bin-100 
+07:14:59.296        100 
+07:15:00.296        100 
+07:15:01.296        100 
+07:15:02.296        100 
+07:15:03.296        100 
+07:15:04.296        100 
+07:15:05.296        100 
+07:15:06.296        100 
+
+--- PCP_IGNORE_MARK_RECORDS set in env metric=sample.bin[bin-100] ---
+Note: timezone set to local timezone of host "bozo" from archive
+
+metric:    sample.bin
+archive:   archives/gap2
+host:      bozo
+start:     Fri Sep  1 07:14:32 2017
+end:       Fri Sep  1 07:15:06 2017
+semantics: instantaneous value
+units:     none
+samples:   35
+interval:  1.00 sec
+07:14:32.296  No values available
+
+                bin-100 
+07:14:33.296        100 
+07:14:34.296        100 
+07:14:35.296        100 
+07:14:36.296        100 
+07:14:37.296        100 
+07:14:38.296        100 
+07:14:39.296        100 
+07:14:40.296        100 
+07:14:41.296        100 
+07:14:42.296        100 
+07:14:43.296        100 
+07:14:44.296        100 
+07:14:45.296        100 
+07:14:46.296        100 
+07:14:47.296        100 
+07:14:48.296        100 
+07:14:49.296        100 
+07:14:50.296        100 
+07:14:51.296        100 
+07:14:52.296        100 
+07:14:53.296        100 
+07:14:54.296        100 
+07:14:55.296        100 
+07:14:56.296        100 
+07:14:57.296        100 
+07:14:58.296        100 
+07:14:59.296        100 
+07:15:00.296        100 
+07:15:01.296        100 
+07:15:02.296        100 
+07:15:03.296        100 
+07:15:04.296        100 
+07:15:05.296        100 
+07:15:06.296        100 
+
+--- PCP_IGNORE_MARK_RECORDS=1 in env metric=sample.bin[bin-100] ---
+Note: timezone set to local timezone of host "bozo" from archive
+
+metric:    sample.bin
+archive:   archives/gap2
+host:      bozo
+start:     Fri Sep  1 07:14:32 2017
+end:       Fri Sep  1 07:15:06 2017
+semantics: instantaneous value
+units:     none
+samples:   35
+interval:  1.00 sec
+07:14:32.296  No values available
+
+                bin-100 
+07:14:33.296        100 
+07:14:34.296        100 
+07:14:35.296        100 
+07:14:36.296        100 
+07:14:37.296        100 
+07:14:38.296        100 
+07:14:39.296        100 
+07:14:40.296        100 
+07:14:41.296  No values available
+07:14:42.296  No values available
+07:14:43.296  No values available
+07:14:44.296  No values available
+07:14:45.296  No values available
+
+                bin-100 
+07:14:46.296        100 
+07:14:47.296        100 
+07:14:48.296        100 
+07:14:49.296        100 
+07:14:50.296        100 
+07:14:51.296        100 
+07:14:52.296        100 
+07:14:53.296        100 
+07:14:54.296  No values available
+07:14:55.296  No values available
+07:14:56.296  No values available
+07:14:57.296  No values available
+07:14:58.296  No values available
+
+                bin-100 
+07:14:59.296        100 
+07:15:00.296        100 
+07:15:01.296        100 
+07:15:02.296        100 
+07:15:03.296        100 
+07:15:04.296        100 
+07:15:05.296        100 
+07:15:06.296        100 
+
+--- PCP_IGNORE_MARK_RECORDS=6 in env metric=sample.bin[bin-100] ---
+Note: timezone set to local timezone of host "bozo" from archive
+
+metric:    sample.bin
+archive:   archives/gap2
+host:      bozo
+start:     Fri Sep  1 07:14:32 2017
+end:       Fri Sep  1 07:15:06 2017
+semantics: instantaneous value
+units:     none
+samples:   35
+interval:  1.00 sec
+07:14:32.296  No values available
+
+                bin-100 
+07:14:33.296        100 
+07:14:34.296        100 
+07:14:35.296        100 
+07:14:36.296        100 
+07:14:37.296        100 
+07:14:38.296        100 
+07:14:39.296        100 
+07:14:40.296        100 
+07:14:41.296        100 
+07:14:42.296        100 
+07:14:43.296        100 
+07:14:44.296        100 
+07:14:45.296        100 
+07:14:46.296        100 
+07:14:47.296        100 
+07:14:48.296        100 
+07:14:49.296        100 
+07:14:50.296        100 
+07:14:51.296        100 
+07:14:52.296        100 
+07:14:53.296        100 
+07:14:54.296        100 
+07:14:55.296        100 
+07:14:56.296        100 
+07:14:57.296        100 
+07:14:58.296        100 
+07:14:59.296        100 
+07:15:00.296        100 
+07:15:01.296        100 
+07:15:02.296        100 
+07:15:03.296        100 
+07:15:04.296        100 
+07:15:05.296        100 
+07:15:06.296        100 
+
+--- No PCP_IGNORE_MARK_RECORDS metric=pmcd.pdu_in.fetch ---
+Note: timezone set to local timezone of host "bozo" from archive
+
+metric:    pmcd.pdu_in.fetch
+archive:   archives/gap2
+host:      bozo
+start:     Fri Sep  1 07:14:32 2017
+end:       Fri Sep  1 07:15:06 2017
+semantics: cumulative counter
+units:     count
+samples:   35
+interval:  1.00 sec
+07:14:32.296  No values available
+07:14:33.296      14691
+07:14:34.296      14692
+07:14:35.296      14693
+07:14:36.296      14694
+07:14:37.296      14695
+07:14:38.296      14696
+07:14:39.296      14697
+07:14:40.296      14698
+07:14:41.296  No values available
+07:14:42.296  No values available
+07:14:43.296  No values available
+07:14:44.296  No values available
+07:14:45.296  No values available
+07:14:46.296      14703
+07:14:47.296      14704
+07:14:48.296      14705
+07:14:49.296      14706
+07:14:50.296      14707
+07:14:51.296      14708
+07:14:52.296      14709
+07:14:53.296      14710
+07:14:54.296  No values available
+07:14:55.296  No values available
+07:14:56.296  No values available
+07:14:57.296  No values available
+07:14:58.296  No values available
+07:14:59.296      14715
+07:15:00.296      14716
+07:15:01.296      14717
+07:15:02.296      14718
+07:15:03.296      14719
+07:15:04.296      14720
+07:15:05.296      14721
+07:15:06.296      14722
+
+--- PCP_IGNORE_MARK_RECORDS set in env metric=pmcd.pdu_in.fetch ---
+Note: timezone set to local timezone of host "bozo" from archive
+
+metric:    pmcd.pdu_in.fetch
+archive:   archives/gap2
+host:      bozo
+start:     Fri Sep  1 07:14:32 2017
+end:       Fri Sep  1 07:15:06 2017
+semantics: cumulative counter
+units:     count
+samples:   35
+interval:  1.00 sec
+07:14:32.296  No values available
+07:14:33.296      14691
+07:14:34.296      14692
+07:14:35.296      14693
+07:14:36.296      14694
+07:14:37.296      14695
+07:14:38.296      14696
+07:14:39.296      14697
+07:14:40.296      14698
+07:14:41.296      14699
+07:14:42.296      14700
+07:14:43.296      14700
+07:14:44.296      14701
+07:14:45.296      14702
+07:14:46.296      14703
+07:14:47.296      14704
+07:14:48.296      14705
+07:14:49.296      14706
+07:14:50.296      14707
+07:14:51.296      14708
+07:14:52.296      14709
+07:14:53.296      14710
+07:14:54.296      14711
+07:14:55.296      14712
+07:14:56.296      14712
+07:14:57.296      14713
+07:14:58.296      14714
+07:14:59.296      14715
+07:15:00.296      14716
+07:15:01.296      14717
+07:15:02.296      14718
+07:15:03.296      14719
+07:15:04.296      14720
+07:15:05.296      14721
+07:15:06.296      14722
+
+--- PCP_IGNORE_MARK_RECORDS=1 in env metric=pmcd.pdu_in.fetch ---
+Note: timezone set to local timezone of host "bozo" from archive
+
+metric:    pmcd.pdu_in.fetch
+archive:   archives/gap2
+host:      bozo
+start:     Fri Sep  1 07:14:32 2017
+end:       Fri Sep  1 07:15:06 2017
+semantics: cumulative counter
+units:     count
+samples:   35
+interval:  1.00 sec
+07:14:32.296  No values available
+07:14:33.296      14691
+07:14:34.296      14692
+07:14:35.296      14693
+07:14:36.296      14694
+07:14:37.296      14695
+07:14:38.296      14696
+07:14:39.296      14697
+07:14:40.296      14698
+07:14:41.296  No values available
+07:14:42.296  No values available
+07:14:43.296  No values available
+07:14:44.296  No values available
+07:14:45.296  No values available
+07:14:46.296      14703
+07:14:47.296      14704
+07:14:48.296      14705
+07:14:49.296      14706
+07:14:50.296      14707
+07:14:51.296      14708
+07:14:52.296      14709
+07:14:53.296      14710
+07:14:54.296  No values available
+07:14:55.296  No values available
+07:14:56.296  No values available
+07:14:57.296  No values available
+07:14:58.296  No values available
+07:14:59.296      14715
+07:15:00.296      14716
+07:15:01.296      14717
+07:15:02.296      14718
+07:15:03.296      14719
+07:15:04.296      14720
+07:15:05.296      14721
+07:15:06.296      14722
+
+--- PCP_IGNORE_MARK_RECORDS=6 in env metric=pmcd.pdu_in.fetch ---
+Note: timezone set to local timezone of host "bozo" from archive
+
+metric:    pmcd.pdu_in.fetch
+archive:   archives/gap2
+host:      bozo
+start:     Fri Sep  1 07:14:32 2017
+end:       Fri Sep  1 07:15:06 2017
+semantics: cumulative counter
+units:     count
+samples:   35
+interval:  1.00 sec
+07:14:32.296  No values available
+07:14:33.296      14691
+07:14:34.296      14692
+07:14:35.296      14693
+07:14:36.296      14694
+07:14:37.296      14695
+07:14:38.296      14696
+07:14:39.296      14697
+07:14:40.296      14698
+07:14:41.296      14699
+07:14:42.296      14700
+07:14:43.296      14700
+07:14:44.296      14701
+07:14:45.296      14702
+07:14:46.296      14703
+07:14:47.296      14704
+07:14:48.296      14705
+07:14:49.296      14706
+07:14:50.296      14707
+07:14:51.296      14708
+07:14:52.296      14709
+07:14:53.296      14710
+07:14:54.296      14711
+07:14:55.296      14712
+07:14:56.296      14712
+07:14:57.296      14713
+07:14:58.296      14714
+07:14:59.296      14715
+07:15:00.296      14716
+07:15:01.296      14717
+07:15:02.296      14718
+07:15:03.296      14719
+07:15:04.296      14720
+07:15:05.296      14721
+07:15:06.296      14722
+
+Error cases ...
+
+pmval: Warning: bad $PCP_IGNORE_MARK_RECORDS: not in pmParseInterval(3) format:
+1minuet
+ ^ -- unexpected value
+
+
+pmval: Warning: bad $PCP_IGNORE_MARK_RECORDS: not in pmParseInterval(3) format:
+1.2^3
+   ^ -- unexpected value
+
+
+pmval: Warning: bad $PCP_IGNORE_MARK_RECORDS: not in pmParseInterval(3) format:
+foobar
+^ -- unexpected value
+
+
+pmval: Warning: bad $PCP_IGNORE_MARK_RECORDS: not in pmParseInterval(3) format:
+-123
+^ -- unexpected value
+

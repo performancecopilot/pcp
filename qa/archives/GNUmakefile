@@ -34,13 +34,13 @@ DEFLATE = small.0.xz small.meta small.index \
 	  20130706.0.bz2 20130706.meta 20130706.index \
 	  pcp-zeroconf.0.gz pcp-zeroconf.meta pcp-zeroconf.index
 
-SCRIPTS = mk.diff.sh mk.gap.sh mk.mysql.sh mk.schizo.sh mk.foo+.sh \
-	  mk.dynmetric.sh mk.instant.sh \
-	  mkbadlen mkbadti mkbadlabel mkbadlog mkmirage mkproc \
-	  mknuma mkrewrite mkeventrec mkinterpmark mkmultihost \
-	  mksample_expr mktzchange mkarch-all mk.atop.sh \
-	  mklog-derived mk.vmstat.sh mk.rep.sh mk.procsched.sh \
-	  mk.ipcs.sh
+SCRIPTS = mk.diff mk.gap mk.mysql mk.schizo mk.foo+ \
+	  mk.dynmetric mk.instant \
+	  mk.badlen mk.badti mk.badlabel mk.badlog mk.mirage mk.proc \
+	  mk.numa mk.rewrite mk.eventrec mk.interpmark mk.multihost \
+	  mk.sample_expr mk.tzchange mk.arch-all mk.atop \
+	  mk.log-derived mk.vmstat mk.rep mk.procsched \
+	  mk.ipcs
 
 CONFIGS = config.verify config.shping YWhcCi.toium.config \
 	  kenj-pc-2.config reduce.config uwrap.config wrap.config
@@ -72,7 +72,7 @@ mirage.0:
 	pmlogger -c config.mirage -s 20 mirage
 
 mirage-1.0 mirage-2.0:
-	./mkmirage
+	./mk.mirage
 
 # 4 secs, 3 sec gap, 4 secs, 3 sec gap, 4 secs
 # and indom changes ... checked in, this is the recipe that was

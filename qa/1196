@@ -68,7 +68,8 @@ _filter()
 # Warning: /etc/pcp/pmcd/pmcd.conf[7] culling entry ...
 # and this one where the quoting may differ from one platform to the next
 # make: Nothing to be done for 'install'. 
-# make: Nothing to be done for `install'.
+# make: Nothing to be done for 'install'. 
+# gmake: Nothing to be done for `install'.
 #
 _filter_cull()
 {
@@ -77,6 +78,7 @@ _filter_cull()
 s@'"$PCP_PMCDCONF_PATH"'@PCP_PMCDCONF_PATH@
 s/\[[0-9][0-9]*]/[N]/
 }' \
+	-e 's/^gmake:/make:/' \
 	-e "/Nothing to be done/s/.install./'install'/" \
     # end
 }

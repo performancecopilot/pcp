@@ -170,7 +170,7 @@ checkLabelConsistency (__pmContext *ctxp, const __pmLogLabel *lp)
 int
 __pmLogChkLabel(__pmLogCtl *lcp, __pmFILE *f, __pmLogLabel *lp, int vol)
 {
-    int		len;
+    int		len = 0;
     int		version = UNKNOWN_VERSION;
     int		xpectlen = sizeof(__pmLogLabel) + 2 * sizeof(len);
     int		n;
@@ -375,6 +375,7 @@ fopen_securetmp(const char *fname)
 	    char	errmsg[PM_MAXERRMSGLEN];
 	    fprintf(stderr, "fopen_securetmp: open(%s): %s\n", msg, osstrerror_r(errmsg, sizeof(errmsg)));
 	}
+    }
 #endif
 #endif
     /*

@@ -126,8 +126,10 @@ GetNextLine(void)
     if (szLineBuf == 0) {
 	szLineBuf = LINEBUF_SIZE;
 	linebuf = (char *)malloc(szLineBuf);
-	if (linebuf == NULL)
+	if (linebuf == NULL) {
 	    __pmNoMem("pmcd config: GetNextLine init", szLineBuf, PM_FATAL_ERR);
+	    /*NOTREACHED*/
+	}
     }
 
     linebuf[0] = '\0';
@@ -492,19 +494,21 @@ BuildArgv(void)
 {
     int		nArgs;
     char	**result;
+    char	**result_new;
 
     nArgs = 0;
     result = NULL;
     do {
 	/* Make result big enough for new arg and terminating NULL pointer */
-	result = (char **)realloc(result, (nArgs + 2) * sizeof(char *));
-	if (result != NULL) {
+	result_new = (char **)realloc(result, (nArgs + 2) * sizeof(char *));
+	if (result_new != NULL) {
+	    result = result_new;
 	    if (*token != '/')
 		result[nArgs] = CopyToken();
 	    else if ((result[nArgs] = CopyToken()) != NULL)
 		__pmNativePath(result[nArgs]);
 	}
-	if (result == NULL || result[nArgs] == NULL) {
+	if (result_new == NULL || result[nArgs] == NULL) {
 	    fprintf(stderr, "pmcd config[line %d]: Error: failed to build argument list\n",
 		    nLines);
 	    __pmNoMem("pmcd config: build argv", nArgs * sizeof(char *),
@@ -542,8 +546,8 @@ GetNewAgent(void)
     if (agent == NULL) {
 	agent = (AgentInfo*)malloc(sizeof(AgentInfo) * MIN_AGENTS_ALLOC);
 	if (agent == NULL) {
-	    perror("GetNewAgentIndex: malloc");
-	    exit(1);
+	    __pmNoMem("GetNewAgentIndex: malloc", sizeof(AgentInfo) * MIN_AGENTS_ALLOC, PM_FATAL_ERR);
+	    /*NOTREACHED*/
 	}
 	szAgents = MIN_AGENTS_ALLOC;
     }
@@ -552,8 +556,8 @@ GetNewAgent(void)
 	agent = (AgentInfo*)
 	    realloc(agent, sizeof(AgentInfo) * 2 * szAgents);
 	if (agent == NULL) {
-	    perror("GetNewAgentIndex: realloc");
-	    exit(1);
+	    __pmNoMem("GetNewAgentIndex: realloc", sizeof(AgentInfo) * 2 * szAgents, PM_FATAL_ERR);
+	    /*NOTREACHED*/
 	}
 	for (i = 0; i < nAgents; i++)
 	    pmdaInterfaceMoved(&agent[i].ipc.dso.dispatch);
@@ -618,6 +622,7 @@ ParseDso(char *pmDomainLabel, int pmDomainId)
 	fprintf(stderr, "pmcd config[line %d]: Error: couldn't copy DSO entry point\n",
 			 nLines);
 	__pmNoMem("pmcd config", tokenend - token + 1, PM_FATAL_ERR);
+	/*NOTREACHED*/
     }
 
     FindNextToken();
@@ -638,6 +643,7 @@ ParseDso(char *pmDomainLabel, int pmDomainId)
 	fprintf(stderr, "pmcd config[line %d]: Error: couldn't copy DSO pathname\n",
 			nLines);
 	__pmNoMem("pmcd config", tokenend - token + 1, PM_FATAL_ERR);
+	/*NOTREACHED*/
     }
     __pmNativePath(pathName);
 
@@ -703,6 +709,7 @@ ParseSocket(char *pmDomainLabel, int pmDomainId)
 	    fprintf(stderr, "pmcd config[line %d]: Error: couldn't copy port name\n",
 			 nLines);
 	    __pmNoMem("pmcd config", tokenend - token + 1, PM_FATAL_ERR);
+	    /*NOTREACHED*/
 	}
     FindNextToken();
 
@@ -970,11 +977,15 @@ ParseNames(char ***namesp, const char *nametype)
 
 	    szNames += 8;
 	    need = szNames * (int)sizeof(char**);
-	    if ((names = (char **)realloc(names, need)) == NULL)
+	    if ((names = (char **)realloc(names, need)) == NULL) {
 		__pmNoMem("pmcd ParseNames name list", need, PM_FATAL_ERR);
+		/*NOTREACHED*/
+	    }
 	}
-	if ((names[nnames++] = CopyToken()) == NULL)
+	if ((names[nnames++] = CopyToken()) == NULL) {
 	    __pmNoMem("pmcd ParseNames name", tokenend - token, PM_FATAL_ERR);
+	    /*NOTREACHED*/
+	}
 	FindNextToken();
 	if (*token != ',' && *token != ':') {
 	    fprintf(stderr,
@@ -1273,8 +1284,10 @@ ReadConfigFile(FILE *configFile)
 	if (*token == '[')		/* Start of access control specs */
 	    break;
 
-	if ((pmDomainLabel = CopyToken()) == NULL)
+	if ((pmDomainLabel = CopyToken()) == NULL) {
 	    __pmNoMem("pmcd config: domain label", tokenend - token + 1, PM_FATAL_ERR);
+	    /*NOTREACHED*/
+	}
 
 	FindNextToken();
 	if (TokenIsNumber()) {
@@ -2011,6 +2024,7 @@ GetAgentDso(AgentInfo *aPtr)
 	dso->pathName = strdup(name);
 	if (dso->pathName == NULL) {
 	    __pmNoMem("pmcd config: pathName", strlen(name), PM_FATAL_ERR);
+	    /*NOTREACHED*/
 	}
 	dso->xlatePath = 1;
     }
@@ -2475,7 +2489,7 @@ ParseRestartAgents(char *fileName)
 	    (long)statBuf.st_mtimespec.tv_sec, (long)statBuf.st_mtimespec.tv_nsec);
 #endif
     if (statBuf.st_mtimespec.tv_sec == configFileTime.tv_sec &&
-        statBuf.st_mtimespec.tv_nsec == configFileTime.tv_nsec) {
+        statBuf.st_mtimespec.tv_nsec == configFileTime.tv_nsec)
 #elif defined(HAVE_STAT_TIMESPEC_T) || defined(HAVE_STAT_TIMESTRUC) || defined(HAVE_STAT_TIMESPEC)
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_APPL0)
@@ -2483,17 +2497,18 @@ ParseRestartAgents(char *fileName)
 	    (long)statBuf.st_mtim.tv_sec, (long)statBuf.st_mtim.tv_nsec);
 #endif
     if (statBuf.st_mtim.tv_sec == configFileTime.tv_sec &&
-        statBuf.st_mtim.tv_nsec == configFileTime.tv_nsec) {
+        statBuf.st_mtim.tv_nsec == configFileTime.tv_nsec)
 #elif defined(HAVE_STAT_TIME_T)
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_APPL0)
 	fprintf(stderr, "ParseRestartAgents: new configFileTime=%ld sec\n",
 	    (long)configFileTime);
 #endif
-    if (statBuf.st_mtime == configFileTime) {
+    if (statBuf.st_mtime == configFileTime)
 #else
 !bozo!
 #endif
+    {
 	fprintf(stderr, "Configuration file '%s' unchanged\n", fileName);
 	fprintf(stderr, "Restarting any deceased agents:\n");
 	j = 0;

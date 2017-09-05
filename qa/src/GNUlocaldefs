@@ -30,6 +30,7 @@ CFILES = disk_test.c exercise.c context_test.c chkoptfetch.c \
 	read-bf.c write-bf.c slow_af.c indom.c tztest.c \
 	multifetch.c pmconvscale.c torture-eol.c \
 	crashpmcd.c dumb_pmda.c torture_cache.c wrap_int.c \
+	labels.c mergelabels.c mergelabelsets.c \
 	matchInstanceName.c torture_pmns.c \
 	mmv_genstats.c mmv_instances.c mmv_poke.c mmv_noinit.c mmv_nostats.c \
 	record.c record-setarg.c clientid.c killparent.c grind_ctx.c \
@@ -43,7 +44,7 @@ CFILES = disk_test.c exercise.c context_test.c chkoptfetch.c \
 	loadderived.c sum16.c badmmv.c multictx.c mmv_simple.c \
 	mmv2_genstats.c mmv2_instances.c mmv2_nostats.c mmv2_simple.c \
 	httpfetch.c json_test.c check_pmiend_fdleak.c loadconfig2.c \
-	labels.c mergelabels.c mergelabelsets.c
+	archctl_segfault.c
 
 ifeq ($(shell test -f ../localconfig && echo 1), 1)
 include ../localconfig
