@@ -26,7 +26,7 @@ $sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
-pmrep -z -o csv -H -u -s 1 -S "@2014-11-24 04:01:47" -a archives/archive-20141125-000009 disk.dev
+pmrep -z -o csv -H -u -s 1 -a badarchives/archive-20141125-000009 disk.dev
 
 # success, all done
 status=0

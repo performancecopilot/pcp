@@ -14,7 +14,7 @@ int
 main(int argc, char *argv[])
 {
     int         c;
-    char        *archive = "archives/empty";
+    char        *archive = "badarchives/empty";
 
     if ((c = pmNewContext(PM_CONTEXT_ARCHIVE, archive)) < 0) {
     	printf("pmNewContext(PM_CONTEXT_ARCHIVE, \"%s\")"

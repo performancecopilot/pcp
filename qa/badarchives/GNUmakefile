@@ -17,7 +17,8 @@ SRCPART =
 # archives with no .index
 SRCNOTI	= 
 # other .meta files
-SRCOTHER = $(patsubst %.0,%.meta,$(SRCNOTI))
+SRCOTHER = bozo.client_v2.meta.bad.1 bozo.client_v2.meta.bad.2 \
+	$(patsubst %.0,%.meta,$(SRCNOTI))
 
 # now all the rest ...
 SRCFULL = $(shell echo *.[0-9])
@@ -25,15 +26,7 @@ SRCARCH = $(filter-out $(SRCNOTI),$(SRCFULL))
 SRCMETA = $(patsubst %.0,%.meta,$(SRCARCH))
 SRCIDX = $(patsubst %.0,%.index,$(SRCARCH))
 
-FOLIOS = $(shell echo *.folio)
-
-DEFLATE =
-
 SCRIPTS = mk.badlen mk.badti mk.badlabel mk.badlog
-
-CONFIGS = 
-
-OTHERS = README
 
 LDIRT = pmlogger.log
 LDIRDIRT = tmp
@@ -47,8 +40,8 @@ install install_pcp: $(SUBDIRS)
 	$(INSTALL) -m 644 GNUmakefile.install $(TESTDIR)/GNUmakefile
 	$(INSTALL) -m 644 $(SRCARCH) $(SRCNOTI) $(SRCPART) $(TESTDIR)
 	$(INSTALL) -m 644 $(SRCMETA) $(SRCOTHER) $(TESTDIR)
-	$(INSTALL) -m 644 $(SRCIDX) $(DEFLATE) $(TESTDIR)
-	$(INSTALL) -m 644 $(OTHERS) $(CONFIGS) $(FOLIOS) $(TESTDIR)
+	$(INSTALL) -m 644 $(SRCIDX) $(TESTDIR)
+	$(INSTALL) -m 644 README $(TESTDIR)/README
 	$(SUBDIRS_MAKERULE)
 
 include $(BUILDRULES)

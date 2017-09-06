@@ -1,5 +1,9 @@
 Good QA archives that are static.
 
+Some of these archives are truncated, but they are otherwise believed
+to be either correct or contain the sort of benign errors that the
+PCP code base is expected to handle gracefully.
+
 These ones are checked into the git tree.
 
 For some of them, the makefile and the associated pmlogger

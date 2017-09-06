@@ -19,8 +19,7 @@ SRCPART = ok-mv-bigbin.[1-9] ok-mv-foo.[12]
 # archives with no .index
 SRCNOTI	= ok-noti-bigbin.0 ok-noti-interp.0
 # other .meta files
-SRCOTHER = bozo.client_v2.meta.bad.1 bozo.client_v2.meta.bad.2 \
-	   $(patsubst %.0,%.meta,$(SRCNOTI))
+SRCOTHER = $(patsubst %.0,%.meta,$(SRCNOTI))
 
 # now all the rest ...
 SRCFULL = $(shell echo *.[0-9])
@@ -36,7 +35,7 @@ DEFLATE = small.0.xz small.meta small.index \
 
 SCRIPTS = mk.diff mk.gap mk.mysql mk.schizo mk.foo+ \
 	  mk.dynmetric mk.instant \
-	  mk.badlen mk.badti mk.badlabel mk.badlog mk.mirage mk.proc \
+	  mk.mirage mk.proc \
 	  mk.numa mk.rewrite mk.eventrec mk.interpmark mk.multihost \
 	  mk.sample_expr mk.tzchange mk.arch-all mk.atop \
 	  mk.log-derived mk.vmstat mk.rep mk.procsched \
