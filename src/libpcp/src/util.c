@@ -1484,7 +1484,7 @@ pmprintf_cleanup(void)
 static int
 vpmprintf(const char *msg, va_list arg)
 {
-    int		lsize = 0;
+    int		bytes = 0;
     static int	tmpdir_init = 0;
     static char	*tmpdir;
 
@@ -1557,25 +1557,25 @@ fail:
     if (msgsize < 0) {
 	vfprintf(stderr, msg, arg);
 	fflush(stderr);
-	lsize = 0;
+	bytes = 0;
     }
     else
-	msgsize += (lsize = vfprintf(fptr, msg, arg));
+	msgsize += (bytes = vfprintf(fptr, msg, arg));
 
     PM_UNLOCK(util_lock);
-    return lsize;
+    return bytes;
 }
 
 int
 pmprintf(const char *msg, ...)
 {
     va_list	arg;
-    int		lsize;
+    int		bytes;
 
     va_start(arg, msg);
-    lsize = vpmprintf(msg, arg);
+    bytes = vpmprintf(msg, arg);
     va_end(arg);
-    return lsize;
+    return bytes;
 }
 
 int
@@ -1660,6 +1660,32 @@ pmflush(void)
 
     PM_UNLOCK(util_lock);
     return sts;
+}
+
+int
+pmsprintf(char *str, size_t size, const char *fmt, ...)
+{
+    va_list	arg;
+    int		bytes;
+
+    /* bad input given - treated as garbage in, garbage out */
+    if (size == 0)
+	return 0;
+
+    va_start(arg, fmt);
+    bytes = vsnprintf(str, size, fmt, arg);
+    va_end(arg);
+    if (bytes < size) {
+	if (bytes > 0)	/* usual case, null terminated here */
+	    return bytes;
+	/* safest option - treat all errors as empty string */
+	*str = '\0';
+	return 1;
+    }
+    /* ensure (truncated) string is always null terminated. */
+    bytes = size - 1;
+    str[bytes] = '\0';
+    return bytes;
 }
 
 /*

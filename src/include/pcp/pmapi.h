@@ -613,6 +613,12 @@ PCP_CALL extern int pmprintf(const char *, ...) __PM_PRINTFLIKE(1,2);
 PCP_CALL extern int pmflush(void);
 
 /*
+ * Wrapper for string formatting that ensures null termination,
+ * even if truncation occurs or the underlying call errors out.
+ */
+PCP_CALL extern int pmsprintf(char *, size_t, const char *, ...) __PM_PRINTFLIKE(3,4);
+
+/*
  * Wrapper for config/environment variables. Warning: this will exit() with
  * a FATAL error if /etc/pcp.conf does not exist and $PCP_CONF is not set.
  * Use the pmGetOptionalConfig variant if this behaviour is not sought.

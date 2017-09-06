@@ -1,0 +1,6 @@
+QA output created by 1245
+[1] pmsprintf strlen=8 str='[0] test'
+[2] pmsprintf strlen=2 str='[1'
+[3] pmsprintf strlen=0 str='~~~~~~~~~~~~~~~~'
+[4] pmsprintf strlen=0 str=''
+[5] pmsprintf strlen=1 str='['

@@ -733,13 +733,14 @@ load_cache(hdr_t *h)
     if (vdp == NULL) {
 	if ((vdp = pmGetOptionalConfig("PCP_VAR_DIR")) == NULL)
 	    return PM_ERR_GENERIC;
-	snprintf(filename, sizeof(filename),
+	pmsprintf(filename, sizeof(filename),
 		"%s%c" "config" "%c" "pmda", vdp, sep, sep);
 	mkdir2(filename, 0755);
     }
 
-    snprintf(filename, sizeof(filename), "%s%cconfig%cpmda%c%s",
-		vdp, sep, sep, sep, pmInDomStr_r(h->indom, strbuf, sizeof(strbuf)));
+    pmsprintf(filename, sizeof(filename), "%s%cconfig%cpmda%c%s",
+		vdp, sep, sep, sep,
+		pmInDomStr_r(h->indom, strbuf, sizeof(strbuf)));
     if ((fp = fopen(filename, "r")) == NULL)
 	return -oserror();
     if (fgets(buf, sizeof(buf), fp) == NULL) {
@@ -895,13 +896,14 @@ save_cache(hdr_t *h, int hstate)
     if (vdp == NULL) {
 	if ((vdp = pmGetOptionalConfig("PCP_VAR_DIR")) == NULL)
 	    return PM_ERR_GENERIC;
-	snprintf(filename, sizeof(filename),
+	pmsprintf(filename, sizeof(filename),
 		"%s%c" "config" "%c" "pmda", vdp, sep, sep);
 	mkdir2(filename, 0755);
     }
 
-    snprintf(filename, sizeof(filename), "%s%cconfig%cpmda%c%s",
-		vdp, sep, sep, sep, pmInDomStr_r(h->indom, strbuf, sizeof(strbuf)));
+    pmsprintf(filename, sizeof(filename), "%s%cconfig%cpmda%c%s",
+		vdp, sep, sep, sep,
+		pmInDomStr_r(h->indom, strbuf, sizeof(strbuf)));
     if ((fp = fopen(filename, "w")) == NULL)
 	return -oserror();
     fprintf(fp, "%d %d %d\n", CACHE_VERSION, h->ins_mode, h->maxinst);
