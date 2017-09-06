@@ -15,7 +15,7 @@ TESTDIR = $(PCP_VAR_DIR)/testsuite
 TESTS	= $(shell sed -n -e '/^[0-9]/s/:retired//' -e '/^[0-9][0-9]*:reserved/d' -e '/^[0-9]/s/[        ].*//' -e '/^[0-9]/p' <group)
 
 SUBDIRS = src pmdas cisco gluster pconf sadist collectl nfsclient named \
-	  archives views qt linux unbound cifs gpfs lustre ganglia \
+	  archives badarchives views qt linux unbound cifs gpfs lustre ganglia \
 	  postfix perl json slurm tmparch sheet
 ifeq "$(PMDA_PERFEVENT)" "true"
 SUBDIRS += perfevent
