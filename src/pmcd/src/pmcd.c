@@ -231,7 +231,7 @@ ParseOptions(int argc, char *argv[], int *nports)
 		break;
 
 	    case 's':	/* path to local unix domain socket */
-		snprintf(sockpath, sizeof(sockpath), "%s", opts.optarg);
+		pmsprintf(sockpath, sizeof(sockpath), "%s", opts.optarg);
 		break;
 
 	    case 'S':	/* only allow authenticated clients */
@@ -523,7 +523,7 @@ SignalShutdown(void)
 	    killer_sig == SIGINT ? "SIGINT" : "SIGTERM", killer_pid, killer_uid);
 #if DESPERATE
 	__pmNotifyErr(LOG_INFO, "Try to find process in ps output ...\n");
-	sprintf(buf, "sh -c \". \\$PCP_DIR/etc/pcp.env; ( \\$PCP_PS_PROG \\$PCP_PS_ALL_FLAGS | \\$PCP_AWK_PROG 'NR==1 {print} \\$2==%" FMT_PID " {print}' )\"", killer_pid);
+	pmsprintf(buf, sizeof(buf), "sh -c \". \\$PCP_DIR/etc/pcp.env; ( \\$PCP_PS_PROG \\$PCP_PS_ALL_FLAGS | \\$PCP_AWK_PROG 'NR==1 {print} \\$2==%" FMT_PID " {print}' )\"", killer_pid);
 	system(buf);
 #endif
     }
@@ -1128,18 +1128,18 @@ FdToString(int fd)
     for (i = 0; i < nClients; i++)
         if (client[i].status.connected) {
 	    if (fd == client[i].fd) {
-	        sprintf(fdStr, "client[%d] input socket", i);
+	        pmsprintf(fdStr, sizeof(fdStr), "client[%d] input socket", i);
 		return fdStr;
 	    }
 	}
     for (i = 0; i < nAgents; i++)
 	if (agent[i].status.connected) {
 	    if (fd == agent[i].inFd) {
-		sprintf(fdStr, "agent[%d] input", i);
+		pmsprintf(fdStr, sizeof(fdStr), "agent[%d] input", i);
 		return fdStr;
 	    }
 	    else if (fd  == agent[i].outFd) {
-		sprintf(fdStr, "agent[%d] output", i);
+		pmsprintf(fdStr, sizeof(fdStr), "agent[%d] output", i);
 		return fdStr;
 	    }
 	}

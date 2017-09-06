@@ -26,7 +26,7 @@ CFILES = disk_test.c exercise.c context_test.c chkoptfetch.c \
 	endian.c chk_memleak.c chk_metric_types.c mark-bug.c \
 	pmnsunload.c parsemetricspec.c parseinterval.c \
 	pducheck.c pducrash.c pdu-server.c \
-	pmprintf.c pmsocks_objstyle.c numberstr.c \
+	pmprintf.c pmsprintf.c pmsocks_objstyle.c numberstr.c \
 	read-bf.c write-bf.c slow_af.c indom.c tztest.c \
 	multifetch.c pmconvscale.c torture-eol.c \
 	crashpmcd.c dumb_pmda.c torture_cache.c wrap_int.c \

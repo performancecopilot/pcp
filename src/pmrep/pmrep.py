@@ -38,8 +38,8 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-# pylint: disable=superfluous-parens
-# pylint: disable=invalid-name, line-too-long, no-self-use, bad-whitespace
+# pylint: disable=superfluous-parens, bad-whitespace
+# pylint: disable=invalid-name, line-too-long, no-self-use
 # pylint: disable=too-many-boolean-expressions, too-many-statements
 # pylint: disable=too-many-instance-attributes, too-many-locals
 # pylint: disable=too-many-branches, too-many-nested-blocks
@@ -174,9 +174,9 @@ class PMReporter(object):
 
         # Configuration directives
         self.keys = ('source', 'output', 'derived', 'header', 'globals',
-                     'samples', 'interval',
+                     'samples', 'interval', 'type', 'precision',
                      'timestamp', 'unitinfo', 'colxrow',
-                     'delay', 'type', 'width', 'precision', 'delimiter',
+                     'delay', 'width', 'delimiter',
                      'extheader', 'repeat_header', 'timefmt', 'interpol',
                      'count_scale', 'space_scale', 'time_scale', 'version',
                      'zabbix_server', 'zabbix_port', 'zabbix_host', 'zabbix_interval',
@@ -298,7 +298,7 @@ class PMReporter(object):
         opts.pmSetLongOption("omit-flat", 0, "v", "", "omit single-valued metrics with -i (default: include)")
         opts.pmSetLongOption("colxrow", 1, "X", "STR", "swap stdout columns and rows using header label")
         opts.pmSetLongOption("width", 1, "w", "N", "default column width")
-        opts.pmSetLongOption("precision", 1, "P", "N", "N digits after the decimal separator (if width enough)")
+        opts.pmSetLongOption("precision", 1, "P", "N", "N digits after the decimal separator (default: 3)")
         opts.pmSetLongOption("delimiter", 1, "l", "STR", "delimiter to separate csv/stdout columns")
         opts.pmSetLongOption("extended-header", 0, "x", "", "display extended header")
         opts.pmSetLongOption("repeat-header", 1, "E", "N", "repeat stdout headers every N lines")
@@ -393,7 +393,7 @@ class PMReporter(object):
             raise pmapi.pmUsageErr()
 
     def set_config_file(self):
-        """ Set configuration file """
+        """ Set default config file """
         config = None
         for conf in DEFAULT_CONFIG:
             conf = conf.replace("$HOME", os.getenv("HOME"))
@@ -402,7 +402,7 @@ class PMReporter(object):
                 config = conf
                 break
 
-        # Possibly override the built-in default config file before
+        # Possibly override the default config file before
         # parsing the rest of the command line options
         args = iter(sys.argv[1:])
         for arg in args:
@@ -433,7 +433,7 @@ class PMReporter(object):
         return insts
 
     def set_attr(self, name, value):
-        """ Helper to apply config file settings properly """
+        """ Set options read from file """
         if value in ('true', 'True', 'y', 'yes', 'Yes'):
             value = 1
         if value in ('false', 'False', 'n', 'no', 'No'):
@@ -737,7 +737,7 @@ class PMReporter(object):
             if self.omit_flat and instances and not inst[1][0]:
                 return
             if instances and inst[1][0]:
-                found = tuple([[], []])
+                found = [[], []]
                 for r in instances:
                     cr = re.compile(r'\A' + r + r'\Z')
                     for i, s in enumerate(inst[1]):
@@ -746,7 +746,7 @@ class PMReporter(object):
                             found[1].append(inst[1][i])
                 if not found[0]:
                     return
-                inst = found
+                inst = tuple(found)
             self.pmids.append(pmid)
             self.descs.append(desc)
             self.insts.append(inst)
@@ -813,7 +813,7 @@ class PMReporter(object):
                 self.context.pmTraversePMNS(metric, self.check_metric)
                 if len(self.pmids) == l:
                     # No compatible metrics found
-                    next # pylint: disable=pointless-statement
+                    continue
                 elif len(self.pmids) == l + 1:
                     # Leaf
                     if metric == self.context.pmNameID(self.pmids[l]):
@@ -1315,7 +1315,7 @@ class PMReporter(object):
         if self.pmi is None:
             # Create a new archive
             self.pmi = pmi.pmiLogImport(self.outfile)
-            self.recorded = OrderedDict() # pylint: disable=attribute-defined-outside-init
+            self.recorded = {} # pylint: disable=attribute-defined-outside-init
             if self.context.type == PM_CONTEXT_ARCHIVE:
                 self.pmi.pmiSetHostname(self.context.pmGetArchiveLabel().hostname)
                 self.pmi.pmiSetTimezone(self.context.pmGetArchiveLabel().tz)
@@ -1335,7 +1335,7 @@ class PMReporter(object):
                         self.pmi.pmiAddInstance(self.descs[i].contents.indom, self.insts[i][1][j], self.insts[i][0][j])
                     except pmi.pmiErr as error:
                         if error.args[0] == PMI_ERR_DUPINSTNAME:
-                            continue
+                            pass
 
         # Add current values
         data = 0

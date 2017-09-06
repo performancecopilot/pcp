@@ -272,15 +272,10 @@ http_client_connect(http_client *cp)
 	    cp->error_code = -EINVAL;
 	    return -1;
 	}
-	snprintf(path, sizeof(path), "/%.*s/%.*s",
+	pmsprintf(path, sizeof(path), "/%.*s/%.*s",
 		up->field_data[UF_HOST].len, url + up->field_data[UF_HOST].off,
 		up->field_data[UF_PATH].len, url + up->field_data[UF_PATH].off);
-	path[length - 1] = '\0';
-	//	__pmNotifyErr(LOG_DEBUG, "host: %.*s\n", up->field_data[UF_HOST].len, url + up->field_data[UF_HOST].off);
-	//	__pmNotifyErr(LOG_DEBUG, "UF_path: %.*s\n", up->field_data[UF_PATH].len, url + up->field_data[UF_PATH].off);
-	//	__pmNotifyErr(LOG_DEBUG, "path: %s\n", path);
 	cp->fd = http_client_connectunix(path, &cp->timeout);
-	//	__pmNotifyErr(LOG_DEBUG, "fd: %d\n", cp->fd);
 	return cp->fd;
     }
 
@@ -335,22 +330,21 @@ http_client_get(http_client *cp)
     length = up->field_data[UF_SCHEMA].len;
     /* prepare and send a GET request */
     if (length == sizeof(HTTP)-1 && strncmp(protocol, UNIX, length) == 0) {
-	len += snprintf(bp+len, sizeof(buf)-len, "GET %s HTTP/%s\r\n",
+	len += pmsprintf(bp+len, sizeof(buf)-len, "GET %s HTTP/%s\r\n",
 			cp->type_buffer, http_versionstr(cp->http_version));
-	len += snprintf(bp+len, sizeof(buf)-len, "Host: %s\r\n", "localhost");
+	len += pmsprintf(bp+len, sizeof(buf)-len, "Host: %s\r\n", "localhost");
     }
-    else
-    {
-	len += snprintf(bp+len, sizeof(buf)-len, "GET %s HTTP/%s\r\n",
+    else {
+	len += pmsprintf(bp+len, sizeof(buf)-len, "GET %s HTTP/%s\r\n",
 			path, http_versionstr(cp->http_version));
-	len += snprintf(bp+len, sizeof(buf)-len, "Host: %s\r\n", host);
+	len += pmsprintf(bp+len, sizeof(buf)-len, "Host: %s\r\n", host);
     }
-    len += snprintf(bp+len, sizeof(buf)-len, "User-Agent: %s/%s\r\n",
+    len += pmsprintf(bp+len, sizeof(buf)-len, "User-Agent: %s/%s\r\n",
 			agent, version);
     /* establish persistent connections (default in HTTP/1.1 onward) */
     if (cp->http_version < PV_HTTP_1_1)
-	len += snprintf(bp+len, sizeof(buf)-len, "Connection: keep-alive\r\n");
-    len += snprintf(bp+len, sizeof(buf)-len, "\r\n");
+	len += pmsprintf(bp+len, sizeof(buf)-len, "Connection: keep-alive\r\n");
+    len += pmsprintf(bp+len, sizeof(buf)-len, "\r\n");
     buf[BUFSIZ-1] = '\0';
 
     if ((pmDebug & DBG_TRACE_HTTP) && (pmDebug & DBG_TRACE_DESPERATE))

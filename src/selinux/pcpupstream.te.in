@@ -42,6 +42,7 @@ require {
 	type haproxy_var_lib_t; # pmda.haproxy
 	type haproxy_t; # pmda.haproxy
 	type websm_port_t; # pmda.prometheus
+	type dey_sapi_port_t; #RHBZ1447585
 	class lnk_file { read getattr };
 	class file { append create execute execute_no_trans getattr ioctl lock open read write };
 	class dir { add_name open read search write getattr };
@@ -182,6 +183,9 @@ allow pcp_pmlogger_t unconfined_t:process signal;
 
 #type=AVC msg=audit(1503321970.417:261): avc:  denied  { execute_no_trans } for  pid=6760 comm="pmlogger_check" path="/usr/bin/pmlogger" dev="dm-1" ino=1051023 scontext=system_u:system_r:pcp_pmlogger_t:s0 tcontext=system_u:object_r:pcp_pmlogger_exec_t:s0 tclass=file permissive=0
 allow pcp_pmlogger_t pcp_pmlogger_exec_t:file execute_no_trans;
+
+#type=AVC msg=audit(1493690261.688:262): avc:  denied  { name_connect } for  pid=17604 comm="pmlc" dest=4330 scontext=system_u:system_r:pcp_pmlogger_t:s0 tcontext=system_u:object_r:dey_sapi_port_t:s0 tclass=tcp_socket
+allow pcp_pmlogger_t dey_sapi_port_t:tcp_socket name_connect;
 
 #============= pcp_pmie_t ==============
 allow pcp_pmie_t hostname_exec_t:file { execute execute_no_trans getattr open read };
