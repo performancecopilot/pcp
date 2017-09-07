@@ -125,6 +125,6 @@ char *pdherrstr(int code)
 	if (code == errtab[i].code)
 	    return errtab[i].msg;
     }
-    sprintf(buf, "eh? 0x%08x", code);
+    pmsprintf(buf, 15, "eh? 0x%08x", code);
     return buf;
 }

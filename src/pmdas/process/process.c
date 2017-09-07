@@ -224,7 +224,7 @@ process_refresh_pid_checks(void)
 	num_procs[item] = 0;
 
     for (proc = 0; proc < npidlist; proc++) {
-	sprintf(proc_path, "/proc/%d/status", pidlist[proc]);
+	pmsprintf(proc_path, sizeof(proc_path), "/proc/%d/status", pidlist[proc]);
 	if (stat(proc_path, &statbuf) == -1) {
 	    /* We can't stat it, let's assume the process isn't running anymore */
 	    continue;

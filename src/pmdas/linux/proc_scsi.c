@@ -67,7 +67,7 @@ refresh_proc_scsi(pmInDom indom)
 	    }
 	}
 
-	sprintf(name, "scsi%d:%d:%d:%d %s",
+	pmsprintf(name, sizeof(name), "scsi%d:%d:%d:%d %s",
 	    x.dev_host, x.dev_channel, x.dev_id, x.dev_lun, type);
 
 	failed = 0;
@@ -83,7 +83,8 @@ refresh_proc_scsi(pmInDom indom)
 	    *se = x; /* struct copy */
 
 	    /* find the block device name from sysfs */
-	    sprintf(buf, "/sys/class/scsi_device/%d:%d:%d:%d/device/block",
+	    pmsprintf(buf, sizeof(buf),
+			    "/sys/class/scsi_device/%d:%d:%d:%d/device/block",
 		se->dev_host, se->dev_channel, se->dev_id, se->dev_lun);
 	    if ((dirp = opendir(buf)) == NULL) {
 		failed++;

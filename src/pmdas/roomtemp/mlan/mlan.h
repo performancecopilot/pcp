@@ -77,8 +77,8 @@ extern uchar DOWCRC;
 extern int MLanDebug;
 
 // function prototypes
-extern int Aquire1WireNet(char *, char *);
-extern void Release1WireNet(char *);
+extern int Aquire1WireNet(char *, char *, int);
+extern void Release1WireNet(char *, int);
 extern int MLanAccess(void);
 extern int MLanBlock(int DoReset, uchar *TransferBuffer, int TransferLen);
 extern void MLanFamilySearchSetup(int SearchFamily);

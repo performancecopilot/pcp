@@ -311,7 +311,7 @@ int rapl_open(rapl_data_t *arg)
     }
 
     if( rapl_cpudata[arg->cpuidx].msrfd == -1 ) {
-        sprintf(msr_filename, FILESYSTEM_ROOT "dev/cpu/%d/msr", arg->cpuidx);
+        pmsprintf(msr_filename, BUFSIZ, FILESYSTEM_ROOT "dev/cpu/%d/msr", arg->cpuidx);
         rapl_cpudata[arg->cpuidx].msrfd = open(msr_filename, O_RDONLY);
     }
 

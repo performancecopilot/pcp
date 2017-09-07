@@ -775,7 +775,7 @@ static int
 redo_many(void)
 {
     pmdaIndom   	*idp;
-    int			a;
+    int			a, len;
     static char		*tags=NULL;
     char		*tag;
 
@@ -787,34 +787,30 @@ redo_many(void)
     idp = &indomtab[MANY_INDOM];
 
     /* realloc instances buffer */
-
-    idp->it_set = realloc(idp->it_set, many_count*sizeof(pmdaInstid));
-    if (!idp->it_set) {
-	idp->it_numinst=0;
-	many_count=0;
+    len = many_count * sizeof(pmdaInstid);
+    if ((idp->it_set = realloc(idp->it_set, len)) == NULL) {
+	idp->it_numinst = 0;
+	many_count = 0;
 	return -oserror();
     }
 
     /* realloc string buffer */
-
-    tags = realloc(tags, many_count*MANY_MAX_LEN);
-    if (!idp->it_set) {
-	idp->it_numinst=0;
-	many_count=0;
+    len = many_count * MANY_MAX_LEN;
+    if ((tags = realloc(tags, len)) == NULL) {
+	idp->it_numinst = 0;
+	many_count = 0;
 	return -oserror();
     }
 
     /* set number of instances */
-
-    idp->it_numinst=many_count;
+    idp->it_numinst = many_count;
 
     /* generate instances */
-
-    tag=tags;
-    for (a=0;a<many_count;a++) {
-	idp->it_set[a].i_inst=a;
-	idp->it_set[a].i_name=tag;
-	tag+=sprintf(tag,"i-%d",a)+1;
+    tag = tags;
+    for (a = 0; a < many_count; a++) {
+	idp->it_set[a].i_inst = a;
+	idp->it_set[a].i_name = tag;
+	tag += pmsprintf(tag, len - (tag - tags), "i-%d", a) + 1;
     }
 
     return 0;
@@ -845,7 +841,7 @@ redo_mirage(void)
 	}
 	idp->it_numinst = 1;
 	idp->it_set[0].i_inst = 0;
-	sprintf(idp->it_set[0].i_name, "m-%02d", 0);
+	pmsprintf(idp->it_set[0].i_name, 5, "m-%02d", 0);
     }
     else {
 	int	numinst;
@@ -893,7 +889,7 @@ redo_mirage(void)
 		}
 		idp->it_numinst = numinst;
 		idp->it_set[numinst-1].i_inst = newinst;
-		sprintf(idp->it_set[numinst-1].i_name, "m-%02d", newinst);
+		pmsprintf(idp->it_set[numinst-1].i_name, 5, "m-%02d", newinst);
 	    }
 	}
     }
