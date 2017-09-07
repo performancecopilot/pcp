@@ -202,7 +202,7 @@ DoStore(ClientInfo *cp, __pmPDU* pb)
     while (nWait > 0) {
         __pmFD_COPY(&readyFds, &waitFds);
 	if (nWait > 1) {
-	    timeout.tv_sec = _pmcd_timeout;
+	    timeout.tv_sec = pmcd_timeout;
 	    timeout.tv_usec = 0;
 
 	    retry:
@@ -241,7 +241,7 @@ DoStore(ClientInfo *cp, __pmPDU* pb)
 	    ap->status.busy = 0;
 	    __pmFD_CLR(ap->outFd, &waitFds);
 	    nWait--;
-	    pinpdu = s = __pmGetPDU(ap->outFd, ANY_SIZE, _pmcd_timeout, &pb);
+	    pinpdu = s = __pmGetPDU(ap->outFd, ANY_SIZE, pmcd_timeout, &pb);
 	    if (s > 0)
 		pmcd_trace(TR_RECV_PDU, ap->outFd, s, (int)((__psint_t)pb & 0xffffffff));
 	    if (s == PDU_ERROR) {

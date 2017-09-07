@@ -2,7 +2,7 @@ QA output created by 931
 Note: timezone set to local timezone of host "vm-rawhide-64" from archive
 
 metric:    network.interface.in.bytes
-archive:   archives/archive-20141125-000009
+archive:   badarchives/archive-20141125-000009
 host:      vm-rawhide-64
 start:     Sun Nov 23 19:41:47 2014
 end:       Mon Nov 24 18:59:39 2014

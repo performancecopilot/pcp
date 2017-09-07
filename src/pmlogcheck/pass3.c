@@ -128,7 +128,7 @@ unwrap(double current, struct timeval *curtime, checkData *checkdata, int index)
 	print_stamp(stderr, curtime);
 	fprintf(stderr, "]: ");
 	print_metric(stderr, checkdata->desc.pmid);
-	if (pmNameInDom(checkdata->desc.indom, checkdata->instlist[index]->inst, &str) < 0)
+	if (pmNameInDomArchive(checkdata->desc.indom, checkdata->instlist[index]->inst, &str) < 0)
 	    fprintf(stderr, ": %s wrap", typeStr(checkdata->desc.type));
 	else {
 	    fprintf(stderr, "[%s]: %s wrap", str, typeStr(checkdata->desc.type));
@@ -188,7 +188,7 @@ newHashInst(pmValue *vp,
 	    fprintf(stderr, ": new singular metric\n");
 	else {
 	    fprintf(stderr, ": new metric-instance pair ");
-	    if (pmNameInDom(checkdata->desc.indom, vp->inst, &name) < 0)
+	    if (pmNameInDomArchive(checkdata->desc.indom, vp->inst, &name) < 0)
 		fprintf(stderr, "%d\n", vp->inst);
 	    else {
 		fprintf(stderr, "\"%s\"\n", name);

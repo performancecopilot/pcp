@@ -24,7 +24,7 @@ $sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
-for file in archives/badmeta-*.meta
+for file in badarchives/badmeta-*.meta
 do
     archive=`echo $file | sed -e 's/\.meta$//'`
     echo

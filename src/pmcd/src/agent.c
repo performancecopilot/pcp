@@ -180,7 +180,7 @@ CleanupAgent(AgentInfo* aPtr, int why, int status)
     aPtr->status.flags = 0;
     AgentDied = 1;
 
-    if (_pmcd_trace_mask)
+    if (pmcd_trace_mask)
 	pmcd_dump_trace(stderr);
 
     MarkStateChanges(PMCD_DROP_AGENT);

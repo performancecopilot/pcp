@@ -1,0 +1,13 @@
+Bad QA archives that are static.  All of these are corrupted in
+some manner.
+
+These ones are checked into the git tree.
+
+For some of them, the makefile and the associated pmlogger
+configuration files and scripts provide recipes for recreating them.
+
+Others come from sources that are not reproducible, e.g. points in
+the past when the code that created the archive was busted.
+
+See also ../archives for good static QA archives and ../tmparch for
+the dynamically recreated QA archives.

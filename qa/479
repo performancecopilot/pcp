@@ -34,6 +34,7 @@ _filter2()
 }
 
 cp archives/bozo.client_v2.* $tmp
+cp badarchives/bozo.client_v2.* $tmp
 mv $tmp/bozo.client_v2.meta $tmp/bozo.client_v2.save
 
 # real QA test starts here

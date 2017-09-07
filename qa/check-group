@@ -43,8 +43,23 @@ do
 	    continue
 	fi
     fi
-    ( grep -v '^#' $seq \
-       | egrep -q "(^$1([ \'\"]|$))|([ /\'\"_]$1([ \'\"_]|$))" ) && echo $seq >>$tmp.tmp
+
+    # need to handle some alias cases ...
+    #
+    case "$1"
+    in
+	pmclient)	# executable might be pmlient_fg
+	    ( grep -v '^#' $seq \
+	      | egrep -q "(^(pmclient|pmclient_fg)([ '\"]|$))|([ /'\"_=](pmclient|pmclient_fg)([ '\"_]|$))" \
+	    ) && echo $seq >>$tmp.tmp
+	    ;;
+
+	*)
+	    ( grep -v '^#' $seq \
+	      | egrep -q "(^$1([ '\"]|$))|([ /'\"_=]$1([ '\"_]|$))" \
+	    ) && echo $seq >>$tmp.tmp
+	    ;;
+    esac
 done
 
 sed <group -e '/^$/d' -e '/^[^0-9]/d' -e 's/[: 	].*//' \

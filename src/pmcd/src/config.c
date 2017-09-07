@@ -1504,7 +1504,7 @@ DoAgentCreds(AgentInfo* aPtr, __pmPDU *pb)
 	handshake.c_type = CVERSION;
 	handshake.c_version = PDU_VERSION;
 	handshake.c_flags = (flags & PDU_FLAG_AUTH);
-	if ((sts = __pmSendCreds(aPtr->inFd, (int)getpid(), 1, cp)) < 0)
+	if ((sts = __pmSendCreds(aPtr->inFd, (int)pmcd_pid, 1, cp)) < 0)
 	    return sts;
 	pmcd_trace(TR_XMIT_PDU, aPtr->inFd, PDU_CREDS, credcount);
 
@@ -2189,6 +2189,7 @@ ContactAgents(void)
 	    else
 		pmcd_trace(TR_ADD_AGENT, aPtr->pmDomainId, aPtr->inFd, aPtr->outFd);
 	    MarkStateChanges(PMCD_ADD_AGENT);
+	    pmcd_seqnum++;
 	    aPtr->status.notReady = aPtr->status.startNotReady;
 	}
 	else
@@ -2529,6 +2530,7 @@ ParseRestartAgents(char *fileName)
 	    }
 
 	    MarkStateChanges(PMCD_RESTART_AGENT);
+	    pmcd_seqnum++;
 	}
 	PrintAgentInfo(stderr);
 	__pmAccDumpLists(stderr);
