@@ -1164,8 +1164,8 @@ ctx_hostname(int ctx, char **hostname)
     (void)ctx;
     if (*hostname)
 	return *hostname;
-    else if (_pmcd_hostname)
-	return _pmcd_hostname;
+    else if (pmcd_hostname)
+	return pmcd_hostname;
     return *hostname = hostnameinfo();
 }
 

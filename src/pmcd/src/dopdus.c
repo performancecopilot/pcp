@@ -347,9 +347,9 @@ GetContextLabels(ClientInfo *cp, pmLabelSet **sets)
     int			sts;
 
     if ((sts = __pmGetContextLabels(sets)) >= 0) {
-	if ((hostname = _pmcd_hostname) == NULL) {
+	if ((hostname = pmcd_hostname) == NULL) {
 	    (void)gethostname(host, MAXHOSTNAMELEN);
-	    hostname = _pmcd_hostname = host;
+	    hostname = pmcd_hostname = host;
 	}
 	userid = ((node = __pmHashSearch(PCP_ATTR_USERID, &cp->attrs)) ?
 			(const char *)node->data : NULL);
@@ -437,7 +437,7 @@ DoLabel(ClientInfo *cp, __pmPDU *pb)
 	sts = __pmSendLabelReq(ap->inFd, cp - client, ident, type);
 	if (sts >= 0) {
 	    int		pinpdu;
-	    pinpdu = sts = __pmGetPDU(ap->outFd, ANY_SIZE, _pmcd_timeout, &pb);
+	    pinpdu = sts = __pmGetPDU(ap->outFd, ANY_SIZE, pmcd_timeout, &pb);
 	    if (sts > 0)
 		pmcd_trace(TR_RECV_PDU, ap->outFd, sts, (int)((__psint_t)pb & 0xffffffff));
 	    if (sts == PDU_LABEL)
