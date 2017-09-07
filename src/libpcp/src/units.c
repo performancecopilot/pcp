@@ -1243,7 +1243,6 @@ __pmParseUnitsStrPart(const char *str, const char *str_end, pmUnitsBig * out, do
 	    double m = strtod(ptr, &newptr);
 	    if (errno || newptr == ptr || newptr > str_end) {
 		sts = PM_ERR_CONV;
-		/* my kingdom for asprintf, my kingdom! */
 		*errMsg = strdup("invalid floating point literal");
 		goto out;
 	    }
@@ -1290,7 +1289,6 @@ __pmParseUnitsStrPart(const char *str, const char *str_end, pmUnitsBig * out, do
 	/* parse optional dimension exponent */
 	switch (dimension) {
 	    case d_none:
-		/* my kingdom for asprintf, my kingdom! */
 		*errMsg = strdup("unrecognized or duplicate base unit");
 		sts = PM_ERR_CONV;
 		goto out;

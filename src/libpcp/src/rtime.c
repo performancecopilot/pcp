@@ -208,7 +208,7 @@ parseError(const char *spec, const char *point, char *msg, char **rslt)
     *q++ = '\n';
     for (p = spec; p != point; p++)
 	*q++ = isgraph((int)*p) ? ' ' : *p;
-    sprintf(q, "^ -- ");
+    strcat(q, "^ -- ");
     q += 5;
     for (p = msg; *p != '\0'; p++)
 	*q++ = *p;

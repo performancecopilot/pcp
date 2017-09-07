@@ -53,7 +53,7 @@ parseError(const char *func, const char *spec, const char *point, char *msg, cha
     *q++ = '\n';
     for (p = spec; p != point; p++)
 	*q++ = isgraph((int)*p) ? ' ' : *p;
-    sprintf(q, "^ -- %s\n", msg);	/* safe */
+    pmsprintf(q, need - (q - *rslt), "^ -- %s\n", msg);
 }
 
 static void *
