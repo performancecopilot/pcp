@@ -17,16 +17,9 @@
  */
 
 #include "rapl-interface.h"
-#include <stdlib.h>
-#include <stdio.h>
-#include <sys/types.h>
-#include <sys/stat.h>
+#include <pcp/pmapi.h>
 #include <fcntl.h>
-#include <unistd.h>
-#include <string.h>
-#include <stdint.h>
 #include <math.h>
-#include <errno.h>
 
 /* This device is purely for convience of unit testing
  */
