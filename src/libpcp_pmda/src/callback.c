@@ -908,10 +908,12 @@ pmdaAddLabels(pmLabelSet **lsp, const char *fmt, ...)
     int			sts;
 
     va_start(arg, fmt);
-    if ((sts = vsnprintf(buf, sizeof(buf), fmt, arg)) < 0)
-	return sts;
+    sts = vsnprintf(buf, sizeof(buf), fmt, arg);
     va_end(arg);
-    buf[sizeof(buf)-1] = '\0';
+    if (sts < 0)
+	return sts;
+    if (sts >= sizeof(buf))
+	buf[sizeof(buf)-1] = '\0';
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_LABEL)
@@ -938,10 +940,12 @@ pmdaAddNotes(pmLabelSet **lsp, const char *fmt, ...)
     int			sts;
 
     va_start(arg, fmt);
-    if ((sts = vsnprintf(buf, sizeof(buf), fmt, arg)) < 0)
-	return sts;
+    sts = vsnprintf(buf, sizeof(buf), fmt, arg);
     va_end(arg);
-    buf[sizeof(buf)-1] = '\0';
+    if (sts < 0)
+	return sts;
+    if (sts >= sizeof(buf))
+	buf[sizeof(buf)-1] = '\0';
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_LABEL)
