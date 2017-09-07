@@ -740,8 +740,10 @@ dump_valueset(__pmContext *ctxp, FILE *f, pmValueSet *vsp)
 	else {
 	    if (vsp->valfmt == PM_VAL_INSITU)
 		pmPrintValue(f, vsp->valfmt, PM_TYPE_UNKNOWN, vp, 1); 
-	    else
+	    else if (vsp->valfmt == PM_VAL_DPTR || vsp->valfmt == PM_VAL_SPTR)
 		pmPrintValue(f, vsp->valfmt, (int)vp->value.pval->vtype, vp, 1); 
+	    else
+		fprintf(f, "bad valfmt %d", vsp->valfmt);
 	}
 	fputc('\n', f);
     }
@@ -971,7 +973,7 @@ pmPrintValue(FILE *f,			/* output stream */
 		minwidth -= 2;
 	    fprintf(f, " 0x%*x", minwidth, val->value.lval);
 	}
-	else {
+	else if (valfmt == PM_VAL_DPTR || valfmt == PM_VAL_SPTR) {
 	    int		string;
 	    int		done = 0;
 	    if (val->value.pval->vlen == PM_VAL_HDR_SIZE + sizeof(__uint64_t)) {
@@ -1015,7 +1017,7 @@ pmPrintValue(FILE *f,			/* output stream */
 		}
 	    }
 	    if (val->value.pval->vlen < PM_VAL_HDR_SIZE)
-		fprintf(f, "pmPrintValue: negative length (%d) for aggregate value?",
+		fprintf(f, "pmPrintValue: negative length (%d) for aggregate value?\n",
 		    (int)val->value.pval->vlen - PM_VAL_HDR_SIZE);
 	    else {
 		string = 1;
@@ -1050,6 +1052,9 @@ pmPrintValue(FILE *f,			/* output stream */
 		}
 		fputc(']', f);
 	    }
+	}
+	else {
+	    fprintf(f, "pmPrintValue: bad valfmt (%d)?\n", valfmt);
 	}
 	if (type != PM_TYPE_UNKNOWN)
 	    free(a.vbp);
