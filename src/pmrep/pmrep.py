@@ -1244,10 +1244,12 @@ class PMReporter(object):
             self.writer.write("Time")
             for i, metric in enumerate(self.metrics):
                 for j in range(len(self.insts[i][0])):
+                    name = metric
                     if self.insts[i][0][0] != PM_IN_NULL and self.insts[i][1][j]:
-                        name = metric + "-" + self.insts[i][1][j]
-                    else:
-                        name = metric
+                        name += "-" + self.insts[i][1][j]
+                    # Mark metrics with instance domain but without instances
+                    if self.descs[i].contents.indom != PM_IN_NULL and self.insts[i][1][0] is None:
+                        name += "-"
                     name = name.replace(self.delimiter, " ").replace("\n", " ").replace("\"", " ")
                     self.writer.write(self.delimiter + "\"" + name + "\"")
             self.writer.write("\n")
