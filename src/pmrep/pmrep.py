@@ -724,14 +724,13 @@ class PMReporter(object):
             except pmapi.pmErr:
                 inst = ([PM_IN_NULL], [None])            # mem.util.free
             # Reject unsupported types
-            mtype = desc.contents.type
-            if not (mtype == PM_TYPE_32 or
-                    mtype == PM_TYPE_U32 or
-                    mtype == PM_TYPE_64 or
-                    mtype == PM_TYPE_U64 or
-                    mtype == PM_TYPE_FLOAT or
-                    mtype == PM_TYPE_DOUBLE or
-                    mtype == PM_TYPE_STRING):
+            if not (desc.contents.type == PM_TYPE_32 or
+                    desc.contents.type == PM_TYPE_U32 or
+                    desc.contents.type == PM_TYPE_64 or
+                    desc.contents.type == PM_TYPE_U64 or
+                    desc.contents.type == PM_TYPE_FLOAT or
+                    desc.contents.type == PM_TYPE_DOUBLE or
+                    desc.contents.type == PM_TYPE_STRING):
                 raise pmapi.pmErr(PM_ERR_TYPE)
             instances = self.instances if not self.tmp[0] else self.tmp
             if self.omit_flat and instances and not inst[1][0]:
@@ -867,6 +866,7 @@ class PMReporter(object):
 
             # Unit/scale
             unitstr = str(self.descs[i].contents.units)
+            mtype = pmapi.c_api.PM_TYPE_FLOAT # Allow for precision
             # Set default unit if not specified on per-metric basis
             if not self.metrics[metric][2]:
                 done = 0
@@ -890,16 +890,16 @@ class PMReporter(object):
                     self.metrics[metric][2] = self.time_scale
                     done = 1
                 if not done:
+                    mtype = None # No scaling, use native type
                     self.metrics[metric][2] = unitstr
             # Set unit/scale for non-raw numeric metrics
-            mtype = None
             try:
                 if self.metrics[metric][3] == 0 and \
                    self.descs[i].contents.type != PM_TYPE_STRING:
                     (unitstr, mult) = self.context.pmParseUnitsStr(self.metrics[metric][2])
                     label = self.metrics[metric][2]
                     if self.descs[i].sem == PM_SEM_COUNTER:
-                        mtype = PM_TYPE_DOUBLE
+                        mtype = PM_TYPE_FLOAT
                         if '/' not in label:
                             label += " / s"
                     label = self.format_metric_label(label)
