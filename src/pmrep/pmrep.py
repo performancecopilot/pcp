@@ -1374,38 +1374,36 @@ class PMReporter(object):
             # Silent goodbye
             return
 
-        # Print the results
         line = timestamp
+
+        # Avoid crossing the C/Python boundary more than once per metric
+        res = {}
+        for _, metric in enumerate(self.metrics):
+            try:
+                for inst, name, val in self.metrics[metric][5]():
+                    try:
+                        value = val()
+                        if isinstance(value, float):
+                            value = round(value, self.precision)
+                        res[metric + str(inst)] = value
+                    except:
+                        pass
+            except:
+                pass
+
+        # Add corresponding values for each column in the static header
         for i, metric in enumerate(self.metrics):
             for j in range(len(self.insts[i][0])):
                 line += self.delimiter
-                found = 0
-                try:
-                    for inst, name, val in self.metrics[metric][5](): # pylint: disable=unused-variable
-                        if inst == PM_IN_NULL or inst == self.insts[i][0][j]:
-                            found = 1
-                            break
-                    if not found:
-                        continue
-                except:
-                    continue
+                if metric + str(self.insts[i][0][j]) in res:
+                    value = res[metric + str(self.insts[i][0][j])]
+                    if value:
+                        if isinstance(value, str):
+                            value = value.replace(self.delimiter, " ").replace("\n", " ").replace('"', " ")
+                            line += str('"' + value + '"')
+                        else:
+                            line += str(value)
 
-                try:
-                    value = val() # pylint: disable=undefined-loop-variable
-                except:
-                    value = NO_VAL
-                if isinstance(value, float):
-                    fmt = "." + str(self.precision) + "f"
-                    line += format(value, fmt)
-                elif isinstance(value, (int, long)):
-                    line += str(value)
-                else:
-                    if value == NO_VAL:
-                        line += '""'
-                    else:
-                        if value:
-                            value = value.replace(self.delimiter, " ").replace("\n", " ").replace("\"", " ")
-                            line += str("\"" + value + "\"")
         self.writer.write(line + "\n")
 
     def write_stdout(self, timestamp):
