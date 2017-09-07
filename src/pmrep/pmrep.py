@@ -902,7 +902,7 @@ class PMReporter(object):
                         mtype = PM_TYPE_FLOAT
                         if '/' not in label:
                             label += " / s"
-                    label = self.format_metric_label(label)
+                label = self.format_metric_label(label)
                 self.metrics[metric][2] = (label, unitstr, mult)
             except pmapi.pmErr as error:
                 sys.stderr.write("%s: %s.\n" % (str(error), self.metrics[metric][2]))
