@@ -892,21 +892,18 @@ class PMReporter(object):
                 if not done:
                     mtype = None # No scaling, use native type
                     self.metrics[metric][2] = unitstr
-            # Set unit/scale for non-raw numeric metrics
+            # Set unit/scale for numeric metrics
             try:
+                (unitstr, mult) = self.context.pmParseUnitsStr(self.metrics[metric][2])
+                label = self.metrics[metric][2]
                 if self.metrics[metric][3] == 0 and \
                    self.descs[i].contents.type != PM_TYPE_STRING:
-                    (unitstr, mult) = self.context.pmParseUnitsStr(self.metrics[metric][2])
-                    label = self.metrics[metric][2]
                     if self.descs[i].sem == PM_SEM_COUNTER:
                         mtype = PM_TYPE_FLOAT
                         if '/' not in label:
                             label += " / s"
                     label = self.format_metric_label(label)
-                    self.metrics[metric][2] = (label, unitstr, mult)
-                else:
-                    label = self.format_metric_label(unitstr)
-                    self.metrics[metric][2] = (label, unitstr, 1)
+                self.metrics[metric][2] = (label, unitstr, mult)
             except pmapi.pmErr as error:
                 sys.stderr.write("%s: %s.\n" % (str(error), self.metrics[metric][2]))
                 sys.exit(1)
