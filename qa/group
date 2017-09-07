@@ -422,7 +422,7 @@ zsh
 076 pmda.pmcd local ostest
 077 libpcp ostest remote timezone
 078 pmdumplog local ostest
-079 libpcp archive local ostest
+079 libpcp archive local ostest pmclient
 080 libpcp pmval local sanity
 081 indom archive pmns remote pmdumplog
 082 pmns local ostest
@@ -663,7 +663,7 @@ zsh
 317 logutil pmlogsummary local pmlogcheck
 318 pmie local
 319 pmie local
-320 local folio pmlogcheck
+320 local folio pmlogcheck pmclient
 321 pmie local
 322 pmlc pmlogger remote
 323 pmda.shping pmda.proc local pmda.install
@@ -1392,6 +1392,7 @@ zsh
 1199 libpcp pmcd local
 1202 pmdadm local
 1227 derive local
+1245 libpcp local
 1257 libpcp python local
 1331 verify local
 1354 pmval archive local

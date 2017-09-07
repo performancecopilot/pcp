@@ -64,7 +64,7 @@ refresh_sysfs_tapestats(pmInDom tape_indom)
 	if (strncmp(sysdev, "st", 2) != 0 || !isdigit(sysdev[strlen(sysdev)-1]))
 	    continue;
 
-	sprintf(statsname, "%s/%s/stats", sysname, sysdev);
+	pmsprintf(statsname, sizeof(statsname), "%s/%s/stats", sysname, sysdev);
 	if ((tapestatsdir = opendir(statsname)) == NULL)
 	    continue; /* no stats for this device? */
 	/*
@@ -97,7 +97,7 @@ refresh_sysfs_tapestats(pmInDom tape_indom)
 
 	    if (ts[0] == '.')
 	    	continue;
-	    sprintf(statsfile, "%s/%s", statsname, ts);
+	    pmsprintf(statsfile, sizeof(statsfile), "%s/%s", statsname, ts);
 	    if ((fd = open(statsfile, O_RDONLY)) < 0)
 	    	continue; /* should report this */
 	    /*

@@ -427,31 +427,31 @@ stat_time_differs(struct stat *statbuf, struct stat *lastsbuf)
 static void
 refresh_basic(char *path)
 {
-    char    json_query[BUFSIZ] = "";
+    char    json_query[BUFSIZ];
     pmInDom indom = INDOM(CONTAINERS_INDOM);
 
-    sprintf(json_query, "http://localhost/containers/%s/json", path);
+    pmsprintf(json_query, BUFSIZ, "http://localhost/containers/%s/json", path);
     grab_values(json_query, indom, path, basic_metrics, basic_metrics_size);
 } 
 
 static void
 refresh_version(char *path)
 {
-    char    json_query[BUFSIZ] = "";
+    char    json_query[BUFSIZ];
     pmInDom indom = PM_INDOM_NULL;
 
-    sprintf(json_query, "http://localhost/version");
+    pmsprintf(json_query, BUFSIZ, "http://localhost/version");
     grab_values(json_query, indom, path, version_metrics, version_metrics_size);
 }
 
 static void
 refresh_stats(char *path)
 {
-    char    json_query[BUFSIZ] = "";
+    char    json_query[BUFSIZ];
     pmInDom indom = INDOM(CONTAINERS_STATS_CACHE_INDOM);
 
     /* the ?stream=0 bit is set so as to not continuously request stats */
-    sprintf(json_query, "http://localhost/containers/%s/stats?stream=0", path);
+    pmsprintf(json_query, BUFSIZ, "http://localhost/containers/%s/stats?stream=0", path);
     grab_values(json_query, indom, path, stats_metrics, stats_metrics_size);
 }
 

@@ -20,14 +20,16 @@
  * in a DSO as well, due to linkage oddities with Windows DLLs.
  */
 
+PMCD_DATA pid_t	pmcd_pid;		/* pmcd's pid */
+PMCD_DATA int	pmcd_seqnum = 1;	/* PMDA start/restart count */
 PMCD_DATA int	pmcd_hi_openfds = -1;   /* Highest open pmcd file descriptor */
-PMCD_DATA int	_pmcd_done;		/* flag from pmcd pmda */
-PMCD_DATA int	_pmcd_timeout = 5;	/* Timeout for hung agents */
+PMCD_DATA int	pmcd_done;		/* flag from pmcd pmda */
+PMCD_DATA int	pmcd_timeout = 5;	/* Timeout for hung agents */
 
 PMCD_DATA int	nAgents;		/* Number of active agents */
 PMCD_DATA AgentInfo *agent;		/* Array of agent info structs */
 
-PMCD_DATA char *_pmcd_hostname;		/* Explicitly requested hostname */
+PMCD_DATA char *pmcd_hostname;		/* Explicitly requested hostname */
 
 PMCD_DATA unsigned pmcd_sighups;	/* Count of SIGHUPS responded to */
 

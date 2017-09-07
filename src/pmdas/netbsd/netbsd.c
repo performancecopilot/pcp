@@ -631,7 +631,7 @@ netbsd_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		break;
 
 	    case 20: /* pmda.uname */
-		sprintf(uname_string, "%s %s %s %s %s",
+		pmsprintf(uname_string, sizeof(uname_string), "%s %s %s %s %s",
 		    kernel_uname.sysname, 
 		    kernel_uname.nodename,
 		    kernel_uname.release,

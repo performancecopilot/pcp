@@ -355,7 +355,7 @@ static void config_indom(pmdaIndom *pindom, int index, perf_counter *counter)
 
     for(i = 0; i < counter->ninstances; ++i)
     {
-        sprintf(cpuname, "cpu%d", counter->data[i].id);
+        pmsprintf(cpuname, sizeof(cpuname), "cpu%d", counter->data[i].id);
         pindom->it_set[i].i_inst = i;
         pindom->it_set[i].i_name = strdup(cpuname);
     }
@@ -372,7 +372,7 @@ static void config_indom_derived(pmdaIndom *pindom, int index, perf_derived_coun
 
     for(i = 0; i < derived_counter->ninstances; ++i)
     {
-        sprintf(cpuname, "cpu%d", derived_counter->counter_list->counter->data[i].id);
+        pmsprintf(cpuname, sizeof(cpuname), "cpu%d", derived_counter->counter_list->counter->data[i].id);
         pindom->it_set[i].i_inst = i;
         pindom->it_set[i].i_name = strdup(cpuname);
     }

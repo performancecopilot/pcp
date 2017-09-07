@@ -45,8 +45,8 @@ static unsigned int	next;
  * to 1, pmcd.control.traceconn (trace connections) and/or
  * pmcd.control.tracepdu (trace PDUs)
  */
-PMCD_DATA int		_pmcd_trace_nbufs = 20;
-PMCD_DATA int		_pmcd_trace_mask;
+PMCD_DATA int		pmcd_trace_nbufs = 20;
+PMCD_DATA int		pmcd_trace_mask;
 
 void
 pmcd_init_trace(int n)
@@ -57,7 +57,7 @@ pmcd_init_trace(int n)
 	 __pmNoMem("pmcd_init_trace", n * sizeof(tracebuf), PM_RECOV_ERR);
 	 return;
     }
-    _pmcd_trace_nbufs = n;
+    pmcd_trace_nbufs = n;
     next = 0;
 }
 
@@ -70,23 +70,23 @@ pmcd_trace(int type, int who, int p1, int p2)
 	case TR_XMIT_PDU:
 	case TR_RECV_PDU:
 	    PCP_PROBE_PMCD_PDU(type, who, p1, p2);
-	    if ((_pmcd_trace_mask & TR_MASK_PDU) == 0)
+	    if ((pmcd_trace_mask & TR_MASK_PDU) == 0)
 		return;
 	    break;
 	default:
 	    PCP_PROBE_PMCD(type, who, p1, p2);
-	    if ((_pmcd_trace_mask & TR_MASK_CONN) == 0)
+	    if ((pmcd_trace_mask & TR_MASK_CONN) == 0)
 		return;
 	    break;
     }
 
     if (trace == NULL) {
-	pmcd_init_trace(_pmcd_trace_nbufs);
+	pmcd_init_trace(pmcd_trace_nbufs);
 	if (trace == NULL)
 	    return;
     }
 
-    p = (next++) % _pmcd_trace_nbufs;
+    p = (next++) % pmcd_trace_nbufs;
 
     time(&trace[p].t_stamp);
     trace[p].t_type = type;
@@ -94,7 +94,7 @@ pmcd_trace(int type, int who, int p1, int p2)
     trace[p].t_p1 = p1;
     trace[p].t_p2 = p2;
 
-    if (_pmcd_trace_mask & TR_MASK_NOBUF)
+    if (pmcd_trace_mask & TR_MASK_NOBUF)
 	/* unbuffered, dump it now */
 	pmcd_dump_trace(stderr);
 }
@@ -108,15 +108,15 @@ pmcd_dump_trace(FILE *f)
     struct tm		*this;
     char		strbuf[20];
 
-    if ((_pmcd_trace_mask & TR_MASK_NOBUF) == 0)
+    if ((pmcd_trace_mask & TR_MASK_NOBUF) == 0)
 	fprintf(f, "\n->PMCD event trace: ");
     if (trace != NULL && next != 0) {
-	if (next < _pmcd_trace_nbufs)
+	if (next < pmcd_trace_nbufs)
 	    i = 0;
 	else
-	    i = next - _pmcd_trace_nbufs;
-	if ((_pmcd_trace_mask & TR_MASK_NOBUF) == 0) {
-	    fprintf(f, "starting at %s", ctime(&trace[i % _pmcd_trace_nbufs].t_stamp));
+	    i = next - pmcd_trace_nbufs;
+	if ((pmcd_trace_mask & TR_MASK_NOBUF) == 0) {
+	    fprintf(f, "starting at %s", ctime(&trace[i % pmcd_trace_nbufs].t_stamp));
 	    last.tm_hour = -1;
 	}
 	else
@@ -124,7 +124,7 @@ pmcd_dump_trace(FILE *f)
 
 	for ( ; i < next; i++) {
 	    fprintf(f, "->");
-	    p = i % _pmcd_trace_nbufs;
+	    p = i % pmcd_trace_nbufs;
 	    this = localtime(&trace[p].t_stamp);
 	    if (this->tm_hour != last.tm_hour ||
 		this->tm_min != last.tm_min ||
@@ -283,7 +283,7 @@ pmcd_dump_trace(FILE *f)
     else
 	fprintf(f, "<empty>\n");
 
-    if ((_pmcd_trace_mask & TR_MASK_NOBUF) == 0)
+    if ((pmcd_trace_mask & TR_MASK_NOBUF) == 0)
 	fputc('\n', f);
     next = 0;			/* empty the circular buffer */
 }

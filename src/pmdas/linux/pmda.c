@@ -6807,7 +6807,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     case CLUSTER_KERNEL_UNAME:
 	switch(idp->item) {
 	case 5: /* pmda.uname */
-	    sprintf(uname_string, "%s %s %s %s %s",
+	    pmsprintf(uname_string, sizeof(uname_string), "%s %s %s %s %s",
 	    	kernel_uname.sysname, 
 		kernel_uname.nodename,
 		kernel_uname.release,

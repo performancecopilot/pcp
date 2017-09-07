@@ -555,7 +555,7 @@ flagstr(int flags)
 
     /* unrecognised bits */
     if (flags) {
-	sprintf(bits, "unknown=%x", flags);
+	pmsprintf(bits, sizeof(bits), "unknown=%x", flags);
 	strcat(buf, bits);
     } else {
 	/* remove any trailing comma-space */

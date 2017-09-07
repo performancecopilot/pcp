@@ -558,7 +558,7 @@ init_ports(void)
     for (n = mypid, extlen = 1; n ; extlen++)
 	n /= 10;
     /* baselen is directory + trailing / */
-    snprintf(path, sizeof(path), "%s%cpmlogger", pmGetConfig("PCP_TMP_DIR"), sep);
+    pmsprintf(path, sizeof(path), "%s%cpmlogger", pmGetConfig("PCP_TMP_DIR"), sep);
     baselen = strlen(path) + 1;
     /* likewise for PCP_DIR if it is set */
     n = baselen + extlen + 1;
@@ -580,7 +580,7 @@ init_ports(void)
     }
 
     /* remove any existing port file with my name (it's old) */
-    snprintf(ctlfile + (baselen-1), n, "%c%" FMT_PID, sep, mypid);
+    pmsprintf(ctlfile + (baselen-1), n, "%c%" FMT_PID, sep, mypid);
     unlink(ctlfile);
 
     /* get control port and write port map file */
@@ -591,13 +591,13 @@ init_ports(void)
      * clients to connect specifically to it.
      */
     if (primary) {
-	baselen = snprintf(path, sizeof(path), "%s%cpmlogger",
+	baselen = pmsprintf(path, sizeof(path), "%s%cpmlogger",
 				pmGetConfig("PCP_TMP_DIR"), sep);
 	n = baselen + 9;	/* separator + "primary" + null */
 	linkfile = (char *)malloc(n);
 	if (linkfile == NULL)
 	    __pmNoMem("primary logger link file name", n, PM_FATAL_ERR);
-	snprintf(linkfile, n, "%s%cprimary", path, sep);
+	pmsprintf(linkfile, n, "%s%cprimary", path, sep);
 
 #ifndef IS_MINGW
 	/*
@@ -643,7 +643,7 @@ init_ports(void)
 		}
 #endif
 		/* remove the stale control file too */
-		snprintf(pidfile, sizeof(pidfile), "%s%cpmlogger%c%d",
+		pmsprintf(pidfile, sizeof(pidfile), "%s%cpmlogger%c%d",
 				pmGetConfig("PCP_TMP_DIR"), sep, sep, pid);
 	    	if (unlink(pidfile) != 0) {
 		    fprintf(stderr, "%s: warning: failed to remove stale control file '%s': %s\n",
@@ -869,7 +869,7 @@ control_req(int ctlfd)
     hostName = __pmGetNameInfo(addr);
     if (hostName == NULL || strlen(hostName) > MAXHOSTNAMELEN-1) {
 	abuf = __pmSockAddrToString(addr);
-        snprintf(pmlc_host, sizeof(pmlc_host), "%s", abuf);
+        pmsprintf(pmlc_host, sizeof(pmlc_host), "%s", abuf);
 	free(abuf);
     }
     else {

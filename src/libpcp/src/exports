@@ -574,6 +574,7 @@ PCP_3.20 {
 
 PCP_3.21 {
   global:
+    pmsprintf;
     __pmServerStart;
 } PCP_3.20;
 

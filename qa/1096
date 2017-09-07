@@ -25,7 +25,7 @@ date >> $seq.full
 if ! src/archctl_segfault; then echo FAILED; status=1; fi
 echo "=== testing multithreaded pmNewContext with one good live context and one bad archive context ===" | tee -a $seq.full
 date >> $seq.full
-src/multithread11 localhost archives/empty
+src/multithread11 localhost badarchives/empty
 [ $? -ne 0 ] && echo FAILED, see $seq.full && status=1
 
 # success, all done

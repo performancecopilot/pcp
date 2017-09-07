@@ -26,7 +26,7 @@ mmv_stats_path(const char *fname, char *fullpath, size_t pathlen)
 {
     int sep = __pmPathSeparator();
 
-    snprintf(fullpath, pathlen, "%s%c" "mmv" "%c%s",
+    pmsprintf(fullpath, pathlen, "%s%c" "mmv" "%c%s",
 		pmGetConfig("PCP_TMP_DIR"), sep, sep, fname);
 }
 

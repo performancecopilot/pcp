@@ -86,7 +86,7 @@ decode_ctype(DWORD ctype)
     for (i = 0; i < ctypetab_sz; i++)
 	if (ctype == ctypetab[i].type)
 	    return ctypetab[i].desc;
-    sprintf(unknown, "0x%08x unknown", (int)ctype);
+    pmsprintf(unknown, sizeof(unknown), "0x%08x unknown", (int)ctype);
     return unknown;
 }
 
@@ -114,7 +114,7 @@ _semstr(int sem)
     else if (sem == PM_SEM_DISCRETE)
 	return "DISCRETE";
     else {
-	sprintf(msg, "UNKNOWN! (%d)", sem);
+	pmsprintf(msg, sizeof(msg), "UNKNOWN! (%d)", sem);
 	return msg;
     }
 }
@@ -136,7 +136,7 @@ _typestr(int type)
     else if (type == PM_TYPE_DOUBLE)
 	return "PM_TYPE_DOUBLE";
     else {
-	sprintf(msg, "UNKNOWN! (%d)", type);
+	pmsprintf(msg, sizeof(msg), "UNKNOWN! (%d)", type);
 	return msg;
     }
 }
@@ -206,7 +206,7 @@ windows_format_uname(OSVERSIONINFOEX osv)
 	    else if (osv.dwMajorVersion <= 4)
 		name = string_append(name, "Windows NT");
 	    else {
-		sprintf(tbuf, "Windows Unknown (%ld.%ld)",
+		pmsprintf(tbuf, sizeof(tbuf), "Windows Unknown (%ld.%ld)",
 		    osv.dwMajorVersion, osv.dwMinorVersion); 
 		name = string_append(name, tbuf);
 	    }
@@ -216,7 +216,7 @@ windows_format_uname(OSVERSIONINFOEX osv)
 		name = string_append(name, " ");
 		name = string_append(name, osv.szCSDVersion);
 	    }
-	    sprintf(tbuf, " Build %ld", osv.dwBuildNumber & 0xFFFF);
+	    pmsprintf(tbuf, sizeof(tbuf), " Build %ld", osv.dwBuildNumber & 0xFFFF);
 	    windows_build = name + strlen(name) + 1;
 	    windows_uname = string_append(name, tbuf);
 	    break;

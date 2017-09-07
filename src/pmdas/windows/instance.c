@@ -142,7 +142,7 @@ windows_lookup_instance(char *path, pdh_metric_t *mp)
 		int inst = atoi(p);
 		name = (char *)malloc(8);	// "cpuNNNN"
 		if (name != NULL)
-		    sprintf(name, "cpu%d", inst);
+		    pmsprintf(name, 8, "cpu%d", inst);
 		ok = 1;
 	    }
 	    /*
