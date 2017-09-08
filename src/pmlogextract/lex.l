@@ -75,8 +75,8 @@ int lineno = 1;
 
 \n			{ lineno++; }
 .			{ 
-			    sprintf(emess, "Unexpected character '%c'",
-				yytext[0]);
+			    pmsprintf(emess, sizeof(emess),
+				"Unexpected character '%c'", yytext[0]);
 			    yyerror(emess);
 			}
 %%

@@ -40,7 +40,7 @@ local_strdup_suffix(const char *string, const char *suffix)
 
     if (!result)
 	return result;
-    sprintf(result, "%s%s", string, suffix);
+    pmsprintf(result, length, "%s%s", string, suffix);
     return result;
 }
 
@@ -52,7 +52,7 @@ local_strdup_prefix(const char *prefix, const char *string)
 
     if (!result)
 	return result;
-    sprintf(result, "%s%s", prefix, string);
+    pmsprintf(result, length, "%s%s", prefix, string);
     return result;
 }
 

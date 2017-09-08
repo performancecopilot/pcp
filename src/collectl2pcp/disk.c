@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015 Red Hat Inc.
+ * Copyright (c) 2013-2017 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -12,7 +12,6 @@
  * for more details.
  *
  * Handler for disk.dev
- *
  * disk    8       0 sda 13911739 267073 1248592592 58081804 4912190 5603474 382020376 181762699 0 53315955 240138732
  */
 
@@ -45,7 +44,7 @@ put_disk_ull(const char *leaf, char *inst, unsigned long long value)
 {
     char str[MAXPATHLEN];
 
-    sprintf(str, "%llu", value);
+    pmsprintf(str, sizeof(str), "%llu", value);
     put_disk_str(leaf, inst, str);
 }
 
