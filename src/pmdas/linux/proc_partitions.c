@@ -653,7 +653,8 @@ _pm_ioscheduler(const char *device)
      * intuit the ones we know about (cfq, deadline, as, noop) based
      * on the different status files they create.
      */
-    sprintf(path, "%s/sys/block/%s/queue/scheduler", linux_statspath, device);
+    pmsprintf(path, sizeof(path), "%s/sys/block/%s/queue/scheduler",
+		    linux_statspath, device);
     if ((fp = fopen(path, "r")) != NULL) {
 	p = fgets(buf, sizeof(buf), fp);
 	fclose(fp);
@@ -673,17 +674,21 @@ _pm_ioscheduler(const char *device)
     else {
 #define BLKQUEUE	"%s/sys/block/%s/queue/"
 	/* sniff around, maybe we'll get lucky and find something */
-	sprintf(path, BLKQUEUE "iosched/quantum", linux_statspath, device);
+	pmsprintf(path, sizeof(path), BLKQUEUE "iosched/quantum",
+			linux_statspath, device);
 	if (access(path, F_OK) == 0)
 	    return "cfq";
-	sprintf(path, BLKQUEUE "iosched/fifo_batch", linux_statspath, device);
+	pmsprintf(path, sizeof(path), BLKQUEUE "iosched/fifo_batch",
+			linux_statspath, device);
 	if (access(path, F_OK) == 0)
 	    return "deadline";
-	sprintf(path, BLKQUEUE "iosched/antic_expire", linux_statspath, device);
+	pmsprintf(path, sizeof(path), BLKQUEUE "iosched/antic_expire",
+			linux_statspath, device);
 	if (access(path, F_OK) == 0)
 	    return "anticipatory";
 	/* punt.  noop has no files to match on ... */
-	sprintf(path, BLKQUEUE "iosched", linux_statspath, device);
+	pmsprintf(path, sizeof(path), BLKQUEUE "iosched",
+			linux_statspath, device);
 	if (access(path, F_OK) == 0)
 	    return "noop";
 	/* else fall though ... */

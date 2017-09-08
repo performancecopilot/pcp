@@ -19,7 +19,7 @@ _filter()
     | sed -e 's/pmFetchGroup/pmFetch/g' \
     | $PCP_AWK_PROG '
 /^Archive: /		{ print "... title ..."; next }
-/^[0-9. 	]*$/	{ print "... " NF " numbers ..."; next }
+/^[\?0-9. 	]*$/	{ print "... " NF " values ..."; next }
 			{ print }'
 }
 
@@ -32,7 +32,7 @@ cat >$tmp.config <<End-of-File
 log mandatory on once {
     hinv.ncpu
 }
-log mandatory on 5 secs {
+log mandatory on 1 second {
     kernel.all.load [ "1 minute", "15 minute" ]
     kernel.percpu.cpu.user
     kernel.percpu.cpu.sys
@@ -40,7 +40,7 @@ log mandatory on 5 secs {
     disk.all.total
 }
 End-of-File
-pmlogger -c $tmp.config -l $tmp.log -s 4 $tmp
+pmlogger -c $tmp.config -l $tmp.log -s 6 $tmp
 _filter_pmlogger_log <$tmp.log
 cat $tmp.log >>$here/$seq.full
 
@@ -62,16 +62,16 @@ run()
     if [ "$ncpu" -eq 1 ]
     then
 	echo "real SP case" >>$here/$seq.full
-	$pmclient -a $tmp 2>&1 | _filter
+	$pmclient -t 1 -s $samples -a $tmp 2>&1 | _filter
 	echo "..."
 	# fake MP output
 	cat <<End-of-File
 ... title ...
   CPU  Busy    Busy  Free Mem   Disk     Load Average
  Util   CPU    Util  (Mbytes)   IOPS    1 Min  15 Min
-... 7 numbers ...
-... 7 numbers ...
-$pmclient: pmFetch: End of PCP archive log
+... 7 values ...
+... 7 values ...
+... 7 values ...
 End-of-File
     else
 	# fake SP output
@@ -79,17 +79,18 @@ End-of-File
 ... title ...
   CPU  Free Mem   Disk     Load Average
  Util  (Mbytes)   IOPS    1 Min  15 Min
-... 5 numbers ...
-... 5 numbers ...
-$pmclient: pmFetch: End of PCP archive log
+... 5 values ...
+... 5 values ...
+... 5 values ...
 End-of-File
 	echo "..."
 	echo "real MP case" >>$here/$seq.full
-	$pmclient -a $tmp 2>&1 | _filter
+	$pmclient -t 1 -s $samples -a $tmp 2>&1 | _filter
     fi
 
     echo "== $pmclient done ==" && echo
 }
 
+samples=3
 run pmclient
 run pmclient_fg

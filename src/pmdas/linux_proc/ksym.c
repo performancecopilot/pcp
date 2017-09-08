@@ -377,7 +377,7 @@ read_sysmap(const char *release, __psint_t end_addr)
     /* Create version symbol name to look for in System.map */
     if (sscanf(release, "%d.%d.%d", &major, &minor, &patch) < 3 )
 	return -1;
-    sprintf(inbuf, "Version_%u", KERNEL_VERSION(major, minor, patch));
+    pmsprintf(inbuf, sizeof(inbuf), "Version_%u", KERNEL_VERSION(major, minor, patch));
 
     /*
      * Walk through System.map path list looking for one that matches

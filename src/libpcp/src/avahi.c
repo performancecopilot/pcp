@@ -449,7 +449,7 @@ __pmServerAvahiAdvertisePresence(__pmServerPresence *s)
 	__pmNoMem("__pmServerAvahiAdvertisePresence: can't allocate service tag",
 		  size, PM_FATAL_ERR);
     }
-    sprintf(s->avahi->serviceTag, "_%s._tcp", s->serviceSpec);
+    pmsprintf(s->avahi->serviceTag, size, "_%s._tcp", s->serviceSpec);
     s->avahi->collisions = 0;
     
     /* Now publish the avahi service. */
@@ -739,7 +739,7 @@ __pmAvahiDiscoverServices(const char *service,
 	context.error = ENOMEM;
 	goto done;
     }
-    sprintf(serviceTag, "_%s._tcp", service);
+    pmsprintf(serviceTag, size, "_%s._tcp", service);
     sb = avahi_service_browser_new(client, AVAHI_IF_UNSPEC,
 				   AVAHI_PROTO_UNSPEC, serviceTag,
 				   NULL, (AvahiLookupFlags)0,

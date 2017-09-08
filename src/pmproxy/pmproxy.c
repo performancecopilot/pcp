@@ -616,11 +616,11 @@ FdToString(int fd)
 	return fdStr;
     for (i = 0; i < nClients; i++) {
 	if (client[i].status.connected && fd == client[i].fd) {
-	    sprintf(fdStr, "client[%d] client socket", i);
+	    pmsprintf(fdStr, FDNAMELEN, "client[%d] client socket", i);
 	    return fdStr;
 	}
 	if (client[i].status.connected && fd == client[i].pmcd_fd) {
-	    sprintf(fdStr, "client[%d] pmcd socket", i);
+	    pmsprintf(fdStr, FDNAMELEN, "client[%d] pmcd socket", i);
 	    return fdStr;
 	}
     }

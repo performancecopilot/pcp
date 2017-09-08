@@ -152,7 +152,7 @@ extern int HarvestAgents(unsigned int);
 extern int	pmdarootfd;
 
 /* timeout to PMDAs (secs) */
-PMCD_DATA extern int	_pmcd_timeout;
+PMCD_DATA extern int	pmcd_timeout;
 
 /* timeout for credentials */
 extern int	_creds_timeout;
@@ -178,8 +178,8 @@ extern int	_creds_timeout;
 /*
  * trace control
  */
-PMCD_DATA extern int	_pmcd_trace_mask;
-PMCD_DATA extern int	_pmcd_trace_nbufs;
+PMCD_DATA extern int	pmcd_trace_mask;
+PMCD_DATA extern int	pmcd_trace_nbufs;
 
 /*
  * trace mask bits
@@ -234,9 +234,17 @@ PMCD_DATA extern int pmcd_hi_openfds;
 PMCD_CALL extern void pmcd_openfds_sethi(int);
 
 /* Explicitly requested hostname (pmcd.hostname metric) */
-PMCD_DATA extern char *_pmcd_hostname;
+PMCD_DATA extern char *pmcd_hostname;
 
 /* Counter of SIGHUPs received and responded to by pmcd */
 PMCD_DATA extern unsigned pmcd_sighups;
+
+/* pmcd's pid */
+PMCD_DATA extern pid_t pmcd_pid;
+
+/* config sequence number ...
+ * incremented each time a PMDA is started or restarted
+ */
+PMCD_DATA extern int pmcd_seqnum;
 
 #endif /* _PMCD_H */

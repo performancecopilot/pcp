@@ -43,10 +43,12 @@ pmdaRootConnect(const char *path)
 	    __pmSockAddrFree(addr);
 	    return PM_ERR_GENERIC;
 	}
-	snprintf(socketpath, sizeof(socketpath), "%s/pmcd/root.socket", tmpdir);
-    } else
+	pmsprintf(socketpath, sizeof(socketpath),
+			"%s/pmcd/root.socket", tmpdir);
+    } else {
 	strncpy(socketpath, path, sizeof(socketpath));
-    socketpath[sizeof(socketpath)-1] = '\0';
+	socketpath[sizeof(socketpath)-1] = '\0';
+    }
 
     __pmSockAddrSetFamily(addr, AF_UNIX);
     __pmSockAddrSetPath(addr, socketpath);

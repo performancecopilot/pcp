@@ -515,14 +515,14 @@ dumpTI(__pmContext *ctxp)
 	__pmPrintStamp(stdout, &tv);
 	printf("    %4d  %11d  %11d\n", tip->ti_vol, tip->ti_meta, tip->ti_log);
 	if (i == 0) {
-	    sprintf(path, "%s.meta", lcp->l_name);
+	    pmsprintf(path, sizeof(path), "%s.meta", lcp->l_name);
 	    if (stat(path, &sbuf) == 0)
 		meta_size = sbuf.st_size;
 	    else
 		meta_size = -1;
 	}
 	if (lastp == NULL || tip->ti_vol != lastp->ti_vol) { 
-	    sprintf(path, "%s.%d", lcp->l_name, tip->ti_vol);
+	    pmsprintf(path, sizeof(path), "%s.%d", lcp->l_name, tip->ti_vol);
 	    if (stat(path, &sbuf) == 0)
 		log_size = sbuf.st_size;
 	    else {

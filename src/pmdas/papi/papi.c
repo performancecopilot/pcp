@@ -239,7 +239,7 @@ papi_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    for(i = 0; i < number_of_events; i++){
 		if(papi_info[i].position < 0)
 		    continue;
-		sprintf(local_string, "%s%s(%d): %lld",
+		pmsprintf(local_string, sizeof(local_string), "%s%s(%d): %lld",
 			(first_metric ? "" : ", "),
 			papi_info[i].papi_string_code,
 			(papi_info[i].metric_enabled == METRIC_ENABLED_FOREVER ? -1 :
@@ -735,7 +735,7 @@ papi_internal_init(pmdaInterface *dp)
     unsigned int i = 0;
     pmID pmid;
 
-    sts = sprintf(papi_version, "%d.%d.%d", PAPI_VERSION_MAJOR(PAPI_VERSION),
+    sts = pmsprintf(papi_version, sizeof(papi_version), "%d.%d.%d", PAPI_VERSION_MAJOR(PAPI_VERSION),
 	    PAPI_VERSION_MINOR(PAPI_VERSION), PAPI_VERSION_REVISION(PAPI_VERSION));
     if (sts < 0) {
 	__pmNotifyErr(LOG_ERR, "%s failed to create papi version metric.\n",pmProgname);

@@ -81,6 +81,10 @@ static pmDesc	desctab[] = {
     { PMDA_PMID(0,21), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) },
 /* sighups */
     { PMDA_PMID(0,22), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
+/* pid */
+    { PMDA_PMID(0,23), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* seqnum */
+    { PMDA_PMID(0,24), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) },
 
 /* pdu_in.error */
     { PMDA_PMID(1,0), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
@@ -1166,8 +1170,8 @@ fetch_hostname(int ctx, pmAtomValue *avp, char *hostname)
 	return hostname;
     }
 
-    if (_pmcd_hostname) {
-	avp->cp = hostname = _pmcd_hostname;
+    if (pmcd_hostname) {
+	avp->cp = hostname = pmcd_hostname;
     } else {
 	if (!hostname)
 	    hostname = hostnameinfo();
@@ -1341,7 +1345,7 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 					atom.ul++;
 				break;
 			case 4:		/* control.timeout */
-				atom.ul = _pmcd_timeout;
+				atom.ul = pmcd_timeout;
 				break;
 			case 5:		/* timezone $TZ */
 				atom.cp = tzinfo();
@@ -1377,13 +1381,13 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 				}
 				break;
 			case 9:		/* traceconn */
-				atom.l = (_pmcd_trace_mask & TR_MASK_CONN) ? 1 : 0;
+				atom.l = (pmcd_trace_mask & TR_MASK_CONN) ? 1 : 0;
 				break;
 			case 10:	/* tracepdu */
-				atom.l = (_pmcd_trace_mask & TR_MASK_PDU) ? 1 : 0;
+				atom.l = (pmcd_trace_mask & TR_MASK_PDU) ? 1 : 0;
 				break;
 			case 11:	/* tracebufs */
-				atom.l = _pmcd_trace_nbufs;
+				atom.l = pmcd_trace_nbufs;
 				break;
 			case 12:	/* dumptrace ... always 0 */
 				atom.l = 0;
@@ -1392,7 +1396,7 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 				atom.l = 0;
 				break;
 			case 14:	/* tracenobuf */
-				atom.l = (_pmcd_trace_mask & TR_MASK_NOBUF) ? 1 : 0;
+				atom.l = (pmcd_trace_mask & TR_MASK_NOBUF) ? 1 : 0;
 				break;
 			case 15:	/* sighup ... always 0 */
 				atom.l = 0;
@@ -1458,6 +1462,14 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 
 			case 22:	/* SIGHUPs received */
 				atom.ul = pmcd_sighups;
+				break;
+
+			case 23:	/* pmcd's pid */
+				atom.ull = pmcd_pid;
+				break;
+
+			case 24:	/* configuration sequence number */
+				atom.ul = pmcd_seqnum;
 				break;
 
 			default:
@@ -1782,8 +1794,8 @@ pmcd_store(pmResult *result, pmdaExt *pmda)
 		    sts = PM_ERR_SIGN;
 		    break;
 		}
-		if (val != _pmcd_timeout) {
-		    _pmcd_timeout = val;
+		if (val != pmcd_timeout) {
+		    pmcd_timeout = val;
 		}
 	    }
 	    else if (pmidp->item == 8) { /* pmcd.control.register */
@@ -1799,9 +1811,9 @@ pmcd_store(pmResult *result, pmdaExt *pmda)
 	    else if (pmidp->item == 9) { /* pmcd.control.traceconn */
 		val = vsp->vlist[0].value.lval;
 		if (val == 0)
-		    _pmcd_trace_mask &= (~TR_MASK_CONN);
+		    pmcd_trace_mask &= (~TR_MASK_CONN);
 		else if (val == 1)
-		    _pmcd_trace_mask |= TR_MASK_CONN;
+		    pmcd_trace_mask |= TR_MASK_CONN;
 		else {
 		    sts = PM_ERR_BADSTORE;
 		    break;
@@ -1810,9 +1822,9 @@ pmcd_store(pmResult *result, pmdaExt *pmda)
 	    else if (pmidp->item == 10) { /* pmcd.control.tracepdu */
 		val = vsp->vlist[0].value.lval;
 		if (val == 0)
-		    _pmcd_trace_mask &= (~TR_MASK_PDU);
+		    pmcd_trace_mask &= (~TR_MASK_PDU);
 		else if (val == 1)
-		    _pmcd_trace_mask |= TR_MASK_PDU;
+		    pmcd_trace_mask |= TR_MASK_PDU;
 		else {
 		    sts = PM_ERR_BADSTORE;
 		    break;
@@ -1838,9 +1850,9 @@ pmcd_store(pmResult *result, pmdaExt *pmda)
 	    else if (pmidp->item == 14) { /* pmcd.control.tracenobuf */
 		val = vsp->vlist[0].value.lval;
 		if (val == 0)
-		    _pmcd_trace_mask &= (~TR_MASK_NOBUF);
+		    pmcd_trace_mask &= (~TR_MASK_NOBUF);
 		else if (val == 1)
-		    _pmcd_trace_mask |= TR_MASK_NOBUF;
+		    pmcd_trace_mask |= TR_MASK_NOBUF;
 		else {
 		    sts = PM_ERR_BADSTORE;
 		    break;

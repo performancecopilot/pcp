@@ -135,7 +135,7 @@ tasklist_append(const char *pid, proc_pid_list_t *pids)
     struct dirent *tdp;
     char taskpath[1024];
 
-    sprintf(taskpath, "%s/proc/%s/task", proc_statspath, pid);
+    pmsprintf(taskpath, sizeof(taskpath), "%s/proc/%s/task", proc_statspath, pid);
     if ((taskdirp = opendir(taskpath)) != NULL) {
 	while ((tdp = readdir(taskdirp)) != NULL) {
 	    if (!isdigit((int)tdp->d_name[0]) || strcmp(pid, tdp->d_name) == 0)
@@ -868,7 +868,7 @@ refresh_proc_pidlist(proc_pid_t *proc_pid, proc_pid_list_t *pids)
 
 	    snprintf(buf, sizeof(buf), "%s/proc/%d/cmdline", proc_statspath, pids->pids[i]);
 	    if ((fd = open(buf, O_RDONLY)) >= 0) {
-		int numlen = sprintf(buf, "%06d ", pids->pids[i]);
+		int numlen = pmsprintf(buf, sizeof(buf), "%06d ", pids->pids[i]);
 		if ((k = read(fd, buf+numlen, sizeof(buf)-numlen)) > 0) {
 		    p = buf + k + numlen;
 		    *p-- = '\0';
@@ -901,7 +901,7 @@ refresh_proc_pidlist(proc_pid_t *proc_pid, proc_pid_list_t *pids)
 		 * returns an empty string so we have to get it
 		 * from /proc/<pid>/status or /proc/<pid>/stat
 		 */
-		sprintf(buf, "%s/proc/%d/status", proc_statspath, pids->pids[i]);
+		pmsprintf(buf, sizeof(buf), "%s/proc/%d/status", proc_statspath, pids->pids[i]);
 		if ((fd = open(buf, O_RDONLY)) >= 0) {
 		    /* We engage in a bit of a hanky-panky here:
 		     * the string should look like "123456 (name)",
@@ -923,7 +923,7 @@ refresh_proc_pidlist(proc_pid_t *proc_pid, proc_pid_list_t *pids)
 			    p = buf+k;
 			p[0] = ')'; 
 			p[1] = '\0';
-			bc = sprintf(buf, "%06d ", pids->pids[i]); 
+			bc = pmsprintf(buf, sizeof(buf), "%06d ", pids->pids[i]); 
 			buf[bc] = '(';
 		    }
 		    close(fd);
@@ -940,7 +940,7 @@ refresh_proc_pidlist(proc_pid_t *proc_pid, proc_pid_list_t *pids)
 
 	    if (k <= 0) {
 		/* hmm .. must be exiting */
-	    	sprintf(buf, "%06d <exiting>", pids->pids[i]);
+	    	pmsprintf(buf, sizeof(buf), "%06d <exiting>", pids->pids[i]);
 	    }
 
 	    ep->name = strdup(buf);
@@ -1119,7 +1119,7 @@ proc_open(const char *base, proc_pid_entry_t *ep)
     char buf[128];
 
     if (procpids.threads) {
-	sprintf(buf, "%s/proc/%d/task/%d/%s", proc_statspath, ep->id, ep->id, base);
+	pmsprintf(buf, sizeof(buf), "%s/proc/%d/task/%d/%s", proc_statspath, ep->id, ep->id, base);
 	if ((fd = open(buf, O_RDONLY)) >= 0) {
 	    return fd;
 	}
@@ -1133,7 +1133,7 @@ proc_open(const char *base, proc_pid_entry_t *ep)
 #endif
 	/* fallback to /proc path if task path open fails */
     }
-    sprintf(buf, "%s/proc/%d/%s", proc_statspath, ep->id, base);
+    pmsprintf(buf, sizeof(buf), "%s/proc/%d/%s", proc_statspath, ep->id, base);
     fd =  open(buf, O_RDONLY);
 #if PCP_DEBUG
     if (fd < 0) {
@@ -1153,7 +1153,7 @@ proc_opendir(const char *base, proc_pid_entry_t *ep)
     char buf[128];
 
     if (procpids.threads) {
-	sprintf(buf, "%s/proc/%d/task/%d/%s", proc_statspath, ep->id, ep->id, base);
+	pmsprintf(buf, sizeof(buf), "%s/proc/%d/task/%d/%s", proc_statspath, ep->id, ep->id, base);
 	if ((dir = opendir(buf)) != NULL) {
 	    return dir;
 	}
@@ -1167,7 +1167,7 @@ proc_opendir(const char *base, proc_pid_entry_t *ep)
 #endif
 	/* fallback to /proc path if task path opendir fails */
     }
-    sprintf(buf, "%s/proc/%d/%s", proc_statspath, ep->id, base);
+    pmsprintf(buf, sizeof(buf), "%s/proc/%d/%s", proc_statspath, ep->id, base);
     dir = opendir(buf);
 #if PCP_DEBUG
     if (dir == NULL) {

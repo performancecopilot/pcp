@@ -249,13 +249,13 @@ do_size(double d)
     static char nbuf[100];
 
     if (d < 10 * 1024)
-	snprintf(nbuf, sizeof(nbuf), "%ld bytes", (long)d);
+	pmsprintf(nbuf, sizeof(nbuf), "%ld bytes", (long)d);
     else if (d < 10.0 * 1024 * 1024)
-	snprintf(nbuf, sizeof(nbuf), "%.1f Kbytes", d/1024);
+	pmsprintf(nbuf, sizeof(nbuf), "%.1f Kbytes", d/1024);
     else if (d < 10.0 * 1024 * 1024 * 1024)
-	snprintf(nbuf, sizeof(nbuf), "%.1f Mbytes", d/(1024 * 1024));
+	pmsprintf(nbuf, sizeof(nbuf), "%.1f Mbytes", d/(1024 * 1024));
     else
-	snprintf(nbuf, sizeof(nbuf), "%ld Mbytes", (long)d/(1024 * 1024));
+	pmsprintf(nbuf, sizeof(nbuf), "%ld Mbytes", (long)d/(1024 * 1024));
     
     return nbuf;
 }
@@ -323,13 +323,13 @@ do_dialog(char cmd)
     nchar = add_msg(&p, 0, "");
     p[0] = '\0';
 
-    snprintf(lbuf, sizeof(lbuf), "PCP recording for the archive folio \"%s\" and the host", folio_name);
+    pmsprintf(lbuf, sizeof(lbuf), "PCP recording for the archive folio \"%s\" and the host", folio_name);
     nchar = add_msg(&p, nchar, lbuf);
     if (now < 240)
-	snprintf(lbuf, sizeof(lbuf), " \"%s\" has been in progress for %ld seconds",
+	pmsprintf(lbuf, sizeof(lbuf), " \"%s\" has been in progress for %ld seconds",
 	pmcd_host, (long)now);
     else
-	snprintf(lbuf, sizeof(lbuf), " \"%s\" has been in progress for %ld minutes",
+	pmsprintf(lbuf, sizeof(lbuf), " \"%s\" has been in progress for %ld minutes",
 	pmcd_host, (long)((now + 30)/60));
     nchar = add_msg(&p, nchar, lbuf);
     nchar = add_msg(&p, nchar, " and in that time the pmlogger process has created an");
@@ -339,7 +339,7 @@ do_dialog(char cmd)
     nchar = add_msg(&p, nchar, ".");
     if (rsc_replay) {
 	nchar = add_msg(&p, nchar, "\n\nThis archive may be replayed with the following command:\n");
-	snprintf(lbuf, sizeof(lbuf), "  $ pmafm %s replay", folio_name);
+	pmsprintf(lbuf, sizeof(lbuf), "  $ pmafm %s replay", folio_name);
 	nchar = add_msg(&p, nchar, lbuf);
     }
 
@@ -376,7 +376,7 @@ do_dialog(char cmd)
     if (cmd != 'Q') {
 	nchar = add_msg(&p, nchar, "\n\nAt any time this pmlogger process may be terminated with the");
 	nchar = add_msg(&p, nchar, " following command:\n");
-	snprintf(lbuf, sizeof(lbuf), "  $ pmsignal -s TERM %" FMT_PID "\n", getpid());
+	pmsprintf(lbuf, sizeof(lbuf), "  $ pmsignal -s TERM %" FMT_PID "\n", getpid());
 	nchar = add_msg(&p, nchar, lbuf);
     }
 
@@ -388,7 +388,7 @@ do_dialog(char cmd)
 	int fd = -1;
 
 #if HAVE_MKSTEMP
-	snprintf(tmp, sizeof(tmp), "%s%cmsgXXXXXX", pmGetConfig("PCP_TMPFILE_DIR"), __pmPathSeparator());
+	pmsprintf(tmp, sizeof(tmp), "%s%cmsgXXXXXX", pmGetConfig("PCP_TMPFILE_DIR"), __pmPathSeparator());
 	msg = tmp;
 	fd = mkstemp(tmp);
 #else
@@ -409,11 +409,11 @@ do_dialog(char cmd)
 	msgf = NULL;
 
 	if (cmd == 'X')
-	    snprintf(lbuf, sizeof(lbuf), "%s -c -header \"%s - %s\" -file %s -icon question "
+	    pmsprintf(lbuf, sizeof(lbuf), "%s -c -header \"%s - %s\" -file %s -icon question "
 			  "-B Yes -b No 2>/dev/null",
 		    xconfirm, dialog_title, rsc_prog, msg);
 	else
-	    snprintf(lbuf, sizeof(lbuf), "%s -c -header \"%s - %s\" -file %s -icon info "
+	    pmsprintf(lbuf, sizeof(lbuf), "%s -c -header \"%s - %s\" -file %s -icon info "
 			  "-b Close 2>/dev/null",
 		    xconfirm, dialog_title, rsc_prog, msg);
 
@@ -526,7 +526,7 @@ do_pmcpp(char *configfile)
 	exit(1);
     }
 
-    snprintf(cmd, sizeof(cmd), "%s%cpmcpp -rs %s -I %s%cconfig%cpmlogger",
+    pmsprintf(cmd, sizeof(cmd), "%s%cpmcpp -rs %s -I %s%cconfig%cpmlogger",
 	bin_dir, sep, configfile == NULL ? "" : configfile, lib_dir, sep, sep);
     fprintf(stderr, "preprocessor cmd: %s\n", cmd);
 
@@ -585,7 +585,7 @@ main(int argc, char **argv)
 		int sz = strlen(sysconf)+strlen("/config/pmlogger/")+strlen(opts.optarg)+1;
 		if ((configfile = (char *)malloc(sz)) == NULL)
 		    __pmNoMem("config file name", sz, PM_FATAL_ERR);
-		snprintf(configfile, sz,
+		pmsprintf(configfile, sz,
 			"%s%c" "config%c" "pmlogger%c" "%s",
 			sysconf, sep, sep, sep, opts.optarg);
 		if (access(configfile, F_OK) != 0) {
@@ -788,7 +788,7 @@ main(int argc, char **argv)
     if (rsc_fd != -1 && note == NULL) {
 	/* add default note to indicate running with -x */
 	static char	xnote[10];
-	snprintf(xnote, sizeof(xnote), "-x %d", rsc_fd);
+	pmsprintf(xnote, sizeof(xnote), "-x %d", rsc_fd);
 	note = xnote;
     }
 

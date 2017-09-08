@@ -532,12 +532,12 @@ class LibvirtPMDA(PMDA):
             return
 
         if cluster == self.vm_memstats_cluster:
-            try:
-                self.vm_memstats_res = {}
-                for dom in self.doms:
+            self.vm_memstats_res = {}
+            for dom in self.doms:
+                try:
                     self.vm_memstats_res[dom.UUIDString()] = dom.memoryStats()
-            except libvirt.libvirtError as error:
-                self.log("Failed to get domain mem stats: %s" % error)
+                except libvirt.libvirtError as error:
+                    self.log("Failed to get domain mem stats: %s" % error)
             return
 
         if cluster == self.vm_balloonstats_cluster:

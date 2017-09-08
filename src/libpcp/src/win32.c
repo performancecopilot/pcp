@@ -187,21 +187,21 @@ __pmServerStart(int argc, char **argv, int flags)
     PROCESS_INFORMATION piProcInfo;
     STARTUPINFO siStartInfo;
     LPTSTR cmdline = NULL;
-    int i, sz = 3; /* -f\0 */
+    int i, sz, total = 3; /* -f\0 */
 
     (void)flags;
     fflush(stdout);
     fflush(stderr);
 
     for (i = 0; i < argc; i++)
-	sz += strlen(argv[i]) + 1;
-    if ((cmdline = malloc(sz)) == NULL) {
+	total += strlen(argv[i]) + 1;
+    if ((cmdline = malloc(total)) == NULL) {
 	__pmNotifyErr(LOG_ERR, "__pmServerStart: out-of-memory");
 	exit(1);
     }
     for (sz = i = 0; i < argc; i++)
-	sz += sprintf(cmdline, "%s ", argv[i]);
-    sprintf(cmdline + sz, "-f");
+	sz += pmsprintf(cmdline + sz, total - sz, "%s ", argv[i]);
+    pmsprintf(cmdline + sz, total - sz, "-f");
 
     ZeroMemory(&piProcInfo, sizeof(PROCESS_INFORMATION));
     ZeroMemory(&siStartInfo, sizeof(STARTUPINFO));

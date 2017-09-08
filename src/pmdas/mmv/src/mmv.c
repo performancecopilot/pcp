@@ -481,6 +481,7 @@ map_stats(pmdaExt *pmda)
     char name[64];
     int need_reload = 0;
     int i, j, k, sts, num;
+    int sep = __pmPathSeparator();
 
     if (pmns)
 	__pmFreePMNS(pmns);
@@ -529,7 +530,7 @@ map_stats(pmdaExt *pmda)
 	    continue;
 
 	client = files[i]->d_name;
-	sprintf(path, "%s%c%s", statsdir, __pmPathSeparator(), client);
+	pmsprintf(path, sizeof(path), "%s%c%s", statsdir, sep, client);
 
 	if (stat(path, &statbuf) >= 0 && S_ISREG(statbuf.st_mode))
 	    if (create_client_stat(client, path, statbuf.st_size) == -EAGAIN)
@@ -587,9 +588,9 @@ map_stats(pmdaExt *pmda)
 
 			/* build name, check its legitimate and unique */
 			if (hdr->flags & MMV_FLAG_NOPREFIX)
-			    sprintf(name, "%s.", prefix);
+			    pmsprintf(name, sizeof(name), "%s.", prefix);
 			else
-			    sprintf(name, "%s.%s.", prefix, s->name);
+			    pmsprintf(name, sizeof(name), "%s.%s.", prefix, s->name);
 			strcat(name, mp->name);
 			if (verify_metric_name(name, k, s) != 0)
 			    continue;
@@ -641,9 +642,9 @@ map_stats(pmdaExt *pmda)
 
 			/* build name, check its legitimate and unique */
 			if (hdr->flags & MMV_FLAG_NOPREFIX)
-			    sprintf(name, "%s.", prefix);
+			    pmsprintf(name, sizeof(name), "%s.", prefix);
 			else
-			    sprintf(name, "%s.%s.", prefix, s->name);
+			    pmsprintf(name, sizeof(name), "%s.%s.", prefix, s->name);
 			strcat(name, buf);
 
 			if (verify_metric_name(name, k, s) != 0)

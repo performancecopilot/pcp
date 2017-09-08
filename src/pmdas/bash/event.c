@@ -430,6 +430,7 @@ event_refresh(pmInDom bash_indom)
 void
 event_init(void)
 {
+    int sep = __pmPathSeparator();
     pcptmpdir = pmGetConfig("PCP_TMP_DIR");
-    sprintf(pidpath, "%s%c%s", pcptmpdir, __pmPathSeparator(), prefix);
+    pmsprintf(pidpath, sizeof(pidpath), "%s%c%s", pcptmpdir, sep, prefix);
 }

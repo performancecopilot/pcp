@@ -38,8 +38,8 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-# pylint: disable=superfluous-parens
-# pylint: disable=invalid-name, line-too-long, no-self-use, bad-whitespace
+# pylint: disable=superfluous-parens, bad-whitespace
+# pylint: disable=invalid-name, line-too-long, no-self-use
 # pylint: disable=too-many-boolean-expressions, too-many-statements
 # pylint: disable=too-many-instance-attributes, too-many-locals
 # pylint: disable=too-many-branches, too-many-nested-blocks
@@ -174,9 +174,9 @@ class PMReporter(object):
 
         # Configuration directives
         self.keys = ('source', 'output', 'derived', 'header', 'globals',
-                     'samples', 'interval',
+                     'samples', 'interval', 'type', 'precision',
                      'timestamp', 'unitinfo', 'colxrow',
-                     'delay', 'type', 'width', 'precision', 'delimiter',
+                     'delay', 'width', 'delimiter',
                      'extheader', 'repeat_header', 'timefmt', 'interpol',
                      'count_scale', 'space_scale', 'time_scale', 'version',
                      'zabbix_server', 'zabbix_port', 'zabbix_host', 'zabbix_interval',
@@ -298,7 +298,7 @@ class PMReporter(object):
         opts.pmSetLongOption("omit-flat", 0, "v", "", "omit single-valued metrics with -i (default: include)")
         opts.pmSetLongOption("colxrow", 1, "X", "STR", "swap stdout columns and rows using header label")
         opts.pmSetLongOption("width", 1, "w", "N", "default column width")
-        opts.pmSetLongOption("precision", 1, "P", "N", "N digits after the decimal separator (if width enough)")
+        opts.pmSetLongOption("precision", 1, "P", "N", "N digits after the decimal separator (default: 3)")
         opts.pmSetLongOption("delimiter", 1, "l", "STR", "delimiter to separate csv/stdout columns")
         opts.pmSetLongOption("extended-header", 0, "x", "", "display extended header")
         opts.pmSetLongOption("repeat-header", 1, "E", "N", "repeat stdout headers every N lines")
@@ -393,7 +393,7 @@ class PMReporter(object):
             raise pmapi.pmUsageErr()
 
     def set_config_file(self):
-        """ Set configuration file """
+        """ Set default config file """
         config = None
         for conf in DEFAULT_CONFIG:
             conf = conf.replace("$HOME", os.getenv("HOME"))
@@ -402,7 +402,7 @@ class PMReporter(object):
                 config = conf
                 break
 
-        # Possibly override the built-in default config file before
+        # Possibly override the default config file before
         # parsing the rest of the command line options
         args = iter(sys.argv[1:])
         for arg in args:
@@ -433,7 +433,7 @@ class PMReporter(object):
         return insts
 
     def set_attr(self, name, value):
-        """ Helper to apply config file settings properly """
+        """ Set options read from file """
         if value in ('true', 'True', 'y', 'yes', 'Yes'):
             value = 1
         if value in ('false', 'False', 'n', 'no', 'No'):
@@ -724,20 +724,19 @@ class PMReporter(object):
             except pmapi.pmErr:
                 inst = ([PM_IN_NULL], [None])            # mem.util.free
             # Reject unsupported types
-            mtype = desc.contents.type
-            if not (mtype == PM_TYPE_32 or
-                    mtype == PM_TYPE_U32 or
-                    mtype == PM_TYPE_64 or
-                    mtype == PM_TYPE_U64 or
-                    mtype == PM_TYPE_FLOAT or
-                    mtype == PM_TYPE_DOUBLE or
-                    mtype == PM_TYPE_STRING):
+            if not (desc.contents.type == PM_TYPE_32 or
+                    desc.contents.type == PM_TYPE_U32 or
+                    desc.contents.type == PM_TYPE_64 or
+                    desc.contents.type == PM_TYPE_U64 or
+                    desc.contents.type == PM_TYPE_FLOAT or
+                    desc.contents.type == PM_TYPE_DOUBLE or
+                    desc.contents.type == PM_TYPE_STRING):
                 raise pmapi.pmErr(PM_ERR_TYPE)
             instances = self.instances if not self.tmp[0] else self.tmp
             if self.omit_flat and instances and not inst[1][0]:
                 return
             if instances and inst[1][0]:
-                found = tuple([[], []])
+                found = [[], []]
                 for r in instances:
                     cr = re.compile(r'\A' + r + r'\Z')
                     for i, s in enumerate(inst[1]):
@@ -746,7 +745,7 @@ class PMReporter(object):
                             found[1].append(inst[1][i])
                 if not found[0]:
                     return
-                inst = found
+                inst = tuple(found)
             self.pmids.append(pmid)
             self.descs.append(desc)
             self.insts.append(inst)
@@ -813,7 +812,7 @@ class PMReporter(object):
                 self.context.pmTraversePMNS(metric, self.check_metric)
                 if len(self.pmids) == l:
                     # No compatible metrics found
-                    next # pylint: disable=pointless-statement
+                    continue
                 elif len(self.pmids) == l + 1:
                     # Leaf
                     if metric == self.context.pmNameID(self.pmids[l]):
@@ -867,6 +866,7 @@ class PMReporter(object):
 
             # Unit/scale
             unitstr = str(self.descs[i].contents.units)
+            mtype = pmapi.c_api.PM_TYPE_FLOAT # Allow for precision
             # Set default unit if not specified on per-metric basis
             if not self.metrics[metric][2]:
                 done = 0
@@ -890,23 +890,20 @@ class PMReporter(object):
                     self.metrics[metric][2] = self.time_scale
                     done = 1
                 if not done:
+                    mtype = None # No scaling, use native type
                     self.metrics[metric][2] = unitstr
-            # Set unit/scale for non-raw numeric metrics
-            mtype = None
+            # Set unit/scale for numeric metrics
             try:
+                (unitstr, mult) = self.context.pmParseUnitsStr(self.metrics[metric][2])
+                label = self.metrics[metric][2]
                 if self.metrics[metric][3] == 0 and \
                    self.descs[i].contents.type != PM_TYPE_STRING:
-                    (unitstr, mult) = self.context.pmParseUnitsStr(self.metrics[metric][2])
-                    label = self.metrics[metric][2]
                     if self.descs[i].sem == PM_SEM_COUNTER:
-                        mtype = PM_TYPE_DOUBLE
+                        mtype = PM_TYPE_FLOAT
                         if '/' not in label:
                             label += " / s"
-                    label = self.format_metric_label(label)
-                    self.metrics[metric][2] = (label, unitstr, mult)
-                else:
-                    label = self.format_metric_label(unitstr)
-                    self.metrics[metric][2] = (label, unitstr, 1)
+                label = self.format_metric_label(label)
+                self.metrics[metric][2] = (label, unitstr, mult)
             except pmapi.pmErr as error:
                 sys.stderr.write("%s: %s.\n" % (str(error), self.metrics[metric][2]))
                 sys.exit(1)
@@ -1244,10 +1241,12 @@ class PMReporter(object):
             self.writer.write("Time")
             for i, metric in enumerate(self.metrics):
                 for j in range(len(self.insts[i][0])):
+                    name = metric
                     if self.insts[i][0][0] != PM_IN_NULL and self.insts[i][1][j]:
-                        name = metric + "-" + self.insts[i][1][j]
-                    else:
-                        name = metric
+                        name += "-" + self.insts[i][1][j]
+                    # Mark metrics with instance domain but without instances
+                    if self.descs[i].contents.indom != PM_IN_NULL and self.insts[i][1][0] is None:
+                        name += "-"
                     name = name.replace(self.delimiter, " ").replace("\n", " ").replace("\"", " ")
                     self.writer.write(self.delimiter + "\"" + name + "\"")
             self.writer.write("\n")
@@ -1315,7 +1314,7 @@ class PMReporter(object):
         if self.pmi is None:
             # Create a new archive
             self.pmi = pmi.pmiLogImport(self.outfile)
-            self.recorded = OrderedDict() # pylint: disable=attribute-defined-outside-init
+            self.recorded = {} # pylint: disable=attribute-defined-outside-init
             if self.context.type == PM_CONTEXT_ARCHIVE:
                 self.pmi.pmiSetHostname(self.context.pmGetArchiveLabel().hostname)
                 self.pmi.pmiSetTimezone(self.context.pmGetArchiveLabel().tz)
@@ -1335,7 +1334,7 @@ class PMReporter(object):
                         self.pmi.pmiAddInstance(self.descs[i].contents.indom, self.insts[i][1][j], self.insts[i][0][j])
                     except pmi.pmiErr as error:
                         if error.args[0] == PMI_ERR_DUPINSTNAME:
-                            continue
+                            pass
 
         # Add current values
         data = 0
@@ -1374,38 +1373,36 @@ class PMReporter(object):
             # Silent goodbye
             return
 
-        # Print the results
         line = timestamp
+
+        # Avoid crossing the C/Python boundary more than once per metric
+        res = {}
+        for _, metric in enumerate(self.metrics):
+            try:
+                for inst, name, val in self.metrics[metric][5](): # pylint: disable=unused-variable
+                    try:
+                        value = val()
+                        if isinstance(value, float):
+                            value = round(value, self.precision)
+                        res[metric + str(inst)] = value
+                    except:
+                        pass
+            except:
+                pass
+
+        # Add corresponding values for each column in the static header
         for i, metric in enumerate(self.metrics):
             for j in range(len(self.insts[i][0])):
                 line += self.delimiter
-                found = 0
-                try:
-                    for inst, name, val in self.metrics[metric][5](): # pylint: disable=unused-variable
-                        if inst == PM_IN_NULL or inst == self.insts[i][0][j]:
-                            found = 1
-                            break
-                    if not found:
-                        continue
-                except:
-                    continue
+                if metric + str(self.insts[i][0][j]) in res:
+                    value = res[metric + str(self.insts[i][0][j])]
+                    if value:
+                        if isinstance(value, str):
+                            value = value.replace(self.delimiter, " ").replace("\n", " ").replace('"', " ")
+                            line += str('"' + value + '"')
+                        else:
+                            line += str(value)
 
-                try:
-                    value = val() # pylint: disable=undefined-loop-variable
-                except:
-                    value = NO_VAL
-                if isinstance(value, float):
-                    fmt = "." + str(self.precision) + "f"
-                    line += format(value, fmt)
-                elif isinstance(value, (int, long)):
-                    line += str(value)
-                else:
-                    if value == NO_VAL:
-                        line += '""'
-                    else:
-                        if value:
-                            value = value.replace(self.delimiter, " ").replace("\n", " ").replace("\"", " ")
-                            line += str("\"" + value + "\"")
         self.writer.write(line + "\n")
 
     def write_stdout(self, timestamp):
@@ -1431,59 +1428,63 @@ class PMReporter(object):
             line.append(timestamp)
         line.append(self.delimiter)
 
+        # Avoid crossing the C/Python boundary more than once per metric
+        res = {}
+        for _, metric in enumerate(self.metrics):
+            try:
+                for inst, name, val in self.metrics[metric][5](): # pylint: disable=unused-variable
+                    try:
+                        value = val()
+                        if isinstance(value, float):
+                            value = round(value, self.precision)
+                        res[metric + str(inst)] = value
+                    except:
+                        pass
+            except:
+                pass
+
+        # Add corresponding values for each column in the static header
         k = 0
         for i, metric in enumerate(self.metrics):
             l = self.metrics[metric][4]
-
             for j in range(len(self.insts[i][0])):
                 k += 1
-
-                found = 0
-                try:
-                    for inst, name, val in self.metrics[metric][5](): # pylint: disable=unused-variable
-                        if inst == PM_IN_NULL or inst == self.insts[i][0][j]:
-                            found = 1
-                            break
-                except:
-                    pass
-                if not found:
-                    value = NO_VAL
-                else:
-                    try:
-                        value = val() # pylint: disable=undefined-loop-variable
-                        if isinstance(value, list):
-                            value = value[0]
-                    except:
-                        value = NO_VAL
-
-                # Make sure the value fits
-                if isinstance(value, (int, long)):
-                    if len(str(value)) > l:
-                        value = TRUNC
-                    else:
-                        #fmt[k] = "{:" + str(l) + "d}"
-                        fmt[k] = "{X:" + str(l) + "d}"
-
-                if isinstance(value, float) and not math.isinf(value):
-                    c = self.precision
-                    s = len(str(int(value)))
-                    if s > l:
-                        c = -1
-                        value = TRUNC
-                    #for _ in reversed(range(c+1)):
-                        #t = "{:" + str(l) + "." + str(c) + "f}"
-                    for f in reversed(range(c+1)):
-                        r = "{X:" + str(l) + "." + str(c) + "f}"
-                        t = "{0:" + str(l) + "." + str(c) + "f}"
-                        if len(t.format(value)) > l:
-                            c -= 1
+                if metric + str(self.insts[i][0][j]) in res:
+                    value = res[metric + str(self.insts[i][0][j])]
+                    # Make sure the value fits
+                    if isinstance(value, (int, long)):
+                        if len(str(value)) > l:
+                            value = TRUNC
                         else:
-                            #fmt[k] = t
-                            fmt[k] = r
-                            break
+                            #fmt[k] = "{:" + str(l) + "d}"
+                            fmt[k] = "{X:" + str(l) + "d}"
+                    elif isinstance(value, str):
+                        if len(value) > l:
+                            value = TRUNC
 
-                line.append(value)
-                line.append(self.delimiter)
+                    if isinstance(value, float) and not math.isinf(value):
+                        c = self.precision
+                        s = len(str(int(value)))
+                        if s > l:
+                            c = -1
+                            value = TRUNC
+                        #for _ in reversed(range(c+1)):
+                            #t = "{:" + str(l) + "." + str(c) + "f}"
+                        for f in reversed(range(c+1)):
+                            r = "{X:" + str(l) + "." + str(c) + "f}"
+                            t = "{0:" + str(l) + "." + str(c) + "f}"
+                            if len(t.format(value)) > l:
+                                c -= 1
+                            else:
+                                #fmt[k] = t
+                                fmt[k] = r
+                                break
+
+                    line.append(value)
+                    line.append(self.delimiter)
+                else:
+                    line.append(NO_VAL)
+                    line.append(self.delimiter)
 
         del line[-1]
         #self.writer.write('{}'.join(fmt).format(*tuple(line)) + "\n")

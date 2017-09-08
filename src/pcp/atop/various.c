@@ -161,7 +161,7 @@ val2valstr(count_t value, char *strvalue, size_t buflen, int width, int avg, int
 
 	if (value < 0)		// no negative value expected
 	{
-		sprintf(strvalue, "%*s%s", width, "?", suffix);
+		pmsprintf(strvalue, buflen, "%*s%s", width, "?", suffix);
 		return strvalue;
 	}
 
