@@ -341,11 +341,11 @@ dumpTime(struct timeval const &curPos)
     if (timeOffsetFlag) {
 	double	o = __pmtimevalSub(&curPos, &logStartTime);
 	if (o < 10)
-	    sprintf(buffer, "%.2f ", o);
+	    pmsprintf(buffer, sizeof(buffer), "%.2f ", o);
 	else if (o < 100)
-	    sprintf(buffer, "%.1f ", o);
+	    pmsprintf(buffer, sizeof(buffer), "%.1f ", o);
 	else
-	    sprintf(buffer, "%.0f ", o);
+	    pmsprintf(buffer, sizeof(buffer), "%.0f ", o);
 	for (p = buffer; *p != ' '; p++)
 	    ;
 	*p++ = delimiter;

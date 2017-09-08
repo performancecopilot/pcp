@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 Red Hat Inc.
+ * Copyright (c) 2013 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,7 +13,6 @@
  *
  * Handler for load average
  * "load 1.07 1.18 1.30 3/658 4944"
- *
  */
 
 #include "metrics.h"

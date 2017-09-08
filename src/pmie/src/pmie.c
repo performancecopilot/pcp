@@ -2,7 +2,7 @@
  * pmie.c - performance inference engine
  ***********************************************************************
  *
- * Copyright (c) 2013-2015 Red Hat, Inc.
+ * Copyright (c) 2013-2015,2017 Red Hat.
  * Copyright (c) 1995-2003 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -50,8 +50,8 @@ static char *intro  = "Performance Co-Pilot Inference Engine (pmie), "
 char	*clientid;
 
 static FILE *logfp;
-static char logfile[MAXPATHLEN+1];
-static char perffile[MAXPATHLEN+1];	/* /var/tmp/<pid> file name */
+static char logfile[MAXPATHLEN];
+static char perffile[MAXPATHLEN];	/* /var/tmp/<pid> file name */
 static char *username;
 
 static char menu[] =
@@ -347,7 +347,8 @@ startmonitor(void)
     atexit(stopmonitor);
 
     /* create and initialize memory mapped performance data file */
-    sprintf(perffile, "%s%c%" FMT_PID, pmie_dir, __pmPathSeparator(), getpid());
+    pmsprintf(perffile, sizeof(perffile),
+		"%s%c%" FMT_PID, pmie_dir, __pmPathSeparator(), getpid());
     unlink(perffile);
     if ((fd = open(perffile, O_RDWR | O_CREAT | O_EXCL | O_TRUNC,
 			     S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)) < 0) {
