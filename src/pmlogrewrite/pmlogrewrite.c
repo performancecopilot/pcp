@@ -946,6 +946,7 @@ main(int argc, char **argv)
 	mode_t	cur_umask;
 	int	tmp_f1;			/* fd for first temp basename */
 	int	tmp_f2;			/* fd for second temp basename */
+	int	sep = __pmPathSeparator();
 
 #if HAVE_MKSTEMP
 	strncpy(path, argv[argc-1], sizeof(path));
@@ -957,7 +958,7 @@ main(int argc, char **argv)
 	    abandon();
 	    /*NOTREACHED*/
 	}
-	sprintf(path, "%s%cXXXXXX", dname, __pmPathSeparator());
+	pmsprintf(path, sizeof(path), "%s%cXXXXXX", dname, sep);
 	cur_umask = umask(S_IXUSR | S_IRWXG | S_IRWXO);
 	tmp_f1 = mkstemp(path);
 	umask(cur_umask);
@@ -967,7 +968,7 @@ main(int argc, char **argv)
 	    abandon();
 	    /*NOTREACHED*/
 	}
-	sprintf(bak_base, "%s%cXXXXXX", dname, __pmPathSeparator());
+	pmsprintf(bak_base, sizeof(bak_base), "%s%cXXXXXX", dname, sep);
 	cur_umask = umask(S_IXUSR | S_IRWXG | S_IRWXO);
 	tmp_f2 = mkstemp(bak_base);
 	umask(cur_umask);

@@ -194,12 +194,14 @@ __pmSquashTZ(char *tzbuffer)
     }
     else
 	cp = dst;
-    d = div(tz.Bias+tz.StandardBias, 60);
-    sprintf(cp, "%d", d.quot);
-    sprintf(off, "%d", d.quot);
+    d = div(tz.Bias + tz.StandardBias, 60);
+    pmsprintf(cp, sizeof(tzbuf) - (cp - tzbuf), "%d", d.quot);
+    pmsprintf(off, sizeof(tzoff) - (off - tzoff), "%d", d.quot);
     if (d.rem) {
-	sprintf(cp=strchr(cp, 0), ":%d", abs(d.rem));
-	sprintf(off=strchr(off, 0), ":%d", abs(d.rem));
+	cp = strchr(cp, 0);
+	pmsprintf(cp, sizeof(tzbuf) - (cp - tzbuf), ":%d", abs(d.rem));
+	off = strchr(off, 0);
+	pmsprintf(off, sizeof(tzoff) - (off - tzoff), ":%d", abs(d.rem));
     }
     if (tz.StandardDate.wMonth) {
 	cp = strchr(cp, 0);
@@ -215,43 +217,55 @@ __pmSquashTZ(char *tzbuffer)
 	else
 	    cp = dst;
 	d = div(tz.Bias+tz.DaylightBias, 60);
-	sprintf(cp, "%d", d.quot);
-	if (d.rem)
-	    sprintf(cp=strchr(cp, 0), ":%d", abs(d.rem));
+	pmsprintf(cp, sizeof(tzbuf) - (cp - tzbuf), "%d", d.quot);
+	if (d.rem) {
+	    cp = strchr(cp, 0);
+	    pmsprintf(cp, sizeof(tzbuf) - (cp - tzbuf), ":%d", abs(d.rem));
+	}
 	cp = strchr(cp, 0);
-	sprintf(cp=strchr(cp, 0), ",M%d.%d.%d/%d",
+	cp = strchr(cp, 0);
+	pmsprintf(cp, sizeof(tzbuf) - (cp - tzbuf), ",M%d.%d.%d/%d",
 		tz.DaylightDate.wMonth,
 		tz.DaylightDate.wDay,
 		tz.DaylightDate.wDayOfWeek,
 		tz.DaylightDate.wHour);
-	if (tz.DaylightDate.wMinute || tz.DaylightDate.wSecond)
-	    sprintf(cp=strchr(cp, 0), ":%d", tz.DaylightDate.wMinute);
-	if (tz.DaylightDate.wSecond)
-	    sprintf(cp=strchr(cp, 0), ":%d", tz.DaylightDate.wSecond);
+	if (tz.DaylightDate.wMinute || tz.DaylightDate.wSecond) {
+	    cp = strchr(cp, 0);
+	    pmsprintf(cp, sizeof(tzbuf) - (cp - tzbuf), ":%d", tz.DaylightDate.wMinute);
+	}
+	if (tz.DaylightDate.wSecond) {
+	    cp = strchr(cp, 0);
+	    pmsprintf(cp, sizeof(tzbuf) - (cp - tzbuf), ":%d", tz.DaylightDate.wSecond);
+	}
 	cp = strchr(cp, 0);
-	sprintf(cp=strchr(cp, 0), ",M%d.%d.%d/%d",
+	cp = strchr(cp, 0);
+	pmsprintf(cp, sizeof(tzbuf) - (cp - tzbuf), ",M%d.%d.%d/%d",
 		tz.StandardDate.wMonth,
 		tz.StandardDate.wDay,
 		tz.StandardDate.wDayOfWeek,
 		tz.StandardDate.wHour);
-	if (tz.StandardDate.wMinute || tz.StandardDate.wSecond)
-	    sprintf(cp=strchr(cp, 0), ":%d", tz.StandardDate.wMinute);
-	if (tz.StandardDate.wSecond)
-	    sprintf(cp=strchr(cp, 0), ":%d", tz.StandardDate.wSecond);
+	if (tz.StandardDate.wMinute || tz.StandardDate.wSecond) {
+	    cp = strchr(cp, 0);
+	    pmsprintf(cp, sizeof(tzbuf) - (cp - tzbuf), ":%d", tz.StandardDate.wMinute);
+	}
+	if (tz.StandardDate.wSecond) {
+	    cp = strchr(cp, 0);
+	    pmsprintf(cp, sizeof(tzbuf) - (cp - tzbuf), ":%d", tz.StandardDate.wSecond);
+	}
     }
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_TIMECONTROL)
 	fprintf(stderr, "Win32 TZ=%s\n", tzbuf);
 #endif
 
-    snprintf(tzbuffer, PM_TZ_MAXLEN, "%s", tzbuf);
+    pmsprintf(tzbuffer, PM_TZ_MAXLEN, "%s", tzbuf);
     setenv("TZ", tzbuffer, 1);		/* THREADSAFE */
 
     tzset();
     t = localtime(&now);		/* THREADSAFE */
     tzn = tzname[(t->tm_isdst > 0)];
 
-    snprintf(tzbuffer, PM_TZ_MAXLEN, "%s%s", tzn, tzoff);
+    pmsprintf(tzbuffer, PM_TZ_MAXLEN, "%s%s", tzn, tzoff);
     setenv("TZ", tzbuffer, 1);		/* THREADSAFE */
 
     return;

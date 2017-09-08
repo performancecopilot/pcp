@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 Red Hat Inc.
+ * Copyright (c) 2013 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,7 +13,6 @@
  *
  * Generic handler for singular metrics with value in fields[1] e.g. :
  * "processes 516779"
- *
  */
 
 #include "metrics.h"

@@ -12,7 +12,6 @@
  * for more details.
  *
  * Import collectl raw data file and create a PCP archive.
- * Mark Goodwin <mgoodwin@redhat.com> May 2013.
  */
 
 #include <pcp/pmapi.h>

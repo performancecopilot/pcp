@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 Red Hat Inc.
+ * Copyright (c) 2013-2017 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -10,7 +10,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- *
  */
 
 #include "metrics.h"
@@ -104,7 +103,7 @@ put_int_value(char *name, pmInDom indom, char *instance, int val)
 {
     char valbuf[64];
 
-    sprintf(valbuf, "%d", val);
+    pmsprintf(valbuf, sizeof(valbuf), "%d", val);
     return put_str_value(name, indom, instance, valbuf);
 }
 
@@ -113,7 +112,7 @@ put_ull_value(char *name, pmInDom indom, char *instance, unsigned long long val)
 {
     char valbuf[64];
 
-    sprintf(valbuf, "%llu", val);
+    pmsprintf(valbuf, sizeof(valbuf), "%llu", val);
     return put_str_value(name, indom, instance, valbuf);
 }
 

@@ -90,7 +90,7 @@ extern int	ilog;
 #define INSPEC	1
 
 /* generic error message buffer */
-extern char	emess[];
+extern char	emess[240];
 
 /* yylex() gets intput from here ... */
 extern FILE	*fconfig;

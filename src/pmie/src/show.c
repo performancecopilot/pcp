@@ -3,7 +3,7 @@
  ***********************************************************************
  *
  * Copyright (c) 1995-2003 Silicon Graphics, Inc.  All Rights Reserved.
- * Copyright (c) 2015 Red Hat
+ * Copyright (c) 2015,2017 Red Hat.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -14,10 +14,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 #include <math.h>
@@ -351,7 +347,7 @@ showBoolean(Expr *x, int nth, size_t length, char **string)
 	    dog += strlen("unknown");
 	}
 	else {
-	    sprintf(dog, "0x%02x?", val & 0xff);
+	    pmsprintf(dog, BOOLEAN_SPACE, "0x%02x?", val & 0xff);
 	    dog += 5;
 	}
     }
@@ -465,7 +461,7 @@ showNum(Expr *x, int nth, size_t length, char **string)
 	else {
 	    v = *((double *)x->smpls[smpl].ptr + nth);
 	    if (v == (int)v)
-		sts = sprintf(dog, "%d", (int)v);
+		sts = pmsprintf(dog, DBL_SPACE, "%d", (int)v);
 	    else {
 		abs_v = v < 0 ? -v : v;
 		if (abs_v < 0.5)
@@ -476,7 +472,7 @@ showNum(Expr *x, int nth, size_t length, char **string)
 		    fmt = "%.1f";
 		else
 		    fmt = "%.0f";
-		sts = sprintf(dog, fmt, v);
+		sts = pmsprintf(dog, DBL_SPACE, fmt, v);
 	    }
 	    if (sts > 0)
 		dog += sts;
@@ -1158,7 +1154,7 @@ opStrings(int op)
      * "eh" must be long enough to accommodate the longest string from
      * opstr[i].str ... currently "<action arg node>"
      */
-    static char	*eh = "<unknown op XXXXXXXXX>";
+    static char	eh[] = "<unknown op XXXXXXXXX>";
 
     for (i = 0; i < numopstr; i++) {
 	if (opstr[i].op == op)
@@ -1168,7 +1164,7 @@ opStrings(int op)
     if (i < numopstr)
 	return opstr[i].str;
     else {
-	sprintf(eh, "<unknown op %d>", op);
+	pmsprintf(eh, sizeof(eh), "<unknown op %d>", op);
 	return eh;
     }
 }

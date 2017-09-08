@@ -354,7 +354,7 @@ main(int argc, char **argv)
 	}
 
 	if (version == 2 && f == NULL) {
-	    sprintf(pathname, "%s.pag", fname);
+	    pmsprintf(pathname, sizeof(pathname), "%s.pag", fname);
 	    if ((f = fopen(pathname, "w")) == NULL) {
 		fprintf(stderr, "%s: fopen(\"%s\", ...) failed: %s\n",
 		    pmProgname, pathname, osstrerror());
@@ -439,7 +439,7 @@ main(int argc, char **argv)
 	fclose(f);
 
 	/* do the directory index ... */
-	sprintf(pathname, "%s.dir", fname);
+	pmsprintf(pathname, sizeof(pathname), "%s.dir", fname);
 	if ((f = fopen(pathname, "w")) == NULL) {
 	    fprintf(stderr, "%s: fopen(\"%s\", ...) failed: %s\n",
 		pmProgname, pathname, osstrerror());

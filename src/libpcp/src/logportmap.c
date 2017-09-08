@@ -370,6 +370,7 @@ __pmLogFindPort(const char *host, int pid, __pmLogPort **lpp)
     int			i, j;
     int			findone = pid != PM_LOG_ALL_PIDS;
     int			localcon = 0;	/* > 0 for local connection */
+    int			bytes;
     pmDesc		desc;
     pmResult		*res;
     char		*namelist[] = {"pmcd.pmlogger.port"};
@@ -395,12 +396,12 @@ __pmLogFindPort(const char *host, int pid, __pmLogPort **lpp)
      * the first colon from being taken as a port separator by pmNewContext
      * and does no harm otherwise.
      */
-    ctxhost = malloc(strlen(host) + 2 + 1);
-    if (ctxhost == NULL) {
+    bytes = strlen(host) + 2 + 1;
+    if ((ctxhost = malloc(bytes)) == NULL) {
 	sts = -ENOMEM;
 	goto ctxErr;
     }
-    sprintf(ctxhost, "[%s]", host);
+    pmsprintf(ctxhost, bytes, "[%s]", host);
     ctx = pmNewContext(PM_CONTEXT_HOST, ctxhost);
     free(ctxhost);
     if (ctx < 0)
