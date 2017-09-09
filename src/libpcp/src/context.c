@@ -563,8 +563,8 @@ __pmFindOrOpenArchive(__pmContext *ctxp, const char *name, int multi_arch)
 	if ((lcp = (__pmLogCtl *)malloc(sizeof(*lcp))) == NULL)
 	    __pmNoMem("__pmFindOrOpenArchive", sizeof(*lcp), PM_FATAL_ERR);
 	lcp->l_pmns = NULL;
-	lcp->l_hashpmid.nodes = lcp->l_hashpmid.hsize = 0;
-	lcp->l_hashindom.nodes = lcp->l_hashindom.hsize = 0;
+    lcp->l_hashpmid.nodes = lcp->l_hashpmid.hsize = lcp->l_hashlabels.nodes = 0;
+    lcp->l_hashindom.nodes = lcp->l_hashindom.hsize = lcp->l_hashlabels.hsize = 0;
 	lcp->l_multi = multi_arch;
 	acp->ac_log = lcp;
     }

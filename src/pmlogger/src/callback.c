@@ -301,15 +301,16 @@ manageLabels(__pmLogCtl *logctl, pmDesc *desc, const __pmTimeval *tp) {
 	int sts;
 	unsigned int type;
 	unsigned int ident;
-	unsigned int label_types[4] = {
-		PM_LABEL_DOMAIN, PM_LABEL_INDOM, PM_LABEL_CLUSTER, PM_LABEL_ITEM
+	unsigned int label_types[5] = {
+		PM_LABEL_DOMAIN, PM_LABEL_INDOM, PM_LABEL_CLUSTER, PM_LABEL_ITEM,
+		PM_LABEL_INSTANCES
 	};
 	__pmLogLabelSet *label_ptr;
 	pmLabelSet *label;
 	
-	for (i = 0; i < 4; i++) {
+	for (i = 0; i < 5; i++) {
 		type = label_types[i];
-		if (type == PM_LABEL_INDOM) {
+		if (type == PM_LABEL_INDOM || type == PM_LABEL_INSTANCES) {
 			if (desc->indom == PM_INDOM_NULL)
 				continue;
 			ident = desc->indom;
@@ -323,13 +324,15 @@ manageLabels(__pmLogCtl *logctl, pmDesc *desc, const __pmTimeval *tp) {
 		}
 
 		if (type == PM_LABEL_DOMAIN) {
-			len = pmGetDomainLabels(pmid_domain(desc->pmid), &label);
+			len = pmGetDomainLabels(pmid_domain(ident), &label);
 		} else if (type == PM_LABEL_CLUSTER) {
-			len = pmGetClusterLabels(desc->pmid, &label);
+			len = pmGetClusterLabels(pmid_cluster(ident), &label);
 		} else if (type == PM_LABEL_INDOM) {
-			len = pmGetInDomLabels(desc->pmid, &label);
+			len = pmGetInDomLabels(ident, &label);
+		} else if (type == PM_LABEL_ITEM) {
+			len = pmGetItemLabels(ident, &label);
 		} else {
-			len = pmGetItemLabels(desc->pmid, &label);
+			len = pmGetInstancesLabels(ident, &label);
 		}
 
 		if (len > 0) {

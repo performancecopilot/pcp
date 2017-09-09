@@ -218,13 +218,13 @@ addlabel(__pmLogCtl *lcp, unsigned int type, unsigned int ident, int nsets,
     __pmLogLabelSet	*idp, *idp_prev;
     __pmLogLabelSet	*idp_cached;
     __pmHashNode	*hp;
-    __pmLogLabelSet *label;
+    pmLabelSet *label;
     int			timecmp;
     int			sts;
 	__pmHashCtl *l_hashtype;
 
 PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_ALLOC);
-    if ((idp = (__pmLogLabelSet *)malloc(sizeof(__pmLogInDom))) == NULL)
+    if ((idp = (__pmLogLabelSet *)malloc(sizeof(__pmLogLabelSet))) == NULL)
 	return -oserror();
     idp->stamp = *tp;		/* struct assignment */
     idp->type = type;
@@ -240,26 +240,31 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_ALLOC);
     }
 #endif
 
-    if ((sts = __pmLogLookupLabel(lcp, type, ident, &label)) != 0) {
-	idp->next = NULL;
+    if ((sts = __pmLogLookupLabel(lcp, type, ident, &label)) <= 0) {
 
-	if((l_hashtype = (__pmHashCtl *) calloc(1, sizeof(__pmHashCtl))) == NULL)
-		return -oserror();
+		idp->next = NULL;
 
-	sts = __pmHashAdd(ident, (void *)idp, l_hashtype);
+		if ((hp = __pmHashSearch(type, &lcp->l_hashlabels)) == NULL) {
+			if((l_hashtype = (__pmHashCtl *) calloc(1, sizeof(__pmHashCtl))) == NULL)
+				return -oserror();
 
-	if (sts > 0)
-		sts = 0;
-	else
+			sts = __pmHashAdd(type, (void *)l_hashtype, &lcp->l_hashlabels);
+			if (sts > 0) {
+			    /* __pmHashAdd returns 1 for success, but we want 0. */
+			    sts = 0;
+			}
+		} else {
+			l_hashtype = (__pmHashCtl *)hp->data;
+		}
+
+			sts = __pmHashAdd(ident, (void *)idp, l_hashtype);
+
+		if (sts > 0)
+			sts = 0;
 		return sts;
-
-	sts = __pmHashAdd(type, (void *)l_hashtype, &lcp->l_hashlabels);
-	if (sts > 0) {
-	    /* __pmHashAdd returns 1 for success, but we want 0. */
-	    sts = 0;
-	}
-	return sts;
     }
+
+
 
     if ((hp = __pmHashSearch(type, &lcp->l_hashlabels)) == NULL)
 	return PM_ERR_PMID_LOG;
@@ -647,13 +652,14 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":4", PM_FAULT_ALLOC);
 	    stamp.tv_usec = ntohl(stamp.tv_usec);
 	    k += sizeof(stamp);
 
-	    type = ntohl((unsigned int)tbuf[k]);
+	    type = ntohl(*((unsigned int*)&tbuf[k]));
 	    k += sizeof(type);
 
-	    ident = ntohl((unsigned int)tbuf[k]);
+	    ident = ntohl(*((unsigned int*)&tbuf[k]));
 	    k += sizeof(ident);
 
-	    nsets = ntohl((unsigned int)tbuf[k]);
+	    nsets = *((unsigned int *)&tbuf[k]);
+	    nsets = ntohl(nsets);
 	    k += sizeof(nsets);
 
 	    if (nsets > 0 && (labelsets = (pmLabelSet *)malloc(nsets * sizeof(pmLabelSet))) == NULL) {
@@ -663,11 +669,12 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":4", PM_FAULT_ALLOC);
 
 	    for (i = 0; i < nsets; i++) {
 
-    	inst = ntohl((unsigned int)tbuf[k]);
+	    inst = *((unsigned int*)&tbuf[k]);
+		inst = ntohl(inst);
     	k += sizeof(inst);
     	labelsets[i].inst = inst;
 
-		jsonlen = ntohl((unsigned int)tbuf[k]);
+		jsonlen = ntohl(*((unsigned int*)&tbuf[k]));
 		k += sizeof(jsonlen);
 		labelsets[i].jsonlen = jsonlen;
 
@@ -675,11 +682,12 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":4", PM_FAULT_ALLOC);
 			sts = -oserror();
 			goto end;
 	    }
+
 		memmove((void *)labelsets[i].json, (void *)&tbuf[k], jsonlen);
 		k += jsonlen;
 
 		// label nlabels
-		nlabels = ntohl((unsigned int)tbuf[k]);
+		nlabels = ntohl(*((unsigned int*)&tbuf[k]));
 		k += sizeof(nlabels);
 		labelsets[i].nlabels = nlabels;
 
@@ -970,23 +978,22 @@ __pmLogNameInDom(__pmLogCtl *lcp, pmInDom indom, __pmTimeval *tp, int inst, char
  */
 int
 __pmLogLookupLabel(__pmLogCtl *lcp, unsigned int type, unsigned int ident,
-		__pmLogLabelSet **label)
+		pmLabelSet **label)
 {
     __pmHashNode	*hp;
     __pmLogLabelSet	*tp;
 
     if ((hp = __pmHashSearch(type, &lcp->l_hashlabels)) == NULL)
-	return PM_ERR_PMID_LOG;
+		return PM_ERR_PMID_LOG;
 
 	__pmHashCtl *label_hash = (__pmHashCtl *)hp->data;
 
 	if ((hp = __pmHashSearch(ident, label_hash)) == NULL)
 	return PM_ERR_PMID_LOG;
 
-
     tp = (__pmLogLabelSet *)hp->data;
-    *label = tp;			/* struct assignment */
-    return 0;
+    *label = tp->labelsets;
+    return tp->nsets;
 }
 
 /*typedef struct __pmLogLabelSet {
@@ -1055,24 +1062,29 @@ __pmLogPutLabel(__pmLogCtl *lcp, unsigned int type, unsigned int ident, int nset
 
     	inst = htonl(labelsets[i].inst);
 		memmove((void *)ptr, (void *)&inst, sizeof(inst));
+		ptr += sizeof(inst);
 
 		// label jsonlen
 		jsonlen = labelsets[i].jsonlen;
 		int converted_jsonlen = htonl(jsonlen);
 		memmove((void *)ptr, (void *)&converted_jsonlen, sizeof(jsonlen));
+		ptr += sizeof(jsonlen);
 
 		// label string
 		memmove((void *)ptr, (void *)labelsets[i].json, jsonlen);
+		ptr += jsonlen;
 
 		// label nlabels
 		nlabels = labelsets[i].nlabels;
 		int converted_nlabels = htonl(nlabels);
 		memmove((void *)ptr, (void *)&converted_nlabels, sizeof(nlabels));
+		ptr += sizeof(nlabels);
 
 		// label pmLabels
 		for(j = 0; j < nlabels; j++) {
 			label = __htonpmLabel(labelsets[i].labels[j]);
 			memmove((void *)ptr, (void *)&label, sizeof(label));
+			ptr += sizeof(label);
 		}
     }
 
