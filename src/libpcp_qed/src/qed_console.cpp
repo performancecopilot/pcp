@@ -50,7 +50,8 @@ void QedConsole::post(const char *fmt, ...)
 
     if (!(my.level & QedApp::DebugTimeless)) {
 	gettimeofday(&now, NULL);
-	sprintf(buffer, "%6.2f: ", QedApp::timevalToSeconds(now) - my.origin);
+	pmsprintf(buffer, sizeof(buffer), "%6.2f: ",
+			QedApp::timevalToSeconds(now) - my.origin);
 	offset = 8;
     }
 
@@ -82,7 +83,8 @@ void QedConsole::post(int level, const char *fmt, ...)
 
     if (!(my.level & QedApp::DebugTimeless)) {
 	gettimeofday(&now, NULL);
-	sprintf(buffer, "%6.2f: ", QedApp::timevalToSeconds(now) - my.origin);
+	pmsprintf(buffer, sizeof(buffer), "%6.2f: ",
+			QedApp::timevalToSeconds(now) - my.origin);
 	offset = 8;
     }
 
