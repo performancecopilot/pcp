@@ -274,7 +274,7 @@ pidonexit(void)
     char        pidpath[MAXPATHLEN];
 
     if (serviceSpec) {
-	snprintf(pidpath, sizeof(pidpath), "%s%c%s.pid",
+	pmsprintf(pidpath, sizeof(pidpath), "%s%c%s.pid",
 	    pmGetConfig("PCP_RUN_DIR"), __pmPathSeparator(), serviceSpec);
 	unlink(pidpath);
     }
@@ -289,7 +289,7 @@ __pmServerCreatePIDFile(const char *spec, int verbose)
     if (!serviceSpec)
 	__pmServerSetServiceSpec(spec);
 
-    snprintf(pidpath, sizeof(pidpath), "%s%c%s.pid",
+    pmsprintf(pidpath, sizeof(pidpath), "%s%c%s.pid",
 	     pmGetConfig("PCP_RUN_DIR"), __pmPathSeparator(), spec);
 
     if ((pidfile = fopen(pidpath, "w")) == NULL) {
@@ -780,12 +780,12 @@ SetCredentialAttrs(__pmHashCtl *attrs, unsigned int pid, unsigned int uid, unsig
 {
     char name[32], *namep;
 
-    snprintf(name, sizeof(name), "%u", uid);
+    pmsprintf(name, sizeof(name), "%u", uid);
     name[sizeof(name)-1] = '\0';
     if ((namep = strdup(name)) != NULL)
         __pmHashAdd(PCP_ATTR_USERID, namep, attrs);
 
-    snprintf(name, sizeof(name), "%u", gid);
+    pmsprintf(name, sizeof(name), "%u", gid);
     name[sizeof(name)-1] = '\0';
     if ((namep = strdup(name)) != NULL)
         __pmHashAdd(PCP_ATTR_GROUPID, namep, attrs);
@@ -793,7 +793,7 @@ SetCredentialAttrs(__pmHashCtl *attrs, unsigned int pid, unsigned int uid, unsig
     if (!pid)	/* not available on all platforms */
 	return 0;
 
-    snprintf(name, sizeof(name), "%u", pid);
+    pmsprintf(name, sizeof(name), "%u", pid);
     name[sizeof(name)-1] = '\0';
     if ((namep = strdup(name)) != NULL)
         __pmHashAdd(PCP_ATTR_PROCESSID, namep, attrs);
@@ -883,7 +883,7 @@ __pmServerRequestPortString(int fd, char *buffer, size_t sz)
     int i, j;
 
     if (fd == localSocketFd) {
-	snprintf(buffer, sz, "%s unix request socket %s",
+	pmsprintf(buffer, sz, "%s unix request socket %s",
 		 pmProgname, localSocketPath);
 	return buffer;
     }
@@ -892,7 +892,7 @@ __pmServerRequestPortString(int fd, char *buffer, size_t sz)
 	ReqPortInfo *rp = &reqPorts[i];
 	for (j = 0; j < FAMILIES; j++) {
 	    if (fd == rp->fds[j]) {
-		snprintf(buffer, sz, "%s %s request socket %s",
+		pmsprintf(buffer, sz, "%s %s request socket %s",
 			pmProgname, RequestFamilyString(j), rp->address);
 		return buffer;
 	    }

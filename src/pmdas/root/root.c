@@ -317,7 +317,7 @@ root_setup_socket(void)
     }
 
     if (socket_path[0] == '\0')
-	snprintf(socket_path, sizeof(socket_path), "%s/pmcd/root.socket",
+	pmsprintf(socket_path, sizeof(socket_path), "%s/pmcd/root.socket",
 		pmGetConfig("PCP_TMP_DIR"));
     unlink(socket_path);
     memcpy(path, socket_path, sizeof(path));	/* dirname copy */
@@ -506,7 +506,7 @@ root_hostname(int pid, char *buffer, int *length)
 	if ((utsfd = open("/proc/self/ns/uts", O_RDONLY)) < 0)
 	    return -oserror();
     }
-    snprintf(path, sizeof(path), "/proc/%d/ns/uts", pid);
+    pmsprintf(path, sizeof(path), "/proc/%d/ns/uts", pid);
     if ((fd = open(path, O_RDONLY)) < 0)
 	return -oserror();
     if (setns(fd, CLONE_NEWUTS) < 0) {
@@ -857,7 +857,7 @@ main(int argc, char **argv)
     char		helppath[MAXPATHLEN];
 
     __pmSetProgname(argv[0]);
-    snprintf(helppath, sizeof(helppath), "%s%c" "root" "%c" "help",
+    pmsprintf(helppath, sizeof(helppath), "%s%c" "root" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&dispatch, PMDA_INTERFACE_6, pmProgname, ROOT, "root.log", helppath);
 

@@ -371,7 +371,7 @@ ParseActionList(
 	    pmprintf("Error, line %d: name expected for actions list\n", nLines);
 	    return -1;
 	}
-	snprintf(anon, sizeof(anon), "anonymous#%d", count++);
+	pmsprintf(anon, sizeof(anon), "anonymous#%d", count++);
 	alp = new QedActionList(anon);
 	name = anon;
     }

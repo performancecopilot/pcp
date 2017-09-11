@@ -643,7 +643,7 @@ new(CLASS,name,domain)
 	setsid();
 #endif
 	atexit(&local_atexit);
-	snprintf(helpfile, sizeof(helpfile), "%s%c%s%c" "help",
+	pmsprintf(helpfile, sizeof(helpfile), "%s%c%s%c" "help",
 			pmGetConfig("PCP_PMDAS_DIR"), sep, name, sep);
 	if (access(helpfile, R_OK) != 0) {
 	    pmdaDaemon(&dispatch, PMDA_INTERFACE_5, pmdaname, domain,
@@ -812,11 +812,11 @@ pmda_uptime(now)
 	secs = now;
 
 	if (days > 1)
-	    snprintf(s, sz, "%ddays %02d:%02d:%02d", days, hours, mins, secs);
+	    pmsprintf(s, sz, "%ddays %02d:%02d:%02d", days, hours, mins, secs);
 	else if (days == 1)
-	    snprintf(s, sz, "%dday %02d:%02d:%02d", days, hours, mins, secs);
+	    pmsprintf(s, sz, "%dday %02d:%02d:%02d", days, hours, mins, secs);
 	else
-	    snprintf(s, sz, "%02d:%02d:%02d", hours, mins, secs);
+	    pmsprintf(s, sz, "%02d:%02d:%02d", hours, mins, secs);
 	RETVAL = s;
     OUTPUT:
 	RETVAL

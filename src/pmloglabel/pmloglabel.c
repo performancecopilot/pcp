@@ -275,7 +275,7 @@ main(int argc, char *argv[])
 	    fprintf(stderr, "Bad data volume %d label: %s\n", c, pmErrStr(sts));
 	    status = 2;
 	}
-	snprintf(buffer, sizeof(buffer), "data volume %d", c);
+	pmsprintf(buffer, sizeof(buffer), "data volume %d", c);
 	compare_golden(logctl.l_mfp, buffer, sts, warnings);
     }
 
@@ -327,7 +327,7 @@ main(int argc, char *argv[])
 	    if (verbose)
 		printf("Writing label on data volume %d\n", c);
 	    golden.ill_vol = c;
-	    snprintf(buffer, sizeof(buffer), "%s.%d", logctl.l_name, c);
+	    pmsprintf(buffer, sizeof(buffer), "%s.%d", logctl.l_name, c);
 	    if ((logctl.l_mfp = __pmFopen(buffer, "r+")) == NULL) {
 		fprintf(stderr, "Failed data volume %d open: %s\n",
 				c, osstrerror());
@@ -351,7 +351,7 @@ main(int argc, char *argv[])
 	    if (verbose)
 		printf("Writing label on temporal index\n");
 	    golden.ill_vol = PM_LOG_VOL_TI;
-	    snprintf(buffer, sizeof(buffer), "%s.index", logctl.l_name);
+	    pmsprintf(buffer, sizeof(buffer), "%s.index", logctl.l_name);
 	    if ((logctl.l_tifp = __pmFopen(buffer, "r+")) == NULL) {
 		fprintf(stderr, "Failed temporal index open: %s\n",
 				osstrerror());
@@ -368,7 +368,7 @@ main(int argc, char *argv[])
 	if (verbose)
 	    printf("Writing label on metadata volume\n");
 	golden.ill_vol = PM_LOG_VOL_META;
-	snprintf(buffer, sizeof(buffer), "%s.meta", logctl.l_name);
+	pmsprintf(buffer, sizeof(buffer), "%s.meta", logctl.l_name);
 	if ((logctl.l_mdfp = __pmFopen(buffer, "r+")) == NULL) {
 	    fprintf(stderr, "Failed metadata volume open: %s\n",
 			    osstrerror());

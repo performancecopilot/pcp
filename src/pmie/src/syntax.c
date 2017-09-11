@@ -66,7 +66,7 @@ nameGen(void)
     static char bfr[NAMEGEN_MAX];
 
     state++;
-    snprintf(bfr, sizeof(bfr), "expr_%1d", state);
+    pmsprintf(bfr, sizeof(bfr), "expr_%1d", state);
 
     return bfr;
 }

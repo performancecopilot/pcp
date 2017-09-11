@@ -303,7 +303,7 @@ popen_uncompress(const char *cmd, const char *fname, const char *suffix, int fd)
     ssize_t	bytes;
     int		sts, infd;
 
-    snprintf(pipecmd, sizeof(pipecmd), "%s %s%s", cmd, fname, suffix);
+    pmsprintf(pipecmd, sizeof(pipecmd), "%s %s%s", cmd, fname, suffix);
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_LOG)
 	fprintf(stderr, "__pmLogOpen: uncompress using: %s\n", pipecmd);
@@ -344,7 +344,7 @@ fopen_securetmp(const char *fname)
 	umask(cur_umask);
 	return -1;
     }
-    snprintf(tmpname, sizeof(tmpname), "%s/XXXXXX", msg);
+    pmsprintf(tmpname, sizeof(tmpname), "%s/XXXXXX", msg);
     msg = tmpname;
     fd = mkstemp(tmpname);
 #ifdef PCP_DEBUG
@@ -403,7 +403,7 @@ index_compress(const char *fname)
     char	tmpname[MAXPATHLEN];
 
     for (i = 0; i < ncompress; i++) {
-	snprintf(tmpname, sizeof(tmpname), "%s%s", fname, compress_ctl[i].suff);
+	pmsprintf(tmpname, sizeof(tmpname), "%s%s", fname, compress_ctl[i].suff);
 	if (access(tmpname, R_OK) == 0)
 	    return i;
     }
@@ -513,7 +513,7 @@ _logpeek(__pmLogCtl *lcp, int vol)
     __pmLogLabel	label;
     char		fname[MAXPATHLEN];
 
-    snprintf(fname, sizeof(fname), "%s.%d", lcp->l_name, vol);
+    pmsprintf(fname, sizeof(fname), "%s.%d", lcp->l_name, vol);
     /* need mutual exclusion here to avoid race with a concurrent uncompress */
     PM_LOCK(logutil_lock);
     if ((f = __pmFopen(fname, "r")) == NULL) {
@@ -547,7 +547,7 @@ __pmLogChangeVol(__pmLogCtl *lcp, int vol)
 	__pmResetIPC(__pmFileno(lcp->l_mfp));
 	__pmFclose(lcp->l_mfp);
     }
-    snprintf(fname, sizeof(fname), "%s.%d", lcp->l_name, vol);
+    pmsprintf(fname, sizeof(fname), "%s.%d", lcp->l_name, vol);
     /* need mutual exclusion here to avoid race with a concurrent uncompress */
     PM_LOCK(logutil_lock);
     if ((lcp->l_mfp = __pmFopen(fname, "r")) == NULL) {
@@ -635,15 +635,15 @@ __pmLogName_r(const char *base, int vol, char *buf, int buflen)
 {
     switch (vol) {
 	case PM_LOG_VOL_TI:
-	    snprintf(buf, buflen, "%s.index", base);
+	    pmsprintf(buf, buflen, "%s.index", base);
 	    break;
 
 	case PM_LOG_VOL_META:
-	    snprintf(buf, buflen, "%s.meta", base);
+	    pmsprintf(buf, buflen, "%s.meta", base);
 	    break;
 
 	default:
-	    snprintf(buf, buflen, "%s.%d", base, vol);
+	    pmsprintf(buf, buflen, "%s.%d", base, vol);
 	    break;
     }
 
@@ -1021,7 +1021,7 @@ __pmLogLoadLabel(__pmLogCtl *lcp, const char *name)
 	__pmLogBaseName(base);
     }
 
-    snprintf(filename, sizeof(filename), "%s%c%s", dir, sep, base);
+    pmsprintf(filename, sizeof(filename), "%s%c%s", dir, sep, base);
     if ((lcp->l_name = strdup(filename)) == NULL) {
 	sts = -oserror();
 	free(tbuf);
@@ -1049,14 +1049,14 @@ __pmLogLoadLabel(__pmLogCtl *lcp, const char *name)
 		continue;
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_LOG) {
-		snprintf(filename, sizeof(filename), "%s%c%s", dir, sep, direntp->d_name);
+		pmsprintf(filename, sizeof(filename), "%s%c%s", dir, sep, direntp->d_name);
 		fprintf(stderr, "__pmLogOpen: inspect file \"%s\"\n", filename);
 	    }
 #endif
 	    tp = &direntp->d_name[blen+1];
 	    if (strcmp(tp, "index") == 0) {
 		exists = 1;
-		snprintf(filename, sizeof(filename), "%s%c%s", dir, sep, direntp->d_name);
+		pmsprintf(filename, sizeof(filename), "%s%c%s", dir, sep, direntp->d_name);
 		if ((lcp->l_tifp = __pmFopen(filename, "r")) == NULL) {
 		    sts = -oserror();
 		    goto cleanup;
@@ -1064,7 +1064,7 @@ __pmLogLoadLabel(__pmLogCtl *lcp, const char *name)
 	    }
 	    else if (strcmp(tp, "meta") == 0) {
 		exists = 1;
-		snprintf(filename, sizeof(filename), "%s%c%s", dir, sep, direntp->d_name);
+		pmsprintf(filename, sizeof(filename), "%s%c%s", dir, sep, direntp->d_name);
 		if ((lcp->l_mdfp = __pmFopen(filename, "r")) == NULL) {
 		    sts = -oserror();
 		    goto cleanup;

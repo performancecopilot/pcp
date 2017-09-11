@@ -1867,9 +1867,9 @@ __pmAccDumpGroups(FILE *stream)
 	    }
 	}
 	if (g)
-	    snprintf(buf, sizeof(buf), "%6d", gp->groupid);
+	    pmsprintf(buf, sizeof(buf), "%6d", gp->groupid);
 	else
-	    snprintf(buf, sizeof(buf), "     *");
+	    pmsprintf(buf, sizeof(buf), "     *");
 	fprintf(stream, "%5d %5d %*s %-*s", gp->curcons, gp->maxcons,
 			ID_WIDTH, g == 0 ? "*" :
 			__pmGroupIDToString(gp->groupid, buf, sizeof(buf)),

@@ -50,7 +50,7 @@ start_metric(pmID pmid)
 	sts = pmNameID(pmid, &name);
 	if (sts < 0) {
 	    if (wflag) {
-		snprintf(mess, sizeof(mess), "Metric %s pmNameID: %s", pmIDStr(pmid), pmErrStr(sts));
+		pmsprintf(mess, sizeof(mess), "Metric %s pmNameID: %s", pmIDStr(pmid), pmErrStr(sts));
 		yywarn(mess);
 	    }
 	    return NULL;
@@ -58,7 +58,7 @@ start_metric(pmID pmid)
 	sts = pmLookupDesc(pmid, &desc);
 	if (sts < 0) {
 	    if (wflag) {
-		snprintf(mess, sizeof(mess), "Metric %s: pmLookupDesc: %s", pmIDStr(pmid), pmErrStr(sts));
+		pmsprintf(mess, sizeof(mess), "Metric %s: pmLookupDesc: %s", pmIDStr(pmid), pmErrStr(sts));
 		yywarn(mess);
 	    }
 	    free(name);

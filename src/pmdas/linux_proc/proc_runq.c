@@ -97,7 +97,7 @@ int
 proc_runq_append(const char *process, proc_runq_t *proc_runq)
 {
     char path[MAXPATHLEN];
-    snprintf(path, sizeof(path)-1, "%s/proc/%s/stat", proc_statspath, process);
+    pmsprintf(path, sizeof(path)-1, "%s/proc/%s/stat", proc_statspath, process);
     return proc_runq_accounting(path, proc_runq);
 }
 
@@ -105,6 +105,6 @@ int
 proc_runq_append_pid(int pid, proc_runq_t *proc_runq)
 {
     char path[MAXPATHLEN];
-    snprintf(path, sizeof(path)-1, "%s/proc/%d/stat", proc_statspath, pid);
+    pmsprintf(path, sizeof(path)-1, "%s/proc/%d/stat", proc_statspath, pid);
     return proc_runq_accounting(path, proc_runq);
 }

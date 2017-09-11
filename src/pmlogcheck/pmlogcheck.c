@@ -240,7 +240,7 @@ main(int argc, char *argv[])
 	    strncpy(path, namelist[i]->d_name, sizeof(path));
 	}
 	else {
-	    snprintf(path, sizeof(path), "%s%c%s", archdirname, sep, namelist[i]->d_name);
+	    pmsprintf(path, sizeof(path), "%s%c%s", archdirname, sep, namelist[i]->d_name);
 	}
 	if (pass0(path) == STS_FATAL)
 	    /* unrepairable or unrepaired error */
@@ -297,7 +297,7 @@ main(int argc, char *argv[])
 	/* skip ./ prefix */
 	strncpy(archname, archbasename, sizeof(archname) - 1);
     else
-	snprintf(archname, sizeof(archname), "%s%c%s", archdirname, sep, archbasename);
+	pmsprintf(archname, sizeof(archname), "%s%c%s", archdirname, sep, archbasename);
 
     sts = pass1(ctxp, archname);
 

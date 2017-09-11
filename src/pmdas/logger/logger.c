@@ -416,7 +416,7 @@ logger_init(pmdaInterface *dp, const char *configfile)
     for (i = 0; i < numloggers; i++) {
 	const char *id = event_pmnsname(i);
 	for (j = 0; j < numdynamics; j++) {
-	    snprintf(name, sizeof(name),
+	    pmsprintf(name, sizeof(name),
 			"logger.perfile.%s.%s", id, dynamic_nametab[j]);
 	    __pmAddPMNSNode(pmns, pmetric[j].m_desc.pmid, name);
 	}
@@ -540,7 +540,7 @@ main(int argc, char **argv)
 
     minmem = getpagesize();
     maxmem = (minmem > DEFAULT_MAXMEM) ? minmem : DEFAULT_MAXMEM;
-    snprintf(helppath, sizeof(helppath), "%s%c" "logger" "%c" "help",
+    pmsprintf(helppath, sizeof(helppath), "%s%c" "logger" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&desc, PMDA_INTERFACE_5, pmProgname, LOGGER,
 		"logger.log", helppath);

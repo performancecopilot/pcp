@@ -357,7 +357,7 @@ pmwebapi_respond_new_context (struct MHD_Connection *connection,
                          polltimeout << "s" << endl;
     }
 
-    rc = snprintf (http_response, sizeof (http_response), "{ \"context\": %d }", webapi_ctx);
+    rc = pmsprintf (http_response, sizeof (http_response), "{ \"context\": %d }", webapi_ctx);
     assert (rc >= 0 && rc < (int) sizeof (http_response));
     resp = MHD_create_response_from_buffer (strlen (http_response), http_response,
                                             MHD_RESPMEM_MUST_COPY);
@@ -1666,7 +1666,7 @@ pmwebapi_respond (struct MHD_Connection *connection, const http_params & params,
             /* We need the user to resubmit this with http
                authentication info, with a custom HTTP authentication
                realm for this context. */
-            snprintf (auth_realm, sizeof (auth_realm), "%s/%ld", uriprefix.c_str (), webapi_ctx);
+            pmsprintf (auth_realm, sizeof (auth_realm), "%s/%ld", uriprefix.c_str (), webapi_ctx);
             rc = MHD_queue_basic_auth_fail_response (connection, auth_realm, resp);
             MHD_destroy_response (resp);
             if (rc != MHD_YES) {

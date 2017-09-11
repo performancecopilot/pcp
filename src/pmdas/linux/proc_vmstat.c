@@ -330,7 +330,7 @@ proc_vmstat_init(void)
      * that is not a problem.  This routine makes sure any swap.xxx metric
      * fetch without a preceding mem.vmstat fetch has the correct state.
      */
-    snprintf(buf, sizeof(buf), "%s/proc/vmstat", linux_statspath);
+    pmsprintf(buf, sizeof(buf), "%s/proc/vmstat", linux_statspath);
     _pm_have_proc_vmstat = (access(buf, R_OK) == 0);
 }
 

@@ -58,7 +58,7 @@ cifs_refresh_global_stats(const char *statspath, const char *procfsdir, const ch
     /* set counters, UINT64_MAX we can check later if we have results to return */
     memset(global_data, -1, sizeof global_data);
     
-        snprintf(buffer, sizeof(buffer), "%s%s/Stats", statspath, procfsdir);
+        pmsprintf(buffer, sizeof(buffer), "%s%s/Stats", statspath, procfsdir);
     buffer[sizeof(buffer)-1] = '\0';
 
     if ((fp = fopen(buffer, "r")) == NULL )
@@ -112,7 +112,7 @@ cifs_refresh_fs_stats(const char *statspath, const char *procfsdir, const char *
     int found_fs = 0;
     FILE *fp;
 
-        snprintf(buffer, sizeof(buffer), "%s%s/Stats", statspath, procfsdir);
+        pmsprintf(buffer, sizeof(buffer), "%s%s/Stats", statspath, procfsdir);
     buffer[sizeof(buffer)-1] = '\0';
 
     if ((fp = fopen(buffer, "r")) == NULL )

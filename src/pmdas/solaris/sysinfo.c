@@ -68,7 +68,7 @@ sysinfo_init(int first)
 
     for (i = 0; i < ncpu; i++) {
 	indomtab[CPU_INDOM].it_set[i].i_inst = i;
-	snprintf(buf, sizeof(buf), "cpu%d", i);
+	pmsprintf(buf, sizeof(buf), "cpu%d", i);
 	indomtab[CPU_INDOM].it_set[i].i_name = strdup(buf);
 	/* TODO check? */
     }
@@ -266,7 +266,7 @@ sysinfo_fetch(pmdaMetric *mdesc, int inst, pmAtomValue *atom)
 	if (uname(&u) < 0)
 	    return 0;
 
-	snprintf(uname_full, sizeof(uname_full), "%s %s %s %s %s",
+	pmsprintf(uname_full, sizeof(uname_full), "%s %s %s %s %s",
 		 u.sysname, u.nodename, u.release, u.version, u.machine);
 	atom->cp = uname_full;
 	return 1;

@@ -167,10 +167,10 @@ main(int argc, char *argv[])
     }
 
     if (Fflag) {
-    	snprintf(buf, BUFSIZE, "%s.meta", archive); unlink(buf);
-    	snprintf(buf, BUFSIZE, "%s.index", archive); unlink(buf);
+    	pmsprintf(buf, BUFSIZE, "%s.meta", archive); unlink(buf);
+    	pmsprintf(buf, BUFSIZE, "%s.index", archive); unlink(buf);
 	for (j=0;; j++) {
-	    snprintf(buf, BUFSIZE, "%s.%d", archive, j);
+	    pmsprintf(buf, BUFSIZE, "%s.%d", archive, j);
 	    if (unlink(buf) < 0)
 	    	break;
 	}
@@ -207,7 +207,7 @@ main(int argc, char *argv[])
 	infile = argv[opts.optind + filenum];
 	gzipped = strstr(infile, ".gz") != NULL;
 	if (gzipped) {
-	    snprintf(buf, BUFSIZE, "gzip -c -d %s", infile);
+	    pmsprintf(buf, BUFSIZE, "gzip -c -d %s", infile);
 	    if ((fp = popen(buf, "r")) == NULL)
 		perror(buf);
 	}

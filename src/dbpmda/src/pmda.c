@@ -265,7 +265,7 @@ open_socket(int port, int family, const char *protocol)
     infd = fd;
     outfd = fd;
 
-    snprintf(socket, MYSOCKETSZ, "%s port %d", protocol, port);
+    pmsprintf(socket, MYSOCKETSZ, "%s port %d", protocol, port);
     printf("Connect to PMDA on %s\n", socket);
 
     connmode = CONN_DAEMON;

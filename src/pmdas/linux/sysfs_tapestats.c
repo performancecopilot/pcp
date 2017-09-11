@@ -47,7 +47,7 @@ refresh_sysfs_tapestats(pmInDom tape_indom)
     struct dirent *sysentry, *tapestats;
     int i, sts, fd;
 
-    snprintf(sysname, sizeof(sysname), "%s/sys/class/scsi_tape", linux_statspath);
+    pmsprintf(sysname, sizeof(sysname), "%s/sys/class/scsi_tape", linux_statspath);
     if ((sysdir = opendir(sysname)) == NULL)
 	return -oserror();
 

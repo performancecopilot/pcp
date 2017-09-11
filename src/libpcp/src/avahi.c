@@ -441,7 +441,7 @@ __pmServerAvahiAdvertisePresence(__pmServerPresence *s)
 	__pmNoMem("__pmServerAvahiAdvertisePresence: can't allocate service name",
 		  size, PM_FATAL_ERR);
     }
-    snprintf(s->avahi->serviceName, size, "PCP %s on %s", s->serviceSpec, host);
+    pmsprintf(s->avahi->serviceName, size, "PCP %s on %s", s->serviceSpec, host);
     assert (avahi_is_valid_service_name(s->avahi->serviceName));
 
     size = sizeof("_._tcp") + strlen(s->serviceSpec); /* includes room for the nul */

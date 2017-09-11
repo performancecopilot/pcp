@@ -25,7 +25,7 @@ refresh_proc_uptime(proc_uptime_t *proc_uptime)
     float uptime = 0.0, idletime = 0.0;
 
     memset(proc_uptime, 0, sizeof(proc_uptime_t));
-    snprintf(buf, sizeof(buf), "%s/proc/uptime", linux_statspath);
+    pmsprintf(buf, sizeof(buf), "%s/proc/uptime", linux_statspath);
     if ((fd = open(buf, O_RDONLY)) < 0)
 	return -oserror();
 

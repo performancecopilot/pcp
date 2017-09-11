@@ -272,7 +272,7 @@ event_init(int context, pmInDom aclops, pipe_command *cmd, char *params)
 	return sts;
     groot->fd = pipe_setfd(sts);
 
-    snprintf(groot->qname, sizeof(groot->qname), "%s#%d",
+    pmsprintf(groot->qname, sizeof(groot->qname), "%s#%d",
 		cmd->identifier, context);
     groot->queueid = pmdaEventNewQueue(groot->qname, maxmem);
     pmdaEventSetAccess(context, groot->queueid, 1);
@@ -819,7 +819,7 @@ event_config_dir(const char *dname)
     for (i = 0; i < n; i++) {
 	if (list[i]->d_name[0] == '.')
 	    continue;
-	snprintf(path, sizeof(path), "%s%c%s", dname, sep, list[i]->d_name);
+	pmsprintf(path, sizeof(path), "%s%c%s", dname, sep, list[i]->d_name);
 	path[sizeof(path)-1] = '\0';
 	if ((sts = event_config(path)) < 0)
 	    break;

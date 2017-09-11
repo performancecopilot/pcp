@@ -135,7 +135,7 @@ strnum(int n)
 	fprintf(stderr, "strnum: malloc failed: %s\n", osstrerror());
 	exit(1);
     }
-    snprintf(buf, MYBUFSZ, "%d", n);
+    pmsprintf(buf, MYBUFSZ, "%d", n);
     return buf;
 }
 
@@ -205,7 +205,7 @@ watch(char *fname)
 {
     char	cmd[MYCMDSZ];
 
-    snprintf(cmd, MYCMDSZ, "xterm -hold -title \"dbpmda watch %s\" -geom 80x16 -bg dodgerblue4 -e tail -f %s &",
+    pmsprintf(cmd, MYCMDSZ, "xterm -hold -title \"dbpmda watch %s\" -geom 80x16 -bg dodgerblue4 -e tail -f %s &",
 	fname, fname);
     
     if (system(cmd) != 0)

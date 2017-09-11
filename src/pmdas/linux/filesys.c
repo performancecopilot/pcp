@@ -54,7 +54,7 @@ refresh_filesys(pmInDom filesys_indom, pmInDom tmpfs_indom,
      * When operating within a container namespace, cannot refer
      * to "self" due to it being a symlinked pid from the host.
      */
-    snprintf(src, sizeof(src), "%s/proc/%s/mounts",
+    pmsprintf(src, sizeof(src), "%s/proc/%s/mounts",
 				linux_statspath, cp ? "1" : "self");
     if ((fp = fopen(src, "r")) == NULL)
 	return -oserror();

@@ -162,7 +162,7 @@ static void retrieve_numainfo(archinfo_t *inst)
     if(NULL == basepath) {
         basepath = "/sys";
     }
-    snprintf(buf, sizeof(buf), "%s/" SYSFS_NODE_PATH, basepath);
+    pmsprintf(buf, sizeof(buf), "%s/" SYSFS_NODE_PATH, basepath);
 
     n = scandir(buf, &namelist, &numanodefilter, versionsort);
     if (n <= 0)
@@ -179,7 +179,7 @@ static void retrieve_numainfo(archinfo_t *inst)
 
     for(i=0; i < n; ++i)
     {
-        snprintf(buf, sizeof(buf), "%s/" SYSFS_NODE_PATH "/%s/cpulist", basepath, namelist[i]->d_name);
+        pmsprintf(buf, sizeof(buf), "%s/" SYSFS_NODE_PATH "/%s/cpulist", basepath, namelist[i]->d_name);
         cpulist = fopen(buf, "r");
         if(cpulist)
         {

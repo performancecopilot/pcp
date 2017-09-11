@@ -491,7 +491,7 @@ etw_init(pmdaInterface *dp, const char *configfile)
     char	helppath[MAXPATHLEN];
     int		sep = __pmPathSeparator();
 
-    snprintf(helppath, sizeof(helppath), "%s%c" "etw" "%c" "help",
+    pmsprintf(helppath, sizeof(helppath), "%s%c" "etw" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDSO(dp, PMDA_INTERFACE_5, "etw DSO", helppath);
     if (dp->status != 0)

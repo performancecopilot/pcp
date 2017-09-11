@@ -295,7 +295,7 @@ build_dynamic_proc_tree(int domain)
 
 	    for (metric = 0; metric < num_cur_metrics; metric++) {
 
-		snprintf(entry, sizeof(entry), "%s.%s.%s",
+		pmsprintf(entry, sizeof(entry), "%s.%s.%s",
 			dynproc_members[tree], dynproc_groups[group].name,
 			cur_metrics[metric].name);
 

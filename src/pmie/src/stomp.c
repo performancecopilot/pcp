@@ -179,7 +179,7 @@ static int stomp_authenticate(void)
 
     if (fd < 0)
 	return -1;
-    len = snprintf(buffer, sizeof(buffer),
+    len = pmsprintf(buffer, sizeof(buffer),
 		   "CONNECT\nlogin:%s\npasscode:%s\n\n", username, passcode);
     if (stomp_write(buffer, len) < 0)
 	return -1;
@@ -194,7 +194,7 @@ static int stomp_destination(void)
 
     if (fd < 0)
 	return -1;
-    len = snprintf(buffer, sizeof(buffer),
+    len = pmsprintf(buffer, sizeof(buffer),
 		   "SUB\ndestination:/topic/%s\n\n", topic);
     if (stomp_write(buffer, len) < 0)
 	return -1;
@@ -209,7 +209,7 @@ static int stomp_hello(void)
 
     if (fd < 0)
 	return -1;
-    len = snprintf(buffer, sizeof(buffer), "SEND\ndestination:/topic/%s\n\n"
+    len = pmsprintf(buffer, sizeof(buffer), "SEND\ndestination:/topic/%s\n\n"
 		   "INFO: PMIE: Established initial connection", topic);
     if (stomp_write(buffer, len) < 0)
 	return -1;
@@ -253,7 +253,7 @@ static void stomp_parse(void)
     if (stompfile)
 	strncat(config, stompfile, sizeof(config)-1);
     else
-	snprintf(config, sizeof(config),
+	pmsprintf(config, sizeof(config),
 		"%s%c" "config" "%c" "pmie" "%c" "stomp",
 		 pmGetConfig("PCP_VAR_DIR"), sep, sep, sep);
     if ((f = fopen(config, "r")) == NULL) {
@@ -384,7 +384,7 @@ int stompSend(const char *msg)
     if (fd < 0) stompInit();	/* reconnect */
     if (fd < -1) return -1;
 
-    len = snprintf(buffer, sizeof(buffer),
+    len = pmsprintf(buffer, sizeof(buffer),
 		   "SEND\ndestination:/topic/%s\n\n", topic);
     if (stomp_write(buffer, len) < 0)
 	return -1;

@@ -133,10 +133,10 @@ dos_formatter(char *var, char *prefix, char *val)
 
     if (prefix && dos_rewrite_path(var, val, msys)) {
 	char *p = msys ? msys_native_path(prefix) : prefix;
-	snprintf(envbuf, sizeof(envbuf), "%s=%s%s", var, p, val);
+	pmsprintf(envbuf, sizeof(envbuf), "%s=%s%s", var, p, val);
     }
     else {
-	snprintf(envbuf, sizeof(envbuf), "%s=%s", var, val);
+	pmsprintf(envbuf, sizeof(envbuf), "%s=%s", var, val);
     }
     putenv(strdup(envbuf));		/* THREADSAFE */
 }
@@ -161,7 +161,7 @@ posix_formatter(char *var, char *prefix, char *val)
     char	*vp;
     char	*vend;
 
-    snprintf(envbuf, sizeof(envbuf), "%s=", var);
+    pmsprintf(envbuf, sizeof(envbuf), "%s=", var);
     vend = &val[strlen(val)-1];
     if (val[0] == *vend && (val[0] == '\'' || val[0] == '"')) {
 	/*
@@ -211,7 +211,7 @@ __pmconfig(__pmConfigCallback formatter, int fatal)
 	    conf = __pmNativePath(confpath);
 	}
 	else {
-	    snprintf(dir, sizeof(dir),
+	    pmsprintf(dir, sizeof(dir),
 			 "%s%s", prefix, __pmNativePath(confpath));
 	    conf = dir;
 	}

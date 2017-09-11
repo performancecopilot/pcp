@@ -670,7 +670,7 @@ openbsd_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		break;
 
 	    case 20: /* pmda.uname */
-		snprintf(uname_string, sizeof(uname_string), "%s %s %s %s %s",
+		pmsprintf(uname_string, sizeof(uname_string), "%s %s %s %s %s",
 		    kernel_uname.sysname, 
 		    kernel_uname.nodename,
 		    kernel_uname.release,
@@ -844,7 +844,7 @@ openbsd_init(pmdaInterface *dp)
     if (isDSO) {
 	char	mypath[MAXPATHLEN];
 	int sep = __pmPathSeparator();
-	snprintf(mypath, sizeof(mypath), "%s%c" "openbsd" "%c" "help",
+	pmsprintf(mypath, sizeof(mypath), "%s%c" "openbsd" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
 	pmdaDSO(dp, PMDA_INTERFACE_5, "openbsd DSO", mypath);
     } else {
@@ -973,7 +973,7 @@ openbsd_init(pmdaInterface *dp)
     }
     for (i = 0; i < ncpu; i++) {
 	indomtab[CPU_INDOM].it_set[i].i_inst = i;
-	snprintf(iname, sizeof(iname), "cpu%d", i);
+	pmsprintf(iname, sizeof(iname), "cpu%d", i);
 	indomtab[CPU_INDOM].it_set[i].i_name = strdup(iname);
 	if (indomtab[CPU_INDOM].it_set[i].i_name == NULL) {
 	    __pmNoMem("openbsd_init: CPU_INDOM strdup iname", strlen(iname), PM_FATAL_ERR);
@@ -1016,7 +1016,7 @@ main(int argc, char **argv)
     __pmSetProgname(argv[0]);
     __pmGetUsername(&username);
 
-    snprintf(mypath, sizeof(mypath), "%s%c" "openbsd" "%c" "help",
+    pmsprintf(mypath, sizeof(mypath), "%s%c" "openbsd" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&dispatch, PMDA_INTERFACE_5, pmProgname, OPENBSD,
 		"openbsd.log", mypath);

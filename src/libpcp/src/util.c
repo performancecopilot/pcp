@@ -402,7 +402,7 @@ char *
 pmIDStr_r(pmID pmid, char *buf, int buflen)
 {
     if (pmid == PM_ID_NULL)
-	snprintf(buf, buflen, "%s", "PM_ID_NULL");
+	pmsprintf(buf, buflen, "%s", "PM_ID_NULL");
     else if (IS_DYNAMIC_ROOT(pmid))
 	/*
 	 * this PMID represents the base of a dynamic subtree in the PMNS
@@ -411,9 +411,9 @@ pmIDStr_r(pmID pmid, char *buf, int buflen)
 	 * that can enumerate the subtree in the cluster field, while
 	 * the item field is zero
 	 */
-	snprintf(buf, buflen, "%d.*.*", pmid_cluster(pmid));
+	pmsprintf(buf, buflen, "%d.*.*", pmid_cluster(pmid));
     else
-	snprintf(buf, buflen, "%d.%d.%d", pmid_domain(pmid), pmid_cluster(pmid), pmid_item(pmid));
+	pmsprintf(buf, buflen, "%d.%d.%d", pmid_domain(pmid), pmid_cluster(pmid), pmid_item(pmid));
     return buf;
 }
 
@@ -431,9 +431,9 @@ pmInDomStr_r(pmInDom indom, char *buf, int buflen)
 {
     __pmInDom_int*	p = (__pmInDom_int*)&indom;
     if (indom == PM_INDOM_NULL)
-	snprintf(buf, buflen, "%s", "PM_INDOM_NULL");
+	pmsprintf(buf, buflen, "%s", "PM_INDOM_NULL");
     else
-	snprintf(buf, buflen, "%d.%d", p->domain, p->serial);
+	pmsprintf(buf, buflen, "%d.%d", p->domain, p->serial);
     return buf;
 }
 
@@ -451,35 +451,35 @@ pmNumberStr_r(double value, char *buf, int buflen)
 {
     if (value >= 0.0) {
 	if (value >= 999995000000000.0)
-	    snprintf(buf, buflen, " inf?  ");
+	    pmsprintf(buf, buflen, " inf?  ");
 	else if (value >= 999995000000.0)
-	    snprintf(buf, buflen, "%6.2fT", (double)((long double)value / (long double)1000000000000.0));
+	    pmsprintf(buf, buflen, "%6.2fT", (double)((long double)value / (long double)1000000000000.0));
 	else if (value >= 999995000.0)
-	    snprintf(buf, buflen, "%6.2fG", (double)((long double)value / (long double)1000000000.0));
+	    pmsprintf(buf, buflen, "%6.2fG", (double)((long double)value / (long double)1000000000.0));
 	else if (value >= 999995.0)
-	    snprintf(buf, buflen, "%6.2fM", (double)((long double)value / (long double)1000000.0));
+	    pmsprintf(buf, buflen, "%6.2fM", (double)((long double)value / (long double)1000000.0));
 	else if (value >= 999.995)
-	    snprintf(buf, buflen, "%6.2fK", value / 1000.0);
+	    pmsprintf(buf, buflen, "%6.2fK", value / 1000.0);
 	else if (value >= 0.005)
-	    snprintf(buf, buflen, "%6.2f ", value);
+	    pmsprintf(buf, buflen, "%6.2f ", value);
 	else
-	    snprintf(buf, buflen, "%6.2f ", 0.0);
+	    pmsprintf(buf, buflen, "%6.2f ", 0.0);
     }
     else {
 	if (value <= -99995000000000.0)
-	    snprintf(buf, buflen, "-inf?  ");
+	    pmsprintf(buf, buflen, "-inf?  ");
 	else if (value <= -99995000000.0)
-	    snprintf(buf, buflen, "%6.2fT", (double)((long double)value / (long double)1000000000000.0));
+	    pmsprintf(buf, buflen, "%6.2fT", (double)((long double)value / (long double)1000000000000.0));
 	else if (value <= -99995000.0)
-	    snprintf(buf, buflen, "%6.2fG", (double)((long double)value / (long double)1000000000.0));
+	    pmsprintf(buf, buflen, "%6.2fG", (double)((long double)value / (long double)1000000000.0));
 	else if (value <= -99995.0)
-	    snprintf(buf, buflen, "%6.2fM", (double)((long double)value / (long double)1000000.0));
+	    pmsprintf(buf, buflen, "%6.2fM", (double)((long double)value / (long double)1000000.0));
 	else if (value <= -99.995)
-	    snprintf(buf, buflen, "%6.2fK", value / 1000.0);
+	    pmsprintf(buf, buflen, "%6.2fK", value / 1000.0);
 	else if (value <= -0.005)
-	    snprintf(buf, buflen, "%6.2f ", value);
+	    pmsprintf(buf, buflen, "%6.2f ", value);
 	else
-	    snprintf(buf, buflen, "%6.2f ", 0.0);
+	    pmsprintf(buf, buflen, "%6.2f ", 0.0);
     }
     return buf;
 }
@@ -1517,7 +1517,7 @@ vpmprintf(const char *msg, va_list arg)
 #if HAVE_MKSTEMP
 	    fname = (char *)malloc(MAXPATHLEN+1);
 	    if (fname == NULL) goto fail;
-	    snprintf(fname, MAXPATHLEN, "%s/pcp-XXXXXX", tmpdir);
+	    pmsprintf(fname, MAXPATHLEN, "%s/pcp-XXXXXX", tmpdir);
 	    cur_umask = umask(S_IXUSR | S_IRWXG | S_IRWXO);
 	    fd = mkstemp(fname);
 	    umask(cur_umask);
@@ -1624,7 +1624,7 @@ pmflush(void)
 		sts = PM_ERR_GENERIC;
 		break;
 	    }
-	    snprintf(outbuf, sizeof(outbuf), "%s -file %s -c -B OK -icon info"
+	    pmsprintf(outbuf, sizeof(outbuf), "%s -file %s -c -B OK -icon info"
 		    " %s -header 'PCP Information' >/dev/null",
 		    __pmNativePath(xconfirm), fname,
 		    (msgsize > 80 ? "-useslider" : ""));
@@ -2361,7 +2361,7 @@ int
 __pmProcessExists(pid_t pid)
 {
     char proc_buf[PROCFS_PATH_SIZE];
-    snprintf(proc_buf, sizeof(proc_buf), "%s/%" FMT_PID, PROCFS, pid);
+    pmsprintf(proc_buf, sizeof(proc_buf), "%s/%" FMT_PID, PROCFS, pid);
     return (access(proc_buf, F_OK) == 0);
 }
 #elif !defined(IS_MINGW)
