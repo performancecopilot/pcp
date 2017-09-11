@@ -38,7 +38,7 @@ typedef struct {
     int			peak_cpu;	/* most utilized CPU, if > 1 CPU */
     float		peak_cpu_util;	/* utilization for most utilized CPU */
     float		freemem;	/* free memory (Mbytes) */
-    unsigned int	dkiops;		/* aggregate disk I/O's per second */
+    int			dkiops;		/* aggregate disk I/O's per second */
     float		load1;		/* 1 minute load average */
     float		load15;		/* 15 minute load average */
 } info_t;
@@ -147,16 +147,24 @@ get_sample(info_t *ip)
 	 * from now on, just want the 1 minute and 15 minute load averages,
 	 * so limit the instance profile for this metric
 	 */
-	pmDelProfile(desclist[LOADAV].indom, 0, NULL);	/* all off */
-	if ((inst1 = pmLookupInDom(desclist[LOADAV].indom, "1 minute")) < 0) {
+	if (opts.context == PM_CONTEXT_ARCHIVE) {
+	    inst1 = pmLookupInDomArchive(desclist[LOADAV].indom, "1 minute");
+	    inst15 = pmLookupInDomArchive(desclist[LOADAV].indom, "15 minute");
+	}
+	else {
+	    inst1 = pmLookupInDom(desclist[LOADAV].indom, "1 minute");
+	    inst15 = pmLookupInDom(desclist[LOADAV].indom, "15 minute");
+	}
+	if (inst1 < 0) {
 	    fprintf(stderr, "%s: cannot translate instance for 1 minute load average\n", pmProgname);
 	    exit(1);
 	}
-	pmAddProfile(desclist[LOADAV].indom, 1, &inst1);
-	if ((inst15 = pmLookupInDom(desclist[LOADAV].indom, "15 minute")) < 0) {
+	if (inst15 < 0) {
 	    fprintf(stderr, "%s: cannot translate instance for 15 minute load average\n", pmProgname);
 	    exit(1);
 	}
+	pmDelProfile(desclist[LOADAV].indom, 0, NULL);	/* all off */
+	pmAddProfile(desclist[LOADAV].indom, 1, &inst1);
 	pmAddProfile(desclist[LOADAV].indom, 1, &inst15);
 
 	first = 0;
