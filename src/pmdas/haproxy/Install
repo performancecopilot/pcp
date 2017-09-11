@@ -39,9 +39,7 @@ if [ -z "$socket" ]; then
 fi
 
 if [ ! -S "$socket" ]; then
-    echo "$socket: socket does not exist, sorry this is fatal"
-    status=1
-    exit
+    echo "Warning: $socket: socket does not exist"
 fi
 
 id -g $user >/dev/null 2>&1
