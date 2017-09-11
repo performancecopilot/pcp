@@ -106,7 +106,7 @@ ModList::add(Modulate *obj)
     if (_current >= len)
 	_current = _list.size();
 
-    sprintf(buf, "%c%d", theModListId, _list.size() - 1);
+    pmsprintf(buf, sizeof(buf), "%c%d", theModListId, _list.size() - 1);
     return buf;
 }
 

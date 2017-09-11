@@ -571,15 +571,15 @@ QmcMetric::formatNumber(double value)
 	if (value > 99950000000000.0)
 	    strcpy(buf, "  inf?");
 	else if (value > 99950000000.0)
-	    sprintf(buf, "%5.2fT", (double)((long double)value / (long double)1000000000000LL));
+	    pmsprintf(buf, sizeof(buf), "%5.2fT", (double)((long double)value / (long double)1000000000000LL));
 	else if (value > 99950000.0)
-	    sprintf(buf, "%5.2fG", (double)((long double)value / (long double)1000000000));
+	    pmsprintf(buf, sizeof(buf), "%5.2fG", (double)((long double)value / (long double)1000000000));
 	else if (value > 99950.0)
-	    sprintf(buf, "%5.2fM", (double)((long double)value / (long double)1000000));
+	    pmsprintf(buf, sizeof(buf), "%5.2fM", (double)((long double)value / (long double)1000000));
 	else if (value > 99.95)
-	    sprintf(buf, "%5.2fK", value / 1000.0);
+	    pmsprintf(buf, sizeof(buf), "%5.2fK", value / 1000.0);
 	else if (value > 0.005)
-	    sprintf(buf, "%5.2f ", value);
+	    pmsprintf(buf, sizeof(buf), "%5.2f ", value);
 	else
 	    strcpy(buf, " 0.00 ");
     }
@@ -587,15 +587,15 @@ QmcMetric::formatNumber(double value)
 	if (value < -9995000000000.0)
 	    strcpy(buf, " -inf?");
 	else if (value < -9995000000.0)
-	    sprintf(buf, "%.2fT", (double)((long double)value / (long double)1000000000000LL));
+	    pmsprintf(buf, sizeof(buf), "%.2fT", (double)((long double)value / (long double)1000000000000LL));
 	else if (value < -9995000.0)
-	    sprintf(buf, "%.2fG", (double)((long double)value / (long double)1000000000));
+	    pmsprintf(buf, sizeof(buf), "%.2fG", (double)((long double)value / (long double)1000000000));
 	else if (value < -9995.0)
-	    sprintf(buf, "%.2fM", (double)((long double)value / (long double)1000000));
+	    pmsprintf(buf, sizeof(buf), "%.2fM", (double)((long double)value / (long double)1000000));
 	else if (value < -9.995)
-	    sprintf(buf, "%.2fK", value / 1000.0);
+	    pmsprintf(buf, sizeof(buf), "%.2fK", value / 1000.0);
 	else if (value < -0.005)
-	    sprintf(buf, "%.2f ", value);
+	    pmsprintf(buf, sizeof(buf), "%.2f ", value);
 	else
 	    strcpy(buf, " 0.00  ");
     }
@@ -758,7 +758,7 @@ QmcMetric::aggregateAsString(pmValue const *vp, char *buffer, int buflen)
     memset(buffer, '.', buflen);
     for (int i = 0; i < (buflen/2)-1; i++, p++) {
 	if (i < vp->value.pval->vlen - PM_VAL_HDR_SIZE)
-	    sprintf(buffer + (i*2), "%02x", *p & 0xff);
+	    pmsprintf(buffer + (i*2), buflen - (i*2), "%02x", *p & 0xff);
     }
     buffer[buflen-1] = '\0';
 }

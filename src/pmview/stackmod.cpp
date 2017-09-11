@@ -81,7 +81,7 @@ StackMod::StackMod(MetricList *metrics, SoNode *obj, StackMod::Height height)
 		StackBlock block;
 
 		block._sep = new SoSeparator;
-		sprintf(buf, "%c%d", theStackId, v);
+		pmsprintf(buf, sizeof(buf), "%c%d", theStackId, v);
 		block._sep->setName((SbName)buf);
 		_root->addChild(block._sep);
 
@@ -114,7 +114,7 @@ StackMod::StackMod(MetricList *metrics, SoNode *obj, StackMod::Height height)
 	    StackBlock block;
 	    block._sep = new SoSeparator;
 	    _root->addChild(block._sep);
-	    sprintf(buf, "%c%d", theStackId, v);
+	    pmsprintf(buf, sizeof(buf), "%c%d", theStackId, v);
 	    block._sep->setName((SbName)buf);
 
 	    _switch = new SoSwitch();

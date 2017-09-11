@@ -316,7 +316,7 @@ bool OpenViewDialog::openView(const char *path)
 	//
 	if (fgetc(f) == '#' && fgetc(f) == '!') {
 	    char	cmd[MAXPATHLEN];
-	    sprintf(cmd, "%s", _fname);
+	    pmsprintf(cmd, sizeof(cmd), "%s", _fname);
 	    fclose(f);
 	    if ((f = popen(cmd, "r")) == NULL)
 		goto nopipe;
