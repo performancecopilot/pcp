@@ -469,7 +469,7 @@ refresh_pmie_indom(void)
     int			fd;
     int			sep = __pmPathSeparator();
 
-    snprintf(fullpath, sizeof(fullpath), "%s%c%s",
+    pmsprintf(fullpath, sizeof(fullpath), "%s%c%s",
 	     pmGetConfig("PCP_TMP_DIR"), sep, PMIE_SUBDIR);
     if (stat(fullpath, &statbuf) == 0) {
 	if (stat_time_differs(&statbuf, &lastsbuf)) {
@@ -494,7 +494,7 @@ refresh_pmie_indom(void)
 		    continue;
 		if (!__pmProcessExists(pmiepid))
 		    continue;
-		snprintf(fullpath, sizeof(fullpath), "%s%c%s%c%s",
+		pmsprintf(fullpath, sizeof(fullpath), "%s%c%s%c%s",
 			 pmGetConfig("PCP_TMP_DIR"), sep, PMIE_SUBDIR, sep,
 			 dp->d_name);
 		if (stat(fullpath, &statbuf) < 0) {
@@ -590,7 +590,7 @@ pmcd_instance_reg(int inst, char *name, __pmInResult **result)
 	/* return inst and name for everything */
 	for (i = 0; i < res->numinst; i++) {
 	    res->instlist[i] = i;
-	    snprintf(idx, sizeof(idx), "%d", i);
+	    pmsprintf(idx, sizeof(idx), "%d", i);
 	    if ((res->namelist[i] = strdup(idx)) == NULL) {
 		__pmFreeInResult(res);
 		return -oserror();
@@ -600,7 +600,7 @@ pmcd_instance_reg(int inst, char *name, __pmInResult **result)
     else if (name == NULL) {
 	/* given an inst, return the name */
 	if (0 <= inst && inst < NUMREG) {
-	    snprintf(idx, sizeof(idx), "%d", inst);
+	    pmsprintf(idx, sizeof(idx), "%d", inst);
 	    if ((res->namelist[0] = strdup(idx)) == NULL) {
 		__pmFreeInResult(res);
 		return -oserror();
@@ -934,7 +934,7 @@ pmcd_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaEx
 		if (!client[i].status.connected)
 		    continue;
 		res->instlist[k] = client[i].seq;
-		snprintf(buf, sizeof(buf), "%u", client[i].seq);
+		pmsprintf(buf, sizeof(buf), "%u", client[i].seq);
 		res->namelist[k] = strdup(buf);
 		if (res->namelist[k] == NULL) {
 		    sts = -oserror();
@@ -958,7 +958,7 @@ pmcd_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaEx
 	    }
 	    else {
 		char	buf[11];	/* enough for 32-bit client seq number */
-		snprintf(buf, sizeof(buf), "%u", (unsigned int)inst);
+		pmsprintf(buf, sizeof(buf), "%u", (unsigned int)inst);
 		res->namelist[0] = strdup(buf);
 		if (res->namelist[0] == NULL) {
 		    sts = -oserror();
@@ -972,7 +972,7 @@ pmcd_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaEx
 	    for (i = 0; i < nClients; i++) {
 		if (!client[i].status.connected)
 		    continue;
-		snprintf(buf, sizeof(buf), "%u", client[i].seq);
+		pmsprintf(buf, sizeof(buf), "%u", client[i].seq);
 		if (strcmp(name, buf) == 0)
 		    break;
 	    }
@@ -1079,7 +1079,7 @@ extract_service(const char *path, char *name)
     pid_t	pid;
 
     /* extract PID lurking within the file */
-    snprintf(fullpath, sizeof(fullpath), "%s%c%s.pid", path, sep, name);
+    pmsprintf(fullpath, sizeof(fullpath), "%s%c%s.pid", path, sep, name);
     if ((fp = fopen(fullpath, "r")) == NULL)
 	return 0;
     sep = fscanf(fp, "%63s", buffer);
@@ -1977,7 +1977,7 @@ pmcd_init(pmdaInterface *dp)
     char helppath[MAXPATHLEN];
     int sep = __pmPathSeparator();
  
-    snprintf(helppath, sizeof(helppath), "%s%c" "pmcd" "%c" "help",
+    pmsprintf(helppath, sizeof(helppath), "%s%c" "pmcd" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDSO(dp, PMDA_INTERFACE_6, "pmcd", helppath);
     dp->comm.flags |= (PDU_FLAG_AUTH|PDU_FLAG_CONTAINER);

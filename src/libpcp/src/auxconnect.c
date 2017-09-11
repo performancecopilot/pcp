@@ -1040,12 +1040,12 @@ __pmPMCDLocalSocketDefault(void)
 	char *envstr;
 	PM_LOCK(__pmLock_extcall);
 	if ((envstr = getenv("PMCD_SOCKET")) != NULL) {		/* THREADSAFE */
-	    snprintf(pmcd_socket, sizeof(pmcd_socket), "%s", envstr);
+	    pmsprintf(pmcd_socket, sizeof(pmcd_socket), "%s", envstr);
 	    PM_UNLOCK(__pmLock_extcall);
 	}
 	else {
 	    PM_UNLOCK(__pmLock_extcall);
-	    snprintf(pmcd_socket, sizeof(pmcd_socket), "%s%c" "pmcd.socket",
+	    pmsprintf(pmcd_socket, sizeof(pmcd_socket), "%s%c" "pmcd.socket",
 		     pmGetConfig("PCP_RUN_DIR"), __pmPathSeparator());
 	}
     }

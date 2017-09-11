@@ -64,7 +64,7 @@ docker_setup(container_engine_t *dp)
     /* determine the location of docker container config.json files */
     if (!docker)
 	docker = docker_default;
-    snprintf(dp->path, sizeof(dp->path), "%s/containers", docker);
+    pmsprintf(dp->path, sizeof(dp->path), "%s/containers", docker);
     dp->path[sizeof(dp->path)-1] = '\0';
 
     /* heuristic to determine which cgroup naming convention in use */
@@ -127,7 +127,7 @@ docker_insts_refresh(container_engine_t *dp, pmInDom indom)
 	    if ((cp = calloc(1, sizeof(container_t))) == NULL)
 		continue;
 	    cp->engine = dp;
-	    snprintf(cp->cgroup, sizeof(cp->cgroup),
+	    pmsprintf(cp->cgroup, sizeof(cp->cgroup),
 			(dp->state & CONTAINER_STATE_SYSTEMD) ?
 			"/system.slice/docker-%s.scope" : "/docker/%s",
 			path);
@@ -225,12 +225,12 @@ int determine_docker_version(container_engine_t *dp, const char *name, char *buf
     /* we go with version two first, because v1 config files may not
      * always be cleaned up after the upgrade to v2.
      */
-    snprintf(buf, bufsize, "%s/%s/config.v2.json", dp->path, name);
+    pmsprintf(buf, bufsize, "%s/%s/config.v2.json", dp->path, name);
     if ((fp = fopen(buf, "r")) != NULL) {
 	fclose(fp);
 	return 2;
     }
-    snprintf(buf, bufsize, "%s/%s/config.json", dp->path, name);
+    pmsprintf(buf, bufsize, "%s/%s/config.json", dp->path, name);
     if ((fp = fopen(buf, "r")) != NULL) {
 	fclose(fp);
 	return 1;

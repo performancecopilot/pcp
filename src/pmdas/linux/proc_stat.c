@@ -43,7 +43,7 @@ setup_cpu_indom(pmInDom cpus)
 
     pmdaCacheOp(cpus, PMDA_CACHE_CULL);
     for (i = 0; i < _pm_ncpus; i++) {
-	snprintf(name, sizeof(name)-1, "cpu%u", i);
+	pmsprintf(name, sizeof(name)-1, "cpu%u", i);
 	pmdaCacheStore(cpus, PMDA_CACHE_ADD, name, NULL);
     }
 }
@@ -70,7 +70,7 @@ cpu_add(pmInDom cpus, unsigned int cpuid, unsigned int nodeid)
     cpu->cpuid = cpuid;
     cpu->nodeid = nodeid;
     setup_cpu_info(&cpu->info);
-    snprintf(name, sizeof(name)-1, "cpu%u", cpuid);
+    pmsprintf(name, sizeof(name)-1, "cpu%u", cpuid);
     pmdaCacheStore(cpus, PMDA_CACHE_ADD, name, (void*)cpu);
 }
 
@@ -83,7 +83,7 @@ node_add(pmInDom nodes, unsigned int nodeid)
     if ((node = (pernode_t *)calloc(1, sizeof(pernode_t))) == NULL)
 	return;
     node->nodeid = nodeid;
-    snprintf(name, sizeof(name)-1, "node%u", nodeid);
+    pmsprintf(name, sizeof(name)-1, "node%u", nodeid);
     pmdaCacheStore(nodes, PMDA_CACHE_ADD, name, (void*)node);
 }
 
@@ -108,7 +108,7 @@ cpu_node_setup(void)
     cpus = INDOM(CPU_INDOM);
     setup_cpu_indom(cpus);
 
-    snprintf(path, sizeof(path), "%s/%s", linux_statspath, node_path);
+    pmsprintf(path, sizeof(path), "%s/%s", linux_statspath, node_path);
     count = scandir(path, &node_files, NULL, versionsort);
     if (!node_files || (linux_test_mode & LINUX_TEST_NCPUS)) {
 	/* QA mode or no sysfs support, assume single NUMA node */
@@ -122,7 +122,7 @@ cpu_node_setup(void)
 	if (sscanf(node_files[i]->d_name, "node%u", &node) != 1)
 	    continue;
 	node_add(nodes, node);
-	snprintf(path, sizeof(path), "%s/%s/%s",
+	pmsprintf(path, sizeof(path), "%s/%s/%s",
 		 linux_statspath, node_path, node_files[i]->d_name);
 	if ((cpu_dir = opendir(path)) == NULL)
 	    continue;
@@ -205,7 +205,7 @@ refresh_proc_stat(proc_stat_t *proc_stat)
 	if (lseek(fd, 0, SEEK_SET) < 0)
 	    return -oserror();
     } else {
-	snprintf(buf, sizeof(buf), "%s/proc/stat", linux_statspath);
+	pmsprintf(buf, sizeof(buf), "%s/proc/stat", linux_statspath);
 	if ((fd = open(buf, O_RDONLY)) < 0)
 	    return -oserror();
     }

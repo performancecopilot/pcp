@@ -134,7 +134,7 @@ build_dsotab(void)
 	     */
 	    domain = 60;
 	    init = "linux_init";
-	    snprintf(pathbuf, sizeof(pathbuf), "%s/linux/pmda_linux.so", pmdas);
+	    pmsprintf(pathbuf, sizeof(pathbuf), "%s/linux/pmda_linux.so", pmdas);
 	    name = pathbuf;
 	    peekc = *p;
 	    goto dsoload;
@@ -205,20 +205,20 @@ build_dsoattrs(pmdaInterface *dispatch, __pmHashCtl *attrs)
     int sts = 0;
 
 #ifdef HAVE_GETUID
-    snprintf(name, sizeof(name), "%u", getuid());
+    pmsprintf(name, sizeof(name), "%u", getuid());
     name[sizeof(name)-1] = '\0';
     if ((namep = strdup(name)) != NULL)
 	__pmHashAdd(PCP_ATTR_USERID, namep, attrs);
 #endif
 
 #ifdef HAVE_GETGID
-    snprintf(name, sizeof(name), "%u", getgid());
+    pmsprintf(name, sizeof(name), "%u", getgid());
     name[sizeof(name)-1] = '\0';
     if ((namep = strdup(name)) != NULL)
 	__pmHashAdd(PCP_ATTR_GROUPID, namep, attrs);
 #endif
 
-    snprintf(name, sizeof(name), "%" FMT_PID, getpid());
+    pmsprintf(name, sizeof(name), "%" FMT_PID, getpid());
     name[sizeof(name)-1] = '\0';
     if ((namep = strdup(name)) != NULL)
 	__pmHashAdd(PCP_ATTR_PROCESSID, namep, attrs);
@@ -347,13 +347,13 @@ __pmConnectLocal(__pmHashCtl *attrs)
 	 * options and also with and without DSO_SUFFIX (so, dll, etc)
 	 */
 	if ((path = __pmFindPMDA(dp->name)) == NULL) {
-	    snprintf(pathbuf, sizeof(pathbuf), "%s%c%s",
+	    pmsprintf(pathbuf, sizeof(pathbuf), "%s%c%s",
 			pmdas, __pmPathSeparator(), dp->name);
 	    if ((path = __pmFindPMDA(pathbuf)) == NULL) {
-		snprintf(pathbuf, sizeof(pathbuf), "%s%c%s.%s",
+		pmsprintf(pathbuf, sizeof(pathbuf), "%s%c%s.%s",
 			    pmdas, __pmPathSeparator(), dp->name, DSO_SUFFIX);
 		if ((path = __pmFindPMDA(pathbuf)) == NULL) {
-		    snprintf(pathbuf, sizeof(pathbuf), "%s.%s", dp->name, DSO_SUFFIX);
+		    pmsprintf(pathbuf, sizeof(pathbuf), "%s.%s", dp->name, DSO_SUFFIX);
 		    if ((path = __pmFindPMDA(pathbuf)) == NULL) {
 			pmprintf("__pmConnectLocal: Warning: cannot find DSO at \"%s\" or \"%s\"\n", 
 			     pathbuf, dp->name);
@@ -726,7 +726,7 @@ doit:
 	/* see thread-safe note at the head of this file */
 	static char buffer[256];
 	char	errmsg[PM_MAXERRMSGLEN];
-	snprintf(buffer, sizeof(buffer), "__pmLocalPMDA: %s", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	pmsprintf(buffer, sizeof(buffer), "__pmLocalPMDA: %s", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	free(sbuf);
 	return buffer;
     }

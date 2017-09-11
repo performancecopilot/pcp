@@ -158,7 +158,7 @@ refresh_net_dev_sysfs(char *name, net_interface_t *netip, int *need_refresh)
     char *value;
 
     if (need_refresh[REFRESH_NET_SPEED]) {
-	snprintf(path, sizeof(path), "%s/sys/class/net/%s/speed",
+	pmsprintf(path, sizeof(path), "%s/sys/class/net/%s/speed",
 		linux_statspath, name);
 	path[sizeof(path)-1] = '\0';
 	value = read_oneline(path, line);
@@ -167,7 +167,7 @@ refresh_net_dev_sysfs(char *name, net_interface_t *netip, int *need_refresh)
 	netip->ioc.speed = atoi(value);
     }
     if (need_refresh[REFRESH_NET_MTU]) {
-	snprintf(path, sizeof(path), "%s/sys/class/net/%s/mtu",
+	pmsprintf(path, sizeof(path), "%s/sys/class/net/%s/mtu",
 		linux_statspath, name);
 	path[sizeof(path)-1] = '\0';
 	value = read_oneline(path, line);
@@ -177,7 +177,7 @@ refresh_net_dev_sysfs(char *name, net_interface_t *netip, int *need_refresh)
     }
     if (need_refresh[REFRESH_NET_LINKUP] ||
 	need_refresh[REFRESH_NET_RUNNING]) {
-	snprintf(path, sizeof(path), "%s/sys/class/net/%s/flags",
+	pmsprintf(path, sizeof(path), "%s/sys/class/net/%s/flags",
 		linux_statspath, name);
 	path[sizeof(path)-1] = '\0';
 	value = read_oneline(path, line);
@@ -190,7 +190,7 @@ refresh_net_dev_sysfs(char *name, net_interface_t *netip, int *need_refresh)
 	}
     }
     if (need_refresh[REFRESH_NET_DUPLEX]) {
-	snprintf(path, sizeof(path), "%s/sys/class/net/%s/duplex",
+	pmsprintf(path, sizeof(path), "%s/sys/class/net/%s/duplex",
 		linux_statspath, name);
 	path[sizeof(path)-1] = '\0';
 	value = read_oneline(path, line);
@@ -211,7 +211,7 @@ refresh_net_hw_addr(char *name, net_addr_t *netip)
     char line[64];
     char *value;
 
-    snprintf(path, sizeof(path), "%s/sys/class/net/%s/address",
+    pmsprintf(path, sizeof(path), "%s/sys/class/net/%s/address",
 		linux_statspath, name);
     path[sizeof(path)-1] = '\0';
     value = read_oneline(path, line);
@@ -411,7 +411,7 @@ refresh_net_dev_hw_addr(pmInDom indom)
 
     static uint32_t cache_err;
 
-    snprintf(path, sizeof(path), "%s/sys/class/net", linux_statspath);
+    pmsprintf(path, sizeof(path), "%s/sys/class/net", linux_statspath);
     if ((dp = opendir(path)) != NULL) {
 	while ((dentry = readdir(dp)) != NULL) {
 	    if (dentry->d_name[0] == '.')
@@ -500,7 +500,7 @@ refresh_net_dev_ipv6_addr(pmInDom indom)
 	sin6.sin6_port = 0;
 	if (!inet_ntop(AF_INET6, &sin6.sin6_addr, addr, INET6_ADDRSTRLEN))
 	    continue;
-	snprintf(netip->ipv6, sizeof(netip->ipv6), "%s/%d", addr, plen);
+	pmsprintf(netip->ipv6, sizeof(netip->ipv6), "%s/%d", addr, plen);
 	netip->ipv6scope = (uint16_t)scope;
 	netip->has_ipv6 = 1;
     }

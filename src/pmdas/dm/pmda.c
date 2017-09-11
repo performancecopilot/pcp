@@ -429,7 +429,7 @@ main(int argc, char **argv)
     char helppath[MAXPATHLEN];
 
     __pmSetProgname(argv[0]);
-    snprintf(helppath, sizeof(helppath), "%s%c" "dm" "%c" "help",
+    pmsprintf(helppath, sizeof(helppath), "%s%c" "dm" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&dispatch, PMDA_INTERFACE_4, pmProgname, DM, "dm.log", helppath);
 

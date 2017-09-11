@@ -182,7 +182,7 @@ parseout(double timed, double delta,
 			convdate(timed, datestr, sizeof(datestr)-1);
 			convtime(timed, timestr, sizeof(timestr)-1);
 
-			snprintf(header, sizeof header, "%s %s %ld %s %s %d",
+			pmsprintf(header, sizeof header, "%s %s %ld %s %s %d",
 				labeldef[i].label,
 				sysname.nodename,
 				(long)timed,

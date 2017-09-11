@@ -384,7 +384,7 @@ read_sysmap(const char *release, __psint_t end_addr)
      * either _end from /proc/ksyms or the uts version.
      */
     for (fmt = sysmap_paths; *fmt; fmt++) {
-	snprintf(path, MAXPATHLEN, *fmt, proc_statspath, release);
+	pmsprintf(path, MAXPATHLEN, *fmt, proc_statspath, release);
 	if ((fp = fopen(path, "r"))) {
 	    if ((e = validate_sysmap(fp, inbuf, end_addr)) != 0) {
 		if (e == 2) {

@@ -661,7 +661,7 @@ redo_dynamic(void)
     pmdaIndom		*idp = &indomtab[DYNAMIC_INDOM];
     char		mypath[MAXPATHLEN];
 
-    snprintf(mypath, sizeof(mypath), "%s%c" "sample" "%c" "dynamic.indom",
+    pmsprintf(mypath, sizeof(mypath), "%s%c" "sample" "%c" "dynamic.indom",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
 
     if (stat(mypath, &statbuf) == 0) {
@@ -2397,7 +2397,7 @@ doit:
 			break;
 
 		    case 153:	/* sample.string.bin */
-			snprintf(strbuf, 4, "%3d", _bin_val[(inst/100) - 1]);
+			pmsprintf(strbuf, 4, "%3d", _bin_val[(inst/100) - 1]);
 			atom.cp = strbuf;
 			break;
 
@@ -3022,7 +3022,7 @@ sample_init(pmdaInterface *dp)
 
     if (_isDSO) {
 	int sep = __pmPathSeparator();
-	snprintf(helppath, sizeof(helppath), "%s%c" "sample" "%c" "dsohelp",
+	pmsprintf(helppath, sizeof(helppath), "%s%c" "sample" "%c" "dsohelp",
 			pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
 	pmdaDSO(dp, PMDA_INTERFACE_LATEST, "sample DSO", helppath);
     }

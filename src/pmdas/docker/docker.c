@@ -850,7 +850,7 @@ docker_setup(void)
 
     if (!docker)
 	docker = docker_default;
-    snprintf(resulting_path, sizeof(mypath), "%s/containers", docker);
+    pmsprintf(resulting_path, sizeof(mypath), "%s/containers", docker);
     resulting_path[sizeof(resulting_path)-1] = '\0';
     return 0;
 }
@@ -866,7 +866,7 @@ docker_init(pmdaInterface *dp)
     int        *loop = (int*)1;
     if (isDSO) {
 	int sep = __pmPathSeparator();
-	snprintf(mypath, sizeof(mypath), "%s%c" "docker" "%c" "help",
+	pmsprintf(mypath, sizeof(mypath), "%s%c" "docker" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
 	pmdaDSO(dp, PMDA_INTERFACE_6, "docker DSO", mypath);
     } else {
@@ -933,7 +933,7 @@ main(int argc, char **argv)
 
     isDSO = 0;
 
-    snprintf(mypath, sizeof(mypath), "%s%c" "docker" "%c" "help",
+    pmsprintf(mypath, sizeof(mypath), "%s%c" "docker" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&dispatch, PMDA_INTERFACE_6, pmProgname, DOCKER,
 		"docker.log", mypath);

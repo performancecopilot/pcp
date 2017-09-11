@@ -772,7 +772,7 @@ papi_internal_init(pmdaInterface *dp)
 		expand_papi_info(i);
 		memcpy(&papi_info[i].info, &info, sizeof(PAPI_event_info_t));
 		memcpy(&papi_info[i].papi_string_code, info.symbol + 5, strlen(info.symbol)-5);
-		snprintf(entry, sizeof(entry),"papi.system.%s", papi_info[i].papi_string_code);
+		pmsprintf(entry, sizeof(entry),"papi.system.%s", papi_info[i].papi_string_code);
 		pmid = pmid_build(dp->domain, CLUSTER_PAPI, i);
 		papi_info[i].pmid = pmid;
 		__pmAddPMNSNode(papi_tree, pmid, entry);
@@ -833,7 +833,7 @@ papi_internal_init(pmdaInterface *dp)
 			    local_native_metric_name,
 			    sizeof(papi_info[i].papi_string_code) - 1);
 		}
-		snprintf(entry, sizeof(entry),"papi.system.%s", papi_info[i].papi_string_code);
+		pmsprintf(entry, sizeof(entry),"papi.system.%s", papi_info[i].papi_string_code);
 		pmid = pmid_build(dp->domain, CLUSTER_PAPI, i);
 		papi_info[i].pmid = pmid;
 		__pmAddPMNSNode(papi_tree, pmid, entry);
@@ -902,7 +902,7 @@ papi_init(pmdaInterface *dp)
     if (isDSO) {
 	int	sep = __pmPathSeparator();
 
-	snprintf(helppath, sizeof(helppath), "%s%c" "papi" "%c" "help",
+	pmsprintf(helppath, sizeof(helppath), "%s%c" "papi" "%c" "help",
 		 pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
 	pmdaDSO(dp, PMDA_INTERFACE_6, "papi DSO", helppath);
     }
@@ -962,7 +962,7 @@ main(int argc, char **argv)
     isDSO = 0;
     __pmSetProgname(argv[0]);
 
-    snprintf(helppath, sizeof(helppath), "%s%c" "papi" "%c" "help",
+    pmsprintf(helppath, sizeof(helppath), "%s%c" "papi" "%c" "help",
 	     pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&dispatch, PMDA_INTERFACE_6, pmProgname, PAPI, "papi.log", helppath);	
     pmdaGetOptions(argc, argv, &opts, &dispatch);

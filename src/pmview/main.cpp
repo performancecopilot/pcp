@@ -265,7 +265,7 @@ genInventor(void)
 #if HAVE_MKSTEMP
 	configfile = (char *)malloc(MAXPATHLEN+1);
 	if (configfile == NULL) goto fail;
-	snprintf(configfile, MAXPATHLEN, "%s/pcp-XXXXXX", tmpdir);
+	pmsprintf(configfile, MAXPATHLEN, "%s/pcp-XXXXXX", tmpdir);
 	cur_umask = umask(S_IXUSR | S_IRWXG | S_IRWXO);
 	fd = mkstemp(configfile);
 	umask(cur_umask);

@@ -1567,7 +1567,7 @@ proc_indom(int serial)
 FILE *
 proc_statsfile(const char *path, char *buffer, int size)
 {
-    snprintf(buffer, size, "%s%s", proc_statspath, path);
+    pmsprintf(buffer, size, "%s%s", proc_statspath, path);
     buffer[size-1] = '\0';
     return fopen(buffer, "r");
 }
@@ -1733,7 +1733,7 @@ proc_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaEx
 	    	break;
 	}
 	if (*p == '\0') {
-	    snprintf(newname, sizeof(newname), "%06d", atoi(name));
+	    pmsprintf(newname, sizeof(newname), "%06d", atoi(name));
 	    name = newname;
 	}
     }
@@ -3382,7 +3382,7 @@ proc_init(pmdaInterface *dp)
     if (_isDSO) {
 	char helppath[MAXPATHLEN];
 	int sep = __pmPathSeparator();
-	snprintf(helppath, sizeof(helppath), "%s%c" "proc" "%c" "help",
+	pmsprintf(helppath, sizeof(helppath), "%s%c" "proc" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
 	pmdaDSO(dp, PMDA_INTERFACE_7, "proc DSO", helppath);
     }
@@ -3488,7 +3488,7 @@ main(int argc, char **argv)
 
     _isDSO = 0;
     __pmSetProgname(argv[0]);
-    snprintf(helppath, sizeof(helppath), "%s%c" "proc" "%c" "help",
+    pmsprintf(helppath, sizeof(helppath), "%s%c" "proc" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&dispatch, PMDA_INTERFACE_7, pmProgname, PROC, "proc.log", helppath);
 

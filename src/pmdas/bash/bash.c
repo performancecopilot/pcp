@@ -428,7 +428,7 @@ main(int argc, char **argv)
 
     minmem = getpagesize();
     bash_maxmem = (minmem > DEFAULT_MAXMEM) ? minmem : DEFAULT_MAXMEM;
-    snprintf(helppath, sizeof(helppath), "%s%c" "bash" "%c" "help",
+    pmsprintf(helppath, sizeof(helppath), "%s%c" "bash" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&desc, PMDA_INTERFACE_5, pmProgname, BASH, "bash.log", helppath);
 

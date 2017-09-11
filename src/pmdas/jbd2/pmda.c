@@ -245,7 +245,7 @@ jbd2_init(pmdaInterface *dp)
     if (_isDSO) {
 	char helppath[MAXPATHLEN];
 	int sep = __pmPathSeparator();
-	snprintf(helppath, sizeof(helppath), "%s%c" "jbd2" "%c" "help",
+	pmsprintf(helppath, sizeof(helppath), "%s%c" "jbd2" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
 	pmdaDSO(dp, PMDA_INTERFACE_4, "jbd2 DSO", helppath);
     } else {
@@ -296,7 +296,7 @@ main(int argc, char **argv)
     __pmSetProgname(argv[0]);
     __pmGetUsername(&username);
 
-    snprintf(help, sizeof(help), "%s%c" "jbd2" "%c" "help",
+    pmsprintf(help, sizeof(help), "%s%c" "jbd2" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&dispatch, PMDA_INTERFACE_4, pmProgname, JBD2, "jbd2.log", help);
 

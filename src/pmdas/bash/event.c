@@ -86,7 +86,7 @@ process_head_parser(bash_process_t *verify, const char *buffer, size_t size)
 
     size = 16 + strlen(script);		/* pid and script name */
     verify->instance = malloc(size);
-    snprintf(verify->instance, size, "%u %s", verify->pid, script);
+    pmsprintf(verify->instance, size, "%u %s", verify->pid, script);
 
     if (pmDebug & DBG_TRACE_APPL0)
 	__pmNotifyErr(LOG_DEBUG, "process header v%d: inst='%s' ppid=%d",
@@ -138,11 +138,11 @@ process_verify(const char *bashname, bash_process_t *verify)
     if (*endnum != '\0' || verify->pid < 1)
 	return -1;
 
-    snprintf(path, sizeof(path), "%s%c.%s", pidpath, __pmPathSeparator(), bashname);
+    pmsprintf(path, sizeof(path), "%s%c.%s", pidpath, __pmPathSeparator(), bashname);
     if (process_head_verify(path, verify) < 0)
 	return -1;
 
-    snprintf(path, sizeof(path), "%s%c%s", pidpath, __pmPathSeparator(), bashname);
+    pmsprintf(path, sizeof(path), "%s%c%s", pidpath, __pmPathSeparator(), bashname);
     if ((fd = open(path, O_RDONLY | O_NONBLOCK)) < 0)
 	return -1;
     if (fstat(fd, &stat) < 0 || !S_ISFIFO(stat.st_mode)) {
@@ -334,9 +334,9 @@ process_unlink(bash_process_t *process, const char *bashname)
 {
     char path[MAXPATHLEN];
 
-    snprintf(path, sizeof(path), "%s%c%s", pidpath, __pmPathSeparator(), bashname);
+    pmsprintf(path, sizeof(path), "%s%c%s", pidpath, __pmPathSeparator(), bashname);
     unlink(path);
-    snprintf(path, sizeof(path), "%s%c.%s", pidpath, __pmPathSeparator(), bashname);
+    pmsprintf(path, sizeof(path), "%s%c.%s", pidpath, __pmPathSeparator(), bashname);
     unlink(path);
 
     if (pmDebug & DBG_TRACE_APPL0)

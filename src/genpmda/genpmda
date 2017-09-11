@@ -509,7 +509,7 @@ END {
     printf "\n" >>pmda_c
     printf "    if (_isDSO) {\n" >>pmda_c
     printf "        char helppath[MAXPATHLEN];\n" >>pmda_c
-    printf "        snprintf(helppath, sizeof(helppath), \"%%s/pmdas/'$iam'/help\",\n" >>pmda_c
+    printf "        pmsprintf(helppath, sizeof(helppath), \"%%s/pmdas/'$iam'/help\",\n" >>pmda_c
     printf "             pmGetConfig(\"PCP_VAR_DIR\"));\n" >>pmda_c
     printf "        pmdaDSO(dp, PMDA_INTERFACE_4, \"%s DSO\", helppath);\n", "'$iam'" >>pmda_c
     printf "    }\n" >>pmda_c
@@ -564,7 +564,7 @@ END {
     printf "\n" >>pmda_c
     printf "    _isDSO = 0;\n" >>pmda_c
     printf "\n" >>pmda_c
-    printf "    snprintf(helppath, sizeof(helppath), \"%%s/pmdas/'$iam'/help\", pmGetConfig(\"PCP_VAR_DIR\"));\n" >>pmda_c
+    printf "    pmsprintf(helppath, sizeof(helppath), \"%%s/pmdas/'$iam'/help\", pmGetConfig(\"PCP_VAR_DIR\"));\n" >>pmda_c
     printf "    pmdaDaemon(&dispatch, PMDA_INTERFACE_4, pmProgname, '$IAM', \"'$iam'.log\", helppath);\n" >>pmda_c
     printf "\n" >>pmda_c
     printf "    if ((c = pmdaGetOpt(argc, argv, \"D:d:l:?\", &dispatch, &err)) != EOF)\n" >>pmda_c

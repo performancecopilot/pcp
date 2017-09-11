@@ -217,7 +217,7 @@ load(char *fname)
 	    fprintf(stderr, "load: cannot access config file %s: %s\n", fname, strerror(sts));
 	}
 #endif
-	snprintf(config, sizeof(config)-1, "%s%c" "config%c" "pmie%c" "%s",
+	pmsprintf(config, sizeof(config)-1, "%s%c" "config%c" "pmie%c" "%s",
 		pmGetConfig("PCP_VAR_DIR"), sep, sep, sep, fname);
 	if (access(config, F_OK) != 0) {
 	    fprintf(stderr, "%s: cannot access config file as either %s or %s: %s\n",
@@ -336,7 +336,7 @@ startmonitor(void)
     char		pmie_dir[MAXPATHLEN];
 
     /* try to create the port file directory. OK if it already exists */
-    snprintf(pmie_dir, sizeof(pmie_dir), "%s%c%s",
+    pmsprintf(pmie_dir, sizeof(pmie_dir), "%s%c%s",
 	     pmGetConfig("PCP_TMP_DIR"), __pmPathSeparator(), PMIE_SUBDIR);
     if (mkdir2(pmie_dir, S_IRWXU | S_IRWXG | S_IRWXO) < 0) {
 	if (oserror() != EEXIST) {

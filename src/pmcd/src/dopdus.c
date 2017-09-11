@@ -358,17 +358,17 @@ GetContextLabels(ClientInfo *cp, pmLabelSet **sets)
 	container = ((node = __pmHashSearch(PCP_ATTR_CONTAINER, &cp->attrs)) ?
 			(const char *)node->data : NULL);
 
-	sts = snprintf(buf, sizeof(buf), "{\"hostname\":\"%s\"", hostname);
+	sts = pmsprintf(buf, sizeof(buf), "{\"hostname\":\"%s\"", hostname);
 	if (userid)
-	    sts += snprintf(buf+sts, sizeof(buf)-sts, ",\"userid\":%s",
+	    sts += pmsprintf(buf+sts, sizeof(buf)-sts, ",\"userid\":%s",
 			    userid);
 	if (groupid)
-	    sts += snprintf(buf+sts, sizeof(buf)-sts, ",\"groupid\":%s",
+	    sts += pmsprintf(buf+sts, sizeof(buf)-sts, ",\"groupid\":%s",
 			    groupid);
 	if (container)
-	    sts += snprintf(buf+sts, sizeof(buf)-sts, ",\"container\":%s",
+	    sts += pmsprintf(buf+sts, sizeof(buf)-sts, ",\"container\":%s",
 			    container);
-	snprintf(buf+sts, sizeof(buf)-sts, "}");
+	pmsprintf(buf+sts, sizeof(buf)-sts, "}");
 	if ((sts = __pmAddLabels(sets, buf, PM_LABEL_CONTEXT)) > 0)
 	    return 1;
     }

@@ -43,7 +43,7 @@ void QedConsole::post(const char *fmt, ...)
     static char buffer[4096];
     struct timeval now;
     va_list ap;
-    int offset = 0;
+    int sts, offset = 0;
 
     if (!(my.level & QedApp::DebugApp))
 	return;
@@ -56,8 +56,10 @@ void QedConsole::post(const char *fmt, ...)
     }
 
     va_start(ap, fmt);
-    vsnprintf(buffer+offset, sizeof(buffer)-offset, fmt, ap);
+    sts = vsnprintf(buffer+offset, sizeof(buffer)-offset, fmt, ap);
     va_end(ap);
+    if (sts >= (int)sizeof(buffer) - offset)
+	buffer[sizeof(buffer)-1] = '\0';
 
     fputs(buffer, stderr);
     fputc('\n', stderr);
@@ -76,7 +78,7 @@ void QedConsole::post(int level, const char *fmt, ...)
     static char buffer[4096];
     struct timeval now;
     va_list ap;
-    int offset = 0;
+    int sts, offset = 0;
 
     if (!(my.level & level) && !(level & QedApp::DebugForce))
 	return;
@@ -89,8 +91,10 @@ void QedConsole::post(int level, const char *fmt, ...)
     }
 
     va_start(ap, fmt);
-    vsnprintf(buffer+offset, sizeof(buffer)-offset, fmt, ap);
+    sts = vsnprintf(buffer+offset, sizeof(buffer)-offset, fmt, ap);
     va_end(ap);
+    if (sts >= (int)sizeof(buffer) - offset)
+	buffer[sizeof(buffer)-1] = '\0';
 
     fputs(buffer, stderr);
     fputc('\n', stderr);

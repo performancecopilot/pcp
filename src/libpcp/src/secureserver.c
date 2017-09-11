@@ -249,7 +249,7 @@ serverdb(char *path, size_t size, char *db_method)
      * Return a pointer to the filesystem path component - without
      * the <method>:-prefix - for other routines to work with.
      */
-    snprintf(path, size, "%s" "%c" "etc" "%c" "pki" "%c" "nssdb",
+    pmsprintf(path, size, "%s" "%c" "etc" "%c" "pki" "%c" "nssdb",
 		nss_method, sep, sep, sep);
     return path + strlen(nss_method);
 }
@@ -535,14 +535,14 @@ __pmSetUserGroupAttributes(const char *username, __pmHashCtl *attrs)
     gid_t gid;
 
     if (__pmGetUserIdentity(username, &uid, &gid, PM_RECOV_ERR) == 0) {
-	snprintf(name, sizeof(name), "%u", uid);
+	pmsprintf(name, sizeof(name), "%u", uid);
 	name[sizeof(name)-1] = '\0';
 	if ((namep = strdup(name)) != NULL)
 	    __pmHashAdd(PCP_ATTR_USERID, namep, attrs);
 	else
 	    return -ENOMEM;
 
-	snprintf(name, sizeof(name), "%u", gid);
+	pmsprintf(name, sizeof(name), "%u", gid);
 	name[sizeof(name)-1] = '\0';
 	if ((namep = strdup(name)) != NULL)
 	    __pmHashAdd(PCP_ATTR_GROUPID, namep, attrs);

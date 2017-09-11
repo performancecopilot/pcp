@@ -59,7 +59,7 @@ gfs2_refresh_glstats(const char *sysfs, const char *name, struct glstats *glstat
     /* Reset all counter for this fs */
     memset(glstats, 0, sizeof(*glstats));
 
-    snprintf(buffer, sizeof(buffer), "%s/%s/glstats", sysfs, name);
+    pmsprintf(buffer, sizeof(buffer), "%s/%s/glstats", sysfs, name);
     buffer[sizeof(buffer) - 1] = '\0';
 
     if ((fp = fopen(buffer, "r")) == NULL){

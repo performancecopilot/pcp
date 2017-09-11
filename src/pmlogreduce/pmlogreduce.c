@@ -476,11 +476,11 @@ cleanup:
     {
 	char    fname[MAXNAMELEN];
 	fprintf(stderr, "Archive \"%s\" not created.\n", oname);
-	snprintf(fname, sizeof(fname), "%s.0", oname);
+	pmsprintf(fname, sizeof(fname), "%s.0", oname);
 	unlink(fname);
-	snprintf(fname, sizeof(fname), "%s.meta", oname);
+	pmsprintf(fname, sizeof(fname), "%s.meta", oname);
 	unlink(fname);
-	snprintf(fname, sizeof(fname), "%s.index", oname);
+	pmsprintf(fname, sizeof(fname), "%s.index", oname);
 	unlink(fname);
 	exit(1);
     }

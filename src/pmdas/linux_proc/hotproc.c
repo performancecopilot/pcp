@@ -24,7 +24,7 @@ hotproc_init(void)
     FILE    *conf;
     int	    sep = __pmPathSeparator();
 
-    snprintf(h_configfile, sizeof(h_configfile),
+    pmsprintf(h_configfile, sizeof(h_configfile),
 	    "%s%c" "proc" "%c" "hotproc.conf",
 	    pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
 

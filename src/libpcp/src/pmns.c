@@ -547,7 +547,7 @@ lex(int reset)
 	    /* THREADSAFE */
 	    if ((alt = getenv("PCP_ALT_CPP")) != NULL) {
 		/* $PCP_ALT_CPP used in the build before pmcpp installed */
-		snprintf(cmd, sizeof(cmd), "%s %s", alt, fname);
+		pmsprintf(cmd, sizeof(cmd), "%s %s", alt, fname);
 	    }
 	    else {
 		/* the normal case ... */
@@ -556,7 +556,7 @@ lex(int reset)
 
 		if (bin_dir == NULL)
 		    return PM_ERR_GENERIC;
-		snprintf(cmd, sizeof(cmd), "%s%c%s %s", bin_dir, sep, "pmcpp" EXEC_SUFFIX, fname);
+		pmsprintf(cmd, sizeof(cmd), "%s%c%s %s", bin_dir, sep, "pmcpp" EXEC_SUFFIX, fname);
 	    }
 
 	    if ((fin = popen(cmd, "r")) == NULL)
@@ -785,7 +785,7 @@ attach(char *base, __pmnsNode *rp)
 		    strcat(path, np->name);
 		}
 		if ((xp = findseen(path)) == NULL) {
-		    snprintf(linebuf, sizeof(linebuf), "Cannot find definition for non-terminal node \"%s\" in name space",
+		    pmsprintf(linebuf, sizeof(linebuf), "Cannot find definition for non-terminal node \"%s\" in name space",
 		        path);
 		    err(linebuf);
 		    free(path);
@@ -872,7 +872,7 @@ backlink(__pmnsTree *tree, __pmnsNode *root, int dupok)
 		    char	strbuf[20];
 		    backname(np, &nn);
 		    backname(xp, &xn);
-		    snprintf(linebuf, sizeof(linebuf), "Duplicate metric id (%s) in name space for metrics \"%s\" and \"%s\"\n",
+		    pmsprintf(linebuf, sizeof(linebuf), "Duplicate metric id (%s) in name space for metrics \"%s\" and \"%s\"\n",
 		        pmIDStr_r(np->pmid, strbuf, sizeof(strbuf)), nn, xn);
 		    err(linebuf);
 		    free(nn);
@@ -932,7 +932,7 @@ pass2(int dupok)
 
     /* Make sure all subtrees have been used in the main tree */
     for (np = seen; np != NULL; np = np->next) {
-	snprintf(linebuf, sizeof(linebuf), "Disconnected subtree (\"%s\") in name space", np->name);
+	pmsprintf(linebuf, sizeof(linebuf), "Disconnected subtree (\"%s\") in name space", np->name);
 	err(linebuf);
 	status = PM_ERR_PMNS;
     }
@@ -1219,7 +1219,7 @@ loadascii(int dupok, int use_cpp)
 
 
     if (access(fname, R_OK) == -1) {
-	snprintf(linebuf, sizeof(linebuf), "Cannot open \"%s\"", fname);
+	pmsprintf(linebuf, sizeof(linebuf), "Cannot open \"%s\"", fname);
 	err(linebuf);
 	return -oserror();
     }
@@ -1313,7 +1313,7 @@ loadascii(int dupok, int use_cpp)
 		for (np = seen->first; np != NULL; np = np->next) {
 		    for (xp = np->next; xp != NULL; xp = xp->next) {
 			if (strcmp(xp->name, np->name) == 0) {
-			    snprintf(linebuf, sizeof(linebuf), "Duplicate name \"%s\" in subtree for \"%s\"\n",
+			    pmsprintf(linebuf, sizeof(linebuf), "Duplicate name \"%s\" in subtree for \"%s\"\n",
 			        np->name, seen->name);
 			    err(linebuf);
 			    return PM_ERR_PMNS;
@@ -1361,7 +1361,7 @@ getfname(const char *filename)
 
 	    if ((def_pmns = pmGetOptionalConfig("PCP_VAR_DIR")) == NULL)
 		return NULL;
-	    snprintf(repname, sizeof(repname), "%s%c" "pmns" "%c" "root",
+	    pmsprintf(repname, sizeof(repname), "%s%c" "pmns" "%c" "root",
 		     def_pmns, sep, sep);
 	    return repname;
 	}

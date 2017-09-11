@@ -126,6 +126,7 @@ logmessage(int priority, const char *format, ...)
     char	*level;
     char	*p;
     time_t	now;
+    int		bytes;
 
     buffer[0] = '\0';
     time(&now);
@@ -160,12 +161,17 @@ logmessage(int priority, const char *format, ...)
             break;
     }
 
-    va_start (arglist, format);
-    vsnprintf (buffer, sizeof(buffer), format, arglist);
+    va_start(arglist, format);
+    bytes = vsnprintf(buffer, sizeof(buffer), format, arglist);
+    va_end(arglist);
+    if (bytes >= sizeof(buffer))
+	buffer[sizeof(buffer)-1] = '\0';
+    if (bytes < 0)
+	buffer[0] = '\0';
     for (p = buffer; *p; p++);
     if (*(--p) == '\n') *p = '\0';
-    fprintf (stderr, "[%.19s] %s(%" FMT_PID ") %s: %s\n", ctime(&now), pmProgname, getpid(), level, buffer) ;
-    va_end (arglist) ;
+
+    fprintf(stderr, "[%.19s] %s(%" FMT_PID ") %s: %s\n", ctime(&now), pmProgname, getpid(), level, buffer) ;
 }
 
 /*
@@ -479,7 +485,7 @@ main(int argc, char **argv)
 
     wl_isDSO = 0;
 
-    snprintf(wl_helpFile, sizeof(wl_helpFile), "%s%c" "weblog" "%c" "help",
+    pmsprintf(wl_helpFile, sizeof(wl_helpFile), "%s%c" "weblog" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&desc, PMDA_INTERFACE_2, pmProgname, WEBSERVER,
 		wl_logFile, wl_helpFile);
@@ -623,7 +629,7 @@ main(int argc, char **argv)
 		    if (strcmp(wl_regexTable[n].name, 
 			       wl_regexTable[wl_numRegex].name) == 0) {
 
-			snprintf(emess, sizeof(emess), "duplicate regex name (%s)",
+			pmsprintf(emess, sizeof(emess), "duplicate regex name (%s)",
 				wl_regexTable[wl_numRegex].name);
 			yyerror(emess);
 			break;
@@ -773,7 +779,7 @@ main(int argc, char **argv)
 		    if (strcmp(wl_regexTable[n].name, 
 			       wl_regexTable[wl_numRegex].name) == 0) {
 
-			snprintf(emess, sizeof(emess), "duplicate regex name (%s)",
+			pmsprintf(emess, sizeof(emess), "duplicate regex name (%s)",
 				wl_regexTable[wl_numRegex].name);
 			yyerror(emess);
 			break;
@@ -862,7 +868,7 @@ main(int argc, char **argv)
 	    if (wl_numServers) {
 		for (n = 0; n < wl_numServers; n++) {
 		    if (strcmp(buf1, wl_serverInst[n].i_name) == 0) {
-			snprintf(emess, sizeof(emess), "duplicate server name (%s)", buf1);
+			pmsprintf(emess, sizeof(emess), "duplicate server name (%s)", buf1);
 			yyerror(emess);
 			break;
 		    }
@@ -930,7 +936,7 @@ main(int argc, char **argv)
 		    break;
 
 	    if (n == wl_numRegex) {
-	    	snprintf(emess, sizeof(emess), "access log regex \"%s\" not defined", buf1);
+	    	pmsprintf(emess, sizeof(emess), "access log regex \"%s\" not defined", buf1);
 		yyerror(emess);
 		skip_to_eol(configFile);
 		continue;
@@ -953,7 +959,7 @@ main(int argc, char **argv)
 	    if (server->counts.active) {
 		tmpFp = fopen(server->access.fileName, "r");
 		if (tmpFp == (FILE*)0) {
-		    snprintf(emess, sizeof(emess), "cannot open access log \"%s\"", buf2);
+		    pmsprintf(emess, sizeof(emess), "cannot open access log \"%s\"", buf2);
 		    yywarn(emess);
 		    server->access.filePtr = -1;
 		}
@@ -986,7 +992,7 @@ main(int argc, char **argv)
 		    break;
 
 	    if (n == wl_numRegex) {
-	    	snprintf(emess, sizeof(emess), "error log regex \"%s\" not defined", buf1);
+	    	pmsprintf(emess, sizeof(emess), "error log regex \"%s\" not defined", buf1);
 		yyerror(emess);
 		skip_to_eol(configFile);
 		continue;
@@ -998,7 +1004,7 @@ main(int argc, char **argv)
 	    if (server->counts.active) {
 		tmpFp = fopen(server->error.fileName, "r");
 		if (tmpFp == (FILE*)0) {
-		    snprintf(emess, sizeof(emess), "cannot open error log \"%s\"", buf2);
+		    pmsprintf(emess, sizeof(emess), "cannot open error log \"%s\"", buf2);
 		    yywarn(emess);
 		    server->error.filePtr = -1;
 		}
@@ -1027,7 +1033,7 @@ main(int argc, char **argv)
 	    wl_numServers++;
 	}
 	else {
-	    snprintf(emess, sizeof(emess), "illegal keyword \"%s\"", buf1);
+	    pmsprintf(emess, sizeof(emess), "illegal keyword \"%s\"", buf1);
 	    yyerror(emess);
 	    skip_to_eol(configFile);
 	    continue;

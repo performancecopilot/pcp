@@ -494,11 +494,11 @@ map_stats(pmdaExt *pmda)
     }
 
     /* hard-coded metrics (not from mmap'd files) */
-    snprintf(name, sizeof(name), "%s.control.reload", prefix);
+    pmsprintf(name, sizeof(name), "%s.control.reload", prefix);
     __pmAddPMNSNode(pmns, pmid_build(pmda->e_domain, 0, 0), name);
-    snprintf(name, sizeof(name), "%s.control.debug", prefix);
+    pmsprintf(name, sizeof(name), "%s.control.debug", prefix);
     __pmAddPMNSNode(pmns, pmid_build(pmda->e_domain, 0, 1), name);
-    snprintf(name, sizeof(name), "%s.control.files", prefix);
+    pmsprintf(name, sizeof(name), "%s.control.files", prefix);
     __pmAddPMNSNode(pmns, pmid_build(pmda->e_domain, 0, 2), name);
     mtot = 3;
 
@@ -1221,8 +1221,8 @@ mmv_init(pmdaInterface *dp)
     pcpvardir = pmGetConfig("PCP_VAR_DIR");
     pcppmdasdir = pmGetConfig("PCP_PMDAS_DIR");
 
-    snprintf(statsdir, sizeof(statsdir), "%s%c%s", pcptmpdir, sep, prefix);
-    snprintf(pmnsdir, sizeof(pmnsdir), "%s%c" "pmns", pcpvardir, sep);
+    pmsprintf(statsdir, sizeof(statsdir), "%s%c%s", pcptmpdir, sep, prefix);
+    pmsprintf(pmnsdir, sizeof(pmnsdir), "%s%c" "pmns", pcpvardir, sep);
     statsdir[sizeof(statsdir)-1] = '\0';
     pmnsdir[sizeof(pmnsdir)-1] = '\0';
 
@@ -1285,7 +1285,7 @@ main(int argc, char **argv)
 
     if (strncmp(pmProgname, "pmda", 4) == 0 && strlen(pmProgname) > 4)
 	prefix = pmProgname + 4;
-    snprintf(logfile, sizeof(logfile), "%s.log", prefix);
+    pmsprintf(logfile, sizeof(logfile), "%s.log", prefix);
     pmdaDaemon(&dispatch, PMDA_INTERFACE_4, pmProgname, MMV, logfile, NULL);
 
     pmdaGetOptions(argc, argv, &opts, &dispatch);

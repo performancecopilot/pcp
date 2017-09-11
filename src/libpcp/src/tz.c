@@ -143,12 +143,12 @@ __pmSquashTZ(char *tzbuffer)
 	if (mins == 0) {
 	    /* -3 for +HH in worst case */
 	    if (len > PM_TZ_MAXLEN-3) len = PM_TZ_MAXLEN-3;
-	    snprintf(tzbuffer, PM_TZ_MAXLEN, "%*.*s%+d", len, len, tzn, hours);
+	    pmsprintf(tzbuffer, PM_TZ_MAXLEN, "%*.*s%+d", len, len, tzn, hours);
 	}
 	else {
 	    /* -6 for +HH:MM in worst case */
 	    if (len > PM_TZ_MAXLEN-6) len = PM_TZ_MAXLEN-6;
-	    snprintf(tzbuffer, PM_TZ_MAXLEN, "%*.*s%+d:%02d", len, len, tzn, hours, mins);
+	    pmsprintf(tzbuffer, PM_TZ_MAXLEN, "%*.*s%+d:%02d", len, len, tzn, hours, mins);
 	}
     }
     else {

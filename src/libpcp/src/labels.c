@@ -648,7 +648,7 @@ labelfile(const char *path, const char *file, char *buf, int buflen)
     char		lf[MAXPATHLEN];
     size_t		bytes;
 
-    snprintf(lf, sizeof(lf), "%s%c%s", path, __pmPathSeparator(), file);
+    pmsprintf(lf, sizeof(lf), "%s%c%s", path, __pmPathSeparator(), file);
     if ((fp = fopen(lf, "r")) == NULL)
 	return 0;
     bytes = fread(buf, 1, buflen-1, fp);
@@ -667,7 +667,7 @@ __pmGetContextLabels(pmLabelSet **set)
     size_t		length;
     int			i, num, sts = 0;
 
-    snprintf(path, MAXPATHLEN, "%s%clabels",
+    pmsprintf(path, MAXPATHLEN, "%s%clabels",
 		pmGetConfig("PCP_SYSCONF_DIR"), __pmPathSeparator());
     if ((num = scandir(path, &list, NULL, alphasort)) < 0)
 	return -oserror();
@@ -711,7 +711,7 @@ archive_host_labels(__pmContext *ctxp, char *buffer, int buflen)
      * added to the context structure and we'll be able to read 'em
      * here to provide complete archive label support.
      */
-    snprintf(buffer, buflen, "{\"hostname\":\"%s\"}",
+    pmsprintf(buffer, buflen, "{\"hostname\":\"%s\"}",
 	     ctxp->c_archctl->ac_log->l_label.ill_hostname);
     buffer[buflen-1] = '\0';
     return buffer;
@@ -737,11 +737,11 @@ local_host_labels(char *buffer, int buflen)
 {
     char	host[MAXHOSTNAMELEN];
 
-    gethostname(host, sizeof(host));
-    host[sizeof(host)-1] = '\0';
-
-    snprintf(buffer, buflen, "{\"hostname\":\"%s\"}", host);
-    buffer[buflen-1] = '\0';
+    if (gethostname(host, sizeof(host)) < 0)
+	host[0] = '\0';
+    else
+	host[sizeof(host)-1] = '\0';
+    pmsprintf(buffer, buflen, "{\"hostname\":\"%s\"}", host);
     return buffer;
 }
 
@@ -771,9 +771,7 @@ __pmGetDomainLabels(int domain, const char *name, pmLabelSet **set)
     char		buf[MAXLABELJSONLEN];
   
     (void)domain;	/* not currently used */
-    length = snprintf(buf, sizeof(buf), "{\"agent\":\"%s\"}", name);
-    buf[sizeof(buf)-1] = '\0';
-
+    length = pmsprintf(buf, sizeof(buf), "{\"agent\":\"%s\"}", name);
     return __pmParseLabelSet(buf, length, PM_LABEL_DOMAIN, set);
 }
 

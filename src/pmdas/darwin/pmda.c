@@ -821,7 +821,7 @@ fetch_uname(unsigned int item, pmAtomValue *atom)
 	return mach_uname_error;
     switch (item) {
     case 28: /* pmda.uname */
-	snprintf(mach_uname_all, sizeof(mach_uname_all), "%s %s %s %s %s",
+	pmsprintf(mach_uname_all, sizeof(mach_uname_all), "%s %s %s %s %s",
 		mach_uname.sysname, mach_uname.nodename,
 		mach_uname.release, mach_uname.version,
 		mach_uname.machine);

@@ -296,7 +296,7 @@ add_pmns_node(__pmnsTree *tree, int domain, int cluster, int lock, int stat)
     char entry[64];
     pmID pmid = pmid_build(domain, cluster, (lock * NUM_GLOCKSTATS) + stat);
 
-    snprintf(entry, sizeof(entry),
+    pmsprintf(entry, sizeof(entry),
 	     "gfs2.worst_glock.%s.%s", topnum[lock], stattype[stat]);
     __pmAddPMNSNode(tree, pmid, entry);
 
@@ -371,7 +371,7 @@ worst_glock_text(pmdaExt *pmda, pmID pmid, int type, char **buf)
 	return PM_ERR_PMID;
     if (item < 0 || item >= WORST_GLOCK_COUNT)
 	return PM_ERR_PMID;
-    snprintf(text, sizeof(text), "%s for %s worst glock",
+    pmsprintf(text, sizeof(text), "%s for %s worst glock",
 	     stattext[item % NUM_GLOCKSTATS], topnum[item / NUM_TOPNUM]);
 
     *buf = text;
