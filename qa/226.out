@@ -14,8 +14,9 @@ instance indom# [ number | name | "name" ]
 label context
 label domain
 label indom indom#
-label metric
-label insts metric
+label cluster cluster#
+label item metric
+label instances metric
 name pmid#
 namespace fname
 open dso dsoname init_routine [ domain# ]
@@ -104,8 +105,9 @@ dbpmda> help label
 label context
 label domain
 label indom indom#
-label metric
-label insts metric
+label cluster cluster#
+label item metric
+label instances metric
 
 dbpmda> help name
 
