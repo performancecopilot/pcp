@@ -191,7 +191,7 @@ stash_chars(const char *s, int slen, char **buffer, int *buflen)
 
     if (slen >= bytes)
 	return -E2BIG;
-    bytes = sprintf(bp, "%.*s", slen, s);
+    bytes = pmsprintf(bp, bytes, "%.*s", slen, s);
     *buffer = bp + bytes;
     *buflen -= bytes;
     return bytes;
@@ -214,12 +214,12 @@ stash_label(const pmLabel *lp, const char *json,
 	return -E2BIG;
 
     if (lp->valuelen) {
-	bytes = sprintf(bp, "\"%.*s\":%.*s,",
+	bytes = pmsprintf(bp, bytes, "\"%.*s\":%.*s,",
 			(int)lp->namelen, label_name(lp, json),
 			(int)lp->valuelen, label_value(lp, json));
 	valuelen = lp->valuelen;
     } else {
-	bytes = sprintf(bp, "\"%.*s\":null,",
+	bytes = pmsprintf(bp, bytes, "\"%.*s\":null,",
 			(int)lp->namelen, label_name(lp, json));
 	valuelen = 4;
     }
