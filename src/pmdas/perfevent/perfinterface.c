@@ -11,10 +11,6 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
 #include "perfinterface.h"
@@ -24,12 +20,9 @@
 #include "parse_events.h"
 #include <perfmon/pfmlib_perf_event.h>
 
+#include <pcp/pmapi.h>
 #include <limits.h>
-#include <stdlib.h>
-#include <string.h>
-#include <errno.h>
 #include <dirent.h>
-#include <sys/stat.h>
 
 #define SYSFS_DEVICES "/sys/bus/event_source/devices"
 #define BUF_SIZE 1024
