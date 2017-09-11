@@ -305,9 +305,9 @@ __pmPDUTypeStr_r(int type, char *buf, int buflen)
     default:			res = NULL; break;
     }
     if (res)
-	snprintf(buf, buflen, "%s", res);
+	pmsprintf(buf, buflen, "%s", res);
     else
-	snprintf(buf, buflen, "TYPE-%d?", type);
+	pmsprintf(buf, buflen, "TYPE-%d?", type);
     return buf;
 }
 

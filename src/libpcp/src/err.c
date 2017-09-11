@@ -241,7 +241,7 @@ pmErrStr_r(int code, char *buf, int buflen)
 	int error = DECODE_SECURE_SOCKETS_ERROR(code);
 	if (DECODE_SASL_SPECIFIC_ERROR(error)) {
 	    PM_LOCK(__pmLock_extcall);
-	    snprintf(buf, buflen, "Authentication - %s", sasl_errstring(error, NULL, NULL));	/* THREADSAFE */
+	    pmsprintf(buf, buflen, "Authentication - %s", sasl_errstring(error, NULL, NULL));	/* THREADSAFE */
 	    PM_UNLOCK(__pmLock_extcall);
 	}
 	else
@@ -332,7 +332,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_ALLOC);
     }
 
     /* failure */
-    snprintf(buf, buflen, BADCODE,  code);
+    pmsprintf(buf, buflen, BADCODE,  code);
     return buf;
 }
 

@@ -5342,7 +5342,7 @@ char *linux_mdadm = "/sbin/mdadm"; /* program for extracting MD RAID status */
 FILE *
 linux_statsfile(const char *path, char *buffer, int size)
 {
-    snprintf(buffer, size, "%s%s", linux_statspath, path);
+    pmsprintf(buffer, size, "%s%s", linux_statspath, path);
     buffer[size-1] = '\0';
     return fopen(buffer, "r");
 }
@@ -7793,7 +7793,7 @@ linux_init(pmdaInterface *dp)
     if (_isDSO) {
 	char helppath[MAXPATHLEN];
 	int sep = __pmPathSeparator();
-	snprintf(helppath, sizeof(helppath), "%s%c" "linux" "%c" "help",
+	pmsprintf(helppath, sizeof(helppath), "%s%c" "linux" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
 	pmdaDSO(dp, PMDA_INTERFACE_6, "linux DSO", helppath);
     } else {
@@ -7948,7 +7948,7 @@ main(int argc, char **argv)
     _isDSO = 0;
     __pmSetProgname(argv[0]);
 
-    snprintf(helppath, sizeof(helppath), "%s%c" "linux" "%c" "help",
+    pmsprintf(helppath, sizeof(helppath), "%s%c" "linux" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&dispatch, PMDA_INTERFACE_6, pmProgname, LINUX, "linux.log", helppath);
 

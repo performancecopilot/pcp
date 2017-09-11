@@ -485,7 +485,7 @@ optdomain : NUMBER				{ $$ = $1; }
 attribute : NUMBER				{
 		sts = __pmAttrKeyStr_r($1, warnStr, sizeof(warnStr));
 		if (sts <= 0) {
-		    snprintf(warnStr, MYWARNSTRSZ, "Attribute (%d) is not recognised", $1);
+		    pmsprintf(warnStr, MYWARNSTRSZ, "Attribute (%d) is not recognised", $1);
 		    yyerror(warnStr);
 		    YYERROR;
 		}
@@ -494,7 +494,7 @@ attribute : NUMBER				{
 	| STRING				{ 
 		sts = __pmLookupAttrKey($1, strlen($1)+1);
 		if (sts <= 0) {
-		    snprintf(warnStr, MYWARNSTRSZ, "Attribute (%s) is not recognised", $1);
+		    pmsprintf(warnStr, MYWARNSTRSZ, "Attribute (%s) is not recognised", $1);
 		    yyerror(warnStr);
 		    YYERROR;
 		}
@@ -506,11 +506,11 @@ servport : NUMBER				{ $$ = $1; }
 	| STRING				{
 		struct servent *srv = getservbyname($1, NULL);
 		if (srv == NULL) {
-		    snprintf(warnStr, MYWARNSTRSZ, "Failed to map (%s) to a port number", $1);
+		    pmsprintf(warnStr, MYWARNSTRSZ, "Failed to map (%s) to a port number", $1);
 		    yyerror(warnStr);
 		    YYERROR;
 		}
-		snprintf(warnStr, MYWARNSTRSZ, "Mapped %s to port number %d", $1, srv->s_port);
+		pmsprintf(warnStr, MYWARNSTRSZ, "Mapped %s to port number %d", $1, srv->s_port);
 		yywarn(warnStr);
 		$$ = srv->s_port;
 	    }
@@ -520,7 +520,7 @@ metric	: NUMBER				{
 		pmid.whole = $1;
 		sts = pmNameID(pmid.whole, &str);
 		if (sts < 0) {
-		    snprintf(warnStr, MYWARNSTRSZ, "PMID (%s) is not defined in the PMNS",
+		    pmsprintf(warnStr, MYWARNSTRSZ, "PMID (%s) is not defined in the PMNS",
 			    pmIDStr(pmid.whole));
 		    yywarn(warnStr);
 		}
@@ -534,7 +534,7 @@ metric	: NUMBER				{
 		pmid.part.item = $1.num2;
 		sts = pmNameID(pmid.whole, &str);
 		if (sts < 0) {
-		    snprintf(warnStr, MYWARNSTRSZ, "PMID (%s) is not defined in the PMNS",
+		    pmsprintf(warnStr, MYWARNSTRSZ, "PMID (%s) is not defined in the PMNS",
 			    pmIDStr(pmid.whole));
 		    yywarn(warnStr);
 		}
@@ -549,7 +549,7 @@ metric	: NUMBER				{
 		pmid.part.item = $1.num3;
 		sts = pmNameID(pmid.whole, &str);
 		if (sts < 0) {
-		    snprintf(warnStr, MYWARNSTRSZ, "PMID (%s) is not defined in the PMNS",
+		    pmsprintf(warnStr, MYWARNSTRSZ, "PMID (%s) is not defined in the PMNS",
 			    pmIDStr(pmid.whole));
 		    yywarn(warnStr);
 		}
@@ -614,7 +614,7 @@ debug   : NUMBER 				{ $$ = $1; }
 	| NAME					{
 			sts = __pmParseDebug($1);
 			if (sts < 0) {
-			    snprintf(warnStr, MYWARNSTRSZ, "Bad debug flag (%s)", $1);
+			    pmsprintf(warnStr, MYWARNSTRSZ, "Bad debug flag (%s)", $1);
 			    yywarn(warnStr);
 			    YYERROR;
 			}
@@ -624,7 +624,7 @@ debug   : NUMBER 				{ $$ = $1; }
 	| NAME debug			{
 			sts = __pmParseDebug($1);
 			if (sts < 0) {
-			    snprintf(warnStr, MYWARNSTRSZ, "Bad debug flag (%s)", $1);
+			    pmsprintf(warnStr, MYWARNSTRSZ, "Bad debug flag (%s)", $1);
 			    yywarn(warnStr);
 			    YYERROR;
 			}

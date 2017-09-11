@@ -78,7 +78,7 @@ process_config_file_check(void)
     static int last_error;
     int sep = __pmPathSeparator();
 
-    snprintf(mypath, sizeof(mypath), "%s%c" "process" "%c" "process.conf",
+    pmsprintf(mypath, sizeof(mypath), "%s%c" "process" "%c" "process.conf",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     if (stat(mypath, &statbuf) == -1) {
 	if (oserror() != last_error) {
@@ -152,7 +152,7 @@ process_grab_config_info(void)
     int process_number = 0;
     int sep = __pmPathSeparator();
 
-    snprintf(mypath, sizeof(mypath), "%s%c" "process" "%c" "process.conf",
+    pmsprintf(mypath, sizeof(mypath), "%s%c" "process" "%c" "process.conf",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     if ((fp = fopen(mypath, "r")) == NULL) {
 	__pmNotifyErr(LOG_ERR, "fopen on %s failed: %s\n",
@@ -349,7 +349,7 @@ process_init(pmdaInterface *dp)
 {
     if (isDSO) {
 	int sep = __pmPathSeparator();
-	snprintf(mypath, sizeof(mypath), "%s%c" "process" "%c" "help",
+	pmsprintf(mypath, sizeof(mypath), "%s%c" "process" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
 	pmdaDSO(dp, PMDA_INTERFACE_2, "process DSO", mypath);
     }
@@ -394,7 +394,7 @@ main(int argc, char **argv)
     isDSO = 0;
     __pmSetProgname(argv[0]);
 
-    snprintf(mypath, sizeof(mypath), "%s%c" "process" "%c" "help",
+    pmsprintf(mypath, sizeof(mypath), "%s%c" "process" "%c" "help",
 	pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&desc, PMDA_INTERFACE_2, pmProgname, PROCESS,
 		"process.log", mypath);

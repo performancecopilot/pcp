@@ -607,7 +607,7 @@ rpm_init(pmdaInterface * dp)
 	int sep = __pmPathSeparator();
 	char helppath[MAXPATHLEN];
 
-	snprintf(helppath, sizeof(helppath), "%s%c" "rpm" "%c" "help",
+	pmsprintf(helppath, sizeof(helppath), "%s%c" "rpm" "%c" "help",
                 pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
 	pmdaDSO(dp, PMDA_INTERFACE_5, "rpm DSO", helppath);
     }
@@ -674,7 +674,7 @@ main(int argc, char **argv)
     __pmProcessDataSize(NULL);
     __pmGetUsername(&username);
 
-    snprintf(helppath, sizeof(helppath), "%s%c" "rpm" "%c" "help",
+    pmsprintf(helppath, sizeof(helppath), "%s%c" "rpm" "%c" "help",
 	     pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&dispatch, PMDA_INTERFACE_5, pmProgname, RPM,
 	       "rpm.log", helppath);

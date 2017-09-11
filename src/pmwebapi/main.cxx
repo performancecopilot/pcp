@@ -58,7 +58,7 @@ mhd_notify_error (struct MHD_Connection *connection, int rc)
     struct MHD_Response *resp;
 
     (void) pmErrStr_r (rc, pmmsg, sizeof (pmmsg));
-    (void) snprintf (error_message, sizeof (error_message), "PMWEBD error, code %d: %s", rc,
+    (void) pmsprintf (error_message, sizeof (error_message), "PMWEBD error, code %d: %s", rc,
                      pmmsg);
     resp = MHD_create_response_from_buffer (strlen (error_message), error_message,
                                             MHD_RESPMEM_MUST_COPY);

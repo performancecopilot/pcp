@@ -46,9 +46,9 @@ findsource(const char *host, const char *hconn)
     static char	buf[MAXPATHLEN+MAXHOSTNAMELEN+30];
 
     if (archives)
-        snprintf(buf, sizeof(buf), "archive %s (host %s)", hconn, host);
+        pmsprintf(buf, sizeof(buf), "archive %s (host %s)", hconn, host);
     else
-	snprintf(buf, sizeof(buf), "pmcd %s (host %s)", hconn, host);
+	pmsprintf(buf, sizeof(buf), "pmcd %s (host %s)", hconn, host);
 
     return buf;
 }

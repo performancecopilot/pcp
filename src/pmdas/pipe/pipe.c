@@ -270,10 +270,10 @@ pipe_init(pmdaInterface *dp, const char *configfile, int checkonly)
 	if ((numpipes = event_config(configfile)) < 0)
 	    dp->status = numpipes;
     } else {
-	snprintf(config, sizeof(config), "%s%c" "pipe" "%c" "pipe.conf",
+	pmsprintf(config, sizeof(config), "%s%c" "pipe" "%c" "pipe.conf",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
 	config[sizeof(config)-1] = '\0';
-	snprintf(confdir, sizeof(confdir), "%s%c" "pipe.conf.d",
+	pmsprintf(confdir, sizeof(confdir), "%s%c" "pipe.conf.d",
 		pmGetConfig("PCP_SYSCONF_DIR"), sep);
 	confdir[sizeof(confdir)-1] = '\0';
 
@@ -438,7 +438,7 @@ main(int argc, char **argv)
 
     minmem = getpagesize();
     maxmem = (minmem > DEFAULT_MAXMEM) ? minmem : DEFAULT_MAXMEM;
-    snprintf(helppath, sizeof(helppath), "%s%c" "pipe" "%c" "help",
+    pmsprintf(helppath, sizeof(helppath), "%s%c" "pipe" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&desc, PMDA_INTERFACE_6, pmProgname, PIPE,
 		"pipe.log", helppath);

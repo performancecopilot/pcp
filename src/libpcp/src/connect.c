@@ -89,7 +89,7 @@ negotiate_proxy(int fd, const char *hostname, int port)
 	return PM_ERR_IPC;
     }
 
-    snprintf(buf, sizeof(buf), "%s %d\n", hostname, port);
+    pmsprintf(buf, sizeof(buf), "%s %d\n", hostname, port);
     if (__pmSend(fd, buf, strlen(buf), 0) != strlen(buf)) {
 	char	errmsg[PM_MAXERRMSGLEN];
 	__pmNotifyErr(LOG_WARNING,

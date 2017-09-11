@@ -131,7 +131,7 @@ setup_gcard_indom(void)
 
     for (i = 0; i < device_count; i++) {
 	pcp_nvinfo.nvindom->it_set[i].i_inst = i;
-	snprintf(gpuname, sizeof(gpuname), "gpu%d", i);
+	pmsprintf(gpuname, sizeof(gpuname), "gpu%d", i);
 	if ((name = strdup(gpuname)) == NULL) {
 	    __pmNoMem("gcard instname", strlen(gpuname), PM_RECOV_ERR);
 	    while (--i)
@@ -313,7 +313,7 @@ static void
 initializeHelpPath()
 {
     int sep = __pmPathSeparator();
-    snprintf(mypath, sizeof(mypath), "%s%c" "nvidia" "%c" "help",
+    pmsprintf(mypath, sizeof(mypath), "%s%c" "nvidia" "%c" "help",
             pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
 }
 

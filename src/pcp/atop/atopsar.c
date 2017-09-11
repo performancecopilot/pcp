@@ -1624,7 +1624,7 @@ ifline(struct sstat *ss, struct tstat *ts, struct tstat **ps, int nactproc,
 				        	ss->intf.intf[i].speed;
 			}
 
-			snprintf(busyval, sizeof busyval,
+			pmsprintf(busyval, sizeof busyval,
 						"%3.0lf%%", busy);
 		}
 		else

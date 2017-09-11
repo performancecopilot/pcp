@@ -12,6 +12,13 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
+
+# pylint: disable=superfluous-parens, bad-whitespace
+# pylint: disable=invalid-name, line-too-long, no-self-use
+# pylint: disable=too-many-instance-attributes, too-many-locals
+# pylint: disable=bare-except, broad-except
+# pylint: disable=too-many-return-statements, bad-continuation
+
 """ PCP HAProxy Performance Metrics Domain Agent """
 
 try:
@@ -19,7 +26,6 @@ try:
 except ImportError:
     import configparser as ConfigParser
 
-import os
 import sys
 import socket
 
@@ -35,7 +41,7 @@ from cpmapi import PM_COUNT_ONE, PM_SPACE_BYTE, PM_SPACE_MBYTE, PM_TIME_MSEC, PM
 from cpmapi import PM_ERR_AGAIN, PM_ERR_PMID, PM_ERR_APPVERSION
 
 if sys.version_info[0] >= 3:
-    long = int
+    long = int # pylint: disable=redefined-builtin
 
 DEFAULT_USER   = 'root'
 DEFAULT_SOCKET = '/var/lib/haproxy/stats'
@@ -223,13 +229,13 @@ class HAProxyPMDA(PMDA):
 
         for item in range(len(self.info_metrics)):
             self.add_metric(name + '.' + self.info_metrics[item][0], pmdaMetric(self.pmid(self.info_cluster, item),
-                self.info_metrics[item][1], self.info_indom, self.info_metrics[item][2],
-                self.info_metrics[item][3]), self.info_metrics[item][4], self.info_metrics[item][4])
+                            self.info_metrics[item][1], self.info_indom, self.info_metrics[item][2],
+                            self.info_metrics[item][3]), self.info_metrics[item][4], self.info_metrics[item][4])
 
         for item in range(len(self.stat_metrics)):
             self.add_metric(name + '.' + self.stat_metrics[item][0], pmdaMetric(self.pmid(self.stat_cluster, item),
-                self.stat_metrics[item][1], self.stat_indom, self.stat_metrics[item][2],
-                self.stat_metrics[item][3]), self.stat_metrics[item][4], self.stat_metrics[item][4])
+                            self.stat_metrics[item][1], self.stat_indom, self.stat_metrics[item][2],
+                            self.stat_metrics[item][3]), self.stat_metrics[item][4], self.stat_metrics[item][4])
 
         self.set_refresh(self.haproxy_refresh)
         self.set_fetch_callback(self.haproxy_fetch_callback)
@@ -257,7 +263,8 @@ class HAProxyPMDA(PMDA):
         resp = ""
         while True:
             data = skt.recv(4096).decode('UTF-8')
-            if not data: break
+            if not data:
+                break
             resp += data
         return resp
 
@@ -268,8 +275,10 @@ class HAProxyPMDA(PMDA):
             stats.connect(self.skt)
         except Exception as error:
             self.log("Failed to connect to %s: %s" % (self.skt, error))
-            if self.info: self.info = {}
-            if self.stat: self.stat = {}
+            if self.info:
+                self.info = {}
+            if self.stat:
+                self.stat = {}
             return
 
         if cluster == self.info_cluster:

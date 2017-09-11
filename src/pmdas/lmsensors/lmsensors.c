@@ -932,7 +932,7 @@ main(int argc, char **argv)
     __pmSetProgname(argv[0]);
     __pmGetUsername(&username);
 
-    snprintf(mypath, sizeof(mypath), "%s%c" "lmsensors" "%c" "help",
+    pmsprintf(mypath, sizeof(mypath), "%s%c" "lmsensors" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&desc, PMDA_INTERFACE_2, pmProgname, LMSENSORS,
 		"lmsensors.log", mypath);

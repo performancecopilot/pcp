@@ -259,7 +259,7 @@ simple_timenow_check(void)
     int			sep = __pmPathSeparator();
 
     /* stat the file & check modification time has changed */
-    snprintf(mypath, sizeof(mypath), "%s%c" "simple" "%c" "simple.conf",
+    pmsprintf(mypath, sizeof(mypath), "%s%c" "simple" "%c" "simple.conf",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     if (stat(mypath, &statbuf) == -1) {
 	if (oserror() != last_error) {
@@ -332,7 +332,7 @@ simple_timenow_init(void)
     char	*p, *q;
     char	buf[SIMPLE_BUFSIZE];
 
-    snprintf(mypath, sizeof(mypath), "%s%c" "simple" "%c" "simple.conf",
+    pmsprintf(mypath, sizeof(mypath), "%s%c" "simple" "%c" "simple.conf",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     if ((fp = fopen(mypath, "r")) == NULL) {
 	__pmNotifyErr(LOG_ERR, "fopen on %s failed: %s\n",
@@ -461,7 +461,7 @@ simple_init(pmdaInterface *dp)
 {
     if (isDSO) {
 	int sep = __pmPathSeparator();
-	snprintf(mypath, sizeof(mypath), "%s%c" "simple" "%c" "help",
+	pmsprintf(mypath, sizeof(mypath), "%s%c" "simple" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
 	pmdaDSO(dp, PMDA_INTERFACE_2, "simple DSO", mypath);
     } else {
@@ -494,7 +494,7 @@ main(int argc, char **argv)
     __pmSetProgname(argv[0]);
     __pmGetUsername(&username);
 
-    snprintf(mypath, sizeof(mypath), "%s%c" "simple" "%c" "help",
+    pmsprintf(mypath, sizeof(mypath), "%s%c" "simple" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&dispatch, PMDA_INTERFACE_2, pmProgname, SIMPLE,
 		"simple.log", mypath);

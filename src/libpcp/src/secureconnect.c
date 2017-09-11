@@ -198,11 +198,11 @@ dbpath(char *path, size_t size, char *db_method)
      * the <method>:-prefix - for other routines to work with.
      */
     if (nss_dir == NULL){
-    	snprintf(path, size, "%s%s" "%c" ".pki" "%c" "nssdb",
+    	pmsprintf(path, size, "%s%s" "%c" ".pki" "%c" "nssdb",
 		nss_method, homedir, sep, sep);
     }
     else{
-    	snprintf(path, size, "%s%s", nss_method, nss_dir);
+    	pmsprintf(path, size, "%s%s", nss_method, nss_dir);
 
     }
     return path + strlen(nss_method);
@@ -799,9 +799,9 @@ __pmAuthPromptCB(void *context, int id, const char *challenge, const char *promp
 	defaultresult = "";
 
     if (!challenge)
-	snprintf(message, sizeof(message), "%s [%s]: ", prompt, defaultresult);
+	pmsprintf(message, sizeof(message), "%s [%s]: ", prompt, defaultresult);
     else
-	snprintf(message, sizeof(message), "%s [challenge: %s] [%s]: ",
+	pmsprintf(message, sizeof(message), "%s [challenge: %s] [%s]: ",
 		 prompt, challenge, defaultresult);
     message[sizeof(message)-1] = '\0';
 

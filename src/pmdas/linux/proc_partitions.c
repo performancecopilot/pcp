@@ -197,7 +197,7 @@ refresh_mdadm(const char *name)
 
     if (access(linux_mdadm, R_OK) != 0)
     	return -1;
-    snprintf(mdadm, sizeof(mdadm), "%s %s /dev/%s 2>&1 >/dev/null",
+    pmsprintf(mdadm, sizeof(mdadm), "%s %s /dev/%s 2>&1 >/dev/null",
 	linux_mdadm, args, name);	/* discard any/all output */
     mdadm[sizeof(mdadm)-1] = '\0';
     if (!(pfp = popen(mdadm, "r")))
@@ -261,7 +261,7 @@ persistent_dm_name(char *namebuf, int namelen, int devmajor, int devminor)
     struct stat sb;
     char path[MAXPATHLEN];
 
-    snprintf(path, sizeof(path), "%s/sys/block/%s/dm/name", linux_statspath, namebuf);
+    pmsprintf(path, sizeof(path), "%s/sys/block/%s/dm/name", linux_statspath, namebuf);
     if ((fd = open(path, O_RDONLY)) >= 0) {
 	memset(path, 0, sizeof(path));
     	if (read(fd, path, sizeof(path)-1) > 0) {
@@ -278,10 +278,10 @@ persistent_dm_name(char *namebuf, int namelen, int devmajor, int devminor)
 	 * The sysfs name isn't available, so we'll have to walk /dev/mapper
 	 * and match up dev_t instead [happens on RHEL5 and maybe elsewhere].
 	 */
-	snprintf(path, sizeof(path), "%s/dev/mapper", linux_statspath);
+	pmsprintf(path, sizeof(path), "%s/dev/mapper", linux_statspath);
 	if ((dp = opendir(path)) != NULL) {
 	    while ((dentry = readdir(dp)) != NULL) {
-		snprintf(path, sizeof(path),
+		pmsprintf(path, sizeof(path),
 			"%s/dev/mapper/%s", linux_statspath, dentry->d_name);
 		if (stat(path, &sb) != 0 || !S_ISBLK(sb.st_mode))
 		    continue; /* only interested in block devices */
@@ -313,14 +313,14 @@ persistent_md_name(char *namebuf, int namelen)
     char path[MAXPATHLEN];
     char name[MAXPATHLEN];
 
-    snprintf(path, sizeof(path), "%s/dev/md", linux_statspath);
+    pmsprintf(path, sizeof(path), "%s/dev/md", linux_statspath);
     if ((dp = opendir(path)) != NULL) {
 	while ((dentry = readdir(dp)) != NULL) {
 	    if (dentry->d_name[0] == '.')
 		continue;
 	    if (isdigit(dentry->d_name[0]))
 		continue;
-	    snprintf(path, sizeof(path), "%s/dev/md/%s",
+	    pmsprintf(path, sizeof(path), "%s/dev/md/%s",
 			linux_statspath, dentry->d_name);
 	    if ((size = readlink(path, name, sizeof(name))) < 0)
 		continue;

@@ -72,7 +72,7 @@ is_portfile(const_dirent *dep)
 }
 
 /* The following function is used for selecting particular port files rather
- * than all valid files.  snprintf the pid of the pmlogger process or the
+ * than all valid files.  pmsprintf the pid of the pmlogger process or the
  * special constant PM_LOG_PRIMARY_LINK into the match array first.
  */
 #define PROCFS_ENTRY_SIZE 40	/* encompass any size of entry for pid */
@@ -113,7 +113,7 @@ __pmLogFindLocalPorts(int pid, __pmLogPort **result)
 
     if ((p = pmGetOptionalConfig("PCP_TMP_DIR")) == NULL)
 	return PM_ERR_GENERIC;
-    lendir = snprintf(dir, sizeof(dir), "%s%cpmlogger", p, __pmPathSeparator());
+    lendir = pmsprintf(dir, sizeof(dir), "%s%cpmlogger", p, __pmPathSeparator());
 
     /* Set up the appropriate function to select files from the control port
      * directory.  Anticipate that this will usually be an exact match for
@@ -140,7 +140,7 @@ __pmLogFindLocalPorts(int pid, __pmLogPort **result)
 		*result = NULL;
 		return 0;
 	    }
-	    snprintf(match, sizeof(match), "%d", pid);
+	    pmsprintf(match, sizeof(match), "%d", pid);
 	    break;
     }
 

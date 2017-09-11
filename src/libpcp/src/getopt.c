@@ -527,7 +527,7 @@ __pmAddOptArchiveFolio(pmOptions *opts, char *arg)
 	    length = strlen(dir) + 1 + strlen(log) + 1;
 	    if ((p = (char *)malloc(length)) == NULL)
 		__pmNoMem("pmGetOptions(archive)", length, PM_FATAL_ERR);
-	    snprintf(p, length, "%s%c%s", dir, sep, log);
+	    pmsprintf(p, length, "%s%c%s", dir, sep, log);
 	    __pmAddOptArchive(opts, p);
 	    free(p);
 	}

@@ -166,7 +166,7 @@ strguid(LPGUID guidPointer)
 {
     static char stringBuffer[64];
 
-    snprintf(stringBuffer, sizeof(stringBuffer),
+    pmsprintf(stringBuffer, sizeof(stringBuffer),
 		"{%08lx-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x}",
 	       guidPointer->Data1, guidPointer->Data2, guidPointer->Data3,
 	       guidPointer->Data4[0], guidPointer->Data4[1],

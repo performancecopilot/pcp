@@ -104,7 +104,7 @@ int main(int argc, char **argv)
     } else if (autoport) {	/* write to stdout for client */
 	char	name[32];
 
-	sts = snprintf(name, sizeof(name), "port=%u\n", opts.guiport);
+	sts = pmsprintf(name, sizeof(name), "port=%u\n", opts.guiport);
 	if (write(fileno(stdout), name, sts + 1) < 0) {
 	    if (errno != EPIPE) {
 		pmprintf("%s: cannot write port for client: %s\n",

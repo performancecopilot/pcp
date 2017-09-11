@@ -353,13 +353,13 @@ abandon_extract(void)
     if (desperate == 0) {
 	fprintf(stderr, "Archive \"%s\" not created.\n", outarchname);
 	while (logctl.l_curvol >= 0) {
-	    snprintf(fname, sizeof(fname), "%s.%d", outarchname, logctl.l_curvol);
+	    pmsprintf(fname, sizeof(fname), "%s.%d", outarchname, logctl.l_curvol);
 	    unlink(fname);
 	    logctl.l_curvol--;
 	}
-	snprintf(fname, sizeof(fname), "%s.meta", outarchname);
+	pmsprintf(fname, sizeof(fname), "%s.meta", outarchname);
 	unlink(fname);
-	snprintf(fname, sizeof(fname), "%s.index", outarchname);
+	pmsprintf(fname, sizeof(fname), "%s.index", outarchname);
 	unlink(fname);
     }
     exit(1);

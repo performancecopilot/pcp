@@ -82,7 +82,7 @@ convtime(double timed, char *chartim, size_t buflen)
 	struct tm 	tt;
 
 	pmLocaltime(&utime, &tt);
-	snprintf(chartim, buflen, "%02d:%02d:%02d",
+	pmsprintf(chartim, buflen, "%02d:%02d:%02d",
 		tt.tm_hour, tt.tm_min, tt.tm_sec);
 	return chartim;
 }
@@ -99,7 +99,7 @@ convdate(double timed, char *chardat, size_t buflen)
 	struct tm 	tt;
 
 	pmLocaltime(&utime, &tt);
-	snprintf(chardat, buflen, "%04d/%02d/%02d",
+	pmsprintf(chardat, buflen, "%04d/%02d/%02d",
 		tt.tm_year+1900, tt.tm_mon+1, tt.tm_mday);
 	return chardat;
 }
@@ -169,7 +169,7 @@ val2valstr(count_t value, char *strvalue, size_t buflen, int width, int avg, int
 
 	if (value < maxval)
 	{
-		snprintf(strvalue, buflen, "%*lld%s", width, value, suffix);
+		pmsprintf(strvalue, buflen, "%*lld%s", width, value, suffix);
 	}
 	else
 	{
@@ -178,7 +178,7 @@ val2valstr(count_t value, char *strvalue, size_t buflen, int width, int avg, int
 			/*
 			** cannot avoid ignoring width
 			*/
-			snprintf(strvalue, buflen, "%lld%s", value, suffix);
+			pmsprintf(strvalue, buflen, "%lld%s", value, suffix);
 		}
 		else
 		{
@@ -199,7 +199,7 @@ val2valstr(count_t value, char *strvalue, size_t buflen, int width, int avg, int
 			if (remain >= 5)
 				value++;
 
-			snprintf(strvalue, buflen, "%*llde%d%s",
+			pmsprintf(strvalue, buflen, "%*llde%d%s",
 					width, value, exp, suffix);
 		}
 	}
@@ -225,26 +225,26 @@ val2elapstr(int value, char *strvalue, size_t buflen)
 
         if (value >= DAYSECS) 
         {
-		bytes = snprintf(p, buflen-offset, "%dd", value/DAYSECS);
+		bytes = pmsprintf(p, buflen-offset, "%dd", value/DAYSECS);
 		p += bytes;
 		offset += bytes;
         }
 
         if (value >= HOURSECS) 
         {
-		bytes = snprintf(p, buflen-offset, "%dh", (value%DAYSECS)/HOURSECS);
+		bytes = pmsprintf(p, buflen-offset, "%dh", (value%DAYSECS)/HOURSECS);
 		p += bytes;
 		offset += bytes;
         }
 
         if (value >= MINSECS) 
         {
-                bytes = snprintf(p, buflen-offset, "%dm", (value%HOURSECS)/MINSECS);
+                bytes = pmsprintf(p, buflen-offset, "%dm", (value%HOURSECS)/MINSECS);
 		p += bytes;
 		offset += bytes;
         }
 
-	bytes = snprintf(p, buflen-offset, "%ds", (value%MINSECS));
+	bytes = pmsprintf(p, buflen-offset, "%ds", (value%MINSECS));
 	offset += bytes;
 
         return offset;
@@ -265,7 +265,7 @@ val2cpustr(count_t value, char *strvalue, size_t buflen)
 {
 	if (value < MAXMSEC)
 	{
-		snprintf(strvalue, buflen, "%2lld.%02llds", value/1000, value%1000/10);
+		pmsprintf(strvalue, buflen, "%2lld.%02llds", value/1000, value%1000/10);
 	}
 	else
 	{
@@ -276,7 +276,7 @@ val2cpustr(count_t value, char *strvalue, size_t buflen)
 
         	if (value < MAXSEC) 
         	{
-               	 	snprintf(strvalue, buflen, "%2lldm%02llds", value/60, value%60);
+               	 	pmsprintf(strvalue, buflen, "%2lldm%02llds", value/60, value%60);
 		}
 		else
 		{
@@ -287,7 +287,7 @@ val2cpustr(count_t value, char *strvalue, size_t buflen)
 
 			if (value < MAXMIN) 
 			{
-				snprintf(strvalue, buflen, "%2lldh%02lldm",
+				pmsprintf(strvalue, buflen, "%2lldh%02lldm",
 							value/60, value%60);
 			}
 			else
@@ -297,7 +297,7 @@ val2cpustr(count_t value, char *strvalue, size_t buflen)
 				*/
 				value = (value + 30) / 60;
 
-				snprintf(strvalue, buflen, "%2lldd%02lldh",
+				pmsprintf(strvalue, buflen, "%2lldd%02lldh",
 						value/24, value%24);
 			}
 		}
@@ -317,7 +317,7 @@ val2Hzstr(count_t value, char *strvalue, size_t buflen)
 {
         if (value < 1000)
         {
-                snprintf(strvalue, buflen, "%4lldMHz", value);
+                pmsprintf(strvalue, buflen, "%4lldMHz", value);
         }
         else
         {
@@ -329,7 +329,7 @@ val2Hzstr(count_t value, char *strvalue, size_t buflen)
                         prefix='T';        
                         fval /= 1000.0;
                 }
-                snprintf(strvalue, buflen, "%4.2f%cHz", fval, prefix);
+                pmsprintf(strvalue, buflen, "%4.2f%cHz", fval, prefix);
         }
 	return strvalue;
 }
@@ -412,37 +412,37 @@ val2memstr(count_t value, char *strvalue, size_t buflen, int pformat, int avgval
 	switch (aformat)
 	{
 	   case	ANYFORMAT:
-		snprintf(strvalue, buflen, "%*lld%s",
+		pmsprintf(strvalue, buflen, "%*lld%s",
 				basewidth, value, suffix);
 		break;
 
 	   case	KBFORMAT:
-		snprintf(strvalue, buflen, "%*lldK%s",
+		pmsprintf(strvalue, buflen, "%*lldK%s",
 				basewidth-1, value/ONEKBYTE, suffix);
 		break;
 
 	   case	MBFORMAT:
-		snprintf(strvalue, buflen, "%*.1lfM%s",
+		pmsprintf(strvalue, buflen, "%*.1lfM%s",
 			basewidth-1, (double)((double)value/ONEMBYTE), suffix); 
 		break;
 
 	   case	GBFORMAT:
-		snprintf(strvalue, buflen, "%*.1lfG%s",
+		pmsprintf(strvalue, buflen, "%*.1lfG%s",
 			basewidth-1, (double)((double)value/ONEGBYTE), suffix);
 		break;
 
 	   case	TBFORMAT:
-		snprintf(strvalue, buflen, "%*.1lfT%s",
+		pmsprintf(strvalue, buflen, "%*.1lfT%s",
 			basewidth-1, (double)((double)value/ONETBYTE), suffix);
 		break;
 
 	   case	PBFORMAT:
-		snprintf(strvalue, buflen, "%*.1lfP%s",
+		pmsprintf(strvalue, buflen, "%*.1lfP%s",
 			basewidth-1, (double)((double)value/ONEPBYTE), suffix);
 		break;
 
 	   default:
-		snprintf(strvalue, buflen, "!TILT!");
+		pmsprintf(strvalue, buflen, "!TILT!");
 	}
 
 	return strvalue;
@@ -597,7 +597,7 @@ abstime(char *str)
 	/* length includes @-prefix and a null terminator */
 	if ((arg = malloc(length)) == NULL)
 		__pmNoMem("abstime", length, PM_FATAL_ERR);
-	snprintf(arg, length, "@%s", str);
+	pmsprintf(arg, length, "@%s", str);
 	arg[length-1] = '\0';
 	return arg;
 }
@@ -996,7 +996,7 @@ rawfolio(pmOptions *opts)
 		cleanstop(1);
 	}
 
-	snprintf(path, sizeof(path), "%s%c%s%c%s%c",
+	pmsprintf(path, sizeof(path), "%s%c%s%c%s%c",
 		logdir, sep, "pmlogger", sep, rawlocalhost(opts), sep);
 
 	if (chdir(path) < 0)
@@ -1059,7 +1059,7 @@ rawarchive(pmOptions *opts, const char *name)
 		__pmAddOptArchiveFolio(opts, tmp);
 		return;
 	}
-	snprintf(path, sizeof(path), "%s/%s.folio", name, basename(tmp));
+	pmsprintf(path, sizeof(path), "%s/%s.folio", name, basename(tmp));
 	path[sizeof(path)-1] = '\0';
 	if (access(path, R_OK) == 0)
 	{
@@ -1082,7 +1082,7 @@ rawarchive(pmOptions *opts, const char *name)
 
 	if (len == 8 && lookslikedatetome(name))
 	{
-		snprintf(path, sizeof(path), "%s%c%s%c%s%c%s",
+		pmsprintf(path, sizeof(path), "%s%c%s%c%s%c%s",
 			logdir, sep, "pmlogger", sep, host, sep, name);
 		__pmAddOptArchive(opts, (char * )path);
 	}
@@ -1109,7 +1109,7 @@ rawarchive(pmOptions *opts, const char *name)
 			timenow -= len*3600*24;
 			tp       = localtime(&timenow);
 
-			snprintf(path, sizeof(path), "%s%c%s%c%s%c%04u%02u%02u",
+			pmsprintf(path, sizeof(path), "%s%c%s%c%s%c%04u%02u%02u",
 				logdir, sep, "pmlogger", sep, host, sep,
 				tp->tm_year+1900, tp->tm_mon+1, tp->tm_mday);
 			__pmAddOptArchive(opts, (char * )path);
@@ -1213,7 +1213,7 @@ rawwrite(pmOptions *opts, const char *name,
 	*/
 	putenv("PCP_XCONFIRM_PROG=/bin/true");
 
-	snprintf(args, sizeof(args), "%s.folio", basename((char *)name));
+	pmsprintf(args, sizeof(args), "%s.folio", basename((char *)name));
 	args[sizeof(args)-1] = '\0';
 	if (pmRecordSetup(args, pmProgname, 1) == NULL)
 	{
@@ -1234,7 +1234,7 @@ rawwrite(pmOptions *opts, const char *name,
 	** start pmlogger with a deadhand timer, ensuring it will stop
 	*/
 	if (opts->samples || midnightflag) {
-	    snprintf(args, sizeof(args), "-T%.3fseconds", duration);
+	    pmsprintf(args, sizeof(args), "-T%.3fseconds", duration);
 	    args[sizeof(args)-1] = '\0';
 	    if ((sts = pmRecordControl(record, PM_REC_SETARG, args)) < 0)
 		{

@@ -160,7 +160,7 @@ refresh_shm_stat(pmInDom shm_indom)
 	if ((shmid_o = shmctl(i++, SHM_STAT, &buf.shmid_ds)) < 0)
 	    continue;
 
-	snprintf(shmid, sizeof(shmid), "%d", shmid_o);
+	pmsprintf(shmid, sizeof(shmid), "%d", shmid_o);
 	shmid[sizeof(shmid)-1] = '\0';
 	sts = pmdaCacheLookupName(shm_indom, shmid, NULL, (void **)&shm_stat);
 	if (sts == PMDA_CACHE_ACTIVE)
@@ -174,15 +174,15 @@ refresh_shm_stat(pmInDom shm_indom)
 		continue;
 	    memset(shm_stat, 0, sizeof(shm_stat_t));
 
-	    snprintf(shm_stat->shm_key, IPC_KEYLEN, "0x%08x", ipcp->KEY); 
+	    pmsprintf(shm_stat->shm_key, IPC_KEYLEN, "0x%08x", ipcp->KEY); 
 	    shm_stat->shm_key[IPC_KEYLEN-1] = '\0';
 	    if ((pw = getpwuid(ipcp->uid)) != NULL)
 		strncpy(shm_stat->shm_owner, pw->pw_name, IPC_OWNERLEN);
 	    else
-		snprintf(shm_stat->shm_owner, IPC_OWNERLEN, "%d", ipcp->uid);
+		pmsprintf(shm_stat->shm_owner, IPC_OWNERLEN, "%d", ipcp->uid);
 	    shm_stat->shm_owner[IPC_OWNERLEN-1] = '\0';
 	    /* convert to octal number */
-	    snprintf(perms, sizeof(perms), "%o", ipcp->mode & 0777);
+	    pmsprintf(perms, sizeof(perms), "%o", ipcp->mode & 0777);
 	    perms[sizeof(perms)-1] = '\0';
 	    shm_stat->shm_perms      = atoi(perms);
 	    shm_stat->shm_bytes      = buf.shmid_ds.shm_segsz;
@@ -230,7 +230,7 @@ refresh_msg_que(pmInDom msg_indom)
 	if ((msgid_o = msgctl(i++, MSG_STAT, &msgseg)) < 0)
 	    continue;
 
-	snprintf(msgid, sizeof(msgid), "%d", msgid_o);
+	pmsprintf(msgid, sizeof(msgid), "%d", msgid_o);
 	msgid[sizeof(msgid)-1] = '\0';
 	sts = pmdaCacheLookupName(msg_indom, msgid, NULL, (void **)&msg_que);
 	if (sts == PMDA_CACHE_ACTIVE)
@@ -244,16 +244,16 @@ refresh_msg_que(pmInDom msg_indom)
 		continue;
 	    memset(msg_que, 0, sizeof(msg_que_t));
 
-	    snprintf(msg_que->msg_key, IPC_KEYLEN, "0x%08x", ipcp->KEY); 
+	    pmsprintf(msg_que->msg_key, IPC_KEYLEN, "0x%08x", ipcp->KEY); 
 	    msg_que->msg_key[IPC_KEYLEN-1] = '\0';
 	    if ((pw = getpwuid(ipcp->uid)) != NULL)
 		strncpy(msg_que->msg_owner, pw->pw_name, IPC_OWNERLEN);
 	    else
-		snprintf(msg_que->msg_owner, IPC_OWNERLEN, "%d", ipcp->uid);
+		pmsprintf(msg_que->msg_owner, IPC_OWNERLEN, "%d", ipcp->uid);
 	    msg_que->msg_owner[IPC_OWNERLEN-1] = '\0';
 
 	    /* convert to octal number */
-	    snprintf(perms, sizeof(perms), "%o", ipcp->mode & 0777);
+	    pmsprintf(perms, sizeof(perms), "%o", ipcp->mode & 0777);
 	    perms[sizeof(perms)-1] = '\0';
 	    msg_que->msg_perms     = atoi(perms);
 	    msg_que->msg_bytes     = msgseg.msg_cbytes;
@@ -299,7 +299,7 @@ refresh_sem_array(pmInDom sem_indom)
 	if ((semid_o = semctl(i++, 0, SEM_STAT, arg)) < 0)
 	    continue;
 
-	snprintf(semid, sizeof(semid), "%d", semid_o);
+	pmsprintf(semid, sizeof(semid), "%d", semid_o);
 	semid[sizeof(semid)-1] = '\0';
 	sts = pmdaCacheLookupName(sem_indom, semid, NULL, (void **)&sem_arr);
 	if (sts == PMDA_CACHE_ACTIVE)
@@ -313,16 +313,16 @@ refresh_sem_array(pmInDom sem_indom)
 		continue;
 	    memset(sem_arr, 0, sizeof(sem_array_t));
 
-	    snprintf(sem_arr->sem_key, IPC_KEYLEN, "0x%08x", ipcp->KEY);
+	    pmsprintf(sem_arr->sem_key, IPC_KEYLEN, "0x%08x", ipcp->KEY);
 	    sem_arr->sem_key[IPC_KEYLEN-1] = '\0';
 	    if ((pw = getpwuid(ipcp->uid)) != NULL)
 		strncpy(sem_arr->sem_owner, pw->pw_name, IPC_OWNERLEN);
 	    else
-		snprintf(sem_arr->sem_owner, IPC_OWNERLEN, "%d", ipcp->uid);
+		pmsprintf(sem_arr->sem_owner, IPC_OWNERLEN, "%d", ipcp->uid);
 	    sem_arr->sem_owner[IPC_OWNERLEN-1] = '\0';
 
 	    /* convert to octal number */
-	    snprintf(perms, sizeof(perms), "%o", ipcp->mode & 0777);
+	    pmsprintf(perms, sizeof(perms), "%o", ipcp->mode & 0777);
 	    perms[sizeof(perms)-1] = '\0';
 	    sem_arr->sem_perms     = atoi(perms);
 	    sem_arr->nsems      = semseg.sem_nsems;

@@ -58,7 +58,7 @@ get_ttyname_info(int pid, dev_t dev)
     while ((drp = readdir(rundir)) != NULL) {
 	if (*(path = &drp->d_name[0]) == '.')
 	    continue;
-	snprintf(fullpath, sizeof(fullpath), "%s%s", devpath, path);
+	pmsprintf(fullpath, sizeof(fullpath), "%s%s", devpath, path);
 	fullpath[sizeof(fullpath)-1] = '\0';
 	if (!stat(fullpath, &statbuf))
 	    continue;

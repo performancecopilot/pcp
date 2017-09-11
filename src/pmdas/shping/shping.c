@@ -120,6 +120,7 @@ logmessage(int priority, const char *format, ...)
     char        *level;
     char        *p;
     time_t      now;
+    int		bytes;
 
     buffer[0] = '\0';
     time(&now);
@@ -155,15 +156,19 @@ logmessage(int priority, const char *format, ...)
             break;
     }
 
-    va_start (arglist, format);
-    vsnprintf (buffer, sizeof(buffer), format, arglist);
+    va_start(arglist, format);
+    bytes = vsnprintf(buffer, sizeof(buffer), format, arglist);
+    va_end(arglist);
+    if (bytes >= sizeof(buffer))
+	buffer[sizeof(buffer)-1] = '\0';
+    else if (bytes < 0)
+	buffer[0] = '\0';
 
     /* strip unwanted '\n' at end of text so's not to double up */
     for (p = buffer; *p; p++);
     if (*(--p) == '\n') *p = '\0';
 
-    fprintf (stderr, "[%.19s] %s(%" FMT_PID ") %s: %s\n", ctime(&now), pmProgname, getpid(), level, buffer) ;
-    va_end (arglist) ;
+    fprintf(stderr, "[%.19s] %s(%" FMT_PID ") %s: %s\n", ctime(&now), pmProgname, getpid(), level, buffer) ;
 }
 
 
