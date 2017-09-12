@@ -30,7 +30,6 @@ typedef struct {
     char	ls_tzlogger[40]; /* $TZ at pmlogger */
 } __pmLoggerStatus_v1;
 
-#ifdef PCP_DEBUG
 /* This crawls over the data structure looking for weirdness */
 void
 reality_check(void)
@@ -138,8 +137,6 @@ dumpcontrol(FILE *f, const pmResult *resp, int dovalue)
 	}
     }
 }
-
-#endif
 
 /* Called when optFetch or _pmHash routines fail.  This is terminal. */
 void
@@ -966,13 +963,11 @@ do_control(__pmPDU *pb)
     if ((sts = __pmDecodeLogControl(pb, &request, &control, &state, &delta)) < 0)
 	return sts;
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_LOG) {
+    if (pmDebugOptions.log) {
 	fprintf(stderr, "do_control: control=%d state=%d delta=%d request ...\n",
 		control, state, delta);
 	dumpcontrol(stderr, request, 0);
     }
-#endif
 
     if (control == PM_LOG_MANDATORY || control == PM_LOG_ADVISORY) {
 	time(&now);
@@ -1116,10 +1111,8 @@ do_control(__pmPDU *pb)
 	}
     }
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL0)
+    if (pmDebugOptions.appl0)
 	dumpit();
-#endif
 
     /* just ignore advisory+maybe---the returned pmResult will have the metrics
      * in their original state indicating that the request could not be
@@ -1228,11 +1221,9 @@ do_control(__pmPDU *pb)
 	}
     }
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_LOG) {
+    if (pmDebugOptions.log) {
 	__pmDumpResult(stderr, result);
     }
-#endif
 
     if ((sts = __pmSendResult(clientfd, FROM_ANON, result)) < 0)
 		__pmNotifyErr(LOG_ERR,
@@ -1434,10 +1425,8 @@ do_creds(__pmPDU *pb)
     if (credlist)
 	free(credlist);
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL1)
+    if (pmDebugOptions.appl1)
 	fprintf(stderr, "do_creds: pmlc version=%d\n", version);
-#endif
 
     return sts;
 }

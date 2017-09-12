@@ -99,10 +99,8 @@ myFetch(int numpmid, pmID pmidlist[], __pmPDU **pdup)
 	 * current profile is _not_ already cached at other end of
 	 * IPC, so send current profile
 	 */
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_PROFILE)
+	if (pmDebugOptions.profile)
 	    fprintf(stderr, "myFetch: calling __pmSendProfile, context: %d\n", ctx);
-#endif
 	if ((n = __pmSendProfile(ctxp->c_pmcd->pc_fd, FROM_ANON, ctx, ctxp->c_instprof)) >= 0)
 	    ctxp->c_sent = 1;
     }

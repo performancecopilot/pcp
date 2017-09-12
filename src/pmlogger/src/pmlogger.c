@@ -66,12 +66,10 @@ static int	sep;
 void
 run_done(int sts, char *msg)
 {
-#ifdef PCP_DEBUG
     if (msg != NULL)
     	fprintf(stderr, "pmlogger: %s, exiting\n", msg);
     else
     	fprintf(stderr, "pmlogger: End of run time, exiting\n");
-#endif
 
     /*
      * write the last last temportal index entry with the time stamp
@@ -601,14 +599,12 @@ main(int argc, char **argv)
 	    break;
 
 	case 'D':	/* debug flag */
-	    sts = __pmParseDebug(opts.optarg);
+	    sts = pmSetDebug(opts.optarg);
 	    if (sts < 0) {
 		pmprintf("%s: unrecognized debug flag specification (%s)\n",
 			pmProgname, opts.optarg);
 		opts.errors++;
 	    }
-	    else
-		pmDebug |= sts;
 	    break;
 
 	case 'h':		/* hostname for PMCD to contact */
@@ -872,12 +868,9 @@ main(int argc, char **argv)
     fclose(yyin);
     yyend();
 
-#ifdef PCP_DEBUG
     fprintf(stderr, "Config parsed\n");
-#endif
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_LOG) {
+    if (pmDebugOptions.log) {
 	fprintf(stderr, "optFetch Cost Parameters: pmid=%d indom=%d fetch=%d scope=%d\n",
 		ocp.c_pmid, ocp.c_indom, ocp.c_fetch, ocp.c_scope);
 
@@ -899,7 +892,6 @@ main(int argc, char **argv)
 	    __pmOptFetchDump(stderr, tp->t_fetch);
 	}
     }
-#endif
 
     if (Cflag)
 	exit(0);
@@ -944,13 +936,11 @@ main(int argc, char **argv)
 		if (! use_localtime)
 		    pmNewZone(logctl.l_label.ill_tz);
 	    }
-#ifdef PCP_DEBUG
-	    else if (pmDebug & DBG_TRACE_LOG) {
+	    else if (pmDebugOptions.log) {
 		fprintf(stderr,
 			"main: Could not get timezone from host %s\n",
 			pmcd_host);
 	    }
-#endif
 	    pmFreeResult(resp);
 	}
     }
@@ -1020,20 +1010,16 @@ main(int argc, char **argv)
     for ( ; ; ) {
 	int		nready;
 
-#ifdef PCP_DEBUG
-	if ((pmDebug & DBG_TRACE_APPL2) && (pmDebug & DBG_TRACE_DESPERATE)) {
+	if ((pmDebugOptions.appl2) && (pmDebugOptions.desperate)) {
 	    fprintf(stderr, "before __pmSelectRead(%d,...): run_done_alarm=%d vol_switch_alarm=%d log_alarm=%d\n", numfds, run_done_alarm, vol_switch_alarm, log_alarm);
 	}
-#endif
 
 	niter = 0;
 	while (log_alarm && niter++ < 10) {
 	    __pmAFblock();
 	    log_alarm = 0;
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL2)
+	    if (pmDebugOptions.appl2)
 		fprintf(stderr, "delayed callback: log_alarm\n");
-#endif
 	    for (tp = tasklist; tp != NULL; tp = tp->t_next) {
 		if (tp->t_alarm) {
 		    tp->t_alarm = 0;
@@ -1046,19 +1032,15 @@ main(int argc, char **argv)
 	if (vol_switch_alarm) {
 	    __pmAFblock();
 	    vol_switch_alarm = 0;
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL2)
+	    if (pmDebugOptions.appl2)
 		fprintf(stderr, "delayed callback: vol_switch_alarm\n");
-#endif
 	    newvolume(VOL_SW_TIME);
 	    __pmAFunblock();
 	}
 
 	if (run_done_alarm) {
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL2)
+	    if (pmDebugOptions.appl2)
 		fprintf(stderr, "delayed callback: run_done_alarm\n");
-#endif
 	    run_done(0, NULL);
 	    /*NOTREACHED*/
 	}
@@ -1066,11 +1048,9 @@ main(int argc, char **argv)
 	__pmFD_COPY(&readyfds, &fds);
 	nready = __pmSelectRead(numfds, &readyfds, NULL);
 
-#ifdef PCP_DEBUG
-	if ((pmDebug & DBG_TRACE_APPL2) && (pmDebug & DBG_TRACE_DESPERATE)) {
+	if ((pmDebugOptions.appl2) && (pmDebugOptions.desperate)) {
 	    fprintf(stderr, "__pmSelectRead(%d,...) done: nready=%d run_done_alarm=%d vol_switch_alarm=%d log_alarm=%d\n", numfds, nready, run_done_alarm, vol_switch_alarm, log_alarm);
 	}
-#endif
 
 	__pmAFblock();
 	if (nready > 0) {
@@ -1148,10 +1128,8 @@ main(int argc, char **argv)
 
 		for (rp = rsc_buf; ; rp++) {
 		    if (read(rsc_fd, &myc, 1) <= 0) {
-#ifdef PCP_DEBUG
-			if (pmDebug & DBG_TRACE_APPL2)
+			if (pmDebugOptions.appl2)
 			    fprintf(stderr, "recording session control: eof\n");
-#endif
 			if (rp != rsc_buf) {
 			    *rp = '\0';
 			    fprintf(stderr, "Error: incomplete recording session control message: \"%s\"\n", rsc_buf);
@@ -1171,12 +1149,10 @@ main(int argc, char **argv)
 		    *rp = myc;
 		}
 
-#ifdef PCP_DEBUG
-		if (pmDebug & DBG_TRACE_APPL2) {
+		if (pmDebugOptions.appl2) {
 		    if (fake_x == 0)
 			fprintf(stderr, "recording session control: \"%s\"\n", rsc_buf);
 		}
-#endif
 
 		if (fake_x)
 		    do_dialog('X');
