@@ -10,17 +10,10 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#include <stdio.h>
-#include <string.h>
+#include <pcp/pmapi.h>
 #include <dirent.h>
-#include <malloc.h>
-#include <stdlib.h>
 
 #include "parse_events.h"
 #include "perfinterface.h"
@@ -277,7 +270,7 @@ static int fetch_format_properties(char *format_path, struct property **prop)
             ret = -E_PERFEVENT_REALLOC;
             goto free_prop_list;
         }
-        snprintf(property_path, PATH_MAX, "%s/%s", format_path,
+        pmsprintf(property_path, PATH_MAX, "%s/%s", format_path,
                  dir->d_name);
         ret = get_file_string(property_path, buf);
         if (ret)
@@ -530,7 +523,7 @@ static int fetch_events(DIR *events_dir, struct pmu_event **events,
         }
 
         memset(event_path, '\0', PATH_MAX);
-        snprintf(event_path, PATH_MAX, "%s/%s", events_path, dir->d_name);
+        pmsprintf(event_path, PATH_MAX, "%s/%s", events_path, dir->d_name);
         ret = get_file_string(event_path, buf);
         if (ret) {
             ret = -E_PERFEVENT_RUNTIME;
@@ -604,9 +597,9 @@ static int fetch_format_and_events(char *pmu_path, struct pmu *pmu)
     struct pmu_event *ev = NULL;
     int ret;
 
-    snprintf(type_path, PATH_MAX, "%s/%s", pmu_path, PMU_TYPE);
-    snprintf(format_path, PATH_MAX, "%s/%s", pmu_path, FORMAT);
-    snprintf(events_path, PATH_MAX, "%s/%s", pmu_path, EVENTS);
+    pmsprintf(type_path, PATH_MAX, "%s/%s", pmu_path, PMU_TYPE);
+    pmsprintf(format_path, PATH_MAX, "%s/%s", pmu_path, FORMAT);
+    pmsprintf(events_path, PATH_MAX, "%s/%s", pmu_path, EVENTS);
     events_dir = opendir(events_path);
     if (!events_dir)
         return -E_PERFEVENT_RUNTIME;
@@ -659,7 +652,7 @@ static int populate_pmus(struct pmu **pmus)
         }
 
         memset(pmu_path, '\0', PATH_MAX);
-        snprintf(pmu_path, PATH_MAX, "%s%s", dev_dir, dir->d_name);
+        pmsprintf(pmu_path, PATH_MAX, "%s%s", dev_dir, dir->d_name);
         tmp = calloc(1, sizeof(*tmp));
         if (!tmp) {
             ret = -E_PERFEVENT_REALLOC;
@@ -730,7 +723,7 @@ void setup_cpu_config(struct pmu *pmu_ptr, int *ncpus, int **cpuarr)
     size_t len = 0;
 
     memset(cpumask_path, '\0', PATH_MAX);
-    snprintf(cpumask_path, PATH_MAX, "%s%s/%s", dev_dir, pmu_ptr->name,
+    pmsprintf(cpumask_path, PATH_MAX, "%s%s/%s", dev_dir, pmu_ptr->name,
              PMU_CPUMASK);
     cpulist = fopen(cpumask_path, "r");
     /*
@@ -781,9 +774,9 @@ int init_dynamic_events(struct pmu **pmu_list)
     memset(dev_dir, '\0', PATH_MAX);
     prefix = getenv("SYSFS_PREFIX");
     if (prefix)
-        snprintf(dev_dir, PATH_MAX, "%s%s", prefix, DEV_DIR);
+        pmsprintf(dev_dir, PATH_MAX, "%s%s", prefix, DEV_DIR);
     else
-        snprintf(dev_dir, PATH_MAX, "%s%s", "/sys/", DEV_DIR);
+        pmsprintf(dev_dir, PATH_MAX, "%s%s", "/sys/", DEV_DIR);
 
     ret = populate_pmus(&pmus);
     if (ret)

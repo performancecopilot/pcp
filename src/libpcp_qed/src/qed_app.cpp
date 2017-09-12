@@ -133,6 +133,7 @@ int QedApp::getopts(const char *options)
 	case 'V':		/* version */
 	    printf("%s %s\n", pmProgname, pmGetConfig("PCP_VERSION"));
 	    exit(0);
+	    /*NOTREACHED*/
 
 	case 'z':		/* timezone from host */
 	    if (my.tz != NULL) {
@@ -210,9 +211,9 @@ char *QedApp::timeHiResString(double time)
     time_t secs = (time_t)time;
     struct tm t;
 
-    sprintf(m, "%.3f", time - floor(time));
+    pmsprintf(m, sizeof(m), "%.3f", time - floor(time));
     pmLocaltime(&secs, &t);
-    sprintf(s, "%02d:%02d:%02d.%s", t.tm_hour, t.tm_min, t.tm_sec, m+2);
+    pmsprintf(s, sizeof(s), "%02d:%02d:%02d.%s", t.tm_hour, t.tm_min, t.tm_sec, m+2);
     s[strlen(s)-1] = '\0';
     return s;
 }

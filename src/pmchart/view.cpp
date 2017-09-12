@@ -281,28 +281,28 @@ bool OpenViewDialog::openView(const char *path)
 	if ((f = fopen(_fname, "r")) == NULL) {
 	    // not found, start the great hunt
 	    // try user's pmchart dir ...
-	    snprintf(_fname, sizeof(_fname),
+	    pmsprintf(_fname, sizeof(_fname),
 			"%s%c" ".pcp%c" "pmchart%c" "%s",
 			(const char *)homepath.toLatin1(), sep, sep, sep, path);
 	    if ((f = fopen(_fname, "r")) == NULL) {
 		// try system pmchart dir
-		snprintf(_fname, sizeof(_fname),
+		pmsprintf(_fname, sizeof(_fname),
 			    "%s%c" "config%c" "pmchart%c" "%s",
 			    pmGetConfig("PCP_VAR_DIR"), sep, sep, sep, path);
 		if ((f = fopen(_fname, "r")) == NULL) {
 		    // try user's kmchart dir
-		    snprintf(_fname, sizeof(_fname),
+		    pmsprintf(_fname, sizeof(_fname),
 				"%s%c" ".pcp%c" "kmchart%c" "%s",
 				(const char *)homepath.toLatin1(),
 				sep, sep, sep, path);
 		    if ((f = fopen(_fname, "r")) == NULL) {
 			// try system kmchart dir
-			snprintf(_fname, sizeof(_fname),
+			pmsprintf(_fname, sizeof(_fname),
 				    "%s%c" "config%c" "kmchart%c" "%s",
 				    pmGetConfig("PCP_VAR_DIR"),
 				    sep, sep, sep, path);
 			if ((f = fopen(_fname, "r")) == NULL) {
-			    snprintf(_fname, sizeof(_fname),
+			    pmsprintf(_fname, sizeof(_fname),
 					"%s%c" "config%c" "pmchart%c" "%s",
 					pmGetConfig("PCP_VAR_DIR"),
 					sep, sep, sep, path);
@@ -316,7 +316,7 @@ bool OpenViewDialog::openView(const char *path)
 	//
 	if (fgetc(f) == '#' && fgetc(f) == '!') {
 	    char	cmd[MAXPATHLEN];
-	    sprintf(cmd, "%s", _fname);
+	    pmsprintf(cmd, sizeof(cmd), "%s", _fname);
 	    fclose(f);
 	    if ((f = popen(cmd, "r")) == NULL)
 		goto nopipe;

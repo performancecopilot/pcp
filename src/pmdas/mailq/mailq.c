@@ -286,7 +286,7 @@ main(int argc, char **argv)
 	exit(1);
     }
 
-    snprintf(mypath, sizeof(mypath), "%s%c" "mailq" "%c" "help",
+    pmsprintf(mypath, sizeof(mypath), "%s%c" "mailq" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&dispatch, PMDA_INTERFACE_2, pmProgname, MAILQ,
 		"mailq.log", mypath);

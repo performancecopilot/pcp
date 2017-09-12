@@ -725,7 +725,7 @@ main(int argc, char **argv)
     minmem = getpagesize();
     maxmem = (minmem > DEFAULT_MAXMEM) ? minmem : DEFAULT_MAXMEM;
     __pmSetProgname(argv[0]);
-    snprintf(helppath, sizeof(helppath), "%s%c" "systemd" "%c" "help",
+    pmsprintf(helppath, sizeof(helppath), "%s%c" "systemd" "%c" "help",
                 pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&desc, PMDA_INTERFACE_6, pmProgname, SYSTEMD,
                 "systemd.log", helppath);

@@ -101,7 +101,7 @@ main(int argc, char **argv)
     environ = newenviron;
     for (i = 0; keepname[i] != NULL; i++) {
 	if (keepval[i] != NULL) {
-	    snprintf(notices, sizeof(notices), "%s=%s", keepname[i], keepval[i]);
+	    pmsprintf(notices, sizeof(notices), "%s=%s", keepname[i], keepval[i]);
 	    if ((ep = strdup(notices)) != NULL)
 		putenv(ep);
 	}
@@ -114,7 +114,7 @@ main(int argc, char **argv)
 	exit(1);
     }
 
-    snprintf(notices, sizeof(notices), "%s%c" "NOTICES",
+    pmsprintf(notices, sizeof(notices), "%s%c" "NOTICES",
 		pmGetConfig("PCP_LOG_DIR"), __pmPathSeparator());
 
     setup_group();

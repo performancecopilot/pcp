@@ -99,7 +99,7 @@ lxc_insts_refresh(container_engine_t *dp, pmInDom indom)
 		continue;
 	    cp->engine = dp;
 	    cp->name = cp->cgroup + 4;
-	    snprintf(cp->cgroup, sizeof(cp->cgroup), "lxc/%s", path);
+	    pmsprintf(cp->cgroup, sizeof(cp->cgroup), "lxc/%s", path);
 	}
 	pmdaCacheStore(indom, PMDA_CACHE_ADD, path, cp);
     }
@@ -158,7 +158,7 @@ lxc_value_refresh(container_engine_t *dp, const char *name, container_t *values)
     FILE	*pp;
     char	path[MAXPATHLEN];
 
-    snprintf(path, sizeof(path), "%s -n %s", lxc_info, name);
+    pmsprintf(path, sizeof(path), "%s -n %s", lxc_info, name);
     if (pmDebug & DBG_TRACE_ATTR)
 	__pmNotifyErr(LOG_DEBUG, "lxc_values_refresh: pipe=%s\n", path);
     if ((pp = popen(path, "r")) == NULL)

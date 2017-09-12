@@ -75,13 +75,13 @@ __pmLoggerTimeout(void)
 const char *
 __pmLogLocalSocketDefault(int pid, char *buf, size_t bufSize)
 {
-    /* snprintf guarantees a terminating nul, even if the output is truncated. */
+    /* pmsprintf guarantees a terminating nul, even if the output is truncated. */
     if (pid == PM_LOG_PRIMARY_PID) { /* primary */
-	snprintf(buf, bufSize, "%s/pmlogger.primary.socket",
+	pmsprintf(buf, bufSize, "%s/pmlogger.primary.socket",
 		 pmGetConfig("PCP_RUN_DIR"));
     }
     else {
-	snprintf(buf, bufSize, "%s/pmlogger.%d.socket",
+	pmsprintf(buf, bufSize, "%s/pmlogger.%d.socket",
 		 pmGetConfig("PCP_RUN_DIR"), pid);
     }
 
@@ -105,8 +105,8 @@ __pmLogLocalSocketUser(int pid, char *buf, size_t bufSize)
     if (homeResult == NULL)
 	return NULL;
 
-    /* snprintf guarantees a terminating nul, even if the output is truncated. */
-    snprintf(buf, bufSize, "%s/.pcp/run/pmlogger.%d.socket",
+    /* pmsprintf guarantees a terminating nul, even if the output is truncated. */
+    pmsprintf(buf, bufSize, "%s/.pcp/run/pmlogger.%d.socket",
 	     homeResult, pid);
 
     return buf;
@@ -188,11 +188,11 @@ connectLoggerLocal(const char *local_socket)
     /*
      * Set the socket path. All socket paths are absolute, but strip off any redundant
      * initial path separators.
-     * snprintf is guaranteed to add a nul byte.
+     * pmsprintf is guaranteed to add a nul byte.
      */
     while (*local_socket == __pmPathSeparator())
 	++local_socket;
-    snprintf(socket_path, sizeof(socket_path), "%c%s", __pmPathSeparator(), local_socket);
+    pmsprintf(socket_path, sizeof(socket_path), "%c%s", __pmPathSeparator(), local_socket);
     __pmSockAddrSetPath(myAddr, socket_path);
 
     /* Attempt to connect */

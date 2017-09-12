@@ -524,7 +524,7 @@ showConst(Expr *x)
 	    else {
 		/* oops, don't know how to display this type of value */
 		char msgbuf[30];
-		snprintf(msgbuf, sizeof(msgbuf), "showConst: botch sem=%d", x->sem);
+		pmsprintf(msgbuf, sizeof(msgbuf), "showConst: botch sem=%d", x->sem);
 		length = concat(msgbuf, length, &string);
 	    }
 	}

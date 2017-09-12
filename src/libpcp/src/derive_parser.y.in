@@ -223,7 +223,7 @@ __dminit_component(const char *name, int descend, int recover)
 	     */
 	    if (strcmp(dp->d_name, ".") == 0) continue;
 	    if (strcmp(dp->d_name, "..") == 0) continue;
-	    snprintf(path, sizeof(path), "%s%c%s", name, __pmPathSeparator(), dp->d_name);
+	    pmsprintf(path, sizeof(path), "%s%c%s", name, __pmPathSeparator(), dp->d_name);
 	    if ((localsts = __dminit_component(path, descend, recover)) < 0) {
 		sts = localsts;
 		goto finish;
@@ -330,7 +330,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":8", PM_FAULT_PMAPI);
 	 *
 	 */
 	if ((configpath = getenv("PCP_DERIVED_CONFIG")) == NULL) {
-	    snprintf(global, sizeof(global), "%s/config/derived", pmGetConfig("PCP_VAR_DIR"));
+	    pmsprintf(global, sizeof(global), "%s/config/derived", pmGetConfig("PCP_VAR_DIR"));
 	    if (access(global, F_OK) == 0)
 		configpath = global;
 	}
@@ -1592,7 +1592,7 @@ pmRegisterDerivedMetric(const char *name, const char *expr, char **errmsg)
 
     if ((error = malloc(length)) == NULL)
 	__pmNoMem("pmRegisterDerivedMetric", length, PM_FATAL_ERR);
-    snprintf(error, length, fmt, name, expr, (int)(expr - offset), " ");
+    pmsprintf(error, length, fmt, name, expr, (int)(expr - offset), " ");
     if (dmsg) {
 	strcat(error, dmsg);
 	strcat(error, "\n");
@@ -1613,22 +1613,22 @@ __pmRegisterAnon(const char *name, int type)
 PM_FAULT_CHECK(PM_FAULT_PMAPI);
     switch (type) {
 	case PM_TYPE_32:
-	    snprintf(buf, sizeof(buf), "anon(PM_TYPE_32)");
+	    pmsprintf(buf, sizeof(buf), "anon(PM_TYPE_32)");
 	    break;
 	case PM_TYPE_U32:
-	    snprintf(buf, sizeof(buf), "anon(PM_TYPE_U32)");
+	    pmsprintf(buf, sizeof(buf), "anon(PM_TYPE_U32)");
 	    break;
 	case PM_TYPE_64:
-	    snprintf(buf, sizeof(buf), "anon(PM_TYPE_64)");
+	    pmsprintf(buf, sizeof(buf), "anon(PM_TYPE_64)");
 	    break;
 	case PM_TYPE_U64:
-	    snprintf(buf, sizeof(buf), "anon(PM_TYPE_U64)");
+	    pmsprintf(buf, sizeof(buf), "anon(PM_TYPE_U64)");
 	    break;
 	case PM_TYPE_FLOAT:
-	    snprintf(buf, sizeof(buf), "anon(PM_TYPE_FLOAT)");
+	    pmsprintf(buf, sizeof(buf), "anon(PM_TYPE_FLOAT)");
 	    break;
 	case PM_TYPE_DOUBLE:
-	    snprintf(buf, sizeof(buf), "anon(PM_TYPE_DOUBLE)");
+	    pmsprintf(buf, sizeof(buf), "anon(PM_TYPE_DOUBLE)");
 	    break;
 	default:
 	    return PM_ERR_TYPE;
@@ -2219,9 +2219,9 @@ gramerr(const char *phrase, const char *pos, char *arg)
     /* unless lexer has already found something amiss ... */
     if (PM_TPD(derive_errmsg) == NULL) {
 	if (pos == NULL)
-	    snprintf(errmsg, sizeof(errmsg), "%s '%s'", phrase, arg);
+	    pmsprintf(errmsg, sizeof(errmsg), "%s '%s'", phrase, arg);
 	else
-	    snprintf(errmsg, sizeof(errmsg), "%s expected to %s %s", phrase, pos, arg);
+	    pmsprintf(errmsg, sizeof(errmsg), "%s expected to %s %s", phrase, pos, arg);
 	PM_TPD(derive_errmsg) = errmsg;
     }
 }
@@ -2798,7 +2798,7 @@ n_type_str(int type)
 	    return typetab[i].long_name;
 	}
     }
-    snprintf(n_eh_str, sizeof(n_eh_str), "unknown type %d!", type);
+    pmsprintf(n_eh_str, sizeof(n_eh_str), "unknown type %d!", type);
     return n_eh_str;
 }
 
@@ -2815,7 +2815,7 @@ n_type_c(int type)
 	    return typetab[i].short_name;
 	}
     }
-    snprintf(n_eh_c, sizeof(n_eh_c), "op %d!", type);
+    pmsprintf(n_eh_c, sizeof(n_eh_c), "op %d!", type);
     return n_eh_c;
 }
 
@@ -2832,7 +2832,7 @@ l_type_str(int type)
 	    return typetab[i].long_name;
 	}
     }
-    snprintf(l_eh_str, sizeof(l_eh_str), "unknown type %d!", type);
+    pmsprintf(l_eh_str, sizeof(l_eh_str), "unknown type %d!", type);
     return l_eh_str;
 }
 

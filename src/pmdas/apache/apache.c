@@ -170,11 +170,11 @@ static void uptime_string(time_t now, char *s, size_t sz)
     seconds = now;
 
     if (days > 1)
-	snprintf(s, sz, "%ddays %02d:%02d:%02d", days, hours, minutes, seconds);
+	pmsprintf(s, sz, "%ddays %02d:%02d:%02d", days, hours, minutes, seconds);
     else if (days == 1)
-	snprintf(s, sz, "%dday %02d:%02d:%02d", days, hours, minutes, seconds);
+	pmsprintf(s, sz, "%dday %02d:%02d:%02d", days, hours, minutes, seconds);
     else
-	snprintf(s, sz, "%02d:%02d:%02d", hours, minutes, seconds);
+	pmsprintf(s, sz, "%02d:%02d:%02d", hours, minutes, seconds);
 }
 
 static void dumpData(void)
@@ -472,7 +472,7 @@ apache_init(pmdaInterface *dp)
 	__pmNotifyErr(LOG_ERR, "HTTP client creation failed\n");
 	exit(1);
     }
-    snprintf(url, sizeof(url), "http://%s:%u/%s?auto", http_server, http_port, http_path);
+    pmsprintf(url, sizeof(url), "http://%s:%u/%s?auto", http_server, http_port, http_path);
 
     dp->version.two.fetch = apache_fetch;
     pmdaSetFetchCallBack(dp, apache_fetchCallBack);
@@ -489,7 +489,7 @@ main(int argc, char **argv)
     __pmSetProgname(argv[0]);
     __pmGetUsername(&username);
 
-    snprintf(helppath, sizeof(helppath), "%s%c" "apache" "%c" "help",
+    pmsprintf(helppath, sizeof(helppath), "%s%c" "apache" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&pmda, PMDA_INTERFACE_3, pmProgname, APACHE, "apache.log",
 		helppath);

@@ -142,7 +142,7 @@ proc_handler(handler_t *h, fields_t *f)
 	if (inst)
 	    free(inst);
 	inst = (char *)malloc(8 + f->fieldlen[2]);
-	snprintf(inst, 8 + f->fieldlen[2], "%06d %s", pid, f->fields[2]);
+	pmsprintf(inst, 8 + f->fieldlen[2], "%06d %s", pid, f->fields[2]);
 
 	/* now we know the instance name, we can emit the stashed proc stat metrics */
 	if (stashed_stat) {

@@ -108,7 +108,7 @@ __pmSetSignalHandler(int sig, __pmSignalHandler func)
 	return 0;
 
     sts = 0;
-    snprintf(evname, sizeof(evname), "PCP/%" FMT_PID "/%s", getpid(), signame);
+    pmsprintf(evname, sizeof(evname), "PCP/%" FMT_PID "/%s", getpid(), signame);
     if (!(eventhdl = CreateEvent(NULL, FALSE, FALSE, TEXT(evname)))) {
 	sts = GetLastError();
 	fprintf(stderr, "CreateEvent::%s failed (%d)\n", signame, sts);
@@ -622,7 +622,7 @@ syslog(int priority, const char *format, ...)
 	openlog(NULL, 0, 0);
 
     if (eventlogPrefix)
-	offset = snprintf(p, sizeof(logmsg), "%s: ", eventlogPrefix);
+	offset = pmsprintf(p, sizeof(logmsg), "%s: ", eventlogPrefix);
 
     switch (priority) {
     case LOG_EMERG:
@@ -642,7 +642,7 @@ syslog(int priority, const char *format, ...)
 	break;
     }
     msgptr = logmsg;
-    snprintf(p + offset, sizeof(logmsg) - offset, format, arg);
+    pmsprintf(p + offset, sizeof(logmsg) - offset, format, arg);
     ReportEvent(eventlog, eventlogPriority, 0, 0, NULL, 1, 0, &msgptr, NULL);
     va_end(arg);
 }

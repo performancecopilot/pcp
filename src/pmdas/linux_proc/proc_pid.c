@@ -173,9 +173,9 @@ refresh_cgroup_pidlist(int want_threads, proc_runq_t *runq_stats, proc_pid_list_
      * Note that both these files are already sorted, ascending numeric.
      */
     if (want_threads)
-	snprintf(path, sizeof(path), "%s%s/tasks", proc_statspath, cgroup);
+	pmsprintf(path, sizeof(path), "%s%s/tasks", proc_statspath, cgroup);
     else
-	snprintf(path, sizeof(path), "%s%s/cgroup.procs", proc_statspath, cgroup);
+	pmsprintf(path, sizeof(path), "%s%s/cgroup.procs", proc_statspath, cgroup);
 
     if ((fp = fopen(path, "r")) != NULL) {
 	while (fscanf(fp, "%d\n", &pid) == 1) {
@@ -206,7 +206,7 @@ refresh_global_pidlist(int want_threads, proc_runq_t *runq_stats, proc_pid_list_
     pids->count = 0;
     pids->threads = want_threads;
 
-    snprintf(path, sizeof(path), "%s/proc", proc_statspath);
+    pmsprintf(path, sizeof(path), "%s/proc", proc_statspath);
     if ((dirp = opendir(path)) == NULL) {
 #if PCP_DEBUG
 	if ((pmDebug & (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) == (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) {
@@ -395,7 +395,7 @@ get_idle_time(void)
     int n;
     char buf[MAXPATHLEN];
 
-    snprintf(buf, sizeof(buf), "%s/proc/stat", proc_statspath);
+    pmsprintf(buf, sizeof(buf), "%s/proc/stat", proc_statspath);
     if ((fp = fopen(buf, "r")) == NULL)
 	return -oserror();
     n = fscanf(fp, "cpu %*u %*u %*u %llu %*u %*u %*u %*u %*u", &idle_time);
@@ -866,7 +866,7 @@ refresh_proc_pidlist(proc_pid_t *proc_pid, proc_pid_list_t *pids)
 
 	    ep->id = pids->pids[i];
 
-	    snprintf(buf, sizeof(buf), "%s/proc/%d/cmdline", proc_statspath, pids->pids[i]);
+	    pmsprintf(buf, sizeof(buf), "%s/proc/%d/cmdline", proc_statspath, pids->pids[i]);
 	    if ((fd = open(buf, O_RDONLY)) >= 0) {
 		int numlen = pmsprintf(buf, sizeof(buf), "%06d ", pids->pids[i]);
 		if ((k = read(fd, buf+numlen, sizeof(buf)-numlen)) > 0) {

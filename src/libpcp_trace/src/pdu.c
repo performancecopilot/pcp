@@ -33,7 +33,7 @@ pdutypestr(int type)
     else if (type == TRACE_PDU_DATA) return "DATA";
     else {
 	static char     buf[20];
-	snprintf(buf, sizeof(buf), "TYPE-%d?", type);
+	pmsprintf(buf, sizeof(buf), "TYPE-%d?", type);
 	return buf;
     }
 }

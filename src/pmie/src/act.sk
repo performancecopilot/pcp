@@ -82,7 +82,7 @@ actShell(Expr *x)
 	size += strlen(pcp_binadm_path) + 1;
 	size += strlen(pcp_bin_path) + 1;
 	if ((path = malloc(size)) != NULL) {
-	    if ((i = snprintf(path, size-1, "%s:%s:%s:%s\n", paths,
+	    if ((i = pmsprintf(path, size-1, "%s:%s:%s:%s\n", paths,
 			pcp_bin_path, pcp_binadm_path, all_platform_paths)) <= 0)
 		path = paths;	/* fallback to basic defaults */
 	    else if (path[i-2] == ':')

@@ -158,11 +158,11 @@ static char
     else if (lock == (void *)&__pmLock_extcall)
 	return "global_extcall";
     else if ((ctxid = __pmIsContextLock(lock)) != -1) {
-	snprintf(locknamebuf, sizeof(locknamebuf), "c_lock[slot %d]", ctxid);
+	pmsprintf(locknamebuf, sizeof(locknamebuf), "c_lock[slot %d]", ctxid);
 	return locknamebuf;
     }
     else {
-	snprintf(locknamebuf, sizeof(locknamebuf), PRINTF_P_PFX "%p", lock);
+	pmsprintf(locknamebuf, sizeof(locknamebuf), PRINTF_P_PFX "%p", lock);
 	return locknamebuf;
     }
 }

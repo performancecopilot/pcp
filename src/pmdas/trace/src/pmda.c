@@ -157,7 +157,7 @@ main(int argc, char **argv)
     __pmSetProgname(argv[0]);
     __pmGetUsername(&username);
 
-    snprintf(mypath, sizeof(mypath), "%s%c" "trace" "%c" "help",
+    pmsprintf(mypath, sizeof(mypath), "%s%c" "trace" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&dispatch, PMDA_INTERFACE_2, pmProgname, TRACE,
 		"trace.log", mypath);

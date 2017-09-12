@@ -1396,12 +1396,11 @@ class PMReporter(object):
                 line += self.delimiter
                 if metric + str(self.insts[i][0][j]) in res:
                     value = res[metric + str(self.insts[i][0][j])]
-                    if value:
-                        if isinstance(value, str):
-                            value = value.replace(self.delimiter, " ").replace("\n", " ").replace('"', " ")
-                            line += str('"' + value + '"')
-                        else:
-                            line += str(value)
+                    if isinstance(value, str):
+                        value = value.replace(self.delimiter, " ").replace("\n", " ").replace('"', " ")
+                        line += str('"' + value + '"')
+                    else:
+                        line += str(value)
 
         self.writer.write(line + "\n")
 

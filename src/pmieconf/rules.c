@@ -134,10 +134,10 @@ static void
 alloc_error(size_t request)
 {
     if (linenum == 0)	/* parsing user input, not a file */
-	snprintf(errmsg, sizeof(errmsg), "insufficient memory for requested operation.\n"
+	pmsprintf(errmsg, sizeof(errmsg), "insufficient memory for requested operation.\n"
 		    "    requested: %u bytes", (unsigned int)request);
     else
-	snprintf(errmsg, sizeof(errmsg), "insufficient memory for parsing file.\n"
+	pmsprintf(errmsg, sizeof(errmsg), "insufficient memory for parsing file.\n"
 		    "    requested: %u bytes", (unsigned int)request);
 }
 
@@ -145,10 +145,10 @@ static void
 parse_error(char *expected, char *found)
 {
     if (linenum == 0)	/* parsing user input, not a file */
-	snprintf(errmsg, sizeof(errmsg), "input is invalid - expected %.60s, got \"%.60s\"",
+	pmsprintf(errmsg, sizeof(errmsg), "input is invalid - expected %.60s, got \"%.60s\"",
 		expected, found);
     else
-	snprintf(errmsg, sizeof(errmsg), "file parsing error.\n"
+	pmsprintf(errmsg, sizeof(errmsg), "file parsing error.\n"
 		"    line number: %u (\"%s\")\n"
 		"    expected: %.60s\n"
 		"    found: %.60s", linenum, filename, expected, found);
@@ -158,7 +158,7 @@ parse_error(char *expected, char *found)
 static void
 type_error(char *attrib, char *expected)
 {
-    snprintf(errmsg, sizeof(errmsg), "%s's value is invalid.\n"
+    pmsprintf(errmsg, sizeof(errmsg), "%s's value is invalid.\n"
 		    "    It should %s.", attrib, expected);
 }
 
@@ -178,7 +178,7 @@ find_rule(char *name, rule_t **rule)
 	    return NULL;
 	}
     }
-    snprintf(errmsg, sizeof(errmsg), "rule named \"%s\" does not exist", name);
+    pmsprintf(errmsg, sizeof(errmsg), "rule named \"%s\" does not exist", name);
     return errmsg;
 }
 
@@ -228,7 +228,7 @@ lookup_rules(char *name, rule_t ***rlist, unsigned int *count, int all)
 	if ((all && i > 0) || rule_match(name, rulelist[i].self.name)) {
 	    size = (1 + matches) * sizeof(rule_t *);
 	    if ((rptr = (rule_t **)realloc(rptr, size)) == NULL) {
-		snprintf(errmsg, sizeof(errmsg), "insufficient memory for rule search"
+		pmsprintf(errmsg, sizeof(errmsg), "insufficient memory for rule search"
 			" (needed %u bytes)\n", (unsigned int)size);
 		return errmsg;
 	    }
@@ -237,7 +237,7 @@ lookup_rules(char *name, rule_t ***rlist, unsigned int *count, int all)
 	}
     }
     if (matches == 0) {
-	snprintf(errmsg, sizeof(errmsg), "no group or rule names match \"%s\"", name);
+	pmsprintf(errmsg, sizeof(errmsg), "no group or rule names match \"%s\"", name);
 	return errmsg;
     }
     *rlist = rptr;	/* rlist must be freed by caller */
@@ -299,7 +299,7 @@ alloc_rule(rule_t rule)
 
     /* first check that name is unique */
     if (find_rule(rule.self.name, &rptr) == NULL) {
-	snprintf(errmsg, sizeof(errmsg), "rule name \"%s\" has already been used, duplicate name"
+	pmsprintf(errmsg, sizeof(errmsg), "rule name \"%s\" has already been used, duplicate name"
 	    " found in:\n\t\"%.60s\", line %u.", rule.self.name, filename, linenum);
 	return NULL;
     }
@@ -503,7 +503,7 @@ value_string(atom_t *atom, int pp)
     case TYPE_RULE:
     case TYPE_STRING:
 	if (pp) {
-	    snprintf(token, sizeof(token), "\"%s\"", atom->data);
+	    pmsprintf(token, sizeof(token), "\"%s\"", atom->data);
 	    return token;
 	}
 	return atom->data;
@@ -548,16 +548,16 @@ value_string(atom_t *atom, int pp)
 	token[i++] = '\0';
 	return token;
     case TYPE_DOUBLE:
-	snprintf(token, sizeof(token), "%g", strtod(atom->data, &s));
+	pmsprintf(token, sizeof(token), "%g", strtod(atom->data, &s));
 	return token;
     case TYPE_INTEGER:
-	snprintf(token, sizeof(token), "%ld", strtol(atom->data, &s, 10));
+	pmsprintf(token, sizeof(token), "%ld", strtol(atom->data, &s, 10));
 	return token;
     case TYPE_UNSIGNED:
-	snprintf(token, sizeof(token), "%lu", strtoul(atom->data, &s, 10));
+	pmsprintf(token, sizeof(token), "%lu", strtoul(atom->data, &s, 10));
 	return token;
     case TYPE_PERCENT:
-	snprintf(token, sizeof(token), "%g%c", strtod(atom->data, &s), pp? '%':'\0');
+	pmsprintf(token, sizeof(token), "%g%c", strtod(atom->data, &s), pp? '%':'\0');
 	return token;
     }
     return NULL;
@@ -649,7 +649,7 @@ atom_defaults(atom_t *a, atom_t *p, char *param)
 	    }
 	    return NULL;
 	}
-	snprintf(errmsg, sizeof(errmsg), "variable \"%s\" is inappropriate for this "
+	pmsprintf(errmsg, sizeof(errmsg), "variable \"%s\" is inappropriate for this "
 			"operation", param);
 	return errmsg;
     }
@@ -664,7 +664,7 @@ atom_defaults(atom_t *a, atom_t *p, char *param)
 	    if (strcmp(a->data, a->ddata) != 0) {	/* need to alloc mem? */
 		free(a->data);
 		if ((a->data = strdup(a->ddata)) == NULL) {
-		    snprintf(errmsg, sizeof(errmsg), "insufficient memory to set defaults");
+		    pmsprintf(errmsg, sizeof(errmsg), "insufficient memory to set defaults");
 		    return errmsg;
 		}
             }
@@ -787,14 +787,14 @@ value_change(rule_t *rule, char *param, char *value)
 		if ((aptr = alloc_atom(rule, *aptr, 0)) == NULL)
 		    return errmsg;
 		if ((aptr->name = strdup(get_aname(globals, aptr))) == NULL) {
-		    snprintf(errmsg, sizeof(errmsg), "insufficient memory to change value");
+		    pmsprintf(errmsg, sizeof(errmsg), "insufficient memory to change value");
 		    return errmsg;
 		}
 		return set_attribute(globals, aptr, ATTRIB_DEFAULT, value, 1);
 	    }
 	}
     }
-    snprintf(errmsg, sizeof(errmsg), "variable \"%s\" is undefined for rule %s",
+    pmsprintf(errmsg, sizeof(errmsg), "variable \"%s\" is undefined for rule %s",
 		    param, rule->self.name);
     return errmsg;
 }
@@ -862,7 +862,7 @@ dollar_expand(rule_t *rule, char *string, int pp)
 		    fprintf(stderr, "debug - expanded localbuf? %s\n", tmp);
 #endif
 		    if (tmp == NULL) {
-			snprintf(errmsg, sizeof(errmsg), "variable \"$%s$\" in %s is undefined",
+			pmsprintf(errmsg, sizeof(errmsg), "variable \"$%s$\" in %s is undefined",
 				localbuf, rule->self.name);
 			free(s);
 			return NULL;
@@ -1117,19 +1117,19 @@ read_type(FILE *f, rule_t *r, int *type, int *global, char **name)
 
     /* do some simple validity checks */
     if (IS_RULE(*type) && strncmp(*name, global_name, GLOBAL_LEN-1) == 0) {
-	snprintf(errmsg, sizeof(errmsg), "rule name may not be \"%s\" - this is reserved",
+	pmsprintf(errmsg, sizeof(errmsg), "rule name may not be \"%s\" - this is reserved",
 		global_name);
 	free(*name);
 	return errmsg;
     }
     if (r == NULL) {	/* any rule defined yet? - simple validity checks */
 	if (*global && IS_RULE(*type)) {
-	    snprintf(errmsg, sizeof(errmsg), "rules not allowed in global group: \"%s\"", *name);
+	    pmsprintf(errmsg, sizeof(errmsg), "rules not allowed in global group: \"%s\"", *name);
 	    free(*name);
 	    return errmsg;
 	}
 	else if (!*global && !IS_RULE(*type)) {	/* not global, and no rule */
-	    snprintf(errmsg, sizeof(errmsg), "no rule defined, cannot make sense of %s \"%s\""
+	    pmsprintf(errmsg, sizeof(errmsg), "no rule defined, cannot make sense of %s \"%s\""
 			    " without one\n    line number: %u (\"%s\")\n",
 			    types[*type].symbol, *name, linenum, filename);
 	    free(*name);
@@ -1255,13 +1255,13 @@ read_pheader(FILE *f)
     if (c != '#' || read_token(f, token, TOKEN_LENGTH, EOF) != 1 ||
 		strcmp(token, RULES_FILE) != 0 ||
 		read_token(f, token, TOKEN_LENGTH, EOF) != 1) {
-	snprintf(errmsg, sizeof(errmsg), "%s is not a rule description file (bad header)\n"
+	pmsprintf(errmsg, sizeof(errmsg), "%s is not a rule description file (bad header)\n"
 			"found \"%s\", expected \"%s\"", filename,
 			token, RULES_FILE);
 	return errmsg;
     }
     else if (strcmp(token, RULES_VERSION) != 0) {	/* one version only */
-	snprintf(errmsg, sizeof(errmsg), "unknown version number in %s: \"%s\" (expected %s)",
+	pmsprintf(errmsg, sizeof(errmsg), "unknown version number in %s: \"%s\" (expected %s)",
 			filename, token, RULES_VERSION);
 	return errmsg;
     }
@@ -1283,13 +1283,13 @@ read_rule_subdir(char *subdir)
     char		fullpath[MAXPATHLEN+1];
 
     if (stat(subdir, &sbuf) < 0) {
-	snprintf(errmsg, sizeof(errmsg), "cannot stat %s: %s",
+	pmsprintf(errmsg, sizeof(errmsg), "cannot stat %s: %s",
 		subdir, osstrerror());
 	return errmsg;
     }
     if (!S_ISDIR(sbuf.st_mode)) {
 	if ((fp = fopen(subdir, "r")) == NULL) {
-	    snprintf(errmsg, sizeof(errmsg), "cannot open %s: %s",
+	    pmsprintf(errmsg, sizeof(errmsg), "cannot open %s: %s",
 		    subdir, osstrerror());
 	    return errmsg;
 	}
@@ -1314,13 +1314,13 @@ read_rule_subdir(char *subdir)
 	/* fetch all the rules along with associated parameters & values  */
 
 	if ((dirp = opendir(subdir)) == NULL) {
-	    snprintf(errmsg, sizeof(errmsg), "cannot opendir %s: %s", subdir, osstrerror());
+	    pmsprintf(errmsg, sizeof(errmsg), "cannot opendir %s: %s", subdir, osstrerror());
 	    return errmsg;
 	}
 	while ((dp = readdir(dirp)) != NULL) {	  /* groups */
 	    if (strcmp(dp->d_name, ".") == 0 || strcmp(dp->d_name, "..") == 0)
 		continue;
-	    snprintf(fullpath, sizeof(fullpath), "%s%c%s", subdir, SEP, dp->d_name);
+	    pmsprintf(fullpath, sizeof(fullpath), "%s%c%s", subdir, SEP, dp->d_name);
 	    if (read_rule_subdir(fullpath) != NULL) {	/* recurse */
 		closedir(dirp);
 		return errmsg;
@@ -1351,7 +1351,7 @@ deprecate_rule(char *name, unsigned int version, int type)
     /* get the memory we need & then keep a copy of deprecated rule info */
     if ((dlist = (dep_t *)realloc(dlist, (dcount+1)*sizeof(dep_t))) == NULL
 		|| (dlist[dcount].name = strdup(name)) == NULL) {
-	snprintf(errmsg, sizeof(errmsg), "insufficient memory to deprecate rule %s", name);
+	pmsprintf(errmsg, sizeof(errmsg), "insufficient memory to deprecate rule %s", name);
 	return errmsg;
     }
     dlist[dcount].type = type;
@@ -1413,14 +1413,14 @@ merge_local(unsigned int version, char *name, char *attrib, char *value)
 		if ((aptr = alloc_atom(rule, *aptr, 0)) == NULL)
 		    return errmsg;
 		if ((aptr->name = strdup(get_aname(globals, aptr))) == NULL) {
-		    snprintf(errmsg, sizeof(errmsg), "insufficient memory to change value");
+		    pmsprintf(errmsg, sizeof(errmsg), "insufficient memory to change value");
 		    return errmsg;
 		}
 		return set_attribute(globals, aptr, ATTRIB_DEFAULT, value, 1);
 	    }
 	}
     }
-    snprintf(errmsg, sizeof(errmsg), "variable \"%s\" is undefined for rule %s",
+    pmsprintf(errmsg, sizeof(errmsg), "variable \"%s\" is undefined for rule %s",
 		    attrib, name);
     return errmsg;
 }
@@ -1522,12 +1522,12 @@ write_rule(FILE *f, rule_t *rule)
 #endif
 
     if (writecount == 0 && (dgen = dollar_expand(rule, "$delta$", 0)) == NULL) {
-	snprintf(errmsg, sizeof(errmsg), "\"$delta$\" variable expansion failed for rule %s",
+	pmsprintf(errmsg, sizeof(errmsg), "\"$delta$\" variable expansion failed for rule %s",
 		rule->self.name);
 	return errmsg;
     }
     if ((pgen = dollar_expand(rule, rule->predicate, 0)) == NULL) {
-	snprintf(errmsg, sizeof(errmsg), "\"$predicate$\" variable expansion failed "
+	pmsprintf(errmsg, sizeof(errmsg), "\"$predicate$\" variable expansion failed "
 		"for rule %s", rule->self.name);
 	return errmsg;
     }
@@ -1575,7 +1575,7 @@ parse_enumerate(rule_t *rule)
 	    token[i] = '\0';
 	    i = 0;
 	    if (map_symbol(attribs, numattribs, token) != -1) {
-		snprintf(errmsg, sizeof(errmsg), "cannot enumerate rule %s using attribute"
+		pmsprintf(errmsg, sizeof(errmsg), "cannot enumerate rule %s using attribute"
 			" \"%s\"", rule->self.name, token);
 		return errmsg;
 	    }
@@ -1586,20 +1586,20 @@ parse_enumerate(rule_t *rule)
 		for (ap = globals->self.next; ap != NULL; ap = ap->next)
 		    if (strcmp(get_aname(globals, ap), token) == 0)
 			goto foundname;
-		snprintf(errmsg, sizeof(errmsg), "variable \"%s\" undefined for enumerated"
+		pmsprintf(errmsg, sizeof(errmsg), "variable \"%s\" undefined for enumerated"
 				" rule %s", token, rule->self.name);
 		return errmsg;
 	    }
 foundname:
 	    if (ap->type != TYPE_HOSTLIST && ap->type != TYPE_INSTLIST) {
-		snprintf(errmsg, sizeof(errmsg), "rules file error - \"$%s$\" in \"enumerate\" "
+		pmsprintf(errmsg, sizeof(errmsg), "rules file error - \"$%s$\" in \"enumerate\" "
 			"clause of rule %s is not of type hostlist or instlist",
 			token, rule->self.name);
 		return errmsg;
 	    }
 	    /* increase size of list & keep a copy of the variable name */
 	    if ((list = realloc(list, (nlistitems+1)*sizeof(enumlist_t))) == NULL) {
-		snprintf(errmsg, sizeof(errmsg), "insufficient memory to write rules");
+		pmsprintf(errmsg, sizeof(errmsg), "insufficient memory to write rules");
 		return errmsg;
 	    }
 	    list[nlistitems].atom = ap;
@@ -1631,7 +1631,7 @@ get_listitems(char *liststr, int *count)
     int		ptrcount = 0;
 
     if ((result = realloc(result, (ptrcount+1) * sizeof(char *))) == NULL) {
-	snprintf(errmsg, sizeof(errmsg), "insufficient memory to get list elements");
+	pmsprintf(errmsg, sizeof(errmsg), "insufficient memory to get list elements");
 	return NULL;
     }
     result[ptrcount++] = p;
@@ -1640,7 +1640,7 @@ get_listitems(char *liststr, int *count)
 	    if (startagain) {
 		result = realloc(result, (ptrcount+1) * sizeof(char *));
 		if (result == NULL) {
-		    snprintf(errmsg, sizeof(errmsg), "insufficient memory to get list elements");
+		    pmsprintf(errmsg, sizeof(errmsg), "insufficient memory to get list elements");
 		    return NULL;
 		}
 		result[ptrcount++] = p;
@@ -1684,7 +1684,7 @@ expand_enumerate(rule_t *rule)
 	    return errmsg;
 	if ((list[i].valuelist = realloc(list[i].valuelist,
 		sizeof(char *) * (list[i].nvalues + 1))) == NULL) {
-	    snprintf(errmsg, sizeof(errmsg), "insufficient memory for rule enumeration");
+	    pmsprintf(errmsg, sizeof(errmsg), "insufficient memory for rule enumeration");
 	    free(p);
 	    return errmsg;
 	}
@@ -1762,7 +1762,7 @@ generate_rules(FILE *f, rule_t *rule)
 	if ((expand_enumerate(rule)) != NULL)
 	    return errmsg;
 	if ((workingset = malloc(nlistitems * sizeof(char*))) == NULL) {
-	    snprintf(errmsg, sizeof(errmsg), "insufficient memory to generate rules");
+	    pmsprintf(errmsg, sizeof(errmsg), "insufficient memory to generate rules");
 	    return errmsg;
 	}
 	writecount = 0;
@@ -1815,28 +1815,28 @@ write_pmiefile(char *program, int autocreate)
 
 	*p = '\0';	/* p is the dirname of fname */
 	if (stat(fname, &sbuf) < 0) {
-	    snprintf(buf, sizeof(buf), "/bin/mkdir -p %s", fname);
+	    pmsprintf(buf, sizeof(buf), "/bin/mkdir -p %s", fname);
 	    if (system(buf) < 0) {
-		snprintf(errmsg, sizeof(errmsg), "failed to create directory \"%s\"", p);
+		pmsprintf(errmsg, sizeof(errmsg), "failed to create directory \"%s\"", p);
 		return errmsg;
 	    }
 	}
 	else if (!S_ISDIR(sbuf.st_mode)) {
-	    snprintf(errmsg, sizeof(errmsg), "\"%s\" exists and is not a directory", p);
+	    pmsprintf(errmsg, sizeof(errmsg), "\"%s\" exists and is not a directory", p);
 	    return errmsg;
 	}
 	fname[strlen(fname)] = '/';	/* stitch together */
     }
 
     if ((fp = fopen(fname, "w")) == NULL) {
-	snprintf(errmsg, sizeof(errmsg), "cannot write file %s: %s", fname, osstrerror());
+	pmsprintf(errmsg, sizeof(errmsg), "cannot write file %s: %s", fname, osstrerror());
 	return errmsg;
     }
     else if (!gotpath) {
 	strcpy(token, fname);
 	if (realpath(token, pmiefile) == NULL) {
 	    fclose(fp);
-	    snprintf(errmsg, sizeof(errmsg), "failed to resolve %s realpath: %s", token, osstrerror());
+	    pmsprintf(errmsg, sizeof(errmsg), "failed to resolve %s realpath: %s", token, osstrerror());
 	    return errmsg;
 	}
 	gotpath = 1;
@@ -1995,13 +1995,13 @@ read_restore(FILE *f)
 		*/
 		/* check that we still have this rule definition */
 		if (find_rule(token, &rule) != NULL) {	/* not found! */
-		    snprintf(buf, sizeof(buf), "// %u %s (deprecated, %s)\n",
+		    pmsprintf(buf, sizeof(buf), "// %u %s (deprecated, %s)\n",
 					version, token, drulestring);
 		    deprecate_rule(token, version, DEPRECATE_NORULE);
 		    saverule = 1;
 		}
 		else if (rule->version != version) {	/* not supported! */
-		    snprintf(buf, sizeof(buf), "// %u %s (deprecated, %s)\n",
+		    pmsprintf(buf, sizeof(buf), "// %u %s (deprecated, %s)\n",
 					version, token, dverstring);
 		    deprecate_rule(token, version, DEPRECATE_VERSION);
 		    saverule = 1;
@@ -2012,13 +2012,13 @@ read_restore(FILE *f)
 	    if (!saveall && saverule) {
 		if (save_area_append("// ") == NULL ||
 			save_area_append(buf) == NULL) {
-		    snprintf(errmsg, sizeof(errmsg), "insufficient memory to deprecate a rule");
+		    pmsprintf(errmsg, sizeof(errmsg), "insufficient memory to deprecate a rule");
 		    return errmsg;
 		}
 	    }
 	}
 	else if (save_area_append(buf) == NULL) {
-	    snprintf(errmsg, sizeof(errmsg), "insufficient memory to preserve save area");
+	    pmsprintf(errmsg, sizeof(errmsg), "insufficient memory to preserve save area");
 	    return errmsg;
 	}
     } while (!feof(f));
@@ -2106,17 +2106,17 @@ read_lheader(FILE *f, char **proot)
 {
     if (read_ltoken(f) != 1 || strcmp(token, "//") || read_ltoken(f) != 1
 		|| strcmp(token, PMIE_FILE) || read_ltoken(f) != 1) {
-	snprintf(errmsg, sizeof(errmsg), "%s is not a rule customization file (bad header)",
+	pmsprintf(errmsg, sizeof(errmsg), "%s is not a rule customization file (bad header)",
 		filename);
 	return errmsg;
     }
     else if (strcmp(token, PMIE_VERSION) != 0) {	/* one version only */
-	snprintf(errmsg, sizeof(errmsg), "unknown version number in %s: \"%s\" (expected %s)",
+	pmsprintf(errmsg, sizeof(errmsg), "unknown version number in %s: \"%s\" (expected %s)",
 			filename, token, PMIE_VERSION);
 	return errmsg;
     }
     else if (read_ltoken(f) != 1) {
-	snprintf(errmsg, sizeof(errmsg), "no rules path specified in %s after version number",
+	pmsprintf(errmsg, sizeof(errmsg), "no rules path specified in %s after version number",
 		filename);
 	return errmsg;
     }
@@ -2140,7 +2140,7 @@ read_pmiefile(char *warning, size_t warnlen)
     if ((f = fopen(get_pmiefile(), "r")) == NULL) {
 	if (oserror() == ENOENT)
 	    return NULL;
-	snprintf(errmsg, sizeof(errmsg), "cannot open %s: %s",
+	pmsprintf(errmsg, sizeof(errmsg), "cannot open %s: %s",
 		get_pmiefile(), osstrerror());
 	return errmsg;
     }
@@ -2160,7 +2160,7 @@ read_pmiefile(char *warning, size_t warnlen)
 
     /* check that we have access to all components of the path */
     if ((home = strdup(tmp)) == NULL) {
-	snprintf(errmsg, sizeof(errmsg), "insufficient memory for pmie file parsing");
+	pmsprintf(errmsg, sizeof(errmsg), "insufficient memory for pmie file parsing");
 	return errmsg;
     }
 #ifdef IS_MINGW
@@ -2172,7 +2172,7 @@ read_pmiefile(char *warning, size_t warnlen)
     while (p != NULL) {
 	if (access(p, F_OK) < 0) {
 	    free(home);
-	    snprintf(errmsg, sizeof(errmsg), "cannot access rules path component: \"%s\"", p);
+	    pmsprintf(errmsg, sizeof(errmsg), "cannot access rules path component: \"%s\"", p);
 	    return errmsg;
 	}
 	p = strtok(NULL, rule_path_sep);
@@ -2180,7 +2180,7 @@ read_pmiefile(char *warning, size_t warnlen)
     free(home);
 
     if (strcmp(get_rules(), tmp) != 0)
-	snprintf(warning, warnlen, "warning - pmie configuration file \"%s\"\n"
+	pmsprintf(warning, warnlen, "warning - pmie configuration file \"%s\"\n"
 		" may not have been built using rules path:\n\t\"%s\"\n"
 		" (originally built using \"%s\")", filename, get_rules(), tmp);
 
@@ -2204,20 +2204,20 @@ initialise(char *in_rules, char *in_pmie, char *warning, size_t warnlen)
     /* setup pointers to the configuration files */
 #ifdef IS_MINGW
     if ((home = getenv("USERPROFILE")) == NULL) {
-	snprintf(errmsg, sizeof(errmsg), "USERPROFILE undefined in environment");
+	pmsprintf(errmsg, sizeof(errmsg), "USERPROFILE undefined in environment");
 	return errmsg;
     }
     if (in_pmie == NULL)
-	snprintf(pmiefile, sizeof(pmiefile), "%s\\%s", home, DEFAULT_USER_PMIE);
+	pmsprintf(pmiefile, sizeof(pmiefile), "%s\\%s", home, DEFAULT_USER_PMIE);
     else
 	strcpy(pmiefile, in_pmie);
     rule_path_sep = ";";
 #else
     if (getuid() == 0) {
 	if (in_pmie == NULL)
-	    snprintf(pmiefile, sizeof(pmiefile), "%s%c%s", pmGetConfig("PCP_SYSCONF_DIR"), SEP, DEFAULT_ROOT_PMIE);
+	    pmsprintf(pmiefile, sizeof(pmiefile), "%s%c%s", pmGetConfig("PCP_SYSCONF_DIR"), SEP, DEFAULT_ROOT_PMIE);
 	else if (realpath(in_pmie, pmiefile) == NULL && oserror() != ENOENT) {
-	    snprintf(errmsg, sizeof(errmsg), "failed to resolve realpath for %s: %s",
+	    pmsprintf(errmsg, sizeof(errmsg), "failed to resolve realpath for %s: %s",
 		    in_pmie, osstrerror());
 	    return errmsg;
 	}
@@ -2226,11 +2226,11 @@ initialise(char *in_rules, char *in_pmie, char *warning, size_t warnlen)
     }
     else {
 	if ((home = getenv("HOME")) == NULL) {
-	    snprintf(errmsg, sizeof(errmsg), "$HOME undefined in environment");
+	    pmsprintf(errmsg, sizeof(errmsg), "$HOME undefined in environment");
 	    return errmsg;
 	}
 	if (in_pmie == NULL)
-	    snprintf(pmiefile, sizeof(pmiefile), "%s%c%s", home, SEP, DEFAULT_USER_PMIE);
+	    pmsprintf(pmiefile, sizeof(pmiefile), "%s%c%s", home, SEP, DEFAULT_USER_PMIE);
 	else
 	    strcpy(pmiefile, in_pmie);
     }
@@ -2239,12 +2239,12 @@ initialise(char *in_rules, char *in_pmie, char *warning, size_t warnlen)
 
     if (in_rules == NULL) {
 	if ((p = getenv("PMIECONF_PATH")) == NULL)
-	    snprintf(rulepath, sizeof(rulepath), "%s%c%s", pmGetConfig("PCP_VAR_DIR"), SEP, DEFAULT_RULES);
+	    pmsprintf(rulepath, sizeof(rulepath), "%s%c%s", pmGetConfig("PCP_VAR_DIR"), SEP, DEFAULT_RULES);
 	else
 	    strcpy(rulepath, p);
     }
     else
-	snprintf(rulepath, sizeof(rulepath), "%s", in_rules);
+	pmsprintf(rulepath, sizeof(rulepath), "%s", in_rules);
 
     memset(&global, 0, sizeof(rule_t));
     global.self.name = global_name;
@@ -2252,12 +2252,12 @@ initialise(char *in_rules, char *in_pmie, char *warning, size_t warnlen)
     global.self.help = global_help;
     global.self.global = 1;
     if (alloc_rule(global) == NULL) {	/* 1st rule holds global (fake rule) */
-	snprintf(errmsg, sizeof(errmsg), "insufficient memory for global parameters");
+	pmsprintf(errmsg, sizeof(errmsg), "insufficient memory for global parameters");
 	return errmsg;
     }
 
     if ((home = strdup(rulepath)) == NULL) {
-	snprintf(errmsg, sizeof(errmsg), "insufficient memory for rules path parsing");
+	pmsprintf(errmsg, sizeof(errmsg), "insufficient memory for rules path parsing");
 	return errmsg;
     }
     p = strtok(home, rule_path_sep);
@@ -2293,10 +2293,10 @@ lookup_processes(int *count, char ***processes)
     struct stat		statbuf;
     int			sep = __pmPathSeparator();
 
-    snprintf(proc, sizeof(proc), "%s%c%s",
+    pmsprintf(proc, sizeof(proc), "%s%c%s",
 	     pmGetConfig("PCP_TMP_DIR"), sep, PMIE_SUBDIR);
     if ((dirp = opendir(proc)) == NULL) {
-	snprintf(errmsg, sizeof(errmsg), "cannot opendir %s: %s",
+	pmsprintf(errmsg, sizeof(errmsg), "cannot opendir %s: %s",
 		 proc, osstrerror());
 	return NULL;
     }
@@ -2304,11 +2304,11 @@ lookup_processes(int *count, char ***processes)
 	/* bunch of checks to find valid pmie data files... */
 	if (strcmp(dp->d_name, ".") == 0 || strcmp(dp->d_name, "..") == 0)
 	    continue;
-	snprintf(proc, sizeof(proc), "%s%c%s",
+	pmsprintf(proc, sizeof(proc), "%s%c%s",
 		 PROC_DIR, sep, dp->d_name);	/* check /proc */
 	if (access(proc, F_OK) < 0)
 	    continue;	/* process has exited */
-	snprintf(proc, sizeof(proc), "%s%c%s%c%s",
+	pmsprintf(proc, sizeof(proc), "%s%c%s%c%s",
 		 pmGetConfig("PCP_TMP_DIR"), sep, PMIE_SUBDIR, sep, dp->d_name);
 	if (stat(proc, &statbuf) < 0)
 	    continue;
@@ -2327,7 +2327,7 @@ lookup_processes(int *count, char ***processes)
 	size = (1 + running) * sizeof(char *);
 	if ((proc_list = (char **)realloc(proc_list, size)) == NULL
 		|| (proc_list[running] = strdup(dp->d_name)) == NULL) {
-	    snprintf(errmsg, sizeof(errmsg), "insufficient memory for process search");
+	    pmsprintf(errmsg, sizeof(errmsg), "insufficient memory for process search");
 	    if (proc_list) free(proc_list);
 	    closedir(dirp);
 	    close(fd);

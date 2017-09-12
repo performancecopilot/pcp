@@ -1133,11 +1133,11 @@ pmda_uptime(PyObject *self, PyObject *args, PyObject *keywords)
     secs = now;
 
     if (days > 1)
-        snprintf(s, sz, "%ddays %02d:%02d:%02d", days, hours, mins, secs);
+        pmsprintf(s, sz, "%ddays %02d:%02d:%02d", days, hours, mins, secs);
     else if (days == 1)
-        snprintf(s, sz, "%dday %02d:%02d:%02d", days, hours, mins, secs);
+        pmsprintf(s, sz, "%dday %02d:%02d:%02d", days, hours, mins, secs);
     else
-        snprintf(s, sz, "%02d:%02d:%02d", hours, mins, secs);
+        pmsprintf(s, sz, "%02d:%02d:%02d", hours, mins, secs);
 
     return Py_BuildValue("s", s);
 }

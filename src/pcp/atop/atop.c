@@ -280,7 +280,7 @@ main(int argc, char *argv[])
 
 	if ( (p = getenv("HOME")) )
 	{
-		snprintf(path, sizeof(path), "%s/.atoprc", p);
+		pmsprintf(path, sizeof(path), "%s/.atoprc", p);
 		path[sizeof(path)-1] = '\0';
 		readrc(path, 0);
 	}

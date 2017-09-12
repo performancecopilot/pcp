@@ -44,7 +44,7 @@ main(int argc, char **argv)
     __pmGetUsername(&username);
     __pmSetInternalState(PM_STATE_PMCS);  /* we are below the PMAPI */
 
-    snprintf(helpfile, sizeof(helpfile), "%s%c" "summary" "%c" "help",
+    pmsprintf(helpfile, sizeof(helpfile), "%s%c" "summary" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon (&dispatch, PMDA_INTERFACE_2, pmProgname, SYSSUMMARY,
 		"summary.log", helpfile);
@@ -132,7 +132,7 @@ main(int argc, char **argv)
 	}
 	close(clientPipe[1]);
 
-        snprintf (cmdpath, sizeof(cmdpath), "exec %s", commandArgv[0]);
+        pmsprintf (cmdpath, sizeof(cmdpath), "exec %s", commandArgv[0]);
 	execv(commandArgv[0], commandArgv);
   
 	perror(cmdpath);

@@ -99,7 +99,7 @@ refresh_numa_meminfo(void)
 		return -1;
 	    }
 	}
-	snprintf(bandwidth_conf, sizeof(bandwidth_conf),
+	pmsprintf(bandwidth_conf, sizeof(bandwidth_conf),
 		 "%s/linux/bandwidth.conf", pmGetConfig("PCP_PMDAS_DIR"));
 	started = 1;
     }
@@ -112,14 +112,14 @@ refresh_numa_meminfo(void)
 	if (!pmdaCacheLookup(nodes, i, NULL, (void **)&np) || !np)
 	    continue;
 
-	snprintf(buf, sizeof(buf), "%s/sys/devices/system/node/node%d/meminfo",
+	pmsprintf(buf, sizeof(buf), "%s/sys/devices/system/node/node%d/meminfo",
 		linux_statspath, i);
 	if ((fp = fopen(buf, "r")) != NULL) {
 	    linux_table_scan(fp, np->meminfo);
 	    fclose(fp);
 	}
 
-	snprintf(buf, sizeof(buf), "%s/sys/devices/system/node/node%d/numastat",
+	pmsprintf(buf, sizeof(buf), "%s/sys/devices/system/node/node%d/numastat",
 		linux_statspath, i);
 	if ((fp = fopen(buf, "r")) != NULL) {
 	    linux_table_scan(fp, np->memstat);

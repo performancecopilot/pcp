@@ -69,7 +69,7 @@ int
 pcpScript(const char *name, const char *action)
 {
     char s[MAXPATHLEN];
-    snprintf(s, sizeof(s), "%s\\bin\\sh.exe /etc/%s %s", pcpdir, name, action);
+    pmsprintf(s, sizeof(s), "%s\\bin\\sh.exe /etc/%s %s", pcpdir, name, action);
     return system(s);
 }
 
@@ -126,9 +126,9 @@ pcpServiceMain(DWORD argc, LPTSTR *argv, PCPSERVICE s)
     if (!basedir || access(basedir, R_OK) != 0)
 	return;	/* stuffed up if we have no PCP_DIR - bail out */
 
-    snprintf(pcpdir, sizeof(pcpdir), "%s", basedir);
-    snprintf(pcpconf, sizeof(pcpconf), "PCP_CONF=%s\\etc\\pcp.conf", pcpdir);
-    snprintf(pcpdirenv, sizeof(pcpdirenv), "PCP_DIR=%s", pcpdir);
+    pmsprintf(pcpdir, sizeof(pcpdir), "%s", basedir);
+    pmsprintf(pcpconf, sizeof(pcpconf), "PCP_CONF=%s\\etc\\pcp.conf", pcpdir);
+    pmsprintf(pcpdirenv, sizeof(pcpdirenv), "PCP_DIR=%s", pcpdir);
     putenv(pcpconf);
     putenv(pcpdirenv);
 
