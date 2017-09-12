@@ -28,6 +28,9 @@ _cleanup()
         kill -9 $pid
     fi
     $sudo rm -rf $tmp.* $tmp.*
+    _restore_config $PCP_PMDAS_DIR/prometheus/metadata
+    _restore_config $PCP_VAR_DIR/config/pmda
+    _cleanup_pmda prometheus
 }
 
 pmdaprometheus_remove()
@@ -102,9 +105,6 @@ else
     cat $tmp.err
 fi
 
-pmdaprometheus_remove
-_restore_config $PCP_PMDAS_DIR/prometheus/metadata
-_restore_config $PCP_VAR_DIR/config/pmda
 # success, all done
 status=0
 exit

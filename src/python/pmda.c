@@ -464,7 +464,7 @@ label(int ident, int type, pmLabelSet **lp, pmdaExt *ep)
     if (label_func) {
         PyObject *arglist, *result;
 
-	id = (type == PM_LABEL_CLUSTER) ? pmid_cluster(ident) : ident;
+	id = (type == PM_LABEL_CLUSTER) ? (int)pmid_cluster(ident) : ident;
 
         arglist = Py_BuildValue("(ii)", id, type);
         if (arglist == NULL)

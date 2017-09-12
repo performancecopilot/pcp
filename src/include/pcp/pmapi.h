@@ -1001,6 +1001,10 @@ PCP_CALL extern int pmExtendFetchGroup_timestamp(pmFG, struct timeval *);
 PCP_CALL extern int pmFetchGroup(pmFG);
 PCP_CALL extern int pmDestroyFetchGroup(pmFG);
 
+/* libpcp debug/tracing */
+PCP_CALL extern int pmSetDebug(const char *);
+PCP_CALL extern int pmClearDebug(const char *);
+
 #ifdef __cplusplus
 }
 #endif

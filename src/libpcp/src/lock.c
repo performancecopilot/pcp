@@ -87,8 +87,8 @@ static void
 SetupDebug(void)
 {
     /*
-     * if $PCP_DEBUG is set in the environment then use the (decimal)
-     * value to set bits in pmDebug via bitwise ORing
+     * if $PCP_DEBUG is set in the environment then use the
+     * value to set debug options (and flags)
      */
     char	*val;
     int		ival;
@@ -98,11 +98,16 @@ SetupDebug(void)
     if (val != NULL) {
 	char	*end;
 	ival = strtol(val, &end, 10);
-	if (*end != '\0') {
-	    fprintf(stderr, "Error: $PCP_DEBUG=%s is not numeric, ignored\n", val);
-	}
-	else
+	if (*end == '\0') {
+	    /* old-style number ... */
 	    pmDebug |= ival;
+	}
+	else {
+	    int	sts;
+	    sts = pmSetDebug(val);
+	    if (sts != 0)
+		fprintf(stderr, "Error: $PCP_DEBUG=%s is not valid, ignored\n", val);
+	}
     }
     PM_UNLOCK(__pmLock_extcall);
 }

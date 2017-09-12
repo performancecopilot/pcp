@@ -1321,6 +1321,8 @@ eval_expr(__pmContext *ctxp, node_t *np, pmResult *rp, int level)
 				break;
 			    case PM_TYPE_64:
 			    case PM_TYPE_U64:
+				if (rp->vset[j]->valfmt != PM_VAL_DPTR && rp->vset[j]->valfmt != PM_VAL_SPTR)
+				    return PM_ERR_LOGREC;
 				memcpy((void *)&np->info->ivlist[i].value.ll, (void *)rp->vset[j]->vlist[i].value.pval->vbuf, sizeof(__int64_t));
 				break;
 			    case PM_TYPE_FLOAT:
@@ -1328,15 +1330,21 @@ eval_expr(__pmContext *ctxp, node_t *np, pmResult *rp, int level)
 				    /* old style insitu float */
 				    np->info->ivlist[i].value.l = rp->vset[j]->vlist[i].value.lval;
 				}
-				else {
+				else if (rp->vset[j]->valfmt == PM_VAL_DPTR || rp->vset[j]->valfmt == PM_VAL_SPTR) {
 				    assert(rp->vset[j]->vlist[i].value.pval->vtype == PM_TYPE_FLOAT);
 				    memcpy((void *)&np->info->ivlist[i].value.f, (void *)rp->vset[j]->vlist[i].value.pval->vbuf, sizeof(float));
 				}
+				else
+				    return PM_ERR_LOGREC;
 				break;
 			    case PM_TYPE_DOUBLE:
+				if (rp->vset[j]->valfmt != PM_VAL_DPTR && rp->vset[j]->valfmt != PM_VAL_SPTR)
+				    return PM_ERR_LOGREC;
 				memcpy((void *)&np->info->ivlist[i].value.d, (void *)rp->vset[j]->vlist[i].value.pval->vbuf, sizeof(double));
 				break;
 			    case PM_TYPE_STRING:
+				if (rp->vset[j]->valfmt != PM_VAL_DPTR && rp->vset[j]->valfmt != PM_VAL_SPTR)
+				    return PM_ERR_LOGREC;
 				need = rp->vset[j]->vlist[i].value.pval->vlen-PM_VAL_HDR_SIZE;
 				if ((np->info->ivlist[i].value.cp = (char *)malloc(need)) == NULL) {
 				    __pmNoMem("eval_expr: string value", rp->vset[j]->vlist[i].value.pval->vlen, PM_FATAL_ERR);
@@ -1349,6 +1357,8 @@ eval_expr(__pmContext *ctxp, node_t *np, pmResult *rp, int level)
 			    case PM_TYPE_AGGREGATE_STATIC:
 			    case PM_TYPE_EVENT:
 			    case PM_TYPE_HIGHRES_EVENT:
+				if (rp->vset[j]->valfmt != PM_VAL_DPTR && rp->vset[j]->valfmt != PM_VAL_SPTR)
+				    return PM_ERR_LOGREC;
 				if ((np->info->ivlist[i].value.vbp = (pmValueBlock *)malloc(rp->vset[j]->vlist[i].value.pval->vlen)) == NULL) {
 				    __pmNoMem("eval_expr: aggregate value", rp->vset[j]->vlist[i].value.pval->vlen, PM_FATAL_ERR);
 				    /*NOTREACHED*/
@@ -1682,10 +1692,7 @@ __dmpostfetch(__pmContext *ctxp, pmResult **result)
 
 	    if (!rewrite) {
 		newrp->vset[j]->vlist[i].inst = rp->vset[j]->vlist[i].inst;
-		if (newrp->vset[j]->valfmt == PM_VAL_INSITU) {
-		    newrp->vset[j]->vlist[i].value.lval = rp->vset[j]->vlist[i].value.lval;
-		}
-		else {
+		if (rp->vset[j]->valfmt == PM_VAL_DPTR || rp->vset[j]->valfmt == PM_VAL_SPTR) {
 		    need = rp->vset[j]->vlist[i].value.pval->vlen;
 		    vp = (pmValueBlock *)malloc(need);
 		    if (vp == NULL) {
@@ -1694,6 +1701,10 @@ __dmpostfetch(__pmContext *ctxp, pmResult **result)
 		    }
 		    memcpy((void *)vp, (void *)rp->vset[j]->vlist[i].value.pval, need);
 		    newrp->vset[j]->vlist[i].value.pval = vp;
+		}
+		else {
+		    /* punt on rp->vset[j]->valfmt == PM_VAL_INSITU */
+		    newrp->vset[j]->vlist[i].value.lval = rp->vset[j]->vlist[i].value.lval;
 		}
 		continue;
 	    }

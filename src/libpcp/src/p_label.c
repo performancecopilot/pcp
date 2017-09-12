@@ -255,10 +255,8 @@ __pmSendLabel(int fd, int from, int ident, int type, pmLabelSet *sets, int nsets
 	}
     }
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_LABEL)
+    if (pmDebugOptions.labels)
 	DumpLabelSets("__pmSendLabel", ident, type, sets, nsets);
-#endif
 
     sts = __pmXmitPDU(fd, (__pmPDU *)pp);
     __pmUnpinPDUBuf(pp);
@@ -402,10 +400,8 @@ __pmDecodeLabel(__pmPDU *pdubuf, int *ident, int *type, pmLabelSet **setsp, int 
     }
 
 success:
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_LABEL)
+    if (pmDebugOptions.labels)
 	DumpLabelSets("__pmDecodeLabel", *ident, *type, sets, nsets);
-#endif
 
     *nsetp = nsets;
     *setsp = sets;

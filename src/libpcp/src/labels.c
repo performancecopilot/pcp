@@ -273,13 +273,13 @@ sort_labels(pmLabel *lp, int nlabels, const char *json)
 
     for (i = 0; i < nlabels-1; i++) {
 	if (namecmp(&lp[i], &lp[i+1], data) == 0) {
-	    if (pmDebug & DBG_TRACE_VALUE)
-		    __pmNotifyErr(LOG_ERR, "Label name duplicated %.*s",
+	    if (pmDebugOptions.labels)
+		__pmNotifyErr(LOG_ERR, "Label name duplicated %.*s",
 				(int)lp[i].namelen, label_name(&lp[i], json));
 	    return -EINVAL;
 	}
 	if (verify_label_name(&lp[i], json) < 0) {
-	    if (pmDebug & DBG_TRACE_VALUE)
+	    if (pmDebugOptions.labels)
 		__pmNotifyErr(LOG_ERR, "Label name is invalid %.*s",
 			    (int)lp[i].namelen, label_name(&lp[i], json));
 	    return -EINVAL;
@@ -342,7 +342,7 @@ __pmParseLabels(const char *s, int slen,
 	switch (state) {
 	case START:
 	    if (token->type != JSMN_OBJECT) {
-		if (pmDebug & DBG_TRACE_VALUE)
+		if (pmDebugOptions.labels)
 		    __pmNotifyErr(LOG_ERR, "Root element must be JSON object");
 		sts = -EINVAL;
 		goto done;
@@ -355,7 +355,7 @@ __pmParseLabels(const char *s, int slen,
 
 	case NAME:
 	    if (token->type != JSMN_STRING) {
-		if (pmDebug & DBG_TRACE_VALUE)
+		if (pmDebugOptions.labels)
 		    __pmNotifyErr(LOG_ERR, "Label name must be JSON string");
 		sts = -EINVAL;
 		goto done;
@@ -363,7 +363,7 @@ __pmParseLabels(const char *s, int slen,
 
 	    namelen = token->end - token->start;
 	    if (namelen >= MAXLABELNAMELEN) {	/* will the name fit too? */
-		if (pmDebug & DBG_TRACE_VALUE)
+		if (pmDebugOptions.labels)
 		    __pmNotifyErr(LOG_ERR, "Label name is too long %.*s",
 				(int)namelen, s + token->start);
 		sts = -E2BIG;
@@ -371,7 +371,7 @@ __pmParseLabels(const char *s, int slen,
 	    }
 
 	    if (nlabels >= maxlabels) {	/* will this one fit in the given array? */
-		if (pmDebug & DBG_TRACE_VALUE)
+		if (pmDebugOptions.labels)
 		    __pmNotifyErr(LOG_ERR, "Too many labels (%d)", nlabels);
 		sts = -E2BIG;
 		goto done;
@@ -597,7 +597,7 @@ pmMergeLabelSets(pmLabelSet **sets, int nsets, char *buffer, int buflen,
 	    memset(blabels, 0, sizeof(blabels));
 	}
 
-	if (pmDebug & DBG_TRACE_LABEL) {
+	if (pmDebugOptions.labels) {
 	    fprintf(stderr, "pmMergeLabelSets: merging set [%d] ", i);
 	    __pmDumpLabelSet(stderr, sets[i]);
 	}

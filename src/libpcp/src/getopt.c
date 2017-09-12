@@ -254,13 +254,10 @@ __pmSetDebugFlag(pmOptions *opts, char *arg)
 {
     int sts;
 
-    if ((sts = __pmParseDebug(arg)) < 0) {
+    if ((sts = pmSetDebug(arg)) < 0) {
 	pmprintf("%s: unrecognized debug flag specification (%s)\n",
 		pmProgname, arg);
 	opts->errors++;
-    }
-    else {
-	pmDebug |= sts;
     }
 }
 

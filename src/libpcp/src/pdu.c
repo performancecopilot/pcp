@@ -52,8 +52,6 @@ __pmIsPduLock(void *lock)
 }
 #endif
 
-PCP_DATA int	pmDebug;		/* the real McCoy */
-
 /*
  * Performance Instrumentation
  *  ... counts binary PDUs received and sent by low 4 bits of PDU type

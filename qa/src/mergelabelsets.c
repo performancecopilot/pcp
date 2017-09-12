@@ -79,7 +79,7 @@ cull_optional(const pmLabel *lp, const char *json, void *arg)
     char	*testcase = (char *)arg;
     int		filter = !(lp->flags & PM_LABEL_OPTIONAL);
 
-    if (pmDebug & DBG_TRACE_LABEL)
+    if (pmDebugOptions.labels)
 	fprintf(stderr, "%s cull_optional label %.*s(%.*s): %s\n",
 		testcase,
 		lp->namelen, &json[lp->name],
@@ -98,7 +98,7 @@ cull_none(const pmLabel *lp, const char *json, void *arg)
     if (lp->valuelen == 4)
 	filter = (strncmp(&json[lp->value], "none", 4) != 0);
 
-    if (pmDebug & DBG_TRACE_LABEL)
+    if (pmDebugOptions.labels)
 	fprintf(stderr, "%s cull_none label %.*s(%.*s): %s\n",
 		testcase,
 		lp->namelen, &json[lp->name],
@@ -124,13 +124,11 @@ main(int argc, char **argv)
     while ((c = getopt(argc, argv, "D:?")) != EOF) {
 	switch (c) {
 	case 'D':	/* debug flag */
-	    if ((sts = __pmParseDebug(optarg)) < 0) {
+	    if ((sts = pmSetDebug(optarg)) < 0) {
 		fprintf(stderr, "%s: unrecognized debug flag specification (%s)\n",
 		    pmProgname, optarg);
 		errflag++;
 	    }
-	    else
-		pmDebug |= sts;
 	    break;
 
 	case '?':

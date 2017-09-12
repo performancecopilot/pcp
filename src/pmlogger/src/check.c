@@ -142,8 +142,7 @@ chk_all(task_t *tp, pmID pmid)
 
     ctp = rqp->r_fetch->f_aux;
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_LOG) {
+    if (pmDebugOptions.log) {
 	fprintf(stderr, "chk_all: pmid=%s task=" PRINTF_P_PFX "%p state=%s%s%s%s delta=%d.%06d\n",
 		pmIDStr(pmid), tp,
 		PMLC_GET_INLOG(tp->t_state) ? " " : "N",
@@ -162,7 +161,6 @@ chk_all(task_t *tp, pmID pmid)
 		    PMLC_GET_ON(ctp->t_state) ? "Y" : "N",
 		    (int)ctp->t_delta.tv_sec, (int)ctp->t_delta.tv_usec);
     }
-#endif
     return 0;
 }
 

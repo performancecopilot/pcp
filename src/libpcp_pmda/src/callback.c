@@ -777,7 +777,7 @@ pmdaLabel(int ident, int type, pmLabelSet **lpp, pmdaExt *pmda)
 
     switch (type) {
     case PM_LABEL_CONTEXT:
-	if (pmDebug & DBG_TRACE_LABEL)
+	if (pmDebugOptions.labels)
 	    fprintf(stderr, "pmdaLabel: context %d labels request\n",
 			pmda->e_context);
 	if ((lp = *lpp) == NULL)	/* use default handler */
@@ -785,7 +785,7 @@ pmdaLabel(int ident, int type, pmLabelSet **lpp, pmdaExt *pmda)
 	return pmdaAddLabelFlags(lp, type);
 
     case PM_LABEL_DOMAIN:
-	if (pmDebug & DBG_TRACE_LABEL)
+	if (pmDebugOptions.labels)
 	    fprintf(stderr, "pmdaLabel: domain %d (%s) labels request\n",
 			pmda->e_domain, pmda->e_name);
 	if ((lp = *lpp) == NULL)	/* use default handler */
@@ -793,7 +793,7 @@ pmdaLabel(int ident, int type, pmLabelSet **lpp, pmdaExt *pmda)
 	return pmdaAddLabelFlags(lp, type);
 
     case PM_LABEL_INDOM:
-	if (pmDebug & DBG_TRACE_LABEL)
+	if (pmDebugOptions.labels)
 	    fprintf(stderr, "pmdaLabel: InDom %s labels request\n",
 			    pmInDomStr_r(ident, idbuf, sizeof(idbuf)));
 	if ((lp = *lpp) == NULL)	/* no default handler */
@@ -801,7 +801,7 @@ pmdaLabel(int ident, int type, pmLabelSet **lpp, pmdaExt *pmda)
 	return pmdaAddLabelFlags(lp, type);
 
     case PM_LABEL_CLUSTER:
-	if (pmDebug & DBG_TRACE_LABEL) {
+	if (pmDebugOptions.labels) {
 	    pmIDStr_r(ident, idbuf, sizeof(idbuf));
 	    idp = rindex(idbuf, '.');
 	    *idp = '\0';	/* drop the final (item) part */
@@ -812,7 +812,7 @@ pmdaLabel(int ident, int type, pmLabelSet **lpp, pmdaExt *pmda)
 	return pmdaAddLabelFlags(lp, type);
 
     case PM_LABEL_ITEM:
-	if (pmDebug & DBG_TRACE_LABEL)
+	if (pmDebugOptions.labels)
 	    fprintf(stderr, "pmdaLabel: cluster %s labels request\n",
 			    pmIDStr_r(ident, idbuf, sizeof(idbuf)));
 	if ((lp = *lpp) == NULL)	/* no default handler */
@@ -828,7 +828,7 @@ pmdaLabel(int ident, int type, pmLabelSet **lpp, pmdaExt *pmda)
 	else
 	    numinst = __pmdaCntInst(ident, pmda);
 
-	if (pmDebug & DBG_TRACE_LABEL)
+	if (pmDebugOptions.labels)
 	    fprintf(stderr, "pmdaLabel: InDom %s %d instance labels request\n",
 			    pmInDomStr_r(ident, idbuf, sizeof(idbuf)), numinst);
 
@@ -915,10 +915,8 @@ pmdaAddLabels(pmLabelSet **lsp, const char *fmt, ...)
     if (sts >= sizeof(buf))
 	buf[sizeof(buf)-1] = '\0';
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_LABEL)
+    if (pmDebugOptions.labels)
 	fprintf(stderr, "pmdaAddLabels: %s\n", buf);
-#endif
 
     if ((sts = __pmAddLabels(lsp, buf, 0)) < 0) {
 	__pmNotifyErr(LOG_ERR, "pmdaAddLabels: %s (%s)\n", buf,
@@ -947,10 +945,8 @@ pmdaAddNotes(pmLabelSet **lsp, const char *fmt, ...)
     if (sts >= sizeof(buf))
 	buf[sizeof(buf)-1] = '\0';
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_LABEL)
+    if (pmDebugOptions.labels)
 	fprintf(stderr, "pmdaAddNotes: %s\n", buf);
-#endif
 
     if ((sts = __pmAddLabels(lsp, buf, PM_LABEL_OPTIONAL)) < 0) {
 	__pmNotifyErr(LOG_ERR, "pmdaAddNotes: %s (%s)\n", buf,

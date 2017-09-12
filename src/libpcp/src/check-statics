@@ -369,9 +369,6 @@ pdu.o
     pdu_lock			# local mutex
     req_wait			# guarded by pdu_lock mutex
     req_wait_done		# guarded by pdu_lock mutex
-    pmDebug			# set-once from main(), read-only elsewhere
-    				# also guarded by __pmLock_extcall when set
-				# from __pmInitLocks()
     ceiling			# no unsafe side-effects
     ?sigpipe_done		# guarded by pdu_lock mutex
     mypid			# no unsafe side-effects
@@ -471,6 +468,10 @@ util.o
     ?num_debug			# const
     pmState			# no unsafe side-effects, see notes in util.c
     pmProgname			# no unsafe side-effects, see notes in util.c
+    pmDebug			# set-once from main(), read-only elsewhere
+    				# also guarded by __pmLock_extcall when set
+				# from __pmInitLocks()
+    pmDebugOptions		# same story as pmDebug
     filelog			# guarded by util_lock mutex
     nfilelog			# guarded by util_lock mutex
     dosyslog			# no unsafe side-effects, see notes in util.c

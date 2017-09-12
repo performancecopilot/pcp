@@ -1396,5 +1396,6 @@ zsh
 1257 libpcp python local
 1331 verify local
 1354 pmval archive local
+1359 libpcp local
 1388 pmwebapi local
 4751 libpcp threads valgrind local

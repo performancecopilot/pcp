@@ -15,7 +15,7 @@
 .\"
 .TH PMDBG 1 "PCP" "Performance Co-Pilot"
 .SH NAME
-\f3pmdbg\f1 \- translate Performance Co-Pilot debug control flags
+\f3pmdbg\f1 \- report Performance Co-Pilot debug options
 .\" literals use .B or \f3
 .\" arguments use .I or \f2
 .SH SYNOPSIS
@@ -23,20 +23,30 @@
 \f2code\f1 ...
 .br
 \f3pmdbg\f1
-\f3\-l\f1
+\f3\-l\f1 [\f3\-o\f1]
 .br
 \f3pmdbg\f1
 \f3\-D\f1 \f2name\f1[,\f2name\f1 ...]
 .SH DESCRIPTION
 The components of the Performance Co-Pilot (PCP) use
-a global vector of bit-fields
-to control diagnostic and debug output.
+a global mechanism to control diagnostic and debug output.
+Historically this was a vector of bit-fields but this was later
+replaced by an array of debug options.
+All of the bit-field debug controls have an equivalent in the new
+scheme, but some new debug options cannot be represented in the
+old bit-field scheme.
 .PP
 .B pmdbg
 with a
 .B \-l
-argument prints out the mnemonic and decimal values of all
-the bit-fields in the debug control vector.
+argument prints out all the debug options.
+Without the
+.B \-o
+argument the output lists the name of each option and some
+descriptive text.
+Otherwise the output is for only the old bit-fields
+with the mnemonic and decimal values of each
+the bit-field along with some descriptive text.
 .PP
 .B pmdbg
 with a
@@ -44,14 +54,21 @@ with a
 argument parses the list of
 \fInames\fP(s) using
 .BR __pmParseDebug (3)
-and reports the corresponding decimal value.  This is most useful
+and reports the corresponding decimal value.
+This use is not required in the new scheme, but for the old
+bit-fields scheme it was
+useful
 when debugging and wanting to set the internal value of the
 control vector (\c
 .BR pmDebug )
 via a debugger, e.g.
 .BR gdb (1).
+For the new scheme, the same effect can be achieved using
+the name of the option(s) and calling
+.BR pmSetDebug (3)
+from within the debugger.
 .PP
-In the alternative usage, the
+The alternative usage also relates to the old bit-field scheme and the
 .I code
 arguments are values for the debug vector, and the bit-fields that
 are enabled by each of these values is listed.
@@ -63,15 +80,14 @@ by either ``0x'' or ``0X''.
 .PP
 Most applications using the facilities of the PCP support
 a
-.BI \-D N
-command-line syntax to enable debug control.
-.B pmdbg
-is designed to help choose an appropriate value for
-.IR N .
+\f3\-D\f1 \f2name\f1[,\f2name\f1 ...]
+command-line syntax to enable debug control using the name(s) of
+the desired debug options.
 .PP
 Alternatively the initial value of the debug control flags may be set
-to a value
+to either a value
 .I N
+(old scheme) or a comma-separated list if option name(s) (new scheme)
 using the environment variable
 .BR $PCP_DEBUG .
 If both mechanisms are used the effect is additive, so the resultant flags are
@@ -96,6 +112,9 @@ as described in
 .BR pcp.conf (5).
 .SH SEE ALSO
 .BR PCPIntro (1),
+.BR pmSetDebug (3),
+.BR pmClearDebug (3),
+.BR __pmParseDebug (3),
 .BR pcp.conf (5)
 and
 .BR pcp.env (5).
