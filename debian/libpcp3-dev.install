@@ -232,6 +232,9 @@ usr/share/man/man3/__pmResetIPC.3.gz
 usr/share/man/man3/pmsemstr.3.gz
 usr/share/man/man3/pmSemStr.3.gz
 usr/share/man/man3/pmSemStr_r.3.gz
+usr/share/man/man3/pmsetdebug.3.gz
+usr/share/man/man3/pmSetDebug.3.gz
+usr/share/man/man3/pmClearDebug.3.gz
 usr/share/man/man3/pmsetmode.3.gz
 usr/share/man/man3/pmSetMode.3.gz
 usr/share/man/man3/pmsortinstances.3.gz

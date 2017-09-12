@@ -38,5 +38,5 @@ install :: default_pcp install_pcp
 install_pcp : default_pcp
 	$(INSTALL) -m 644 $(HFILES) $(GENERATED_HFILES) $(PCP_INC_DIR)
 
-pmdbg.h : pmapi.h impl.h
+pmdbg.h : pmapi.h impl.h mk_pmdbg
 	./mk_pmdbg
