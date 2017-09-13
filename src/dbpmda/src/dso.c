@@ -75,13 +75,11 @@ opendso(char *dso, char *init, int domain)
 	    dispatch.comm.pmapi_version = ~dispatch.comm.pmapi_version;
 	    dispatch.comm.flags = 0;
 	    dispatch.status = 0;
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_PDU)
+	    if (pmDebugOptions.pdu)
 		fprintf(stderr, "DSO init %s->"PRINTF_P_PFX"%p() domain=%d challenge: pmda_interface=0x%x pmapi_version=%d\n",
 			init, initp, dispatch.domain,
 			dispatch.comm.pmda_interface,
 			(~dispatch.comm.pmapi_version) & 0xff);
-#endif
 	    dispatch.domain = domain;
 
 	    (*initp)(&dispatch);
@@ -110,14 +108,12 @@ opendso(char *dso, char *init, int domain)
 	    }
 
 	    if (dispatch.status == 0) {
-#ifdef PCP_DEBUG
-		if (pmDebug & DBG_TRACE_PDU) {
+		if (pmDebugOptions.pdu) {
 		    fprintf(stderr, "DSO has domain=%d", dispatch.domain);
 		    fprintf(stderr, " pmda_interface=%d pmapi_version=%d\n", 
 				dispatch.comm.pmda_interface,
 				dispatch.comm.pmapi_version);
 		}
-#endif
 		dsoname = strdup(dso);
 		connmode = CONN_DSO;
 		reset_profile();
@@ -169,16 +165,12 @@ dodso_desc(pmID pmid, pmDesc *desc)
 {
     int sts;
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_PDU)
+    if (pmDebugOptions.pdu)
 	fprintf(stderr, "DSO desc()\n");
-#endif
     sts = dispatch.version.any.desc(pmid, desc, dispatch.version.four.ext);
 
-#ifdef PCP_DEBUG
-    if (sts >= 0  && (pmDebug & DBG_TRACE_PDU))
+    if (sts >= 0  && (pmDebugOptions.pdu))
 	__pmPrintDesc(stdout, desc);
-#endif
 
     return sts;
 }/*dodso_desc*/
@@ -238,10 +230,8 @@ dodso(int pdu)
             }
 	    sts = 0;
 	    if (profile_changed) {
-#ifdef PCP_DEBUG
-		if (pmDebug & DBG_TRACE_PDU)
+		if (pmDebugOptions.pdu)
 		    fprintf(stderr, "DSO profile()\n");
-#endif
 		sts = dispatch.version.any.profile(profile, dispatch.version.any.ext);
 		if (sts < 0)
 		    printf("Error: DSO profile() failed: %s\n", pmErrStr(sts));
@@ -249,10 +239,8 @@ dodso(int pdu)
 		    profile_changed = 0;
 	    }
 	    if (sts >= 0) {
-#ifdef PCP_DEBUG
-		if (pmDebug & DBG_TRACE_PDU)
+		if (pmDebugOptions.pdu)
 		    fprintf(stderr, "DSO fetch()\n");
-#endif
 		sts = dispatch.version.any.fetch(param.numpmid, param.pmidlist, 
 						&result, dispatch.version.any.ext);
 		if (sts >= 0) {
@@ -276,10 +264,8 @@ dodso(int pdu)
 
 	case PDU_INSTANCE_REQ:
 	    printf("pmInDom: %s\n", pmInDomStr(param.indom));
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_PDU)
+	    if (pmDebugOptions.pdu)
 		fprintf(stderr, "DSO instance()\n");
-#endif
 
 	    sts = dispatch.version.any.instance(param.indom, param.number, 
 						    param.name, &inresult,
@@ -319,10 +305,8 @@ dodso(int pdu)
 		return;
 	    }
 
-#ifdef PCP_DEBUG
-	    else if (pmDebug & DBG_TRACE_FETCH)
+	    else if (pmDebugOptions.fetch)
 		_dbDumpResult(stdout, result, desc_list);
-#endif
 	 
 	    sts = fillResult(result, desc.type);
 	    if (sts < 0) {

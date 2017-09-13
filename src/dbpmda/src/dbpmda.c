@@ -80,15 +80,13 @@ main(int argc, char **argv)
     while ((c = pmgetopt_r(argc, argv, &opts)) != EOF) {
 	switch (c) {
 
-	case 'D':		/* debug flag */
-	    sts = __pmParseDebug(opts.optarg);
+	case 'D':		/* debug option(s) */
+	    sts = pmSetDebug(opts.optarg);
 	    if (sts < 0) {
 		fprintf(stderr, "%s: unrecognized debug flag specification (%s)\n",
 		    pmProgname, opts.optarg);
 		opts.errors++;
 	    }
-	    else
-		pmDebug |= sts;
 	    break;
 
 	case 'e':		/* echo input */
@@ -286,7 +284,6 @@ main(int argc, char **argv)
 		break;
 
 	    case DBG:
-		pmDebug = param.number;
 		break;
 
 	    case QUIT:

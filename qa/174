@@ -20,8 +20,7 @@ id pcp >/dev/null 2>&1 && pipeargs="-U $username"
 
 _filter()
 {
-    tee -a $here/$seq.full \
-    | sed \
+    sed \
 	-e '/pmResult/s/ 0x.* numpmid/ ... numpmid/' \
 	-e '/^dbpmda> $/d' \
 	-e "s/ -U $username//g" \
@@ -34,8 +33,7 @@ _filter_stderr()
 {
     # strange sed's are for endian differences in hex dumps
     #
-    tee -a $here/$seq.full \
-    | sed \
+    sed \
 	-e 's/ fd=[0-9][0-9]*/ fd=<n>/g' \
 	-e '/pmResult/,/numval: /d' \
 	-e '/ inst /d' \
@@ -52,8 +50,8 @@ _filter_stderr()
 	-e 's/  1000000        0  2004007/        1        0  7400002/' \
 	-e '/\(DSO init .*->\)0x[0-9a-f]*()/s//\1VADDR()/' \
 	-e '/DSO init .*->/s/pmda_interface=0x[0-9a-f][0-9a-f]*/pmda_interface=0xXXXX/' \
-	-e '/DSO has domain/s/pmda_interface=[5-9]/pmda_interface=X/' \
-    | $PCP_AWK_PROG '
+	-e '/DSO has domain/s/pmda_interface=[5-9]/pmda_interface=X/' |
+    $PCP_AWK_PROG '
 /pmGetPDU/  				{ gotGetPDU=1; next }
 gotGetPDU==1 && $1 ~ /[0-9][0-9][0-9]:/	{ next }
 		    			{ gotGetPDU=0; print }'
@@ -64,7 +62,7 @@ $sudo rm -f $here/$seq.full
 
 # real QA test starts here
 
-dbpmda -ie <<End-of-File 2>$tmp.stderr | _filter
+dbpmda -ie <<End-of-File 2>$tmp.err >$tmp.out
 debug 1
 getdesc on
 open pipe $PCP_PMDAS_DIR/sample/pmdasample $pipeargs -d 29
@@ -95,9 +93,13 @@ fetch 30.0.6
 fetch 30.0.6
 End-of-File
 
-echo
-echo "PDUs sent ..."
-_filter_stderr <$tmp.stderr
+cat $tmp.out >>$here/$seq.full
+_filter <$tmp.out
+
+echo | tee -a $here/$seq.full
+echo "PDUs sent ..." | tee -a $here/$seq.full
+cat $tmp.err >>$here/$seq.full
+_filter_stderr <$tmp.err
 
 
 exit 0
