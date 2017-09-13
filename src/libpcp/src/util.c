@@ -58,6 +58,7 @@
 #include <inttypes.h>
 #include <limits.h>
 #include <ctype.h>
+#include <assert.h>
 
 #include "pmapi.h"
 #include "impl.h"
@@ -94,6 +95,9 @@ static int	xconfirm_init = 0;
 static char 	*xconfirm = NULL;
 
 PCP_DATA char	*pmProgname = "pcp";		/* the real McCoy */
+
+PCP_DATA int	pmDebug;			/* the real McCoy ... old style */
+PCP_DATA pmdebugoptions_t	pmDebugOptions;	/* the real McCoy ... new style */
 
 static int vpmprintf(const char *, va_list);
 
@@ -660,18 +664,28 @@ __pmStringListFind(const char *item, int numElements, char **list)
  * Needed since tracing PDUs really messes __pmDump*() routines
  * up when pmNameInDom is called internally.
  */
-static int
+static void
 save_debug(void)
 {
-    int saved = pmDebug;
+    int		i;
+
+    for (i = 0; i < num_debug; i++) {
+	debug_map[i].state = *(debug_map[i].options);
+	*(debug_map[i].options) = 0;
+    }
     pmDebug = 0;
-    return saved;
 }
 
 static void
-restore_debug(int saved)
+restore_debug(void)
 {
-    pmDebug = saved;
+    int		i;
+
+    for (i = 0; i < num_debug; i++) {
+	*(debug_map[i].options) = debug_map[i].state;
+	if (debug_map[i].state && debug_map[i].bit != 0)
+	    pmDebug |= debug_map[i].bit;
+    }
 }
 
 static void
@@ -740,8 +754,10 @@ dump_valueset(__pmContext *ctxp, FILE *f, pmValueSet *vsp)
 	else {
 	    if (vsp->valfmt == PM_VAL_INSITU)
 		pmPrintValue(f, vsp->valfmt, PM_TYPE_UNKNOWN, vp, 1); 
-	    else
+	    else if (vsp->valfmt == PM_VAL_DPTR || vsp->valfmt == PM_VAL_SPTR)
 		pmPrintValue(f, vsp->valfmt, (int)vp->value.pval->vtype, vp, 1); 
+	    else
+		fprintf(f, "bad valfmt %d", vsp->valfmt);
 	}
 	fputc('\n', f);
     }
@@ -751,19 +767,19 @@ dump_valueset(__pmContext *ctxp, FILE *f, pmValueSet *vsp)
 void
 __pmDumpResult_ctx(__pmContext *ctxp, FILE *f, const pmResult *resp)
 {
-    int		i, saved;
+    int		i;
 
     if (ctxp != NULL)
 	PM_ASSERT_IS_LOCKED(ctxp->c_lock);
 
-    saved = save_debug();
+    save_debug();
     fprintf(f, "pmResult dump from " PRINTF_P_PFX "%p timestamp: %d.%06d ",
 	resp, (int)resp->timestamp.tv_sec, (int)resp->timestamp.tv_usec);
     __pmPrintStamp(f, &resp->timestamp);
     fprintf(f, " numpmid: %d\n", resp->numpmid);
     for (i = 0; i < resp->numpmid; i++)
 	dump_valueset(ctxp, f, resp->vset[i]);
-    restore_debug(saved);
+    restore_debug();
 }
 
 void
@@ -776,19 +792,19 @@ __pmDumpResult(FILE *f, const pmResult *resp)
 void
 __pmDumpHighResResult_ctx(__pmContext *ctxp, FILE *f, const pmHighResResult *hresp)
 {
-    int		i, saved;
+    int		i;
 
     if (ctxp != NULL)
 	PM_ASSERT_IS_LOCKED(ctxp->c_lock);
 
-    saved = save_debug();
+    save_debug();
     fprintf(f, "pmHighResResult dump from " PRINTF_P_PFX "%p timestamp: %d.%09d ",
 	hresp, (int)hresp->timestamp.tv_sec, (int)hresp->timestamp.tv_nsec);
     __pmPrintHighResStamp(f, &hresp->timestamp);
     fprintf(f, " numpmid: %d\n", hresp->numpmid);
     for (i = 0; i < hresp->numpmid; i++)
 	dump_valueset(ctxp, f, hresp->vset[i]);
-    restore_debug(saved);
+    restore_debug();
 }
 
 void
@@ -971,7 +987,7 @@ pmPrintValue(FILE *f,			/* output stream */
 		minwidth -= 2;
 	    fprintf(f, " 0x%*x", minwidth, val->value.lval);
 	}
-	else {
+	else if (valfmt == PM_VAL_DPTR || valfmt == PM_VAL_SPTR) {
 	    int		string;
 	    int		done = 0;
 	    if (val->value.pval->vlen == PM_VAL_HDR_SIZE + sizeof(__uint64_t)) {
@@ -1015,7 +1031,7 @@ pmPrintValue(FILE *f,			/* output stream */
 		}
 	    }
 	    if (val->value.pval->vlen < PM_VAL_HDR_SIZE)
-		fprintf(f, "pmPrintValue: negative length (%d) for aggregate value?",
+		fprintf(f, "pmPrintValue: negative length (%d) for aggregate value?\n",
 		    (int)val->value.pval->vlen - PM_VAL_HDR_SIZE);
 	    else {
 		string = 1;
@@ -1050,6 +1066,9 @@ pmPrintValue(FILE *f,			/* output stream */
 		}
 		fputc(']', f);
 	    }
+	}
+	else {
+	    fprintf(f, "pmPrintValue: bad valfmt (%d)?\n", valfmt);
 	}
 	if (type != PM_TYPE_UNKNOWN)
 	    free(a.vbp);
@@ -1334,70 +1353,166 @@ __pmEventTrace(const char *event)
 #endif
 }
 
-int
-__pmParseDebug(const char *spec)
+#define DEBUG_CLEAR 0
+#define DEBUG_SET 1
+#define DEBUG_OLD 0
+#define DEBUG_NEW 1
+
+static int
+debug(const char *spec, int action, int style)
 {
-#ifdef PCP_DEBUG
     int		val = 0;
     int		tmp;
     const char	*p;
     char	*pend;
     int		i;
+    int		sts = 0;	/* for DEBUG_NEW interface */
+
+    /* save old state, so calls are additive */
+    for (i = 0; i < num_debug; i++)
+	debug_map[i].state = *(debug_map[i].options);
 
     for (p = spec; *p; ) {
+	/*
+	 * backwards compatibility, "string" may be a number for setting
+	 * bit fields directly
+	 */
 	tmp = (int)strtol(p, &pend, 10);
-	if (tmp == -1)
-	    /* special case ... -1 really means set all the bits! */
-	    tmp = INT_MAX;
-	if (*pend == '\0') {
-	    val |= tmp;
+	if (pend > p) {
+	    /* found a number */
+	    if (tmp == -1)
+		/* special case ... -1 really means set all the bits! */
+		val = INT_MAX;
+	    else
+		val |= tmp;
+	    /* for all matching bits, set/clear the corresponding new field */
+	    for (i = 0; i < num_debug; i++) {
+		if (val & debug_map[i].bit)
+		    debug_map[i].state = (action == DEBUG_SET ? 1 : 0);
+	    }
+	    if (*pend == ',') {
+		p = pend + 1;
+		continue;
+	    }
+	    else if (*pend == '\0')
+		break;
+	    /* something bogus after a number ... */
+	    sts = PM_ERR_CONV;
 	    break;
 	}
-	else if (*pend == ',') {
-	    val |= tmp;
-	    p = pend + 1;
+
+	pend = strchr(p, ',');
+	if (pend == NULL)
+	    pend = (char *)&p[strlen(p)];
+
+	if (pend-p == 3 && strncasecmp(p, "all", pend-p) == 0) {
+	    val |= INT_MAX;
+	    for (i = 0; i < num_debug; i++) {
+		debug_map[i].state = (action == DEBUG_SET ? 1 : 0);
+	    }
 	}
 	else {
-	    pend = strchr(p, ',');
-	    if (pend != NULL)
-		*pend = '\0';
-
-	    if (strcasecmp(p, "ALL") == 0) {
-		val |= INT_MAX;
-		if (pend != NULL) {
-		    *pend = ',';
-		    p = pend + 1;
-		}
-		else
-		    p = "";		/* force termination of outer loop */
-		break;
-	    }
-
 	    for (i = 0; i < num_debug; i++) {
-		if (strcasecmp(p, debug_map[i].name) == 0) {
-		    val |= debug_map[i].bit;
-		    if (pend != NULL) {
-			*pend = ',';
-			p = pend + 1;
-		    }
-		    else
-			p = "";		/* force termination of outer loop */
+		if (pend-p == strlen(debug_map[i].name) &&
+		    strncasecmp(p, debug_map[i].name, pend-p) == 0) {
+		    if (debug_map[i].bit != 0)
+			/* has corresponding old-stype bit field */
+			val |= debug_map[i].bit;
+		    debug_map[i].state = (action == DEBUG_SET ? 1 : 0);
 		    break;
 		}
 	    }
-
 	    if (i == num_debug) {
-		if (pend != NULL)
-		    *pend = ',';
-		return PM_ERR_CONV;
+		sts = PM_ERR_CONV;
+		break;
 	    }
 	}
+	if (*pend == ',')
+	    p = pend + 1;
+	else
+	    p = pend;
     }
 
-    return val;
-#else
-    return PM_ERR_NYI;
-#endif
+    if (sts == 0) {
+	/* all's well, now set the options and bits */
+	for (i = 0; i < num_debug; i++)
+	    *(debug_map[i].options) = debug_map[i].state;
+	/* set/clear old-style bit mask */
+	if (action == DEBUG_SET)
+	    pmDebug |= val;
+	else
+	    pmDebug &= ~val;
+    }
+
+    if (style == DEBUG_OLD && sts == 0)
+	return val;
+
+    return sts;
+}
+
+void
+__pmDumpDebug(FILE *f)
+{
+    int		i;
+    int		nset;
+
+    nset = 0;
+    fprintf(f, "pmDebug:\t");
+    if (pmDebug == 0)
+	fprintf(f, "Nothing set\n");
+    else {
+	for (i = 0; i < num_debug; i++) {
+	    if (debug_map[i].bit != 0 &&
+	        (pmDebug & debug_map[i].bit) != 0) {
+		nset++;
+		if (nset > 1)
+		    fputc(',', f);
+		fprintf(f, "%s", debug_map[i].name);
+	    }
+	}
+	fputc('\n', f);
+    }
+
+    nset = 0;
+    fprintf(f, "pmDebugOptions:\t");
+    for (i = 0; i < num_debug; i++) {
+	if (*(debug_map[i].options)) {
+	    nset++;
+	    if (nset > 1)
+		fputc(',', f);
+	    fprintf(f, "%s", debug_map[i].name);
+	}
+    }
+    if (nset == 0)
+	fprintf(f, "Nothing set\n");
+    else
+	fputc('\n', f);
+}
+
+/*
+ * old routine for backwards compatibility ...
+ *	return 32-bit bit debug flags
+ */
+int
+__pmParseDebug(const char *spec)
+{
+    if (pmDebugOptions.deprecated)
+	fprintf(stderr, "Warning: deprecated __pmParseDebug() called\n");
+    return debug(spec, DEBUG_SET, DEBUG_OLD);
+}
+
+/* new routine to set debug options */
+int
+pmSetDebug(const char *spec)
+{
+    return debug(spec, DEBUG_SET, DEBUG_NEW);
+}
+
+/* new routine to clear debug options */
+int
+pmClearDebug(const char *spec)
+{
+    return debug(spec, DEBUG_CLEAR, DEBUG_NEW);
 }
 
 int

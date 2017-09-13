@@ -16,7 +16,7 @@ Namespace:              (default)
 PMDA:                   ./pmdas/broken/broken_pmda_2_0
 Connection:             daemon
 PMDA PMAPI Version:     2
-pmDebug:                0 (none)
+Debug options:          (none)
 Timer:                  off
 Getdesc:                off
 
@@ -174,7 +174,7 @@ Namespace:              (default)
 PMDA:                   ./pmdas/broken/broken_pmda_2_1
 Connection:             daemon
 PMDA PMAPI Version:     2
-pmDebug:                0 (none)
+Debug options:          (none)
 Timer:                  off
 Getdesc:                off
 
@@ -204,7 +204,7 @@ Namespace:              (default)
 PMDA:                   ./pmdas/broken/broken_pmda_2_2
 Connection:             daemon
 PMDA PMAPI Version:     2
-pmDebug:                0 (none)
+Debug options:          (none)
 Timer:                  off
 Getdesc:                off
 
@@ -227,7 +227,7 @@ Namespace:              (default)
 PMDA:                   ./pmdas/broken/broken_pmda_2_3
 Connection:             daemon
 PMDA PMAPI Version:     2
-pmDebug:                0 (none)
+Debug options:          (none)
 Timer:                  off
 Getdesc:                off
 
@@ -250,7 +250,7 @@ Namespace:              (default)
 PMDA:                   ./pmdas/broken/broken_pmda_2_4
 Connection:             daemon
 PMDA PMAPI Version:     2
-pmDebug:                0 (none)
+Debug options:          (none)
 Timer:                  off
 Getdesc:                off
 
@@ -292,7 +292,7 @@ Namespace:              (default)
 PMDA:                   ./pmdas/broken/broken_pmda_2_5
 Connection:             daemon
 PMDA PMAPI Version:     unknown!
-pmDebug:                0 (none)
+Debug options:          (none)
 Timer:                  off
 Getdesc:                off
 

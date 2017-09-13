@@ -270,7 +270,9 @@ pmGetContextHostName_r(int handle, char *buf, int buflen)
 	    PM_TPD(curr_handle) = save_handle;
 	    PM_TPD(curr_ctxp) = save_ctxp;
 	    if (sts >= 0) {
-		if (resp->vset[0]->numval > 0) { /* pmcd.hostname present */
+		if (resp->vset[0]->numval > 0 &&
+		    (resp->vset[0]->valfmt == PM_VAL_DPTR || resp->vset[0]->valfmt == PM_VAL_SPTR)) {
+		    /* pmcd.hostname present */
 		    strncpy(buf, resp->vset[0]->vlist[0].value.pval->vbuf, buflen);
 		    pmFreeResult(resp);
 		    break;

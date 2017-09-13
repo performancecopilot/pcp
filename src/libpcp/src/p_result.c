@@ -79,7 +79,7 @@ __pmEncodeResult(int targetfd, const pmResult *result, __pmPDU **pdubuf)
 	for (j = 0; j < vsp->numval; j++) {
 	    /* plus value, instance pair */
 	    need += sizeof(__pmValue_PDU);
-	    if (vsp->valfmt != PM_VAL_INSITU) {
+	    if (vsp->valfmt == PM_VAL_DPTR || vsp->valfmt == PM_VAL_SPTR) {
 		/* plus pmValueBlock */
 		vneed += PM_PDU_SIZE_BYTES(vsp->vlist[j].value.pval->vlen);
 	    }
@@ -112,9 +112,7 @@ __pmEncodeResult(int targetfd, const pmResult *result, __pmPDU **pdubuf)
 	    vlp->valfmt = htonl(vsp->valfmt);
 	for (j = 0; j < vsp->numval; j++) {
 	    vlp->vlist[j].inst = htonl(vsp->vlist[j].inst);
-	    if (vsp->valfmt == PM_VAL_INSITU)
-		vlp->vlist[j].value.lval = htonl(vsp->vlist[j].value.lval);
-	    else {
+	    if (vsp->valfmt == PM_VAL_DPTR || vsp->valfmt == PM_VAL_SPTR) {
 		/*
 		 * pmValueBlocks are harder!
 		 * -- need to copy the len field (len) + len bytes (vbuf)
@@ -133,6 +131,10 @@ __pmEncodeResult(int targetfd, const pmResult *result, __pmPDU **pdubuf)
 		/* point to the value block at the end of the PDU */
 		vlp->vlist[j].value.lval = htonl((int)(vbp - _pdubuf));
 		vbp += PM_PDU_SIZE(nb);
+	    }
+	    else {
+		/* punt on vsp->valfmt == PM_VAL_INSITU */
+		vlp->vlist[j].value.lval = htonl(vsp->vlist[j].value.lval);
 	    }
 	}
 	vlp->numval = htonl(vsp->numval);
@@ -483,7 +485,7 @@ __pmDecodeResult_ctx(__pmContext *ctxp, __pmPDU *pdubuf, pmResult **result)
 		    }
 #endif
 		}
-		else {
+		else if (nvsp->valfmt == PM_VAL_DPTR || nvsp->valfmt == PM_VAL_SPTR) {
 		    /*
 		     * in the input PDU buffer, pval is an index to the
 		     * start of the pmValueBlock, in units of __pmPDU
@@ -500,6 +502,14 @@ __pmDecodeResult_ctx(__pmContext *ctxp, __pmPDU *pdubuf, pmResult **result)
 			    fprintf(stderr, "%02x", nvp->value.pval->vbuf[k]);
 		    }
 #endif
+		}
+		else {
+#ifdef PCP_DEBUG
+		    if ((pmDebug & DBG_TRACE_PDU) && (pmDebug & DBG_TRACE_DESPERATE)) {
+			fprintf(stderr, " botch: valfmt=%d\n", nvsp->valfmt);
+		    }
+#endif
+		    goto corrupt;
 		}
 	    }
 	}

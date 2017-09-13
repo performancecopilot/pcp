@@ -341,28 +341,32 @@ dumpval(FILE *f, int type, int valfmt, int prior, instcntl_t *icp)
 	memcpy((void *)&tmp, (void *)&vp->lval, sizeof(tmp));
 	fprintf(f, " v=%f", (double)tmp);
     }
-    else if (type == PM_TYPE_64) {
-	__int64_t	tmp;
-	memcpy((void *)&tmp, (void *)vp->pval->vbuf, sizeof(tmp));
-        fprintf(f, " v=%"PRIi64, tmp);
-    }
-    else if (type == PM_TYPE_U64) {
-	__uint64_t	tmp;
-	memcpy((void *)&tmp, (void *)vp->pval->vbuf, sizeof(tmp));
-        fprintf(f, " v=%"PRIu64, tmp);
-    }
-    else if (type == PM_TYPE_FLOAT) {
-	float		tmp;
-	memcpy((void *)&tmp, (void *)vp->pval->vbuf, sizeof(tmp));
-        fprintf(f, " v=%f", (double)tmp);
-    }
-    else if (type == PM_TYPE_DOUBLE) {
-	double		tmp;
-	memcpy((void *)&tmp, (void *)vp->pval->vbuf, sizeof(tmp));
-        fprintf(f, " v=%f", tmp);
+    else if (valfmt == PM_VAL_DPTR || valfmt == PM_VAL_SPTR) {
+	if (type == PM_TYPE_64) {
+	    __int64_t	tmp;
+	    memcpy((void *)&tmp, (void *)vp->pval->vbuf, sizeof(tmp));
+	    fprintf(f, " v=%"PRIi64, tmp);
+	}
+	else if (type == PM_TYPE_U64) {
+	    __uint64_t	tmp;
+	    memcpy((void *)&tmp, (void *)vp->pval->vbuf, sizeof(tmp));
+	    fprintf(f, " v=%"PRIu64, tmp);
+	}
+	else if (type == PM_TYPE_FLOAT) {
+	    float		tmp;
+	    memcpy((void *)&tmp, (void *)vp->pval->vbuf, sizeof(tmp));
+	    fprintf(f, " v=%f", (double)tmp);
+	}
+	else if (type == PM_TYPE_DOUBLE) {
+	    double		tmp;
+	    memcpy((void *)&tmp, (void *)vp->pval->vbuf, sizeof(tmp));
+	    fprintf(f, " v=%f", tmp);
+	}
+	else
+	    fprintf(f, " v=??? (lval=%d)", vp->lval);
     }
     else
-        fprintf(f, " v=??? (lval=%d)", vp->lval);
+	fprintf(f, " bad valfmt %d v=??? (lval=%d)", valfmt, vp->lval);
 }
 
 static void

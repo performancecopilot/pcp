@@ -27,6 +27,15 @@ int __pmParseDebug(const char *\fIspec\fP);
 cc ... \-lpcp
 .ft 1
 .SH DESCRIPTION
+.PP
+This routine has been deprecated and may be removed in a future
+Performance Co-Pilot (PCP) release.
+Please refer to
+.BR pmSetDebug (3)
+and
+.BR pmClearDebug (3)
+for replacement functionality.
+.PP
 .B __pmParseDebug
 parses
 .I spec
@@ -57,7 +66,10 @@ as
 or
 .BR fetch .
 .SH SEE ALSO
-.BR pmdbg (1)
+.BR pmdbg (1),
+.BR pmSetDebug (3)
+and
+.BR pmClearDebug (3).
 .SH DIAGNOSTICS
 If successful,
 .B __pmParseDebug

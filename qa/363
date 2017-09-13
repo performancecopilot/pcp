@@ -37,7 +37,7 @@ pmlogsummary -z -n src/root_irix -bmMy $arch \
      | LC_COLLATE=POSIX sort -f | ./xlate_2_new_pmns
 echo
 echo "=== Down-rev error check ==="
-pmlogsummary -v -z -n src/root_irix -a archives/err_v1
+pmlogsummary -v -z -n src/root_irix -a badarchives/err_v1
 echo
 echo "=== Changing inst check ==="
 pmlogsummary -z -a $tmp.changeinst
