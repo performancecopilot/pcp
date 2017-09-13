@@ -669,11 +669,9 @@ save_debug(void)
 {
     int		i;
 
-fprintf(stderr, "save pmDebug=%d\n", pmDebug);
     for (i = 0; i < num_debug; i++) {
 	debug_map[i].state = *(debug_map[i].options);
 	*(debug_map[i].options) = 0;
-fprintf(stderr, "[%d] state=%d\n", i, debug_map[i].state);
     }
     pmDebug = 0;
 }
@@ -685,11 +683,9 @@ restore_debug(void)
 
     for (i = 0; i < num_debug; i++) {
 	*(debug_map[i].options) = debug_map[i].state;
-fprintf(stderr, "[%d] state=%d bit=%d\n", i, debug_map[i].state, debug_map[i].bit);
 	if (debug_map[i].state && debug_map[i].bit != 0)
 	    pmDebug |= debug_map[i].bit;
     }
-fprintf(stderr, "restore pmDebug=%d\n", pmDebug);
 }
 
 static void
