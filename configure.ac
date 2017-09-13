@@ -1912,52 +1912,52 @@ for policy_file in /etc/selinux/targeted/policy/policy.*
 do
     if test -f "$policy_file"
     then
-        class_status=`eval seinfo -x --class=system $policy_file | grep status | awk '{ print $1 }'`
+        class_status=`eval seinfo -x --class=system -- $policy_file | grep status | awk '{ print $1 }'`
     	if test "x$class_status" != "x"
 	then
 	    pcp_selinux_class_status=true
 	fi
-	container_runtime=`eval seinfo -t $policy_file | grep container_runtime_t | awk '{ print $1 }'`
+	container_runtime=`eval seinfo -t -- $policy_file | grep container_runtime_t | awk '{ print $1 }'`
 	if test "x$container_runtime" != "x"
 	then
 	    pcp_selinux_container_runtime=true
 	fi
-	nsfs=`eval seinfo -t $policy_file | grep nsfs_t | awk '{ print $1 }'`
+	nsfs=`eval seinfo -t -- $policy_file | grep nsfs_t | awk '{ print $1 }'`
 	if test "x$nsfs" != "x"
 	then
 	    pcp_selinux_nsfs=true
 	fi
-	docker_var_lib=`eval seinfo -t $policy_file | grep docker_var_lib_t | awk '{ print $1 }'`
+	docker_var_lib=`eval seinfo -t -- $policy_file | grep docker_var_lib_t | awk '{ print $1 }'`
 	if test "x$docker_var_lib" != "x"
 	then
 	    pcp_selinux_docker_var_lib=true
 	fi
-	svirt_lxc_net=`eval seinfo -t $policy_file | grep svirt_lxc_net_t | awk '{ print $1 }'`
+	svirt_lxc_net=`eval seinfo -t -- $policy_file | grep svirt_lxc_net_t | awk '{ print $1 }'`
 	if test "x$svirt_lxc_net" != "x"
 	then
 	    pcp_selinux_svirt_lxc_net=true
 	fi
-	systemd_unit_file=`eval seinfo -t $policy_file | grep systemd_unit_file_t | awk '{ print $1 }'`
+	systemd_unit_file=`eval seinfo -t -- $policy_file | grep systemd_unit_file_t | awk '{ print $1 }'`
 	if test "x$systemd_unit_file" != "x"
 	then
 	    pcp_selinux_systemd_unit_file=true
 	fi
-	systemd_exec=`eval seinfo -t $policy_file | grep systemd_systemctl_exec_t | awk '{ print $1 }'`
+	systemd_exec=`eval seinfo -t -- $policy_file | grep systemd_systemctl_exec_t | awk '{ print $1 }'`
 	if test "x$systemd_exec" != "x"
 	then
 	    pcp_selinux_systemd_exec=true
 	fi
-	cap_userns_ptrace=`eval seinfo -x --class=cap_userns $policy_file 2>&1 | grep sys_ptrace | awk '{ print $1 }'`
+	cap_userns_ptrace=`eval seinfo -x --class=cap_userns -- $policy_file 2>&1 | grep sys_ptrace | awk '{ print $1 }'`
     	if test "x$cap_userns_ptrace" != "x"
 	then
 	    pcp_selinux_cap_userns_ptrace=true
 	fi
-	unreserved_port=`eval seinfo -t $policy_file | grep unreserved_port_t | awk '{ print $1 }'`
+	unreserved_port=`eval seinfo -t -- $policy_file | grep unreserved_port_t | awk '{ print $1 }'`
 	if test "x$unreserved_port" != "x"
 	then
 	    pcp_selinux_unreserved_port=true
 	fi
-	tracefs=`eval seinfo -t $policy_file | grep tracefs_t | awk '{ print $1 }'`
+	tracefs=`eval seinfo -t -- $policy_file | grep tracefs_t | awk '{ print $1 }'`
 	if test "x$tracefs" != "x"
 	then
 	    pcp_selinux_tracefs=true
