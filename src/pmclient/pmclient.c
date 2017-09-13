@@ -136,12 +136,6 @@ get_sample(info_t *ip)
 	exit(1);
     }
 
-    /*
-     * minor gotcha ... for archives, it helps to do the first fetch of
-     * real data before interrogating the instance domains ... this
-     * forces us to be "after" the first batch of instance domain info
-     * in the meta data files
-     */
     if (first) {
 	/*
 	 * from now on, just want the 1 minute and 15 minute load averages,
