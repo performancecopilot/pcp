@@ -17,7 +17,11 @@
 \f3pmdahaproxy\f1 \- HAProxy PMDA
 .SH DESCRIPTION
 \f3pmdahaproxy\f1 is a Performance Metrics Domain Agent (\s-1PMDA\s0) which
-extracts live performance data from HAProxy statistic socket.
+extracts live performance data from HAProxy statistics socket or URL.
+.PP
+By default the HAProxy stats socket is used to retrieve the metric but
+if the optional URL option is set (see below), then the HAProxy URL
+is used instead.
 .PP
 See the HAProxy documentation for detailed description of each metric.
 .PP
@@ -36,10 +40,23 @@ socket
 By default, \f3root\f1 and \f3/var/lib/haproxy/stats\f1,
 are used as values for these options, respectively.
 .PP
-Note that the HAProxy statistics socket needs to be separately enabled
-in the HAProxy configuration file; please refer to the HAProxy
+The section can also contain the following parameters:
+.IP "\(bu" 4
+url
+.IP "\(bu" 4
+auth
+.IP "\(bu" 4
+pass
+.PP
+When the \f2url\f1 option is defined, URL connection to HAProxy is used.
+\f3pmdahaproxy\f1 expects CSV data from the HAProxy URL; an example
+of a compatible URL is \f3http://127.0.0.1:9000/?stats;csv\f1.
+.PP
+Note that the HAProxy statistics socket and/or URL need to be separately
+enabled in the HAProxy configuration file; please refer to the HAProxy
 configuration documentation for details. Depending on system and HAProxy
-configuration, using non-root user may also be possible.
+configuration, using non-root user may also be possible, especially
+with URL based connections.
 .PP
 Once the needed setup is ready, you can test the connection and install
 the PMDA to enable access to the names and values for the HAProxy
