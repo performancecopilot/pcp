@@ -162,15 +162,15 @@ class LibvirtPMDA(PMDA):
         self.vm_memstats_cluster = 4
         self.vm_memstats = [
             # Name - empty - type - semantics - units - help
-            # See libvirt.git/include/libvirt/libvirt-domain.h
-            [ 'domstats.mem.swap_in',                  None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_kbyte, 'VM memory, swapped in total'            ],
-            [ 'domstats.mem.swap_out',                 None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_kbyte, 'VM memory, swapped out total'           ],
-            [ 'domstats.mem.major_fault',              None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM memory, major faults'                ],
-            [ 'domstats.mem.minor_fault',              None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM memory, minor faults'                ],
-            [ 'domstats.mem.unused',                   None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_kbyte, 'VM memory, unused'                      ],
-            [ 'domstats.mem.available',                None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_kbyte, 'VM memory, available'                   ],
-            [ 'domstats.mem.actual',                   None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_kbyte, 'VM memory, balloon size'                ],
-            [ 'domstats.mem.rss',                      None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_kbyte, 'VM memory, proc RSS'                    ],
+            # DEPRECATED: https://bugzilla.redhat.com/show_bug.cgi?id=1488895
+            [ 'domstats.mem.swap_in',                  None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_kbyte, 'Deprecated swapped in total'            ],
+            [ 'domstats.mem.swap_out',                 None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_kbyte, 'Deprecated swapped out total'           ],
+            [ 'domstats.mem.major_fault',              None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'Deprecated major faults'                ],
+            [ 'domstats.mem.minor_fault',              None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'Deprecated minor faults'                ],
+            [ 'domstats.mem.unused',                   None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_kbyte, 'Deprecated unused mem'                  ],
+            [ 'domstats.mem.available',                None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_kbyte, 'Deprecated available mem'               ],
+            [ 'domstats.mem.actual',                   None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_kbyte, 'Deprecated balloon size'                ],
+            [ 'domstats.mem.rss',                      None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_kbyte, 'Deprecated proc RSS'                    ],
         ]
 
         self.vm_balloonstats_res = []
@@ -178,16 +178,16 @@ class LibvirtPMDA(PMDA):
         self.vm_balloonstats = [
             # Name - empty - type - semantics - units - help
             # See libvirt.git/src/libvirt-domain.c
-            [ 'domstats.balloon.current',              None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_kbyte, 'VM balloon, current size'               ],
-            [ 'domstats.balloon.maximum',              None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_kbyte, 'VM balloon, maximum size'               ],
+            [ 'domstats.balloon.current',              None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_kbyte, 'VM balloon, current mem size'           ],
+            [ 'domstats.balloon.maximum',              None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_kbyte, 'VM balloon, maximum mem size'           ],
             [ 'domstats.balloon.swap_in',              None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_kbyte, 'VM balloon, swapped in total'           ],
             [ 'domstats.balloon.swap_out',             None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_kbyte, 'VM balloon, swapped out total'          ],
             [ 'domstats.balloon.major_fault',          None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM balloon, major faults'               ],
             [ 'domstats.balloon.minor_fault',          None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM balloon, minor faults'               ],
-            [ 'domstats.balloon.unused',               None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_kbyte, 'VM balloon, unused'                     ],
-            [ 'domstats.balloon.available',            None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_kbyte, 'VM balloon, available'                  ],
+            [ 'domstats.balloon.unused',               None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_kbyte, 'VM balloon, unused memory'              ],
+            [ 'domstats.balloon.available',            None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_kbyte, 'VM balloon, available memory'           ],
             [ 'domstats.balloon.rss',                  None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_kbyte, 'VM balloon, proc RSS'                   ],
-            [ 'domstats.balloon.usable',               None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_kbyte, 'VM balloon, usable w/o swap'            ],
+            [ 'domstats.balloon.usable',               None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_kbyte, 'VM balloon, usable w/o swapping'        ],
             [ 'domstats.balloon.last_update',          None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_secs,  'VM balloon, update timestamp'           ],
         ]
 

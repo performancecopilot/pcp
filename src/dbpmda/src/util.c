@@ -16,6 +16,7 @@
 #include "./dbpmda.h"
 #include "./lex.h"
 #include "./gram.h"
+#include "pmdbg.h"
 
 extern pmdaInterface	dispatch;
 extern int		infd;
@@ -32,19 +33,6 @@ static __pmContext	*ctxp;
 
 static char		**argv;
 static int		argc;
-
-/*
- * Warning: order of these strings _must_ match bit field sequence defined
- *	    in impl.h for DBG_TRACE_* macros
- */
-static char* debugFlags[] = {
-    "pdu", "fetch", "profile", "value", "context", "indom", "pdubuf", "log",
-    "logmeta", "optfetch", "af", "appl0", "appl1", "appl2", "pmns", "libpmda",
-    "timecontrol", "pmc", "derive", "lock", "interp", "config", "loop", "fault",
-    "auth", "discovery", "attr", "http", "label", "desperate"
-};
-
-static int numFlags = sizeof(debugFlags)/sizeof(debugFlags[0]);
 
 void
 reset_profile(void)
@@ -283,7 +271,7 @@ dohelp(int command, int full)
 	    break;
 	case DBG:
 	    puts("debug all | none");
-	    puts("debug flag [ flag ... ] (flag is decimal or symbolic name)");
+	    puts("debug option [ option ... ] (option is a symbolic name or a decimal number)");
 	    break;
 	case DESC:
 	    puts("desc metric");
@@ -372,10 +360,11 @@ dohelp(int command, int full)
 		break;
 	    case DBG:
 		puts(
-"Specify which debugging flags should be active (see pmdbg(1)).  Flags may\n"
-"be specified as integers or by name, with multiple flags separated by\n"
-"white space.  All flags may be selected or deselected if 'all' or 'none' is\n"
-"specified.  The current setting is displayed by the status command.\n\n");
+"Specify which debugging options should be active (see pmdbg(1)).  Options\n"
+"may be specified by name (or number for the old bit-field options), with\n"
+"multiple options separated by white space.  All options may be selected or\n"
+"deselected if 'all' or 'none' is specified.  The current setting is\n"
+"displayed by the status command.\n\n");
 		break;
 	    case DESC:
 		puts(
@@ -457,7 +446,7 @@ dohelp(int command, int full)
 	    case STATUS:
 		puts(
 "Display the state of dbpmda, including which PMDA is connected, which\n"
-"pmDebug flags are set, and the current profile.\n");
+"debug options are set, and the current profile.\n");
 		break;
 	    case STORE:
 		puts(
@@ -489,6 +478,7 @@ void
 dostatus(void)
 {
     int		i = 0;
+    int		n;
 
     putchar('\n');
     printf("Namespace:              ");
@@ -527,23 +517,29 @@ dostatus(void)
 	}
     }
 
-    printf("pmDebug:                ");
-    if (pmDebug == (unsigned int) -1)
-	printf("-1 (all)\n");
-    else if (pmDebug == 0)
-	printf("0 (none)\n");
-    else {
-	printf("%u", pmDebug);
-	for (i = 0; i < numFlags; i++)
-	    if (pmDebug & (1 << i)) {
-		printf(" ( %s", debugFlags[i]);
-		break;
-	    }
-	for (i++; i < numFlags; i++)
-	    if (pmDebug & (1 << i))
-		printf(" + %s", debugFlags[i]);
-	printf(" )\n");
+    printf("Debug options:          ");
+    n = 0;
+    for (i = 0; i < num_debug; i++) {
+	if (*(debug_map[i].options))
+	    n++;
     }
+    if (n == num_debug)
+	printf("(all)");
+    else if (n == 0)
+	printf("(none)");
+    else {
+	n = 0;
+	for (i = 0; i < num_debug; i++) {
+	    if (*(debug_map[i].options)) {
+		if (n == 0)
+		    n = 1;
+		else
+		    putchar(' ');
+		printf("%s", debug_map[i].name);
+	    }
+	}
+    }
+    putchar('\n');
 
     printf("Timer:                  ");
     if (timer == 0)
