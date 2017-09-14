@@ -104,10 +104,12 @@ pmLookupDesc_ctx(__pmContext *ctxp, pmID pmid, pmDesc *desc)
 	int		sts2;
 	/*
 	 * check for derived metric ... keep error status from above
-	 * unless we have success with the derived metrics
+	 * unless we have success with the derived metrics, except that
+	 * PM_ERR_BADDERIVE really means the derived metric bind failed,
+	 * so we should propagate that one back ...
 	 */
 	sts2 = __dmdesc(ctxp, pmid, desc);
-	if (sts2 >= 0)
+	if (sts2 >= 0 || sts2 == PM_ERR_BADDERIVE)
 	    sts = sts2;
     }
     if (need_unlock)
