@@ -12,12 +12,6 @@ Derived metric initialization from $PCP_DERIVED_CONFIG
 pmLoadDerivedConfig("TMP.config")
 pmRegisterDerived: register metric[2] derived.inst = delta(sample.longlong.million)
 pmRegisterDerived: register metric[3] derived.ctr = delta(sampledso.recv_pdu)
-__dmopencontext: bind metric[0] event.flags
-__dmopencontext: bind metric[1] event.missed
-__dmgetpmid: metric "derived.inst" -> PMID 511.0.3
-__dmopencontext: bind metric[2] derived.inst
-__dmgetpmid: metric "derived.ctr" -> PMID 511.0.4
-__dmopencontext: bind metric[3] derived.ctr
 pmFetch returns ...
 TIMESTAMP ... numpmid: 1
   2.0.21 (pmcd.hostname): numval: 1 valfmt: 1 vlist[]:
@@ -25,6 +19,8 @@ TIMESTAMP ... numpmid: 1
 Note: timezone set to "TZ=UTC"
 
 __dmgetpmid: metric "derived.inst" -> PMID 511.0.3
+__dmgetpmid: metric "derived.inst" -> PMID 511.0.3
+__dmbind: bind metric[2] derived.inst
 metric:    derived.inst
 host:      HOST
 semantics: instantaneous value
@@ -104,12 +100,6 @@ Derived metric initialization from $PCP_DERIVED_CONFIG
 pmLoadDerivedConfig("TMP.config")
 pmRegisterDerived: register metric[2] derived.inst = delta(sample.longlong.million)
 pmRegisterDerived: register metric[3] derived.ctr = delta(sampledso.recv_pdu)
-__dmopencontext: bind metric[0] event.flags
-__dmopencontext: bind metric[1] event.missed
-__dmgetpmid: metric "derived.inst" -> PMID 511.0.3
-__dmopencontext: bind metric[2] derived.inst
-__dmgetpmid: metric "derived.ctr" -> PMID 511.0.4
-__dmopencontext: bind metric[3] derived.ctr
 pmFetch returns ...
 TIMESTAMP ... numpmid: 1
   2.0.21 (pmcd.hostname): numval: 1 valfmt: 1 vlist[]:
@@ -117,6 +107,8 @@ TIMESTAMP ... numpmid: 1
 Note: timezone set to "TZ=UTC"
 
 __dmgetpmid: metric "derived.ctr" -> PMID 511.0.4
+__dmgetpmid: metric "derived.ctr" -> PMID 511.0.4
+__dmbind: bind metric[3] derived.ctr
 metric:    derived.ctr
 host:      HOST
 semantics: instantaneous value
@@ -214,11 +206,6 @@ Metric name expected to follow delta(
  delta(12345)
        ^     
 Metric name expected to follow delta(
-__dmopencontext: bind metric[0] event.flags
-__dmopencontext: bind metric[1] event.missed
-__dmgetpmid: metric "myname.b" -> PMID 511.0.3
-__dmgetpmid: metric "delta" -> Unknown metric name
-bind_expr: error: derived metric myname.b: operand: delta: Unknown metric name
 pmFetch returns ...
 TIMESTAMP ... numpmid: 1
   2.0.21 (pmcd.hostname): numval: 1 valfmt: 1 vlist[]:
