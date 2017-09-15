@@ -916,7 +916,7 @@ _z(void)
     }
 
 /* PDU_TEXT */
-#define MARY "mary had a little lamb\nits fleece was white as snow\n"
+#define MARY "mary had a little lamb\nits fleece was white as snow.\n"
     if ((e = __pmSendText(fd[1], mypid, 0x43214321, MARY)) < 0) {
 	fprintf(stderr, "Error: SendText: %s\n", pmErrStr(e));
 	fatal = 1;
