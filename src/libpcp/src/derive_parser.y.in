@@ -1546,6 +1546,7 @@ registerderived(const char *name, const char *expr, int isanon)
     pmid.item = registered.nmetric;
     registered.mlist[registered.nmetric-1].pmid = *((pmID *)&pmid);
     registered.mlist[registered.nmetric-1].expr = np;
+    registered.mlist[registered.nmetric-1].bind = 0;
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_DERIVE) {
@@ -1848,7 +1849,8 @@ __dmtraverse(__pmContext *ctxp, const char *name, char ***namelist)
     for (i = 0; i < cp->nmetric; i++) {
 	/* skip invalid derived metrics, e.g. due to missing operands */
 	if (!cp->mlist[i].anon) {
-	    if (ctxp == NULL || cp->mlist[i].expr == NULL) {
+	    if (ctxp == NULL ||
+	       (cp->mlist[i].bind == 1 && cp->mlist[i].expr == NULL)) {
 		if (pmDebug & DBG_TRACE_DERIVE) {
 		    fprintf(stderr, "__dmtraverse: name=\"%s\", omitting invalid child \"%s\"\n",
 		    	name, cp->mlist[i].name);
@@ -1907,7 +1909,8 @@ __dmchildren(__pmContext *ctxp, const char *name, char ***offspring, int **statu
     for (i = 0; i < cp->nmetric; i++) {
 	/* skip invalid derived metrics, e.g. due to missing operands */
 	if (!cp->mlist[i].anon) {
-	    if (ctxp == NULL || cp->mlist[i].expr == NULL) {
+	    if (ctxp == NULL ||
+	       (cp->mlist[i].bind == 1 && cp->mlist[i].expr == NULL)) {
 		if (pmDebug & DBG_TRACE_DERIVE) {
 		    fprintf(stderr, "__dmchildren: name=\"%s\", omitting invalid child \"%s\"\n",
 		    	name, cp->mlist[i].name);
@@ -2069,11 +2072,78 @@ __dmgetname(pmID pmid, char ** name)
     return PM_ERR_PMID;
 }
 
+/*
+ * bind the ith derived metric expression in the current context ...
+ * sets cp->mlist[i].expr as return value (NULL for error)
+ */
+void
+__dmbind(__pmContext *ctxp, int i)
+{
+    int		sts;
+    pmID	pmid;
+    ctl_t	*cp;
+
+    PM_ASSERT_IS_LOCKED(ctxp->c_lock);
+
+    cp = (ctl_t *)ctxp->c_dm;
+
+    if (!registered.mlist[i].anon) {
+	/*
+	 * Assume anonymous derived metric names are unique, but otherwise
+	 * derived metric names must not clash with real metric names ...
+	 * and if this happens, the real metric wins!
+	 * Logic here depends on pmLookupName() returning before any
+	 * derived metric searching is performed if the name is valid
+	 * for a real metric in the current context.
+	 */
+	sts = pmLookupName_ctx(ctxp, 1, &registered.mlist[i].name, &pmid);
+	if (sts >= 0 && !IS_DERIVED(pmid)) {
+#ifdef PCP_DEBUG
+	    if (pmDebug & DBG_TRACE_DERIVE) {
+		char	strbuf[20];
+		fprintf(stderr, "Warning: %s: derived name matches metric %s: derived ignored\n",
+		    registered.mlist[i].name, pmIDStr_r(pmid, strbuf, sizeof(strbuf)));
+	    }
+#endif
+	    cp->mlist[i].expr = NULL;
+	    goto done;
+	}
+    }
+    /* failures must be reported in bind_expr() or below */
+    cp->mlist[i].expr = bind_expr(ctxp, i, registered.mlist[i].expr, 0);
+    if (cp->mlist[i].expr != NULL) {
+	/* failures must be reported in check_expr() or below */
+	sts = check_expr(i, cp->mlist[i].expr);
+	if (sts < 0) {
+	    free_expr(cp->mlist[i].expr);
+	    cp->mlist[i].expr = NULL;
+	}
+	else {
+	    /* set correct PMID in pmDesc at the top level */
+	    cp->mlist[i].expr->desc.pmid = cp->mlist[i].pmid;
+	}
+    }
+#ifdef PCP_DEBUG
+    if ((pmDebug & DBG_TRACE_DERIVE) && cp->mlist[i].expr != NULL) {
+	fprintf(stderr, "__dmbind: bind metric[%d] %s\n", i, registered.mlist[i].name);
+	if (pmDebug & DBG_TRACE_APPL1)
+	    __dmdumpexpr(cp->mlist[i].expr, 0);
+    }
+#endif
+
+done:
+    cp->mlist[i].bind = 1;
+    return;
+}
+
+/*
+ * called when new context established to clone the derived
+ * metrics control structures
+ */
 void
 __dmopencontext(__pmContext *ctxp)
 {
     int		i;
-    int		sts;
     ctl_t	*cp;
 
     initialize_mutex();
@@ -2103,54 +2173,12 @@ __dmopencontext(__pmContext *ctxp)
 	/* NOTREACHED */
     }
     for (i = 0; i < cp->nmetric; i++) {
-	pmID	pmid;
 	cp->mlist[i].name = registered.mlist[i].name;
 	cp->mlist[i].pmid = registered.mlist[i].pmid;
 	cp->mlist[i].anon = registered.mlist[i].anon;
+	cp->mlist[i].expr = NULL;
+	cp->mlist[i].bind = 0;
 	assert(registered.mlist[i].expr != NULL);
-	if (!registered.mlist[i].anon) {
-	    /*
-	     * Assume anonymous derived metric names are unique, but otherwise
-	     * derived metric names must not clash with real metric names ...
-	     * and if this happens, the real metric wins!
-	     * Logic here depends on pmLookupName() returning before any
-	     * derived metric searching is performed if the name is valid
-	     * for a real metric in the current context.
-	     */
-	    sts = pmLookupName_ctx(ctxp, 1, &registered.mlist[i].name, &pmid);
-	    if (sts >= 0 && !IS_DERIVED(pmid)) {
-#ifdef PCP_DEBUG
-		if (pmDebug & DBG_TRACE_DERIVE) {
-		    char	strbuf[20];
-		    fprintf(stderr, "Warning: %s: derived name matches metric %s: derived ignored\n",
-			registered.mlist[i].name, pmIDStr_r(pmid, strbuf, sizeof(strbuf)));
-		}
-#endif
-		cp->mlist[i].expr = NULL;
-		continue;
-	    }
-	}
-	/* failures must be reported in bind_expr() or below */
-	cp->mlist[i].expr = bind_expr(ctxp, i, registered.mlist[i].expr, 0);
-	if (cp->mlist[i].expr != NULL) {
-	    /* failures must be reported in check_expr() or below */
-	    sts = check_expr(i, cp->mlist[i].expr);
-	    if (sts < 0) {
-		free_expr(cp->mlist[i].expr);
-		cp->mlist[i].expr = NULL;
-	    }
-	    else {
-		/* set correct PMID in pmDesc at the top level */
-		cp->mlist[i].expr->desc.pmid = cp->mlist[i].pmid;
-	    }
-	}
-#ifdef PCP_DEBUG
-	if ((pmDebug & DBG_TRACE_DERIVE) && cp->mlist[i].expr != NULL) {
-	    fprintf(stderr, "__dmopencontext: bind metric[%d] %s\n", i, registered.mlist[i].name);
-	    if (pmDebug & DBG_TRACE_APPL1)
-		__dmdumpexpr(cp->mlist[i].expr, 0);
-	}
-#endif
     }
     PM_UNLOCK(registered.mutex);
 }
@@ -2170,7 +2198,8 @@ __dmclosecontext(__pmContext *ctxp)
 #endif
     if (cp == NULL) return;
     for (i = 0; i < cp->nmetric; i++) {
-	free_expr(cp->mlist[i].expr); 
+	if (cp->mlist[i].expr != NULL)
+	    free_expr(cp->mlist[i].expr); 
     }
     free(cp->mlist);
     free(cp);
@@ -2189,9 +2218,13 @@ __dmdesc(__pmContext *ctxp, pmID pmid, pmDesc *desc)
 
     for (i = 0; i < cp->nmetric; i++) {
 	if (cp->mlist[i].pmid == pmid) {
+	    if (cp->mlist[i].bind == 0) {
+		/* ctxp->c_lock already locked at this point */
+		__dmbind(ctxp, i);
+	    }
 	    if (cp->mlist[i].expr == NULL)
 		/* bind failed for some reason, reported earlier */
-		return PM_ERR_NAME;
+		return PM_ERR_BADDERIVE;
 	    *desc = cp->mlist[i].expr->desc;
 	    return 0;
 	}

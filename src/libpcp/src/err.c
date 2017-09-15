@@ -181,6 +181,8 @@ static const struct {
 	"The units of a metric have changed in an archive" },
     { PM_ERR_NEEDCLIENTCERT,	"PM_ERR_NEEDCLIENTCERT",
 	"PMCD requires a client certificate" },
+    { PM_ERR_BADDERIVE,		"PM_ERR_BADDERIVE",
+	"Derived metric definition failed" },
     { PM_ERR_NOLABELS,		"PM_ERR_NOLABELS",
 	"No support for metric label metadata" },
     /* insert new libpcp error codes here */
