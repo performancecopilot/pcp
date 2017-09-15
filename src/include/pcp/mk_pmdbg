@@ -32,7 +32,7 @@ fi
 
 sedcmd=`$PCP_AWK_PROG <impl.h '
 BEGIN			{ start=0 }
-/^typedef struct {/	{ start=NR }
+/^typedef struct \{/	{ start=NR }
 /^} pmdebugoptions_t;/	{ if (start>0) print start "," NR "p"; exit }'`
 if [ -z $sedcmd ]
 then
