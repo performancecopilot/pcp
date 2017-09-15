@@ -370,12 +370,10 @@ PCP_CALL extern void __pmDumpNameNode(FILE *, __pmnsNode *, int);
 PCP_CALL extern void __pmDumpStack(FILE *);
 PCP_DATA extern int __pmLogReads;
 
-#ifdef PCP_DEBUG
 PCP_CALL extern void __pmDumpIDList(FILE *, int, const pmID *);
 PCP_CALL extern void __pmDumpNameList(FILE *, int, char **);
 PCP_CALL extern void __pmDumpStatusList(FILE *, int, const int *);
 PCP_CALL extern void __pmDumpNameAndStatusList(FILE *, int, char **, int *);
-#endif
 
 /*
  * Logs and archives of performance metrics (not to be confused

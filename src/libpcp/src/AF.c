@@ -266,10 +266,10 @@ enqueue(qelt *qp)
  * __pmtimevalInc	- ok
  * __pmtimevalDec	- ok
  *
- * in PCP_DEBUG code
+ * in debug code
  *   fprintf	- problem, but we are not going to rewrite all of debug code,
- *   		  so accept that if pmDebug != 0 this code is no longer
- *   		  thread-safe
+ *		  so accept that if PCP debugging is enabled this
+ *		  code is no longer thread-safe
  */
 static void
 onalarm(int dummy)
