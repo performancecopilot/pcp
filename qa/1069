@@ -121,6 +121,10 @@ pmrep -s 5 -t 2 $log2 -w 15 -P 4 -p -q "count x 10^-2" disk.dev.read
 pmrep -s 5 -t 2 $log2 -w 15 -P 5 -p -y sec -u disk.dev.avactive
 pmrep -s 5 -t 2 $log2 -w 15 -P 6 -p -y microsec -u disk.dev.avactive
 pmrep -s 5 -t 2 $log2 -w 15 -P 7 -p -q "count x 10^6" -r kernel.all.sysfork
+pmrep -s 5 -t 2 $log2 -w 15 -P 8 -p -b kB mem.util.free mem.util.used
+pmrep -s 5 -t 2 $log2 -w 15 -P 9 -p -b MB/s mem.util.free mem.util.used
+pmrep -s 5 -t 2 $log2 -w 15 -P 8 -p mem.util.free,,,kb/s mem.util.used,,,GB/ms
+pmrep -s 5 -t 2 -a $here/archives/rep -u -p mem.util.used,,,GB/ms network.interface.speed,,,GB/hr
 
 echo "== derived metrics configuration file"
 cat > $tmp.derived <<EOF

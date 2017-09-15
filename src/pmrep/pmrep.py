@@ -864,49 +864,53 @@ class PMReporter(object):
             else:
                 self.metrics[metric][3] = 0
 
-            # Unit/scale
-            unitstr = str(self.descs[i].contents.units)
-            mtype = pmapi.c_api.PM_TYPE_FLOAT # Allow for precision
-            # Set default unit if not specified on per-metric basis
+            # Set unit/scale if not specified on per-metric basis
             if not self.metrics[metric][2]:
-                done = 0
                 unit = self.descs[i].contents.units
+                self.metrics[metric][2] = str(unit)
                 if self.count_scale and \
                    unit.dimCount == 1 and ( \
                    unit.dimSpace == 0 and
                    unit.dimTime  == 0):
                     self.metrics[metric][2] = self.count_scale
-                    done = 1
                 if self.space_scale and \
                    unit.dimSpace == 1 and ( \
                    unit.dimCount == 0 and
                    unit.dimTime  == 0):
                     self.metrics[metric][2] = self.space_scale
-                    done = 1
                 if self.time_scale and \
                    unit.dimTime  == 1 and ( \
                    unit.dimCount == 0 and
                    unit.dimSpace == 0):
                     self.metrics[metric][2] = self.time_scale
-                    done = 1
-                if not done:
-                    mtype = None # No scaling, use native type
-                    self.metrics[metric][2] = unitstr
-            # Set unit/scale for numeric metrics
+
+            # Finalize label and unit/scale
             try:
-                (unitstr, mult) = self.context.pmParseUnitsStr(self.metrics[metric][2])
                 label = self.metrics[metric][2]
+                (unitstr, mult) = self.context.pmParseUnitsStr(self.metrics[metric][2])
                 if self.metrics[metric][3] == 0 and \
-                   self.descs[i].contents.type != PM_TYPE_STRING:
-                    if self.descs[i].sem == PM_SEM_COUNTER:
-                        mtype = PM_TYPE_FLOAT
-                        if '/' not in label:
-                            label += " / s"
+                   self.descs[i].contents.type != PM_TYPE_STRING and \
+                   self.descs[i].contents.sem == PM_SEM_COUNTER and \
+                   '/' not in label:
+                    label += " / s"
                 label = self.format_metric_label(label)
                 self.metrics[metric][2] = (label, unitstr, mult)
             except pmapi.pmErr as error:
                 sys.stderr.write("%s: %s.\n" % (str(error), self.metrics[metric][2]))
                 sys.exit(1)
+
+            # Set metric type - default to double for precision
+            mtype = PM_TYPE_DOUBLE
+            # But use native type when else was not requested
+            if str(unitstr) == str(self.descs[i].contents.units):
+                mtype = self.descs[i].contents.type
+            # However always use double for non-raw counters
+            if self.metrics[metric][3] == 0 and \
+               self.descs[i].contents.sem == PM_SEM_COUNTER:
+                mtype = PM_TYPE_DOUBLE
+            # Strings will be strings right till the end
+            if self.descs[i].contents.type == PM_TYPE_STRING:
+                mtype = self.descs[i].contents.type
 
             # Set default width if not specified on per-metric basis
             if self.metrics[metric][4]:
