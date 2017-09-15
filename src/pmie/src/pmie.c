@@ -212,11 +212,9 @@ load(char *fname)
 		    fname, strerror(sts));
 	    exit(1);
 	}
-#if PCP_DEBUG
-	else if (pmDebug & DBG_TRACE_APPL0) {
+	else if (pmDebugOptions.appl0) {
 	    fprintf(stderr, "load: cannot access config file %s: %s\n", fname, strerror(sts));
 	}
-#endif
 	pmsprintf(config, sizeof(config)-1, "%s%c" "config%c" "pmie%c" "%s",
 		pmGetConfig("PCP_VAR_DIR"), sep, sep, sep, fname);
 	if (access(config, F_OK) != 0) {
@@ -224,19 +222,15 @@ load(char *fname)
 		    pmProgname, fname, config, strerror(sts));
 	    exit(1);
 	}
-#if PCP_DEBUG
-	else if (pmDebug & DBG_TRACE_APPL0) {
+	else if (pmDebugOptions.appl0) {
 	    fprintf(stderr, "load: using standard config file %s\n", config);
 	}
-#endif
 	fname = config;
     }
-#if PCP_DEBUG
-    else if (pmDebug & DBG_TRACE_APPL0) {
+    else if (pmDebugOptions.appl0) {
 	fprintf(stderr, "load: using config file %s\n",
 		fname == NULL? "<stdin>":fname);
     }
-#endif
 
     if (perf->config[0] == '\0') {	/* keep record of first config */
 	if (fname == NULL)
@@ -394,7 +388,7 @@ sigintproc(int sig)
 {
     __pmSetSignalHandler(SIGINT, SIG_IGN);
     __pmSetSignalHandler(SIGTERM, SIG_IGN);
-    if (pmDebug & DBG_TRACE_DESPERATE)
+    if (pmDebugOptions.desperate)
 	__pmNotifyErr(LOG_INFO, "%s caught SIGINT or SIGTERM\n", pmProgname);
     if (inrun)
 	doexit = sig;
@@ -449,7 +443,7 @@ sighupproc(int sig)
 static void
 sigbadproc(int sig)
 {
-    if (pmDebug & DBG_TRACE_DESPERATE) {
+    if (pmDebugOptions.desperate) {
 	__pmNotifyErr(LOG_ERR, "Unexpected signal %d ...\n", sig);
 	fprintf(stderr, "\nProcedure call traceback ...\n");
 	__pmDumpStack(stderr);
@@ -750,10 +744,8 @@ getargs(int argc, char *argv[])
 	}
     }
 
-#if PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL1)
+    if (pmDebugOptions.appl1)
 	dumpRules();
-#endif
 
     /* really parse time window */
     if (!archives) {
@@ -832,10 +824,8 @@ interact(void)
 	    case 'f':
 		token = scanArg(finger);
 		load(token);
-#if PCP_DEBUG
-		if (pmDebug & DBG_TRACE_APPL1)
+		if (pmDebugOptions.appl1)
 		    dumpRules();
-#endif
 		break;
 
 	    case 'l':

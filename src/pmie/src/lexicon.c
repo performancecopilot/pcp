@@ -186,10 +186,8 @@ nextc(void)
 		lin->cno = 0;
 	    }
 	}
-#if PCP_DEBUG
-	if ((pmDebug & DBG_TRACE_APPL0) && (pmDebug & DBG_TRACE_DESPERATE))
+	if (pmDebugOptions.appl0 && pmDebugOptions.desperate)
 	    fprintf(stderr, "nextc() -> \'%c\'\n", c);
-#endif
 	return c;
     }
     return EOF;
@@ -360,10 +358,8 @@ get_ident(char *namebuf)
 
     *namebuf = '\0';
 
-#if PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL0)
+    if (pmDebugOptions.appl0)
 	fprintf(stderr, "get_ident() -> macro name \"%s\"\n", namebuf_start);
-#endif
 
     return 1;
 }
@@ -432,10 +428,8 @@ yylex(void)
     if (ahead) {
 	c = ahead;
 	ahead = 0;
-#if PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL0)
+	if (pmDebugOptions.appl0)
 	    fprintf(stderr, "yylex() -> TOKEN (ahead) \'%c\'\n", c);
-#endif
 	return c;
     }
 
@@ -529,10 +523,8 @@ yylex(void)
 			if (behind == '/') {
 			    prevs(&token[0]);
 			    prevc(c);
-#if PCP_DEBUG
-			    if (pmDebug & DBG_TRACE_APPL0)
+			    if (pmDebugOptions.appl0)
 				fprintf(stderr, "yylex() -> OPERATOR \"/\"\n");
-#endif
 			    return UNIT_SLASH;
 			}
 			prevc(c);
@@ -552,10 +544,8 @@ yylex(void)
 			    yylval.u.scaleCount = lt2->scale;
 			    break;
 			}
-#if PCP_DEBUG
-			if (pmDebug & DBG_TRACE_APPL0)
+			if (pmDebugOptions.appl0)
 			    fprintf(stderr, "yylex() -> UNITS \"%s\"\n", pmUnitsStr(&yylval.u));
-#endif
 			return lt2->token;
 		    }
 		    lt2++;
@@ -566,10 +556,8 @@ yylex(void)
 	    if (behind) {
 		prevs(&token[0]);
 		prevc(c);
-#if PCP_DEBUG
-		if (pmDebug & DBG_TRACE_APPL0)
+		if (pmDebugOptions.appl0)
 		    fprintf(stderr, "yylex() -> TOKEN (behind) \'%c\'\n", behind);
-#endif
 		return behind;
 	    }
 	    prevc(c);
@@ -587,10 +575,8 @@ yylex(void)
 			    do {
 				if (strcmp(q, lt1->key) == 0) {
 				    ahead = lt1->token;
-#if PCP_DEBUG
-				    if (pmDebug & DBG_TRACE_APPL0)
+				    if (pmDebugOptions.appl0)
 					fprintf(stderr, "yylex() -> OPERATOR \"%s\'\n", token);
-#endif
 				    return c;
 				}
 				lt1++;
@@ -606,10 +592,8 @@ yylex(void)
 		lt1 = &optab[0];
 		do {
 		    if (strcmp(&token[0], lt1->key) == 0) {
-#if PCP_DEBUG
-			if (pmDebug & DBG_TRACE_APPL0)
+			if (pmDebugOptions.appl0)
 			    fprintf(stderr, "yylex() -> RESERVED-WORD \"%s\"\n", token);
-#endif
 			return lt1->token;
 		    }
 		    lt1++;
@@ -619,20 +603,16 @@ yylex(void)
 	    /* recognize identifier */
 	    yylval.s = (char *) alloc(strlen(&token[0]) + 1);
 	    strcpy(yylval.s, &token[0]);
-#if PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL0)
+	    if (pmDebugOptions.appl0)
 		fprintf(stderr, "yylex() -> IDENT \"%s\"\n", token);
-#endif
 	    return IDENT;
 	}
 
 	/* if looking ahead, return preceding token */
 	if (behind) {
 	    prevc(c);
-#if PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL0)
+	    if (pmDebugOptions.appl0)
 		fprintf(stderr, "yylex() -> TOKEN (behind) \'%c\'\n", behind);
-#endif
 	    return behind;
 	}
 
@@ -679,10 +659,8 @@ yylex(void)
             prevc(c);
             token[i] = '\0';
 	    yylval.d = strtod(&token[0], NULL);
-#if PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL0)
+	    if (pmDebugOptions.appl0)
 		fprintf(stderr, "yylex() -> NUMBER %g\n", yylval.d);
-#endif
 	    return NUMBER;
 	}
 
@@ -754,10 +732,8 @@ yylex(void)
 		yylval.s = (char *) ralloc(yylval.s, 1);
 	    }
 	    yylval.s[i++] = '\0';
-#if PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL0)
+	    if (pmDebugOptions.appl0)
 		fprintf(stderr, "yylex() -> STRING \"%s\"\n", yylval.s);
-#endif
 	    return STRING;
 	}
 
@@ -774,10 +750,8 @@ yylex(void)
             }
             else
                 prevc(d);
-#if PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL0)
+	    if (pmDebugOptions.appl0)
 		fprintf(stderr, "yylex() -> END-OF-RULE\n");
-#endif
             return EOF;
 
 	case '$':
@@ -791,16 +765,12 @@ yylex(void)
 		    c = nextc();
 		    continue;
 		case DEREF_BOOL:
-#if PCP_DEBUG
-		    if (pmDebug & DBG_TRACE_APPL0)
+		    if (pmDebugOptions.appl0)
 			fprintf(stderr, "yylex() -> (boolean) macro $%s\n", nbuf);
-#endif
 		    return VAR;
 		case DEREF_NUMBER:
-#if PCP_DEBUG
-		    if (pmDebug & DBG_TRACE_APPL0)
+		    if (pmDebugOptions.appl0)
 			fprintf(stderr, "yylex() -> (numeric) macro $%s\n", nbuf);
-#endif
 		    return VAR;
 	    }
 	    /*NOTREACHED*/
@@ -812,113 +782,87 @@ yylex(void)
 	    continue;
 	case '-':
 	    if ((d = nextc()) == '>') {
-#if PCP_DEBUG
-		if (pmDebug & DBG_TRACE_APPL0)
+		if (pmDebugOptions.appl0)
 		    fprintf(stderr, "yylex() -> OPERATOR \"->\"\n");
-#endif
 		return ARROW;
 	    }
 	    prevc(d);
 	    break;
 	case '=':
 	    if ((d = nextc()) == '=') {
-#if PCP_DEBUG
-		if (pmDebug & DBG_TRACE_APPL0)
+		if (pmDebugOptions.appl0)
 		    fprintf(stderr, "yylex() -> OPERATOR \"==\"\n");
-#endif
 		return EQ_REL;
 	    }
 	    prevc(d);
 	    break;
 	case '!':
 	    if ((d = nextc()) == '=') {
-#if PCP_DEBUG
-		if (pmDebug & DBG_TRACE_APPL0)
+		if (pmDebugOptions.appl0)
 		    fprintf(stderr, "yylex() -> OPERATOR \"!=\"\n");
-#endif
 		return NEQ_REL;
 	    }
 	    prevc(d);
-#if PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL0)
+	    if (pmDebugOptions.appl0)
 		fprintf(stderr, "yylex() -> OPERATOR \"!\"\n");
-#endif
 	    return NOT;
 	case '<':
 	    if ((d = nextc()) == '=') {
-#if PCP_DEBUG
-		if (pmDebug & DBG_TRACE_APPL0)
+		if (pmDebugOptions.appl0)
 		    fprintf(stderr, "yylex() -> OPERATOR \"<=\"\n");
-#endif
 		return LEQ_REL;
 	    }
 	    prevc(d);
 	    break;
 	case '>':
 	    if ((d = nextc()) == '=') {
-#if PCP_DEBUG
-		if (pmDebug & DBG_TRACE_APPL0)
+		if (pmDebugOptions.appl0)
 		    fprintf(stderr, "yylex() -> OPERATOR \">=\"\n");
-#endif
 		return GEQ_REL;
 	    }
 	    prevc(d);
 	    break;
 	case '&':
 	    if ((d = nextc()) == '&') {
-#if PCP_DEBUG
-		if (pmDebug & DBG_TRACE_APPL0)
+		if (pmDebugOptions.appl0)
 		    fprintf(stderr, "yylex() -> OPERATOR \"&&\"\n");
-#endif
 		return AND;
 	    }
 	    prevc(d);
-#if PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL0)
+	    if (pmDebugOptions.appl0)
 		fprintf(stderr, "yylex() -> OPERATOR \"&\"\n");
-#endif
 	    return SEQ;
 	case '|':
 	    if ((d = nextc()) == '|') {
-#if PCP_DEBUG
-		if (pmDebug & DBG_TRACE_APPL0)
+		if (pmDebugOptions.appl0)
 		    fprintf(stderr, "yylex() -> OPERATOR \"||\"\n");
-#endif
 		return OR;
 	    }
 	    prevc(d);
-#if PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL0)
+	    if (pmDebugOptions.appl0)
 		fprintf(stderr, "yylex() -> OPERATOR \"|\"\n");
-#endif
 	    return ALT;
 	case '.':
 	    if ((d = nextc()) == '.') {
-#if PCP_DEBUG
-		if (pmDebug & DBG_TRACE_APPL0)
+		if (pmDebugOptions.appl0)
 		    fprintf(stderr, "yylex() -> OPERATOR \"..\"\n");
-#endif
 		return INTERVAL;
 	    }
 	    prevc(d);
 	    break;
 
 	}
-#if PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL0) {
+	if (pmDebugOptions.appl0) {
 	    if (c == EOF)
 		fprintf(stderr, "yylex() -> EOF\n");
 	    else
 		fprintf(stderr, "yylex() -> TOKEN \'%c\' (0x%x)\n", c, c & 0xff);
 	}
-#endif
 	return c;
     }
 
-#if PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL0)
+    if (pmDebugOptions.appl0)
 	fprintf(stderr, "yylex() -> EOF\n");
-#endif
     return EOF;
 }
 
