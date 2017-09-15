@@ -638,8 +638,7 @@ unparseHostSpec(pmHostSpec *hostp, int count, char *string, size_t size, int pre
     }
 
 done:
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_CONTEXT) {
+    if (pmDebugOptions.context) {
 	fprintf(stderr, "__pmUnparseHostSpec([name=%s ports=%p nport=%d], count=%d, ...) -> ", hostp->name, hostp->ports, hostp->nports, count);
 	if (off < 0) {
 	    char	errmsg[PM_MAXERRMSGLEN];
@@ -649,7 +648,6 @@ done:
 	else
 	    fprintf(stderr, "%d \"%s\"\n", off, string);
     }
-#endif
     return off;
 }
 

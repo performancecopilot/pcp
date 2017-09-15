@@ -261,7 +261,7 @@ __pmconfig(__pmConfigCallback formatter, int fatal)
 	     */
 	    formatter(var, prefix, val);
 	}
-	if (pmDebug & DBG_TRACE_CONFIG)
+	if (pmDebugOptions.config)
 	    fprintf(stderr, "pmgetconfig: (init) %s=%s\n", var, val);
 	PM_UNLOCK(__pmLock_extcall);
     }
@@ -299,7 +299,7 @@ pmgetconfig(const char *name, int fatal)
      */
     val = getenv(name);		/* THREAD-UNSAFE! */
     if (val == NULL) {
-	if (pmDebug & DBG_TRACE_CONFIG) {
+	if (pmDebugOptions.config) {
 	    fprintf(stderr, "pmgetconfig: getenv(%s) -> NULL\n", name);
 	}
 	if (!fatal)
@@ -307,7 +307,7 @@ pmgetconfig(const char *name, int fatal)
 	val = "";
     }
 
-    if (pmDebug & DBG_TRACE_CONFIG)
+    if (pmDebugOptions.config)
 	fprintf(stderr, "pmgetconfig: %s=%s\n", name, val);
 
     return val;
@@ -453,7 +453,7 @@ __pmAPIConfig(__pmAPIConfigCallback formatter)
 
     for (i = 0; i < sizeof(features)/sizeof(features[0]); i++) {
 	const char *value = features[i].detector();
-	if (pmDebug & DBG_TRACE_CONFIG)
+	if (pmDebugOptions.config)
 	    fprintf(stderr, "__pmAPIConfig: %s=%s\n",
 		  features[i].feature, value);
 	formatter(features[i].feature, value);

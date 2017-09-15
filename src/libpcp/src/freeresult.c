@@ -38,7 +38,7 @@ __pmFreeResultValueSets(pmValueSet **ppvstart, pmValueSet **ppvsend)
 	if (pvs->numval > 0 && pvs->valfmt == PM_VAL_DPTR) {
 	    /* pmValueBlocks may be malloc'd as well */
 	    for (j = 0; j < pvs->numval; j++) {
-		if (pmDebug & DBG_TRACE_PDUBUF)
+		if (pmDebugOptions.pdubuf)
 		    fprintf(stderr, "free"
 			"(" PRINTF_P_PFX "%p) pmValueBlock pmid=%s inst=%d\n",
 			pvs->vlist[j].value.pval,
@@ -47,7 +47,7 @@ __pmFreeResultValueSets(pmValueSet **ppvstart, pmValueSet **ppvsend)
 		free(pvs->vlist[j].value.pval);
 	    }
 	}
-	if (pmDebug & DBG_TRACE_PDUBUF)
+	if (pmDebugOptions.pdubuf)
 	    fprintf(stderr, "free(" PRINTF_P_PFX "%p) vset pmid=%s\n",
 		pvs, pmIDStr_r(pvs->pmid, strbuf, sizeof(strbuf)));
 	free(pvs);
@@ -57,7 +57,7 @@ __pmFreeResultValueSets(pmValueSet **ppvstart, pmValueSet **ppvsend)
 void
 __pmFreeResultValues(pmResult *result)
 {
-    if (pmDebug & DBG_TRACE_PDUBUF)
+    if (pmDebugOptions.pdubuf)
 	fprintf(stderr, "__pmFreeResultValues(" PRINTF_P_PFX "%p) numpmid=%d\n",
 	    result, result->numpmid);
     if (result->numpmid)
@@ -67,7 +67,7 @@ __pmFreeResultValues(pmResult *result)
 void
 pmFreeResult(pmResult *result)
 {
-    if (pmDebug & DBG_TRACE_PDUBUF)
+    if (pmDebugOptions.pdubuf)
 	fprintf(stderr, "pmFreeResult(" PRINTF_P_PFX "%p)\n", result);
     __pmFreeResultValues(result);
     free(result);
@@ -76,7 +76,7 @@ pmFreeResult(pmResult *result)
 void
 pmFreeHighResResult(pmHighResResult *result)
 {
-    if (pmDebug & DBG_TRACE_PDUBUF)
+    if (pmDebugOptions.pdubuf)
 	fprintf(stderr, "pmFreeHighResResult(" PRINTF_P_PFX "%p)\n", result);
     if (result->numpmid)
 	__pmFreeResultValueSets(result->vset, &result->vset[result->numpmid]);

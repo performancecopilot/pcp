@@ -1323,7 +1323,6 @@ __pmPrintDesc(FILE *f, const pmDesc *desc)
 void
 __pmEventTrace_r(const char *event, int *first, double *sum, double *last)
 {
-#ifdef PCP_DEBUG
     struct timeval tv;
     double now;
 
@@ -1338,19 +1337,16 @@ __pmEventTrace_r(const char *event, int *first, double *sum, double *last)
     fprintf(stderr, "%s: +%4.2f = %4.2f -> %s\n",
 			pmProgname, now-*last, *sum, event);
     *last = now;
-#endif
 }
 
 void
 __pmEventTrace(const char *event)
 {
-#ifdef PCP_DEBUG
     static double last;
     static double sum;
     static int first = 1;
 
     __pmEventTrace_r(event, &first, &sum, &last);
-#endif
 }
 
 #define DEBUG_CLEAR 0

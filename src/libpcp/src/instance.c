@@ -26,12 +26,10 @@ pmLookupInDom(pmInDom indom, const char *name)
     __pmInResult	*result;
     __pmContext		*ctxp;
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_PMAPI) {
+    if (pmDebugOptions.pmapi) {
 	char    dbgbuf[20];
 	fprintf(stderr, "pmLookupInDom(%s, %s) <:", pmInDomStr_r(indom, dbgbuf, sizeof(dbgbuf)), name);
     }
-#endif
 
     if (indom == PM_INDOM_NULL) {
 	sts = PM_ERR_INDOM;
@@ -101,8 +99,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":3", PM_FAULT_TIMEOUT);
 
 pmapi_return:
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_PMAPI) {
+    if (pmDebugOptions.pmapi) {
 	fprintf(stderr, ":> returns ");
 	if (sts >= 0)
 	    fprintf(stderr, "%d\n", sts);
@@ -111,7 +108,6 @@ pmapi_return:
 	    fprintf(stderr, "%s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	}
     }
-#endif
 
     return sts;
 }
@@ -129,12 +125,10 @@ pmNameInDom_ctx(__pmContext *ctxp, pmInDom indom, int inst, char **name)
     int			sts;
     __pmInResult	*result;
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_PMAPI) {
+    if (pmDebugOptions.pmapi) {
 	char    dbgbuf[20];
 	fprintf(stderr, "pmNameInDom(%s, %d, ...) <:", pmInDomStr_r(indom, dbgbuf, sizeof(dbgbuf)), inst);
     }
-#endif
 
     if (indom == PM_INDOM_NULL) {
 	sts = PM_ERR_INDOM;
@@ -214,8 +208,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":2", PM_FAULT_TIMEOUT);
 
 pmapi_return:
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_PMAPI) {
+    if (pmDebugOptions.pmapi) {
 	fprintf(stderr, ":> returns ");
 	if (sts >= 0)
 	    fprintf(stderr, "%d (name %s)\n", sts, *name);
@@ -224,7 +217,6 @@ pmapi_return:
 	    fprintf(stderr, "%s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	}
     }
-#endif
 
     return sts;
 }
@@ -292,12 +284,10 @@ pmGetInDom(pmInDom indom, int **instlist, char ***namelist)
     int			*ilist;
     char		**nlist;
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_PMAPI) {
+    if (pmDebugOptions.pmapi) {
 	char    dbgbuf[20];
 	fprintf(stderr, "pmGetInDom(%s, ...) <:", pmInDomStr_r(indom, dbgbuf, sizeof(dbgbuf)));
     }
-#endif
 
     if (indom == PM_INDOM_NULL) {
 	sts = PM_ERR_INDOM;
@@ -400,8 +390,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_TIMEOUT);
 
 pmapi_return:
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_PMAPI) {
+    if (pmDebugOptions.pmapi) {
 	fprintf(stderr, ":> returns ");
 	if (sts >= 0)
 	    fprintf(stderr, "%d\n", sts);
@@ -410,12 +399,10 @@ pmapi_return:
 	    fprintf(stderr, "%s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	}
     }
-#endif
 
     return sts;
 }
 
-#ifdef PCP_DEBUG
 void
 __pmDumpInResult(FILE *f, const __pmInResult *irp)
 {
@@ -433,7 +420,6 @@ __pmDumpInResult(FILE *f, const __pmInResult *irp)
     }
     return;
 }
-#endif
 
 void
 __pmFreeInResult(__pmInResult *res)

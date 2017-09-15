@@ -289,7 +289,6 @@ optCost(fetchctl_t *fp)
     return cost;
 }
 
-#ifdef PCP_DEBUG
 static char *
 statestr(int state, char *sbuf)
 {
@@ -363,7 +362,6 @@ __pmOptFetchDump(FILE *f, const fetchctl_t *root)
     for (fp = root; fp != NULL; fp = fp->f_next)
 	___pmOptFetchDump(f, fp);
 }
-#endif /* PCP_DEBUG */
 
 /*
  * add a new request into a group of fetches ...
@@ -437,7 +435,7 @@ __pmOptFetchAdd(fetchctl_t **root, optreq_t *new)
 	fp->f_newcost = optCost(fp);
 	if (fp == *root)
 	    fp->f_newcost += optcost.c_fetch;
-	if ((pmDebug & DBG_TRACE_OPTFETCH) && (pmDebug & DBG_TRACE_DESPERATE)) {
+	if (pmDebugOptions.optfetch && pmDebugOptions.desperate) {
 	    char	strbuf[100];
 	    fprintf(stderr, "__pmOptFetchAdd: fp=" PRINTF_P_PFX "%p cost=", fp);
 	    if (fp->f_cost == OPT_COST_INFINITY)
@@ -471,7 +469,7 @@ __pmOptFetchAdd(fetchctl_t **root, optreq_t *new)
 	    tfp = fp;
 	}
     }
-    if ((pmDebug & DBG_TRACE_OPTFETCH) && (pmDebug & DBG_TRACE_DESPERATE)) {
+    if (pmDebugOptions.optfetch && pmDebugOptions.desperate) {
 	char	strbuf[100];
 	fprintf(stderr, "__pmOptFetchAdd: fp=" PRINTF_P_PFX "%p chose %s cost=%d for %s @ grp " PRINTF_P_PFX "%p,",
 		tfp, optcost.c_scope ? "global" : "incremental",
@@ -558,7 +556,7 @@ __pmOptFetchDel(fetchctl_t **root, optreq_t *new)
     optreq_t		*rqp;
     optreq_t		*p_rqp;
 
-    if ((pmDebug & DBG_TRACE_OPTFETCH) && (pmDebug & DBG_TRACE_DESPERATE)) {
+    if (pmDebugOptions.optfetch && pmDebugOptions.desperate) {
 	fprintf(stderr, "__pmOptFetchDel: " PRINTF_P_PFX "%p\n", new);
     }
 
@@ -613,7 +611,7 @@ __pmOptFetchDel(fetchctl_t **root, optreq_t *new)
 			    redoinst(fp);
 			    redopmid(fp);
 			    fp->f_state = OPT_STATE_PMID | OPT_STATE_PROFILE;
-			    if ((pmDebug & DBG_TRACE_OPTFETCH) && (pmDebug & DBG_TRACE_DESPERATE)) {
+			    if (pmDebugOptions.optfetch && pmDebugOptions.desperate) {
 
 
 				fprintf(stderr, "__pmOptFetchDel: redo " PRINTF_P_PFX "%p old cost=", fp);
@@ -625,7 +623,7 @@ __pmOptFetchDel(fetchctl_t **root, optreq_t *new)
 			    PM_LOCK(optfetch_lock);
 			    fp->f_cost = optCost(fp);
 			    PM_UNLOCK(optfetch_lock);
-			    if ((pmDebug & DBG_TRACE_OPTFETCH) && (pmDebug & DBG_TRACE_DESPERATE)) {
+			    if (pmDebugOptions.optfetch && pmDebugOptions.desperate) {
 				fprintf(stderr, " new cost=");
 				if (fp->f_cost == OPT_COST_INFINITY)
 				    fprintf(stderr, "INFINITY");

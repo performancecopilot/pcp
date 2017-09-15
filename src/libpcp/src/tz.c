@@ -67,10 +67,8 @@ _pushTZ(void)
     setenv("TZ", envtz, 1);		/* THREADSAFE */
     tzset();
 
-#ifdef PCP_DEBUG
-    if ((pmDebug & DBG_TRACE_CONTEXT) && (pmDebug & DBG_TRACE_DESPERATE))
+    if (pmDebugOptions.context && pmDebugOptions.desperate)
 	fprintf(stderr, "_pushTZ() envtz=\"%s\" savetz=\"%s\" after TZ=\"%s\"\n", envtz, savetz, getenv("TZ"));		/* THREADSAFE */
-#endif
 }
 
 /*
@@ -87,10 +85,8 @@ _popTZ(void)
 	unsetenv("TZ");			/* THREADSAFE */
     tzset();
 
-#ifdef PCP_DEBUG
-    if ((pmDebug & DBG_TRACE_CONTEXT) && (pmDebug & DBG_TRACE_DESPERATE))
+    if (pmDebugOptions.context && pmDebugOptions.desperate)
 	fprintf(stderr, "_popTZ() savetz=\"%s\" after TZ=\"%s\"\n", savetz, getenv("TZ"));		/* THREADSAFE */
-#endif
 }
 
 /*
@@ -253,10 +249,8 @@ __pmSquashTZ(char *tzbuffer)
 	    pmsprintf(cp, sizeof(tzbuf) - (cp - tzbuf), ":%d", tz.StandardDate.wSecond);
 	}
     }
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_TIMECONTROL)
+    if (pmDebugOptions.timecontrol)
 	fprintf(stderr, "Win32 TZ=%s\n", tzbuf);
-#endif
 
     pmsprintf(tzbuffer, PM_TZ_MAXLEN, "%s", tzbuf);
     setenv("TZ", tzbuffer, 1);		/* THREADSAFE */
@@ -367,10 +361,8 @@ pmUseZone(const int tz_handle)
     curzone = tz_handle;
     strcpy(envtz, zone[curzone]);
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_CONTEXT)
+    if (pmDebugOptions.context)
 	fprintf(stderr, "pmUseZone(%d) tz=%s\n", curzone, zone[curzone]);
-#endif
 
     PM_UNLOCK(__pmLock_extcall);
     return 0;
@@ -419,10 +411,8 @@ pmNewZone(const char *tz)
     }
     zone[curzone] = strdup(envtz);
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_CONTEXT)
+    if (pmDebugOptions.context)
 	fprintf(stderr, "pmNewZone(%s) -> %d\n", zone[curzone], curzone);
-#endif
     sts = curzone;
 
     PM_UNLOCK(__pmLock_extcall);

@@ -28,7 +28,6 @@ typedef struct {
     pmID        idlist[1];
 } idlist_t;
 
-#ifdef PCP_DEBUG
 void
 __pmDumpIDList(FILE *f, int numids, const pmID idlist[])
 {
@@ -39,7 +38,6 @@ __pmDumpIDList(FILE *f, int numids, const pmID idlist[])
     for (i = 0; i < numids; i++)
 	fprintf(f, "  PMID[%d]: 0x%08x %s\n", i, idlist[i], pmIDStr_r(idlist[i], strbuf, sizeof(strbuf)));
 }
-#endif
 
 /*
  * Send a PDU_PMNS_IDS across socket.
@@ -52,12 +50,10 @@ __pmSendIDList(int fd, int from, int numids, const pmID idlist[], int sts)
     int		j;
     int		lsts;
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_PMNS) {
+    if (pmDebugOptions.pmns) {
         fprintf(stderr, "__pmSendIDList\n");
 	__pmDumpIDList(stderr, numids, idlist);
     }
-#endif
 
     need = (int)(sizeof(idlist_t) + (numids-1) * sizeof(idlist[0]));
 
@@ -108,12 +104,10 @@ __pmDecodeIDList(__pmPDU *pdubuf, int numids, pmID idlist[], int *sts)
     for (j = 0; j < numids; j++)
 	idlist[j] = __ntohpmID(idlist_pdu->idlist[j]);
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_PMNS) {
+    if (pmDebugOptions.pmns) {
         fprintf(stderr, "__pmDecodeIDList\n");
 	__pmDumpIDList(stderr, numids, idlist);
     }
-#endif
 
     return 0;
 }
@@ -167,7 +161,6 @@ typedef struct {
  * data as well.
  */ 
 
-#ifdef PCP_DEBUG
 void
 __pmDumpNameList(FILE *f, int numnames, char *namelist[])
 {
@@ -198,7 +191,6 @@ __pmDumpNameAndStatusList(FILE *f, int numnames, char *namelist[], int statuslis
 	fprintf(f, "  name[%d]: \"%s\" (%s)\n", i, namelist[i],
 		statuslist[i] == PMNS_LEAF_STATUS ? "leaf" : "non-leaf");
 }
-#endif
 
 /*
  * Send a PDU_PMNS_NAMES across socket.
@@ -215,14 +207,12 @@ __pmSendNameList(int fd, int from, int numnames, char *namelist[],
     name_status_t	*nst; 
     int			sts;
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_PMNS) {
+    if (pmDebugOptions.pmns) {
         fprintf(stderr, "__pmSendNameList\n");
 	__pmDumpNameList(stderr, numnames, namelist);
         if (statuslist != NULL)
 	    __pmDumpStatusList(stderr, numnames, statuslist);
     }
-#endif
 
     /* namelist_t + names rounded up to a __pmPDU boundary */
     need = sizeof(*nlistp) - sizeof(nlistp->names);
@@ -411,14 +401,12 @@ __pmDecodeNameList(__pmPDU *pdubuf, int *numnamesp,
 	}
     }
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_PMNS) {
+    if (pmDebugOptions.pmns) {
 	fprintf(stderr, "__pmDecodeNameList\n");
 	__pmDumpNameList(stderr, numnames, names);
 	if (status != NULL)
 	    __pmDumpStatusList(stderr, numstatus, status);
     }
-#endif
 
     *namelist = names;
     if (statuslist != NULL)
@@ -460,13 +448,11 @@ SendNameReq(int fd, int from, const char *name, int pdu_type, int subtype)
     int		sts;
     char        *p;
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_PMNS) {
+    if (pmDebugOptions.pmns) {
 	char	strbuf[20];
 	fprintf(stderr, "SendNameReq: from=%d name=\"%s\" pdu=%s subtype=%d\n",
 		from, name, __pmPDUTypeStr_r(pdu_type, strbuf, sizeof(strbuf)), subtype);
     }
-#endif
 
     namelen = (int)strlen(name);
     alloc_len = (int)(sizeof(int)*((namelen-1 + sizeof(int))/sizeof(int)));
@@ -522,10 +508,8 @@ DecodeNameReq(__pmPDU *pdubuf, char **name_p, int *subtype)
     memcpy(name, namereq_pdu->name, namelen);
     name[namelen] = '\0';
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_PMNS)
+    if (pmDebugOptions.pmns)
 	fprintf(stderr, "DecodeNameReq: name=\"%s\"\n", name);
-#endif
 
     *name_p = name;
     return 0;
