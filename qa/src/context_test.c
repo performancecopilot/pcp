@@ -69,12 +69,7 @@ main(int argc, char **argv)
     pmDesc	desc;
     __pmContext	*ctxp;
     int		handle[50];		/* need 3 x MAXC */
-#ifdef PCP_DEBUG
-    static char	*debug = "[-D N] ";
-#else
-    static char	*debug = "";
-#endif
-    static char	*usage = "[-a archive] [-h hostname] [-i iterations] [-n namespace]";
+    static char	*usage = "[-a archive] [-D debugspec] [-h hostname] [-i iterations] [-n namespace]";
 
     __pmSetProgname(argv[0]);
 
@@ -90,19 +85,15 @@ main(int argc, char **argv)
 	    host = optarg;
 	    break;
 
-#ifdef PCP_DEBUG
 
-	case 'D':	/* debug flag */
-	    sts = __pmParseDebug(optarg);
+	case 'D':	/* debug options */
+	    sts = pmSetDebug(optarg);
 	    if (sts < 0) {
-		fprintf(stderr, "%s: unrecognized debug flag specification (%s)\n",
+		fprintf(stderr, "%s: unrecognized debug options specification (%s)\n",
 		    pmProgname, optarg);
 		errflag++;
 	    }
-	    else
-		pmDebug |= sts;
 	    break;
-#endif
 
 	case 'h':	/* hostname for PMCD to contact */
 	    if (type != 0) {
@@ -133,7 +124,7 @@ main(int argc, char **argv)
     }
 
     if (errflag) {
-	fprintf(stderr, "Usage: %s %s%s\n", pmProgname, debug, usage);
+	fprintf(stderr, "Usage: %s %s\n", pmProgname, usage);
 	exit(1);
     }
 

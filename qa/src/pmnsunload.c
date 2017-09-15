@@ -38,7 +38,7 @@ main(int argc, char **argv)
     char	*archive = "foo";
     char	*host = "localhost";
     char	*namespace = PM_NS_DEFAULT;
-    static char	*usage = "[-D N] [-L] [-h host] [-a archive] [-n namespace] [-v] [-i iterations]";
+    static char	*usage = "[-D debugspec] [-L] [-h host] [-a archive] [-n namespace] [-v] [-i iterations]";
     int		niter=100;
     int		i;
     int		contype = PM_CONTEXT_HOST;
@@ -64,15 +64,13 @@ main(int argc, char **argv)
 	    contype = PM_CONTEXT_ARCHIVE;
 	    break;
 
-	case 'D':	/* debug flag */
-	    sts = __pmParseDebug(optarg);
+	case 'D':	/* debug options */
+	    sts = pmSetDebug(optarg);
 	    if (sts < 0) {
-		fprintf(stderr, "%s: unrecognized debug flag specification (%s)\n",
+		fprintf(stderr, "%s: unrecognized debug options specification (%s)\n",
 		    pmProgname, optarg);
 		errflag++;
 	    }
-	    else
-		pmDebug |= sts;
 	    break;
 
 	case 'n':	/* alternative name space file */

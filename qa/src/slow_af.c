@@ -30,7 +30,7 @@ onevent(int afid, void *data)
 
     gettimeofday(&now, NULL);
 
-    if (pmDebug & DBG_TRACE_AF) {
+    if (pmDebugOptions.af) {
 	fprintf(stderr, "onevent(%d, " PRINTF_P_PFX "%p) called: ", afid, data);
 	printstamp(&now);
 	fputc('\n', stderr);
@@ -74,7 +74,7 @@ onevent(int afid, void *data)
     }
     delay++;
 
-    if (pmDebug & DBG_TRACE_AF) {
+    if (pmDebugOptions.af) {
 	gettimeofday(&now, NULL);
 	fprintf(stderr, "onevent done: ");
 	printstamp(&now);
@@ -99,15 +99,13 @@ main(int argc, char **argv)
     while ((c = getopt(argc, argv, "D:?")) != EOF) {
 	switch (c) {
 
-	case 'D':	/* debug flag */
-	    sts = __pmParseDebug(optarg);
+	case 'D':	/* debug options */
+	    sts = pmSetDebug(optarg);
 	    if (sts < 0) {
-		fprintf(stderr, "%s: unrecognized debug flag specification (%s)\n",
+		fprintf(stderr, "%s: unrecognized debug options specification (%s)\n",
 		    pmProgname, optarg);
 		errflag++;
 	    }
-	    else
-		pmDebug |= sts;
 	    break;
 
 	case '?':
@@ -122,7 +120,7 @@ main(int argc, char **argv)
 "Usage: %s options ...\n\
 \n\
 Options\n\
-  -D debug	standard PCP debug flag\n",
+  -D debug	standard PCP debug options\n",
 		pmProgname);
 	exit(1);
     }
@@ -142,7 +140,7 @@ Options\n\
     for ( ; ; ) {
 	fflush(stderr);
 	pause();
-	if (pmDebug & DBG_TRACE_AF) {
+	if (pmDebugOptions.af) {
 	    gettimeofday(&now, NULL);
 	    fprintf(stderr, "returned from pause(): ");
 	    printstamp(&now);

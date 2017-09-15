@@ -67,10 +67,10 @@ main(int argc, char **argv)
 	    configfile = optarg;
 	    break;	
 
-	case 'D':	/* debug flag(s) */
+	case 'D':	/* debug options */
 	    sts = pmSetDebug(optarg);
 	    if (sts < 0) {
-		fprintf(stderr, "%s: unrecognized debug flag specification (%s)\n",
+		fprintf(stderr, "%s: unrecognized debug options specification (%s)\n",
 		    pmProgname, optarg);
 		errflag++;
 	    }
@@ -189,7 +189,7 @@ Options:\n\
   -a archive     metrics source is a PCP log archive\n\
   -A align       align sample times on natural boundaries\n\
   -c configfile  file to load configuration from\n\
-  -D debug[,...] set PCP debug option(s)\n\
+  -D debug[,...] set PCP debugging option(s)\n\
   -h host        metrics source is PMCD on host\n\
   -l logfile     redirect diagnostics and trace output\n"
 #ifdef BUILD_STANDALONE

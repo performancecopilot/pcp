@@ -438,12 +438,10 @@ main(int argc, char **argv)
     while ((c = pmgetopt_r(argc, argv, &opts)) != EOF) {
 	switch (c) {
 	case 'D':
-	    if ((sts = __pmParseDebug(opts.optarg)) < 0) {
-		pmprintf("%s: unrecognized debug flag specification (%s)\n",
+	    if ((sts = pmSetDebug(opts.optarg)) < 0) {
+		pmprintf("%s: unrecognized debug options specification (%s)\n",
 			pmProgname, opts.optarg);
 		opts.errors++;
-	    } else {
-		pmDebug |= sts;
 	    }
 	    break;
 
