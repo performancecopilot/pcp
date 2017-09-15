@@ -147,11 +147,9 @@ sample_inc_recv(int ctx)
 	ctxtab[ctx].state = CTX_ACTIVE;
 	ctxtab[ctx].recv_pdu = 0;
 	ctxtab[ctx].xmit_pdu = 0;
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL1) {
+	if (pmDebugOptions.appl1) {
 	    fprintf(stderr, "sample_inc_recv(%d) [new context, num_ctx=%d]\n", ctx, num_ctx);
 	}
-#endif
     }
     ctxtab[ctx].recv_pdu++;
 }
@@ -224,8 +222,7 @@ sample_ctx_fetch(int ctx, int item)
 void
 sample_ctx_end(int ctx)
 {
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL1) {
+    if (pmDebugOptions.appl1) {
 	fprintf(stderr, "sample_ctx_end(%d) [context is ", ctx);
 	if (ctx < 0 || ctx >= num_ctx)
 	    fprintf(stderr, "unknown, num_ctx=%d", num_ctx);
@@ -237,7 +234,6 @@ sample_ctx_end(int ctx)
 	    fprintf(stderr, "botched state, %d", ctxtab[ctx].state);
 	fprintf(stderr, "]\n");
     }
-#endif
     if (ctx < 0 || ctx >= num_ctx || ctxtab[ctx].state == CTX_INACTIVE) {
 	/*
 	 * This is expected ... when a context is closed in pmcd
