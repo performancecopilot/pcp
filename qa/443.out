@@ -12,7 +12,7 @@ Usage: pmevent [options] metricname
 pmevent: only one host or archive allowed
 Usage: pmevent [options] metricname
 === -D blah ===
-pmevent: unrecognized debug flag specification (blah)
+pmevent: unrecognized debug options specification (blah)
 Usage: pmevent [options] metricname
 === -g -p 1234 ===
 pmevent: at most one of -g and -p allowed
