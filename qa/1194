@@ -25,7 +25,7 @@ _cleanup()
 {
     if [ -n "$pid" ]
     then
-        kill -9 $pid
+        kill $pid >/dev/null 2>&1
     fi
     $sudo rm -rf $tmp.* $tmp.*
 }
