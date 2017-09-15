@@ -815,10 +815,10 @@ class PMReporter(object):
                     continue
                 elif len(self.pmids) == l + 1:
                     # Leaf
-                    if metric == self.context.pmNameID(self.pmids[l]):
+                    if metric in self.context.pmNameAll(self.pmids[l]):
                         self.metrics[metric] = metrics[metric]
                     else:
-                        # But handle single non-leaf case in an archive
+                        # Handle single non-leaf case in an archive
                         self.metrics[self.context.pmNameID(self.pmids[l])] = []
                 else:
                     # Non-leaf

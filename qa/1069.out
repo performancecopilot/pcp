@@ -17,6 +17,8 @@ HH:MM:SS        1
           s.l.one  s.colour  s.colour  s.colour
                         red     green      blue
                                                
+== basic duplicate name handling
+  s.seconds
 == basic archive mode reporting
           s.seconds  s.milliseconds
                 s/s            ms/s
@@ -34,6 +36,10 @@ HH:MM:SS        1
       1.000        1000.001
       1.000        1000.016
 == exercise various output options
+          h.machine
+
+08:57:23      linux
+17:42:43      linux
                      s.seconds        s.milliseconds
                            s/s                  ms/s
 20:36:45                   N/A                   N/A
