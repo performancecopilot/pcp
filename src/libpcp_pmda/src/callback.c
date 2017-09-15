@@ -46,12 +46,10 @@ __pmdaCntInst(pmInDom indom, pmdaExt *pmda)
 	}
     }
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_INDOM) {
+    if (pmDebugOptions.indom) {
 	char	strbuf[20];
 	fprintf(stderr, "__pmdaCntInst(indom=%s) -> %d\n", pmInDomStr_r(indom, strbuf, sizeof(strbuf)), sts);
     }
-#endif
 
     return sts;
 }
@@ -113,13 +111,11 @@ __pmdaStartInst(pmInDom indom, pmdaExt *pmda)
 	}
     }
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_INDOM) {
+    if (pmDebugOptions.indom) {
 	char	strbuf[20];
 	fprintf(stderr, "__pmdaStartInst(indom=%s) e_ordinal=%d\n",
 	    pmInDomStr_r(indom, strbuf, sizeof(strbuf)), pmda->e_ordinal);
     }
-#endif
     return;
 }
 
@@ -147,13 +143,11 @@ __pmdaNextInst(int *inst, pmdaExt *pmda)
 		pmda->e_ordinal++;
 		if (__pmInProfile(pmda->e_idp->it_indom, pmda->e_prof, myinst)) {
 		    *inst = myinst;
-#ifdef PCP_DEBUG
-		    if (pmDebug & DBG_TRACE_INDOM) {
+		    if (pmDebugOptions.indom) {
 			char	strbuf[20];
 			fprintf(stderr, "__pmdaNextInst(indom=%s) -> %d e_ordinal=%d (cache)\n",
 			    pmInDomStr_r(pmda->e_idp->it_indom, strbuf, sizeof(strbuf)), myinst, pmda->e_ordinal);
 		    }
-#endif
 		    return 1;
 		}
 	    }
@@ -166,13 +160,11 @@ __pmdaNextInst(int *inst, pmdaExt *pmda)
 				 pmda->e_idp->it_set[j].i_inst)) {
 		    *inst = pmda->e_idp->it_set[j].i_inst;
 		    pmda->e_ordinal = j+1;
-#ifdef PCP_DEBUG
-		    if (pmDebug & DBG_TRACE_INDOM) {
+		    if (pmDebugOptions.indom) {
 			char	strbuf[20];
 			fprintf(stderr, "__pmdaNextInst(indom=%s) -> %d e_ordinal=%d\n",
 			    pmInDomStr_r(pmda->e_idp->it_indom, strbuf, sizeof(strbuf)), *inst, pmda->e_ordinal);
 		    }
-#endif
 		    return 1;
 		}
 	    }
@@ -432,13 +424,11 @@ pmdaInstance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaExt
 		char *instname = idp->it_set[i].i_name;
 		if (strcmp(name, instname) == 0) {
 		    /* accept an exact match */
-#ifdef PCP_DEBUG
-		    if (pmDebug & DBG_TRACE_LIBPMDA) {
+		    if (pmDebugOptions.libpmda) {
 			fprintf(stderr, 
 				"pmdaInstance: exact match name=%s id=%d\n",
 				name, idp->it_set[i].i_inst);
 		    }
-#endif
 		    res->instlist[0] = idp->it_set[i].i_inst;
 		    break;
 		}
@@ -449,12 +439,10 @@ pmdaInstance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaExt
 		    if (p != NULL) {
 			int len = (int)(p - instname);
 			if (namelen == len && strncmp(name, instname, len) == 0) {
-#ifdef PCP_DEBUG
-			    if (pmDebug & DBG_TRACE_LIBPMDA) {
+			    if (pmDebugOptions.libpmda) {
 				fprintf(stderr, "pmdaInstance: matched argument name=\"%s\" with indom id=%d name=\"%s\" len=%d\n",
 				    name, idp->it_set[i].i_inst, instname, len);
 			    }
-#endif
 			    res->instlist[0] = idp->it_set[i].i_inst;
 			    break;
 			}
@@ -499,15 +487,13 @@ pmdaFetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
     int			type;
     e_ext_t		*extp = (e_ext_t *)pmda->e_ext;
 
-#ifdef PCP_DEBUG
-    if ((pmDebug & DBG_TRACE_LIBPMDA) && (pmDebug & DBG_TRACE_DESPERATE)) {
+    if ((pmDebugOptions.libpmda) && (pmDebugOptions.desperate)) {
 	char	dbgbuf[20];
 	fprintf(stderr, "pmdaFetch(%d, pmid[0] %s", numpmid, pmIDStr_r(pmidlist[0], dbgbuf, sizeof(dbgbuf)));
 	if (numpmid > 1)
 	    fprintf(stderr, "... pmid[%d] %s", numpmid-1, pmIDStr_r(pmidlist[numpmid-1], dbgbuf, sizeof(dbgbuf)));
 	fprintf(stderr, ", ...) called\n");
     }
-#endif
 
     if (extp->dispatch->version.any.ext != pmda)
 	fprintf(stderr, "Botch: pmdaFetch: PMDA domain=%d pmda=%p extp=%p backpointer=%p pmda-via-backpointer %p NOT EQUAL to pmda\n",
@@ -602,25 +588,21 @@ pmdaFetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 				strbuf);
 		}
 		else if (sts == PM_ERR_INST) {
-#ifdef PCP_DEBUG
-		    if (pmDebug & DBG_TRACE_LIBPMDA) {
+		    if (pmDebugOptions.libpmda) {
 			__pmNotifyErr(LOG_ERR,
 			    "pmdaFetch: Instance %d of PMID %s not handled by fetch callback\n",
 				    inst, strbuf);
 		    }
-#endif
 		}
 		else if (sts == PM_ERR_APPVERSION ||
 			 sts == PM_ERR_PERMISSION ||
 			 sts == PM_ERR_AGAIN ||
 			 sts == PM_ERR_NYI) {
-#ifdef PCP_DEBUG
-		    if (pmDebug & DBG_TRACE_LIBPMDA) {
+		    if (pmDebugOptions.libpmda) {
 			__pmNotifyErr(LOG_ERR,
 			     "pmdaFetch: Unavailable metric PMID %s[%d]\n",
 				    strbuf, inst);
 		    }
-#endif
 		}
 		else {
 		    __pmNotifyErr(LOG_ERR,
@@ -706,12 +688,10 @@ pmdaDesc(pmID pmid, pmDesc *desc, pmdaExt *pmda)
     pmdaMetric		*metric;
     char		strbuf[32];
 
-#ifdef PCP_DEBUG
-    if ((pmDebug & DBG_TRACE_LIBPMDA) && (pmDebug & DBG_TRACE_DESPERATE)) {
+    if ((pmDebugOptions.libpmda) && (pmDebugOptions.desperate)) {
 	char	dbgbuf[20];
 	fprintf(stderr, "pmdaDesc(%s, ...) called\n", pmIDStr_r(pmid, dbgbuf, sizeof(dbgbuf)));
     }
-#endif
 
     if (extp->dispatch->comm.pmda_interface >= PMDA_INTERFACE_5)
 	__pmdaSetContext(pmda->e_context);
@@ -801,7 +781,7 @@ pmdaChildren(const char *name, int traverse, char ***offspring, int **status, pm
 int
 pmdaAttribute(int ctx, int attr, const char *value, int size, pmdaExt *pmda)
 {
-    if (pmDebug & (DBG_TRACE_ATTR|DBG_TRACE_AUTH)) {
+    if (pmDebugOptions.attr || pmDebugOptions.auth) {
 	char buffer[256];
 	if (!__pmAttrStr_r(attr, value, buffer, sizeof(buffer))) {
 	    __pmNotifyErr(LOG_ERR, "Bad attr: ctx=%d, attr=%d\n", ctx, attr);
