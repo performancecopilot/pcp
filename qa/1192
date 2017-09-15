@@ -25,7 +25,7 @@ _cleanup()
 {
     if [ -n "$pid" ]
     then
-        kill -9 $pid
+        kill $pid >/dev/null 2>&1
     fi
     $sudo rm -rf $tmp.* $tmp.*
     _restore_config $PCP_PMDAS_DIR/prometheus/metadata
@@ -104,6 +104,8 @@ else
     echo "Fetch prometheus.test.requests_total: failed"
     cat $tmp.err
 fi
+
+pmdaprometheus_remove
 
 # success, all done
 status=0
