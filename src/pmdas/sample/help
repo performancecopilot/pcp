@@ -69,7 +69,9 @@ Instances "fungus" and "bogus" for testing event metrics indoms.
 This control variable may be modified using pmStore().
 The allowed values are
     0	disable debugging output in the PMDA
-    >0	set pmDebug to this value to enable debugging output
+    >0	value is interpreted as a vector of bit-fields to set
+        old-style debugging options, see pmdbg -o -l for mapping
+	from values to debugging options
     -1	force the PMDA to terminate
 
 @ sample.daemon_pid Process id of PMDA daemon
