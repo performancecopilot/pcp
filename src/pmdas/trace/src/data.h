@@ -61,8 +61,6 @@ typedef struct {
     unsigned int	level;		/* controls reporting level */
 } ringbuf_t;
 
-#ifdef PCP_DEBUG
 void debuglibrary(int);
-#endif
 
 #endif	/* TRACE_DATA_H */

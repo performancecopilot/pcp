@@ -113,12 +113,10 @@ refresh_filesys(pmInDom filesys_indom, pmInDom tmpfs_indom,
 	    fs->device = strdup(device);
 	    fs->path = strdup(path);
 	    fs->options = strdup(options);
-#if PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_LIBPMDA) {
+	    if (pmDebugOptions.libpmda) {
 		fprintf(stderr, "refresh_filesys: add \"%s\" \"%s\"\n",
 		    fs->path, device);
 	    }
-#endif
 	    pmdaCacheStore(indom, PMDA_CACHE_ADD, device, fs);
 	}
 	fs->flags = 0;

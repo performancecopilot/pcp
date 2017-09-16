@@ -50,10 +50,8 @@ refresh_percpu_metrics(void)
 
     if (stats == NULL) {
 	/* initialization */
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL0)
+	if (pmDebugOptions.appl0)
 	    fprintf(stderr, "Info: refresh_percpu_metrics: ncpu=%d\n", ncpu);
-#endif
 	stats = (uint64_t *)malloc(buflen);
 	if (stats == NULL) {
 	    __pmNoMem("refresh_percpu_metrics: stats", buflen, PM_FATAL_ERR);

@@ -51,14 +51,12 @@ refresh_proc_sys_fs(proc_sys_fs_t *proc_sys_fs)
 			&proc_sys_fs->fs_dentry_count,
 			&proc_sys_fs->fs_dentry_free) != 2)
 	    proc_sys_fs->errcode = PM_ERR_VALUE;
-#if PCP_DEBUG
-	if (pmDebug & DBG_TRACE_LIBPMDA) {
+	if (pmDebugOptions.libpmda) {
 	    if (proc_sys_fs->errcode == 0)
 		fprintf(stderr, "refresh_proc_sys_fs: found vfs metrics\n");
 	    else
 		fprintf(stderr, "refresh_proc_sys_fs: botch! missing vfs metrics\n");
 	}
-#endif
     }
     if (filesp)
 	fclose(filesp);

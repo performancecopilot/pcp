@@ -71,11 +71,9 @@ start_cmd(const char *cmd, pid_t *ppid)
      * the exec()?  Remove things like IFS, CDPATH, ENV, and BASH_ENV.
      */
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL0)
+    if (pmDebugOptions.appl0)
 	__pmNotifyErr(LOG_INFO, "%s: Trying to run command: %s", __FUNCTION__,
 		  cmd);
-#endif
 
     /* Create the pipes. */
 #if defined(HAVE_PIPE2)

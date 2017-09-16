@@ -39,11 +39,9 @@ refresh_proc_scsi(pmInDom indom)
 	 * not exist
 	 */
     	sts = pmdaCacheOp(indom, PMDA_CACHE_LOAD);
-#if PCP_DEBUG
-	if ((pmDebug & DBG_TRACE_LIBPMDA) && sts < 0)
+	if (pmDebugOptions.libpmda && sts < 0)
 	    fprintf(stderr, "refresh_proc_scsi: pmdaCacheOp(%s, LOAD): %s\n",
 		    pmInDomStr(indom), pmErrStr(sts));
-#endif
     }
 
     if ((fp = linux_statsfile("/proc/scsi/scsi", buf, sizeof(buf))) == NULL)
@@ -110,13 +108,11 @@ refresh_proc_scsi(pmInDom indom)
 		free(se->dev_name);
 		free(se);
 	    }
-#if PCP_DEBUG
 	    else {
-		if (pmDebug & DBG_TRACE_LIBPMDA)
+		if (pmDebugOptions.libpmda)
 		    fprintf(stderr, "refresh_proc_scsi: instance \"%s\" = \"%s\"\n",
 			name, se->dev_name);
 	    }
-#endif
 	}
 	else
 	    free(se);
