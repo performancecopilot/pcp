@@ -1522,6 +1522,9 @@ __pmSetDebugBits(int value)
 {
     int		i;
 
+    if (pmDebugOptions.deprecated)
+	fprintf(stderr, "Warning: deprecated __SetDebugBits() called\n");
+
     pmClearDebug("all");
     for (i = 0; i < num_debug; i++) {
 	if (value & debug_map[i].bit) {
