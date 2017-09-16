@@ -52,8 +52,6 @@ PMCD_CALL extern void ShowClients(FILE *m);
 extern int CheckClientAccess(ClientInfo *);
 extern int CheckAccountAccess(ClientInfo *);
 
-#ifdef PCP_DEBUG
 extern char *nameclient(int);
-#endif
 
 #endif /* _CLIENT_H */

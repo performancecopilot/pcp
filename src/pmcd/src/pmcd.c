@@ -149,10 +149,10 @@ ParseOptions(int argc, char *argv[], int *nports)
 		certdb = opts.optarg;
 		break;
 
-	    case 'D':	/* debug flag */
-		sts = __pmParseDebug(opts.optarg);
+	    case 'D':	/* debug options */
+		sts = pmSetDebug(opts.optarg);
 		if (sts < 0) {
-		    pmprintf("%s: unrecognized debug flag specification (%s)\n",
+		    pmprintf("%s: unrecognized debug options specification (%s)\n",
 			pmProgname, opts.optarg);
 		    opts.errors++;
 		}
@@ -334,7 +334,7 @@ HandleClientInput(__pmFdSet *fdsPtr)
 	    continue;
 	}
 
-	if (pmDebug & DBG_TRACE_APPL0)
+	if (pmDebugOptions.appl0)
 	    ShowClients(stderr);
 
 	switch (php->type) {
@@ -396,7 +396,7 @@ HandleClientInput(__pmFdSet *fdsPtr)
 		sts = PM_ERR_IPC;
 	}
 	if (sts < 0) {
-	    if (pmDebug & DBG_TRACE_APPL0)
+	    if (pmDebugOptions.appl0)
 		fprintf(stderr, "PDU:  %s client[%d]: %s\n",
 		    __pmPDUTypeStr(php->type), i, pmErrStr(sts));
 	    /* Make sure client still alive before sending. */
@@ -416,7 +416,7 @@ HandleClientInput(__pmFdSet *fdsPtr)
 	 * something changed for this client during this PDU exchange.
 	 */
 	if (client[i].status.attributes) {
-	    if (pmDebug & DBG_TRACE_APPL1)
+	    if (pmDebugOptions.appl1)
 		__pmNotifyErr(LOG_INFO, "Client idx=%d,seq=%d attrs reset\n",
 				i, client[i].seq);
 	    AgentsAttributes(i);
@@ -614,7 +614,7 @@ HandleReadyAgents(__pmFdSet *readyFds)
 		    }
 		    else {
 			/* sts is the status code from the error PDU */
-			if (pmDebug & DBG_TRACE_APPL0)
+			if (pmDebugOptions.appl0)
 			    __pmNotifyErr(LOG_INFO,
 				 "%s agent (not ready) sent %s status(%d)\n",
 				 ap->pmDomainLabel,
@@ -707,7 +707,7 @@ CheckNewClient(__pmFdSet * fdset, int rfd, int family)
 	     * than being chatty in pmcd.log write this diagnostic only
 	     * under debugging conditions.
 	     */
-	    if (pmDebug & DBG_TRACE_APPL0)
+	    if (pmDebugOptions.appl0)
 		__pmNotifyErr(LOG_INFO, "ClientLoop: "
 			"error sending Conn ACK PDU to new client %s\n",
 			pmErrStr(s));
@@ -757,7 +757,7 @@ ClientLoop(void)
 		if (fd > maxFd)
 		    maxFd = fd + 1;
 		checkAgents = 1;
-		if (pmDebug & DBG_TRACE_APPL0)
+		if (pmDebugOptions.appl0)
 		    __pmNotifyErr(LOG_INFO,
 				 "not ready: check %s agent on fd %d (max = %d)\n",
 				 ap->pmDomainLabel, fd, maxFd);
@@ -766,7 +766,7 @@ ClientLoop(void)
 
 	sts = __pmSelectRead(maxFd, &readableFds, NULL);
 	if (sts > 0) {
-	    if (pmDebug & DBG_TRACE_APPL0)
+	    if (pmDebugOptions.appl0)
 		for (i = 0; i <= maxClientFd; i++)
 		    if (__pmFD_ISSET(i, &readableFds))
 			fprintf(stderr, "DATA: from %s (fd %d)\n",
@@ -874,7 +874,7 @@ SigHupProc(int sig)
 static void
 SigBad(int sig)
 {
-    if (pmDebug & DBG_TRACE_DESPERATE) {
+    if (pmDebugOptions.desperate) {
 	__pmNotifyErr(LOG_ERR, "Unexpected signal %d ...\n", sig);
 
 	/* -D desperate on the command line to enable traceback,
@@ -1069,7 +1069,7 @@ CleanupClient(ClientInfo *cp, int sts)
     int		i, msg;
     int		force;
 
-    force = pmDebug & DBG_TRACE_APPL0;
+    force = pmDebugOptions.appl0;
 
     if (sts != 0 || force) {
 	/* for access violations, only print the message if this host hasn't
