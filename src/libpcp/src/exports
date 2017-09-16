@@ -581,4 +581,5 @@ PCP_3.21 {
     pmSetDebug;
     pmClearDebug;
     __pmDumpDebug;
+    __pmSetDebugBits;
 } PCP_3.20;

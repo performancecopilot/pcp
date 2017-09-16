@@ -355,6 +355,7 @@ PCP_DATA extern pmdebugoptions_t	pmDebugOptions;
 
 
 PCP_CALL extern int __pmParseDebug(const char *);
+PCP_CALL extern void __pmSetDebugBits(int);
 PCP_CALL extern void __pmDumpResult(FILE *, const pmResult *);
 PCP_CALL extern void __pmDumpHighResResult(FILE *, const pmHighResResult *);
 PCP_CALL extern void __pmPrintStamp(FILE *, const struct timeval *);

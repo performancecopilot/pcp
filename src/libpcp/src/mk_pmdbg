@@ -13,24 +13,26 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 #
-# Create pmdbg.h from impl.h
+# Create pmdbg.h from ../../include/pcp/impl.h
 
-if [ -f ../pcp.conf ]
+INCDIR=../../include
+
+if [ -f $INCDIR/pcp.conf ]
 then
     # needed for $PCP_SORT_PROG
-    . ../pcp.conf
+    . $INCDIR/pcp.conf
 else
     echo "mk_pmdbg: cannot find pcp.conf"
     exit 1
 fi
 
-if [ ! -f impl.h ]
+if [ ! -f $INCDIR/pcp/impl.h ]
 then
     echo "mk_pmdbg: cannot find impl.h"
     exit 1
 fi
 
-sedcmd=`$PCP_AWK_PROG <impl.h '
+sedcmd=`$PCP_AWK_PROG <$INCDIR/pcp/impl.h '
 BEGIN			{ start=0 }
 /^typedef struct \{/	{ start=NR }
 /^} pmdebugoptions_t;/	{ if (start>0) print start "," NR "p"; exit }'`
@@ -46,7 +48,9 @@ trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
 rm -f pmdbg.h
 cat <<End-of-File >pmdbg.h
 /*
- * Built from impl.h by mk_pmdbg.  Any modifications will be lost.
+ * DO NOT EDIT.
+ * Built from ../../include/pcp/impl.h by mk_pmdbg.
+ * Any modifications here will be lost.
  */
 
 typedef struct {
@@ -63,7 +67,7 @@ End-of-File
 # start with the old DBG_TRACE macros ...
 #define DBG_TRACE_PDU		(1<<0)	/* PDU send and receive */
 #
-sed -n <impl.h \
+sed -n <$INCDIR/pcp/impl.h \
     -e '/#define[ 	]*DBG_TRACE_/{
 s/#define[ 	]*DBG_TRACE_\([A-Z0-9_]*\)/\1/
 s/[ 	].*\/\* */ /
@@ -82,7 +86,7 @@ echo "/* new debug options with no DBG_TRACE_xxx equivalent */" >>pmdbg.h
 # New ones ... look like this
 #	int	exec;	 	/* pmExec tracing */
 #
-sed -n -e $sedcmd <impl.h \
+sed -n -e $sedcmd <$INCDIR/pcp/impl.h \
 | sed -n \
     -e '/[ 	]*int[ 	][ 	]*\([a-z][a-z0-9_]*\);/{
 s//\1/

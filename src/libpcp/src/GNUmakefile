@@ -29,8 +29,10 @@ CFILES = connect.c context.c desc.c err.c fetch.c fetchgroup.c freeresult.c \
 	p_lcontrol.c p_lrequest.c p_lstatus.c logconnect.c logcontrol.c \
 	connectlocal.c derive_fetch.c events.c lock.c hash.c \
 	fault.c access.c getopt.c probe.c io.c io_stdio.c io_xz.c
-HFILES = derive.h internal.h avahi.h probe.h compiler.h
+HFILES = derive.h internal.h avahi.h probe.h compiler.h pmdbg.h
 YFILES = getdate.y derive_parser.y
+GENERATED_HFILES = pmdbg.h
+
 
 LIBCONFIG = libpcp.pc
 VERSION_SCRIPT = exports
@@ -74,7 +76,7 @@ SYMTARGET =
 endif
 
 LDIRT += $(SYMTARGET) $(YFILES:%.y=%.tab.?) $(LIBCONFIG) \
-	getdate.h derive_parser.y check.done
+	getdate.h derive_parser.y check.done $(GENERATED_HFILES)
 
 base default : $(LIBTARGET) $(SYMTARGET) $(STATICLIBTARGET) \
 	$(LIBCONFIG) check.done
@@ -93,7 +95,8 @@ util.o:	$(TOPDIR)/src/include/pcp/pmdbg.h
 
 $(OBJECTS):	$(TOPDIR)/src/include/pcp/pmapi.h \
 		$(TOPDIR)/src/include/pcp/impl.h \
-		$(TOPDIR)/src/include/pcp/platform_defs.h
+		$(TOPDIR)/src/include/pcp/platform_defs.h \
+		$(GENERATED_HFILES)
 
 .NOTPARALLEL:
 getdate.h getdate.tab.c: getdate.y
@@ -132,6 +135,9 @@ install_pcp : install
 
 $(TOPDIR)/src/pmns/stdpmid:
 	cd $(@D); $(MAKE) $(@F)
+
+pmdbg.h : ../../include/pcp/pmapi.h ../../include/pcp/impl.h mk_pmdbg
+	./mk_pmdbg
 
 # The library is thread-safe ... check-statics will force a build failure
 # if there has been any change to the static variables and their disposition

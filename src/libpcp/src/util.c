@@ -1511,6 +1511,26 @@ pmClearDebug(const char *spec)
     return debug(spec, DEBUG_CLEAR, DEBUG_NEW);
 }
 
+/*
+ * Interface for setting debugging options by bit-field (deprecated) rather
+ * than by name (new scheme).
+ * This routine is used by PMDAs that have a control metric that maps onto
+ * pmDebug, e.g. sample.control or trace.control
+ */
+void
+__pmSetDebugBits(int value)
+{
+    int		i;
+
+    pmClearDebug("all");
+    for (i = 0; i < num_debug; i++) {
+	if (value & debug_map[i].bit) {
+	    /* this option has a bit-field equivalent that is set in value */
+	    pmSetDebug(debug_map[i].name);
+	}
+    }
+}
+
 int
 __pmGetInternalState(void)
 {
