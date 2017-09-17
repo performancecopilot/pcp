@@ -260,6 +260,17 @@ in the format of the environment variable
 .B TZ
 as described in
 .BR environ (7).
+.TP
+.BI "\-D " debugspec
+Sets the PCP debugging options to
+.I debugspec
+to enable diagnostics and tracing that is most helpful for developers or
+when trying to diagnose the misbehaviour of a PCP application.
+.I debugspec
+should be a comma-separated list of debugging option name(s) and/or decimal integers,
+see
+.BR pmdbg (1)
+for a description of the supported option names and values.
 .SH INTERVAL SPECIFICATION AND ALIGNMENT
 Most PCP tools operate with periodic sampling or
 reporting, and the
@@ -886,13 +897,17 @@ with the user, and in particular is used when authentication is
 being performed.
 .TP
 .B PCP_DEBUG
-When set, this variable provides an alternate way to initialize
-the value used to control diagnostic and debug output (the default
-value is 0 to suppress this output).
+When set, this variable provides an alternate to the
+.B \-D
+command line option described above to initialize
+the diagnostic and debug options.
 The value for
 .B $PCP_DEBUG
-should be a comma-separated list of decimal integers and/or
-debug option name(s), see
+is the same as for the
+.B \-D
+command line option, namely 
+a comma-separated list of debugging option name(s), and/or
+decimal integers, see
 .BR pmdbg (1)
 for a description of the supported option names and values.
 .TP

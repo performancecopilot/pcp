@@ -882,10 +882,13 @@ Any
 PMDA
 which uses this library can set
 .BR PMAPI (3)
-debug control variable
-.B pmDebug
-(with \-D on the command line) to 
-.B DBG_TRACE_LIBPMDA
+debugging control option
+.B libpmda
+(with
+.B \-Dlibpmda
+on the command line or via
+.BR 3 pmSetDebug (3))
+to 
 to enable the display of debugging information which may be useful during
 development
 (see
