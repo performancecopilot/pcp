@@ -42,7 +42,7 @@ http_client_connectunix(const char *path, struct timeval *timeout)
 
     /* Initialize the socket address. */
     if ((myAddr = __pmSockAddrAlloc()) == NULL) {
-	if (pmDebug & DBG_TRACE_HTTP)
+	if (pmDebugOptions.http)
 	    fprintf(stderr, "HTTP connect unix(%s): out of memory\n", path);
 	return -ENOMEM;
     }
@@ -50,7 +50,7 @@ http_client_connectunix(const char *path, struct timeval *timeout)
     __pmSockAddrSetPath(myAddr, path);
 
     if ((fd = __pmCreateUnixSocket()) < 0) {
-	if (pmDebug & DBG_TRACE_HTTP) {
+	if (pmDebugOptions.http) {
 	    char	errmsg[PM_MAXERRMSGLEN];
 	    fprintf(stderr, "HTTP connect unix(%s) unable to create socket: %s\n",
 		    path, osstrerror_r(errmsg, sizeof(errmsg)));
@@ -97,7 +97,7 @@ http_client_connectunix(const char *path, struct timeval *timeout)
     return __pmConnectRestoreFlags(fd, fdFlags);
 
 #else
-    if (pmDebug & DBG_TRACE_HTTP)
+    if (pmDebugOptions.http)
 	__pmNotifyErr(LOG_ERR, "HTTP connect unix(%s) not supported\n", path);
     return -EOPNOTSUPP;
 #endif
@@ -115,7 +115,7 @@ http_client_connectto(const char *host, int port, struct timeval *timeout)
     int			i, fd, sts, maxFd;
 
     if ((servInfo = __pmGetAddrInfo(host)) == NULL) {
-	if (pmDebug & DBG_TRACE_HTTP)
+	if (pmDebugOptions.http)
 	    fprintf(stderr, "HTTP connect(%s, %d): hosterror=%d, ``%s''\n",
 		    host, port, hosterror(), hoststrerror());
 	return -EHOSTUNREACH;
@@ -140,7 +140,7 @@ http_client_connectto(const char *host, int port, struct timeval *timeout)
 	else if (__pmSockAddrIsIPv6(myAddr))
 	    fd = __pmCreateIPv6Socket();
 	else {
-	    if (pmDebug & DBG_TRACE_HTTP)
+	    if (pmDebugOptions.http)
 		fprintf(stderr, "HTTP connect(%s, %d): bad address family %d\n",
 			host, port, __pmSockAddrGetFamily(myAddr));
 	    fd = -EINVAL;
@@ -226,7 +226,7 @@ http_client_connect(http_client *cp)
     const char		*protocol, *url = cp->url;
     size_t		length;
 
-    if (pmDebug & DBG_TRACE_HTTP)
+    if (pmDebugOptions.http)
 	fprintf(stderr, "http_client_connect fd=%d\n", cp->fd);
 
     if (cp->fd != -1)	/* already connected */
@@ -347,7 +347,7 @@ http_client_get(http_client *cp)
     len += pmsprintf(bp+len, sizeof(buf)-len, "\r\n");
     buf[BUFSIZ-1] = '\0';
 
-    if ((pmDebug & DBG_TRACE_HTTP) && (pmDebug & DBG_TRACE_DESPERATE))
+    if (pmDebugOptions.http && pmDebugOptions.desperate)
 	fprintf(stderr, "Sending HTTP request:\n\n%s\n", buf);
 
     if ((sts = __pmSend(cp->fd, buf, len, 0)) < 0) {
@@ -362,7 +362,7 @@ http_client_get(http_client *cp)
 	sts = 0;
     }
 
-    if (pmDebug & DBG_TRACE_HTTP)
+    if (pmDebugOptions.http)
 	fprintf(stderr, "http_client_get sts=%d\n", sts);
 
     return sts;
@@ -383,7 +383,7 @@ on_header_field(http_parser *pp, const char *offset, size_t length)
 {
     http_client		*cp = (http_client *)pp->data;
 
-    if (pmDebug & DBG_TRACE_HTTP)
+    if (pmDebugOptions.http)
 	fprintf(stderr, "Header field: %.*s\n", (int)length, offset);
 
     if (length == sizeof(LOCATION)-1 &&
@@ -437,7 +437,7 @@ reset_url_location(const char *tourl, size_t tolen, http_parser_url *top,
 	url[size - 1] = '\0';
 	http_parser_parse_url(url, size, 0, fromp);
 
-	if (pmDebug & DBG_TRACE_HTTP)
+	if (pmDebugOptions.http)
 	    fprintf(stderr, "Redirecting from '%s' to '%s'\n", curl, url);
 	free(curl);
 	*fromurl = url;
@@ -471,7 +471,7 @@ on_header_value(http_parser *pp, const char *offset, size_t length)
     http_client		*cp = (http_client *)pp->data;
     int			sts;
 
-    if (pmDebug & DBG_TRACE_HTTP)
+    if (pmDebugOptions.http)
 	fprintf(stderr, "Header value: %.*s\n", (int)length, offset);
 
     if (cp->flags & F_LOCATION) {	/* redirect location */
@@ -513,7 +513,7 @@ on_body(http_parser *pp, const char *offset, size_t length)
 {
     http_client		*cp = (http_client *)pp->data;
 
-    if (pmDebug & DBG_TRACE_HTTP)
+    if (pmDebugOptions.http)
 	fprintf(stderr, "Body: %.*s\n", (int)length, offset);
 
     if (length > cp->body_length - cp->offset) {
@@ -571,7 +571,7 @@ http_client_response(http_client *cp)
 	setup = 1;
     }
 
-    if (pmDebug & DBG_TRACE_HTTP)
+    if (pmDebugOptions.http)
 	fprintf(stderr, "http_client_response\n");
 
     http_parser_init(&cp->parser, HTTP_RESPONSE);
@@ -723,7 +723,7 @@ pmhttpClientFetch(http_client *cp, const char *url,
 {
     int		sts = 0, redirected = 0;
 
-    if (pmDebug & DBG_TRACE_HTTP)
+    if (pmDebugOptions.http)
 	fprintf(stderr, "pmhttpClientFetch: %s\n", url);
 
     if (http_client_prepare(cp, url, body_buffer, body_length,
@@ -754,7 +754,7 @@ pmhttpClientFetch(http_client *cp, const char *url,
 	break;	/* successful exchange */
     }
 
-    if (pmDebug & DBG_TRACE_HTTP)
+    if (pmDebugOptions.http)
 	fprintf(stderr, "pmhttpClientFetch sts=%d\n", sts);
 
     return sts;

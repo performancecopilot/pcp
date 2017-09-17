@@ -198,7 +198,7 @@ jsmnflagornumber(const char *js, jsmntok_t *tok, json_metric_desc *json_metrics,
 	    return -1;
     }
     else {
-	if (pmDebug & DBG_TRACE_APPL2)
+	if (pmDebugOptions.appl2)
 	    __pmNotifyErr(LOG_DEBUG, "pmjson_flag: %d\n", flag);
 	switch (flag) {
 	case pmjson_flag_boolean:
@@ -274,11 +274,11 @@ json_extract_values(const char *json, jsmntok_t *json_tokens, size_t count,
 
     switch (json_tokens->type) {
     case JSMN_PRIMITIVE:
-	if (pmDebug & DBG_TRACE_APPL2)
+	if (pmDebugOptions.appl2)
 	    __pmNotifyErr(LOG_DEBUG, "jsmn primitive\n");
 	return 1;
     case JSMN_STRING:
-	if (pmDebug & DBG_TRACE_APPL2)
+	if (pmDebugOptions.appl2)
 	    __pmNotifyErr(LOG_DEBUG, "string: %.*s parent: %d\n",
 			json_tokens->end - json_tokens->start,
 			json + json_tokens->start, json_tokens->parent);
@@ -301,11 +301,11 @@ json_extract_values(const char *json, jsmntok_t *json_tokens, size_t count,
 	}
 	return 1;
     case JSMN_OBJECT:
-	if (pmDebug & DBG_TRACE_APPL2)
+	if (pmDebugOptions.appl2)
 	    __pmNotifyErr(LOG_DEBUG, "jsmn object\n");
 	for (i = j = k = 0; i < json_tokens->size; i++) {
 	    k = 0;
-	    if (pmDebug & DBG_TRACE_APPL2)
+	    if (pmDebugOptions.appl2)
 		__pmNotifyErr(LOG_DEBUG, "object key\n");
 	    k = json_extract_values(json, json_tokens+1+j, count-j, json_metrics, pointer_part, key, total);
 	    /* returned a valid section, continue */
@@ -323,7 +323,7 @@ json_extract_values(const char *json, jsmntok_t *json_tokens, size_t count,
 		j++;
 	    }
 
-	    if (pmDebug & DBG_TRACE_APPL2)
+	    if (pmDebugOptions.appl2)
 		__pmNotifyErr(LOG_DEBUG, "object value %d\n", (json_tokens+1+j)->size);
 	    if (count > j)
 		j += json_extract_values(json, json_tokens+1+j, count-j, json_metrics, pointer_part, key, total);
@@ -332,7 +332,7 @@ json_extract_values(const char *json, jsmntok_t *json_tokens, size_t count,
 	}
 	return j + 1;
     case JSMN_ARRAY:
-	if (pmDebug & DBG_TRACE_APPL2)
+	if (pmDebugOptions.appl2)
 	    __pmNotifyErr(LOG_DEBUG, "jsmn_array");
 	for (i = j = 0; i < json_tokens->size; i++)
 	    j += json_extract_values(json, json_tokens+1+j, count-j, json_metrics, pointer_part, key, total);
@@ -355,7 +355,7 @@ json_pointer_to_index(const char *json, jsmntok_t *json_tokens, size_t count, js
     for (i = 0; i < nmetrics; i++) {
 	memset(&pointer_final[0], 0, sizeof(pointer_final));
 	json_pointer = strdup(json_metrics[i].json_pointer);
-	if (pmDebug & DBG_TRACE_APPL1)
+	if (pmDebugOptions.appl1)
 	    __pmNotifyErr(LOG_DEBUG, "json_pointer: %s\n", json_pointer);
 	j = 0;
 	pointer_part = strtok(json_pointer, "/");
@@ -419,7 +419,7 @@ pmjsonGet(json_metric_desc *json_metrics, int nmetrics, pmInDom indom,
 	if (bytes == 0)
 	    goto indexing;
 	if (bytes < 0) {
-	    if (pmDebug & DBG_TRACE_ATTR)
+	    if (pmDebugOptions.attr)
 		fprintf(stderr, "%s: failed to read more JSON: %s\n",
 			pmProgname, osstrerror());
 	    sts = -oserror();
@@ -436,7 +436,7 @@ pmjsonGet(json_metric_desc *json_metrics, int nmetrics, pmInDom indom,
 
 parsing:
 	sts = jsmn_parse(&parser, json, json_length, json_tokens, token_count);
-	if (pmDebug & DBG_TRACE_ATTR) {
+	if (pmDebugOptions.attr) {
 	    fprintf(stderr, "jsmn_parse() -> %d\n", sts);
 	}
 	if (sts < 0) {
