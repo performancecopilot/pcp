@@ -156,7 +156,6 @@ ParseOptions(int argc, char *argv[], int *nports)
 			pmProgname, opts.optarg);
 		    opts.errors++;
 		}
-		pmDebug |= sts;
 		break;
 
 	    case 'f':

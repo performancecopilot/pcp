@@ -55,6 +55,7 @@ pmDebugOptions:	pdu,fetch,profile,value,context,indom,pdubuf,log,logmeta,optfetc
 pmClearDebug("-1") ...
 pmDebug:	Nothing set
 pmDebugOptions:	Nothing set
+Warning: deprecated __pmSetDebugBits() called
 arg: all
 pmSetDebug("all") ...
 pmDebug:	pdu,fetch,profile,value,context,indom,pdubuf,log,logmeta,optfetch,af,appl0,appl1,appl2,pmns,libpmda,timecontrol,pmc,derive,lock,interp,config,pmapi,fault,auth,discovery,attr,http,desperate
@@ -65,7 +66,7 @@ pmDebugOptions:	Nothing set
 __pmParseDebug("all") ...
 __pmParseDebug -> 2147483647
 pmDebug:	pdu,fetch,profile,value,context,indom,pdubuf,log,logmeta,optfetch,af,appl0,appl1,appl2,pmns,libpmda,timecontrol,pmc,derive,lock,interp,config,pmapi,fault,auth,discovery,attr,http,desperate
-pmDebugOptions:	pdu,fetch,profile,value,context,indom,pdubuf,log,logmeta,optfetch,af,appl0,appl1,appl2,pmns,libpmda,timecontrol,pmc,derive,lock,interp,config,pmapi,fault,auth,discovery,attr,http,desperate,deprecated,exec
+pmDebugOptions:	pdu,fetch,profile,value,context,indom,pdubuf,log,logmeta,optfetch,af,appl0,appl1,appl2,pmns,libpmda,timecontrol,pmc,derive,lock,interp,config,pmapi,fault,auth,discovery,attr,http,desperate
 pmClearDebug("all") ...
 pmDebug:	Nothing set
 pmDebugOptions:	Nothing set
@@ -84,6 +85,7 @@ pmClearDebug("pdu,desperate") ...
 pmDebug:	Nothing set
 pmDebugOptions:	Nothing set
 Warning: deprecated __pmParseDebug() called
+Warning: deprecated __pmSetDebugBits() called
 arg: 1
 pmSetDebug("1") ...
 pmDebug:	pdu
@@ -94,10 +96,10 @@ pmDebugOptions:	deprecated
 __pmParseDebug("1") ...
 __pmParseDebug -> 1
 pmDebug:	pdu
-pmDebugOptions:	pdu,deprecated
+pmDebugOptions:	pdu
 pmClearDebug("1") ...
 pmDebug:	Nothing set
-pmDebugOptions:	deprecated
+pmDebugOptions:	Nothing set
 arg: 1073741825
 pmSetDebug("1073741825") ...
 pmDebug:	pdu,desperate

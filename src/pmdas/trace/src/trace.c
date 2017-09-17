@@ -1037,6 +1037,7 @@ traceStore(pmResult *result, pmdaExt *pmda)
 	    else if (sts >= 0 && ((sts = pmExtractValue(vsp->valfmt,
 			&vsp->vlist[0], PM_TYPE_32, &av, PM_TYPE_32)) >= 0)) {
 		if (pmDebug != av.l) {
+		    pmClearDebug("all");
 		    __pmSetDebugBits(av.l);
 		    __pmNotifyErr(LOG_INFO, "debug level set to %d", pmDebug);
 		    debuglibrary(pmDebug);

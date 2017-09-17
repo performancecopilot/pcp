@@ -2672,6 +2672,7 @@ sample_store(pmResult *result, pmdaExt *ep)
 			 * but there is no API to set these and we need to set
 			 * the corresponding new option as well ...
 			 */
+			pmClearDebug("all");
 			__pmSetDebugBits(_control);
 			break;
 		}

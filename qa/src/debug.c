@@ -72,7 +72,7 @@ Options:\n\
 	sts = __pmParseDebug(argv[optind]);
 	printf("__pmParseDebug -> %d\n", sts);
 	if (sts > 0)
-	    pmDebug |= sts;
+	    __pmSetDebugBits(sts);
 	__pmDumpDebug(stdout);
 
 	printf("pmClearDebug(\"%s\") ...\n", argv[optind]);

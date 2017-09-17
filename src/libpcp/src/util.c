@@ -1516,6 +1516,9 @@ pmClearDebug(const char *spec)
  * than by name (new scheme).
  * This routine is used by PMDAs that have a control metric that maps onto
  * pmDebug, e.g. sample.control or trace.control
+ * For symmetry with pmSetDebug() the effects are additive, so a PMDA
+ * that used to pmDebug = value now needs to pmClearDebug("all") and then
+ * __pmSetDebugBits(value).
  */
 void
 __pmSetDebugBits(int value)
@@ -1523,9 +1526,8 @@ __pmSetDebugBits(int value)
     int		i;
 
     if (pmDebugOptions.deprecated)
-	fprintf(stderr, "Warning: deprecated __SetDebugBits() called\n");
+	fprintf(stderr, "Warning: deprecated __pmSetDebugBits() called\n");
 
-    pmClearDebug("all");
     for (i = 0; i < num_debug; i++) {
 	if (value & debug_map[i].bit) {
 	    /* this option has a bit-field equivalent that is set in value */

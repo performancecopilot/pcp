@@ -596,6 +596,7 @@ shping_store(pmResult *result, pmdaExt *ext)
 			sts = PM_ERR_SIGN;
 			break;
 		    }
+		    pmClearDebug("all");
 		    __pmSetDebugBits(ival);
 		    break;
 

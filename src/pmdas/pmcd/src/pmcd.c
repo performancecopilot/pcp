@@ -1786,6 +1786,7 @@ pmcd_store(pmResult *result, pmdaExt *pmda)
 	pmidp = (__pmID_int *)&vsp->pmid;
 	if (pmidp->cluster == 0) {
 	    if (pmidp->item == 0) {	/* pmcd.control.debug */
+		pmClearDebug("all");
 		__pmSetDebugBits(vsp->vlist[0].value.lval);
 	    }
 	    else if (pmidp->item == 4) { /* pmcd.control.timeout */
