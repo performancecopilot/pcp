@@ -79,7 +79,7 @@ _wait_for_pmcd
 _wait_for_pmlogger
 
 echo "Enabling sample PMDA tracing" | tee -a $seq.full
-authdbg=`pmdbg -l | grep DBG_TRACE_AUTH | awk '{ print $2 }'`
+authdbg=`pmdbg -l -o | grep DBG_TRACE_AUTH | awk '{ print $2 }'`
 echo "authdbg=$authdbg" >>$seq.full
 echo "username=$username" >>$seq.full
 pmstore sample.control "$authdbg"
