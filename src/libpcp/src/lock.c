@@ -91,23 +91,14 @@ SetupDebug(void)
      * value to set debug options (and flags)
      */
     char	*val;
-    int		ival;
 
     PM_LOCK(__pmLock_extcall);
     val = getenv("PCP_DEBUG");		/* THREADSAFE */
     if (val != NULL) {
-	char	*end;
-	ival = strtol(val, &end, 10);
-	if (*end == '\0') {
-	    /* old-style number ... */
-	    pmDebug |= ival;
-	}
-	else {
-	    int	sts;
-	    sts = pmSetDebug(val);
-	    if (sts != 0)
-		fprintf(stderr, "Error: $PCP_DEBUG=%s is not valid, ignored\n", val);
-	}
+	int		sts;
+	sts = pmSetDebug(val);
+	if (sts != 0)
+	    fprintf(stderr, "Error: $PCP_DEBUG=%s is not valid, ignored\n", val);
     }
     PM_UNLOCK(__pmLock_extcall);
 }
