@@ -91,7 +91,7 @@ include $(BUILDRULES)
 *.o: internal.h compiler.h derive.h
 rtime.o: getdate.h
 derive.o derive_fetch.o: derive.h derive_parser.tab.h
-util.o:	$(TOPDIR)/src/include/pcp/pmdbg.h
+util.o:	pmdbg.h
 
 $(OBJECTS):	$(TOPDIR)/src/include/pcp/pmapi.h \
 		$(TOPDIR)/src/include/pcp/impl.h \
