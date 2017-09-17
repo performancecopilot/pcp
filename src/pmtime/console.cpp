@@ -23,9 +23,9 @@ Console *console;
 Console::Console() : QDialog()
 {
     my.level = 0;
-    if (pmDebug & DBG_TRACE_APPL0)
+    if (pmDebugOptions.appl0)
 	my.level |= PmTime::DebugApp;	// pmtime apps internals
-    if (pmDebug & DBG_TRACE_APPL1)
+    if (pmDebugOptions.appl1)
 	my.level |= PmTime::DebugProtocol;	// trace pmtime protocol
     setupUi(this);
 }

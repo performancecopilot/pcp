@@ -205,10 +205,8 @@ endmetrics(void)
 	goto done;
     }
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL0)
+    if (pmDebugOptions.appl0)
 	dumpmetrics(stdout);
-#endif
 
     /* free any old values in the reusable pmResult skeleton */
     if (n_logreq) {
@@ -354,12 +352,10 @@ addinst(char *name, int instid)
     for (m = 0, mp = metric; m < n_metrics; m++, mp++)
 	if (mp->status.selected)
 	    break;
-#ifdef PCP_DEBUG
     if (m >= n_metrics) {
 	fprintf(stderr, "Ark! No metrics selected for addinst(%s)\n", name);
 	abort();
     }
-#endif
     first_mp = mp;
 
     if (first_inst) {
@@ -503,7 +499,6 @@ addinst(char *name, int instid)
     }
 }
 
-#ifdef PCP_DEBUG
 void
 dumpmetrics(FILE *f)
 {
@@ -543,4 +538,3 @@ dumpmetrics(FILE *f)
 	putc('\n', f);
     }
 }
-#endif

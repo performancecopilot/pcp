@@ -5,7 +5,7 @@ include $(TOPDIR)/src/include/builddefs
 
 WRAPPER = $(COMMAND).sh
 QRCFILE = $(COMMAND).qrc
-ICNFILE = $(COMMAND).icns
+ICNFILE = $(COMMAND).png
 XMLFILE = $(COMMAND).info
 HEADERS = pmgadgets.h tokens.h
 SOURCES = $(HEADERS:.h=.cpp) main.cpp parse.cpp
@@ -67,5 +67,6 @@ install_pcp:	install
 images: $(ICNFILE)
 	$(LN_S) $(TOPDIR)/images images
 
-$(ICNFILE):
+$(ICNFILE): $(TOPDIR)/images/$(ICNFILE)
+	rm -f $(ICNFILE)
 	$(LN_S) $(TOPDIR)/images/$(ICNFILE) $(ICNFILE)

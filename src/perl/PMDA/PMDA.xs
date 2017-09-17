@@ -636,9 +636,10 @@ new(CLASS,name,domain)
 	pmdaname = local_strdup_prefix("pmda", name);
 	__pmSetProgname(pmdaname);
 	sep = __pmPathSeparator();
-	if ((p = getenv("PCP_PERL_DEBUG")) != NULL)
-	    if ((pmDebug = __pmParseDebug(p)) < 0)
-		pmDebug = 0;
+	if ((p = getenv("PCP_PERL_DEBUG")) != NULL) {
+	    if (pmSetDebug(p) < 0)
+		fprintf(stderr, "unrecognized debug options specification (%s)\n", p);
+	}
 #ifndef IS_MINGW
 	setsid();
 #endif

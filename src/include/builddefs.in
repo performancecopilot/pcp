@@ -115,7 +115,7 @@ endif
 CFLAGS_ABI = @cflags_abi@
 CFLAGS_OPT = @optimization@
 CFLAGS += $(PCFLAGS) $(LCFLAGS) $(WARN_OFF) $(CFLAGS_OPT) \
-	-DPCP_DEBUG -DPCP_VERSION=\"$(PCP_VERSION)\" \
+	-DPCP_VERSION=\"$(PCP_VERSION)\" \
 	-I$(TOPDIR)/src/include -I$(TOPDIR)/src/include/pcp
 
 PIECFLAGS = @PIECFLAGS@

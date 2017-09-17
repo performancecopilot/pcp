@@ -860,7 +860,7 @@ setup_metrics(char **metrics, pmID *pmidlist, pmDesc *desclist, int nmetrics)
 		{
 			if (pmidlist[i] != PM_ID_NULL)
 				continue;
-			if (pmDebug & DBG_TRACE_APPL0)
+			if (pmDebugOptions.appl0)
 				fprintf(stderr,
 					"%s: pmLookupName failed for %s\n",
 					pmProgname, metrics[i]);
@@ -876,7 +876,7 @@ setup_metrics(char **metrics, pmID *pmidlist, pmDesc *desclist, int nmetrics)
 		}
 		if ((sts = pmLookupDesc(pmidlist[i], &desclist[i])) < 0)
 		{
-			if (pmDebug & DBG_TRACE_APPL0)
+			if (pmDebugOptions.appl0)
 				fprintf(stderr,
 					"%s: pmLookupDesc failed for %s: %s\n",
 					pmProgname, metrics[i], pmErrStr(sts));
@@ -898,7 +898,7 @@ fetch_metrics(const char *purpose, int nmetrics, pmID *pmids, pmResult **result)
 				pmProgname, purpose, pmErrStr(sts));
 		cleanstop(1);
 	}
-	if (pmDebug & DBG_TRACE_APPL1)
+	if (pmDebugOptions.appl1)
 	{
 		pmResult	*rp = *result;
 		struct tm	tmp;
@@ -943,7 +943,7 @@ get_instances(const char *purpose, int value, pmDesc *descs, int **ids, char ***
 			pmProgname, purpose, pmErrStr(sts));
 		cleanstop(1);
 	}
-	if (pmDebug & DBG_TRACE_APPL1)
+	if (pmDebugOptions.appl1)
 	{
 		fprintf(stderr, "%s: got %d %s instances:\n",
 			pmProgname, sts, purpose);
@@ -1188,7 +1188,7 @@ rawwrite(pmOptions *opts, const char *name,
 	if (duration > INT_MAX)
 	    duration = INT_MAX - 1;
 
-	if (pmDebug & DBG_TRACE_APPL1)
+	if (pmDebugOptions.appl1)
 	{
 		fprintf(stderr, "%s: start recording, %.2fsec duration [%s].\n",
 			pmProgname, duration, name);
@@ -1260,7 +1260,7 @@ rawwrite(pmOptions *opts, const char *name,
 		cleanstop(1);
 	}
 
-	if (pmDebug & DBG_TRACE_APPL1)
+	if (pmDebugOptions.appl1)
 	{
 		fprintf(stderr, "%s: cleanly stopped recording.\n",
 			pmProgname);
