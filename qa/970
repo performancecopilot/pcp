@@ -20,11 +20,16 @@ status=1	# failure is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
 
+# -nan is not possible on some platforms, they report nan ... so need
+# to map this
+#
 _filter()
 {
     tmpx=`echo $tmp`
     sed -e 's/^Archive:.* Host:/ARCHIVE: Host:/' \
-	-e "s|$tmpx|TMP|g"
+	-e "s|$tmpx|TMP|g" \
+	-e 's/-nan/ nan/g' \
+    # end
 }
 
 # real QA test starts here
