@@ -144,7 +144,7 @@ setup_cmdline(pipe_client *pc, pipe_command *cmd, char *params)
 		total += add_parameter(start, p, &nparams, &paramtab);
 	    start = p + 1;
 	} else if (!isalnum((int)*p)) {
-	    if (pmDebug & DBG_TRACE_APPL2)
+	    if (pmDebugOptions.appl2)
 		fprintf(stderr, "invalid parameter string at '%c'", *p);
 	    goto fail;
 	} else if (*(p + 1) == '\0') {
@@ -160,13 +160,13 @@ setup_cmdline(pipe_client *pc, pipe_command *cmd, char *params)
 	if (*p == '$') {
 	    n = (int)strtol(++p, &end, 10);
 	    if (p+1 != end && *end != '\0')	{	/* bad config? */
-		if (pmDebug & DBG_TRACE_APPL2)
+		if (pmDebugOptions.appl2)
 		    fprintf(stderr, "invalid configuration file parameter");
 		goto fail;
 	    }
 	    p = end - 1;
 	    if (n > nparams) {
-		if (pmDebug & DBG_TRACE_APPL2)
+		if (pmDebugOptions.appl2)
 		    fprintf(stderr, "too few parameters passed (%d >= %d)",
 				n, nparams);
 		goto fail;
@@ -177,7 +177,7 @@ setup_cmdline(pipe_client *pc, pipe_command *cmd, char *params)
 	    else
 		paramlen = total;
 	    if (paramlen + (q - buffer) >= sizeof(buffer) - 1) {
-		if (pmDebug & DBG_TRACE_APPL2)
+		if (pmDebugOptions.appl2)
 		    fprintf(stderr, "insufficient space for substituting "
 				"parameter %d", n);
 		goto fail;
@@ -228,7 +228,7 @@ check_access(pmInDom aclops, pipe_client *client, pipe_command *cmd)
     if ((sts = __pmAccAddAccount(client->uid, client->gid, &denyops)) < 0)
 	return sts;
 
-    if (pmDebug & DBG_TRACE_AUTH) {
+    if (pmDebugOptions.auth) {
 	__pmNotifyErr(LOG_DEBUG, "check_access: access %s for %s"
 				 " (uid=%s,gid=%s operation=%d denyops=%u)",
 		(denyops & operation) ? "denied":"granted", cmd->identifier,
@@ -248,7 +248,7 @@ event_init(int context, pmInDom aclops, pipe_command *cmd, char *params)
     char		*comm;
     int			i, sts;
 
-    if (pmDebug & DBG_TRACE_APPL0)
+    if (pmDebugOptions.appl0)
         __pmNotifyErr(LOG_DEBUG, "event_init: %s[%d] starting: %s [%s] maxmem=%ld",
 		cmd->identifier, cmd->inst, cmd->command, params, (long)maxmem);
 
@@ -278,7 +278,7 @@ event_init(int context, pmInDom aclops, pipe_command *cmd, char *params)
     pmdaEventSetAccess(context, groot->queueid, 1);
     groot->active = 1;
 
-    if (pmDebug & DBG_TRACE_APPL0)
+    if (pmDebugOptions.appl0)
         __pmNotifyErr(LOG_DEBUG, "event_init: %s started: pid=%d fd=%d qid=%d",
 		cmd->identifier, groot->pid, groot->fd, groot->queueid);
 
@@ -304,7 +304,7 @@ event_create(struct pipe_groot *pipe)
     static char		*buffer;
     static int		bufsize;
 
-    if (pmDebug & DBG_TRACE_APPL0)
+    if (pmDebugOptions.appl0)
 	__pmNotifyErr(LOG_INFO, "event_create: fd=%d", pipe->fd);
 
     /*
@@ -339,7 +339,7 @@ multiread:
     	return 0;
     bytes = read(pipe->fd, buffer + offset, bufsize - 1 - offset);
 
-    if (pmDebug & DBG_TRACE_APPL0)
+    if (pmDebugOptions.appl0)
 	__pmNotifyErr(LOG_INFO, "event_create: read %d bytes on fd=%d",
 			(int)bytes, pipe->fd);
 
@@ -377,7 +377,7 @@ multiread:
 	*s = '\0';
 	bytes = (s+1) - p;
 
-	if (pmDebug & DBG_TRACE_APPL0)
+	if (pmDebugOptions.appl0)
 	    __pmNotifyErr(LOG_INFO, "event_create: append %d bytes to queue=%d",
 			(int)bytes, (int)pipe->queueid);
 
@@ -573,7 +573,7 @@ event_decoder(int eventarray, void *buffer, size_t size,
     int			flag = 0;
     int			sts;
 
-    if (pmDebug & DBG_TRACE_APPL0)
+    if (pmDebugOptions.appl0)
 	__pmNotifyErr(LOG_DEBUG, "event_decoder on queue %s", groot->qname);
 
     if (groot->count++ == 0)
@@ -668,7 +668,7 @@ event_parse_acl(const char *fname, char *p, int linenum)
     }
     pa->identifier = strdup(pa->identifier);
 
-    if (pmDebug & DBG_TRACE_APPL0)
+    if (pmDebugOptions.appl0)
 	fprintf(stderr, "[%s %s=%s line=%d] instance: %s\n",
 		pa->allow? "allow":"disallow", pa->user? "user":"group",
 		pa->name, linenum, pa->identifier);
@@ -730,7 +730,7 @@ done:
 	return -1;
     }
 
-    if (pmDebug & DBG_TRACE_APPL0)
+    if (pmDebugOptions.appl0)
 	fprintf(stderr, "[name=%s user=%s line=%d] command: %s\n",
 		pc->identifier, pc->user, linenum, pc->command);
     return 0;
@@ -773,7 +773,7 @@ event_config(const char *fname)
 	if (*p == '\n' || *p == '\0' || *p == '#')
 	    continue;
 
-	if (pmDebug & DBG_TRACE_APPL1)
+	if (pmDebugOptions.appl1)
 	    fprintf(stderr, "[%d] %s", linenum, line);
 
 	/* handle access control section separately */
@@ -863,7 +863,7 @@ event_acl(pmInDom aclops)
 	if (pa->group)
 	    ngroups++;
 
-	if (pmDebug & DBG_TRACE_APPL0)
+	if (pmDebugOptions.appl0)
 	    __pmNotifyErr(LOG_DEBUG, "event_acl: added op %s[%u]",
 			pa->identifier, pa->operation);
     }
@@ -913,7 +913,7 @@ event_acl(pmInDom aclops)
 	}
     }
 
-    if (pmDebug & DBG_TRACE_APPL1) {
+    if (pmDebugOptions.appl1) {
 	if (nusers)
 	    __pmAccDumpUsers(stderr);
 	if (ngroups)
@@ -939,7 +939,7 @@ event_indom(pmInDom pipe_indom)
 	pmdaCacheStore(pipe_indom, PMDA_CACHE_ADD, pc->identifier, pc);
 	pmdaCacheLookupName(pipe_indom, pc->identifier, &pc->inst, NULL);
 
-	if (pmDebug & DBG_TRACE_APPL0)
+	if (pmDebugOptions.appl0)
             __pmNotifyErr(LOG_DEBUG, "event_indom: added %s[%d]", pc->identifier, pc->inst);
     }
 

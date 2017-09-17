@@ -396,7 +396,7 @@ init_pmdaroot_connect(void)
 {
     setoserror(0);
     if ((rootfd = pmdaRootConnect(NULL)) < 0) {
-	if (pmDebug & DBG_TRACE_ATTR)
+	if (pmDebugOptions.attr)
 	    fprintf(stderr, "pmdapmcd cannot connect to pmdaroot: %s\n",
 			osstrerror());
     }
@@ -1786,7 +1786,7 @@ pmcd_store(pmResult *result, pmdaExt *pmda)
 	pmidp = (__pmID_int *)&vsp->pmid;
 	if (pmidp->cluster == 0) {
 	    if (pmidp->item == 0) {	/* pmcd.control.debug */
-		pmDebug = vsp->vlist[0].value.lval;
+		__pmSetDebugBits(vsp->vlist[0].value.lval);
 	    }
 	    else if (pmidp->item == 4) { /* pmcd.control.timeout */
 		val = vsp->vlist[0].value.lval;

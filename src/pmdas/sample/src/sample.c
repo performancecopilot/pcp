@@ -2672,15 +2672,7 @@ sample_store(pmResult *result, pmdaExt *ep)
 			 * but there is no API to set these and we need to set
 			 * the corresponding new option as well ...
 			 */
-			pmClearDebug("all");
-			for (i = 0; i < num_debug; i++) {
-			    if (_control & debug_map[i].bit) {
-				/* this option has a bit-field equivalent
-				 * that is set in _control
-				 */
-				pmSetDebug(debug_map[i].name);
-			    }
-			}
+			__pmSetDebugBits(_control);
 			break;
 		}
 		break;

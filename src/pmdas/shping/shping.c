@@ -596,7 +596,7 @@ shping_store(pmResult *result, pmdaExt *ext)
 			sts = PM_ERR_SIGN;
 			break;
 		    }
-		    pmDebug = ival;
+		    __pmSetDebugBits(ival);
 		    break;
 
 		default:

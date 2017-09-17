@@ -93,7 +93,7 @@ main(int argc, char **argv)
 	switch (c) {
 
 	    case 'C':		/* parser checking mode (debugging) */
-		pmDebug = DBG_TRACE_APPL0;
+		pmSetDebug("appl0");
 		parse_only++;
 		break;
 

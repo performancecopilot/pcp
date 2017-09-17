@@ -115,7 +115,7 @@ windows_lookup_instance(char *path, pdh_metric_t *mp)
 	     * entries like "17" and "17#1" are not useable anyway)
 	     */
 	    if (!ok) {
-		if (pmDebug & DBG_TRACE_LIBPMDA)
+		if (pmDebugOptions.libpmda)
 		    __pmNotifyErr(LOG_ERR, "windows_check_instance: Error: "
 				"unrecognized disk instance: %s\n", path);
 		free(name);
