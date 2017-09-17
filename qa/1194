@@ -72,7 +72,7 @@ $sudo rm -f $PCP_VAR_DIR/config/pmda/*
 
 $python $here/prometheus/prometheus_client_server.python &
 pid=$!
-
+sleep 3 #avoid racing
 pmdaprometheus_install
 
 if pminfo -v prometheus > $tmp.info 2> $tmp.err
