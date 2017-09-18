@@ -1822,8 +1822,8 @@ again:
 	if (pmDebugOptions.log)
 	    fprintf(stderr, "\nError: truncated log? rlen=%d (offset %d)\n",
 		rlen, (int)offset);
-	    sts = PM_ERR_LOGREC;
-	    goto func_return;
+	sts = PM_ERR_LOGREC;
+	goto func_return;
     }
     /*
      * need to add int at end for trailer in case buffer is used
