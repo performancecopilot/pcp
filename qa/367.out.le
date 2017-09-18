@@ -205,6 +205,18 @@ Dump Instance Profile state=EXCLUDE, 2 profiles
 008:        0        4        0        8        0       10        0       20 
 016:        0       40        0       80        0      100        0      200 
 024:        0      400        0 
+[SERVER]pmGetPDU: LABEL_REQ fd=<n> len=20 from=CLIENT
+000:       14     7012   CLIENT cdab3412  4000000 
+[SERVER]pmXmitPDU: LABEL_REQ fd=<n> len=20
+000:       14     7012   SERVER cdab3412  4000000 
+[SERVER]pmGetPDU: LABEL fd=<n> len=77 from=CLIENT
+000:       4d     7013   CLIENT 3412cdab 10000000        0  1000000 ffffffff 
+008:  1000000 34000000 19000000    b0200    90f00 6574227b 7265706d 72757461 
+016: 223a2265 636c6563 22737569 7e7e7e7d 
+[SERVER]pmXmitPDU: LABEL fd=<n> len=77
+000:       4d     7013   SERVER 3412cdab 10000000        0  1000000 ffffffff 
+008:  1000000 34000000 19000000    b0200    90f00 6574227b 7265706d 72757461 
+016: 223a2265 636c6563 22737569 7e7e7e7d 
 [SERVER]pmGetPDU: TEXT_REQ fd=<n> len=20 from=CLIENT
 000:       14     7008   CLIENT 12341234        5 
 + PDU_TEXT_REQ: ident=305402420 PMID 72.3332.564 txtype=5
