@@ -201,12 +201,10 @@ eval(Task *task)
     pmValueSet  *vset;
     int		i;
 
-#if PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL2) {
+    if (pmDebugOptions.appl2) {
 	fprintf(stderr, "Evaluating task:\n");
 	dumpTask(task);
     }
-#endif
 
     /* fetch metrics */
     taskFetch(task);

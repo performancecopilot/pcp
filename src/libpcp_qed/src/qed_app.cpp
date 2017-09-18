@@ -81,13 +81,12 @@ int QedApp::getopts(const char *options)
 	    break;
 
 	case 'D':
-	    sts = __pmParseDebug(optarg);
+	    sts = pmSetDebug(optarg);
 	    if (sts < 0) {
-		pmprintf("%s: unrecognized debug flag specification (%s)\n",
+		pmprintf("%s: unrecognized debug options specification (%s)\n",
 			pmProgname, optarg);
 		errflg++;
-	    } else
-		pmDebug |= sts;
+	    }
 	    break;
 
 	case 'h':
@@ -239,8 +238,8 @@ QPixmap QedApp::cached(const QString &image)
     return pm;
 }
 
-// call startconsole() after command line args processed so pmDebug
-// has a chance to be set
+// call startconsole() after command line args processed so debugging
+// options have a chance to be set
 //
 void QedApp::startconsole(void)
 {

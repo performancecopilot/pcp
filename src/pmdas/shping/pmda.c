@@ -222,15 +222,13 @@ main(int argc, char **argv)
     else if (parseonly)
 	exit(0);
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL1) {
+    if (pmDebugOptions.appl1) {
 	fprintf(stderr, "Parsed %d commands\n", numcmd);
 	fprintf(stderr, "Tag\tCommand\n");
 	for (i = 0; i < numcmd; i++) {
 	    fprintf(stderr, "[%s]\t%s\n", cmdlist[i].tag, cmdlist[i].cmd);
 	}
     }
-#endif
 
     /* set up indom description */
     indomtab.it_numinst = numcmd;

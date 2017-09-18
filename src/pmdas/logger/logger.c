@@ -457,7 +457,7 @@ loggerMain(pmdaInterface *dispatch)
     for (;;) {
 	memcpy(&readyfds, &fds, sizeof(readyfds));
 	nready = select(maxfd+1, &readyfds, NULL, NULL, NULL);
-	if (pmDebug & DBG_TRACE_APPL2)
+	if (pmDebugOptions.appl2)
 	    __pmNotifyErr(LOG_DEBUG, "select: nready=%d interval=%d",
 			  nready, interval_expired);
 	if (nready < 0) {
@@ -471,13 +471,13 @@ loggerMain(pmdaInterface *dispatch)
 
 	__pmAFblock();
 	if (nready > 0 && FD_ISSET(pmcdfd, &readyfds)) {
-	    if (pmDebug & DBG_TRACE_APPL0)
+	    if (pmDebugOptions.appl0)
 		__pmNotifyErr(LOG_DEBUG, "processing pmcd PDU [fd=%d]", pmcdfd);
 	    if (__pmdaMainPDU(dispatch) < 0) {
 		__pmAFunblock();
 		exit(1);	/* fatal if we lose pmcd */
 	    }
-	    if (pmDebug & DBG_TRACE_APPL0)
+	    if (pmDebugOptions.appl0)
 		__pmNotifyErr(LOG_DEBUG, "completed pmcd PDU [fd=%d]", pmcdfd);
 	}
 	if (interval_expired) {

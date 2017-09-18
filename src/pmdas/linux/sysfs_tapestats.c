@@ -82,10 +82,8 @@ refresh_sysfs_tapestats(pmInDom tape_indom)
 	    }
 	    memset(device, 0, sizeof(tapedev_t));
 	    strncpy(device->devname, sysdev, sizeof(device->devname) - 1);
-#if PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_LIBPMDA)
+	    if (pmDebugOptions.libpmda)
 		fprintf(stderr, "refresh_sysfs_tapestats: added new tape device \"%s\"\n", sysdev);
-#endif
 	}
 	device->devnum = pmdaCacheStore(tape_indom, PMDA_CACHE_ADD, device->devname, (void *)device);
 

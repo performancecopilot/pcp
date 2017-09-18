@@ -457,10 +457,8 @@ do_sysctl(mib_t *mp, size_t xpect)
     for ( ; mp->m_fetched == 0; ) {
 	int	sts;
 	sts = sysctl(mp->m_mib, (u_int)mp->m_miblen, mp->m_data, &mp->m_datalen, NULL, 0);
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL0)
+	if (pmDebugOptions.appl0)
 	fprintf(stderr, "Info: sysctl(%s%s) -> %d (datalen=%d)\n", mp->m_name, mp->m_data == NULL ? " firstcall" : "", sts, (int)mp->m_datalen);
-#endif
 	if (sts == 0 && mp->m_data != NULL) {
 	    mp->m_fetched = 1;
 	    break;
@@ -522,13 +520,11 @@ kmemread_init(void)
 	    symbols[i].n_value = 0;
 	return;
     }
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL0) {
+    if (pmDebugOptions.appl0) {
 	for (i = 0; i < sizeof(symbols)/sizeof(symbols[0])-1; i++) {
 	    fprintf(stderr, "Info: kernel symbol %s found at 0x%08lx\n", symbols[i].n_name, symbols[i].n_value);
 	}
     }
-#endif
 
 }
 
@@ -896,8 +892,7 @@ openbsd_init(pmdaInterface *dp)
 			metrictab[m].m_user = (void *)&bad_mib;
 		    }
 		}
-#ifdef PCP_DEBUG
-		if (pmDebug & DBG_TRACE_APPL0) {
+		if (pmDebugOptions.appl0) {
 		    int	p;
 		    fprintf(stderr, "Info: %s (%s): sysctl metric \"%s\" -> ", (char *)metrictab[m].m_user, pmIDStr(metrictab[m].m_desc.pmid), map[i].m_name);
 		    for (p = 0; p < map[i].m_miblen; p++) {
@@ -906,7 +901,6 @@ openbsd_init(pmdaInterface *dp)
 		    }
 		    fputc('\n', stderr);
 		}
-#endif
 		metrictab[m].m_user = (void *)&map[i];
 		break;
 	    }
@@ -929,10 +923,8 @@ openbsd_init(pmdaInterface *dp)
 	exit(1);
     }
     cpuhz = clockrates.stathz;
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL0)
+    if (pmDebugOptions.appl0)
 	fprintf(stderr, "Info: CPU time \"hz\" = %d\n", cpuhz);
-#endif
 
     mib[0] = CTL_HW;
     mib[1] = HW_NCPU;
@@ -942,10 +934,8 @@ openbsd_init(pmdaInterface *dp)
 	fprintf(stderr, "Fatal Error: sysctl(\"hw.ncpu\", ...) failed: %s\n", pmErrStr(-errno));
 	exit(1);
     }
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL0)
+    if (pmDebugOptions.appl0)
 	fprintf(stderr, "Info: ncpu = %d\n", ncpu);
-#endif
 
     mib[0] = CTL_HW;
     mib[1] = HW_PAGESIZE;
@@ -955,10 +945,8 @@ openbsd_init(pmdaInterface *dp)
 	fprintf(stderr, "Fatal Error: sysctl(\"hw.pagesize\", ...) failed: %s\n", pmErrStr(-errno));
 	exit(1);
     }
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL0)
+    if (pmDebugOptions.appl0)
 	fprintf(stderr, "Info: VM pagesize = %d\n", pagesize);
-#endif
 
     uname(&kernel_uname);
 

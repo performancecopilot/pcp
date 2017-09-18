@@ -54,15 +54,13 @@ main(int argc, char **argv)
     while ((c = getopt(argc, argv, "D:?")) != EOF) {
 	switch (c) {
 
-	case 'D':	/* debug flag */
-	    sts = __pmParseDebug(optarg);
+	case 'D':	/* debug options */
+	    sts = pmSetDebug(optarg);
 	    if (sts < 0) {
-		fprintf(stderr, "%s: unrecognized debug flag specification (%s)\n",
+		fprintf(stderr, "%s: unrecognized debug options specification (%s)\n",
 		    pmProgname, optarg);
 		errflag++;
 	    }
-	    else
-		pmDebug |= sts;
 	    break;
 
 	case '?':
@@ -81,7 +79,7 @@ main(int argc, char **argv)
 "Usage: %s [options] folio creator replay host [...]\n\
 \n\
 Options:\n\
-  -D flags    set debug flags\n",
+  -D debugspec    set PCP debugging options\n",
                 pmProgname);
         exit(1);
     }

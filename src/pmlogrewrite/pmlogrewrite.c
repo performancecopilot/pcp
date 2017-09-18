@@ -325,15 +325,13 @@ parseargs(int argc, char *argv[])
 	    dflag = 1;
 	    break;
 
-	case 'D':	/* debug flag */
-	    sts = __pmParseDebug(opts.optarg);
+	case 'D':	/* debug options */
+	    sts = pmSetDebug(opts.optarg);
 	    if (sts < 0) {
-		pmprintf("%s: unrecognized debug flag specification (%s)\n",
+		pmprintf("%s: unrecognized debug options specification (%s)\n",
 			pmProgname, opts.optarg);
 		opts.errors++;
 	    }
-	    else
-		pmDebug |= sts;
 	    break;
 
 	case 'i':	/* in-place, over-write input archive */
@@ -1086,10 +1084,8 @@ main(int argc, char **argv)
 	in_offset = __pmFtell(inarch.ctxp->c_archctl->ac_log->l_mfp);
 	stslog = nextlog();
 	if (stslog < 0) {
-#if PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL0)
+	    if (pmDebugOptions.appl0)
 		fprintf(stderr, "Log: read EOF @ offset=%ld\n", in_offset);
-#endif
 	    break;
 	}
 	if (stslog == 1) {
@@ -1104,8 +1100,7 @@ main(int argc, char **argv)
 		 */
 		newvolume(outarch.logctl.l_curvol+1);
 	}
-#if PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL0) {
+	if (pmDebugOptions.appl0) {
 	    struct timeval	stamp;
 	    fprintf(stderr, "Log: read ");
 	    stamp.tv_sec = inarch.rp->timestamp.tv_sec;
@@ -1113,7 +1108,6 @@ main(int argc, char **argv)
 	    __pmPrintStamp(stderr, &stamp);
 	    fprintf(stderr, " numpmid=%d @ offset=%ld\n", inarch.rp->numpmid, in_offset);
 	}
-#endif
 
 	if (ti_idx < inarch.ctxp->c_archctl->ac_log->l_numti) {
 	    __pmLogTI	*tip = &inarch.ctxp->c_archctl->ac_log->l_ti[ti_idx];
@@ -1145,8 +1139,7 @@ main(int argc, char **argv)
 	    if (stsmeta == 0) {
 		in_offset = __pmFtell(inarch.ctxp->c_archctl->ac_log->l_mdfp);
 		stsmeta = nextmeta();
-#if PCP_DEBUG
-		if (pmDebug & DBG_TRACE_APPL0) {
+		if (pmDebugOptions.appl0) {
 		    if (stsmeta < 0)
 			fprintf(stderr, "Metadata: read EOF @ offset=%ld\n", in_offset);
 		    else if (stsmeta == TYPE_DESC)
@@ -1154,7 +1147,6 @@ main(int argc, char **argv)
 		    else if (stsmeta == TYPE_INDOM)
 			fprintf(stderr, "Metadata: read InDom %s @ offset=%ld\n", pmInDomStr(ntoh_pmInDom((unsigned int)inarch.metarec[4])), in_offset);
 		}
-#endif
 	    }
 	    if (stsmeta < 0) {
 		break;

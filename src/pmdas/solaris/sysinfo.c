@@ -76,12 +76,10 @@ sysinfo_init(int first)
     hz = (int)sysconf(_SC_CLK_TCK);
     pagesize = sysconf(_SC_PAGESIZE);
 
-#ifdef PCP_DEBUG
-    if ((pmDebug & (DBG_TRACE_APPL0|DBG_TRACE_APPL2)) == (DBG_TRACE_APPL0|DBG_TRACE_APPL2)) {
+    if (pmDebugOptions.appl0 && pmDebugOptions.appl2) {
 	/* desperate */
 	fprintf(stderr, "sysinfo: ncpu=%d hz=%d\n", ncpu, hz);
     }
-#endif
 }
 
 static __uint32_t
@@ -109,13 +107,11 @@ sysinfo_derived(pmdaMetric *mdesc, int inst)
 	    break;
     }
 
-#ifdef PCP_DEBUG
-    if ((pmDebug & (DBG_TRACE_APPL0|DBG_TRACE_APPL2)) == (DBG_TRACE_APPL0|DBG_TRACE_APPL2)) {
+    if (pmDebugOptions.appl0 && pmDebugOptions.appl2) {
 	/* desperate */
 	fprintf(stderr, "cpu_derived: pmid %s inst %d val %d\n",
 	    pmIDStr(mdesc->m_desc.pmid), inst, val);
     }
-#endif
 
     return val;
 }
@@ -348,13 +344,11 @@ sysinfo_fetch(pmdaMetric *mdesc, int inst, pmAtomValue *atom)
 		__uint32_t		*ulp;
 		ulp = (__uint32_t *)&((char *)&ctl[i].cpustat)[offset];
 		ull += *ulp;
-#ifdef PCP_DEBUG
-		if ((pmDebug & (DBG_TRACE_APPL0|DBG_TRACE_APPL2)) == (DBG_TRACE_APPL0|DBG_TRACE_APPL2)) {
+		if (pmDebugOptions.appl0 && pmDebugOptions.appl2) {
 		    /* desperate */
 		    fprintf(stderr, "sysinfo_fetch: pmid %s inst %d val %u\n",
 			pmIDStr(mdesc->m_desc.pmid), i, *ulp);
 		}
-#endif
 	    }
 	}
     }

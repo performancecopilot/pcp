@@ -127,7 +127,7 @@ main(int argc, char *argv[])
 	argc--;
 	argv++;
 	if (strcmp(argv[0], "-D") == 0) {
-	    pmDebug = DBG_TRACE_VALUE;
+	    pmSetDebug("value");
 	    continue;
 	}
 	if (strcmp(argv[0], "-e") == 0) {

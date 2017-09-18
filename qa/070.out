@@ -8,7 +8,7 @@ Options:
   -a archive     metrics source is a PCP log archive
   -A align       align sample times on natural boundaries
   -c configfile  file to load configuration from
-  -D debug[,...] set PCP debug option(s)
+  -D debug[,...] set PCP debugging option(s)
   -h host        metrics source is PMCD on host
   -l logfile     redirect diagnostics and trace output
   -n pmnsfile    use an alternative PMNS
@@ -28,7 +28,7 @@ Options:
   -a archive     metrics source is a PCP log archive
   -A align       align sample times on natural boundaries
   -c configfile  file to load configuration from
-  -D debug[,...] set PCP debug option(s)
+  -D debug[,...] set PCP debugging option(s)
   -h host        metrics source is PMCD on host
   -l logfile     redirect diagnostics and trace output
   -n pmnsfile    use an alternative PMNS
@@ -48,7 +48,7 @@ Options:
   -a archive     metrics source is a PCP log archive
   -A align       align sample times on natural boundaries
   -c configfile  file to load configuration from
-  -D debug[,...] set PCP debug option(s)
+  -D debug[,...] set PCP debugging option(s)
   -h host        metrics source is PMCD on host
   -l logfile     redirect diagnostics and trace output
   -n pmnsfile    use an alternative PMNS
@@ -68,7 +68,7 @@ Options:
   -a archive     metrics source is a PCP log archive
   -A align       align sample times on natural boundaries
   -c configfile  file to load configuration from
-  -D debug[,...] set PCP debug option(s)
+  -D debug[,...] set PCP debugging option(s)
   -h host        metrics source is PMCD on host
   -l logfile     redirect diagnostics and trace output
   -n pmnsfile    use an alternative PMNS
@@ -88,7 +88,7 @@ Options:
   -a archive     metrics source is a PCP log archive
   -A align       align sample times on natural boundaries
   -c configfile  file to load configuration from
-  -D debug[,...] set PCP debug option(s)
+  -D debug[,...] set PCP debugging option(s)
   -h host        metrics source is PMCD on host
   -l logfile     redirect diagnostics and trace output
   -n pmnsfile    use an alternative PMNS
@@ -108,7 +108,7 @@ Options:
   -a archive     metrics source is a PCP log archive
   -A align       align sample times on natural boundaries
   -c configfile  file to load configuration from
-  -D debug[,...] set PCP debug option(s)
+  -D debug[,...] set PCP debugging option(s)
   -h host        metrics source is PMCD on host
   -l logfile     redirect diagnostics and trace output
   -n pmnsfile    use an alternative PMNS
@@ -128,7 +128,7 @@ Options:
   -a archive     metrics source is a PCP log archive
   -A align       align sample times on natural boundaries
   -c configfile  file to load configuration from
-  -D debug[,...] set PCP debug option(s)
+  -D debug[,...] set PCP debugging option(s)
   -h host        metrics source is PMCD on host
   -l logfile     redirect diagnostics and trace output
   -n pmnsfile    use an alternative PMNS
@@ -148,7 +148,7 @@ Options:
   -a archive     metrics source is a PCP log archive
   -A align       align sample times on natural boundaries
   -c configfile  file to load configuration from
-  -D debug[,...] set PCP debug option(s)
+  -D debug[,...] set PCP debugging option(s)
   -h host        metrics source is PMCD on host
   -l logfile     redirect diagnostics and trace output
   -n pmnsfile    use an alternative PMNS
@@ -168,7 +168,7 @@ Options:
   -a archive     metrics source is a PCP log archive
   -A align       align sample times on natural boundaries
   -c configfile  file to load configuration from
-  -D debug[,...] set PCP debug option(s)
+  -D debug[,...] set PCP debugging option(s)
   -h host        metrics source is PMCD on host
   -l logfile     redirect diagnostics and trace output
   -n pmnsfile    use an alternative PMNS
@@ -188,7 +188,7 @@ Options:
   -a archive     metrics source is a PCP log archive
   -A align       align sample times on natural boundaries
   -c configfile  file to load configuration from
-  -D debug[,...] set PCP debug option(s)
+  -D debug[,...] set PCP debugging option(s)
   -h host        metrics source is PMCD on host
   -l logfile     redirect diagnostics and trace output
   -n pmnsfile    use an alternative PMNS
@@ -208,7 +208,7 @@ Options:
   -a archive     metrics source is a PCP log archive
   -A align       align sample times on natural boundaries
   -c configfile  file to load configuration from
-  -D debug[,...] set PCP debug option(s)
+  -D debug[,...] set PCP debugging option(s)
   -h host        metrics source is PMCD on host
   -l logfile     redirect diagnostics and trace output
   -n pmnsfile    use an alternative PMNS
@@ -228,7 +228,7 @@ Options:
   -a archive     metrics source is a PCP log archive
   -A align       align sample times on natural boundaries
   -c configfile  file to load configuration from
-  -D debug[,...] set PCP debug option(s)
+  -D debug[,...] set PCP debugging option(s)
   -h host        metrics source is PMCD on host
   -l logfile     redirect diagnostics and trace output
   -n pmnsfile    use an alternative PMNS
@@ -248,7 +248,7 @@ Options:
   -a archive     metrics source is a PCP log archive
   -A align       align sample times on natural boundaries
   -c configfile  file to load configuration from
-  -D debug[,...] set PCP debug option(s)
+  -D debug[,...] set PCP debugging option(s)
   -h host        metrics source is PMCD on host
   -l logfile     redirect diagnostics and trace output
   -n pmnsfile    use an alternative PMNS
@@ -261,14 +261,14 @@ Options:
   -Z timezone    set reporting timezone
 
 Trying ... -h REMOTEHOST -D -n
-template: unrecognized debug flag specification (-n)
+template: unrecognized debug options specification (-n)
 Usage: template [options] [metrics ...]
 
 Options:
   -a archive     metrics source is a PCP log archive
   -A align       align sample times on natural boundaries
   -c configfile  file to load configuration from
-  -D debug[,...] set PCP debug option(s)
+  -D debug[,...] set PCP debugging option(s)
   -h host        metrics source is PMCD on host
   -l logfile     redirect diagnostics and trace output
   -n pmnsfile    use an alternative PMNS
@@ -288,7 +288,7 @@ Options:
   -a archive     metrics source is a PCP log archive
   -A align       align sample times on natural boundaries
   -c configfile  file to load configuration from
-  -D debug[,...] set PCP debug option(s)
+  -D debug[,...] set PCP debugging option(s)
   -h host        metrics source is PMCD on host
   -l logfile     redirect diagnostics and trace output
   -n pmnsfile    use an alternative PMNS
@@ -316,7 +316,7 @@ Options:
   -a archive     metrics source is a PCP log archive
   -A align       align sample times on natural boundaries
   -c configfile  file to load configuration from
-  -D debug[,...] set PCP debug option(s)
+  -D debug[,...] set PCP debugging option(s)
   -h host        metrics source is PMCD on host
   -l logfile     redirect diagnostics and trace output
   -n pmnsfile    use an alternative PMNS
@@ -336,7 +336,7 @@ Options:
   -a archive     metrics source is a PCP log archive
   -A align       align sample times on natural boundaries
   -c configfile  file to load configuration from
-  -D debug[,...] set PCP debug option(s)
+  -D debug[,...] set PCP debugging option(s)
   -h host        metrics source is PMCD on host
   -l logfile     redirect diagnostics and trace output
   -n pmnsfile    use an alternative PMNS

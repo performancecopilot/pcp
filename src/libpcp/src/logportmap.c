@@ -131,12 +131,10 @@ __pmLogFindLocalPorts(int pid, __pmLogPort **result)
 
 	default:			/* a specific pid (single) */
 	    if (!__pmProcessExists((pid_t)pid)) {
-#ifdef PCP_DEBUG
-		if (pmDebug & DBG_TRACE_LOG) {
+		if (pmDebugOptions.log) {
 		    fprintf(stderr, "__pmLogFindLocalPorts() -> 0, "
 				"pid(%d) doesn't exist\n", pid);
 		}
-#endif
 		*result = NULL;
 		return 0;
 	    }
@@ -145,12 +143,10 @@ __pmLogFindLocalPorts(int pid, __pmLogPort **result)
     }
 
     nf = scandir(dir, &files, scanfn, alphasort);
-#ifdef PCP_DEBUG
-    if (nf < 1 && (pmDebug & DBG_TRACE_LOG)) {
+    if (nf < 1 && pmDebugOptions.log) {
 	fprintf(stderr, "__pmLogFindLocalPorts: scandir() -> %d %s\n",
 		    nf, pmErrStr(oserror()));
     }
-#endif
     if (nf == -1 && oserror() == ENOENT)
 	nf = 0;
     else if (nf == -1) {
@@ -166,12 +162,10 @@ __pmLogFindLocalPorts(int pid, __pmLogPort **result)
 	return -oserror();
     }
     if (nf == 0) {
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_LOG) {
+	if (pmDebugOptions.log) {
 	    fprintf(stderr, "__pmLogFindLocalPorts() -> 0, "
 			"num files = 0\n");
 	}
-#endif
 	*result = NULL;
 	free(files);
 	return 0;

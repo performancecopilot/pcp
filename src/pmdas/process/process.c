@@ -285,8 +285,7 @@ process_refresh_pidlist()
     }
     closedir(dirp);
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL2) {
+    if (pmDebugOptions.appl2) {
 	fprintf(stderr, "process_refresh_pidlist: found %d PIDs:", npidlist);
 	    if (npidlist > 0) {
 		fprintf(stderr, " %d", pidlist[0]);
@@ -303,7 +302,6 @@ process_refresh_pidlist()
 	}
 	fprintf(stderr, "\n");
     }
-#endif
 
     return npidlist;
 }

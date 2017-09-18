@@ -706,7 +706,7 @@ grab_values(char *json_query, pmInDom indom, char *local_path, json_metric_desc 
     if ((sts = pmhttpClientFetch(http_client, "unix://var/run/docker.sock",
 			&http_data.json[0], sizeof(http_data.json),
 			json_query, strlen(json_query))) < 0) {
-	if (pmDebug & DBG_TRACE_APPL1)
+	if (pmDebugOptions.appl1)
 	    __pmNotifyErr(LOG_ERR, "HTTP fetch (stats) failed\n");
 	return 0; // failed
     }
@@ -720,12 +720,12 @@ grab_values(char *json_query, pmInDom indom, char *local_path, json_metric_desc 
 
     /* allocate space for values for this container and update indom */
     if (sts != PMDA_CACHE_INACTIVE && sts != PMDA_CACHE_ACTIVE) {
-	if (pmDebug & DBG_TRACE_ATTR) {
+	if (pmDebugOptions.attr) {
 	    fprintf(stderr, "%s: adding docker container %s\n",
 		    pmProgname, local_path);
 	}
 	if (!(local_metrics = calloc(json_size, sizeof(json_metric_desc)))) {
-	    if (pmDebug & DBG_TRACE_ATTR) {
+	    if (pmDebugOptions.attr) {
 		fprintf(stderr, "%s: cannot allocate container %s space\n",
 			pmProgname, local_path);
 	    }
@@ -815,7 +815,7 @@ refresh_insts(char *path)
     dir_changed = check_docker_dir(path);
 
     if ((rundir = opendir(path)) == NULL) {
-	if (pmDebug & DBG_TRACE_ATTR)
+	if (pmDebugOptions.attr)
 	    fprintf(stderr, "%s: skipping docker path %s\n",
 		    pmProgname, path);
 	return;
@@ -823,7 +823,7 @@ refresh_insts(char *path)
     refresh_version(path);
     while ((drp = readdir(rundir)) != NULL) {
 	if (*(local_path = &drp->d_name[0]) == '.') {
-	    if (pmDebug & DBG_TRACE_ATTR)
+	    if (pmDebugOptions.attr)
 		__pmNotifyErr(LOG_DEBUG, "%s: skipping %s\n",
 			      pmProgname, drp->d_name);
 	    continue;

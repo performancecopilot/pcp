@@ -34,12 +34,11 @@ main(int argc, char *argv[])
 	    break;
 
 	case 'D':
-	    if ((c = __pmParseDebug(optarg)) < 0) {
-		fprintf(stderr, "Unrecognized debug flag(s) - %s\n", optarg);
+	    if ((c = pmSetDebug(optarg)) < 0) {
+		fprintf(stderr, "Unrecognized debug options - %s\n", optarg);
 		errflag++;
 		break;
 	    }
-	    pmDebug |= c;
 	    break;
 
 	case 't':	/* request timeout (sec) */

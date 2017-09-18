@@ -85,7 +85,6 @@ __pmDumpLabelSets(FILE *fp, const pmLabelSet *sets, int nsets)
     }
 }
 
-#ifdef PCP_DEBUG
 static void
 DumpLabelSets(char *func, int ident, int type, pmLabelSet *sets, int nsets)
 {
@@ -93,7 +92,6 @@ DumpLabelSets(char *func, int ident, int type, pmLabelSet *sets, int nsets)
 	    func, ident, type, LabelTypeString(type), nsets, sets);
     __pmDumpLabelSets(stderr, sets, nsets);
 }
-#endif
 
 /*
  * PDU contents for label metadata request (PDU_LABEL_REQ)

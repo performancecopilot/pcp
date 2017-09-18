@@ -31,15 +31,13 @@ main(int argc, char *argv[])
     while ((c = getopt(argc, argv, "D:hp:?")) != EOF) {
 	switch (c) {
 
-	case 'D':	/* debug flag */
-	    sts = __pmParseDebug(optarg);
+	case 'D':	/* debug options */
+	    sts = pmSetDebug(optarg);
 	    if (sts < 0) {
-		fprintf(stderr, "%s: unrecognized debug flag specification (%s)\n",
+		fprintf(stderr, "%s: unrecognized debug options specification (%s)\n",
 		    pmProgname, optarg);
 		errflag++;
 	    }
-	    else
-		pmDebug |= sts;
 	    break;
 
 	case 'h':	/* hang after accept */
@@ -62,7 +60,7 @@ main(int argc, char *argv[])
     }
 
     if (errflag || optind != argc) {
-	fprintf(stderr, "Usage: %s [-D n] [-h] [-p port]\n", pmProgname);
+	fprintf(stderr, "Usage: %s [-D debugspec] [-h] [-p port]\n", pmProgname);
 	exit(1);
     }
 

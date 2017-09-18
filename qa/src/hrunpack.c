@@ -262,15 +262,13 @@ main(int argc, char **argv)
     while ((c = getopt(argc, argv, "D:")) != EOF) {
 	switch (c) {
 
-	case 'D':	/* debug flag */
-	    sts = __pmParseDebug(optarg);
+	case 'D':	/* debug options */
+	    sts = pmSetDebug(optarg);
 	    if (sts < 0) {
-		fprintf(stderr, "%s: unrecognized debug flag specification (%s)\n",
+		fprintf(stderr, "%s: unrecognized debug options specification (%s)\n",
 		    pmProgname, optarg);
 		errflag++;
 	    }
-	    else
-		pmDebug |= sts;
 	    break;
 
 	case '?':
@@ -470,7 +468,7 @@ main(int argc, char **argv)
     atom.l = 29;
     add_param(pmid_32, PM_TYPE_32, &atom);
     hreap->ea_len = eptr - ebuf;
-    pmDebug |= DBG_TRACE_FETCH;
+    pmSetDebug("fetch");
     dump("all good");
     epp->ep_type = PM_TYPE_UNKNOWN;
     __pmDumpHighResEventRecords(stdout, &vs, 0);

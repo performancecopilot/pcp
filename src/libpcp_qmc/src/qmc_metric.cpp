@@ -98,7 +98,7 @@ QmcMetric::setup(QmcGroup* group, pmMetricSpec *metricSpec)
 	setupIndom(metricSpec);
     if (my.status < 0)
 	return;
-    if (pmDebug & DBG_TRACE_PMC)
+    if (pmDebugOptions.pmc)
 	dumpAll();
 }
 
@@ -411,7 +411,7 @@ QmcMetric::update()
 	my.values[i].setError(my.values[i].currentError());
 	if (my.values[i].error() < 0)
 	    err++;
-	if (pmDebug & DBG_TRACE_VALUE) {
+	if (pmDebugOptions.value) {
 	    QTextStream cerr(stderr);
 	    if (my.values[i].error() < 0)
 		cerr << "QmcMetric::update: " << spec(true, true, i) 
@@ -434,7 +434,7 @@ QmcMetric::update()
 		value.setValue(0.0);		// for a rate
 		value.setError(value.previousError());
 		err++;
-		if (pmDebug & DBG_TRACE_VALUE) {
+		if (pmDebugOptions.value) {
 		    QTextStream cerr(stderr);
 		    cerr << "QmcMetric::update: Previous: " 
 			 << spec(true, true, i) << ": "
@@ -523,7 +523,7 @@ QmcMetric::update()
 		my.values[i].setError(sts);
 	    else {
 		my.values[i].setValue(oval.d);
-		if (pmDebug & DBG_TRACE_VALUE) {
+		if (pmDebugOptions.value) {
 		    QTextStream cerr(stderr);
 		    cerr << "QmcMetric::update: scaled " << my.name
 			 << " from " << ival.d << " to " << oval.d
@@ -634,7 +634,7 @@ QmcMetric::extractValues(pmValueSet const* set)
 	    // If the number of instances are not the expected number
 	    // then mark the indom as changed
 	    if (!my.explicitInst && (my.values.size() != set->numval)) {
-		if (pmDebug & DBG_TRACE_INDOM) {
+		if (pmDebugOptions.indom) {
 		    QTextStream cerr(stderr);
 		    cerr << "QmcMetric::extractValues: implicit indom "
 			 << pmInDomStr(indomPtr->id()) << " changed ("
@@ -679,7 +679,7 @@ QmcMetric::extractValues(pmValueSet const* set)
 			extractEventMetric(set, index, valueRef);
 		}
 		else {	// Cannot find it
-		    if (pmDebug & DBG_TRACE_OPTFETCH) {
+		    if (pmDebugOptions.optfetch) {
 			QTextStream cerr(stderr);
 			cerr << "QmcMetric::extractValues: "
 			     << spec(true, true, i) << ": "
@@ -710,7 +710,7 @@ QmcMetric::extractValues(pmValueSet const* set)
 	    }
 	}
 	else {	// Did not expect any instances
-	    if (pmDebug & DBG_TRACE_OPTFETCH) {
+	    if (pmDebugOptions.optfetch) {
 		QTextStream cerr(stderr);
 		cerr << "QmcMetric::extractValues: " << spec(true) 
 		     << " is a singular metric but result contained "
@@ -721,7 +721,7 @@ QmcMetric::extractValues(pmValueSet const* set)
     }
     else if (set->numval == 0) {
 	if (!(hasInstances() && numInst() == 0)) {
-	    if (pmDebug & DBG_TRACE_OPTFETCH) {
+	    if (pmDebugOptions.optfetch) {
 		QTextStream cerr(stderr);
 		cerr << "QmcMetric::extractValues: numval == 0: "
 		     << spec(true, false) << ": " << pmErrStr(PM_ERR_VALUE)
@@ -733,7 +733,7 @@ QmcMetric::extractValues(pmValueSet const* set)
 	}
     }
     else {
-	if (pmDebug & DBG_TRACE_OPTFETCH) {
+	if (pmDebugOptions.optfetch) {
 	    QTextStream cerr(stderr);
 	    cerr << "QmcMetric::extractValues: numval < 0: "
 		 << spec(true, false)
@@ -837,7 +837,7 @@ QmcMetricValue::extractEventRecords(QmcContext *context, int recordCount, pmResu
 		record.setParameter(p++, parameterID, context, valueSet);
 	}
 
-	if (pmDebug & DBG_TRACE_VALUE) {
+	if (pmDebugOptions.value) {
 	    QTextStream cerr(stderr);
 	    pmValueSet *valueSet = result[r]->vset[0];
 	    record.dump(cerr, valueSet->vlist[0].inst, r);
@@ -1158,7 +1158,7 @@ QmcMetric::updateIndom(void)
 		    break;
 	}
 	if (!my.active || i == my.values.size()) {
-	    if (pmDebug & DBG_TRACE_INDOM) {
+	    if (pmDebugOptions.indom) {
 		QTextStream cerr(stderr);
 		cerr << "QmcMetric::updateIndom: No change required" << endl;
 	    }
@@ -1215,7 +1215,7 @@ QmcMetric::updateIndom(void)
 	    my.values[i].setAllErrors(PM_ERR_VALUE);
     }
 
-    if (pmDebug & DBG_TRACE_PMC) {
+    if (pmDebugOptions.pmc) {
 	QTextStream cerr(stderr);
 	cerr << "QmcMetric::updateIndom: " << spec(true) << ": Had " 
 	     << oldNum << " instances, now have " << numInst() << endl;

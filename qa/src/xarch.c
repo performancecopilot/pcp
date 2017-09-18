@@ -89,7 +89,7 @@ main(int argc, char **argv)
     int		errflag = 0;
     char	*archive = "foo";
     char	*namespace = PM_NS_DEFAULT;
-    static char	*usage = "[-D N] [-a archive] [-n namespace] [-v] [metric ...]";
+    static char	*usage = "[-D debugspec] [-a archive] [-n namespace] [-v] [metric ...]";
     int		i;
     int		j;
     int		k;
@@ -111,15 +111,13 @@ main(int argc, char **argv)
 	    archive = optarg;
 	    break;
 
-	case 'D':	/* debug flag */
-	    sts = __pmParseDebug(optarg);
+	case 'D':	/* debug options */
+	    sts = pmSetDebug(optarg);
 	    if (sts < 0) {
-		fprintf(stderr, "%s: unrecognized debug flag specification (%s)\n",
+		fprintf(stderr, "%s: unrecognized debug options specification (%s)\n",
 		    pmProgname, optarg);
 		errflag++;
 	    }
-	    else
-		pmDebug |= sts;
 	    break;
 
 	case 'n':	/* alternative name space file */

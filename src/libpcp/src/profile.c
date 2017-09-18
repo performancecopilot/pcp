@@ -261,13 +261,11 @@ pmAddProfile(pmInDom indom, int instlist_len, int instlist[])
 
 SUCCESS:
     ctxp->c_sent = 0;
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_PROFILE) {
+    if (pmDebugOptions.profile) {
 	char	strbuf[20];
 	fprintf(stderr, "pmAddProfile() indom: %s\n", pmInDomStr_r(indom, strbuf, sizeof(strbuf)));
 	__pmDumpProfile(stderr, indom, ctxp->c_instprof);
     }
-#endif
     PM_UNLOCK(ctxp->c_lock);
     return 0;
 }
@@ -341,13 +339,11 @@ pmDelProfile(pmInDom indom, int instlist_len, int instlist[])
 
 SUCCESS:
     ctxp->c_sent = 0;
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_PROFILE) {
+    if (pmDebugOptions.profile) {
 	char	strbuf[20];
 	fprintf(stderr, "pmDelProfile() indom: %s\n", pmInDomStr_r(indom, strbuf, sizeof(strbuf)));
 	__pmDumpProfile(stderr, indom, ctxp->c_instprof);
     }
-#endif
     PM_UNLOCK(ctxp->c_lock);
     return 0;
 }

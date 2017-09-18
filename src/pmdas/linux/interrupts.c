@@ -493,7 +493,7 @@ refresh_interrupts(pmdaExt *pmda, __pmnsTree **tree)
 			pmProgname, pmErrStr(sts));
 	*tree = NULL;
     } else if ((sts = refresh_interrupt_values()) < 0) {
-	if (pmDebug & DBG_TRACE_LIBPMDA)
+	if (pmDebugOptions.libpmda)
 	    fprintf(stderr, "%s: failed to update interrupt values: %s\n",
 			pmProgname, pmErrStr(sts));
 	*tree = NULL;
@@ -526,7 +526,7 @@ refresh_softirqs(pmdaExt *pmda, __pmnsTree **tree)
 			pmProgname, pmErrStr(sts));
 	*tree = NULL;
     } else if ((sts = refresh_softirqs_values()) < 0) {
-	if (pmDebug & DBG_TRACE_LIBPMDA)
+	if (pmDebugOptions.libpmda)
 	    fprintf(stderr, "%s: failed to update softirqs values: %s\n",
 			pmProgname, pmErrStr(sts));
 	*tree = NULL;
@@ -607,7 +607,7 @@ refresh_metrictable(pmdaMetric *source, pmdaMetric *dest, int id)
     memcpy(dest, source, sizeof(pmdaMetric));
     dest->m_desc.pmid = pmid_build(domain, cluster, id);
 
-    if (pmDebug & DBG_TRACE_LIBPMDA)
+    if (pmDebugOptions.libpmda)
 	fprintf(stderr, "interrupts refresh_metrictable: (%p -> %p) "
 			"metric ID dup: %d.%d.%d -> %d.%d.%d\n",
 		source, dest, domain, cluster,
@@ -631,7 +631,7 @@ interrupts_metrictable(int *total, int *trees)
 	*trees = other_count ? other_count : 1;
     *total = 2;	/* lines and other */
 
-    if (pmDebug & DBG_TRACE_LIBPMDA)
+    if (pmDebugOptions.libpmda)
 	fprintf(stderr, "interrupts size_metrictable: %d total x %d trees\n",
 		*total, *trees);
 }
@@ -645,7 +645,7 @@ softirq_metrictable(int *total, int *trees)
     *trees = softirqs_count ? softirqs_count : 1;
     *total = 1;	/* softirqs */
 
-    if (pmDebug & DBG_TRACE_LIBPMDA)
+    if (pmDebugOptions.libpmda)
 	fprintf(stderr, "softirqs size_metrictable: %d total x %d trees\n",
 		*total, *trees);
 }

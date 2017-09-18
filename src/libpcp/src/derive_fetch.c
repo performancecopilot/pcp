@@ -128,15 +128,13 @@ __dmprefetch(__pmContext *ctxp, int numpmid, const pmID *pmidlist, pmID **newlis
 	return numpmid;
     }
 
-#ifdef PCP_DEBUG
-    if ((pmDebug & DBG_TRACE_DERIVE) && (pmDebug & DBG_TRACE_APPL2)) {
+    if (pmDebugOptions.derive && pmDebugOptions.appl2) {
 	char	strbuf[20];
 	fprintf(stderr, "derived metrics prefetch added %d metrics:", xtracnt);
 	for (i = 0; i < xtracnt; i++)
 	    fprintf(stderr, " %s", pmIDStr_r(xtralist[i], strbuf, sizeof(strbuf)));
 	fputc('\n', stderr);
     }
-#endif
     if ((list = (pmID *)malloc((numpmid+xtracnt)*sizeof(pmID))) == NULL) {
 	__pmNoMem("__dmprefetch: alloc list", (numpmid+xtracnt)*sizeof(pmID), PM_FATAL_ERR);
 	/*NOTREACHED*/
@@ -728,11 +726,9 @@ eval_expr(__pmContext *ctxp, node_t *np, pmResult *rp, int level)
 		    j = 0;
 		if (np->left->info->ivlist[i].inst != np->left->info->last_ivlist[j].inst) {
 		    /* current ith inst != last jth inst ... search in last */
-#ifdef PCP_DEBUG
-		    if ((pmDebug & DBG_TRACE_DERIVE) && (pmDebug & DBG_TRACE_APPL2)) {
+		    if (pmDebugOptions.derive && pmDebugOptions.appl2) {
 			fprintf(stderr, "eval_expr: inst[%d] mismatch left [%d]=%d last [%d]=%d\n", k, i, np->left->info->ivlist[i].inst, j, np->left->info->last_ivlist[j].inst);
 		    }
-#endif
 		    for (j = 0; j < np->left->info->last_numval; j++) {
 			if (np->left->info->ivlist[i].inst == np->left->info->last_ivlist[j].inst)
 			    break;
@@ -741,13 +737,11 @@ eval_expr(__pmContext *ctxp, node_t *np, pmResult *rp, int level)
 			/* no match, skip this instance from this result */
 			continue;
 		    }
-#ifdef PCP_DEBUG
 		    else {
-			if ((pmDebug & DBG_TRACE_DERIVE) && (pmDebug & DBG_TRACE_APPL2)) {
+			if (pmDebugOptions.derive && pmDebugOptions.appl2) {
 			    fprintf(stderr, "eval_expr: recover @ last [%d]=%d\n", j, np->left->info->last_ivlist[j].inst);
 			}
 		    }
-#endif
 		}
 		np->info->ivlist[k].inst = np->left->info->ivlist[i].inst;
 		if (np->type == N_DELTA) {
@@ -1005,12 +999,10 @@ eval_expr(__pmContext *ctxp, node_t *np, pmResult *rp, int level)
 				    pick = np->right->right;
 				break;
 			    default:
-#ifdef PCP_DEBUG
-				if (pmDebug & DBG_TRACE_DERIVE) {
+				if (pmDebugOptions.derive) {
 				    char	strbuf[20];
 				    fprintf(stderr, "eval_expr: botch: drived metric%s: guard has odd type (%d)\n", pmIDStr_r(np->info->pmid, strbuf, sizeof(strbuf)), np->left->desc.type);
 				}
-#endif
 				return PM_ERR_TYPE;
 			}
 		    }
@@ -1379,13 +1371,11 @@ eval_expr(__pmContext *ctxp, node_t *np, pmResult *rp, int level)
 		    return np->info->numval;
 		}
 	    }
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_DERIVE) {
+	    if (pmDebugOptions.derive) {
 		char	strbuf[20];
 		fprintf(stderr, "eval_expr: botch: operand %s not in the extended pmResult\n", pmIDStr_r(np->info->pmid, strbuf, sizeof(strbuf)));
 		__pmDumpResult_ctx(ctxp, stderr, rp);
 	    }
-#endif
 	    return PM_ERR_PMID;
 
 	case N_DEFINED:
@@ -1455,11 +1445,9 @@ eval_expr(__pmContext *ctxp, node_t *np, pmResult *rp, int level)
 		    np->right->desc.indom != PM_INDOM_NULL) {
 		    if (np->left->info->ivlist[i].inst != np->right->info->ivlist[j].inst) {
 			/* left ith inst != right jth inst ... search in right */
-#ifdef PCP_DEBUG
-			if ((pmDebug & DBG_TRACE_DERIVE) && (pmDebug & DBG_TRACE_APPL2)) {
+			if (pmDebugOptions.derive && pmDebugOptions.appl2) {
 			    fprintf(stderr, "eval_expr: inst[%d] mismatch left [%d]=%d right [%d]=%d\n", k, i, np->left->info->ivlist[i].inst, j, np->right->info->ivlist[j].inst);
 			}
-#endif
 			for (j = 0; j < np->right->info->numval; j++) {
 			    if (np->left->info->ivlist[i].inst == np->right->info->ivlist[j].inst)
 				break;
@@ -1474,13 +1462,11 @@ eval_expr(__pmContext *ctxp, node_t *np, pmResult *rp, int level)
 			    j = 0;
 			    continue;
 			}
-#ifdef PCP_DEBUG
 			else {
-			    if ((pmDebug & DBG_TRACE_DERIVE) && (pmDebug & DBG_TRACE_APPL2)) {
+			    if (pmDebugOptions.derive && pmDebugOptions.appl2) {
 				fprintf(stderr, "eval_expr: recover @ right [%d]=%d\n", j, np->right->info->ivlist[j].inst);
 			    }
 			}
-#endif
 		    }
 		}
 		if (np->type == N_LT || np->type == N_LEQ || np->type == N_EQ ||
@@ -1631,8 +1617,7 @@ __dmpostfetch(__pmContext *ctxp, pmResult **result)
 			else
 			    valfmt = PM_VAL_DPTR;
 			numval = eval_expr(ctxp, cp->mlist[m].expr, rp, 1);
-#ifdef PCP_DEBUG
-    if ((pmDebug & DBG_TRACE_DERIVE) && (pmDebug & DBG_TRACE_APPL2)) {
+    if (pmDebugOptions.derive && pmDebugOptions.appl2) {
 	int	k;
 	char	strbuf[20];
 
@@ -1662,7 +1647,6 @@ __dmpostfetch(__pmContext *ctxp, pmResult **result)
 	if (cp->mlist[m].expr->info != NULL)
 	    __dmdumpexpr(cp->mlist[m].expr, 1);
     }
-#endif
 		    }
 		    break;
 		}
@@ -1790,12 +1774,10 @@ __dmpostfetch(__pmContext *ctxp, pmResult **result)
 		     * really nothing should end up here ...
 		     * do nothing as numval should have been < 0
 		     */
-#ifdef PCP_DEBUG
-		    if (pmDebug & DBG_TRACE_DERIVE) {
+		    if (pmDebugOptions.derive) {
 			char	strbuf[20];
 			fprintf(stderr, "__dmpostfetch: botch: drived metric[%d]: operand %s has odd type (%d)\n", m, pmIDStr_r(rp->vset[j]->pmid, strbuf, sizeof(strbuf)), cp->mlist[m].expr->desc.type);
 		    }
-#endif
 		    break;
 	    }
 	}

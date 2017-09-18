@@ -733,15 +733,13 @@ redo_dynamic(void)
 			_dyn_ctr[i] = 0;
 		}
 
-#ifdef PCP_DEBUG
-		if (pmDebug & DBG_TRACE_APPL0) {
+		if (pmDebugOptions.appl0) {
 		    fprintf(stderr, "redo instance domain for dynamic: numinst: %d\n", idp->it_numinst);
 		    for (i = 0; i < idp->it_numinst; i++) {
 			fprintf(stderr, " %d \"%s\"", idp->it_set[i].i_inst, idp->it_set[i].i_name);
 		    }
 		    fputc('\n', stderr);
 		}
-#endif
 	    }
 	}
     }
@@ -757,10 +755,8 @@ redo_dynamic(void)
 	    for (i = 0; i <= _dyn_max; i++) {
 		_dyn_ctr[i] = 0;
 	    }
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL0)
+	    if (pmDebugOptions.appl0)
 		fprintf(stderr, "redo instance domain for dynamic: numinst: 0 (no control file)\n");
-#endif
 	}
     }
 
@@ -895,15 +891,13 @@ redo_mirage(void)
 	    }
 	}
     }
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL0) {
+    if (pmDebugOptions.appl0) {
 	fprintf(stderr, "redo instance domain for mirage: numinst: %d\n", idp->it_numinst);
 	for (i = 0; i < idp->it_numinst; i++) {
 	    fprintf(stderr, " %d \"%s\"", idp->it_set[i].i_inst, idp->it_set[i].i_name);
 	}
 	fputc('\n', stderr);
     }
-#endif
 
     doit = now + 10;	/* no more than once every 10 seconds */
     return 0;
@@ -1181,11 +1175,9 @@ init_tables(int dom)
 	pmidp->domain = dom;
 	if (direct_map && pmidp->item != i) {
 	    direct_map = 0;
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL0) {
+	    if (pmDebugOptions.appl0) {
 		__pmNotifyErr(LOG_WARNING, "sample_init: direct map disabled @ desctab[%d]", i);
 	    }
-#endif
 	}
     }
     ndesc--;
@@ -2676,7 +2668,13 @@ sample_store(pmResult *result, pmdaExt *ep)
 			sample_done = 1;
 			break;
 		    default:
-			pmDebug = _control;
+			/*
+			 * can only support the old debug bit-fields in a long,
+			 * but there is no API to set these and we need to set
+			 * the corresponding new option as well ...
+			 */
+			pmClearDebug("all");
+			__pmSetDebugBits(_control);
 			break;
 		}
 		break;

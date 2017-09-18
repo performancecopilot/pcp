@@ -37,7 +37,7 @@ HH:MM:SS        1
       1.000        1000.016
 == exercise various output options
           h.machine
-
+                   
 08:57:23      linux
 17:42:43      linux
                      s.seconds        s.milliseconds
@@ -356,11 +356,11 @@ ok
           m.u.used  n.i.speed
                       enp0s25
              GB/ms      GB/hr
-05:39:13       N/A  2746624.0
-05:39:14     0.000  2746624.0
-05:39:15    -0.000  2746624.0
-05:39:16     0.000  2746624.0
-05:39:17     0.000  2746624.0
+14:39:13       N/A  2746624.0
+14:39:14     0.000  2746624.0
+14:39:15    -0.000  2746624.0
+14:39:16     0.000  2746624.0
+14:39:17     0.000  2746624.0
 == derived metrics configuration file
   s.combo
       s/s

@@ -25,7 +25,7 @@ QmcDesc::QmcDesc(pmID pmid)
 	my.scaleUnits = my.desc.units;
 	setUnitStrings();
     }
-    else if (pmDebug & DBG_TRACE_PMC) {
+    else if (pmDebugOptions.pmc) {
 	QTextStream cerr(stderr);
 	cerr << "QmcDesc::QmcDesc: unable to lookup "
 	     << pmIDStr(my.pmid) << ": " << pmErrStr(my.status) << endl;

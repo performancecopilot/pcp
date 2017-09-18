@@ -168,7 +168,7 @@ eol:
 	*p = '\0';
 
 done:
-    if ((pmDebug & DBG_TRACE_APPL0) && (pmDebug & DBG_TRACE_APPL2)) {
+    if (pmDebugOptions.appl0 && pmDebugOptions.appl2) {
 	if (buf[0] == '\n')
 	    fprintf(stderr, "openView getwd=EOL\n");
 	else
@@ -548,7 +548,7 @@ new_chart:
 			goto done_chart;
 		}
 done_chart:
-		if (pmDebug & DBG_TRACE_APPL2) {
+		if (pmDebugOptions.appl2) {
 		    fprintf(stderr, "openView: new chart: style=%s",
 				    stylestr(style));
 		    if (title != NULL)
@@ -928,7 +928,7 @@ done_tab:
 	    }
 
 	    abort = 0;
-	    if (pmDebug & DBG_TRACE_APPL2) {
+	    if (pmDebugOptions.appl2) {
 		fprintf(stderr, "openView: new %s", optional ? "optional-plot" : "plot");
 		if (legend != NULL) fprintf(stderr, " legend=\"%s\"", legend);
 		if (color != NULL) fprintf(stderr, " color=%s", color);

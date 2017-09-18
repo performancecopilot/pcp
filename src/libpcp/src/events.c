@@ -558,7 +558,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":4", PM_FAULT_ALLOC);
     }
     (*rap)[r] = NULL;		/* sentinel */
 
-    if (pmDebug & DBG_TRACE_FETCH) {
+    if (pmDebugOptions.fetch) {
 	fprintf(stderr, "pmUnpackEventRecords returns ...\n");
 	for (r = 0; r < eap->ea_nrecords; r++) {
 	    fprintf(stderr, "pmResult[%d]\n", r);
@@ -657,7 +657,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":8", PM_FAULT_ALLOC);
     }
     (*rap)[r] = NULL;		/* sentinel */
 
-    if (pmDebug & DBG_TRACE_FETCH) {
+    if (pmDebugOptions.fetch) {
 	fprintf(stderr, "%s returns ...\n", caller);
 	for (r = 0; r < hreap->ea_nrecords; r++) {
 	    fprintf(stderr, "pmHighResResult[%d]\n", r);

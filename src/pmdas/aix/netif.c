@@ -60,12 +60,10 @@ netif_init(int first)
 	indomtab[NETIF_INDOM].it_set[i].i_name = strdup(netifstat[i].name);
     }
 
-#ifdef PCP_DEBUG
-    if ((pmDebug & (DBG_TRACE_APPL0|DBG_TRACE_APPL2)) == (DBG_TRACE_APPL0|DBG_TRACE_APPL2)) {
+    if (pmDebugOptions.appl0 && pmDebugOptions.desperate) {
 	/* desperate */
 	fprintf(stderr, "netif_init: nnetif=%d\n", nnetif);
     }
-#endif
 }
 
 void
@@ -107,13 +105,11 @@ netif_derived(pmdaMetric *mdesc, int inst)
 	    break;
     }
 
-#ifdef PCP_DEBUG
-    if ((pmDebug & (DBG_TRACE_APPL0|DBG_TRACE_APPL2)) == (DBG_TRACE_APPL0|DBG_TRACE_APPL2)) {
+    if (pmDebugOptions.appl0 && pmDebugOptions.desperate) {
 	/* desperate */
 	fprintf(stderr, "netif_derived: pmid %s inst %d val %llu\n",
 		    pmIDStr(mdesc->m_desc.pmid), inst, val);
     }
-#endif
 
     return val;
 }
@@ -161,13 +157,11 @@ netif_fetch(pmdaMetric *mdesc, int inst, pmAtomValue *atom)
 	    ullp = (__uint64_t *)&((char *)&netifstat[inst])[offset];
 	    atom->ull = *ullp;
 	}
-#ifdef PCP_DEBUG
-	if ((pmDebug & (DBG_TRACE_APPL0|DBG_TRACE_APPL2)) == (DBG_TRACE_APPL0|DBG_TRACE_APPL2)) {
+	if (pmDebugOptions.appl0 && pmDebugOptions.desperate) {
 	    /* desperate */
 	    fprintf(stderr, "netif_fetch: pmid %s inst %d val %llu\n",
 		    pmIDStr(mdesc->m_desc.pmid), inst, atom->ull);
 	}
-#endif
     }
     else {
 	if (offset == OFF_DERIVED)
@@ -177,13 +171,11 @@ netif_fetch(pmdaMetric *mdesc, int inst, pmAtomValue *atom)
 	    ulp = (__uint32_t *)&((char *)&netifstat[inst])[offset];
 	    atom->ul = *ulp;
 	}
-#ifdef PCP_DEBUG
-	if ((pmDebug & (DBG_TRACE_APPL0|DBG_TRACE_APPL2)) == (DBG_TRACE_APPL0|DBG_TRACE_APPL2)) {
+	if (pmDebugOptions.appl0 && pmDebugOptions.desperate) {
 	    /* desperate */
 	    fprintf(stderr, "netif_fetch: pmid %s inst %d val %lu\n",
 		    pmIDStr(mdesc->m_desc.pmid), inst, atom->ul);
 	}
-#endif
     }
 
     return 1;

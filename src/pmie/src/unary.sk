@@ -54,12 +54,10 @@ void
     }
     else x->valid = 0;
 
-#if PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL2) {
+    if (pmDebugOptions.appl2) {
 	fprintf(stderr, "@FUN_n(" PRINTF_P_PFX "%p) ...\n", x);
 	dumpExpr(x);
     }
-#endif
 }
 
 void
@@ -79,12 +77,10 @@ void
     }
     else x->valid = 0;
 
-#if PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL2) {
+    if (pmDebugOptions.appl2) {
 	fprintf(stderr, "@FUN_1(" PRINTF_P_PFX "%p) ...\n", x);
 	dumpExpr(x);
     }
-#endif
 }
 
 #undef OP

@@ -266,11 +266,9 @@ Inter-|   Receive                                                |  Transmit
 	if (sts == PM_ERR_INST || (sts >= 0 && netip == NULL)) {
 	    /* first time since re-loaded, else new one */
 	    netip = (net_interface_t *)calloc(1, sizeof(net_interface_t));
-#if PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_LIBPMDA) {
+	    if (pmDebugOptions.libpmda) {
 		fprintf(stderr, "refresh_proc_net_dev: initialize \"%s\"\n", p);
 	    }
-#endif
 	}
 	else if (sts < 0) {
 	    if (cache_err++ < 10) {

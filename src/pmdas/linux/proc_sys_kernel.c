@@ -42,14 +42,12 @@ refresh_proc_sys_kernel(proc_sys_kernel_t *proc_sys_kernel)
 	    proc_sys_kernel->errcode = PM_ERR_VALUE;
 	if (fscanf(poolsz, "%u", &proc_sys_kernel->random_poolsize) != 1)
 	    proc_sys_kernel->errcode = PM_ERR_VALUE;
-#if PCP_DEBUG
-	if (pmDebug & DBG_TRACE_LIBPMDA) {
+	if (pmDebugOptions.libpmda) {
 	    if (proc_sys_kernel->errcode == 0)
 		fprintf(stderr, "refresh_proc_sys_kernel: found entropy metrics\n");
 	    else
 		fprintf(stderr, "refresh_proc_sys_kernel: botch! missing entropy metrics\n");
 	}
-#endif
     }
     if (eavail)
 	fclose(eavail);

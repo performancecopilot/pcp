@@ -1323,7 +1323,6 @@ __pmPrintDesc(FILE *f, const pmDesc *desc)
 void
 __pmEventTrace_r(const char *event, int *first, double *sum, double *last)
 {
-#ifdef PCP_DEBUG
     struct timeval tv;
     double now;
 
@@ -1338,19 +1337,16 @@ __pmEventTrace_r(const char *event, int *first, double *sum, double *last)
     fprintf(stderr, "%s: +%4.2f = %4.2f -> %s\n",
 			pmProgname, now-*last, *sum, event);
     *last = now;
-#endif
 }
 
 void
 __pmEventTrace(const char *event)
 {
-#ifdef PCP_DEBUG
     static double last;
     static double sum;
     static int first = 1;
 
     __pmEventTrace_r(event, &first, &sum, &last);
-#endif
 }
 
 #define DEBUG_CLEAR 0
@@ -1513,6 +1509,31 @@ int
 pmClearDebug(const char *spec)
 {
     return debug(spec, DEBUG_CLEAR, DEBUG_NEW);
+}
+
+/*
+ * Interface for setting debugging options by bit-field (deprecated) rather
+ * than by name (new scheme).
+ * This routine is used by PMDAs that have a control metric that maps onto
+ * pmDebug, e.g. sample.control or trace.control
+ * For symmetry with pmSetDebug() the effects are additive, so a PMDA
+ * that used to pmDebug = value now needs to pmClearDebug("all") and then
+ * __pmSetDebugBits(value).
+ */
+void
+__pmSetDebugBits(int value)
+{
+    int		i;
+
+    if (pmDebugOptions.deprecated)
+	fprintf(stderr, "Warning: deprecated __pmSetDebugBits() called\n");
+
+    for (i = 0; i < num_debug; i++) {
+	if (value & debug_map[i].bit) {
+	    /* this option has a bit-field equivalent that is set in value */
+	    pmSetDebug(debug_map[i].name);
+	}
+    }
 }
 
 int

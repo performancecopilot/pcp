@@ -51,12 +51,10 @@ pmLookupDesc_ctx(__pmContext *ctxp, pmID pmid, pmDesc *desc)
     __pmDSO	*dp;
     int		fd, ctx, sts, tout;
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_PMAPI) {
+    if (pmDebugOptions.pmapi) {
 	char    dbgbuf[20];
 	fprintf(stderr, "pmLookupDesc(%s, ...) <:", pmIDStr_r(pmid, dbgbuf, sizeof(dbgbuf)));
     }
-#endif
 
     if ((sts = ctx = pmWhichContext()) < 0)
 	goto pmapi_return;
@@ -117,8 +115,7 @@ pmLookupDesc_ctx(__pmContext *ctxp, pmID pmid, pmDesc *desc)
 
 pmapi_return:
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_PMAPI) {
+    if (pmDebugOptions.pmapi) {
 	fprintf(stderr, ":> returns ");
 	if (sts >= 0)
 	    fprintf(stderr, "%d\n", sts);
@@ -127,7 +124,6 @@ pmapi_return:
 	    fprintf(stderr, "%s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	}
     }
-#endif
 
     return sts;
 }

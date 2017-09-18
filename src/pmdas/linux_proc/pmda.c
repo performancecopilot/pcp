@@ -3200,7 +3200,7 @@ proc_pmid(const char *name, pmID *pmid, pmdaExt *pmda)
     pmdaNameSpace *tree = pmdaDynamicLookupName(pmda, name);
     if (tree == NULL)
 	return PM_ERR_NAME;
-    if (pmDebug & DBG_TRACE_APPL2) {
+    if (pmDebugOptions.appl2) {
 	fprintf(stderr, "proc_pmid: name=%s tree:\n", name);
 	__pmDumpNameNode(stderr, tree->root, 1);
     }
@@ -3213,7 +3213,7 @@ proc_name(pmID pmid, char ***nameset, pmdaExt *pmda)
     pmdaNameSpace *tree = pmdaDynamicLookupPMID(pmda, pmid);
     if (tree == NULL)
 	return PM_ERR_PMID;
-    if (pmDebug & DBG_TRACE_APPL2) {
+    if (pmDebugOptions.appl2) {
 	fprintf(stderr, "proc_name: pmid=%s tree:\n", pmIDStr(pmid));
 	__pmDumpNameNode(stderr, tree->root, 1);
     }
@@ -3226,7 +3226,7 @@ proc_children(const char *name, int flag, char ***kids, int **sts, pmdaExt *pmda
     pmdaNameSpace *tree = pmdaDynamicLookupName(pmda, name);
     if (tree == NULL)
 	return PM_ERR_NAME;
-    if (pmDebug & DBG_TRACE_APPL2) {
+    if (pmDebugOptions.appl2) {
 	fprintf(stderr, "proc_children: name=%s flag=%d tree:\n", name, flag);
 	__pmDumpNameNode(stderr, tree->root, 1);
     }

@@ -215,6 +215,7 @@ usr/share/man/man3/pmparsectime.3.gz
 usr/share/man/man3/__pmParseCtime.3.gz
 usr/share/man/man3/pmparsedebug.3.gz
 usr/share/man/man3/__pmParseDebug.3.gz
+usr/share/man/man3/__pmSetDebugBits.3.gz
 usr/share/man/man3/pmparsehostattrsspec.3.gz
 usr/share/man/man3/__pmParseHostAttrsSpec.3.gz
 usr/share/man/man3/pmparsehostspec.3.gz

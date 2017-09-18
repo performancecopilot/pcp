@@ -17,7 +17,7 @@ main(int argc, char **argv)
     int		sts;
     int		errflag = 0;
     char	*host = "localhost";
-    static char	*usage = "[-D N] [-h hostname] metric stringvalue";
+    static char	*usage = "[-D debugspec] [-h hostname] metric stringvalue";
     int			len;
     int			n;
     char		*namelist[1];
@@ -29,18 +29,14 @@ main(int argc, char **argv)
     while ((c = getopt(argc, argv, "D:h:")) != EOF) {
 	switch (c) {
 
-#ifdef PCP_DEBUG
-	case 'D':	/* debug flag */
-	    sts = __pmParseDebug(optarg);
+	case 'D':	/* debug options */
+	    sts = pmSetDebug(optarg);
 	    if (sts < 0) {
-		fprintf(stderr, "%s: unrecognized debug flag specification (%s)\n",
+		fprintf(stderr, "%s: unrecognized debug options specification (%s)\n",
 		    pmProgname, optarg);
 		errflag++;
 	    }
-	    else
-		pmDebug |= sts;
 	    break;
-#endif
 
 	case 'h':	/* hostname for PMCD to contact */
 	    host = optarg;

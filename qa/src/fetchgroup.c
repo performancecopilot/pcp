@@ -3,10 +3,14 @@
  *
  * pmFetchGroup* testing
  *
- * Additional useful diagnostics when run with PCP_DEBUG=56
- * (i.e. value,context,indom).  Also functions only when run
- * using the pmstore'd pmdasample values from the scripts,
- * not standalone - otherwise asserts trip in test_counter().
+ * Additional useful diagnostics when run with
+ * $PCP_DEBUG=value,context,indom
+ * or
+ * -Dvalue,context,indom
+ *
+ * Also functions only when run using the pmstore'd pmdasample values
+ * from the scripts, not standalone - otherwise asserts trip in
+ * test_counter().
  */
 
 #include <pcp/pmapi.h>

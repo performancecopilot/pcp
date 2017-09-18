@@ -17,6 +17,7 @@ libpcp.3.dylib
 libpcp.dylib
 libpcp.dll
 libpcp.pc
+pmdbg.h
 *.gcda
 *.gcno
 *.gcov

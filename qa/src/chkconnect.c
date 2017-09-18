@@ -25,30 +25,21 @@ main(int argc, char **argv)
     char	*endnum;
     int		iter = 100;
 
-#ifdef PCP_DEBUG
-    static char	*debug = "[-D N]";
-#else
-    static char	*debug = "";
-#endif
-    static char	*usage = "[-h hostname] [-i iterations] [-n namespace]";
+    static char	*usage = "[-D debugspec] [-h hostname] [-i iterations] [-n namespace]";
 
     __pmSetProgname(argv[0]);
 
     while ((c = getopt(argc, argv, "D:h:i:n:")) != EOF) {
 	switch (c) {
 
-#ifdef PCP_DEBUG
-	case 'D':	/* debug flag */
-	    sts = __pmParseDebug(optarg);
+	case 'D':	/* debug options */
+	    sts = pmSetDebug(optarg);
 	    if (sts < 0) {
-		fprintf(stderr, "%s: unrecognized debug flag specification (%s)\n",
+		fprintf(stderr, "%s: unrecognized debug options specification (%s)\n",
 		    pmProgname, optarg);
 		errflag++;
 	    }
-	    else
-		pmDebug |= sts;
 	    break;
-#endif
 
 	case 'h':	/* hostname for PMCD to contact */
 	    host = optarg;
@@ -74,7 +65,7 @@ main(int argc, char **argv)
     }
 
     if (errflag) {
-	fprintf(stderr, "Usage: %s %s%s\n", pmProgname, debug, usage);
+	fprintf(stderr, "Usage: %s %s\n", pmProgname, usage);
 	exit(1);
     }
 

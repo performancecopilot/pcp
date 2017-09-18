@@ -107,7 +107,7 @@ pmns_refresh(void)
     Py_ssize_t pos = 0;
     PyObject *key, *value;
 
-    if (pmDebug & DBG_TRACE_LIBPMDA)
+    if (pmDebugOptions.libpmda)
         fprintf(stderr, "pmns_refresh: rebuilding namespace\n");
 
     // If there is nothing to do, just exit.
@@ -133,7 +133,7 @@ pmns_refresh(void)
 #else
 	name = PyString_AsString(value);
 #endif
-        if (pmDebug & DBG_TRACE_LIBPMDA)
+        if (pmDebugOptions.libpmda)
             fprintf(stderr, "pmns_refresh: adding metric %s(%s)\n",
                     name, pmIDStr(pmid));
         if ((sts = __pmAddPMNSNode(pmns, pmid, name)) < 0) {
@@ -787,7 +787,7 @@ text(int ident, int type, char **buffer, pmdaExt *pmda)
 int
 attribute(int ctx, int attr, const char *value, int length, pmdaExt *pmda)
 {
-    if (pmDebug & DBG_TRACE_AUTH) {
+    if (pmDebugOptions.auth) {
         char buffer[256];
 
         if (!__pmAttrStr_r(attr, value, buffer, sizeof(buffer))) {
@@ -827,8 +827,8 @@ init_dispatch(PyObject *self, PyObject *args, PyObject *keywords)
     name = strdup(pmdaname);
     __pmSetProgname(name);
     if ((p = getenv("PCP_PYTHON_DEBUG")) != NULL)
-        if ((pmDebug = __pmParseDebug(p)) < 0)
-            pmDebug = 0;
+        if (pmSetDebug(p) < 0)
+	    PyErr_SetString(PyExc_TypeError, "unrecognized debug options specification");
 
     if (access(help, R_OK) != 0) {
         pmdaDaemon(&dispatch, PMDA_INTERFACE_7, name, domain, logfile, NULL);
@@ -1031,8 +1031,8 @@ static void
 pmda_refresh_metrics(void)
 {
     // Update the metrics/indoms.
-    if (! update_indom_metric_buffers()) {
-	if (pmDebug & DBG_TRACE_LIBPMDA)
+    if (!update_indom_metric_buffers()) {
+	if (pmDebugOptions.libpmda)
 	    fprintf(stderr,
 		    "pmda_refresh_metrics: rehash %ld indoms, %ld metrics\n",
 		    (long)nindoms, (long)nmetrics);
@@ -1089,7 +1089,7 @@ pmda_dispatch(PyObject *self, PyObject *args, PyObject *keywords)
 
     // Update the indoms/metrics.
     if (! update_indom_metric_buffers()) {
-	if (pmDebug & DBG_TRACE_LIBPMDA)
+	if (pmDebugOptions.libpmda)
 	    fprintf(stderr, "pmda_dispatch pmdaInit for metrics/indoms\n");
 	pmdaInit(&dispatch, indom_buffer, nindoms, metric_buffer, nmetrics);
 	if ((dispatch.version.any.ext->e_flags & PMDA_EXT_CONNECTED)
@@ -1098,12 +1098,12 @@ pmda_dispatch(PyObject *self, PyObject *args, PyObject *keywords)
 	     * connect_pmcd() not called before, so need pmdaConnect()
 	     * here before falling into the PDU-driven pmdaMain() loop.
 	     */
-	    if (pmDebug & DBG_TRACE_LIBPMDA)
+	    if (pmDebugOptions.libpmda)
 		fprintf(stderr, "pmda_dispatch connect to pmcd\n");
 	    pmdaConnect(&dispatch);
 	}
 
-	if (pmDebug & DBG_TRACE_LIBPMDA)
+	if (pmDebugOptions.libpmda)
 	    fprintf(stderr, "pmda_dispatch entering PDU loop\n");
 	pmdaMain(&dispatch);
     }

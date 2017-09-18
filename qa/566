@@ -49,7 +49,7 @@ _filter()
 _filter_pass0()
 {
     sed \
-	-e '/^archives\/badlabel-2.* mismatched label/d' \
+	-e '/^badarchives\/badlabel-2.* mismatched label/d' \
     # end
 }
 

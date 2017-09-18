@@ -293,7 +293,7 @@ void TimeControl::startTimeServer()
 {
     QStringList arguments;
 
-    if (pmDebug & DBG_TRACE_TIMECONTROL)
+    if (pmDebugOptions.timecontrol)
 	arguments << "-D" << "all";
     connect(this, SIGNAL(finished(int, QProcess::ExitStatus)), this,
 		    SLOT(endTimeControl()));

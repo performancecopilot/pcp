@@ -361,13 +361,11 @@ pmConvScale(int type, const pmAtomValue * ival, const pmUnits * iunit, pmAtomVal
     __int64_t div, mult;
     __int64_t d, m;
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_VALUE) {
+    if (pmDebugOptions.value) {
 	char strbuf[80];
 	fprintf(stderr, "pmConvScale: %s", pmAtomStr_r(ival, type, strbuf, sizeof(strbuf)));
 	fprintf(stderr, " [%s]", pmUnitsStr_r(iunit, strbuf, sizeof(strbuf)));
     }
-#endif
 
     if (iunit->dimSpace != ounit->dimSpace || iunit->dimTime != ounit->dimTime || iunit->dimCount != ounit->dimCount) {
 	sts = PM_ERR_CONV;
@@ -574,24 +572,20 @@ pmConvScale(int type, const pmAtomValue * ival, const pmUnits * iunit, pmAtomVal
 	    goto bad;
     }
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_VALUE) {
+    if (pmDebugOptions.value) {
 	char strbuf[80];
 	fprintf(stderr, " -> %s", pmAtomStr_r(oval, type, strbuf, sizeof(strbuf)));
 	fprintf(stderr, " [%s]\n", pmUnitsStr_r(ounit, strbuf, sizeof(strbuf)));
     }
-#endif
     return 0;
 
 bad:
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_VALUE) {
+    if (pmDebugOptions.value) {
 	char strbuf[60];
 	char errmsg[PM_MAXERRMSGLEN];
 	fprintf(stderr, " -> Error: %s", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	fprintf(stderr, " [%s]\n", pmUnitsStr_r(ounit, strbuf, sizeof(strbuf)));
     }
-#endif
     return sts;
 }
 
@@ -606,22 +600,18 @@ pmExtractValue(int valfmt, const pmValue * ival, int itype, pmAtomValue * oval, 
     const char *vp;
     char buf[80];
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_VALUE) {
+    if (pmDebugOptions.value) {
 	fprintf(stderr, "pmExtractValue: ");
 	vp = "???";
     }
-#endif
 
     oval->ll = 0;
     if (valfmt == PM_VAL_INSITU) {
 	av.l = ival->value.lval;
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_VALUE) {
+	if (pmDebugOptions.value) {
 	    char strbuf[80];
 	    vp = pmAtomStr_r(&av, itype, strbuf, sizeof(strbuf));
 	}
-#endif
 	switch (itype) {
 
 	    case PM_TYPE_32:
@@ -767,12 +757,10 @@ pmExtractValue(int valfmt, const pmValue * ival, int itype, pmAtomValue * oval, 
 		}
 		avp = (void *) &ival->value.pval->vbuf;
 		memcpy((void *) &av.ll, avp, sizeof(av.ll));
-#ifdef PCP_DEBUG
-		if (pmDebug & DBG_TRACE_VALUE) {
+		if (pmDebugOptions.value) {
 		    char strbuf[80];
 		    vp = pmAtomStr_r(&av, itype, strbuf, sizeof(strbuf));
 		}
-#endif
 		src = av.ll;
 		switch (otype) {
 		    case PM_TYPE_32:
@@ -817,12 +805,10 @@ pmExtractValue(int valfmt, const pmValue * ival, int itype, pmAtomValue * oval, 
 		}
 		avp = (void *) &ival->value.pval->vbuf;
 		memcpy((void *) &av.ull, avp, sizeof(av.ull));
-#ifdef PCP_DEBUG
-		if (pmDebug & DBG_TRACE_VALUE) {
+		if (pmDebugOptions.value) {
 		    char strbuf[80];
 		    vp = pmAtomStr_r(&av, itype, strbuf, sizeof(strbuf));
 		}
-#endif
 		usrc = av.ull;
 		switch (otype) {
 		    case PM_TYPE_32:
@@ -884,12 +870,10 @@ pmExtractValue(int valfmt, const pmValue * ival, int itype, pmAtomValue * oval, 
 		}
 		avp = (void *) &ival->value.pval->vbuf;
 		memcpy((void *) &av.d, avp, sizeof(av.d));
-#ifdef PCP_DEBUG
-		if (pmDebug & DBG_TRACE_VALUE) {
+		if (pmDebugOptions.value) {
 		    char strbuf[80];
 		    vp = pmAtomStr_r(&av, itype, strbuf, sizeof(strbuf));
 		}
-#endif
 		dsrc = av.d;
 		switch (otype) {
 		    case PM_TYPE_32:
@@ -949,12 +933,10 @@ pmExtractValue(int valfmt, const pmValue * ival, int itype, pmAtomValue * oval, 
 		}
 		avp = (void *) &ival->value.pval->vbuf;
 		memcpy((void *) &av.f, avp, sizeof(av.f));
-#ifdef PCP_DEBUG
-		if (pmDebug & DBG_TRACE_VALUE) {
+		if (pmDebugOptions.value) {
 		    char strbuf[80];
 		    vp = pmAtomStr_r(&av, itype, strbuf, sizeof(strbuf));
 		}
-#endif
 		fsrc = av.f;
 		switch (otype) {
 		    case PM_TYPE_32:
@@ -1012,8 +994,7 @@ pmExtractValue(int valfmt, const pmValue * ival, int itype, pmAtomValue * oval, 
 		    break;
 		}
 		len = ival->value.pval->vlen - PM_VAL_HDR_SIZE;
-#ifdef PCP_DEBUG
-		if (pmDebug & DBG_TRACE_VALUE) {
+		if (pmDebugOptions.value) {
 		    if (ival->value.pval->vbuf[0] == '\0')
 			vp = "<null>";
 		    else {
@@ -1026,7 +1007,6 @@ pmExtractValue(int valfmt, const pmValue * ival, int itype, pmAtomValue * oval, 
 			vp = buf;
 		    }
 		}
-#endif
 		if (otype != PM_TYPE_STRING) {
 		    sts = PM_ERR_CONV;
 		    break;
@@ -1044,8 +1024,7 @@ pmExtractValue(int valfmt, const pmValue * ival, int itype, pmAtomValue * oval, 
 		    break;
 		}
 		len = ival->value.pval->vlen;
-#ifdef PCP_DEBUG
-		if (pmDebug & DBG_TRACE_VALUE) {
+		if (pmDebugOptions.value) {
 		    int vlen;
 		    int i;
 		    vlen = ival->value.pval->vlen - PM_VAL_HDR_SIZE;
@@ -1071,7 +1050,6 @@ pmExtractValue(int valfmt, const pmValue * ival, int itype, pmAtomValue * oval, 
 		    }
 		    vp = buf;
 		}
-#endif
 		if (otype != PM_TYPE_AGGREGATE) {
 		    sts = PM_ERR_CONV;
 		    break;
@@ -1093,8 +1071,7 @@ pmExtractValue(int valfmt, const pmValue * ival, int itype, pmAtomValue * oval, 
     else
 	sts = PM_ERR_CONV;
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_VALUE) {
+    if (pmDebugOptions.value) {
 	char strbuf[80];
 	char errmsg[PM_MAXERRMSGLEN];
 	fprintf(stderr, " %s", vp);
@@ -1105,7 +1082,6 @@ pmExtractValue(int valfmt, const pmValue * ival, int itype, pmAtomValue * oval, 
 	    fprintf(stderr, " -> Error: %s", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	fprintf(stderr, " [%s]\n", pmTypeStr_r(otype, strbuf, sizeof(strbuf)));
     }
-#endif
 
     return sts;
 }

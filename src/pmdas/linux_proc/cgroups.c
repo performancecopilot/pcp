@@ -108,7 +108,7 @@ refresh_cgroup_devices(void)
 	pmsprintf(buf, sizeof(buf), "%u:%u", major, minor);
 	pmdaCacheStore(devtindom, PMDA_CACHE_ADD, buf, (void *)dev);
 
-	if (pmDebug & DBG_TRACE_APPL0)
+	if (pmDebugOptions.appl0)
 	    fprintf(stderr, "refresh_devices: \"%s\" \"%d:%d\" inst=%d\n",
 			dev->name, dev->major, dev->minor, dev->inst);
     }
@@ -148,7 +148,7 @@ refresh_cgroup_subsys(void)
 	ssp->enabled = enabled;
 	pmdaCacheStore(subsys, PMDA_CACHE_ADD, name, (void *)ssp);
 
-	if (pmDebug & DBG_TRACE_APPL0)
+	if (pmDebugOptions.appl0)
 	    fprintf(stderr, "refresh_subsys: \"%s\" h=%u nc=%u on=%u\n",
 			name, hierarchy, num_cgroups, enabled);
     }
@@ -196,7 +196,7 @@ refresh_cgroup_filesys(void)
 		continue;
 	    fs->path = strdup(path);
 	    fs->options = strdup(options);
-	    if (pmDebug & DBG_TRACE_APPL0)
+	    if (pmDebugOptions.appl0)
 		fprintf(stderr, "refresh_filesys: add \"%s\" \"%s\"\n",
 			fs->path, device);
 	    pmdaCacheStore(mounts, PMDA_CACHE_ADD, path, fs);
@@ -831,18 +831,18 @@ get_perdevblkio(pmInDom indom, const char *name, const char *disk,
     pmsprintf(inst, size, "%s::%s", name, disk);
     sts = pmdaCacheLookupName(indom, inst, NULL, (void **)&cdevp);
     if (sts == PMDA_CACHE_ACTIVE) {
-	if (pmDebug & DBG_TRACE_APPL0)
+	if (pmDebugOptions.appl0)
 	    fprintf(stderr, "get_perdevblkio active %s\n", inst);
 	return cdevp;
     }
     if (sts != PMDA_CACHE_INACTIVE) {
-	if (pmDebug & DBG_TRACE_APPL0)
+	if (pmDebugOptions.appl0)
 	    fprintf(stderr, "get_perdevblkio new %s\n", inst);
 	cdevp = (cgroup_perdevblkio_t *)malloc(sizeof(cgroup_perdevblkio_t));
 	if (!cdevp)
 	    return NULL;
     } else {
-	if (pmDebug & DBG_TRACE_APPL0)
+	if (pmDebugOptions.appl0)
 	    fprintf(stderr, "get_perdevblkio inactive %s\n", inst);
     }
     memset(cdevp, 0, sizeof(cgroup_perdevblkio_t));

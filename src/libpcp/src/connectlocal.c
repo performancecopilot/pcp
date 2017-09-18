@@ -89,11 +89,9 @@ build_dsotab(void)
 	return PM_ERR_GENERIC;
     strncpy(configFileName, config, sizeof(configFileName));
     configFileName[sizeof(configFileName) - 1] = '\0';
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_CONTEXT) {
+    if (pmDebugOptions.context) {
 	fprintf(stderr, "build_dsotab: parsing %s\n", configFileName);
     }
-#endif
     if (stat(configFileName, &sbuf) < 0) {
 	return -oserror();
     }
@@ -170,11 +168,9 @@ build_dsotab(void)
 	peekc = *p;
 	*p = '\0';
 dsoload:
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_CONTEXT) {
+	if (pmDebugOptions.context) {
 	    fprintf(stderr, "[%d] domain=%d, name=%s, init=%s\n", lineno, domain, name, init);
 	}
-#endif
 	/*
 	 * a little bit recursive if we got here via __pmLocalPMDA(),
 	 * but numdso has been set correctly, so this is OK
@@ -282,12 +278,10 @@ EndLocalContext(void)
 	if (dp->domain != -1 &&
 	    dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_5 &&
 	    dp->dispatch.version.four.ext->e_endCallBack != NULL) {
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_CONTEXT) {
+	    if (pmDebugOptions.context) {
 		fprintf(stderr, "NotifyEndLocalContext: DSO PMDA %s (%d) notified of context %d close\n", 
 		    dp->name, dp->domain, ctx);
 	    }
-#endif
 	    (*(dp->dispatch.version.four.ext->e_endCallBack))(ctx);
 	}
     }
@@ -494,8 +488,7 @@ __pmLocalPMDA(int op, int domain, const char *name, const char *init)
     int		sts = 0;
     int		i;
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_CONTEXT) {
+    if (pmDebugOptions.context) {
 	fprintf(stderr, "__pmLocalPMDA(op=");
 	if (op == PM_LOCAL_ADD) fprintf(stderr, "ADD");
 	else if (op == PM_LOCAL_DEL) fprintf(stderr, "DEL");
@@ -503,7 +496,6 @@ __pmLocalPMDA(int op, int domain, const char *name, const char *init)
 	else fprintf(stderr, "%d ???", op);
 	fprintf(stderr, ", domain=%d, name=%s, init=%s)\n", domain, name, init);
     }
-#endif
 
     if (numdso == -1) {
 	if (op != PM_LOCAL_CLEAR)
@@ -576,8 +568,7 @@ __pmLocalPMDA(int op, int domain, const char *name, const char *init)
 	    break;
     }
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_CONTEXT) {
+    if (pmDebugOptions.context) {
 	if (sts != 0) {
 	    char	errmsg[PM_MAXERRMSGLEN];
 	    fprintf(stderr, "__pmLocalPMDA -> %s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
@@ -591,7 +582,6 @@ __pmLocalPMDA(int op, int domain, const char *name, const char *init)
 		&dsotab[i], i, dsotab[i].domain, dsotab[i].name, dsotab[i].init, dsotab[i].handle);
 	}
     }
-#endif
 
     return sts;
 }

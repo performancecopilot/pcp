@@ -385,7 +385,7 @@ refresh_devices(pmInDom devices_indom)
 	    else {	/* new device, first time its been observed */
 		if ((xfs = calloc(1, sizeof(sysfs_xfs_t))) == NULL)
 		    continue;
-		if (pmDebug & DBG_TRACE_LIBPMDA)
+		if (pmDebugOptions.libpmda)
 		    fprintf(stderr, "refresh_devices: add \"%s\"\n", device);
 		pmdaCacheStore(indom, PMDA_CACHE_ADD, device, xfs);
 	    }

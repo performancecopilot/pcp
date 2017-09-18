@@ -29,9 +29,10 @@ CFILES = connect.c context.c desc.c err.c fetch.c fetchgroup.c freeresult.c \
 	p_lcontrol.c p_lrequest.c p_lstatus.c logconnect.c logcontrol.c \
 	connectlocal.c derive_fetch.c events.c lock.c hash.c \
 	fault.c access.c getopt.c probe.c io.c io_stdio.c io_xz.c jsmn.c
-HFILES = derive.h internal.h avahi.h probe.h compiler.h jsmn.h
+HFILES = derive.h internal.h avahi.h probe.h compiler.h pmdbg.h jsmn.h
 XFILES = jsmn.h jsmn.c sort_r.h
 YFILES = getdate.y derive_parser.y
+GENERATED_HFILES = pmdbg.h
 
 LIBCONFIG = libpcp.pc
 VERSION_SCRIPT = exports
@@ -75,7 +76,7 @@ SYMTARGET =
 endif
 
 LDIRT += $(SYMTARGET) $(YFILES:%.y=%.tab.?) $(XFILES) $(LIBCONFIG) \
-	getdate.h derive_parser.y check.done
+	getdate.h derive_parser.y check.done $(GENERATED_HFILES)
 
 base default : $(XFILES) $(LIBTARGET) $(SYMTARGET) $(STATICLIBTARGET) \
 	$(LIBCONFIG) check.done
@@ -91,11 +92,12 @@ include $(BUILDRULES)
 jsmn.o: jsmn.c jsmn.h
 rtime.o: getdate.h
 derive.o derive_fetch.o: derive.h derive_parser.tab.h
-util.o:	$(TOPDIR)/src/include/pcp/pmdbg.h
+util.o:	pmdbg.h
 
 $(OBJECTS):	$(TOPDIR)/src/include/pcp/pmapi.h \
 		$(TOPDIR)/src/include/pcp/impl.h \
-		$(TOPDIR)/src/include/pcp/platform_defs.h
+		$(TOPDIR)/src/include/pcp/platform_defs.h \
+		$(GENERATED_HFILES)
 
 .NOTPARALLEL:
 getdate.h getdate.tab.c: getdate.y
@@ -137,6 +139,9 @@ install_pcp : install
 
 $(TOPDIR)/src/pmns/stdpmid:
 	cd $(@D); $(MAKE) $(@F)
+
+pmdbg.h : ../../include/pcp/pmapi.h ../../include/pcp/impl.h mk_pmdbg
+	./mk_pmdbg
 
 # The library is thread-safe ... check-statics will force a build failure
 # if there has been any change to the static variables and their disposition

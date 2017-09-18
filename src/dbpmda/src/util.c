@@ -16,7 +16,15 @@
 #include "./dbpmda.h"
 #include "./lex.h"
 #include "./gram.h"
-#include "pmdbg.h"
+
+/*
+ * This works because ...
+ * we get _another_ copy of debug_map[] from pmdbg.h, but this is a
+ * static array, and the options field points back into the real
+ * pmDebugOptions struct in libpcp, so we can see the internal state
+ * of the debugging options.
+ */
+#include "../../libpcp/src/pmdbg.h"
 
 extern pmdaInterface	dispatch;
 extern int		infd;

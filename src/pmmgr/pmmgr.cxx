@@ -167,7 +167,7 @@ pmmgr_daemon_poll_thread (void* a)
 int
 pmmgr_configurable::wrap_system(const std::string& cmd)
 {
-  if (pmDebug & DBG_TRACE_APPL1)
+  if (pmDebugOptions.appl1)
     timestamp(obatched(cout)) << "running " << cmd << endl;
 
   int pid = fork();
@@ -739,7 +739,7 @@ pmmgr_job_spec::poll()
   parallel_do (min(num_threads, (int)t2.input->size()), &pmmgr_pmcd_choice_container_search_thread, &t2);
   assert (t2.input_iterator == t2.input_end);
 
-  if (pmDebug & DBG_TRACE_APPL1)
+  if (pmDebugOptions.appl1)
       {
 	  timestamp(obatched(cout)) << "poll results" << endl;
 	  for (map<pmmgr_hostid,pcp_context_spec>::const_iterator it = known_targets.begin();
@@ -987,7 +987,7 @@ pmmgr_daemon::~pmmgr_daemon() // NB: possibly launched in a detached thread
 	// not dead yet ... try again a little harder
 	(void) kill ((pid_t) pid, SIGKILL);
       }
-      if (pmDebug & DBG_TRACE_APPL1)
+      if (pmDebugOptions.appl1)
 	timestamp(obatched(cout)) << "daemon pid " << pid << " killed" << endl;
     }
 }
@@ -1006,7 +1006,7 @@ void pmmgr_daemon::poll()
       rc = kill ((pid_t) pid, 0);
       if (rc < 0)
 	{
-	  if (pmDebug & DBG_TRACE_APPL0)
+	  if (pmDebugOptions.appl0)
 	    timestamp(obatched(cout)) << "daemon pid " << pid << " found dead" << endl;
 	  pid = 0;
 	  // we will try again immediately
@@ -1051,7 +1051,7 @@ void pmmgr_daemon::poll()
       // Enforce exec on even these shells.
       commandline = string("exec ") + commandline;
 
-      if (pmDebug & DBG_TRACE_APPL1)
+      if (pmDebugOptions.appl1)
 	timestamp(obatched(cout)) << "fork/exec sh -c " << commandline << endl;
       pid = fork();
       if (pid == 0) // child process
@@ -1069,7 +1069,7 @@ void pmmgr_daemon::poll()
 	}
       else // congratulations!	we're apparently a parent
 	{
-	  if (pmDebug & DBG_TRACE_APPL0)
+	  if (pmDebugOptions.appl0)
 	    timestamp(obatched(cout)) << "daemon pid " << pid << " started: " << commandline << endl;
 	}
     }
@@ -1289,7 +1289,7 @@ pmmgr_pmlogger_daemon::daemon_command_line()
 
 		  if (label.ll_start.tv_sec >= prior_period_end) // archive too new?
 		    {
-		      if (pmDebug & DBG_TRACE_APPL1)
+		      if (pmDebugOptions.appl1)
 			timestamp(obatched(cout)) << "skipping merge of too-new archive " << base_name << endl;
 		      pmDestroyContext (ctx);
 		      continue;
@@ -1305,7 +1305,7 @@ pmmgr_pmlogger_daemon::daemon_command_line()
 
 		  if (archive_end.tv_sec < prior_period_start) // archive too old?
 		    {
-		      if (pmDebug & DBG_TRACE_APPL1)
+		      if (pmDebugOptions.appl1)
 			timestamp(obatched(cout)) << "skipping merge of too-old archive " << base_name << endl;
 		      pmDestroyContext (ctx);
 		      continue; // skip; gc later
@@ -1499,7 +1499,7 @@ pmmgr_pmlogger_daemon::logans_run_archive_glob(const std::string& glob_pattern,
               timestamp(obatched(cerr)) << "stat '" << the_blob.gl_pathv[i] << "' error; skipping cleanup" << endl;
               continue; // likely nothing can be done to this one
             }
-          if (pmDebug & DBG_TRACE_APPL1)
+          if (pmDebugOptions.appl1)
             timestamp(obatched(cout)) << "contemplating deletion of archive " << base_name
                                       << " (" << foo.st_mtime << "+" << retention_tv.tv_sec
                                       << " < " << now_tv.tv_sec << ")"
@@ -1702,15 +1702,11 @@ int main (int argc, char *argv[])
       switch (c)
 	{
 	case 'D': // undocumented
-	  if ((c = __pmParseDebug(opts.optarg)) < 0)
+	  if ((c = pmSetDebug(opts.optarg)) < 0)
 	    {
-	      pmprintf("%s: unrecognized debug flag specification (%s)\n",
+	      pmprintf("%s: unrecognized debug options specification (%s)\n",
 		       pmProgname, opts.optarg);
 	      opts.errors++;
-	    }
-	  else
-	    {
-	      pmDebug |= c;
 	    }
 	  break;
 
@@ -1719,10 +1715,10 @@ int main (int argc, char *argv[])
 	  break;
 
 	case 'v':
-	    if ((pmDebug & DBG_TRACE_APPL0) == 0)
-		pmDebug |= DBG_TRACE_APPL0;
+	    if (pmDebugOptions.appl0 == 0)
+		pmSetDebug("appl0");
 	    else
-		pmDebug |= DBG_TRACE_APPL1;
+		pmSetDebug("appl1");
 	  break;
 
 	case 'p':

@@ -1392,13 +1392,11 @@ checkLogFile(FileInfo *theFile,
 	    wl_close(theFile->filePtr);
 	    result = wl_unableToStat;
 
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL0) {
+	    if (pmDebugOptions.appl0) {
 		logmessage(LOG_DEBUG,
 			   "checkLogFile: could not stat %s\n",
 			   theFile->fileName);
 	    }
-#endif
 
 	}
     }
@@ -1410,12 +1408,10 @@ checkLogFile(FileInfo *theFile,
 
     if (result == wl_ok && !(theFile->fileStat.st_mode & S_IFREG)) {
 
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL2)
+	if (pmDebugOptions.appl2)
 	    logmessage(LOG_DEBUG,
 		       "%s is not a regular file. Skipping...\n",
 		       theFile->fileName);
-#endif
 
     	result = wl_irregularFile;
     }
@@ -1454,13 +1450,11 @@ checkLogFile(FileInfo *theFile,
 		       osstrerror());
 	    wl_close(theFile->filePtr);
 
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL0) {
+	    if (pmDebugOptions.appl0) {
 		logmessage(LOG_DEBUG,
 			   "checkLogFile: could not check %s\n",
 			   theFile->fileName);
 	    }
-#endif
 
 	}
 	else if (fstat(tmpFd, tmpStat) < 0) {
@@ -1471,13 +1465,11 @@ checkLogFile(FileInfo *theFile,
 	    wl_close(theFile->filePtr);
 	    result = wl_unableToStat;
 
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL0) {
+	    if (pmDebugOptions.appl0) {
 		logmessage(LOG_DEBUG,
 			   "checkLogFile: could not stat inactive %s\n",
 			   theFile->fileName);
 	    }
-#endif
 
 	}
 	else if (tmpStat->st_ino != theFile->fileStat.st_ino) {
@@ -1534,12 +1526,10 @@ checkLogFile(FileInfo *theFile,
 
     if (result == wl_ok && tmpStat->st_mtime > theFile->fileStat.st_mtime) {
 
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL1)
+	if (pmDebugOptions.appl1)
 	    logmessage(LOG_DEBUG, "%s grew %d bytes\n", 
 		       theFile->fileName,
 		       tmpStat->st_size - theFile->fileStat.st_size);
-#endif
     	theFile->lastActive = wl_timeOfRefresh;
     }
 
@@ -1603,13 +1593,11 @@ sprocMain(void *sprocNum)
     
 /* open up all file descriptors */
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL2)
+    if (pmDebugOptions.appl2)
     	logmessage(LOG_DEBUG, "Sproc %d started for servers %d to %d\n",
 		   mySprocNum,
 		   sprocData->firstServer,
 		   sprocData->lastServer);
-#endif
 
     for (i=sprocData->firstServer; i<=sprocData->lastServer; i++)
     {
@@ -1687,13 +1675,11 @@ refresh(WebSproc* proc)
 
 	    result = checkLogFile(accessFile, &tmpStat);
 
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL2)
+	    if (pmDebugOptions.appl2)
 	    	logmessage(LOG_DEBUG, 
 			   "checkLogFile returned %d for server %d (access)\n",
 			   result,
 			   i);
-#endif
 
 /*	    scan access log */
 
@@ -1709,13 +1695,11 @@ refresh(WebSproc* proc)
 		    sts = wl_gets(accessFile, &line);
 		    if (sts <= 0) {
 
-#ifdef PCP_DEBUG
-			if (pmDebug & DBG_TRACE_APPL0)
+			if (pmDebugOptions.appl0)
 			    logmessage(LOG_DEBUG, 
 				       "Short read of %s by %d bytes\n",
 				       accessFile->fileName,
 				       tmpStat.st_size - accessFile->fileStat.st_size);
-#endif
 
 			if (sts == 0)  {
 			    logmessage(LOG_WARNING, 
@@ -1741,14 +1725,12 @@ refresh(WebSproc* proc)
 
 		    if (newLength > proc->strLength)
 		    {
-#ifdef PCP_DEBUG
-                       if (pmDebug & DBG_TRACE_APPL2) {
+                       if (pmDebugOptions.appl2) {
                             logmessage(LOG_DEBUG, 
                                    "Resizing strings from %d to %d bytes\n",
                                    proc->strLength,
                                    newLength);
                         }
-#endif
                         proc->methodStr = (char*)realloc(proc->methodStr, 
                                      newLength * sizeof(char));
                         proc->sizeStr = (char*)realloc(proc->sizeStr,
@@ -1828,20 +1810,16 @@ refresh(WebSproc* proc)
                             }
 			    ok = 1;
 			}
-#ifdef PCP_DEBUG
-			else if (pmDebug & DBG_TRACE_APPL2)
+			else if (pmDebugOptions.appl2)
 			    logmessage(LOG_DEBUG, "Regex failed on %s\n", line);
-#endif
                     }
 #ifdef NON_POSIX_REGEX
                     else if (regex(wl_regexTable[accessFile->format].np_regex,
                               line, proc->methodStr, proc->sizeStr, proc->c_statusStr, proc->s_statusStr) != NULL) {
                         ok = 1;
 		    }
-#ifdef PCP_DEBUG
-		    else if (pmDebug & DBG_TRACE_APPL2)
+		    else if (pmDebugOptions.appl2)
 			logmessage(LOG_DEBUG, "Regex failed on %s\n", line);
-#endif
 #endif
                     if ( ok ) {
 
@@ -1909,8 +1887,7 @@ refresh(WebSproc* proc)
             
                         if(server->counts.extendedp == 1) {
                             /* common extended format */
-#ifdef PCP_DEBUG
-                            if (pmDebug & DBG_TRACE_APPL2) {
+                            if (pmDebugOptions.appl2) {
                                 logmessage(LOG_DEBUG, 
                                        "Access: Server=%d, line=%s [CEF]\n        M: %s S: %s CS: %s, SS: %s",
                                        i,
@@ -1920,7 +1897,6 @@ refresh(WebSproc* proc)
                                        proc->c_statusStr,
                                        proc->s_statusStr);
                             }
-#endif
             
                             /*
                              * requested page is not in client/browser cache, nor in the 
@@ -1928,14 +1904,12 @@ refresh(WebSproc* proc)
                              */
                             if(strcmp(proc->c_statusStr, "200") == 0 &&
                                strcmp(proc->s_statusStr, "200") == 0) {
-#ifdef PCP_DEBUG
-                                if (pmDebug & DBG_TRACE_APPL2) {
+                                if (pmDebugOptions.appl2) {
                                     logmessage(LOG_DEBUG, 
                                            "Access: Server=%d, REMOTE fetch: of %.0f bytes\n",
                                            i,
                                            atof(proc->sizeStr));
                                 }
-#endif
                                 /*
                                  * now bucket the size
                                  */
@@ -1971,14 +1945,12 @@ refresh(WebSproc* proc)
                             if(strcmp(proc->c_statusStr, "200") == 0 &&
                                (strcmp(proc->s_statusStr, "304") == 0 ||
                                 strcmp(proc->s_statusStr, "-") == 0)) {
-#ifdef PCP_DEBUG
-                                if (pmDebug & DBG_TRACE_APPL2) {
+                                if (pmDebugOptions.appl2) {
 				    logmessage(LOG_DEBUG, 
                                        "Access: Server=%d, CACHE return: of %.0f bytes\n",
                                        i,
                                        atof(proc->sizeStr));
                                 }
-#endif
                                 /*
                                  * now bucket the size
                                  */
@@ -2013,19 +1985,16 @@ refresh(WebSproc* proc)
                             if(strcmp(proc->c_statusStr, "304") == 0 &&
                                (strcmp(proc->s_statusStr, "304") == 0 ||
                                 strcmp(proc->s_statusStr, "-") == 0)) {
-#ifdef PCP_DEBUG
-                                if (pmDebug & DBG_TRACE_APPL2) {
+                                if (pmDebugOptions.appl2) {
                                     logmessage(LOG_DEBUG, 
                                            "Access: Server=%d, CLIENT hit\n",
                                            i);
                                 }
-#endif
                                 count->client_sumReq++;
                             }
                         } else if(server->counts.extendedp == 2) {
                             /* default squid format */
-#ifdef PCP_DEBUG
-                            if (pmDebug & DBG_TRACE_APPL2) {
+                            if (pmDebugOptions.appl2) {
                                 logmessage(LOG_DEBUG, 
                                        "Access: Server=%d, line=%s [squid]\n        M: %s S: %s CS: %s, SS: %s",
                                        i,
@@ -2035,7 +2004,6 @@ refresh(WebSproc* proc)
                                        proc->c_statusStr,
                                        proc->s_statusStr);
                             }
-#endif
                             
                             /*
                              * requested page is not in client/browser cache, nor in the 
@@ -2045,14 +2013,12 @@ refresh(WebSproc* proc)
                                (strstr(proc->s_statusStr, "_MISS") != NULL ||
                                 strstr(proc->s_statusStr, "_CLIENT_REFRESH") != NULL ||
                                 strstr(proc->s_statusStr, "_SWAPFAIL") != NULL)) {
-#ifdef PCP_DEBUG
-                                if (pmDebug & DBG_TRACE_APPL2) {
+                                if (pmDebugOptions.appl2) {
 				    logmessage(LOG_DEBUG, 
                                        "Access: Server=%d, REMOTE fetch: of %.0f bytes\n",
                                        i,
                                        atof(proc->sizeStr));
                                 }
-#endif
                                 /*
                                  * now bucket the size
                                  */
@@ -2087,14 +2053,12 @@ refresh(WebSproc* proc)
                              */
                             if(strcmp(proc->c_statusStr, "200") == 0 &&
                                strstr(proc->s_statusStr, "_HIT") != NULL) {
-#ifdef PCP_DEBUG
-                                if (pmDebug & DBG_TRACE_APPL2) {
+                                if (pmDebugOptions.appl2) {
 				    logmessage(LOG_DEBUG, 
                                        "Access: Server=%d, CACHE return: of %.0f bytes\n",
                                        i,
                                        atof(proc->sizeStr));
                                 }
-#endif
                                 /*
                                  * now bucket the size
                                  */
@@ -2126,19 +2090,16 @@ refresh(WebSproc* proc)
                              * requested page is in client/browser cache
                              */
                             if(strcmp(proc->c_statusStr, "304") == 0) {
-#ifdef PCP_DEBUG
-                                if (pmDebug & DBG_TRACE_APPL2) {
+                                if (pmDebugOptions.appl2) {
                                     logmessage(LOG_DEBUG, 
                                            "Access: Server=%d, CLIENT hit\n",
                                            i);
                                 }
-#endif
                                 count->client_sumReq++;
                             }
                         }
                         
-#ifdef PCP_DEBUG
-                        if (pmDebug & DBG_TRACE_APPL2) {
+                        if (pmDebugOptions.appl2) {
                             logmessage(LOG_DEBUG, 
                                    "Access: Server=%d, line=%s\n        method=%s [%d], size=%s=%d [%d]\n",
                                    i,
@@ -2149,7 +2110,6 @@ refresh(WebSproc* proc)
                                    size,
                                    sizeIndex);
                         }
-#endif
             
 		    }
                 }
@@ -2158,13 +2118,11 @@ refresh(WebSproc* proc)
 
             result = checkLogFile(errorFile, &tmpStat);
 
-#ifdef PCP_DEBUG
-            if (pmDebug & DBG_TRACE_APPL2)
+            if (pmDebugOptions.appl2)
                 logmessage(LOG_DEBUG, 
                    "checkLogFile returned %d for server %d (error)\n",
                    result,
                    i);
-#endif
 
     /*        scan error log */
 
@@ -2176,13 +2134,11 @@ refresh(WebSproc* proc)
                 while (errorFile->fileStat.st_size < tmpStat.st_size) {
                     sts = wl_gets(errorFile, &line);
                     if (sts <= 0) {
-#ifdef PCP_DEBUG
-			if (pmDebug & DBG_TRACE_APPL0)
+			if (pmDebugOptions.appl0)
 			    logmessage(LOG_DEBUG, "%s was %d bytes short\n",
 				   errorFile->fileName,
 				   tmpStat.st_size - 
 				   errorFile->fileStat.st_size);
-#endif
 
 			if (sts < 0) {
 			    logmessage(LOG_ERR, "refresh %s: %s\n",
@@ -2298,10 +2254,8 @@ probe(void)
 
     wl_timeOfRefresh = theTime.tv_sec;
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL1)
+    if (pmDebugOptions.appl1)
     	logmessage(LOG_DEBUG, "Starting probe at %d\n", wl_timeOfRefresh);
-#endif
 
     FD_ZERO(&rfds);
 
@@ -2325,20 +2279,16 @@ probe(void)
 	}
 
 	if (j > sprocData->lastServer) {
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL2)
+	    if (pmDebugOptions.appl2)
 		logmessage(LOG_DEBUG, "Skipping sproc %d\n", i);
-#endif
 	    continue;
 	}
 
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL1)
+	if (pmDebugOptions.appl1)
 	    logmessage(LOG_DEBUG, 
 		       "Told sproc %d to probe for at least server %d\n", 
 		       i,
 		       j);
-#endif
 
 	sprocsUsed++;
 	thisFD = sprocData->outFD[0];
@@ -2371,24 +2321,18 @@ probe(void)
 
     if (j <= sprocData->lastServer) {
 	refresh(&wl_sproc[0]);
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL2)
+	if (pmDebugOptions.appl2)
 	    logmessage(LOG_DEBUG, "Done probe for 0 to %d\n", 
 	    	       sprocData->lastServer);
-#endif
     }
-#ifdef PCP_DEBUG
-    else if (pmDebug & DBG_TRACE_APPL2)
+    else if (pmDebugOptions.appl2)
 	logmessage(LOG_DEBUG, "Skipping refresh of main process\n");
-#endif
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL2) {
+    if (pmDebugOptions.appl2) {
     	logmessage(LOG_DEBUG, "Waiting for reply from %d out of %d sprocs\n", 
 		   sprocsUsed,
 		   wl_numSprocs);
     }
-#endif
 
 /*
  * Wait for all sprocs to reply
@@ -2423,10 +2367,8 @@ probe(void)
 	}
     }
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL1)
+    if (pmDebugOptions.appl1)
     	logmessage(LOG_DEBUG, "Finished probe\n");
-#endif
 }
 
 /*
@@ -2442,11 +2384,9 @@ refreshAll(void)
 
     wl_updateAll = 1;
 
-#ifdef PCP_DEBUG 
-    if (pmDebug & DBG_TRACE_APPL1) {
+    if (pmDebugOptions.appl1) {
     	logmessage(LOG_DEBUG, "Starting a refreshAll\n");
     }
-#endif
 
     __pmtimevalNow(&before);
     probe();
@@ -2457,11 +2397,9 @@ refreshAll(void)
 
     wl_updateAll = 0;
 
-#ifdef PCP_DEBUG 
-    if (pmDebug & DBG_TRACE_APPL1)
+    if (pmDebugOptions.appl1)
     	logmessage(LOG_DEBUG, "Probed all logs, took %d msec\n",
 		   wl_catchupTime);
-#endif
 
 }
 
@@ -2506,23 +2444,17 @@ web_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *ext)
     }
 
     if (i < numpmid) {
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL1)
+	if (pmDebugOptions.appl1)
 	    logmessage(LOG_DEBUG, "web_fetch: refreshAll\n");
-#endif
     	refreshAll();
     }
     else if (j) {
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL1)
+	if (pmDebugOptions.appl1)
 	    logmessage(LOG_DEBUG, "web_fetch: probe\n");
-#endif
 	probe();
     }
-#ifdef PCP_DEBUG
-    else if (pmDebug & DBG_TRACE_APPL1)
+    else if (pmDebugOptions.appl1)
 	logmessage(LOG_DEBUG, "web_fetch: no probes required\n");
-#endif
 
 
     if (numpmid > maxnpmids) {

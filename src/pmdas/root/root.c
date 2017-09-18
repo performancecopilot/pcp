@@ -164,7 +164,7 @@ root_container_search(const char *query)
 	for (dp = &engines[0]; dp->name != NULL; dp++) {
 	    if ((fuzzy = dp->name_matching(dp, query, cp->name, name)) <= best)
 		continue;
-	    if (pmDebug & DBG_TRACE_ATTR)
+	    if (pmDebugOptions.attr)
 		__pmNotifyErr(LOG_DEBUG, "container search: %s/%s (%d->%d)\n",
 				query, name, best, fuzzy);
 	    best = fuzzy;
@@ -173,7 +173,7 @@ root_container_search(const char *query)
     }
 
 out:
-    if (pmDebug & DBG_TRACE_ATTR) {
+    if (pmDebugOptions.attr) {
 	if (found) /* query must be non-NULL */
 	    __pmNotifyErr(LOG_DEBUG, "found container: %s (%s/%d) pid=%d\n",
 				name, query, best, found->pid);
@@ -217,13 +217,13 @@ root_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	if (sts < 0)
 	    return sts;
 	if (sts != PMDA_CACHE_ACTIVE) {
-	    if (pmDebug & DBG_TRACE_ATTR) {
+	    if (pmDebugOptions.attr) {
 		__pmNotifyErr(LOG_DEBUG, "pmdaCacheLookup(indom=%s, inst=%d, ...) returns %d: %s\n", pmInDomStr(containers), inst, sts, pmErrStr(sts));
 	    }
 	    return PM_ERR_INST;
 	}
 	if ((sts = root_refresh_container_values(name, cp)) < 0) {
-	    if (pmDebug & DBG_TRACE_ATTR) {
+	    if (pmDebugOptions.attr) {
 		__pmNotifyErr(LOG_DEBUG, "root_refresh_container_values(name=%s, ...) returns %d: %s\n", name, sts, pmErrStr(sts));
 	    }
 	    return PM_ERR_INST;
@@ -549,7 +549,7 @@ root_hostname_request(root_client_t *cp, void *pdu, int pdulen)
 	    pid = container->pid;
 	    sts = 0;
 	} else {
-	    if (pmDebug & DBG_TRACE_ATTR)
+	    if (pmDebugOptions.attr)
 		__pmNotifyErr(LOG_DEBUG, "no container with name=%s\n", name);
 	    sts = PM_ERR_NOCONTAINER;
 	}
@@ -557,7 +557,7 @@ root_hostname_request(root_client_t *cp, void *pdu, int pdulen)
     if (!sts) {
 	length = sizeof(buffer);
 	sts = root_hostname(pid, buffer, &length);
-	if (pmDebug & DBG_TRACE_ATTR)
+	if (pmDebugOptions.attr)
 	    __pmNotifyErr(LOG_DEBUG, "pid=%d container=%s hostname=%s\n",
 			pid, namelen ? name : "", sts < 0 ? "?" : buffer);
     }
@@ -584,7 +584,7 @@ root_processid_request(root_client_t *cp, void *pdu, int pdulen)
 	pid = container->pid;
 	sts = 0;
     } else {
-	if (pmDebug & DBG_TRACE_ATTR)
+	if (pmDebugOptions.attr)
 	    __pmNotifyErr(LOG_DEBUG, "no container with name=%s\n", name);
 	sts = PM_ERR_NOCONTAINER;
     }
@@ -607,7 +607,7 @@ root_cgroupname_request(root_client_t *cp, void *pdu, int pdulen)
 
     root_refresh_container_indom();
     if ((container = root_container_search(name)) == NULL) {
-	if (pmDebug & DBG_TRACE_ATTR)
+	if (pmDebugOptions.attr)
 	    __pmNotifyErr(LOG_DEBUG, "no container with name=%s\n", name);
 	sts = PM_ERR_NOCONTAINER;
     } else {
@@ -616,7 +616,7 @@ root_cgroupname_request(root_client_t *cp, void *pdu, int pdulen)
 	/* skip leading slash, it is there just for exported metric value */
 	cgroup = &container->cgroup[1];
 	length = strlen(cgroup);
-	if (pmDebug & DBG_TRACE_ATTR)
+	if (pmDebugOptions.attr)
 	    __pmNotifyErr(LOG_DEBUG, "container %s cgroup=%s\n", name, cgroup);
     }
     return __pmdaSendRootPDUContainer(cp->fd, PDUROOT_CGROUPNAME,
@@ -642,7 +642,7 @@ root_startpmda_request(root_client_t *cp, void *pdu, int pdulen)
 	bad = PM_ERR_GENERIC;
 
     sts = __pmdaSendRootPDUStart(cp->fd, pid, infd, outfd, name, len, bad);
-    if (pmDebug & DBG_TRACE_APPL0) {
+    if (pmDebugOptions.appl0) {
 	__pmNotifyErr(LOG_DEBUG, "Sent %s PMDA process to pmcd: "
 			"pid=%d infd=%d outfd=%d sts=%d\n",
 			name, pid, infd, outfd, bad);
@@ -780,7 +780,7 @@ root_main(pmdaInterface *dp)
 	sts = __pmSelectRead(maxfd, &readable_fds, NULL);
 	if (sts > 0) {
 	    if (__pmFD_ISSET(pmcd_fd, &readable_fds)) {
-		if (pmDebug & DBG_TRACE_APPL0)
+		if (pmDebugOptions.appl0)
 		    __pmNotifyErr(LOG_DEBUG, "pmcd request [fd=%d]", pmcd_fd);
 		if (__pmdaMainPDU(dp) < 0)
 		    exit(1);        /* it's fatal if we lose pmcd */
