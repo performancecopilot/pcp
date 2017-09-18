@@ -233,7 +233,7 @@ dynamic_store(pmResult *result, pmdaExt *pmda)
 			else {
 			    for (i = sizeInsts; i <= val; i++) {
 				insts[i].id = -1;
-				sprintf(insts[i].name, "%d", i);
+				pmsprintf(insts[i].name, 16, "%d", i);
 				insts[i].counter = 0;
 			    }
 			    insts[val].id = val;
@@ -388,7 +388,7 @@ main(int argc, char **argv)
     char		helppath[MAXPATHLEN];
 
     __pmSetProgname(argv[0]);
-    snprintf(helppath, sizeof(helppath),
+    pmsprintf(helppath, sizeof(helppath),
 		"%s%c" "testsuite" "%c" "pmdas" "%c" "dynamic" "%c" "help",
 		pmGetConfig("PCP_VAR_DIR"), sep, sep, sep, sep);
     pmdaDaemon(&dispatch, PMDA_INTERFACE_4, pmProgname, DYNAMIC,

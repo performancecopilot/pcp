@@ -42,7 +42,7 @@ create_mapping(const char *fname, int testcase, size_t size)
     void *mapping = NULL;
     int fd, sep = __pmPathSeparator();
 
-    snprintf(path, sizeof(path), "%s%c" "mmv" "%c%s-%d",
+    pmsprintf(path, sizeof(path), "%s%c" "mmv" "%c%s-%d",
 		pmGetConfig("PCP_TMP_DIR"), sep, sep, fname, testcase);
 
     if ((fd = open(path, O_RDWR | O_CREAT | O_EXCL, 0644)) < 0) {

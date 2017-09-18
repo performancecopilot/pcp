@@ -48,7 +48,7 @@ main(int argc, char **argv)
 #endif
 
     str_ver = pmGetConfig("PCP_VERSION");
-    snprintf(buf, sizeof(buf), "%d.%d.%d", (sts&0xff0000)>>16, (sts&0xff00)>>8, (sts&0xff));
+    pmsprintf(buf, sizeof(buf), "%d.%d.%d", (sts&0xff0000)>>16, (sts&0xff00)>>8, (sts&0xff));
     if (strcmp(str_ver, buf) != 0)
 	fprintf(stderr, "Botch: pmGetConfig version %s != pmGetVersion() %s\n", str_ver, buf);
     else

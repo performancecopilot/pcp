@@ -24,14 +24,14 @@ static char *reportexit(int status)
 	return buf;
     if (WIFEXITED(status)) {
 	if (WIFSIGNALED(status))
-	    snprintf(buf, sizeof(buf), " exit %d, signal %d", WEXITSTATUS(status), WTERMSIG(status));
+	    pmsprintf(buf, sizeof(buf), " exit %d, signal %d", WEXITSTATUS(status), WTERMSIG(status));
 
 	else
-	    snprintf(buf, sizeof(buf), " exit %d", WEXITSTATUS(status));
+	    pmsprintf(buf, sizeof(buf), " exit %d", WEXITSTATUS(status));
     }
     else {
 	if (WIFSIGNALED(status))
-	    snprintf(buf, sizeof(buf), " signal %d", WTERMSIG(status));
+	    pmsprintf(buf, sizeof(buf), " signal %d", WTERMSIG(status));
     }
     return buf;
 }

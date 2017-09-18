@@ -122,7 +122,7 @@ Options\n\
 	else {
 	    char	path[MAXPATHLEN];
 
-	    sprintf(path, "%s.0", host);
+	    pmsprintf(path, sizeof(path), "%s.0", host);
 	    if (access(path, W_OK) == 0) {
 		if (truncate(path, trunc_size) != 0) {
 		    fprintf(stderr, "%s: file %s exists, but cannot truncate\n",

@@ -95,7 +95,7 @@ main(int argc, char **argv)
     }
     for (key = 0; key < MAXPOKE; key++) {
 	if (!kflag) {
-	    sprintf(name, "key-%d", key);
+	    pmsprintf(name, sizeof(name), "key-%d", key);
 	    mykeylen = strlen(name);
 	    mykey = (void *)name;
 	}
@@ -122,7 +122,7 @@ main(int argc, char **argv)
 		fprintf(stderr, "keys %d & %d hash to %d\n", poke[key-1].key, poke[key].key, poke[key-1].inst);
 	    else
 		fprintf(stderr, "keys \"key-%d\" & \"key-%d\" hash to %d\n", poke[key-1].key, poke[key].key, poke[key-1].inst);
-	    sprintf(name, "key-%d", poke[key-1].key);
+	    pmsprintf(name, sizeof(name), "key-%d", poke[key-1].key);
 	    if (kflag) {
 		mykeylen = sizeof(key);
 		mykey = (void *)&poke[key-1].key;
@@ -144,7 +144,7 @@ main(int argc, char **argv)
 		fprintf(stderr, "%s -> %d\n", name, sts);
 	    poke[dup].key = poke[key-1].key;
 	    poke[dup++].inst = sts;
-	    sprintf(name, "key-%d", poke[key].key);
+	    pmsprintf(name, sizeof(name), "key-%d", poke[key].key);
 	    if (kflag) {
 		mykeylen = sizeof(key);
 		mykey = (void *)&poke[key].key;
@@ -170,15 +170,15 @@ main(int argc, char **argv)
     }
 
     /* mark the first and last as inactive, and cull the middle entry */
-    sprintf(name, "key-%d", poke[0].key);
+    pmsprintf(name, sizeof(name), "key-%d", poke[0].key);
     sts = pmdaCacheStore(indom, PMDA_CACHE_HIDE, name, NULL);
     if (sts < 0)
 	fprintf(stderr, "pmdaCacheStore(... HIDE \"%s\", ...) failed: %s\n", name, pmErrStr(sts));
-    sprintf(name, "key-%d", poke[dup-1].key);
+    pmsprintf(name, sizeof(name), "key-%d", poke[dup-1].key);
     sts = pmdaCacheStore(indom, PMDA_CACHE_HIDE, name, NULL);
     if (sts < 0)
 	fprintf(stderr, "pmdaCacheStore(... HIDE \"%s\", ...) failed: %s\n", name, pmErrStr(sts));
-    sprintf(name, "key-%d", poke[dup/2].key);
+    pmsprintf(name, sizeof(name), "key-%d", poke[dup/2].key);
     sts = pmdaCacheStore(indom, PMDA_CACHE_CULL, name, NULL);
     if (sts < 0)
 	fprintf(stderr, "pmdaCacheStore(... CULL \"%s\", ...) failed: %s\n", name, pmErrStr(sts));
@@ -186,7 +186,7 @@ main(int argc, char **argv)
     pmdaCacheOp(indom, PMDA_CACHE_DUMP);
 
     for (key = 0; key < dup; key++) {
-	sprintf(name, "key-%d", poke[key].key);
+	pmsprintf(name, sizeof(name), "key-%d", poke[key].key);
 
 	sts = pmdaCacheLookup(indom, poke[key].inst, &oname, &addr);
 	fprintf(stderr, "pmdaCacheLookup(... %d, ...)", poke[key].inst);
