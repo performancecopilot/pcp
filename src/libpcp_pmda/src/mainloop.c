@@ -314,11 +314,9 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 
     case PDU_LABEL_REQ:
 
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_LIBPMDA) {
+	if (pmDebugOptions.libpmda) {
 	    __pmNotifyErr(LOG_DEBUG, "Received PDU_LABEL_REQ\n");
 	}
-#endif
 
 	if ((sts = __pmDecodeLabelReq(pb, &ident, &type)) >= 0 &&
 	    HAVE_V_SEVEN(dispatch->comm.pmda_interface)) {
