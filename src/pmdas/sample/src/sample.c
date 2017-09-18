@@ -2920,24 +2920,6 @@ sample_label_cb(pmInDom indom, unsigned int inst, pmLabelSet **lp)
     return 0;
 }
 
-static pmDesc *
-sample_lookup_desc(pmID pmid)
-{
-    __pmID_int	*pmidp = (__pmID_int *)&pmid;
-    int		i;
-
-    if (direct_map) {
-	i = pmidp->item;
-	if (i < ndesc && desctab[i].pmid == pmid)
-	    return &desctab[i];
-    }
-    for (i = 0; desctab[i].pmid != PM_ID_NULL; i++) {
-	if (desctab[i].pmid == pmid)
-	    return &desctab[i];
-    }
-    return NULL;
-}
-
 static pmdaIndom *
 sample_lookup_indom(pmInDom indom)
 {
@@ -2951,23 +2933,20 @@ sample_lookup_indom(pmInDom indom)
 }
 
 static int
-sample_label_insts(pmID pmid, pmLabelSet **lpp)
+sample_label_insts(pmInDom indom, pmLabelSet **lpp)
 {
     pmLabelSet	*lp;
     pmdaIndom	*idp;
-    pmDesc	*dp;
     int		i, numinst;
 
     if (not_ready > 0)
 	return limbo();
 
-    if ((dp = sample_lookup_desc(pmid)) == NULL)
-	return PM_ERR_PMID;
-
-    if ((idp = sample_lookup_indom(dp->indom)) == NULL)
+    if (indom == PM_INDOM_NULL)
+	return 0;
+    if ((idp = sample_lookup_indom(indom)) == NULL)
 	return PM_ERR_INDOM;
-
-    if ((numinst = cntinst(dp->indom)) == 0)
+    if ((numinst = cntinst(indom)) == 0)
 	return numinst;
 
     if ((lp = (pmLabelSet *)calloc(numinst, sizeof(pmLabelSet))) == NULL)
@@ -2976,7 +2955,7 @@ sample_label_insts(pmID pmid, pmLabelSet **lpp)
     *lpp = lp;
     for (i = 0; i < numinst; i++, lp++) {
 	lp->inst = idp->it_set[i].i_inst;
-	sample_label_cb(dp->indom, lp->inst, &lp);
+	sample_label_cb(indom, lp->inst, &lp);
 	pmdaAddLabelFlags(lp, PM_LABEL_INSTANCES);
     }
     return numinst;
@@ -3002,7 +2981,7 @@ sample_label(int ident, int type, pmLabelSet **lp, pmdaExt *ep)
 	    break;
 	case PM_LABEL_INSTANCES:
 	    /* cannot use default handler, no indomtab */
-	    return sample_label_insts((pmID)ident, lp);
+	    return sample_label_insts((pmInDom)ident, lp);
 	default:
 	    break;
     }
