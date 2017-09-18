@@ -245,14 +245,14 @@ set_proc_fmt(void)
 	ndigit = (int)strlen(directp->d_name);
 	if (proc_entry_len == -1) {
 	    proc_entry_len = ndigit;
-	    sprintf(proc_fmt, "%%0%dd", proc_entry_len);
+	    pmsprintf(proc_fmt, sizeof(proc_fmt), "%%0%dd", proc_entry_len);
 	}
 	else if (ndigit != proc_entry_len) {
 	    /*
 	     * different lengths, so not fixed width ... this is the
 	     * Linux way
 	     */
-	    sprintf(proc_fmt, "%%d");
+	    pmsprintf(proc_fmt, sizeof(proc_fmt), "%%d");
 	    break;
 	}
     }
@@ -435,12 +435,12 @@ test_instance(void)
 	}
 	if (verbose)
 	    printf("  instance name %d --> \"%s\"\n", all_inst[i], name);  
-	sprintf(x, proc_fmt, all_inst[i]);
+	pmsprintf(x, sizeof(x), proc_fmt, all_inst[i]);
 	if (strncmp(name, x, strlen(x)) != 0 ||
 	    (name[strlen(x)] != '\0' && name[strlen(x)] != ' ')) {
 	    /* try w/out leading zeroes */
 	    char	*q;
-	    sprintf(x, "%d", all_inst[i]);
+	    pmsprintf(x, sizeof(x), "%d", all_inst[i]);
 	    for (q = name; *q && *q == '0'; q++)
 		;
 	    if (strncmp(q, x, strlen(x)) != 0 ||

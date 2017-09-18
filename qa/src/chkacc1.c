@@ -80,14 +80,14 @@ Options:\n\
 
     for (host = 0; host < WORD_BIT; host++) {
 	if (ipv4) {
-	    sprintf(name, "155.%d.%d.%d", host * 3, 17+host, host);
+	    pmsprintf(name, sizeof(name), "155.%d.%d.%d", host * 3, 17+host, host);
 	    if ((s = __pmAccAddHost(name, 1 << host, 1 << host, 0)) < 0) {
 		printf("cannot add inet host for op%d: %s\n", host, strerror(s));
 		sts = s;
 	    }
 	}
 	if (ipv6) {
-	    sprintf(name, "fec0::%x:%x:%x:%x:%x:%x",
+	    pmsprintf(name, sizeof(name), "fec0::%x:%x:%x:%x:%x:%x",
 		    host * 3, 17+host, host,
 		    host * 3, 17+host, host);
 	    if ((s = __pmAccAddHost(name, 1 << host, 1 << host, 0)) < 0) {
@@ -110,7 +110,7 @@ Options:\n\
 	for (host = 0; host < WORD_BIT; host++) {
 	    char	buf[20];
 
-	    sprintf(buf, "%d.%d.%d.%d", 155, host * 3, 17+host, host);
+	    pmsprintf(buf, sizeof(buf), "%d.%d.%d.%d", 155, host * 3, 17+host, host);
 	    if ((inaddr =__pmStringToSockAddr(buf)) == NULL) {
 		printf("insufficient memory\n");
 		continue;
@@ -132,7 +132,7 @@ Options:\n\
 	for (host = 0; host < WORD_BIT; host++) {
 	    char	buf[4*8 + 7 + 1]; /* handles full IPv6 address */
 
-	    sprintf(buf, "fec0::%x:%x:%x:%x:%x:%x",
+	    pmsprintf(buf, sizeof(buf), "fec0::%x:%x:%x:%x:%x:%x",
 		    host * 3, 17+host, host,
 		    host * 3, 17+host, host);
 	    if ((inaddr =__pmStringToSockAddr(buf)) == NULL) {

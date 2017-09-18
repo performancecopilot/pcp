@@ -41,9 +41,9 @@ main(int argc, char **argv)
     fprintf(rhp->f_config, "log mandatory on default sample.bin [ \"bin-400\" \"bin-800\" ]\n");
 
     sts = pmRecordControl(NULL, PM_REC_SETARG, "-t");
-    sprintf(buf, "%dsec", 1);
+    pmsprintf(buf, sizeof(buf), "%dsec", 1);
     sts += pmRecordControl(NULL, PM_REC_SETARG, buf);
-    sprintf(buf, "-T%dsec", 10);
+    pmsprintf(buf, sizeof(buf), "-T%dsec", 10);
     sts += pmRecordControl(NULL, PM_REC_SETARG, buf);
     if (sts < 0) {
 	printf("pmRecordControl(NULL, PM_REC_SETARG, NULL): %s\n",
