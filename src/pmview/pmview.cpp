@@ -15,11 +15,11 @@
 #include <QUrl>
 #include <QTimer>
 #include <QLibraryInfo>
-#include <QtGui/QDesktopServices>
-#include <QtGui/QApplication>
-#include <QtGui/QPrintDialog>
-#include <QtGui/QMessageBox>
-#include <QtGui/QWhatsThis>
+#include <QDesktopServices>
+#include <QApplication>
+#include <QPrintDialog>
+#include <QMessageBox>
+#include <QWhatsThis>
 
 #include <Inventor/nodes/SoPerspectiveCamera.h>
 #include <Inventor/nodes/SoSeparator.h>

@@ -13,7 +13,7 @@
  */
 #include <QSettings>
 #include <QTextStream>
-#include <QtGui/QMessageBox>
+#include <QMessageBox>
 #include <Inventor/nodes/SoCube.h>
 #include <Inventor/nodes/SoBaseColor.h>
 #include <Inventor/nodes/SoSeparator.h>
