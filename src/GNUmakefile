@@ -42,6 +42,7 @@ OTHER_SUBDIRS = \
 	genpmda \
 	newhelp \
 	pcp \
+	pcp2elasticsearch \
 	pcp2graphite \
 	pcp2influxdb \
 	pcp2zabbix \
