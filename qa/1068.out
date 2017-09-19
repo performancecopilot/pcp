@@ -13,7 +13,7 @@ body:
 		{
 			"host":"HOSTNAME",
 			"key":"pcp.sample.milliseconds",
-			"value":"380432147.45",
+			"value":"380432147.450",
 			"clock":957177405.57778},
 		{
 			"host":"HOSTNAME",
