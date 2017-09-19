@@ -44,6 +44,7 @@ OTHER_SUBDIRS = \
 	pcp \
 	pcp2graphite \
 	pcp2influxdb \
+	pcp2zabbix \
 	pmafm \
 	pmfind \
 	pmcpp \
