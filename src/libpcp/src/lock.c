@@ -170,15 +170,18 @@ __pmDebugLock(int op, void *lock, const char *file, int line)
     int			sts;
 
     if (lock == (void *)&__pmLock_libpcp) {
-	if (pmDebugOptions.appl0)
+	if (pmDebugOptions.appl0 ||
+	    (!pmDebugOptions.appl0 && !pmDebugOptions.appl1 && !pmDebugOptions.appl2))
 	    report = DBG_TRACE_APPL0;
     }
     else if ((ctx = __pmIsContextLock(lock)) >= 0) {
-	if (pmDebugOptions.appl1)
+	if (pmDebugOptions.appl1 ||
+	    (!pmDebugOptions.appl0 && !pmDebugOptions.appl1 && !pmDebugOptions.appl2))
 	    report = DBG_TRACE_APPL1;
     }
     else {
-	if (pmDebugOptions.appl2)
+	if (pmDebugOptions.appl2 ||
+	    (!pmDebugOptions.appl0 && !pmDebugOptions.appl1 && !pmDebugOptions.appl2))
 	    report = DBG_TRACE_APPL2;
     }
 
