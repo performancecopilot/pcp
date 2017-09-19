@@ -45,6 +45,7 @@ OTHER_SUBDIRS = \
 	pcp2elasticsearch \
 	pcp2graphite \
 	pcp2influxdb \
+	pcp2xml \
 	pcp2zabbix \
 	pmafm \
 	pmfind \
