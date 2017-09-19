@@ -54,7 +54,7 @@ mmv_noinit(const char *filename)
     void *addr = NULL;
     int sts;
 
-    snprintf(path, sizeof(path), "%s%c" "mmv" "%c%s",
+    pmsprintf(path, sizeof(path), "%s%c" "mmv" "%c%s",
 		pmGetConfig("PCP_TMP_DIR"), sep, sep, filename);
 
     fd = open(path, O_RDWR, 0644);
