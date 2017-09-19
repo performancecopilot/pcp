@@ -12,32 +12,6 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 
-# [zbxsend] Copyright (C) 2014 Sergey Kirillov <sergey.kirillov@gmail.com>
-# All rights reserved.
-#
-# Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following conditions
-# are met:
-#
-# 1. Redistributions of source code must retain the above copyright
-# notice, this list of conditions and the following disclaimer.
-#
-# 2. Redistributions in binary form must reproduce the above copyright
-# notice, this list of conditions and the following disclaimer in the
-# documentation and/or other materials provided with the distribution.
-#
-# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-# A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-# HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED
-# TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-# PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-# LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-# NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-# SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
 # pylint: disable=superfluous-parens, bad-whitespace
 # pylint: disable=invalid-name, line-too-long, no-self-use
 # pylint: disable=too-many-boolean-expressions, too-many-statements
@@ -84,8 +58,6 @@ CSVSEP  = ","
 CSVTIME = "%Y-%m-%d %H:%M:%S"
 OUTSEP  = "  "
 OUTTIME = "%H:%M:%S"
-ZBXPORT = 10051
-ZBXPRFX = "pcp."
 NO_VAL  = "N/A"
 NO_INST = "~"
 TRUNC   = "xxx"
@@ -94,76 +66,6 @@ TRUNC   = "xxx"
 OUTPUT_ARCHIVE = "archive"
 OUTPUT_CSV     = "csv"
 OUTPUT_STDOUT  = "stdout"
-OUTPUT_ZABBIX  = "zabbix"
-
-class ZabbixMetric(object): # pylint: disable=too-few-public-methods
-    """ A Zabbix metric """
-    def __init__(self, host, key, value, clock):
-        self.host = host
-        self.key = key
-        self.value = value
-        self.clock = clock
-
-    def __repr__(self):
-        return 'Metric(%r, %r, %r, %r)' % (self.host, self.key, self.value, self.clock)
-
-def recv_from_zabbix(sock, count):
-    """ Receive a response from a Zabbix server. """
-    buf = b''
-    while len(buf) < count:
-        chunk = sock.recv(count - len(buf))
-        if not chunk:
-            return buf
-        buf += chunk
-    return buf
-
-def send_to_zabbix(metrics, zabbix_host, zabbix_port, timeout=15):
-    """ Send a set of metrics to a Zabbix server. """
-    j = json.dumps
-    # Zabbix has a very fragile JSON parser, so we cannot use json to
-    # dump the whole packet
-    metrics_data = []
-    for m in metrics:
-        clock = m.clock or time.time()
-        metrics_data.append(('\t\t{\n'
-                             '\t\t\t"host":%s,\n'
-                             '\t\t\t"key":%s,\n'
-                             '\t\t\t"value":%s,\n'
-                             '\t\t\t"clock":%.5f}') % (j(m.host), j(m.key), j(m.value), clock))
-    json_data = ('{\n'
-                 '\t"request":"sender data",\n'
-                 '\t"data":[\n%s]\n'
-                 '}') % (',\n'.join(metrics_data))
-
-    data_len = struct.pack('<Q', len(json_data))
-    packet = b'ZBXD\1' + data_len + json_data.encode('utf-8')
-    try:
-        zabbix = socket.socket()
-        zabbix.connect((zabbix_host, zabbix_port))
-        zabbix.settimeout(timeout)
-        # send metrics to zabbix
-        zabbix.sendall(packet)
-        # get response header from zabbix
-        resp_hdr = recv_from_zabbix(zabbix, 13)
-        if not bytes.decode(resp_hdr).startswith('ZBXD\1') or len(resp_hdr) != 13:
-            # debug: write('Invalid Zabbix response len=%d' % len(resp_hdr))
-            return False
-        resp_body_len = struct.unpack('<Q', resp_hdr[5:])[0]
-        # get response body from zabbix
-        resp_body = zabbix.recv(resp_body_len)
-        resp = json.loads(bytes.decode(resp_body))
-        # debug: write('Got response from Zabbix: %s' % resp)
-        if resp.get('response') != 'success':
-            sys.stderr.write('Error response from Zabbix: %s', resp)
-            sys.stderr.flush()
-            return False
-        return True
-    except socket.timeout as err:
-        sys.stderr.write("Zabbix connection timed out: " + str(err))
-        sys.stderr.flush()
-        return False
-    finally:
-        zabbix.close()
 
 class PMReporter(object):
     """ Report PCP metrics """
@@ -179,7 +81,6 @@ class PMReporter(object):
                      'delay', 'width', 'delimiter',
                      'extheader', 'repeat_header', 'timefmt', 'interpol',
                      'count_scale', 'space_scale', 'time_scale', 'version',
-                     'zabbix_server', 'zabbix_port', 'zabbix_host', 'zabbix_interval',
                      'speclocal', 'instances', 'ignore_incompat', 'omit_flat')
 
         # Special command line switches
@@ -246,14 +147,6 @@ class PMReporter(object):
 
         self.tmp = []
 
-        # Zabbix integration
-        self.zabbix_server = None
-        self.zabbix_port = ZBXPORT
-        self.zabbix_host = None
-        self.zabbix_interval = None
-        self.zabbix_prevsend = None
-        self.zabbix_metrics = []
-
     def options(self):
         """ Setup default command line argument option handling """
         opts = pmapi.pmOptions()
@@ -271,7 +164,7 @@ class PMReporter(object):
         opts.pmSetLongOptionSpecLocal()    # -K/--spec-local
         opts.pmSetLongOption("config", 1, "c", "FILE", "config file path")
         opts.pmSetLongOption("check", 0, "C", "", "check config and metrics and exit")
-        opts.pmSetLongOption("output", 1, "o", "OUTPUT", "output target: archive, csv, stdout (default), or zabbix")
+        opts.pmSetLongOption("output", 1, "o", "OUTPUT", "output target: archive, csv, stdout (default)")
         opts.pmSetLongOption("output-file", 1, "F", "OUTFILE", "output file")
         opts.pmSetLongOption("derived", 1, "e", "FILE|DFNT", "derived metrics definitions")
         opts.pmSetLongOptionDebug()        # -D/--debug
@@ -334,8 +227,6 @@ class PMReporter(object):
                 self.output = OUTPUT_CSV
             elif optarg == OUTPUT_STDOUT:
                 self.output = OUTPUT_STDOUT
-            elif optarg == OUTPUT_ZABBIX:
-                self.output = OUTPUT_ZABBIX
             else:
                 sys.stderr.write("Invalid output target %s specified.\n" % optarg)
                 sys.exit(1)
@@ -667,11 +558,6 @@ class PMReporter(object):
             sys.stderr.write("Archive must be defined with archive output.\n")
             sys.exit(1)
 
-        if self.output == OUTPUT_ZABBIX and (not self.zabbix_server or \
-           not self.zabbix_port or not self.zabbix_host):
-            sys.stderr.write("zabbix_server, zabbix_port, and zabbix_host must be defined with Zabbix.\n")
-            sys.exit(1)
-
         # Runtime overrides samples/interval
         if self.opts.pmGetOptionFinishOptarg():
             self.runtime = float(self.opts.pmGetOptionFinish()) - float(self.opts.pmGetOptionOrigin())
@@ -697,14 +583,6 @@ class PMReporter(object):
         if float(self.interval) <= 0:
             sys.stderr.write("Interval must be greater than zero.\n")
             sys.exit(1)
-
-        if self.output == OUTPUT_ZABBIX:
-            if self.zabbix_interval:
-                self.zabbix_interval = float(pmapi.timeval.fromInterval(self.zabbix_interval))
-                if self.zabbix_interval < float(self.interval):
-                    self.zabbix_interval = float(self.interval)
-            else:
-                self.zabbix_interval = float(self.interval)
 
     def check_metric(self, metric):
         """ Validate individual metric and get its details """
@@ -858,8 +736,7 @@ class PMReporter(object):
             # Rawness
             if self.metrics[metric][3] == 'raw' or self.type == 1 or \
                self.output == OUTPUT_ARCHIVE or \
-               self.output == OUTPUT_CSV or \
-               self.output == OUTPUT_ZABBIX:
+               self.output == OUTPUT_CSV:
                 self.metrics[metric][3] = 1
             else:
                 self.metrics[metric][3] = 0
@@ -1091,14 +968,11 @@ class PMReporter(object):
             self.write_csv(tstamp)
         if self.output == OUTPUT_STDOUT:
             self.write_stdout(tstamp)
-        if self.output == OUTPUT_ZABBIX:
-            self.write_zabbix(tstamp)
 
     def prepare_writer(self):
         """ Prepare generic stdout writer """
         if not self.writer:
             if self.output == OUTPUT_ARCHIVE or \
-               self.output == OUTPUT_ZABBIX or \
                self.outfile is None:
                 self.writer = sys.stdout
             else:
@@ -1289,23 +1163,6 @@ class PMReporter(object):
                 self.writer.write(self.format.format(*tuple(insts)) + "\n")
             if self.unitinfo:
                 self.writer.write(self.format.format(*tuple(units)) + "\n")
-
-        if self.output == OUTPUT_ZABBIX:
-            if self.context.type == PM_CONTEXT_ARCHIVE:
-                self.delay = 0
-                self.interpol = 0
-                self.zabbix_interval = 250 # See zabbix_sender(8)
-                self.writer.write("Sending %d archived metrics to Zabbix server %s...\n(Ctrl-C to stop)\n" % (len(self.metrics), self.zabbix_server))
-                return
-
-            self.writer.write("Sending %d metrics to Zabbix server %s every %d sec" % (len(self.metrics), self.zabbix_server, self.zabbix_interval))
-            if self.runtime != -1:
-                self.writer.write(":\n%s samples(s) with %.1f sec interval ~ %d sec runtime.\n" % (self.samples, float(self.interval), self.runtime))
-            elif self.samples:
-                duration = (self.samples - 1) * float(self.interval)
-                self.writer.write(":\n%s samples(s) with %.1f sec interval ~ %d sec runtime.\n" % (self.samples, float(self.interval), duration))
-            else:
-                self.writer.write("...\n(Ctrl-C to stop)\n")
 
     def write_archive(self, timestamp):
         """ Write an archive record """
@@ -1624,44 +1481,6 @@ class PMReporter(object):
 
         self.writer.write(output)
 
-    def write_zabbix(self, timestamp):
-        """ Write (send) metrics to a Zabbix server """
-        if timestamp is None:
-            # Send any remaining buffered values
-            if self.zabbix_metrics:
-                send_to_zabbix(self.zabbix_metrics, self.zabbix_server, self.zabbix_port)
-                self.zabbix_metrics = []
-            return
-
-        # Collect the results
-        td = self.pmfg_ts() - datetime.fromtimestamp(0)
-        ts = (td.microseconds + (td.seconds + td.days * 24.0 * 3600.0) * 10.0**6) / 10.0**6
-        if self.zabbix_prevsend is None:
-            self.zabbix_prevsend = ts
-        for _, metric in enumerate(self.metrics):
-            try:
-                for inst, name, val in self.metrics[metric][5](): # pylint: disable=unused-variable
-                    key = ZBXPRFX + metric
-                    if name:
-                        key += "[" + name + "]"
-                    try:
-                        value = str(val())
-                        self.zabbix_metrics.append(ZabbixMetric(self.zabbix_host, key, value, ts))
-                    except:
-                        pass
-            except:
-                pass
-
-        # Send when needed
-        if self.context.type == PM_CONTEXT_ARCHIVE:
-            if len(self.zabbix_metrics) >= self.zabbix_interval:
-                send_to_zabbix(self.zabbix_metrics, self.zabbix_server, self.zabbix_port)
-                self.zabbix_metrics = []
-        elif ts - self.zabbix_prevsend > self.zabbix_interval:
-            send_to_zabbix(self.zabbix_metrics, self.zabbix_server, self.zabbix_port)
-            self.zabbix_metrics = []
-            self.zabbix_prevsend = ts
-
     def finalize(self):
         """ Finalize and clean up """
         if self.writer:
@@ -1675,9 +1494,6 @@ class PMReporter(object):
         if self.pmi:
             self.pmi.pmiEnd()
             self.pmi = None
-        if self.zabbix_metrics:
-            send_to_zabbix(self.zabbix_metrics, self.zabbix_server, self.zabbix_port)
-            self.zabbix_metrics = []
 
 if __name__ == '__main__':
     try:
