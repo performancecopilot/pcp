@@ -552,7 +552,7 @@ Requires: pcp-libs = %{version}-%{release}
 Performance Co-Pilot (PCP) module for exporting metrics from PCP to
 Zabbix via the Zabbix agent - see zbxpcp(3) for further details.
 
-%if "@have_python@" == "true"
+%if "@pcp2elasticsearch@" == "true"
 #
 # pcp-export-pcp2elasticsearch
 #
@@ -574,7 +574,9 @@ Requires: python-elasticsearch
 Performance Co-Pilot (PCP) front-end tools for exporting metric values
 to Elasticsearch - a distributed, RESTful search and analytics engine.
 See https://www.elastic.co/community for further details.
+%endif
 
+%if "@have_python@" == "true"
 #
 # pcp-export-pcp2graphite
 #
@@ -635,25 +637,6 @@ Performance Co-Pilot (PCP) front-end tools for exporting metric values
 in JSON format.
 
 #
-# pcp-export-pcp2xlsx
-#
-%package export-pcp2xlsx
-License: GPLv2+
-Group: Applications/System
-Summary: Performance Co-Pilot tools for exporting PCP metrics to Excel
-URL: http://www.pcp.io
-Requires: pcp-libs >= %{version}-%{release}
-%if "@enable_python3@" == "true"
-Requires: python3-pcp = @package_version@
-%else
-Requires: python-pcp = @package_version@
-%endif
-
-%description export-pcp2xlsx
-Performance Co-Pilot (PCP) front-end tools for exporting metric values
-in Excel spreadsheet format.
-
-#
 # pcp-export-pcp2xml
 #
 %package export-pcp2xml
@@ -690,6 +673,27 @@ Requires: python-pcp = @package_version@
 %description export-pcp2zabbix
 Performance Co-Pilot (PCP) front-end tools for exporting metric values
 to the Zabbix (https://www.zabbix.org/) monitoring software.
+%endif
+
+%if "@pcp2xlsx@" == "true"
+#
+# pcp-export-pcp2xlsx
+#
+%package export-pcp2xlsx
+License: GPLv2+
+Group: Applications/System
+Summary: Performance Co-Pilot tools for exporting PCP metrics to Excel
+URL: http://www.pcp.io
+Requires: pcp-libs >= %{version}-%{release}
+%if "@enable_python3@" == "true"
+Requires: python3-pcp = @package_version@
+%else
+Requires: python-pcp = @package_version@
+%endif
+
+%description export-pcp2xlsx
+Performance Co-Pilot (PCP) front-end tools for exporting metric values
+in Excel spreadsheet format.
 %endif
 
 %if "@enable_python2@" == "true"
@@ -2139,12 +2143,16 @@ awk '{print $NF}' $DIST_MANIFEST | egrep 'sheet2pcp' >import_sheet2pcp_files
 awk '{print $NF}' $DIST_MANIFEST | egrep 'mrtg2pcp' >import_mrtg2pcp_files
 awk '{print $NF}' $DIST_MANIFEST | egrep 'ganglia2pcp' >import_ganglia2pcp_files
 awk '{print $NF}' $DIST_MANIFEST | egrep 'collectl2pcp' >import_collectl2pcp_files
-%if "@have_python@" == "true"
+%if "@pcp2elasticsearch@" == "true"
 awk '{print $NF}' $DIST_MANIFEST | egrep 'pcp2elasticsearch' >export_pcp2elasticsearch_files
+%endif
+%if "@pcp2xlsx@" == "true"
+awk '{print $NF}' $DIST_MANIFEST | egrep 'pcp2xlsx' >export_pcp2xlsx_files
+%endif
+%if "@have_python@" == "true"
 awk '{print $NF}' $DIST_MANIFEST | egrep 'pcp2graphite' >export_pcp2graphite_files
 awk '{print $NF}' $DIST_MANIFEST | egrep 'pcp2influxdb' >export_pcp2influxdb_files
 awk '{print $NF}' $DIST_MANIFEST | egrep 'pcp2json' >export_pcp2json_files
-awk '{print $NF}' $DIST_MANIFEST | egrep 'pcp2xlsx' >export_pcp2xlsx_files
 awk '{print $NF}' $DIST_MANIFEST | egrep 'pcp2xml' >export_pcp2xml_files
 awk '{print $NF}' $DIST_MANIFEST | egrep 'pcp2zabbix' >export_pcp2zabbix_files
 %endif
@@ -2397,13 +2405,17 @@ BEGIN {
     while( getline < "pmda_unbound_files") pmda_unbound[$0]=1;
     while( getline < "pmda_mic_files") pmda_mic[$0]=1;
     while( getline < "pmda_haproxy_files") pmda_haproxy[$0]=1;
-    while( getline < "export_pcp2elasticsearch_files") export_pcp2elasticsearch[$0]=1;
     while( getline < "export_pcp2graphite_files") export_pcp2graphite[$0]=1;
     while( getline < "export_pcp2influxdb_files") export_pcp2influxdb[$0]=1;
     while( getline < "export_pcp2json_files") export_pcp2json[$0]=1;
-    while( getline < "export_pcp2xlsx_files") export_pcp2xlsx[$0]=1;
     while( getline < "export_pcp2xml_files") export_pcp2xml[$0]=1;
     while( getline < "export_pcp2zabbix_files") export_pcp2zabbix[$0]=1;
+%endif
+%if "@pcp2elasticsearch@" == "true"
+    while( getline < "export_pcp2elasticsearch_files") export_pcp2elasticsearch[$0]=1;
+%endif
+%if "@pcp2xlsx@" == "true"
+    while( getline < "export_pcp2xlsx_files") export_pcp2xlsx[$0]=1;
 %endif
     while( getline < "export_zabbix_agent_files") export_zabbix_agent[$0]=1;
 %if "@pmda_json@" == "true"
@@ -2524,13 +2536,17 @@ BEGIN {
     else if (pmda_unbound[$NF]) f="pmda_unbound_files.rpm";
     else if (pmda_mic[$NF]) f="pmda_mic_files.rpm";
     else if (pmda_haproxy[$NF]) f="pmda_haproxy_files.rpm";
-    else if (export_pcp2elasticsearch[$NF]) f="export_pcp2elasticsearch_files.rpm";
     else if (export_pcp2graphite[$NF]) f="export_pcp2graphite_files.rpm";
     else if (export_pcp2influxdb[$NF]) f="export_pcp2influxdb_files.rpm";
     else if (export_pcp2json[$NF]) f="export_pcp2json_files.rpm";
-    else if (export_pcp2xlsx[$NF]) f="export_pcp2xlsx_files.rpm";
     else if (export_pcp2xml[$NF]) f="export_pcp2xml_files.rpm";
     else if (export_pcp2zabbix[$NF]) f="export_pcp2zabbix_files.rpm";
+%endif
+%if "@pcp2elasticsearch@" == "true"
+    else if (export_pcp2elasticsearch[$NF]) f="export_pcp2elasticsearch_files.rpm";
+%endif
+%if "@pcp2xlsx@" == "true"
+    else if (export_pcp2xlsx[$NF]) f="export_pcp2xlsx_files.rpm";
 %endif
     else if (export_zabbix_agent[$NF]) f="export_zabbix_agent_files.rpm";
 %if "@pmda_json@" == "true"
@@ -3282,19 +3298,23 @@ cd
 
 %files pmda-haproxy -f pmda_haproxy_files.rpm
 
-%files export-pcp2elasticsearch -f export_pcp2elasticsearch_files.rpm
-
 %files export-pcp2graphite -f export_pcp2graphite_files.rpm
 
 %files export-pcp2influxdb -f export_pcp2influxdb_files.rpm
 
 %files export-pcp2json -f export_pcp2json_files.rpm
 
-%files export-pcp2xlsx -f export_pcp2xlsx_files.rpm
-
 %files export-pcp2xml -f export_pcp2xml_files.rpm
 
 %files export-pcp2zabbix -f export_pcp2zabbix_files.rpm
+%endif
+
+%if "@pcp2elasticsearch@" == "true"
+%files export-pcp2elasticsearch -f export_pcp2elasticsearch_files.rpm
+%endif
+
+%if "@pcp2xlsx@" == "true"
+%files export-pcp2xlsx -f export_pcp2xlsx_files.rpm
 %endif
 
 %files export-zabbix-agent -f export_zabbix_agent_files.rpm
