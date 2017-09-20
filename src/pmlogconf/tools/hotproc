@@ -1,0 +1,18 @@
+#pmlogconf-setup 2.0
+ident   per-process hotproc metrics
+probe   hotproc.control.config != "" ? include : exclude
+
+	hotproc.psinfo.psargs
+	hotproc.psinfo.cnswap
+	hotproc.psinfo.nswap
+	hotproc.psinfo.rss
+	hotproc.psinfo.vsize
+	hotproc.psinfo.cstime
+	hotproc.psinfo.cutime
+	hotproc.psinfo.stime
+	hotproc.psinfo.utime
+	hotproc.io.read_bytes
+	hotproc.io.write_bytes
+	hotproc.schedstat.cpu_time
+	hotproc.fd.count
+	hotproc.total

@@ -17,8 +17,8 @@
 #include <QList>
 #include <QtGui/QColor>
 #include <QtGui/QPainter>
-#include <QtGui/QDockWidget>
-#include <QtGui/QAbstractButton>
+#include <QDockWidget>
+#include <QAbstractButton>
 #include "qed_groupcontrol.h"
 #include "qmc_metric.h"
 #include "qmc_group.h"

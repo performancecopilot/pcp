@@ -84,6 +84,7 @@ resize(int fd)
 {
     size_t size;
     int	oldcount;
+    __pmIPC	*tmp__pmIPCTable;
 
     PM_ASSERT_IS_LOCKED(ipc_lock);
 
@@ -96,9 +97,12 @@ resize(int fd)
 	while (fd >= ipctablecount)
 	    ipctablecount *= 2;
 	size = ipcentrysize * ipctablecount;
-	__pmIPCTable = (__pmIPC *)realloc(__pmIPCTable, size);
-	if (__pmIPCTable == NULL)
+	tmp__pmIPCTable = (__pmIPC *)realloc(__pmIPCTable, size);
+	if (tmp__pmIPCTable == NULL) {
+	    ipctablecount = oldcount;
 	    return -oserror();
+	}
+	__pmIPCTable = tmp__pmIPCTable;
 	size -= ipcentrysize * oldcount;
 	memset(__pmIPCTablePtr(oldcount), 0, size);
     }
