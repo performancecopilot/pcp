@@ -42,6 +42,11 @@ else
     trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
 fi
 
+if [ -f /etc/pcp.conf ]
+then
+    . /etc/pcp.conf
+fi
+
 # same function is in allow-pmlc-access ... need to track changes
 #
 _getnetworkaddr()
@@ -1202,19 +1207,22 @@ fi
 # If we are sure which version of Python we're using, remove lines
 # for the other versions
 #
-if `which pmpython >/dev/null 2>&1`
+if [ -n "$PCP_PYTHON_PROG" ]
 then
-    pyver=`pmpython --version 2>&1 | sed -e 's/^[^0-9]*//' -e 's/\..*//'`
-    if [ -z "$pyver" ]
+    if which "$PCP_PYTHON_PROG" >/dev/null 2>&1
     then
-	echo "Warning: cannot get Python version from: `pmpython --version`"
-    else
-	#debug# echo "pyver=$pyver"
-	sed <$tmp.main >$tmp.tmp -e '/\/python[0-9]/{
+	pyver=`$PCP_PYTHON_PROG --version 2>&1 | sed -e 's/^[^0-9]*//' -e 's/\..*//'`
+	if [ -z "$pyver" ]
+	then
+	    echo "Warning: cannot get Python version from: `$PCP_PYTHON_PROG --version`"
+	else
+	    #debug# echo "pyver=$pyver"
+	    sed <$tmp.main >$tmp.tmp -e '/\/python[0-9]/{
 /\/python'"$pyver"'[./]/!d
 }'
-	#debug# diff $tmp.main $tmp.tmp
-	mv $tmp.tmp $tmp.main
+	    #debug# diff $tmp.main $tmp.tmp
+	    mv $tmp.tmp $tmp.main
+	fi
     fi
 fi
 
@@ -1603,10 +1611,8 @@ then
     fi
 fi
 
-if [ -f /etc/pcp.conf ]
+if [ -n "$PCP_VAR_DIR" ]
 then
-    . /etc/pcp.conf
-
     # need QA access to pmlogger via pmlc from local subnet
     #
     network=`_getnetworkaddr`
