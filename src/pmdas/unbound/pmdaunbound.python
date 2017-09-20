@@ -1352,7 +1352,7 @@ class UnboundPMDA(PMDA):
         PMDA.__init__(self, name, domain)
         self.patherrors = 0
         self.fileerrors = 0
-        ctl = getenv('UNBOUND_STATS', '/usr/sbin/unbound-control stats_noreset')
+        ctl = getenv('PCP_UNBOUND_STATS', '/usr/sbin/unbound-control stats_noreset')
         self.unboundctl = shlex.split(ctl)
 
         self.values = {}
