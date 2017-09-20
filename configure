@@ -826,7 +826,9 @@ have_python_six
 have_python_libvirt
 have_python_requests
 have_python_setuptools
+have_python_xlsxwriter
 have_python_jsonpointer
+have_python_Elasticsearch
 have_python_OrderedDict
 pcp_python_prog
 have_python
@@ -7255,6 +7257,28 @@ $as_echo "no" >&6; }
     fi
 
 
+ { $as_echo "$as_me:${as_lineno-$LINENO}: checking for Python module Elasticsearch" >&5
+$as_echo_n "checking for Python module Elasticsearch... " >&6; }
+    if test -n "from elasticsearch import Elasticsearch"
+    then
+	txt="from elasticsearch import Elasticsearch"
+    else
+	txt="import Elasticsearch"
+    fi
+    $pcp_python_prog -c 'import sys;
+'"$txt" >>config.log 2>&1
+    if test "$?" = 0
+    then
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+	eval have_python_Elasticsearch=true
+    else
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+	eval have_python_Elasticsearch=false
+    fi
+
+
  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for Python module jsonpointer" >&5
 $as_echo_n "checking for Python module jsonpointer... " >&6; }
     if test -n ""
@@ -7274,6 +7298,28 @@ $as_echo "yes" >&6; }
 	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
 $as_echo "no" >&6; }
 	eval have_python_jsonpointer=false
+    fi
+
+
+ { $as_echo "$as_me:${as_lineno-$LINENO}: checking for Python module xlsxwriter" >&5
+$as_echo_n "checking for Python module xlsxwriter... " >&6; }
+    if test -n ""
+    then
+	txt=""
+    else
+	txt="import xlsxwriter"
+    fi
+    $pcp_python_prog -c 'import sys;
+'"$txt" >>config.log 2>&1
+    if test "$?" = 0
+    then
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+	eval have_python_xlsxwriter=true
+    else
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+	eval have_python_xlsxwriter=false
     fi
 
 
