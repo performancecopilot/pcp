@@ -36,7 +36,6 @@ import time
 import pickle
 import requests
 import threading
-from multiprocessing import Process
 
 
 MAX_CLUSTER = 0xfff    # ~ max. number of prometheus sources
@@ -57,6 +56,7 @@ class Metric(object):
 	''' Metric information class '''
 	def __init__(self,source,name,metricnum,instances,pcpline,helpline,typeline):
                 self.source = source
+                self.name = name
 		self.pmid = source.pmda.pmid(source.cluster,metricnum)
                 self.indom_number = (MAX_CLUSTER+1 +
                                      (source.cluster * (MAX_METRIC+1)) +
@@ -64,15 +64,19 @@ class Metric(object):
                 self.instances = PersistentNameTable(self.source.pmda,
                                                      self.indom_number,
                                                      MAX_INDOM)
-                # XXXX PCP - real name; : unquoting
+                # XXXX PCP - real name; : unquoting; heuristics galore
                 self.mtype = c_api.PM_TYPE_DOUBLE
-                self.msem = c_api.PM_SEM_INSTANT
-                self.munits = pmUnits(0,0,0,0,0,0)
+                self.msem = c_api.PM_SEM_INSTANT   # XXX
+                self.munits = pmUnits(0,0,0,0,0,0) # XXX
                 if instances:
                         self.mindom = self.indom_number
                 else:
                         self.mindom = c_api.PM_INDOM_NULL
                 self.obj = pmdaMetric(self.pmid,self.mtype,self.mindom,self.msem,self.munits)
+                self.mname = self.source.name + '.' + self.name.replace(":",".") # XXX
+                self.description = helpline # XXX unescape
+                self.source.pmda.add_metric(self.mname, self.obj, self.description)
+                self.source.pmda.debug("created metric %x (%s)" % (self.pmid, self.mname))
                 pass
 
         def clear_values(self):
@@ -88,9 +92,8 @@ class Metric(object):
 class PersistentNameTable(object):
 	'''Persistent name table.  Answers name-to-number queries by assigning
         persistent ids.  Updates pmda's indom table intermittently.
-        Persistent by saving dictionary in $PCP_VAR_DIR/pmda/,
+        Persistent by saving dictionary in $PCP_VAR_DIR/pmdas/,
         similarly to how pmdaCache functions do.
-
         '''
  
 	def __init__(self,pmda,indom,maxnum):
@@ -99,12 +102,12 @@ class PersistentNameTable(object):
                 self.maxnum = maxnum
                 self.need_save = False
                 self.store_file_name = '%s/pmdas/%d.%d.py' % (os.environ['PCP_VAR_DIR'],
-                                                             pmda.domain, indom)
+                                                              pmda.domain, indom)
                 try: # slightly used!
                         with open(self.store_file_name,'r') as f:
                                 self.instances = pickle.load(f)
                                 self.pmda.debug("loaded %s" % self.store_file_name)
-                                self.need_save = True
+                                self.need_save = True # for pmda purposes at least
                 except Exception as e: # new!
                         self.instances = [] # won't be saved till nonempty
 
@@ -228,6 +231,8 @@ class SampleLineParser(object):
                         self.lvalue += char
                                               
         def parse_label_value_escapechar(self,char):
+                # XXX: maybe pass through \-escaped identifiers literally through to pcp
+                # otherwise we'd have to filter them out at indom-instance-name creation
                 if char == '\\':
                         self.state = self.parse_label_value
                         self.lvalue += '\\'
