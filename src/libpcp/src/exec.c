@@ -1,0 +1,196 @@
+/*
+ * pmProcessExec() and friends.
+ *
+ * Copyright (c) 2017 Ken McDonell.  All Rights Reserved.
+ * 
+ * This library is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation; either version 2.1 of the License, or
+ * (at your option) any later version.
+ * 
+ * This library is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+ * License for more details.
+ *
+ * Thread-safe notes
+ *	TODO
+ */
+
+#include <stdarg.h>
+#include <sys/stat.h> 
+
+#include "pmapi.h"
+#include "impl.h"
+#include "internal.h"
+#include <sys/types.h>
+#include <sys/wait.h>
+
+typedef struct __pmExecCtl {
+    int		argc;
+    char	**argv;
+} __pmExecCtl_t;
+
+/*
+ * Built array of arguments for use in pmProcessExec() or
+ * pmProcessPipe()
+ */
+int
+__pmProcessAddArg(__pmExecCtl_t **handle, char *arg)
+{
+    __pmExecCtl_t	*ep;
+    char		**tmp_argv;
+
+    if (*handle == NULL) {
+	/* first call in a sequence */
+	if ((ep = (__pmExecCtl_t *)malloc(sizeof(__pmExecCtl_t))) == NULL) {
+	    __pmNoMem("pmProcessAddArg: __pmExecCtl_t malloc", sizeof(__pmExecCtl_t), PM_RECOV_ERR);
+	    return -ENOMEM;
+	}
+	ep->argc = 0;
+	if ((ep->argv = (char **)malloc(sizeof(ep->argv[0]))) == NULL) {
+	    __pmNoMem("pmProcessAddArg: argv malloc", sizeof(ep->argv[0]), PM_RECOV_ERR);
+	    free(ep);
+	    return -ENOMEM;
+	}
+    }
+    else
+	ep = *handle;
+
+    ep->argc++;
+
+    if ((tmp_argv = (char **)realloc(ep->argv, sizeof(ep->argv[0])*(ep->argc+1))) == NULL) {
+	__pmNoMem("pmProcessAddArg: argv realloc", sizeof(ep->argv[0])*(ep->argc+1), PM_RECOV_ERR);
+	free(ep->argv);
+	free(ep);
+	*handle = NULL;
+	return -ENOMEM;
+    }
+    else
+	ep->argv = tmp_argv;
+
+    if ((ep->argv[ep->argc-1] = strdup(arg)) == NULL) {
+	__pmNoMem("pmProcessAddArg: arg strdup", strlen(arg), PM_RECOV_ERR);
+	ep->argc--;
+	while (ep->argc >= 1) {
+	    free(ep->argv[ep->argc-1]);
+	    ep->argc--;
+	}
+	free(ep->argv);
+	free(ep);
+	*handle = NULL;
+	return -ENOMEM;
+    }
+
+    *handle = ep;
+    return 0;
+}
+
+/*
+ * Like system(3), but uses execvp() and the array of args built
+ * by __pmProcessAddArg().
+ *
+ * If toss&PM_EXEC_TOSS_STDIN, reassign stdin to /dev/null.
+ * If toss&PM_EXEC_TOSS_STDOUT, reassign stdout to /dev/null.
+ * If toss&PM_EXEC_TOSS_STDERR, reassign stderr to /dev/null.
+ *
+ * If wait == PM_EXEC_WAIT, wait for the child process to exit and
+ * return 0 if exit status is 0, else return -1 and the status
+ * from waitpid() is returned via status.
+ * Otherwise, don't wait and return 0.
+ *
+ * If the fork() fails before we even get to the execvp(), return
+ * -errno.
+ */
+int
+__pmProcessExec(__pmExecCtl_t **handle, int toss, int wait, int *status)
+{
+    __pmExecCtl_t	*ep = *handle;
+    int			i;
+    pid_t		pid;
+    int			sts;
+
+    if (pmDebugOptions.exec) {
+	fprintf(stderr, "pmProcessExec: argc=%d", ep->argc);
+	for (i = 0; i < ep->argc; i++)
+	    fprintf(stderr, " \"%s\"", ep->argv[i]);
+	fputc('\n', stderr);
+    }
+
+    ep->argv[ep->argc] = NULL;
+
+    /* fork-n-exec and (maybe) wait */
+    pid = fork();
+    if (pid == (pid_t)0) {
+	/* child */
+	char	*p;
+	char	*path;
+	path = ep->argv[0];
+	p = &path[strlen(ep->argv[0])-1];
+	while (p > ep->argv[0]) {
+	    p--;
+	    if (*p == '/') {
+		path = &p[1];
+		break;
+	    }
+	}
+	if (toss & PM_EXEC_TOSS_STDIN)
+	    freopen("/dev/null", "r", stdin);
+	if (toss & PM_EXEC_TOSS_STDOUT)
+	    freopen("/dev/null", "w", stdout);
+	if (toss & PM_EXEC_TOSS_STDERR)
+	    freopen("/dev/null", "w", stderr);
+	sts = execvp(path, (char * const *)ep->argv);
+	/* oops, not supposed to get here */
+	exit(127);
+    }
+    else if (pid > (pid_t)0) {
+	/* parent */
+	if (wait == PM_EXEC_WAIT) {
+	    pid_t	wait_pid;
+	    wait_pid = waitpid(pid, status, 0);
+	    if (wait_pid == pid) {
+		if (WIFEXITED(*status)) {
+		    sts = WEXITSTATUS(*status);
+		    if (sts != 0)
+			sts = -1;
+		}
+		else
+		    sts = -1;
+	    }
+	    else
+		sts = -oserror();
+	}
+	else
+	    sts = 0;
+    }
+    else
+	sts = -oserror();
+
+    /* cleanup the malloc'd control structures */
+    for (i = 0; i < ep->argc; i++)
+	free(ep->argv[i]);
+    free(ep->argv);
+    free(ep);
+
+    return sts;
+}
+
+/*
+ * Like popen(3), but uses execvp() and the array of args built
+ * __pmProcessAddArg().
+ */
+FILE *
+__pmProcessPipe(__pmExecCtl_t **handle, const char *type, int *status)
+{
+    return NULL;	/* NYI */
+}
+
+/*
+ * Like pclose(3), but pipe created by pmProcessPipe()
+ */
+int
+__pmProcessPipeClose(FILE *stream)
+{
+    return PM_ERR_NYI;
+}

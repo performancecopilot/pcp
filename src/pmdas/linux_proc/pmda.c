@@ -1740,12 +1740,18 @@ proc_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaEx
 
     sts = PM_ERR_PERMISSION;
     have_access = all_access || proc_ctx_access(pmda->e_context);
+    if (pmDebugOptions.auth)
+	fprintf(stderr, "proc_instance: initial access have=%d all=%d proc_ctx_access=%d\n", have_access, all_access, proc_ctx_access(pmda->e_context));
+
     if (have_access ||
 	((serial != PROC_INDOM) && (serial != HOTPROC_INDOM))) {
 	if ((sts = proc_refresh(pmda, need_refresh)) == 0)
 	    sts = pmdaInstance(indom, inst, name, result, pmda);
     }
+
     have_access = all_access || proc_ctx_revert(pmda->e_context);
+    if (pmDebugOptions.auth)
+	fprintf(stderr, "proc_instance: final access have=%d all=%d proc_ctx_revert=%d\n", have_access, all_access, proc_ctx_revert(pmda->e_context));
 
     return sts;
 }
@@ -3055,9 +3061,15 @@ proc_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
     }
 
     have_access = all_access || proc_ctx_access(pmda->e_context);
+    if (pmDebugOptions.auth)
+	fprintf(stderr, "proc_fetch: initial access have=%d all=%d proc_ctx_access=%d\n", have_access, all_access, proc_ctx_access(pmda->e_context));
+
     if ((sts = proc_refresh(pmda, need_refresh)) == 0)
 	sts = pmdaFetch(numpmid, pmidlist, resp, pmda);
+
     have_access = all_access || proc_ctx_revert(pmda->e_context);
+    if (pmDebugOptions.auth)
+	fprintf(stderr, "proc_fetch: final access have=%d all=%d proc_ctx_revert=%d\n", have_access, all_access, proc_ctx_revert(pmda->e_context));
     return sts;
 }
 

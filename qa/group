@@ -380,6 +380,7 @@ zsh
 033 libirixpmda local ostest
 034 archive local ostest sanity pmdumplog
 035 pmrep local
+036 libpcp local
 037 archive local ostest
 038 pmlogger local pmdumplog
 039 pmlogger archive local ostest pmdumplog
