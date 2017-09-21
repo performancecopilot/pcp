@@ -19,7 +19,7 @@ IAM	= prometheus
 PYSCRIPT = pmda$(IAM).python
 LDIRT	= domain.h root pmns $(IAM).log
 
-SUBDIRS	= metadata
+SUBDIRS	=
 
 MAN_SECTION = 1
 MAN_PAGES = pmda$(IAM).$(MAN_SECTION)
@@ -43,7 +43,7 @@ install_pcp install :: $(SUBDIRS)
 
 install_pcp install :: default
 	$(INSTALL) -m 755 -d $(PMDADIR)
-	$(INSTALL) -m 755 Install Remove Generate $(PYSCRIPT) $(PMDADIR)
+	$(INSTALL) -m 755 Install Remove $(PYSCRIPT) $(PMDADIR)
 	@$(INSTALL_MAN)
 else
 build-me:
