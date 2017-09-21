@@ -4,6 +4,7 @@ Performance Metrics Domain Agent exporting Prometheus endpoint metrics.
 '''
 #
 # Copyright (c) 2017 Ronak Jain.
+# Copyright (c) 2017 Red Hat, Inc.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -17,8 +18,9 @@ Performance Metrics Domain Agent exporting Prometheus endpoint metrics.
 #
 
 import cpmapi as c_api
+import cpmda
 from pcp.pmapi import pmUnits, pmContext, pmErr
-from pcp.pmda import PMDA, pmdaMetric, pmdaIndom
+from pcp.pmda import PMDA, pmdaMetric, pmdaIndom, pmdaInstid
 
 import argparse
 from collections import OrderedDict
@@ -31,1140 +33,673 @@ import os
 import re
 import sys
 import time
+import pickle
 import requests
 import threading
-from multiprocessing import Process
-
-MAX_CLUSTER = 0xfff
-MAX_METRIC = 0x3ff
-MAX_INDOM = 0x7fffffff
-
-UINT = "uint64"
-DOUBLE = "double"
-COUNTER = "counter"
-INSTANT = "instantaneous"
-TYPES = { DOUBLE: c_api.PM_TYPE_DOUBLE, UINT: c_api.PM_TYPE_U64 }
-SEMANTICS = { COUNTER: c_api.PM_SEM_COUNTER, INSTANT: c_api.PM_SEM_INSTANT }
-
-def diffMetadata(new_metrics, old_metrics):
-	''' diffMetadata finds new/removed metrics by diffing'''
-	if old_metrics is None:
-		old_metrics = []
-	changed_names = {}
-	old_metrics_map = {}
-	new_metrics_map = {}
-	final_metrics = {}
-
-	# Map old_metrics array into `name:metric`
-	for metric in old_metrics:
-		old_metrics_map[metric.get("name")] = metric
-
-	# Map new metrics array into `name:metrics`
-	for metric in new_metrics:
-		new_metrics_map[metric.get("name")] = metric
-
-	# Find removed and instances updated metrics
-	for name in old_metrics_map:
-		metric = old_metrics_map[name]
-		if name not in new_metrics_map:
-			changed_names[name] = True
-			continue
-
-		if metric.get("instances") != new_metrics_map[name].get("instances"):
-			metric["instances"] = new_metrics_map[name].get("instances")
-			changed_names[name] = True
-
-		final_metrics[name] = metric
-
-	# Find newly added metrics
-	for name in new_metrics_map:
-		if name not in old_metrics_map:
-			changed_names[name] = True
-			final_metrics[name] = new_metrics_map[name]
-	return (changed_names, final_metrics)
 
 
-class ScanPrometheus(object):
-	''' Scans Prometheus Endpoint to Generate Metadata for the given endpoint'''
+MAX_CLUSTER = 0xfff    # ~ max. number of prometheus sources
+MAX_METRIC = 0x3ff     # ~ max. number of metrics per source
+MAX_INDOM = 0x7fffffff # coincidentally, ~ product of above
 
-	def __init__(self, name, endpoint=None, filepath=None):
-		self.name = name
-		self.endpoint = endpoint
-		self.filepath = filepath
-		self.raw_metrics = None
-		self.metrics_by_name = {}
+# These numbers are combined to create uniqe numbers for several
+# purposes.  The first two types are used only for internal
+# pmdaprometheus purposes, and are not visible as indoms to pmapi
+# clients.
+#
+# indom# 0: maps source nicknames to 12-bit "cluster" numbers, cluster#0 is not used
+# indom# 1..4095: for each source=cluster, map metric names to pmid numbers
+# indom# 4096 + cluster#*1024 ...+1023:  actual pmns indom for each metric
 
-	def run(self):
-		self.fetch_raw_metrics()
-		self.parse_raw()
-		self.save_metadata()
-
-	class Metric(object):
-		''' Inner metric class used to serialize the parsed metrics'''
-
-		def __init__(self):
-			self.name = None
-			self.description = None
-			self.instances = None
-			self.type = None
-			self.labels = None
-			self.semantics = None
-			self.units_str = None
-			self.prometheus_name = None
-
-		def add_instance(self, name, prometheus_name, labels):
-			# Adds the instances to the metric
-			if self.instances == None:
-				self.instances = []
-			self.instances.append({
-				"name": name,
-				"prometheus_name": prometheus_name,
-				"labels": labels
-			})
-
-		def export(self):
-			# Returns a dictionary of attributes with non null values
-			metadata = {}
-			if self.instances is not None:
-				self.labels = None
-			for key in self.__dict__:
-				if self.__dict__[key] is not None:
-					metadata[key] = self.__dict__[key]
-			return metadata
-
-	def exportMetrics(self):
-		metrics = []
-		for k in self.metrics_by_name:
-			metrics.append(self.metrics_by_name[k].export())
-		return metrics
-
-	def save_metadata(self):
-		# Saves the metadata of the Prometheus endpoint in PCP_PMDAS_DIR
-		config = { "name": self.name, "metrics": self.exportMetrics() }
-		if self.filepath:
-			config["filepath"] = os.path.abspath(self.filepath)
-		else:
-			config["endpoint"] = self.endpoint
-		raw_config = json.dumps(config, sort_keys=True, indent=2)
-		filename = os.getenv('PCP_PMDAS_DIR') + \
-					"/prometheus/metadata/" + self.name + ".json"
-		if not os.path.exists(os.path.dirname(filename)):
-			try:
-				os.makedirs(os.path.dirname(filename))
-			except OSError as exc:
-				if exc.errno != errno.EEXIST:
-					raise
-		with open(filename, "w") as f:
-			f.write(raw_config)
-			f.close()
-
-	def fetch_raw_metrics(self):
-		# Fetches Prometheus metrics from the endpoint
-		if self.filepath:
-			try:
-				self.raw_metrics = open(self.filepath,'r').read()
-			except IOError as e:
-				raise ValueError('Invalid filepath=%s\n%s'%(self.filepath,str(e)))
-		else:
-			try:
-				req = requests.get(self.endpoint)
-				self.raw_metrics = req.text
-			except ValueError as e:
-				raise ValueError("Unable to connect to the Prometheus "
-									"endpoint = %s\n%s" % (self.endpoint, str(e)))
-
-	def get_metric(self, name):
-		metric = self.metrics_by_name.get(name)
-		if metric == None:
-			metric = self.Metric()
-			metric.name = name
-			metric.type = DOUBLE
-			metric.semantics = INSTANT
-			metric.units_str = self.get_metric_units(name)
-			self.metrics_by_name[name] = metric
-		return metric
-
-	def get_metric_instance(self, s):
-		# Returns the instances of the Prometheus metric
-		# labels of Prometheus metric is translated into the labels
-		i = 0
-		while i < len(s) and s[i] != ' ' and s[i] != '{':
-			i+=1
-		if i == len(s):
-			raise Exception("Incorrect metric line: %s" % s)
-		# Metric without instances
-		name = s[:i]
-		prometheus_name = s[:i]
-		instance = None
-		tokens = name.split('_')
-
-		if tokens[len(tokens) - 1] in ["sum", "count", "bucket"]:
-			tempname = '_'.join(tokens[ : len(tokens) - 1])
-			if self.metrics_by_name.get(tempname) != None:
-				name = tempname
-				instance = tokens[len(tokens) - 1]
-
-		if s[i] == ' ':
-			return (prometheus_name, name, instance, None)
-
-		instance = []
-		labels = []
-		while s[i] != '}':
-			j = i + s[i:].find('=')
-			if j == -1:
-				raise Exception("Incorrect metric line: %s" % s)
-			key = s[i+1:j]
-			valIndex = j + 1
-			j += 2
-			while j < len(s):
-				if s[j] == '"' and s[j-1] != '\\':
-					break
-				j += 1
-			value = s[valIndex: j+1]
-			label = "\"%s\": %s" %(key, value)
-			labels.append(label)
-			instance.append(s[i+1: j+1])
-			i = j+1
-		labels_str = "{" + ','.join(labels) + '}'
-		return (s[:i+1], name, "::".join(instance), labels_str)
-
-	def get_metric_units(self, name):
-		if name.endswith("_seconds"):
-			return pmContext.pmUnitsStr(pmUnits(0,1,0,0,3))
-		elif name.endswith("_microseconds"):
-			return pmContext.pmUnitsStr(pmUnits(0,1,0,0,1))
-		elif name.endswith("_bytes"):
-			return pmContext.pmUnitsStr(pmUnits(1))
-		elif name.endswith("_count") or name.endswith("_total") \
-			or name.endswith("_sum"):
-			return pmContext.pmUnitsStr(pmUnits(0,0,1))
-		return ""
-
-	def parse_comment(self, line):
-		tokens = line.split()
-		if len(tokens) < 3 or tokens[0] != '#':
-			return
-		name = tokens[2]
-		metric = self.get_metric(name)
-		if tokens[1] == "HELP":
-			metric.description = ' '.join(tokens[3:])
-		elif tokens[1] == "TYPE" and tokens[3] == "counter":
-			metric.semantics = COUNTER
-
-	def parse_metric(self, line):
-		''' Iterates over the instances of a metric '''
-		(prometheus_name, name, instance, label) = self.get_metric_instance(line)
-		metric = self.get_metric(name)
-		if instance:
-			metric.add_instance(instance, prometheus_name, label)
-		else:
-			metric.prometheus_name = prometheus_name
-
-	def parse_raw(self):
-		''' Iterates over all the metrics in the source'''
-		lines = self.raw_metrics.splitlines()
-		for line in lines:
-			line = line.strip()
-			if len(line) == 0:
-				continue
-			elif line[0] == '#':
-				self.parse_comment(line)
-			else:
-				self.parse_metric(line)
 
 class Metric(object):
-	''' Metric information class '''
-	__name_re = re.compile(r'^[a-zA-Z][\w_\.:]+$')
-	def __init__(self, name_prefix, cluster, pmda):
-		self.description = ''
-		self.__name = ''
-		self.full_name = ''
-		self.units_str = ''
-		self.prometheus_name = ""
-		self.name_prefix = name_prefix
-		self.sem = c_api.PM_SEM_INSTANT
-		self.type = c_api.PM_TYPE_UNKNOWN
-		self.instances = None
-		self.instance_by_name = {}
-		self.cluster = cluster
-		self.idx = -1
-		self.obj = None
-		self.label = None
-		self.__pmda = pmda
-		self.__indom_cache = None
-		self.__units_val = pmUnits(0, 0, 0, 0, 0, 0)
+        ''' Metric information class '''
+        def __init__(self,source,name,metricnum,instances,pcpline,helpline,typeline):
+                self.source = source
+                self.name = name
+                self.metricnum = metricnum # seen during fetch callbacks
+                self.pmid = source.pmda.pmid(source.cluster,metricnum) # add domain/cluster#
+                self.indom_number = (MAX_CLUSTER+1 +
+                                     (source.cluster * (MAX_METRIC+1)) +
+                                     metricnum)
+                self.pcpline = pcpline
+                self.typeline = typeline
+                self.values = {} # instance-vector-to-value
+                self.assign_metadata()
+                if instances:
+                        self.mindom = self.source.pmda.indom(self.indom_number) # add domain#
+                        self.indom_table = PersistentNameTable(self.source.pmda,
+                                                               self.indom_number, MAX_INDOM)
+                else:
+                        self.mindom = c_api.PM_INDOM_NULL
+                        self.indom_table = None
+                self.obj = pmdaMetric(self.pmid,self.mtype,self.mindom,self.msem,self.munits)
+                if helpline: # it could be None!
+                        self.description = helpline # XXX unescape
+                else:
+                        self.description = ''
 
-	def log(self, string):
-		''' Log an informational message '''
-		if self.__pmda.debug:
-			return self.__pmda.log(string)
-		return
+                try:
+                        self.source.pmda.add_metric(self.mname, self.obj, self.description)
+                        self.source.pmda.set_need_refresh()
+                except Exception as e:
+                        self.source.pmda.log("Cannot add metric %s (%d): %s" % (self.mname, self.pmid, e))
+                self.source.pmda.debug("created metric %#x (%s)" % (self.pmid, self.mname))
 
-	def valid(self):
-		''' Is metric valid?. '''
-		return self.__name != '' and self.type != c_api.PM_TYPE_UNKNOWN
 
-	@property
-	def indom_cache(self):
-		return self.__indom_cache
+        def assign_metadata(self):
+                ''' Compute metric metadata self.{mtype,mname,msem,munits}
+                from the available information already stored in self.
+                '''
+                self.mtype = c_api.PM_TYPE_DOUBLE # NB: allow overriding sometime
 
-	@indom_cache.setter
-	def indom_cache(self, indom):
-		''' Adds the instances to the indom assigned '''
-		indom.load()
-		self.__indom_cache = indom
-		for inst in self.instances:
-			try:
-				id = self.__indom_cache.lookup_name(inst["name"])
-			except KeyError:
-				try:
-					id = self.__indom_cache.next_value()
-					self.__indom_cache.add_value(inst["name"], id)
-				except ValueError:
-					self.log("Skipping instances in '%s' - max instances reached"
-							 % self.full_name)
-		self.__indom_cache.refresh()
+                # Split the prometheus metric name by "_", to help
+                # decode convention for squishing unit/scale data.
+                pieces = self.name.split('_')
+                
+                # XXX: pcpline semantics
+                if (self.typeline == 'counter'
+                    or 'total' in pieces or 'count' in pieces or 'sum' in pieces):
+                        self.msem = c_api.PM_SEM_COUNTER
+                else:
+                        self.msem = c_api.PM_SEM_INSTANT
 
-	@property
-	def name(self):
-		''' Get metric name value. '''
-		return self.__name
+                if self.pcpline:
+                        self.mname = 'prometheus.' + self.source.name + '.' + self.pcpline # XXX: split once it carries sem/units
+                else:
+                        self.mname = 'prometheus.' + self.source.name + '.' + self.name.replace(":",".")
+                        
+                # XXX: pcpline units
+                if ('seconds' in pieces):
+                        self.munits = pmUnits(0,1,0,0,3,0)
+                elif ('microseconds' in pieces): # not listed in https://prometheus.io/docs/practices/naming/
+                        self.munits = pmUnits(0,1,0,0,1,0)
+                elif ('bytes' in pieces):
+                        self.munits = pmUnits(1,0,0,1,0,0)
+                else:
+                        self.munits = pmUnits(0,0,0,0,0,0) # default, dimensionless old-school count
 
-	@name.setter
-	def name(self, name):
-		''' Set metric name value. '''
-		# Metric names must start with an alphabetic character. The rest
-		# of the characters must be alphanumeric or an '_'.
-		if Metric.__name_re.match(name):
-			self.__name = name
-			self.full_name = "%s.%s" % (self.name_prefix, name)
-		else:
-			self.log("Invalid metric name '%s'" % name)
-			raise RuntimeError("Invalid metric name '%s'" % name)
+                assert self.munits and self.msem and self.mname and self.mtype
 
-	def parse(self, json_obj):
-		''' Parses the metric metadata JSON '''
-		try:
-			self.name = json_obj.get("name")
-			self.description = json_obj.get("description")
+                
+        def clear_values(self):
+                ''' Erase all stored instance/value pairs, in anticipation of a new set. '''
+                self.values.clear()
+        
+        def store_inst(self,labels,value):
+                ''' Store given new instance/value pair. '''
+                
+                assert (labels is None) == (self.indom_table is None) # no metric indom flipflop
+                if labels is None:
+                        self.values[c_api.PM_IN_NULL] = float(value)
+                else:
+                        if self.pcpline: # pmwebd
+                                instname = labels['instance']
+                        else:
+                                instname = str(labels)
+                        # self.source.pmda.debug("store %s instance %s value %s" % (self.pcpline, instname, value))
+                        inst = self.indom_table.intern_lookup_value(instname)
+                        self.values[inst] = float(value)
+                        self.indom_table.save() # XXX: ideally less frequently
+                        
+        def fetch_inst(self,inst): # fetch instance
+                if inst in self.values:
+                        return [self.values[inst], 1]
+                else:
+                        # NB: same error if we lack a value for this metric altogether,
+                        # or if a wrong/obsolete instance# is being sought.
+                        return [c_api.PM_ERR_INST, 0]
 
-			type_ = json_obj.get("type")
-			# Types can be only of the TYPES constant
-			if not TYPES.get(type_):
-				raise ValueError("Invalid type: %s" %(type_))
-			self.type = TYPES.get(type_)
+                
+class PersistentNameTable(object):
+        '''Persistent name table.  Answers name-to-number queries by assigning
+        persistent ids.  Updates pmda's indom table intermittently.
+        Persistent by saving dictionary in $PCP_VAR_DIR/pmdas/,
+        similarly to how pmdaCache functions do.
+        '''
+ 
+        def __init__(self,pmda,indom,maxnum):
+                self.pmda = pmda
+                self.indom = indom
+                self.maxnum = maxnum
+                self.need_save = False
+                self.store_file_name = '%s/config/pmda/%d.%d.py' % (os.environ['PCP_VAR_DIR'],
+                                                                    pmda.domain, indom)
+                try: # slightly used!
+                        with open(self.store_file_name,'rb') as f:
+                                self.instances = pickle.load(f,encoding="bytes")
+                                self.pmda.debug("loaded %s" % self.store_file_name)
+                                self.need_save = True # to push values down into c pmda layer
+                except Exception as e: # new!
+                        self.instances = [] # won't be saved till nonempty
 
-			semantics = json_obj.get("semantics")
-			if not SEMANTICS.get(semantics):
-				raise ValueError("Invalid semantic: %s" %(semantics))
-			self.semantics = SEMANTICS.get(semantics)
-			(unit, val) = pmContext.pmParseUnitsStr(json_obj.get("units_str"))
-			self.__units_val = unit
-			self.units_str = json_obj.get("units_str")
-			self.prometheus_name = json_obj.get("prometheus_name")
-			self.instances = json_obj.get("instances")
-			self.label = json_obj.get("label")
-			if self.instances:
-				for instance in self.instances:
-					self.instance_by_name[instance["name"]] = {
-						"name": instance["prometheus_name"],
-						"label": instance["labels"]
-					}
-		except ValueError as e:
-			raise e
+                self.names_to_instances = {}
+                for i,n in enumerate(self.instances):
+                        self.names_to_instances[n] = i
+                # prime the pmda indom table with an empty list; the pmdaIndom
+                # object will be replaced shortly within .replace_indom()
+                self.pmdaindom = pmdaIndom(pmda.indom(self.indom), [])
+                self.pmda.add_indom(self.pmdaindom)
+                self.save() # replace it with real data now, if non-empty
+                
+        def save(self):
+                '''Push values to the PMDA layer as well as to the backing store file.'''
+                if self.need_save:
+                        # save to the pmda C layer
+                        indom_array = [] # pmdaInstid array, computed on demand
+                        for i,n in enumerate(self.instances):
+                                indom_array.append(pmdaInstid(c_int(i),str(n)))
+                        # NB: use replace_indom(int,[...]) overload, to pass indom_array,
+                        # else it gets ignored
+                        self.pmda.replace_indom(self.pmda.indom(self.indom), indom_array)
+                        self.pmda.set_need_refresh()
+                        # save to disk too
+                        try: # slightly used!
+                                with open(self.store_file_name,'wb') as f:
+                                        pickle.dump(self.instances, f, protocol=0) # 0: most compatible
+                                        self.pmda.debug("saved %s, %d instances" % (self.store_file_name, len(self.instances)))
+                                self.need_save = False # reset only on success
+                        except Exception as e:
+                                self.pmda.log("cannot save %s: %s" % (self.store_file_name, e))
+                        
 
-	def create(self):
-		'''
-		Create the metric. Note that the metric will still need to be
-		added to the PMDA.
-		'''
-		if not self.valid():
-			self.log("Invalid metric")
-			raise RuntimeError("Invalid metric")
+        def intern_lookup_value(self, name):
+                '''Add/lookup given name, return its persistent identifier.'''
+                if name in self.names_to_instances: # fast path
+                        return self.names_to_instances[name]
+                else: # new name
+                        num = len(self.instances)
+                        if (num > self.maxnum):
+                                raise ValueError('Too many (%d) different names' % num)
+                        self.instances.append(name)
+                        self.names_to_instances[name] = num
+                        assert self.instances[num] == name
+                        self.need_save = True
+                        return num
 
-		self.pmid = self.__pmda.pmid(self.cluster, self.idx)
-		if self.__indom_cache != None:
-			self.obj = pmdaMetric(self.pmid, self.type, self.__indom_cache.indom,
-								  self.sem, self.__units_val)
-		else:
-			self.obj = pmdaMetric(self.pmid, self.type, c_api.PM_INDOM_NULL,
-								  self.sem, self.__units_val)
+        
+class SampleLineParser(object):
+        '''A parser for one metric [{instance}] value [timestamp] line.  A
+        state machine required since we're lexing text with embedded
+        quoted freeform strings with punctuation, etc., so can't
+        simply do substring searching.
+        '''
 
-	def label_func(self, inst=c_api.PM_IN_NULL):
-		''' Label value of this instance '''
-		ret_label = "{}"
-		if self.__indom_cache:
-			if inst == c_api.PM_INDOM_NULL:
-				self.log("Empty instance on label for metric %s" \
-					% self.name)
-			try:
-				name = self.__indom_cache.lookup_value(inst)
-				label = self.instance_by_name[name]["label"]
-				if label is not None:
-					ret_label = label
-			except Exception as e:
-				self.log("Invalid instance given for metric on label: %s" \
-					% self.name)
-		else:
-			if inst != c_api.PM_INDOM_NULL:
-				self.log("Invalid instance given for single metric type on "
-					"label: %s" % self.name)
-			elif self.label is not None:
-				ret_label = self.label
-		return ret_label
+        def parse_metric_name_start(self,char):
+                if char.isspace():
+                        pass
+                else:
+                        self.state = self.parse_metric_name
+                        self.name = char
 
-	def fetch(self, inst, values):
-		''' Fetch value of this metric '''
-		if self.__indom_cache:
-			if inst == c_api.PM_INDOM_NULL:
-				self.log("Empty instance on fetch for metric %s" \
-					% self.name)
-				return [c_api.PM_ERR_INDOM, 0]
-			try:
-				name = self.__indom_cache.lookup_value(inst)
-				prometheus_name = self.instance_by_name[name]["name"]
-				return [values[prometheus_name], 1]
-			except Exception:
-				self.log("Invalid instance given for metric on fetch: %s %d" \
-					% (self.name, inst))
-				return [c_api.PM_ERR_INST, 0]
-		else:
-			if inst != c_api.PM_INDOM_NULL:
-				self.log("Invalid instance given for single metric type on "
-					"fetch: %s" % self.name)
-				return [c_api.PM_ERR_INDOM, 0]
-			elif self.prometheus_name not in values:
-				self.log("Value not available on fetch for metric %s" \
-					% self.name)
-				return [c_api.PM_ERR_INST, 0]
-			return [values[self.prometheus_name], 1]
+        def parse_metric_name(self,char):
+                if char == '{':
+                        self.state = self.parse_label_name_start
+                        self.labels = {}
+                elif char.isspace():
+                        self.state = self.parse_post_metric_name
+                else:
+                        self.name += char
 
-class IndomCache(pmdaIndom):
-	''' Indom (instance domain) cache information class '''
-	def __init__(self, serial, max_value, pmda, min_value=0):
-		self.__pmda = pmda
-		self.serial = serial
+        def parse_post_metric_name(self,char):
+                if char.isspace():
+                        pass
+                elif char == '{':
+                        self.state = self.parse_label_name_start
+                        self.labels = {}
+                else:
+                        self.state = self.parse_value
+                        self.value = char
 
-		# In IndomCache.add_value, we're using 'value' as the inst
-		# value. However, the pmdaCache routines treat the passed in
-		# value as the 'private' field and generates its own inst
-		# value. However, this 'private' field isn't saved and
-		# restored, so it isn't very useful for our purposes.
-		#
-		# To get around this, we'll use an OrderedDict so that the
-		# dictionary order should match up with the inst order.
-		# (Another way to fix this problem would be to go ahead and
-		# call pmdaCacheStore() in IndomCache.add_value(), but that
-		# fix would require more api calls.)
-		self.__values = OrderedDict()
-		# '__names_by_values' is the inversion of '__values'.
-		self.__names_by_values = {}
+        def parse_label_name_start(self,char):
+                if char.isspace():
+                        pass
+                elif char == '}':
+                        self.state = self.parse_post_labels
+                else:
+                        self.state = self.parse_label_name
+                        self.lname = char
 
-		# The indom cache has a notion of "inactive" values (values
-		# we've seen before, but are not in the current fetch) and
-		# "active" values (values in the current fetch). Seting the
-		# active state from python is a bit tricky. '__active_values'
-		# contains a dictionary of active values.
-		self.__active_values = OrderedDict()
-		self.__inactive_values = OrderedDict()
+        def parse_label_name(self,char):
+                if char.isspace():
+                        self.state = self.parse_label_equals
+                elif char == '=':
+                        self.state = self.parse_label_value_start
+                else:
+                        self.lname += char
 
-		pmdaIndom.__init__(self, pmda.indom(self.serial), self.__values)
-		try:
-			self.__pmda.add_indom(self)
-		except KeyError:
-			# If we've seen this indom before, it will already be
-			# present in the pmda, so replace it.
-			self.__pmda.replace_indom(self, self.__values)
-		self.__maxval = max_value
-		self.cache_resize(max_value)
-		self.__nextval = min_value
-		self.min_value = min_value
+        def parse_label_equals(self,char):
+                if char.isspace():
+                        pass
+                elif char == '=':
+                        self.state = self.parse_label_value_start
+                else:
+                        raise ValueError("Expected =")
 
-	@property
-	def indom(self):
-		''' Get cache's indom. '''
-		return self.it_indom
+        def parse_label_value_start(self,char):
+                if char.isspace():
+                        pass
+                elif char == '"':
+                        self.state = self.parse_label_value
+                        self.lvalue = ""
+                else:
+                        raise ValueError("Expected \"")
 
-	def log(self, string):
-		''' Log an informational message '''
-		if self.__pmda.debug:
-			return self.__pmda.log(string)
-		return
+        def parse_label_value(self,char):
+                if char == '\\':
+                        self.state = self.parse_label_value_escapechar
+                elif char == '"':
+                        self.state = self.post_label_value
+                        self.labels[self.lname]=self.lvalue
+                        self.lname = None
+                        self.lvalue = None
+                else:
+                        self.lvalue += char
+                                              
+        def parse_label_value_escapechar(self,char):
+                # XXX: maybe pass through \-escaped identifiers literally through to pcp
+                # otherwise we'd have to filter them out at indom-instance-name creation
+                if char == '\\':
+                        self.state = self.parse_label_value
+                        self.lvalue += '\\'
+                elif char == 'n':
+                        self.state = self.parse_label_value
+                        self.lvalue += '\n'
+                elif char == '"':
+                        self.state = self.parse_label_value
+                        self.lvalue += '\"'
+                else:
+                        self.state = self.parse_label_value
+                        self.lvalue += '\\' + char # transcribe \XYZ literally
+        
+        def post_label_value(self,char):
+                if char.isspace():
+                        pass
+                elif char == ',':
+                        self.state = self.parse_label_name_start
+                elif char == '}':
+                        self.state = self.parse_post_labels
+                else:
+                        raise ValueError("Expected , or }")
 
-	def add_value(self, name, value=c_api.PM_IN_NULL):
-		''' Add a value to the indom '''
-		# PMDA.replace_indom() wants a dictionary, indexed by
-		# indom string value. PMDA.replace_indom() doesn't really
-		# care what is stored at that string value. We're storing the
-		# instance there.
-		if value == c_api.PM_IN_NULL:
-			value = self.next_value()
-		if self.__pmda.debug:
-			self.log("Adding ('%s', %d) to the cache" % (name, value))
-		self.__values[name] = c_int(value)
-		if value >= self.__nextval:
-			self.__nextval = value + 1
-		self.__names_by_values[value] = name
+        def parse_post_labels(self,char):
+                if char.isspace():
+                        pass
+                else:
+                        self.state = self.parse_value
+                        self.value = char
+                                              
+        def parse_value(self,char):
+                if char.isspace(): # timestamp possibly following
+                        self.state = self.parse_chomp
+                else:
+                        self.value += char
 
-	def add_value_if_not_exists(self, name, value):
-		''' Add a value to the indom if it does not exist already'''
-		if name in self.__inactive_values:
-			value = self.__inactive_values[name]
-			self.__values[name] = c_int(value)
-			self.__names_by_values[value] = name
-			self.__inactive_values.pop(name)
-		elif name not in self.__values:
-			self.add_value(name, value)
+        def parse_chomp(self,char): # ignored stuff
+                pass
 
-	def add_value_inactive(self, name):
-		'''Add a value to the inactive dict'''
-		# Used to store all the inactive values on cache load
-		value = self.next_value()
-		self.__inactive_values[name] = value
+        def __init__(self,line):
+                # mis-initialize output variables to force state
+                # machine transitions to do it right
+                self.name = None
+                self.value = None
+                self.labels = None
+                self.lname = None
+                self.lvalue = None
 
-	def set_active(self, name):
-		''' Mark a indom as active. '''
-		if name not in self.__values:
-			raise KeyError(name)
-		self.__active_values[name] = self.__values[name]
+                # run state machine
+                self.state = self.parse_metric_name_start
+                for char in line:
+                        self.state(char)
 
-	def lookup_name(self, name):
-		'''
-		Lookup name in an indom cache and return its associated value.
-		If name found in inactive values, add it to values and return its value.
-		'''
-		if name in self.__inactive_values:
-			value = self.__inactive_values[name]
-			self.__values[name] = c_int(value)
-			self.__names_by_values[value] = name
-			self.__inactive_values.pop(name)
-			return value
-		if name not in self.__values:
-			raise KeyError(name)
-		valueobj = self.__values[name]
-		return valueobj.value
+                assert self.name
+                assert self.value
 
-	def lookup_value(self, value):
-		'''
-		Lookup a value in an indom cache and return its associated name.
-		'''
-		# We could call an api function here (pmda.inst_lookup() which
-		# calls pmdaCacheLookup()), but we can handle this in python
-		# by using the inverted dictionary.
-		if value not in self.__names_by_values:
-			raise KeyError(value)
-		return self.__names_by_values[value]
+                                              
+class Source(object):
+        '''An instance of this class represents a distinct Prometheus exporter,
+        identified by a nickname (the next PMNS component beneath prometheus.*),
+        and a URL.  Metrics will show up at prometheus.NICKNAME.MET.RIC as/when
+        the source is online.
+        '''
 
-	def refresh(self):
-		''' Update and save the indom cache. '''
-		self.__pmda.replace_indom(self, self.__values)
-		# Note that set_dict_instances() saves the cache to disk.
-		self.set_dict_instances(self.it_indom, self.__values)
+        def __init__(self, name, cluster, path, pmda):
+                self.name = name # source nickname
+                self.cluster = cluster # unique/persistent id# for nickname
+                self.path = path # pathname to .url file
+                self.pmda = pmda # the shared pmda
 
-		# If we've got active values, we want to call
-		# set_dict_instances() on them. This will leave all the items
-		# in the cache, but mark the ones in the __active_values
-		# dictionary as "active". Everything else will be marked as
-		# "inactive".
-		if len(self.__active_values) > 0:
-			self.set_dict_instances(self.it_indom, self.__active_values)
-			self.__active_values.clear()
+                self.requests = requests.Session() # allow persistent connections etc.
+                
+                # persistently assign numeric id to our metrics
+                self.pmids_table = PersistentNameTable(self.pmda, cluster, MAX_METRIC)
+                
+                self.metrics_by_name = {} # name -> Metric
+                self.metrics_by_num = {} # number (last component of pmid) -> Metric
+                
 
-	def load(self):
-		''' Load indom cache values. '''
-		if self.__pmda.debug:
-			self.log("Loading cache %d..." % self.serial)
-		try:
-			# Notice we're ignoring cache_load() errors. The biggest
-			# one we're ignoring is a non-existent cache.
-			self.cache_load()
-		except pmErr:
-			return
-		self.cache_mark_active()
+        def old_enough_for_refresh(self):
+                '''But what's "old"?  Aye, there's the rub.  If it's empty (no
+                metrics), then it has probably never been connected to
+                successfully.  
 
-		for (inst, name) in self:
-			self.add_value_inactive(name)
+                OTOH, if it hasn't been fetched from "recently", maybe
+                it grew new metrics, and may need a look-see.  So we
+                could track the last time a fetch was done to this source,
+                and "time out" the PMNS from it.  XXX
+                '''
+                return len(self.metrics_by_name) == 0
+                
+        def parse_metric_line(self,line,pcpline,helpline,typeline):
+                '''
+                Parse the sample line, identify/create corresponding metric & instance.
+                '''
+                try:
+                        sp = SampleLineParser(line)
+                        # self.pmda.debug("parsed '%s' -> %s %s %s" % (line, sp.name, sp.labels, sp.value))
+                        if sp.name in self.metrics_by_name:
+                                m = self.metrics_by_name[sp.name]
+                                assert self.metrics_by_num[m.metricnum] == m
+                        else:
+                                metricnum = self.pmids_table.intern_lookup_value(sp.name)
+                                m = Metric(self,sp.name,metricnum,sp.labels,
+                                           pcpline,helpline,typeline)
+                                self.metrics_by_name[sp.name] = m
+                                self.metrics_by_num[metricnum] = m  # not pmid!
 
-		self.cache_mark_inactive()
+                        m.store_inst(sp.labels,sp.value)
+                except Exception as e:
+                        self.pmda.log("cannot parse/store %s: %s" % (line, e))
+                pass
 
-	def next_value(self):
-		''' Return next value to be allocated. '''
-		if self.__nextval > self.__maxval:
-			raise ValueError("Indom cache reached max value.")
-		value = self.__nextval
-		self.__nextval += 1
-		return value
 
-	def len(self):
-		''' Return cache size. '''
-		return len(self.__values)
+        def parse_lines(self,text):
+                '''Refresh all the metric metadata as it is found, including creating
+                new metrics.  Store away metric values for subsequent
+                fetch()es.  Parse errors may result in exceptions.
+                That's OK, we don't try heroics to parse non-compliant
+                data.  Return number of metrics extracted.
+                '''
 
-class PrometheusSource(object):
+                num_metrics = 0
+                lines = text.splitlines()
+                pcpline = None
+                helpline = None
+                typeline = None
+                state="metadata"
+                for line in lines:
+                        # self.pmda.debug("line: %s state: %s" % (line, state))
+                        l = line.strip() # whitespace
+                        if l == "": # blank line, ignore, no state change
+                                continue
+                        elif l.startswith("#"): # comment
+                                if state == "metrics":
+                                        state = "metadata"
+                                        pcpline = None # NB: throw away previous block's metadata
+                                        helpline = None
+                                        typeline = None
 
-	def __init__(self, path, pmda):
-		self.__labels = None
-		self.__cluster = None
-		self.pmda = pmda
-		self.path = path
-		self.name = ""
-		self.metrics = []
-		self.metrics_by_id = {}
-		self.metrics_value = {}
-		self.fetch_failed = False
-		self.numfetch = 0
-		self.metrics_cache = None
-		self.metadata = None
-		self.endpoint = None
-		self.filepath = None
-		self.metadata_mtime = os.stat(path).st_mtime
-		self.metadata = self.load_metrics_metadata()
-		self.prepare_passed = self.prepare_metrics_metadata()
+                                lp = l.split()
+                                if len(lp) < 2:
+                                        continue
+                                # NB: for a well-formed exporter file,
+                                # the # metadata blocks must precede
+                                # the metric values; we can ignore
+                                # lp[2].
+                                if lp[1] == 'PCP': # XXX: extend, regularize, document
+                                        pcpline = ' '.join(lp[2:])
+                                elif lp[1] == 'HELP':
+                                        # assume lp[2] matches metric name
+                                        helpline = ' '.join(lp[3:]) # XXX unescape \\ \n
+                                elif lp[1] == 'TYPE':
+                                        # assume lp[2] matches metric name
+                                        typeline = ' '.join(lp[3:])
+                                else:
+                                        pass # ignore other comment lines
+                        else: # metric{...} value line
+                                state = "metrics"
+                                # NB: could verify helpline/typeline lp[2] matches,
+                                # but we don't have to go out of our way to support
+                                # non-compliant exporters.
+                                self.parse_metric_line(l,pcpline,helpline,typeline)
+                                num_metrics += 1
 
-		if not self.prepare_passed:
-			self.log("Prometheus Source creation failed for %s" % self.path)
+                # NB: this logic only ever -adds- Metrics to a Source.  If a source
+                # stops supplying some metrics, then a PCP app will see a PM_ERR_INST
+                # coming back when it tries to fetch them.  We could perhaps keep the
+                # set of -current- metrics fresh, i.e., track any metrics that were
+                # in the Source but were not processed by any parse_metric_line() call.
+                # Then we could remove the Metric, and thereby trigger a PM_ERR_PMID
+                # for them.  In both cases though, we have no values.
+                
+                return num_metrics
+                
 
-	@property
-	def labels(self):
-		return self.__labels
+        def refresh(self):
+                '''
+                Find the target URL by reading .url file.
+                Fetch the target URL.
+                Parse the resulting document.
+                '''
+                # clear cached values from all my metrics
+                for n,m in self.metrics_by_name.items():
+                        m.clear_values()
+                # XXX: ditch metrics no longer found in document
 
-	@property
-	def cluster(self):
-		return self.__cluster
+                # (re)read the URL from given file
+                try:
+                        url = open(self.path,'r').read().strip()
+                except Exception as e:
+                        self.pmda.log("cannot read %s: %s" % (self.path, e))
+                        return
+                # fetch the URL
+                try:
+                        if url.startswith('file://'):
+                                t = open(url[7:],'r').read()
+                        else:
+                                r = self.requests.get(url,timeout=1) # XXX parametrize
+                                r.raise_for_status() # non-200?  ERROR
+                                t = r.text
+                        s = self.parse_lines(t)
+                        self.pmids_table.save()
+                        self.pmda.debug("fetched %d bytes with %d metrics from %s" % (len(t), s, url))
+                except Exception as e:
+                        self.pmda.log("cannot fetch %s: %s" % (url, e))
+                        return
+                
+        def fetch(self, item, inst):
+                ''' Retrieve metric/instance values that ought to have been found
+                by a recent refresh().  PM_ERR_AGAIN signals a no go.'''
+                try:
+                        m = self.metrics_by_num[item]
+                        return m.fetch_inst(inst)
+                except Exception as e:
+                        self.pmda.log("cannot fetch item %d inst %d: %s" % (item,inst,e))
+                        return [c_api.PM_ERR_AGAIN, 0]
 
-	@cluster.setter
-	def cluster(self, cluster):
-		''' Assigns cluster id and initiates metrics creation'''
-		if not self.prepare_passed:
-			return
-		self.__cluster = cluster
-		self.__metric_cache = IndomCache(self.__cluster,
-										 MAX_METRIC, self.pmda)
-		self.__metric_cache.load()
-		self.metrics = self.parse_metrics_metadata(self.metadata.get("metrics"))
-		self.load_instance_domains(self.metrics)
-		self.load_metrics_idx(self.metrics)
-
-	def log(self, string):
-		''' Log an informational message '''
-		if self.pmda.debug:
-			return self.pmda.log(string)
-		return
-
-	def load_metrics_metadata(self):
-		''' Load the Prometheus source metadata'''
-		metadata = None
-		try:
-			fobj = open(self.path)
-		except IOError:
-			self.log("Couldn't open Prometheus metadata file: %s"
-					 % self.path)
-			return
-		try:
-			metadata = json.load(fobj)
-		except ValueError as e:
-			self.log("Couldn't parse Prometheus metadata from %s %s"
-					 % (self.path, str(e)))
-			return
-		fobj.close()
-		return metadata
-
-	def prepare_metrics_metadata(self):
-		''' Parses the basic metadata of the source'''
-		metadata = self.metadata
-		if not metadata:
-			self.log("Cannot parse empty metadata for: %s"
-					 % self.path)
-			return False
-		self.name = metadata.get("name")
-		if not self.name:
-			self.log("Invalid name of Prometheus metadata from %s"
-					% self.name)
-			return False
-		if not ( metadata.get("endpoint") or metadata.get("filepath") ):
-			self.log("Invalid endpoint/filepath with null value")
-			return False
-		self.endpoint = metadata.get("endpoint")
-		self.filepath = metadata.get("filepath")
-		return True
-
-	def parse_metrics_metadata(self, metrics_meta):
-		''' Parses, initializes and stores the metrics from metadata '''
-		if metrics_meta is None:
-			self.log("Invalid metadata")
-			return
-		metrics = []
-		full_name = "%s.%s" % (self.pmda.pmda_name, self.name)
-		for meta in metrics_meta:
-			try:
-				metric = Metric(full_name, self.__cluster, self.pmda)
-				metric.parse(meta)
-				metrics.append(metric)
-			except Exception:
-				self.log("Unable to parse metric for Prometheus PMDA: %s"
-						% meta)
-		return metrics
-
-	def load_instance_domains(self, metrics):
-		''' Assigns indoms to the metrics with instances '''
-		for metric in metrics:
-			# Skip metrics without instances
-			if not metric.instances:
-				continue
-
-			# Indoms are stored as cluster_name.metric_name
-			full_name = "%s.%s" % (self.name, metric.name)
-			indom_idx = None
-			try:
-				indom_idx \
-					= self.pmda.indom_cache.lookup_name(full_name)
-			except KeyError:
-				try:
-					indom_idx = self.pmda.indom_cache.next_value()
-					self.pmda.indom_cache.add_value(full_name,
-												  indom_idx)
-				except ValueError:
-					self.log("Skipping instance domain in '%s' -"
-						" max instance domains reached" % full_name)
-					break
-			indom = IndomCache(indom_idx, MAX_INDOM, self.pmda)
-			metric.indom_cache = indom
-			self.pmda.metrics_by_indom[indom.indom] = metric
-		# Stores the cached indoms
-		self.pmda.indom_cache.refresh()
-
-	def load_metrics_idx(self, metrics):
-		''' Loads the metrics with pmid and adds them to the PMDA'''
-		for metric in metrics:
-			# Assigns the id to a metric and stores in the metric cache
-			try:
-				metric.idx \
-					= self.__metric_cache.lookup_name(metric.name)
-			except KeyError:
-				try:
-					metric.idx = self.__metric_cache.next_value()
-					self.__metric_cache.add_value(metric.name,
-												  metric.idx)
-				except ValueError:
-					self.log("Skipping metrics in '%s' - max metric reached"
-							 % self.name)
-					break
-
-			if not metric.valid():
-				self.log("Metadata doesn't have required"
-						 " information for the following entry: %s"
-						 % metric.name)
-				del metric
-				continue
-
-			self.log("Adding metric '%s'" % metric.name)
-			self.__add_metric(metric)
-		# Stores the cached metric ids
-		self.__metric_cache.refresh()
-
-	def __add_metric(self, metric):
-		''' Create and add a metric to the pmda. '''
-		metric.create()
-		self.pmda.add_metric(metric.full_name, metric.obj,
-								   metric.description)
-		self.metrics_by_id[metric.idx] = metric
-		self.pmda.metrics_by_pmid[metric.pmid] = metric
-
-	def __remove_metric(self, name):
-		try:
-			id = self.__metric_cache.lookup_name(name)
-			metric = self.metrics_by_id[id]
-			self.pmda.remove_metric(metric.full_name, metric.obj)
-			self.metrics_by_id.pop(id)
-			self.pmda.metrics_by_pmid.pop(metric.pmid)
-		except KeyError:
-			pass
-
-	def remove_all(self):
-		for id in self.metrics_by_id:
-			metric = self.metrics_by_id[id]
-			self.pmda.remove_metric(metric.full_name, metric.obj)
-			self.pmda.metrics_by_pmid.pop(metric.pmid)
-		self.metrics_by_id = {}
-
-	def parse_metrics_values(self, raw_data):
-		''' Parses the metric values from the raw data '''
-		lines = raw_data.splitlines()
-		self.metrics_value = {}
-		for line in lines:
-			if line[0] == '#':
-				continue
-			pos = line.rfind(' ')
-			name = line[:pos]
-			value = line[pos+1:]
-			self.metrics_value[name] = float(value)
-
-	def refresh_metrics(self):
-		''' Refreshes the metric values of this cluster'''
-		try:
-			if self.endpoint:
-				req = requests.get(self.endpoint, \
-					timeout=self.pmda.endpoint_fetch_timeout)
-				self.parse_metrics_values(req.text)
-				self.fetch_failed = False
-			else:
-				data = open(self.filepath,'r').read()
-				self.parse_metrics_values(data)
-				self.fetch_failed = False
-		except Exception as e:
-			self.log("Fetching metrics from endpoint failed : %s"%e)
-			self.fetch_failed = True
-
-	def reload_metadata(self):
-		''' add/remove metrics by diffing metadatas '''
-		if os.stat(self.path).st_mtime <= self.metadata_mtime:
-			return
-		self.metadata_mtime = os.stat(self.path).st_mtime
-		new_metadata = self.load_metrics_metadata()
-		old_metrics = self.metadata.get("metrics")
-		new_metrics = new_metadata.get("metrics")
-		(changes, metrics) = diffMetadata(new_metrics, old_metrics)
-		if len(changes) == 0:
-			return
-		self.metadata = new_metadata
-		updated_metrics = []
-		for name in changes:
-			self.__remove_metric(name)
-			if name in metrics:
-				updated_metrics.append(metrics[name])
-		if len(updated_metrics) == 0:
-			return
-		metrics = self.parse_metrics_metadata(updated_metrics)
-		self.load_instance_domains(metrics)
-		self.load_metrics_idx(metrics)
-
-	def fetch(self, item, inst):
-		''' Fetch called to fetch values of metrics of this cluster'''
-		# Refresh the metric values if the cluster is not refreshed recently
-		# Fetch fails when the metrics value could be refreshed
-		if self.fetch_failed:
-			return [c_api.PM_ERR_INST, 0]
-		if item not in self.metrics_by_id:
-			return [c_api.PM_ERR_PMID, 0]
-		return self.metrics_by_id[item].fetch(inst, self.metrics_value)
 
 class PrometheusPMDA(PMDA):
+        def __init__(self,pmda_name,domain,config):
+                ''' Initialize the PMDA
+                '''
+                # urgent: say hi the invoking pmcd, redirect stderr etc.
+                PMDA.__init__(self,pmda_name,domain)
+                self.connect_pmcd()
+                # now everything else may take time
+                self.pmda_name = pmda_name
+                self.config_dir = config
+                self.config_dir_ctime = None
+                self.debug_flag = ('PCP_PYTHON_DEBUG' in os.environ)
 
-	def __init__(self, pmda_name, domain):
-		''' Initialize the PMDA'''
-		self.pmda_name = pmda_name
-		self.debug = ('PCP_PYTHON_DEBUG' in os.environ)
-		PMDA.__init__(self, pmda_name, domain)
-		self.connect_pmcd()
-		self.numfetch = 0
-		self.num_threads = 8
-		self.metadata_refresh_frequency = 120
-		self.endpoint_fetch_timeout = .5
-		self.last_refresh_time = 0
-		self.last_reload_time = 0
-		self.refresh_process = None
+                # the list of configured sources
+                self.source_by_name = {}
+                # persistently assign numeric id to source names -> pmid "cluster" numbers
+                self.cluster_table = PersistentNameTable(self, 0, MAX_CLUSTER)
+                reserved_cluster = self.cluster_table.intern_lookup_value("*reserved-source2cluster*")
+                assert reserved_cluster == 0
+                self.source_by_cluster = {}
 
-		pmdaDir = "%s/%s/metadata/" % (pmContext.pmGetConfig('PCP_PMDAS_DIR'), pmda_name)
-		self.dir = pmdaDir
-		self.dir_mtime = os.stat(self.dir).st_mtime
-		self.source_by_cluster = {}
-		self.source_by_name = {}
-		self.source_by_path = {}
+                # Add a IS_DYNAMIC_ROOT metric that serves as a reminder to
+                # pmcd to delegate all pmns requests to us.  Do it early, before
+                # other metrics may populate beneath the prometheus.* prefix.
+                dynamic_pmid = (0 << 31) | (511 << 22) | (144 << 10) | 0
+                dynamic_root = pmdaMetric(dynamic_pmid,0,0,0,pmUnits())
+                self.add_metric('prometheus',dynamic_root,'dynamic root for prometheus metrics')
+                self.set_need_refresh()
 
-		# PMID to metrics map used for labels (callback)
-		self.metrics_by_pmid = {}
-		self.metrics_by_indom = {}
-
-		# Cluster cache stores the indoms of clusters
-		# Indom values start from 2 as Indom 1 is reserved for internal metrics
-		# Indom 2 is reserved for caching  the indoms metrics with indoms
-		# across all the clusters
-		self.cluster_cache = IndomCache(0, MAX_CLUSTER, self, 0)
-		self.cluster_cache.load()
-		''' Indom 1 is reserved for storing the instance domains'''
-		self.indom_cache = IndomCache(1, MAX_INDOM, self, MAX_CLUSTER + 1)
-		self.indom_cache.load()
-
-		self.cluster_cache.add_value_if_not_exists('__internal__', 0)
-		self.cluster_cache.add_value_if_not_exists('__indom_cache__', 1)
-
-		self.add_static_metrics()
-		self.load_prometheus_sources()
-		self.set_fetch(self.prometheus_fetch)
-		self.set_label(self.prometheus_label)
-		self.set_refresh_all(self.refresh_all)
-		self.set_refresh_metrics(self.refresh_metrics)
-		self.set_fetch_callback(self.prometheus_fetch_callback)
-		self.set_label_callback(self.prometheus_label_callback)
-		self.set_store_callback(self.prometheus_store_callback)
-
-	def add_static_metrics(self):
-		'''
-		Create the static metrics
-		'''
-		metric_info = Metric(self.pmda_name, 0, self)
-		metric_info.name = 'fetches'
-		metric_info.type = c_api.PM_TYPE_64
-		metric_info.description = 'Number of times data fetched'
-		metric_info.idx = 0
-		metric_info.create()
-		self.add_metric(metric_info.full_name, metric_info.obj,
-						metric_info.description)
-		self.metrics_by_pmid[metric_info.pmid] = metric_info
-
-		metric_info = Metric(self.pmda_name + '.config', 0, self)
-		metric_info.name = 'metadata_refresh_frequency'
-		metric_info.type = c_api.PM_TYPE_64
-		metric_info.description = 'Frequency of refreshing  metadata in seconds'
-		metric_info.idx = 1
-		metric_info.create()
-		self.add_metric(metric_info.full_name, metric_info.obj,
-						metric_info.description)
-		self.metrics_by_pmid[metric_info.pmid] = metric_info
-
-		metric_info = Metric(self.pmda_name + '.config', 0, self)
-		metric_info.name = 'endpoint_fetch_timeout'
-		metric_info.type = c_api.PM_TYPE_FLOAT
-		metric_info.description = 'Timeout on endpoint fetch in seconds'
-		metric_info.idx = 2
-		metric_info.create()
-		self.add_metric(metric_info.full_name, metric_info.obj,
-						metric_info.description)
-		self.metrics_by_pmid[metric_info.pmid] = metric_info
+                # used all the time, but we welcome it only for initial pmns population purposes
+                self.set_refresh_metrics(self.refresh_metrics_for_pmns)
+                # used during fetch
+                self.set_refresh_all(self.refresh_some_clusters_for_fetch) # "all" is a misnomer
+                self.set_fetch_callback(self.fetch_callback)
 
 
-	def load_prometheus_sources(self):
-		''' Initializes the PrometheusSource for all the Prometheus sources'''
-		paths_seen = []
-		new_source_seen = False
-		for root, dirs, files in os.walk(self.dir):
-			for file in files:
-				path = os.path.join(root, file)
-				paths_seen.append(path)
-				if path in self.source_by_path:
-					continue
-				source = PrometheusSource(path, self)
-				if not source.name:
-					continue
-				try:
-					# If we already have a cluster with this name
-					cluster_idx \
-						= self.cluster_cache.lookup_name(source.name)
-					if self.debug:
-						self.log("Found %s in cluster cache: %d" %
-								 (source.name, cluster_idx))
-				except KeyError:
-					# Assign cluster to a new source
-					try:
-						cluster_idx = self.cluster_cache.next_value()
-						if self.debug:
-							self.log("allocating new cluster idx"
-									 " %d for source %s" %
-									 (cluster_idx, source.name))
-					except ValueError:
-						self.log("Skipping source '%s' -"
-								 " max cluster reached" % root)
-						continue
+        def assert_source_invariants(self, name=None, cluster=None):
+                '''
+                Assert some invariants about the known sources
+                '''
+                if name:
+                        s = self.source_by_name[name]
+                        assert s == self.source_by_cluster[s.cluster]
+                if cluster:
+                        s = self.source_by_cluster[cluster]
+                        assert s == self.source_by_name[s.name]
 
-				self.log("Adding source '%s', cluster_idx %d"
-					% (source.name, cluster_idx))
-				self.cluster_cache.add_value(source.name, cluster_idx)
-				source.cluster = cluster_idx
-				self.source_by_cluster[cluster_idx] = source
-				self.source_by_name[source.name] = source
-				self.source_by_path[path] = source
-				new_source_seen = True
-		if new_source_seen:
-			self.cluster_cache.refresh()
-		# Remove sources whose metadata has been deleted
-		for path in self.source_by_path.copy().keys():
-			if path not in paths_seen:
-				self.log("Removing source with path = '%s'"
-					% path)
-				source = self.source_by_path[path]
-				source.remove_all()
-				self.source_by_path.pop(path)
-				self.source_by_cluster.pop(source.cluster)
-				self.source_by_name.pop(source.name)
+                       
+        def rescan_confdir(self):
+                '''Scan the configuration directory for any new .url files containing
+                prometheus URLs.  Ensure there is a Source registered in
+                the self.source_by_name dictionary for each one.
 
-	def prometheus_fetch(self):
-		''' Called once before calling prometheus_fetch_callback '''
-		self.refresh_metadata_helper()
-		# Lookup the metadata directory for any new source
-		if self.dir_mtime < os.stat(self.dir).st_mtime:
-			self.dir_mtime = os.stat(self.dir).st_mtime
-			self.log("Metadata directory has changed, "
-				"reloading prometheus sources")
-			self.load_prometheus_sources()
-		# Count the number of times fetch called
-		self.numfetch += 1
+                If the config_dir hasn't changed lately, do nothing.
+                This is important because this callback is invoked
+                -all-the-time- by src/python/pmda.c.
+                '''
+                try:
+                        ctime = os.path.getctime(self.config_dir)
+                        if not self.config_dir_ctime or self.config_dir_ctime < ctime:
+                                self.config_dir_ctime = ctime
+                                # fall through
+                        else: # no change, don't rescan directory
+                                return
+                except:
+                        # If the stat failed, there's not much we can do.
+                        # pass # could fall through
+                        return
+                
+                nickname_regexp = re.compile(r"^[A-Za-z]\w*$")
+                
+                # XXX: nuke sources related to removed files
+                self.log("walking %s, ctime %s" % (self.config_dir, self.config_dir_ctime))
+                save_cluster_table = False
+                for root, dirs, files in os.walk(self.config_dir):
+                        for file in files:
+                                # compute nickname for source:
+                                # the part of the filename before .url
+                                file_split = os.path.splitext(file)
+                                self.debug("found %s/%s => %s" % (root, file, file_split))
+                                if len(file_split) != 2 or file_split[1] != ".url":
+                                        continue
+                                name = file_split[0]
+                                if not nickname_regexp.match(name):
+                                        self.log("Bad nickname %s" % file)
+                                        continue
 
-	def prometheus_label(self, ident, type):
-		if type == c_api.PM_LABEL_ITEM:
-			if ident in self.metrics_by_pmid:
-				return self.metrics_by_pmid[ident].label_func()
-			else:
-				self.log("Invalid pmid:%d requested"
-					"on label with type:%d"%(ident, type))
-		return "{}"
-
-	def prometheus_label_callback(self, indom, inst):
-		if indom in self.metrics_by_indom:
-			return self.metrics_by_indom[indom].label_func(inst)
-		else:
-			self.log("Invalid indom:%d requested "
-				"on label callback with inst:%d"%(indom, inst))
-		return "{}"
-
-	def prometheus_fetch_callback(self, cluster, item, inst):
-		''' Main fetch callback which returns the value of the metric '''
-		# cluster 0 is reserved for the static metrics
-		# self.log("Fetch: Cluster: " + str(cluster) + ",item: " + str(item) + ",inst: " + str(inst))
-		if cluster == 0:
-			if inst != c_api.PM_IN_NULL:
-				return [c_api.PM_ERR_PMID, 0]
-			elif item == 0:
-				return [self.numfetch, 1]
-			elif item == 1:
-				return [self.metadata_refresh_frequency, 1]
-			elif item == 2:
-				return [self.endpoint_fetch_timeout, 1]
-			else:
-				return [c_api.PM_ERR_PMID, 0]
-		elif cluster in self.source_by_cluster:
-			return self.source_by_cluster[cluster].fetch(item, inst)
-		return [c_api.PM_ERR_PMID, 1]
-
-	def prometheus_store_callback(self, cluster, item, inst, value):
-		''' Main store callback which stores the value of the metric'''
-		if inst != c_api.PM_IN_NULL:
-			return c_api.PM_ERR_PMID
-		if cluster == 0:
-			if item == 1:
-				self.metadata_refresh_frequency = value
-				return 1
-			elif item == 2:
-				self.endpoint_fetch_timeout = value
-				return 1
-			else:
-				return c_api.PM_ERR_PMID
-		return c_api.PM_ERR_PMID
-
-	def refresh_metadata_helper(self):
-		''' Creates subprocess to refresh the metadata of sources
-			Invoked on every fetch but forks a sub process based on
-			metadata_refresh_frequency
-		'''
-		curr_time = time.time()
-		if (curr_time - self.last_refresh_time) >= self.metadata_refresh_frequency:
-			if self.refresh_process is not None and \
-				self.refresh_process.is_alive() is True:
-				return
-			self.refresh_process = Process(target=self.refresh_metadata)
-			self.refresh_process.start()
-			self.last_refresh_time = time.time()
-
-	def refresh_metadata(self):
-		if len(self.source_by_cluster) == 0:
-			return
-		for i in self.source_by_cluster:
-			source = self.source_by_cluster[i]
-			metadata = source.metadata
-			data = None
-			try:
-				req = requests.get(source.endpoint, \
-					timeout=self.endpoint_fetch_timeout)
-				data = req.text
-			except:
-				continue
-			scanner = ScanPrometheus('')
-			scanner.raw_metrics = data
-			scanner.parse_raw()
-			new_metrics = scanner.exportMetrics()
-			(changes, metrics) = diffMetadata(new_metrics, \
-				metadata.get('metrics'))
-
-			if len(changes) > 0:
-				self.log("Metadata of source with cluster_idx '%d' has changed"
-					% i)
-				metrics_arr = []
-				for name in metrics:
-					metrics_arr.append(metrics[name])
-				metadata["metrics"] = metrics_arr
-				with open(source.path, "w") as f:
-					f.write(json.dumps(metadata, indent=2))
-					f.close()
-
-	def refresh_worker(self, *clusters):
-		''' Worker targeted by refresh_all() to refresh metrics values'''
-		for i in clusters:
-			if i==0:
-				continue
-			try:
-				self.source_by_cluster[i].refresh_metrics()
-			except:
-				self.log("Refresh metric failed for cluster_idx '%d'" % i)
-
-	def refresh_all(self, clusters):
-		''' Called once before fetch callbacks
-			Creates threads to parallely update the metric values
-		'''
-		# slicelen defines the number of clusters each thread should handle
-		slicelen = int(math.ceil(len(clusters)/float(self.num_threads)))
-		index = 0
-		threads = []
-
-		for i in range(self.num_threads):
-			if index >= len(clusters):
-				break
-			t = threading.Thread(target=self.refresh_worker,
-					args = clusters[index:index + slicelen])
-			index += slicelen
-			threads.append(t)
-			t.daemon = True
-			t.start()
-
-		# Wait for all the threads to terminate
-		for t in threads:
-			t.join()
-
-	def refresh_metrics(self):
-		''' Reload metadata of each source'''
-		if self.refresh_process is not None and \
-			self.refresh_process.is_alive() is True:
-			return
-		if  self.last_refresh_time >= self.last_reload_time:
-			self.last_reload_time = time.time()
-			for i in self.source_by_cluster:
-				try:
-					self.source_by_cluster[i].reload_metadata()
-				except:
-					self.log("Reload metadata failed for cluster_idx '%d'"
-						% i)
+                                if name in self.source_by_name:
+                                        self.assert_source_invariants(name=name)
+                                        pass
+                                else:
+                                        try:
+                                                path = os.path.join(root, file)
+                                                cluster = self.cluster_table.intern_lookup_value(name)
+                                                source = Source(name, cluster, path, self)
+                                                self.source_by_name[source.name] = source
+                                                self.source_by_cluster[source.cluster] = source
+                                                save_cluster_table = True
+                                                self.log("Found source %s cluster %d" % (name, cluster))
+                                        except Exception as e:
+                                                self.log("Error allocating new cluster/source %s (%s)" % (name, e))
+                if save_cluster_table:
+                        self.cluster_table.save()
 
 
+        def refresh_metrics_for_pmns(self):
+                '''Refresh our list of Sources.  Then have each "old" Source do a
+                fetch, so as to populate/refresh the PMNS.
+                '''
+                self.rescan_confdir() # get our Source list up to date
+                
+                # do a batch fetch of all empty sources to ensure pmns is populated
+                clusters=[]
+                for k,v in self.source_by_cluster.items():
+                        if v.old_enough_for_refresh():
+                                clusters.append(k)
+                self.refresh_some_clusters_for_fetch(clusters)
+
+                
+        def fetch_callback(self, cluster, item, inst):
+                ''' Main fetch callback which returns the value of the metric '''
+                self.assert_source_invariants(cluster=cluster)
+                try:
+                        if cluster in self.source_by_cluster:
+                                return self.source_by_cluster[cluster].fetch(item, inst)
+                        else:
+                                return [c_api.PM_ERR_PMID, 0]
+                except Exception as e:
+                        return [c_api.PM_ERR_AGAIN, 0] # was there before
+
+        def refresh_worker(self,cluster):
+                try:
+                        self.assert_source_invariants(cluster=cluster)
+                        self.source_by_cluster[cluster].refresh()
+                except Exception as e:
+                        self.log("Cannot refresh cluster %d: %s" % (cluster, e))
+
+        def refresh_some_clusters_for_fetch(self,_clusters):
+                '''Called once per pmFetch batch handling, before
+                prometheus_fetch_callback calls.  Creates threads to
+                fetch data in parallel.
+                '''
+                clusters = [int(l) for l in _clusters] # convert from PyLong
+                threads = []
+                for c in clusters:
+                        t = threading.Thread(target=self.refresh_worker,
+                                             args=(c,)) # <- important comma
+                        threads.append(t)
+                        t.daemon = True
+                        t.start()
+                for t in threads:
+                        t.join() # XXX: timeout maybe?
+                        
+                # NB: this particular approach not only fetches the remote documents
+                # in parallel, but also -processes- them in parallel, up to and including
+                # calling the python pmda bindings from various threads.  This seems to
+                # be OK.  The pmda main thread is the only one that will actually talk to
+                # pmcd, based on the python shared dicts / callbacks, but that only happens
+                # when all these threads are dead.  The various threads don't share any python-side data structures.
+                        
+        def set_need_refresh(self):
+                cpmda.set_need_refresh()
+                self.pmns_refresh()
+
+        def debug(self,s):
+                # XXX: conditionalize
+                super(PrometheusPMDA,self).log("debug: "+s)
+                # sys.stderr.write('debug:' + s + '\n')
+
+        def log(self,s):
+                super(PrometheusPMDA,self).log(s)
+                # sys.stderr.write('log:' + s + '\n')
+                        
+                        
 if __name__ == '__main__':
-	'''
-		Prometheus source configuration generator - parse the metrics
-		to produce JSON configurations as used in the $PCP_PMDAS_DIR/
-                metadata directory
-	'''
-	parser = argparse.ArgumentParser(description='Prometheus PMDA heuristics metrics metadata generator.')
-	parser.add_argument('-g', '--generate', help="Generate heuristics metadata", action="store_true")
-	parser.add_argument('-u','--url', help='Prometheus endpoint whose metadata has to be generated')
-	parser.add_argument('-f','--filepath', help='Prometheus file based endpoint whose metadata has to be generated')
-	parser.add_argument('-n','--name', help="Name to be used as the Prometheus cluster name")
-	parser.add_argument('-r','--runtime', help="Generate the metrics on runtime when the endpoint is reachable", action="store_true")
-	args = parser.parse_args()
+        parser = argparse.ArgumentParser(description='Prometheus PMDA.',
+                                         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+        parser.add_argument('-c','--config',
+                            type=str,
+                            default=os.getenv('PCP_PMDAS_DIR')+'/prometheus/urls.d',
+                            help='set URL configuration directory')
+        args = parser.parse_args()
 
-	# If generate then scan the metrics and produce the metadata JSON
-	if args.generate:
-		if not ( args.url or args.filepath ) or not args.name:
-			parser.error("Name and url or filepath of the endpoint required")
-			sys.exit(1)
-		scan = ScanPrometheus(args.name, args.url, args.filepath)
-		if args.runtime:
-			scan.save_metadata()
-		else:
-			scan.run()
-	else:
-		PrometheusPMDA('prometheus', 144).run()
+        pmda = PrometheusPMDA('prometheus', 144, args.config)
+        pmda.run()

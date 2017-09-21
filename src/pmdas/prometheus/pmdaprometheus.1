@@ -1,6 +1,7 @@
 '\"macro stdmacro
 .\"
 .\" Copyright (c) 2017 Ronak Jain.
+.\" Copyright (c) 2017 Red Hat Inc.
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -24,80 +25,46 @@ access to application metrics.
 Further details on the Prometheus exposition format can
 be found at
 .I https://prometheus.io/docs/instrumenting/exposition_formats
-.SH METADATA SOURCES
+
+.SH SOURCES
+
+As it runs,
 .B pmdaprometheus
-scans the
-.I $PCP_PMDAS_DIR/prometheus/metadata
-directory, looking for metadata files (\c
-.IR *.json).
-These JSON metadata files describe the names, types, etc.
-of their associated Prometheus metrics for a given endpoint.
-For example, let's assume the following simple Prometheus metric:
-.PP
-.nf
-.fam C
-# HELP go_goroutines Number of goroutines that currently exist.
-# TYPE go_goroutines gauge
-go_goroutines 86
-.fam T
-.fi
-.PP
-The associated metadata file would look like the following:
-.PP
-.nf
-.fam C
-{
-  "metrics": [
-    {
-      "semantics": "instantaneous",
-      "type": "uint64",
-      "units_str": "",
-      "prometheus_name": "go_goroutines",
-      "name": "go_goroutines",
-      "description": "Number of goroutines that currently exist."
-    }
-  ]
-}
-.fam T
-.fi
-.PP
-Allowable values for each of the metadata fields are:
-.TP
-\fB semantics\fR=[counter, instantaneous]\/\fR
-the semantics of the metric
-.TP
-\fB type\fR=[double, uint64]\/\fR
-the base data type of the metric
-.TP
-\fB name\fR=\fI\,STRING\/\fR
-name of the metric to be used in PCP
-.TP
-\fB units_str\fR=\fI\,STRING\/\fR
-the dimension and units of the metric which can be parsed by \fIpmParseUnitsStr\fR(3)
-.TP
-\fB prometheus_name\fR=\fI\,STRING\/\fR
-complete metric name as used in Prometheus
-.TP
-\fB description\fR=\fI\,STRING\/\fR
-text description of the metric
-.SH METADATA GENERATOR
-The
+periodically scans the
+.I $PCP_PMDAS_DIR/prometheus/urls.d
+directory, looking for source url files (\c
+.IR *.url).
+Each .url file contains one complete HTTP or HTTPS URL at which to
+pmdaprometheus is to reach a Prometheus endpoint.  The server does not
+have to be up or stay running.  The pmda will relay data and metadata
+when/if they are up, and will return errors when/if they are down.
+
+.SH METRICS
+
+All metrics from a file named
+.IR FOO.url
+will be exported as PCP metrics with the
+.I prometheus.FOO.
+prefix.  Therefore, the FOO name must be a valid component for PMNS metric
+names.
+
+\" example
+\" describe metric naming conventions
+\" refer to pmwebd interop
+\" describe # PCP extras
+
+.SH LIMITATIONS
+
 .B pmdaprometheus
-metadata generation helper script
-helps in providing initial content for the (heuristic-based)
-metric metadata, from a Prometheus endpoint.
-.PP
-.B $PCP_PMDAS_DIR/prometheus/Generate
-[\fI\,OPTIONS]
-.PP
-Mandatory arguments to long options are mandatory for short options too.
-Following are the mandatory options:
-.TP
-\fB\-u\fR, \fB\-\-url\fR=\fI\,STRING\/\fR
-URL of the Prometheus endpoint
-.TP
-\fB\-n\fR, \fB\-\-name\fR=\fI\,STRING\/\fR
-name of the Prometheus endpoint
+and
+.B libpcp
+internals impose some numerical constraints about the number of sources (4095),
+metrics (1024) within each source, and instance domain instances for each
+metric (4194304).
+
+\" errors 
+
+
 .SH INSTALLATION
 Install the Prometheus PMDA by using the Install script as root:
 .PP
@@ -119,12 +86,13 @@ agent is installed or removed.
 installation script for the \fBpmdaprometheus\fR agent
 .IP "\fB$PCP_PMDAS_DIR/prometheus/Remove\fR" 4
 undo installation script for the \fBpmdaprometheus\fR agent
-.IP "\fB$PCP_PMDAS_DIR/prometheus/Generate\fR" 4
-generate metadata describing available metrics based on heuristics
-.IP "\fB$PCP_PMDAS_DIR/prometheus/metadata/\fR" 4
-metadata files for the \fBpmdaprometheus\fR agent
+.IP "\fB$PCP_PMDAS_DIR/prometheus/urls.d/\fR" 4
+source files for the \fBpmdaprometheus\fR agent
 .IP "\fB$PCP_LOG_DIR/pmcd/prometheus.log\fR" 4
 default log file for error messages from \fBpmdaprometheus\fR
+.IP "\fB$PCP_VAR_DIR/\fR" 4
+directory containing internal tables for ID number persistence
+
 .SH PCP ENVIRONMENT
 Environment variables with the prefix \fBPCP_\fR are used to parameterize
 the file and directory names used by \fBPCP\fR. On each installation, the
@@ -134,6 +102,6 @@ configuration file, as described in \fIpcp.conf\fR(5).
 .SH SEE ALSO
 .BR pmcd (1),
 .BR pminfo (1),
-.BR pmprobe (1)
+.BR pmwebd (1),
 and
 .IR https://prometheus.io/docs/instrumenting/exposition_formats .
