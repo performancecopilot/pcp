@@ -57,6 +57,7 @@ endian
 eofarch
 eol
 err
+exectest
 exercise
 exercise_fault
 exerlock
