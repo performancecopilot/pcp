@@ -87,8 +87,11 @@ maybe_refresh_all(void)
 	    return;
 	result = PyEval_CallObject(refresh_metrics_func, arglist);
 	Py_DECREF(arglist);
-	// Just ignore the result.
-	Py_DECREF(result);
+        if (result == NULL)
+            PyErr_Print();
+        else
+            // Just ignore the result.
+            Py_DECREF(result);
     }
 
     if (need_refresh) {
