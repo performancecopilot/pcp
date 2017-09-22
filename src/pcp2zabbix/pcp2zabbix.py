@@ -383,7 +383,7 @@ class PCP2Zabbix(object):
                                  '\t\t\t"host":%s,\n'
                                  '\t\t\t"key":%s,\n'
                                  '\t\t\t"value":%s,\n'
-                                 '\t\t\t"clock":%.5f}') % (j(m.host), j(m.key), j(m.value), clock))
+                                 '\t\t\t"clock":%d}') % (j(m.host), j(m.key), j(m.value), clock))
         json_data = ('{\n'
                      '\t"request":"sender data",\n'
                      '\t"data":[\n%s]\n'
@@ -392,6 +392,8 @@ class PCP2Zabbix(object):
         data_len = struct.pack('<Q', len(json_data))
         packet = b'ZBXD\1' + data_len + json_data.encode('utf-8')
         try:
+            # NB: Zabbix trapper protocol (as of Zabbix 3.4) supports only one
+            # transaction per connection, so we can't use a long-lived socket.
             zabbix = socket.socket()
             zabbix.connect((zabbix_host, zabbix_port))
             zabbix.settimeout(timeout)
