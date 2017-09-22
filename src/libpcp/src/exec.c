@@ -28,10 +28,33 @@
 #include <sys/wait.h>
 #include <signal.h>
 
-typedef struct __pmExecCtl {
+struct __pmExecCtl {
     int		argc;
     char	**argv;
-} __pmExecCtl_t;
+};
+
+#ifdef PM_MULTI_THREAD
+static pthread_mutex_t	exec_lock;
+#else
+void			*exec_lock;
+#endif
+
+#if defined(PM_MULTI_THREAD) && defined(PM_MULTI_THREAD_DEBUG)
+/*
+ * return true if lock == exec_lock
+ */
+int
+__pmIsExecLock(void *lock)
+{
+    return lock == (void *)&exec_lock;
+}
+#endif
+
+void
+init_exec_lock(void)
+{
+    __pmInitMutex(&exec_lock);
+}
 
 /* Cleanup after error or after __pmExecCtl_t has been used. */
 static void
@@ -62,9 +85,11 @@ __pmProcessAddArg(__pmExecCtl_t **handle, char *arg)
     char		**tmp_argv;
 
     if (*handle == NULL) {
+	PM_LOCK(exec_lock);
 	/* first call in a sequence */
 	if ((ep = (__pmExecCtl_t *)malloc(sizeof(__pmExecCtl_t))) == NULL) {
 	    __pmNoMem("pmProcessAddArg: __pmExecCtl_t malloc", sizeof(__pmExecCtl_t), PM_RECOV_ERR);
+	    PM_UNLOCK(exec_lock);
 	    return -ENOMEM;
 	}
 	ep->argc = 0;
@@ -73,6 +98,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_ALLOC);
 	    __pmNoMem("pmProcessAddArg: argv malloc", sizeof(ep->argv[0]), PM_RECOV_ERR);
 	    cleanup(ep);
 	    *handle = NULL;
+	    PM_UNLOCK(exec_lock);
 	    return -ENOMEM;
 	}
     }
@@ -87,6 +113,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":2", PM_FAULT_ALLOC);
 	__pmNoMem("pmProcessAddArg: argv realloc", sizeof(ep->argv[0])*(ep->argc+2), PM_RECOV_ERR);
 	cleanup(ep);
 	*handle = NULL;
+	PM_UNLOCK(exec_lock);
 	return -ENOMEM;
     }
     else
@@ -99,6 +126,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":3", PM_FAULT_ALLOC);
 	__pmNoMem("pmProcessAddArg: arg strdup", strlen(arg)+1, PM_RECOV_ERR);
 	ep->argc--;
 	cleanup(ep);
+	PM_UNLOCK(exec_lock);
 	*handle = NULL;
 	return -ENOMEM;
     }
@@ -206,6 +234,7 @@ __pmProcessExec(__pmExecCtl_t **handle, int toss, int wait, int *status)
 
     /* cleanup the malloc'd control structures */
     cleanup(ep);
+    PM_UNLOCK(exec_lock);
     *handle = NULL;
 
     return sts;
