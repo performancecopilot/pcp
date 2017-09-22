@@ -25,6 +25,7 @@ _usage()
 showme=false
 verbose=false
 smallest=false
+random=true
 while getopts 'nsv?' p
 do
     case "$p"
@@ -32,6 +33,7 @@ do
 	n)	showme=true
 		;;
 	s)	smallest=true
+		random=false
 		;;
 	v)	verbose=true
 		;;
@@ -118,7 +120,6 @@ then
     echo "Warning: ${MAKE:-make} failed -- some tests may be missing"
 fi
 
-random=true
 if [ $# -gt 0 ]
 then
     try=`printf "%03d\n" $1`
@@ -127,7 +128,6 @@ then
 elif $smallest
 then
     try=000
-    random=false
 else
     # random in the range $min-$max based on user name convered from alpha
     # to numeric, prefixed by current clock seconds
@@ -150,12 +150,12 @@ do
 	if $random
 	then
 	    try=`awk 'BEGIN { srand('"$seed"'); printf "%03d\n",int('$min'+rand()*('$max'-'$min')) }' </dev/null`
+	    probe=`expr $probe + 1`
 	else
 	    try=`expr $try + 1`
 	    try=`printf "%03d\n" $try`
 	fi
 	$verbose && echo >&2 "Info: try $try"
-	probe=`expr $probe + 1`
     else
 	id=$try
 	break
