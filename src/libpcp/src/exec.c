@@ -23,6 +23,7 @@
 #include "pmapi.h"
 #include "impl.h"
 #include "internal.h"
+#include "fault.h"
 #include <sys/types.h>
 #include <sys/wait.h>
 
@@ -30,6 +31,24 @@ typedef struct __pmExecCtl {
     int		argc;
     char	**argv;
 } __pmExecCtl_t;
+
+/* Cleanup after error or after __pmExecCtl_t has been used. */
+static void
+cleanup(__pmExecCtl_t *ep)
+{
+    int		i;
+
+    if (ep == NULL)
+	return;
+    if (ep->argv != NULL) {
+	for (i = 0; i < ep->argc; i++) {
+	    if (ep->argv[i] != NULL)
+		free(ep->argv[i]);
+	}
+	free(ep->argv);
+    }
+    free(ep);
+}
 
 /*
  * Built array of arguments for use in pmProcessExec() or
@@ -48,36 +67,37 @@ __pmProcessAddArg(__pmExecCtl_t **handle, char *arg)
 	    return -ENOMEM;
 	}
 	ep->argc = 0;
+PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_ALLOC);
 	if ((ep->argv = (char **)malloc(sizeof(ep->argv[0]))) == NULL) {
 	    __pmNoMem("pmProcessAddArg: argv malloc", sizeof(ep->argv[0]), PM_RECOV_ERR);
-	    free(ep);
+	    cleanup(ep);
+	    *handle = NULL;
 	    return -ENOMEM;
 	}
     }
     else
 	ep = *handle;
 
-    ep->argc++;
-
-    if ((tmp_argv = (char **)realloc(ep->argv, sizeof(ep->argv[0])*(ep->argc+1))) == NULL) {
-	__pmNoMem("pmProcessAddArg: argv realloc", sizeof(ep->argv[0])*(ep->argc+1), PM_RECOV_ERR);
-	free(ep->argv);
-	free(ep);
+PM_FAULT_POINT("libpcp/" __FILE__ ":2", PM_FAULT_ALLOC);
+    /*
+     * ep->argc+2 ... +1 for this one, +2 for NULL @ end of args
+     */
+    if ((tmp_argv = (char **)realloc(ep->argv, sizeof(ep->argv[0])*(ep->argc+2))) == NULL) {
+	__pmNoMem("pmProcessAddArg: argv realloc", sizeof(ep->argv[0])*(ep->argc+2), PM_RECOV_ERR);
+	cleanup(ep);
 	*handle = NULL;
 	return -ENOMEM;
     }
     else
 	ep->argv = tmp_argv;
 
+    ep->argc++;
+
+PM_FAULT_POINT("libpcp/" __FILE__ ":3", PM_FAULT_ALLOC);
     if ((ep->argv[ep->argc-1] = strdup(arg)) == NULL) {
-	__pmNoMem("pmProcessAddArg: arg strdup", strlen(arg), PM_RECOV_ERR);
+	__pmNoMem("pmProcessAddArg: arg strdup", strlen(arg)+1, PM_RECOV_ERR);
 	ep->argc--;
-	while (ep->argc >= 1) {
-	    free(ep->argv[ep->argc-1]);
-	    ep->argc--;
-	}
-	free(ep->argv);
-	free(ep);
+	cleanup(ep);
 	*handle = NULL;
 	return -ENOMEM;
     }
@@ -109,6 +129,10 @@ __pmProcessExec(__pmExecCtl_t **handle, int toss, int wait, int *status)
     int			i;
     pid_t		pid;
     int			sts;
+
+    if (ep == NULL)
+	/* no executable path or args */
+	return PM_ERR_TOOSMALL;
 
     if (pmDebugOptions.exec) {
 	fprintf(stderr, "pmProcessExec: argc=%d", ep->argc);
@@ -168,10 +192,8 @@ __pmProcessExec(__pmExecCtl_t **handle, int toss, int wait, int *status)
 	sts = -oserror();
 
     /* cleanup the malloc'd control structures */
-    for (i = 0; i < ep->argc; i++)
-	free(ep->argv[i]);
-    free(ep->argv);
-    free(ep);
+    cleanup(ep);
+    *handle = NULL;
 
     return sts;
 }
