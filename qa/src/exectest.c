@@ -16,7 +16,9 @@ report_status(int status)
     if (WIFEXITED(status)) printf(" exit=%d", WEXITSTATUS(status));
     if (WIFSIGNALED(status)) printf(" signal=%d", WTERMSIG(status));
     if (WIFSTOPPED(status)) printf(" stop signal=%d", WSTOPSIG(status));
+#ifdef WIFCONTINUED
     if (WIFCONTINUED(status)) printf(" continued");
+#endif
     if (WCOREDUMP(status)) printf(" core dumped");
 }
 
