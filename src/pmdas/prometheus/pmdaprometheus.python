@@ -57,37 +57,50 @@ class Metric(object):
 	def __init__(self,source,name,metricnum,instances,pcpline,helpline,typeline):
                 self.source = source
                 self.name = name
+                self.metricnum = metricnum # seen during fetch callbacks
 		self.pmid = source.pmda.pmid(source.cluster,metricnum)
                 self.indom_number = (MAX_CLUSTER+1 +
                                      (source.cluster * (MAX_METRIC+1)) +
                                      metricnum)
-                self.instances = PersistentNameTable(self.source.pmda,
-                                                     self.indom_number,
-                                                     MAX_INDOM)
+                self.values = {} # instance-vector-to-value
                 # XXXX PCP - real name; : unquoting; heuristics galore
                 self.mtype = c_api.PM_TYPE_DOUBLE
                 self.msem = c_api.PM_SEM_INSTANT   # XXX
+                self.mname = self.source.name + '.' + self.name.replace(":",".") # XXX pcpline etc.
                 self.munits = pmUnits(0,0,0,0,0,0) # XXX
                 if instances:
                         self.mindom = self.indom_number
+                        self.indom_table = PersistentNameTable(self.source.pmda, self.indom_number, MAX_INDOM)
                 else:
                         self.mindom = c_api.PM_INDOM_NULL
+                        self.indom_table = None
                 self.obj = pmdaMetric(self.pmid,self.mtype,self.mindom,self.msem,self.munits)
-                self.mname = self.source.name + '.' + self.name.replace(":",".") # XXX
                 self.description = helpline # XXX unescape
-                self.source.pmda.add_metric(self.mname, self.obj, self.description)
+                try:
+                        self.source.pmda.add_metric(self.mname, self.obj, self.description)
+                except Exception as e:
+                        self.log("Cannot add metric %s (%d): %s" % (self.mname, self.pmid, e))
                 self.source.pmda.debug("created metric %x (%s)" % (self.pmid, self.mname))
-                pass
 
         def clear_values(self):
-                pass
+                self.values.clear()
         
         def store_inst(self,labels,value):
-                pass
-        
+                assert (labels is None) == (self.indom_table is None) # no metric indom flipflop
+                if labels is None:
+                        self.values[c_api.PM_IN_NULL] = float(value)
+                else:
+                        instname = str(labels) # XXX: pcp instance=""
+                        inst = self.indom_table.intern_lookup_value(instname)
+                        self.values[inst] = float(value)
+                        self.indom_table.save() # XXX: ideally less frequently
+                        
         def fetch_inst(self,inst): # fetch instance
-                pass
-                
+                self.log("ZOOPOO fetch inst %s %d vs %d" % (inst,inst,c_api.PM_IN_NULL))
+                if inst in self.values:
+                        return [self.values[inst], 1]
+                else:
+                        self [c_api.PM_ERR_INST, 0]
 
 class PersistentNameTable(object):
 	'''Persistent name table.  Answers name-to-number queries by assigning
@@ -127,6 +140,7 @@ class PersistentNameTable(object):
                         for i,n in enumerate(self.instances):
                                 indom_array.append(pmdaInstid(c_int(i),n))
 		        self.pmda.replace_indom(self.pmdaindom, indom_array)
+                        self.pmda.set_need_refresh()
                         # save to disk too
                         try: # slightly used!
                                 with open(self.store_file_name,'w') as f:
@@ -303,7 +317,7 @@ class Source(object):
 		self.pmids_table = PersistentNameTable(self.pmda, cluster, MAX_METRIC)
                 
                 self.metrics_by_name = {} # name -> Metric
-                self.metrics_by_pmid = {} # pmid -> Metric
+                self.metrics_by_num = {} # number (last component of pmid) -> Metric
                 
 
         def parse_metric_line(self,line,pcpline,helpline,typeline):
@@ -315,28 +329,27 @@ class Source(object):
                         # self.pmda.debug("parsed '%s' -> %s %s %s" % (line, sp.name, sp.labels, sp.value))
                         if sp.name in self.metrics_by_name:
                                 m = self.metrics_by_name[sp.name]
-                                assert self.metrics_by_pmid[m.pmid] == m
+                                assert self.metrics_by_num[m.metricnum] == m
                         else:
                                 metricnum = self.pmids_table.intern_lookup_value(sp.name)
                                 m = Metric(self,sp.name,metricnum,sp.labels,
                                            pcpline,helpline,typeline)
                                 self.metrics_by_name[sp.name] = m
-                                self.metrics_by_pmid[m.pmid] = m
-                                self.pmda.set_need_refresh()
+                                self.metrics_by_num[metricnum] = m  # not pmid!
 
                         m.store_inst(sp.labels,sp.value)
                 except Exception as e:
-                        self.pmda.log("cannot parse %s: %s" % (line, e))
+                        self.pmda.log("cannot parse/store %s: %s" % (line, e))
                 pass
 
 
         def parse_lines(self,text):
-                '''
-                Refresh all the metric metadata as it is found, including creating
-                new metrics; signal set_need_refresh() if changed
-                Store away metric values for subsequent fetch()es.
-                Parse errors may result in exceptions.  That's OK, we
-                don't try heroics to parse non-compliant data.
+                '''Refresh all the metric metadata as it is found, including creating
+                new metrics.  Store away metric values for subsequent
+                fetch()es.  Parse errors may result in exceptions.
+                That's OK, we don't try heroics to parse non-compliant
+                data.
+
                 '''
 
                 lines = text.splitlines()
@@ -385,9 +398,8 @@ class Source(object):
                 # clear cached values from all my metrics
                 for n,m in self.metrics_by_name.items():
                         m.clear_values()
-
                 # XXX: ditch metrics no longer found in document
-                                              
+
                 # (re)read the URL from given file
                 try:
                         url = open(self.path,'r').read().strip()
@@ -406,9 +418,11 @@ class Source(object):
                 
         def fetch(self, item, inst):
                 try:
-                        m = self.metrics_by_pmid[item]
+                        self.pmda.log("try fetch item=%d inst=%d" % (item,inst))
+                        m = self.metrics_by_num[item]
                         return m.fetch_inst(inst)
-                except:
+                except Exception as e:
+                        self.log("cannot fetch item %d inst %d: %s" % (item,inst,e))
 		        return [c_api.PM_ERR_PMID, 0]
 
 
@@ -432,16 +446,18 @@ class PrometheusPMDA(PMDA):
 		self.source_by_cluster = {}
 
                 self.log("starting up!")
-                # pmns ops
-		self.set_refresh_metrics(self.refresh_metrics)
+
+                # rescan the urls.d directory periodically
+                t = threading.Timer(10.0, self.rescan_confdir) # XXX: configure
+                t.start()
+                # and right away
+                self.rescan_confdir()
+                
                 # metric fetch
-		self.set_refresh_all(self.refresh_all)
+		# old school: self.set_refresh_metrics - n/a
+		self.set_refresh_all(self.refresh_some_clusters)
 		self.set_fetch_callback(self.fetch_callback)
 
-
-        def refresh_metrics(self):
-                # maybe not needed
-                pass
 
         def assert_source_invariants(self, name=None, cluster=None):
                 '''
@@ -454,11 +470,13 @@ class PrometheusPMDA(PMDA):
                         s = self.source_by_cluster[cluster]
                         assert s == self.source_by_name[s.name]
 
+                       
 	def rescan_confdir(self):
                 '''
                 Scan the configuration directory for any new .url files containing
                 prometheus URLs.  Ensure there is a Source registered in
-                the self.source_by_name dictionary for each one.
+                the self.source_by_name dictionary for each one.  Then have each
+                Source do a fetch (if it hasn't done so recently)
                 '''
                 nickname_regexp = re.compile(r"^[A-Za-z]\w+$")
                 
@@ -490,15 +508,17 @@ class PrometheusPMDA(PMDA):
                                                 self.source_by_name[source.name] = source
                                                 self.source_by_cluster[source.cluster] = source
                                                 save_cluster_table = True
-                                                self.set_need_refresh() # update pmda/pmns
                                                 self.log("Found source %s cluster %d" % (name, cluster))
                                         except Exception as e:
                                                 self.log("Error allocating new cluster/source %s (%s)" % (name, e))
                 if save_cluster_table:
                         self.cluster_table.save()
+                # do a batch fetch of all sources to ensure pmns is populated
+                self.refresh_all_clusters()
                                       
 	def fetch_callback(self, cluster, item, inst):
 		''' Main fetch callback which returns the value of the metric '''
+                self.debug("fetch_callback %d %d %d" % (cluster,item,inst))
                 self.assert_source_invariants(cluster=cluster)
                 try:
 		        if cluster in self.source_by_cluster:
@@ -514,24 +534,34 @@ class PrometheusPMDA(PMDA):
                         self.source_by_cluster[cluster].refresh()
                 except Exception as e:
                         self.log("Cannot refresh cluster %d: %s" % (cluster, e))
-        
-	def refresh_all(self,clusters):
-		'''
-                Called once, before prometheus_fetch_callback calls.
-                Creates threads to fetch data in parallel.
-		'''
-		threads = []
-		for i in range(len(clusters)):
+
+                        
+	def refresh_all_clusters(self):
+                threads = []
+		for k,v in self.source_by_cluster.items():
 			t = threading.Thread(target=self.refresh_worker,
-					     args=(clusters[i],)) # <- important comma
+					     args=(k,)) # <- important comma
 			threads.append(t)
 			t.daemon = True
 			t.start()
-
-		# Wait for all the threads to terminate
 		for t in threads:
 			t.join()
-
+                        
+	def refresh_some_clusters(self,_clusters):
+		'''Called once per pmFetch batch handling, before
+                prometheus_fetch_callback calls.  Creates threads to
+                fetch data in parallel.
+                '''
+                clusters = [int(l) for l in _clusters] # convert from PyLong
+		threads = []
+		for c in clusters:
+			t = threading.Thread(target=self.refresh_worker,
+					     args=(c,)) # <- important comma
+			threads.append(t)
+			t.daemon = True
+			t.start()
+		for t in threads:
+			t.join()
 
         def set_need_refresh(self):
                 cpmda.set_need_refresh()
@@ -553,6 +583,4 @@ if __name__ == '__main__':
 	args = parser.parse_args()
 
 	pmda = PrometheusPMDA('prometheus', 144, args.config)
-        pmda.rescan_confdir()
-        pmda.refresh_all([1, 2, 3, 4, 5, 6, 7, 8])
         pmda.run()
