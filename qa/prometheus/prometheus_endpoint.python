@@ -1,0 +1,208 @@
+#!/usr/bin/env pmpython
+"""Test pmdaprometheus via exposing fake endpoints -*- python -*- """
+#
+# Copyright (C) 2017 Red Hat Inc
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+import sys
+import time
+import re
+import Queue as queue
+import threading
+import socket
+import BaseHTTPServer
+import argparse
+
+
+activeEndpoint = dict()
+
+
+def write_endpoint_metadata(args=None, endpoint=None):
+    endpointStr = "{{ \"endpoint\": \"http://{}:{}/{}{}\" }}".format(args.addr[0], args.addr[1], args.url, endpoint)
+#    print("{}".format(endpointStr, str(args.output)))
+    f = open('{}/{}'.format(str(args.output), endpoint), 'w')
+    f.write("{}\n".format(endpointStr))
+    f.close()
+
+
+class FakeEndpoint(BaseHTTPServer.BaseHTTPRequestHandler):
+    def sample_gauge_data(self, instances=None):
+        gauge_value = 12.1
+        instance = int(instances)
+        gauge_string = "# HELP sample_gauge{:04d} Sample gauge metric.\n# Type sample_gauge{:04d} gauge\n sample_gauge{:04d} {:.1f}\n".format(instance, instance, instance, (int(instance) * float(gauge_value)))
+        return gauge_string
+    def sample_counter_data(self, instances=None):
+        count_value = 1.70205394e+08
+        instance = int(instances)
+        counter_string = "# HELP sample_counter{:04d} Sample counter metric.\n\
+# TYPE sample_counter{:04d} counter\nsample_counter{:04d} {:.8e}\n".format(
+            instance, instance, instance, (int(instance) * count_value))
+        return counter_string
+
+    def sample_summary_data(self, instances=None):
+        summary_value_q0 = 0.000159623
+        summary_value_q1 = 0.000291993
+        summary_value_sum = 1.3912067700000001
+        summary_value_count = 1818
+        instance = int(instances)
+        summary_string = "# HELP sample_summary{:04d} Sample summary metric has instances.\n\
+# TYPE sample_summary{:04d} summary\n\
+sample_summary{:04d}{{quantile=\"0\"}} {:.9f}\n\
+sample_summary{:04d}{{quantile=\"0.25\"}} {:.9f}\n\
+sample_summary_sum{:04d} {:.16f}\n\
+sample_summary_count{:04d} {}\n".format(instance,
+                                      instance,
+                                      instance, (int(instance) * float(summary_value_q0)),
+                                      instance, (int(instance) * float(summary_value_q1)),
+                                      instance, (int(instance) * float(summary_value_sum)),
+                                      instance, (int(instance) * int(summary_value_count)))
+        return summary_string
+
+    def sample_histogram_data(self, instances=None):
+        histogram_value_l1 = 5945
+        histogram_value_l2 = 10862
+        histogram_value_l4 = 15813
+        histogram_value_sum = 45157
+        histogram_value_count = 18135
+        instance = int(instances)
+        histogram_string = "# HELP sample_histogram{:04d} Sample histogram metric has instances.\n\
+# TYPE sample_histogram{:04d} histogram\n\
+sample_histogram{:04d}{{le=\"1\"}} {:d}\n\
+sample_histogram{:04d}{{le=\"2\"}} {:d}\n\
+sample_histogram{:04d}{{le=\"4\"}} {:d}\n\
+sample_histogram_sum{:04d} {:d}\n\
+sample_histogram_count{:04d} {:d}\n".format(instance,
+                                            instance,
+                                            instance, (int(instance) * int(histogram_value_l1)),
+                                            instance, (int(instance) * int(histogram_value_l2)),
+                                            instance, (int(instance) * int(histogram_value_l4)),
+                                            instance, (int(instance) * int(histogram_value_sum)),
+                                            instance, (int(instance) * int(histogram_value_count)))
+        return histogram_string
+
+    def format_prometheus_output(self, metrics=None, instance=None):
+        #print("metrics: {} instance: {}".format(metrics, instance))
+        metrics_remaining = metrics
+        endpoint_string = ""
+        while metrics_remaining >= 0:
+            endpoint_string += self.sample_gauge_data(instance)
+            metrics_remaining -= 1
+            if metrics_remaining <= 0:
+                break
+            endpoint_string += self.sample_counter_data(instance)
+            metrics_remaining -= 1
+            if metrics_remaining <= 0:
+                break
+            endpoint_string += self.sample_summary_data(instance)
+            metrics_remaining -= 4
+            if metrics_remaining <= 0:
+                break
+            endpoint_string += self.sample_histogram_data(instance)
+            metrics_remaining -= 5
+        return endpoint_string
+
+    def do_GET(self):
+        time.sleep(float(self.server.args.delay))
+        if len(activeEndpoint) > 0:
+            endpoint_regex = re.compile(self.server.args.url)
+            instance = re.split(endpoint_regex, self.path)
+            if len(instance) > 1 and int(instance[1]) in activeEndpoint:
+                endpointNum = int(instance[1])
+                self.wfile.write(self.format_prometheus_output(self.server.args.metrics, (endpointNum*(activeEndpoint[endpointNum]+1)))) # multiply by activeendpoint value or something?
+                self.end_headers()
+                self.server.lock.acquire()
+                try:
+                    activeEndpoint[endpointNum] += 1
+                    if activeEndpoint[endpointNum] >= int(self.server.args.limit):
+                        del activeEndpoint[endpointNum] #do we even really need to do this? if the 
+                        self.server.pqueue.task_done()
+                        try:
+                            _next = self.server.pqueue.get_nowait()
+                            activeEndpoint[int(_next)] = 0
+                            write_endpoint_metadata(self.server.args, _next)
+                        except queue.Empty:
+                            pass
+                finally:
+                    self.server.lock.release()
+            else:
+                self.send_error(404)
+        return
+
+class PrometheusEndpoint(threading.Thread):
+    def __init__(self, pqueue=None, args=None):
+        threading.Thread.__init__(self)
+        self.daemon = True
+        self.pqueue = pqueue
+        self.args = args
+        self.lock = threading.Lock()
+        self.server = None
+        self.start()
+
+    def run(self):
+        try:
+            self.instance = self.pqueue.get_nowait()
+            self.lock.acquire()
+            try:
+                activeEndpoint[self.instance] = 0
+                write_endpoint_metadata(self.args, self.instance)
+            finally:
+                self.lock.release()
+        except queue.Empty:
+            pass
+
+        finally:
+            httpd = BaseHTTPServer.HTTPServer(self.args.addr, FakeEndpoint, False)
+            httpd.socket = self.args.sock
+            httpd.pqueue = self.pqueue
+            httpd.delay = self.args.delay
+            httpd.args = self.args
+            httpd.server_bind = self.server_close = lambda self: None
+            httpd.lock = self.lock
+            self.server = httpd
+            self.server.serve_forever()
+
+
+def parsing():
+    parser = argparse.ArgumentParser(description='Setup a number of fake prometheus endpoints for collection.')
+    parser.add_argument('--endpoints', default=2, help='number of prometheus endpoints to start at once')
+    parser.add_argument('--metrics', default=5, help='number of metrics per prometheus endpoint')
+    parser.add_argument('--delay', default=0,  help='delay time (seconds) for each "slow" node')
+    parser.add_argument('--limit', default=5, help='number of iterations/responses each endpoint limits itself to')
+    parser.add_argument('--total', default=5, help='total number of endpoints to run')
+    parser.add_argument('--port', default=10000, help='port to start fake endpoints on')
+    parser.add_argument('--error', default=0, help='create errornous data in prometheus endpoints')
+    parser.add_argument('--url', default="foo&endpoint=", help='url for the endpoint, the endpoint number must be the last part')
+    parser.add_argument('--output', default="./", help='directory to create endpoint metadata in')
+    args = parser.parse_args()
+    return args
+
+if __name__ == '__main__':
+
+    args = parsing()
+    pendpointQueue = queue.Queue()
+    addr = ('localhost', int(args.port))
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    sock.bind(addr)
+    sock.listen(int(args.port))
+    args.addr = addr
+    args.sock = sock
+
+    for endpoint in range(int(args.total)):
+        pendpointQueue.put(endpoint)
+
+    pendpoints = [PrometheusEndpoint(pendpointQueue, args)
+                  for i in range(int(args.endpoints))]
+
+    pendpointQueue.join()
+    sock.close()
+    sys.exit(0)
