@@ -63,7 +63,7 @@ main(int argc, char **argv)
 	    }
 	    pipeout++;
 	    if ((fdata = fopen(optarg, "r")) == NULL) {
-		fprintf(stderr, "%s: cannot open \"%s\" for reading: %s\n",
+		fprintf(stderr, "%s: cannot open \"%s\" for reading: \"%s\"\n",
 		    pmProgname, optarg, pmErrStr(-errno));
 		exit(1);
 	    }
@@ -93,7 +93,7 @@ Options:\n\
 	sts = __pmProcessAddArg(&h, argv[optind]);
 	if (pmDebugOptions.desperate) printf("sts=%d h=%p\n", sts, h);
 	if (h == NULL) {
-	    printf("__pmProcessAddArg: failed (handle is NULL) at argv[%d]: %s\n", optind, argv[optind]);
+	    printf("__pmProcessAddArg: failed (handle is NULL) at argv[%d]: \"%s\"\n", optind-1, argv[optind]);
 	    exit(1);
 	}
 	optind++;

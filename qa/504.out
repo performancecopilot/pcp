@@ -1,0 +1,16 @@
+QA output created by 504
+1st call to __pmProcessAddArg fails at malloc
+[DATE] exectest(PID) Warning: pmProcessAddArg: argv malloc: malloc(8) failed: Cannot allocate memory
+__pmProcessAddArg: failed (handle is NULL) at argv[0]: "echo"
+
+1st call to __pmProcessAddArg fails at realloc
+[DATE] exectest(PID) Warning: pmProcessAddArg: argv realloc: malloc(16) failed: Cannot allocate memory
+__pmProcessAddArg: failed (handle is NULL) at argv[0]: "echo"
+
+2nd (and later) calls to __pmProcessAddArg fails at realloc
+[DATE] exectest(PID) Warning: pmProcessAddArg: argv realloc: malloc(24) failed: Cannot allocate memory
+__pmProcessAddArg: failed (handle is NULL) at argv[1]: "not"
+
+4th call to __pmProcessAddArg fails at strdup
+[DATE] exectest(PID) Warning: pmProcessAddArg: arg strdup: malloc(3) failed: Cannot allocate memory
+__pmProcessAddArg: failed (handle is NULL) at argv[3]: "to"

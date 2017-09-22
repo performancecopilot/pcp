@@ -1,0 +1,52 @@
+QA output created by 540
+1st call to __pmProcessAddArg fails at malloc
+=== std out ===
+__pmProcessAddArg: failed (handle is NULL) at argv[0]: "echo"
+=== std err ===
+[DATE] exectest(PID) Warning: pmProcessAddArg: argv malloc: malloc(8) failed: Cannot allocate memory
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/exectest echo not supposed to get here
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+1st call to __pmProcessAddArg fails at realloc
+=== std out ===
+__pmProcessAddArg: failed (handle is NULL) at argv[0]: "echo"
+=== std err ===
+[DATE] exectest(PID) Warning: pmProcessAddArg: argv realloc: malloc(16) failed: Cannot allocate memory
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/exectest echo not supposed to get here
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+2nd (and later) calls to __pmProcessAddArg fails at realloc
+=== std out ===
+__pmProcessAddArg: failed (handle is NULL) at argv[1]: "not"
+=== std err ===
+[DATE] exectest(PID) Warning: pmProcessAddArg: argv realloc: malloc(24) failed: Cannot allocate memory
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/exectest echo not supposed to get here
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+4th call to __pmProcessAddArg fails at strdup
+=== std out ===
+__pmProcessAddArg: failed (handle is NULL) at argv[3]: "to"
+=== std err ===
+[DATE] exectest(PID) Warning: pmProcessAddArg: arg strdup: malloc(3) failed: Cannot allocate memory
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/exectest echo not supposed to get here
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
