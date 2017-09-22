@@ -26,6 +26,7 @@
 #include "fault.h"
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <signal.h>
 
 typedef struct __pmExecCtl {
     int		argc;
@@ -145,6 +146,18 @@ __pmProcessExec(__pmExecCtl_t **handle, int toss, int wait, int *status)
 
     /* fork-n-exec and (maybe) wait */
     pid = fork();
+
+    /* begin fault-injection block */
+    PM_FAULT_POINT("libpcp/" __FILE__ ":4", PM_FAULT_MISC);
+    if (PM_FAULT_CHECK(PM_FAULT_MISC)) {
+	PM_FAULT_CLEAR;
+	if (pid > (pid_t)0)
+	    kill(pid, SIGKILL);
+	setoserror(EAGAIN);
+	pid = -1;
+    }
+    /* end fault-injection block */
+
     if (pid == (pid_t)0) {
 	/* child */
 	char	*p;

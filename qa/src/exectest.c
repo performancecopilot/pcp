@@ -123,7 +123,7 @@ Options:\n\
 	sts = __pmProcessExec(&h, PM_EXEC_TOSS_NONE, PM_EXEC_WAIT, &status);
 	printf("__pmProcessExec -> %d", sts);
     }
-    if (sts != 0)
+    if (sts > 0)
 	report_status(status);
     putchar('\n');
 

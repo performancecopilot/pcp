@@ -293,14 +293,14 @@ __dminit(void)
 	char	global[MAXPATHLEN+1];
 
 	/* anon metrics for event record unpacking */
-PM_FAULT_POINT("libpcp/" __FILE__ ":7", PM_FAULT_PMAPI);
+PM_FAULT_POINT("libpcp/derive.c:7", PM_FAULT_PMAPI);
 	sts = __pmRegisterAnon("event.flags", PM_TYPE_U32);
 	if (sts < 0) {
 	    char	errmsg[PM_MAXERRMSGLEN];
 	    fprintf(stderr, "%s: Warning: failed to register event.flags: %s\n",
 		    pmProgname, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	}
-PM_FAULT_POINT("libpcp/" __FILE__ ":8", PM_FAULT_PMAPI);
+PM_FAULT_POINT("libpcp/derive.c:8", PM_FAULT_PMAPI);
 	sts = __pmRegisterAnon("event.missed", PM_TYPE_U32);
 	if (sts < 0) {
 	    char	errmsg[PM_MAXERRMSGLEN];
@@ -1577,7 +1577,7 @@ __pmRegisterAnon(const char *name, int type)
     char	*msg;
     char	buf[21];	/* anon(PM_TYPE_XXXXXX) */
 
-PM_FAULT_CHECK(PM_FAULT_PMAPI);
+PM_FAULT_RETURN(PM_FAULT_PMAPI);
     switch (type) {
 	case PM_TYPE_32:
 	    pmsprintf(buf, sizeof(buf), "anon(PM_TYPE_32)");

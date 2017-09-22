@@ -50,3 +50,15 @@ LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
 ERROR SUMMARY: 0 errors from 0 contexts ...
+
+fork() fails
+=== std out ===
+__pmProcessExec -> -11
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/exectest -- sh -c sleep 1; echo not supposed to get here
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...

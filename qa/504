@@ -69,6 +69,14 @@ End-of-File
 src/exectest echo not supposed to get here 2>&1 \
 | _filter
 
+echo
+echo "fork() fails"
+cat >$tmp.control <<End-of-File
+libpcp/exec.c:4	> 0
+End-of-File
+src/exectest -- sh -c "sleep 1; echo not supposed to get here" 2>&1 \
+| _filter
+
 # success, all done
 status=0
 exit

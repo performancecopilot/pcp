@@ -19,13 +19,10 @@ iter 15: ctx 1: pmNameInDom metric: 2.0.18 (aka pmcd.buf.alloc)
 iter 16: ctx 0: pmGetChildrenStatus metric: sample
 iter 17: ctx 1: pmGetInDom metric: 2.0.18 (aka pmcd.buf.alloc)
 iter 18: ctx 0: pmFetch metric: 29.0.5 (aka sample.colour)
-[DATE] multictx(PID) Error: __pmCloseChannelbyContext: fd=3 context=0 expected PDU_RESULT received: Timeout waiting for a response from PMCD
 Error: Timeout waiting for a response from PMCD
 iter 19: ctx 1: pmNameID metric: 2.0.18 (aka pmcd.buf.alloc)
-Error: IPC protocol failure
 iter 20: pmReconnectContext(0) -> 0 OK
 iter 20: ctx 0: pmLookupName metric: sample.colour
-iter 21: pmReconnectContext(1) -> 1 OK
 iter 21: ctx 1: pmLookupDesc metric: pmcd.buf.alloc
 iter 22: ctx 0: pmLookupDesc metric: sample.colour
 iter 23: ctx 1: pmLookupName metric: pmcd.buf.alloc
@@ -40,13 +37,10 @@ force 2nd pmLookupDesc to timeout
 iter 0: ctx 0: pmLookupName metric: sample.colour
 iter 1: ctx 1: pmLookupDesc metric: pmcd.buf.alloc
 iter 2: ctx 0: pmLookupDesc metric: sample.colour
-[DATE] multictx(PID) Error: __pmCloseChannelbyContext: fd=3 context=0 expected PDU_DESC received: Timeout waiting for a response from PMCD
 Error: Timeout waiting for a response from PMCD
 iter 3: ctx 1: pmLookupName metric: pmcd.buf.alloc
-Error: IPC protocol failure
 iter 4: pmReconnectContext(0) -> 0 OK
 iter 4: ctx 0: pmNameID metric: 29.0.5 (aka sample.colour)
-iter 5: pmReconnectContext(1) -> 1 OK
 iter 5: ctx 1: pmFetch metric: 2.0.18 (aka pmcd.buf.alloc)
 iter 6: ctx 0: pmGetInDom metric: 29.0.5 (aka sample.colour)
 iter 7: ctx 1: pmGetChildrenStatus metric: pmcd.buf
@@ -78,13 +72,10 @@ iter 0: ctx 0: pmLookupName metric: sample.colour
 iter 1: ctx 1: pmLookupDesc metric: pmcd.buf.alloc
 iter 2: ctx 0: pmLookupDesc metric: sample.colour
 iter 3: ctx 1: pmLookupName metric: pmcd.buf.alloc
-[DATE] multictx(PID) Error: __pmCloseChannelbyContext: fd=3 context=1 expected PDU_PMNS_IDS received: Timeout waiting for a response from PMCD
 Error: Timeout waiting for a response from PMCD
 iter 4: ctx 0: pmNameID metric: 29.0.5 (aka sample.colour)
-Error: IPC protocol failure
 iter 5: pmReconnectContext(1) -> 1 OK
 iter 5: ctx 1: pmFetch metric: 2.0.18 (aka pmcd.buf.alloc)
-iter 6: pmReconnectContext(0) -> 0 OK
 iter 6: ctx 0: pmGetInDom metric: 29.0.5 (aka sample.colour)
 iter 7: ctx 1: pmGetChildrenStatus metric: pmcd.buf
 iter 8: ctx 0: pmNameInDom metric: 29.0.5 (aka sample.colour)
@@ -131,13 +122,10 @@ iter 16: ctx 0: pmGetChildrenStatus metric: sample
 iter 17: ctx 1: pmGetInDom metric: 2.0.18 (aka pmcd.buf.alloc)
 iter 18: ctx 0: pmFetch metric: 29.0.5 (aka sample.colour)
 iter 19: ctx 1: pmNameID metric: 2.0.18 (aka pmcd.buf.alloc)
-[DATE] multictx(PID) Error: __pmCloseChannelbyContext: fd=3 context=1 expected PDU_PMNS_NAMES received: Timeout waiting for a response from PMCD
 Error: Timeout waiting for a response from PMCD
 iter 20: ctx 0: pmLookupName metric: sample.colour
-Error: IPC protocol failure
 iter 21: pmReconnectContext(1) -> 1 OK
 iter 21: ctx 1: pmLookupDesc metric: pmcd.buf.alloc
-iter 22: pmReconnectContext(0) -> 0 OK
 iter 22: ctx 0: pmLookupDesc metric: sample.colour
 iter 23: ctx 1: pmLookupName metric: pmcd.buf.alloc
 iter 24: ctx 0: pmNameID metric: 29.0.5 (aka sample.colour)
@@ -165,13 +153,10 @@ iter 13: ctx 1: pmLookupInDom metric: 2.0.18 (aka pmcd.buf.alloc)
 iter 14: ctx 0: pmTraversePMNS metric: sample
 iter 15: ctx 1: pmNameInDom metric: 2.0.18 (aka pmcd.buf.alloc)
 iter 16: ctx 0: pmGetChildrenStatus metric: sample
-[DATE] multictx(PID) Error: __pmCloseChannelbyContext: fd=3 context=0 expected PDU_PMNS_NAMES received: Timeout waiting for a response from PMCD
 Error: Timeout waiting for a response from PMCD
 iter 17: ctx 1: pmGetInDom metric: 2.0.18 (aka pmcd.buf.alloc)
-Error: IPC protocol failure
 iter 18: pmReconnectContext(0) -> 0 OK
 iter 18: ctx 0: pmFetch metric: 29.0.5 (aka sample.colour)
-iter 19: pmReconnectContext(1) -> 1 OK
 iter 19: ctx 1: pmNameID metric: 2.0.18 (aka pmcd.buf.alloc)
 iter 20: ctx 0: pmLookupName metric: sample.colour
 iter 21: ctx 1: pmLookupDesc metric: pmcd.buf.alloc
@@ -198,13 +183,10 @@ iter 9: ctx 1: pmTraversePMNS metric: pmcd.buf
 iter 10: ctx 0: pmLookupInDom metric: 29.0.5 (aka sample.colour)
 iter 11: ctx 1: pmLookupText metric: 2.0.18 (aka pmcd.buf.alloc)
 iter 12: ctx 0: pmLookupText metric: 29.0.5 (aka sample.colour)
-[DATE] multictx(PID) Error: __pmCloseChannelbyContext: fd=3 context=0 expected PDU_TEXT received: Timeout waiting for a response from PMCD
 Error: Timeout waiting for a response from PMCD
 iter 13: ctx 1: pmLookupInDom metric: 2.0.18 (aka pmcd.buf.alloc)
-Error: IPC protocol failure
 iter 14: pmReconnectContext(0) -> 0 OK
 iter 14: ctx 0: pmTraversePMNS metric: sample
-iter 15: pmReconnectContext(1) -> 1 OK
 iter 15: ctx 1: pmNameInDom metric: 2.0.18 (aka pmcd.buf.alloc)
 iter 16: ctx 0: pmGetChildrenStatus metric: sample
 iter 17: ctx 1: pmGetInDom metric: 2.0.18 (aka pmcd.buf.alloc)
@@ -240,13 +222,10 @@ iter 14: ctx 0: pmTraversePMNS metric: sample
 iter 15: ctx 1: pmNameInDom metric: 2.0.18 (aka pmcd.buf.alloc)
 iter 16: ctx 0: pmGetChildrenStatus metric: sample
 iter 17: ctx 1: pmGetInDom metric: 2.0.18 (aka pmcd.buf.alloc)
-[DATE] multictx(PID) Error: __pmCloseChannelbyContext: fd=3 context=1 expected PDU_INSTANCE received: Timeout waiting for a response from PMCD
 Error: Timeout waiting for a response from PMCD
 iter 18: ctx 0: pmFetch metric: 29.0.5 (aka sample.colour)
-Error: IPC protocol failure
 iter 19: pmReconnectContext(1) -> 1 OK
 iter 19: ctx 1: pmNameID metric: 2.0.18 (aka pmcd.buf.alloc)
-iter 20: pmReconnectContext(0) -> 0 OK
 iter 20: ctx 0: pmLookupName metric: sample.colour
 iter 21: ctx 1: pmLookupDesc metric: pmcd.buf.alloc
 iter 22: ctx 0: pmLookupDesc metric: sample.colour
@@ -275,13 +254,10 @@ iter 12: ctx 0: pmLookupText metric: 29.0.5 (aka sample.colour)
 iter 13: ctx 1: pmLookupInDom metric: 2.0.18 (aka pmcd.buf.alloc)
 iter 14: ctx 0: pmTraversePMNS metric: sample
 iter 15: ctx 1: pmNameInDom metric: 2.0.18 (aka pmcd.buf.alloc)
-[DATE] multictx(PID) Error: __pmCloseChannelbyContext: fd=3 context=1 expected PDU_INSTANCE received: Timeout waiting for a response from PMCD
 Error: Timeout waiting for a response from PMCD
 iter 16: ctx 0: pmGetChildrenStatus metric: sample
-Error: IPC protocol failure
 iter 17: pmReconnectContext(1) -> 1 OK
 iter 17: ctx 1: pmGetInDom metric: 2.0.18 (aka pmcd.buf.alloc)
-iter 18: pmReconnectContext(0) -> 0 OK
 iter 18: ctx 0: pmFetch metric: 29.0.5 (aka sample.colour)
 iter 19: ctx 1: pmNameID metric: 2.0.18 (aka pmcd.buf.alloc)
 iter 20: ctx 0: pmLookupName metric: sample.colour
@@ -310,13 +286,10 @@ iter 10: ctx 0: pmLookupInDom metric: 29.0.5 (aka sample.colour)
 iter 11: ctx 1: pmLookupText metric: 2.0.18 (aka pmcd.buf.alloc)
 iter 12: ctx 0: pmLookupText metric: 29.0.5 (aka sample.colour)
 iter 13: ctx 1: pmLookupInDom metric: 2.0.18 (aka pmcd.buf.alloc)
-[DATE] multictx(PID) Error: __pmCloseChannelbyContext: fd=3 context=1 expected PDU_INSTANCE received: Timeout waiting for a response from PMCD
 Error: Timeout waiting for a response from PMCD
 iter 14: ctx 0: pmTraversePMNS metric: sample
-Error: IPC protocol failure
 iter 15: pmReconnectContext(1) -> 1 OK
 iter 15: ctx 1: pmNameInDom metric: 2.0.18 (aka pmcd.buf.alloc)
-iter 16: pmReconnectContext(0) -> 0 OK
 iter 16: ctx 0: pmGetChildrenStatus metric: sample
 iter 17: ctx 1: pmGetInDom metric: 2.0.18 (aka pmcd.buf.alloc)
 iter 18: ctx 0: pmFetch metric: 29.0.5 (aka sample.colour)
@@ -333,5 +306,4 @@ iter 28: ctx 0: pmNameInDom metric: 29.0.5 (aka sample.colour)
 iter 29: ctx 1: pmTraversePMNS metric: pmcd.buf
 
 force 3nd pmStore to timeout
-[DATE] store(PID) Error: __pmCloseChannelbyContext: fd=3 context=0 expected PDU_ERROR received: Timeout waiting for a response from PMCD
 pmStore restore: Timeout waiting for a response from PMCD
