@@ -350,6 +350,7 @@ typedef struct {
     int	deprecated;	/* Report use of deprecated services */
     int	exec;	 	/* pmExec and related calls */
     int labels;		/* label metadata operations */
+    int series;		/* Time series query operations */
 } pmdebugoptions_t;
 
 PCP_DATA extern pmdebugoptions_t	pmDebugOptions;
