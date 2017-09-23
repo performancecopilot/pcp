@@ -38,6 +38,9 @@ main(int argc, char **argv)
     /* trim cmd name of leading directory components */
     __pmSetProgname(argv[0]);
 
+    setlinebuf(stdout);
+    setlinebuf(stderr);
+
     while ((c = getopt(argc, argv, "D:pP:?")) != EOF) {
 	switch (c) {
 

@@ -148,8 +148,14 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":3", PM_FAULT_ALLOC);
  * from waitpid() is returned via status.
  * Otherwise, don't wait and return 0.
  *
- * If the fork() fails before we even get to the execvp(), return
- * -errno.
+ * If the fork() fails before we even get to the execvp(), or 
+ * something bad happens in signal land, return -errno.
+ *
+ * According to POSIX ...
+ *	The system() function shall ignore the SIGINT and SIGQUIT
+ *	signals, and shall block the SIGCHLD signal, while waiting
+ *	for the command to terminate
+ * so we do the same.
  */
 int
 __pmProcessExec(__pmExecCtl_t **handle, int toss, int wait, int *status)
@@ -158,17 +164,37 @@ __pmProcessExec(__pmExecCtl_t **handle, int toss, int wait, int *status)
     int			i;
     pid_t		pid;
     int			sts;
+    struct sigaction	ignore;
+    struct sigaction	save_intr;
+    struct sigaction	save_quit;
+    sigset_t		mask;
+    sigset_t		save_mask;
 
     if (ep == NULL)
 	/* no executable path or args */
 	return PM_ERR_TOOSMALL;
 
     if (pmDebugOptions.exec) {
-	fprintf(stderr, "pmProcessExec: argc=%d", ep->argc);
+	fprintf(stderr, "__pmProcessExec: argc=%d", ep->argc);
 	for (i = 0; i < ep->argc; i++)
 	    fprintf(stderr, " \"%s\"", ep->argv[i]);
 	fputc('\n', stderr);
     }
+
+    /* ignore SIGINT and SIGQUIT, block SIGCHLD */
+    ignore.sa_handler = SIG_IGN;
+    ignore.sa_flags = 0;
+    sigemptyset(&ignore.sa_mask);
+    sigemptyset(&save_intr.sa_mask);
+    if (sigaction(SIGINT, &ignore, &save_intr) < 0)
+	return -oserror();
+    sigemptyset(&save_quit.sa_mask);
+    if (sigaction(SIGQUIT, &ignore, &save_quit) < 0)
+	return -oserror();
+    sigemptyset(&mask);
+    sigaddset(&mask, SIGCHLD);
+    if (sigprocmask(SIG_BLOCK, &mask, &save_mask) < 0)
+	return -oserror();
 
     ep->argv[ep->argc] = NULL;
 
@@ -190,6 +216,15 @@ __pmProcessExec(__pmExecCtl_t **handle, int toss, int wait, int *status)
 	/* child */
 	char	*p;
 	char	*path;
+
+	/*
+	 * restore SIGINT and SIGQUIT actions and signal mask
+	 * -- handling possible errors here is not much help
+	 */
+	sigaction(SIGINT, &save_intr, NULL);
+	sigaction(SIGQUIT, &save_quit, NULL);
+	sigprocmask(SIG_SETMASK, &save_mask, NULL);
+
 	path = ep->argv[0];
 	p = &path[strlen(ep->argv[0])-1];
 	while (p > ep->argv[0]) {
@@ -211,9 +246,24 @@ __pmProcessExec(__pmExecCtl_t **handle, int toss, int wait, int *status)
     }
     else if (pid > (pid_t)0) {
 	/* parent */
+
 	if (wait == PM_EXEC_WAIT) {
 	    pid_t	wait_pid;
-	    wait_pid = waitpid(pid, status, 0);
+	    while ((wait_pid = waitpid(pid, status, 0)) < 0) {
+		if (oserror() != EINTR)
+		    break;
+	    }
+	    if (pmDebugOptions.exec) {
+		fprintf(stderr, "__pmProcessExec: pid=%" FMT_PID " wait_pid=%" FMT_PID " errno=%d", pid, wait_pid, oserror());
+		if (WIFEXITED(*status)) fprintf(stderr, " exit=%d", WEXITSTATUS(*status));
+		if (WIFSIGNALED(*status)) fprintf(stderr, " signal=%d", WTERMSIG(*status));
+		if (WIFSTOPPED(*status)) fprintf(stderr, " stop signal=%d", WSTOPSIG(*status));
+#ifdef WIFCONTINUED
+		if (WIFCONTINUED(*status)) fprintf(stderr, " continued");
+#endif
+		if (WCOREDUMP(*status)) fprintf(stderr, " core dumped");
+		fputc('\n', stderr);
+	    }
 	    if (wait_pid == pid) {
 		if (WIFEXITED(*status)) {
 		    sts = WEXITSTATUS(*status);
@@ -228,6 +278,16 @@ __pmProcessExec(__pmExecCtl_t **handle, int toss, int wait, int *status)
 	}
 	else
 	    sts = 0;
+
+	/*
+	 * restore SIGINT and SIGQUIT actions and signal mask
+	 */
+	if (sigaction(SIGINT, &save_intr, NULL) < 0)
+	    return -oserror();
+	if (sigaction(SIGQUIT, &save_quit, NULL) < 0)
+	    return -oserror();
+	if (sigprocmask(SIG_SETMASK, &save_mask, NULL) < 0)
+	    return -oserror();
     }
     else
 	sts = -oserror();
