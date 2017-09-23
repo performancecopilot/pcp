@@ -86,8 +86,7 @@ sample_histogram_count{:04d} {:d}\n".format(iteration, (int(iteration) * int(his
                                             iteration, (int(iteration) * int(histogram_value_count)))
         return histogram_string
 
-    def format_prometheus_output(self, metrics=None, iteration=None, instances=None):
-        #print("metrics: {} iteration: {}".format(metrics, iteration))
+    def format_prometheus_output(self, metrics=None, iteration=None, instances=None, error=None):
         metrics_remaining = metrics
         endpoint_string = ""
         while metrics_remaining >= 0:
@@ -109,7 +108,10 @@ sample_histogram_count{:04d} {:d}\n".format(iteration, (int(iteration) * int(his
             endpoint_string += self.sample_histogram_data(iteration, instances)
             metrics_remaining -= 5
             iteration += 1
-        return endpoint_string
+        if error is not None:
+            return endpoint_string[:len(endpoint_string)/error]
+        else:
+            return endpoint_string
 
     def do_GET(self):
         time.sleep(float(self.server.args.delay))
@@ -118,9 +120,13 @@ sample_histogram_count{:04d} {:d}\n".format(iteration, (int(iteration) * int(his
             iteration = re.split(endpoint_regex, self.path)
             if len(iteration) > 1 and int(iteration[1]) in activeEndpoint:
                 endpointNum = int(iteration[1])
+                if int(self.server.args.error) and not activeEndpoint[endpointNum] % int(self.server.args.error) and activeEndpoint[endpointNum]:
+                    error = int(self.server.args.error)
+                else:
+                    error = None
                 self.send_response(200)
                 self.end_headers()
-                self.wfile.write(self.format_prometheus_output(int(self.server.args.metrics), endpointNum*(activeEndpoint[endpointNum]), int(self.server.args.instances)))  # multiply by activeendpoint value or something?
+                self.wfile.write(self.format_prometheus_output(int(self.server.args.metrics), endpointNum*(activeEndpoint[endpointNum]), int(self.server.args.instances), error))  # multiply by activeendpoint value or something?
                 self.server.lock.acquire()
                 try:
                     activeEndpoint[endpointNum] += 1
