@@ -16,10 +16,10 @@
 
 import time
 import re
-import Queue as queue
+from six.moves import queue
 import threading
 import socket
-import BaseHTTPServer
+from six.moves import BaseHTTPServer
 import argparse
 
 
@@ -126,7 +126,7 @@ sample_histogram_count{:04d} {:d}\n".format(iteration, (int(iteration) * int(his
                     error = None
                 self.send_response(200)
                 self.end_headers()
-                self.wfile.write(self.format_prometheus_output(int(self.server.args.metrics), endpointNum*(activeEndpoint[endpointNum]), int(self.server.args.instances), error))  # multiply by activeendpoint value or something?
+                self.wfile.write(self.format_prometheus_output(int(self.server.args.metrics), endpointNum*(activeEndpoint[endpointNum]), int(self.server.args.instances), error).encode())  # multiply by activeendpoint value or something?
                 self.server.lock.acquire()
                 try:
                     activeEndpoint[endpointNum] += 1
