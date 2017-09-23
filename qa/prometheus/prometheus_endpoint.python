@@ -13,7 +13,7 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 #
-import sys
+
 import time
 import re
 import Queue as queue
@@ -114,12 +114,13 @@ sample_histogram_count{:04d} {:d}\n".format(iteration, (int(iteration) * int(his
     def do_GET(self):
         time.sleep(float(self.server.args.delay))
         if len(activeEndpoint) > 0:
-            endpoint_regex = re.compile(self.server.args.url)
+            endpoint_regex = re.compile(str(self.server.args.url))
             iteration = re.split(endpoint_regex, self.path)
             if len(iteration) > 1 and int(iteration[1]) in activeEndpoint:
                 endpointNum = int(iteration[1])
-                self.wfile.write(self.format_prometheus_output(int(self.server.args.metrics), endpointNum*(activeEndpoint[endpointNum]), int(self.server.args.instances)))  # multiply by activeendpoint value or something?
+                self.send_response(200)
                 self.end_headers()
+                self.wfile.write(self.format_prometheus_output(int(self.server.args.metrics), endpointNum*(activeEndpoint[endpointNum]), int(self.server.args.instances)))  # multiply by activeendpoint value or something?
                 self.server.lock.acquire()
                 try:
                     activeEndpoint[endpointNum] += 1
@@ -191,7 +192,7 @@ if __name__ == '__main__':
 
     args = parsing()
     pendpointQueue = queue.Queue()
-    addr = ('localhost', int(args.port))
+    addr = ('', int(args.port))
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     sock.bind(addr)
@@ -207,4 +208,3 @@ if __name__ == '__main__':
 
     pendpointQueue.join()
     sock.close()
-    sys.exit(0)
