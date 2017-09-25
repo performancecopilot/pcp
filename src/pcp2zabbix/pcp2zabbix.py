@@ -93,12 +93,13 @@ class PCP2Zabbix(object):
     def __init__(self):
         """ Construct object, prepare for command line handling """
         self.context = None
+        self.daemonize = 0
         self.pmconfig = pmconfig.pmConfig(self)
         self.opts = self.options()
 
         # Configuration directives
         self.keys = ('source', 'output', 'derived', 'header', 'globals',
-                     'samples', 'interval', 'type', 'precision',
+                     'samples', 'interval', 'type', 'precision', 'daemonize',
                      'zabbix_server', 'zabbix_port', 'zabbix_host', 'zabbix_interval', 'zabbix_prefix',
                      'count_scale', 'space_scale', 'time_scale', 'version',
                      'speclocal', 'instances', 'ignore_incompat', 'omit_flat')
@@ -173,6 +174,7 @@ class PCP2Zabbix(object):
         opts.pmSetLongOption("config", 1, "c", "FILE", "config file path")
         opts.pmSetLongOption("check", 0, "C", "", "check config and metrics and exit")
         opts.pmSetLongOption("derived", 1, "e", "FILE|DFNT", "derived metrics definitions")
+        self.daemonize = opts.pmSetLongOption("daemonize", 0, "", "", "daemonize on startup") # > 1
         opts.pmSetLongOptionDebug()        # -D/--debug
         opts.pmSetLongOptionVersion()      # -V/--version
         opts.pmSetLongOptionHelp()         # -?/--help
@@ -211,8 +213,11 @@ class PCP2Zabbix(object):
             return 1
         return 0
 
-    def option(self, opt, optarg, index): # pylint: disable=unused-argument
+    def option(self, opt, optarg, index):
         """ Perform setup for an individual command line option """
+        if index == self.daemonize and opt == '':
+            self.daemonize = 1
+            return
         if opt == 'K':
             if not self.speclocal or not self.speclocal.startswith("K:"):
                 self.speclocal = "K:" + optarg
@@ -312,6 +317,10 @@ class PCP2Zabbix(object):
         # Just checking
         if self.check == 1:
             return
+
+        # Daemonize when requested
+        if self.daemonize == 1:
+            self.opts.daemonize()
 
         # Main loop
         while self.samples != 0:
