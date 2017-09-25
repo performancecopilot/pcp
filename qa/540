@@ -29,6 +29,7 @@ _filter()
     sed \
 	-e 's/exectest([0-9][0-9]*)/exectest(PID)/' \
 	-e 's/\[[A-Z][a-z][a-z] [A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9]]/[DATE]/' \
+	-e 's/alloc([0-9][0-9]*)/alloc(N)/g' \
     #
 }
 
@@ -78,6 +79,27 @@ libpcp/exec.c:4	> 0
 End-of-File
 _run_valgrind src/exectest -- sh -c "sleep 1; echo not supposed to get here" 2>&1 \
 | _filter
+
+echo
+echo "pipe() fails"
+cat >$tmp.control <<End-of-File
+libpcp/exec.c:5	> 0
+End-of-File
+_run_valgrind src/exectest -Dexec -p -- echo hullo world 2>&1 | _filter
+
+echo
+echo "fork() fails after pipe()"
+cat >$tmp.control <<End-of-File
+libpcp/exec.c:6	> 0
+End-of-File
+_run_valgrind src/exectest -Dexec -p -- echo hullo world 2>&1 | _filter
+
+echo
+echo "realloc() fails for pipe map"
+cat >$tmp.control <<End-of-File
+libpcp/exec.c:7	> 0
+End-of-File
+_run_valgrind src/exectest -Dexec -p -- echo hullo world 2>&1 | _filter
 
 # success, all done
 status=0
