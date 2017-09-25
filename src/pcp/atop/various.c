@@ -8,7 +8,7 @@
 ** time-of-day, the cpu-time consumption and the memory-occupation. 
 **
 ** Copyright (C) 2000-2010 Gerlof Langeveld
-** Copyright (C) 2015-2016 Red Hat.
+** Copyright (C) 2015-2017 Red Hat.
 **
 ** This program is free software; you can redistribute it and/or modify it
 ** under the terms of the GNU General Public License as published by the
@@ -42,6 +42,7 @@ setup_options(pmOptions *opts, char **argv, char *short_options)
 	pmLongOptions	*opt;
 	static pmLongOptions long_options[] =
 	{
+		{ "hotproc", 0, 0, 0, "use the pmdaproc(1) hotproc metrics" },
 		PMOPT_ALIGN,
 		PMOPT_ARCHIVE,
 		PMOPT_DEBUG,
@@ -1266,3 +1267,23 @@ rawwrite(pmOptions *opts, const char *name,
 			pmProgname);
 	}
 }
+
+/*
+** print any custom PCP options for this command
+*/
+void
+show_pcp_usage(pmOptions *opts)
+{
+	pmLongOptions	*lop;
+
+	for (lop = opts->long_options; lop->long_opt; lop++) {
+		if (!lop->message)
+			continue;
+		if (!lop->has_arg)
+			printf("\t  --%s\t%s\n", lop->long_opt, lop->message);
+		else
+			printf("\t  --%s %s\t%s\n",
+				lop->long_opt, lop->argname, lop->message);
+	}
+}
+

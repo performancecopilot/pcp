@@ -1,6 +1,6 @@
 #!/bin/sh
 # 
-# Recipe for creating the pcp-atop archive
+# Recipe for creating the pcp-hotatop archive
 #
 
 . $PCP_DIR/etc/pcp.env
@@ -44,8 +44,8 @@ echo "#+ groupdir $tmp/config" >> $tmp.config
 # interactive - set 1 second interval, and log everything!
 $PMLOGCONF -d $tmp/config $tmp.config
 
-rm -f pcp-atop.*
-$PMLOGGER -t 1 -s 5 -c $tmp.config -l $tmp.log pcp-atop &
+rm -f pcp-hotatop.*
+$PMLOGGER -t 1 -s 5 -c $tmp.config -l $tmp.log pcp-hotatop &
 
 #
 # Do some work to make kernel and apache stats move ...
@@ -70,5 +70,5 @@ wait
 echo "pmlogger log:"
 cat $tmp.log
 
-$MKAF pcp-atop.* > pcp-atop.folio
-xz pcp-atop.0
+$MKAF pcp-hotatop.* > pcp-hotatop.folio
+xz pcp-hotatop.0
