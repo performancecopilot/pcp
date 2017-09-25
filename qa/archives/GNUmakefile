@@ -31,13 +31,15 @@ FOLIOS = $(shell echo *.folio)
 
 DEFLATE = small.0.xz small.meta small.index \
 	  20130706.0.bz2 20130706.meta 20130706.index \
+	  pcp-atop.0.xz pcp-atop.meta pcp-atop.index \
+	  pcp-hotatop.0.xz pcp-hotatop.meta pcp-hotatop.index \
 	  pcp-zeroconf.0.gz pcp-zeroconf.meta pcp-zeroconf.index
 
 SCRIPTS = mk.diff mk.gap mk.mysql mk.schizo mk.foo+ \
 	  mk.dynmetric mk.instant \
 	  mk.mirage mk.proc \
 	  mk.numa mk.rewrite mk.eventrec mk.interpmark mk.multihost \
-	  mk.sample_expr mk.tzchange mk.arch-all mk.atop \
+	  mk.sample_expr mk.tzchange mk.arch-all mk.atop mk.hotatop \
 	  mk.log-derived mk.vmstat mk.rep mk.procsched \
 	  mk.ipcs
 

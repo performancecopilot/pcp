@@ -69,6 +69,12 @@ options
 and several other
 .I pcp options
 become indirectly available.
+The long option form of these is directly available.
+Additionally, the
+.B \-\-hotproc
+option can be used to request the per-process PCP metrics be used instead
+of the default proc metrics from
+.BR pmdaproc (1).
 .PP
 When 
 .B pcp-atop
@@ -1676,6 +1682,7 @@ for further details on activating these metrics.
 .BR pcp-atopsar (1),
 .BR pmdaapache (1),
 .BR pmdanfsclient (1),
+.BR pmdaproc (1),
 .BR mkaf (1),
 .BR pmlogger (1),
 .BR pmlogger_daily (1),

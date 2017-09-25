@@ -451,6 +451,7 @@ _pcp () {
       "(-w --width $exargs)"{-w+,--width}'[set default column width]:width:' \
       "(-P --precision $exargs)"{-P+,--precision}'[set floating point precision]:precision:' \
       "(-l --delimiter $exargs)"{-l+,--delimiter}'[set column delimiter]:delimiter:' \
+      "(-k --extended-csv $exargs)"{-k,--extended-csv}'[write extended CSV]' \
       "(-x --extended-header $exargs)"{-x,--extended-header}'[print extended header]' \
       "(-E --repeat $exargs)"{-E+,--repeat}'[set header repeat frequency]:samples:' \
       "(-f --timestamp-format $exargs)"{-f+,--timestamp-format}'[set time format string]:format:' \

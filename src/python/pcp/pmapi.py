@@ -2372,24 +2372,27 @@ class pmContext(object):
         if set_dst >= 0:
             dst = 1 if set_dst else 0
         offset = time.altzone if dst else time.timezone
-        currtz = time.tzname[dst]
+        timezone = time.tzname[dst]
         if offset:
             offset /= 3600
             offset = int(offset) if offset == int(offset) else offset
             if offset >= 0:
                 offset = "+" + str(offset)
-            currtz += str(offset)
-        return currtz
+            timezone += str(offset)
+        return timezone
 
     @staticmethod
-    def posix_tz_to_utf_offset(timez):
+    def posix_tz_to_utc_offset(timezone):
         """ Convert PCP/POSIX timezone string to human readable UTC offset """
-        offset = timez.split("+")[1] if "+" in timez else timez.split("-")[1]
-        sign = "+" if "-" in timez else "+"
+        if timezone == "UTC":
+            return timezone
+        offset = timezone.split("+")[1] if "+" in timezone else timezone.split("-")[1]
+        sign = "+" if "-" in timezone else "+"
         return "UTC" + sign + str(offset)
 
     def set_timezone(self, options):
         """ Set timezone for context """
+        # See https://bugzilla.redhat.com/show_bug.cgi?id=1352465
         status = LIBPCP.pmUseContext(self.ctx)
         if status < 0:
             raise pmErr(status)

@@ -243,6 +243,9 @@ s/)//
 		    connect_lock)
 			echo connect >>$tmp.locks
 			;;
+		    exec_lock)
+			echo exec >>$tmp.locks
+			;;
 		    *)
 			echo >&2 "Bad LOCK: $param"
 			exit

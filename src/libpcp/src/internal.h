@@ -151,6 +151,7 @@ extern int __pmIsPmnsLock(void *) _PCP_HIDDEN;
 extern int __pmIsAFLock(void *) _PCP_HIDDEN;
 extern int __pmIsSecureserverLock(void *) _PCP_HIDDEN;
 extern int __pmIsConnectLock(void *) _PCP_HIDDEN;
+extern int __pmIsExecLock(void *) _PCP_HIDDEN;
 #endif
 
 /* AF_UNIX socket family internals */
