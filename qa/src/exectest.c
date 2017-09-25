@@ -16,7 +16,9 @@ report_status(int status)
     if (WIFEXITED(status)) printf(" exit=%d", WEXITSTATUS(status));
     if (WIFSIGNALED(status)) printf(" signal=%d", WTERMSIG(status));
     if (WIFSTOPPED(status)) printf(" stop signal=%d", WSTOPSIG(status));
+#ifdef WIFCONTINUED
     if (WIFCONTINUED(status)) printf(" continued");
+#endif
     if (WCOREDUMP(status)) printf(" core dumped");
 }
 
@@ -35,6 +37,9 @@ main(int argc, char **argv)
 
     /* trim cmd name of leading directory components */
     __pmSetProgname(argv[0]);
+
+    setlinebuf(stdout);
+    setlinebuf(stderr);
 
     while ((c = getopt(argc, argv, "D:pP:?")) != EOF) {
 	switch (c) {
@@ -63,7 +68,7 @@ main(int argc, char **argv)
 	    }
 	    pipeout++;
 	    if ((fdata = fopen(optarg, "r")) == NULL) {
-		fprintf(stderr, "%s: cannot open \"%s\" for reading: %s\n",
+		fprintf(stderr, "%s: cannot open \"%s\" for reading: \"%s\"\n",
 		    pmProgname, optarg, pmErrStr(-errno));
 		exit(1);
 	    }
@@ -93,7 +98,7 @@ Options:\n\
 	sts = __pmProcessAddArg(&h, argv[optind]);
 	if (pmDebugOptions.desperate) printf("sts=%d h=%p\n", sts, h);
 	if (h == NULL) {
-	    printf("__pmProcessAddArg: failed (handle is NULL) at argv[%d]: %s\n", optind, argv[optind]);
+	    printf("__pmProcessAddArg: failed (handle is NULL) at argv[%d]: \"%s\"\n", optind-1, argv[optind]);
 	    exit(1);
 	}
 	optind++;
@@ -123,7 +128,7 @@ Options:\n\
 	sts = __pmProcessExec(&h, PM_EXEC_TOSS_NONE, PM_EXEC_WAIT, &status);
 	printf("__pmProcessExec -> %d", sts);
     }
-    if (sts != 0)
+    if (sts == -1)
 	report_status(status);
     putchar('\n');
 

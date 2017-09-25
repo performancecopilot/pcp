@@ -845,6 +845,7 @@ zsh
 501 pmie local
 502 pmlogrewrite local
 503 logutil pmlogrewrite local pmlogextract
+504 libpcp fault local
 505 pmlogrewrite local
 506 pmlogrewrite local slow
 507 pcp local
@@ -880,6 +881,7 @@ zsh
 537 pmimport perl local
 538 pmie local pmstore
 539 pmpost local flakey
+540 libpcp valgrind fault local
 541 pmie #535080 local pmprobe
 542 pmdate #666344 local
 543 logutil remote pmlogextract

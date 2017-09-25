@@ -31,11 +31,15 @@ do
     then
 	sed <$tmp.req \
 	    -e '/^\//d' \
+	    -e '/^pcp-/d' \
 	    -e '/^ld-linux/d' \
-	    -e '/lib.*\.so[.(]/d' \
 	    -e '/^rpmlib(/d' \
 	    -e '/^rtld(/d' \
 	    -e 's/ .*//' \
+	    -e '/^pcp$/d' \
+	    -e '/-pcp$/d' \
+	    -e '/-PCP-/d' \
+	    -e '/lib.*\.so[.(]/d' \
 	# end
     else
 	echo >&2 "rpm -qR -p $rpm failed!"
