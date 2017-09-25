@@ -359,9 +359,9 @@ class MetricDispatch(object):
             replacement = pmdaIndom(it_indom, insts)
         # list indoms need to keep the table up-to-date for libpcp_pmda
         if (isinstance(insts, list)):
-            for entry in self._indomtable:
-                if (entry.it_indom == it_indom):
-                    entry = replacement
+            for i in range(len(self._indomtable)):  # _indomtable is persistently shared with pmda.c
+                if (self._indomtable[i].it_indom == it_indom):
+                    self._indomtable[i] = replacement # replace in place
                     break
         self._indoms[it_indom] = replacement
 
