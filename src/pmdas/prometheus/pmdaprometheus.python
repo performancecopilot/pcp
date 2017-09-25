@@ -53,12 +53,12 @@ MAX_INDOM = 0x7fffffff # product of above
 
 
 class Metric(object):
-	''' Metric information class '''
-	def __init__(self,source,name,metricnum,instances,pcpline,helpline,typeline):
+        ''' Metric information class '''
+        def __init__(self,source,name,metricnum,instances,pcpline,helpline,typeline):
                 self.source = source
                 self.name = name
                 self.metricnum = metricnum # seen during fetch callbacks
-		self.pmid = source.pmda.pmid(source.cluster,metricnum)
+                self.pmid = source.pmda.pmid(source.cluster,metricnum) # add domain/cluster#
                 self.indom_number = (MAX_CLUSTER+1 +
                                      (source.cluster * (MAX_METRIC+1)) +
                                      metricnum)
@@ -66,10 +66,10 @@ class Metric(object):
                 # XXXX PCP - real name; : unquoting; heuristics galore
                 self.mtype = c_api.PM_TYPE_DOUBLE
                 self.msem = c_api.PM_SEM_INSTANT   # XXX
-                self.mname = self.source.name + '.' + self.name.replace(":",".") # XXX pcpline etc.
+                self.mname = 'prometheus.' + self.source.name + '.' + self.name.replace(":",".") # XXX pcpline etc.
                 self.munits = pmUnits(0,0,0,0,0,0) # XXX
                 if instances:
-                        self.mindom = self.indom_number
+                        self.mindom = self.source.pmda.indom(self.indom_number) # add domain#
                         self.indom_table = PersistentNameTable(self.source.pmda, self.indom_number, MAX_INDOM)
                 else:
                         self.mindom = c_api.PM_INDOM_NULL
@@ -96,29 +96,28 @@ class Metric(object):
                         self.indom_table.save() # XXX: ideally less frequently
                         
         def fetch_inst(self,inst): # fetch instance
-                self.log("ZOOPOO fetch inst %s %d vs %d" % (inst,inst,c_api.PM_IN_NULL))
                 if inst in self.values:
                         return [self.values[inst], 1]
                 else:
                         self [c_api.PM_ERR_INST, 0]
 
 class PersistentNameTable(object):
-	'''Persistent name table.  Answers name-to-number queries by assigning
+        '''Persistent name table.  Answers name-to-number queries by assigning
         persistent ids.  Updates pmda's indom table intermittently.
         Persistent by saving dictionary in $PCP_VAR_DIR/pmdas/,
         similarly to how pmdaCache functions do.
         '''
  
-	def __init__(self,pmda,indom,maxnum):
-		self.pmda = pmda
-		self.indom = indom
+        def __init__(self,pmda,indom,maxnum):
+                self.pmda = pmda
+                self.indom = indom
                 self.maxnum = maxnum
                 self.need_save = False
                 self.store_file_name = '%s/pmdas/%d.%d.py' % (os.environ['PCP_VAR_DIR'],
                                                               pmda.domain, indom)
                 try: # slightly used!
-                        with open(self.store_file_name,'r') as f:
-                                self.instances = pickle.load(f)
+                        with open(self.store_file_name,'rb') as f:
+                                self.instances = pickle.load(f,encoding="bytes")
                                 self.pmda.debug("loaded %s" % self.store_file_name)
                                 self.need_save = True # for pmda purposes at least
                 except Exception as e: # new!
@@ -127,9 +126,10 @@ class PersistentNameTable(object):
                 self.names_to_instances = {}
                 for i,n in enumerate(self.instances):
                         self.names_to_instances[n] = i
-                # prime the pmda indom table with an empty list
+                # prime the pmda indom table with an empty list; the pmdaIndom
+                # object will be replaced shortly within .replace_indom()
                 self.pmdaindom = pmdaIndom(pmda.indom(self.indom), [])
-		self.pmda.add_indom(self.pmdaindom)
+                self.pmda.add_indom(self.pmdaindom)
                 self.save() # replace it with real data now, if non-empty
                 
         def save(self):
@@ -138,21 +138,24 @@ class PersistentNameTable(object):
                         # save to the pmda C layer
                         indom_array = [] # pmdaInstid array, computed on demand
                         for i,n in enumerate(self.instances):
-                                indom_array.append(pmdaInstid(c_int(i),n))
-		        self.pmda.replace_indom(self.pmdaindom, indom_array)
+                                indom_array.append(pmdaInstid(c_int(i),str(n)))
+                        self.pmda.log("replacing indom array %s" % str(indom_array))
+                        # NB: use replace_indom(int,[...]) overload, to pass indom_array,
+                        # else it gets ignored
+                        self.pmda.replace_indom(self.pmda.indom(self.indom), indom_array)
                         self.pmda.set_need_refresh()
                         # save to disk too
                         try: # slightly used!
-                                with open(self.store_file_name,'w') as f:
-                                        pickle.dump(self.instances, f)
+                                with open(self.store_file_name,'wb') as f:
+                                        pickle.dump(self.instances, f, protocol=0)
                                         self.pmda.debug("saved %s" % self.store_file_name)
                                 self.need_save = False # reset only on success
                         except Exception as e:
                                 self.pmda.log("cannot save %s: %s" % (self.store_file_name, e))
                         
 
-	def intern_lookup_value(self, name):
-		'''Add/lookup given name, return its persistent identifier.'''
+        def intern_lookup_value(self, name):
+                '''Add/lookup given name, return its persistent identifier.'''
                 if name in self.names_to_instances: # fast path
                         return self.names_to_instances[name]
                 else: # new name
@@ -305,16 +308,16 @@ class SampleLineParser(object):
 
                                               
 class Source(object):
-	def __init__(self, name, cluster, path, pmda):
-		self.name = name # source nickname
+        def __init__(self, name, cluster, path, pmda):
+                self.name = name # source nickname
                 self.cluster = cluster # unique/persistent id# for nickname
-		self.path = path # pathname to .url file
-		self.pmda = pmda # the shared pmda
+                self.path = path # pathname to .url file
+                self.pmda = pmda # the shared pmda
 
                 self.requests = requests.Session() # allow persistent connections etc.
                 
                 # persistently assign numeric id to our metrics
-		self.pmids_table = PersistentNameTable(self.pmda, cluster, MAX_METRIC)
+                self.pmids_table = PersistentNameTable(self.pmda, cluster, MAX_METRIC)
                 
                 self.metrics_by_name = {} # name -> Metric
                 self.metrics_by_num = {} # number (last component of pmid) -> Metric
@@ -348,10 +351,11 @@ class Source(object):
                 new metrics.  Store away metric values for subsequent
                 fetch()es.  Parse errors may result in exceptions.
                 That's OK, we don't try heroics to parse non-compliant
-                data.
+                data.  Return number of metrics extracted.
 
                 '''
 
+                num_metrics = 0
                 lines = text.splitlines()
                 pcpline = None
                 helpline = None
@@ -387,6 +391,8 @@ class Source(object):
                         else: # metric{...} value line
                                 state = "metrics"
                                 self.parse_metric_line(l,pcpline,helpline,typeline)
+                                num_metrics += 1
+                return num_metrics
                 
 
         def refresh(self):
@@ -409,44 +415,50 @@ class Source(object):
                 # fetch the URL
                 try:
                         r = self.requests.get(url,timeout=1) # XXX parametrize
-                        self.parse_lines(r.text)
+                        s = self.parse_lines(r.text)
                         self.pmids_table.save()
-                        self.pmda.debug("fetched %d bytes from %s" % (len(r.text), url))
+                        self.pmda.debug("fetched %d bytes with %d metrics from %s" % (len(r.text), s, url))
                 except Exception as e:
                         self.pmda.log("cannot fetch %s: %s" % (url, e))
                         return
                 
         def fetch(self, item, inst):
                 try:
-                        self.pmda.log("try fetch item=%d inst=%d" % (item,inst))
                         m = self.metrics_by_num[item]
                         return m.fetch_inst(inst)
                 except Exception as e:
                         self.log("cannot fetch item %d inst %d: %s" % (item,inst,e))
-		        return [c_api.PM_ERR_PMID, 0]
+                        return [c_api.PM_ERR_AGAIN, 0]
 
 
 class PrometheusPMDA(PMDA):
-	def __init__(self,pmda_name,domain,config):
-		''' Initialize the PMDA'''
+        def __init__(self,pmda_name,domain,config):
+                ''' Initialize the PMDA'''
                 # urgent: say hi the invoking pmcd, redirect stderr etc.
-		PMDA.__init__(self,pmda_name,domain)
-		self.connect_pmcd()
+                PMDA.__init__(self,pmda_name,domain)
+                self.connect_pmcd()
                 # now everything else may take time
-		self.pmda_name = pmda_name
+                self.pmda_name = pmda_name
                 self.config_dir = config
-		self.debug_flag = ('PCP_PYTHON_DEBUG' in os.environ)
+                self.debug_flag = ('PCP_PYTHON_DEBUG' in os.environ)
 
                 # the list of configured sources
-		self.source_by_name = {}
+                self.source_by_name = {}
                 # persistently assign numeric id to source names -> pmid "cluster" numbers
-		self.cluster_table = PersistentNameTable(self, 0, MAX_CLUSTER)
+                self.cluster_table = PersistentNameTable(self, 0, MAX_CLUSTER)
                 reserved_cluster = self.cluster_table.intern_lookup_value("*reserved-source2cluster*")
                 assert reserved_cluster == 0
-		self.source_by_cluster = {}
+                self.source_by_cluster = {}
 
                 self.log("starting up!")
 
+                # Add a IS_DYNAMIC_ROOT metric that serves as a reminder to
+                # pmcd to delegate all pmns requests to us.  Do it early, before
+                # other metrics may populate beneath the prometheus.* prefix.
+                dynamic_pmid = (0 << 31) | (511 << 22) | (144 << 10) | 0
+                dynamic_root = pmdaMetric(dynamic_pmid,0,0,0,pmUnits())
+                self.add_metric('prometheus',dynamic_root,'dynamic root for prometheus metrics')
+        
                 # rescan the urls.d directory periodically
                 t = threading.Timer(10.0, self.rescan_confdir) # XXX: configure
                 t.start()
@@ -454,9 +466,9 @@ class PrometheusPMDA(PMDA):
                 self.rescan_confdir()
                 
                 # metric fetch
-		# old school: self.set_refresh_metrics - n/a
-		self.set_refresh_all(self.refresh_some_clusters)
-		self.set_fetch_callback(self.fetch_callback)
+                # old school: self.set_refresh_metrics - n/a
+                self.set_refresh_all(self.refresh_some_clusters)
+                self.set_fetch_callback(self.fetch_callback)
 
 
         def assert_source_invariants(self, name=None, cluster=None):
@@ -471,21 +483,21 @@ class PrometheusPMDA(PMDA):
                         assert s == self.source_by_name[s.name]
 
                        
-	def rescan_confdir(self):
+        def rescan_confdir(self):
                 '''
                 Scan the configuration directory for any new .url files containing
                 prometheus URLs.  Ensure there is a Source registered in
                 the self.source_by_name dictionary for each one.  Then have each
                 Source do a fetch (if it hasn't done so recently)
                 '''
-                nickname_regexp = re.compile(r"^[A-Za-z]\w+$")
+                nickname_regexp = re.compile(r"^[A-Za-z]\w*$")
                 
                 # XXX: skip if self.configdir hasn't changed
                 # XXX: nuke sources related to removed files
                 self.log("walking %s" % self.config_dir)
                 save_cluster_table = False
-		for root, dirs, files in os.walk(self.config_dir):
-			for file in files:
+                for root, dirs, files in os.walk(self.config_dir):
+                        for file in files:
                                 # compute nickname for source:
                                 # the part of the filename before .url
                                 file_split = os.path.splitext(file)
@@ -494,7 +506,7 @@ class PrometheusPMDA(PMDA):
                                         continue
                                 name = file_split[0]
                                 if not nickname_regexp.match(name):
-					self.log("Bad nickname %s" % file)
+                                        self.log("Bad nickname %s" % file)
                                         continue
 
                                 if name in self.source_by_name:
@@ -502,9 +514,9 @@ class PrometheusPMDA(PMDA):
                                         pass
                                 else:
                                         try:
-				                path = os.path.join(root, file)
-					        cluster = self.cluster_table.intern_lookup_value(name)
-				                source = Source(name, cluster, path, self)
+                                                path = os.path.join(root, file)
+                                                cluster = self.cluster_table.intern_lookup_value(name)
+                                                source = Source(name, cluster, path, self)
                                                 self.source_by_name[source.name] = source
                                                 self.source_by_cluster[source.cluster] = source
                                                 save_cluster_table = True
@@ -516,17 +528,16 @@ class PrometheusPMDA(PMDA):
                 # do a batch fetch of all sources to ensure pmns is populated
                 self.refresh_all_clusters()
                                       
-	def fetch_callback(self, cluster, item, inst):
-		''' Main fetch callback which returns the value of the metric '''
-                self.debug("fetch_callback %d %d %d" % (cluster,item,inst))
+        def fetch_callback(self, cluster, item, inst):
+                ''' Main fetch callback which returns the value of the metric '''
                 self.assert_source_invariants(cluster=cluster)
                 try:
-		        if cluster in self.source_by_cluster:
-			        return self.source_by_cluster[cluster].fetch(item, inst)
+                        if cluster in self.source_by_cluster:
+                                return self.source_by_cluster[cluster].fetch(item, inst)
                         else:
-		                return [c_api.PM_ERR_PMID, 0]
+                                return [c_api.PM_ERR_PMID, 0]
                 except Exception as e:
-		        return [c_api.PM_ERR_PMID, 0]
+                        return [c_api.PM_ERR_PMID, 0]
 
         def refresh_worker(self,cluster):
                 try:
@@ -536,35 +547,38 @@ class PrometheusPMDA(PMDA):
                         self.log("Cannot refresh cluster %d: %s" % (cluster, e))
 
                         
-	def refresh_all_clusters(self):
+        def refresh_all_clusters(self):
                 threads = []
-		for k,v in self.source_by_cluster.items():
-			t = threading.Thread(target=self.refresh_worker,
-					     args=(k,)) # <- important comma
-			threads.append(t)
-			t.daemon = True
-			t.start()
-		for t in threads:
-			t.join()
+                for k,v in self.source_by_cluster.items():
+                        t = threading.Thread(target=self.refresh_worker,
+                                             args=(k,)) # <- important comma
+                        threads.append(t)
+                        t.daemon = True
+                        t.start()
+                for t in threads:
+                        t.join()
+                self.set_need_refresh()
                         
-	def refresh_some_clusters(self,_clusters):
-		'''Called once per pmFetch batch handling, before
+        def refresh_some_clusters(self,_clusters):
+                '''Called once per pmFetch batch handling, before
                 prometheus_fetch_callback calls.  Creates threads to
                 fetch data in parallel.
                 '''
                 clusters = [int(l) for l in _clusters] # convert from PyLong
-		threads = []
-		for c in clusters:
-			t = threading.Thread(target=self.refresh_worker,
-					     args=(c,)) # <- important comma
-			threads.append(t)
-			t.daemon = True
-			t.start()
-		for t in threads:
-			t.join()
+                threads = []
+                for c in clusters:
+                        t = threading.Thread(target=self.refresh_worker,
+                                             args=(c,)) # <- important comma
+                        threads.append(t)
+                        t.daemon = True
+                        t.start()
+                for t in threads:
+                        t.join()
+                self.set_need_refresh()
 
         def set_need_refresh(self):
                 cpmda.set_need_refresh()
+                self.pmns_refresh()
 
         def debug(self,s):
                 sys.stderr.write('debug:' + s + '\n')
@@ -574,13 +588,14 @@ class PrometheusPMDA(PMDA):
                         
                         
 if __name__ == '__main__':
-	parser = argparse.ArgumentParser(description='Prometheus PMDA.',
+        parser = argparse.ArgumentParser(description='Prometheus PMDA.',
                                          formatter_class=argparse.ArgumentDefaultsHelpFormatter)
         parser.add_argument('-c','--config',
                             type=str,
                             default=os.getenv('PCP_PMDAS_DIR')+'/prometheus/urls.d',
                             help='set URL configuration directory')
-	args = parser.parse_args()
+        args = parser.parse_args()
 
-	pmda = PrometheusPMDA('prometheus', 144, args.config)
+        pmda = PrometheusPMDA('prometheus', 144, args.config)
+
         pmda.run()
