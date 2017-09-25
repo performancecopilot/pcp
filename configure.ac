@@ -3350,6 +3350,9 @@ dnl check for -latomic, needed for some -march=i386 builds with i686 c++ distro 
 AC_CHECK_LIB(atomic, __atomic_fetch_add_4, [lib_for_atomic="-latomic"])
 AC_SUBST(lib_for_atomic)
 
+AC_CHECK_LIB(lzma, lzma_block_decoder, [lib_for_lzma="-llzma"])
+AC_SUBST(lib_for_lzma)
+
 dnl check for array sessions
 if test -f /usr/include/sn/arsess.h
 then
