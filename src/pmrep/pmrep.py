@@ -73,7 +73,7 @@ class PMReporter(object):
         self.keys = ('source', 'output', 'derived', 'header', 'globals',
                      'samples', 'interval', 'type', 'precision',
                      'timestamp', 'unitinfo', 'colxrow',
-                     'delay', 'width', 'delimiter',
+                     'delay', 'width', 'delimiter', 'extcsv',
                      'extheader', 'repeat_header', 'timefmt', 'interpol',
                      'count_scale', 'space_scale', 'time_scale', 'version',
                      'speclocal', 'instances', 'ignore_incompat', 'omit_flat')
@@ -104,6 +104,7 @@ class PMReporter(object):
         self.width = 0
         self.precision = 3 # .3f
         self.delimiter = None
+        self.extcsv = 0
         self.extheader = 0
         self.repeat_header = 0
         self.timefmt = None
@@ -120,6 +121,7 @@ class PMReporter(object):
         self.writer = None
         self.pmi = None
         self.localtz = None
+        self.prev_ts = None
         self.runtime = -1
 
         # Performance metrics store
@@ -140,7 +142,7 @@ class PMReporter(object):
         opts = pmapi.pmOptions()
         opts.pmSetOptionCallback(self.option)
         opts.pmSetOverrideCallback(self.option_override)
-        opts.pmSetShortOptions("a:h:LK:c:Co:F:e:D:V?HUGpA:S:T:O:s:t:Z:zdrIi:vX:w:P:l:xE:f:uq:b:y:")
+        opts.pmSetShortOptions("a:h:LK:c:Co:F:e:D:V?HUGpA:S:T:O:s:t:Z:zdrIi:vX:w:P:l:kxE:f:uq:b:y:")
         opts.pmSetShortUsage("[option...] metricspec [...]")
 
         opts.pmSetLongOptionHeader("General options")
@@ -181,6 +183,7 @@ class PMReporter(object):
         opts.pmSetLongOption("width", 1, "w", "N", "default column width")
         opts.pmSetLongOption("precision", 1, "P", "N", "N digits after the decimal separator (default: 3)")
         opts.pmSetLongOption("delimiter", 1, "l", "STR", "delimiter to separate csv/stdout columns")
+        opts.pmSetLongOption("extended-csv", 0, "k", "", "write extended CSV")
         opts.pmSetLongOption("extended-header", 0, "x", "", "display extended header")
         opts.pmSetLongOption("repeat-header", 1, "E", "N", "repeat stdout headers every N lines")
         opts.pmSetLongOption("timestamp-format", 1, "f", "STR", "strftime string for timestamp format")
@@ -254,6 +257,8 @@ class PMReporter(object):
             self.precision = int(optarg)
         elif opt == 'l':
             self.delimiter = optarg
+        elif opt == 'k':
+            self.extcsv = 1
         elif opt == 'x':
             self.extheader = 1
         elif opt == 'E':
@@ -475,12 +480,10 @@ class PMReporter(object):
         """ Write extended header """
         comm = "#" if self.output == OUTPUT_CSV else ""
 
-        if self.context.type == PM_CONTEXT_ARCHIVE:
-            host = self.context.pmGetArchiveLabel().get_hostname()
-        if self.context.type == PM_CONTEXT_HOST:
-            host = self.context.pmGetContextHostName()
         if self.context.type == PM_CONTEXT_LOCAL:
             host = "localhost, using DSO PMDAs"
+        else:
+            host = self.context.pmGetContextHostName()
 
         timezone = pmapi.pmContext.get_local_tz()
         if timezone != self.localtz:
@@ -541,6 +544,8 @@ class PMReporter(object):
             return
 
         if self.output == OUTPUT_CSV:
+            if self.extcsv:
+                self.writer.write("Host,Interval,")
             self.writer.write("Time")
             for i, metric in enumerate(self.metrics):
                 for j in range(len(self.pmconfig.insts[i][0])):
@@ -659,8 +664,24 @@ class PMReporter(object):
             # Silent goodbye
             return
 
+        ts = pmapi.pmContext.convert_datetime(self.pmfg_ts(), "sec")
+
+        if self.prev_ts is None:
+            self.prev_ts = ts
+
         # Print the results
-        line = timestamp
+        line = ""
+        if self.extcsv:
+            if self.context.type == PM_CONTEXT_LOCAL:
+                host = "localhost"
+            else:
+                host = self.context.pmGetContextHostName()
+            line += host + ","
+            line += str(int(ts - self.prev_ts + 0.5)) + ","
+            self.prev_ts = ts
+        line += timestamp
+        if self.extcsv:
+            line += " " + pmapi.pmContext.posix_tz_to_utc_offset(pmapi.pmContext.get_local_tz())
 
         # Avoid crossing the C/Python boundary more than once per metric
         res = {}
