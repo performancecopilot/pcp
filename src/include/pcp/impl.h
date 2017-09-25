@@ -1252,7 +1252,7 @@ PCP_CALL extern int __pmLogGetInDom(__pmLogCtl *, pmInDom, __pmTimeval *, int **
 PCP_CALL extern int __pmLogLookupInDom(__pmLogCtl *, pmInDom, __pmTimeval *, const char *);
 PCP_CALL extern int __pmLogNameInDom(__pmLogCtl *, pmInDom, __pmTimeval *, int, char **);
 
-PCP_CALL extern int __pmLogLookupLabel(__pmLogCtl *lcp, unsigned int type, unsigned int ident, pmLabelSet **label);
+PCP_CALL extern int __pmLogLookupLabel(__pmLogCtl *lcp, unsigned int type, unsigned int ident, pmLabelSet **label, __pmTimeval *);
 PCP_CALL extern int __pmLogPutLabel(__pmLogCtl *lcp, unsigned int type, unsigned int ident, int nsets, pmLabelSet *labelsets, const __pmTimeval *tp);
 
 PCP_CALL extern int __pmLogPutResult(__pmLogCtl *, __pmPDU *);

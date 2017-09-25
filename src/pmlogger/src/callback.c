@@ -295,8 +295,8 @@ check_inst(pmValueSet *vsp, int hint, pmResult *lrp)
 }
 
 static int
-manageLabels(__pmLogCtl *logctl, pmDesc *desc, const __pmTimeval *tp) {
-	int i;
+manageLabels(__pmLogCtl *logctl, pmDesc *desc, const __pmTimeval *tp, int only_instances) {
+	int i = (only_instances == 1) ? 4 : 0;
 	int len;
 	int sts;
 	unsigned int type;
@@ -308,7 +308,7 @@ manageLabels(__pmLogCtl *logctl, pmDesc *desc, const __pmTimeval *tp) {
 	__pmLogLabelSet *label_ptr;
 	pmLabelSet *label;
 	
-	for (i = 0; i < 5; i++) {
+	for (; i < 5; i++) {
 		type = label_types[i];
 		if (type == PM_LABEL_INDOM || type == PM_LABEL_INSTANCES) {
 			if (desc->indom == PM_INDOM_NULL)
@@ -705,7 +705,7 @@ do_work(task_t *tp)
 		    exit(1);
 		}
 
-		manageLabels(&logctl, &desc, &resp_tval);
+		manageLabels(&logctl, &desc, &resp_tval, 0);
 		
 		if (IS_DERIVED_LOGGED(desc.pmid))
 		    /* derived metric, restore cluster field ... */
@@ -776,6 +776,7 @@ do_work(task_t *tp)
 			fprintf(stderr, "__pmLogPutInDom: %s\n", pmErrStr(sts));
 			exit(1);
 		    }
+    		manageLabels(&logctl, &desc, &tmp, 1);
 		    if (sts == PMLOGPUTINDOM_DUP) {
 			free(instlist);
 			free(namelist);

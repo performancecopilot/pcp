@@ -40,26 +40,6 @@ __htonpmUnits(pmUnits units)
 }
 #endif
 
-#ifndef __htonpmUnits
-pmLabel
-__htonpmLabel(pmLabel label)
-{
-	__htonll((char *)&label);
-
-    return label;
-}
-#endif
-
-#ifndef __ntohpmLabel
-pmLabel
-__ntohpmLabel(pmLabel label)
-{
-    __htonll((char *)&label);
-
-    return label;
-}
-#endif
-
 #ifndef __ntohpmUnits
 pmUnits
 __ntohpmUnits(pmUnits units)
@@ -70,6 +50,30 @@ __ntohpmUnits(pmUnits units)
     units = *(pmUnits *)&x;
 
     return units;
+}
+#endif
+
+#ifndef __htonpmUnits
+void
+__htonpmLabel(pmLabel * const label)
+{
+	label->name = htons(label->name);
+	/* label->namelen is one byte */
+	/* label->flags is one byte */
+	label->value = htons(label->value);
+	label->valuelen = htons(label->valuelen);
+}
+#endif
+
+#ifndef __ntohpmLabel
+void
+__ntohpmLabel(pmLabel * const label)
+{
+	label->name = ntohs(label->name);
+	/* label->namelen is one byte */
+	/* label->flags is one byte */
+	label->value = ntohs(label->value);
+	label->valuelen = ntohs(label->valuelen);
 }
 #endif
 

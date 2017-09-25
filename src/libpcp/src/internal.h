@@ -37,8 +37,6 @@ extern int __pmGetDate(struct timespec *, char const *, struct timespec const *)
  */
 #define __htonpmUnits(a)    (a)
 #define __ntohpmUnits(a)    (a)
-#define __htonpmLabel(a)    (a)
-#define __ntohpmLabel(a)    (a)
 #define __htonpmID(a)		(a)
 #define __ntohpmID(a)		(a)
 #define __htonpmInDom(a)	(a)
@@ -54,6 +52,8 @@ extern int __pmGetDate(struct timespec *, char const *, struct timespec const *)
  * defined as comments to catch code that tries to
  * use them in an expression or assignment.
  */
+#define __htonpmLabel(a)    (a)
+#define __ntohpmLabel(a)    (a)
 #define __htonpmValueBlock(a)	/* noop */
 #define __ntohpmValueBlock(a)	/* noop */
 #define __htonf(a)		/* noop */
@@ -76,14 +76,14 @@ extern int __pmGetDate(struct timespec *, char const *, struct timespec const *)
 
 extern pmUnits __htonpmUnits(pmUnits) _PCP_HIDDEN;
 extern pmUnits __ntohpmUnits(pmUnits) _PCP_HIDDEN;
-extern pmLabel __htonpmLabel(pmLabel) _PCP_HIDDEN;
-extern pmLabel __ntohpmLabel(pmLabel) _PCP_HIDDEN;
 extern __pmPDUInfo __htonpmPDUInfo(__pmPDUInfo) _PCP_HIDDEN;
 extern __pmPDUInfo __ntohpmPDUInfo(__pmPDUInfo) _PCP_HIDDEN;
 extern __pmCred __htonpmCred(__pmCred) _PCP_HIDDEN;
 extern __pmCred __ntohpmCred(__pmCred) _PCP_HIDDEN;
 
 /* insitu swab for these */
+extern void __htonpmLabel(pmLabel * const) _PCP_HIDDEN;
+extern void __ntohpmLabel(pmLabel * const) _PCP_HIDDEN;
 extern void __htonpmValueBlock(pmValueBlock * const) _PCP_HIDDEN;
 extern void __ntohpmValueBlock(pmValueBlock * const) _PCP_HIDDEN;
 extern void __htonf(char *) _PCP_HIDDEN;	/* float */
