@@ -209,12 +209,12 @@ static int refreshData(void)
     int		len;
     char	*s,*s2,*s3;
 
-    if (pmDebug & DBG_TRACE_APPL0)
+    if (pmDebugOptions.appl0)
 	fprintf(stderr, "Doing pmhttpClientFetch(%s)\n", url);
 
     len = pmhttpClientFetch(http_client, url, res, sizeof(res), NULL, 0);
     if (len < 0) {
-	if (pmDebug & DBG_TRACE_APPL1)
+	if (pmDebugOptions.appl1)
 	    __pmNotifyErr(LOG_ERR, "HTTP fetch (stats) failed\n");
 	return 0; /* failed */
     }
@@ -317,7 +317,7 @@ static int refreshData(void)
 		    data.sb_open_slot++;
 		    break;
 		default:
-		    if (pmDebug & DBG_TRACE_APPL1) {
+		    if (pmDebugOptions.appl1) {
 			__pmNotifyErr(LOG_WARNING,
 				"Unknown scoreboard character '%c'\n", *s3);
 		    }
@@ -325,12 +325,12 @@ static int refreshData(void)
 		s3++;
 	     }
 	}
-	else if (pmDebug & DBG_TRACE_APPL1) {
+	else if (pmDebugOptions.appl1) {
 	    __pmNotifyErr(LOG_WARNING, "Unknown value name '%s'!\n", s2);
 	}
     }
 
-    if (pmDebug & DBG_TRACE_APPL2)
+    if (pmDebugOptions.appl2)
 	dumpData();
     return 1;
 }

@@ -98,7 +98,6 @@ dataprint(__pmHashTable *t, void *e)
 }
 
 
-#ifdef PCP_DEBUG
 void
 debuglibrary(int flag)
 {
@@ -117,6 +116,5 @@ debuglibrary(int flag)
     else
 	pmtracestate(state);
 }
-#endif
 
 

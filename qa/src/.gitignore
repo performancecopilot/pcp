@@ -57,6 +57,7 @@ endian
 eofarch
 eol
 err
+exectest
 exercise
 exercise_fault
 exerlock
@@ -81,6 +82,8 @@ hrunpack
 httpfetch
 import_limit_test.pl
 indom
+int2indom
+int2pmid
 interp0
 interp1
 interp2

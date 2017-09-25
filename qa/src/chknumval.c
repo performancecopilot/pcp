@@ -41,15 +41,13 @@ main(int argc, char **argv)
     while ((c = getopt(argc, argv, "D:h:K:Ln:")) != EOF) {
 	switch (c) {
 
-	case 'D':	/* debug flag */
-	    sts = __pmParseDebug(optarg);
+	case 'D':	/* debug options */
+	    sts = pmSetDebug(optarg);
 	    if (sts < 0) {
-		fprintf(stderr, "%s: unrecognized debug flag specification (%s)\n",
+		fprintf(stderr, "%s: unrecognized debug options specification (%s)\n",
 		    pmProgname, optarg);
 		errflag++;
 	    }
-	    else
-		pmDebug |= sts;
 	    break;
 
 	case 'h':	/* hostname for PMCD to contact */
@@ -92,7 +90,7 @@ main(int argc, char **argv)
 "Usage: %s [options] [metricname ...]\n\
 \n\
 Options\n\
-  -D debug	standard PCP debug flag\n\
+  -D debug	standard PCP debug options\n\
   -h host	metrics source is PMCD on host (default is localhost)\n\
   -L            metrics source is local connection to PMDA, no PMCD\n\
   -K spec       optional additional PMDA spec for local connection\n\

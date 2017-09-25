@@ -201,7 +201,7 @@ pipe_store(pmResult *result, pmdaExt *pmda)
 		return PM_ERR_INST;
 	    p = vp->value.pval->vbuf;
 
-	    if (pmDebug & DBG_TRACE_APPL0)
+	    if (pmDebugOptions.appl0)
 		__pmNotifyErr(LOG_DEBUG, "store: ctx=%d inst=%u value=\"%s\"",
 				pmda->e_context, inst, p);
 
@@ -220,7 +220,7 @@ pipe_store(pmResult *result, pmdaExt *pmda)
 static void
 pipe_end_contextCallBack(int context)
 {
-    if (pmDebug & DBG_TRACE_APPL0)
+    if (pmDebugOptions.appl0)
 	__pmNotifyErr(LOG_DEBUG, "end_context on ctx-%d", context);
 
     pmdaEventEndClient(context);
@@ -310,7 +310,7 @@ pipe_setfd(int fd)
 {
     if (fd > maxfd)
 	maxfd = fd;
-    if (pmDebug & DBG_TRACE_APPL2)
+    if (pmDebugOptions.appl2)
         __pmNotifyErr(LOG_DEBUG, "select: adding fd=%d", fd);
     FD_SET(fd, &fds);
     return fd;
@@ -319,7 +319,7 @@ pipe_setfd(int fd)
 int
 pipe_clearfd(int fd)
 {
-    if (pmDebug & DBG_TRACE_APPL2)
+    if (pmDebugOptions.appl2)
         __pmNotifyErr(LOG_DEBUG, "select: clearing fd=%d", fd);
     FD_CLR(fd, &fds);
     return fd;
@@ -351,7 +351,7 @@ pipeMain(pmdaInterface *dispatch)
     for (;;) {
 	memcpy(&readyfds, &fds, sizeof(readyfds));
         nready = select(maxfd+1, &readyfds, NULL, NULL, NULL);
-        if (pmDebug & DBG_TRACE_APPL2)
+        if (pmDebugOptions.appl2)
             __pmNotifyErr(LOG_DEBUG, "select: nready=%d", nready);
 	if (nready < 0) {
 	    if (neterror() != EINTR) {
@@ -361,7 +361,7 @@ pipeMain(pmdaInterface *dispatch)
 	}
 	if (nready > 0) {
 	    if (FD_ISSET(pmcdfd, &readyfds)) {
-		if (pmDebug & DBG_TRACE_APPL0)
+		if (pmDebugOptions.appl0)
 		    __pmNotifyErr(LOG_DEBUG,
 				"processing pmcd PDU [fd=%d]", pmcdfd);
 		if (__pmdaMainPDU(dispatch) < 0)

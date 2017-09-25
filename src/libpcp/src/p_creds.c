@@ -46,11 +46,9 @@ __pmSendCreds(int fd, int from, int credcount, const __pmCred *credlist)
     pp->hdr.type = PDU_CREDS;
     pp->hdr.from = from;
     pp->numcreds = htonl(credcount);
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_CONTEXT)
+    if (pmDebugOptions.context)
 	for (i = 0; i < credcount; i++)
 	    fprintf(stderr, "__pmSendCreds: #%d = %x\n", i, *(unsigned int*)&(credlist[i]));
-#endif
     /* swab and fix bitfield order */
     for (i = 0; i < credcount; i++)
 	pp->credlist[i] = __htonpmCred(credlist[i]);
@@ -88,13 +86,11 @@ __pmDecodeCreds(__pmPDU *pdubuf, int *sender, int *credcount, __pmCred **credlis
 	list[i] = __ntohpmCred(pp->credlist[i]);
     }
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_CONTEXT)
+    if (pmDebugOptions.context)
 	for (i = 0; i < numcred; i++)
 	    fprintf(stderr, "__pmDecodeCreds: #%d = { type=0x%x a=0x%x b=0x%x c=0x%x }\n",
 		i, list[i].c_type, list[i].c_vala,
 		list[i].c_valb, list[i].c_valc);
-#endif
 
     *credlist = list;
     *credcount = numcred;

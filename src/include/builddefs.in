@@ -115,7 +115,7 @@ endif
 CFLAGS_ABI = @cflags_abi@
 CFLAGS_OPT = @optimization@
 CFLAGS += $(PCFLAGS) $(LCFLAGS) $(WARN_OFF) $(CFLAGS_OPT) \
-	-DPCP_DEBUG -DPCP_VERSION=\"$(PCP_VERSION)\" \
+	-DPCP_VERSION=\"$(PCP_VERSION)\" \
 	-I$(TOPDIR)/src/include -I$(TOPDIR)/src/include/pcp
 
 PIECFLAGS = @PIECFLAGS@
@@ -174,7 +174,7 @@ GIT	= @GIT@
 PYTHON	= @PYTHON@
 PYTHON3	= @PYTHON3@
 DTRACE  = @DTRACE@
-QMAKE	= @qmake@
+QMAKE	= QT_SELECT=@qt_version@ @qmake@
 
 INSTALL_SH = $(TOPDIR)/install-sh
 INSTALL	= $(INSTALL_SH) -o $(PCP_USER_INSTALL) -g $(PCP_GROUP_INSTALL)
@@ -274,6 +274,8 @@ HAVE_PYTHON_REQUESTS = @have_python_requests@
 HAVE_PYTHON_SETUPTOOLS = @have_python_setuptools@
 HAVE_PYTHON_JSONPOINTER = @have_python_jsonpointer@
 HAVE_PYTHON_ORDEREDDICT = @have_python_OrderedDict@
+HAVE_PYTHON_ELASTICSEARCH = @have_python_Elasticsearch@
+HAVE_PYTHON_XLSXWRITER = @have_python_xlsxwriter@
 
 # for building packages from external sources
 HAVE_WEBAPPS = @have_webapps@

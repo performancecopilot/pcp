@@ -142,6 +142,10 @@ Derived metric initialization from $PCP_DERIVED_CONFIG
 Warning: derived metrics path component: ./E: No such file or directory
 Warning: derived metrics path component: ./dev/tty: unexpected st_mode=20644?
 Warning: derived metrics path directory component: ./blocked: Permission denied
+__dmbind: bind metric[N] qa.A
+__dmbind: bind metric[N] qa.B
+__dmbind: bind metric[N] qa.C
+__dmbind: bind metric[N] qa.D
 __dmgetpmid: metric "qa.A" -> PMID 511.0.N
 __dmgetpmid: metric "qa.A" -> PMID 511.0.N
 __dmgetpmid: metric "qa.B" -> PMID 511.0.N
@@ -150,12 +154,6 @@ __dmgetpmid: metric "qa.C" -> PMID 511.0.N
 __dmgetpmid: metric "qa.C" -> PMID 511.0.N
 __dmgetpmid: metric "qa.D" -> PMID 511.0.N
 __dmgetpmid: metric "qa.D" -> PMID 511.0.N
-__dmopencontext: bind metric[N] event.flags
-__dmopencontext: bind metric[N] event.missed
-__dmopencontext: bind metric[N] qa.A
-__dmopencontext: bind metric[N] qa.B
-__dmopencontext: bind metric[N] qa.C
-__dmopencontext: bind metric[N] qa.D
 __dmtraverse: name="qa.A" added "qa.A"
 __dmtraverse: name="qa.B" added "qa.B"
 __dmtraverse: name="qa.C" added "qa.C"

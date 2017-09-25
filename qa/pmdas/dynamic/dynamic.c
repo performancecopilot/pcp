@@ -208,12 +208,10 @@ dynamic_store(pmResult *result, pmdaExt *pmda)
 			    sts = PM_ERR_INST;
 			}
 			else {
-#ifdef PCP_DEBUG
-			    if (pmDebug & DBG_TRACE_APPL0)
+			    if (pmDebugOptions.appl0)
 				__pmNotifyErr(LOG_DEBUG, 
 					      "dynamic_store: Adding instance %d (size = %d)\n",
 					      val, sizeInsts);
-#endif
 
 			    insts[val].id = val;
 			    insts[val].counter = 0;
@@ -235,7 +233,7 @@ dynamic_store(pmResult *result, pmdaExt *pmda)
 			else {
 			    for (i = sizeInsts; i <= val; i++) {
 				insts[i].id = -1;
-				sprintf(insts[i].name, "%d", i);
+				pmsprintf(insts[i].name, 16, "%d", i);
 				insts[i].counter = 0;
 			    }
 			    insts[val].id = val;
@@ -243,12 +241,10 @@ dynamic_store(pmResult *result, pmdaExt *pmda)
 			    sizeInsts = val + 1;
 			    numInsts++;
 
-#ifdef PCP_DEBUG
-			    if (pmDebug & DBG_TRACE_APPL0)
+			    if (pmDebugOptions.appl0)
 				__pmNotifyErr(LOG_DEBUG, 
 					      "dynamic_store: Adding instance %d (size = %d)\n",
 					      val, sizeInsts);
-#endif
 			}
 		    }
 		    break;
@@ -256,11 +252,9 @@ dynamic_store(pmResult *result, pmdaExt *pmda)
 		case 5:					/* del */
 		    val = vsp->vlist[0].value.lval;
 		    if (val < 0) {			/* delete all */
-#ifdef PCP_DEBUG
-			    if (pmDebug & DBG_TRACE_APPL0)
+			    if (pmDebugOptions.appl0)
 				__pmNotifyErr(LOG_DEBUG, 
 					      "dynamic_store: Removing all instances\n");
-#endif
 
 			for (i = 0; i < sizeInsts; i++) {
 			    insts[i].id = -1;
@@ -274,12 +268,10 @@ dynamic_store(pmResult *result, pmdaExt *pmda)
 			    sts = PM_ERR_INST;
 			}
 			else {
-#ifdef PCP_DEBUG
-			    if (pmDebug & DBG_TRACE_APPL0)
+			    if (pmDebugOptions.appl0)
 				__pmNotifyErr(LOG_DEBUG, 
 					      "dynamic_store: Removing instance %d\n",
 					      val);
-#endif
 			    insts[val].id = -1;
 			    insts[val].counter = 0;
 			    changed = 1;
@@ -307,12 +299,10 @@ dynamic_store(pmResult *result, pmdaExt *pmda)
 
     if (changed) {
 
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL0)
+	if (pmDebugOptions.appl0)
 	    __pmNotifyErr(LOG_DEBUG, 
 			  "dynamic_store: Resizing to %d instances\n",
 			  numInsts);
-#endif
 
 	if (numInsts > 0) {
 	    instids = (pmdaInstid *)realloc(instids, 
@@ -329,13 +319,11 @@ dynamic_store(pmResult *result, pmdaExt *pmda)
 			instids[j].i_inst = insts[i].id;
 			instids[j].i_name = insts[i].name;
 
-#ifdef PCP_DEBUG
-			if (pmDebug & DBG_TRACE_APPL1)
+			if (pmDebugOptions.appl1)
 			    __pmNotifyErr(LOG_DEBUG,
 					  "dynamic_store: [%d] %d \"%s\"\n",
 					  j, instids[j].i_inst, 
 					  instids[j].i_name);
-#endif
 
 			j++;
 		    }
@@ -400,7 +388,7 @@ main(int argc, char **argv)
     char		helppath[MAXPATHLEN];
 
     __pmSetProgname(argv[0]);
-    snprintf(helppath, sizeof(helppath),
+    pmsprintf(helppath, sizeof(helppath),
 		"%s%c" "testsuite" "%c" "pmdas" "%c" "dynamic" "%c" "help",
 		pmGetConfig("PCP_VAR_DIR"), sep, sep, sep, sep);
     pmdaDaemon(&dispatch, PMDA_INTERFACE_4, pmProgname, DYNAMIC,

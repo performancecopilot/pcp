@@ -71,3 +71,4 @@ echo "pmlogger log:"
 cat $tmp.log
 
 $MKAF pcp-atop.* > pcp-atop.folio
+xz pcp-atop.0

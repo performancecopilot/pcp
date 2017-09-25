@@ -166,33 +166,44 @@ class ScanPrometheus(object):
 				raise ValueError("Unable to connect to the Prometheus "
 									"endpoint = %s\n%s" % (self.endpoint, str(e)))
 
-	def get_metric_metadata(self, lines):
-		# Returns the metric metadata name, descriptions and type
-		# First commented line of the metric is the description
-		# Second commented line of the metric is the type
-		tokens = lines[0].split(' ')
-		description = ' '.join(tokens[3:])
-		name = tokens[2]
-		type_ = lines[1].split(' ')[3]
-		return (description, name, type_)
+	def get_metric(self, name):
+		metric = self.metrics_by_name.get(name)
+		if metric == None:
+			metric = self.Metric()
+			metric.name = name
+			metric.type = DOUBLE
+			metric.semantics = INSTANT
+			metric.units_str = self.get_metric_units(name)
+			self.metrics_by_name[name] = metric
+		return metric
 
 	def get_metric_instance(self, s):
 		# Returns the instances of the Prometheus metric
 		# labels of Prometheus metric is translated into the labels
 		i = 0
-		while i < len(s) and s[i]!=' ' and s[i]!='{':
+		while i < len(s) and s[i] != ' ' and s[i] != '{':
 			i+=1
-		if i==len(s):
+		if i == len(s):
 			raise Exception("Incorrect metric line: %s" % s)
 		# Metric without instances
-		if s[i]==' ':
-			return (s[:i], s[:i], None)
-
 		name = s[:i]
+		prometheus_name = s[:i]
+		instance = None
+		tokens = name.split('_')
+
+		if tokens[len(tokens) - 1] in ["sum", "count", "bucket"]:
+			tempname = '_'.join(tokens[ : len(tokens) - 1])
+			if self.metrics_by_name.get(tempname) != None:
+				name = tempname
+				instance = tokens[len(tokens) - 1]
+
+		if s[i] == ' ':
+			return (prometheus_name, name, instance)
+
 		instance = []
-		while s[i]!='}':
+		while s[i] != '}':
 			j = i + s[i:].find('=')
-			if j==-1:
+			if j == -1:
 				raise Exception("Incorrect metric line: %s" % s)
 			j += 2
 			while j < len(s):
@@ -215,50 +226,37 @@ class ScanPrometheus(object):
 			return pmContext.pmUnitsStr(pmUnits(0,0,1))
 		return ""
 
-	def parse_metric(self, lines):
-		''' Iterates over the instances of a metric '''
-		(description, name, type_) = self.get_metric_metadata(lines)
-		metric = self.Metric()
-		metric.name = name
-		metric.description = description
-		metric.type = DOUBLE
-		metric.units_str = self.get_metric_units(name)
-		if type_ == "counter":
+	def parse_comment(self, line):
+		tokens = line.split()
+		if len(tokens) < 3 or tokens[0] != '#':
+			return
+		name = tokens[2]
+		metric = self.get_metric(name)
+		if tokens[1] == "HELP":
+			metric.description = ' '.join(tokens[3:])
+		elif tokens[1] == "TYPE" and tokens[3] == "counter":
 			metric.semantics = COUNTER
-		else:
-			metric.semantics = INSTANT
 
-		for line in lines[2:]:
-			(prometheus_name, name, instance) = self.get_metric_instance(line)
-			if not self.metrics_by_name.get(name):
-				metric.name = name
-				metric.prometheus_name = None
-				metric.instances = None
-				self.metrics_by_name[name] = copy.deepcopy(metric)
-			if instance:
-				self.metrics_by_name[name].add_instance(instance, prometheus_name)
-			else:
-				self.metrics_by_name[name].prometheus_name = prometheus_name
+	def parse_metric(self, line):
+		''' Iterates over the instances of a metric '''
+		(prometheus_name, name, instance) = self.get_metric_instance(line)
+		metric = self.get_metric(name)
+		if instance:
+			metric.add_instance(instance, prometheus_name)
+		else:
+			metric.prometheus_name = prometheus_name
 
 	def parse_raw(self):
 		''' Iterates over all the metrics in the source'''
 		lines = self.raw_metrics.splitlines()
-		lineIter = 0
-		while lineIter<len(lines):
-			if len(lines[lineIter]) == 0:
-				return
-			if lines[lineIter][0] != "#" \
-				or lines[lineIter+1][0] != '#':
-				raise ValueError("Invalid format of Prometheus metrics metadata"
-					"\n%s" %(lines[lineIter]))
-			metricLines = [lines[lineIter], lines[lineIter+1]]
-			metricIter = lineIter + 2
-			while (metricIter < len(lines) and len(lines[metricIter])!=0 \
-				and lines[metricIter][0] != '#'):
-				metricLines.append(lines[metricIter])
-				metricIter += 1
-			lineIter = metricIter
-			self.parse_metric(metricLines)
+		for line in lines:
+			line = line.strip()
+			if len(line) == 0:
+				continue
+			elif line[0] == '#':
+				self.parse_comment(line)
+			else:
+				self.parse_metric(line)
 
 class Metric(object):
 	''' Metric information class '''
@@ -332,28 +330,29 @@ class Metric(object):
 	def parse(self, json_obj):
 		''' Parses the metric metadata JSON '''
 		try:
-			self.name = json_obj["name"]
-			self.description = json_obj["description"]
+			self.name = json_obj.get("name")
+			self.description = json_obj.get("description")
 
-			type_ = json_obj["type"]
+			type_ = json_obj.get("type")
 			# Types can be only of the TYPES constant
 			if not TYPES.get(type_):
 				raise ValueError("Invalid type: %s" %(type_))
 			self.type = TYPES.get(type_)
 
-			semantics = json_obj["semantics"]
+			semantics = json_obj.get("semantics")
 			if not SEMANTICS.get(semantics):
 				raise ValueError("Invalid semantic: %s" %(semantics))
 			self.semantics = SEMANTICS.get(semantics)
-			(unit, val) = pmContext.pmParseUnitsStr(json_obj["units_str"])
+			(unit, val) = pmContext.pmParseUnitsStr(json_obj.get("units_str"))
 			self.__units_val = unit
-			self.units_str = json_obj["units_str"]
+			self.units_str = json_obj.get("units_str")
 			self.prometheus_name = json_obj.get("prometheus_name")
 			self.instances = json_obj.get("instances")
 			if self.instances:
 				for instance in self.instances:
-					self.instance_by_name[instance["name"]] \
-						= instance["prometheus_name"]
+					if instance.get("name") != None:
+						self.instance_by_name[instance.get("name")] \
+							= instance.get("prometheus_name")
 		except ValueError as e:
 			raise e
 

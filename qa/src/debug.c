@@ -21,10 +21,10 @@ main(int argc, char **argv)
     while ((c = getopt(argc, argv, "D:?")) != EOF) {
 	switch (c) {
 
-	case 'D':	/* debug flag(s) */
+	case 'D':	/* debug options */
 	    sts = pmSetDebug(optarg);
 	    if (sts < 0) {
-		fprintf(stderr, "%s: unrecognized debug flag specification (%s)\n",
+		fprintf(stderr, "%s: unrecognized debug options specification (%s)\n",
 		    pmProgname, optarg);
 		errflag++;
 	    }
@@ -42,7 +42,7 @@ main(int argc, char **argv)
 "Usage: %s [options]\n\
 \n\
 Options:\n\
-  -D debug[,...] set PCP debug flags\n",
+  -D debug[,...] set PCP debug options\n",
                 pmProgname);
         exit(1);
     }
@@ -72,7 +72,7 @@ Options:\n\
 	sts = __pmParseDebug(argv[optind]);
 	printf("__pmParseDebug -> %d\n", sts);
 	if (sts > 0)
-	    pmDebug |= sts;
+	    __pmSetDebugBits(sts);
 	__pmDumpDebug(stdout);
 
 	printf("pmClearDebug(\"%s\") ...\n", argv[optind]);

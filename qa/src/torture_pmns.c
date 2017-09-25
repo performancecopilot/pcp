@@ -123,14 +123,9 @@ parse_args(int argc, char **argv)
     extern int	optind;
     int		errflag = 0;
     int		c;
-    static char	*usage = "[-bcLmvx] [-a archive] [-h host] [-n namespace] [-s 1|2] metricname ...";
+    static char	*usage = "[-bcLmvx] [-a archive] [-D debugspec] [-h host] [-n namespace] [-s 1|2] metricname ...";
     char	*endnum;
     int		sts;
-#ifdef PCP_DEBUG
-    static char	*debug = "[-D <dbg>]";
-#else
-    static char	*debug = "";
-#endif
 
     __pmSetProgname(argv[0]);
 
@@ -154,15 +149,13 @@ parse_args(int argc, char **argv)
 	    root_children = 1;
 	    break;
 
-	case 'D':	/* debug flag */
-	    sts = __pmParseDebug(optarg);
+	case 'D':	/* debug options */
+	    sts = pmSetDebug(optarg);
 	    if (sts < 0) {
-		fprintf(stderr, "%s: unrecognized debug flag specification (%s)\n",
+		fprintf(stderr, "%s: unrecognized debug options specification (%s)\n",
 		    pmProgname, optarg);
 		errflag++;
 	    }
-	    else
-		pmDebug |= sts;
 	    break;
 
 	case 'h':	/* context_namename for live context */
@@ -246,7 +239,7 @@ parse_args(int argc, char **argv)
     }
 
     if (errflag) {
-	printf("Usage: %s %s%s\n", pmProgname, debug, usage);
+	printf("Usage: %s %s\n", pmProgname, usage);
 	exit(1);
     }
 }

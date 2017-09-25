@@ -78,15 +78,13 @@ doscan(struct timeval *end)
 		"%s: doscan: Error: pmFetch failed: %s\n", pmProgname, pmErrStr(sts));
 	    exit(1);
 	}
-#if PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL2) {
+	if (pmDebugOptions.appl2) {
 	    if (nr == 0) {
 		fprintf(stderr, "scan starts at ");
 		__pmPrintStamp(stderr, &rp->timestamp);
 		fprintf(stderr, "\n");
 	    }
 	}
-#endif
 
 	if (rp->numpmid == 0) {
 	    /*
@@ -180,14 +178,12 @@ doscan(struct timeval *end)
 		    vp->nobs = vp->nwrap = 0;
 		    vp->control = V_INIT;
 		    vp->next = NULL;
-#if PCP_DEBUG
 
-		    if (pmDebug & DBG_TRACE_APPL1) {
+		    if (pmDebugOptions.appl1) {
 			fprintf(stderr,
 			    "add value_t for %s (%s) inst %d\n",
 			    namelist[i], pmIDStr(pmidlist[i]), vsp->vlist[j].inst);
 		    }
-#endif
 		}
 		/* TODO ... hard part goes here 8^) */
 		if (mp->idesc.sem == PM_SEM_COUNTER) {
@@ -197,29 +193,25 @@ doscan(struct timeval *end)
 		     */
 		    ;
 		}
-#if PCP_DEBUG
-		if (pmDebug & DBG_TRACE_APPL1) {
+		if (pmDebugOptions.appl1) {
 		    __pmPrintStamp(stderr, &rp->timestamp);
 		    fprintf(stderr, ": seen %s (%s) inst %d\n",
 			namelist[i], pmIDStr(pmidlist[i]),
 			vsp->vlist[j].inst);
 		}
-#endif
 		vp->control |= V_SEEN;
 	    }
 	}
 
 	pmFreeResult(rp);
     }
-#if PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL2) {
+    if (pmDebugOptions.appl2) {
 	fprintf(stderr, "scan ends at ");
 	__pmPrintStamp(stderr, &last_tv);
 	if (sts == PM_ERR_EOL)
 	    fprintf(stderr, " [EOL]");
 	fprintf(stderr, " (%d records)\n", nr);
     }
-#endif
 
     if ((sts = pmSetMode(PM_MODE_FORW, &last_tv, 0)) < 0) {
 	fprintf(stderr,

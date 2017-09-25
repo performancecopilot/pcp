@@ -63,7 +63,7 @@ QA output created by 006
 -12406 The instance domain of a metric has changed in an archive
 -12407 The units of a metric have changed in an archive
 -12408 PMCD requires a client certificate
--12409 No such PMAPI error code (-12409)
+-12409 Derived metric definition failed
 -12410 No such PMAPI error code (-12410)
 -12411 No such PMAPI error code (-12411)
 -12412 No such PMAPI error code (-12412)
@@ -99,3 +99,13 @@ QA output created by 006
 -12442 No such PMAPI error code (-12442)
 -12443 Insufficient elements in list
 -12444 Result size exceeded
+-12445 QA fault injected
+-12446 No such PMAPI error code (-12446)
+-12447 No such PMAPI error code (-12447)
+-12448 No such PMAPI error code (-12448)
+-12449 No such PMAPI error code (-12449)
+-12450 No such PMAPI error code (-12450)
+-12451 No such PMAPI error code (-12451)
+-12452 No such PMAPI error code (-12452)
+-12453 No such PMAPI error code (-12453)
+-12454 No such PMAPI error code (-12454)

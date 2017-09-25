@@ -41,13 +41,11 @@ NotifyEndContext(int ctx)
 	    pmdaInterface	*dp = &agent[i].ipc.dso.dispatch;
 	    if (dp->comm.pmda_interface >= PMDA_INTERFACE_5) {
 		if (dp->version.four.ext->e_endCallBack != NULL) {
-#ifdef PCP_DEBUG
-		    if (pmDebug & DBG_TRACE_CONTEXT) {
+		    if (pmDebugOptions.context) {
 			fprintf(stderr, "NotifyEndContext: DSO PMDA %s (%d) notified of context %d close\n",
 			    agent[i].pmDomainLabel, agent[i].pmDomainId,
 			    ctx);
 		    }
-#endif
 		    (*(dp->version.four.ext->e_endCallBack))(ctx);
 		}
 	    }
@@ -62,12 +60,10 @@ NotifyEndContext(int ctx)
 	     * bother about any return status from the __pmSendError
 	     * either.
 	     */
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_CONTEXT) {
+	    if (pmDebugOptions.context) {
 		fprintf(stderr, "NotifyEndContext: daemon PMDA %s (%d) notified of context %d close\n",
 		    agent[i].pmDomainLabel, agent[i].pmDomainId, ctx);
 	    }
-#endif
 	    pmcd_trace(TR_XMIT_PDU, agent[i].inFd, PDU_ERROR, PM_ERR_NOTCONN);
 	    __pmSendError(agent[i].inFd, ctx, PM_ERR_NOTCONN);
 	}
@@ -132,10 +128,8 @@ AcceptNewClient(int reqfd)
     __pmtimevalNow(&now);
     client[i].start = now.tv_sec;
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL0)
+    if (pmDebugOptions.appl0)
 	fprintf(stderr, "AcceptNewClient(%d): client[%d] (fd %d)\n", reqfd, i, fd);
-#endif
     pmcd_trace(TR_ADD_CLIENT, i, 0, 0);
 
     return &client[i];
@@ -186,13 +180,11 @@ DeleteClient(ClientInfo *cp)
 	    break;
 
     if (i == nClients) {
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL0) {
+	if (pmDebugOptions.appl0) {
 	    __pmNotifyErr(LOG_ERR, "DeleteClient: tried to delete non-existent client\n");
 	    Shutdown();
 	    exit(1);
 	}
-#endif
 	return;
     }
     if (cp->fd != -1) {
@@ -259,10 +251,8 @@ CheckAccountAccess(ClientInfo *cp)
 		(const char *)node->data : NULL);
     groupid = ((node = __pmHashSearch(PCP_ATTR_GROUPID, &cp->attrs)) ?
 		(const char *)node->data : NULL);
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_AUTH)
+    if (pmDebugOptions.auth)
 	fprintf(stderr, "CheckAccountAccess: client fd=%d userid=%s groupid=%s\n", cp->fd, userid, groupid);
-#endif
     if (!userid || !groupid)
 	if (__pmServerHasFeature(PM_SERVER_FEATURE_CREDS_REQD))
 	    return PM_ERR_PERMISSION;

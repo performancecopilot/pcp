@@ -94,12 +94,7 @@ char proc_fmt[8];   /* export for procfs fname conversions */
 void
 getargs(int argc, char **argv)
 {
-#ifdef PCP_DEBUG
-    static char	*debug = "[-D N]";
-#else
-    static char	*debug = "";
-#endif
-    static char	*usage = " [-h hostname] [-n pmnsfile] "
+    static char	*usage = " [-h hostname] [-D debugspec] [-n pmnsfile] "
 			 "[-i iterations] [-t refresh] [-v] "
 			 "metric [metric ...]";
     int		errflag = 0;
@@ -113,18 +108,14 @@ getargs(int argc, char **argv)
     while ((c = getopt(argc, argv, "D:h:n:i:t:v")) != EOF) {
 	switch (c) {
 
-#ifdef PCP_DEBUG
-	case 'D':	/* debug flag */
-	    sts = __pmParseDebug(optarg);
+	case 'D':	/* debug options */
+	    sts = pmSetDebug(optarg);
 	    if (sts < 0) {
-		fprintf(stderr, "%s: unrecognized debug flag specification (%s)\n",
+		fprintf(stderr, "%s: unrecognized debug options specification (%s)\n",
 		    pmProgname, optarg);
 		errflag++;
 	    }
-	    else
-		pmDebug |= sts;
 	    break;
-#endif
 
 	case 'h':	/* hostname for PMCD to contact */
 	    host = optarg;
@@ -163,7 +154,7 @@ getargs(int argc, char **argv)
 
     if (errflag) {
 USAGE:
-	fprintf(stderr, "Usage: %s %s%s\n", pmProgname, debug, usage);
+	fprintf(stderr, "Usage: %s %s\n", pmProgname, usage);
 	exit(1);
     }
 
@@ -254,14 +245,14 @@ set_proc_fmt(void)
 	ndigit = (int)strlen(directp->d_name);
 	if (proc_entry_len == -1) {
 	    proc_entry_len = ndigit;
-	    sprintf(proc_fmt, "%%0%dd", proc_entry_len);
+	    pmsprintf(proc_fmt, sizeof(proc_fmt), "%%0%dd", proc_entry_len);
 	}
 	else if (ndigit != proc_entry_len) {
 	    /*
 	     * different lengths, so not fixed width ... this is the
 	     * Linux way
 	     */
-	    sprintf(proc_fmt, "%%d");
+	    pmsprintf(proc_fmt, sizeof(proc_fmt), "%%d");
 	    break;
 	}
     }
@@ -444,12 +435,12 @@ test_instance(void)
 	}
 	if (verbose)
 	    printf("  instance name %d --> \"%s\"\n", all_inst[i], name);  
-	sprintf(x, proc_fmt, all_inst[i]);
+	pmsprintf(x, sizeof(x), proc_fmt, all_inst[i]);
 	if (strncmp(name, x, strlen(x)) != 0 ||
 	    (name[strlen(x)] != '\0' && name[strlen(x)] != ' ')) {
 	    /* try w/out leading zeroes */
 	    char	*q;
-	    sprintf(x, "%d", all_inst[i]);
+	    pmsprintf(x, sizeof(x), "%d", all_inst[i]);
 	    for (q = name; *q && *q == '0'; q++)
 		;
 	    if (strncmp(q, x, strlen(x)) != 0 ||

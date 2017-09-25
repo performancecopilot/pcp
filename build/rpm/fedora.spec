@@ -3100,7 +3100,7 @@ cd
 %endif
 
 %changelog
-* Fri Oct 29 2017 Mark Goodwin <mgoodwin@redhat.com> - 3.12.2-1
+* Wed Oct 18 2017 Lukas Berk <lberk@redhat.com> - 3.12.2-1
 - Work-in-progress, see http://pcp.io/roadmap
 
 * Mon Aug 28 2017 Nathan Scott <nathans@redhat.com> - 3.12.1-3

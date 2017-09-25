@@ -422,7 +422,7 @@ rpm_extract_value(rpmtd td, Header h, int tag)
 static void
 rpm_extract_metadata(const char *name, rpmtd td, Header h, metadata *m)
 {
-    if (pmDebug & DBG_TRACE_APPL0)
+    if (pmDebugOptions.appl0)
 	__pmNotifyErr(LOG_INFO, "updating package %s metadata", name);
 
     m->name = dict_insert(rpm_extract_string(td, h, RPMTAG_NAME));
@@ -571,7 +571,7 @@ rpm_inotify(void *ptr)
 
 	/* Wait for changes in the rpm database */
 	read_count = read(fd, buffer, EVENT_BUF_LEN);
-	if (pmDebug & DBG_TRACE_APPL1)
+	if (pmDebugOptions.appl1)
 	    __pmNotifyErr(LOG_INFO, "rpm_inotify: read_count=%d", read_count);
 
 	/*
@@ -585,7 +585,7 @@ rpm_inotify(void *ptr)
 
         rpm_update_cache(ptr);
 
-	if (pmDebug & DBG_TRACE_APPL1)
+	if (pmDebugOptions.appl1)
 	    __pmNotifyErr(LOG_INFO, "rpm_inotify: refresh done");
     }
 

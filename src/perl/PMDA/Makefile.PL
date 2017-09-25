@@ -55,7 +55,7 @@ WriteMakefile(
     OPTIMIZE		=> '-g',
     XSPROTOARG		=> '-noprototypes',
     OBJECT		=> 'local.o PMDA.o',
-    DEFINE		=> '-DPERLIO_NOT_STDIO=0 -DPCP_VERSION -DPCP_DEBUG',
+    DEFINE		=> '-DPERLIO_NOT_STDIO=0 -DPCP_VERSION',
     LDFROM		=> $ldfrom,
     LDDLFLAGS		=> $lddlflags,
     CCCDLFLAGS		=> $cccdlflags,

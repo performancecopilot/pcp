@@ -1,5 +1,5 @@
 /*
-** Copyright (C) 2015-2016 Red Hat.
+** Copyright (C) 2015-2017 Red Hat.
 **
 ** This program is free software; you can redistribute it and/or modify it
 ** under the terms of the GNU General Public License as published by the
@@ -128,6 +128,9 @@ photoproc(struct tstat **tasks, int *taskslen)
 
 	if (!setup)
 	{
+		if (!hotprocflag)
+			for (i = 0; i < TASK_NMETRICS; i++)
+				procmetrics[i] += 3;	/* skip "hot" */
 		setup_metrics(procmetrics, pmids, descs, TASK_NMETRICS);
 		setup = 1;
 	}
@@ -152,12 +155,12 @@ photoproc(struct tstat **tasks, int *taskslen)
 
 	for (i=0; i < count; i++)
 	{
-		if (pmDebug & DBG_TRACE_APPL0)
+		if (pmDebugOptions.appl0)
 			fprintf(stderr, "%s: updating process %d: %s\n",
 				pmProgname, pids[i], insts[i]);
 		update_task(&(*tasks)[i], pids[i], insts[i], result, descs);
 	}
-	if (pmDebug & DBG_TRACE_APPL0)
+	if (pmDebugOptions.appl0)
 		fprintf(stderr, "%s: done %d processes\n", pmProgname, count);
 
 	pmFreeResult(result);

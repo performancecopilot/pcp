@@ -359,10 +359,8 @@ AddRequestPort(const char *address, int port)
     rp->presence = NULL;
     nReqPorts++;
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL0)
+    if (pmDebugOptions.appl0)
         fprintf(stderr, "AddRequestPort: %s port %d\n", rp->address, rp->port);
-#endif
 
     return nReqPorts;   /* success */
 }
@@ -559,11 +557,9 @@ OpenRequestSocket(int port, const char *address, int *family,
 	sts = __pmBind(fd, (void *)myAddr, __pmSockAddrSize());
 	if (sts >= 0)
 	    break;
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_DESPERATE)
+	if (pmDebugOptions.desperate)
 	    fprintf(stderr, "OpenRequestSocket(%d, %s, %s) __pmBind try %d: %s\n",
 		port, address, AddressFamily(*family), try+1, netstrerror_r(errmsg, sizeof(errmsg)));
-#endif
 	__pmtimevalSleep(tick);
 	try++;
     }
@@ -978,18 +974,14 @@ __pmSecureServerHandshake(int fd, int flags, __pmHashCtl *attrs)
 {
     (void)fd;
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_AUTH)
+    if (pmDebugOptions.auth)
 	fprintf(stderr, "%s:__pmSecureServerHandshake: flags=%d: ", __FILE__, flags);
-#endif
 
     /* for things that require a secure server, return -EOPNOTSUPP */
     if ((flags & (PDU_FLAG_SECURE | PDU_FLAG_SECURE_ACK | PDU_FLAG_COMPRESS
 		   | PDU_FLAG_AUTH)) != 0) {
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_AUTH)
+	if (pmDebugOptions.auth)
 	    fprintf(stderr, "not allowed\n");
-#endif
 	return -EOPNOTSUPP;
     }
 
@@ -998,10 +990,8 @@ __pmSecureServerHandshake(int fd, int flags, __pmHashCtl *attrs)
      * provided we've connected on a unix domain socket
      */
     if ((flags & PDU_FLAG_CREDS_REQD) != 0 && __pmHashSearch(PCP_ATTR_USERID, attrs) != NULL) {
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_AUTH)
+	if (pmDebugOptions.auth)
 	    fprintf(stderr, "ok\n");
-#endif
 	return 0;
     }
     /* remove all of the known good flags */
@@ -1011,10 +1001,8 @@ __pmSecureServerHandshake(int fd, int flags, __pmHashCtl *attrs)
 	return 0;
 
     /* any remaining flags are unexpected */
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_AUTH)
+    if (pmDebugOptions.auth)
 	fprintf(stderr, "bad\n");
-#endif
     return PM_ERR_IPC;
 }
 

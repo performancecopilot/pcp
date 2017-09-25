@@ -200,10 +200,8 @@ __pmFaultInject(const char *ident, int class)
 	    free(fname);
 	}
 #ifdef HAVE_ATEXIT
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_FAULT)
+	if (pmDebugOptions.fault)
 	    atexit(__pmFaultAtExit);
-#endif
 #endif
     }
     PM_UNLOCK(fault_lock);
@@ -239,20 +237,16 @@ __pmFaultInject(const char *ident, int class)
 	}
 	if (__pmFault_arm != 0)
 	    cp->nfault++;
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_FAULT)
+	if (pmDebugOptions.fault)
 	    fprintf(stderr, "__pmFaultInject(%s) ntrip=%d %s\n", ident, cp->ntrip, __pmFault_arm == 0 ? "SKIP" : "INJECT");
-#endif
     }
     else if (sts == PM_ERR_INST) {
 	/*
 	 * expected for injection points that are compiled in the code
 	 * but not registered via the control file
 	 */
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_FAULT)
+	if (pmDebugOptions.fault)
 	    fprintf(stderr, "__pmFaultInject(%s) not registered\n", ident);
-#endif
 	 ;
     }
     else {

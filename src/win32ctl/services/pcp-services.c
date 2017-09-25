@@ -117,7 +117,7 @@ pcpServiceMain(DWORD argc, LPTSTR *argv, PCPSERVICE s)
     if (argc > 2)	/* second argument is PCP_DIR */
 	basedir = argv[2];
     else if ((basedir = getenv("PCP_DIR")) == NULL) {
-	for (i = 0; i < 3; i++)
+	for (i = 0; i < sizeof(default_basedirs)/sizeof(default_basedirs[0]); i++)
 	    if (access(default_basedirs[i], R_OK) == 0) {
 		basedir = default_basedirs[i];
 		break;

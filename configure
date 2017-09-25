@@ -827,7 +827,9 @@ have_python_six
 have_python_libvirt
 have_python_requests
 have_python_setuptools
+have_python_xlsxwriter
 have_python_jsonpointer
+have_python_Elasticsearch
 have_python_OrderedDict
 pcp_python_prog
 have_python
@@ -7256,6 +7258,28 @@ $as_echo "no" >&6; }
     fi
 
 
+ { $as_echo "$as_me:${as_lineno-$LINENO}: checking for Python module Elasticsearch" >&5
+$as_echo_n "checking for Python module Elasticsearch... " >&6; }
+    if test -n "from elasticsearch import Elasticsearch"
+    then
+	txt="from elasticsearch import Elasticsearch"
+    else
+	txt="import Elasticsearch"
+    fi
+    $pcp_python_prog -c 'import sys;
+'"$txt" >>config.log 2>&1
+    if test "$?" = 0
+    then
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+	eval have_python_Elasticsearch=true
+    else
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+	eval have_python_Elasticsearch=false
+    fi
+
+
  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for Python module jsonpointer" >&5
 $as_echo_n "checking for Python module jsonpointer... " >&6; }
     if test -n ""
@@ -7275,6 +7299,28 @@ $as_echo "yes" >&6; }
 	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
 $as_echo "no" >&6; }
 	eval have_python_jsonpointer=false
+    fi
+
+
+ { $as_echo "$as_me:${as_lineno-$LINENO}: checking for Python module xlsxwriter" >&5
+$as_echo_n "checking for Python module xlsxwriter... " >&6; }
+    if test -n ""
+    then
+	txt=""
+    else
+	txt="import xlsxwriter"
+    fi
+    $pcp_python_prog -c 'import sys;
+'"$txt" >>config.log 2>&1
+    if test "$?" = 0
+    then
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+	eval have_python_xlsxwriter=true
+    else
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+	eval have_python_xlsxwriter=false
     fi
 
 
@@ -7678,7 +7724,7 @@ if test "x$do_qt" != "xno"; then :
 
     if test -z "$QMAKE"
     then
-	for ac_prog in qmake-qt5 qmake-qt4 qmake
+		for ac_prog in qmake qmake-qt5 qmake-qt4
 do
   # Extract the first word of "$ac_prog", so it can be a program name with args.
 set dummy $ac_prog; ac_word=$2
@@ -7693,7 +7739,7 @@ else
   ;;
   *)
   as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-as_dummy="$QTDIR/bin:/usr/bin:/usr/lib64/qt5/bin:/usr/lib/qt5/bin:/usr/lib64/qt4/bin:/usr/lib/qt4/bin:/usr/local/bin"
+as_dummy="$QTDIR/bin:/usr/lib/qtchooser:/usr/bin:/usr/lib64/qt5/bin:/usr/lib/qt5/bin:/usr/lib64/qt4/bin:/usr/lib/qt4/bin:/usr/local/bin"
 for as_dir in $as_dummy
 do
   IFS=$as_save_IFS
@@ -11333,52 +11379,52 @@ for policy_file in /etc/selinux/targeted/policy/policy.*
 do
     if test -f "$policy_file"
     then
-        class_status=`eval seinfo -x --class=system $policy_file | grep status | awk '{ print $1 }'`
+        class_status=`eval seinfo -x --class=system -- $policy_file | grep status | awk '{ print $1 }'`
     	if test "x$class_status" != "x"
 	then
 	    pcp_selinux_class_status=true
 	fi
-	container_runtime=`eval seinfo -t $policy_file | grep container_runtime_t | awk '{ print $1 }'`
+	container_runtime=`eval seinfo -t -- $policy_file | grep container_runtime_t | awk '{ print $1 }'`
 	if test "x$container_runtime" != "x"
 	then
 	    pcp_selinux_container_runtime=true
 	fi
-	nsfs=`eval seinfo -t $policy_file | grep nsfs_t | awk '{ print $1 }'`
+	nsfs=`eval seinfo -t -- $policy_file | grep nsfs_t | awk '{ print $1 }'`
 	if test "x$nsfs" != "x"
 	then
 	    pcp_selinux_nsfs=true
 	fi
-	docker_var_lib=`eval seinfo -t $policy_file | grep docker_var_lib_t | awk '{ print $1 }'`
+	docker_var_lib=`eval seinfo -t -- $policy_file | grep docker_var_lib_t | awk '{ print $1 }'`
 	if test "x$docker_var_lib" != "x"
 	then
 	    pcp_selinux_docker_var_lib=true
 	fi
-	svirt_lxc_net=`eval seinfo -t $policy_file | grep svirt_lxc_net_t | awk '{ print $1 }'`
+	svirt_lxc_net=`eval seinfo -t -- $policy_file | grep svirt_lxc_net_t | awk '{ print $1 }'`
 	if test "x$svirt_lxc_net" != "x"
 	then
 	    pcp_selinux_svirt_lxc_net=true
 	fi
-	systemd_unit_file=`eval seinfo -t $policy_file | grep systemd_unit_file_t | awk '{ print $1 }'`
+	systemd_unit_file=`eval seinfo -t -- $policy_file | grep systemd_unit_file_t | awk '{ print $1 }'`
 	if test "x$systemd_unit_file" != "x"
 	then
 	    pcp_selinux_systemd_unit_file=true
 	fi
-	systemd_exec=`eval seinfo -t $policy_file | grep systemd_systemctl_exec_t | awk '{ print $1 }'`
+	systemd_exec=`eval seinfo -t -- $policy_file | grep systemd_systemctl_exec_t | awk '{ print $1 }'`
 	if test "x$systemd_exec" != "x"
 	then
 	    pcp_selinux_systemd_exec=true
 	fi
-	cap_userns_ptrace=`eval seinfo -x --class=cap_userns $policy_file 2>&1 | grep sys_ptrace | awk '{ print $1 }'`
+	cap_userns_ptrace=`eval seinfo -x --class=cap_userns -- $policy_file 2>&1 | grep sys_ptrace | awk '{ print $1 }'`
     	if test "x$cap_userns_ptrace" != "x"
 	then
 	    pcp_selinux_cap_userns_ptrace=true
 	fi
-	unreserved_port=`eval seinfo -t $policy_file | grep unreserved_port_t | awk '{ print $1 }'`
+	unreserved_port=`eval seinfo -t -- $policy_file | grep unreserved_port_t | awk '{ print $1 }'`
 	if test "x$unreserved_port" != "x"
 	then
 	    pcp_selinux_unreserved_port=true
 	fi
-	tracefs=`eval seinfo -t $policy_file | grep tracefs_t | awk '{ print $1 }'`
+	tracefs=`eval seinfo -t -- $policy_file | grep tracefs_t | awk '{ print $1 }'`
 	if test "x$tracefs" != "x"
 	then
 	    pcp_selinux_tracefs=true

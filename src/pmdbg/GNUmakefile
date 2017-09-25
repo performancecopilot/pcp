@@ -30,4 +30,4 @@ default_pcp:	default
 
 install_pcp:	install
 
-pmdbg.o:	$(TOPDIR)/src/include/pcp/pmdbg.h
+pmdbg.o:	$(TOPDIR)/src/libpcp/src/pmdbg.h

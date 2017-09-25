@@ -60,10 +60,8 @@ ConnectPMCD(void)
 
     if (__pmVersionIPC(logger_fd) >= LOG_PDU_VERSION2) {
 	__pmLoggerStatus	*lsp;
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_PDU)
+	if (pmDebugOptions.pdu)
 	     fprintf(stderr, "pmlc: sending version 2 status request\n");
-#endif
 	if ((sts = __pmSendLogRequest(logger_fd, LOG_REQUEST_STATUS)) < 0) {
 	    fprintf(stderr, "Error sending request to pmlogger: ");
 	    if (still_connected(sts))
@@ -582,10 +580,8 @@ void Status(int pid, int primary)
 	return;
 
     if (__pmVersionIPC(logger_fd) >= LOG_PDU_VERSION2) {
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_PDU)
+	if (pmDebugOptions.pdu)
 	    fprintf(stderr, "pmlc: sending version 2 status request\n");
-#endif
 	if ((sts = __pmSendLogRequest(logger_fd, LOG_REQUEST_STATUS)) < 0) {
 	    fprintf(stderr, "Error sending status request to pmlogger: ");
 	    if (still_connected(sts))
@@ -711,10 +707,8 @@ Sync(void)
 	return;
 
     if (__pmVersionIPC(logger_fd) >= LOG_PDU_VERSION2) {
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_PDU)
+	if (pmDebugOptions.pdu)
 	    fprintf(stderr, "pmlc: sending version 2 sync request\n");
-#endif
 	if ((sts = __pmSendLogRequest(logger_fd, LOG_REQUEST_SYNC)) < 0) {
 	    fprintf(stderr, "Error sending sync request to pmlogger: ");
 	    if (still_connected(sts))
@@ -756,10 +750,8 @@ Qa(void)
 	return;
 
     if (__pmVersionIPC(logger_fd) >= LOG_PDU_VERSION2) {
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_PDU)
+	if (pmDebugOptions.pdu)
 	    fprintf(stderr, "pmlc: sending version 2 qa request\n");
-#endif
 	if ((sts = __pmSendLogRequest(logger_fd, 100+qa_case)) < 0) {
 	    fprintf(stderr, "Error sending qa request to pmlogger: ");
 	    if (still_connected(sts))
@@ -801,10 +793,8 @@ NewVolume(void)
 	return;
 
     if (__pmVersionIPC(logger_fd) >= LOG_PDU_VERSION2) {
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_PDU)
+	if (pmDebugOptions.pdu)
 	    fprintf(stderr, "pmlc: sending version 2 newvol request\n");
-#endif
 	if ((sts = __pmSendLogRequest(logger_fd, LOG_REQUEST_NEWVOLUME)) < 0) {
 	    fprintf(stderr, "Error sending newvolume request to pmlogger: ");
 	    if (still_connected(sts))

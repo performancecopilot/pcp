@@ -1323,7 +1323,6 @@ __pmPrintDesc(FILE *f, const pmDesc *desc)
 void
 __pmEventTrace_r(const char *event, int *first, double *sum, double *last)
 {
-#ifdef PCP_DEBUG
     struct timeval tv;
     double now;
 
@@ -1338,19 +1337,16 @@ __pmEventTrace_r(const char *event, int *first, double *sum, double *last)
     fprintf(stderr, "%s: +%4.2f = %4.2f -> %s\n",
 			pmProgname, now-*last, *sum, event);
     *last = now;
-#endif
 }
 
 void
 __pmEventTrace(const char *event)
 {
-#ifdef PCP_DEBUG
     static double last;
     static double sum;
     static int first = 1;
 
     __pmEventTrace_r(event, &first, &sum, &last);
-#endif
 }
 
 #define DEBUG_CLEAR 0
@@ -1513,6 +1509,31 @@ int
 pmClearDebug(const char *spec)
 {
     return debug(spec, DEBUG_CLEAR, DEBUG_NEW);
+}
+
+/*
+ * Interface for setting debugging options by bit-field (deprecated) rather
+ * than by name (new scheme).
+ * This routine is used by PMDAs that have a control metric that maps onto
+ * pmDebug, e.g. sample.control or trace.control
+ * For symmetry with pmSetDebug() the effects are additive, so a PMDA
+ * that used to pmDebug = value now needs to pmClearDebug("all") and then
+ * __pmSetDebugBits(value).
+ */
+void
+__pmSetDebugBits(int value)
+{
+    int		i;
+
+    if (pmDebugOptions.deprecated)
+	fprintf(stderr, "Warning: deprecated __pmSetDebugBits() called\n");
+
+    for (i = 0; i < num_debug; i++) {
+	if (value & debug_map[i].bit) {
+	    /* this option has a bit-field equivalent that is set in value */
+	    pmSetDebug(debug_map[i].name);
+	}
+    }
 }
 
 int
@@ -1700,6 +1721,8 @@ pmflush(void)
     int		len;
     int		state;
     FILE	*eptr = NULL;
+    __pmExecCtl_t	*argp = NULL;
+    int		wait_status;
     char	outbuf[MSGBUFLEN];
     char	errmsg[PM_MAXERRMSGLEN];
 
@@ -1739,16 +1762,51 @@ pmflush(void)
 		sts = PM_ERR_GENERIC;
 		break;
 	    }
+	    if ((sts = __pmProcessAddArg(&argp, __pmNativePath(xconfirm))) < 0)
+		break;
+	    if ((sts = __pmProcessAddArg(&argp, "-file")) < 0)
+		break;
+	    if ((sts = __pmProcessAddArg(&argp, fname)) < 0)
+		break;
+	    if ((sts = __pmProcessAddArg(&argp, "-c")) < 0)
+		break;
+	    if ((sts = __pmProcessAddArg(&argp, "-B")) < 0)
+		break;
+	    if ((sts = __pmProcessAddArg(&argp, "OK")) < 0)
+		break;
+	    if ((sts = __pmProcessAddArg(&argp, "-icon")) < 0)
+		break;
+	    if ((sts = __pmProcessAddArg(&argp, "info")) < 0)
+		break;
+	    if (msgsize > 80) {
+		if ((sts = __pmProcessAddArg(&argp, "-useslider")) < 0)
+		    break;
+	    }
+	    if ((sts = __pmProcessAddArg(&argp, "-header")) < 0)
+		break;
+	    if ((sts = __pmProcessAddArg(&argp, "PCP Information")) < 0)
+		break;
 	    pmsprintf(outbuf, sizeof(outbuf), "%s -file %s -c -B OK -icon info"
 		    " %s -header 'PCP Information' >/dev/null",
 		    __pmNativePath(xconfirm), fname,
 		    (msgsize > 80 ? "-useslider" : ""));
 	    /* no thread-safe issue here ... we're executing xconfirm */
+	    if ((sts = __pmProcessExec(&argp, PM_EXEC_TOSS_ALL, PM_EXEC_WAIT, &wait_status)) < 0) {
+		fprintf(stderr, "%s: __pmProcessExec(%s, ...) failed: %s\n",
+		    pmProgname, __pmNativePath(xconfirm), 
+		    pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	    }
+	    /*
+	     * Note, we don't care about the wait exit status in this case
+	     */
+	    sts = 0;
+#if 0
 	    if (system(outbuf) < 0) {		/* THREADSAFE */
 		fprintf(stderr, "%s: system failed: %s\n", pmProgname,
 			osstrerror_r(errmsg, sizeof(errmsg)));
 		sts = -oserror();
 	    }
+#endif
 	    break;
 	case PM_USEFILE:
 	    rewind(fptr);

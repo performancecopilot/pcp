@@ -23,7 +23,6 @@
 /* bytes for a length field in a header/trailer, or a string length field */
 #define LENSIZE	4
 
-#ifdef PCP_DEBUG
 static void
 StrTimeval(const __pmTimeval *tp)
 {
@@ -32,7 +31,6 @@ StrTimeval(const __pmTimeval *tp)
     else
 	__pmPrintTimeval(stderr, tp);
 }
-#endif
 
 /*
  * Return 1 if the indoms are the same, 0 otherwise.
@@ -96,14 +94,12 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_ALLOC);
     idp->buf = indom_buf;
     idp->allinbuf = allinbuf;
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_LOGMETA) {
+    if (pmDebugOptions.logmeta) {
 	char    strbuf[20];
 	fprintf(stderr, "addindom( ..., %s, ", pmInDomStr_r(indom, strbuf, sizeof(strbuf)));
 	StrTimeval((__pmTimeval *)tp);
 	fprintf(stderr, ", numinst=%d)\n", numinst);
     }
-#endif
 
     if ((hp = __pmHashSearch((unsigned int)indom, &lcp->l_hashindom)) == NULL) {
 	idp->next = NULL;
@@ -254,12 +250,10 @@ __pmLogLoadMeta(__pmLogCtl *lcp)
                 sts = 0;
 		goto end;
             }
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_LOGMETA) {
+	    if (pmDebugOptions.logmeta) {
 		fprintf(stderr, "__pmLogLoadMeta: header read -> %d: expected: %d or len=%d\n",
 			n, (int)sizeof(__pmLogHdr), h.len);
 	    }
-#endif
 	    if (__pmFerror(f)) {
 		__pmClearerr(f);
 		sts = -oserror();
@@ -268,12 +262,10 @@ __pmLogLoadMeta(__pmLogCtl *lcp)
 		sts = PM_ERR_LOGREC;
 	    goto end;
 	}
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_LOGMETA) {
+	if (pmDebugOptions.logmeta) {
 	    fprintf(stderr, "__pmLogLoadMeta: record len=%d, type=%d @ offset=%d\n",
 		h.len, h.type, (int)(__pmFtell(f) - sizeof(__pmLogHdr)));
 	}
-#endif
 	rlen = h.len - (int)sizeof(__pmLogHdr) - (int)sizeof(int);
 	if (h.type == TYPE_DESC) {
             numpmid++;
@@ -283,12 +275,10 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":2", PM_FAULT_ALLOC);
 		goto end;
 	    }
 	    if ((n = (int)__pmFread(dp, 1, sizeof(pmDesc), f)) != sizeof(pmDesc)) {
-#ifdef PCP_DEBUG
-		if (pmDebug & DBG_TRACE_LOGMETA) {
+		if (pmDebugOptions.logmeta) {
 		    fprintf(stderr, "__pmLogLoadMeta: pmDesc read -> %d: expected: %d\n",
 			    n, (int)sizeof(pmDesc));
 		}
-#endif
 		if (__pmFerror(f)) {
 		    __pmClearerr(f);
 		    sts = -oserror();
@@ -353,12 +343,10 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":2", PM_FAULT_ALLOC);
 	    /* read in the names & store in PMNS tree ... */
 	    if ((n = (int)__pmFread(&numnames, 1, sizeof(numnames), f)) != 
 		sizeof(numnames)) {
-#ifdef PCP_DEBUG
-		if (pmDebug & DBG_TRACE_LOGMETA) {
+		if (pmDebugOptions.logmeta) {
 		    fprintf(stderr, "__pmLogLoadMeta: numnames read -> %d: expected: %d\n",
 			    n, (int)sizeof(numnames));
 		}
-#endif
 		if (__pmFerror(f)) {
 		    __pmClearerr(f);
 		    sts = -oserror();
@@ -375,12 +363,10 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":2", PM_FAULT_ALLOC);
 	    for (i = 0; i < numnames; i++) {
 		if ((n = (int)__pmFread(&len, 1, sizeof(len), f)) != 
 		    sizeof(len)) {
-#ifdef PCP_DEBUG
-		    if (pmDebug & DBG_TRACE_LOGMETA) {
+		    if (pmDebugOptions.logmeta) {
 			fprintf(stderr, "__pmLogLoadMeta: len name[%d] read -> %d: expected: %d\n",
 				i, n, (int)sizeof(len));
 		    }
-#endif
 		    if (__pmFerror(f)) {
 			__pmClearerr(f);
 			sts = -oserror();
@@ -395,12 +381,10 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":2", PM_FAULT_ALLOC);
 		}
 
 		if ((n = (int)__pmFread(name, 1, len, f)) != len) {
-#ifdef PCP_DEBUG
-		    if (pmDebug & DBG_TRACE_LOGMETA) {
+		    if (pmDebugOptions.logmeta) {
 			fprintf(stderr, "__pmLogLoadMeta: name[%d] read -> %d: expected: %d\n",
 				i, n, len);
 		    }
-#endif
 		    if (__pmFerror(f)) {
 			__pmClearerr(f);
 			sts = -oserror();
@@ -410,13 +394,11 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":2", PM_FAULT_ALLOC);
 		    goto end;
 		}
 		name[len] = '\0';
-#ifdef PCP_DEBUG
-		if (pmDebug & DBG_TRACE_LOGMETA) {
+		if (pmDebugOptions.logmeta) {
 		    char	strbuf[20];
 		    fprintf(stderr, "__pmLogLoadMeta: PMID: %s name: %s\n",
 			    pmIDStr_r(dp->pmid, strbuf, sizeof(strbuf)), name);
 		}
-#endif
 		/* Add the new PMNS node */
 		if ((sts = __pmAddPMNSNode(lcp->l_pmns, dp->pmid, name)) < 0) {
 		    /*
@@ -452,12 +434,10 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":3", PM_FAULT_ALLOC);
 		goto end;
 	    }
 	    if ((n = (int)__pmFread(tbuf, 1, rlen, f)) != rlen) {
-#ifdef PCP_DEBUG
-		if (pmDebug & DBG_TRACE_LOGMETA) {
+		if (pmDebugOptions.logmeta) {
 		    fprintf(stderr, "__pmLogLoadMeta: indom read -> %d: expected: %d\n",
 			    n, rlen);
 		}
-#endif
 		if (__pmFerror(f)) {
 		    __pmClearerr(f);
 		    sts = -oserror();
@@ -520,12 +500,10 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":4", PM_FAULT_ALLOC);
 	n = (int)__pmFread(&check, 1, sizeof(check), f);
 	check = ntohl(check);
 	if (n != sizeof(check) || h.len != check) {
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_LOGMETA) {
+	    if (pmDebugOptions.logmeta) {
 		fprintf(stderr, "__pmLogLoadMeta: trailer read -> %d or len=%d: expected %d @ offset=%d\n",
 		    n, check, h.len, (int)(__pmFtell(f) - sizeof(check)));
 	    }
-#endif
 	    if (__pmFerror(f)) {
 		__pmClearerr(f);
 		sts = -oserror();
@@ -541,11 +519,9 @@ end:
 
     if (sts == 0) {
 	if (numpmid == 0) {
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_LOGMETA) {
+	    if (pmDebugOptions.logmeta) {
 		fprintf(stderr, "__pmLogLoadMeta: no metrics found?\n");
 	    }
-#endif
 	    sts = PM_ERR_LOGREC;
 	}
 	else
@@ -663,14 +639,12 @@ searchindom(__pmLogCtl *lcp, pmInDom indom, __pmTimeval *tp)
     __pmHashNode	*hp;
     __pmLogInDom	*idp;
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_LOGMETA) {
+    if (pmDebugOptions.logmeta) {
 	char	strbuf[20];
 	fprintf(stderr, "searchindom( ..., %s, ", pmInDomStr_r(indom, strbuf, sizeof(strbuf)));
 	StrTimeval(tp);
 	fprintf(stderr, ")\n");
     }
-#endif
 
     if ((hp = __pmHashSearch((unsigned int)indom, &lcp->l_hashindom)) == NULL)
 	return NULL;
@@ -683,27 +657,23 @@ searchindom(__pmLogCtl *lcp, pmInDom indom, __pmTimeval *tp)
 	     */
 	    if (__pmTimevalCmp(&idp->stamp, tp) <= 0)
 		break;
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_LOGMETA) {
+	    if (pmDebugOptions.logmeta) {
 		fprintf(stderr, "request @ ");
 		StrTimeval(tp);
 		fprintf(stderr, " is too early for indom @ ");
 		StrTimeval(&idp->stamp);
 		fputc('\n', stderr);
 	    }
-#endif
 	}
 	if (idp == NULL)
 	    return NULL;
     }
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_LOGMETA) {
+    if (pmDebugOptions.logmeta) {
 	fprintf(stderr, "success for indom @ ");
 	StrTimeval(&idp->stamp);
 	fputc('\n', stderr);
     }
-#endif
     return idp;
 }
 

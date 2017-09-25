@@ -16,8 +16,6 @@
 #include "common.h"
 #include <libdevinfo.h>
 
-#define SOLARIS_PMDA_TRACE (DBG_TRACE_APPL0|DBG_TRACE_APPL2)
-
 typedef struct {
     int		fetched;
     int		err;
@@ -182,13 +180,11 @@ disk_derived(pmdaMetric *mdesc, int inst, const kstat_io_t *iostat)
 	    break;
     }
 
-#ifdef PCP_DEBUG
-    if ((pmDebug & SOLARIS_PMDA_TRACE) == SOLARIS_PMDA_TRACE) {
+    if (pmDebugOptions.appl0 && pmDebugOptions.appl2) {
 	/* desperate */
 	fprintf(stderr, "disk_derived: pmid %s inst %d val %llu\n",
 	    pmIDStr(mdesc->m_desc.pmid), inst, (unsigned long long)val);
     }
-#endif
 
     return val;
 }
@@ -252,12 +248,10 @@ fetch_disk_devlink(const kstat_t *ksp, pmAtomValue *atom)
     }
 
     if ((n = di_drv_first_node(ksp->ks_module, di_root)) == DI_NODE_NIL) {
-#ifdef PCP_DEBUG
-	if ((pmDebug & SOLARIS_PMDA_TRACE) == SOLARIS_PMDA_TRACE) {
+	if (pmDebugOptions.appl0 && pmDebugOptions.appl2) {
 	    fprintf(stderr,"No nodes for %s: %s\n",
 		    ksp->ks_name, osstrerror());
 	}
-#endif
 	return 0;
     }
 
@@ -268,12 +262,10 @@ fetch_disk_devlink(const kstat_t *ksp, pmAtomValue *atom)
 	    char *devlink = NULL;
 
 	    if (minor == DI_MINOR_NIL) {
-#ifdef PCP_DEBUG
-		if ((pmDebug & SOLARIS_PMDA_TRACE) == SOLARIS_PMDA_TRACE) {
+		if (pmDebugOptions.appl0 && pmDebugOptions.appl2) {
 		    fprintf (stderr, "No minors of %s: %s\n",
 			     ksp->ks_name, osstrerror());
 		}
-#endif
 		return 0;
 	    }
 	    path = di_devfs_minor_path(minor);
@@ -307,14 +299,12 @@ get_instance_value(pmdaMetric *mdesc, pmInDom dindom, int inst,
 
     if (pmdaCacheLookup(dindom, inst, &diskname,
 			(void **)&ctl) != PMDA_CACHE_ACTIVE) {
-#ifdef PCP_DEBUG
-	if ((pmDebug & SOLARIS_PMDA_TRACE) == SOLARIS_PMDA_TRACE) {
+	if (pmDebugOptions.appl0 && pmDebugOptions.appl2) {
 	    fprintf(stderr,
 		    "Unexpected cache result - instance %d "
 		    "is not active in disk indom cache\n",
 		    inst);
 	}
-#endif
 	return 0;
     }
 
@@ -338,10 +328,8 @@ get_instance_value(pmdaMetric *mdesc, pmInDom dindom, int inst,
 	    }
 
 	    if ((kn = kstat_data_lookup(ctl->sderr, m)) == NULL) {
-#ifdef PCP_DEBUG
-		if ((pmDebug & SOLARIS_PMDA_TRACE) == SOLARIS_PMDA_TRACE)
+		if (pmDebugOptions.appl0 && pmDebugOptions.appl2) {
 		    fprintf(stderr, "No %s in %s\n", m, diskname);
-#endif
 		return 0;
 	    }
 
@@ -355,25 +343,21 @@ get_instance_value(pmdaMetric *mdesc, pmInDom dindom, int inst,
 	if (mdesc->m_desc.type == PM_TYPE_U64) {
 	    __uint64_t *ullp = (__uint64_t *)iop;
 	    ull = *ullp;
-#ifdef PCP_DEBUG
-	    if ((pmDebug & SOLARIS_PMDA_TRACE) == SOLARIS_PMDA_TRACE) {
+	    if (pmDebugOptions.appl0 && pmDebugOptions.appl2) {
 		/* desperate */
 		fprintf(stderr, "disk_fetch: pmid %s inst %d val %llu\n",
 			pmIDStr(mdesc->m_desc.pmid), inst,
 			(unsigned long long)*ullp);
 	    }
-#endif
 	}
 	else {
 	    __uint32_t *ulp = (__uint32_t *)iop;
 	    ull = *ulp;
-#ifdef PCP_DEBUG
-	    if ((pmDebug & SOLARIS_PMDA_TRACE) == SOLARIS_PMDA_TRACE) {
+	    if (pmDebugOptions.appl0 && pmDebugOptions.appl2) {
 		/* desperate */
 		fprintf(stderr, "disk_fetch: pmid %s inst %d val %u\n",
 		    pmIDStr(mdesc->m_desc.pmid), inst, *ulp);
 	    }
-#endif
 	}
     }
 

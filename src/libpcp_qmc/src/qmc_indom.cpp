@@ -91,12 +91,12 @@ QmcIndom::QmcIndom(int type, QmcDesc &desc)
 	free(instList);
 	free(nameList);
 
-	if (pmDebug & DBG_TRACE_INDOM) {
+	if (pmDebugOptions.indom) {
 	    QTextStream cerr(stderr);
 	    cerr << "QmcIndom::QmcIndom: indom ";
 	}
     }
-    else if (my.status < 0 && pmDebug & DBG_TRACE_PMC) {
+    else if (my.status < 0 && pmDebugOptions.pmc) {
 	QTextStream cerr(stderr);
 	cerr << "QmcIndom::QmcIndom: unable to lookup "
 	     << pmInDomStr(my.id) << " from "
@@ -137,7 +137,7 @@ QmcIndom::lookup(QString const &name)
 	if (list.size() <= 1)
 	    continue;
 	if (name.compare(list.at(0)) == 0) {
-	    if (pmDebug & DBG_TRACE_PMC) {
+	    if (pmDebugOptions.pmc) {
 		QTextStream cerr(stderr);
 		cerr << "QmcIndom::lookup: inst \"" << name << "\"(" << i
 		     << ") matched to \"" << my.instances[i].name() << "\"("
@@ -171,7 +171,7 @@ QmcIndom::lookup(QString const &name)
 	    if (!ok)
 		continue;
 	    if (instNumber == nameNumber) {
-		if (pmDebug & DBG_TRACE_PMC) {
+		if (pmDebugOptions.pmc) {
 		    QTextStream cerr(stderr);
 		    cerr << "QmcIndom::lookup: numerical inst \""
 			 << name << " matched to \"" << my.instances[i].name()
@@ -271,7 +271,7 @@ QmcIndom::genProfile()
 	}
     }
 
-    if (pmDebug & (DBG_TRACE_PMC | DBG_TRACE_INDOM | DBG_TRACE_PROFILE)) {
+    if (pmDebugOptions.pmc || pmDebugOptions.indom || pmDebugOptions.profile) {
 	QTextStream cerr(stderr);
 	cerr << "QmcIndom::genProfile: id = " << my.id << ", count = " 
 	     << my.count << ", numInsts = " << numInsts() << ", active = "
@@ -324,7 +324,7 @@ QmcIndom::update()
 	    my.nullCount++;
 	    my.profile = true;
 	}
-	if (pmDebug & DBG_TRACE_INDOM && my.nullCount != oldNullCount) {
+	if (pmDebugOptions.indom && my.nullCount != oldNullCount) {
 	    QTextStream cerr(stderr);
 	    cerr << "QmcIndom::update: Cleaning indom " << pmInDomStr(my.id)
 		 << ": Removed " << my.nullCount - oldNullCount 
@@ -346,7 +346,7 @@ QmcIndom::update()
 
     if (sts > 0) {
 	count = sts;
-	if (pmDebug & DBG_TRACE_PMC) {
+	if (pmDebugOptions.pmc) {
 	    QTextStream cerr(stderr);
 	    cerr << "QmcIndom::update: Updating indom " << pmInDomStr(my.id)
 		 << ": Got " << count << " instances (vs " << numInsts()
@@ -391,7 +391,7 @@ QmcIndom::update()
 	    if (i < my.instances.size() && 
 		my.instances[i].inst() == instList[i] &&
 		my.instances[i].name().compare(nameList[i]) == 0) {
-		if (pmDebug & DBG_TRACE_INDOM) {
+		if (pmDebugOptions.indom) {
 		    QTextStream cerr(stderr);
 		    cerr << "QmcIndom::update: Unchanged \"" << nameList[i]
 			 << "\"(" << instList[i] << ')' << endl;
@@ -417,7 +417,7 @@ QmcIndom::update()
 			if (my.instances[j].refCount())
 			    my.numActiveRef++;
 		    }
-		    else if (pmDebug & DBG_TRACE_PMC) {
+		    else if (pmDebugOptions.pmc) {
 			QTextStream cerr(stderr);
 			cerr << "QmcIndom::update: Ignoring \""
 			     << nameList[i] 
@@ -429,7 +429,7 @@ QmcIndom::update()
 	    }
 
 	    if (j == oldLen) {
-		if (pmDebug & DBG_TRACE_INDOM) {
+		if (pmDebugOptions.indom) {
 		    QTextStream cerr(stderr);
 		    cerr << "QmcIndom::update: Adding \"" << nameList[i] 
 			 << "\"(" << instList[i] << ")" << endl;
@@ -451,7 +451,7 @@ QmcIndom::update()
 	free(instList);
 	free(nameList);
 
-	if (pmDebug & DBG_TRACE_INDOM) {
+	if (pmDebugOptions.indom) {
 	    QTextStream cerr(stderr);
 	    if (my.instances.size() == oldLen && my.nullCount == oldNullCount)
 		cerr << "QmcIndom::update: indom size unchanged" << endl;
@@ -466,7 +466,7 @@ QmcIndom::update()
 	for (i = 0; i < my.instances.size(); i++)
 	    my.instances[i].setActive(false);
 
-	if (pmDebug & DBG_TRACE_PMC) {
+	if (pmDebugOptions.pmc) {
 	    QTextStream cerr(stderr);
 	    if (sts == 0)
 		cerr << "QmcIndom::update: indom empty!" << endl;

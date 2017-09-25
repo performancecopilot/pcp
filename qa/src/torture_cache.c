@@ -174,17 +174,17 @@ _b(void)
     indomp->domain = FORQA;
     indomp->serial = 8;
 
-    sprintf(cmd, "rm -f %s/config/pmda/%s", pmGetConfig("PCP_VAR_DIR"), pmInDomStr(indom));
+    pmsprintf(cmd, sizeof(cmd), "rm -f %s/config/pmda/%s", pmGetConfig("PCP_VAR_DIR"), pmInDomStr(indom));
     sts = system(cmd);
     if (sts != 0)
 	fprintf(stderr, "Warning: %s: exit status %d\n", cmd, sts);
-    sprintf(cmd, "[ -f %s/config/pmda/%s ] || exit 0; cat %s/config/pmda/%s", pmGetConfig("PCP_VAR_DIR"), pmInDomStr(indom), pmGetConfig("PCP_VAR_DIR"), pmInDomStr(indom));
+    pmsprintf(cmd, sizeof(cmd), "[ -f %s/config/pmda/%s ] || exit 0; cat %s/config/pmda/%s", pmGetConfig("PCP_VAR_DIR"), pmInDomStr(indom), pmGetConfig("PCP_VAR_DIR"), pmInDomStr(indom));
 
     fprintf(stderr, "\nPopulate the instance domain ...\n");
     j = 1;
     for (i = 0; i < 20; i++) {
 	strncpy(nbuf, xxx, ncount+3);
-	sprintf(nbuf, "%03d", ncount);
+	pmsprintf(nbuf, sizeof(nbuf), "%03d", ncount);
 	ncount++;
         inst = pmdaCacheStore(indom, PMDA_CACHE_ADD, nbuf, (void *)((__psint_t)(0xbeef0000+ncount)));
 	if (inst < 0)
@@ -225,7 +225,7 @@ _b(void)
     }
     __pmdaCacheDump(stderr, indom, 0);
     strncpy(nbuf, xxx, 11+3);
-    sprintf(nbuf, "%03d", 11);
+    pmsprintf(nbuf, sizeof(nbuf), "%03d", 11);
     fprintf(stderr, "\nHide %s ...\n", nbuf);
     inst = pmdaCacheStore(indom, PMDA_CACHE_HIDE, nbuf, NULL);
     if (inst < 0)
@@ -322,7 +322,7 @@ _e(int since)
 
     j = 1;
     for (i = 0; i < 10; i++) {
-	sprintf(nbuf, "boring-instance-%03d", i);
+	pmsprintf(nbuf, sizeof(nbuf), "boring-instance-%03d", i);
         inst = pmdaCacheStore(indom, PMDA_CACHE_ADD, nbuf, (void *)((__psint_t)(0xcaffe000+i)));
 	if (inst < 0)
 	    fprintf(stderr, "PMDA_CACHE_ADD failed for \"%s\": %s\n", nbuf, pmErrStr(inst));
@@ -362,7 +362,7 @@ _g(void)
     indomp->serial = 7;
 
     for (i = 0; i < 254; i++) {
-	sprintf(nbuf, "hashing-instance-%03d", i);
+	pmsprintf(nbuf, sizeof(nbuf), "hashing-instance-%03d", i);
         inst = pmdaCacheStore(indom, PMDA_CACHE_ADD, nbuf, (void *)((__psint_t)(0xdeaf0000+i)));
 	if (inst < 0)
 	    fprintf(stderr, "PMDA_CACHE_ADD failed for \"%s\": %s\n", nbuf, pmErrStr(inst));
@@ -372,7 +372,7 @@ _g(void)
 		fprintf(stderr, "PMDA_CACHE_HIDE failed for \"%s\": %s\n", nbuf, pmErrStr(inst));
 	}
 	if (i % 7 == 0) {
-	    sprintf(nbuf, "hashing-instance-%03d", i);
+	    pmsprintf(nbuf, sizeof(nbuf), "hashing-instance-%03d", i);
 	    inst = pmdaCacheStore(indom, PMDA_CACHE_CULL, nbuf, NULL);
 	    if (inst < 0)
 		fprintf(stderr, "PMDA_CACHE_CULL failed for \"%s\": %s\n", nbuf, pmErrStr(inst));
@@ -554,7 +554,7 @@ _j(void)
     fprintf(stderr, "\nPopulate the instance domain ...\n");
     for (i = 0; i < 20; i++) {
 	strncpy(nbuf, xxx, ncount+3);
-	sprintf(nbuf, "%03d", ncount);
+	pmsprintf(nbuf, sizeof(nbuf), "%03d", ncount);
 	ncount++;
         inst = pmdaCacheStore(indom, PMDA_CACHE_ADD, nbuf, (void *)((__psint_t)(0xbeef0000+ncount)));
 	if (inst < 0)
@@ -597,18 +597,14 @@ main(int argc, char **argv)
     while ((c = getopt(argc, argv, "D:")) != EOF) {
 	switch (c) {
 
-#ifdef PCP_DEBUG
-	case 'D':	/* debug flag */
-	    sts = __pmParseDebug(optarg);
+	case 'D':	/* debug options */
+	    sts = pmSetDebug(optarg);
 	    if (sts < 0) {
-		fprintf(stderr, "%s: unrecognized debug flag specification (%s)\n",
+		fprintf(stderr, "%s: unrecognized debug options specification (%s)\n",
 		    pmProgname, optarg);
 		errflag++;
 	    }
-	    else
-		pmDebug |= sts;
 	    break;
-#endif
 
 	case '?':
 	default:

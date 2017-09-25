@@ -51,12 +51,10 @@ pmLookupDesc_ctx(__pmContext *ctxp, pmID pmid, pmDesc *desc)
     __pmDSO	*dp;
     int		fd, ctx, sts, tout;
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_PMAPI) {
+    if (pmDebugOptions.pmapi) {
 	char    dbgbuf[20];
 	fprintf(stderr, "pmLookupDesc(%s, ...) <:", pmIDStr_r(pmid, dbgbuf, sizeof(dbgbuf)));
     }
-#endif
 
     if ((sts = ctx = pmWhichContext()) < 0)
 	goto pmapi_return;
@@ -104,10 +102,12 @@ pmLookupDesc_ctx(__pmContext *ctxp, pmID pmid, pmDesc *desc)
 	int		sts2;
 	/*
 	 * check for derived metric ... keep error status from above
-	 * unless we have success with the derived metrics
+	 * unless we have success with the derived metrics, except that
+	 * PM_ERR_BADDERIVE really means the derived metric bind failed,
+	 * so we should propagate that one back ...
 	 */
 	sts2 = __dmdesc(ctxp, pmid, desc);
-	if (sts2 >= 0)
+	if (sts2 >= 0 || sts2 == PM_ERR_BADDERIVE)
 	    sts = sts2;
     }
     if (need_unlock)
@@ -115,8 +115,7 @@ pmLookupDesc_ctx(__pmContext *ctxp, pmID pmid, pmDesc *desc)
 
 pmapi_return:
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_PMAPI) {
+    if (pmDebugOptions.pmapi) {
 	fprintf(stderr, ":> returns ");
 	if (sts >= 0)
 	    fprintf(stderr, "%d\n", sts);
@@ -125,7 +124,6 @@ pmapi_return:
 	    fprintf(stderr, "%s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	}
     }
-#endif
 
     return sts;
 }

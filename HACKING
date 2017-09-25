@@ -43,9 +43,10 @@ Conventions
 ===========
 
 Add permanent diagnostics to any code of middling-to-high complexity.
-The convention is to test the pmDebug variable (from libpcp) which is
-supported by every tool via the -D/--debug option - see pmdbg(1) for
-details, and see also the many examples of its use in existing code.
+The convention is to test the options in the pmDebugOptions struct
+(from libpcp) which is supported by every tool via the -D/--debug
+option - see pmdbg(1) for details, and see also the many examples of
+its use in existing code.
 
 Use the same coding style used in the code surrounding your changes.
 

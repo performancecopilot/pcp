@@ -181,6 +181,8 @@ static const struct {
 	"The units of a metric have changed in an archive" },
     { PM_ERR_NEEDCLIENTCERT,	"PM_ERR_NEEDCLIENTCERT",
 	"PMCD requires a client certificate" },
+    { PM_ERR_BADDERIVE,		"PM_ERR_BADDERIVE",
+	"Derived metric definition failed" },
     /* insert new libpcp error codes here */
     { PM_ERR_NYI,		"PM_ERR_NYI",
 	"Functionality not yet implemented" },

@@ -225,7 +225,7 @@ BEGIN						{ out = "'"$tmp/pre"'" }
 	    sed -e "s;$BASE/;;" <$tmp/out >$tmp/tmp
 	    [ -s $tmp/err ] && cat $tmp/err
 	    sed -e '/^#+/s/+/?/' <$tmp/tmp >>$tmp/ctl
-	    cat $tmp/post >>$tmp/ctl
+	    [ -s $tmp/post ] && cat $tmp/post >>$tmp/ctl
 	fi
     done
 

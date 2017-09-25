@@ -42,6 +42,11 @@ else
     trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
 fi
 
+if [ -f /etc/pcp.conf ]
+then
+    . /etc/pcp.conf
+fi
+
 # same function is in allow-pmlc-access ... need to track changes
 #
 _getnetworkaddr()
@@ -435,7 +440,7 @@ pkg?	/usr/lib/python*/*-packages/*/*/setuptools	[?library.python-2]
 slackpkg?	/usr/lib*/python*/*-packages/*/*/setuptools	[?python-setuptools]
 pacman?	/usr/lib/python2.*/site-packages/setuptools	[?python2-setuptools]
 pacman?	/usr/lib/python3.*/site-packages/setuptools	[?python-setuptools]
-# -- libvirt
+# -- libvirt and lxml
 dpkg?	/usr/lib/python2.*/*-packages/libvirt.py	[python-libvirt]
 dpkg?	/usr/lib/python3/*-packages/libvirt.py	[python3-libvirt]
 rpm?	/usr/lib*/python2.*/*-packages/libvirt.py	[libvirt-python]
@@ -471,6 +476,32 @@ pkg?	/usr/lib/python*/*-packages/*/*/prometheus_client	[?library.python-2]
 slackpkg?	/usr/lib*/python*/*-packages/*/*/prometheus_client	[?python-prometheus-client]
 pacman?	/usr/lib/python2.*/site-packages/prometheus_client	[?python2-prometheus-client]
 pacman?	/usr/lib/python3.*/site-packages/prometheus_client	[?python-prometheus-client]
+# -- python-elasticsearch
+dpkg?	/usr/lib/python2.*/*-packages/elasticsearch	[python-elasticsearch]
+dpkg?	/usr/lib/python3/*-packages/elasticsearch	[python3-elasticsearch]
+rpm?	/usr/lib*/python2.*/*-packages/elasticsearch	[python-elasticsearch]
+rpm?	/usr/lib*/python3.*/*-packages/elasticsearch	[python3-elasticsearch]
+urpmi?	/usr/lib*/python*/*-packages/elasticsearch	[?python-elasticsearch]
+emerge?	/usr/lib/python*/*-packages/elasticsearch	[?dev-python/elasticsearch]
+pkgin?	/usr/pkg/lib/python3.*/*-packages/elasticsearch	[?py36-elasticsearch]
+pkg_add?	/usr/local/lib/python*/*-packages/elasticsearch	[?py-elasticsearch]
+pkg?	/usr/lib/python*/*-packages/*/*/elasticsearch	[?library.python-2]
+slackpkg?	/usr/lib*/python*/*-packages/*/*/elasticsearch	[?python-elasticsearch]
+pacman?	/usr/lib/python2.*/site-packages/elasticsearch	[?python2-elasticsearch]
+pacman?	/usr/lib/python3.*/site-packages/elasticsearch	[?python-elasticsearch]
+# -- python-xlsxwriter
+dpkg?	/usr/lib/python2.*/*-packages/xlsxwriter	[python-xlsxwriter]
+dpkg?	/usr/lib/python3/*-packages/xlsxwriter		[python3-xlsxwriter]
+rpm?	/usr/lib*/python2.*/*-packages/xlsxwriter	[python-xlsxwriter]
+rpm?	/usr/lib*/python3.*/*-packages/xlsxwriter	[python3-xlsxwriter]
+urpmi?	/usr/lib*/python*/*-packages/xlsxwriter		[?python-xlsxwriter]
+emerge?	/usr/lib/python*/*-packages/xlsxwriter		[?dev-python/xlsxwriter]
+pkgin?	/usr/pkg/lib/python3.*/*-packages/xlsxwriter	[?py36-xlsxwriter]
+pkg_add?	/usr/local/lib/python*/*-packages/xlsxwriter	[?py-xlsxwriter]
+pkg?	/usr/lib/python*/*-packages/*/*/xlsxwriter	[?library.python-2]
+slackpkg?	/usr/lib*/python*/*-packages/*/*/xlsxwriter	[?python-xlsxwriter]
+pacman?	/usr/lib/python2.*/site-packages/xlsxwriter	[?python2-xlsxwriter]
+pacman?	/usr/lib/python3.*/site-packages/xlsxwriter	[?python-xlsxwriter]
 # perl modules
 # -- Time::HiRes
 dpkg?	Time::HiRes		[perl]
@@ -888,25 +919,63 @@ pacman?		docker		[? (QA optional)]
 # pcp-gui
 #
 # -- Qt stuff
-dpkg?	qmake			[qt4-qmake (build optional)]
-rpm?	qmake|/usr/lib*/qt4/bin/qmake		[qt4-devel or libqt4-devel (build optional)]
-urpmi?	qmake|/usr/lib*/qt4/bin/qmake		[lib64qt4-devel (build optional)]
-emerge?	qmake|/usr/lib*/qt4/bin/qmake		[dev-qt/qtchooser (build optional)]
-pkgin?	/usr/pkg/qt4/bin/qmake	[qt4-tools (build optional)]
+dpkg?		qtchooser	[qtchooser (build optional)]
+rpm?		qtchooser	[qtchooser (build optional)]
+urpmi?		qtchooser	[qtchooser (build optional)]
+emerge?		qtchooser	[qtchooser (build optional)]
+pkgin?		qtchooser	[qtchooser (build optional)]
+pkg_add?	qtchooser	[qtchooser (build optional)]
+pkg?		qtchooser	[qtchooser (build optional)]
+slackpkg?	qtchooser	[qtchooser (build optional)]
+pacman?		qtchooser	[qtchooser (build optional)]
+# -- Qt4
+dpkg?		qmake				[qt4-qmake (build optional)]
+rpm?		qmake|/usr/lib*/qt4/bin/qmake	[qt4-devel or libqt4-devel (build optional)]
+urpmi?		qmake|/usr/lib*/qt4/bin/qmake	[lib64qt4-devel (build optional)]
+emerge?		qmake|/usr/lib*/qt4/bin/qmake	[dev-qt/qtchooser (build optional)]
+pkgin?		/usr/pkg/qt4/bin/qmake		[qt4-tools (build optional)]
 pkg_add?	/usr/local/bin/qmake4|/usr/local/bin/qmake-qt4	[qt4 (build optional)]
-pkg?	qmake			[qt4 (build optional)]
-slackpkg?	qmake		[qt (build optional)]
-pacman?	/usr/lib/qt4/bin/qmake		[qt4 (build optional)]
-dpkg?	/usr/lib/*/libQtCore.so|/usr/lib/qt4/lib/libQtCore.so	[libqt4-dev (build optional)]
-rpm?	/usr/lib*/libQtCore.so|/usr/lib/qt4/lib/libQtCore.so	[qt4-devel or libqt4-devel (build optional)]
-urpmi?	/usr/lib*/libQtCore.so|/usr/lib/qt4/lib/libQtCore.so	[lib64soqt20 (build optional)]
-emerge?	/usr/lib*/qt4/libQtCore.so	[dev-qt/qtcore (build optional)]
-pkgin?	/usr/pkg/qt4/lib/libQtCore.so	[qt4-libs (build optional)]
+pkg?		qmake				[qt4 (build optional)]
+slackpkg?	qmake				[qt (build optional)]
+pacman?		/usr/lib/qt4/bin/qmake		[qt4 (build optional)]
+dpkg?		/usr/lib/*/libQtCore.so|/usr/lib/qt4/lib/libQtCore.so	[libqt4-dev (build optional)]
+rpm?		/usr/lib*/libQtCore.so|/usr/lib/qt4/lib/libQtCore.so	[qt4-devel or libqt4-devel (build optional)]
+urpmi?		/usr/lib*/libQtCore.so|/usr/lib/qt4/lib/libQtCore.so	[lib64soqt20 (build optional)]
+emerge?		/usr/lib*/qt4/libQtCore.so	[dev-qt/qtcore (build optional)]
+pkgin?		/usr/pkg/qt4/lib/libQtCore.so	[qt4-libs (build optional)]
 pkg_add?	/usr/local/lib/qt4/libQtCore.so.*	[qt4 (build optional)]
-pkg?	/usr/lib/qt/*/lib/libQtCore.so	[qt4 (build optional)]
+pkg?		/usr/lib/qt/*/lib/libQtCore.so	[qt4 (build optional)]
 slackpkg?	/usr/lib*/libQtCore.so.*	[qt4 (build optional)]
-pacman?	/usr/lib/libQtCore.so		[qt4 (build optional)]
-pacman?	/usr/lib/libicuio.so		[icu (build optional)]
+pacman?		/usr/lib/libQtCore.so		[qt4 (build optional)]
+pacman?		/usr/lib/libicuio.so		[icu (build optional)]
+# -- Qt5
+dpkg?		/usr/lib/*/libQt5Core.so|/usr/lib/qt5/lib/libQtCore.so	[qtbase5-dev (build optional)]
+rpm?		/usr/lib*/libQt5Core.so|/usr/lib/qt5/lib/libQtCore.so	[qt5-qtbase-devel (build optional)]
+urpm?		/usr/lib*/libQt5Core.so|/usr/lib/qt5/lib/libQtCore.so	[qt5-qtbase-devel (build optional)]
+emerge?		libQt5Core.so			[? (build optional)]
+pkgin?		libQt5Core.so			[? (build optional)]
+pkg_add?	libQt5Core.so			[? (build optional)]
+pkg?		libQt5Core.so			[? (build optional)]
+slackpkg?	libQt5Core.so			[? (build optional)]
+pacman?		libQt5Core.so			[? (build optional)]
+dpkg?		/usr/lib/*/qt5/bin/uic		[qtbase5-dev-tools (build optional)]
+rpm?		uic				[? (build optional)]
+urpm?		uic				[? (build optional)]
+emerge?		uic				[? (build optional)]
+pkgin?		uic				[? (build optional)]
+pkg_add?	uic				[? (build optional)]
+pkg?		uic				[? (build optional)]
+slackpkg?	uic				[? (build optional)]
+pacman?		uic				[? (build optional)]
+dpkg?		/usr/include/*/qt5/QtSvg	[libqt5svg5-dev (build optional)]
+rpm?		QtSvg				[qt5-qtsvg-devel (build optional)]
+urpm?		QtSvg				[qt5-qtsvg-devel (build optional)]
+emerge?		QtSvg				[? (build optional)]
+pkgin?		QtSvg				[? (build optional)]
+pkg_add?	QtSvg				[? (build optional)]
+pkg?		QtSvg				[? (build optional)]
+slackpkg?	QtSvg				[? (build optional)]
+pacman?		QtSvg				[? (build optional)]
 # -- Inventor stuff
 dpkg?	/usr/include/Inventor/Qt/SoQt.h	[libsoqt-dev-common (build optional)]
 urpmi?	/usr/include/Inventor/Qt/SoQt.h	[lib64soqt-devel (build optional)]
@@ -1135,23 +1204,50 @@ s;\[.*;[N/A on host '"`hostname`"'];
     done
 fi
 
-# and if we are sure which version of Python we're using, remove lines
+# If we are sure which version of Python we're using, remove lines
 # for the other versions
 #
-if `which pmpython >/dev/null 2>&1`
+if [ -n "$PCP_PYTHON_PROG" ]
 then
-    pyver=`pmpython --version 2>&1 | sed -e 's/^[^0-9]*//' -e 's/\..*//'`
-    if [ -z "$pyver" ]
+    if which "$PCP_PYTHON_PROG" >/dev/null 2>&1
     then
-	echo "Warning: cannot get Python version from: `pmpython --version`"
-    else
-	#debug# echo "pyver=$pyver"
-	sed <$tmp.main >$tmp.tmp -e '/\/python[0-9]/{
+	pyver=`$PCP_PYTHON_PROG --version 2>&1 | sed -e 's/^[^0-9]*//' -e 's/\..*//'`
+	if [ -z "$pyver" ]
+	then
+	    echo "Warning: cannot get Python version from: `$PCP_PYTHON_PROG --version`"
+	else
+	    #debug# echo "pyver=$pyver"
+	    sed <$tmp.main >$tmp.tmp -e '/\/python[0-9]/{
 /\/python'"$pyver"'[./]/!d
 }'
-	#debug# diff $tmp.main $tmp.tmp
-	mv $tmp.tmp $tmp.main
+	    #debug# diff $tmp.main $tmp.tmp
+	    mv $tmp.tmp $tmp.main
+	fi
     fi
+fi
+
+# If we are sure which version of Qt we're using, remove lines for
+# the other versions
+#
+# Logic from Makepkgs
+#
+cull=''
+unset QT_SELECT
+if which qtchooser >/dev/null 2>&1
+then
+    if qtchooser -list-versions | grep '^5$' >/dev/null
+    then
+	cull=qt4
+    else
+	cull=qt5
+    fi
+fi
+if [ -n "$cull" ]
+then
+    #debug# echo "cull=$cull"
+    grep -vi "$cull" <$tmp.main >$tmp.tmp
+    #debug# diff $tmp.main $tmp.tmp
+    mv $tmp.tmp $tmp.main
 fi
 
 # main loop
@@ -1515,10 +1611,8 @@ then
     fi
 fi
 
-if [ -f /etc/pcp.conf ]
+if [ -n "$PCP_VAR_DIR" ]
 then
-    . /etc/pcp.conf
-
     # need QA access to pmlogger via pmlc from local subnet
     #
     network=`_getnetworkaddr`

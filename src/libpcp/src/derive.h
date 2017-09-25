@@ -51,6 +51,7 @@ typedef struct {		/* one derived metric */
     char	*name;
     int		anon;		/* 1 for anonymous derived metrics */
     pmID	pmid;
+    int		bind;		/* 0/1 if bind_expr() has been called */
     node_t	*expr;		/* NULL => invalid, e.g. dup or missing operands */
 } dm_t;
 
@@ -105,6 +106,7 @@ extern int __dmchildren(__pmContext *, const char *, char ***, int **) _PCP_HIDD
 extern int __dmgetpmid(const char *, pmID *) _PCP_HIDDEN;
 extern int __dmgetname(pmID, char **) _PCP_HIDDEN;
 extern void __dmopencontext(__pmContext *) _PCP_HIDDEN;
+extern void __dmbind(__pmContext *, int) _PCP_HIDDEN;
 extern void __dmclosecontext(__pmContext *) _PCP_HIDDEN;
 extern int __dmdesc(__pmContext *, pmID, pmDesc *) _PCP_HIDDEN;
 extern int __dmprefetch(__pmContext *, int, const pmID *, pmID **) _PCP_HIDDEN;

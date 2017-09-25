@@ -30,10 +30,17 @@ _cleanup()
     rm -f $tmp.*
 }
 
+# Used to count pmconfirm, but this was a mistake ... it works because
+# pmconfirm used to be run from libpcp via system, so there was a
+# sh -c .../pmconfirm process.
+#
+# But now libpcp exec's pmconfirm directly and pmconfirm simply exec's
+# pmquery ... so we need to count the pmquery instances
+#
 _countem()
 {
     $PCP_PS_PROG $PCP_PS_ALL_FLAGS \
-	| grep $PCP_XCONFIRM_PROG | grep -v grep \
+	| grep '[p]mquery' \
 	| tee -a $seq.full \
 	> $tmp.count
     cat $tmp.count | wc -l | tr -d ' '

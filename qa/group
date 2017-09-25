@@ -377,6 +377,7 @@ zsh
 033 libirixpmda local ostest
 034 archive local ostest sanity pmdumplog
 035 pmrep local
+036 libpcp local
 037 archive local ostest
 038 pmlogger local pmdumplog
 039 pmlogger archive local ostest pmdumplog
@@ -844,6 +845,7 @@ zsh
 501 pmie local
 502 pmlogrewrite local
 503 logutil pmlogrewrite local pmlogextract
+504 libpcp fault local
 505 pmlogrewrite local
 506 pmlogrewrite local slow
 507 pcp local
@@ -879,6 +881,7 @@ zsh
 537 pmimport perl local
 538 pmie local pmstore
 539 pmpost local flakey
+540 libpcp valgrind fault local
 541 pmie #535080 local pmprobe
 542 pmdate #666344 local
 543 logutil remote pmlogextract
@@ -1362,12 +1365,14 @@ zsh
 1099 archive pmiostat local pmie
 1100 bash zsh local
 1101 libpcp_web local
+1102:reserved pmda.prometheus.local
 1108 logutil local folio pmlogextract
 1110 pmda.haproxy local
 1111 pcp2influxdb python local
 1112 pmda.linux local
 1113 pcp python local
 1114 archive pmval multi-archive local
+1120:reserved pmda.prometheus local
 1121 pmda.linux local
 1122 pmie local
 1128 pmie local
@@ -1386,8 +1391,11 @@ zsh
 1227 derive local
 1245 libpcp local
 1257 libpcp python local
+1330:reserved pmda.prometheus local
 1331 verify local
 1354 pmval archive local
 1359 libpcp local
+1385:reserved pmda.prometheus local
 1388 pmwebapi local
+1395:reserved pmda.prometheus local
 4751 libpcp threads valgrind local

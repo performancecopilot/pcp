@@ -489,7 +489,7 @@ Perl PMDAs do not follow the B<-D> convention of other PCP applications
 for enabling run-time diagnostics and tracing.  Rather the environment
 variable B<PCP_PERL_DEBUG> needs to be set to a string value matching
 the syntax accepted for the option value for B<-D> elsewhere, see
-B<__pmParseDebug>(3).
+B<pmSetDebug>(3).
 
 This requires a little trickery.  The B<pmcd>(1) configuration file
 (B<PCP_PMCDCONF_PATH> from I</etc/pcp.conf>) needs hand editing.

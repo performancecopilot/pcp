@@ -46,8 +46,7 @@ __pmSendAttr(int fd, int from, int attr, const char *value, int length)
     pp->attr = htonl(attr);
     memcpy(&pp->value, value, length);
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_ATTR) {
+    if (pmDebugOptions.attr) {
 	char buffer[LIMIT_ATTR_PDU];
 	for (i = 0; i < length; i++)
 	    buffer[i] = isprint((int)value[i]) ? value[i] : '.';
@@ -59,7 +58,6 @@ __pmSendAttr(int fd, int from, int attr, const char *value, int length)
 	    fprintf(stderr, "__pmSendAttr [len=%d]: payload=\"%s\"\n",
 			    length, buffer);
     }
-#endif
 
     sts = __pmXmitPDU(fd, (__pmPDU *)pp);
     __pmUnpinPDUBuf(pp);
@@ -84,8 +82,7 @@ __pmDecodeAttr(__pmPDU *pdubuf, int *attr, char **value, int *vlen)
     *value = length ? pp->value : NULL;
     *vlen = length;
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_ATTR) {
+    if (pmDebugOptions.attr) {
 	char buffer[LIMIT_ATTR_PDU];
 	for (i = 0; i < length; i++)
 	    buffer[i] = isprint((int)pp->value[i]) ? pp->value[i] : '.';
@@ -97,7 +94,6 @@ __pmDecodeAttr(__pmPDU *pdubuf, int *attr, char **value, int *vlen)
 	    fprintf(stderr, "__pmDecodeAttr [len=%d]: payload=\"%s\"\n",
 			    length, buffer);
     }
-#endif
 
     return 0;
 }

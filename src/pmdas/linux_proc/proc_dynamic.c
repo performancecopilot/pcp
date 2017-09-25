@@ -409,7 +409,7 @@ size_metrictable(int *total, int *trees)
     *total = num_leaf_nodes; /* calc based on all the structs above. */
     *trees = sizeof(dynproc_members)/sizeof(char*) -1; /* will be 1 (hotproc) */
 
-    if (pmDebug & DBG_TRACE_LIBPMDA)
+    if (pmDebugOptions.libpmda)
         fprintf(stderr, "interrupts size_metrictable: %d total x %d trees\n",
                 *total, *trees);
 }

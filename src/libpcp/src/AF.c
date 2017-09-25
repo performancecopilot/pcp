@@ -181,7 +181,6 @@ static void AFrearm(void) { signal(SIGALRM, onalarm); }
  * Platform independent code follows
  */
 
-#ifdef PCP_DEBUG
 static void
 printdelta(FILE *f, struct timeval *tp)
 {
@@ -192,7 +191,6 @@ printdelta(FILE *f, struct timeval *tp)
     tmp = gmtime_r(&tt, &gmtbuf);
     fprintf(stderr, "%02d:%02d:%02d.%06ld", tmp->tm_hour, tmp->tm_min, tmp->tm_sec, (long)tp->tv_usec);
 }
-#endif
 
 /*
  * a := a - b for struct timevals, but result is never less than zero
@@ -227,8 +225,7 @@ enqueue(qelt *qp)
     qelt		*tqp;
     qelt		*priorp;
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_AF) {
+    if (pmDebugOptions.af) {
 	struct timeval	now;
 
 	__pmtimevalNow(&now);
@@ -238,7 +235,6 @@ enqueue(qelt *qp)
 	__pmPrintStamp(stderr, &qp->q_when);
 	fputc('\n', stderr);
     }
-#endif
 
     for (tqp = root, priorp = NULL;
 	 tqp != NULL && tcmp(&qp->q_when, &tqp->q_when) >= 0;
@@ -270,10 +266,10 @@ enqueue(qelt *qp)
  * __pmtimevalInc	- ok
  * __pmtimevalDec	- ok
  *
- * in PCP_DEBUG code
+ * in debug code
  *   fprintf	- problem, but we are not going to rewrite all of debug code,
- *   		  so accept that if pmDebug != 0 this code is no longer
- *   		  thread-safe
+ *		  so accept that if PCP debugging is enabled this
+ *		  code is no longer thread-safe
  */
 static void
 onalarm(int dummy)
@@ -286,13 +282,11 @@ onalarm(int dummy)
     if (!block)
 	AFhold();
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_AF) {
+    if (pmDebugOptions.af) {
 	__pmtimevalNow(&now);
 	__pmPrintStamp(stderr, &now);
 	fprintf(stderr, " AFonalarm(%d)\n", dummy);
     }
-#endif
     if (root != NULL) {
 	/* something to do ... */
 	while (root != NULL) {
@@ -308,13 +302,11 @@ onalarm(int dummy)
 
 		qp = root;
 		root = root->q_next;
-#ifdef PCP_DEBUG
-		if (pmDebug & DBG_TRACE_AF) {
+		if (pmDebugOptions.af) {
 		    __pmPrintStamp(stderr, &now);
 		    fprintf(stderr, " AFcallback " PRINTF_P_PFX "%p(%d, " PRINTF_P_PFX "%p)\n",
 			    qp->q_func, qp->q_afid, qp->q_data);
 		}
-#endif
 		qp->q_func(qp->q_afid, qp->q_data);
              
 		if (qp->q_delta.tv_sec == 0 && qp->q_delta.tv_usec == 0) {
@@ -348,14 +340,12 @@ onalarm(int dummy)
 			__pmtimevalInc(&tmp, &qp->q_delta);
 			if (tmp.tv_sec >= 0)
 			    break;
-#ifdef PCP_DEBUG
-			if (pmDebug & DBG_TRACE_AF) {
+			if (pmDebugOptions.af) {
 			    __pmPrintStamp(stderr, &now);
 			    fprintf(stderr, " AFcallback event %d too slow, skip callback for ", qp->q_afid);
 			    __pmPrintStamp(stderr, &qp->q_when);
 			    fputc('\n', stderr);
 			}
-#endif
 		    }
 		    enqueue(qp);
 		}
@@ -369,12 +359,10 @@ onalarm(int dummy)
 	}
 
 	if (root == NULL) {
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_AF) {
+	    if (pmDebugOptions.af) {
 		__pmPrintStamp(stderr, &now);
 		fprintf(stderr, "Warning: AF event queue is empty, nothing more will be scheduled\n");
 	    }
-#endif
 	    ;
 	}
 	else {
@@ -385,14 +373,12 @@ onalarm(int dummy)
 	    if (interval.tv_sec == 0 && interval.tv_usec < MIN_ITIMER_USEC)
 		/* use minimal delay (platform dependent) */
 		interval.tv_usec = MIN_ITIMER_USEC;
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_AF) {
+	    if (pmDebugOptions.af) {
 		__pmPrintStamp(stderr, &now);
 		fprintf(stderr, " AFsetitimer for delta ");
 		printdelta(stderr, &interval);
 		fputc('\n', stderr);
 	    }
-#endif
 	    AFsetitimer(&interval);
 	}
     }
@@ -440,14 +426,12 @@ __pmAFsetup(const struct timeval *start, const struct timeval *delta, void *data
 	    /* use minimal delay (platform dependent) */
 	    interval.tv_usec = MIN_ITIMER_USEC;
 
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_AF) {
+	if (pmDebugOptions.af) {
 	    __pmPrintStamp(stderr, &now);
 	    fprintf(stderr, " AFsetitimer for delta ");
 	    printdelta(stderr, &interval);
 	    fputc('\n', stderr);
 	}
-#endif
 	AFsetitimer(&interval);
     }
 
@@ -499,14 +483,12 @@ __pmAFunregister(int afid)
 	    if (interval.tv_sec == 0 && interval.tv_usec < MIN_ITIMER_USEC)
 		/* use minimal delay (platform dependent) */
 		interval.tv_usec = MIN_ITIMER_USEC;
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_AF) {
+	    if (pmDebugOptions.af) {
 		__pmPrintStamp(stderr, &now);
 		fprintf(stderr, " AFsetitimer for delta ");
 		printdelta(stderr, &interval);
 		fputc('\n', stderr);
 	    }
-#endif
 	    AFsetitimer(&interval);
 	}
     }

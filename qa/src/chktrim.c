@@ -31,12 +31,7 @@ char *argv[];
     int		errflag = 0;
     char	*namespace = PM_NS_DEFAULT;
     int		ctx = -1;	/* context for host */
-#ifdef PCP_DEBUG
-    static char	*debug = "[-D N]";
-#else
-    static char	*debug = "";
-#endif
-    static char	*usage = "[-n namespace] [-a archive] [-h host] [-L]";
+    static char	*usage = "[-D debugspec] [-n namespace] [-a archive] [-h host] [-L]";
 
     __pmSetProgname(argv[0]);
 
@@ -50,18 +45,14 @@ char *argv[];
 	    }
 	    break;
 
-#ifdef PCP_DEBUG
-	case 'D':	/* debug flag */
-	    sts = __pmParseDebug(optarg);
+	case 'D':	/* debug options */
+	    sts = pmSetDebug(optarg);
 	    if (sts < 0) {
-		fprintf(stderr, "%s: unrecognized debug flag specification (%s)\n",
+		fprintf(stderr, "%s: unrecognized debug options specification (%s)\n",
 		    pmProgname, optarg);
 		errflag++;
 	    }
-	    else
-		pmDebug |= sts;
 	    break;
-#endif
 
 	case 'h':
 	    if ((ctx = pmNewContext(PM_CONTEXT_HOST, optarg)) < 0) {
@@ -90,7 +81,7 @@ char *argv[];
     }
 
     if (errflag || optind != argc) {
-	fprintf(stderr, "Usage: %s %s%s\n", pmProgname, debug, usage);
+	fprintf(stderr, "Usage: %s %s\n", pmProgname, usage);
 	exit(1);
     }
 

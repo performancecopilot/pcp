@@ -757,7 +757,7 @@ windows_open(int domain)
      * verify up-front.
      */
     for (i = 0; i < metricdesc_sz; i++) {
-	if ((metricdesc[i].flags & M_AUTO64) || (pmDebug & DBG_TRACE_LIBPMDA))
+	if ((metricdesc[i].flags & M_AUTO64) || pmDebugOptions.libpmda)
 	    windows_visit_metric(&metricdesc[i], windows_verify_callback);
     }
 

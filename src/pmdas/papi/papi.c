@@ -115,7 +115,7 @@ expand_values(int size)	 // XXX: collapse into expand_papi_info()
 	    __pmNoMem("values", new_size, PM_FATAL_ERR);
 	while (size_of_active_counters <= size) {
 	    memset(&values[size_of_active_counters++], 0, sizeof(long_long));
-	    if (pmDebug & DBG_TRACE_APPL0) {
+	    if (pmDebugOptions.appl0) {
 		__pmNotifyErr(LOG_DEBUG, "memsetting to zero, %d counters\n",
 				size_of_active_counters);
 	    }
@@ -154,7 +154,7 @@ check_papi_state()
 static void
 papi_endContextCallBack(int context)
 {
-    if (pmDebug & DBG_TRACE_APPL0)
+    if (pmDebugOptions.appl0)
 	__pmNotifyErr(LOG_DEBUG, "end context %d received\n", context);
 
     /* ensure clients re-using this slot re-authenticate */
@@ -360,7 +360,7 @@ papi_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 static void
 handle_papi_error(int error, int logged)
 {
-    if (logged || (pmDebug & DBG_TRACE_APPL0))
+    if (logged || pmDebugOptions.appl0)
 	__pmNotifyErr(LOG_ERR, "Papi error: %s\n", PAPI_strerror(error));
 }
 
@@ -445,7 +445,7 @@ refresh_metrics(int log)
 	    papi_info[i].metric_enabled >= now) {
 	    sts = PAPI_add_event(EventSet, papi_info[i].info.event_code);
 	    if (sts != PAPI_OK) {
-		if (pmDebug & DBG_TRACE_APPL0) {
+		if (pmDebugOptions.appl0) {
 		    char eventname[PAPI_MAX_STR_LEN];
 		    PAPI_event_code_to_name(papi_info[i].info.event_code, eventname);
 		    __pmNotifyErr(LOG_DEBUG, "Unable to add: %s due to error: %s\n",
@@ -556,7 +556,7 @@ papi_store(pmResult *result, pmdaExt *pmda)
 		    }
 		}
 		if (j == number_of_events) {
-		    if (pmDebug & DBG_TRACE_APPL0)
+		    if (pmDebugOptions.appl0)
 			__pmNotifyErr(LOG_DEBUG, "metric name %s does not match any known metrics\n", substring);
 		    sts = 1;
 		    /* NB: continue for other event names that may succeed */
@@ -871,7 +871,7 @@ papi_contextAttributeCallBack(int context, int attr,
 {
     int id = -1;
 
-    if (pmDebug & DBG_TRACE_APPL0)
+    if (pmDebugOptions.appl0)
 	__pmNotifyErr(LOG_DEBUG, "attribute callback context %d attr=%d id==%d\n", context, attr, atoi(value));
 
     enlarge_ctxtab(context);
@@ -883,12 +883,12 @@ papi_contextAttributeCallBack(int context, int attr,
     ctxtab[context].uid_flag = 1;
     ctxtab[context].uid = id = atoi(value);
     if (id != 0) {
-	if (pmDebug & DBG_TRACE_AUTH)
+	if (pmDebugOptions.auth)
 	    __pmNotifyErr(LOG_DEBUG, "access denied context %d attr=%d id=%d\n", context, attr, id);
 	return PM_ERR_PERMISSION;
     }
 
-    if (pmDebug & DBG_TRACE_AUTH)
+    if (pmDebugOptions.auth)
 	__pmNotifyErr(LOG_DEBUG, "access granted attr=%d id=%d\n", attr, id);
     return 0;
 }

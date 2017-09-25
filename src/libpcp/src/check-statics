@@ -269,6 +269,8 @@ events.o
     ?caller                     # const
     ?pmUnpackEventRecords.caller		# const
     ?pmUnpackHighResEventRecords.caller	# const
+exec.o
+    exec_lock			# local mutex
 fault.o
 fetchlocal.o
     splitlist			# single-threaded PM_SCOPE_DSO_PMDA

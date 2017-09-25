@@ -5,7 +5,7 @@
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
 
-/* Be careful when changing LIMIT.  Also change malloc and sprintf! */
+/* Be careful when changing LIMIT.  Also change malloc and pmsprintf! */
 
 #define LIMIT 10000			/* max nfiles allowed */
 
@@ -23,7 +23,7 @@ main(int argc, char* argv[])
     long	nfiles;
     char	*namebuf;
     char	*extptr;
-    int		i, sts;
+    int		i, sts, len;
 
     __pmSetProgname(argv[0]);
 
@@ -41,7 +41,8 @@ main(int argc, char* argv[])
     }
 
     i = (int)strlen(argv[1]);
-    namebuf = (char *)malloc(i + 6);
+    len = i + 6;
+    namebuf = (char *)malloc(len);
     if (namebuf == (char *)0) {
 	perror("error allocating filename buffer");
 	exit(1);
@@ -49,9 +50,10 @@ main(int argc, char* argv[])
     strcpy(namebuf, argv[1]);
     namebuf[i++] = '.';
     extptr = &namebuf[i];
+    len -= i;
 
     for (i = 0; i < nfiles; i++) {
-	sprintf(extptr, "%04d", i);
+	pmsprintf(extptr, len, "%04d", i);
 	if ((sts = creat(namebuf, 0777)) < 0) {
 	    fprintf(stderr, "Error creating %s: %s\n", namebuf, strerror(errno));
 	    exit(1);

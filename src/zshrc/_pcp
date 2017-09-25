@@ -122,7 +122,8 @@ _pcp () {
   pmdbg)
     _arguments -A "-*" \
       '(- *)'{-\?,--help}'[display help message]' \
-      '(- *)'{-l,--list}'[list known debug flags]' \
+      '(- *)'{-o,--old}'[old and deprecated (bit-field) encodings]' \
+      '(- *)'{-l,--list}'[display values and text for all PCP debug options]' \
       '(- *)'-D'[parse name]:name:( $(pmdbg -l | awk "/^DBG_/ {print \$1}" | sed -e "s,DBG_TRACE_,,g") )' \
       '*:code:( $(pmdbg -l | awk "/^DBG_/ {print \$2}") )' \
       && return 0
@@ -449,6 +450,7 @@ _pcp () {
       "(-w --width $exargs)"{-w+,--width}'[set default column width]:width:' \
       "(-P --precision $exargs)"{-P+,--precision}'[set floating point precision]:precision:' \
       "(-l --delimiter $exargs)"{-l+,--delimiter}'[set column delimiter]:delimiter:' \
+      "(-k --extended-csv $exargs)"{-k,--extended-csv}'[write extended CSV]' \
       "(-x --extended-header $exargs)"{-x,--extended-header}'[print extended header]' \
       "(-E --repeat $exargs)"{-E+,--repeat}'[set header repeat frequency]:samples:' \
       "(-f --timestamp-format $exargs)"{-f+,--timestamp-format}'[set time format string]:format:' \

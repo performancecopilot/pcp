@@ -528,12 +528,10 @@ __pmStuffDoubleValue(double val, pmAtomValue *oval, int otype)
 	    assert(0);		/* prevented at pmfg_prep_conversion */
     }
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_VALUE) {
+    if (pmDebugOptions.value) {
 	fprintf(stderr, "__pmStuffDoubleValue: %.17e -> %s %s\n",
 		val, pmTypeStr(otype), pmAtomStr(oval, otype));
     }
-#endif
     return sts;
 }
 

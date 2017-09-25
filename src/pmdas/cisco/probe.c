@@ -80,10 +80,8 @@ mygetfirstwd(FILE *f)
 	}
     }
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL2)
+    if (pmDebugOptions.appl2)
 	    fprintf(stderr, "mygetfirstwd: %s\n", p == NULL ? "<NULL>" : p);
-#endif
 
     return p;
 }
@@ -137,22 +135,18 @@ probe_cisco(cisco_t * cp)
 		}
 	    }
 	}
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL1) {
+	if (pmDebugOptions.appl1) {
 	    fprintf(stderr, "Send: \n");
 	    fprintf(stderr, "Send: terminal length 0\n");
 	}
-#endif
 	fprintf(cp->fout, "\n");
 	fflush(cp->fout);
 	fprintf(cp->fout, "terminal length 0\n");
 	fflush(cp->fout);
 
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL1) {
+	if (pmDebugOptions.appl1) {
 	    fprintf(stderr, "Send: show int\n");
 	}
-#endif
 	fprintf(cp->fout, "show int\n");
 	fflush(cp->fout);
 
@@ -208,11 +202,9 @@ probe_cisco(cisco_t * cp)
 	    for (i = 0; i < num_intf_tab; i++) {
 		namelen = strlen(intf_tab[i].name);
 		if (strncmp(w, intf_tab[i].name, namelen) == 0) {
-#ifdef PCP_DEBUG
-		    if (pmDebug & DBG_TRACE_APPL2) {
+		    if (pmDebugOptions.appl2) {
 			fprintf(stderr, "Match: if=%s word=%s\n", intf_tab[i].name, w);
 		    }
-#endif
 		    name = strdup(&w[namelen]);
 		    ctype = intf_tab[i].type;
 		    if (intf_tab[i].type != NULL && strcmp(intf_tab[i].type, "a") == 0) {
@@ -248,11 +240,9 @@ probe_cisco(cisco_t * cp)
     putchar('\n');
 
     /* close CISCO telnet session */
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL1) {
+    if (pmDebugOptions.appl1) {
 	fprintf(stderr, "Send: exit\n");
     }
-#endif
     fprintf(cp->fout, "exit\n");
     fflush(cp->fout);
 
@@ -280,15 +270,13 @@ main(int argc, char **argv)
 		Nflag = 1;
 		break;
 
-	    case 'D':	/* debug flag */
-		sts = __pmParseDebug(optarg);
+	    case 'D':	/* debug options */
+		sts = pmSetDebug(optarg);
 		if (sts < 0) {
-		    fprintf(stderr, "%s: unrecognized debug flag specification (%s)\n",
+		    fprintf(stderr, "%s: unrecognized debug options specification (%s)\n",
 			pmProgname, optarg);
 		    errflag++;
 		}
-		else
-		    pmDebug |= sts;
 		break;
 
 	    case 'P':		/* passwd */

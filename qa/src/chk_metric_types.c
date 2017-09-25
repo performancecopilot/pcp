@@ -54,15 +54,13 @@ main(int argc, char **argv)
 	    configfile = optarg;
 	    break;	
 
-	case 'D':	/* debug flag */
-	    sts = __pmParseDebug(optarg);
+	case 'D':	/* debug options */
+	    sts = pmSetDebug(optarg);
 	    if (sts < 0) {
-		fprintf(stderr, "%s: unrecognized debug flag specification (%s)\n",
+		fprintf(stderr, "%s: unrecognized debug options specification (%s)\n",
 		    pmProgname, optarg);
 		errflag++;
 	    }
-	    else
-		pmDebug |= sts;
 	    break;
 
 	case 'h':	/* contact PMCD on this hostname */
@@ -158,7 +156,7 @@ main(int argc, char **argv)
 Options\n\
   -a archive	metrics source is an archive log\n\
   -c configfile file to load configuration from\n\
-  -D debug	standard PCP debug flag\n\
+  -D debug	standard PCP debug options\n\
   -h host	metrics source is PMCD on host\n\
   -l logfile	redirect diagnostics and trace output\n\
   -L            use local context instead of PMCD\n\

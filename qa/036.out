@@ -1,0 +1,15 @@
+QA output created by 036
+=== success cases ===
+__pmProcessExec: argc=2 "/bin/echo" "blah;trickme"
+blah;trickme
+__pmProcessExec: pid=PID wait_pid=PID errno=0 exit=0
+__pmProcessExec -> 0
+__pmProcessExec: argc=3 "/bin/sh" "-c" "echo 'f o o'; kill -TERM $$; sleep 1; echo b\ a\ r"
+f o o
+__pmProcessExec: pid=PID wait_pid=PID errno=0 signal=15
+__pmProcessExec -> -1 signal=15
+
+=== error and failure cases ===
+__pmProcessExec: argc=4 "/a/b/c" "-f" "oo" "bar"
+__pmProcessExec: pid=PID wait_pid=PID errno=0 exit=127
+__pmProcessExec -> -1 exit=127

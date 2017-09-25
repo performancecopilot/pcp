@@ -94,12 +94,10 @@ cndOr_n_n(Expr *x)
     }
     else x->valid = 0;
 
-#if PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL2) {
+    if (pmDebugOptions.appl2) {
 	fprintf(stderr, "cndOr_n_n(" PRINTF_P_PFX "%p) ...\n", x);
 	dumpExpr(x);
     }
-#endif
 }
 
 void
@@ -147,12 +145,10 @@ cndOr_n_1(Expr *x)
     }
     else x->valid = 0;
 
-#if PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL2) {
+    if (pmDebugOptions.appl2) {
 	fprintf(stderr, "cndOr_n_1(" PRINTF_P_PFX "%p) ...\n", x);
 	dumpExpr(x);
     }
-#endif
 }
 
 void
@@ -200,12 +196,10 @@ cndOr_1_n(Expr *x)
     }
     else x->valid = 0;
 
-#if PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL2) {
+    if (pmDebugOptions.appl2) {
 	fprintf(stderr, "cndOr_1_n(" PRINTF_P_PFX "%p) ...\n", x);
 	dumpExpr(x);
     }
-#endif
 }
 
 void
@@ -238,12 +232,10 @@ cndOr_1_1(Expr *x)
     }
     else x->valid = 0;
 
-#if PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL2) {
+    if (pmDebugOptions.appl2) {
 	fprintf(stderr, "cndOr_1_1(" PRINTF_P_PFX "%p) ...\n", x);
 	dumpExpr(x);
     }
-#endif
 }
 
 /*
@@ -304,12 +296,10 @@ cndAnd_n_n(Expr *x)
     }
     else x->valid = 0;
 
-#if PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL2) {
+    if (pmDebugOptions.appl2) {
 	fprintf(stderr, "cndAnd_n_n(" PRINTF_P_PFX "%p) ...\n", x);
 	dumpExpr(x);
     }
-#endif
 }
 
 void
@@ -357,12 +347,10 @@ cndAnd_n_1(Expr *x)
     }
     else x->valid = 0;
 
-#if PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL2) {
+    if (pmDebugOptions.appl2) {
 	fprintf(stderr, "cndAnd_n_1(" PRINTF_P_PFX "%p) ...\n", x);
 	dumpExpr(x);
     }
-#endif
 }
 
 void
@@ -410,12 +398,10 @@ cndAnd_1_n(Expr *x)
     }
     else x->valid = 0;
 
-#if PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL2) {
+    if (pmDebugOptions.appl2) {
 	fprintf(stderr, "cndAnd_1_n(" PRINTF_P_PFX "%p) ...\n", x);
 	dumpExpr(x);
     }
-#endif
 }
 
 void
@@ -448,10 +434,8 @@ cndAnd_1_1(Expr *x)
     }
     else x->valid = 0;
 
-#if PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL2) {
+    if (pmDebugOptions.appl2) {
 	fprintf(stderr, "cndAnd_1_1(" PRINTF_P_PFX "%p) ...\n", x);
 	dumpExpr(x);
     }
-#endif
 }

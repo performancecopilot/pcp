@@ -8,7 +8,7 @@
 ** time-of-day, the cpu-time consumption and the memory-occupation. 
 **
 ** Copyright (C) 2000-2010 Gerlof Langeveld
-** Copyright (C) 2015-2016 Red Hat.
+** Copyright (C) 2015-2017 Red Hat.
 **
 ** This program is free software; you can redistribute it and/or modify it
 ** under the terms of the GNU General Public License as published by the
@@ -42,6 +42,7 @@ setup_options(pmOptions *opts, char **argv, char *short_options)
 	pmLongOptions	*opt;
 	static pmLongOptions long_options[] =
 	{
+		{ "hotproc", 0, 0, 0, "use the pmdaproc(1) hotproc metrics" },
 		PMOPT_ALIGN,
 		PMOPT_ARCHIVE,
 		PMOPT_DEBUG,
@@ -860,7 +861,7 @@ setup_metrics(char **metrics, pmID *pmidlist, pmDesc *desclist, int nmetrics)
 		{
 			if (pmidlist[i] != PM_ID_NULL)
 				continue;
-			if (pmDebug & DBG_TRACE_APPL0)
+			if (pmDebugOptions.appl0)
 				fprintf(stderr,
 					"%s: pmLookupName failed for %s\n",
 					pmProgname, metrics[i]);
@@ -876,7 +877,7 @@ setup_metrics(char **metrics, pmID *pmidlist, pmDesc *desclist, int nmetrics)
 		}
 		if ((sts = pmLookupDesc(pmidlist[i], &desclist[i])) < 0)
 		{
-			if (pmDebug & DBG_TRACE_APPL0)
+			if (pmDebugOptions.appl0)
 				fprintf(stderr,
 					"%s: pmLookupDesc failed for %s: %s\n",
 					pmProgname, metrics[i], pmErrStr(sts));
@@ -898,7 +899,7 @@ fetch_metrics(const char *purpose, int nmetrics, pmID *pmids, pmResult **result)
 				pmProgname, purpose, pmErrStr(sts));
 		cleanstop(1);
 	}
-	if (pmDebug & DBG_TRACE_APPL1)
+	if (pmDebugOptions.appl1)
 	{
 		pmResult	*rp = *result;
 		struct tm	tmp;
@@ -943,7 +944,7 @@ get_instances(const char *purpose, int value, pmDesc *descs, int **ids, char ***
 			pmProgname, purpose, pmErrStr(sts));
 		cleanstop(1);
 	}
-	if (pmDebug & DBG_TRACE_APPL1)
+	if (pmDebugOptions.appl1)
 	{
 		fprintf(stderr, "%s: got %d %s instances:\n",
 			pmProgname, sts, purpose);
@@ -1188,7 +1189,7 @@ rawwrite(pmOptions *opts, const char *name,
 	if (duration > INT_MAX)
 	    duration = INT_MAX - 1;
 
-	if (pmDebug & DBG_TRACE_APPL1)
+	if (pmDebugOptions.appl1)
 	{
 		fprintf(stderr, "%s: start recording, %.2fsec duration [%s].\n",
 			pmProgname, duration, name);
@@ -1260,9 +1261,29 @@ rawwrite(pmOptions *opts, const char *name,
 		cleanstop(1);
 	}
 
-	if (pmDebug & DBG_TRACE_APPL1)
+	if (pmDebugOptions.appl1)
 	{
 		fprintf(stderr, "%s: cleanly stopped recording.\n",
 			pmProgname);
 	}
 }
+
+/*
+** print any custom PCP options for this command
+*/
+void
+show_pcp_usage(pmOptions *opts)
+{
+	pmLongOptions	*lop;
+
+	for (lop = opts->long_options; lop->long_opt; lop++) {
+		if (!lop->message)
+			continue;
+		if (!lop->has_arg)
+			printf("\t  --%s\t%s\n", lop->long_opt, lop->message);
+		else
+			printf("\t  --%s %s\t%s\n",
+				lop->long_opt, lop->argname, lop->message);
+	}
+}
+

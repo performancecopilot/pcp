@@ -805,7 +805,7 @@ _z(void)
     }
 
 /* PDU_TEXT */
-#define MARY "mary had a little lamb\nits fleece was white as snow\n"
+#define MARY "mary had a little lamb\nits fleece was white as snow.\n"
     if ((e = __pmSendText(fd[1], mypid, 0x43214321, MARY)) < 0) {
 	fprintf(stderr, "Error: SendText: %s\n", pmErrStr(e));
 	fatal = 1;
@@ -910,11 +910,9 @@ _z(void)
     increds[0].c_vala = (unsigned char)PDU_VERSION;
     increds[0].c_valb = (unsigned char)10;
     increds[0].c_valc = (unsigned char)11;
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL0) {
+    if (pmDebugOptions.appl0) {
 	fprintf(stderr, "0 = %x\n", *(unsigned int*)&(increds[0]));
     }
-#endif
     if ((e = __pmSendCreds(fd[1], mypid, 1, increds)) < 0) {
 	fprintf(stderr, "Error: SendCreds: %s\n", pmErrStr(e));
 	fatal = 1;
@@ -946,11 +944,9 @@ _z(void)
 	    else if (outcreds == NULL)
 		fprintf(stderr, "Botch: DecodeCreds: outcreds is NULL!\n");
 	    else {
-#ifdef PCP_DEBUG
-		if (pmDebug & DBG_TRACE_APPL0) {
+		if (pmDebugOptions.appl0) {
 		    fprintf(stderr, "0 = %x\n", *(unsigned int*)&(outcreds[0]));
 		}
-#endif
 		if (outcreds[0].c_type != CVERSION)
 		    fprintf(stderr, "Botch: Creds: type: got: %x expect: %x\n",
 			    (unsigned int)outcreds[0].c_type, (unsigned int)CVERSION);
@@ -1531,15 +1527,13 @@ main(int argc, char **argv)
 
     while ((c = getopt(argc, argv, "D:i:Np:v:?")) != EOF) {
 	switch (c) {
-	case 'D':	/* debug flag */
-	    sts = __pmParseDebug(optarg);
+	case 'D':	/* debug options */
+	    sts = pmSetDebug(optarg);
 	    if (sts < 0) {
-		fprintf(stderr, "%s: unrecognized debug flag specification (%s)\n",
+		fprintf(stderr, "%s: unrecognized debug options specification (%s)\n",
 		    pmProgname, optarg);
 		errflag++;
 	    }
-	    else
-		pmDebug |= sts;
 	    break;
 
 	case 'i':	/* iterations */
@@ -1585,7 +1579,7 @@ main(int argc, char **argv)
     }
 
     if (errflag || optind < argc-1) {
-	fprintf(stderr, "Usage: %s [-N] [-D n] [-i iter] [-p port] [-v remote_version] [host]\n", pmProgname);
+	fprintf(stderr, "Usage: %s [-N] [-D debugspec] [-i iter] [-p port] [-v remote_version] [host]\n", pmProgname);
 	exit(1);
     }
 

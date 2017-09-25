@@ -1740,12 +1740,18 @@ proc_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaEx
 
     sts = PM_ERR_PERMISSION;
     have_access = all_access || proc_ctx_access(pmda->e_context);
+    if (pmDebugOptions.auth)
+	fprintf(stderr, "proc_instance: initial access have=%d all=%d proc_ctx_access=%d\n", have_access, all_access, proc_ctx_access(pmda->e_context));
+
     if (have_access ||
 	((indomp->serial != PROC_INDOM) && (indomp->serial != HOTPROC_INDOM))) {
 	if ((sts = proc_refresh(pmda, need_refresh)) == 0)
 	    sts = pmdaInstance(indom, inst, name, result, pmda);
     }
+
     have_access = all_access || proc_ctx_revert(pmda->e_context);
+    if (pmDebugOptions.auth)
+	fprintf(stderr, "proc_instance: final access have=%d all=%d proc_ctx_revert=%d\n", have_access, all_access, proc_ctx_revert(pmda->e_context));
 
     return sts;
 }
@@ -3055,9 +3061,15 @@ proc_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
     }
 
     have_access = all_access || proc_ctx_access(pmda->e_context);
+    if (pmDebugOptions.auth)
+	fprintf(stderr, "proc_fetch: initial access have=%d all=%d proc_ctx_access=%d\n", have_access, all_access, proc_ctx_access(pmda->e_context));
+
     if ((sts = proc_refresh(pmda, need_refresh)) == 0)
 	sts = pmdaFetch(numpmid, pmidlist, resp, pmda);
+
     have_access = all_access || proc_ctx_revert(pmda->e_context);
+    if (pmDebugOptions.auth)
+	fprintf(stderr, "proc_fetch: final access have=%d all=%d proc_ctx_revert=%d\n", have_access, all_access, proc_ctx_revert(pmda->e_context));
     return sts;
 }
 
@@ -3200,7 +3212,7 @@ proc_pmid(const char *name, pmID *pmid, pmdaExt *pmda)
     pmdaNameSpace *tree = pmdaDynamicLookupName(pmda, name);
     if (tree == NULL)
 	return PM_ERR_NAME;
-    if (pmDebug & DBG_TRACE_APPL2) {
+    if (pmDebugOptions.appl2) {
 	fprintf(stderr, "proc_pmid: name=%s tree:\n", name);
 	__pmDumpNameNode(stderr, tree->root, 1);
     }
@@ -3213,7 +3225,7 @@ proc_name(pmID pmid, char ***nameset, pmdaExt *pmda)
     pmdaNameSpace *tree = pmdaDynamicLookupPMID(pmda, pmid);
     if (tree == NULL)
 	return PM_ERR_PMID;
-    if (pmDebug & DBG_TRACE_APPL2) {
+    if (pmDebugOptions.appl2) {
 	fprintf(stderr, "proc_name: pmid=%s tree:\n", pmIDStr(pmid));
 	__pmDumpNameNode(stderr, tree->root, 1);
     }
@@ -3226,7 +3238,7 @@ proc_children(const char *name, int flag, char ***kids, int **sts, pmdaExt *pmda
     pmdaNameSpace *tree = pmdaDynamicLookupName(pmda, name);
     if (tree == NULL)
 	return PM_ERR_NAME;
-    if (pmDebug & DBG_TRACE_APPL2) {
+    if (pmDebugOptions.appl2) {
 	fprintf(stderr, "proc_children: name=%s flag=%d tree:\n", name, flag);
 	__pmDumpNameNode(stderr, tree->root, 1);
     }

@@ -4,8 +4,8 @@
 # Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
 
-#DBG    = -DPCP_DEBUG -DDEBUG -DMALLOC_AUDIT -g
-DBG     = -DPCP_DEBUG -DDEBUG -g
+#DBG    = -DDEBUG -DMALLOC_AUDIT -g
+DBG     = -DDEBUG -g
 
 DEBUG   = $(DBG)
 
@@ -43,7 +43,7 @@ CFILES = disk_test.c exercise.c context_test.c chkoptfetch.c \
 	loadderived.c sum16.c badmmv.c multictx.c mmv_simple.c \
 	mmv2_genstats.c mmv2_instances.c mmv2_nostats.c mmv2_simple.c \
 	httpfetch.c json_test.c check_pmiend_fdleak.c loadconfig2.c \
-	archctl_segfault.c debug.c
+	archctl_segfault.c debug.c int2pmid.c int2indom.c exectest.c
 
 ifeq ($(shell test -f ../localconfig && echo 1), 1)
 include ../localconfig

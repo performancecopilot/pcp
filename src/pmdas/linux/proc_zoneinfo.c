@@ -320,10 +320,8 @@ refresh_proc_zoneinfo(pmInDom indom, pmInDom protection_indom)
 	}
 	pmdaCacheStore(indom, PMDA_CACHE_ADD, instname, (void *)info);
 
-#if PCP_DEBUG
-	if (pmDebug & DBG_TRACE_LIBPMDA)
+	if (pmDebugOptions.libpmda)
 	    fprintf(stderr, "refresh_proc_zoneinfo: instance %s\n", instname);
-#endif
     }
     fclose(fp);
 

@@ -42,15 +42,13 @@ main(int argc, char **argv)
 	    ipv6 = 1;
 	    break;
 
-	case 'D':	/* debug flag */
-	    sts = __pmParseDebug(optarg);
+	case 'D':	/* debug options */
+	    sts = pmSetDebug(optarg);
 	    if (sts < 0) {
-		fprintf(stderr, "%s: unrecognized debug flag specification (%s)\n",
+		fprintf(stderr, "%s: unrecognized debug options specification (%s)\n",
 		    pmProgname, optarg);
 		errflag++;
 	    }
-	    else
-		pmDebug |= sts;
 	    break;
 
 	case '?':
@@ -95,7 +93,7 @@ Options:\n\
 		for (di = 0; di < 4; di++) {
 		    perm = ++op;
 		    if (ipv4) {
-			sprintf(name, "%d.%d.%d.%d", a[ai], b[bi], c[ci], d[di]);
+			pmsprintf(name, sizeof(name), "%d.%d.%d.%d", a[ai], b[bi], c[ci], d[di]);
 			if (perm >= 1 << 8) {
 			    fprintf(stderr, "expect error, perm=%d (>255):\n", perm);
 			    perm = 1 << 10;
@@ -118,7 +116,7 @@ Options:\n\
 				perm, a[ai], b[bi], c[ci], d[di]);
 		    }
 		    if (ipv6) {
-			sprintf(name, "%x:%x:%x:%x:%x:%x:%x:%x",
+			pmsprintf(name, sizeof(name), "%x:%x:%x:%x:%x:%x:%x:%x",
 				a[ai], b[bi], c[ci], d[di],
 				a[ai], b[bi], c[ci], d[di]);
 			perm = op;
@@ -191,7 +189,7 @@ Options:\n\
 			for (di = 0; di < 4; di++) {
 			  char	buf[20];
 			    char   *host;
-			    sprintf(buf, "%d.%d.%d.%d", a[ai]+i, b[bi]+i, c[ci]+i, d[di]+i);
+			    pmsprintf(buf, sizeof(buf), "%d.%d.%d.%d", a[ai]+i, b[bi]+i, c[ci]+i, d[di]+i);
 			    if ((inaddr =__pmStringToSockAddr(buf)) == NULL) {
 			      printf("insufficient memory\n");
 			      continue;
@@ -216,7 +214,7 @@ Options:\n\
 			for (di = 0; di < 4; di++) {
 			    char	buf[4*8 + 7 + 1]; /* handles full IPv6 address */
 			    char   *host;
-			    sprintf(buf, "%x:%x:%x:%x:%x:%x:%x:%x",
+			    pmsprintf(buf, sizeof(buf), "%x:%x:%x:%x:%x:%x:%x:%x",
 				    a[ai]+i, b[bi]+i, c[ci]+i, d[di]+i,
 				    a[ai]+i, b[bi]+i, c[ci]+i, d[di]+i);
 			    if ((inaddr =__pmStringToSockAddr(buf)) == NULL) {

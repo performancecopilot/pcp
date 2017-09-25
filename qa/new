@@ -4,7 +4,7 @@
 #
 # Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
-# Usage: new [-n|-v] [base-seq-no group ...]
+# Usage: new [-n|-s|-v] [base-seq-no group ...]
 #
 # base-seq-no defaults to some random place in the range $min-$max
 #
@@ -18,13 +18,14 @@ max_probes=200
 
 _usage()
 {
-    echo >&2 "Usage: new [-n|-s|-v] [stating-seq-no group ...]"
+    echo >&2 "Usage: new [-n|-s|-v] [starting-seq-no [group ...]]"
     exit 1
 }
 
 showme=false
 verbose=false
 smallest=false
+random=true
 while getopts 'nsv?' p
 do
     case "$p"
@@ -32,6 +33,7 @@ do
 	n)	showme=true
 		;;
 	s)	smallest=true
+		random=false
 		;;
 	v)	verbose=true
 		;;
@@ -120,11 +122,12 @@ fi
 
 if [ $# -gt 0 ]
 then
-    try=$1
+    try=`printf "%03d\n" $1`
+    random=false
     shift
 elif $smallest
 then
-    try=1
+    try=000
 else
     # random in the range $min-$max based on user name convered from alpha
     # to numeric, prefixed by current clock seconds
@@ -144,9 +147,15 @@ do
 	# already allocated ... try again
 	#
 	seed=$try
-	try=`awk 'BEGIN { srand('"$seed"'); printf "%03d\n",int('$min'+rand()*('$max'-'$min')) }' </dev/null`
+	if $random
+	then
+	    try=`awk 'BEGIN { srand('"$seed"'); printf "%03d\n",int('$min'+rand()*('$max'-'$min')) }' </dev/null`
+	    probe=`expr $probe + 1`
+	else
+	    try=`expr $try + 1`
+	    try=`printf "%03d\n" $try`
+	fi
 	$verbose && echo >&2 "Info: try $try"
-	probe=`expr $probe + 1`
     else
 	id=$try
 	break

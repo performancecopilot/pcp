@@ -44,7 +44,7 @@ lxc_setup(container_engine_t *dp)
      strncpy(dp->path, lxc, sizeof(dp->path));
      dp->path[sizeof(dp->path)-1] = '\0';
 
-    if (pmDebug & DBG_TRACE_ATTR)
+    if (pmDebugOptions.attr)
 	__pmNotifyErr(LOG_DEBUG, "lxc_setup: using path: %s\n", dp->path);
 }
 
@@ -78,7 +78,7 @@ lxc_insts_refresh(container_engine_t *dp, pmInDom indom)
     int			sts;
 
     if ((rundir = opendir(dp->path)) == NULL) {
-	if (pmDebug & DBG_TRACE_ATTR)
+	if (pmDebugOptions.attr)
 	    fprintf(stderr, "%s: skipping lxc path %s\n",
 		    pmProgname, dp->path);
 	return;
@@ -92,7 +92,7 @@ lxc_insts_refresh(container_engine_t *dp, pmInDom indom)
 	    continue;
 	/* allocate space for values for this container and update indom */
 	if (sts != PMDA_CACHE_INACTIVE) {
-	    if (pmDebug & DBG_TRACE_ATTR)
+	    if (pmDebugOptions.attr)
 		fprintf(stderr, "%s: adding lxc container %s\n",
 			pmProgname, path);
 	    if ((cp = calloc(1, sizeof(container_t))) == NULL)
@@ -159,7 +159,7 @@ lxc_value_refresh(container_engine_t *dp, const char *name, container_t *values)
     char	path[MAXPATHLEN];
 
     pmsprintf(path, sizeof(path), "%s -n %s", lxc_info, name);
-    if (pmDebug & DBG_TRACE_ATTR)
+    if (pmDebugOptions.attr)
 	__pmNotifyErr(LOG_DEBUG, "lxc_values_refresh: pipe=%s\n", path);
     if ((pp = popen(path, "r")) == NULL)
 	return -oserror();

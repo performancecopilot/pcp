@@ -47,10 +47,8 @@ __pmSendLogControl(int fd, const pmResult *request, int control, int state, int 
     vlist_t		*vp;
     int			sts;
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_PDU)
+    if (pmDebugOptions.pdu)
 	__pmDumpResult(stderr, request);
-#endif
 
     /* advisory+maybe logging and retrospective logging (delta < 0) are not
      *permitted
