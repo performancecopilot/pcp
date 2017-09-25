@@ -271,6 +271,8 @@ events.o
     ?pmUnpackHighResEventRecords.caller	# const
 exec.o
     exec_lock			# local mutex
+    map				# guarded by exec_lock mutex
+    nmap			# guarded by exec_lock mutex
 fault.o
 fetchlocal.o
     splitlist			# single-threaded PM_SCOPE_DSO_PMDA
@@ -414,6 +416,7 @@ pmns.o
     ?curr_pmns			# thread private (no __thread symbols for Mac OS X)
     ?__emutls_t.curr_pmns	# thread private for OpenBSD
     locerr			# no unsafe side-effects, see notes in pmns.c
+    argp			# guarded by exec_lock
 p_pmns.o
 p_profile.o
 p_result.o

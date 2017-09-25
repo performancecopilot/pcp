@@ -1,5 +1,5 @@
 /*
- * pmProcessExec() and friends.
+ * __pmProcessExec() and friends.
  *
  * Copyright (c) 2017 Ken McDonell.  All Rights Reserved.
  * 
@@ -14,7 +14,12 @@
  * License for more details.
  *
  * Thread-safe notes
- *	TODO
+ *	- map and nmap protected by exec_lock
+ *	- we're super conservative and do not allow nesting or
+ *	  concurrent execution of __pmProcessAddArg...__pmProcessExec
+ *	  or __pmProcessAddArg...__pmProcessPipe sequences ... this
+ *	  protects the __pmExecCtl structure behind the opaque handle
+ *	  from accidental damage
  */
 
 #include <stdarg.h>
@@ -32,6 +37,13 @@ struct __pmExecCtl {
     int		argc;
     char	**argv;
 };
+
+static struct map_s {
+    pid_t	pid;
+    FILE	*fp;
+} *map = NULL;
+
+static int		nmap = 0;
 
 #ifdef PM_MULTI_THREAD
 static pthread_mutex_t	exec_lock;
@@ -75,11 +87,31 @@ cleanup(__pmExecCtl_t *ep)
 }
 
 /*
- * Built array of arguments for use in pmProcessExec() or
- * pmProcessPipe()
+ * our encoding of wait status into PMAPI return value >= 0
+ */
+static int
+decode_status(int status)
+{
+    if (WIFEXITED(status))
+	return WEXITSTATUS(status);
+    else {
+	if (WIFSIGNALED(status))
+	    return 1000 + WTERMSIG(status);
+	else {
+	    if (WIFSTOPPED(status))
+		return 1000 + WSTOPSIG(status);
+	    else
+		return 2000;
+	}
+    }
+}
+
+/*
+ * Built array of arguments for use in __pmProcessExec() or
+ * __pmProcessPipe()
  */
 int
-__pmProcessAddArg(__pmExecCtl_t **handle, char *arg)
+__pmProcessAddArg(__pmExecCtl_t **handle, const char *arg)
 {
     __pmExecCtl_t	*ep;
     char		**tmp_argv;
@@ -88,14 +120,14 @@ __pmProcessAddArg(__pmExecCtl_t **handle, char *arg)
 	PM_LOCK(exec_lock);
 	/* first call in a sequence */
 	if ((ep = (__pmExecCtl_t *)malloc(sizeof(__pmExecCtl_t))) == NULL) {
-	    __pmNoMem("pmProcessAddArg: __pmExecCtl_t malloc", sizeof(__pmExecCtl_t), PM_RECOV_ERR);
+	    __pmNoMem("__pmProcessAddArg: __pmExecCtl_t malloc", sizeof(__pmExecCtl_t), PM_RECOV_ERR);
 	    PM_UNLOCK(exec_lock);
 	    return -ENOMEM;
 	}
 	ep->argc = 0;
 PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_ALLOC);
 	if ((ep->argv = (char **)malloc(sizeof(ep->argv[0]))) == NULL) {
-	    __pmNoMem("pmProcessAddArg: argv malloc", sizeof(ep->argv[0]), PM_RECOV_ERR);
+	    __pmNoMem("__pmProcessAddArg: argv malloc", sizeof(ep->argv[0]), PM_RECOV_ERR);
 	    cleanup(ep);
 	    *handle = NULL;
 	    PM_UNLOCK(exec_lock);
@@ -110,7 +142,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":2", PM_FAULT_ALLOC);
      * ep->argc+2 ... +1 for this one, +2 for NULL @ end of args
      */
     if ((tmp_argv = (char **)realloc(ep->argv, sizeof(ep->argv[0])*(ep->argc+2))) == NULL) {
-	__pmNoMem("pmProcessAddArg: argv realloc", sizeof(ep->argv[0])*(ep->argc+2), PM_RECOV_ERR);
+	__pmNoMem("__pmProcessAddArg: argv realloc", sizeof(ep->argv[0])*(ep->argc+2), PM_RECOV_ERR);
 	cleanup(ep);
 	*handle = NULL;
 	PM_UNLOCK(exec_lock);
@@ -123,7 +155,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":2", PM_FAULT_ALLOC);
 
 PM_FAULT_POINT("libpcp/" __FILE__ ":3", PM_FAULT_ALLOC);
     if ((ep->argv[ep->argc-1] = strdup(arg)) == NULL) {
-	__pmNoMem("pmProcessAddArg: arg strdup", strlen(arg)+1, PM_RECOV_ERR);
+	__pmNoMem("__pmProcessAddArg: arg strdup", strlen(arg)+1, PM_RECOV_ERR);
 	ep->argc--;
 	cleanup(ep);
 	PM_UNLOCK(exec_lock);
@@ -158,12 +190,13 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":3", PM_FAULT_ALLOC);
  * so we do the same.
  */
 int
-__pmProcessExec(__pmExecCtl_t **handle, int toss, int wait, int *status)
+__pmProcessExec(__pmExecCtl_t **handle, int toss, int wait)
 {
     __pmExecCtl_t	*ep = *handle;
     int			i;
     pid_t		pid;
     int			sts;
+    int			status;
     struct sigaction	ignore;
     struct sigaction	save_intr;
     struct sigaction	save_quit;
@@ -175,7 +208,7 @@ __pmProcessExec(__pmExecCtl_t **handle, int toss, int wait, int *status)
 	return PM_ERR_TOOSMALL;
 
     if (pmDebugOptions.exec) {
-	fprintf(stderr, "__pmProcessExec: argc=%d", ep->argc);
+	fprintf(stderr, "__pmProcessExec: argc=%d toss=%d", ep->argc, toss);
 	for (i = 0; i < ep->argc; i++)
 	    fprintf(stderr, " \"%s\"", ep->argv[i]);
 	fputc('\n', stderr);
@@ -216,6 +249,7 @@ __pmProcessExec(__pmExecCtl_t **handle, int toss, int wait, int *status)
 	/* child */
 	char	*p;
 	char	*path;
+	char	*name;
 
 	/*
 	 * restore SIGINT and SIGQUIT actions and signal mask
@@ -225,54 +259,56 @@ __pmProcessExec(__pmExecCtl_t **handle, int toss, int wait, int *status)
 	sigaction(SIGQUIT, &save_quit, NULL);
 	sigprocmask(SIG_SETMASK, &save_mask, NULL);
 
-	path = ep->argv[0];
+	name = path = ep->argv[0];
 	p = &path[strlen(ep->argv[0])-1];
+	/* strip leading part path from argv[0] */
 	while (p > ep->argv[0]) {
 	    p--;
 	    if (*p == '/') {
-		path = &p[1];
+		name = &p[1];
 		break;
 	    }
 	}
+	ep->argv[0] = name;
 	if (toss & PM_EXEC_TOSS_STDIN)
 	    freopen("/dev/null", "r", stdin);
 	if (toss & PM_EXEC_TOSS_STDOUT)
 	    freopen("/dev/null", "w", stdout);
 	if (toss & PM_EXEC_TOSS_STDERR)
 	    freopen("/dev/null", "w", stderr);
-	sts = execvp(path, (char * const *)ep->argv);
+
+	execvp(path, (char * const *)ep->argv);
 	/* oops, not supposed to get here */
 	exit(127);
     }
-    else if (pid > (pid_t)0) {
+
+    /* cleanup on the parent (caller) side */
+    cleanup(ep);
+    PM_UNLOCK(exec_lock);
+    *handle = NULL;
+
+    if (pid > (pid_t)0) {
 	/* parent */
 
 	if (wait == PM_EXEC_WAIT) {
 	    pid_t	wait_pid;
-	    while ((wait_pid = waitpid(pid, status, 0)) < 0) {
+	    while ((wait_pid = waitpid(pid, &status, 0)) < 0) {
 		if (oserror() != EINTR)
 		    break;
 	    }
 	    if (pmDebugOptions.exec) {
 		fprintf(stderr, "__pmProcessExec: pid=%" FMT_PID " wait_pid=%" FMT_PID " errno=%d", pid, wait_pid, oserror());
-		if (WIFEXITED(*status)) fprintf(stderr, " exit=%d", WEXITSTATUS(*status));
-		if (WIFSIGNALED(*status)) fprintf(stderr, " signal=%d", WTERMSIG(*status));
-		if (WIFSTOPPED(*status)) fprintf(stderr, " stop signal=%d", WSTOPSIG(*status));
+		if (WIFEXITED(status)) fprintf(stderr, " exit=%d", WEXITSTATUS(status));
+		if (WIFSIGNALED(status)) fprintf(stderr, " signal=%d", WTERMSIG(status));
+		if (WIFSTOPPED(status)) fprintf(stderr, " stop signal=%d", WSTOPSIG(status));
 #ifdef WIFCONTINUED
-		if (WIFCONTINUED(*status)) fprintf(stderr, " continued");
+		if (WIFCONTINUED(status)) fprintf(stderr, " continued");
 #endif
-		if (WCOREDUMP(*status)) fprintf(stderr, " core dumped");
+		if (WCOREDUMP(status)) fprintf(stderr, " core dumped");
 		fputc('\n', stderr);
 	    }
-	    if (wait_pid == pid) {
-		if (WIFEXITED(*status)) {
-		    sts = WEXITSTATUS(*status);
-		    if (sts != 0)
-			sts = -1;
-		}
-		else
-		    sts = -1;
-	    }
+	    if (wait_pid == pid)
+		sts = decode_status(status);
 	    else
 		sts = -oserror();
 	}
@@ -292,11 +328,6 @@ __pmProcessExec(__pmExecCtl_t **handle, int toss, int wait, int *status)
     else
 	sts = -oserror();
 
-    /* cleanup the malloc'd control structures */
-    cleanup(ep);
-    PM_UNLOCK(exec_lock);
-    *handle = NULL;
-
     return sts;
 }
 
@@ -304,17 +335,252 @@ __pmProcessExec(__pmExecCtl_t **handle, int toss, int wait, int *status)
  * Like popen(3), but uses execvp() and the array of args built
  * __pmProcessAddArg().
  */
-FILE *
-__pmProcessPipe(__pmExecCtl_t **handle, const char *type, int *status)
+int
+__pmProcessPipe(__pmExecCtl_t **handle, const char *type, int toss, FILE **fp)
 {
-    return NULL;	/* NYI */
+    __pmExecCtl_t	*ep = *handle;
+    int			i;
+    int			sts;
+    pid_t		pid;
+    int			mypipe[2];
+    struct sigaction	ignore;
+    struct sigaction	save_intr;
+    struct sigaction	save_quit;
+    sigset_t		mask;
+    sigset_t		save_mask;
+
+    *fp = NULL;
+
+    if (ep == NULL)
+	/* no executable path or args */
+	return PM_ERR_TOOSMALL;
+
+    if (pmDebugOptions.exec) {
+	fprintf(stderr, "__pmProcessPipe: argc=%d type=\"%s\" toss=%d", ep->argc, type, toss);
+	for (i = 0; i < ep->argc; i++)
+	    fprintf(stderr, " \"%s\"", ep->argv[i]);
+	fputc('\n', stderr);
+    }
+
+    if (strlen(type) != 1 || (type[0] != 'r' && type[0] != 'w' ))
+	return -EINVAL;
+
+    /* ignore SIGINT and SIGQUIT, block SIGCHLD */
+    ignore.sa_handler = SIG_IGN;
+    ignore.sa_flags = 0;
+    sigemptyset(&ignore.sa_mask);
+    sigemptyset(&save_intr.sa_mask);
+    if (sigaction(SIGINT, &ignore, &save_intr) < 0)
+	return -oserror();
+    sigemptyset(&save_quit.sa_mask);
+    if (sigaction(SIGQUIT, &ignore, &save_quit) < 0)
+	return -oserror();
+    sigemptyset(&mask);
+    sigaddset(&mask, SIGCHLD);
+    if (sigprocmask(SIG_BLOCK, &mask, &save_mask) < 0)
+	return -oserror();
+
+    ep->argv[ep->argc] = NULL;
+
+    sts = pipe(mypipe);
+
+    /* begin fault-injection block */
+    PM_FAULT_POINT("libpcp/" __FILE__ ":5", PM_FAULT_MISC);
+    if (PM_FAULT_CHECK(PM_FAULT_MISC)) {
+	PM_FAULT_CLEAR;
+	if (sts >= 0) {
+	    close(mypipe[0]);
+	    close(mypipe[1]);
+	}
+	sts = -1;
+	setoserror(ENFILE);
+    }
+    /* end fault-injection block */
+
+    if (sts < 0) {
+	/* pipe failed ... */
+	cleanup(ep);
+	*handle = NULL;
+	return -oserror();
+    }
+
+    /* fork-n-exec and (maybe) wait */
+    pid = fork();
+
+    /* begin fault-injection block */
+    PM_FAULT_POINT("libpcp/" __FILE__ ":6", PM_FAULT_MISC);
+    if (PM_FAULT_CHECK(PM_FAULT_MISC)) {
+	PM_FAULT_CLEAR;
+	if (pid > (pid_t)0)
+	    kill(pid, SIGKILL);
+	setoserror(ENOSYS);
+	pid = -1;
+    }
+    /* end fault-injection block */
+
+    if (pid == (pid_t)0) {
+	/* child */
+	char	*p;
+	char	*path;
+	char	*name;
+
+	/*
+	 * restore SIGINT and SIGQUIT actions and signal mask
+	 * -- handling possible errors here is not much help
+	 */
+	sigaction(SIGINT, &save_intr, NULL);
+	sigaction(SIGQUIT, &save_quit, NULL);
+	sigprocmask(SIG_SETMASK, &save_mask, NULL);
+
+	if (type[0] == 'r') {
+	    close(mypipe[0]);
+	    dup2(mypipe[1], fileno(stdout));
+	    close(mypipe[1]);
+	    if (toss & PM_EXEC_TOSS_STDIN)
+		freopen("/dev/null", "r", stdin);
+	}
+	else {	/* can safely assume 'w' */
+	    close(mypipe[1]);
+	    dup2(mypipe[0], fileno(stdin));
+	    close(mypipe[0]);
+	    if (toss & PM_EXEC_TOSS_STDOUT)
+		freopen("/dev/null", "w", stdout);
+	}
+
+	name = path = ep->argv[0];
+	p = &path[strlen(ep->argv[0])-1];
+	/* strip leading part path from argv[0] */
+	while (p > ep->argv[0]) {
+	    p--;
+	    if (*p == '/') {
+		name = &p[1];
+		break;
+	    }
+	}
+	ep->argv[0] = name;
+	if (toss & PM_EXEC_TOSS_STDERR)
+	    freopen("/dev/null", "w", stderr);
+
+	execvp(path, (char * const *)ep->argv);
+	/* oops, not supposed to get here */
+	exit(127);
+    }
+
+    /* cleanup on the parent (caller) side */
+    cleanup(ep);
+    *handle = NULL;
+
+    if (pid > (pid_t)0) {
+	/* parent */
+
+	for (i = 0; i < nmap; i++) {
+	    if (map[i].pid == 0)
+		break;
+	}
+	if (i == nmap) {
+	    struct map_s	*tmp_map;
+PM_FAULT_POINT("libpcp/" __FILE__ ":7", PM_FAULT_ALLOC);
+	    if ((tmp_map = (struct map_s *)realloc(map, sizeof(map[0])*(nmap+1))) == NULL) {
+		/*
+		 * we have nowhere to stash the fp and pid, which will
+		 * cause problems for __pmProcessPipeClose(), but it will
+		 * just return early with an error without waiting
+		 */
+		__pmNoMem("__pmProcessAddArg: argv realloc", sizeof(map[0])*(nmap+1), PM_RECOV_ERR);
+		PM_UNLOCK(exec_lock);
+		return -ENOMEM;
+	    }
+	    map = tmp_map;
+	    map[i].pid = 0;
+	    map[i].fp = NULL;
+	    nmap++;
+	}
+
+	if (type[0] == 'r') {
+	    close(mypipe[1]);
+	    if ((*fp = fdopen(mypipe[0], "r")) == NULL)
+		return -oserror();
+	}
+	else {	/* can safely assume 'w' */
+	    close(mypipe[0]);
+	    if ((*fp = fdopen(mypipe[1], "w")) == NULL)
+		return -oserror();
+	}
+
+	map[i].pid = pid;
+	map[i].fp = *fp;
+	PM_UNLOCK(exec_lock);
+
+	/*
+	 * restore SIGINT and SIGQUIT actions and signal mask
+	 */
+	if (sigaction(SIGINT, &save_intr, NULL) < 0)
+	    return -oserror();
+	if (sigaction(SIGQUIT, &save_quit, NULL) < 0)
+	    return -oserror();
+	if (sigprocmask(SIG_SETMASK, &save_mask, NULL) < 0)
+	    return -oserror();
+
+	return 0;
+    }
+    else
+	return -oserror();
 }
 
 /*
- * Like pclose(3), but pipe created by pmProcessPipe()
+ * Like pclose(3), but pipe created by __pmProcessPipe()
  */
 int
-__pmProcessPipeClose(FILE *stream)
+__pmProcessPipeClose(FILE *fp)
 {
-    return PM_ERR_NYI;
+    int			i;
+    int			sts = 0;
+    int			status;
+    pid_t		pid;
+    pid_t		wait_pid;
+
+    PM_LOCK(exec_lock);
+
+    for (i = 0; i < nmap; i++) {
+	if (map[i].fp == fp)
+	    break;
+    }
+
+    if (i == nmap) {
+	/* not one of our fp's or pipe never got started */
+	PM_UNLOCK(exec_lock);
+	return PM_ERR_NOTCONN;
+    }
+
+    pid = map[i].pid;
+    map[i].pid = 0;
+    map[i].fp = NULL;
+    PM_UNLOCK(exec_lock);
+
+    if (fclose(fp) != 0)
+	return -oserror();
+
+    while ((wait_pid = waitpid(pid, &status, 0)) < 0) {
+	if (oserror() != EINTR)
+	    break;
+    }
+
+    if (pmDebugOptions.exec) {
+	fprintf(stderr, "__pmProcessPipe: pid=%" FMT_PID " wait_pid=%" FMT_PID " errno=%d", pid, wait_pid, oserror());
+	if (WIFEXITED(status)) fprintf(stderr, " exit=%d", WEXITSTATUS(status));
+	if (WIFSIGNALED(status)) fprintf(stderr, " signal=%d", WTERMSIG(status));
+	if (WIFSTOPPED(status)) fprintf(stderr, " stop signal=%d", WSTOPSIG(status));
+#ifdef WIFCONTINUED
+	if (WIFCONTINUED(status)) fprintf(stderr, " continued");
+#endif
+	if (WCOREDUMP(status)) fprintf(stderr, " core dumped");
+	fputc('\n', stderr);
+    }
+
+    if (wait_pid == pid)
+	sts = decode_status(status);
+    else
+	sts = -oserror();
+
+    return sts;
 }
