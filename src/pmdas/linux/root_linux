@@ -1296,6 +1296,14 @@ mem.vmstat {
 	pgsteal_high			60:28:21
 	pgsteal_movable			60:28:72
 	pgsteal_normal			60:28:22
+	pgsteal_kswapd_dma		60:28:138
+	pgsteal_kswapd_dma32		60:28:139
+	pgsteal_kswapd_normal		60:28:140
+	pgsteal_kswapd_movable		60:28:141
+	pgsteal_direct_dma		60:28:142
+	pgsteal_direct_dma32		60:28:143
+	pgsteal_direct_normal		60:28:144
+	pgsteal_direct_movable		60:28:145
 	pswpin				60:28:8
 	pswpout				60:28:9
 	slabs_scanned			60:28:31

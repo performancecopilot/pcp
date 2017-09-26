@@ -348,7 +348,7 @@ typedef struct {
     int	desperate;	/* Verbose/Desperate level (developers only) */
 /* new ones start here, no DBG_TRACE_xxx macro and no backwards compatibility */
     int	deprecated;	/* Report use of deprecated services */
-    int	exec;	 	/* pmExec and related calls */
+    int	exec;	 	/* __pmProcessExec and related calls */
     int labels;		/* label metadata operations */
     int series;		/* Time series query operations */
 } pmdebugoptions_t;
@@ -1530,7 +1530,7 @@ PCP_CALL extern int __pmSetProcessIdentity(const char *);
 
 /* __pmProcessExec and friends ... replacementes for system(3) and popen(3) */
 typedef struct __pmExecCtl __pmExecCtl_t;		/* opaque handle */
-PCP_CALL extern int __pmProcessAddArg(__pmExecCtl_t **, char *);
+PCP_CALL extern int __pmProcessAddArg(__pmExecCtl_t **, const char *);
 #define PM_EXEC_TOSS_NONE	0
 #define PM_EXEC_TOSS_STDIN	1
 #define PM_EXEC_TOSS_STDOUT	2
@@ -1538,8 +1538,8 @@ PCP_CALL extern int __pmProcessAddArg(__pmExecCtl_t **, char *);
 #define PM_EXEC_TOSS_ALL	7
 #define PM_EXEC_NOWAIT		0
 #define PM_EXEC_WAIT		1
-PCP_CALL extern int __pmProcessExec(__pmExecCtl_t **, int, int, int *);
-PCP_CALL extern FILE *__pmProcessPipe(__pmExecCtl_t **, const char *, int *);
+PCP_CALL extern int __pmProcessExec(__pmExecCtl_t **, int, int);
+PCP_CALL extern int __pmProcessPipe(__pmExecCtl_t **, const char *, int, FILE **);
 PCP_CALL extern int __pmProcessPipeClose(FILE *);
 
 /*

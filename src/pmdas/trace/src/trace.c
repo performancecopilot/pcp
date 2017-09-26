@@ -582,9 +582,10 @@ summariseData(void)
     for (count=0; count < rbufsize; count++) {
 	if (ringbuf.ring[count].working == 1)
 	    continue;
-    if (pmDebugOptions.appl0)
-	__pmNotifyErr(LOG_DEBUG, "ring buffer table %d/%d has %d entries.\n",
-		count, rbufsize, ringbuf.ring[count].stats->entries);
+	if (pmDebugOptions.appl0) {
+	    __pmNotifyErr(LOG_DEBUG, "ring buffer table %d/%d has %d entries.\n",
+			  count, rbufsize, ringbuf.ring[count].stats->entries);
+	}
 	__pmhashtraverse(ringbuf.ring[count].stats, summariseDataAux);
     }
 

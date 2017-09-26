@@ -135,6 +135,14 @@ typedef struct {
 	__uint64_t pgsteal_high;
 	__uint64_t pgsteal_movable;
 	__uint64_t pgsteal_normal;
+	__uint64_t pgsteal_kswapd_dma;
+	__uint64_t pgsteal_kswapd_dma32;
+	__uint64_t pgsteal_kswapd_normal;
+	__uint64_t pgsteal_kswapd_movable;
+	__uint64_t pgsteal_direct_dma;
+	__uint64_t pgsteal_direct_dma32;
+	__uint64_t pgsteal_direct_normal;
+	__uint64_t pgsteal_direct_movable;
 	__uint64_t pswpin;
 	__uint64_t pswpout;
 	__uint64_t slabs_scanned;

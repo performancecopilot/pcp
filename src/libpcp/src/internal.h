@@ -98,6 +98,7 @@ extern void init_pmns_lock(void) _PCP_HIDDEN;
 extern void init_AF_lock(void) _PCP_HIDDEN;
 extern void init_secureserver_lock(void) _PCP_HIDDEN;
 extern void init_connect_lock(void) _PCP_HIDDEN;
+extern void init_exec_lock(void) _PCP_HIDDEN;
 
 #ifdef HAVE___THREAD
 /*

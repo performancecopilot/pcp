@@ -504,8 +504,9 @@ err(char *s)
 /*
  * lexical analyser for loading the ASCII pmns
  * reset == 0 => get next token
- * reset == 1+NO_CPP => initialize to pre-process with pmcpp and popen()
- * reset == 1+USE_CPP => initialize to use fopen() not popen()
+ * reset == 1+NO_CPP => initialize to pre-process with pmcpp and
+ *                      __pmProcessPipe()
+ * reset == 1+USE_CPP => initialize to use fopen() not __pmProcessPipe()
  */
 static int
 lex(int reset)
@@ -519,6 +520,8 @@ lex(int reset)
     int		type;
     int		d, c, i;
     __pmID_int	pmid_int;
+    int		sts;
+    static __pmExecCtl_t	*argp = NULL;
 
     PM_ASSERT_IS_LOCKED(pmns_lock);
 
@@ -536,27 +539,32 @@ lex(int reset)
 
     if (first) {
 	if (lex_use_cpp == USE_CPP) {
-	    char	*alt;
-	    char	cmd[80+MAXPATHLEN];
+	    char		*alt;
 
 	    /* always get here after acquiring pmns_lock */
 	    /* THREADSAFE */
 	    if ((alt = getenv("PCP_ALT_CPP")) != NULL) {
 		/* $PCP_ALT_CPP used in the build before pmcpp installed */
-		pmsprintf(cmd, sizeof(cmd), "%s %s", alt, fname);
+		sts = __pmProcessAddArg(&argp, alt);
 	    }
 	    else {
 		/* the normal case ... */
 		int	sep = __pmPathSeparator();
 		char	*bin_dir = pmGetOptionalConfig("PCP_BINADM_DIR");
+		char	path[MAXPATHLEN];
 
 		if (bin_dir == NULL)
 		    return PM_ERR_GENERIC;
-		pmsprintf(cmd, sizeof(cmd), "%s%c%s %s", bin_dir, sep, "pmcpp" EXEC_SUFFIX, fname);
+		pmsprintf(path, sizeof(path), "%s%c%s", bin_dir, sep, "pmcpp" EXEC_SUFFIX);
+		sts = __pmProcessAddArg(&argp, path);
 	    }
+	    if (sts == 0)
+		__pmProcessAddArg(&argp, fname);
+	    if (sts < 0)
+		return PM_ERR_GENERIC;
 
-	    if ((fin = popen(cmd, "r")) == NULL)
-		return -oserror();
+	    if ((sts = __pmProcessPipe(&argp, "r", PM_EXEC_TOSS_NONE, &fin)) < 0)
+		return sts;
 	}
 	else {
 	    if ((fin = fopen(fname, "r")) == NULL)
@@ -579,7 +587,10 @@ lex(int reset)
 	    if (fgets(linebuf, sizeof(linebuf), fin) == NULL) {
 		lineno = -1; /* We're outside of line counting range now */
 		if (lex_use_cpp == USE_CPP) {
-		    if (pclose(fin) != 0) {
+		    if ((sts = __pmProcessPipeClose(fin)) != 0) {
+			if (pmDebugOptions.pmns && pmDebugOptions.desperate) {
+			    fprintf(stderr, "lex: __pmProcessPipeClose -> %d\n", sts);
+			}
 			err("pmcpp returned non-zero exit status");
 			return PM_ERR_PMNS;
 		    }
