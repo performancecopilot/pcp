@@ -17,7 +17,7 @@
 #include "impl.h"
 #include "pmda.h"
 
-#define NONLEAF(node)	((node)->pmid == PM_ID_NULL)
+#define NONLEAF(node)	((node)->pmid == PM_ID_NULL || IS_DYNAMIC_ROOT((node)->pmid))
 
 /*
  * Fixup the parent pointers of the tree.

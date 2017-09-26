@@ -581,9 +581,11 @@ class PrometheusPMDA(PMDA):
                 self.pmns_refresh()
 
         def debug(self,s):
+                super(PrometheusPMDA,self).log("debug: "+s)
                 sys.stderr.write('debug:' + s + '\n')
 
         def log(self,s):
+                super(PrometheusPMDA,self).log(s)
                 sys.stderr.write('log:' + s + '\n')
                         
                         
