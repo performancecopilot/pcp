@@ -27,6 +27,7 @@
 [\f3\-b\f1 \f2space-scale\f1]
 [\f3\-c\f1 \f2config\f1]
 [\f3\--container\f1 \f2container\f1]
+[\f3\--daemonize\f1]
 [\f3\-e\f1 \f2derived\f1]
 [\f3\-E\f1 \f2lines\f1]
 [\f3\-f\f1 \f2format\f1]
@@ -301,8 +302,11 @@ and metrics and printing possible headers.
 When replaying from an archive, this option requests that the prevailing
 real-time delay be applied between samples (see
 .BR \-t )
-to effect a pause, rather than the default behaviour of replaying  at
+to effect a pause, rather than the default behaviour of replaying at
 full speed.
+.TP
+.B \-\-daemonize
+Daemonize on startup.
 .TP
 .B \-e
 Specify

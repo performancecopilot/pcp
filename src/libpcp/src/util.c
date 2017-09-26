@@ -1722,7 +1722,6 @@ pmflush(void)
     int		state;
     FILE	*eptr = NULL;
     __pmExecCtl_t	*argp = NULL;
-    int		wait_status;
     char	outbuf[MSGBUFLEN];
     char	errmsg[PM_MAXERRMSGLEN];
 
@@ -1791,7 +1790,7 @@ pmflush(void)
 		    __pmNativePath(xconfirm), fname,
 		    (msgsize > 80 ? "-useslider" : ""));
 	    /* no thread-safe issue here ... we're executing xconfirm */
-	    if ((sts = __pmProcessExec(&argp, PM_EXEC_TOSS_ALL, PM_EXEC_WAIT, &wait_status)) < 0) {
+	    if ((sts = __pmProcessExec(&argp, PM_EXEC_TOSS_ALL, PM_EXEC_WAIT)) < 0) {
 		fprintf(stderr, "%s: __pmProcessExec(%s, ...) failed: %s\n",
 		    pmProgname, __pmNativePath(xconfirm), 
 		    pmErrStr_r(sts, errmsg, sizeof(errmsg)));
@@ -1800,13 +1799,6 @@ pmflush(void)
 	     * Note, we don't care about the wait exit status in this case
 	     */
 	    sts = 0;
-#if 0
-	    if (system(outbuf) < 0) {		/* THREADSAFE */
-		fprintf(stderr, "%s: system failed: %s\n", pmProgname,
-			osstrerror_r(errmsg, sizeof(errmsg)));
-		sts = -oserror();
-	    }
-#endif
 	    break;
 	case PM_USEFILE:
 	    rewind(fptr);

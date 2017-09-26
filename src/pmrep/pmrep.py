@@ -66,12 +66,13 @@ class PMReporter(object):
     def __init__(self):
         """ Construct object, prepare for command line handling """
         self.context = None
+        self.daemonize = 0
         self.pmconfig = pmconfig.pmConfig(self)
         self.opts = self.options()
 
         # Configuration directives
         self.keys = ('source', 'output', 'derived', 'header', 'globals',
-                     'samples', 'interval', 'type', 'precision',
+                     'samples', 'interval', 'type', 'precision', 'daemonize',
                      'timestamp', 'unitinfo', 'colxrow',
                      'delay', 'width', 'delimiter', 'extcsv',
                      'extheader', 'repeat_header', 'timefmt', 'interpol',
@@ -157,6 +158,7 @@ class PMReporter(object):
         opts.pmSetLongOption("output", 1, "o", "OUTPUT", "output target: archive, csv, stdout (default)")
         opts.pmSetLongOption("output-file", 1, "F", "OUTFILE", "output file")
         opts.pmSetLongOption("derived", 1, "e", "FILE|DFNT", "derived metrics definitions")
+        self.daemonize = opts.pmSetLongOption("daemonize", 0, "", "", "daemonize on startup") # > 1
         opts.pmSetLongOptionDebug()        # -D/--debug
         opts.pmSetLongOptionVersion()      # -V/--version
         opts.pmSetLongOptionHelp()         # -?/--help
@@ -200,8 +202,11 @@ class PMReporter(object):
             return 1
         return 0
 
-    def option(self, opt, optarg, index): # pylint: disable=unused-argument
+    def option(self, opt, optarg, index):
         """ Perform setup for an individual command line option """
+        if index == self.daemonize and opt == '':
+            self.daemonize = 1
+            return
         if opt == 'K':
             if not self.speclocal or not self.speclocal.startswith("K:"):
                 self.speclocal = "K:" + optarg
@@ -353,6 +358,10 @@ class PMReporter(object):
         # Just checking
         if self.check == 1:
             return
+
+        # Daemonize when requested
+        if self.daemonize == 1:
+            self.opts.daemonize()
 
         # Main loop
         lines = 0
