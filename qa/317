@@ -18,12 +18,42 @@ trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
 echo && echo "Verify no pmlogsummary coredump..."
-pmlogsummary -v -z archives/logsummary-bug >$tmp.out 2>$tmp.err
+pmlogsummary -v -z badarchives/logsummary-bug >$tmp.out 2>$tmp.err
 cat $tmp.out
 cat $tmp.err
 
 echo && echo "Verify no pmlogcheck coredump..."
-pmlogcheck -z archives/logsummary-bug >$tmp.out 2>$tmp.err
+pmlogcheck -z badarchives/logsummary-bug >$tmp.out 2>$tmp.err
+cat $tmp.out
+cat $tmp.err
+
+echo && echo "Verify no pmval coredump..."
+pmval -z -a badarchives/logsummary-bug kernel.all.cpu.wait.total >$tmp.out 2>$tmp.err
+cat $tmp.out
+cat $tmp.err
+
+echo && echo "Verify no pmval+derived metrics coredump..."
+cat <<End-of-File >$tmp.config
+qa = kernel.all.cpu.wait.total + kernel.all.cpu.wait.total
+End-of-File
+PCP_DERIVED_CONFIG=$tmp.config pmval -z -a badarchives/logsummary-bug qa >$tmp.out 2>$tmp.err
+cat $tmp.out
+cat $tmp.err
+
+echo && echo "Verify no pmie coredump..."
+echo "wait = kernel.all.cpu.wait.total;" >$tmp.pmie
+pmie -v -z -a badarchives/logsummary-bug -c $tmp.pmie >$tmp.out 2>$tmp.err
+cat $tmp.out
+cat $tmp.err
+
+echo && echo "Verify no pmie+derived metrics coredump..."
+echo "qa = qa;" >$tmp.pmie
+PCP_DERIVED_CONFIG=$tmp.config pmie -v -z -a badarchives/logsummary-bug -c $tmp.pmie >$tmp.out 2>$tmp.err
+cat $tmp.out
+cat $tmp.err
+
+echo && echo "Verify no pmrep coredump..."
+pmrep -z -I -o csv -a badarchives/logsummary-bug.meta "" >$tmp.out 2>$tmp.err
 cat $tmp.out
 cat $tmp.err
 

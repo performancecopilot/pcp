@@ -36,7 +36,7 @@ import os
 
 # PCP Python PMAPI
 from pcp import pmapi, pmi, pmconfig
-from cpmapi import PM_CONTEXT_ARCHIVE, PM_CONTEXT_HOST, PM_CONTEXT_LOCAL
+from cpmapi import PM_CONTEXT_ARCHIVE, PM_CONTEXT_LOCAL
 from cpmapi import PM_ERR_EOL, PM_IN_NULL, PM_DEBUG_APPL1
 from cpmapi import PM_TYPE_FLOAT, PM_TYPE_DOUBLE, PM_TYPE_STRING
 from cpmi import PMI_ERR_DUPINSTNAME
