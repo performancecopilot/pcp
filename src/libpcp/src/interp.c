@@ -661,8 +661,39 @@ check:
 	if (hp == NULL)
 	    continue;
 	pcp = (pmidcntl_t *)hp->data;
-	if (pcp->valfmt == -1 && logrp->vset[k]->numval > 0)
+	if (pcp->valfmt == -1 && logrp->vset[k]->numval > 0) {
+	    /*
+	     * All the code assumes we have consistent encoding between
+	     * the data type from the metadata and the valfmt in the
+	     * pmResult ... if this is not the case then the archive is
+	     * corrupted.
+	     */
+	    int		ok;
+	    switch (pcp->desc.type) {
+		case PM_TYPE_32:
+		case PM_TYPE_U32:
+			ok = (logrp->vset[k]->valfmt == 0);
+			break;
+		case PM_TYPE_FLOAT:
+			ok = (logrp->vset[k]->valfmt == 0 || logrp->vset[k]->valfmt == 1);
+			break;
+		default:
+			ok = (logrp->vset[k]->valfmt == 1);
+			break;
+	    }
+	    if (!ok) {
+		if (pmDebugOptions.log) {
+		    char	strbuf[20];
+		    fprintf(stderr, "update_bounds: corrupted archive: PMID %s: valfmt %d",
+			pmIDStr_r(logrp->vset[k]->pmid, strbuf, sizeof(strbuf)),
+			logrp->vset[k]->valfmt);
+		    fprintf(stderr, " unexpected for type %s\n",
+			pmTypeStr_r(pcp->desc.type, strbuf, sizeof(strbuf)));
+		}
+		return PM_ERR_LOGREC;
+	    }
 	    pcp->valfmt = logrp->vset[k]->valfmt;
+	}
 	else if (pcp->valfmt != -1 && logrp->vset[k]->numval > 0 && pcp->valfmt != logrp->vset[k]->valfmt) {
 	    /* bad archive ... value encoding in pmResult has changed */
 	    if (pmDebugOptions.log) {
