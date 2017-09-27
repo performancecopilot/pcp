@@ -297,7 +297,8 @@ __pmProcessExec(__pmExecCtl_t **handle, int toss, int wait)
 		    break;
 	    }
 	    if (pmDebugOptions.exec) {
-		fprintf(stderr, "__pmProcessExec: pid=%" FMT_PID " wait_pid=%" FMT_PID " errno=%d", pid, wait_pid, oserror());
+		fprintf(stderr, "__pmProcessExec: pid=%" FMT_PID " wait_pid=%" FMT_PID , pid, wait_pid);
+		if (wait_pid < 0) fprintf(stderr, " errno=%d", oserror());
 		if (WIFEXITED(status)) fprintf(stderr, " exit=%d", WEXITSTATUS(status));
 		if (WIFSIGNALED(status)) fprintf(stderr, " signal=%d", WTERMSIG(status));
 		if (WIFSTOPPED(status)) fprintf(stderr, " stop signal=%d", WSTOPSIG(status));
@@ -566,7 +567,8 @@ __pmProcessPipeClose(FILE *fp)
     }
 
     if (pmDebugOptions.exec) {
-	fprintf(stderr, "__pmProcessPipe: pid=%" FMT_PID " wait_pid=%" FMT_PID " errno=%d", pid, wait_pid, oserror());
+	fprintf(stderr, "__pmProcessPipe: pid=%" FMT_PID " wait_pid=%" FMT_PID , pid, wait_pid);
+	if (wait_pid < 0) fprintf(stderr, " errno=%d", oserror());
 	if (WIFEXITED(status)) fprintf(stderr, " exit=%d", WEXITSTATUS(status));
 	if (WIFSIGNALED(status)) fprintf(stderr, " signal=%d", WTERMSIG(status));
 	if (WIFSTOPPED(status)) fprintf(stderr, " stop signal=%d", WSTOPSIG(status));
