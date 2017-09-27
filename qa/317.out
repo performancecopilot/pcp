@@ -9,5 +9,47 @@ pmlogsummary: possibly corrupt archive?
 Verify no pmlogcheck coredump...
 Note: timezone set to local timezone of host "nas1" from archive
 
-archives/logsummary-bug.0:[00:11:08.712] kernel.all.cpu.wait.total: pmExtractValue failed: Impossible value or scale conversion
+badarchives/logsummary-bug.0:[00:11:08.712] kernel.all.cpu.wait.total: pmExtractValue failed: Impossible value or scale conversion
 pmlogcheck: possibly corrupt archive?
+
+Verify no pmval coredump...
+Note: timezone set to local timezone of host "nas1" from archive
+
+metric:    kernel.all.cpu.wait.total
+archive:   badarchives/logsummary-bug
+host:      nas1
+start:     Thu Aug  2 00:11:08 2007
+end:       Thu Aug  2 00:11:23 2007
+semantics: cumulative counter (converting to rate)
+units:     millisec (converting to time utilization)
+samples:   15
+interval:  1.00 sec
+
+pmval: pmFetch: Corrupted record in a PCP archive log
+
+Verify no pmval+derived metrics coredump...
+Note: timezone set to local timezone of host "nas1" from archive
+
+metric:    qa
+archive:   badarchives/logsummary-bug
+host:      nas1
+start:     Thu Aug  2 00:11:08 2007
+end:       Thu Aug  2 00:11:23 2007
+semantics: cumulative counter (converting to rate)
+units:     millisec (converting to time utilization)
+samples:   15
+interval:  1.00 sec
+
+pmval: pmFetch: Corrupted record in a PCP archive log
+
+Verify no pmie coredump...
+pmie: timezone set to local timezone from badarchives/logsummary-bug
+pmie: pmFetch failed: Corrupted record in a PCP archive log
+
+Verify no pmie+derived metrics coredump...
+pmie: timezone set to local timezone from badarchives/logsummary-bug
+pmie: pmFetch failed: Corrupted record in a PCP archive log
+
+Verify no pmrep coredump...
+Time,"kernel.all.cpu.wait.total","event.flags","event.missed"
+pmrep: Corrupted record in a PCP archive log

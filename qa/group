@@ -658,7 +658,7 @@ zsh
 314 pmie local pmieutil
 315 pmie local pmieutil
 316 libpcp local
-317 logutil pmlogsummary local pmlogcheck
+317 logutil pmlogsummary local pmlogcheck pmie pmval derive
 318 pmie local
 319 pmie local
 320 local folio pmlogcheck pmclient
