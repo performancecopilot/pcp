@@ -678,7 +678,7 @@ check:
 			ok = (logrp->vset[k]->valfmt == 0 || logrp->vset[k]->valfmt == 1);
 			break;
 		default:
-			ok = (logrp->vset[k]->valfmt == 0);
+			ok = (logrp->vset[k]->valfmt == 1);
 			break;
 	    }
 	    if (!ok) {
