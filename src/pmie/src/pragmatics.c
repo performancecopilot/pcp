@@ -1103,7 +1103,14 @@ taskFetch(Task *t)
 	    if (! h->down) {
 		pmUseContext(f->handle);
 		if ((sts = pmFetch(f->npmids, f->pmids, &f->result)) < 0) {
-		    if (! archives) {
+		    if (archives) {
+			if (sts == PM_ERR_LOGREC) {
+			    fprintf(stderr, "%s: pmFetch failed: %s\n", pmProgname,
+				    pmErrStr(sts));
+			    exit(1);
+			}
+		    }
+		    else {
 			__pmNotifyErr(LOG_ERR, "pmFetch from %s failed: %s\n",
 				symName(f->host->name), pmErrStr(sts));
 			host_state_changed(symName(f->host->conn), STATE_LOSTCONN);
