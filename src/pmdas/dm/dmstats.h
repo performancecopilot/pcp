@@ -40,31 +40,56 @@ enum {
     PM_DM_STATS_NR_COUNTERS
 };
 
+typedef enum {
+	PM_DM_HISTOGRAM_COUNT = 0,
+	/* PM_DM_HISTOGRAM_PERCENT, */
+	PM_DM_HISTOGRAM_BIN,
+	PM_DM_HISTOGRAM_NR_HISTOGRAMS,
+} pm_dm_histogram_t;
+
 struct pm_dm_stats_counter {
 	uint64_t pm_reads;		    /* Num reads completed */
 	uint64_t pm_reads_merged;	    /* Num reads merged */
 	uint64_t pm_read_sectors;	    /* Num sectors read */
-	uint64_t pm_read_nsecs;	    /* Num milliseconds spent reading */
-	uint64_t pm_writes;	    /* Num writes completed */
+	uint64_t pm_read_nsecs;	   	    /* Num milliseconds spent reading */
+	uint64_t pm_writes;	    	    /* Num writes completed */
 	uint64_t pm_writes_merged;	    /* Num writes merged */
 	uint64_t pm_write_sectors;	    /* Num sectors written */
 	uint64_t pm_write_nsecs;	    /* Num milliseconds spent writing */
-	uint64_t pm_io_in_progress;    /* Num I/Os currently in progress */
-	uint64_t pm_io_nsecs;	    /* Num milliseconds spent doing I/Os */
-	uint64_t pm_weighted_io_nsecs; /* Weighted num milliseconds doing I/Os */
-	uint64_t pm_total_read_nsecs;  /* Total time spent reading in milliseconds */
-	uint64_t pm_total_write_nsecs; /* Total time spent writing in milliseconds */
-	struct dm_histogram *histogram; /* Histogram. */
+	uint64_t pm_io_in_progress;   	    /* Num I/Os currently in progress */
+	uint64_t pm_io_nsecs;	            /* Num milliseconds spent doing I/Os */
+	uint64_t pm_weighted_io_nsecs;      /* Weighted num milliseconds doing I/Os */
+	uint64_t pm_total_read_nsecs;       /* Total time spent reading in milliseconds */
+	uint64_t pm_total_write_nsecs;      /* Total time spent writing in milliseconds */
+};
+
+struct pm_dm_histogram {
+	uint64_t pm_bin_count;
+	float pm_bin_percent;
+	uint64_t pm_bin;
+};
+
+struct pm_wrap {
+	struct dm_stats *dms;
+	struct pm_dm_stats_counter *dmsc;
+	struct pm_dm_histogram *pdmh;
+	uint64_t region_id;
+	uint64_t area_id;
+	char *dev;
 };
 
 #ifdef HAVE_DEVMAPPER
-extern int pm_dm_stats_fetch(int, struct pm_dm_stats_counter *, pmAtomValue *);
-extern int pm_dm_refresh_stats_counter(const char *, struct pm_dm_stats_counter *);
+extern int pm_dm_stats_fetch(int, struct pm_wrap *, pmAtomValue *);
 extern int pm_dm_stats_instance_refresh(void);
+extern int pm_dm_histogram_fetch(int, struct pm_wrap *, pmAtomValue *);
+extern int pm_dm_histogram_instance_refresh(void);
+extern int pm_dm_refresh_stats(struct pm_wrap *, int);
 #else
 #define pm_dm_stats_fetch(item, ctr, atom)      (PM_ERR_APPVERSION)
-#define pm_dm_refresh_stats_counter(s, ctr)     do { } while (0)
 #define pm_dm_stats_instance_refresh(void)      (0)
+#define pm_dm_histogram_fetch(item, ctr, atom)  (PM_ERR_APPVERSION)
+#define pm_dm_histogram_instance_refresh(void)  (0)
+#define pm_dm_refresh_stats(item, ctr)          do { } while (0)
 #endif
 
 #endif
