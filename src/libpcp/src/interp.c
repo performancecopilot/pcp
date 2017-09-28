@@ -672,13 +672,13 @@ check:
 	    switch (pcp->desc.type) {
 		case PM_TYPE_32:
 		case PM_TYPE_U32:
-			ok = (logrp->vset[k]->valfmt == 0);
+			ok = (logrp->vset[k]->valfmt == PM_VAL_INSITU);
 			break;
 		case PM_TYPE_FLOAT:
-			ok = (logrp->vset[k]->valfmt == 0 || logrp->vset[k]->valfmt == 1);
+			ok = (logrp->vset[k]->valfmt == PM_VAL_INSITU || logrp->vset[k]->valfmt == PM_VAL_DPTR || logrp->vset[k]->valfmt == PM_VAL_SPTR);
 			break;
 		default:
-			ok = (logrp->vset[k]->valfmt == 1);
+			ok = (logrp->vset[k]->valfmt == PM_VAL_DPTR || logrp->vset[k]->valfmt == PM_VAL_SPTR);
 			break;
 	    }
 	    if (!ok) {
