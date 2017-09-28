@@ -32,6 +32,8 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <signal.h>
+#include <signal.h>
+#include <ctype.h>
 
 struct __pmExecCtl {
     int		argc;
@@ -583,6 +585,71 @@ __pmProcessPipeClose(FILE *fp)
 	sts = decode_status(status);
     else
 	sts = -oserror();
+
+    return sts;
+}
+
+/*
+ * Helper routine ... if a command line has already been built for
+ * popen() or system(), then this routine may be used to construct
+ * the equivalent __pmExecCtl_t structure.
+ *
+ * It is a sort of simple shell parser:
+ * - args are separated by one or more spaces (not tabs)
+ * - embedded spaces (or quotes) may be enclosed in '...' or "..."
+ * - no \ escapes
+ * - shell meta characters are not recognized and will be eaten as
+ *   arguments, e.g. ; & < > |
+ */
+int
+__pmProcessUnpickArgs(__pmExecCtl_t **argp, const char *command)
+{
+    char	*str = strdup(command);		/* in case command[] is const */
+    int		sts = 0;
+    int		done = 0;
+    char	*p;
+    char	*pend;
+    int		endch = ' ';
+
+    if (str == NULL) {
+	__pmNoMem("__pmProcessUnpickArgs", strlen(command)+1, PM_RECOV_ERR);
+	return -ENOMEM;
+    }
+
+    p = str;
+
+    while (*p != '\0') {
+	if (isspace((int)*p)) {
+	    p++;
+	    continue;
+	}
+	if (*p == '"' || *p == '\'') {
+	    /* quote as first character, scan to matching quote */
+	    endch = *p;
+	    p++;
+	}
+
+	pend = index(p, endch);
+	if (pend == NULL) {
+	    done = 1;
+	    if (endch != ' ') {
+		/* not a great error, but probably the best we can do */
+		sts = PM_ERR_VALUE;
+		break;
+	    }
+	}
+	else
+	    *pend = '\0';
+
+	if ((sts = __pmProcessAddArg(argp, p)) < 0)
+	    break;
+	if (done)
+	    break;
+
+	p = pend + 1;
+	endch = ' ';
+    }
+    free(str);
 
     return sts;
 }
