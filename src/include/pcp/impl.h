@@ -1463,6 +1463,7 @@ PCP_CALL extern int __pmSetProcessIdentity(const char *);
 /* __pmProcessExec and friends ... replacementes for system(3) and popen(3) */
 typedef struct __pmExecCtl __pmExecCtl_t;		/* opaque handle */
 PCP_CALL extern int __pmProcessAddArg(__pmExecCtl_t **, const char *);
+PCP_CALL extern int __pmProcessUnpickArgs(__pmExecCtl_t **, const char *);
 #define PM_EXEC_TOSS_NONE	0
 #define PM_EXEC_TOSS_STDIN	1
 #define PM_EXEC_TOSS_STDOUT	2

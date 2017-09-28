@@ -902,6 +902,8 @@ zsh
 558 pmie local
 559 pmlogsummary local
 560 pmda.simple local pmda.install
+561 derive local
+562 libpcp local
 564 logutil local pmlogextract
 565 pmda.sendmail local pmda.install
 566 pmlogcheck local
