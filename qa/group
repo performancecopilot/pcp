@@ -1374,6 +1374,8 @@ zsh
 1100 bash zsh local
 1101 libpcp_web local
 1102:reserved pmda.prometheus.local
+1105 derive local
+1106 libpcp local
 1108 logutil local folio pmlogextract
 1110 pmda.haproxy local
 1111 pcp2influxdb python local

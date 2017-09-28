@@ -206,6 +206,7 @@ torture_trace
 tstate
 tztest
 unpack
+unpickargs
 units-parse
 username
 whichtimezone

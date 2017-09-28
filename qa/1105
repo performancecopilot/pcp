@@ -1,0 +1,71 @@
+#!/bin/sh
+# PCP QA Test No. 1105
+# derived metrics - culling bad or undefined ones from the PMNS
+#
+# Copyright (c) 2017 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+_filter_err()
+{
+    sed \
+	-e "s@$tmp@TMP@g" \
+    # end
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+cat <<End-of-File >$tmp.derive
+qa.hide.ok	= pmcd.pmlogger.port
+qa.hide.syntax = pmcd.pmlogger.port +
+qa.hide.semantic = 2 + no.such.metric.ever.will.exist
+qa.ok = 2 + hinv.ncpu
+End-of-File
+
+# real QA test starts here
+
+for verify in "" -d
+do
+    echo
+    echo "full PMNS traversal $verify ..."
+    PCP_DERIVED_CONFIG=$tmp.derive pminfo $verify 2>$tmp.err | egrep 'qa\.(hide|ok)'
+    _filter_err <$tmp.err
+
+    echo
+    echo "traverse PMNS below qa $verify ..."
+    PCP_DERIVED_CONFIG=$tmp.derive pminfo $verify qa 2>$tmp.err | egrep 'qa\.(hide|ok)'
+    _filter_err <$tmp.err
+
+    echo
+    echo "exact matches in PMNS $verify ..."
+    PCP_DERIVED_CONFIG=$tmp.derive pminfo $verify 2>$tmp.err \
+	qa.hide.ok qa.hide.syntax qa.hide.semantic qa.ok \
+    | egrep 'qa\.(hide|ok)'
+    _filter_err <$tmp.err
+
+    echo
+    echo "mismatches in PMNS $verify ..."
+    PCP_DERIVED_CONFIG=$tmp.derive pminfo $verify 2>$tmp.err \
+	not_qa qa.not_hide qa.hide.not_ok \
+    | grep 'not_'
+    _filter_err <$tmp.err
+done
+
+# success, all done
+status=0
+exit
