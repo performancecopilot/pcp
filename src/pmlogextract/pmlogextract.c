@@ -1227,6 +1227,14 @@ againmeta:
 	        goto againmeta;
 	    }
 	}
+	else if (ntohl(iap->pb[META][1]) == TYPE_LABEL) {
+	    /* TODO: support label metadata extraction */
+	    fprintf(stderr, "%s: Warning: %s\n",
+		    pmProgname, pmErrStr(PM_ERR_NOLABELS));
+	    free(iap->pb[META]);
+	    iap->pb[META] = NULL;
+	    goto againmeta;
+	}
 	else {
 	    fprintf(stderr, "%s: Error: unrecognised meta data type: %d\n",
 		    pmProgname, (int)ntohl(iap->pb[META][1]));
