@@ -902,9 +902,14 @@ zsh
 558 pmie local
 559 pmlogsummary local
 560 pmda.simple local pmda.install
+561:reserved libpcp python labels local
+562:reserved pmcd pmda.sample dbpmda pminfo labels libpcp local
+563:reserved pmcd pmda.pmcd pminfo labels libpcp local
 564 logutil local pmlogextract
 565 pmda.sendmail local pmda.install
 566 pmlogcheck local
+567:reserved libpcp labels local
+568:reserved pmcd pmda.sample pminfo labels libpcp local
 569 pmprobe #679693 local sanity
 570:retired pmns #690735 local
 571 pmlogger local pmdumplog
