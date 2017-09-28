@@ -170,6 +170,15 @@ returns 0.  Other conditions are rare (e.g. alloc failure) and are
 indicated by a return value that can be decoded using
 .BR pmErrStr (3).
 .PP
+.B __pmProcessUnpickArgs
+returns 0 on success.  In the case of an unterminated string,
+a message is generated and
+.B PM_ERR_GENERIC
+is returned.
+Other return values less than 0 indicate a more serious error and the
+value can be decoded using
+.BR pmErrStr (3).
+.PP
 The return status from
 .B __pmProcessExec
 is more complicated.

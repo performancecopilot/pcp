@@ -1811,17 +1811,6 @@ __dmtraverse(__pmContext *ctxp, const char *name, char ***namelist)
     __dminit();
 
     for (i = 0; i < cp->nmetric; i++) {
-	/* skip invalid derived metrics, e.g. due to missing operands */
-	if (!cp->mlist[i].anon) {
-	    if (ctxp == NULL ||
-	       (cp->mlist[i].bind == 1 && cp->mlist[i].expr == NULL)) {
-		if (pmDebugOptions.derive) {
-		    fprintf(stderr, "__dmtraverse: name=\"%s\", omitting invalid child \"%s\"\n",
-		    	name, cp->mlist[i].name);
-		}
-		continue;
-	    }
-	}
 	/*
 	 * prefix match ... if name is "", then all names match
 	 */
@@ -1829,6 +1818,28 @@ __dmtraverse(__pmContext *ctxp, const char *name, char ***namelist)
 	    (strncmp(name, cp->mlist[i].name, matchlen) == 0 &&
 	     (cp->mlist[i].name[matchlen] == '.' ||
 	      cp->mlist[i].name[matchlen] == '\0'))) {
+	    /*
+	     * we have a match ... try binding the first time we see
+	     * this one in the current context ... if this fails we
+	     * will skip the metric
+	     */
+	    if (ctxp != NULL && cp->mlist[i].bind == 0) {
+		/* ctxp->c_lock not locked at this point */
+		PM_LOCK(ctxp->c_lock);
+		__dmbind(ctxp, i);
+		PM_UNLOCK(ctxp->c_lock);
+	    }
+	    /* skip invalid derived metrics, e.g. due to missing operands */
+	    if (!cp->mlist[i].anon) {
+		if (ctxp == NULL ||
+		   (cp->mlist[i].bind == 1 && cp->mlist[i].expr == NULL)) {
+		    if (pmDebugOptions.derive) {
+			fprintf(stderr, "__dmtraverse: name=\"%s\", omitting invalid child \"%s\"\n",
+			    name, cp->mlist[i].name);
+		    }
+		    continue;
+		}
+	    }
 	    sts++;
 	    if ((list = (char **)realloc(list, sts*sizeof(list[0]))) == NULL) {
 		PM_UNLOCK(registered.mutex);
