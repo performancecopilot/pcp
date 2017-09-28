@@ -1227,6 +1227,12 @@ againmeta:
 	        goto againmeta;
 	    }
 	}
+	else if (ntohl(iap->pb[META][1]) == 3 /*TYPE_LABEL*/) {
+	    /* discard this optional metadata, not supported */
+	    free(iap->pb[META]);
+	    iap->pb[META] = NULL;
+	    goto againmeta;
+	}
 	else {
 	    fprintf(stderr, "%s: Error: unrecognised meta data type: %d\n",
 		    pmProgname, (int)ntohl(iap->pb[META][1]));
