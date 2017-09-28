@@ -572,11 +572,8 @@ __pmFindOrOpenArchive(__pmContext *ctxp, const char *name, int multi_arch)
      * Allocate a new log control block, if necessary.
      */
     if (lcp == NULL) {
-	if ((lcp = (__pmLogCtl *)malloc(sizeof(*lcp))) == NULL)
+	if ((lcp = (__pmLogCtl *)calloc(1, sizeof(*lcp))) == NULL)
 	    __pmNoMem("__pmFindOrOpenArchive", sizeof(*lcp), PM_FATAL_ERR);
-	lcp->l_pmns = NULL;
-	lcp->l_hashpmid.nodes = lcp->l_hashpmid.hsize = 0;
-	lcp->l_hashindom.nodes = lcp->l_hashindom.hsize = 0;
 	lcp->l_multi = multi_arch;
 	acp->ac_log = lcp;
     }
@@ -592,17 +589,13 @@ __pmFindOrOpenArchive(__pmContext *ctxp, const char *name, int multi_arch)
 }
 
 static char *
-addName(
-  const char *dirname,
-  char *list,
-  size_t *listsize,
-  const char *item,
-  size_t itemsize
-) {
-    size_t dirsize;
+addName(const char *dirname, char *list, size_t *listsize,
+		const char *item, size_t itemsize)
+{
+    size_t	dirsize;
 
     /* Was there a directory specified? */
-    if (dirname != NULL )
+    if (dirname != NULL)
 	dirsize = strlen(dirname) + 1; /* room for the path separator */
     else
 	dirsize = 0;

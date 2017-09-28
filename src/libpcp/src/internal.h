@@ -52,6 +52,8 @@ extern int __pmGetDate(struct timespec *, char const *, struct timespec const *)
  * defined as comments to catch code that tries to
  * use them in an expression or assignment.
  */
+#define __htonpmLabel(a)	/* noop */
+#define __ntohpmLabel(a)	/* noop */
 #define __htonpmValueBlock(a)	/* noop */
 #define __ntohpmValueBlock(a)	/* noop */
 #define __htonf(a)		/* noop */
@@ -71,6 +73,7 @@ extern int __pmGetDate(struct timespec *, char const *, struct timespec const *)
 #define __htonpmInDom(a)	htonl(a)
 #define __ntohpmInDom(a)	ntohl(a)
 
+
 extern pmUnits __htonpmUnits(pmUnits) _PCP_HIDDEN;
 extern pmUnits __ntohpmUnits(pmUnits) _PCP_HIDDEN;
 extern __pmPDUInfo __htonpmPDUInfo(__pmPDUInfo) _PCP_HIDDEN;
@@ -79,6 +82,8 @@ extern __pmCred __htonpmCred(__pmCred) _PCP_HIDDEN;
 extern __pmCred __ntohpmCred(__pmCred) _PCP_HIDDEN;
 
 /* insitu swab for these */
+extern void __htonpmLabel(pmLabel * const) _PCP_HIDDEN;
+extern void __ntohpmLabel(pmLabel * const) _PCP_HIDDEN;
 extern void __htonpmValueBlock(pmValueBlock * const) _PCP_HIDDEN;
 extern void __ntohpmValueBlock(pmValueBlock * const) _PCP_HIDDEN;
 extern void __htonf(char *) _PCP_HIDDEN;	/* float */

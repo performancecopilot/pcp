@@ -853,11 +853,15 @@ getlabels(int ident, int type, pmLabelSet **sets, int *nsets)
 	}
     }
     else {
-	/* supply context labels for archives lacking label support */
-	if (type & PM_LABEL_CONTEXT)
-	    sts = archive_context_labels(ctxp, sets);
-	else
-	    sts = 0;
+	if ((sts = __pmLogLookupLabel(ctxp->c_archctl->ac_log, type,
+				ident, sets, &ctxp->c_origin)) < 0) {
+	    /* supply context labels for archives lacking label support */
+	    if (type & PM_LABEL_CONTEXT)
+		sts = archive_context_labels(ctxp, sets);
+	    else
+		sts = 0;
+	}
+	    
 	if (sts >= 0)
 	    *nsets = sts;
     }

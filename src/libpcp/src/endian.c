@@ -53,6 +53,30 @@ __ntohpmUnits(pmUnits units)
 }
 #endif
 
+#ifndef __htonpmUnits
+void
+__htonpmLabel(pmLabel * const label)
+{
+    label->name = htons(label->name);
+    /* label->namelen is one byte */
+    /* label->flags is one byte */
+    label->value = htons(label->value);
+    label->valuelen = htons(label->valuelen);
+}
+#endif
+
+#ifndef __ntohpmLabel
+void
+__ntohpmLabel(pmLabel * const label)
+{
+    label->name = ntohs(label->name);
+    /* label->namelen is one byte */
+    /* label->flags is one byte */
+    label->value = ntohs(label->value);
+    label->valuelen = ntohs(label->valuelen);
+}
+#endif
+
 #ifndef __htonpmValueBlock
 static void
 htonEventArray(pmValueBlock * const vb, int highres)

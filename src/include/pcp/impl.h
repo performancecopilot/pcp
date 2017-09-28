@@ -520,22 +520,18 @@ typedef struct {
     __pmHashCtl	l_hashindom;	/* instance domain hashed access */
     __pmHashCtl	l_hashrange;	/* ptr to first and last value in log for */
 				/* each metric */
+    __pmHashCtl	l_hashlabels;	/* maps the various metadata label types */
     int		l_minvol;	/* (when reading) lowest known volume no. */
     int		l_maxvol;	/* (when reading) highest known volume no. */
     int		l_numseen;	/* (when reading) size of l_seen */
     int		*l_seen;	/* (when reading) volumes opened OK */
-    __pmLogLabel	l_label;	/* (when reading) log label */
+    __pmLogLabel l_label;	/* (when reading) log label */
     __pm_off_t	l_physend;	/* (when reading) offset to physical EOF */
 				/*                for last volume */
     __pmTimeval	l_endtime;	/* (when reading) timestamp at logical EOF */
     int		l_numti;	/* (when reading) no. temporal index entries */
     __pmLogTI	*l_ti;		/* (when reading) temporal index */
     __pmnsTree	*l_pmns;        /* namespace from meta data */
-    /*
-     * This was added to the ABI in order to support multiple archives
-     * in a single context. In order to maintain ABI compatibility it must
-     * be at the end of this structure.
-     */
     int		l_multi;	/* part of a multi-archive context */
 } __pmLogCtl;
 
@@ -1294,6 +1290,9 @@ PCP_CALL extern int __pmLogPutInDom(__pmLogCtl *, pmInDom, const __pmTimeval *, 
 PCP_CALL extern int __pmLogGetInDom(__pmLogCtl *, pmInDom, __pmTimeval *, int **, char ***);
 PCP_CALL extern int __pmLogLookupInDom(__pmLogCtl *, pmInDom, __pmTimeval *, const char *);
 PCP_CALL extern int __pmLogNameInDom(__pmLogCtl *, pmInDom, __pmTimeval *, int, char **);
+
+PCP_CALL extern int __pmLogLookupLabel(__pmLogCtl *lcp, unsigned int type, unsigned int ident, pmLabelSet **label, const __pmTimeval *);
+PCP_CALL extern int __pmLogPutLabel(__pmLogCtl *lcp, unsigned int type, unsigned int ident, int nsets, pmLabelSet *labelsets, const __pmTimeval *tp);
 
 PCP_CALL extern int __pmLogPutResult(__pmLogCtl *, __pmPDU *);
 PCP_CALL extern int __pmLogPutResult2(__pmLogCtl *, __pmPDU *);
