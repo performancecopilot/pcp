@@ -1,5 +1,5 @@
 #!/bin/sh
-# PCP QA Test No. 561
+# PCP QA Test No. 1105
 # derived metrics - culling bad or undefined ones from the PMNS
 #
 # Copyright (c) 2017 Ken McDonell.  All Rights Reserved.

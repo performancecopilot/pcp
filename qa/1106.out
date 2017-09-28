@@ -1,4 +1,4 @@
-QA output created by 562
+QA output created by 1106
 --- simple cases ---
 00000     0
 __pmProcessExec: argc=1 toss=1 "sum"
