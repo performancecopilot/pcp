@@ -39,6 +39,7 @@ from pcp import pmapi, pmi, pmconfig
 from cpmapi import PM_CONTEXT_ARCHIVE, PM_CONTEXT_LOCAL
 from cpmapi import PM_ERR_EOL, PM_IN_NULL, PM_DEBUG_APPL1
 from cpmapi import PM_TYPE_FLOAT, PM_TYPE_DOUBLE, PM_TYPE_STRING
+from cpmapi import PM_TIME_SEC
 from cpmi import PMI_ERR_DUPINSTNAME
 
 if sys.version_info[0] >= 3:
@@ -673,7 +674,7 @@ class PMReporter(object):
             # Silent goodbye
             return
 
-        ts = pmapi.pmContext.convert_datetime(self.pmfg_ts(), "sec")
+        ts = pmapi.pmContext.convert_datetime(self.pmfg_ts(), PM_TIME_SEC)
 
         if self.prev_ts is None:
             self.prev_ts = ts

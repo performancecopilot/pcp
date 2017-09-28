@@ -34,6 +34,7 @@ from elasticsearch import Elasticsearch
 # PCP Python PMAPI
 from pcp import pmapi, pmconfig
 from cpmapi import PM_CONTEXT_ARCHIVE, PM_ERR_EOL, PM_DEBUG_APPL1
+from cpmapi import PM_TIME_MSEC
 
 if sys.version_info[0] >= 3:
     long = int # pylint: disable=redefined-builtin
@@ -314,7 +315,7 @@ class pcp2elasticsearch(object):
             # Silent goodbye
             return
 
-        ts = pmapi.pmContext.convert_datetime(self.pmfg_ts(), "ms")
+        ts = pmapi.pmContext.convert_datetime(self.pmfg_ts(), PM_TIME_MSEC)
 
         es = Elasticsearch(hosts=[self.es_server])
         # pylint: disable=unexpected-keyword-arg
