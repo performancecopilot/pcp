@@ -2413,16 +2413,16 @@ class pmContext(object):
             self.pmNewZone(options.pmGetOptionTimezone())
 
     @staticmethod
-    def convert_datetime(tstamp, precision="sec"):
+    def convert_datetime(tstamp, precision=c_api.PM_TIME_SEC):
         """ Convert datetime to timestamp of given precision """
         tdt = tstamp - datetime.datetime.fromtimestamp(0)
-        if precision == "sec":
+        if precision == c_api.PM_TIME_SEC:
             tst = (tdt.microseconds + (tdt.seconds + tdt.days * 24.0 * 3600.0) * 10.0**6) / 10.0**6
-        elif precision == "ms":
+        elif precision == c_api.PM_TIME_MSEC:
             tst = (tdt.microseconds + (tdt.seconds + tdt.days * 24.0 * 3600.0) * 10.0**6) / 10.0**3
-        elif precision == "us":
+        elif precision == c_api.PM_TIME_USEC:
             tst = (tdt.microseconds + (tdt.seconds + tdt.days * 24.0 * 3600.0) * 10.0**6) / 10.0**3
-        elif precision == "ns":
+        elif precision == c_api.PM_TIME_NSEC:
             tst = (tdt.microseconds + (tdt.seconds + tdt.days * 24.0 * 3600.0) * 10.0**6) * 10.0**3
         else:
             raise ValueError("Unsupported precision requested")
