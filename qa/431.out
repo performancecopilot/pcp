@@ -21,10 +21,4 @@ Semantic error: derived metric my.bad_4: <expr> + sample.string.hullo: Non-arith
 Semantic error: derived metric my.bad_5: sample.aggregate.hullo - <expr>: Non-arithmetic type for left operand
 Semantic error: derived metric my.bad_6: 1 + sample.string.hullo: Non-arithmetic type for right operand
 Semantic error: derived metric my.bad_7: sample.string.hullo * 128: Non-arithmetic type for left operand
-my.bad_1: pmLookupDesc: Derived metric definition failed
-my.bad_2: pmLookupDesc: Derived metric definition failed
-my.bad_3: pmLookupDesc: Derived metric definition failed
-my.bad_4: pmLookupDesc: Derived metric definition failed
-my.bad_5: pmLookupDesc: Derived metric definition failed
-my.bad_6: pmLookupDesc: Derived metric definition failed
-my.bad_7: pmLookupDesc: Derived metric definition failed
+Error: my: Unknown metric name
