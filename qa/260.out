@@ -154,18 +154,6 @@ expr node <addr-38> type=NAME left=(nil) right=(nil) save_last=1 [sampledso.cons
 expr node <addr-39> type=DELTA left=<addr-40> right=(nil) save_last=0
 expr node <addr-40> type=NAME left=(nil) right=(nil) save_last=1 [sample.const_rate.value] master=1
 __dmopencontext(->ctx 0) called
-__dmtraverse: name="delta" added "delta.m1"
-__dmtraverse: name="delta" added "delta.m2"
-__dmtraverse: name="delta" added "delta.m3"
-__dmtraverse: name="delta" added "delta.m4"
-__dmtraverse: name="delta" added "delta.m5"
-__dmtraverse: name="delta" added "delta.m6"
-__dmgetpmid: metric "delta.m1" -> PMID 511.0.3
-__dmgetpmid: metric "delta.m2" -> PMID 511.0.4
-__dmgetpmid: metric "delta.m3" -> PMID 511.0.5
-__dmgetpmid: metric "delta.m4" -> PMID 511.0.6
-__dmgetpmid: metric "delta.m5" -> PMID 511.0.7
-__dmgetpmid: metric "delta.m6" -> PMID 511.0.8
 __dmgetpmid: metric "delta.m1" -> PMID 511.0.3
 __dmbind: bind metric[2] delta.m1
 Derived metric expr dump from <addr-41>...
@@ -177,6 +165,7 @@ expr node <addr-42> type=NAME left=(nil) right=(nil) save_last=1 [sample.const_r
     PMID: 29.0.72 (29.0.72 from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
+__dmtraverse: name="delta" added "delta.m1"
 __dmgetpmid: metric "delta.m2" -> PMID 511.0.4
 __dmbind: bind metric[3] delta.m2
 Derived metric expr dump from <addr-43>...
@@ -196,6 +185,7 @@ expr node <addr-46> type=NAME left=(nil) right=(nil) save_last=0 [sample.bigid] 
     PMID: 29.0.1023 (29.0.1023 from pmDesc) numval: 0
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: count
+__dmtraverse: name="delta" added "delta.m2"
 __dmgetpmid: metric "delta.m3" -> PMID 511.0.5
 __dmbind: bind metric[4] delta.m3
 Derived metric expr dump from <addr-47>...
@@ -215,6 +205,7 @@ expr node <addr-50> type=NAME left=(nil) right=(nil) save_last=1 [sampledso.cons
     PMID: 30.0.72 (30.0.72 from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
+__dmtraverse: name="delta" added "delta.m3"
 __dmgetpmid: metric "delta.m4" -> PMID 511.0.6
 __dmbind: bind metric[5] delta.m4
 Derived metric expr dump from <addr-51>...
@@ -250,6 +241,7 @@ expr node <addr-58> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.te
     PMID: 29.0.11 (29.0.11 from pmDesc) numval: 0
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
+__dmtraverse: name="delta" added "delta.m4"
 __dmgetpmid: metric "delta.m5" -> PMID 511.0.7
 __dmbind: bind metric[6] delta.m5
 Derived metric expr dump from <addr-59>...
@@ -285,6 +277,7 @@ expr node <addr-66> type=NAME left=(nil) right=(nil) save_last=1 [sampledso.cons
     PMID: 30.0.72 (30.0.72 from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
+__dmtraverse: name="delta" added "delta.m5"
 __dmgetpmid: metric "delta.m6" -> PMID 511.0.8
 __dmbind: bind metric[7] delta.m6
 Derived metric expr dump from <addr-67>...
@@ -332,6 +325,13 @@ expr node <addr-77> type=NAME left=(nil) right=(nil) save_last=1 [sample.const_r
     PMID: 29.0.72 (29.0.72 from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
+__dmtraverse: name="delta" added "delta.m6"
+__dmgetpmid: metric "delta.m1" -> PMID 511.0.3
+__dmgetpmid: metric "delta.m2" -> PMID 511.0.4
+__dmgetpmid: metric "delta.m3" -> PMID 511.0.5
+__dmgetpmid: metric "delta.m4" -> PMID 511.0.6
+__dmgetpmid: metric "delta.m5" -> PMID 511.0.7
+__dmgetpmid: metric "delta.m6" -> PMID 511.0.8
 
 delta.m1 PMID: 511.0.3
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
