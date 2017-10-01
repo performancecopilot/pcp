@@ -235,24 +235,6 @@ expr node <addr-60> type=RESCALE left=<addr-61> right=<addr-62> save_last=0
 expr node <addr-61> type=NAME left=(nil) right=(nil) save_last=0 [sample.string.hullo] master=1
 expr node <addr-62> type=SCALE left=(nil) right=(nil) save_last=0 [millisec / count]
 __dmopencontext(->ctx 0) called
-__dmtraverse: name="a" added "a.m1"
-__dmtraverse: name="a" added "a.m2"
-__dmtraverse: name="a" added "a.m3"
-__dmtraverse: name="a" added "a.m4"
-__dmtraverse: name="a" added "a.m5"
-__dmtraverse: name="a" added "a.m6"
-__dmtraverse: name="a" added "a.m7"
-__dmtraverse: name="a" added "a.err.m1"
-__dmtraverse: name="a" added "a.err.m2"
-__dmgetpmid: metric "a.m1" -> PMID 511.0.3
-__dmgetpmid: metric "a.m2" -> PMID 511.0.4
-__dmgetpmid: metric "a.m3" -> PMID 511.0.5
-__dmgetpmid: metric "a.m4" -> PMID 511.0.6
-__dmgetpmid: metric "a.m5" -> PMID 511.0.7
-__dmgetpmid: metric "a.m6" -> PMID 511.0.8
-__dmgetpmid: metric "a.m7" -> PMID 511.0.9
-__dmgetpmid: metric "a.err.m1" -> PMID 511.0.10
-__dmgetpmid: metric "a.err.m2" -> PMID 511.0.11
 __dmgetpmid: metric "a.m1" -> PMID 511.0.3
 __dmbind: bind metric[2] a.m1
 Derived metric expr dump from <addr-63>...
@@ -265,6 +247,7 @@ expr node <addr-64> type=NAME left=(nil) right=(nil) save_last=0 [sample.byte_ra
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: byte / sec
 expr node <addr-65> type=SCALE left=(nil) right=(nil) save_last=0 [Kbyte / min]
+__dmtraverse: name="a" added "a.m1"
 __dmgetpmid: metric "a.m2" -> PMID 511.0.4
 __dmbind: bind metric[3] a.m2
 Derived metric expr dump from <addr-66>...
@@ -277,6 +260,7 @@ expr node <addr-67> type=INTEGER left=(nil) right=(nil) save_last=0 [36000] mast
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: count / hour
 expr node <addr-68> type=SCALE left=(nil) right=(nil) save_last=0 [count / sec]
+__dmtraverse: name="a" added "a.m2"
 __dmgetpmid: metric "a.m3" -> PMID 511.0.5
 __dmbind: bind metric[4] a.m3
 Derived metric expr dump from <addr-69>...
@@ -302,6 +286,7 @@ expr node <addr-73> type=INTEGER left=(nil) right=(nil) save_last=0 [600] master
     Semantics: discrete  Units: count / min
 expr node <addr-74> type=SCALE left=(nil) right=(nil) save_last=0 [count / hour]
 expr node <addr-75> type=SCALE left=(nil) right=(nil) save_last=0 [count / sec]
+__dmtraverse: name="a" added "a.m3"
 __dmgetpmid: metric "a.m4" -> PMID 511.0.6
 __dmbind: bind metric[5] a.m4
 Derived metric expr dump from <addr-76>...
@@ -310,6 +295,7 @@ expr node <addr-76> type=DEFINED left=(nil) right=(nil) save_last=0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
 [0] inst=-1, val=1
+__dmtraverse: name="a" added "a.m4"
 __dmgetpmid: metric "a.m5" -> PMID 511.0.7
 __dmgetpmid: metric "sample.long.not_million" -> Unknown metric name
 __dmbind: bind metric[6] a.m5
@@ -319,6 +305,7 @@ expr node <addr-77> type=DEFINED left=(nil) right=(nil) save_last=0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
 [0] inst=-1, val=0
+__dmtraverse: name="a" added "a.m5"
 __dmgetpmid: metric "a.m6" -> PMID 511.0.8
 __dmbind: bind metric[7] a.m6
 Derived metric expr dump from <addr-78>...
@@ -382,6 +369,7 @@ expr node <addr-91> type=DEFINED left=(nil) right=(nil) save_last=0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
 [0] inst=-1, val=1
+__dmtraverse: name="a" added "a.m6"
 __dmgetpmid: metric "a.m7" -> PMID 511.0.9
 __dmgetpmid: metric "sample.long.bozo" -> Unknown metric name
 __dmbind: bind metric[8] a.m7
@@ -446,10 +434,20 @@ expr node <addr-105> type=INTEGER left=(nil) right=(nil) save_last=0 [0] master=
     PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
+__dmtraverse: name="a" added "a.m7"
 __dmgetpmid: metric "a.err.m1" -> PMID 511.0.10
 Semantic error: derived metric a.err.m1: sample.long.hundred RESCALE Kbyte / sec: Incompatible dimensions
+__dmtraverse: name="a", omitting invalid child "a.err.m1"
 __dmgetpmid: metric "a.err.m2" -> PMID 511.0.11
 Semantic error: derived metric a.err.m2: sample.string.hullo RESCALE millisec / count: Non-arithmetic operand for function
+__dmtraverse: name="a", omitting invalid child "a.err.m2"
+__dmgetpmid: metric "a.m1" -> PMID 511.0.3
+__dmgetpmid: metric "a.m2" -> PMID 511.0.4
+__dmgetpmid: metric "a.m3" -> PMID 511.0.5
+__dmgetpmid: metric "a.m4" -> PMID 511.0.6
+__dmgetpmid: metric "a.m5" -> PMID 511.0.7
+__dmgetpmid: metric "a.m6" -> PMID 511.0.8
+__dmgetpmid: metric "a.m7" -> PMID 511.0.9
 
 a.m1
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
@@ -485,8 +483,6 @@ a.m7
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
     value 6
-a.err.m1: pmLookupDesc: Derived metric definition failed
-a.err.m2: pmLookupDesc: Derived metric definition failed
 expecting ...
 a.m1		OK
 a.m2		10
