@@ -22,6 +22,21 @@ __pmDecodeNameList
 namelist dump: numnames = 1
   name[0]: "sample.secret.foo.one"
 SendNameReq: from=0 name="my.derived" pdu=PMNS_TRAVERSE subtype=0
+pmLookupName: request_names -> [0] my.derived
+__pmSendNameList
+namelist dump: numnames = 1
+  name[0]: "my.derived"
+pmLookupName: receive_names <- Unknown metric name
+pmLookupName(1, ...) -> 1
+pmLookupName: request_names -> [0] sample.bin
+__pmSendNameList
+namelist dump: numnames = 1
+  name[0]: "sample.bin"
+__pmDecodeIDList
+IDlist dump: numids = 1
+  PMID[0]: ADDR 29.0.6
+pmLookupName: receive_names <- [0] 29.0.6
+pmLookupName(1, ...) -> 1
 SendNameReq: from=0 name="foo.bar" pdu=PMNS_TRAVERSE subtype=0
 Error: foo.bar: Unknown metric name
 SendNameReq: from=0 name="sample.secret.foo.two" pdu=PMNS_TRAVERSE subtype=0
@@ -41,21 +56,6 @@ IDlist dump: numids = 3
   PMID[2]: ADDR 29.0.1002
 pmLookupName: receive_names <- [0] 29.0.1001 [1] PM_ID_NULL [2] 29.0.1002
 pmLookupName(3, ...) -> 3
-pmLookupName: request_names -> [0] my.derived
-__pmSendNameList
-namelist dump: numnames = 1
-  name[0]: "my.derived"
-pmLookupName: receive_names <- Unknown metric name
-pmLookupName(1, ...) -> 1
-pmLookupName: request_names -> [0] sample.bin
-__pmSendNameList
-namelist dump: numnames = 1
-  name[0]: "sample.bin"
-__pmDecodeIDList
-IDlist dump: numids = 1
-  PMID[0]: ADDR 29.0.6
-pmLookupName: receive_names <- [0] 29.0.6
-pmLookupName(1, ...) -> 1
 dbpmda> open pipe $PCP_PMDAS_DIR/sample/pmdasample -d 29
 Start pmdasample PMDA: $PCP_PMDAS_DIR/sample/pmdasample -d 29
 dbpmda> fetch sample.secret.foo.one, my.derived, sample.secret.foo.two
