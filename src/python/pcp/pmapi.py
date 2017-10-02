@@ -1867,7 +1867,6 @@ class pmContext(object):
         if status < 0:
             raise pmErr(status)
         tz = tz_p.value
-        LIBC.free(tz_p)
         return str(tz.decode())
 
     def pmLocaltime(self, seconds):
@@ -2392,7 +2391,6 @@ class pmContext(object):
 
     def set_timezone(self, options):
         """ Set timezone for context """
-        # See https://bugzilla.redhat.com/show_bug.cgi?id=1352465
         status = LIBPCP.pmUseContext(self.ctx)
         if status < 0:
             raise pmErr(status)
