@@ -313,7 +313,7 @@ manageLabels(__pmLogCtl *logctl, pmDesc *desc, const __pmTimeval *tp, int only_i
     for (; i < ntypes; i++) {
 	type = label_types[i];
 
-	if (type == PM_LABEL_INDOM || PM_LABEL_INSTANCES) {
+	if (type == PM_LABEL_INDOM || type == PM_LABEL_INSTANCES) {
 	    if (desc->indom == PM_INDOM_NULL)
 		continue;
 	    ident = desc->indom;
