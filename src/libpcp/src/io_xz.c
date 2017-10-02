@@ -729,7 +729,7 @@ reposition(xzfile *xz)
 	    break; /* end of cache */
 
 	if (xz->uncompressed_offset >= blk->start &&
-	    xz->uncompressed_offset < blk->size) {
+	    xz->uncompressed_offset < blk->start + blk->size) {
 	    /* found it */
 	    blk->current_offset = xz->uncompressed_offset - blk->start;
 	    blk = cache_block_used(cache, slot);
