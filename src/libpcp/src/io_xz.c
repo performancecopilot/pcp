@@ -103,13 +103,13 @@ new_blkcache(size_t maxdepth)
 
   c = malloc(sizeof *c);
   if (!c) {
-    fprintf(stderr, "malloc: %m");
+    xz_debug("malloc: %m");
     return NULL;
   }
 
   c->blocks = calloc(maxdepth, sizeof(block));
   if (!c->blocks) {
-    fprintf(stderr, "calloc: %m");
+    xz_debug("calloc: %m");
     free(c);
     return NULL;
   }
@@ -152,7 +152,7 @@ xz_feof(__pmFILE *f)
 static int
 xz_ferror(__pmFILE *f)
 {
-    fprintf(stderr, "libpcp internal error: %s not implemented\n", __func__);
+    xz_debug("libpcp internal error: %s not implemented\n", __func__);
     return 0;
 }
 
@@ -215,11 +215,11 @@ parse_indexes(FILE *f, size_t *nr_streams)
 	goto err;
 
     if (fseek(f, -LZMA_STREAM_HEADER_SIZE, SEEK_CUR) != 0) {
-      fprintf(stderr, "%s: fseek: %m", __func__);
+      xz_debug("%s: fseek: %m", __func__);
       goto err;
     }
     if (fread(footer, 1, LZMA_STREAM_HEADER_SIZE, f) != LZMA_STREAM_HEADER_SIZE) {
-      fprintf(stderr, "%s: read stream footer: %m", __func__);
+      xz_debug("%s: read stream footer: %m", __func__);
       goto err;
     }
     /* Skip stream padding. */
@@ -238,14 +238,14 @@ parse_indexes(FILE *f, size_t *nr_streams)
     /* Does the stream footer look reasonable? */
     r = lzma_stream_footer_decode(&footer_flags, footer);
     if (r != LZMA_OK) {
-      fprintf(stderr, "parse_indexes: invalid stream footer (error %d)", r);
+      xz_debug("parse_indexes: invalid stream footer (error %d)", r);
       goto err;
     }
     xz_debug("backward_size = %lu",
                   (unsigned long) footer_flags.backward_size);
     index_size = footer_flags.backward_size;
     if (pos < index_size + LZMA_STREAM_HEADER_SIZE) {
-      fprintf(stderr, "%s: invalid stream footer", __func__);
+      xz_debug("%s: invalid stream footer", __func__);
       goto err;
     }
 
@@ -254,14 +254,14 @@ parse_indexes(FILE *f, size_t *nr_streams)
 
     /* Seek backwards to the index of this stream. */
     if (fseek(f, pos, SEEK_SET) != 0) {
-      fprintf(stderr, "%s: fseek: %m", __func__);
+      xz_debug("%s: fseek: %m", __func__);
       goto err;
     }
 
     /* Decode the index. */
     r = lzma_index_decoder(&strm, &this_index, UINT64_MAX);
     if (r != LZMA_OK) {
-      fprintf(stderr, "%s: invalid stream index (error %d)", __func__, r);
+      xz_debug("%s: invalid stream index (error %d)", __func__, r);
       goto err;
     }
 
@@ -274,7 +274,7 @@ parse_indexes(FILE *f, size_t *nr_streams)
 
       n = fread(&buf, 1, strm.avail_in, f);
       if (n != strm.avail_in) {
-        fprintf(stderr, "read: %m");
+        xz_debug("read: %m");
         goto err;
       }
       index_size -= strm.avail_in;
@@ -284,7 +284,7 @@ parse_indexes(FILE *f, size_t *nr_streams)
     } while (r == LZMA_OK);
 
     if (r != LZMA_STREAM_END) {
-      fprintf(stderr, "%s: could not parse index (error %d)",
+      xz_debug("%s: could not parse index (error %d)",
                     __func__, r);
       goto err;
     }
@@ -295,24 +295,24 @@ parse_indexes(FILE *f, size_t *nr_streams)
 
     /* Read and decode the stream header. */
     if (fseek(f, pos, SEEK_SET) != 0) {
-      fprintf(stderr, "%s: fseek: %m", __func__);
+      xz_debug("%s: fseek: %m", __func__);
       goto err;
     }
     if (fread(header, 1, LZMA_STREAM_HEADER_SIZE, f) != LZMA_STREAM_HEADER_SIZE) {
-      fprintf(stderr, "%s: read stream header: %m", __func__);
+      xz_debug("%s: read stream header: %m", __func__);
       goto err;
     }
 
     r = lzma_stream_header_decode(&header_flags, header);
     if (r != LZMA_OK) {
-      fprintf(stderr, "%s: invalid stream header (error %d)", __func__, r);
+      xz_debug("%s: invalid stream header (error %d)", __func__, r);
       goto err;
     }
 
     /* Header and footer of the stream should be equal. */
     r = lzma_stream_flags_compare(&header_flags, &footer_flags);
     if (r != LZMA_OK) {
-      fprintf(stderr, "%s: header and footer of stream are not equal (error %d)",
+      xz_debug("%s: header and footer of stream are not equal (error %d)",
                     __func__, r);
       goto err;
     }
@@ -320,7 +320,7 @@ parse_indexes(FILE *f, size_t *nr_streams)
     /* Store the decoded stream flags in this_index. */
     r = lzma_index_stream_flags(this_index, &footer_flags);
     if (r != LZMA_OK) {
-      fprintf(stderr, "%s: cannot read stream_flags from index (error %d)",
+      xz_debug("%s: cannot read stream_flags from index (error %d)",
                     __func__, r);
       goto err;
     }
@@ -330,7 +330,7 @@ parse_indexes(FILE *f, size_t *nr_streams)
      */
     r = lzma_index_stream_padding(this_index, stream_padding);
     if (r != LZMA_OK) {
-      fprintf(stderr, "%s: cannot set stream_padding in index (error %d)",
+      xz_debug("%s: cannot set stream_padding in index (error %d)",
                     __func__, r);
       goto err;
     }
@@ -338,7 +338,7 @@ parse_indexes(FILE *f, size_t *nr_streams)
     if (combined_index != NULL) {
       r = lzma_index_cat(this_index, combined_index, NULL);
       if (r != LZMA_OK) {
-        fprintf(stderr, "%s: cannot combine indexes", __func__);
+        xz_debug("%s: cannot combine indexes", __func__);
         goto err;
       }
     }
@@ -548,19 +548,19 @@ read_block(xzfile *xz, uint64_t offset,
   /* Locate the block containing the uncompressed offset. */
   lzma_index_iter_init(&iter, xz->idx);
   if (lzma_index_iter_locate(&iter, offset)) {
-    fprintf(stderr, "cannot find offset %lu in the xz file", offset);
+    xz_debug("cannot find offset %lu in the xz file", offset);
     return NULL;
   }
 
   *start_rtn = iter.block.uncompressed_file_offset;
   *size_rtn = iter.block.uncompressed_size;
 
-  fprintf(stderr, "seek: block number %d at file offset %lu",
+  xz_debug("seek: block number %d at file offset %lu",
                 (int) iter.block.number_in_file,
                 (uint64_t) iter.block.compressed_file_offset);
 
   if (lseek(xz->fd, iter.block.compressed_file_offset, SEEK_SET) == -1) {
-    fprintf(stderr, "lseek: %m");
+    xz_debug("lseek: %m");
     return NULL;
   }
 
@@ -569,16 +569,16 @@ read_block(xzfile *xz, uint64_t offset,
    */
   n = read(xz->fd, header, 1);
   if (n == 0) {
-    fprintf(stderr, "read: unexpected end of file reading block header byte");
+    xz_debug("read: unexpected end of file reading block header byte");
     return NULL;
   }
   if (n == -1) {
-    fprintf(stderr, "read: %m");
+    xz_debug("read: %m");
     return NULL;
   }
 
   if (header[0] == '\0') {
-    fprintf(stderr, "read: unexpected invalid block in file, header[0] = 0");
+    xz_debug("read: unexpected invalid block in file, header[0] = 0");
     return NULL;
   }
 
@@ -590,17 +590,17 @@ read_block(xzfile *xz, uint64_t offset,
   /* Now read and decode the block header. */
   n = read(xz->fd, &header[1], block.header_size-1);
   if (n >= 0 && n != block.header_size-1) {
-    fprintf(stderr, "read: unexpected end of file reading block header");
+    xz_debug("read: unexpected end of file reading block header");
     return NULL;
   }
   if (n == -1) {
-    fprintf(stderr, "read: %m");
+    xz_debug("read: %m");
     return NULL;
   }
 
   r = lzma_block_header_decode(&block, NULL, header);
   if (r != LZMA_OK) {
-    fprintf(stderr, "invalid block header (error %d)", r);
+    xz_debug("invalid block header (error %d)", r);
     return NULL;
   }
 
@@ -609,20 +609,20 @@ read_block(xzfile *xz, uint64_t offset,
    */
   r = lzma_block_compressed_size(&block, iter.block.unpadded_size);
   if (r != LZMA_OK) {
-    fprintf(stderr, "cannot calculate compressed size (error %d)", r);
+    xz_debug("cannot calculate compressed size (error %d)", r);
     goto err1;
   }
 
   /* Read the block data. */
   r = lzma_block_decoder(&strm, &block);
   if (r != LZMA_OK) {
-    fprintf(stderr, "invalid block (error %d)", r);
+    xz_debug("invalid block (error %d)", r);
     goto err1;
   }
 
   data = malloc(*size_rtn);
   if (data == NULL) {
-    fprintf(stderr, "malloc(%lu bytes): %m\n"
+    xz_debug("malloc(%lu bytes): %m\n"
                   "NOTE: If this error occurs, you need to recompress your xz files with a smaller block size.  Use: 'xz --block-size=16777216 ...'.",
                   *size_rtn);
     goto err1;
@@ -641,7 +641,7 @@ read_block(xzfile *xz, uint64_t offset,
       strm.next_in = buf;
       n = read(xz->fd, buf, sizeof buf);
       if (n == -1) {
-        fprintf(stderr, "read: %m");
+        xz_debug("read: %m");
         goto err2;
       }
       strm.avail_in = n;
@@ -655,7 +655,7 @@ read_block(xzfile *xz, uint64_t offset,
   } while (r == LZMA_OK);
 
   if (r != LZMA_OK && r != LZMA_STREAM_END) {
-    fprintf(stderr, "could not parse block data (error %d)", r);
+    xz_debug("could not parse block data (error %d)", r);
     goto err2;
   }
 
@@ -812,21 +812,21 @@ xz_read(void *ptr, size_t size, size_t nmemb, __pmFILE *f)
 static size_t
 xz_write(void *ptr, size_t size, size_t nmemb, __pmFILE *f)
 {
-    fprintf(stderr, "libpcp internal error: %s not implemented\n", __func__);
+    xz_debug("libpcp internal error: %s not implemented\n", __func__);
     return 0;
 }
 
 static int
 xz_flush(__pmFILE *f)
 {
-    fprintf(stderr, "libpcp internal error: %s not implemented\n", __func__);
+    xz_debug("libpcp internal error: %s not implemented\n", __func__);
     return EOF;
 }
 
 static int
 xz_fsync(__pmFILE *f)
 {
-    fprintf(stderr, "libpcp internal error: %s not implemented\n", __func__);
+    xz_debug("libpcp internal error: %s not implemented\n", __func__);
     return -1;
 }
 
@@ -854,7 +854,7 @@ xz_fstat(__pmFILE *f, struct stat *buf)
 static int
 xz_setvbuf(__pmFILE *f, char *buf, int mode, size_t size)
 {
-    fprintf(stderr, "libpcp internal error: %s not implemented\n", __func__);
+    xz_debug("libpcp internal error: %s not implemented\n", __func__);
     return -1;
 }
 
