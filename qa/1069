@@ -43,12 +43,17 @@ _path_filter()
 #
 #  we also need to filter for AEST-10 during standard timezone
 #  as it appears that pmrep will report the change in -11 to -10
+#
+#  and something similar happens for the UTC offset during daylight
+#  saving time in Melbourne
+#
 _archive_filter()
 {
     sed \
 	-e '/timezone/s/ (reporting.*)//' \
 	-e '/timezone:/s/[A-Z][A-Z]*-11/...-11/' \
 	-e '/timezone:/s/[A-Z][A-Z]*-10/...-11/' \
+	-e '/rattle,/s/UTC+11/UTC+10/' \
     #end
 }
 
@@ -106,7 +111,8 @@ pmsleep 1
 
 echo "== exercise extended CSV output"
 pmrep -z -u -H -k -o csv -a $here/archives/bug1057 -I "" | wc -l
-pmrep -s 5 -t 2 $log -o csv -k sample
+pmrep -s 5 -t 2 $log -o csv -k sample 2>&1 \
+| _archive_filter
 
 echo "== exercise CSV and alternate delimiters"
 pmrep -s 5 -t 2 $log -c $tmp.config -o csv -p -P 1 sample
