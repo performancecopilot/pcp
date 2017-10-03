@@ -107,9 +107,14 @@ dm_refresh_thin_pool(const char *pool_name, struct pool_stats *pool_stats)
     uint64_t size_start, size_end;
     char buffer[BUFSIZ];
     FILE *fp;
+    int sts;
+    __pmExecCtl_t *argp = NULL;
 
-    if ((fp = popen(dm_setup_thinpool, "r")) == NULL)
-        return - oserror();
+    if ((sts = __pmProcessUnpickArgs(&argp, dm_setup_thinpool)) < 0)
+	return sts;
+
+    if ((sts = __pmProcessPipe(&argp, "r", PM_EXEC_TOSS_NONE, &fp)) != 0)
+	return sts;
 
     while (fgets(buffer, sizeof(buffer) -1, fp)) {
         if (!strstr(buffer, ":") || strstr(buffer, "Fail"))
@@ -143,10 +148,12 @@ dm_refresh_thin_pool(const char *pool_name, struct pool_stats *pool_stats)
         pool_stats->size = (size_end - size_start);
     }
 
-    if (pclose(fp) != 0)
-        return -oserror();
+    sts = __pmProcessPipeClose(fp);
+    if (sts <= 0)
+        return sts;
+    fprintf(stderr, "pipe: %s: close with sts=%d\n", dm_setup_thinpool, sts);
 
-    return 0;
+    return PM_ERR_GENERIC;
 }
 
 /*
@@ -161,9 +168,14 @@ dm_refresh_thin_vol(const char *vol_name, struct vol_stats *vol_stats)
     uint64_t size_start, size_end;
     char buffer[BUFSIZ];
     FILE *fp;
+    int sts;
+    __pmExecCtl_t *argp = NULL;
 
-    if ((fp = popen(dm_setup_thin, "r")) == NULL)
-        return -oserror();
+    if ((sts = __pmProcessUnpickArgs(&argp, dm_setup_thin)) < 0)
+	return sts;
+
+    if ((sts = __pmProcessPipe(&argp, "r", PM_EXEC_TOSS_NONE, &fp)) != 0)
+	return sts;
 
     while (fgets(buffer, sizeof(buffer) -1, fp)) {
         if (!strstr(buffer, ":") || strstr(buffer, "Fail"))
@@ -188,10 +200,12 @@ dm_refresh_thin_vol(const char *vol_name, struct vol_stats *vol_stats)
         vol_stats->size = (size_end - size_start);
     }
 
-    if (pclose(fp) != 0)
-        return -oserror();
+    sts = __pmProcessPipeClose(fp);
+    if (sts <= 0)
+        return sts;
+    fprintf(stderr, "pipe: %s: close with sts=%d\n", dm_setup_thin, sts);
 
-    return 0;
+    return PM_ERR_GENERIC;
 }
 
 /*

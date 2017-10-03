@@ -101,9 +101,14 @@ dm_refresh_cache(const char *cache_name, struct cache_stats *cache_stats)
     uint32_t mbsize, cbsize;
     char buffer[BUFSIZ];
     FILE *fp;
+    int sts;
+    __pmExecCtl_t *argp = NULL;
 
-    if ((fp = popen(dm_setup_cache, "r")) == NULL)
-        return -oserror();
+    if ((sts = __pmProcessUnpickArgs(&argp, dm_setup_cache)) < 0)
+	return sts;
+
+    if ((sts = __pmProcessPipe(&argp, "r", PM_EXEC_TOSS_NONE, &fp)) != 0)
+	return sts;
 
     while (fgets(buffer, sizeof(buffer) -1, fp)) {
         if (!strstr(buffer, ":") || strstr(buffer, "Fail"))
@@ -157,10 +162,12 @@ dm_refresh_cache(const char *cache_name, struct cache_stats *cache_stats)
         cache_stats->dirty = cache_stats->dirty * (cbsize / 1024);
     }
 
-    if (pclose(fp) != 0)
-        return -oserror();
+    sts = __pmProcessPipeClose(fp);
+    if (sts <= 0)
+        return sts;
+    fprintf(stderr, "pipe: %s: close with sts=%d\n", dm_setup_cache, sts);
 
-    return 0;
+    return PM_ERR_GENERIC;
 }
 
 /*
