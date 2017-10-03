@@ -2373,11 +2373,13 @@ class pmContext(object):
         offset = time.altzone if dst else time.timezone
         timezone = time.tzname[dst]
         if offset:
-            offset /= 3600
-            offset = int(offset) if offset == int(offset) else offset
+            offset_hr = int(offset / 3600)
+            offset_min = int(offset % 3600 / 60)
             if offset >= 0:
-                offset = "+" + str(offset)
-            timezone += str(offset)
+                timezone += "+"
+            timezone += str(offset_hr)
+            if offset_min:
+                timezone += ":" + str(offset_min)
         return timezone
 
     @staticmethod
