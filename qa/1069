@@ -103,11 +103,16 @@ pmrep -T 2.5s -t 0.5 -p $log -c $tmp.config -x sample | _path_filter \
 | _archive_filter
 
 echo "== exercise raw counter mode"
-pmrep -s 5 -t 2 $log -c $tmp.config -r sample
+pmrep --daemonize -s 5 -t 2 $log -c $tmp.config -r sample
+pmsleep 1
 
 echo "== exercise timezone setting"
-pmrep --daemonize -s 5 -t 2 --archive $here/archives/sample-secs -p -Z UTC sample
-pmsleep 1
+pmrep -s 5 -t 2 --archive $here/archives/sample-secs -p -x -Z UTC sample \
+| _archive_filter
+pmrep -s 5 -t 2 --archive $here/archives/sample-secs -p -x -Z Europe/Helsinki sample \
+| _archive_filter
+pmrep -s 5 -t 2 --archive $here/archives/sample-secs -p -x -Z Asia/Kolkata sample \
+| _archive_filter
 
 echo "== exercise extended CSV output"
 pmrep -z -u -H -k -o csv -a $here/archives/bug1057 -I "" | wc -l
