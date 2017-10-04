@@ -122,7 +122,7 @@ local_pipe(char *pipe, scalar_t *callback, int cookie)
 	exit(1);
     }
 
-    if ((sts = __pmProcessPipe(&argp, "r", PM_EXEC_TOSS_NONE, &fp)) != 0) {
+    if ((sts = __pmProcessPipe(&argp, "r", PM_EXEC_TOSS_NONE, &fp)) < 0) {
 	__pmNotifyErr(LOG_ERR, "__pmProcessPipe failed (%s): %s", pipe, pmErrStr(sts));
 	exit(1);
     }

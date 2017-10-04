@@ -215,7 +215,7 @@ main(int argc, char *argv[])
 		    buf, pmErrStr(sts));
 		exit(1);
 	    }
-	    if ((sts = __pmProcessPipe(&argp, "r", PM_EXEC_TOSS_NONE, &fp)) != 0) {
+	    if ((sts = __pmProcessPipe(&argp, "r", PM_EXEC_TOSS_NONE, &fp)) < 0) {
 		fprintf(stderr, "Error: __pmProcessPipe: %s failed: %s\n",
 		    buf, pmErrStr(sts));
 		exit(1);

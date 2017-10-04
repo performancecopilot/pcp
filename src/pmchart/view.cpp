@@ -321,7 +321,7 @@ bool OpenViewDialog::openView(const char *path)
 	    fclose(f);
 	    if (__pmProcessUnpickArgs(&argp, cmd) < 0)
 		goto nopipe;
-	    if (__pmProcessPipe(&argp, "r", PM_EXEC_TOSS_NONE, &f) != 0)
+	    if (__pmProcessPipe(&argp, "r", PM_EXEC_TOSS_NONE, &f) < 0)
 		goto nopipe;
 	    is_popen = 1;
 	}

@@ -424,7 +424,7 @@ do_dialog(char cmd)
 	    fprintf(stderr, "Error: %s\n", pmErrStr(sts));
 	    goto failed;
 	}
-	if ((sts = __pmProcessPipe(&argp, "r", PM_EXEC_TOSS_NONE, &msgf)) != 0) {
+	if ((sts = __pmProcessPipe(&argp, "r", PM_EXEC_TOSS_NONE, &msgf)) < 0) {
 	    fprintf(stderr, "\nError: failed to start command for recording session dialog\n");
 	    fprintf(stderr, "Command: \"%s\"\n", lbuf);
 	    goto failed;
@@ -545,7 +545,7 @@ do_pmcpp(char *configfile)
 	exit(1);
     }
 
-    if ((sts = __pmProcessPipe(&argp, "r", PM_EXEC_TOSS_NONE, &f)) != 0) {
+    if ((sts = __pmProcessPipe(&argp, "r", PM_EXEC_TOSS_NONE, &f)) < 0) {
 	fprintf(stderr, "%s: __pmProcessPipe for \"%s\" failed: %s\n",
 		pmProgname, cmd, pmErrStr(sts));
 	exit(1);
