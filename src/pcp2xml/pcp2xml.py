@@ -344,7 +344,7 @@ class PCP2XML(object):
             host = self.context.pmGetContextHostName()
             self.writer.write('  <host nodename="%s">\n' % host)
             self.writer.write('    <source>%s</source>\n' % self.source)
-            timez = pmapi.pmContext.posix_tz_to_utc_offset(pmapi.pmContext.get_local_tz())
+            timez = pmapi.pmContext.posix_tz_to_utc_offset(self.context.get_current_tz(self.opts))
             self.writer.write('    <timezone>%s</timezone>\n' % timez)
             self.writer.write('    <metrics>\n')
 

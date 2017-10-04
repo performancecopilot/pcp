@@ -348,7 +348,7 @@ class PCP2JSON(object):
             self.data = {'@pcp': {'@hosts': []}}
             host = self.context.pmGetContextHostName()
             self.data['@pcp']['@hosts'].append({'@host': host, '@source': self.source})
-            self.data['@pcp']['@hosts'][0]['@timezone'] = pmapi.pmContext.posix_tz_to_utc_offset(pmapi.pmContext.get_local_tz())
+            self.data['@pcp']['@hosts'][0]['@timezone'] = pmapi.pmContext.posix_tz_to_utc_offset(self.context.get_current_tz(self.opts))
             self.data['@pcp']['@hosts'][0]['@metrics'] = []
 
         self.data['@pcp']['@hosts'][0]['@metrics'].append({'@timestamp': str(timestamp)})

@@ -51,7 +51,7 @@ HH:MM:SS        1
 
   archive: QAPATH/archives/sample-secs
      host: rattle
- timezone: ...-11
+ timezone: UTC+10
     start: Mon May  1 20:36:45 2000
       end: Mon May  1 20:37:45 2000
   metrics: 2
@@ -65,7 +65,7 @@ HH:MM:SS        1
 
   archive: QAPATH/archives/sample-secs
      host: rattle
- timezone: ...-11
+ timezone: UTC+10
     start: Mon May  1 20:36:45 2000
       end: Mon May  1 20:37:45 2000
   metrics: 2
@@ -212,7 +212,7 @@ HH:MM:SS        1
 
   archive: QAPATH/archives/sample-secs
      host: rattle
- timezone: ...-11
+ timezone: UTC+10
     start: Mon May  1 20:36:45 2000
       end: Mon May  1 20:37:45 2000
   metrics: 2
@@ -238,9 +238,9 @@ HH:MM:SS        1
      380440   380439679.413
 == exercise timezone setting
 
-  archive: /tmp/pcp/var/lib/pcp/testsuite/archives/sample-secs
+  archive: QAPATH/archives/sample-secs
      host: rattle
- timezone: UTC
+ timezone: UTC+0
     start: Mon May  1 10:36:45 2000
       end: Mon May  1 10:37:45 2000
   metrics: 2
@@ -256,9 +256,63 @@ HH:MM:SS        1
 10:36:51      1.000        1000.001
 10:36:53      1.000        1000.016
 
-  archive: /tmp/pcp/var/lib/pcp/testsuite/archives/sample-secs
+  archive: QAPATH/archives/sample-secs
      host: rattle
- timezone: EEST-3
+ timezone: UTC+5
+    start: Mon May  1 15:36:45 2000
+      end: Mon May  1 15:37:45 2000
+  metrics: 2
+  samples: 5
+ interval: 2.0 sec
+ duration: 8 sec
+
+          s.seconds  s.milliseconds
+                s/s            ms/s
+15:36:45        N/A             N/A
+15:36:47        N/A             N/A
+15:36:49      1.000        1000.033
+15:36:51      1.000        1000.001
+15:36:53      1.000        1000.016
+
+  archive: QAPATH/archives/sample-secs
+     host: rattle
+ timezone: UTC-5
+    start: Mon May  1 05:36:45 2000
+      end: Mon May  1 05:37:45 2000
+  metrics: 2
+  samples: 5
+ interval: 2.0 sec
+ duration: 8 sec
+
+          s.seconds  s.milliseconds
+                s/s            ms/s
+05:36:45        N/A             N/A
+05:36:47        N/A             N/A
+05:36:49      1.000        1000.033
+05:36:51      1.000        1000.001
+05:36:53      1.000        1000.016
+
+  archive: QAPATH/archives/sample-secs
+     host: rattle
+ timezone: UTC-4
+    start: Mon May  1 06:36:45 2000
+      end: Mon May  1 06:37:45 2000
+  metrics: 2
+  samples: 5
+ interval: 2.0 sec
+ duration: 8 sec
+
+          s.seconds  s.milliseconds
+                s/s            ms/s
+06:36:45        N/A             N/A
+06:36:47        N/A             N/A
+06:36:49      1.000        1000.033
+06:36:51      1.000        1000.001
+06:36:53      1.000        1000.016
+
+  archive: QAPATH/archives/sample-secs
+     host: rattle
+ timezone: UTC+3
     start: Mon May  1 13:36:45 2000
       end: Mon May  1 13:37:45 2000
   metrics: 2
@@ -274,9 +328,9 @@ HH:MM:SS        1
 13:36:51      1.000        1000.001
 13:36:53      1.000        1000.016
 
-  archive: /tmp/pcp/var/lib/pcp/testsuite/archives/sample-secs
+  archive: QAPATH/archives/sample-secs
      host: rattle
- timezone: IST-5:30
+ timezone: UTC+5:30
     start: Mon May  1 16:06:45 2000
       end: Mon May  1 16:07:45 2000
   metrics: 2
@@ -291,6 +345,28 @@ HH:MM:SS        1
 16:06:49      1.000        1000.033
 16:06:51      1.000        1000.001
 16:06:53      1.000        1000.016
+
+  archive: QAPATH/archives/numa
+     host: grundy
+ timezone: UTC-7
+    start: Thu Apr 10 19:55:52 2014
+      end: Thu Apr 10 19:56:01 2014
+  metrics: 1
+  samples: 10
+ interval: 1.0 sec
+ duration: 9 sec
+
+
+  archive: QAPATH/archives/rep
+     host: slack
+ timezone: UTC+11
+    start: Wed Feb 10 14:39:13 2016
+      end: Wed Feb 10 14:39:17 2016
+  metrics: 1
+  samples: 4
+ interval: 1.0 sec
+ duration: 3 sec
+
 == exercise extended CSV output
 11
 Host,Interval,Time,"sample.seconds","sample.milliseconds"

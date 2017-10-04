@@ -341,7 +341,7 @@ class PCP2XLSX(object):
             col = 0
             self.ws.write_string(self.row, col, "Timezone", fmt)
             col += 1
-            timez = pmapi.pmContext.posix_tz_to_utc_offset(pmapi.pmContext.get_local_tz())
+            timez = pmapi.pmContext.posix_tz_to_utc_offset(self.context.get_current_tz(self.opts))
             self.ws.write_string(self.row, col, timez, fmt)
             self.row += 1
             col = 0

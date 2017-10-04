@@ -1191,14 +1191,9 @@ pmReconnectContext(int handle)
     int		sts;
     int		ctxnum;
 
-    if (pmDebugOptions.pmapi) {
+    if (pmDebugOptions.pmapi)
 	fprintf(stderr, "pmReconnectContext(%d) <:", handle);
-    }
 
-    /* NB: This function may need parallelization, to permit multiple threads
-       to pmReconnectContext() concurrently.  __pmConnectPMCD can take multiple
-       seconds while holding the contexts_lock mutex, bogging other context
-       operations down. */
     PM_LOCK(contexts_lock);
     if ((ctxnum = map_handle(handle)) < 0) {
 	if (pmDebugOptions.context)
@@ -1215,9 +1210,9 @@ pmReconnectContext(int handle)
     if (ctxp->c_type == PM_CONTEXT_HOST) {
 	if (ctl->pc_timeout && time(NULL) < ctl->pc_again) {
 	    /* too soon to try again */
-	if (pmDebugOptions.context)
-	    fprintf(stderr, "pmReconnectContext(%d) -> %d, too soon (need wait another %d secs)\n",
-		handle, (int)-ETIMEDOUT, (int)(ctl->pc_again - time(NULL)));
+	    if (pmDebugOptions.context)
+		fprintf(stderr, "pmReconnectContext(%d) -> %d, too soon (need wait another %d secs)\n",
+			handle, (int)-ETIMEDOUT, (int)(ctl->pc_again - time(NULL)));
 	    PM_UNLOCK(ctxp->c_lock);
 	    sts = -ETIMEDOUT;
 	    goto pmapi_return;
