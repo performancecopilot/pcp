@@ -2176,10 +2176,12 @@ class pmContext(object):
     ##
     # PMAPI Python Utility Support Services
 
-    @staticmethod
-    def get_local_tz(set_dst=-1):
-        """ Figure out system local timezone in PCP/POSIX format """
-        dst = time.localtime().tm_isdst
+    def get_current_tz(self, options=None, set_dst=-1):
+        """ Get current timezone offset string using POSIX convention """
+        if options is None:
+            dst = time.localtime().tm_isdst
+        else:
+            dst = time.localtime(options.pmGetOptionOrigin()).tm_isdst
         if set_dst >= 0:
             dst = 1 if set_dst else 0
         offset = time.altzone if dst else time.timezone
@@ -2196,7 +2198,7 @@ class pmContext(object):
 
     @staticmethod
     def posix_tz_to_utc_offset(timezone):
-        """ Convert PCP/POSIX timezone string to human readable UTC offset """
+        """ Convert POSIX timezone offset string to human readable UTC offset """
         if timezone == "UTC":
             return timezone + "+0"
         offset = timezone.split("+")[1] if "+" in timezone else timezone.split("-")[1]
@@ -2204,25 +2206,22 @@ class pmContext(object):
         return "UTC" + sign + str(offset)
 
     def set_timezone(self, options):
-        """ Set timezone for context """
+        """ Set timezone for a Python tool """
         status = LIBPCP.pmUseContext(self.ctx)
         if status < 0:
             raise pmErr(status)
-        if options.pmGetOptionHostZone():
-            os.environ['TZ'] = self.pmWhichZone()
-            time.tzset()
-        else:
-            localtz = pmContext.get_local_tz()
-            if self.type == c_api.PM_CONTEXT_ARCHIVE:
-                # Determine correct local TZ based on DST of the archive
-                localtz = pmContext.get_local_tz(time.localtime(options.pmGetOptionOrigin()).tm_isdst)
-            os.environ['TZ'] = localtz
-            time.tzset()
-            self.pmNewZone(localtz)
         if options.pmGetOptionTimezone():
             os.environ['TZ'] = options.pmGetOptionTimezone()
             time.tzset()
             self.pmNewZone(options.pmGetOptionTimezone())
+        elif options.pmGetOptionHostZone():
+            os.environ['TZ'] = self.pmWhichZone()
+            time.tzset()
+        else:
+            timezone = self.get_current_tz(options)
+            os.environ['TZ'] = timezone
+            time.tzset()
+            self.pmNewZone(timezone)
 
     @staticmethod
     def convert_datetime(value, precision=c_api.PM_TIME_SEC):

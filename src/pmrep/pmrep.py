@@ -320,7 +320,7 @@ class PMReporter(object):
             self.interpol = 1
 
         # Time
-        self.localtz = pmapi.pmContext.get_local_tz()
+        self.localtz = self.context.get_current_tz()
 
         # Common preparations
         pmapi.pmContext.prepare_execute(self.context, self.opts, self.output == OUTPUT_ARCHIVE, self.interpol, self.interval)
@@ -495,7 +495,7 @@ class PMReporter(object):
         else:
             host = self.context.pmGetContextHostName()
 
-        timezone = pmapi.pmContext.get_local_tz()
+        timezone = self.context.get_current_tz(self.opts)
         if timezone != self.localtz:
             timezone += " (reporting, current is " + self.localtz + ")"
 
@@ -691,7 +691,7 @@ class PMReporter(object):
             self.prev_ts = ts
         line += timestamp
         if self.extcsv:
-            line += " " + pmapi.pmContext.posix_tz_to_utc_offset(pmapi.pmContext.get_local_tz())
+            line += " " + pmapi.pmContext.posix_tz_to_utc_offset(self.context.get_current_tz(self.opts))
 
         # Avoid crossing the C/Python boundary more than once per metric
         res = {}

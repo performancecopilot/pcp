@@ -51,7 +51,7 @@ HH:MM:SS        1
 
   archive: QAPATH/archives/sample-secs
      host: rattle
- timezone: ...-11
+ timezone: AEST-10
     start: Mon May  1 20:36:45 2000
       end: Mon May  1 20:37:45 2000
   metrics: 2
@@ -65,7 +65,7 @@ HH:MM:SS        1
 
   archive: QAPATH/archives/sample-secs
      host: rattle
- timezone: ...-11
+ timezone: AEST-10
     start: Mon May  1 20:36:45 2000
       end: Mon May  1 20:37:45 2000
   metrics: 2
@@ -212,7 +212,7 @@ HH:MM:SS        1
 
   archive: QAPATH/archives/sample-secs
      host: rattle
- timezone: ...-11
+ timezone: AEST-10
     start: Mon May  1 20:36:45 2000
       end: Mon May  1 20:37:45 2000
   metrics: 2
