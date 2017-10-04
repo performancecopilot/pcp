@@ -1382,6 +1382,7 @@ zsh
 1120:reserved pmda.prometheus local
 1121 pmda.linux local
 1122 pmie local
+1123 pmchart local
 1128 pmie local
 1129 derive local
 1140 pidstat local
