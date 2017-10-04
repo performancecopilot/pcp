@@ -569,7 +569,7 @@ __pmProcessPipeClose(FILE *fp)
     }
 
     if (pmDebugOptions.exec) {
-	fprintf(stderr, "__pmProcessPipe: pid=%" FMT_PID " wait_pid=%" FMT_PID , pid, wait_pid);
+	fprintf(stderr, "__pmProcessPipeClose: pid=%" FMT_PID " wait_pid=%" FMT_PID , pid, wait_pid);
 	if (wait_pid < 0) fprintf(stderr, " errno=%d", oserror());
 	if (WIFEXITED(status)) fprintf(stderr, " exit=%d", WEXITSTATUS(status));
 	if (WIFSIGNALED(status)) fprintf(stderr, " signal=%d", WTERMSIG(status));
