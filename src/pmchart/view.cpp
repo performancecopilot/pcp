@@ -312,13 +312,16 @@ bool OpenViewDialog::openView(const char *path)
 		}
 	    }
 	}
-	// check for executable and popen() as needed
+	// check for executable and __pmProcessPipe() as needed
 	//
 	if (fgetc(f) == '#' && fgetc(f) == '!') {
 	    char	cmd[MAXPATHLEN];
+	    __pmExecCtl_t	*argp = NULL;
 	    pmsprintf(cmd, sizeof(cmd), "%s", _fname);
 	    fclose(f);
-	    if ((f = popen(cmd, "r")) == NULL)
+	    if (__pmProcessUnpickArgs(&argp, cmd) < 0)
+		goto nopipe;
+	    if (__pmProcessPipe(&argp, "r", PM_EXEC_TOSS_NONE, &f) != 0)
 		goto nopipe;
 	    is_popen = 1;
 	}
@@ -1128,7 +1131,7 @@ abandon:
 
     if (f != stdin) {
 	if (is_popen)
-	    pclose(f);
+	    __pmProcessPipeClose(f);
 	else
 	    fclose(f);
     }
