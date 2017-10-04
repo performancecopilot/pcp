@@ -495,9 +495,9 @@ class PMReporter(object):
         else:
             host = self.context.pmGetContextHostName()
 
-        timezone = self.context.get_current_tz(self.opts)
-        if timezone != self.localtz:
-            timezone += " (reporting, current is " + self.localtz + ")"
+        timezone = pmapi.pmContext.posix_tz_to_utc_offset(self.context.get_current_tz(self.opts))
+        if timezone != pmapi.pmContext.posix_tz_to_utc_offset(self.localtz):
+            timezone += " (reporting, current is " + pmapi.pmContext.posix_tz_to_utc_offset(self.localtz) + ")"
 
         if self.runtime != -1:
             duration = self.runtime
@@ -618,7 +618,7 @@ class PMReporter(object):
             self.recorded = {} # pylint: disable=attribute-defined-outside-init
             if self.context.type == PM_CONTEXT_ARCHIVE:
                 self.pmi.pmiSetHostname(self.context.pmGetArchiveLabel().hostname)
-                self.pmi.pmiSetTimezone(self.context.pmGetArchiveLabel().tz)
+            self.pmi.pmiSetTimezone(self.context.get_current_tz(self.opts))
             for i, metric in enumerate(self.metrics):
                 self.pmi.pmiAddMetric(metric,
                                       self.pmconfig.pmids[i],

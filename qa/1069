@@ -95,11 +95,19 @@ pmsleep 1
 
 echo "== exercise timezone setting"
 pmrep -s 5 -t 2 --archive $here/archives/sample-secs -p -x -Z UTC sample \
-| _archive_filter
+| _path_filter | _archive_filter
+pmrep -s 5 -t 2 --archive $here/archives/sample-secs -p -x -Z UTC-5 sample \
+| _path_filter | _archive_filter
+pmrep -s 5 -t 2 --archive $here/archives/sample-secs -p -x -Z UTC+5 sample \
+| _path_filter | _archive_filter
+pmrep -s 5 -t 2 --archive $here/archives/sample-secs -p -x -Z America/New_York sample \
+| _path_filter | _archive_filter
 pmrep -s 5 -t 2 --archive $here/archives/sample-secs -p -x -Z Europe/Helsinki sample \
-| _archive_filter
+| _path_filter | _archive_filter
 pmrep -s 5 -t 2 --archive $here/archives/sample-secs -p -x -Z Asia/Kolkata sample \
-| _archive_filter
+| _path_filter | _archive_filter
+pmrep -C -x -H -U -z -a $here/archives/numa hinv.machine | _path_filter | _archive_filter
+pmrep -C -x -H -U -z -a $here/archives/rep hinv.machine | _path_filter | _archive_filter
 
 echo "== exercise extended CSV output"
 pmrep -z -u -H -k -o csv -a $here/archives/bug1057 -I "" | wc -l
