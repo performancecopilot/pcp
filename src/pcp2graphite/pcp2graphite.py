@@ -349,7 +349,7 @@ class PCP2Graphite(object):
             except:
                 pass
 
-        ts = pmapi.pmContext.convert_datetime(self.pmfg_ts(), PM_TIME_SEC)
+        ts = pmapi.pmContext.datetime_to_secs(self.pmfg_ts(), PM_TIME_SEC)
 
         try:
             if self.socket is None:

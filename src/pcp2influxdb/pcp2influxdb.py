@@ -444,7 +444,7 @@ class PCP2InfluxDB(object):
             except:
                 pass
 
-        ts = pmapi.pmContext.convert_datetime(self.pmfg_ts(), PM_TIME_NSEC)
+        ts = pmapi.pmContext.datetime_to_secs(self.pmfg_ts(), PM_TIME_NSEC)
 
         body = WriteBody()
 
