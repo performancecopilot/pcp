@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2016, Red Hat.
+ * Copyright (c) 2012-2017, Red Hat.
  * Copyright (c) 2012, Nathan Scott.  All Rights Reserved.
  * Copyright (c) 2007, Aconex.  All Rights Reserved.
  * 
@@ -76,6 +76,7 @@ private:
 	double scale;
 	QVector<double> data;
 	QVector<double> itemData;
+	QVector<QPointF> samples;
 	int dataCount;
     } my;
 };
