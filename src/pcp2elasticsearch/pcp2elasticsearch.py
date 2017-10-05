@@ -315,7 +315,7 @@ class pcp2elasticsearch(object):
             # Silent goodbye
             return
 
-        ts = pmapi.pmContext.convert_datetime(self.pmfg_ts(), PM_TIME_MSEC)
+        ts = pmapi.pmContext.datetime_to_secs(self.pmfg_ts(), PM_TIME_MSEC)
 
         es = Elasticsearch(hosts=[self.es_server])
         # pylint: disable=unexpected-keyword-arg

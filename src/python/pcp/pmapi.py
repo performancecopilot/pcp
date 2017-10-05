@@ -2224,8 +2224,8 @@ class pmContext(object):
             self.pmNewZone(timezone)
 
     @staticmethod
-    def convert_datetime(value, precision=c_api.PM_TIME_SEC):
-        """ Convert datetime value to timestamp of given precision """
+    def datetime_to_secs(value, precision=c_api.PM_TIME_SEC):
+        """ Convert datetime value to seconds of given precision """
         tdt = value - datetime.datetime.fromtimestamp(0)
         if precision == c_api.PM_TIME_SEC:
             tst = (tdt.microseconds + (tdt.seconds + tdt.days * 24.0 * 3600.0) * 10.0**6) / 10.0**6
