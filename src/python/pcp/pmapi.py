@@ -2199,8 +2199,8 @@ class pmContext(object):
     @staticmethod
     def posix_tz_to_utc_offset(timezone):
         """ Convert POSIX timezone offset string to human readable UTC offset """
-        if timezone == "UTC":
-            return timezone + "+0"
+        if not timezone or not True in [c in timezone for c in ['+', '-']]:
+            return "UTC+0"
         offset = timezone.split("+")[1] if "+" in timezone else timezone.split("-")[1]
         sign = "+" if "-" in timezone else "-"
         return "UTC" + sign + str(offset)
