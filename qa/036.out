@@ -14,7 +14,7 @@ __pmProcessExec -> 1015 signal=15
 __pmProcessPipe: argc=3 type="r" toss=0 "echo" "hullo" "world"
 __pmProcessPipe(..., "r", ...) -> 0
 hullo world
-__pmProcessPipe: pid=PID wait_pid=PID exit=0
+__pmProcessPipeClose: pid=PID wait_pid=PID exit=0
 __pmProcessPipeClose() -> 0
 --- pipe out ---
 __pmProcessPipe: argc=2 type="w" toss=0 "od" "-c"
@@ -22,7 +22,7 @@ __pmProcessPipe(..., "w", ...) -> 0
 0000000   h   e   l   l   o       o   t   h   e   r       w   o   r   l
 0000020   d  \n
 0000022
-__pmProcessPipe: pid=PID wait_pid=PID exit=0
+__pmProcessPipeClose: pid=PID wait_pid=PID exit=0
 __pmProcessPipeClose() -> 0
 ---  exec and executable not on $PATH ---
 __pmProcessExec: argc=5 toss=0 "TMP.sh" "blah;trickme|foo" "cat" "and" "dog"
@@ -43,7 +43,7 @@ my arg echoer ...
 [2] cat
 [3] and
 [4] dog
-__pmProcessPipe: pid=PID wait_pid=PID exit=0
+__pmProcessPipeClose: pid=PID wait_pid=PID exit=0
 __pmProcessPipeClose() -> 0
 
 === error and failure cases ===

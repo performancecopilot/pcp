@@ -112,16 +112,24 @@ local_file(int type, int fd, scalar_t *callback, int cookie)
 int
 local_pipe(char *pipe, scalar_t *callback, int cookie)
 {
-    FILE *fp = popen(pipe, "r");
+    FILE *fp;
     int me;
+    int sts;
+    __pmExecCtl_t *argp = NULL;
+
+    if ((sts = __pmProcessUnpickArgs(&argp, pipe)) < 0) {
+	__pmNotifyErr(LOG_ERR, "__pmProcessUnpickArgs failed (%s): %s", pipe, pmErrStr(sts));
+	exit(1);
+    }
+
+    if ((sts = __pmProcessPipe(&argp, "r", PM_EXEC_TOSS_NONE, &fp)) < 0) {
+	__pmNotifyErr(LOG_ERR, "__pmProcessPipe failed (%s): %s", pipe, pmErrStr(sts));
+	exit(1);
+    }
 
 #if defined(HAVE_SIGPIPE)
     signal(SIGPIPE, SIG_IGN);
 #endif
-    if (!fp) {
-	__pmNotifyErr(LOG_ERR, "popen failed (%s): %s", pipe, osstrerror());
-	exit(1);
-    }
     me = local_file(FILE_PIPE, fileno(fp), callback, cookie);
     files[me].me.pipe.file = fp;
     return fileno(fp);
@@ -243,7 +251,7 @@ local_atexit(void)
     while (nfiles > 0) {
 	--nfiles;
 	if (files[nfiles].type == FILE_PIPE)
-	    pclose(files[nfiles].me.pipe.file);
+	    __pmProcessPipeClose(files[nfiles].me.pipe.file);
 	if (files[nfiles].type == FILE_TAIL) {
 	    close(files[nfiles].fd);
 	    if (files[nfiles].me.tail.path)

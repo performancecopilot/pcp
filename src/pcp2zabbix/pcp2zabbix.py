@@ -442,7 +442,7 @@ class PCP2Zabbix(object):
                 self.zabbix_metrics = []
             return
 
-        ts = pmapi.pmContext.convert_datetime(self.pmfg_ts(), PM_TIME_SEC)
+        ts = pmapi.pmContext.datetime_to_secs(self.pmfg_ts(), PM_TIME_SEC)
 
         if self.zabbix_prevsend is None:
             self.zabbix_prevsend = ts

@@ -309,6 +309,8 @@ do_dialog(char cmd)
 #if HAVE_MKSTEMP
     char	tmp[MAXPATHLEN];
 #endif
+    int			sts;
+    __pmExecCtl_t	*argp = NULL;
 
     time(&now);
     now -= rsc_start;
@@ -415,7 +417,14 @@ do_dialog(char cmd)
 			  "-b Close 2>/dev/null",
 		    xconfirm, dialog_title, rsc_prog, msg);
 
-	if ((msgf = popen(lbuf, "r")) == NULL) {
+
+	if ((sts = __pmProcessUnpickArgs(&argp, lbuf)) < 0) {
+	    fprintf(stderr, "\nError: __pmProcessUnpickArgs failed for recording session dialog\n");
+	    fprintf(stderr, "Command: \"%s\"\n", lbuf);
+	    fprintf(stderr, "Error: %s\n", pmErrStr(sts));
+	    goto failed;
+	}
+	if ((sts = __pmProcessPipe(&argp, "r", PM_EXEC_TOSS_NONE, &msgf)) < 0) {
 	    fprintf(stderr, "\nError: failed to start command for recording session dialog\n");
 	    fprintf(stderr, "Command: \"%s\"\n", lbuf);
 	    goto failed;
@@ -437,7 +446,7 @@ failed:
 	}
 
 	if (msgf != NULL)
-	    pclose(msgf);
+	    __pmProcessPipeClose(msgf);
 	unlink(msg);
     }
     else {
@@ -503,6 +512,8 @@ do_pmcpp(char *configfile)
     char	cmd[3*MAXPATHLEN+80];
     char	*bin_dir = pmGetConfig("PCP_BINADM_DIR");
     char	*lib_dir = pmGetConfig("PCP_VAR_DIR");
+    int		sts;
+    __pmExecCtl_t	*argp = NULL;
 
     if (configfile != NULL) {
 	if ((f = fopen(configfile, "r")) == NULL) {
@@ -528,9 +539,15 @@ do_pmcpp(char *configfile)
 	bin_dir, sep, configfile == NULL ? "" : configfile, lib_dir, sep, sep);
     fprintf(stderr, "preprocessor cmd: %s\n", cmd);
 
-    if ((f = popen(cmd, "r")) == NULL) {
-	fprintf(stderr, "%s: popen(\"%s\", \"r\") failed: %s\n",
-		pmProgname, cmd, osstrerror());
+    if ((sts = __pmProcessUnpickArgs(&argp, cmd)) < 0) {
+	fprintf(stderr, "%s: __pmProcessUnpickArgs(..., \"%s\") failed: %s\n",
+		pmProgname, cmd, pmErrStr(sts));
+	exit(1);
+    }
+
+    if ((sts = __pmProcessPipe(&argp, "r", PM_EXEC_TOSS_NONE, &f)) < 0) {
+	fprintf(stderr, "%s: __pmProcessPipe for \"%s\" failed: %s\n",
+		pmProgname, cmd, pmErrStr(sts));
 	exit(1);
     }
 

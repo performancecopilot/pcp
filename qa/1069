@@ -94,6 +94,12 @@ pmrep --daemonize -s 5 -t 2 $log -c $tmp.config -r sample
 pmsleep 1
 
 echo "== exercise timezone setting"
+pmrep -s 5 -t 2 --archive $here/archives/sample-secs -p -x -Z XYZ sample \
+| _path_filter | _archive_filter
+pmrep -s 5 -t 2 --archive $here/archives/sample-secs -p -x -Z UTC-0 sample \
+| _path_filter | _archive_filter
+pmrep -s 5 -t 2 --archive $here/archives/sample-secs -p -x -Z No/Such/Zone sample \
+| _path_filter | _archive_filter
 pmrep -s 5 -t 2 --archive $here/archives/sample-secs -p -x -Z UTC sample \
 | _path_filter | _archive_filter
 pmrep -s 5 -t 2 --archive $here/archives/sample-secs -p -x -Z UTC-5 sample \
@@ -102,7 +108,7 @@ pmrep -s 5 -t 2 --archive $here/archives/sample-secs -p -x -Z UTC+5 sample \
 | _path_filter | _archive_filter
 pmrep -s 5 -t 2 --archive $here/archives/sample-secs -p -x -Z America/New_York sample \
 | _path_filter | _archive_filter
-pmrep -s 5 -t 2 --archive $here/archives/sample-secs -p -x -Z Europe/Helsinki sample \
+pmrep -s 5 -t 2 --archive $here/archives/sample-secs -p -x -Z :Europe/Helsinki sample \
 | _path_filter | _archive_filter
 pmrep -s 5 -t 2 --archive $here/archives/sample-secs -p -x -Z Asia/Kolkata sample \
 | _path_filter | _archive_filter
@@ -111,7 +117,8 @@ pmrep -C -x -H -U -z -a $here/archives/rep hinv.machine | _path_filter | _archiv
 
 echo "== exercise extended CSV output"
 pmrep -z -u -H -k -o csv -a $here/archives/bug1057 -I "" | wc -l
-pmrep -s 5 -t 2 $log -o csv -k sample
+pmrep -s 5 -t 2 $log -o csv -k sample 2>&1 \
+| _archive_filter
 
 echo "== exercise CSV and alternate delimiters"
 pmrep -s 5 -t 2 $log -c $tmp.config -o csv -p -P 1 sample

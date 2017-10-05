@@ -2387,8 +2387,8 @@ class pmContext(object):
     @staticmethod
     def posix_tz_to_utc_offset(timezone):
         """ Convert POSIX timezone offset string to human readable UTC offset """
-        if timezone == "UTC":
-            return timezone + "+0"
+        if not timezone or not True in [c in timezone for c in ['+', '-']]:
+            return "UTC+0"
         offset = timezone.split("+")[1] if "+" in timezone else timezone.split("-")[1]
         sign = "+" if "-" in timezone else "-"
         return "UTC" + sign + str(offset)
@@ -2412,8 +2412,8 @@ class pmContext(object):
             self.pmNewZone(timezone)
 
     @staticmethod
-    def convert_datetime(value, precision=c_api.PM_TIME_SEC):
-        """ Convert datetime value to timestamp of given precision """
+    def datetime_to_secs(value, precision=c_api.PM_TIME_SEC):
+        """ Convert datetime value to seconds of given precision """
         tdt = value - datetime.datetime.fromtimestamp(0)
         if precision == c_api.PM_TIME_SEC:
             tst = (tdt.microseconds + (tdt.seconds + tdt.days * 24.0 * 3600.0) * 10.0**6) / 10.0**6

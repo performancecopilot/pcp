@@ -449,7 +449,6 @@ fopen_compress(const char *fname)
 	    char	errmsg[PM_MAXERRMSGLEN];
 	    fprintf(stderr, "__pmLogOpen: uncompress command failed: %s\n", osstrerror_r(errmsg, sizeof(errmsg)));
 	}
-	close(fd);
 	setoserror(sts);
 	return NULL;
     }
@@ -462,7 +461,6 @@ fopen_compress(const char *fname)
 	    else
 		fprintf(stderr, "__pmLogOpen: uncompress failed, exit status: %d\n", sts);
 	}
-	close(fd);
 	/* not a great error code, but the best we can do */
 	setoserror(-PM_ERR_LOGREC);
 	return NULL;

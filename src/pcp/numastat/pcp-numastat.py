@@ -44,6 +44,7 @@ class NUMAStat(object):
             if not sys.stdout.isatty():
                 self.width = 1000000000        # mimic numastat(1) here
             else:
+		# popen() is SAFE, command is a literal string
                 (rows, width) = os.popen('stty size', 'r').read().split()
                 self.width = int(width)
             self.width = int(os.getenv('NUMASTAT_WIDTH', self.width))
