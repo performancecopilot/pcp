@@ -37,18 +37,10 @@ _path_filter()
 
 #  timezone: :Australia/Melbourne (reporting, current is AEDT-11)
 #  this is not deterministic .... ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-#  and
-#  timezone: AEDT-11
-#            ^^^^^^^ ... ditto
-#
-#  we also need to filter for AEST-10 during standard timezone
-#  as it appears that pmrep will report the change in -11 to -10
 _archive_filter()
 {
     sed \
 	-e '/timezone/s/ (reporting.*)//' \
-	-e '/timezone:/s/[A-Z][A-Z]*-11/...-11/' \
-	-e '/timezone:/s/[A-Z][A-Z]*-10/...-11/' \
     #end
 }
 

@@ -12,14 +12,14 @@ Diff of outputs start (only path / minor timestamp diff expected):
 -  archive: QAPATH/archives/rep
 +  archive: temp-archive
       host: slack
-  timezone: ...-11
+  timezone: AEDT-11
      start: Wed Feb 10 14:39:13 2016
 @@ -1,9 +1,9 @@
  
 -  archive: QAPATH/archives/20130706
 +  archive: temp-archive
       host: billing02
-  timezone: ...-11
+  timezone: EST-10
 -    start: Sat Jul  6 00:27:01 2013
 -      end: Sun Jul  7 00:15:43 2013
 +    start: Sat Jul  6 00:28:01 2013
