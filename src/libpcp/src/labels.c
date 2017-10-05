@@ -37,6 +37,35 @@ pmFreeLabelSets(pmLabelSet *sets, int nsets)
 	free(sets);
 }
 
+static pmLabelSet *
+__pmDupLabelSets(pmLabelSet *source, int nsets)
+{
+    pmLabelSet		*sets, *target;
+    size_t		size;
+    int			i;
+
+    assert(nsets > 0);
+    if ((sets = (pmLabelSet *)calloc(nsets, sizeof(pmLabelSet))) == NULL)
+	return NULL;
+
+    for (i = 0; i < nsets; i++) {
+	target = &sets[i];
+	memcpy(target, source, sizeof(pmLabelSet));
+	if ((target->json = strdup(source->json)) == NULL)
+	    break;
+	size = source->nlabels * sizeof(pmLabel);
+	if ((target->labels = malloc(size)) == NULL)
+	    break;
+	memcpy(target->labels, source->labels, size);
+	source++;
+    }
+    if (i == nsets)
+	return sets;
+
+    pmFreeLabelSets(sets, nsets);
+    return NULL;
+}
+
 int
 __pmAddLabels(pmLabelSet **lspp, const char *extras, int flags)
 {
@@ -860,8 +889,11 @@ getlabels(int ident, int type, pmLabelSet **sets, int *nsets)
 		sts = archive_context_labels(ctxp, sets);
 	    else
 		sts = 0;
+	} else if (sts > 0) {
+	    /* sets currently points into the context structures - copy */
+	    if ((*sets = __pmDupLabelSets(*sets, sts)) == NULL)
+		sts = -ENOMEM;
 	}
-	    
 	if (sts >= 0)
 	    *nsets = sts;
     }
