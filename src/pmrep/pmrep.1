@@ -699,12 +699,14 @@ The default is to use the timezone of the local host.
 .B \-Z
 Use
 .I timezone
-when displaying the date and time.
+for the date and time.
 .I Timezone
 is in the format of the environment variable
 .B TZ
 as described in
 .BR environ (7).
+Note that when including a timezone string in output, ISO 8601 -style
+UTC offsets are used (so something like -Z EST+5 will become UTC-5).
 .TP
 .B \-?
 Display usage message and exit.
@@ -812,6 +814,13 @@ as described in
 .BR PCPIntro (1),
 .BR pcp (1),
 .BR pcp-atop (1),
+.BR pcp2elasticsearch (1),
+.BR pcp2graphite (1),
+.BR pcp2influxdb (1),
+.BR pcp2json (1),
+.BR pcp2xlsx (1),
+.BR pcp2xml (1),
+.BR pcp2zabbix (1),
 .BR pmcd (1),
 .BR pmchart (1),
 .BR pmcollectl (1),

@@ -15,11 +15,11 @@
 .\" for more details.
 .\"
 .\"
-.TH PCP2ZABBIX 1 "PCP" "Performance Co-Pilot"
+.TH PCP2ELASTICSEARCH 1 "PCP" "Performance Co-Pilot"
 .SH NAME
-\f3pcp2zabbix\f1 \- pcp-to-zabbix metrics exporter
+\f3pcp2elasticsearch\f1 \- pcp-to-elasticsearch metrics exporter
 .SH SYNOPSIS
-\f3pcp2zabbix\f1
+\f3pcp2elasticsearch\f1
 [\f3\-CGHILrvV?\f1]
 [\f3\-a\f1 \f2archive\f1]
 [\f3\--archive-folio\f1 \f2folio\f1]
@@ -29,21 +29,19 @@
 [\f3\--container\f1 \f2container\f1]
 [\f3\--daemonize\f1]
 [\f3\-e\f1 \f2derived\f1]
-[\f3\-E\f1 \f2send-interval\f1]
-[\f3\-g\f1 \f2server\f1]
+[\f3\-g\f1 \f2URL\f1]
 [\f3\-h\f1 \f2host\f1]
 [\f3\-i\f1 \f2instances\f1]
 [\f3\-K\f1 \f2spec\f1]
 [\f3\-O\f1 \f2origin\f1]
-[\f3\-p\f1 \f2port\f1]
 [\f3\-P\f1 \f2precision\f1]
 [\f3\-q\f1 \f2count-scale\f1]
 [\f3\-s\f1 \f2samples\f1]
 [\f3\-S\f1 \f2starttime\f1]
 [\f3\-t\f1 \f2interval\f1]
 [\f3\-T\f1 \f2endtime\f1]
-[\f3\-x\f1 \f2prefix\f1]
-[\f3\-X\f1 \f2hostname\f1]
+[\f3\-x\f1 \f2index\f1]
+[\f3\-X\f1 \f2host-id\f1]
 [\f3\-y\f1 \f2time-scale\f1]
 \f2metricspec [...]\f1
 .SH DESCRIPTION
@@ -63,14 +61,14 @@
 .ft R
 .in
 ..
-.B pcp2zabbix
+.B pcp2elasticsearch
 is a customizable performance metrics exporter tool from PCP to
-Zabbix.
+Elasticsearch.
 Any available performance metric, live or archived, system and/or application,
 can be selected for exporting using either command line arguments or a
 configuration file.
 .P
-.B pcp2zabbix
+.B pcp2elasticsearch
 is a close relative of
 .BR pmrep (1).
 Please refer to
@@ -78,13 +76,13 @@ Please refer to
 for the
 .I metricspec
 description accepted on
-.B pcp2zabbix
+.B pcp2elasticsearch
 command line and
 .BR pmrep.conf (5)
 for description of the
-.B pcp2zabbix.conf
+.B pcp2elasticsearch.conf
 configuration file overall syntax, this page describes
-.B pcp2zabbix
+.B pcp2elasticsearch
 specific options and configuration file differences with
 .BR pmrep.conf (5).
 .P
@@ -98,7 +96,7 @@ default values (if any).
 Command line options override the
 corresponding configuration file options (if any).
 .SH CONFIGURATION FILE
-.B pcp2zabbix
+.B pcp2elasticsearch
 uses a configuration file with overall syntax described in
 .BR pmrep.conf (5).
 The following options are common with
@@ -125,50 +123,27 @@ option is recognized but ignored for
 .B pmrep.conf
 compatibility.
 .P
-\fBpcp2zabbix specific options\fR
+\fBpcp2elasticsearch specific options\fR
 .P
-zabbix_server (string)
+es_server (string)
 .RS 4
-Hostname or IP address of Zabbix server to send the metrics to. If a
-host is monitored by a proxy, proxy hostname or IP address should be
-used instead.
+Specify the URL of Elasticsearch server to send the metrics to.
 Corresponding command line option is \fB-g\fR.
-Default is \fBlocalhost\fR.
+Default is \fBhttp://localhost:9200/\fR.
 .RE
 .P
-zabbix_port (integer)
+es_index (string)
 .RS 4
-Specify port number of server trapper running on the server.
-Corresponding command line option is \fB-p\fR.
-Default is \fB10051\fR.
+Specify the Elasticsearch index for metric names.
+Corresponding command line option is \fB-x\fR.
+Default is \fBpcp\fR.
 .RE
 .P
-zabbix_host (string)
+es_hostid (string)
 .RS 4
-Specify agent hostname as registered in Zabbix frontend. Host IP address
-and DNS name will not work.
+Specify the Elasticsearch host-id for measurements.
 Corresponding command line option is \fB-X\fR.
 Defaults to the metrics source host.
-.RE
-.P
-zabbix_interval (string)
-.RS 4
-Indicates the interval to send the metrics to the Zabbix server. This
-can be longer than the generic \fIinterval\fR to minimize the overhead
-when communicating with the server (as each send creates a new
-connection). Follows the time syntax described in
-.BR PCPIntro (1).
-Corresponding command line option is \fB-E\fR.
-Defaults to the generic \fIinterval\fR. Zabbix tools send at most 250
-metrics at a time. Ignored when reading metrics from PCP archives,
-in which case metrics will be sent roughly at 250 metric batches.
-.RE
-.P
-zabbix_prefix (string)
-.RS 4
-Specify the prefix for metrics sent to the Zabbix server.
-Corresponding command line option is \fB-x\fR.
-Default is \fB.pcp\fR.
 .RE
 .SH COMMAND LINE OPTIONS
 The available command line options are:
@@ -218,11 +193,11 @@ Specify the
 .I config
 file to use.
 The default is the first found of:
-.BR ./pcp2zabbix.conf ,
-.BR $HOME/.pcp2zabbix.conf ,
-.BR $HOME/pcp/pcp2zabbix.conf ,
+.BR ./pcp2elasticsearch.conf ,
+.BR $HOME/.pcp2elasticsearch.conf ,
+.BR $HOME/pcp/pcp2elasticsearch.conf ,
 and
-.BR $PCP_SYSCONF_DIR/pcp2zabbix.conf .
+.BR $PCP_SYSCONF_DIR/pcp2elasticsearch.conf .
 For details, see the above section and
 .BR pmrep.conf (5).
 .TP
@@ -252,15 +227,9 @@ For details see
 and
 .BR pmRegisterDerived (3).
 .TP
-.B \-E
-Specify the
-.I interval
-to send metrics to the server.
-See \fBzabbix_interval\fR description above for details.
-.TP
 .B \-g
-Zabbix
-.I server
+Elasticsearch server
+.I URL
 to send the metrics to.
 .TP
 .B \-G
@@ -296,7 +265,7 @@ for more details on this option.
 Ignore incompatible metrics. By default incompatible metrics
 (that is, their type is unsupported or they cannot be scaled
 as requested) will cause
-.B pcp2zabbix
+.B pcp2elasticsearch
 to terminate with an error message.
 With this option all incompatible metrics are silently omitted
 from reporting. This may be especially useful when requesting
@@ -334,11 +303,6 @@ Refer to
 .BR PCPIntro (1)
 for a complete description of the syntax for
 .IR origin .
-.TP
-.B \-p
-Zabbix server
-.I port
-number.
 .TP
 .B \-P
 Use
@@ -378,7 +342,7 @@ If
 is 0 or
 .B \-s
 is not specified,
-.B pcp2zabbix
+.B pcp2elasticsearch
 will sample and report continuously (in real time mode) or until the end
 of the set of PCP archives (in archive mode).
 See also
@@ -417,7 +381,7 @@ for a complete description of the syntax for
 .IR endtime .
 .RS
 .PP
-When used to define the runtime before \fBpcp2zabbix\fR will exit,
+When used to define the runtime before \fBpcp2elasticsearch\fR will exit,
 if no \fIsamples\fR is given (see \fB-s\fR) then the number of
 reported samples depends on \fIinterval\fR (see \fB-t\fR).
 If
@@ -435,7 +399,7 @@ and
 are given,
 .I endtime
 determines the actual time
-.B pcp2zabbix
+.B pcp2elasticsearch
 will run.
 .RE
 .TP
@@ -451,14 +415,14 @@ and
 Display version number and exit.
 .TP
 .B \-x
-Metrics
-.I prefix
-for measurements sent to the server.
+Elasticsearch
+.I index
+for metric names.
 .TP
 .B \-X
-Specify the agent
-.I hostname
-as registered in Zabbix frontend.
+Elasticsearch
+.I host-id
+for measurements.
 .TP
 .B \-y
 .I Unit/scale
@@ -483,8 +447,8 @@ Display usage message and exit.
 .SH FILES
 .PD 0
 .TP 10
-.BI pcp2zabbix.conf
-\fBpcp2zabbix\fR configuration file (see \fB-c\fR).
+.BI pcp2elasticsearch.conf
+\fBpcp2elasticsearch\fR configuration file (see \fB-c\fR).
 .PD
 .SH "PCP ENVIRONMENT"
 Environment variables with the prefix
@@ -504,12 +468,12 @@ as described in
 .BR mkaf (1),
 .BR PCPIntro (1),
 .BR pcp (1),
-.BR pcp2elasticsearch (1),
 .BR pcp2graphite (1),
 .BR pcp2influxdb (1),
 .BR pcp2json (1),
 .BR pcp2xlsx (1),
 .BR pcp2xml (1),
+.BR pcp2zabbix (1),
 .BR pmcd (1),
 .BR pminfo (1),
 .BR pmrep (1),
@@ -517,7 +481,6 @@ as described in
 .BR pmLoadDerivedConfig (3),
 .BR pmParseUnitsStr (3),
 .BR pmRegisterDerived (3),
-.BR zbxpcp (3),
 .BR pcp-archive (5),
 .BR pcp.conf (5),
 .BR pmns (5)
