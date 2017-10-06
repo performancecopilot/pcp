@@ -142,8 +142,6 @@ class pcp2elasticsearch(object):
         opts.pmSetLongOptionOrigin()       # -O/--origin
         opts.pmSetLongOptionSamples()      # -s/--samples
         opts.pmSetLongOptionInterval()     # -t/--interval
-        opts.pmSetLongOptionTimeZone()     # -Z/--timezone
-        opts.pmSetLongOptionHostZone()     # -z/--hostzone
         opts.pmSetLongOption("raw", 0, "r", "", "output raw counter values (no rate conversion)")
         opts.pmSetLongOption("ignore-incompat", 0, "I", "", "ignore incompatible instances (default: abort)")
         opts.pmSetLongOption("instances", 1, "i", "STR", "instances to report (default: all current)")

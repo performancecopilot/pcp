@@ -247,7 +247,7 @@ class PCP2XLSX(object):
             self.interpol = 1
 
         # Common preparations
-        self.context.prepare_execute(self.context, self.opts, False, self.interpol, self.interval)
+        self.context.prepare_execute(self.opts, False, self.interpol, self.interval)
 
         # Headers
         if self.header == 1:
