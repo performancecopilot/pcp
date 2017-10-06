@@ -64,7 +64,7 @@ class PCP2Graphite(object):
         # Configuration directives
         self.keys = ('source', 'output', 'derived', 'header', 'globals',
                      'samples', 'interval', 'type', 'precision', 'daemonize',
-                     'graphite_host', 'graphite_port', 'pickle_protocol', 'prefix',
+                     'graphite_host', 'graphite_port', 'pickle', 'pickle_protocol', 'prefix',
                      'count_scale', 'space_scale', 'time_scale', 'version',
                      'speclocal', 'instances', 'ignore_incompat', 'omit_flat')
 
@@ -97,13 +97,13 @@ class PCP2Graphite(object):
 
         self.graphite_host = SERVER
         self.graphite_port = 2004
+        self.pickle = 1
         self.pickle_protocol = 0
         self.prefix = PREFIX
 
         # Internal
         self.runtime = -1
         self.socket = None
-        self.pickle = 1
 
         # Performance metrics store
         # key - metric name
@@ -160,9 +160,9 @@ class PCP2Graphite(object):
         opts.pmSetLongOption("time-scale", 1, "y", "SCALE", "default time unit")
 
         opts.pmSetLongOption("graphite-host", 1, "g", "SERVER", "graphite server (default: " + SERVER + ")")
-        opts.pmSetLongOption("pickled-port", 1, "p", "PICKLED-PORT", "graphite pickled port (default: 2004)")
-        opts.pmSetLongOption("pickle-protocol", 1, "X", "PROTCOL", "graphite pickle protocol (default: 0)")
-        opts.pmSetLongOption("text-port", 1, "E", "TEXT-PORT", "graphite plaintext port (usually 2003)")
+        opts.pmSetLongOption("pickle-port", 1, "p", "PICKLE-PORT", "graphite pickle port (default: 2004)")
+        opts.pmSetLongOption("pickle-protocol", 1, "X", "PROTOCOL", "graphite pickle protocol (default: 0)")
+        opts.pmSetLongOption("text-port", 1, "E", "TEXT-PORT", "graphite plaintext port (usually: 2003)")
         opts.pmSetLongOption("prefix", 1, "x", "PREFIX", "prefix for metric names (default: " + PREFIX + ")")
 
         return opts
@@ -212,12 +212,13 @@ class PCP2Graphite(object):
         elif opt == 'g':
             self.graphite_host = optarg
         elif opt == 'p':
-            self.graphite_port = int(optarg) if optarg else 2004
+            self.graphite_port = int(optarg)
             self.pickle = 1
         elif opt == 'X':
-            self.pickle_protocol = int(optarg) if optarg else 0
+            self.pickle_protocol = int(optarg)
+            self.pickle = 1
         elif opt == 'E':
-            self.graphite_port = int(optarg) if optarg else 2003
+            self.graphite_port = int(optarg)
             self.pickle = 0
         elif opt == 'x':
             self.prefix = optarg
