@@ -20,7 +20,7 @@
 \f3pcp2zabbix\f1 \- pcp-to-zabbix metrics exporter
 .SH SYNOPSIS
 \f3pcp2zabbix\f1
-[\f3\-CGHILrvVz?\f1]
+[\f3\-CGHILrvV?\f1]
 [\f3\-a\f1 \f2archive\f1]
 [\f3\--archive-folio\f1 \f2folio\f1]
 [\f3\-A\f1 \f2align\f1]
@@ -29,18 +29,22 @@
 [\f3\--container\f1 \f2container\f1]
 [\f3\--daemonize\f1]
 [\f3\-e\f1 \f2derived\f1]
+[\f3\-E\f1 \f2send-interval\f1]
+[\f3\-g\f1 \f2server\f1]
 [\f3\-h\f1 \f2host\f1]
 [\f3\-i\f1 \f2instances\f1]
 [\f3\-K\f1 \f2spec\f1]
 [\f3\-O\f1 \f2origin\f1]
+[\f3\-p\f1 \f2port\f1]
 [\f3\-P\f1 \f2precision\f1]
 [\f3\-q\f1 \f2count-scale\f1]
 [\f3\-s\f1 \f2samples\f1]
 [\f3\-S\f1 \f2starttime\f1]
 [\f3\-t\f1 \f2interval\f1]
 [\f3\-T\f1 \f2endtime\f1]
+[\f3\-x\f1 \f2prefix\f1]
+[\f3\-X\f1 \f2hostname\f1]
 [\f3\-y\f1 \f2time-scale\f1]
-[\f3\-Z\f1 \f2timezone\f1]
 \f2metricspec [...]\f1
 .SH DESCRIPTION
 .de EX
@@ -249,11 +253,15 @@ and
 .BR pmRegisterDerived (3).
 .TP
 .B \-E
-Specify the interval to send metrics to the Zabbix server.
-See the \fBzabbix_interval\fR description above for details.
+Specify the
+.I interval
+to send metrics to the server.
+See \fBzabbix_interval\fR description above for details.
 .TP
 .B \-g
-Specify the Zabbix server to send the metrics to.
+Zabbix
+.I server
+to send the metrics to.
 .TP
 .B \-G
 Do not include global metrics in reporting (see
@@ -328,7 +336,9 @@ for a complete description of the syntax for
 .IR origin .
 .TP
 .B \-p
-Specify the Zabbix server port number.
+Zabbix server
+.I port
+number.
 .TP
 .B \-P
 Use
@@ -441,10 +451,14 @@ and
 Display version number and exit.
 .TP
 .B \-x
-Specify the prefix for metrics sent to the Zabbix server.
+Metrics
+.I prefix
+for measurements sent to the server.
 .TP
 .B \-X
-Specify the agent hostname as registered in Zabbix frontend.
+Specify the agent
+.I hostname
+as registered in Zabbix frontend.
 .TP
 .B \-y
 .I Unit/scale
@@ -506,7 +520,6 @@ as described in
 .BR zbxpcp (3),
 .BR pcp-archive (5),
 .BR pcp.conf (5),
-.BR pmns (5),
-.BR pmrep.conf (5)
+.BR pmns (5)
 and
-.BR environ (7).
+.BR pmrep.conf (5).
