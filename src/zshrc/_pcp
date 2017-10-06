@@ -1,4 +1,4 @@
-#compdef pcp pcp2elasticsearch pcp2json pcp2xlsx pcp2xml pcp2zabbix pmafm pmchart pmclient pmclient_fg=pmclient pmdbg pmdiff pmdumplog pmdumptext pmerr pmfind pmie pmie2col pminfo pmiostat pmlogcheck pmlogger pmloglabel pmlogsummary pmprobe pmrep pmstat pmstore pmval
+#compdef pcp pcp2elasticsearch pcp2graphite pcp2influxdb pcp2json pcp2xlsx pcp2xml pcp2zabbix pmafm pmchart pmclient pmclient_fg=pmclient pmdbg pmdiff pmdumplog pmdumptext pmerr pmfind pmie pmie2col pminfo pmiostat pmlogcheck pmlogger pmloglabel pmlogsummary pmprobe pmrep pmstat pmstore pmval
 #
 # PCP <http://pcp.io> completions for zsh <http://zsh.sf.net>.
 #
@@ -31,7 +31,7 @@ _pcp () {
   declare -A opt_args
 
   local -a py_tools
-  py_tools=(pcp2elasticsearch pcp2json pcp2xlsx pcp2xml pcp2zabbix pmrep)
+  py_tools=(pcp2elasticsearch pcp2graphite pcp2influxdb pcp2json pcp2xlsx pcp2xml pcp2zabbix pmrep)
 
   local exargs="-? --help -V --version"
   common_help=(
@@ -112,6 +112,32 @@ _pcp () {
       "(-g --es-host $exargs)"{-g+,--es-host}'[elasticsearch server]:host:_hosts' \
       "(-x --es-index $exargs)"{-x+,--es-index}'[elasticsearch index]:index:' \
       "(-X --es-hostid $exargs)"{-X+,--es-hostid}'[elasticsearch host-id]:host-id:' \
+      '*:metric:->metrics' \
+      && return 0
+  ;;
+  pcp2graphite)
+    _arguments -A "-*" -C -S -s \
+      "$common_help[@]" \
+      "$common_pmda[@]" \
+      "$common_python[@]" \
+      "(-E --text-port -p --pickle-port -X --pickle-protocol $exargs)"{-E+,--text-port}'[graphite plaintext port]:port:' \
+      "(-g --graphite-host $exargs)"{-g+,--graphite-host}'[graphite server]:host:_hosts' \
+      "(-p --pickle-port -E --text-port $exargs)"{-p+,--pickle-port}'[graphite pickle port]:port:' \
+      "(-x --prefix $exargs)"{-x+,--prefix}'[prefix for metric names]:port:' \
+      "(-X --pickle-protocol -E --text-port $exargs)"{-X+,--pickle-protocol}'[pickle protocol version]:protocol:' \
+      '*:metric:->metrics' \
+      && return 0
+  ;;
+  pcp2influxdb)
+    _arguments -A "-*" -C -S -s \
+      "$common_help[@]" \
+      "$common_pmda[@]" \
+      "$common_python[@]" \
+      "(-E --db-pass $exargs)"{-E+,--db-pass}'[password for database]:password:' \
+      "(-g --db-server $exargs)"{-g+,--db-server}'[server URL]:url:_urls' \
+      "(-U --db-user $exargs)"{-U+,--db-user}'[username for database]:username:_users' \
+      "(-x --db-name $exargs)"{-x+,--db-name}'[metrics database name]:database:' \
+      "(-X --db-tags $exargs)"{-X+,--db-tags}'[string of tags to add to the metrics]:tags:' \
       '*:metric:->metrics' \
       && return 0
   ;;
