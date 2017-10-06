@@ -354,7 +354,7 @@ class PCP2InfluxDB(object):
             self.interpol = 1
 
         # Common preparations
-        pmapi.pmContext.prepare_execute(self.context, self.opts, False, self.interpol, self.interval)
+        self.context.prepare_execute(self.opts, False, self.interpol, self.interval)
 
         # Headers
         if self.header == 1:
@@ -444,7 +444,7 @@ class PCP2InfluxDB(object):
             except:
                 pass
 
-        ts = pmapi.pmContext.datetime_to_secs(self.pmfg_ts(), PM_TIME_NSEC)
+        ts = self.context.datetime_to_secs(self.pmfg_ts(), PM_TIME_NSEC)
 
         body = WriteBody()
 
