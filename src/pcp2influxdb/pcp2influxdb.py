@@ -44,7 +44,7 @@ DEFAULT_CONFIG = ["./pcp2influxdb.conf", "$HOME/.pcp2influxdb.conf", "$HOME/.pcp
 
 # Defaults
 CONFVER = 1
-INFLUX = "http://127.0.0.1:8086"
+SERVER = "http://127.0.0.1:8086"
 DB = "pcp"
 
 class Metric(object):
@@ -160,8 +160,8 @@ class PCP2InfluxDB(object):
         # Configuration directives
         self.keys = ('source', 'output', 'derived', 'header', 'globals',
                      'samples', 'interval', 'type', 'precision', 'daemonize',
-                     'database', 'influxdb_address',
-                     'influxdb_user', 'influxdb_pass', 'influxdb_tags',
+                     'influx_server', 'influx_db',
+                     'influx_user', 'influx_pass', 'influx_tags',
                      'count_scale', 'space_scale', 'time_scale', 'version',
                      'speclocal', 'instances', 'ignore_incompat', 'omit_flat')
 
@@ -192,11 +192,11 @@ class PCP2InfluxDB(object):
         self.space_scale = None
         self.time_scale = None
 
-        self.database = DB
-        self.influxdb_address = INFLUX
-        self.influxdb_user = None
-        self.influxdb_pass = None
-        self.influxdb_tags = ""
+        self.influx_server = SERVER
+        self.influx_db = DB
+        self.influx_user = None
+        self.influx_pass = None
+        self.influx_tags = ""
 
         # Internal
         self.runtime = -1
@@ -255,11 +255,11 @@ class PCP2InfluxDB(object):
         opts.pmSetLongOption("space-scale", 1, "b", "SCALE", "default space unit")
         opts.pmSetLongOption("time-scale", 1, "y", "SCALE", "default time unit")
 
-        opts.pmSetLongOption("influxdb-address", 1, "g", "ADDRESS", "InfluxDB address (default: " + INFLUX + ")")
-        opts.pmSetLongOption("database", 1, "x", "DATABASE", "database for metric (default: " + DB + ")")
-        opts.pmSetLongOption("db-user", 1, "U", "USERNAME", "username for InfluxDB database")
-        opts.pmSetLongOption("db-password", 1, "E", "PASSWORD", "password for InfluxDB database")
-        opts.pmSetLongOption("tag-string", 1, "X", "TAGS", "string of tags to add to the metrics")
+        opts.pmSetLongOption("db-server", 1, "g", "SERVER", "InfluxDB server URL (default: " + SERVER + ")")
+        opts.pmSetLongOption("db-name", 1, "x", "DATABASE", "metrics database name (default: " + DB + ")")
+        opts.pmSetLongOption("db-user", 1, "U", "USERNAME", "username for database")
+        opts.pmSetLongOption("db-pass", 1, "E", "PASSWORD", "password for database")
+        opts.pmSetLongOption("db-tags", 1, "X", "TAGS", "string of tags to add to the metrics")
 
         return opts
 
@@ -306,15 +306,15 @@ class PCP2InfluxDB(object):
         elif opt == 'y':
             self.time_scale = optarg
         elif opt == 'g':
-            self.influxdb_address = optarg
+            self.influx_server = optarg
         elif opt == 'x':
-            self.database = optarg
+            self.influx_db = optarg
         elif opt == 'U':
-            self.influxdb_user = optarg
+            self.influx_user = optarg
         elif opt == 'E':
-            self.influxdb_pass = optarg
+            self.influx_pass = optarg
         elif opt == 'X':
-            self.influxdb_tags = optarg
+            self.influx_tags = optarg
         else:
             raise pmapi.pmUsageErr()
 
@@ -401,12 +401,12 @@ class PCP2InfluxDB(object):
 
     def write_header(self):
         """ Write info header """
-        sys.stdout.write("Using database '%s' and tags '%s'.\n" % (self.database, self.influxdb_tags))
+        sys.stdout.write("Using database '%s' and tags '%s'.\n" % (self.influx_db, self.influx_tags))
         if self.context.type == PM_CONTEXT_ARCHIVE:
-            sys.stdout.write("Sending %d archived metrics to InfluxDB at %s...\n(Ctrl-C to stop)\n" % (len(self.metrics), self.influxdb_address))
+            sys.stdout.write("Sending %d archived metrics to InfluxDB at %s...\n(Ctrl-C to stop)\n" % (len(self.metrics), self.influx_server))
             return
 
-        sys.stdout.write("Sending %d metrics to InfluxDB at %s every %d sec" % (len(self.metrics), self.influxdb_address, self.interval))
+        sys.stdout.write("Sending %d metrics to InfluxDB at %s every %d sec" % (len(self.metrics), self.influx_server, self.interval))
         if self.runtime != -1:
             sys.stdout.write(":\n%s samples(s) with %.1f sec interval ~ %d sec runtime.\n" % (self.samples, float(self.interval), self.runtime))
         elif self.samples:
@@ -447,17 +447,17 @@ class PCP2InfluxDB(object):
         body = WriteBody()
 
         for metric in metrics:
-            metric.set_tag_string(self.influxdb_tags)
+            metric.set_tag_string(self.influx_tags)
             metric.set_timestamp(long(ts))
             body.add(metric)
 
-        url = self.influxdb_address + '/write'
-        params = {'db': self.database}
+        url = self.influx_server + '/write'
+        params = {'db': self.influx_db}
         auth = None
 
-        if self.influxdb_user and self.influxdb_pass:
-            auth = requests.auth.HTTPBasicAuth(self.influxdb_user,
-                                               self.influxdb_pass)
+        if self.influx_user and self.influx_pass:
+            auth = requests.auth.HTTPBasicAuth(self.influx_user,
+                                               self.influx_pass)
 
         try:
             res = requests.post(url, params=params, data=str(body), auth=auth)
@@ -470,7 +470,7 @@ class PCP2InfluxDB(object):
                 elif res.status_code == 404:
                     msg += "Got an HTTP code 404. This most likely means "
                     msg += "that the requested database '"
-                    msg += self.database
+                    msg += self.influx_db
                     msg += "' does not exist."
                 else:
                     msg += "request to "
