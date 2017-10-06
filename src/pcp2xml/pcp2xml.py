@@ -254,7 +254,7 @@ class PCP2XML(object):
             self.interpol = 1
 
         # Common preparations
-        pmapi.pmContext.prepare_execute(self.context, self.opts, False, self.interpol, self.interval)
+        self.context.prepare_execute(self.opts, False, self.interpol, self.interval)
 
         # Headers
         if self.header == 1:
@@ -328,7 +328,7 @@ class PCP2XML(object):
             # Silent goodbye, close in finalize()
             return
 
-        ts = pmapi.pmContext.datetime_to_secs(self.pmfg_ts(), PM_TIME_SEC)
+        ts = self.context.datetime_to_secs(self.pmfg_ts(), PM_TIME_SEC)
 
         if self.prev_ts is None:
             self.prev_ts = ts
@@ -344,7 +344,7 @@ class PCP2XML(object):
             host = self.context.pmGetContextHostName()
             self.writer.write('  <host nodename="%s">\n' % host)
             self.writer.write('    <source>%s</source>\n' % self.source)
-            timez = pmapi.pmContext.posix_tz_to_utc_offset(self.context.get_current_tz(self.opts))
+            timez = self.context.posix_tz_to_utc_offset(self.context.get_current_tz(self.opts))
             self.writer.write('    <timezone>%s</timezone>\n' % timez)
             self.writer.write('    <metrics>\n')
 

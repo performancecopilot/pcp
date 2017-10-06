@@ -247,7 +247,7 @@ class pcp2elasticsearch(object):
             self.interpol = 1
 
         # Common preparations
-        pmapi.pmContext.prepare_execute(self.context, self.opts, False, self.interpol, self.interval)
+        self.context.prepare_execute(self.opts, False, self.interpol, self.interval)
 
         # Headers
         if self.header == 1:
@@ -315,7 +315,7 @@ class pcp2elasticsearch(object):
             # Silent goodbye
             return
 
-        ts = pmapi.pmContext.datetime_to_secs(self.pmfg_ts(), PM_TIME_MSEC)
+        ts = self.context.datetime_to_secs(self.pmfg_ts(), PM_TIME_MSEC)
 
         es = Elasticsearch(hosts=[self.es_server])
         # pylint: disable=unexpected-keyword-arg

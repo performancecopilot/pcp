@@ -308,7 +308,7 @@ class PCP2Zabbix(object):
             self.interpol = 1
 
         # Common preparations
-        pmapi.pmContext.prepare_execute(self.context, self.opts, False, self.interpol, self.interval)
+        self.context.prepare_execute(self.opts, False, self.interpol, self.interval)
 
         # Headers
         if self.header == 1:
@@ -442,7 +442,7 @@ class PCP2Zabbix(object):
                 self.zabbix_metrics = []
             return
 
-        ts = pmapi.pmContext.datetime_to_secs(self.pmfg_ts(), PM_TIME_SEC)
+        ts = self.context.datetime_to_secs(self.pmfg_ts(), PM_TIME_SEC)
 
         if self.zabbix_prevsend is None:
             self.zabbix_prevsend = ts
