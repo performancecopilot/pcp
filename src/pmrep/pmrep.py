@@ -323,7 +323,7 @@ class PMReporter(object):
         self.localtz = self.context.get_current_tz()
 
         # Common preparations
-        pmapi.pmContext.prepare_execute(self.context, self.opts, self.output == OUTPUT_ARCHIVE, self.interpol, self.interval)
+        self.context.prepare_execute(self.opts, self.output == OUTPUT_ARCHIVE, self.interpol, self.interval)
 
         # Set output primitives
         if self.delimiter is None:
@@ -495,9 +495,9 @@ class PMReporter(object):
         else:
             host = self.context.pmGetContextHostName()
 
-        timezone = pmapi.pmContext.posix_tz_to_utc_offset(self.context.get_current_tz(self.opts))
-        if timezone != pmapi.pmContext.posix_tz_to_utc_offset(self.localtz):
-            timezone += " (reporting, current is " + pmapi.pmContext.posix_tz_to_utc_offset(self.localtz) + ")"
+        timezone = self.context.posix_tz_to_utc_offset(self.context.get_current_tz(self.opts))
+        if timezone != self.context.posix_tz_to_utc_offset(self.localtz):
+            timezone += " (reporting, current is " + self.context.posix_tz_to_utc_offset(self.localtz) + ")"
 
         if self.runtime != -1:
             duration = self.runtime
@@ -674,7 +674,7 @@ class PMReporter(object):
             # Silent goodbye
             return
 
-        ts = pmapi.pmContext.datetime_to_secs(self.pmfg_ts(), PM_TIME_SEC)
+        ts = self.context.datetime_to_secs(self.pmfg_ts(), PM_TIME_SEC)
 
         if self.prev_ts is None:
             self.prev_ts = ts
@@ -691,7 +691,7 @@ class PMReporter(object):
             self.prev_ts = ts
         line += timestamp
         if self.extcsv:
-            line += " " + pmapi.pmContext.posix_tz_to_utc_offset(self.context.get_current_tz(self.opts))
+            line += " " + self.context.posix_tz_to_utc_offset(self.context.get_current_tz(self.opts))
 
         # Avoid crossing the C/Python boundary more than once per metric
         res = {}

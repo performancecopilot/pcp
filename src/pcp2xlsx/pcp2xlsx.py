@@ -247,7 +247,7 @@ class PCP2XLSX(object):
             self.interpol = 1
 
         # Common preparations
-        pmapi.pmContext.prepare_execute(self.context, self.opts, False, self.interpol, self.interval)
+        self.context.prepare_execute(self.context, self.opts, False, self.interpol, self.interval)
 
         # Headers
         if self.header == 1:
@@ -341,7 +341,7 @@ class PCP2XLSX(object):
             col = 0
             self.ws.write_string(self.row, col, "Timezone", fmt)
             col += 1
-            timez = pmapi.pmContext.posix_tz_to_utc_offset(self.context.get_current_tz(self.opts))
+            timez = self.context.posix_tz_to_utc_offset(self.context.get_current_tz(self.opts))
             self.ws.write_string(self.row, col, timez, fmt)
             self.row += 1
             col = 0

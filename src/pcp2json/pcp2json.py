@@ -262,7 +262,7 @@ class PCP2JSON(object):
             self.interpol = 1
 
         # Common preparations
-        pmapi.pmContext.prepare_execute(self.context, self.opts, False, self.interpol, self.interval)
+        self.context.prepare_execute(self.opts, False, self.interpol, self.interval)
 
         # Headers
         if self.header == 1:
@@ -331,7 +331,7 @@ class PCP2JSON(object):
             # Silent goodbye, close in finalize()
             return
 
-        ts = pmapi.pmContext.datetime_to_secs(self.pmfg_ts(), PM_TIME_SEC)
+        ts = self.context.datetime_to_secs(self.pmfg_ts(), PM_TIME_SEC)
 
         if self.prev_ts is None:
             self.prev_ts = ts
@@ -348,7 +348,7 @@ class PCP2JSON(object):
             self.data = {'@pcp': {'@hosts': []}}
             host = self.context.pmGetContextHostName()
             self.data['@pcp']['@hosts'].append({'@host': host, '@source': self.source})
-            self.data['@pcp']['@hosts'][0]['@timezone'] = pmapi.pmContext.posix_tz_to_utc_offset(self.context.get_current_tz(self.opts))
+            self.data['@pcp']['@hosts'][0]['@timezone'] = self.context.posix_tz_to_utc_offset(self.context.get_current_tz(self.opts))
             self.data['@pcp']['@hosts'][0]['@metrics'] = []
 
         self.data['@pcp']['@hosts'][0]['@metrics'].append({'@timestamp': str(timestamp)})
