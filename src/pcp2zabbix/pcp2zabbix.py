@@ -204,7 +204,7 @@ class PCP2Zabbix(object):
         opts.pmSetLongOption("zabbix-port", 1, "p", "PORT", "zabbix port (default: " + str(ZBXPORT) + ")")
         opts.pmSetLongOption("zabbix-host", 1, "X", "HOSTID", "zabbix host-id for measurements")
         opts.pmSetLongOption("zabbix-interval", 1, "E", "INTERVAL", "interval to send collected metrics")
-        opts.pmSetLongOption("zabbix-prefix", 1, "x", "PREFOX", "prefix for metric names (default: " + ZBXPREFIX + ")")
+        opts.pmSetLongOption("zabbix-prefix", 1, "x", "PREFIX", "prefix for metric names (default: " + ZBXPREFIX + ")")
 
         return opts
 
