@@ -215,7 +215,6 @@ class PCP2XML(object):
         elif opt == 'x':
             self.extended = 1
         elif opt == 'X':
-            self.extended = 1
             self.everything = 1
         else:
             raise pmapi.pmUsageErr()
@@ -238,6 +237,9 @@ class PCP2XML(object):
         if self.version != CONFVER:
             sys.stderr.write("Incompatible configuration file version (read v%s, need v%d).\n" % (self.version, CONFVER))
             sys.exit(1)
+
+        if self.everything:
+            self.extended = 1
 
         self.pmconfig.finalize_options()
 
