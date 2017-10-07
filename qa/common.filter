@@ -322,6 +322,7 @@ _filter_top_pmns()
 	-e '/^    dmcache /d' \
 	-e '/^    dmstats /d' \
 	-e '/^    dmthin /d' \
+	-e '/^    dm /d' \
 	-e '/^    dmf /d' \
 	-e '/^    ds389 /d' \
 	-e '/^    elasticsearch /d' \
@@ -340,6 +341,7 @@ _filter_top_pmns()
 	-e '/^    kvm /d' \
 	-e '/^    lab /d' \
 	-e '/^    libvirt /d' \
+	-e '/^    lio /d' \
 	-e '/^    lmsensors /d' \
 	-e '/^    logger /d' \
 	-e '/^    lsf /d' \
