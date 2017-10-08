@@ -1385,6 +1385,7 @@ zsh
 1123 pmchart local
 1128 pmie local
 1129 derive local
+1137 other local
 1140 pidstat local
 1141 selinux local
 1174 threads valgrind local
@@ -1396,9 +1397,11 @@ zsh
 1196 pmcd local
 1199 libpcp pmcd local
 1202 pmdadm local
+1225 other local
 1227 derive local
 1245 libpcp local
 1257 libpcp python local
+1276 other local
 1330:reserved pmda.prometheus local
 1331 verify local
 1354 pmval archive local
