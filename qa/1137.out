@@ -1,0 +1,9 @@
+QA output created by 1137
+checking kernel.all.cpu.user against derived utilization kernel.cpu.util.user
+10
+checking kernel.all.cpu.sys against derived utilization kernel.cpu.util.sys
+10
+checking kernel.all.cpu.idle against derived utilization kernel.cpu.util.idle
+10
+checking kernel.all.cpu.intr against derived utilization kernel.cpu.util.intr
+10
