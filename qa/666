@@ -209,8 +209,12 @@ echo '-t 10' >$tmp.dir/pmlogreduce  # compare to -t 2 for in /pmlogger
 echo 30sec >$tmp.dir/pmlogreduce-retain
 echo 'pcp summary' > $tmp.dir/monitor # short-lived; will be restarted periodically
 echo 'pmstat' >> $tmp.dir/monitor # long-lived
-echo 'env' >> $tmp.dir/monitor-host-env # short-lived
-echo 'pmrep :vmstat' >> $tmp.dir/monitor-host-env # long-lived
+# Note: pmmgr automatically appends "-h somehost" to the end of each monitor command line
+# which upset clients that did not expect options after the non-option arguments.
+# THis has been fixed for all clients, including python APIs, see GH #195 and
+# upstream 0d4227aa8e4 via BZ#1289912
+echo 'pmrep :vmstat' >> $tmp.dir/monitor # long-lived
+echo 'pminfo xfs' >> $tmp.dir/monitor # short-lived
 _service pmcd start >>$seq.full 2>&1
 _wait_for_pmcd
 
@@ -240,8 +244,10 @@ else
     ls -l $tmp.dir/$hostname/reduced*.meta
 fi
 
-for m in monitor monitor-host-env; do
-  for n in 0 1; do
+# now BZ#1289912 has been fixed, the pmmgr "monitor-host-env" config is not available
+# (the patch was only ever in pmfuntools anyway - it never shipped).
+for m in monitor; do
+  for n in 0 1 2 3; do
     if [ -s $tmp.dir/$hostname/$m-$n.out -a -f $tmp.dir/$hostname/$m-$n.err ]; then
         echo "$m-$n output good"
     else
