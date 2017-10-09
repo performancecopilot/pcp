@@ -274,6 +274,11 @@ class PCP2Graphite(object):
         if self.daemonize == 1:
             self.opts.daemonize()
 
+        # Align poll interval to host clock
+        if self.context.type != PM_CONTEXT_ARCHIVE and self.opts.pmGetOptionAlignment():
+            align = float(self.opts.pmGetOptionAlignment()) - (time.time() % float(self.opts.pmGetOptionAlignment()))
+            time.sleep(align)
+
         # Main loop
         while self.samples != 0:
             # Fetch values
@@ -375,7 +380,7 @@ class PCP2Graphite(object):
                         print("Sending %s: %s" % (timestamp, msg.rstrip().decode()))
                     self.socket.send(msg) # pylint: disable=no-member
         except socket.error as error:
-            sys.stderr.write("Can't send message to %s:%d, %s, continuing.\n" %
+            sys.stderr.write("Can't send message to Graphite server %s:%d, %s, continuing.\n" %
                              (self.graphite_host, self.graphite_port, error.strerror))
             self.socket = None
 

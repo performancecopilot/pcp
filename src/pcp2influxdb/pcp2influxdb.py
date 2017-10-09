@@ -367,6 +367,11 @@ class PCP2InfluxDB(object):
         if self.daemonize == 1:
             self.opts.daemonize()
 
+        # Align poll interval to host clock
+        if self.context.type != PM_CONTEXT_ARCHIVE and self.opts.pmGetOptionAlignment():
+            align = float(self.opts.pmGetOptionAlignment()) - (time.time() % float(self.opts.pmGetOptionAlignment()))
+            time.sleep(align)
+
         # Main loop
         while self.samples != 0:
             # Fetch values
@@ -468,12 +473,12 @@ class PCP2InfluxDB(object):
                 msg = "Could not send metrics: "
 
                 if res.status_code == 200:
-                    msg += "InfluxDB could not complete the request"
+                    msg += "InfluxDB could not complete the request."
                 elif res.status_code == 404:
                     msg += "Got an HTTP code 404. This most likely means "
                     msg += "that the requested database '"
                     msg += self.influx_db
-                    msg += "' does not exist."
+                    msg += "' does not exist.\n"
                 else:
                     msg += "request to "
                     msg += res.url
@@ -482,12 +487,13 @@ class PCP2InfluxDB(object):
                     msg += ".\n"
                     msg += "Body of the request is:\n"
                     msg += str(body)
+                    msg += "\n"
 
                 sys.stderr.write(msg)
         except ValueError:
-            sys.stderr.write("Can't send a request that has no metrics.")
-        except requests.exceptions.ConnectionError:
-            sys.stderr.write("Can't connect to InfluxDB server, continuing.")
+            sys.stderr.write("Can't send a request that has no metrics.\n")
+        except requests.exceptions.ConnectionError as error:
+            sys.stderr.write("Can't connect to InfluxDB server %s: %s, continuing.\n" % (self.influx_server, str(error.args[0].reason)))
 
     def finalize(self):
         """ Finalize and clean up """
