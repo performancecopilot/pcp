@@ -18,7 +18,7 @@
 # pylint: disable=invalid-name, line-too-long, no-self-use
 # pylint: disable=too-many-boolean-expressions, too-many-statements
 # pylint: disable=too-many-instance-attributes, too-many-locals
-# pylint: disable=too-many-branches, too-many-nested-blocks
+# pylint: disable=too-many-branches, too-many-nested-blocks, too-many-arguments
 # pylint: disable=bare-except, broad-except
 
 """ PCP to JSON Bridge """
@@ -38,7 +38,7 @@ import os
 
 # PCP Python PMAPI
 from pcp import pmapi, pmconfig
-from cpmapi import PM_CONTEXT_ARCHIVE, PM_ERR_EOL, PM_DEBUG_APPL1
+from cpmapi import PM_CONTEXT_ARCHIVE, PM_ERR_EOL, PM_IN_NULL, PM_DEBUG_APPL1
 from cpmapi import PM_TIME_SEC
 
 if sys.version_info[0] >= 3:
@@ -388,7 +388,7 @@ class PCP2JSON(object):
             """ Create extra attribute string """
             data = {"value": value}
             if inst_name:
-                data['name'] = name
+                data['name'] = inst_name
             if unit:
                 data['@unit'] = unit
             if self.extended:
@@ -397,7 +397,7 @@ class PCP2JSON(object):
                 data['@semantics'] = self.context.pmSemStr(desc.contents.sem)
             if self.everything:
                 data['@pmid'] = pmid
-                if desc.contents.indom != pmapi.c_api.PM_IN_NULL:
+                if desc.contents.indom != PM_IN_NULL:
                     data['@indom'] = desc.contents.indom
                 if inst_id:
                     data[inst_key] = str(inst_id)
@@ -428,7 +428,7 @@ class PCP2JSON(object):
                         pmns_leaf_dict = pmns_leaf_dict[pmns_part]
                     last_part = pmns_parts[-1]
 
-                    if inst == pmapi.c_api.PM_IN_NULL:
+                    if inst == PM_IN_NULL:
                         pmns_leaf_dict[last_part] = create_attrs(value, None, None, self.metrics[metric][2][0], self.pmconfig.pmids[i], self.pmconfig.descs[i])
                     else:
                         if last_part not in pmns_leaf_dict:
