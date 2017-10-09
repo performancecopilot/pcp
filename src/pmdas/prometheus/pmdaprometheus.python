@@ -64,8 +64,8 @@ class Metric(object):
                                      metricnum)
                 self.values = {} # instance-vector-to-value
                 # XXXX PCP - real name; : unquoting; heuristics galore
-                self.mtype = c_api.PM_TYPE_DOUBLE
-                self.msem = c_api.PM_SEM_INSTANT   # XXX
+                self.mtype = c_api.PM_TYPE_DOUBLE # NB: allow overriding sometime
+                self.msem = c_api.PM_SEM_INSTANT  # XXX
                 self.mname = 'prometheus.' + self.source.name + '.' + self.name.replace(":",".") # XXX pcpline etc.
                 self.munits = pmUnits(0,0,0,0,0,0) # XXX
                 if instances:
@@ -80,7 +80,7 @@ class Metric(object):
                         self.source.pmda.add_metric(self.mname, self.obj, self.description)
                 except Exception as e:
                         self.log("Cannot add metric %s (%d): %s" % (self.mname, self.pmid, e))
-                self.source.pmda.debug("created metric %x (%s)" % (self.pmid, self.mname))
+                self.source.pmda.debug("created metric %#x (%s)" % (self.pmid, self.mname))
 
         def clear_values(self):
                 self.values.clear()
@@ -119,7 +119,7 @@ class PersistentNameTable(object):
                         with open(self.store_file_name,'rb') as f:
                                 self.instances = pickle.load(f,encoding="bytes")
                                 self.pmda.debug("loaded %s" % self.store_file_name)
-                                self.need_save = True # for pmda purposes at least
+                                self.need_save = True # to push values down into c pmda layer
                 except Exception as e: # new!
                         self.instances = [] # won't be saved till nonempty
 
@@ -139,7 +139,6 @@ class PersistentNameTable(object):
                         indom_array = [] # pmdaInstid array, computed on demand
                         for i,n in enumerate(self.instances):
                                 indom_array.append(pmdaInstid(c_int(i),str(n)))
-                        self.pmda.log("replacing indom array %s" % str(indom_array))
                         # NB: use replace_indom(int,[...]) overload, to pass indom_array,
                         # else it gets ignored
                         self.pmda.replace_indom(self.pmda.indom(self.indom), indom_array)
@@ -147,8 +146,8 @@ class PersistentNameTable(object):
                         # save to disk too
                         try: # slightly used!
                                 with open(self.store_file_name,'wb') as f:
-                                        pickle.dump(self.instances, f, protocol=0)
-                                        self.pmda.debug("saved %s" % self.store_file_name)
+                                        pickle.dump(self.instances, f, protocol=0) # 0: most compatible
+                                        self.pmda.debug("saved %s, %d instances" % (self.store_file_name, len(self.instances)))
                                 self.need_save = False # reset only on success
                         except Exception as e:
                                 self.pmda.log("cannot save %s: %s" % (self.store_file_name, e))
@@ -440,6 +439,7 @@ class PrometheusPMDA(PMDA):
                 # now everything else may take time
                 self.pmda_name = pmda_name
                 self.config_dir = config
+                self.config_dir_ctime = None
                 self.debug_flag = ('PCP_PYTHON_DEBUG' in os.environ)
 
                 # the list of configured sources
@@ -459,15 +459,10 @@ class PrometheusPMDA(PMDA):
                 dynamic_root = pmdaMetric(dynamic_pmid,0,0,0,pmUnits())
                 self.add_metric('prometheus',dynamic_root,'dynamic root for prometheus metrics')
         
-                # rescan the urls.d directory periodically
-                t = threading.Timer(10.0, self.rescan_confdir) # XXX: configure
-                t.start()
-                # and right away
-                self.rescan_confdir()
-                
-                # metric fetch
-                # old school: self.set_refresh_metrics - n/a
-                self.set_refresh_all(self.refresh_some_clusters)
+                # used all the time, but we welcome it only for initial pmns population purposes
+                self.set_refresh_metrics(self.rescan_confdir)
+                # used during fetch
+                self.set_refresh_all(self.refresh_some_clusters) # "all" is a misnomer
                 self.set_fetch_callback(self.fetch_callback)
 
 
@@ -488,13 +483,27 @@ class PrometheusPMDA(PMDA):
                 Scan the configuration directory for any new .url files containing
                 prometheus URLs.  Ensure there is a Source registered in
                 the self.source_by_name dictionary for each one.  Then have each
-                Source do a fetch (if it hasn't done so recently)
+                Source do a fetch, so as to populate the PMNS.
+
+                If the config_dir hasn't changed lately, do nothing.  This is important
+                because this callback is invoked -all-the-time- by src/python/pmda.c
                 '''
+                try:
+                        ctime = os.path.getctime(self.config_dir)
+                        if not self.config_dir_ctime or self.config_dir_ctime < ctime:
+                                self.config_dir_ctime = ctime
+                                # fall through
+                        else: # no change
+                                return
+                except:
+                        # If the stat failed, there's not much we can do.
+                        # pass # could fall through
+                        return
+                
                 nickname_regexp = re.compile(r"^[A-Za-z]\w*$")
                 
-                # XXX: skip if self.configdir hasn't changed
                 # XXX: nuke sources related to removed files
-                self.log("walking %s" % self.config_dir)
+                self.log("walking %s, ctime %s" % (self.config_dir, self.config_dir_ctime))
                 save_cluster_table = False
                 for root, dirs, files in os.walk(self.config_dir):
                         for file in files:
@@ -527,7 +536,7 @@ class PrometheusPMDA(PMDA):
                         self.cluster_table.save()
                 # do a batch fetch of all sources to ensure pmns is populated
                 self.refresh_all_clusters()
-                                      
+                
         def fetch_callback(self, cluster, item, inst):
                 ''' Main fetch callback which returns the value of the metric '''
                 self.assert_source_invariants(cluster=cluster)
@@ -537,7 +546,7 @@ class PrometheusPMDA(PMDA):
                         else:
                                 return [c_api.PM_ERR_PMID, 0]
                 except Exception as e:
-                        return [c_api.PM_ERR_PMID, 0]
+                        return [c_api.PM_ERR_AGAIN, 0] # was there before
 
         def refresh_worker(self,cluster):
                 try:
@@ -556,7 +565,7 @@ class PrometheusPMDA(PMDA):
                         t.daemon = True
                         t.start()
                 for t in threads:
-                        t.join()
+                        t.join() # XXX: apply timeout as backup
                 self.set_need_refresh()
                         
         def refresh_some_clusters(self,_clusters):
@@ -599,5 +608,4 @@ if __name__ == '__main__':
         args = parser.parse_args()
 
         pmda = PrometheusPMDA('prometheus', 144, args.config)
-
         pmda.run()
