@@ -29,6 +29,8 @@
 [\f3\--container\f1 \f2container\f1]
 [\f3\--daemonize\f1]
 [\f3\-e\f1 \f2derived\f1]
+[\f3\-f\f1 \f2format\f1]
+[\f3\-F\f1 \f2outfile\f1]
 [\f3\-h\f1 \f2host\f1]
 [\f3\-i\f1 \f2instances\f1]
 [\f3\-K\f1 \f2spec\f1]
@@ -217,6 +219,24 @@ For details see
 .BR pmLoadDerivedConfig (3)
 and
 .BR pmRegisterDerived (3).
+.TP
+.B \-f
+Use the
+.I format
+string for formatting the timestamp.
+The format will be used with
+Python's
+.B datetime.strftime
+method which is mostly the same as that described in
+.BR strftime (3).
+The default with \fIstdout\fR is
+.BR %H:%M:%S .
+The default with \fIcsv\fR is
+.BR "%Y-%m-%d %H:%M:%S" .
+.TP
+.B \-F
+Specify the output file
+.IR outfile .
 .TP
 .B \-G
 Do not include global metrics in reporting (see
