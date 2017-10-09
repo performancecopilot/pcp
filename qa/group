@@ -1385,6 +1385,7 @@ zsh
 1123 pmchart local
 1128 pmie local
 1129 derive local
+1130 pcp2elasticsearch python pcp2xxx local
 1137 derive pmrep local
 1140 pidstat local
 1141 selinux local
