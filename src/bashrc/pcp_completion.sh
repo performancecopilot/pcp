@@ -21,7 +21,7 @@ _pcp_complete()
         arg_regex="-[ahKceASTOstZiPqbygFf]"
     ;;
     pcp2xlsx)
-        all_args="ahLKcCeVHGASTOstZzrIivPqbyFfXx"
+        all_args="ahLKcCeVHGASTOstZzrIivPqbyFf"
         arg_regex="-[ahKceASTOstZiPqbygFf]"
     ;;
     pcp2xml)
