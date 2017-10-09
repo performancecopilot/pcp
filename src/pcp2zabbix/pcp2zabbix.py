@@ -63,7 +63,7 @@ import time
 
 # PCP Python PMAPI
 from pcp import pmapi, pmconfig
-from cpmapi import PM_CONTEXT_ARCHIVE, PM_ERR_EOL, PM_DEBUG_APPL0, PM_DEBUG_APPL1
+from cpmapi import PM_CONTEXT_ARCHIVE, PM_ERR_EOL, PM_IN_NULL, PM_DEBUG_APPL0, PM_DEBUG_APPL1
 from cpmapi import PM_TIME_SEC
 
 if sys.version_info[0] >= 3:
@@ -456,6 +456,8 @@ class PCP2Zabbix(object):
                     key = self.zabbix_prefix + metric
                     if name:
                         key += "[" + name + "]"
+                    if inst != PM_IN_NULL and not name:
+                        continue
                     try:
                         value = val()
                         fmt = "." + str(self.precision) + "f"
