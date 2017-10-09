@@ -655,6 +655,8 @@ class PMReporter(object):
             try:
                 for inst, name, val in self.metrics[metric][5](): # pylint: disable=unused-variable
                     try:
+                        if inst != PM_IN_NULL and not name:
+                            continue
                         value = val()
                         if inst != PM_IN_NULL and inst not in self.recorded[metric]:
                             self.recorded[metric].append(inst)
@@ -849,7 +851,10 @@ class PMReporter(object):
             try:
                 for inst, name, val in self.metrics[metric][5](): # pylint: disable=unused-variable
                     try:
-                        res[metric].append([inst, name, val()])
+                        if inst != PM_IN_NULL and not name:
+                            res[metric].append(['', '', NO_VAL])
+                        else:
+                            res[metric].append([inst, name, val()])
                     except:
                         res[metric].append([inst, name, NO_VAL])
                 if not res[metric]:
