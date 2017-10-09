@@ -13,6 +13,8 @@
 # GNU General Public License for more details.
 #
 
+# Last updated for: libvirt 3.8.0
+
 # pylint: disable=superfluous-parens, bad-whitespace
 # pylint: disable=invalid-name, line-too-long, no-self-use
 # pylint: disable=too-many-boolean-expressions, too-many-statements
