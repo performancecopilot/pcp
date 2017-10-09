@@ -452,7 +452,10 @@ class PCP2JSON(object):
             except socket.error as error:
                 if error.errno != errno.EPIPE:
                     raise
-            self.writer.close()
+            try:
+                self.writer.close()
+            except:
+                pass
             self.writer = None
         return
 

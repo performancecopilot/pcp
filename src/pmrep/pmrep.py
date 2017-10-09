@@ -962,7 +962,10 @@ class PMReporter(object):
             except socket.error as error:
                 if error.errno != errno.EPIPE:
                     raise
-            self.writer.close()
+            try:
+                self.writer.close()
+            except:
+                pass
             self.writer = None
         if self.pmi:
             self.pmi.pmiEnd()
