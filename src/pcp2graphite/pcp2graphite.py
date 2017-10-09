@@ -123,7 +123,7 @@ class PCP2Graphite(object):
         opts = pmapi.pmOptions()
         opts.pmSetOptionCallback(self.option)
         opts.pmSetOverrideCallback(self.option_override)
-        opts.pmSetShortOptions("a:h:LK:c:Ce:D:V?HGA:S:T:O:s:t:Z:zrIi:vP:q:b:y:g:p:X:E:x:")
+        opts.pmSetShortOptions("a:h:LK:c:Ce:D:V?HGA:S:T:O:s:t:rIi:vP:q:b:y:g:p:X:E:x:")
         opts.pmSetShortUsage("[option...] metricspec [...]")
 
         opts.pmSetLongOptionHeader("General options")
@@ -161,7 +161,7 @@ class PCP2Graphite(object):
 
         opts.pmSetLongOption("graphite-host", 1, "g", "SERVER", "graphite server (default: " + SERVER + ")")
         opts.pmSetLongOption("pickle-port", 1, "p", "PICKLE-PORT", "graphite pickle port (default: 2004)")
-        opts.pmSetLongOption("pickle-protocol", 1, "X", "PROTOCOL", "graphite pickle protocol (default: 0)")
+        opts.pmSetLongOption("pickle-protocol", 1, "X", "PROTOCOL", "pickle protocol version (default: 0)")
         opts.pmSetLongOption("text-port", 1, "E", "TEXT-PORT", "graphite plaintext port (usually: 2003)")
         opts.pmSetLongOption("prefix", 1, "x", "PREFIX", "prefix for metric names (default: " + PREFIX + ")")
 
