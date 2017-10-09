@@ -264,6 +264,11 @@ class pcp2elasticsearch(object):
         if self.daemonize == 1:
             self.opts.daemonize()
 
+        # Align poll interval to host clock
+        if self.context.type != PM_CONTEXT_ARCHIVE and self.opts.pmGetOptionAlignment():
+            align = float(self.opts.pmGetOptionAlignment()) - (time.time() % float(self.opts.pmGetOptionAlignment()))
+            time.sleep(align)
+
         # Main loop
         while self.samples != 0:
             # Fetch values
