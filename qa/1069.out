@@ -626,7 +626,7 @@ Incompatible configuration file version (read v99, need v1).
 00:48:06     36832
 00:48:08     36832
         Xs.l.one
-        X
+        X       
 ALIGN_OK_X      1
 ALIGN_OK_X      1
 == basic string value reporting

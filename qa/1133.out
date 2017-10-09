@@ -256,7 +256,7 @@ QA output created by 1133
       <timestamp value="2016-02-10 14:39:17" interval="1">
     </metrics>
     <metrics>
-    <source>/tmp/pcp/var/lib/pcp/testsuite/archives/rep</source>
+    <source>ARCHIVE_PATH</source>
     <timezone>UTC+11</timezone>
   </host>
   <host nodename="slack">
@@ -520,7 +520,7 @@ QA output created by 1133
       <timestamp value="2016-02-10 03:39:17" interval="1">
     </metrics>
     <metrics>
-    <source>/tmp/pcp/var/lib/pcp/testsuite/archives/rep</source>
+    <source>ARCHIVE_PATH</source>
     <timezone>UTC+0</timezone>
   </host>
   <host nodename="slack">
@@ -784,7 +784,7 @@ QA output created by 1133
       <timestamp value="2016-02-10 14:39:17" interval="1">
     </metrics>
     <metrics>
-    <source>/tmp/pcp/var/lib/pcp/testsuite/archives/rep</source>
+    <source>ARCHIVE_PATH</source>
     <timezone>UTC+11</timezone>
   </host>
   <host nodename="slack">
