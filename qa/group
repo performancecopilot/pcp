@@ -917,6 +917,7 @@ zsh
 570:retired pmns #690735 local
 571 pmlogger local pmdumplog
 572 pmcd pmda local pmda.install pmda.sample pmda.simple pmda.trivial
+573 other remote
 574 libpcp pmns compat local sanity
 575 pmie local
 578 pmcd local pmda.install pmval

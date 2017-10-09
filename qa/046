@@ -22,6 +22,8 @@ _filter()
 	-e '/pmcd\.pmlogger\.host/s/value ".*/value "HOST"/' \
 	-e '/pmcd\.pmlogger\.archive/s/value ".*/value "PATH"/' \
 	-e "/\"$logger_pid\"/s/$logger_pid/LOGGER_PID/g" \
+	-e '/pmcd\.pid/s/ [0-9][0-9]*$/ PID/' \
+	-e '/pmcd\.seqnum/s/ [0-9][0-9]*$/ SEQNUM/' \
     | $PCP_AWK_PROG '
 $1 == "TIMESTAMP" && NF == 4	{ print "TIMESTAMP       0       OFFSET       OFFSET"; next }
 				{ print }' \

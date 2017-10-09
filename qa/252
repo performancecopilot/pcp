@@ -40,9 +40,9 @@ _tolerance()
 _num_recs()
 {
   num_recs=`$pmdumplog $tmp | egrep -c '^[0-9][0-9]:[0-9][0-9]:'`
-  # subtract 1 for the preamble
-  num_recs=`expr $num_recs - 1`
-  [ $debug ] && echo "found $num_recs samples after the preamble"
+  # subtract 1 for the prologue and 1 for the epilogue
+  num_recs=`expr $num_recs - 2`
+  [ $debug ] && echo "found $num_recs samples after the prologue+epilogue"
 }
 
 _test_sample_size()

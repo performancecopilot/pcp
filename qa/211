@@ -87,7 +87,7 @@ cat $tmp.log >>$seq.full
 pmdumplog $tmp 2>&1 \
 | tee -a $seq.full \
 | _filter_pmdumplog \
-| sed -e 1,4d
+| sed -e '/pmcd\./d'
 
 
 exit

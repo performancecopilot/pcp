@@ -1,6 +1,9 @@
 QA output created by 014
 
 Descriptions for Metrics in the Log ...
+PMID: 2.0.23 (pmcd.pid)
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
 PMID: 2.3.2 (pmcd.pmlogger.archive)
     Data Type: string  InDom: 2.1 0x800001
     Semantics: discrete  Units: none
@@ -9,6 +12,9 @@ PMID: 2.3.3 (pmcd.pmlogger.host)
     Semantics: discrete  Units: none
 PMID: 2.3.0 (pmcd.pmlogger.port)
     Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
+    Semantics: discrete  Units: none
+PMID: 2.0.24 (pmcd.seqnum)
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
 PMID: 29.0.5 (sample.colour)
     Data Type: 32-bit int  InDom: 29.1 0x7400001
@@ -27,6 +33,9 @@ PMID: 29.0.2 (sample.dupnames.two.seconds or sample.seconds)
     Semantics: counter  Units: sec
 
 Descriptions for Metrics in the Log ...
+PMID: 2.0.23 (pmcd.pid)
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
 PMID: 2.3.2 (pmcd.pmlogger.archive)
     Data Type: string  InDom: 2.1 0x800001
     Semantics: discrete  Units: none
@@ -35,6 +44,9 @@ PMID: 2.3.3 (pmcd.pmlogger.host)
     Semantics: discrete  Units: none
 PMID: 2.3.0 (pmcd.pmlogger.port)
     Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
+    Semantics: discrete  Units: none
+PMID: 2.0.24 (pmcd.seqnum)
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
 PMID: 29.0.5 (sample.colour)
     Data Type: 32-bit int  InDom: 29.1 0x7400001

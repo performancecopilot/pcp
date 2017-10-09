@@ -76,11 +76,13 @@ $2 ~ /-peek/	{ yy = xx "-peek" }
 
 _filter_dump()
 {
+    # expect 30 samples + 1 for prologue + 1 for epilogue == 32
+    #
     _filter_pmdumplog \
     | grep TIMESTAMP \
     | wc -l \
     | $PCP_AWK_PROG '
-BEGIN		{ min = 31; max = 31 }
+BEGIN		{ min = 32; max = 32 }
 		{ if (min <= $1 && $1 <= max)
 		      printf "%d-%d timestamps\n",min,max
 		  else

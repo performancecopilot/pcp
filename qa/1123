@@ -7,23 +7,14 @@
 
 seq=`basename $0`
 echo "QA output created by $seq"
+status=0	# success is the default!
 
-# get standard environment, filters and checks
-. ./common.product
-. ./common.filter
-. ./common.check
+. ./common.qt
+trap "_cleanup_qt; exit \$status" 0 1 2 3 15
 
 which pmchart >/dev/null 2>&1 || _notrun "pmchart not installed"
 
-_cleanup()
-{
-    cd $here
-    $sudo rm -rf $tmp $tmp.*
-}
-
-status=1	# failure is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
-trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
 
@@ -60,6 +51,5 @@ chmod 755 $tmp.sh
 cd `dirname $tmp`
 pmchart -c `basename $tmp.sh` -C -C
 
-# success, all done
-status=0
+# all done
 exit

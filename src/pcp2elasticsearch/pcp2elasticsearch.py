@@ -26,6 +26,7 @@
 # Common imports
 from collections import OrderedDict
 import errno
+import time
 import sys
 
 # Our imports
@@ -391,7 +392,7 @@ class pcp2elasticsearch(object):
                      timestamp=long(ts),
                      body=es_doc)
         except ElasticsearchException as error:
-            sys.stderr.write("Can't send to Elasticsearch server %s: %s, continuing.\n" % (self.es_server, str(error.error)))
+            sys.stderr.write("Can't send to Elasticsearch server %s: %s, continuing.\n" % (self.es_server, str(error)))
             return
 
     def finalize(self):

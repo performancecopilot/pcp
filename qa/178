@@ -149,7 +149,7 @@ echo | tee -a $seq.full
 echo "merge -T 6.9" | tee -a $seq.full
 rm -f $tmp.merge.*
 pmlogextract -T 6.9 $tmp.a $tmp.b $tmp.c $tmp.merge
-$PCP_ECHO_PROG $PCP_ECHO_N "merge (expect 32 + 2 preamble + 1 mark): ""$PCP_ECHO_C"
+$PCP_ECHO_PROG $PCP_ECHO_N "merge (expect 32 + 1 prologue + 1 epilogue + 1 mark): ""$PCP_ECHO_C"
 pmdumplog -m $tmp.merge \
 | tee -a $seq.full \
 | _count_rec

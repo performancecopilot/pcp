@@ -50,6 +50,7 @@ install_pcp install :: $(SUBDIRS)
 	$(INSTALL) -m 755 -d $(PMDADIR)
 	$(INSTALL) -m 644 help.dir help.pag $(PMDADIR) 
 	$(INSTALL) -m 644 root_pmcd $(PCP_VAR_DIR)/pmns/root_pmcd
+	$(INSTALL) -m 644 migrate.conf $(PCP_VAR_DIR)/config/pmlogrewrite/pmcd_migrate.conf
 
 help.dir: help root_pmcd 
 	$(NEWHELP) -v 2 -n root_pmcd -o help < help

@@ -786,6 +786,14 @@ sample.ulonglong.hundred
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 
+pmcd.seqnum
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+
+pmcd.pid
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+
 pmcd.pmlogger.archive
     Data Type: string  InDom: 2.1 0x800001
     Semantics: discrete  Units: none
