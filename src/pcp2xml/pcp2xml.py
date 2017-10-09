@@ -32,7 +32,7 @@ import os
 
 # PCP Python PMAPI
 from pcp import pmapi, pmconfig
-from cpmapi import PM_CONTEXT_ARCHIVE, PM_ERR_EOL, PM_DEBUG_APPL1
+from cpmapi import PM_CONTEXT_ARCHIVE, PM_ERR_EOL, PM_IN_NULL, PM_DEBUG_APPL1
 from cpmapi import PM_TIME_SEC
 
 if sys.version_info[0] >= 3:
@@ -275,6 +275,11 @@ class PCP2XML(object):
         if self.daemonize == 1:
             self.opts.daemonize()
 
+        # Align poll interval to host clock
+        if self.context.type != PM_CONTEXT_ARCHIVE and self.opts.pmGetOptionAlignment():
+            align = float(self.opts.pmGetOptionAlignment()) - (time.time() % float(self.opts.pmGetOptionAlignment()))
+            time.sleep(align)
+
         # Main loop
         while self.samples != 0:
             # Fetch values
@@ -398,7 +403,7 @@ class PCP2XML(object):
                         pmns_leaf_dict = pmns_leaf_dict[pmns_part]
                     last_part = pmns_parts[-1]
 
-                    if inst == pmapi.c_api.PM_IN_NULL:
+                    if inst == PM_IN_NULL:
                         pmns_leaf_dict[last_part] = [None, None, self.metrics[metric][2][0], value, self.pmconfig.pmids[i], self.pmconfig.descs[i]]
                     else:
                         if insts_key not in pmns_leaf_dict:
@@ -448,7 +453,7 @@ class PCP2XML(object):
                 attrs += ' semantics="' + self.context.pmSemStr(desc.contents.sem) + '"'
             if self.everything:
                 attrs += ' pmid="' + str(pmid) + '"'
-                if desc.contents.indom != pmapi.c_api.PM_IN_NULL:
+                if desc.contents.indom != PM_IN_NULL:
                     attrs += ' indom="' + str(desc.contents.indom) + '"'
                 if inst_id:
                     attrs += ' instance-id="' + str(inst_id) + '"'
