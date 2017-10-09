@@ -90,7 +90,7 @@ class Metric(object):
                 if labels is None:
                         self.values[c_api.PM_IN_NULL] = float(value)
                 else:
-                        instname = str(labels) # XXX: pcp instance=""
+                        instname = str(labels) # XXX: PCP instance=""
                         inst = self.indom_table.intern_lookup_value(instname)
                         self.values[inst] = float(value)
                         self.indom_table.save() # XXX: ideally less frequently
@@ -450,8 +450,6 @@ class PrometheusPMDA(PMDA):
                 assert reserved_cluster == 0
                 self.source_by_cluster = {}
 
-                self.log("starting up!")
-
                 # Add a IS_DYNAMIC_ROOT metric that serves as a reminder to
                 # pmcd to delegate all pmns requests to us.  Do it early, before
                 # other metrics may populate beneath the prometheus.* prefix.
@@ -590,12 +588,13 @@ class PrometheusPMDA(PMDA):
                 self.pmns_refresh()
 
         def debug(self,s):
+                # XXX: conditionalize
                 super(PrometheusPMDA,self).log("debug: "+s)
-                sys.stderr.write('debug:' + s + '\n')
+                # sys.stderr.write('debug:' + s + '\n')
 
         def log(self,s):
                 super(PrometheusPMDA,self).log(s)
-                sys.stderr.write('log:' + s + '\n')
+                # sys.stderr.write('log:' + s + '\n')
                         
                         
 if __name__ == '__main__':
