@@ -390,7 +390,7 @@ class PCP2XML(object):
                         pmns_leaf_dict = pmns_leaf_dict[pmns_part]
                     last_part = pmns_parts[-1]
 
-                    if not name:
+                    if inst == pmapi.c_api.PM_IN_NULL:
                         pmns_leaf_dict[last_part] = [None, None, self.metrics[metric][2][0], value, self.pmconfig.pmids[i], self.pmconfig.descs[i]]
                     else:
                         if insts_key not in pmns_leaf_dict:

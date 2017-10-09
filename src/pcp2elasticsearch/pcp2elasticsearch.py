@@ -354,7 +354,7 @@ class pcp2elasticsearch(object):
                         pmns_leaf_dict = pmns_leaf_dict[pmns_part]
                     last_part = pmns_parts[-1]
 
-                    if not name:
+                    if inst == pmapi.c_api.PM_IN_NULL:
                         pmns_leaf_dict[last_part] = value
                     else:
                         if insts_key not in pmns_leaf_dict:
