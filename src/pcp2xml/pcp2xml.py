@@ -362,10 +362,14 @@ class PCP2XML(object):
 
         def escape_xml_markup(string):
             """ Escape XML markup characters """
+            if not string:
+                return None
             return string.replace("&", "&amp;").replace('"', '&quot;').replace("'", "&apos;").replace("<", "&lt;").replace(">", "&gt;")
 
         def escape_xml_text(string):
             """ Escape XML text characters """
+            if not string:
+                return None
             return string.replace("&", "&amp;").replace("<", "&lt;")
 
         for i, metric in enumerate(self.metrics):
