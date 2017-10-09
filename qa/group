@@ -968,7 +968,7 @@ zsh
 662 pmwebapi pmda.sample local
 663 pmwebapi local
 666 pmmgr local slow valgrind
-667 python local
+667 pcp2graphite python pcp2xxx local
 668 pmmgr local containers
 669 pmmgr local pmlogcheck
 670 libpcp local
@@ -1378,7 +1378,7 @@ zsh
 1106 libpcp local
 1108 logutil local folio pmlogextract
 1110 pmda.haproxy local
-1111 pcp2influxdb python local
+1111 pcp2influxdb python pcp2xxx local
 1112 pmda.linux local
 1113 pcp python local
 1114 archive pmval multi-archive local
