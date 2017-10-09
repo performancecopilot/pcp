@@ -192,7 +192,11 @@ class pcp2elasticsearch(object):
         elif opt == 'v':
             self.omit_flat = 1
         elif opt == 'P':
-            self.precision = int(optarg)
+            try:
+                self.precision = int(optarg)
+            except:
+                sys.stderr.write("Error while parsing options: Integer expected.\n")
+                sys.exit(1)
         elif opt == 'q':
             self.count_scale = optarg
         elif opt == 'b':
@@ -354,7 +358,7 @@ class pcp2elasticsearch(object):
                         pmns_leaf_dict = pmns_leaf_dict[pmns_part]
                     last_part = pmns_parts[-1]
 
-                    if not name:
+                    if inst == pmapi.c_api.PM_IN_NULL:
                         pmns_leaf_dict[last_part] = value
                     else:
                         if insts_key not in pmns_leaf_dict:

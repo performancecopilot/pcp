@@ -203,7 +203,11 @@ class PCP2XML(object):
         elif opt == 'v':
             self.omit_flat = 1
         elif opt == 'P':
-            self.precision = int(optarg)
+            try:
+                self.precision = int(optarg)
+            except:
+                sys.stderr.write("Error while parsing options: Integer expected.\n")
+                sys.exit(1)
         elif opt == 'f':
             self.timefmt = optarg
         elif opt == 'q':
@@ -356,9 +360,17 @@ class PCP2XML(object):
         insts_key = "@instances"
         inst_key = "@id"
 
-        def escape_xml(string):
-            """ Escape XML special characters """
+        def escape_xml_markup(string):
+            """ Escape XML markup characters """
+            if not string:
+                return None
             return string.replace("&", "&amp;").replace('"', '&quot;').replace("'", "&apos;").replace("<", "&lt;").replace(">", "&gt;")
+
+        def escape_xml_text(string):
+            """ Escape XML text characters """
+            if not string:
+                return None
+            return string.replace("&", "&amp;").replace("<", "&lt;")
 
         for i, metric in enumerate(self.metrics):
             try:
@@ -367,26 +379,27 @@ class PCP2XML(object):
 
                 pmns_parts = metric.split(".")
 
-                # Find/create the parent dictionary into which to insert the final component
                 for inst, name, val in self.metrics[metric][5](): # pylint: disable=unused-variable
                     try:
                         value = val()
                         fmt = "." + str(self.precision) + "f"
                         value = format(value, fmt) if isinstance(value, float) else str(value)
-                        value = escape_xml(value)
+                        value = escape_xml_text(value)
+                        name = escape_xml_markup(name)
                     except:
                         continue
 
                     pmns_leaf_dict = data
 
+                    # Find/create the parent dictionary into which to insert the final component
                     for pmns_part in pmns_parts[:-1]:
                         if pmns_part not in pmns_leaf_dict:
                             pmns_leaf_dict[pmns_part] = {}
                         pmns_leaf_dict = pmns_leaf_dict[pmns_part]
                     last_part = pmns_parts[-1]
 
-                    if not name:
-                        pmns_leaf_dict[last_part] = [None, self.metrics[metric][2][0], value, self.pmconfig.pmids[i], self.pmconfig.descs[i]]
+                    if inst == pmapi.c_api.PM_IN_NULL:
+                        pmns_leaf_dict[last_part] = [None, None, self.metrics[metric][2][0], value, self.pmconfig.pmids[i], self.pmconfig.descs[i]]
                     else:
                         if insts_key not in pmns_leaf_dict:
                             pmns_leaf_dict[insts_key] = []
@@ -395,10 +408,10 @@ class PCP2XML(object):
                         found = False
                         for j in range(1, len(insts)):
                             if insts[j][inst_key] == name:
-                                insts[j][last_part] = [name, self.metrics[metric][2][0], value, self.pmconfig.pmids[i], self.pmconfig.descs[i]]
+                                insts[j][last_part] = [inst, name, self.metrics[metric][2][0], value, self.pmconfig.pmids[i], self.pmconfig.descs[i]]
                                 found = True
                         if not found:
-                            insts.append({inst_key: name, last_part: [name, self.metrics[metric][2][0], value, self.pmconfig.pmids[i], self.pmconfig.descs[i]]})
+                            insts.append({inst_key: name, last_part: [inst, name, self.metrics[metric][2][0], value, self.pmconfig.pmids[i], self.pmconfig.descs[i]]})
             except:
                 pass
 
@@ -422,11 +435,11 @@ class PCP2XML(object):
                 mtype = "unknown"
             return mtype
 
-        def create_attrs(instance, unit, pmid, desc):
+        def create_attrs(inst_id, inst_name, unit, pmid, desc):
             """ Create extra attribute string """
             attrs = ""
-            if instance:
-                attrs += ' instance="' + instance + '"'
+            if inst_name:
+                attrs += ' instance-name="' + inst_name + '"'
             if unit:
                 attrs += ' unit="' + unit + '"'
             if self.extended:
@@ -437,6 +450,8 @@ class PCP2XML(object):
                 attrs += ' pmid="' + str(pmid) + '"'
                 if desc.contents.indom != pmapi.c_api.PM_IN_NULL:
                     attrs += ' indom="' + str(desc.contents.indom) + '"'
+                if inst_id:
+                    attrs += ' instance-id="' + str(inst_id) + '"'
             return attrs
 
         def iteritems(d):
@@ -456,13 +471,13 @@ class PCP2XML(object):
                     self.writer.write('%s</%s>\n' % (indent, key))
                 else:
                     if not isinstance(value[0], dict):
-                        self.writer.write('%s<%s%s>%s</%s>\n' % (indent, key, create_attrs(None, value[1], value[3], value[4]), value[2], key))
+                        self.writer.write('%s<%s%s>%s</%s>\n' % (indent, key, create_attrs(None, None, value[2], value[4], value[5]), value[3], key))
                     else:
                         for j, _ in enumerate(value):
                             for k in value[j]:
                                 if k == inst_key:
                                     continue
-                                self.writer.write('%s<%s%s>%s</%s>\n' % (indent, k, create_attrs(escape_xml(value[j][k][0]), value[j][k][1], value[j][k][3], value[j][k][4]), value[j][k][2], k))
+                                self.writer.write('%s<%s%s>%s</%s>\n' % (indent, k, create_attrs(value[j][k][0], value[j][k][1], value[j][k][2], value[j][k][4], value[j][k][5]), value[j][k][3], k))
 
         # Add current values
         interval = str(int(ts - self.prev_ts + 0.5))
@@ -482,7 +497,10 @@ class PCP2XML(object):
             except socket.error as error:
                 if error.errno != errno.EPIPE:
                     raise
-            self.writer.close()
+            try:
+                self.writer.close()
+            except:
+                pass
             self.writer = None
         return
 

@@ -49,7 +49,7 @@ DEFAULT_CONFIG = ["./pcp2json.conf", "$HOME/.pcp2json.conf", "$HOME/.pcp/pcp2jso
 
 # Defaults
 CONFVER = 1
-INDENT = 4
+INDENT = 2
 TIMEFMT = "%Y-%m-%d %H:%M:%S"
 
 class PCP2JSON(object):
@@ -211,7 +211,11 @@ class PCP2JSON(object):
         elif opt == 'v':
             self.omit_flat = 1
         elif opt == 'P':
-            self.precision = int(optarg)
+            try:
+                self.precision = int(optarg)
+            except:
+                sys.stderr.write("Error while parsing options: Integer expected.\n")
+                sys.exit(1)
         elif opt == 'f':
             self.timefmt = optarg
         elif opt == 'q':
@@ -357,6 +361,9 @@ class PCP2JSON(object):
         self.data['@pcp']['@hosts'][0]['@metrics'][-1]['@interval'] = str(int(ts - self.prev_ts + 0.5))
         self.prev_ts = ts
 
+        insts_key = "@instances"
+        inst_key = "@id"
+
         def get_type_string(desc):
             """ Get metric type as string """
             if desc.contents.type == pmapi.c_api.PM_TYPE_32:
@@ -377,9 +384,11 @@ class PCP2JSON(object):
                 mtype = "unknown"
             return mtype
 
-        def create_attrs(key, value, unit, pmid, desc):
+        def create_attrs(value, inst_id, inst_name, unit, pmid, desc):
             """ Create extra attribute string """
-            data = {key: value}
+            data = {"value": value}
+            if inst_name:
+                data['name'] = name
             if unit:
                 data['@unit'] = unit
             if self.extended:
@@ -388,21 +397,20 @@ class PCP2JSON(object):
                 data['@semantics'] = self.context.pmSemStr(desc.contents.sem)
             if self.everything:
                 data['@pmid'] = pmid
-                data['@indom'] = desc.contents.indom
+                if desc.contents.indom != pmapi.c_api.PM_IN_NULL:
+                    data['@indom'] = desc.contents.indom
+                if inst_id:
+                    data[inst_key] = str(inst_id)
             return data
-
-        insts_key = "@instances"
-        inst_key = "@id"
 
         for i, metric in enumerate(self.metrics):
             try:
                 # Install value into outgoing json/dict in key1{key2{key3=value}} style:
                 # foo.bar.baz=value    =>  foo: { bar: { baz: value ...} }
-                # foo.bar.noo[0]=value =>  foo: { bar: { @instances:[{@id: 0, noo: value ...} ... ]}
+                # foo.bar.noo[i]=value =>  foo: { bar: { noo: {@instances:[{i: value ...} ... ]}}}
 
                 pmns_parts = metric.split(".")
 
-                # Find/create the parent dictionary into which to insert the final component
                 for inst, name, val in self.metrics[metric][5](): # pylint: disable=unused-variable
                     try:
                         value = val()
@@ -413,26 +421,20 @@ class PCP2JSON(object):
 
                     pmns_leaf_dict = self.data['@pcp']['@hosts'][0]['@metrics'][-1]
 
+                    # Find/create the parent dictionary into which to insert the final component
                     for pmns_part in pmns_parts[:-1]:
                         if pmns_part not in pmns_leaf_dict:
                             pmns_leaf_dict[pmns_part] = {}
                         pmns_leaf_dict = pmns_leaf_dict[pmns_part]
                     last_part = pmns_parts[-1]
 
-                    if not name:
-                        pmns_leaf_dict[last_part] = create_attrs(last_part, value, self.metrics[metric][2][0], self.pmconfig.pmids[i], self.pmconfig.descs[i])
+                    if inst == pmapi.c_api.PM_IN_NULL:
+                        pmns_leaf_dict[last_part] = create_attrs(value, None, None, self.metrics[metric][2][0], self.pmconfig.pmids[i], self.pmconfig.descs[i])
                     else:
-                        if insts_key not in pmns_leaf_dict:
-                            pmns_leaf_dict[insts_key] = []
-                        insts = pmns_leaf_dict[insts_key]
-                        # Find a preexisting {@id: name} object in there, if any
-                        found = False
-                        for j in range(1, len(insts)):
-                            if insts[j][inst_key] == name:
-                                insts[j][last_part] = create_attrs(last_part, value, self.metrics[metric][2][0], self.pmconfig.pmids[i], self.pmconfig.descs[i])
-                                found = True
-                        if not found:
-                            insts.append(create_attrs(last_part, value, self.metrics[metric][2][0], self.pmconfig.pmids[i], self.pmconfig.descs[i]))
+                        if last_part not in pmns_leaf_dict:
+                            pmns_leaf_dict[last_part] = {insts_key: []}
+                        insts = pmns_leaf_dict[last_part][insts_key]
+                        insts.append(create_attrs(value, inst, name, self.metrics[metric][2][0], self.pmconfig.pmids[i], self.pmconfig.descs[i]))
             except:
                 pass
 
@@ -450,7 +452,10 @@ class PCP2JSON(object):
             except socket.error as error:
                 if error.errno != errno.EPIPE:
                     raise
-            self.writer.close()
+            try:
+                self.writer.close()
+            except:
+                pass
             self.writer = None
         return
 

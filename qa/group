@@ -1339,7 +1339,7 @@ zsh
 1065 libpcp valgrind local
 1066 derive valgrind local
 1067 zabbix zbxpcp local
-1068 pmrep python zabbix local
+1068 zabbix python local
 1069 pmrep python local timezone
 1070 pmrep pmimport python perl local
 1071 pmrep python local

@@ -49,7 +49,7 @@ _zbx_header()
 }
 
 zabbix_port=`_find_free_port`
-log="-z --archive $here/archives/sample-secs"
+log="--archive $here/archives/sample-secs"
 
 # real QA test starts here
 cat <<EOF >$tmp.config
