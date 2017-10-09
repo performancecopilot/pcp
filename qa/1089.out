@@ -2,6 +2,12 @@ QA output created by 1089
 starting pcp-atop with no limit, we should have to kill this instance
 
 
+pmcd.seqnum
+    value INTEGER
+
+pmcd.pid
+    value INTEGER
+
 pmcd.pmlogger.archive
     inst [NNN] value STRING
 
@@ -24,6 +30,12 @@ pcp-atop stderr ...
 starting pcp-atop with a sample count, should end automatically
 ps output should be empty
 
+
+pmcd.seqnum
+    value INTEGER
+
+pmcd.pid
+    value INTEGER
 
 pmcd.pmlogger.archive
     inst [NNN] value STRING

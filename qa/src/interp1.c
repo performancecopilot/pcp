@@ -143,10 +143,32 @@ Options\n\
 	exit(1);
     }
 
+    /*
+     * we want to get to the last data record ... but there may be
+     * an epilogue record at the end of the archive, so need some
+     * heuristics to optionally read back before the epilogue ...
+     * if at least 5 pmids and all are from the pmcd PMDA, then
+     * there's a good chance this is an epilogue record.
+     */
     sts = pmFetchArchive(&result);
     if (sts < 0) {
-	printf("pmFetchArchive: %s\n", pmErrStr(sts));
+	printf("pmFetchArchive end: %s\n", pmErrStr(sts));
 	exit(1);
+    }
+    if (result->numpmid >= 5) {
+	for (j = 0; j < result->numpmid; j++) {
+	    if (pmid_domain(result->vset[0]->pmid) != 2)
+		break;
+	}
+	if (j == result->numpmid) {
+	    /* suck back one record earlier in the archive */
+	    pmFreeResult(result);
+	    sts = pmFetchArchive(&result);
+	    if (sts < 0) {
+		printf("pmFetchArchive skip epilogue: %s\n", pmErrStr(sts));
+		exit(1);
+	    }
+	}
     }
 
     msec = -delta * 1000;

@@ -19,7 +19,7 @@ signal=$PCP_BINADM_DIR/pmsignal
 # Note1 - this line changed from msec to usec in 3.5.9:
 # state: not in log, unavail, mand, on delta: 0 usec numpmid: 1
 #
-# Note2 - the first (posn=132) logputresult is the preamble
+# Note2 - the first (posn=132) logputresult is the prologue
 # and size of this result is influenced by hostname length.
 #
 _filter_pmlogger()
@@ -35,8 +35,7 @@ _filter_pmlogger()
 	-e 's/value [0-9]*/value INT/g' \
 	-e 's/[0-2][0-9]:00:00.000/TIME/' \
 	-e '/logputresult/{
-s/output len=[0-9]* posn=132/output len=NNN posn=132/g
-s/len=[0-9]*/len=NNN/
+s/len=[0-9]*/len=NNN/g
 s/posn=[0-9]*/posn=NNN/
 }' \
 	-e '/__pmLogPutIndex/{

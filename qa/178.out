@@ -25,10 +25,10 @@ pmlogger: Sample limit reached, exiting
 Log finished DATE
 Full merge ...
 Log record counts ...
-a: 26
-b: 21
-c: 11
-merge: 58 (+2 marks)
+a: 27
+b: 22
+c: 12
+merge: 61 (+2 marks)
 
 sample.bin ["bin-200"] ... expect 55 samples
 55 samples
@@ -43,7 +43,7 @@ merge -s 10
 merge (expect 10): 10
 
 merge -T 6.9
-merge (expect 32 + 2 preamble + 1 mark): 34 (+1 mark)
+merge (expect 32 + 1 prologue + 1 epilogue + 1 mark): 35 (+1 mark)
 
 merge -S 6.9 -T 7.2
 merge (expect 12): 12
@@ -52,13 +52,15 @@ Full merge with volume switch ...
 pmlogextract: New log volume 1, at datestamp
 pmlogextract: New log volume 2, at datestamp
 pmlogextract: New log volume 3, at datestamp
+pmlogextract: New log volume 4, at datestamp
 Log record counts ...
-a: 26
-b: 21
-c: 11
-merge: 58 (+2 marks)
+a: 27
+b: 22
+c: 12
+merge: 61 (+2 marks)
 Log record counts per merged volume ...
 volume 0: 15
 volume 1: 15
 volume 2: 14 (+1 mark)
 volume 3: 14 (+1 mark)
+volume 4: 3

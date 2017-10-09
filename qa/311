@@ -49,11 +49,11 @@ TZ=EST-10
 export TZ
 
 # real QA test starts here
-echo "== pminfo preamble and no values =="
+echo "== pminfo prologue and no values =="
 pminfo -n src/root_irix -z -f -a badarchives/err_v1 | _order
 
 echo
-echo "== pminfo skip preamble and errors instead of values =="
+echo "== pminfo skip prologue and errors instead of values =="
 pminfo -n src/root_irix -z -O 1sec -f -a badarchives/err_v1 | _order
 
 echo

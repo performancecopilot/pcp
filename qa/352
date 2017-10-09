@@ -38,7 +38,8 @@ _filter()
 {
     sed \
 	-e "s;$tmp;TMP;g" \
-	-e '/pmcd\.pmlogger\./s/.*/	.../'
+	-e '/pmcd\./d' \
+    # end
 }
 
 unset PCP_DERIVED_CONFIG
@@ -63,7 +64,7 @@ unset PCP_DERIVED_CONFIG
 pmdumplog $tmp | tee -a $seq.full | _filter_pmdumplog | _filter
 
 # pmval -a $tmp -t 0.1sec sample.long.nine
-pminfo -f -a $tmp -O 0.24sec sample.long
+pminfo -f -a $tmp -O 0.05 sample.long
 
 # success, all done
 exit
