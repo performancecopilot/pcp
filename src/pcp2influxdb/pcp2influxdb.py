@@ -33,7 +33,7 @@ import requests
 
 # PCP Python PMAPI
 from pcp import pmapi, pmconfig
-from cpmapi import PM_CONTEXT_ARCHIVE, PM_ERR_EOL, PM_DEBUG_APPL1
+from cpmapi import PM_CONTEXT_ARCHIVE, PM_ERR_EOL, PM_IN_NULL, PM_DEBUG_APPL1
 from cpmapi import PM_TIME_NSEC
 
 if sys.version_info[0] >= 3:
@@ -431,6 +431,8 @@ class PCP2InfluxDB(object):
             tmp = Metric(metric)
             try:
                 for inst, name, val in self.metrics[metric][5](): # pylint: disable=unused-variable
+                    if inst != PM_IN_NULL and not name:
+                        continue
                     suffix = sanitize_name_indom(name) if name else "value"
                     try:
                         value = val()
