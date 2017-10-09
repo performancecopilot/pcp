@@ -1339,7 +1339,7 @@ zsh
 1065 libpcp valgrind local
 1066 derive valgrind local
 1067 zabbix zbxpcp local
-1068 zabbix python local
+1068 zabbix pcp2zabbix python pcp2xxx local
 1069 pmrep python local timezone
 1070 pmrep pmimport python perl local
 1071 pmrep python local
@@ -1388,6 +1388,10 @@ zsh
 1123 pmchart local
 1128 pmie local
 1129 derive local
+1130 pcp2elasticsearch python pcp2xxx local
+1131 pcp2json python pcp2xxx local
+1132 pcp2xlsx python pcp2xxx local
+1133 pcp2xml python pcp2xxx local
 1137 derive pmrep local
 1140 pidstat local
 1141 selinux local
