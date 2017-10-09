@@ -140,7 +140,7 @@ static void
 sigterm_handler(int sig)
 {
     /* exit as soon as possible, handler is deferred for log cleanup */
-    exit_code = sig;
+    sig_code = sig;
 }
 
 static void
