@@ -687,7 +687,7 @@ QA output created by 1131
             }
           }
         ],
-        "@source": "/tmp/pcp/var/lib/pcp/testsuite/archives/rep",
+        "@source": "ARCHIVE_PATH",
         "@timezone": "UTC+11"
       }
     ]
@@ -1565,7 +1565,7 @@ QA output created by 1131
             }
           }
         ],
-        "@source": "/tmp/pcp/var/lib/pcp/testsuite/archives/rep",
+        "@source": "ARCHIVE_PATH",
         "@timezone": "UTC+0"
       }
     ]
@@ -2579,7 +2579,7 @@ QA output created by 1131
             }
           }
         ],
-        "@source": "/tmp/pcp/var/lib/pcp/testsuite/archives/rep",
+        "@source": "ARCHIVE_PATH",
         "@timezone": "UTC+11"
       }
     ]
