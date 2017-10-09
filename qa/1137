@@ -1,8 +1,8 @@
 #!/bin/sh
 # PCP QA Test No. 1137
-# [RESERVED BY mgoodwin
+# Check new cpu-util.conf derived metrics 
 #
-# Copyright (c) 2017 [who are you?].  All Rights Reserved.
+# Copyright (c) 2017 Red Hat.  All Rights Reserved.
 #
 
 seq=`basename $0`
@@ -27,11 +27,19 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
 
-#
-# ** CHANGEME **
-#
-_notrun NO TEST YET, JUST RESERVED
+# Note: PCP_DERIVED_CONFIG is set to "" (turned off) in common
+# so we set it explicitly for this test
+config=$PCP_VAR_DIR/config/derived/cpu-util.conf
+[ ! -f $config ] && _notrun missing $config
 
+N=`pmprobe -v hinv.ncpu | awk '{print $NF}'`
+for m in user sys idle intr
+do
+    echo checking kernel.all.cpu.$m against derived utilization kernel.cpu.util.$m
+    # should always be 10
+    PCP_DERIVED_CONFIG=$config pmrep -s 2 kernel.all.cpu.$m kernel.cpu.util.$m | awk '$1 ~ /[0-9]/ {printf "%.0f\n", $1/$2/'$N'}'
+    status=$?
+done
 
 # if error
 exit
