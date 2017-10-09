@@ -29,11 +29,11 @@ import errno
 import sys
 
 # Our imports
-from elasticsearch import Elasticsearch
+from elasticsearch import Elasticsearch, ElasticsearchException
 
 # PCP Python PMAPI
 from pcp import pmapi, pmconfig
-from cpmapi import PM_CONTEXT_ARCHIVE, PM_ERR_EOL, PM_DEBUG_APPL1
+from cpmapi import PM_CONTEXT_ARCHIVE, PM_ERR_EOL, PM_IN_NULL, PM_DEBUG_APPL1
 from cpmapi import PM_TIME_MSEC
 
 if sys.version_info[0] >= 3:
@@ -319,13 +319,17 @@ class pcp2elasticsearch(object):
 
         ts = self.context.datetime_to_secs(self.pmfg_ts(), PM_TIME_MSEC)
 
-        es = Elasticsearch(hosts=[self.es_server])
-        # pylint: disable=unexpected-keyword-arg
-        es.indices.create(index=self.es_index,
-                          ignore=[400],
-                          body={'mappings':{'pcp-metric':
-                                            {'properties':{'@timestamp':{'type':'date'},
-                                                           'host-id':{'type':'string'}}}}})
+        try:
+            es = Elasticsearch(hosts=[self.es_server])
+            # pylint: disable=unexpected-keyword-arg
+            es.indices.create(index=self.es_index,
+                              ignore=[400],
+                              body={'mappings':{'pcp-metric':
+                                                {'properties':{'@timestamp':{'type':'date'},
+                                                               'host-id':{'type':'string'}}}}})
+        except ElasticsearchException as error:
+            sys.stderr.write("Can't connect to Elasticsearch server %s: %s, continuing.\n" % (self.es_server, str(error)))
+            return
 
         # Assemble all metrics into a single document
         # Use @-prefixed keys for metadata not coming in from PCP metrics
@@ -358,7 +362,7 @@ class pcp2elasticsearch(object):
                         pmns_leaf_dict = pmns_leaf_dict[pmns_part]
                     last_part = pmns_parts[-1]
 
-                    if inst == pmapi.c_api.PM_IN_NULL:
+                    if inst == PM_IN_NULL:
                         pmns_leaf_dict[last_part] = value
                     else:
                         if insts_key not in pmns_leaf_dict:
@@ -375,11 +379,15 @@ class pcp2elasticsearch(object):
             except:
                 pass
 
-        # pylint: disable=unexpected-keyword-arg
-        es.index(index=self.es_index,
-                 doc_type='pcp-metric',
-                 timestamp=long(ts),
-                 body=es_doc)
+        try:
+            # pylint: disable=unexpected-keyword-arg
+            es.index(index=self.es_index,
+                     doc_type='pcp-metric',
+                     timestamp=long(ts),
+                     body=es_doc)
+        except ElasticsearchException as error:
+            sys.stderr.write("Can't send to Elasticsearch server %s: %s, continuing.\n" % (self.es_server, str(error.error)))
+            return
 
     def finalize(self):
         """ Finalize and clean up """
