@@ -258,9 +258,17 @@ class PMReporter(object):
         elif opt == 'X':
             self.colxrow = optarg
         elif opt == 'w':
-            self.width = int(optarg)
+            try:
+                self.width = int(optarg)
+            except:
+                sys.stderr.write("Error while parsing options: Integer expected.\n")
+                sys.exit(1)
         elif opt == 'P':
-            self.precision = int(optarg)
+            try:
+                self.precision = int(optarg)
+            except:
+                sys.stderr.write("Error while parsing options: Integer expected.\n")
+                sys.exit(1)
         elif opt == 'l':
             self.delimiter = optarg
         elif opt == 'k':
@@ -268,7 +276,11 @@ class PMReporter(object):
         elif opt == 'x':
             self.extheader = 1
         elif opt == 'E':
-            self.repeat_header = int(optarg)
+            try:
+                self.repeat_header = int(optarg)
+            except:
+                sys.stderr.write("Error while parsing options: Integer expected.\n")
+                sys.exit(1)
         elif opt == 'f':
             self.timefmt = optarg
         elif opt == 'u':

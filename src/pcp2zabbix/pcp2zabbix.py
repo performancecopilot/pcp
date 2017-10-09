@@ -241,7 +241,11 @@ class PCP2Zabbix(object):
         elif opt == 'v':
             self.omit_flat = 1
         elif opt == 'P':
-            self.precision = int(optarg)
+            try:
+                self.precision = int(optarg)
+            except:
+                sys.stderr.write("Error while parsing options: Integer expected.\n")
+                sys.exit(1)
         elif opt == 'q':
             self.count_scale = optarg
         elif opt == 'b':

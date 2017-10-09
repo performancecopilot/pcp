@@ -211,7 +211,11 @@ class PCP2JSON(object):
         elif opt == 'v':
             self.omit_flat = 1
         elif opt == 'P':
-            self.precision = int(optarg)
+            try:
+                self.precision = int(optarg)
+            except:
+                sys.stderr.write("Error while parsing options: Integer expected.\n")
+                sys.exit(1)
         elif opt == 'f':
             self.timefmt = optarg
         elif opt == 'q':
