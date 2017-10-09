@@ -1,8 +1,8 @@
 #!/bin/sh
 # PCP QA Test No. 1137
-# [RESERVED BY mgoodwin
+# Check new cpu-util.conf derived metrics 
 #
-# Copyright (c) 2017 [who are you?].  All Rights Reserved.
+# Copyright (c) 2017 Red Hat.  All Rights Reserved.
 #
 
 seq=`basename $0`
@@ -13,7 +13,10 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-# test for-some-thing || _notrun No support for some-thing
+# Note: set PCP_DERIVED_CONFIG explicitly for this test to
+# ensure the availability of derived metrics being tested.
+config=$PCP_VAR_DIR/config/derived/cpu-util.conf
+[ ! -f $config ] && _notrun missing $config
 
 _cleanup()
 {
@@ -21,25 +24,19 @@ _cleanup()
     $sudo rm -rf $tmp $tmp.*
 }
 
-status=1	# failure is the default!
+status=0
 $sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
+N=`pmprobe -v hinv.ncpu | awk '{print $NF}'`
+for m in user sys idle intr
+do
+    echo checking kernel.all.cpu.$m against derived utilization kernel.cpu.util.$m
+    # should always be 10
+    PCP_DERIVED_CONFIG=$config pmrep -s 2 kernel.all.cpu.$m kernel.cpu.util.$m | awk '$1 ~ /[0-9]/ {printf "%.0f\n", $1/$2/'$N'}'
+    status=$?
+    [ $status -ne 0 ] && break
+done
 
-#
-# ** CHANGEME **
-#
-_notrun NO TEST YET, JUST RESERVED
-
-
-# if error
-exit
-
-# optional stuff if your test has verbose output to help resolve problems
-#echo
-#echo "If failure, check $seq.full"
-
-# success, all done
-status=0
 exit
