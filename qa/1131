@@ -34,10 +34,10 @@ pcp2json -a $A -H -I -z -X -b GB -P 2 -F $tmp.outfile ""
 cat $tmp.outfile
 which json_verify > /dev/null 2>&1
 if [ $? -eq 0 ]; then
-  json_verify < $tmp.outfile > /dev/null 2>&1
-  if [ $? -ne 0 ]; then
-    echo "JSON is not valid!"
-  fi
+    json_verify < $tmp.outfile > /dev/null 2>&1
+    if [ $? -ne 0 ]; then
+       echo "JSON is not valid!"
+    fi
 fi
 rm -f $tmp.outfile
 echo "---"

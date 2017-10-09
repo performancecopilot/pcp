@@ -34,10 +34,10 @@ pcp2xml -a $A -H -I -z -X -b GB -P 2 -F $tmp.outfile ""
 cat $tmp.outfile | LC_ALL=C sort
 which xmllint > /dev/null 2>&1
 if [ $? -eq 0 ]; then
-  xmllint --huge --nonet --noout $tmp.outfile > /dev/null 2>&1
-  if [ $? -ne 0 ]; then
-    echo "XML is not valid!"
-  fi
+    xmllint --huge --nonet --noout $tmp.outfile > /dev/null 2>&1
+    if [ $? -ne 0 ]; then
+       echo "XML is not valid!"
+    fi
 fi
 rm -f $tmp.outfile
 echo "---"
