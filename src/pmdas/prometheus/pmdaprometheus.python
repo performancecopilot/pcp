@@ -366,16 +366,10 @@ class Metric(object):
 			self.label = json_obj.get("label")
 			if self.instances:
 				for instance in self.instances:
-<<<<<<< HEAD
 					self.instance_by_name[instance["name"]] = {
 						"name": instance["prometheus_name"],
 						"label": instance["labels"]
 					}
-=======
-					if instance.get("name") != None:
-						self.instance_by_name[instance.get("name")] \
-							= instance.get("prometheus_name")
->>>>>>> master
 		except ValueError as e:
 			raise e
 
