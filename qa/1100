@@ -8,9 +8,7 @@ seq=`basename $0`
 echo "QA output created by $seq"
 
 # get standard environment, filters and checks
-. ./common.product
-. ./common.filter
-. ./common.check
+. ./common.python
 . ./common.config
 echo "PCPQA_CLOSE_X_SERVER=$PCPQA_CLOSE_X_SERVER" >>$here/$seq.full
 
@@ -18,8 +16,14 @@ status=1       # failure is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
-# pmrep won't work with older Python versions due to OrderedDict dependency
+# these may not be available if needed modules missing
 #
+skip_pcp2elasticsearch=false
+$python -c "from elasticsearch import Elasticsearch" >/dev/null 2>&1
+[ $? -eq 0 ] || skip_pcp2elasticsearch=true
+skip_pcp2xlsx=false
+$python -c "import xlsxwriter" >/dev/null 2>&1
+[ $? -eq 0 ] || skip_pcp2xlsx=true
 skip_pmrep=false
 $python -c "from collections import OrderedDict" >/dev/null 2>&1
 [ $? -eq 0 ] || skip_pmrep=true
@@ -41,7 +45,11 @@ fi
 # functions
 _check_completion_bash()
 {
-  for cmd in $(grep '  pm.*)' $bash_comp | tr -d ')'); do
+  cmds="$(grep '  pcp2.*)' $bash_comp | tr -d ')'))"
+  cmds="$cmds $(grep '  pm.*)' $bash_comp | tr -d ')')"
+  for cmd in $cmds; do
+    $skip_pcp2elasticsearch && [ "$cmd" = pcp2elasticsearch ] && continue
+    $skip_pcp2xlsx && [ "$cmd" = pcp2xlsx ] && continue
     $skip_pmrep && [ "$cmd" = pmrep ] && continue
     comps=$(grep -A 1 "  $cmd)" $bash_comp | tail -n 1 | sed -e 's,all_args=",,' -e 's,",,')
     # Need $tmp.err and PCP_STDERR for pmchart ...
@@ -78,11 +86,14 @@ _check_completion_bash()
 _check_completion_zsh()
 {
   for cmd in $(grep '#compdef' $zsh_comp | sed -e 's,#compdef ,,'); do
+    $skip_pcp2elasticsearch && [ "$cmd" = pcp2elasticsearch ] && continue
+    $skip_pcp2xlsx && [ "$cmd" = pcp2xlsx ] && continue
     $skip_pmrep && [ "$cmd" = pmrep ] && continue
     echo $cmd | grep = > /dev/null 2>&1 && continue
     common=$(awk "/common_most=/,/  \)/" $zsh_comp)
+    pytool=$(awk "/common_python=/,/  \)/" $zsh_comp)
     version=V
-    comps=$(awk "/$cmd\)/,/\;\;/" $zsh_comp)
+    comps=$(awk "/  $cmd\)/,/\;\;/" $zsh_comp)
     # Need $tmp.err and PCP_STDERR for pmchart ...
     #
     rm -f $tmp.err
@@ -104,6 +115,13 @@ _check_completion_zsh()
         echo $comps | grep common_most > /dev/null 2>&1
         if [ $? -eq 0 ]; then
           echo $common | grep -- -$opt > /dev/null 2>&1
+          not_found=$?
+        fi
+      fi
+      if [ $not_found -ne 0 ]; then
+        echo $comps | grep common_python > /dev/null 2>&1
+        if [ $? -eq 0 ]; then
+          echo $pytool | grep -- -$opt > /dev/null 2>&1
           not_found=$?
         fi
       fi
