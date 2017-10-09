@@ -258,9 +258,17 @@ class PMReporter(object):
         elif opt == 'X':
             self.colxrow = optarg
         elif opt == 'w':
-            self.width = int(optarg)
+            try:
+                self.width = int(optarg)
+            except:
+                sys.stderr.write("Error while parsing options: Integer expected.\n")
+                sys.exit(1)
         elif opt == 'P':
-            self.precision = int(optarg)
+            try:
+                self.precision = int(optarg)
+            except:
+                sys.stderr.write("Error while parsing options: Integer expected.\n")
+                sys.exit(1)
         elif opt == 'l':
             self.delimiter = optarg
         elif opt == 'k':
@@ -268,7 +276,11 @@ class PMReporter(object):
         elif opt == 'x':
             self.extheader = 1
         elif opt == 'E':
-            self.repeat_header = int(optarg)
+            try:
+                self.repeat_header = int(optarg)
+            except:
+                sys.stderr.write("Error while parsing options: Integer expected.\n")
+                sys.exit(1)
         elif opt == 'f':
             self.timefmt = optarg
         elif opt == 'u':
@@ -643,6 +655,8 @@ class PMReporter(object):
             try:
                 for inst, name, val in self.metrics[metric][5](): # pylint: disable=unused-variable
                     try:
+                        if inst != PM_IN_NULL and not name:
+                            continue
                         value = val()
                         if inst != PM_IN_NULL and inst not in self.recorded[metric]:
                             self.recorded[metric].append(inst)
@@ -837,7 +851,10 @@ class PMReporter(object):
             try:
                 for inst, name, val in self.metrics[metric][5](): # pylint: disable=unused-variable
                     try:
-                        res[metric].append([inst, name, val()])
+                        if inst != PM_IN_NULL and not name:
+                            res[metric].append(['', '', NO_VAL])
+                        else:
+                            res[metric].append([inst, name, val()])
                     except:
                         res[metric].append([inst, name, NO_VAL])
                 if not res[metric]:
@@ -945,7 +962,10 @@ class PMReporter(object):
             except socket.error as error:
                 if error.errno != errno.EPIPE:
                     raise
-            self.writer.close()
+            try:
+                self.writer.close()
+            except:
+                pass
             self.writer = None
         if self.pmi:
             self.pmi.pmiEnd()

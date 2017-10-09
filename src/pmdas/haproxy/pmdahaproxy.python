@@ -13,6 +13,8 @@
 # GNU General Public License for more details.
 #
 
+# Last updated for: haproxy 1.7.5
+
 # pylint: disable=superfluous-parens, bad-whitespace
 # pylint: disable=invalid-name, line-too-long, no-self-use
 # pylint: disable=too-many-instance-attributes, too-many-locals
