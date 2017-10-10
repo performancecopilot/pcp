@@ -30,7 +30,7 @@ _filter()
 /datax/				{ skip = 3 }
 skip > 0			{ skip--; next }
 $1 == "log" && $2 == "size"	{ if ($3 > 100 && $3 <= 200) $3 = "more than 100"
-				  else if ($3 > 200 && $3 <= 300) $3 = "more than 200"
+				  else if ($3 > 200 && $3 <= 400) $3 = "more than 200"
 				}
 				{ print }'
 }
