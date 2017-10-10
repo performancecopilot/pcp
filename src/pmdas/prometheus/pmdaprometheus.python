@@ -63,18 +63,13 @@ class Metric(object):
                                      (source.cluster * (MAX_METRIC+1)) +
                                      metricnum)
                 self.pcpline = pcpline
+                self.typeline = typeline
                 self.values = {} # instance-vector-to-value
-                # XXXX PCP - real name; : unquoting; heuristics galore
-                self.mtype = c_api.PM_TYPE_DOUBLE # NB: allow overriding sometime
-                self.msem = c_api.PM_SEM_INSTANT  # XXX
-                if self.pcpline:
-                        self.mname = 'prometheus.' + self.source.name + '.' + self.pcpline
-                else:
-                        self.mname = 'prometheus.' + self.source.name + '.' + self.name.replace(":",".")
-                self.munits = pmUnits(0,0,0,0,0,0) # XXX
+                self.assign_metadata()
                 if instances:
                         self.mindom = self.source.pmda.indom(self.indom_number) # add domain#
-                        self.indom_table = PersistentNameTable(self.source.pmda, self.indom_number, MAX_INDOM)
+                        self.indom_table = PersistentNameTable(self.source.pmda,
+                                                               self.indom_number, MAX_INDOM)
                 else:
                         self.mindom = c_api.PM_INDOM_NULL
                         self.indom_table = None
@@ -87,10 +82,49 @@ class Metric(object):
                         self.source.pmda.log("Cannot add metric %s (%d): %s" % (self.mname, self.pmid, e))
                 self.source.pmda.debug("created metric %#x (%s)" % (self.pmid, self.mname))
 
+
+        def assign_metadata(self):
+                ''' Compute metric metadata self.{mtype,mname,msem,munits}
+                from the available information already stored in self.
+                '''
+                self.mtype = c_api.PM_TYPE_DOUBLE # NB: allow overriding sometime
+
+                # Split the prometheus metric name by "_", to help
+                # decode convention for squishing unit/scale data.
+                pieces = self.name.split('_')
+                
+                # XXX: pcpline semantics
+                if (self.typeline == 'counter'
+                    or 'total' in pieces or 'count' in pieces or 'sum' in pieces):
+                        self.msem = c_api.PM_SEM_COUNTER
+                else:
+                        self.msem = c_api.PM_SEM_INSTANT
+
+                if self.pcpline:
+                        self.mname = 'prometheus.' + self.source.name + '.' + self.pcpline # XXX: split once it carries sem/units
+                else:
+                        self.mname = 'prometheus.' + self.source.name + '.' + self.name.replace(":",".")
+                        
+                # XXX: pcpline units
+                if ('seconds' in pieces):
+                        self.munits = pmUnits(0,1,0,0,3,0)
+                elif ('microseconds' in pieces): # not listed in https://prometheus.io/docs/practices/naming/
+                        self.munits = pmUnits(0,1,0,0,1,0)
+                elif ('bytes' in pieces):
+                        self.munits = pmUnits(1,0,0,1,0,0)
+                else:
+                        self.munits = pmUnits(0,0,0,0,0,0) # default, dimensionless old-school count
+
+                assert self.munits and self.msem and self.mname and self.mtype
+
+                
         def clear_values(self):
+                ''' Erase all stored instance/value pairs, in anticipation of a new set. '''
                 self.values.clear()
         
         def store_inst(self,labels,value):
+                ''' Store given new instance/value pair. '''
+                
                 assert (labels is None) == (self.indom_table is None) # no metric indom flipflop
                 if labels is None:
                         self.values[c_api.PM_IN_NULL] = float(value)
