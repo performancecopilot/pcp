@@ -40,7 +40,7 @@ import threading
 
 MAX_CLUSTER = 0xfff    # ~ max. number of prometheus sources
 MAX_METRIC = 0x3ff     # ~ max. number of metrics per source
-MAX_INDOM = 0x7fffffff # product of above
+MAX_INDOM = 0x7fffffff # coincidentally, ~ product of above
 
 # These numbers are combined to create uniqe numbers for several
 # purposes.  The first two types are used only for internal
@@ -62,11 +62,15 @@ class Metric(object):
                 self.indom_number = (MAX_CLUSTER+1 +
                                      (source.cluster * (MAX_METRIC+1)) +
                                      metricnum)
+                self.pcpline = pcpline
                 self.values = {} # instance-vector-to-value
                 # XXXX PCP - real name; : unquoting; heuristics galore
                 self.mtype = c_api.PM_TYPE_DOUBLE # NB: allow overriding sometime
                 self.msem = c_api.PM_SEM_INSTANT  # XXX
-                self.mname = 'prometheus.' + self.source.name + '.' + self.name.replace(":",".") # XXX pcpline etc.
+                if self.pcpline:
+                        self.mname = 'prometheus.' + self.source.name + '.' + self.pcpline
+                else:
+                        self.mname = 'prometheus.' + self.source.name + '.' + self.name.replace(":",".")
                 self.munits = pmUnits(0,0,0,0,0,0) # XXX
                 if instances:
                         self.mindom = self.source.pmda.indom(self.indom_number) # add domain#
@@ -90,7 +94,11 @@ class Metric(object):
                 if labels is None:
                         self.values[c_api.PM_IN_NULL] = float(value)
                 else:
-                        instname = str(labels) # XXX: PCP instance=""
+                        if self.pcpline: # pmwebd
+                                instname = labels['instance']
+                        else:
+                                instname = str(labels)
+                        # self.source.pmda.debug("store %s instance %s value %s" % (self.pcpline, instname, value))
                         inst = self.indom_table.intern_lookup_value(instname)
                         self.values[inst] = float(value)
                         self.indom_table.save() # XXX: ideally less frequently
@@ -373,22 +381,27 @@ class Source(object):
                                         typeline = None
 
                                 lp = l.split()
-                                if len(lp) < 4:
+                                if len(lp) < 2:
                                         continue
                                 # NB: for a well-formed exporter file,
                                 # the # metadata blocks must precede
                                 # the metric values; we can ignore
                                 # lp[2].
                                 if lp[1] == 'PCP': # XXX: extend, regularize, document
-                                        pcpline = ' '.join(lp[3:])
+                                        pcpline = ' '.join(lp[2:])
                                 elif lp[1] == 'HELP':
+                                        # assume lp[2] matches metric name
                                         helpline = ' '.join(lp[3:]) # XXX unescape \\ \n
                                 elif lp[1] == 'TYPE':
+                                        # assume lp[2] matches metric name
                                         typeline = ' '.join(lp[3:])
                                 else:
                                         pass # ignore other comment lines
                         else: # metric{...} value line
                                 state = "metrics"
+                                # NB: could verify helpline/typeline lp[2] matches,
+                                # but we don't have to go out of our way to support
+                                # non-compliant exporters.
                                 self.parse_metric_line(l,pcpline,helpline,typeline)
                                 num_metrics += 1
                 return num_metrics
