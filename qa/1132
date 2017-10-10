@@ -29,6 +29,7 @@ _unzip_filter()
 {
     sed \
        -e "s|Archive:.*||g" \
+       -e "s|[ ]*$||g" \
     #end
 }
 

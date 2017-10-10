@@ -208,6 +208,10 @@ HH:MM:SS        1
 00:47:09|1 minute     |       ~|        ~|        ~|      ~|       ~|   0.820|       ~
 00:47:09|5 minute     |       ~|        ~|        ~|      ~|       ~|   0.700|       ~
 00:47:09|15 minute    |       ~|        ~|        ~|      ~|       ~|   0.590|       ~
+== invalid command line parameters
+Error while parsing options: Integer expected.
+Error while parsing options: Integer expected.
+Error while parsing options: Integer expected.
 == exercise non-integer options
 
   archive: QAPATH/archives/sample-secs
@@ -613,6 +617,18 @@ Incompatible configuration file version (read v99, need v1).
              Kbyte
 00:48:01     36832
 00:49:01     38236
+== time alignment with archive/host
+          m.u.free
+             Kbyte
+00:48:00     38220
+00:48:02     36832
+00:48:04     36832
+00:48:06     36832
+00:48:08     36832
+        Xs.l.one
+        X       
+ALIGN_OK_X      1
+ALIGN_OK_X      1
 == basic string value reporting
   p.version
            

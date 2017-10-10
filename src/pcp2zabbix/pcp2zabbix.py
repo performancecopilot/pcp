@@ -50,6 +50,7 @@
 # Common imports
 from collections import OrderedDict
 import errno
+import time
 import sys
 
 # Our imports
@@ -59,7 +60,6 @@ except:
     import simplejson as json
 import socket
 import struct
-import time
 
 # PCP Python PMAPI
 from pcp import pmapi, pmconfig

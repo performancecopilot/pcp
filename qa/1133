@@ -24,20 +24,24 @@ trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 A="archives/rep"
 
+_filter()
+{
+    LC_ALL=C sort | \
+    sed -e "s,$A,ARCHIVE_PATH,g"
+}
+
 # real QA test starts here
 echo "---"
-pcp2xml -a $A -H -I -z "" | LC_ALL=C sort
+pcp2xml -a $A -H -I -z "" | _filter
 echo "---"
-pcp2xml -a $A -H -I -Z UTC+0 -x "" | LC_ALL=C sort
+pcp2xml -a $A -H -I -Z UTC+0 -x "" | _filter
 echo "---"
 pcp2xml -a $A -H -I -z -X -b GB -P 2 -F $tmp.outfile ""
-cat $tmp.outfile | LC_ALL=C sort
+cat $tmp.outfile | _filter
 which xmllint > /dev/null 2>&1
 if [ $? -eq 0 ]; then
-  xmllint --huge --nonet --noout $tmp.outfile > /dev/null 2>&1
-  if [ $? -ne 0 ]; then
-    echo "XML is not valid!"
-  fi
+    xmllint --huge --nonet --noout $tmp.outfile > /dev/null 2>&1
+    [ $? -ne 0 ] && echo "XML is not valid!"
 fi
 rm -f $tmp.outfile
 echo "---"
