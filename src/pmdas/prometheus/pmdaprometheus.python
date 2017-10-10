@@ -82,8 +82,9 @@ class Metric(object):
                 self.description = helpline # XXX unescape
                 try:
                         self.source.pmda.add_metric(self.mname, self.obj, self.description)
+                        self.pmda.set_need_refresh()
                 except Exception as e:
-                        self.log("Cannot add metric %s (%d): %s" % (self.mname, self.pmid, e))
+                        self.source.pmda.log("Cannot add metric %s (%d): %s" % (self.mname, self.pmid, e))
                 self.source.pmda.debug("created metric %#x (%s)" % (self.pmid, self.mname))
 
         def clear_values(self):
@@ -107,7 +108,7 @@ class Metric(object):
                 if inst in self.values:
                         return [self.values[inst], 1]
                 else:
-                        self [c_api.PM_ERR_INST, 0]
+                        return [c_api.PM_ERR_INST, 0]
 
 class PersistentNameTable(object):
         '''Persistent name table.  Answers name-to-number queries by assigning
@@ -315,6 +316,12 @@ class SampleLineParser(object):
 
                                               
 class Source(object):
+        '''An instance of this class represents a distinct Prometheus exporter,
+        identified by a nickname (the next PMNS component beneath prometheus.*),
+        and a URL.  Metrics will show up at prometheus.NICKNAME.MET.RIC as/when
+        the source is online.
+        '''
+
         def __init__(self, name, cluster, path, pmda):
                 self.name = name # source nickname
                 self.cluster = cluster # unique/persistent id# for nickname
@@ -330,6 +337,18 @@ class Source(object):
                 self.metrics_by_num = {} # number (last component of pmid) -> Metric
                 
 
+        def old_enough_for_refresh(self):
+                '''But what's "old"?  Aye, there's the rub.  If it's empty (no
+                metrics), then it has probably never been connected to
+                successfully.  
+
+                OTOH, if it hasn't been fetched from "recently", maybe
+                it grew new metrics, and may need a look-see.  So we
+                could track the last time a fetch was done to this source,
+                and "time out" the PMNS from it.  XXX
+                '''
+                return len(self.metrics_by_name) == 0
+                
         def parse_metric_line(self,line,pcpline,helpline,typeline):
                 '''
                 Parse the sample line, identify/create corresponding metric & instance.
@@ -359,7 +378,6 @@ class Source(object):
                 fetch()es.  Parse errors may result in exceptions.
                 That's OK, we don't try heroics to parse non-compliant
                 data.  Return number of metrics extracted.
-
                 '''
 
                 num_metrics = 0
@@ -435,17 +453,20 @@ class Source(object):
                         return
                 
         def fetch(self, item, inst):
+                ''' Retrieve metric/instance values that ought to have been found
+                by a recent refresh().  PM_ERR_AGAIN signals a no go.'''
                 try:
                         m = self.metrics_by_num[item]
                         return m.fetch_inst(inst)
                 except Exception as e:
-                        self.log("cannot fetch item %d inst %d: %s" % (item,inst,e))
+                        self.pmda.log("cannot fetch item %d inst %d: %s" % (item,inst,e))
                         return [c_api.PM_ERR_AGAIN, 0]
 
 
 class PrometheusPMDA(PMDA):
         def __init__(self,pmda_name,domain,config):
-                ''' Initialize the PMDA'''
+                ''' Initialize the PMDA
+                '''
                 # urgent: say hi the invoking pmcd, redirect stderr etc.
                 PMDA.__init__(self,pmda_name,domain)
                 self.connect_pmcd()
@@ -469,11 +490,12 @@ class PrometheusPMDA(PMDA):
                 dynamic_pmid = (0 << 31) | (511 << 22) | (144 << 10) | 0
                 dynamic_root = pmdaMetric(dynamic_pmid,0,0,0,pmUnits())
                 self.add_metric('prometheus',dynamic_root,'dynamic root for prometheus metrics')
-        
+                self.set_need_refresh()
+
                 # used all the time, but we welcome it only for initial pmns population purposes
-                self.set_refresh_metrics(self.rescan_confdir)
+                self.set_refresh_metrics(self.refresh_metrics_for_pmns)
                 # used during fetch
-                self.set_refresh_all(self.refresh_some_clusters) # "all" is a misnomer
+                self.set_refresh_all(self.refresh_some_clusters_for_fetch) # "all" is a misnomer
                 self.set_fetch_callback(self.fetch_callback)
 
 
@@ -490,21 +512,20 @@ class PrometheusPMDA(PMDA):
 
                        
         def rescan_confdir(self):
-                '''
-                Scan the configuration directory for any new .url files containing
+                '''Scan the configuration directory for any new .url files containing
                 prometheus URLs.  Ensure there is a Source registered in
-                the self.source_by_name dictionary for each one.  Then have each
-                Source do a fetch, so as to populate the PMNS.
+                the self.source_by_name dictionary for each one.
 
-                If the config_dir hasn't changed lately, do nothing.  This is important
-                because this callback is invoked -all-the-time- by src/python/pmda.c
+                If the config_dir hasn't changed lately, do nothing.
+                This is important because this callback is invoked
+                -all-the-time- by src/python/pmda.c.
                 '''
                 try:
                         ctime = os.path.getctime(self.config_dir)
                         if not self.config_dir_ctime or self.config_dir_ctime < ctime:
                                 self.config_dir_ctime = ctime
                                 # fall through
-                        else: # no change
+                        else: # no change, don't rescan directory
                                 return
                 except:
                         # If the stat failed, there's not much we can do.
@@ -545,8 +566,21 @@ class PrometheusPMDA(PMDA):
                                                 self.log("Error allocating new cluster/source %s (%s)" % (name, e))
                 if save_cluster_table:
                         self.cluster_table.save()
-                # do a batch fetch of all sources to ensure pmns is populated
-                self.refresh_all_clusters()
+
+
+        def refresh_metrics_for_pmns(self):
+                '''Refresh our list of Sources.  Then have each "old" Source do a
+                fetch, so as to populate/refresh the PMNS.
+                '''
+                self.rescan_confdir() # get our Source list up to date
+                
+                # do a batch fetch of all empty sources to ensure pmns is populated
+                clusters=[]
+                for k,v in self.source_by_cluster.items():
+                        if v.old_enough_for_refresh():
+                                clusters.append(k)
+                self.refresh_some_clusters_for_fetch(clusters)
+
                 
         def fetch_callback(self, cluster, item, inst):
                 ''' Main fetch callback which returns the value of the metric '''
@@ -566,20 +600,7 @@ class PrometheusPMDA(PMDA):
                 except Exception as e:
                         self.log("Cannot refresh cluster %d: %s" % (cluster, e))
 
-                        
-        def refresh_all_clusters(self):
-                threads = []
-                for k,v in self.source_by_cluster.items():
-                        t = threading.Thread(target=self.refresh_worker,
-                                             args=(k,)) # <- important comma
-                        threads.append(t)
-                        t.daemon = True
-                        t.start()
-                for t in threads:
-                        t.join() # XXX: apply timeout as backup
-                self.set_need_refresh()
-                        
-        def refresh_some_clusters(self,_clusters):
+        def refresh_some_clusters_for_fetch(self,_clusters):
                 '''Called once per pmFetch batch handling, before
                 prometheus_fetch_callback calls.  Creates threads to
                 fetch data in parallel.
@@ -594,7 +615,6 @@ class PrometheusPMDA(PMDA):
                         t.start()
                 for t in threads:
                         t.join()
-                self.set_need_refresh()
 
         def set_need_refresh(self):
                 cpmda.set_need_refresh()
