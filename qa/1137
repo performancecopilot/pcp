@@ -30,13 +30,30 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
 N=`pmprobe -v hinv.ncpu | awk '{print $NF}'`
-for m in user sys idle intr
+for m in user nice sys idle intr steal
 do
-    echo checking kernel.all.cpu.$m against derived utilization kernel.cpu.util.$m
-    # should always be 10
-    PCP_DERIVED_CONFIG=$config pmrep -s 2 kernel.all.cpu.$m kernel.cpu.util.$m | awk '$1 ~ /[0-9]/ {printf "%.0f\n", $1/$2/'$N'}'
-    status=$?
-    [ $status -ne 0 ] && break
+    echo checking kernel.all.cpu.$m against derived utilization kernel.cpu.util.$m | tee -a $here/$seq.full
+    # kernel.all.cpu.util.X is ms/s and kernel.cpu.util.X is the average %util over all CPUs for mode X.
+    # So kernel.all.cpu.util.X should be about the same as kernel.cpu.util.X * (1000 / 100) * Ncpus.
+    # Subtract them and check they're equal within a reasonable tolerance.
+    #
+    PCP_DERIVED_CONFIG=$config pmrep -t 1 -s 2 kernel.all.cpu.$m kernel.cpu.util.$m 2>$tmp.err >$tmp.out &
+    # do some work
+    #
+    src/chain 3 50000
+    wait
+    cat $tmp.err
+    cat $tmp.out \
+    | tee -a $here/$seq.full \
+    | $PCP_AWK_PROG '
+$1 !~ /^[0-9][0-9.]*$/	{ next }
+$2 !~ /^[0-9][0-9.]*$/	{ next }
+			{ x = $1 - ($2 * 10 * '$N')
+			  if (x > 0.05 || x < -0.05)
+			      print "FAIL ", $1, $2, x
+			  else
+			      print "PASS"
+			}'
 done
 
 exit
