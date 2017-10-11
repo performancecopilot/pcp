@@ -165,3 +165,10 @@ Nanoseconds spent servicing reads per dm device.
 
 @ dmstats.write_ticks The total time spent writing
 Nanoseconds spent servicing writes per dm device.
+
+@dmstats.histogram.hist_count The list of histogram counts
+A list of the histogram counts for the current statistics region in order of
+ascending value. The instance name includes bin boundaries.
+
+@dmstats.histogram.hist_bins The number of bins
+The number of latency histogram bins configured for the region.
