@@ -76,9 +76,9 @@ _rpm_package_install_await
 
 create_rewrite_logs
 echo "old -> new changes" | tee -a $seq.full
-diff -u $tmp.log-1.dump $tmp.log-2.dump | tee -a $seq.full | sed -e '/^---/d' -e '/^+++/d'
+diff -U 1 $tmp.log-1.dump $tmp.log-2.dump | tee -a $seq.full | sed -e '/^---/d' -e '/^+++/d'
 echo "new -> ref changes ... expect none" | tee -a $seq.full
-diff -u $tmp.log-2.dump $tmp.log.dump | tee -a $seq.full | sed -e '/^---/d' -e '/^+++/d'
+diff -U 1 $tmp.log-2.dump $tmp.log.dump | tee -a $seq.full | sed -e '/^---/d' -e '/^+++/d'
 
 # success, all done
 status=0
