@@ -313,6 +313,10 @@ class PMReporter(object):
             sys.stderr.write("Incompatible configuration file version (read v%s, need v%d).\n" % (self.version, CONFVER))
             sys.exit(1)
 
+        # Check how we were invoked and adjust output
+        if sys.argv[0].endswith("pcp2csv"):
+            self.output = OUTPUT_CSV
+
         if self.output == OUTPUT_ARCHIVE and not self.outfile:
             sys.stderr.write("Archive must be defined with archive output.\n")
             sys.exit(1)

@@ -1,10 +1,6 @@
 
-# these two files are created by the PMDA install process
+# these files are created by the PMDA install process
 pmdasnmp.1
-pmdasnmp.1.gz
-pmdasnmp.1.lzma
-pmdasnmp.1.xz
-pmdasnmp.1.bz2
 domain.h
 pmns
 

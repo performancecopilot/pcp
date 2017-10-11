@@ -1,2 +1,7 @@
+*.1.tmp
+*.1.lzma
+*.1.bz2
+*.1.xz
+*.1.gz
 *.icns
 exports.solaris
