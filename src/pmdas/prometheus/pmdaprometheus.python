@@ -74,10 +74,14 @@ class Metric(object):
                         self.mindom = c_api.PM_INDOM_NULL
                         self.indom_table = None
                 self.obj = pmdaMetric(self.pmid,self.mtype,self.mindom,self.msem,self.munits)
-                self.description = helpline # XXX unescape
+                if helpline: # it could be None!
+                        self.description = helpline # XXX unescape
+                else:
+                        self.description = ''
+
                 try:
                         self.source.pmda.add_metric(self.mname, self.obj, self.description)
-                        self.pmda.set_need_refresh()
+                        self.source.pmda.set_need_refresh()
                 except Exception as e:
                         self.source.pmda.log("Cannot add metric %s (%d): %s" % (self.mname, self.pmid, e))
                 self.source.pmda.debug("created metric %#x (%s)" % (self.pmid, self.mname))
@@ -156,8 +160,8 @@ class PersistentNameTable(object):
                 self.indom = indom
                 self.maxnum = maxnum
                 self.need_save = False
-                self.store_file_name = '%s/pmdas/%d.%d.py' % (os.environ['PCP_VAR_DIR'],
-                                                              pmda.domain, indom)
+                self.store_file_name = '%s/config/pmda/%d.%d.py' % (os.environ['PCP_VAR_DIR'],
+                                                                    pmda.domain, indom)
                 try: # slightly used!
                         with open(self.store_file_name,'rb') as f:
                                 self.instances = pickle.load(f,encoding="bytes")
@@ -478,10 +482,14 @@ class Source(object):
                         return
                 # fetch the URL
                 try:
-                        r = self.requests.get(url,timeout=1) # XXX parametrize
-                        s = self.parse_lines(r.text)
+                        if url.startswith('file://'):
+                                t = open(url[7:],'r').read()
+                        else:
+                                r = self.requests.get(url,timeout=1) # XXX parametrize
+                                t = r.text
+                        s = self.parse_lines(t)
                         self.pmids_table.save()
-                        self.pmda.debug("fetched %d bytes with %d metrics from %s" % (len(r.text), s, url))
+                        self.pmda.debug("fetched %d bytes with %d metrics from %s" % (len(t), s, url))
                 except Exception as e:
                         self.pmda.log("cannot fetch %s: %s" % (url, e))
                         return
