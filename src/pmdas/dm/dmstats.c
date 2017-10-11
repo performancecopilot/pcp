@@ -97,7 +97,8 @@ pm_dm_histogram_fetch(int item, struct pm_wrap *pw, pmAtomValue *atom)
 	return 1;
 }
 
-#define SUM_COUNTER(STATS_COUNTER) dm_stats_get_counter(pw->dms, (STATS_COUNTER), \
+#define SUM_COUNTER(pw, STATS_COUNTER) \
+	dm_stats_get_counter((pw)->dms, (STATS_COUNTER), \
 		DM_STATS_REGION_CURRENT, DM_STATS_AREA_CURRENT)
 
 static int
@@ -108,19 +109,19 @@ _pm_dm_refresh_stats_counter(struct pm_wrap *pw)
 	uint64_t io_in_progress = 0, io_nsecs = 0, weighted_io_nsecs = 0, total_read_nsecs = 0, total_write_nsecs = 0;
 
 	dm_stats_foreach_region(pw->dms) {
-		reads             += SUM_COUNTER(DM_STATS_READS_COUNT);
-		reads_merged      += SUM_COUNTER(DM_STATS_READS_COUNT);
-		read_sectors      += SUM_COUNTER(DM_STATS_READ_SECTORS_COUNT);
-		read_nsecs        += SUM_COUNTER(DM_STATS_READ_NSECS);
-		writes            += SUM_COUNTER(DM_STATS_WRITES_COUNT);
-		writes_merged     += SUM_COUNTER(DM_STATS_WRITES_MERGED_COUNT);
-		write_sectors     += SUM_COUNTER(DM_STATS_WRITE_SECTORS_COUNT);
-		write_nsecs       += SUM_COUNTER(DM_STATS_WRITE_NSECS);
-		io_in_progress    += SUM_COUNTER(DM_STATS_IO_IN_PROGRESS_COUNT);
-		io_nsecs          += SUM_COUNTER(DM_STATS_IO_NSECS);
-		weighted_io_nsecs += SUM_COUNTER(DM_STATS_WEIGHTED_IO_NSECS);
-		total_read_nsecs  += SUM_COUNTER(DM_STATS_TOTAL_READ_NSECS);
-		total_write_nsecs += SUM_COUNTER(DM_STATS_TOTAL_WRITE_NSECS);
+		reads             += SUM_COUNTER(pw, DM_STATS_READS_COUNT);
+		reads_merged      += SUM_COUNTER(pw, DM_STATS_READS_COUNT);
+		read_sectors      += SUM_COUNTER(pw, DM_STATS_READ_SECTORS_COUNT);
+		read_nsecs        += SUM_COUNTER(pw, DM_STATS_READ_NSECS);
+		writes            += SUM_COUNTER(pw, DM_STATS_WRITES_COUNT);
+		writes_merged     += SUM_COUNTER(pw, DM_STATS_WRITES_MERGED_COUNT);
+		write_sectors     += SUM_COUNTER(pw, DM_STATS_WRITE_SECTORS_COUNT);
+		write_nsecs       += SUM_COUNTER(pw, DM_STATS_WRITE_NSECS);
+		io_in_progress    += SUM_COUNTER(pw, DM_STATS_IO_IN_PROGRESS_COUNT);
+		io_nsecs          += SUM_COUNTER(pw, DM_STATS_IO_NSECS);
+		weighted_io_nsecs += SUM_COUNTER(pw, DM_STATS_WEIGHTED_IO_NSECS);
+		total_read_nsecs  += SUM_COUNTER(pw, DM_STATS_TOTAL_READ_NSECS);
+		total_write_nsecs += SUM_COUNTER(pw, DM_STATS_TOTAL_WRITE_NSECS);
 	}
 
 	pw->dmsc->pm_reads             += reads;
@@ -141,8 +142,9 @@ _pm_dm_refresh_stats_counter(struct pm_wrap *pw)
 
 }
 
-#define PER_COUNTER(STATS_COUNTER) dm_stats_get_counter(pw->dms, (STATS_COUNTER), \
-		pw->region_id, pw->area_id)
+#define PER_COUNTER(pw, STATS_COUNTER) \
+	dm_stats_get_counter((pw)->dms, (STATS_COUNTER), \
+		(pw)->region_id, (pw)->area_id)
 
 static int
 _pm_dm_refresh_stats_counter_update(struct pm_wrap *pw, struct pm_wrap *pw2)
@@ -151,19 +153,19 @@ _pm_dm_refresh_stats_counter_update(struct pm_wrap *pw, struct pm_wrap *pw2)
 	uint64_t writes = 0, writes_merged = 0, write_sectors = 0, write_nsecs = 0;
 	uint64_t io_in_progress = 0, io_nsecs = 0, weighted_io_nsecs = 0, total_read_nsecs = 0, total_write_nsecs = 0;
 
-	reads             = PER_COUNTER(DM_STATS_READS_COUNT);
-	reads_merged      = PER_COUNTER(DM_STATS_READS_COUNT);
-	read_sectors      = PER_COUNTER(DM_STATS_READ_SECTORS_COUNT);
-	read_nsecs        = PER_COUNTER(DM_STATS_READ_NSECS);
-	writes            = PER_COUNTER(DM_STATS_WRITES_COUNT);
-	writes_merged     = PER_COUNTER(DM_STATS_WRITES_MERGED_COUNT);
-	write_sectors     = PER_COUNTER(DM_STATS_WRITE_SECTORS_COUNT);
-	write_nsecs       = PER_COUNTER(DM_STATS_WRITE_NSECS);
-	io_in_progress    = PER_COUNTER(DM_STATS_IO_IN_PROGRESS_COUNT);
-	io_nsecs          = PER_COUNTER(DM_STATS_IO_NSECS);
-	weighted_io_nsecs = PER_COUNTER(DM_STATS_WEIGHTED_IO_NSECS);
-	total_read_nsecs  = PER_COUNTER(DM_STATS_TOTAL_READ_NSECS);
-	total_write_nsecs = PER_COUNTER(DM_STATS_TOTAL_WRITE_NSECS);
+	reads             = PER_COUNTER(pw, DM_STATS_READS_COUNT);
+	reads_merged      = PER_COUNTER(pw, DM_STATS_READS_COUNT);
+	read_sectors      = PER_COUNTER(pw, DM_STATS_READ_SECTORS_COUNT);
+	read_nsecs        = PER_COUNTER(pw, DM_STATS_READ_NSECS);
+	writes            = PER_COUNTER(pw, DM_STATS_WRITES_COUNT);
+	writes_merged     = PER_COUNTER(pw, DM_STATS_WRITES_MERGED_COUNT);
+	write_sectors     = PER_COUNTER(pw, DM_STATS_WRITE_SECTORS_COUNT);
+	write_nsecs       = PER_COUNTER(pw, DM_STATS_WRITE_NSECS);
+	io_in_progress    = PER_COUNTER(pw, DM_STATS_IO_IN_PROGRESS_COUNT);
+	io_nsecs          = PER_COUNTER(pw, DM_STATS_IO_NSECS);
+	weighted_io_nsecs = PER_COUNTER(pw, DM_STATS_WEIGHTED_IO_NSECS);
+	total_read_nsecs  = PER_COUNTER(pw, DM_STATS_TOTAL_READ_NSECS);
+	total_write_nsecs = PER_COUNTER(pw, DM_STATS_TOTAL_WRITE_NSECS);
 
 	pw2->dmsc->pm_reads             += reads;
 	pw2->dmsc->pm_reads_merged      += reads_merged;

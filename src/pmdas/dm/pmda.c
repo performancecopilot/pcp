@@ -265,7 +265,8 @@ dm_fetch_refresh(pmdaExt *pmda, int *need_refresh)
 
         if ((sts = dm_cache_instance_refresh()) < 0)
 	    return sts;
-indom = dm_indom(DM_CACHE_INDOM);
+
+        indom = dm_indom(DM_CACHE_INDOM);
 
         for (pmdaCacheOp(indom, PMDA_CACHE_WALK_REWIND);;) {
 	    if ((inst = pmdaCacheOp(indom, PMDA_CACHE_WALK_NEXT)) < 0)

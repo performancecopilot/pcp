@@ -29,6 +29,7 @@
 @ DM.0 Device mapper cache block devices
 @ DM.1 Device mapper thin provisioning pools
 @ DM.2 Device mapper thin provisioning volumes
+@ DM.3 Device mapper latency histogram bins
 
 @ dmcache.size Size of each cache device
 The total size of each cache device in Kbytes.
@@ -167,8 +168,8 @@ Nanoseconds spent servicing reads per dm device.
 Nanoseconds spent servicing writes per dm device.
 
 @dmstats.histogram.hist_count The list of histogram counts
-A list of the histogram counts for the current statistics region in order of
-ascending value. The instance name includes bin boundaries.
+A list of the histogram counts for the current statistics region in order
+of ascending value. The instance name includes bin boundaries.
 
-@dmstats.histogram.hist_bins The number of bins
+@dmstats.histogram.hist_bins The number of latency histogram bins
 The number of latency histogram bins configured for the region.
