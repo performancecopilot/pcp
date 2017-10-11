@@ -18,6 +18,7 @@ badmmv
 badpmcdpmid
 badpmda
 batch_import.pl
+chain
 check_fault_injection
 check_import
 check_import_name
