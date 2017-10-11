@@ -18,6 +18,7 @@
 # pylint: disable=too-many-instance-attributes, too-many-locals
 # pylint: disable=too-many-branches, too-many-nested-blocks
 # pylint: disable=bare-except, broad-except
+# pylint: disable=too-many-lines
 
 """ Performance Metrics Reporter """
 
@@ -801,7 +802,9 @@ class PMReporter(object):
                         if len(value) > l:
                             value = pmconfig.TRUNC
 
-                    if isinstance(value, float) and not math.isinf(value):
+                    if isinstance(value, float) and \
+                       not math.isinf(value) and \
+                       not math.isnan(value):
                         c = self.precision
                         s = len(str(int(value)))
                         if s > l:
@@ -832,6 +835,8 @@ class PMReporter(object):
         for f in fmt:
             if isinstance(line[index], float) and math.isinf(line[index]):
                 line[index] = "inf"
+            if isinstance(line[index], float) and math.isnan(line[index]):
+                line[index] = "NaN"
             nfmt += f.replace("{X:", "{" + str(index) + ":")
             index += 1
             nfmt += "{" + str(index) + "}"
@@ -926,7 +931,9 @@ class PMReporter(object):
                     else:
                         fmt[k] = "{X:" + str(l) + "d}"
 
-                if isinstance(value, float) and not math.isinf(value):
+                if isinstance(value, float) and \
+                   not math.isinf(value) and \
+                   not math.isnan(value):
                     c = self.precision
                     s = len(str(int(value)))
                     if s > l:
@@ -953,6 +960,8 @@ class PMReporter(object):
             for f in fmt:
                 if isinstance(line[index], float) and math.isinf(line[index]):
                     line[index] = "inf"
+                if isinstance(line[index], float) and math.isnan(line[index]):
+                    line[index] = "NaN"
                 nfmt += f.replace("{X:", "{" + str(index) + ":")
                 index += 1
                 nfmt += "{" + str(index) + "}"
