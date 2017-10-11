@@ -28,23 +28,22 @@ status=1	# failure is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 # handle differences like ...
-# (S'pcp.sample.byte_rate' vs (Vpcp.sample.byte_rate
-# (I1192055500 vs (L1192055490L
-# ?(lp0 vs <(lp0 vs :lp1
-# F222.0 vs F222
+# =(lp0 vs ?(lp0 vs <(lp0 vs :lp1
+# (Vpcp.sample.byte_rate vs (S'pcp.sample.byte_rate'
+# (L1192055490L vs (I1192055500
+# I436 vs L436L
 # remove ^ttp*
 #
 _filter_strings()
 {
     sed \
+	-e 's/^.(lp./=(lp0/' \
 	-e '/^(/{
-s/(S'"'"'/\(/
+s/(S'"'"'/\(V/
 s/'"'"'$//
-s/(V/\(/
-s/(L\(.*\)L$/(I\1/
+s/(I\([0-9].*\)$/(L\1L/
 }' \
-	-e 's/^.(lp./?(lp0/' \
-	-e 's/^F\([0-9][0-9]*\)\.0$/F\1/' \
+	-e 's/^I\([0-9][0-9]*\)$/L\1L/' \
 	-e '/^ttp*/d' \
     # end
 }
