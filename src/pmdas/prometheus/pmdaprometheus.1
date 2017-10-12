@@ -34,7 +34,7 @@ periodically scans the
 .I $PCP_PMDAS_DIR/prometheus/urls.d
 directory, looking for source url files (\c
 .IR *.url).
-Each file contains one complete HTTP or HTTPS URL at which to
+Each .url file contains one complete HTTP or HTTPS URL at which to
 pmdaprometheus is to reach a Prometheus endpoint.  The server does not
 have to be up or stay running.  The pmda will relay data and metadata
 when/if they are up, and will return errors when/if they are down.
@@ -45,7 +45,8 @@ All metrics from a file named
 .IR FOO.url
 will be exported as PCP metrics with the
 .I prometheus.FOO.
-prefix.
+prefix.  Therefore, the FOO name must be a valid component for PMNS metric
+names.
 
 \" example
 \" describe metric naming conventions
