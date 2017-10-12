@@ -27,8 +27,8 @@ activeEndpoint = dict()
 
 
 def write_endpoint_metadata(args=None, endpoint=None):
-    endpointStr = "{{ \"endpoint\": \"http://{}:{}/{}{}\" }}".format(args.addr[0], args.addr[1], args.url, endpoint)
-    f = open('{}/{}'.format(str(args.output), endpoint), 'w')
+    endpointStr = "http://{}:{}/{}{}".format("localhost", args.addr[1], args.url, endpoint)
+    f = open('{}/{}'.format(str(args.output), "source"+str(endpoint)+".url"), 'w')
     f.write("{}\n".format(endpointStr))
     f.close()
 
@@ -65,8 +65,8 @@ class FakeEndpoint(BaseHTTPServer.BaseHTTPRequestHandler):
         for i in range(instances):
             summary_string += "sample_summary{:04d}{{quantile=\"{}\"}} {:.9f}\n".format(iteration, (i * instance_scale), (iteration * instance_count * float(summary_value_q0)))
             instance_count += 1
-        summary_string += "sample_summary_sum{:04d} {:.16f}\n\
-sample_summary_count{:04d} {}\n".format(iteration, (int(iteration) * float(summary_value_sum)),
+        summary_string += "sample_summary{:04d}_sum {:.16f}\n\
+sample_summary{:04d}_count {}\n".format(iteration, (int(iteration) * float(summary_value_sum)),
                                         iteration, (int(iteration) * int(summary_value_count)))
         return summary_string
 
@@ -81,8 +81,8 @@ sample_summary_count{:04d} {}\n".format(iteration, (int(iteration) * float(summa
         for i in range(instances):
             histogram_string += "sample_histogram{:04d}{{le=\"{}\"}} {:d}\n".format(iteration, (i * instance_scale), (iteration * instance_count * histogram_value_l1))
             instance_count += 1
-        histogram_string += "sample_histogram_sum{:04d} {:d}\n\
-sample_histogram_count{:04d} {:d}\n".format(iteration, (int(iteration) * int(histogram_value_sum)),
+        histogram_string += "sample_histogram{:04d}_sum {:d}\n\
+sample_histogram{:04d}_count {:d}\n".format(iteration, (int(iteration) * int(histogram_value_sum)),
                                             iteration, (int(iteration) * int(histogram_value_count)))
         return histogram_string
 
