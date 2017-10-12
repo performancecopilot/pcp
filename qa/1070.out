@@ -10,7 +10,7 @@ Test data to be used:
   metrics: 4
   samples: 5
  interval: 2.0 sec
- duration: 8 sec
+ duration: 00:00:08
 
           h.machine  m.u.used  k.a.sysfork  h.c.clock  h.c.clock
                                                  cpu0       cpu1
@@ -32,7 +32,7 @@ Test data from temp archive:
   metrics: 4
   samples: 5
  interval: 2.0 sec
- duration: 8 sec
+ duration: 00:00:08
 
           h.machine  m.u.used  k.a.sysfork  h.c.clock  h.c.clock
                                                  cpu0       cpu1

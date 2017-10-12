@@ -28,7 +28,7 @@ import errno
 import sys
 
 # Our imports
-from datetime import datetime
+from datetime import datetime, timedelta
 import socket
 import time
 import math
@@ -533,7 +533,23 @@ class PMReporter(object):
                 samples = int(duration / float(self.interval) + 1)
                 duration = (samples - 1) * float(self.interval)
         endtime = float(self.opts.pmGetOptionOrigin()) + duration
-        duration = int(duration) if duration == int(duration) else "{0:.3f}".format(duration)
+
+        if self.context.type == PM_CONTEXT_ARCHIVE and not self.interpol:
+            duration = float(self.opts.pmGetOptionFinish()) - float(self.opts.pmGetOptionOrigin())
+
+        def secs_to_readable(seconds):
+            """ Convert seconds to easily readable format """
+            seconds = float(math.floor((seconds) + math.copysign(0.5, seconds)))
+            parts = str(timedelta(seconds=int(round(seconds)))).split(':')
+            if ", " in parts[0]:
+                days = parts[0].split(", ")[0]
+                parts[0] = parts[0].split(", ")[1]
+            else:
+                days = ""
+            parts = ["%02d" % (int(float(x))) for x in parts]
+            if days:
+                parts[0] = days + ", " + parts[0]
+            return ":".join(parts)
 
         if self.context.type == PM_CONTEXT_ARCHIVE:
             endtime = float(self.context.pmGetArchiveEnd())
@@ -553,10 +569,9 @@ class PMReporter(object):
         self.writer.write(comm + "  samples: " + str(samples) + "\n")
         if not (self.context.type == PM_CONTEXT_ARCHIVE and not self.interpol):
             self.writer.write(comm + " interval: " + str(float(self.interval)) + " sec\n")
-            self.writer.write(comm + " duration: " + str(duration) + " sec\n")
         else:
             self.writer.write(comm + " interval: N/A\n")
-            self.writer.write(comm + " duration: N/A\n")
+        self.writer.write(comm + " duration: " + secs_to_readable(duration) + "\n")
         self.writer.write(comm + "\n")
 
     def write_header(self):
