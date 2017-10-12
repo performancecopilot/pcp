@@ -486,6 +486,7 @@ class Source(object):
                                 t = open(url[7:],'r').read()
                         else:
                                 r = self.requests.get(url,timeout=1) # XXX parametrize
+                                r.raise_for_status() # non-200?  ERROR
                                 t = r.text
                         s = self.parse_lines(t)
                         self.pmids_table.save()
@@ -649,6 +650,9 @@ class PrometheusPMDA(PMDA):
                 '''
                 clusters = [int(l) for l in _clusters] # convert from PyLong
                 threads = []
+                for c in clusters:
+                        self.refresh_worker(c)
+                return
                 for c in clusters:
                         t = threading.Thread(target=self.refresh_worker,
                                              args=(c,)) # <- important comma
