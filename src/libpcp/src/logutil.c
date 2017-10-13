@@ -851,7 +851,7 @@ logFreePMNS(__pmLogCtl *lcp)
 		for (j = 0; j < ident_ctl->hsize; j++) {
 		    for (ident_node = ident_ctl->hash[j]; ident_node != NULL; ) {
 			for (label = (__pmLogLabelSet *)ident_node->data; label != NULL; ) {
-			    for (k = 0; label->nsets; k++) {
+			    for (k = 0; k < label->nsets; k++) {
 				labelset = &label->labelsets[k];
 				free(labelset->json);
 				free(labelset->labels);
