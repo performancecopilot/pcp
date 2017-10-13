@@ -91,6 +91,7 @@ pcp.spec: pcp.spec.in
 	    -e's|@enable_secure@|$(ENABLE_SECURE)|g' \
 	    -e's|@enable_probes@|$(ENABLE_PROBES)|g' \
 	    -e's|@enable_avahi@|$(ENABLE_AVAHI)|g' \
+	    -e's|@have_boost@|$(HAVE_BOOST_FLYWEIGHT_HPP)|g' \
 	    -e's|@enable_qt@|$(ENABLE_QT)|g' \
 	    -e's|@enable_python2@|$(ENABLE_PYTHON2)|g' \
 	    -e's|@enable_python3@|$(ENABLE_PYTHON3)|g' \

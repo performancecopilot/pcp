@@ -35,6 +35,9 @@ ifeq "$(HAVE_ZLIB)" "true"
 LLDLIBS += $(LIB_FOR_ZLIB)
 LCFLAGS += -DHAVE_ZLIB $(ZLIBCFLAGS)
 endif
+ifeq "$(HAVE_BOOST_FLYWEIGHT_HPP)" "yes"
+LCFLAGS += -DHAVE_BOOST_FLYWEIGHT_HPP=1
+endif
 ifeq "$(TARGET_OS)" "mingw"
 LLDLIBS += -lws2_32
 else

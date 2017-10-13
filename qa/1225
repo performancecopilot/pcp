@@ -1,43 +1,86 @@
-#!/bin/sh
+#! /bin/sh
 # PCP QA Test No. 1225
-# [RESERVED BY mgoodwin]
+# checks pmwebd graphite archive scanning and graphite export functionality
+# checks the new -J flag for archive to hostname canonicalization in the query results.
+# checks pmwebd and pmrep report the same values for the same archive and timestamps
 #
-# Copyright (c) 2017 [who are you?].  All Rights Reserved.
+# Copyright (c) 2017 Red Hat.
 #
-
 seq=`basename $0`
 echo "QA output created by $seq"
 
-# get standard environment, filters and checks
-. ./common.product
-. ./common.filter
-. ./common.check
+. ./common.webapi
+. ./common.python
 
-# test for-some-thing || _notrun No support for some-thing
+test -d "$PCP_SHARE_DIR/webapps/graphite" || \
+	_notrun "graphite webapp is not installed"
+which curl >/dev/null 2>&1 || _notrun "No curl binary installed"
+$python -c "import json.tool" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "python import json.tool not installed"
+
+$sudo rm -fr $tmp.dir
+$sudo rm -f $tmp.*
+rm -f $seq.full
+
+signal=$PCP_BINADM_DIR/pmsignal
+status=1	# failure is the default!
+username=`id -u -n`
 
 _cleanup()
 {
-    cd $here
-    $sudo rm -rf $tmp $tmp.*
+    $sudo rm -fr $tmp.dir
+    $sudo rm -f $tmp.*
+    [ -z "$pid" ] || kill $pid
 }
-
-status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
-# real QA test starts here
+webport=44339   # not 44323, so system pmwebd is unaffected by test case
+webargs="-U $username -p $webport"
+
+_filter_curl_i()
+{
+    tr -d '\r' |                      # drop ^M from httpd results
+    sed -e 's,^Date:.*$,Date: XXX,' |
+    grep -v 'Connection:.*Alive'      # some microhttpd versions add this
+}
+
+echo;echo;echo "=== check pmwebd WITHOUT -J for NO hostname canonicalization ===" | tee -a $seq.full
+$PCP_BINADM_DIR/pmwebd $webargs -p $webport -G -X -A archives -vvvvv -l $tmp.out &
+pid=$!
+_wait_for_pmwebd_logfile $tmp.out $webport
+curl -s -S "http://localhost:$webport/graphite/metrics/find?query=pmiostat_mark.hinv.ncpu" | _filter_curl_i
+kill $pid
+sleep 1
+
+echo;echo;echo "=== check pmwebd WITH -J for hostname canonicalization ===" | tee -a $seq.full
+$PCP_BINADM_DIR/pmwebd $webargs -p $webport -J -G -X -A archives -vvvvv -l $tmp.out &
+pid=$!
+_wait_for_pmwebd_logfile $tmp.out $webport
+# note: the hostname in the "pmiostat_mark" archive is "kilcunda"
+curl -s -S "http://localhost:$webport/graphite/metrics/find?query=kilcunda.hinv.ncpu" | _filter_curl_i
+
+# leave the above pmwebd running, we'll be using hostnames in queries. $pid is still valid
+
 #
-# ** CHANGEME **
+echo;echo;echo === Compare pmval, pmrep and pmwebd/graphite time series for same metric, same archive and time range ===
 #
-_notrun NO TEST YET, JUST RESERVED
+echo;echo;echo === pmval time series dump ===
+pmval -w 12 -f 6 -i sda -A 1s -S '@Tue Dec  1 07:03:00 2015' -T '@Tue Dec  1 07:16:00 2015' \
+-Z UTC -a archives/pmiostat_mark -t 60 disk.dev.read_bytes
 
-# if error
-exit
+echo;echo;echo === pmrep time series dump ===
+pmrep -A 1s -S '@Tue Dec  1 07:03:00 2015' -T '@Tue Dec  1 07:16:00 2015' -P 6 -p -f%s \
+-Z UTC -a archives/pmiostat_mark -t 60 -i sda disk.dev.read_bytes | \
+awk '/N\/A/ {next} /^[0-9]/ {print $1, $2}'
 
-# optional stuff if your test has verbose output to help resolve problems
-#echo
-#echo "If failure, check $seq.full"
+# Note: graphite timestamps do not have enough resolution. They use the format HH:MM_yyyymmdd, which does
+# not allow seconds to be specified!
+#
+echo;echo;echo === pmwebd/graphite time series dump ===
+curl -s -S "http://localhost:$webport/graphite/render?format=json&target=kilcunda.disk.dev.read_bytes.sda\
+&from=07:03_20151201&until=07:16_20151201&maxDataPoints=14" | _filter_curl_i | _webapi_json_pretty | \
+awk '/\[$/ {n=0; next} $1 ~ /[0-9]/ {n++; if (n==1) v=$1; if (n==2) print $1, v}' | sed -e 's/,$//'
 
-# success, all done
+cat $tmp.out >> $seq.full
 status=0
 exit
