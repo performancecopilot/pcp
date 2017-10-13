@@ -297,9 +297,9 @@ manageLabels(__pmLogCtl *logctl, pmDesc *desc, const __pmTimeval *tp, int only_i
 {
     int		i = 0;
     int		len;
-    int		sts;
+    int		sts = 0;
     unsigned int type;
-    unsigned int ident;
+    unsigned int ident = PM_IN_NULL;
     pmLabelSet	*label;
     unsigned int label_types[] = {
 	PM_LABEL_CONTEXT, PM_LABEL_DOMAIN, PM_LABEL_INDOM,

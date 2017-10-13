@@ -598,7 +598,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":4", PM_FAULT_ALLOC);
 	    int			jsonlen;
 	    int			nlabels;
 	    __pmTimeval		stamp;
-	    pmLabelSet		*labelsets;
+	    pmLabelSet		*labelsets = NULL;
 
 PM_FAULT_POINT("libpcp/" __FILE__ ":11", PM_FAULT_ALLOC);
 	    if ((tbuf = (char *)malloc(rlen)) == NULL) {
