@@ -57,7 +57,7 @@ HH:MM:SS        1
   metrics: 2
   samples: 5
  interval: 2.0 sec
- duration: 8 sec
+ duration: 00:00:08
 
   s.seconds  s.milliseconds
         s/s            ms/s
@@ -71,7 +71,7 @@ HH:MM:SS        1
   metrics: 2
   samples: 3
  interval: 3.0 sec
- duration: 7 sec
+ duration: 00:00:07
 
           s.seconds  s.milliseconds
                 s/s            ms/s
@@ -208,6 +208,40 @@ HH:MM:SS        1
 00:47:09|1 minute     |       ~|        ~|        ~|      ~|       ~|   0.820|       ~
 00:47:09|5 minute     |       ~|        ~|        ~|      ~|       ~|   0.700|       ~
 00:47:09|15 minute    |       ~|        ~|        ~|      ~|       ~|   0.590|       ~
+== exercise extended header
+
+  archive: QAPATH/archives/rep
+     host: slack
+ timezone: UTC+11 (reporting, current is UTC+3)
+    start: Wed Feb 10 14:39:13 2016
+      end: Wed Feb 10 14:39:17 2016
+  metrics: 21
+  samples: N/A
+ interval: N/A
+ duration: 00:00:04
+
+
+  archive: QAPATH/archives/20130706
+     host: billing02
+ timezone: UTC+10 (reporting, current is UTC+3)
+    start: Sat Jul  6 00:17:01 2013
+      end: Sun Jul  7 00:15:43 2013
+  metrics: 294
+  samples: N/A
+ interval: N/A
+ duration: 23:58:41
+
+
+  archive: QAPATH/archives/bug-1044.meta
+     host: super.elastic.org
+ timezone: UTC-5 (reporting, current is UTC+3)
+    start: Fri Jan 10 17:58:09 2014
+      end: Mon Jan 13 08:59:49 2014
+  metrics: 5
+  samples: N/A
+ interval: N/A
+ duration: 2 days, 15:01:40
+
 == invalid command line parameters
 Error while parsing options: Integer expected.
 Error while parsing options: Integer expected.
@@ -222,7 +256,7 @@ Error while parsing options: Integer expected.
   metrics: 2
   samples: 6
  interval: 0.5 sec
- duration: 2.500 sec
+ duration: 00:00:03
 
           s.seconds  s.milliseconds
                 s/s            ms/s
@@ -250,7 +284,7 @@ Error while parsing options: Integer expected.
   metrics: 2
   samples: 5
  interval: 2.0 sec
- duration: 8 sec
+ duration: 00:00:08
 
           s.seconds  s.milliseconds
                 s/s            ms/s
@@ -268,7 +302,7 @@ Error while parsing options: Integer expected.
   metrics: 2
   samples: 5
  interval: 2.0 sec
- duration: 8 sec
+ duration: 00:00:08
 
           s.seconds  s.milliseconds
                 s/s            ms/s
@@ -286,7 +320,7 @@ Error while parsing options: Integer expected.
   metrics: 2
   samples: 5
  interval: 2.0 sec
- duration: 8 sec
+ duration: 00:00:08
 
           s.seconds  s.milliseconds
                 s/s            ms/s
@@ -304,7 +338,7 @@ Error while parsing options: Integer expected.
   metrics: 2
   samples: 5
  interval: 2.0 sec
- duration: 8 sec
+ duration: 00:00:08
 
           s.seconds  s.milliseconds
                 s/s            ms/s
@@ -322,7 +356,7 @@ Error while parsing options: Integer expected.
   metrics: 2
   samples: 5
  interval: 2.0 sec
- duration: 8 sec
+ duration: 00:00:08
 
           s.seconds  s.milliseconds
                 s/s            ms/s
@@ -340,7 +374,7 @@ Error while parsing options: Integer expected.
   metrics: 2
   samples: 5
  interval: 2.0 sec
- duration: 8 sec
+ duration: 00:00:08
 
           s.seconds  s.milliseconds
                 s/s            ms/s
@@ -358,7 +392,7 @@ Error while parsing options: Integer expected.
   metrics: 2
   samples: 5
  interval: 2.0 sec
- duration: 8 sec
+ duration: 00:00:08
 
           s.seconds  s.milliseconds
                 s/s            ms/s
@@ -376,7 +410,7 @@ Error while parsing options: Integer expected.
   metrics: 2
   samples: 5
  interval: 2.0 sec
- duration: 8 sec
+ duration: 00:00:08
 
           s.seconds  s.milliseconds
                 s/s            ms/s
@@ -394,7 +428,7 @@ Error while parsing options: Integer expected.
   metrics: 2
   samples: 5
  interval: 2.0 sec
- duration: 8 sec
+ duration: 00:00:08
 
           s.seconds  s.milliseconds
                 s/s            ms/s
@@ -412,7 +446,7 @@ Error while parsing options: Integer expected.
   metrics: 1
   samples: 10
  interval: 1.0 sec
- duration: 9 sec
+ duration: 00:00:09
 
 
   archive: QAPATH/archives/rep
@@ -423,7 +457,7 @@ Error while parsing options: Integer expected.
   metrics: 1
   samples: 4
  interval: 1.0 sec
- duration: 3 sec
+ duration: 00:00:03
 
 == exercise extended CSV output
 11

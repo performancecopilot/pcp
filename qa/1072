@@ -58,7 +58,7 @@ log2="--archive $here/archives/20130706 -O 10m"
 # real QA test starts here
 echo "== pmrep archive reporting and creation"
 echo "Writing output from the original archives to files"
-metrics1=$(pminfo $log  | grep -v event\. | LC_COLLATE=C sort | tr '\n' ' ')
+metrics1=$(pminfo $log         | grep -v event\. | LC_COLLATE=C sort | tr '\n' ' ')
 metrics2=$(pminfo $log2 kernel | grep -v event\. | LC_COLLATE=C sort | tr '\n' ' ')
 pmrep -u -s 5 -p -P 4 -w 12 -x -z $log  $metrics1 | _path_filter | _archive_filter >$tmp.a1-out
 pmrep -u -s 5 -p -P 4 -w 12 -x -z $log2 $metrics2 | _path_filter | _archive_filter >$tmp.a2-out

@@ -18,6 +18,7 @@
 # pylint: disable=too-many-instance-attributes, too-many-locals
 # pylint: disable=too-many-branches, too-many-nested-blocks
 # pylint: disable=bare-except, broad-except
+# pylint: disable=too-many-lines
 
 """ Performance Metrics Reporter """
 
@@ -27,7 +28,7 @@ import errno
 import sys
 
 # Our imports
-from datetime import datetime
+from datetime import datetime, timedelta
 import socket
 import time
 import math
@@ -532,7 +533,23 @@ class PMReporter(object):
                 samples = int(duration / float(self.interval) + 1)
                 duration = (samples - 1) * float(self.interval)
         endtime = float(self.opts.pmGetOptionOrigin()) + duration
-        duration = int(duration) if duration == int(duration) else "{0:.3f}".format(duration)
+
+        if self.context.type == PM_CONTEXT_ARCHIVE and not self.interpol:
+            duration = float(self.opts.pmGetOptionFinish()) - float(self.opts.pmGetOptionOrigin())
+
+        def secs_to_readable(seconds):
+            """ Convert seconds to easily readable format """
+            seconds = float(math.floor((seconds) + math.copysign(0.5, seconds)))
+            parts = str(timedelta(seconds=int(round(seconds)))).split(':')
+            if ", " in parts[0]:
+                days = parts[0].split(", ")[0]
+                parts[0] = parts[0].split(", ")[1]
+            else:
+                days = ""
+            parts = ["%02d" % (int(float(x))) for x in parts]
+            if days:
+                parts[0] = days + ", " + parts[0]
+            return ":".join(parts)
 
         if self.context.type == PM_CONTEXT_ARCHIVE:
             endtime = float(self.context.pmGetArchiveEnd())
@@ -552,10 +569,9 @@ class PMReporter(object):
         self.writer.write(comm + "  samples: " + str(samples) + "\n")
         if not (self.context.type == PM_CONTEXT_ARCHIVE and not self.interpol):
             self.writer.write(comm + " interval: " + str(float(self.interval)) + " sec\n")
-            self.writer.write(comm + " duration: " + str(duration) + " sec\n")
         else:
             self.writer.write(comm + " interval: N/A\n")
-            self.writer.write(comm + " duration: N/A\n")
+        self.writer.write(comm + " duration: " + secs_to_readable(duration) + "\n")
         self.writer.write(comm + "\n")
 
     def write_header(self):
@@ -801,7 +817,9 @@ class PMReporter(object):
                         if len(value) > l:
                             value = pmconfig.TRUNC
 
-                    if isinstance(value, float) and not math.isinf(value):
+                    if isinstance(value, float) and \
+                       not math.isinf(value) and \
+                       not math.isnan(value):
                         c = self.precision
                         s = len(str(int(value)))
                         if s > l:
@@ -832,6 +850,8 @@ class PMReporter(object):
         for f in fmt:
             if isinstance(line[index], float) and math.isinf(line[index]):
                 line[index] = "inf"
+            if isinstance(line[index], float) and math.isnan(line[index]):
+                line[index] = "NaN"
             nfmt += f.replace("{X:", "{" + str(index) + ":")
             index += 1
             nfmt += "{" + str(index) + "}"
@@ -926,7 +946,9 @@ class PMReporter(object):
                     else:
                         fmt[k] = "{X:" + str(l) + "d}"
 
-                if isinstance(value, float) and not math.isinf(value):
+                if isinstance(value, float) and \
+                   not math.isinf(value) and \
+                   not math.isnan(value):
                     c = self.precision
                     s = len(str(int(value)))
                     if s > l:
@@ -953,6 +975,8 @@ class PMReporter(object):
             for f in fmt:
                 if isinstance(line[index], float) and math.isinf(line[index]):
                     line[index] = "inf"
+                if isinstance(line[index], float) and math.isnan(line[index]):
+                    line[index] = "NaN"
                 nfmt += f.replace("{X:", "{" + str(index) + ":")
                 index += 1
                 nfmt += "{" + str(index) + "}"
