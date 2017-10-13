@@ -663,17 +663,21 @@ class PrometheusPMDA(PMDA):
                 clusters = [int(l) for l in _clusters] # convert from PyLong
                 threads = []
                 for c in clusters:
-                        self.refresh_worker(c)
-                return
-                for c in clusters:
                         t = threading.Thread(target=self.refresh_worker,
                                              args=(c,)) # <- important comma
                         threads.append(t)
                         t.daemon = True
                         t.start()
                 for t in threads:
-                        t.join()
-
+                        t.join() # XXX: timeout maybe?
+                        
+                # NB: this particular approach not only fetches the remote documents
+                # in parallel, but also -processes- them in parallel, up to and including
+                # calling the python pmda bindings from various threads.  This seems to
+                # be OK.  The pmda main thread is the only one that will actually talk to
+                # pmcd, based on the python shared dicts / callbacks, but that only happens
+                # when all these threads are dead.  The various threads don't share any python-side data structures.
+                        
         def set_need_refresh(self):
                 cpmda.set_need_refresh()
                 self.pmns_refresh()
