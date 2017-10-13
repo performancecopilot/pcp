@@ -146,8 +146,11 @@ class Metric(object):
                 if inst in self.values:
                         return [self.values[inst], 1]
                 else:
+                        # NB: same error if we lack a value for this metric altogether,
+                        # or if a wrong/obsolete instance# is being sought.
                         return [c_api.PM_ERR_INST, 0]
 
+                
 class PersistentNameTable(object):
         '''Persistent name table.  Answers name-to-number queries by assigning
         persistent ids.  Updates pmda's indom table intermittently.
@@ -460,6 +463,15 @@ class Source(object):
                                 # non-compliant exporters.
                                 self.parse_metric_line(l,pcpline,helpline,typeline)
                                 num_metrics += 1
+
+                # NB: this logic only ever -adds- Metrics to a Source.  If a source
+                # stops supplying some metrics, then a PCP app will see a PM_ERR_INST
+                # coming back when it tries to fetch them.  We could perhaps keep the
+                # set of -current- metrics fresh, i.e., track any metrics that were
+                # in the Source but were not processed by any parse_metric_line() call.
+                # Then we could remove the Metric, and thereby trigger a PM_ERR_PMID
+                # for them.  In both cases though, we have no values.
+                
                 return num_metrics
                 
 
