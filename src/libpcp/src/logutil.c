@@ -829,6 +829,53 @@ logFreePMNS(__pmLogCtl *lcp)
 	}
 	free(hcp->hash);
     }
+
+    if (lcp->l_hashlabels.hsize != 0) {
+	__pmHashCtl	*type_ctl = &lcp->l_hashlabels;
+	__pmHashCtl	*ident_ctl;
+	__pmHashNode 	*type_node;
+	__pmHashNode 	*curr_type_node;
+	__pmHashNode	*ident_node;
+	__pmHashNode	*curr_ident_node;
+	__pmLogLabelSet	*label;
+	__pmLogLabelSet	*curr_label;
+	pmLabelSet	*labelset;
+	int	i;
+	int	j;
+	int	k;
+
+	for (i = 0; i < type_ctl->hsize; i++) {
+	for (type_node = type_ctl->hash[i]; type_node != NULL; ) {
+		ident_ctl = (__pmHashCtl *) type_node->data;
+
+		for (j = 0; j < ident_ctl->hsize; j++) {
+		for (ident_node = ident_ctl->hash[j]; ident_node != NULL; ) {
+			for (label = (__pmLogLabelSet *)ident_node->data; label != NULL; ) {
+				for (k = 0 ; label->nsets; k++) {
+					labelset = &label->labelsets[k];
+					free(labelset->json);
+					free(labelset->labels);
+				}
+				free(label->labelsets);
+				curr_label = label;
+				label = label->next;
+				free(curr_label);
+			}
+			curr_ident_node = ident_node;
+			ident_node = ident_node->next;
+			free (curr_ident_node);
+		}
+		}
+
+		curr_type_node = type_node;
+		type_node = type_node->next;
+		free(ident_ctl->hash);
+		free(ident_ctl);
+		free(curr_type_node);
+	}
+	}
+	free(type_ctl->hash);
+    }
 }
 
 /*
