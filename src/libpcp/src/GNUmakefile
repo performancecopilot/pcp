@@ -30,6 +30,9 @@ CFILES = connect.c context.c desc.c err.c fetch.c fetchgroup.c freeresult.c \
 	connectlocal.c derive_fetch.c events.c lock.c hash.c \
 	fault.c access.c getopt.c probe.c io.c io_stdio.c io_xz.c \
 	exec.c
+ifeq "$(TARGET_OS)" "mingw"
+CFILES	+= 
+endif
 HFILES = derive.h internal.h avahi.h probe.h compiler.h pmdbg.h
 YFILES = getdate.y derive_parser.y
 GENERATED_HFILES = pmdbg.h

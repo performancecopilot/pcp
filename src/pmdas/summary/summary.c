@@ -294,7 +294,7 @@ summary_done(void)
 {
     int st;
 
-    fprintf(stderr, "summary agent pid=%" FMT_PID " done\n", getpid());
+    fprintf(stderr, "summary agent pid=%" FMT_PID " done\n", (pid_t)getpid());
     kill(clientPID, SIGINT);
     waitpid(clientPID, &st, 0);
 }

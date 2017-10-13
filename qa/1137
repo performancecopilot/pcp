@@ -35,7 +35,8 @@ do
     echo checking kernel.all.cpu.$m against derived utilization kernel.cpu.util.$m | tee -a $here/$seq.full
     # kernel.all.cpu.util.X is ms/s and kernel.cpu.util.X is the average %util over all CPUs for mode X.
     # So kernel.all.cpu.util.X should be about the same as kernel.cpu.util.X * (1000 / 100) * Ncpus.
-    # Subtract them and check they're equal within a reasonable tolerance.
+    # Subtract them and check they're equal within a reasonable tolerance
+    # (+/- 5%)
     #
     PCP_DERIVED_CONFIG=$config pmrep -t 1 -s 2 kernel.all.cpu.$m kernel.cpu.util.$m 2>$tmp.err >$tmp.out &
     # do some work
@@ -46,11 +47,14 @@ do
     cat $tmp.out \
     | tee -a $here/$seq.full \
     | $PCP_AWK_PROG '
+BEGIN			{ tol_pct = 5 }
 $1 !~ /^[0-9][0-9.]*$/	{ next }
 $2 !~ /^[0-9][0-9.]*$/	{ next }
 			{ x = $1 - ($2 * 10 * '$N')
-			  if (x > 0.05 || x < -0.05)
-			      print "FAIL ", $1, $2, x
+			  if ($1 != 0)
+			      x = 100.0 * x / $1
+			  if (x > tol_pct || x < -tol_pct)
+			      print "FAIL " $1 " ? (" $2 "10 * '$N') = " x "%"
 			  else
 			      print "PASS"
 			}'

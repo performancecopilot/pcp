@@ -342,7 +342,7 @@ startmonitor(void)
 
     /* create and initialize memory mapped performance data file */
     pmsprintf(perffile, sizeof(perffile),
-		"%s%c%" FMT_PID, pmie_dir, __pmPathSeparator(), getpid());
+		"%s%c%" FMT_PID, pmie_dir, __pmPathSeparator(), (pid_t)getpid());
     unlink(perffile);
     if ((fd = open(perffile, O_RDWR | O_CREAT | O_EXCL | O_TRUNC,
 			     S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)) < 0) {
@@ -425,7 +425,7 @@ logRotate(void)
     fp = __pmRotateLog(pmProgname, logfile, logfp, &sts);
     if (sts != 0) {
 	fprintf(stderr, "pmie: PID = %" FMT_PID ", via %s\n\n",
-                getpid(), dfltHostConn);
+                (pid_t)getpid(), dfltHostConn);
 	remap_stdout_stderr();
 	logfp = fp;
     } else {
@@ -701,7 +701,7 @@ getargs(int argc, char *argv[])
     if (!archives && !interactive) {
 	if (commandlog != NULL)
             fprintf(stderr, "pmie: PID = %" FMT_PID ", via %s\n\n",
-                    getpid(), dfltHostConn);
+                    (pid_t)getpid(), dfltHostConn);
 	startmonitor();
     }
 

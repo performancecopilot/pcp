@@ -25,9 +25,6 @@
 #include "pmapi.h"
 #include "impl.h"
 #include "internal.h"
-#if defined(HAVE_SYS_WAIT_H)
-#include <sys/wait.h>
-#endif
 
 PCP_DATA int	__pmLogReads;
 
@@ -1489,7 +1486,7 @@ paranoidCheck(int len, __pmPDU *pb)
 	    vsize += sizeof(vlp->valfmt) + numval * sizeof(__pmValue_PDU);
 	    if (valfmt != PM_VAL_INSITU) {
 		for (j = 0; j < numval; j++) {
-		    int			index = (int)ntohl((long)vlp->vlist[j].value.pval);
+		    int			index = (int)ntohl((long)vlp->vlist[j].value.lval);
 		    pmValueBlock	*pduvbp;
 		    int			vlen;
 		    
