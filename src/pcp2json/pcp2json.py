@@ -398,14 +398,13 @@ class PCP2JSON(object):
             if unit:
                 data['@unit'] = unit
             if self.extended:
-                # Or consider self.context.pmTypeStr(desc.contents.type)
                 data['@type'] = get_type_string(desc)
                 data['@semantics'] = self.context.pmSemStr(desc.contents.sem)
             if self.everything:
                 data['@pmid'] = pmid
                 if desc.contents.indom != PM_IN_NULL:
                     data['@indom'] = desc.contents.indom
-                if inst_id:
+                if inst_id is not None:
                     data[inst_key] = str(inst_id)
             return data
 
