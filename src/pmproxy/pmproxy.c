@@ -576,7 +576,7 @@ main(int argc, char *argv[])
     /* lose root privileges if we have them */
     __pmSetProcessIdentity(username);
 
-    fprintf(stderr, "pmproxy: PID = %" FMT_PID, getpid());
+    fprintf(stderr, "pmproxy: PID = %" FMT_PID, (pid_t)getpid());
     fprintf(stderr, ", PDU version = %u", PDU_VERSION);
 #ifdef HAVE_GETUID
     fprintf(stderr, ", user = %s (%d)\n", username, getuid());

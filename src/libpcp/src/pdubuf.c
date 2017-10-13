@@ -169,8 +169,7 @@ __pmPinPDUBuf(void *handle)
 	pcp->bc_pincnt++;
     } else {
 	PM_UNLOCK(pdubuf_lock);
-	__pmNotifyErr(LOG_WARNING, "__pmPinPDUBuf: 0x%lx not in pool!",
-			(unsigned long)handle);
+	__pmNotifyErr(LOG_WARNING, "__pmPinPDUBuf: " PRINTF_P_PFX "%p not in pool!", handle);
 	if (pmDebugOptions.pdubuf)
 	    pdubufdump();
 	return;

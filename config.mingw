@@ -1,3 +1,4 @@
+# this is specific to the x86_64 cross-compilation for MinGW on Fedora
 sizeof_int=4
 sizeof_long=4
 sizeof_pointer=8
@@ -5,7 +6,8 @@ sizeof_suseconds_t=8
 sizeof_time_t=8
 bit_field_scheme=2100
 printf_p_prefix=0x
-printf_fmt_pid='"ld"'
+# for x86_64 the MinGW headers #define _WIN64 which makes pid_t a __int64
+printf_fmt_pid='"I64d"'
 printf_fmt_int64=I64d
 have_procfs=false
 have_python=false

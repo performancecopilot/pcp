@@ -58,11 +58,17 @@ main(int argc, char **argv)
 	exit(1);
     }
     close(0);
-    dup(p2[0]);
+    if (dup(p2[0]) < 0) {
+	perror("chain: p2 dup->0 failed");
+	exit(1);
+    }
     close(p2[0]);
     if (links == 1) {
 	close(1);
-	dup(p2[1]);
+	if (dup(p2[1]) < 0) {
+	    perror("chain: p2 dup->1 failed");
+	    exit(1);
+	}
     }
     else {
 	for (i=1; i<links; i++) {
@@ -79,15 +85,24 @@ main(int argc, char **argv)
 	    }
 	    else if (master) {
 		close(1);
-		dup(p1[1]);
+		if (dup(p1[1]) < 0) {
+		    perror("chain: p1 dup->1 failed");
+		    exit(1);
+		}
 	    }
 	    else {
 		iter++;
 		close(0);
-		dup(p1[0]);
+		if (dup(p1[0]) < 0) {
+		    perror("chain: p1 dup->0 failed");
+		    exit(1);
+		}
 		if (first) {
 		    close(1);
-		    dup(p2[1]);
+		    if (dup(p2[1]) < 0) {
+			perror("chain: p2 dup->1 failed");
+			exit(1);
+		    }
 		    close(p2[1]);
 		}
 		close(p1[0]);

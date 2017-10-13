@@ -673,7 +673,7 @@ windows_visit_metric(pdh_metric_t *pmp, pdh_metric_visitor_t visitor)
 	    if ((pmp->vals = (pdh_value_t *)realloc(pmp->vals, size)) == NULL) {
 		__pmNotifyErr(LOG_ERR, "windows_open: Error: values realloc "
 				   "(%d x %d) failed @ metric %s [%s]: ",
-				pmp->num_vals, sizeof(pdh_value_t),
+				pmp->num_vals, (int)sizeof(pdh_value_t),
 				pmIDStr(pmp->desc.pmid), p);
 		pmp->num_alloc = 0;
 		return -1;

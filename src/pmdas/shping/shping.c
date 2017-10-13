@@ -168,7 +168,7 @@ logmessage(int priority, const char *format, ...)
     for (p = buffer; *p; p++);
     if (*(--p) == '\n') *p = '\0';
 
-    fprintf(stderr, "[%.19s] %s(%" FMT_PID ") %s: %s\n", ctime(&now), pmProgname, getpid(), level, buffer) ;
+    fprintf(stderr, "[%.19s] %s(%" FMT_PID ") %s: %s\n", ctime(&now), pmProgname, (pid_t)getpid(), level, buffer) ;
 }
 
 
@@ -643,7 +643,7 @@ shping_init(pmdaInterface *dp)
     }
     else {
 	dp->status = 0;
-        logmessage(LOG_INFO, "Started sproc (spid=%" FMT_PID ")\n", sprocpid);
+        logmessage(LOG_INFO, "Started sproc (spid=%" FMT_PID ")\n", (pid_t)sprocpid);
     }
 
     /* we're talking to pmcd ... no timeout's for us thanks */
