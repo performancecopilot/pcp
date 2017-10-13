@@ -16,6 +16,12 @@ BuildRequires: readline-devel
 %else
 BuildRequires: rpm-build
 %endif
+%if "@have_boost@" == "yes"
+# boost c++ library, widely available
+%global disable_boost 0
+%else
+%global disable_boost 1
+%endif
 %if "@enable_avahi@" == "true"
 BuildRequires: avahi-devel
 %endif
@@ -283,6 +289,9 @@ Group: Applications/System
 Summary: Performance Co-Pilot (PCP) web API service
 URL: http://www.pcp.io
 Requires: pcp-libs = @package_version@
+%if !%{disable_boost}
+BuildRequires: boost-devel
+%endif
 
 %description webapi
 Provides a daemon (pmwebd) that binds a large subset of the Performance

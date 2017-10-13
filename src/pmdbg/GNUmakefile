@@ -18,6 +18,7 @@ include $(TOPDIR)/src/include/builddefs
 CFILES = pmdbg.c
 CMDTARGET = pmdbg$(EXECSUFFIX)
 LLDLIBS = $(PCPLIB)
+LCFLAGS += -DPCP_INTERNAL
 
 default:	$(CMDTARGET)
 

@@ -1405,11 +1405,11 @@ zsh
 1196 pmcd local
 1199 libpcp pmcd local
 1202 pmdadm local
-1225:reserved other local
+1225 pmwebapi local
 1227 derive local
 1245 libpcp local
 1257 libpcp python local
-1276:reserved other local
+1276 pmmgr containers local
 1330:reserved pmda.prometheus local
 1331 verify local
 1354 pmval archive local

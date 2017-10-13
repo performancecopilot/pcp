@@ -1091,6 +1091,9 @@ pkg_add?	dtrace		[? (build optional)]
 pkg?		dtrace		[? (build optional)]
 slackpkg?	dtrace		[? (build optional)]
 pacman?		dtrace		[? (build optional)]
+# -- boost C++ Libraries
+rpm?		/usr/include/boost	[boost-devel (build optional)]
+dpkg?    	/usr/include/boost	[libboost-dev (build optional)]
 #
 # misc
 #

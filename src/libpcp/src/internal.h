@@ -329,6 +329,11 @@ extern int __pmLogGenerateMark_ctx(__pmContext *, int, pmResult **) _PCP_HIDDEN;
 #define PM_ASSERT_IS_UNLOCKED(lock)
 #endif /* BUILD_WITH_LOCK_ASSERTS */
 
+#ifdef IS_MINGW
+extern const char *strerror_r(int, char *, size_t);
+extern pid_t __pmProcessWait(pid_t, int, int *, int *) _PCP_HIDDEN;
+#endif
+
 
 #define MAXLABELS		((1<<8)-1)
 #define MAXLABELJSONLEN		((1<<16)-1)

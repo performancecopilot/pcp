@@ -32,8 +32,8 @@ static void
 dump_count(FILE *f, size_t length, int nrecords)
 {
     if (length < PM_VAL_HDR_SIZE + sizeof(int)) {
-	fprintf(f, "Error: bad len (smaller than minimum size %lu)\n",
-		(unsigned long)PM_VAL_HDR_SIZE + sizeof(int));
+	fprintf(f, "Error: bad len (smaller than minimum size %d)\n",
+		PM_VAL_HDR_SIZE + (int)sizeof(int));
 	return;
     }
     fprintf(f, "nrecords: %d\n", nrecords);

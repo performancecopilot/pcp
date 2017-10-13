@@ -644,7 +644,7 @@ root_startpmda_request(root_client_t *cp, void *pdu, int pdulen)
     sts = __pmdaSendRootPDUStart(cp->fd, pid, infd, outfd, name, len, bad);
     if (pmDebugOptions.appl0) {
 	__pmNotifyErr(LOG_DEBUG, "Sent %s PMDA process to pmcd: "
-			"pid=%d infd=%d outfd=%d sts=%d\n",
+			"pid=%" FMT_PID " infd=%d outfd=%d sts=%d\n",
 			name, pid, infd, outfd, bad);
     }
     if (outfd >= 0)

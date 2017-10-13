@@ -111,7 +111,7 @@ main(int argc, char **argv)
      * Construct the message from all contributing components.
      */
     if (iflag) {
-	pmsprintf(buffer, sizeof(buffer), "[%" FMT_PID "]", getpid());
+	pmsprintf(buffer, sizeof(buffer), "[%" FMT_PID "]", (pid_t)getpid());
 	append(msg, sizeof(msg), buffer);
     }
     if (tag) {

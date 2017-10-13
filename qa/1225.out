@@ -1,0 +1,73 @@
+QA output created by 1225
+
+
+=== check pmwebd WITHOUT -J for NO hostname canonicalization ===
+[{"text":"ncpu","id":"pmiostat_mark.hinv.ncpu","leaf":1,"expandable":0,"allowChildren":0 }]
+
+
+=== check pmwebd WITH -J for hostname canonicalization ===
+[{"text":"ncpu","id":"kilcunda.hinv.ncpu","leaf":1,"expandable":0,"allowChildren":0 }]
+
+
+=== Compare pmval, pmrep and pmwebd/graphite time series for same metric, same archive and time range ===
+
+
+=== pmval time series dump ===
+Note: timezone set to "TZ=UTC"
+
+metric:    disk.dev.read_bytes
+archive:   archives/pmiostat_mark
+host:      kilcunda
+start:     Tue Dec  1 07:03:00 2015
+end:       Tue Dec  1 07:16:00 2015
+semantics: cumulative counter (converting to rate)
+units:     Kbyte (converting to Kbyte / sec)
+samples:   14
+interval:  60.00 sec
+
+                     sda 
+07:04:00.000    0.050000 
+07:05:00.000    0.066667 
+07:06:00.000    4.883333 
+07:07:00.000   43.466667 
+07:08:00.000   74.383333 
+07:09:00.000  315.433333 
+07:10:00.000 1811.233333 
+07:11:00.000 5401.883333 
+07:12:00.000 6740.916667 
+07:13:00.000  277.050000 
+07:14:00.000    0.316667 
+07:15:00.000    0.133333 
+07:16:00.000    0.466667 
+
+
+=== pmrep time series dump ===
+1448953440 0.050000
+1448953500 0.066667
+1448953560 4.883333
+1448953620 43.466667
+1448953680 74.383333
+1448953740 315.433333
+1448953800 1811.233333
+1448953860 5401.883333
+1448953920 6740.916667
+1448953980 277.050000
+1448954040 0.316667
+1448954100 0.133333
+1448954160 0.466667
+
+
+=== pmwebd/graphite time series dump ===
+1448953440 0.0498047
+1448953500 0.0664062
+1448953560 4.88379
+1448953620 43.4668
+1448953680 74.3828
+1448953740 315.434
+1448953800 1811.23
+1448953860 5401.88
+1448953920 6740.92
+1448953980 277.049
+1448954040 0.316406
+1448954100 0.134766
+1448954160 0.466797

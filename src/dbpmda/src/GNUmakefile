@@ -24,6 +24,8 @@ YFILES	= gram.y
 LDIRT	= *.log foo.* gram.h $(YFILES:%.y=%.tab.?) $(LFILES:%.l=%.c)
 LLDLIBS	= $(PCPLIB) $(LIB_FOR_DLOPEN) $(LIB_FOR_READLINE) $(LIB_FOR_CURSES)
 
+LCFLAGS	+= -DPCP_INTERNAL
+
 default:	$(CMDTARGET)
 
 include $(BUILDRULES)

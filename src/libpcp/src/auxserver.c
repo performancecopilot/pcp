@@ -298,7 +298,7 @@ __pmServerCreatePIDFile(const char *spec, int verbose)
 	return -oserror();
     }
     atexit(pidonexit);
-    fprintf(pidfile, "%" FMT_PID, getpid());
+    fprintf(pidfile, "%" FMT_PID, (pid_t)getpid());
 #ifdef HAVE_FCHMOD
     (void)fchmod(fileno(pidfile), S_IRUSR | S_IRGRP | S_IROTH);
 #else
