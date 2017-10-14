@@ -639,7 +639,7 @@ main (int argc, char *argv[])
                 __pmNotifyErr (LOG_ERR, "new context failed\n");
                 exit (EXIT_FAILURE);
             }
-            if ((sts = pmwebapi_bind_permanent (perm_context++, ctx)) < 0) {
+            if ((sts = pmwebapi_bind_permanent (perm_context++, ctx, opts.optarg)) < 0) {
                 __pmNotifyErr (LOG_ERR, "permanent bind failed\n");
                 exit (EXIT_FAILURE);
             }
@@ -652,7 +652,7 @@ main (int argc, char *argv[])
                 __pmNotifyErr (LOG_ERR, "new context failed\n");
                 exit (EXIT_FAILURE);
             }
-            if ((sts = pmwebapi_bind_permanent (perm_context++, ctx)) < 0) {
+            if ((sts = pmwebapi_bind_permanent (perm_context++, ctx, opts.optarg)) < 0) {
                 __pmNotifyErr (LOG_ERR, "permanent bind failed\n");
                 exit (EXIT_FAILURE);
             }
@@ -666,7 +666,7 @@ main (int argc, char *argv[])
                 __pmNotifyErr (LOG_ERR, "new context failed\n");
                 exit (EXIT_FAILURE);
             }
-            if ((sts = pmwebapi_bind_permanent (perm_context++, ctx)) < 0) {
+            if ((sts = pmwebapi_bind_permanent (perm_context++, ctx, "")) < 0) {
                 __pmNotifyErr (LOG_ERR, "permanent bind failed\n");
                 exit (EXIT_FAILURE);
             }

@@ -87,7 +87,7 @@ mhd_notify_error (struct MHD_Connection *connection, int rc);
 
 // pmwebapi.cxx
 extern int
-pmwebapi_bind_permanent (int webapi_ctx, int pcp_context);
+pmwebapi_bind_permanent (int webapi_ctx, int pcp_context, std::string spec);
 extern int
 pmwebapi_respond (struct MHD_Connection *connection, const http_params &,
                   const std::vector <std::string> &url);
