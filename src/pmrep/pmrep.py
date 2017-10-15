@@ -792,6 +792,8 @@ class PMReporter(object):
                         value = val()
                         if isinstance(value, float):
                             value = round(value, self.precision)
+                        elif isinstance(value, str):
+                            value = value.replace("\n", "\\n")
                         res[metric + str(inst)] = value
                     except:
                         pass
@@ -928,6 +930,8 @@ class PMReporter(object):
                         # This metric has the instance we're
                         # processing, grab it and format below
                         value = inst[2]
+                        if isinstance(value, str):
+                            value = value.replace("\n", "\\n")
                         found = 1
                         break
 
