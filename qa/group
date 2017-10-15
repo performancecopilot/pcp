@@ -917,6 +917,7 @@ zsh
 573 other remote
 574 libpcp pmns compat local sanity
 575 pmie local
+576 pcp2xml local derive
 578 pmcd local pmda.install pmval
 580 indom local ostest
 581 pmie local
