@@ -650,6 +650,28 @@ Performance Co-Pilot (PCP) front-end tools for exporting metric values
 to InfluxDB (https://influxdata.com/time-series-platform/influxdb).
 %endif
 
+#
+# pcp-export-pcp2zabbix
+#
+%package export-pcp2zabbix
+License: GPLv2+
+Group: Applications/System
+Summary: Performance Co-Pilot tools for exporting PCP metrics to Zabbix
+URL: http://www.pcp.io
+Requires: pcp-libs >= %{version}-%{release}
+%if !%{disable_python3}
+Requires: python3-pcp = %{version}-%{release}
+%else
+Requires: python-pcp = %{version}-%{release}
+%endif
+
+%files export-pcp2zabbix
+/usr/bin/pcp2zabbix
+
+%description export-pcp2zabbix
+Performance Co-Pilot (PCP) front-end tools for exporting metric values
+to the Zabbix (https://www.zabbix.org/) monitoring software.
+
 %if !%{disable_papi}
 #
 # pcp-pmda-papi
