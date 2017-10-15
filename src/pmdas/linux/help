@@ -1641,7 +1641,7 @@ See also the kernel.uname.* metrics
 @ pmda.version build version of Linux PMDA
 @ hinv.map.cpu_num logical to physical CPU mapping for each CPU
 @ hinv.map.cpu_node logical CPU to NUMA node mapping for each CPU
-@ hinv.machine machine name, IP35 if SGI SNIA, else uname(2) hardware identifier
+@ hinv.machine hardware identifier as reported by uname(2)
 @ hinv.cpu.clock clock rate in Mhz for each CPU as reported by /proc/cpuinfo
 @ hinv.cpu.vendor manufacturer of each CPU as reported by /proc/cpuinfo
 @ hinv.cpu.model model number of each CPU as reported by /proc/cpuinfo
