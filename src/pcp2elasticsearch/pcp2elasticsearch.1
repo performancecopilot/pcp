@@ -444,6 +444,57 @@ See also
 .TP
 .B \-?
 Display usage message and exit.
+.SH OUTPUT FORMAT
+First,
+.B pcp2elasticsearch
+sends this type definition to Elasticsearch:
+.IP
+ {
+     "mappings": {
+         "pcp-metric": {
+             "properties": {
+                 "@timestamp": {
+                     "type": "date"
+                 },
+                 "host-id": {
+                     "type": "string"
+                 }
+             }
+         }
+     }
+ }
+.PP
+The actual metrics data document is similar to this example:
+.IP
+ {
+     "@host-id": "bozo",
+     "mem": {
+         "util": {
+             "used": 4525820,
+             "free": 3344000
+         }
+     },
+     "@timestamp": 1507637520,
+     "disk": {
+         "partitions": {
+             "@instances": [
+                 {
+                     "read": 1121,
+                     "@id": "sda1"
+                 },
+                 {
+                     "read": 77306,
+                     "@id": "sda2"
+                 },
+                 {
+                     "read": 131,
+                     "@id": "sda3"
+                 }
+             ]
+         }
+     }
+ }
+.PP
 .SH FILES
 .PD 0
 .TP 10
