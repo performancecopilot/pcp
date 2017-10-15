@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2016 Red Hat, Inc.  All Rights Reserved.
+ * Copyright (c) 2013-2017 Red Hat, Inc.  All Rights Reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,6 +16,7 @@
 
 #include "pmapi.h"
 #include "impl.h"
+#include "pmwebapi.h"
 
 #include <iostream>
 #include <sstream>
@@ -56,6 +57,9 @@ string conninfo (struct MHD_Connection * conn, bool serv_p)
     char servname[128];
     int sts = -1;
 
+    if (conn == 0)
+        return "internal";
+    
     /* Look up client address data. */
     const union MHD_ConnectionInfo *u = MHD_get_connection_info (conn,
                                                 MHD_CONNECTION_INFO_CLIENT_ADDRESS);
@@ -92,22 +96,32 @@ ostream & connstamp (ostream & o, struct MHD_Connection * conn)
 // but we'd like a separator rather than terminator semantics,
 // in order to separate the   foo.bar -vs- foo.bar.  cases.
 //
-vector <string> split (const std::string & str, char sep)
+template <class Stringy>
+vector <Stringy> split_tpl (const std::string & str, char sep)
 {
-    vector <string> elems;
-
+    vector <Stringy> elems;
     string::size_type lastPos = 0;
-
     while (1)
         {
             string::size_type pos = str.find_first_of(sep, lastPos); // may be ::npos
-            elems.push_back(str.substr(lastPos, pos - lastPos));
+            elems.push_back(Stringy(str.substr(lastPos, pos - lastPos)));
             if (pos == string::npos) break;
             lastPos = pos + 1;
         }
-
     return elems;
 }
+
+vector<string> split (const std::string & str, char sep)
+{
+    return split_tpl<std::string>(str, sep);
+}
+
+vector<flyweight_string> fwsplit (const std::string & str, char sep)
+{
+    return split_tpl<flyweight_string>(str, sep);
+}
+
+
 
 
 // Take two names of files/directories.  Resolve them both with
@@ -202,7 +216,7 @@ std::string escapeString(const std::string& input) {
         switch (*iter) {
             case '\\': ss << "\\\\"; break;
             case '"': ss << "\\\""; break;
-            case '/': ss << "\\/"; break;
+         /* case '/': ss << "\\/"; break;  no need to escape / */
             case '\b': ss << "\\b"; break;
             case '\f': ss << "\\f"; break;
             case '\n': ss << "\\n"; break;

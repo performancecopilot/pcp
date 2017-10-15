@@ -534,6 +534,9 @@ class PMReporter(object):
                 duration = (samples - 1) * float(self.interval)
         endtime = float(self.opts.pmGetOptionOrigin()) + duration
 
+        instances = sum([len(x[0]) for x in self.pmconfig.insts])
+        insts_txt = "instances" if instances > 1 else "instance"
+
         if self.context.type == PM_CONTEXT_ARCHIVE and not self.interpol:
             duration = float(self.opts.pmGetOptionFinish()) - float(self.opts.pmGetOptionOrigin())
 
@@ -541,14 +544,10 @@ class PMReporter(object):
             """ Convert seconds to easily readable format """
             seconds = float(math.floor((seconds) + math.copysign(0.5, seconds)))
             parts = str(timedelta(seconds=int(round(seconds)))).split(':')
-            if ", " in parts[0]:
-                days = parts[0].split(", ")[0]
-                parts[0] = parts[0].split(", ")[1]
-            else:
-                days = ""
-            parts = ["%02d" % (int(float(x))) for x in parts]
-            if days:
-                parts[0] = days + ", " + parts[0]
+            if len(parts[0]) == 1:
+                parts[0] = "0" + parts[0]
+            elif parts[0][-2] == " ":
+                parts[0] = parts[0].rsplit(" ", 1)[0] + " 0" + parts[0].rsplit(" ", 1)[1]
             return ":".join(parts)
 
         if self.context.type == PM_CONTEXT_ARCHIVE:
@@ -565,7 +564,7 @@ class PMReporter(object):
         self.writer.write(comm + " timezone: " + timezone + "\n")
         self.writer.write(comm + "    start: " + time.asctime(time.localtime(self.opts.pmGetOptionOrigin())) + "\n")
         self.writer.write(comm + "      end: " + time.asctime(time.localtime(endtime)) + "\n")
-        self.writer.write(comm + "  metrics: " + str(len(self.metrics)) + "\n")
+        self.writer.write(comm + "  metrics: " + str(len(self.metrics)) + " (" + str(instances) + " " + insts_txt + ")\n")
         self.writer.write(comm + "  samples: " + str(samples) + "\n")
         if not (self.context.type == PM_CONTEXT_ARCHIVE and not self.interpol):
             self.writer.write(comm + " interval: " + str(float(self.interval)) + " sec\n")
@@ -718,7 +717,7 @@ class PMReporter(object):
         if self.prev_ts is None:
             self.prev_ts = ts
 
-        # Print the results
+        # Construct the results
         line = ""
         if self.extcsv:
             if self.context.type == PM_CONTEXT_LOCAL:
@@ -792,6 +791,8 @@ class PMReporter(object):
                         value = val()
                         if isinstance(value, float):
                             value = round(value, self.precision)
+                        elif isinstance(value, str):
+                            value = value.replace("\n", "\\n")
                         res[metric + str(inst)] = value
                     except:
                         pass
@@ -928,6 +929,8 @@ class PMReporter(object):
                         # This metric has the instance we're
                         # processing, grab it and format below
                         value = inst[2]
+                        if isinstance(value, str):
+                            value = value.replace("\n", "\\n")
                         found = 1
                         break
 

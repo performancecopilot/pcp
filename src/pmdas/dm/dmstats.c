@@ -193,6 +193,7 @@ _pm_dm_refresh_stats_histogram(struct pm_wrap *pw)
 	static uint64_t *buffer_count_data;
 	static int number_of_bins = 0, bin = 0;
 	uint64_t region_id, area_id;
+	int i;
 
 	dms = pw->dms;
 	region_id = pw->region_id;
@@ -207,7 +208,7 @@ _pm_dm_refresh_stats_histogram(struct pm_wrap *pw)
 		number_of_bins = dm_histogram_get_nr_bins(dmh);
 
 		buffer_count_data = (uint64_t *)malloc(sizeof(*buffer_count_data)*number_of_bins);
-		for (int i = 0; i < number_of_bins; i++) {
+		for (i = 0; i < number_of_bins; i++) {
 			buffer_count_data[i] = dm_histogram_get_bin_count(dmh, i);
 		}
 	}
@@ -234,6 +235,7 @@ _pm_dm_refresh_stats_histogram_update(struct pm_wrap *pw, struct pm_wrap *pw2)
 	static uint64_t *buffer_count_data;
 	static int number_of_bins = 0, bin = 0;
 	uint64_t region_id, area_id;
+	int i;
 
 	dms = pw2->dms;
 	region_id = pw2->region_id;
@@ -248,7 +250,7 @@ _pm_dm_refresh_stats_histogram_update(struct pm_wrap *pw, struct pm_wrap *pw2)
 		number_of_bins = dm_histogram_get_nr_bins(dmh);
 
 		buffer_count_data = (uint64_t *)malloc(sizeof(*buffer_count_data)*number_of_bins);
-		for (int i = 0; i < number_of_bins; i++) {
+		for (i = 0; i < number_of_bins; i++) {
 			buffer_count_data[i] = dm_histogram_get_bin_count(dmh, i);
 		}
 	}
@@ -451,6 +453,7 @@ pm_dm_histogram_instance_refresh(void)
 	char buffer[BUFSIZ];
 	uint64_t region_id, area_id, bound_width;
 	int bins;
+	int i;
 	const char *suffix = "";
 
 	pmdaCacheOp(indom, PMDA_CACHE_INACTIVE);
@@ -475,7 +478,7 @@ pm_dm_histogram_instance_refresh(void)
 
 			bins = dm_histogram_get_nr_bins(dmh);
 
-			for (int i = 0; i < bins; i++) {
+			for (i = 0; i < bins; i++) {
 				bound_width = dm_histogram_get_bin_lower(dmh, i);
 				_scale_bound_value_to_suffix(&bound_width, &suffix);
 				sprintf(buffer, "%s:%lu:%lu%s", names->name, region_id, bound_width, suffix);

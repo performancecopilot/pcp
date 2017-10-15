@@ -528,29 +528,29 @@ QA output created by 1133
 <?xml version="1.0" encoding="UTF-8"?>
 <pcp>
 ---
-              <user instance-name="cpu0" unit="ms/s" type="64-bit unsigned" semantics="counter" pmid="251658240" indom="251658240">0.00</user>
-              <user instance-name="cpu0" unit="ms/s" type="64-bit unsigned" semantics="counter" pmid="251658240" indom="251658240">0.00</user>
-              <user instance-name="cpu0" unit="ms/s" type="64-bit unsigned" semantics="counter" pmid="251658240" indom="251658240">0.00</user>
-              <user instance-name="cpu0" unit="ms/s" type="64-bit unsigned" semantics="counter" pmid="251658240" indom="251658240">10.00</user>
+              <user instance-name="cpu0" unit="ms/s" type="64-bit unsigned" semantics="counter" pmid="251658240" indom="251658240" instance-id="0">0.00</user>
+              <user instance-name="cpu0" unit="ms/s" type="64-bit unsigned" semantics="counter" pmid="251658240" indom="251658240" instance-id="0">0.00</user>
+              <user instance-name="cpu0" unit="ms/s" type="64-bit unsigned" semantics="counter" pmid="251658240" indom="251658240" instance-id="0">0.00</user>
+              <user instance-name="cpu0" unit="ms/s" type="64-bit unsigned" semantics="counter" pmid="251658240" indom="251658240" instance-id="0">10.00</user>
             </cpu>
             </cpu>
             </cpu>
             </cpu>
-            <baudrate instance-name="enp0s25" unit="byte/s" type="32-bit unsigned" semantics="discrete" pmid="251661335" indom="251658243">3168713760</baudrate>
-            <baudrate instance-name="enp0s25" unit="byte/s" type="32-bit unsigned" semantics="discrete" pmid="251661335" indom="251658243">3168713760</baudrate>
-            <baudrate instance-name="enp0s25" unit="byte/s" type="32-bit unsigned" semantics="discrete" pmid="251661335" indom="251658243">3168713760</baudrate>
-            <baudrate instance-name="enp0s25" unit="byte/s" type="32-bit unsigned" semantics="discrete" pmid="251661335" indom="251658243">3168713760</baudrate>
-            <baudrate instance-name="enp0s25" unit="byte/s" type="32-bit unsigned" semantics="discrete" pmid="251661335" indom="251658243">3168713760</baudrate>
-            <bogomips instance-name="cpu0" type="32-bit float" semantics="discrete" pmid="251676677" indom="251658240">5587.42</bogomips>
-            <bogomips instance-name="cpu0" type="32-bit float" semantics="discrete" pmid="251676677" indom="251658240">5587.42</bogomips>
-            <bogomips instance-name="cpu0" type="32-bit float" semantics="discrete" pmid="251676677" indom="251658240">5587.42</bogomips>
-            <bogomips instance-name="cpu0" type="32-bit float" semantics="discrete" pmid="251676677" indom="251658240">5587.42</bogomips>
-            <bogomips instance-name="cpu0" type="32-bit float" semantics="discrete" pmid="251676677" indom="251658240">5587.42</bogomips>
-            <clock instance-name="cpu0" unit="count" type="32-bit float" semantics="discrete" pmid="251676672" indom="251658240">2723.44</clock>
-            <clock instance-name="cpu0" unit="count" type="32-bit float" semantics="discrete" pmid="251676672" indom="251658240">2800.00</clock>
-            <clock instance-name="cpu0" unit="count" type="32-bit float" semantics="discrete" pmid="251676672" indom="251658240">2800.00</clock>
-            <clock instance-name="cpu0" unit="count" type="32-bit float" semantics="discrete" pmid="251676672" indom="251658240">2800.11</clock>
-            <clock instance-name="cpu0" unit="count" type="32-bit float" semantics="discrete" pmid="251676672" indom="251658240">3029.03</clock>
+            <baudrate instance-name="enp0s25" unit="byte/s" type="32-bit unsigned" semantics="discrete" pmid="251661335" indom="251658243" instance-id="0">3168713760</baudrate>
+            <baudrate instance-name="enp0s25" unit="byte/s" type="32-bit unsigned" semantics="discrete" pmid="251661335" indom="251658243" instance-id="0">3168713760</baudrate>
+            <baudrate instance-name="enp0s25" unit="byte/s" type="32-bit unsigned" semantics="discrete" pmid="251661335" indom="251658243" instance-id="0">3168713760</baudrate>
+            <baudrate instance-name="enp0s25" unit="byte/s" type="32-bit unsigned" semantics="discrete" pmid="251661335" indom="251658243" instance-id="0">3168713760</baudrate>
+            <baudrate instance-name="enp0s25" unit="byte/s" type="32-bit unsigned" semantics="discrete" pmid="251661335" indom="251658243" instance-id="0">3168713760</baudrate>
+            <bogomips instance-name="cpu0" type="32-bit float" semantics="discrete" pmid="251676677" indom="251658240" instance-id="0">5587.42</bogomips>
+            <bogomips instance-name="cpu0" type="32-bit float" semantics="discrete" pmid="251676677" indom="251658240" instance-id="0">5587.42</bogomips>
+            <bogomips instance-name="cpu0" type="32-bit float" semantics="discrete" pmid="251676677" indom="251658240" instance-id="0">5587.42</bogomips>
+            <bogomips instance-name="cpu0" type="32-bit float" semantics="discrete" pmid="251676677" indom="251658240" instance-id="0">5587.42</bogomips>
+            <bogomips instance-name="cpu0" type="32-bit float" semantics="discrete" pmid="251676677" indom="251658240" instance-id="0">5587.42</bogomips>
+            <clock instance-name="cpu0" unit="count" type="32-bit float" semantics="discrete" pmid="251676672" indom="251658240" instance-id="0">2723.44</clock>
+            <clock instance-name="cpu0" unit="count" type="32-bit float" semantics="discrete" pmid="251676672" indom="251658240" instance-id="0">2800.00</clock>
+            <clock instance-name="cpu0" unit="count" type="32-bit float" semantics="discrete" pmid="251676672" indom="251658240" instance-id="0">2800.00</clock>
+            <clock instance-name="cpu0" unit="count" type="32-bit float" semantics="discrete" pmid="251676672" indom="251658240" instance-id="0">2800.11</clock>
+            <clock instance-name="cpu0" unit="count" type="32-bit float" semantics="discrete" pmid="251676672" indom="251658240" instance-id="0">3029.03</clock>
             <close unit="count" type="32-bit unsigned" semantics="instant" pmid="251677703">0</close>
             <close unit="count" type="32-bit unsigned" semantics="instant" pmid="251677703">0</close>
             <close unit="count" type="32-bit unsigned" semantics="instant" pmid="251677703">0</close>
@@ -579,11 +579,11 @@ QA output created by 1133
             <read_bytes unit="GB/s" type="32-bit unsigned" semantics="counter" pmid="251658281">0.00</read_bytes>
             <read_bytes unit="GB/s" type="32-bit unsigned" semantics="counter" pmid="251658281">0.00</read_bytes>
             <read_bytes unit="GB/s" type="32-bit unsigned" semantics="counter" pmid="251658281">0.00</read_bytes>
-            <speed instance-name="enp0s25" unit="Mbyte/s" type="32-bit float" semantics="discrete" pmid="251661334" indom="251658243">781261.94</speed>
-            <speed instance-name="enp0s25" unit="Mbyte/s" type="32-bit float" semantics="discrete" pmid="251661334" indom="251658243">781261.94</speed>
-            <speed instance-name="enp0s25" unit="Mbyte/s" type="32-bit float" semantics="discrete" pmid="251661334" indom="251658243">781261.94</speed>
-            <speed instance-name="enp0s25" unit="Mbyte/s" type="32-bit float" semantics="discrete" pmid="251661334" indom="251658243">781261.94</speed>
-            <speed instance-name="enp0s25" unit="Mbyte/s" type="32-bit float" semantics="discrete" pmid="251661334" indom="251658243">781261.94</speed>
+            <speed instance-name="enp0s25" unit="Mbyte/s" type="32-bit float" semantics="discrete" pmid="251661334" indom="251658243" instance-id="0">781261.94</speed>
+            <speed instance-name="enp0s25" unit="Mbyte/s" type="32-bit float" semantics="discrete" pmid="251661334" indom="251658243" instance-id="0">781261.94</speed>
+            <speed instance-name="enp0s25" unit="Mbyte/s" type="32-bit float" semantics="discrete" pmid="251661334" indom="251658243" instance-id="0">781261.94</speed>
+            <speed instance-name="enp0s25" unit="Mbyte/s" type="32-bit float" semantics="discrete" pmid="251661334" indom="251658243" instance-id="0">781261.94</speed>
+            <speed instance-name="enp0s25" unit="Mbyte/s" type="32-bit float" semantics="discrete" pmid="251661334" indom="251658243" instance-id="0">781261.94</speed>
             <start_time instance-name="000001 /usr/lib/systemd/systemd --switched-root --system --deserialize 21" unit="millisec" type="64-bit unsigned" semantics="discrete" pmid="12591125" indom="12582921" instance-id="1">20</start_time>
             <start_time instance-name="000001 /usr/lib/systemd/systemd --switched-root --system --deserialize 21" unit="millisec" type="64-bit unsigned" semantics="discrete" pmid="12591125" indom="12582921" instance-id="1">20</start_time>
             <start_time instance-name="000001 /usr/lib/systemd/systemd --switched-root --system --deserialize 21" unit="millisec" type="64-bit unsigned" semantics="discrete" pmid="12591125" indom="12582921" instance-id="1">20</start_time>

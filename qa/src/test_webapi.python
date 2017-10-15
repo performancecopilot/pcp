@@ -313,6 +313,8 @@ def test_metric(ctx, suffix):
 test_metric(ctx_host, 'target=sample.dupnames.three.bin')
 test_metric(ctx_host, 'target=sample.float.bin')
 test_metric(ctx_host, 'target=sample.double.one')
+test_metric(ctx_host, 'target=sample.long.bin_ctr')
+test_metric(ctx_host, 'target=sample.ulong.bin_ctr')
 
 # ------------------------------------------------------------------------
 

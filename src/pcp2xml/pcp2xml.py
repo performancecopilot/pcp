@@ -449,14 +449,13 @@ class PCP2XML(object):
             if unit:
                 attrs += ' unit="' + unit + '"'
             if self.extended:
-                # Or consider self.context.pmTypeStr(desc.contents.type)
                 attrs += ' type="' + get_type_string(desc) + '"'
                 attrs += ' semantics="' + self.context.pmSemStr(desc.contents.sem) + '"'
             if self.everything:
                 attrs += ' pmid="' + str(pmid) + '"'
                 if desc.contents.indom != PM_IN_NULL:
                     attrs += ' indom="' + str(desc.contents.indom) + '"'
-                if inst_id:
+                if inst_id is not None:
                     attrs += ' instance-id="' + str(inst_id) + '"'
             return attrs
 
