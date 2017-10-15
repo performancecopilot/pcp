@@ -7,7 +7,7 @@ Test data to be used:
  timezone: UTC+10
     start: Sat Jul  6 00:47:01 2013
       end: Sun Jul  7 00:15:43 2013
-  metrics: 4
+  metrics: 4 (5 instances)
   samples: 5
  interval: 2.0 sec
  duration: 00:00:08
@@ -29,7 +29,7 @@ Test data from temp archive:
  timezone: UTC+10
     start: Sat Jul  6 00:47:01 2013
       end: Sat Jul  6 00:47:09 2013
-  metrics: 4
+  metrics: 4 (5 instances)
   samples: 5
  interval: 2.0 sec
  duration: 00:00:08
