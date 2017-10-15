@@ -24,7 +24,7 @@ Diff of outputs start (only path / minor timestamp diff expected):
 -      end: Sun Jul  7 00:15:43 2013
 +    start: Sat Jul  6 00:28:01 2013
 +      end: Sat Jul  6 00:32:01 2013
-   metrics: 58
+   metrics: 58 (80 instances)
    samples: 5 (requested)
   interval: N/A
 - duration: 23:48:41
