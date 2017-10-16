@@ -54,6 +54,13 @@ do
 	    ) && echo $seq >>$tmp.tmp
 	    ;;
 
+	collectl)	# executable might be collectl2pcp or pmcollectl or
+			# pcp collectl
+	    ( grep -v '^#' $seq \
+	      | egrep -q "(^(collectl2pcp|pmcollectl|(pcp collectl))([ '\"]|$))|([ /'\"_=](collectl2pcp|pmcollectl|(pcp collectl))([ '\"_]|$))" \
+	    ) && echo $seq >>$tmp.tmp
+	    ;;
+
 	*)
 	    ( grep -v '^#' $seq \
 	      | egrep -q "(^$1([ '\"]|$))|([ /'\"_=]$1([ '\"_]|$))" \
@@ -62,10 +69,11 @@ do
     esac
 done
 
-sed <group -e '/^$/d' -e '/^[^0-9]/d' -e 's/[: 	].*//' \
-| while read seq
+sed <group -e '/^$/d' -e '/^[^0-9]/d' -e 's/ .*//' -e 's/:/ /' \
+| while read seq state
 do
     [ -f "$seq" ] && continue
+    [ "$state" = reserved ] && continue
     echo "$seq: Error: in group but file not found"
 done
 

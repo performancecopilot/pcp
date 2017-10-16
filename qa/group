@@ -335,6 +335,9 @@ oldversion
 bash
 zsh
 
+# pmcollectl and collectl2pcp
+collectl
+
 # test-group association ... one line per test
 # add :retired or :reserved as a tag immediately after the test number
 # to keep the test number allocated, but prevent the test from being run
@@ -877,7 +880,7 @@ zsh
 533 dbpmda local pmda.sample
 534 pmie local
 535 pmie local pmprobe
-536 pmimport local pmiostat pmval pmprobe pmdumplog timezone
+536 pmimport local pmiostat pmval pmprobe pmdumplog timezone collectl
 537 pmimport perl local
 538 pmie local pmstore
 539 pmpost local flakey
@@ -885,7 +888,7 @@ zsh
 541 pmie #535080 local pmprobe
 542 pmdate #666344 local
 543 logutil remote pmlogextract
-544 pmimport local
+544 pmimport local collectl
 545 pmsocks local
 546 pmcd local secure
 547 libpcp pmcd local
@@ -920,6 +923,7 @@ zsh
 576 pcp2xml local derive
 577 pmlogger local
 578 pmcd local pmda.install pmval
+579 collectl local
 580 indom local ostest
 581 pmie local
 583 pmie #698718 remote
@@ -980,7 +984,7 @@ zsh
 706 libpcp local
 707 python libpcp local
 708 python pmimport local
-709 python local
+709 python local collectl
 710 python pmimport local
 711 pmimport pmdumplog pmlogsummary perl local
 712 context libpcp pmcd secure local
@@ -1080,7 +1084,7 @@ zsh
 806 pmstore pminfo pmie pmval pmprobe dbpmda local
 807 pcp local
 808 pmlogger local
-809 archive multi-archive local
+809 archive multi-archive local collectl
 810 pmiostat archive multi-archive local
 811 pmlogger pmcpp local
 812 pmlogextract local
@@ -1121,7 +1125,7 @@ zsh
 847 containers local
 848 pmcd secure local
 849 pmie local
-850 python local
+850 python local collectl
 851 pmiostat local
 852 pmda.proc local
 853 pmcpp local
@@ -1135,7 +1139,7 @@ zsh
 861 pmcd pmda.pmcd local
 862 pmie local
 863 python local
-864 pcp python local
+864 pcp python local collectl
 865 pmda local
 866 fault libpcp local
 867 pmwebapi libpcp_web local
