@@ -16,7 +16,7 @@ BuildRequires: readline-devel
 %else
 BuildRequires: rpm-build
 %endif
-%if "@have_boost@" == "yes"
+%if "@have_boost@" == "true"
 # boost c++ library, widely available
 %global disable_boost 0
 %else

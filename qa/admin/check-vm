@@ -1094,6 +1094,13 @@ pacman?		dtrace		[? (build optional)]
 # -- boost C++ Libraries
 rpm?		/usr/include/boost	[boost-devel (build optional)]
 dpkg?    	/usr/include/boost	[libboost-dev (build optional)]
+urpmi?		/usr/include/boost	[? (build optional)]
+emerge?		/usr/include/boost	[? (build optional)]
+pkgin?		/usr/include/boost	[? (build optional)]
+pkg_add?	/usr/include/boost	[? (build optional)]
+pkg?		/usr/include/boost	[? (build optional)]
+slackpkg?	/usr/include/boost	[? (build optional)]
+pacman?		/usr/include/boost	[? (build optional)]
 #
 # misc
 #

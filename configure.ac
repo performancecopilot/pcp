@@ -1843,6 +1843,10 @@ AC_CHECK_HEADERS([boost/flyweight.hpp])
 AC_LANG_POP
 AC_SUBST(HAVE_BOOST_FLYWEIGHT_HPP, [$ac_cv_header_boost_flyweight_hpp])
 
+have_boost=false
+test "$ac_cv_header_boost_flyweight_hpp" = yes && have_boost=true
+AC_SUBST(have_boost)
+
 enable_webapi=false
 AS_IF([test "x$do_webapi" != "xno"], [
     enable_webapi=true
