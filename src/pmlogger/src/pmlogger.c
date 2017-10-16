@@ -897,7 +897,7 @@ main(int argc, char **argv)
 
     if (yyparse() != 0)
 	exit(1);
-    fclose(yyin);
+    __pmProcessPipeClose(yyin);
     yyend();
 
     fprintf(stderr, "Config parsed\n");
