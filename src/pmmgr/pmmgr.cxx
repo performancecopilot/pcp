@@ -215,22 +215,14 @@ string
 pmmgr_configurable::wrap_popen(const std::string& cmd)
 {
   string output;
-  __pmExecCtl_t *argp = NULL;
-  FILE *f;
-  int sts;
   
   if (pmDebug & DBG_TRACE_APPL1)
     timestamp(obatched(cout)) << "pipe-running " << cmd << endl;
 
-  if ((sts = __pmProcessUnpickArgs(&argp, cmd.c_str())) < 0)
+  FILE* f = popen(cmd.c_str(), "r");
+  if (f == NULL)
     {
-      timestamp(obatched(cerr)) << "failed to __pmProcessUnpickArgs " << cmd << " sts=" << sts << endl;
-      return output;
-    }
-
-  if ((sts = __pmProcessPipe(&argp, "r", PM_EXEC_TOSS_NONE, &f)) < 0 || f == NULL)
-    {
-      timestamp(obatched(cerr)) << "failed to __pmProcessPipe " << cmd << " sts=" << sts << endl;
+      timestamp(obatched(cerr)) << "failed to popen " << cmd << endl;
       return output;
     }
 
@@ -245,10 +237,10 @@ pmmgr_configurable::wrap_popen(const std::string& cmd)
         break;
     }
 
-  sts = __pmProcessPipeClose(f);
-  //timestamp(obatched(cout)) << "done status=" << sts << endl;
-  if (sts != 0)
-    timestamp(obatched(cerr)) << "__pmProcessPipe(" << cmd << ") failed: rc=" << sts << endl;
+  int status = pclose(f);
+  //timestamp(obatched(cout)) << "done status=" << status << endl;
+  if (status != 0)
+    timestamp(obatched(cerr)) << "popen(" << cmd << ") failed: rc=" << status << endl;
 
   if (pmDebug & DBG_TRACE_APPL1)
     timestamp(obatched(cout)) << "collected " << output << endl;
