@@ -3111,7 +3111,7 @@ cd
 
 %changelog
 * Wed Oct 18 2017 Lukas Berk <lberk@redhat.com> - 3.12.2-1
-- Work-in-progress, see http://pcp.io/roadmap
+- Update to latest PCP sources.
 
 * Mon Aug 28 2017 Nathan Scott <nathans@redhat.com> - 3.12.1-3
 - Disable infiniband and papi packages on armv7hl (BZ 1485692)

@@ -1,5 +1,85 @@
 pcp-3.12.2 (18 October 2017)
-    - Work-in-progress, see http://pcp.io/roadmap
+    - dm pmda: fix memory corruption from a double free
+    - linux pmda: add mem.vmstat.pgsteal_* metrics
+    - haproxy pmda: warn, not error, on missing socket
+    - haproxy pmda: add url connection support
+    - libvirt pmda: more resiliency for missing domains with mem stats
+    - perfevent pmda: fix missing dynamic events scenario
+    - prometheus pmda: metadata generator handles empty lines and comments
+    - prometheus pmda: add _sum, _count and _bucket as metric instances
+    - selinux: add pmlogger_exec_t rule from rhbz1483320
+    - selinux: remove base pcp requirement for pcp-selinux subrpm
+    - selinux: update configure checks to work with selinux tools v4.0+
+    - selinux: RHBZ1447585 pmlc accessing tcp port 4330
+    - selinux: rhbz1488116 pmnewlog.sh using ps to check pid's for pmloggers
+    - pcp-atop: add --hotproc option for using hotproc metrics
+    - pcp2elasticsearch: new utility exporting metrics to ElasticSearch
+    - pcp2json: new utility exporting metrics in JSON format
+    - pcp2xlsx: new utility exporting metrics in Excel spreadsheets
+    - pcp2xml: new utility exporting metrics in XML format
+    - pcp2zabbix: new utility exporting metrics to Zabbix
+    - pmchart: make the BusyCPU view work and install it
+    - pmchart: fix a use-after-free in setSamples
+    - pmchart: support hicolor icons for GUI apps
+    - pmlogconf: cull missing groups with -c
+    - pmlogconf: automatically configure hotproc logging
+    - pmlogconf: tweak hotproc config and add the atop metrics
+    - pmlogger: add prologue / epoligue support
+    - pmmgr: pass -H hostid to pmlogger
+    - pmrep: add support for new derived metrics syntax
+    - pmrep: rewrite csv output code
+    - pmrep: rewrite stdout output code
+    - pmrep: better metric scaling precision
+    - pmrep: tweak csv header
+    - pmrep: allow scaling of raw metrics
+    - pmrep: better metric type detection
+    - pmrep: handle dup names
+    - pmrep: drop zabbix support, added to pcp2zabbix(1)
+    - pmrep: use the new pmConfig module and the new Python helpers
+    - pmrep: add daemonization support
+    - pmrep: use UTC offsets in extended header
+    - pmrep: protect against transient instances
+    - pmrep: support sadf(1) compatible CSV output
+    - pmrep: improve handling of floating point NaN values
+    - pmview: changes to allow building with either Qt4 or Qt5
+    - pmwebd adapt graphite font size to image size
+    - libpcp_web: increase default JSON parser token count
+    - libpcp: refactor daemonization code for sharing
+    - libpcp: changes to satisfy reported cppcheck issues
+    - libpcp: initialise unaligned part of help text buffer
+    - libpcp: harden interpolate mode up against corrupt archives
+    - perl api: support indom cache reloading for hash indoms
+    - python api: handle unicode strings in python2 module as well
+    - python api: add a pmconfig module and new timezone helper routines
+    - python api: fix timezone segfault from incorrect free
+    - python api: timezone helper with non full hours
+    - python api: fixes to timezone handling
+    - python api: add daemonize option using libpcp services
+    - python api: allow long options without a short option
+    - python api: automatic indom persistence of dict indoms
+    - python api: annotate the pmsubsys module as "deprecated"
+    - libpcp: add simple, secure system(2) replacement API
+    - libpcp: add simple, secure pipe API replacement
+    - libpcp: derived metric configuration for kernel.cpu.util.*
+    - libpcp et al: change PCP debugging control infrastructure
+    - libpcp: add PM_ERR_BADDERIVE code for invalid derived metric specs.
+    - libpcp: defered derived metrics evaluation performance improvement
+    - libpcp_web: cleanup memory leaks
+    - libpcp: add $PCP_IGNORE_MARK_RECORDS support
+    - libpcp: pmsprintf - a safer [v]snprintf wrapper
+    - pmcd, pmcd PMDA, libpcp_pmcd: add pmcd.pid and pmcd.seqnum
+    - pmdaproc.sh: improve domain number and name match checks
+    - bashrc: fix completions using symlink for all commands
+    - bashrc: updates for auto-completions for all commands
+    - zshrc: updates for auto-completions for all commands
+    - build: update debian builds to default to Qt5 when available
+    - build: fix numerous compiler warnings on FreeBSD
+    - build: fix numerous compiler warnings on Windows
+    - build: switch to Qt5 when building on Windows
+    - demos: fix pmclient, pmclient_fg archive modes
+    - docs: add notes to pmdapostgresql(1) re enabling stats
+    - docs: corrections to pmdadm(1), histogram support
+    - docs: document $PCP_IGNORE_MARK_RECORDS in pcpintro(1)
 
 pcp-3.12.1 (16 August 2017)
     - pmdadm: device mapper stats API (statistics regions) metrics
