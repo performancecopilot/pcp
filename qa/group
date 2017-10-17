@@ -926,6 +926,7 @@ collectl
 579 collectl local
 580 indom local ostest
 581 pmie local
+582 pmdumplog local
 583 pmie #698718 remote
 584:retired libpcp pmie local #698774 purify
 587 pmcd #754795 local pmda.install pmda.trivial
