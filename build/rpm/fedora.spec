@@ -133,6 +133,20 @@ Source4: %{github}/pcp-webapp-blinkenlights/archive/1.0.0/pcp-webapp-blinkenligh
 %global disable_noarch 1
 %endif
 
+%if 0%{?fedora} >= 24 || 0%{?rhel} >= 7
+%global disable_elasticsearch 0
+%else
+%global disable_elasticsearch 1
+%endif
+
+# python's xlsxwriter module hasn't been included yet, but hopefully
+# it will be eventually, leaving this as a variable for now.
+%if 0%{?fedora} || 0%{?rhel}
+%global disable_xlsx 1
+%else
+%global disable_xlsx 1
+%endif
+
 # prevent conflicting binary and man page install for pcp(1)
 Conflicts: librapi
 
@@ -673,6 +687,29 @@ Zabbix via the Zabbix agent - see zbxpcp(3) for further details.
 
 %if !%{disable_python2} || !%{disable_python3}
 #
+# pcp-export-pcp2elasticsearch
+#
+%if !%{disable_elasticsearch}
+%package export-pcp2elasticsearch
+License: GPLv2+
+Group: Applications/System
+Summary: Performance Co-Pilot tools for exporting PCP metrics to ElasticSearch
+URL: http://www.pcp.io
+Requires: pcp-libs >= %{version}-%{release}
+%if !%{disable_python3}
+Requires: python3-pcp = %{version}-%{release}
+Requires: python3-elasticsearch
+%else
+Requires: python-pcp = %{version}-%{release}
+Requires: python-elasticsearch
+%endif
+
+%description export-pcp2elasticsearch
+Performance Co-Pilot (PCP) front-end tools for exporting metric values
+to Elasticsearch - a distributed, RESTful search and analytics engine.
+See https://www.elastic.co/community for further details.
+%endif 
+#
 # pcp-export-pcp2graphite
 #
 %package export-pcp2graphite
@@ -710,6 +747,83 @@ Requires: python-requests
 %description export-pcp2influxdb
 Performance Co-Pilot (PCP) front-end tools for exporting metric values
 to InfluxDB (https://influxdata.com/time-series-platform/influxdb).
+
+#
+# pcp-export-pcp2json
+#
+%package export-pcp2json
+License: GPLv2+
+Group: Applications/System
+Summary: Performance Co-Pilot tools for exporting PCP metrics in JSON format
+URL: http://www.pcp.io
+Requires: pcp-libs >= %{version}-%{release}
+%if !%{disable_python3}
+Requires: python3-pcp = %{version}-%{release}
+%else
+Requires: python-pcp = %{version}-%{release}
+%endif
+
+%description export-pcp2json
+Performance Co-Pilot (PCP) front-end tools for exporting metric values
+in JSON format.
+
+#
+# pcp-export-pcp2xlsx
+#
+%if !%{disable_xlsx}
+%package export-pcp2xlsx
+License: GPLv2+
+Group: Applications/System
+Summary: Performance Co-Pilot tools for exporting PCP metrics to Excel
+URL: http://www.pcp.io
+Requires: pcp-libs >= %{version}-%{release}
+%if !%{disable_python3}
+Requires: python3-pcp = %{version}-%{release}
+%else
+Requires: python-pcp = %{version}-%{release}
+%endif
+
+%description export-pcp2xlsx
+Performance Co-Pilot (PCP) front-end tools for exporting metric values
+in Excel spreadsheet format.
+%endif
+#
+# pcp-export-pcp2xml
+#
+%package export-pcp2xml
+License: GPLv2+
+Group: Applications/System
+Summary: Performance Co-Pilot tools for exporting PCP metrics in XML format
+URL: http://www.pcp.io
+Requires: pcp-libs >= %{version}-%{release}
+%if !%{disable_python3}
+Requires: python3-pcp = %{version}-%{release}
+%else
+Requires: python-pcp = %{version}-%{release}
+%endif
+
+%description export-pcp2xml
+Performance Co-Pilot (PCP) front-end tools for exporting metric values
+in XML format.
+
+#
+# pcp-export-pcp2zabbix
+#
+%package export-pcp2zabbix
+License: GPLv2+
+Group: Applications/System
+Summary: Performance Co-Pilot tools for exporting PCP metrics to Zabbix
+URL: http://www.pcp.io
+Requires: pcp-libs >= %{version}-%{release}
+%if !%{disable_python3}
+Requires: python3-pcp = %{version}-%{release}
+%else
+Requires: python-pcp = %{version}-%{release}
+%endif
+
+%description export-pcp2zabbix
+Performance Co-Pilot (PCP) front-end tools for exporting metric values
+to the Zabbix (https://www.zabbix.org/) monitoring software.
 %endif
 
 %if !%{disable_papi}
@@ -2109,7 +2223,8 @@ ls -1 $RPM_BUILD_ROOT/%{_pmdasdir} |\
 # all base pcp package files except those split out into sub packages
 ls -1 $RPM_BUILD_ROOT/%{_bindir} |\
   grep -E -v 'pmiostat|pmcollectl|pmatop|zabbix|zbxpcp' |\
-  grep -E -v 'pmrep|pcp2graphite|pcp2influxdb' |\
+  grep -E -v 'pmrep|pcp2graphite|pcp2influxdb|pcp2zabbix' |\
+  grep -E -v 'pcp2elasticsearch|pcp2json|pcp2xlsx|pcp2xml' |\
   grep -E -v 'pmdbg|pmclient|pmerr|genpmda' |\
 sed -e 's#^#'%{_bindir}'\/#' >base_bin.list
 #
@@ -2998,11 +3113,30 @@ cd
 %files pmda-libvirt
 %{_pmdasdir}/libvirt
 
+%if !%{disable_elasticsearch}
+%files export-pcp2elasticsearch
+%{_bindir}/pcp2elasticsearch
+%endif
+
 %files export-pcp2graphite
 %{_bindir}/pcp2graphite
 
 %files export-pcp2influxdb
 %{_bindir}/pcp2influxdb
+
+%files export-pcp2json
+%{_bindir}/pcp2json
+
+%if !%{disable_xlsx}
+%files export-pcp2xlsx
+%{_bindir}/pcp2xlsx
+%endif
+
+%files export-pcp2xml
+%{_bindir}/pcp2xml
+
+%files export-pcp2zabbix
+%{_bindir}/pcp2zabbix
 %endif # !%{disable_python2} || !%{disable_python3}
 
 %files export-zabbix-agent
