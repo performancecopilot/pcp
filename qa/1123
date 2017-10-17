@@ -26,7 +26,11 @@ pid=$!
 
 PCP_STDERR= $PCP_VAR_DIR/config/pmchart/BusyCPU \
 | tee -a $here/$seq.full \
-| sed -n -e '/src\/hanoi/s/Instance [0-9][0-9]*'"$pid"'/Instance <hanoi_pid>/p'
+| grep 'Plot .* Instance ' \
+| wc -l \
+| $PCP_AWK_PROG '
+1 <= $1 && $1 <= 10	{ print "Found between 1 and 10 busy processes"; next }
+			{ print "Oops, found " $1 " busy processes" }'
 
 PCP_STDERR= pmchart -c BusyCPU -C -C
 ( kill $pid >/dev/null 2>&1 ) &
