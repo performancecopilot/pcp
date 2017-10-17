@@ -929,6 +929,7 @@ collectl
 582 pmdumplog local
 583 pmie #698718 remote
 584:retired libpcp pmie local #698774 purify
+585 pmval pmprobe local pminfo
 587 pmcd #754795 local pmda.install pmda.trivial
 589 remote
 592 pmda.sample local
