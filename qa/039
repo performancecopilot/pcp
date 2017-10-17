@@ -54,7 +54,7 @@ pmdumplog -id $tmp | _filter
 wait
 echo ""
 echo "Complete, expect meta data and 4 sets of results"
-pmdumplog -a $tmp | _filter
+pmdumplog -dilmst $tmp | _filter
 
 echo ""
 echo "pmlogger log"

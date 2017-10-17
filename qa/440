@@ -71,7 +71,7 @@ _test_sample_size()
     echo "Error: Number of volumes is $vol, expected $num_vol" | tee -a $seq.full
     ls -l $tmp.[0-9]*
     cat $tmp.log
-    $pmdumplog -a $tmp >>$seq.full
+    $pmdumplog -dilmst $tmp >>$seq.full
   fi
 
   _num_recs
@@ -82,7 +82,7 @@ _test_sample_size()
     echo "Error: Log contains $num_recs samples, expected $size_arg" | tee -a $seq.full
     ls -l $tmp.*
     cat $tmp.log
-    $pmdumplog -a $tmp >>$seq.full
+    $pmdumplog -dilmst $tmp >>$seq.full
   fi
  _clean_archive
 }
@@ -114,7 +114,7 @@ _test_file_size()
     echo "Error: Number of volumes is $vol, expected $num_vol" | tee -a $seq.full
     ls -l $tmp.[0-9]*
     cat $tmp.log
-    $pmdumplog -a $tmp >>$seq.full
+    $pmdumplog -dilmst $tmp >>$seq.full
   fi
   _num_recs
   echo "num_recs=$num_recs" >>$seq.full
@@ -143,7 +143,7 @@ _test_file_size()
     echo "Error: Log size $num_bytes is not within range $smaller_size - $bigger_size" | tee -a $seq.full
     ls -l $tmp.*
     cat $tmp.log
-    $pmdumplog -a $tmp >>$seq.full
+    $pmdumplog -dilmst $tmp >>$seq.full
   fi
   _clean_archive
 }
@@ -196,7 +196,7 @@ _test_time_size()
     echo "Error: Number of volumes is $vol, expected $num_vol" | tee -a $seq.full
     ls -l $tmp.[0-9]*
     cat $tmp.log
-    $pmdumplog -a $tmp >>$seq.full
+    $pmdumplog -dilmst $tmp >>$seq.full
   fi
   if _tolerance $num_sec $time $SECS_TOL
   then
@@ -205,7 +205,7 @@ _test_time_size()
     echo "Error: Log time $time, expected $num_sec +/- $SECS_TOL" | tee -a $seq.full
     ls -l $tmp.*
     cat $tmp.log
-    $pmdumplog -a $tmp >>$seq.full
+    $pmdumplog -dilmst $tmp >>$seq.full
   fi
  _clean_archive
 }

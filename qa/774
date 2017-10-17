@@ -22,7 +22,7 @@ for ext in "" .0 .meta .index
 do
     echo
     echo "using archives/ok-foo$ext ..."
-    pmdumplog -z -a archives/ok-foo$ext >$tmp.out 2>$tmp.err
+    pmdumplog -z -dilmst archives/ok-foo$ext >$tmp.out 2>$tmp.err
     if [ -z "$ext" ]
     then
 	for t in out err

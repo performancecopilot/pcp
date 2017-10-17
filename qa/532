@@ -140,7 +140,7 @@ echo
 echo "After ..."
 ls $tmp | sed -f $tmp/sed | LC_COLLATE=POSIX sort | tee $tmp.after
 
-pmdumplog -a $tmp/$yesterday >>$seq.full
+pmdumplog -dilmst $tmp/$yesterday >>$seq.full
 
 echo
 echo "Differences ..."

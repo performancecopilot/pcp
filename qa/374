@@ -102,7 +102,7 @@ End-of-File
 		echo "Arrgh ... pmlogger (pid=$pid) on host $host failed to start after 20 seconds"
 		ssh -q pcpqa@$host ps -ef | grep pmlogger
 		ssh -q pcpqa@$host ls -l /tmp/$base.*
-		ssh -q pcpqa@$host pmdumplog -a /tmp/$base
+		ssh -q pcpqa@$host pmdumplog -dilmst /tmp/$base
 		ssh -q pcpqa@$host cat /tmp/$base.log
 		sleep 60
 		exit 1

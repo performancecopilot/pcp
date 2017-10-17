@@ -62,7 +62,7 @@ _doit()
 	pminfo -d -a $tmp.out sample.dynamic.meta.metric
 	echo
 	echo "=== Dump of output archive ==="
-	pmdumplog -a $tmp.out
+	pmdumplog -dilmst $tmp.out
     fi
 }
 

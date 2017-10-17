@@ -32,9 +32,9 @@ pmlogrewrite -c $tmp.config -w $NEWARCHIVE $tmp.old
 
 pmlogrewrite -c $PCP_VAR_DIR/config/pmlogrewrite/proc_scheduler.conf -w $tmp.old $tmp.new
 
-pmdumplog -a $tmp.old >$tmp.old.dump
-pmdumplog -a $tmp.new >$tmp.new.dump
-pmdumplog -a $NEWARCHIVE >$tmp.ref.dump
+pmdumplog -dilmst $tmp.old >$tmp.old.dump
+pmdumplog -dilmst $tmp.new >$tmp.new.dump
+pmdumplog -dilmst $NEWARCHIVE >$tmp.ref.dump
 
 echo "old -> new changes"
 diff -u $tmp.old.dump $tmp.new.dump | sed -e '/^---/d' -e '/^+++/d'

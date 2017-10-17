@@ -62,7 +62,7 @@ pmdumplog -n src/root_irix -z badarchives/err_v1 sample.bad.nosupport
 
 echo
 echo "== diffs for pmdumplog all metrics compared to PCP 1.x output (expect none) =="
-pmdumplog -n src/root_irix -z -a badarchives/err_v1 \
+pmdumplog -n src/root_irix -z -dilmst badarchives/err_v1 \
 | _filter \
 | diff - badarchives/err_v1.dump
 

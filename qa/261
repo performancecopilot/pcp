@@ -27,12 +27,12 @@ echo >$seq.full
 
 # real QA test starts here
 pmdumplog -z -l archives/mirage
-pmdumplog -z -a archives/mirage 2>&1 >>$seq.full
+pmdumplog -z -dilmst archives/mirage 2>&1 >>$seq.full
 
 pmlogextract -S 5min -T 5min archives/mirage $tmp
 
 echo "--- copyied archive ---" >>$seq.full
-pmdumplog -z -a $tmp | tee -a $seq.full | _filter
+pmdumplog -z -dilmst $tmp | tee -a $seq.full | _filter
 
 # Note on the bizarre 4.0001m termination intervals below ...
 # Using _exactly_ 4m introduces a floating point arithmetic instability

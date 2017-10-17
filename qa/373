@@ -40,7 +40,7 @@ do
 
     if [ -f $tmp.0 ]
     then
-	pmdumplog -z -a $tmp
+	pmdumplog -z -dilmst $tmp
     fi
 done
 

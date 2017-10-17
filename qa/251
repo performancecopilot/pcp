@@ -44,7 +44,7 @@ mkdir $tmp
 cp archives/ok-mv-bar.* $tmp
 offset=`_arch_start archives/ok-mv-bar 0`
 echo "offset=$offset" >>$here/$seq.full
-pmdumplog -a -z archives/ok-mv-bar >>$here/$seq.full
+pmdumplog -dilmst -z archives/ok-mv-bar >>$here/$seq.full
 cd $tmp
 
 for inst in "bin-100" "bin-100,bin-500,bin-900"
