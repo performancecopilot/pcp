@@ -753,7 +753,7 @@ class PMReporter(object):
                 if metric + str(self.pmconfig.insts[i][0][j]) in res:
                     value = res[metric + str(self.pmconfig.insts[i][0][j])]
                     if isinstance(value, str):
-                        value = value.replace(self.delimiter, " ").replace("\n", " ").replace('"', " ")
+                        value = value.replace(self.delimiter, "_").replace("\n", " ").replace('"', " ")
                         line += str('"' + value + '"')
                     else:
                         line += str(value)
@@ -804,6 +804,8 @@ class PMReporter(object):
                             value = round(value, self.precision)
                         elif isinstance(value, str):
                             value = value.replace("\n", "\\n")
+                            if not self.delimiter.isspace():
+                                value = value.replace(self.delimiter, "_")
                         res[metric + str(inst)] = value
                     except:
                         pass
@@ -940,6 +942,8 @@ class PMReporter(object):
                         value = inst[2]
                         if isinstance(value, str):
                             value = value.replace("\n", "\\n")
+                            if not self.delimiter.isspace():
+                                value = value.replace(self.delimiter, "_")
                         found = 1
                         break
 
