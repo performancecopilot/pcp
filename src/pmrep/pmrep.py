@@ -535,7 +535,7 @@ class PMReporter(object):
         endtime = float(self.opts.pmGetOptionOrigin()) + duration
 
         instances = sum([len(x[0]) for x in self.pmconfig.insts])
-        insts_txt = "instances" if instances > 1 else "instance"
+        insts_txt = "instances" if instances != 1 else "instance"
 
         if self.context.type == PM_CONTEXT_ARCHIVE and not self.interpol:
             duration = float(self.opts.pmGetOptionFinish()) - float(self.opts.pmGetOptionOrigin())
@@ -766,6 +766,17 @@ class PMReporter(object):
         else:
             self.write_stdout_colxrow(timestamp)
 
+    def check_non_number(self, value, width):
+        """ Check and handle float inf, -inf, and NaN """
+        if math.isinf(value):
+            if value > 0:
+                value = "inf" if width >= 3 else pmconfig.TRUNC
+            else:
+                value = "-inf" if width >= 4 else pmconfig.TRUNC
+        elif math.isnan(value):
+            value = "NaN" if width >= 3 else pmconfig.TRUNC
+        return value
+
     def write_stdout_std(self, timestamp):
         """ Write a line to standard formatted stdout """
         if timestamp is None:
@@ -849,10 +860,8 @@ class PMReporter(object):
         index = 0
         nfmt = ""
         for f in fmt:
-            if isinstance(line[index], float) and math.isinf(line[index]):
-                line[index] = "inf"
-            if isinstance(line[index], float) and math.isnan(line[index]):
-                line[index] = "NaN"
+            if isinstance(line[index], float):
+                line[index] = self.check_non_number(line[index], self.metrics[metric][4])
             nfmt += f.replace("{X:", "{" + str(index) + ":")
             index += 1
             nfmt += "{" + str(index) + "}"
@@ -976,10 +985,8 @@ class PMReporter(object):
             index = 0
             nfmt = ""
             for f in fmt:
-                if isinstance(line[index], float) and math.isinf(line[index]):
-                    line[index] = "inf"
-                if isinstance(line[index], float) and math.isnan(line[index]):
-                    line[index] = "NaN"
+                if isinstance(line[index], float):
+                    line[index] = self.check_non_number(line[index], self.metrics[metric][4])
                 nfmt += f.replace("{X:", "{" + str(index) + ":")
                 index += 1
                 nfmt += "{" + str(index) + "}"
