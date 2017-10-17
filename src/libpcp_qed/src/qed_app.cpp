@@ -133,6 +133,7 @@ int QedApp::getopts(const char *options)
 	    printf("%s %s\n", pmProgname, pmGetConfig("PCP_VERSION"));
 	    exit(0);
 	    /*NOTREACHED*/
+	    break;
 
 	case 'z':		/* timezone from host */
 	    if (my.tz != NULL) {

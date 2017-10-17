@@ -439,13 +439,13 @@ that separates each column of
 or
 .I stdout
 output.
-The
-.I delimiter
-may only be a single character.
 The default for
 .I stdout
 is two spaces (``  '') and comma (``,'') for
 .IR csv .
+In case of CSV output or stdout output with non-whitespace delimiter,
+any string value containing the delimiter will be replaced by the
+underscore (``_'').
 .TP
 .B \-L
 Use a local context to collect metrics from DSO PMDAs on the local host

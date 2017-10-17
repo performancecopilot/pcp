@@ -323,7 +323,7 @@ class pmAtomValue(Union):
                   c_api.PM_TYPE_U64 : lambda x: x.ull,
                   c_api.PM_TYPE_FLOAT : lambda x: x.f,
                   c_api.PM_TYPE_DOUBLE : lambda x: x.d,
-                  c_api.PM_TYPE_STRING : lambda x: str(x.cp.decode('utf-8')),
+                  c_api.PM_TYPE_STRING : lambda x: x.cp,
                   c_api.PM_TYPE_AGGREGATE : lambda x: None,
                   c_api.PM_TYPE_AGGREGATE_STATIC : lambda x: None,
                   c_api.PM_TYPE_EVENT : lambda x: None,
@@ -333,7 +333,13 @@ class pmAtomValue(Union):
             }
 
     def dref(self, typed):
-        return self._atomDrefD[typed](self)
+        value = self._atomDrefD[typed](self)
+        if typed == c_api.PM_TYPE_STRING:
+            try:
+                value = str(value.decode('utf-8'))
+            except:
+                value = str(value)
+        return value
 
 class pmUnits(Structure):
     """
