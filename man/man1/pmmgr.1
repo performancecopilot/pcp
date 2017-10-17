@@ -1,7 +1,7 @@
 '\"! tbl | mmdoc
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2013-2017 Red Hat, Inc.  All Rights Reserved.
+.\" Copyright (c) 2013-2017 Red Hat.  All Rights Reserved.
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -32,12 +32,16 @@ It keeps a matching set of
 .BR pmlogger , 
 .B pmrep
 and other daemons running, and their archives/logs merged/rotated.
-It provides an alternative to the
-.BR cron (1)-based
-management scripts for
+It provides an alternative to the default
+.B pmlogger_daily
+and
+.BR pmie_daily
+scripts that administer
 .B pmlogger
 and
-.BR pmie .
+.B pmie
+``farms'' using
+.BR cron (3).
 .P
 .B pmmgr
 is largely self-configuring and perseveres despite most run-time
@@ -45,7 +49,6 @@ errors.
 .B pmmgr
 runs in the foreground until interrupted.
 When signaled, it will stop its running daemons before exiting.
-
 .SH ALGORITHM
 Each poll interval,
 .B pmmgr
@@ -54,7 +57,6 @@ computes a list of possible targets for a
 search.  This list is assembled from several configuration files,
 and may include explicitly listed specifications, hosts discovered through
 several different mechanisms, and/or individual containers running within them.
-
 Once the list is assembled,
 .B pmmgr
 attempts to make a brief
@@ -65,16 +67,13 @@ running
 instance, and to extract a host-id.  The host-id is treated as a
 unique identifier for the instance, so that redundant connection paths to the
 same server can be filtered out.
-
 Once the final list of live
 .B pmcd
 instances is identified, along with their unique host-ids, pmmgr ensures that
 any requested pcp client daemons are started (or restarted) for them.  If any
 .B pmcd
 instances disappear from the list, its pcp client daemons are stopped.
-
 This entire cycle repeats every poll interval.
-
 .SH OPTIONS
 A description of the command line options specific to
 .B pmmgr
@@ -109,7 +108,6 @@ redirects standard output and error to the given log file, which is created anew
 .TP
 .B \-v
 adds more verbose tracing to standard output.
-
 .SH CONFIGURATION
 A
 .B pmmgr
@@ -122,7 +120,6 @@ instead of lines in a text file.
 The individual files carry zero or more lines of 100% pure configuration
 text, and no comments.  (If desired, a configuration may be commented
 upon with any other file, such as a free-form README.)
-
 .SS TARGET SELECTION
 This set of configuration files identifies where
 .B pmmgr
@@ -175,10 +172,6 @@ This argues against using metrics whose values vary from boot to boot.
 Some candidate metrics to consider:
 .IR network.interface.hw_addr ", " network.interface.inet_addr["eth0"] ", "
 .IR network.interface.ipv6_addr ", " kernel.uname.nodename
-.\" some others would be nice to have:
-.\" CPU serial numbers
-.\" VM uuid
-.\" DMI serial numbers
 .TP
 .I log\-directory
 This file contains the path of a directory beneath which the per-host-id
@@ -227,7 +220,6 @@ the default pmcd port number.  Use options like
 .I -l service=foobar
 to restrict the search with labels.  The default is to do
 .BR "no kubectl" .
-
 .TP
 .I subtarget\-containers
 If this file exists,
@@ -238,7 +230,6 @@ independent subtargets for running requested daemons.
 The host-id string for these subtargets is the host's host-id
 string, followed by a double-hyphen, then the full unique container
 instance-name string.
-
 .TP
 .I target\-threads
 This file contains a limit on the number of concurrent threads
@@ -249,7 +240,6 @@ if known.  Set this to zero if remote pmcds should be analyzed
 sequentially.  A small number of threads is not a good idea if any
 potential target pmcds are unreachable, since $PMCD_CONNECT_TIMEOUT
 may be several seconds long each.
-
 .TP
 .I log\-subdirectory\-gc
 This file may contain a time interval specification as per the
@@ -530,8 +520,10 @@ as described in
 .BR pmcd (1),
 .BR pmlogconf (1),
 .BR pmlogger (1),
+.BR pmlogger_daily (1),
 .BR pmieconf (1),
 .BR pmie (1),
+.BR pmie_daily (1),
 .BR pmrep (1),
 .BR pcp2graphite (1),
 .BR pcp2influxdb (1),
