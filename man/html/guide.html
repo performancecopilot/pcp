@@ -57,29 +57,22 @@
 <a name="install"></a>
 <H1>Installation</H1>
 
-<P>PCP is available on all recent distribution releases, include Debian/Fedora/RHEL/Ubuntu. For earlier releases and other distributions you might want to consider installation <A HREF="http://www.pcp.io/source.html">from sources</A> or checking auxiliary package repositories, like <A HREF="http://fedoraproject.org/wiki/EPEL">EPEL</A>.
+<P>PCP is available on all recent Linux distribution releases, including Debian/Fedora/RHEL/SUSE/Ubuntu. For other operating systems and distributions you might want to consider installation <A HREF="http://www.pcp.io/source.html">from sources</A>.
 
 <a name="collectors"></a>
 <H3>Installing Collector Hosts</H3>
 
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
-       <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;To install basic PCP tools and services and enable collecting performance data on Fedora/RHEL, run:<br><B>
-<br> # yum install pcp
-<br> # chkconfig pmcd on
-<br> # service pmcd start
-<br> # chkconfig pmlogger on
-<br> # service pmlogger start
-</B></TD></TR>
-       <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;To install basic PCP tools and services and enable collecting performance data on Debian/Ubuntu, run:<br><B>
-<br> $ sudo apt-get install pcp
-<br> $ sudo update-rc.d pmcd defaults
-<br> $ sudo update-rc.d pmlogger defaults
-<br> $ sudo service pmcd restart
-<br> $ sudo service pmlogger restart
+       <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;To install basic PCP tools and services and enable collecting performance data on systemd based distributions, run:<br><B>
+<br> # yum install pcp # or apt-get or dnf or zypper
+<br> # systemctl enable pmcd
+<br> # systemctl start pmcd
+<br> # systemctl enable pmlogger
+<br> # systemctl start pmlogger
 </B></TD></TR>
 </TABLE>
 
-<P>This will enable the Performance Metrics Collector Daemon (<a href="http://man7.org/linux/man-pages/man1/pmcd.1.html">pmcd(1)</a>) on the host which then in turn will control and request metrics on behalf of clients from various Performance Metrics Domain Agents (PMDAs). The PMDAs provide the actual data from different components (domains) in the system, for example from the Linux Kernel PMDA or the NFS Client PMDA. The default configuration includes over 1000 metrics with negligible overall overhead. Local PCP archive logs will also be enabled on the host for convenience with <a href="http://man7.org/linux/man-pages/man1/pmlogger.1.html">pmlogger(1)</a>.
+<P>Here we enable the Performance Metrics Collector Daemon (<a href="http://man7.org/linux/man-pages/man1/pmcd.1.html">pmcd(1)</a>) on the host which then in turn will control and request metrics on behalf of clients from various Performance Metrics Domain Agents (PMDAs). The PMDAs provide the actual data from different components (domains) in the system, for example from the Linux Kernel PMDA or the NFS Client PMDA. The default configuration includes over 1000 metrics with negligible overall overhead when queried. If no queries for metrics are sent to the agent, it doesn't do anything at all. Local PCP archive logs will also be enabled on the host for convenience with <a href="http://man7.org/linux/man-pages/man1/pmlogger.1.html">pmlogger(1)</a>.
 
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
         <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;To enable PMDAs which are not enabled by default, for example the Postfix PMDA, run the corresponding Install script:<br><B>
@@ -90,18 +83,14 @@
 
 <P>The client tools will contact local or remote PMCDs as needed, communication with PMCD over the network uses TCP port 44321 by default.
 
-
 <a name="monitors"></a>
 <H3>Installing Monitor Host</H3>
 
 <P>The following additional packages can be optionally installed on the monitoring host to extend the set of monitoring tools from the base pcp package.
 
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
-        <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Install graphical analysis tools and documentation on Fedora/RHEL:<BR><B>
-<BR># yum install pcp-doc pcp-gui
-</B></TD></TR>
-        <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Install graphical analysis tools and documentation on Debian/Ubuntu:<BR><B>
-<BR>$ sudo apt-get install pcp-doc pcp-gui
+        <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Install various system monitoring tools, graphical analysis tools, and documentation:<BR><B>
+<BR># yum install pcp-doc pcp-gui pcp-system-tools # or apt-get or dnf or zypper
 </B></TD></TR>
 </TABLE>
 
@@ -111,32 +100,27 @@
         <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Enable recording of metrics from remote host <B>acme.com</B>:<B><BR>
 <BR> # echo acme.com n n PCP_LOG_DIR/pmlogger/acme.com -r -T24h10m -c config.acme.com &gt;&gt; /etc/pcp/pmlogger/control
 <BR>
-<BR> # service pmlogger restart
+<BR> # systemctl restart pmlogger
 </B></TD></TR>
 </TABLE>
 
-<P>Checks for remote log collection will be done every half an hour. You may also wish to run <KBD>/usr/libexec/pcp/bin/pmlogger_check -V -C</KBD> (on Fedora/RHEL) or <KBD>/usr/lib/pcp/bin/pmlogger_check -V -C</KBD> (on Debian/Ubuntu) manually (service restart above issues this command internally).
+<P>The health of the remote log collector will be done every half an hour. You can also run <KBD>/usr/libexec/pcp/bin/pmlogger_check -V -C</KBD> (on Fedora/RHEL) or <KBD>/usr/lib/pcp/bin/pmlogger_check -V -C</KBD> (on Debian/Ubuntu) manually to do a health check.
 
 <P>Note that a default configuration file (config.acme.com above) will be generated if it does not exist already. This process is optional (a custom configuration for each host can be provided instead), see the <a href="http://man7.org/linux/man-pages/man1/pmlogconf.1.html">pmlogconf(1) manual page</a> for details on this.
 
 <a name="discovery"></a>
 <H3>Dynamic Host Discovery</H3>
 
-<P>In dynamic environments manually configuring every host is not feasible, perhaps even impossible. PCP Manager (<a href="http://man7.org/linux/man-pages/man1/pmmgr.1.html">pmmgr(1)</a>, from the pcp-manager package) can be used instead of directly invoking pmlogger and pmie to auto-discover and auto-configure new collector hosts.
+<P>In dynamic environments manually configuring every host is not feasible, perhaps even impossible. PCP Manager (<a href="http://man7.org/linux/man-pages/man1/pmmgr.1.html">pmmgr(1)</a>, from the pcp-manager package) can be used instead of directly invoking pmlogger to auto-discover and auto-configure new collector hosts.
 
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
 	<TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;To install the PMMGR daemon and begin monitoring either statically or dynamically configured hosts, run:<br><B>
-<br> ## Fedora/RHEL:
-<br> # yum install pcp-manager
-<br> # chkconfig pmmgr on
-<br> ## Debian/Ubuntu:
-<br> $ sudo apt-get install pcp-manager
-<br> $ sudo update-rc.d pmmgr defaults
-<br> # Common:
+<br> # yum install pcp-manager # or apt-get or dnf or zypper
+<br> # systemctl enable pmmgr
 <br> # echo acme.com >> /etc/pcp/pmmgr/target-host
 <br> # echo avahi >> /etc/pcp/pmmgr/target-discovery
 <br> # echo probe=<FONT COLOR="#cc0000">ip.addr.tup.le/netmask</FONT> >> /etc/pcp/pmmgr/target-discovery
-<br> # service pmmgr restart
+<br> # systemctl restart pmmgr
 <br> # find /var/log/pcp/pmmgr
 </B></TD></TR>
 </TABLE>
@@ -151,7 +135,7 @@ Discover use of the PCP pmcd service on the local network:<BR><B>
 <a name="healthcheck"></a>
 <H3>Installation Health Check</H3>
 
-<P>Basic installation health check for running services, network connectivity between hosts, and enabled PMDAs can be done simply as follows.
+<P>Basic health check for running services, network connectivity between hosts, and enabled PMDAs can be done simply as follows.
 
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
         <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Check PCP services on remote host <B><FONT COLOR="#cc0000">munch</FONT></B> and historically, from a local archive for host <B><FONT COLOR="#cc0000">smash</FONT></B>:<BR><B>
@@ -183,35 +167,35 @@ Performance Co-Pilot configuration on smash:
 <a name="systemlevel"></a>
 <H1>System Level Performance Monitoring</H1>
 
-<P>PCP comes with a wide range of command line utilities for accessing live performance metrics via PMCDs or historical data using archive logs. The following examples illustrate some of the most useful use cases, please see the corresponding manual pages for each command for additional information. In the examples below <B>-h &lt;host&gt;</B> is always optional, the default is the local host.
+<P>PCP comes with a wide range of command line utilities for accessing live performance metrics via PMCDs or historical data using archive logs. The following examples illustrate some of the most useful use cases, please see the corresponding manual pages for each command for additional information. In the examples below <B>-h &lt;host&gt;</B> could be used to query a remote host, the default is the local host. Shell completion support for Bash and especially for Zsh allows completing available metrics, metric sets (with <a href="http://man7.org/linux/man-pages/man1/pmrep.1.html">pmrep</a>), and available command line options.
 
 <a name="live"></a>
 <H3>Monitoring Live Performance Metrics</H3>
 
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
         <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
-Display all the enabled performance metrics on a host (use with -t to include a short description for each):<BR><B>
-<BR> $ <a href="http://man7.org/linux/man-pages/man1/pminfo.1.html">pminfo</a> -h acme.com</B>
+Display all the enabled performance metrics on a host with a short description:<BR><B>
+<BR> $ <a href="http://man7.org/linux/man-pages/man1/pminfo.1.html">pminfo</a> -t</B>
 </TD></TR>
 </TABLE>
 
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
         <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
 Display detailed information about a performance metric and its current values:<BR><B>
-<BR> $ <a href="http://man7.org/linux/man-pages/man1/pminfo.1.html">pminfo</a> -dfmtT disk.partitions.read -h acme.com</B>
+<BR> $ <a href="http://man7.org/linux/man-pages/man1/pminfo.1.html">pminfo</a> -dfmtT disk.partitions.read</B>
 </TD></TR>
 </TABLE>
 
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
         <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
 Monitor live disk write operations per partition with two second interval using fixed point notation (use <EM>-i</EM> instance to list only certain metrics and <EM>-r</EM> for raw values):<BR><B>
-<BR> $ <a href="http://man7.org/linux/man-pages/man1/pmval.1.html">pmval</a> -t 2sec -f 3 disk.partitions.write -h acme.com</B>
+<BR> $ <a href="http://man7.org/linux/man-pages/man1/pmval.1.html">pmval</a> -t 2sec -f 3 disk.partitions.write</B>
 </TD></TR>
 </TABLE>
 
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
         <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
-Monitor live CPU load, memory usage, and disk write operations per partition with two second interval using fixed width columns:<BR><B>
+Monitor live CPU load, memory usage, and disk write operations per partition with two second interval using fixed width columns on the remote host acme:<BR><B>
 <BR> $ <a href="http://man7.org/linux/man-pages/man1/pmdumptext.1.html">pmdumptext</a> -Xlimu -t 2sec 'kernel.all.load[1]' mem.util.used disk.partitions.write -h acme.com</B>
 </TD></TR>
 </TABLE>
@@ -219,7 +203,7 @@ Monitor live CPU load, memory usage, and disk write operations per partition wit
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
         <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
 Monitor live process creation rate and free/used memory with two second interval printing timestamps and using GBs for output values in CSV format:<BR><B>
-<BR> $ <a href="http://man7.org/linux/man-pages/man1/pmrep.1.html">pmrep</a> -h acme.com -p -b GB -t 2sec -o csv kernel.all.sysfork mem.util.free mem.util.used</B>
+<BR> $ <a href="http://man7.org/linux/man-pages/man1/pmrep.1.html">pmrep</a> -p -b GB -t 2sec -o csv kernel.all.sysfork mem.util.free mem.util.used</B>
 </TD></TR>
 </TABLE>
 
@@ -247,7 +231,7 @@ Monitor system metrics in a sar like fashion with two second interval from two d
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
         <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
 Monitor system metrics in an iostat like fashion with two second interval:<BR><B>
-<BR> $ <a href="http://man7.org/linux/man-pages/man1/pmiostat.1.html">pmiostat</a> -t 2sec -h acme.com</B>
+<BR> $ <a href="http://man7.org/linux/man-pages/man1/pmiostat.1.html">pmiostat</a> -t 2sec</B>
 </TD></TR>
 </TABLE>
 
@@ -261,12 +245,12 @@ Monitor performance metrics with a GUI application with two second default inter
 <a name="retro"></a>
 <H3>Retrospective Performance Analysis</H3>
 
-<P>PCP archive logs are located under <TT>/var/log/pcp/pmlogger/</TT><B><FONT COLOR="#cc0000">hostname</FONT></B>, and the archive names indicate the date they cover. Archives are self-contained, and machine-independent so can be transfered to any machine for offline analysis.
+<P>PCP archive logs are located under <TT>/var/log/pcp/pmlogger/</TT><B><FONT COLOR="#cc0000">hostname</FONT></B>, and the archive names indicate the time they cover. Archives are self-contained, and machine- and version-independent so they can be transfered to any machine for offline analysis.
 
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
         <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
-Check the host and the time period an archive covers:<BR><B>
-<BR> $ <a href="http://man7.org/linux/man-pages/man1/pmdumplog.1.html">pmdumplog</a> -l acme.com/20140902</B>
+Check the host, timezone and the time period an archive covers:<BR><B>
+<BR> $ <a href="http://man7.org/linux/man-pages/man1/pmdumplog.1.html">pmdumplog</a> -L acme.com/20140902</B>
 </TD></TR>
 </TABLE>
 
@@ -321,8 +305,8 @@ Dump past CPU load, memory usage, and disk write operations per partition in an 
 
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
         <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
-Dump past CPU load, memory usage, and disk write operations per partition in an archive with extended header using MBs but without interpolation between 9 AM and 10 AM:<BR><B>
-<BR> $ <a href="http://man7.org/linux/man-pages/man1/pmrep.1.html">pmrep</a> -a acme.com/20140902 -p -u -b MB -x -S @09:00 -T @10:00 kernel.all.load mem.util.used disk.partitions.write</B>
+Replay <a href="http://man7.org/linux/man-pages/man8/vmstat.8.html">vmstat</a> like metrics (using a customizable metric set definition from the <a href="http://man7.org/linux/man-pages/man5/pmrep.conf.5.html">pmrep.conf</a> configuration file) from an archive on every full 5 minutes using UTC as timezone:<BR><B>
+<BR> $ <a href="http://man7.org/linux/man-pages/man1/pmrep.1.html">pmrep</a> -a acme.com/20140902 -A 5min -t 5min -Z UTC :vmstat</B>
 </TD></TR>
 </TABLE>
 
@@ -423,8 +407,15 @@ Monitor the number of open file descriptors of the process 1234:<BR><B>
 
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
         <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
-Monitor the CPU time, memory usage (RSS), and the number of threads of the process 1234 (<EM>-h local:</EM> is a workaround needed for the time being):<BR><B>
-<BR> $ <a href="http://man7.org/linux/man-pages/man1/pmdumptext.1.html">pmdumptext</a> -Xlimu -t 2sec 'proc.psinfo.utime[1234]' 'proc.memory.rss[1234]' 'proc.psinfo.threads[1234]' -h local:</B>
+Monitor the CPU time, memory usage (RSS), and the number of threads of the process 1234:<BR><B>
+<BR> $ <a href="http://man7.org/linux/man-pages/man1/pmdumptext.1.html">pmdumptext</a> -Xlimu -t 2sec 'proc.psinfo.utime[1234]' 'proc.memory.rss[1234]' 'proc.psinfo.threads[1234]'</B>
+</TD></TR>
+</TABLE>
+
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
+        <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
+Monitor all outgoing network metrics for the wlan0 interface:<BR><B>
+<BR> $ <a href="http://man7.org/linux/man-pages/man1/pmrep.1.html">pmrep</a> -i wlan0 -v network.interface.out</B>
 </TD></TR>
 </TABLE>
 
@@ -445,8 +436,8 @@ Display the number of running processes on 2014-08-20 14:00:<BR><B>
 <a name="hotproc"></a>
 <H3>Monitoring “Hot” Processes with Hotproc</H3>
 
-<P>It is also possible to monitor “hot” or “interesting” processes by name with PCP 3.10.5 or later, for example all processes of which command name is <TT>java</TT> or <TT>python</TT>. This monitoring of “hot” processes can also be enabled or disabled based on certain criterias or from the command line on the fly. The metrics will be available under the namespace <EM>hotproc</EM>.
-<P>Configuring processes to be monitored contantly using the <EM>hotproc</EM> namespace can be done using the configuration file <TT>/var/lib/pcp/pmdas/proc/hotproc.conf</TT> - see the <a href="http://man7.org/linux/man-pages/man1/pmdaproc.1.html">pmdaproc(1)</a> manual page for details. This allows monitoring these processes regardless of their PIDs and also logging the metrics easily.
+<P>It is also possible to monitor “hot” or “interesting” processes by name, for example all processes of which command name is <TT>java</TT> or <TT>python</TT>. This monitoring of “hot” processes can also be enabled or disabled based on certain criterias or from the command line on the fly. The metrics will be available under the namespace <EM>hotproc</EM>.
+<P>Configuring processes to be monitored constantly using the <EM>hotproc</EM> namespace can be done using the configuration file <TT>/var/lib/pcp/pmdas/proc/hotproc.conf</TT> - see the <a href="http://man7.org/linux/man-pages/man1/pmdaproc.1.html">pmdaproc(1)</a> manual page for details. This allows monitoring these processes regardless of their PIDs and also logging the metrics easily.
 
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
         <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
@@ -456,15 +447,12 @@ Enable monitoring of all Java instances on the fly and display all the collected
 </TD></TR>
 </TABLE>
 
-
 <a name="instrument"></a>
 <H3>Application Instrumentation</H3>
 
 <P>Applications can be instrumented in the PCP world by using Memory Mapped Values (MMVs). <a href="http://man7.org/linux/man-pages/man1/pmdammv.1.html">pmdammv</a> is a PMDA which exports application level performance metrics using memory mapped files. It offers an extremely low overhead instrumentation facility that is well-suited to long running, mission critical applications where it is desirable to have performance metrics and availability information permanently enabled.
 
-<P>Application to be instrumented with MMV need to be PCP MMV aware, APIs are available for several languages including C, C++, Perl, and Python. Java applications may use the separate <A HREF="https://code.google.com/p/parfait/">Parfait</A> class library for enabling MMV.
-
-<P>Instrumentation of unaltered Java applications is a known feature request and is planned for a not-too-distant release.
+<P>Application to be instrumented with MMV need to be PCP MMV aware, APIs are available for several languages including C, C++, Perl, and Python. Java applications may use the separate <A HREF="https://github.com/performancecopilot/parfait">Parfait</A> class library for enabling MMV.
 
 <P>See the <A HREF="http://www.pcp.io/doc/pcp-programmers-guide.pdf">Performance Co-Pilot Programmer's Guide PDF</A> for more information about application instrumentation.
 
@@ -491,7 +479,7 @@ Create a file containing definitions of derived metrics and point PCP_DERIVED_CO
 
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
         <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
-Define a derived metric on the command line and monitor it with regular metrics:</BR><B>
+Define a derived metric on the command line and monitor it with standard metrics:</BR><B>
 <BR> $ <a href="http://man7.org/linux/man-pages/man1/pmrep.1.html">pmrep</a> -t 2sec -p -b MB -e "mem.util.allcache = mem.util.bufmem + mem.util.cached + mem.util.slab" mem.util.free mem.util.allcache mem.util.used
 </TD></TR>
 </TABLE>
@@ -503,13 +491,9 @@ Define a derived metric on the command line and monitor it with regular metrics:
 <P>Performance Metrics Inference Engine (<a href="http://man7.org/linux/man-pages/man1/pmie.1.html">pmie(1)</a>) can evaluate rules and generate alarms, run scripts, or automate system management tasks based on live or past performance metrics.
 
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
-        <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;To enable and start PMIE on Fedora/RHEL:<br><B>
-<br> # chkconfig pmie on
-<br> # service pmie start
-</B></TD></TR>
-        <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;To make sure PMIE is running on Debian/Ubuntu:<br><B>
-<br> $ sudo update-rc.d pmie defaults
-<br> $ sudo service pmie restart
+        <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;To enable and start PMIE:<br><B>
+<br> # systemctl enable pmie
+<br> # systemctl start pmie
 </B></TD></TR>
 </TABLE>
 
@@ -519,7 +503,7 @@ Define a derived metric on the command line and monitor it with regular metrics:
         <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Enable monitoring of metrics from remote host <B>acme.com</B>:<B>
 <BR> # echo acme.com n PCP_LOG_DIR/pmie/acme.com -c config.acme.com
 <BR>
-<BR> # service pmie restart
+<BR> # systemctl restart pmie
 </B></TD></TR>
 </TABLE>
 
@@ -551,15 +535,10 @@ This example shows a PMIE script, checks its syntax, runs it against an archive,
 <P>Performance Metrics Web Daemon (<a href="http://man7.org/linux/man-pages/man1/pmwebd.1.html">pmwebd(1)</a>) is a front-end to both PMCD and PCP archives, providing a REST web service (over HTTP/JSON) suitable for use by web-based tools wishing to access performance data over HTTP. Custom applications can access all the available PCP information using this method, including custom metrics generated by custom PMDAs.
 
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
-        <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;To install the PCP web service on Fedora/RHEL:<br><B>
-<br> # yum install pcp-webapi
-<br> # chkconfig pmwebd on
-<br> # service pmwebd start
-</B></TD></TR>
-        <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;To install the PCP web service on Debian/Ubuntu:<br><B>
-<br> $ sudo apt-get install pcp-webapi
-<br> $ sudo update-rc.d pmwebd defaults
-<br> $ sudo service pmwebd restart
+        <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;To install the PCP web service:<br><B>
+<br> # yum install pcp-webapi # or apt-get or dnf or zypper
+<br> # systemctl enable pmwebd
+<br> # systemctl start pmwebd
 </B></TD></TR>
 </TABLE>
 
@@ -603,7 +582,7 @@ This example shows a PMIE script, checks its syntax, runs it against an archive,
 <CENTER>
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0>
 	<TR> <TD WIDTH="50%"><P>Copyright &copy; 2007-2010 <A HREF="http://www.aconex.com/"><FONT COLOR="#000060">Aconex</FONT></A><BR>Copyright &copy; 2000-2004 <A HREF="http://www.sgi.com/"><FONT COLOR="#000060">Silicon Graphics Inc</FONT></A></P></TD>
-	<TD WIDTH="50%"><P ALIGN=RIGHT><A HREF="http://pcp.io/"><FONT COLOR="#000060">PCP Site</FONT></A><BR>Copyright &copy; 2012-2014 <A HREF="http://www.redhat.com/"><FONT COLOR="#000060">Red Hat</FONT></A></P></TD> </TR>
+       <TD WIDTH="50%"><P ALIGN=RIGHT><A HREF="http://pcp.io/"><FONT COLOR="#000060">PCP Site</FONT></A><BR>Copyright &copy; 2012-2017 <A HREF="http://www.redhat.com/"><FONT COLOR="#000060">Red Hat</FONT></A></P></TD> </TR>
 </TABLE>
 </CENTER>
 </BODY>
