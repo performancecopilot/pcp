@@ -369,8 +369,6 @@ License: GPLv2+ and LGPLv2.1+
 Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) development headers
 URL: http://www.pcp.io
-#Requires: pcp = %{version}-%{release}
-#Requires: pcp-libs = %{version}-%{release}
 
 %description libs-devel
 Performance Co-Pilot (PCP) headers for development.
@@ -699,9 +697,11 @@ Requires: pcp-libs >= %{version}-%{release}
 %if !%{disable_python3}
 Requires: python3-pcp = %{version}-%{release}
 Requires: python3-elasticsearch
+BuildRequires: python3-elasticsearch
 %else
 Requires: python-pcp = %{version}-%{release}
 Requires: python-elasticsearch
+BuildRequires: python-elasticsearch
 %endif
 
 %description export-pcp2elasticsearch
