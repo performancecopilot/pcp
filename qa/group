@@ -1383,6 +1383,7 @@ collectl
 1105 derive local
 1106 libpcp local
 1108 logutil local folio pmlogextract
+1109 pmlogger valgrind local pmdumplog
 1110 pmda.haproxy local
 1111 pcp2influxdb python local
 1112 pmda.linux local
@@ -1401,6 +1402,7 @@ collectl
 1137 derive pmrep local
 1140 pidstat local
 1141 selinux local
+1159 pmlogger local pmdumplog
 1174 threads valgrind local
 1186 pmie local
 1191 pmda.prometheus pmda.install local
