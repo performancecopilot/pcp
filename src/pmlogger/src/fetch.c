@@ -158,6 +158,7 @@ myFetch(int numpmid, pmID pmidlist[], __pmPDU **pdup)
 				/* using PDU with derived metrics */
 				__pmUnpinPDUBuf(pb);
 				*pdup = npb;
+				pmFreeResult(result);
 			    }
 			}
 		    }
