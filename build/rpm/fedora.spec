@@ -3245,6 +3245,9 @@ cd
 
 %changelog
 * Wed Oct 18 2017 Lukas Berk <lberk@redhat.com> - 3.12.2-1
+- selinux: add pmlogger_exec_t rule from (BZ 1483320)
+- selinux: pmlc accessing tcp port 4330 (BZ 1447585)
+- selinux: pmnewlog.sh using ps to check pid's for pmloggers (BZ 1488116)
 - Update to latest PCP sources.
 
 * Mon Aug 28 2017 Nathan Scott <nathans@redhat.com> - 3.12.1-3
