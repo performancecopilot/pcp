@@ -1,3 +1,6 @@
+pcp-4.0.0 (1 January 2018)
+    - work in progress
+
 pcp-3.12.2 (18 October 2017)
     - dm pmda: fix memory corruption from a double free
     - linux pmda: add mem.vmstat.pgsteal_* metrics
