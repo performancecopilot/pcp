@@ -28,9 +28,9 @@ $sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
-pcp2xml -a archives/ok-foo "" \
+pcp2xml -z -a archives/ok-foo "" \
 | tee $seq.full \
-| LC_COLLATE=posix sort
+| LC_COLLATE=POSIX sort
 
 # success, all done
 status=0

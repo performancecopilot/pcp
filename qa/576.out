@@ -218,7 +218,7 @@ QA output created by 576
     </metrics>
     <metrics>
     <source>archives/ok-foo</source>
-    <timezone>UTC+10</timezone>
+    <timezone>UTC+11</timezone>
   </host>
   <host nodename="gonzo">
 <!-- Ctrl-C to stop -->

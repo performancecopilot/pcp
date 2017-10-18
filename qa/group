@@ -920,7 +920,7 @@ collectl
 573 other remote pmdumplog
 574 libpcp pmns compat local sanity
 575 pmie local
-576 pcp2xml local derive
+576 pcp2xml python pcp2xxx derive local
 577 pmlogger local
 578 pmcd local pmda.install pmval
 579 collectl local
