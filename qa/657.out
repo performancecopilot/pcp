@@ -15,7 +15,7 @@ Terminate PMDA if already installed ...
 Updating the PMCD control file, and notifying PMCD ...
 Check dmcache metrics have appeared ... 16 metrics and 16 values
 Check dmthin metrics have appeared ... 13 metrics and 16 values
-Check dmstats metrics have appeared ... 13 metrics and 0 values
+Check dmstats metrics have appeared ... 15 metrics and 0 values
 
 === Check dm-cache metrics ===
 
