@@ -220,9 +220,6 @@ License: GPLv2+ and LGPLv2.1+
 Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) development headers
 URL: http://www.pcp.io
-#Requires: pcp = @package_version@
-#Requires: pcp-libs = @package_version@
-#Requires: pcp-devel = @package_version@
 
 %description libs-devel
 Performance Co-Pilot (PCP) headers for development.
