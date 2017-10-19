@@ -480,6 +480,7 @@ pmdaFetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
     int			inst;
     int			numval;
     pmValueSet		*vset;
+    pmValueSet		*tmp_vset;
     pmDesc		*dp;
     pmdaMetric          metabuf;
     pmdaMetric		*metap;
@@ -569,12 +570,15 @@ pmdaFetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 	    if (j == numval) {
 		/* more instances than expected! */
 		numval++;
-		extp->res->vset[i] = vset = (pmValueSet *)realloc(vset,
+		extp->res->vset[i] = tmp_vset = (pmValueSet *)realloc(vset,
 			    sizeof(pmValueSet) + (numval - 1)*sizeof(pmValue));
-		if (vset == NULL) {
+		if (tmp_vset == NULL) {
+		    free(vset);
+		    vset = NULL;
 		    sts = -oserror();
 		    goto error;
 		}
+		vset = tmp_vset;
 	    }
 	    vset->vlist[j].inst = inst;
 
