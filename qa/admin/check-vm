@@ -969,7 +969,6 @@ slackpkg?	uic				[? (build optional)]
 pacman?		uic				[? (build optional)]
 dpkg?		/usr/include/*/qt5/QtSvg	[libqt5svg5-dev (build optional)]
 rpm?		/usr/include/qt5/QtSvg		[qt5-qtsvg-devel or libqt5-qtsvg-devel (build optional)]
-/usr/lib64/libQt5Svg.so
 urpm?		/usr/include/qt5/QtSvg		[qt5-qtsvg-devel (build optional)]
 emerge?		QtSvg				[? (build optional)]
 pkgin?		QtSvg				[? (build optional)]
@@ -1091,6 +1090,16 @@ pkg_add?	dtrace		[? (build optional)]
 pkg?		dtrace		[? (build optional)]
 slackpkg?	dtrace		[? (build optional)]
 pacman?		dtrace		[? (build optional)]
+# -- boost C++ Libraries
+rpm?		/usr/include/boost	[boost-devel (build optional)]
+dpkg?    	/usr/include/boost	[libboost-dev (build optional)]
+urpmi?		/usr/include/boost	[? (build optional)]
+emerge?		/usr/include/boost	[? (build optional)]
+pkgin?		/usr/include/boost	[? (build optional)]
+pkg_add?	/usr/include/boost	[? (build optional)]
+pkg?		/usr/include/boost	[? (build optional)]
+slackpkg?	/usr/include/boost	[? (build optional)]
+pacman?		/usr/include/boost	[? (build optional)]
 #
 # misc
 #

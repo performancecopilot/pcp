@@ -18,6 +18,7 @@ badmmv
 badpmcdpmid
 badpmda
 batch_import.pl
+chain
 check_fault_injection
 check_import
 check_import_name
@@ -75,6 +76,7 @@ getversion
 github-50
 grind_conv
 grind_ctx
+hanoi
 hashwalk
 hex2nbo
 hp-mib
@@ -203,6 +205,7 @@ torture_trace
 tstate
 tztest
 unpack
+unpickargs
 units-parse
 username
 whichtimezone

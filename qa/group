@@ -902,15 +902,23 @@ zsh
 558 pmie local
 559 pmlogsummary local
 560 pmda.simple local pmda.install
+561:reserved libpcp python labels local
+562:reserved pmcd pmda.sample dbpmda pminfo labels libpcp local
+563:reserved pmcd pmda.pmcd pminfo labels libpcp local
 564 logutil local pmlogextract
 565 pmda.sendmail local pmda.install
 566 pmlogcheck local
+567:reserved libpcp labels local
+568:reserved pmcd pmda.sample pminfo labels libpcp local
 569 pmprobe #679693 local sanity
 570:retired pmns #690735 local
 571 pmlogger local pmdumplog
 572 pmcd pmda local pmda.install pmda.sample pmda.simple pmda.trivial
+573 other remote
 574 libpcp pmns compat local sanity
 575 pmie local
+576 pcp2xml python pcp2xxx derive local
+577 pmlogger local
 578 pmcd local pmda.install pmval
 580 indom local ostest
 581 pmie local
@@ -1331,7 +1339,7 @@ zsh
 1065 libpcp valgrind local
 1066 derive valgrind local
 1067 zabbix zbxpcp local
-1068 pmrep python zabbix local
+1068 zabbix pcp2zabbix python pcp2xxx local
 1069 pmrep python local timezone
 1070 pmrep pmimport python perl local
 1071 pmrep python local
@@ -1366,6 +1374,8 @@ zsh
 1100 bash zsh local
 1101 libpcp_web local
 1102:reserved pmda.prometheus.local
+1105 derive local
+1106 libpcp local
 1108 logutil local folio pmlogextract
 1110 pmda.haproxy local
 1111 pcp2influxdb python local
@@ -1375,8 +1385,14 @@ zsh
 1120:reserved pmda.prometheus local
 1121 pmda.linux local
 1122 pmie local
+1123 pmchart local
 1128 pmie local
 1129 derive local
+1130 pcp2elasticsearch python pcp2xxx local
+1131 pcp2json python pcp2xxx local
+1132 pcp2xlsx python pcp2xxx local
+1133 pcp2xml python pcp2xxx local
+1137 derive pmrep local
 1140 pidstat local
 1141 selinux local
 1174 threads valgrind local
@@ -1388,9 +1404,11 @@ zsh
 1196 pmcd local
 1199 libpcp pmcd local
 1202 pmdadm local
+1225 pmwebapi local
 1227 derive local
 1245 libpcp local
 1257 libpcp python local
+1276 pmmgr containers local
 1330:reserved pmda.prometheus local
 1331 verify local
 1354 pmval archive local

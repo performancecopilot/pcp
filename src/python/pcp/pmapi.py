@@ -323,7 +323,7 @@ class pmAtomValue(Union):
                   c_api.PM_TYPE_U64 : lambda x: x.ull,
                   c_api.PM_TYPE_FLOAT : lambda x: x.f,
                   c_api.PM_TYPE_DOUBLE : lambda x: x.d,
-                  c_api.PM_TYPE_STRING : lambda x: str(x.cp.decode('utf-8')),
+                  c_api.PM_TYPE_STRING : lambda x: x.cp,
                   c_api.PM_TYPE_AGGREGATE : lambda x: None,
                   c_api.PM_TYPE_AGGREGATE_STATIC : lambda x: None,
                   c_api.PM_TYPE_EVENT : lambda x: None,
@@ -333,7 +333,13 @@ class pmAtomValue(Union):
             }
 
     def dref(self, typed):
-        return self._atomDrefD[typed](self)
+        value = self._atomDrefD[typed](self)
+        if typed == c_api.PM_TYPE_STRING:
+            try:
+                value = str(value.decode('utf-8'))
+            except:
+                value = str(value)
+        return value
 
 class pmUnits(Structure):
     """
@@ -1241,8 +1247,8 @@ class pmContext(object):
 
         return context
 
-    @classmethod
-    def set_connect_options(self, options, source, speclocal):
+    @staticmethod
+    def set_connect_options(options, source, speclocal):
         """ Helper to set connection options and to get context/source for pmfg. """
         context = None
 
@@ -1810,7 +1816,6 @@ class pmContext(object):
         if status < 0:
             raise pmErr(status)
         tz = tz_p.value
-        LIBC.free(tz_p)
         return str(tz.decode())
 
     def pmLocaltime(self, seconds):
@@ -2178,63 +2183,62 @@ class pmContext(object):
     # PMAPI Python Utility Support Services
 
     @staticmethod
-    def get_local_tz(set_dst=-1):
-        """ Figure out system local timezone in PCP/POSIX format """
-        dst = time.localtime().tm_isdst
+    def get_current_tz(options=None, set_dst=-1):
+        """ Get current timezone offset string using POSIX convention """
+        if options is None:
+            dst = time.localtime().tm_isdst
+        else:
+            dst = time.localtime(options.pmGetOptionOrigin()).tm_isdst
         if set_dst >= 0:
             dst = 1 if set_dst else 0
         offset = time.altzone if dst else time.timezone
         timezone = time.tzname[dst]
         if offset:
-            offset /= 3600
-            offset = int(offset) if offset == int(offset) else offset
+            offset_hr = int(offset / 3600.0)
+            offset_min = int(offset % 3600 / 60)
             if offset >= 0:
-                offset = "+" + str(offset)
-            timezone += str(offset)
+                timezone += "+"
+            timezone += str(offset_hr)
+            if offset_min:
+                timezone += ":" + str(offset_min)
         return timezone
 
     @staticmethod
     def posix_tz_to_utc_offset(timezone):
-        """ Convert PCP/POSIX timezone string to human readable UTC offset """
-        if timezone == "UTC":
-            return timezone
+        """ Convert POSIX timezone offset string to human readable UTC offset """
+        if not timezone or not True in [c in timezone for c in ['+', '-']]:
+            return "UTC+0"
         offset = timezone.split("+")[1] if "+" in timezone else timezone.split("-")[1]
-        sign = "+" if "-" in timezone else "+"
+        sign = "+" if "-" in timezone else "-"
         return "UTC" + sign + str(offset)
 
-    def set_timezone(self, options):
-        """ Set timezone for context """
-        # See https://bugzilla.redhat.com/show_bug.cgi?id=1352465
-        status = LIBPCP.pmUseContext(self.ctx)
-        if status < 0:
-            raise pmErr(status)
-        if options.pmGetOptionHostZone():
-            os.environ['TZ'] = self.pmWhichZone()
-            time.tzset()
-        else:
-            localtz = pmContext.get_local_tz()
-            if self.type == c_api.PM_CONTEXT_ARCHIVE:
-                # Determine correct local TZ based on DST of the archive
-                localtz = pmContext.get_local_tz(time.localtime(options.pmGetOptionOrigin()).tm_isdst)
-            os.environ['TZ'] = localtz
-            time.tzset()
-            self.pmNewZone(localtz)
+    @staticmethod
+    def set_timezone(options):
+        """ Set timezone for a Python tool """
         if options.pmGetOptionTimezone():
             os.environ['TZ'] = options.pmGetOptionTimezone()
             time.tzset()
-            self.pmNewZone(options.pmGetOptionTimezone())
+            pmContext.pmNewZone(options.pmGetOptionTimezone())
+        elif options.pmGetOptionHostZone():
+            os.environ['TZ'] = pmContext.pmWhichZone()
+            time.tzset()
+        else:
+            timezone = pmContext.get_current_tz(options)
+            os.environ['TZ'] = timezone
+            time.tzset()
+            pmContext.pmNewZone(timezone)
 
     @staticmethod
-    def convert_datetime(tstamp, precision="sec"):
-        """ Convert datetime to timestamp of given precision """
-        tdt = tstamp - datetime.datetime.fromtimestamp(0)
-        if precision == "sec":
+    def datetime_to_secs(value, precision=c_api.PM_TIME_SEC):
+        """ Convert datetime value to seconds of given precision """
+        tdt = value - datetime.datetime.fromtimestamp(0)
+        if precision == c_api.PM_TIME_SEC:
             tst = (tdt.microseconds + (tdt.seconds + tdt.days * 24.0 * 3600.0) * 10.0**6) / 10.0**6
-        elif precision == "ms":
+        elif precision == c_api.PM_TIME_MSEC:
             tst = (tdt.microseconds + (tdt.seconds + tdt.days * 24.0 * 3600.0) * 10.0**6) / 10.0**3
-        elif precision == "us":
-            tst = (tdt.microseconds + (tdt.seconds + tdt.days * 24.0 * 3600.0) * 10.0**6) / 10.0**3
-        elif precision == "ns":
+        elif precision == c_api.PM_TIME_USEC:
+            tst = (tdt.microseconds + (tdt.seconds + tdt.days * 24.0 * 3600.0) * 10.0**6) / 1.0
+        elif precision == c_api.PM_TIME_NSEC:
             tst = (tdt.microseconds + (tdt.seconds + tdt.days * 24.0 * 3600.0) * 10.0**6) * 10.0**3
         else:
             raise ValueError("Unsupported precision requested")

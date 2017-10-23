@@ -81,4 +81,3 @@ sample.long.nine
 
 sample.long.ninety_nine
     value 99
-sample.long.lots: pmLookupDesc: Derived metric definition failed

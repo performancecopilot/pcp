@@ -583,6 +583,7 @@ PCP_3.21 {
     __pmDumpDebug;
     __pmSetDebugBits;
     __pmProcessAddArg;
+    __pmProcessUnpickArgs;
     __pmProcessExec;
     __pmProcessPipe;
     __pmProcessPipeClose;

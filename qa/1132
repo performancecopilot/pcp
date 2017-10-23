@@ -1,0 +1,78 @@
+#!/bin/sh
+# PCP QA Test No. 1132
+# Exercise pcp2xlsx.
+#
+# Copyright (c) 2017 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.python
+
+$python -c "from pcp import pmapi" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "python pcp pmapi module not installed"
+$python -c "from collections import OrderedDict" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "python collections OrderedDict module not installed"
+$python -c "import xlsxwriter" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "python xlsxwriter module not installed"
+
+which unzip >/dev/null 2>&1 || _notrun "unzip not installed"
+which pcp2xlsx >/dev/null 2>&1 || _notrun "pcp2xlsx not installed"
+
+status=1       # failure is the default!
+signal=$PCP_BINADM_DIR/pmsignal
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+_unzip_filter()
+{
+    sed \
+       -e "s|Archive:.*||g" \
+       -e "s|[ ]*$||g" \
+    #end
+}
+
+_xlsx_filter()
+{
+    sed \
+       -e 's|>.*</dcterms:created>|>|g' \
+       -e 's|>.*</dcterms:modified>|>|g' \
+    < $1 > $1.f
+    mv $1.f $1
+}
+
+_path_filter()
+{
+    sed \
+       -e 's|<c r="B2" s="1" t="inlineStr"><is><t>.*archives/rep</t>|<c r="B2" s="1" t="inlineStr"><is><t>archives/rep</t>|g' \
+    < $1 > $1.f
+    mv $1.f $1
+}
+
+A="$here/archives/rep"
+
+# real QA test starts here
+echo "--- running pcp2xlsx"
+pcp2xlsx -a $A -H -I -z -b MB -P 2 -F $tmp.outfile ""
+mkdir -p $tmp.dir/ref $tmp.dir/run
+cd $tmp.dir/ref
+echo "--- unzipping reference output"
+unzip $here/sheet/pcp2xlsx.qa.1132.out | _unzip_filter
+_xlsx_filter docProps/core.xml
+_path_filter xl/worksheets/sheet1.xml
+cd $tmp.dir/run
+echo "--- unzipping generated output"
+unzip $tmp.outfile | _unzip_filter
+_xlsx_filter docProps/core.xml
+_path_filter xl/worksheets/sheet1.xml
+cd $tmp.dir
+echo "--- diffing outputs - no output expected"
+diff -purN ref run
+echo "--- end of diff"
+cd $here
+rm -f $tmp.outfile
+
+# success, all done
+status=0
+exit

@@ -223,6 +223,7 @@ usr/share/man/man3/pmprintvalue.3.gz
 usr/share/man/man3/pmPrintValue.3.gz
 usr/share/man/man3/pmprocessexec.3.gz
 usr/share/man/man3/__pmProcessAddArg.3.gz
+usr/share/man/man3/__pmProcessUnpickArgs.3.gz
 usr/share/man/man3/__pmProcessExec.3.gz
 usr/share/man/man3/pmprocesspipe.3.gz
 usr/share/man/man3/__pmProcessPipe.3.gz

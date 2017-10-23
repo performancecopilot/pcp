@@ -1219,6 +1219,9 @@ main(int argc, char **argv)
 		needti = 1;
 		do_indom();
 	    }
+	    else if (stsmeta == 3 /*TYPE_LABEL*/) {
+		;	/* silently ignore optional metadata */
+	    }
 	    else {
 		fprintf(stderr, "%s: Error: unrecognised meta data type: %d\n",
 		    pmProgname, stsmeta);

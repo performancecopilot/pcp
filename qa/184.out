@@ -9,6 +9,12 @@ Descriptions for Metrics in the Log ...
 PMID: 2.0.8 (pmcd.control.register)
     Data Type: 32-bit int  InDom: 2.2 0x800002
     Semantics: discrete  Units: none
+PMID: 2.0.24 (pmcd.seqnum)
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+PMID: 2.0.23 (pmcd.pid)
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
 PMID: 2.3.2 (pmcd.pmlogger.archive)
     Data Type: string  InDom: 2.1 0x800001
     Semantics: discrete  Units: none
@@ -50,6 +56,8 @@ TIMESTAMP       0       OFFSET       OFFSET
 TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value "HOST"
               2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
               2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value "PATH"
+              2.0.23 (pmcd.pid): value PID
+              2.0.24 (pmcd.seqnum): value SEQNUM
 
 TIMESTAMP  2.0.8 (pmcd.control.register): inst [0 or "0"] value INTEGER
 
@@ -81,6 +89,12 @@ Descriptions for Metrics in the Log ...
 PMID: 2.0.8 (pmcd.control.register)
     Data Type: 32-bit int  InDom: 2.2 0x800002
     Semantics: discrete  Units: none
+PMID: 2.0.24 (pmcd.seqnum)
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+PMID: 2.0.23 (pmcd.pid)
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
 PMID: 2.3.2 (pmcd.pmlogger.archive)
     Data Type: string  InDom: 2.1 0x800001
     Semantics: discrete  Units: none
@@ -122,5 +136,7 @@ TIMESTAMP       0       OFFSET       OFFSET
 TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value "HOST"
               2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
               2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value "PATH"
+              2.0.23 (pmcd.pid): value PID
+              2.0.24 (pmcd.seqnum): value SEQNUM
 
 TIMESTAMP  2.0.8 (pmcd.control.register): inst [0 or "0"] value INTEGER

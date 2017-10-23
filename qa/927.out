@@ -247,30 +247,6 @@ expr node <addr-80> type=EQ left=<addr-81> right=<addr-82> save_last=0
 expr node <addr-81> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.hundred] master=1
 expr node <addr-82> type=INTEGER left=(nil) right=(nil) save_last=0 [100] master=1
 __dmopencontext(->ctx 0) called
-__dmtraverse: name="qa_927" added "qa_927.bin_2_5"
-__dmtraverse: name="qa_927" added "qa_927.bin_frac"
-__dmtraverse: name="qa_927" added "qa_927.bin_frac2"
-__dmtraverse: name="qa_927" added "qa_927.rel_lt"
-__dmtraverse: name="qa_927" added "qa_927.rel_leq"
-__dmtraverse: name="qa_927" added "qa_927.rel_neq"
-__dmtraverse: name="qa_927" added "qa_927.rel_true"
-__dmtraverse: name="qa_927" added "qa_927.rel_false"
-__dmtraverse: name="qa_927" added "qa_927.rel_eq"
-__dmtraverse: name="qa_927" added "qa_927.bool.and_true"
-__dmtraverse: name="qa_927" added "qa_927.bool.and_false"
-__dmtraverse: name="qa_927" added "qa_927.bool.or_complex"
-__dmgetpmid: metric "qa_927.bin_2_5" -> PMID 511.0.3
-__dmgetpmid: metric "qa_927.bin_frac" -> PMID 511.0.4
-__dmgetpmid: metric "qa_927.bin_frac2" -> PMID 511.0.5
-__dmgetpmid: metric "qa_927.rel_lt" -> PMID 511.0.6
-__dmgetpmid: metric "qa_927.rel_leq" -> PMID 511.0.7
-__dmgetpmid: metric "qa_927.rel_neq" -> PMID 511.0.8
-__dmgetpmid: metric "qa_927.rel_true" -> PMID 511.0.9
-__dmgetpmid: metric "qa_927.rel_false" -> PMID 511.0.10
-__dmgetpmid: metric "qa_927.rel_eq" -> PMID 511.0.11
-__dmgetpmid: metric "qa_927.bool.and_true" -> PMID 511.0.12
-__dmgetpmid: metric "qa_927.bool.and_false" -> PMID 511.0.13
-__dmgetpmid: metric "qa_927.bool.or_complex" -> PMID 511.0.14
 __dmgetpmid: metric "qa_927.bin_2_5" -> PMID 511.0.3
 __dmbind: bind metric[2] qa_927.bin_2_5
 Derived metric expr dump from <addr-83>...
@@ -294,6 +270,7 @@ expr node <addr-87> type=INTEGER left=(nil) right=(nil) save_last=0 [5] master=0
     PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
+__dmtraverse: name="qa_927" added "qa_927.bin_2_5"
 __dmgetpmid: metric "qa_927.bin_frac" -> PMID 511.0.4
 __dmbind: bind metric[3] qa_927.bin_frac
 Derived metric expr dump from <addr-88>...
@@ -309,6 +286,7 @@ expr node <addr-90> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] ma
     PMID: 29.0.6 (29.0.6 from pmDesc) numval: 0
     Data Type: 32-bit int  InDom: 29.2 0x7400002
     Semantics: instant  Units: none
+__dmtraverse: name="qa_927" added "qa_927.bin_frac"
 __dmgetpmid: metric "qa_927.bin_frac2" -> PMID 511.0.5
 __dmbind: bind metric[4] qa_927.bin_frac2
 Derived metric expr dump from <addr-91>...
@@ -324,6 +302,7 @@ expr node <addr-93> type=DOUBLE left=(nil) right=(nil) save_last=0 [.4] master=0
     PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
+__dmtraverse: name="qa_927" added "qa_927.bin_frac2"
 __dmgetpmid: metric "qa_927.rel_lt" -> PMID 511.0.6
 __dmbind: bind metric[5] qa_927.rel_lt
 Derived metric expr dump from <addr-94>...
@@ -339,6 +318,7 @@ expr node <addr-96> type=INTEGER left=(nil) right=(nil) save_last=0 [101] master
     PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
+__dmtraverse: name="qa_927" added "qa_927.rel_lt"
 __dmgetpmid: metric "qa_927.rel_leq" -> PMID 511.0.7
 __dmbind: bind metric[6] qa_927.rel_leq
 Derived metric expr dump from <addr-97>...
@@ -386,6 +366,7 @@ expr node <addr-107> type=INTEGER left=(nil) right=(nil) save_last=0 [1] master=
     PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
+__dmtraverse: name="qa_927" added "qa_927.rel_leq"
 __dmgetpmid: metric "qa_927.rel_neq" -> PMID 511.0.8
 __dmbind: bind metric[7] qa_927.rel_neq
 Derived metric expr dump from <addr-108>...
@@ -405,6 +386,7 @@ expr node <addr-111> type=INTEGER left=(nil) right=(nil) save_last=0 [0] master=
     PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
+__dmtraverse: name="qa_927" added "qa_927.rel_neq"
 __dmgetpmid: metric "qa_927.rel_true" -> PMID 511.0.9
 __dmbind: bind metric[8] qa_927.rel_true
 Derived metric expr dump from <addr-112>...
@@ -452,6 +434,7 @@ expr node <addr-122> type=INTEGER left=(nil) right=(nil) save_last=0 [100] maste
     PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
+__dmtraverse: name="qa_927" added "qa_927.rel_true"
 __dmgetpmid: metric "qa_927.rel_false" -> PMID 511.0.10
 __dmbind: bind metric[9] qa_927.rel_false
 Derived metric expr dump from <addr-123>...
@@ -499,6 +482,7 @@ expr node <addr-133> type=INTEGER left=(nil) right=(nil) save_last=0 [100] maste
     PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
+__dmtraverse: name="qa_927" added "qa_927.rel_false"
 __dmgetpmid: metric "qa_927.rel_eq" -> PMID 511.0.11
 __dmbind: bind metric[10] qa_927.rel_eq
 Derived metric expr dump from <addr-134>...
@@ -530,6 +514,7 @@ expr node <addr-140> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulongl
     PMID: 29.0.100 (29.0.100 from pmDesc) numval: 0
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
+__dmtraverse: name="qa_927" added "qa_927.rel_eq"
 __dmgetpmid: metric "qa_927.bool.and_true" -> PMID 511.0.12
 __dmbind: bind metric[11] qa_927.bool.and_true
 Derived metric expr dump from <addr-141>...
@@ -545,6 +530,7 @@ expr node <addr-143> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.o
     PMID: 29.0.10 (29.0.10 from pmDesc) numval: 0
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
+__dmtraverse: name="qa_927" added "qa_927.bool.and_true"
 __dmgetpmid: metric "qa_927.bool.and_false" -> PMID 511.0.13
 __dmbind: bind metric[12] qa_927.bool.and_false
 Derived metric expr dump from <addr-144>...
@@ -560,6 +546,7 @@ expr node <addr-146> type=INTEGER left=(nil) right=(nil) save_last=0 [0] master=
     PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
+__dmtraverse: name="qa_927" added "qa_927.bool.and_false"
 __dmgetpmid: metric "qa_927.bool.or_complex" -> PMID 511.0.14
 __dmbind: bind metric[13] qa_927.bool.or_complex
 Derived metric expr dump from <addr-147>...
@@ -623,6 +610,19 @@ expr node <addr-161> type=INTEGER left=(nil) right=(nil) save_last=0 [100] maste
     PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
+__dmtraverse: name="qa_927" added "qa_927.bool.or_complex"
+__dmgetpmid: metric "qa_927.bin_2_5" -> PMID 511.0.3
+__dmgetpmid: metric "qa_927.bin_frac" -> PMID 511.0.4
+__dmgetpmid: metric "qa_927.bin_frac2" -> PMID 511.0.5
+__dmgetpmid: metric "qa_927.rel_lt" -> PMID 511.0.6
+__dmgetpmid: metric "qa_927.rel_leq" -> PMID 511.0.7
+__dmgetpmid: metric "qa_927.rel_neq" -> PMID 511.0.8
+__dmgetpmid: metric "qa_927.rel_true" -> PMID 511.0.9
+__dmgetpmid: metric "qa_927.rel_false" -> PMID 511.0.10
+__dmgetpmid: metric "qa_927.rel_eq" -> PMID 511.0.11
+__dmgetpmid: metric "qa_927.bool.and_true" -> PMID 511.0.12
+__dmgetpmid: metric "qa_927.bool.and_false" -> PMID 511.0.13
+__dmgetpmid: metric "qa_927.bool.or_complex" -> PMID 511.0.14
 
 live metadata ...
 
@@ -786,6 +786,14 @@ sample.ulonglong.hundred
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 
+pmcd.seqnum
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+
+pmcd.pid
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+
 pmcd.pmlogger.archive
     Data Type: string  InDom: 2.1 0x800001
     Semantics: discrete  Units: none
@@ -932,5 +940,4 @@ Illegal character
 Illegal character
 Semantic error: derived metric qa_927.bad_non_ctr_dim_right: sample.milliseconds > hinv.physmem: Non-counter and not dimensionless for right operand
 Semantic error: derived metric qa_927.bad_non_ctr_dim_left: kernel.all.uptime <= sample.milliseconds: Non-counter and not dimensionless for left operand
-qa_927.bad_non_ctr_dim_right: pmLookupDesc: Derived metric definition failed
-qa_927.bad_non_ctr_dim_left: pmLookupDesc: Derived metric definition failed
+Error: qa_927: Unknown metric name

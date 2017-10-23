@@ -42,3 +42,5 @@ print("pmCtime from int:        %s" % str(context.pmCtime(sample_time_i)).rstrip
 print("pmCtime from float:      %s" % str(context.pmCtime(sample_time_f)).rstrip())
 
 print("pmWhichZone:  %s" % str(context.pmWhichZone()))
+# https://bugzilla.redhat.com/show_bug.cgi?id=1352465
+print("pmWhichZone:  %s" % str(context.pmWhichZone()))

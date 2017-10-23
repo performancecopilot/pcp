@@ -602,6 +602,12 @@ do_shell(const char *cmd)
 {
     FILE	*f;
 
+    /*
+     * popen() is not really safe here, but the %shell control line
+     * takes a single string argument, so what will be executed by
+     * the implied /bin/sh -c "<string argument>" is exactly what
+     * appears in the input PMNS file.
+     */
     f = popen(cmd, "r");
 
     return f;

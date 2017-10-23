@@ -30,8 +30,11 @@
 #include "internal.h"
 #include "fault.h"
 #include <sys/types.h>
+#if defined(HAVE_SYS_WAIT_H)
 #include <sys/wait.h>
+#endif
 #include <signal.h>
+#include <ctype.h>
 
 struct __pmExecCtl {
     int		argc;
@@ -89,6 +92,7 @@ cleanup(__pmExecCtl_t *ep)
 /*
  * our encoding of wait status into PMAPI return value >= 0
  */
+#if !defined(IS_MINGW)
 static int
 decode_status(int status)
 {
@@ -105,6 +109,7 @@ decode_status(int status)
 	}
     }
 }
+#endif
 
 /*
  * Built array of arguments for use in __pmProcessExec() or
@@ -167,6 +172,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":3", PM_FAULT_ALLOC);
     return 0;
 }
 
+#if !defined(IS_MINGW)
 /*
  * Like system(3), but uses execvp() and the array of args built
  * by __pmProcessAddArg().
@@ -202,6 +208,7 @@ __pmProcessExec(__pmExecCtl_t **handle, int toss, int wait)
     struct sigaction	save_quit;
     sigset_t		mask;
     sigset_t		save_mask;
+    FILE		*tmp;
 
     if (ep == NULL)
 	/* no executable path or args */
@@ -270,12 +277,18 @@ __pmProcessExec(__pmExecCtl_t **handle, int toss, int wait)
 	    }
 	}
 	ep->argv[0] = name;
-	if (toss & PM_EXEC_TOSS_STDIN)
-	    freopen("/dev/null", "r", stdin);
-	if (toss & PM_EXEC_TOSS_STDOUT)
-	    freopen("/dev/null", "w", stdout);
-	if (toss & PM_EXEC_TOSS_STDERR)
-	    freopen("/dev/null", "w", stderr);
+	if (toss & PM_EXEC_TOSS_STDIN) {
+	    if ((tmp = freopen("/dev/null", "r", stdin)) == NULL)
+		fprintf(stderr, "__pmProcessExec: freopen stdin failed\n");
+	}
+	if (toss & PM_EXEC_TOSS_STDOUT) {
+	    if ((tmp = freopen("/dev/null", "w", stdout)) == NULL)
+		fprintf(stderr, "__pmProcessExec: freopen stdout failed\n");
+	}
+	if (toss & PM_EXEC_TOSS_STDERR) {
+	    if ((tmp = freopen("/dev/null", "w", stderr)) == NULL)
+		fprintf(stderr, "__pmProcessExec: freopen stderr failed\n");
+	}
 
 	execvp(path, (char * const *)ep->argv);
 	/* oops, not supposed to get here */
@@ -297,7 +310,8 @@ __pmProcessExec(__pmExecCtl_t **handle, int toss, int wait)
 		    break;
 	    }
 	    if (pmDebugOptions.exec) {
-		fprintf(stderr, "__pmProcessExec: pid=%" FMT_PID " wait_pid=%" FMT_PID " errno=%d", pid, wait_pid, oserror());
+		fprintf(stderr, "__pmProcessExec: pid=%" FMT_PID " wait_pid=%" FMT_PID , pid, wait_pid);
+		if (wait_pid < 0) fprintf(stderr, " errno=%d", oserror());
 		if (WIFEXITED(status)) fprintf(stderr, " exit=%d", WEXITSTATUS(status));
 		if (WIFSIGNALED(status)) fprintf(stderr, " signal=%d", WTERMSIG(status));
 		if (WIFSTOPPED(status)) fprintf(stderr, " stop signal=%d", WSTOPSIG(status));
@@ -330,7 +344,88 @@ __pmProcessExec(__pmExecCtl_t **handle, int toss, int wait)
 
     return sts;
 }
+#else
+/*
+ * MinGW version
+ */
+int
+__pmProcessExec(__pmExecCtl_t **handle, int toss, int wait)
+{
+    __pmExecCtl_t	*ep = *handle;
+    int			i;
+    char		*p;
+    char		*path;
+    char		*name;
+    int			infd;
+    int			outfd;
+    int			status;
+    int			sig;
+    int			sts = 0;
+    pid_t		pid;
+    pid_t		wait_pid;
 
+    if (ep == NULL)
+	/* no executable path or args */
+	return PM_ERR_TOOSMALL;
+
+    if (pmDebugOptions.exec) {
+	fprintf(stderr, "__pmProcessExec: argc=%d toss=%d", ep->argc, toss);
+	for (i = 0; i < ep->argc; i++)
+	    fprintf(stderr, " \"%s\"", ep->argv[i]);
+	fputc('\n', stderr);
+    }
+
+    name = path = ep->argv[0];
+    p = &path[strlen(ep->argv[0])-1];
+    /* strip leading part path from argv[0] */
+    while (p > ep->argv[0]) {
+	p--;
+	if (*p == '/') {
+	    name = &p[1];
+	    break;
+	}
+    }
+    ep->argv[0] = name;
+    ep->argv[ep->argc] = NULL;
+
+    pid = __pmProcessCreate(ep->argv, &infd, &outfd);
+
+    /* cleanup */
+    cleanup(ep);
+    PM_UNLOCK(exec_lock);
+    *handle = NULL;
+
+    if (pid > (pid_t)0) {
+	/* not in the child process, so can't do too much here */
+	if (toss & PM_EXEC_TOSS_STDIN)
+	    close(infd);
+	if (toss & PM_EXEC_TOSS_STDOUT)
+	    close(outfd);
+	if (wait == PM_EXEC_WAIT) {
+	    wait_pid = __pmProcessWait(pid, 0, &status, &sig);
+	    if (pmDebugOptions.exec) {
+		fprintf(stderr, "__pmProcessExec: pid=%" FMT_PID " wait_pid=%" FMT_PID , pid, wait_pid);
+		if (wait_pid < 0) fprintf(stderr, " errno=%d", oserror());
+		fprintf(stderr, " status=%d signal=%d\n", status, sig);
+	    }
+	    if (wait_pid != pid)
+		sts = -oserror();
+	    else {
+		if (sig != -1)
+		    sts = 1000 + sig; 
+		else
+		    sts = status;
+	    }
+	}
+    }
+    else
+	sts = -oserror();
+
+    return sts;
+}
+#endif
+
+#if !defined(IS_MINGW)
 /*
  * Like popen(3), but uses execvp() and the array of args built
  * __pmProcessAddArg().
@@ -340,7 +435,7 @@ __pmProcessPipe(__pmExecCtl_t **handle, const char *type, int toss, FILE **fp)
 {
     __pmExecCtl_t	*ep = *handle;
     int			i;
-    int			sts;
+    int			sts = 0;
     pid_t		pid;
     int			mypipe[2];
     struct sigaction	ignore;
@@ -348,6 +443,7 @@ __pmProcessPipe(__pmExecCtl_t **handle, const char *type, int toss, FILE **fp)
     struct sigaction	save_quit;
     sigset_t		mask;
     sigset_t		save_mask;
+    FILE		*tmp;
 
     *fp = NULL;
 
@@ -362,23 +458,31 @@ __pmProcessPipe(__pmExecCtl_t **handle, const char *type, int toss, FILE **fp)
 	fputc('\n', stderr);
     }
 
-    if (strlen(type) != 1 || (type[0] != 'r' && type[0] != 'w' ))
+    if (strlen(type) != 1 || (type[0] != 'r' && type[0] != 'w' )) {
+	PM_UNLOCK(exec_lock);
 	return -EINVAL;
+    }
 
     /* ignore SIGINT and SIGQUIT, block SIGCHLD */
     ignore.sa_handler = SIG_IGN;
     ignore.sa_flags = 0;
     sigemptyset(&ignore.sa_mask);
     sigemptyset(&save_intr.sa_mask);
-    if (sigaction(SIGINT, &ignore, &save_intr) < 0)
+    if (sigaction(SIGINT, &ignore, &save_intr) < 0) {
+	PM_UNLOCK(exec_lock);
 	return -oserror();
+    }
     sigemptyset(&save_quit.sa_mask);
-    if (sigaction(SIGQUIT, &ignore, &save_quit) < 0)
+    if (sigaction(SIGQUIT, &ignore, &save_quit) < 0) {
+	PM_UNLOCK(exec_lock);
 	return -oserror();
+    }
     sigemptyset(&mask);
     sigaddset(&mask, SIGCHLD);
-    if (sigprocmask(SIG_BLOCK, &mask, &save_mask) < 0)
+    if (sigprocmask(SIG_BLOCK, &mask, &save_mask) < 0) {
+	PM_UNLOCK(exec_lock);
 	return -oserror();
+    }
 
     ep->argv[ep->argc] = NULL;
 
@@ -401,6 +505,7 @@ __pmProcessPipe(__pmExecCtl_t **handle, const char *type, int toss, FILE **fp)
 	/* pipe failed ... */
 	cleanup(ep);
 	*handle = NULL;
+	PM_UNLOCK(exec_lock);
 	return -oserror();
     }
 
@@ -436,15 +541,19 @@ __pmProcessPipe(__pmExecCtl_t **handle, const char *type, int toss, FILE **fp)
 	    close(mypipe[0]);
 	    dup2(mypipe[1], fileno(stdout));
 	    close(mypipe[1]);
-	    if (toss & PM_EXEC_TOSS_STDIN)
-		freopen("/dev/null", "r", stdin);
+	    if (toss & PM_EXEC_TOSS_STDIN) {
+		if ((tmp = freopen("/dev/null", "r", stdin)) == NULL)
+		    fprintf(stderr, "__pmProcessPipe: freopen stdin failed\n");
+	    }
 	}
 	else {	/* can safely assume 'w' */
 	    close(mypipe[1]);
 	    dup2(mypipe[0], fileno(stdin));
 	    close(mypipe[0]);
-	    if (toss & PM_EXEC_TOSS_STDOUT)
-		freopen("/dev/null", "w", stdout);
+	    if (toss & PM_EXEC_TOSS_STDOUT) {
+		if ((tmp = freopen("/dev/null", "w", stdout)) == NULL)
+		    fprintf(stderr, "__pmProcessPipe: freopen stdout failed\n");
+	    }
 	}
 
 	name = path = ep->argv[0];
@@ -458,8 +567,10 @@ __pmProcessPipe(__pmExecCtl_t **handle, const char *type, int toss, FILE **fp)
 	    }
 	}
 	ep->argv[0] = name;
-	if (toss & PM_EXEC_TOSS_STDERR)
-	    freopen("/dev/null", "w", stderr);
+	if (toss & PM_EXEC_TOSS_STDERR) {
+	    if ((tmp = freopen("/dev/null", "w", stderr)) == NULL)
+		fprintf(stderr, "__pmProcessPipe: freopen stderr failed\n");
+	}
 
 	execvp(path, (char * const *)ep->argv);
 	/* oops, not supposed to get here */
@@ -486,7 +597,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":7", PM_FAULT_ALLOC);
 		 * cause problems for __pmProcessPipeClose(), but it will
 		 * just return early with an error without waiting
 		 */
-		__pmNoMem("__pmProcessAddArg: argv realloc", sizeof(map[0])*(nmap+1), PM_RECOV_ERR);
+		__pmNoMem("__pmProcessPipe: argv realloc", sizeof(map[0])*(nmap+1), PM_RECOV_ERR);
 		PM_UNLOCK(exec_lock);
 		return -ENOMEM;
 	    }
@@ -498,13 +609,17 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":7", PM_FAULT_ALLOC);
 
 	if (type[0] == 'r') {
 	    close(mypipe[1]);
-	    if ((*fp = fdopen(mypipe[0], "r")) == NULL)
+	    if ((*fp = fdopen(mypipe[0], "r")) == NULL) {
+		PM_UNLOCK(exec_lock);
 		return -oserror();
+	    }
 	}
 	else {	/* can safely assume 'w' */
 	    close(mypipe[0]);
-	    if ((*fp = fdopen(mypipe[1], "w")) == NULL)
+	    if ((*fp = fdopen(mypipe[1], "w")) == NULL) {
+		PM_UNLOCK(exec_lock);
 		return -oserror();
+	    }
 	}
 
 	map[i].pid = pid;
@@ -523,9 +638,114 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":7", PM_FAULT_ALLOC);
 
 	return 0;
     }
-    else
+    else {
+	PM_UNLOCK(exec_lock);
 	return -oserror();
+    }
 }
+#else
+/*
+ * MinGW version
+ */
+int
+__pmProcessPipe(__pmExecCtl_t **handle, const char *type, int toss, FILE **fp)
+{
+    __pmExecCtl_t	*ep = *handle;
+    char		*p;
+    char		*path;
+    char		*name;
+    int			i;
+    int			infd;
+    int			outfd;
+    int			sts = 0;
+    pid_t		pid;
+
+    *fp = NULL;
+
+    if (ep == NULL)
+	/* no executable path or args */
+	return PM_ERR_TOOSMALL;
+
+    if (pmDebugOptions.exec) {
+	fprintf(stderr, "__pmProcessPipe: argc=%d type=\"%s\" toss=%d", ep->argc, type, toss);
+	for (i = 0; i < ep->argc; i++)
+	    fprintf(stderr, " \"%s\"", ep->argv[i]);
+	fputc('\n', stderr);
+    }
+
+    if (strlen(type) != 1 || (type[0] != 'r' && type[0] != 'w' )) {
+	PM_UNLOCK(exec_lock);
+	return -EINVAL;
+    }
+
+    name = path = ep->argv[0];
+    p = &path[strlen(ep->argv[0])-1];
+    /* strip leading part path from argv[0] */
+    while (p > ep->argv[0]) {
+	p--;
+	if (*p == '/') {
+	    name = &p[1];
+	    break;
+	}
+    }
+    ep->argv[0] = name;
+    ep->argv[ep->argc] = NULL;
+
+    pid = __pmProcessCreate(ep->argv, &infd, &outfd);
+
+    /* cleanup */
+    cleanup(ep);
+    *handle = NULL;
+
+    if (pid > (pid_t)0) {
+	for (i = 0; i < nmap; i++) {
+	    if (map[i].pid == 0)
+		break;
+	}
+	if (i == nmap) {
+	    struct map_s	*tmp_map;
+	    if ((tmp_map = (struct map_s *)realloc(map, sizeof(map[0])*(nmap+1))) == NULL) {
+		/*
+		 * we have nowhere to stash the fp and pid, which will
+		 * cause problems for __pmProcessPipeClose(), but it will
+		 * just return early with an error without waiting
+		 */
+		__pmNoMem("__pmProcessPipe: argv realloc", sizeof(map[0])*(nmap+1), PM_RECOV_ERR);
+		PM_UNLOCK(exec_lock);
+		return -ENOMEM;
+	    }
+	    map = tmp_map;
+	    map[i].pid = 0;
+	    map[i].fp = NULL;
+	    nmap++;
+	}
+
+	if (type[0] == 'r') {
+	    close(infd);
+	    if ((*fp = fdopen(outfd, "r")) == NULL) {
+		PM_UNLOCK(exec_lock);
+		return -oserror();
+	    }
+	}
+	else {	/* can safely assume 'w' */
+	    close(outfd);
+	    if ((*fp = fdopen(infd, "w")) == NULL) {
+		PM_UNLOCK(exec_lock);
+		return -oserror();
+	    }
+	}
+
+	map[i].pid = pid;
+	map[i].fp = *fp;
+    }
+    else
+	sts = -oserror();
+
+    PM_UNLOCK(exec_lock);
+
+    return sts;
+}
+#endif
 
 /*
  * Like pclose(3), but pipe created by __pmProcessPipe()
@@ -538,6 +758,9 @@ __pmProcessPipeClose(FILE *fp)
     int			status;
     pid_t		pid;
     pid_t		wait_pid;
+#if defined(IS_MINGW)
+    int			sig;
+#endif
 
     PM_LOCK(exec_lock);
 
@@ -560,13 +783,15 @@ __pmProcessPipeClose(FILE *fp)
     if (fclose(fp) != 0)
 	return -oserror();
 
+#if !defined(IS_MINGW)
     while ((wait_pid = waitpid(pid, &status, 0)) < 0) {
 	if (oserror() != EINTR)
 	    break;
     }
 
     if (pmDebugOptions.exec) {
-	fprintf(stderr, "__pmProcessPipe: pid=%" FMT_PID " wait_pid=%" FMT_PID " errno=%d", pid, wait_pid, oserror());
+	fprintf(stderr, "__pmProcessPipeClose: pid=%" FMT_PID " wait_pid=%" FMT_PID , pid, wait_pid);
+	if (wait_pid < 0) fprintf(stderr, " errno=%d", oserror());
 	if (WIFEXITED(status)) fprintf(stderr, " exit=%d", WEXITSTATUS(status));
 	if (WIFSIGNALED(status)) fprintf(stderr, " signal=%d", WTERMSIG(status));
 	if (WIFSTOPPED(status)) fprintf(stderr, " stop signal=%d", WSTOPSIG(status));
@@ -581,6 +806,86 @@ __pmProcessPipeClose(FILE *fp)
 	sts = decode_status(status);
     else
 	sts = -oserror();
+#else
+    /* MinGW version */
+    wait_pid = __pmProcessWait(pid, 0, &status, &sig);
+    if (wait_pid != pid)
+	sts = -oserror();
+    else {
+	if (sig != -1)
+	    sts = 1000 + sig; 
+	else
+	    sts = status;
+    }
+#endif
+
+    return sts;
+}
+
+/*
+ * Helper routine ... if a command line has already been built for
+ * popen() or system(), then this routine may be used to construct
+ * the equivalent __pmExecCtl_t structure.
+ *
+ * It is a sort of simple shell parser:
+ * - args are separated by one or more spaces (not tabs)
+ * - embedded spaces (or quotes) may be enclosed in '...' or "..."
+ * - no \ escapes
+ * - shell meta characters are not recognized and will be eaten as
+ *   arguments, e.g. ; & < > |
+ */
+int
+__pmProcessUnpickArgs(__pmExecCtl_t **argp, const char *command)
+{
+    char	*str = strdup(command);		/* in case command[] is const */
+    int		sts = 0;
+    int		done = 0;
+    char	*p;
+    char	*pend;
+    int		endch = ' ';
+
+    if (str == NULL) {
+	__pmNoMem("__pmProcessUnpickArgs", strlen(command)+1, PM_RECOV_ERR);
+	return -ENOMEM;
+    }
+
+    p = str;
+
+    while (*p != '\0') {
+	if (isspace((int)*p)) {
+	    p++;
+	    continue;
+	}
+	if (*p == '"' || *p == '\'') {
+	    /* quote as first character, scan to matching quote */
+	    endch = *p;
+	    p++;
+	}
+
+	pend = index(p, endch);
+	if (pend == NULL) {
+	    done = 1;
+	    if (endch != ' ') {
+		/* not a great error, but probably the best we can do */
+		__pmNotifyErr(LOG_WARNING,
+			"__pmProcessUnpickArgs: unterminated quote (%c) in command: %s\n",
+			endch & 0xff, command);
+		sts = PM_ERR_GENERIC;
+		break;
+	    }
+	}
+	else
+	    *pend = '\0';
+
+	if ((sts = __pmProcessAddArg(argp, p)) < 0)
+	    break;
+	if (done)
+	    break;
+
+	p = pend + 1;
+	endch = ' ';
+    }
+    free(str);
 
     return sts;
 }

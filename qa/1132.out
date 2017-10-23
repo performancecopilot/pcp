@@ -1,0 +1,26 @@
+QA output created by 1132
+--- running pcp2xlsx
+--- unzipping reference output
+
+  inflating: xl/worksheets/sheet1.xml
+  inflating: xl/workbook.xml
+  inflating: docProps/app.xml
+  inflating: docProps/core.xml
+  inflating: [Content_Types].xml
+  inflating: xl/styles.xml
+  inflating: xl/theme/theme1.xml
+  inflating: _rels/.rels
+  inflating: xl/_rels/workbook.xml.rels
+--- unzipping generated output
+
+  inflating: xl/worksheets/sheet1.xml
+  inflating: xl/workbook.xml
+  inflating: docProps/app.xml
+  inflating: docProps/core.xml
+  inflating: [Content_Types].xml
+  inflating: xl/styles.xml
+  inflating: xl/theme/theme1.xml
+  inflating: _rels/.rels
+  inflating: xl/_rels/workbook.xml.rels
+--- diffing outputs - no output expected
+--- end of diff

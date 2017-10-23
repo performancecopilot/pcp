@@ -59,7 +59,10 @@ End-of-File
 
 pmdumplog -s $tmp 2>&1 \
 | _filter_pmdumplog \
-| sed -e '1,/pmcd.pmlogger.archive/d'
+| sed \
+    -e '/(pmcd\./d' \
+    -e '/bytes]/s/[0-9][0-9]*/NNN/' \
+# end
 
 # success, all done
 status=0

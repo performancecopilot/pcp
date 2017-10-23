@@ -1,7 +1,7 @@
 QA output created by 923
 === std out ===
-foo.bar: pmLookupDesc: Derived metric definition failed
 === std err ===
+Error: foo.bar: Unknown metric name
 === filtered valgrind report ===
 Memcheck, a memory error detector
 Command: pminfo -f foo.bar

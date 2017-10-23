@@ -321,7 +321,8 @@ ib_load_config(const char *cp, int writeconf, pmdaIndom *itab, unsigned int nind
     char hcas[IBPMDA_MAX_HCAS][UMAD_CA_NAME_LEN];
     hca_state_t *st = NULL;
     int i, n;
-    int (*closef)(FILE *) = fclose;
+    int is_pipe = 0;
+    int sts;
 
     if (nindoms <= IB_CNT_INDOM)
 	return -EINVAL;
@@ -354,8 +355,12 @@ ib_load_config(const char *cp, int writeconf, pmdaIndom *itab, unsigned int nind
 	    /* Not an executable, just read it */
 	    fconf = fopen (confpath, "r");
 	} else {
-	    fconf = popen(confpath, "r");
-	    closef = pclose;
+	    __pmExecCtl_t	*argp = NULL;
+	    if ((sts = __pmProcessAddArg(&argp, confpath)) < 0)
+		return sts;
+	    if ((sts = __pmProcessPipe(&argp, "r", PM_EXEC_TOSS_NONE, &fconf)) < 0)
+		return sts;
+	    is_pipe = 1;
 	} 
     } else if (writeconf) {
 	fconf = fopen(confpath, "w");
@@ -385,7 +390,12 @@ ib_load_config(const char *cp, int writeconf, pmdaIndom *itab, unsigned int nind
 
     if (fconf) {
 	parse_config(itab);
-	(*closef)(fconf);
+	if (is_pipe) {
+	    if ((sts = __pmProcessPipeClose(fconf)) != 0)
+		return sts;
+	}
+	else
+	    fclose(fconf);
     }
 
     if (writeconf)

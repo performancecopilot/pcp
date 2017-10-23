@@ -18,6 +18,7 @@
 # pylint: disable=too-many-instance-attributes, too-many-locals
 # pylint: disable=too-many-branches, too-many-nested-blocks
 # pylint: disable=bare-except, broad-except
+# pylint: disable=too-many-lines
 
 """ Performance Metrics Reporter """
 
@@ -27,7 +28,7 @@ import errno
 import sys
 
 # Our imports
-from datetime import datetime
+from datetime import datetime, timedelta
 import socket
 import time
 import math
@@ -39,6 +40,7 @@ from pcp import pmapi, pmi, pmconfig
 from cpmapi import PM_CONTEXT_ARCHIVE, PM_CONTEXT_LOCAL
 from cpmapi import PM_ERR_EOL, PM_IN_NULL, PM_DEBUG_APPL1
 from cpmapi import PM_TYPE_FLOAT, PM_TYPE_DOUBLE, PM_TYPE_STRING
+from cpmapi import PM_TIME_SEC
 from cpmi import PMI_ERR_DUPINSTNAME
 
 if sys.version_info[0] >= 3:
@@ -257,9 +259,17 @@ class PMReporter(object):
         elif opt == 'X':
             self.colxrow = optarg
         elif opt == 'w':
-            self.width = int(optarg)
+            try:
+                self.width = int(optarg)
+            except:
+                sys.stderr.write("Error while parsing options: Integer expected.\n")
+                sys.exit(1)
         elif opt == 'P':
-            self.precision = int(optarg)
+            try:
+                self.precision = int(optarg)
+            except:
+                sys.stderr.write("Error while parsing options: Integer expected.\n")
+                sys.exit(1)
         elif opt == 'l':
             self.delimiter = optarg
         elif opt == 'k':
@@ -267,7 +277,11 @@ class PMReporter(object):
         elif opt == 'x':
             self.extheader = 1
         elif opt == 'E':
-            self.repeat_header = int(optarg)
+            try:
+                self.repeat_header = int(optarg)
+            except:
+                sys.stderr.write("Error while parsing options: Integer expected.\n")
+                sys.exit(1)
         elif opt == 'f':
             self.timefmt = optarg
         elif opt == 'u':
@@ -300,6 +314,10 @@ class PMReporter(object):
             sys.stderr.write("Incompatible configuration file version (read v%s, need v%d).\n" % (self.version, CONFVER))
             sys.exit(1)
 
+        # Check how we were invoked and adjust output
+        if sys.argv[0].endswith("pcp2csv"):
+            self.output = OUTPUT_CSV
+
         if self.output == OUTPUT_ARCHIVE and not self.outfile:
             sys.stderr.write("Archive must be defined with archive output.\n")
             sys.exit(1)
@@ -319,10 +337,10 @@ class PMReporter(object):
             self.interpol = 1
 
         # Time
-        self.localtz = pmapi.pmContext.get_local_tz()
+        self.localtz = self.context.get_current_tz()
 
         # Common preparations
-        pmapi.pmContext.prepare_execute(self.context, self.opts, self.output == OUTPUT_ARCHIVE, self.interpol, self.interval)
+        self.context.prepare_execute(self.opts, self.output == OUTPUT_ARCHIVE, self.interpol, self.interval)
 
         # Set output primitives
         if self.delimiter is None:
@@ -362,6 +380,11 @@ class PMReporter(object):
         # Daemonize when requested
         if self.daemonize == 1:
             self.opts.daemonize()
+
+        # Align poll interval to host clock
+        if self.context.type != PM_CONTEXT_ARCHIVE and self.opts.pmGetOptionAlignment():
+            align = float(self.opts.pmGetOptionAlignment()) - (time.time() % float(self.opts.pmGetOptionAlignment()))
+            time.sleep(align)
 
         # Main loop
         lines = 0
@@ -494,9 +517,9 @@ class PMReporter(object):
         else:
             host = self.context.pmGetContextHostName()
 
-        timezone = pmapi.pmContext.get_local_tz()
-        if timezone != self.localtz:
-            timezone += " (reporting, current is " + self.localtz + ")"
+        timezone = self.context.posix_tz_to_utc_offset(self.context.get_current_tz(self.opts))
+        if timezone != self.context.posix_tz_to_utc_offset(self.localtz):
+            timezone += " (reporting, current is " + self.context.posix_tz_to_utc_offset(self.localtz) + ")"
 
         if self.runtime != -1:
             duration = self.runtime
@@ -510,7 +533,22 @@ class PMReporter(object):
                 samples = int(duration / float(self.interval) + 1)
                 duration = (samples - 1) * float(self.interval)
         endtime = float(self.opts.pmGetOptionOrigin()) + duration
-        duration = int(duration) if duration == int(duration) else "{0:.3f}".format(duration)
+
+        instances = sum([len(x[0]) for x in self.pmconfig.insts])
+        insts_txt = "instances" if instances != 1 else "instance"
+
+        if self.context.type == PM_CONTEXT_ARCHIVE and not self.interpol:
+            duration = float(self.opts.pmGetOptionFinish()) - float(self.opts.pmGetOptionOrigin())
+
+        def secs_to_readable(seconds):
+            """ Convert seconds to easily readable format """
+            seconds = float(math.floor((seconds) + math.copysign(0.5, seconds)))
+            parts = str(timedelta(seconds=int(round(seconds)))).split(':')
+            if len(parts[0]) == 1:
+                parts[0] = "0" + parts[0]
+            elif parts[0][-2] == " ":
+                parts[0] = parts[0].rsplit(" ", 1)[0] + " 0" + parts[0].rsplit(" ", 1)[1]
+            return ":".join(parts)
 
         if self.context.type == PM_CONTEXT_ARCHIVE:
             endtime = float(self.context.pmGetArchiveEnd())
@@ -526,14 +564,13 @@ class PMReporter(object):
         self.writer.write(comm + " timezone: " + timezone + "\n")
         self.writer.write(comm + "    start: " + time.asctime(time.localtime(self.opts.pmGetOptionOrigin())) + "\n")
         self.writer.write(comm + "      end: " + time.asctime(time.localtime(endtime)) + "\n")
-        self.writer.write(comm + "  metrics: " + str(len(self.metrics)) + "\n")
+        self.writer.write(comm + "  metrics: " + str(len(self.metrics)) + " (" + str(instances) + " " + insts_txt + ")\n")
         self.writer.write(comm + "  samples: " + str(samples) + "\n")
         if not (self.context.type == PM_CONTEXT_ARCHIVE and not self.interpol):
             self.writer.write(comm + " interval: " + str(float(self.interval)) + " sec\n")
-            self.writer.write(comm + " duration: " + str(duration) + " sec\n")
         else:
             self.writer.write(comm + " interval: N/A\n")
-            self.writer.write(comm + " duration: N/A\n")
+        self.writer.write(comm + " duration: " + secs_to_readable(duration) + "\n")
         self.writer.write(comm + "\n")
 
     def write_header(self):
@@ -617,7 +654,7 @@ class PMReporter(object):
             self.recorded = {} # pylint: disable=attribute-defined-outside-init
             if self.context.type == PM_CONTEXT_ARCHIVE:
                 self.pmi.pmiSetHostname(self.context.pmGetArchiveLabel().hostname)
-                self.pmi.pmiSetTimezone(self.context.pmGetArchiveLabel().tz)
+            self.pmi.pmiSetTimezone(self.context.get_current_tz(self.opts))
             for i, metric in enumerate(self.metrics):
                 self.pmi.pmiAddMetric(metric,
                                       self.pmconfig.pmids[i],
@@ -642,6 +679,8 @@ class PMReporter(object):
             try:
                 for inst, name, val in self.metrics[metric][5](): # pylint: disable=unused-variable
                     try:
+                        if inst != PM_IN_NULL and not name:
+                            continue
                         value = val()
                         if inst != PM_IN_NULL and inst not in self.recorded[metric]:
                             self.recorded[metric].append(inst)
@@ -673,12 +712,12 @@ class PMReporter(object):
             # Silent goodbye
             return
 
-        ts = pmapi.pmContext.convert_datetime(self.pmfg_ts(), "sec")
+        ts = self.context.datetime_to_secs(self.pmfg_ts(), PM_TIME_SEC)
 
         if self.prev_ts is None:
             self.prev_ts = ts
 
-        # Print the results
+        # Construct the results
         line = ""
         if self.extcsv:
             if self.context.type == PM_CONTEXT_LOCAL:
@@ -690,7 +729,7 @@ class PMReporter(object):
             self.prev_ts = ts
         line += timestamp
         if self.extcsv:
-            line += " " + pmapi.pmContext.posix_tz_to_utc_offset(pmapi.pmContext.get_local_tz())
+            line += " " + self.context.posix_tz_to_utc_offset(self.context.get_current_tz(self.opts))
 
         # Avoid crossing the C/Python boundary more than once per metric
         res = {}
@@ -714,7 +753,7 @@ class PMReporter(object):
                 if metric + str(self.pmconfig.insts[i][0][j]) in res:
                     value = res[metric + str(self.pmconfig.insts[i][0][j])]
                     if isinstance(value, str):
-                        value = value.replace(self.delimiter, " ").replace("\n", " ").replace('"', " ")
+                        value = value.replace(self.delimiter, "_").replace("\n", " ").replace('"', " ")
                         line += str('"' + value + '"')
                     else:
                         line += str(value)
@@ -726,6 +765,17 @@ class PMReporter(object):
             self.write_stdout_std(timestamp)
         else:
             self.write_stdout_colxrow(timestamp)
+
+    def check_non_number(self, value, width):
+        """ Check and handle float inf, -inf, and NaN """
+        if math.isinf(value):
+            if value > 0:
+                value = "inf" if width >= 3 else pmconfig.TRUNC
+            else:
+                value = "-inf" if width >= 4 else pmconfig.TRUNC
+        elif math.isnan(value):
+            value = "NaN" if width >= 3 else pmconfig.TRUNC
+        return value
 
     def write_stdout_std(self, timestamp):
         """ Write a line to standard formatted stdout """
@@ -752,6 +802,10 @@ class PMReporter(object):
                         value = val()
                         if isinstance(value, float):
                             value = round(value, self.precision)
+                        elif isinstance(value, str):
+                            value = value.replace("\n", "\\n")
+                            if not self.delimiter.isspace():
+                                value = value.replace(self.delimiter, "_")
                         res[metric + str(inst)] = value
                     except:
                         pass
@@ -777,7 +831,9 @@ class PMReporter(object):
                         if len(value) > l:
                             value = pmconfig.TRUNC
 
-                    if isinstance(value, float) and not math.isinf(value):
+                    if isinstance(value, float) and \
+                       not math.isinf(value) and \
+                       not math.isnan(value):
                         c = self.precision
                         s = len(str(int(value)))
                         if s > l:
@@ -806,8 +862,8 @@ class PMReporter(object):
         index = 0
         nfmt = ""
         for f in fmt:
-            if isinstance(line[index], float) and math.isinf(line[index]):
-                line[index] = "inf"
+            if isinstance(line[index], float):
+                line[index] = self.check_non_number(line[index], self.metrics[metric][4])
             nfmt += f.replace("{X:", "{" + str(index) + ":")
             index += 1
             nfmt += "{" + str(index) + "}"
@@ -836,7 +892,10 @@ class PMReporter(object):
             try:
                 for inst, name, val in self.metrics[metric][5](): # pylint: disable=unused-variable
                     try:
-                        res[metric].append([inst, name, val()])
+                        if inst != PM_IN_NULL and not name:
+                            res[metric].append(['', '', NO_VAL])
+                        else:
+                            res[metric].append([inst, name, val()])
                     except:
                         res[metric].append([inst, name, NO_VAL])
                 if not res[metric]:
@@ -881,6 +940,10 @@ class PMReporter(object):
                         # This metric has the instance we're
                         # processing, grab it and format below
                         value = inst[2]
+                        if isinstance(value, str):
+                            value = value.replace("\n", "\\n")
+                            if not self.delimiter.isspace():
+                                value = value.replace(self.delimiter, "_")
                         found = 1
                         break
 
@@ -899,7 +962,9 @@ class PMReporter(object):
                     else:
                         fmt[k] = "{X:" + str(l) + "d}"
 
-                if isinstance(value, float) and not math.isinf(value):
+                if isinstance(value, float) and \
+                   not math.isinf(value) and \
+                   not math.isnan(value):
                     c = self.precision
                     s = len(str(int(value)))
                     if s > l:
@@ -924,8 +989,8 @@ class PMReporter(object):
             index = 0
             nfmt = ""
             for f in fmt:
-                if isinstance(line[index], float) and math.isinf(line[index]):
-                    line[index] = "inf"
+                if isinstance(line[index], float):
+                    line[index] = self.check_non_number(line[index], self.metrics[metric][4])
                 nfmt += f.replace("{X:", "{" + str(index) + ":")
                 index += 1
                 nfmt += "{" + str(index) + "}"
@@ -944,7 +1009,10 @@ class PMReporter(object):
             except socket.error as error:
                 if error.errno != errno.EPIPE:
                     raise
-            self.writer.close()
+            try:
+                self.writer.close()
+            except:
+                pass
             self.writer = None
         if self.pmi:
             self.pmi.pmiEnd()

@@ -16,6 +16,7 @@
 .TH PMPROCESSEXEC 3 "PCP" "Performance Co-Pilot"
 .SH NAME
 \f3__pmProcessAddArg\f1,
+\f3__pmProcessUnpickArgs\f1,
 \f3__pmProcessExec\f1 \- process execution support
 .SH "C SYNOPSIS"
 .ft 3
@@ -24,6 +25,8 @@
 #include <pcp/impl.h>
 .sp
 int __pmProcessAddArg(__pmExecCtl_t **\fIhandle\fP, const char *\fIarg\fP);
+.br
+int __pmProcessUnpickArgs(__pmExecCtl_t **\fIhandle\fP, const char *\fIcommand\fP);
 .br
 int __pmProcessExec(__pmExecCtl_t **\fIhandle\fP, int \fItoss\fP, int \fIwait\fP);
 .sp
@@ -68,6 +71,25 @@ as per the rules of
 .BR execvp (2)
 that is used by
 .BR __pmProcessExec .
+.PP
+.B __pmProcessUnpickArgs
+is a convenience wrapper to assist conversion of code that assumes
+the
+.I command
+is a shell command that has been prepared for use with
+.BR system (3)
+or
+.BR popen (3)
+in existing code.
+The arguments in
+.I command
+are picked off one-by-one and used to call
+.BR __pmProcessAddArgs .
+The parser is simple, as the routine is designed for simple
+shell command syntax, where arguments are separated by one or more spaces
+but embedded spaces within an argument are allowed if the arguement is
+enclosed in single or double quotes.  More advanced shell syntax like
+escape characters and input-output redirection are not recognized.
 .PP
 Once all the command name and arguments have been registered
 calling
@@ -137,6 +159,7 @@ or
 .BR execvp(2),
 .BR fork (2),
 .BR __pmProcessPipe (3),
+.BR popen (3),
 .BR system (3)
 and
 .BR waitpid (3).
@@ -145,6 +168,15 @@ If successful
 .B __pmProcessAddArg
 returns 0.  Other conditions are rare (e.g. alloc failure) and are
 indicated by a return value that can be decoded using
+.BR pmErrStr (3).
+.PP
+.B __pmProcessUnpickArgs
+returns 0 on success.  In the case of an unterminated string,
+a message is generated and
+.B PM_ERR_GENERIC
+is returned.
+Other return values less than 0 indicate a more serious error and the
+value can be decoded using
 .BR pmErrStr (3).
 .PP
 The return status from

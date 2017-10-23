@@ -2,9 +2,11 @@ QA output created by 432
 Initial archive ...
 event.flags
 event.missed
+pmcd.pid
 pmcd.pmlogger.archive
 pmcd.pmlogger.host
 pmcd.pmlogger.port
+pmcd.seqnum
 sample.aggregate.hullo
 sample.aggregate.null
 sample.aggregate.write_me
@@ -35,9 +37,11 @@ pmlogreduce: sample.event.records: Warning: skipping EVENT metric
 pmlogreduce: sample.event.no_indom_records: Warning: skipping EVENT metric
 event.flags
 event.missed
+pmcd.pid
 pmcd.pmlogger.archive
 pmcd.pmlogger.host
 pmcd.pmlogger.port
+pmcd.seqnum
 sample.bin
 sample.dupnames.three.bin
 sample.dupnames.two.bin

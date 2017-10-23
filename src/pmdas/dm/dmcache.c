@@ -101,9 +101,13 @@ dm_refresh_cache(const char *cache_name, struct cache_stats *cache_stats)
     uint32_t mbsize, cbsize;
     char buffer[BUFSIZ];
     FILE *fp;
+    int sts;
+    __pmExecCtl_t *argp = NULL;
 
-    if ((fp = popen(dm_setup_cache, "r")) == NULL)
-        return -oserror();
+    if ((sts = __pmProcessUnpickArgs(&argp, dm_setup_cache)) < 0)
+	return sts;
+    if ((sts = __pmProcessPipe(&argp, "r", PM_EXEC_TOSS_NONE, &fp)) < 0)
+	return sts;
 
     while (fgets(buffer, sizeof(buffer) -1, fp)) {
         if (!strstr(buffer, ":") || strstr(buffer, "Fail"))
@@ -157,10 +161,17 @@ dm_refresh_cache(const char *cache_name, struct cache_stats *cache_stats)
         cache_stats->dirty = cache_stats->dirty * (cbsize / 1024);
     }
 
-    if (pclose(fp) != 0)
-        return -oserror();
+    sts = __pmProcessPipeClose(fp);
+    if (sts <= 0)
+        return sts;
+    if (sts == 2000)
+	fprintf(stderr, "dm_refresh_cache: pipe (%s) terminated with unknown error\n", dm_setup_cache);
+    else if (sts > 1000)
+	fprintf(stderr, "dm_refresh_cache: pipe (%s) terminated with signal %d\n", dm_setup_cache, sts - 1000);
+    else
+	fprintf(stderr, "dm_refresh_cache: pipe (%s) terminated with exit status %d\n", dm_setup_cache, sts);
 
-    return 0;
+    return PM_ERR_GENERIC;
 }
 
 /*
@@ -179,14 +190,17 @@ dm_cache_instance_refresh(void)
     char buffer[BUFSIZ];
     struct cache_stats *cache;
     pmInDom indom = dm_indom(DM_CACHE_INDOM);
+    __pmExecCtl_t *argp = NULL;
 
     pmdaCacheOp(indom, PMDA_CACHE_INACTIVE);
 
     /*
      * update indom cache based off of thin pools listed by dmsetup
      */
-    if ((fp = popen(dm_setup_cache, "r")) == NULL)
-        return -oserror();
+    if ((sts = __pmProcessUnpickArgs(&argp, dm_setup_cache)) < 0)
+	return sts;
+    if ((sts = __pmProcessPipe(&argp, "r", PM_EXEC_TOSS_NONE, &fp)) < 0)
+	return sts;
 
     while (fgets(buffer, sizeof(buffer) -1, fp)) {
         if (!strstr(buffer, ":"))
@@ -201,8 +215,7 @@ dm_cache_instance_refresh(void)
         if (sts == PM_ERR_INST || (sts >= 0 && cache == NULL)) {
             cache = calloc(1, sizeof(*cache));
             if (cache == NULL) {
-                if (pclose(fp) != 0)
-                    return -oserror();
+		__pmProcessPipeClose(fp);
                 return PM_ERR_AGAIN;
             }
         }
@@ -213,10 +226,17 @@ dm_cache_instance_refresh(void)
 	pmdaCacheStore(indom, PMDA_CACHE_ADD, buffer, (void *)cache);
     }
 
-    if (pclose(fp) != 0)
-        return -oserror();
+    sts = __pmProcessPipeClose(fp);
+    if (sts <= 0)
+        return sts;
+    if (sts == 2000)
+	fprintf(stderr, "dm_cache_instance_refresh: pipe (%s) terminated with unknown error\n", dm_setup_cache);
+    else if (sts > 1000)
+	fprintf(stderr, "dm_cache_instance_refresh: pipe (%s) terminated with signal %d\n", dm_setup_cache, sts - 1000);
+    else
+	fprintf(stderr, "dm_cache_instance_refresh: pipe (%s) terminated with exit status %d\n", dm_setup_cache, sts);
 
-    return 0;
+    return PM_ERR_GENERIC;
 }
 
 void

@@ -1,6 +1,6 @@
 QA output created by 313
 
-=== delta=1sec counter in each non-preamble result in all 3 sections ===
+=== delta=1sec counter in each non-prologue|epilogue result in all 3 sections ===
 Note: timezone set to local timezone of host "gonzo" from archive
 
 metric:    sample.seconds
@@ -248,7 +248,7 @@ interval:  1.00 sec
 07:45:58.422          ?           ?        4331 
 07:45:59.422          ?           ?        4331 
 
-=== delta=0.5sec counter in each non-preamble result in all 3 sections ===
+=== delta=0.5sec counter in each non-prologue|epilogue result in all 3 sections ===
 Note: timezone set to local timezone of host "gonzo" from archive
 
 metric:    sample.seconds

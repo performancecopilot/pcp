@@ -1,6 +1,8 @@
 QA output created by 465
 
-[272 bytes]
+[NNN bytes]
+
+[NNN bytes]
 TIMESTAMP  29.0.31 (sample.string.hullo): value "hullo world!"
               29.0.30 (sample.string.null): value ""
               29.0.25 (sample.double.one): value 1
@@ -17,3 +19,5 @@ TIMESTAMP  29.0.31 (sample.string.hullo): value "hullo world!"
                 inst [800 or "bin-800"] value 800
                 inst [900 or "bin-900"] value 900
               29.0.0 (sample.control): value 0
+
+[NNN bytes]

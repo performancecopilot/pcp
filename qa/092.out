@@ -11,7 +11,7 @@ required 2 log reads
 
 pmFetchArchive: End of PCP archive log
 last result time (serial): MY-EOL-TIMESTAMP
-required 9 log reads
+required 10 log reads
 
 large archive
 pmGetArchiveEnd time: MY-EOL-TIMESTAMP
@@ -25,7 +25,7 @@ required 2 log reads
 
 pmFetchArchive: End of PCP archive log
 last result time (serial): MY-EOL-TIMESTAMP
-required 1001 log reads
+required 1002 log reads
 
 truncated archive
 pmGetArchiveEnd time: MY-EOL-TIMESTAMP
@@ -68,7 +68,7 @@ required 2 log reads
 
 pmFetchArchive: End of PCP archive log
 last result time (serial): MY-EOL-TIMESTAMP
-required 9 log reads
+required 10 log reads
 
 large multi-volume archive
 pmGetArchiveEnd time: MY-EOL-TIMESTAMP
@@ -82,7 +82,7 @@ required 2 log reads
 
 pmFetchArchive: End of PCP archive log
 last result time (serial): MY-EOL-TIMESTAMP
-required 1001 log reads
+required 1002 log reads
 
 large no index archive
 pmGetArchiveEnd time: MY-EOL-TIMESTAMP
@@ -96,4 +96,4 @@ required 1 log reads
 
 pmFetchArchive: End of PCP archive log
 last result time (serial): MY-EOL-TIMESTAMP
-required 1001 log reads
+required 1002 log reads

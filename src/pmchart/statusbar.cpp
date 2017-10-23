@@ -34,13 +34,43 @@ StatusBar::StatusBar()
 	"rightmost point, and either status information or the timeframe "
 	"covering all Visible Points to the left");
 
+#if ORIGINAL
     delete layout();
-    QHBoxLayout *box = new QHBoxLayout;
+    QHBoxLayout *box = new QHBoxLayout();
     box->setMargin(0);
     box->setSpacing(1);
     box->addWidget(my.timeButton);
     box->addWidget(my.timeFrame);
     setLayout(box);
+#elif EXTRA_BOX
+    this->addWidget(my.timeButton);
+    this->addWidget(my.timeFrame, 1);
+#else // BETTER_EXTRA_BOX
+    // Find the inner most layout within the status bar so that we can
+    // set the margin and spacing to what we need. There is guaranteed
+    // to be at least one level of layout.
+    QLayout *inner;
+    QLayout *next = layout();
+    do {
+	inner = next;
+	inner->setMargin(0);
+	inner->setSpacing(1);
+	
+	next = NULL;
+	for (int i = 0; i < inner->count(); ++i) {
+	    QLayoutItem *item = inner->itemAt(i);
+	    QLayout *l = item->layout();
+	    if (l != NULL) {
+		next = l;
+		break;
+	    }
+	}
+    } while (next != NULL);
+    inner->addWidget(my.timeButton);
+    // Need dynamic cast to QHBoxLayout in order to add this with a stretch
+    // factor.
+    (dynamic_cast <QHBoxLayout *>(inner))->addWidget(my.timeFrame, 1);
+#endif    
 
     my.timeAxis = new TimeAxis(my.timeFrame);
     my.timeAxis->setFixedHeight(timeAxisHeight());

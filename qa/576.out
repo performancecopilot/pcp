@@ -1,0 +1,228 @@
+QA output created by 576
+            <archive instance-name="5403">/usr/people/kenmcd/isms/pcp/qa/src/foo</archive>
+            <archive instance-name="5403">/usr/people/kenmcd/isms/pcp/qa/src/foo</archive>
+            <archive instance-name="5403">/usr/people/kenmcd/isms/pcp/qa/src/foo</archive>
+            <archive instance-name="5403">/usr/people/kenmcd/isms/pcp/qa/src/foo</archive>
+            <archive instance-name="5403">/usr/people/kenmcd/isms/pcp/qa/src/foo</archive>
+            <archive instance-name="5403">/usr/people/kenmcd/isms/pcp/qa/src/foo</archive>
+            <archive instance-name="5403">/usr/people/kenmcd/isms/pcp/qa/src/foo</archive>
+            <archive instance-name="5403">/usr/people/kenmcd/isms/pcp/qa/src/foo</archive>
+            <archive instance-name="5403">/usr/people/kenmcd/isms/pcp/qa/src/foo</archive>
+            <host instance-name="5403">gonzo.melbourne.sgi.com</host>
+            <host instance-name="5403">gonzo.melbourne.sgi.com</host>
+            <host instance-name="5403">gonzo.melbourne.sgi.com</host>
+            <host instance-name="5403">gonzo.melbourne.sgi.com</host>
+            <host instance-name="5403">gonzo.melbourne.sgi.com</host>
+            <host instance-name="5403">gonzo.melbourne.sgi.com</host>
+            <host instance-name="5403">gonzo.melbourne.sgi.com</host>
+            <host instance-name="5403">gonzo.melbourne.sgi.com</host>
+            <host instance-name="5403">gonzo.melbourne.sgi.com</host>
+            <port instance-name="5403">4332</port>
+            <port instance-name="5403">4332</port>
+            <port instance-name="5403">4332</port>
+            <port instance-name="5403">4332</port>
+            <port instance-name="5403">4332</port>
+            <port instance-name="5403">4332</port>
+            <port instance-name="5403">4332</port>
+            <port instance-name="5403">4332</port>
+            <port instance-name="5403">4332</port>
+          </pmlogger>
+          </pmlogger>
+          </pmlogger>
+          </pmlogger>
+          </pmlogger>
+          </pmlogger>
+          </pmlogger>
+          </pmlogger>
+          </pmlogger>
+          <bin instance-name="bin-100">100</bin>
+          <bin instance-name="bin-100">100</bin>
+          <bin instance-name="bin-100">100</bin>
+          <bin instance-name="bin-100">100</bin>
+          <bin instance-name="bin-100">100</bin>
+          <bin instance-name="bin-100">100</bin>
+          <bin instance-name="bin-100">100</bin>
+          <bin instance-name="bin-100">100</bin>
+          <bin instance-name="bin-200">200</bin>
+          <bin instance-name="bin-200">200</bin>
+          <bin instance-name="bin-200">200</bin>
+          <bin instance-name="bin-200">200</bin>
+          <bin instance-name="bin-200">200</bin>
+          <bin instance-name="bin-200">200</bin>
+          <bin instance-name="bin-200">200</bin>
+          <bin instance-name="bin-200">200</bin>
+          <bin instance-name="bin-300">300</bin>
+          <bin instance-name="bin-300">300</bin>
+          <bin instance-name="bin-300">300</bin>
+          <bin instance-name="bin-300">300</bin>
+          <bin instance-name="bin-300">300</bin>
+          <bin instance-name="bin-300">300</bin>
+          <bin instance-name="bin-300">300</bin>
+          <bin instance-name="bin-300">300</bin>
+          <bin instance-name="bin-400">400</bin>
+          <bin instance-name="bin-400">400</bin>
+          <bin instance-name="bin-400">400</bin>
+          <bin instance-name="bin-400">400</bin>
+          <bin instance-name="bin-400">400</bin>
+          <bin instance-name="bin-400">400</bin>
+          <bin instance-name="bin-400">400</bin>
+          <bin instance-name="bin-400">400</bin>
+          <bin instance-name="bin-500">500</bin>
+          <bin instance-name="bin-500">500</bin>
+          <bin instance-name="bin-500">500</bin>
+          <bin instance-name="bin-500">500</bin>
+          <bin instance-name="bin-500">500</bin>
+          <bin instance-name="bin-500">500</bin>
+          <bin instance-name="bin-500">500</bin>
+          <bin instance-name="bin-500">500</bin>
+          <bin instance-name="bin-600">600</bin>
+          <bin instance-name="bin-600">600</bin>
+          <bin instance-name="bin-600">600</bin>
+          <bin instance-name="bin-600">600</bin>
+          <bin instance-name="bin-600">600</bin>
+          <bin instance-name="bin-600">600</bin>
+          <bin instance-name="bin-600">600</bin>
+          <bin instance-name="bin-600">600</bin>
+          <bin instance-name="bin-700">700</bin>
+          <bin instance-name="bin-700">700</bin>
+          <bin instance-name="bin-700">700</bin>
+          <bin instance-name="bin-700">700</bin>
+          <bin instance-name="bin-700">700</bin>
+          <bin instance-name="bin-700">700</bin>
+          <bin instance-name="bin-700">700</bin>
+          <bin instance-name="bin-700">700</bin>
+          <bin instance-name="bin-800">800</bin>
+          <bin instance-name="bin-800">800</bin>
+          <bin instance-name="bin-800">800</bin>
+          <bin instance-name="bin-800">800</bin>
+          <bin instance-name="bin-800">800</bin>
+          <bin instance-name="bin-800">800</bin>
+          <bin instance-name="bin-800">800</bin>
+          <bin instance-name="bin-800">800</bin>
+          <bin instance-name="bin-900">900</bin>
+          <bin instance-name="bin-900">900</bin>
+          <bin instance-name="bin-900">900</bin>
+          <bin instance-name="bin-900">900</bin>
+          <bin instance-name="bin-900">900</bin>
+          <bin instance-name="bin-900">900</bin>
+          <bin instance-name="bin-900">900</bin>
+          <bin instance-name="bin-900">900</bin>
+          <colour instance-name="blue">321</colour>
+          <colour instance-name="blue">324</colour>
+          <colour instance-name="blue">327</colour>
+          <colour instance-name="blue">330</colour>
+          <colour instance-name="blue">333</colour>
+          <colour instance-name="blue">336</colour>
+          <colour instance-name="blue">339</colour>
+          <colour instance-name="blue">342</colour>
+          <colour instance-name="green">220</colour>
+          <colour instance-name="green">223</colour>
+          <colour instance-name="green">226</colour>
+          <colour instance-name="green">229</colour>
+          <colour instance-name="green">232</colour>
+          <colour instance-name="green">235</colour>
+          <colour instance-name="green">238</colour>
+          <colour instance-name="green">241</colour>
+          <colour instance-name="red">119</colour>
+          <colour instance-name="red">122</colour>
+          <colour instance-name="red">125</colour>
+          <colour instance-name="red">128</colour>
+          <colour instance-name="red">131</colour>
+          <colour instance-name="red">134</colour>
+          <colour instance-name="red">137</colour>
+          <colour instance-name="red">140</colour>
+          <drift>101</drift>
+          <drift>108</drift>
+          <drift>108</drift>
+          <drift>127</drift>
+          <drift>135</drift>
+          <drift>150</drift>
+          <drift>156</drift>
+          <drift>90</drift>
+          <lights>green</lights>
+          <lights>green</lights>
+          <lights>green</lights>
+          <lights>green</lights>
+          <lights>green</lights>
+          <lights>red</lights>
+          <lights>yellow</lights>
+          <lights>yellow</lights>
+          <pmlogger>
+          <pmlogger>
+          <pmlogger>
+          <pmlogger>
+          <pmlogger>
+          <pmlogger>
+          <pmlogger>
+          <pmlogger>
+          <pmlogger>
+          <seconds unit="s/s">0.990</seconds>
+          <seconds unit="s/s">1.000</seconds>
+          <seconds unit="s/s">1.000</seconds>
+          <seconds unit="s/s">1.000</seconds>
+          <seconds unit="s/s">1.000</seconds>
+          <seconds unit="s/s">1.000</seconds>
+          <seconds unit="s/s">1.000</seconds>
+        </pmcd>
+        </pmcd>
+        </pmcd>
+        </pmcd>
+        </pmcd>
+        </pmcd>
+        </pmcd>
+        </pmcd>
+        </pmcd>
+        </sample>
+        </sample>
+        </sample>
+        </sample>
+        </sample>
+        </sample>
+        </sample>
+        </sample>
+        <pmcd>
+        <pmcd>
+        <pmcd>
+        <pmcd>
+        <pmcd>
+        <pmcd>
+        <pmcd>
+        <pmcd>
+        <pmcd>
+        <sample>
+        <sample>
+        <sample>
+        <sample>
+        <sample>
+        <sample>
+        <sample>
+        <sample>
+      </timestamp>
+      </timestamp>
+      </timestamp>
+      </timestamp>
+      </timestamp>
+      </timestamp>
+      </timestamp>
+      </timestamp>
+      </timestamp>
+      <timestamp value="1998-08-07 04:34:32" interval="0">
+      <timestamp value="1998-08-07 04:34:33" interval="1">
+      <timestamp value="1998-08-07 04:34:34" interval="1">
+      <timestamp value="1998-08-07 04:34:35" interval="1">
+      <timestamp value="1998-08-07 04:34:36" interval="1">
+      <timestamp value="1998-08-07 04:34:37" interval="1">
+      <timestamp value="1998-08-07 04:34:38" interval="1">
+      <timestamp value="1998-08-07 04:34:39" interval="1">
+      <timestamp value="1998-08-07 04:34:40" interval="1">
+    </metrics>
+    <metrics>
+    <source>archives/ok-foo</source>
+    <timezone>UTC+11</timezone>
+  </host>
+  <host nodename="gonzo">
+<!-- Ctrl-C to stop -->
+<!-- Writing 10 archived metrics to stdout... -->
+</pcp>
+<?xml version="1.0" encoding="UTF-8"?>
+<pcp>

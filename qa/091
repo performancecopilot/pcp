@@ -67,21 +67,21 @@ do
     echo "=== archive $arch ==="
     echo
     echo "metric: sample.seconds"
-    src/interp1 -s 6 -a $arch sample.seconds | _filter_logreads 8 12 | _filter_seconds
+    src/interp1 -s 6 -a $arch sample.seconds | _filter_logreads 8 13 | _filter_seconds
 
     echo ""
     echo "metric: sample.bin"
-    src/interp1 -s 6 -a $arch sample.bin | _filter_logreads 8 12
+    src/interp1 -s 6 -a $arch sample.bin | _filter_logreads 8 13
 
     echo ""
     echo "metric: sample.colour"
-    src/interp1 -s 6 -a $arch sample.colour | _filter_number | _filter_logreads 8 12
+    src/interp1 -s 6 -a $arch sample.colour | _filter_number | _filter_logreads 8 13
 
     echo ""
     echo "metric: sample.drift"
-    src/interp1 -s 6 -a $arch sample.drift | _filter_number | _filter_logreads 8 12
+    src/interp1 -s 6 -a $arch sample.drift | _filter_number | _filter_logreads 8 13
 
     echo ""
     echo "metric: sample.lights"
-    src/interp1 -s 6 -a $arch sample.lights | _filter_colour | _filter_logreads 8 12
+    src/interp1 -s 6 -a $arch sample.lights | _filter_colour | _filter_logreads 8 13
 done

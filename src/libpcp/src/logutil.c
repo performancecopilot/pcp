@@ -25,9 +25,6 @@
 #include "pmapi.h"
 #include "impl.h"
 #include "internal.h"
-#if defined(HAVE_SYS_WAIT_H)
-#include <sys/wait.h>
-#endif
 
 PCP_DATA int	__pmLogReads;
 
@@ -280,20 +277,29 @@ __pmLogChkLabel(__pmLogCtl *lcp, __pmFILE *f, __pmLogLabel *lp, int vol)
 }
 
 static int
-popen_uncompress(const char *cmd, const char *fname, const char *suffix, int fd)
+popen_uncompress(const char *cmd, const char *arg, const char *fname, const char *suffix, int fd)
 {
-    char	pipecmd[2*MAXPATHLEN+2];
+    char	file[MAXPATHLEN+1];
     char	buffer[4096];
     FILE	*finp;
     ssize_t	bytes;
     int		sts, infd;
+    __pmExecCtl_t	*argp = NULL;
 
-    pmsprintf(pipecmd, sizeof(pipecmd), "%s %s%s", cmd, fname, suffix);
+    sts = __pmProcessAddArg(&argp, cmd);
+    if (sts == 0)
+	sts = __pmProcessAddArg(&argp, arg);
+    pmsprintf(file, sizeof(file), "%s%s", fname, suffix);
+    if (sts == 0)
+	sts = __pmProcessAddArg(&argp, file);
+    if (sts < 0)
+	return sts;
+
     if (pmDebugOptions.log)
-	fprintf(stderr, "__pmLogOpen: uncompress using: %s\n", pipecmd);
+	fprintf(stderr, "__pmLogOpen: uncompress using: %s %s %s\n", cmd, arg, file);
 
-    if ((finp = popen(pipecmd, "r")) == NULL)
-	return -1;
+    if ((sts = __pmProcessPipe(&argp, "r", PM_EXEC_TOSS_NONE, &finp)) < 0)
+	return sts;
     infd = fileno(finp);
 
     while ((bytes = read(infd, buffer, sizeof(buffer))) > 0) {
@@ -303,7 +309,7 @@ popen_uncompress(const char *cmd, const char *fname, const char *suffix, int fd)
 	}
     }
 
-    if ((sts = pclose(finp)) != 0)
+    if ((sts = __pmProcessPipeClose(finp)) != 0)
 	return sts;
     return (bytes == 0) ? 0 : -1;
 }
@@ -393,6 +399,7 @@ fopen_compress(const char *fname)
     int		fd;
     int		i;
     char	*cmd;
+    char	*arg;
     __pmFILE	*fp;
 
 
@@ -412,12 +419,18 @@ fopen_compress(const char *fname)
     }
     
     /* We will need to decompress this file using an external program first. */
-    if (compress_ctl[i].appl == USE_XZ)
-	cmd = "xz -dc";
-    else if (compress_ctl[i].appl == USE_BZIP2)
-	cmd = "bzip2 -dc";
-    else if (compress_ctl[i].appl == USE_GZIP)
-	cmd = "gzip -dc";
+    if (compress_ctl[i].appl == USE_XZ) {
+	cmd = "xz";
+	arg = "-dc";
+    }
+    else if (compress_ctl[i].appl == USE_BZIP2) {
+	cmd = "bzip2";
+	arg = "-dc";
+    }
+    else if (compress_ctl[i].appl == USE_GZIP) {
+	cmd = "gzip";
+	arg = "-dc";
+    }
     else {
 	/* botch in compress_ctl[] ... should not happen */
 	if (pmDebugOptions.log) {
@@ -436,29 +449,25 @@ fopen_compress(const char *fname)
 	return NULL;
     }
 
-    sts = popen_uncompress(cmd, fname, compress_ctl[i].suff, fd);
+    sts = popen_uncompress(cmd, arg, fname, compress_ctl[i].suff, fd);
     if (sts == -1) {
 	sts = oserror();
 	if (pmDebugOptions.log) {
 	    char	errmsg[PM_MAXERRMSGLEN];
 	    fprintf(stderr, "__pmLogOpen: uncompress command failed: %s\n", osstrerror_r(errmsg, sizeof(errmsg)));
 	}
-	close(fd);
 	setoserror(sts);
 	return NULL;
     }
     if (sts != 0) {
 	if (pmDebugOptions.log) {
-#if defined(HAVE_SYS_WAIT_H)
-	    if (WIFEXITED(sts))
-		fprintf(stderr, "__pmLogOpen: uncompress failed, exit status: %d\n", WEXITSTATUS(sts));
-	    else if (WIFSIGNALED(sts))
-		fprintf(stderr, "__pmLogOpen: uncompress failed, signal: %d\n", WTERMSIG(sts));
+	    if (sts == 2000)
+		fprintf(stderr, "__pmLogOpen: uncompress failed, unknown reason\n");
+	    else if (sts > 1000)
+		fprintf(stderr, "__pmLogOpen: uncompress failed, signal: %d\n", sts - 1000);
 	    else
-#endif
-		fprintf(stderr, "__pmLogOpen: uncompress failed, popen() returns: %d\n", sts);
+		fprintf(stderr, "__pmLogOpen: uncompress failed, exit status: %d\n", sts);
 	}
-	close(fd);
 	/* not a great error code, but the best we can do */
 	setoserror(-PM_ERR_LOGREC);
 	return NULL;
@@ -1487,7 +1496,7 @@ paranoidCheck(int len, __pmPDU *pb)
 	    vsize += sizeof(vlp->valfmt) + numval * sizeof(__pmValue_PDU);
 	    if (valfmt != PM_VAL_INSITU) {
 		for (j = 0; j < numval; j++) {
-		    int			index = (int)ntohl((long)vlp->vlist[j].value.pval);
+		    int			index = (int)ntohl((long)vlp->vlist[j].value.lval);
 		    pmValueBlock	*pduvbp;
 		    int			vlen;
 		    

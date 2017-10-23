@@ -1,7 +1,7 @@
 '\"! tbl | mmdoc
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2013-2016 Red Hat, Inc.  All Rights Reserved.
+.\" Copyright (c) 2013-2017 Red Hat.  All Rights Reserved.
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -33,11 +33,15 @@ It keeps a matching set of
 .B pmrep
 and other daemons running, and their archives/logs merged/rotated.
 It provides an alternative to the default
-.BR cron (1)-based
-management scripts for
+.B pmlogger_daily
+and
+.BR pmie_daily
+scripts that administer
 .B pmlogger
 and
-.BR pmie .
+.B pmie
+``farms'' using
+.BR cron (3).
 .P
 .B pmmgr
 is largely self-configuring and perseveres despite most run-time
@@ -45,7 +49,32 @@ errors.
 .B pmmgr
 runs in the foreground until interrupted.
 When signaled, it will stop its running daemons before exiting.
-.P
+.SH ALGORITHM
+Each poll interval,
+.B pmmgr
+computes a list of possible targets for a
+.B pmcd
+search.  This list is assembled from several configuration files,
+and may include explicitly listed specifications, hosts discovered through
+several different mechanisms, and/or individual containers running within them.
+Once the list is assembled,
+.B pmmgr
+attempts to make a brief
+.I pmNewContext
+connection to each target, in order to check for the existence of an actual
+running
+.B pmcd
+instance, and to extract a host-id.  The host-id is treated as a
+unique identifier for the instance, so that redundant connection paths to the
+same server can be filtered out.
+Once the final list of live
+.B pmcd
+instances is identified, along with their unique host-ids, pmmgr ensures that
+any requested pcp client daemons are started (or restarted) for them.  If any
+.B pmcd
+instances disappear from the list, its pcp client daemons are stopped.
+This entire cycle repeats every poll interval.
+.SH OPTIONS
 A description of the command line options specific to
 .B pmmgr
 follows:
@@ -143,10 +172,6 @@ This argues against using metrics whose values vary from boot to boot.
 Some candidate metrics to consider:
 .IR network.interface.hw_addr ", " network.interface.inet_addr["eth0"] ", "
 .IR network.interface.ipv6_addr ", " kernel.uname.nodename
-.\" some others would be nice to have:
-.\" CPU serial numbers
-.\" VM uuid
-.\" DMI serial numbers
 .TP
 .I log\-directory
 This file contains the path of a directory beneath which the per-host-id
@@ -162,13 +187,6 @@ This file contains one or more lines containing
 host specifications, as described on the
 .IR PCPintro (1)
 manual page.
-Each poll interval,
-.B pmmgr
-will attempt to make a brief
-.I pmNewContext
-connection to the host to check liveness.  It is not a problem if more than
-one specification for the same host is listed, because the host-id processing
-eliminates duplicates, and chooses an arbitrary specification among them.
 The default is to target pmcd at
 .BR local: .
 .TP
@@ -189,6 +207,19 @@ to rely in pmcd self-announcements on the local network (searching for up to
 five seconds each time).  Consider including
 .IR probe=192.168.1.0/24
 to quickly scan the given IP address range.
+.TP
+.I target\-kubectl\-pod
+If this file exists, pmmgr is assumed to run within a kubernetes cluster.
+The line of the configuration file is appended to a
+.B kubectl get pod
+command line to discover IP addresses of all matching pods running nearby.
+.B pmmgr extracts the
+.B .status.podIP
+field from the kubernetes pod object(s) and tries to connect to each at
+the default pmcd port number.  Use options like
+.I -l service=foobar
+to restrict the search with labels.  The default is to do
+.BR "no kubectl" .
 .TP
 .I subtarget\-containers
 If this file exists,
@@ -243,10 +274,10 @@ daemon for each
 targeted host.
 This file contains one line of additional space-separated options
 for the
-.B pmie
+.B pmlogger
 daemon.  (\c
 .B pmmgr
-already adds \-h, \-f, \-r, \-l, and perhaps \-c.)
+already adds \-h, \-H, \-f, \-r, \-l, and perhaps \-c.)
 The default is to maintain
 .BR "no pmlogger"
 (and no other configuration in this section is processed).
@@ -489,8 +520,10 @@ as described in
 .BR pmcd (1),
 .BR pmlogconf (1),
 .BR pmlogger (1),
+.BR pmlogger_daily (1),
 .BR pmieconf (1),
 .BR pmie (1),
+.BR pmie_daily (1),
 .BR pmrep (1),
 .BR pcp2graphite (1),
 .BR pcp2influxdb (1),
