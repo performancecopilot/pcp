@@ -1,6 +1,6 @@
 #! /bin/sh
 # PCP QA Test No. 221
-# pmlogger preamble gets timestamp from first pmFetch?
+# pmlogger prologue gets timestamp from first pmFetch?
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #

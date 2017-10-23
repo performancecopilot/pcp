@@ -26,14 +26,15 @@
 # Common imports
 from collections import OrderedDict
 import errno
+import time
 import sys
 
 # Our imports
-from elasticsearch import Elasticsearch
+from elasticsearch import Elasticsearch, ElasticsearchException
 
 # PCP Python PMAPI
 from pcp import pmapi, pmconfig
-from cpmapi import PM_CONTEXT_ARCHIVE, PM_ERR_EOL, PM_DEBUG_APPL1
+from cpmapi import PM_CONTEXT_ARCHIVE, PM_ERR_EOL, PM_IN_NULL, PM_DEBUG_APPL1
 from cpmapi import PM_TIME_MSEC
 
 if sys.version_info[0] >= 3:
@@ -115,7 +116,7 @@ class pcp2elasticsearch(object):
         opts = pmapi.pmOptions()
         opts.pmSetOptionCallback(self.option)
         opts.pmSetOverrideCallback(self.option_override)
-        opts.pmSetShortOptions("a:h:LK:c:Ce:D:V?HGA:S:T:O:s:t:Z:zrIi:vP:q:b:y:g:x:X:")
+        opts.pmSetShortOptions("a:h:LK:c:Ce:D:V?HGA:S:T:O:s:t:rIi:vP:q:b:y:g:x:X:")
         opts.pmSetShortUsage("[option...] metricspec [...]")
 
         opts.pmSetLongOptionHeader("General options")
@@ -142,8 +143,6 @@ class pcp2elasticsearch(object):
         opts.pmSetLongOptionOrigin()       # -O/--origin
         opts.pmSetLongOptionSamples()      # -s/--samples
         opts.pmSetLongOptionInterval()     # -t/--interval
-        opts.pmSetLongOptionTimeZone()     # -Z/--timezone
-        opts.pmSetLongOptionHostZone()     # -z/--hostzone
         opts.pmSetLongOption("raw", 0, "r", "", "output raw counter values (no rate conversion)")
         opts.pmSetLongOption("ignore-incompat", 0, "I", "", "ignore incompatible instances (default: abort)")
         opts.pmSetLongOption("instances", 1, "i", "STR", "instances to report (default: all current)")
@@ -194,7 +193,11 @@ class pcp2elasticsearch(object):
         elif opt == 'v':
             self.omit_flat = 1
         elif opt == 'P':
-            self.precision = int(optarg)
+            try:
+                self.precision = int(optarg)
+            except:
+                sys.stderr.write("Error while parsing options: Integer expected.\n")
+                sys.exit(1)
         elif opt == 'q':
             self.count_scale = optarg
         elif opt == 'b':
@@ -247,7 +250,7 @@ class pcp2elasticsearch(object):
             self.interpol = 1
 
         # Common preparations
-        pmapi.pmContext.prepare_execute(self.context, self.opts, False, self.interpol, self.interval)
+        self.context.prepare_execute(self.opts, False, self.interpol, self.interval)
 
         # Headers
         if self.header == 1:
@@ -261,6 +264,11 @@ class pcp2elasticsearch(object):
         # Daemonize when requested
         if self.daemonize == 1:
             self.opts.daemonize()
+
+        # Align poll interval to host clock
+        if self.context.type != PM_CONTEXT_ARCHIVE and self.opts.pmGetOptionAlignment():
+            align = float(self.opts.pmGetOptionAlignment()) - (time.time() % float(self.opts.pmGetOptionAlignment()))
+            time.sleep(align)
 
         # Main loop
         while self.samples != 0:
@@ -315,15 +323,19 @@ class pcp2elasticsearch(object):
             # Silent goodbye
             return
 
-        ts = pmapi.pmContext.datetime_to_secs(self.pmfg_ts(), PM_TIME_MSEC)
+        ts = self.context.datetime_to_secs(self.pmfg_ts(), PM_TIME_MSEC)
 
-        es = Elasticsearch(hosts=[self.es_server])
-        # pylint: disable=unexpected-keyword-arg
-        es.indices.create(index=self.es_index,
-                          ignore=[400],
-                          body={'mappings':{'pcp-metric':
-                                            {'properties':{'@timestamp':{'type':'date'},
-                                                           'host-id':{'type':'string'}}}}})
+        try:
+            es = Elasticsearch(hosts=[self.es_server])
+            # pylint: disable=unexpected-keyword-arg
+            es.indices.create(index=self.es_index,
+                              ignore=[400],
+                              body={'mappings':{'pcp-metric':
+                                                {'properties':{'@timestamp':{'type':'date'},
+                                                               'host-id':{'type':'string'}}}}})
+        except ElasticsearchException as error:
+            sys.stderr.write("Can't connect to Elasticsearch server %s: %s, continuing.\n" % (self.es_server, str(error)))
+            return
 
         # Assemble all metrics into a single document
         # Use @-prefixed keys for metadata not coming in from PCP metrics
@@ -356,7 +368,7 @@ class pcp2elasticsearch(object):
                         pmns_leaf_dict = pmns_leaf_dict[pmns_part]
                     last_part = pmns_parts[-1]
 
-                    if not name:
+                    if inst == PM_IN_NULL:
                         pmns_leaf_dict[last_part] = value
                     else:
                         if insts_key not in pmns_leaf_dict:
@@ -373,11 +385,15 @@ class pcp2elasticsearch(object):
             except:
                 pass
 
-        # pylint: disable=unexpected-keyword-arg
-        es.index(index=self.es_index,
-                 doc_type='pcp-metric',
-                 timestamp=long(ts),
-                 body=es_doc)
+        try:
+            # pylint: disable=unexpected-keyword-arg
+            es.index(index=self.es_index,
+                     doc_type='pcp-metric',
+                     timestamp=long(ts),
+                     body=es_doc)
+        except ElasticsearchException as error:
+            sys.stderr.write("Can't send to Elasticsearch server %s: %s, continuing.\n" % (self.es_server, str(error)))
+            return
 
     def finalize(self):
         """ Finalize and clean up """

@@ -54,10 +54,10 @@ HH:MM:SS        1
  timezone: UTC+10
     start: Mon May  1 20:36:45 2000
       end: Mon May  1 20:37:45 2000
-  metrics: 2
+  metrics: 2 (2 instances)
   samples: 5
  interval: 2.0 sec
- duration: 8 sec
+ duration: 00:00:08
 
   s.seconds  s.milliseconds
         s/s            ms/s
@@ -68,10 +68,10 @@ HH:MM:SS        1
  timezone: UTC+10
     start: Mon May  1 20:36:45 2000
       end: Mon May  1 20:37:45 2000
-  metrics: 2
+  metrics: 2 (2 instances)
   samples: 3
  interval: 3.0 sec
- duration: 7 sec
+ duration: 00:00:07
 
           s.seconds  s.milliseconds
                 s/s            ms/s
@@ -208,6 +208,44 @@ HH:MM:SS        1
 00:47:09|1 minute     |       ~|        ~|        ~|      ~|       ~|   0.820|       ~
 00:47:09|5 minute     |       ~|        ~|        ~|      ~|       ~|   0.700|       ~
 00:47:09|15 minute    |       ~|        ~|        ~|      ~|       ~|   0.590|       ~
+== exercise extended header
+
+  archive: QAPATH/archives/rep
+     host: slack
+ timezone: UTC+11
+    start: Wed Feb 10 14:39:13 2016
+      end: Wed Feb 10 14:39:17 2016
+  metrics: 21 (21 instances)
+  samples: N/A
+ interval: N/A
+ duration: 00:00:04
+
+
+  archive: QAPATH/archives/20130706
+     host: billing02
+ timezone: UTC+10
+    start: Sat Jul  6 00:17:01 2013
+      end: Sun Jul  7 00:15:43 2013
+  metrics: 294 (564 instances)
+  samples: N/A
+ interval: N/A
+ duration: 23:58:41
+
+
+  archive: QAPATH/archives/bug-1044.meta
+     host: super.elastic.org
+ timezone: UTC-5
+    start: Fri Jan 10 17:58:09 2014
+      end: Mon Jan 13 08:59:49 2014
+  metrics: 5 (5 instances)
+  samples: N/A
+ interval: N/A
+ duration: 2 days, 15:01:40
+
+== invalid command line parameters
+Error while parsing options: Integer expected.
+Error while parsing options: Integer expected.
+Error while parsing options: Integer expected.
 == exercise non-integer options
 
   archive: QAPATH/archives/sample-secs
@@ -215,10 +253,10 @@ HH:MM:SS        1
  timezone: UTC+10
     start: Mon May  1 20:36:45 2000
       end: Mon May  1 20:37:45 2000
-  metrics: 2
+  metrics: 2 (2 instances)
   samples: 6
  interval: 0.5 sec
- duration: 2.500 sec
+ duration: 00:00:03
 
           s.seconds  s.milliseconds
                 s/s            ms/s
@@ -243,10 +281,10 @@ HH:MM:SS        1
  timezone: UTC+0
     start: Mon May  1 10:36:45 2000
       end: Mon May  1 10:37:45 2000
-  metrics: 2
+  metrics: 2 (2 instances)
   samples: 5
  interval: 2.0 sec
- duration: 8 sec
+ duration: 00:00:08
 
           s.seconds  s.milliseconds
                 s/s            ms/s
@@ -261,10 +299,10 @@ HH:MM:SS        1
  timezone: UTC+0
     start: Mon May  1 10:36:45 2000
       end: Mon May  1 10:37:45 2000
-  metrics: 2
+  metrics: 2 (2 instances)
   samples: 5
  interval: 2.0 sec
- duration: 8 sec
+ duration: 00:00:08
 
           s.seconds  s.milliseconds
                 s/s            ms/s
@@ -279,10 +317,10 @@ HH:MM:SS        1
  timezone: UTC+0
     start: Mon May  1 10:36:45 2000
       end: Mon May  1 10:37:45 2000
-  metrics: 2
+  metrics: 2 (2 instances)
   samples: 5
  interval: 2.0 sec
- duration: 8 sec
+ duration: 00:00:08
 
           s.seconds  s.milliseconds
                 s/s            ms/s
@@ -297,10 +335,10 @@ HH:MM:SS        1
  timezone: UTC+0
     start: Mon May  1 10:36:45 2000
       end: Mon May  1 10:37:45 2000
-  metrics: 2
+  metrics: 2 (2 instances)
   samples: 5
  interval: 2.0 sec
- duration: 8 sec
+ duration: 00:00:08
 
           s.seconds  s.milliseconds
                 s/s            ms/s
@@ -315,10 +353,10 @@ HH:MM:SS        1
  timezone: UTC+5
     start: Mon May  1 15:36:45 2000
       end: Mon May  1 15:37:45 2000
-  metrics: 2
+  metrics: 2 (2 instances)
   samples: 5
  interval: 2.0 sec
- duration: 8 sec
+ duration: 00:00:08
 
           s.seconds  s.milliseconds
                 s/s            ms/s
@@ -333,10 +371,10 @@ HH:MM:SS        1
  timezone: UTC-5
     start: Mon May  1 05:36:45 2000
       end: Mon May  1 05:37:45 2000
-  metrics: 2
+  metrics: 2 (2 instances)
   samples: 5
  interval: 2.0 sec
- duration: 8 sec
+ duration: 00:00:08
 
           s.seconds  s.milliseconds
                 s/s            ms/s
@@ -351,10 +389,10 @@ HH:MM:SS        1
  timezone: UTC-4
     start: Mon May  1 06:36:45 2000
       end: Mon May  1 06:37:45 2000
-  metrics: 2
+  metrics: 2 (2 instances)
   samples: 5
  interval: 2.0 sec
- duration: 8 sec
+ duration: 00:00:08
 
           s.seconds  s.milliseconds
                 s/s            ms/s
@@ -369,10 +407,10 @@ HH:MM:SS        1
  timezone: UTC+3
     start: Mon May  1 13:36:45 2000
       end: Mon May  1 13:37:45 2000
-  metrics: 2
+  metrics: 2 (2 instances)
   samples: 5
  interval: 2.0 sec
- duration: 8 sec
+ duration: 00:00:08
 
           s.seconds  s.milliseconds
                 s/s            ms/s
@@ -387,10 +425,10 @@ HH:MM:SS        1
  timezone: UTC+5:30
     start: Mon May  1 16:06:45 2000
       end: Mon May  1 16:07:45 2000
-  metrics: 2
+  metrics: 2 (2 instances)
   samples: 5
  interval: 2.0 sec
- duration: 8 sec
+ duration: 00:00:08
 
           s.seconds  s.milliseconds
                 s/s            ms/s
@@ -405,10 +443,10 @@ HH:MM:SS        1
  timezone: UTC-7
     start: Thu Apr 10 19:55:52 2014
       end: Thu Apr 10 19:56:01 2014
-  metrics: 1
+  metrics: 1 (1 instance)
   samples: 10
  interval: 1.0 sec
- duration: 9 sec
+ duration: 00:00:09
 
 
   archive: QAPATH/archives/rep
@@ -416,10 +454,10 @@ HH:MM:SS        1
  timezone: UTC+11
     start: Wed Feb 10 14:39:13 2016
       end: Wed Feb 10 14:39:17 2016
-  metrics: 1
+  metrics: 1 (1 instance)
   samples: 4
  interval: 1.0 sec
- duration: 3 sec
+ duration: 00:00:03
 
 == exercise extended CSV output
 11
@@ -613,6 +651,18 @@ Incompatible configuration file version (read v99, need v1).
              Kbyte
 00:48:01     36832
 00:49:01     38236
+== time alignment with archive/host
+          m.u.free
+             Kbyte
+00:48:00     38220
+00:48:02     36832
+00:48:04     36832
+00:48:06     36832
+00:48:08     36832
+        Xs.l.one
+        X       
+ALIGN_OK_X      1
+ALIGN_OK_X      1
 == basic string value reporting
   p.version
            

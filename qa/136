@@ -82,5 +82,5 @@ $1 ~ /TIMESTAMP/ && NF == 4	{ print $1 "            " $2 "       OFFSET       OF
 				{ print }'
 
 echo
-echo "=== samples, expect 50 + 3 for preamble ==="
+echo "=== samples, expect 50 + 5 for prologue + 5 for epilogue ==="
 pmdumplog -m $tmp | sed -e '/^$/d' | wc -l | sed -e 's/  *//g'

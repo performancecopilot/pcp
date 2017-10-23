@@ -323,7 +323,7 @@ class pmAtomValue(Union):
                   c_api.PM_TYPE_U64 : lambda x: x.ull,
                   c_api.PM_TYPE_FLOAT : lambda x: x.f,
                   c_api.PM_TYPE_DOUBLE : lambda x: x.d,
-                  c_api.PM_TYPE_STRING : lambda x: str(x.cp.decode('utf-8')),
+                  c_api.PM_TYPE_STRING : lambda x: x.cp,
                   c_api.PM_TYPE_AGGREGATE : lambda x: None,
                   c_api.PM_TYPE_AGGREGATE_STATIC : lambda x: None,
                   c_api.PM_TYPE_EVENT : lambda x: None,
@@ -333,7 +333,13 @@ class pmAtomValue(Union):
             }
 
     def dref(self, typed):
-        return self._atomDrefD[typed](self)
+        value = self._atomDrefD[typed](self)
+        if typed == c_api.PM_TYPE_STRING:
+            try:
+                value = str(value.decode('utf-8'))
+            except:
+                value = str(value)
+        return value
 
 class pmUnits(Structure):
     """
@@ -1241,8 +1247,8 @@ class pmContext(object):
 
         return context
 
-    @classmethod
-    def set_connect_options(self, options, source, speclocal):
+    @staticmethod
+    def set_connect_options(options, source, speclocal):
         """ Helper to set connection options and to get context/source for pmfg. """
         context = None
 
@@ -2176,7 +2182,8 @@ class pmContext(object):
     ##
     # PMAPI Python Utility Support Services
 
-    def get_current_tz(self, options=None, set_dst=-1):
+    @staticmethod
+    def get_current_tz(options=None, set_dst=-1):
         """ Get current timezone offset string using POSIX convention """
         if options is None:
             dst = time.localtime().tm_isdst
@@ -2187,7 +2194,7 @@ class pmContext(object):
         offset = time.altzone if dst else time.timezone
         timezone = time.tzname[dst]
         if offset:
-            offset_hr = int(offset / 3600)
+            offset_hr = int(offset / 3600.0)
             offset_min = int(offset % 3600 / 60)
             if offset >= 0:
                 timezone += "+"
@@ -2205,23 +2212,21 @@ class pmContext(object):
         sign = "+" if "-" in timezone else "-"
         return "UTC" + sign + str(offset)
 
-    def set_timezone(self, options):
+    @staticmethod
+    def set_timezone(options):
         """ Set timezone for a Python tool """
-        status = LIBPCP.pmUseContext(self.ctx)
-        if status < 0:
-            raise pmErr(status)
         if options.pmGetOptionTimezone():
             os.environ['TZ'] = options.pmGetOptionTimezone()
             time.tzset()
-            self.pmNewZone(options.pmGetOptionTimezone())
+            pmContext.pmNewZone(options.pmGetOptionTimezone())
         elif options.pmGetOptionHostZone():
-            os.environ['TZ'] = self.pmWhichZone()
+            os.environ['TZ'] = pmContext.pmWhichZone()
             time.tzset()
         else:
-            timezone = self.get_current_tz(options)
+            timezone = pmContext.get_current_tz(options)
             os.environ['TZ'] = timezone
             time.tzset()
-            self.pmNewZone(timezone)
+            pmContext.pmNewZone(timezone)
 
     @staticmethod
     def datetime_to_secs(value, precision=c_api.PM_TIME_SEC):

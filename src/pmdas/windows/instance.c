@@ -92,7 +92,7 @@ windows_lookup_instance(char *path, pdh_metric_t *mp)
 			else {
 			    __pmNotifyErr(LOG_ERR, "windows_check_instance: "
 					"Error: DISK_INDOM malloc[%d] failed "
-					"path=%s\n", q - p + 1, path);
+					"path=%s\n", (int)(q - p + 1), path);
 			    return -1;
 			}
 			/*
@@ -176,7 +176,7 @@ windows_lookup_instance(char *path, pdh_metric_t *mp)
 		    else {
 			__pmNotifyErr(LOG_ERR, "windows_check_instance: Error: "
 					"malloc[%d] failed for NETIF_INDOM "
-					"path=%s\n", q - p + 1, path);
+					"path=%s\n", (int)(q - p + 1), path);
 			return -1;
 		    }
 		    /*
@@ -231,7 +231,7 @@ windows_lookup_instance(char *path, pdh_metric_t *mp)
 		    else {
 			__pmNotifyErr(LOG_ERR, "windows_check_instance: Error: "
 				"malloc[%d] failed for LDISK_INDOM path=%s\n",
-				q - p + 1, path);
+				(int)(q - p + 1), path);
 			return -1;
 		    }
 		}
@@ -281,7 +281,7 @@ windows_lookup_instance(char *path, pdh_metric_t *mp)
 		    else {
 			__pmNotifyErr(LOG_ERR, "windows_check_instance: Error: "
 				"malloc[%d] failed, SQL_INDOM path=%s\n",
-				q - p + 1, path);
+				(int)(q - p + 1), path);
 			return -1;
 		    }
 
@@ -341,7 +341,7 @@ windows_lookup_instance(char *path, pdh_metric_t *mp)
 		    else {
 			__pmNotifyErr(LOG_ERR, "windows_check_instance: Error: "
 				"malloc[%d] failed, process/thread path=%s\n",
-				q - p + 1, path);
+				(int)(q - p + 1), path);
 			return -1;
 		    }
 		}

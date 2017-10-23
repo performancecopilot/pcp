@@ -178,14 +178,17 @@ refresh(pcp_nvinfo_t *pcp_nvinfo)
     pcp_nvinfo->numcards = device_count;
 
     for (i = 0; i < device_count && i < pcp_nvinfo->maxcards; i++) {
+	int	j;
 	pcp_nvinfo->nvinfo[i].cardid = i;
 	if ((sts = localNvmlDeviceGetHandleByIndex(i, &device))) {
 	    __pmNotifyErr(LOG_ERR, "nvmlDeviceGetHandleByIndex: %s",
 			localNvmlErrStr(sts));
-	    memset(pcp_nvinfo->nvinfo[i].failed, 1, NVIDIA_METRIC_COUNT);
+	    for (j = 0; j < NVIDIA_METRIC_COUNT; j++)
+		pcp_nvinfo->nvinfo[i].failed[j] = 1;
 	    continue;
 	}
-	memset(pcp_nvinfo->nvinfo[i].failed, 0, NVIDIA_METRIC_COUNT);
+	for (j = 0; j < NVIDIA_METRIC_COUNT; j++)
+	    pcp_nvinfo->nvinfo[i].failed[j] = 0;
 	if ((sts = localNvmlDeviceGetName(device, name, sizeof(name))))
 	    pcp_nvinfo->nvinfo[i].failed[NVIDIA_CARDNAME] = 1;
         if ((sts = localNvmlDeviceGetPciInfo(device, &pci)))

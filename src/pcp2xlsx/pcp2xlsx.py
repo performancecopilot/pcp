@@ -24,6 +24,7 @@
 # Common imports
 from collections import OrderedDict
 import errno
+import time
 import sys
 
 # Our imports
@@ -115,7 +116,7 @@ class PCP2XLSX(object):
         opts = pmapi.pmOptions()
         opts.pmSetOptionCallback(self.option)
         opts.pmSetOverrideCallback(self.option_override)
-        opts.pmSetShortOptions("a:h:LK:c:Ce:D:V?HGA:S:T:O:s:t:Z:zrIi:vP:q:b:y:F:f:")
+        opts.pmSetShortOptions("a:h:LK:c:Ce:D:V?HGA:S:T:O:s:t:rIi:vP:q:b:y:F:f:Z:z")
         opts.pmSetShortUsage("[option...] metricspec [...]")
 
         opts.pmSetLongOptionHeader("General options")
@@ -197,7 +198,11 @@ class PCP2XLSX(object):
         elif opt == 'v':
             self.omit_flat = 1
         elif opt == 'P':
-            self.precision = int(optarg)
+            try:
+                self.precision = int(optarg)
+            except:
+                sys.stderr.write("Error while parsing options: Integer expected.\n")
+                sys.exit(1)
         elif opt == 'f':
             self.timefmt = optarg
         elif opt == 'q':
@@ -247,7 +252,7 @@ class PCP2XLSX(object):
             self.interpol = 1
 
         # Common preparations
-        pmapi.pmContext.prepare_execute(self.context, self.opts, False, self.interpol, self.interval)
+        self.context.prepare_execute(self.opts, False, self.interpol, self.interval)
 
         # Headers
         if self.header == 1:
@@ -261,6 +266,11 @@ class PCP2XLSX(object):
         # Daemonize when requested
         if self.daemonize == 1:
             self.opts.daemonize()
+
+        # Align poll interval to host clock
+        if self.context.type != PM_CONTEXT_ARCHIVE and self.opts.pmGetOptionAlignment():
+            align = float(self.opts.pmGetOptionAlignment()) - (time.time() % float(self.opts.pmGetOptionAlignment()))
+            time.sleep(align)
 
         # Main loop
         while self.samples != 0:
@@ -341,7 +351,7 @@ class PCP2XLSX(object):
             col = 0
             self.ws.write_string(self.row, col, "Timezone", fmt)
             col += 1
-            timez = pmapi.pmContext.posix_tz_to_utc_offset(self.context.get_current_tz(self.opts))
+            timez = self.context.posix_tz_to_utc_offset(self.context.get_current_tz(self.opts))
             self.ws.write_string(self.row, col, timez, fmt)
             self.row += 1
             col = 0

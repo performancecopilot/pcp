@@ -1,0 +1,93 @@
+#! /bin/sh
+# PCP QA Test No. 1130
+# checks basic pcp2elasticsearch functionality
+#
+# Copyright (c) 2017 Red Hat, Inc.
+#
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.python
+
+$python -c "from pcp import pmapi" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "python pcp pmapi module not installed"
+which socat >/dev/null 2>&1 || _notrun "socat binary not installed"
+which json_reformat >/dev/null 2>&1 || _notrun "json_reformat binary not installed"
+which pcp2elasticsearch >$seq.full 2>&1 || _notrun "pcp2elasticsearch not installed"
+
+$python -c "from elasticsearch import Elasticsearch" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "python elasticsearch module not installed"
+
+port=9200
+echo | $PCP_BINADM_DIR/telnet-probe localhost $port \
+       && _notrun "Someone already listening on typical Elasticsearch $port"
+
+$sudo rm -rf $seq.full $tmp.*
+signal=$PCP_BINADM_DIR/pmsignal
+status=1       # failure is the default!
+
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+_full_stash()
+{
+    echo "--- pcp2elasticsearch stdout --" >>$seq.full
+    cat $tmp.p2e.out >>$seq.full
+    echo "--- pcp2elasticsearch stderr --" >>$seq.full
+    cat $tmp.p2e.err >>$seq.full
+    echo "--- socket cat stdout --" >>$seq.full
+    cat $tmp.socat.out >>$seq.full
+    echo "--- socket cat stderr --" >>$seq.full
+    cat $tmp.socat.err >>$seq.full
+}
+
+ncpu=`pmprobe -v hinv.ncpu | awk '{print $3}'`
+pcp2elasticsearch="$python `which pcp2elasticsearch`"
+
+echo | tee -a $seq.full
+echo "=== 1. pcp2elasticsearch one-shot one-metric ===" | tee -a $seq.full
+socat -vv -t 0.000001 tcp-listen:$port,reuseaddr,fork system:"echo HTTP/1.1 201 Created" >$tmp.socat.out 2>$tmp.socat.err &
+pid=$!
+sleep 2
+$pcp2elasticsearch -t 1 -s 1 hinv.ncpu >$tmp.p2e.out 2>$tmp.p2e.err
+sleep 1
+$signal $pid 2>/dev/null
+wait
+egrep -q '^PUT /pcp HTTP/' $tmp.socat.err
+[ $? -eq 0 ] && echo "Found correct index in output"
+egrep -q '"hinv": {"ncpu": '$ncpu'}' $tmp.socat.err
+[ $? -eq 0 ] && echo "Found correct value in output"
+_full_stash
+
+echo "=== 2. pcp2elasticsearch non-default targets ===" | tee -a $seq.full
+socat -vv -t 0.000001 tcp-listen:$port,reuseaddr,fork system:"echo HTTP/1.1 201 Created" >$tmp.socat.out 2>$tmp.socat.err &
+pid=$!
+sleep 2
+$pcp2elasticsearch -t 1 -s 1 -X QAHOST -x INDEX hinv.ncpu >$tmp.p2e.out 2>$tmp.p2e.err
+sleep 1
+$signal $pid 2>/dev/null
+wait
+egrep -q '^PUT /INDEX HTTP/' $tmp.socat.err
+[ $? -eq 0 ] && echo "Found correct index in output"
+egrep -q '"@host-id": "QAHOST"' $tmp.socat.err
+[ $? -eq 0 ] && echo "Found proper hostid in output"
+_full_stash
+
+echo "=== 3. pcp2elasticsearch full-blown archive replay session ===" | tee -a $seq.full
+socat -vv -t 0.000001 tcp-listen:$port,reuseaddr,fork system:"echo HTTP/1.1 201 Created" >$tmp.socat.out 2>$tmp.socat.err &
+pid=$!
+sleep 2
+$pcp2elasticsearch -a $here/archives/rep -I "" >$tmp.p2e.out 2>$tmp.p2e.err
+sleep 1
+$signal $pid 2>/dev/null
+wait
+echo "--- Start of received data ---"
+egrep '(mappings|slack)' $tmp.socat.err | sed -e 's,< [1-9].*,,g' >$tmp.archive.data
+while read -r line
+do
+  echo $line | json_reformat | LC_ALL=C sort | tr -d ,
+done < $tmp.archive.data
+echo "--- End of received data ---"
+_full_stash
+
+status=0
+exit

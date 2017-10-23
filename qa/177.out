@@ -23,7 +23,7 @@ pmlogger: Sample limit reached, exiting
 Log finished DATE
 
 === pmdumplog ===
-31-31 timestamps
+32-32 timestamps
 
 === pmval -t 0.1 ===
 58-62 samples

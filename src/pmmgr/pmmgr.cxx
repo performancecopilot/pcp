@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2016 Red Hat.
+ * Copyright (c) 2013-2017 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -74,23 +74,6 @@ sh_quote(const string& input)
 }
 
 
-// A little class that impersonates an ostream to the extent that it can
-// take << streaming operations.  It batches up the bits into an internal
-// stringstream until it is destroyed; then flushes to the original ostream.
-class obatched
-{
-private:
-  ostream& o;
-  stringstream stro;
-public:
-  obatched(ostream& oo): o(oo) {}
-  ~obatched() { o << stro.str(); o.flush(); }
-  operator ostream& () { return stro; }
-  template <typename T> ostream& operator << (const T& t) { stro << t; return stro; }
-};
-
-
-
 // Print a string to cout/cerr progress reports, similar to the
 // stuff produced by __pmNotifyErr
 ostream&
@@ -153,6 +136,25 @@ private:
 
 
 
+// A little class that impersonates an ostream to the extent that it can
+// take << streaming operations.  It batches up the bits into an internal
+// stringstream until it is destroyed; then flushes to the original ostream.
+class lock_t;
+class obatched
+{
+private:
+  ostream& o;
+  stringstream stro;
+  static lock_t lock;
+public:
+  obatched(ostream& oo): o(oo) { }
+  ~obatched() { locker do_not_cross_the_streams(& obatched::lock); o << stro.str(); o.flush(); }
+  operator ostream& () { return stro; }
+  template <typename T> ostream& operator << (const T& t) { stro << t; return stro; }
+};
+lock_t obatched::lock; // just the one, since cout/cerr iostreams are not thread-safe
+
+
 extern "C" void *
 pmmgr_daemon_poll_thread (void* a)
 {
@@ -207,6 +209,45 @@ pmmgr_configurable::wrap_system(const std::string& cmd)
 }
 
 
+// A wrapper for something like popen(3), but responding quicker to
+// interrupts and standardizing tracing.
+string
+pmmgr_configurable::wrap_popen(const std::string& cmd)
+{
+  string output;
+  
+  if (pmDebug & DBG_TRACE_APPL1)
+    timestamp(obatched(cout)) << "pipe-running " << cmd << endl;
+
+  FILE* f = popen(cmd.c_str(), "r");
+  if (f == NULL)
+    {
+      timestamp(obatched(cerr)) << "failed to popen " << cmd << endl;
+      return output;
+    }
+
+  // Block, collecting all stdout from the child process.
+  // Expecting only quick & small snippets.
+  while (!quit)
+    {
+      char buf[1024];
+      size_t rc = fread(buf, 1, sizeof(buf), f);
+      output += string(buf,rc);
+      if (feof(f) || ferror(f))
+        break;
+    }
+
+  int status = pclose(f);
+  //timestamp(obatched(cout)) << "done status=" << status << endl;
+  if (status != 0)
+    timestamp(obatched(cerr)) << "popen(" << cmd << ") failed: rc=" << status << endl;
+
+  if (pmDebug & DBG_TRACE_APPL1)
+    timestamp(obatched(cout)) << "collected " << output << endl;
+
+  return output;
+}
+
 
 // ------------------------------------------------------------------------
 
@@ -231,8 +272,11 @@ pmmgr_configurable::get_config_multi(const string& file) const
       lines.push_back(line);
     if (! f.good())
       break;
+    // NB: an empty line is not necessarily a problem
+    #if 0
     if (line == "")
       timestamp(obatched(cerr)) << "file '" << file << "' parse warning: empty line ignored" << endl;
+    #endif
   }
 
   return lines;
@@ -689,11 +733,37 @@ pmmgr_job_spec::poll()
       free ((void*) urls);
     }
 
+  // probe kubernetes pods; assume they may be running pmcd at default port
+  if (get_config_exists ("target-kubectl-pod"))
+    {
+      string target_kubectl_pod = get_config_single("target-kubectl-pod");
+      string kubectl_cmd = "kubectl get pod -o " + sh_quote("jsonpath={.items[*].status.podIP}") +" "+ target_kubectl_pod;
+      string ips_str = wrap_popen(kubectl_cmd);
+      istringstream ips(ips_str);
+      while(ips.good())
+        {
+          string ip;
+          ips >> ip;
+          if (ip != "")
+            new_specs.insert(ip);
+        }
+    }
+
   // fallback to logging the local server, if nothing else is configured/discovered
   if (target_hosts.size() == 0 &&
-      target_discovery.size() == 0)
+      target_discovery.size() == 0 &&
+      !get_config_exists ("target-kubectl-pod"))
     new_specs.insert("local:");
 
+  if (pmDebug & DBG_TRACE_APPL1)
+    {
+      timestamp(obatched(cout)) << "poll targets" << endl;
+      for (set<string>::const_iterator it = new_specs.begin();
+           it != new_specs.end();
+           ++it)
+        timestamp(obatched(cout)) << *it << endl;
+    }
+  
   // phase 2: move previously-identified targets over, so we can tell who
   // has come or gone
   const map<pmmgr_hostid,pcp_context_spec> old_known_targets = known_targets;
@@ -1118,6 +1188,7 @@ pmmgr_pmlogger_daemon::daemon_command_line()
 
   // collect -h direction
   pmlogger_options += " -h " + sh_quote(spec);
+  pmlogger_options += " -H " + sh_quote(hostid);
 
   // hard-code -r to report metrics & expected disk usage rate
   pmlogger_options += " -r";

@@ -144,6 +144,7 @@ __pmNotifyErr(int priority, const char *message, ...)
     char		*level;
     struct timeval	tv;
     char		ct_buf[26];
+    time_t		now;
 
     va_start(arg, message);
 
@@ -192,11 +193,12 @@ __pmNotifyErr(int priority, const char *message, ...)
 	    break;
     }
 
-    ctime_r(&tv.tv_sec, ct_buf);
+    now = tv.tv_sec;
+    ctime_r(&now, ct_buf);
     /* when profiling use "[%.19s.%lu]" for extra precision */
     pmprintf("[%.19s] %s(%" FMT_PID ") %s: ", ct_buf,
 		/* (unsigned long)tv.tv_usec, */
-		pmProgname, getpid(), level);
+		pmProgname, (pid_t)getpid(), level);
     vpmprintf(message, arg);
     va_end(arg);
     /* trailing \n if needed */

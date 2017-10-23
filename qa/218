@@ -38,7 +38,7 @@ status=$?
 
 echo
 echo "=== pmdumplog, mark ==="
-pmdumplog -m $tmp.result | sed -e '/pmcd.pmlogger/d' | _filter_pmdumplog
+pmdumplog -m $tmp.result | sed -e '/pmcd\./d' | _filter_pmdumplog
 status=`expr $status + $?`
 
 # all done

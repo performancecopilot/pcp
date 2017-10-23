@@ -25,13 +25,7 @@ _live_filter()
 {
     sed \
 	-e "s/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]/HH:MM:SS/g" \
-    #end
-}
-
-_path_filter()
-{
-    sed \
-	-e "s#$here#QAPATH#g" \
+	-e '/timezone/s/ (reporting.*)//' \
     #end
 }
 
@@ -41,6 +35,7 @@ _archive_filter()
 {
     sed \
 	-e '/timezone/s/ (reporting.*)//' \
+	-e "s#$here#QAPATH#g" \
     #end
 }
 
@@ -75,19 +70,26 @@ echo "== exercise various output options"
 pmrep -s 3 -p -u $log2 hinv.machine
 pmrep -s 5 -t 2 $log -c $tmp.config -o stdout -p -w 20 sample
 echo "---"
-pmrep -s 5 -t 2 $log -c $tmp.config -C -x sample | _path_filter \
-| _archive_filter
+pmrep -s 5 -t 2 $log -c $tmp.config -C -x sample | _archive_filter
 echo "---"
-pmrep -T 7s -t 3 -p $log -c $tmp.config -x sample | _path_filter \
-| _archive_filter
+pmrep -T 7s -t 3 -p $log -c $tmp.config -x sample | _archive_filter
 echo "---"
 pmrep -s 5 -t 2 $log -c $tmp.config -G -H -U sample
 pmrep -s 5 -t 2 $log2 -c $tmp.config -p -l '|' -X "" disk.dev.read disk.dev.write disk.dev.total network.interface.mtu mem.util.free kernel.all.load mem.util.used
 pmrep -s 5 -t 2 $log2 -c $tmp.config -p -l '|' -X "Instance name" disk.dev.read disk.dev.write disk.dev.total network.interface.mtu mem.util.free kernel.all.load mem.util.used
 
+echo "== exercise extended header"
+pmrep -z -a $here/archives/rep -x -H -U -C -u -I "" | _archive_filter
+pmrep -z -a $here/archives/20130706 -x -H -U -C -u -I "" | _archive_filter
+pmrep -z -a $here/archives/bug-1044.meta -x -H -U -C -u -I "" | _archive_filter
+
+echo "== invalid command line parameters"
+pmrep -s 1 -t 1 -b GB -E 1x mem.util.free
+pmrep -s 1 -t 1 -b GB -P 2x mem.util.free
+pmrep -s 1 -t 1 -b GB -w 3x mem.util.free
+
 echo "== exercise non-integer options"
-pmrep -T 2.5s -t 0.5 -p $log -c $tmp.config -x sample | _path_filter \
-| _archive_filter
+pmrep -T 2.5s -t 0.5 -p $log -c $tmp.config -x sample | _archive_filter
 
 echo "== exercise raw counter mode"
 pmrep --daemonize -s 5 -t 2 $log -c $tmp.config -r sample
@@ -95,30 +97,29 @@ pmsleep 1
 
 echo "== exercise timezone setting"
 pmrep -s 5 -t 2 --archive $here/archives/sample-secs -p -x -Z XYZ sample \
-| _path_filter | _archive_filter
+| _archive_filter
 pmrep -s 5 -t 2 --archive $here/archives/sample-secs -p -x -Z UTC-0 sample \
-| _path_filter | _archive_filter
+| _archive_filter
 pmrep -s 5 -t 2 --archive $here/archives/sample-secs -p -x -Z No/Such/Zone sample \
-| _path_filter | _archive_filter
+| _archive_filter
 pmrep -s 5 -t 2 --archive $here/archives/sample-secs -p -x -Z UTC sample \
-| _path_filter | _archive_filter
+| _archive_filter
 pmrep -s 5 -t 2 --archive $here/archives/sample-secs -p -x -Z UTC-5 sample \
-| _path_filter | _archive_filter
+| _archive_filter
 pmrep -s 5 -t 2 --archive $here/archives/sample-secs -p -x -Z UTC+5 sample \
-| _path_filter | _archive_filter
+| _archive_filter
 pmrep -s 5 -t 2 --archive $here/archives/sample-secs -p -x -Z America/New_York sample \
-| _path_filter | _archive_filter
+| _archive_filter
 pmrep -s 5 -t 2 --archive $here/archives/sample-secs -p -x -Z :Europe/Helsinki sample \
-| _path_filter | _archive_filter
+| _archive_filter
 pmrep -s 5 -t 2 --archive $here/archives/sample-secs -p -x -Z Asia/Kolkata sample \
-| _path_filter | _archive_filter
-pmrep -C -x -H -U -z -a $here/archives/numa hinv.machine | _path_filter | _archive_filter
-pmrep -C -x -H -U -z -a $here/archives/rep hinv.machine | _path_filter | _archive_filter
+| _archive_filter
+pmrep -C -x -H -U -z -a $here/archives/numa hinv.machine | _archive_filter
+pmrep -C -x -H -U -z -a $here/archives/rep hinv.machine | _archive_filter
 
 echo "== exercise extended CSV output"
 pmrep -z -u -H -k -o csv -a $here/archives/bug1057 -I "" | wc -l
-pmrep -s 5 -t 2 $log -o csv -k sample 2>&1 \
-| _archive_filter
+pmrep -s 5 -t 2 $log -o csv -k sample 2>&1 | _archive_filter
 
 echo "== exercise CSV and alternate delimiters"
 pmrep -s 5 -t 2 $log -c $tmp.config -o csv -p -P 1 sample
@@ -192,6 +193,11 @@ pmrep -s 5 -t 2 $log2 -p -u mem.util.free
 echo "== un/interpolated archive mode reporting with endtime"
 pmrep -t 20 $log2 -p    -T @00:50:00 mem.util.free
 pmrep       $log2 -p -u -T @00:50:00 mem.util.free
+
+echo "== time alignment with archive/host"
+pmrep -s 5 -t 2 $log2 -p -A 2m mem.util.free
+pmrep -s 2 -t 2 -p -A 2s -l X sample.long.one \
+| sed -r -e 's,[0-9][0-9]:[0-9][0-9]:[0-9][02468]X,ALIGN_OK_X,g'
 
 echo "== basic string value reporting"
 # sets variable named $pcp_version

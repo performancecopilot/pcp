@@ -1838,6 +1838,15 @@ dnl Do you have graphics libraries for pmwebapi?
 PKG_CHECK_MODULES([cairo], [cairo >= 1.2, cairo-ft >= 1.2, cairo-png >= 1.2], [have_cairo=true], [have_cairo=false])
 AC_SUBST(HAVE_CAIRO, [$have_cairo])
 
+AC_LANG_PUSH([C++])
+AC_CHECK_HEADERS([boost/flyweight.hpp])
+AC_LANG_POP
+AC_SUBST(HAVE_BOOST_FLYWEIGHT_HPP, [$ac_cv_header_boost_flyweight_hpp])
+
+have_boost=false
+test "$ac_cv_header_boost_flyweight_hpp" = yes && have_boost=true
+AC_SUBST(have_boost)
+
 enable_webapi=false
 AS_IF([test "x$do_webapi" != "xno"], [
     enable_webapi=true

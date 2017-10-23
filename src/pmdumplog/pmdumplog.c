@@ -606,7 +606,7 @@ dumpLabel(int verbose)
 
     if (verbose) {
 	printf("Archive timezone: %s\n", label.ll_tz);
-	printf("PID for pmlogger: %" FMT_PID "\n", label.ll_pid);
+	printf("PID for pmlogger: %d\n", label.ll_pid);
     }
 }
 

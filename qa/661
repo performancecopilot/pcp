@@ -71,11 +71,35 @@ curl --compressed -s -S "http://localhost:$webport/graphite/render?format=json&t
 
 echo
 echo "metric tree iteration" 
-curl -s -S "http://localhost:$webport/graphite/metrics/find?query=archives*naslog*.*" | _webapi_json_pretty
-curl --compressed -s -S "http://localhost:$webport/graphite/metrics/find?format=completer&query=archives*naslog*.*" | _webapi_json_pretty
-curl -s -S "http://localhost:$webport/graphite/metrics/find?format=completer&query=archives*naslog*.k*." | _webapi_json_pretty
-curl --compressed -s -S "http://localhost:$webport/graphite/metrics/find?format=completer&query=archives*naslog*.k*.all" | _webapi_json_pretty
-curl -s -S "http://localhost:$webport/graphite/metrics/find?format=completer&query=archives*naslog*.k*.all." | _webapi_json_pretty
+curl -s -S "http://localhost:$webport/graphite/metrics/find?query=archives*naslog*.*" \
+| _webapi_json_pretty \
+| tee -a $here/$seq.full \
+| sed -e 's/, *$//' \
+| LC_COLLATE=POSIX sort
+
+curl --compressed -s -S "http://localhost:$webport/graphite/metrics/find?format=completer&query=archives*naslog*.*" \
+| _webapi_json_pretty \
+| tee -a $here/$seq.full \
+| sed -e 's/, *$//' \
+| LC_COLLATE=POSIX sort
+
+curl -s -S "http://localhost:$webport/graphite/metrics/find?format=completer&query=archives*naslog*.k*." \
+| _webapi_json_pretty \
+| tee -a $here/$seq.full \
+| sed -e 's/, *$//' \
+| LC_COLLATE=POSIX sort
+
+curl --compressed -s -S "http://localhost:$webport/graphite/metrics/find?format=completer&query=archives*naslog*.k*.all" \
+| _webapi_json_pretty \
+| tee -a $here/$seq.full \
+| sed -e 's/, *$//' \
+| LC_COLLATE=POSIX sort
+
+curl -s -S "http://localhost:$webport/graphite/metrics/find?format=completer&query=archives*naslog*.k*.all." \
+| _webapi_json_pretty \
+| tee -a $here/$seq.full \
+| sed -e 's/, *$//' \
+| LC_COLLATE=POSIX sort
 
 echo
 echo "metric regex grep 1" 
@@ -87,14 +111,27 @@ echo # not \n terminated
 
 echo
 echo "metric value dump 1" 
-curl -s -S "http://localhost:$webport/graphite/render?format=json&target=*/node_archive.proc.psinfo.pid.*&from=15:50_20131127&until=1385585880&maxDataPoints=100" | _webapi_json_pretty
+curl -s -S "http://localhost:$webport/graphite/render?format=json&target=*/node_archive.proc.psinfo.pid.*&from=15:50_20131127&until=1385585880&maxDataPoints=100" \
+| _webapi_json_pretty \
+| tee -a $here/$seq.full \
+| sed -e 's/, *$//' \
+| LC_COLLATE=POSIX sort
+
 echo
 echo "metric value dump 2" 
-curl --compressed -s -S "http://localhost:$webport/graphite/rawdata?target=*/node_archive.proc.psinfo.pid.*&from=00:00_20131127&until=00:00_20131129&maxDataPoints=300" | _webapi_json_pretty
+curl --compressed -s -S "http://localhost:$webport/graphite/rawdata?target=*/node_archive.proc.psinfo.pid.*&from=00:00_20131127&until=00:00_20131129&maxDataPoints=300" \
+| _webapi_json_pretty \
+| tee -a $here/$seq.full \
+| sed -e 's/, *$//' \
+| LC_COLLATE=POSIX sort
 
 echo
 echo compressed archive, expect non-empty result
-curl -s -S "http://localhost:$webport/graphite/rawdata?target=*20130706.kernel.all.nprocs&from=00:00_20130705&until=23:59_20130705" | _webapi_json_pretty
+curl -s -S "http://localhost:$webport/graphite/rawdata?target=*20130706.kernel.all.nprocs&from=00:00_20130705&until=23:59_20130705" \
+| _webapi_json_pretty \
+| tee -a $here/$seq.full \
+| sed -e 's/, *$//' \
+| LC_COLLATE=POSIX sort
 
 echo
 echo "metric gfx rendering" 
@@ -126,7 +163,11 @@ _wait_for_pmwebd_logfile $tmp.out $webport
 
 echo
 echo "metric value dump 1 without -X"
-curl -s -S "http://localhost:$webport/graphite/render?format=json&target=*node_archive*.proc.psinfo.pid.*&from=15:50_20131127&until=1385585880&maxDataPoints=100" | _webapi_json_pretty
+curl -s -S "http://localhost:$webport/graphite/render?format=json&target=*node_archive*.proc.psinfo.pid.*&from=15:50_20131127&until=1385585880&maxDataPoints=100" \
+| _webapi_json_pretty \
+| tee -a $here/$seq.full \
+| sed -e 's/, *$//' \
+| LC_COLLATE=POSIX sort
 
 status=0
 exit

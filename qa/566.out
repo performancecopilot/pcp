@@ -25,7 +25,7 @@ TMP/foo.meta: start pass0
 TMP/foo.index missing:
 
 Note: timezone set to local timezone of host "HOST" from archive
-Processed 9 pmResult records
+Processed 10 pmResult records
 Scanning for components of archive "TMP/foo"
 TMP/foo.0: start pass0
 TMP/foo.meta: start pass0
@@ -63,7 +63,7 @@ foo.meta: start pass0
 foo.index:
 
 Note: timezone set to local timezone of host "HOST" from archive
-Processed 9 pmResult records
+Processed 10 pmResult records
 Scanning for components of archive "foo.index"
 foo.0: start pass0
 foo.1: contains no PCP data
@@ -79,7 +79,7 @@ foo: start pass3
 archive-20150415.044829:
 
 Note: timezone set to local timezone of host "HOST" from archive
-Processed 9 pmResult records
+Processed 10 pmResult records
 Scanning for components of archive "archive-20150415.044829"
 archive-20150415.044829.0: start pass0
 archive-20150415.044829.index: start pass0

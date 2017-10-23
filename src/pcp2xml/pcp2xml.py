@@ -24,6 +24,7 @@
 # Common imports
 from collections import OrderedDict
 import errno
+import time
 import sys
 
 # Our imports
@@ -32,7 +33,7 @@ import os
 
 # PCP Python PMAPI
 from pcp import pmapi, pmconfig
-from cpmapi import PM_CONTEXT_ARCHIVE, PM_ERR_EOL, PM_DEBUG_APPL1
+from cpmapi import PM_CONTEXT_ARCHIVE, PM_ERR_EOL, PM_IN_NULL, PM_DEBUG_APPL1
 from cpmapi import PM_TIME_SEC
 
 if sys.version_info[0] >= 3:
@@ -118,7 +119,7 @@ class PCP2XML(object):
         opts = pmapi.pmOptions()
         opts.pmSetOptionCallback(self.option)
         opts.pmSetOverrideCallback(self.option_override)
-        opts.pmSetShortOptions("a:h:LK:c:Ce:D:V?HGA:S:T:O:s:t:Z:zrIi:vP:q:b:y:F:f:xX")
+        opts.pmSetShortOptions("a:h:LK:c:Ce:D:V?HGA:S:T:O:s:t:rIi:vP:q:b:y:F:f:Z:zxX")
         opts.pmSetShortUsage("[option...] metricspec [...]")
 
         opts.pmSetLongOptionHeader("General options")
@@ -203,7 +204,11 @@ class PCP2XML(object):
         elif opt == 'v':
             self.omit_flat = 1
         elif opt == 'P':
-            self.precision = int(optarg)
+            try:
+                self.precision = int(optarg)
+            except:
+                sys.stderr.write("Error while parsing options: Integer expected.\n")
+                sys.exit(1)
         elif opt == 'f':
             self.timefmt = optarg
         elif opt == 'q':
@@ -215,7 +220,6 @@ class PCP2XML(object):
         elif opt == 'x':
             self.extended = 1
         elif opt == 'X':
-            self.extended = 1
             self.everything = 1
         else:
             raise pmapi.pmUsageErr()
@@ -239,6 +243,9 @@ class PCP2XML(object):
             sys.stderr.write("Incompatible configuration file version (read v%s, need v%d).\n" % (self.version, CONFVER))
             sys.exit(1)
 
+        if self.everything:
+            self.extended = 1
+
         self.pmconfig.finalize_options()
 
     def execute(self):
@@ -254,7 +261,7 @@ class PCP2XML(object):
             self.interpol = 1
 
         # Common preparations
-        pmapi.pmContext.prepare_execute(self.context, self.opts, False, self.interpol, self.interval)
+        self.context.prepare_execute(self.opts, False, self.interpol, self.interval)
 
         # Headers
         if self.header == 1:
@@ -268,6 +275,11 @@ class PCP2XML(object):
         # Daemonize when requested
         if self.daemonize == 1:
             self.opts.daemonize()
+
+        # Align poll interval to host clock
+        if self.context.type != PM_CONTEXT_ARCHIVE and self.opts.pmGetOptionAlignment():
+            align = float(self.opts.pmGetOptionAlignment()) - (time.time() % float(self.opts.pmGetOptionAlignment()))
+            time.sleep(align)
 
         # Main loop
         while self.samples != 0:
@@ -328,7 +340,7 @@ class PCP2XML(object):
             # Silent goodbye, close in finalize()
             return
 
-        ts = pmapi.pmContext.datetime_to_secs(self.pmfg_ts(), PM_TIME_SEC)
+        ts = self.context.datetime_to_secs(self.pmfg_ts(), PM_TIME_SEC)
 
         if self.prev_ts is None:
             self.prev_ts = ts
@@ -344,7 +356,7 @@ class PCP2XML(object):
             host = self.context.pmGetContextHostName()
             self.writer.write('  <host nodename="%s">\n' % host)
             self.writer.write('    <source>%s</source>\n' % self.source)
-            timez = pmapi.pmContext.posix_tz_to_utc_offset(self.context.get_current_tz(self.opts))
+            timez = self.context.posix_tz_to_utc_offset(self.context.get_current_tz(self.opts))
             self.writer.write('    <timezone>%s</timezone>\n' % timez)
             self.writer.write('    <metrics>\n')
 
@@ -354,9 +366,17 @@ class PCP2XML(object):
         insts_key = "@instances"
         inst_key = "@id"
 
-        def escape_xml(string):
-            """ Escape XML special characters """
+        def escape_xml_markup(string):
+            """ Escape XML markup characters """
+            if not string:
+                return None
             return string.replace("&", "&amp;").replace('"', '&quot;').replace("'", "&apos;").replace("<", "&lt;").replace(">", "&gt;")
+
+        def escape_xml_text(string):
+            """ Escape XML text characters """
+            if not string:
+                return None
+            return string.replace("&", "&amp;").replace("<", "&lt;")
 
         for i, metric in enumerate(self.metrics):
             try:
@@ -365,26 +385,27 @@ class PCP2XML(object):
 
                 pmns_parts = metric.split(".")
 
-                # Find/create the parent dictionary into which to insert the final component
                 for inst, name, val in self.metrics[metric][5](): # pylint: disable=unused-variable
                     try:
                         value = val()
                         fmt = "." + str(self.precision) + "f"
                         value = format(value, fmt) if isinstance(value, float) else str(value)
-                        value = escape_xml(value)
+                        value = escape_xml_text(value)
+                        name = escape_xml_markup(name)
                     except:
                         continue
 
                     pmns_leaf_dict = data
 
+                    # Find/create the parent dictionary into which to insert the final component
                     for pmns_part in pmns_parts[:-1]:
                         if pmns_part not in pmns_leaf_dict:
                             pmns_leaf_dict[pmns_part] = {}
                         pmns_leaf_dict = pmns_leaf_dict[pmns_part]
                     last_part = pmns_parts[-1]
 
-                    if not name:
-                        pmns_leaf_dict[last_part] = [None, self.metrics[metric][2][0], value, self.pmconfig.pmids[i], self.pmconfig.descs[i]]
+                    if inst == PM_IN_NULL:
+                        pmns_leaf_dict[last_part] = [None, None, self.metrics[metric][2][0], value, self.pmconfig.pmids[i], self.pmconfig.descs[i]]
                     else:
                         if insts_key not in pmns_leaf_dict:
                             pmns_leaf_dict[insts_key] = []
@@ -393,10 +414,10 @@ class PCP2XML(object):
                         found = False
                         for j in range(1, len(insts)):
                             if insts[j][inst_key] == name:
-                                insts[j][last_part] = [name, self.metrics[metric][2][0], value, self.pmconfig.pmids[i], self.pmconfig.descs[i]]
+                                insts[j][last_part] = [inst, name, self.metrics[metric][2][0], value, self.pmconfig.pmids[i], self.pmconfig.descs[i]]
                                 found = True
                         if not found:
-                            insts.append({inst_key: name, last_part: [name, self.metrics[metric][2][0], value, self.pmconfig.pmids[i], self.pmconfig.descs[i]]})
+                            insts.append({inst_key: name, last_part: [inst, name, self.metrics[metric][2][0], value, self.pmconfig.pmids[i], self.pmconfig.descs[i]]})
             except:
                 pass
 
@@ -420,21 +441,22 @@ class PCP2XML(object):
                 mtype = "unknown"
             return mtype
 
-        def create_attrs(instance, unit, pmid, desc):
+        def create_attrs(inst_id, inst_name, unit, pmid, desc):
             """ Create extra attribute string """
             attrs = ""
-            if instance:
-                attrs += ' instance="' + instance + '"'
+            if inst_name:
+                attrs += ' instance-name="' + inst_name + '"'
             if unit:
                 attrs += ' unit="' + unit + '"'
             if self.extended:
-                # Or consider self.context.pmTypeStr(desc.contents.type)
                 attrs += ' type="' + get_type_string(desc) + '"'
                 attrs += ' semantics="' + self.context.pmSemStr(desc.contents.sem) + '"'
             if self.everything:
                 attrs += ' pmid="' + str(pmid) + '"'
-                if desc.contents.indom != pmapi.c_api.PM_IN_NULL:
+                if desc.contents.indom != PM_IN_NULL:
                     attrs += ' indom="' + str(desc.contents.indom) + '"'
+                if inst_id is not None:
+                    attrs += ' instance-id="' + str(inst_id) + '"'
             return attrs
 
         def iteritems(d):
@@ -454,13 +476,13 @@ class PCP2XML(object):
                     self.writer.write('%s</%s>\n' % (indent, key))
                 else:
                     if not isinstance(value[0], dict):
-                        self.writer.write('%s<%s%s>%s</%s>\n' % (indent, key, create_attrs(None, value[1], value[3], value[4]), value[2], key))
+                        self.writer.write('%s<%s%s>%s</%s>\n' % (indent, key, create_attrs(None, None, value[2], value[4], value[5]), value[3], key))
                     else:
                         for j, _ in enumerate(value):
                             for k in value[j]:
                                 if k == inst_key:
                                     continue
-                                self.writer.write('%s<%s%s>%s</%s>\n' % (indent, k, create_attrs(escape_xml(value[j][k][0]), value[j][k][1], value[j][k][3], value[j][k][4]), value[j][k][2], k))
+                                self.writer.write('%s<%s%s>%s</%s>\n' % (indent, k, create_attrs(value[j][k][0], value[j][k][1], value[j][k][2], value[j][k][4], value[j][k][5]), value[j][k][3], k))
 
         # Add current values
         interval = str(int(ts - self.prev_ts + 0.5))
@@ -480,7 +502,10 @@ class PCP2XML(object):
             except socket.error as error:
                 if error.errno != errno.EPIPE:
                     raise
-            self.writer.close()
+            try:
+                self.writer.close()
+            except:
+                pass
             self.writer = None
         return
 

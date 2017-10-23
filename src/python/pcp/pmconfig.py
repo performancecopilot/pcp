@@ -460,7 +460,7 @@ class pmConfig(object):
                    self.descs[i].contents.type != pmapi.c_api.PM_TYPE_STRING and \
                    self.descs[i].sem == pmapi.c_api.PM_SEM_COUNTER and \
                    '/' not in label:
-                       label += " / s"
+                    label += " / s"
                 label = self.format_metric_label(label)
                 self.util.metrics[metric][2] = (label, unitstr, mult)
             except pmapi.pmErr as error:

@@ -22,6 +22,7 @@
 #include "pmdagfs2.h"
 
 #include <sys/types.h>
+#include <sys/sysmacros.h>
 #include <ctype.h>
 
 static char *gfs2_sysfsdir = "/sys/kernel/debug/gfs2";

@@ -309,6 +309,7 @@ HAVE_LIBMICROHTTPD = @HAVE_LIBMICROHTTPD@
 LIB_FOR_MICROHTTPD = @libmicrohttpd_LIBS@
 HAVE_ZLIB = @HAVE_ZLIB@
 LIB_FOR_ZLIB = @zlib_LIBS@
+HAVE_BOOST_FLYWEIGHT_HPP = @HAVE_BOOST_FLYWEIGHT_HPP@
 
 # configuration state for optional performance domains
 SYSTEMD_CFLAGS = @SYSTEMD_CFLAGS@
@@ -900,5 +901,9 @@ PCP_ALTLIBS =
 endif
 endif
 endif
+
+# libboost for pmwebapi?
+#
+HAVE_BOOST = @have_boost@
 
 endif # _BUILDDEFS_INCLUDED_

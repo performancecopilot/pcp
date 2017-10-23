@@ -47,7 +47,7 @@ int		rflag;			/* report sizes */
 int		Cflag;			/* parse config and exit */
 struct timeval	epoch;
 struct timeval	delta = { 60, 0 };	/* default logging interval */
-int		exit_code;		/* code to pass to exit (zero/signum) */
+int		sig_code;		/* caught signal */
 int		qa_case;		/* QA error injection state */
 char		*note;			/* note for port map file */
 
@@ -66,6 +66,19 @@ static int	sep;
 void
 run_done(int sts, char *msg)
 {
+    int	lsts;
+
+    if (pmDebugOptions.log && pmDebugOptions.desperate) {
+	fprintf(stderr, "run_done(%d, %s) last_log_offset=%d last_stamp=",
+		sts, msg, last_log_offset);
+	__pmPrintStamp(stderr, &last_stamp);
+	fputc('\n', stderr);
+    }
+
+    if ((lsts = do_epilogue()) < 0)
+	fprintf(stderr, "Warning: problem writing archive epilogue: %s\n",
+	    pmErrStr(lsts));
+
     if (msg != NULL)
     	fprintf(stderr, "pmlogger: %s, exiting\n", msg);
     else
@@ -376,7 +389,7 @@ do_dialog(char cmd)
     if (cmd != 'Q') {
 	nchar = add_msg(&p, nchar, "\n\nAt any time this pmlogger process may be terminated with the");
 	nchar = add_msg(&p, nchar, " following command:\n");
-	pmsprintf(lbuf, sizeof(lbuf), "  $ pmsignal -s TERM %" FMT_PID "\n", getpid());
+	pmsprintf(lbuf, sizeof(lbuf), "  $ pmsignal -s TERM %" FMT_PID "\n", (pid_t)getpid());
 	nchar = add_msg(&p, nchar, lbuf);
     }
 
@@ -576,6 +589,8 @@ main(int argc, char **argv)
     __pmContext  	*ctxp;		/* pmlogger has just this one context */
     int			niter;
     pid_t               target_pid = 0;
+    int			exit_code = 0;
+    char		*exit_msg;
 
     __pmGetUsername(&username);
     sep = __pmPathSeparator();
@@ -882,7 +897,7 @@ main(int argc, char **argv)
 
     if (yyparse() != 0)
 	exit(1);
-    fclose(yyin);
+    __pmProcessPipeClose(yyin);
     yyend();
 
     fprintf(stderr, "Config parsed\n");
@@ -1015,8 +1030,8 @@ main(int argc, char **argv)
 	__pmFD_SET(rsc_fd, &fds);
     numfds = maxfd() + 1;
 
-    if ((sts = do_preamble()) < 0)
-	fprintf(stderr, "Warning: problem writing archive preamble: %s\n",
+    if ((sts = do_prologue()) < 0)
+	fprintf(stderr, "Warning: problem writing archive prologue: %s\n",
 	    pmErrStr(sts));
 
     sts = 0;		/* default exit status */
@@ -1027,7 +1042,7 @@ main(int argc, char **argv)
     for ( ; ; ) {
 	int		nready;
 
-	if ((pmDebugOptions.appl2) && (pmDebugOptions.desperate)) {
+	if (pmDebugOptions.appl2 && pmDebugOptions.desperate) {
 	    fprintf(stderr, "before __pmSelectRead(%d,...): run_done_alarm=%d vol_switch_alarm=%d log_alarm=%d\n", numfds, run_done_alarm, vol_switch_alarm, log_alarm);
 	}
 
@@ -1065,7 +1080,7 @@ main(int argc, char **argv)
 	__pmFD_COPY(&readyfds, &fds);
 	nready = __pmSelectRead(numfds, &readyfds, NULL);
 
-	if ((pmDebugOptions.appl2) && (pmDebugOptions.desperate)) {
+	if (pmDebugOptions.appl2 && pmDebugOptions.desperate) {
 	    fprintf(stderr, "__pmSelectRead(%d,...) done: nready=%d run_done_alarm=%d vol_switch_alarm=%d log_alarm=%d\n", numfds, nready, run_done_alarm, vol_switch_alarm, log_alarm);
 	}
 
@@ -1205,13 +1220,22 @@ main(int argc, char **argv)
 
 	__pmAFunblock();
 
-	if (target_pid && !__pmProcessExists(target_pid))
-	    exit(EXIT_SUCCESS);
-
-	if (exit_code)
+	if (target_pid && !__pmProcessExists(target_pid)) {
+	    exit_msg = "process from -p has vanished";
 	    break;
+	}
+
+	if (sig_code) {
+	    static char sig_msg[100];
+	    pmsprintf(sig_msg, sizeof(sig_msg), "Caught signal %d", sig_code);
+	    exit_msg = sig_msg;
+	    break;
+	}
     }
-    exit(exit_code);
+
+    run_done(exit_code, exit_msg);
+    /*NOTREACHED*/
+    return(0);
 }
 
 int

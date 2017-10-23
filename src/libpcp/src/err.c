@@ -16,6 +16,7 @@
 #include "pmapi.h"
 #include "impl.h"
 #include "fault.h"
+#include "internal.h"
 #include <ctype.h>
 #ifdef HAVE_SECURE_SOCKETS
 #include <prerror.h>
@@ -23,12 +24,11 @@
 #include <sslerr.h>
 #include <sasl.h>
 #endif
-#ifdef IS_MINGW
-extern const char *strerror_r(int, char *, size_t);
-#endif
 
 #ifdef PM_MULTI_THREAD
+#ifndef IS_MINGW
 static pthread_mutex_t	err_lock = PTHREAD_MUTEX_INITIALIZER;
+#endif
 #else
 void			*err_lock;
 #endif

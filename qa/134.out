@@ -14,6 +14,8 @@ Metrics in archive:
     pmcd.pmlogger.host
     pmcd.pmlogger.port
     pmcd.pmlogger.archive
+    pmcd.pid
+    pmcd.seqnum
 
 === first volume, one result ===
 MYLOG.0 incr 40 bytes
@@ -30,6 +32,8 @@ Metrics in archive:
     pmcd.pmlogger.host
     pmcd.pmlogger.port
     pmcd.pmlogger.archive
+    pmcd.pid
+    pmcd.seqnum
     pmcd.control.register
 New log volume 1
 
@@ -49,11 +53,13 @@ Metrics in archive:
     pmcd.pmlogger.host
     pmcd.pmlogger.port
     pmcd.pmlogger.archive
+    pmcd.pid
+    pmcd.seqnum
     pmcd.control.register
 
 === second volume, one result ===
 MYLOG.0 unchanged
-MYLOG.1 incr 40 bytes
+MYLOG.1 incr 0-100 bytes
 Log Label (Log Format Version 2)
 Performance metrics from host LOCALHOST
   commencing month-day TIMESTAMP-0 year
@@ -68,12 +74,14 @@ Metrics in archive:
     pmcd.pmlogger.host
     pmcd.pmlogger.port
     pmcd.pmlogger.archive
+    pmcd.pid
+    pmcd.seqnum
     pmcd.control.register
     pmcd.control.register
 
 === second volume, second + third result ===
 MYLOG.0 unchanged
-MYLOG.1 incr 184 bytes
+MYLOG.1 incr 100-200 bytes
 Log Label (Log Format Version 2)
 Performance metrics from host LOCALHOST
   commencing month-day TIMESTAMP-0 year
@@ -89,6 +97,8 @@ Metrics in archive:
     pmcd.pmlogger.host
     pmcd.pmlogger.port
     pmcd.pmlogger.archive
+    pmcd.pid
+    pmcd.seqnum
     pmcd.control.register
     pmcd.control.register
     sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin
@@ -98,11 +108,11 @@ Metrics in archive:
 
 === logger done ===
 MYLOG.0 unchanged
-MYLOG.1 unchanged
+MYLOG.1 incr 100-200 bytes
 Log Label (Log Format Version 2)
 Performance metrics from host LOCALHOST
   commencing month-day TIMESTAMP-0 year
-  ending     month-day TIMESTAMP-4 year
+  ending     month-day TIMESTAMP-5 year
 
 Temporal Index
              month-day end(meta)     end(log)
@@ -110,13 +120,21 @@ TIMESTAMP-0     0       OFFSET       OFFSET
 TIMESTAMP-1     0       OFFSET       OFFSET
 TIMESTAMP-2     1       OFFSET       OFFSET
 TIMESTAMP-3     1       OFFSET       OFFSET
+TIMESTAMP-5     1       OFFSET       OFFSET
 Metrics in archive:
     pmcd.pmlogger.host
     pmcd.pmlogger.port
     pmcd.pmlogger.archive
+    pmcd.pid
+    pmcd.seqnum
     pmcd.control.register
     pmcd.control.register
     sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin
     pmcd.control.timeout
     pmcd.control.debug
     pmcd.control.register
+    pmcd.pmlogger.host
+    pmcd.pmlogger.port
+    pmcd.pmlogger.archive
+    pmcd.pid
+    pmcd.seqnum
