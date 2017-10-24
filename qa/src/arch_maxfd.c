@@ -5,13 +5,11 @@
  * For incident: 504616
  */
 
-#include <stdio.h>
-#include <unistd.h>
-#include <strings.h>
-#include <errno.h>
-#include <sys/resource.h>
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
+#ifdef HAVE_SYS_RESOURCE_H
+#include <sys/resource.h>
+#endif
 
 #include "localconfig.h"
 
@@ -45,15 +43,13 @@ main(int argc, char **argv)
     while ((c = getopt(argc, argv, "D:?")) != EOF) {
 	switch (c) {
 
-	case 'D':	/* debug flag */
-	    sts = __pmParseDebug(optarg);
+	case 'D':	/* debug options */
+	    sts = pmSetDebug(optarg);
 	    if (sts < 0) {
-		fprintf(stderr, "%s: unrecognized debug flag specification (%s)\n",
+		fprintf(stderr, "%s: unrecognized debug options specification (%s)\n",
 		    pmProgname, optarg);
 		errflag++;
 	    }
-	    else
-		pmDebug |= sts;
 	    break;
 
 	case '?':
@@ -86,8 +82,8 @@ main(int argc, char **argv)
 	for (i = 0; i <= max_ctx; i++) {
 
 	    for (j = 0; j < 3; j++) {
-		sprintf(lbuf, "qa-tmp-%d.%s", i, sfx[j]);
-		sprintf(buf, "%s.%s", argv[optind], sfx[j]);
+		pmsprintf(lbuf, sizeof(lbuf), "qa-tmp-%d.%s", i, sfx[j]);
+		pmsprintf(buf, sizeof(buf), "%s.%s", argv[optind], sfx[j]);
 		sts = link(buf, lbuf);
 		if (sts < 0) {
 		    fprintf(stderr, "link %s -> %s failed: %s\n",
@@ -96,11 +92,11 @@ main(int argc, char **argv)
 		}
 	    }
 
-	    sprintf(lbuf, "qa-tmp-%d", i);
+	    pmsprintf(lbuf, sizeof(lbuf), "qa-tmp-%d", i);
 	    ctx = pmNewContext(PM_CONTEXT_ARCHIVE, lbuf);
 
 	    for (j = 0; j < 3; j++) {
-		sprintf(lbuf, "qa-tmp-%d.%s", i, sfx[j]);
+		pmsprintf(lbuf, sizeof(lbuf), "qa-tmp-%d.%s", i, sfx[j]);
 		sts = unlink(lbuf);
 		if (sts < 0) {
 		    fprintf(stderr, "unlink %s failed: %s\n",

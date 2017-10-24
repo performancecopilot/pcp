@@ -32,8 +32,8 @@ static void
 dump_count(FILE *f, size_t length, int nrecords)
 {
     if (length < PM_VAL_HDR_SIZE + sizeof(int)) {
-	fprintf(f, "Error: bad len (smaller than minimum size %lu)\n",
-		(unsigned long)PM_VAL_HDR_SIZE + sizeof(int));
+	fprintf(f, "Error: bad len (smaller than minimum size %d)\n",
+		PM_VAL_HDR_SIZE + (int)sizeof(int));
 	return;
     }
     fprintf(f, "nrecords: %d\n", nrecords);
@@ -558,7 +558,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":4", PM_FAULT_ALLOC);
     }
     (*rap)[r] = NULL;		/* sentinel */
 
-    if (pmDebug & DBG_TRACE_FETCH) {
+    if (pmDebugOptions.fetch) {
 	fprintf(stderr, "pmUnpackEventRecords returns ...\n");
 	for (r = 0; r < eap->ea_nrecords; r++) {
 	    fprintf(stderr, "pmResult[%d]\n", r);
@@ -657,7 +657,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":8", PM_FAULT_ALLOC);
     }
     (*rap)[r] = NULL;		/* sentinel */
 
-    if (pmDebug & DBG_TRACE_FETCH) {
+    if (pmDebugOptions.fetch) {
 	fprintf(stderr, "%s returns ...\n", caller);
 	for (r = 0; r < hreap->ea_nrecords; r++) {
 	    fprintf(stderr, "pmHighResResult[%d]\n", r);

@@ -1,0 +1,41 @@
+#!/bin/sh
+# PCP QA Test No. 035
+# Marko's pmrep segv case
+#
+# Copyright (c) 2017 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.python
+
+$python -c "from collections import OrderedDict" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "python collections OrderedDict module not installed"
+
+which pmrep >/dev/null 2>&1 || _notrun "pmrep not installed"
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+pmrep -z -o csv -H -a badarchives/archive-20141125-000009 disk.dev >$tmp.tmp 2>$tmp.err
+echo "Culling 'no values available' lines ..."
+grep ',[0-9]' <$tmp.tmp >$tmp.out
+head -10 $tmp.out
+cull=`wc -l <$tmp.out | sed -e 's/ //g'`
+cull=`expr $cull - 20`
+echo "... $cull output lines deleted ..."
+tail -10 $tmp.out
+cat $tmp.err
+
+# success, all done
+status=0
+exit

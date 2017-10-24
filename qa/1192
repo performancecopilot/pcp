@@ -25,9 +25,12 @@ _cleanup()
 {
     if [ -n "$pid" ]
     then
-        kill -9 $pid
+        kill $pid >/dev/null 2>&1
     fi
     $sudo rm -rf $tmp.* $tmp.*
+    _restore_config $PCP_PMDAS_DIR/prometheus/metadata
+    _restore_config $PCP_VAR_DIR/config/pmda
+    _cleanup_pmda prometheus
 }
 
 pmdaprometheus_remove()
@@ -72,7 +75,7 @@ $sudo rm -f $PCP_VAR_DIR/config/pmda/*
 
 $python $here/prometheus/prometheus_client_server.python &
 pid=$!
-
+sleep 3 #avoid racing
 generate_config
 
 pmdaprometheus_install
@@ -103,8 +106,7 @@ else
 fi
 
 pmdaprometheus_remove
-_restore_config $PCP_PMDAS_DIR/prometheus/metadata
-_restore_config $PCP_VAR_DIR/config/pmda
+
 # success, all done
 status=0
 exit

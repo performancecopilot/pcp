@@ -29,17 +29,13 @@ start_metric(pmID pmid)
     metricspec_t	*mp;
     int			sts;
 
-#if PCP_DEBUG
-    if ((pmDebug & (DBG_TRACE_APPL0 | DBG_TRACE_APPL1)) == (DBG_TRACE_APPL0 | DBG_TRACE_APPL1))
+    if (pmDebugOptions.appl0 && pmDebugOptions.appl1)
 	fprintf(stderr, "start_metric(%s)", pmIDStr(pmid));
-#endif
 
     for (mp = metric_root; mp != NULL; mp = mp->m_next) {
 	if (pmid == mp->old_desc.pmid) {
-#if PCP_DEBUG
-	    if ((pmDebug & (DBG_TRACE_APPL0 | DBG_TRACE_APPL1)) == (DBG_TRACE_APPL0 | DBG_TRACE_APPL1))
+	    if (pmDebugOptions.appl0 && pmDebugOptions.appl1)
 		fprintf(stderr, " -> %s\n", mp->old_name);
-#endif
 	    break;
 	}
     }
@@ -50,7 +46,7 @@ start_metric(pmID pmid)
 	sts = pmNameID(pmid, &name);
 	if (sts < 0) {
 	    if (wflag) {
-		snprintf(mess, sizeof(mess), "Metric %s pmNameID: %s", pmIDStr(pmid), pmErrStr(sts));
+		pmsprintf(mess, sizeof(mess), "Metric %s pmNameID: %s", pmIDStr(pmid), pmErrStr(sts));
 		yywarn(mess);
 	    }
 	    return NULL;
@@ -58,7 +54,7 @@ start_metric(pmID pmid)
 	sts = pmLookupDesc(pmid, &desc);
 	if (sts < 0) {
 	    if (wflag) {
-		snprintf(mess, sizeof(mess), "Metric %s: pmLookupDesc: %s", pmIDStr(pmid), pmErrStr(sts));
+		pmsprintf(mess, sizeof(mess), "Metric %s: pmLookupDesc: %s", pmIDStr(pmid), pmErrStr(sts));
 		yywarn(mess);
 	    }
 	    free(name);
@@ -81,10 +77,8 @@ start_metric(pmID pmid)
 	mp->new_desc = mp->old_desc;
 	mp->flags = 0;
 	mp->ip = NULL;
-#if PCP_DEBUG
-	if ((pmDebug & (DBG_TRACE_APPL0 | DBG_TRACE_APPL1)) == (DBG_TRACE_APPL0 | DBG_TRACE_APPL1))
+	if (pmDebugOptions.appl0 && pmDebugOptions.appl1)
 	    fprintf(stderr, " -> %s [new entry]\n", mp->old_name);
-#endif
     }
 
     return mp;
@@ -165,16 +159,12 @@ do_desc(void)
 	if (desc.pmid != mp->old_desc.pmid || mp->flags == 0)
 	    continue;
 	if (mp->flags & METRIC_DELETE) {
-#if PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL1)
+	    if (pmDebugOptions.appl1)
 		fprintf(stderr, "Delete: pmDesc for %s\n", pmIDStr(desc.pmid));
-#endif
 	    goto done;
 	}
-#if PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL1)
+	if (pmDebugOptions.appl1)
 	    fprintf(stderr, "Rewrite: pmDesc for %s\n", pmIDStr(desc.pmid));
-#endif
 	if (mp->flags & METRIC_CHANGE_PMID)
 	    desc.pmid = mp->new_desc.pmid;
 	if (mp->flags & METRIC_CHANGE_NAME) {
@@ -218,10 +208,8 @@ do_desc(void)
 	abandon();
 	/*NOTREACHED*/
     }
-#if PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL0)
+    if (pmDebugOptions.appl0)
 	fprintf(stderr, "Metadata: write PMID %s @ offset=%ld\n", pmIDStr(desc.pmid), out_offset);
-#endif
 
 done:
     for (i = 0; i < numnames; i++)

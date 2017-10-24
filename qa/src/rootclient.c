@@ -41,14 +41,12 @@ main(int argc, char **argv)
     while ((c = pmgetopt_r(argc, argv, &opts)) != EOF) {
 	switch (c) {
 	case 'D':	/* enable debugging */
-	    sts = __pmParseDebug(opts.optarg);
+	    sts = pmSetDebug(opts.optarg);
 	    if (sts < 0) {
-		pmprintf("%s: unrecognized debug flag specification (%s)\n",
+		pmprintf("%s: unrecognized debug options specification (%s)\n",
 			pmProgname, opts.optarg);
 		opts.errors++;
 	    }
-	    else
-		pmDebug |= sts;
 	    break;
 
 	case 'c':	/* target container name */

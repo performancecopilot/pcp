@@ -23,9 +23,9 @@ Console *console;
 Console::Console() : QDialog()
 {
     my.level = 0;
-    if (pmDebug & DBG_TRACE_APPL0)
+    if (pmDebugOptions.appl0)
 	my.level |= PmTime::DebugApp;	// pmtime apps internals
-    if (pmDebug & DBG_TRACE_APPL1)
+    if (pmDebugOptions.appl1)
 	my.level |= PmTime::DebugProtocol;	// trace pmtime protocol
     setupUi(this);
 }
@@ -34,13 +34,18 @@ void Console::post(const char *fmt, ...)
 {
     static char buffer[4096];
     va_list ap;
+    int bytes;
 
     if (!(my.level & PmTime::DebugApp))
 	return;
 
     va_start(ap, fmt);
-    vsnprintf(buffer, sizeof(buffer), fmt, ap);
+    bytes = vsnprintf(buffer, sizeof(buffer), fmt, ap);
     va_end(ap);
+    if (bytes >= (int)sizeof(buffer))
+	buffer[sizeof(buffer)-1] = '\0';
+    else if (bytes < 0)
+	buffer[0] = '\0';
 
     fputs(buffer, stderr);
     fputc('\n', stderr);
@@ -51,13 +56,18 @@ void Console::post(int level, const char *fmt, ...)
 {
     static char buffer[4096];
     va_list ap;
+    int bytes;
 
     if (!(my.level & level))
 	return;
 
     va_start(ap, fmt);
-    vsnprintf(buffer, sizeof(buffer), fmt, ap);
+    bytes = vsnprintf(buffer, sizeof(buffer), fmt, ap);
     va_end(ap);
+    if (bytes >= (int)sizeof(buffer))
+	buffer[sizeof(buffer)-1] = '\0';
+    else if (bytes < 0)
+	buffer[0] = '\0';
 
     fputs(buffer, stderr);
     fputc('\n', stderr);

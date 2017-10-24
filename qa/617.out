@@ -7,7 +7,7 @@ attr attr# [value]
 children metric-name
 close
 debug all | none
-debug flag [ flag ... ] (flag is decimal or symbolic name)
+debug option [ option ... ] (option is a symbolic name or a decimal number)
 desc metric
 fetch metric [ metric ... ]
 getdesc on | off
@@ -36,7 +36,7 @@ dbpmda> status
 
 Namespace:              (default)
 PMDA:                   none
-pmDebug:                0 (none)
+Debug options:          (none)
 Timer:                  off
 Getdesc:                off
 
@@ -46,16 +46,17 @@ dbpmda> #a comment, this should be ignored
 dbpmda> #test the debug and status commands
 dbpmda> debug# a command with a trailing comment
 debug all | none
-debug flag [ flag ... ] (flag is decimal or symbolic name)
+debug option [ option ... ] (option is a symbolic name or a decimal number)
 dbpmda> help debug
 
 debug all | none
-debug flag [ flag ... ] (flag is decimal or symbolic name)
+debug option [ option ... ] (option is a symbolic name or a decimal number)
 
-Specify which debugging flags should be active (see pmdbg(1)).  Flags may
-be specified as integers or by name, with multiple flags separated by
-white space.  All flags may be selected or deselected if 'all' or 'none' is
-specified.  The current setting is displayed by the status command.
+Specify which debugging options should be active (see pmdbg(1)).  Options
+may be specified by name (or number for the old bit-field options), with
+multiple options separated by white space.  All options may be selected or
+deselected if 'all' or 'none' is specified.  The current setting is
+displayed by the status command.
 
 
 dbpmda> debug all
@@ -63,18 +64,19 @@ dbpmda> status
 
 Namespace:              (default)
 PMDA:                   none
-pmDebug:                -1 (all)
+Debug options:          (all)
 Timer:                  off
 Getdesc:                off
 
 Dump Instance Profile state=INCLUDE, 0 profiles
 
+dbpmda> debug none
 dbpmda> debug appl0 timecontrol
 dbpmda> status
 
 Namespace:              (default)
 PMDA:                   none
-pmDebug:                67584 ( appl0 + timecontrol )
+Debug options:          appl0 timecontrol
 Timer:                  off
 Getdesc:                off
 
@@ -85,52 +87,34 @@ dbpmda> status
 
 Namespace:              (default)
 PMDA:                   none
-pmDebug:                0 (none)
+Debug options:          (none)
 Timer:                  off
 Getdesc:                off
 
 Dump Instance Profile state=INCLUDE, 0 profiles
 
 dbpmda> debug blah
-Warning: Bad debug flag (blah)
-
-Namespace:              (default)
-PMDA:                   none
-pmDebug:                0 (none)
-Timer:                  off
-Getdesc:                off
-
-Dump Instance Profile state=INCLUDE, 0 profiles
-
+                 ^ at or near here
+Error: Bad debug flag (blah)
+Type 'help' for a list of commands.
+dbpmda> debug none
 dbpmda> debug 1 blah
-Warning: Bad debug flag (blah)
-
-Namespace:              (default)
-PMDA:                   none
-pmDebug:                0 (none)
-Timer:                  off
-Getdesc:                off
-
-Dump Instance Profile state=INCLUDE, 0 profiles
-
+                   ^ at or near here
+Error: Bad debug flag (blah)
+Type 'help' for a list of commands.
+dbpmda> debug none
 dbpmda> debug blah fetch
-Warning: Bad debug flag (blah)
-
-Namespace:              (default)
-PMDA:                   none
-pmDebug:                0 (none)
-Timer:                  off
-Getdesc:                off
-
-Dump Instance Profile state=INCLUDE, 0 profiles
-
+                  ^ at or near here
+Error: Bad debug flag (blah)
+Type 'help' for a list of commands.
+dbpmda> debug none
 dbpmda> open pipe /blah/this_file_should_not_exist
 openpmda: /blah/this_file_should_not_exist: No such file or directory
 dbpmda> status
 
 Namespace:              (default)
 PMDA:                   none
-pmDebug:                0 (none)
+Debug options:          (none)
 Timer:                  off
 Getdesc:                off
 
@@ -142,7 +126,7 @@ dbpmda> status
 
 Namespace:              (default)
 PMDA:                   none
-pmDebug:                0 (none)
+Debug options:          (none)
 Timer:                  off
 Getdesc:                off
 
@@ -156,7 +140,7 @@ Namespace:              (default)
 PMDA:                   $PCP_PMDAS_DIR/sample/pmdasample
 Connection:             daemon
 PMDA PMAPI Version:     2
-pmDebug:                0 (none)
+Debug options:          (none)
 Timer:                  off
 Getdesc:                off
 
@@ -220,7 +204,7 @@ Namespace:              (default)
 PMDA:                   $PCP_PMDAS_DIR/sample/pmdasample
 Connection:             daemon
 PMDA PMAPI Version:     2
-pmDebug:                0 (none)
+Debug options:          (none)
 Timer:                  on
 Getdesc:                off
 
@@ -233,7 +217,7 @@ Namespace:              (default)
 PMDA:                   $PCP_PMDAS_DIR/sample/pmdasample
 Connection:             daemon
 PMDA PMAPI Version:     2
-pmDebug:                0 (none)
+Debug options:          (none)
 Timer:                  off
 Getdesc:                off
 
@@ -300,7 +284,7 @@ Namespace:              (default)
 PMDA:                   $PCP_PMDAS_DIR/sample/pmdasample
 Connection:             daemon
 PMDA PMAPI Version:     2
-pmDebug:                0 (none)
+Debug options:          (none)
 Timer:                  off
 Getdesc:                on
 
@@ -318,7 +302,7 @@ Namespace:              (default)
 PMDA:                   $PCP_PMDAS_DIR/sample/pmdasample
 Connection:             daemon
 PMDA PMAPI Version:     2
-pmDebug:                0 (none)
+Debug options:          (none)
 Timer:                  off
 Getdesc:                on
 
@@ -338,7 +322,7 @@ Namespace:              (default)
 PMDA:                   $PCP_PMDAS_DIR/sample/pmdasample
 Connection:             daemon
 PMDA PMAPI Version:     2
-pmDebug:                0 (none)
+Debug options:          (none)
 Timer:                  off
 Getdesc:                on
 
@@ -358,7 +342,7 @@ Namespace:              (default)
 PMDA:                   $PCP_PMDAS_DIR/sample/pmdasample
 Connection:             daemon
 PMDA PMAPI Version:     2
-pmDebug:                0 (none)
+Debug options:          (none)
 Timer:                  off
 Getdesc:                on
 
@@ -379,7 +363,7 @@ Namespace:              (default)
 PMDA:                   $PCP_PMDAS_DIR/sample/pmdasample
 Connection:             daemon
 PMDA PMAPI Version:     2
-pmDebug:                0 (none)
+Debug options:          (none)
 Timer:                  off
 Getdesc:                on
 
@@ -399,7 +383,7 @@ Namespace:              (default)
 PMDA:                   $PCP_PMDAS_DIR/sample/pmdasample
 Connection:             daemon
 PMDA PMAPI Version:     2
-pmDebug:                0 (none)
+Debug options:          (none)
 Timer:                  off
 Getdesc:                on
 
@@ -550,7 +534,7 @@ dbpmda> status
 
 Namespace:              (default)
 PMDA:                   none
-pmDebug:                0 (none)
+Debug options:          (none)
 Timer:                  off
 Getdesc:                on
 
@@ -565,7 +549,7 @@ PMDA:                   PMDADSO
 Connection:             dso
 DSO Interface Version:  N
 PMDA PMAPI Version:     2
-pmDebug:                0 (none)
+Debug options:          (none)
 Timer:                  off
 Getdesc:                on
 
@@ -576,7 +560,7 @@ dbpmda> status
 
 Namespace:              (default)
 PMDA:                   none
-pmDebug:                0 (none)
+Debug options:          (none)
 Timer:                  off
 Getdesc:                on
 

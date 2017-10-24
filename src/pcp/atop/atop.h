@@ -7,7 +7,7 @@
 ** Include-file describing miscellaneous constants and function-prototypes.
 **
 ** Copyright (C) 1996-2014 Gerlof Langeveld
-** Copyright (C) 2015 Red Hat.
+** Copyright (C) 2015-2017 Red Hat.
 **
 ** This program is free software; you can redistribute it and/or modify it
 ** under the terms of the GNU General Public License as published by the
@@ -87,6 +87,7 @@ extern char		deviatonly;
 extern char		usecolors;
 extern char		threadview;
 extern char		calcpss;
+extern char		hotprocflag;
 extern char		rawreadflag;
 extern unsigned int	begintime, endtime;
 extern char		flaglist[];
@@ -178,7 +179,8 @@ char 		*getstrvers(void);
 unsigned short 	getnumvers(void);
 void		ptrverify(const void *, const char *, ...);
 void		cleanstop(int);
-void		prusage(char *);
+void		prusage(char *, struct pmOptions *);
+void		show_pcp_usage(struct pmOptions *);
 void		engine(void);
 
 char 		*abstime(char *);

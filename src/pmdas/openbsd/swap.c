@@ -45,14 +45,12 @@ refresh_swap_metrics(void)
 	    __pmNoMem("refresh_swap_metrics", sts*sizeof(stats[0]), PM_FATAL_ERR);
 	    /* NOTREACHED */
 	}
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL0) {
+	if (pmDebugOptions.appl0) {
 	    if (ndev == -1)
 		fprintf(stderr, "Info: refresh_swap_metrics: initial ndev=%d\n", sts);
 	    else
 		fprintf(stderr, "Info: refresh_swap_metrics: ndev changed from %d to %d\n", ndev, sts);
 	}
-#endif
 	ndev = sts;
     }
     sts = swapctl(SWAP_STATS, (void *)stats, ndev);

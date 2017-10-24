@@ -69,7 +69,7 @@ renameService(__pmServerPresence *s)
      */
     char *n = avahi_alternative_service_name(s->avahi->serviceName);
 
-    if (pmDebug & DBG_TRACE_DISCOVERY)
+    if (pmDebugOptions.discovery)
 	__pmNotifyErr(LOG_INFO, "Avahi service name collision, renaming service '%s' to '%s'",
 		      s->avahi->serviceName, n);
     avahi_free(s->avahi->serviceName);
@@ -110,7 +110,7 @@ createServices(AvahiClient *c)
       */
     if (group == NULL) {
 	if ((group = avahi_entry_group_new(c, entryGroupCallback, NULL)) == NULL) {
-	    if (pmDebug & DBG_TRACE_DISCOVERY)
+	    if (pmDebugOptions.discovery)
 		__pmNotifyErr(LOG_ERR, "avahi_entry_group_new failed: %s",
 			  avahi_strerror(avahi_client_errno(c)));
 	    return;
@@ -127,7 +127,7 @@ createServices(AvahiClient *c)
 	if (s == NULL)
 	    continue; /* empty table entry */
 
-	if (pmDebug & DBG_TRACE_DISCOVERY)
+	if (pmDebugOptions.discovery)
 	    __pmNotifyErr(LOG_INFO, "Adding %s Avahi service on port %d",
 			  s->avahi->serviceName, s->port);
 
@@ -187,7 +187,7 @@ entryGroupCallback(AvahiEntryGroup *g, AvahiEntryGroupState state, void *data)
     switch (state) {
 	case AVAHI_ENTRY_GROUP_ESTABLISHED:
 	    /* The entry group has been established successfully. */
-	    if (pmDebug & DBG_TRACE_DISCOVERY)
+	    if (pmDebugOptions.discovery)
 		__pmNotifyErr(LOG_INFO, "Avahi services successfully established.");
 	    break;
 
@@ -283,7 +283,7 @@ advertisingClientCallback(AvahiClient *c, AvahiClientState state, void *userData
 	     * The avahi-daemon is not currently running. Our service will be
 	     * advertised if/when the daemon is started.
 	     */
-	    if (pmDebug & DBG_TRACE_DISCOVERY)
+	    if (pmDebugOptions.discovery)
 		__pmNotifyErr(LOG_INFO,
 			      "The Avahi daemon is not running. "
 			      "Avahi services will be established when the daemon is started");
@@ -441,7 +441,7 @@ __pmServerAvahiAdvertisePresence(__pmServerPresence *s)
 	__pmNoMem("__pmServerAvahiAdvertisePresence: can't allocate service name",
 		  size, PM_FATAL_ERR);
     }
-    snprintf(s->avahi->serviceName, size, "PCP %s on %s", s->serviceSpec, host);
+    pmsprintf(s->avahi->serviceName, size, "PCP %s on %s", s->serviceSpec, host);
     assert (avahi_is_valid_service_name(s->avahi->serviceName));
 
     size = sizeof("_._tcp") + strlen(s->serviceSpec); /* includes room for the nul */
@@ -449,7 +449,7 @@ __pmServerAvahiAdvertisePresence(__pmServerPresence *s)
 	__pmNoMem("__pmServerAvahiAdvertisePresence: can't allocate service tag",
 		  size, PM_FATAL_ERR);
     }
-    sprintf(s->avahi->serviceTag, "_%s._tcp", s->serviceSpec);
+    pmsprintf(s->avahi->serviceTag, size, "_%s._tcp", s->serviceSpec);
     s->avahi->collisions = 0;
     
     /* Now publish the avahi service. */
@@ -463,7 +463,7 @@ __pmServerAvahiUnadvertisePresence(__pmServerPresence *s)
     if (s->avahi == NULL)
 	return;
 
-    if (pmDebug & DBG_TRACE_DISCOVERY)
+    if (pmDebugOptions.discovery)
 	__pmNotifyErr(LOG_INFO, "Removing Avahi service '%s' on port %d",
 		      s->avahi->serviceName , s->port);
 
@@ -739,7 +739,7 @@ __pmAvahiDiscoverServices(const char *service,
 	context.error = ENOMEM;
 	goto done;
     }
-    sprintf(serviceTag, "_%s._tcp", service);
+    pmsprintf(serviceTag, size, "_%s._tcp", service);
     sb = avahi_service_browser_new(client, AVAHI_IF_UNSPEC,
 				   AVAHI_PROTO_UNSPEC, serviceTag,
 				   NULL, (AvahiLookupFlags)0,

@@ -33,19 +33,19 @@ Done!
 
 check custom local long options
 overrideCB: got option 'l'
-optionsCB: got option ''l' (/tmp) [index=19]
+optionsCB: got option 'l' (/tmp) [index=20]
 overrideCB: got option 'f'
-optionsCB: got option ''f' [index=18]
+optionsCB: got option 'f' [index=19]
 Done!
 
 check custom local short options
 overrideCB: got option 'b'
-optionsCB: got option ''b' [index=0]
+optionsCB: got option 'b' [index=0]
 Done!
 
 check handling of non-option operands
 overrideCB: got option 'b'
-optionsCB: got option ''b' [index=0]
+optionsCB: got option 'b' [index=0]
 Non-option arguments: ['param1', 'param2']
 Done!
 
@@ -80,6 +80,7 @@ General Options:
   -?, --help            show this usage message and exit
 
 Test Options:
+  --longonly            long-only option
   -f, --force           force some behaviour
   -l FILE, --list=FILE  open a list file
 
@@ -113,8 +114,13 @@ General Options:
   -?, --help            show this usage message and exit
 
 Test Options:
+  --longonly            long-only option
   -f, --force           force some behaviour
   -l FILE, --list=FILE  open a list file
 
 The parameter parameter is not optional.
 overrideCB: got option '?'
+
+check long-only option support
+optionsCB: got option 'longonly' [index=18]
+Done!

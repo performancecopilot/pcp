@@ -48,33 +48,23 @@ parse_args(int argc, char **argv)
     int		errflag = 0;
     int		c;
     int		sts;
-    static char	*usage = "[-h hostname] [-[N|n] namespace] [-v]";
+    static char	*usage = "[-D debugspec] [-h hostname] [-[N|n] namespace] [-v]";
     static char *style_str = "[-s 1|2]";
     char	*endnum;
-
-#ifdef PCP_DEBUG
-    static char	*debug = "[-D N]";
-#else
-    static char	*debug = "";
-#endif
 
     __pmSetProgname(argv[0]);
 
     while ((c = getopt(argc, argv, "D:h:N:n:s:v")) != EOF) {
 	switch (c) {
-#ifdef PCP_DEBUG
 
-	case 'D':	/* debug flag */
-	    sts = __pmParseDebug(optarg);
+	case 'D':	/* debug options */
+	    sts = pmSetDebug(optarg);
 	    if (sts < 0) {
-		fprintf(stderr, "%s: unrecognized debug flag specification (%s)\n",
+		fprintf(stderr, "%s: unrecognized debug options specification (%s)\n",
 		    pmProgname, optarg);
 		errflag++;
 	    }
-	    else
-		pmDebug |= sts;
 	    break;
-#endif
 
 	case 'h':	/* hostname for PMCD to contact */
 	    host = optarg;
@@ -107,7 +97,7 @@ parse_args(int argc, char **argv)
     }
 
     if (errflag) {
-	printf("Usage: %s %s%s%s\n", pmProgname, debug, style_str, usage);
+	printf("Usage: %s %s%s\n", pmProgname, style_str, usage);
 	exit(1);
     }
 }

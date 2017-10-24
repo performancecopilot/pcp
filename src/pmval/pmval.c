@@ -1136,7 +1136,7 @@ main(int argc, char *argv[])
 	     */
 	    opts.samples++;
 	}
-	if (pmDebug & DBG_TRACE_APPL0) {
+	if (pmDebugOptions.appl0) {
 	    fprintf(stderr, "first=%.6f", start);
 	    printtime(&opts.start);
 	    fprintf(stderr, "posn=%.6f", origin);

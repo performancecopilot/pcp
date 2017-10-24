@@ -120,15 +120,13 @@ map_stats(void)
     } *smstat;
     
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL0) {
+    if (pmDebugOptions.appl0) {
     	fprintf(stderr, "%s: map_stats: Entering:\n", pmProgname);
     	fprintf(stderr, "%s: map_stats:   Check: ptr       = " PRINTF_P_PFX "%p\n", pmProgname, ptr);
     	fprintf(stderr, "%s: map_stats:   Check: statsfile = " PRINTF_P_PFX "%p\n", pmProgname, statsfile);
     	if (statsfile != NULL)
     	    fprintf(stderr, "%s: map_stats:                    = %s\n", pmProgname, statsfile);
     }
-#endif
 
     if (statsfile == NULL || stat(statsfile, &statbuf) < 0) {
 	/* if sendmail not collecting stats this is expected */
@@ -138,23 +136,19 @@ map_stats(void)
 	    close(fd);
 	    ptr = NULL;
 	    notified &= ~MAPSTATS_NOTV2STRUCT;
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL0) {
+	    if (pmDebugOptions.appl0) {
 	    	fprintf(stderr, "%s: map_stats: (Maybe) stat() < 0; pmunmap() called\n", pmProgname);
 	    }
-#endif
 	}
 	return;
     }
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL0) {
+    if (pmDebugOptions.appl0) {
 	fprintf(stderr, "%s: map_stats: Check: statbuf.st_ino =     %lu\n", pmProgname, (unsigned long)statbuf.st_ino);
 	fprintf(stderr, "%s: map_stats: Check: statbuf.st_dev =     %lu\n", pmProgname, (unsigned long)statbuf.st_dev);
 	fprintf(stderr, "%s: map_stats: Check: laststatbuf.st_ino = %lu\n", pmProgname, (unsigned long)laststatbuf.st_ino);
 	fprintf(stderr, "%s: map_stats: Check: laststatbuf.st_dev = %lu\n", pmProgname, (unsigned long)laststatbuf.st_dev);
     }
-#endif
     if (statbuf.st_ino != laststatbuf.st_ino ||
 	statbuf.st_dev != laststatbuf.st_dev ||
 	ptr == NULL) {
@@ -177,11 +171,9 @@ map_stats(void)
 	    close(fd);
 	    ptr = NULL;
 	    notified &= ~MAPSTATS_NOTV2STRUCT;
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL0) {
+	    if (pmDebugOptions.appl0) {
 	    	fprintf(stderr, "%s: map_stats: statbuf.st_[dev|ido] changed; pmunmap() called\n", pmProgname);
 	    }
-#endif
 	}
 
 	if ((fd = open(statsfile, O_RDONLY)) < 0) {
@@ -203,11 +195,9 @@ map_stats(void)
 
 	laststatbuf = statbuf;		/* struct assignment */
 	notified &= ~(MAPSTATS_NULL | MAPSTATS_MAPFAIL);
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL0) {
+	    if (pmDebugOptions.appl0) {
 	    	fprintf(stderr, "%s: map_stats: mmap() called, succeeded\n", pmProgname);
 	    }
-#endif
 
 	/*  Check for a statistics file from sendmail(1) 8.x: */
 	smstat = (struct smstat_s *)ptr;
@@ -216,8 +206,7 @@ map_stats(void)
 	    if (! (notified & MAPSTATS_NOTV2STRUCT)) {
 	    	__pmNotifyErr(LOG_WARNING, "%s: map_stats: cannot find magic number in file %s; assuming version 1 format",
 			pmProgname, statsfile);
-#ifdef PCP_DEBUG
-		if (pmDebug & DBG_TRACE_APPL0) {
+		if (pmDebugOptions.appl0) {
 		    fprintf(stderr, "%s: map_stats: smstat_s contents:\n", pmProgname);
 		    fprintf(stderr, "%s: map_stats:   Version 2 format:\n", pmProgname);
 		    fprintf(stderr, "%s: map_stats:     Check: stat_magic =   0x%x\n", pmProgname, smstat->stat_magic);
@@ -230,7 +219,6 @@ map_stats(void)
 		    fprintf(stderr, "%s: map_stats:     Check: stat_itime =   %s", pmProgname, ctime((time_t *)&(smstat->stat_magic)));
 		    fprintf(stderr, "%s: map_stats:     Check: stat_size =    %d\n", pmProgname, *((short *)&(smstat->stat_version)));
 		}
-#endif
 		notified |= MAPSTATS_NOTV2STRUCT;
 	    }
 	    
@@ -281,10 +269,8 @@ do_sendmail_cf(void)
 	    /* this is pretty serious! */
 	    nmailer = 0;
 	    statsfile = NULL;
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL0)
+	    if (pmDebugOptions.appl0)
 		fprintf(stderr, "Warning: cannot find sendmail.cf, so no stats!\n");
-#endif
 	    return;
 	}
     }
@@ -316,11 +302,9 @@ do_sendmail_cf(void)
 		indomtab[MAILER_INDOM].it_set = (pmdaInstid *)realloc(indomtab[MAILER_INDOM].it_set, (nmailer+1) * sizeof(pmdaInstid));
 		indomtab[MAILER_INDOM].it_set[nmailer].i_name = strdup(&buf[1]);
 		indomtab[MAILER_INDOM].it_set[nmailer].i_inst = nmailer;
-#ifdef PCP_DEBUG
-		if (pmDebug & DBG_TRACE_APPL0)
+		if (pmDebugOptions.appl0)
 		    fprintf(stderr, "sendmail.cf[%d]: mailer \"%s\" inst=%d\n",
 			lineno, &buf[1], nmailer);
-#endif
 		nmailer++;
 	    }
 	}
@@ -346,11 +330,9 @@ do_sendmail_cf(void)
 	    *bp = '\0';
 
 	    statsfile = strdup(tp);
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL0)
+	    if (pmDebugOptions.appl0)
 		fprintf(stderr, "sendmail.cf[%d]: statsfile \"%s\"\n",
 		    lineno, tp);
-#endif
 	}
     }
     fclose(fp);
@@ -503,7 +485,7 @@ main(int argc, char **argv)
     __pmSetProgname(argv[0]);
     __pmGetUsername(&username);
 
-    snprintf(mypath, sizeof(mypath), "%s%c" "sendmail" "%c" "help",
+    pmsprintf(mypath, sizeof(mypath), "%s%c" "sendmail" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&dispatch, PMDA_INTERFACE_3, pmProgname, SENDMAIL,
 		"sendmail.log", mypath);

@@ -26,7 +26,7 @@ refresh_ksm_info(ksm_info_t *ksm_info)
     char buffer[BUFSIZ];
     char path[MAXPATHLEN];
 
-    snprintf(path, sizeof(path), "%s/sys/kernel/mm/ksm", linux_statspath);
+    pmsprintf(path, sizeof(path), "%s/sys/kernel/mm/ksm", linux_statspath);
     path[sizeof(path)-1] = '\0';
     if ((ksm_dir = opendir(path)) == NULL)
 	return -oserror();
@@ -35,7 +35,7 @@ refresh_ksm_info(ksm_info_t *ksm_info)
 	if (!strncmp(de->d_name, ".", 1))
 	    continue;
 
-	sprintf(path, "%s/sys/kernel/mm/ksm/%s", linux_statspath, de->d_name);
+	pmsprintf(path, sizeof(path), "%s/sys/kernel/mm/ksm/%s", linux_statspath, de->d_name);
 	path[sizeof(path)-1] = '\0';
 	if ((fp = fopen(path, "r")) == NULL) {
 	    sts = -oserror();

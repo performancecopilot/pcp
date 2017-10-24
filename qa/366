@@ -70,11 +70,13 @@ networking/softnet
 tools/atop
 tools/atop-httpstats
 tools/atop-nfsclient
+tools/atop-hotproc
 tools/atop-proc
 tools/cockpit
 tools/collectl
 tools/collectl-interrupts
 tools/dmcache
+tools/hotproc
 tools/mpstat
 tools/mpstat-summary
 tools/mpstat-interrupts

@@ -83,12 +83,10 @@ save_vset(pmResult *rp, int idx)
     rp->vset[idx]->valfmt = vsp->valfmt;
     for (j = 0; j < vsp->numval; j++)
 	rp->vset[idx]->vlist[j].inst = vsp->vlist[j].inst;
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL2) {
+    if (pmDebugOptions.appl2) {
 	fprintf(stderr, "save_vset: vset[%d] -> " PRINTF_P_PFX "%p (was " PRINTF_P_PFX "%p) pmid=%s numval=%d\n",
 		idx, rp->vset[idx], save[idx], pmIDStr(rp->vset[idx]->pmid), rp->vset[idx]->numval);
     }
-#endif
     return 0;
 }
 
@@ -98,12 +96,10 @@ save_vset(pmResult *rp, int idx)
 static void
 free_pval(pmResult *rp, int i, int j)
 {
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL2) {
+    if (pmDebugOptions.appl2) {
 	fprintf(stderr, "free_pval: free(" PRINTF_P_PFX "%p) pmid=%s inst=%d\n",
 	    rp->vset[i]->vlist[j].value.pval, pmIDStr(rp->vset[i]->pmid), rp->vset[i]->vlist[j].inst);
     }
-#endif
     free(rp->vset[i]->vlist[j].value.pval);
 }
 
@@ -127,12 +123,10 @@ clean_vset(pmResult *rp)
 	    /*
 	     * we did the vset[i] allocation in save_vset(), so malloc()
 	     */
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL2) {
+	    if (pmDebugOptions.appl2) {
 		fprintf(stderr, "clean_vset: free(" PRINTF_P_PFX "%p) pmValueSet pmid=%s\n",
 			rp->vset[i], pmIDStr(rp->vset[i]->pmid));
 	    }
-#endif
 	    free(rp->vset[i]);
 	    rp->vset[i] = save[i];
 	    save[i] = NULL;
@@ -400,14 +394,12 @@ rescale(int i, metricspec_t *mp)
 	     * __pmStuffValue() during rewriting, not a pointer into a
 	     * PDU buffer
 	     */
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL2) {
+	    if (pmDebugOptions.appl2) {
 		fprintf(stderr, "rescale free(" PRINTF_P_PFX "%p) pval pmid=%s inst=%d\n",
 		    inarch.rp->vset[i]->vlist[j].value.pval,
 		    pmIDStr(inarch.rp->vset[i]->pmid),
 		    inarch.rp->vset[i]->vlist[j].inst);
 	    }
-#endif
 	    free(inarch.rp->vset[i]->vlist[j].value.pval);
 	}
 	sts = __pmStuffValue(&oval, &inarch.rp->vset[i]->vlist[j], mp->old_desc.type);
@@ -466,14 +458,12 @@ retype(int i, metricspec_t *mp)
 	     * __pmStuffValue() during rewriting, not a pointer into a
 	     * PDU buffer
 	     */
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL2) {
+	    if (pmDebugOptions.appl2) {
 		fprintf(stderr, "retype free(" PRINTF_P_PFX "%p) pval pmid=%s inst=%d\n",
 		    inarch.rp->vset[i]->vlist[j].value.pval,
 		    pmIDStr(inarch.rp->vset[i]->pmid),
 		    inarch.rp->vset[i]->vlist[j].inst);
 	    }
-#endif
 	    free(inarch.rp->vset[i]->vlist[j].value.pval);
 	}
 	sts = __pmStuffValue(&val, &inarch.rp->vset[i]->vlist[j], mp->new_desc.type);
@@ -539,10 +529,8 @@ do_result(void)
 		pmValueSet	*save_vsp = save[i];
 		int		save_numval;
 		save_numval = orig_numval[i];
-#if PCP_DEBUG
-		if (pmDebug & DBG_TRACE_APPL1)
+		if (pmDebugOptions.appl1)
 		    fprintf(stderr, "Delete: vset[%d] for %s\n", i, pmIDStr(inarch.rp->vset[i]->pmid));
-#endif
 		for (j = i+1; j < inarch.rp->numpmid; j++) {
 		    inarch.rp->vset[j-1] = inarch.rp->vset[j];
 		    save[j-1] = save[j];
@@ -556,16 +544,14 @@ do_result(void)
 		i--;
 		break;
 	    }
-#if PCP_DEBUG
 	    /*
 	     * mflags that will not force any pmResult rewrite ...
 	     *   METRIC_CHANGE_NAME
 	     *   METRIC_CHANGE_SEM
 	     */
-	    if (pmDebug & DBG_TRACE_APPL1)
+	    if (pmDebugOptions.appl1)
 		fprintf(stderr, "Rewrite: vset[%d] for %s\n", i, pmIDStr(inarch.rp->vset[i]->pmid));
 
-#endif
 	    if (mp->flags & METRIC_CHANGE_PMID)
 		inarch.rp->vset[i]->pmid = mp->new_desc.pmid;
 	    if ((mp->flags & METRIC_CHANGE_INDOM) && inarch.rp->vset[i]->numval > 0) {
@@ -703,8 +689,7 @@ do_result(void)
 	    /*NOTREACHED*/
 	}
 	/* do not free inarch.logrec ... this is a libpcp PDU buffer */
-#if PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL0) {
+	if (pmDebugOptions.appl0) {
 	    struct timeval	stamp;
 	    fprintf(stderr, "Log: write ");
 	    stamp.tv_sec = inarch.rp->timestamp.tv_sec;
@@ -712,7 +697,6 @@ do_result(void)
 	    __pmPrintStamp(stderr, &stamp);
 	    fprintf(stderr, " numpmid=%d @ offset=%ld\n", inarch.rp->numpmid, out_offset);
 	}
-#endif
     }
 
     /* restore numpmid up so all vset[]s are freed */

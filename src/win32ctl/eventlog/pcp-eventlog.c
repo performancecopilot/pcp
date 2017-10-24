@@ -39,9 +39,9 @@ append(char *buffer, int bsize, char *string)
     static int offset;
 
     if (spaced)
-	offset += snprintf(buffer + offset, bsize - offset, " %s", string);
+	offset += pmsprintf(buffer + offset, bsize - offset, " %s", string);
     else {
-	offset += snprintf(buffer + offset, bsize - offset, "%s", string);
+	offset += pmsprintf(buffer + offset, bsize - offset, "%s", string);
 	spaced = 1;	/* remainder will all be space-prefixed */
     }
 }
@@ -111,11 +111,11 @@ main(int argc, char **argv)
      * Construct the message from all contributing components.
      */
     if (iflag) {
-	snprintf(buffer, sizeof(buffer), "[%" FMT_PID "]", getpid());
+	pmsprintf(buffer, sizeof(buffer), "[%" FMT_PID "]", (pid_t)getpid());
 	append(msg, sizeof(msg), buffer);
     }
     if (tag) {
-	snprintf(buffer, sizeof(buffer), "%s:", tag);
+	pmsprintf(buffer, sizeof(buffer), "%s:", tag);
 	append(msg, sizeof(msg), buffer);
     }
     for (c = optind; c < argc; c++)	/* insert the remaining text */

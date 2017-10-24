@@ -34,7 +34,7 @@ for delta in 1sec 0.5sec
 do
 
 echo
-echo "=== delta=$delta counter in each non-preamble result in all 3 sections ==="
+echo "=== delta=$delta counter in each non-prologue|epilogue result in all 3 sections ==="
 pmval -O $offset -t $delta -z -a archives/changeinst sample.seconds 2>$tmp.err
 cat $tmp.err
 

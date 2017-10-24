@@ -16,6 +16,7 @@
 #include "pmapi.h"
 #include "impl.h"
 #include "fault.h"
+#include "internal.h"
 #include <ctype.h>
 #ifdef HAVE_SECURE_SOCKETS
 #include <prerror.h>
@@ -23,12 +24,11 @@
 #include <sslerr.h>
 #include <sasl.h>
 #endif
-#ifdef IS_MINGW
-extern const char *strerror_r(int, char *, size_t);
-#endif
 
 #ifdef PM_MULTI_THREAD
+#ifndef IS_MINGW
 static pthread_mutex_t	err_lock = PTHREAD_MUTEX_INITIALIZER;
+#endif
 #else
 void			*err_lock;
 #endif
@@ -181,6 +181,8 @@ static const struct {
 	"The units of a metric have changed in an archive" },
     { PM_ERR_NEEDCLIENTCERT,	"PM_ERR_NEEDCLIENTCERT",
 	"PMCD requires a client certificate" },
+    { PM_ERR_BADDERIVE,		"PM_ERR_BADDERIVE",
+	"Derived metric definition failed" },
     /* insert new libpcp error codes here */
     { PM_ERR_NYI,		"PM_ERR_NYI",
 	"Functionality not yet implemented" },
@@ -241,7 +243,7 @@ pmErrStr_r(int code, char *buf, int buflen)
 	int error = DECODE_SECURE_SOCKETS_ERROR(code);
 	if (DECODE_SASL_SPECIFIC_ERROR(error)) {
 	    PM_LOCK(__pmLock_extcall);
-	    snprintf(buf, buflen, "Authentication - %s", sasl_errstring(error, NULL, NULL));	/* THREADSAFE */
+	    pmsprintf(buf, buflen, "Authentication - %s", sasl_errstring(error, NULL, NULL));	/* THREADSAFE */
 	    PM_UNLOCK(__pmLock_extcall);
 	}
 	else
@@ -332,7 +334,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_ALLOC);
     }
 
     /* failure */
-    snprintf(buf, buflen, BADCODE,  code);
+    pmsprintf(buf, buflen, BADCODE,  code);
     return buf;
 }
 

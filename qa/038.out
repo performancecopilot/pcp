@@ -1,7 +1,8 @@
 QA output created by 038
 OK, pmlogger survived
 
-count records in archive (expect 1 for preamble + 2) ...
+count records in archive (expect 1 for prologue + 2 + 1 for epilogue) ...
+TIMESTAMP
 TIMESTAMP
 TIMESTAMP
 TIMESTAMP

@@ -140,6 +140,12 @@ Derived metric specifications. Corresponding command line option is
 Undefined by default.
 .RE
 .P
+daemonize (bool)
+.RS 4
+Indicates whether to daemonize on startup. Corresponding command line option is
+\fB--daemonize\fR.  Defaults to \fBno\fR.
+.RE
+.P
 header (bool)
 .RS 4
 Indicates whether to print headers. Corresponding command line option
@@ -243,6 +249,13 @@ Indicates the column separator. Corresponding command line option is
 .BR pmrep (1).
 .RE
 .P
+extcsv (bool)
+.RS 4
+Indicates whether to write extended CSV output similar to
+.BR sadf (1).
+Corresponding command line option is \fB-k\fR. Defaults to \fBno\fR.
+.RE
+.P
 extheader (bool)
 .RS 4
 Indicates whether to print extended header. Corresponding command line
@@ -299,37 +312,6 @@ Undefined (no scaling) by default.
 The following options are also accepted in the \fB[options]\fR
 section but are typically used only in custom sections as they are
 applicable only to certain output targets.
-.RE
-.P
-zabbix_server (string) (zabbix output target only)
-.RS 4
-Hostname or IP address of Zabbix server to send the metrics to. If a
-host is monitored by a proxy, proxy hostname or IP address should be
-used instead. Undefined by default.
-.RE
-.P
-zabbix_port (integer) (zabbix output target only)
-.RS 4
-Specify port number of server trapper running on the server.
-Default is \fB10051\fR.
-.RE
-.P
-zabbix_host (string) (zabbix output target only)
-.RS 4
-Specify agent hostname as registered in Zabbix frontend. Host IP address
-and DNS name will not work. Undefined by default.
-.RE
-.P
-zabbix_interval (string) (zabbix output target only)
-.RS 4
-Indicates the interval to send the metrics to the Zabbix server. This
-can be longer than the generic \fIinterval\fR to minimize the overhead
-when communicating with the server (as each send creates a new
-connection). Follows the time syntax described in
-.BR PCPIntro (1).
-Defaults to the generic \fIinterval\fR. Zabbix tools send at most 250
-metrics at a time. Ignored when reading metrics from PCP archives,
-in which case metrics will be sent roughly at 250 metric batches.
 .RE
 .SS The [global] section
 The
@@ -415,8 +397,7 @@ Defines the instances to be reported for the metric. For details, see
 .TP 2
 .I unit
 Defines the unit/scale conversion for the metric. Needs to be
-dimension-compatible and is used with non-string and (currently)
-non-raw metrics.
+dimension-compatible and is used with non-string metrics.
 For allowed values, see
 .BR pmrep (1).
 .TP 2
@@ -500,6 +481,5 @@ System provided configuration file.
 .BR PCPIntro (1),
 .BR pmrep (1),
 .BR __pmSpecLocalPMDA (3),
-.BR pmRegisterDerived (3)
 and
-.BR zbxpcp (3).
+.BR pmRegisterDerived (3).

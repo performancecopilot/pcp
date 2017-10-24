@@ -13,7 +13,7 @@
  */
 #include <QSettings>
 #include <QTextStream>
-#include <QtGui/QMessageBox>
+#include <QMessageBox>
 #include <Inventor/nodes/SoCube.h>
 #include <Inventor/nodes/SoBaseColor.h>
 #include <Inventor/nodes/SoSeparator.h>
@@ -81,9 +81,9 @@ int warningMsg(const char *file, int line, const char *msg, ...)
     va_list arg;
     va_start(arg, msg);
 
-    int pos = sprintf(theBuffer, "%s: Warning: ", pmProgname);
-    pos += vsprintf(theBuffer + pos, msg, arg);
-    sprintf(theBuffer+pos, "\n");
+    int pos = pmsprintf(theBuffer, theBufferLen, "%s: Warning: ", pmProgname);
+    pos += vsnprintf(theBuffer + pos, theBufferLen - pos, msg, arg);
+    pmsprintf(theBuffer + pos, theBufferLen - pos, "\n");
 
     if (pmDebug) {
 	QTextStream cerr(stderr);
@@ -265,7 +265,7 @@ genInventor(void)
 #if HAVE_MKSTEMP
 	configfile = (char *)malloc(MAXPATHLEN+1);
 	if (configfile == NULL) goto fail;
-	snprintf(configfile, MAXPATHLEN, "%s/pcp-XXXXXX", tmpdir);
+	pmsprintf(configfile, MAXPATHLEN, "%s/pcp-XXXXXX", tmpdir);
 	cur_umask = umask(S_IXUSR | S_IRWXG | S_IRWXO);
 	fd = mkstemp(configfile);
 	umask(cur_umask);

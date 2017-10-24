@@ -821,7 +821,7 @@ fetch_uname(unsigned int item, pmAtomValue *atom)
 	return mach_uname_error;
     switch (item) {
     case 28: /* pmda.uname */
-	snprintf(mach_uname_all, sizeof(mach_uname_all), "%s %s %s %s %s",
+	pmsprintf(mach_uname_all, sizeof(mach_uname_all), "%s %s %s %s %s",
 		mach_uname.sysname, mach_uname.nodename,
 		mach_uname.release, mach_uname.version,
 		mach_uname.machine);
@@ -1206,7 +1206,7 @@ darwin_init(pmdaInterface *dp)
     if (_isDSO) {
 	int sep = __pmPathSeparator();
 	char helppath[MAXPATHLEN];
-	sprintf(helppath, "%s%c" "darwin" "%c" "help",
+	pmsprintf(helppath, MAXPATHLEN, "%s%c" "darwin" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
 	pmdaDSO(dp, PMDA_INTERFACE_3, "darwin DSO", helppath);
     } else {
@@ -1262,7 +1262,7 @@ main(int argc, char **argv)
     __pmSetProgname(argv[0]);
     __pmGetUsername(&username);
 
-    sprintf(helppath, "%s%c" "darwin" "%c" "help",
+    pmsprintf(helppath, MAXPATHLEN, "%s%c" "darwin" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&dispatch, PMDA_INTERFACE_3, pmProgname, DARWIN, "darwin.log",
 		helppath);

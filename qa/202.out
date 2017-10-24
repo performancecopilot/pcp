@@ -1,13 +1,13 @@
 QA output created by 202
 
 log.A
-5 records
+6 records
 
 log.B
-7 records
+8 records
 
 log.C == pmlogextract log.A log.B
-12 records, and 1 marks
+14 records, and 1 marks
 
 mismatch timestamps
 	timestamp-mark

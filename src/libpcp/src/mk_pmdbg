@@ -1,0 +1,116 @@
+#!/bin/sh
+#
+# Copyright (c) 1997 Silicon Graphics, Inc.  All Rights Reserved.
+# Copyright (c) 2017 Ken McDonell.  All Rights Reserved.
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+# Create pmdbg.h from ../../include/pcp/impl.h
+
+INCDIR=../../include
+
+if [ -f $INCDIR/pcp.conf ]
+then
+    # needed for $PCP_SORT_PROG
+    . $INCDIR/pcp.conf
+else
+    echo "mk_pmdbg: cannot find pcp.conf"
+    exit 1
+fi
+
+if [ ! -f $INCDIR/pcp/impl.h ]
+then
+    echo "mk_pmdbg: cannot find impl.h"
+    exit 1
+fi
+
+sedcmd=`$PCP_AWK_PROG <$INCDIR/pcp/impl.h '
+BEGIN			{ start=0 }
+/^typedef struct \{/	{ start=NR }
+/^} pmdebugoptions_t;/	{ if (start>0) print start "," NR "p"; exit }'`
+if [ -z $sedcmd ]
+then
+    echo "mk_pmdbg: cannot find __pmdebugoptions typedef in impl.h"
+    exit 1
+fi
+
+tmp=/var/tmp/$$
+trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+
+rm -f pmdbg.h
+cat <<End-of-File >pmdbg.h
+/*
+ * DO NOT EDIT.
+ * Built from ../../include/pcp/impl.h by mk_pmdbg.
+ * Any modifications here will be lost.
+ */
+
+typedef struct {
+    const char	*name;
+    const int	bit;		/* old 32-bit mask value */
+    int	* const options;	/* points to a new pmDebugOptions.xxx */
+    int		state;		/* for internal use */
+    const char	*text;		/* explanation */
+} debug_map_t;
+
+static debug_map_t debug_map[] = {
+End-of-File
+
+# start with the old DBG_TRACE macros ...
+#define DBG_TRACE_PDU		(1<<0)	/* PDU send and receive */
+#
+sed -n <$INCDIR/pcp/impl.h \
+    -e '/#define[ 	]*DBG_TRACE_/{
+s/#define[ 	]*DBG_TRACE_\([A-Z0-9_]*\)/\1/
+s/[ 	].*\/\* */ /
+s/ *\*\///
+p
+}' \
+| while read OPTION ignore_text
+do
+    option=`echo "$OPTION" | tr '[A-Z]' '[a-z]'`
+    echo "    { \"$option\", DBG_TRACE_$OPTION, &pmDebugOptions.$option, 0, \"TEXT\" }," >>$tmp.tmp
+done
+
+cat $tmp.tmp >>pmdbg.h
+echo "/* new debug options with no DBG_TRACE_xxx equivalent */" >>pmdbg.h
+
+# New ones ... look like this
+#	int	exec;	 	/* pmExec tracing */
+#
+sed -n -e $sedcmd <$INCDIR/pcp/impl.h \
+| sed -n \
+    -e '/[ 	]*int[ 	][ 	]*\([a-z][a-z0-9_]*\);/{
+s//\1/
+s/[ 	].*\/\* */ /
+s/ *\*\///
+p
+}' \
+| while read option text
+do
+    if grep "\"$option\"," $tmp.tmp >/dev/null
+    then
+	# matches the old DBG_TRACE macros
+	sed -e "/\"$option\"/s@\"TEXT\"@\"$text\"@" <pmdbg.h >$tmp.fix
+	mv $tmp.fix pmdbg.h
+    else
+	# new one
+	echo "    { \"$option\", 0, &pmDebugOptions.$option, 0, \"$text\" }," >>pmdbg.h
+    fi
+done
+
+cat <<End-of-File >>pmdbg.h
+};
+
+static const int num_debug = sizeof(debug_map) / sizeof(debug_map[0]);
+End-of-File
+
+exit

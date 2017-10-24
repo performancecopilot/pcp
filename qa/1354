@@ -1,0 +1,55 @@
+#!/bin/sh
+# PCP QA Test No. 1354
+# Exercise $PCP_IGNORE_MARK_RECORD
+#
+# Copyright (c) 2017 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+
+for metric in proc.nprocs 'sample.bin[bin-100]' pmcd.pdu_in.fetch
+do
+    echo
+    echo "--- No PCP_IGNORE_MARK_RECORDS metric=$metric ---"
+    unset PCP_IGNORE_MARK_RECORDS
+    pmval -zr -a archives/gap2 $metric
+    echo
+    echo "--- PCP_IGNORE_MARK_RECORDS set in env metric=$metric ---"
+    PCP_IGNORE_MARK_RECORDS= pmval -zr -a archives/gap2 $metric
+    echo
+    echo "--- PCP_IGNORE_MARK_RECORDS=1 in env metric=$metric ---"
+    PCP_IGNORE_MARK_RECORDS=1 pmval -zr -a archives/gap2 $metric
+    echo
+    echo "--- PCP_IGNORE_MARK_RECORDS=6 in env metric=$metric ---"
+    PCP_IGNORE_MARK_RECORDS=6 pmval -zr -a archives/gap2 $metric
+done
+
+echo
+echo "Error cases ..."
+for bad in "1minuet" "1.2^3" "foobar" "-123"
+do
+    echo
+    PCP_IGNORE_MARK_RECORDS="$bad" pmval -zr -a archives/gap2 proc.nprocs >/dev/null
+done
+
+# success, all done
+status=0
+exit

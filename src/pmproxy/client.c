@@ -125,8 +125,7 @@ AcceptNewClient(int reqfd)
     }
 
     if (!ok) {
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_CONTEXT) {
+	if (pmDebugOptions.context) {
 	    abufp = __pmSockAddrToString(client[i].addr);
 	    __pmNotifyErr(LOG_INFO, "Bad version string from client at %s",
 			abufp);
@@ -136,7 +135,6 @@ AcceptNewClient(int reqfd)
 		fputc(*bp & 0xff, stderr);
 	    fprintf(stderr, "\"\n");
 	}
-#endif
 	DeleteClient(&client[i]);
 	return NULL;
     }
@@ -194,8 +192,7 @@ AcceptNewClient(int reqfd)
 	return NULL;
     }
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_CONTEXT) {
+    if (pmDebugOptions.context) {
 	/*
 	 * note error message gets appended to once pmcd connection is
 	 * made in ClientLoop()
@@ -205,7 +202,6 @@ AcceptNewClient(int reqfd)
 		i, fd, abufp, client[i].pmcd_hostname, bp);
 	free(abufp);
     }
-#endif
 
     return &client[i];
 }
@@ -224,10 +220,8 @@ DeleteClient(ClientInfo *cp)
 	return;
     }
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_CONTEXT)
+    if (pmDebugOptions.context)
 	fprintf(stderr, "DeleteClient [%d]\n", i);
-#endif
 
     if (cp->fd >= 0) {
 	__pmFD_CLR(cp->fd, &sockFds);

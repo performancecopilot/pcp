@@ -61,13 +61,17 @@ debug# a command with a trailing comment
 help debug
 debug all
 status
+debug none
 debug appl0 timecontrol
 status
 debug none
 status
 debug blah
+debug none
 debug 1 blah
+debug none
 debug blah fetch
+debug none
 open pipe /blah/this_file_should_not_exist
 status
 open dso /blah/this_file_should_not_exist blah_init 128

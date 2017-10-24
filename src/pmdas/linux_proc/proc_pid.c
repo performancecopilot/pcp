@@ -135,7 +135,7 @@ tasklist_append(const char *pid, proc_pid_list_t *pids)
     struct dirent *tdp;
     char taskpath[1024];
 
-    sprintf(taskpath, "%s/proc/%s/task", proc_statspath, pid);
+    pmsprintf(taskpath, sizeof(taskpath), "%s/proc/%s/task", proc_statspath, pid);
     if ((taskdirp = opendir(taskpath)) != NULL) {
 	while ((tdp = readdir(taskdirp)) != NULL) {
 	    if (!isdigit((int)tdp->d_name[0]) || strcmp(pid, tdp->d_name) == 0)
@@ -144,14 +144,12 @@ tasklist_append(const char *pid, proc_pid_list_t *pids)
 	}
 	closedir(taskdirp);
     }
-#if PCP_DEBUG
     else {
-	if ((pmDebug & (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) == (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) {
+	if (pmDebugOptions.libpmda && pmDebugOptions.desperate) {
 	    char ebuf[1024];
 	    fprintf(stderr, "tasklist_append: opendir(\"%s\") failed: %s\n", taskpath, pmErrStr_r(-oserror(), ebuf, sizeof(ebuf)));
 	}
     }
-#endif
 }
 
 static int
@@ -173,9 +171,9 @@ refresh_cgroup_pidlist(int want_threads, proc_runq_t *runq_stats, proc_pid_list_
      * Note that both these files are already sorted, ascending numeric.
      */
     if (want_threads)
-	snprintf(path, sizeof(path), "%s%s/tasks", proc_statspath, cgroup);
+	pmsprintf(path, sizeof(path), "%s%s/tasks", proc_statspath, cgroup);
     else
-	snprintf(path, sizeof(path), "%s%s/cgroup.procs", proc_statspath, cgroup);
+	pmsprintf(path, sizeof(path), "%s%s/cgroup.procs", proc_statspath, cgroup);
 
     if ((fp = fopen(path, "r")) != NULL) {
 	while (fscanf(fp, "%d\n", &pid) == 1) {
@@ -185,14 +183,12 @@ refresh_cgroup_pidlist(int want_threads, proc_runq_t *runq_stats, proc_pid_list_
 	}
 	fclose(fp);
     }
-#if PCP_DEBUG
     else {
-	if ((pmDebug & (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) == (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) {
+	if (pmDebugOptions.libpmda && pmDebugOptions.desperate) {
 	    char ebuf[1024];
 	    fprintf(stderr, "refresh_cgroup_pidlist: fopen(\"%s\", \"r\") failed: %s\n", path, pmErrStr_r(-oserror(), ebuf, sizeof(ebuf)));
 	}
     }
-#endif
     return 0;
 }
 
@@ -206,14 +202,12 @@ refresh_global_pidlist(int want_threads, proc_runq_t *runq_stats, proc_pid_list_
     pids->count = 0;
     pids->threads = want_threads;
 
-    snprintf(path, sizeof(path), "%s/proc", proc_statspath);
+    pmsprintf(path, sizeof(path), "%s/proc", proc_statspath);
     if ((dirp = opendir(path)) == NULL) {
-#if PCP_DEBUG
-	if ((pmDebug & (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) == (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) {
+	if (pmDebugOptions.libpmda && pmDebugOptions.desperate) {
 	    char ebuf[1024];
 	    fprintf(stderr, "refresh_global_pidlist: opendir(\"%s\") failed: %s\n", path, pmErrStr_r(-oserror(), ebuf, sizeof(ebuf)));
 	}
-#endif
 	return -oserror();
     }
 
@@ -395,7 +389,7 @@ get_idle_time(void)
     int n;
     char buf[MAXPATHLEN];
 
-    snprintf(buf, sizeof(buf), "%s/proc/stat", proc_statspath);
+    pmsprintf(buf, sizeof(buf), "%s/proc/stat", proc_statspath);
     if ((fp = fopen(buf, "r")) == NULL)
 	return -oserror();
     n = fscanf(fp, "cpu %*u %*u %*u %llu %*u %*u %*u %*u %*u", &idle_time);
@@ -748,7 +742,7 @@ hotproc_eval_procs(void)
 
     double hptime = (ts.tv_sec - p_timestamp.tv_sec) + (ts.tv_usec - p_timestamp.tv_usec)/1000000.0;
 
-    if (pmDebug & DBG_TRACE_LIBPMDA)
+    if (pmDebugOptions.libpmda)
 	fprintf(stderr, "Hotproc Update took %f time\n", hptime);
 
     /* Idle */
@@ -866,9 +860,9 @@ refresh_proc_pidlist(proc_pid_t *proc_pid, proc_pid_list_t *pids)
 
 	    ep->id = pids->pids[i];
 
-	    snprintf(buf, sizeof(buf), "%s/proc/%d/cmdline", proc_statspath, pids->pids[i]);
+	    pmsprintf(buf, sizeof(buf), "%s/proc/%d/cmdline", proc_statspath, pids->pids[i]);
 	    if ((fd = open(buf, O_RDONLY)) >= 0) {
-		int numlen = sprintf(buf, "%06d ", pids->pids[i]);
+		int numlen = pmsprintf(buf, sizeof(buf), "%06d ", pids->pids[i]);
 		if ((k = read(fd, buf+numlen, sizeof(buf)-numlen)) > 0) {
 		    p = buf + k + numlen;
 		    *p-- = '\0';
@@ -887,21 +881,19 @@ refresh_proc_pidlist(proc_pid_t *proc_pid, proc_pid_list_t *pids)
 		}
 		close(fd);
 	    }
-#if PCP_DEBUG
 	    else {
-		if ((pmDebug & (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) == (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) {
+		if (pmDebugOptions.libpmda && pmDebugOptions.desperate) {
 		    char ebuf[1024];
 		    fprintf(stderr, "refresh_proc_pidlist: open(\"%s\", O_RDONLY) failed: %s\n", buf, pmErrStr_r(-oserror(), ebuf, sizeof(ebuf)));
 		}
 	    }
-#endif
 	    if (k == 0) {
 		/*
 		 * If a process is swapped out, /proc/<pid>/cmdline
 		 * returns an empty string so we have to get it
 		 * from /proc/<pid>/status or /proc/<pid>/stat
 		 */
-		sprintf(buf, "%s/proc/%d/status", proc_statspath, pids->pids[i]);
+		pmsprintf(buf, sizeof(buf), "%s/proc/%d/status", proc_statspath, pids->pids[i]);
 		if ((fd = open(buf, O_RDONLY)) >= 0) {
 		    /* We engage in a bit of a hanky-panky here:
 		     * the string should look like "123456 (name)",
@@ -923,24 +915,22 @@ refresh_proc_pidlist(proc_pid_t *proc_pid, proc_pid_list_t *pids)
 			    p = buf+k;
 			p[0] = ')'; 
 			p[1] = '\0';
-			bc = sprintf(buf, "%06d ", pids->pids[i]); 
+			bc = pmsprintf(buf, sizeof(buf), "%06d ", pids->pids[i]); 
 			buf[bc] = '(';
 		    }
 		    close(fd);
 		}
-#if PCP_DEBUG
 		else {
-		    if ((pmDebug & (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) == (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) {
+		    if (pmDebugOptions.libpmda && pmDebugOptions.desperate) {
 			char ebuf[1024];
 			fprintf(stderr, "refresh_proc_pidlist: open(\"%s\", O_RDONLY) failed: %s\n", buf, pmErrStr_r(-oserror(), ebuf, sizeof(ebuf)));
 		    }
 		}
-#endif
 	    }
 
 	    if (k <= 0) {
 		/* hmm .. must be exiting */
-	    	sprintf(buf, "%06d <exiting>", pids->pids[i]);
+	    	pmsprintf(buf, sizeof(buf), "%06d <exiting>", pids->pids[i]);
 	    }
 
 	    ep->name = strdup(buf);
@@ -962,12 +952,10 @@ refresh_proc_pidlist(proc_pid_t *proc_pid, proc_pid_list_t *pids)
 	    	free(indomp->it_set[i].i_name);
 	    	indomp->it_set[i].i_name = NULL;
 	    }
-#if PCP_DEBUG
-	    else if (pmDebug & DBG_TRACE_LIBPMDA) {
+	    else if (pmDebugOptions.libpmda) {
 		fprintf(stderr, "refresh_proc_pidlist: Instance id=%d \"%s\" no change\n",
 		    ep->id, indomp->it_set[i].i_name);
 	    }
-#endif
 	}
 	if (indomp->it_set[i].i_name == NULL) {
 	    /*
@@ -1071,13 +1059,11 @@ refresh_proc_pid(proc_pid_t *proc_pid, proc_runq_t *proc_runq,
     if (sts < 0)
 	return sts;
 
-#if PCP_DEBUG
-    if (pmDebug & DBG_TRACE_LIBPMDA)
+    if (pmDebugOptions.libpmda)
 	fprintf(stderr,
 		"refresh_proc_pid: %d pids (threads=%d, %s=\"%s\")\n",
 		procpids.count, procpids.threads,
 		container ? "container" : "cgroups", filter ? filter : "");
-#endif
 
     refresh_proc_pidlist(proc_pid, &procpids);
     return 0;
@@ -1119,30 +1105,26 @@ proc_open(const char *base, proc_pid_entry_t *ep)
     char buf[128];
 
     if (procpids.threads) {
-	sprintf(buf, "%s/proc/%d/task/%d/%s", proc_statspath, ep->id, ep->id, base);
+	pmsprintf(buf, sizeof(buf), "%s/proc/%d/task/%d/%s", proc_statspath, ep->id, ep->id, base);
 	if ((fd = open(buf, O_RDONLY)) >= 0) {
 	    return fd;
 	}
-#if PCP_DEBUG
 	else {
-	    if ((pmDebug & (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) == (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) {
+	    if (pmDebugOptions.libpmda && pmDebugOptions.desperate) {
 		char ebuf[1024];
 		fprintf(stderr, "proc_open: open(\"%s\", O_RDONLY) failed: %s\n", buf, pmErrStr_r(-oserror(), ebuf, sizeof(ebuf)));
 	    }
 	}
-#endif
 	/* fallback to /proc path if task path open fails */
     }
-    sprintf(buf, "%s/proc/%d/%s", proc_statspath, ep->id, base);
+    pmsprintf(buf, sizeof(buf), "%s/proc/%d/%s", proc_statspath, ep->id, base);
     fd =  open(buf, O_RDONLY);
-#if PCP_DEBUG
     if (fd < 0) {
-	if ((pmDebug & (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) == (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) {
+	if (pmDebugOptions.libpmda && pmDebugOptions.desperate) {
 	    char ebuf[1024];
 	    fprintf(stderr, "proc_open: open(\"%s\", O_RDONLY) failed: %s\n", buf, pmErrStr_r(-oserror(), ebuf, sizeof(ebuf)));
 	}
     }
-#endif
     return fd;
 }
 
@@ -1153,30 +1135,26 @@ proc_opendir(const char *base, proc_pid_entry_t *ep)
     char buf[128];
 
     if (procpids.threads) {
-	sprintf(buf, "%s/proc/%d/task/%d/%s", proc_statspath, ep->id, ep->id, base);
+	pmsprintf(buf, sizeof(buf), "%s/proc/%d/task/%d/%s", proc_statspath, ep->id, ep->id, base);
 	if ((dir = opendir(buf)) != NULL) {
 	    return dir;
 	}
-#if PCP_DEBUG
 	else {
-	    if ((pmDebug & (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) == (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) {
+	    if (pmDebugOptions.libpmda && pmDebugOptions.desperate) {
 		char ebuf[1024];
 		fprintf(stderr, "proc_opendir: opendir(\"%s\") failed: %s\n", buf, pmErrStr_r(-oserror(), ebuf, sizeof(ebuf)));
 	    }
 	}
-#endif
 	/* fallback to /proc path if task path opendir fails */
     }
-    sprintf(buf, "%s/proc/%d/%s", proc_statspath, ep->id, base);
+    pmsprintf(buf, sizeof(buf), "%s/proc/%d/%s", proc_statspath, ep->id, base);
     dir = opendir(buf);
-#if PCP_DEBUG
     if (dir == NULL) {
-	if ((pmDebug & (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) == (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) {
+	if (pmDebugOptions.libpmda && pmDebugOptions.desperate) {
 	    char ebuf[1024];
 	    fprintf(stderr, "proc_opendir: opendir(\"%s\") failed: %s\n", buf, pmErrStr_r(-oserror(), ebuf, sizeof(ebuf)));
 	}
     }
-#endif
     return dir;
 }
 
@@ -1219,12 +1197,10 @@ fetch_proc_pid_stat(int id, proc_pid_t *proc_pid, int *sts)
 
     *sts = 0;
     if (node == NULL) {
-#if PCP_DEBUG
-	if ((pmDebug & (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) == (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) {
+	if (pmDebugOptions.libpmda && pmDebugOptions.desperate) {
 	    char ibuf[1024];
 	    fprintf(stderr, "fetch_proc_pid_stat: __pmHashSearch(%d, hash[%s]) -> NULL\n", id, pmInDomStr_r(proc_pid->indom->it_indom, ibuf, sizeof(ibuf)));
 	}
-#endif
     	return NULL;
     }
     ep = (proc_pid_entry_t *)node->data;
@@ -1236,24 +1212,20 @@ fetch_proc_pid_stat(int id, proc_pid_t *proc_pid, int *sts)
 	    *sts = maperr();
 	else if ((n = read(fd, buf, sizeof(buf))) < 0) {
 	    *sts = maperr();
-#if PCP_DEBUG
-	    if ((pmDebug & (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) == (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) {
+	    if (pmDebugOptions.libpmda && pmDebugOptions.desperate) {
 		char ibuf[1024];
 		char ebuf[1024];
 		fprintf(stderr, "fetch_proc_pid_stat: read failed: id=%d, indom=%s, sts=%s\n", id, pmInDomStr_r(proc_pid->indom->it_indom, ibuf, sizeof(ibuf)), pmErrStr_r(-oserror(), ebuf, sizeof(ebuf)));
 	    }
-#endif
 	}
 	else {
 	    if (n == 0) {
 		/* eh? */
 		*sts = -ENODATA;
-#if PCP_DEBUG
-		if ((pmDebug & (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) == (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) {
+		if (pmDebugOptions.libpmda && pmDebugOptions.desperate) {
 		    char ibuf[1024];
 		    fprintf(stderr, "fetch_proc_pid_stat: read EOF?: id=%d, indom=%s\n", id, pmInDomStr_r(proc_pid->indom->it_indom, ibuf, sizeof(ibuf)));
 		}
-#endif
 	    }
 	    else {
 		if (ep->stat_buflen <= n) {
@@ -1279,13 +1251,11 @@ fetch_proc_pid_stat(int id, proc_pid_t *proc_pid, int *sts)
 	else {
 	    if ((n = read(fd, buf, sizeof(buf)-1)) < 0) {
 		*sts = maperr();
-#if PCP_DEBUG
-		if ((pmDebug & (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) == (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) {
+		if (pmDebugOptions.libpmda && pmDebugOptions.desperate) {
 		    char ibuf[1024];
 		    char ebuf[1024];
 		    fprintf(stderr, "fetch_proc_pid_stat: read \"wchan\" failed: id=%d, indom=%s, sts=%s\n", id, pmInDomStr_r(proc_pid->indom->it_indom, ibuf, sizeof(ibuf)), pmErrStr_r(*sts, ebuf, sizeof(ebuf)));
 		}
-#endif
 	    }
 	    else {
 		if (n == 0) {
@@ -1334,11 +1304,9 @@ fetch_proc_pid_stat(int id, proc_pid_t *proc_pid, int *sts)
 	    close(fd);
 	}
     else {
-#ifdef PCP_DEBUG
-        if (pmDebug & DBG_TRACE_APPL0 ) {
+        if (pmDebugOptions.appl0 ) {
 		    fprintf(stderr, "fetch_proc_pid_stat: error opening environ for pid %d (error is %s)\n", ep->id, strerror(errno) );
         }
-#endif
 	}
 	ep->flags |= PROC_PID_FLAG_ENVIRON_FETCHED;
     }
@@ -1384,12 +1352,10 @@ fetch_proc_pid_status(int id, proc_pid_t *proc_pid, int *sts)
 
     *sts = 0;
     if (node == NULL) {
-#if PCP_DEBUG
-	if ((pmDebug & (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) == (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) {
+	if (pmDebugOptions.libpmda && pmDebugOptions.desperate) {
 	    char ibuf[1024];
 	    fprintf(stderr, "fetch_proc_pid_status: __pmHashSearch(%d, hash[%s]) -> NULL\n", id, pmInDomStr_r(proc_pid->indom->it_indom, ibuf, sizeof(ibuf)));
 	}
-#endif
 	return NULL;
     }
     ep = (proc_pid_entry_t *)node->data;
@@ -1406,23 +1372,19 @@ fetch_proc_pid_status(int id, proc_pid_t *proc_pid, int *sts)
 	    *sts = maperr();
 	else if ((n = read(fd, buf, sizeof(buf))) < 0) {
 	    *sts = maperr();
-#if PCP_DEBUG
-	    if ((pmDebug & (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) == (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) {
+	    if (pmDebugOptions.libpmda && pmDebugOptions.desperate) {
 		char ibuf[1024];
 		char ebuf[1024];
 		fprintf(stderr, "fetch_proc_pid_status: read failed: id=%d, indom=%s, sts=%s\n", id, pmInDomStr_r(proc_pid->indom->it_indom, ibuf, sizeof(ibuf)), pmErrStr_r(-oserror(), ebuf, sizeof(ebuf)));
 	    }
-#endif
 	}
 	else {
 	    if (n == 0) {
 		*sts = -ENODATA;
-#if PCP_DEBUG
-		if ((pmDebug & (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) == (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) {
+		if (pmDebugOptions.libpmda && pmDebugOptions.desperate) {
 		    char ibuf[1024];
 		    fprintf(stderr, "fetch_proc_pid_status: read EOF?: id=%d, indom=%s\n", id, pmInDomStr_r(proc_pid->indom->it_indom, ibuf, sizeof(ibuf)));
 		}
-#endif
 	    }
 	    else {
 		if (ep->status_buflen < n) {
@@ -1432,12 +1394,10 @@ fetch_proc_pid_status(int id, proc_pid_t *proc_pid, int *sts)
 
 		if (ep->status_buf == NULL) {
 		    *sts = -ENODATA;
-#if PCP_DEBUG
-		    if ((pmDebug & (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) == (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) {
+		    if (pmDebugOptions.libpmda && pmDebugOptions.desperate) {
 			char ibuf[1024];
 			fprintf(stderr, "fetch_proc_pid_status: read EOF?: id=%d, indom=%s\n", id, pmInDomStr_r(proc_pid->indom->it_indom, ibuf, sizeof(ibuf)));
 		    }
-#endif
 		}
 		else {
 		    memcpy(ep->status_buf, buf, n);
@@ -1597,15 +1557,13 @@ fetch_proc_pid_status(int id, proc_pid_t *proc_pid, int *sts)
 			break;
 		    default:
 nomatch:
-#if PCP_DEBUG
-			if ((pmDebug & (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) == (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) {
+			if (pmDebugOptions.libpmda && pmDebugOptions.desperate) {
 			    char	*p;
 			    fprintf(stderr, "fetch_proc_pid_status: skip ");
 			    for (p = curline; *p && *p != '\n'; p++)
 				fputc(*p, stderr);
 			    fputc('\n', stderr);
 			}
-#endif
 			curline = index(curline, '\n');
 			if (curline != NULL) curline++;
 		}
@@ -1630,12 +1588,10 @@ fetch_proc_pid_statm(int id, proc_pid_t *proc_pid, int *sts)
 
     *sts = 0;
     if (node == NULL) {
-#if PCP_DEBUG
-	if ((pmDebug & (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) == (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) {
+	if (pmDebugOptions.libpmda && pmDebugOptions.desperate) {
 	    char ibuf[1024];
 	    fprintf(stderr, "fetch_proc_pid_statm: __pmHashSearch(%d, hash[%s]) -> NULL\n", id, pmInDomStr_r(proc_pid->indom->it_indom, ibuf, sizeof(ibuf)));
 	}
-#endif
     	return NULL;
     }
     ep = (proc_pid_entry_t *)node->data;
@@ -1650,24 +1606,20 @@ fetch_proc_pid_statm(int id, proc_pid_t *proc_pid, int *sts)
 	    *sts = maperr();
 	else if ((n = read(fd, buf, sizeof(buf))) < 0) {
 	    *sts = maperr();
-#if PCP_DEBUG
-	    if ((pmDebug & (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) == (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) {
+	    if (pmDebugOptions.libpmda && pmDebugOptions.desperate) {
 		char ibuf[1024];
 		char ebuf[1024];
 		fprintf(stderr, "fetch_proc_pid_statm: read failed: id=%d, indom=%s, sts=%s\n", id, pmInDomStr_r(proc_pid->indom->it_indom, ibuf, sizeof(ibuf)), pmErrStr_r(-oserror(), ebuf, sizeof(ebuf)));
 	    }
-#endif
 	}
 	else {
 	    if (n == 0) {
 		/* eh? */
 		*sts = -ENODATA;
-#if PCP_DEBUG
-		if ((pmDebug & (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) == (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) {
+		if (pmDebugOptions.libpmda && pmDebugOptions.desperate) {
 		    char ibuf[1024];
 		    fprintf(stderr, "fetch_proc_pid_statm: read EOF?: id=%d, indom=%s\n", id, pmInDomStr_r(proc_pid->indom->it_indom, ibuf, sizeof(ibuf)));
 		}
-#endif
 	    }
 	    else {
 		if (ep->statm_buflen <= n) {
@@ -1702,12 +1654,10 @@ fetch_proc_pid_maps(int id, proc_pid_t *proc_pid, int *sts)
 
     *sts = 0;
     if (node == NULL) {
-#if PCP_DEBUG
-	if ((pmDebug & (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) == (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) {
+	if (pmDebugOptions.libpmda && pmDebugOptions.desperate) {
 	    char ibuf[1024];
 	    fprintf(stderr, "fetch_proc_pid_maps: __pmHashSearch(%d, hash[%s]) -> NULL\n", id, pmInDomStr_r(proc_pid->indom->it_indom, ibuf, sizeof(ibuf)));
 	}
-#endif
 	return NULL;
     }
     ep = (proc_pid_entry_t *)node->data;
@@ -1757,12 +1707,10 @@ fetch_proc_pid_schedstat(int id, proc_pid_t *proc_pid, int *sts)
 
     *sts = 0;
     if (node == NULL) {
-#if PCP_DEBUG
-	if ((pmDebug & (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) == (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) {
+	if (pmDebugOptions.libpmda && pmDebugOptions.desperate) {
 	    char ibuf[1024];
 	    fprintf(stderr, "fetch_proc_pid_schedstat: __pmHashSearch(%d, hash[%s]) -> NULL\n", id, pmInDomStr_r(proc_pid->indom->it_indom, ibuf, sizeof(ibuf)));
 	}
-#endif
     	return NULL;
     }
     ep = (proc_pid_entry_t *)node->data;
@@ -1777,24 +1725,20 @@ fetch_proc_pid_schedstat(int id, proc_pid_t *proc_pid, int *sts)
 	    *sts = maperr();
 	else if ((n = read(fd, buf, sizeof(buf))) < 0) {
 	    *sts = maperr();
-#if PCP_DEBUG
-	    if ((pmDebug & (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) == (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) {
+	    if (pmDebugOptions.libpmda && pmDebugOptions.desperate) {
 		char ibuf[1024];
 		char ebuf[1024];
 		fprintf(stderr, "fetch_proc_pid_schedstat: read failed: id=%d, indom=%s, sts=%s\n", id, pmInDomStr_r(proc_pid->indom->it_indom, ibuf, sizeof(ibuf)), pmErrStr_r(-oserror(), ebuf, sizeof(ebuf)));
 	    }
-#endif
 	}
 	else {
 	    if (n == 0) {
 		/* eh? */
 		*sts = -ENODATA;
-#if PCP_DEBUG
-		if ((pmDebug & (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) == (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) {
+		if (pmDebugOptions.libpmda && pmDebugOptions.desperate) {
 		    char ibuf[1024];
 		    fprintf(stderr, "fetch_proc_pid_schedstat: read EOF?: id=%d, indom=%s\n", id, pmInDomStr_r(proc_pid->indom->it_indom, ibuf, sizeof(ibuf)));
 		}
-#endif
 	    }
 	    else {
 		if (ep->schedstat_buflen <= n) {
@@ -1832,12 +1776,10 @@ fetch_proc_pid_io(int id, proc_pid_t *proc_pid, int *sts)
 
     *sts = 0;
     if (node == NULL) {
-#if PCP_DEBUG
-	if ((pmDebug & (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) == (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) {
+	if (pmDebugOptions.libpmda && pmDebugOptions.desperate) {
 	    char ibuf[1024];
 	    fprintf(stderr, "fetch_proc_pid_io: __pmHashSearch(%d, hash[%s]) -> NULL\n", id, pmInDomStr_r(proc_pid->indom->it_indom, ibuf, sizeof(ibuf)));
 	}
-#endif
 	return NULL;
     }
     ep = (proc_pid_entry_t *)node->data;
@@ -1853,23 +1795,19 @@ fetch_proc_pid_io(int id, proc_pid_t *proc_pid, int *sts)
 	    *sts = maperr();
 	else if ((n = read(fd, buf, sizeof(buf))) < 0) {
 	    *sts = maperr();
-#if PCP_DEBUG
-	    if ((pmDebug & (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) == (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) {
+	    if (pmDebugOptions.libpmda && pmDebugOptions.desperate) {
 		char ibuf[1024];
 		char ebuf[1024];
 		fprintf(stderr, "fetch_proc_pid_io: read failed: id=%d, indom=%s, sts=%s\n", id, pmInDomStr_r(proc_pid->indom->it_indom, ibuf, sizeof(ibuf)), pmErrStr_r(-oserror(), ebuf, sizeof(ebuf)));
 	    }
-#endif
 	}
 	else {
 	    if (n == 0) {
 		*sts = -ENODATA;
-#if PCP_DEBUG
-		if ((pmDebug & (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) == (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) {
+		if (pmDebugOptions.libpmda && pmDebugOptions.desperate) {
 		    char ibuf[1024];
 		    fprintf(stderr, "fetch_proc_pid_io: read EOF?: id=%d, indom=%s\n", id, pmInDomStr_r(proc_pid->indom->it_indom, ibuf, sizeof(ibuf)));
 		}
-#endif
 	    }
 	    else {
 		if (ep->io_buflen < n) {
@@ -1879,12 +1817,10 @@ fetch_proc_pid_io(int id, proc_pid_t *proc_pid, int *sts)
 
 		if (ep->io_buf == NULL) {
 		    *sts = -ENODATA;
-#if PCP_DEBUG
-		    if ((pmDebug & (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) == (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) {
+		    if (pmDebugOptions.libpmda && pmDebugOptions.desperate) {
 			char ibuf[1024];
 			fprintf(stderr, "fetch_proc_pid_io: read EOF?: id=%d, indom=%s\n", id, pmInDomStr_r(proc_pid->indom->it_indom, ibuf, sizeof(ibuf)));
 		    }
-#endif
 	    }
 		else {
 		    memcpy(ep->io_buf, buf, n);
@@ -1922,15 +1858,13 @@ fetch_proc_pid_io(int id, proc_pid_t *proc_pid, int *sts)
 		else if (strncmp(curline, "cancelled_write_bytes:", 22) == 0)
 		    ep->io_lines.cancel = strsep(&curline, "\n");
 		else {
-#if PCP_DEBUG
-		    if ((pmDebug & (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) == (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) {
+		    if (pmDebugOptions.libpmda && pmDebugOptions.desperate) {
 			char	*p;
 			fprintf(stderr, "fetch_proc_pid_io: skip ");
 			for (p = curline; *p && *p != '\n'; p++)
 			    fputc(*p, stderr);
 			fputc('\n', stderr);
 		    }
-#endif
 		    curline = index(curline, '\n');
 		    if (curline != NULL) curline++;
 		}
@@ -1954,12 +1888,10 @@ fetch_proc_pid_fd(int id, proc_pid_t *proc_pid, int *sts)
     proc_pid_entry_t *ep;
 
     if (node == NULL) {
-#if PCP_DEBUG
-	if ((pmDebug & (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) == (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) {
+	if (pmDebugOptions.libpmda && pmDebugOptions.desperate) {
 	    char ibuf[1024];
 	    fprintf(stderr, "fetch_proc_pid_fd: __pmHashSearch(%d, hash[%s]) -> NULL\n", id, pmInDomStr_r(proc_pid->indom->it_indom, ibuf, sizeof(ibuf)));
 	}
-#endif
 	return NULL;
     }
     ep = (proc_pid_entry_t *)node->data;
@@ -2024,12 +1956,10 @@ fetch_proc_pid_cgroup(int id, proc_pid_t *proc_pid, int *sts)
 
     *sts = 0;
     if (node == NULL) {
-#if PCP_DEBUG
-	if ((pmDebug & (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) == (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) {
+	if (pmDebugOptions.libpmda && pmDebugOptions.desperate) {
 	    char ibuf[1024];
 	    fprintf(stderr, "fetch_proc_pid_cgroup: __pmHashSearch(%d, hash[%s]) -> NULL\n", id, pmInDomStr_r(proc_pid->indom->it_indom, ibuf, sizeof(ibuf)));
 	}
-#endif
 	return NULL;
     }
     ep = (proc_pid_entry_t *)node->data;
@@ -2043,23 +1973,19 @@ fetch_proc_pid_cgroup(int id, proc_pid_t *proc_pid, int *sts)
 	    *sts = maperr();
 	else if ((n = read(fd, buf, sizeof(buf))) < 0) {
 	    *sts = maperr();
-#if PCP_DEBUG
-	    if ((pmDebug & (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) == (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) {
+	    if (pmDebugOptions.libpmda && pmDebugOptions.desperate) {
 		char ibuf[1024];
 		char ebuf[1024];
 		fprintf(stderr, "fetch_proc_pid_cgroup: read failed: id=%d, indom=%s, sts=%s\n", id, pmInDomStr_r(proc_pid->indom->it_indom, ibuf, sizeof(ibuf)), pmErrStr_r(-oserror(), ebuf, sizeof(ebuf)));
 	    }
-#endif
 	}
 	else {
 	    if (n == 0) {
 		*sts = -ENODATA;
-#if PCP_DEBUG
-		if ((pmDebug & (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) == (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) {
+		if (pmDebugOptions.libpmda && pmDebugOptions.desperate) {
 		    char ibuf[1024];
 		    fprintf(stderr, "fetch_proc_pid_cgroup: read EOF?: id=%d, indom=%s\n", id, pmInDomStr_r(proc_pid->indom->it_indom, ibuf, sizeof(ibuf)));
 		}
-#endif
 	    }
 	    else {
 		/* reformat the buffer to match "ps" output format, then hash */
@@ -2086,12 +2012,10 @@ fetch_proc_pid_label(int id, proc_pid_t *proc_pid, int *sts)
 
     *sts = 0;
     if (node == NULL) {
-#if PCP_DEBUG
-	if ((pmDebug & (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) == (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) {
+	if (pmDebugOptions.libpmda && pmDebugOptions.desperate) {
 	    char ibuf[1024];
 	    fprintf(stderr, "fetch_proc_pid_label: __pmHashSearch(%d, hash[%s]) -> NULL\n", id, pmInDomStr_r(proc_pid->indom->it_indom, ibuf, sizeof(ibuf)));
 	}
-#endif
 	return NULL;
     }
     ep = (proc_pid_entry_t *)node->data;
@@ -2104,23 +2028,19 @@ fetch_proc_pid_label(int id, proc_pid_t *proc_pid, int *sts)
 	    *sts = maperr();
 	else if ((n = read(fd, buf, sizeof(buf))) < 0) {
 	    *sts = maperr();
-#if PCP_DEBUG
-	    if ((pmDebug & (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) == (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) {
+	    if (pmDebugOptions.libpmda && pmDebugOptions.desperate) {
 		char ibuf[1024];
 		char ebuf[1024];
 		fprintf(stderr, "fetch_proc_pid_label: read failed: id=%d, indom=%s, sts=%s\n", id, pmInDomStr_r(proc_pid->indom->it_indom, ibuf, sizeof(ibuf)), pmErrStr_r(-oserror(), ebuf, sizeof(ebuf)));
 	    }
-#endif
 	}
 	else {
 	    if (n == 0) {
 		*sts = -ENODATA;
-#if PCP_DEBUG
-		if ((pmDebug & (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) == (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) {
+		if (pmDebugOptions.libpmda && pmDebugOptions.desperate) {
 		    char ibuf[1024];
 		    fprintf(stderr, "fetch_proc_pid_label: read EOF?: id=%d, indom=%s\n", id, pmInDomStr_r(proc_pid->indom->it_indom, ibuf, sizeof(ibuf)));
 		}
-#endif
 	    } else {
 		/* buffer matches "ps" output format, direct hash */
 		buf[sizeof(buf)-1] = '\0';

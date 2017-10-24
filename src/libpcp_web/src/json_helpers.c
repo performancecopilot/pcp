@@ -198,7 +198,7 @@ jsmnflagornumber(const char *js, jsmntok_t *tok, json_metric_desc *json_metrics,
 	    return -1;
     }
     else {
-	if (pmDebug & DBG_TRACE_APPL2)
+	if (pmDebugOptions.appl2)
 	    __pmNotifyErr(LOG_DEBUG, "pmjson_flag: %d\n", flag);
 	switch (flag) {
 	case pmjson_flag_boolean:
@@ -261,6 +261,11 @@ static int
 json_extract_values(const char *json, jsmntok_t *json_tokens, size_t count,
 		    json_metric_desc *json_metrics, char* pointer_part[], int key, int total)
 {
+    /*
+     * i is used to index json_tokens
+     * j, k are used to index char's into the json string
+     */
+
     int i, j, k = 0;
     
     /* we've reached the end of the json doc */
@@ -269,11 +274,11 @@ json_extract_values(const char *json, jsmntok_t *json_tokens, size_t count,
 
     switch (json_tokens->type) {
     case JSMN_PRIMITIVE:
-	if (pmDebug & DBG_TRACE_APPL2)
+	if (pmDebugOptions.appl2)
 	    __pmNotifyErr(LOG_DEBUG, "jsmn primitive\n");
 	return 1;
     case JSMN_STRING:
-	if (pmDebug & DBG_TRACE_APPL2)
+	if (pmDebugOptions.appl2)
 	    __pmNotifyErr(LOG_DEBUG, "string: %.*s parent: %d\n",
 			json_tokens->end - json_tokens->start,
 			json + json_tokens->start, json_tokens->parent);
@@ -296,10 +301,11 @@ json_extract_values(const char *json, jsmntok_t *json_tokens, size_t count,
 	}
 	return 1;
     case JSMN_OBJECT:
-	if (pmDebug & DBG_TRACE_APPL2)
+	if (pmDebugOptions.appl2)
 	    __pmNotifyErr(LOG_DEBUG, "jsmn object\n");
-	for (i = j = 0; i < json_tokens->size; i++) {
-	    if (pmDebug & DBG_TRACE_APPL2)
+	for (i = j = k = 0; i < json_tokens->size; i++) {
+	    k = 0;
+	    if (pmDebugOptions.appl2)
 		__pmNotifyErr(LOG_DEBUG, "object key\n");
 	    k = json_extract_values(json, json_tokens+1+j, count-j, json_metrics, pointer_part, key, total);
 	    /* returned a valid section, continue */
@@ -317,13 +323,16 @@ json_extract_values(const char *json, jsmntok_t *json_tokens, size_t count,
 		j++;
 	    }
 
-	    if (pmDebug & DBG_TRACE_APPL2)
+	    if (pmDebugOptions.appl2)
 		__pmNotifyErr(LOG_DEBUG, "object value %d\n", (json_tokens+1+j)->size);
-	    j += json_extract_values(json, json_tokens+1+j, count-j, json_metrics, pointer_part, key, total);
+	    if (count > j)
+		j += json_extract_values(json, json_tokens+1+j, count-j, json_metrics, pointer_part, key, total);
+	    else
+		return j + 1;
 	}
 	return j + 1;
     case JSMN_ARRAY:
-	if (pmDebug & DBG_TRACE_APPL2)
+	if (pmDebugOptions.appl2)
 	    __pmNotifyErr(LOG_DEBUG, "jsmn_array");
 	for (i = j = 0; i < json_tokens->size; i++)
 	    j += json_extract_values(json, json_tokens+1+j, count-j, json_metrics, pointer_part, key, total);
@@ -346,7 +355,7 @@ json_pointer_to_index(const char *json, jsmntok_t *json_tokens, size_t count, js
     for (i = 0; i < nmetrics; i++) {
 	memset(&pointer_final[0], 0, sizeof(pointer_final));
 	json_pointer = strdup(json_metrics[i].json_pointer);
-	if (pmDebug & DBG_TRACE_APPL1)
+	if (pmDebugOptions.appl1)
 	    __pmNotifyErr(LOG_DEBUG, "json_pointer: %s\n", json_pointer);
 	j = 0;
 	pointer_part = strtok(json_pointer, "/");
@@ -361,7 +370,7 @@ json_pointer_to_index(const char *json, jsmntok_t *json_tokens, size_t count, js
 	    }
 	}
 	json_extract_values(json, json_tokens, count, &json_metrics[i], pointer_final, 0, j);
-	while (--j > 0)
+	while (--j >= 0)
 	    free(pointer_final[j]);
 	if (json_pointer != pointer_final[0])
 	    free(json_pointer);
@@ -395,7 +404,7 @@ pmjsonGet(json_metric_desc *json_metrics, int nmetrics, pmInDom indom,
     int               sts = 0;
     jsmn_parser       parser;
     jsmntok_t         *json_tokens;
-    int               token_count = 16;
+    int               token_count = 256;
     int               json_length = 0;
     char              *json = NULL;
     char              buffer[BUFSIZ];
@@ -410,7 +419,7 @@ pmjsonGet(json_metric_desc *json_metrics, int nmetrics, pmInDom indom,
 	if (bytes == 0)
 	    goto indexing;
 	if (bytes < 0) {
-	    if (pmDebug & DBG_TRACE_ATTR)
+	    if (pmDebugOptions.attr)
 		fprintf(stderr, "%s: failed to read more JSON: %s\n",
 			pmProgname, osstrerror());
 	    sts = -oserror();
@@ -418,16 +427,16 @@ pmjsonGet(json_metric_desc *json_metrics, int nmetrics, pmInDom indom,
 	}
 
 	/* Successfully read in more data, extend sizeof json array */
-	if ((json = realloc(json, json_length + bytes)) == NULL) {
+	if ((json = realloc(json, json_length + bytes + 1)) == NULL) {
 	    sts = -ENOMEM;
 	    goto finished;
 	}
 	strncpy(json + json_length, buffer, bytes);
-	json_length += json_length + bytes;
+	json_length = json_length + bytes;
 
 parsing:
 	sts = jsmn_parse(&parser, json, json_length, json_tokens, token_count);
-	if (pmDebug & DBG_TRACE_ATTR) {
+	if (pmDebugOptions.attr) {
 	    fprintf(stderr, "jsmn_parse() -> %d\n", sts);
 	}
 	if (sts < 0) {
@@ -435,11 +444,13 @@ parsing:
 		continue;
 	    if (sts == JSMN_ERROR_NOMEM) {	/* ran out of token space */
 		token_count *= 2;
-		bytes = sizeof(*json_tokens) * token_count;
-		if ((json_tokens = realloc(json_tokens, bytes)) == NULL) {
+		if ((json_tokens = realloc(json_tokens, (sizeof(*json_tokens) * token_count))) == NULL) {
 		    free(json);
+		    free(json_tokens);
 		    return -ENOMEM;
 		}
+		/* set the newly allocated memory to zero */
+		memset(&json_tokens[token_count/2], 0, sizeof(*json_tokens)*token_count/2);
 		goto parsing;
 	    }
 	    sts = -EINVAL;	/* anything else indicates invalid JSON */

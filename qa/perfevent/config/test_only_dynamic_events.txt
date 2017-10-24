@@ -1,0 +1,4 @@
+[dynamic]
+pmu1.bar
+pmu2.cm_event1
+pmu2.cm_event3

@@ -188,13 +188,11 @@ refresh_netif_metrics(void)
 	    /* skip network interfaces that are not interesting ...  */
 	    if (strcmp(if_name, "lo0") == 0)
 		continue;
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL0) {
+	    if (pmDebugOptions.appl0) {
 		sts = pmdaCacheLookupName(indomtab[NETIF_INDOM].it_indom, if_name, NULL, NULL);
 		if (sts < 0)
 		    fprintf(stderr, "Info: found network interface %s\n", if_name);
 	    }
-#endif
 	    if ((sts = pmdaCacheStore(indomtab[NETIF_INDOM].it_indom, PMDA_CACHE_ADD, if_name, (void *)ifm)) < 0) {
 		fprintf(stderr, "refresh_netif_metrics: pmdaCacheStore(%s) failed: %s\n", if_name, pmErrStr(sts));
 		continue;

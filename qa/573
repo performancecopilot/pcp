@@ -1,0 +1,63 @@
+#!/bin/sh
+# PCP QA Test No. 573
+# Extended prologue (aka preamble) record for pmlogger
+#
+# Copyright (c) 2017 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+_filter()
+{
+    pid=`pmprobe -v pmcd.pid | sed -n -e '/ 1 /s/.* //p'`
+    if [ -z "$pid" ]
+    then
+	echo "Arrgh: cannot pid from `pmprobe -v pmcd.pid`"
+	pid=0
+    fi
+    seqnum=`pmprobe -v pmcd.seqnum | sed -n -e '/ 1 /s/.* //p'`
+    if [ -z "$seqnum" ]
+    then
+	echo "Arrgh: cannot pid from `pmprobe -v pmcd.seqnum`"
+	seqnum=0
+    fi
+    sed \
+	-e "s@$tmp@TMP@g" \
+	-e "s/ $pid\$/ PID/" \
+	-e "s/ $seqnum\$/ SEQNUM/" \
+	-e '/pmcd.*inst/s/\[.*]/[INST]/' \
+	-e "/pmcd\\.pmlogger\\.host/s/`hostname -f`/HOSTNAME/" \
+	-e '/pmcd\.pmlogger\.port/s/ [0-9][0-9]*$/ PORT/' \
+    # end
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+cat <<End-of-File >$tmp.config
+log mandatory on once sample.bin
+End-of-File
+
+pmlogger -s 1 -c $tmp.config $tmp
+
+pmdumplog $tmp \
+| _filter_pmdumplog \
+| _filter
+
+# success, all done
+status=0
+exit

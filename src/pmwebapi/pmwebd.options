@@ -12,8 +12,8 @@ OPTIONS="$OPTIONS -R $PCP_SHARE_DIR/webapps -A $PCP_LOG_DIR -G -X"
 # Shrink minimum graphite metric-sampling interval (to match pmlogger)
 # OPTIONS="$OPTIONS -i 30"
 
-# Prefer opening directories as archives for graphite metrics.
-# OPTIONS="$OPTIONS -I"
+# Use _-canonicalized hostnames as the first component of graphite metrics.
+OPTIONS="$OPTIONS -J"
 
 # Assume identity of some user other than "pcp"
 # OPTIONS="$OPTIONS -U nobody"

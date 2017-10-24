@@ -97,22 +97,22 @@ echo "output records: `_cnt_logrecs $tmp.new`"
 echo
 echo "===  bad label ==="
 rm -f $tmp.new.*
-pmlogrewrite -d archives/badlen-8 $tmp.new 2>&1 | _filter
-echo "input records: `_cnt_logrecs archives/badlen-8`"
+pmlogrewrite -d badarchives/badlen-8 $tmp.new 2>&1 | _filter
+echo "input records: `_cnt_logrecs badarchives/badlen-8`"
 echo "output records: `_cnt_logrecs $tmp.new`"
 
 echo
 echo "=== truncated metadata ==="
 rm -f $tmp.new.*
-pmlogrewrite -d archives/badlen-9 $tmp.new 2>&1 | _filter
-echo "input records: `_cnt_logrecs archives/badlen-9`"
+pmlogrewrite -d badarchives/badlen-9 $tmp.new 2>&1 | _filter
+echo "input records: `_cnt_logrecs badarchives/badlen-9`"
 echo "output records: `_cnt_logrecs $tmp.new`"
 
 echo
 echo "===  bad version ==="
 rm -f $tmp.new.*
-pmlogrewrite -d archives/err_v1 $tmp.new 2>&1 | _filter
-echo "input records: `_cnt_logrecs archives/err_v1`"
+pmlogrewrite -d badarchives/err_v1 $tmp.new 2>&1 | _filter
+echo "input records: `_cnt_logrecs badarchives/err_v1`"
 echo "output records: `_cnt_logrecs $tmp.new`"
 
 rm -f $tmp.new.*

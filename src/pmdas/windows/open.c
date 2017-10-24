@@ -86,7 +86,7 @@ decode_ctype(DWORD ctype)
     for (i = 0; i < ctypetab_sz; i++)
 	if (ctype == ctypetab[i].type)
 	    return ctypetab[i].desc;
-    sprintf(unknown, "0x%08x unknown", (int)ctype);
+    pmsprintf(unknown, sizeof(unknown), "0x%08x unknown", (int)ctype);
     return unknown;
 }
 
@@ -114,7 +114,7 @@ _semstr(int sem)
     else if (sem == PM_SEM_DISCRETE)
 	return "DISCRETE";
     else {
-	sprintf(msg, "UNKNOWN! (%d)", sem);
+	pmsprintf(msg, sizeof(msg), "UNKNOWN! (%d)", sem);
 	return msg;
     }
 }
@@ -136,7 +136,7 @@ _typestr(int type)
     else if (type == PM_TYPE_DOUBLE)
 	return "PM_TYPE_DOUBLE";
     else {
-	sprintf(msg, "UNKNOWN! (%d)", type);
+	pmsprintf(msg, sizeof(msg), "UNKNOWN! (%d)", type);
 	return msg;
     }
 }
@@ -206,7 +206,7 @@ windows_format_uname(OSVERSIONINFOEX osv)
 	    else if (osv.dwMajorVersion <= 4)
 		name = string_append(name, "Windows NT");
 	    else {
-		sprintf(tbuf, "Windows Unknown (%ld.%ld)",
+		pmsprintf(tbuf, sizeof(tbuf), "Windows Unknown (%ld.%ld)",
 		    osv.dwMajorVersion, osv.dwMinorVersion); 
 		name = string_append(name, tbuf);
 	    }
@@ -216,7 +216,7 @@ windows_format_uname(OSVERSIONINFOEX osv)
 		name = string_append(name, " ");
 		name = string_append(name, osv.szCSDVersion);
 	    }
-	    sprintf(tbuf, " Build %ld", osv.dwBuildNumber & 0xFFFF);
+	    pmsprintf(tbuf, sizeof(tbuf), " Build %ld", osv.dwBuildNumber & 0xFFFF);
 	    windows_build = name + strlen(name) + 1;
 	    windows_uname = string_append(name, tbuf);
 	    break;
@@ -673,7 +673,7 @@ windows_visit_metric(pdh_metric_t *pmp, pdh_metric_visitor_t visitor)
 	    if ((pmp->vals = (pdh_value_t *)realloc(pmp->vals, size)) == NULL) {
 		__pmNotifyErr(LOG_ERR, "windows_open: Error: values realloc "
 				   "(%d x %d) failed @ metric %s [%s]: ",
-				pmp->num_vals, sizeof(pdh_value_t),
+				pmp->num_vals, (int)sizeof(pdh_value_t),
 				pmIDStr(pmp->desc.pmid), p);
 		pmp->num_alloc = 0;
 		return -1;
@@ -757,7 +757,7 @@ windows_open(int domain)
      * verify up-front.
      */
     for (i = 0; i < metricdesc_sz; i++) {
-	if ((metricdesc[i].flags & M_AUTO64) || (pmDebug & DBG_TRACE_LIBPMDA))
+	if ((metricdesc[i].flags & M_AUTO64) || pmDebugOptions.libpmda)
 	    windows_visit_metric(&metricdesc[i], windows_verify_callback);
     }
 

@@ -122,10 +122,10 @@ filter(const_dirent *dp)
 	    fprintf(stderr, "yes\n");
 	return 1;
     }
-    if (dp->d_name[len] == '.' && isdigit(dp->d_name[len+1])) {
+    if (dp->d_name[len] == '.' && isdigit((int)(dp->d_name[len+1]))) {
 	const char	*p = &dp->d_name[len+2];
 	for ( ; *p; p++) {
-	    if (!isdigit(*p)) {
+	    if (!isdigit((int)*p)) {
 		if (vflag > 2)
 		    fprintf(stderr, "no (non-digit after basename)\n");
 		return 0;
@@ -201,7 +201,7 @@ main(int argc, char *argv[])
 	else {
 	    char	*q = p;
 	    q++;
-	    if (isdigit(*q)) {
+	    if (isdigit((int)*q)) {
 		/*
 		 * foo.<digit> ... if archpathname does exist, then
 		 * safe to strip digits, else leave as is for the
@@ -211,7 +211,7 @@ main(int argc, char *argv[])
 		 */
 		if (access(archpathname, F_OK) == 0) {
 		    q++;
-		    while (*q && isdigit(*q))
+		    while (*q && isdigit((int)*q))
 			q++;
 		    if (*q == '\0')
 			*p = '\0';
@@ -240,7 +240,7 @@ main(int argc, char *argv[])
 	    strncpy(path, namelist[i]->d_name, sizeof(path));
 	}
 	else {
-	    snprintf(path, sizeof(path), "%s%c%s", archdirname, sep, namelist[i]->d_name);
+	    pmsprintf(path, sizeof(path), "%s%c%s", archdirname, sep, namelist[i]->d_name);
 	}
 	if (pass0(path) == STS_FATAL)
 	    /* unrepairable or unrepaired error */
@@ -297,7 +297,7 @@ main(int argc, char *argv[])
 	/* skip ./ prefix */
 	strncpy(archname, archbasename, sizeof(archname) - 1);
     else
-	snprintf(archname, sizeof(archname), "%s%c%s", archdirname, sep, archbasename);
+	pmsprintf(archname, sizeof(archname), "%s%c%s", archdirname, sep, archbasename);
 
     sts = pass1(ctxp, archname);
 

@@ -89,7 +89,7 @@ negotiate_proxy(int fd, const char *hostname, int port)
 	return PM_ERR_IPC;
     }
 
-    snprintf(buf, sizeof(buf), "%s %d\n", hostname, port);
+    pmsprintf(buf, sizeof(buf), "%s %d\n", hostname, port);
     if (__pmSend(fd, buf, strlen(buf), 0) != strlen(buf)) {
 	char	errmsg[PM_MAXERRMSGLEN];
 	__pmNotifyErr(LOG_WARNING,
@@ -190,7 +190,7 @@ container_handshake(int fd, __pmHashCtl *attrs)
 	return -ESRCH;
     length = strlen(name);
 
-    if (pmDebug & DBG_TRACE_CONTEXT)
+    if (pmDebugOptions.context)
 	fprintf(stderr, "%s:__pmConnectHandshake container=\"%s\" [%d]\n",
 		__FILE__, name, length);
 
@@ -427,11 +427,9 @@ __pmConnectPMCD(pmHostSpec *hosts, int nhosts, int ctxflags, __pmHashCtl *attrs)
 	/* Try connecting via the local unix domain socket, if requested and supported. */
 	if (nports == PM_HOST_SPEC_NPORTS_LOCAL || nports == PM_HOST_SPEC_NPORTS_UNIX) {
 #if defined(HAVE_STRUCT_SOCKADDR_UN)
-#ifdef PCP_DEBUG
-	    if ((pmDebug & DBG_TRACE_CONTEXT) && (pmDebug & DBG_TRACE_DESPERATE)) {
+	    if (pmDebugOptions.context && pmDebugOptions.desperate) {
 		fprintf(stderr, "__pmConnectPMCD: trying __pmAuxConnectPMCDUnixSocket(%s) ...\n", name);
 	    }
-#endif
 	    if ((fd = __pmAuxConnectPMCDUnixSocket(name)) >= 0) {
 		if ((sts = __pmConnectHandshake(fd, name, ctxflags, attrs)) < 0) {
 		    __pmCloseSocket(fd);
@@ -460,11 +458,9 @@ __pmConnectPMCD(pmHostSpec *hosts, int nhosts, int ctxflags, __pmHashCtl *attrs)
 	/* If still not connected, try via the given host name and ports, if requested. */
 	if (sts == -1) {
 	    for (portIx = 0; portIx < nports; portIx++) {
-#ifdef PCP_DEBUG
-		if ((pmDebug & DBG_TRACE_CONTEXT) && (pmDebug & DBG_TRACE_DESPERATE)) {
+		if (pmDebugOptions.context && pmDebugOptions.desperate) {
 		    fprintf(stderr, "__pmConnectPMCD: trying __pmAuxConnectPMCDPort(%s, %d) ...\n", name, ports[portIx]);
 		}
-#endif
 		if ((fd = __pmAuxConnectPMCDPort(name, ports[portIx])) >= 0) {
 		    if ((sts = __pmConnectHandshake(fd, name, ctxflags, attrs)) < 0) {
 			__pmCloseSocket(fd);
@@ -479,8 +475,7 @@ __pmConnectPMCD(pmHostSpec *hosts, int nhosts, int ctxflags, __pmHashCtl *attrs)
 	}
 
 	if (sts < 0) {
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_CONTEXT) {
+	    if (pmDebugOptions.context) {
 		char	errmsg[PM_MAXERRMSGLEN];
 		fprintf(stderr, "__pmConnectPMCD(%s): pmcd connection port=",
 		   hosts[0].name);
@@ -490,12 +485,10 @@ __pmConnectPMCD(pmHostSpec *hosts, int nhosts, int ctxflags, __pmHashCtl *attrs)
 		}
 		fprintf(stderr, " failed: %s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	    }
-#endif
 	    return sts;
 	}
 
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_CONTEXT) {
+	if (pmDebugOptions.context) {
 	    if (portIx >= 0) {
 		fprintf(stderr, "__pmConnectPMCD(%s): pmcd connection port=%d fd=%d PDU version=%u\n",
 			hosts[0].name, ports[portIx], fd, __pmVersionIPC(fd));
@@ -506,7 +499,6 @@ __pmConnectPMCD(pmHostSpec *hosts, int nhosts, int ctxflags, __pmHashCtl *attrs)
 	    }
 	    __pmPrintIPC();
 	}
-#endif
 
 	return fd;
     }
@@ -519,20 +511,16 @@ __pmConnectPMCD(pmHostSpec *hosts, int nhosts, int ctxflags, __pmHashCtl *attrs)
     proxyport = (proxyhost->nports > 0) ? proxyhost->ports[0] : PROXY_PORT;
 
     for (portIx = 0; portIx < nports; portIx++) {
-#ifdef PCP_DEBUG
-	if ((pmDebug & DBG_TRACE_CONTEXT) && (pmDebug & DBG_TRACE_DESPERATE)) {
+	if (pmDebugOptions.context && pmDebugOptions.desperate) {
 	    fprintf(stderr, "__pmConnectPMCD: trying __pmAuxConnectPMCDPort(%s, %d) ...\n", proxyhost->name, proxyport);
 	}
-#endif
 	fd = __pmAuxConnectPMCDPort(proxyhost->name, proxyport);
 	if (fd < 0) {
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_CONTEXT) {
+	    if (pmDebugOptions.context) {
 		char	errmsg[PM_MAXERRMSGLEN];
 		fprintf(stderr, "__pmConnectPMCD(%s): proxy to %s port=%d failed: %s \n",
 			hosts[0].name, proxyhost->name, proxyport, pmErrStr_r(-neterror(), errmsg, sizeof(errmsg)));
 	    }
-#endif
 	    PM_UNLOCK(connect_lock);
 	    return fd;
 	}
@@ -546,8 +534,7 @@ __pmConnectPMCD(pmHostSpec *hosts, int nhosts, int ctxflags, __pmHashCtl *attrs)
     }
 
     if (sts < 0) {
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_CONTEXT) {
+	if (pmDebugOptions.context) {
 	    char	errmsg[PM_MAXERRMSGLEN];
 	    fprintf(stderr, "__pmConnectPMCD(%s): proxy connection to %s port=",
 			hosts[0].name, proxyhost->name);
@@ -557,17 +544,14 @@ __pmConnectPMCD(pmHostSpec *hosts, int nhosts, int ctxflags, __pmHashCtl *attrs)
 	    }
 	    fprintf(stderr, " failed: %s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	}
-#endif
 	PM_UNLOCK(connect_lock);
 	return sts;
     }
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_CONTEXT) {
+    if (pmDebugOptions.context) {
 	fprintf(stderr, "__pmConnectPMCD(%s): proxy connection host=%s port=%d fd=%d version=%d\n",
 	    hosts[0].name, proxyhost->name, ports[portIx], fd, version);
     }
-#endif
 
     PM_UNLOCK(connect_lock);
     return fd;

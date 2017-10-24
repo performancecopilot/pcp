@@ -65,13 +65,11 @@ __pmSendLogStatus(int fd, __pmLoggerStatus *status)
     pp->status.ls_timenow.tv_sec = htonl(pp->status.ls_timenow.tv_sec);
     pp->status.ls_timenow.tv_usec = htonl(pp->status.ls_timenow.tv_usec);
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_PDU) {
+    if (pmDebugOptions.pdu) {
 	int version = __pmVersionIPC(fd);
 	fprintf(stderr, "__pmSendLogStatus: sending PDU (toversion=%d)\n",
 		version == UNKNOWN_VERSION ? LOG_PDU_VERSION : version);
     }
-#endif
 
     sts = __pmXmitPDU(fd, (__pmPDU *)pp);
     __pmUnpinPDUBuf(pp);
@@ -106,12 +104,10 @@ __pmDecodeLogStatus(__pmPDU *pdubuf, __pmLoggerStatus **status)
     *status = &pp->status;
     __pmPinPDUBuf(pdubuf);
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_PDU) {
+    if (pmDebugOptions.pdu) {
 	int version = __pmLastVersionIPC();
 	fprintf(stderr, "__pmDecodeLogStatus: got PDU (fromversion=%d)\n",
 		version == UNKNOWN_VERSION ? LOG_PDU_VERSION : version);
     }
-#endif
     return 0;
 }

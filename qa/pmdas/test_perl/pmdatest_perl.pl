@@ -1,6 +1,6 @@
 #
 # Copyright (c) 2014 Aconex
-# Copyright (c) 2014-2015 Red Hat.
+# Copyright (c) 2014-2015,2017 Red Hat.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -18,9 +18,10 @@ use warnings;
 use PCP::PMDA;
 
 my $refreshes = 0;
-my ($some_indom, $other_indom) = (0, 1);
+my ($some_indom, $other_indom, $loaded_indom) = (0, 1, 2);
 my @some_indom_instances;
 my $other_indom_instances;	# hashref
+my $loaded_indom_instances;	# hashref
 my $pmda = PCP::PMDA->new('test_perl', 242);
 
 sub test_perl_update_status
@@ -60,6 +61,10 @@ sub test_perl_update_status
 	}
 	$pmda->replace_indom($other_indom, $other_indom_instances);
     }
+    elsif ($cluster == 3) {
+	$loaded_indom_instances = {'five' => 'FIVE', 'nine' => 'NINE'};
+	$pmda->replace_indom($loaded_indom, $loaded_indom_instances);
+    }
 }
 
 sub test_perl_store_callback
@@ -68,6 +73,10 @@ sub test_perl_store_callback
 
     if ($cluster == 0 && $item == 0) {
 	$refreshes = $val;
+	return 0;
+    }
+    elsif ($cluster == 3 && $item == 0) {
+	$pmda->load_indom($loaded_indom);
 	return 0;
     }
     return PM_ERR_PERMISSION;
@@ -94,6 +103,13 @@ sub test_perl_fetch_callback
             return ($value, 1);
         }
     }
+    elsif ($cluster == 3) {
+        if ($item == 0) {
+            my $value = pmda_inst_name($loaded_indom, $inst);
+            return (PM_ERR_INST, 0) unless defined($value);
+            return ($value, 1);
+        }
+    }
     return (PM_ERR_PMID, 0);
 }
 
@@ -103,18 +119,25 @@ $pmda->add_metric(pmda_pmid(0,0), PM_TYPE_U32, PM_INDOM_NULL,
 	'test_perl.some_value',	'', '');
 
 $pmda->add_metric(pmda_pmid(1,0), PM_TYPE_U32, $some_indom,
-    PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-    'test_perl.some_indom.some_value', '', '');
+	PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
+	'test_perl.some_indom.some_value', '', '');
 
 $pmda->add_metric(pmda_pmid(2,0), PM_TYPE_STRING, $other_indom,
-    PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-    'test_perl.other_indom.some_value', '', '');
+	PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
+	'test_perl.other_indom.some_value', '', '');
 
-$pmda->add_indom($some_indom, \@some_indom_instances,
+$pmda->add_metric(pmda_pmid(3,0), PM_TYPE_STRING, $loaded_indom,
+	PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
+	'test_perl.loaded_indom.some_value', '', '');
+
+$some_indom = $pmda->add_indom($some_indom, \@some_indom_instances,
 		'Instance domain exporting some instances', '');
 
 $other_indom = $pmda->add_indom($other_indom, {},
 		'Instance domain exporting other instances', '');
+
+$loaded_indom = $pmda->add_indom($loaded_indom, {},
+		'Instance domain exporting loaded instances', '');
 
 $pmda->set_fetch_callback(\&test_perl_fetch_callback);
 $pmda->set_store_callback(\&test_perl_store_callback);

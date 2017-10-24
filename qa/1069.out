@@ -17,6 +17,8 @@ HH:MM:SS        1
           s.l.one  s.colour  s.colour  s.colour
                         red     green      blue
                                                
+== basic duplicate name handling
+  s.seconds
 == basic archive mode reporting
           s.seconds  s.milliseconds
                 s/s            ms/s
@@ -34,6 +36,10 @@ HH:MM:SS        1
       1.000        1000.001
       1.000        1000.016
 == exercise various output options
+          h.machine
+                   
+08:57:23      linux
+17:42:43      linux
                      s.seconds        s.milliseconds
                            s/s                  ms/s
 20:36:45                   N/A                   N/A
@@ -45,13 +51,13 @@ HH:MM:SS        1
 
   archive: QAPATH/archives/sample-secs
      host: rattle
- timezone: ...-11
+ timezone: UTC+10
     start: Mon May  1 20:36:45 2000
       end: Mon May  1 20:37:45 2000
-  metrics: 2
+  metrics: 2 (2 instances)
   samples: 5
  interval: 2.0 sec
- duration: 8 sec
+ duration: 00:00:08
 
   s.seconds  s.milliseconds
         s/s            ms/s
@@ -59,13 +65,13 @@ HH:MM:SS        1
 
   archive: QAPATH/archives/sample-secs
      host: rattle
- timezone: ...-11
+ timezone: UTC+10
     start: Mon May  1 20:36:45 2000
       end: Mon May  1 20:37:45 2000
-  metrics: 2
+  metrics: 2 (2 instances)
   samples: 3
  interval: 3.0 sec
- duration: 7 sec
+ duration: 00:00:07
 
           s.seconds  s.milliseconds
                 s/s            ms/s
@@ -202,17 +208,55 @@ HH:MM:SS        1
 00:47:09|1 minute     |       ~|        ~|        ~|      ~|       ~|   0.820|       ~
 00:47:09|5 minute     |       ~|        ~|        ~|      ~|       ~|   0.700|       ~
 00:47:09|15 minute    |       ~|        ~|        ~|      ~|       ~|   0.590|       ~
+== exercise extended header
+
+  archive: QAPATH/archives/rep
+     host: slack
+ timezone: UTC+11
+    start: Wed Feb 10 14:39:13 2016
+      end: Wed Feb 10 14:39:17 2016
+  metrics: 21 (21 instances)
+  samples: N/A
+ interval: N/A
+ duration: 00:00:04
+
+
+  archive: QAPATH/archives/20130706
+     host: billing02
+ timezone: UTC+10
+    start: Sat Jul  6 00:17:01 2013
+      end: Sun Jul  7 00:15:43 2013
+  metrics: 294 (564 instances)
+  samples: N/A
+ interval: N/A
+ duration: 23:58:41
+
+
+  archive: QAPATH/archives/bug-1044.meta
+     host: super.elastic.org
+ timezone: UTC-5
+    start: Fri Jan 10 17:58:09 2014
+      end: Mon Jan 13 08:59:49 2014
+  metrics: 5 (5 instances)
+  samples: N/A
+ interval: N/A
+ duration: 2 days, 15:01:40
+
+== invalid command line parameters
+Error while parsing options: Integer expected.
+Error while parsing options: Integer expected.
+Error while parsing options: Integer expected.
 == exercise non-integer options
 
   archive: QAPATH/archives/sample-secs
      host: rattle
- timezone: ...-11
+ timezone: UTC+10
     start: Mon May  1 20:36:45 2000
       end: Mon May  1 20:37:45 2000
-  metrics: 2
+  metrics: 2 (2 instances)
   samples: 6
  interval: 0.5 sec
- duration: 2.500 sec
+ duration: 00:00:03
 
           s.seconds  s.milliseconds
                 s/s            ms/s
@@ -231,6 +275,17 @@ HH:MM:SS        1
      380438   380437679.382
      380440   380439679.413
 == exercise timezone setting
+
+  archive: QAPATH/archives/sample-secs
+     host: rattle
+ timezone: UTC+0
+    start: Mon May  1 10:36:45 2000
+      end: Mon May  1 10:37:45 2000
+  metrics: 2 (2 instances)
+  samples: 5
+ interval: 2.0 sec
+ duration: 00:00:08
+
           s.seconds  s.milliseconds
                 s/s            ms/s
 10:36:45        N/A             N/A
@@ -238,6 +293,180 @@ HH:MM:SS        1
 10:36:49      1.000        1000.033
 10:36:51      1.000        1000.001
 10:36:53      1.000        1000.016
+
+  archive: QAPATH/archives/sample-secs
+     host: rattle
+ timezone: UTC+0
+    start: Mon May  1 10:36:45 2000
+      end: Mon May  1 10:37:45 2000
+  metrics: 2 (2 instances)
+  samples: 5
+ interval: 2.0 sec
+ duration: 00:00:08
+
+          s.seconds  s.milliseconds
+                s/s            ms/s
+10:36:45        N/A             N/A
+10:36:47        N/A             N/A
+10:36:49      1.000        1000.033
+10:36:51      1.000        1000.001
+10:36:53      1.000        1000.016
+
+  archive: QAPATH/archives/sample-secs
+     host: rattle
+ timezone: UTC+0
+    start: Mon May  1 10:36:45 2000
+      end: Mon May  1 10:37:45 2000
+  metrics: 2 (2 instances)
+  samples: 5
+ interval: 2.0 sec
+ duration: 00:00:08
+
+          s.seconds  s.milliseconds
+                s/s            ms/s
+10:36:45        N/A             N/A
+10:36:47        N/A             N/A
+10:36:49      1.000        1000.033
+10:36:51      1.000        1000.001
+10:36:53      1.000        1000.016
+
+  archive: QAPATH/archives/sample-secs
+     host: rattle
+ timezone: UTC+0
+    start: Mon May  1 10:36:45 2000
+      end: Mon May  1 10:37:45 2000
+  metrics: 2 (2 instances)
+  samples: 5
+ interval: 2.0 sec
+ duration: 00:00:08
+
+          s.seconds  s.milliseconds
+                s/s            ms/s
+10:36:45        N/A             N/A
+10:36:47        N/A             N/A
+10:36:49      1.000        1000.033
+10:36:51      1.000        1000.001
+10:36:53      1.000        1000.016
+
+  archive: QAPATH/archives/sample-secs
+     host: rattle
+ timezone: UTC+5
+    start: Mon May  1 15:36:45 2000
+      end: Mon May  1 15:37:45 2000
+  metrics: 2 (2 instances)
+  samples: 5
+ interval: 2.0 sec
+ duration: 00:00:08
+
+          s.seconds  s.milliseconds
+                s/s            ms/s
+15:36:45        N/A             N/A
+15:36:47        N/A             N/A
+15:36:49      1.000        1000.033
+15:36:51      1.000        1000.001
+15:36:53      1.000        1000.016
+
+  archive: QAPATH/archives/sample-secs
+     host: rattle
+ timezone: UTC-5
+    start: Mon May  1 05:36:45 2000
+      end: Mon May  1 05:37:45 2000
+  metrics: 2 (2 instances)
+  samples: 5
+ interval: 2.0 sec
+ duration: 00:00:08
+
+          s.seconds  s.milliseconds
+                s/s            ms/s
+05:36:45        N/A             N/A
+05:36:47        N/A             N/A
+05:36:49      1.000        1000.033
+05:36:51      1.000        1000.001
+05:36:53      1.000        1000.016
+
+  archive: QAPATH/archives/sample-secs
+     host: rattle
+ timezone: UTC-4
+    start: Mon May  1 06:36:45 2000
+      end: Mon May  1 06:37:45 2000
+  metrics: 2 (2 instances)
+  samples: 5
+ interval: 2.0 sec
+ duration: 00:00:08
+
+          s.seconds  s.milliseconds
+                s/s            ms/s
+06:36:45        N/A             N/A
+06:36:47        N/A             N/A
+06:36:49      1.000        1000.033
+06:36:51      1.000        1000.001
+06:36:53      1.000        1000.016
+
+  archive: QAPATH/archives/sample-secs
+     host: rattle
+ timezone: UTC+3
+    start: Mon May  1 13:36:45 2000
+      end: Mon May  1 13:37:45 2000
+  metrics: 2 (2 instances)
+  samples: 5
+ interval: 2.0 sec
+ duration: 00:00:08
+
+          s.seconds  s.milliseconds
+                s/s            ms/s
+13:36:45        N/A             N/A
+13:36:47        N/A             N/A
+13:36:49      1.000        1000.033
+13:36:51      1.000        1000.001
+13:36:53      1.000        1000.016
+
+  archive: QAPATH/archives/sample-secs
+     host: rattle
+ timezone: UTC+5:30
+    start: Mon May  1 16:06:45 2000
+      end: Mon May  1 16:07:45 2000
+  metrics: 2 (2 instances)
+  samples: 5
+ interval: 2.0 sec
+ duration: 00:00:08
+
+          s.seconds  s.milliseconds
+                s/s            ms/s
+16:06:45        N/A             N/A
+16:06:47        N/A             N/A
+16:06:49      1.000        1000.033
+16:06:51      1.000        1000.001
+16:06:53      1.000        1000.016
+
+  archive: QAPATH/archives/numa
+     host: grundy
+ timezone: UTC-7
+    start: Thu Apr 10 19:55:52 2014
+      end: Thu Apr 10 19:56:01 2014
+  metrics: 1 (1 instance)
+  samples: 10
+ interval: 1.0 sec
+ duration: 00:00:09
+
+
+  archive: QAPATH/archives/rep
+     host: slack
+ timezone: UTC+11
+    start: Wed Feb 10 14:39:13 2016
+      end: Wed Feb 10 14:39:17 2016
+  metrics: 1 (1 instance)
+  samples: 4
+ interval: 1.0 sec
+ duration: 00:00:03
+
+== exercise extended CSV output
+11
+Host,Interval,Time,"sample.seconds","sample.milliseconds"
+rattle,0,2000-05-01 20:36:45 UTC+10,,
+rattle,2,2000-05-01 20:36:47 UTC+10,380434,380433679.314
+rattle,2,2000-05-01 20:36:49 UTC+10,380436,380435679.381
+rattle,2,2000-05-01 20:36:51 UTC+10,380438,380437679.382
+rattle,2,2000-05-01 20:36:53 UTC+10,380440,380439679.413
 == exercise CSV and alternate delimiters
 Time,"sample.seconds","sample.milliseconds"
 2000-05-01 20:36:45,,
@@ -253,11 +482,11 @@ Time|"sample.seconds"|"sample.milliseconds"
 2000-05-01 20:36:53|380440|380439679.413
 == exercise CSV and instance handling
 Time,"hinv.map.scsi-scsi0:0:0:0 Direct-Access","hinv.map.scsi-scsi0:0:1:0 Direct-Access","hinv.map.scsi-scsi0:0:2:0 Direct-Access","hinv.map.scsi-scsi0:0:3:0 Direct-Access","hinv.map.scsi-scsi0:0:4:0 Direct-Access","kernel.all.load-1 minute","kernel.all.load-5 minute","kernel.all.load-15 minute"
-2013-07-06 00:47:01,"sda","sdb","sdc","sdd","sde",0.820,0.700,0.590
-2013-07-06 00:47:03,"sda","sdb","sdc","sdd","sde",0.820,0.700,0.590
-2013-07-06 00:47:05,"sda","sdb","sdc","sdd","sde",0.820,0.700,0.590
-2013-07-06 00:47:07,"sda","sdb","sdc","sdd","sde",0.820,0.700,0.590
-2013-07-06 00:47:09,"sda","sdb","sdc","sdd","sde",0.820,0.700,0.590
+2013-07-06 00:47:01,"sda","sdb","sdc","sdd","sde",0.82,0.7,0.59
+2013-07-06 00:47:03,"sda","sdb","sdc","sdd","sde",0.82,0.7,0.59
+2013-07-06 00:47:05,"sda","sdb","sdc","sdd","sde",0.82,0.7,0.59
+2013-07-06 00:47:07,"sda","sdb","sdc","sdd","sde",0.82,0.7,0.59
+2013-07-06 00:47:09,"sda","sdb","sdc","sdd","sde",0.82,0.7,0.59
 == compare output-to-file versus stdout
 ok
 == exercise repeated headers option
@@ -274,19 +503,19 @@ ok
       1.000
 == exercise units conversion options
                  m.u.free         m.u.used
-                     byte             byte
-00:47:01         39137280       6214295552
-00:47:03         39137280       6214295552
-00:47:05         39137280       6214295552
-00:47:07         39137280       6214295552
-00:47:09         39137280       6214295552
-                 m.u.free         m.u.used
                        MB               MB
-00:47:01               37             5926
-00:47:03               37             5926
-00:47:05               37             5926
-00:47:07               37             5926
-00:47:09               37             5926
+00:47:01             37.3           5926.4
+00:47:03             37.3           5926.4
+00:47:05             37.3           5926.4
+00:47:07             37.3           5926.4
+00:47:09             37.3           5926.4
+                 m.u.free         m.u.used
+                       GB               GB
+00:47:01             0.04             5.79
+00:47:03             0.04             5.79
+00:47:05             0.04             5.79
+00:47:07             0.04             5.79
+00:47:09             0.04             5.79
                  d.d.read         d.d.read         d.d.read         d.d.read         d.d.read         d.d.read
                       sda              sdb              sdc              hdc              sdd              sde
            count x 10^2/s   count x 10^2/s   count x 10^2/s   count x 10^2/s   count x 10^2/s   count x 10^2/s
@@ -299,18 +528,18 @@ ok
                       sda              sdb              sdc              hdc              sdd              sde
           count x 10^-2/s  count x 10^-2/s  count x 10^-2/s  count x 10^-2/s  count x 10^-2/s  count x 10^-2/s
 00:47:01              N/A              N/A              N/A              N/A              N/A              N/A
-00:47:03            0.000         3000.000           50.000            0.000            0.000          100.000
-00:47:05            0.000         3000.000            0.000            0.000            0.000          100.000
-00:47:07            0.000         3000.000           50.000            0.000            0.000          100.000
-00:47:09            0.000         3000.000           50.000            0.000            0.000           50.000
+00:47:03           0.0000        3000.0000          50.0000           0.0000           0.0000         100.0000
+00:47:05           0.0000        3000.0000           0.0000           0.0000           0.0000         100.0000
+00:47:07           0.0000        3000.0000          50.0000           0.0000           0.0000         100.0000
+00:47:09           0.0000        3000.0000          50.0000           0.0000           0.0000          50.0000
              d.d.avactive     d.d.avactive     d.d.avactive     d.d.avactive     d.d.avactive     d.d.avactive
                       sda              sdb              sdc              hdc              sdd              sde
                       s/s              s/s              s/s              s/s              s/s              s/s
 08:58:23              N/A              N/A              N/A              N/A              N/A              N/A
-08:59:23         0.000200         0.055902         0.005567         0.000000         0.000000         0.004883
-09:00:23         0.003633         0.088769         0.008017         0.000000         0.000000         0.021034
-09:01:23         0.000200         0.175189         0.012884         0.000000         0.000000         0.036451
-09:02:23         0.000217         0.054218         0.002750         0.000000         0.000000         0.005050
+08:59:23          0.00020          0.05590          0.00557          0.00000          0.00000          0.00488
+09:00:23          0.00363          0.08877          0.00802          0.00000          0.00000          0.02103
+09:01:23          0.00020          0.17519          0.01288          0.00000          0.00000          0.03645
+09:02:23          0.00022          0.05422          0.00275          0.00000          0.00000          0.00505
              d.d.avactive     d.d.avactive     d.d.avactive     d.d.avactive     d.d.avactive     d.d.avactive
                       sda              sdb              sdc              hdc              sdd              sde
                      us/s             us/s             us/s             us/s             us/s             us/s
@@ -319,6 +548,42 @@ ok
 09:00:23      3633.431133     88769.056034      8016.882454         0.000000         0.000000     21033.899496
 09:01:23       200.006814    175189.301449     12883.772241         0.000000         0.000000     36451.241772
 09:02:23       216.672278     54218.070915      2750.071227         0.000000         0.000000      5050.130798
+              k.a.sysfork
+             count x 10^6
+00:47:01       16.9132770
+00:47:03       16.9132770
+00:47:05       16.9132780
+00:47:07       16.9132780
+00:47:09       16.9132790
+                 m.u.free         m.u.used
+                       kB               kB
+00:47:01            38220          6068648
+00:47:03            38220          6068648
+00:47:05            38220          6068648
+00:47:07            38220          6068648
+00:47:09            38220          6068648
+                 m.u.free         m.u.used
+                     MB/s             MB/s
+00:47:01              N/A              N/A
+00:47:03      0.000000000      0.000000000
+00:47:05      0.000000000      0.000000000
+00:47:07      0.000000000      0.000000000
+00:47:09      0.000000000      0.000000000
+                 m.u.free         m.u.used
+                     kb/s            GB/ms
+00:47:01              N/A              N/A
+00:47:03       0.00000000       0.00000000
+00:47:05       0.00000000       0.00000000
+00:47:07       0.00000000       0.00000000
+00:47:09       0.00000000       0.00000000
+          m.u.used  n.i.speed
+                      enp0s25
+             GB/ms      GB/hr
+14:39:13       N/A  2746624.0
+14:39:14     0.000  2746624.0
+14:39:15    -0.000  2746624.0
+14:39:16     0.000  2746624.0
+14:39:17     0.000  2746624.0
 == derived metrics configuration file
   s.combo
       s/s
@@ -335,6 +600,8 @@ ok
     1.001
     1.001
     1.001
+== derived metrics in pmrep.conf
+No output expected.
 == extended existing sample configuration
   s.combo  s.seconds  s.milliseconds
       s/s        s/s            ms/s
@@ -384,6 +651,18 @@ Incompatible configuration file version (read v99, need v1).
              Kbyte
 00:48:01     36832
 00:49:01     38236
+== time alignment with archive/host
+          m.u.free
+             Kbyte
+00:48:00     38220
+00:48:02     36832
+00:48:04     36832
+00:48:06     36832
+00:48:08     36832
+        Xs.l.one
+        X       
+ALIGN_OK_X      1
+ALIGN_OK_X      1
 == basic string value reporting
   p.version
            

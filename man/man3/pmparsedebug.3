@@ -15,7 +15,8 @@
 .\"
 .TH PMPARSEDEBUG 3 "PCP" "Performance Co-Pilot"
 .SH NAME
-\f3__pmParseDebug\f1 \- convert a list of debug flags into an integer
+\f3__pmParseDebug\f1,
+\f3__pmSetDebugBits\f1 \- manipulate old-style PCP debugging control bit-fields
 .SH "C SYNOPSIS"
 .ft 3
 #include <pcp/pmapi.h>
@@ -23,10 +24,21 @@
 #include <pcp/impl.h>
 .sp
 int __pmParseDebug(const char *\fIspec\fP);
+.br
+void __pmSetDebugBits(int value);
 .sp
 cc ... \-lpcp
 .ft 1
 .SH DESCRIPTION
+.PP
+These routine have been deprecated and may be removed in a future
+Performance Co-Pilot (PCP) release.
+Please refer to
+.BR pmSetDebug (3)
+and
+.BR pmClearDebug (3)
+for replacement functionality.
+.PP
 .B __pmParseDebug
 parses
 .I spec
@@ -56,8 +68,21 @@ as
 .B FETCH
 or
 .BR fetch .
+.PP
+.B __pmSetDebugBits
+may be used to set the bit-fields directly using the encoding in
+.IR value .
+The effect is additive, so consecutive calls to
+.B __pmSetDebugBits
+will set the conjunction of the bits in the
+.I value
+arguments.  To clear the bit-fields, see
+.BR pmClearDebug (3).
 .SH SEE ALSO
-.BR pmdbg (1)
+.BR pmdbg (1),
+.BR pmSetDebug (3)
+and
+.BR pmClearDebug (3).
 .SH DIAGNOSTICS
 If successful,
 .B __pmParseDebug

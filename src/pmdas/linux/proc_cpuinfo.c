@@ -36,7 +36,7 @@ refresh_sysfs_online(unsigned int node_num, const char *node)
     FILE *fp;
     int n;
 
-    snprintf(path, sizeof(path), "%s/%s/%s/%s%u/online",
+    pmsprintf(path, sizeof(path), "%s/%s/%s/%s%u/online",
 		linux_statspath, sysfs_path, node, node, node_num);
     if ((fp = fopen(path, "r")) == NULL)
 	return 1;

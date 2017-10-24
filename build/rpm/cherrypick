@@ -1,0 +1,76 @@
+#!/bin/sh
+#
+# Once rpms have been built, this script will generate a list of
+# rpms (excluding the source rpm) that can be installed because all
+# of the prerequisite rpms are installed.
+#
+
+tmp=/var/tmp/cherry-$$
+sts=0
+trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
+rm -f $tmp.*
+
+for rpm in *.rpm
+do
+    case $rpm
+    in
+	\*.rpm)
+	    echo "Don't run this until rpms built, bozo"
+	    sts=1
+	    exit
+	    ;;
+
+	pcp-[0-9]*.src.rpm)
+	    continue
+	    ;;
+    esac
+
+    touch $tmp.ok
+    me=`echo $rpm | sed -e 's/-[0-9].*//'`
+    if rpm -qR -p $rpm >$tmp.req
+    then
+	sed <$tmp.req \
+	    -e '/^\//d' \
+	    -e '/^pcp-/d' \
+	    -e '/^ld-linux/d' \
+	    -e '/^rpmlib(/d' \
+	    -e '/^rtld(/d' \
+	    -e 's/ .*//' \
+	    -e '/^pcp$/d' \
+	    -e '/-pcp$/d' \
+	    -e '/-PCP-/d' \
+	    -e '/lib.*\.so[.(]/d' \
+	# end
+    else
+	echo >&2 "rpm -qR -p $rpm failed!"
+	exit 1
+    fi \
+    | while read req
+    do
+	if rpm -q "$req" >/dev/null
+	then
+	    # OK, $req is installed ...
+	    #
+	    :
+	else
+	    # $req not installed, may be provided by something else ...
+	    #
+	    if rpm -q --whatprovides "$req" >/dev/null
+	    then
+		# OK, we're good ...
+		#
+		:
+	    else
+		# Nah.
+		#
+		echo >&2 "Warning: $me not installed: missing prereq $req"
+		rm -f $tmp.ok
+	    fi
+	fi
+    done
+    [ -f $tmp.ok ] && echo $rpm >>$tmp.install
+done
+
+cat $tmp.install
+
+exit

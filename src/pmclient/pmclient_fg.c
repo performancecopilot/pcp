@@ -27,7 +27,7 @@ pmLongOptions longopts[] = {
 };
 
 pmOptions opts = {
-    .flags = PM_OPTFLAG_STDOUT_TZ,
+    .flags = PM_OPTFLAG_STDOUT_TZ | PM_OPTFLAG_BOUNDARIES,
     .short_options = PMAPI_OPTIONS "P",
     .long_options = longopts,
 };
@@ -248,9 +248,12 @@ main(int argc, char **argv)
 
     host = pmGetContextHostName(c);
 
-    if ((opts.context == PM_CONTEXT_ARCHIVE) &&
-	(opts.start.tv_sec != 0 || opts.start.tv_usec != 0)) {
-	if ((sts = pmSetMode(PM_MODE_FORW, &opts.start, 0)) < 0) {
+    /* set a default sampling interval if none has been requested */
+    if (opts.interval.tv_sec == 0 && opts.interval.tv_usec == 0)
+	opts.interval.tv_sec = 5;
+
+    if (opts.context == PM_CONTEXT_ARCHIVE) {
+	if ((sts = pmSetMode(PM_MODE_INTERP, &opts.start, (int)(opts.interval.tv_sec*1000 + opts.interval.tv_usec/1000))) < 0) {
 	    fprintf(stderr, "%s: pmSetMode failed: %s\n",
 		    pmProgname, pmErrStr(sts));
 	    exit(1);
@@ -260,10 +263,6 @@ main(int argc, char **argv)
     if (opts.context == PM_CONTEXT_ARCHIVE)
 	get_sample(); /* fetch the separate early ncpu record */
     get_sample(); /* fetch other rate metrics */
-
-    /* set a default sampling interval if none has been requested */
-    if (opts.interval.tv_sec == 0 && opts.interval.tv_usec == 0)
-	opts.interval.tv_sec = 5;
 
     /* set sampling loop termination via the command line options */
     samples = opts.samples ? opts.samples : -1;

@@ -296,11 +296,11 @@ add_pmns_node(__pmnsTree *tree, int domain, int cluster, int lock, int stat)
     char entry[64];
     pmID pmid = pmid_build(domain, cluster, (lock * NUM_GLOCKSTATS) + stat);
 
-    snprintf(entry, sizeof(entry),
+    pmsprintf(entry, sizeof(entry),
 	     "gfs2.worst_glock.%s.%s", topnum[lock], stattype[stat]);
     __pmAddPMNSNode(tree, pmid, entry);
 
-    if (pmDebug & DBG_TRACE_APPL0)
+    if (pmDebugOptions.appl0)
 	fprintf(stderr, "GFS2 worst_glock added %s (%s)", entry, pmIDStr(pmid));
 }
 
@@ -342,7 +342,7 @@ refresh_metrictable(pmdaMetric *source, pmdaMetric *dest, int lock)
     item += lock * NUM_GLOCKSTATS;
     dest->m_desc.pmid = pmid_build(domain, cluster, item);
 
-    if (pmDebug & DBG_TRACE_APPL0)
+    if (pmDebugOptions.appl0)
 	fprintf(stderr, "GFS2 worst_glock refresh_metrictable: (%p -> %p) "
 			"metric ID dup: %d.%d.%d -> %d.%d.%d\n",
 			source, dest, domain, cluster,
@@ -371,7 +371,7 @@ worst_glock_text(pmdaExt *pmda, pmID pmid, int type, char **buf)
 	return PM_ERR_PMID;
     if (item < 0 || item >= WORST_GLOCK_COUNT)
 	return PM_ERR_PMID;
-    snprintf(text, sizeof(text), "%s for %s worst glock",
+    pmsprintf(text, sizeof(text), "%s for %s worst glock",
 	     stattext[item % NUM_GLOCKSTATS], topnum[item / NUM_TOPNUM]);
 
     *buf = text;

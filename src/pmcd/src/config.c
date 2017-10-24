@@ -118,16 +118,16 @@ GetNextLine(void)
     int		still_to_read;
     int		atEOF = 0;
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL2)
+    if (pmDebugOptions.appl2)
 	fprintf(stderr, "%d: GetNextLine()\n", nLines);
-#endif
 
     if (szLineBuf == 0) {
 	szLineBuf = LINEBUF_SIZE;
 	linebuf = (char *)malloc(szLineBuf);
-	if (linebuf == NULL)
+	if (linebuf == NULL) {
 	    __pmNoMem("pmcd config: GetNextLine init", szLineBuf, PM_FATAL_ERR);
+	    /*NOTREACHED*/
+	}
     }
 
     linebuf[0] = '\0';
@@ -216,12 +216,10 @@ GetNextLine(void)
     } while (more);
     nLines++;
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL2) {
+    if (pmDebugOptions.appl2) {
 	fprintf(stderr, "\n===================NEWLINE=================\n\n");
 	fprintf(stderr, "len = %d\nline = \"%s\"\n", (int)strlen(linebuf), linebuf);
     }
-#endif
 }
 
 /* Advance through the input stream until either a non-whitespace character, a
@@ -282,12 +280,10 @@ FindNextToken(void)
     static char	*rawToken;		/* Used in pathological quoting case */
     char	ch;
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL2) {
+    if (pmDebugOptions.appl2) {
 	fprintf(stderr, "FindNextToken() ");
 	fprintf(stderr, "scanInit=%d scanError=%d scanReadOnly=%d doingAccess=%d tokenQuoted=%d token=%p tokenend=%p\n", scanInit, scanError, scanReadOnly, doingAccess, tokenQuoted, token, tokenend);
     }
-#endif
 
     do {
 	if (scanInit) {
@@ -415,14 +411,12 @@ FindNextToken(void)
     else
 	tokenQuoted = 0;
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL2) {
+    if (pmDebugOptions.appl2) {
 	fputs("TOKEN = '", stderr);
 	PrintToken(stderr);
 	fputs("' ", stderr);
 	fprintf(stderr, "scanInit=%d scanError=%d scanReadOnly=%d doingAccess=%d tokenQuoted=%d token=%p tokenend=%p\n", scanInit, scanError, scanReadOnly, doingAccess, tokenQuoted, token, tokenend);
     }
-#endif
 }
 
 /* Move to the next line of the input stream. */
@@ -492,19 +486,21 @@ BuildArgv(void)
 {
     int		nArgs;
     char	**result;
+    char	**result_new;
 
     nArgs = 0;
     result = NULL;
     do {
 	/* Make result big enough for new arg and terminating NULL pointer */
-	result = (char **)realloc(result, (nArgs + 2) * sizeof(char *));
-	if (result != NULL) {
+	result_new = (char **)realloc(result, (nArgs + 2) * sizeof(char *));
+	if (result_new != NULL) {
+	    result = result_new;
 	    if (*token != '/')
 		result[nArgs] = CopyToken();
 	    else if ((result[nArgs] = CopyToken()) != NULL)
 		__pmNativePath(result[nArgs]);
 	}
-	if (result == NULL || result[nArgs] == NULL) {
+	if (result_new == NULL || result[nArgs] == NULL) {
 	    fprintf(stderr, "pmcd config[line %d]: Error: failed to build argument list\n",
 		    nLines);
 	    __pmNoMem("pmcd config: build argv", nArgs * sizeof(char *),
@@ -519,10 +515,8 @@ BuildArgv(void)
 	    }
 	    return NULL;
 	}
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL2)
+	if (pmDebugOptions.appl2)
 	    fprintf(stderr, "argv[%d] = '%s'\n", nArgs, result[nArgs]);
-#endif
 
 	nArgs++;
 	FindNextToken();
@@ -542,8 +536,8 @@ GetNewAgent(void)
     if (agent == NULL) {
 	agent = (AgentInfo*)malloc(sizeof(AgentInfo) * MIN_AGENTS_ALLOC);
 	if (agent == NULL) {
-	    perror("GetNewAgentIndex: malloc");
-	    exit(1);
+	    __pmNoMem("GetNewAgentIndex: malloc", sizeof(AgentInfo) * MIN_AGENTS_ALLOC, PM_FATAL_ERR);
+	    /*NOTREACHED*/
 	}
 	szAgents = MIN_AGENTS_ALLOC;
     }
@@ -552,8 +546,8 @@ GetNewAgent(void)
 	agent = (AgentInfo*)
 	    realloc(agent, sizeof(AgentInfo) * 2 * szAgents);
 	if (agent == NULL) {
-	    perror("GetNewAgentIndex: realloc");
-	    exit(1);
+	    __pmNoMem("GetNewAgentIndex: realloc", sizeof(AgentInfo) * 2 * szAgents, PM_FATAL_ERR);
+	    /*NOTREACHED*/
 	}
 	for (i = 0; i < nAgents; i++)
 	    pmdaInterfaceMoved(&agent[i].ipc.dso.dispatch);
@@ -618,6 +612,7 @@ ParseDso(char *pmDomainLabel, int pmDomainId)
 	fprintf(stderr, "pmcd config[line %d]: Error: couldn't copy DSO entry point\n",
 			 nLines);
 	__pmNoMem("pmcd config", tokenend - token + 1, PM_FATAL_ERR);
+	/*NOTREACHED*/
     }
 
     FindNextToken();
@@ -638,6 +633,7 @@ ParseDso(char *pmDomainLabel, int pmDomainId)
 	fprintf(stderr, "pmcd config[line %d]: Error: couldn't copy DSO pathname\n",
 			nLines);
 	__pmNoMem("pmcd config", tokenend - token + 1, PM_FATAL_ERR);
+	/*NOTREACHED*/
     }
     __pmNativePath(pathName);
 
@@ -703,6 +699,7 @@ ParseSocket(char *pmDomainLabel, int pmDomainId)
 	    fprintf(stderr, "pmcd config[line %d]: Error: couldn't copy port name\n",
 			 nLines);
 	    __pmNoMem("pmcd config", tokenend - token + 1, PM_FATAL_ERR);
+	    /*NOTREACHED*/
 	}
     FindNextToken();
 
@@ -970,11 +967,15 @@ ParseNames(char ***namesp, const char *nametype)
 
 	    szNames += 8;
 	    need = szNames * (int)sizeof(char**);
-	    if ((names = (char **)realloc(names, need)) == NULL)
+	    if ((names = (char **)realloc(names, need)) == NULL) {
 		__pmNoMem("pmcd ParseNames name list", need, PM_FATAL_ERR);
+		/*NOTREACHED*/
+	    }
 	}
-	if ((names[nnames++] = CopyToken()) == NULL)
+	if ((names[nnames++] = CopyToken()) == NULL) {
 	    __pmNoMem("pmcd ParseNames name", tokenend - token, PM_FATAL_ERR);
+	    /*NOTREACHED*/
+	}
 	FindNextToken();
 	if (*token != ',' && *token != ':') {
 	    fprintf(stderr,
@@ -1028,7 +1029,7 @@ ParseHosts(int allow)
     if (ParseAccessSpec(allow, &specOps, &denyOps, &maxCons, 0) < 0)
 	goto error;
 
-    if (pmDebug & DBG_TRACE_APPL1) {
+    if (pmDebugOptions.appl1) {
 	for (i = 0; i < nhosts; i++)
 	    fprintf(stderr, "HOST ACCESS: %s specOps=%02x denyOps=%02x maxCons=%d\n",
 		    hostnames[i], specOps, denyOps, maxCons);
@@ -1077,7 +1078,7 @@ ParseUsers(int allow)
     if (ParseAccessSpec(allow, &specOps, &denyOps, &maxCons, 0) < 0)
 	goto error;
 
-    if (pmDebug & DBG_TRACE_APPL1) {
+    if (pmDebugOptions.appl1) {
 	for (i = 0; i < nusers; i++)
 	    fprintf(stderr, "USER ACCESS: %s specOps=%02x denyOps=%02x maxCons=%d\n",
 		    usernames[i], specOps, denyOps, maxCons);
@@ -1120,7 +1121,7 @@ ParseGroups(int allow)
     if (ParseAccessSpec(allow, &specOps, &denyOps, &maxCons, 0) < 0)
 	goto error;
 
-    if (pmDebug & DBG_TRACE_APPL1) {
+    if (pmDebugOptions.appl1) {
 	for (i = 0; i < ngroups; i++)
 	    fprintf(stderr, "GROUP ACCESS: %s specOps=%02x denyOps=%02x maxCons=%d\n",
 		    groupnames[i], specOps, denyOps, maxCons);
@@ -1244,10 +1245,8 @@ ParseAccessControls(void)
     if (need_creds)
 	__pmServerSetFeature(PM_SERVER_FEATURE_CREDS_REQD);
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL1)
+    if (pmDebugOptions.appl1)
 	__pmAccDumpLists(stderr);
-#endif
 
     return 0;
 }
@@ -1273,8 +1272,10 @@ ReadConfigFile(FILE *configFile)
 	if (*token == '[')		/* Start of access control specs */
 	    break;
 
-	if ((pmDomainLabel = CopyToken()) == NULL)
+	if ((pmDomainLabel = CopyToken()) == NULL) {
 	    __pmNoMem("pmcd config: domain label", tokenend - token + 1, PM_FATAL_ERR);
+	    /*NOTREACHED*/
+	}
 
 	FindNextToken();
 	if (TokenIsNumber()) {
@@ -1360,14 +1361,12 @@ DoAttributes(AgentInfo *ap, int clientID)
 	for (node = __pmHashWalk(attrs, PM_HASH_WALK_START);
 	     node != NULL;
 	     node = __pmHashWalk(attrs, PM_HASH_WALK_NEXT)) {
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_ATTR) {
+	    if (pmDebugOptions.attr) {
 		char buffer[64];
 		__pmAttrStr_r(node->key, node->data, buffer, sizeof(buffer));
 		fprintf(stderr, "pmcd: send client[%d] attr %s to dso agent[%d]",
 			clientID, buffer, (int)(ap - agent));
 	    }
-#endif
 	    if ((sts = ap->ipc.dso.dispatch.version.six.attribute(
 				clientID, node->key, node->data,
 				node->data ? strlen(node->data)+1 : 0,
@@ -1381,14 +1380,12 @@ DoAttributes(AgentInfo *ap, int clientID)
 	for (node = __pmHashWalk(attrs, PM_HASH_WALK_START);
 	     node != NULL;
 	     node = __pmHashWalk(attrs, PM_HASH_WALK_NEXT)) {
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_ATTR) {
+	    if (pmDebugOptions.attr) {
 		char buffer[64];
 		__pmAttrStr_r(node->key, node->data, buffer, sizeof(buffer));
 		fprintf(stderr, "pmcd: send client[%d] attr %s to daemon agent[%d]",
 			clientID, buffer, (int)(ap - agent));
 	    }
-#endif
 	    if ((sts = __pmSendAttr(ap->inFd,
 				clientID, node->key, node->data,
 				node->data ? strlen(node->data)+1 : 0)) < 0)
@@ -1396,11 +1393,9 @@ DoAttributes(AgentInfo *ap, int clientID)
 	}
     }
     if (sts < 0) {
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL0)
+	if (pmDebugOptions.appl0)
 	    fprintf(stderr, "ATTR error: \"%s\" agent : %s\n",
 		    ap->pmDomainLabel, pmErrStr(sts));
-#endif
 	CleanupAgent(ap, AT_COMM, ap->inFd);
 	return PM_ERR_AGAIN;
     }
@@ -1467,11 +1462,9 @@ DoAgentCreds(AgentInfo* aPtr, __pmPDU *pb)
 	    vcp = (__pmVersionCred *)&credlist[i];
 	    aPtr->pduVersion = version = vcp->c_version;
 	    aPtr->status.flags = flags = vcp->c_flags;
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_CONTEXT)
+	    if (pmDebugOptions.context)
 		fprintf(stderr, "pmcd: version creds (version=%u,flags=%x)\n",
 			aPtr->pduVersion, aPtr->status.flags);
-#endif
 	    break;
 	}
     }
@@ -1491,7 +1484,7 @@ DoAgentCreds(AgentInfo* aPtr, __pmPDU *pb)
 	handshake.c_type = CVERSION;
 	handshake.c_version = PDU_VERSION;
 	handshake.c_flags = (flags & PDU_FLAG_AUTH);
-	if ((sts = __pmSendCreds(aPtr->inFd, (int)getpid(), 1, cp)) < 0)
+	if ((sts = __pmSendCreds(aPtr->inFd, (int)pmcd_pid, 1, cp)) < 0)
 	    return sts;
 	pmcd_trace(TR_XMIT_PDU, aPtr->inFd, PDU_CREDS, credcount);
 
@@ -1897,11 +1890,9 @@ CreateAgent(AgentInfo *aPtr)
     else if (aPtr->ipcType == AGENT_SOCKET)
 	aPtr->ipc.socket.agentPid = childPid;
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL0)
+    if (pmDebugOptions.appl0)
 	fprintf(stderr, "pmcd: started PMDA %s (%d), pid=%" FMT_PID "\n",
 	        aPtr->pmDomainLabel, aPtr->pmDomainId, childPid);
-#endif
     return 0;
 }
 
@@ -2011,6 +2002,7 @@ GetAgentDso(AgentInfo *aPtr)
 	dso->pathName = strdup(name);
 	if (dso->pathName == NULL) {
 	    __pmNoMem("pmcd config: pathName", strlen(name), PM_FATAL_ERR);
+	    /*NOTREACHED*/
 	}
 	dso->xlatePath = 1;
     }
@@ -2122,12 +2114,10 @@ GetAgentDso(AgentInfo *aPtr)
     if (dso->dispatch.comm.flags & PDU_FLAG_AUTH)
 	ClientsAttributes(aPtr);
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL0)
+    if (pmDebugOptions.appl0)
 	fprintf(stderr, "pmcd: started DSO PMDA %s (%d) using pmPMDA version=%d, "
 		"PDU version=%d\n", aPtr->pmDomainLabel, aPtr->pmDomainId,
 		dso->dispatch.comm.pmda_interface, aPtr->pduVersion);
-#endif
 
     return 0;
 }
@@ -2175,6 +2165,7 @@ ContactAgents(void)
 	    else
 		pmcd_trace(TR_ADD_AGENT, aPtr->pmDomainId, aPtr->inFd, aPtr->outFd);
 	    MarkStateChanges(PMCD_ADD_AGENT);
+	    pmcd_seqnum++;
 	    aPtr->status.notReady = aPtr->status.startNotReady;
 	}
 	else
@@ -2236,25 +2227,19 @@ ParseInitAgents(char *fileName)
     else {
 #if defined(HAVE_ST_MTIME_WITH_E) && defined(HAVE_STAT_TIME_T)
 	configFileTime = statBuf.st_mtime;
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL0)
+	if (pmDebugOptions.appl0)
 	    fprintf(stderr, "ParseInitAgents: configFileTime=%ld sec\n",
 	        (long)configFileTime);
-#endif
 #elif defined(HAVE_ST_MTIME_WITH_SPEC)
 	configFileTime = statBuf.st_mtimespec; /* struct assignment */
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL0)
+	if (pmDebugOptions.appl0)
 	    fprintf(stderr, "ParseInitAgents: configFileTime=%ld.%09ld sec\n",
 	        (long)configFileTime.tv_sec, (long)configFileTime.tv_nsec);
-#endif
 #elif defined(HAVE_STAT_TIMESTRUC) || defined(HAVE_STAT_TIMESPEC) || defined(HAVE_STAT_TIMESPEC_T)
 	configFileTime = statBuf.st_mtim; /* struct assignment */
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL0)
+	if (pmDebugOptions.appl0)
 	    fprintf(stderr, "ParseInitAgents: configFileTime=%ld.%09ld sec\n",
 	        (long)configFileTime.tv_sec, (long)configFileTime.tv_nsec);
-#endif
 #else
 !bozo!
 #endif
@@ -2469,31 +2454,26 @@ ParseRestartAgents(char *fileName)
      * restart any deceased agents
      */
 #if defined(HAVE_ST_MTIME_WITH_SPEC)
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL0)
+    if (pmDebugOptions.appl0)
 	fprintf(stderr, "ParseRestartAgents: new configFileTime=%ld.%09ld sec\n",
 	    (long)statBuf.st_mtimespec.tv_sec, (long)statBuf.st_mtimespec.tv_nsec);
-#endif
     if (statBuf.st_mtimespec.tv_sec == configFileTime.tv_sec &&
-        statBuf.st_mtimespec.tv_nsec == configFileTime.tv_nsec) {
+        statBuf.st_mtimespec.tv_nsec == configFileTime.tv_nsec)
 #elif defined(HAVE_STAT_TIMESPEC_T) || defined(HAVE_STAT_TIMESTRUC) || defined(HAVE_STAT_TIMESPEC)
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL0)
+    if (pmDebugOptions.appl0)
 	fprintf(stderr, "ParseRestartAgents: new configFileTime=%ld.%09ld sec\n",
 	    (long)statBuf.st_mtim.tv_sec, (long)statBuf.st_mtim.tv_nsec);
-#endif
     if (statBuf.st_mtim.tv_sec == configFileTime.tv_sec &&
-        statBuf.st_mtim.tv_nsec == configFileTime.tv_nsec) {
+        statBuf.st_mtim.tv_nsec == configFileTime.tv_nsec)
 #elif defined(HAVE_STAT_TIME_T)
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL0)
+    if (pmDebugOptions.appl0)
 	fprintf(stderr, "ParseRestartAgents: new configFileTime=%ld sec\n",
 	    (long)configFileTime);
-#endif
-    if (statBuf.st_mtime == configFileTime) {
+    if (statBuf.st_mtime == configFileTime)
 #else
 !bozo!
 #endif
+    {
 	fprintf(stderr, "Configuration file '%s' unchanged\n", fileName);
 	fprintf(stderr, "Restarting any deceased agents:\n");
 	j = 0;
@@ -2514,6 +2494,7 @@ ParseRestartAgents(char *fileName)
 	    }
 
 	    MarkStateChanges(PMCD_RESTART_AGENT);
+	    pmcd_seqnum++;
 	}
 	PrintAgentInfo(stderr);
 	__pmAccDumpLists(stderr);

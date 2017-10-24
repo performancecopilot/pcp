@@ -8,7 +8,7 @@
 ** of the 'atop'-framework.
 ** 
 ** Copyright (C) 2007-2010 Gerlof Langeveld
-** Copyright (C) 2015-2016 Red Hat.
+** Copyright (C) 2015-2017 Red Hat.
 **
 ** This program is free software; you can redistribute it and/or modify it
 ** under the terms of the GNU General Public License as published by the
@@ -83,7 +83,7 @@ static char 		coloron;       /* boolean: colors active now      */
 /*
 ** local prototypes
 */
-static void	pratopsaruse(char *);
+static void	pratopsaruse(char *, pmOptions *opts);
 static char	reportlive(double, double,
 		           struct sstat *, struct tstat *, struct tstat **,
 		           int, int, int, int, int, int, int, int,
@@ -149,7 +149,7 @@ atopsar(int argc, char *argv[])
 			switch (c)
 			{
 			   case '?':		/* usage wanted ?        */
-				pratopsaruse(pmProgname);
+				pratopsaruse(pmProgname, &opts);
 				break;
 
                            case 'b':		/* begin time ?          */
@@ -167,12 +167,12 @@ atopsar(int argc, char *argv[])
 
 			   case 'R':		/* summarize samples */
 				if (!numeric(opts.optarg))
-					pratopsaruse(pmProgname);
+					pratopsaruse(pmProgname, &opts);
 
 				summarycnt = atoi(opts.optarg);
 
 				if (summarycnt < 1)
-					pratopsaruse(pmProgname);
+					pratopsaruse(pmProgname, &opts);
 				break;
 
 			   case 'S':		/* timestamp on every line */
@@ -228,7 +228,7 @@ atopsar(int argc, char *argv[])
 				}
 
 				if (i == pricnt)
-					pratopsaruse(argv[0]);
+					pratopsaruse(argv[0], &opts);
 			}
 		}
 
@@ -242,7 +242,7 @@ atopsar(int argc, char *argv[])
 
 			arg = argv[opts.optind++];
 			if (!numeric(arg))
-				pratopsaruse(pmProgname);
+				pratopsaruse(pmProgname, &opts);
 	
 			if (pmParseInterval(arg, &opts.interval, &endnum) < 0)
 			{
@@ -257,9 +257,9 @@ atopsar(int argc, char *argv[])
 			{
 				arg = argv[opts.optind];
 				if (!numeric(arg))
-					pratopsaruse(pmProgname);
+					pratopsaruse(pmProgname, &opts);
 				if ((opts.samples = atoi(arg)) < 1)
-					pratopsaruse(pmProgname);
+					pratopsaruse(pmProgname, &opts);
 			}
 		}
 	}
@@ -277,7 +277,7 @@ atopsar(int argc, char *argv[])
 	__pmEndOptions(&opts);
 
 	if (opts.errors)
-		prusage(pmProgname);
+		prusage(pmProgname, &opts);
 
 	if (opts.samples)
 		nsamples = opts.samples;
@@ -823,7 +823,7 @@ reportheader(struct sysname *sysname, time_t mtime)
 ** print usage of atopsar command
 */
 void
-pratopsaruse(char *myname)
+pratopsaruse(char *myname, pmOptions *opts)
 {
 	int	i;
 
@@ -875,6 +875,14 @@ pratopsaruse(char *myname)
 	for (i=0; i < pricnt; i++)
 		fprintf(stderr,
 		"\t  -%c  %s\n", pridef[i].flag, pridef[i].about);
+
+	if (opts)
+	{
+		fprintf(stderr, "\n");
+		fprintf(stderr,
+			"\tAdditional PCP flags (long options only):\n");
+		show_pcp_usage(opts);
+	}
 
 	fprintf(stderr, "\n");
 	fprintf(stderr,
@@ -1624,7 +1632,7 @@ ifline(struct sstat *ss, struct tstat *ts, struct tstat **ps, int nactproc,
 				        	ss->intf.intf[i].speed;
 			}
 
-			snprintf(busyval, sizeof busyval,
+			pmsprintf(busyval, sizeof busyval,
 						"%3.0lf%%", busy);
 		}
 		else

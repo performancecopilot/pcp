@@ -103,8 +103,7 @@ refresh(void *dummy)
 #endif
 #endif
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL0) {
+    if (pmDebugOptions.appl0) {
 	fprintf(stderr, "Starting sproc ...\n");
 	for (i = 0; i < n_cisco; i++) {
 	    int	j;
@@ -119,7 +118,6 @@ refresh(void *dummy)
 	    fputc('\n', stderr);
 	}
     }
-#endif
 
     for ( ; ; ) {
 	for (i = 0; i < n_intf; i++) {
@@ -135,25 +133,19 @@ refresh(void *dummy)
 
 	for (i = 0; i < n_cisco; i++) {
 	    if (cisco[i].fout != NULL) {
-#ifdef PCP_DEBUG
-		if (pmDebug & DBG_TRACE_APPL0)
+		if (pmDebugOptions.appl0)
 		    fprintf(stderr, "... %s voluntary disconnect fout=%d\n", cisco[i].host, fileno(cisco[i].fout));
-#endif
 		/* close CISCO telnet session */
-#ifdef PCP_DEBUG
-		if (pmDebug & DBG_TRACE_APPL1) {
+		if (pmDebugOptions.appl1) {
 		    fprintf(stderr, "Send: exit\n");
 		}
-#endif
 		fprintf(cisco[i].fout, "exit\n");
 		fclose(cisco[i].fout);
 		cisco[i].fout = NULL;
 	    }
 	    if (cisco[i].fin != NULL) {
-#ifdef PCP_DEBUG
-		if (pmDebug & DBG_TRACE_APPL0)
+		if (pmDebugOptions.appl0)
 		    fprintf(stderr, "... %s close fin=%d\n", cisco[i].host, fileno(cisco[i].fin));
-#endif
 		fclose(cisco[i].fin);
 		cisco[i].fin = NULL;
 	    }

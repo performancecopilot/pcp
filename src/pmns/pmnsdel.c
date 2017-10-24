@@ -118,7 +118,7 @@ main(int argc, char **argv)
         pmnsfile[MAXPATHLEN-1]= '\0';
 
     } else {
-	snprintf(pmnsfile, sizeof(pmnsfile), "%s%c" "pmns" "%c" "root",
+	pmsprintf(pmnsfile, sizeof(pmnsfile), "%s%c" "pmns" "%c" "root",
 		pmGetConfig("PCP_VAR_DIR"), sep, sep);
     }
 
@@ -129,13 +129,11 @@ main(int argc, char **argv)
 	    fprintf(stderr, "%s: Warning: -d deprecated, duplicate PMNS names allowed by default\n", pmProgname);
 	    break;
 
-	case 'D':	/* debug flag */
-	    if ((sts = __pmParseDebug(opts.optarg)) < 0) {
-		fprintf(stderr, "%s: unrecognized debug flag specification (%s)\n",
+	case 'D':	/* debug options */
+	    if ((sts = pmSetDebug(opts.optarg)) < 0) {
+		fprintf(stderr, "%s: unrecognized debug options specification (%s)\n",
 			pmProgname, opts.optarg);
 		opts.errors++;
-	    } else {
-		pmDebug |= sts;
 	    }
 	    break;
 
@@ -187,7 +185,7 @@ main(int argc, char **argv)
     __pmSetSignalHandler(SIGINT, SIG_IGN);
     __pmSetSignalHandler(SIGTERM, SIG_IGN);
 
-    snprintf(outfname, sizeof(outfname), "%s.new", pmnsfile);
+    pmsprintf(outfname, sizeof(outfname), "%s.new", pmnsfile);
     if ((outf = fopen(outfname, "w")) == NULL) {
 	fprintf(stderr, "%s: Error: cannot open PMNS file \"%s\" for writing: %s\n",
 		pmProgname, outfname, osstrerror());

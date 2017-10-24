@@ -1,0 +1,54 @@
+QA output created by 1097
+default behaviour ... 
+Warning: cannot find group file (mia/kermit): no change is possible
+Warning: cannot find group file (mia/gonzo): no change is possible
+Warning: cannot find group file (mia/fozzie): no change is possible
+Warning: cannot find group file (mia/red): no change is possible
+Warning: cannot find group file (mia/green): no change is possible
+Warning: cannot find group file (mia/blue): no change is possible
+Warning: cannot find group file (reallymia/terry): no change is possible
+Warning: cannot find group file (reallymia/cathy): no change is possible
+Warning: cannot find group file (reallymia/emma): no change is possible
+expect no diffs
+
+new behaviour with -c ...
+pmlogconf: Warning: cannot find group file (mia/kermit): deleting obsolete group
+pmlogconf: Warning: cannot find group file (mia/gonzo): deleting obsolete group
+pmlogconf: Warning: cannot find group file (mia/fozzie): deleting obsolete group
+pmlogconf: Warning: cannot find group file (mia/red): deleting obsolete group
+pmlogconf: Warning: cannot find group file (mia/green): deleting obsolete group
+pmlogconf: Warning: cannot find group file (mia/blue): deleting obsolete group
+pmlogconf: Warning: cannot find group file (reallymia/terry): deleting obsolete group
+pmlogconf: Warning: cannot find group file (reallymia/cathy): deleting obsolete group
+pmlogconf: Warning: cannot find group file (reallymia/emma): deleting obsolete group
+expect mia and reallymia templates to be gone
+N,NdN
+< #+ mia/kermit:y:default:
+< log mandatory on default {
+<     mia.kermit
+< }
+< #---- 1
+< #+ mia/gonzo:x::
+< #---- 2
+< #+ mia/fozzie:n::
+< #---- 3
+N,NdN
+< #+ mia/red:x::
+< #---- 4
+< #+ mia/green:y:once:
+< log advisory on once {
+<     mia.green
+< }
+< #---- 5
+< #+ mia/blue:n::
+< #---- 6
+N,NdN
+< #+ reallymia/terry:x::
+< #---- 7
+< #+ reallymia/cathy:n::
+< #---- 8
+< #+ reallymia/emma:y:1 hour:
+< log mandatory on 1 hour {
+<     reallymia.emma
+< }
+< #---- 9

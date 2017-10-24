@@ -82,7 +82,7 @@ actShell(Expr *x)
 	size += strlen(pcp_binadm_path) + 1;
 	size += strlen(pcp_bin_path) + 1;
 	if ((path = malloc(size)) != NULL) {
-	    if ((i = snprintf(path, size-1, "%s:%s:%s:%s\n", paths,
+	    if ((i = pmsprintf(path, size-1, "%s:%s:%s:%s\n", paths,
 			pcp_bin_path, pcp_binadm_path, all_platform_paths)) <= 0)
 		path = paths;	/* fallback to basic defaults */
 	    else if (path[i-2] == ':')
@@ -127,14 +127,11 @@ actShell(Expr *x)
 	}
 	else if (pid > 0) {
 	    /* parent, wait for child to exit to catch status */
-#if PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL2) {
+	    if (pmDebugOptions.appl2) {
 		fprintf(stderr, "actShell: fork: pid=%" FMT_PID "\n", pid);
 	    }
-#endif
 	    sts = waitpid(pid, &x->valid, 0);
-#if PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL2) {
+	    if (pmDebugOptions.appl2) {
 		fprintf(stderr, "actShell: wait: pid=%" FMT_PID " status=0x%x", pid, x->valid);
 		if (WIFEXITED(x->valid))
 		    fprintf(stderr, " exit=%d", WEXITSTATUS(x->valid));
@@ -142,7 +139,6 @@ actShell(Expr *x)
 		    fprintf(stderr, " signal=%d", WTERMSIG(x->valid));
 		fprintf(stderr, " (wait returns %d)\n", sts);
 	    }
-#endif
 	    if (WIFEXITED(x->valid))
 		x->valid = WEXITSTATUS(x->valid);
 	    else
@@ -202,15 +198,12 @@ actAlarm(Expr *x)
 	pid_t   pid;
 	pid = waitpid((pid_t)x->valid, &sts, WNOHANG);
 	if (pid <= 0) {
-#if PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL2) {
+	    if (pmDebugOptions.appl2) {
 		fprintf(stderr, "actAlarm: wait: pid=%d not done (wait returns %" FMT_PID ")\n", x->valid, pid);
 	    }
-#endif
 	    return;
 	}
-#if PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL2) {
+	if (pmDebugOptions.appl2) {
 	    fprintf(stderr, "actAlarm: wait: pid=%d done status=0x%x", x->valid, sts);
 	    if (WIFEXITED(sts))
 		fprintf(stderr, " exit=%d", WEXITSTATUS(sts));
@@ -218,7 +211,6 @@ actAlarm(Expr *x)
 		fprintf(stderr, " signal=%d", WTERMSIG(sts));
 	    fprintf(stderr, " (wait returns %" FMT_PID ")\n", pid);
 	}
-#endif
 	x->valid = 0;
     }
 #endif
@@ -260,11 +252,9 @@ actAlarm(Expr *x)
 	}
 	else if (sts > 0) {
 	    need_wait = 1;
-#if PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL2) {
+	    if (pmDebugOptions.appl2) {
 		fprintf(stderr, "actAlarm: fork: pid=%d\n", sts);
 	    }
-#endif
 	    x->valid = sts;
 	    *(Boolean *)x->ring = B_TRUE;
 	    x->smpls[0].stamp = now;

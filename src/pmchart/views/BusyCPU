@@ -49,14 +49,26 @@ _err()
 #
 echo "/\[0*$$ /d" >$tmp/sed
 
-# progress notifier while we do our job
-#
-pmquery >/dev/null 2>&1 \
-    -timeout 5 \
-    -header "kmchart view construction" \
-    -t "Finding top CPU burners, please wait 5 seconds ..." &
-query=$!
-echo "/\[0*$query /d" >>$tmp/sed
+dialog=true
+if [ "${PCP_STDERR+set}" = set ]
+then
+    if [ -z "$PCP_STDERR" -o "$PCP_STDERR" != DISPLAY ]
+    then
+	dialog=false
+    fi
+fi
+
+if $dialog
+then
+    # progress notifier while we do our job
+    #
+    pmquery >/dev/null 2>&1 \
+	-timeout 5 \
+	-header "kmchart view construction" \
+	-t "Finding top CPU burners, please wait 5 seconds ..." &
+    query=$!
+    echo "/\[0*$query /d" >>$tmp/sed
+fi
 
 # deal with alternative metric names ...
 #
@@ -111,20 +123,20 @@ sed -f $tmp/sed $tmp/1 \
 s/.*inst \[//
 s/ or .* \([0-9][0-9]*\)$/ \1/p
 }' \
-| sort >$tmp/1.list
+| sort -k 1b,1 >$tmp/1.list
 
 sed -n -e '/inst \[/{
 s/.*inst \[//
 s/or "\(.*\)".* \([0-9][0-9]*\)$/\2 \1/p
 }' $tmp/2 \
-| sort >$tmp/2.list
+| sort -k 1b,1 >$tmp/2.list
 
 #DEBUG# echo "First list ..." >/tmp/busy.debug
 #DEBUG# cat $tmp/1.list >>/tmp/busy.debug
 #DEBUG# echo "Second list ..." >>/tmp/busy.debug
 #DEBUG# cat $tmp/2.list >>/tmp/busy.debug
 
-join $tmp/1.list $tmp/2.list \
+join -j1 $tmp/1.list $tmp/2.list \
 | $PCP_AWK_PROG '
 $3 > $2	{ # this process has consumed some user mode CPU cycles
 	  printf "%d",$3-$2

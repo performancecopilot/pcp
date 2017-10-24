@@ -3,8 +3,6 @@ pmGetPDU: ERROR fd=<fd> len=20 from=0
 pmXmitPDU: CREDS fd=<fd> len=20
 pmRegisterDerived: register metric[0] event.flags = anon(PM_TYPE_U32)
 pmRegisterDerived: register metric[1] event.missed = anon(PM_TYPE_U32)
-__dmopencontext: bind metric[0] event.flags
-__dmopencontext: bind metric[1] event.missed
 pmXmitPDU: PMNS_NAMES fd=<fd> len=48
 pmGetPDU: PMNS_IDS fd=<fd> len=24 from=0
 pmResult ... numpmid: 1

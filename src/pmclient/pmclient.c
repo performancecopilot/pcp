@@ -27,7 +27,7 @@ pmLongOptions longopts[] = {
 };
 
 pmOptions opts = {
-    .flags = PM_OPTFLAG_STDOUT_TZ,
+    .flags = PM_OPTFLAG_STDOUT_TZ | PM_OPTFLAG_BOUNDARIES,
     .short_options = PMAPI_OPTIONS "P",
     .long_options = longopts,
 };
@@ -38,7 +38,7 @@ typedef struct {
     int			peak_cpu;	/* most utilized CPU, if > 1 CPU */
     float		peak_cpu_util;	/* utilization for most utilized CPU */
     float		freemem;	/* free memory (Mbytes) */
-    unsigned int	dkiops;		/* aggregate disk I/O's per second */
+    int			dkiops;		/* aggregate disk I/O's per second */
     float		load1;		/* 1 minute load average */
     float		load15;		/* 15 minute load average */
 } info_t;
@@ -136,27 +136,29 @@ get_sample(info_t *ip)
 	exit(1);
     }
 
-    /*
-     * minor gotcha ... for archives, it helps to do the first fetch of
-     * real data before interrogating the instance domains ... this
-     * forces us to be "after" the first batch of instance domain info
-     * in the meta data files
-     */
     if (first) {
 	/*
 	 * from now on, just want the 1 minute and 15 minute load averages,
 	 * so limit the instance profile for this metric
 	 */
-	pmDelProfile(desclist[LOADAV].indom, 0, NULL);	/* all off */
-	if ((inst1 = pmLookupInDom(desclist[LOADAV].indom, "1 minute")) < 0) {
+	if (opts.context == PM_CONTEXT_ARCHIVE) {
+	    inst1 = pmLookupInDomArchive(desclist[LOADAV].indom, "1 minute");
+	    inst15 = pmLookupInDomArchive(desclist[LOADAV].indom, "15 minute");
+	}
+	else {
+	    inst1 = pmLookupInDom(desclist[LOADAV].indom, "1 minute");
+	    inst15 = pmLookupInDom(desclist[LOADAV].indom, "15 minute");
+	}
+	if (inst1 < 0) {
 	    fprintf(stderr, "%s: cannot translate instance for 1 minute load average\n", pmProgname);
 	    exit(1);
 	}
-	pmAddProfile(desclist[LOADAV].indom, 1, &inst1);
-	if ((inst15 = pmLookupInDom(desclist[LOADAV].indom, "15 minute")) < 0) {
+	if (inst15 < 0) {
 	    fprintf(stderr, "%s: cannot translate instance for 15 minute load average\n", pmProgname);
 	    exit(1);
 	}
+	pmDelProfile(desclist[LOADAV].indom, 0, NULL);	/* all off */
+	pmAddProfile(desclist[LOADAV].indom, 1, &inst1);
 	pmAddProfile(desclist[LOADAV].indom, 1, &inst15);
 
 	first = 0;
@@ -164,62 +166,85 @@ get_sample(info_t *ip)
 
     /* if the second or later sample, pick the results apart */
     if (prp !=  NULL) {
-	
-	dt = __pmtimevalSub(&crp->timestamp, &prp->timestamp);
-	ip->cpu_util = 0;
-	ip->peak_cpu_util = -1;	/* force re-assignment at first CPU */
-	for (i = 0; i < ncpu; i++) {
-	    pmExtractValue(crp->vset[CPU_USR]->valfmt,
-			   &crp->vset[CPU_USR]->vlist[i],
-			   desclist[CPU_USR].type, &atom, PM_TYPE_FLOAT);
-	    u = atom.f;
-	    pmExtractValue(prp->vset[CPU_USR]->valfmt,
-			   &prp->vset[CPU_USR]->vlist[i],
-			   desclist[CPU_USR].type, &atom, PM_TYPE_FLOAT);
-	    u -= atom.f;
-	    pmExtractValue(crp->vset[CPU_SYS]->valfmt,
-			   &crp->vset[CPU_SYS]->vlist[i],
-			   desclist[CPU_SYS].type, &atom, PM_TYPE_FLOAT);
-	    u += atom.f;
-	    pmExtractValue(prp->vset[CPU_SYS]->valfmt,
-			   &prp->vset[CPU_SYS]->vlist[i],
-			   desclist[CPU_SYS].type, &atom, PM_TYPE_FLOAT);
-	    u -= atom.f;
-	    /*
-	     * really should use pmConvertValue, but I _know_ the times
-	     * are in msec!
-	     */
-	    u = u / (1000 * dt);
 
-	    if (u > 1.0)
-		/* small errors are possible, so clip the utilization at 1.0 */
-		u = 1.0;
-	    ip->cpu_util += u;
-	    if (u > ip->peak_cpu_util) {
-		ip->peak_cpu_util = u;
-		ip->peak_cpu = i;
-	    }
+	dt = __pmtimevalSub(&crp->timestamp, &prp->timestamp);
+
+	/*
+	 * But first ... is all the data present?
+	 */
+	if (prp->vset[CPU_USR]->numval <= 0 || crp->vset[CPU_USR]->numval <= 0 ||
+	    prp->vset[CPU_SYS]->numval <= 0 || crp->vset[CPU_SYS]->numval <= 0) {
+	    ip->cpu_util = -1;
+	    ip->peak_cpu = -1;
+	    ip->peak_cpu_util = -1;
 	}
-	ip->cpu_util /= ncpu;
+	else {
+	    ip->cpu_util = 0;
+	    ip->peak_cpu_util = -1;	/* force re-assignment at first CPU */
+	    for (i = 0; i < ncpu; i++) {
+		pmExtractValue(crp->vset[CPU_USR]->valfmt,
+			       &crp->vset[CPU_USR]->vlist[i],
+			       desclist[CPU_USR].type, &atom, PM_TYPE_FLOAT);
+		u = atom.f;
+		pmExtractValue(prp->vset[CPU_USR]->valfmt,
+			       &prp->vset[CPU_USR]->vlist[i],
+			       desclist[CPU_USR].type, &atom, PM_TYPE_FLOAT);
+		u -= atom.f;
+		pmExtractValue(crp->vset[CPU_SYS]->valfmt,
+			       &crp->vset[CPU_SYS]->vlist[i],
+			       desclist[CPU_SYS].type, &atom, PM_TYPE_FLOAT);
+		u += atom.f;
+		pmExtractValue(prp->vset[CPU_SYS]->valfmt,
+			       &prp->vset[CPU_SYS]->vlist[i],
+			       desclist[CPU_SYS].type, &atom, PM_TYPE_FLOAT);
+		u -= atom.f;
+		/*
+		 * really should use pmConvertValue, but I _know_ the times
+		 * are in msec!
+		 */
+		u = u / (1000 * dt);
+
+		if (u > 1.0)
+		    /* small errors are possible, so clip the utilization at 1.0 */
+		    u = 1.0;
+		ip->cpu_util += u;
+		if (u > ip->peak_cpu_util) {
+		    ip->peak_cpu_util = u;
+		    ip->peak_cpu = i;
+		}
+	    }
+	    ip->cpu_util /= ncpu;
+	}
 
 	/* freemem - expect just one value */
-	pmExtractValue(crp->vset[FREEMEM]->valfmt, crp->vset[FREEMEM]->vlist,
+	if (prp->vset[FREEMEM]->numval <= 0 || crp->vset[FREEMEM]->numval <= 0) {
+	    ip->freemem = -1;
+	}
+	else {
+	    pmExtractValue(crp->vset[FREEMEM]->valfmt, crp->vset[FREEMEM]->vlist,
 		    desclist[FREEMEM].type, &tmp, PM_TYPE_FLOAT);
-	/* convert from today's units at the collection site to Mbytes */
-	pmConvScale(PM_TYPE_FLOAT, &tmp, &desclist[FREEMEM].units,
+	    /* convert from today's units at the collection site to Mbytes */
+	    pmConvScale(PM_TYPE_FLOAT, &tmp, &desclist[FREEMEM].units,
 		    &atom, &mbyte_scale);
-	ip->freemem = atom.f;
+	    ip->freemem = atom.f;
+	}
 
 	/* disk IOPS - expect just one value, but need delta */
-	pmExtractValue(crp->vset[DKIOPS]->valfmt, crp->vset[DKIOPS]->vlist,
-		    desclist[DKIOPS].type, &atom, PM_TYPE_U32);
-	ip->dkiops = atom.ul;
-	pmExtractValue(prp->vset[DKIOPS]->valfmt, prp->vset[DKIOPS]->vlist,
-		    desclist[DKIOPS].type, &atom, PM_TYPE_U32);
-	ip->dkiops -= atom.ul;
-	ip->dkiops = ((float)(ip->dkiops) + 0.5) / dt;
+	if (prp->vset[DKIOPS]->numval <= 0 || crp->vset[DKIOPS]->numval <= 0) {
+	    ip->dkiops = -1;
+	}
+	else {
+	    pmExtractValue(crp->vset[DKIOPS]->valfmt, crp->vset[DKIOPS]->vlist,
+			desclist[DKIOPS].type, &atom, PM_TYPE_U32);
+	    ip->dkiops = atom.ul;
+	    pmExtractValue(prp->vset[DKIOPS]->valfmt, prp->vset[DKIOPS]->vlist,
+			desclist[DKIOPS].type, &atom, PM_TYPE_U32);
+	    ip->dkiops -= atom.ul;
+	    ip->dkiops = ((float)(ip->dkiops) + 0.5) / dt;
+	}
 
 	/* load average ... process all values, matching up the instances */
+	ip->load1 = ip->load15 = -1;
 	for (i = 0; i < crp->vset[LOADAV]->numval; i++) {
 	    pmExtractValue(crp->vset[LOADAV]->valfmt,
 			   &crp->vset[LOADAV]->vlist[i],
@@ -303,20 +328,25 @@ main(int argc, char **argv)
     host = pmGetContextHostName(c);
     ncpu = get_ncpu();
 
-    if ((opts.context == PM_CONTEXT_ARCHIVE) &&
-	(opts.start.tv_sec != 0 || opts.start.tv_usec != 0)) {
-	if ((sts = pmSetMode(PM_MODE_FORW, &opts.start, 0)) < 0) {
+    /* set a default sampling interval if none has been requested */
+    if (opts.interval.tv_sec == 0 && opts.interval.tv_usec == 0)
+	opts.interval.tv_sec = 5;
+
+    if (opts.context == PM_CONTEXT_ARCHIVE) {
+	if ((sts = pmSetMode(PM_MODE_INTERP, &opts.start, (int)(opts.interval.tv_sec*1000 + opts.interval.tv_usec/1000))) < 0) {
 	    fprintf(stderr, "%s: pmSetMode failed: %s\n",
 		    pmProgname, pmErrStr(sts));
 	    exit(1);
 	}
     }
 
-    get_sample(&info);
-
-    /* set a default sampling interval if none has been requested */
-    if (opts.interval.tv_sec == 0 && opts.interval.tv_usec == 0)
-	opts.interval.tv_sec = 5;
+    /* prime the results */
+    if (opts.context == PM_CONTEXT_ARCHIVE) {
+	get_sample(&info);	/* preamble record */
+	get_sample(&info);	/* and into the real data */
+    }
+    else
+	get_sample(&info);	/* first pmFetch will prime the results */
 
     /* set sampling loop termination via the command line options */
     samples = opts.samples ? opts.samples : -1;
@@ -345,12 +375,36 @@ X.XXX   XXX   X.XXX XXXXX.XXX XXXXXX  XXXX.XX XXXX.XX
 	if (opts.context != PM_CONTEXT_ARCHIVE || pauseFlag)
 	    __pmtimevalSleep(opts.interval);
 	get_sample(&info);
-	printf("%5.2f", info.cpu_util);
-	if (ncpu > 1)
-	    printf("   %3d   %5.2f", info.peak_cpu, info.peak_cpu_util);
-	printf(" %9.3f", info.freemem);
-	printf(" %6d", info.dkiops);
-	printf("  %7.2f %7.2f\n", info.load1, info.load15);
+	if (info.cpu_util >= 0)
+	    printf("%5.2f", info.cpu_util);
+	else
+	    printf("%5.5s", "?");
+	if (ncpu > 1) {
+	    if (info.peak_cpu >= 0)
+		printf("   %3d", info.peak_cpu);
+	    else
+		printf("   %3.3s", "?");
+	    if (info.peak_cpu_util >= 0)
+		printf("   %5.2f", info.peak_cpu_util);
+	    else
+		printf("   %5.5s", "?");
+	}
+	if (info.freemem >= 0)
+	    printf(" %9.3f", info.freemem);
+	else
+	    printf(" %9.9s", "?");
+	if (info.dkiops >= 0)
+	    printf(" %6d", info.dkiops);
+	else
+	    printf(" %6.6s", "?");
+	if (info.load1 >= 0)
+	    printf("  %7.2f", info.load1);
+	else
+	    printf("  %7.7s", "?");
+	if (info.load15 >= 0)
+	    printf("  %7.2f\n", info.load15);
+	else
+	    printf("  %7.7s\n", "?");
  	lines++;
     }
     exit(0);

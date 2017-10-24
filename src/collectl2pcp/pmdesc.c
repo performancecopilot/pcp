@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015 Red Hat Inc.
+ * Copyright (c) 2013-2017 Red Hat.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -11,9 +11,7 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  *
- *
  * Lookup up the metrics named on stdin and generate pmDesc descriptors.
- * Mark Goodwin <mgoodwin@redhat.com> May 2013.
  */
 
 #include <pcp/pmapi.h>
@@ -30,7 +28,7 @@ indomStr(int indom)
     if (indom == PM_INDOM_NULL)
     	strcpy(buf, "PM_INDOM_NULL");
     else
-        sprintf(buf, "0x%04x", indom);
+        pmsprintf(buf, sizeof(buf), "0x%04x", indom);
 
     return buf;
 }

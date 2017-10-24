@@ -1,0 +1,794 @@
+QA output created by 1133
+---
+              <user instance-name="cpu0" unit="ms/s">0.000</user>
+              <user instance-name="cpu0" unit="ms/s">0.000</user>
+              <user instance-name="cpu0" unit="ms/s">0.000</user>
+              <user instance-name="cpu0" unit="ms/s">9.999</user>
+            </cpu>
+            </cpu>
+            </cpu>
+            </cpu>
+            <baudrate instance-name="enp0s25" unit="byte/s">3168713760</baudrate>
+            <baudrate instance-name="enp0s25" unit="byte/s">3168713760</baudrate>
+            <baudrate instance-name="enp0s25" unit="byte/s">3168713760</baudrate>
+            <baudrate instance-name="enp0s25" unit="byte/s">3168713760</baudrate>
+            <baudrate instance-name="enp0s25" unit="byte/s">3168713760</baudrate>
+            <bogomips instance-name="cpu0">5587.420</bogomips>
+            <bogomips instance-name="cpu0">5587.420</bogomips>
+            <bogomips instance-name="cpu0">5587.420</bogomips>
+            <bogomips instance-name="cpu0">5587.420</bogomips>
+            <bogomips instance-name="cpu0">5587.420</bogomips>
+            <clock instance-name="cpu0" unit="count">2723.437</clock>
+            <clock instance-name="cpu0" unit="count">2800.000</clock>
+            <clock instance-name="cpu0" unit="count">2800.000</clock>
+            <clock instance-name="cpu0" unit="count">2800.109</clock>
+            <clock instance-name="cpu0" unit="count">3029.031</clock>
+            <close unit="count">0</close>
+            <close unit="count">0</close>
+            <close unit="count">0</close>
+            <close unit="count">0</close>
+            <close unit="count">0</close>
+            <cpu>
+            <cpu>
+            <cpu>
+            <cpu>
+            <hz unit="count/s">100</hz>
+            <hz unit="count/s">100</hz>
+            <hz unit="count/s">100</hz>
+            <hz unit="count/s">100</hz>
+            <hz unit="count/s">100</hz>
+            <lastpid>15707</lastpid>
+            <lastpid>15707</lastpid>
+            <lastpid>15707</lastpid>
+            <lastpid>15708</lastpid>
+            <lastpid>15710</lastpid>
+            <load instance-name="1 minute">0.080</load>
+            <load instance-name="1 minute">0.080</load>
+            <load instance-name="1 minute">0.080</load>
+            <load instance-name="1 minute">0.090</load>
+            <load instance-name="1 minute">0.090</load>
+            <read_bytes unit="Kbyte/s">0.000</read_bytes>
+            <read_bytes unit="Kbyte/s">0.000</read_bytes>
+            <read_bytes unit="Kbyte/s">0.000</read_bytes>
+            <read_bytes unit="Kbyte/s">0.000</read_bytes>
+            <speed instance-name="enp0s25" unit="Mbyte/s">781261.938</speed>
+            <speed instance-name="enp0s25" unit="Mbyte/s">781261.938</speed>
+            <speed instance-name="enp0s25" unit="Mbyte/s">781261.938</speed>
+            <speed instance-name="enp0s25" unit="Mbyte/s">781261.938</speed>
+            <speed instance-name="enp0s25" unit="Mbyte/s">781261.938</speed>
+            <start_time instance-name="000001 /usr/lib/systemd/systemd --switched-root --system --deserialize 21" unit="millisec">20</start_time>
+            <start_time instance-name="000001 /usr/lib/systemd/systemd --switched-root --system --deserialize 21" unit="millisec">20</start_time>
+            <start_time instance-name="000001 /usr/lib/systemd/systemd --switched-root --system --deserialize 21" unit="millisec">20</start_time>
+            <start_time instance-name="000001 /usr/lib/systemd/systemd --switched-root --system --deserialize 21" unit="millisec">20</start_time>
+            <start_time instance-name="000001 /usr/lib/systemd/systemd --switched-root --system --deserialize 21" unit="millisec">20</start_time>
+            <sysfork unit="count/s">0.000</sysfork>
+            <sysfork unit="count/s">0.000</sysfork>
+            <sysfork unit="count/s">1.000</sysfork>
+            <sysfork unit="count/s">2.000</sysfork>
+            <sysname>Linux</sysname>
+            <sysname>Linux</sysname>
+            <sysname>Linux</sysname>
+            <sysname>Linux</sysname>
+            <sysname>Linux</sysname>
+            <uptime unit="sec">507689</uptime>
+            <uptime unit="sec">507690</uptime>
+            <uptime unit="sec">507691</uptime>
+            <uptime unit="sec">507692</uptime>
+            <uptime unit="sec">507693</uptime>
+            <used unit="Kbyte">13573256</used>
+            <used unit="Kbyte">13573256</used>
+            <used unit="Kbyte">13573328</used>
+            <used unit="Kbyte">13573380</used>
+            <used unit="Kbyte">13573800</used>
+          </all>
+          </all>
+          </all>
+          </all>
+          </all>
+          </all>
+          </all>
+          </all>
+          </all>
+          </cpu>
+          </cpu>
+          </cpu>
+          </cpu>
+          </cpu>
+          </interface>
+          </interface>
+          </interface>
+          </interface>
+          </interface>
+          </percpu>
+          </percpu>
+          </percpu>
+          </percpu>
+          </psinfo>
+          </psinfo>
+          </psinfo>
+          </psinfo>
+          </psinfo>
+          </tcpconn>
+          </tcpconn>
+          </tcpconn>
+          </tcpconn>
+          </tcpconn>
+          </uname>
+          </uname>
+          </uname>
+          </uname>
+          </uname>
+          </util>
+          </util>
+          </util>
+          </util>
+          </util>
+          <all>
+          <all>
+          <all>
+          <all>
+          <all>
+          <all>
+          <all>
+          <all>
+          <all>
+          <cpu>
+          <cpu>
+          <cpu>
+          <cpu>
+          <cpu>
+          <interface>
+          <interface>
+          <interface>
+          <interface>
+          <interface>
+          <machine>linux</machine>
+          <machine>linux</machine>
+          <machine>linux</machine>
+          <machine>linux</machine>
+          <machine>linux</machine>
+          <ncpu>8</ncpu>
+          <ncpu>8</ncpu>
+          <ncpu>8</ncpu>
+          <ncpu>8</ncpu>
+          <ncpu>8</ncpu>
+          <nfilesys unit="count">3</nfilesys>
+          <nfilesys unit="count">3</nfilesys>
+          <nfilesys unit="count">3</nfilesys>
+          <nfilesys unit="count">3</nfilesys>
+          <nfilesys unit="count">3</nfilesys>
+          <percpu>
+          <percpu>
+          <percpu>
+          <percpu>
+          <physmem unit="Kbyte">16053852</physmem>
+          <physmem unit="Kbyte">16053852</physmem>
+          <physmem unit="Kbyte">16053852</physmem>
+          <physmem unit="Kbyte">16053852</physmem>
+          <physmem unit="Kbyte">16053852</physmem>
+          <psinfo>
+          <psinfo>
+          <psinfo>
+          <psinfo>
+          <psinfo>
+          <tcpconn>
+          <tcpconn>
+          <tcpconn>
+          <tcpconn>
+          <tcpconn>
+          <uname>
+          <uname>
+          <uname>
+          <uname>
+          <uname>
+          <util>
+          <util>
+          <util>
+          <util>
+          <util>
+        </disk>
+        </disk>
+        </disk>
+        </disk>
+        </hinv>
+        </hinv>
+        </hinv>
+        </hinv>
+        </hinv>
+        </kernel>
+        </kernel>
+        </kernel>
+        </kernel>
+        </kernel>
+        </mem>
+        </mem>
+        </mem>
+        </mem>
+        </mem>
+        </network>
+        </network>
+        </network>
+        </network>
+        </network>
+        </proc>
+        </proc>
+        </proc>
+        </proc>
+        </proc>
+        <disk>
+        <disk>
+        <disk>
+        <disk>
+        <hinv>
+        <hinv>
+        <hinv>
+        <hinv>
+        <hinv>
+        <kernel>
+        <kernel>
+        <kernel>
+        <kernel>
+        <kernel>
+        <mem>
+        <mem>
+        <mem>
+        <mem>
+        <mem>
+        <network>
+        <network>
+        <network>
+        <network>
+        <network>
+        <proc>
+        <proc>
+        <proc>
+        <proc>
+        <proc>
+      </timestamp>
+      </timestamp>
+      </timestamp>
+      </timestamp>
+      </timestamp>
+      <timestamp value="2016-02-10 14:39:13" interval="0">
+      <timestamp value="2016-02-10 14:39:14" interval="1">
+      <timestamp value="2016-02-10 14:39:15" interval="1">
+      <timestamp value="2016-02-10 14:39:16" interval="1">
+      <timestamp value="2016-02-10 14:39:17" interval="1">
+    </metrics>
+    <metrics>
+    <source>ARCHIVE_PATH</source>
+    <timezone>UTC+11</timezone>
+  </host>
+  <host nodename="slack">
+</pcp>
+<?xml version="1.0" encoding="UTF-8"?>
+<pcp>
+---
+              <user instance-name="cpu0" unit="ms/s" type="64-bit unsigned" semantics="counter">0.000</user>
+              <user instance-name="cpu0" unit="ms/s" type="64-bit unsigned" semantics="counter">0.000</user>
+              <user instance-name="cpu0" unit="ms/s" type="64-bit unsigned" semantics="counter">0.000</user>
+              <user instance-name="cpu0" unit="ms/s" type="64-bit unsigned" semantics="counter">9.999</user>
+            </cpu>
+            </cpu>
+            </cpu>
+            </cpu>
+            <baudrate instance-name="enp0s25" unit="byte/s" type="32-bit unsigned" semantics="discrete">3168713760</baudrate>
+            <baudrate instance-name="enp0s25" unit="byte/s" type="32-bit unsigned" semantics="discrete">3168713760</baudrate>
+            <baudrate instance-name="enp0s25" unit="byte/s" type="32-bit unsigned" semantics="discrete">3168713760</baudrate>
+            <baudrate instance-name="enp0s25" unit="byte/s" type="32-bit unsigned" semantics="discrete">3168713760</baudrate>
+            <baudrate instance-name="enp0s25" unit="byte/s" type="32-bit unsigned" semantics="discrete">3168713760</baudrate>
+            <bogomips instance-name="cpu0" type="32-bit float" semantics="discrete">5587.420</bogomips>
+            <bogomips instance-name="cpu0" type="32-bit float" semantics="discrete">5587.420</bogomips>
+            <bogomips instance-name="cpu0" type="32-bit float" semantics="discrete">5587.420</bogomips>
+            <bogomips instance-name="cpu0" type="32-bit float" semantics="discrete">5587.420</bogomips>
+            <bogomips instance-name="cpu0" type="32-bit float" semantics="discrete">5587.420</bogomips>
+            <clock instance-name="cpu0" unit="count" type="32-bit float" semantics="discrete">2723.437</clock>
+            <clock instance-name="cpu0" unit="count" type="32-bit float" semantics="discrete">2800.000</clock>
+            <clock instance-name="cpu0" unit="count" type="32-bit float" semantics="discrete">2800.000</clock>
+            <clock instance-name="cpu0" unit="count" type="32-bit float" semantics="discrete">2800.109</clock>
+            <clock instance-name="cpu0" unit="count" type="32-bit float" semantics="discrete">3029.031</clock>
+            <close unit="count" type="32-bit unsigned" semantics="instant">0</close>
+            <close unit="count" type="32-bit unsigned" semantics="instant">0</close>
+            <close unit="count" type="32-bit unsigned" semantics="instant">0</close>
+            <close unit="count" type="32-bit unsigned" semantics="instant">0</close>
+            <close unit="count" type="32-bit unsigned" semantics="instant">0</close>
+            <cpu>
+            <cpu>
+            <cpu>
+            <cpu>
+            <hz unit="count/s" type="32-bit unsigned" semantics="discrete">100</hz>
+            <hz unit="count/s" type="32-bit unsigned" semantics="discrete">100</hz>
+            <hz unit="count/s" type="32-bit unsigned" semantics="discrete">100</hz>
+            <hz unit="count/s" type="32-bit unsigned" semantics="discrete">100</hz>
+            <hz unit="count/s" type="32-bit unsigned" semantics="discrete">100</hz>
+            <lastpid type="32-bit unsigned" semantics="instant">15707</lastpid>
+            <lastpid type="32-bit unsigned" semantics="instant">15707</lastpid>
+            <lastpid type="32-bit unsigned" semantics="instant">15707</lastpid>
+            <lastpid type="32-bit unsigned" semantics="instant">15708</lastpid>
+            <lastpid type="32-bit unsigned" semantics="instant">15710</lastpid>
+            <load instance-name="1 minute" type="32-bit float" semantics="instant">0.080</load>
+            <load instance-name="1 minute" type="32-bit float" semantics="instant">0.080</load>
+            <load instance-name="1 minute" type="32-bit float" semantics="instant">0.080</load>
+            <load instance-name="1 minute" type="32-bit float" semantics="instant">0.090</load>
+            <load instance-name="1 minute" type="32-bit float" semantics="instant">0.090</load>
+            <read_bytes unit="Kbyte/s" type="32-bit unsigned" semantics="counter">0.000</read_bytes>
+            <read_bytes unit="Kbyte/s" type="32-bit unsigned" semantics="counter">0.000</read_bytes>
+            <read_bytes unit="Kbyte/s" type="32-bit unsigned" semantics="counter">0.000</read_bytes>
+            <read_bytes unit="Kbyte/s" type="32-bit unsigned" semantics="counter">0.000</read_bytes>
+            <speed instance-name="enp0s25" unit="Mbyte/s" type="32-bit float" semantics="discrete">781261.938</speed>
+            <speed instance-name="enp0s25" unit="Mbyte/s" type="32-bit float" semantics="discrete">781261.938</speed>
+            <speed instance-name="enp0s25" unit="Mbyte/s" type="32-bit float" semantics="discrete">781261.938</speed>
+            <speed instance-name="enp0s25" unit="Mbyte/s" type="32-bit float" semantics="discrete">781261.938</speed>
+            <speed instance-name="enp0s25" unit="Mbyte/s" type="32-bit float" semantics="discrete">781261.938</speed>
+            <start_time instance-name="000001 /usr/lib/systemd/systemd --switched-root --system --deserialize 21" unit="millisec" type="64-bit unsigned" semantics="discrete">20</start_time>
+            <start_time instance-name="000001 /usr/lib/systemd/systemd --switched-root --system --deserialize 21" unit="millisec" type="64-bit unsigned" semantics="discrete">20</start_time>
+            <start_time instance-name="000001 /usr/lib/systemd/systemd --switched-root --system --deserialize 21" unit="millisec" type="64-bit unsigned" semantics="discrete">20</start_time>
+            <start_time instance-name="000001 /usr/lib/systemd/systemd --switched-root --system --deserialize 21" unit="millisec" type="64-bit unsigned" semantics="discrete">20</start_time>
+            <start_time instance-name="000001 /usr/lib/systemd/systemd --switched-root --system --deserialize 21" unit="millisec" type="64-bit unsigned" semantics="discrete">20</start_time>
+            <sysfork unit="count/s" type="64-bit unsigned" semantics="counter">0.000</sysfork>
+            <sysfork unit="count/s" type="64-bit unsigned" semantics="counter">0.000</sysfork>
+            <sysfork unit="count/s" type="64-bit unsigned" semantics="counter">1.000</sysfork>
+            <sysfork unit="count/s" type="64-bit unsigned" semantics="counter">2.000</sysfork>
+            <sysname type="string" semantics="instant">Linux</sysname>
+            <sysname type="string" semantics="instant">Linux</sysname>
+            <sysname type="string" semantics="instant">Linux</sysname>
+            <sysname type="string" semantics="instant">Linux</sysname>
+            <sysname type="string" semantics="instant">Linux</sysname>
+            <uptime unit="sec" type="32-bit unsigned" semantics="instant">507689</uptime>
+            <uptime unit="sec" type="32-bit unsigned" semantics="instant">507690</uptime>
+            <uptime unit="sec" type="32-bit unsigned" semantics="instant">507691</uptime>
+            <uptime unit="sec" type="32-bit unsigned" semantics="instant">507692</uptime>
+            <uptime unit="sec" type="32-bit unsigned" semantics="instant">507693</uptime>
+            <used unit="Kbyte" type="64-bit unsigned" semantics="instant">13573256</used>
+            <used unit="Kbyte" type="64-bit unsigned" semantics="instant">13573256</used>
+            <used unit="Kbyte" type="64-bit unsigned" semantics="instant">13573328</used>
+            <used unit="Kbyte" type="64-bit unsigned" semantics="instant">13573380</used>
+            <used unit="Kbyte" type="64-bit unsigned" semantics="instant">13573800</used>
+          </all>
+          </all>
+          </all>
+          </all>
+          </all>
+          </all>
+          </all>
+          </all>
+          </all>
+          </cpu>
+          </cpu>
+          </cpu>
+          </cpu>
+          </cpu>
+          </interface>
+          </interface>
+          </interface>
+          </interface>
+          </interface>
+          </percpu>
+          </percpu>
+          </percpu>
+          </percpu>
+          </psinfo>
+          </psinfo>
+          </psinfo>
+          </psinfo>
+          </psinfo>
+          </tcpconn>
+          </tcpconn>
+          </tcpconn>
+          </tcpconn>
+          </tcpconn>
+          </uname>
+          </uname>
+          </uname>
+          </uname>
+          </uname>
+          </util>
+          </util>
+          </util>
+          </util>
+          </util>
+          <all>
+          <all>
+          <all>
+          <all>
+          <all>
+          <all>
+          <all>
+          <all>
+          <all>
+          <cpu>
+          <cpu>
+          <cpu>
+          <cpu>
+          <cpu>
+          <interface>
+          <interface>
+          <interface>
+          <interface>
+          <interface>
+          <machine type="string" semantics="discrete">linux</machine>
+          <machine type="string" semantics="discrete">linux</machine>
+          <machine type="string" semantics="discrete">linux</machine>
+          <machine type="string" semantics="discrete">linux</machine>
+          <machine type="string" semantics="discrete">linux</machine>
+          <ncpu type="32-bit unsigned" semantics="discrete">8</ncpu>
+          <ncpu type="32-bit unsigned" semantics="discrete">8</ncpu>
+          <ncpu type="32-bit unsigned" semantics="discrete">8</ncpu>
+          <ncpu type="32-bit unsigned" semantics="discrete">8</ncpu>
+          <ncpu type="32-bit unsigned" semantics="discrete">8</ncpu>
+          <nfilesys unit="count" type="32-bit unsigned" semantics="discrete">3</nfilesys>
+          <nfilesys unit="count" type="32-bit unsigned" semantics="discrete">3</nfilesys>
+          <nfilesys unit="count" type="32-bit unsigned" semantics="discrete">3</nfilesys>
+          <nfilesys unit="count" type="32-bit unsigned" semantics="discrete">3</nfilesys>
+          <nfilesys unit="count" type="32-bit unsigned" semantics="discrete">3</nfilesys>
+          <percpu>
+          <percpu>
+          <percpu>
+          <percpu>
+          <physmem unit="Kbyte" type="64-bit unsigned" semantics="discrete">16053852</physmem>
+          <physmem unit="Kbyte" type="64-bit unsigned" semantics="discrete">16053852</physmem>
+          <physmem unit="Kbyte" type="64-bit unsigned" semantics="discrete">16053852</physmem>
+          <physmem unit="Kbyte" type="64-bit unsigned" semantics="discrete">16053852</physmem>
+          <physmem unit="Kbyte" type="64-bit unsigned" semantics="discrete">16053852</physmem>
+          <psinfo>
+          <psinfo>
+          <psinfo>
+          <psinfo>
+          <psinfo>
+          <tcpconn>
+          <tcpconn>
+          <tcpconn>
+          <tcpconn>
+          <tcpconn>
+          <uname>
+          <uname>
+          <uname>
+          <uname>
+          <uname>
+          <util>
+          <util>
+          <util>
+          <util>
+          <util>
+        </disk>
+        </disk>
+        </disk>
+        </disk>
+        </hinv>
+        </hinv>
+        </hinv>
+        </hinv>
+        </hinv>
+        </kernel>
+        </kernel>
+        </kernel>
+        </kernel>
+        </kernel>
+        </mem>
+        </mem>
+        </mem>
+        </mem>
+        </mem>
+        </network>
+        </network>
+        </network>
+        </network>
+        </network>
+        </proc>
+        </proc>
+        </proc>
+        </proc>
+        </proc>
+        <disk>
+        <disk>
+        <disk>
+        <disk>
+        <hinv>
+        <hinv>
+        <hinv>
+        <hinv>
+        <hinv>
+        <kernel>
+        <kernel>
+        <kernel>
+        <kernel>
+        <kernel>
+        <mem>
+        <mem>
+        <mem>
+        <mem>
+        <mem>
+        <network>
+        <network>
+        <network>
+        <network>
+        <network>
+        <proc>
+        <proc>
+        <proc>
+        <proc>
+        <proc>
+      </timestamp>
+      </timestamp>
+      </timestamp>
+      </timestamp>
+      </timestamp>
+      <timestamp value="2016-02-10 03:39:13" interval="0">
+      <timestamp value="2016-02-10 03:39:14" interval="1">
+      <timestamp value="2016-02-10 03:39:15" interval="1">
+      <timestamp value="2016-02-10 03:39:16" interval="1">
+      <timestamp value="2016-02-10 03:39:17" interval="1">
+    </metrics>
+    <metrics>
+    <source>ARCHIVE_PATH</source>
+    <timezone>UTC+0</timezone>
+  </host>
+  <host nodename="slack">
+</pcp>
+<?xml version="1.0" encoding="UTF-8"?>
+<pcp>
+---
+              <user instance-name="cpu0" unit="ms/s" type="64-bit unsigned" semantics="counter" pmid="251658240" indom="251658240" instance-id="0">0.00</user>
+              <user instance-name="cpu0" unit="ms/s" type="64-bit unsigned" semantics="counter" pmid="251658240" indom="251658240" instance-id="0">0.00</user>
+              <user instance-name="cpu0" unit="ms/s" type="64-bit unsigned" semantics="counter" pmid="251658240" indom="251658240" instance-id="0">0.00</user>
+              <user instance-name="cpu0" unit="ms/s" type="64-bit unsigned" semantics="counter" pmid="251658240" indom="251658240" instance-id="0">10.00</user>
+            </cpu>
+            </cpu>
+            </cpu>
+            </cpu>
+            <baudrate instance-name="enp0s25" unit="byte/s" type="32-bit unsigned" semantics="discrete" pmid="251661335" indom="251658243" instance-id="0">3168713760</baudrate>
+            <baudrate instance-name="enp0s25" unit="byte/s" type="32-bit unsigned" semantics="discrete" pmid="251661335" indom="251658243" instance-id="0">3168713760</baudrate>
+            <baudrate instance-name="enp0s25" unit="byte/s" type="32-bit unsigned" semantics="discrete" pmid="251661335" indom="251658243" instance-id="0">3168713760</baudrate>
+            <baudrate instance-name="enp0s25" unit="byte/s" type="32-bit unsigned" semantics="discrete" pmid="251661335" indom="251658243" instance-id="0">3168713760</baudrate>
+            <baudrate instance-name="enp0s25" unit="byte/s" type="32-bit unsigned" semantics="discrete" pmid="251661335" indom="251658243" instance-id="0">3168713760</baudrate>
+            <bogomips instance-name="cpu0" type="32-bit float" semantics="discrete" pmid="251676677" indom="251658240" instance-id="0">5587.42</bogomips>
+            <bogomips instance-name="cpu0" type="32-bit float" semantics="discrete" pmid="251676677" indom="251658240" instance-id="0">5587.42</bogomips>
+            <bogomips instance-name="cpu0" type="32-bit float" semantics="discrete" pmid="251676677" indom="251658240" instance-id="0">5587.42</bogomips>
+            <bogomips instance-name="cpu0" type="32-bit float" semantics="discrete" pmid="251676677" indom="251658240" instance-id="0">5587.42</bogomips>
+            <bogomips instance-name="cpu0" type="32-bit float" semantics="discrete" pmid="251676677" indom="251658240" instance-id="0">5587.42</bogomips>
+            <clock instance-name="cpu0" unit="count" type="32-bit float" semantics="discrete" pmid="251676672" indom="251658240" instance-id="0">2723.44</clock>
+            <clock instance-name="cpu0" unit="count" type="32-bit float" semantics="discrete" pmid="251676672" indom="251658240" instance-id="0">2800.00</clock>
+            <clock instance-name="cpu0" unit="count" type="32-bit float" semantics="discrete" pmid="251676672" indom="251658240" instance-id="0">2800.00</clock>
+            <clock instance-name="cpu0" unit="count" type="32-bit float" semantics="discrete" pmid="251676672" indom="251658240" instance-id="0">2800.11</clock>
+            <clock instance-name="cpu0" unit="count" type="32-bit float" semantics="discrete" pmid="251676672" indom="251658240" instance-id="0">3029.03</clock>
+            <close unit="count" type="32-bit unsigned" semantics="instant" pmid="251677703">0</close>
+            <close unit="count" type="32-bit unsigned" semantics="instant" pmid="251677703">0</close>
+            <close unit="count" type="32-bit unsigned" semantics="instant" pmid="251677703">0</close>
+            <close unit="count" type="32-bit unsigned" semantics="instant" pmid="251677703">0</close>
+            <close unit="count" type="32-bit unsigned" semantics="instant" pmid="251677703">0</close>
+            <cpu>
+            <cpu>
+            <cpu>
+            <cpu>
+            <hz unit="count/s" type="32-bit unsigned" semantics="discrete" pmid="251658288">100</hz>
+            <hz unit="count/s" type="32-bit unsigned" semantics="discrete" pmid="251658288">100</hz>
+            <hz unit="count/s" type="32-bit unsigned" semantics="discrete" pmid="251658288">100</hz>
+            <hz unit="count/s" type="32-bit unsigned" semantics="discrete" pmid="251658288">100</hz>
+            <hz unit="count/s" type="32-bit unsigned" semantics="discrete" pmid="251658288">100</hz>
+            <lastpid type="32-bit unsigned" semantics="instant" pmid="251660289">15707</lastpid>
+            <lastpid type="32-bit unsigned" semantics="instant" pmid="251660289">15707</lastpid>
+            <lastpid type="32-bit unsigned" semantics="instant" pmid="251660289">15707</lastpid>
+            <lastpid type="32-bit unsigned" semantics="instant" pmid="251660289">15708</lastpid>
+            <lastpid type="32-bit unsigned" semantics="instant" pmid="251660289">15710</lastpid>
+            <load instance-name="1 minute" type="32-bit float" semantics="instant" pmid="251660288" indom="251658242" instance-id="1">0.08</load>
+            <load instance-name="1 minute" type="32-bit float" semantics="instant" pmid="251660288" indom="251658242" instance-id="1">0.08</load>
+            <load instance-name="1 minute" type="32-bit float" semantics="instant" pmid="251660288" indom="251658242" instance-id="1">0.08</load>
+            <load instance-name="1 minute" type="32-bit float" semantics="instant" pmid="251660288" indom="251658242" instance-id="1">0.09</load>
+            <load instance-name="1 minute" type="32-bit float" semantics="instant" pmid="251660288" indom="251658242" instance-id="1">0.09</load>
+            <read_bytes unit="GB/s" type="32-bit unsigned" semantics="counter" pmid="251658281">0.00</read_bytes>
+            <read_bytes unit="GB/s" type="32-bit unsigned" semantics="counter" pmid="251658281">0.00</read_bytes>
+            <read_bytes unit="GB/s" type="32-bit unsigned" semantics="counter" pmid="251658281">0.00</read_bytes>
+            <read_bytes unit="GB/s" type="32-bit unsigned" semantics="counter" pmid="251658281">0.00</read_bytes>
+            <speed instance-name="enp0s25" unit="Mbyte/s" type="32-bit float" semantics="discrete" pmid="251661334" indom="251658243" instance-id="0">781261.94</speed>
+            <speed instance-name="enp0s25" unit="Mbyte/s" type="32-bit float" semantics="discrete" pmid="251661334" indom="251658243" instance-id="0">781261.94</speed>
+            <speed instance-name="enp0s25" unit="Mbyte/s" type="32-bit float" semantics="discrete" pmid="251661334" indom="251658243" instance-id="0">781261.94</speed>
+            <speed instance-name="enp0s25" unit="Mbyte/s" type="32-bit float" semantics="discrete" pmid="251661334" indom="251658243" instance-id="0">781261.94</speed>
+            <speed instance-name="enp0s25" unit="Mbyte/s" type="32-bit float" semantics="discrete" pmid="251661334" indom="251658243" instance-id="0">781261.94</speed>
+            <start_time instance-name="000001 /usr/lib/systemd/systemd --switched-root --system --deserialize 21" unit="millisec" type="64-bit unsigned" semantics="discrete" pmid="12591125" indom="12582921" instance-id="1">20</start_time>
+            <start_time instance-name="000001 /usr/lib/systemd/systemd --switched-root --system --deserialize 21" unit="millisec" type="64-bit unsigned" semantics="discrete" pmid="12591125" indom="12582921" instance-id="1">20</start_time>
+            <start_time instance-name="000001 /usr/lib/systemd/systemd --switched-root --system --deserialize 21" unit="millisec" type="64-bit unsigned" semantics="discrete" pmid="12591125" indom="12582921" instance-id="1">20</start_time>
+            <start_time instance-name="000001 /usr/lib/systemd/systemd --switched-root --system --deserialize 21" unit="millisec" type="64-bit unsigned" semantics="discrete" pmid="12591125" indom="12582921" instance-id="1">20</start_time>
+            <start_time instance-name="000001 /usr/lib/systemd/systemd --switched-root --system --deserialize 21" unit="millisec" type="64-bit unsigned" semantics="discrete" pmid="12591125" indom="12582921" instance-id="1">20</start_time>
+            <sysfork unit="count/s" type="64-bit unsigned" semantics="counter" pmid="251658254">0.00</sysfork>
+            <sysfork unit="count/s" type="64-bit unsigned" semantics="counter" pmid="251658254">0.00</sysfork>
+            <sysfork unit="count/s" type="64-bit unsigned" semantics="counter" pmid="251658254">1.00</sysfork>
+            <sysfork unit="count/s" type="64-bit unsigned" semantics="counter" pmid="251658254">2.00</sysfork>
+            <sysname type="string" semantics="instant" pmid="251670530">Linux</sysname>
+            <sysname type="string" semantics="instant" pmid="251670530">Linux</sysname>
+            <sysname type="string" semantics="instant" pmid="251670530">Linux</sysname>
+            <sysname type="string" semantics="instant" pmid="251670530">Linux</sysname>
+            <sysname type="string" semantics="instant" pmid="251670530">Linux</sysname>
+            <uptime unit="sec" type="32-bit unsigned" semantics="instant" pmid="251684864">507689</uptime>
+            <uptime unit="sec" type="32-bit unsigned" semantics="instant" pmid="251684864">507690</uptime>
+            <uptime unit="sec" type="32-bit unsigned" semantics="instant" pmid="251684864">507691</uptime>
+            <uptime unit="sec" type="32-bit unsigned" semantics="instant" pmid="251684864">507692</uptime>
+            <uptime unit="sec" type="32-bit unsigned" semantics="instant" pmid="251684864">507693</uptime>
+            <used unit="GB" type="64-bit unsigned" semantics="instant" pmid="251659265">12.94</used>
+            <used unit="GB" type="64-bit unsigned" semantics="instant" pmid="251659265">12.94</used>
+            <used unit="GB" type="64-bit unsigned" semantics="instant" pmid="251659265">12.94</used>
+            <used unit="GB" type="64-bit unsigned" semantics="instant" pmid="251659265">12.94</used>
+            <used unit="GB" type="64-bit unsigned" semantics="instant" pmid="251659265">12.94</used>
+          </all>
+          </all>
+          </all>
+          </all>
+          </all>
+          </all>
+          </all>
+          </all>
+          </all>
+          </cpu>
+          </cpu>
+          </cpu>
+          </cpu>
+          </cpu>
+          </interface>
+          </interface>
+          </interface>
+          </interface>
+          </interface>
+          </percpu>
+          </percpu>
+          </percpu>
+          </percpu>
+          </psinfo>
+          </psinfo>
+          </psinfo>
+          </psinfo>
+          </psinfo>
+          </tcpconn>
+          </tcpconn>
+          </tcpconn>
+          </tcpconn>
+          </tcpconn>
+          </uname>
+          </uname>
+          </uname>
+          </uname>
+          </uname>
+          </util>
+          </util>
+          </util>
+          </util>
+          </util>
+          <all>
+          <all>
+          <all>
+          <all>
+          <all>
+          <all>
+          <all>
+          <all>
+          <all>
+          <cpu>
+          <cpu>
+          <cpu>
+          <cpu>
+          <cpu>
+          <interface>
+          <interface>
+          <interface>
+          <interface>
+          <interface>
+          <machine type="string" semantics="discrete" pmid="251676679">linux</machine>
+          <machine type="string" semantics="discrete" pmid="251676679">linux</machine>
+          <machine type="string" semantics="discrete" pmid="251676679">linux</machine>
+          <machine type="string" semantics="discrete" pmid="251676679">linux</machine>
+          <machine type="string" semantics="discrete" pmid="251676679">linux</machine>
+          <ncpu type="32-bit unsigned" semantics="discrete" pmid="251658272">8</ncpu>
+          <ncpu type="32-bit unsigned" semantics="discrete" pmid="251658272">8</ncpu>
+          <ncpu type="32-bit unsigned" semantics="discrete" pmid="251658272">8</ncpu>
+          <ncpu type="32-bit unsigned" semantics="discrete" pmid="251658272">8</ncpu>
+          <ncpu type="32-bit unsigned" semantics="discrete" pmid="251658272">8</ncpu>
+          <nfilesys unit="count" type="32-bit unsigned" semantics="discrete" pmid="251663360">3</nfilesys>
+          <nfilesys unit="count" type="32-bit unsigned" semantics="discrete" pmid="251663360">3</nfilesys>
+          <nfilesys unit="count" type="32-bit unsigned" semantics="discrete" pmid="251663360">3</nfilesys>
+          <nfilesys unit="count" type="32-bit unsigned" semantics="discrete" pmid="251663360">3</nfilesys>
+          <nfilesys unit="count" type="32-bit unsigned" semantics="discrete" pmid="251663360">3</nfilesys>
+          <percpu>
+          <percpu>
+          <percpu>
+          <percpu>
+          <physmem unit="GB" type="64-bit unsigned" semantics="discrete" pmid="251659264">15.31</physmem>
+          <physmem unit="GB" type="64-bit unsigned" semantics="discrete" pmid="251659264">15.31</physmem>
+          <physmem unit="GB" type="64-bit unsigned" semantics="discrete" pmid="251659264">15.31</physmem>
+          <physmem unit="GB" type="64-bit unsigned" semantics="discrete" pmid="251659264">15.31</physmem>
+          <physmem unit="GB" type="64-bit unsigned" semantics="discrete" pmid="251659264">15.31</physmem>
+          <psinfo>
+          <psinfo>
+          <psinfo>
+          <psinfo>
+          <psinfo>
+          <tcpconn>
+          <tcpconn>
+          <tcpconn>
+          <tcpconn>
+          <tcpconn>
+          <uname>
+          <uname>
+          <uname>
+          <uname>
+          <uname>
+          <util>
+          <util>
+          <util>
+          <util>
+          <util>
+        </disk>
+        </disk>
+        </disk>
+        </disk>
+        </hinv>
+        </hinv>
+        </hinv>
+        </hinv>
+        </hinv>
+        </kernel>
+        </kernel>
+        </kernel>
+        </kernel>
+        </kernel>
+        </mem>
+        </mem>
+        </mem>
+        </mem>
+        </mem>
+        </network>
+        </network>
+        </network>
+        </network>
+        </network>
+        </proc>
+        </proc>
+        </proc>
+        </proc>
+        </proc>
+        <disk>
+        <disk>
+        <disk>
+        <disk>
+        <hinv>
+        <hinv>
+        <hinv>
+        <hinv>
+        <hinv>
+        <kernel>
+        <kernel>
+        <kernel>
+        <kernel>
+        <kernel>
+        <mem>
+        <mem>
+        <mem>
+        <mem>
+        <mem>
+        <network>
+        <network>
+        <network>
+        <network>
+        <network>
+        <proc>
+        <proc>
+        <proc>
+        <proc>
+        <proc>
+      </timestamp>
+      </timestamp>
+      </timestamp>
+      </timestamp>
+      </timestamp>
+      <timestamp value="2016-02-10 14:39:13" interval="0">
+      <timestamp value="2016-02-10 14:39:14" interval="1">
+      <timestamp value="2016-02-10 14:39:15" interval="1">
+      <timestamp value="2016-02-10 14:39:16" interval="1">
+      <timestamp value="2016-02-10 14:39:17" interval="1">
+    </metrics>
+    <metrics>
+    <source>ARCHIVE_PATH</source>
+    <timezone>UTC+11</timezone>
+  </host>
+  <host nodename="slack">
+</pcp>
+<?xml version="1.0" encoding="UTF-8"?>
+<pcp>
+---

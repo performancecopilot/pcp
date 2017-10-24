@@ -104,10 +104,8 @@ parseAuth(char *spec)
 	    	free(p);
 	    return -1;
 	}
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL0)
+	if (pmDebugOptions.appl0)
 	    fprintf(stderr, "deny: host '%s'\n", p);
-#endif
 	denyops = TR_OP_SEND;
 	if (__pmAccAddHost(p, specops, denyops, 0) < 0)
 	    __pmNotifyErr(LOG_ERR, "failed to add authorisation (%s)", p);
@@ -129,10 +127,8 @@ parseAuth(char *spec)
 	    free(p);
 	    return -1;
 	}
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL0)
+	if (pmDebugOptions.appl0)
 	    fprintf(stderr, "allow: host '%s', maxconn=%d\n", p, maxconn);
-#endif
 	denyops = TR_OP_NONE;
 	if (__pmAccAddHost(p, specops, denyops, maxconn) < 0)
 	    __pmNotifyErr(LOG_ERR, "failed to add authorisation (%s)", p);
@@ -157,7 +153,7 @@ main(int argc, char **argv)
     __pmSetProgname(argv[0]);
     __pmGetUsername(&username);
 
-    snprintf(mypath, sizeof(mypath), "%s%c" "trace" "%c" "help",
+    pmsprintf(mypath, sizeof(mypath), "%s%c" "trace" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&dispatch, PMDA_INTERFACE_2, pmProgname, TRACE,
 		"trace.log", mypath);
@@ -214,9 +210,7 @@ main(int argc, char **argv)
     interval.tv_usec = (long)((timespan.tv_sec % rbufsize) * 1000000);
     rbufsize++;		/* reserve space for the `working' buffer */
 
-#ifdef PCP_DEBUG
     debuglibrary(pmDebug);
-#endif
 
     pmdaOpenLog(&dispatch);
     __pmSetProcessIdentity(username);

@@ -4,8 +4,8 @@
 # Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
 
-#DBG    = -DPCP_DEBUG -DDEBUG -DMALLOC_AUDIT -g
-DBG     = -DPCP_DEBUG -DDEBUG -g
+#DBG    = -DDEBUG -DMALLOC_AUDIT -g
+DBG     = -DDEBUG -g
 
 DEBUG   = $(DBG)
 
@@ -26,7 +26,7 @@ CFILES = disk_test.c exercise.c context_test.c chkoptfetch.c \
 	endian.c chk_memleak.c chk_metric_types.c mark-bug.c \
 	pmnsunload.c parsemetricspec.c parseinterval.c \
 	pducheck.c pducrash.c pdu-server.c \
-	pmprintf.c pmsocks_objstyle.c numberstr.c \
+	pmprintf.c pmsprintf.c pmsocks_objstyle.c numberstr.c \
 	read-bf.c write-bf.c slow_af.c indom.c tztest.c \
 	multifetch.c pmconvscale.c torture-eol.c \
 	crashpmcd.c dumb_pmda.c torture_cache.c wrap_int.c \
@@ -42,7 +42,9 @@ CFILES = disk_test.c exercise.c context_test.c chkoptfetch.c \
 	github-50.c archfetch.c fetchloop.c sortinst.c fetchgroup.c \
 	loadderived.c sum16.c badmmv.c multictx.c mmv_simple.c \
 	mmv2_genstats.c mmv2_instances.c mmv2_nostats.c mmv2_simple.c \
-	httpfetch.c json_test.c check_pmiend_fdleak.c loadconfig2.c
+	httpfetch.c json_test.c check_pmiend_fdleak.c loadconfig2.c \
+	archctl_segfault.c debug.c int2pmid.c int2indom.c exectest.c \
+	unpickargs.c hanoi.c chain.c
 
 ifeq ($(shell test -f ../localconfig && echo 1), 1)
 include ../localconfig
@@ -57,16 +59,16 @@ endif
 ifeq ($(shell test $(PCP_VER) -ge 3600 && echo 1), 1)
 CFILES += multithread0.c multithread1.c multithread2.c multithread3.c \
 	multithread4.c multithread5.c multithread6.c multithread7.c \
-	multithread8.c multithread9.c multithread10.c \
+	multithread8.c multithread9.c multithread10.c multithread11.c \
 	exerlock.c
 else
 MYFILES += multithread0.c multithread1.c multithread2.c multithread3.c \
 	multithread4.c multithread5.c multithread6.c multithread7.c \
-	multithread8.c multithread9.c multithread10.c \
+	multithread8.c multithread9.c multithread10.c multithread11.c \
 	exerlock.c
 LDIRT += multithread0 multithread1 multithread2 multithread3 \
 	multithread4 multithread5 multithread6 multithread7 \
-	multithread8 multithread9 multithread10 \
+	multithread8 multithread9 multithread10 multithread11 \
 	exerlock
 endif
 
@@ -127,7 +129,8 @@ PYTHONFILES = \
 	test_mmv.python test_webapi.python \
 	test_pcp_options.python test_pcp_getopts.python \
 	test_pcp_time.python test_pmnswalk.python \
-	pmapi_exceptions.python fsstats.python procpid.python \
+	pmapi_exceptions.python pmapi_daemon.python \
+	fsstats.python procpid.python \
 	test_set_source.python test_pmda_memleak.python \
 	test_webcontainers.python test_webprocesses.python \
         test_pmfg.python
@@ -552,6 +555,10 @@ multithread9:	multithread9.c
 	$(CCF) $(CDEFS) -o $@ $@.c $(LIB_FOR_PTHREADS) $(LDLIBS)
 
 multithread10:	multithread10.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $@.c $(LIB_FOR_PTHREADS) $(LDLIBS)
+
+multithread11:	multithread11.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $@.c $(LIB_FOR_PTHREADS) $(LDLIBS)
 

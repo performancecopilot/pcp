@@ -49,22 +49,22 @@ TZ=EST-10
 export TZ
 
 # real QA test starts here
-echo "== pminfo preamble and no values =="
-pminfo -n src/root_irix -z -f -a archives/err_v1 | _order
+echo "== pminfo prologue and no values =="
+pminfo -n src/root_irix -z -f -a badarchives/err_v1 | _order
 
 echo
-echo "== pminfo skip preamble and errors instead of values =="
-pminfo -n src/root_irix -z -O 1sec -f -a archives/err_v1 | _order
+echo "== pminfo skip prologue and errors instead of values =="
+pminfo -n src/root_irix -z -O 1sec -f -a badarchives/err_v1 | _order
 
 echo
 echo "== pmdumplog for 1 metric (expect error) ==="
-pmdumplog -n src/root_irix -z archives/err_v1 sample.bad.nosupport
+pmdumplog -n src/root_irix -z badarchives/err_v1 sample.bad.nosupport
 
 echo
 echo "== diffs for pmdumplog all metrics compared to PCP 1.x output (expect none) =="
-pmdumplog -n src/root_irix -z -a archives/err_v1 \
+pmdumplog -n src/root_irix -z -a badarchives/err_v1 \
 | _filter \
-| diff - archives/err_v1.dump
+| diff - badarchives/err_v1.dump
 
 # success, all done
 exit

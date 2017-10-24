@@ -3,7 +3,7 @@
  ***********************************************************************
  *
  * Copyright (c) 1995-2003 Silicon Graphics, Inc.  All Rights Reserved.
- * Copyright (c) 2015 Red Hat
+ * Copyright (c) 2015,2017 Red Hat.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -14,10 +14,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 #include <math.h>
@@ -151,20 +147,16 @@ lookupHostInst(Expr *x, int nth, char **host, char **conn, char **inst)
     int		matchaggr = 0;
     int		aggrop = NOP;
     double	*aggrval = NULL;
-#if PCP_DEBUG
     static Expr	*lastx = NULL;
     int		dbg_dump = 0;
-#endif
 
-#if PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL2) {
+    if (pmDebugOptions.appl2) {
 	if (x != lastx) {
 	    fprintf(stderr, "lookupHostInst(x=" PRINTF_P_PFX "%p, nth=%d, ...)\n", x, nth);
 	    lastx = x;
 	    dbg_dump = 1;
 	}
     }
-#endif
     if (x->op == CND_MIN_HOST || x->op == CND_MAX_HOST ||
 	x->op == CND_MIN_INST || x->op == CND_MAX_INST ||
 	x->op == CND_MIN_TIME || x->op == CND_MAX_TIME) {
@@ -176,12 +168,10 @@ lookupHostInst(Expr *x, int nth, char **host, char **conn, char **inst)
 	aggrop = x->op;
 	aggrval = (double *)x->smpls[0].ptr;
 	matchaggr = 1;
-#if PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL2) {
+	if (pmDebugOptions.appl2) {
 	    fprintf(stderr, "lookupHostInst look for extrema val=%f @ " PRINTF_P_PFX "%p\n", *aggrval, x);
 	}
 	x = x->arg1;
-#endif
     }
 
     /* check for no host and instance available e.g. constant expression */
@@ -189,11 +179,9 @@ lookupHostInst(Expr *x, int nth, char **host, char **conn, char **inst)
 	*host = NULL;
 	*conn = NULL;
 	*inst = NULL;
-#if PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL2) {
+	if (pmDebugOptions.appl2) {
 	    fprintf(stderr, "lookupHostInst(x=" PRINTF_P_PFX "%p, nth=%d, ...) -> %%h and %%i undefined\n", x, nth);
 	}
-#endif
 	return sts;
     }
 
@@ -203,12 +191,10 @@ lookupHostInst(Expr *x, int nth, char **host, char **conn, char **inst)
 	mi = 0;
 	for (;;) {
 	    m = &x->metrics[mi];
-#if PCP_DEBUG
-	    if ((pmDebug & DBG_TRACE_APPL2) && dbg_dump) {
+	    if (pmDebugOptions.appl2 && dbg_dump) {
 		fprintf(stderr, "lookupHostInst: metrics[%d]\n", mi);
 		dumpMetric(m);
 	    }
-#endif
 	    if (pick < m->m_idom)
 		break;
 	    if (m->m_idom > 0)
@@ -219,11 +205,9 @@ lookupHostInst(Expr *x, int nth, char **host, char **conn, char **inst)
     else {
 	if (aggrop == CND_MIN_HOST || aggrop == CND_MAX_HOST) {
 	    int		k;
-#if PCP_DEBUG
-	    if ((pmDebug & DBG_TRACE_APPL2) && dbg_dump) {
+	    if (pmDebugOptions.appl2 && dbg_dump) {
 		fprintf(stderr, "lookupHostInst [extrema_host]:\n");
 	    }
-#endif
 	    for (k = 0; k < x->tspan; k++) {
 #if DESPERATE
 		fprintf(stderr, "smpls[0][%d]=%g\n", k, *((double *)x->smpls[0].ptr+k));
@@ -244,12 +228,10 @@ lookupHostInst(Expr *x, int nth, char **host, char **conn, char **inst)
 		if (*aggrval == *((double *)x->smpls[0].ptr+k)) {
 		    pick = k;
 		    m = &x->metrics[0];
-#if PCP_DEBUG
-		    if ((pmDebug & DBG_TRACE_APPL2) && dbg_dump) {
+		    if (pmDebugOptions.appl2 && dbg_dump) {
 			fprintf(stderr, "lookupHostInst [extrema_inst]:\n");
 			dumpMetric(m);
 		    }
-#endif
 		    goto done;
 		}
 	    }
@@ -264,12 +246,10 @@ lookupHostInst(Expr *x, int nth, char **host, char **conn, char **inst)
 		if (*aggrval == *((double *)x->smpls[k].ptr)) {
 		    pick = nth;
 		    m = &x->metrics[0];
-#if PCP_DEBUG
-		    if ((pmDebug & DBG_TRACE_APPL2) && dbg_dump) {
+		    if (pmDebugOptions.appl2 && dbg_dump) {
 			fprintf(stderr, "lookupHostInst [extrema_sample]:\n");
 			dumpMetric(m);
 		    }
-#endif
 		    goto done;
 		}
 	    }
@@ -296,12 +276,10 @@ done:
 	    *inst = NULL;
     }
 
-#if PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL2) {
+    if (pmDebugOptions.appl2) {
 	fprintf(stderr, "lookupHostInst(x=" PRINTF_P_PFX "%p, nth=%d, ...) -> sts=%d %%h=%s %%i=%s\n",
 	    x, nth, sts, *host, *inst == NULL ? "undefined" : *inst);
     }
-#endif
 
     return sts;
 }
@@ -351,7 +329,7 @@ showBoolean(Expr *x, int nth, size_t length, char **string)
 	    dog += strlen("unknown");
 	}
 	else {
-	    sprintf(dog, "0x%02x?", val & 0xff);
+	    pmsprintf(dog, BOOLEAN_SPACE, "0x%02x?", val & 0xff);
 	    dog += 5;
 	}
     }
@@ -465,7 +443,7 @@ showNum(Expr *x, int nth, size_t length, char **string)
 	else {
 	    v = *((double *)x->smpls[smpl].ptr + nth);
 	    if (v == (int)v)
-		sts = sprintf(dog, "%d", (int)v);
+		sts = pmsprintf(dog, DBL_SPACE, "%d", (int)v);
 	    else {
 		abs_v = v < 0 ? -v : v;
 		if (abs_v < 0.5)
@@ -476,7 +454,7 @@ showNum(Expr *x, int nth, size_t length, char **string)
 		    fmt = "%.1f";
 		else
 		    fmt = "%.0f";
-		sts = sprintf(dog, fmt, v);
+		sts = pmsprintf(dog, DBL_SPACE, fmt, v);
 	    }
 	    if (sts > 0)
 		dog += sts;
@@ -528,7 +506,7 @@ showConst(Expr *x)
 	    else {
 		/* oops, don't know how to display this type of value */
 		char msgbuf[30];
-		snprintf(msgbuf, sizeof(msgbuf), "showConst: botch sem=%d", x->sem);
+		pmsprintf(msgbuf, sizeof(msgbuf), "showConst: botch sem=%d", x->sem);
 		length = concat(msgbuf, length, &string);
 	    }
 	}
@@ -739,11 +717,9 @@ findMetrics(Expr *y)
 static Expr *
 findBindings(Expr *x)
 {
-#if PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL2) {
+    if (pmDebugOptions.appl2) {
 	fprintf(stderr, "call findBindings(x=" PRINTF_P_PFX "%p)\n", x);
     }
-#endif
 
     if (x->metrics == NULL) {
 	/*
@@ -764,38 +740,30 @@ findBindings(Expr *x)
 	     * don't descend below an aggregation operator with a singular
 	     * value, ... value you seek is right here
 	     */
-#if PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL2) {
+	    if (pmDebugOptions.appl2) {
 		fprintf(stderr, "findBindings: found %s @ x=" PRINTF_P_PFX "%p\n", opStrings(x->op), x);
 	    }
-#endif
 	    break;
 	}
 	if (x->arg1 && x->metrics == x->arg1->metrics) {
 	    x = x->arg1;
-#if PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL2) {
+	    if (pmDebugOptions.appl2) {
 		fprintf(stderr, "findBindings: try x->arg1=" PRINTF_P_PFX "%p\n", x);
 	    }
-#endif
 	}
 	else if (x->arg2) {
 	    x = x->arg2;
-#if PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL2) {
+	    if (pmDebugOptions.appl2) {
 		fprintf(stderr, "findBindings: try x->arg2=" PRINTF_P_PFX "%p\n", x);
 	    }
-#endif
 	}
 	else
 	    break;
     }
-#if PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL2) {
+    if (pmDebugOptions.appl2) {
 	fprintf(stderr, "findBindings finish @ " PRINTF_P_PFX "%p\n", x);
 	dumpTree(x);
     }
-#endif
     return x;
 }
 
@@ -805,35 +773,27 @@ findBindings(Expr *x)
 static Expr *
 findValues(Expr *x)
 {
-#if PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL2) {
+    if (pmDebugOptions.appl2) {
 	fprintf(stderr, "call findValues(x=" PRINTF_P_PFX "%p)\n", x);
     }
-#endif
     while (x->sem == SEM_BOOLEAN && x->metrics) {
 	if (x->metrics == x->arg1->metrics) {
 	    x = x->arg1;
-#if PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL2) {
+	    if (pmDebugOptions.appl2) {
 		fprintf(stderr, "findValues: try x->arg1=" PRINTF_P_PFX "%p\n", x);
 	    }
-#endif
 	}
 	else {
 	    x = x->arg2;
-#if PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL2) {
+	    if (pmDebugOptions.appl2) {
 		fprintf(stderr, "findValues: try x->arg2=" PRINTF_P_PFX "%p\n", x);
 	    }
-#endif
 	}
     }
-#if PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL2) {
+    if (pmDebugOptions.appl2) {
 	fprintf(stderr, "findValues finish @ " PRINTF_P_PFX "%p\n", x);
 	dumpTree(x);
     }
-#endif
     return x;
 }
 
@@ -1084,12 +1044,10 @@ formatSatisfyingValue(char *format, size_t length, char **string)
     if ((sts1 = findFormat(format, &first)) == 0)
 	return concat(format, length, string);
 
-#if PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL2) {
+    if (pmDebugOptions.appl2) {
 	fprintf(stderr, "formatSatisfyingValue: curr=" PRINTF_P_PFX "%p\n", curr);
 	dumpExpr(curr);
     }
-#endif
     x1 = findBindings(curr);
     x2 = findValues(x1);
     if (!x1->valid)
@@ -1158,7 +1116,7 @@ opStrings(int op)
      * "eh" must be long enough to accommodate the longest string from
      * opstr[i].str ... currently "<action arg node>"
      */
-    static char	*eh = "<unknown op XXXXXXXXX>";
+    static char	eh[] = "<unknown op XXXXXXXXX>";
 
     for (i = 0; i < numopstr; i++) {
 	if (opstr[i].op == op)
@@ -1168,7 +1126,7 @@ opStrings(int op)
     if (i < numopstr)
 	return opstr[i].str;
     else {
-	sprintf(eh, "<unknown op %d>", op);
+	pmsprintf(eh, sizeof(eh), "<unknown op %d>", op);
 	return eh;
     }
 }

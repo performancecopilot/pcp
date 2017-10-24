@@ -20,9 +20,9 @@ pmdumptext: no valid metrics, exiting.
              Metric	  load	  load	  load
                Inst	15 min	5 minu	1 minu
 --- two archives from the same host ---
-pmdumptext: Error: Archives "archives/gap" and "archives/gap2" are from the same host "smash"
+pmdumptext: Error: Archives "archives/gap" and "archives/gap2" are from the same host "bozo"
 pmdumptext: Consider combining them using pmlogextract(1)
-pmdumptext: Error: Archives "archives/gap2" and "archives/gap" are from the same host "smash"
+pmdumptext: Error: Archives "archives/gap2" and "archives/gap" are from the same host "bozo"
 pmdumptext: Consider combining them using pmlogextract(1)
 pmdumptext: no valid metrics, exiting.
 --- no matching archive for host ---

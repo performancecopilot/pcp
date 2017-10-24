@@ -114,7 +114,7 @@ main(int argc, char **argv)
     __pmSetProgname(argv[0]);
     __pmGetUsername(&username);
 
-    snprintf(mypath, sizeof(mypath), "%s%c" "shping" "%c" "help",
+    pmsprintf(mypath, sizeof(mypath), "%s%c" "shping" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&dispatch, PMDA_INTERFACE_2, pmProgname, SHPING, 
 		"shping.log", mypath);
@@ -222,15 +222,13 @@ main(int argc, char **argv)
     else if (parseonly)
 	exit(0);
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL1) {
+    if (pmDebugOptions.appl1) {
 	fprintf(stderr, "Parsed %d commands\n", numcmd);
 	fprintf(stderr, "Tag\tCommand\n");
 	for (i = 0; i < numcmd; i++) {
 	    fprintf(stderr, "[%s]\t%s\n", cmdlist[i].tag, cmdlist[i].cmd);
 	}
     }
-#endif
 
     /* set up indom description */
     indomtab.it_numinst = numcmd;

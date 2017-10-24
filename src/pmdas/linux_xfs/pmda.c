@@ -1319,7 +1319,7 @@ xfs_statsfile(const char *path, const char *mode)
 {
     char buffer[MAXPATHLEN];
 
-    snprintf(buffer, sizeof(buffer), "%s%s", xfs_statspath, path);
+    pmsprintf(buffer, sizeof(buffer), "%s%s", xfs_statspath, path);
     buffer[MAXPATHLEN-1] = '\0';
     return fopen(buffer, mode);
 }
@@ -1572,7 +1572,7 @@ xfs_init(pmdaInterface *dp)
     if (_isDSO) {
 	char helppath[MAXPATHLEN];
 	int sep = __pmPathSeparator();
-	snprintf(helppath, sizeof(helppath), "%s%c" "xfs" "%c" "help",
+	pmsprintf(helppath, sizeof(helppath), "%s%c" "xfs" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
 	pmdaDSO(dp, PMDA_INTERFACE_3, "XFS DSO", helppath);
     }
@@ -1621,7 +1621,7 @@ main(int argc, char **argv)
 
     _isDSO = 0;
     __pmSetProgname(argv[0]);
-    snprintf(helppath, sizeof(helppath), "%s%c" "xfs" "%c" "help",
+    pmsprintf(helppath, sizeof(helppath), "%s%c" "xfs" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&dispatch, PMDA_INTERFACE_3, pmProgname, XFS, "xfs.log", helppath);
 

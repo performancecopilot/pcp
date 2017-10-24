@@ -109,7 +109,7 @@ solaris_init(pmdaInterface *dp)
 {
     if (_isDSO) {
 	int sep = __pmPathSeparator();
-	snprintf(mypath, sizeof(mypath), "%s%c" "solaris" "%c" "help",
+	pmsprintf(mypath, sizeof(mypath), "%s%c" "solaris" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
 	pmdaDSO(dp, PMDA_INTERFACE_3, "Solaris DSO", mypath);
     }
@@ -161,7 +161,7 @@ main(int argc, char **argv)
     _isDSO = 0;
     __pmSetProgname(argv[0]);
 
-    snprintf(mypath, sizeof(mypath), "%s%c" "solaris" "%c" "help",
+    pmsprintf(mypath, sizeof(mypath), "%s%c" "solaris" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&desc, PMDA_INTERFACE_3, pmProgname, SOLARIS,
 		"solaris.log", mypath);

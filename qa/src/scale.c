@@ -27,12 +27,7 @@ main(int argc, char **argv)
     int		sts;
     int		errflag = 0;
     const char	*u;
-#ifdef PCP_DEBUG
-    static char	*debug = "[-D N] ";
-#else
-    static char	*debug = "";
-#endif
-    static char	*usage = "[-v]";
+    static char	*usage = "[-D debugspec] [-v]";
     int		vflag = 0;
     pmAtomValue	iv;
     pmAtomValue	ov;
@@ -49,18 +44,14 @@ main(int argc, char **argv)
     while ((c = getopt(argc, argv, "D:v")) != EOF) {
 	switch (c) {
 
-#ifdef PCP_DEBUG
-	case 'D':	/* debug flag */
-	    sts = __pmParseDebug(optarg);
+	case 'D':	/* debug options */
+	    sts = pmSetDebug(optarg);
 	    if (sts < 0) {
-		fprintf(stderr, "%s: unrecognized debug flag specification (%s)\n",
+		fprintf(stderr, "%s: unrecognized debug options specification (%s)\n",
 		    pmProgname, optarg);
 		errflag++;
 	    }
-	    else
-		pmDebug |= sts;
 	    break;
-#endif
 
 	case 'v':	/* verbose */
 	    vflag++;
@@ -74,7 +65,7 @@ main(int argc, char **argv)
     }
 
     if (errflag) {
-	fprintf(stderr, "Usage: %s %s%s\n", pmProgname, debug, usage);
+	fprintf(stderr, "Usage: %s %s\n", pmProgname, usage);
 	exit(1);
     }
 

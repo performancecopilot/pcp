@@ -227,7 +227,7 @@ static dynproc_group_t dynproc_groups[] = {
  * Get the hotproc cluster that corresponds to this proc cluster
  */
 
-int
+static int
 get_hot_cluster(int proc_cluster)
 {
     int i;
@@ -243,8 +243,8 @@ get_hot_cluster(int proc_cluster)
 /*
  * Given a cluster/item return the name
  */
-int
-get_name(int cluster, int item, char *name)
+static int
+get_name(int cluster, int item, char *name, int length)
 {
     unsigned int tree, group, metric;
     int num_dynproc_trees = sizeof(dynproc_members)/sizeof(char*);
@@ -263,7 +263,7 @@ get_name(int cluster, int item, char *name)
 		    _cluster = get_hot_cluster(_cluster);
 
 		if (_cluster == cluster && _item == item) {
-		    sprintf(name, "%s.%s",
+		    pmsprintf(name, length, "%s.%s",
 			dynproc_groups[group].name, cur_metrics[metric].name); 
 		    return 1;
 		}
@@ -295,7 +295,7 @@ build_dynamic_proc_tree(int domain)
 
 	    for (metric = 0; metric < num_cur_metrics; metric++) {
 
-		snprintf(entry, sizeof(entry), "%s.%s.%s",
+		pmsprintf(entry, sizeof(entry), "%s.%s.%s",
 			dynproc_members[tree], dynproc_groups[group].name,
 			cur_metrics[metric].name);
 
@@ -409,7 +409,7 @@ size_metrictable(int *total, int *trees)
     *total = num_leaf_nodes; /* calc based on all the structs above. */
     *trees = sizeof(dynproc_members)/sizeof(char*) -1; /* will be 1 (hotproc) */
 
-    if (pmDebug & DBG_TRACE_LIBPMDA)
+    if (pmDebugOptions.libpmda)
         fprintf(stderr, "interrupts size_metrictable: %d total x %d trees\n",
                 *total, *trees);
 }
@@ -428,7 +428,7 @@ dynamic_proc_text(pmdaExt *pmda, pmID pmid, int type, char **buf)
     int cluster = pmid_cluster(pmid);
     char name[128];
 
-    if (get_name(cluster, item, name)) {
+    if (get_name(cluster, item, name, sizeof(name))) {
         int num_help_entries = sizeof(help_text)/sizeof(help_text_t);
         int i;
 

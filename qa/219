@@ -2,6 +2,8 @@
 # PCP QA Test No. 219
 # check pmdbg -l and pmdbg.h agree
 #
+# Should be obsolete now, as pmdbg uses pmdbg.h
+#
 # Copyright (c) 2009 Silicon Graphics, Inc.  All Rights Reserved.
 #
 
@@ -15,11 +17,15 @@ echo "QA output created by $seq"
 
 if [ -f $PCP_INC_DIR/pmdbg.h ]
 then
-    :
+    if grep DBG_TRACE_ $PCP_INC_DIR/pmdbg.h >/dev/null
+    then
+	:
+    else
+	_notrun "new style $PCP_INC_DIR/pmdbg.h, nothing to test"
+    fi
 else
-    echo "$PCP_INC_DIR/pmdbg.h not installed?" >$seq.notrun
-    echo "$seq: [not run] `cat $seq.notrun`"
-    exit 0
+    _notrun "$PCP_INC_DIR/pmdbg.h not installed"
+    # NOTREACHED
 fi
 
 status=0	# success is the default!
@@ -27,7 +33,7 @@ $sudo rm -rf $tmp.*
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
-pmdbg -l \
+pmdbg -l -o \
 | tee $seq.full \
 | sed -n -e '/^DBG_/s/[ 	].*//p' \
 | LC_COLLATE=POSIX sort >$tmp.dbg
@@ -35,14 +41,15 @@ pmdbg -l \
 echo "------" >>$seq.full
 cat $PCP_INC_DIR/pmdbg.h >>$seq.full
 sed -n <$PCP_INC_DIR/pmdbg.h \
+    -e '/^[ 	]*\/\*/d' \
     -e '/DBG_/{
 s/.*DBG_/DBG_/
-s/[ 	].*//
+s/[, 	].*//
 p
 }' \
 | LC_COLLATE=POSIX sort >$tmp.dbg.h
 
-echo "Missing from pmdbg -l ..."
+echo "Missing from pmdbg -l -o ..."
 comm -23 $tmp.dbg.h $tmp.dbg
 
 echo

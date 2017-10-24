@@ -20,10 +20,10 @@ include $(TOPDIR)/src/include/builddefs
 HFILES = pmapi.h impl.h pmda.h pmtime.h pmdaroot.h pmafm.h \
 	 trace.h trace_dev.h mmv_stats.h mmv_dev.h import.h \
 	 config32.h config64.h platform32.h platform64.h \
-	 pmjson.h pmhttp.h
+	 pmjson.h pmhttp.h pmdbg.h
 INFILES = config.h.in configsz.h.in platform_defs.h.in platformsz.h.in
 CONFFILES = config.h configsz.h platform_defs.h platformsz.h
-GENERATED_HFILES = pmdbg.h $(CONFFILES)
+GENERATED_HFILES = $(CONFFILES)
 
 LDIRT = $(GENERATED_HFILES)
 
@@ -37,6 +37,3 @@ install :: default_pcp install_pcp
 
 install_pcp : default_pcp
 	$(INSTALL) -m 644 $(HFILES) $(GENERATED_HFILES) $(PCP_INC_DIR)
-
-pmdbg.h : pmapi.h impl.h
-	./mk_pmdbg

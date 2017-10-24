@@ -108,14 +108,12 @@ main(int argc, char **argv)
 
     while ((c = getopt(argc, argv, "D:u:g:?")) != EOF) {
 	switch (c) {
-	case 'D':	/* debug flag */
-	    if ((sts = __pmParseDebug(optarg)) < 0) {
-		fprintf(stderr, "%s: unrecognized debug flag specification (%s)\n",
+	case 'D':	/* debug options */
+	    if ((sts = pmSetDebug(optarg)) < 0) {
+		fprintf(stderr, "%s: unrecognized debug options specification (%s)\n",
 		    pmProgname, optarg);
 		errflag++;
 	    }
-	    else
-		pmDebug |= sts;
 	    break;
 
 	case 'g':	/* another group ID */
@@ -165,7 +163,7 @@ main(int argc, char **argv)
 "Usage: %s [options] uid ...\n\
 \n\
 Options:\n\
-  -D pmdebug     set debugging diagnostics flag\n\
+  -D debugspec   set debugging diagnostic options\n\
   -u uid         add numeric user ID to set used in testing\n\
   -g gid         add numeric group ID to set used in testing\n",
                 pmProgname);

@@ -22,12 +22,7 @@ main(int argc, char **argv)
     char	*archive = "foo";
     char	*host = "localhost";
     char	*namespace = PM_NS_DEFAULT;
-#ifdef PCP_DEBUG
-    static char	*debug = "[-D N]";
-#else
-    static char	*debug = "";
-#endif
-    static char	*usage = "[-D N] [-L] [-h host] [-a archive] [-n namespace] [-v] [-i iterations]";
+    static char	*usage = "[-D debugspec] [-L] [-h host] [-a archive] [-n namespace] [-v] [-i iterations]";
     int		niter = 100;
     int		contype = PM_CONTEXT_HOST;
     unsigned long first_memusage;
@@ -55,18 +50,14 @@ main(int argc, char **argv)
 	    contype = PM_CONTEXT_ARCHIVE;
 	    break;
 
-#ifdef PCP_DEBUG
-	case 'D':	/* debug flag */
-	    sts = __pmParseDebug(optarg);
+	case 'D':	/* debug options */
+	    sts = pmSetDebug(optarg);
 	    if (sts < 0) {
-		fprintf(stderr, "%s: unrecognized debug flag specification (%s)\n",
+		fprintf(stderr, "%s: unrecognized debug options specification (%s)\n",
 		    pmProgname, optarg);
 		errflag++;
 	    }
-	    else
-		pmDebug |= sts;
 	    break;
-#endif
 
 	case 'n':	/* alternative name space file */
 	    namespace = optarg;
@@ -88,7 +79,7 @@ main(int argc, char **argv)
     }
 
     if (errflag) {
-	printf("Usage: %s %s%s\n", pmProgname, debug, usage);
+	printf("Usage: %s %s\n", pmProgname, usage);
 	exit(1);
     }
 

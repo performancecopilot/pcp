@@ -147,7 +147,7 @@ NextToken()
 	token = stashedToken;
 	stashedToken = -1;
     }
-    if (pmDebug & DBG_TRACE_APPL0)
+    if (pmDebugOptions.appl0)
 	fprintf(stderr, "input: %s (%d)\n", TokenToString(token), token);
     return token;
 }
@@ -371,7 +371,7 @@ ParseActionList(
 	    pmprintf("Error, line %d: name expected for actions list\n", nLines);
 	    return -1;
 	}
-	snprintf(anon, sizeof(anon), "anonymous#%d", count++);
+	pmsprintf(anon, sizeof(anon), "anonymous#%d", count++);
 	alp = new QedActionList(anon);
 	name = anon;
     }
@@ -452,7 +452,7 @@ ParseLine(int eofMayFollow)
 	exit(1);
     }
 
-    if (pmDebug & DBG_TRACE_APPL0)
+    if (pmDebugOptions.appl0)
 	l->dump(stderr);
     return 0;
 }
@@ -505,7 +505,7 @@ ParseLabel(int eofMayFollow)
 	    exit(1);
 	}
 
-	if (pmDebug & DBG_TRACE_APPL0)
+	if (pmDebugOptions.appl0)
 	    l->dump(stderr);
     }
 
@@ -739,7 +739,7 @@ ParseBar(int eofMayFollow)
     if (AddMetrics(update, mlp, b))
 	nWarnings++;
 
-    if (pmDebug & DBG_TRACE_APPL0)
+    if (pmDebugOptions.appl0)
 	b->dump(stderr);
     return 0;
 }
@@ -906,7 +906,7 @@ ParseMultibar(int eofMayFollow)
     if (AddMetrics(update, mlp, m))
 	nWarnings++;
 
-    if (pmDebug & DBG_TRACE_APPL0)
+    if (pmDebugOptions.appl0)
 	m->dump(stderr);
     return 0;
 }
@@ -1008,7 +1008,7 @@ ParseBarGraph(int eofMayFollow)
     if (AddMetrics(update, mlp, b))
 	nWarnings++;
 
-    if (pmDebug & DBG_TRACE_APPL0)
+    if (pmDebugOptions.appl0)
 	b->dump(stderr);
     return 0;
 }
@@ -1094,7 +1094,7 @@ ParseLed(int eofMayFollow)
     if (AddMetrics(update, mlp, l))
 	nWarnings++;
 
-    if (pmDebug & DBG_TRACE_APPL0)
+    if (pmDebugOptions.appl0)
 	l->dump(stderr);
     return 0;
 }
@@ -1119,7 +1119,7 @@ ParseLegend(int eofMayFollow)
 	return -1;
     }
     legends.append(legend);
-    if (pmDebug & DBG_TRACE_APPL0)
+    if (pmDebugOptions.appl0)
 	fprintf(stderr, "legend:\n    name \"%s\"\n", tokenStringVal);
 
     NextToken();
@@ -1151,12 +1151,12 @@ ParseLegend(int eofMayFollow)
 	else
 	    legend->setDefaultColor(tokenStringVal);
 
-	if (pmDebug & DBG_TRACE_APPL0)
+	if (pmDebugOptions.appl0)
 	    fprintf(stderr, "    %.2f = %s\n", val, tokenStringVal);
 	NextToken();
     }
 
-    if (pmDebug & DBG_TRACE_APPL0)
+    if (pmDebugOptions.appl0)
 	putc('\n', stderr);
 
     if (token != TOK_RPAREN) {
@@ -1192,7 +1192,7 @@ ParseColorList(int eofMayFollow)
     }
     NextToken();
 
-    if (pmDebug & DBG_TRACE_APPL0)
+    if (pmDebugOptions.appl0)
 	fprintf(stderr, "colourlist: name \"%s\"\n", name);
 
     QedColorList *colorList = new QedColorList(name);
@@ -1205,12 +1205,12 @@ ParseColorList(int eofMayFollow)
     }
     while (token == TOK_IDENTIFIER || token == TOK_STRING) {
 	colorList->addColor(tokenStringVal);
-	if (pmDebug & DBG_TRACE_APPL0)
+	if (pmDebugOptions.appl0)
 	    fprintf(stderr, "            %s\n", tokenStringVal);
 	NextToken();
     }
 
-    if (pmDebug & DBG_TRACE_APPL0)
+    if (pmDebugOptions.appl0)
 	putc('\n', stderr);
 
     if (token != TOK_RPAREN) {

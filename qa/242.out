@@ -10,9 +10,11 @@ pmlogger: End of run time, exiting
 Log finished DATE
 event.flags
 event.missed
+pmcd.pid
 pmcd.pmlogger.archive
 pmcd.pmlogger.host
 pmcd.pmlogger.port
+pmcd.seqnum
 sample.long.hundred
 
 kernel.all.load [1 minute] ...
@@ -27,9 +29,11 @@ Log finished DATE
 event.flags
 event.missed
 kernel.all.load
+pmcd.pid
 pmcd.pmlogger.archive
 pmcd.pmlogger.host
 pmcd.pmlogger.port
+pmcd.seqnum
 
 kernel.all.load ...
 Log for pmlogger on HOST started DATE
@@ -43,6 +47,8 @@ Log finished DATE
 event.flags
 event.missed
 kernel.all.load
+pmcd.pid
 pmcd.pmlogger.archive
 pmcd.pmlogger.host
 pmcd.pmlogger.port
+pmcd.seqnum

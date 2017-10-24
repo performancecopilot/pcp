@@ -1,0 +1,37 @@
+#!/bin/sh
+# PCP QA Test No. 576
+# Bind derived metrics on pmGetChildren() code path ... Marko's example.
+#
+# Copyright (c) 2017 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.python
+
+$python -c "from pcp import pmapi" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "python pcp pmapi module not installed"
+$python -c "from collections import OrderedDict" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "python collections OrderedDict module not installed"
+
+which pcp2xml >/dev/null 2>&1 || _notrun "pcp2xml not installed"
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+pcp2xml -z -a archives/ok-foo "" \
+| tee $seq.full \
+| LC_COLLATE=POSIX sort
+
+# success, all done
+status=0
+exit

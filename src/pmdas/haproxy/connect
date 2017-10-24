@@ -30,6 +30,9 @@ conffile += '/haproxy/haproxy.conf'
 
 user = 'root'
 skt = '/var/lib/haproxy/stats'
+url = ''
+auth = None
+pasw = None
 
 config = ConfigParser.SafeConfigParser()
 config.read(conffile)
@@ -39,12 +42,18 @@ if config.has_section('pmda'):
             user = config.get('pmda', opt)
         elif opt == 'socket':
             skt = config.get('pmda', opt)
+        elif opt == 'url':
+            url = config.get('pmda', opt)
+        elif opt == 'auth':
+            auth = config.get('pmda', opt)
+        elif opt == 'pass':
+            pasw = config.get('pmda', opt)
         else:
             sys.stderr.write("Invalid directive '%s' in %s.\n" % (opt, conffile))
             sys.exit(1)
 
 if len(sys.argv) > 1 and (sys.argv[1] == '-c' or sys.argv[1] == '--config'):
-    sys.stdout.write("user=%s\nsocket=%s\n" % (user, skt))
+    sys.stdout.write("user=%s\nsocket=%s\nurl=%s\n" % (user, skt, url.replace(";", "\;").replace("&", "\&")))
     sys.exit(0)
 
 try:
@@ -54,14 +63,34 @@ except:
     sys.stderr.write("Failed to switch as user %s, try sudo perhaps?\n" % user)
     sys.exit(1)
 
+def setup_urllib(url, auth, pasw):
+    """ Setup urllib """
+    try:
+        import urllib.request as request
+    except:
+        import urllib2 as request
+    passman = request.HTTPPasswordMgrWithDefaultRealm()
+    passman.add_password(None, url, auth, pasw)
+    authhandler = request.HTTPBasicAuthHandler(passman)
+    opener = request.build_opener(authhandler)
+    request.install_opener(opener)
+    return request
+
 try:
-    stats = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-    stats.connect(skt)
-    stats.send("show info\n")
-    data = stats.recv(4096)
-    stats.close()
+    if not url:
+        conn = skt
+        stats = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        stats.connect(skt)
+        stats.send("show info\n")
+        data = stats.recv(4096)
+        stats.close()
+    else:
+        conn = url if not auth else auth + ":<pw>@" + url
+        req = setup_urllib(url, auth, pasw).urlopen(url)
+        req.read()
+        req.close()
 except Exception as e:
-    sys.stdout.write("Connection as %s to %s failed: %s\n" % (user, skt, e))
+    sys.stdout.write("Connection as %s to %s failed: %s\n" % (user, conn, e))
     sys.exit(1)
 
-sys.stdout.write("Connection as %s to %s ok.\n" % (user, skt))
+sys.stdout.write("Connection as %s to %s ok.\n" % (user, conn))

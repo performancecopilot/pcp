@@ -105,13 +105,11 @@ ParseOptions(int argc, char *argv[], int *nports)
 	    certdb = opts.optarg;
 	    break;
 
-	case 'D':	/* debug flag */
-	    if ((sts = __pmParseDebug(opts.optarg)) < 0) {
-		pmprintf("%s: unrecognized debug flag specification (%s)\n",
+	case 'D':	/* debug options */
+	    if ((sts = pmSetDebug(opts.optarg)) < 0) {
+		pmprintf("%s: unrecognized debug options specification (%s)\n",
 			pmProgname, opts.optarg);
 		opts.errors++;
-	    } else {
-		pmDebug |= sts;
 	    }
 	    break;
 
@@ -196,8 +194,7 @@ CheckCertRequired(ClientInfo *cp)
 static void
 CleanupClient(ClientInfo *cp, int sts)
 {
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL0) {
+    if (pmDebugOptions.appl0) {
 	int		i;
 	for (i = 0; i < nClients; i++) {
 	    if (cp == &client[i])
@@ -206,7 +203,6 @@ CleanupClient(ClientInfo *cp, int sts)
 	fprintf(stderr, "CleanupClient: client[%d] fd=%d %s (%d)\n",
 	    i, cp->fd, pmErrStr(sts), sts);
     }
-#endif
 
     DeleteClient(cp);
 }
@@ -410,25 +406,21 @@ CheckNewClient(__pmFdSet * fdset, int rfd, int family)
 
 	/* establish a new connection to pmcd */
 	if ((cp->pmcd_fd = __pmAuxConnectPMCDPort(cp->pmcd_hostname, cp->pmcd_port)) < 0) {
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_CONTEXT)
+	    if (pmDebugOptions.context)
 		/* append to message started in AcceptNewClient() */
 		fprintf(stderr, " oops!\n"
 			"__pmAuxConnectPMCDPort(%s,%d) failed: %s\n",
 			cp->pmcd_hostname, cp->pmcd_port,
 			pmErrStr(-oserror()));
-#endif
 	    CleanupClient(cp, -oserror());
 	}
 	else {
 	    if (cp->pmcd_fd > maxSockFd)
 		maxSockFd = cp->pmcd_fd;
 	    __pmFD_SET(cp->pmcd_fd, &sockFds);
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_CONTEXT)
+	    if (pmDebugOptions.context)
 		/* append to message started in AcceptNewClient() */
 		fprintf(stderr, " fd=%d\n", cp->pmcd_fd);
-#endif
 	}
     }
 }
@@ -451,7 +443,7 @@ ClientLoop(void)
 	sts = __pmSelectRead(maxFd, &readableFds, NULL);
 
 	if (sts > 0) {
-	    if (pmDebug & DBG_TRACE_APPL0)
+	    if (pmDebugOptions.appl0)
 		for (i = 0; i <= maxSockFd; i++)
 		    if (__pmFD_ISSET(i, &readableFds))
 			fprintf(stderr, "__pmSelectRead(): from %s fd=%d\n",
@@ -489,7 +481,7 @@ SigIntProc(int s)
 static void
 SigBad(int sig)
 {
-    if (pmDebug & DBG_TRACE_DESPERATE) {
+    if (pmDebugOptions.desperate) {
 	__pmNotifyErr(LOG_ERR, "Unexpected signal %d ...\n", sig);
 	fprintf(stderr, "\nDumping to core ...\n");
 	fflush(stderr);
@@ -566,8 +558,7 @@ main(int argc, char *argv[])
 
     __pmServerSetServiceSpec(PM_SERVER_PROXY_SPEC);
     if (run_daemon) {
-	fflush(stderr);
-	StartDaemon(argc, argv);
+	__pmServerStart(argc, argv, 1);
 	__pmServerCreatePIDFile(PM_SERVER_PROXY_SPEC, 0);
     }
 
@@ -585,7 +576,7 @@ main(int argc, char *argv[])
     /* lose root privileges if we have them */
     __pmSetProcessIdentity(username);
 
-    fprintf(stderr, "pmproxy: PID = %" FMT_PID, getpid());
+    fprintf(stderr, "pmproxy: PID = %" FMT_PID, (pid_t)getpid());
     fprintf(stderr, ", PDU version = %u", PDU_VERSION);
 #ifdef HAVE_GETUID
     fprintf(stderr, ", user = %s (%d)\n", username, getuid());
@@ -617,11 +608,11 @@ FdToString(int fd)
 	return fdStr;
     for (i = 0; i < nClients; i++) {
 	if (client[i].status.connected && fd == client[i].fd) {
-	    sprintf(fdStr, "client[%d] client socket", i);
+	    pmsprintf(fdStr, FDNAMELEN, "client[%d] client socket", i);
 	    return fdStr;
 	}
 	if (client[i].status.connected && fd == client[i].pmcd_fd) {
-	    sprintf(fdStr, "client[%d] pmcd socket", i);
+	    pmsprintf(fdStr, FDNAMELEN, "client[%d] pmcd socket", i);
 	    return fdStr;
 	}
     }

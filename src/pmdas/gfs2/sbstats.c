@@ -84,7 +84,7 @@ gfs2_refresh_sbstats(const char *sysfs, const char *name, struct sbstats *sb)
     /* Reset all counter for this fs */
     memset(sb, 0, sizeof(*sb));
 
-    snprintf(buffer, sizeof(buffer), "%s/%s/sbstats", sysfs, name);
+    pmsprintf(buffer, sizeof(buffer), "%s/%s/sbstats", sysfs, name);
     buffer[sizeof(buffer)-1] = '\0';
 
     if ((fp = fopen(buffer, "r")) == NULL){
@@ -153,7 +153,7 @@ gfs2_refresh_sbstats(const char *sysfs, const char *name, struct sbstats *sb)
 	    p = end;
 	}
 
-	if (pmDebug & DBG_TRACE_APPL0)
+	if (pmDebugOptions.appl0)
 	    __pmNotifyErr(LOG_INFO,
 			"got expected sbstat type \"%s\", stat \"%s\" at line %u",
 			typestr, statstr, id);
@@ -171,11 +171,11 @@ add_pmns_node(__pmnsTree *tree, int domain, int cluster, int lock, int stat)
     char entry[64];
     pmID pmid = pmid_build(domain, cluster, (lock * NUM_LOCKSTATS) + stat);
 
-    snprintf(entry, sizeof(entry),
+    pmsprintf(entry, sizeof(entry),
 	     "gfs2.sbstats.%s.%s", locktype[lock], stattype[stat]);
     __pmAddPMNSNode(tree, pmid, entry);
 
-    if (pmDebug & DBG_TRACE_APPL0)
+    if (pmDebugOptions.appl0)
 	fprintf(stderr, "GFS2 sbstats added %s (%s)", entry, pmIDStr(pmid));
 }
 
@@ -217,7 +217,7 @@ refresh_metrictable(pmdaMetric *source, pmdaMetric *dest, int lock)
     item += lock * NUM_LOCKSTATS;
     dest->m_desc.pmid = pmid_build(domain, cluster, item);
 
-    if (pmDebug & DBG_TRACE_APPL0)
+    if (pmDebugOptions.appl0)
 	fprintf(stderr, "GFS2 sbstats refresh_metrictable: (%p -> %p) "
 			"metric ID dup: %d.%d.%d -> %d.%d.%d\n",
 			source, dest, domain, cluster,
@@ -246,7 +246,7 @@ sbstats_text(pmdaExt *pmda, pmID pmid, int type, char **buf)
 	return PM_ERR_PMID;
     if (item < 0 || item >= SBSTATS_COUNT)
 	return PM_ERR_PMID;
-    snprintf(text, sizeof(text), "%s for %s glocks",
+    pmsprintf(text, sizeof(text), "%s for %s glocks",
 	     stattext[item % NUM_LOCKSTATS], locktype[item / NUM_LOCKSTATS]);
 
     *buf = text;

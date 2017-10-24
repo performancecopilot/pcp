@@ -12,6 +12,18 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
+
+# Last updated for: libvirt 3.8.0
+
+# pylint: disable=superfluous-parens, bad-whitespace
+# pylint: disable=invalid-name, line-too-long, no-self-use
+# pylint: disable=too-many-boolean-expressions, too-many-statements
+# pylint: disable=too-many-instance-attributes, too-many-locals
+# pylint: disable=too-many-branches, too-many-nested-blocks
+# pylint: disable=bare-except, broad-except
+# pylint: disable=bad-continuation, wrong-import-order
+# pylint: disable=consider-using-enumerate, too-many-return-statements
+
 """ PCP libvirt Performance Metrics Domain Agent """
 
 try:
@@ -37,7 +49,7 @@ from cpmapi import PM_COUNT_ONE, PM_SPACE_BYTE, PM_SPACE_KBYTE, PM_TIME_SEC, PM_
 from cpmapi import PM_ERR_AGAIN, PM_ERR_INST, PM_ERR_NYI, PM_ERR_PMID, PM_ERR_VALUE
 
 if sys.version_info[0] >= 3:
-    long = int
+    long = int # pylint: disable=redefined-builtin
 
 DEFAULT_USER = 'root'
 DEFAULT_URI = 'qemu:///system'
@@ -152,15 +164,15 @@ class LibvirtPMDA(PMDA):
         self.vm_memstats_cluster = 4
         self.vm_memstats = [
             # Name - empty - type - semantics - units - help
-            # See libvirt.git/include/libvirt/libvirt-domain.h
-            [ 'domstats.mem.swap_in',                  None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_kbyte, 'VM memory, swapped in total'            ],
-            [ 'domstats.mem.swap_out',                 None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_kbyte, 'VM memory, swapped out total'           ],
-            [ 'domstats.mem.major_fault',              None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM memory, major faults'                ],
-            [ 'domstats.mem.minor_fault',              None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM memory, minor faults'                ],
-            [ 'domstats.mem.unused',                   None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_kbyte, 'VM memory, unused'                      ],
-            [ 'domstats.mem.available',                None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_kbyte, 'VM memory, available'                   ],
-            [ 'domstats.mem.actual',                   None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_kbyte, 'VM memory, balloon size'                ],
-            [ 'domstats.mem.rss',                      None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_kbyte, 'VM memory, proc RSS'                    ],
+            # DEPRECATED: https://bugzilla.redhat.com/show_bug.cgi?id=1488895
+            [ 'domstats.mem.swap_in',                  None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_kbyte, 'Deprecated swapped in total'            ],
+            [ 'domstats.mem.swap_out',                 None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_kbyte, 'Deprecated swapped out total'           ],
+            [ 'domstats.mem.major_fault',              None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'Deprecated major faults'                ],
+            [ 'domstats.mem.minor_fault',              None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'Deprecated minor faults'                ],
+            [ 'domstats.mem.unused',                   None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_kbyte, 'Deprecated unused mem'                  ],
+            [ 'domstats.mem.available',                None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_kbyte, 'Deprecated available mem'               ],
+            [ 'domstats.mem.actual',                   None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_kbyte, 'Deprecated balloon size'                ],
+            [ 'domstats.mem.rss',                      None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_kbyte, 'Deprecated proc RSS'                    ],
         ]
 
         self.vm_balloonstats_res = []
@@ -168,16 +180,16 @@ class LibvirtPMDA(PMDA):
         self.vm_balloonstats = [
             # Name - empty - type - semantics - units - help
             # See libvirt.git/src/libvirt-domain.c
-            [ 'domstats.balloon.current',              None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_kbyte, 'VM balloon, current size'               ],
-            [ 'domstats.balloon.maximum',              None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_kbyte, 'VM balloon, maximum size'               ],
+            [ 'domstats.balloon.current',              None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_kbyte, 'VM balloon, current mem size'           ],
+            [ 'domstats.balloon.maximum',              None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_kbyte, 'VM balloon, maximum mem size'           ],
             [ 'domstats.balloon.swap_in',              None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_kbyte, 'VM balloon, swapped in total'           ],
             [ 'domstats.balloon.swap_out',             None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_kbyte, 'VM balloon, swapped out total'          ],
             [ 'domstats.balloon.major_fault',          None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM balloon, major faults'               ],
             [ 'domstats.balloon.minor_fault',          None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM balloon, minor faults'               ],
-            [ 'domstats.balloon.unused',               None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_kbyte, 'VM balloon, unused'                     ],
-            [ 'domstats.balloon.available',            None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_kbyte, 'VM balloon, available'                  ],
+            [ 'domstats.balloon.unused',               None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_kbyte, 'VM balloon, unused memory'              ],
+            [ 'domstats.balloon.available',            None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_kbyte, 'VM balloon, available memory'           ],
             [ 'domstats.balloon.rss',                  None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_kbyte, 'VM balloon, proc RSS'                   ],
-            [ 'domstats.balloon.usable',               None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_kbyte, 'VM balloon, usable w/o swap'            ],
+            [ 'domstats.balloon.usable',               None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_kbyte, 'VM balloon, usable w/o swapping'        ],
             [ 'domstats.balloon.last_update',          None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_secs,  'VM balloon, update timestamp'           ],
         ]
 
@@ -285,18 +297,18 @@ class LibvirtPMDA(PMDA):
 
         for item in range(len(self.hv_metrics)):
             self.add_metric(name + '.' + self.hv_metrics[item][0], pmdaMetric(self.pmid(self.hv_cluster, item),
-                self.hv_metrics[item][2], self.hv_indom, self.hv_metrics[item][3],
-                self.hv_metrics[item][4]), self.hv_metrics[item][5], self.hv_metrics[item][5])
+                            self.hv_metrics[item][2], self.hv_indom, self.hv_metrics[item][3],
+                            self.hv_metrics[item][4]), self.hv_metrics[item][5], self.hv_metrics[item][5])
 
         for item in range(len(self.vm_metrics)):
             self.add_metric(name + '.' + self.vm_metrics[item][0], pmdaMetric(self.pmid(self.vm_cluster, item),
-                self.vm_metrics[item][2], self.vm_indom, self.vm_metrics[item][3],
-                self.vm_metrics[item][4]), self.vm_metrics[item][5], self.vm_metrics[item][5])
+                            self.vm_metrics[item][2], self.vm_indom, self.vm_metrics[item][3],
+                            self.vm_metrics[item][4]), self.vm_metrics[item][5], self.vm_metrics[item][5])
 
         for item in range(len(self.vm_cpustats)):
             self.add_metric(name + '.' + self.vm_cpustats[item][0], pmdaMetric(self.pmid(self.vm_cpustats_cluster, item),
-                self.vm_cpustats[item][2], self.vm_indom, self.vm_cpustats[item][3],
-                self.vm_cpustats[item][4]), self.vm_cpustats[item][5], self.vm_cpustats[item][5])
+                            self.vm_cpustats[item][2], self.vm_indom, self.vm_cpustats[item][3],
+                            self.vm_cpustats[item][4]), self.vm_cpustats[item][5], self.vm_cpustats[item][5])
 
         for item in range(len(self.vm_vcpustats)):
             if item < 5:    # Old combined metrics
@@ -306,21 +318,21 @@ class LibvirtPMDA(PMDA):
             elif item % 2:  # New metrics added in pairs
                 indom = self.vm_vcpu_indom
             else:           # New metrics added in pairs
-                indom = self.vm_indom            
+                indom = self.vm_indom
             self.add_metric(name + '.' + self.vm_vcpustats[item][0], pmdaMetric(self.pmid(self.vm_vcpustats_cluster, item),
-                self.vm_vcpustats[item][2], indom, self.vm_vcpustats[item][3],
-                self.vm_vcpustats[item][4]), self.vm_vcpustats[item][5], self.vm_vcpustats[item][5])
+                            self.vm_vcpustats[item][2], indom, self.vm_vcpustats[item][3],
+                            self.vm_vcpustats[item][4]), self.vm_vcpustats[item][5], self.vm_vcpustats[item][5])
 
         for item in range(len(self.vm_memstats)):
             self.add_metric(name + '.' + self.vm_memstats[item][0], pmdaMetric(self.pmid(self.vm_memstats_cluster, item),
-                self.vm_memstats[item][2], self.vm_indom, self.vm_memstats[item][3],
-                self.vm_memstats[item][4]), self.vm_memstats[item][5], self.vm_memstats[item][5])
+                            self.vm_memstats[item][2], self.vm_indom, self.vm_memstats[item][3],
+                            self.vm_memstats[item][4]), self.vm_memstats[item][5], self.vm_memstats[item][5])
 
         for item in range(len(self.vm_balloonstats)):
             self.add_metric(name + '.' + self.vm_balloonstats[item][0], pmdaMetric(self.pmid(self.vm_balloonstats_cluster, item),
-                self.vm_balloonstats[item][2], self.vm_indom, self.vm_balloonstats[item][3],
-                self.vm_balloonstats[item][4]), self.vm_balloonstats[item][5], self.vm_balloonstats[item][5])
-                
+                            self.vm_balloonstats[item][2], self.vm_indom, self.vm_balloonstats[item][3],
+                            self.vm_balloonstats[item][4]), self.vm_balloonstats[item][5], self.vm_balloonstats[item][5])
+
         for item in range(len(self.vm_blockstats)):
             if item < 15:
                 indom = self.vm_indom
@@ -331,8 +343,8 @@ class LibvirtPMDA(PMDA):
             else:
                 indom = self.vm_block_indom
             self.add_metric(name + '.' + self.vm_blockstats[item][0], pmdaMetric(self.pmid(self.vm_blockstats_cluster, item),
-                self.vm_blockstats[item][2], indom, self.vm_blockstats[item][3],
-                self.vm_blockstats[item][4]), self.vm_blockstats[item][5], self.vm_blockstats[item][5])
+                            self.vm_blockstats[item][2], indom, self.vm_blockstats[item][3],
+                            self.vm_blockstats[item][4]), self.vm_blockstats[item][5], self.vm_blockstats[item][5])
 
         for item in range(len(self.vm_netstats)):
             if item < 11:
@@ -344,19 +356,19 @@ class LibvirtPMDA(PMDA):
             else:
                 indom = self.vm_net_indom
             self.add_metric(name + '.' + self.vm_netstats[item][0], pmdaMetric(self.pmid(self.vm_netstats_cluster, item),
-                self.vm_netstats[item][2], indom, self.vm_netstats[item][3],
-                self.vm_netstats[item][4]), self.vm_netstats[item][5], self.vm_netstats[item][5])
+                            self.vm_netstats[item][2], indom, self.vm_netstats[item][3],
+                            self.vm_netstats[item][4]), self.vm_netstats[item][5], self.vm_netstats[item][5])
 
         for item in range(len(self.vm_perfstats)):
             self.add_metric(name + '.' + self.vm_perfstats[item][0], pmdaMetric(self.pmid(self.vm_perfstats_cluster, item),
-                self.vm_perfstats[item][2], self.vm_indom, self.vm_perfstats[item][3],
-                self.vm_perfstats[item][4]), self.vm_perfstats[item][5], self.vm_perfstats[item][5])
+                            self.vm_perfstats[item][2], self.vm_indom, self.vm_perfstats[item][3],
+                            self.vm_perfstats[item][4]), self.vm_perfstats[item][5], self.vm_perfstats[item][5])
 
         self.set_refresh(self.libvirt_refresh)
         self.set_fetch_callback(self.libvirt_fetch_callback)
 
         @atexit.register
-        def cleanup():
+        def cleanup(): # pylint: disable=unused-variable
             """ Clean up """
             if self.conn:
                 if not os.environ.get('PCP_PYTHON_DOMAIN') and not os.environ.get('PCP_PYTHON_PMNS'):
@@ -532,12 +544,12 @@ class LibvirtPMDA(PMDA):
             return
 
         if cluster == self.vm_memstats_cluster:
-            try:
-                self.vm_memstats_res = {}
-                for dom in self.doms:
+            self.vm_memstats_res = {}
+            for dom in self.doms:
+                try:
                     self.vm_memstats_res[dom.UUIDString()] = dom.memoryStats()
-            except libvirt.libvirtError as error:
-                self.log("Failed to get domain mem stats: %s" % error)
+                except libvirt.libvirtError as error:
+                    self.log("Failed to get domain mem stats: %s" % error)
             return
 
         if cluster == self.vm_balloonstats_cluster:
@@ -695,7 +707,7 @@ class LibvirtPMDA(PMDA):
                         doc = etree.fromstring(dom.XMLDesc(0))
                         break
                 if doc is None:
-                    [PM_ERR_INST, 0]
+                    return [PM_ERR_INST, 0]
 
                 path = self.vm_metrics[item][1]
                 value = doc.xpath(path)
@@ -709,7 +721,7 @@ class LibvirtPMDA(PMDA):
                         return [PM_ERR_AGAIN, 0]
 
                 # Extract and scale if needed
-                if type(value) is list:
+                if isinstance(value, list):
                     if 'text' in dir(value[0]):
                         value = value[0].text
                     else:
@@ -763,15 +775,15 @@ class LibvirtPMDA(PMDA):
                 pos = -1
                 if cluster == 3 and \
                    ((item >= 5 and item < 8) or (item >= 8 and item % 2)):
-                   uuid = self.vm_vcpu_insts.inst_name_lookup(inst)
+                    uuid = self.vm_vcpu_insts.inst_name_lookup(inst)
                 elif cluster == 6 and \
                    ((item >= 15 and item < 29) or (item >= 29 and not item % 2)):
-                   uuid = self.vm_block_insts.inst_name_lookup(inst)
+                    uuid = self.vm_block_insts.inst_name_lookup(inst)
                 elif cluster == 7 and \
                    ((item >= 11 and item < 19) or (item >= 20 and not item % 2)):
-                   uuid = self.vm_net_insts.inst_name_lookup(inst)
+                    uuid = self.vm_net_insts.inst_name_lookup(inst)
                 else:
-                   uuid = self.vm_insts.inst_name_lookup(inst)
+                    uuid = self.vm_insts.inst_name_lookup(inst)
                 for i, r in enumerate(res):
                     if uuid.startswith(r[0].UUIDString()):
                         pos = i
@@ -785,7 +797,8 @@ class LibvirtPMDA(PMDA):
                 if cluster != self.vm_vcpustats_cluster and \
                    cluster != self.vm_blockstats_cluster and \
                    cluster != self.vm_netstats_cluster:
-                    if key == 'balloon.last_update': key = 'balloon.last-update'
+                    if key == 'balloon.last_update':
+                        key = 'balloon.last-update'
                     if key in res[pos][1]:
                         return [res[pos][1][key], 1]
                     else:
@@ -825,7 +838,7 @@ class LibvirtPMDA(PMDA):
                 # Construct the combined total value
                 mtype = mtx[item][2]
                 if mtype == PM_TYPE_STRING:
-                    value = ""
+                    value = "" # pylint: disable=redefined-variable-type
                 else:
                     value = 0
                 for i in range(count):

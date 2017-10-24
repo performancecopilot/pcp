@@ -70,11 +70,9 @@ doindom(pmResult *rp)
 	}
 
 	if (need) {
-#if PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL0) {
+	    if (pmDebugOptions.appl0) {
 		fprintf(stderr, "Add metadata: indom %s for metric %s\n", pmInDomStr(mp->idp->indom), pmIDStr(vsp->pmid));
 	    }
-#endif
 	    if (mp->idp->name != NULL) free(mp->idp->name);
 	    if (mp->idp->inst != NULL) free(mp->idp->inst);
 	    mp->idp->name = namelist;

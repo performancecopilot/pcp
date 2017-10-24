@@ -893,8 +893,12 @@ AC_DEFUN([PCP_CHECK_PYTHON_MODULE],
   ])
 PCP_CHECK_PYTHON_MODULE(OrderedDict, [from collections import OrderedDict])
 AC_SUBST(have_python_OrderedDict)
+PCP_CHECK_PYTHON_MODULE(Elasticsearch, [from elasticsearch import Elasticsearch])
+AC_SUBST(have_python_Elasticsearch)
 PCP_CHECK_PYTHON_MODULE(jsonpointer)
 AC_SUBST(have_python_jsonpointer)
+PCP_CHECK_PYTHON_MODULE(xlsxwriter)
+AC_SUBST(have_python_xlsxwriter)
 PCP_CHECK_PYTHON_MODULE(setuptools)
 AC_SUBST(have_python_setuptools)
 PCP_CHECK_PYTHON_MODULE(requests)
@@ -1120,7 +1124,8 @@ AS_IF([test "x$do_qt" != "xno"], [
     
     if test -z "$QMAKE"
     then
-	AC_PATH_PROGS(QMAKE, [qmake-qt5 qmake-qt4 qmake],, [$QTDIR/bin:/usr/bin:/usr/lib64/qt5/bin:/usr/lib/qt5/bin:/usr/lib64/qt4/bin:/usr/lib/qt4/bin:/usr/local/bin])
+	dnl default to qmake from qtchooser whenever it is available
+	AC_PATH_PROGS(QMAKE, [qmake qmake-qt5 qmake-qt4],, [$QTDIR/bin:/usr/lib/qtchooser:/usr/bin:/usr/lib64/qt5/bin:/usr/lib/qt5/bin:/usr/lib64/qt4/bin:/usr/lib/qt4/bin:/usr/local/bin])
 	test "x$cc_is_gcc" = xyes -a $target_os = solaris && QMAKE="$QMAKE -spec solaris-g++"
     fi
     qmake=$QMAKE
@@ -1833,6 +1838,15 @@ dnl Do you have graphics libraries for pmwebapi?
 PKG_CHECK_MODULES([cairo], [cairo >= 1.2, cairo-ft >= 1.2, cairo-png >= 1.2], [have_cairo=true], [have_cairo=false])
 AC_SUBST(HAVE_CAIRO, [$have_cairo])
 
+AC_LANG_PUSH([C++])
+AC_CHECK_HEADERS([boost/flyweight.hpp])
+AC_LANG_POP
+AC_SUBST(HAVE_BOOST_FLYWEIGHT_HPP, [$ac_cv_header_boost_flyweight_hpp])
+
+have_boost=false
+test "$ac_cv_header_boost_flyweight_hpp" = yes && have_boost=true
+AC_SUBST(have_boost)
+
 enable_webapi=false
 AS_IF([test "x$do_webapi" != "xno"], [
     enable_webapi=true
@@ -1881,6 +1895,7 @@ AC_SUBST(enable_manager)
 
 AC_CHECK_PROGS(SEINFO, seinfo)
 AC_SUBST(SEINFO)
+AC_MSG_CHECKING([if selinux policy should be included])
 enable_selinux=false
 AS_IF([test "x$do_selinux" != "xno"], [
 for makefile in /usr/share/selinux/devel/Makefile
@@ -1888,9 +1903,11 @@ do
     if test -f "$makefile" -a "x$SEINFO" != "x"
     then
 	enable_selinux=true
+	AC_MSG_RESULT(yes)
     fi
 done
 ])
+test "$enable_selinux" = "false" && AC_MSG_RESULT(no)
 AC_SUBST(enable_selinux)
 AC_SUBST(pcp_selinux_dir)
 
@@ -1909,52 +1926,52 @@ for policy_file in /etc/selinux/targeted/policy/policy.*
 do
     if test -f "$policy_file"
     then
-        class_status=`eval seinfo -x --class=system $policy_file | grep status | awk '{ print $1 }'`
+        class_status=`eval seinfo -x --class=system -- $policy_file | grep status | awk '{ print $1 }'`
     	if test "x$class_status" != "x"
 	then
 	    pcp_selinux_class_status=true
 	fi
-	container_runtime=`eval seinfo -t $policy_file | grep container_runtime_t | awk '{ print $1 }'`
+	container_runtime=`eval seinfo -t -- $policy_file | grep container_runtime_t | awk '{ print $1 }'`
 	if test "x$container_runtime" != "x"
 	then
 	    pcp_selinux_container_runtime=true
 	fi
-	nsfs=`eval seinfo -t $policy_file | grep nsfs_t | awk '{ print $1 }'`
+	nsfs=`eval seinfo -t -- $policy_file | grep nsfs_t | awk '{ print $1 }'`
 	if test "x$nsfs" != "x"
 	then
 	    pcp_selinux_nsfs=true
 	fi
-	docker_var_lib=`eval seinfo -t $policy_file | grep docker_var_lib_t | awk '{ print $1 }'`
+	docker_var_lib=`eval seinfo -t -- $policy_file | grep docker_var_lib_t | awk '{ print $1 }'`
 	if test "x$docker_var_lib" != "x"
 	then
 	    pcp_selinux_docker_var_lib=true
 	fi
-	svirt_lxc_net=`eval seinfo -t $policy_file | grep svirt_lxc_net_t | awk '{ print $1 }'`
+	svirt_lxc_net=`eval seinfo -t -- $policy_file | grep svirt_lxc_net_t | awk '{ print $1 }'`
 	if test "x$svirt_lxc_net" != "x"
 	then
 	    pcp_selinux_svirt_lxc_net=true
 	fi
-	systemd_unit_file=`eval seinfo -t $policy_file | grep systemd_unit_file_t | awk '{ print $1 }'`
+	systemd_unit_file=`eval seinfo -t -- $policy_file | grep systemd_unit_file_t | awk '{ print $1 }'`
 	if test "x$systemd_unit_file" != "x"
 	then
 	    pcp_selinux_systemd_unit_file=true
 	fi
-	systemd_exec=`eval seinfo -t $policy_file | grep systemd_systemctl_exec_t | awk '{ print $1 }'`
+	systemd_exec=`eval seinfo -t -- $policy_file | grep systemd_systemctl_exec_t | awk '{ print $1 }'`
 	if test "x$systemd_exec" != "x"
 	then
 	    pcp_selinux_systemd_exec=true
 	fi
-	cap_userns_ptrace=`eval seinfo -x --class=cap_userns $policy_file 2>&1 | grep sys_ptrace | awk '{ print $1 }'`
+	cap_userns_ptrace=`eval seinfo -x --class=cap_userns -- $policy_file 2>&1 | grep sys_ptrace | awk '{ print $1 }'`
     	if test "x$cap_userns_ptrace" != "x"
 	then
 	    pcp_selinux_cap_userns_ptrace=true
 	fi
-	unreserved_port=`eval seinfo -t $policy_file | grep unreserved_port_t | awk '{ print $1 }'`
+	unreserved_port=`eval seinfo -t -- $policy_file | grep unreserved_port_t | awk '{ print $1 }'`
 	if test "x$unreserved_port" != "x"
 	then
 	    pcp_selinux_unreserved_port=true
 	fi
-	tracefs=`eval seinfo -t $policy_file | grep tracefs_t | awk '{ print $1 }'`
+	tracefs=`eval seinfo -t -- $policy_file | grep tracefs_t | awk '{ print $1 }'`
 	if test "x$tracefs" != "x"
 	then
 	    pcp_selinux_tracefs=true
@@ -2349,11 +2366,19 @@ End-of-File
 #include <string.h>
 int main()
 {
+#ifdef __WORDSIZE
 /* logic copied from <inttypes.h> */
 #if __WORDSIZE == 64
-    printf("\"lld\"\n");
-#else
     printf("\"ld\"\n");
+#else
+    printf("\"lld\"\n");
+#endif
+#else
+/* on NetBSD, for example, there is no __WORDSIZE */
+    if (sizeof(int) == 8)
+	printf("\"ld\"\n");
+    else
+	printf("\"lld\"\n");
 #endif
     return(0);
 }
@@ -3121,6 +3146,18 @@ else
 fi
 pcp_icons_dir=`eval echo $pcp_icons_dir`
 AC_SUBST(pcp_icons_dir)
+
+test -z "$INKSCAPE" && AC_PATH_PROG(INKSCAPE, inkscape)
+inkscape=$INKSCAPE
+AC_SUBST(inkscape)
+
+have_hicolor_icons=false
+if test -d /usr/share/icons/hicolor -a -n "$INKSCAPE"
+then
+    AC_MSG_NOTICE([adding hicolor desktop icons to the build])
+    have_hicolor_icons=true
+fi
+AC_SUBST(have_hicolor_icons)
 
 dnl desktop application entries
 pcp_desktop_dir=`eval echo $datarootdir/applications`

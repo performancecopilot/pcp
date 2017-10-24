@@ -542,7 +542,7 @@ pmRecordControl(pmRecordHost *rhp, int request, const char *msg)
 		    int		i;
 
 		    close(mypipe[1]);
-		    snprintf(fdnum, sizeof(fdnum), "%d", mypipe[0]);
+		    pmsprintf(fdnum, sizeof(fdnum), "%d", mypipe[0]);
 		    if (dir != NULL) {
 			/* trim trailing separator */
 			dir[strlen(dir)-1] = '\0';
@@ -597,8 +597,8 @@ fprintf(stderr, "Launching pmlogger:");
 for (i = 0; i < rp->argc+11; i++) fprintf(stderr, " %s", rp->argv[i]);
 fputc('\n', stderr);
 #endif
-		    snprintf(loggerpath, sizeof(loggerpath), "%s%cpmlogger",
-			    pmGetConfig("PCP_BINADM_DIR"), __pmPathSeparator());
+		    pmsprintf(loggerpath, sizeof(loggerpath), "%s%cpmlogger",
+			pmGetConfig("PCP_BINADM_DIR"), __pmPathSeparator());
 		    execv(loggerpath, rp->argv);
 
 		    /* this is really bad! */

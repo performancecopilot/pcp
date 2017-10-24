@@ -124,7 +124,7 @@ main(int argc, char **argv)
     int		sts;
     int		errflag = 0;
     char	*host = "local:";
-    static char	*usage = "[-w] [-x N] [-D N] [-h hostname] container...";
+    static char	*usage = "[-w] [-x N] [-D debugspec] [-h hostname] container...";
     pmID	pmids[num_metrics];
     pmResult	*result;
     int		*excludes = NULL;
@@ -137,14 +137,12 @@ main(int argc, char **argv)
 
     while ((c = getopt(argc, argv, "d:D:h:wx:?")) != EOF) {
 	switch (c) {
-	case 'D':	/* debug flag */
-	    if ((sts = __pmParseDebug(optarg)) < 0) {
-		fprintf(stderr, "%s: unrecognized debug flag specification (%s)\n",
+	case 'D':	/* debug options */
+	    if ((sts = pmSetDebug(optarg)) < 0) {
+		fprintf(stderr, "%s: unrecognized debug options specification (%s)\n",
 		    pmProgname, optarg);
 		errflag++;
 	    }
-	    else
-		pmDebug |= sts;
 	    break;
 
 	case 'd':	/* sleep interval after changing container */

@@ -89,11 +89,9 @@ deleteClient(client_t *cp)
 	    break;
 
     if (i == nclients) {
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL0) {
+	if (pmDebugOptions.appl0) {
 	    __pmNotifyErr(LOG_ERR, "deleteClient: tried to delete non-existent client");
 	}
-#endif
 	return;
     }
     if (cp->fd != -1) {
@@ -112,10 +110,8 @@ deleteClient(client_t *cp)
     cp->status.connected = 0;
     cp->status.padding = 0;
     cp->status.protocol = 1;	/* sync */
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL0)
+	if (pmDebugOptions.appl0)
 	    __pmNotifyErr(LOG_DEBUG, "deleteClient: client removed (fd=%d)", cp->fd);
-#endif
     cp->fd = -1;
 }
 

@@ -18,6 +18,7 @@ include $(TOPDIR)/src/include/builddefs
 CFILES = pmdbg.c
 CMDTARGET = pmdbg$(EXECSUFFIX)
 LLDLIBS = $(PCPLIB)
+LCFLAGS += -DPCP_INTERNAL
 
 default:	$(CMDTARGET)
 
@@ -30,4 +31,4 @@ default_pcp:	default
 
 install_pcp:	install
 
-pmdbg.o:	$(TOPDIR)/src/include/pcp/pmdbg.h
+pmdbg.o:	$(TOPDIR)/src/libpcp/src/pmdbg.h

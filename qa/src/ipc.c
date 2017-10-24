@@ -103,15 +103,9 @@ main(int argc, char **argv)
     pmDesc	desc;
     int		id;
     int		e;
-#ifdef PCP_DEBUG
-    static char	*debug = "[-D N] ";
-#else
-    static char	*debug = "";
-#endif
-    static char	*usage = "[-h hostname] [-n namespace] [-i iterations]";
+    static char	*usage = "[-D debugspec] [-h hostname] [-n namespace] [-i iterations]";
     extern char	*optarg;
     extern int	optind;
-    extern int	pmDebug;
 
     /* trim command name of leading directory components */
     pmProgname = argv[0];
@@ -123,18 +117,14 @@ main(int argc, char **argv)
     while ((c = getopt(argc, argv, "D:h:l:n:i:")) != EOF) {
 	switch (c) {
 
-#ifdef PCP_DEBUG
-	case 'D':	/* debug flag */
-	    sts = __pmParseDebug(optarg);
+	case 'D':	/* debug options */
+	    sts = pmSetDebug(optarg);
 	    if (sts < 0) {
-		fprintf(stderr, "%s: unrecognized debug flag specification (%s)\n",
+		fprintf(stderr, "%s: unrecognized debug options specification (%s)\n",
 		    pmProgname, optarg);
 		errflag++;
 	    }
-	    else
-		pmDebug |= sts;
 	    break;
-#endif
 
 	case 'h':	/* hostname for PMCD to contact */
 	    host = optarg;
@@ -157,7 +147,7 @@ main(int argc, char **argv)
 
     if (errflag) {
 USAGE:
-	fprintf(stderr, "Usage: %s %s%s\n", pmProgname, debug, usage);
+	fprintf(stderr, "Usage: %s %s\n", pmProgname, usage);
 	exit(1);
     }
 

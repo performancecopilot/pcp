@@ -44,7 +44,7 @@ _wait_for_pmcd
 _wait_for_pmlogger
 
 # store to enable verbose attribute diagnostics
-authdbg=`pmdbg -l | grep DBG_TRACE_AUTH | awk '{ print $2 }'`
+authdbg=`pmdbg -o -l | grep DBG_TRACE_AUTH | awk '{ print $2 }'`
 pmstore sample.control $authdbg
 
 pminfo --container=wedge sample >/dev/null 2>&1

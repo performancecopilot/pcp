@@ -39,15 +39,13 @@ main(int argc, char **argv)
     while ((c = getopt(argc, argv, "D:h:?")) != EOF) {
 	switch (c) {
 
-	case 'D':	/* debug flag */
-	    sts = __pmParseDebug(optarg);
+	case 'D':	/* debug options */
+	    sts = pmSetDebug(optarg);
 	    if (sts < 0) {
-		fprintf(stderr, "%s: unrecognized debug flag specification (%s)\n",
+		fprintf(stderr, "%s: unrecognized debug options specification (%s)\n",
 		    pmProgname, optarg);
 		errflag++;
 	    }
-	    else
-		pmDebug |= sts;
 	    break;
 
 	case 'h':	/* contact PMCD on this hostname */
@@ -76,7 +74,7 @@ main(int argc, char **argv)
 "Usage: %s options ...\n\
 \n\
 Options\n\
-  -D debug	standard PCP debug flag\n\
+  -D debug	standard PCP debug options\n\
   -h host	metrics source is PMCD on host\n",
 		pmProgname);
 	exit(1);

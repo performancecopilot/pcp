@@ -60,12 +60,10 @@ disk_init(int first)
 	indomtab[DISK_INDOM].it_set[i].i_name = strdup(diskstat[i].name);
     }
 
-#ifdef PCP_DEBUG
-    if ((pmDebug & (DBG_TRACE_APPL0|DBG_TRACE_APPL2)) == (DBG_TRACE_APPL0|DBG_TRACE_APPL2)) {
+    if (pmDebugOptions.appl0 && pmDebugOptions.desperate) {
 	/* desperate */
 	fprintf(stderr, "disk_init: ndisk=%d\n", ndisk);
     }
-#endif
 }
 
 void
@@ -99,13 +97,11 @@ disk_derived(pmdaMetric *mdesc, int inst)
 	    break;
     }
 
-#ifdef PCP_DEBUG
-    if ((pmDebug & (DBG_TRACE_APPL0|DBG_TRACE_APPL2)) == (DBG_TRACE_APPL0|DBG_TRACE_APPL2)) {
+    if (pmDebugOptions.appl0 && pmDebugOptions.desperate) {
 	/* desperate */
 	fprintf(stderr, "disk_derived: pmid %s inst %d val %llu\n",
 		    pmIDStr(mdesc->m_desc.pmid), inst, val);
     }
-#endif
 
     return val;
 }
@@ -156,13 +152,11 @@ disk_fetch(pmdaMetric *mdesc, int inst, pmAtomValue *atom)
 	    /* assumed to be CPU time */
 	    atom->ull *= 1000 / HZ;
 	}
-#ifdef PCP_DEBUG
-	if ((pmDebug & (DBG_TRACE_APPL0|DBG_TRACE_APPL2)) == (DBG_TRACE_APPL0|DBG_TRACE_APPL2)) {
+	if (pmDebugOptions.appl0 && pmDebugOptions.desperate) {
 	    /* desperate */
 	    fprintf(stderr, "disk_fetch: pmid %s inst %d val %llu\n",
 		    pmIDStr(mdesc->m_desc.pmid), inst, atom->ull);
 	}
-#endif
     }
     else {
 	if (offset == OFF_DERIVED)
@@ -176,13 +170,11 @@ disk_fetch(pmdaMetric *mdesc, int inst, pmAtomValue *atom)
 	    /* assumed to be CPU time */
 	    atom->ul *= 1000 / HZ;
 	}
-#ifdef PCP_DEBUG
-	if ((pmDebug & (DBG_TRACE_APPL0|DBG_TRACE_APPL2)) == (DBG_TRACE_APPL0|DBG_TRACE_APPL2)) {
+	if (pmDebugOptions.appl0 && pmDebugOptions.desperate) {
 	    /* desperate */
 	    fprintf(stderr, "disk_fetch: pmid %s inst %d val %lu\n",
 		    pmIDStr(mdesc->m_desc.pmid), inst, atom->ul);
 	}
-#endif
     }
 
     return 1;

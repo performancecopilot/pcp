@@ -107,9 +107,13 @@ dm_refresh_thin_pool(const char *pool_name, struct pool_stats *pool_stats)
     uint64_t size_start, size_end;
     char buffer[BUFSIZ];
     FILE *fp;
+    int sts;
+    __pmExecCtl_t *argp = NULL;
 
-    if ((fp = popen(dm_setup_thinpool, "r")) == NULL)
-        return - oserror();
+    if ((sts = __pmProcessUnpickArgs(&argp, dm_setup_thinpool)) < 0)
+	return sts;
+    if ((sts = __pmProcessPipe(&argp, "r", PM_EXEC_TOSS_NONE, &fp)) < 0)
+	return sts;
 
     while (fgets(buffer, sizeof(buffer) -1, fp)) {
         if (!strstr(buffer, ":") || strstr(buffer, "Fail"))
@@ -143,10 +147,17 @@ dm_refresh_thin_pool(const char *pool_name, struct pool_stats *pool_stats)
         pool_stats->size = (size_end - size_start);
     }
 
-    if (pclose(fp) != 0)
-        return -oserror();
+    sts = __pmProcessPipeClose(fp);
+    if (sts <= 0)
+        return sts;
+    if (sts == 2000)
+	fprintf(stderr, "dm_refresh_thin_pool: pipe (%s) terminated with unknown error\n", dm_setup_thinpool);
+    else if (sts > 1000)
+	fprintf(stderr, "dm_refresh_thin_pool: pipe (%s) terminated with signal %d\n", dm_setup_thinpool, sts - 1000);
+    else
+	fprintf(stderr, "dm_refresh_thin_pool: pipe (%s) terminated with exit status %d\n", dm_setup_thinpool, sts);
 
-    return 0;
+    return PM_ERR_GENERIC;
 }
 
 /*
@@ -161,9 +172,13 @@ dm_refresh_thin_vol(const char *vol_name, struct vol_stats *vol_stats)
     uint64_t size_start, size_end;
     char buffer[BUFSIZ];
     FILE *fp;
+    int sts;
+    __pmExecCtl_t *argp = NULL;
 
-    if ((fp = popen(dm_setup_thin, "r")) == NULL)
-        return -oserror();
+    if ((sts = __pmProcessUnpickArgs(&argp, dm_setup_thin)) < 0)
+	return sts;
+    if ((sts = __pmProcessPipe(&argp, "r", PM_EXEC_TOSS_NONE, &fp)) < 0)
+	return sts;
 
     while (fgets(buffer, sizeof(buffer) -1, fp)) {
         if (!strstr(buffer, ":") || strstr(buffer, "Fail"))
@@ -188,10 +203,17 @@ dm_refresh_thin_vol(const char *vol_name, struct vol_stats *vol_stats)
         vol_stats->size = (size_end - size_start);
     }
 
-    if (pclose(fp) != 0)
-        return -oserror();
+    sts = __pmProcessPipeClose(fp);
+    if (sts <= 0)
+        return sts;
+    if (sts == 2000)
+	fprintf(stderr, "dm_refresh_thin_vol: pipe (%s) terminated with unknown error\n", dm_setup_thin);
+    else if (sts > 1000)
+	fprintf(stderr, "dm_refresh_thin_vol: pipe (%s) terminated with signal %d\n", dm_setup_thin, sts - 1000);
+    else
+	fprintf(stderr, "dm_refresh_thin_vol: pipe (%s) terminated with exit status %d\n", dm_setup_thin, sts);
 
-    return 0;
+    return PM_ERR_GENERIC;
 }
 
 /*
@@ -210,14 +232,17 @@ dm_thin_pool_instance_refresh(void)
     char buffer[BUFSIZ];
     struct pool_stats *pool;
     pmInDom indom = dm_indom(DM_THIN_POOL_INDOM);
+    __pmExecCtl_t *argp = NULL;
 
     pmdaCacheOp(indom, PMDA_CACHE_INACTIVE);
 
     /*
      * update indom cache based off of thin pools listed by dmsetup
      */
-    if ((fp = popen(dm_setup_thinpool, "r")) == NULL)
-        return -oserror();
+    if ((sts = __pmProcessUnpickArgs(&argp, dm_setup_thinpool)) < 0)
+	return sts;
+    if ((sts = __pmProcessPipe(&argp, "r", PM_EXEC_TOSS_NONE, &fp)) < 0)
+	return sts;
 
     while (fgets(buffer, sizeof(buffer) -1, fp)) {
         if (!strstr(buffer, ":"))
@@ -233,8 +258,7 @@ dm_thin_pool_instance_refresh(void)
 	if (sts == PM_ERR_INST || (sts >= 0 && pool == NULL)){
 	    pool = calloc(1, sizeof(*pool));
             if (pool == NULL) {
-                if (pclose(fp) != 0)
-                    return -oserror();
+		__pmProcessPipeClose(fp);
                 return PM_ERR_AGAIN;
             }
         }
@@ -245,10 +269,17 @@ dm_thin_pool_instance_refresh(void)
 	pmdaCacheStore(indom, PMDA_CACHE_ADD, buffer, (void *)pool);
     }
 
-    if (pclose(fp) != 0)
-        return -oserror();
+    sts = __pmProcessPipeClose(fp);
+    if (sts <= 0)
+        return sts;
+    if (sts == 2000)
+	fprintf(stderr, "dm_thin_pool_instance_refresh: pipe (%s) terminated with unknown error\n", dm_setup_thinpool);
+    else if (sts > 1000)
+	fprintf(stderr, "dm_thin_pool_instance_refresh: pipe (%s) terminated with signal %d\n", dm_setup_thinpool, sts - 1000);
+    else
+	fprintf(stderr, "dm_thin_pool_instance_refresh: pipe (%s) terminated with exit status %d\n", dm_setup_thinpool, sts);
 
-    return 0;
+    return PM_ERR_GENERIC;
 }
 
 /*
@@ -267,14 +298,17 @@ dm_thin_vol_instance_refresh(void)
     char buffer[BUFSIZ];
     struct vol_stats *vol;
     pmInDom indom = dm_indom(DM_THIN_VOL_INDOM);
+    __pmExecCtl_t *argp = NULL;
 
     pmdaCacheOp(indom, PMDA_CACHE_INACTIVE);
 
     /*
      * update indom cache based off of thin pools listed by dmsetup
      */
-    if ((fp = popen(dm_setup_thin, "r")) == NULL)
-        return -oserror();
+    if ((sts = __pmProcessUnpickArgs(&argp, dm_setup_thin)) < 0)
+	return sts;
+    if ((sts = __pmProcessPipe(&argp, "r", PM_EXEC_TOSS_NONE, &fp)) < 0)
+	return sts;
 
     while (fgets(buffer, sizeof(buffer) -1, fp)) {
         if (!strstr(buffer, ":"))
@@ -290,8 +324,7 @@ dm_thin_vol_instance_refresh(void)
         if (sts == PM_ERR_INST || (sts >= 0 && vol == NULL)){
             vol = calloc(1, sizeof(*vol));
             if (vol == NULL) {
-                if (pclose(fp) != 0)
-                    return -oserror();
+		__pmProcessPipeClose(fp);
                 return PM_ERR_AGAIN;
             }
         }
@@ -302,10 +335,17 @@ dm_thin_vol_instance_refresh(void)
 	pmdaCacheStore(indom, PMDA_CACHE_ADD, buffer, (void *)vol);
     }
 
-    if (pclose(fp) != 0)
-        return -oserror();
+    sts = __pmProcessPipeClose(fp);
+    if (sts <= 0)
+        return sts;
+    if (sts == 2000)
+	fprintf(stderr, "dm_thin_vol_instance_refresh: pipe (%s) terminated with unknown error\n", dm_setup_thin);
+    else if (sts > 1000)
+	fprintf(stderr, "dm_thin_vol_instance_refresh: pipe (%s) terminated with signal %d\n", dm_setup_thin, sts - 1000);
+    else
+	fprintf(stderr, "dm_thin_vol_instance_refresh: pipe (%s) terminated with exit status %d\n", dm_setup_thin, sts);
 
-    return 0;
+    return PM_ERR_GENERIC;
 }
 
 void

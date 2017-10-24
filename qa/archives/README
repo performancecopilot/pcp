@@ -1,11 +1,16 @@
-QA archives that are static.
+Good QA archives that are static.
+
+Some of these archives are truncated, but they are otherwise believed
+to be either correct or contain the sort of benign errors that the
+PCP code base is expected to handle gracefully.
 
 These ones are checked into the git tree.
 
-For some of them, the makefile and the associated pmlogger configuration
-files and scripts provide recipes for recreating them.
+For some of them, the makefile and the associated pmlogger
+configuration files and scripts provide recipes for recreating them.
 
-Others come from sources that are not reproducible, e.g. users reporting
-bugs.
+Others come from sources that are not reproducible, e.g. users
+reporting bugs.
 
-See also ../tmparch for the dynamically recreated QA archives.
+See also ../badarchives for bad QA archives and ../tmparch for the
+dynamically recreated QA archives.

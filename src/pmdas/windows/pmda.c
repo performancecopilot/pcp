@@ -1562,7 +1562,7 @@ windows_init(pmdaInterface *dp)
     int			metrictab_sz = metricdesc_sz;
     int			i, sep = __pmPathSeparator();
 
-    snprintf(helppath, sizeof(helppath), "%s%c" "windows" "%c" "help",
+    pmsprintf(helppath, sizeof(helppath), "%s%c" "windows" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDSO(dp, PMDA_INTERFACE_3, "windows DSO", helppath);
     if (dp->status != 0)
@@ -1572,7 +1572,7 @@ windows_init(pmdaInterface *dp)
     metrictab = (pmdaMetric *)malloc(metrictab_sz * sizeof(pmdaMetric));
     if (metrictab == NULL) {
 	fprintf(stderr, "Error: malloc metrictab [%d] failed: %s\n",
-		metrictab_sz * sizeof(pmdaMetric), osstrerror());
+		(int)(metrictab_sz * sizeof(pmdaMetric)), osstrerror());
 	return;
     }
 

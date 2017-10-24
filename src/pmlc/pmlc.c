@@ -272,11 +272,9 @@ main(int argc, char **argv)
 	}
 	if (metric_cnt < 0)
 	    continue;
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL1)
+	if (pmDebugOptions.appl1)
 	    printf("stmt=%d, state=%d, control=%d, hostspec=%s, pid=%d, port=%d\n",
 		   parse_stmt, state, control, hostname, pid, port);
-#endif
 
 	realhost = (hostname == NULL) ? host : hostname;
 	switch (parse_stmt) {

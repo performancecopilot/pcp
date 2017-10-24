@@ -40,7 +40,7 @@ MetricList::toString(const SbColor &color, QString &str)
     char buf[48];
 
     const float *values = color.getValue();
-    sprintf(buf, "rgbi:%f/%f/%f", values[0], values[1], values[2]);
+    pmsprintf(buf, sizeof(buf), "rgbi:%f/%f/%f", values[0], values[1], values[2]);
     str = buf;
 }
 

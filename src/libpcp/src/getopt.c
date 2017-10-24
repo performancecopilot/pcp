@@ -254,13 +254,10 @@ __pmSetDebugFlag(pmOptions *opts, char *arg)
 {
     int sts;
 
-    if ((sts = __pmParseDebug(arg)) < 0) {
-	pmprintf("%s: unrecognized debug flag specification (%s)\n",
+    if ((sts = pmSetDebug(arg)) < 0) {
+	pmprintf("%s: unrecognized debug options specification (%s)\n",
 		pmProgname, arg);
 	opts->errors++;
-    }
-    else {
-	pmDebug |= sts;
     }
 }
 
@@ -307,13 +304,15 @@ addArchive(pmOptions *opts, char *arg)
 	 * Multiple contexts for multiple archives. See pmstat(1).
 	 * We will maintain an array of archive names.
 	 */
+	char	**tmp_archives;
 	for (i = 0; i < opts->narchives; ++i) {
 	    if (strcmp(arg, archives[i]) == 0)
 		return; /* duplicate */
 	}
 	size = sizeof(char *) * (opts->narchives + 1);
-	if ((archives = realloc(archives, size)) == NULL)
+	if ((tmp_archives = realloc(archives, size)) == NULL)
 	    goto noMem;
+	archives = tmp_archives;
 	if ((archives[opts->narchives] = strdup(arg)) == NULL)
 	    goto noMem;
 	opts->narchives++;
@@ -334,6 +333,7 @@ addArchive(pmOptions *opts, char *arg)
 	    opts->narchives = 1;
 	}
 	else {
+	    char	*tmp_archives;
 	    if ((found = strstr(*archives, arg)) != NULL &&
 		(found == *archives || *(found - 1) == ',')) {
 		size = strlen(arg);
@@ -342,8 +342,9 @@ addArchive(pmOptions *opts, char *arg)
 	    }
 	    /* Add a comma plus the additional name. */
 	    size = strlen (*archives) + 1 + strlen (arg) + 1;
-	    if ((*archives = realloc(*archives, size)) == NULL)
+	    if ((tmp_archives = realloc(*archives, size)) == NULL)
 		goto noMem;
+	    *archives = tmp_archives;
 	    strcat (*archives, ",");
 	    strcat (*archives, arg);
 	}
@@ -354,6 +355,7 @@ addArchive(pmOptions *opts, char *arg)
 
  noMem:
     __pmNoMem("pmGetOptions(archive)", size, PM_FATAL_ERR);
+    /*NOTREACHED*/
 }
 
 void
@@ -420,6 +422,7 @@ void
 __pmAddOptHost(pmOptions *opts, char *arg)
 {
     char **hosts = opts->hosts;
+    char **tmp_hosts;
     size_t size = sizeof(char *) * (opts->nhosts + 1);
 
     if (opts->nhosts && !(opts->flags & PM_OPTFLAG_MULTI)) {
@@ -428,12 +431,14 @@ __pmAddOptHost(pmOptions *opts, char *arg)
     } else if (opts->narchives && !(opts->flags & PM_OPTFLAG_MIXED)) {
 	pmprintf("%s: only one host or archive allowed\n", pmProgname);
 	opts->errors++;
-    } else if ((hosts = realloc(hosts, size)) != NULL) {
+    } else if ((tmp_hosts = realloc(hosts, size)) != NULL) {
+	hosts = tmp_hosts;
 	hosts[opts->nhosts] = arg;
 	opts->hosts = hosts;
 	opts->nhosts++;
     } else {
 	__pmNoMem("pmGetOptions(host)", size, PM_FATAL_ERR);
+	/*NOTREACHED*/
     }
 }
 
@@ -527,7 +532,7 @@ __pmAddOptArchiveFolio(pmOptions *opts, char *arg)
 	    length = strlen(dir) + 1 + strlen(log) + 1;
 	    if ((p = (char *)malloc(length)) == NULL)
 		__pmNoMem("pmGetOptions(archive)", length, PM_FATAL_ERR);
-	    snprintf(p, length, "%s%c%s", dir, sep, log);
+	    pmsprintf(p, length, "%s%c%s", dir, sep, log);
 	    __pmAddOptArchive(opts, p);
 	    free(p);
 	}
@@ -564,6 +569,7 @@ __pmAddOptHostFile(pmOptions *opts, char *arg)
 	    while (fgets(buffer, sizeof(buffer)-1, fp) != NULL) {
 		size_t size = sizeof(char *) * (opts->nhosts + 1);
 		char **hosts = opts->hosts;
+		char **tmp_hosts;
 		char *host, *p = buffer;
 		size_t length;
 
@@ -578,7 +584,8 @@ __pmAddOptHostFile(pmOptions *opts, char *arg)
 		    p++;
 		}
 		*p = '\0';
-		if ((hosts = realloc(hosts, size)) != NULL) {
+		if ((tmp_hosts = realloc(hosts, size)) != NULL) {
+		    hosts = tmp_hosts;
 		    if ((host = strndup(host, length)) != NULL) {
 			hosts[opts->nhosts] = host;
 			opts->hosts = hosts;
@@ -588,6 +595,7 @@ __pmAddOptHostFile(pmOptions *opts, char *arg)
 		    }
 		} else {
 		    __pmNoMem("pmGetOptions(hosts)", size, PM_FATAL_ERR);
+		    /*NOTREACHED*/
 		}
 	    }
 
@@ -616,18 +624,21 @@ __pmAddOptHostList(pmOptions *opts, char *arg)
 	    size_t size = sizeof(char *) * (opts->nhosts + 1);
 	    size_t length = end - start;
 	    char **hosts = opts->hosts;
+	    char **tmp_hosts;
 	    char *host;
 
 	    if (length == 0)
 		goto next;
 
-	    if ((hosts = realloc(hosts, size)) != NULL) {
+	    if ((tmp_hosts = realloc(hosts, size)) != NULL) {
+		hosts = tmp_hosts;
 		if ((host = strndup(start, length)) != NULL) {
 		    hosts[opts->nhosts] = host;
 		    opts->hosts = hosts;
 		    opts->nhosts++;
 		} else {
 		    __pmNoMem("pmGetOptions(host)", length, PM_FATAL_ERR);
+		    /*NOTREACHED*/
 		}
 	    } else {
 		__pmNoMem("pmGetOptions(hosts)", size, PM_FATAL_ERR);

@@ -92,7 +92,7 @@ main(int argc, char **argv)
     __pmSetProgname(argv[0]);
     __pmGetUsername(&username);
 
-    snprintf(helppath, sizeof(helppath), "%s%c" "sample" "%c" "help",
+    pmsprintf(helppath, sizeof(helppath), "%s%c" "sample" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&dispatch, PMDA_INTERFACE_LATEST, pmProgname, SAMPLE,
 		"sample.log", helppath);

@@ -18,6 +18,7 @@ policy_file="$PCP_VAR_DIR/selinux/$policy_name.pp"
 which sedismod >/dev/null 2>&1 || _notrun "sedismod tool not installed (module disassembly)"
 which semodule >/dev/null 2>&1 || _notrun "semodule tool not installed"
 which seinfo >/dev/null 2>&1 || _notrun "seinfo tool not installed"
+( seinfo -t 2>&1 | grep 'Default policy search failed: No such file or directory' >/dev/null ) && _notrun "seinfo version bad: can't load default policy"
 [ -f "$policy_file" ] || _notrun "upstream policy package not installed"
 $sudo semodule -l 2>&1 | grep -q $policy_name || _notrun "upstream policy package not loaded"
 

@@ -53,10 +53,8 @@ refresh_swapdev(pmInDom swapdev_indom)
 	else {	/* new swap device */
 	    if ((swap = malloc(sizeof(swapdev_t))) == NULL)
 		continue;
-#if PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_LIBPMDA)
+	    if (pmDebugOptions.libpmda)
 		fprintf(stderr, "refresh_swapdev: add \"%s\"\n", path);
-#endif
 	    pmdaCacheStore(swapdev_indom, PMDA_CACHE_ADD, path, swap);
 	}
 	sscanf(size, "%u", &swap->size);

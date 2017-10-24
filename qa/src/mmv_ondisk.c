@@ -75,7 +75,7 @@ main(int argc, char **argv)
     size += sizeof(mmv_disk_metric_t);
     size += sizeof(mmv_disk_value_t);
 
-    sprintf(path, "%s/mmv/%s", pmGetConfig("PCP_TMP_DIR"), file);
+    pmsprintf(path, sizeof(path), "%s/mmv/%s", pmGetConfig("PCP_TMP_DIR"), file);
     if ((fd = open(path, O_RDWR | O_CREAT | O_EXCL, 0644)) < 0) {
 	perror(path);
 	exit(1);

@@ -1,0 +1,50 @@
+#!/bin/sh
+# PCP QA Test No. 1131
+# Exercise pcp2json.
+#
+# Copyright (c) 2017 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.python
+
+$python -c "from pcp import pmapi" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "python pcp pmapi module not installed"
+$python -c "from collections import OrderedDict" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "python collections OrderedDict module not installed"
+
+which pcp2json >/dev/null 2>&1 || _notrun "pcp2json not installed"
+
+status=1       # failure is the default!
+signal=$PCP_BINADM_DIR/pmsignal
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+A="$here/archives/rep"
+
+_filter()
+{
+    sed -e "s,$A,ARCHIVE_PATH,g"
+}
+
+# real QA test starts here
+echo "---"
+pcp2json -a $A -H -I -z "" | _filter
+echo "---"
+pcp2json -a $A -H -I -Z UTC+0 -x "" | _filter
+echo "---"
+pcp2json -a $A -H -I -z -X -b GB -P 2 -F $tmp.outfile ""
+cat $tmp.outfile | _filter
+which json_verify > /dev/null 2>&1
+if [ $? -eq 0 ]; then
+    json_verify < $tmp.outfile > /dev/null 2>&1
+    [ $? -ne 0 ] && echo "JSON is not valid!"
+fi
+rm -f $tmp.outfile
+echo "---"
+
+# success, all done
+status=0
+exit

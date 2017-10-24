@@ -21,15 +21,13 @@ main(int argc, char **argv)
     while ((c = getopt(argc, argv, "D:?")) != EOF) {
 	switch (c) {
 
-	case 'D':	/* debug flag */
-	    sts = __pmParseDebug(optarg);
+	case 'D':	/* debug options */
+	    sts = pmSetDebug(optarg);
 	    if (sts < 0) {
-		fprintf(stderr, "%s: unrecognized debug flag specification (%s)\n",
+		fprintf(stderr, "%s: unrecognized debug options specification (%s)\n",
 		    pmProgname, optarg);
 		errflag++;
 	    }
-	    else
-		pmDebug |= sts;
 	    break;
 
 	case '?':
@@ -50,7 +48,7 @@ main(int argc, char **argv)
 #endif
 
     str_ver = pmGetConfig("PCP_VERSION");
-    snprintf(buf, sizeof(buf), "%d.%d.%d", (sts&0xff0000)>>16, (sts&0xff00)>>8, (sts&0xff));
+    pmsprintf(buf, sizeof(buf), "%d.%d.%d", (sts&0xff0000)>>16, (sts&0xff00)>>8, (sts&0xff));
     if (strcmp(str_ver, buf) != 0)
 	fprintf(stderr, "Botch: pmGetConfig version %s != pmGetVersion() %s\n", str_ver, buf);
     else

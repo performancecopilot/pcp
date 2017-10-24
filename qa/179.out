@@ -45,6 +45,8 @@ TIMESTAMP 1 instances
 TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value "HOST"
               2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
               2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value "PATH"
+              2.0.23 (pmcd.pid): value PID
+              2.0.24 (pmcd.seqnum): value SEQNUM
 
 TIMESTAMP  29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
                 inst [100 or "bin-100"] value 100
@@ -89,6 +91,12 @@ TIMESTAMP  29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sampl
                 inst [700 or "bin-700"] value 700
                 inst [800 or "bin-800"] value 800
                 inst [900 or "bin-900"] value 900
+
+TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value "HOST"
+              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value "PATH"
+              2.0.23 (pmcd.pid): value PID
+              2.0.24 (pmcd.seqnum): value SEQNUM
 pmval ...
 
 metric:    sample.bin
@@ -177,6 +185,8 @@ TIMESTAMP 1 instances
 TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value "HOST"
               2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
               2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value "PATH"
+              2.0.23 (pmcd.pid): value PID
+              2.0.24 (pmcd.seqnum): value SEQNUM
 
 TIMESTAMP  PMID (hinv.ndisk): value INTEGER
 
@@ -223,6 +233,12 @@ TIMESTAMP  29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sampl
                 inst [700 or "bin-700"] value 700
                 inst [800 or "bin-800"] value 800
                 inst [900 or "bin-900"] value 900
+
+TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value "HOST"
+              2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+              2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value "PATH"
+              2.0.23 (pmcd.pid): value PID
+              2.0.24 (pmcd.seqnum): value SEQNUM
 pmval ...
 
 metric:    sample.bin

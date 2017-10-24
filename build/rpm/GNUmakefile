@@ -85,10 +85,13 @@ pcp.spec: pcp.spec.in
 	    -e's|@pmda_activemq@|$(PMDA_ACTIVEMQ)|g' \
 	    -e's|@pmda_bind2@|$(PMDA_BIND2)|g' \
 	    -e's|@pmda_nutcracker@|$(PMDA_NUTCRACKER)|g' \
+	    -e's|@pcp2xlsx@|$(HAVE_PYTHON_XLSXWRITER)|g' \
+	    -e's|@pcp2elasticsearch@|$(HAVE_PYTHON_ELASTICSEARCH)|g' \
 	    -e's|@enable_systemd@|$(ENABLE_SYSTEMD)|g' \
 	    -e's|@enable_secure@|$(ENABLE_SECURE)|g' \
 	    -e's|@enable_probes@|$(ENABLE_PROBES)|g' \
 	    -e's|@enable_avahi@|$(ENABLE_AVAHI)|g' \
+	    -e's|@have_boost@|$(HAVE_BOOST)|g' \
 	    -e's|@enable_qt@|$(ENABLE_QT)|g' \
 	    -e's|@enable_python2@|$(ENABLE_PYTHON2)|g' \
 	    -e's|@enable_python3@|$(ENABLE_PYTHON3)|g' \

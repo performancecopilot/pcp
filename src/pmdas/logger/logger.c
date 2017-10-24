@@ -416,7 +416,7 @@ logger_init(pmdaInterface *dp, const char *configfile)
     for (i = 0; i < numloggers; i++) {
 	const char *id = event_pmnsname(i);
 	for (j = 0; j < numdynamics; j++) {
-	    snprintf(name, sizeof(name),
+	    pmsprintf(name, sizeof(name),
 			"logger.perfile.%s.%s", id, dynamic_nametab[j]);
 	    __pmAddPMNSNode(pmns, pmetric[j].m_desc.pmid, name);
 	}
@@ -457,7 +457,7 @@ loggerMain(pmdaInterface *dispatch)
     for (;;) {
 	memcpy(&readyfds, &fds, sizeof(readyfds));
 	nready = select(maxfd+1, &readyfds, NULL, NULL, NULL);
-	if (pmDebug & DBG_TRACE_APPL2)
+	if (pmDebugOptions.appl2)
 	    __pmNotifyErr(LOG_DEBUG, "select: nready=%d interval=%d",
 			  nready, interval_expired);
 	if (nready < 0) {
@@ -471,13 +471,13 @@ loggerMain(pmdaInterface *dispatch)
 
 	__pmAFblock();
 	if (nready > 0 && FD_ISSET(pmcdfd, &readyfds)) {
-	    if (pmDebug & DBG_TRACE_APPL0)
+	    if (pmDebugOptions.appl0)
 		__pmNotifyErr(LOG_DEBUG, "processing pmcd PDU [fd=%d]", pmcdfd);
 	    if (__pmdaMainPDU(dispatch) < 0) {
 		__pmAFunblock();
 		exit(1);	/* fatal if we lose pmcd */
 	    }
-	    if (pmDebug & DBG_TRACE_APPL0)
+	    if (pmDebugOptions.appl0)
 		__pmNotifyErr(LOG_DEBUG, "completed pmcd PDU [fd=%d]", pmcdfd);
 	}
 	if (interval_expired) {
@@ -540,7 +540,7 @@ main(int argc, char **argv)
 
     minmem = getpagesize();
     maxmem = (minmem > DEFAULT_MAXMEM) ? minmem : DEFAULT_MAXMEM;
-    snprintf(helppath, sizeof(helppath), "%s%c" "logger" "%c" "help",
+    pmsprintf(helppath, sizeof(helppath), "%s%c" "logger" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&desc, PMDA_INTERFACE_5, pmProgname, LOGGER,
 		"logger.log", helppath);

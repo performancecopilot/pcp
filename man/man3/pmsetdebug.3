@@ -1,0 +1,90 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2017 Ken McDonell.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMSETDEBUG 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmSetDebug\f1,
+\f3pmClearDebug\f1 \- manipulate PCP debugging control options
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.sp
+int pmSetDebug(const char *\fIspec\fP);
+.br
+int pmClearDebug(const char *\fIspec\fP);
+.sp
+cc ... \-lpcp
+.ft 1
+.SH DESCRIPTION
+.PP
+Within the libraries and applications of the Performance Co-Pilot
+(PCP) there is an extensive set of debugging options that may
+be enabled or disabled at run-time.
+.PP
+Both
+.B pmSetDebug
+and
+.B pmClearDebug
+parse
+.I spec
+assuming it to be a comma separated list of PCP debug option names.
+.PP
+The names of the available options may be found using the
+.B \-l
+argument to
+.BR pmdbg (1).
+.PP
+As a special case, the name ``all'' is treated as a synonym
+for identifying all option names.
+.PP
+.B pmSetDebug
+will set the corresponding options, while
+.B pmClearDebug
+will clear the corresponding options.
+.PP
+Consecutive calls to either routine will be additive.  For example the
+following code fragments are equivalent in terms of the final configuration
+of the debug options.
+.sp
+.ft CW
+.nf
+.in +0.5i
+sts = pmClearDebug("all");
+sts = pmSetDebug("appl0");
+sts = pmSetDebug("pdu,fetch");
+sts = pmSetDebug("fetch,profile,context");
+sts = pmClearDebug("appl0");
+.sp
+sts = pmClearDebug("all");
+sts = pmSetDebug("pdu,fetch,profile,context");
+.in
+.fi
+.ft
+.PP
+An earlier implementation of the PCP debug facilities used a bit-vector
+and for backwards compatibility the elements of
+.I spec
+may include decimal values corresponding to those bit-values.
+Refer to
+.BR pmdbg (1)
+for more details of this deprecated format.
+.SH SEE ALSO
+.BR pmdbg (1)
+.SH DIAGNOSTICS
+If successful,
+these routines return 0,
+otherwise the return is
+.B PM_ERR_CONV
+to indicate a parsing error.

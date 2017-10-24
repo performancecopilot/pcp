@@ -90,6 +90,7 @@
 
 """
 
+import os
 import sys
 import time
 import errno
@@ -322,7 +323,7 @@ class pmAtomValue(Union):
                   c_api.PM_TYPE_U64 : lambda x: x.ull,
                   c_api.PM_TYPE_FLOAT : lambda x: x.f,
                   c_api.PM_TYPE_DOUBLE : lambda x: x.d,
-                  c_api.PM_TYPE_STRING : lambda x: str(x.cp.decode('utf-8')),
+                  c_api.PM_TYPE_STRING : lambda x: x.cp,
                   c_api.PM_TYPE_AGGREGATE : lambda x: None,
                   c_api.PM_TYPE_AGGREGATE_STATIC : lambda x: None,
                   c_api.PM_TYPE_EVENT : lambda x: None,
@@ -332,7 +333,13 @@ class pmAtomValue(Union):
             }
 
     def dref(self, typed):
-        return self._atomDrefD[typed](self)
+        value = self._atomDrefD[typed](self)
+        if typed == c_api.PM_TYPE_STRING:
+            try:
+                value = str(value.decode('utf-8'))
+            except:
+                value = str(value)
+        return value
 
 class pmUnits(Structure):
     """
@@ -849,6 +856,11 @@ class pmOptions(object):
         if LIBPCP and self._need_reset != False:
             c_api.pmResetAllOptions()
 
+    @staticmethod
+    def daemonize():
+        """ Cross-platform --daemonize (re-parent to init) option helper """
+        return c_api.pmServerStart()
+
     ##
     # general command line option access and manipulation
 
@@ -935,6 +947,8 @@ class pmOptions(object):
             its short option form (str), and two usage message hints (argname
             (str) and message (str) - see pmGetOptions(3) for details).
         """
+        if short_opt is None:
+            short_opt = ''
         return c_api.pmSetLongOption(long_opt, has_arg, short_opt, argname, message)
 
     def pmSetLongOptionHeader(self, heading):
@@ -1232,6 +1246,50 @@ class pmContext(object):
             raise pmUsageErr
 
         return context
+
+    @staticmethod
+    def set_connect_options(options, source, speclocal):
+        """ Helper to set connection options and to get context/source for pmfg. """
+        context = None
+
+        if c_api.pmGetOptionArchives():
+            context = c_api.PM_CONTEXT_ARCHIVE
+            options.pmSetOptionContext(c_api.PM_CONTEXT_ARCHIVE)
+            source = options.pmGetOptionArchives()[0]
+        elif c_api.pmGetOptionHosts():
+            context = c_api.PM_CONTEXT_HOST
+            options.pmSetOptionContext(c_api.PM_CONTEXT_HOST)
+            source = options.pmGetOptionHosts()[0]
+        elif c_api.pmGetOptionLocalPMDA():
+            context = c_api.PM_CONTEXT_LOCAL
+            options.pmSetOptionContext(c_api.PM_CONTEXT_LOCAL)
+            source = None
+
+        if not context:
+            if '/' in source:
+                context = c_api.PM_CONTEXT_ARCHIVE
+                options.pmSetOptionArchive(source)
+                options.pmSetOptionContext(c_api.PM_CONTEXT_ARCHIVE)
+            elif source != '@':
+                context = c_api.PM_CONTEXT_HOST
+                options.pmSetOptionHost(source)
+                options.pmSetOptionContext(c_api.PM_CONTEXT_HOST)
+            else:
+                context = c_api.PM_CONTEXT_LOCAL
+                options.pmSetOptionLocalPMDA()
+                options.pmSetOptionContext(c_api.PM_CONTEXT_LOCAL)
+                source = None
+
+        if context == c_api.PM_CONTEXT_LOCAL and speclocal:
+            speclocal = speclocal.replace("K:", "")
+            for spec in speclocal.split("|"):
+                options.pmSetOptionSpecLocal(spec)
+
+        flags = options.pmGetOptionFlags()
+        options.pmSetOptionFlags(flags | c_api.PM_OPTFLAG_DONE)
+        c_api.pmEndOptions()
+
+        return context, source
 
     ##
     # PMAPI Name Space Services
@@ -1758,7 +1816,6 @@ class pmContext(object):
         if status < 0:
             raise pmErr(status)
         tz = tz_p.value
-        LIBC.free(tz_p)
         return str(tz.decode())
 
     def pmLocaltime(self, seconds):
@@ -1923,7 +1980,7 @@ class pmContext(object):
 
     @staticmethod
     def pmGetConfig(variable):
-        """PMAPI - Return value from environment or pcp config file """
+        """PMAPI - Return single value from environment or pcp config file """
         if type(variable) != type(b''):
             variable = variable.encode('utf-8')
         result = LIBPCP.pmGetOptionalConfig(variable)
@@ -2122,6 +2179,99 @@ class pmContext(object):
             return True
         return False
 
+    ##
+    # PMAPI Python Utility Support Services
+
+    @staticmethod
+    def get_current_tz(options=None, set_dst=-1):
+        """ Get current timezone offset string using POSIX convention """
+        if options is None:
+            dst = time.localtime().tm_isdst
+        else:
+            dst = time.localtime(options.pmGetOptionOrigin()).tm_isdst
+        if set_dst >= 0:
+            dst = 1 if set_dst else 0
+        offset = time.altzone if dst else time.timezone
+        timezone = time.tzname[dst]
+        if offset:
+            offset_hr = int(offset / 3600.0)
+            offset_min = int(offset % 3600 / 60)
+            if offset >= 0:
+                timezone += "+"
+            timezone += str(offset_hr)
+            if offset_min:
+                timezone += ":" + str(offset_min)
+        return timezone
+
+    @staticmethod
+    def posix_tz_to_utc_offset(timezone):
+        """ Convert POSIX timezone offset string to human readable UTC offset """
+        if not timezone or not True in [c in timezone for c in ['+', '-']]:
+            return "UTC+0"
+        offset = timezone.split("+")[1] if "+" in timezone else timezone.split("-")[1]
+        sign = "+" if "-" in timezone else "-"
+        return "UTC" + sign + str(offset)
+
+    @staticmethod
+    def set_timezone(options):
+        """ Set timezone for a Python tool """
+        if options.pmGetOptionTimezone():
+            os.environ['TZ'] = options.pmGetOptionTimezone()
+            time.tzset()
+            pmContext.pmNewZone(options.pmGetOptionTimezone())
+        elif options.pmGetOptionHostZone():
+            os.environ['TZ'] = pmContext.pmWhichZone()
+            time.tzset()
+        else:
+            timezone = pmContext.get_current_tz(options)
+            os.environ['TZ'] = timezone
+            time.tzset()
+            pmContext.pmNewZone(timezone)
+
+    @staticmethod
+    def datetime_to_secs(value, precision=c_api.PM_TIME_SEC):
+        """ Convert datetime value to seconds of given precision """
+        tdt = value - datetime.datetime.fromtimestamp(0)
+        if precision == c_api.PM_TIME_SEC:
+            tst = (tdt.microseconds + (tdt.seconds + tdt.days * 24.0 * 3600.0) * 10.0**6) / 10.0**6
+        elif precision == c_api.PM_TIME_MSEC:
+            tst = (tdt.microseconds + (tdt.seconds + tdt.days * 24.0 * 3600.0) * 10.0**6) / 10.0**3
+        elif precision == c_api.PM_TIME_USEC:
+            tst = (tdt.microseconds + (tdt.seconds + tdt.days * 24.0 * 3600.0) * 10.0**6) / 1.0
+        elif precision == c_api.PM_TIME_NSEC:
+            tst = (tdt.microseconds + (tdt.seconds + tdt.days * 24.0 * 3600.0) * 10.0**6) * 10.0**3
+        else:
+            raise ValueError("Unsupported precision requested")
+        return tst
+
+    @staticmethod
+    def get_mode_step(archive, interpol, interval):
+        """ Get mode and step for pmSetMode """
+        if not interpol or archive:
+            mode = c_api.PM_MODE_FORW
+            step = 0
+        else:
+            mode = c_api.PM_MODE_INTERP
+            secs_in_24_days = 2073600
+            if interval.tv_sec > secs_in_24_days:
+                step = interval.tv_sec
+                mode |= c_api.PM_XTB_SET(c_api.PM_TIME_SEC)
+            else:
+                step = interval.tv_sec * 1000 + interval.tv_usec / 1000
+                mode |= c_api.PM_XTB_SET(c_api.PM_TIME_MSEC)
+        return mode, int(step)
+
+    def prepare_execute(self, options, archive, interpol, interval):
+        """ Common execution preparation """
+        status = LIBPCP.pmUseContext(self.ctx)
+        if status < 0:
+            raise pmErr(status)
+
+        self.set_timezone(options)
+
+        if self.type == c_api.PM_CONTEXT_ARCHIVE:
+            mode, step = pmContext.get_mode_step(archive, interpol, interval)
+            self.pmSetMode(mode, options.pmGetOptionOrigin(), step)
 
 # ----- fetchgroup API
 

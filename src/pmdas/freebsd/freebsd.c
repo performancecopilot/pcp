@@ -384,11 +384,9 @@ do_sysctl(mib_t *mp, size_t xpect)
     for ( ; mp->m_fetched == 0; ) {
 	int	sts;
 	sts = sysctl(mp->m_mib, (u_int)mp->m_miblen, mp->m_data, &mp->m_datalen, NULL, 0);
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL0) {
+	if (pmDebugOptions.appl0) {
 	    fprintf(stderr, "sysctl(%s%s) -> %d (datalen=%d)\n", mp->m_name, mp->m_data == NULL ? " firstcall" : "", sts, (int)mp->m_datalen);
 	}
-#endif
 	if (sts == 0 && mp->m_data != NULL) {
 	    mp->m_fetched = 1;
 	    break;
@@ -765,7 +763,7 @@ freebsd_init(pmdaInterface *dp)
     if (isDSO) {
 	char	mypath[MAXPATHLEN];
 	int sep = __pmPathSeparator();
-	snprintf(mypath, sizeof(mypath), "%s%c" "freebsd" "%c" "help",
+	pmsprintf(mypath, sizeof(mypath), "%s%c" "freebsd" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
 	pmdaDSO(dp, PMDA_INTERFACE_5, "freebsd DSO", mypath);
     } else {
@@ -817,8 +815,7 @@ freebsd_init(pmdaInterface *dp)
 			metrictab[m].m_user = (void *)&bad_mib;
 		    }
 		}
-#ifdef PCP_DEBUG
-		if (pmDebug & DBG_TRACE_APPL0) {
+		if (pmDebugOptions.appl0) {
 		    int	p;
 		    fprintf(stderr, "Info: %s (%s): sysctl metric \"%s\" -> ", (char *)metrictab[m].m_user, pmIDStr(metrictab[m].m_desc.pmid), map[i].m_name);
 		    for (p = 0; p < map[i].m_miblen; p++) {
@@ -827,7 +824,6 @@ freebsd_init(pmdaInterface *dp)
 		    }
 		    fputc('\n', stderr);
 		}
-#endif
 		metrictab[m].m_user = (void *)&map[i];
 		break;
 	    }
@@ -848,10 +844,8 @@ freebsd_init(pmdaInterface *dp)
 	exit(1);
     }
     cpuhz = clockrates.stathz;
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL0)
+    if (pmDebugOptions.appl0)
 	fprintf(stderr, "Info: CPU time \"hz\" = %d\n", cpuhz);
-#endif
 
     sts = sysctlbyname("kern.cp_times", NULL, &sz, NULL, 0);
     if (sts < 0) {
@@ -863,10 +857,8 @@ freebsd_init(pmdaInterface *dp)
      * explain this
      */
     ncpu = sz / (CPUSTATES * sizeof(__uint64_t));
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL0)
+    if (pmDebugOptions.appl0)
 	fprintf(stderr, "Info: ncpu = %d\n", ncpu);
-#endif
 
     sz = sizeof(pagesize);
     sts = sysctlbyname("hw.pagesize", &pagesize, &sz, NULL, 0);
@@ -874,10 +866,8 @@ freebsd_init(pmdaInterface *dp)
 	fprintf(stderr, "Fatal Error: sysctlbyname(\"hw.pagesize\", ...) failed: %s\n", pmErrStr(-errno));
 	exit(1);
     }
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL0)
+    if (pmDebugOptions.appl0)
 	fprintf(stderr, "Info: VM pagesize = %d\n", pagesize);
-#endif
 
     /*
      * Build some instance domains ...
@@ -890,7 +880,7 @@ freebsd_init(pmdaInterface *dp)
     }
     for (i = 0; i < ncpu; i++) {
 	indomtab[CPU_INDOM].it_set[i].i_inst = i;
-	snprintf(iname, sizeof(iname), "cpu%d", i);
+	pmsprintf(iname, sizeof(iname), "cpu%d", i);
 	indomtab[CPU_INDOM].it_set[i].i_name = strdup(iname);
 	if (indomtab[CPU_INDOM].it_set[i].i_name == NULL) {
 	    __pmNoMem("freebsd_init: CPU_INDOM strdup iname", strlen(iname), PM_FATAL_ERR);
@@ -931,7 +921,7 @@ main(int argc, char **argv)
     __pmSetProgname(argv[0]);
     __pmGetUsername(&username);
 
-    snprintf(mypath, sizeof(mypath), "%s%c" "freebsd" "%c" "help",
+    pmsprintf(mypath, sizeof(mypath), "%s%c" "freebsd" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&dispatch, PMDA_INTERFACE_5, pmProgname, FREEBSD,
 		"freebsd.log", mypath);

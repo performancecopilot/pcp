@@ -103,12 +103,10 @@ __pmFetchLocal(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **resul
 		 *	 caching at the PMCD end, so need to remember the
 		 *	 last domain to receive a profile
 		 */
-#ifdef PCP_DEBUG
-		if (pmDebug & DBG_TRACE_FETCH)
+		if (pmDebugOptions.fetch)
 		    fprintf(stderr, 
 			    "__pmFetchLocal: calling ???_profile(domain: %d), "
 			    "context: %d\n", dp->domain, ctx);
-#endif
 		if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_5)
 		    dp->dispatch.version.four.ext->e_context = ctx;
 		sts = dp->dispatch.version.any.profile(ctxp->c_instprof,
@@ -154,8 +152,7 @@ __pmFetchLocal(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **resul
 		else {
 		    ans->vset[k] = tmp_ans->vset[n];
 		}
-#ifdef PCP_DEBUG
-		if (pmDebug & DBG_TRACE_FETCH) {
+		if (pmDebugOptions.fetch) {
 		    char	strbuf[20];
 		    char	errmsg[PM_MAXERRMSGLEN];
 		    fprintf(stderr, "__pmFetchLocal: [%d] PMID=%s nval=",
@@ -166,7 +163,6 @@ __pmFetchLocal(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **resul
 		    else
 			fprintf(stderr, "%d\n", ans->vset[k]->numval);
 		}
-#endif
 		n++;
 	    }
 	}

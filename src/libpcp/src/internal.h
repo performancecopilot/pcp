@@ -98,6 +98,7 @@ extern void init_pmns_lock(void) _PCP_HIDDEN;
 extern void init_AF_lock(void) _PCP_HIDDEN;
 extern void init_secureserver_lock(void) _PCP_HIDDEN;
 extern void init_connect_lock(void) _PCP_HIDDEN;
+extern void init_exec_lock(void) _PCP_HIDDEN;
 
 #ifdef HAVE___THREAD
 /*
@@ -151,6 +152,7 @@ extern int __pmIsPmnsLock(void *) _PCP_HIDDEN;
 extern int __pmIsAFLock(void *) _PCP_HIDDEN;
 extern int __pmIsSecureserverLock(void *) _PCP_HIDDEN;
 extern int __pmIsConnectLock(void *) _PCP_HIDDEN;
+extern int __pmIsExecLock(void *) _PCP_HIDDEN;
 #endif
 
 /* AF_UNIX socket family internals */
@@ -321,6 +323,11 @@ extern int __pmLogGenerateMark_ctx(__pmContext *, int, pmResult **) _PCP_HIDDEN;
 #define PM_ASSERT_IS_LOCKED(lock)
 #define PM_ASSERT_IS_UNLOCKED(lock)
 #endif /* BUILD_WITH_LOCK_ASSERTS */
+
+#ifdef IS_MINGW
+extern const char *strerror_r(int, char *, size_t);
+extern pid_t __pmProcessWait(pid_t, int, int *, int *) _PCP_HIDDEN;
+#endif
 
 
 #endif /* _LIBPCP_INTERNAL_H */

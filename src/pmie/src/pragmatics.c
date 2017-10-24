@@ -46,9 +46,9 @@ findsource(const char *host, const char *hconn)
     static char	buf[MAXPATHLEN+MAXHOSTNAMELEN+30];
 
     if (archives)
-        snprintf(buf, sizeof(buf), "archive %s (host %s)", hconn, host);
+        pmsprintf(buf, sizeof(buf), "archive %s (host %s)", hconn, host);
     else
-	snprintf(buf, sizeof(buf), "pmcd %s (host %s)", hconn, host);
+	pmsprintf(buf, sizeof(buf), "pmcd %s (host %s)", hconn, host);
 
     return buf;
 }
@@ -295,11 +295,9 @@ findFetch(Host *h, Metric *m)
 			pmErrStr(sts));
 		exit(1);
 	    }
-#if PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL1) {
+	    if (pmDebugOptions.appl1) {
 		fprintf(stderr, "findFetch: fetch=0x%p host=0x%p delta=%.6f handle=%d\n", f, h, h->task->delta, f->handle);
 	    }
-#endif
 	}
 	f->next = NULL;
 	f->prev = NULL;
@@ -412,8 +410,7 @@ bundle(Task *t, Expr *x)
 		waitMetric(m);
 	    m++;
 	}
-#if PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL1) {
+	if (pmDebugOptions.appl1) {
  	    fprintf(stderr, "bundle: task " PRINTF_P_PFX "%p nth=%d prev=" PRINTF_P_PFX "%p next=" PRINTF_P_PFX "%p delta=%.3f nrules=%d\n",
  		t, t->nth, t->prev, t->next, t->delta, t->nrules+1);
 	    __dumpExpr(1, x);
@@ -423,7 +420,6 @@ bundle(Task *t, Expr *x)
 		m++;
 	    }
 	}
-#endif
     }
     else {
 	if (x->arg1) {
@@ -756,8 +752,7 @@ initMetric(Metric *m)
 		}
 	    }
 
-#if PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL1) {
+	    if (pmDebugOptions.appl1) {
 		int	numinst;
 		fprintf(stderr, "initMetric: %s from %s: instance domain specinst=%d\n",
 			mname, hname, m->specinst);
@@ -772,7 +767,6 @@ initMetric(Metric *m)
 		    fprintf(stderr, " \"%s\"\n", m->inames[i]);
 		}
 	    }
-#endif
 	    if (sts > 0) {
 		/*
 		 * pmGetInDom or pmGetInDomArchive returned some instances
@@ -917,8 +911,7 @@ reinitMetric(Metric *m)
 		}
 	    }
 
-#if PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL1) {
+	    if (pmDebugOptions.appl1) {
 		int	numinst;
 		fprintf(stderr, "reinitMetric: %s from %s: instance domain specinst=%d\n",
 			mname, hname, m->specinst);
@@ -934,7 +927,6 @@ reinitMetric(Metric *m)
 		    fprintf(stderr, " \"%s\"\n", m->inames[i]);
 		}
 	    }
-#endif
 	    if (sts > 0) {
 		/*
 		 * pmGetInDom or pmGetInDomArchive returned some instances
@@ -988,12 +980,10 @@ reinitMetric(Metric *m)
 		x->op == CND_MATCH || x->op == CND_NOMATCH) {
 		instFetchExpr(x);
 		findEval(x);
-#if PCP_DEBUG
-		if (pmDebug & DBG_TRACE_APPL1) {
+		if (pmDebugOptions.appl1) {
 		    fprintf(stderr, "reinitMetric: re-shaped ...\n");
 		    dumpExpr(x);
 		}
-#endif
 	    }
 	    if (x->parent) {
 		x = x->parent;
@@ -1113,7 +1103,14 @@ taskFetch(Task *t)
 	    if (! h->down) {
 		pmUseContext(f->handle);
 		if ((sts = pmFetch(f->npmids, f->pmids, &f->result)) < 0) {
-		    if (! archives) {
+		    if (archives) {
+			if (sts == PM_ERR_LOGREC) {
+			    fprintf(stderr, "%s: pmFetch failed: %s\n", pmProgname,
+				    pmErrStr(sts));
+			    exit(1);
+			}
+		    }
+		    else {
 			__pmNotifyErr(LOG_ERR, "pmFetch from %s failed: %s\n",
 				symName(f->host->name), pmErrStr(sts));
 			host_state_changed(symName(f->host->conn), STATE_LOSTCONN);

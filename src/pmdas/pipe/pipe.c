@@ -201,7 +201,7 @@ pipe_store(pmResult *result, pmdaExt *pmda)
 		return PM_ERR_INST;
 	    p = vp->value.pval->vbuf;
 
-	    if (pmDebug & DBG_TRACE_APPL0)
+	    if (pmDebugOptions.appl0)
 		__pmNotifyErr(LOG_DEBUG, "store: ctx=%d inst=%u value=\"%s\"",
 				pmda->e_context, inst, p);
 
@@ -220,7 +220,7 @@ pipe_store(pmResult *result, pmdaExt *pmda)
 static void
 pipe_end_contextCallBack(int context)
 {
-    if (pmDebug & DBG_TRACE_APPL0)
+    if (pmDebugOptions.appl0)
 	__pmNotifyErr(LOG_DEBUG, "end_context on ctx-%d", context);
 
     pmdaEventEndClient(context);
@@ -270,10 +270,10 @@ pipe_init(pmdaInterface *dp, const char *configfile, int checkonly)
 	if ((numpipes = event_config(configfile)) < 0)
 	    dp->status = numpipes;
     } else {
-	snprintf(config, sizeof(config), "%s%c" "pipe" "%c" "pipe.conf",
+	pmsprintf(config, sizeof(config), "%s%c" "pipe" "%c" "pipe.conf",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
 	config[sizeof(config)-1] = '\0';
-	snprintf(confdir, sizeof(confdir), "%s%c" "pipe.conf.d",
+	pmsprintf(confdir, sizeof(confdir), "%s%c" "pipe.conf.d",
 		pmGetConfig("PCP_SYSCONF_DIR"), sep);
 	confdir[sizeof(confdir)-1] = '\0';
 
@@ -310,7 +310,7 @@ pipe_setfd(int fd)
 {
     if (fd > maxfd)
 	maxfd = fd;
-    if (pmDebug & DBG_TRACE_APPL2)
+    if (pmDebugOptions.appl2)
         __pmNotifyErr(LOG_DEBUG, "select: adding fd=%d", fd);
     FD_SET(fd, &fds);
     return fd;
@@ -319,7 +319,7 @@ pipe_setfd(int fd)
 int
 pipe_clearfd(int fd)
 {
-    if (pmDebug & DBG_TRACE_APPL2)
+    if (pmDebugOptions.appl2)
         __pmNotifyErr(LOG_DEBUG, "select: clearing fd=%d", fd);
     FD_CLR(fd, &fds);
     return fd;
@@ -351,7 +351,7 @@ pipeMain(pmdaInterface *dispatch)
     for (;;) {
 	memcpy(&readyfds, &fds, sizeof(readyfds));
         nready = select(maxfd+1, &readyfds, NULL, NULL, NULL);
-        if (pmDebug & DBG_TRACE_APPL2)
+        if (pmDebugOptions.appl2)
             __pmNotifyErr(LOG_DEBUG, "select: nready=%d", nready);
 	if (nready < 0) {
 	    if (neterror() != EINTR) {
@@ -361,7 +361,7 @@ pipeMain(pmdaInterface *dispatch)
 	}
 	if (nready > 0) {
 	    if (FD_ISSET(pmcdfd, &readyfds)) {
-		if (pmDebug & DBG_TRACE_APPL0)
+		if (pmDebugOptions.appl0)
 		    __pmNotifyErr(LOG_DEBUG,
 				"processing pmcd PDU [fd=%d]", pmcdfd);
 		if (__pmdaMainPDU(dispatch) < 0)
@@ -438,7 +438,7 @@ main(int argc, char **argv)
 
     minmem = getpagesize();
     maxmem = (minmem > DEFAULT_MAXMEM) ? minmem : DEFAULT_MAXMEM;
-    snprintf(helppath, sizeof(helppath), "%s%c" "pipe" "%c" "help",
+    pmsprintf(helppath, sizeof(helppath), "%s%c" "pipe" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&desc, PMDA_INTERFACE_6, pmProgname, PIPE,
 		"pipe.log", helppath);

@@ -734,6 +734,18 @@ mem.vmstat.pgscan_kswapd_movable
 mem.vmstat.pgscan_kswapd_normal
     value 0
 
+mem.vmstat.pgsteal_direct_dma
+    value 0
+
+mem.vmstat.pgsteal_direct_dma32
+    value 0
+
+mem.vmstat.pgsteal_direct_movable
+    value 0
+
+mem.vmstat.pgsteal_direct_normal
+    value 0
+
 mem.vmstat.pgsteal_dma
 No value(s) available!
 
@@ -742,6 +754,18 @@ No value(s) available!
 
 mem.vmstat.pgsteal_high
 No value(s) available!
+
+mem.vmstat.pgsteal_kswapd_dma
+    value 0
+
+mem.vmstat.pgsteal_kswapd_dma32
+    value 0
+
+mem.vmstat.pgsteal_kswapd_movable
+    value 0
+
+mem.vmstat.pgsteal_kswapd_normal
+    value 0
 
 mem.vmstat.pgsteal_movable
 No value(s) available!
@@ -3082,6 +3106,18 @@ mem.vmstat.pgscan_kswapd_movable
 mem.vmstat.pgscan_kswapd_normal
     value 0
 
+mem.vmstat.pgsteal_direct_dma
+    value 0
+
+mem.vmstat.pgsteal_direct_dma32
+    value 0
+
+mem.vmstat.pgsteal_direct_movable
+    value 0
+
+mem.vmstat.pgsteal_direct_normal
+    value 0
+
 mem.vmstat.pgsteal_dma
 No value(s) available!
 
@@ -3090,6 +3126,18 @@ No value(s) available!
 
 mem.vmstat.pgsteal_high
 No value(s) available!
+
+mem.vmstat.pgsteal_kswapd_dma
+    value 0
+
+mem.vmstat.pgsteal_kswapd_dma32
+    value 0
+
+mem.vmstat.pgsteal_kswapd_movable
+    value 0
+
+mem.vmstat.pgsteal_kswapd_normal
+    value 0
 
 mem.vmstat.pgsteal_movable
 No value(s) available!
@@ -5417,6 +5465,18 @@ mem.vmstat.pgscan_kswapd_movable
 mem.vmstat.pgscan_kswapd_normal
     value 0
 
+mem.vmstat.pgsteal_direct_dma
+    value 0
+
+mem.vmstat.pgsteal_direct_dma32
+    value 0
+
+mem.vmstat.pgsteal_direct_movable
+    value 0
+
+mem.vmstat.pgsteal_direct_normal
+    value 0
+
 mem.vmstat.pgsteal_dma
 No value(s) available!
 
@@ -5425,6 +5485,18 @@ No value(s) available!
 
 mem.vmstat.pgsteal_high
 No value(s) available!
+
+mem.vmstat.pgsteal_kswapd_dma
+    value 0
+
+mem.vmstat.pgsteal_kswapd_dma32
+    value 0
+
+mem.vmstat.pgsteal_kswapd_movable
+    value 0
+
+mem.vmstat.pgsteal_kswapd_normal
+    value 0
 
 mem.vmstat.pgsteal_movable
 No value(s) available!
@@ -7715,6 +7787,18 @@ No value(s) available!
 mem.vmstat.pgscan_kswapd_normal
 No value(s) available!
 
+mem.vmstat.pgsteal_direct_dma
+No value(s) available!
+
+mem.vmstat.pgsteal_direct_dma32
+No value(s) available!
+
+mem.vmstat.pgsteal_direct_movable
+No value(s) available!
+
+mem.vmstat.pgsteal_direct_normal
+No value(s) available!
+
 mem.vmstat.pgsteal_dma
 No value(s) available!
 
@@ -7722,6 +7806,18 @@ mem.vmstat.pgsteal_dma32
 No value(s) available!
 
 mem.vmstat.pgsteal_high
+No value(s) available!
+
+mem.vmstat.pgsteal_kswapd_dma
+No value(s) available!
+
+mem.vmstat.pgsteal_kswapd_dma32
+No value(s) available!
+
+mem.vmstat.pgsteal_kswapd_movable
+No value(s) available!
+
+mem.vmstat.pgsteal_kswapd_normal
 No value(s) available!
 
 mem.vmstat.pgsteal_movable

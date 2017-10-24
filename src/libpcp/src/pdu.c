@@ -52,8 +52,6 @@ __pmIsPduLock(void *lock)
 }
 #endif
 
-PCP_DATA int	pmDebug;		/* the real McCoy */
-
 /*
  * Performance Instrumentation
  *  ... counts binary PDUs received and sent by low 4 bits of PDU type
@@ -64,9 +62,7 @@ static unsigned int	outctrs[PDU_MAX+1];
 PCP_DATA unsigned int	*__pmPDUCntIn = inctrs;
 PCP_DATA unsigned int	*__pmPDUCntOut = outctrs;
 
-#ifdef PCP_DEBUG
 static int		mypid = -1;
-#endif
 static int              ceiling = PDU_CHUNK * 64;
 
 static struct timeval	req_wait = { 10, 0 };
@@ -265,12 +261,10 @@ pduread(int fd, char *buf, int len, int part, int timeout)
 	have += status;
 	buf += status;
 	len -= status;
-#ifdef PCP_DEBUG
-	if ((pmDebug & DBG_TRACE_PDU) && (pmDebug & DBG_TRACE_DESPERATE)) {
+	if (pmDebugOptions.pdu && pmDebugOptions.desperate) {
 	    fprintf(stderr, "pduread(%d, ...): have %d, last read %d, still need %d\n",
 		fd, have, status, len);
 	}
-#endif
     }
 
     return have;
@@ -305,9 +299,9 @@ __pmPDUTypeStr_r(int type, char *buf, int buflen)
     default:			res = NULL; break;
     }
     if (res)
-	snprintf(buf, buflen, "%s", res);
+	pmsprintf(buf, buflen, "%s", res);
     else
-	snprintf(buf, buflen, "TYPE-%d?", type);
+	pmsprintf(buf, buflen, "TYPE-%d?", type);
     return buf;
 }
 
@@ -359,8 +353,7 @@ __pmXmitPDU(int fd, __pmPDU *pdubuf)
 
     __pmIgnoreSignalPIPE();
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_PDU) {
+    if (pmDebugOptions.pdu) {
 	int	j;
 	char	*p;
 	int	jend = PM_PDU_SIZE(php->len);
@@ -382,7 +375,6 @@ __pmXmitPDU(int fd, __pmPDU *pdubuf)
 	}
 	putc('\n', stderr);
     }
-#endif
     len = php->len;
 
     php->len = htonl(php->len);
@@ -431,7 +423,7 @@ __pmGetPDU(int fd, int mode, int timeout, __pmPDU **result)
     __pmPDU		*pdubuf_prev;
     __pmPDUHdr		*php;
 
-PM_FAULT_CHECK(PM_FAULT_TIMEOUT);
+PM_FAULT_RETURN(PM_FAULT_TIMEOUT);
 
     if ((pdubuf = __pmFindPDUBuf(maxsize)) == NULL)
 	return -oserror();
@@ -574,8 +566,7 @@ check_read_len:
 	return PM_ERR_IPC;
     }
     php->from = ntohl((unsigned int)php->from);
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_PDU) {
+    if (pmDebugOptions.pdu) {
 	int	j;
 	char	*p;
 	int	jend = PM_PDU_SIZE(php->len);
@@ -597,7 +588,6 @@ check_read_len:
 	}
 	putc('\n', stderr);
     }
-#endif
     if (php->type >= PDU_START && php->type <= PDU_FINISH)
 	__pmPDUCntIn[php->type-PDU_START]++;
 

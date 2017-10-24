@@ -916,6 +916,62 @@ void test_dynamic_events_cpumask_handling(void)
     }
 }
 
+/*
+ * Test dynamic events are loaded correctly if the entire config
+ * file is empty except for the [dynamic] section.
+ */
+void test_only_dynamic_events()
+{
+    setenv("SYSFS_PREFIX", "./fakefs/syspmu", 1);
+    printf( " ===== %s ==== \n", __FUNCTION__) ;
+    const char *configfile = "config/test_only_dynamic_events.txt";
+    perfdata_t *h = (perfdata_t *)perf_event_create(configfile);
+    assert( h != NULL );
+
+    perf_counter *data = NULL;
+    int size = 0;
+    perf_derived_counter *pdata = NULL;
+    int derivedsize = 0, count = 0;
+
+    perf_get((perfhandle_t *)h, &data, &size, &pdata, &derivedsize);
+
+    /* 5 dynamic PMU counters, 9 software counters */
+    assert(size == (5 + 9));
+    assert(data != NULL);
+
+    event_t *events = h->events;
+    int i, j, ev_count = h->nevents;
+
+    /* Allowed events are entered in the config file */
+    char *allowed_events[3] = {
+	"pmu1.bar",
+	"pmu2.cm_event1",
+	"pmu2.cm_event3",
+    };
+    /* Dis-allowed events */
+    char *denied_events[2] = {
+	"pmu1.foo",
+	"pmu2.cm_event2",
+    };
+    for (i = 0; i < ev_count; i++) {
+	for (j = 0; j < 3; j++) {
+	    if (!strcmp(allowed_events[j], events[i].name)) {
+		assert(0 == events[i].disable_event);
+		count++;
+		break;
+	    }
+	}
+	for (j = 0; j < 2; j++) {
+	    if (!strcmp(denied_events[j], events[i].name)) {
+		assert(1 == events[i].disable_event);
+		break;
+	    }
+	}
+    }
+    assert(3 == count);
+    printf("%d allowed events\n", count);
+}
+
 int runtest(int n)
 {
     init_mock();
@@ -1009,6 +1065,9 @@ int runtest(int n)
 	    break;
         case 28:
             test_dynamic_events_cpumask_handling();
+            break;
+        case 29:
+            test_only_dynamic_events();
             break;
         default:
             ret = -1;

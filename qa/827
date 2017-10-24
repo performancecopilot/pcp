@@ -64,7 +64,7 @@ do
 
     # Note:
     # 	Turns out pmlogrewrite and pmlogger don't quite agree on when
-    # 	to update the temporal index for the preamble record, so there
+    # 	to update the temporal index for the prologue record, so there
     # 	may be a small diff here in the metadata offset in the temporal
     # 	index ... the differences have been analyzed and are believed to
     # 	be benign.

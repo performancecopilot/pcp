@@ -30,7 +30,7 @@ main(int argc, char **argv)
     close(before);
 
     for (i=0; i < NUMARCHIVES; i++) {
-	sprintf(name, "archive%03d", i);
+	pmsprintf(name, sizeof(name), "archive%03d", i);
 	c = pmiStart(name, 0);
 	check(c, "pmiStart");
 	sts = pmiAddMetric("my.metric.long", PM_ID_NULL, PM_TYPE_64,
@@ -51,11 +51,11 @@ main(int argc, char **argv)
     close(after);
 
     for (i=0; i < NUMARCHIVES; i++) {
-	sprintf(name, "archive%03d.0", i);
+	pmsprintf(name, sizeof(name), "archive%03d.0", i);
 	unlink(name);
-	sprintf(name, "archive%03d.index", i);
+	pmsprintf(name, sizeof(name), "archive%03d.index", i);
 	unlink(name);
-	sprintf(name, "archive%03d.meta", i);
+	pmsprintf(name, sizeof(name), "archive%03d.meta", i);
 	unlink(name);
     }
 

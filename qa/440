@@ -45,9 +45,9 @@ _tolerance()
 _num_recs()
 {
   num_recs=`$pmdumplog $tmp | egrep -c '^[0-9][0-9]:[0-9][0-9]:'`
-  # subtract 1 for the preamble
-  num_recs=`expr $num_recs - 1`
-  echo "found $num_recs samples after the preamble" >>$seq.full
+  # subtract 1 for the prologue and 1 for the epilogue
+  num_recs=`expr $num_recs - 2`
+  echo "found $num_recs samples after the prologue+epilogue" >>$seq.full
 }
 
 _test_sample_size()
@@ -118,7 +118,8 @@ _test_file_size()
   fi
   _num_recs
   echo "num_recs=$num_recs" >>$seq.full
-  num_recs=`expr $num_recs - 1`
+  # -1 for prologue and -1 for epilogue
+  num_recs=`expr $num_recs - 2`
   if [ $num_recs -gt 0 ]
   then
     _clean_archive

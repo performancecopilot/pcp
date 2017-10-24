@@ -79,18 +79,14 @@ agent_creds(__pmPDU *pb)
 	return sts;
 
     for (i = 0; i < credcount; i++) {
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_CONTEXT)
+	if (pmDebugOptions.context)
 	    fprintf(stderr, "agent_creds: doing cred #%d from PID %d\n", i+1, sender);
-#endif
 	switch(credlist[i].c_type) {
 	case CVERSION:
 	    version = credlist[i].c_vala;
 	    vflag = 1;
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_CONTEXT)
+	    if (pmDebugOptions.context)
 		fprintf(stderr, "agent_creds: version cred (%u)\n", version);
-#endif
 	    break;
 	}
     }
@@ -265,7 +261,7 @@ open_socket(int port, int family, const char *protocol)
     infd = fd;
     outfd = fd;
 
-    snprintf(socket, MYSOCKETSZ, "%s port %d", protocol, port);
+    pmsprintf(socket, MYSOCKETSZ, "%s port %d", protocol, port);
     printf("Connect to PMDA on %s\n", socket);
 
     connmode = CONN_DAEMON;
@@ -319,10 +315,8 @@ dopmda_desc(pmID pmid, pmDesc *desc, int print)
 	    if ((sts = __pmDecodeDesc(pb, desc)) >= 0) {
 		if (print)
 		    __pmPrintDesc(stdout, desc);
-#ifdef PCP_DEBUG
-		    else if (pmDebug & DBG_TRACE_PDU)
+		    else if (pmDebugOptions.pdu)
 			__pmPrintDesc(stdout, desc);
-#endif
             }
 	    else
 		printf("Error: __pmDecodeDesc() failed: %s\n", pmErrStr(sts));
@@ -497,10 +491,8 @@ dopmda(int pdu)
 		    if ((sts = __pmDecodeResult(pb, &result)) < 0)
 			printf("Error: __pmDecodeResult() failed: %s\n", 
 			       pmErrStr(sts));
-#ifdef PCP_DEBUG
-		    else if (pmDebug & DBG_TRACE_FETCH)
+		    else if (pmDebugOptions.fetch)
 			__pmDumpResult(stdout, result);
-#endif
 		}
 		else if (sts == PDU_ERROR) {
 		    if ((i = __pmDecodeError(pb, &sts)) >= 0)

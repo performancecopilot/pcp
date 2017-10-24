@@ -313,13 +313,12 @@ init_refresh_proc_net_snmp(proc_net_snmp_t *snmp)
     /* only need to allocate and setup the names once */
     if (proc_net_snmp_icmpmsg_names)
 	return;
-    i = NR_ICMPMSG_COUNTERS * SNMP_MAX_ICMPMSG_TYPESTR;
-    proc_net_snmp_icmpmsg_names = malloc(i);
-    if (!proc_net_snmp_icmpmsg_names)
+    s = calloc(NR_ICMPMSG_COUNTERS, SNMP_MAX_ICMPMSG_TYPESTR);
+    if (!s)
 	return;
-    s = proc_net_snmp_icmpmsg_names;
+    proc_net_snmp_icmpmsg_names = s;
     for (n = 0; n < NR_ICMPMSG_COUNTERS; n++) {
-	sprintf(s, "Type%u", n);
+	pmsprintf(s, SNMP_MAX_ICMPMSG_TYPESTR, "Type%u", n);
 	_pm_proc_net_snmp_indom_id[n].i_name = s;
 	_pm_proc_net_snmp_indom_id[n].i_inst = n;
 	s += SNMP_MAX_ICMPMSG_TYPESTR;

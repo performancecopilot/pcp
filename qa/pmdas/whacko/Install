@@ -1,0 +1,20 @@
+#! /bin/sh
+#
+# Copyright (c) 2017 Ken McDonell.  All Rights Reserved.
+#
+# Install the whacko PMDA and/or PMNS
+#
+# Note: this is intended to mimic the trivial PMDA's Install script but
+# 	with changes to expose error handling
+#
+
+. $PCP_DIR/etc/pcp.env
+. $PCP_SHARE_DIR/lib/pmdaproc.sh
+
+iam=${iam-whacko}
+pmda_interface=2
+pmda_name=pmdawhacko
+
+pmdaSetup
+pmdaInstall
+exit

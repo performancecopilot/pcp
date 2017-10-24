@@ -48,18 +48,14 @@ refresh_filesys_metrics(void)
     if (nfilesys != sts) {
 	/* initialization or something has changed */
 	if (nfilesys == -1) {
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL0)
+	    if (pmDebugOptions.appl0)
 		fprintf(stderr, "Info: refresh_filesys_metrics: initial nfilesys=%d\n", sts);
-#endif
 	    nfilesys = sts;
 	    pmdaCacheOp(indomtab[FILESYS_INDOM].it_indom, PMDA_CACHE_LOAD);
 	}
 	else {
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL0)
+	if (pmDebugOptions.appl0)
 	    fprintf(stderr, "Info: refresh_filesys_metrics: nfilesys changed from %d to %d\n", nfilesys, sts);
-#endif
 	    nfilesys = sts;
 	    pmdaCacheOp(indomtab[FILESYS_INDOM].it_indom, PMDA_CACHE_INACTIVE);
 	}

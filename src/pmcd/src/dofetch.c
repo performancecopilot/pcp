@@ -203,8 +203,7 @@ SendFetch(DomPmidList *dpList, AgentInfo *aPtr, ClientInfo *cPtr, int ctxnum)
     int			bad = 0;
     int			i;
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL0) {
+    if (pmDebugOptions.appl0) {
 	fprintf(stderr, "SendFetch %d metrics to PMDA domain %d ",
 	    dpList->listSize, dpList->domain);
 	switch (aPtr->ipcType) {
@@ -227,7 +226,6 @@ SendFetch(DomPmidList *dpList, AgentInfo *aPtr, ClientInfo *cPtr, int ctxnum)
 	for (i = 0; i < dpList->listSize; i++)
 	    fprintf(stderr, "  pmid[%d] %s\n", i, pmIDStr(dpList->list[i]));
     }
-#endif
 
     /* status.madeDsoResult is only used for DSO agents so don't waste time by
      * checking that the agent is a DSO first.
@@ -308,8 +306,7 @@ SendFetch(DomPmidList *dpList, AgentInfo *aPtr, ClientInfo *cPtr, int ctxnum)
     }
 
     if (sts < 0) {
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL0)
+	if (pmDebugOptions.appl0)
 	    switch (bad) {
 		case 0:
 		    fprintf(stderr, "FETCH error: \"%s\" agent : %s\n",
@@ -325,7 +322,6 @@ SendFetch(DomPmidList *dpList, AgentInfo *aPtr, ClientInfo *cPtr, int ctxnum)
 			    result->numpmid, dpList->listSize);
 		    break;
 	    }
-#endif
 	if (aPtr->ipcType == AGENT_DSO) {
 	    aPtr->status.madeDsoResult = 1;
 	    sts = 0;
@@ -440,7 +436,7 @@ DoFetch(ClientInfo *cip, __pmPDU* pb)
     while (nWait > 0) {
         __pmFD_COPY(&readyFds, &waitFds);
 	if (nWait > 1) {
-	    timeout.tv_sec = _pmcd_timeout;
+	    timeout.tv_sec = pmcd_timeout;
 	    timeout.tv_usec = 0;
 
             retry:
@@ -486,7 +482,7 @@ DoFetch(ClientInfo *cip, __pmPDU* pb)
 	    ap->status.busy = 0;
 	    __pmFD_CLR(ap->outFd, &waitFds);
 	    nWait--;
-	    pinpdu = sts = __pmGetPDU(ap->outFd, ANY_SIZE, _pmcd_timeout, &pb);
+	    pinpdu = sts = __pmGetPDU(ap->outFd, ANY_SIZE, pmcd_timeout, &pb);
 	    if (sts > 0)
 		pmcd_trace(TR_RECV_PDU, ap->outFd, sts, (int)((__psint_t)pb & 0xffffffff));
 	    if (sts == PDU_RESULT) {
@@ -494,11 +490,9 @@ DoFetch(ClientInfo *cip, __pmPDU* pb)
 		    if (results[i]->numpmid != aFreq[i]) {
 			pmFreeResult(results[i]);
 			sts = PM_ERR_IPC;
-#ifdef PCP_DEBUG
-			if (pmDebug & DBG_TRACE_APPL0)
+			if (pmDebugOptions.appl0)
 			    __pmNotifyErr(LOG_ERR, "DoFetch: \"%s\" agent given %d pmIDs, returned %d\n",
 					 ap->pmDomainLabel, aFreq[i], results[i]->numpmid);
-#endif
 		    }
 	    }
 	    else {
@@ -536,12 +530,10 @@ DoFetch(ClientInfo *cip, __pmPDU* pb)
 		    sts = CheckError(&agent[i], sts);
 		}
 
-#ifdef PCP_DEBUG
-		if (pmDebug & DBG_TRACE_APPL0) {
+		if (pmDebugOptions.appl0) {
 		    fprintf(stderr, "RESULT error from \"%s\" agent : %s\n",
 			    ap->pmDomainLabel, pmErrStr(sts));
 		}
-#endif
 		if (sts == PM_ERR_IPC || sts == PM_ERR_TIMEOUT)
 		    CleanupAgent(ap, AT_COMM, ap->outFd);
 	    }

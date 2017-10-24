@@ -51,7 +51,7 @@ make_vdev_name(zpool_handle_t *zp, const char *pname, nvlist_t *child)
 			  pname, cname);
 	    goto free_out;
 	}
-	snprintf(name, size, "%s.%s", pname, cname);
+	pmsprintf(name, size, "%s.%s", pname, cname);
 free_out:
 	free(cname);
 out:

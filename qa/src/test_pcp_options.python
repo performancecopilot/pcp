@@ -18,11 +18,14 @@ from pcp import pmapi
 import cpmapi as c_api
 
 def optionsCB(opt, optarg, index):
-    arg = "'" + opt + "'"
+    if index == LO:
+        arg = "'longonly'"
+    else:
+        arg = "'" + opt + "'"
     if optarg != None:
         arg = arg + " (" + optarg + ")"
     arg = arg + " [index=" + str(index) + "]"
-    print("optionsCB: got option '" + arg)
+    print("optionsCB: got option " + arg)
 
 def overrideCB(opt):
     print("overrideCB: got option '" + str(opt) + "'")
@@ -54,6 +57,7 @@ options.pmSetLongOptionHostZone()
 options.pmSetLongOptionHelp()
 
 options.pmSetLongOptionHeader("Test Options")
+LO = options.pmSetLongOption("longonly", False, None, '', "long-only option")
 options.pmSetLongOption("force", 0, 'f', '', "force some behaviour")
 options.pmSetLongOption("list", 1, 'l', "FILE", "open a list file")
 options.pmSetLongOptionText("")

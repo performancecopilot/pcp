@@ -20,7 +20,7 @@ trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
 #
-pmval -z -a archives/archive-20141125-000009 -t 1min -f 1 network.interface.in.bytes
+pmval -z -a badarchives/archive-20141125-000009 -t 1min -f 1 network.interface.in.bytes
 
 # success, all done
 status=0

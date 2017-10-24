@@ -68,7 +68,7 @@ pmdaOpenHelp(const char *fname)
     hp->dir_fd = -1;
     hp->pag_fd = -1;
 
-    snprintf(pathname, sizeof(pathname), "%s.dir", fname);
+    pmsprintf(pathname, sizeof(pathname), "%s.dir", fname);
     hp->dir_fd = open(pathname, O_RDONLY);
     if (hp->dir_fd < 0) {
 	sts = -oserror();
@@ -95,7 +95,7 @@ pmdaOpenHelp(const char *fname)
 	goto failed;
     }
 
-    snprintf(pathname, sizeof(pathname), "%s.pag", fname);
+    pmsprintf(pathname, sizeof(pathname), "%s.pag", fname);
     hp->pag_fd = open(pathname, O_RDONLY);
     if (hp->pag_fd < 0) {
 	sts = -oserror();

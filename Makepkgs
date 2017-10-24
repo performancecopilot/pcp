@@ -216,8 +216,9 @@ fi
 
 if $dodeb
 then
-    # On Debian-based platforms, the debian/rules file already captures
-    # most of the required configure settings in $(configure_paths)
+    # On Debian-based platforms, the debian/rules file already captures 
+    # most of the required configure settings in $(configure_paths) and
+    # $(configure_tools)
     #
     configopts=''
 elif $dorpm
@@ -272,10 +273,10 @@ in
     mingw|mingw64|windows)
 	target=mingw
 	dorpm=false
-	configopts="$configopts --disable-ssp"
+	configopts="$configopts --disable-ssp --without-qt3d"
 	export configure="/usr/bin/mingw64-configure"
 	export MAKE="/usr/bin/mingw64-make"
-	export QMAKE="/usr/bin/mingw64-qmake-qt4"
+	export QMAKE="/usr/bin/mingw64-qmake-qt5"
 	export PKG_CONFIG="/usr/bin/mingw64-pkg-config"
 	;;
     linux)
@@ -600,6 +601,25 @@ configure_pcp()
     echo
     echo "== Configuring pcp, log is in $LOGDIR/pcp ($configopts)"
 
+    # If we have qtchooser, then force a Qt5 build if Qt5 is installed
+    # ... setting QT_SELECT is only for the configure below, logic similar
+    # to this has to be done again:
+    # (a) in the real build if it does not inherit $QT_SELECT from
+    #     here before running configure again, and
+    # (b) from builddefs so that builds in the source tree also
+    #     work correctly
+    #
+    unset QT_SELECT
+    if which qtchooser >/dev/null 2>&1
+    then
+	if qtchooser -list-versions | grep '^5$' >/dev/null
+	then
+	    export QT_SELECT=5
+	else
+	    export QT_SELECT=4
+	fi
+    fi
+
     rm -f $tmp/failed
     if $verbose
     then
@@ -694,7 +714,11 @@ src_tar_build
 $srconly && exit 0
 
 # short-circuit for performing builds with dpkg-buildpackage
-$dodeb && debian_build
+if $dodeb
+then
+    debian_build
+    # NOTREACHED
+fi
 
 prepare_build
 
