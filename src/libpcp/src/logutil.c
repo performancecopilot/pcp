@@ -712,8 +712,9 @@ __pmLogCreate(const char *host, const char *base, int log_version,
     char	fname[MAXPATHLEN];
 
     lcp->l_minvol = lcp->l_maxvol = lcp->l_curvol = 0;
-    lcp->l_hashpmid.nodes = lcp->l_hashpmid.hsize = lcp->l_hashlabels.nodes = 0;
-    lcp->l_hashindom.nodes = lcp->l_hashindom.hsize = lcp->l_hashlabels.hsize = 0;
+    lcp->l_hashpmid.nodes = lcp->l_hashpmid.hsize = 0;
+    lcp->l_hashindom.nodes = lcp->l_hashindom.hsize = 0;
+    lcp->l_hashlabels.nodes = lcp->l_hashlabels.hsize = 0;
     lcp->l_tifp = lcp->l_mdfp = lcp->l_mfp = NULL;
 
     if ((lcp->l_tifp = __pmLogNewFile(base, PM_LOG_VOL_TI)) != NULL) {

@@ -636,7 +636,8 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":11", PM_FAULT_ALLOC);
 	    nsets = ntohl(nsets);
 	    k += sizeof(nsets);
 
-	    if (nsets > 0 && (labelsets = (pmLabelSet *)malloc(nsets * sizeof(pmLabelSet))) == NULL) {
+	    if (nsets > 0 &&
+		(labelsets = (pmLabelSet *)calloc(nsets, sizeof(pmLabelSet))) == NULL) {
 		sts = -oserror();
 		goto end;
 	    }
@@ -651,16 +652,17 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":11", PM_FAULT_ALLOC);
 		k += sizeof(jsonlen);
 		labelsets[i].jsonlen = jsonlen;
 
-		if ((labelsets[i].json = (char *)malloc(jsonlen)) == NULL) {
+		if ((labelsets[i].json = (char *)malloc(jsonlen+1)) == NULL) {
 		    sts = -oserror();
 		    goto end;
 		}
 
 		memmove((void *)labelsets[i].json, (void *)&tbuf[k], jsonlen);
+		labelsets[i].json[jsonlen] = '\0';
 		k += jsonlen;
 
 		/* label nlabels */
-		nlabels = ntohl(*((unsigned int*)&tbuf[k]));
+		nlabels = ntohl(*((unsigned int *)&tbuf[k]));
 		k += sizeof(nlabels);
 		labelsets[i].nlabels = nlabels;
 
