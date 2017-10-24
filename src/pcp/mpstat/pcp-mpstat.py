@@ -459,7 +459,7 @@ class InterruptUsageReporter:
     def __init__(self, cpu_filter, printer, mpstat_options):
         self.cpu_filter = cpu_filter
         self.printer = printer
-        self. mpstat_options = mpstat_options
+        self.mpstat_options = mpstat_options
         self.print_header = True
 
     def print_report(self, interrupt_usage, timestamp):
