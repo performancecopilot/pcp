@@ -5,9 +5,9 @@ Homepage: http://pcp.io
 Maintainer: Progress Linux Maintainers <maintainers@lists.progress-linux.org>
 XSBC-Uploaders: Daniel Baumann <daniel.baumann@progress-linux.org>
 XSBC-Original-Maintainer: PCP Development Team <pcp@groups.io>
-XSBC-Original-Uploaders: Nathan Scott <nathans@debian.org>, Anibal Monsalve Salazar <anibal@debian.org>
+XSBC-Original-Uploaders: Nathan Scott <nathans@debian.org>, Anibal Monsalve Salazar <anibal@debian.org>, Eric Desrochers <eric.desrochers@canonical.com>
 Bugs: mailto:maintainers@lists.progress-linux.org
-Build-Depends: bison, flex, gawk, procps, pkg-config, debhelper (>= 5), perl (>= 5.6), libreadline-dev | libreadline5-dev | libreadline-gplv2-dev, chrpath, libbsd-dev [kfreebsd-any], libkvm-dev [kfreebsd-any], python-all, python3-all, python-all-dev, python3-all-dev, libnspr4-dev, libnss3-dev, libsasl2-dev, libmicrohttpd-dev, libavahi-common-dev, libqt4-dev, autotools-dev, zlib1g-dev, autoconf, libclass-dbi-perl, libdbd-mysql-perl, libdbd-pg-perl, dh-python, libcairo2-dev, libpapi-dev [!s390x], libpfm4-dev, libncurses5-dev, python-six, python-json-pointer, libextutils-autoinstall-perl, libxml-tokeparser-perl, librrds-perl, libjson-perl, libwww-perl, libnet-snmp-perl, qt4-qmake, libnss3-tools, manpages
+Build-Depends: bison, flex, gawk, procps, pkg-config, debhelper (>= 5), perl (>= 5.6), libreadline-dev | libreadline5-dev | libreadline-gplv2-dev, chrpath, libbsd-dev [kfreebsd-any], libkvm-dev [kfreebsd-any], python-all, python3-all, python-all-dev, python3-all-dev, libnspr4-dev, libnss3-dev, libsasl2-dev, libmicrohttpd-dev, libavahi-common-dev, qtbase5-dev | libqt4-dev, qtbase5-dev-tools | libqt4-dev, autotools-dev, zlib1g-dev, autoconf, libclass-dbi-perl, libdbd-mysql-perl, libdbd-pg-perl, dh-python, libcairo2-dev, libpapi-dev [!s390x], libpfm4-dev, libncurses5-dev, python-six, python-json-pointer, libextutils-autoinstall-perl, libxml-tokeparser-perl, librrds-perl, libjson-perl, libwww-perl, libnet-snmp-perl, qtchooser | qt4-qmake, libnss3-tools,  manpages
 #Architecture-dependent -- Build-Depends: libibumad-dev, libibmad-dev
 Standards-Version: 3.9.3
 X-Python-Version: >= 2.6
@@ -462,7 +462,7 @@ Description: Performance Co-Pilot (PCP) web API service
 
 Package: pcp-gui
 Depends: ${shlibs:Depends}, ${misc:Depends}
-Suggests: pcp, pcp-doc, xvfb, qt4-dev-tools
+Suggests: pcp, pcp-doc, xvfb
 Architecture: any
 Description: Visualisation tools for the Performance Co-Pilot toolkit
  The PCP GUI package primarily includes visualisation tools for

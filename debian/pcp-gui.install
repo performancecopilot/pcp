@@ -16,6 +16,7 @@ usr/share/man/man1/pmsnap.1.gz
 usr/share/man/man1/pmtime.1.gz
 var/lib/pcp/config/pmafm/pcp-gui
 var/lib/pcp/config/pmchart/ApacheServer
+var/lib/pcp/config/pmchart/BusyCPU
 var/lib/pcp/config/pmchart/CPU
 var/lib/pcp/config/pmchart/Disk
 var/lib/pcp/config/pmchart/Diskbytes
