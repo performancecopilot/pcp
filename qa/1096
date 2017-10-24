@@ -1,0 +1,32 @@
+#!/bin/sh
+# PCP QA Test No. 1096
+# test multithreaded pmNewContext error handling
+#
+# Copyright (c) 2017 Red Hat.  All Rights Reserved.
+#
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_get_libpcp_config
+$multi_threaded || _notrun "No libpcp threading support"
+
+status=0	# success is the default!
+$sudo rm -f $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+echo "=== testing non-multithreaded pmNewContext with one good live context and one bad archive context ===" | tee -a $seq.full
+date >> $seq.full
+if ! src/archctl_segfault; then echo FAILED; status=1; fi
+echo "=== testing multithreaded pmNewContext with one good live context and one bad archive context ===" | tee -a $seq.full
+date >> $seq.full
+src/multithread11 localhost badarchives/empty
+[ $? -ne 0 ] && echo FAILED, see $seq.full && status=1
+
+# success, all done
+exit

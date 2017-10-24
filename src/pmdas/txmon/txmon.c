@@ -220,19 +220,15 @@ txmon_init(pmdaInterface *dp)
     dp->version.two.store = txmon_store;
 
     pmdaSetFetchCallBack(dp, txmon_fetchCallBack);
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL0) {
+    if (pmDebugOptions.appl0) {
 	fprintf(stderr, "after pmdaSetFetchCallBack() control @ %p\n", control);
     }
-#endif
 
     pmdaInit(dp, indomtab, 1, metrictab,
 	     sizeof(metrictab)/sizeof(metrictab[0]));
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL0) {
+    if (pmDebugOptions.appl0) {
 	fprintf(stderr, "after pmdaInit() control @ %p\n", control);
     }
-#endif
 }
 
 /*
@@ -278,7 +274,7 @@ main(int argc, char **argv)
     __pmSetProgname(argv[0]);
     __pmGetUsername(&username);
 
-    snprintf(mypath, sizeof(mypath), "%s%c" "txmon" "%c" "help",
+    pmsprintf(mypath, sizeof(mypath), "%s%c" "txmon" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&dispatch, PMDA_INTERFACE_2, pmProgname, TXMON,
 		"txmon.log", mypath);
@@ -331,11 +327,9 @@ main(int argc, char **argv)
 	fprintf(stderr, "shmat: %s\n", osstrerror());
 	exit(1);
     }
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL0) {
+    if (pmDebugOptions.appl0) {
 	fprintf(stderr, "shmat -> control @ %p\n", control);
     }
-#endif
 
     /*
      * set up the shm control info and directory
@@ -359,11 +353,9 @@ main(int argc, char **argv)
 	sp->count = 0;
 	sp->max_time = -1.0;
 	sp->sum_time = 0.0;
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL0) {
+	if (pmDebugOptions.appl0) {
 	    fprintf(stderr, "index[%d]=%d @ %p name=\"%s\"\n", n, control->index[n], p, sp->type);
 	}
-#endif
 	p += RND_TO_CACHE_LINE(sizeof(stat_t));
 
 	/*

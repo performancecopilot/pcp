@@ -77,7 +77,7 @@ End-of-File
 
 # real QA test starts here
 
-pmlogconf -d $tmp $tmp.conf \
+pmlogconf -d $tmp $tmp.conf 2>&1 \
 | _filter
 
 echo "--- start initial config file ---"
@@ -100,7 +100,7 @@ End-of-File
 
 rm $tmp/03
 
-( echo q ; echo '') | pmlogconf -v -d $tmp $tmp.conf \
+( echo q ; echo '') | pmlogconf -v -d $tmp $tmp.conf 2>&1 \
 | _filter
 
 # reverse the condition
@@ -121,7 +121,7 @@ ident	qa group three
 	sample.longlong.ten
 End-of-File
 
-( echo q ; echo '') | pmlogconf -r -d $tmp $tmp.conf \
+( echo q ; echo '') | pmlogconf -r -d $tmp $tmp.conf 2>&1 \
 | _filter
 
 # drop a metric
@@ -166,7 +166,7 @@ probe	sample.secret.foo.one values ? include : exclude
 	sample.colour [ red green ]
 End-of-File
 
-( echo q ; echo '') | pmlogconf -d $tmp $tmp.conf \
+( echo q ; echo '') | pmlogconf -d $tmp $tmp.conf 2>&1 \
 | _filter
 
 echo "--- start final config file ---"

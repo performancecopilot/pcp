@@ -3,6 +3,7 @@ module pcpupstream 1.0;
 require {
 	type pcp_pmcd_t;
 	type user_home_t;
+	type user_home_dir_t; #RHBZ1488116
 	type tmp_t;
 	type init_t;
 	type initctl_t; #pmdaproc
@@ -10,6 +11,7 @@ require {
 	type initrc_var_run_t;
 	type kmsg_device_t;
 	type pcp_pmlogger_t;
+	type pcp_pmlogger_exec_t;
 	type pcp_var_lib_t;
 	type pcp_log_t;
 	type pcp_pmie_t;
@@ -41,6 +43,7 @@ require {
 	type haproxy_var_lib_t; # pmda.haproxy
 	type haproxy_t; # pmda.haproxy
 	type websm_port_t; # pmda.prometheus
+	type dey_sapi_port_t; #RHBZ1447585
 	class lnk_file { read getattr };
 	class file { append create execute execute_no_trans getattr ioctl lock open read write };
 	class dir { add_name open read search write getattr };
@@ -179,6 +182,16 @@ allow pcp_pmlogger_t self:capability sys_ptrace;
 
 allow pcp_pmlogger_t unconfined_t:process signal;
 
+#type=AVC msg=audit(1503321970.417:261): avc:  denied  { execute_no_trans } for  pid=6760 comm="pmlogger_check" path="/usr/bin/pmlogger" dev="dm-1" ino=1051023 scontext=system_u:system_r:pcp_pmlogger_t:s0 tcontext=system_u:object_r:pcp_pmlogger_exec_t:s0 tclass=file permissive=0
+allow pcp_pmlogger_t pcp_pmlogger_exec_t:file execute_no_trans;
+
+#type=AVC msg=audit(1493690261.688:262): avc:  denied  { name_connect } for  pid=17604 comm="pmlc" dest=4330 scontext=system_u:system_r:pcp_pmlogger_t:s0 tcontext=system_u:object_r:dey_sapi_port_t:s0 tclass=tcp_socket
+allow pcp_pmlogger_t dey_sapi_port_t:tcp_socket name_connect;
+
+#RHBZ1488116
+#type=AVC msg=audit(1504516526.487:431): avc:  denied  { search } for  pid=18056 comm="ps" name="testuser" dev="dm-0" ino=539096275 scontext=system_u:system_r:pcp_pmlogger_t:s0 tcontext=unconfined_u:object_r:user_home_dir_t:s0 tclass=dir
+allow pcp_pmlogger_t user_home_dir_t:dir search;
+
 #============= pcp_pmie_t ==============
 allow pcp_pmie_t hostname_exec_t:file { execute execute_no_trans getattr open read };
 
@@ -211,6 +224,9 @@ allow pcp_pmie_t initrc_var_run_t:file { lock open read };
 
 #type=AVC msg=audit(1498836881.729:16279): avc:  denied  { connectto } for  pid=12589 comm="pmie" path="/run/pcp/pmcd.socket" scontext=system_u:system_r:pcp_pmie_t:s0-s0:c0.c1023 tcontext=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 tclass=unix_stream_socket permissive=0
 allow pcp_pmie_t unconfined_t:unix_stream_socket connectto;
+
+#audit: type=1400 audit(1504924094.677:197): avc:  denied  { execute_no_trans } for  pid=3703 comm=pmie_check path=/usr/bin/pmie dev=dm-0 ino=2506240 scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:object_r:pcp_pmie_exec_t:s0 tclass=file permissive=0
+allow pcp_pmie_t pcp_pmie_exec_t:file execute_no_trans;
 #============= pmda-lio ==============
 allow pcp_pmcd_t configfs_t:dir { open read search };
 allow pcp_pmcd_t configfs_t:file { getattr open read };

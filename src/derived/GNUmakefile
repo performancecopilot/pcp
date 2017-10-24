@@ -30,4 +30,5 @@ install_pcp : $(SUBDIRS) default_pcp
 ifeq ($(TARGET_OS), linux)
 	$(INSTALL) -m 755 -d $(DIR)
 	$(INSTALL) -m 644 iostat.conf $(DIR)/iostat.conf
+	$(INSTALL) -m 644 cpu-util.conf $(DIR)/cpu-util.conf
 endif

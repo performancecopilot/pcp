@@ -422,7 +422,7 @@ __pmAccFreeSavedGroups(void)
  * Compute the wildcard level as we go.
  */
 static int
-parseInetWildCard(const char *name, char *ip, char *mask)
+parseInetWildCard(const char *name, char *ip, int iplen, char *mask, int mlen)
 {
     int level;
     int ipIx, maskIx;
@@ -447,11 +447,11 @@ parseInetWildCard(const char *name, char *ip, char *mask)
 	    return -EINVAL;
 	}
 	if (ipIx != 0) {
-	    ipIx += sprintf(ip + ipIx, ".");
-	    maskIx += sprintf(mask + maskIx, ".");
+	    ipIx += pmsprintf(ip + ipIx, iplen - ipIx, ".");
+	    maskIx += pmsprintf(mask + maskIx, mlen - maskIx, ".");
 	}
-	ipIx += sprintf(ip + ipIx, "%d", n);
-	maskIx += sprintf(mask + maskIx, "255");
+	ipIx += pmsprintf(ip + ipIx, iplen - ipIx, "%d", n);
+	maskIx += pmsprintf(mask + maskIx, mlen - maskIx, "255");
 	--level;
 	/* Check the wildcard level, 0 is exact match, 4 is most general */
 	if (level < 1) {
@@ -462,17 +462,17 @@ parseInetWildCard(const char *name, char *ip, char *mask)
     /* Add zeroed components for the wildcarded levels. */
     for (i = 0; i < level; ++i) {
         if (ipIx != 0) {
-	    ipIx += sprintf(ip + ipIx, ".");
-	    maskIx += sprintf(mask + maskIx, ".");
+	    ipIx += pmsprintf(ip + ipIx, iplen - ipIx, ".");
+	    maskIx += pmsprintf(mask + maskIx, mlen - maskIx, ".");
 	}
-	ipIx += sprintf(ip + ipIx, "0");
-	maskIx += sprintf(mask + maskIx, "0");
+	ipIx += pmsprintf(ip + ipIx, iplen - ipIx, "0");
+	maskIx += pmsprintf(mask + maskIx, mlen - maskIx, "0");
     }
     return level;
 }
 
 static int
-parseIPv6WildCard(const char *name, char *ip, char *mask)
+parseIPv6WildCard(const char *name, char *ip, int iplen, char *mask, int mlen)
 {
     int level;
     int ipIx, maskIx;
@@ -494,8 +494,8 @@ parseIPv6WildCard(const char *name, char *ip, char *mask)
 		__pmNotifyErr(LOG_ERR, "Bad IPv6 address wildcard, %s\n", name);
 		return -EINVAL;
 	    }
-	    ipIx = sprintf(ip, ":");
-	    maskIx = sprintf(mask, ":");
+	    ipIx = pmsprintf(ip, iplen, ":");
+	    maskIx = pmsprintf(mask, mlen, ":");
 	    /* The second colon will be detected in the loop below. */
 	}
     }
@@ -508,8 +508,8 @@ parseIPv6WildCard(const char *name, char *ip, char *mask)
 		return -EINVAL;
 	    }
 	    emptyRegion = 1;
-	    ipIx += sprintf(ip + ipIx, ":");
-	    maskIx += sprintf(mask + maskIx, ":");
+	    ipIx += pmsprintf(ip + ipIx, iplen - ipIx, ":");
+	    maskIx += pmsprintf(mask + maskIx, mlen - maskIx, ":");
 	}
 	else {
 	    n = (int)strtol(p, (char **)&p, 16);
@@ -518,11 +518,11 @@ parseIPv6WildCard(const char *name, char *ip, char *mask)
 		return -EINVAL;
 	    }
 	    if (ipIx != 0) {
-	        ipIx += sprintf(ip + ipIx, ":");
-		maskIx += sprintf(mask + maskIx, ":");
+	        ipIx += pmsprintf(ip + ipIx, iplen - ipIx, ":");
+		maskIx += pmsprintf(mask + maskIx, mlen - maskIx, ":");
 	    }
-	    ipIx += sprintf(ip + ipIx, "%x", n);
-	    maskIx += sprintf(mask + maskIx, "ffff");
+	    ipIx += pmsprintf(ip + ipIx, iplen - ipIx, "%x", n);
+	    maskIx += pmsprintf(mask + maskIx, mlen - maskIx, "ffff");
 	}
 	--level;
 	/* Check the wildcard level, 0 is exact match, 8 is most general */
@@ -542,19 +542,19 @@ parseIPv6WildCard(const char *name, char *ip, char *mask)
     else if (emptyRegion) {
         /* If there was an empty region, then we assume that the wildcard represents the final
 	   segment of the spec only. */
-        sprintf(ip + ipIx, ":0");
-	sprintf(mask + maskIx, ":0");
+        pmsprintf(ip + ipIx, iplen - ipIx, ":0");
+	pmsprintf(mask + maskIx, mlen - maskIx, ":0");
     }
     else {
         /* no empty region, so use one to finish off the address and the mask */
-        sprintf(ip + ipIx, "::");
-	sprintf(mask + maskIx, "::");
+        pmsprintf(ip + ipIx, iplen - ipIx, "::");
+	pmsprintf(mask + maskIx, mlen - maskIx, "::");
     }
     return level;
 }
 
 static int
-parseWildCard(const char *name, char *ip, char *mask)
+parseWildCard(const char *name, char *ip, int iplen, char *mask, int mlen)
 {
     /* We need only handle inet and IPv6 wildcards here. Unix
      * wildcards are handled separately.
@@ -562,11 +562,11 @@ parseWildCard(const char *name, char *ip, char *mask)
      * Names containing ':' are IPv6. The IPv6 full wildcard spec is ":*".
      */
     if (strchr(name, ':') != NULL)
-        return parseIPv6WildCard(name, ip, mask);
+        return parseIPv6WildCard(name, ip, iplen, mask, mlen);
 
     /* Names containing '.' are inet. The inet full wildcard spec ".*". */
     if (strchr(name, '.') != NULL)
-        return parseInetWildCard(name, ip, mask);
+        return parseInetWildCard(name, ip, iplen, mask, mlen);
 
     __pmNotifyErr(LOG_ERR, "Bad IP address wildcard, %s\n", name);
     return -EINVAL;
@@ -659,9 +659,9 @@ getWildCardSpec(const char *name, struct accessSpec *spec)
     char mask[INET6_ADDRSTRLEN];
     int sts;
 
-    /* Build up strings representing the ip address and the mask. Compute the wildcard
-       level as we go. */
-    spec->level = parseWildCard(name, addr, mask);
+    /* Build up strings representing the ip address and the mask.
+       Compute the wildcard level as we go. */
+    spec->level = parseWildCard(name, addr, sizeof(addr), mask, sizeof(mask));
     if (spec->level < 0)
 	return spec->level;
 
@@ -1604,12 +1604,10 @@ __pmAccAddAccount(const char *userid, const char *groupid, unsigned int *denyOps
     __pmUserID	uid;
     __pmGroupID	gid;
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_AUTH) {
+    if (pmDebugOptions.auth) {
 	fprintf(stderr, "__pmAccAddAccount: userid=%s (%d users in list) groupid=%s (%d groups in list)\n",
 	    userid, nusers, groupid, ngroups);
     }
-#endif
 
     if (PM_MULTIPLE_THREADS(PM_SCOPE_ACL))
 	return PM_ERR_THREAD;
@@ -1867,9 +1865,9 @@ __pmAccDumpGroups(FILE *stream)
 	    }
 	}
 	if (g)
-	    snprintf(buf, sizeof(buf), "%6d", gp->groupid);
+	    pmsprintf(buf, sizeof(buf), "%6d", gp->groupid);
 	else
-	    snprintf(buf, sizeof(buf), "     *");
+	    pmsprintf(buf, sizeof(buf), "     *");
 	fprintf(stream, "%5d %5d %*s %-*s", gp->curcons, gp->maxcons,
 			ID_WIDTH, g == 0 ? "*" :
 			__pmGroupIDToString(gp->groupid, buf, sizeof(buf)),

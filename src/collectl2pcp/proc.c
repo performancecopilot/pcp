@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 Red Hat Inc.
+ * Copyright (c) 2013 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -12,8 +12,6 @@
  * for more details.
  *
  * Handler for per-process metrics
- *
- *
  */
 
 #include "metrics.h"
@@ -71,12 +69,12 @@ inst_command_clean(char *command, size_t size)
 
     /* if command contains non printable chars - replace 'em */
     for (i = 0; i < size; i++) {
-	if (!isprint(command[i]))
+	if (!isprint((int)command[i]))
 	    command[i] = ' ';
     }
     /* and trailing whitespace - clean that */
     while (--size) {
-	if (isspace(command[size]))
+	if (isspace((int)command[size]))
 	    command[size] = '\0';
 	else
 	    break;
@@ -95,7 +93,7 @@ base_command_name(const char *command, char *base, size_t size)
 	    continue;
 	else if (*p == '/')
 	    start = end = p+1;
-	else if (isspace(*p))
+	else if (isspace((int)*p))
 	    break;
     }
     size--;	/* allow for a null */
@@ -144,7 +142,7 @@ proc_handler(handler_t *h, fields_t *f)
 	if (inst)
 	    free(inst);
 	inst = (char *)malloc(8 + f->fieldlen[2]);
-	snprintf(inst, 8 + f->fieldlen[2], "%06d %s", pid, f->fields[2]);
+	pmsprintf(inst, 8 + f->fieldlen[2], "%06d %s", pid, f->fields[2]);
 
 	/* now we know the instance name, we can emit the stashed proc stat metrics */
 	if (stashed_stat) {

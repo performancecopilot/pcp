@@ -45,7 +45,7 @@ get_distro_info(void)
 	return distro_name;
 
     for (r = 0; rfiles[r] != NULL; r++) {
-	snprintf(path, sizeof(path), "%s/etc/%s", linux_statspath, rfiles[r]);
+	pmsprintf(path, sizeof(path), "%s/etc/%s", linux_statspath, rfiles[r]);
 	if ((fd = open(path, O_RDONLY)) == -1)
 	    continue;
 	if (fstat(fd, &sbuf) == -1) {

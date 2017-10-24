@@ -101,6 +101,7 @@ main(int argc, char *argv[])
     pmAtomValue	*ap;
     pmValueBlock	*vbp;
     __int32_t	*foo;
+    int		len;
     int		valfmt;
     int		vflag = 0;	/* set to 1 to show all results */
     int		sgn = 1;	/* -u to force 64 unsigned from command line value */
@@ -117,7 +118,8 @@ main(int argc, char *argv[])
     vbp->vtype = PM_TYPE_HIGHRES_EVENT;
     vbp->vlen = sizeof(hrea);	/* not quite correct, but close enough */
 
-    vbp = (pmValueBlock *)malloc(sizeof(pmValueBlock)+7*sizeof(int));
+    len = 7 * sizeof(int);
+    vbp = (pmValueBlock *)malloc(sizeof(pmValueBlock) + len);
     if (vbp == NULL) {
 	fprintf(stderr, "initial malloc failed!\n");
 	exit(1);
@@ -127,7 +129,7 @@ main(int argc, char *argv[])
 	argc--;
 	argv++;
 	if (strcmp(argv[0], "-D") == 0) {
-	    pmDebug = DBG_TRACE_VALUE;
+	    pmSetDebug("value");
 	    continue;
 	}
 	if (strcmp(argv[0], "-e") == 0) {
@@ -205,7 +207,7 @@ main(int argc, char *argv[])
 		case PM_TYPE_STRING:
 		    valfmt = PM_VAL_SPTR;
 		    pv.value.pval = vbp;
-		    sprintf(vbp->vbuf, "%lld", llv);
+		    pmsprintf(vbp->vbuf, len, "%lld", llv);
 		    vbp->vlen = PM_VAL_HDR_SIZE + strlen(vbp->vbuf) + 1;
 		    vbp->vtype = PM_TYPE_STRING;
 		    ap = &bv;

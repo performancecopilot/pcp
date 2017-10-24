@@ -87,22 +87,18 @@ static void
 SetupDebug(void)
 {
     /*
-     * if $PCP_DEBUG is set in the environment then use the (decimal)
-     * value to set bits in pmDebug via bitwise ORing
+     * if $PCP_DEBUG is set in the environment then use the
+     * value to set debug options (and flags)
      */
     char	*val;
-    int		ival;
 
     PM_LOCK(__pmLock_extcall);
     val = getenv("PCP_DEBUG");		/* THREADSAFE */
     if (val != NULL) {
-	char	*end;
-	ival = strtol(val, &end, 10);
-	if (*end != '\0') {
-	    fprintf(stderr, "Error: $PCP_DEBUG=%s is not numeric, ignored\n", val);
-	}
-	else
-	    pmDebug |= ival;
+	int		sts;
+	sts = pmSetDebug(val);
+	if (sts != 0)
+	    fprintf(stderr, "Error: $PCP_DEBUG=%s is not valid, ignored\n", val);
     }
     PM_UNLOCK(__pmLock_extcall);
 }
@@ -150,14 +146,16 @@ static char
 	return "secureserver";
     else if (__pmIsConnectLock(lock))
 	return "connect";
+    else if (__pmIsExecLock(lock))
+	return "exec";
     else if (lock == (void *)&__pmLock_extcall)
 	return "global_extcall";
     else if ((ctxid = __pmIsContextLock(lock)) != -1) {
-	snprintf(locknamebuf, sizeof(locknamebuf), "c_lock[slot %d]", ctxid);
+	pmsprintf(locknamebuf, sizeof(locknamebuf), "c_lock[slot %d]", ctxid);
 	return locknamebuf;
     }
     else {
-	snprintf(locknamebuf, sizeof(locknamebuf), PRINTF_P_PFX "%p", lock);
+	pmsprintf(locknamebuf, sizeof(locknamebuf), PRINTF_P_PFX "%p", lock);
 	return locknamebuf;
     }
 }
@@ -174,15 +172,18 @@ __pmDebugLock(int op, void *lock, const char *file, int line)
     int			sts;
 
     if (lock == (void *)&__pmLock_libpcp) {
-	if ((pmDebug & DBG_TRACE_APPL0) | ((pmDebug & (DBG_TRACE_APPL0 | DBG_TRACE_APPL1 | DBG_TRACE_APPL2)) == 0))
+	if (pmDebugOptions.appl0 ||
+	    (!pmDebugOptions.appl0 && !pmDebugOptions.appl1 && !pmDebugOptions.appl2))
 	    report = DBG_TRACE_APPL0;
     }
     else if ((ctx = __pmIsContextLock(lock)) >= 0) {
-	if ((pmDebug & DBG_TRACE_APPL1) | ((pmDebug & (DBG_TRACE_APPL0 | DBG_TRACE_APPL1 | DBG_TRACE_APPL2)) == 0))
+	if (pmDebugOptions.appl1 ||
+	    (!pmDebugOptions.appl0 && !pmDebugOptions.appl1 && !pmDebugOptions.appl2))
 	    report = DBG_TRACE_APPL1;
     }
     else {
-	if ((pmDebug & DBG_TRACE_APPL2) | ((pmDebug & (DBG_TRACE_APPL0 | DBG_TRACE_APPL1 | DBG_TRACE_APPL2)) == 0))
+	if (pmDebugOptions.appl2 ||
+	    (!pmDebugOptions.appl0 && !pmDebugOptions.appl1 && !pmDebugOptions.appl2))
 	    report = DBG_TRACE_APPL2;
     }
 
@@ -240,7 +241,7 @@ again:
 	fputc('\n', stderr);
 #ifdef HAVE_BACKTRACE
 #define MAX_TRACE_DEPTH 32
-	if (pmDebug & DBG_TRACE_DESPERATE) {
+	if (pmDebugOptions.desperate) {
 	    void	*backaddr[MAX_TRACE_DEPTH];
 	    sts = backtrace(backaddr, MAX_TRACE_DEPTH);
 	    if (sts > 0) {
@@ -366,6 +367,7 @@ __pmInitLocks(void)
 	init_AF_lock();
 	init_secureserver_lock();
 	init_connect_lock();
+	init_exec_lock();
 
 	done = 1;
     }
@@ -417,14 +419,14 @@ __pmLock(void *lock, const char *file, int line)
 
     if ((sts = pthread_mutex_lock(lock)) != 0) {
 	sts = -sts;
-	if (pmDebug & DBG_TRACE_DESPERATE)
+	if (pmDebugOptions.desperate)
 	    fprintf(stderr, "%s:%d: lock failed: %s\n", file, line, pmErrStr(sts));
 #ifdef BUILD_WITH_LOCK_ASSERTS
 	assert(sts == 0);
 #endif
     }
 
-    if (pmDebug & DBG_TRACE_LOCK)
+    if (pmDebugOptions.lock)
 	__pmDebugLock(PM_LOCK_OP, lock, file, line);
 
     return sts;
@@ -439,13 +441,13 @@ __pmIsLocked(void *lock)
 	if (sts == EBUSY)
 	    return 1;
 	sts = -sts;
-	if (pmDebug & DBG_TRACE_DESPERATE)
+	if (pmDebugOptions.desperate)
 	    fprintf(stderr, "islocked: trylock %p failed: %s\n", lock, pmErrStr(sts));
 	return 0;
     }
     if ((sts = pthread_mutex_unlock(lock)) != 0) {
 	sts = -sts;
-	if (pmDebug & DBG_TRACE_DESPERATE)
+	if (pmDebugOptions.desperate)
 	    fprintf(stderr, "islocked: unlock %p failed: %s\n", lock, pmErrStr(sts));
     }
     return 0;
@@ -487,12 +489,12 @@ __pmUnlock(void *lock, const char *file, int line)
 {
     int		sts; 
 
-    if (pmDebug & DBG_TRACE_LOCK)
+    if (pmDebugOptions.lock)
 	__pmDebugLock(PM_UNLOCK_OP, lock, file, line);
 
     if ((sts = pthread_mutex_unlock(lock)) != 0) {
 	sts = -sts;
-	if (pmDebug & DBG_TRACE_DESPERATE)
+	if (pmDebugOptions.desperate)
 	    fprintf(stderr, "%s:%d: unlock failed: %s\n", file, line, pmErrStr(sts));
 #ifdef BUILD_WITH_LOCK_ASSERTS
 	assert(sts == 0);

@@ -118,7 +118,7 @@ QmcGroup::use(int type, const QString &theSource, int flags)
     }
 
     if (i == numContexts()) {
-	if (pmDebug & DBG_TRACE_PMC) {
+	if (pmDebugOptions.pmc) {
 	    QTextStream cerr(stderr);
 	    cerr << "QmcGroup::use: No direct match for context \"" << source
 		 << "\" (type " << type << ")." << endl;
@@ -160,7 +160,7 @@ QmcGroup::use(int type, const QString &theSource, int flags)
     }
 
     if (i == numContexts()) {
-	if (pmDebug & DBG_TRACE_PMC) {
+	if (pmDebugOptions.pmc) {
 	    QTextStream cerr(stderr);
 	    cerr << "QmcGroup::use: Creating new context for \"" << source
 		 << '\"' << endl;
@@ -205,7 +205,7 @@ QmcGroup::use(int type, const QString &theSource, int flags)
 	my.contexts.append(newContext);
 	my.use = my.contexts.size() - 1;
 
-	if (pmDebug & DBG_TRACE_PMC) {
+	if (pmDebugOptions.pmc) {
 	    QTextStream cerr(stderr);
 	    cerr << "QmcGroup::use: Added context " << my.use << ": "
 		 << *newContext << endl;
@@ -222,13 +222,13 @@ QmcGroup::use(int type, const QString &theSource, int flags)
 	    return sts;
 	}
 
-	if (pmDebug & DBG_TRACE_PMC) {
+	if (pmDebugOptions.pmc) {
 	    QTextStream cerr(stderr);
 	    cerr << "QmcGroup::use: Using existing context " << my.use
 		 << " for " << context()->source().desc() << endl;
 	}
     }
-    else if (pmDebug & DBG_TRACE_PMC) {
+    else if (pmDebugOptions.pmc) {
 	QTextStream cerr(stderr);
 	cerr << "QmcGroup::use: Using current context " << my.use
 	     << " (handle = " << context()->handle() << ") for " 
@@ -247,7 +247,7 @@ QmcGroup::useTZ()
 	my.tzDefault = context()->source().tzHandle();
 	my.tzFlag = groupTZ;
 	my.tzGroupIndex = my.use;
-	if (pmDebug & DBG_TRACE_PMC) {
+	if (pmDebugOptions.pmc) {
 	    QTextStream cerr(stderr);
 	    cerr << "QmcGroup::useTZ: Using timezone of "
 		 << context()->source().desc()
@@ -268,7 +268,7 @@ QmcGroup::useTZ(const QString &tz)
 	my.tzFlag = userTZ;
 	my.tzDefault = sts;
 
-	if (pmDebug & DBG_TRACE_PMC) {
+	if (pmDebugOptions.pmc) {
 	    QTextStream cerr(stderr);
 	    cerr << "QmcGroup::useTZ: Switching timezones to \"" << tz
 		 << "\" (" << my.tzUserString << ')' << endl;
@@ -285,7 +285,7 @@ QmcGroup::useLocalTZ()
 	if (sts > 0) {
 	    my.tzFlag = localTZ;
 	    my.tzDefault = tzLocal;
-	    if (pmDebug & DBG_TRACE_PMC) {
+	    if (pmDebugOptions.pmc) {
 		QTextStream cerr(stderr);
 		cerr << "QmcGroup::useTZ: Using timezone of host \"localhost\""
 		     << endl;
@@ -339,11 +339,11 @@ QmcGroup::createLocalContext()
 	QTextStream cerr(stderr);
 	QmcSource *localSource = QmcSource::getSource(PM_CONTEXT_HOST,
 							localHost, 0, false);
-	if (localSource->status() < 0 && pmDebug & DBG_TRACE_PMC)
+	if (localSource->status() < 0 && pmDebugOptions.pmc)
 	    cerr << "QmcGroup::createLocalContext: Default context to "
 		 << localSource->desc() << " failed: " 
 		 << pmErrStr(localSource->status()) << endl;
-	else if (pmDebug & DBG_TRACE_PMC)
+	else if (pmDebugOptions.pmc)
 	    cerr << "QmcGroup::createLocalContext: Default context to "
 		 << localSource->desc() << endl;
 
@@ -389,7 +389,7 @@ QmcGroup::updateBounds()
     __pmtimevalFromReal(newEnd, &my.timeEnd);
     my.timeEndReal = newEnd;
 
-    if (pmDebug & DBG_TRACE_PMC) {
+    if (pmDebugOptions.pmc) {
 	QTextStream cerr(stderr);
         cerr << "QmcGroup::updateBounds: start = " << my.timeStart.tv_sec 
 	     << '.' << my.timeStart.tv_usec << ", end = "
@@ -473,7 +473,7 @@ QmcGroup::fetch(bool update)
 {
     int sts = 0;
 
-    if (pmDebug & DBG_TRACE_PMC) {
+    if (pmDebugOptions.pmc) {
 	QTextStream cerr(stderr);
 	cerr << "QmcGroup::fetch: " << numContexts() << " contexts" << endl;
     }
@@ -484,7 +484,7 @@ QmcGroup::fetch(bool update)
     if (numContexts())
 	sts = useContext();
 
-    if (pmDebug & DBG_TRACE_PMC) {
+    if (pmDebugOptions.pmc) {
 	QTextStream cerr(stderr);
 	cerr << "QmcGroup::fetch: Done" << endl;
     }

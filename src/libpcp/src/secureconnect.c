@@ -198,11 +198,11 @@ dbpath(char *path, size_t size, char *db_method)
      * the <method>:-prefix - for other routines to work with.
      */
     if (nss_dir == NULL){
-    	snprintf(path, size, "%s%s" "%c" ".pki" "%c" "nssdb",
+    	pmsprintf(path, size, "%s%s" "%c" ".pki" "%c" "nssdb",
 		nss_method, homedir, sep, sep);
     }
     else{
-    	snprintf(path, size, "%s%s", nss_method, nss_dir);
+    	pmsprintf(path, size, "%s%s", nss_method, nss_dir);
 
     }
     return path + strlen(nss_method);
@@ -503,7 +503,7 @@ badCertificate(void *arg, PRFileDesc *sslsocket)
 static int
 __pmAuthLogCB(void *context, int priority, const char *message)
 {
-    if (pmDebug & DBG_TRACE_AUTH)
+    if (pmDebugOptions.auth)
 	fprintf(stderr, "%s:__pmAuthLogCB enter ctx=%p pri=%d\n", __FILE__, context, priority);
 
     if (!message)
@@ -526,7 +526,7 @@ __pmAuthLogCB(void *context, int priority, const char *message)
     case SASL_LOG_DEBUG:
     case SASL_LOG_TRACE:
     case SASL_LOG_PASS:
-	if (pmDebug & DBG_TRACE_AUTH)
+	if (pmDebugOptions.auth)
 	    priority = LOG_DEBUG;
 	else
 	    return SASL_OK;
@@ -691,7 +691,7 @@ __pmAuthRealmCB(void *context, int id, const char **realms, const char **result)
     __pmHashCtl *attrs = (__pmHashCtl *)context;
     const char *value = NULL;
 
-    if (pmDebug & DBG_TRACE_AUTH)
+    if (pmDebugOptions.auth)
 	fprintf(stderr, "%s:__pmAuthRealmCB enter ctx=%p id=%#x\n", __FILE__, context, id);
 
     if (id != SASL_CB_GETREALM)
@@ -700,7 +700,7 @@ __pmAuthRealmCB(void *context, int id, const char **realms, const char **result)
     value = __pmGetAttrValue(PCP_ATTR_REALM, attrs, "Realm: ");
     *result = value;
 
-    if (pmDebug & DBG_TRACE_AUTH) {
+    if (pmDebugOptions.auth) {
 	fprintf(stderr, "%s:__pmAuthRealmCB ctx=%p, id=%#x, realms=(", __FILE__, context, id);
 	if (realms) {
 	    if (*realms)
@@ -720,7 +720,7 @@ __pmAuthSimpleCB(void *context, int id, const char **result, unsigned *len)
     const char *value = NULL;
     int sts;
 
-    if (pmDebug & DBG_TRACE_AUTH)
+    if (pmDebugOptions.auth)
 	fprintf(stderr, "%s:__pmAuthSimpleCB enter ctx=%p id=%#x\n", __FILE__, context, id);
 
     if (!result)
@@ -743,7 +743,7 @@ __pmAuthSimpleCB(void *context, int id, const char **result, unsigned *len)
 	*len = value ? strlen(value) : 0;
     *result = value;
 
-    if (pmDebug & DBG_TRACE_AUTH)
+    if (pmDebugOptions.auth)
 	fprintf(stderr, "%s:__pmAuthSimpleCB ctx=%p id=%#x -> sts=%d rslt=%p len=%d\n",
 		__FILE__, context, id, sts, *result, len ? *len : -1);
     return sts;
@@ -756,7 +756,7 @@ __pmAuthSecretCB(sasl_conn_t *saslconn, void *context, int id, sasl_secret_t **s
     size_t length = 0;
     const char *password;
 
-    if (pmDebug & DBG_TRACE_AUTH)
+    if (pmDebugOptions.auth)
 	fprintf(stderr, "%s:__pmAuthSecretCB enter ctx=%p id=%#x\n", __FILE__, context, id);
 
     if (saslconn == NULL || secret == NULL || id != SASL_CB_PASS)
@@ -775,7 +775,7 @@ __pmAuthSecretCB(sasl_conn_t *saslconn, void *context, int id, sasl_secret_t **s
 	strcpy((char *)(*secret)->data, password);
     }
 
-    if (pmDebug & DBG_TRACE_AUTH)
+    if (pmDebugOptions.auth)
 	fprintf(stderr, "%s:__pmAuthSecretCB ctx=%p id=%#x -> data=%s len=%u\n",
 		__FILE__, context, id, password, (unsigned)length);
 
@@ -788,7 +788,7 @@ __pmAuthPromptCB(void *context, int id, const char *challenge, const char *promp
 {
     char *value, message[512];
 
-    if (pmDebug & DBG_TRACE_AUTH)
+    if (pmDebugOptions.auth)
 	fprintf(stderr, "%s:__pmAuthPromptCB enter ctx=%p id=%#x\n", __FILE__, context, id);
 
     if (id != SASL_CB_ECHOPROMPT && id != SASL_CB_NOECHOPROMPT)
@@ -799,9 +799,9 @@ __pmAuthPromptCB(void *context, int id, const char *challenge, const char *promp
 	defaultresult = "";
 
     if (!challenge)
-	snprintf(message, sizeof(message), "%s [%s]: ", prompt, defaultresult);
+	pmsprintf(message, sizeof(message), "%s [%s]: ", prompt, defaultresult);
     else
-	snprintf(message, sizeof(message), "%s [challenge: %s] [%s]: ",
+	pmsprintf(message, sizeof(message), "%s [challenge: %s] [%s]: ",
 		 prompt, challenge, defaultresult);
     message[sizeof(message)-1] = '\0';
 
@@ -1056,7 +1056,7 @@ __pmAuthClientNegotiation(int fd, int ssf, const char *hostname, __pmHashCtl *at
     __pmHashNode *node;
     __pmPDU *pb;
 
-    if (pmDebug & DBG_TRACE_AUTH)
+    if (pmDebugOptions.auth)
 	fprintf(stderr, "%s:__pmAuthClientNegotiation(fd=%d, ssf=%d, host=%s)\n",
 		__FILE__, fd, ssf, hostname);
 
@@ -1071,7 +1071,7 @@ __pmAuthClientNegotiation(int fd, int ssf, const char *hostname, __pmHashCtl *at
     if ((node = __pmHashSearch(PCP_ATTR_METHOD, attrs)) != NULL)
 	method = (const char *)node->data;
 
-    if (pmDebug & DBG_TRACE_AUTH)
+    if (pmDebugOptions.auth)
 	fprintf(stderr, "%s:__pmAuthClientNegotiation requesting \"%s\" method\n",
 		__FILE__, method ? method : "default");
 
@@ -1083,7 +1083,7 @@ __pmAuthClientNegotiation(int fd, int ssf, const char *hostname, __pmHashCtl *at
 	    strncpy(buffer, payload, length);
 	    buffer[length] = '\0';
 
-	    if (pmDebug & DBG_TRACE_AUTH)
+	    if (pmDebugOptions.auth)
 		fprintf(stderr, "%s:__pmAuthClientNegotiation got methods: "
 				"\"%s\" (%d)\n", __FILE__, buffer, length);
 	    /*
@@ -1102,7 +1102,7 @@ __pmAuthClientNegotiation(int fd, int ssf, const char *hostname, __pmHashCtl *at
 					     (unsigned int *)&length, &method);
 	    if (saslsts != SASL_OK && saslsts != SASL_CONTINUE) {
 		sts = __pmSecureSocketsError(saslsts);
-		if (pmDebug & DBG_TRACE_AUTH)
+		if (pmDebugOptions.auth)
 		    fprintf(stderr, "sasl_client_start failed: %d (%s)\n",
 				    saslsts, pmErrStr(sts));
 	    }
@@ -1118,7 +1118,7 @@ __pmAuthClientNegotiation(int fd, int ssf, const char *hostname, __pmHashCtl *at
     if (sts < 0)
 	return sts;
 
-    if (pmDebug & DBG_TRACE_AUTH)
+    if (pmDebugOptions.auth)
 	fprintf(stderr, "sasl_client_start chose \"%s\" method, saslsts=%s\n",
 		method, saslsts == SASL_CONTINUE ? "continue" : "ok");
 
@@ -1135,7 +1135,7 @@ __pmAuthClientNegotiation(int fd, int ssf, const char *hostname, __pmHashCtl *at
 	length = method_length + 1;
     }
 
-    if (pmDebug & DBG_TRACE_AUTH)
+    if (pmDebugOptions.auth)
 	fprintf(stderr, "sasl_client_start sending (%d bytes) \"%s\"\n",
 		length, buffer);
 
@@ -1143,7 +1143,7 @@ __pmAuthClientNegotiation(int fd, int ssf, const char *hostname, __pmHashCtl *at
 	return sts;
 
     while (saslsts == SASL_CONTINUE) {
-	if (pmDebug & DBG_TRACE_AUTH)
+	if (pmDebugOptions.auth)
 	    fprintf(stderr, "%s:__pmAuthClientNegotiation awaiting server reply\n", __FILE__);
 
 	sts = pinned = __pmGetPDU(fd, ANY_SIZE, TIMEOUT_DEFAULT, &pb);
@@ -1155,12 +1155,12 @@ __pmAuthClientNegotiation(int fd, int ssf, const char *hostname, __pmHashCtl *at
 						(unsigned int *)&length);
 		if (saslsts != SASL_OK && saslsts != SASL_CONTINUE) {
 		    sts = __pmSecureSocketsError(saslsts);
-		    if (pmDebug & DBG_TRACE_AUTH)
+		    if (pmDebugOptions.auth)
 			fprintf(stderr, "sasl_client_step failed: %d (%s)\n",
 					saslsts, pmErrStr(sts));
 		    break;
 		}
-		if (pmDebug & DBG_TRACE_AUTH) {
+		if (pmDebugOptions.auth) {
 		    fprintf(stderr, "%s:__pmAuthClientNegotiation"
 				    " step recv (%d bytes)", __FILE__, length);
 		}
@@ -1179,7 +1179,7 @@ __pmAuthClientNegotiation(int fd, int ssf, const char *hostname, __pmHashCtl *at
 	    break;
     }
 
-    if (pmDebug & DBG_TRACE_AUTH) {
+    if (pmDebugOptions.auth) {
 	if (sts < 0)
 	    fprintf(stderr, "%s:__pmAuthClientNegotiation loop failed\n", __FILE__);
 	else {
@@ -1372,7 +1372,7 @@ __pmSecureServerIPCFlags(int fd, int flags)
 				NULL, NULL, /*localdomain,userdomain*/
 				NULL, NULL, NULL, /*iplocal,ipremote,callbacks*/
 				0, &socket.saslConn);
-	if (pmDebug & DBG_TRACE_AUTH)
+	if (pmDebugOptions.auth)
 	    fprintf(stderr, "%s:__pmSecureServerIPCFlags SASL server: %d\n", __FILE__, saslsts);
 	if (saslsts != SASL_OK && saslsts != SASL_CONTINUE)
 	    return __pmSecureSocketsError(saslsts);
@@ -1570,29 +1570,23 @@ __pmRecv(int fd, void *buffer, size_t length, int flags)
     ssize_t		size;
 
     if (__pmDataIPC(fd, &socket) == 0 && socket.nsprFd) {
-#ifdef PCP_DEBUG
-	if ((pmDebug & DBG_TRACE_PDU) && (pmDebug & DBG_TRACE_DESPERATE)) {
+	if (pmDebugOptions.pdu && pmDebugOptions.desperate) {
 	    fprintf(stderr, "%s:__pmRecv[secure](", __FILE__);
 	}
-#endif
 	size = PR_Read(socket.nsprFd, buffer, length);
 	if (size < 0)
 	    __pmSecureSocketsError(PR_GetError());
     }
     else {
-#ifdef PCP_DEBUG
-	if ((pmDebug & DBG_TRACE_PDU) && (pmDebug & DBG_TRACE_DESPERATE)) {
+	if (pmDebugOptions.pdu && pmDebugOptions.desperate) {
 	    fprintf(stderr, "%s:__pmRecv(", __FILE__);
 	}
-#endif
 	size = recv(fd, buffer, length, flags);
     }
-#ifdef PCP_DEBUG
-    if ((pmDebug & DBG_TRACE_PDU) && (pmDebug & DBG_TRACE_DESPERATE)) {
+    if (pmDebugOptions.pdu && pmDebugOptions.desperate) {
 	fprintf(stderr, "%d, ..., %d, " PRINTF_P_PFX "%x) -> %d\n",
 	    fd, (int)length, flags, (int)size);
     }
-#endif
     return size;
 }
 

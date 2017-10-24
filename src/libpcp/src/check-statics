@@ -269,6 +269,10 @@ events.o
     ?caller                     # const
     ?pmUnpackEventRecords.caller		# const
     ?pmUnpackHighResEventRecords.caller	# const
+exec.o
+    exec_lock			# local mutex
+    map				# guarded by exec_lock mutex
+    nmap			# guarded by exec_lock mutex
 fault.o
 fetchlocal.o
     splitlist			# single-threaded PM_SCOPE_DSO_PMDA
@@ -302,6 +306,8 @@ interp.o
     dowrap			# guarded by __pmLock_extcall mutex
     nr				# diag counters, no atomic updates
     nr_cache			# diag counters, no atomic updates
+    ignore_mark_records		# no unsafe side-effects, see notes in util.c
+    ignore_mark_gap		# no unsafe side-effects, see notes in util.c
 io.o
 io_stdio.o
      __pm_stdio			# file operations using stdio
@@ -365,9 +371,6 @@ pdu.o
     pdu_lock			# local mutex
     req_wait			# guarded by pdu_lock mutex
     req_wait_done		# guarded by pdu_lock mutex
-    pmDebug			# set-once from main(), read-only elsewhere
-    				# also guarded by __pmLock_extcall when set
-				# from __pmInitLocks()
     ceiling			# no unsafe side-effects
     ?sigpipe_done		# guarded by pdu_lock mutex
     mypid			# no unsafe side-effects
@@ -413,6 +416,7 @@ pmns.o
     ?curr_pmns			# thread private (no __thread symbols for Mac OS X)
     ?__emutls_t.curr_pmns	# thread private for OpenBSD
     locerr			# no unsafe side-effects, see notes in pmns.c
+    argp			# guarded by exec_lock
 p_pmns.o
 p_profile.o
 p_result.o
@@ -466,6 +470,10 @@ util.o
     ?num_debug			# const
     pmState			# no unsafe side-effects, see notes in util.c
     pmProgname			# no unsafe side-effects, see notes in util.c
+    pmDebug			# set-once from main(), read-only elsewhere
+    				# also guarded by __pmLock_extcall when set
+				# from __pmInitLocks()
+    pmDebugOptions		# same story as pmDebug
     filelog			# guarded by util_lock mutex
     nfilelog			# guarded by util_lock mutex
     dosyslog			# no unsafe side-effects, see notes in util.c

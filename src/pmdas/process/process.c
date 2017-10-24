@@ -78,7 +78,7 @@ process_config_file_check(void)
     static int last_error;
     int sep = __pmPathSeparator();
 
-    snprintf(mypath, sizeof(mypath), "%s%c" "process" "%c" "process.conf",
+    pmsprintf(mypath, sizeof(mypath), "%s%c" "process" "%c" "process.conf",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     if (stat(mypath, &statbuf) == -1) {
 	if (oserror() != last_error) {
@@ -152,7 +152,7 @@ process_grab_config_info(void)
     int process_number = 0;
     int sep = __pmPathSeparator();
 
-    snprintf(mypath, sizeof(mypath), "%s%c" "process" "%c" "process.conf",
+    pmsprintf(mypath, sizeof(mypath), "%s%c" "process" "%c" "process.conf",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     if ((fp = fopen(mypath, "r")) == NULL) {
 	__pmNotifyErr(LOG_ERR, "fopen on %s failed: %s\n",
@@ -224,7 +224,7 @@ process_refresh_pid_checks(void)
 	num_procs[item] = 0;
 
     for (proc = 0; proc < npidlist; proc++) {
-	sprintf(proc_path, "/proc/%d/status", pidlist[proc]);
+	pmsprintf(proc_path, sizeof(proc_path), "/proc/%d/status", pidlist[proc]);
 	if (stat(proc_path, &statbuf) == -1) {
 	    /* We can't stat it, let's assume the process isn't running anymore */
 	    continue;
@@ -285,8 +285,7 @@ process_refresh_pidlist()
     }
     closedir(dirp);
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL2) {
+    if (pmDebugOptions.appl2) {
 	fprintf(stderr, "process_refresh_pidlist: found %d PIDs:", npidlist);
 	    if (npidlist > 0) {
 		fprintf(stderr, " %d", pidlist[0]);
@@ -303,7 +302,6 @@ process_refresh_pidlist()
 	}
 	fprintf(stderr, "\n");
     }
-#endif
 
     return npidlist;
 }
@@ -349,7 +347,7 @@ process_init(pmdaInterface *dp)
 {
     if (isDSO) {
 	int sep = __pmPathSeparator();
-	snprintf(mypath, sizeof(mypath), "%s%c" "process" "%c" "help",
+	pmsprintf(mypath, sizeof(mypath), "%s%c" "process" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
 	pmdaDSO(dp, PMDA_INTERFACE_2, "process DSO", mypath);
     }
@@ -394,7 +392,7 @@ main(int argc, char **argv)
     isDSO = 0;
     __pmSetProgname(argv[0]);
 
-    snprintf(mypath, sizeof(mypath), "%s%c" "process" "%c" "help",
+    pmsprintf(mypath, sizeof(mypath), "%s%c" "process" "%c" "help",
 	pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&desc, PMDA_INTERFACE_2, pmProgname, PROCESS,
 		"process.log", mypath);

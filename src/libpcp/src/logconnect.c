@@ -75,13 +75,13 @@ __pmLoggerTimeout(void)
 const char *
 __pmLogLocalSocketDefault(int pid, char *buf, size_t bufSize)
 {
-    /* snprintf guarantees a terminating nul, even if the output is truncated. */
+    /* pmsprintf guarantees a terminating nul, even if the output is truncated. */
     if (pid == PM_LOG_PRIMARY_PID) { /* primary */
-	snprintf(buf, bufSize, "%s/pmlogger.primary.socket",
+	pmsprintf(buf, bufSize, "%s/pmlogger.primary.socket",
 		 pmGetConfig("PCP_RUN_DIR"));
     }
     else {
-	snprintf(buf, bufSize, "%s/pmlogger.%d.socket",
+	pmsprintf(buf, bufSize, "%s/pmlogger.%d.socket",
 		 pmGetConfig("PCP_RUN_DIR"), pid);
     }
 
@@ -105,8 +105,8 @@ __pmLogLocalSocketUser(int pid, char *buf, size_t bufSize)
     if (homeResult == NULL)
 	return NULL;
 
-    /* snprintf guarantees a terminating nul, even if the output is truncated. */
-    snprintf(buf, bufSize, "%s/.pcp/run/pmlogger.%d.socket",
+    /* pmsprintf guarantees a terminating nul, even if the output is truncated. */
+    pmsprintf(buf, bufSize, "%s/.pcp/run/pmlogger.%d.socket",
 	     homeResult, pid);
 
     return buf;
@@ -188,11 +188,11 @@ connectLoggerLocal(const char *local_socket)
     /*
      * Set the socket path. All socket paths are absolute, but strip off any redundant
      * initial path separators.
-     * snprintf is guaranteed to add a nul byte.
+     * pmsprintf is guaranteed to add a nul byte.
      */
     while (*local_socket == __pmPathSeparator())
 	++local_socket;
-    snprintf(socket_path, sizeof(socket_path), "%c%s", __pmPathSeparator(), local_socket);
+    pmsprintf(socket_path, sizeof(socket_path), "%c%s", __pmPathSeparator(), local_socket);
     __pmSockAddrSetPath(myAddr, socket_path);
 
     /* Attempt to connect */
@@ -241,11 +241,9 @@ __pmConnectLogger(const char *connectionSpec, int *pid, int *port)
     int			originalPid;
     int			wasLocal;
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_CONTEXT)
+    if (pmDebugOptions.context)
 	fprintf(stderr, "__pmConnectLogger(host=%s, pid=%d, port=%d)\n",
 		connectionSpec, *pid, *port);
-#endif
 
     if (*pid == PM_LOG_NO_PID && *port == PM_LOG_PRIMARY_PORT) {
 	/*
@@ -300,40 +298,31 @@ __pmConnectLogger(const char *connectionSpec, int *pid, int *port)
 	     * to get all ports
 	     */
 	    if (*pid == PM_LOG_ALL_PIDS) {
-#ifdef PCP_DEBUG
-		if (pmDebug & DBG_TRACE_CONTEXT)
+		if (pmDebugOptions.context)
 		    fprintf(stderr, "__pmConnectLogger: pid == PM_LOG_ALL_PIDS makes no sense here\n");
-#endif
 		return -ECONNREFUSED;
 	    }
 
 	    if (*port == PM_LOG_NO_PORT) {
 		if ((n = __pmLogFindPort(connectionSpec, *pid, &lpp)) < 0) {
-#ifdef PCP_DEBUG
-		    if (pmDebug & DBG_TRACE_CONTEXT) {
+		    if (pmDebugOptions.context) {
 			char	errmsg[PM_MAXERRMSGLEN];
 			fprintf(stderr, "__pmConnectLogger: __pmLogFindPort: %s\n", pmErrStr_r(n, errmsg, sizeof(errmsg)));
 		    }
-#endif
 		    return n;
 		}
 		else if (n != 1) {
-#ifdef PCP_DEBUG
-		    if (pmDebug & DBG_TRACE_CONTEXT)
+		    if (pmDebugOptions.context)
 			fprintf(stderr, "__pmConnectLogger: __pmLogFindPort -> 1, cannot contact pmlogger\n");
-#endif
 		    return -ECONNREFUSED;
 		}
 		*port = lpp->port;
-#ifdef PCP_DEBUG
-		if (pmDebug & DBG_TRACE_CONTEXT)
+		if (pmDebugOptions.context)
 		    fprintf(stderr, "__pmConnectLogger: __pmLogFindPort -> pid = %d\n", lpp->port);
-#endif
 	    }
 
 	    if ((servInfo = __pmGetAddrInfo(connectionSpec)) == NULL) {
-#ifdef PCP_DEBUG
-		if (pmDebug & DBG_TRACE_CONTEXT) {
+		if (pmDebugOptions.context) {
 		    const char	*errmsg;
 		    PM_LOCK(__pmLock_extcall);
 		    errmsg = hoststrerror();		/* THREADSAFE */
@@ -341,7 +330,6 @@ __pmConnectLogger(const char *connectionSpec, int *pid, int *port)
 			    errmsg);
 		    PM_UNLOCK(__pmLock_extcall);
 		}
-#endif
 		return -EHOSTUNREACH;
 	    }
 
@@ -382,12 +370,10 @@ __pmConnectLogger(const char *connectionSpec, int *pid, int *port)
 	}
 	
 	if (sts < 0) {
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_CONTEXT) {
+	    if (pmDebugOptions.context) {
 		char	errmsg[PM_MAXERRMSGLEN];
 		fprintf(stderr, "__pmConnectLogger: connect: %s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	    }
-#endif
 	}
 	else {
 	    /* Expect an error PDU back: ACK/NACK for connection */
@@ -397,18 +383,15 @@ __pmConnectLogger(const char *connectionSpec, int *pid, int *port)
 		__pmDecodeError(pb, &sts);
 		php = (__pmPDUHdr *)pb;
 		if (*pid != PM_LOG_NO_PID && *pid != PM_LOG_PRIMARY_PID && php->from != *pid) {
-#ifdef PCP_DEBUG
-		    if (pmDebug & DBG_TRACE_CONTEXT)
+		    if (pmDebugOptions.context)
 			fprintf(stderr, "__pmConnectLogger: ACK response from pid %d, expected pid %d\n",
 				php->from, *pid);
-#endif
 		    sts = -ECONNREFUSED;
 		}
 		*pid = php->from;
 	    }
 	    else if (sts < 0) {
-#ifdef PCP_DEBUG
-		if (pmDebug & DBG_TRACE_CONTEXT) {
+		if (pmDebugOptions.context) {
 		    if (sts == PM_ERR_TIMEOUT)
 			fprintf(stderr, "__pmConnectLogger: timeout (after %d secs)\n", __pmLoggerTimeout());
 		    else {
@@ -416,15 +399,12 @@ __pmConnectLogger(const char *connectionSpec, int *pid, int *port)
 			fprintf(stderr, "__pmConnectLogger: Error: %s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 		    }
 		}
-#endif
 		;	/* fall through */
 	    }
 	    else {
 		/* wrong PDU type! */
-#ifdef PCP_DEBUG
-		if (pmDebug & DBG_TRACE_CONTEXT)
+		if (pmDebugOptions.context)
 		    fprintf(stderr, "__pmConnectLogger: ACK botch PDU type=%d not PDU_ERROR?\n", sts);
-#endif
 		sts = PM_ERR_IPC;
 	    }
 
@@ -445,11 +425,9 @@ __pmConnectLogger(const char *connectionSpec, int *pid, int *port)
 		else
 		    sts = PM_ERR_IPC;
 		if (sts >= 0) {
-#ifdef PCP_DEBUG
-		    if (pmDebug & DBG_TRACE_CONTEXT)
+		    if (pmDebugOptions.context)
 			fprintf(stderr, "__pmConnectLogger: PDU version=%d fd=%d\n",
 				__pmVersionIPC(fd), fd);
-#endif
 		    return fd;
 		}
 	    }

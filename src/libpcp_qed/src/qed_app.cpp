@@ -81,13 +81,12 @@ int QedApp::getopts(const char *options)
 	    break;
 
 	case 'D':
-	    sts = __pmParseDebug(optarg);
+	    sts = pmSetDebug(optarg);
 	    if (sts < 0) {
-		pmprintf("%s: unrecognized debug flag specification (%s)\n",
+		pmprintf("%s: unrecognized debug options specification (%s)\n",
 			pmProgname, optarg);
 		errflg++;
-	    } else
-		pmDebug |= sts;
+	    }
 	    break;
 
 	case 'h':
@@ -133,6 +132,8 @@ int QedApp::getopts(const char *options)
 	case 'V':		/* version */
 	    printf("%s %s\n", pmProgname, pmGetConfig("PCP_VERSION"));
 	    exit(0);
+	    /*NOTREACHED*/
+	    break;
 
 	case 'z':		/* timezone from host */
 	    if (my.tz != NULL) {
@@ -210,9 +211,9 @@ char *QedApp::timeHiResString(double time)
     time_t secs = (time_t)time;
     struct tm t;
 
-    sprintf(m, "%.3f", time - floor(time));
+    pmsprintf(m, sizeof(m), "%.3f", time - floor(time));
     pmLocaltime(&secs, &t);
-    sprintf(s, "%02d:%02d:%02d.%s", t.tm_hour, t.tm_min, t.tm_sec, m+2);
+    pmsprintf(s, sizeof(s), "%02d:%02d:%02d.%s", t.tm_hour, t.tm_min, t.tm_sec, m+2);
     s[strlen(s)-1] = '\0';
     return s;
 }
@@ -238,8 +239,8 @@ QPixmap QedApp::cached(const QString &image)
     return pm;
 }
 
-// call startconsole() after command line args processed so pmDebug
-// has a chance to be set
+// call startconsole() after command line args processed so debugging
+// options have a chance to be set
 //
 void QedApp::startconsole(void)
 {

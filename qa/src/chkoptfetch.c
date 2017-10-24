@@ -76,12 +76,7 @@ main(int argc, char **argv)
     int			c;
     int			errflag = 0;
     int			sts;
-#ifdef PCP_DEBUG
-    static char		*debug = "[-D N] ";
-#else
-    static char		*debug = "";
-#endif
-    static char		*usage = "";
+    static char		*usage = "[-D debugspec]";
     int			i;
     int			numreq;
     int			numfetch;
@@ -96,19 +91,15 @@ main(int argc, char **argv)
     while ((c = getopt(argc, argv, "D:")) != EOF) {
 	switch (c) {
 
-#ifdef PCP_DEBUG
 
-	case 'D':	/* debug flag */
-	    sts = __pmParseDebug(optarg);
+	case 'D':	/* debug options */
+	    sts = pmSetDebug(optarg);
 	    if (sts < 0) {
-		fprintf(stderr, "%s: unrecognized debug flag specification (%s)\n",
+		fprintf(stderr, "%s: unrecognized debug options specification (%s)\n",
 		    pmProgname, optarg);
 		errflag++;
 	    }
-	    else
-		pmDebug |= sts;
 	    break;
-#endif
 
 	case '?':
 	default:
@@ -118,7 +109,7 @@ main(int argc, char **argv)
     }
 
     if (errflag) {
-	fprintf(stderr, "Usage: %s %s%s\n", pmProgname, debug, usage);
+	fprintf(stderr, "Usage: %s %s\n", pmProgname, usage);
 	exit(1);
     }
 
@@ -169,12 +160,10 @@ main(int argc, char **argv)
     for (i = 0; i < numreq; i++) {
 	req[i].r_desc = &desc[i];
 	__pmOptFetchAdd(&root, &req[i]);
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_OPTFETCH) {
+	if (pmDebugOptions.optfetch) {
 	    fprintf(stdout, "\nAdd request %d @ " PRINTF_P_PFX "%p\n", i, &req[i]);
 	    __pmOptFetchDump(stdout, root);
 	}
-#endif
 	numfetch = 0;
 	totcost = 0;
 	for (fp = root; fp != (fetchctl_t *)0; fp = fp->f_next) {
@@ -204,12 +193,10 @@ main(int argc, char **argv)
     numfail = 0;
     for (i = numreq-1; i >= 0; i--) {
 	__pmOptFetchDel(&root, &req[i]);
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_OPTFETCH) {
+	if (pmDebugOptions.optfetch) {
 	    fprintf(stdout, "\nDelete request %d @ " PRINTF_P_PFX "%p\n", i, &req[i]);
 	    __pmOptFetchDump(stdout, root);
 	}
-#endif
 	if (i == 0)
 	    continue;
 	numfetch = 0;
@@ -266,12 +253,10 @@ main(int argc, char **argv)
     /* and re-arrange, a few times */
     for (i = 0; i < 10; i++) {
 	__pmOptFetchRedo(&root);
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_OPTFETCH) {
+	if (pmDebugOptions.optfetch) {
 	    fprintf(stdout, "\nNow try a redo ...\n");
 	    __pmOptFetchDump(stdout, root);
 	}
-#endif
 	numfetch = 0;
 	totcost = 0;
 	for (fp = root; fp != (fetchctl_t *)0; fp = fp->f_next) {

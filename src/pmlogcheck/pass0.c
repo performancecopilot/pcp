@@ -143,9 +143,9 @@ pass0(char *fname)
 	    is = IS_INDEX;
 	else if (strcmp(p, ".meta") == 0)
 	    is = IS_META;
-	else if (isdigit(*++p)) {
+	else if (isdigit((int)(*++p))) {
 	    p++;
-	    while (*p && isdigit(*p))
+	    while (*p && isdigit((int)*p))
 		p++;
 	    if (*p == '\0')
 		is = IS_LOG;

@@ -1,0 +1,93 @@
+QA output created by 1196
+=== no-error case ===
+You will need to choose an appropriate configuration for installation of
+the "whacko" Performance Metrics Domain Agent (PMDA).
+
+  collector	collect performance statistics on this system
+  monitor	allow this system to monitor local and/or remote systems
+  both		collector and monitor configuration for this system
+
+Please enter c(ollector) or m(onitor) or b(oth) [b] Installing files ...
+make: Nothing to be done for 'install'.
+Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+Updating the PMCD control file, and notifying PMCD ...
+Check whacko metrics have appeared ... 1 metrics and 1 values
+
+whacko.time PMID: 241.0.0
+    value NUMBER
+    inst [29 or "sample"] value 0
+    inst [30 or "sampledso"] value 0
+    inst [241 or "whacko"] value 0
+Culling the Performance Metrics Name Space ...
+whacko ... done
+Updating the PMCD control file, and notifying PMCD ...
+Removing files ...
+Check whacko metrics have gone away ... OK
+Error: whacko: Unknown metric name
+    inst [29 or "sample"] value 0
+    inst [30 or "sampledso"] value 0
+
+=== domain number clash case ... will clobber and remove sample PMDA ===
+You will need to choose an appropriate configuration for installation of
+the "whacko" Performance Metrics Domain Agent (PMDA).
+
+  collector	collect performance statistics on this system
+  monitor	allow this system to monitor local and/or remote systems
+  both		collector and monitor configuration for this system
+
+Please enter c(ollector) or m(onitor) or b(oth) [b] Installing files ...
+make: Nothing to be done for 'install'.
+Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+Warning: PCP_PMCDCONF_PATH[N] culling entry with same PMDA domain (29) but different name (sample not whacko)
+Updating the PMCD control file, and notifying PMCD ...
+Check whacko metrics have appeared ... 1 metrics and 1 values
+
+whacko.time PMID: 29.0.0
+    value NUMBER
+    inst [29 or "whacko"] value 0
+    inst [30 or "sampledso"] value 0
+Culling the Performance Metrics Name Space ...
+whacko ... done
+Updating the PMCD control file, and notifying PMCD ...
+Removing files ...
+Check whacko metrics have gone away ... OK
+Error: whacko: Unknown metric name
+    inst [30 or "sampledso"] value 0
+
+=== domain name clash case ... will clobber and remove sample PMDA ===
+You will need to choose an appropriate configuration for installation of
+the "sample" Performance Metrics Domain Agent (PMDA).
+
+  collector	collect performance statistics on this system
+  monitor	allow this system to monitor local and/or remote systems
+  both		collector and monitor configuration for this system
+
+Please enter c(ollector) or m(onitor) or b(oth) [b] Installing files ...
+make: Nothing to be done for 'install'.
+Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+Warning: PCP_PMCDCONF_PATH[N] culling entry with same PMDA name (sample) but different domain (29 not 241)
+Updating the PMCD control file, and notifying PMCD ...
+Check sample metrics have appeared ... 1 warnings, 1 metrics and 0 values
+
+whacko.time PMID: 241.0.0
+    value NUMBER
+    inst [30 or "sampledso"] value 0
+    inst [241 or "sample"] value 0
+Culling the Performance Metrics Name Space ...
+sample ... not found in Name Space, this is OK
+Updating the PMCD control file, and notifying PMCD ...
+Removing files ...
+Check sample metrics have gone away ... OK
+whacko.time: pmLookupDesc: Unknown or illegal metric identifier
+    inst [30 or "sampledso"] value 0
+Culling the Performance Metrics Name Space ...
+whacko ... done
+Updating the PMCD control file, and notifying PMCD ...
+Removing files ...
+Check whacko metrics have gone away ... OK
+Waiting for pmcd to terminate ...
+Starting pmcd ... 
+Starting pmlogger ... 

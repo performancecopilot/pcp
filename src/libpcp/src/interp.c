@@ -17,6 +17,10 @@
  * nr[] and nr_cache[] are diagnostic counters that are maintained with
  * non-atomic updates ... we've decided that it is acceptable for their
  * values to be subject to possible (but unlikely) missed updates
+ *
+ * the one-trip initialization of ignore_mark_records and ignore_mark_gap
+ * is not guarded as the same value would result from concurrent repeated
+ * execution
  */
 
 /*
@@ -165,8 +169,7 @@ cache_read(__pmContext *ctxp, int mode, pmResult **rp)
     else
 	cache = acp->ac_cache;
 
-#ifdef PCP_DEBUG
-    if ((pmDebug & DBG_TRACE_LOG) && (pmDebug & DBG_TRACE_DESPERATE)) {
+    if (pmDebugOptions.log && pmDebugOptions.desperate) {
 	fprintf(stderr, "cache_read: fd=%d mode=%s vol=%d (curvol=%d) %s_posn=%ld ",
 	    __pmFileno(acp->ac_log->l_mfp),
 	    mode == PM_MODE_FORW ? "forw" : "back",
@@ -174,7 +177,6 @@ cache_read(__pmContext *ctxp, int mode, pmResult **rp)
 	    mode == PM_MODE_FORW ? "head" : "tail",
 	    (long)posn);
     }
-#endif
 
     acp->ac_cache_idx = (acp->ac_cache_idx + 1) % NUMCACHE;
     lfup = &cache[acp->ac_cache_idx];
@@ -190,8 +192,7 @@ cache_read(__pmContext *ctxp, int mode, pmResult **rp)
 		__pmFseek(acp->ac_log->l_mfp, cp->tail_posn, SEEK_SET);
 	    else
 		__pmFseek(acp->ac_log->l_mfp, cp->head_posn, SEEK_SET);
-#ifdef PCP_DEBUG
-	    if ((pmDebug & DBG_TRACE_LOG) && (pmDebug & DBG_TRACE_DESPERATE)) {
+	    if (pmDebugOptions.log && pmDebugOptions.desperate) {
 		__pmTimeval	tmp;
 		double		t_this;
 		tmp.tv_sec = (__int32_t)cp->rp->timestamp.tv_sec;
@@ -201,18 +202,15 @@ cache_read(__pmContext *ctxp, int mode, pmResult **rp)
 		    (int)(cp - cache), t_this);
 		nr_cache[mode]++;
 	    }
-#endif
 	    acp->ac_mark_done = 0;
 	    sts = cp->sts;
 	    return sts;
 	}
     }
 
-#ifdef PCP_DEBUG
-    if ((pmDebug & DBG_TRACE_LOG) && (pmDebug & DBG_TRACE_DESPERATE))
+    if (pmDebugOptions.log && pmDebugOptions.desperate)
 	fprintf(stderr, "miss\n");
     nr[mode]++;
-#endif
 
     if (lfup->rp != NULL)
 	pmFreeResult(lfup->rp);
@@ -248,11 +246,9 @@ cache_read(__pmContext *ctxp, int mode, pmResult **rp)
 	    free(lfup->l_name);
 	    lfup->l_name = NULL;
 	}
-#ifdef PCP_DEBUG
-	if ((pmDebug & DBG_TRACE_LOG) && (pmDebug & DBG_TRACE_DESPERATE))
+	if (pmDebugOptions.log && pmDebugOptions.desperate)
 	    fprintf(stderr, "cache_read: reload vol switch, mark cache[%d] unused\n",
 		(int)(lfup - cache));
-#endif
     }
     else {
 	lfup->mode = mode;
@@ -279,8 +275,7 @@ cache_read(__pmContext *ctxp, int mode, pmResult **rp)
 	    lfup->head_posn = __pmFtell(acp->ac_log->l_mfp);
 	    assert(lfup->head_posn >= 0);
 	}
-#ifdef PCP_DEBUG
-	if ((pmDebug & DBG_TRACE_LOG) && (pmDebug & DBG_TRACE_DESPERATE)) {
+	if (pmDebugOptions.log && pmDebugOptions.desperate) {
 	    fprintf(stderr, "cache_read: reload cache[%d] vol=%d (curvol=%d) head=%ld tail=%ld ",
 		(int)(lfup - cache), lfup->vol, acp->ac_log->l_curvol,
 		(long)lfup->head_posn, (long)lfup->tail_posn);
@@ -291,7 +286,6 @@ cache_read(__pmContext *ctxp, int mode, pmResult **rp)
 		fprintf(stderr, "sts=%s\n", pmErrStr_r(lfup->sts, errmsg, sizeof(errmsg)));
 	    }
 	}
-#endif
     }
 
     return lfup->sts;
@@ -304,7 +298,6 @@ __pmLogCacheClear(__pmFILE *mfp)
     return;
 }
 
-#ifdef PCP_DEBUG
 /*
  * prior == 1 for ?_prior fields, else use ?_next fields
  */
@@ -337,28 +330,32 @@ dumpval(FILE *f, int type, int valfmt, int prior, instcntl_t *icp)
 	memcpy((void *)&tmp, (void *)&vp->lval, sizeof(tmp));
 	fprintf(f, " v=%f", (double)tmp);
     }
-    else if (type == PM_TYPE_64) {
-	__int64_t	tmp;
-	memcpy((void *)&tmp, (void *)vp->pval->vbuf, sizeof(tmp));
-        fprintf(f, " v=%"PRIi64, tmp);
-    }
-    else if (type == PM_TYPE_U64) {
-	__uint64_t	tmp;
-	memcpy((void *)&tmp, (void *)vp->pval->vbuf, sizeof(tmp));
-        fprintf(f, " v=%"PRIu64, tmp);
-    }
-    else if (type == PM_TYPE_FLOAT) {
-	float		tmp;
-	memcpy((void *)&tmp, (void *)vp->pval->vbuf, sizeof(tmp));
-        fprintf(f, " v=%f", (double)tmp);
-    }
-    else if (type == PM_TYPE_DOUBLE) {
-	double		tmp;
-	memcpy((void *)&tmp, (void *)vp->pval->vbuf, sizeof(tmp));
-        fprintf(f, " v=%f", tmp);
+    else if (valfmt == PM_VAL_DPTR || valfmt == PM_VAL_SPTR) {
+	if (type == PM_TYPE_64) {
+	    __int64_t	tmp;
+	    memcpy((void *)&tmp, (void *)vp->pval->vbuf, sizeof(tmp));
+	    fprintf(f, " v=%"PRIi64, tmp);
+	}
+	else if (type == PM_TYPE_U64) {
+	    __uint64_t	tmp;
+	    memcpy((void *)&tmp, (void *)vp->pval->vbuf, sizeof(tmp));
+	    fprintf(f, " v=%"PRIu64, tmp);
+	}
+	else if (type == PM_TYPE_FLOAT) {
+	    float		tmp;
+	    memcpy((void *)&tmp, (void *)vp->pval->vbuf, sizeof(tmp));
+	    fprintf(f, " v=%f", (double)tmp);
+	}
+	else if (type == PM_TYPE_DOUBLE) {
+	    double		tmp;
+	    memcpy((void *)&tmp, (void *)vp->pval->vbuf, sizeof(tmp));
+	    fprintf(f, " v=%f", tmp);
+	}
+	else
+	    fprintf(f, " v=??? (lval=%d)", vp->lval);
     }
     else
-        fprintf(f, " v=??? (lval=%d)", vp->lval);
+	fprintf(f, " bad valfmt %d v=??? (lval=%d)", valfmt, vp->lval);
 }
 
 static void
@@ -374,7 +371,6 @@ dumpicp(const char *tag, instcntl_t *icp)
     dumpval(stderr, icp->metric->desc.type, icp->metric->valfmt, 0, icp);
     fprintf(stderr, " t_last=%.6f\n", icp->t_last);
 }
-#endif
 
 /*
  * Update the upper (next) and lower (prior) bounds.
@@ -406,10 +402,185 @@ update_bounds(__pmContext *ctxp, double t_req, pmResult *logrp, int do_mark, int
     double	t_this;
     __pmTimeval	tmp;
     int		changed;
+    static int	ignore_mark_records = -1;
+    static double	ignore_mark_gap = 0;
 
     tmp.tv_sec = (__int32_t)logrp->timestamp.tv_sec;
     tmp.tv_usec = (__int32_t)logrp->timestamp.tv_usec;
     t_this = __pmTimevalSub(&tmp, __pmLogStartTime(ctxp->c_archctl));
+
+    if (logrp->numpmid == 0) {
+	if (ignore_mark_records == -1) {
+	    /* one-trip initialization */
+	    char	*str;
+	    PM_LOCK(__pmLock_extcall);
+	    str = getenv("PCP_IGNORE_MARK_RECORDS");	/* THREADSAFE */
+	    if (str != NULL) {
+		if (str[0] != '\0') {
+		    /*
+		     * set and value is time in -t format ... if <= this time
+		     * between pmResults, ignore the <mark> record
+		     */
+		    char		*endnum;
+		    struct timeval	gap;
+		    if (pmParseInterval(str, &gap, &endnum) < 0) {
+			/*
+			 * probably should use pmprintf(), but that takes us into
+			 * deadlock hell!
+			 */
+			fprintf(stderr, "%s: Warning: bad $PCP_IGNORE_MARK_RECORDS: not in pmParseInterval(3) format:\n%s\n",
+				pmProgname, endnum);
+			free(endnum);
+			ignore_mark_records = 0;
+		    }
+		    else {
+			ignore_mark_gap = __pmtimevalToReal(&gap);
+			ignore_mark_records = 1;
+		    }
+		}
+		else {
+		    /*
+		     * set and no value, 0 is the sentinal to ignore all <mark> records
+		     */
+		    ignore_mark_gap = 0;
+		    ignore_mark_records = 1;
+		}
+	    }
+	    else
+		/* do not ignore mark_records */
+		ignore_mark_records = 0;
+	    PM_UNLOCK(__pmLock_extcall);
+	}
+	if (ignore_mark_records && ignore_mark_gap == 0) {
+	    if (pmDebugOptions.interp)
+		fprintf(stderr, "update_bounds: ignore mark: unconditional\n");
+	    return 0;
+	}
+	else if (ignore_mark_records) {
+	    /*
+	     * <prior>
+	     * <mark>	<-- we've just read this one
+	     * <next>
+	     * Need to peek backwards and forwards to get the timestamp
+	     * (don't care about anything else) from the <prior> and <next>
+	     * records, but be careful to leave the file in the same state
+	     * we found it wrt seek offset
+	     */
+	    double	t_next = -1;
+	    double	t_prior = -1;
+	    pmResult	*peek;
+	    int		sts;
+	    char	errmsg[PM_MAXERRMSGLEN];
+	    int		save_arch = 0;
+	    int		save_vol = 0;
+	    long	save_offset = 0;
+
+	    /* Save the initial state. */
+	    save_arch = ctxp->c_archctl->ac_cur_log;
+	    save_vol = ctxp->c_archctl->ac_vol;
+	    save_offset = ctxp->c_archctl->ac_offset;
+
+	    /* <next> */
+	    sts = __pmLogRead_ctx(ctxp, PM_MODE_FORW, NULL, &peek, PMLOGREAD_NEXT);
+	    if (sts < 0) {
+		if (pmDebugOptions.interp)
+		    fprintf(stderr, "update_bounds: mark read <next> failed: %s\n",
+			pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	    	/*
+		 * forward read failed, assume <mark> is at end of
+		 * archive and seek pointer still correct
+		 */
+		goto check;
+	    }
+	    tmp.tv_sec = (__int32_t)peek->timestamp.tv_sec;
+	    tmp.tv_usec = (__int32_t)peek->timestamp.tv_usec;
+	    t_next = __pmTimevalSub(&tmp, __pmLogStartTime(ctxp->c_archctl));
+	    pmFreeResult(peek);
+
+	    /* backup -> should be <next> record */
+	    sts = __pmLogRead_ctx(ctxp, PM_MODE_BACK, NULL, &peek, PMLOGREAD_NEXT);
+	    if (sts < 0) {
+		if (pmDebugOptions.interp)
+		    fprintf(stderr, "update_bounds: mark unread <next> failed: %s\n",
+			pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+		/* should not happen ... */
+		goto restore;
+	    }
+	    pmFreeResult(peek);
+
+	    /* backup -> should be <mark> record */
+	    sts = __pmLogRead_ctx(ctxp, PM_MODE_BACK, NULL, &peek, PMLOGREAD_NEXT);
+	    if (sts < 0) {
+		if (pmDebugOptions.interp)
+		    fprintf(stderr, "update_bounds: mark unread <mark> failed: %s\n",
+			pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+		/* should not happen ... */
+		goto restore;
+	    }
+	    if (peek->numpmid != 0) {
+		if (pmDebugOptions.interp)
+		    fprintf(stderr, "update_bounds: mark unread <mark> expecting <mark> got numpmid=%d\n", peek->numpmid);
+	    }
+	    pmFreeResult(peek);
+
+	    /* <prior> */
+	    sts = __pmLogRead_ctx(ctxp, PM_MODE_BACK, NULL, &peek, PMLOGREAD_NEXT);
+	    if (sts < 0) {
+		if (pmDebugOptions.interp)
+		    fprintf(stderr, "update_bounds: mark read <prior> failed: %s\n",
+			pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	    	/*
+		 * backwards read failed, assume <mark> is at start of
+		 * archive and seek pointer still correct
+		 */
+		goto check;
+	    }
+	    tmp.tv_sec = (__int32_t)peek->timestamp.tv_sec;
+	    tmp.tv_usec = (__int32_t)peek->timestamp.tv_usec;
+	    t_prior = __pmTimevalSub(&tmp, __pmLogStartTime(ctxp->c_archctl));
+	    pmFreeResult(peek);
+
+	    /* backup -> should be <prior> record */
+	    sts = __pmLogRead_ctx(ctxp, PM_MODE_FORW, NULL, &peek, PMLOGREAD_NEXT);
+	    if (sts < 0) {
+		if (pmDebugOptions.interp)
+		    fprintf(stderr, "update_bounds: mark unread <prior> failed: %s\n",
+			pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+		/* should not happen ... */
+		goto restore;
+	    }
+	    pmFreeResult(peek);
+
+	    /* backup -> should be <mark> record */
+	    sts = __pmLogRead_ctx(ctxp, PM_MODE_FORW, NULL, &peek, PMLOGREAD_NEXT);
+	    if (sts < 0) {
+		if (pmDebugOptions.interp)
+		    fprintf(stderr, "update_bounds: mark reread <mark> failed: %s\n",
+			pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+		/* should not happen ... */
+		goto restore;
+	    }
+	    if (peek->numpmid != 0) {
+		if (pmDebugOptions.interp)
+		    fprintf(stderr, "update_bounds: mark reread <mark> expecting <mark> got numpmid=%d\n", peek->numpmid);
+	    }
+	    pmFreeResult(peek);
+	    goto check;
+
+restore:
+	    /* Restore the initial state. */
+	    ctxp->c_archctl->ac_cur_log = save_arch;
+	    ctxp->c_archctl->ac_vol = save_vol;
+	    ctxp->c_archctl->ac_offset = save_offset;
+
+check:
+	    if (t_prior != -1 && t_next != -1 && t_next - t_prior <= ignore_mark_gap) {
+		if (pmDebugOptions.interp)
+		    fprintf(stderr, "update_bounds: ignore mark: gap %.6f - %.6f <= %.6f\n", t_next, t_prior, ignore_mark_gap);
+		return 0;
+	    }
+	}
+    }
 
     if (logrp->numpmid == 0) {
 	/* mark record, discontinuity in log */
@@ -434,12 +605,9 @@ update_bounds(__pmContext *ctxp, double t_req, pmResult *logrp, int do_mark, int
 		else {
 		    if (seen_mark != NULL)
 			*seen_mark = 1;
-#ifdef PCP_DEBUG
-		    if ((pmDebug & DBG_TRACE_INTERP) &&
-			(pmDebug & DBG_TRACE_DESPERATE)) {
+		    if (pmDebugOptions.interp && pmDebugOptions.desperate) {
 			fprintf(stderr, "<mark> rolling forwards\n");
 		    }
-#endif
 		}
 
 		if (icp->metric->valfmt != PM_VAL_INSITU) {
@@ -448,10 +616,8 @@ update_bounds(__pmContext *ctxp, double t_req, pmResult *logrp, int do_mark, int
 			icp->v_prior.pval = NULL;
 		    }
 		}
-#ifdef PCP_DEBUG
-		if (pmDebug & DBG_TRACE_INTERP)
+		if (pmDebugOptions.interp)
 		    dumpicp("update_bounds: mark@prior", icp);
-#endif
 	    }
 	    if (t_this >= t_req &&
 		((t_this <= icp->t_next || icp->t_next < 0) ||
@@ -471,12 +637,9 @@ update_bounds(__pmContext *ctxp, double t_req, pmResult *logrp, int do_mark, int
 		else {
 		    if (seen_mark != NULL)
 			*seen_mark = 1;
-#ifdef PCP_DEBUG
-		    if ((pmDebug & DBG_TRACE_INTERP) &&
-			(pmDebug & DBG_TRACE_DESPERATE)) {
+		    if (pmDebugOptions.interp && pmDebugOptions.desperate) {
 			fprintf(stderr, "<mark> rolling backwards\n");
 		    }
-#endif
 		}
 
 		if (icp->metric->valfmt != PM_VAL_INSITU) {
@@ -485,10 +648,8 @@ update_bounds(__pmContext *ctxp, double t_req, pmResult *logrp, int do_mark, int
 			icp->v_next.pval = NULL;
 		    }
 		}
-#ifdef PCP_DEBUG
-		if (pmDebug & DBG_TRACE_INTERP)
+		if (pmDebugOptions.interp)
 		    dumpicp("update_bounds: mark@next", icp);
-#endif
 	    }
 	}
 	return 0;
@@ -500,18 +661,47 @@ update_bounds(__pmContext *ctxp, double t_req, pmResult *logrp, int do_mark, int
 	if (hp == NULL)
 	    continue;
 	pcp = (pmidcntl_t *)hp->data;
-	if (pcp->valfmt == -1 && logrp->vset[k]->numval > 0)
+	if (pcp->valfmt == -1 && logrp->vset[k]->numval > 0) {
+	    /*
+	     * All the code assumes we have consistent encoding between
+	     * the data type from the metadata and the valfmt in the
+	     * pmResult ... if this is not the case then the archive is
+	     * corrupted.
+	     */
+	    int		ok;
+	    switch (pcp->desc.type) {
+		case PM_TYPE_32:
+		case PM_TYPE_U32:
+			ok = (logrp->vset[k]->valfmt == PM_VAL_INSITU);
+			break;
+		case PM_TYPE_FLOAT:
+			ok = (logrp->vset[k]->valfmt == PM_VAL_INSITU || logrp->vset[k]->valfmt == PM_VAL_DPTR || logrp->vset[k]->valfmt == PM_VAL_SPTR);
+			break;
+		default:
+			ok = (logrp->vset[k]->valfmt == PM_VAL_DPTR || logrp->vset[k]->valfmt == PM_VAL_SPTR);
+			break;
+	    }
+	    if (!ok) {
+		if (pmDebugOptions.log) {
+		    char	strbuf[20];
+		    fprintf(stderr, "update_bounds: corrupted archive: PMID %s: valfmt %d",
+			pmIDStr_r(logrp->vset[k]->pmid, strbuf, sizeof(strbuf)),
+			logrp->vset[k]->valfmt);
+		    fprintf(stderr, " unexpected for type %s\n",
+			pmTypeStr_r(pcp->desc.type, strbuf, sizeof(strbuf)));
+		}
+		return PM_ERR_LOGREC;
+	    }
 	    pcp->valfmt = logrp->vset[k]->valfmt;
+	}
 	else if (pcp->valfmt != -1 && logrp->vset[k]->numval > 0 && pcp->valfmt != logrp->vset[k]->valfmt) {
 	    /* bad archive ... value encoding in pmResult has changed */
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_LOG) {
+	    if (pmDebugOptions.log) {
 		char	strbuf[20];
 		fprintf(stderr, "update_bounds: corrupted archive: PMID %s: valfmt changed from %d to %d\n",
 		    pmIDStr_r(logrp->vset[k]->pmid, strbuf, sizeof(strbuf)),
 		    pcp->valfmt, logrp->vset[k]->valfmt);
 	    }
-#endif
 	    return PM_ERR_LOGREC;
 	}
 	for (i = 0; i < logrp->vset[k]->numval; i++) {
@@ -525,12 +715,10 @@ update_bounds(__pmContext *ctxp, double t_req, pmResult *logrp, int do_mark, int
 	    }
 	    icp = (instcntl_t *)ihp->data;
 	    
-#ifdef PCP_DEBUG
 	    if (icp->inst == PM_IN_NULL)
 		assert(i == 0);
-	    if ((pmDebug & DBG_TRACE_INTERP) && (pmDebug & DBG_TRACE_DESPERATE))
+	    if (pmDebugOptions.interp && pmDebugOptions.desperate)
 		dumpicp("update_bounds: match", icp);
-#endif
 
 	    if (t_this <= t_req &&
 		(icp->t_prior > t_req || t_this >= icp->t_prior)) {
@@ -610,14 +798,12 @@ update_bounds(__pmContext *ctxp, double t_req, pmResult *logrp, int do_mark, int
 		    SET_SCANNED(icp->s_next);
 		}
 	    }
-#ifdef PCP_DEBUG
-	    if ((pmDebug & DBG_TRACE_INTERP) && changed) {
+	    if (pmDebugOptions.interp && changed) {
 		if (changed & 2)
 		    dumpicp("update_bounds: update+search", icp);
 		else
 		    dumpicp("update_bounds: update", icp);
 	    }
-#endif
 	}
     }
 
@@ -644,11 +830,9 @@ do_roll(__pmContext *ctxp, double t_req, int *seen_mark)
 	    if (t_this > t_req)
 		break;
 
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_INTERP)
+	    if (pmDebugOptions.interp)
 		fprintf(stderr, "do_roll: forw to t=%.6f%s\n",
 		    t_this, logrp->numpmid == 0 ? " <mark>" : "");
-#endif
 	    ctxp->c_archctl->ac_offset = __pmFtell(ctxp->c_archctl->ac_log->l_mfp);
 	    assert(ctxp->c_archctl->ac_offset >= 0);
 	    ctxp->c_archctl->ac_vol = ctxp->c_archctl->ac_log->l_curvol;
@@ -665,11 +849,9 @@ do_roll(__pmContext *ctxp, double t_req, int *seen_mark)
 	    if (t_this < t_req)
 		break;
 
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_INTERP)
+	    if (pmDebugOptions.interp)
 		fprintf(stderr, "do_roll: back to t=%.6f%s\n",
 		    t_this, logrp->numpmid == 0 ? " <mark>" : "");
-#endif
 	    ctxp->c_archctl->ac_offset = __pmFtell(ctxp->c_archctl->ac_log->l_mfp);
 	    assert(ctxp->c_archctl->ac_offset >= 0);
 	    ctxp->c_archctl->ac_vol = ctxp->c_archctl->ac_log->l_curvol;
@@ -733,8 +915,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 
     t_req = __pmTimevalSub(&ctxp->c_origin, __pmLogStartTime(ctxp->c_archctl));
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_INTERP) {
+    if (pmDebugOptions.interp) {
 	fprintf(stderr, "__pmLogFetchInterp @ ");
 	__pmPrintTimeval(stderr, &ctxp->c_origin);
 	fprintf(stderr, " t_req=%.6f curvol=%d posn=%ld (vol=%d) serial=%d\n",
@@ -744,7 +925,6 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 	nr_cache[PM_MODE_FORW] = nr[PM_MODE_FORW] = 0;
 	nr_cache[PM_MODE_BACK] = nr[PM_MODE_BACK] = 0;
     }
-#endif
 
     /*
      * the 0.001 is magic slop for 1 msec, which is about as accurate
@@ -892,10 +1072,8 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 	    icp->want = (instcntl_t *)ctxp->c_archctl->ac_want;
 	    ctxp->c_archctl->ac_want = icp;
 	    pcp->numval = 1;
-#ifdef PCP_DEBUG
 	    ihp = __pmHashWalk(&pcp->hc, PM_HASH_WALK_NEXT);
 	    assert(!ihp);
-#endif
 	}
     }
 
@@ -1029,10 +1207,8 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 	    else
 		ctxp->c_archctl->ac_unbound = icp;
 	    icp->unbound = ub;
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_INTERP)
+	    if (pmDebugOptions.interp)
 		dumpicp("search back", icp);
-#endif
 	}
     }
 
@@ -1048,12 +1224,10 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 	while (done < back) {
 	    if (cache_read(ctxp, PM_MODE_BACK, &logrp) < 0) {
 		/* ran into start of log */
-#ifdef PCP_DEBUG
-		if (pmDebug & DBG_TRACE_INTERP) {
+		if (pmDebugOptions.interp) {
 		    fprintf(stderr, "Start of Log, %d metric-inst not found\n",
 			    back - done);
 		}
-#endif
 		break;
 	    }
 	    tmp.tv_sec = (__int32_t)logrp->timestamp.tv_sec;
@@ -1100,10 +1274,8 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 		icp->t_first < t_req) {
 		icp->t_first = t_req;
 		SET_SCANNED(icp->s_prior);
-#ifdef PCP_DEBUG
-		if (pmDebug & DBG_TRACE_INTERP)
+		if (pmDebugOptions.interp)
 		    dumpicp("no values before t_first", icp);
-#endif
 	    }
 	    icp->search = 0;
 	}
@@ -1165,10 +1337,8 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 	    else
 		ctxp->c_archctl->ac_unbound = icp;
 	    icp->unbound = ub;
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_INTERP)
+	    if (pmDebugOptions.interp)
 		dumpicp("search forw", icp);
-#endif
 	}
     }
 
@@ -1185,12 +1355,10 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 	while (done < forw) {
 	    if ((sts = cache_read(ctxp, PM_MODE_FORW, &logrp)) < 0) {
 		/* ran into end of log */
-#ifdef PCP_DEBUG
-		if (pmDebug & DBG_TRACE_INTERP) {
+		if (pmDebugOptions.interp) {
 		    fprintf(stderr, "End of Log, %d metric-insts not found\n",
 		    		forw - done);
 		}
-#endif
 		break;
 	    }
 	    tmp.tv_sec = (__int32_t)logrp->timestamp.tv_sec;
@@ -1239,13 +1407,11 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 		(icp->t_last < 0 || t_req < icp->t_last)) {
 		icp->t_last = t_req;
 		SET_SCANNED(icp->s_next);
-#ifdef PCP_DEBUG
-		if (pmDebug & DBG_TRACE_INTERP) {
+		if (pmDebugOptions.interp) {
 		    char	strbuf[20];
 		    fprintf(stderr, "pmid %s inst %d no values after t_last=%.6f\n",
 			    pmIDStr_r(icp->metric->desc.pmid, strbuf, sizeof(strbuf)), icp->inst, icp->t_last);
 		}
-#endif
 	    }
 	    icp->search = 0;
 	}
@@ -1348,8 +1514,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 		    icp = (instcntl_t *)ihp->data;
 		    if (!icp->inresult)
 			continue;
-#ifdef PCP_DEBUG
-		    if (pmDebug & DBG_TRACE_INTERP && done_roll) {
+		    if (pmDebugOptions.interp && done_roll) {
 			char	strbuf[20];
 			fprintf(stderr, "pmid %s inst %d prior: t=%.6f",
 				pmIDStr_r(pmidlist[j], strbuf, sizeof(strbuf)), icp->inst, icp->t_prior);
@@ -1359,7 +1524,6 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 			fprintf(stderr, " t_first=%.6f t_last=%.6f\n",
 				icp->t_first, icp->t_last);
 		    }
-#endif
 		    rp->vset[j]->vlist[i].inst = icp->inst;
 		    if (pcp->desc.type == PM_TYPE_32 || pcp->desc.type == PM_TYPE_U32) {
 			if (icp->t_prior == t_req)
@@ -1763,8 +1927,7 @@ all_done:
 	ctxp->c_origin.tv_usec += 1000000;
     }
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_INTERP) {
+    if (pmDebugOptions.interp) {
 	fprintf(stderr, "__pmLogFetchInterp: log reads: forward %ld",
 	    nr[PM_MODE_FORW]);
 	if (nr_cache[PM_MODE_FORW])
@@ -1775,7 +1938,6 @@ all_done:
 	    fprintf(stderr, " (+%ld cached)", nr_cache[PM_MODE_BACK]);
 	fprintf(stderr, "\n");
     }
-#endif
 
     return sts;
 
@@ -1875,23 +2037,19 @@ __pmFreeInterpData(__pmContext *ctxp)
 			     * the value is not in a PDU buffer)
 			     */
 			    if (icp->v_prior.pval != NULL) {
-#ifdef PCP_DEBUG
-				if ((pmDebug & DBG_TRACE_INTERP) && (pmDebug & DBG_TRACE_DESPERATE)) {
+				if (pmDebugOptions.interp && pmDebugOptions.desperate) {
 				    char	strbuf[20];
 				    fprintf(stderr, "release pmid %s inst %d prior\n",
 					    pmIDStr_r(pcp->desc.pmid, strbuf, sizeof(strbuf)), icp->inst);
 				}
-#endif
 				__pmUnpinPDUBuf((void *)icp->v_prior.pval);
 			    }
 			    if (icp->v_next.pval != NULL) {
-#ifdef PCP_DEBUG
-				if ((pmDebug & DBG_TRACE_INTERP) && (pmDebug & DBG_TRACE_DESPERATE)) {
+				if (pmDebugOptions.interp && pmDebugOptions.desperate) {
 				    char	strbuf[20];
 				    fprintf(stderr, "release pmid %s inst %d next\n",
 					    pmIDStr_r(pcp->desc.pmid, strbuf, sizeof(strbuf)), icp->inst);
 				}
-#endif
 				__pmUnpinPDUBuf((void *)icp->v_next.pval);
 			    }
 			}
@@ -1941,15 +2099,13 @@ __pmFreeInterpData(__pmContext *ctxp)
 	cache_t		*cp;
 
 	for (cp = cache; cp < &cache[NUMCACHE]; cp++) {
-#ifdef PCP_DEBUG
-	    if ((pmDebug & DBG_TRACE_LOG) && (pmDebug & DBG_TRACE_INTERP)) {
+	    if (pmDebugOptions.log && pmDebugOptions.interp) {
 		fprintf(stderr, "read cache entry "
 			PRINTF_P_PFX "%p: l_name=%s rp="
 			PRINTF_P_PFX "%p\n",
 			cp, cp->l_name ? cp->l_name : "(none)",
 			cp->rp);
 	    }
-#endif
 	    if (cp->l_name != NULL) {
 		free(cp->l_name);
 		cp->l_name = NULL;

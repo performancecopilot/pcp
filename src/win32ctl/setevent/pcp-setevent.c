@@ -67,7 +67,7 @@ main(int argc, char **argv)
 	return 1;
     }
 
-    snprintf(name, sizeof(name), "PCP/%" FMT_PID "/SIG%s", pid, argv[1]);
+    pmsprintf(name, sizeof(name), "PCP/%" FMT_PID "/SIG%s", pid, argv[1]);
     HANDLE h = OpenEvent(EVENT_MODIFY_STATE, FALSE, TEXT(name));
     if (!h) {
 	fprintf(stderr, "%s: OpenEvent(%s) failed on PID %" FMT_PID " (%ld)\n",

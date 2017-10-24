@@ -11,10 +11,6 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
 #include "perfinterface.h"
@@ -24,12 +20,9 @@
 #include "parse_events.h"
 #include <perfmon/pfmlib_perf_event.h>
 
+#include <pcp/pmapi.h>
 #include <limits.h>
-#include <stdlib.h>
-#include <string.h>
-#include <errno.h>
 #include <dirent.h>
-#include <sys/stat.h>
 
 #define SYSFS_DEVICES "/sys/bus/event_source/devices"
 #define BUF_SIZE 1024
@@ -201,7 +194,7 @@ static int search_for_config(char *device_path, uint64_t config, char *event_fil
     uint64_t parsed_config = 0;
     int ret = -1;
 
-    snprintf(events_path, PATH_MAX, "%s/events/", device_path);
+    pmsprintf(events_path, PATH_MAX, "%s/events/", device_path);
     events_dir = opendir(events_path);
     if (NULL == events_dir) {
         fprintf(stderr, "Error in opening %s\n", events_path);
@@ -211,7 +204,7 @@ static int search_for_config(char *device_path, uint64_t config, char *event_fil
     while ((entry = readdir(events_dir)) != NULL) {
         if (!strcmp(entry->d_name, ".") || !strcmp(entry->d_name, ".."))
             continue;
-        snprintf(event_path, PATH_MAX, "%s/events/%s", device_path, entry->d_name);
+        pmsprintf(event_path, PATH_MAX, "%s/events/%s", device_path, entry->d_name);
 
         buf = calloc(sizeof(char), BUF_SIZE);
         if (NULL == buf) {
@@ -262,7 +255,7 @@ static int find_and_fetch_scale(char *path_str, uint64_t config,
         fprintf(stderr, "Error in allocating memory\n");
         return -E_PERFEVENT_REALLOC;
     }
-    snprintf(device_path, PATH_MAX, "%s", path_str);
+    pmsprintf(device_path, PATH_MAX, "%s", path_str);
 
     event_file = calloc(MAX_EVENT_NAME, sizeof(char));
     if (!event_file) {
@@ -279,7 +272,7 @@ static int find_and_fetch_scale(char *path_str, uint64_t config,
     }
 
     /* Got the right event name in event_file, fetch the scale */
-    snprintf(scale_path, PATH_MAX, "%s/events/%s.scale", device_path, event_file);
+    pmsprintf(scale_path, PATH_MAX, "%s/events/%s.scale", device_path, event_file);
     buf = calloc(BUF_SIZE, sizeof(char));
     if (!buf) {
         fprintf(stderr, "Error in allocating memory to buf\n");
@@ -328,8 +321,8 @@ static int parse_sysfs_perf_event_scale(int type, uint64_t config,
         if (!strcmp(entry->d_name, ".") || !strcmp(entry->d_name, ".."))
             continue;
 
-        snprintf(fullpath, PATH_MAX, "%s/%s", SYSFS_DEVICES, entry->d_name);
-        snprintf(path_str, PATH_MAX, "%s/type", fullpath);
+        pmsprintf(fullpath, PATH_MAX, "%s/%s", SYSFS_DEVICES, entry->d_name);
+        pmsprintf(path_str, PATH_MAX, "%s/type", fullpath);
 
         buf = calloc(BUF_SIZE, sizeof(char));
         if (!buf) {
@@ -693,7 +686,7 @@ static int perf_setup_dynamic_events(perfdata_t *inst,
             ncpus = 0;
             disable_event = 1;
             /* Setup the event name */
-            snprintf(eventname, BUF_SIZE, "%s.%s", pmu_ptr->name,
+            pmsprintf(eventname, BUF_SIZE, "%s.%s", pmu_ptr->name,
                      event_ptr->name);
             for (ptr = dynamic_setting; ptr; ptr = ptr->next) {
                 if (!strncmp(eventname, ptr->name,

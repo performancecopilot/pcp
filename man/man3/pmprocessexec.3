@@ -1,0 +1,197 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2017 Ken McDonell.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMPROCESSEXEC 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3__pmProcessAddArg\f1,
+\f3__pmProcessUnpickArgs\f1,
+\f3__pmProcessExec\f1 \- process execution support
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.br
+#include <pcp/impl.h>
+.sp
+int __pmProcessAddArg(__pmExecCtl_t **\fIhandle\fP, const char *\fIarg\fP);
+.br
+int __pmProcessUnpickArgs(__pmExecCtl_t **\fIhandle\fP, const char *\fIcommand\fP);
+.br
+int __pmProcessExec(__pmExecCtl_t **\fIhandle\fP, int \fItoss\fP, int \fIwait\fP);
+.sp
+cc ... \-lpcp
+.ft 1
+.SH DESCRIPTION
+.PP
+Within the libraries and applications of the Performance Co-Pilot
+(PCP) these routines are provide a convenient and safe alternative
+to
+.BR system (3)
+for executing commands in a separate process.
+.PP
+Use
+.B __pmProcessAddArg
+to register the executable and command arguments in order.
+.I handle
+should be set to
+.B NULL
+before the first call to
+.B __pmProcessAddArg
+for a particular command execution and it will be set to
+an opaque pointer to data structures that are manipulated in
+.BR __pmProcessAddArg ,
+.B __pmProcessExec
+and the related
+.BR __pmProcessPipe (3)
+routines.
+.PP
+When called with
+.I handle
+set to
+.B NULL
+.I arg
+is treated as the name of the command to be
+executed and subsequent calls (if any) are for the arguments to that
+command.
+The name of the command can be a full pathname, or the name of
+an executable that can be found on the current
+.B $PATH
+as per the rules of
+.BR execvp (2)
+that is used by
+.BR __pmProcessExec .
+.PP
+.B __pmProcessUnpickArgs
+is a convenience wrapper to assist conversion of code that assumes
+the
+.I command
+is a shell command that has been prepared for use with
+.BR system (3)
+or
+.BR popen (3)
+in existing code.
+The arguments in
+.I command
+are picked off one-by-one and used to call
+.BR __pmProcessAddArgs .
+The parser is simple, as the routine is designed for simple
+shell command syntax, where arguments are separated by one or more spaces
+but embedded spaces within an argument are allowed if the arguement is
+enclosed in single or double quotes.  More advanced shell syntax like
+escape characters and input-output redirection are not recognized.
+.PP
+Once all the command name and arguments have been registered
+calling
+.B __pmProcessExec
+uses a
+.B fork (2)
+and
+.B execvp (2)
+sequence to execute the command.
+.PP
+The argument
+.I toss
+may be used to assign some or all of the standard I/O streams
+for the command to
+.I /dev/null
+\- specifically
+.I toss
+is either
+.B PM_EXEC_TOSS_NONE
+to keep all I/O streams the same as the parent process, else
+the bit-wise or of
+.B PM_EXEC_TOSS_STDIN
+and/or
+.B PM_EXEC_TOSS_STDOUT
+and/or
+.B PM_EXEC_TOSS_STDERR
+to reassign
+.BR stdin ,
+.B stdout
+and
+.B stderr
+respectively.
+.B PM_EXEC_TOSS_ALL
+is a convenience macro equivalent to
+.BR "PM_EXEC_TOSS_STDIN | PM_EXEC_TOSS_STDOUT | PM_EXEC_TOSS_STDERR" .
+.PP
+The
+.I wait
+argument should be
+.B PM_EXEC_WAIT
+if
+.B __pmProcessExec
+should wait for completion of the command and harvest the exit
+status, else
+.B PM_EXEC_NOWAIT
+in which case
+.B __pmProcessExec
+returns immediately (effectively running the command in the background).
+.PP
+Nested calling of
+.B __pmProcessExec
+and/or
+.BR __pmProcessPipe (3)
+is not allowed.  Once
+.B __pmProcessAddArg
+is called with
+.I handle
+set to
+.BR NULL
+to start the registration and execution sequence any attempt
+to start a second registration sequence will be blocked until
+the first one is completed by calling
+.B __pmProcessExec
+or
+.BR __pmProcessPipe (3).
+.SH SEE ALSO
+.BR execvp(2),
+.BR fork (2),
+.BR __pmProcessPipe (3),
+.BR popen (3),
+.BR system (3)
+and
+.BR waitpid (3).
+.SH DIAGNOSTICS
+If successful
+.B __pmProcessAddArg
+returns 0.  Other conditions are rare (e.g. alloc failure) and are
+indicated by a return value that can be decoded using
+.BR pmErrStr (3).
+.PP
+.B __pmProcessUnpickArgs
+returns 0 on success.  In the case of an unterminated string,
+a message is generated and
+.B PM_ERR_GENERIC
+is returned.
+Other return values less than 0 indicate a more serious error and the
+value can be decoded using
+.BR pmErrStr (3).
+.PP
+The return status from
+.B __pmProcessExec
+is more complicated.
+If either
+.B PM_EXEC_NOWAIT
+is specified, or the command completes with an exit status of 0,
+the return value is 0.
+Return values less than 0 indicate a more serious error and the
+value can be decoded using
+.BR pmErrStr (3).
+If the command was executed, but did not exit with status of 0 then
+the return value is an encoding of the
+.BR waitpid (2)
+status as follows: 2000 if something unknown went wrong, else
+if 1000 + signal number of the command was killed or stopped by
+a signal, else the exit status of the command.

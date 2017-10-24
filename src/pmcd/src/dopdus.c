@@ -29,12 +29,10 @@ CheckError(AgentInfo *ap, int sts)
     int		retSts;
 
     if (sts == PM_ERR_PMDANOTREADY) {
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL0)
+	if (pmDebugOptions.appl0)
 	    __pmNotifyErr(LOG_INFO, "%s agent (%s) sent NOT READY\n",
 			 ap->pmDomainLabel,
 			 ap->status.notReady ? "not ready" : "ready");
-#endif
 	if (ap->status.notReady == 0) {
 	    ap->status.notReady = 1;
 	    retSts = PM_ERR_AGAIN;
@@ -43,12 +41,10 @@ CheckError(AgentInfo *ap, int sts)
 	    retSts = PM_ERR_IPC;
     }
     else if (sts == PM_ERR_PMDAREADY) {
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL0)
+	if (pmDebugOptions.appl0)
 	    __pmNotifyErr(LOG_INFO, "%s agent (%s) sent unexpected READY\n",
 			 ap->pmDomainLabel,
 			 ap->status.notReady ? "not ready" : "ready");
-#endif
 	retSts = PM_ERR_IPC;
     }
     else
@@ -87,7 +83,7 @@ DoText(ClientInfo *cp, __pmPDU* pb)
 	sts = __pmSendTextReq(ap->inFd, cp - client, ident, type);
 	if (sts >= 0) {
 	    int		pinpdu;
-	    pinpdu = sts = __pmGetPDU(ap->outFd, ANY_SIZE, _pmcd_timeout, &pb);
+	    pinpdu = sts = __pmGetPDU(ap->outFd, ANY_SIZE, pmcd_timeout, &pb);
 	    if (sts > 0)
 		pmcd_trace(TR_RECV_PDU, ap->outFd, sts, (int)((__psint_t)pb & 0xffffffff));
 	    if (sts == PDU_TEXT)
@@ -199,7 +195,7 @@ DoDesc(ClientInfo *cp, __pmPDU *pb)
 	sts = __pmSendDescReq(ap->inFd, cp - client, pmid);
 	if (sts >= 0) {
 	    int		pinpdu;
-	    pinpdu = sts = __pmGetPDU(ap->outFd, ANY_SIZE, _pmcd_timeout, &pb);
+	    pinpdu = sts = __pmGetPDU(ap->outFd, ANY_SIZE, pmcd_timeout, &pb);
 	    if (sts > 0)
 		pmcd_trace(TR_RECV_PDU, ap->outFd, sts, (int)((__psint_t)pb & 0xffffffff));
 	    if (sts == PDU_DESC)
@@ -287,7 +283,7 @@ DoInstance(ClientInfo *cp, __pmPDU *pb)
 	sts = __pmSendInstanceReq(ap->inFd, cp - client, &when, indom, inst, name);
 	if (sts >= 0) {
 	    int		pinpdu;
-	    pinpdu = sts = __pmGetPDU(ap->outFd, ANY_SIZE, _pmcd_timeout, &pb);
+	    pinpdu = sts = __pmGetPDU(ap->outFd, ANY_SIZE, pmcd_timeout, &pb);
 	    if (sts > 0)
 		pmcd_trace(TR_RECV_PDU, ap->outFd, sts, (int)((__psint_t)pb & 0xffffffff));
 	    if (sts == PDU_INSTANCE)
@@ -385,7 +381,7 @@ DoPMNSIDs(ClientInfo *cp, __pmPDU *pb)
 	    sts = __pmSendIDList(ap->inFd, cp - client, 1, &idlist[0], 0);
 	    if (sts >= 0) {
 		int		pinpdu;
-		pinpdu = sts = __pmGetPDU(ap->outFd, ANY_SIZE, _pmcd_timeout, &pb);
+		pinpdu = sts = __pmGetPDU(ap->outFd, ANY_SIZE, pmcd_timeout, &pb);
 		if (sts > 0)
 		    pmcd_trace(TR_RECV_PDU, ap->outFd, sts, (int)((__psint_t)pb & 0xffffffff));
 		if (sts == PDU_PMNS_NAMES) {
@@ -501,7 +497,7 @@ DoPMNSNames(ClientInfo *cp, __pmPDU *pb)
 		    lsts = __pmSendNameList(ap->inFd, cp - client, 1, &namelist[i], NULL);
 		    if (lsts >= 0) {
 			int		pinpdu;
-			pinpdu = lsts = __pmGetPDU(ap->outFd, ANY_SIZE, _pmcd_timeout, &pb);
+			pinpdu = lsts = __pmGetPDU(ap->outFd, ANY_SIZE, pmcd_timeout, &pb);
 			if (lsts > 0)
 			    pmcd_trace(TR_RECV_PDU, ap->outFd, sts, (int)((__psint_t)pb & 0xffffffff));
 			if (lsts == PDU_PMNS_IDS) {
@@ -630,7 +626,7 @@ DoPMNSChild(ClientInfo *cp, __pmPDU *pb)
 		sts = __pmSendChildReq(ap->inFd, cp - client, name, subtype);
 		if (sts >= 0) {
 		    int		pinpdu;
-		    pinpdu = sts = __pmGetPDU(ap->outFd, ANY_SIZE, _pmcd_timeout, &pb);
+		    pinpdu = sts = __pmGetPDU(ap->outFd, ANY_SIZE, pmcd_timeout, &pb);
 		    if (sts > 0)
 			pmcd_trace(TR_RECV_PDU, ap->outFd, sts, (int)((__psint_t)pb & 0xffffffff));
 		    if (sts == PDU_PMNS_NAMES) {
@@ -780,8 +776,7 @@ traverse_dynamic(ClientInfo *cp, char *start, int *num_names, char ***names)
 		if (ap->ipc.dso.dispatch.comm.pmda_interface >= PMDA_INTERFACE_4) {
 		    sts = ap->ipc.dso.dispatch.version.four.children(namelist[0], 1, &offspring, &statuslist,
 				      ap->ipc.dso.dispatch.version.four.ext);
-#ifdef PCP_DEBUG
-		    if (pmDebug & DBG_TRACE_PMNS) {
+		    if (pmDebugOptions.pmns) {
 			fprintf(stderr, "traverse_dynamic: DSO PMDA: expand dynamic PMNS entry %s (%s) -> ", namelist[0], pmIDStr(idlist[0]));
 			if (sts < 0)
 			    fprintf(stderr, "%s\n", pmErrStr(sts));
@@ -793,7 +788,6 @@ traverse_dynamic(ClientInfo *cp, char *start, int *num_names, char ***names)
 			    }
 			}
 		    }
-#endif
 		    if (sts < 0)
 			continue;
 		    if (statuslist) free(statuslist);
@@ -814,14 +808,13 @@ traverse_dynamic(ClientInfo *cp, char *start, int *num_names, char ***names)
 		    int		numnames;
 		    __pmPDU	*pb;
 		    int		pinpdu;
-		    pinpdu = sts = __pmGetPDU(ap->outFd, ANY_SIZE, _pmcd_timeout, &pb);
+		    pinpdu = sts = __pmGetPDU(ap->outFd, ANY_SIZE, pmcd_timeout, &pb);
 		    if (sts > 0)
 			pmcd_trace(TR_RECV_PDU, ap->outFd, sts, (int)((__psint_t)pb & 0xffffffff));
 		    if (sts == PDU_PMNS_NAMES) {
 			sts = __pmDecodeNameList(pb, &numnames,
 						       &offspring, &statuslist);
-#ifdef PCP_DEBUG
-			if (pmDebug & DBG_TRACE_PMNS) {
+			if (pmDebugOptions.pmns) {
 			    fprintf(stderr, "traverse_dynamic: daemon PMDA: expand dynamic PMNS entry %s (%s) -> ", namelist[0], pmIDStr(idlist[0]));
 			    if (sts < 0)
 				fprintf(stderr, "%s\n", pmErrStr(sts));
@@ -833,7 +826,6 @@ traverse_dynamic(ClientInfo *cp, char *start, int *num_names, char ***names)
 				}
 			    }
 			}
-#endif
 			if (statuslist) {
 			    free(statuslist);
 			    statuslist = NULL;
@@ -948,11 +940,9 @@ DoPMNSTraverse(ClientInfo *cp, __pmPDU *pb)
     travNL_num = 0;
     if ((sts = pmTraversePMNS(name, AddLengths)) < 0)
     	goto check;
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_PMNS) {
+    if (pmDebugOptions.pmns) {
 	fprintf(stderr, "DoPMNSTraverse: %d names below %s after pmTraversePMNS\n", travNL_num, name);
     }
-#endif
 
     /* for each ptr, string bytes, and string terminators */
     travNL_need = travNL_num * (int)sizeof(char*) + travNL_strlen;
@@ -1001,7 +991,7 @@ GetAttribute(ClientInfo *cp, int code)
     int		sts, pinpdu;
 
     /* Expecting an attribute (code) PDU from the client */
-    pinpdu = sts = __pmGetPDU(cp->fd, LIMIT_SIZE, _pmcd_timeout, &pb);
+    pinpdu = sts = __pmGetPDU(cp->fd, LIMIT_SIZE, pmcd_timeout, &pb);
     if (sts > 0)
 	pmcd_trace(TR_RECV_PDU, cp->fd, sts, (int)((__psint_t)pb & 0xffffffff));
     if (sts == PDU_ATTR) {
@@ -1028,7 +1018,7 @@ ConnectionAttributes(ClientInfo *cp, int flags)
     int sts;
 
     if ((sts = __pmSecureServerHandshake(cp->fd, flags, &cp->attrs)) < 0) {
-	if (pmDebug & DBG_TRACE_AUTH)
+	if (pmDebugOptions.auth)
 	    fprintf(stderr, "DoCreds: __pmSecureServerHandshake gave %d: %s\n",
 		    sts, pmErrStr(sts));
 	return sts;
@@ -1036,7 +1026,7 @@ ConnectionAttributes(ClientInfo *cp, int flags)
 
     if ((flags & PDU_FLAG_CONTAINER) &&
 	(sts = GetAttribute(cp, PCP_ATTR_CONTAINER)) < 0) {
-	if (pmDebug & DBG_TRACE_ATTR)
+	if (pmDebugOptions.attr)
 	    fprintf(stderr, "DoCreds: failed GetAttribute container %d: %s\n",
 		    sts, pmErrStr(sts));
 	return sts;
@@ -1072,8 +1062,7 @@ DoCreds(ClientInfo *cp, __pmPDU *pb)
 		vcp = (__pmVersionCred *)&credlist[i];
 		flags = vcp->c_flags;
 		version = vcp->c_version;
-#ifdef PCP_DEBUG
-		if (pmDebug & DBG_TRACE_ATTR) {
+		if (pmDebugOptions.attr) {
 		    static const struct {
 			int	flag;
 			char	*name;
@@ -1100,14 +1089,11 @@ DoCreds(ClientInfo *cp, __pmPDU *pb)
 		    }
 		    fprintf(stderr, ")\n");
 		}
-#endif
 		break;
 
 	    default:
-#ifdef PCP_DEBUG
-		if (pmDebug & DBG_TRACE_AUTH)
+		if (pmDebugOptions.auth)
 		    fprintf(stderr, "DoCreds: Error: bogus cred type %d\n", credlist[i].c_type);
-#endif
 		sts = PM_ERR_IPC;
 		break;
 	}
@@ -1140,7 +1126,7 @@ DoCreds(ClientInfo *cp, __pmPDU *pb)
 	    return sts;
     }
     if ((sts = CheckAccountAccess(cp)) < 0) {	/* host access done already */
-	if (pmDebug & DBG_TRACE_AUTH)
+	if (pmDebugOptions.auth)
 	    fprintf(stderr, "DoCreds: CheckAccountAccess returns %d: %s\n",
 		    sts, pmErrStr(sts));
 	return sts;
@@ -1151,7 +1137,7 @@ DoCreds(ClientInfo *cp, __pmPDU *pb)
      */
     else if (sts > 0 || (flags & PDU_FLAG_CONTAINER)) {
 	sts = AgentsAttributes(cp - client);
-	if (sts < 0 && (pmDebug & (DBG_TRACE_AUTH|DBG_TRACE_ATTR)))
+	if (sts < 0 && (pmDebugOptions.auth || pmDebugOptions.attr))
 	    fprintf(stderr, "DoCreds: AgentsAttributes returns %d: %s\n",
 		    sts, pmErrStr(sts));
     }

@@ -63,7 +63,7 @@ __pmGroupIDFromString(const char *groupid, __pmGroupID *gid)
 char *
 __pmUserIDToString(__pmUserID uid, char *buf, size_t size)
 {
-    snprintf(buf, size, "%u", (unsigned int)uid);
+    pmsprintf(buf, size, "%u", (unsigned int)uid);
     buf[size-1] = '\0';
     return buf;
 }
@@ -71,7 +71,7 @@ __pmUserIDToString(__pmUserID uid, char *buf, size_t size)
 char *
 __pmGroupIDToString(__pmGroupID gid, char *buf, size_t size)
 {
-    snprintf(buf, size, "%u", (unsigned int)gid);
+    pmsprintf(buf, size, "%u", (unsigned int)gid);
     buf[size-1] = '\0';
     return buf;
 }
@@ -84,7 +84,7 @@ __pmGroupnameFromID(gid_t gid, char *buf, size_t size)
     struct group grp, *result;
 
     getgrgid_r(gid, &grp, namebuf, sizeof(namebuf), &result);
-    snprintf(buf, size, "%s", result ? result->gr_name : "unknown");
+    pmsprintf(buf, size, "%s", result ? result->gr_name : "unknown");
     buf[size-1] = '\0';
     return buf;
 }
@@ -96,7 +96,7 @@ __pmGroupnameFromID(gid_t gid, char *buf, size_t size)
 
     PM_LOCK(__pmLock_extcall);
     result = getgrgid(gid);		/* THREADSAFE */
-    snprintf(buf, size, "%s", result ? result->gr_name : "unknown");
+    pmsprintf(buf, size, "%s", result ? result->gr_name : "unknown");
     PM_UNLOCK(__pmLock_extcall);
     buf[size-1] = '\0';
     return buf;
@@ -113,7 +113,7 @@ __pmUsernameFromID(uid_t uid, char *buf, size_t size)
     struct passwd pwd, *result;
 
     getpwuid_r(uid, &pwd, namebuf, sizeof(namebuf), &result);
-    snprintf(buf, size, "%s", result ? result->pw_name : "unknown");
+    pmsprintf(buf, size, "%s", result ? result->pw_name : "unknown");
     buf[size-1] = '\0';
     return buf;
 }
@@ -125,7 +125,7 @@ __pmUsernameFromID(uid_t uid, char *buf, size_t size)
 
     PM_LOCK(__pmLock_extcall);
     result = getpwuid(uid);		/* THREADSAFE */
-    snprintf(buf, size, "%s", result ? result->pw_name : "unknown");
+    pmsprintf(buf, size, "%s", result ? result->pw_name : "unknown");
     PM_UNLOCK(__pmLock_extcall);
     buf[size-1] = '\0';
     return buf;
@@ -215,7 +215,7 @@ __pmHomedirFromID(uid_t uid, char *buf, size_t size)
     PM_LOCK(__pmLock_extcall);
     env = getenv("HOME");		/* THREADSAFE */
     if (env != NULL) {
-	snprintf(buf, size, "%s", env);
+	pmsprintf(buf, size, "%s", env);
 	PM_UNLOCK(__pmLock_extcall);
     }
     else {
@@ -223,7 +223,7 @@ __pmHomedirFromID(uid_t uid, char *buf, size_t size)
 	getpwuid_r(uid, &pwd, namebuf, sizeof(namebuf), &result);
 	if (result == NULL)
 	    return NULL;
-	snprintf(buf, size, "%s", result->pw_dir);
+	pmsprintf(buf, size, "%s", result->pw_dir);
     }
     buf[size-1] = '\0';
     return buf;
@@ -241,7 +241,7 @@ __pmHomedirFromID(uid_t uid, char *buf, size_t size)
     PM_LOCK(__pmLock_extcall);
     env = getenv("HOME");		/* THREADSAFE */
     if (env != NULL) {
-	snprintf(buf, size, "%s", env);
+	pmsprintf(buf, size, "%s", env);
 	PM_UNLOCK(__pmLock_extcall);
     }
     else {
@@ -250,7 +250,7 @@ __pmHomedirFromID(uid_t uid, char *buf, size_t size)
 	    PM_UNLOCK(__pmLock_extcall);
 	    return NULL;
 	}
-	snprintf(buf, size, "%s", result->pw_dir);
+	pmsprintf(buf, size, "%s", result->pw_dir);
 	PM_UNLOCK(__pmLock_extcall);
     }
     buf[size-1] = '\0';
@@ -268,19 +268,20 @@ __pmHomedirFromID(uid_t uid, char *buf, size_t size)
 static int
 __pmAddGroupID(gid_t gid, gid_t **gidlist, unsigned int *count)
 {
-    gid_t		*gids = *gidlist;
+    gid_t		*gidlist_new;
     size_t		need;
     unsigned int	i, total = *count;
 
     for (i = 0; i < total; i++)
-	if (gids[i] == gid)
+	if ((*gidlist)[i] == gid)
 	    return 0;	/* already in the list, we're done */
 
     need = (total + 1) * sizeof(gid_t);
-    if ((gids = (gid_t *)realloc(gids, need)) == NULL)
+    if ((gidlist_new = (gid_t *)realloc(*gidlist, need)) == NULL) {
 	return -ENOMEM;
-    gids[total++] = gid;
-    *gidlist = gids;
+    }
+    gidlist_new[total++] = gid;
+    *gidlist = gidlist_new;
     *count = total;
     return 0;
 }
@@ -399,19 +400,20 @@ __pmUsersGroupIDs(const char *username, gid_t **groupids, unsigned int *ngroups)
 static int
 __pmAddUserID(uid_t uid, uid_t **uidlist, unsigned int *count)
 {
-    uid_t		*uids = *uidlist;
+    uid_t		*uidlist_new;
     size_t		need;
     unsigned int	i, total = *count;
 
     for (i = 0; i < total; i++)
-	if (uids[i] == uid)
+	if ((*uidlist)[i] == uid)
 	    return 0;	/* already in the list, we're done */
 
     need = (total + 1) * sizeof(uid_t);
-    if ((uids = (uid_t *)realloc(uids, need)) == NULL)
+    if ((uidlist_new = (uid_t *)realloc(*uidlist, need)) == NULL) {
 	return -ENOMEM;
-    uids[total++] = uid;
-    *uidlist = uids;
+    }
+    uidlist_new[total++] = uid;
+    *uidlist = uidlist_new;
     *count = total;
     return 0;
 }

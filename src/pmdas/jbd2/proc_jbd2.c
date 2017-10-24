@@ -38,7 +38,7 @@ refresh_journal(const char *path, const char *dev, pmInDom indom)
 
     if (dev[0] == '.')
 	return 0;	/* only interest is in device files */
-    if (snprintf(buf, sizeof(buf), "%s/%s/info", path, dev) == sizeof(buf))
+    if (pmsprintf(buf, sizeof(buf), "%s/%s/info", path, dev) == sizeof(buf))
 	return 0;	/* ignore, dodgey command line args */
     if ((fp = fopen(buf, "r")) == NULL)
 	return 0;	/* no permission, ignore this entry */

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2016, Red Hat. All Rights Reserved.
+ * Copyright (c) 2012-2017, Red Hat. All Rights Reserved.
  * Copyright (c) 2012, Nathan Scott.  All Rights Reserved.
  * Copyright (c) 2007, Aconex.  All Rights Reserved.
  * 
@@ -169,14 +169,14 @@ SamplingItem::replot(int history, const QVector<double> &timeData)
     // Restrict the number of samples to the minimum of history and my.dataCount
     int count = qMin(history, my.dataCount);
 
-    // QwtPlotCurve::setSamples( const QVector<QPointF> & ) which is a
+    // Use QwtPlotCurve::setSamples( const QVector<QPointF> & ) which is a
     // non-deprecated instance of setSamples.
-    QVector<QPointF> samples;
+    my.samples.clear();
     for (int i = 0; i < count; ++i) {
 	QPointF sample(timeData[i], my.itemData[i]);
-	samples.push_back(sample);
+	my.samples.push_back(sample);
     }
-    my.curve->setSamples(samples);
+    my.curve->setSamples(my.samples);
     console->post("SamplingItem::replot");
 }
 

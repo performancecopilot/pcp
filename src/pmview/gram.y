@@ -325,7 +325,7 @@ base_opts	: MARGIN_WIDTH INT
 		    
 		    if (ColorList::findColor($2, r, g, b) == true ) {
 			if ( objstack.empty () )
-			    dobj.baseColor (r,g,b);
+			    dobj.baseColor(r,g,b);
 			else if(objstack.top()->objbits()&ViewObj::GRIDOBJ){
 			    GridObj * go = 
 				static_cast<GridObj*>(objstack.top());
@@ -333,10 +333,10 @@ base_opts	: MARGIN_WIDTH INT
 			    go->defs()->baseColor(r, g, b);
 			}
  			else
-			    yyerror ("Cannot change base color - not a grid");
+			    yyerror("Cannot change base color - not a grid");
 
 		    } else {
-			sprintf(theBuffer, 
+			pmsprintf(theBuffer, theBufferLen,
 				"unable to map _baseColor color \"%s\"",
 				$2);
 			yyerror(theBuffer);
@@ -347,7 +347,7 @@ base_opts	: MARGIN_WIDTH INT
 		    if ( $2 < 0.0 || $2 > 1.0 || 
 			 $3 < 0.0 || $3 > 1.0 || 
 			 $4 < 0.0 || $4 > 1.0) {
-			sprintf(theBuffer, 
+			pmsprintf(theBuffer, theBufferLen,
 				"_baseColor colors %f,%f,%f must be "
 				"between 0.0 and 1.0",
 				$2, $3, $4);
@@ -473,9 +473,10 @@ label_opts	: LABEL_MARGIN INT
 			    go->defs()->labelColor(r, g, b);
 			}
 			else
-			    yyerror ("Cannot change label color - not a grid");
+			    yyerror("Cannot change label color - not a grid");
 		    } else {
-			sprintf(theBuffer, "unable to map color \"%s\"", $2);
+			pmsprintf(theBuffer, theBufferLen,
+					"unable to map color \"%s\"", $2);
 			yyerror(theBuffer);
 		    }
 		}
@@ -483,7 +484,8 @@ label_opts	: LABEL_MARGIN INT
 		{
 		    if ($2 < 0.0 || $2 > 1.0 || $3 < 0.0 || $3 > 1.0 || 
 			$4 < 0.0 || $4 > 1.0) {
-			sprintf(theBuffer, "unable to map color %f,%f,%f",
+			pmsprintf(theBuffer, theBufferLen,
+					"unable to map color %f,%f,%f",
 				$2, $3, $4);
 			yyerror(theBuffer);
 		    } else {
@@ -505,7 +507,7 @@ symname		: NAME | STRING;
 named_color_list: COLORLIST NAME OPENB 
 		{
 		    if (theColorLists.add($2) == false) {
-			sprintf(theBuffer,
+			pmsprintf(theBuffer, theBufferLen,
 				"Color list \"%s\" is already defined", $2);
 			yywarn(theBuffer);
 		    }
@@ -519,14 +521,15 @@ colors		: color
 color		: symname 
 		{
 		    if (theColorLists.addColor($1) == false) {
-			sprintf(theBuffer, "Unable to map color \"%s\"", $1);
+			pmsprintf(theBuffer, theBufferLen,
+				"Unable to map color \"%s\"", $1);
 			yywarn(theBuffer);
 		    }
 		}
 		| REAL REAL REAL 
 		{
 		    if (theColorLists.addColor($1, $2, $3) == false) {
-			sprintf(theBuffer, 
+			pmsprintf(theBuffer, theBufferLen,
 				"Unable to map color %f,%f,%f, "
 				"values may be out of range",
 				$1, $2, $3);
@@ -539,14 +542,14 @@ named_color_scale: COLORSCALE NAME symname OPENB
 		{
 		    if (theColorLists.list($2) == NULL) {
 			if (theColorLists.add($2, $3) == false) {
-			    sprintf(theBuffer, 
+			    pmsprintf(theBuffer, theBufferLen,
 				    "Unable to map color \"%s\", "
 				    "defaulting to blue",
 				    $3);
 			}
 			theColorScaleFlag = true;
 		    } else {
-			sprintf(theBuffer, 
+			pmsprintf(theBuffer, theBufferLen,
 				"Color scale \"%s\" is already defined",
 				$2);
 			yywarn(theBuffer);
@@ -557,14 +560,14 @@ named_color_scale: COLORSCALE NAME symname OPENB
 		{
 		    if (theColorLists.list($2) == NULL) {
 			if (theColorLists.add($2, $3, $4, $5) == false) {
-			    sprintf(theBuffer, 
+			    pmsprintf(theBuffer, theBufferLen,
 				    "Unable to map color %f,%f,%f, "
 				    "defaulting to blue",
 				    $3, $4, $5);
 			}
 			theColorScaleFlag = true;
 		    } else {
-			sprintf(theBuffer, 
+			pmsprintf(theBuffer, theBufferLen,
 				"Color scale \"%s\" is already defined", $2);
 			yywarn(theBuffer);
 			theColorScaleFlag = false;
@@ -579,14 +582,15 @@ scaled_color_list : scaled_color
 scaled_color	: symname REAL 
 		{
 		    if (theColorLists.addColor($1, $2) == false) {
-			sprintf(theBuffer, "Unable to map color \"%s\"", $1);
+			pmsprintf(theBuffer, theBufferLen,
+				"Unable to map color \"%s\"", $1);
 			yywarn(theBuffer);
 		    }
 		}
 		| REAL REAL REAL REAL
 		{
 		    if (theColorLists.addColor($1, $2, $3, $4) == false) {
-			sprintf(theBuffer, 
+			pmsprintf(theBuffer, theBufferLen,
 				"Unable to map color %f,%f,%f, "
 				"values may be out of range",
 				$1, $2, $3);
@@ -620,7 +624,7 @@ pos		: grid_pos {
 grid_pos	: INT INT
 		{
 		    if ($1 < 0) {
-			sprintf(theBuffer,
+			pmsprintf(theBuffer, theBufferLen,
 				"Column index must be positive, was %d",
 				$1);
 			yyerror(theBuffer);
@@ -629,7 +633,7 @@ grid_pos	: INT INT
 			theCol = $1;
 
 		    if ($2 < 0) {
-			sprintf(theBuffer,
+			pmsprintf(theBuffer, theBufferLen,
 				"Row index must be positive, was %d",
 				$2);
 			yyerror(theBuffer);
@@ -642,7 +646,7 @@ grid_pos	: INT INT
 grid_size	: INT INT 
 		{
 		    if ($1 < 0) {
-			sprintf(theBuffer,
+			pmsprintf(theBuffer, theBufferLen,
 				"Number of columns must be positive, was %d",
 				$1);
 			yyerror(theBuffer);
@@ -650,7 +654,7 @@ grid_size	: INT INT
 		    } else
 			theNumCols = $1;
 		    if ($2 < 0) {
-			sprintf(theBuffer,
+			pmsprintf(theBuffer, theBufferLen,
 				"Number of rows must be positive, was %d",
 				$2);
 			yyerror(theBuffer);
@@ -1098,16 +1102,16 @@ colordecl	: COLORLIST NAME	{ $$ = $2; }
 named_color	: colordecl
 		{
 		    if ( objstack.empty() )
-			yyerror ("No object to add colors to");
+			yyerror("No object to add colors to");
 		    else if (objstack.top()->objbits() & ViewObj::MODOBJ) {
 			ModObj * mo =
 			    static_cast<ModObj *>(objstack.top());
 			mo->setColorList ($1);
 		    } else {
-			sprintf (theBuffer, 
+			pmsprintf(theBuffer, theBufferLen,
 				 "Syntax error - %s cannot have colors",
 				 objstack.top()->name());
-			yyerror (theBuffer);
+			yyerror(theBuffer);
 		    }
 		}
 		;
@@ -1115,50 +1119,53 @@ named_color	: colordecl
 color_list	: COLORLIST OPENB 
 		{
 		    if ( objstack.empty() )
-			yyerror ("No object to add colors to");
+			yyerror("No object to add colors to");
 		    else if (objstack.top()->objbits() & ViewObj::MODOBJ) {
 			ModObj * mo = static_cast<ModObj *>(objstack.top());
-			sprintf(theBuffer, "@tmp%d", theColorListCount++);
+			pmsprintf(theBuffer, theBufferLen,
+				"@tmp%d", theColorListCount++);
 			theColorLists.add(theBuffer); 
 			mo->setColorList (theBuffer);
 		    } else {
-			sprintf (theBuffer, 
+			pmsprintf(theBuffer, theBufferLen,
 				 "Syntax error - %s cannot have colors",
 				 objstack.top()->name());
-			yyerror (theBuffer);
+			yyerror(theBuffer);
 		    }
 		} colors CLOSEB 
 		| COLORSCALE symname OPENB
 		{
 		    if ( objstack.empty() )
-			yyerror ("No object to add colors to");
+			yyerror("No object to add colors to");
 		    else if (objstack.top()->objbits() & ViewObj::MODOBJ) {
 			ModObj * mo = static_cast<ModObj *>(objstack.top());
-			sprintf(theBuffer, "@tmp%d", theColorListCount++);
+			pmsprintf(theBuffer, theBufferLen,
+				"@tmp%d", theColorListCount++);
 			theColorLists.add(theBuffer, $2);
 			mo->setColorList (theBuffer);
 		    } else {
-			sprintf (theBuffer, 
+			pmsprintf(theBuffer, theBufferLen,
 				 "Syntax error - %s cannot have colors",
 				 objstack.top()->name());
-			yyerror (theBuffer);
+			yyerror(theBuffer);
 		    }
 		} scaled_color_list CLOSEB
 		| COLORSCALE REAL REAL REAL OPENB
 		{
 		    if ( objstack.empty() )
-			yyerror ("No object to add colors to");
+			yyerror("No object to add colors to");
 		    else if (objstack.top()->objbits() & ViewObj::MODOBJ) {
 			ModObj * mo = static_cast<ModObj *>(objstack.top());
 
-			sprintf(theBuffer, "@tmp%d", theColorListCount++);
+			pmsprintf(theBuffer, theBufferLen,
+				"@tmp%d", theColorListCount++);
 			theColorLists.add(theBuffer, $2, $3, $4);
 			mo->setColorList (theBuffer);
 		    } else {
-			sprintf (theBuffer, 
-				 "Syntax error - %s cannot have colors",
-				 objstack.top()->name());
-			yyerror (theBuffer);
+			pmsprintf(theBuffer, theBufferLen,
+				"Syntax error - %s cannot have colors",
+				objstack.top()->name());
+			yyerror(theBuffer);
 		    }
 		} scaled_color_list CLOSEB
 		;
@@ -1203,8 +1210,10 @@ metric_name	: nameval
 		;
 
 nameval		: symname { $$ = strdup ($1); }
-		| INT  { sprintf(theBuffer,"%d",$1); $$ = strdup (theBuffer); }
-		| REAL { sprintf(theBuffer,"%f",$1); $$ = strdup (theBuffer); }
+		| INT  { pmsprintf(theBuffer, theBufferLen, "%d", $1);
+			 $$ = strdup (theBuffer); }
+		| REAL { pmsprintf(theBuffer, theBufferLen, "%f", $1);
+			 $$ = strdup (theBuffer); }
 		;
 
 inst_labels	: INSTLABEL away_or_towards OPENB inst_name_list CLOSEB

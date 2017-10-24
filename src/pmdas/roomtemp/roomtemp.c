@@ -12,10 +12,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 #include "pmapi.h"
@@ -94,13 +90,13 @@ roomtemp_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	switch (idp->item) {
 	    case 0:		/* roomtemp.celsius */
 	    case 1:		/* roomtemp.fahrenheit */
-		if (!Aquire1WireNet(tty, return_msg)) {
+		if (!Aquire1WireNet(tty, return_msg, sizeof(return_msg))) {
 		    fputs(return_msg, stderr);
 		    exit(1);
 		}
 		if (ReadTemperature(sntab[inst].sn, &atom->f))
 		    numval = 1;
-		Release1WireNet(return_msg);
+		Release1WireNet(return_msg, sizeof(return_msg));
 		if (idp->item == 1)
 		    /* convert to fahrenheit */
 		    atom->f = atom->f * 9 / 5 + 32;
@@ -131,7 +127,7 @@ roomtemp_init(pmdaInterface *dp)
 
     pmdaSetFetchCallBack(dp, roomtemp_fetchCallBack);
 
-    if (!Aquire1WireNet(tty, return_msg)) {
+    if (!Aquire1WireNet(tty, return_msg, sizeof(return_msg))) {
 	fputs(return_msg, stderr);
 	exit(1);
     }
@@ -150,11 +146,11 @@ roomtemp_init(pmdaInterface *dp)
 	memcpy(sntab[i].sn, p, 8);	/* SN for later fetch */
 	device[i].i_inst = i;		/* internal name is ordinal number */
 					/* external name is SN in hex */
-	sprintf(device[i].i_name, "%02X%02X%02X%02X%02X%02X%02X%02X",
+	pmsprintf(device[i].i_name, 17, "%02X%02X%02X%02X%02X%02X%02X%02X",
 	    p[0], p[1], p[2], p[3], p[4], p[5], p[6], p[7]);
 	fprintf(stderr, "Found temp sensor SN %s\n", device[i].i_name);
     }
-    Release1WireNet(return_msg);
+    Release1WireNet(return_msg, sizeof(return_msg));
     indomtab[DEVICE].it_numinst = i;
     indomtab[DEVICE].it_set = device;
 
@@ -189,7 +185,7 @@ main(int argc, char **argv)
 
     __pmSetProgname(argv[0]);
 
-    snprintf(mypath, sizeof(mypath), "%s%c" "roomtemp" "%c" "help",
+    pmsprintf(mypath, sizeof(mypath), "%s%c" "roomtemp" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&dispatch, PMDA_INTERFACE_3, pmProgname, ROOMTEMP,
 		"roomtemp.log", mypath);

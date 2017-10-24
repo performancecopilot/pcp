@@ -252,6 +252,22 @@ static struct {
      .offset = &_pm_proc_vmstat.pgsteal_movable },
     { .field = "pgsteal_normal",
      .offset = &_pm_proc_vmstat.pgsteal_normal },
+    { .field = "pgsteal_kswapd_dma",
+     .offset = &_pm_proc_vmstat.pgsteal_kswapd_dma },
+    { .field = "pgsteal_kswapd_dma32",
+     .offset = &_pm_proc_vmstat.pgsteal_kswapd_dma32 },
+    { .field = "pgsteal_kswapd_normal",
+     .offset = &_pm_proc_vmstat.pgsteal_kswapd_normal },
+    { .field = "pgsteal_kswapd_movable",
+     .offset = &_pm_proc_vmstat.pgsteal_kswapd_movable },
+    { .field = "pgsteal_direct_dma",
+     .offset = &_pm_proc_vmstat.pgsteal_direct_dma },
+    { .field = "pgsteal_direct_dma32",
+     .offset = &_pm_proc_vmstat.pgsteal_direct_dma32 },
+    { .field = "pgsteal_direct_normal",
+     .offset = &_pm_proc_vmstat.pgsteal_direct_normal },
+    { .field = "pgsteal_direct_movable",
+     .offset = &_pm_proc_vmstat.pgsteal_direct_movable },
     { .field = "pswpin",
      .offset = &_pm_proc_vmstat.pswpin },
     { .field = "pswpout",
@@ -330,7 +346,7 @@ proc_vmstat_init(void)
      * that is not a problem.  This routine makes sure any swap.xxx metric
      * fetch without a preceding mem.vmstat fetch has the correct state.
      */
-    snprintf(buf, sizeof(buf), "%s/proc/vmstat", linux_statspath);
+    pmsprintf(buf, sizeof(buf), "%s/proc/vmstat", linux_statspath);
     _pm_have_proc_vmstat = (access(buf, R_OK) == 0);
 }
 

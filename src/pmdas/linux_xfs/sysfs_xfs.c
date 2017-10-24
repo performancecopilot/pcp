@@ -310,7 +310,7 @@ refresh_device(pmInDom devices_indom, int inst)
     if (xfs->uptodate)
 	return xfs;
 
-    snprintf(path, sizeof(path), "%s/sys/fs/xfs/%s/stats/stats",
+    pmsprintf(path, sizeof(path), "%s/sys/fs/xfs/%s/stats/stats",
     	xfs_statspath, xfs_stats_device_name(dev, statsdev, sizeof(statsdev)));
     memset(xfs, 0, sizeof(sysfs_xfs_t));
     if ((fp = fopen(path, "r")) == NULL)
@@ -351,31 +351,31 @@ refresh_devices(pmInDom devices_indom)
     }
     pmdaCacheOp(indom, PMDA_CACHE_INACTIVE);
 
-    snprintf(path, sizeof(path), "%s/sys/fs/xfs", xfs_statspath);
+    pmsprintf(path, sizeof(path), "%s/sys/fs/xfs", xfs_statspath);
     if ((dp = opendir(path)) != NULL) {
 	while ((dentry = readdir(dp)) != NULL) {
 	    statsdevice = dentry->d_name;
 	    if (*statsdevice == '.')
 		continue;
-	    snprintf(path, sizeof(path), "%s/sys/fs/xfs/%s/stats/stats",
+	    pmsprintf(path, sizeof(path), "%s/sys/fs/xfs/%s/stats/stats",
 			xfs_statspath, statsdevice);
 	    if (stat(path, &sb) != 0 || !S_ISREG(sb.st_mode))
 		continue;
 
 	    /* map to the persistent name for the indom name */
 	    device[0] = '\0';
-	    if (snprintf(path, sizeof(path), "%s/sys/block/%s/dm/name", xfs_statspath, statsdevice) > 0) {
+	    if (pmsprintf(path, sizeof(path), "%s/sys/block/%s/dm/name", xfs_statspath, statsdevice) > 0) {
 		if ((fp = fopen(path, "r")) != NULL) {
 		    if (fgets(path, sizeof(device), fp) != NULL) {
 		    	char *p = strrchr(path, '\n');
 			if (p) *p = '\0';
-			snprintf(device, sizeof(device), "/dev/mapper/%s", path);
+			pmsprintf(device, sizeof(device), "/dev/mapper/%s", path);
 		    }
 		    fclose(fp);
 		}
 	    }
 	    if (strnlen(device, sizeof(device)) == 0)
-	    	snprintf(device, sizeof(device), "/dev/%s", statsdevice);
+	    	pmsprintf(device, sizeof(device), "/dev/%s", statsdevice);
 
 	    sts = pmdaCacheLookupName(indom, device, NULL, (void **)&xfs);
 	    if (sts == PMDA_CACHE_ACTIVE)
@@ -385,7 +385,7 @@ refresh_devices(pmInDom devices_indom)
 	    else {	/* new device, first time its been observed */
 		if ((xfs = calloc(1, sizeof(sysfs_xfs_t))) == NULL)
 		    continue;
-		if (pmDebug & DBG_TRACE_LIBPMDA)
+		if (pmDebugOptions.libpmda)
 		    fprintf(stderr, "refresh_devices: add \"%s\"\n", device);
 		pmdaCacheStore(indom, PMDA_CACHE_ADD, device, xfs);
 	    }

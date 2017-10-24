@@ -118,15 +118,13 @@ parseargs(int argc, char *argv[])
 	    Aarg = opts.optarg;
 	    break;
 
-	case 'D':	/* debug flag */
-	    sts = __pmParseDebug(opts.optarg);
+	case 'D':	/* debug options */
+	    sts = pmSetDebug(opts.optarg);
 	    if (sts < 0) {
-		pmprintf("%s: unrecognized debug flag specification (%s)\n",
+		pmprintf("%s: unrecognized debug options specification (%s)\n",
 			pmProgname, opts.optarg);
 		opts.errors++;
 	    }
-	    else
-		pmDebug |= sts;
 	    break;
 
 	case 's':	/* number of samples to write out */
@@ -291,15 +289,13 @@ main(int argc, char **argv)
 		pmProgname, msg);
 	exit(1);
     }
-#if PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL0) {
+    if (pmDebugOptions.appl0) {
 	char	buf[26];
 	pmCtime((const time_t *)&winstart_tval.tv_sec, buf);
 	fprintf(stderr, "Start time: %s", buf);
 	pmCtime((const time_t *)&winend_tval.tv_sec, buf);
 	fprintf(stderr, "End time: %s", buf);
     }
-#endif
 
     if ((sts = pmSetMode(PM_MODE_INTERP | PM_XTB_SET(PM_TIME_SEC),
                          &winstart_tval, (int)targ)) < 0) {
@@ -374,12 +370,10 @@ main(int argc, char **argv)
 	    /* past end time as per -T */
 	    break;
 	}
-#if PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL2) {
+	if (pmDebugOptions.appl2) {
 	    fprintf(stderr, "input record ...\n");
 	    __pmDumpResult(stderr, irp);
 	}
-#endif
 
 	/*
 	 * traverse the interval, looking at every archive record ...
@@ -398,8 +392,7 @@ main(int argc, char **argv)
 	}
 
 	orp = rewrite(irp);
-#if PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL2) {
+	if (pmDebugOptions.appl2) {
 	    if (orp == NULL)
 		fprintf(stderr, "output record ... none!\n");
 	    else {
@@ -407,7 +400,6 @@ main(int argc, char **argv)
 		__pmDumpResult(stderr, orp);
 	    }
 	}
-#endif
 	if (orp == NULL)
 	    goto next;
 
@@ -476,11 +468,11 @@ cleanup:
     {
 	char    fname[MAXNAMELEN];
 	fprintf(stderr, "Archive \"%s\" not created.\n", oname);
-	snprintf(fname, sizeof(fname), "%s.0", oname);
+	pmsprintf(fname, sizeof(fname), "%s.0", oname);
 	unlink(fname);
-	snprintf(fname, sizeof(fname), "%s.meta", oname);
+	pmsprintf(fname, sizeof(fname), "%s.meta", oname);
 	unlink(fname);
-	snprintf(fname, sizeof(fname), "%s.index", oname);
+	pmsprintf(fname, sizeof(fname), "%s.index", oname);
 	unlink(fname);
 	exit(1);
     }

@@ -138,7 +138,7 @@ attemptConnections(void *arg)
 		break;
 	    __pmtimevalSleep(againWait);
 	}
-	if (pmDebug & DBG_TRACE_DISCOVERY) {
+	if (pmDebugOptions.discovery) {
 	    if (attempt > 0) {
 		__pmNotifyErr(LOG_INFO,
 			      "Waited for %d attempts for an available fd\n",

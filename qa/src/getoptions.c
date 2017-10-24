@@ -100,8 +100,8 @@ timevalstr(struct timeval *tp)
     memset(tv, 0, sizeof(tv));
     then = (time_t)tp->tv_sec;
     pmLocaltime(&then, &tmp);
-    len = sprintf(tv, "%s", asctime(&tmp));
-    sprintf(&tv[len-1], " [msec=%d]", msecs);
+    len = pmsprintf(tv, sizeof(tv), "%s", asctime(&tmp));
+    pmsprintf(&tv[len-1], sizeof(tv) - len," [msec=%d]", msecs);
     return tv;
 }
 
@@ -118,7 +118,7 @@ intervalstr(struct timeval *tp)
     memset(it, 0, sizeof(it));
     then = (time_t)tp->tv_sec;
     pmLocaltime(&then, &tmp);
-    sprintf(it, "%02d:%02d.%03d", tmp.tm_min, tmp.tm_sec, msecs);
+    pmsprintf(it, sizeof(it), "%02d:%02d.%03d", tmp.tm_min, tmp.tm_sec, msecs);
     return it;
 }
 

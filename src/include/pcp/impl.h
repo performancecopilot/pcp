@@ -277,40 +277,85 @@ PCP_CALL extern void __pmNotifyErr(int, const char *, ...) __PM_PRINTFLIKE(2,3);
 
 /*
  * These are for debugging only (but are present in the shipped libpcp)
+ * ... this is the old_style
  */
 PCP_DATA extern int pmDebug;
-#define DBG_TRACE_PDU		(1<<0)	/* PDU send and receive */
-#define DBG_TRACE_FETCH		(1<<1)	/* dump pmFetch results */
-#define DBG_TRACE_PROFILE	(1<<2)	/* trace profile changes */
-#define DBG_TRACE_VALUE		(1<<3)	/* metric value conversions */
-#define DBG_TRACE_CONTEXT	(1<<4)	/* trace PMAPI context changes */
-#define DBG_TRACE_INDOM		(1<<5)	/* instance domain operations */
-#define DBG_TRACE_PDUBUF	(1<<6)	/* PDU buffer management */
-#define DBG_TRACE_LOG		(1<<7)	/* generic archive log operations */
-#define DBG_TRACE_LOGMETA	(1<<8)	/* meta data in archives */
-#define DBG_TRACE_OPTFETCH	(1<<9)	/* optFetch tracing */
-#define DBG_TRACE_AF		(1<<10)	/* trace async timer events */
-#define DBG_TRACE_APPL0		(1<<11)	/* reserved for applications */
-#define DBG_TRACE_APPL1		(1<<12)	/* reserved for applications */
-#define DBG_TRACE_APPL2		(1<<13)	/* reserved for applications */
-#define DBG_TRACE_PMNS		(1<<14)	/* PMNS operations */
-#define DBG_TRACE_LIBPMDA	(1<<15)	/* libpcp_pmda */
-#define DBG_TRACE_TIMECONTROL	(1<<16)	/* time control api */
-#define DBG_TRACE_PMC		(1<<17)	/* metrics class */
-#define DBG_TRACE_DERIVE	(1<<18)	/* derived metrics */
-#define DBG_TRACE_LOCK		(1<<19) /* lock tracing */
-#define DBG_TRACE_INTERP	(1<<20)	/* interpolate mode for archives */
-#define DBG_TRACE_CONFIG	(1<<21) /* configuration parameters */
-#define DBG_TRACE_PMAPI		(1<<22) /* PMAPI call tracing */
-#define DBG_TRACE_FAULT		(1<<23) /* fault injection tracing */
-#define DBG_TRACE_AUTH		(1<<24) /* authentication tracing */
-#define DBG_TRACE_DISCOVERY	(1<<25) /* service discovery tracing */
-#define DBG_TRACE_ATTR		(1<<26) /* all connection attributes */
-#define DBG_TRACE_HTTP		(1<<27) /* trace HTTP operations */
-/* not yet allocated, bits (1<<28) ... (1<<29) */
-#define DBG_TRACE_DESPERATE	(1<<30) /* verbose/desperate level */
+#define DBG_TRACE_PDU		(1<<0)	/* see pdu option below */
+#define DBG_TRACE_FETCH		(1<<1)	/* see fetch option below */
+#define DBG_TRACE_PROFILE	(1<<2)	/* see profile option below */
+#define DBG_TRACE_VALUE		(1<<3)	/* see value option below */
+#define DBG_TRACE_CONTEXT	(1<<4)	/* see context option below */
+#define DBG_TRACE_INDOM		(1<<5)	/* see indom option below */
+#define DBG_TRACE_PDUBUF	(1<<6)	/* see pdubuf option below */
+#define DBG_TRACE_LOG		(1<<7)	/* see log option below */
+#define DBG_TRACE_LOGMETA	(1<<8)	/* see logmeta option below */
+#define DBG_TRACE_OPTFETCH	(1<<9)	/* see optfetch option below */
+#define DBG_TRACE_AF		(1<<10)	/* see af option below */
+#define DBG_TRACE_APPL0		(1<<11)	/* see appl0 option below */
+#define DBG_TRACE_APPL1		(1<<12)	/* see appl1 option below */
+#define DBG_TRACE_APPL2		(1<<13)	/* see appl2 option below */
+#define DBG_TRACE_PMNS		(1<<14)	/* see pmns option below */
+#define DBG_TRACE_LIBPMDA	(1<<15)	/* see libpmda option below */
+#define DBG_TRACE_TIMECONTROL	(1<<16)	/* see timecontrol option below */
+#define DBG_TRACE_PMC		(1<<17)	/* see pmc option below */
+#define DBG_TRACE_DERIVE	(1<<18)	/* see derive option below */
+#define DBG_TRACE_LOCK		(1<<19) /* see lock option below */
+#define DBG_TRACE_INTERP	(1<<20)	/* see interp option below */
+#define DBG_TRACE_CONFIG	(1<<21) /* see config option below */
+#define DBG_TRACE_PMAPI		(1<<22) /* see pmapi option below */
+#define DBG_TRACE_FAULT		(1<<23) /* see fault option below */
+#define DBG_TRACE_AUTH		(1<<24) /* see auth option below */
+#define DBG_TRACE_DISCOVERY	(1<<25) /* see discovery option below */
+#define DBG_TRACE_ATTR		(1<<26) /* see attr option below */
+#define DBG_TRACE_HTTP		(1<<27) /* see http option below */
+/* not yet, and never will be, allocated, bits (1<<28) ... (1<<29) */
+#define DBG_TRACE_DESPERATE	(1<<30) /* see desperate option below */
+
+/*
+ * New style ...
+ * Note that comments are important ... these are extracted and
+ * built into pmdbg.h.
+ */
+typedef struct {
+    int	pdu;		/* PDU traffic at the Xmit and Recv level */
+    int	fetch;		/* Results from pmFetch */
+    int	profile;	/* Changes and xmits for instance profile */
+    int	value;		/* Metric value extraction and conversion */
+    int	context;	/* Changes to PMAPI contexts */
+    int	indom;		/* Low-level instance profile xfers */
+    int	pdubuf;		/* PDU buffer operations */
+    int	log;		/* Archive log manipulations */
+    int	logmeta;	/* Archive metadata operations */
+    int	optfetch;	/* optFetch magic */
+    int	af;		/* Asynchronous event scheduling */
+    int	appl0;		/* Application-specific flag 0 */
+    int	appl1;		/* Application-specific flag 1 */
+    int	appl2;		/* Application-specific flag 2 */
+    int	pmns;		/* PMNS operations */
+    int	libpmda;	/* PMDA callbacks into libpcp_pmda */
+    int	timecontrol;	/* Time control API */
+    int	pmc;		/* Metrics class operations */
+    int	derive;		/* Derived metrics functionality */
+    int	lock;		/* Synchronization and lock tracing */
+    int	interp;		/* Interpolate mode for archives */
+    int	config;		/* Configuration parameters */
+    int	pmapi;		/* PMAPI call tracing */
+    int	fault;		/* Fault injection tracing */
+    int	auth;		/* Authentication tracing */
+    int	discovery;	/* Service discovery tracing */
+    int	attr;		/* Connection attribute handling */
+    int	http;		/* Trace HTTP operations in libpcp_web */
+    int	desperate;	/* Verbose/Desperate level (developers only) */
+/* new ones start here, no DBG_TRACE_xxx macro and no backwards compatibility */
+    int	deprecated;	/* Report use of deprecated services */
+    int	exec;	 	/* __pmProcessExec and related calls */
+} pmdebugoptions_t;
+
+PCP_DATA extern pmdebugoptions_t	pmDebugOptions;
+
 
 PCP_CALL extern int __pmParseDebug(const char *);
+PCP_CALL extern void __pmSetDebugBits(int);
 PCP_CALL extern void __pmDumpResult(FILE *, const pmResult *);
 PCP_CALL extern void __pmDumpHighResResult(FILE *, const pmHighResResult *);
 PCP_CALL extern void __pmPrintStamp(FILE *, const struct timeval *);
@@ -320,18 +365,16 @@ PCP_CALL extern void __pmPrintTimeval(FILE *, const __pmTimeval *);
 PCP_CALL extern void __pmPrintDesc(FILE *, const pmDesc *);
 PCP_CALL extern void __pmFreeResultValues(pmResult *);
 PCP_CALL extern char *__pmPDUTypeStr_r(int, char *, int);
-PCP_CALL extern const char *__pmPDUTypeStr(int);			/* NOT thread-safe */
+PCP_CALL extern const char *__pmPDUTypeStr(int);	/* NOT thread-safe */
 PCP_CALL extern void __pmDumpNameSpace(FILE *, int);
 PCP_CALL extern void __pmDumpNameNode(FILE *, __pmnsNode *, int);
 PCP_CALL extern void __pmDumpStack(FILE *);
 PCP_DATA extern int __pmLogReads;
 
-#ifdef PCP_DEBUG
 PCP_CALL extern void __pmDumpIDList(FILE *, int, const pmID *);
 PCP_CALL extern void __pmDumpNameList(FILE *, int, char **);
 PCP_CALL extern void __pmDumpStatusList(FILE *, int, const int *);
 PCP_CALL extern void __pmDumpNameAndStatusList(FILE *, int, char **, int *);
-#endif
 
 /*
  * Logs and archives of performance metrics (not to be confused
@@ -743,6 +786,7 @@ PCP_CALL extern int __pmServerHasFeature(__pmServerFeature);
 PCP_CALL extern int __pmServerSetFeature(__pmServerFeature);
 PCP_CALL extern int __pmServerClearFeature(__pmServerFeature);
 PCP_CALL extern int __pmServerCreatePIDFile(const char *, int);
+PCP_CALL extern void __pmServerStart(int, char **, int);
 PCP_CALL extern int __pmServerAddPorts(const char *);
 PCP_CALL extern int __pmServerAddInterface(const char *);
 PCP_CALL extern void __pmServerSetLocalSocket(const char *);
@@ -1416,6 +1460,21 @@ PCP_CALL extern int __pmProcessDataSize(unsigned long *);
 PCP_CALL extern int __pmProcessRunTimes(double *, double *);
 PCP_CALL extern int __pmSetProcessIdentity(const char *);
 
+/* __pmProcessExec and friends ... replacementes for system(3) and popen(3) */
+typedef struct __pmExecCtl __pmExecCtl_t;		/* opaque handle */
+PCP_CALL extern int __pmProcessAddArg(__pmExecCtl_t **, const char *);
+PCP_CALL extern int __pmProcessUnpickArgs(__pmExecCtl_t **, const char *);
+#define PM_EXEC_TOSS_NONE	0
+#define PM_EXEC_TOSS_STDIN	1
+#define PM_EXEC_TOSS_STDOUT	2
+#define PM_EXEC_TOSS_STDERR	4
+#define PM_EXEC_TOSS_ALL	7
+#define PM_EXEC_NOWAIT		0
+#define PM_EXEC_WAIT		1
+PCP_CALL extern int __pmProcessExec(__pmExecCtl_t **, int, int);
+PCP_CALL extern int __pmProcessPipe(__pmExecCtl_t **, const char *, int, FILE **);
+PCP_CALL extern int __pmProcessPipeClose(FILE *);
+
 /*
  * platform independent memory mapped file handling
  */
@@ -1645,6 +1704,8 @@ PCP_CALL extern int __pmDiscoverServicesWithOptions(const char *,
 					   const volatile sig_atomic_t *,
 					   char ***);
 
+
+PCP_CALL extern void __pmDumpDebug(FILE *);
 
 #ifdef __cplusplus
 }

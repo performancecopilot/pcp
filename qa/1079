@@ -49,6 +49,9 @@ atop "Scheduling option" -s
 echo "Replay with atop-style time window"
 PCP_HOSTZONE=1 $ATOP -r $here/archives/pcp-atop -b 11:03 -e 11:04 1 5 
 
+echo "Replay with atop hotproc support"
+PCP_HOSTZONE=1 $ATOP --hotproc -r $here/archives/pcp-hotatop 1 2
+
 echo "Checking sample count and interval"
 export PCP_ARCHIVE=$here/archives/pcp-atop
 pcp -z atop -m 2 3 > $tmp.mem1

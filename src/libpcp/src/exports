@@ -572,3 +572,19 @@ PCP_3.20 {
     __pmSetvbuf;
     __pmFclose;
 } PCP_3.19;
+
+PCP_3.21 {
+  global:
+    pmsprintf;
+    __pmServerStart;
+    pmDebugOptions;
+    pmSetDebug;
+    pmClearDebug;
+    __pmDumpDebug;
+    __pmSetDebugBits;
+    __pmProcessAddArg;
+    __pmProcessUnpickArgs;
+    __pmProcessExec;
+    __pmProcessPipe;
+    __pmProcessPipeClose;
+} PCP_3.20;

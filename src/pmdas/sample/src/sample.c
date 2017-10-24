@@ -659,7 +659,7 @@ redo_dynamic(void)
     pmdaIndom		*idp = &indomtab[DYNAMIC_INDOM];
     char		mypath[MAXPATHLEN];
 
-    snprintf(mypath, sizeof(mypath), "%s%c" "sample" "%c" "dynamic.indom",
+    pmsprintf(mypath, sizeof(mypath), "%s%c" "sample" "%c" "dynamic.indom",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
 
     if (stat(mypath, &statbuf) == 0) {
@@ -731,15 +731,13 @@ redo_dynamic(void)
 			_dyn_ctr[i] = 0;
 		}
 
-#ifdef PCP_DEBUG
-		if (pmDebug & DBG_TRACE_APPL0) {
+		if (pmDebugOptions.appl0) {
 		    fprintf(stderr, "redo instance domain for dynamic: numinst: %d\n", idp->it_numinst);
 		    for (i = 0; i < idp->it_numinst; i++) {
 			fprintf(stderr, " %d \"%s\"", idp->it_set[i].i_inst, idp->it_set[i].i_name);
 		    }
 		    fputc('\n', stderr);
 		}
-#endif
 	    }
 	}
     }
@@ -755,10 +753,8 @@ redo_dynamic(void)
 	    for (i = 0; i <= _dyn_max; i++) {
 		_dyn_ctr[i] = 0;
 	    }
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL0)
+	    if (pmDebugOptions.appl0)
 		fprintf(stderr, "redo instance domain for dynamic: numinst: 0 (no control file)\n");
-#endif
 	}
     }
 
@@ -775,7 +771,7 @@ static int
 redo_many(void)
 {
     pmdaIndom   	*idp;
-    int			a;
+    int			a, len;
     static char		*tags=NULL;
     char		*tag;
 
@@ -787,34 +783,30 @@ redo_many(void)
     idp = &indomtab[MANY_INDOM];
 
     /* realloc instances buffer */
-
-    idp->it_set = realloc(idp->it_set, many_count*sizeof(pmdaInstid));
-    if (!idp->it_set) {
-	idp->it_numinst=0;
-	many_count=0;
+    len = many_count * sizeof(pmdaInstid);
+    if ((idp->it_set = realloc(idp->it_set, len)) == NULL) {
+	idp->it_numinst = 0;
+	many_count = 0;
 	return -oserror();
     }
 
     /* realloc string buffer */
-
-    tags = realloc(tags, many_count*MANY_MAX_LEN);
-    if (!idp->it_set) {
-	idp->it_numinst=0;
-	many_count=0;
+    len = many_count * MANY_MAX_LEN;
+    if ((tags = realloc(tags, len)) == NULL) {
+	idp->it_numinst = 0;
+	many_count = 0;
 	return -oserror();
     }
 
     /* set number of instances */
-
-    idp->it_numinst=many_count;
+    idp->it_numinst = many_count;
 
     /* generate instances */
-
-    tag=tags;
-    for (a=0;a<many_count;a++) {
-	idp->it_set[a].i_inst=a;
-	idp->it_set[a].i_name=tag;
-	tag+=sprintf(tag,"i-%d",a)+1;
+    tag = tags;
+    for (a = 0; a < many_count; a++) {
+	idp->it_set[a].i_inst = a;
+	idp->it_set[a].i_name = tag;
+	tag += pmsprintf(tag, len - (tag - tags), "i-%d", a) + 1;
     }
 
     return 0;
@@ -845,7 +837,7 @@ redo_mirage(void)
 	}
 	idp->it_numinst = 1;
 	idp->it_set[0].i_inst = 0;
-	sprintf(idp->it_set[0].i_name, "m-%02d", 0);
+	pmsprintf(idp->it_set[0].i_name, 5, "m-%02d", 0);
     }
     else {
 	int	numinst;
@@ -893,19 +885,17 @@ redo_mirage(void)
 		}
 		idp->it_numinst = numinst;
 		idp->it_set[numinst-1].i_inst = newinst;
-		sprintf(idp->it_set[numinst-1].i_name, "m-%02d", newinst);
+		pmsprintf(idp->it_set[numinst-1].i_name, 5, "m-%02d", newinst);
 	    }
 	}
     }
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL0) {
+    if (pmDebugOptions.appl0) {
 	fprintf(stderr, "redo instance domain for mirage: numinst: %d\n", idp->it_numinst);
 	for (i = 0; i < idp->it_numinst; i++) {
 	    fprintf(stderr, " %d \"%s\"", idp->it_set[i].i_inst, idp->it_set[i].i_name);
 	}
 	fputc('\n', stderr);
     }
-#endif
 
     doit = now + 10;	/* no more than once every 10 seconds */
     return 0;
@@ -1183,11 +1173,9 @@ init_tables(int dom)
 	pmidp->domain = dom;
 	if (direct_map && pmidp->item != i) {
 	    direct_map = 0;
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL0) {
+	    if (pmDebugOptions.appl0) {
 		__pmNotifyErr(LOG_WARNING, "sample_init: direct map disabled @ desctab[%d]", i);
 	    }
-#endif
 	}
     }
     ndesc--;
@@ -2399,7 +2387,7 @@ doit:
 			break;
 
 		    case 153:	/* sample.string.bin */
-			snprintf(strbuf, 4, "%3d", _bin_val[(inst/100) - 1]);
+			pmsprintf(strbuf, 4, "%3d", _bin_val[(inst/100) - 1]);
 			atom.cp = strbuf;
 			break;
 
@@ -2678,7 +2666,13 @@ sample_store(pmResult *result, pmdaExt *ep)
 			sample_done = 1;
 			break;
 		    default:
-			pmDebug = _control;
+			/*
+			 * can only support the old debug bit-fields in a long,
+			 * but there is no API to set these and we need to set
+			 * the corresponding new option as well ...
+			 */
+			pmClearDebug("all");
+			__pmSetDebugBits(_control);
 			break;
 		}
 		break;
@@ -2840,7 +2834,7 @@ sample_init(pmdaInterface *dp)
 
     if (_isDSO) {
 	int sep = __pmPathSeparator();
-	snprintf(helppath, sizeof(helppath), "%s%c" "sample" "%c" "dsohelp",
+	pmsprintf(helppath, sizeof(helppath), "%s%c" "sample" "%c" "dsohelp",
 			pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
 	pmdaDSO(dp, PMDA_INTERFACE_LATEST, "sample DSO", helppath);
     }

@@ -57,6 +57,7 @@ _filter()
 	-e "s/$seq-$$/SEQ-PID/g" \
 	-e '/xconfirm: Not found/d' \
 	-e '/pmRecordControl/s/Bad file descriptor/Invalid argument/' \
+	-e 's/ f_ipc: [0-9][0-9]*/ f_ipc: N/' \
     | _filter_pmlogger_log \
     | sed \
         -e 's/\/[A-Z]*\/tmp/\/tmp/' \
@@ -130,7 +131,12 @@ echo "pmlogger processes:"
 echo "pmlogger processes:" >>$here/$seq.full
 ps $PCP_PS_ALL_FLAGS 2>&1 \
 | tee -a $here/$seq.full \
-| sed -n -e 1p -e '/[p]mlogger.*-x/p' \
+| sed -n \
+    -e 1p \
+    -e '/[p]mlogger.*-x/{
+s/ -x [0-9][0-9]*/ -x N/
+p
+}' \
 | _filter_ps \
 | tee $tmp.tmp \
 | sed -f $tmp.sed \
@@ -213,7 +219,12 @@ echo "pmlogger processes:"
 echo "pmlogger processes:" >>$here/$seq.full
 ps $PCP_PS_ALL_FLAGS 2>&1 \
 | tee -a $here/$seq.full \
-| sed -n -e 1p -e '/[p]mlogger.*-x/p' \
+| sed -n \
+    -e 1p \
+    -e '/[p]mlogger.*-x/{
+s/ -x [0-9][0-9]*/ -x N/
+p
+}' \
 | _filter_ps \
 | tee $tmp.tmp \
 | sed -f $tmp.sed \

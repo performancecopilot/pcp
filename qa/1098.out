@@ -1,0 +1,40 @@
+QA output created by 1098
+You will need to choose an appropriate configuration for installation of
+the "test_python" Performance Metrics Domain Agent (PMDA).
+
+  collector	collect performance statistics on this system
+  monitor	allow this system to monitor local and/or remote systems
+  both		collector and monitor configuration for this system
+
+Please enter c(ollector) or m(onitor) or b(oth) [b] Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+[...install files, make output...]
+Updating the PMCD control file, and notifying PMCD ...
+Check test_python metrics have appeared ... 4 metrics and N values
+test_python.some_value old value=N new value=0
+=== Round 1 ===
+test_python.other_indom.some_value 2
+test_python.some_value 1
+test_python.some_indom.some_value 0
+=== Round 2 ===
+test_python.other_indom.some_value 0
+test_python.some_value 1
+test_python.some_indom.some_value 0
+=== Round 3 ===
+test_python.other_indom.some_value 2
+test_python.some_value 1
+test_python.some_indom.some_value 0
+=== Round 4 ===
+test_python.other_indom.some_value 0
+test_python.some_value 1
+test_python.some_indom.some_value 0
+=== Round 5 ===
+test_python.other_indom.some_value 2
+test_python.some_value 1
+test_python.some_indom.some_value 0
+
+=== Bonus Round ===
+
+test_python.loaded_indom.some_value
+    inst [5 or "five"] value "FIVE"
+    inst [9 or "nine"] value "NINE"

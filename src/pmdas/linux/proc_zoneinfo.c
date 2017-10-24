@@ -27,7 +27,7 @@ extract_zone_protection(const char *bp, const char *instname, pmInDom protected)
 
     for (index = 0;; index++) {
 	value = (strtoul(bp, &endp, 10) << _pm_pageshift) / 1024;
-	snprintf(protected_name, sizeof(protected_name),
+	pmsprintf(protected_name, sizeof(protected_name),
 		 "%s::lowmem_reserved%u", instname, index);
 	protected_name[sizeof(protected_name)-1] = '\0';
 	/* replace existing value if one exists, else need space for new one */
@@ -69,7 +69,7 @@ refresh_proc_zoneinfo(pmInDom indom, pmInDom protection_indom)
 	    continue;
 	if (sscanf(buf, "Node %d, zone   %s", &node, zonetype) != 2)
 	    continue;
-	snprintf(instname, sizeof(instname), "%s::node%u", zonetype, node);
+	pmsprintf(instname, sizeof(instname), "%s::node%u", zonetype, node);
 	instname[sizeof(instname)-1] = '\0';
 	values = 0;
 	info = NULL;
@@ -320,10 +320,8 @@ refresh_proc_zoneinfo(pmInDom indom, pmInDom protection_indom)
 	}
 	pmdaCacheStore(indom, PMDA_CACHE_ADD, instname, (void *)info);
 
-#if PCP_DEBUG
-	if (pmDebug & DBG_TRACE_LIBPMDA)
+	if (pmDebugOptions.libpmda)
 	    fprintf(stderr, "refresh_proc_zoneinfo: instance %s\n", instname);
-#endif
     }
     fclose(fp);
 

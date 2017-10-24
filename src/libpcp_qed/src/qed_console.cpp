@@ -22,13 +22,13 @@ QedConsole *console;
 QedConsole::QedConsole(struct timeval origin) : QDialog()
 {
     my.level = 0;
-    if (pmDebug & DBG_TRACE_APPL0) {
+    if (pmDebugOptions.appl0) {
 	my.level |= QedApp::DebugApp;		// general and UI tracing
 	my.level |= QedApp::DebugUi;
     }
-    if (pmDebug & DBG_TRACE_APPL1)
+    if (pmDebugOptions.appl1)
 	my.level |= QedApp::DebugProtocol;	// trace time protocol
-    if (pmDebug & DBG_TRACE_APPL2) {
+    if (pmDebugOptions.appl2) {
 	my.level |= QedApp::DebugView;		// config files, for QA
 	my.level |= QedApp::DebugTimeless;
     }
@@ -43,20 +43,23 @@ void QedConsole::post(const char *fmt, ...)
     static char buffer[4096];
     struct timeval now;
     va_list ap;
-    int offset = 0;
+    int sts, offset = 0;
 
     if (!(my.level & QedApp::DebugApp))
 	return;
 
     if (!(my.level & QedApp::DebugTimeless)) {
 	gettimeofday(&now, NULL);
-	sprintf(buffer, "%6.2f: ", QedApp::timevalToSeconds(now) - my.origin);
+	pmsprintf(buffer, sizeof(buffer), "%6.2f: ",
+			QedApp::timevalToSeconds(now) - my.origin);
 	offset = 8;
     }
 
     va_start(ap, fmt);
-    vsnprintf(buffer+offset, sizeof(buffer)-offset, fmt, ap);
+    sts = vsnprintf(buffer+offset, sizeof(buffer)-offset, fmt, ap);
     va_end(ap);
+    if (sts >= (int)sizeof(buffer) - offset)
+	buffer[sizeof(buffer)-1] = '\0';
 
     fputs(buffer, stderr);
     fputc('\n', stderr);
@@ -75,20 +78,23 @@ void QedConsole::post(int level, const char *fmt, ...)
     static char buffer[4096];
     struct timeval now;
     va_list ap;
-    int offset = 0;
+    int sts, offset = 0;
 
     if (!(my.level & level) && !(level & QedApp::DebugForce))
 	return;
 
     if (!(my.level & QedApp::DebugTimeless)) {
 	gettimeofday(&now, NULL);
-	sprintf(buffer, "%6.2f: ", QedApp::timevalToSeconds(now) - my.origin);
+	pmsprintf(buffer, sizeof(buffer), "%6.2f: ",
+			QedApp::timevalToSeconds(now) - my.origin);
 	offset = 8;
     }
 
     va_start(ap, fmt);
-    vsnprintf(buffer+offset, sizeof(buffer)-offset, fmt, ap);
+    sts = vsnprintf(buffer+offset, sizeof(buffer)-offset, fmt, ap);
     va_end(ap);
+    if (sts >= (int)sizeof(buffer) - offset)
+	buffer[sizeof(buffer)-1] = '\0';
 
     fputs(buffer, stderr);
     fputc('\n', stderr);

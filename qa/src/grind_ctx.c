@@ -62,8 +62,7 @@ main(int argc, char **argv)
     int		iter = 5;
     char	*host = "local:";
     char	*endnum;
-    static char	*debug = "[-D N] ";
-    static char	*usage = "[-a archive] [-c dmfile] [-h hostname] [-L] [-n namespace] [-s iterations]";
+    static char	*usage = "[-a archive] [-c dmfile] [-D debugspec] [-h hostname] [-L] [-n namespace] [-s iterations]";
 
     __pmSetProgname(argv[0]);
 
@@ -87,15 +86,13 @@ main(int argc, char **argv)
 	    }
 	    break;
 
-	case 'D':	/* debug flag */
-	    sts = __pmParseDebug(optarg);
+	case 'D':	/* debug options */
+	    sts = pmSetDebug(optarg);
 	    if (sts < 0) {
-		fprintf(stderr, "%s: unrecognized debug flag specification (%s)\n",
+		fprintf(stderr, "%s: unrecognized debug options specification (%s)\n",
 		    pmProgname, optarg);
 		errflag++;
 	    }
-	    else
-		pmDebug |= sts;
 	    break;
 
 	case 'h':	/* hostname for PMCD to contact */
@@ -139,7 +136,7 @@ main(int argc, char **argv)
     }
 
     if (errflag) {
-	fprintf(stderr, "Usage: %s %s%s\n", pmProgname, debug, usage);
+	fprintf(stderr, "Usage: %s %s\n", pmProgname, usage);
 	exit(1);
     }
 

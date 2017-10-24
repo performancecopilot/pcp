@@ -13,8 +13,8 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-policy_name="pcpupstream"
-policy_file="$PCP_VAR_DIR/selinux/$policy_name.pp"
+policy_name="pcpqaqaqaqa"
+policy_file="$PCP_VAR_DIR/selinux/pcpupstream.pp"
 which sedismod >/dev/null 2>&1 || _notrun "sedismod tool not installed (module disassembly)"
 which semodule >/dev/null 2>&1 || _notrun "semodule tool not installed"
 which seinfo >/dev/null 2>&1 || _notrun "seinfo tool not installed"
@@ -34,31 +34,43 @@ _semodule_remove()
 {
     if [ "x$semodule_x_option" == "x" ]
     then
-	echo "Removing semodule without priority option" >> $tmp.full
-	$sudo semodule -r $tmp/selinux/pcpqa.pp
+	echo "Removing semodule without priority option" >> $here/$seq.full
+	$sudo semodule -r $policy_name 2>&1
     else
-	echo "Removing semodule with priority 1" >> $tmp.full
-	$sudo semodule -X 1 -r $tmp/selinux/pcpqa.pp
-    fi
+	echo "Removing semodule with priority 1" >> $here/$seq.full
+	$sudo semodule -X 1 -r $policy_name 2>&1
+    fi \
+    | tee -a $here/$seq.full \
+    | sed \
+	-e '/Removing last pcpqaqaqaqa module/'d \
+    # end
 }
 status=1
 $sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 mkdir -p $tmp/selinux
-cp $policy_file $tmp/selinux/pcpqa.pp
+# use pcpupstream.pp and rename the module to $policy_name
+# ... warning this is a gross hack
+#
+OF=$tmp/selinux/$policy_name.pp
+
+dd bs=1 count=70 if=$policy_file of=$OF 2>>$here/$seq.full
+echo -n "qaqaqaqa" >>$OF
+dd bs=1 skip=78 if=$policy_file >>$OF 2>>$here/$seq.full
+file $OF >>$here/$seq.full
 
 #install the module but catch any errors
 if [ "x$semodule_x_option" == "x" ]
 then
-    echo "Installing semodule without priority option" >> $tmp.full
-    error_line=`$sudo semodule -i $tmp/selinux/pcpqa.pp 2>&1 | grep ^libsepol\. | cut -f3 -d":" |cut -f3 -d" "`
-    echo $error_line >> $tmp.full
+    echo "Installing semodule without priority option" >> $here/$seq.full
+    error_line=`$sudo semodule -i $tmp/selinux/$policy_name.pp 2>&1 | tee -a $here/$seq.full | grep ^libsepol\. | cut -f3 -d":" |cut -f3 -d" "`
+    echo $error_line >> $here/$seq.full
 else
-    echo "Installing semodule with priority 1" >> $tmp.full
+    echo "Installing semodule with priority 1" >> $here/$seq.full
     # install module with priority 1
-    error_line=`$sudo semodule -X 1 -i $tmp/selinux/pcpqa.pp 2>&1 | grep ^Fail | cut -f2 -d":"`
-    echo $error_line >> $tmp.full
+    error_line=`$sudo semodule -X 1 -i $tmp/selinux/$policy_name.pp 2>&1 | tee -a $here/$seq.full | grep ^Fail | cut -f2 -d":"`
+    echo $error_line >> $here/$seq.full
 fi
 
 if [ "x$error_line" == "x" ]
@@ -71,10 +83,10 @@ else
     then
 	echo "Error from type: $error_line"
     else
-	/usr/libexec/selinux/hll/pp 2>/dev/null $tmp/selinux/pcpqa.pp $tmp/selinux/pcpqa.cil
-	echo "Error on line: $error_line from pcpqa.cil"
+	/usr/libexec/selinux/hll/pp 2>/dev/null $tmp/selinux/$policy_name.pp $tmp/selinux/$policy_name.cil
+	echo "Error on line: $error_line from $policy_name.cil"
 	awk -v error_line="$error_line" \
-	    'FNR==error_line' $tmp/selinux/pcpqa.cil
+	    'FNR==error_line' $tmp/selinux/$policy_name.cil
     fi
     exit
 fi

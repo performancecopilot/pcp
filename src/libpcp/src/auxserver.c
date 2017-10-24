@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2016 Red Hat.
+ * Copyright (c) 2013-2017 Red Hat.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -274,7 +274,7 @@ pidonexit(void)
     char        pidpath[MAXPATHLEN];
 
     if (serviceSpec) {
-	snprintf(pidpath, sizeof(pidpath), "%s%c%s.pid",
+	pmsprintf(pidpath, sizeof(pidpath), "%s%c%s.pid",
 	    pmGetConfig("PCP_RUN_DIR"), __pmPathSeparator(), serviceSpec);
 	unlink(pidpath);
     }
@@ -289,7 +289,7 @@ __pmServerCreatePIDFile(const char *spec, int verbose)
     if (!serviceSpec)
 	__pmServerSetServiceSpec(spec);
 
-    snprintf(pidpath, sizeof(pidpath), "%s%c%s.pid",
+    pmsprintf(pidpath, sizeof(pidpath), "%s%c%s.pid",
 	     pmGetConfig("PCP_RUN_DIR"), __pmPathSeparator(), spec);
 
     if ((pidfile = fopen(pidpath, "w")) == NULL) {
@@ -298,7 +298,7 @@ __pmServerCreatePIDFile(const char *spec, int verbose)
 	return -oserror();
     }
     atexit(pidonexit);
-    fprintf(pidfile, "%" FMT_PID, getpid());
+    fprintf(pidfile, "%" FMT_PID, (pid_t)getpid());
 #ifdef HAVE_FCHMOD
     (void)fchmod(fileno(pidfile), S_IRUSR | S_IRGRP | S_IROTH);
 #else
@@ -359,10 +359,8 @@ AddRequestPort(const char *address, int port)
     rp->presence = NULL;
     nReqPorts++;
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL0)
+    if (pmDebugOptions.appl0)
         fprintf(stderr, "AddRequestPort: %s port %d\n", rp->address, rp->port);
-#endif
 
     return nReqPorts;   /* success */
 }
@@ -559,11 +557,9 @@ OpenRequestSocket(int port, const char *address, int *family,
 	sts = __pmBind(fd, (void *)myAddr, __pmSockAddrSize());
 	if (sts >= 0)
 	    break;
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_DESPERATE)
+	if (pmDebugOptions.desperate)
 	    fprintf(stderr, "OpenRequestSocket(%d, %s, %s) __pmBind try %d: %s\n",
 		port, address, AddressFamily(*family), try+1, netstrerror_r(errmsg, sizeof(errmsg)));
-#endif
 	__pmtimevalSleep(tick);
 	try++;
     }
@@ -780,12 +776,12 @@ SetCredentialAttrs(__pmHashCtl *attrs, unsigned int pid, unsigned int uid, unsig
 {
     char name[32], *namep;
 
-    snprintf(name, sizeof(name), "%u", uid);
+    pmsprintf(name, sizeof(name), "%u", uid);
     name[sizeof(name)-1] = '\0';
     if ((namep = strdup(name)) != NULL)
         __pmHashAdd(PCP_ATTR_USERID, namep, attrs);
 
-    snprintf(name, sizeof(name), "%u", gid);
+    pmsprintf(name, sizeof(name), "%u", gid);
     name[sizeof(name)-1] = '\0';
     if ((namep = strdup(name)) != NULL)
         __pmHashAdd(PCP_ATTR_GROUPID, namep, attrs);
@@ -793,7 +789,7 @@ SetCredentialAttrs(__pmHashCtl *attrs, unsigned int pid, unsigned int uid, unsig
     if (!pid)	/* not available on all platforms */
 	return 0;
 
-    snprintf(name, sizeof(name), "%u", pid);
+    pmsprintf(name, sizeof(name), "%u", pid);
     name[sizeof(name)-1] = '\0';
     if ((namep = strdup(name)) != NULL)
         __pmHashAdd(PCP_ATTR_PROCESSID, namep, attrs);
@@ -883,7 +879,7 @@ __pmServerRequestPortString(int fd, char *buffer, size_t sz)
     int i, j;
 
     if (fd == localSocketFd) {
-	snprintf(buffer, sz, "%s unix request socket %s",
+	pmsprintf(buffer, sz, "%s unix request socket %s",
 		 pmProgname, localSocketPath);
 	return buffer;
     }
@@ -892,7 +888,7 @@ __pmServerRequestPortString(int fd, char *buffer, size_t sz)
 	ReqPortInfo *rp = &reqPorts[i];
 	for (j = 0; j < FAMILIES; j++) {
 	    if (fd == rp->fds[j]) {
-		snprintf(buffer, sz, "%s %s request socket %s",
+		pmsprintf(buffer, sz, "%s %s request socket %s",
 			pmProgname, RequestFamilyString(j), rp->address);
 		return buffer;
 	    }
@@ -978,18 +974,14 @@ __pmSecureServerHandshake(int fd, int flags, __pmHashCtl *attrs)
 {
     (void)fd;
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_AUTH)
+    if (pmDebugOptions.auth)
 	fprintf(stderr, "%s:__pmSecureServerHandshake: flags=%d: ", __FILE__, flags);
-#endif
 
     /* for things that require a secure server, return -EOPNOTSUPP */
     if ((flags & (PDU_FLAG_SECURE | PDU_FLAG_SECURE_ACK | PDU_FLAG_COMPRESS
 		   | PDU_FLAG_AUTH)) != 0) {
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_AUTH)
+	if (pmDebugOptions.auth)
 	    fprintf(stderr, "not allowed\n");
-#endif
 	return -EOPNOTSUPP;
     }
 
@@ -998,10 +990,8 @@ __pmSecureServerHandshake(int fd, int flags, __pmHashCtl *attrs)
      * provided we've connected on a unix domain socket
      */
     if ((flags & PDU_FLAG_CREDS_REQD) != 0 && __pmHashSearch(PCP_ATTR_USERID, attrs) != NULL) {
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_AUTH)
+	if (pmDebugOptions.auth)
 	    fprintf(stderr, "ok\n");
-#endif
 	return 0;
     }
     /* remove all of the known good flags */
@@ -1011,10 +1001,8 @@ __pmSecureServerHandshake(int fd, int flags, __pmHashCtl *attrs)
 	return 0;
 
     /* any remaining flags are unexpected */
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_AUTH)
+    if (pmDebugOptions.auth)
 	fprintf(stderr, "bad\n");
-#endif
     return PM_ERR_IPC;
 }
 
@@ -1108,3 +1096,41 @@ __pmServerHasFeature(__pmServerFeature query)
     }
     return sts;
 }
+
+#if !defined(IS_MINGW)
+/* Based on Stevens (Unix Network Programming, p.83) */
+void
+__pmServerStart(int argc, char **argv, int flags)
+{
+    pid_t childpid;
+
+    (void)argc; (void)argv;
+    fflush(stdout);
+    fflush(stderr);
+
+#if defined(HAVE_TERMIO_SIGNALS)
+    signal(SIGTTOU, SIG_IGN);
+    signal(SIGTTIN, SIG_IGN);
+    signal(SIGTSTP, SIG_IGN);
+#endif
+
+    if ((childpid = fork()) < 0)
+	__pmNotifyErr(LOG_ERR, "__pmServerStart: fork");
+	/* but keep going */
+    else if (childpid > 0) {
+	/* parent, let her exit, but avoid ugly "Log finished" messages */
+	fclose(stderr);
+	exit(0);
+    }
+
+    /* not a process group leader, lose controlling tty */
+    if (setsid() == -1)
+	__pmNotifyErr(LOG_WARNING, "__pmServerStart: setsid");
+	/* but keep going */
+
+    if (flags & 1)
+	close(0);
+    /* don't close other fd's -- we know that only good ones are open! */
+    /* don't chdir("/") -- we may still need to call __pmOpenLog() */
+}
+#endif

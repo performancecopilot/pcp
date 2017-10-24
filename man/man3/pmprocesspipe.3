@@ -1,0 +1,167 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2017 Ken McDonell.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMPROCESSPIPE 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3__pmProcessPipe\f1,
+\f3__pmProcessClosePipe\f1 \- support for process execution at the end of a pipe
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.br
+#include <pcp/impl.h>
+.sp
+int __pmProcessAddArg(__pmExecCtl_t **\fIhandle\fP, const char *\fIarg\fP);
+.br
+int __pmProcessPipe(__pmExecCtl_t **\fIhandle\fP, const char *\fItype\fP, int \fItoss\fP, FILE **\fIfp\fP);
+.br
+int __pmProcessPipeClose(FILE *\fIfp\fP);
+.sp
+cc ... \-lpcp
+.ft 1
+.SH DESCRIPTION
+.PP
+Within the libraries and applications of the Performance Co-Pilot
+(PCP) these routines are provide a convenient and safe alternative
+to
+.BR popen (3)
+and
+.BR pclose (3)
+for executing commands in a separate process that is connected
+to the caller by a pipe.
+.PP
+Setting up the command and arguments is fully documented in
+.BR __pmProcessAddArg (3)
+and is identical to the procedure used to setup
+.BR __pmProcessExec (3).
+.PP
+Once all the command name and arguments have been registered
+calling
+.B __pmProcessPipe
+uses a
+.B pipe (2),
+.B fork (2)
+and
+.B execvp (2)
+sequence to execute the command.
+.PP
+The
+.I type
+argument needs to be
+.B ``r''
+to read from the pipe, else
+.B ``w''
+to write to the pipe.
+.PP
+The argument
+.I toss
+may be used to assign some or all of the standard I/O streams
+for the command to
+.I /dev/null
+\- specifically
+.I toss
+is either
+.B PM_EXEC_TOSS_NONE
+to keep all I/O streams the same as the parent process, else
+the bit-wise or of
+.B PM_EXEC_TOSS_STDIN
+and/or
+.B PM_EXEC_TOSS_STDOUT
+and/or
+.B PM_EXEC_TOSS_STDERR
+to reassign
+.BR stdin ,
+.B stdout
+and
+.B stderr
+respectively.
+.B PM_EXEC_TOSS_ALL
+is a convenience macro equivalent to
+.BR "PM_EXEC_TOSS_STDIN | PM_EXEC_TOSS_STDOUT | PM_EXEC_TOSS_STDERR" .
+.PP
+Obviously some combinations of argument values make no sense,
+e.g. \c
+.I type
+equal to
+.B ``r''
+and
+.B PM_EXEC_TOSS_STDOUT
+set in
+.I toss
+or
+.I type
+equal to
+.B ``w''
+and
+.B PM_EXEC_TOSS_STDIN
+set in
+.IR type .
+.PP
+.B __pmProcessPipe
+returns a standard I/O stream for the pipe via the
+.I fp
+argument.
+.PP
+Once the caller determines all the work has been done,
+.B __pmProcessPipeClose
+should be called.
+.PP
+Nested calling of
+.BR __pmProcessExec (3)
+and/or
+.B __pmProcessPipe
+is not allowed.  Once
+.BR __pmProcessAddArg (3)
+is called with
+.I handle
+set to
+.BR NULL
+to start the registration and execution sequence any attempt
+to start a second registration sequence will be blocked until
+the first one is completed by calling
+.BR __pmProcessExec (3)
+or
+.BR __pmProcessPipe .
+.SH SEE ALSO
+.BR execvp(2),
+.BR fork (2),
+.BR pclose (2),
+.BR pipe (2),
+.BR popen (2),
+.BR __pmProcessAddArg (3),
+.BR __pmProcessExec (3)
+and
+.BR waitpid (3).
+.SH DIAGNOSTICS
+If successful
+.B __pmProcessPipe
+returns 0.  Other conditions are rare (e.g. alloc failure) and are
+indicated by a return value that can be decoded using
+.BR pmErrStr (3).
+.PP
+The return status from
+.B __pmProcessPipeClose
+is a little more complicated.
+If the command completes with an exit status of 0,
+the return value is 0.
+Return values less than 0 indicate a more serious error and the
+value can be decoded using
+.BR pmErrStr (3).
+If the command was executed, but did not exit with status of 0 then
+the return value is an encoding of the
+.BR waitpid (2)
+status as follows: 2000 if something unknown went wrong, else
+if 1000 + signal number of the command was killed or stopped by
+a signal, else the exit status of the command.

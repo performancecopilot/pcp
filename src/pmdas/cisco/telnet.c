@@ -112,23 +112,17 @@ skip2eol(FILE *f)
 {
     int		c;
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL2)
+    if (pmDebugOptions.appl2)
 	fprintf(stderr, "skip2eol:");
-#endif
 
     while ((c = fgetc(f)) != EOF) {
 	if (c == '\n')
 	    break;
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL2)
+	if (pmDebugOptions.appl2)
 	    fprintf(stderr, "%c", c);
-#endif
     }
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL2)
+    if (pmDebugOptions.appl2)
 	fputc('\n', stderr);
-#endif
 }
 
 char *
@@ -157,17 +151,13 @@ mygetwd(FILE *f, char *prompt)
     *p = '\0';
 
     if (feof(f)) {
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL2)
+	if (pmDebugOptions.appl2)
 	    fprintf(stderr, "mygetwd: EOF fd=%d\n", fileno(f));
-#endif
 	return NULL;
     }
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL2)
+    if (pmDebugOptions.appl2)
 	fprintf(stderr, "mygetwd: fd=%d wd=\"%s\"%s\n", fileno(f), buf, found_prompt ? " [prompt]" : "");
-#endif
 
     return buf;
 }
@@ -224,13 +214,11 @@ mygetwd(FILE *f, char *prompt)
 #define BW 7
 #define BYTES_OUT_BCAST 8
 
-#ifdef PCP_DEBUG
 static char *statestr[] = {
     "done", "noise", "in_report",
     "rate", "rate_in", "rate_out", "bytes_in", "bytes_out", "bw",
     "bytes_out_bcast"
 };
-#endif
 
 int
 dousername(cisco_t *cp, char **pw_prompt)
@@ -245,16 +233,12 @@ dousername(cisco_t *cp, char **pw_prompt)
 	    break;
 	if (strlen(w) >= len_prompt && strncmp(&w[strlen(w)-len_prompt], cp->prompt, len_prompt) == 0)
 	    break;
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL0)
+	if (pmDebugOptions.appl0)
 	    fprintf(stderr, "Username:? got - %s\n", w);
-#endif
 	if (strcmp(w, USERPROMPT) == 0) {
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL1) {
+	    if (pmDebugOptions.appl1) {
 		fprintf(stderr, "Send username: %s\n", cp->username);
 	    }
-#endif
 	    fprintf(cp->fout, "%s\n", cp->username);
 	    fflush(cp->fout);
 	    for ( ; ; ) {
@@ -308,16 +292,12 @@ dopasswd(cisco_t *cp, char *pw_prompt)
 	    break;
 	if (strlen(w) >= len_prompt && strncmp(&w[strlen(w)-len_prompt], cp->prompt, len_prompt) == 0)
 	    break;
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL0)
+	if (pmDebugOptions.appl0)
 	    fprintf(stderr, "Password:? got - %s\n", w);
-#endif
 	if (strcmp(w, PWPROMPT) == 0) {
-#ifdef PCP_DEBUG
-		if (pmDebug & DBG_TRACE_APPL1) {
+		if (pmDebugOptions.appl1) {
 		    fprintf(stderr, "Send passwd: %s\n", cp->passwd);
 		}
-#endif
 	    fprintf(cp->fout, "%s\n", cp->passwd);
 	    fflush(cp->fout);
 	    for ( ; ; ) {
@@ -356,11 +336,9 @@ void
 onalarm(int dummy)
 {
     timeout = 1;
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL0) {
+    if (pmDebugOptions.appl0) {
 	fprintf(stderr, "Alarm timeout!\n");
     }
-#endif
 
 }
 
@@ -372,22 +350,16 @@ get_fr_bw(cisco_t *cp, char *interface)
     char	*w;
     int		len_prompt = strlen(cp->prompt);
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL1) {
+    if (pmDebugOptions.appl1) {
 	fprintf(stderr, "Send: s%s\n", interface);
     }
-#endif
     fprintf(cp->fout, "show int s%s\n", interface);
     fflush(cp->fout);
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL2)
+    if (pmDebugOptions.appl2)
 	fprintf(stderr, "BW Parse:");
-#endif
     while (state != DONE) {
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL2)
+	if (pmDebugOptions.appl2)
 	    fprintf(stderr, "[%s] ", statestr[state+1]);
-#endif
 	w = mygetwd(cp->fin, cp->prompt);
 	if (w == NULL || timeout) {
 	    /*
@@ -422,11 +394,9 @@ get_fr_bw(cisco_t *cp, char *interface)
 	}
     }
     alarm(0);
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL0) {
+    if (pmDebugOptions.appl0) {
 	fprintf(stderr, "Extracted bandwidth: %d bytes/sec\n", bandwidth);
     }
-#endif
     return bandwidth;
 }
 
@@ -451,11 +421,9 @@ grab_cisco(intf_t *ip)
     intf_t	tmp;
     int		len_prompt = strlen(cp->prompt);
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL0) {
+    if (pmDebugOptions.appl0) {
 	fprintf(stderr, "grab_cisco(%s:%s):\n", cp->host, ip->interface);
     }
-#endif
 
     tmp.bandwidth = tmp.rate_in = tmp.rate_out = -1;
     tmp.bytes_in = tmp.bytes_out = tmp.bytes_out_bcast = -1;
@@ -463,11 +431,9 @@ grab_cisco(intf_t *ip)
     if (cp->fin == NULL) {
 	fd = conn_cisco(cp);
 	if (fd < 0) {
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL0)
+	    if (pmDebugOptions.appl0)
 		fprintf(stderr, "grab_cisco(%s:%s): connect failed: %s\n",
 			cp->host, ip->interface, netstrerror());
-#endif
 	    return -1;
 	}
 	else {
@@ -477,8 +443,7 @@ grab_cisco(intf_t *ip)
 		exit(1);
 	    }
 	    cp->fout = fdopen (fd2, "w");
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL0) {
+	    if (pmDebugOptions.appl0) {
 		fprintf(stderr, "grab_cisco(%s:%s): connected fin=%d fout=%d",
 		    cp->host, ip->interface, fileno(cp->fin), fileno(cp->fout));
 		if (cp->username != NULL)
@@ -491,7 +456,6 @@ grab_cisco(intf_t *ip)
 		    fprintf(stderr, " NO passwd");
 		fputc('\n', stderr);
 	    }
-#endif
 
 	    if (cp->username != NULL) {
 		/*
@@ -515,19 +479,15 @@ grab_cisco(intf_t *ip)
 		    return -1;
 		}
 	    }
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL1) {
+	    if (pmDebugOptions.appl1) {
 		fprintf(stderr, "Send: \n");
 	    }
-#endif
 	    fprintf(cp->fout, "\n");
 	    fflush(cp->fout);
 	}
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL1) {
+	if (pmDebugOptions.appl1) {
 	    fprintf(stderr, "Send: terminal length 0\n");
 	}
-#endif
 	fprintf(cp->fout, "terminal length 0\n");
 	fflush(cp->fout);
     }
@@ -560,48 +520,38 @@ grab_cisco(intf_t *ip)
 	    nval++;
     }
     if (style == SHOW_FRAME) {
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL1) {
+	if (pmDebugOptions.appl1) {
 	    fprintf(stderr, "Send: show frame pvc int s%s\n", &ip->interface[1]);
 	}
-#endif
 	fprintf(cp->fout, "show frame pvc int s%s\n", &ip->interface[1]);
 	next_state = BYTES_IN;
     }
     else {
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL1) {
+	if (pmDebugOptions.appl1) {
 	    fprintf(stderr, "Send: show int %s\n", ip->interface);
 	}
-#endif
 	fprintf(cp->fout, "show int %s\n", ip->interface);
     }
     fflush(cp->fout);
     state = NOISE;
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL2) {
+    if (pmDebugOptions.appl2) {
 	fprintf(stderr, "Parse:");
 	fflush(stderr);
     }
-#endif
     while (state != DONE) {
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL2) {
+	if (pmDebugOptions.appl2) {
 	    fprintf(stderr, "[%s] ", statestr[state+1]);
 	    fflush(stderr);
 	}
-#endif
 	w = mygetwd(cp->fin, cp->prompt);
 	if (w == NULL || timeout) {
 	    /*
 	     * End of File (telenet timeout?)
 	     * ... mark as closed, and try again at next request
 	     */
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL0)
+	    if (pmDebugOptions.appl0)
 		fprintf(stderr, "grab_cisco(%s:%s): forced disconnect fin=%d\n",
 		    cp->host, ip->interface, fileno(cp->fin));
-#endif
 	    fclose(cp->fin);
 	    fclose(cp->fout);
 	    cp->fin = cp->fout = NULL;
@@ -711,8 +661,7 @@ grab_cisco(intf_t *ip)
 	}
     }
     alarm(0);
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL0) {
+    if (pmDebugOptions.appl0) {
 	fprintf(stderr, "Extracted %d values ...\n", nval);
 	if (tmp.bandwidth != 0xffffffff)
 	    fprintf(stderr, "bandwidth: %d bytes/sec\n", tmp.bandwidth);
@@ -742,7 +691,6 @@ grab_cisco(intf_t *ip)
 	    fprintf(stderr, " ? out_bcast");
 	fprintf(stderr, "\n\n");
     }
-#endif
 
     /* pretend this is atomic */
     ip->bandwidth = tmp.bandwidth;

@@ -219,13 +219,13 @@ BEGIN						{ out = "'"$tmp/pre"'" }
 	    then
 		:
 	    else
-		echo "$prog: Warning: $BASE/$tag: pmlogconf-setup failed"
+		echo >&2 "$prog: Warning: $BASE/$tag: pmlogconf-setup failed"
 		sts=1
 	    fi
 	    sed -e "s;$BASE/;;" <$tmp/out >$tmp/tmp
 	    [ -s $tmp/err ] && cat $tmp/err
 	    sed -e '/^#+/s/+/?/' <$tmp/tmp >>$tmp/ctl
-	    cat $tmp/post >>$tmp/ctl
+	    [ -s $tmp/post ] && cat $tmp/post >>$tmp/ctl
 	fi
     done
 
@@ -234,6 +234,19 @@ BEGIN						{ out = "'"$tmp/pre"'" }
 	_split
 	[ ! -s $tmp/tag ] && break
 	eval `sed <$tmp/tag -e 's/^#? /tag="/' -e 's/:/" onoff="/' -e 's/:/" delta="/' -e 's/:.*/"/'`
+
+	if [ ! -f $BASE/"$tag" ]
+	then
+	    # the tag file has gone away ...
+	    #
+	    if $autocreate
+	    then
+		echo >&2 "$prog: Warning: cannot find group file ($tag): deleting obsolete group"
+		cat $tmp/head $tmp/tail >$tmp/ctl
+		continue
+	    fi
+	fi
+
 	[ -z "$delta" ] && delta=default
 
 	if $reprobe
@@ -243,7 +256,7 @@ BEGIN						{ out = "'"$tmp/pre"'" }
 	    then
 		:
 	    else
-		echo "$prog: Warning: $BASE/$tag: pmlogconf-setup failed"
+		echo >&2 "$prog: Warning: $BASE/$tag: pmlogconf-setup failed"
 		sts=1
 	    fi
 	    sed -e "s;$BASE/;;" <$tmp/out >$tmp/tmp
@@ -254,7 +267,7 @@ BEGIN						{ out = "'"$tmp/pre"'" }
 		[ -z "$delta_r" ] && delta_r=default
 		if [ "$tag" != "$tag_r" ]
 		then
-		    echo "Botch: reprobe for $tag found new tag ${tag_r}, no change"
+		    echo >&2 "Botch: reprobe for $tag found new tag ${tag_r}, no change"
 		    cat $tmp/tmp
 		else
 		    if [ "$onoff" = y ]
@@ -262,7 +275,7 @@ BEGIN						{ out = "'"$tmp/pre"'" }
 			# existing y takes precedence
 			if [ "$onoff_r" = x ]
 			then
-			    echo "Warning: reprobe for $tag suggests exclude, keeping current include status"
+			    echo >&2 "Warning: reprobe for $tag suggests exclude, keeping current include status"
 			fi
 		    else
 			onoff=$onoff_r
@@ -282,7 +295,7 @@ BEGIN						{ out = "'"$tmp/pre"'" }
 		    cat $tmp/tail >>$tmp/ctl
 		    continue
 		    ;;
-	    *)	echo "Warning: tag=$tag onoff is illegal ($onoff) ... setting to \"n\""
+	    *)	echo >&2 "Warning: tag=$tag onoff is illegal ($onoff) ... setting to \"n\""
 		    onoff=n
 		    ;;
 	esac
@@ -311,7 +324,7 @@ END		{ printf "desc='"'"'%s'"'"'\n",desc }'`
 			# from migration, silently do nothing
 			;;
 		*)
-			echo "Warning: cannot find group file ($tag) ... no change is possible"
+			echo >&2 "Warning: cannot find group file ($tag): no change is possible"
 			;;
 	    esac
 	    $PCP_AWK_PROG <"$config" >>$tmp/head '
@@ -469,7 +482,7 @@ y         log this group
     done
 }
 
-if [ $autocreate -o $reprobe ]
+if $autocreate || $reprobe
 then
     # Once-off check for pmcd connectivity, to avoid subsequent repeated
     # failures in pmlogconf-setup (which may take awhile, especially when
@@ -537,7 +550,7 @@ End-of-File
 	then
 	    :
 	else
-	    echo "$prog: Warning: $BASE/$tag: pmlogconf-setup failed"
+	    echo >&2 "$prog: Warning: $BASE/$tag: pmlogconf-setup failed"
 	    [ -s $tmp/err ] && cat $tmp/err
 	    sts=1
 	fi
@@ -587,7 +600,7 @@ s; D1:; disk/percontroller:;
 s; D2:; disk/perdisk:;
 s; D3:; v1.0/D3:;
 s; F0:; filesystem/all:;
-s; F1:; filesystem/xfs-io-irix:;
+s; F1:; filesystem/xfs-io-linux:;
 s; F2:; filesystem/xfs-all:;
 s; F3:; sgi/xlv-activity:;
 s; F4:; sgi/xlv-stripe-io:;
@@ -654,7 +667,7 @@ s; S2:; networking/rpc:;
 	exit
     fi
 
-    [ -n "$HOST" -a ! $reprobe ] && echo "$prog: Warning: existing config file, -h $HOST will be ignored"
+    [ -n "$HOST" -a ! $reprobe ] && echo >&2 "$prog: Warning: existing config file, -h $HOST will be ignored"
 
     CBASE=`sed -n -e '/^#+ groupdir /s///p' <$tmp/in`
     if [ -z "$BASE" ]
@@ -663,7 +676,7 @@ s; S2:; networking/rpc:;
     else
 	if [ "$BASE" != "$CBASE" ]
 	then
-	    echo "$prog: Warning: using base directory for group files from command line ($BASE) which is different from that in $config ($CBASE)"
+	    echo >&2 "$prog: Warning: using base directory for group files from command line ($BASE) which is different from that in $config ($CBASE)"
 	fi
     fi
 fi

@@ -343,7 +343,7 @@ void PmTimeArch::displayPositionText()
     if (my.showYear == false)
 	text.remove(19, 5);
     if (my.showMilliseconds == true) {
-	sprintf(msecbuf, ".%03u", (uint)my.pmtime.position.tv_usec / 1000);
+	pmsprintf(msecbuf, 5, ".%03u", (uint)my.pmtime.position.tv_usec/1000);
 	text.insert(19, msecbuf);
     }
     lineEditCtime->setText(text.simplified());

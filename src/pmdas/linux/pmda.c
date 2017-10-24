@@ -5041,6 +5041,46 @@ static pmdaMetric metrictab[] = {
     {PMDA_PMID(28,137), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
+    /* mem.vmstat.pgsteal_kswapd_dma */
+    { &_pm_proc_vmstat.pgsteal_kswapd_dma,
+    {PMDA_PMID(28,138), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* mem.vmstat.pgsteal_kswapd_dma32 */
+    { &_pm_proc_vmstat.pgsteal_kswapd_dma32,
+    {PMDA_PMID(28,139), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* mem.vmstat.pgsteal_kswapd_normal */
+    { &_pm_proc_vmstat.pgsteal_kswapd_normal,
+    {PMDA_PMID(28,140), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* mem.vmstat.pgsteal_kswapd_movable */
+    { &_pm_proc_vmstat.pgsteal_kswapd_movable,
+    {PMDA_PMID(28,141), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* mem.vmstat.pgsteal_direct_dma */
+    { &_pm_proc_vmstat.pgsteal_direct_dma,
+    {PMDA_PMID(28,142), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* mem.vmstat.pgsteal_direct_dma32 */
+    { &_pm_proc_vmstat.pgsteal_direct_dma32,
+    {PMDA_PMID(28,143), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* mem.vmstat.pgsteal_direct_normal */
+    { &_pm_proc_vmstat.pgsteal_direct_normal,
+    {PMDA_PMID(28,144), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* mem.vmstat.pgsteal_direct_movable */
+    { &_pm_proc_vmstat.pgsteal_direct_movable,
+    {PMDA_PMID(28,145), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
 /*
  * sysfs_kernel cluster
  */
@@ -5342,7 +5382,7 @@ char *linux_mdadm = "/sbin/mdadm"; /* program for extracting MD RAID status */
 FILE *
 linux_statsfile(const char *path, char *buffer, int size)
 {
-    snprintf(buffer, size, "%s%s", linux_statspath, path);
+    pmsprintf(buffer, size, "%s%s", linux_statspath, path);
     buffer[size-1] = '\0';
     return fopen(buffer, "r");
 }
@@ -6808,7 +6848,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     case CLUSTER_KERNEL_UNAME:
 	switch(idp->item) {
 	case 5: /* pmda.uname */
-	    sprintf(uname_string, "%s %s %s %s %s",
+	    pmsprintf(uname_string, sizeof(uname_string), "%s %s %s %s %s",
 	    	kernel_uname.sysname, 
 		kernel_uname.nodename,
 		kernel_uname.release,
@@ -7793,7 +7833,7 @@ linux_init(pmdaInterface *dp)
     if (_isDSO) {
 	char helppath[MAXPATHLEN];
 	int sep = __pmPathSeparator();
-	snprintf(helppath, sizeof(helppath), "%s%c" "linux" "%c" "help",
+	pmsprintf(helppath, sizeof(helppath), "%s%c" "linux" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
 	pmdaDSO(dp, PMDA_INTERFACE_6, "linux DSO", helppath);
     } else {
@@ -7948,7 +7988,7 @@ main(int argc, char **argv)
     _isDSO = 0;
     __pmSetProgname(argv[0]);
 
-    snprintf(helppath, sizeof(helppath), "%s%c" "linux" "%c" "help",
+    pmsprintf(helppath, sizeof(helppath), "%s%c" "linux" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&dispatch, PMDA_INTERFACE_6, pmProgname, LINUX, "linux.log", helppath);
 

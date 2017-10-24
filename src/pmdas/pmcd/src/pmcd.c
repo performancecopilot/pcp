@@ -81,6 +81,10 @@ static pmDesc	desctab[] = {
     { PMDA_PMID(0,21), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) },
 /* sighups */
     { PMDA_PMID(0,22), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
+/* pid */
+    { PMDA_PMID(0,23), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* seqnum */
+    { PMDA_PMID(0,24), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) },
 
 /* pdu_in.error */
     { PMDA_PMID(1,0), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
@@ -392,7 +396,7 @@ init_pmdaroot_connect(void)
 {
     setoserror(0);
     if ((rootfd = pmdaRootConnect(NULL)) < 0) {
-	if (pmDebug & DBG_TRACE_ATTR)
+	if (pmDebugOptions.attr)
 	    fprintf(stderr, "pmdapmcd cannot connect to pmdaroot: %s\n",
 			osstrerror());
     }
@@ -455,7 +459,7 @@ refresh_pmie_indom(void)
     int			fd;
     int			sep = __pmPathSeparator();
 
-    snprintf(fullpath, sizeof(fullpath), "%s%c%s",
+    pmsprintf(fullpath, sizeof(fullpath), "%s%c%s",
 	     pmGetConfig("PCP_TMP_DIR"), sep, PMIE_SUBDIR);
     if (stat(fullpath, &statbuf) == 0) {
 	if (stat_time_differs(&statbuf, &lastsbuf)) {
@@ -480,7 +484,7 @@ refresh_pmie_indom(void)
 		    continue;
 		if (!__pmProcessExists(pmiepid))
 		    continue;
-		snprintf(fullpath, sizeof(fullpath), "%s%c%s%c%s",
+		pmsprintf(fullpath, sizeof(fullpath), "%s%c%s%c%s",
 			 pmGetConfig("PCP_TMP_DIR"), sep, PMIE_SUBDIR, sep,
 			 dp->d_name);
 		if (stat(fullpath, &statbuf) < 0) {
@@ -576,7 +580,7 @@ pmcd_instance_reg(int inst, char *name, __pmInResult **result)
 	/* return inst and name for everything */
 	for (i = 0; i < res->numinst; i++) {
 	    res->instlist[i] = i;
-	    snprintf(idx, sizeof(idx), "%d", i);
+	    pmsprintf(idx, sizeof(idx), "%d", i);
 	    if ((res->namelist[i] = strdup(idx)) == NULL) {
 		__pmFreeInResult(res);
 		return -oserror();
@@ -586,7 +590,7 @@ pmcd_instance_reg(int inst, char *name, __pmInResult **result)
     else if (name == NULL) {
 	/* given an inst, return the name */
 	if (0 <= inst && inst < NUMREG) {
-	    snprintf(idx, sizeof(idx), "%d", inst);
+	    pmsprintf(idx, sizeof(idx), "%d", inst);
 	    if ((res->namelist[0] = strdup(idx)) == NULL) {
 		__pmFreeInResult(res);
 		return -oserror();
@@ -920,7 +924,7 @@ pmcd_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaEx
 		if (!client[i].status.connected)
 		    continue;
 		res->instlist[k] = client[i].seq;
-		snprintf(buf, sizeof(buf), "%u", client[i].seq);
+		pmsprintf(buf, sizeof(buf), "%u", client[i].seq);
 		res->namelist[k] = strdup(buf);
 		if (res->namelist[k] == NULL) {
 		    sts = -oserror();
@@ -944,7 +948,7 @@ pmcd_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaEx
 	    }
 	    else {
 		char	buf[11];	/* enough for 32-bit client seq number */
-		snprintf(buf, sizeof(buf), "%u", (unsigned int)inst);
+		pmsprintf(buf, sizeof(buf), "%u", (unsigned int)inst);
 		res->namelist[0] = strdup(buf);
 		if (res->namelist[0] == NULL) {
 		    sts = -oserror();
@@ -958,7 +962,7 @@ pmcd_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaEx
 	    for (i = 0; i < nClients; i++) {
 		if (!client[i].status.connected)
 		    continue;
-		snprintf(buf, sizeof(buf), "%u", client[i].seq);
+		pmsprintf(buf, sizeof(buf), "%u", client[i].seq);
 		if (strcmp(name, buf) == 0)
 		    break;
 	    }
@@ -1065,7 +1069,7 @@ extract_service(const char *path, char *name)
     pid_t	pid;
 
     /* extract PID lurking within the file */
-    snprintf(fullpath, sizeof(fullpath), "%s%c%s.pid", path, sep, name);
+    pmsprintf(fullpath, sizeof(fullpath), "%s%c%s.pid", path, sep, name);
     if ((fp = fopen(fullpath, "r")) == NULL)
 	return 0;
     sep = fscanf(fp, "%63s", buffer);
@@ -1166,8 +1170,8 @@ fetch_hostname(int ctx, pmAtomValue *avp, char *hostname)
 	return hostname;
     }
 
-    if (_pmcd_hostname) {
-	avp->cp = hostname = _pmcd_hostname;
+    if (pmcd_hostname) {
+	avp->cp = hostname = pmcd_hostname;
     } else {
 	if (!hostname)
 	    hostname = hostnameinfo();
@@ -1341,7 +1345,7 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 					atom.ul++;
 				break;
 			case 4:		/* control.timeout */
-				atom.ul = _pmcd_timeout;
+				atom.ul = pmcd_timeout;
 				break;
 			case 5:		/* timezone $TZ */
 				atom.cp = tzinfo();
@@ -1377,13 +1381,13 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 				}
 				break;
 			case 9:		/* traceconn */
-				atom.l = (_pmcd_trace_mask & TR_MASK_CONN) ? 1 : 0;
+				atom.l = (pmcd_trace_mask & TR_MASK_CONN) ? 1 : 0;
 				break;
 			case 10:	/* tracepdu */
-				atom.l = (_pmcd_trace_mask & TR_MASK_PDU) ? 1 : 0;
+				atom.l = (pmcd_trace_mask & TR_MASK_PDU) ? 1 : 0;
 				break;
 			case 11:	/* tracebufs */
-				atom.l = _pmcd_trace_nbufs;
+				atom.l = pmcd_trace_nbufs;
 				break;
 			case 12:	/* dumptrace ... always 0 */
 				atom.l = 0;
@@ -1392,7 +1396,7 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 				atom.l = 0;
 				break;
 			case 14:	/* tracenobuf */
-				atom.l = (_pmcd_trace_mask & TR_MASK_NOBUF) ? 1 : 0;
+				atom.l = (pmcd_trace_mask & TR_MASK_NOBUF) ? 1 : 0;
 				break;
 			case 15:	/* sighup ... always 0 */
 				atom.l = 0;
@@ -1458,6 +1462,14 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 
 			case 22:	/* SIGHUPs received */
 				atom.ul = pmcd_sighups;
+				break;
+
+			case 23:	/* pmcd's pid */
+				atom.ull = pmcd_pid;
+				break;
+
+			case 24:	/* configuration sequence number */
+				atom.ul = pmcd_seqnum;
 				break;
 
 			default:
@@ -1774,7 +1786,8 @@ pmcd_store(pmResult *result, pmdaExt *pmda)
 	pmidp = (__pmID_int *)&vsp->pmid;
 	if (pmidp->cluster == 0) {
 	    if (pmidp->item == 0) {	/* pmcd.control.debug */
-		pmDebug = vsp->vlist[0].value.lval;
+		pmClearDebug("all");
+		__pmSetDebugBits(vsp->vlist[0].value.lval);
 	    }
 	    else if (pmidp->item == 4) { /* pmcd.control.timeout */
 		val = vsp->vlist[0].value.lval;
@@ -1782,8 +1795,8 @@ pmcd_store(pmResult *result, pmdaExt *pmda)
 		    sts = PM_ERR_SIGN;
 		    break;
 		}
-		if (val != _pmcd_timeout) {
-		    _pmcd_timeout = val;
+		if (val != pmcd_timeout) {
+		    pmcd_timeout = val;
 		}
 	    }
 	    else if (pmidp->item == 8) { /* pmcd.control.register */
@@ -1799,9 +1812,9 @@ pmcd_store(pmResult *result, pmdaExt *pmda)
 	    else if (pmidp->item == 9) { /* pmcd.control.traceconn */
 		val = vsp->vlist[0].value.lval;
 		if (val == 0)
-		    _pmcd_trace_mask &= (~TR_MASK_CONN);
+		    pmcd_trace_mask &= (~TR_MASK_CONN);
 		else if (val == 1)
-		    _pmcd_trace_mask |= TR_MASK_CONN;
+		    pmcd_trace_mask |= TR_MASK_CONN;
 		else {
 		    sts = PM_ERR_BADSTORE;
 		    break;
@@ -1810,9 +1823,9 @@ pmcd_store(pmResult *result, pmdaExt *pmda)
 	    else if (pmidp->item == 10) { /* pmcd.control.tracepdu */
 		val = vsp->vlist[0].value.lval;
 		if (val == 0)
-		    _pmcd_trace_mask &= (~TR_MASK_PDU);
+		    pmcd_trace_mask &= (~TR_MASK_PDU);
 		else if (val == 1)
-		    _pmcd_trace_mask |= TR_MASK_PDU;
+		    pmcd_trace_mask |= TR_MASK_PDU;
 		else {
 		    sts = PM_ERR_BADSTORE;
 		    break;
@@ -1838,9 +1851,9 @@ pmcd_store(pmResult *result, pmdaExt *pmda)
 	    else if (pmidp->item == 14) { /* pmcd.control.tracenobuf */
 		val = vsp->vlist[0].value.lval;
 		if (val == 0)
-		    _pmcd_trace_mask &= (~TR_MASK_NOBUF);
+		    pmcd_trace_mask &= (~TR_MASK_NOBUF);
 		else if (val == 1)
-		    _pmcd_trace_mask |= TR_MASK_NOBUF;
+		    pmcd_trace_mask |= TR_MASK_NOBUF;
 		else {
 		    sts = PM_ERR_BADSTORE;
 		    break;
@@ -1936,7 +1949,7 @@ pmcd_init(pmdaInterface *dp)
     char helppath[MAXPATHLEN];
     int sep = __pmPathSeparator();
  
-    snprintf(helppath, sizeof(helppath), "%s%c" "pmcd" "%c" "help",
+    pmsprintf(helppath, sizeof(helppath), "%s%c" "pmcd" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDSO(dp, PMDA_INTERFACE_6, "pmcd", helppath);
     dp->comm.flags |= (PDU_FLAG_AUTH|PDU_FLAG_CONTAINER);

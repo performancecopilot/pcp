@@ -23,18 +23,14 @@ _pmLogPut(__pmFILE *f, __pmPDU *pb)
     int		rlen = ntohl(pb[0]);
     int		sts;
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_LOG) {
+    if (pmDebugOptions.log) {
 	fprintf(stderr, "_pmLogPut: fd=%d rlen=%d\n",
 	    __pmFileno(f), rlen);
     }
-#endif
 
     if ((sts = (int)__pmFwrite(pb, 1, rlen, f)) != rlen) {
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_LOG)
+	if (pmDebugOptions.log)
 	    fprintf(stderr, "_pmLogPut: fwrite=%d %s\n", sts, osstrerror());
-#endif
 	return -oserror();
     }
     return 0;

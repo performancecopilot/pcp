@@ -33,8 +33,13 @@ $1 ~ /\.1$/	{ if (l1 == 0) {
 		  }
 		  else if (l1 == $2)
 		          print $1,"unchanged"
-		  else
-		          print $1,"incr",$2-l1,"bytes"
+		  else {
+			  # change is not deterministic, due to epilogue
+			  # record size
+			  #
+			  h = int(($2 - l1) / 100)
+		          print $1,"incr",h*100 "-" (h+1)*100,"bytes"
+		  }
 		  l1=$2
 		  next
 		}
@@ -103,7 +108,7 @@ echo 's/ [12][0-9][0-9][0-9]$/ year/' >>$tmp.sed
 echo "l0=0 l1=0" >$tmp.last
 echo "init $tmp.last: `cat $tmp.last`" >>$seq.full
 
-_start_up_pmlogger -L -c /dev/null -l $tmp.log $tmp
+_start_up_pmlogger -Dlog,desperate -L -c /dev/null -l $tmp.log $tmp
 _wait_for_pmlogger $pid $tmp.log
 
 echo
@@ -193,5 +198,9 @@ for i in 0 1 meta index
 do
     cp ${tmp}.$i $seq.full.$i
 done
+
+echo >>$seq.full
+echo "-- pmlogger.log --" >>$seq.full
+cat $tmp.log >>$seq.full
 
 exit 0

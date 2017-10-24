@@ -578,24 +578,20 @@ insert_cache(hdr_t *h, const char *name, int inst, int *sts)
 	if (e != NULL) {
 	    if (name_eq(e, name, hashlen) != 1) {
 		/* instance id the same, different name */
-#ifdef PCP_DEBUG
-		if (pmDebug & DBG_TRACE_INDOM) {
+		if (pmDebugOptions.indom) {
 		    fprintf(stderr, "pmdaCache: store: indom %s: instance %d ", pmInDomStr(h->indom), e->inst);
 		    fprintf(stderr, " in cache, name \"%s\" does not match new entry \"%s\"\n", e->name, name);
 		}
-#endif
 		*sts = PM_ERR_INST;
 	    }
 	    return e;
 	}
 	e = find_entry(h, name, PM_IN_NULL, sts);
 	if (e != NULL) {
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_INDOM) {
+	    if (pmDebugOptions.indom) {
 		fprintf(stderr, "pmdaCacheStoreKey: indom %s: instance \"%s\"", pmInDomStr(h->indom), e->name);
 		fprintf(stderr, " in cache, id %d does not match new entry %d\n", e->inst, inst);
 	    }
-#endif
 	    *sts = PM_ERR_INST;
 	    return e;
 	}
@@ -733,13 +729,14 @@ load_cache(hdr_t *h)
     if (vdp == NULL) {
 	if ((vdp = pmGetOptionalConfig("PCP_VAR_DIR")) == NULL)
 	    return PM_ERR_GENERIC;
-	snprintf(filename, sizeof(filename),
+	pmsprintf(filename, sizeof(filename),
 		"%s%c" "config" "%c" "pmda", vdp, sep, sep);
 	mkdir2(filename, 0755);
     }
 
-    snprintf(filename, sizeof(filename), "%s%cconfig%cpmda%c%s",
-		vdp, sep, sep, sep, pmInDomStr_r(h->indom, strbuf, sizeof(strbuf)));
+    pmsprintf(filename, sizeof(filename), "%s%cconfig%cpmda%c%s",
+		vdp, sep, sep, sep,
+		pmInDomStr_r(h->indom, strbuf, sizeof(strbuf)));
     if ((fp = fopen(filename, "r")) == NULL)
 	return -oserror();
     if (fgets(buf, sizeof(buf), fp) == NULL) {
@@ -866,12 +863,10 @@ bad:
     }
     fclose(fp);
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_INDOM) {
+    if (pmDebugOptions.indom) {
 	fprintf(stderr, "After PMDA_CACHE_LOAD\n");
 	dump(stderr, h, 0);
     }
-#endif
 
     return cnt;
 }
@@ -895,13 +890,14 @@ save_cache(hdr_t *h, int hstate)
     if (vdp == NULL) {
 	if ((vdp = pmGetOptionalConfig("PCP_VAR_DIR")) == NULL)
 	    return PM_ERR_GENERIC;
-	snprintf(filename, sizeof(filename),
+	pmsprintf(filename, sizeof(filename),
 		"%s%c" "config" "%c" "pmda", vdp, sep, sep);
 	mkdir2(filename, 0755);
     }
 
-    snprintf(filename, sizeof(filename), "%s%cconfig%cpmda%c%s",
-		vdp, sep, sep, sep, pmInDomStr_r(h->indom, strbuf, sizeof(strbuf)));
+    pmsprintf(filename, sizeof(filename), "%s%cconfig%cpmda%c%s",
+		vdp, sep, sep, sep,
+		pmInDomStr_r(h->indom, strbuf, sizeof(strbuf)));
     if ((fp = fopen(filename, "w")) == NULL)
 	return -oserror();
     fprintf(fp, "%d %d %d\n", CACHE_VERSION, h->ins_mode, h->maxinst);
@@ -928,15 +924,13 @@ save_cache(hdr_t *h, int hstate)
     fclose(fp);
     h->hstate &= ~(DIRTY_INSTANCE | DIRTY_STAMP);
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_INDOM) {
+    if (pmDebugOptions.indom) {
 	fprintf(stderr, "After cache_save hstate={");
 	if (hstate & DIRTY_INSTANCE) fprintf(stderr, "DIRTY_INSTANCE");
 	if (hstate & DIRTY_STAMP) fprintf(stderr, "DIRTY_STAMP");
 	fprintf(stderr, "}\n");
 	dump(stderr, h, 0);
     }
-#endif
 
     return cnt;
 }
@@ -976,14 +970,12 @@ store(pmInDom indom, int flags, const char *name, pmInDom inst, int keylen, cons
     if ((e = find_entry(h, name, inst, &sts)) == NULL) {
 
 	if (flags != PMDA_CACHE_ADD) {
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_INDOM) {
+	    if (pmDebugOptions.indom) {
 		fprintf(stderr, "pmdaCache store: indom %s: instance \"%s\"", pmInDomStr(indom), name);
 		if (inst != PM_IN_NULL)
 		    fprintf(stderr, " (%d)", inst);
 		fprintf(stderr, " not in cache: flags=%d not allowed\n", flags);
 	    }
-#endif
 	    return PM_ERR_INST;
 	}
 
@@ -1099,15 +1091,13 @@ pmdaCacheStoreKey(pmInDom indom, int flags, const char *name, int keylen, const 
 	 * if keys are not equal => failure
 	 */
 	if (key_eq(e, mykeylen, mykey) == 0) {
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_INDOM) {
+	    if (pmDebugOptions.indom) {
 		fprintf(stderr, "pmdaCacheStoreKey: indom %s: instance \"%s\" (%d) in cache ", pmInDomStr(indom), e->name, e->inst);
 		KeyStr(stderr, e->keylen, (const char *)e->key);
 		fprintf(stderr, " does not match new entry ");
 		KeyStr(stderr, mykeylen, mykey);
 		fputc('\n', stderr);
 	    }
-#endif
 	    return PM_ERR_INST;
 	}
 	/* keys the same, use inst from existing entry */
@@ -1143,25 +1133,21 @@ pmdaCacheStoreKey(pmInDom indom, int flags, const char *name, int keylen, const 
 	    if (strcmp(e->name, name) == 0) {
 		if (key_eq(e, mykeylen, mykey) == 1)
 		    break;
-#ifdef PCP_DEBUG
-		if (pmDebug & DBG_TRACE_INDOM) {
+		if (pmDebugOptions.indom) {
 		    fprintf(stderr, "pmdaCacheStoreKey: indom %s: instance \"%s\" (%d) in cache, ", pmInDomStr(indom), e->name, e->inst);
 		    KeyStr(stderr, e->keylen, (const char *)e->key);
 		    fprintf(stderr, " does not match new entry ");
 		    KeyStr(stderr, mykeylen, mykey);
 		    fputc('\n', stderr);
 		}
-#endif
 		return PM_ERR_INST;
 	    }
 	    else if (key_eq(e, mykeylen, mykey) == 1) {
-#ifdef PCP_DEBUG
-		if (pmDebug & DBG_TRACE_INDOM) {
+		if (pmDebugOptions.indom) {
 		    fprintf(stderr, "pmdaCacheStoreKey: indom %s: instance %d ", pmInDomStr(indom), e->inst);
 		    KeyStr(stderr, e->keylen, (const char *)e->key);
 		    fprintf(stderr, " in cache, name \"%s\" does not match new entry \"%s\"\n", e->name, name);
 		}
-#endif
 		return PM_ERR_INST;
 	    }
 	}
@@ -1401,13 +1387,11 @@ int pmdaCacheLookupKey(pmInDom indom, const char *name, int keylen, const void *
 	}
     }
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_INDOM) {
+    if (pmDebugOptions.indom) {
 	    fprintf(stderr, "pmdaCacheLookupKey: indom %s: ", pmInDomStr(h->indom));
 	    KeyStr(stderr, mykeylen, mykey);
 	    fprintf(stderr, ": no matching key in cache\n");
 	}
-#endif
     return PM_ERR_INST;
 }
 

@@ -148,7 +148,7 @@ bash_trace_parser(bash_process_t *bash, bash_trace_t *trace,
 	if (event_start(bash, &trace->timestamp))
 	    trace->flags |= PM_EVENT_FLAG_START;
 
-	if (pmDebug & DBG_TRACE_APPL0)
+	if (pmDebugOptions.appl0)
 	    __pmNotifyErr(LOG_DEBUG,
 		"event parsed: flags: %x time: %d line: %d func: '%s' cmd: '%s'",
 		trace->flags, time, trace->line, trace->function, trace->command);
@@ -166,7 +166,7 @@ bash_trace_decoder(int eventarray,
     pmID		pmid;
     int			sts, count = 0;
 
-    if (pmDebug & DBG_TRACE_APPL0)
+    if (pmDebugOptions.appl0)
 	__pmNotifyErr(LOG_DEBUG, "bash_trace_decoder[%ld bytes]", (long)size);
 
     if (bash_trace_parser(process, &trace, timestamp, (const char *)buffer, size))
@@ -270,7 +270,7 @@ bash_store_metric(pmValueSet *vsp, int context)
     if (idp->cluster != 0 || idp->item != bash_xtrace_records)
 	return PM_ERR_PERMISSION;
 
-    if (pmDebug & DBG_TRACE_APPL0)
+    if (pmDebugOptions.appl0)
 	__pmNotifyErr(LOG_DEBUG, "bash_store_metric walking bash set");
 
     pmdaCacheOp(processes, PMDA_CACHE_WALK_REWIND);
@@ -281,7 +281,7 @@ bash_store_metric(pmValueSet *vsp, int context)
             continue;
 	if ((sts = pmdaEventSetAccess(context, bp->queueid, 1)) < 0)
 	    return sts;
-	if (pmDebug & DBG_TRACE_APPL0)
+	if (pmDebugOptions.appl0)
             __pmNotifyErr(LOG_DEBUG,
 			"Access granted client=%d bash=%d queueid=%d",
                         context, bp->pid, bp->queueid);
@@ -296,12 +296,12 @@ bash_store(pmResult *result, pmdaExt *pmda)
     int		context = pmda->e_context;
 
     check_processes(context);
-    if (pmDebug & DBG_TRACE_APPL0)
+    if (pmDebugOptions.appl0)
 	__pmNotifyErr(LOG_DEBUG, "bash_store called (%d)", result->numpmid);
     for (i = 0; i < result->numpmid; i++) {
 	pmValueSet	*vsp = result->vset[i];
 
-	if (pmDebug & DBG_TRACE_APPL0)
+	if (pmDebugOptions.appl0)
 	    __pmNotifyErr(LOG_DEBUG, "bash_store_metric called");
 	if ((sts = bash_store_metric(vsp, context)) < 0)
 	    return sts;
@@ -342,7 +342,7 @@ bash_main(pmdaInterface *dispatch)
     for (;;) {
 	memcpy(&readyfds, &fds, sizeof(readyfds));
 	nready = select(maxfd+1, &readyfds, NULL, NULL, NULL);
-	if (pmDebug & DBG_TRACE_APPL2)
+	if (pmDebugOptions.appl2)
             __pmNotifyErr(LOG_DEBUG, "select: nready=%d interval=%d",
                           nready, bash_interval_expired);
 	if (nready < 0) {
@@ -356,13 +356,13 @@ bash_main(pmdaInterface *dispatch)
 
 	__pmAFblock();
 	if (nready > 0 && FD_ISSET(pmcdfd, &readyfds)) {
-	    if (pmDebug & DBG_TRACE_APPL0)
+	    if (pmDebugOptions.appl0)
 		__pmNotifyErr(LOG_DEBUG, "processing pmcd PDU [fd=%d]", pmcdfd);
 	    if (__pmdaMainPDU(dispatch) < 0) {
 		__pmAFunblock();
 		exit(1);        /* fatal if we lose pmcd */
 	    }
-	    if (pmDebug & DBG_TRACE_APPL0)
+	    if (pmDebugOptions.appl0)
 		__pmNotifyErr(LOG_DEBUG, "completed pmcd PDU [fd=%d]", pmcdfd);
 	}
 	if (bash_interval_expired) {
@@ -428,7 +428,7 @@ main(int argc, char **argv)
 
     minmem = getpagesize();
     bash_maxmem = (minmem > DEFAULT_MAXMEM) ? minmem : DEFAULT_MAXMEM;
-    snprintf(helppath, sizeof(helppath), "%s%c" "bash" "%c" "help",
+    pmsprintf(helppath, sizeof(helppath), "%s%c" "bash" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&desc, PMDA_INTERFACE_5, pmProgname, BASH, "bash.log", helppath);
 

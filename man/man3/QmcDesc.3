@@ -90,7 +90,7 @@ but are not flushed. It is the responsibility of the user to call
 .BR pmflush (3)
 to output any messages.
 .PP
-Additional diagnostics may be activated by adding
-.B DBG_TRACE_PMC
-to the global
-.IR pmDebug .
+Additional diagnostics may be activated by adding the option
+.B pmc
+to the global debugging specification, as described in
+.BR pmSetDebug (3).

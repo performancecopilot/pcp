@@ -285,7 +285,6 @@
  </widget>
  <includes>
   <include location="local" >qmc_time.h</include>
-  <include location="local" >qprinter.h</include>
   <include location="local" >qed_timebutton.h</include>
  </includes>
  <resources>

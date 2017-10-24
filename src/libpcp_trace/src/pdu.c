@@ -33,7 +33,7 @@ pdutypestr(int type)
     else if (type == TRACE_PDU_DATA) return "DATA";
     else {
 	static char     buf[20];
-	snprintf(buf, sizeof(buf), "TYPE-%d?", type);
+	pmsprintf(buf, sizeof(buf), "TYPE-%d?", type);
 	return buf;
     }
 }
@@ -399,7 +399,7 @@ __pmtracegetPDU(int fd, int timeout, __pmTracePDU **result)
 	    *p++ = '~';	/* buffer end */
 
 	fprintf(stderr, "[%" FMT_PID "]__pmtracegetPDU: %s fd=%d len=%d from=%d",
-		getpid(), pdutypestr(php->type), fd, php->len, php->from);
+		(pid_t)getpid(), pdutypestr(php->type), fd, php->len, php->from);
 
 	for (j = 0; j < jend; j++) {
 	    if ((j % 8) == 0)

@@ -41,18 +41,14 @@ main(int argc, char **argv)
 	    host = optarg;
 	    break;
 
-#ifdef PCP_DEBUG
-	case 'D':	/* debug flag */
-	    sts = __pmParseDebug(optarg);
+	case 'D':	/* debug options */
+	    sts = pmSetDebug(optarg);
 	    if (sts < 0) {
-		fprintf(stderr, "%s: unrecognized debug flag specification (%s)\n",
+		fprintf(stderr, "%s: unrecognized debug options specification (%s)\n",
 		    pmProgname, optarg);
 		errflag++;
 	    }
-	    else
-		pmDebug |= sts;
 	    break;
-#endif
 
 	case 'h':	/* contact PMCD on this hostname */
 	    if (type != 0) {
@@ -80,7 +76,7 @@ main(int argc, char **argv)
 \n\
 Options:\n\
   -a archive	use archive log, not host source\n\
-  -D N		set pmDebug debugging flag to N\n\
+  -D debugspec	set PCP debugging options\n\
   -h hostname	connect to PMCD on this host\n\
   -n namespace	alternative PMNS specification file\n",
 		pmProgname);

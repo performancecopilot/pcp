@@ -66,7 +66,7 @@ nameGen(void)
     static char bfr[NAMEGEN_MAX];
 
     state++;
-    snprintf(bfr, sizeof(bfr), "expr_%1d", state);
+    pmsprintf(bfr, sizeof(bfr), "expr_%1d", state);
 
     return bfr;
 }
@@ -386,13 +386,11 @@ relExpr(int op, Expr *arg1, Expr *arg2)
 
     /* check domains */
     sts = checkDoms(arg1, arg2);
-#if PCP_DEBUG
-    if (sts == 0 && (pmDebug & DBG_TRACE_APPL1)) {
+    if (sts == 0 && pmDebugOptions.appl1) {
 	fprintf(stderr, "relExpr: checkDoms(" PRINTF_P_PFX "%p, " PRINTF_P_PFX "%p) failed ...\n", arg1, arg2);
 	dumpExpr(arg1);
 	dumpExpr(arg2);
     }
-#endif
 
     /*
      * check value types if string-valued operands are in play
@@ -405,13 +403,11 @@ relExpr(int op, Expr *arg1, Expr *arg2)
 	if (sts == 0) {
 	    /* oops ... synerr() called from checkTypes() */
 	    ;
-#if PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL1) {
+	    if (pmDebugOptions.appl1) {
 		fprintf(stderr, "relExpr: checkTypes(" PRINTF_P_PFX "%p, " PRINTF_P_PFX "%p) failed ...\n", arg1, arg2);
 		dumpExpr(arg1);
 		dumpExpr(arg2);
 	    }
-#endif
 	}
 	else if (isString(arg1)) {
 	    /* string-valued operands, change to string operator */
@@ -468,11 +464,9 @@ binaryExpr(int op, Expr *arg1, Expr *arg2)
 		free(pat);
 		return NULL;
 	    }
-#if PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL1) {
+	    if (pmDebugOptions.appl1) {
 		fprintf(stderr, "binaryExpr: regex=\"%s\" handle=" PRINTF_P_PFX "%p\n", (char *)arg2->ring, pat);
 	    }
-#endif
 	    /*
 	     * change operand from the string form of the pattern to the
 	     * compiled regex
@@ -487,12 +481,10 @@ binaryExpr(int op, Expr *arg1, Expr *arg2)
 
     /* construct expression node */
     x = newExpr(op, arg1, arg2, arg->hdom, arg->e_idom, arg->tdom, abs(arg->tdom), arg->sem);
-#if PCP_DEBUG
-    if (sts == 0 && (pmDebug & DBG_TRACE_APPL1)) {
+    if (sts == 0 && pmDebugOptions.appl1) {
 	fprintf(stderr, "binaryExpr: checkDoms(" PRINTF_P_PFX "%p, " PRINTF_P_PFX "%p) failed ...\n", arg1, arg2);
 	__dumpTree(1, x);
     }
-#endif
     newRingBfr(x);
     findEval(x);
 

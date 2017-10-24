@@ -92,7 +92,7 @@ main(int argc, char **argv)
     else
 	hostname = opts.hosts[0];
 
-    sts = sprintf(env, "PMCD_CONNECT_TIMEOUT=%ld", delta);
+    sts = pmsprintf(env, sizeof(env), "PMCD_CONNECT_TIMEOUT=%ld", delta);
     if (sts < 0) {
 	if (verbose) {
 	    fprintf(stderr, "%s: Failed to create env string: %s\n",

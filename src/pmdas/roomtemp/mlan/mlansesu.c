@@ -37,10 +37,6 @@ extern int  OpenCOM(char *);
 extern void CloseCOM(void);
 extern int  DS2480Detect(void);
 
-// local function prototypes
-int  Aquire1WireNet(char *, char *);
-void Release1WireNet(char *);
-
 // keep port name for later message when closing
 char portname[128];
 
@@ -53,38 +49,38 @@ int MLanDebug = 0;
 //
 // 'port_zstr'  - zero terminated port name.  For this platform
 //                use format COMX where X is the port number.
-// 'return_msg' - zero terminated return message. 
+// 'msg'        - zero terminated return message.
+// 'len'        - length of the supplied return message buffer.
 //
 // Returns: TRUE - success, COM port opened
 //
-int Aquire1WireNet(char *port_zstr, char *return_msg)
+int Aquire1WireNet(char *port_zstr, char *msg, int len)
 {
-   int cnt=0;
+   int cnt = 0;
    portname[0] = 0;
 
    // attempt to open the communications port
    if (OpenCOM(port_zstr) >= 0)
-      cnt += sprintf(&return_msg[cnt],"%s opened\n",port_zstr);
-   else
-   {
-      cnt += sprintf(&return_msg[cnt],"Could not open port %s: %s,"
-              " aborting.\nClosing port %s.\n",port_zstr,osstrerror(),port_zstr);
+      cnt += pmsprintf(&msg[cnt], len-cnt, "%s opened\n",port_zstr);
+   else {
+      cnt += pmsprintf(&msg[cnt], len-cnt, "Could not open port %s: %s,"
+              " aborting.\nClosing port %s.\n",
+	      port_zstr, osstrerror(), port_zstr);
       return FALSE;
    }
 
    // detect DS2480
    if (DS2480Detect())
-      cnt += sprintf(&return_msg[cnt],"DS2480-based adapter detected\n");
-   else
-   {
-      cnt += sprintf(&return_msg[cnt],"DS2480-based adapter not detected, aborting program\n");
-      cnt += sprintf(&return_msg[cnt],"Closing port %s.\n",port_zstr);
+      cnt += pmsprintf(&msg[cnt], len-cnt, "DS2480-based adapter detected\n");
+   else {
+      cnt += pmsprintf(&msg[cnt], len-cnt, "DS2480-based adapter not detected, aborting program\n");
+      cnt += pmsprintf(&msg[cnt], len-cnt, "Closing port %s.\n", port_zstr);
       CloseCOM();
       return FALSE;
    }      
 
    // success
-   sprintf(portname,"%s",port_zstr);
+   pmsprintf(portname, sizeof(portname), "%s", port_zstr);
    return TRUE;
 }
 
@@ -92,11 +88,12 @@ int Aquire1WireNet(char *port_zstr, char *return_msg)
 //---------------------------------------------------------------------------
 // Release the previously aquired a 1-Wire net.
 //
-// 'return_msg' - zero terminated return message. 
+// 'msg'        - zero terminated return message.
+// 'len'        - length of the supplied return message buffer.
 //
-void Release1WireNet(char *return_msg)
+void Release1WireNet(char *msg, int len)
 {
    // close the communications port
-   sprintf(return_msg,"Closing port %s.\n",portname);
+   pmsprintf(msg, len, "Closing port %s.\n", portname);
    CloseCOM();
 }

@@ -84,10 +84,8 @@ decode_encode(int fd, __pmPDU *pb, int type)
 		fprintf(stderr, "%s: Error: DecodeError: %s\n", pmProgname, pmErrStr(e));
 		break;
 	    }
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL0)
+	    if (pmDebugOptions.appl0)
 		fprintf(stderr, "+ PDU_ERROR: code=%d\n", code);
-#endif
 	    if ((e = __pmSendError(fd, mypid, code)) < 0) {
 		fprintf(stderr, "%s: Error: SendError: %s\n", pmProgname, pmErrStr(e));
 		break;
@@ -100,12 +98,10 @@ decode_encode(int fd, __pmPDU *pb, int type)
 		fprintf(stderr, "%s: Error: DecodeResult: %s\n", pmProgname, pmErrStr(e));
 		break;
 	    }
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL0) {
+	    if (pmDebugOptions.appl0) {
 		fprintf(stderr, "+ PDU_RESULT:\n");
 		__pmDumpResult(stderr, rp);
 	    }
-#endif
 	    e = __pmSendResult(fd, mypid, rp);
 	    pmFreeResult(rp);
 	    if (e < 0) {
@@ -120,12 +116,10 @@ decode_encode(int fd, __pmPDU *pb, int type)
 		fprintf(stderr, "%s: Error: DecodeProfile: %s\n", pmProgname, pmErrStr(e));
 		break;
 	    }
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL0) {
+	    if (pmDebugOptions.appl0) {
 		fprintf(stderr, "+ PDU_PROFILE: ctxnum=%d\n", ctxnum);
 		__pmDumpProfile(stderr, PM_INDOM_NULL, profp);
 	    }
-#endif
 	    e = __pmSendProfile(fd, mypid, ctxnum, profp);
 	    free(profp->profile);
 	    free(profp);
@@ -141,8 +135,7 @@ decode_encode(int fd, __pmPDU *pb, int type)
 		fprintf(stderr, "%s: Error: DecodeFetch: %s\n", pmProgname, pmErrStr(e));
 		break;
 	    }
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL0) {
+	    if (pmDebugOptions.appl0) {
 		int		j;
 		struct timeval	foo;
 		fprintf(stderr, "+ PDU_FETCH: ctxnum=%d now=%d.%06d ",
@@ -155,7 +148,6 @@ decode_encode(int fd, __pmPDU *pb, int type)
 		    fprintf(stderr, " %s", pmIDStr(pmidp[j]));
 		fputc('\n', stderr);
 	    }
-#endif
 	    e = __pmSendFetch(fd, mypid, ctxnum, &now, numpmid, pmidp);
 	    __pmUnpinPDUBuf(pmidp);
 	    if (e < 0) {
@@ -170,10 +162,8 @@ decode_encode(int fd, __pmPDU *pb, int type)
 		fprintf(stderr, "%s: Error: DecodeDescReq: %s\n", pmProgname, pmErrStr(e));
 		break;
 	    }
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL0)
+	    if (pmDebugOptions.appl0)
 		fprintf(stderr, "+ PDU_DESC_REQ: pmid=%s\n", pmIDStr(pmid));
-#endif
 	    if ((e = __pmSendDescReq(fd, mypid, pmid)) < 0) {
 		fprintf(stderr, "%s: Error: SendDescReq: %s\n", pmProgname, pmErrStr(e));
 		break;
@@ -186,12 +176,10 @@ decode_encode(int fd, __pmPDU *pb, int type)
 		fprintf(stderr, "%s: Error: DecodeDesc: %s\n", pmProgname, pmErrStr(e));
 		break;
 	    }
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL0) {
+	    if (pmDebugOptions.appl0) {
 		fprintf(stderr, "+ PDU_DESC: ");
 		__pmPrintDesc(stderr, &desc);
 	    }
-#endif
 	    if ((e = __pmSendDesc(fd, mypid, &desc)) < 0) {
 		fprintf(stderr, "%s: Error: SendDesc: %s\n", pmProgname, pmErrStr(e));
 		break;
@@ -204,8 +192,7 @@ decode_encode(int fd, __pmPDU *pb, int type)
 		fprintf(stderr, "%s: Error: DecodeInstanceReq: %s\n", pmProgname, pmErrStr(e));
 		break;
 	    }
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL0) {
+	    if (pmDebugOptions.appl0) {
 		struct timeval	foo;
 		fprintf(stderr, "+ PDU_INSTANCE_REQ: now=%d.%06d ",
 		    now.tv_sec, now.tv_usec);
@@ -222,7 +209,6 @@ decode_encode(int fd, __pmPDU *pb, int type)
 		else
 		    fprintf(stderr, " name=\"%s\"\n", name);
 	    }
-#endif
 	    e = __pmSendInstanceReq(fd, mypid, &now, indom, inst, name);
 	    if (name)
 		free(name);
@@ -238,12 +224,10 @@ decode_encode(int fd, __pmPDU *pb, int type)
 		fprintf(stderr, "%s: Error: DecodeInstance: %s\n", pmProgname, pmErrStr(e));
 		break;
 	    }
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL0) {
+	    if (pmDebugOptions.appl0) {
 		fprintf(stderr, "+ PDU_INSTANCE: ");
 		__pmDumpInResult(stderr, inres);
 	    }
-#endif
 	    e = __pmSendInstance(fd, mypid, inres);
 	    __pmFreeInResult(inres);
 	    if (e < 0) {
@@ -258,8 +242,7 @@ decode_encode(int fd, __pmPDU *pb, int type)
 		fprintf(stderr, "%s: Error: DecodeTextReq: %s\n", pmProgname, pmErrStr(e));
 		break;
 	    }
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL0) {
+	    if (pmDebugOptions.appl0) {
 		fprintf(stderr, "+ PDU_TEXT_REQ: ident=%d ", ident);
 		if (txtype & PM_TEXT_INDOM)
 		    fprintf(stderr, "INDOM %s", pmInDomStr((pmInDom)ident));
@@ -267,7 +250,6 @@ decode_encode(int fd, __pmPDU *pb, int type)
 		    fprintf(stderr, "PMID %s", pmIDStr((pmID)ident));
 		fprintf(stderr, " txtype=%d\n", txtype);
 	    }
-#endif
 	    if ((e = __pmSendTextReq(fd, mypid, ident, txtype)) < 0) {
 		fprintf(stderr, "%s: Error: SendTextReq: %s\n", pmProgname, pmErrStr(e));
 		break;
@@ -280,8 +262,7 @@ decode_encode(int fd, __pmPDU *pb, int type)
 		fprintf(stderr, "%s: Error: DecodeText: %s\n", pmProgname, pmErrStr(e));
 		break;
 	    }
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL0) {
+	    if (pmDebugOptions.appl0) {
 		int	len;
 		int	c;
 		fprintf(stderr, "+ PDU_TEXT: ident=%d", ident);
@@ -296,7 +277,6 @@ decode_encode(int fd, __pmPDU *pb, int type)
 		}
 		buffer[len - 1] = c;
 	    }
-#endif
 	    if ((e = __pmSendText(fd, mypid, ident, buffer)) < 0) {
 		fprintf(stderr, "%s: Error: SendText: %s\n", pmProgname, pmErrStr(e));
 		free(buffer);
@@ -311,8 +291,7 @@ decode_encode(int fd, __pmPDU *pb, int type)
 		fprintf(stderr, "%s: Error: DecodeAuth: %s\n", pmProgname, pmErrStr(e));
 		break;
 	    }
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL0) {
+	    if (pmDebugOptions.appl0) {
 		char	buf[32] = { 0 };
 
 		fprintf(stderr, "+ PDU_AUTH: attr=%d length=%d", attr, length);
@@ -326,7 +305,6 @@ decode_encode(int fd, __pmPDU *pb, int type)
 		    fprintf(stderr, "%s\"\n", buf);
 		}
 	    }
-#endif
 	    if ((e = __pmSendAuth(fd, mypid, attr, buffer, length)) < 0) {
 		fprintf(stderr, "%s: Error: SendAuth: %s\n", pmProgname, pmErrStr(e));
 		break;
@@ -339,8 +317,7 @@ decode_encode(int fd, __pmPDU *pb, int type)
 		fprintf(stderr, "%s: Error: DecodeCreds: %s\n", pmProgname, pmErrStr(e));
 		break;
 	    }
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL0) {
+	    if (pmDebugOptions.appl0) {
 		int	i;
 		fprintf(stderr, "+ PDU_CREDS: sender=%d count=%d\n",
 		    sender, count);
@@ -350,7 +327,6 @@ decode_encode(int fd, __pmPDU *pb, int type)
 			creds[i].c_valc);
 		}
 	    }
-#endif
 	    e = __pmSendCreds(fd, mypid, count, creds);
 	    if (count > 0)
 		free(creds);
@@ -378,12 +354,10 @@ decode_encode(int fd, __pmPDU *pb, int type)
 		fprintf(stderr, "%s: Error: DecodeIDList: %s\n", pmProgname, pmErrStr(e));
 		break;
 	    }
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL0) {
+	    if (pmDebugOptions.appl0) {
 		fprintf(stderr, "+ PDU_PMNS_IDS: sts arg=%d\n", code);
 		__pmDumpIDList(stderr, numpmid, pmidlist);
 	    }
-#endif
 	    e = __pmSendIDList(fd, mypid, numpmid, pmidlist, code);
 	    if (e < 0) {
 		fprintf(stderr, "%s: Error: SendIDList: %s\n", pmProgname, pmErrStr(e));
@@ -397,15 +371,13 @@ decode_encode(int fd, __pmPDU *pb, int type)
 		fprintf(stderr, "%s: Error: DecodeNameList: %s\n", pmProgname, pmErrStr(e));
 		break;
 	    }
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL0) {
+	    if (pmDebugOptions.appl0) {
 		fprintf(stderr, "+ PDU_PMNS_NAMES:\n");
 		if (namelist != NULL)
 		    __pmDumpNameList(stderr, numlist, namelist);
 		if (statlist != NULL)
 		    __pmDumpStatusList(stderr, numlist, statlist);
 	    }
-#endif
 	    e = __pmSendNameList(fd, mypid, numlist, namelist, statlist);
 	    if (namelist != NULL)
 		free(namelist);
@@ -423,11 +395,9 @@ decode_encode(int fd, __pmPDU *pb, int type)
 		fprintf(stderr, "%s Error: DecodeChildReq: %s\n", pmProgname, pmErrStr(e));
 		break;
 	    }
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL0) {
+	    if (pmDebugOptions.appl0) {
 		fprintf(stderr, "+ PDU_PMNS_CHILD: name=\"%s\" code=%d\n", name, code);
 	    }
-#endif
 	    e = __pmSendChildReq(fd, mypid, name, code);
 	    free(name);
 	    if (e < 0) {
@@ -442,11 +412,9 @@ decode_encode(int fd, __pmPDU *pb, int type)
 		fprintf(stderr, "%s: Error: DecodeTraversePMNSReq: %s\n", pmProgname, pmErrStr(e));
 		break;
 	    }
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL0) {
+	    if (pmDebugOptions.appl0) {
 		fprintf(stderr, "+ PDU_PMNS_TRAVERSE: name=\"%s\"\n", name);
 	    }
-#endif
 	    e = __pmSendTraversePMNSReq(fd, mypid, name);
 	    free(name);
 	    if (e < 0) {
@@ -461,13 +429,11 @@ decode_encode(int fd, __pmPDU *pb, int type)
 		fprintf(stderr, "%s: Error: DecodeLogControl: %s\n", pmProgname, pmErrStr(e));
 	        break;
 	    }
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL0) {
+	    if (pmDebugOptions.appl0) {
 		fprintf(stderr, "+ PDU_LOG_CONTROL: control=%d state=%d rate=%d\n",
 		    control, state, rate);
 		__pmDumpResult(stderr, rp);
 	    }
-#endif
 	    e = __pmSendLogControl(fd, rp, control, state, rate);
 	    pmFreeResult(rp);
 	    if (e < 0) {
@@ -482,8 +448,7 @@ decode_encode(int fd, __pmPDU *pb, int type)
 		fprintf(stderr, "%s: Error: DecodeLogStatus: %s\n", pmProgname, pmErrStr(e));
 		break;
 	    }
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL0) {
+	    if (pmDebugOptions.appl0) {
 		struct timeval	foo;
 		fprintf(stderr, "+ PDU_LOG_STATUS: start=%d.%06d ",
 		    lsp->ls_start.tv_sec, lsp->ls_start.tv_usec);
@@ -504,7 +469,6 @@ decode_encode(int fd, __pmPDU *pb, int type)
 		    lsp->ls_state, lsp->ls_vol, (long long)lsp->ls_size,
 		    lsp->ls_hostname, lsp->ls_tz, lsp->ls_tzlogger);
 	    }
-#endif
 	    e = __pmSendLogStatus(fd, lsp);
 	    __pmUnpinPDUBuf(pb);
 	    if (e < 0) {
@@ -519,8 +483,7 @@ decode_encode(int fd, __pmPDU *pb, int type)
 		fprintf(stderr, "%s: Error: DecodeLogRequest: %s\n", pmProgname, pmErrStr(e));
 		break;
 	    }
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL0) {
+	    if (pmDebugOptions.appl0) {
 		fprintf(stderr, "+ PDU_LOG_REQUEST: request=");
 		if (control == LOG_REQUEST_NEWVOLUME)
 		    fprintf(stderr, "new volume\n");
@@ -531,7 +494,6 @@ decode_encode(int fd, __pmPDU *pb, int type)
 		else
 		    fprintf(stderr, " unknown (%d)!\n", control);
 	    }
-#endif
 	    if ((e = __pmSendLogRequest(fd, control)) < 0) {
 		fprintf(stderr, "%s: Error: SendLogRequest: %s\n", pmProgname, pmErrStr(e));
 		break;
@@ -544,11 +506,9 @@ decode_encode(int fd, __pmPDU *pb, int type)
 		fprintf(stderr, "%s: Error: tracedecodeack: %s\n", pmProgname, pmtraceerrstr(e));
 		break;
 	    }
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL0) {
+	    if (pmDebugOptions.appl0) {
 		fprintf(stderr, "+ TRACE_PDU_ACK: ack=%d\n", control);
 	    }
-#endif
 	    if ((e = __pmtracesendack(fd, control)) < 0) {
 		fprintf(stderr, "%s: Error: tracesendack: %s\n", pmProgname, pmtraceerrstr(e));
 		break;
@@ -561,8 +521,7 @@ decode_encode(int fd, __pmPDU *pb, int type)
 		fprintf(stderr, "%s: Error: tracedecodedata: %s\n", pmProgname, pmtraceerrstr(e));
 		break;
 	    }
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL0) {
+	    if (pmDebugOptions.appl0) {
 		fprintf(stderr, "+ TRACE_PDU_DATA: tag=\"%s\" taglen=%d type=",
 			name, xlen);
 		if (xtype == TRACE_TYPE_TRANSACT)
@@ -575,7 +534,6 @@ decode_encode(int fd, __pmPDU *pb, int type)
 		    fprintf(stderr, "unknown (%d)!", xtype);
 		fprintf(stderr, " value=%g\n", value);
 	    }
-#endif
 	    e = __pmtracesenddata(fd, name, xlen, xtype, value);
 	    free(name);
 	    if (e < 0) {
@@ -625,15 +583,13 @@ main(int argc, char *argv[])
     while ((c = getopt(argc, argv, "D:p:rZ:?")) != EOF) {
 	switch (c) {
 
-	case 'D':	/* debug flag */
-	    sts = __pmParseDebug(optarg);
+	case 'D':	/* debug options */
+	    sts = pmSetDebug(optarg);
 	    if (sts < 0) {
-		fprintf(stderr, "%s: unrecognized debug flag specification (%s)\n",
+		fprintf(stderr, "%s: unrecognized debug options specification (%s)\n",
 		    pmProgname, optarg);
 		errflag++;
 	    }
-	    else
-		pmDebug |= sts;
 	    break;
 
 	case 'r':	/* raw mode, no decode/encode */
@@ -660,7 +616,7 @@ main(int argc, char *argv[])
     }
 
     if (errflag || optind != argc) {
-	fprintf(stderr, "Usage: %s [-D n] [-p port] [-r] [-Z timezone]\n", pmProgname);
+	fprintf(stderr, "Usage: %s [-D debugspec] [-p port] [-r] [-Z timezone]\n", pmProgname);
 	exit(1);
     }
 
@@ -720,10 +676,8 @@ main(int argc, char *argv[])
 	}
 
 	for ( ; ; ) {
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL0)
+	    if (pmDebugOptions.appl0)
 		fprintf(stderr, "\n%s: waiting ...\n", pmProgname);
-#endif
 	    sts = __pmGetPDU(newfd, ANY_SIZE, TIMEOUT_NEVER, &pb);
 	    if (sts == 0) {
 		fprintf(stderr, "%s: end-of-file\n", pmProgname);

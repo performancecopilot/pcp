@@ -1,8 +1,8 @@
 #!/bin/sh
 # PCP QA Test No. 1068
-# Exercise pmrep Zabbix export reporting modes.
+# Exercise pcp2zabbix.
 #
-# Copyright (c) 2015 Red Hat.
+# Copyright (c) 2015-2017 Red Hat.
 #
 
 seq=`basename $0`
@@ -16,7 +16,7 @@ $python -c "from collections import OrderedDict" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "python collections OrderedDict module not installed"
 
 which socat >/dev/null 2>&1 || _notrun "socat binary not installed"
-which pmrep >/dev/null 2>&1 || _notrun "pmrep not installed"
+which pcp2zabbix >/dev/null 2>&1 || _notrun "pcp2zabbix not installed"
 
 status=1	# failure is the default!
 signal=$PCP_BINADM_DIR/pmsignal
@@ -25,10 +25,10 @@ trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 _seq_store()
 {
-    echo "--- pmrep stdout --" >>$seq.full
-    cat $tmp.pmrep.out >>$seq.full
-    echo "--- pmrep stderr --" >>$seq.full
-    cat $tmp.pmrep.err >>$seq.full
+    echo "--- pcp2zabbix stdout --" >>$seq.full
+    cat $tmp.pcp2zabbix.out >>$seq.full
+    echo "--- pcp2zabbix stderr --" >>$seq.full
+    cat $tmp.pcp2zabbix.err >>$seq.full
     echo "--- socat stdout --" >>$seq.full
     cat $tmp.socat.out >>$seq.full
     echo "--- socat stderr --" >>$seq.full
@@ -49,7 +49,7 @@ _zbx_header()
 }
 
 zabbix_port=`_find_free_port`
-log="-z --archive $here/archives/sample-secs"
+log="--archive $here/archives/sample-secs"
 
 # real QA test starts here
 cat <<EOF >$tmp.config
@@ -67,7 +67,7 @@ cat $tmp.config >>$seq.full
 socat tcp-listen:$zabbix_port,reuseaddr - >$tmp.socat.out 2>$tmp.socat.err &
 pid=$!
 sleep 2
-pmrep -t 2 -s 3 $log -c $tmp.config -o zabbix sample >$tmp.pmrep.out 2>$tmp.pmrep.err &   # will error out after socket cat dies
+pcp2zabbix -r -t 2 -s 3 $log -c $tmp.config sample >$tmp.pcp2zabbix.out 2>$tmp.pcp2zabbix.err &   # will error out after socket cat dies
 pmpid=$!
 sleep 2
 $signal $pid $pmpid 2>/dev/null

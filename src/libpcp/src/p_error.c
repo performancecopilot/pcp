@@ -67,12 +67,10 @@ __pmSendError(int fd, int from, int code)
 
     pp->code = code;
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_CONTEXT)
+    if (pmDebugOptions.context)
 	fprintf(stderr,
 		"__pmSendError: sending error PDU (code=%d, toversion=%d)\n",
 		pp->code, __pmVersionIPC(fd));
-#endif
 
     pp->code = htonl(pp->code);
 
@@ -125,12 +123,10 @@ __pmDecodeError(__pmPDU *pdubuf, int *code)
 	*code = ntohl(pp->code);
 	sts = 0;
     }
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_CONTEXT)
+    if (pmDebugOptions.context)
 	fprintf(stderr,
 		"__pmDecodeError: got error PDU (code=%d, fromversion=%d)\n",
 		*code, __pmLastVersionIPC());
-#endif
     return sts;
 }
 
@@ -157,12 +153,10 @@ __pmDecodeXtendError(__pmPDU *pdubuf, int *code, int *datum)
     else {
 	sts = PM_ERR_IPC;
     }
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_CONTEXT)
+    if (pmDebugOptions.context)
 	fprintf(stderr, "__pmDecodeXtendError: "
 		"got error PDU (code=%d, datum=%d, version=%d)\n",
 		*code, *datum, sts);
-#endif
 
     return sts;
 }

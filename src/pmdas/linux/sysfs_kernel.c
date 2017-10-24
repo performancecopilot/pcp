@@ -23,7 +23,7 @@ refresh_sysfs_kernel(sysfs_kernel_t *sk)
     char buf[MAXPATHLEN];
     int fd, n;
 
-    snprintf(buf, sizeof(buf), "%s/sys/kernel/uevent_seqnum", linux_statspath);
+    pmsprintf(buf, sizeof(buf), "%s/sys/kernel/uevent_seqnum", linux_statspath);
     if ((fd = open(buf, O_RDONLY)) < 0) {
     	sk->valid_uevent_seqnum = 0;
 	return -oserror();

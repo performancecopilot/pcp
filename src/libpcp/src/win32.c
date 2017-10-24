@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2016 Red Hat.
+ * Copyright (c) 2013-2017 Red Hat.
  * Copyright (c) 2008-2010 Aconex.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -108,7 +108,7 @@ __pmSetSignalHandler(int sig, __pmSignalHandler func)
 	return 0;
 
     sts = 0;
-    snprintf(evname, sizeof(evname), "PCP/%" FMT_PID "/%s", getpid(), signame);
+    pmsprintf(evname, sizeof(evname), "PCP/%" FMT_PID "/%s", (pid_t)getpid(), signame);
     if (!(eventhdl = CreateEvent(NULL, FALSE, FALSE, TEXT(evname)))) {
 	sts = GetLastError();
 	fprintf(stderr, "CreateEvent::%s failed (%d)\n", signame, sts);
@@ -179,6 +179,51 @@ __pmSetProgname(const char *program)
     sts2 = __pmSetSignalHandler(SIGTERM, sigterm_callback);
 
     return sts1 | sts2;
+}
+
+void
+__pmServerStart(int argc, char **argv, int flags)
+{
+    PROCESS_INFORMATION piProcInfo;
+    STARTUPINFO siStartInfo;
+    LPTSTR cmdline = NULL;
+    int i, sz, total = 3; /* -f\0 */
+
+    (void)flags;
+    fflush(stdout);
+    fflush(stderr);
+
+    for (i = 0; i < argc; i++)
+	total += strlen(argv[i]) + 1;
+    if ((cmdline = malloc(total)) == NULL) {
+	__pmNotifyErr(LOG_ERR, "__pmServerStart: out-of-memory");
+	exit(1);
+    }
+    for (sz = i = 0; i < argc; i++)
+	sz += pmsprintf(cmdline + sz, total - sz, "%s ", argv[i]);
+    pmsprintf(cmdline + sz, total - sz, "-f");
+
+    ZeroMemory(&piProcInfo, sizeof(PROCESS_INFORMATION));
+    ZeroMemory(&siStartInfo, sizeof(STARTUPINFO));
+    siStartInfo.cb = sizeof(STARTUPINFO);
+
+    if (0 == CreateProcess(
+		NULL, cmdline,
+		NULL, NULL,	/* process and thread attributes */
+		FALSE,		/* inherit handles */
+		CREATE_NEW_PROCESS_GROUP | CREATE_NO_WINDOW | DETACHED_PROCESS,
+		NULL,		/* environment (from parent) */
+		NULL,		/* current directory */
+		&siStartInfo,	/* STARTUPINFO pointer */
+		&piProcInfo)) {	/* receives PROCESS_INFORMATION */
+	__pmNotifyErr(LOG_ERR, "__pmServerStart: CreateProcess");
+	/* but keep going */
+    }
+    else {
+	/* parent, let her exit, but avoid ugly "Log finished" messages */
+	fclose(stderr);
+	exit(0);
+    }
 }
 
 void *
@@ -276,7 +321,11 @@ __pmProcessCreate(char **argv, int *infd, int *outfd)
  
     for (command = argv[0], i = 0; command && *command; command = argv[++i]) {
 	int length = strlen(command);
-	cmdline = realloc(cmdline, sz + length + 1); /* 1space or 1null */
+	/* add 1space or 1null */
+	if ((cmdline = realloc(cmdline, sz + length + 1)) == NULL) {
+	    __pmNoMem("__pmProcessCreate", sz + length + 1, PM_FATAL_ERR);
+	    /* NOTREACHED */
+	}
 	strcpy(&cmdline[sz], command);
 	cmdline[sz + length] = ' ';
 	sz += length + 1;
@@ -573,7 +622,7 @@ syslog(int priority, const char *format, ...)
 	openlog(NULL, 0, 0);
 
     if (eventlogPrefix)
-	offset = snprintf(p, sizeof(logmsg), "%s: ", eventlogPrefix);
+	offset = pmsprintf(p, sizeof(logmsg), "%s: ", eventlogPrefix);
 
     switch (priority) {
     case LOG_EMERG:
@@ -593,7 +642,7 @@ syslog(int priority, const char *format, ...)
 	break;
     }
     msgptr = logmsg;
-    snprintf(p + offset, sizeof(logmsg) - offset, format, arg);
+    pmsprintf(p + offset, sizeof(logmsg) - offset, format, arg);
     ReportEvent(eventlog, eventlogPriority, 0, 0, NULL, 1, 0, &msgptr, NULL);
     va_end(arg);
 }

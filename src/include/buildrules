@@ -152,7 +152,7 @@ realclean distclean: clean
 	      $(TOPDIR)/src/include/pcp/config.h \
 	      $(TOPDIR)/src/include/pcp/configsz.h \
 	      $(TOPDIR)/src/include/pcp/platform_defs.h \
-	      $(TOPDIR)/src/include/pcp/pmdbg.h
+	      $(TOPDIR)/src/libpcp/src/pmdbg.h
 	rm -f $(TOPDIR)/build/GNUlocaldefs
 	rm -f $(TOPDIR)/pcp.lsm
 

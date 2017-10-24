@@ -38,7 +38,7 @@ require DynaLoader;
 	PM_ERR_NYI
 );
 @EXPORT_OK = qw();
-$VERSION = '1.16';
+$VERSION = '1.17';
 
 # metric identification
 sub PM_ID_NULL		{ 0xffffffff; }
@@ -280,6 +280,20 @@ a list.
 Refer to the earlier B<add_indom>() discussion concerning these two
 different types of instance domains definitions.
 
+=item $pmda->load_indom(index)
+
+When hash-based instance domains are in use, changes are
+automatically persisted when using B<replace_indom>() -
+this persisted indom can be restored (e.g. on startup)
+using this interface.
+
+The instance domain to be loaded is identified by I<index>,
+previously registered using B<add_indom>().
+
+Refer to the earlier B<add_indom>() discussion concerning the
+two different types of instance domains definitions - only
+hash-based instance domains are persisted.
+
 =item $pmda->add_pipe(command, callback, data)
 
 Allow data to be injected into the PMDA using a B<pipe>(2).
@@ -475,7 +489,7 @@ Perl PMDAs do not follow the B<-D> convention of other PCP applications
 for enabling run-time diagnostics and tracing.  Rather the environment
 variable B<PCP_PERL_DEBUG> needs to be set to a string value matching
 the syntax accepted for the option value for B<-D> elsewhere, see
-B<__pmParseDebug>(3).
+B<pmSetDebug>(3).
 
 This requires a little trickery.  The B<pmcd>(1) configuration file
 (B<PCP_PMCDCONF_PATH> from I</etc/pcp.conf>) needs hand editing.

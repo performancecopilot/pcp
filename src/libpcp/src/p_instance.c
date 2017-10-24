@@ -133,10 +133,8 @@ __pmSendInstance(int fd, int from, __pmInResult *result)
     int			j;
     int			sts;
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_INDOM)
+    if (pmDebugOptions.indom)
 	__pmDumpInResult(stderr, result);
-#endif
 
     need = sizeof(*rp) - sizeof(rp->rest);
     /* instlist_t + name rounded up to a __pmPDU boundary */
@@ -274,10 +272,8 @@ __pmDecodeInstance(__pmPDU *pdubuf, __pmInResult **result)
 	res->namelist = NULL;
     }
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_INDOM)
+    if (pmDebugOptions.indom)
 	__pmDumpInResult(stderr, res);
-#endif
     *result = res;
     return 0;
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 Red Hat Inc.
+ * Copyright (c) 2013-2017 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -10,7 +10,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- *
  */
 
 #include "metrics.h"
@@ -104,7 +103,7 @@ put_int_value(char *name, pmInDom indom, char *instance, int val)
 {
     char valbuf[64];
 
-    sprintf(valbuf, "%d", val);
+    pmsprintf(valbuf, sizeof(valbuf), "%d", val);
     return put_str_value(name, indom, instance, valbuf);
 }
 
@@ -113,7 +112,7 @@ put_ull_value(char *name, pmInDom indom, char *instance, unsigned long long val)
 {
     char valbuf[64];
 
-    sprintf(valbuf, "%llu", val);
+    pmsprintf(valbuf, sizeof(valbuf), "%llu", val);
     return put_str_value(name, indom, instance, valbuf);
 }
 
@@ -134,7 +133,7 @@ strfields(const char *s, int len, char **fields, int *fieldlen, int maxfields)
     for (i=0, p_end = p+len; i < maxfields;) {
         fields[i] = p;
 	fieldlen[i] = 0;
-        while(*p && !isspace(*p) && p < p_end) {
+        while(*p && !isspace((int)*p) && p < p_end) {
             p++;
 	    fieldlen[i]++;
 	}
@@ -142,7 +141,7 @@ strfields(const char *s, int len, char **fields, int *fieldlen, int maxfields)
 	if (!*p)
 	    break;
         *p++ ='\0';
-	while (isspace(*p))
+	while (isspace((int)*p))
 	    p++;
     }
 
@@ -159,7 +158,7 @@ fields_new(const char *s, int len)
     memset(f, 0, sizeof(fields_t));
     f->len = len;
     for (p=s; *p && p < s+len; p++) {
-	if (isspace(*p))
+	if (isspace((int)*p))
 	    n++;
     }
     /*

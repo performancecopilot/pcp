@@ -264,13 +264,11 @@ LoadDefault(char *reason_msg, int use_cpp)
 {
     int		sts;
     if (main_pmns == NULL) {
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_PMNS) {
+	if (pmDebugOptions.pmns) {
 	    fprintf(stderr,
 		"pmGetPMNSLocation: Loading local PMNS for %s PMAPI context\n",
 		reason_msg);
 	}
-#endif
 	/* duplicate names in the PMNS are OK now ... */
 	if (load(PM_NS_DEFAULT, DUPS_OK, NO_CPP) < 0) {
 	    sts = PM_ERR_NOPMNS;
@@ -393,8 +391,7 @@ pmGetPMNSLocation_ctx(__pmContext *ctxp)
 	}
     }
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_PMNS) {
+    if (pmDebugOptions.pmns) {
 	static int last_pmns_location = -1;
 
 	if (pmns_location != last_pmns_location) {
@@ -403,7 +400,6 @@ pmGetPMNSLocation_ctx(__pmContext *ctxp)
 	    last_pmns_location = pmns_location;
 	}
     }
-#endif
 
     /* fix up curr_pmns for API ops */
     if (pmns_location == PMNS_LOCAL)
@@ -508,8 +504,9 @@ err(char *s)
 /*
  * lexical analyser for loading the ASCII pmns
  * reset == 0 => get next token
- * reset == 1+NO_CPP => initialize to pre-process with pmcpp and popen()
- * reset == 1+USE_CPP => initialize to use fopen() not popen()
+ * reset == 1+NO_CPP => initialize to pre-process with pmcpp and
+ *                      __pmProcessPipe()
+ * reset == 1+USE_CPP => initialize to use fopen() not __pmProcessPipe()
  */
 static int
 lex(int reset)
@@ -523,6 +520,8 @@ lex(int reset)
     int		type;
     int		d, c, i;
     __pmID_int	pmid_int;
+    int		sts;
+    static __pmExecCtl_t	*argp = NULL;
 
     PM_ASSERT_IS_LOCKED(pmns_lock);
 
@@ -540,27 +539,32 @@ lex(int reset)
 
     if (first) {
 	if (lex_use_cpp == USE_CPP) {
-	    char	*alt;
-	    char	cmd[80+MAXPATHLEN];
+	    char		*alt;
 
 	    /* always get here after acquiring pmns_lock */
 	    /* THREADSAFE */
 	    if ((alt = getenv("PCP_ALT_CPP")) != NULL) {
 		/* $PCP_ALT_CPP used in the build before pmcpp installed */
-		snprintf(cmd, sizeof(cmd), "%s %s", alt, fname);
+		sts = __pmProcessAddArg(&argp, alt);
 	    }
 	    else {
 		/* the normal case ... */
 		int	sep = __pmPathSeparator();
 		char	*bin_dir = pmGetOptionalConfig("PCP_BINADM_DIR");
+		char	path[MAXPATHLEN];
 
 		if (bin_dir == NULL)
 		    return PM_ERR_GENERIC;
-		snprintf(cmd, sizeof(cmd), "%s%c%s %s", bin_dir, sep, "pmcpp" EXEC_SUFFIX, fname);
+		pmsprintf(path, sizeof(path), "%s%c%s", bin_dir, sep, "pmcpp" EXEC_SUFFIX);
+		sts = __pmProcessAddArg(&argp, path);
 	    }
+	    if (sts == 0)
+		__pmProcessAddArg(&argp, fname);
+	    if (sts < 0)
+		return PM_ERR_GENERIC;
 
-	    if ((fin = popen(cmd, "r")) == NULL)
-		return -oserror();
+	    if ((sts = __pmProcessPipe(&argp, "r", PM_EXEC_TOSS_NONE, &fin)) < 0)
+		return sts;
 	}
 	else {
 	    if ((fin = fopen(fname, "r")) == NULL)
@@ -583,7 +587,10 @@ lex(int reset)
 	    if (fgets(linebuf, sizeof(linebuf), fin) == NULL) {
 		lineno = -1; /* We're outside of line counting range now */
 		if (lex_use_cpp == USE_CPP) {
-		    if (pclose(fin) != 0) {
+		    if ((sts = __pmProcessPipeClose(fin)) != 0) {
+			if (pmDebugOptions.pmns && pmDebugOptions.desperate) {
+			    fprintf(stderr, "lex: __pmProcessPipeClose -> %d\n", sts);
+			}
 			err("pmcpp returned non-zero exit status");
 			return PM_ERR_PMNS;
 		    }
@@ -785,7 +792,7 @@ attach(char *base, __pmnsNode *rp)
 		    strcat(path, np->name);
 		}
 		if ((xp = findseen(path)) == NULL) {
-		    snprintf(linebuf, sizeof(linebuf), "Cannot find definition for non-terminal node \"%s\" in name space",
+		    pmsprintf(linebuf, sizeof(linebuf), "Cannot find definition for non-terminal node \"%s\" in name space",
 		        path);
 		    err(linebuf);
 		    free(path);
@@ -872,7 +879,7 @@ backlink(__pmnsTree *tree, __pmnsNode *root, int dupok)
 		    char	strbuf[20];
 		    backname(np, &nn);
 		    backname(xp, &xn);
-		    snprintf(linebuf, sizeof(linebuf), "Duplicate metric id (%s) in name space for metrics \"%s\" and \"%s\"\n",
+		    pmsprintf(linebuf, sizeof(linebuf), "Duplicate metric id (%s) in name space for metrics \"%s\" and \"%s\"\n",
 		        pmIDStr_r(np->pmid, strbuf, sizeof(strbuf)), nn, xn);
 		    err(linebuf);
 		    free(nn);
@@ -932,7 +939,7 @@ pass2(int dupok)
 
     /* Make sure all subtrees have been used in the main tree */
     for (np = seen; np != NULL; np = np->next) {
-	snprintf(linebuf, sizeof(linebuf), "Disconnected subtree (\"%s\") in name space", np->name);
+	pmsprintf(linebuf, sizeof(linebuf), "Disconnected subtree (\"%s\") in name space", np->name);
 	err(linebuf);
 	status = PM_ERR_PMNS;
     }
@@ -1205,10 +1212,8 @@ loadascii(int dupok, int use_cpp)
 
     PM_ASSERT_IS_LOCKED(pmns_lock);
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_PMNS)
+    if (pmDebugOptions.pmns)
 	fprintf(stderr, "loadascii(dupok=%d, use_cpp=%d) fname=%s\n", dupok, use_cpp, fname);
-#endif
 
 
     /* reset the lexical scanner */
@@ -1219,7 +1224,7 @@ loadascii(int dupok, int use_cpp)
 
 
     if (access(fname, R_OK) == -1) {
-	snprintf(linebuf, sizeof(linebuf), "Cannot open \"%s\"", fname);
+	pmsprintf(linebuf, sizeof(linebuf), "Cannot open \"%s\"", fname);
 	err(linebuf);
 	return -oserror();
     }
@@ -1264,13 +1269,11 @@ loadascii(int dupok, int use_cpp)
 	    else if (type == PMID) {
 		np->pmid = tokpmid;
 		state = 2;
-#ifdef PCP_DEBUG
-		if (pmDebug & DBG_TRACE_PMNS) {
+		if (pmDebugOptions.pmns) {
 		    char	strbuf[20];
 		    fprintf(stderr, "pmLoadNameSpace: %s -> %s\n",
 			np->name, pmIDStr_r(np->pmid, strbuf, sizeof(strbuf)));
 		}
-#endif
 	    }
 	    else if (type == RBRACE) {
 		state = 0;
@@ -1313,7 +1316,7 @@ loadascii(int dupok, int use_cpp)
 		for (np = seen->first; np != NULL; np = np->next) {
 		    for (xp = np->next; xp != NULL; xp = xp->next) {
 			if (strcmp(xp->name, np->name) == 0) {
-			    snprintf(linebuf, sizeof(linebuf), "Duplicate name \"%s\" in subtree for \"%s\"\n",
+			    pmsprintf(linebuf, sizeof(linebuf), "Duplicate name \"%s\" in subtree for \"%s\"\n",
 			        np->name, seen->name);
 			    err(linebuf);
 			    return PM_ERR_PMNS;
@@ -1329,10 +1332,8 @@ loadascii(int dupok, int use_cpp)
 
 
     if (type == 0) {
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_PMNS)
+	if (pmDebugOptions.pmns)
 	    fprintf(stderr, "Loaded ASCII PMNS\n");
-#endif
     }
 
     return type;
@@ -1361,7 +1362,7 @@ getfname(const char *filename)
 
 	    if ((def_pmns = pmGetOptionalConfig("PCP_VAR_DIR")) == NULL)
 		return NULL;
-	    snprintf(repname, sizeof(repname), "%s%c" "pmns" "%c" "root",
+	    pmsprintf(repname, sizeof(repname), "%s%c" "pmns" "%c" "root",
 		     def_pmns, sep, sep);
 	    return repname;
 	}
@@ -1395,8 +1396,7 @@ __pmHasPMNSFileChanged(const char *filename)
 #if defined(HAVE_ST_MTIME_WITH_E) && defined(HAVE_STAT_TIME_T)
 	    if (statbuf.st_size != last_size || statbuf.st_mtime != last_mtim)
 		sts = 1;
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_PMNS) {
+	    if (pmDebugOptions.pmns) {
 		fprintf(stderr,
 			"__pmHasPMNSFileChanged(%s) %s last: size %ld mtime %d now: size %ld mtime %d -> %d\n",
 			filename == PM_NS_DEFAULT ||
@@ -1404,15 +1404,13 @@ __pmHasPMNSFileChanged(const char *filename)
 				"PM_NS_DEFAULT" : filename,
 			f, (long)last_size, (int)last_mtim, (long)statbuf.st_size, (int)statbuf.st_mtime, sts);
 	    }
-#endif
 	    goto pmapi_return;
 #elif defined(HAVE_ST_MTIME_WITH_SPEC)
 	    if (statbuf.st_size != last_size ||
 	        statbuf.st_mtimespec.tv_sec != last_mtim.tv_sec ||
 		statbuf.st_mtimespec.tv_nsec != last_mtim.tv_nsec)
 		sts = 1;
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_PMNS) {
+	    if (pmDebugOptions.pmns) {
 		fprintf(stderr,
 			"__pmHasPMNSFileChanged(%s) %s last: size %ld mtime %d.%09ld now: size %ld mtime %d.%09ld -> %d\n",
 			filename == PM_NS_DEFAULT ||
@@ -1421,15 +1419,13 @@ __pmHasPMNSFileChanged(const char *filename)
 			f, (long)last_size, (int)last_mtim.tv_sec, last_mtim.tv_nsec,
 			(long)statbuf.st_size, (int)statbuf.st_mtimespec.tv_sec, statbuf.st_mtimespec.tv_nsec, sts);
 	    }
-#endif
 	    goto pmapi_return;
 #elif defined(HAVE_STAT_TIMESTRUC) || defined(HAVE_STAT_TIMESPEC) || defined(HAVE_STAT_TIMESPEC_T)
 	    if (statbuf.st_size != last_size ||
 		statbuf.st_mtim.tv_sec != last_mtim.tv_sec ||
 		statbuf.st_mtim.tv_nsec != last_mtim.tv_nsec)
 		sts = 1;
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_PMNS) {
+	    if (pmDebugOptions.pmns) {
 		fprintf(stderr,
 			"__pmHasPMNSFileChanged(%s) %s last: size %ld mtime %d.%09ld now: size %ld mtime %d.%09ld -> %d\n",
 			filename == PM_NS_DEFAULT ||
@@ -1438,7 +1434,6 @@ __pmHasPMNSFileChanged(const char *filename)
 			f, (long)last_size, (int)last_mtim.tv_sec, last_mtim.tv_nsec,
 			(long)statbuf.st_size, (int)statbuf.st_mtim.tv_sec, statbuf.st_mtim.tv_nsec, sts);
 	    }
-#endif
 	    goto pmapi_return;
 #else
 !bozo!
@@ -1492,11 +1487,9 @@ load(const char *filename, int dupok, int use_cpp)
     strncpy(fname, f, sizeof(fname));
     fname[sizeof(fname)-1] = '\0';
  
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_PMNS)
+    if (pmDebugOptions.pmns)
 	fprintf(stderr, "load(name=%s, dupok=%d, use_cpp=%d) lic case=%d fname=%s\n",
 		filename, dupok, use_cpp, i, fname);
-#endif
 
     /* Note size and modification time of pmns file */
     {
@@ -1704,21 +1697,17 @@ pmLookupName_ctx(__pmContext *ctxp, int numpmid, char *namelist[], pmID pmidlist
     lock_ctx_and_pmns(ctxp, &ctx_ctl);
     ctxp = ctx_ctl.ctxp;
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_PMAPI) {
+    if (pmDebugOptions.pmapi) {
 	fprintf(stderr, "pmLookupName(%d, name[0] %s", numpmid, namelist[0]);
 	if (numpmid > 1)
 	    fprintf(stderr, " ... name[%d] %s", numpmid-1, namelist[numpmid-1]);
 	fprintf(stderr, ", ...) <:");
     }
-#endif
 
     if (numpmid < 1) {
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_PMNS) {
+	if (pmDebugOptions.pmns) {
 	    fprintf(stderr, "pmLookupName(%d, ...) bad numpmid!\n", numpmid);
 	}
-#endif
 	sts = PM_ERR_TOOSMALL;
 	goto pmapi_return;
     }
@@ -1851,8 +1840,7 @@ pmLookupName_ctx(__pmContext *ctxp, int numpmid, char *namelist[], pmID pmidlist
 
     	sts = (sts == 0 ? numpmid - nfail : sts);
 
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_PMNS) {
+	if (pmDebugOptions.pmns) {
 	    int		i;
 	    char	strbuf[20];
 	    fprintf(stderr, "pmLookupName(%d, ...) using local PMNS returns %d and ...\n",
@@ -1865,21 +1853,18 @@ pmLookupName_ctx(__pmContext *ctxp, int numpmid, char *namelist[], pmID pmidlist
 		fputc('\n', stderr);
 	    }
 	}
-#endif
     }
     else {
 	/*
 	 * PMNS_REMOTE so there must be a current host context
 	 */
 	assert(c_type == PM_CONTEXT_HOST);
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_PMNS) {
+	if (pmDebugOptions.pmns) {
 	    fprintf(stderr, "pmLookupName: request_names ->");
 	    for (i = 0; i < numpmid; i++)
 		fprintf(stderr, " [%d] %s", i, namelist[i]);
 	    fputc('\n', stderr);
 	}
-#endif
 	sts = __pmSendNameList(ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp),
 		numpmid, namelist, NULL);
 	if (sts < 0)
@@ -1912,8 +1897,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_TIMEOUT);
 
 	    if (sts >= 0)
 		nfail = numpmid - sts;
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_PMNS) {
+	    if (pmDebugOptions.pmns) {
 		char	strbuf[20];
 		char	errmsg[PM_MAXERRMSGLEN];
 		fprintf(stderr, "pmLookupName: receive_names <-");
@@ -1925,7 +1909,6 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_TIMEOUT);
 	    else
 		fprintf(stderr, " %s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	    }
-#endif
 	}
     }
 
@@ -1953,8 +1936,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_TIMEOUT);
 		if (lsts < 0) {
 		    nfail++;
 		}
-#ifdef PCP_DEBUG
-		if (pmDebug & DBG_TRACE_DERIVE) {
+		if (pmDebugOptions.derive) {
 		    char	strbuf[20];
 		    char	errmsg[PM_MAXERRMSGLEN];
 		    fprintf(stderr, "__dmgetpmid: metric \"%s\" -> ", namelist[i]);
@@ -1963,7 +1945,6 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_TIMEOUT);
 		    else
 			fprintf(stderr, "PMID %s\n", pmIDStr_r(pmidlist[i], strbuf, sizeof(strbuf)));
 		}
-#endif
 	    }
 	}
 	if (nfail == 0)
@@ -1984,8 +1965,7 @@ pmapi_return:
     if (ctx_ctl.need_ctx_unlock)
 	PM_UNLOCK(ctx_ctl.ctxp->c_lock);
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_PMAPI) {
+    if (pmDebugOptions.pmapi) {
 	fprintf(stderr, ":> returns ");
 	if (sts >= 0) {
 	    char    dbgbuf[20];
@@ -1999,10 +1979,8 @@ pmapi_return:
 	    fprintf(stderr, "%s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	}
     }
-#endif
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_PMNS) {
+    if (pmDebugOptions.pmns) {
 	fprintf(stderr, "pmLookupName(%d, ...) -> ", numpmid);
 	if (sts < 0) {
 	    char	errmsg[PM_MAXERRMSGLEN];
@@ -2011,7 +1989,6 @@ pmapi_return:
 	else
 	    fprintf(stderr, "%d\n", sts);
     }
-#endif
 
     return sts;
 }
@@ -2202,11 +2179,9 @@ getchildren(__pmContext *ctxp, int needlocks, const char *name, char ***offsprin
 	char		**result;
 	char		*p;
 
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_PMNS) {
+	if (pmDebugOptions.pmns) {
 	    fprintf(stderr, "pmGetChildren(name=\"%s\") [local]\n", name);
 	}
-#endif
 
 	/* avoids ambiguity, for errors and leaf nodes */
 	*offspring = NULL;
@@ -2404,8 +2379,7 @@ check:
      */
     dm_num = __dmchildren(ctxp, name, &dm_offspring, &dm_statuslist);
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_DERIVE) {
+    if (pmDebugOptions.derive) {
 	char	errmsg[PM_MAXERRMSGLEN];
 	if (num < 0)
 	    fprintf(stderr, "pmGetChildren(name=\"%s\") no regular children (%s)", name, pmErrStr_r(num, errmsg, sizeof(errmsg)));
@@ -2418,7 +2392,6 @@ check:
 	else
 	    fprintf(stderr, ", %d derived children\n", dm_num);
     }
-#endif
     if (dm_num > 0) {
 	stitch_list(&num, offspring, statuslist, dm_num, dm_offspring, dm_statuslist);
 	free(dm_offspring);
@@ -2430,8 +2403,7 @@ check:
     }
 
 report:
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_PMNS) {
+    if (pmDebugOptions.pmns) {
 	fprintf(stderr, "pmGetChildren(name=\"%s\") -> ", name);
 	if (num == 0)
 	    fprintf(stderr, "leaf\n");
@@ -2446,7 +2418,6 @@ report:
 	    fprintf(stderr, "%s\n", pmErrStr_r(num, errmsg, sizeof(errmsg)));
 	}
     }
-#endif
 
     sts = num;
 
@@ -2670,6 +2641,7 @@ pmNameAll_ctx(__pmContext *ctxp, pmID pmid, char ***namelist)
 {
     int		pmns_location;
     char	**tmp = NULL;
+    char	**tmp_new;
     int		len = 0;
     int		n = 0;
     char	*sp;
@@ -2720,10 +2692,12 @@ pmNameAll_ctx(__pmContext *ctxp, pmID pmid, char ***namelist)
              np = np->hash) {
 	    if (np->pmid == pmid) {
 		n++;
-		if ((tmp = (char **)realloc(tmp, n * sizeof(tmp[0]))) == NULL) {
+		if ((tmp_new = (char **)realloc(tmp, n * sizeof(tmp[0]))) == NULL) {
+		    free(tmp);
 		    sts = -oserror();
 		    break;
 		}
+		tmp = tmp_new;
 		if ((sts = backname(np, &tmp[n-1])) < 0) {
 		    /* error, ... free any partial allocations */
 		    for (i = n-2; i >= 0; i--)
@@ -2740,10 +2714,12 @@ pmNameAll_ctx(__pmContext *ctxp, pmID pmid, char ***namelist)
 	if (n > 0) {
 	    /* all good ... rearrange to a contiguous allocation and return */
 	    len += n * sizeof(tmp[0]);
-	    if ((tmp = (char **)realloc(tmp, len)) == NULL) {
+	    if ((tmp_new = (char **)realloc(tmp, len)) == NULL) {
+		free(tmp);
 		sts = -oserror();
 		goto pmapi_return;
 	    }
+	    tmp = tmp_new;
 
 	    sp = (char *)&tmp[n];
 	    for (i = 0; i < n; i++) {
@@ -2820,10 +2796,12 @@ pmNameAll_ctx(__pmContext *ctxp, pmID pmid, char ***namelist)
 	goto pmapi_return;
     }
     len = sizeof(tmp[0]) + strlen(tmp[0])+1;
-    if ((tmp = (char **)realloc(tmp, len)) == NULL) {
+    if ((tmp_new = (char **)realloc(tmp, len)) == NULL) {
+	free(tmp);
 	sts = -oserror();
 	goto pmapi_return;
     }
+    tmp = tmp_new;
     sp = (char *)&tmp[1];
     strcpy(sp, tmp[0]);
     free(tmp[0]);
@@ -2873,8 +2851,10 @@ TraversePMNS_local(__pmContext *ctxp, char *name, int *numnames, char ***namelis
 
 	for (j = 0; j < nchildren; j++) {
 	    size_t size = strlen(name) + 1 + strlen(enfants[j]) + 1;
-	    if ((newname = (char *)malloc(size)) == NULL)
+	    if ((newname = (char *)malloc(size)) == NULL) {
 		__pmNoMem("pmTraversePMNS_local: newname", size, PM_FATAL_ERR);
+		/*NOTREACHED*/
+	    }
 	    if (*name == '\0')
 		strcpy(newname, enfants[j]);
 	    else {
@@ -2894,14 +2874,20 @@ TraversePMNS_local(__pmContext *ctxp, char *name, int *numnames, char ***namelis
 	if (*sz_namelist == 0) {
 	    *sz_namelist = 128;
 	    *namelist = (char **)malloc(*sz_namelist * sizeof((*namelist)[0]));
-	    if (*namelist == NULL)
+	    if (*namelist == NULL) {
 		__pmNoMem("pmTraversePMNS_local: initial namelist", *sz_namelist * sizeof((*namelist)[0]), PM_FATAL_ERR);
+		/*NOTREACHED*/
+	    }
 	}
 	else if (*numnames == *sz_namelist - 1) {
+	    char	**namelist_new;
 	    *sz_namelist *= 2;
-	    *namelist = (char **)realloc(*namelist, *sz_namelist * sizeof((*namelist)[0]));
-	    if (*namelist == NULL)
+	    namelist_new = (char **)realloc(*namelist, *sz_namelist * sizeof((*namelist)[0]));
+	    if (namelist_new == NULL) {
 		__pmNoMem("pmTraversePMNS_local: double namelist", *sz_namelist * sizeof((*namelist)[0]), PM_FATAL_ERR);
+		/*NOTREACHED*/
+	    }
+	    *namelist = namelist_new;
 	}
 	(*namelist)[*numnames] = strdup(name);
 	(*numnames)++;

@@ -738,7 +738,7 @@ main(int argc, char **argv)
     }
     else {
 	for (a = opts.optind; a < argc; a++) {
-	    if (isdigit(argv[a][0]))
+	    if (isdigit((int)(argv[a][0])))
 		sts = dodigit(argv[a]);
 	    else
 		sts = pmTraversePMNS(argv[a], dometric);

@@ -16,8 +16,10 @@ children of "pmcd" ...
     openfds             <s = 0>
     pdu_in              <s = 1>
     pdu_out             <s = 1>
+    pid                 <s = 0>
     pmie                <s = 1>
     pmlogger            <s = 1>
+    seqnum              <s = 0>
     simabi              <s = 0>
     timezone            <s = 0>
     version             <s = 0>

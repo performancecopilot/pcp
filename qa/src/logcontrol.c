@@ -42,15 +42,13 @@ main(int argc, char **argv)
     while ((c = getopt(argc, argv, "D:h:i:n:P:p:r:")) != EOF) {
 	switch (c) {
 
-	case 'D':	/* debug flag */
-	    sts = __pmParseDebug(optarg);
+	case 'D':	/* debug options */
+	    sts = pmSetDebug(optarg);
 	    if (sts < 0) {
-		fprintf(stderr, "%s: unrecognized debug flag specification (%s)\n",
+		fprintf(stderr, "%s: unrecognized debug options specification (%s)\n",
 		    pmProgname, optarg);
 		errflag++;
 	    }
-	    else
-		pmDebug |= sts;
 	    break;
 
 	case 'h':	/* hostname for PMCD to contact */
@@ -102,7 +100,7 @@ USAGE:
 "Usage: %s [options] action metric ...\n"
 "\n"
 "Options\n"
-" -D level	set debug level\n"
+" -D debugspec	set PCP debugging options\n"
 " -h hostname	contact PMCD at this host\n"
 " -i instance	apply only to this instance\n"
 " -n namespace	use and alternative name space\n"

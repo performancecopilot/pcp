@@ -1,0 +1,104 @@
+QA output created by 540
+1st call to __pmProcessAddArg fails at malloc
+=== std out ===
+__pmProcessAddArg: failed (handle is NULL) at argv[0]: "echo"
+=== std err ===
+[DATE] exectest(PID) Warning: __pmProcessAddArg: argv malloc: malloc(N) failed: Cannot allocate memory
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/exectest echo not supposed to get here
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+1st call to __pmProcessAddArg fails at realloc
+=== std out ===
+__pmProcessAddArg: failed (handle is NULL) at argv[0]: "echo"
+=== std err ===
+[DATE] exectest(PID) Warning: __pmProcessAddArg: argv realloc: malloc(N) failed: Cannot allocate memory
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/exectest echo not supposed to get here
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+2nd (and later) calls to __pmProcessAddArg fails at realloc
+=== std out ===
+__pmProcessAddArg: failed (handle is NULL) at argv[1]: "not"
+=== std err ===
+[DATE] exectest(PID) Warning: __pmProcessAddArg: argv realloc: malloc(N) failed: Cannot allocate memory
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/exectest echo not supposed to get here
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+4th call to __pmProcessAddArg fails at strdup
+=== std out ===
+__pmProcessAddArg: failed (handle is NULL) at argv[3]: "to"
+=== std err ===
+[DATE] exectest(PID) Warning: __pmProcessAddArg: arg strdup: malloc(N) failed: Cannot allocate memory
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/exectest echo not supposed to get here
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+fork() fails
+=== std out ===
+__pmProcessExec -> -11 Resource temporarily unavailable
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/exectest -- sh -c sleep 1; echo not supposed to get here
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+pipe() fails
+=== std out ===
+__pmProcessPipe(..., "r", ...) -> -23: Too many open files in system
+=== std err ===
+__pmProcessPipe: argc=3 type="r" toss=0 "echo" "hullo" "world"
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/exectest -Dexec -p -- echo hullo world
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+fork() fails after pipe()
+=== std out ===
+__pmProcessPipe(..., "r", ...) -> -38: Function not implemented
+=== std err ===
+__pmProcessPipe: argc=3 type="r" toss=0 "echo" "hullo" "world"
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/exectest -Dexec -p -- echo hullo world
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+realloc() fails for pipe map
+=== std out ===
+__pmProcessPipe(..., "r", ...) -> -12: Cannot allocate memory
+=== std err ===
+__pmProcessPipe: argc=3 type="r" toss=0 "echo" "hullo" "world"
+[DATE] exectest(PID) Warning: __pmProcessAddArg: argv realloc: malloc(N) failed: Cannot allocate memory
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/exectest -Dexec -p -- echo hullo world
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...

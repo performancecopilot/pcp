@@ -11,29 +11,3 @@ name=Performance Co-Pilot Development Packages
 baseurl=file:///root/rpmbuild/RPMS
 gpgcheck=0
 enabled=0
-
-[nathans-copr]
-name=Copr repo for early UoM and Parfait Packages
-baseurl=https://copr-be.cloud.fedoraproject.org/results/nathans/pcp.io/fedora-24-x86_64/
-gpgkey=https://copr-be.cloud.fedoraproject.org/results/nathans/pcp.io/pubkey.gpg
-skip_if_unavailable=True
-type=rpm-md
-gpgcheck=1
-repo_gpgcheck=0
-enabled=1
-enabled_metadata=1
-
-#[uom-bintray]
-#name=Units Of Measurement Bintray RPM Repository
-#baseurl=https://dl.bintray.com/uom/f25
-#skip_if_unavailable=True
-#gpgcheck=0
-#enabled=1
-
-#[parfait-bintray]
-#name=Parfait Bintray RPM Repository
-#baseurl=https://dl.bintray.com/parfait/f25
-#skip_if_unavailable=True
-#gpgcheck=0
-#enabled=1
-

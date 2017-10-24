@@ -388,18 +388,18 @@ do_macro(void)
 	else if (rflag) {
 	    if (ip == &tp[1]) {
 		/* second character could be { or start of name */
-		if (*ip == '{' || isalnum(*ip))
+		if (*ip == '{' || isalnum((int)*ip))
 		    tok_end = 0;
 		else
 		    tok_end = 1;
 	    }
 	    else if (ip == &tp[2] && tp[1] == '{')
 		/* third character could be start of name if following { */
-		if (isalnum(*ip))
+		if (isalnum((int)*ip))
 		    tok_end = 0;
 		else
 		    tok_end = 1;
-	    else if (tp[1] != '{' && (isalnum(*ip) || *ip == '_'))
+	    else if (tp[1] != '{' && (isalnum((int)*ip) || *ip == '_'))
 		tok_end = 0;
 	    else if (tp[1] == '{') {
 		if (*ip != '}')
@@ -585,7 +585,7 @@ do_include(char *iname, char **oname)
     for (i = 0; i < nincdir; i++) {
 	if (incdir[i].dirname == NULL)
 	    continue;
-	snprintf(tmpbuf, sizeof(tmpbuf), "%s%c%s", incdir[i].dirname, sep, iname);
+	pmsprintf(tmpbuf, sizeof(tmpbuf), "%s%c%s", incdir[i].dirname, sep, iname);
 	if (debug)
 	    printf("<<include \"%s\"?\n", tmpbuf);
 	if ((f = openfile(tmpbuf)) != NULL) {
@@ -602,6 +602,12 @@ do_shell(const char *cmd)
 {
     FILE	*f;
 
+    /*
+     * popen() is not really safe here, but the %shell control line
+     * takes a single string argument, so what will be executed by
+     * the implied /bin/sh -c "<string argument>" is exactly what
+     * appears in the input PMNS file.
+     */
     f = popen(cmd, "r");
 
     return f;
@@ -663,7 +669,7 @@ main(int argc, char **argv)
 		if (debug)
 		    printf("<<-D doubled ibuf[] to %d chars\n", ibuflen);
 	    }
-	    snprintf(ibuf, ibuflen, "#define %s\n", opts.optarg);
+	    pmsprintf(ibuf, ibuflen, "#define %s\n", opts.optarg);
 	    currfile->fname = "<arg>";
 	    currfile->lineno = opts.optind;
 	    directive();
@@ -739,7 +745,7 @@ main(int argc, char **argv)
      */
     {
 	static char	tmpbuf[MAXPATHLEN];
-	snprintf(tmpbuf, sizeof(tmpbuf), "%s%cpmns", pmGetConfig("PCP_VAR_DIR"), sep);
+	pmsprintf(tmpbuf, sizeof(tmpbuf), "%s%cpmns", pmGetConfig("PCP_VAR_DIR"), sep);
 	incdir[nincdir-1].dirname = tmpbuf;
     }
 

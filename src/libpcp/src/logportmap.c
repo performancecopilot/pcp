@@ -72,7 +72,7 @@ is_portfile(const_dirent *dep)
 }
 
 /* The following function is used for selecting particular port files rather
- * than all valid files.  snprintf the pid of the pmlogger process or the
+ * than all valid files.  pmsprintf the pid of the pmlogger process or the
  * special constant PM_LOG_PRIMARY_LINK into the match array first.
  */
 #define PROCFS_ENTRY_SIZE 40	/* encompass any size of entry for pid */
@@ -113,7 +113,7 @@ __pmLogFindLocalPorts(int pid, __pmLogPort **result)
 
     if ((p = pmGetOptionalConfig("PCP_TMP_DIR")) == NULL)
 	return PM_ERR_GENERIC;
-    lendir = snprintf(dir, sizeof(dir), "%s%cpmlogger", p, __pmPathSeparator());
+    lendir = pmsprintf(dir, sizeof(dir), "%s%cpmlogger", p, __pmPathSeparator());
 
     /* Set up the appropriate function to select files from the control port
      * directory.  Anticipate that this will usually be an exact match for
@@ -131,26 +131,22 @@ __pmLogFindLocalPorts(int pid, __pmLogPort **result)
 
 	default:			/* a specific pid (single) */
 	    if (!__pmProcessExists((pid_t)pid)) {
-#ifdef PCP_DEBUG
-		if (pmDebug & DBG_TRACE_LOG) {
+		if (pmDebugOptions.log) {
 		    fprintf(stderr, "__pmLogFindLocalPorts() -> 0, "
 				"pid(%d) doesn't exist\n", pid);
 		}
-#endif
 		*result = NULL;
 		return 0;
 	    }
-	    snprintf(match, sizeof(match), "%d", pid);
+	    pmsprintf(match, sizeof(match), "%d", pid);
 	    break;
     }
 
     nf = scandir(dir, &files, scanfn, alphasort);
-#ifdef PCP_DEBUG
-    if (nf < 1 && (pmDebug & DBG_TRACE_LOG)) {
+    if (nf < 1 && pmDebugOptions.log) {
 	fprintf(stderr, "__pmLogFindLocalPorts: scandir() -> %d %s\n",
 		    nf, pmErrStr(oserror()));
     }
-#endif
     if (nf == -1 && oserror() == ENOENT)
 	nf = 0;
     else if (nf == -1) {
@@ -166,12 +162,10 @@ __pmLogFindLocalPorts(int pid, __pmLogPort **result)
 	return -oserror();
     }
     if (nf == 0) {
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_LOG) {
+	if (pmDebugOptions.log) {
 	    fprintf(stderr, "__pmLogFindLocalPorts() -> 0, "
 			"num files = 0\n");
 	}
-#endif
 	*result = NULL;
 	free(files);
 	return 0;
@@ -370,6 +364,7 @@ __pmLogFindPort(const char *host, int pid, __pmLogPort **lpp)
     int			i, j;
     int			findone = pid != PM_LOG_ALL_PIDS;
     int			localcon = 0;	/* > 0 for local connection */
+    int			bytes;
     pmDesc		desc;
     pmResult		*res;
     char		*namelist[] = {"pmcd.pmlogger.port"};
@@ -395,12 +390,12 @@ __pmLogFindPort(const char *host, int pid, __pmLogPort **lpp)
      * the first colon from being taken as a port separator by pmNewContext
      * and does no harm otherwise.
      */
-    ctxhost = malloc(strlen(host) + 2 + 1);
-    if (ctxhost == NULL) {
+    bytes = strlen(host) + 2 + 1;
+    if ((ctxhost = malloc(bytes)) == NULL) {
 	sts = -ENOMEM;
 	goto ctxErr;
     }
-    sprintf(ctxhost, "[%s]", host);
+    pmsprintf(ctxhost, bytes, "[%s]", host);
     ctx = pmNewContext(PM_CONTEXT_HOST, ctxhost);
     free(ctxhost);
     if (ctx < 0)

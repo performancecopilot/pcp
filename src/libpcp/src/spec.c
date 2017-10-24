@@ -53,7 +53,7 @@ parseError(const char *func, const char *spec, const char *point, char *msg, cha
     *q++ = '\n';
     for (p = spec; p != point; p++)
 	*q++ = isgraph((int)*p) ? ' ' : *p;
-    sprintf(q, "^ -- %s\n", msg);	/* safe */
+    pmsprintf(q, need - (q - *rslt), "^ -- %s\n", msg);
 }
 
 static void *
@@ -599,7 +599,7 @@ unparseHostSpec(pmHostSpec *hostp, int count, char *string, size_t size, int pre
 
     for (i = 0; i < count; i++) {
 	if (i > 0) {
-	    if ((sts = snprintf(string + off, len, "@")) >= size) {
+	    if ((sts = pmsprintf(string + off, len, "@")) >= size) {
 		off = -E2BIG;
 		goto done;
 	    }
@@ -607,19 +607,19 @@ unparseHostSpec(pmHostSpec *hostp, int count, char *string, size_t size, int pre
 	}
 
 	if (prefix && hostp[i].nports == PM_HOST_SPEC_NPORTS_LOCAL) {
-	    if ((sts = snprintf(string + off, len, "local:/%s", hostp[i].name + 1)) >= size) {
+	    if ((sts = pmsprintf(string + off, len, "local:/%s", hostp[i].name + 1)) >= size) {
 		off = -E2BIG;
 		goto done;
 	    }
 	}
 	else if (prefix && hostp[i].nports == PM_HOST_SPEC_NPORTS_UNIX) {
-	    if ((sts = snprintf(string + off, len, "unix:/%s", hostp[i].name + 1)) >= size) {
+	    if ((sts = pmsprintf(string + off, len, "unix:/%s", hostp[i].name + 1)) >= size) {
 		off = -E2BIG;
 		goto done;
 	    }
 	}
 	else {
-	    if ((sts = snprintf(string + off, len, "%s", hostp[i].name)) >= size) {
+	    if ((sts = pmsprintf(string + off, len, "%s", hostp[i].name)) >= size) {
 		off = -E2BIG;
 		goto done;
 	    }
@@ -627,7 +627,7 @@ unparseHostSpec(pmHostSpec *hostp, int count, char *string, size_t size, int pre
 	len -= sts; off += sts;
 
 	for (j = 0; j < hostp[i].nports; j++) {
-	    if ((sts = snprintf(string + off, len,
+	    if ((sts = pmsprintf(string + off, len,
 			    "%c%u", (j == 0) ? ':' : ',',
 			    hostp[i].ports[j])) >= size) {
 		off = -E2BIG;
@@ -638,8 +638,7 @@ unparseHostSpec(pmHostSpec *hostp, int count, char *string, size_t size, int pre
     }
 
 done:
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_CONTEXT) {
+    if (pmDebugOptions.context) {
 	fprintf(stderr, "__pmUnparseHostSpec([name=%s ports=%p nport=%d], count=%d, ...) -> ", hostp->name, hostp->ports, hostp->nports, count);
 	if (off < 0) {
 	    char	errmsg[PM_MAXERRMSGLEN];
@@ -649,7 +648,6 @@ done:
 	else
 	    fprintf(stderr, "%d \"%s\"\n", off, string);
     }
-#endif
     return off;
 }
 
@@ -965,37 +963,37 @@ __pmAttrKeyStr_r(__pmAttrKey key, char *string, size_t size)
 {
     switch (key) {
     case PCP_ATTR_PROTOCOL:
-	return snprintf(string, size, "protocol");
+	return pmsprintf(string, size, "protocol");
     case PCP_ATTR_COMPRESS:
-	return snprintf(string, size, "compress");
+	return pmsprintf(string, size, "compress");
     case PCP_ATTR_USERAUTH:
-	return snprintf(string, size, "userauth");
+	return pmsprintf(string, size, "userauth");
     case PCP_ATTR_USERNAME:
-	return snprintf(string, size, "username");
+	return pmsprintf(string, size, "username");
     case PCP_ATTR_AUTHNAME:
-	return snprintf(string, size, "authname");
+	return pmsprintf(string, size, "authname");
     case PCP_ATTR_PASSWORD:
-	return snprintf(string, size, "password");
+	return pmsprintf(string, size, "password");
     case PCP_ATTR_METHOD:
-	return snprintf(string, size, "method");
+	return pmsprintf(string, size, "method");
     case PCP_ATTR_REALM:
-	return snprintf(string, size, "realm");
+	return pmsprintf(string, size, "realm");
     case PCP_ATTR_SECURE:
-	return snprintf(string, size, "secure");
+	return pmsprintf(string, size, "secure");
     case PCP_ATTR_UNIXSOCK:
-	return snprintf(string, size, "unixsock");
+	return pmsprintf(string, size, "unixsock");
     case PCP_ATTR_LOCAL:
-	return snprintf(string, size, "local");
+	return pmsprintf(string, size, "local");
     case PCP_ATTR_USERID:
-	return snprintf(string, size, "userid");
+	return pmsprintf(string, size, "userid");
     case PCP_ATTR_GROUPID:
-	return snprintf(string, size, "groupid");
+	return pmsprintf(string, size, "groupid");
     case PCP_ATTR_PROCESSID:
-	return snprintf(string, size, "processid");
+	return pmsprintf(string, size, "processid");
     case PCP_ATTR_CONTAINER:
-	return snprintf(string, size, "container");
+	return pmsprintf(string, size, "container");
     case PCP_ATTR_EXCLUSIVE:
-	return snprintf(string, size, "exclusive");	/* deprecated */
+	return pmsprintf(string, size, "exclusive");	/* deprecated */
     case PCP_ATTR_NONE:
     default:
 	break;
@@ -1023,14 +1021,14 @@ __pmAttrStr_r(__pmAttrKey key, const char *data, char *string, size_t size)
     case PCP_ATTR_GROUPID:
     case PCP_ATTR_PROCESSID:
     case PCP_ATTR_CONTAINER:
-	return snprintf(string, size, "%s=%s", name, data ? data : "");
+	return pmsprintf(string, size, "%s=%s", name, data ? data : "");
 
     case PCP_ATTR_UNIXSOCK:
     case PCP_ATTR_LOCAL:
     case PCP_ATTR_COMPRESS:
     case PCP_ATTR_USERAUTH:
     case PCP_ATTR_EXCLUSIVE:	/* deprecated */
-	return snprintf(string, size, "%s", name);
+	return pmsprintf(string, size, "%s", name);
 
     case PCP_ATTR_NONE:
     default:
@@ -1052,17 +1050,17 @@ __pmUnparseHostAttrsSpec(
     int sts, first;
 
     if ((node = __pmHashSearch(PCP_ATTR_PROTOCOL, attrs)) != NULL) {
-	if ((sts = snprintf(string, len, "%s://", (char *)node->data)) >= len)
+	if ((sts = pmsprintf(string, len, "%s://", (char *)node->data)) >= len)
 	    return -E2BIG;
 	len -= sts; off += sts;
     }
     else if (__pmHashSearch(PCP_ATTR_UNIXSOCK, attrs) != NULL) {
-	if ((sts = snprintf(string, len, "unix:/")) >= len)
+	if ((sts = pmsprintf(string, len, "unix:/")) >= len)
 	    return -E2BIG;
 	len -= sts; off += sts;
     }
     else if (__pmHashSearch(PCP_ATTR_LOCAL, attrs) != NULL) {
-	if ((sts = snprintf(string, len, "local:/")) >= len)
+	if ((sts = pmsprintf(string, len, "local:/")) >= len)
 	    return -E2BIG;
 	len -= sts; off += sts;
     }
@@ -1078,7 +1076,7 @@ __pmUnparseHostAttrsSpec(
 	if (node->key == PCP_ATTR_PROTOCOL ||
 	    node->key == PCP_ATTR_UNIXSOCK || node->key == PCP_ATTR_LOCAL)
 	    continue;
-	if ((sts = snprintf(string + off, len, "%c", first ? '?' : '&')) >= len)
+	if ((sts = pmsprintf(string + off, len, "%c", first ? '?' : '&')) >= len)
 	    return -E2BIG;
 	len -= sts; off += sts;
 	first = 0;

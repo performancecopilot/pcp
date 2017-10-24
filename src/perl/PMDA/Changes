@@ -1,5 +1,9 @@
 Revision history for Perl extension PCP::PMDA.
 
+1.17  Fri Aug 25 13:46:10 EST 2017
+	- Implement indom cache restoration for hash indoms.
+	- Add the load_indom helper function.
+
 1.16  Thu Sep  5 11:22:34 EST 2013
 	- Add pmda_install helper function.
 	- Make several new PM_ERR error codes available.

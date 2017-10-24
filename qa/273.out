@@ -1,4 +1,5 @@
 QA output created by 273
+--- help.c case 1 ---
 sampledso.control [A control variable for the "sample" PMDA]
 sampledso.daemon_pid [Process id of PMDA daemon]
 sampledso.seconds [Elapsed time (seconds)]
@@ -173,13 +174,16 @@ sampledso.negative.discrete.m_32 [32-bit integer discrete metric with negative v
 sampledso.negative.discrete.m_64 [64-bit integer discrete metric with negative value]
 sampledso.negative.discrete.m_float [float discrete metric with negative value]
 sampledso.negative.discrete.m_double [double discrete metric with negative value]
+--- help.c case 2 ---
 
 sampledso.control
 Help:
 This control variable may be modified using pmStore().
 The allowed values are
     0	disable debugging output in the PMDA
-    >0	set pmDebug to this value to enable debugging output
+    >0	value is interpreted as a vector of bit-fields to set
+        old-style debugging options, see pmdbg -o -l for mapping
+	from values to debugging options
     -1	force the PMDA to terminate
 
 sampledso.daemon_pid
@@ -1220,6 +1224,7 @@ metrics are fetched.
 Maybe be reset with pmStore, but this will reset the value for all of
 the sampledso.negative.*.m_double metrics (they share the same underlying
 counter).
+--- help.c case 3 ---
 
 sample.seconds
 Full Help: Error: Operation requires context with host source of metrics
@@ -1247,6 +1252,7 @@ Full Help: Error: Operation requires context with host source of metrics
 
 sample.dupnames.two.lights
 Full Help: Error: Operation requires context with host source of metrics
+--- help.c case 4 ---
 
 simple.now
 Help:
@@ -1271,6 +1277,7 @@ current time of day.
 
 The instance domain reflects each token present in the file, and the
 values reflect the time at which the PMDA processes the fetch.
+--- instance.c case 1 ---
 __pmFetchLocal: calling ???_profile(domain: 30), context: 0
 __pmFetchLocal: [0] PMID=30.0.6 nval=9
 pmFetch returns ...
@@ -1296,6 +1303,7 @@ sampledso.bin
     inst [700 or "bin-700"] value NUMBER
     inst [800 or "bin-800"] value NUMBER
     inst [900 or "bin-900"] value NUMBER
+--- instance.c case 2 ---
 pmInResult dump from HEX for InDom 29.2 (HEX), numinst=9
   [0] inst=100 name="bin-100"
   [1] inst=200 name="bin-200"
@@ -1317,6 +1325,7 @@ sample.bin
     inst [700 or "bin-700"] value 700
     inst [800 or "bin-800"] value 800
     inst [900 or "bin-900"] value 900
+--- instance.c case 3 ---
 __pmFetchLocal: calling ???_profile(domain: 253), context: 0
 __pmdaStartInst(indom=253.0) e_ordinal=0
 __pmdaNextInst(indom=253.0) -> 0 e_ordinal=1
@@ -1376,196 +1385,289 @@ simple.now
     inst [0 or "sec"] value NUMBER
     inst [1 or "min"] value NUMBER
     inst [2 or "hour"] value NUMBER
+--- instance.c case 4 ---
 sample.bin:
 pm*InDom: inst=[0] {Unknown or illegal instance identifier}
 pmGetInDom:
+--- instance.c case 5 ---
 sample.long.one:
 pm*InDom: inst=[0] {Unknown or illegal instance domain identifier}
 pmGetInDom: {Unknown or illegal instance domain identifier}
 Error: Unknown or illegal instance domain identifier
+--- instance.c case 6 ---
 pmval: instance bin-123 not available
+--- instance.c case 7 (expect not output) ---
+--- instance.c case 8 (expect not output) ---
+--- fetchlocal.c case 1 ---
 __pmFetchLocal: calling ???_profile(domain: 30), context: 0
 __pmFetchLocal: [0] PMID=30.0.54 nval=Unknown or illegal metric identifier
 pmFetch returns ...
 pmResult ... numpmid: 1
   30.0.54 (sampledso.bad.unknown): Unknown or illegal metric identifier
 sampledso.bad.unknown: pmLookupDesc: Unknown or illegal metric identifier
+--- spec.c case 1 ---
 
 sample.long.hundred
     value 100
+--- spec.c case 2 ---
 
 sample.long.hundred
     value 100
+--- spec.c case 3 ---
 pmNewContext: bad host specification
 localhost:
           ^ -- missing port
 pminfo: Cannot connect to PMCD on host "localhost:": Generic error, already reported above
+--- spec.c case 4 ---
 pmNewContext: bad host specification
 localhost:44321,1x3
                  ^ -- non-numeric port
 pminfo: Cannot connect to PMCD on host "localhost:44321,1x3": Generic error, already reported above
+--- spec.c case 5 ---
 pminfo: Cannot connect to PMCD on host "localhost:44321@no-host": No route to host
+--- spec.c case 6 ---
 pminfo: Cannot connect to PMCD on host "localhost:44321@no-host:44322": No route to host
+--- spec.c case 7 ---
 pminfo: Cannot connect to PMCD on host "localhost:44321@": No route to host
+--- units.c case 1 (expect not output) ---
+--- units.c case 2 ---
 
 sample.dynamic.meta.metric
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: Pbyte / hour
+--- units.c case 3 (expect not output) ---
+--- units.c case 4 ---
 
 sample.dynamic.meta.metric
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: Ebyte / sec
+--- units.c case 5 (expect not output) ---
+--- units.c case 6 ---
 
 sample.dynamic.meta.metric
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: space-7
+--- units.c case 7 (expect not output) ---
+--- units.c case 8 ---
 
 sample.dynamic.meta.metric
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: time-6
+--- units.c case 9 (expect not output) ---
+--- units.c case 10 ---
 
 sample.dynamic.meta.metric
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: byte^2
+--- units.c case 11 (expect not output) ---
+--- units.c case 12 ---
 
 sample.dynamic.meta.metric
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: nanosec / byte
+--- units.c case 13 (expect not output) ---
+--- units.c case 14 ---
 
 sample.dynamic.meta.metric
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: / byte^2
+--- units.c case 15 (expect not output) ---
+--- units.c case 16 ---
 
 sample.dynamic.meta.metric
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: nanosec^3
+--- units.c case 17 (expect not output) ---
+--- units.c case 18 ---
 
 sample.dynamic.meta.metric
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: / nanosec^3
+--- units.c case 19 (expect not output) ---
+--- units.c case 20 ---
 
 sample.dynamic.meta.metric
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: count^2
+--- units.c case 21 (expect not output) ---
+--- units.c case 22 ---
 
 sample.dynamic.meta.metric
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: / count^2
+--- units.c case 23 (expect not output) ---
+--- units.c case 24 type=0 ---
 type=0 input units=Tbyte value=1024
 output units=Gbyte value=1048576
+--- units.c case 25 type=0 ---
 type=0 input units=Gbyte value=1048576
 output units=Tbyte value=1024
+--- units.c case 26 type=0 ---
 type=0 input units=Mbyte / sec value=4096
 output units=Gbyte / hour value=14400
+--- units.c case 27 type=0 ---
 type=0 input units=Gbyte / hour value=14400
 output units=Mbyte / sec value=4096
+--- units.c case 28 type=0 ---
 type=0 input units=Kbyte sec / count value=92160
 output units=Mbyte min / count x 10 value=15
+--- units.c case 29 type=0 ---
 type=0 input units=Mbyte min / count x 10 value=15
 output units=Kbyte sec / count value=92160
+--- units.c case 30 type=0 ---
 type=0 input units=sec / Mbyte value=1024
 output units=millisec / Kbyte value=1000
+--- units.c case 31 type=0 ---
 type=0 input units=millisec / Kbyte value=1000
 output units=sec / Mbyte value=1024
+--- units.c case 24 type=1 ---
 type=1 input units=Tbyte value=1024
 output units=Gbyte value=1048576
+--- units.c case 25 type=1 ---
 type=1 input units=Gbyte value=1048576
 output units=Tbyte value=1024
+--- units.c case 26 type=1 ---
 type=1 input units=Mbyte / sec value=4096
 output units=Gbyte / hour value=14400
+--- units.c case 27 type=1 ---
 type=1 input units=Gbyte / hour value=14400
 output units=Mbyte / sec value=4096
+--- units.c case 28 type=1 ---
 type=1 input units=Kbyte sec / count value=92160
 output units=Mbyte min / count x 10 value=15
+--- units.c case 29 type=1 ---
 type=1 input units=Mbyte min / count x 10 value=15
 output units=Kbyte sec / count value=92160
+--- units.c case 30 type=1 ---
 type=1 input units=sec / Mbyte value=1024
 output units=millisec / Kbyte value=1000
+--- units.c case 31 type=1 ---
 type=1 input units=millisec / Kbyte value=1000
 output units=sec / Mbyte value=1024
+--- units.c case 24 type=2 ---
 type=2 input units=Tbyte value=1024
 output units=Gbyte value=1048576
+--- units.c case 25 type=2 ---
 type=2 input units=Gbyte value=1048576
 output units=Tbyte value=1024
+--- units.c case 26 type=2 ---
 type=2 input units=Mbyte / sec value=4096
 output units=Gbyte / hour value=14400
+--- units.c case 27 type=2 ---
 type=2 input units=Gbyte / hour value=14400
 output units=Mbyte / sec value=4096
+--- units.c case 28 type=2 ---
 type=2 input units=Kbyte sec / count value=92160
 output units=Mbyte min / count x 10 value=15
+--- units.c case 29 type=2 ---
 type=2 input units=Mbyte min / count x 10 value=15
 output units=Kbyte sec / count value=92160
+--- units.c case 30 type=2 ---
 type=2 input units=sec / Mbyte value=1024
 output units=millisec / Kbyte value=1000
+--- units.c case 31 type=2 ---
 type=2 input units=millisec / Kbyte value=1000
 output units=sec / Mbyte value=1024
+--- units.c case 24 type=3 ---
 type=3 input units=Tbyte value=1024
 output units=Gbyte value=1048576
+--- units.c case 25 type=3 ---
 type=3 input units=Gbyte value=1048576
 output units=Tbyte value=1024
+--- units.c case 26 type=3 ---
 type=3 input units=Mbyte / sec value=4096
 output units=Gbyte / hour value=14400
+--- units.c case 27 type=3 ---
 type=3 input units=Gbyte / hour value=14400
 output units=Mbyte / sec value=4096
+--- units.c case 28 type=3 ---
 type=3 input units=Kbyte sec / count value=92160
 output units=Mbyte min / count x 10 value=15
+--- units.c case 29 type=3 ---
 type=3 input units=Mbyte min / count x 10 value=15
 output units=Kbyte sec / count value=92160
+--- units.c case 30 type=3 ---
 type=3 input units=sec / Mbyte value=1024
 output units=millisec / Kbyte value=1000
+--- units.c case 31 type=3 ---
 type=3 input units=millisec / Kbyte value=1000
 output units=sec / Mbyte value=1024
+--- units.c case 24 type=4 ---
 type=4 input units=Tbyte value=1.024000e+03
 output units=Gbyte value=1.048576e+06
+--- units.c case 25 type=4 ---
 type=4 input units=Gbyte value=1.048576e+06
 output units=Tbyte value=1.024000e+03
+--- units.c case 26 type=4 ---
 type=4 input units=Mbyte / sec value=4.096000e+03
 output units=Gbyte / hour value=1.440000e+04
+--- units.c case 27 type=4 ---
 type=4 input units=Gbyte / hour value=1.440000e+04
 output units=Mbyte / sec value=4.096000e+03
+--- units.c case 28 type=4 ---
 type=4 input units=Kbyte sec / count value=9.216000e+04
 output units=Mbyte min / count x 10 value=1.500000e+01
+--- units.c case 29 type=4 ---
 type=4 input units=Mbyte min / count x 10 value=1.500000e+01
 output units=Kbyte sec / count value=9.216000e+04
+--- units.c case 30 type=4 ---
 type=4 input units=sec / Mbyte value=1.024000e+03
 output units=millisec / Kbyte value=1.000000e+03
+--- units.c case 31 type=4 ---
 type=4 input units=millisec / Kbyte value=1.000000e+03
 output units=sec / Mbyte value=1.024000e+03
+--- units.c case 24 type=5 ---
 type=5 input units=Tbyte value=1.024000e+03
 output units=Gbyte value=1.048576e+06
+--- units.c case 25 type=5 ---
 type=5 input units=Gbyte value=1.048576e+06
 output units=Tbyte value=1.024000e+03
+--- units.c case 26 type=5 ---
 type=5 input units=Mbyte / sec value=4.096000e+03
 output units=Gbyte / hour value=1.440000e+04
+--- units.c case 27 type=5 ---
 type=5 input units=Gbyte / hour value=1.440000e+04
 output units=Mbyte / sec value=4.096000e+03
+--- units.c case 28 type=5 ---
 type=5 input units=Kbyte sec / count value=9.216000e+04
 output units=Mbyte min / count x 10 value=1.500000e+01
+--- units.c case 29 type=5 ---
 type=5 input units=Mbyte min / count x 10 value=1.500000e+01
 output units=Kbyte sec / count value=9.216000e+04
+--- units.c case 30 type=5 ---
 type=5 input units=sec / Mbyte value=1.024000e+03
 output units=millisec / Kbyte value=1.000000e+03
+--- units.c case 31 type=5 ---
 type=5 input units=millisec / Kbyte value=1.000000e+03
 output units=sec / Mbyte value=1.024000e+03
+--- units.c case 41 ---
 pmConvScale: 4096 [Pbyte] -> 4 [Ebyte]
 type=3 input units=Pbyte value=4096
 output units=Ebyte value=4
+--- units.c case 42 ---
 type=3 input units=Ebyte value=4
 output units=Pbyte value=4096
+--- units.c error case 43 ---
 type=3 input units=space-7 value=4096
 pmConvScale Error: Illegal pmUnits specification
+--- units.c error case 44 ---
 type=3 input units=Pbyte value=4096
 pmConvScale Error: Illegal pmUnits specification
+--- units.c error case 45 ---
 type=3 input units=time-6 value=3600
 pmConvScale Error: Illegal pmUnits specification
+--- units.c error case 46 ---
 pmConvScale: 3600 [min] -> Error: Illegal pmUnits specification [time-6]
 type=3 input units=min value=3600
 pmConvScale Error: Illegal pmUnits specification
+--- units.c error case 47 ---
 type=3 input units=microsec value=0
 pmConvScale Error: Impossible value or scale conversion
+--- units.c error case 48 ---
 type=8 input units=microsec value=[type=AGGREGATE_STATIC len=1] 30
 pmConvScale Error: Impossible value or scale conversion
 
+--- units.c case 32 ---
 pmExtractValue:  1073741823 [32] -> 1073741823 [32]
 pmExtractValue:  1073741823 [32] -> 1073741823 [U32]
 pmExtractValue:  1073741823 [32] -> 1073741823 [64]
@@ -1668,10 +1770,12 @@ pmExtractValue:  ??? [HIGHRES_EVENT] -> Error: Impossible value or scale convers
 pmExtractValue:  ??? [HIGHRES_EVENT] -> Error: Impossible value or scale conversion [HIGHRES_EVENT]
 
 Value: 1073741823 0x000000003fffffff
+--- units.c case 33 ---
 
 Value: 2147483647 0x000000007fffffff
 (float) 2.147484e+09 => (long) : Truncation in value conversion
 (double) 2.147484e+09 => (long) : Truncation in value conversion
+--- units.c case 34 ---
 
 Value: 4294967295 0x00000000ffffffff
 (long) -1 => (ulong) : Negative value in conversion to unsigned
@@ -1683,6 +1787,7 @@ Value: 4294967295 0x00000000ffffffff
 (float) 4.294967e+09 => (ulong) : Truncation in value conversion
 (double) 4.294967e+09 => (long) : Truncation in value conversion
 (double) 4.294967e+09 => (ulong) : Truncation in value conversion
+--- units.c case 35 ---
 
 Value: 4611686018427387903 0x3fffffffffffffff
 (long) -1 => (ulong) : Negative value in conversion to unsigned
@@ -1696,6 +1801,7 @@ Value: 4611686018427387903 0x3fffffffffffffff
 (float) 4.611686e+18 => (ulong) : Truncation in value conversion
 (double) 4.611686e+18 => (long) : Truncation in value conversion
 (double) 4.611686e+18 => (ulong) : Truncation in value conversion
+--- units.c case 36 ---
 
 Value: 9223372036854775807 0x7fffffffffffffff
 (long) -1 => (ulong) : Negative value in conversion to unsigned
@@ -1711,6 +1817,7 @@ Value: 9223372036854775807 0x7fffffffffffffff
 (double) 9.223372e+18 => (long) : Truncation in value conversion
 (double) 9.223372e+18 => (ulong) : Truncation in value conversion
 (double) 9.223372e+18 => (longlong) : Truncation in value conversion
+--- units.c case 37 ---
 
 Value: -1 0xffffffffffffffff
 (long) -1 => (ulong) : Negative value in conversion to unsigned
@@ -1725,6 +1832,7 @@ Value: -1 0xffffffffffffffff
 (float) -1.000000e+00 => (ulonglong) : Negative value in conversion to unsigned
 (double) -1.000000e+00 => (ulong) : Negative value in conversion to unsigned
 (double) -1.000000e+00 => (ulonglong) : Negative value in conversion to unsigned
+--- units.c case 38 ---
 
 Value: 18446744073709551615 0xffffffffffffffff
 (long) -1 => (ulong) : Negative value in conversion to unsigned
@@ -1743,7 +1851,7 @@ Value: 18446744073709551615 0xffffffffffffffff
 (double) 1.844674e+19 => (ulong) : Truncation in value conversion
 (double) 1.844674e+19 => (longlong) : Truncation in value conversion
 (double) 1.844674e+19 => (ulonglong) : Truncation in value conversion
-
+--- units.c case 39 ---
 old FLOAT:         123.456 -> 32: 123
 old FLOAT:  4151801600.000 -> 32: Truncation in value conversion
 old FLOAT:         123.456 -> U32: 123
@@ -1762,7 +1870,7 @@ bad FLOAT:         123.456 -> FLOAT: Impossible value or scale conversion
 bad DOUBLE:         123.456 -> DOUBLE: Impossible value or scale conversion
 bad STRING: not me -> STRING: Impossible value or scale conversion
 bad AGGREGATE: len=0 -> AGGREGATE: Impossible value or scale conversion
-
+--- store.c case 1 ---
 pmResult ... numpmid: 3
   30.0.14 (sampledso.long.write_me): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
@@ -1813,7 +1921,7 @@ pmResult ... numpmid: 3
   30.0.24 (sampledso.longlong.write_me): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
 Quitting need at least 4 metrics for profile tests
-
+--- store.c case 2 ---
 build_dsotab:  parsing ...
 pmNewContext(3, localhost) -> 0
 Dump Contexts: current -> contexts[0] handle 0
@@ -1874,7 +1982,7 @@ pmResult ... numpmid: 3
     inst [1 or ???] value NUMBER
     inst [2 or ???] value NUMBER
 Quitting need at least 4 metrics for profile tests
-
+--- store.c case 3 ---
 pmResult ... numpmid: 3
   2.0.0 (pmcd.control.debug): No PMCD agent for domain of request
   30.0.14 (sampledso.long.write_me): numval: 1 valfmt: 0 vlist[]:
@@ -1924,7 +2032,7 @@ pmResult ... numpmid: 3
     inst [1 or ???] value NUMBER
     inst [2 or ???] value NUMBER
 Quitting need at least 4 metrics for profile tests
-
+--- store.c case 4 ---
 pmResult ... numpmid: 3
   253.2.4 (simple.now): numval: 3 valfmt: 0 vlist[]:
     inst [0 or "sec"] value NUMBER

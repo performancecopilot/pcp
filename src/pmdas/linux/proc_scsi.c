@@ -39,11 +39,9 @@ refresh_proc_scsi(pmInDom indom)
 	 * not exist
 	 */
     	sts = pmdaCacheOp(indom, PMDA_CACHE_LOAD);
-#if PCP_DEBUG
-	if ((pmDebug & DBG_TRACE_LIBPMDA) && sts < 0)
+	if (pmDebugOptions.libpmda && sts < 0)
 	    fprintf(stderr, "refresh_proc_scsi: pmdaCacheOp(%s, LOAD): %s\n",
 		    pmInDomStr(indom), pmErrStr(sts));
-#endif
     }
 
     if ((fp = linux_statsfile("/proc/scsi/scsi", buf, sizeof(buf))) == NULL)
@@ -67,7 +65,7 @@ refresh_proc_scsi(pmInDom indom)
 	    }
 	}
 
-	sprintf(name, "scsi%d:%d:%d:%d %s",
+	pmsprintf(name, sizeof(name), "scsi%d:%d:%d:%d %s",
 	    x.dev_host, x.dev_channel, x.dev_id, x.dev_lun, type);
 
 	failed = 0;
@@ -83,7 +81,8 @@ refresh_proc_scsi(pmInDom indom)
 	    *se = x; /* struct copy */
 
 	    /* find the block device name from sysfs */
-	    sprintf(buf, "/sys/class/scsi_device/%d:%d:%d:%d/device/block",
+	    pmsprintf(buf, sizeof(buf),
+			    "/sys/class/scsi_device/%d:%d:%d:%d/device/block",
 		se->dev_host, se->dev_channel, se->dev_id, se->dev_lun);
 	    if ((dirp = opendir(buf)) == NULL) {
 		failed++;
@@ -109,13 +108,11 @@ refresh_proc_scsi(pmInDom indom)
 		free(se->dev_name);
 		free(se);
 	    }
-#if PCP_DEBUG
 	    else {
-		if (pmDebug & DBG_TRACE_LIBPMDA)
+		if (pmDebugOptions.libpmda)
 		    fprintf(stderr, "refresh_proc_scsi: instance \"%s\" = \"%s\"\n",
 			name, se->dev_name);
 	    }
-#endif
 	}
 	else
 	    free(se);

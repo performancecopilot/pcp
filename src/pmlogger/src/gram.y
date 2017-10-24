@@ -128,7 +128,7 @@ dowhat		: logopt action
 		    if ((tp = findtask(state, &delta)) == NULL) {
 			if ((tp = (task_t *)calloc(1, sizeof(task_t))) == NULL) {
 			    char emess[256];
-			    snprintf(emess, sizeof(emess), "malloc failed: %s", osstrerror());
+			    pmsprintf(emess, sizeof(emess), "malloc failed: %s", osstrerror());
 			    yyerror(emess);
 			} else {
 			    task_t	*ltp;
@@ -165,12 +165,12 @@ action		: cntrl ON frequency
 		{ 
 		    char emess[256];
                     if ($3 < 0) {
-			snprintf(emess, sizeof(emess),
+			pmsprintf(emess, sizeof(emess),
 				"Logging delta (%ld msec) must be positive",$3);
 			yyerror(emess);
 		    }
 		    else if ($3 >  PMLC_MAX_DELTA) {
-			snprintf(emess, sizeof(emess),
+			pmsprintf(emess, sizeof(emess),
 				"Logging delta (%ld msec) cannot be bigger "
 				"than %d msec", $3, PMLC_MAX_DELTA);
 			yyerror(emess);
@@ -226,7 +226,7 @@ metricspec	: NAME
 		{
                     if ((metricName = strdup($1)) == NULL) {
 			char emess[256];
-			snprintf(emess, sizeof(emess), "malloc failed: %s", osstrerror());
+			pmsprintf(emess, sizeof(emess), "malloc failed: %s", osstrerror());
                         yyerror(emess);
 		    }
                 }
@@ -242,7 +242,7 @@ metricspec	: NAME
 		    if ((index = lookup_metric_name(metricName)) < 0) {
 			if ((sts = pmTraversePMNS(metricName, activate_new_metric)) < 0 ) {
 			    char emess[256];
-			    snprintf(emess, sizeof(emess),
+			    pmsprintf(emess, sizeof(emess),
 				    "Problem with lookup for metric \"%s\" "
 				    "... logging not activated", metricName);
 			    yywarn(emess);
@@ -421,7 +421,7 @@ activate_cached_metric(const char *name, int index)
 
     if (index < 0) {
 	if ((sts = pmLookupName(1, (char **)&name, &pmid)) < 0 || pmid == PM_ID_NULL) {
-	    snprintf(emess, sizeof(emess),
+	    pmsprintf(emess, sizeof(emess),
 		    "Metric \"%s\" is unknown ... not logged", name);
 	    goto snarf;
 	}
@@ -429,7 +429,7 @@ activate_cached_metric(const char *name, int index)
 	if (IS_DERIVED(pmid))
 	    tp->t_dm++;
 	if ((sts = pmLookupDesc(pmid, dp)) < 0) {
-	    snprintf(emess, sizeof(emess),
+	    pmsprintf(emess, sizeof(emess),
 		    "Description unavailable for metric \"%s\" ... not logged",
 		    name);
 	    goto snarf;
@@ -472,7 +472,7 @@ activate_cached_metric(const char *name, int index)
 	    if (extlist[i] != NULL) {
 		sts = pmLookupInDom(dp->indom, extlist[i]);
 		if (sts < 0) {
-                    snprintf(emess, sizeof(emess),
+                    pmsprintf(emess, sizeof(emess),
 			"Instance \"%s\" is not defined for the metric \"%s\"",
 			extlist[i], name);
                     yywarn(emess);
@@ -485,7 +485,7 @@ activate_cached_metric(const char *name, int index)
 		char	*p;
 		sts = pmNameInDom(dp->indom, intlist[i], &p);
 		if (sts < 0) {
-                    snprintf(emess, sizeof(emess),
+                    pmsprintf(emess, sizeof(emess),
 			"Instance \"%d\" is not defined for the metric \"%s\"",
 			intlist[i], name);
                     yywarn(emess);
@@ -496,7 +496,7 @@ activate_cached_metric(const char *name, int index)
 		inst = intlist[i];
 	    }
 	    if ((sts = chk_one(tp, pmid, inst)) < 0) {
-                snprintf(emess, sizeof(emess),
+                pmsprintf(emess, sizeof(emess),
 			"Incompatible request for metric \"%s\" "
 			"and instance \"%s\"", name, extlist[i]);
                 yywarn(emess);
@@ -513,7 +513,7 @@ activate_cached_metric(const char *name, int index)
     }
     else {
 	if ((sts = chk_all(tp, pmid)) < 0) {
-            snprintf(emess, sizeof(emess),
+            pmsprintf(emess, sizeof(emess),
 		    "Incompatible request for metric \"%s\"", name);
             yywarn(emess);
 
@@ -524,7 +524,7 @@ activate_cached_metric(const char *name, int index)
     if (!skip) {
 	__pmOptFetchAdd(&tp->t_fetch, rqp);
 	if ((sts = __pmHashAdd(pmid, (void *)rqp, &pm_hash)) < 0) {
-	    snprintf(emess, sizeof(emess), "__pmHashAdd failed "
+	    pmsprintf(emess, sizeof(emess), "__pmHashAdd failed "
 		    "for metric \"%s\" ... logging not activated", name);
 	    goto snarf;
 	}
@@ -537,7 +537,7 @@ activate_cached_metric(const char *name, int index)
     return;
 
 nomem:
-    snprintf(emess, sizeof(emess), "malloc failed: %s", osstrerror());
+    pmsprintf(emess, sizeof(emess), "malloc failed: %s", osstrerror());
     yyerror(emess);
 
 snarf:

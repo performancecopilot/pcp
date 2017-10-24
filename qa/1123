@@ -1,0 +1,56 @@
+#!/bin/sh
+# PCP QA Test No. 1123
+# pmchart "views" that are executable
+#
+# Copyright (c) 2017 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+status=0	# success is the default!
+
+. ./common.qt
+trap "_cleanup_qt; exit \$status" 0 1 2 3 15
+
+which pmchart >/dev/null 2>&1 || _notrun "pmchart not installed"
+[ -f $PCP_VAR_DIR/config/pmchart/BusyCPU ] || _notrun "BusyCPU view not installed"
+
+$sudo rm -rf $tmp $tmp.* $seq.full
+
+# real QA test starts here
+
+echo "BusyCPU ..."
+# some CPU load
+src/hanoi 100 &
+pid=$!
+
+PCP_STDERR= $PCP_VAR_DIR/config/pmchart/BusyCPU \
+| tee -a $here/$seq.full \
+| sed -n -e '/src\/hanoi/s/Instance [0-9][0-9]*'"$pid"'/Instance <hanoi_pid>/p'
+
+PCP_STDERR= pmchart -c BusyCPU -C -C
+( kill $pid >/dev/null 2>&1 ) &
+
+echo
+echo "QA test ..."
+cat <<'End-of-File' >$tmp.sh
+#!/bin/sh
+
+cat <<EOF
+#pmchart
+Version 2.0 host dynamic
+
+Chart Title "CPU Utilization [`hostname` on `date +'%Y-%m-%d'`]" Style stacking
+        Plot Color #-cycle Host * Metric kernel.all.cpu.user
+        Plot Color #-cycle Host * Metric kernel.all.cpu.sys
+EOF
+End-of-File
+chmod 755 $tmp.sh
+
+# note -c argument cannot start with a /
+#
+cd `dirname $tmp`
+pmchart -c `basename $tmp.sh` -C -C
+
+# all done
+exit

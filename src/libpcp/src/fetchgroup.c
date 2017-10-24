@@ -398,22 +398,22 @@ __pmExtractValue2(int valfmt, const pmValue *ival, int itype, pmAtomValue *oval,
 	    return sts;
 	switch (itype) {
 	    case PM_TYPE_32:
-		snprintf(fmt_buf, fmt_buf_size, "%d", tmp.l);
+		pmsprintf(fmt_buf, fmt_buf_size, "%d", tmp.l);
 		break;
 	    case PM_TYPE_U32:
-		snprintf(fmt_buf, fmt_buf_size, "%u", tmp.ul);
+		pmsprintf(fmt_buf, fmt_buf_size, "%u", tmp.ul);
 		break;
 	    case PM_TYPE_64:
-		snprintf(fmt_buf, fmt_buf_size, "%" PRIi64, tmp.ll);
+		pmsprintf(fmt_buf, fmt_buf_size, "%" PRIi64, tmp.ll);
 		break;
 	    case PM_TYPE_U64:
-		snprintf(fmt_buf, fmt_buf_size, "%" PRIu64, tmp.ull);
+		pmsprintf(fmt_buf, fmt_buf_size, "%" PRIu64, tmp.ull);
 		break;
 	    case PM_TYPE_FLOAT:
-		snprintf(fmt_buf, fmt_buf_size, "%.9e", tmp.f);
+		pmsprintf(fmt_buf, fmt_buf_size, "%.9e", tmp.f);
 		break;
 	    case PM_TYPE_DOUBLE:
-		snprintf(fmt_buf, fmt_buf_size, "%.17e", tmp.d);
+		pmsprintf(fmt_buf, fmt_buf_size, "%.17e", tmp.d);
 		break;
 	    default:
 		assert(0);	/* can't happen */
@@ -517,7 +517,7 @@ __pmStuffDoubleValue(double val, pmAtomValue *oval, int otype)
 	    enum { fmt_buf_size = 40 };	/* longer than any formatted number */
 	    char fmt_buf[fmt_buf_size];
 
-	    snprintf(fmt_buf, sizeof(fmt_buf), "%.17e", val);
+	    pmsprintf(fmt_buf, sizeof(fmt_buf), "%.17e", val);
 	    oval->cp = strdup(fmt_buf);
 	    if (oval->cp == NULL)
 		return -ENOMEM;
@@ -528,12 +528,10 @@ __pmStuffDoubleValue(double val, pmAtomValue *oval, int otype)
 	    assert(0);		/* prevented at pmfg_prep_conversion */
     }
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_VALUE) {
+    if (pmDebugOptions.value) {
 	fprintf(stderr, "__pmStuffDoubleValue: %.17e -> %s %s\n",
 		val, pmTypeStr(otype), pmAtomStr(oval, otype));
     }
-#endif
     return sts;
 }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2014 Red Hat.
+ * Copyright (C) 2013-2015,2017 Red Hat.
  *
  * This file is part of the "pcp" module, the python interfaces for the
  * Performance Co-Pilot toolkit.
@@ -105,7 +105,7 @@ pmns_refresh(void)
     Py_ssize_t pos = 0;
     PyObject *key, *value;
 
-    if (pmDebug & DBG_TRACE_LIBPMDA)
+    if (pmDebugOptions.libpmda)
         fprintf(stderr, "pmns_refresh: rebuilding namespace\n");
 
     // If there is nothing to do, just exit.
@@ -131,7 +131,7 @@ pmns_refresh(void)
 #else
 	name = PyString_AsString(value);
 #endif
-        if (pmDebug & DBG_TRACE_LIBPMDA)
+        if (pmDebugOptions.libpmda)
             fprintf(stderr, "pmns_refresh: adding metric %s(%s)\n",
                     name, pmIDStr(pmid));
         if ((sts = __pmAddPMNSNode(pmns, pmid, name)) < 0) {
@@ -335,19 +335,27 @@ pmns_children(const char *name, int traverse, char ***kids, int **sts, pmdaExt *
 }
 
 static int
+callback_error(const char *name)
+{
+    __pmNotifyErr(LOG_ERR, "%s: callback failed", name);
+    /* force the stacktrace out now if there is one */
+    if (PyErr_Occurred())
+	PyErr_Print();
+    return -EAGAIN;
+}
+
+static int
 prefetch(void)
 {
     PyObject *arglist, *result;
 
     arglist = Py_BuildValue("()");
     if (arglist == NULL)
-        return -ENOMEM;
+	return -ENOMEM;
     result = PyEval_CallObject(fetch_func, arglist);
     Py_DECREF(arglist);
-    if (!result) {
-        PyErr_Print();
-        return -EAGAIN;	/* exception thrown */
-    }
+    if (result == NULL)
+	return callback_error("prefetch");
     Py_DECREF(result);
     return 0;
 }
@@ -359,13 +367,11 @@ refresh_cluster(int cluster)
 
     arglist = Py_BuildValue("(i)", cluster);
     if (arglist == NULL)
-        return -ENOMEM;
+	return -ENOMEM;
     result = PyEval_CallObject(refresh_func, arglist);
     Py_DECREF(arglist);
-    if (result == NULL) {
-        PyErr_Print();
-        return -EAGAIN;	/* exception thrown */
-    }
+    if (result == NULL)
+	return callback_error("refresh_cluster");
     Py_DECREF(result);
     return 0;
 }
@@ -386,16 +392,13 @@ refresh_all_clusters(int numclusters, int *clusters)
     }
 
     arglist = Py_BuildValue("(N)", list);
-    if (arglist == NULL){
-        return -ENOMEM;
-    }
+    if (arglist == NULL)
+	return -ENOMEM;
     result = PyEval_CallObject(refresh_all_func, arglist);
     Py_DECREF(list);
     Py_DECREF(arglist);
-    if (result == NULL) {
-        PyErr_Print();
-        return -EAGAIN; /* exception thrown */
-    }
+    if (result == NULL)
+	return callback_error("refresh_all_clusters");
     Py_DECREF(result);
     return 0;
 }
@@ -460,10 +463,8 @@ preinstance(pmInDom indom)
         return -ENOMEM;
     result = PyEval_CallObject(instance_func, arglist);
     Py_DECREF(arglist);
-    if (result == NULL) {
-        PyErr_Print();
-        return -EAGAIN;	/* exception thrown */
-    }
+    if (result == NULL)
+	return callback_error("preinstance");
     Py_DECREF(result);
     return 0;
 }
@@ -497,10 +498,9 @@ fetch_callback(pmdaMetric *metric, unsigned int inst, pmAtomValue *atom)
     }
     result = PyEval_CallObject(fetch_cb_func, arglist);
     Py_DECREF(arglist);
-    if (result == NULL) {
-        PyErr_Print();
-        return -EAGAIN;	/* exception thrown */
-    } else if (PyTuple_Check(result)) {
+    if (result == NULL)
+	return callback_error("fetch_callback");
+    else if (PyTuple_Check(result)) {
         __pmNotifyErr(LOG_ERR, "non-tuple returned from fetch callback");
         Py_DECREF(result);
 	return -EINVAL;
@@ -608,10 +608,8 @@ store_callback(__pmID_int *pmid, unsigned int inst, pmAtomValue av, int type)
     }
     result = PyEval_CallObject(store_cb_func, arglist);
     Py_DECREF(arglist);
-    if (!result) {
-        PyErr_Print();
-        return -EAGAIN;	/* exception thrown */
-    }
+    if (result == NULL)
+	return callback_error("store_callback");
     rc = PyArg_Parse(result, "i:store_callback", &code);
     Py_DECREF(result);
     if (rc == 0) {
@@ -713,7 +711,7 @@ text(int ident, int type, char **buffer, pmdaExt *pmda)
 int
 attribute(int ctx, int attr, const char *value, int length, pmdaExt *pmda)
 {
-    if (pmDebug & DBG_TRACE_AUTH) {
+    if (pmDebugOptions.auth) {
         char buffer[256];
 
         if (!__pmAttrStr_r(attr, value, buffer, sizeof(buffer))) {
@@ -753,8 +751,8 @@ init_dispatch(PyObject *self, PyObject *args, PyObject *keywords)
     name = strdup(pmdaname);
     __pmSetProgname(name);
     if ((p = getenv("PCP_PYTHON_DEBUG")) != NULL)
-        if ((pmDebug = __pmParseDebug(p)) < 0)
-            pmDebug = 0;
+        if (pmSetDebug(p) < 0)
+	    PyErr_SetString(PyExc_TypeError, "unrecognized debug options specification");
 
     if (access(help, R_OK) != 0) {
         pmdaDaemon(&dispatch, PMDA_INTERFACE_6, name, domain, logfile, NULL);
@@ -956,7 +954,7 @@ pmda_refresh_metrics(void)
 {
     // Update the metrics/indoms.
     if (!update_indom_metric_buffers()) {
-	if (pmDebug & DBG_TRACE_LIBPMDA)
+	if (pmDebugOptions.libpmda)
 	    fprintf(stderr,
 		    "pmda_refresh_metrics: rehash %ld indoms, %ld metrics\n",
 		    (long)nindoms, (long)nmetrics);
@@ -1013,7 +1011,7 @@ pmda_dispatch(PyObject *self, PyObject *args, PyObject *keywords)
 
     // Update the indoms/metrics.
     if (! update_indom_metric_buffers()) {
-	if (pmDebug & DBG_TRACE_LIBPMDA)
+	if (pmDebugOptions.libpmda)
 	    fprintf(stderr, "pmda_dispatch pmdaInit for metrics/indoms\n");
 	pmdaInit(&dispatch, indom_buffer, nindoms, metric_buffer, nmetrics);
 	if ((dispatch.version.any.ext->e_flags & PMDA_EXT_CONNECTED)
@@ -1022,12 +1020,12 @@ pmda_dispatch(PyObject *self, PyObject *args, PyObject *keywords)
 	     * connect_pmcd() not called before, so need pmdaConnect()
 	     * here before falling into the PDU-driven pmdaMain() loop.
 	     */
-	    if (pmDebug & DBG_TRACE_LIBPMDA)
+	    if (pmDebugOptions.libpmda)
 		fprintf(stderr, "pmda_dispatch connect to pmcd\n");
 	    pmdaConnect(&dispatch);
 	}
 
-	if (pmDebug & DBG_TRACE_LIBPMDA)
+	if (pmDebugOptions.libpmda)
 	    fprintf(stderr, "pmda_dispatch entering PDU loop\n");
 	pmdaMain(&dispatch);
     }
@@ -1135,11 +1133,11 @@ pmda_uptime(PyObject *self, PyObject *args, PyObject *keywords)
     secs = now;
 
     if (days > 1)
-        snprintf(s, sz, "%ddays %02d:%02d:%02d", days, hours, mins, secs);
+        pmsprintf(s, sz, "%ddays %02d:%02d:%02d", days, hours, mins, secs);
     else if (days == 1)
-        snprintf(s, sz, "%dday %02d:%02d:%02d", days, hours, mins, secs);
+        pmsprintf(s, sz, "%dday %02d:%02d:%02d", days, hours, mins, secs);
     else
-        snprintf(s, sz, "%02d:%02d:%02d", hours, mins, secs);
+        pmsprintf(s, sz, "%02d:%02d:%02d", hours, mins, secs);
 
     return Py_BuildValue("s", s);
 }

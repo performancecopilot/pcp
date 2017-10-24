@@ -258,7 +258,7 @@ sample_fetch_events(pmValueBlock **vbpp, int inst)
 	flags = PM_EVENT_FLAG_POINT;
 	if ((sts = pmdaEventAddRecord(myarray[inst], &stamp, flags)) < 0)
 	    return sts;
-	snprintf(hrecord1, sizeof(hrecord1), "fetch #%d", xnfetch);
+	pmsprintf(hrecord1, sizeof(hrecord1), "fetch #%d", xnfetch);
 	atom.cp = hrecord1;
 	if ((sts = pmdaEventAddParam(myarray[inst], pmid_string, PM_TYPE_STRING, &atom)) < 0)
 	    return sts;
@@ -457,7 +457,7 @@ sample_fetch_highres_events(pmValueBlock **vbpp, int inst)
 	flags = PM_EVENT_FLAG_POINT;
 	if ((sts = pmdaEventAddHighResRecord(hrarray[inst], &stamp, flags)) < 0)
 	    return sts;
-	snprintf(record1, sizeof(record1), "fetch #%d", xnhrfetch);
+	pmsprintf(record1, sizeof(record1), "fetch #%d", xnhrfetch);
 	atom.cp = record1;
 	if ((sts = pmdaEventHighResAddParam(hrarray[inst], pmid_string, PM_TYPE_STRING, &atom)) < 0)
 	    return sts;

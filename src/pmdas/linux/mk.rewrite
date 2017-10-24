@@ -90,7 +90,7 @@ metric hinv.cpu.clock { units -> 0,-1,0,0,USEC,0 }
 # several string typed metrics should be discrete; their string value
 # prevails over time and changes very infrequently, if at all.
 #
-metric kernel_uname.release { sem -> discrete }
+metric kernel.uname.release { sem -> discrete }
 metric kernel.uname.version { sem -> discrete }
 metric kernel.uname.sysname { sem -> discrete }
 metric kernel.uname.machine { sem -> discrete }

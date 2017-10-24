@@ -84,6 +84,7 @@ resize(int fd)
 {
     size_t size;
     int	oldcount;
+    __pmIPC	*tmp__pmIPCTable;
 
     PM_ASSERT_IS_LOCKED(ipc_lock);
 
@@ -96,9 +97,12 @@ resize(int fd)
 	while (fd >= ipctablecount)
 	    ipctablecount *= 2;
 	size = ipcentrysize * ipctablecount;
-	__pmIPCTable = (__pmIPC *)realloc(__pmIPCTable, size);
-	if (__pmIPCTable == NULL)
+	tmp__pmIPCTable = (__pmIPC *)realloc(__pmIPCTable, size);
+	if (tmp__pmIPCTable == NULL) {
+	    ipctablecount = oldcount;
 	    return -oserror();
+	}
+	__pmIPCTable = tmp__pmIPCTable;
 	size -= ipcentrysize * oldcount;
 	memset(__pmIPCTablePtr(oldcount), 0, size);
     }
@@ -113,7 +117,7 @@ version_locked(int fd)
     if (fd == PDU_OVERRIDE2)
 	return PDU_VERSION2;
     if (__pmIPCTable == NULL || fd < 0 || fd >= ipctablecount) {
-	if (pmDebug & DBG_TRACE_CONTEXT)
+	if (pmDebugOptions.context)
 	    fprintf(stderr,
 		"IPC protocol botch: version: table->" PRINTF_P_PFX "%p fd=%d sz=%d\n",
 		__pmIPCTable, fd, ipctablecount);
@@ -128,7 +132,7 @@ socket_locked(int fd)
     PM_ASSERT_IS_LOCKED(ipc_lock);
 
     if (__pmIPCTable == NULL || fd < 0 || fd >= ipctablecount) {
-	if (pmDebug & DBG_TRACE_CONTEXT)
+	if (pmDebugOptions.context)
 	    fprintf(stderr,
 		"IPC protocol botch: socket: table->" PRINTF_P_PFX "%p fd=%d sz=%d\n",
 		__pmIPCTable, fd, ipctablecount);
@@ -143,7 +147,7 @@ features_locked(int fd)
     PM_ASSERT_IS_LOCKED(ipc_lock);
 
     if (__pmIPCTable == NULL || fd < 0 || fd >= ipctablecount) {
-	if (pmDebug & DBG_TRACE_CONTEXT)
+	if (pmDebugOptions.context)
 	    fprintf(stderr,
 		"IPC protocol botch: features: table->" PRINTF_P_PFX "%p fd=%d sz=%d\n",
 		__pmIPCTable, fd, ipctablecount);
@@ -173,7 +177,7 @@ __pmSetVersionIPC(int fd, int version)
 {
     int sts;
 
-    if (pmDebug & DBG_TRACE_CONTEXT)
+    if (pmDebugOptions.context)
 	fprintf(stderr, "__pmSetVersionIPC: fd=%d version=%d\n", fd, version);
 
     PM_LOCK(ipc_lock);
@@ -185,7 +189,7 @@ __pmSetVersionIPC(int fd, int version)
     __pmIPCTablePtr(fd)->version = version;
     __pmLastUsedFd = fd;
 
-    if (pmDebug & DBG_TRACE_CONTEXT)
+    if (pmDebugOptions.context)
 	print();
 
     PM_UNLOCK(ipc_lock);
@@ -198,7 +202,7 @@ __pmSetFeaturesIPC(int fd, int version, int features)
     __pmIPC	*ipc;
     int		sts;
 
-    if (pmDebug & DBG_TRACE_CONTEXT)
+    if (pmDebugOptions.context)
 	fprintf(stderr, "__pmSetFeaturesIPC: fd=%d version=%d features=%d\n",
 		fd, version, features);
 
@@ -213,7 +217,7 @@ __pmSetFeaturesIPC(int fd, int version, int features)
     ipc->version = version;
     __pmLastUsedFd = fd;
 
-    if (pmDebug & DBG_TRACE_CONTEXT)
+    if (pmDebugOptions.context)
 	print();
 
     PM_UNLOCK(ipc_lock);
@@ -225,7 +229,7 @@ __pmSetSocketIPC(int fd)
 {
     int sts;
 
-    if (pmDebug & DBG_TRACE_CONTEXT)
+    if (pmDebugOptions.context)
 	fprintf(stderr, "__pmSetSocketIPC: fd=%d\n", fd);
 
     PM_LOCK(ipc_lock);
@@ -237,7 +241,7 @@ __pmSetSocketIPC(int fd)
     __pmIPCTablePtr(fd)->socket = 1;
     __pmLastUsedFd = fd;
 
-    if (pmDebug & DBG_TRACE_CONTEXT)
+    if (pmDebugOptions.context)
 	print();
 
     PM_UNLOCK(ipc_lock);
@@ -300,7 +304,7 @@ __pmSetDataIPC(int fd, void *data)
 	return sts;
     }
 
-    if (pmDebug & DBG_TRACE_CONTEXT)
+    if (pmDebugOptions.context)
 	fprintf(stderr, "__pmSetDataIPC: fd=%d data=%p(sz=%d)\n",
 		fd, data, (int)(ipcentrysize - sizeof(__pmIPC)));
 
@@ -308,7 +312,7 @@ __pmSetDataIPC(int fd, void *data)
     memcpy(dest, data, ipcentrysize - sizeof(__pmIPC));
     __pmLastUsedFd = fd;
 
-    if (pmDebug & DBG_TRACE_CONTEXT)
+    if (pmDebugOptions.context)
 	print();
 
     PM_UNLOCK(ipc_lock);
@@ -327,7 +331,7 @@ __pmDataIPC(int fd, void *data)
 	return -ESRCH;
     }
     source = ((char *)__pmIPCTablePtr(fd)) + sizeof(__pmIPC);
-    if ((pmDebug & DBG_TRACE_CONTEXT) && (pmDebug & DBG_TRACE_DESPERATE))
+    if (pmDebugOptions.context && pmDebugOptions.desperate)
 	fprintf(stderr, "__pmDataIPC: fd=%d, data=%p(sz=%d)\n",
 		fd, source, (int)(ipcentrysize - sizeof(__pmIPC)));
     memcpy(data, source, ipcentrysize - sizeof(__pmIPC));

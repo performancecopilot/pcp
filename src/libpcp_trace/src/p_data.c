@@ -111,7 +111,6 @@ __pmtracesenddata(int fd, char *tag, int taglen, int tagtype, double data)
     trace_htonll(cp);	/* send in network byte order */
     cp += sizeof(double);
     strcpy(cp, tag);
-#ifdef PCP_DEBUG
     if ((taglen % sizeof(__pmTracePDU)) != 0) {
 	/* for Purify */
 	int	pad;
@@ -119,7 +118,6 @@ __pmtracesenddata(int fd, char *tag, int taglen, int tagtype, double data)
 	for (pad = sizeof(__pmTracePDU) - 1; pad >= (taglen % sizeof(__pmTracePDU)); pad--)
 	    *padp++ = '~';	/* buffer end */
     }
-#endif
 
 #ifdef PMTRACE_DEBUG
     if (__pmstate & PMTRACE_STATE_PDU)

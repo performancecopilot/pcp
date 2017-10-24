@@ -1,7 +1,7 @@
 '\"! tbl | nroff \-man
 '\" t macro stdmacro
 .\"
-.\" Copyright (c) 2013-2016 Red Hat, Inc.  All Rights Reserved.
+.\" Copyright (c) 2013-2017 Red Hat, Inc.  All Rights Reserved.
 .\" 
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -76,7 +76,14 @@ If successful, the response from these requests is a JSON document of the form:
 { "context" : NNNNN }
 .ESAMPLE
 
-The number (a 32-bit unsigned decimal) is then used in all later operations.
+The number (a 32-bit unsigned decimal) is then used in all later
+operations.
+
+.SH CONTEXT CREATION: configurable permanent contexts
+
+In addition, permanent contexts may be created by pmwebd at
+initialization using its \-h, \-a, \-L command line options, so that a
+set of fixed NNNNN numbers may be made available to web clients.
 
 .SH PMAPI OPERATIONS
 
@@ -274,6 +281,56 @@ This is not likely to be supported, as it is destructive and would offer
 a tempting target to brute-force attackers.  Instead, the pmwebd timeout
 is used to automatically free unused contexts. 
 
+.SS PROMETHEUS
+
+Prometheus exporting of live metrics from a preexisting PMWEBAPI context
+is available:
+
+The general form of the requests is:
+.TP
+.B /pmapi/NNNNN/metrics?target=NAME1,NAME2,...
+Fetch current values for given named metrics.
+.PP
+For all numeric metrics with the given NAME prefixes, create a
+prometheus text export format giving their current value and related
+metadata.  The response has text/plain type rather than JSON, and is
+designed to be ingested by a Prometheus server, or pcp's own
+pmdaprometheus.
+
+The native PCP metric metadata (metric name, semantics and units) are first output with the
+.B # PCP
+prefix.
+If the units string is empty, then
+.B none
+is output.
+The units metadata string may contain spaces and extends to the end of the line.
+Prometheus metric types are heuristically inferred from PCP
+metric types, and units/scales are converted to base
+seconds/bytes/count if possible, with a corresponding suffix added to
+the metric name.
+PCP metric names are mapped so that \fB.\fP are exchanged with
+\fB:\fP.  Instance domain instances are represented as Prometheus labels
+with quoted instance names.
+
+.SAMPLE
+# PCP proc.nprocs instant none
+# HELP proc:nprocs instantaneous number of processes
+# TYPE proc:nprocs gauge
+proc:nprocs 7
+
+# PCP kernel.pernode.cpu.intr counter millisec
+# HELP kernel:pernode:cpu:intr_seconds_total total interrupt CPU time from /proc/stat for each node
+# TYPE kernel:pernode:cpu:intr_seconds_total counter
+kernel:pernode:cpu:intr_seconds_total{instance="node0"} 25603.540000000001
+
+# PCP filesys.blocksize instant byte
+# HELP filesys:blocksize_bytes Size of each block on mounted filesystem (Bytes)
+# TYPE filesys:blocksize_bytes gauge
+filesys:blocksize_bytes{instance="/dev/mapper/docker-253:0-83713-9a130460b46163fcf4443710db3159dea6bb5ec2aaca108515839a7a28c191ce"} 4096
+filesys:blocksize_bytes{instance="/dev/mapper/VolGroup00-root17"} 4096
+.ESAMPLE
+
+
 .SH GRAPHITE
 
 When enabled, pmwebd can emulate a subset of the graphite web-api to
@@ -292,7 +349,8 @@ c | c | c
 c | c | l.
 position	number	purpose
 _
-1	1	the pathname of the archive .meta file
+1	1	encoded pathname of the archive .meta file (default),
+		or canonicalized archive hostname (\f2-J\f1 mode)
 2	N	the N components of the pcp metric name
 N+2	1	instance name of the metric (if any)
 .TE

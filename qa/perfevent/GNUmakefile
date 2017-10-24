@@ -25,6 +25,7 @@ include $(BUILDRULES)
 
 
 OUTDIR = ./target
+INCDIR = $(TOPDIR)/src/include
 SRCDIR = $(TOPDIR)/src/pmdas/perfevent
 SRCS = perf_event_test.c \
        architecture.c \
@@ -50,9 +51,9 @@ COV_DIR=$(OUTDIR)/gcov
 COV_OBJS= $(patsubst %.c,$(COV_DIR)/%.o,$(notdir $(SRCS)))
 
 CFLAGS = -Wall -O0 -ggdb -fPIC
-CPPFLAGS = -I$(SRCDIR) -D_GNU_SOURCE -DFILESYSTEM_ROOT='"./fakefs/"'
+CPPFLAGS = -I$(INCDIR) -I$(SRCDIR) -D_GNU_SOURCE -DFILESYSTEM_ROOT='"./fakefs/"'
 LDFLAGS = -Wl,--wrap,syscall -Wl,--wrap,ioctl -Wl,--wrap,read -Wl,--wrap,close -Wl,--wrap,malloc -Wl,--wrap,sysconf
-LDLIBS = -lm
+LDLIBS = -L$(TOPDIR)/src/libpcp/src -lpcp -lm
 
 THREADLDFLAGS = 
 THREADLDLIBS = -lpthread -lrt

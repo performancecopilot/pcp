@@ -25,7 +25,7 @@ sample 5, delta time=-1.000 secs
 sample.seconds: 
 delta[0]: INT
 
-6 samples required 8 - 12 log reads
+6 samples required 8 - 13 log reads
 
 metric: sample.bin
 metric[0]: sample.bin
@@ -90,7 +90,7 @@ delta[6]: 0
 delta[7]: 0
 delta[8]: 0
 
-6 samples required 8 - 12 log reads
+6 samples required 8 - 13 log reads
 
 metric: sample.colour
 metric[0]: sample.colour
@@ -125,7 +125,7 @@ delta[0]: NUMBER
 delta[1]: NUMBER
 delta[2]: NUMBER
 
-6 samples required 8 - 12 log reads
+6 samples required 8 - 13 log reads
 
 metric: sample.drift
 metric[0]: sample.drift
@@ -150,7 +150,7 @@ sample 5, delta time=-1.000 secs
 sample.drift: 
 delta[0]: NUMBER
 
-6 samples required 8 - 12 log reads
+6 samples required 8 - 13 log reads
 
 metric: sample.lights
 metric[0]: sample.lights
@@ -175,7 +175,7 @@ sample 5, delta time=-1.000 secs
 sample.lights: 
 value[0]: COLOUR
 
-6 samples required 8 - 12 log reads
+6 samples required 8 - 13 log reads
 
 === archive tmparch/mv-foo ===
 
@@ -202,7 +202,7 @@ sample 5, delta time=-1.000 secs
 sample.seconds: 
 delta[0]: INT
 
-6 samples required 8 - 12 log reads
+6 samples required 8 - 13 log reads
 
 metric: sample.bin
 metric[0]: sample.bin
@@ -267,7 +267,7 @@ delta[6]: 0
 delta[7]: 0
 delta[8]: 0
 
-6 samples required 8 - 12 log reads
+6 samples required 8 - 13 log reads
 
 metric: sample.colour
 metric[0]: sample.colour
@@ -302,7 +302,7 @@ delta[0]: NUMBER
 delta[1]: NUMBER
 delta[2]: NUMBER
 
-6 samples required 8 - 12 log reads
+6 samples required 8 - 13 log reads
 
 metric: sample.drift
 metric[0]: sample.drift
@@ -327,7 +327,7 @@ sample 5, delta time=-1.000 secs
 sample.drift: 
 delta[0]: NUMBER
 
-6 samples required 8 - 12 log reads
+6 samples required 8 - 13 log reads
 
 metric: sample.lights
 metric[0]: sample.lights
@@ -352,7 +352,7 @@ sample 5, delta time=-1.000 secs
 sample.lights: 
 value[0]: COLOUR
 
-6 samples required 8 - 12 log reads
+6 samples required 8 - 13 log reads
 
 === archive tmparch/noti-foo ===
 
@@ -379,7 +379,7 @@ sample 5, delta time=-1.000 secs
 sample.seconds: 
 delta[0]: INT
 
-6 samples required 8 - 12 log reads
+6 samples required 8 - 13 log reads
 
 metric: sample.bin
 metric[0]: sample.bin
@@ -444,7 +444,7 @@ delta[6]: 0
 delta[7]: 0
 delta[8]: 0
 
-6 samples required 8 - 12 log reads
+6 samples required 8 - 13 log reads
 
 metric: sample.colour
 metric[0]: sample.colour
@@ -479,7 +479,7 @@ delta[0]: NUMBER
 delta[1]: NUMBER
 delta[2]: NUMBER
 
-6 samples required 8 - 12 log reads
+6 samples required 8 - 13 log reads
 
 metric: sample.drift
 metric[0]: sample.drift
@@ -504,7 +504,7 @@ sample 5, delta time=-1.000 secs
 sample.drift: 
 delta[0]: NUMBER
 
-6 samples required 8 - 12 log reads
+6 samples required 8 - 13 log reads
 
 metric: sample.lights
 metric[0]: sample.lights
@@ -529,4 +529,4 @@ sample 5, delta time=-1.000 secs
 sample.lights: 
 value[0]: COLOUR
 
-6 samples required 8 - 12 log reads
+6 samples required 8 - 13 log reads

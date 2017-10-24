@@ -422,15 +422,24 @@ stmt	: OPEN EOL				{
 		stmt_type = HELP; YYACCEPT;
 	    }
 	| DBG ALL EOL				{
-		param.number = -1;
+		sts = pmSetDebug("all");
+		if (sts < 0) {
+		    pmsprintf(warnStr, MYWARNSTRSZ, "pmSetDebug(\"all\") failed\n");
+		    yywarn(warnStr);
+		    YYERROR;
+		}
 		stmt_type = DBG; YYACCEPT;
 	    }
 	| DBG NONE EOL				{
-		param.number = 0;
+		sts = pmClearDebug("all");
+		if (sts < 0) {
+		    pmsprintf(warnStr, MYWARNSTRSZ, "pmClearDebug(\"all\") failed\n");
+		    yywarn(warnStr);
+		    YYERROR;
+		}
 		stmt_type = DBG; YYACCEPT;
 	    }
 	| DBG debug EOL				{
-		param.number = $2;
 	        stmt_type = DBG; YYACCEPT;
 	    }
 	| STATUS EOL				{ 
@@ -485,7 +494,7 @@ optdomain : NUMBER				{ $$ = $1; }
 attribute : NUMBER				{
 		sts = __pmAttrKeyStr_r($1, warnStr, sizeof(warnStr));
 		if (sts <= 0) {
-		    snprintf(warnStr, MYWARNSTRSZ, "Attribute (%d) is not recognised", $1);
+		    pmsprintf(warnStr, MYWARNSTRSZ, "Attribute (%d) is not recognised", $1);
 		    yyerror(warnStr);
 		    YYERROR;
 		}
@@ -494,7 +503,7 @@ attribute : NUMBER				{
 	| STRING				{ 
 		sts = __pmLookupAttrKey($1, strlen($1)+1);
 		if (sts <= 0) {
-		    snprintf(warnStr, MYWARNSTRSZ, "Attribute (%s) is not recognised", $1);
+		    pmsprintf(warnStr, MYWARNSTRSZ, "Attribute (%s) is not recognised", $1);
 		    yyerror(warnStr);
 		    YYERROR;
 		}
@@ -506,11 +515,11 @@ servport : NUMBER				{ $$ = $1; }
 	| STRING				{
 		struct servent *srv = getservbyname($1, NULL);
 		if (srv == NULL) {
-		    snprintf(warnStr, MYWARNSTRSZ, "Failed to map (%s) to a port number", $1);
+		    pmsprintf(warnStr, MYWARNSTRSZ, "Failed to map (%s) to a port number", $1);
 		    yyerror(warnStr);
 		    YYERROR;
 		}
-		snprintf(warnStr, MYWARNSTRSZ, "Mapped %s to port number %d", $1, srv->s_port);
+		pmsprintf(warnStr, MYWARNSTRSZ, "Mapped %s to port number %d", $1, srv->s_port);
 		yywarn(warnStr);
 		$$ = srv->s_port;
 	    }
@@ -520,7 +529,7 @@ metric	: NUMBER				{
 		pmid.whole = $1;
 		sts = pmNameID(pmid.whole, &str);
 		if (sts < 0) {
-		    snprintf(warnStr, MYWARNSTRSZ, "PMID (%s) is not defined in the PMNS",
+		    pmsprintf(warnStr, MYWARNSTRSZ, "PMID (%s) is not defined in the PMNS",
 			    pmIDStr(pmid.whole));
 		    yywarn(warnStr);
 		}
@@ -534,7 +543,7 @@ metric	: NUMBER				{
 		pmid.part.item = $1.num2;
 		sts = pmNameID(pmid.whole, &str);
 		if (sts < 0) {
-		    snprintf(warnStr, MYWARNSTRSZ, "PMID (%s) is not defined in the PMNS",
+		    pmsprintf(warnStr, MYWARNSTRSZ, "PMID (%s) is not defined in the PMNS",
 			    pmIDStr(pmid.whole));
 		    yywarn(warnStr);
 		}
@@ -549,7 +558,7 @@ metric	: NUMBER				{
 		pmid.part.item = $1.num3;
 		sts = pmNameID(pmid.whole, &str);
 		if (sts < 0) {
-		    snprintf(warnStr, MYWARNSTRSZ, "PMID (%s) is not defined in the PMNS",
+		    pmsprintf(warnStr, MYWARNSTRSZ, "PMID (%s) is not defined in the PMNS",
 			    pmIDStr(pmid.whole));
 		    yywarn(warnStr);
 		}
@@ -610,25 +619,45 @@ inst	: STRING				{ $$ = $1; }
 	| NAME					{ $$ = $1; }
 	;
 
-debug   : NUMBER 				{ $$ = $1; }
-	| NAME					{
-			sts = __pmParseDebug($1);
+debug   : NUMBER 			{
+			char	nbuf[12];
+			pmsprintf(nbuf, sizeof(nbuf), "%d", $1);
+			sts = pmSetDebug(nbuf);
 			if (sts < 0) {
-			    snprintf(warnStr, MYWARNSTRSZ, "Bad debug flag (%s)", $1);
-			    yywarn(warnStr);
+			    pmsprintf(warnStr, MYWARNSTRSZ, "Bad debug flag (%s)", nbuf);
+			    yyerror(warnStr);
 			    YYERROR;
 			}
-			$$ = sts;
+			$$ = 0;
 		    }
-	| NUMBER debug			{ $$ = $1 | $2; }
-	| NAME debug			{
-			sts = __pmParseDebug($1);
+	| NAME					{
+			sts = pmSetDebug($1);
 			if (sts < 0) {
-			    snprintf(warnStr, MYWARNSTRSZ, "Bad debug flag (%s)", $1);
-			    yywarn(warnStr);
+			    pmsprintf(warnStr, MYWARNSTRSZ, "Bad debug flag (%s)", $1);
+			    yyerror(warnStr);
 			    YYERROR;
 			}
-			$$ = sts | $2;
+			$$ = 0;
+		    }
+	| debug NUMBER				{
+			char	nbuf[12];
+			pmsprintf(nbuf, sizeof(nbuf), "%d", $2);
+			sts = pmSetDebug(nbuf);
+			if (sts < 0) {
+			    pmsprintf(warnStr, MYWARNSTRSZ, "Bad debug flag (%s)", nbuf);
+			    yyerror(warnStr);
+			    YYERROR;
+			}
+			$$ = 0;
+		    }
+	| debug NAME					{
+			sts = pmSetDebug($2);
+			if (sts < 0) {
+			    pmsprintf(warnStr, MYWARNSTRSZ, "Bad debug flag (%s)", $2);
+			    yyerror(warnStr);
+			    YYERROR;
+			}
+			$$ = 0;
 		    }
 	;
 

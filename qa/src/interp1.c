@@ -54,15 +54,13 @@ main(int argc, char **argv)
 	    dflag++;
 	    break;
 
-	case 'D':	/* debug flag */
-	    sts = __pmParseDebug(optarg);
+	case 'D':	/* debug options */
+	    sts = pmSetDebug(optarg);
 	    if (sts < 0) {
-		fprintf(stderr, "%s: unrecognized debug flag specification (%s)\n",
+		fprintf(stderr, "%s: unrecognized debug options specification (%s)\n",
 		    pmProgname, optarg);
 		errflag++;
 	    }
-	    else
-		pmDebug |= sts;
 	    break;
 
 	case 'n':	/* alternative name space file */
@@ -99,7 +97,7 @@ main(int argc, char **argv)
 Options\n\
   -a   archive	  metrics source is an archive log\n\
   -d              use metric descriptors to decide on value or delta\n\
-  -D   debug	  standard PCP debug flag\n\
+  -D   debugspec  standard PCP debugging options\n\
   -n   namespace  use an alternative PMNS\n\
   -s   samples	  terminate after this many iterations\n\
   -t   delta	  sample interval in seconds(float) [default 1.0]\n",
@@ -145,10 +143,32 @@ Options\n\
 	exit(1);
     }
 
+    /*
+     * we want to get to the last data record ... but there may be
+     * an epilogue record at the end of the archive, so need some
+     * heuristics to optionally read back before the epilogue ...
+     * if at least 5 pmids and all are from the pmcd PMDA, then
+     * there's a good chance this is an epilogue record.
+     */
     sts = pmFetchArchive(&result);
     if (sts < 0) {
-	printf("pmFetchArchive: %s\n", pmErrStr(sts));
+	printf("pmFetchArchive end: %s\n", pmErrStr(sts));
 	exit(1);
+    }
+    if (result->numpmid >= 5) {
+	for (j = 0; j < result->numpmid; j++) {
+	    if (pmid_domain(result->vset[0]->pmid) != 2)
+		break;
+	}
+	if (j == result->numpmid) {
+	    /* suck back one record earlier in the archive */
+	    pmFreeResult(result);
+	    sts = pmFetchArchive(&result);
+	    if (sts < 0) {
+		printf("pmFetchArchive skip epilogue: %s\n", pmErrStr(sts));
+		exit(1);
+	    }
+	}
     }
 
     msec = -delta * 1000;

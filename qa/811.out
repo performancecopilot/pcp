@@ -12,9 +12,11 @@ event.flags
 event.missed
 kernel.all.cpu.sys
 kernel.all.cpu.user
+pmcd.pid
 pmcd.pmlogger.archive
 pmcd.pmlogger.host
 pmcd.pmlogger.port
+pmcd.seqnum
 
 === _cpu defined, config from stdin ===
 Log for pmlogger on HOST started DATE
@@ -29,9 +31,11 @@ event.flags
 event.missed
 kernel.all.cpu.sys
 kernel.all.cpu.user
+pmcd.pid
 pmcd.pmlogger.archive
 pmcd.pmlogger.host
 pmcd.pmlogger.port
+pmcd.seqnum
 
 === _cpu not defined, config from stdin ===
 Log for pmlogger on HOST started DATE
@@ -45,6 +49,8 @@ Log finished DATE
 event.flags
 event.missed
 hinv.ncpu
+pmcd.pid
 pmcd.pmlogger.archive
 pmcd.pmlogger.host
 pmcd.pmlogger.port
+pmcd.seqnum

@@ -23,9 +23,7 @@
 #include "impl.h"
 #include "logger.h"
 
-#ifdef PCP_DEBUG
 long totalmalloc;
-#endif
 static pmUnits nullunits;
 static int desperate;
 
@@ -186,15 +184,13 @@ matchnames(__pmPDU *a, __pmPDU *b)
 	if (num_a_eq == num_a) sts = MATCH_SUBSET;
 	else sts = MATCH_SOME;
     }
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL1) {
+    if (pmDebugOptions.appl1) {
 	fprintf(stderr, "matchnames: ");
 	printmetricnames(stderr, a);
 	fprintf(stderr, " : ");
 	printmetricnames(stderr, b);
 	fprintf(stderr, " num_a=%d num_b=%d num_a_eq=%d num_b_eq=%d -> %d\n", num_a, num_b, num_a_eq, num_b_eq, sts);
     }
-#endif
 
     return sts;
 }
@@ -353,13 +349,13 @@ abandon_extract(void)
     if (desperate == 0) {
 	fprintf(stderr, "Archive \"%s\" not created.\n", outarchname);
 	while (logctl.l_curvol >= 0) {
-	    snprintf(fname, sizeof(fname), "%s.%d", outarchname, logctl.l_curvol);
+	    pmsprintf(fname, sizeof(fname), "%s.%d", outarchname, logctl.l_curvol);
 	    unlink(fname);
 	    logctl.l_curvol--;
 	}
-	snprintf(fname, sizeof(fname), "%s.meta", outarchname);
+	pmsprintf(fname, sizeof(fname), "%s.meta", outarchname);
 	unlink(fname);
-	snprintf(fname, sizeof(fname), "%s.index", outarchname);
+	pmsprintf(fname, sizeof(fname), "%s.index", outarchname);
 	unlink(fname);
     }
     exit(1);
@@ -549,12 +545,10 @@ mk_reclist_t(void)
 		pmProgname);
 	abandon_extract();
     }
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL0) {
+    if (pmDebugOptions.appl0) {
         totalmalloc += sizeof(reclist_t);
         fprintf(stderr, "mk_reclist_t: allocated %d\n", (int)sizeof(reclist_t));
     }
-#endif
     rec->pdu = NULL;
     rec->desc.pmid = PM_ID_NULL;
     rec->desc.type = PM_TYPE_NOSUPPORT;
@@ -670,13 +664,11 @@ update_descreclist(int i)
     else {
 	curr = rdesc;
 	/* find matching record or last record */
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL1) {
+	if (pmDebugOptions.appl1) {
 	    fprintf(stderr, "update_descreclist: looking for ");
 	    printmetricnames(stderr, iap->pb[META]);
 	    fprintf(stderr, " (pmid:%s)\n", pmIDStr(ntoh_pmID(iap->pb[META][2])));
 	}
-#endif
 	while (curr->next != NULL && curr->desc.pmid != ntoh_pmID(iap->pb[META][2])) {
 	    if (curr->pdu != NULL) {
 		if (matchnames(curr->pdu, iap->pb[META]) != MATCH_NONE) {
@@ -686,21 +678,18 @@ update_descreclist(int i)
 		    fprintf(stderr, " to %s!\n", pmIDStr(ntoh_pmID(iap->pb[META][2])));
 		    abandon_extract();
 		}
-#ifdef PCP_DEBUG
-		if (pmDebug & DBG_TRACE_APPL1) {
+		if (pmDebugOptions.appl1) {
 		    fprintf(stderr, "update_descreclist: nomatch ");
 		    printmetricnames(stderr, curr->pdu);
 		    fprintf(stderr, " (pmid:%s)\n", pmIDStr(curr->desc.pmid));
 		}
-#endif
 	    }
 	    curr = curr->next;
 	}
     }
 
     if (curr->desc.pmid == ntoh_pmID(iap->pb[META][2])) {
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL1) {
+	if (pmDebugOptions.appl1) {
 	    fprintf(stderr, "update_descreclist: pmid match ");
 	    printmetricnames(stderr, curr->pdu);
 	    fprintf(stderr, " type: old %s", pmTypeStr(curr->desc.type));
@@ -717,7 +706,6 @@ update_descreclist(int i)
 	    fprintf(stderr, " new %s", pmUnitsStr(&pmu));
 	    fputc('\n', stderr);
 	}
-#endif
 	if (matchnames(curr->pdu, iap->pb[META]) != MATCH_EQUAL) {
 	    fprintf(stderr, "%s: Error: metric PMID %s", pmProgname, pmIDStr(curr->desc.pmid));
 	    fprintf(stderr, ": name changed from ");
@@ -875,8 +863,7 @@ write_rec(reclist_t *rec)
 	    abandon_extract();
 	}
 
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_LOGMETA) {
+	if (pmDebugOptions.logmeta) {
 	    __pmLogHdr	*h;
 	    int		len;
 	    int		type;
@@ -934,7 +921,6 @@ write_rec(reclist_t *rec)
 		fprintf(stderr, "Botch: bad type\n");
 	    }
 	}
-#endif
 
 	/* write out the pdu ; exit if write failed */
 	if ((sts = _pmLogPut(logctl.l_mdfp, rec->pdu)) < 0) {
@@ -1083,12 +1069,10 @@ _createmark(void)
 		pmProgname, osstrerror());
 	abandon_extract();
     }
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL0) {
+    if (pmDebugOptions.appl0) {
         totalmalloc += sizeof(mark_t);
         fprintf(stderr, "_createmark : allocated %d\n", (int)sizeof(mark_t));
     }
-#endif
 
     markp->len = (int)sizeof(mark_t);
     markp->type = markp->from = 0;
@@ -1242,6 +1226,12 @@ againmeta:
 	        iap->pb[META] = NULL;
 	        goto againmeta;
 	    }
+	}
+	else if (ntohl(iap->pb[META][1]) == 3 /*TYPE_LABEL*/) {
+	    /* discard this optional metadata, not supported */
+	    free(iap->pb[META]);
+	    iap->pb[META] = NULL;
+	    goto againmeta;
 	}
 	else {
 	    fprintf(stderr, "%s: Error: unrecognised meta data type: %d\n",
@@ -1411,15 +1401,13 @@ parseargs(int argc, char *argv[])
 	    }
 	    break;
 
-	case 'D':	/* debug flag */
-	    sts = __pmParseDebug(opts.optarg);
+	case 'D':	/* debug options */
+	    sts = pmSetDebug(opts.optarg);
 	    if (sts < 0) {
-		pmprintf("%s: unrecognized debug flag specification (%s)\n",
+		pmprintf("%s: unrecognized debug options specification (%s)\n",
 			pmProgname, opts.optarg);
 		opts.errors++;
 	    }
-	    else
-		pmDebug |= sts;
 	    break;
 
 	case 'd':	/* desperate to save output archive, even after error */
@@ -1835,13 +1823,11 @@ main(int argc, char **argv)
 		pmProgname, osstrerror());
 	exit(1);
     }
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL0) {
+    if (pmDebugOptions.appl0) {
         totalmalloc += (inarchnum * sizeof(inarch_t));
         fprintf(stderr, "main        : allocated %d\n",
 			(int)(inarchnum * sizeof(inarch_t)));
     }
-#endif
 
 
     for (i=0; i<inarchnum; i++, opts.optind++) {
@@ -2177,11 +2163,9 @@ cleanup:
 	/* need to fix up label with new start-time */
 	writelabel_metati(1);
     }
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL0) {
+    if (pmDebugOptions.appl0) {
         fprintf(stderr, "main        : total allocated %ld\n", totalmalloc);
     }
-#endif
 
     exit(exit_status);
 }

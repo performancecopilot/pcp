@@ -43,10 +43,12 @@ pmdaRootConnect(const char *path)
 	    __pmSockAddrFree(addr);
 	    return PM_ERR_GENERIC;
 	}
-	snprintf(socketpath, sizeof(socketpath), "%s/pmcd/root.socket", tmpdir);
-    } else
+	pmsprintf(socketpath, sizeof(socketpath),
+			"%s/pmcd/root.socket", tmpdir);
+    } else {
 	strncpy(socketpath, path, sizeof(socketpath));
-    socketpath[sizeof(socketpath)-1] = '\0';
+	socketpath[sizeof(socketpath)-1] = '\0';
+    }
 
     __pmSockAddrSetFamily(addr, AF_UNIX);
     __pmSockAddrSetPath(addr, socketpath);
@@ -62,7 +64,7 @@ pmdaRootConnect(const char *path)
     sts = __pmConnect(fd, addr, -1);
     __pmSockAddrFree(addr);
     if (sts < 0) {
-	if (sts != -EPERM || (pmDebug & DBG_TRACE_LIBPMDA))
+	if (sts != -EPERM || pmDebugOptions.libpmda)
 	    __pmNotifyErr(LOG_INFO,
 			"pmdaRootConnect: cannot connect to %s: %s\n",
 			socketpath, osstrerror_r(errmsg, sizeof(errmsg)));
@@ -79,7 +81,7 @@ pmdaRootConnect(const char *path)
 	return sts;
     }
 
-    if (pmDebug & DBG_TRACE_LIBPMDA)
+    if (pmDebugOptions.libpmda)
 	__pmNotifyErr(LOG_INFO,
 		"pmdaRootConnect: %s server fd=%d version=%d features=0x%x\n",
 			socketpath, fd, version, features);

@@ -93,7 +93,7 @@ static int
 addOption(const char *option, const char *arg)
 {
     size_t existingLen, optionLen, argLen;
-    size_t commaLen, equalLen;
+    size_t commaLen, equalLen, allocLen;
 
     /* The existing length and space for a comma. */
     if (options == NULL) {
@@ -121,12 +121,12 @@ addOption(const char *option, const char *arg)
     }
 
     /* Make room for the existing options plus the new option */
-    options = realloc(options, existingLen + commaLen + optionLen + equalLen + argLen);
-    if (options == NULL)
+    allocLen = existingLen + commaLen + optionLen + equalLen + argLen;
+    if ((options = realloc(options, allocLen)) == NULL)
 	return -ENOMEM;
 
     /* Add the new option. */
-    sprintf(options + existingLen, "%s%s%s%s",
+    pmsprintf(options + existingLen, allocLen - existingLen, "%s%s%s%s",
 	    commaLen != 0 ? "," : "", option,
 	    equalLen != 0 ? "=" : "",
 	    argLen != 0 ? arg : "");

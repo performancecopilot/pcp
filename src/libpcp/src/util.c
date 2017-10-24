@@ -58,6 +58,7 @@
 #include <inttypes.h>
 #include <limits.h>
 #include <ctype.h>
+#include <assert.h>
 
 #include "pmapi.h"
 #include "impl.h"
@@ -94,6 +95,9 @@ static int	xconfirm_init = 0;
 static char 	*xconfirm = NULL;
 
 PCP_DATA char	*pmProgname = "pcp";		/* the real McCoy */
+
+PCP_DATA int	pmDebug;			/* the real McCoy ... old style */
+PCP_DATA pmdebugoptions_t	pmDebugOptions;	/* the real McCoy ... new style */
 
 static int vpmprintf(const char *, va_list);
 
@@ -140,6 +144,7 @@ __pmNotifyErr(int priority, const char *message, ...)
     char		*level;
     struct timeval	tv;
     char		ct_buf[26];
+    time_t		now;
 
     va_start(arg, message);
 
@@ -188,11 +193,12 @@ __pmNotifyErr(int priority, const char *message, ...)
 	    break;
     }
 
-    ctime_r(&tv.tv_sec, ct_buf);
+    now = tv.tv_sec;
+    ctime_r(&now, ct_buf);
     /* when profiling use "[%.19s.%lu]" for extra precision */
     pmprintf("[%.19s] %s(%" FMT_PID ") %s: ", ct_buf,
 		/* (unsigned long)tv.tv_usec, */
-		pmProgname, getpid(), level);
+		pmProgname, (pid_t)getpid(), level);
     vpmprintf(message, arg);
     va_end(arg);
     /* trailing \n if needed */
@@ -402,7 +408,7 @@ char *
 pmIDStr_r(pmID pmid, char *buf, int buflen)
 {
     if (pmid == PM_ID_NULL)
-	snprintf(buf, buflen, "%s", "PM_ID_NULL");
+	pmsprintf(buf, buflen, "%s", "PM_ID_NULL");
     else if (IS_DYNAMIC_ROOT(pmid))
 	/*
 	 * this PMID represents the base of a dynamic subtree in the PMNS
@@ -411,9 +417,9 @@ pmIDStr_r(pmID pmid, char *buf, int buflen)
 	 * that can enumerate the subtree in the cluster field, while
 	 * the item field is zero
 	 */
-	snprintf(buf, buflen, "%d.*.*", pmid_cluster(pmid));
+	pmsprintf(buf, buflen, "%d.*.*", pmid_cluster(pmid));
     else
-	snprintf(buf, buflen, "%d.%d.%d", pmid_domain(pmid), pmid_cluster(pmid), pmid_item(pmid));
+	pmsprintf(buf, buflen, "%d.%d.%d", pmid_domain(pmid), pmid_cluster(pmid), pmid_item(pmid));
     return buf;
 }
 
@@ -431,9 +437,9 @@ pmInDomStr_r(pmInDom indom, char *buf, int buflen)
 {
     __pmInDom_int*	p = (__pmInDom_int*)&indom;
     if (indom == PM_INDOM_NULL)
-	snprintf(buf, buflen, "%s", "PM_INDOM_NULL");
+	pmsprintf(buf, buflen, "%s", "PM_INDOM_NULL");
     else
-	snprintf(buf, buflen, "%d.%d", p->domain, p->serial);
+	pmsprintf(buf, buflen, "%d.%d", p->domain, p->serial);
     return buf;
 }
 
@@ -451,35 +457,35 @@ pmNumberStr_r(double value, char *buf, int buflen)
 {
     if (value >= 0.0) {
 	if (value >= 999995000000000.0)
-	    snprintf(buf, buflen, " inf?  ");
+	    pmsprintf(buf, buflen, " inf?  ");
 	else if (value >= 999995000000.0)
-	    snprintf(buf, buflen, "%6.2fT", (double)((long double)value / (long double)1000000000000.0));
+	    pmsprintf(buf, buflen, "%6.2fT", (double)((long double)value / (long double)1000000000000.0));
 	else if (value >= 999995000.0)
-	    snprintf(buf, buflen, "%6.2fG", (double)((long double)value / (long double)1000000000.0));
+	    pmsprintf(buf, buflen, "%6.2fG", (double)((long double)value / (long double)1000000000.0));
 	else if (value >= 999995.0)
-	    snprintf(buf, buflen, "%6.2fM", (double)((long double)value / (long double)1000000.0));
+	    pmsprintf(buf, buflen, "%6.2fM", (double)((long double)value / (long double)1000000.0));
 	else if (value >= 999.995)
-	    snprintf(buf, buflen, "%6.2fK", value / 1000.0);
+	    pmsprintf(buf, buflen, "%6.2fK", value / 1000.0);
 	else if (value >= 0.005)
-	    snprintf(buf, buflen, "%6.2f ", value);
+	    pmsprintf(buf, buflen, "%6.2f ", value);
 	else
-	    snprintf(buf, buflen, "%6.2f ", 0.0);
+	    pmsprintf(buf, buflen, "%6.2f ", 0.0);
     }
     else {
 	if (value <= -99995000000000.0)
-	    snprintf(buf, buflen, "-inf?  ");
+	    pmsprintf(buf, buflen, "-inf?  ");
 	else if (value <= -99995000000.0)
-	    snprintf(buf, buflen, "%6.2fT", (double)((long double)value / (long double)1000000000000.0));
+	    pmsprintf(buf, buflen, "%6.2fT", (double)((long double)value / (long double)1000000000000.0));
 	else if (value <= -99995000.0)
-	    snprintf(buf, buflen, "%6.2fG", (double)((long double)value / (long double)1000000000.0));
+	    pmsprintf(buf, buflen, "%6.2fG", (double)((long double)value / (long double)1000000000.0));
 	else if (value <= -99995.0)
-	    snprintf(buf, buflen, "%6.2fM", (double)((long double)value / (long double)1000000.0));
+	    pmsprintf(buf, buflen, "%6.2fM", (double)((long double)value / (long double)1000000.0));
 	else if (value <= -99.995)
-	    snprintf(buf, buflen, "%6.2fK", value / 1000.0);
+	    pmsprintf(buf, buflen, "%6.2fK", value / 1000.0);
 	else if (value <= -0.005)
-	    snprintf(buf, buflen, "%6.2f ", value);
+	    pmsprintf(buf, buflen, "%6.2f ", value);
 	else
-	    snprintf(buf, buflen, "%6.2f ", 0.0);
+	    pmsprintf(buf, buflen, "%6.2f ", 0.0);
     }
     return buf;
 }
@@ -612,6 +618,7 @@ __pmStringListAdd(char *item, int numElements, char ***list)
     newList = realloc(*list, newSize);
     if (newList == NULL) {
 	__pmNoMem("__pmStringListAdd", newSize, PM_FATAL_ERR);
+	/* NOTREACHED */
     }
 
     /*
@@ -659,18 +666,28 @@ __pmStringListFind(const char *item, int numElements, char **list)
  * Needed since tracing PDUs really messes __pmDump*() routines
  * up when pmNameInDom is called internally.
  */
-static int
+static void
 save_debug(void)
 {
-    int saved = pmDebug;
+    int		i;
+
+    for (i = 0; i < num_debug; i++) {
+	debug_map[i].state = *(debug_map[i].options);
+	*(debug_map[i].options) = 0;
+    }
     pmDebug = 0;
-    return saved;
 }
 
 static void
-restore_debug(int saved)
+restore_debug(void)
 {
-    pmDebug = saved;
+    int		i;
+
+    for (i = 0; i < num_debug; i++) {
+	*(debug_map[i].options) = debug_map[i].state;
+	if (debug_map[i].state && debug_map[i].bit != 0)
+	    pmDebug |= debug_map[i].bit;
+    }
 }
 
 static void
@@ -739,8 +756,10 @@ dump_valueset(__pmContext *ctxp, FILE *f, pmValueSet *vsp)
 	else {
 	    if (vsp->valfmt == PM_VAL_INSITU)
 		pmPrintValue(f, vsp->valfmt, PM_TYPE_UNKNOWN, vp, 1); 
-	    else
+	    else if (vsp->valfmt == PM_VAL_DPTR || vsp->valfmt == PM_VAL_SPTR)
 		pmPrintValue(f, vsp->valfmt, (int)vp->value.pval->vtype, vp, 1); 
+	    else
+		fprintf(f, "bad valfmt %d", vsp->valfmt);
 	}
 	fputc('\n', f);
     }
@@ -750,19 +769,19 @@ dump_valueset(__pmContext *ctxp, FILE *f, pmValueSet *vsp)
 void
 __pmDumpResult_ctx(__pmContext *ctxp, FILE *f, const pmResult *resp)
 {
-    int		i, saved;
+    int		i;
 
     if (ctxp != NULL)
 	PM_ASSERT_IS_LOCKED(ctxp->c_lock);
 
-    saved = save_debug();
+    save_debug();
     fprintf(f, "pmResult dump from " PRINTF_P_PFX "%p timestamp: %d.%06d ",
 	resp, (int)resp->timestamp.tv_sec, (int)resp->timestamp.tv_usec);
     __pmPrintStamp(f, &resp->timestamp);
     fprintf(f, " numpmid: %d\n", resp->numpmid);
     for (i = 0; i < resp->numpmid; i++)
 	dump_valueset(ctxp, f, resp->vset[i]);
-    restore_debug(saved);
+    restore_debug();
 }
 
 void
@@ -775,19 +794,19 @@ __pmDumpResult(FILE *f, const pmResult *resp)
 void
 __pmDumpHighResResult_ctx(__pmContext *ctxp, FILE *f, const pmHighResResult *hresp)
 {
-    int		i, saved;
+    int		i;
 
     if (ctxp != NULL)
 	PM_ASSERT_IS_LOCKED(ctxp->c_lock);
 
-    saved = save_debug();
+    save_debug();
     fprintf(f, "pmHighResResult dump from " PRINTF_P_PFX "%p timestamp: %d.%09d ",
 	hresp, (int)hresp->timestamp.tv_sec, (int)hresp->timestamp.tv_nsec);
     __pmPrintHighResStamp(f, &hresp->timestamp);
     fprintf(f, " numpmid: %d\n", hresp->numpmid);
     for (i = 0; i < hresp->numpmid; i++)
 	dump_valueset(ctxp, f, hresp->vset[i]);
-    restore_debug(saved);
+    restore_debug();
 }
 
 void
@@ -970,7 +989,7 @@ pmPrintValue(FILE *f,			/* output stream */
 		minwidth -= 2;
 	    fprintf(f, " 0x%*x", minwidth, val->value.lval);
 	}
-	else {
+	else if (valfmt == PM_VAL_DPTR || valfmt == PM_VAL_SPTR) {
 	    int		string;
 	    int		done = 0;
 	    if (val->value.pval->vlen == PM_VAL_HDR_SIZE + sizeof(__uint64_t)) {
@@ -1014,7 +1033,7 @@ pmPrintValue(FILE *f,			/* output stream */
 		}
 	    }
 	    if (val->value.pval->vlen < PM_VAL_HDR_SIZE)
-		fprintf(f, "pmPrintValue: negative length (%d) for aggregate value?",
+		fprintf(f, "pmPrintValue: negative length (%d) for aggregate value?\n",
 		    (int)val->value.pval->vlen - PM_VAL_HDR_SIZE);
 	    else {
 		string = 1;
@@ -1049,6 +1068,9 @@ pmPrintValue(FILE *f,			/* output stream */
 		}
 		fputc(']', f);
 	    }
+	}
+	else {
+	    fprintf(f, "pmPrintValue: bad valfmt (%d)?\n", valfmt);
 	}
 	if (type != PM_TYPE_UNKNOWN)
 	    free(a.vbp);
@@ -1303,7 +1325,6 @@ __pmPrintDesc(FILE *f, const pmDesc *desc)
 void
 __pmEventTrace_r(const char *event, int *first, double *sum, double *last)
 {
-#ifdef PCP_DEBUG
     struct timeval tv;
     double now;
 
@@ -1318,85 +1339,203 @@ __pmEventTrace_r(const char *event, int *first, double *sum, double *last)
     fprintf(stderr, "%s: +%4.2f = %4.2f -> %s\n",
 			pmProgname, now-*last, *sum, event);
     *last = now;
-#endif
 }
 
 void
 __pmEventTrace(const char *event)
 {
-#ifdef PCP_DEBUG
     static double last;
     static double sum;
     static int first = 1;
 
     __pmEventTrace_r(event, &first, &sum, &last);
-#endif
 }
 
-int
-__pmParseDebug(const char *spec)
+#define DEBUG_CLEAR 0
+#define DEBUG_SET 1
+#define DEBUG_OLD 0
+#define DEBUG_NEW 1
+
+static int
+debug(const char *spec, int action, int style)
 {
-#ifdef PCP_DEBUG
     int		val = 0;
     int		tmp;
     const char	*p;
     char	*pend;
     int		i;
+    int		sts = 0;	/* for DEBUG_NEW interface */
+
+    /* save old state, so calls are additive */
+    for (i = 0; i < num_debug; i++)
+	debug_map[i].state = *(debug_map[i].options);
 
     for (p = spec; *p; ) {
+	/*
+	 * backwards compatibility, "string" may be a number for setting
+	 * bit fields directly
+	 */
 	tmp = (int)strtol(p, &pend, 10);
-	if (tmp == -1)
-	    /* special case ... -1 really means set all the bits! */
-	    tmp = INT_MAX;
-	if (*pend == '\0') {
-	    val |= tmp;
+	if (pend > p) {
+	    /* found a number */
+	    if (tmp == -1)
+		/* special case ... -1 really means set all the bits! */
+		val = INT_MAX;
+	    else
+		val |= tmp;
+	    /* for all matching bits, set/clear the corresponding new field */
+	    for (i = 0; i < num_debug; i++) {
+		if (val & debug_map[i].bit)
+		    debug_map[i].state = (action == DEBUG_SET ? 1 : 0);
+	    }
+	    if (*pend == ',') {
+		p = pend + 1;
+		continue;
+	    }
+	    else if (*pend == '\0')
+		break;
+	    /* something bogus after a number ... */
+	    sts = PM_ERR_CONV;
 	    break;
 	}
-	else if (*pend == ',') {
-	    val |= tmp;
-	    p = pend + 1;
+
+	pend = strchr(p, ',');
+	if (pend == NULL)
+	    pend = (char *)&p[strlen(p)];
+
+	if (pend-p == 3 && strncasecmp(p, "all", pend-p) == 0) {
+	    val |= INT_MAX;
+	    for (i = 0; i < num_debug; i++) {
+		debug_map[i].state = (action == DEBUG_SET ? 1 : 0);
+	    }
 	}
 	else {
-	    pend = strchr(p, ',');
-	    if (pend != NULL)
-		*pend = '\0';
-
-	    if (strcasecmp(p, "ALL") == 0) {
-		val |= INT_MAX;
-		if (pend != NULL) {
-		    *pend = ',';
-		    p = pend + 1;
-		}
-		else
-		    p = "";		/* force termination of outer loop */
-		break;
-	    }
-
 	    for (i = 0; i < num_debug; i++) {
-		if (strcasecmp(p, debug_map[i].name) == 0) {
-		    val |= debug_map[i].bit;
-		    if (pend != NULL) {
-			*pend = ',';
-			p = pend + 1;
-		    }
-		    else
-			p = "";		/* force termination of outer loop */
+		if (pend-p == strlen(debug_map[i].name) &&
+		    strncasecmp(p, debug_map[i].name, pend-p) == 0) {
+		    if (debug_map[i].bit != 0)
+			/* has corresponding old-stype bit field */
+			val |= debug_map[i].bit;
+		    debug_map[i].state = (action == DEBUG_SET ? 1 : 0);
 		    break;
 		}
 	    }
-
 	    if (i == num_debug) {
-		if (pend != NULL)
-		    *pend = ',';
-		return PM_ERR_CONV;
+		sts = PM_ERR_CONV;
+		break;
 	    }
 	}
+	if (*pend == ',')
+	    p = pend + 1;
+	else
+	    p = pend;
     }
 
-    return val;
-#else
-    return PM_ERR_NYI;
-#endif
+    if (sts == 0) {
+	/* all's well, now set the options and bits */
+	for (i = 0; i < num_debug; i++)
+	    *(debug_map[i].options) = debug_map[i].state;
+	/* set/clear old-style bit mask */
+	if (action == DEBUG_SET)
+	    pmDebug |= val;
+	else
+	    pmDebug &= ~val;
+    }
+
+    if (style == DEBUG_OLD && sts == 0)
+	return val;
+
+    return sts;
+}
+
+void
+__pmDumpDebug(FILE *f)
+{
+    int		i;
+    int		nset;
+
+    nset = 0;
+    fprintf(f, "pmDebug:\t");
+    if (pmDebug == 0)
+	fprintf(f, "Nothing set\n");
+    else {
+	for (i = 0; i < num_debug; i++) {
+	    if (debug_map[i].bit != 0 &&
+	        (pmDebug & debug_map[i].bit) != 0) {
+		nset++;
+		if (nset > 1)
+		    fputc(',', f);
+		fprintf(f, "%s", debug_map[i].name);
+	    }
+	}
+	fputc('\n', f);
+    }
+
+    nset = 0;
+    fprintf(f, "pmDebugOptions:\t");
+    for (i = 0; i < num_debug; i++) {
+	if (*(debug_map[i].options)) {
+	    nset++;
+	    if (nset > 1)
+		fputc(',', f);
+	    fprintf(f, "%s", debug_map[i].name);
+	}
+    }
+    if (nset == 0)
+	fprintf(f, "Nothing set\n");
+    else
+	fputc('\n', f);
+}
+
+/*
+ * old routine for backwards compatibility ...
+ *	return 32-bit bit debug flags
+ */
+int
+__pmParseDebug(const char *spec)
+{
+    if (pmDebugOptions.deprecated)
+	fprintf(stderr, "Warning: deprecated __pmParseDebug() called\n");
+    return debug(spec, DEBUG_SET, DEBUG_OLD);
+}
+
+/* new routine to set debug options */
+int
+pmSetDebug(const char *spec)
+{
+    return debug(spec, DEBUG_SET, DEBUG_NEW);
+}
+
+/* new routine to clear debug options */
+int
+pmClearDebug(const char *spec)
+{
+    return debug(spec, DEBUG_CLEAR, DEBUG_NEW);
+}
+
+/*
+ * Interface for setting debugging options by bit-field (deprecated) rather
+ * than by name (new scheme).
+ * This routine is used by PMDAs that have a control metric that maps onto
+ * pmDebug, e.g. sample.control or trace.control
+ * For symmetry with pmSetDebug() the effects are additive, so a PMDA
+ * that used to pmDebug = value now needs to pmClearDebug("all") and then
+ * __pmSetDebugBits(value).
+ */
+void
+__pmSetDebugBits(int value)
+{
+    int		i;
+
+    if (pmDebugOptions.deprecated)
+	fprintf(stderr, "Warning: deprecated __pmSetDebugBits() called\n");
+
+    for (i = 0; i < num_debug; i++) {
+	if (value & debug_map[i].bit) {
+	    /* this option has a bit-field equivalent that is set in value */
+	    pmSetDebug(debug_map[i].name);
+	}
+    }
 }
 
 int
@@ -1483,7 +1622,7 @@ pmprintf_cleanup(void)
 static int
 vpmprintf(const char *msg, va_list arg)
 {
-    int		lsize = 0;
+    int		bytes = 0;
     static int	tmpdir_init = 0;
     static char	*tmpdir;
 
@@ -1516,7 +1655,7 @@ vpmprintf(const char *msg, va_list arg)
 #if HAVE_MKSTEMP
 	    fname = (char *)malloc(MAXPATHLEN+1);
 	    if (fname == NULL) goto fail;
-	    snprintf(fname, MAXPATHLEN, "%s/pcp-XXXXXX", tmpdir);
+	    pmsprintf(fname, MAXPATHLEN, "%s/pcp-XXXXXX", tmpdir);
 	    cur_umask = umask(S_IXUSR | S_IRWXG | S_IRWXO);
 	    fd = mkstemp(fname);
 	    umask(cur_umask);
@@ -1556,25 +1695,25 @@ fail:
     if (msgsize < 0) {
 	vfprintf(stderr, msg, arg);
 	fflush(stderr);
-	lsize = 0;
+	bytes = 0;
     }
     else
-	msgsize += (lsize = vfprintf(fptr, msg, arg));
+	msgsize += (bytes = vfprintf(fptr, msg, arg));
 
     PM_UNLOCK(util_lock);
-    return lsize;
+    return bytes;
 }
 
 int
 pmprintf(const char *msg, ...)
 {
     va_list	arg;
-    int		lsize;
+    int		bytes;
 
     va_start(arg, msg);
-    lsize = vpmprintf(msg, arg);
+    bytes = vpmprintf(msg, arg);
     va_end(arg);
-    return lsize;
+    return bytes;
 }
 
 int
@@ -1584,6 +1723,7 @@ pmflush(void)
     int		len;
     int		state;
     FILE	*eptr = NULL;
+    __pmExecCtl_t	*argp = NULL;
     char	outbuf[MSGBUFLEN];
     char	errmsg[PM_MAXERRMSGLEN];
 
@@ -1623,16 +1763,44 @@ pmflush(void)
 		sts = PM_ERR_GENERIC;
 		break;
 	    }
-	    snprintf(outbuf, sizeof(outbuf), "%s -file %s -c -B OK -icon info"
+	    if ((sts = __pmProcessAddArg(&argp, __pmNativePath(xconfirm))) < 0)
+		break;
+	    if ((sts = __pmProcessAddArg(&argp, "-file")) < 0)
+		break;
+	    if ((sts = __pmProcessAddArg(&argp, fname)) < 0)
+		break;
+	    if ((sts = __pmProcessAddArg(&argp, "-c")) < 0)
+		break;
+	    if ((sts = __pmProcessAddArg(&argp, "-B")) < 0)
+		break;
+	    if ((sts = __pmProcessAddArg(&argp, "OK")) < 0)
+		break;
+	    if ((sts = __pmProcessAddArg(&argp, "-icon")) < 0)
+		break;
+	    if ((sts = __pmProcessAddArg(&argp, "info")) < 0)
+		break;
+	    if (msgsize > 80) {
+		if ((sts = __pmProcessAddArg(&argp, "-useslider")) < 0)
+		    break;
+	    }
+	    if ((sts = __pmProcessAddArg(&argp, "-header")) < 0)
+		break;
+	    if ((sts = __pmProcessAddArg(&argp, "PCP Information")) < 0)
+		break;
+	    pmsprintf(outbuf, sizeof(outbuf), "%s -file %s -c -B OK -icon info"
 		    " %s -header 'PCP Information' >/dev/null",
 		    __pmNativePath(xconfirm), fname,
 		    (msgsize > 80 ? "-useslider" : ""));
 	    /* no thread-safe issue here ... we're executing xconfirm */
-	    if (system(outbuf) < 0) {		/* THREADSAFE */
-		fprintf(stderr, "%s: system failed: %s\n", pmProgname,
-			osstrerror_r(errmsg, sizeof(errmsg)));
-		sts = -oserror();
+	    if ((sts = __pmProcessExec(&argp, PM_EXEC_TOSS_ALL, PM_EXEC_WAIT)) < 0) {
+		fprintf(stderr, "%s: __pmProcessExec(%s, ...) failed: %s\n",
+		    pmProgname, __pmNativePath(xconfirm), 
+		    pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	    }
+	    /*
+	     * Note, we don't care about the wait exit status in this case
+	     */
+	    sts = 0;
 	    break;
 	case PM_USEFILE:
 	    rewind(fptr);
@@ -1659,6 +1827,32 @@ pmflush(void)
 
     PM_UNLOCK(util_lock);
     return sts;
+}
+
+int
+pmsprintf(char *str, size_t size, const char *fmt, ...)
+{
+    va_list	arg;
+    int		bytes;
+
+    /* bad input given - treated as garbage in, garbage out */
+    if (size == 0)
+	return 0;
+
+    va_start(arg, fmt);
+    bytes = vsnprintf(str, size, fmt, arg);
+    va_end(arg);
+    if (bytes < size) {
+	if (bytes > 0)	/* usual case, null terminated here */
+	    return bytes;
+	/* safest option - treat all errors as empty string */
+	*str = '\0';
+	return 1;
+    }
+    /* ensure (truncated) string is always null terminated. */
+    bytes = size - 1;
+    str[bytes] = '\0';
+    return bytes;
 }
 
 /*
@@ -1924,14 +2118,17 @@ scandir(const char *dirname, struct dirent ***namelist,
     /* dirp is an on-stack variable, so readdir() is ... */
     /* THREADSAFE */
     while ((dp = readdir(dirp)) != NULL) {
+	struct dirent	**names_new;
 	if (select && (*select)(dp) == 0)
 	    continue;
 
 	n++;
-	if ((names = (struct dirent **)realloc(names, n * sizeof(dp))) == NULL) {
+	if ((names_new = (struct dirent **)realloc(names, n * sizeof(dp))) == NULL) {
+	    free(names);
 	    closedir(dirp);
 	    return -1;
 	}
+	names = names_new;
 
 	if ((names[n-1] = tp = (struct dirent *)malloc(
 		sizeof(*dp)-sizeof(dp->d_name)+strlen(dp->d_name)+1)) == NULL) {
@@ -2331,7 +2528,7 @@ int
 __pmProcessExists(pid_t pid)
 {
     char proc_buf[PROCFS_PATH_SIZE];
-    snprintf(proc_buf, sizeof(proc_buf), "%s/%" FMT_PID, PROCFS, pid);
+    pmsprintf(proc_buf, sizeof(proc_buf), "%s/%" FMT_PID, PROCFS, pid);
     return (access(proc_buf, F_OK) == 0);
 }
 #elif !defined(IS_MINGW)

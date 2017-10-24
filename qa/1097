@@ -1,0 +1,102 @@
+#!/bin/sh
+# PCP QA Test No. 1097
+# Checkout new pmlogconf -a flag to be used to cull missing
+# templates when operating on a "Auto-generated" config file
+# from pmlogger_check
+#
+# Copyright (c) 2017 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s@$PCP_BINADM_DIR@PCP_BINADM_DIR@g" \
+	-e "s@$PCP_VAR_DIR@PCP_VAR_DIR@g" \
+    # end
+}
+
+rm -f $tmp.tmp
+pmlogconf -q $tmp.tmp >>$here/$seq.full </dev/null 2>&1
+
+$PCP_AWK_PROG <$tmp.tmp '
+BEGIN					{ state = 0 }
+state == 2 && /DO NOT UPDATE/		{ state = 3 }
+					{ print >"'$tmp'." state }
+state == 0 && /\+ groupdir /		{ state = 1 }
+state == 1 && NR > 100 && /^#----/	{ state = 2 }'
+cat $tmp.0 >$tmp.base
+cat <<'End-of-File' >>$tmp.base
+#
+#+ mia/kermit:y:default:
+log mandatory on default {
+    mia.kermit
+}
+#---- 1
+#+ mia/gonzo:x::
+#---- 2
+#+ mia/fozzie:n::
+#---- 3
+End-of-File
+cat $tmp.1 >>$tmp.base
+cat <<'End-of-File' >>$tmp.base
+#+ mia/red:x::
+#---- 4
+#+ mia/green:y:once:
+log advisory on once {
+    mia.green
+}
+#---- 5
+#+ mia/blue:n::
+#---- 6
+End-of-File
+cat $tmp.2 >>$tmp.base
+cat <<'End-of-File' >>$tmp.base
+#+ reallymia/terry:x::
+#---- 7
+#+ reallymia/cathy:n::
+#---- 8
+#+ reallymia/emma:y:1 hour:
+log mandatory on 1 hour {
+    reallymia.emma
+}
+#---- 9
+End-of-File
+cat $tmp.3 >>$tmp.base
+
+# real QA test starts here
+echo "default behaviour ... "
+cp $tmp.base $tmp.in
+pmlogconf -r -q $tmp.in </dev/null 2>$tmp.err >>$here/$seq.full
+_filter <$tmp.err
+echo "expect no diffs"
+diff $tmp.base $tmp.in
+
+echo
+echo "new behaviour with -c ..."
+cp $tmp.base $tmp.in
+pmlogconf -r -c -q $tmp.in </dev/null 2>$tmp.err >>$here/$seq.full
+_filter <$tmp.err
+echo "expect mia and reallymia templates to be gone"
+diff $tmp.base $tmp.in | sed -e '/^[0-9]/s/[0-9][0-9]*/N/g'
+
+# success, all done
+status=0
+exit

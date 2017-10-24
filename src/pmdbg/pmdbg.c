@@ -14,92 +14,28 @@
  */
 
 /*
- * pmdbg - help for PCP debug flags
+ * pmdbg - help for PCP debug fields
  */
 
 #include <ctype.h>
 #include "pmapi.h"
 #include "impl.h"
+#include "../libpcp/src/pmdbg.h"
 
-static struct {
-    int		flag;
-    char	*name;
-    char	*text;
-} foo[] = {
-    { DBG_TRACE_PDU,	"PDU",
-		"Trace PDU traffic at the Xmit and Recv level" },
-    { DBG_TRACE_FETCH,	"FETCH",
-		"Dump results from pmFetch" },
-    { DBG_TRACE_PROFILE,	"PROFILE",
-		"Trace changes and xmits for instance profile" },
-    { DBG_TRACE_VALUE,		"VALUE",
-		"Diags for metric value extraction and conversion" },
-    { DBG_TRACE_CONTEXT,	"CONTEXT",
-		"Trace changes to contexts" },
-    { DBG_TRACE_INDOM,		"INDOM",
-		"Low-level instance profile xfers" },
-    { DBG_TRACE_PDUBUF,		"PDUBUF",
-		"Trace pin/unpin ops for PDU buffers" },
-    { DBG_TRACE_LOG,		"LOG",
-		"Diags for archive log manipulations" },
-    { DBG_TRACE_LOGMETA,	"LOGMETA",
-		"Diags for meta-data operations on archive logs" },
-    { DBG_TRACE_OPTFETCH,	"OPTFETCH",
-		"Trace optFetch magic" },
-    { DBG_TRACE_AF,		"AF",
-		"Trace asynchronous event scheduling" },
-    { DBG_TRACE_APPL0,		"APPL0",
-		"Application-specific flag 0" },
-    { DBG_TRACE_APPL1,		"APPL1",
-		"Application-specific flag 1" },
-    { DBG_TRACE_APPL2,		"APPL2",
-		"Application-specific flag 2" },
-    { DBG_TRACE_PMNS,		"PMNS",
-		"Diags for PMNS manipulations" },
-    { DBG_TRACE_LIBPMDA,        "LIBPMDA",
-	        "Trace PMDA callbacks in libpcp_pmda" },
-    { DBG_TRACE_TIMECONTROL,	"TIMECONTROL",
-    		"Trace Time Control API" },
-    { DBG_TRACE_PMC,		"PMC",
-    		"Trace metrics class operations" },
-    { DBG_TRACE_DERIVE,		"DERIVE",
-    		"Derived metrics operations" },
-    { DBG_TRACE_LOCK,		"LOCK",
-    		"Trace locks (if multi-threading enabled)" },
-    { DBG_TRACE_INTERP,		"INTERP",
-		"Diags for value interpolation in archives" },
-    { DBG_TRACE_CONFIG,		"CONFIG",
-		"Trace config initialization from pmGetConfig" },
-    { DBG_TRACE_PMAPI,		"PMAPI",
-		"Trace PMAPI calls" },
-    { DBG_TRACE_FAULT,		"FAULT",
-    		"Trace fault injection (if enabled)" },
-    { DBG_TRACE_AUTH,		"AUTH",
-    		"Authentication services (if enabled)" },
-    { DBG_TRACE_DISCOVERY,	"DISCOVERY",
-    		"Service discovery (if enabled)" },
-    { DBG_TRACE_ATTR,		"ATTR",
-    		"Trace connection attributes" },
-    { DBG_TRACE_HTTP,		"HTTP",
-    		"Trace hypertext transfer protocol operations" },
-    { DBG_TRACE_DESPERATE,		"DESPERATE",
-    		"Desperate/verbose level" },
-};
-
-static int	nfoo = sizeof(foo) / sizeof(foo[0]);
-
-static char	*fmt = "DBG_TRACE_%-11.11s %7d  %s\n";
+static char	*fmt_old = "DBG_TRACE_%-11.11s  %10d  %s\n";
+static char	*fmt = "%-14.14s  %s\n";
 
 static pmLongOptions longopts[] = {
     PMAPI_OPTIONS_HEADER("General options"),
     PMOPT_DEBUG,
-    { "list", 0, 'l', 0, "displays mnemonic and decimal values of PCP debug bitfields" },
+    { "list", 0, 'l', 0, "display values and text for all PCP debug options" },
+    { "old", 0, 'o', 0, "old and deprecated (bit-field) encodings" },
     PMOPT_HELP,
     PMAPI_OPTIONS_END
 };
 
 static pmOptions opts = {
-    .short_options = "D:l?",
+    .short_options = "D:lo?",
     .long_options = longopts,
     .short_usage = "[options] [code ..]",
 };
@@ -109,21 +45,23 @@ main(int argc, char **argv)
 {
     int		i;
     int		c;
+    int		old = 0;
+    int		list = 0;
 
     while ((c = pmgetopt_r(argc, argv, &opts)) != EOF) {
 	switch (c) {
 
-	case 'l':	/* list all flags */
-	    printf("Performance Co-Pilot Debug Flags\n");
-	    printf("#define                 Value  Meaning\n");
-	    for (i = 0; i < nfoo; i++)
-		printf(fmt, foo[i].name, foo[i].flag, foo[i].text);
-	    exit(0);
-	    /*NOTREACHED*/
+	case 'l':	/* list all options */
+	    list = 1;
+	    break;
+
+	case 'o':	/* old bit-field variants */
+	    old = 1;
+	    break;
 
 	case 'D':
 	    if ((i = __pmParseDebug(opts.optarg)) < 0) {
-		fprintf(stderr, "%s: unrecognized debug flag specification (%s)\n", pmProgname, opts.optarg);
+		fprintf(stderr, "%s: unrecognized debug option specification (%s)\n", pmProgname, opts.optarg);
 		exit(1);
 	    }
 	    else 
@@ -138,9 +76,33 @@ main(int argc, char **argv)
 	}
     }
 
-    if (opts.errors || opts.optind >= argc) {
+    if (opts.errors) {
 	pmUsageMessage(&opts);
 	exit(1);
+    }
+
+    if (list) {
+	printf("Performance Co-Pilot Debug Options\n");
+	if (old)
+	    printf("#define       Value  Meaning\n");
+	else
+	    printf(fmt, "Option", "Meaning");
+	for (i = 0; i < num_debug; i++) {
+	    if (!old) {
+		printf(fmt, debug_map[i].name, debug_map[i].text);
+	    }
+	    else {
+		if (debug_map[i].bit) {
+		    char	*p;
+		    char	*name = strdup(debug_map[i].name);
+		    for (p = name; p != NULL && *p; p++)
+			*p = toupper((int)*p);
+		    printf(fmt_old, name, debug_map[i].bit, debug_map[i].text);
+		    free(name);
+		}
+	    }
+	}
+	exit(0);
     }
 
     /* non-flag args are argv[opts.optind] ... argv[argc-1] */
@@ -164,9 +126,15 @@ main(int argc, char **argv)
 	}
 	printf("Performance Co-Pilot -- pmDebug value = %d (0x%x)\n", c, c);
 	printf("#define                 Value  Meaning\n");
-	for (i = 0; i < nfoo; i++) {
-	    if (c & foo[i].flag)
-		printf(fmt, foo[i].name, foo[i].flag, foo[i].text);
+	for (i = 0; i < num_debug; i++) {
+	    if (c & debug_map[i].bit) {
+		char	*p;
+		char	*name = strdup(debug_map[i].name);
+		for (p = name; p != NULL && *p; p++)
+		    *p = toupper((int)*p);
+		printf(fmt_old, name, debug_map[i].bit, debug_map[i].text);
+		free(name);
+	    }
 	}
 
 next:

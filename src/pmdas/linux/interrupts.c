@@ -134,7 +134,7 @@ update_lines_pmns(int domain, unsigned int item, unsigned int id)
     char entry[128];
     pmID pmid = pmid_build(domain, CLUSTER_INTERRUPT_LINES, item);
 
-    snprintf(entry, sizeof(entry), "kernel.percpu.interrupts.line%d", id);
+    pmsprintf(entry, sizeof(entry), "kernel.percpu.interrupts.line%d", id);
     __pmAddPMNSNode(interrupt_tree, pmid, entry);
 }
 
@@ -145,7 +145,7 @@ update_other_pmns(int domain, const char *name)
     unsigned int item = dynamic_item_lookup(name, INTERRUPT_NAMES_INDOM);
     pmID pmid = pmid_build(domain, CLUSTER_INTERRUPT_OTHER, item);
 
-    snprintf(entry, sizeof(entry), "%s.%s", "kernel.percpu.interrupts", name);
+    pmsprintf(entry, sizeof(entry), "%s.%s", "kernel.percpu.interrupts", name);
     __pmAddPMNSNode(interrupt_tree, pmid, entry);
 }
 
@@ -156,10 +156,10 @@ noop_interrupts_pmns(int domain)
     pmID pmid;
 
     pmid = pmid_build(domain, CLUSTER_INTERRUPT_LINES, 0);
-    snprintf(entry, sizeof(entry), "%s.%s", "kernel.percpu.interrupts", "line");
+    pmsprintf(entry, sizeof(entry), "%s.%s", "kernel.percpu.interrupts", "line");
     __pmAddPMNSNode(interrupt_tree, pmid, entry);
     pmid = pmid_build(domain, CLUSTER_INTERRUPT_OTHER, 0);
-    snprintf(entry, sizeof(entry), "%s.%s", "kernel.percpu.interrupts", "none");
+    pmsprintf(entry, sizeof(entry), "%s.%s", "kernel.percpu.interrupts", "none");
     __pmAddPMNSNode(interrupt_tree, pmid, entry);
 
     pmdaTreeRebuildHash(interrupt_tree, 2);
@@ -173,7 +173,7 @@ update_softirqs_pmns(int domain, const char *name)
     unsigned int item = dynamic_item_lookup(name, SOFTIRQS_NAMES_INDOM);
     pmID pmid = pmid_build(domain, CLUSTER_SOFTIRQS, item);
 
-    snprintf(entry, sizeof(entry), "%s.%s", "kernel.percpu.softirqs", name);
+    pmsprintf(entry, sizeof(entry), "%s.%s", "kernel.percpu.softirqs", name);
     __pmAddPMNSNode(softirqs_tree, pmid, entry);
 }
 
@@ -183,7 +183,7 @@ noop_softirqs_pmns(int domain)
     char entry[128];
     pmID pmid = pmid_build(domain, CLUSTER_SOFTIRQS, 0);
 
-    snprintf(entry, sizeof(entry), "%s.%s", "kernel.percpu.softirqs", "none");
+    pmsprintf(entry, sizeof(entry), "%s.%s", "kernel.percpu.softirqs", "none");
     __pmAddPMNSNode(softirqs_tree, pmid, entry);
     pmdaTreeRebuildHash(softirqs_tree, 1);
     return softirqs_tree;
@@ -493,7 +493,7 @@ refresh_interrupts(pmdaExt *pmda, __pmnsTree **tree)
 			pmProgname, pmErrStr(sts));
 	*tree = NULL;
     } else if ((sts = refresh_interrupt_values()) < 0) {
-	if (pmDebug & DBG_TRACE_LIBPMDA)
+	if (pmDebugOptions.libpmda)
 	    fprintf(stderr, "%s: failed to update interrupt values: %s\n",
 			pmProgname, pmErrStr(sts));
 	*tree = NULL;
@@ -526,7 +526,7 @@ refresh_softirqs(pmdaExt *pmda, __pmnsTree **tree)
 			pmProgname, pmErrStr(sts));
 	*tree = NULL;
     } else if ((sts = refresh_softirqs_values()) < 0) {
-	if (pmDebug & DBG_TRACE_LIBPMDA)
+	if (pmDebugOptions.libpmda)
 	    fprintf(stderr, "%s: failed to update softirqs values: %s\n",
 			pmProgname, pmErrStr(sts));
 	*tree = NULL;
@@ -607,7 +607,7 @@ refresh_metrictable(pmdaMetric *source, pmdaMetric *dest, int id)
     memcpy(dest, source, sizeof(pmdaMetric));
     dest->m_desc.pmid = pmid_build(domain, cluster, id);
 
-    if (pmDebug & DBG_TRACE_LIBPMDA)
+    if (pmDebugOptions.libpmda)
 	fprintf(stderr, "interrupts refresh_metrictable: (%p -> %p) "
 			"metric ID dup: %d.%d.%d -> %d.%d.%d\n",
 		source, dest, domain, cluster,
@@ -631,7 +631,7 @@ interrupts_metrictable(int *total, int *trees)
 	*trees = other_count ? other_count : 1;
     *total = 2;	/* lines and other */
 
-    if (pmDebug & DBG_TRACE_LIBPMDA)
+    if (pmDebugOptions.libpmda)
 	fprintf(stderr, "interrupts size_metrictable: %d total x %d trees\n",
 		*total, *trees);
 }
@@ -645,7 +645,7 @@ softirq_metrictable(int *total, int *trees)
     *trees = softirqs_count ? softirqs_count : 1;
     *total = 1;	/* softirqs */
 
-    if (pmDebug & DBG_TRACE_LIBPMDA)
+    if (pmDebugOptions.libpmda)
 	fprintf(stderr, "softirqs size_metrictable: %d total x %d trees\n",
 		*total, *trees);
 }

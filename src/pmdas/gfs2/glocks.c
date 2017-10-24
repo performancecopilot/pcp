@@ -46,7 +46,7 @@ gfs2_refresh_glocks(const char *sysfs, const char *name, struct glocks *glocks)
     /* Reset all counter for this fs */
     memset(glocks, 0, sizeof(*glocks));
 
-    snprintf(buffer, sizeof(buffer), "%s/%s/glocks", sysfs, name);
+    pmsprintf(buffer, sizeof(buffer), "%s/%s/glocks", sysfs, name);
     buffer[sizeof(buffer)-1] = '\0';
 
     if ((fp = fopen(buffer, "r")) == NULL) {

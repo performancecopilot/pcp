@@ -17,7 +17,9 @@
 .SH NAME
 \f3__pmFaultInject\f1,
 \f3PM_FAULT_POINT\f1,
+\f3PM_FAULT_RETURN\f1,
 \f3PM_FAULT_CHECK\f1,
+\f3PM_FAULT_CLEAR\f1,
 \f3__pmFaultSummary\f1 \- Fault Injection Infrastracture for QA
 .SH "C SYNOPSIS"
 .ft 3
@@ -33,7 +35,11 @@ void __pmFaultSummary(FILE *\fIf\fP);
 .sp
 PM_FAULT_POINT(\fIident\fP, \fIclass\fP);
 .br
+PM_FAULT_RETURN(\fIclass\fP);
+.br
 PM_FAULT_CHECK(\fIclass\fP);
+.br
+PM_FAULT_CLEAR;
 .sp
 cc \-DPM_FAULT_INJECTION=1 ... \-lpcp_fault
 .ft 1
@@ -119,6 +125,11 @@ call to an instrumented routine to return the PCP error code
 At this stage, only
 .BR __pmGetPDU (3)
 has been instrumented to check for this class of fault injection.
+.TP
+.B PM_FAULT_MISC
+The ``other'' class, currently used with
+.B PM_FAULT_CHECK
+as described below.
 .PP
 To allow fault injection to co-exist within the production source
 code,
@@ -141,7 +152,7 @@ and
 can be built from the same source code.
 .PP
 Similarly, the macro
-.B PM_FAULT_CHECK
+.B PM_FAULT_RETURN
 emits no code unless
 .B PM_FAULT_INJECTION
 is defined, in which case if a fault of type
@@ -167,6 +178,47 @@ The enclosing routine will return immediately with the value
 \- this assumes the enclosing routine is of type
 .B "int foo(...)"
 like all of the PMAPI routines.
+.PP
+The
+.B PM_FAULT_CHECK
+macro returns a value that may be 0 or 1.
+If
+.B PM_FAULT_INJECTION
+is defined then if a fault of type
+.I class
+has been armed with
+.B __pmFaultInject
+then the value is 1 else it is 0.
+.PP
+This is most often used in concert with the
+.B PM_FAULT_POINT
+macro with the
+.B PM_FAULT_MISC
+class to potentially arm a trigger, then
+.B PM_FAULT_CHECK
+and if this has the value 1, then the
+final
+.B PM_FAULT_CLEAR
+macro is used to clear any armed faults.  This is illustrated
+in the example below from
+.IR src/libpcp/src/exec.c :
+.sp
+.ft CW
+.nf
+    pid = fork();
+
+    /* begin fault-injection block */
+    PM_FAULT_POINT("libpcp/" __FILE__ ":4", PM_FAULT_MISC);
+    if (PM_FAULT_CHECK(PM_FAULT_MISC)) {
+	PM_FAULT_CLEAR;
+	if (pid > (pid_t)0)
+	    kill(pid, SIGKILL);
+	setoserror(EAGAIN);
+	pid = -1;
+    }
+    /* end fault-injection block */
+.fi
+.ft
 .PP
 A summary of fault points seen and faults injected is produced
 on stdio stream
@@ -290,6 +342,7 @@ fault injection may still be used by forcing
 to be used in the place of
 .IR libpcp .
 The following example shows how this might be done.
+.sp
 .ft CW
 .nf
 $ export PM_FAULT_CONTROL=/tmp/control
@@ -328,7 +381,7 @@ Refer to the PCP and PCP QA source code.
 .PP
 .I src/libpcp/src/derive.c
 uses
-.BR PM_FAULT_CHECK .
+.BR PM_FAULT_RETURN .
 .PP
 .I src/libpcp/src/err.c
 and
@@ -346,10 +399,15 @@ installing
 and
 .IR <pcp/fault.h> .
 .PP
-.I QA/477
-and
-.I QA/478
-show examples of control file use.
+The ``fault'' group of QA tests
+show examples of control file use.  To see which tests are involved
+.sp
+.ft CW
+.nf
+$ cd qa
+$ check -n -g fault
+.fi
+.ft
 
 .SH ENVIRONMENT
 .TP

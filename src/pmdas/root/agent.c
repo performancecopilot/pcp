@@ -61,7 +61,7 @@ root_create_agent(int ipctype, char *argv, char *label, int *infd, int *outfd)
 	transfer_final[i++] = transfer_argv;
     } while (transfer_argv != NULL);
 
-    if (pmDebug & DBG_TRACE_APPL1) {
+    if (pmDebugOptions.appl1) {
 	for (j = 0; j < i; j++)
 	    __pmNotifyErr(LOG_DEBUG, "arg[%d] %s", j, transfer_final[j]);
     }
@@ -140,7 +140,7 @@ root_create_agent(int ipctype, char *argv, char *label, int *infd, int *outfd)
 	    _exit(1);
 	}
     }
-    if (pmDebug & DBG_TRACE_APPL0) {
+    if (pmDebugOptions.appl0) {
 	__pmNotifyErr(LOG_DEBUG, "Started %s agent pid=%d infd=%d outfd=%d\n",
 			label, childPid, *infd, *outfd);
     }

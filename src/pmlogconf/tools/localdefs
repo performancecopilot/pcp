@@ -4,12 +4,14 @@ FILES = \
 	atop-summary \
 	atop-httpstats \
 	atop-nfsclient \
+	atop-hotproc \
 	collectl \
 	collectl-summary \
 	collectl-interrupts \
 	dmcache \
 	free \
 	free-summary \
+	hotproc \
 	iostat \
 	ip \
 	mpstat \

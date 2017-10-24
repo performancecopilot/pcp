@@ -140,15 +140,13 @@ main(int argc, char **argv)
     while ((c = getopt(argc, argv, "D:eHin:Opv:?")) != EOF) {
 	switch (c) {
 
-	case 'D':	/* debug flag */
-	    sts = __pmParseDebug(optarg);
+	case 'D':	/* debug options */
+	    sts = pmSetDebug(optarg);
 	    if (sts < 0) {
-		fprintf(stderr, "%s: unrecognized debug flag specification (%s)\n",
+		fprintf(stderr, "%s: unrecognized debug options specification (%s)\n",
 		    pmProgname, optarg);
 		errflag++;
 	    }
-	    else
-		pmDebug |= sts;
 	    break;
 
 	case 'e':	/* help text exists? */
@@ -284,10 +282,8 @@ main(int argc, char **argv)
 	if (aflag) {
 	    if (next(&id, &next_type) == 0)
 		break;
-#ifdef PCP_DEBUG
-	    if ((pmDebug & DBG_TRACE_APPL0) && allindom+allpmid == 0)
+	    if (pmDebugOptions.appl0 && allindom+allpmid == 0)
 		fprintf(stderr, "next_type=%d id=0x%x\n", next_type, id);
-#endif
 	    if (next_type == 2) {
 		if (!allindom)
 		    continue;

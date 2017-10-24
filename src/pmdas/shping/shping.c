@@ -120,6 +120,7 @@ logmessage(int priority, const char *format, ...)
     char        *level;
     char        *p;
     time_t      now;
+    int		bytes;
 
     buffer[0] = '\0';
     time(&now);
@@ -155,15 +156,19 @@ logmessage(int priority, const char *format, ...)
             break;
     }
 
-    va_start (arglist, format);
-    vsnprintf (buffer, sizeof(buffer), format, arglist);
+    va_start(arglist, format);
+    bytes = vsnprintf(buffer, sizeof(buffer), format, arglist);
+    va_end(arglist);
+    if (bytes >= sizeof(buffer))
+	buffer[sizeof(buffer)-1] = '\0';
+    else if (bytes < 0)
+	buffer[0] = '\0';
 
     /* strip unwanted '\n' at end of text so's not to double up */
     for (p = buffer; *p; p++);
     if (*(--p) == '\n') *p = '\0';
 
-    fprintf (stderr, "[%.19s] %s(%" FMT_PID ") %s: %s\n", ctime(&now), pmProgname, getpid(), level, buffer) ;
-    va_end (arglist) ;
+    fprintf(stderr, "[%.19s] %s(%" FMT_PID ") %s: %s\n", ctime(&now), pmProgname, (pid_t)getpid(), level, buffer) ;
 }
 
 
@@ -183,10 +188,8 @@ onalarm(int dummy)
 	kill(-shpid, SIGKILL);
     }
     signal(SIGALRM, onalarm);
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL1)
+    if (pmDebugOptions.appl1)
 	fprintf(stderr, "Timeout!\n");
-#endif
 }
 
 /*
@@ -232,15 +235,11 @@ refresh(void *dummy)
     for ( ; ; ) {
 	cycles++;
 	__pmtimevalNow(&startcycle);
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL1)
+	if (pmDebugOptions.appl1)
 	    fprintf(stderr, "\nStart cycle @ %s", ctime(&startcycle.tv_sec));
-#endif
 	for (i = 0; i < numcmd; i++) {
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL1)
+	    if (pmDebugOptions.appl1)
 		fprintf(stderr, "[%s] %s ->\n", cmdlist[i].tag, cmdlist[i].cmd);
-#endif
 	    getrusage(RUSAGE_CHILDREN, &cpu_then);
 	    __pmtimevalNow(&then);
 	    fflush(stderr);
@@ -253,8 +252,7 @@ refresh(void *dummy)
 		    close(j);
 		open("/dev/null", O_RDONLY, 0);
 		sts = -1;
-#ifdef PCP_DEBUG
-		if (pmDebug & DBG_TRACE_APPL2) {
+		if (pmDebugOptions.appl2) {
 		    FILE	*f;
 		    if ((f = fopen("shping.out", "a")) != NULL) {
 			fprintf(f, "\n[%s] %s\n", cmdlist[i].tag, cmdlist[i].cmd);
@@ -262,7 +260,6 @@ refresh(void *dummy)
 		    }
 		    sts = open("shping.out", O_WRONLY|O_APPEND|O_CREAT, 0644);
 		}
-#endif
 		if (sts == -1)
 		    open("/dev/null", O_WRONLY, 0);
 		if (dup(1) == -1) {
@@ -291,10 +288,8 @@ refresh(void *dummy)
 		cmdlist[i].error = PM_ERR_TIMEOUT;
 		cmdlist[i].status = STATUS_TIMEOUT;
 		cmdlist[i].real = cmdlist[i].usr = cmdlist[i].sys = -1;
-#ifdef PCP_DEBUG
-		if (pmDebug & DBG_TRACE_APPL0)
+		if (pmDebugOptions.appl0)
 		    logmessage(LOG_INFO, "[%s] timeout\n", cmdlist[i].tag);
-#endif
 	    }
 	    else {
 		if (WIFEXITED(sts)) {
@@ -303,31 +298,25 @@ refresh(void *dummy)
 			cmdlist[i].status = STATUS_OK;
 		    else {
 			cmdlist[i].status = STATUS_EXIT;
-#ifdef PCP_DEBUG
-			if (pmDebug & DBG_TRACE_APPL0)
+			if (pmDebugOptions.appl0)
 			    logmessage(LOG_INFO, "[%s] exit status: %d\n",
 				    cmdlist[i].tag, cmdlist[i].error);
-#endif
 		    }
 		}
 		else if (WIFSIGNALED(sts)) {
 		    cmdlist[i].error = WTERMSIG(sts);
 		    cmdlist[i].status = STATUS_SIG;
-#ifdef PCP_DEBUG
-		    if (pmDebug & DBG_TRACE_APPL0)
+		    if (pmDebugOptions.appl0)
 			logmessage(LOG_INFO, "[%s] killed signal: %d\n",
 				cmdlist[i].tag, cmdlist[i].error);
-#endif
 		}
 		else {
 		    /* assume WIFSTOPPED(sts) */
 		    cmdlist[i].error = WSTOPSIG(sts);
 		    cmdlist[i].status = STATUS_SIG;
-#ifdef PCP_DEBUG
-		    if (pmDebug & DBG_TRACE_APPL0)
+		    if (pmDebugOptions.appl0)
 			logmessage(LOG_INFO, "[%s] stopped signal: %d\n",
 				cmdlist[i].tag, cmdlist[i].error);
-#endif
 		}
 		cmdlist[i].real = 1000 * (float)(now.tv_sec - then.tv_sec) + 
 			    (float)(now.tv_usec - then.tv_usec) / 1000;
@@ -337,12 +326,10 @@ refresh(void *dummy)
 			    (float)(cpu_now.ru_stime.tv_usec - cpu_then.ru_stime.tv_usec) / 1000;
 	    }
 
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL1)
+	    if (pmDebugOptions.appl1)
 		fprintf(stderr, "status: %d error: %d real: %.3f usr: %.3f sys: %.3f\n\n",
 		    cmdlist[i].status, cmdlist[i].error,
 		    cmdlist[i].real, cmdlist[i].usr, cmdlist[i].sys);
-#endif
 	}
 
 	/*
@@ -609,7 +596,8 @@ shping_store(pmResult *result, pmdaExt *ext)
 			sts = PM_ERR_SIGN;
 			break;
 		    }
-		    pmDebug = ival;
+		    pmClearDebug("all");
+		    __pmSetDebugBits(ival);
 		    break;
 
 		default:
@@ -655,7 +643,7 @@ shping_init(pmdaInterface *dp)
     }
     else {
 	dp->status = 0;
-        logmessage(LOG_INFO, "Started sproc (spid=%" FMT_PID ")\n", sprocpid);
+        logmessage(LOG_INFO, "Started sproc (spid=%" FMT_PID ")\n", (pid_t)sprocpid);
     }
 
     /* we're talking to pmcd ... no timeout's for us thanks */

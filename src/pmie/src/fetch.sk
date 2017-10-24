@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
- * Copyright (c) 2015 Red Hat
+ * Copyright (c) 2015,2017 Red Hat.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -11,10 +11,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 /***********************************************************************
@@ -166,7 +162,7 @@ indom_changed(Metric *m)
 		if (sts < 0) {
 		    /* ugly, but not much choice */
 		    m->inames[new] = sdup("inst#xxxxxxxxxxxx?");
-		    sprintf(m->inames[new], "inst#%d?", m->iids[new]);
+		    pmsprintf(m->inames[new], 19, "inst#%d?", m->iids[new]);
 		}
 
 		if (m->desc.sem == PM_SEM_COUNTER)
@@ -183,8 +179,7 @@ indom_changed(Metric *m)
 	    free(get_iids);
 	    free(get_inames);
 	}
-#if PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL2) {
+	if (pmDebugOptions.appl2) {
 	    fprintf(stderr, "indom_changed: %s from %s\n",
 		    symName(m->mname), symName(m->hname));
 	    if (m->m_idom < 1) fprintf(stderr, "  %d instances!\n", m->m_idom);
@@ -193,7 +188,6 @@ indom_changed(Metric *m)
 			j, m->iids[j], m->inames[j]);
 	    }
 	}
-#endif
     }
 
     return changed;
@@ -237,25 +231,21 @@ cndFetch_1(Expr *x)
 		if (*op_s != NULL)
 		    free(*op_s);
 		*op_s = strdup(m->vset->vlist[0].value.pval->vbuf);
-#if PCP_DEBUG
-		if (pmDebug & DBG_TRACE_APPL2) {
+		if (pmDebugOptions.appl2) {
 		    fprintf(stderr, "cndFetch_1(" PRINTF_P_PFX "%p): %s from %s = \"%s\" (" PRINTF_P_PFX "%p)\n",
 			    x, symName(m->mname), symName(m->hname), *op_s, *op_s);
 		}
-#endif
 		op_s++;
 	    }
 	    else {
 		pmExtractValue(m->vset->valfmt, &m->vset->vlist[0], m->desc.type, &a, PM_TYPE_DOUBLE);
 		*op = m->conv * a.d;
-#if PCP_DEBUG
-		if (pmDebug & DBG_TRACE_APPL2) {
+		if (pmDebugOptions.appl2) {
 		    fprintf(stderr, "cndFetch_1(" PRINTF_P_PFX "%p): %s from %s = %g",
 			    x, symName(m->mname), symName(m->hname), *op);
 		    if (m->conv != 1) fprintf(stderr, " (unconv = %g)", a.d);
 		    fputc('\n', stderr);
 		}
-#endif
 		op++;
 	    }
 	}
@@ -376,25 +366,21 @@ cndFetch_all(Expr *x)
 		if (*op_s != NULL)
 		    free(*op_s);
 		*op_s = strdup(m->vset->vlist[j].value.pval->vbuf);
-#if PCP_DEBUG
-		if (pmDebug & DBG_TRACE_APPL2) {
+		if (pmDebugOptions.appl2) {
 		    fprintf(stderr, "cndFetch_all(" PRINTF_P_PFX "%p): %s[%s] from %s = \"%s\" (" PRINTF_P_PFX "%p)\n",
 			    x, symName(m->mname), m->inames[j], symName(m->hname), *op_s, *op_s);
 		}
-#endif
 		op_s++;
 	    }
 	    else {
 		pmExtractValue(m->vset->valfmt, &m->vset->vlist[j], m->desc.type, &a, PM_TYPE_DOUBLE);
 		*op = m->conv * a.d;
-#if PCP_DEBUG
-		if (pmDebug & DBG_TRACE_APPL2) {
+		if (pmDebugOptions.appl2) {
 		    fprintf(stderr, "cndFetch_all(" PRINTF_P_PFX "%p): %s[%s] from %s = %g",
 			    x, symName(m->mname), m->inames[j], symName(m->hname), *op);
 		    if (m->conv != 1) fprintf(stderr, " (unconv = %g)", a.d);
 		    fputc('\n', stderr);
 		}
-#endif
 		op++;
 	    }
 	}
@@ -488,25 +474,21 @@ cndFetch_n(Expr *x)
 			if (*op_s != NULL)
 			    free(*op_s);
 			*op_s = strdup(m->vset->vlist[k].value.pval->vbuf);
-#if PCP_DEBUG
-			if (pmDebug & DBG_TRACE_APPL2) {
+			if (pmDebugOptions.appl2) {
 			    fprintf(stderr, "cndFetch_n(" PRINTF_P_PFX "%p): %s[%s] from %s = \"%s\" (" PRINTF_P_PFX "%p)\n",
 				    x, symName(m->mname), m->inames[j], symName(m->hname), *op_s, *op_s);
 			}
-#endif
 			op_s++;
 		    }
 		    else {
 			pmExtractValue(m->vset->valfmt, &m->vset->vlist[k], m->desc.type, &a, PM_TYPE_DOUBLE);
 			*op = m->conv * a.d;
-#if PCP_DEBUG
-			if (pmDebug & DBG_TRACE_APPL2) {
+			if (pmDebugOptions.appl2) {
 			    fprintf(stderr, "cndFetch_n(" PRINTF_P_PFX "%p): %s[%s] from %s = %g",
 				    x, symName(m->mname), m->inames[j], symName(m->hname), *op);
 			    if (m->conv != 1) fprintf(stderr, " (unconv = %g)", a.d);
 			    fputc('\n', stderr);
 			}
-#endif
 			op++;
 		    }
 		    break;

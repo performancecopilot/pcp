@@ -16,7 +16,7 @@ main(int argc, char **argv)
     int		c;
     int		sts;
     int		errflag = 0;
-    static char	*usage = "[-D N]";
+    static char	*usage = "[-D debugspec]";
     pmAtomValue	atom;
     char	aggr[] = {
 	    '\00', '\01', '\02', '\03', '\04', '\05', '\06', '\07',
@@ -31,18 +31,14 @@ main(int argc, char **argv)
     while ((c = getopt(argc, argv, "D:")) != EOF) {
 	switch (c) {
 
-#ifdef PCP_DEBUG
-	case 'D':	/* debug flag */
-	    sts = __pmParseDebug(optarg);
+	case 'D':	/* debug options */
+	    sts = pmSetDebug(optarg);
 	    if (sts < 0) {
-		fprintf(stderr, "%s: unrecognized debug flag specification (%s)\n",
+		fprintf(stderr, "%s: unrecognized debug options specification (%s)\n",
 		    pmProgname, optarg);
 		errflag++;
 	    }
-	    else
-		pmDebug |= sts;
 	    break;
-#endif
 
 	case '?':
 	default:

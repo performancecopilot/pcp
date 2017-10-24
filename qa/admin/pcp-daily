@@ -329,7 +329,14 @@ in
 	#		e.g. Fedora 15
 	#  --oldpackage	sometimes we do a downgrade on the QA machines
 	#
-	if sudo rpm -U --force `ls pcp-$buildversion/build/rpm/*.rpm | sed -e '/src.rpm/d'` >$tmp.out 2>&1
+	here=`pwd`
+	if [ ! -d pcp-$buildversion/build/rpm ]
+	then
+	    echo "Error: pcp-$buildversion/build/rpm: no dir: rpm failed!" | tee -a $HOME/daily.log
+	    exit 1
+	fi
+	cd pcp-$buildversion/build/rpm
+	if sudo rpm -U --force `./cherrypick` >$tmp.out 2>&1
 	then
 	    cat $tmp.out >>$HOME/daily.log
 	    echo "Info: rpm install" | tee -a $HOME/daily.log
@@ -344,6 +351,7 @@ in
 		echo "Warning: rpm packages already installed" | tee -a $HOME/daily.log
 	    fi
 	fi
+	cd $here
 	notfound=false
 	;;
 esac
@@ -851,6 +859,7 @@ do
 	    vm35)
 		# this is PCP 2.7.8, need to run as user pcpqa and just
 		# the sanity group and no -p or -m or -i flags
+		# and no -e processing
 		[ X"$what" = Xall ] && check_what='-g sanity'
 		user=pcpqa
 		qa_dir=/var/lib/pcp/testsuite/qa
@@ -868,6 +877,11 @@ do
 		then
 		    echo "Info: skip -i for vm35"
 		    iflag=false
+		fi
+		if [ -n "$efile" ]
+		then
+		    echo "Info: no -e $efile for vm35"
+		    efile=''
 		fi
 		;;
 	esac

@@ -22,23 +22,12 @@
 ** See the GNU General Public License for more details.
 */
 
-#include <sys/types.h>
-#include <sys/param.h>
-#include <sys/stat.h>
-#include <signal.h>
-#include <time.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <errno.h>
-#include <fcntl.h>
-#include <termio.h>
-#include <unistd.h>
-#include <stdarg.h>
+#include <pcp/pmapi.h>
+#include <pcp/impl.h>
 #include <curses.h>
+#include <regex.h>
 #include <pwd.h>
 #include <grp.h>
-#include <regex.h>
 
 #include "atop.h"
 #include "photoproc.h"
@@ -430,7 +419,7 @@ sysprt_CPUSYS(void *p, void *q, int badness, int *color)
 	if (perc > 1.0)
 		*color = -1;
 
-        snprintf(buf, sizeof buf-1, "sys  %6.0f%%", perc);
+        pmsprintf(buf, sizeof buf-1, "sys  %6.0f%%", perc);
         return buf;
 }
 
@@ -448,7 +437,7 @@ sysprt_CPUUSER(void *p, void *q, int badness, int *color)
 	if (perc > 1.0)
 		*color = -1;
 
-        snprintf(buf, sizeof buf-1, "user %6.0f%%", perc);
+        pmsprintf(buf, sizeof buf-1, "user %6.0f%%", perc);
         return buf;
 }
 
@@ -466,7 +455,7 @@ sysprt_CPUIRQ(void *p, void *q, int badness, int *color)
 	if (perc > 1.0)
 		*color = -1;
 
-        snprintf(buf, sizeof buf-1, "irq  %6.0f%%", perc);
+        pmsprintf(buf, sizeof buf-1, "irq  %6.0f%%", perc);
         return buf;
 }
 
@@ -478,7 +467,7 @@ sysprt_CPUIDLE(void *p, void *q, int badness, int *color)
         struct sstat *sstat=p;
         extraparam *as=q;
         static char buf[16];
-        snprintf(buf, sizeof buf-1, "idle %6.0f%%", 
+        pmsprintf(buf, sizeof buf-1, "idle %6.0f%%", 
                 (sstat->cpu.all.itime * 100.0) / as->percputot);
         return buf;
 }
@@ -491,7 +480,7 @@ sysprt_CPUWAIT(void *p, void *q, int badness, int *color)
         struct sstat *sstat=p;
         extraparam *as=q;
         static char buf[16];
-        snprintf(buf, sizeof buf-1, "wait %6.0f%%", 
+        pmsprintf(buf, sizeof buf-1, "wait %6.0f%%", 
                 (sstat->cpu.all.wtime * 100.0) / as->percputot);
         return buf;
 }
@@ -510,7 +499,7 @@ sysprt_CPUISYS(void *p, void *q, int badness, int *color)
 	if (perc > 1.0)
 		*color = -1;
 
-        snprintf(buf, sizeof buf-1, "sys  %6.0f%%", perc);
+        pmsprintf(buf, sizeof buf-1, "sys  %6.0f%%", perc);
         return buf;
 }
 
@@ -529,7 +518,7 @@ sysprt_CPUIUSER(void *p, void *q, int badness, int *color)
 	if (perc > 1.0)
 		*color = -1;
 
-        snprintf(buf, sizeof buf-1, "user %6.0f%%", perc);
+        pmsprintf(buf, sizeof buf-1, "user %6.0f%%", perc);
         return buf;
 }
 
@@ -548,7 +537,7 @@ sysprt_CPUIIRQ(void *p, void *q, int badness, int *color)
 	if (perc > 1.0)
 		*color = -1;
 
-        snprintf(buf, sizeof buf-1, "irq  %6.0f%%", perc);
+        pmsprintf(buf, sizeof buf-1, "irq  %6.0f%%", perc);
         return buf;
 }
 
@@ -560,7 +549,7 @@ sysprt_CPUIIDLE(void *p, void *q, int badness, int *color)
         struct sstat *sstat=p;
         extraparam *as=q;
         static char buf[16];
-        snprintf(buf, sizeof buf-1, "idle %6.0f%%", 
+        pmsprintf(buf, sizeof buf-1, "idle %6.0f%%", 
                 (sstat->cpu.cpu[as->index].itime * 100.0) / as->percputot);
         return buf;
 }
@@ -573,7 +562,7 @@ sysprt_CPUIWAIT(void *p, void *q, int badness, int *color)
         struct sstat *sstat=p;
         extraparam *as=q;
         static char buf[16];
-        snprintf(buf, sizeof buf-1, "cpu%03d w%3.0f%%", 
+        pmsprintf(buf, sizeof buf-1, "cpu%03d w%3.0f%%", 
 		 sstat->cpu.cpu[as->index].cpunr,
                 (sstat->cpu.cpu[as->index].wtime * 100.0) / as->percputot);
         return buf;
@@ -636,12 +625,12 @@ static void dofmt_cpuscale(char *buf, size_t buflen, count_t maxfreq, count_t cn
 		int     perc = maxfreq ? 100 * curfreq / maxfreq : 0;
 
 		strcpy(buf, "avgscal ");
-		snprintf(buf+7, buflen-8, "%4d%%", perc);
+		pmsprintf(buf+7, buflen-8, "%4d%%", perc);
         } 
         else if (maxfreq)   // max frequency is known so % can be calculated
         {
 		strcpy(buf, "curscal ");
-		snprintf(buf+7, buflen-8, "%4lld%%", 100 * cnt / maxfreq);
+		pmsprintf(buf+7, buflen-8, "%4lld%%", 100 * cnt / maxfreq);
         }
 	else	// nothing is known: print ?????
 	{
@@ -735,7 +724,7 @@ sysprt_CPUSTEAL(void *p, void *q, int badness, int *color)
 	if (perc > 1.0)
 		*color = -1;
 
-        snprintf(buf, sizeof buf-1, "steal %5.0f%%", perc);
+        pmsprintf(buf, sizeof buf-1, "steal %5.0f%%", perc);
         return buf;
 }
 
@@ -753,7 +742,7 @@ sysprt_CPUISTEAL(void *p, void *q, int badness, int *color)
 	if (perc > 1.0)
 		*color = -1;
 
-        snprintf(buf, sizeof buf-1, "steal %5.0f%%", perc);
+        pmsprintf(buf, sizeof buf-1, "steal %5.0f%%", perc);
         return buf;
 }
 
@@ -770,7 +759,7 @@ sysprt_CPUGUEST(void *p, void *q, int badness, int *color)
 	if (perc > 1.0)
 		*color = -1;
 
-        snprintf(buf, sizeof buf-1, "guest %5.0f%%", perc);
+        pmsprintf(buf, sizeof buf-1, "guest %5.0f%%", perc);
         return buf;
 }
 
@@ -787,7 +776,7 @@ sysprt_CPUIGUEST(void *p, void *q, int badness, int *color)
 	if (perc > 1.0)
 		*color = -1;
 
-        snprintf(buf, sizeof buf-1, "guest %5.0f%%", perc);
+        pmsprintf(buf, sizeof buf-1, "guest %5.0f%%", perc);
         return buf;
 }
 
@@ -801,11 +790,11 @@ sysprt_CPLAVG1(void *p, void *notused, int badness, int *color)
 
         if (sstat->cpu.lavg1  > 999.0)
         {
-                snprintf(buf+5, sizeof buf-5, "%7.0f", sstat->cpu.lavg1);
+                pmsprintf(buf+5, sizeof buf-5, "%7.0f", sstat->cpu.lavg1);
         }
         else
         {
-                snprintf(buf+5, sizeof buf-5, "%7.2f", sstat->cpu.lavg1);
+                pmsprintf(buf+5, sizeof buf-5, "%7.2f", sstat->cpu.lavg1);
         }
         return buf;
 }
@@ -820,11 +809,11 @@ sysprt_CPLAVG5(void *p, void *notused, int badness, int *color)
 
         if (sstat->cpu.lavg5  > 999.0)
         {
-                snprintf(buf+5, sizeof buf-5, "%7.0f", sstat->cpu.lavg5);
+                pmsprintf(buf+5, sizeof buf-5, "%7.0f", sstat->cpu.lavg5);
         }
         else
         {
-                snprintf(buf+5, sizeof buf-5, "%7.2f", sstat->cpu.lavg5);
+                pmsprintf(buf+5, sizeof buf-5, "%7.2f", sstat->cpu.lavg5);
         }
         return buf;
 }
@@ -842,11 +831,11 @@ sysprt_CPLAVG15(void *p, void *notused, int badness, int *color)
 
         if (sstat->cpu.lavg15  > 999.0)
         {
-                snprintf(buf+6, sizeof buf-6, "%6.0f", sstat->cpu.lavg15);
+                pmsprintf(buf+6, sizeof buf-6, "%6.0f", sstat->cpu.lavg15);
         }
         else
         {
-                snprintf(buf+6, sizeof buf-6, "%6.2f", sstat->cpu.lavg15);
+                pmsprintf(buf+6, sizeof buf-6, "%6.2f", sstat->cpu.lavg15);
         }
         return buf;
 }
@@ -1203,7 +1192,7 @@ sysprt_CONTNAME(void *p, void *q, int badness, int *color)
 
 	*color = -1;
 
-        snprintf(buf+5, sizeof buf-5, "%7lu", sstat->cfs.cont[as->index].ctid);
+        pmsprintf(buf+5, sizeof buf-5, "%7lu", sstat->cfs.cont[as->index].ctid);
         return buf;
 }
 
@@ -1242,10 +1231,10 @@ sysprt_CONTCPU(void *p, void *q, int badness, int *color)
 	if (sstat->cfs.cont[as->index].uptime)
 	{
 		perc = used * 100.0 / sstat->cfs.cont[as->index].uptime;
-        	snprintf(buf, sizeof buf, "cpubusy %3.0f%%", perc);
+        	pmsprintf(buf, sizeof buf, "cpubusy %3.0f%%", perc);
 	}
 	else
-        	snprintf(buf, sizeof buf, "cpubusy   ?%%");
+        	pmsprintf(buf, sizeof buf, "cpubusy   ?%%");
 
         return buf;
 }
@@ -1283,7 +1272,7 @@ sysprt_DSKNAME(void *p, void *q, int badness, int *color)
 	else
 		pn = as->perdsk[as->index].name;
 
-        snprintf(buf, sizeof buf, "%12.12s", pn);
+        pmsprintf(buf, sizeof buf, "%12.12s", pn);
         return buf;
 }
 
@@ -1300,9 +1289,9 @@ sysprt_DSKBUSY(void *p, void *q, int badness, int *color)
 	perc = as->perdsk[as->index].io_ms * 100.0 / as->mstot;
 
 	if (perc >= 0.0 && perc < 1000000.0)
-		snprintf(buf+5, sizeof buf-5, "%6.0lf%%", perc);
+		pmsprintf(buf+5, sizeof buf-5, "%6.0lf%%", perc);
 	else
-		snprintf(buf+5, sizeof buf-5, "%6.0lf%%",  999999.0);
+		pmsprintf(buf+5, sizeof buf-5, "%6.0lf%%",  999999.0);
 
         return buf;
 }
@@ -1376,7 +1365,7 @@ sysprt_DSKMBPERSECWR(void *p, void *q, int badness, int *color)
         static char	buf[16]="MBw/s ";
 	struct perdsk 	*dp = &(as->perdsk[as->index]);
 
-        snprintf(buf+6, sizeof buf-6, "%6.1lf",
+        pmsprintf(buf+6, sizeof buf-6, "%6.1lf",
                                dp->nwsect / 2.0 / 1024 / as->nsecs);
         return buf;
 }
@@ -1390,7 +1379,7 @@ sysprt_DSKMBPERSECRD(void *p, void *q, int badness, int *color)
         static char	buf[16]="MBr/s ";
 	struct perdsk 	*dp = &(as->perdsk[as->index]);
 
-        snprintf(buf+6, sizeof buf-6, "%6.1lf",
+        pmsprintf(buf+6, sizeof buf-6, "%6.1lf",
                                dp->nrsect / 2.0 / 1024 / as->nsecs);
         return buf;
 }
@@ -1404,7 +1393,7 @@ sysprt_DSKAVQUEUE(void *p, void *q, int badness, int *color)
         static char	buf[16]="avq  ";
 	struct perdsk 	*dp = &(as->perdsk[as->index]);
 
-	snprintf(buf+4, sizeof buf-4, "%8.2f", dp->io_ms ?
+	pmsprintf(buf+4, sizeof buf-4, "%8.2f", dp->io_ms ?
                                (double)dp->avque / dp->io_ms : 0.0);
         return buf;
 }
@@ -1423,15 +1412,15 @@ sysprt_DSKAVIO(void *p, void *q, int badness, int *color)
 
         if (tim > 100.0)
         {
-                snprintf(buf+5, sizeof buf-5, "%4.0lf ms", tim);
+                pmsprintf(buf+5, sizeof buf-5, "%4.0lf ms", tim);
         } 
         else if (tim > 10.0) 
         {
-                snprintf(buf+5, sizeof buf-5, "%4.1lf ms", tim);
+                pmsprintf(buf+5, sizeof buf-5, "%4.1lf ms", tim);
         }
         else 
         {
-                snprintf(buf+5, sizeof buf-5, "%4.2lf ms", tim);
+                pmsprintf(buf+5, sizeof buf-5, "%4.2lf ms", tim);
         }
 
         return buf;
@@ -1716,13 +1705,13 @@ sysprt_NETNAME(void *p, void *q, int badness, int *color)
                                		(sstat->intf.intf[as->index].speed *10);
 		}
 
-	        snprintf(buf, sizeof buf, "%-7.7s %3lld%%", 
+	        pmsprintf(buf, sizeof buf, "%-7.7s %3lld%%", 
        		          sstat->intf.intf[as->index].name, busy);
 
         } 
         else 
         {
-                snprintf(buf, sizeof buf, "%-7.7s ----",
+                pmsprintf(buf, sizeof buf, "%-7.7s ----",
                                sstat->intf.intf[as->index].name);
                 strcpy(buf+8, "----");
         } 
@@ -1796,7 +1785,7 @@ char *makenetspeed(count_t val, int nsecs)
                 c = 'T';
         }
 
-        snprintf(buf+3, sizeof buf-3, "%4lld %cbps", val, c);
+        pmsprintf(buf+3, sizeof buf-3, "%4lld %cbps", val, c);
 
         return buf;
 }
@@ -1813,12 +1802,12 @@ sysprt_NETSPEEDMAX(void *p, void *q, int badness, int *color)
 
 	if (speed < 10000)
 	{
-        	snprintf(buf, sizeof buf, "sp %4lld Mbps", speed);
+        	pmsprintf(buf, sizeof buf, "sp %4lld Mbps", speed);
 	}
 	else
 	{
 		speed /= 1000;
-        	snprintf(buf, sizeof buf, "sp %4lld Gbps", speed);
+        	pmsprintf(buf, sizeof buf, "sp %4lld Gbps", speed);
 	}
 
         return buf;
@@ -1951,7 +1940,7 @@ sysprt_NFMSERVER(void *p, void *q, int badness, int *color)
 	else
 		strcpy(mntdev, "?");
 
-	snprintf(buf+4, sizeof buf-4, "%8.8s", mntdev);
+	pmsprintf(buf+4, sizeof buf-4, "%8.8s", mntdev);
         return buf;
 }
 
@@ -1977,7 +1966,7 @@ sysprt_NFMPATH(void *p, void *q, int badness, int *color)
         if (len > 12)
 		ps = ps + len - 12;
 
-	snprintf(buf, sizeof buf, "%12.12s", ps);
+	pmsprintf(buf, sizeof buf, "%12.12s", ps);
         return buf;
 }
 
@@ -2271,7 +2260,7 @@ sysprt_NFSNRBYTES(void *p, void *q, int badness, int *color)
         extraparam	*as=q;
         static char	buf[32]="MBcr/s ";
 
-        snprintf(buf+7, sizeof buf-7, "%5.1lf",
+        pmsprintf(buf+7, sizeof buf-7, "%5.1lf",
 		sstat->nfs.server.nrbytes / 1024.0 / 1024.0 / as->nsecs);
 
         return buf;
@@ -2286,7 +2275,7 @@ sysprt_NFSNWBYTES(void *p, void *q, int badness, int *color)
         extraparam	*as=q;
         static char	buf[32]="MBcw/s ";
 
-        snprintf(buf+7, sizeof buf-7, "%5.1lf",
+        pmsprintf(buf+7, sizeof buf-7, "%5.1lf",
 		sstat->nfs.server.nwbytes / 1024.0 / 1024.0 / as->nsecs);
 
         return buf;

@@ -41,7 +41,7 @@ start_indom(pmInDom indom)
 	numinst = pmGetInDomArchive(indom, &instlist, &namelist);
 	if (numinst < 0) {
 	    if (wflag) {
-		snprintf(mess, sizeof(mess), "Instance domain %s: %s", pmInDomStr(indom), pmErrStr(numinst));
+		pmsprintf(mess, sizeof(mess), "Instance domain %s: %s", pmInDomStr(indom), pmErrStr(numinst));
 		yywarn(mess);
 	    }
 	    return NULL;
@@ -102,7 +102,7 @@ change_inst_by_name(pmInDom indom, char *old, char *new)
 	if (inst_name_eq(ip->old_iname[i], old) > 0) {
 	    if ((new == NULL && ip->inst_flags[i]) ||
 	        (ip->inst_flags[i] & (INST_CHANGE_INAME|INST_DELETE))) {
-		snprintf(mess, sizeof(mess), "Duplicate or conflicting clauses for instance [%d] \"%s\" of indom %s",
+		pmsprintf(mess, sizeof(mess), "Duplicate or conflicting clauses for instance [%d] \"%s\" of indom %s",
 		    ip->old_inst[i], ip->old_iname[i], pmInDomStr(indom));
 		return -1;
 	    }
@@ -111,7 +111,7 @@ change_inst_by_name(pmInDom indom, char *old, char *new)
     }
     if (i == ip->numinst) {
 	if (wflag) {
-	    snprintf(mess, sizeof(mess), "Unknown instance \"%s\" in iname clause for indom %s", old, pmInDomStr(indom));
+	    pmsprintf(mess, sizeof(mess), "Unknown instance \"%s\" in iname clause for indom %s", old, pmInDomStr(indom));
 	    yywarn(mess);
 	}
 	return 0;
@@ -126,7 +126,7 @@ change_inst_by_name(pmInDom indom, char *old, char *new)
     if (strcmp(ip->old_iname[i], new) == 0) {
 	/* no change ... */
 	if (wflag) {
-	    snprintf(mess, sizeof(mess), "Instance domain %s: Instance: \"%s\": No change", pmInDomStr(indom), ip->old_iname[i]);
+	    pmsprintf(mess, sizeof(mess), "Instance domain %s: Instance: \"%s\": No change", pmInDomStr(indom), ip->old_iname[i]);
 	    yywarn(mess);
 	}
     }
@@ -154,7 +154,7 @@ change_inst_by_inst(pmInDom indom, int old, int new)
 	if (ip->old_inst[i] == old) {
 	    if ((new == PM_IN_NULL && ip->inst_flags[i]) ||
 	        (ip->inst_flags[i] & (INST_CHANGE_INST|INST_DELETE))) {
-		snprintf(mess, sizeof(mess), "Duplicate or conflicting clauses for instance [%d] \"%s\" of indom %s",
+		pmsprintf(mess, sizeof(mess), "Duplicate or conflicting clauses for instance [%d] \"%s\" of indom %s",
 		    ip->old_inst[i], ip->old_iname[i], pmInDomStr(indom));
 		return -1;
 	    }
@@ -163,7 +163,7 @@ change_inst_by_inst(pmInDom indom, int old, int new)
     }
     if (i == ip->numinst) {
 	if (wflag) {
-	    snprintf(mess, sizeof(mess), "Unknown instance %d in inst clause for indom %s", old, pmInDomStr(indom));
+	    pmsprintf(mess, sizeof(mess), "Unknown instance %d in inst clause for indom %s", old, pmInDomStr(indom));
 	    yywarn(mess);
 	}
 	return 0;
@@ -178,7 +178,7 @@ change_inst_by_inst(pmInDom indom, int old, int new)
     if (ip->old_inst[i] == new) {
 	/* no change ... */
 	if (wflag) {
-	    snprintf(mess, sizeof(mess), "Instance domain %s: Instance: %d: No change", pmInDomStr(indom), ip->old_inst[i]);
+	    pmsprintf(mess, sizeof(mess), "Instance domain %s: Instance: %d: No change", pmInDomStr(indom), ip->old_inst[i]);
 	    yywarn(mess);
 	}
     }
@@ -346,11 +346,9 @@ do_indom(void)
 	    if (sts != PMLOGPUTINDOM_DUP)
 		_pmDupInDomData(numinst, &instlist, &inamelist);
 
-#if PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL0) {
+	    if (pmDebugOptions.appl0) {
 		fprintf(stderr, "Metadata: write pre-duplicate InDom %s @ offset=%ld\n", pmInDomStr(indom), out_offset);
 	    }
-#endif
 	    out_offset = __pmFtell(outarch.logctl.l_mdfp);
 	}
 	if (ip->new_indom != ip->old_indom)
@@ -363,10 +361,8 @@ do_indom(void)
 	    if (j == numinst)
 		continue;
 	    if (ip->inst_flags[i] & INST_DELETE) {
-#if PCP_DEBUG
-		if (pmDebug & DBG_TRACE_APPL1)
+		if (pmDebugOptions.appl1)
 		    fprintf(stderr, "Delete: instance %s (%d) for indom %s\n", ip->old_iname[i], ip->old_inst[i], pmInDomStr(ip->old_indom));
-#endif
 		j++;
 		while (j < numinst) {
 		    instlist[j-1] = instlist[j];
@@ -383,8 +379,7 @@ do_indom(void)
 		    inamelist[j] = ip->new_iname[i];
 		    need_alloc = 1;
 		}
-#if PCP_DEBUG
-		if ((ip->inst_flags[i] & (INST_CHANGE_INST | INST_CHANGE_INAME)) && (pmDebug & DBG_TRACE_APPL1)) {
+		if ((ip->inst_flags[i] & (INST_CHANGE_INST | INST_CHANGE_INAME)) && pmDebugOptions.appl1) {
 		    if ((ip->inst_flags[i] & (INST_CHANGE_INST | INST_CHANGE_INAME)) == (INST_CHANGE_INST | INST_CHANGE_INAME))
 			fprintf(stderr, "Rewrite: instance %s (%d) -> %s (%d) for indom %s\n", ip->old_iname[i], ip->old_inst[i], ip->new_iname[i], ip->new_inst[i], pmInDomStr(ip->old_indom));
 		    else if ((ip->inst_flags[i] & (INST_CHANGE_INST | INST_CHANGE_INAME)) == INST_CHANGE_INST)
@@ -392,7 +387,6 @@ do_indom(void)
 		    else
 			fprintf(stderr, "Rewrite: instance %s (%d) -> %s (%d) for indom %s\n", ip->old_iname[i], ip->old_inst[i], ip->new_iname[i], ip->old_inst[i], pmInDomStr(ip->old_indom));
 		}
-#endif
 	    }
 	}
     }
@@ -444,9 +438,7 @@ do_indom(void)
 	free(inamelist);
 	free(instlist);
     }
-#if PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL0) {
+    if (pmDebugOptions.appl0) {
 	fprintf(stderr, "Metadata: write InDom %s @ offset=%ld\n", pmInDomStr(indom), out_offset);
     }
-#endif
 }

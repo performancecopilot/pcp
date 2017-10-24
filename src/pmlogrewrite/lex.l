@@ -203,17 +203,13 @@ dupstr(char *s, int strip_quotes)
 			    if (mystate == LEX_GLOBAL) BEGIN(glob);
 			    if (mystate == LEX_INDOM) BEGIN(indom);
 			    if (mystate == LEX_METRIC) BEGIN(metric);
-#if PCP_DEBUG
-    if ((pmDebug & (DBG_TRACE_APPL0 | DBG_TRACE_APPL1)) == (DBG_TRACE_APPL0 | DBG_TRACE_APPL1))
+    if (pmDebugOptions.appl0 && pmDebugOptions.appl1)
 	fprintf(stderr, "lex: [%d] { begin state=%d\n", lineno, mystate);
-#endif
 			    return TOK_LBRACE;
 			}
 "}"			{
-#if PCP_DEBUG
-    if ((pmDebug & (DBG_TRACE_APPL0 | DBG_TRACE_APPL1)) == (DBG_TRACE_APPL0 | DBG_TRACE_APPL1))
+    if (pmDebugOptions.appl0 && pmDebugOptions.appl1)
 	fprintf(stderr, "lex: [%d] } end state=%d\n", lineno, mystate);
-#endif
 			    mystate = LEX_NONE;
 			    BEGIN(INITIAL); return TOK_RBRACE;
 			}
@@ -224,7 +220,7 @@ dupstr(char *s, int strip_quotes)
 
 \n			{ lineno++; }
 .			{ 
-			    snprintf(mess, sizeof(mess), "Unexpected character '%c'",
+			    pmsprintf(mess, sizeof(mess), "Unexpected character '%c'",
 				yytext[0]);
 			    yyerror(mess);
 			}

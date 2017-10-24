@@ -1,0 +1,71 @@
+QA output created by 1105
+
+full PMNS traversal  ...
+qa.hide.ok
+qa.ok
+[TMP.derive:2] Error: pmRegisterDerived(qa.hide.syntax, ...) syntax error
+ pmcd.pmlogger.port +
+                    ^
+Arithmetic expression expected to follow PLUS
+
+traverse PMNS below qa  ...
+qa.hide.ok
+qa.ok
+[TMP.derive:2] Error: pmRegisterDerived(qa.hide.syntax, ...) syntax error
+ pmcd.pmlogger.port +
+                    ^
+Arithmetic expression expected to follow PLUS
+
+exact matches in PMNS  ...
+qa.hide.ok
+qa.ok
+[TMP.derive:2] Error: pmRegisterDerived(qa.hide.syntax, ...) syntax error
+ pmcd.pmlogger.port +
+                    ^
+Arithmetic expression expected to follow PLUS
+Error: qa.hide.syntax: Unknown metric name
+Error: qa.hide.semantic: Unknown metric name
+
+mismatches in PMNS  ...
+[TMP.derive:2] Error: pmRegisterDerived(qa.hide.syntax, ...) syntax error
+ pmcd.pmlogger.port +
+                    ^
+Arithmetic expression expected to follow PLUS
+Error: not_qa: Unknown metric name
+Error: qa.not_hide: Unknown metric name
+Error: qa.hide.not_ok: Unknown metric name
+
+full PMNS traversal -d ...
+qa.hide.ok
+qa.ok
+[TMP.derive:2] Error: pmRegisterDerived(qa.hide.syntax, ...) syntax error
+ pmcd.pmlogger.port +
+                    ^
+Arithmetic expression expected to follow PLUS
+
+traverse PMNS below qa -d ...
+qa.hide.ok
+qa.ok
+[TMP.derive:2] Error: pmRegisterDerived(qa.hide.syntax, ...) syntax error
+ pmcd.pmlogger.port +
+                    ^
+Arithmetic expression expected to follow PLUS
+
+exact matches in PMNS -d ...
+qa.hide.ok
+qa.ok
+[TMP.derive:2] Error: pmRegisterDerived(qa.hide.syntax, ...) syntax error
+ pmcd.pmlogger.port +
+                    ^
+Arithmetic expression expected to follow PLUS
+Error: qa.hide.syntax: Unknown metric name
+Error: qa.hide.semantic: Unknown metric name
+
+mismatches in PMNS -d ...
+[TMP.derive:2] Error: pmRegisterDerived(qa.hide.syntax, ...) syntax error
+ pmcd.pmlogger.port +
+                    ^
+Arithmetic expression expected to follow PLUS
+Error: not_qa: Unknown metric name
+Error: qa.not_hide: Unknown metric name
+Error: qa.hide.not_ok: Unknown metric name

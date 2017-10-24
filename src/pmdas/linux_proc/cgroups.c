@@ -105,10 +105,10 @@ refresh_cgroup_devices(void)
 	(void)pmdaCacheLookupName(diskindom, namebuf, &dev->inst, NULL);
 	(void)pmdaCacheLookup(diskindom, dev->inst, &dev->name, NULL);
 
-	snprintf(buf, sizeof(buf), "%u:%u", major, minor);
+	pmsprintf(buf, sizeof(buf), "%u:%u", major, minor);
 	pmdaCacheStore(devtindom, PMDA_CACHE_ADD, buf, (void *)dev);
 
-	if (pmDebug & DBG_TRACE_APPL0)
+	if (pmDebugOptions.appl0)
 	    fprintf(stderr, "refresh_devices: \"%s\" \"%d:%d\" inst=%d\n",
 			dev->name, dev->major, dev->minor, dev->inst);
     }
@@ -148,7 +148,7 @@ refresh_cgroup_subsys(void)
 	ssp->enabled = enabled;
 	pmdaCacheStore(subsys, PMDA_CACHE_ADD, name, (void *)ssp);
 
-	if (pmDebug & DBG_TRACE_APPL0)
+	if (pmDebugOptions.appl0)
 	    fprintf(stderr, "refresh_subsys: \"%s\" h=%u nc=%u on=%u\n",
 			name, hierarchy, num_cgroups, enabled);
     }
@@ -196,7 +196,7 @@ refresh_cgroup_filesys(void)
 		continue;
 	    fs->path = strdup(path);
 	    fs->options = strdup(options);
-	    if (pmDebug & DBG_TRACE_APPL0)
+	    if (pmDebugOptions.appl0)
 		fprintf(stderr, "refresh_filesys: add \"%s\" \"%s\"\n",
 			fs->path, device);
 	    pmdaCacheStore(mounts, PMDA_CACHE_ADD, path, fs);
@@ -273,7 +273,7 @@ cgroup_mounts_subsys(const char *system, char *buffer, int length)
 	    continue;
 	if (strcmp(system, cgroup_find_subsys(subsys, fs)) != 0)
 	    continue;
-	snprintf(buffer, length, "%s%s/", proc_statspath, name);
+	pmsprintf(buffer, length, "%s%s/", proc_statspath, name);
 	buffer[length-1] = '\0';
 	return strlen(buffer);
     }
@@ -322,10 +322,10 @@ cgroup_scan(const char *mnt, const char *path, cgroup_refresh_t refresh,
     char cgpath[MAXPATHLEN] = { 0 };
 
     if (path[0] == '\0') {
-	snprintf(cgpath, sizeof(cgpath), "%s%s", proc_statspath, mnt);
+	pmsprintf(cgpath, sizeof(cgpath), "%s%s", proc_statspath, mnt);
 	length = strlen(cgpath);
     } else {
-	snprintf(cgpath, sizeof(cgpath), "%s%s/%s", proc_statspath, mnt, path);
+	pmsprintf(cgpath, sizeof(cgpath), "%s%s/%s", proc_statspath, mnt, path);
 	length = strlen(proc_statspath) + mntlen;
     }
 
@@ -341,10 +341,10 @@ cgroup_scan(const char *mnt, const char *path, cgroup_refresh_t refresh,
 	if (dp->d_name[0] == '.')
 	    continue;
 	if (path[0] == '\0')
-	    snprintf(cgpath, sizeof(cgpath), "%s%s/%s",
+	    pmsprintf(cgpath, sizeof(cgpath), "%s%s/%s",
 			proc_statspath, mnt, dp->d_name);
 	else
-	    snprintf(cgpath, sizeof(cgpath), "%s%s/%s/%s",
+	    pmsprintf(cgpath, sizeof(cgpath), "%s%s/%s/%s",
 			proc_statspath, mnt, path, dp->d_name);
 	if (stat(cgpath, &sbuf) < 0)
 	    continue;
@@ -458,9 +458,9 @@ refresh_cpuset(const char *path, const char *name)
 	if (!cpuset)
 	    return;
     }
-    snprintf(file, sizeof(file), "%s/cpuset.cpus", path);
+    pmsprintf(file, sizeof(file), "%s/cpuset.cpus", path);
     cpuset->cpus = read_oneline_string(file);
-    snprintf(file, sizeof(file), "%s/cpuset.mems", path);
+    pmsprintf(file, sizeof(file), "%s/cpuset.mems", path);
     cpuset->mems = read_oneline_string(file);
     pmdaCacheStore(indom, PMDA_CACHE_ADD, name, cpuset);
 }
@@ -533,7 +533,7 @@ read_percpuacct_usage(const char *file, const char *name)
 	p = endp;
 	while (p && isspace((int)*p))
 	    p++;
-	snprintf(inst, sizeof(inst), "%s::cpu%d", name, cpu);
+	pmsprintf(inst, sizeof(inst), "%s::cpu%d", name, cpu);
 	sts = pmdaCacheLookupName(indom, inst, NULL, (void **)&percpuacct);
 	if (sts == PMDA_CACHE_ACTIVE)
 	    continue;
@@ -565,11 +565,11 @@ refresh_cpuacct(const char *path, const char *name)
 	if (!cpuacct)
 	    return;
     }
-    snprintf(file, sizeof(file), "%s/cpuacct.stat", path);
+    pmsprintf(file, sizeof(file), "%s/cpuacct.stat", path);
     read_cpuacct_stats(file, cpuacct);
-    snprintf(file, sizeof(file), "%s/cpuacct.usage", path);
+    pmsprintf(file, sizeof(file), "%s/cpuacct.usage", path);
     read_oneline_ull(file, &cpuacct->usage);
-    snprintf(file, sizeof(file), "%s/cpuacct.usage_percpu", path);
+    pmsprintf(file, sizeof(file), "%s/cpuacct.usage_percpu", path);
     read_percpuacct_usage(file, name);
     pmdaCacheStore(indom, PMDA_CACHE_ADD, name, cpuacct);
 }
@@ -633,13 +633,13 @@ refresh_cpusched(const char *path, const char *name)
 	if (!cpusched)
 	    return;
     }
-    snprintf(file, sizeof(file), "%s/cpu.stat", path);
+    pmsprintf(file, sizeof(file), "%s/cpu.stat", path);
     read_cpu_stats(file, &cpusched->stat);
-    snprintf(file, sizeof(file), "%s/cpu.shares", path);
+    pmsprintf(file, sizeof(file), "%s/cpu.shares", path);
     read_oneline_ull(file, &cpusched->shares);
-    snprintf(file, sizeof(file), "%s/cpu.cfs_period_us", path);
+    pmsprintf(file, sizeof(file), "%s/cpu.cfs_period_us", path);
     read_oneline_ull(file, &cpusched->cfs_period);
-    snprintf(file, sizeof(file), "%s/cpu.cfs_quota_us", path);
+    pmsprintf(file, sizeof(file), "%s/cpu.cfs_quota_us", path);
     read_oneline_ll(file, &cpusched->cfs_quota);
 
     pmdaCacheStore(indom, PMDA_CACHE_ADD, name, cpusched);
@@ -736,13 +736,13 @@ refresh_memory(const char *path, const char *name)
 	if (!memory)
 	    return;
     }
-    snprintf(file, sizeof(file), "%s/memory.stat", path);
+    pmsprintf(file, sizeof(file), "%s/memory.stat", path);
     read_memory_stats(file, memory);
-    snprintf(file, sizeof(file), "%s/memory.limit_in_bytes", path);
+    pmsprintf(file, sizeof(file), "%s/memory.limit_in_bytes", path);
     read_oneline_ull(file, &memory->limit);
-    snprintf(file, sizeof(file), "%s/memory.usage_in_bytes", path);
+    pmsprintf(file, sizeof(file), "%s/memory.usage_in_bytes", path);
     read_oneline_ull(file, &memory->usage);
-    snprintf(file, sizeof(file), "%s/memory.failcnt", path);
+    pmsprintf(file, sizeof(file), "%s/memory.failcnt", path);
     read_oneline_ull(file, &memory->failcnt);
 
     pmdaCacheStore(indom, PMDA_CACHE_ADD, name, memory);
@@ -770,7 +770,7 @@ refresh_netcls(const char *path, const char *name)
 	if (!netcls)
 	    return;
     }
-    snprintf(file, sizeof(file), "%s/net_cls.classid", path);
+    pmsprintf(file, sizeof(file), "%s/net_cls.classid", path);
     read_oneline_ull(file, &netcls->classid);
     pmdaCacheStore(indom, PMDA_CACHE_ADD, name, netcls);
 }
@@ -814,7 +814,7 @@ get_blkdev(pmInDom devtindom, unsigned int major, unsigned int minor)
     device_t	*dev;
     int		sts;
 
-    snprintf(buf, sizeof(buf), "%u:%u", major, minor);
+    pmsprintf(buf, sizeof(buf), "%u:%u", major, minor);
     sts = pmdaCacheLookupName(devtindom, buf, NULL, (void **)&dev);
     if (sts == PMDA_CACHE_ACTIVE)
 	return dev->name;
@@ -828,21 +828,21 @@ get_perdevblkio(pmInDom indom, const char *name, const char *disk,
     cgroup_perdevblkio_t *cdevp;
     int		sts;
 
-    snprintf(inst, size, "%s::%s", name, disk);
+    pmsprintf(inst, size, "%s::%s", name, disk);
     sts = pmdaCacheLookupName(indom, inst, NULL, (void **)&cdevp);
     if (sts == PMDA_CACHE_ACTIVE) {
-	if (pmDebug & DBG_TRACE_APPL0)
+	if (pmDebugOptions.appl0)
 	    fprintf(stderr, "get_perdevblkio active %s\n", inst);
 	return cdevp;
     }
     if (sts != PMDA_CACHE_INACTIVE) {
-	if (pmDebug & DBG_TRACE_APPL0)
+	if (pmDebugOptions.appl0)
 	    fprintf(stderr, "get_perdevblkio new %s\n", inst);
 	cdevp = (cgroup_perdevblkio_t *)malloc(sizeof(cgroup_perdevblkio_t));
 	if (!cdevp)
 	    return NULL;
     } else {
-	if (pmDebug & DBG_TRACE_APPL0)
+	if (pmDebugOptions.appl0)
 	    fprintf(stderr, "get_perdevblkio inactive %s\n", inst);
     }
     memset(cdevp, 0, sizeof(cgroup_perdevblkio_t));
@@ -981,34 +981,34 @@ refresh_blkio(const char *path, const char *name)
 	if (!blkio)
 	    return;
     }
-    snprintf(file, sizeof(file), "%s/blkio.io_merged", path);
+    pmsprintf(file, sizeof(file), "%s/blkio.io_merged", path);
     read_blkio_devices_stats(file, name,
 		CG_BLKIO_IOMERGED_TOTAL, &blkio->total.io_merged);
-    snprintf(file, sizeof(file), "%s/blkio.io_queued", path);
+    pmsprintf(file, sizeof(file), "%s/blkio.io_queued", path);
     read_blkio_devices_stats(file, name,
 		CG_BLKIO_IOQUEUED_TOTAL, &blkio->total.io_queued);
-    snprintf(file, sizeof(file), "%s/blkio.io_service_bytes", path);
+    pmsprintf(file, sizeof(file), "%s/blkio.io_service_bytes", path);
     read_blkio_devices_stats(file, name,
 		CG_BLKIO_IOSERVICEBYTES_TOTAL, &blkio->total.io_service_bytes);
-    snprintf(file, sizeof(file), "%s/blkio.io_serviced", path);
+    pmsprintf(file, sizeof(file), "%s/blkio.io_serviced", path);
     read_blkio_devices_stats(file, name,
 		CG_BLKIO_IOSERVICED_TOTAL, &blkio->total.io_serviced);
-    snprintf(file, sizeof(file), "%s/blkio.io_service_time", path);
+    pmsprintf(file, sizeof(file), "%s/blkio.io_service_time", path);
     read_blkio_devices_stats(file, name,
 		CG_BLKIO_IOSERVICETIME_TOTAL, &blkio->total.io_service_time);
-    snprintf(file, sizeof(file), "%s/blkio.io_wait_time", path);
+    pmsprintf(file, sizeof(file), "%s/blkio.io_wait_time", path);
     read_blkio_devices_stats(file, name,
 		CG_BLKIO_IOWAITTIME_TOTAL, &blkio->total.io_wait_time);
-    snprintf(file, sizeof(file), "%s/blkio.sectors", path);
+    pmsprintf(file, sizeof(file), "%s/blkio.sectors", path);
     read_blkio_devices_value(file, name,
 		CG_BLKIO_SECTORS, &blkio->total.sectors);
-    snprintf(file, sizeof(file), "%s/blkio.time", path);
+    pmsprintf(file, sizeof(file), "%s/blkio.time", path);
     read_blkio_devices_value(file, name,
 		CG_BLKIO_TIME, &blkio->total.time);
-    snprintf(file, sizeof(file), "%s/blkio.throttle.io_service_bytes", path);
+    pmsprintf(file, sizeof(file), "%s/blkio.throttle.io_service_bytes", path);
     read_blkio_devices_stats(file, name,
 		CG_BLKIO_THROTTLEIOSERVICEBYTES_TOTAL, &blkio->total.throttle_io_service_bytes);
-    snprintf(file, sizeof(file), "%s/blkio.throttle.io_serviced", path);
+    pmsprintf(file, sizeof(file), "%s/blkio.throttle.io_serviced", path);
     read_blkio_devices_stats(file, name,
 		CG_BLKIO_THROTTLEIOSERVICED_TOTAL, &blkio->total.throttle_io_serviced);
 

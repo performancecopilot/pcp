@@ -66,7 +66,7 @@ get_pid_from_symlink(const char *linkfile, pid_t *pidp)
 	}
 	else {
 	    for (p = pbuf; *p; p++) {
-		if (isdigit(*p))
+		if (isdigit((int)*p))
 		    break;
 	    }
 	    if (*p) {
@@ -130,10 +130,8 @@ cleanup(void)
 static void
 sigexit_handler(int sig)
 {
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_DESPERATE)
+    if (pmDebugOptions.desperate)
 	fprintf(stderr, "pmlogger: Signalled (signal=%d), exiting\n", sig);
-#endif
     cleanup();
     _exit(sig);
 }
@@ -142,7 +140,7 @@ static void
 sigterm_handler(int sig)
 {
     /* exit as soon as possible, handler is deferred for log cleanup */
-    exit_code = sig;
+    sig_code = sig;
 }
 
 static void
@@ -156,10 +154,8 @@ sighup_handler(int sig)
 static void
 sigcore_handler(int sig)
 {
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_DESPERATE)
+    if (pmDebugOptions.desperate)
 	fprintf(stderr, "pmlogger: Signalled (signal=%d), exiting (core dumped)\n", sig);
-#endif
     __pmSetSignalHandler(SIGABRT, SIG_DFL);	/* Don't come back here */
     cleanup();
     _exit(sig);
@@ -363,22 +359,18 @@ GetPorts(char *file)
 	    if (ctlix == CFD_INET) {
 		fd = __pmCreateSocket();
 		if (fd < 0) {
-#ifdef PCP_DEBUG
-		    if (pmDebug & DBG_TRACE_CONTEXT)
+		    if (pmDebugOptions.context)
 			fprintf(stderr, "GetPorts: inet socket creation failed: %s\n",
 			    netstrerror());
-#endif
 		    continue;
 		}
 	    }
 	    else {
 		fd = __pmCreateIPv6Socket();
 		if (fd < 0) {
-#ifdef PCP_DEBUG
-		    if (pmDebug & DBG_TRACE_CONTEXT)
+		    if (pmDebugOptions.context)
 			fprintf(stderr, "GetPorts: ipv6 socket creation failed: %s\n",
 			    netstrerror());
-#endif
 		    continue;
 		}
 	    }
@@ -558,7 +550,7 @@ init_ports(void)
     for (n = mypid, extlen = 1; n ; extlen++)
 	n /= 10;
     /* baselen is directory + trailing / */
-    snprintf(path, sizeof(path), "%s%cpmlogger", pmGetConfig("PCP_TMP_DIR"), sep);
+    pmsprintf(path, sizeof(path), "%s%cpmlogger", pmGetConfig("PCP_TMP_DIR"), sep);
     baselen = strlen(path) + 1;
     /* likewise for PCP_DIR if it is set */
     n = baselen + extlen + 1;
@@ -580,7 +572,7 @@ init_ports(void)
     }
 
     /* remove any existing port file with my name (it's old) */
-    snprintf(ctlfile + (baselen-1), n, "%c%" FMT_PID, sep, mypid);
+    pmsprintf(ctlfile + (baselen-1), n, "%c%" FMT_PID, sep, mypid);
     unlink(ctlfile);
 
     /* get control port and write port map file */
@@ -591,13 +583,13 @@ init_ports(void)
      * clients to connect specifically to it.
      */
     if (primary) {
-	baselen = snprintf(path, sizeof(path), "%s%cpmlogger",
+	baselen = pmsprintf(path, sizeof(path), "%s%cpmlogger",
 				pmGetConfig("PCP_TMP_DIR"), sep);
 	n = baselen + 9;	/* separator + "primary" + null */
 	linkfile = (char *)malloc(n);
 	if (linkfile == NULL)
 	    __pmNoMem("primary logger link file name", n, PM_FATAL_ERR);
-	snprintf(linkfile, n, "%s%cprimary", path, sep);
+	pmsprintf(linkfile, n, "%s%cprimary", path, sep);
 
 #ifndef IS_MINGW
 	/*
@@ -611,12 +603,10 @@ init_ports(void)
 		fprintf(stderr, "%s: warning: failed to remove old-style hardlink to stale control file '%s': %s\n",
 			pmProgname, linkfile, osstrerror());
 	    }
-#ifdef PCP_DEBUG
-	    else if (pmDebug & DBG_TRACE_CONTEXT) {
+	    else if (pmDebugOptions.context) {
 		fprintf(stderr, "%s: info: removed old-style hardlink to stale control file '%s' (mode: %0o)\n",
 			pmProgname, linkfile, sbuf.st_mode);
 	    }
-#endif
 	}
 #endif
 
@@ -626,35 +616,29 @@ init_ports(void)
 	pid = -1;
 	if (get_pid_from_symlink(linkfile, &pid) == 0) {
 	    /* primary symlink is OK */
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_CONTEXT) {
+	    if (pmDebugOptions.context) {
 		fprintf(stderr, "%s: info: found primary symlink -> pid %" FMT_PID "\n", pmProgname, pid);
 	    }
-#endif
 	    if (!__pmProcessExists(pid)) {
 	    	if (unlink(linkfile) != 0) {
 		    fprintf(stderr, "%s: warning: failed to remove '%s' symlink to stale control file for pid %" FMT_PID ": %s\n",
 			    pmProgname, linkfile, pid, osstrerror());
 		}
-#ifdef PCP_DEBUG
-		else if (pmDebug & DBG_TRACE_CONTEXT) {
+		else if (pmDebugOptions.context) {
 		    fprintf(stderr, "%s: info: removed '%s' symlink to stale control file for pid %" FMT_PID "\n",
 			    pmProgname, linkfile, pid);
 		}
-#endif
 		/* remove the stale control file too */
-		snprintf(pidfile, sizeof(pidfile), "%s%cpmlogger%c%d",
+		pmsprintf(pidfile, sizeof(pidfile), "%s%cpmlogger%c%d",
 				pmGetConfig("PCP_TMP_DIR"), sep, sep, pid);
 	    	if (unlink(pidfile) != 0) {
 		    fprintf(stderr, "%s: warning: failed to remove stale control file '%s': %s\n",
 			    pmProgname, pidfile, osstrerror());
 		}
-#ifdef PCP_DEBUG
-		else if (pmDebug & DBG_TRACE_CONTEXT) {
+		else if (pmDebugOptions.context) {
 		    fprintf(stderr, "%s: info: removed stale control file '%s': %s\n",
 			    pmProgname, pidfile, osstrerror());
 		}
-#endif
 	    }
 	}
 
@@ -676,11 +660,9 @@ init_ports(void)
 	    fprintf(stderr, "%s: error creating primary logger symbolic link %s: %s\n",
 		    pmProgname, linkfile, osstrerror());
 	}
-#ifdef PCP_DEBUG
-	else if (pmDebug & DBG_TRACE_CONTEXT) {
+	else if (pmDebugOptions.context) {
 	    fprintf(stderr, "%s: info: created control file symlink %s -> %s\n", pmProgname, linkfile, ctlfile);
 	}
-#endif
 
 #if defined(HAVE_STRUCT_SOCKADDR_UN)
 	/*
@@ -698,12 +680,10 @@ init_ports(void)
 		fprintf(stderr, "%s: warning: failed to remove old-style hardlink to stale socket '%s': %s\n",
 			pmProgname, linkSocketPath, osstrerror());
 	    }
-#ifdef PCP_DEBUG
-	    else if (pmDebug & DBG_TRACE_CONTEXT) {
+	    else if (pmDebugOptions.context) {
 		fprintf(stderr, "%s: info: removed old-style hardlink to stale socket '%s': %s\n",
 			pmProgname, linkSocketPath, osstrerror());
 	    }
-#endif
 	}
 
 	/* Remove the symlink if it points to a stale primary pmlogger socket */
@@ -711,30 +691,26 @@ init_ports(void)
 	    pidfile[pidlen] = '\0';
 	    for (i=0; i < pidlen; i++) {
 		/* first digit is the start of the PID */
-		if (isdigit(pidfile[i])) {
+		if (isdigit((int)pidfile[i])) {
 		    pid_t pid = atoi(pidfile + i);
 		    if (!__pmProcessExists(pid)) {
 			if (unlink(linkSocketPath) != 0) {
 			    fprintf(stderr, "%s: warning: failed to remove '%s' symlink to stale socket '%s': %s\n",
 				    pmProgname, linkSocketPath, pidfile, osstrerror());
 			}
-#ifdef PCP_DEBUG
-			else if (pmDebug & DBG_TRACE_CONTEXT) {
+			else if (pmDebugOptions.context) {
 			    fprintf(stderr, "%s: info: removed '%s' symlink to stale socket '%s'\n",
 				    pmProgname, linkSocketPath, pidfile);
 			}
-#endif
 			/* remove the stale socket too */
 			if (unlink(pidfile) != 0) {
 			    fprintf(stderr, "%s: warning: failed to remove stale pmlogger socket '%s': %s\n",
 				    pmProgname, pidfile, osstrerror());
 			}
-#ifdef PCP_DEBUG
-			else if (pmDebug & DBG_TRACE_CONTEXT) {
+			else if (pmDebugOptions.context) {
 			    fprintf(stderr, "%s: info: removed stale pmlogger socket '%s'\n",
 				    pmProgname, pidfile);
 			}
-#endif
 		    }
 		    break;
 		}
@@ -760,12 +736,10 @@ init_ports(void)
 	    fprintf(stderr, "%s: error creating primary logger socket symbolic link %s: %s\n",
 		    pmProgname, linkSocketPath, osstrerror());
 	}
-#ifdef PCP_DEBUG
-	else if (pmDebug & DBG_TRACE_CONTEXT) {
+	else if (pmDebugOptions.context) {
 	    fprintf(stderr, "%s: info: created primary pmlogger socket symlink %s -> %s\n",
 		    pmProgname, linkSocketPath, socketPath);
 	}
-#endif
 
 	if ((linkSocketPath = strdup(linkSocketPath)) == NULL) {
 	    fprintf(stderr, "init_ports: strdup out of memory\n");
@@ -844,10 +818,8 @@ control_req(int ctlfd)
     }
     __pmSetSocketIPC(fd);
     if (clientfd != -1) {
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_CONTEXT)
+	if (pmDebugOptions.context)
 	    fprintf(stderr, "control_req: send EADDRINUSE on fd=%d (client already on fd=%d)\n", fd, clientfd);
-#endif
 	sts = __pmSendError(fd, FROM_ANON, -EADDRINUSE);
 	if (sts < 0)
 	    fprintf(stderr, "error sending connection NACK to client: %s\n",
@@ -869,7 +841,7 @@ control_req(int ctlfd)
     hostName = __pmGetNameInfo(addr);
     if (hostName == NULL || strlen(hostName) > MAXHOSTNAMELEN-1) {
 	abuf = __pmSockAddrToString(addr);
-        snprintf(pmlc_host, sizeof(pmlc_host), "%s", abuf);
+        pmsprintf(pmlc_host, sizeof(pmlc_host), "%s", abuf);
 	free(abuf);
     }
     else {
@@ -881,15 +853,13 @@ control_req(int ctlfd)
 
     sts = __pmAccAddClient(addr, &denyops);
     if (sts < 0) {
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_CONTEXT) {
+	if (pmDebugOptions.context) {
 	    abuf = __pmSockAddrToString(addr);
 	    fprintf(stderr, "client addr: %s\n\n", abuf);
 	    free(abuf);
 	    __pmAccDumpHosts(stderr);
 	    fprintf(stderr, "\ncontrol_req: connection rejected on fd=%d from %s: %s\n", fd, pmlc_host, pmErrStr(sts));
 	}
-#endif
 	sts = __pmSendError(fd, FROM_ANON, sts);
 	if (sts < 0)
 	    fprintf(stderr, "error sending connection access NACK to client: %s\n",
@@ -954,10 +924,8 @@ control_req(int ctlfd)
     }
     clientfd = fd;
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_CONTEXT)
+    if (pmDebugOptions.context)
 	fprintf(stderr, "control_req: connection accepted on fd=%d from %s\n", fd, pmlc_host);
-#endif
 
     return 1;
 }

@@ -54,7 +54,6 @@ __pmIsPdubufLock(void *lock)
 }
 #endif
 
-#ifdef PCP_DEBUG
 static void
 pdubufdump1(const void *nodep, const VISIT which, const int depth)
 {
@@ -82,7 +81,6 @@ pdubufdump(void)
     }
     PM_UNLOCK(pdubuf_lock);
 }
-#endif
 
 /*
  * A tsearch(3) comparison function for the buffer-segments used here.
@@ -109,10 +107,8 @@ __pmFindPDUBuf(int need)
 
     if (unlikely(need < 0)) {
 	/* special diagnostic case ... dump buffer state */
-#ifdef PCP_DEBUG
 	fprintf(stderr, "__pmFindPDUBuf(DEBUG)\n");
 	pdubufdump();
-#endif
 	return NULL;
     }
 
@@ -135,13 +131,11 @@ __pmFindPDUBuf(int need)
     }
     PM_UNLOCK(pdubuf_lock);
 
-#ifdef PCP_DEBUG
-    if (unlikely(pmDebug & DBG_TRACE_PDUBUF)) {
+    if (unlikely(pmDebugOptions.pdubuf)) {
 	fprintf(stderr, "__pmFindPDUBuf(%d) -> " PRINTF_P_PFX "%p\n",
 		need, pcp->bc_buf);
 	pdubufdump();
     }
-#endif
 
     return (__pmPDU *)pcp->bc_buf;
 }
@@ -175,21 +169,16 @@ __pmPinPDUBuf(void *handle)
 	pcp->bc_pincnt++;
     } else {
 	PM_UNLOCK(pdubuf_lock);
-	__pmNotifyErr(LOG_WARNING, "__pmPinPDUBuf: 0x%lx not in pool!",
-			(unsigned long)handle);
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_PDUBUF)
+	__pmNotifyErr(LOG_WARNING, "__pmPinPDUBuf: " PRINTF_P_PFX "%p not in pool!", handle);
+	if (pmDebugOptions.pdubuf)
 	    pdubufdump();
-#endif
 	return;
     }
 
-#ifdef PCP_DEBUG
-    if (unlikely(pmDebug & DBG_TRACE_PDUBUF))
+    if (unlikely(pmDebugOptions.pdubuf))
 	fprintf(stderr, "__pmPinPDUBuf(" PRINTF_P_PFX "%p) -> pdubuf="
 			PRINTF_P_PFX "%p, pincnt=%d\n", handle,
 		pcp->bc_buf, pcp->bc_pincnt);
-#endif
 
     PM_UNLOCK(pdubuf_lock);
 }
@@ -221,22 +210,18 @@ __pmUnpinPDUBuf(void *handle)
 	pcp = *(bufctl_t **)bcp;
     } else {
 	PM_UNLOCK(pdubuf_lock);
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_PDUBUF) {
+	if (pmDebugOptions.pdubuf) {
 	    fprintf(stderr, "__pmUnpinPDUBuf(" PRINTF_P_PFX "%p) -> fails\n",
 		    handle);
 	    pdubufdump();
 	}
-#endif
 	return 0;
     }
 
-#ifdef PCP_DEBUG
-    if (unlikely(pmDebug & DBG_TRACE_PDUBUF))
+    if (unlikely(pmDebugOptions.pdubuf))
 	fprintf(stderr, "__pmUnpinPDUBuf(" PRINTF_P_PFX "%p) -> pdubuf="
 			PRINTF_P_PFX "%p, pincnt=%d\n", handle,
 		pcp->bc_buf, pcp->bc_pincnt - 1);
-#endif
 
     assert((&pcp->bc_buf[0] <= (char*)handle) &&
 	   ((char*)handle < &pcp->bc_buf[pcp->bc_size]));
