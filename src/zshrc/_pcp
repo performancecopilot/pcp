@@ -1,4 +1,4 @@
-#compdef pcp pcp2elasticsearch pcp2graphite pcp2influxdb pcp2json pcp2xlsx pcp2xml pcp2zabbix pmafm pmchart pmclient pmclient_fg=pmclient pmdbg pmdiff pmdumplog pmdumptext pmerr pmfind pmie pmie2col pminfo pmiostat pmlogcheck pmlogger pmloglabel pmlogsummary pmprobe pmrep pmstat pmstore pmval
+#compdef pcp pcp2elasticsearch pcp2graphite pcp2influxdb pcp2json pcp2xlsx pcp2xml pcp2zabbix pmafm pmchart pmclient pmclient_fg=pmclient pmdbg pmdiff pmdumplog pmdumptext pmerr pmfind pmie pmie2col pminfo pmiostat pmlogcheck pmlogextract pmlogger pmloglabel pmlogsummary pmprobe pmrep pmstat pmstore pmval
 #
 # PCP <http://pcp.io> completions for zsh <http://zsh.sf.net>.
 #
@@ -450,6 +450,23 @@ _pcp () {
       "(-Z --timezone -z --hostzone $exargs)"{-Z+,--timezone}'[set reporting timezone]:timezone:_time_zone' \
       "(-z --hostzone -Z --timezone $exargs)"{-z,--hostzone}'[use metrics source timezone]' \
       '1:archive:->archives' \
+      && return 0
+  ;;
+  pmlogextract)
+    exargs="-? --help"
+    _arguments -A "-*" -C -S -s \
+      '(- *)'{-\?,--help}'[display help message]' \
+      "(-c --config $exargs)"{-c+,--config}'[specify config file]:file:_files' \
+      "(-d --desperate $exargs)"{-d,--desperate}'[save output after fatal error]' \
+      "(-f --first $exargs)"{-f,--first}'[use timezone from the first (not last) archive]' \
+      "(-S --start $exargs)"{-S+,--start}'[set start of time window]:timespec:' \
+      "(-s --samples $exargs)"{-s+,--samples}'[specify number of log records to write]:samples:' \
+      "(-T --finish $exargs)"{-T+,--finish}'[set end of time window]:timespec:' \
+      "(-v $exargs)"-v+'[switch log volumes after this many samples]' \
+      "(-w $exargs)"-w'[ignore day/month/year]' \
+      "(-Z --timezone -z --hostzone $exargs)"{-Z+,--timezone}'[set reporting timezone]:timezone:_time_zone' \
+      "(-z --hostzone -Z --timezone $exargs)"{-z,--hostzone}'[use metrics source timezone]' \
+      '*:archive:->archives' \
       && return 0
   ;;
   pmlogger)
