@@ -639,6 +639,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":11", PM_FAULT_ALLOC);
 	    if (nsets > 0 &&
 		(labelsets = (pmLabelSet *)calloc(nsets, sizeof(pmLabelSet))) == NULL) {
 		sts = -oserror();
+		free(tbuf);
 		goto end;
 	    }
 
@@ -654,6 +655,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":11", PM_FAULT_ALLOC);
 
 		if ((labelsets[i].json = (char *)malloc(jsonlen+1)) == NULL) {
 		    sts = -oserror();
+		    free(tbuf);
 		    goto end;
 		}
 
@@ -669,6 +671,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":11", PM_FAULT_ALLOC);
 		if (nlabels > 0 && 
 		    (labelsets[i].labels = (pmLabel *)calloc(nlabels, sizeof(pmLabel))) == NULL) {
 		    sts = -oserror();
+		    free(tbuf);
 		    goto end;
 		}
 
@@ -679,6 +682,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":11", PM_FAULT_ALLOC);
 		    k += sizeof(pmLabel);
 		}
 	    }
+	    free(tbuf);
 
 	    if ((sts = addlabel(lcp, type, ident, nsets, labelsets, &stamp)) < 0)
 		goto end;
