@@ -1,3 +1,10 @@
+pcp (3.12.2) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+  * Default to building with Qt5 (closes: #875093)
+
+ -- Nathan Scott <nathans@debian.org>  Wed, 18 Oct 2017 10:59:12 +1000
+
 pcp (3.12.1) unstable; urgency=low
 
   * New release (full details in CHANGELOG).

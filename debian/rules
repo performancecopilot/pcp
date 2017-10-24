@@ -125,7 +125,7 @@ pkgpcp_webapi = $(zip) NO_CHOWN=true DIST_ROOT=`pwd`/$(dirpcp_webapi);
 pkgpcp_python2 = $(zip) DIST_ROOT=`pwd`/$(dirpcp_python2);
 pkgpcp_python3 = $(zip) DIST_ROOT=`pwd`/$(dirpcp_python3);
 
-configure_tools = export DEBUG=-DNDEBUG;
+configure_tools = export DEBUG=-DNDEBUG QT_SELECT=5;
 # Note: configure options come from $(configure_paths) here, _plus_
 #       any passed in from the environment via $(configure_opts)
 #       ... Makepkgs uses the latter mechanism to refine the configure
