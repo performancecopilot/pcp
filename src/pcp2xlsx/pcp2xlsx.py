@@ -97,6 +97,8 @@ class PCP2XLSX(object):
         self.sheet = None
         self.row = -1
         self.ws = None
+        self.int_fmt = None
+        self.float_fmt = None
 
         # Performance metrics store
         # key - metric name
@@ -393,6 +395,12 @@ class PCP2XLSX(object):
                     col += 1
                     self.ws.write_blank(self.row, col, None, fmt)
             self.row += 1
+            # Set number formats
+            self.int_fmt = self.sheet.add_format()
+            self.int_fmt.set_num_format("0")
+            self.float_fmt = self.sheet.add_format()
+            float_fmt = "0" if not self.precision else "0." + "0" * self.precision
+            self.float_fmt.set_num_format(float_fmt)
 
         # Avoid crossing the C/Python boundary more than once per metric
         res = {}
@@ -421,8 +429,10 @@ class PCP2XLSX(object):
                         self.ws.write_blank(self.row, col, None)
                     elif isinstance(value, str):
                         self.ws.write_string(self.row, col, value)
+                    elif isinstance(value, float):
+                        self.ws.write_number(self.row, col, value, self.float_fmt)
                     else:
-                        self.ws.write_number(self.row, col, value)
+                        self.ws.write_number(self.row, col, value, self.int_fmt)
                 else:
                     self.ws.write_blank(self.row, col, None)
 
