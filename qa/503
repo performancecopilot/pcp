@@ -68,11 +68,11 @@ _cmp()
 	fi
     done
     $ok || return
-    pmdumplog -z -a $1 \
+    pmdumplog -z -dilmst $1 \
     | tee -a $seq.full \
     | sed -e '/^\[[0-9][0-9]* bytes]/d' >$tmp.in
 
-    pmdumplog -z -a $2 \
+    pmdumplog -z -dilmst $2 \
     | tee -a $seq.full \
     | sed -e '/^\[[0-9][0-9]* bytes]/d' >$tmp.out
     diff -u $tmp.in $tmp.out | _filter

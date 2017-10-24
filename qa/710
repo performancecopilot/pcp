@@ -27,7 +27,7 @@ filter_dump()
 $python $here/src/check_import.py $tmp.pcplog >$tmp.out 2>&1
 if [ $? -eq 0 ]
 then
-    pmdumplog -a $tmp.pcplog 2>&1 | filter_dump
+    pmdumplog -dilmst $tmp.pcplog 2>&1 | filter_dump
 else
     cat $tmp.out
     echo "check_import python script gave non-zero result"

@@ -100,7 +100,7 @@ logger_pid=$pid
 _wait_for_pmlogger $logger_pid $tmp.log
 
 echo "=== old log ===" | tee $seq.full
-pmdumplog -a $tmp.arch | tee -a $seq.full | _filter_dumplog
+pmdumplog -dilmst $tmp.arch | tee -a $seq.full | _filter_dumplog
 
 echo | tee -a $seq.full
 echo "=== pmnewlog ==" | tee -a $seq.full
@@ -118,4 +118,4 @@ ps $PCP_PS_ALL_FLAGS | $PCP_AWK_PROG '$2 == '$logger_pid' { print }'
 echo | tee -a $seq.full
 echo "=== check what's in the new log ===" | tee -a $seq.full
 sleep 1
-pmdumplog -a $tmp.newarch | tee -a $seq.full | _filter_dumplog
+pmdumplog -dilmst $tmp.newarch | tee -a $seq.full | _filter_dumplog

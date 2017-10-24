@@ -369,8 +369,6 @@ License: GPLv2+ and LGPLv2.1+
 Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) development headers
 URL: http://www.pcp.io
-#Requires: pcp = %{version}-%{release}
-#Requires: pcp-libs = %{version}-%{release}
 
 %description libs-devel
 Performance Co-Pilot (PCP) headers for development.
@@ -699,9 +697,11 @@ Requires: pcp-libs >= %{version}-%{release}
 %if !%{disable_python3}
 Requires: python3-pcp = %{version}-%{release}
 Requires: python3-elasticsearch
+BuildRequires: python3-elasticsearch
 %else
 Requires: python-pcp = %{version}-%{release}
 Requires: python-elasticsearch
+BuildRequires: python-elasticsearch
 %endif
 
 %description export-pcp2elasticsearch
@@ -3249,6 +3249,9 @@ cd
 - Work-in-progress, see http://pcp.io/roadmap
 
 * Wed Oct 18 2017 Lukas Berk <lberk@redhat.com> - 3.12.2-1
+- selinux: add pmlogger_exec_t rule from (BZ 1483320)
+- selinux: pmlc accessing tcp port 4330 (BZ 1447585)
+- selinux: pmnewlog.sh using ps to check pid's for pmloggers (BZ 1488116)
 - Update to latest PCP sources.
 
 * Mon Aug 28 2017 Nathan Scott <nathans@redhat.com> - 3.12.1-3

@@ -1323,7 +1323,7 @@ class pmContext(object):
             source = None
 
         if not context:
-            if '/' in source:
+            if '/' == source:
                 context = c_api.PM_CONTEXT_ARCHIVE
                 options.pmSetOptionArchive(source)
                 options.pmSetOptionContext(c_api.PM_CONTEXT_ARCHIVE)
@@ -2373,12 +2373,12 @@ class pmContext(object):
     @staticmethod
     def get_current_tz(options=None, set_dst=-1):
         """ Get current timezone offset string using POSIX convention """
-        if options is None:
-            dst = time.localtime().tm_isdst
-        else:
-            dst = time.localtime(options.pmGetOptionOrigin()).tm_isdst
         if set_dst >= 0:
             dst = 1 if set_dst else 0
+        elif options:
+            dst = time.localtime(options.pmGetOptionOrigin()).tm_isdst
+        else:
+            dst = time.localtime().tm_isdst
         offset = time.altzone if dst else time.timezone
         timezone = time.tzname[dst]
         if offset:

@@ -65,7 +65,7 @@ ganglia2pcp  -s "Feb 1 12:00:00 UTC 2015" -f $outfile -d $outdir -Z UTC $indir
 
 if [ -f $tmp.0 ]
 then
-    pmdumplog -z -a $tmp
+    pmdumplog -z -dilmst $tmp
 fi
 
 # success, all done

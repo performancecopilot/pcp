@@ -1,0 +1,8 @@
+QA output created by 579
+__pmProcessPipe: argc=4 type="r" toss=0 "gzip" "-c" "-d" "/no/such/file.gz"
+gzip: /no/such/file.gz: No such file or directory
+__pmProcessPipeClose: pid=PID wait_pid=PID exit=1
+__pmProcessPipe: argc=4 type="r" toss=0 "gzip" "-c" "-d" "TMP.gz"
+
+gzip: TMP.gz: unexpected end of file
+__pmProcessPipeClose: pid=PID wait_pid=PID exit=1

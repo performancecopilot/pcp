@@ -80,7 +80,7 @@ done
 
 echo
 echo "=== the whole shooting match ==="
-pmdumplog -z -a archives/changeinst \
+pmdumplog -z -dilmst archives/changeinst \
 | sed -e '/\[[0-9][0-9]* bytes\]/d'
 
 # success, all done

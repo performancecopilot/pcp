@@ -47,7 +47,7 @@ do
     if pmlogextract archives/schizo-A $tmp.xtract $tmp.out >$tmp.err 2>&1
     then
 	echo "OK, metrics from final archive ..."
-	pmdumplog -a -z $tmp.out $metric $xtra
+	pmdumplog -dilmst -z $tmp.out $metric $xtra
     else
 	_filter <$tmp.err
 	echo "final pmlogextract failed"

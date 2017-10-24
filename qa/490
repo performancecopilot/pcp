@@ -39,8 +39,8 @@ _cmp()
 	echo "Arrgh ... $2.0 missing" | _filter
 	return
     fi
-    pmdumplog -z -a $1 | tee -a $seq.full | sed -e '/\[[0-9][0-9]* bytes]/d' >$tmp.in
-    pmdumplog -z -a $2 | tee -a $seq.full | sed -e '/\[[0-9][0-9]* bytes]/d' >$tmp.out
+    pmdumplog -z -dilmst $1 | tee -a $seq.full | sed -e '/\[[0-9][0-9]* bytes]/d' >$tmp.in
+    pmdumplog -z -dilmst $2 | tee -a $seq.full | sed -e '/\[[0-9][0-9]* bytes]/d' >$tmp.out
     if [ -n "$oldfilter" ]
     then
 	$oldfilter <$tmp.in >$tmp.tmp

@@ -1,5 +1,5 @@
 QA output created by 1123
 BusyCPU ...
-  Plot Color #-cycle Host * Metric proc.psinfo.utime Instance <hanoi_pid> src/hanoi
+Found between 1 and 10 busy processes
 
 QA test ...

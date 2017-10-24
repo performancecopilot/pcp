@@ -60,7 +60,7 @@ static int	*portlist;
  * The unix domain socket we're willing to listen for clients on,
  * from -s (or env)
  */
-static const char *localSocketPath;
+static char *localSocketPath;
 static int   localSocketFd = -EPROTO;
 static const char *serviceSpec;
 
@@ -253,10 +253,12 @@ __pmServerAddInterface(const char *address)
 void
 __pmServerSetLocalSocket(const char *path)
 {
+    if (localSocketPath != NULL)
+	free(localSocketPath);
     if (path != NULL && *path != '\0')
 	localSocketPath = strdup(path);
     else
-	localSocketPath = __pmPMCDLocalSocketDefault();
+	localSocketPath = strdup(__pmPMCDLocalSocketDefault());
 }
 
 void

@@ -209,10 +209,13 @@ main(int argc, char *argv[])
 	if (gzipped) {
 	    int sts;
 	    __pmExecCtl_t *argp = NULL;
-	    pmsprintf(buf, BUFSIZE, "gzip -c -d %s", infile);
-	    if ((sts = __pmProcessUnpickArgs(&argp, buf)) < 0) {
-		fprintf(stderr, "Error: __pmProcessUnpickArgs: %s failed: %s\n",
-		    buf, pmErrStr(sts));
+	    sts = __pmProcessAddArg(&argp, "gzip");
+	    if (sts == 0) sts = __pmProcessAddArg(&argp, "-c");
+	    if (sts == 0) sts = __pmProcessAddArg(&argp, "-d");
+	    if (sts == 0) sts = __pmProcessAddArg(&argp, infile);
+	    if (sts < 0) {
+		fprintf(stderr, "Error: __pmProcessAddArg: gzip -c -d %s failed: %s\n",
+		    infile, pmErrStr(sts));
 		exit(1);
 	    }
 	    if ((sts = __pmProcessPipe(&argp, "r", PM_EXEC_TOSS_NONE, &fp)) < 0) {

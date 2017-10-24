@@ -53,7 +53,7 @@ class pmConfig(object):
         self.insts = []
 
         # Pass data with pmTraversePMNS
-        self.tmp = []
+        self._tmp = []
 
     def set_config_file(self, default_config):
         """ Set default config file """
@@ -298,7 +298,7 @@ class pmConfig(object):
                     desc.contents.type == pmapi.c_api.PM_TYPE_DOUBLE or
                     desc.contents.type == pmapi.c_api.PM_TYPE_STRING):
                 raise pmapi.pmErr(pmapi.c_api.PM_ERR_TYPE)
-            instances = self.util.instances if not self.tmp[0] else self.tmp
+            instances = self.util.instances if not self._tmp[0] else self._tmp
             if self.util.omit_flat and instances and not inst[1][0]:
                 return
             if instances and inst[1][0]:
@@ -372,9 +372,9 @@ class pmConfig(object):
         for metric in metrics:
             try:
                 l = len(self.pmids)
-                self.tmp = metrics[metric][1]
-                if not 'append' in dir(self.tmp):
-                    self.tmp = [self.tmp]
+                self._tmp = metrics[metric][1]
+                if not 'append' in dir(self._tmp):
+                    self._tmp = [self._tmp]
                 self.util.context.pmTraversePMNS(metric, self.check_metric)
                 if len(self.pmids) == l:
                     # No compatible metrics found

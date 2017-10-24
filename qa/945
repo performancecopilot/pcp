@@ -82,9 +82,9 @@ original=archives/old_xfs
 pmlogrewrite -c $migrate -w $original $tmp.new
 
 echo "=== old ===" >>$seq.full
-pmdumplog -z -a $original >>$seq.full
+pmdumplog -z -dilmst $original >>$seq.full
 echo "=== new ===" >>$seq.full
-pmdumplog -z -a $tmp.new >>$seq.full
+pmdumplog -z -dilmst $tmp.new >>$seq.full
 
 echo "old -> new changes"
 _compare $original $tmp.new
